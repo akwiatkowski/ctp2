@@ -2,6 +2,36 @@
 #pragma once
 #endif
 #ifndef __C3RAND_H__
+#define __C3RAND_H__ 1
+
+#include <objbase.h>
+#include "gs/outcom/IC3Rand.h"
+
+class CivArchive;
+class RandomGenerator;
+
+class C3Rand : public IC3Rand
+{
+	ULONG m_refCount;
+	RandomGenerator *m_rand;
+	BOOL m_ownGenerator;
+
+public:
+	C3Rand(BOOL ownGenerator = FALSE);
+	virtual ~C3Rand();
+
+	STDMETHODIMP QueryInterface(REFIID, void **obj);
+	STDMETHODIMP_(ULONG) AddRef();
+	STDMETHODIMP_(ULONG) Release();
+
+	C3Rand(CivArchive &archive);
+	void Serialize(CivArchive &archive);
+
+	STDMETHODIMP_(sint32) Next(sint32 range);
+};
+
+#endif
+#ifndef __C3RAND_H__
 #define __C3RAND_H__
 
 #include "gs/outcom/IC3Rand.h"
@@ -24,6 +54,7 @@ public:
 	STDMETHODIMP_(ULONG) AddRef();
 	STDMETHODIMP_(ULONG) Release();
 #else
+	virtual uint32 QueryInterface(void *riid, void **obj);
 	virtual uint32 AddRef();
 	virtual uint32 Release();
 #endif

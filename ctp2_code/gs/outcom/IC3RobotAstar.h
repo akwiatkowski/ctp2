@@ -7,7 +7,11 @@
 
 #define k_ASTAR_BIG 7654321.0f
 
-enum ASTAR_ENTRY_TYPE;
+#include "gs/outcom/IMapPointData.h"
+
+enum ASTAR_ENTRY_TYPE {
+	ASTAR_ENTRY_TYPE_NORMAL
+};
 
 typedef BOOL RobotPathEval (
 	BOOL can_enter,
@@ -47,7 +51,8 @@ DECLARE_INTERFACE_(IC3RobotAstar, IUnknown)
 {
 	STDMETHOD_ (BOOL,  FindPath) (
 #else
-class IC3RobotAstar : public ICTP2Unknown {
+#include "os/include/noCOMBase.h"
+class IC3RobotAstar : public IUnknown {
 public:
 	virtual BOOL FindPath(
 #endif

@@ -68,11 +68,9 @@ extern "C" {
 
 #define MAX_STRING 100
 
-#define and &&
-
-#define or ||
-
-#define not !
+// Note: 'and', 'or', 'not' are C++ alternative tokens (&&, ||, !).
+// Clang rejects them as macro names, but recognizes them as operators.
+// Do not #define them — the robot code will still compile.
 
 #define TRUE 1
 #define FALSE 0

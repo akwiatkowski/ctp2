@@ -18,7 +18,7 @@ DEFINE_GUID(CLSID_IC3InstDB,
 #define INTERFACE IC3InstDB
 
 struct MapPointData;
-enum ERR_BUILD_INST;
+#include "gs/outcom/AICause.h"
 
 DECLARE_INTERFACE_(IC3InstDB, IUnknown)
 {

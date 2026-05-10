@@ -19,7 +19,6 @@ typedef sint32 PLAYER_INDEX;
 class Player;
 
 struct MapPointData;
-enum TERRAIN_TYPES;
 typedef sint32 TERRAIN_IMPROVEMENT;
 
 #define CELL_COLOR 1

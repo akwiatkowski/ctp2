@@ -34,9 +34,9 @@
 //
 // - SetResearchGoal now clears research goal if the potential goal
 //   is already researched and returns now values whether the goal was
-//   set, cleared or nothing happened, by Martin Gühmann.
+//   set, cleared or nothing happened, by Martin Gï¿½hmann.
 // - Advances leading to tile improvements can now be set as goals,
-//   by Martin Gühmann.
+//   by Martin Gï¿½hmann.
 // - Moved the autosave file generation to PlayerEvent.cpp, to prevent losing
 //   the advance that just has had its research completed.
 // - #01 Recalculating military support costs after government change
@@ -56,14 +56,14 @@
 // - CultureOnly code added to CanBuildUnit; limits unit construction by
 //   comparing a unit's CultureOnly flag to a player's citystyle
 //   by E April 20th 2005
-// - Removed .NET warnings - May 7th 2005 Martin Gühmann
+// - Removed .NET warnings - May 7th 2005 Martin Gï¿½hmann
 // - Allow loading of savegames with diffrent number of goods than in
-//   the good database. - May 28th 2005 Martin Gühmann
+//   the good database. - May 28th 2005 Martin Gï¿½hmann
 // - Made version constants local, merged with linux branch.
 // - Removed unused void BeginTurnAllCities all cities method and
-//   prepared for city resource calculation redesign. - Aug. 7th 2005 Martin Gühmann
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Added civilisation specific happiness bonus method. (Oct 7th 2005 Martin Gühmann)
+//   prepared for city resource calculation redesign. - Aug. 7th 2005 Martin Gï¿½hmann
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Added civilisation specific happiness bonus method. (Oct 7th 2005 Martin Gï¿½hmann)
 // - NeedsCityGoodCapitol code added to CanBuildUnit; limits unit construction by
 //   comparing a unit's NeedscityGoodAnyCity flag to a player's cities if they have a good.
 //   by E October 20 2005  ---- Not Optimized
@@ -74,7 +74,7 @@
 // - added readiness modifier for building upkeep in CalcTotalBuildingUpkeep by E 2-24-2006
 // - Corrected error in adding settlers to cities that actually killed all units,
 //   not just the settler. by E 4-10-2006
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
 // - NeedsFeatToBuild and CivilisationOnly added to CanBuildUnit by E 5-12-2006
 // - Added Tile Imps that export values to gold and PW by E 5-18-2006
 // - Added GoldperBuildingAnywhere to wondergold by E 5-26-2006
@@ -87,7 +87,7 @@
 // - Added to CalcWonderGold the difficulty settings of GoldPerUnitSupport
 //   and GoldPerCity so they don't have to be tied to the palace
 // - added FranchiseProduction to BeginTurnProduction
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 // - Added EnergySupply method it calculates all energy produced and demanded by
 //   cities and installations and calcluates what percentage is met - Emod 2-27-2007
 // - TODO break energy code to allow for slic access
@@ -101,23 +101,23 @@
 // - Added NeedsAnyPlayerFeatToBuild
 // - Moved CalcSupportGold and CommodityGold to BeginTurn
 // - Added CreateLeader method by E 6.4.2007
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Slaves are distributed to more than just the closest city, the number
-//   of closest cities to them slaves are sent can be set in const.txt. (25-Jan-2008 Martin Gühmann)
+//   of closest cities to them slaves are sent can be set in const.txt. (25-Jan-2008 Martin Gï¿½hmann)
 // - Empty build queues will now also be filled at the end of the turn,
-//   to cover conquered cities and just founded cities. (26-Jan-2008 Martin Gühmann)
-// - Non-settlers cannot settle on cities anymore. (30-Jan-2008 Martin Gühmann)
+//   to cover conquered cities and just founded cities. (26-Jan-2008 Martin Gï¿½hmann)
+// - Non-settlers cannot settle on cities anymore. (30-Jan-2008 Martin Gï¿½hmann)
 // - The player's cargo capacity is now calculated before the AI uses its
-//   units and not afterwards. (3-Feb-2008 Martin Gühmann)
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
-// - The city list now updated even if the visible player is a robot. (23-Feb-2008 Martin Gühmann)
-// - The AI picks a new advance immediately after discovering an advance. (29-Feb-2008 Martin Gühmann)
-// - The AI changes government immediately when a new government has been discovered. (29-Feb-2008 Martin Gühmann)
+//   units and not afterwards. (3-Feb-2008 Martin Gï¿½hmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
+// - The city list now updated even if the visible player is a robot. (23-Feb-2008 Martin Gï¿½hmann)
+// - The AI picks a new advance immediately after discovering an advance. (29-Feb-2008 Martin Gï¿½hmann)
+// - The AI changes government immediately when a new government has been discovered. (29-Feb-2008 Martin Gï¿½hmann)
 // - Slaves aren't send to cities if it causes an population increase over
-//   the city maxium size. (06-Sep-2008 Martin Gühmann)
+//   the city maxium size. (06-Sep-2008 Martin Gï¿½hmann)
 // - Added single-player start and end age affects. (11-Apr-2009 Maq)
 // - When contact is made the players' regard is recomputed, so that you
-//   cannot establish good relationships so easily. (01-Jun-2009 Martin Gühmann)
+//   cannot establish good relationships so easily. (01-Jun-2009 Martin Gï¿½hmann)
 // - Added GovernmentOnly for Units functionality.(21-Jul-2009 EPW)
 // - Added stuff for unit and city gold support. And changed formulas for unit
 //   gold support and city maintenance. (22-Jul-2009 Maq)
@@ -6638,7 +6638,6 @@ void Player::GroupArmy(Army &army)
 
 }
 
-#if 0
 void Player::UngroupArmy(Army &army)
 {
 	sint32 i;
@@ -6661,9 +6660,9 @@ void Player::UngroupArmy(Army &army)
 
 
 
+
 	}
 }
-#endif
 
 void Player::RegisterYourArmyWasMoved(const Army &i_moved, const MapPoint &new_pos)
 {
@@ -9035,7 +9034,7 @@ void Player::EnterNewAge(sint32 age)
 //----------------------------------------------------------------------------
 sint32 Player::SetResearchGoal(enum DATABASE db, sint32 index)
 {
-	//Added by Martin Gühmann
+	//Added by Martin Gï¿½hmann
 	//Clears reseach goal if index is smaller 0:
 	if(index < 0)
 	{

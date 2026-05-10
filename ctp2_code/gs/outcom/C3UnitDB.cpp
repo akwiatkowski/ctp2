@@ -18,7 +18,7 @@
 extern World *g_theWorld;
 extern StringDB *g_theStringDB;
 
-extern BOOL UnitCanCarry(sint32 dest, sint32 src);
+extern BOOL UnitCanCarry(sint32 dest, sint32 src, sint32 government);
 
 #include "ConstDB.h"
 extern ConstDB *g_theConstDB;
@@ -123,20 +123,14 @@ BOOL C3UnitDB::CityCanBuildUnit(sint32 type_unit)
         return FALSE;
     }
 
-    if (o == -1) {
+    if (!isObsolete) {
         if (e == -1) {
             return TRUE;
         } else {
-         	return m_player->HasAdvance(e);
+            return m_player->HasAdvance(e);
         }
-    } else if (isObsolete) {
-        return FALSE;
     } else {
-        if (e == -1) {
-            return TRUE;
-        } else {
-         	return m_player->HasAdvance(e);
-        }
+        return FALSE;
     }
 }
 
@@ -186,7 +180,7 @@ sint32 C3UnitDB::GetHP_WithReadiness(sint32 unit_type)
 
 double C3UnitDB::GetEntrenchmentBonus()
 {
-    return g_theConstDB->GetEntrenchmentBonus();
+    return g_theConstDB->Get(0)->GetEntrenchmentBonus();
 }
 
 BOOL C3UnitDB::IsSettler(sint32 type_unit)
@@ -194,14 +188,14 @@ BOOL C3UnitDB::IsSettler(sint32 type_unit)
     return g_theUnitDB->Get(type_unit)->GetSettle();
 }
 
-extern BOOL UDUnitTypeCanSettle(sint32 unit_type, const MapPoint &pos);
+extern BOOL UDUnitTypeCanSettle(sint32 unit_type, sint32 government, const MapPoint &pos, const bool settleOnCity);
 
 BOOL C3UnitDB::CanSettleHere(sint32 type_unit, MapPointData *dest_pos)
 {
     MapPoint ipos;
 
     ipos.Norm2Iso(*dest_pos);
-    return UDUnitTypeCanSettle(type_unit, ipos);
+    return UDUnitTypeCanSettle(type_unit, 0, ipos, false);
 }
 
 
@@ -216,7 +210,7 @@ BOOL C3UnitDB::CanSettleHere(sint32 type_unit, MapPointData *dest_pos)
 
 BOOL C3UnitDB::CanInvestigateCity(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetInvestigateCity()) ;
+	return (g_theUnitDB->Get(type_unit)->HasInvestigateCity()) ;
 	}
 
 
@@ -232,7 +226,7 @@ BOOL C3UnitDB::CanInvestigateCity(sint32 type_unit)
 
 BOOL C3UnitDB::CanStealTechnology(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetStealTechnology()) ;
+	return (g_theUnitDB->Get(type_unit)->HasStealTechnology()) ;
 	}
 
 
@@ -249,7 +243,7 @@ BOOL C3UnitDB::CanStealTechnology(sint32 type_unit)
 
 BOOL C3UnitDB::CanInciteRevolution(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetInciteRevolution()) ;
+	return (g_theUnitDB->Get(type_unit)->HasInciteRevolution()) ;
 	}
 
 
@@ -266,7 +260,7 @@ BOOL C3UnitDB::CanInciteRevolution(sint32 type_unit)
 
 BOOL C3UnitDB::CanAssasinateRuler(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetAssasinateRuler()) ;
+	return (g_theUnitDB->Get(type_unit)->HasAssasinateRuler()) ;
 	}
 
 
@@ -285,7 +279,7 @@ BOOL C3UnitDB::CanAssasinateRuler(sint32 type_unit)
 
 BOOL C3UnitDB::CanInvestigateReadiness(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetInvestigateReadiness()) ;
+	return (g_theUnitDB->Get(type_unit)->HasInvestigateReadiness()) ;
 	}
 
 
@@ -319,7 +313,7 @@ BOOL C3UnitDB::CanNullifyCityWalls(sint32 type_unit)
 
 BOOL C3UnitDB::CanCreateFranchise(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetCreateFranchise()) ;
+	return (g_theUnitDB->Get(type_unit)->HasCreateFranchise()) ;
 	}
 
 
@@ -337,7 +331,7 @@ BOOL C3UnitDB::CanCreateFranchise(sint32 type_unit)
 
 BOOL C3UnitDB::CanCauseUnhappiness(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetCauseUnhappiness()) ;
+	return (g_theUnitDB->Get(type_unit)->HasCauseUnhappiness()) ;
 	}
 
 
@@ -354,7 +348,7 @@ BOOL C3UnitDB::CanCauseUnhappiness(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductHits(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetConductHits()) ;
+	return (g_theUnitDB->Get(type_unit)->HasConductHits()) ;
 	}
 
 
@@ -368,7 +362,7 @@ BOOL C3UnitDB::CanConductHits(sint32 type_unit)
 
 BOOL C3UnitDB::CanSoothsay(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetCanSoothsay()) ;
+	return (g_theUnitDB->Get(type_unit)->HasCanSoothsay()) ;
 	}
 
 
@@ -400,7 +394,7 @@ BOOL C3UnitDB::CanAdvertise(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductBioTerror(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetBioTerror()) ;
+	return (g_theUnitDB->Get(type_unit)->HasBioTerror()) ;
 	}
 
 
@@ -417,7 +411,7 @@ BOOL C3UnitDB::CanConductBioTerror(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductNanoTerror(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetNanoTerror()) ;
+	return (g_theUnitDB->Get(type_unit)->HasNanoTerror()) ;
 	}
 
 
@@ -434,7 +428,7 @@ BOOL C3UnitDB::CanConductNanoTerror(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductSlaveRaids(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetSlaveRaids()) ;
+	return (g_theUnitDB->Get(type_unit)->HasSlaveRaids()) ;
 	}
 
 
@@ -451,7 +445,7 @@ BOOL C3UnitDB::CanConductSlaveRaids(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductSettlerSlaveRaids(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetSettlerSlaveRaids()) ;
+	return (g_theUnitDB->Get(type_unit)->HasSettlerSlaveRaids()) ;
 	}
 
 
@@ -469,7 +463,7 @@ BOOL C3UnitDB::CanConductSettlerSlaveRaids(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductSlaveUprising(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetSlaveUprising()) ;
+	return (g_theUnitDB->Get(type_unit)->HasSlaveUprising()) ;
 	}
 
 
@@ -488,7 +482,7 @@ BOOL C3UnitDB::CanConductSlaveUprising(sint32 type_unit)
 
 BOOL C3UnitDB::CanConductUndergroundRailway(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetUndergroundRailway()) ;
+	return (g_theUnitDB->Get(type_unit)->HasUndergroundRailway()) ;
 	}
 
 
@@ -639,7 +633,7 @@ sint32 C3UnitDB::EnablingDiscovery(sint32 type_unit)
 
 BOOL C3UnitDB::CanPlantNuke(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetPlantNuke()) ;
+	return (g_theUnitDB->Get(type_unit)->HasPlantNuke()) ;
 	}
 
 
@@ -656,7 +650,7 @@ BOOL C3UnitDB::CanPlantNuke(sint32 type_unit)
 
 BOOL C3UnitDB::CanLaunchNuke(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetNuclearAttack()) ;
+	return (g_theUnitDB->Get(type_unit)->HasNuclearAttack()) ;
 	}
 
 
@@ -673,7 +667,7 @@ BOOL C3UnitDB::CanLaunchNuke(sint32 type_unit)
 
 BOOL C3UnitDB::CanCreateParks(sint32 type_unit)
 	{
-	return (g_theUnitDB->Get(type_unit)->GetCreateParks()) ;
+	return (g_theUnitDB->Get(type_unit)->HasCreateParks()) ;
 	}
 
 
@@ -730,7 +724,7 @@ BOOL C3UnitDB::GetMaxFuel(sint32 type_unit)
 
 BOOL C3UnitDB::CanSpaceLaunch(sint32 type_unit)
 {
-    return g_theUnitDB->Get(type_unit)->GetSpaceLaunch();
+    return g_theUnitDB->Get(type_unit)->HasSpaceLaunch();
 }
 
 BOOL C3UnitDB::CanSpaceLand(sint32 type_unit)
@@ -740,7 +734,7 @@ BOOL C3UnitDB::CanSpaceLand(sint32 type_unit)
 
 BOOL C3UnitDB::CanTransport (sint32 transport_type, sint32 cargo_type)
 {
-    return UnitCanCarry(transport_type, cargo_type);
+    return UnitCanCarry(transport_type, cargo_type, 0);
 }
 
 sint32 C3UnitDB::Unittype_String_To_Int(char * unittype_string)
@@ -782,7 +776,7 @@ char * C3UnitDB::Unittype_Int_To_String(sint32 index)
 
 BOOL C3UnitDB::CanConvertCity( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetConvertCities();
+	return g_theUnitDB->Get(type_unit)->HasConvertCities();
 }
 
 BOOL C3UnitDB::IsNoZoc( sint32 type_unit)
@@ -887,7 +881,7 @@ BOOL C3UnitDB::IsVisibleAttacking( sint32 type_unit)
 
 BOOL C3UnitDB::IsNuclearAttack( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetNuclearAttack();
+	return g_theUnitDB->Get(type_unit)->HasNuclearAttack();
 }
 
 BOOL C3UnitDB::IsStealthy( sint32 type_unit)
@@ -937,7 +931,7 @@ BOOL C3UnitDB::CanBeRustled( sint32 type_unit)
 
 BOOL C3UnitDB::CanInjoin( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetCanInjoin();
+	return g_theUnitDB->Get(type_unit)->HasCanInjoin();
 }
 
 BOOL C3UnitDB::GetMovementTypeAir( sint32 type_unit)
@@ -1033,7 +1027,7 @@ BOOL C3UnitDB::IsUnderwaterAttack( sint32 type_unit)
 
 double C3UnitDB::GetConvertCityChance(sint32 type_unit)
 {
-	UnitRecord::SuccessDeathEffect *data;
+	const UnitRecord::SuccessDeathEffect *data = nullptr;
 	if(g_theUnitDB->Get(type_unit)->GetConvertCities(data))
 		return data->GetChance();
 	else
@@ -1042,7 +1036,7 @@ double C3UnitDB::GetConvertCityChance(sint32 type_unit)
 
 double C3UnitDB::GetConvertCityDeathChance(sint32 type_unit)
 {
-	UnitRecord::SuccessDeathEffect *data;
+	const UnitRecord::SuccessDeathEffect *data = nullptr;
 	if(g_theUnitDB->Get(type_unit)->GetConvertCities(data))
 		return data->GetDeathChance();
 	else
@@ -1061,22 +1055,30 @@ double C3UnitDB::GetActiveDefenseRange( sint32 type_unit)
 
 sint32 C3UnitDB::GetProbOfBombHit( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetProbOfBombHit();
+	sint32 value = 0;
+	g_theUnitDB->Get(type_unit)->GetProbOfBombHit(value);
+	return value;
 }
 
 sint32 C3UnitDB::GetBombRounds( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetBombRounds();
+	sint32 value = 0;
+	g_theUnitDB->Get(type_unit)->GetBombRounds(value);
+	return value;
 }
 
 double C3UnitDB::GetDefendAgainstSpies( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetDefendAgainstSpies();
+	double value = 0.0;
+	g_theUnitDB->Get(type_unit)->GetDefendAgainstSpies(value);
+	return value;
 }
 
 sint32 C3UnitDB::GetBombardRange( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetBombardRange();
+	sint32 value = 0;
+	g_theUnitDB->Get(type_unit)->GetBombardRange(value);
+	return value;
 }
 
 BOOL C3UnitDB::IsSpecialForces( sint32 type_unit)
@@ -1086,7 +1088,9 @@ BOOL C3UnitDB::IsSpecialForces( sint32 type_unit)
 
 sint32 C3UnitDB::GetBonusFood( sint32 type_unit)
 {
-	return g_theUnitDB->Get(type_unit)->GetBonusFood();
+	sint32 value = 0;
+	g_theUnitDB->Get(type_unit)->GetBonusFood(value);
+	return value;
 }
 
 
@@ -1121,12 +1125,12 @@ BOOL C3UnitDB::CanBeachAssaultAtAll(sint32 type_unit)
 
 BOOL C3UnitDB::CanNanoattackCity (sint32 unit_type)
 {
-	return g_theUnitDB->Get(unit_type)->GetNanoTerror();
+	return g_theUnitDB->Get(unit_type)->HasNanoTerror();
 }
 
 BOOL C3UnitDB::CanBioterrorCity (sint32 unit_type)
 {
-	return g_theUnitDB->Get(unit_type)->GetBioTerror();
+	return g_theUnitDB->Get(unit_type)->HasBioTerror();
 }
 
 BOOL C3UnitDB::IsParatrooper(sint32 unit_type)

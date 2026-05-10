@@ -42,11 +42,20 @@
 #endif
 
 // this pointer macros
+// In C++ mode, 'this' is implicit. In C mode, COM interfaces need explicit This.
 #ifndef THIS_
+#ifdef __cplusplus
+#define THIS_
+#else
 #define THIS_                   INTERFACE *This,
 #endif
+#endif
 #ifndef THIS
+#ifdef __cplusplus
+#define THIS
+#else
 #define THIS                    INTERFACE *This
+#endif
 #endif
 
 // HRESULT values (already defined in windows.h as sint32)

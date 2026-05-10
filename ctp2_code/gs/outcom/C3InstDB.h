@@ -7,7 +7,7 @@
 
 class Player;
 class CivArchive;
-enum ERR_BUILD_INST;
+#include "gs/outcom/AICause.h"
 
 class C3InstDB : public IC3InstDB
 {

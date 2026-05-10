@@ -20,6 +20,8 @@
 #include "gs/outcom/ic3DipReq.h"
 #include "robot/aibackdoor/bset.h"
 #include "gs/gameobj/UnitPool.h"
+#include "gs/gameobj/UnitData.h"
+#include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/pollution.h"
@@ -221,12 +223,12 @@ sint32 C3GameState::GetMyPlayerId()
 
 sint32 C3GameState::GetConstRevolutionLevel(void)
 	{
-	return (g_theConstDB->GetRevolutionLevel()) ;
+	return (g_theConstDB->Get(0)->GetRevolutionLevel()) ;
 	}
 
 sint32 C3GameState::GetConstRiotLevel(void)
 {
-    return g_theConstDB->GetRiotLevel();
+    return g_theConstDB->Get(0)->GetRiotLevel();
 }
 
 const MBCHAR *C3GameState::GetDataPath(void)
@@ -276,9 +278,16 @@ STDMETHODIMP_(void)C3GameState::SendDiplomaticRequest(C3AIDiplomaticRequest *req
 			break;
 		case REQUEST_TYPE_DEMAND_CITY:
 		{
-			BSetID *idx = g_player[recip]->m_bset_cities_index->Find(request->m_targetCity);
-			if(idx) {
-				Unit city = g_player[recip]->m_all_cities->Access(idx->GetVal());
+			Unit city;
+			BOOL found = FALSE;
+			for(sint32 i = 0; i < g_player[recip]->m_all_cities->Num(); i++) {
+				city = g_player[recip]->m_all_cities->Get(i);
+				if(city.m_id == request->m_targetCity) {
+					found = TRUE;
+					break;
+				}
+			}
+			if(found) {
 				Assert(g_theUnitPool->IsValid(city));
 				if(g_theUnitPool->IsValid(city)) {
 					p->RequestDemandCity(recip, city);
@@ -318,10 +327,17 @@ STDMETHODIMP_(void)C3GameState::SendDiplomaticRequest(C3AIDiplomaticRequest *req
 			break;
 		case REQUEST_TYPE_OFFER_CITY:
 		{
-			BSetID *idx = p->m_bset_cities_index->Find(request->m_targetCity);
-			Assert(idx);
-			if(idx) {
-				Unit city = p->m_all_cities->Access(idx->GetVal());
+			Unit city;
+			BOOL found = FALSE;
+			for(sint32 i = 0; i < p->m_all_cities->Num(); i++) {
+				city = p->m_all_cities->Get(i);
+				if(city.m_id == request->m_targetCity) {
+					found = TRUE;
+					break;
+				}
+			}
+			Assert(found);
+			if(found) {
 				Assert(g_theUnitPool->IsValid(city));
 				if(g_theUnitPool->IsValid(city)) {
 					p->RequestOfferCity(recip, city);
@@ -347,10 +363,17 @@ STDMETHODIMP_(void)C3GameState::SendDiplomaticRequest(C3AIDiplomaticRequest *req
 			break;
 		case REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY:
 		{
-			BSetID *idx = g_player[request->m_thirdParty]->m_bset_cities_index->Find(request->m_targetCity);
-			Assert(idx);
-			if(idx) {
-				Unit city = g_player[recip]->m_all_cities->Access(idx->GetVal());
+			Unit city;
+			BOOL found = FALSE;
+			for(sint32 i = 0; i < g_player[recip]->m_all_cities->Num(); i++) {
+				city = g_player[recip]->m_all_cities->Get(i);
+				if(city.m_id == request->m_targetCity) {
+					found = TRUE;
+					break;
+				}
+			}
+			Assert(found);
+			if(found) {
 				Assert(g_theUnitPool->IsValid(city));
 				if(g_theUnitPool->IsValid(city)) {
 					p->RequestOfferPactCaptureCity(recip, city);
@@ -367,16 +390,30 @@ STDMETHODIMP_(void)C3GameState::SendDiplomaticRequest(C3AIDiplomaticRequest *req
 			break;
 		case REQUEST_TYPE_EXCHANGE_CITY:
 		{
-			BSetID *idx = g_player[request->m_thirdParty]->m_bset_cities_index->Find(request->m_targetCity);
-			Assert(idx);
-			if(idx) {
-				Unit city = g_player[recip]->m_all_cities->Access(idx->GetVal());
+			Unit city;
+			BOOL found = FALSE;
+			for(sint32 i = 0; i < g_player[recip]->m_all_cities->Num(); i++) {
+				city = g_player[recip]->m_all_cities->Get(i);
+				if(city.m_id == request->m_targetCity) {
+					found = TRUE;
+					break;
+				}
+			}
+			Assert(found);
+			if(found) {
 				Assert(g_theUnitPool->IsValid(city));
 				if(g_theUnitPool->IsValid(city)) {
-					BSetID *rewardidx = p->m_bset_cities_index->Find(request->m_reciprocalCity);
-					Assert(rewardidx);
-					if(rewardidx) {
-						Unit rewardCity = p->m_all_cities->Access(idx->GetVal());
+					Unit rewardCity;
+					BOOL rewardFound = FALSE;
+					for(sint32 i = 0; i < p->m_all_cities->Num(); i++) {
+						rewardCity = p->m_all_cities->Get(i);
+						if(rewardCity.m_id == request->m_reciprocalCity) {
+							rewardFound = TRUE;
+							break;
+						}
+					}
+					Assert(rewardFound);
+					if(rewardFound) {
 						Assert(g_theUnitPool->IsValid(rewardCity));
 						if(g_theUnitPool->IsValid(rewardCity)) {
 							p->RequestExchangeCity(recip, city, rewardCity);
@@ -499,9 +536,16 @@ STDMETHODIMP_(sint32) C3GameState::GetGoodCount(PLAYER_INDEX player,
 
 	Assert(g_player[player]);
 	if(g_player[player]) {
-		g_player[player]->AiGetCity(isUnknown, cityId, city);
+		isUnknown = TRUE;
+		for(sint32 i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
+			city = g_player[player]->m_all_cities->Get(i);
+			if(city.m_id == cityId) {
+				isUnknown = FALSE;
+				break;
+			}
+		}
 		if(!isUnknown) {
-			return city.GetResourceCount(resource);
+			return (*city.GetData()->GetCityData()->GetCollectingResources())[resource];
 		}
 	}
 
@@ -518,15 +562,29 @@ STDMETHODIMP_(void) C3GameState::MakeTradeBid(PLAYER_INDEX foreigner,
 	Unit toCity;
 	BOOL isUnknown;
 
-	g_player[foreigner]->AiGetCity(isUnknown, foreignCity, fromCity);
+	isUnknown = TRUE;
+	for(sint32 i = 0; i < g_player[foreigner]->m_all_cities->Num(); i++) {
+		fromCity = g_player[foreigner]->m_all_cities->Get(i);
+		if(fromCity.m_id == foreignCity) {
+			isUnknown = FALSE;
+			break;
+		}
+	}
 	Assert(!isUnknown);
 	if(!isUnknown) {
-		g_player[m_owner]->AiGetCity(isUnknown, myCity, toCity);
+		isUnknown = TRUE;
+		for(sint32 i = 0; i < g_player[m_owner]->m_all_cities->Num(); i++) {
+			toCity = g_player[m_owner]->m_all_cities->Get(i);
+			if(toCity.m_id == myCity) {
+				isUnknown = FALSE;
+				break;
+			}
+		}
 		Assert(!isUnknown);
 		if(!isUnknown) {
 
 			g_player[m_owner]->SendTradeBid(fromCity, resource, toCity,
-											goldOffered);
+										goldOffered);
 		}
 	}
 }

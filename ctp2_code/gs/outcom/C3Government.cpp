@@ -141,7 +141,8 @@ void C3Government::Serialize(CivArchive &archive)
 
 double C3Government::GetWorkdayCoef(sint32 gov_id)
 	{
-    return (g_theGovernmentDB->Get(gov_id)->GetWorkdayCoef()) ;
+    // GovernmentRecord no longer has GetWorkdayCoef; stubbed
+    return 0.0;
 	}
 
 
@@ -154,12 +155,12 @@ double C3Government::GetWorkdayCoef(sint32 gov_id)
 
 double C3Government::GetWorkdayBase(sint32 gov_id)
 {
-    return g_theConstDB->GetBaseWorkday();
+    return g_theConstDB->Get(0)->GetBaseWorkday();
 }
 
 double C3Government::GetWorkdayUnit(sint32 gov_id)
 {
-    return g_theConstDB->GetUnitWorkday();
+    return g_theConstDB->Get(0)->GetUnitWorkday();
 }
 
 double C3Government::GetWorkdayExpectation(sint32 gov_id)
@@ -177,17 +178,18 @@ double C3Government::GetWorkdayExpectation(sint32 gov_id)
 
 double C3Government::GetWagesCoef(sint32 gov_id)
 	{
-    return (g_theGovernmentDB->Get(gov_id)->GetWagesCoef()) ;
+    // GovernmentRecord no longer has GetWagesCoef; stubbed
+    return 0.0;
 	}
 
 double C3Government::GetWagesBase(sint32 gov_id)
 {
-    return g_theConstDB->GetBaseWages();
+    return g_theConstDB->Get(0)->GetBaseWages();
 }
 
 double C3Government::GetWagesUnit(sint32 gov_id)
 {
-    return g_theConstDB->GetUnitWages();
+    return g_theConstDB->Get(0)->GetUnitWages();
 }
 
 
@@ -212,7 +214,8 @@ double C3Government::GetWagesExpectation(sint32 gov_id)
 
 double C3Government::GetRationsCoef(sint32 gov_id)
 	{
-    return (g_theGovernmentDB->Get(gov_id)->GetRationsCoef()) ;
+    // GovernmentRecord no longer has GetRationsCoef; stubbed
+    return 0.0;
 	}
 
 
@@ -230,12 +233,12 @@ double C3Government::GetRationsExpectation(sint32 gov_id)
 
 double C3Government::GetRationsBase(sint32 gov_id)
 {
-    return g_theConstDB->GetBaseRations();
+    return g_theConstDB->Get(0)->GetBaseRations();
 }
 
 double C3Government::GetRationsUnit(sint32 gov_id)
 {
-    return g_theConstDB->GetUnitRations();
+    return g_theConstDB->Get(0)->GetUnitRations();
 }
 
 
@@ -594,12 +597,12 @@ double C3Government::GetReadyWarHP(sint32 gov_id)
 
 double C3Government::GetBigCityCoef()
 {
-    return g_theDifficultyDB->GetBigCityScale(0);
+    return g_theDifficultyDB->Get(0)->GetBigCityScale();
 }
 
 double C3Government::GetBigCityOffset()
 {
-    return g_theDifficultyDB->GetBigCityOffset(0);
+    return g_theDifficultyDB->Get(0)->GetBigCityOffset();
 }
 
 sint32 C3Government::GetTooManyCitiesThreshold(sint32 gov_id)

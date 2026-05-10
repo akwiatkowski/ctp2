@@ -232,7 +232,7 @@ double C3Wonder::MaxPecentageThisWonderDone(sint32 wonder_type)
 
 sint32 C3Wonder::EnablingDiscovery(sint32 wonder_id)
 	{
-	return (wonderutil_Get(wonder_id)->GetEnableAdvanceIndex()) ;
+	return (wonderutil_Get(wonder_id, m_owner)->GetEnableAdvanceIndex()) ;
 	}
 
 
@@ -249,7 +249,7 @@ sint32 C3Wonder::EnablingDiscovery(sint32 wonder_id)
 
 sint32 C3Wonder::ObsoleteDiscovery(sint32 wonder_id)
 	{
-	return (wonderutil_Get(wonder_id)->GetObsoleteAdvanceIndex(0)) ;
+	return (wonderutil_Get(wonder_id, m_owner)->GetObsoleteAdvanceIndex(0)) ;
 	}
 
 

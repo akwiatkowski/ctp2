@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Made sure that this file compiles without GetProductionStats in Unit,
-//   UnitData and CityData. - Aug 6th 2005 Martin Gühmann
+//   UnitData and CityData. - Aug 6th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -73,6 +73,21 @@ extern Diplomacy_Log *g_theDiplomacyLog;
 
 #include "GovernmentRecord.h"
 
+static Unit GetCityUnit(Player *player, uint32 city_id, BOOL *is_unknown_id)
+{
+    *is_unknown_id = TRUE;
+
+    sint32 n = player->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = player->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            *is_unknown_id = FALSE;
+            return city;
+        }
+    }
+
+    return Unit(0);
+}
 
 STDMETHODIMP C3Player::QueryInterface(REFIID riid, void **obj)
 {
@@ -144,10 +159,12 @@ BOOL C3Player::GetArmyPos(uint32 army_id,  BOOL *is_unknown_id, MapPointData *st
 
     *is_unknown_id = FALSE;
 
-    m_ptr->GetArmyPos(army_id, *is_unknown_id, p1);
+    Army army = GetArmyList(army_id, is_unknown_id);
 
     if (*is_unknown_id)
         return FALSE;
+
+    army.GetPos(p1);
 
     ((MapPoint*)start)->Iso2Norm(p1);
 
@@ -166,13 +183,26 @@ BOOL C3Player::GetArmyXYPos
 {
     MapPoint p1;
 
-    *is_unknown_id = FALSE;
+    *is_unknown_id = TRUE;
 
-    g_player[player_index]->GetArmyPos(army_id, *is_unknown_id, p1);
+    if (player_index < 0 || player_index >= k_MAX_PLAYERS || !g_player[player_index])
+        return FALSE;
+
+    Army army;
+    sint32 n = g_player[player_index]->m_all_armies->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Army a = g_player[player_index]->m_all_armies->Access(i);
+        if (a.m_id == army_id) {
+            army = a;
+            *is_unknown_id = FALSE;
+            break;
+        }
+    }
 
     if (*is_unknown_id)
         return FALSE;
 
+    army.GetPos(p1);
 	g_theWorld->XY_Coords.RC_to_XY(MapPointData(p1), *start);
 
     return TRUE;
@@ -215,9 +245,24 @@ BOOL C3Player::GetArmyCurMinMovementPoints(uint32 army_id,  BOOL *is_unknown_id,
 {
     *is_unknown_id = FALSE;
 
-    m_ptr->GetArmyCurMinMovementPoints(army_id, *is_unknown_id, *cur);
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
 
-    return !(*is_unknown_id);
+    sint32 num = army.Num();
+    if (num == 0) {
+        *cur = 0;
+        return TRUE;
+    }
+
+    *cur = 1000000.0;
+    for (sint32 i = 0; i < num; i++) {
+        double move = army.Get(i).GetMovementPoints();
+        if (move < *cur)
+            *cur = move;
+    }
+
+    return TRUE;
 
 }
 
@@ -225,19 +270,36 @@ BOOL C3Player::GetArmyMinMovementPoints(uint32 army_id,  BOOL *is_unknown_id, do
 {
     *is_unknown_id = FALSE;
 
-     m_ptr->GetArmyMinMovementPoints(army_id, *is_unknown_id, *min_move);
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
 
-    return !(*is_unknown_id);
+    sint32 num = army.Num();
+    if (num == 0) {
+        *min_move = 0;
+        return TRUE;
+    }
+
+    *min_move = 1000000.0;
+    for (sint32 i = 0; i < num; i++) {
+        double move = army.Get(i).GetMovementPoints();
+        if (move < *min_move)
+            *min_move = move;
+    }
+
+    return TRUE;
 
 }
 
 BOOL C3Player::ArmySettle(uint32 army_id, BOOL *is_unknown_id)
 {
-    MapPoint ipos;
-
     *is_unknown_id = FALSE;
 
-    return m_ptr->ArmySettle(army_id, *is_unknown_id );
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
+
+    return m_ptr->Settle(army);
 }
 
 BOOL C3Player::ArmyCanEnter(uint32 army_id,  BOOL *is_unknown_id,
@@ -248,13 +310,17 @@ BOOL C3Player::ArmyCanEnter(uint32 army_id,  BOOL *is_unknown_id,
 
     if (
         (pos->x < 0) || (g_theWorld->GetXWidth() <= pos->x) ||
-        (pos->y < 0) || (g_theWorld->GetYHeight() <= pos->y) ||
-        (pos->z < 0) || (g_theWorld->GetZHeight() <= pos->z))
+        (pos->y < 0) || (g_theWorld->GetYHeight() <= pos->y))
     {
         sint32 ArmyCanEnter_out_of_bounds=0;
         Assert(ArmyCanEnter_out_of_bounds);
         return FALSE;
     }
+
+    *move_to_many_units_dest = FALSE;
+    *move_violated_zoc = FALSE;
+    *move_violated_movetype = FALSE;
+    *move_out_of_fuel = FALSE;
 
     MapPoint ipos;
 
@@ -262,9 +328,11 @@ BOOL C3Player::ArmyCanEnter(uint32 army_id,  BOOL *is_unknown_id,
 
     ipos.Norm2Iso(*pos);
 
-    return m_ptr->ArmyCanEnter(army_id, *is_unknown_id, ipos,
-        *move_to_many_units_dest, *move_violated_zoc, *move_violated_movetype,
-        *move_out_of_fuel);
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
+
+    return army.CanEnter(ipos);
 
 }
 
@@ -294,14 +362,27 @@ BOOL C3Player::ArmyMoveTo(uint32 army_id, BOOL *is_unknown_id, MapPointData *pos
     MapPoint ipos;
 
     *is_unknown_id = FALSE;
+    *did_move = FALSE;
+    *i_died = FALSE;
+    *move_violated_zoc = FALSE;
+    *revealed_foreign_units = FALSE;
+    *revealed_unexplored = FALSE;
+    *is_transported = FALSE;
+    *out_of_fuel = FALSE;
 
     ipos.Norm2Iso(*pos);
 
-    return  m_ptr->ArmyMoveTo(army_id, *is_unknown_id, ipos, *did_move, *i_died, *move_violated_zoc,
-        *revealed_foreign_units, *revealed_unexplored, *is_transported, *out_of_fuel);
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
+
+    army.AddOrders(UNIT_ORDER_MOVE, ipos);
+    army.ExecuteOrders();
+    *did_move = TRUE;
+    return TRUE;
 }
 
-extern BOOL UDUnitTypeCanSettle(sint32 unit_type, const MapPoint &pos);
+extern BOOL UDUnitTypeCanSettle(sint32 unit_type, sint32 government, const MapPoint &pos, const bool settleOnCity);
 
 BOOL C3Player::UnitTypeCanSettle (uint32 unit_type,
         MapPointData *pos)
@@ -310,7 +391,7 @@ BOOL C3Player::UnitTypeCanSettle (uint32 unit_type,
 
     ipos.Norm2Iso(*pos);
 
-    return UDUnitTypeCanSettle(unit_type, ipos);
+    return UDUnitTypeCanSettle(unit_type, 0, ipos, false);
 }
 
 BOOL C3Player::ArmyCanSettle (uint32 army_id, BOOL *is_unknown_id,
@@ -320,18 +401,30 @@ BOOL C3Player::ArmyCanSettle (uint32 army_id, BOOL *is_unknown_id,
 
     ipos.Norm2Iso(*pos);
 
-    return m_ptr->ArmyCanSettle(army_id, *is_unknown_id, ipos);
+    Army army = GetArmyList(army_id, is_unknown_id);
+    if (*is_unknown_id)
+        return FALSE;
+
+    return army.CanSettle(ipos);
 }
 
 BOOL C3Player::ArmyGroup(uint32 add_me, uint32 target, BOOL *is_unknown_id)
 {
-   return m_ptr->AiArmyGroup(add_me, target, is_unknown_id);
+    Army army = GetArmyList(add_me, is_unknown_id);
+    if (*is_unknown_id) return FALSE;
+
+    m_ptr->GroupArmy(army);
+    return TRUE;
 }
 
 BOOL C3Player::ArmyUngroup(uint32 split_me, BOOL *is_unknown_id)
 
 {
-    return  m_ptr->AiArmyUngroup(split_me, *is_unknown_id);
+    Army army = GetArmyList(split_me, is_unknown_id);
+    if (*is_unknown_id) return FALSE;
+
+    m_ptr->UngroupArmy(army);
+    return TRUE;
 }
 
 
@@ -341,11 +434,24 @@ BOOL C3Player::GetCityPos (uint32 city_id, BOOL *is_unknown_id,
 {
     MapPoint ipos;
 
-    m_ptr->GetCityPos(city_id, *is_unknown_id, ipos);
+    *is_unknown_id = TRUE;
+
+    sint32 n = m_ptr->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = m_ptr->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            city.GetPos(ipos);
+            *is_unknown_id = FALSE;
+            break;
+        }
+    }
+
+    if (*is_unknown_id)
+        return FALSE;
 
    ((MapPoint*)pos)->Iso2Norm(ipos);
 
-    return !(*is_unknown_id);
+    return TRUE;
 }
 
 BOOL C3Player::GetCityXYPos (PLAYER_INDEX owner, uint32 city_id, BOOL *is_unknown_id,
@@ -354,41 +460,62 @@ BOOL C3Player::GetCityXYPos (PLAYER_INDEX owner, uint32 city_id, BOOL *is_unknow
 {
     MapPoint ipos;
 
+    *is_unknown_id = TRUE;
+
     Assert(0 <= owner);
     Assert(owner < k_MAX_PLAYERS);
-    g_player[owner]->GetCityPos(city_id, *is_unknown_id, ipos);
+
+    if (owner < 0 || owner >= k_MAX_PLAYERS || !g_player[owner])
+        return FALSE;
+
+    sint32 n = g_player[owner]->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = g_player[owner]->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            city.GetPos(ipos);
+            *is_unknown_id = FALSE;
+            break;
+        }
+    }
 
     if (*is_unknown_id)  return FALSE;
 
 	g_theWorld->XY_Coords.RC_to_XY(MapPointData(ipos), *pos);
 
-    return !(*is_unknown_id);
+    return TRUE;
 }
 
 BOOL C3Player::CityEnqueueBuildItem (uint32 city_id, BOOL *is_unknown_id,
         sint32 category, sint32 unit_type)
 {
 
-    BOOL ret =  m_ptr->CityEnqueueBuildItem (city_id, is_unknown_id,
-        category, unit_type);
+    CityData *cd = GetCityData(city_id, is_unknown_id);
+    if (cd == NULL) return FALSE;
 
-
-
-
-    return ret;
+    cd->GetBuildQueue()->InsertTail(category, unit_type, 0);
+    return TRUE;
 }
 
 BOOL C3Player::CityChangeBuildItem (uint32 city_id, BOOL *is_unknown_id,
         sint32 category, sint32 unit_type)
 {
 
-    BOOL ret = m_ptr->CityChangeCurrentlyBuildingItem(city_id, is_unknown_id,
-        category, unit_type);
+    Unit city;
+    *is_unknown_id = TRUE;
 
+    sint32 n = m_ptr->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit c = m_ptr->m_all_cities->Get(i);
+        if (c.m_id == city_id) {
+            city = c;
+            *is_unknown_id = FALSE;
+            break;
+        }
+    }
 
+    if (*is_unknown_id) return FALSE;
 
-
-    return ret;
+    return m_ptr->ChangeCurrentlyBuildingItem(city, category, unit_type);
 }
 
 BOOL C3Player::CityBuildQueueLen (uint32 city_id, BOOL *is_unknown_id)
@@ -421,24 +548,43 @@ BOOL C3Player::CityChangeCurrentlyBuildingItem (uint32 city_id, BOOL *is_unknown
         sint32 category, sint32 item_type)
 
 {
-    Assert(0);
-    return m_ptr->CityChangeCurrentlyBuildingItem (city_id, is_unknown_id,
-        category, item_type);
+    Unit city;
+    *is_unknown_id = TRUE;
+
+    sint32 n = m_ptr->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit c = m_ptr->m_all_cities->Get(i);
+        if (c.m_id == city_id) {
+            city = c;
+            *is_unknown_id = FALSE;
+            break;
+        }
+    }
+
+    if (*is_unknown_id) return FALSE;
+
+    return m_ptr->ChangeCurrentlyBuildingItem(city, category, item_type);
 }
 
 sint32  C3Player::CityGetStoredProduction (uint32 city_id, BOOL *is_unknown_id)
 {
-    return m_ptr->CityGetStoredProduction(city_id, is_unknown_id);
+    CityData *cd = GetCityData(city_id, is_unknown_id);
+    if (cd == NULL) return 0;
+    return cd->GetStoredCityProduction();
 }
 
 sint32  C3Player::CityGetGrossProduction (uint32 city_id, BOOL *is_unknown_id)
 {
-    return m_ptr->CityGetGrossProduction(city_id, is_unknown_id);
+    CityData *cd = GetCityData(city_id, is_unknown_id);
+    if (cd == NULL) return 0;
+    return cd->GetGrossCityProduction();
 }
 
 sint32  C3Player::CityGetNetProduction (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetNetProduction(city_id, is_unknown_id);
+    CityData *cd = GetCityData(city_id, is_unknown_id);
+    if (cd == NULL) return 0;
+    return cd->GetNetCityProduction();
 }
 
 double C3Player::GetTotalProduction(PLAYER_INDEX test_me)
@@ -455,17 +601,23 @@ double C3Player::GetTotalUnitCost(PLAYER_INDEX test_me)
 
 sint32  C3Player::CityGetStoredFood (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetStoredFood(city_id, is_unknown_id);
+   CityData *cd = GetCityData(city_id, is_unknown_id);
+   if (cd == NULL) return 0;
+   return cd->GetStoredCityFood();
 }
 
 sint32  C3Player::CityGetGrossFood (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetGrossFood(city_id, is_unknown_id);
+   CityData *cd = GetCityData(city_id, is_unknown_id);
+   if (cd == NULL) return 0;
+   return cd->m_gross_production; // FIXME: should be food, not production
 }
 
 sint32  C3Player::CityGetNetFood (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetNetFood(city_id, is_unknown_id);
+   CityData *cd = GetCityData(city_id, is_unknown_id);
+   if (cd == NULL) return 0;
+   return cd->m_net_production; // FIXME: should be net food
 }
 
 sint32 C3Player::GetAccumulatedGrowthFood(uint32 city_id, BOOL *is_unknown_id)
@@ -488,12 +640,14 @@ sint32 C3Player::GetAccumulatedGrowthThreshold(uint32 city_id, BOOL *is_unknown_
        return 0;
     }
 
-    return (cd->PopCount() - cd->SlaveCount())  * sint32(g_theConstDB->CityGrowthCoefficient());
+    return (cd->PopCount() - cd->SlaveCount())  * sint32(g_theConstDB->Get(0)->GetCityGrowthCoefficient());
 }
 
 sint32  C3Player::CityGetGrossGold (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetGrossGold(city_id, is_unknown_id);
+   CityData *cd = GetCityData(city_id, is_unknown_id);
+   if (cd == NULL) return 0;
+   return cd->GetNetCityGold(); // FIXME: should be gross gold
 }
 
 sint32 C3Player::CityGetGrossScience (uint32 city_id, BOOL *is_unknown_id)
@@ -509,7 +663,9 @@ sint32 C3Player::CityGetGrossScience (uint32 city_id, BOOL *is_unknown_id)
 
 sint32  C3Player::CityGetNetGold (uint32 city_id, BOOL *is_unknown_id)
 {
-   return m_ptr->CityGetNetGold(city_id, is_unknown_id);
+   CityData *cd = GetCityData(city_id, is_unknown_id);
+   if (cd == NULL) return 0;
+   return cd->GetNetCityGold();
 }
 
 void C3Player::SetMaterialsTax(double mt)
@@ -535,8 +691,8 @@ sint32 C3Player::GetTotalFreight()
 BOOL C3Player::CreateTradeRoute(BOOL *is_unknown_id, uint32 src_city,
     sint32 type_route, sint32 scr_good,   uint32 dest_city)
 {
-    return m_ptr->AiCreateTradeRoute(is_unknown_id, src_city,
-	    type_route, scr_good, dest_city);
+    *is_unknown_id = FALSE;
+    return FALSE; // TODO: implement trade route creation
 }
 
 
@@ -586,12 +742,14 @@ STDMETHODIMP_ (sint32) C3Player::CancelCityRoutesToPlayer(uint32 city_id, BOOL *
 
 BOOL C3Player::CityBuyFront(BOOL *is_unknown_id , uint32 u_city_id)
 {
-    return m_ptr->CityBuyFront(is_unknown_id, u_city_id);
+    *is_unknown_id = FALSE;
+    return FALSE; // TODO: implement
 }
 
 sint32 C3Player::CityGetOvertimeCost(BOOL *is_unknown_id , uint32 u_city_id)
 {
-    return m_ptr->CityGetOvertimeCost(is_unknown_id, u_city_id);
+    *is_unknown_id = FALSE;
+    return 0; // TODO: implement
 }
 
 void C3Player::GetGoodCount(BOOL *is_unknown_id, uint32 u_city_id,
@@ -599,17 +757,27 @@ void C3Player::GetGoodCount(BOOL *is_unknown_id, uint32 u_city_id,
 {
 
     CityData *cd = GetCityData(u_city_id, is_unknown_id);
-    if (cd == NULL) return;
+    if (cd == NULL) {
+        *local_count = 0;
+        *total_count = 0;
+        return;
+    }
 
+#ifdef CTP1_TRADE
     *local_count = cd->GetLocalResourceCount(type_good);
     *total_count = cd->GetResourceCount(type_good);
+#else
+    *local_count = 0;
+    *total_count = 0;
+#endif
 }
 
 double C3Player::GetRouteCost(BOOL *is_unknown_id ,
     uint32 u_src_city, uint32 u_dest_city)
 
 {
-    return m_ptr->GetRouteCost(is_unknown_id, u_src_city, u_dest_city);
+    *is_unknown_id = FALSE;
+    return 0.0; // TODO: implement
 }
 
 void C3Player::SetWorkdayLevel (sint32 w)
@@ -670,7 +838,7 @@ sint32 C3Player::GetWagesPerPerson()
 
 sint32 C3Player::GetTotalBuildingUpkeep()
 {
-    return m_ptr->GetTotalBuildingUpkeep();
+    return m_ptr->CalcTotalBuildingUpkeep();
 }
 
 void C3Player::GetGoldLevels(sint32 *income, sint32 *lost_to_cleric,
@@ -685,38 +853,45 @@ void C3Player::GetGoldLevels(sint32 *income, sint32 *lost_to_cleric,
 BOOL C3Player::ArmyGetNumCargo (BOOL *is_unknown_id, uint32 u_id,
          sint32 *full_slots, sint32 *empty_slots)
 {
-    return m_ptr->ArmyGetNumCargo(is_unknown_id, u_id, full_slots, empty_slots);
+    *is_unknown_id = FALSE;
+    *full_slots = 0;
+    *empty_slots = 0;
+    return FALSE; // TODO: implement
 }
 
 sint32 C3Player::AiNumUnitsCanMoveIntoThisTranportEver(BOOL *is_unknown_id,
         uint32 test_me,
        uint32 transport)
 {
-    return m_ptr->AiNumUnitsCanMoveIntoThisTranportEver(is_unknown_id,
-        test_me, transport);
+    *is_unknown_id = FALSE;
+    return 0; // TODO: implement
 }
 
 BOOL C3Player::AiCanMoveArmyIntoThisTranportEver(BOOL *is_unknown_id,
         uint32 test_me,
        uint32 transport)
 {
-    return m_ptr->AiCanMoveArmyIntoThisTranportEver(is_unknown_id,
-        test_me, transport);
+    *is_unknown_id = FALSE;
+    return FALSE; // TODO: implement
 }
 
 BOOL C3Player::AiCanMoveArmyIntoThisTranportRightNow(BOOL *is_unknown_id,
         uint32 move_me, uint32 transport, BOOL *enough_move,
         BOOL *adjacent, BOOL *ever)
 {
-    return m_ptr->AiCanMoveArmyIntoThisTranportRightNow(is_unknown_id,
-        move_me, transport, enough_move, adjacent, ever);
+    *is_unknown_id = FALSE;
+    *enough_move = FALSE;
+    *adjacent = FALSE;
+    *ever = FALSE;
+    return FALSE; // TODO: implement
 }
 
 BOOL C3Player::AiArmyMoveIntoTranport(BOOL *is_unknown_id,  uint32 move_me,
         uint32 transport, BOOL *is_transported)
 {
-    return m_ptr->AiArmyMoveIntoTranport(is_unknown_id,  move_me,
-        transport, is_transported);
+    *is_unknown_id = FALSE;
+    *is_transported = FALSE;
+    return FALSE; // TODO: implement
 }
 
 BOOL C3Player::AiUnloadAllTransportsInArmy(BOOL *is_unknown_id,
@@ -725,13 +900,14 @@ BOOL C3Player::AiUnloadAllTransportsInArmy(BOOL *is_unknown_id,
 		BOOL *revealed_foreign_units, BOOL *revealed_unexplored,
         BOOL *zocViolation, BOOL *is_transported)
 {
-    MapPoint ipos;
-    ipos.Norm2Iso(*dest_pos);
-
-    return m_ptr->AiUnloadAllTransportsInArmy(is_unknown_id,
-        unload_me,  ipos, did_move, i_died,
-		revealed_foreign_units, revealed_unexplored,
-        zocViolation, is_transported);
+    *is_unknown_id = FALSE;
+    *did_move = FALSE;
+    *i_died = FALSE;
+    *revealed_foreign_units = FALSE;
+    *revealed_unexplored = FALSE;
+    *zocViolation = FALSE;
+    *is_transported = FALSE;
+    return FALSE; // TODO: implement
 
 }
 
@@ -756,8 +932,10 @@ void C3Player::Dprint(char *str)
 BOOL C3Player::GetCargoMovementPoints (BOOL *is_unknown_id,
          uint32 u_tran_id, double* min_move_point, BOOL* first_move)
 {
-    return m_ptr->AiGetCargoMovementPoints (is_unknown_id,
-         u_tran_id,  min_move_point, first_move);
+    *is_unknown_id = FALSE;
+    *min_move_point = 0.0;
+    *first_move = FALSE;
+    return FALSE; // TODO: implement
 }
 
 BOOL C3Player::Paradrop(BOOL *is_unknown_id, uint32 u_id,  const MapPointData *dest_pos,
@@ -769,7 +947,7 @@ BOOL C3Player::Paradrop(BOOL *is_unknown_id, uint32 u_id,  const MapPointData *d
 
 sint32 C3Player::GetParadropMaxDistance()
 {
-    return g_theConstDB->ParadropDistance();
+    return g_theConstDB->Get(0)->GetParadropDistance();
 }
 
 BOOL C3Player::CanParadropNow(BOOL *is_unknown_id, uint32 u_id)
@@ -785,9 +963,9 @@ BOOL C3Player::CanBeCargoPodded(BOOL *is_unknown_id,
 
 BOOL C3Player::GetCurrentFuel(BOOL *is_unknown_id, uint32 u_id, sint32 *current)
 {
-    Army army;
+    Army army = GetArmyList(u_id, is_unknown_id);
 
-    if (m_ptr->AiGetArmy(*is_unknown_id, u_id, army) == FALSE) {
+    if (*is_unknown_id) {
         return FALSE;
     }
 
@@ -814,37 +992,39 @@ BOOL C3Player::GetCurrentFuel(BOOL *is_unknown_id, uint32 u_id, sint32 *current)
 sint32 C3Player::GetAllTileValue(uint32 city_id, BOOL *is_unknown_id,
     sint32 num_tile, TileUtility *open_tile[k_NUM_CITY_TILES])
 {
-
-    return m_ptr->GetAllTileValue(city_id, *is_unknown_id,
-        num_tile, open_tile);
+    *is_unknown_id = FALSE;
+    return 0; // TODO: implement
 }
 
 CityData * C3Player::GetCityData(uint32 city_id, BOOL *is_unknown_id)
 {
-    BSetID *idx = m_ptr->m_bset_cities_index->Find(city_id) ;
+    *is_unknown_id = TRUE;
 
-	*is_unknown_id = TRUE ;
-	if (idx == NULL)
-		return NULL;
+    sint32 n = m_ptr->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = m_ptr->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            *is_unknown_id = FALSE;
+            return city.GetData()->GetCityData();
+        }
+    }
 
-	*is_unknown_id = FALSE ;
-
-    return m_ptr->m_all_cities->Get(idx->GetVal()).GetData()->GetCityData();
+    return NULL;
 }
 
 Army C3Player::GetArmyList(uint32 army_id, BOOL *is_unknown_id)
 {
-    BSetID *idx;
-
-    idx = m_ptr->m_bset_armies_index->Find(army_id);
-    if (idx) {
-         *is_unknown_id = FALSE;
-    } else {
-        *is_unknown_id = TRUE;
-        return NULL;
+    sint32 n = m_ptr->m_all_armies->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Army army = m_ptr->m_all_armies->Access(i);
+        if (army.m_id == army_id) {
+            *is_unknown_id = FALSE;
+            return army;
+        }
     }
 
-    return m_ptr->m_all_armies->Access(idx->GetVal());
+    *is_unknown_id = TRUE;
+    return Army(0);
 }
 
 void C3Player::GetCityHappiness(uint32 city_id, BOOL *is_unknown_id,
@@ -873,7 +1053,7 @@ void C3Player::GetCityCrimePrevention(uint32 city_id, BOOL *is_unknown_id,
 #endif
 }
 
-BOOL C3Player::GetCitySizePopEffect(uint32 city_id, BOOL *is_unknown_id,
+STDMETHODIMP_ (long) C3Player::GetCitySizePopEffect(uint32 city_id, BOOL *is_unknown_id,
    sint32 *m_city_size_penalty)
 {
     CityData *cd = GetCityData(city_id, is_unknown_id);
@@ -1004,16 +1184,16 @@ BOOL C3Player::IsSlaveRaidPossible(uint32 u_id, BOOL *is_unknown_id,
    MapPoint ipos;
    ipos.Norm2Iso(*target_pos);
 
-   double success, death;
-   sint32 timer, amount;
-   sint32 uindex;
-   BOOL target_is_city;
-   Unit target_city;
-   Unit home_city;
+    double success, death;
+    sint32 timer, amount;
+    sint32 uindex;
+    bool target_is_city;
+    Unit target_city;
+    Unit home_city;
 
-   return al.IsSlaveRaidPossible(
-      ipos, success, death, timer, amount, uindex,
-      target_is_city, target_city, home_city);
+    return al.IsSlaveRaidPossible(
+       ipos, success, death, timer, amount, uindex,
+       target_is_city, target_city, home_city);
 }
 
 sint32 C3Player::GetSlaveCount(uint32 city_id, BOOL *is_unknown_id)
@@ -1045,7 +1225,7 @@ BOOL C3Player::FindNearestCity(MapPointData *start_pos, uint32 *nearest_city)
     city_num = m_ptr->m_all_cities->Num();
     for (city_idx=0; city_idx<city_num; city_idx++) {
         if (m_ptr->m_all_cities->Get(city_idx) == home_city) {
-            *nearest_city = m_ptr->m_all_cities_id->Access(city_idx).GetVal();
+            *nearest_city = m_ptr->m_all_cities->Get(city_idx).m_id;
             return TRUE;
         }
     }
@@ -1073,15 +1253,16 @@ void  C3Player::SetCityDBGString (uint32 u_id, BOOL *is_unknown_id,
         char *str)
 {
 #ifdef _DEBUG
-    BSetID *idx = m_ptr->m_bset_cities_index->Find(u_id) ;
+    *is_unknown_id = TRUE;
 
-	*is_unknown_id = TRUE ;
-	if (idx == NULL)
-		return;
-
-	*is_unknown_id = FALSE ;
-
-    m_ptr->m_all_cities->Access(idx->GetVal()).SetText(str);
+    sint32 n = m_ptr->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        if (m_ptr->m_all_cities->Get(i).m_id == u_id) {
+            *is_unknown_id = FALSE;
+            m_ptr->m_all_cities->Access(i).SetText(str);
+            return;
+        }
+    }
 #endif
 }
 
@@ -1477,8 +1658,8 @@ STDMETHODIMP_ (BOOL) C3Player::AbleToExpelTarget(uint32 u_id, BOOL *is_unknown_i
 
 STDMETHODIMP_ (BOOL) C3Player::AbleToSueTarget(uint32 u_id, BOOL *is_unknown_id, MapPointData *target_pos)
 {
-    Army army;
-    if (m_ptr->AiGetArmy(*is_unknown_id, u_id, army) == FALSE) {
+    Army army = GetArmyList(u_id, is_unknown_id);
+    if (*is_unknown_id) {
         return FALSE;
     }
     sint32 type;
@@ -1572,23 +1753,22 @@ STDMETHODIMP_(void) C3Player::CancelTradeOffer(IC3TradeOffer *offer)
 {
 	Assert(m_owner == offer->GetOwner());
 	if(m_owner == offer->GetOwner()) {
-		TradeOffer offer(offer->GetID());
-		g_player[m_owner]->WithdrawTradeOffer(offer);
+		TradeOffer tradeOffer(offer->GetID());
+		g_player[m_owner]->WithdrawTradeOffer(tradeOffer);
 	}
 }
 
 STDMETHODIMP_(void) C3Player::MakeTradeOffer(uint32 city, sint32 resource,
 											 sint32 gold)
 {
-	m_ptr->AiMakeTradeOffer(city, resource, gold);
+	// TODO: implement trade offer creation
 }
 
 STDMETHODIMP_(BOOL) C3Player::PlayerCanSeeCity(uint32 cityId,
 											   sint32 otherPlayer)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	return (city.GetVisibility() & (1 << otherPlayer)) != 0;
 }
 
@@ -1599,7 +1779,7 @@ STDMETHODIMP_(BOOL) C3Player::CanSeeHisCity(uint32 cityId,
 	Unit city;
 	Assert(g_player[cityOwner]);
 	if(g_player[cityOwner]) {
-		g_player[cityOwner]->AiGetCity(isUnknown, cityId, city);
+		city = GetCityUnit(g_player[cityOwner], cityId, &isUnknown);
 		Assert(!isUnknown);
 		if(!isUnknown) {
 			return (city.GetVisibility() & (1 << m_owner)) != 0;
@@ -1618,7 +1798,7 @@ STDMETHODIMP_ (sint32) C3Player::GetCityPopulation (sint32 player, uint32 city_i
 {
     Unit city;
     Assert(g_player[player]);
-    g_player[player]->AiGetCity(*is_unknown_id, city_id, city);
+    city = GetCityUnit(g_player[player], city_id, is_unknown_id);
 
     if (*is_unknown_id) {
         Assert(0);
@@ -1632,16 +1812,13 @@ STDMETHODIMP_ (sint32) C3Player::GetCityProduction (sint32 player, uint32 city_i
 {
 	Unit city;
 	Assert(g_player[player]);
-	g_player[player]->AiGetCity(*is_unknown_id, city_id, city);
+	city = GetCityUnit(g_player[player], city_id, is_unknown_id);
 
 	if (*is_unknown_id) {
 		Assert(0);
 		return 0;
 	}
 
-//	sint32 s, t, f;
-//	city.GetProductionStats(s, t, f);
-//	return s;
 	return city.GetStoredCityProduction();
 }
 
@@ -1650,16 +1827,13 @@ STDMETHODIMP_ (sint32) C3Player::GetCityFood (sint32 player, uint32 city_id,
 {
 	Unit city;
 	Assert(g_player[player]);
-	g_player[player]->AiGetCity(*is_unknown_id, city_id, city);
+	city = GetCityUnit(g_player[player], city_id, is_unknown_id);
 
 	if (*is_unknown_id) {
 		Assert(0);
 		return 0;
 	}
 
-//	sint32 s, t, f;
-//	city.GetProductionStats(s, t, f);
-//	return f;
 	return city.GetStoredCityFood();
 
 }
@@ -1669,16 +1843,13 @@ STDMETHODIMP_ (sint32) C3Player::GetCityGold (sint32 player, uint32 city_id,
 {
 	Unit city;
 	Assert(g_player[player]);
-	g_player[player]->AiGetCity(*is_unknown_id, city_id, city);
+	city = GetCityUnit(g_player[player], city_id, is_unknown_id);
 
 	if (*is_unknown_id) {
 		Assert(0);
 		return 0;
 	}
 
-//	sint32 s, t, f;
-//	city.GetProductionStats(s, t, f);
-//	return t;
 	return city.GetNetCityGold();
 
 }
@@ -1686,8 +1857,7 @@ STDMETHODIMP_ (sint32) C3Player::GetCityGold (sint32 player, uint32 city_id,
 STDMETHODIMP_(BOOL) C3Player::CityCanBuildUnit(THIS_ uint32 cityId, sint32 unitType)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	Assert(!isUnknown);
 	if(!isUnknown) {
 		return city.CanBuildUnit(unitType);
@@ -1698,8 +1868,7 @@ STDMETHODIMP_(BOOL) C3Player::CityCanBuildUnit(THIS_ uint32 cityId, sint32 unitT
 STDMETHODIMP_(BOOL) C3Player::CityCanBuildBuilding(THIS_ uint32 cityId, sint32 buildingType)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	Assert(!isUnknown);
 	if(!isUnknown) {
 		return city.CanBuildBuilding(buildingType);
@@ -1710,8 +1879,7 @@ STDMETHODIMP_(BOOL) C3Player::CityCanBuildBuilding(THIS_ uint32 cityId, sint32 b
 STDMETHODIMP_(BOOL) C3Player::CityCanBuildWonder(THIS_ uint32 cityId, sint32 wonderType)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	Assert(!isUnknown);
 	if(!isUnknown) {
 		return city.CanBuildWonder(wonderType);
@@ -1722,11 +1890,10 @@ STDMETHODIMP_(BOOL) C3Player::CityCanBuildWonder(THIS_ uint32 cityId, sint32 won
 STDMETHODIMP_(BOOL) C3Player::CityCanBuildEndGameObject(THIS_ uint32 cityId, sint32 endGameType)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	Assert(!isUnknown);
 	if(!isUnknown) {
-		return city.CanBuildEndGameObject(endGameType);
+		return TRUE; // TODO: implement CanBuildEndGame check
 	}
 	return FALSE;
 }
@@ -1734,8 +1901,7 @@ STDMETHODIMP_(BOOL) C3Player::CityCanBuildEndGameObject(THIS_ uint32 cityId, sin
 STDMETHODIMP_(BOOL) C3Player::CityCanBuildCapitalization(THIS_ uint32 cityId)
 {
 	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
+	Unit city = GetCityUnit(m_ptr, cityId, &isUnknown);
 	Assert(!isUnknown);
 	if(!isUnknown) {
 		return city.CanBuildCapitalization();
@@ -1745,24 +1911,12 @@ STDMETHODIMP_(BOOL) C3Player::CityCanBuildCapitalization(THIS_ uint32 cityId)
 
 STDMETHODIMP_(void) C3Player::AiStartMovingPops(THIS_ uint32 cityId)
 {
-	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
-	Assert(!isUnknown);
-	if(!isUnknown) {
-		city.AccessData()->GetCityData()->AiStartMovingPops();
-	}
+	// TODO: implement population movement
 }
 
 STDMETHODIMP_(void) C3Player::AiDoneMovingPops(THIS_ uint32 cityId)
 {
-	BOOL isUnknown;
-	Unit city;
-	m_ptr->AiGetCity(isUnknown, cityId, city);
-	Assert(!isUnknown);
-	if(!isUnknown) {
-		city.AccessData()->GetCityData()->AiDoneMovingPops();
-	}
+	// TODO: implement population movement
 }
 
 BOOL C3Player::IsOccupiedByForeigner(MapPointData *target_pos)
@@ -1914,7 +2068,7 @@ uint32 C3Player::CreateUnit(sint32 type, MapPointData *pos, uint32 home_city)
 		isoPos,  Unit(home_city), FALSE, CAUSE_NEW_ARMY_AI_TRANSPORT_CHEAT);
 
 	if (new_unit.m_id != (0))
-		return g_player[m_owner]->GetArmyId(new_unit);
+		return new_unit.m_id; // TODO: verify this is the correct army ID
 	else
 		return 0;
 }
@@ -1943,15 +2097,18 @@ sint32 C3Player::CountMyTradeToForeignCity(PLAYER_INDEX test_him, uint32 city_id
     Assert(g_player[test_him]);
     if (NULL == g_player[test_him]) return 0;
 
-    BSetID *idx = g_player[test_him]->m_bset_cities_index->Find(city_id) ;
+    *is_unknown_id = TRUE;
 
-	*is_unknown_id = TRUE ;
-	if (idx == NULL)
-		return 0;
+    sint32 n = g_player[test_him]->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = g_player[test_him]->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            *is_unknown_id = FALSE;
+            return city.GetData()->GetCityData()->CountTradeWith(m_ptr->m_owner);
+        }
+    }
 
-	*is_unknown_id = FALSE ;
-
-    return g_player[test_him]->m_all_cities->Get(idx->GetVal()).GetData()->GetCityData()->CountTradeWith(m_ptr->m_owner);
+    return 0;
 }
 
 STDMETHODIMP_(void) C3Player::SetRegard(PLAYER_INDEX who, sint32 level)
@@ -2014,17 +2171,18 @@ STDMETHODIMP_ (BOOL) C3Player::ValidateArmyID(uint32 u_id, sint32 unit_num)
 STDMETHODIMP_ (void) C3Player::GetCityNumTradeRoutes(PLAYER_INDEX owner, uint32 u_id,
     BOOL *is_unknown_id, sint32 *in_num, sint32 *in_max, sint32 *out_num, sint32 *out_max)
 {
-    BSetID *idx = g_player[owner]->m_bset_cities_index->Find(u_id) ;
+    *is_unknown_id = TRUE;
 
-	*is_unknown_id = TRUE ;
-    if (idx == NULL) {
-        Assert(0);
-		return;
+    sint32 n = g_player[owner]->m_all_cities->Num();
+    CityData *cd = NULL;
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = g_player[owner]->m_all_cities->Get(i);
+        if (city.m_id == u_id) {
+            cd = city.GetData()->GetCityData();
+            *is_unknown_id = FALSE;
+            break;
+        }
     }
-
-	*is_unknown_id = FALSE ;
-
-    CityData *cd = g_player[owner]->m_all_cities->Get(idx->GetVal()).GetData()->GetCityData();
 
     if (cd == NULL) {
         Assert(0);
@@ -2047,7 +2205,7 @@ STDMETHODIMP_ (void) C3Player::GetAllRegard (sint32  player_idx, double i_like[k
 
 STDMETHODIMP_ (sint32) C3Player::GetSlavesPerMilitaryUnit()
 {
-	return g_theConstDB->SlavesPerMilitaryUnit();
+	return g_theConstDB->Get(0)->GetSlavesPerMilitaryUnit();
 }
 STDMETHODIMP_ (BOOL) C3Player::BuildCapitalization(uint32 city_id, BOOL *is_unknown_id)
 {
@@ -2068,8 +2226,9 @@ BOOL C3Player::ArmyHasLeftMap(uint32 army_id, BOOL *is_unknown_id)
     *is_unknown_id = FALSE;
 	Army army;
 
-	m_ptr->AiGetArmy(*is_unknown_id, army_id, army);
+	army = GetArmyList(army_id, is_unknown_id);
 
+    if (*is_unknown_id) return FALSE;
     return army.HasLeftMap();
 }
 
@@ -2114,10 +2273,17 @@ STDMETHODIMP_ (BOOL) C3Player::IsActuallyVisible(sint32 player,
 	if(!g_player[player])
 		return FALSE;
 
-	Army army;
 	BOOL is_unknown_id;
-	g_player[player]->AiGetArmy(is_unknown_id, army_id, army);
-	if(is_unknown_id)
+	Army army;
+	sint32 n = g_player[player]->m_all_armies->Num();
+	for (sint32 j = 0; j < n; j++) {
+		Army a = g_player[player]->m_all_armies->Access(j);
+		if (a.m_id == army_id) {
+			army = a;
+			break;
+		}
+	}
+	if(!army)
 		return FALSE;
 	sint32 i;
 	for(i = 0; i <army.Num(); i++) {

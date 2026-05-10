@@ -73,17 +73,17 @@ sint32 C3BuildingDB::GetNumBuildings ()
 
 sint32 C3BuildingDB::GetProductionCost(sint32 building_type)
 {
-   return buildingutil_GetProductionCost(building_type);
+   return buildingutil_GetProductionCost(building_type, m_player->m_owner);
 }
 
 sint32 C3BuildingDB::GetGoldUpkeep (sint32 building_type)
 {
-    return buildingutil_GetBlgUpkeep(building_type);
+    return buildingutil_GetBlgUpkeep(building_type, m_player->m_owner);
 }
 
 sint32 C3BuildingDB::GetGoldPerCitizen (sint32 building_type)
 {
-    return buildingutil_GetGoldPerCitizen(building_type);
+    return buildingutil_GetGoldPerCitizen(uint64(0x1) << building_type, m_player->m_owner);
 }
 
 BOOL C3BuildingDB::CityCanConstructBuilding(sint32 building_type)
@@ -262,14 +262,14 @@ BOOL C3BuildingDB::IsCapitolBuilding (sint32 buildingType)
 {
     uint64 bit = uint64(0x1) << buildingType;
 
-    return buildingutil_GetDesignatesCapitol(bit);
+    return buildingutil_GetDesignatesCapitol(bit, m_player->m_owner);
 }
 
 double C3BuildingDB::GetIncreaseSciencePerPop(const sint32 &buildingType)
 {
     uint64 bit = uint64(0x1) << buildingType;
 
-    return buildingutil_GetIncreaseSciencePerPop(bit);
+    return buildingutil_GetIncreaseSciencePerPop(bit, m_player->m_owner);
 }
 
 void C3BuildingDB::GetAllEffects(sint32 blg, double *effect)

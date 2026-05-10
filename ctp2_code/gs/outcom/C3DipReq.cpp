@@ -99,7 +99,7 @@ STDMETHODIMP_(AdvanceType)         C3DiplomaticRequest::GetWantedAdvance()
 
 STDMETHODIMP_(uint32)              C3DiplomaticRequest::GetWantedCity()
 {
-	return g_player[m_request.GetWantedCity().GetOwner()]->GetCityId(m_request.GetWantedCity());
+	return g_player[m_request.GetWantedCity().GetOwner()]->FindCityIndex(m_request.GetWantedCity());
 }
 
 STDMETHODIMP_(PLAYER_INDEX)        C3DiplomaticRequest::GetThirdParty()
@@ -132,7 +132,7 @@ STDMETHODIMP_(REQUEST_RESPONSE_TYPE) C3DiplomaticRequest::GetResponse()
 
 STDMETHODIMP_(uint32)              C3DiplomaticRequest::GetTarget()
 {
-	return g_player[m_request.GetTarget().GetOwner()]->GetCityId(m_request.GetTarget());
+	return g_player[m_request.GetTarget().GetOwner()]->FindCityIndex(m_request.GetTarget());
 }
 
 STDMETHODIMP_(sint32)              C3DiplomaticRequest::GetGold()

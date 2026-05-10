@@ -6,9 +6,18 @@
 #include "gs/outcom/IMapPointData.h"
 #include "gs/utility/gstypes.h"
 
+#define k_NUM_CITY_TILES 20
+
 typedef sint32 PLAYER_INDEX;
-enum AGREEMENT_TYPE;
-enum PRODUCTION_TYPE;
+#include "gs/gameobj/AgreementTypes.h"
+
+enum PRODUCTION_TYPE {
+    PRODUCTION_TYPE_PRODUCTION,
+    PRODUCTION_TYPE_FOOD,
+    PRODUCTION_TYPE_GOLD,
+    PRODUCTION_TYPE_KNOWLEDGE,
+    PRODUCTION_TYPE_ENTERTAINMENT
+};
 
 DEFINE_GUID(CLSID_IC3Player,
      0xb6133fa0,

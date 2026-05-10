@@ -7,6 +7,7 @@ extern World *g_theWorld;
 
 #include "gs/world/MapPoint.h"
 
+#include "robotcom/backdoor/common.h"
 #include "robot/aibackdoor/bset.h"
 
 #include "gs/utility/MoveFlags.h"

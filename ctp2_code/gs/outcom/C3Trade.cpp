@@ -88,7 +88,7 @@ STDMETHODIMP_(uint32) C3TradeOffer::GetFromCity()
 	if(!g_player[fromCity.GetOwner()]->m_all_cities->IsPresent(fromCity))
 		return 0;
 
-	return g_player[m_offer.GetFromCity().GetOwner()]->GetCityId(m_offer.GetFromCity());
+	return g_player[m_offer.GetFromCity().GetOwner()]->FindCityIndex(m_offer.GetFromCity());
 }
 
 STDMETHODIMP_(ROUTE_TYPE) C3TradeOffer::GetOfferType()
@@ -108,13 +108,10 @@ STDMETHODIMP_(sint32) C3TradeOffer::GetAskingGold()
 
 STDMETHODIMP_(void) C3TradeOffer::Accept(uint32 destCity)
 {
-	BOOL isUnknown;
-	Unit city;
-	g_player[m_aiPlayer]->AiGetCity(isUnknown, destCity,
-									city);
-	Assert(!isUnknown);
-	if(isUnknown)
+	Unit city = g_player[m_aiPlayer]->GetCityFromIndex(destCity);
+	if (!g_theUnitPool->IsValid(city))
 		return;
 
-	g_player[m_aiPlayer]->AcceptTradeOffer(m_offer, Unit(0), city);
+	Unit sourceCity(0);
+	g_player[m_aiPlayer]->AcceptTradeOffer(m_offer, sourceCity, city);
 }

@@ -100,7 +100,7 @@ sint16 C3World::GetYHeight()
 
 sint16 C3World::GetZHeight()
 {
-    return sint16(g_theWorld->GetZHeight());
+    return 1;
 }
 
 double C3World::GetMoveCost(MapPointData *pos)
@@ -156,7 +156,7 @@ BOOL C3World::ClearColor()
     static MapPoint pos;
    sint32 mx = g_theWorld->GetXWidth();
    sint32 my = g_theWorld->GetYHeight();
-   sint32 mz = g_theWorld->GetZHeight();
+   sint32 mz = 1;
 
    uint16 c = myRGB(0, 0, 0);
 
@@ -398,7 +398,7 @@ BOOL C3World::GetArmyId (MapPointData *pos, sint32 *player_id,
 			 if(u.m_id != (0)) {
 				 *top_unit_type = u.GetType();
 				 *player_id = u.GetOwner();
-				 *a_id = g_player[*player_id]->GetArmyId(u);
+				 *a_id = u.m_id;
 			 } else {
 				 *a_id = 0;
 				 *top_unit_type = 0;
@@ -419,7 +419,7 @@ BOOL C3World::GetArmyId (MapPointData *pos, sint32 *player_id,
         } else {
             *player_id = a->GetOwner();
             *top_unit_type = u.GetType();
-            *a_id = g_player[*player_id]->GetArmyId(u);
+            *a_id = u.m_id;
             if (0 == *a_id) {
                 return FALSE;
             }
@@ -450,7 +450,7 @@ BOOL C3World::GetCityId (MapPointData *pos, sint32 *player_id, uint32 *c_id)
         return FALSE;
     } else {
         *player_id = c.GetOwner();
-        *c_id = g_player[*player_id]->GetCityId(c);
+        *c_id = c.m_id;
 		Assert(*c_id);
         return TRUE;
     }
@@ -493,8 +493,7 @@ void C3World::GetCityAndArmyId( MapPointData* pos, sint32* player_id,
 		if ( c.m_id != 0)
 		{
 			*player_id = c.GetOwner();
-			*c_id = g_player[ *player_id ]->GetCityId( c );
-			Assert( *c_id );
+			*c_id = c.m_id;
 			*cityVis = TRUE;
 		}else {
             *c_id = 0;
@@ -508,7 +507,7 @@ void C3World::GetCityAndArmyId( MapPointData* pos, sint32* player_id,
 			*player_id = a->GetOwner();
 			*unit_num = a->Num();
 
-            *a_id = g_player[*player_id]->GetArmyId(a->Get(0));
+            *a_id = a->Get(0).m_id;
 
 			Unit u(0);
 			g_theWorld->GetTopVisibleUnit(owner, ipos, u );
@@ -548,8 +547,7 @@ void C3World::GetCellContents( MapPointData* pos, sint32* player_id,
 		if ( c.m_id != 0){
 
 			*player_id = c.GetOwner();
-			*c_id = g_player[ *player_id ]->GetCityId( c );
-			Assert( *c_id );
+			*c_id = c.m_id;
 			*cityVis = TRUE;
         }
 
@@ -562,7 +560,7 @@ void C3World::GetCellContents( MapPointData* pos, sint32* player_id,
             *can_be_expelled = a->CanBeExpelled();
 			*player_id = a->GetOwner();
 			*unit_num = a->Num();
-            *a_id = g_player[*player_id]->GetArmyId(a->Get(0));
+            *a_id = a->Get(0).m_id;
 
 			Unit u(0);
 			g_theWorld->GetTopVisibleUnit(owner,ipos, u );
@@ -1088,7 +1086,8 @@ BOOL C3World::HasBonusFoodUnit(MapPointData *pos)
 
         unit_type = c->AccessUnit(i).GetType();
 
-		if (g_theUnitDB->Get(unit_type)->GetBonusFood())
+		sint32 bonusFood;
+		if (g_theUnitDB->Get(unit_type)->GetBonusFood(bonusFood) && bonusFood)
 			return TRUE;
     }
 
@@ -1260,7 +1259,7 @@ sint32 C3World::GetFranchiseOwner(uint32 u_id,
     c = g_theWorld->GetCity(ipos);
 
     sint32 city_owner = c.GetOwner();
-    if (g_player[city_owner]->AiGetCityID(c) != u_id) {
+    if (c.m_id != u_id) {
        *is_unknown_id = TRUE;
        return -1;
     } else {
@@ -1612,17 +1611,7 @@ BOOL C3World::CanBuildUnderseaTunnel(MapPointData *pos)
 
     ipos.Norm2Iso(*pos);
 
-    switch (g_theWorld->GetTerrainType(ipos)) {
-    case TERRAIN_WATER_SHALLOW:
-    case TERRAIN_WATER_DEEP:
-    case TERRAIN_WATER_VOLCANO:
-    case TERRAIN_WATER_BEACH:
-    case TERRAIN_WATER_SHELF:
-    case TERRAIN_WATER_RIFT:
-        return TRUE;
-    default:
-        return FALSE;
-    }
+    return g_theWorld->IsWater(ipos);
 }
 
 BOOL C3World::HasUnderseaTunnel(MapPointData  *pos)
@@ -1678,10 +1667,10 @@ sint32 C3World::GetCitySlaveCount (MapPointData *pos)
         return -1;
 
 	player_id = c.GetOwner();
-	c_id = g_player[player_id]->GetCityId(c);
-	slave_count =
-		g_player[player_id]->GetCitySlaveCount(c_id, is_unknown_id);
-	Assert(!is_unknown_id);
+	c_id = c.m_id;
+	CityData *cityData = c.GetData()->GetCityData();
+	Assert(cityData);
+	slave_count = cityData ? cityData->SlaveCount() : 0;
 
 	return slave_count;
 }

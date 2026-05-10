@@ -14,7 +14,7 @@ DEFINE_GUID(CLSID_IC3TradeOffer,
 #define INTERFACE IC3TradeOffer
 
 typedef sint32 PLAYER_INDEX;
-enum ROUTE_TYPE;
+#include "gs/gameobj/TradeRoute.h"
 
 DECLARE_INTERFACE_(IC3TradeOffer, IUnknown)
 {

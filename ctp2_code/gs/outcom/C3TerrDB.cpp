@@ -92,5 +92,7 @@ sint32 C3TerrainDB::GetNumTerrainTypes()
 
 double  C3TerrainDB::GetMoveCost(const sint8 terrain_type)
 {
-	return (g_theTerrainDB->Get(terrain_type)->GetEnvBase()->GetMovement()) ;
+	sint32 value = 0;
+	g_theTerrainDB->Get(terrain_type)->GetEnvBase()->GetMovement(value);
+	return static_cast<double>(value);
 }

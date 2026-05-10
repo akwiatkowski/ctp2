@@ -7,7 +7,6 @@
 class World;
 
 class MapPoint;
-enum TERRAIN_TYPES;
 class CivArchive;
 typedef sint32 TERRAIN_IMPROVEMENT;
 

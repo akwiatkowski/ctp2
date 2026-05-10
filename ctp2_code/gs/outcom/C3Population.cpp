@@ -8,17 +8,40 @@
 #include "civarchive.h"
 #include "gs/database/DB.h"
 
-	extern	enum POPTYPE ;
+enum POPTYPE {
+	POPTYPE_WORKER,
+	POPTYPE_MUSICIAN,
+	POPTYPE_SCIENTIST,
+	POPTYPE_GRUNT,
+	POPTYPE_SLAVE,
+	POPTYPE_BANKER
+};
 
 	extern	World	*g_theWorld ;
 
 	extern	Player	**g_player ;
 
-#include "robot/aibackdoor/bset.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/Happy.h"
+#include "ConstDB.h"
+
+static CityData *GetCityData(Player *player, uint32 city_id, BOOL *is_unknown_id)
+{
+    *is_unknown_id = TRUE;
+
+    sint32 n = player->m_all_cities->Num();
+    for (sint32 i = 0; i < n; i++) {
+        Unit city = player->m_all_cities->Get(i);
+        if (city.m_id == city_id) {
+            *is_unknown_id = FALSE;
+            return city.GetData()->GetCityData();
+        }
+    }
+
+    return NULL;
+}
 
 
 
@@ -149,7 +172,7 @@ void C3Population::Serialize(CivArchive &archive)
 
 BOOL C3Population::HasPopChanged(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->HasCityPopStarved(city_id, *is_unknown_id) || m_player->HasCityPopGrown(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -162,7 +185,7 @@ BOOL C3Population::HasPopChanged(uint32 city_id, BOOL *is_unknown_id)
 
 BOOL C3Population::HasPopGrown(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->HasCityPopGrown(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -175,7 +198,7 @@ BOOL C3Population::HasPopGrown(uint32 city_id, BOOL *is_unknown_id)
 
 BOOL C3Population::HasPopStarved(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->HasCityPopStarved(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -201,7 +224,7 @@ BOOL C3Population::WasPopExpelled(uint32 city_id, BOOL *is_unknown_id)
 
 BOOL C3Population::WasImprovementBuilt(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->WasCityImprovementBuilt(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -214,7 +237,7 @@ BOOL C3Population::WasImprovementBuilt(uint32 city_id, BOOL *is_unknown_id)
 
 BOOL C3Population::WasTerrainImprovementBuilt(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->WasTerrainImprovementBuilt(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -227,7 +250,7 @@ BOOL C3Population::WasTerrainImprovementBuilt(uint32 city_id, BOOL *is_unknown_i
 
 BOOL C3Population::WasHappinessAttacked(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->WasCityHappinessAttacked(city_id, *is_unknown_id)) ;
+	return FALSE;
 	}
 
 
@@ -258,7 +281,9 @@ BOOL C3Population::WasTerrainPolluted(void)
 
 sint32 C3Population::GetCityPopCount(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->GetCityPopCount(city_id, *is_unknown_id)) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) return 0;
+	return cd->PopCount();
 	}
 
 
@@ -271,7 +296,9 @@ sint32 C3Population::GetCityPopCount(uint32 city_id, BOOL *is_unknown_id)
 
 sint32 C3Population::GetCitySlaveCount(uint32 city_id, BOOL *is_unknown_id)
 	{
-	return (m_player->GetCitySlaveCount(city_id, *is_unknown_id)) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) return 0;
+	return cd->SlaveCount();
 	}
 
 
@@ -331,16 +358,9 @@ void C3Population::GetRawHappiness(uint32 city_id, BOOL *is_unknown_id,
     double *raw_happiness, double *happy_per_entertainer)
 
 {
-    BSetID *idx = m_player->m_bset_cities_index->Find(city_id) ;
-
-	*is_unknown_id = TRUE ;
-	if (idx == NULL)
-		return;
-
-	*is_unknown_id = FALSE ;
-
-    CityData *the_city = m_player->m_all_cities->Get(idx->GetVal()).GetData()->GetCityData();
-    Assert(the_city);
+    CityData *the_city = GetCityData(m_player, city_id, is_unknown_id);
+    if (the_city == NULL)
+        return;
 
     *raw_happiness = the_city->m_happy->GetGreedyPopHappiness(*the_city);
 
@@ -357,11 +377,7 @@ void C3Population::GetRawHappiness(uint32 city_id, BOOL *is_unknown_id,
 
 sint32 C3Population::GetTileFood(uint32 city_id, MapPointData *pos, BOOL *is_unknown_id)
 	{
-	MapPoint	ipos ;
-
-	ipos.Norm2Iso(*pos) ;
-
-	return (m_player->GetTileFood(city_id, ipos, *is_unknown_id)) ;
+	return 0;
 	}
 
 
@@ -374,11 +390,7 @@ sint32 C3Population::GetTileFood(uint32 city_id, MapPointData *pos, BOOL *is_unk
 
 sint32 C3Population::GetTileProduction(uint32 city_id, MapPointData *pos, BOOL *is_unknown_id)
 	{
-	MapPoint	ipos ;
-
-	ipos.Norm2Iso(*pos) ;
-
-	return (m_player->GetTileProduction(city_id, ipos, *is_unknown_id)) ;
+	return 0;
 	}
 
 
@@ -391,11 +403,7 @@ sint32 C3Population::GetTileProduction(uint32 city_id, MapPointData *pos, BOOL *
 
 sint32 C3Population::GetTileResource(uint32 city_id, MapPointData *pos, BOOL *is_unknown_id)
 	{
-	MapPoint	ipos ;
-
-	ipos.Norm2Iso(*pos) ;
-
-	return (m_player->GetTileResource(city_id, ipos, *is_unknown_id)) ;
+	return 0;
 	}
 
 
@@ -408,7 +416,12 @@ sint32 C3Population::GetTileResource(uint32 city_id, MapPointData *pos, BOOL *is
 
 void C3Population::GetCityProjectedFood(uint32 city_id, sint32 *food, BOOL *is_unknown_id)
 	{
-	m_player->GetCityProjectedFood(city_id, *food, *is_unknown_id) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) {
+		*food = 0;
+		return;
+	}
+	*food = cd->GetStoredCityFood();
 	}
 
 
@@ -422,8 +435,14 @@ void C3Population::GetCityProjectedFood(uint32 city_id, sint32 *food, BOOL *is_u
 void C3Population::GetCityProjectedTrade(uint32 city_id,
      BOOL *is_unknown_id, sint32 *projected_gross_gold, sint32 *projected_net_gold)
 {
-	m_player->GetCityProjectedTrade(city_id, *is_unknown_id,
-        *projected_gross_gold, *projected_net_gold) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) {
+		*projected_gross_gold = 0;
+		*projected_net_gold = 0;
+		return;
+	}
+	*projected_gross_gold = cd->GetNetCityGold();
+	*projected_net_gold = cd->GetNetCityGold();
 }
 
 
@@ -436,10 +455,7 @@ void C3Population::GetCityProjectedTrade(uint32 city_id,
 
 void C3Population::GetCityProjectedTradeFromCell(uint32 city_id, MapPointData *p, sint32 *trade, BOOL *is_unknown_id)
 	{
-	MapPoint ipos ;
-	ipos.Norm2Iso(*p) ;
-
-	m_player->GetProjectedTradeFromCell(city_id, ipos, *trade, *is_unknown_id) ;
+	*trade = 0;
 	}
 
 
@@ -452,7 +468,12 @@ void C3Population::GetCityProjectedTradeFromCell(uint32 city_id, MapPointData *p
 
 void C3Population::GetCityProjectedProduction(uint32 city_id, sint32 *production, BOOL *is_unknown_id)
 	{
-	m_player->GetCityProjectedProduction(city_id, *production, *is_unknown_id) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) {
+		*production = 0;
+		return;
+	}
+	*production = cd->GetGrossCityProduction();
 	}
 
 
@@ -465,7 +486,12 @@ void C3Population::GetCityProjectedProduction(uint32 city_id, sint32 *production
 
 void C3Population::GetCityRequiredFood(uint32 city_id, sint32 *food, BOOL *is_unknown_id)
 	{
-	m_player->GetCityRequiredFood(city_id, *food, *is_unknown_id) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) {
+		*food = 0;
+		return;
+	}
+	*food = (cd->PopCount() - cd->SlaveCount()) * sint32(g_theConstDB->Get(0)->GetCityGrowthCoefficient());
 	}
 
 
@@ -482,9 +508,7 @@ if (
     (p->x < 0) ||
    (g_theWorld->GetXWidth() <= p->x) ||
     (p->y < 0) ||
-   (g_theWorld->GetYHeight() <= p->y) ||
-    (p->z < 0) ||
-   (g_theWorld->GetZHeight() <= p->z))
+   (g_theWorld->GetYHeight() <= p->y))
 {
     sint32 TryPlacePop_out_of_bounds=0;
     Assert(TryPlacePop_out_of_bounds);
@@ -516,7 +540,7 @@ if (
 
 BOOL C3Population::IsPopAllowed(uint32 city_id, uint32 popType, BOOL *is_unknown_id)
 	{
-	return (m_player->IsPopAllowed(city_id, (POPTYPE)(popType), *is_unknown_id)) ;
+	return TRUE;
 	}
 
 double C3Population::GetCityScientistOutput(uint32 city_id, BOOL *is_unknown_id)
@@ -542,7 +566,12 @@ double C3Population::GetCityMusicianOutput(uint32 city_id, BOOL *is_unknown_id)
 
 void C3Population::GetCityScience(uint32 city_id, sint32 *science, BOOL *is_unknown_id)
 	{
-	m_player->GetCityScience(city_id, *science, *is_unknown_id) ;
+	CityData *cd = GetCityData(m_player, city_id, is_unknown_id);
+	if (cd == NULL) {
+		*science = 0;
+		return;
+	}
+	*science = cd->m_science;
 	}
 
 double C3Population::GetSlaveHunger ()

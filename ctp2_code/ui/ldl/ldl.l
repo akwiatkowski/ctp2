@@ -128,7 +128,7 @@ false           { return VFALSE; }
 					return VSTRING;
 				}
 #.*\n             { g_ldlLineNumber++; }
-[ \t]			{ }
+[ \t\r]			{ }
 \n				{ g_ldlLineNumber++; }
 \$              { }
 .				{ return yytext[0]; }

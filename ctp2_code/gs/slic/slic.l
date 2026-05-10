@@ -190,7 +190,7 @@ Return      { return KW_RETURN; }
 \} 			{ /*slicif_end_block();*/ return yytext[0]; }
 
 \.       { return REF; }
-[ \t]		{}
+[ \t\r]		{}
 ==		{ return EQ; }
 \<		{ return LT; }
 \>		{ return GT; }

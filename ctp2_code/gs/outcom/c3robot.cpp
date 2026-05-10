@@ -45,6 +45,7 @@ extern TurnCount *g_turn;
 #include "gs/outcom/C3Government.h"
 #include "gs/outcom/C3Wonder.h"
 #include "gs/outcom/C3Population.h"
+#include "gs/outcom/C3Robot.h"
 #include "RobotAstar.h"
 #include "gs/outcom/c3endgamedb.h"
 
@@ -264,6 +265,11 @@ RobotInterface::~RobotInterface()
 
 }
 
+void RobotInterface::InitStaticSettle()
+{
+    // TODO: implement static settlement initialization
+}
+
 BOOL RobotInterface::Init(sint32 n_ai, PLAYER_INDEX player_idx[k_MAX_PLAYERS])
 {
     sint32 i;
@@ -392,7 +398,7 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
 												   p->m_all_cities->Access(i).m_id));
 			}
 
-			BSetID id = p->m_all_cities_id->Get(i);
+			BSetID id(p->m_all_cities->Access(i).m_id);
 			RegisterCreatedCity(p->m_all_cities->Access(i),
 								playerIndex,
 								id,
@@ -424,7 +430,7 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
                 unit_hp[j] = sint32(a[j].GetHP());
 			}
 
-			BSetID id = p->m_all_armies_id->Get(i);
+			BSetID id(p->m_all_armies->Access(i).m_id);
 			RegisterCreatedArmy(playerIndex,
 								id,
 								CAUSE_NEW_ARMY_INITIAL,
@@ -436,12 +442,12 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
 				if(a[j].GetNumCarried() > 0) {
 					UnitDynamicArray *list = a[j].AccessData()->GetCargoList();
 					for(k = 0; k < list->Num(); k++) {
-						id = p->m_all_armies_id->Get(i);
+						id = BSetID(p->m_all_armies->Access(i).m_id);
 						RegisterInsertCargo(playerIndex,
 											id.GetVal(),
 											list->Access(k).GetType(),
-                                            (sint32)list->Access(k).GetHP()
-                                            );
+											(sint32)list->Access(k).GetHP()
+											);
 					}
 				}
 			}

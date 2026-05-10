@@ -135,7 +135,7 @@ when        { return WHEN; }
 {name}		{ yylval.name = (char *)strdup(yytext); return NAME; }
 \/\/.*\n	{ fli_lineNumber++; }
 \n			{ fli_lineNumber++; }
-[ \t]		{ }
+[ \t\r]		{ }
 ;			{ /* semicolons are silently ignored for the benefit of
 				 C programmers. */ }
 .			{ return yytext[0]; }

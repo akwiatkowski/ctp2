@@ -351,7 +351,7 @@ main_sources = [
 	'gs/outcom/C3InstDB.cpp',
 	'gs/outcom/C3Player.cpp',
 	'gs/outcom/C3Population.cpp',
-	#'gs/outcom/c3robot.cpp',
+	'gs/outcom/c3robot.cpp',
 	'gs/outcom/C3Science.cpp',
 	'gs/outcom/C3String.cpp',
 	'gs/outcom/C3TerrDB.cpp',

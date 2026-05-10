@@ -9,9 +9,7 @@
 
 #include "gs/outcom/IMapPointData.h"
 
-enum ASTAR_ENTRY_TYPE {
-	ASTAR_ENTRY_TYPE_NORMAL
-};
+#include "robot/pathing/astarpnt.h"
 
 typedef BOOL RobotPathEval (
 	BOOL can_enter,

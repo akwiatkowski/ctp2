@@ -72,7 +72,7 @@ name		[a-zA-Z]+[a-zA-Z0-9_#]*
 \} 			{ return yytext[0]; }
 
 \.       { return REF; }
-[ \t]		{}
+[ \t\r]		{}
 ==		{ return EQ; }
 \<		{ return LT; }
 \>		{ return GT; }

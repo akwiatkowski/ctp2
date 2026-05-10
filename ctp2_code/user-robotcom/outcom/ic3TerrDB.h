@@ -22,8 +22,8 @@ DECLARE_INTERFACE_(IC3TerrainDB, IUnknown)
     STDMETHOD_ (sint32, GetGoodGoldValue) (THIS_
         sint32 type_good) PURE;
 
-	STDMETHOD_ (sint32, GetNumTerrainTypes)(THIS_) PURE ;
-    STDMETHOD_ (sint32, GetNumTypeGoods) (THIS_) PURE;
+	STDMETHOD_ (sint32, GetNumTerrainTypes)(THIS) PURE ;
+    STDMETHOD_ (sint32, GetNumTypeGoods) (THIS) PURE;
 
 };
 

@@ -33,23 +33,23 @@
 //
 // - Make sure that cities created by the scenario editor keep their style and
 //   their size. The last created city by the scenario editor is now selected.
-//	 By Martin Gühmann.
+//	 By Martin Gï¿½hmann.
 // - Map wrapping corrected.
 // - Possible leaks/invalid accesses corrected.
 // - Current terrain improvements are displayed instead of those from the
-//   last visit if the fog of war is toggled off. - Dec 24th 2004 - Martin Gühmann
+//   last visit if the fog of war is toggled off. - Dec 24th 2004 - Martin Gï¿½hmann
 // - With fog of war off the current city sprites and unit sprites at the
-//   right position are displayed. - Dec. 25th 2004 - Martin Gühmann
+//   right position are displayed. - Dec. 25th 2004 - Martin Gï¿½hmann
 // - Improved destructor (useless code removed, corrected delete [])
-// - Removed .NET compiler warnings. - April 23rd 2005 Martin Gühmann
+// - Removed .NET compiler warnings. - April 23rd 2005 Martin Gï¿½hmann
 // - Prevented crashes on game startup and exit.
 // - The good sprite index is now retrieved from the resource database
-//   instaed of good sprite state database. (Aug 29th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+//   instaed of good sprite state database. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 // - added debugai profile switch - E 4-3-2007
 // - When yes the debugai switch causes a crash
-// - Full city radius is now drawn around settlers. (30-Jan-2008 Martin Gühmann)
+// - Full city radius is now drawn around settlers. (30-Jan-2008 Martin Gï¿½hmann)
 // - Changed colour of maximum zoom grid from white to black. (12-Mar-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@
 #include "gs/database/profileDB.h"                  // g_theProfileDB
 #include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
 #include "ui/interface/radarwindow.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "ui/interface/scenarioeditor.h"
 #include "gfx/spritesys/screenmanager.h"
 #include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
@@ -109,8 +109,8 @@
 #include "gfx/spritesys/Sprite.h"
 #include "ui/interface/spriteeditor.h"
 #include "gs/database/StrDB.h"                      // g_theStringDB
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImproveData.h"
@@ -125,7 +125,7 @@
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"                      // g_theWorld
@@ -1513,9 +1513,7 @@ sint32 TiledMap::CalculateMetrics(void)
 
 
 
-#if defined(_PLAYTEST)
-extern sint32 g_is_debug_map_color;
-#endif
+sint32 g_is_debug_map_color = 0;
 extern uint16 myRGB(sint32 r,  sint32 g, sint32 b);
 
 sint32 TiledMap::CalculateWrap
@@ -1842,7 +1840,7 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
 
 	bool visiblePlayerOwnsThis = g_selected_item->GetVisiblePlayer() == g_theWorld->GetOwner(pos);
 
-// Added by Martin Gühmann
+// Added by Martin Gï¿½hmann
 	if(!g_fog_toggle // The sense of toogling off the fog is to see something
 	&& !visiblePlayerOwnsThis
 	&& m_localVision->GetLastSeen(pos, ucell)
@@ -2793,7 +2791,7 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 
 
 
-// Added by Martin Gühmann
+// Added by Martin Gï¿½hmann
 			// We want to something when we lift the fog of war
 			if(!g_fog_toggle
 			&&  m_localVision
@@ -3318,8 +3316,8 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 			srcPtr =	(uint32 *)(buffer + (w - dx) * 2 - 4);
 			destPtr =	(uint32 *)(buffer + w * 2 - 4);
 
-			Assert((unsigned)srcPtr >=(unsigned)buffer);
-			Assert((unsigned)destPtr>=(unsigned)buffer);
+			Assert((uintptr_t)srcPtr >=(uintptr_t)buffer);
+			Assert((uintptr_t)destPtr>=(uintptr_t)buffer);
 
 			slop = (pitch>>2) + copyWidth;
 
@@ -4804,7 +4802,7 @@ void TiledMap::HandleCheat(MapPoint &pos)
 						}
 					}
 					Unit id1 = p->CreateCity(unitNum, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
-					//Added by Martin Gühmann to make the created city selected.
+					//Added by Martin Gï¿½hmann to make the created city selected.
 					g_selected_item->SetSelectCity(id1);
 					//End Add
 				} else {

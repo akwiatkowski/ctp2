@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed unnecessary include files. (Aug 28th 2005 Martin Gühmann)
+// - Removed unnecessary include files. (Aug 28th 2005 Martin Gï¿½hmann)
 // - Changed occurances of UnitRecord::GetMaxHP to
 //   UnitData::CalculateTotalHP. (Aug 3rd 2009 Maq)
 //
@@ -46,8 +46,8 @@
 #include "sound/soundmanager.h"
 #include "gfx/spritesys/SpriteState.h"
 
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/SpecialEffectRecord.h"
+#include "UnitRecord.h"
+#include "SpecialEffectRecord.h"
 
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/unitutil.h"
@@ -314,12 +314,12 @@ BattleViewActor *Battle::ActorFromUnit(BOOL isDefender, Unit theUnit)
 	if (!actor) {
 		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Unit %.8lx not found in Actor lists\n", theUnit));
 		for (i=0; i<m_numAttackers; i++) {
-			DPRINTF(k_DBG_FIX, ("ActorFromUnit: Attacker Actor with id: %.8lx\n",
-								m_attackers[i] ? m_attackers[i]->GetUnitID() : 0xabcdef12));
+		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Attacker Actor with id: %.8lx\n",
+							m_attackers[i] ? static_cast<uint32>(m_attackers[i]->GetUnitID()) : 0xabcdef12));
 		}
 		for (i=0; i<m_numDefenders; i++) {
-			DPRINTF(k_DBG_FIX, ("ActorFromUnit: Defender Actor with id: %.8lx\n",
-								m_defenders[i] ? m_defenders[i]->GetUnitID() : 0xfedcba21));
+		DPRINTF(k_DBG_FIX, ("ActorFromUnit: Defender Actor with id: %.8lx\n",
+							m_defenders[i] ? static_cast<uint32>(m_defenders[i]->GetUnitID()) : 0xfedcba21));
 		}
 	}
 

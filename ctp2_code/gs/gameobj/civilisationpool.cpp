@@ -36,7 +36,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Player.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/RandGen.h"

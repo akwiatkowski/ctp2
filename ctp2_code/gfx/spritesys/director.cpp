@@ -67,8 +67,8 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/SpriteRecord.h"
-#include "gs/newdb/UnitRecord.h"
+#include "SpriteRecord.h"
+#include "UnitRecord.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/TurnCnt.h"  // g_turn
 #include "gs/utility/UnitDynArr.h"

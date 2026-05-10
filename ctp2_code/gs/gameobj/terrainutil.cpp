@@ -62,27 +62,27 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/terrainutil.h"
 
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #ifndef __TILETOOL__
 #include "gs/world/MapPoint.h"
 #include "gs/world/World.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "TerrainImprovementRecord.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/utility/QuadTree.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gfx/spritesys/director.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/gaiacontroller.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/citydata.h"  //for wonder tileimps located in city radius
@@ -91,7 +91,7 @@
 #include "gs/gameobj/installationtree.h"           // g_theInstallationTree
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/WonderTracker.h"				// to check for gaia controller wonder
 #include "gs/gameobj/wonderutil.h"					// to check for gaia controller wonder
 

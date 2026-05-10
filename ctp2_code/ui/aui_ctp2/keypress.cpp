@@ -128,7 +128,7 @@
 #include "ui/interface/musicscreen.h"
 #include "ui/interface/graphicsscreen.h"
 #include "ui/interface/gameplayoptions.h"
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 #include "ui/interface/ProfileEdit.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/ArmyData.h"

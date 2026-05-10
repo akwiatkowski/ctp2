@@ -43,7 +43,7 @@
 #include <chrono>
 #include <thread>
 
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "ui/interface/agesscreen.h"
 #include "ui/aui_common/aui_blitter.h"
 #include "ui/aui_common/aui_ldl.h"
@@ -57,7 +57,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3textfield.h"
 #include "gs/gameobj/CivilisationPool.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"                      // g_civPaths
 #include "gs/fileio/civscenarios.h"
 #include "ui/aui_ctp2/ctp2_dropdown.h"

@@ -57,13 +57,13 @@
 #include "gs/gameobj/Order.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/newdb/CTPDatabase.h"
-#include "gs/newdb/OrderRecord.h"    // g_theOrderDB
-#include "gs/newdb/GoalRecord.h"
-#include "gs/newdb/UnitRecord.h"
+#include "OrderRecord.h"    // g_theOrderDB
+#include "GoalRecord.h"
+#include "UnitRecord.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/ctpaidebug.h"
 #include "ai/ctpai.h"
-#include "gs/newdb/GoalRecord.h"
+#include "GoalRecord.h"
 #include "ai/strategy/goals/Goal.h"
 
 extern MapPoint  g_mp_size;

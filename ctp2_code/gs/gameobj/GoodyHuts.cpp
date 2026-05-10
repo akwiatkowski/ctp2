@@ -53,12 +53,12 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/Barbarians.h"
 #include "gs/database/profileDB.h"      // g_theProfileDB
-#include "gs/newdb/RiskRecord.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "RiskRecord.h"
+#include "AdvanceRecord.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/Exclusions.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/events/GameEventManager.h"
 
 #include "ui/interface/MainControlPanel.h"

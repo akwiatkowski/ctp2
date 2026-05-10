@@ -57,7 +57,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/World.h"
 
 void SelectedItem::SetupClickFunctions()

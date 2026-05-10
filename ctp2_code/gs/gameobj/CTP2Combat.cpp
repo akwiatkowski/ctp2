@@ -36,7 +36,7 @@
 #ifndef TEST_APP
 
 #include "gs/world/cellunitlist.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/outcom/AICause.h"
 #include "gs/utility/RandGen.h"

@@ -43,8 +43,8 @@
 #include "ui/aui_ctp2/statictextitem.h"
 
 #include "gs/database/StrDB.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
@@ -59,7 +59,7 @@
 #include "ui/aui_ctp2/cityinventorylistbox.h"
 #include "gs/gameobj/Player.h"
 #include "ui/interface/debugwindow.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/buildingutil.h"
 

@@ -37,7 +37,7 @@
 #include "ctp/c3.h"
 #include "gs/utility/MapFile.h"
 
-#include "gs/newdb/AdvanceRecord.h"              // g_theAdvanceDB
+#include "AdvanceRecord.h"              // g_theAdvanceDB
 #include <algorithm>
 #include "gs/outcom/AICause.h"
 #include "gs/world/Cell.h"
@@ -51,11 +51,11 @@
 #include "net/io/net_util.h"                   // PULL/PUSH macros
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/database/profileDB.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "TerrainImprovementRecord.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/world/World.h"                      // g_theWorld

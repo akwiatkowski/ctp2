@@ -45,17 +45,17 @@
 // - Merged GNU and MSVC code (DoFinalCleanup, CivMain).
 // - Option added to include multiple data directories.
 // - Display the main thread function name in the debugger.
-// - Removed references to CivilisationDB. (Aug 20th 2005 Martin Gühmann)
-// - Removed references to old SpriteStateDBs. (Aug 29th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
-// - Removed some unreachable code. (Sep 9th 2005 Martin Gühmann)
+// - Removed references to CivilisationDB. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Removed references to old SpriteStateDBs. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Removed some unreachable code. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Moved debug tools handling to c3.h, so that the leak reporter doesn't
-//   report leaks that aren't leaks. (Oct 3rd 2005 Matzin Gühmann)
+//   report leaks that aren't leaks. (Oct 3rd 2005 Matzin Gï¿½hmann)
 // - Added version to crash.txt
-// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin Gühmann)
+// - USE_LOGGING now works in a final version. (30-Jun-2008 Martin Gï¿½hmann)
 // - The log files are now only opened and closed once, this speeds up
-//   debugging significantly. (09-Aug-2008 Martin Gühmann)
+//   debugging significantly. (09-Aug-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 //
@@ -67,7 +67,7 @@
 #include "ctp/c3.h"         // Pre-compiled header
 #include "ctp/civ3_main.h"  // Own declarations: consistency check
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include <algorithm>                    // std::fill
 #include "ui/interface/ancientwindows.h"
 #include "ctp/ctp2_utils/appstrings.h"
@@ -78,7 +78,7 @@
 #include "ui/aui_ctp2/background.h"
 #include "ui/interface/backgroundwin.h"
 #include "ui/aui_ctp2/bevellesswindow.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_dropdown.h"
 #include "ui/aui_ctp2/c3_static.h"
@@ -135,7 +135,7 @@
 #include "gfx/spritesys/screenmanager.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/sliccmd.h"                    // sliccmd_clear_symbols
-#include "gs/newdb/SpecialEffectRecord.h"
+#include "SpecialEffectRecord.h"
 #include "ui/interface/splash.h"                    // g_splash_old, SPLASH_STRING
 #include "ui/interface/spnewgamewindow.h"
 #include "gfx/spritesys/Sprite.h"
@@ -145,7 +145,7 @@
 #include "ui/aui_ctp2/statuswindow.h"
 #include "gs/database/StrDB.h"                      // g_theStringDB
 #include <string>                       // std::basic_string
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
@@ -1671,8 +1671,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 #ifdef __AUI_USE_SDL__
 		SDL_Event event;
 		while (1) { //there is a break;)
-			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-                            ~(SDL_EVENTMASK(SDL_MOUSEMOTION) | SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN) | SDL_EVENTMASK(SDL_MOUSEBUTTONUP)));
+			// SDL2: SDL_PeepEvents uses minType/maxType instead of event masks
+		int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT,
+                            SDL_FIRSTEVENT, SDL_LASTEVENT);
 			if (0 > n) {
                             //fprintf(stderr, "[CivMain] PeepEvents failed: %s\n", SDL_GetError());
                             printf("%s L%d: SDL_PeepEvents: Still events stored! Error?: %s\n", __FILE__, __LINE__, SDL_GetError());
@@ -1784,8 +1785,8 @@ int SDLMessageHandler(const SDL_Event &event)
 	switch(event.type) {
 	case SDL_KEYDOWN:
 		{
-                	SDLKey key = event.key.keysym.sym;
-			SDLMod mod = event.key.keysym.mod;
+                	SDL_Keycode key = event.key.keysym.sym;
+			SDL_Keymod mod = (SDL_Keymod)event.key.keysym.mod;
 			WPARAM wp = '\0';
 			switch (key) {
 
@@ -1846,7 +1847,7 @@ int SDLMessageHandler(const SDL_Event &event)
 			SDLKCONVSHIFT(SDLK_BACKSLASH, '\\', '|');
 			SDLKCONV(SDLK_CARET, '^');
 			SDLKCONV(SDLK_UNDERSCORE, '_');
-			SDLKCONVSHIFT(SDLK_BACKQUOTE, '`', '%Gï¿½%@');
+			SDLKCONVSHIFT(SDLK_BACKQUOTE, '`', '~');
 //  			SDLKCONV(SDLK_UP, SDLK_UP + 256);
 //  			SDLKCONV(SDLK_DOWN, SDLK_DOWN + 256);
 //  			SDLKCONV(SDLK_LEFT, SDLK_LEFT + 256);
@@ -1868,16 +1869,16 @@ int SDLMessageHandler(const SDL_Event &event)
 			//SDLKCONVSHIFT(SDLK_F13, '' + 128, '\0');
 			//SDLKCONVSHIFT(SDLK_F14, '' + 128, '\0');
 			//SDLKCONVSHIFT(SDLK_F15, '' + 128, '\0');
-			SDLKCONV(SDLK_KP0, '0');
-			SDLKCONV(SDLK_KP1, '1');
-			SDLKCONV(SDLK_KP2, '2');
-			SDLKCONV(SDLK_KP3, '3');
-			SDLKCONV(SDLK_KP4, '4');
-			SDLKCONV(SDLK_KP5, '5');
-			SDLKCONV(SDLK_KP6, '6');
-			SDLKCONV(SDLK_KP7, '7');
-			SDLKCONV(SDLK_KP8, '8');
-			SDLKCONV(SDLK_KP9, '9');
+			SDLKCONV(SDLK_KP_0, '0');
+			SDLKCONV(SDLK_KP_1, '1');
+			SDLKCONV(SDLK_KP_2, '2');
+			SDLKCONV(SDLK_KP_3, '3');
+			SDLKCONV(SDLK_KP_4, '4');
+			SDLKCONV(SDLK_KP_5, '5');
+			SDLKCONV(SDLK_KP_6, '6');
+			SDLKCONV(SDLK_KP_7, '7');
+			SDLKCONV(SDLK_KP_8, '8');
+			SDLKCONV(SDLK_KP_9, '9');
 			SDLKCONV(SDLK_KP_PERIOD, '.');
 			SDLKCONV(SDLK_KP_DIVIDE, '/');
 			SDLKCONV(SDLK_KP_MULTIPLY, '*');
@@ -1887,7 +1888,7 @@ int SDLMessageHandler(const SDL_Event &event)
 			SDLKCONV(SDLK_KP_EQUALS, '=');
 			SDLKCONVSHIFT(SDLK_1, '1', '!');
 			SDLKCONVSHIFT(SDLK_2, '2', '"');
-			SDLKCONVSHIFT(SDLK_3, '3', '%Gï¿½%@');
+			SDLKCONVSHIFT(SDLK_3, '3', '#');
 			SDLKCONVSHIFT(SDLK_4, '4', '$');
 			SDLKCONVSHIFT(SDLK_5, '5', '%');
 			SDLKCONVSHIFT(SDLK_6, '6', '^');

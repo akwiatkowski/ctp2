@@ -39,14 +39,14 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/database/moviedb.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 
 #include "gs/gameobj/WonderTracker.h"
 
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AdvanceRecord.h"
+#include "AgeRecord.h"
 
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/wonderutil.h"
 
 #include "gs/gameobj/GameSettings.h"

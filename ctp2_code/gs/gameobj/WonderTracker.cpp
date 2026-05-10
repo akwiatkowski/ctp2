@@ -40,7 +40,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/UnitPool.h"
 

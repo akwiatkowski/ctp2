@@ -36,13 +36,13 @@ DECLARE_INTERFACE_(IC3Government, IUnknown)
 
     STDMETHOD_ (double, GetMinEmpireDistance)(THIS_ sint32 gov_id) PURE ;
 	STDMETHOD_ (double, GetMaxEmpireDistance)(THIS_ sint32 gov_id) PURE ;
-    STDMETHOD_ (double, GetBigCityCoef) (THIS_) PURE;
-    STDMETHOD_ (double, GetBigCityOffset)(THIS_) PURE;
+    STDMETHOD_ (double, GetBigCityCoef) (THIS) PURE;
+    STDMETHOD_ (double, GetBigCityOffset)(THIS) PURE;
 
 	STDMETHOD_ (double, GetCrimeCoef)(THIS_ sint32 gov_id) PURE ;
 	STDMETHOD_ (double, GetCrimeOffset)(THIS_ sint32 gov_id) PURE ;
    	STDMETHOD_ (sint32, EnablingDiscovery)(THIS_ sint32 gov_id) PURE ;
-	STDMETHOD_ (sint32, GetNumGovs)(THIS_) PURE ;
+	STDMETHOD_ (sint32, GetNumGovs)(THIS) PURE ;
 
 	STDMETHOD_ (sint32, GetMaxMartialUnits)(THIS_ sint32 gov_id) PURE ;
 	STDMETHOD_ (double, GetMartialLawEffect)(THIS_ sint32 gov_id) PURE ;

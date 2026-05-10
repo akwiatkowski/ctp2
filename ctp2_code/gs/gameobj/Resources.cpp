@@ -31,7 +31,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Resources.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
 Resources::Resources()
 {

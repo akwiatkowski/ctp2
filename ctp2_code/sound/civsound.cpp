@@ -39,11 +39,11 @@
 #include "ctp/c3.h"
 
 #include "sound/civsound.h"
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 #include "gs/fileio/prjfile.h"
 
 #if defined(USE_SDL)
-#include <SDL/SDL_rwops.h>
+#include <SDL2/SDL_rwops.h>
 #endif
 
 extern ProjectFile  *g_SoundPF;

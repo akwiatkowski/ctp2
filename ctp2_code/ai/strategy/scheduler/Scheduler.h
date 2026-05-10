@@ -41,7 +41,7 @@
 #include "ai/strategy/scheduler/scheduler_types.h"
 
 #include "ai/strategy/squads/squad_Strength.h"
-#include "gs/newdb/StrategyRecord.h"
+#include "StrategyRecord.h"
 
 #include <vector>
 #include <utility>

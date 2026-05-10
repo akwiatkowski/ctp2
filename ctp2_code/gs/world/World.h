@@ -69,7 +69,7 @@ enum MAP_GENERATOR
 #include "gs/utility/gstypes.h"
 #include "gs/world/Cell.h"
 #include "gs/utility/MoveFlags.h"
-#include "gs/newdb/GlobalWarmingRecord.h"
+#include "GlobalWarmingRecord.h"
 
 class MapPoint;
 class CivArchive ;

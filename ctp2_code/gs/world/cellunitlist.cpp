@@ -46,7 +46,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/database/DB.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Army.h"
 #include "net/general/network.h"
@@ -54,11 +54,11 @@
 #include "gs/world/Cell.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/newdb/TerrainRecord.h"	    // TerrainRecord
+#include "TerrainRecord.h"	    // TerrainRecord
 #include "gs/utility/RandGen.h"            // g_rand
 
 // Visibility cheat flags

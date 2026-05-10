@@ -138,9 +138,9 @@
 #include "gs/gameobj/Player.h"
 
 #include "gs/gameobj/AchievementTracker.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/AgreementData.h"
 #include "gs/utility/AgreementDynArr.h"
@@ -154,7 +154,7 @@
 #include "ui/aui_common/aui.h"
 #include "gs/gameobj/Barbarians.h"
 #include "robot/pathing/BFS.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3debug.h"
 #include "ui/interface/c3dialogs.h"
@@ -169,7 +169,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"           // g_theCivilisationPool
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
-#include "gs/newdb/ConstRecord.h"                // g_theConstDB
+#include "ConstRecord.h"                // g_theConstDB
 #include "ui/interface/controlpanelwindow.h"         // g_controlPanel
 #include "gfx/gfx_utils/colorset.h"
 #include "gs/gameobj/CreateUnit.h"
@@ -178,7 +178,7 @@
 #include "gs/utility/DataCheck.h"
 #include "ui/interface/debugwindow.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/gameobj/DiplomaticRequest.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
@@ -196,7 +196,7 @@
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
 #include "sound/gamesounds.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Gold.h"
 #include "ui/interface/greatlibrary.h"
@@ -233,7 +233,7 @@
 #include "gs/utility/RandGen.h"                    // g_rand
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/Regard.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/gameobj/Resources.h"
 #include "ui/interface/scenarioeditor.h"
 #include "gs/gameobj/Sci.h"
@@ -253,8 +253,8 @@
 #include "gs/gameobj/Strengths.h"
 #include "gs/utility/stringutils.h"
 #include "gs/gameobj/TaxRate.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
@@ -266,12 +266,12 @@
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/UnseenCell.h"
 #include "ui/interface/victorymoviewin.h"
 #include "ui/interface/victorywin.h"
 #include "gs/gameobj/Vision.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/world/World.h"

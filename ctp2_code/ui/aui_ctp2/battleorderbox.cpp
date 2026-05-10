@@ -63,8 +63,8 @@
 #include "gs/database/StrDB.h"
 
 #include "ui/aui_utils/primitives.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/IconRecord.h"
+#include "UnitRecord.h"
+#include "IconRecord.h"
 #include "gs/gameobj/UnitData.h"
 
 #define k_UNIT_FRAME_THICKNESS	2

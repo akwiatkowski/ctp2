@@ -7,7 +7,7 @@
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/Player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
@@ -17,7 +17,7 @@
 #include "sound/gamesounds.h"
 #include "ui/interface/DomesticManagementDialog.h"
 #include "gs/utility/UnitDynArr.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "ui/interface/MessageBoxDialog.h"
 
 template <class type> const MBCHAR *ComparisonCharacter(type left, type right)
@@ -457,8 +457,8 @@ std::pair<bool, sint32> GovernmentTab::GetGovernmentSelection()
 
 			currentSelection.first = true;
 
-			currentSelection.second = reinterpret_cast<sint32>
-				(currentItem->GetUserData());
+		currentSelection.second = reinterpret_cast<intptr_t>
+			(currentItem->GetUserData());
 		}
 	}
 

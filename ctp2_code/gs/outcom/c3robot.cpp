@@ -99,8 +99,8 @@ extern ChatBox  *g_chatBox;
 #include "gs/gameobj/Order.h"
 #include "gfx/spritesys/director.h"
 
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/UnitRecord.h"
+#include "AdvanceRecord.h"
+#include "UnitRecord.h"
 
 #define NO_TIMING_FILENAME_YET "notiming.txt"
 

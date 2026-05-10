@@ -24,12 +24,13 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standartized code (May 21st 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standartized code (May 21st 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include <cstring>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
@@ -340,54 +341,40 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
 
 				destBuf -= destPitch;
 
-				do
-				{
-
-
-
-
-
-
-
-
-
-					destBuf += destPitch;
-
-#ifdef _MSC_VER
-					_asm
+					do
 					{
-						mov eax, scanWidth
-						mov esi, srcBuf
-						mov ecx, eax
-						mov edi, destBuf
-						mov edx, 8
-						shr eax, 3
-						and ecx, 0x7
-						add eax, 0
-						jz  MMXCopyDone
+						destBuf += destPitch;
+#if defined(__i386__) || defined(__x86_64__)
+#ifdef _MSC_VER
+						_asm
+						{
+							mov eax, scanWidth
+							mov esi, srcBuf
+							mov ecx, eax
+							mov edi, destBuf
+							mov edx, 8
+							shr eax, 3
+							and ecx, 0x7
+							add eax, 0
+							jz  MMXCopyDone
 
-				_CopyMMX:
-						movq mm0,[esi]
-						movq [edi],mm0
-						add  esi, edx
-						add  edi, edx
-						dec  eax
-						jnz  _CopyMMX
+					_CopyMMX:
+							movq mm0,[esi]
+							movq [edi],mm0
+							add  esi, edx
+							add  edi, edx
+							dec  eax
+							jnz  _CopyMMX
 
-						emms
+							emms
 
-				MMXCopyDone:
+						MMXCopyDone:
 
-	   					shr ecx,1
-	   					rep movsw
-					}
-#else // _MSCVER
-//					assert(0);
-                    //printf("%s L%d: Using Blt16To16FastMMX!\n", __FILE__, __LINE__);
+   							shr ecx,1
+   							rep movsw
+						}
+#else // _MSC_VER
                     __asm__ (
-                        //"movl $scanWidth, %eax       \n\t"
-                        //"movl $srcBuf, %esi          \n\t"
-                        //"movl $destBuf, %edi         \n\t"
                         "movl %%eax,%%ecx              \n\t"
                         "movl $8,%%edx                \n\t"
                         "shrl $3,%%eax                \n\t"
@@ -415,7 +402,10 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
                         : "%edx", "%ecx", "cc"
                         );
 #endif // _MSC_VER
-				} while ( (srcBuf += srcPitch) != stop );
+#else // non-x86: C fallback
+						memcpy(destBuf, srcBuf, scanWidth);
+#endif // __i386__ || __x86_64__
+					} while ( (srcBuf += srcPitch) != stop );
 			}
 			else if ( flags & k_AUI_BLITTER_FLAG_CHROMAKEY )
 			{
@@ -627,6 +617,10 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 
 bool C3Blitter::CheckMMXTechnology(void)
 {
+#if !defined(__i386__) && !defined(__x86_64__)
+    // MMX is x86-only
+    return false;
+#else
     bool retval = true;
     DWORD RegEDX = 0;
 
@@ -651,7 +645,7 @@ bool C3Blitter::CheckMMXTechnology(void)
     }
 #else // _MSC_VER
     try {
-        __asm__ ( // what's this good for??? Setting an opcode?
+        __asm__ (
             "movl $1,%%eax                \n\t"
             ".byte 0x0f		         \n\t"
             ".byte 0xa2                  \n\t"
@@ -677,14 +671,14 @@ bool C3Blitter::CheckMMXTechnology(void)
         }
     }
 
-    printf("%s L%d: MMX-Test succeded!\n", __FILE__, __LINE__);
 #endif // _MSC_VER
-
     return retval;
+#endif // __i386__ || __x86_64__
 }
 
 void BlockCopy(uint8 *src, uint8 *dest, uint32 len)
 {
+#if defined(__i386__) || defined(__x86_64__)
 #ifdef _MSC_VER
 	__asm {
 		mov		esi, src
@@ -708,4 +702,7 @@ End:	add		ecx, eax
 #else // _MSC_VER
 	assert(0);
 #endif // _MSC_VER
+#else // non-x86
+	memcpy(dest, src, len);
+#endif // __i386__ || __x86_64__
 }

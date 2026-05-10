@@ -8,7 +8,7 @@
 #include "gs/world/World.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/Wormhole.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 #include "gs/gameobj/Player.h"
 

@@ -54,8 +54,8 @@
 #include "gs/utility/MoveFlags.h"
 #include "robot/pathing/Path.h"
 #include "gs/gameobj/Player.h"             // g_player
-#include "gs/newdb/StrategyRecord.h"     // For accessing the strategy database
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "StrategyRecord.h"     // For accessing the strategy database
+#include "TerrainImprovementRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/world/World.h"              // g_theWorld

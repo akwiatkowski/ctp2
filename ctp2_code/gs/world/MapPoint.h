@@ -79,28 +79,22 @@ uint32 MapPoint_MapPoint_GetVersion(void);
 
 struct MapPointData
 {
-#if defined(_SMALL_MAPPOINTS)
-	MapPointData(sint16 const a_X = 0, sint16 const a_Y = 0)
-	:	x(a_X),
-		y(a_Y)
-	{ };
-#else
 	MapPointData(sint16 const a_X = 0, sint16 const a_Y = 0, sint16 const a_Z = 0)
 	:	x(a_X),
 		y(a_Y),
-		z(a_Z)
+		z(a_Z),
+		pad(0)
 	{ };
-
-	sint16			z;
-#endif
 
 	// Coordinates
 	sint16			x;
 	sint16			y;
+	sint16			z;
+	sint16			pad;
 
 	bool operator == (MapPointData const & point) const
 	{
-		return ((x == point.x) && (y == point.y));
+		return ((x == point.x) && (y == point.y) && (z == point.z));
 	};
 
 	bool operator != (MapPointData const & point) const

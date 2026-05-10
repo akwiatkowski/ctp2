@@ -37,7 +37,7 @@
 #include "gs/gameobj/CityRadius.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "gs/newdb/CitySizeRecord.h"
+#include "CitySizeRecord.h"
 
 #include "gs/utility/directions.h"
 #include "gs/gameobj/UnitData.h"

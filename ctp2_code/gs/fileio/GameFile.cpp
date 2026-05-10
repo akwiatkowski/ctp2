@@ -44,14 +44,14 @@
 #include "gs/fileio/gamefile.h"
 
 #include "gs/gameobj/AchievementTracker.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "gs/gameobj/AgreementPool.h"         // g_theAgreementPool
 #include <algorithm>
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/BldQue.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/world/Cell.h"
@@ -60,7 +60,7 @@
 #include "ctp/civapp.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"       // g_theCivilisationPool
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"               // g_civPaths
 #include "gs/fileio/civscenarios.h"
 #include "ai/ctpai.h"
@@ -89,7 +89,7 @@
 #include "sound/soundmanager.h"           // g_soundManager
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprovePool.h"        // g_theTerrainImprovementPool
 #include "gs/database/thronedb.h"               // g_theThroneDB
 #include "gs/gameobj/TopTen.h"
@@ -100,7 +100,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"               // g_theUnitPool
 #include "gs/database/UVDB.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/world/World.h"                  // g_theWorld
 #include "gs/gameobj/Wormhole.h"

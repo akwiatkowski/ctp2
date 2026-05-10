@@ -34,14 +34,14 @@
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"			    // g_player
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"	// g_theCivilisationPool
 #include "net/general/network.h"
 #include "ui/aui_ctp2/SelItem.h"			// g_selected_item
 #include "gs/outcom/AICause.h"
 #include "gs/database/profileDB.h"			// g_theProfileDB
 #include "net/general/net_player.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/world/World.h"			    // g_theWorld
 #include "net/general/net_vision.h"
 #include "ai/ctpai.h"

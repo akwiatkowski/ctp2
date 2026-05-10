@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed refferences to the civilisation database. (Aug 21st 2005 Martin Gühmann)
+// - Removed refferences to the civilisation database. (Aug 21st 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -191,13 +191,13 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 	ScenarioPack		*scenPack;
 //	MBCHAR				*ldlBlock = "ScenarioPackListItem";
 	MBCHAR checkFile[_MAX_PATH];
-	struct _stat fileStatus;
+	struct stat fileStatus;
 
 	for (i=0; i<g_civScenarios->GetNumScenarioPacks(); i++) {
 		scenPack = g_civScenarios->GetScenarioPack(i);
 
 		sprintf(checkFile,"%s\\%s",scenPack->m_path,"Activision.txt");
-		if(!(hideOriginalScenarios && !_stat(checkFile,&fileStatus)))
+		if(!(hideOriginalScenarios && !stat(checkFile,&fileStatus)))
 		{
 			ctp2_ListItem	*item=NULL;
 			item = (ctp2_ListItem*) aui_Ldl::BuildHierarchyFromRoot("ScenarioPackListItem");

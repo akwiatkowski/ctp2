@@ -46,7 +46,7 @@
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/gameobj/Player.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/utility/newturncount.h"

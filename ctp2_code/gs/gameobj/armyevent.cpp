@@ -50,10 +50,10 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Player.h"
 #include "gs/outcom/AICause.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gfx/spritesys/director.h"
@@ -63,7 +63,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/CTP2Combat.h"
@@ -74,10 +74,10 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/gameobj/Barbarians.h"			// EMOD
-#include "gs/newdb/RiskRecord.h"			// Add for barb code
+#include "RiskRecord.h"			// Add for barb code
 #include "gs/gameobj/GameSettings.h"		// EMOD
-#include "gs/newdb/GovernmentRecord.h"   // EMOD to access government data
-#include "gs/newdb/DifficultyRecord.h"   // EMOD
+#include "GovernmentRecord.h"   // EMOD to access government data
+#include "DifficultyRecord.h"   // EMOD
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/gameobj/Happy.h"
 

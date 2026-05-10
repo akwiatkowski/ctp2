@@ -30,10 +30,10 @@
 
 #include <algorithm>
 
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 Exclusions *g_exclusions = NULL;
 

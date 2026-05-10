@@ -44,8 +44,9 @@
 #include "sound/gamesounds.h"
 
 #if defined(USE_SDL)
-#include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include "os/include/sdl_cdrom_stub.h"
 #endif
 
 template <class T> class PointerList;

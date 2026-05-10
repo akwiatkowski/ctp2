@@ -51,7 +51,7 @@
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/database/profileDB.h"          // g_theProfileDB
 #include "gs/gameobj/terrainutil.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 
 extern C3UI             *g_c3ui;
 

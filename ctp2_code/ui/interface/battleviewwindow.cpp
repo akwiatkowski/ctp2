@@ -8,7 +8,7 @@
 #include "gfx/tilesys/tileset.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CTP2Combat.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/world/World.h"  // g_theWorld
 #include "net/general/network.h"
 #include "sound/soundmanager.h"

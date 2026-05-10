@@ -2,6 +2,8 @@
 #ifndef __IC3GAMESTATE_H__
 #define __IC3GAMESTATE_H__
 
+#include <OBJBASE.H>
+
 struct IC3UnitDB;
 struct IC3BuildingDB;
 struct C3AIDiplomaticRequest;
@@ -83,12 +85,12 @@ DECLARE_INTERFACE_(IC3GameState, IUnknown)
 									uint32 myCity) PURE;
 
 	STDMETHOD_(sint32, GetTotalTrade) (THIS_ PLAYER_INDEX foreigner) PURE;
-	STDMETHOD_(sint32, GetGlobalTradeRoutes) (THIS_) PURE;
-	STDMETHOD_(sint32, GetDifficulty) (THIS_)  PURE;
+	STDMETHOD_(sint32, GetGlobalTradeRoutes) (THIS) PURE;
+	STDMETHOD_(sint32, GetDifficulty) (THIS) PURE;
 	STDMETHOD_(sint32, GetOrderGoldCost) (THIS_ sint32 order_type) PURE;
-	STDMETHOD_(sint32, GetOrderMaxGoldCost) (THIS_) PURE;
-	STDMETHOD_(void, ProcessGraphicsCallback) (THIS_) PURE;
-	STDMETHOD_(sint32, GetTurn)(THIS_) PURE;
+	STDMETHOD_(sint32, GetOrderMaxGoldCost) (THIS) PURE;
+	STDMETHOD_(void, ProcessGraphicsCallback) (THIS) PURE;
+	STDMETHOD_(sint32, GetTurn)(THIS) PURE;
 };
 
 #endif

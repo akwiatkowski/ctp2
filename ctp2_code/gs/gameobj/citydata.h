@@ -85,7 +85,7 @@ class CityData;
 
 #include "gs/world/MapPoint.h"
 
-#include "gs/newdb/CitySizeRecord.h"
+#include "CitySizeRecord.h"
 
 #define k_CITYDATA_VERSION_MAJOR    0
 #define k_CITYDATA_VERSION_MINOR    0

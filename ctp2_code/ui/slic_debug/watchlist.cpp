@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -65,7 +65,7 @@
 #include "gfx/gfx_utils/colorset.h"
 
 #include "gs/slic/sliccmd.h"
-#include "gs/slic/sc.tab.h"
+#include "sliccmd.tab.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"
 

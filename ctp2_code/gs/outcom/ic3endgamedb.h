@@ -20,7 +20,7 @@ struct MapPointData;
 DECLARE_INTERFACE_(IC3EndGameDB, IUnknown)
 {
 
-    STDMETHOD_(sint32, GetNumObjectTypes)(THIS_) PURE;
+    STDMETHOD_(sint32, GetNumObjectTypes)(THIS) PURE;
 
     STDMETHOD_ (sint32, End_Game_Object_String_To_Int)(THIS_ char * objecttype_string) PURE;
     STDMETHOD_ (char *, End_Game_Object_Int_To_String)(THIS_ sint32 index) PURE;

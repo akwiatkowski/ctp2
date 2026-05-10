@@ -30,10 +30,11 @@
 #include "ctp/ctp2_utils/c3cmdline.h"
 #if defined(WIN32)
 #include <winsock.h>
-#elif defined(LINUX)
+#else
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

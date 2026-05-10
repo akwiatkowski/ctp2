@@ -40,7 +40,7 @@ typedef unsigned long uint32;
 #else
 
 #include "gs/events/GameEventManager.h"
-#include "gs/newdb/ConstRecord.h"	// g_theConstDB
+#include "ConstRecord.h"	// g_theConstDB
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
 #include "ui/interface/battle.h"

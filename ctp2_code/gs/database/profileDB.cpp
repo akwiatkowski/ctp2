@@ -72,7 +72,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/fileio/CivPaths.h"           // g_civPaths
 #include "gs/gameobj/Diffcly.h"
-#include "gs/newdb/DifficultyRecord.h"   // g_theDifficultyDB
+#include "DifficultyRecord.h"   // g_theDifficultyDB
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/GameSettings.h"       // g_theGameSettings
 #include "gs/utility/Globals.h"

@@ -51,7 +51,7 @@
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Player.h"         // g_player
 #include "ui/interface/controlpanelwindow.h"
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 #include "ui/aui_common/aui_surface.h"
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/primitives.h"
@@ -61,7 +61,7 @@
 #include "ui/aui_utils/textutils.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/UnitData.h"
 
 #define k_TURN_BOX_SIZE_MINIMUM     4

@@ -70,7 +70,7 @@
 #include "gs/gameobj/Player.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/newdb/CTPDatabase.h"
-#include "gs/newdb/GoalRecord.h"
+#include "GoalRecord.h"
 #include "ai/ctpaidebug.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gfx/gfx_utils/gfx_options.h"

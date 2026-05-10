@@ -2,12 +2,41 @@
 #include "ctp/c3.h"
 #include "ctp/debugtools/log.h"
 #include "ctp/debugtools/breakpoint.h"
+
+#ifdef _WIN32
 #include <windows.h>
+#include <crtdbg.h>
+#include <mmsystem.h>
+#else
+#include <pthread.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <crtdbg.h>
-#include <mmsystem.h>
+#include <stdlib.h>
+#include <sys/time.h>
+
+// POSIX compatibility macros
+#define _stricmp strcasecmp
+#define _strdup strdup
+
+static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static inline void InitializeCriticalSection(pthread_mutex_t *cs) { pthread_mutex_init(cs, NULL); }
+static inline void EnterCriticalSection(pthread_mutex_t *cs) { pthread_mutex_lock(cs); }
+static inline void LeaveCriticalSection(pthread_mutex_t *cs) { pthread_mutex_unlock(cs); }
+static inline void DeleteCriticalSection(pthread_mutex_t *cs) { pthread_mutex_destroy(cs); }
+
+static inline unsigned long timeGetTime(void)
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (unsigned long)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+#define _RPT0(type, msg) fprintf(stderr, "%s", msg)
+#define _CRT_WARN 0
+
+#endif // _WIN32
 
 LogClass LOG_FATAL = "Fatal";
 LogClass LOG_ERR = "Error";
@@ -182,7 +211,11 @@ struct Logging
 	bool				log_all;
 
 	int					base_time;
+#ifdef _WIN32
 	CRITICAL_SECTION	entered;
+#else
+	pthread_mutex_t		entered;
+#endif
 	int					line;
 	int					number;
 };

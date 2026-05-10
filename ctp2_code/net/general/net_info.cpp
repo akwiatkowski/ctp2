@@ -47,7 +47,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/ArmyPool.h"
@@ -72,7 +72,7 @@
 
 #include "gs/gameobj/GoodyHuts.h"
 
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 
 #include "gs/utility/newturncount.h"
 

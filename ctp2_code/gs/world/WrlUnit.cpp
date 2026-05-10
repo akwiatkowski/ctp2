@@ -42,7 +42,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/cellunitlist.h"
 #include "net/general/network.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/CityInfluenceIterator.h"

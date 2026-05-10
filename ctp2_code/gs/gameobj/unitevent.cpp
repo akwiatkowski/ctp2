@@ -51,7 +51,7 @@
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/World.h"                      // g_theWorld
 
 STDEHANDLER(KillUnitEvent)

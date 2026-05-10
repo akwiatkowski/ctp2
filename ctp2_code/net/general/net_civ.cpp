@@ -34,7 +34,7 @@
 #include "net/io/net_util.h"
 
 #include "gs/gameobj/CivilisationPool.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 
 #include "gs/gameobj/Player.h"
 

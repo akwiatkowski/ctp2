@@ -13,7 +13,7 @@ public:
 	Button1Action() {}
 	~Button1Action() {}
 
-	virtual ActionCallback Execute;
+	virtual void Execute(aui_Control *control, uint32 action, uint32 data);
 
 protected:
 };
@@ -24,7 +24,7 @@ public:
 	Button2Action() {}
 	~Button2Action() {}
 
-	virtual ActionCallback Execute;
+	virtual void Execute(aui_Control *control, uint32 action, uint32 data);
 
 protected:
 };

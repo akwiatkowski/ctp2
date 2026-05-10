@@ -61,16 +61,16 @@
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "TerrainImprovementRecord.h"
 #include "gs/gameobj/citydata.h"
 
-#include "gs/newdb/ResourceRecord.h"     // Access g_theResourceDB for goods info, PFT 05 Mar 05
+#include "ResourceRecord.h"     // Access g_theResourceDB for goods info, PFT 05 Mar 05
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/UnseenCell.h"         // Unseen cell info is needed
 #include "gfx/gfx_utils/gfx_options.h"        // g_graphicsOptions

@@ -8,7 +8,7 @@
 #include "civarchive.h"
 #include "ConstDB.h"
 #include "DiffDB.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 
 extern Player	**g_player ;
 extern ConstDB *g_theConstDB;

@@ -34,7 +34,7 @@
 
 #include "ctp/c3.h"
 #include "gs/utility/Globals.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationData.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/database/profileDB.h"
@@ -50,7 +50,7 @@ extern	StringDB                *g_theStringDB ;
 extern	ProfileDB               *g_theProfileDB;
 
 #include "gs/gameobj/CivilisationPool.h"	// CIV_INDEX_INVALID
-#include "gs/newdb/CityStyleRecord.h"	// g_theCityStyleDB
+#include "CityStyleRecord.h"	// g_theCityStyleDB
 
 //----------------------------------------------------------------------------
 //

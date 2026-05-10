@@ -49,8 +49,9 @@ class ctp2_Listbox;
 #include <windows.h>        // BOOL, POINT
 
 struct  aui_MouseEvent;
-class   aui_Surface;
-class   ctp2_ListItem;
+#include "ui/aui_ctp2/ctp2_listitem.h"
+
+class aui_Surface;
 class   ctp2_MenuButton;
 
 class ctp2_ListBox : public aui_ListBox, public PatternBase

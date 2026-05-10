@@ -42,11 +42,12 @@ MSVC's warning level is set to 4.
 #pragma warning( disable : 4201 4214 4115 )
 #endif
 
+#ifdef _WIN32
 #include <windows.h>
+#endif
 #include <signal.h>
 #include <assert.h>
 #include <stdio.h>
-#include "unistd.h"
 
 /* Re-enable MSVC warnings (#@$&%#^& MS) */
 /* Disable MSVC warning "unreferenced inline function has been removed"

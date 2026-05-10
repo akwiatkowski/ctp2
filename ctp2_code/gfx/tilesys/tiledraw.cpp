@@ -73,7 +73,7 @@
 #include "ui/aui_common/aui.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #include "ui/aui_common/aui_bitmapfont.h"
-#include "gs/newdb/ConstRecord.h"			// g_theConstDB
+#include "ConstRecord.h"			// g_theConstDB
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/background.h"
@@ -105,13 +105,13 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/terrainutil.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "TerrainImprovementRecord.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/newdb/BuildingRecord.h"    //emod
-#include "gs/newdb/WonderRecord.h"    //emod
+#include "BuildingRecord.h"    //emod
+#include "WonderRecord.h"    //emod
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
 

@@ -55,14 +55,14 @@
 #include "ai/mapanalysis/mapanalysis.h"
 #include "gs/gameobj/Player.h"
 #include "ai/CityManagement/governor.h"
-#include "gs/newdb/StrategyRecord.h"
+#include "StrategyRecord.h"
 #include "gs/utility/newturncount.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/ctpai.h"
 
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/newdb/DifficultyRecord.h"   //EMOD
+#include "DifficultyRecord.h"   //EMOD
 #include "gs/gameobj/GameSettings.h"
 #include "gs/database/profileDB.h"			// g_theProfileDB
 

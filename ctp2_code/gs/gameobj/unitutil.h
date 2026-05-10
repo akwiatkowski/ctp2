@@ -38,7 +38,7 @@
 #ifndef __UNIT_UTIL_H__
 #define __UNIT_UTIL_H__
 
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 class MapPoint;
 class SpecialAttackInfoRecord;

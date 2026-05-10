@@ -56,7 +56,7 @@
 #include "gs/gameobj/GameObj.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/MapPoint.h"
 #include "gs/world/cellunitlist.h"
 

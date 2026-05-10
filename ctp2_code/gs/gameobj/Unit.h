@@ -68,7 +68,7 @@ class Unit;
 #include "gs/gameobj/HappyTracker.h"   // HAPPY_REASON
 #include "gs/world/MapPoint.h"       // MapPoint
 #include "gs/gameobj/Order.h"          // ORDER_RESULT
-#include "gs/newdb/OrderRecord.h"    // For order valid check
+#include "OrderRecord.h"    // For order valid check
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
 
 class CityData;

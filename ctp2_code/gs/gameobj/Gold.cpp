@@ -36,7 +36,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 
 #include "gs/utility/gstypes.h"
 

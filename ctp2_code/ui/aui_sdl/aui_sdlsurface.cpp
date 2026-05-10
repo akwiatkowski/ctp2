@@ -6,7 +6,7 @@
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"
-#include <SDL/SDL_thread.h>
+#include <SDL2/SDL_thread.h>
 
 uint32 aui_SDLSurface::m_SDLSurfaceClassId = aui_UniqueId();
 
@@ -36,7 +36,7 @@ aui_SDLSurface::aui_SDLSurface(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	SDL_PixelFormat* fmt = SDL_GetVideoSurface()->format;
+	SDL_PixelFormat* fmt = SDL_GetWindowSurface(m_window)->format;
 	if ( !(m_lpdds = lpdds) )
 	{
 		m_lpdds = SDL_CreateRGBSurface(0, width, height, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
@@ -94,7 +94,7 @@ aui_SDLSurface::~aui_SDLSurface()
 
 
 uint32 aui_SDLSurface::SetChromaKey( uint32 color ) {
-    int hr = SDL_SetColorKey(m_lpdds, SDL_SRCCOLORKEY, color); //|SDL_RLEACCEL ?
+    int hr = SDL_SetColorKey(m_lpdds, SDL_TRUE, color); //|SDL_RLEACCEL ?
     //hr == 0 if succeded!
     //printf("%s L%d: SDL_SRCCOLORKEY set to %#X\n", __FILE__, __LINE__, color);
 

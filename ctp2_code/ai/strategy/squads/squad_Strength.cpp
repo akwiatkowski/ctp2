@@ -41,7 +41,7 @@
 
 #include "ai/strategy/agents/agent.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/World.h"
 #include "ai/ctpaidebug.h"
 #include "ai/mapanalysis/mapanalysis.h"

@@ -27,7 +27,7 @@
 //
 // - Repaired memory leaks.
 // - Display the main thread function name in the debugger.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -203,7 +203,7 @@ NET_ERR NetThread::Init(NetIOResponse *response)
 	NetIO::Init(response);
 
 #ifdef USE_SDL
-	if ((m_thread = SDL_CreateThread(NetThread_StartThread, this)) == NULL) {
+	if ((m_thread = SDL_CreateThread(NetThread_StartThread, "NetThread", this)) == NULL) {
 #elif defined(WIN32)
 	if((m_threadHandle = CreateThread(NULL,
 									  0,

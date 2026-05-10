@@ -9,7 +9,7 @@
 
 #if defined(__AUI_USE_SDL__)
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 class aui_SDL
 {
@@ -33,6 +33,7 @@ public:
 protected:
 	BOOL			m_exclusiveMode;
 	static SDL_Surface *	m_lpdd;
+	static SDL_Window *	m_window;
 
 private:
 	static sint32		m_SDLRefCount;

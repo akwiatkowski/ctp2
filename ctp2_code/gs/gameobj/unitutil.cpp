@@ -40,15 +40,15 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/unitutil.h"
 
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/World.h"
-#include "gs/newdb/SpecialAttackInfoRecord.h"
+#include "SpecialAttackInfoRecord.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Army.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Player.h"
 #include "gs/outcom/AICause.h"
@@ -59,7 +59,7 @@
 static sint32 s_maxDefenseRange;
 static sint32 s_maxVisionRange;
 
-#include "gs/newdb/CitySizeRecord.h"
+#include "CitySizeRecord.h"
 
 static sint32 s_smallCityMaxSize;
 static sint32 s_maxCitySquaredRadius;

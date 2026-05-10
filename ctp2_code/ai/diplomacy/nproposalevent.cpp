@@ -42,7 +42,7 @@
 #include "gs/gameobj/Strengths.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/utility/newturncount.h"
 #include "ui/aui_ctp2/SelItem.h"			// g_selected_item

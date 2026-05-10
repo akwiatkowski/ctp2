@@ -67,9 +67,9 @@
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/gameobj/Player.h"
 #include "gs/utility/RandGen.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "UnitRecord.h"
+#include "WonderRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/UnitData.h"
 
 #include "gs/world/UnseenCell.h"

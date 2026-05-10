@@ -11,6 +11,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_static.h"
 #include "ui/aui_common/aui_progressbar.h"
+#include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3_static.h"
@@ -19,9 +20,11 @@
 #include "ui/interface/UIUtils.h"
 #include "ui/aui_utils/primitives.h"
 #include "sound/soundmanager.h"
+#include "ui/ldl/ldl_file.hpp"
+#include "ui/ldl/ldl_data.hpp"
 
 #include "gs/database/StrDB.h"
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 #include "gs/database/EndGameDB.h"
 #include "gs/gameobj/EndGame.h"
 
@@ -90,7 +93,14 @@ EndGameWindow*			g_endgameWindow = NULL;
 
 
 
-extern void DarkenSurface( aui_Surface *pSurface, RECT *pArea, sint32 percentDarken );
+void DarkenSurface( aui_Surface *pSurface, RECT *pArea, sint32 percentDarken )
+{
+	// Stub: DarkenSurface was originally in a missing/lost source file.
+	// For now, do nothing. The endgame window will render without darkening.
+	(void)pSurface;
+	(void)pArea;
+	(void)percentDarken;
+}
 
 
 class c3_DarkenArea : public aui_Static {
@@ -156,7 +166,7 @@ protected:
 class RemoveEndGameAction : public aui_Action
 {
 public:
-	virtual ActionCallback Execute;
+	virtual void Execute(aui_Control *control, uint32 action, uint32 data);
 };
 
 void RemoveEndGameAction::Execute(aui_Control *control, uint32 action, uint32 data)
@@ -203,7 +213,7 @@ sint32 endgamewindow_Initialize()
 	keypress_RegisterHandler(g_endgameWindow);
 
 	sint32 snd_id = g_theSoundDB->FindTypeIndex(k_ENDGAME_AMBIENT_SOUND);
-	if(g_soundManager) g_soundManager->AddLoopingSound(SOUNDTYPE_SFX, (uint32)g_endgameWindow, snd_id);
+	if(g_soundManager) g_soundManager->AddLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow, snd_id);
 
 	Assert(AUI_SUCCESS(errcode));
 	if(!AUI_SUCCESS(errcode)) return(-1);
@@ -222,7 +232,7 @@ sint32 endgamewindow_Cleanup()
 
 	if(!g_endgameWindow) return(0);
 
-	if(g_soundManager) g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, (uint32)g_endgameWindow);
+	if(g_soundManager) g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow);
 
 	g_c3ui->RemoveWindow(g_endgameWindow->Id());
 
@@ -384,7 +394,7 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
 
-		aui_Surface *frontSurface = aui_Factory::new_Surface(&errcode, highlightRect.right,
+		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, highlightRect.right,
 			highlightRect.bottom);
 		Assert(AUI_NEWOK(frontSurface, errcode));
 

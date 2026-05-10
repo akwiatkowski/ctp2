@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Corrected strange access of non-static members from static data.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -431,8 +431,8 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::StoreAppropriateData(
 
 		case ns_Accessor<T>::INT:
 			item->SetTextBold(netShellObject->IsMine());
-			return item->SetText
-				(itoa(* reinterpret_cast<sint32 const *>(dataPtr), scratch, 10));
+			 sprintf(scratch, "%d", * reinterpret_cast<sint32 const *>(dataPtr));
+			 return item->SetText(scratch);
 
 		case ns_Accessor<T>::ICON:
 			return item->SetIcon(* reinterpret_cast<MBCHAR * *>(dataPtr));

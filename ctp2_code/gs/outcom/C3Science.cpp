@@ -3,7 +3,7 @@
 
 #include "gs/outcom/C3Science.h"
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "civarchive.h"
 #include "gs/gameobj/Advances.h"
 

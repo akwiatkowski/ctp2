@@ -37,7 +37,7 @@
 #include "ui/aui_common/aui_listbox.h"
 #include "ui/aui_common/aui_static.h"
 #include "ui/aui_common/aui_uniqueid.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_listbox.h"
 #include "ui/aui_ctp2/c3_popupwindow.h"
@@ -56,7 +56,7 @@
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"                 // g_player
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "ui/aui_ctp2/textbutton.h"
 #include "ui/aui_ctp2/thermometer.h"
 #include "ui/interface/UIUtils.h"
@@ -64,7 +64,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/newdb/UnitRec.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/world/World.h"
 
 extern C3UI	*       g_c3ui;

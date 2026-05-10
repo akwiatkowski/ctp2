@@ -34,7 +34,7 @@
 
 #include "ui/aui_common/aui_stringtable.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
-#include "gs/newdb/UnitRecord.h"         // g_theUnitDB
+#include "UnitRecord.h"         // g_theUnitDB
 
 ns_Units *  g_nsUnits = NULL;
 

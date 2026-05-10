@@ -2,6 +2,8 @@
 #ifndef __IC3ERRORREPORT_H__
 #define __IC3ERRORREPORT_H__
 
+#include <OBJBASE.H>
+
 DEFINE_GUID(CLSID_IC3ErrorReport,
 			0x63aa7420,
 			0x1fb,

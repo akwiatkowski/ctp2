@@ -49,7 +49,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_action.h"
 
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 
 #include "gs/utility/RandGen.h"
 

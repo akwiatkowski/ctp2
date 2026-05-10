@@ -8,7 +8,7 @@
 
 #include "gs/gameobj/Player.h"
 #include "civarchive.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/buildingutil.h"
 

@@ -56,8 +56,8 @@
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/fileio/CivPaths.h"           // g_CivPaths
 #ifndef __MAKESPR__
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "AdvanceRecord.h"
+#include "BuildingRecord.h"
 #endif
 
 #if defined(_JAPANESE)

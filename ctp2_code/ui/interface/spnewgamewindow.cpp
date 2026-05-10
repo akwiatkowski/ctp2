@@ -57,14 +57,14 @@
 #include "gs/fileio/civscenarios.h"
 #include "gs/utility/Globals.h"
 #include "gs/database/profileDB.h"                  // g_theProfileDB
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ui/aui_ctp2/c3textfield.h"
 #include "ui/interface/loadsavemapwindow.h"
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamemapsizescreen.h"
 #include "gs/database/StrDB.h"                      // g_theStringDB
-#include "gs/newdb/AgeRecord.h"					// g_theAgeDB
+#include "AgeRecord.h"					// g_theAgeDB
 #include "ui/interface/agesscreen.h"
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;

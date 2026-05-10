@@ -50,7 +50,7 @@
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/interface/greatlibrary.h"
-#include "gs/newdb/CTPRecord.h"
+#include "CTPRecord.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_ctp2/patternbase.h"
 #include "gfx/gfx_utils/pixelutils.h"

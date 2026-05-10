@@ -25,18 +25,20 @@
 // Modifications from the original Activision code:
 //
 // - Arrays can now be parsed sequentially, if their values are in sequence
-//   without being separated of any other tokens. (Sep 3rd 2005 Martin Gühmann)
+//   without being separated of any other tokens. (Sep 3rd 2005 Martin Gï¿½hmann)
 // - Repaired memory leaks
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
-#include "gs/newdb/CTPRecord.h"
+#include "CTPRecord.h"
 
 #include "gs/newdb/CTPDatabase.h"
 #include "gs/newdb/DBLexer.h"
 #include "gs/newdb/DBTokens.h"
 #include "gs/database/StrDB.h"
+
+sint32 const CTPRecord::INDEX_INVALID;
 
 bool CTPRecord::ParseIntInArray(DBLexer *lex, sint32 **array, sint32 *numElements)
 {

@@ -8,6 +8,7 @@
 #include "ui/aui_sdl/aui_sdl.h"
 
 SDL_Surface *aui_SDL::m_lpdd = 0;
+SDL_Window *aui_SDL::m_window = 0;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -26,13 +27,8 @@ AUI_ERRCODE aui_SDL::InitCommon(BOOL useExclusiveMode)
 */
 	SDL_ShowCursor(SDL_DISABLE);
 
-	// enable only a handfull of events
-	SDL_EventState(SDL_IGNORE, SDL_ALLEVENTS);
-	SDL_EventState(SDL_ENABLE, SDL_MOUSEEVENTMASK);
-	SDL_EventState(SDL_ENABLE, SDL_KEYDOWNMASK);
-	SDL_EventState(SDL_ENABLE, SDL_QUITMASK);
-
-	SDL_EnableUNICODE(1);
+	// SDL2: all events are enabled by default; no need to filter
+	// SDL_EnableUNICODE removed in SDL2 (always on)
 
 	return AUI_ERRCODE_OK;
 }

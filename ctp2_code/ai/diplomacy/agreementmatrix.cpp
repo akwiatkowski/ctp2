@@ -40,7 +40,7 @@
 #include "gs/gameobj/Player.h"
 
 #include "ai/diplomacy/diplomacyutil.h"
-#include "gs/newdb/DiplomacyProposalRecord.h"
+#include "DiplomacyProposalRecord.h"
 #include "gs/utility/newturncount.h"
 #include "ai/ctpai.h"
 #include "gs/utility/MoveFlags.h"

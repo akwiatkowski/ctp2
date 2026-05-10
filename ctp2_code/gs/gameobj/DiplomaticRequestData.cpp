@@ -34,7 +34,7 @@
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "gs/utility/Globals.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/TurnCnt.h"

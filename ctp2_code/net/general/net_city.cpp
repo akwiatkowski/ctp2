@@ -51,7 +51,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/BldQue.h"
 
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/gameobj/Resources.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"

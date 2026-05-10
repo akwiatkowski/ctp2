@@ -1,6 +1,8 @@
 #pragma once
-#ifndef __IC3TRADEOFFER_H__
-#define __IC3TRADEOFFER_H__
+#ifndef __IC3TRADE_H__
+#define __IC3TRADE_H__
+
+#include <OBJBASE.H>
 
 DEFINE_GUID(CLSID_IC3TradeOffer,
 			0xcfed4800,

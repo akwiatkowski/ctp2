@@ -17,7 +17,7 @@
 #include "robot/aibackdoor/bset.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Happy.h"
 
 

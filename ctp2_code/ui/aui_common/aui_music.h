@@ -3,8 +3,8 @@
 
 #include "ui/aui_common/aui_base.h"
 #ifdef USE_SDL
-#include <SDL/SDL.h>
-#include <SDL/SDL_cdrom.h>
+#include <SDL2/SDL.h>
+#include "os/include/sdl_cdrom_stub.h"
 #endif
 
 enum AUI_MUSIC_CODE

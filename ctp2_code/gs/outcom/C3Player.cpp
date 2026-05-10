@@ -37,7 +37,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "civarchive.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/Army.h"
@@ -50,7 +50,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Happy.h"
 #include "gs/database/DB.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "ConstDB.h"
 #include "gs/outcom/AICause.h"
 
@@ -67,11 +67,11 @@
 #include "net/general/network.h"
 
 #include "gs/gameobj/Diplomacy_Log.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 extern Diplomacy_Log *g_theDiplomacyLog;
 
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 
 
 STDMETHODIMP C3Player::QueryInterface(REFIID riid, void **obj)

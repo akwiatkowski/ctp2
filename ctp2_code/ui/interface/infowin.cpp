@@ -66,13 +66,13 @@
 #include "gfx/tilesys/workmap.h"
 
 #include "gs/database/StrDB.h"                  // g_theStringDB
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/TopTen.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "gs/gameobj/Score.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "gs/gameobj/Diffcly.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/gameobj/pollution.h"

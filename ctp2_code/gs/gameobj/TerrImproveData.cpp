@@ -42,7 +42,7 @@
 #include "gs/gameobj/TerrImproveData.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/Vision.h"
@@ -52,7 +52,7 @@
 
 #include "net/general/network.h"
 #include "gs/gameobj/terrainutil.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "TerrainImprovementRecord.h"
 #include "gs/gameobj/MaterialPool.h"
 
 #include "gs/events/GameEventManager.h"

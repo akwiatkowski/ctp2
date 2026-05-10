@@ -87,12 +87,12 @@
 #include "gs/gameobj/UnitPool.h"  // g_theUnitPool
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/newdb/AgeCityStyleRecord.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/CTPRecord.h"
-#include "gs/newdb/CityStyleRecord.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "AgeCityStyleRecord.h"
+#include "BuildingRecord.h"
+#include "CTPRecord.h"
+#include "CityStyleRecord.h"
+#include "UnitRecord.h"
+#include "WonderRecord.h"
 #include "gs/world/cellunitlist.h"
 #include "sound/soundmanager.h"  // g_soundManager
 #include "ui/aui_common/aui_bitmapfont.h"

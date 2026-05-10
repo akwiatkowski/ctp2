@@ -9,7 +9,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "civarchive.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/Unit.h"

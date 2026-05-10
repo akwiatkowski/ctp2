@@ -25,8 +25,8 @@
 //
 // - Types corrected.
 // - Modified int checker functions so that they return false if there is
-//   also an alternative string representation. Nov. 5th 2004 Martin Gühmann
-// - Fixed broken government message with white text. April 14th 2005 Martin Gühmann
+//   also an alternative string representation. Nov. 5th 2004 Martin Gï¿½hmann
+// - Fixed broken government message with white text. April 14th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
-#include "gs/slic/sc.tab.h"
+#include "sliccmd.tab.h"
 #include "gs/database/StrDB.h"
 #include "gs/slic/SlicDBConduit.h"
 #include "gs/database/profileDB.h"
@@ -125,7 +125,7 @@ int sliccmd_ref_has_int_value(char *structName, char *memberName)
 	sliccmd_add_symbol_used(member);
 
 	sint32 value;
-	// Added by Martin Gühmann
+	// Added by Martin Gï¿½hmann
 	if(!member->GetIntValue(value)
 	||(sym->GetText(sliccmd_output, sliccmd_output_len)
 	&& sym->GetType() != SLIC_SYM_IVAR)
@@ -322,7 +322,7 @@ int sliccmd_has_int_value(char *symName)
 		return 0;
 
 	sint32 value;
-	// Added by Martin Gühmann
+	// Added by Martin Gï¿½hmann
 	if( sym->GetIntValue(value)
 	&&(!sym->GetText(sliccmd_output, sliccmd_output_len)
 	||  sym->GetType() == SLIC_SYM_IVAR))
@@ -335,7 +335,7 @@ int sliccmd_sym_has_int_value(void *vsym, int *value)
 {
 	SlicSymbolData *sym = (SlicSymbolData *)vsym;
 
-	// Added by Martin Gühmann
+	// Added by Martin Gï¿½hmann
 	if( sym->GetIntValue((sint32 &)*value)
 	&&(!sym->GetText(sliccmd_output, sliccmd_output_len)
 	||  sym->GetType() == SLIC_SYM_IVAR))

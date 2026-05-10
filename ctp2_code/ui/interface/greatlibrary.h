@@ -90,7 +90,7 @@ size_t const	GL_MAX_DB_NAME_SIZE	= 30;
 
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
-#include "gs/newdb/CTPRecord.h"
+#include "CTPRecord.h"
 
 class Chart;
 class ctp2_HyperTextBox;

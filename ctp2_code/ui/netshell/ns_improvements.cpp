@@ -33,7 +33,7 @@
 
 #include <algorithm>
 #include "ui/aui_common/aui_stringtable.h"
-#include "gs/newdb/BuildingRecord.h"     // g_theBuildingDB
+#include "BuildingRecord.h"     // g_theBuildingDB
 #include "gs/database/StrDB.h"              // g_theStringDB
 
 ns_Improvements * g_nsImprovements = NULL;

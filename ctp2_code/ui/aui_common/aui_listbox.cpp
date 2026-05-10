@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - Always focus on the latest message.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@
 #include "ui/ldl/ldl_file.hpp"
 
 #ifdef USE_SDL
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #endif
 
 aui_DragDropWindow *aui_ListBox::m_dragDropWindow = NULL;
@@ -1186,7 +1186,7 @@ void aui_ListBox::SendSelectCallback(
 {
 	if ( !data && (action == AUI_LISTBOX_ACTION_SELECT
 		|| action == AUI_LISTBOX_ACTION_RMOUSESELECT))
-		data = (uint32)m_selectedList;
+		data = (uintptr_t)m_selectedList;
 
 	m_selectedList->DeleteAll();
 

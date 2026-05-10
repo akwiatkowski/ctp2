@@ -81,12 +81,12 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/unitutil.h"
-#include "gs/newdb/ConstRecord.h"        // g_theConstDB
-#include "gs/newdb/SpecialAttackInfoRecord.h"
-#include "gs/newdb/SpecialEffectRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "ConstRecord.h"        // g_theConstDB
+#include "SpecialAttackInfoRecord.h"
+#include "SpecialEffectRecord.h"
+#include "TerrainRecord.h"
 #include "gs/newdb/UnitRec.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/outcom/AICause.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"

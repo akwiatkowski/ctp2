@@ -25,9 +25,9 @@
 // Modifications from the original Activision code:
 //
 // - To display the captital of a civ and you know were it is no embassy is
-//   necessary anymore. (10-Feb-2008 Martin Gühmann)
+//   necessary anymore. (10-Feb-2008 Martin Gï¿½hmann)
 // - Instead of cities with wonders all cities are displayed if there is an
-//   embassy, otherwise only the known cities are displayed. (10-Feb-2008 Martin Gühmann)
+//   embassy, otherwise only the known cities are displayed. (10-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -58,10 +58,10 @@
 #include "ui/aui_ctp2/SelItem.h"
 
 #include "gs/database/StrDB.h"
-#include "gs/newdb/DiplomacyProposalRecord.h"
-#include "gs/newdb/DiplomacyThreatRecord.h"
+#include "DiplomacyProposalRecord.h"
+#include "DiplomacyThreatRecord.h"
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/stringutils.h"
@@ -72,15 +72,15 @@
 
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Events.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "ui/interface/citywindow.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/IconRecord.h"
+#include "UnitRecord.h"
+#include "IconRecord.h"
 
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ui/interface/intelligencewindow.h"
@@ -644,7 +644,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerColor(ctp2_Static *control,
 												 void *cookie)
 {
 
-	sint32 player = (sint32)cookie;
+	sint32 player = (intptr_t)cookie;
 	Assert(g_colorSet);
 	if(!g_colorSet)
 		return AUI_ERRCODE_INVALIDPARAM;
@@ -658,11 +658,11 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerColor(ctp2_Static *control,
 }
 
 AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
-												 aui_Surface *surface,
-												 RECT &rect,
-												 void *cookie)
+											 aui_Surface *surface,
+											 RECT &rect,
+											 void *cookie)
 {
-	sint32 player = (sint32)cookie;
+	sint32 player = (intptr_t)cookie;
 	Assert(g_colorSet);
 	if(!g_colorSet)
 		return AUI_ERRCODE_INVALIDPARAM;
@@ -701,7 +701,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerRegard(ctp2_Static *control,
 {
 	MBCHAR *imageName = NULL;
 	char **toneIcons = DiplomacyWindow::GetToneIcons();
-	sint32 p = (sint32)cookie;
+	sint32 p = (intptr_t)cookie;
 
 
 
@@ -756,7 +756,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerStrength(ctp2_Static *control,
 												   RECT &rect,
 												   void *cookie)
 {
-	sint32 p = (sint32)cookie;
+	sint32 p = (intptr_t)cookie;
 
 	if(!g_player[p]) return AUI_ERRCODE_OK;
 	if(!g_player[detailPlayer]) return AUI_ERRCODE_OK;
@@ -821,7 +821,7 @@ AUI_ERRCODE DiplomacyDetails::DrawEmbassy(ctp2_Static *control,
 											RECT &rect,
 											void *cookie)
 {
-	sint32 p = (sint32)cookie;
+	sint32 p = (intptr_t)cookie;
 
 
 
@@ -872,7 +872,7 @@ AUI_ERRCODE DiplomacyDetails::DrawTreaties(ctp2_Static *control,
 											 RECT &rect,
 											 void *cookie)
 {
-	sint32 p = (sint32)cookie;
+	sint32 p = (intptr_t)cookie;
 	sint32 visP = g_selected_item->GetVisiblePlayer();
 
 	sint32 x = 0;

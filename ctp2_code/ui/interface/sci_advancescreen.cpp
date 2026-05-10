@@ -26,7 +26,7 @@
 //
 // - Start the great library with the current research project of the player.
 // - Start the "change to"-list with the current research selected.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Fixed memory leaks.
 //
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/database/StrDB.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Player.h"
@@ -62,17 +62,17 @@
 
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "UnitRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
+#include "TerrainImprovementRecord.h"
 
 #include "gs/gameobj/terrainutil.h"
 
 #include "gfx/gfx_utils/colorset.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
 
@@ -572,7 +572,7 @@ sint32 sci_advancescreen_loadList( void )
 		s_advanceList->SelectItem(index);
 		ctp2_ListItem *	item =
 			reinterpret_cast<ctp2_ListItem *>(s_advanceList->GetSelectedItem());
-		isIndexOk = (research == reinterpret_cast<sint32>(item->GetUserData()));
+		isIndexOk = (research == reinterpret_cast<intptr_t>(item->GetUserData()));
 	}
 
 	s_sci_advanceScreen->ShouldDraw(TRUE);
@@ -619,7 +619,7 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 
 
 
-	advanceTurns = p->m_advances->TurnsToNextAdvance((AdvanceType)item->GetUserData());
+	advanceTurns = p->m_advances->TurnsToNextAdvance((AdvanceType)(intptr_t)item->GetUserData());
 
 	if ( advanceTurns == -1 ) {
 		sprintf( str, "-" );

@@ -4,9 +4,9 @@
 #include "gs/database/EndGameToken.h"
 #include "civarchive.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/SoundRecord.h"
-#include "gs/newdb/IconRecord.h"
+#include "AdvanceRecord.h"
+#include "SoundRecord.h"
+#include "IconRecord.h"
 
 static BOOL s_abort_endgame_parse;
 extern StringDB *g_theStringDB;

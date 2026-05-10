@@ -21,7 +21,7 @@ struct MapPointData;
 DECLARE_INTERFACE_(IC3UnitDB, IUnknown)
 {
 
-    STDMETHOD_(sint32, GetNumUnitTypes) (THIS_ ) PURE;
+    STDMETHOD_(sint32, GetNumUnitTypes) (THIS) PURE;
 	STDMETHOD_ (BOOL, IsUnitObsolete) (THIS_ sint32 type_unit) PURE;
     STDMETHOD_ (BOOL, CityCanBuildUnit) (THIS_ sint32 type_unit) PURE;
 
@@ -34,7 +34,7 @@ DECLARE_INTERFACE_(IC3UnitDB, IUnknown)
     STDMETHOD_ (sint32, GetFirepower)(THIS_ sint32 type_unit) PURE;
     STDMETHOD_ (sint32, GetHP)(THIS_ sint32 type_unit) PURE;
     STDMETHOD_ (sint32, GetHP_WithReadiness) (THIS_ sint32 unit_type)PURE;
-    STDMETHOD_ (double, GetEntrenchmentBonus) (THIS_) PURE;
+    STDMETHOD_ (double, GetEntrenchmentBonus) (THIS) PURE;
 
     STDMETHOD_ (BOOL, IsSettler)(THIS_ sint32 type_unit) PURE;
     STDMETHOD_ (BOOL, CanSettleSpace)(THIS_ sint32 type_unit) PURE ;

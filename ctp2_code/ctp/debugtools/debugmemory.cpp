@@ -37,9 +37,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added alternative leak report. (Sep 9th 2005 Martin Gühmann)
-// - Increased the stack size to be reported. (Sep 9th 2005 Martin Gühmann)
-// - Added more fill bytes for enhanced memory reporting. (1-Jan-2010 Martin Gühmann)
+// - Added alternative leak report. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Increased the stack size to be reported. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Added more fill bytes for enhanced memory reporting. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -51,8 +51,39 @@
 #include "ctp/debugtools/debugcallstack.h"
 #include "ctp/debugtools/debugassert.h"
 #include "ctp/debugtools/breakpoint.h"
-#include <windows.h>
 #include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <stdlib.h>
+#include <stdint.h>
+
+// Windows heap API compatibility stubs
+#define HANDLE void*
+#define GetProcessHeap() NULL
+#define HeapCreate(flags, initial, max) NULL
+#define HeapDestroy(heap) 1
+#define HeapAlloc(heap, flags, size) calloc(1, size)
+#define HeapReAlloc(heap, flags, ptr, size) realloc(ptr, size)
+#define HeapFree(heap, flags, ptr) (free(ptr), 1)
+#define HEAP_ZERO_MEMORY 0x00000008
+#define HEAP_GENERATE_EXCEPTIONS 0x00000004
+#define BOOL int
+#define TRUE 1
+#define FALSE 0
+#define _strdup strdup
+
+// SEH compatibility macros
+#define __try if (true)
+#define __except(x) else if (false)
+#define GetExceptionInformation() NULL
+#define LPEXCEPTION_POINTERS void*
+#define EXCEPTION_ACCESS_VIOLATION 0
+#define EXCEPTION_STACK_OVERFLOW 0
+#define EXCEPTION_EXECUTE_HANDLER 1
+#define EXCEPTION_CONTINUE_SEARCH 0
+#endif // !_WIN32
 
 
 
@@ -379,7 +410,7 @@ void *DebugMemory_FastMalloc  (unsigned size)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastMalloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastMalloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -395,7 +426,7 @@ void *DebugMemory_FastCalloc  (unsigned size)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastCalloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastCalloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -411,7 +442,7 @@ void *DebugMemory_FastRealloc (void *memory_block, unsigned size)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastRealloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastRealloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -428,14 +459,14 @@ char *DebugMemory_FastStrdup  (const char *string)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastStrdup: 0x%x, %i", memory, memory));
+	LOG ((LOG_DIAG, "FastStrdup: %p, %p", (void*)memory, (void*)memory));
 
 	return (memory);
 }
 
 void  DebugMemory_FastFree    (void **memory_block_ptr)
 {
-	LOG ((LOG_DIAG, "FastFree: 0x%x, %i", *memory_block_ptr, *memory_block_ptr));
+	LOG ((LOG_DIAG, "FastFree: %p, %p", (void*)*memory_block_ptr, (void*)*memory_block_ptr));
 
 	free (*memory_block_ptr);
 	*memory_block_ptr = NULL;
@@ -544,7 +575,7 @@ void *DebugMemoryHeap_FastMalloc  (MemoryHeap heap, unsigned size)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastMalloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastMalloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -569,7 +600,7 @@ void *DebugMemoryHeap_FastCalloc  (MemoryHeap heap, unsigned size)
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastCalloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastCalloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -593,7 +624,7 @@ void *DebugMemoryHeap_FastRealloc (MemoryHeap heap, void *memory_block, unsigned
 		LOG ((LOG_FATAL, "Out of Memory"));
 	}
 
-	LOG ((LOG_DIAG, "FastRealloc: 0x%x, 0x%x, %i, %i", memory, size, memory, size));
+	LOG ((LOG_DIAG, "FastRealloc: %p, %u, %p, %u", (void*)memory, size, (void*)memory, size));
 
 	return (memory);
 }
@@ -612,7 +643,7 @@ char *DebugMemoryHeap_FastStrdup  (MemoryHeap heap, const char *string)
 	copy_of_string = (char *) DebugMemoryHeap_FastMalloc (heap, strlen (string + 1));
 	strcpy (copy_of_string, string);
 
-	LOG ((LOG_DIAG, "FastStrdup: 0x%x, %i", string, string));
+	LOG ((LOG_DIAG, "FastStrdup: %p, %p", (void*)string, (void*)string));
 
 	return (copy_of_string);
 }
@@ -625,7 +656,7 @@ void  DebugMemoryHeap_FastFree    (MemoryHeap heap, void **memory_block_ptr)
 {
 	BOOL ok;
 
-	LOG ((LOG_DIAG, "FastFree: 0x%x, %i", *memory_block_ptr, *memory_block_ptr));
+	LOG ((LOG_DIAG, "FastFree: %p, %p", (void*)*memory_block_ptr, (void*)*memory_block_ptr));
 	DebugMemory_EnsureInitialised();
 
 	ASSERT_CLASS (LOG_MEMORY_FAIL, heap);

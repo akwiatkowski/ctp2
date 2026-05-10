@@ -29,22 +29,22 @@
 // Modifications from the original Activision code:
 //
 // - Added player selection for new single player game and scenarios of
-//   all types, by Martin Gühmann.
+//   all types, by Martin Gï¿½hmann.
 // - Fixed scenarios that allow players other than player 1 to be played,
-//   by Martin Gühmann
+//   by Martin Gï¿½hmann
 // - Added multiplayer to single player game conversion for testing.
 // - Prevent assigning the same civilisation index twice, while keeping the
 //   human player selection.
 // - TradePool is fixed on reload if the number of goods in the
 //   savegame differs from the number of goods in the database.
-//   - June 4th 2005 Martin Gühmann
+//   - June 4th 2005 Martin Gï¿½hmann
 // - Allowed for nPlayers to be 2 or 3 - JJB 2005/06/28
 // - Removed auto-tutorial on low difficulty - JJB 2005/06/28
-// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin Gühmann)
-// - Removed unused SpriteStateDB refferences. (Aug 28th 2005 Martin Gühmann)
-// - Reused obsolate concept icon database slot for new map icon database. (3-Mar-2007 Martin Gühmann)
-// - Removed old concept database. (31-Mar-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Removed unused SpriteStateDB refferences. (Aug 28th 2005 Martin Gï¿½hmann)
+// - Reused obsolate concept icon database slot for new map icon database. (3-Mar-2007 Martin Gï¿½hmann)
+// - Removed old concept database. (31-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -53,9 +53,9 @@
 
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 #include "gs/gameobj/AchievementTracker.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "gs/gameobj/AgreementPool.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/ArmyPool.h"
@@ -64,7 +64,7 @@
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_ctp2/background.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "ctp/ctp2_utils/c3debug.h"
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ui/aui_ctp2/c3slider.h"
@@ -73,7 +73,7 @@
 #include "ctp/civ3_main.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "gfx/gfx_utils/colorset.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -82,7 +82,7 @@
 #include "gs/database/DB.h"
 #include "ctp/debugtools/debugmemory.h"
 #include "ui/interface/debugwindow.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
 #include "gfx/spritesys/director.h"                   // g_director
@@ -93,7 +93,7 @@
 #include "gs/fileio/gamefile.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/utility/Globals.h"                    // allocated::...
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 #include "ui/interface/infowin.h"
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/installationtree.h"
@@ -117,16 +117,16 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/interface/radarwindow.h"
 #include "gs/utility/RandGen.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "robot/utility/RoboInit.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicEngine.h"
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 #include "ui/interface/splash.h"
-#include "gs/newdb/SpriteRecord.h"
+#include "SpriteRecord.h"
 #include "gfx/spritesys/SpriteState.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/database/thronedb.h"
 #include "gfx/tilesys/tiledmap.h"
@@ -140,10 +140,10 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/database/UVDB.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/world/World.h"
@@ -194,7 +194,6 @@ InstallationQuadTree        *g_theInstallationTree = NULL;
 TopTen                      *g_theTopTen = NULL;
 TurnCount                   *g_turn = NULL;
 ProfileDB                   *g_theProfileDB = NULL;
-MovieDB                     *g_theWonderMovieDB = NULL;
 MovieDB                     *g_theVictoryMovieDB = NULL;
 FilenameDB                  *g_theMessageIconFileDB = NULL;
 Pool<Order>                 *g_theOrderPond = NULL;
@@ -1967,7 +1966,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive &archive)
 
 			case STARTINFOTYPE_CIVSFIXED:
 			case STARTINFOTYPE_POSITIONSFIXED:
-// Added by Martin Gühmann
+// Added by Martin Gï¿½hmann
 // No difference between STARTINFOTYPE_CIVSFIXED and STARTINFOTYPE_POSITIONSFIXED
 				{
 					Assert(numPlayersLoaded == 0);

@@ -99,7 +99,7 @@
 #include "ai/strategy/squads/squad_Strength.h"
 #include "ai/ctpaidebug.h"
 
-#include "gs/newdb/GoalRecord.h"
+#include "GoalRecord.h"
 
 //----------------------------------------------------------------------------
 //

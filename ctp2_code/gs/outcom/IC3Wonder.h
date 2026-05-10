@@ -46,7 +46,7 @@ DEFINE_GUID(CLSID_IC3Wonder, 0x5cdc3321, 0x69e, 0x11d2, 0x83, 0x55, 0x0, 0xc0, 0
 DECLARE_INTERFACE_(IC3Wonder, IUnknown)
 	{
 
-	STDMETHOD_ (sint32, GetNumWonders)(THIS_) PURE ;
+	STDMETHOD_ (sint32, GetNumWonders)(THIS) PURE ;
 	STDMETHOD_ (BOOL, HasBeenBuilt)(THIS_ sint32 wonder_type) PURE ;
 	STDMETHOD_ (sint32, EnablingDiscovery)(THIS_ sint32 wonder_type) PURE ;
 	STDMETHOD_ (sint32, GetOwner)(THIS_ sint32 wonder_type) PURE ;
@@ -60,7 +60,7 @@ DECLARE_INTERFACE_(IC3Wonder, IUnknown)
     STDMETHOD_ (double, MaxPecentageThisWonderDone) (THIS_ sint32 wonder_type) PURE;
     STDMETHOD_ (BOOL, CanBuild) (THIS_ sint32 wonder_type) PURE;
 	STDMETHOD_ (BOOL, IsObsolete) (THIS_ sint32 wonder_type) PURE;
-    STDMETHOD_ (BOOL, IsWormholeDetectorBuilt)(THIS_) PURE;
+    STDMETHOD_ (BOOL, IsWormholeDetectorBuilt)(THIS) PURE;
 
 	} ;
 

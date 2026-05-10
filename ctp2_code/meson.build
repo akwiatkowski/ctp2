@@ -7,6 +7,10 @@ conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))
 conf.set('_DEBUG', get_option('buildtype').startswith('debug'))
 
+if get_option('buildtype').startswith('debug')
+	add_global_arguments('-D_DEBUG', language : ['c', 'cpp'])
+endif
+
 # first look into our own bin folder, then search the PATH
 flex = find_program('../bin/flex', 'flex')
 byacc = find_program('../bin/byacc', 'byacc')
@@ -27,29 +31,39 @@ win32 = compiler.has_header('windows.h')
 incdir = []
 main_dependencies = []
 use_ld = []
+host_system = host_machine.system()
+
 if not win32
-	# use gold-linker by default if available
-	if find_program('gold').found()
-		add_global_arguments('-fuse-ld=gold', language : ['c', 'cpp'])
+	# use gold-linker by default if available (Linux only)
+	if host_system == 'linux'
+		gold = find_program('gold', required: false)
+		if gold.found()
+			add_global_arguments('-fuse-ld=gold', language : ['c', 'cpp'])
+		endif
 	endif
 
-	sdl = [dependency('sdl'), dependency('SDL_mixer')]
+	sdl = [dependency('sdl2'), dependency('SDL2_mixer')]
 	conf.set('USE_SDL', 1)
 
 	tiff = dependency('libtiff-4')
 	zlib = dependency('zlib')
 
-	gtk = dependency('gtk+-3.0')
-	conf.set('USE_GTK', 1)
+	# GTK is only used for message dialogs on Linux
+	gtk = dependency('gtk+-3.0', required: false)
+	if gtk.found()
+		conf.set('USE_GTK', 1)
+	endif
 
 	x11 = dependency('x11', required: false)
 	if x11.found()
 		conf.set('HAVE_X11', 1, description : 'System with X11 present')
 	endif
-	main_dependencies += [tiff, zlib, gtk, sdl, x11]
-	
+	main_dependencies += [tiff, zlib, sdl, x11]
+
+	# nowin32 stubs: depend on gtk only if available
 	main_dependencies += declare_dependency( sources : 'os/nowin32/nowin32.cpp', dependencies : gtk )
 	incdir += include_directories('os/nowin32')
+	incdir += include_directories('user-robotcom')
 
 	conf.set_quoted('FILE_SEP', '/')
 	conf.set('FILE_SEPC', '\'/\'')
@@ -71,12 +85,15 @@ add_global_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
 add_global_arguments('-DHAVE_UNISTD_H', language : ['c', 'cpp'])
 add_global_arguments('-DHAVE_STDINT_H', language : ['c', 'cpp'])
 add_global_arguments('-DHAVE_STRING_H', language : ['c', 'cpp'])
+add_global_arguments('-Wno-non-pod-varargs', language : ['cpp'])
+add_global_arguments('-Wno-implicit-function-declaration', language : ['c'])
 
 anet = subproject('anet').get_variable('libanet')
 
 freetype = subproject('freetype-1.3.1').get_variable('libfreetype')
 
 incdir += include_directories(
+	'.',
 	'os/include',
 	'ctp',
 	'ctp/ctp2_utils',
@@ -1003,8 +1020,13 @@ gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/SpriteState.cpp',
 	'gfx/spritesys/spriteutils.cpp',
 	'gfx/spritesys/UnitSpriteGroup.cpp',
+	'gfx/spritesys/ActionQueue.cpp',
 	'gfx/spritesys/director.cpp',
-	'gfx/spritesys/screenmanager.cpp'],
+	'gfx/spritesys/DirectorActionHandlers.cpp',
+	'gfx/spritesys/screenmanager.cpp',
+	'gfx/spritesys/Sequence.cpp',
+	'gfx/spritesys/SpriteStateDB.cpp',
+	'gfx/spritesys/spritelow.cpp'],
 		include_directories : incdir,
 		dependencies : [ cdb_header, anet ])
 
@@ -1043,6 +1065,6 @@ p_plasma2 = shared_library('plasma2', 'mapgen/PlasmaGen2.cpp',
 executable('ctp2', main_sources, 
 		include_directories : incdir,
 		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
-		cpp_args : [ '-fpermissive', '-Wno-narrowing' ],
+		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs' ],
 		link_args : [ '-lltdl', use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])

@@ -39,6 +39,7 @@
 #include <sys/types.h>
 #if !defined(WIN32)
 #include <dirent.h>
+#include <unistd.h>
 #endif
 
 #include "ui/aui_common/aui.h"
@@ -91,6 +92,7 @@ sint32 *c3debug_GetLogLinesThisFile(void)
 
 void c3debug_InitDebugLog()
 {
+#ifdef WIN32
 	SECURITY_ATTRIBUTES		sa;
 
 	sa.nLength = sizeof(sa);
@@ -117,6 +119,24 @@ void c3debug_InitDebugLog()
 
 		FindClose(lpFileList);
 	}
+#else
+	mkdir("logs", 0755);
+
+	DIR *dir = opendir("logs");
+	if (dir)
+	{
+		struct dirent *entry;
+		while ((entry = readdir(dir)) != NULL)
+		{
+			if (entry->d_name[0] == '.')
+				continue;
+			MBCHAR fileName[256];
+			sprintf(fileName, "logs%s%s", FILE_SEP, entry->d_name);
+			unlink(fileName);
+		}
+		closedir(dir);
+	}
+#endif
 
 	s_logFileNumber = 0;
 	s_logLinesThisFile = 0;
@@ -314,9 +334,11 @@ void c3debug_ExceptionExecute(CivExceptionFunction function)
 void c3debug_Assert(char const *s, char const * file, int line)
 {
 	DPRINTF(k_DBG_FIX, ("Assertion (%s) Failed in File:%s, Line:%ld\n", s, file, line));
+#if defined(WIN32)
 	DPRINTF(k_DBG_FIX, ("Stack Trace: '%s'\n", c3debug_StackTrace()));
+#endif
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(WIN32)
 	do
 	{
 		if (_CrtDbgReport(_CRT_ASSERT, file, line, NULL, s) == 1)

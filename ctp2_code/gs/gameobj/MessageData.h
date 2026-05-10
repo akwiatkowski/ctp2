@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made GetMessageWindow const. (Oct 16th 2005 Martin Gühmann)
+// - Made GetMessageWindow const. (Oct 16th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -54,13 +54,7 @@ typedef sint32 PLAYER_INDEX;
 
 #define k_MAX_MESSAGES_KEPT	30
 
-enum MESSAGE_RESPONSE_TYPE
-	{
-	MESSAGE_RESPONSE_TYPE_REJECT,
-	MESSAGE_RESPONSE_TYPE_ACCEPT,
-	MESSAGE_RESPONSE_TYPE_INVALID,
-	MESSAGE_RESPONSE_TYPE_MAX,
-	} ;
+#include "user-robotcom/shared/diplomatictypes.h"
 
 #if 0
 enum MESSAGE_TYPE

@@ -50,7 +50,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"
@@ -60,7 +60,7 @@
 
 #include "ui/interface/helptile.h"
 
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
 #include "gs/world/UnseenCell.h" //Unseen cell info is needed
 #include "gfx/tilesys/tiledmap.h"

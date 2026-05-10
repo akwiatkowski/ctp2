@@ -47,7 +47,7 @@
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Unit.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/Cell.h"
 #include "ai/diplomacy/Diplomat.h"

@@ -36,7 +36,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/agesscreen.h"
 
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_listitem.h"

@@ -57,12 +57,12 @@
 #include "ui/interface/DomesticManagementDialog.h"
 #include "gs/gameobj/FeatTracker.h"				// g_featTracker
 #include "ai/CityManagement/governor.h"                   // To allow automatic slider optimization
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/Happy.h"
 #include "net/general/network.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gs/gameobj/Player.h"
-#include "gs/newdb/PopRecord.h"					// g_thePopDB
+#include "PopRecord.h"					// g_thePopDB
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"					// g_theProfileDB
 #include "ui/aui_ctp2/SelItem.h"

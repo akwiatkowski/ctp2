@@ -37,13 +37,13 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/tradeutil.h"
 #include "gs/world/World.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/citydata.h"
 #include "robot/pathing/TradeAstar.h"
 #include "robot/pathing/Path.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "gs/world/World.h"
 
 extern TradeAstar g_theTradeAstar;

@@ -31,7 +31,7 @@
 
 #include "ctp/c3.h"
 
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/database/StrDB.h"
 
 #include "ui/aui_common/aui_uniqueid.h"

@@ -21,7 +21,7 @@ extern World *g_theWorld;
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Happy.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 
 extern uint32 g_search_count;
 

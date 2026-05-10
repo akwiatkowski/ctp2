@@ -25,11 +25,11 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 // - Events that should go into the event queue are only added if all their
-//   arguments are valid. (7-Nov-2007 Martin Gühmann)
+//   arguments are valid. (7-Nov-2007 Martin Gï¿½hmann)
 // - Events whose arguments became invalid between call and execution are not
-//   executed and an error message is given. (7-Nov-2007 Martin Gühmann)
+//   executed and an error message is given. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -406,7 +406,11 @@ bool GameEventManager::CheckArg(sint32 num, char got, char want)
 
 	if(got != want) {
 #ifdef _DEBUG
+#if defined(WIN32)
 		c3errors_ErrorDialog("GameEventManager", "Argument %d should be of type %s.  Stack: %s", num, ArgCharToName(want), c3debug_StackTrace());
+#else
+		c3errors_ErrorDialog("GameEventManager", "Argument %d should be of type %s.", num, ArgCharToName(want));
+#endif
 #endif
 		return false;
 	}
@@ -619,12 +623,16 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 				DG_PRINT(EVENTLOGNAME, "0x%lx, ", route.m_id);
 				break;
 			case GEA_End:
-				if(*(argString) != 0) {
+			if(*(argString) != 0) {
 #ifdef _DEBUG
-					c3errors_ErrorDialog("GameEventManager", "Not enough arguments.  Stack: %s", c3debug_StackTrace());
+#if defined(WIN32)
+				c3errors_ErrorDialog("GameEventManager", "Not enough arguments.  Stack: %s", c3debug_StackTrace());
+#else
+				c3errors_ErrorDialog("GameEventManager", "Not enough arguments.");
 #endif
-					return false;
-				}
+#endif
+				return false;
+			}
 				return true;
 			default:
 				Assert(false);

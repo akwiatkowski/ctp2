@@ -36,7 +36,7 @@ sources = [
 	'src/tca/crypttab.c'
 	]
 
-c_args = [ '-Ddp_ANET2', '-DPACK=__attribute__ ((packed))' ]
+c_args = [ '-Ddp_ANET2', '-DPACK=__attribute__ ((packed))', '-Wno-implicit-function-declaration' ]
 
 if host_machine.system() == 'windows'
 	sources += [
@@ -47,7 +47,7 @@ if host_machine.system() == 'windows'
 		'src/linux/uudp/uudps.c'
 	]
 endif
-if host_machine.system() == 'linux'
+if host_machine.system() == 'linux' or host_machine.system() == 'darwin'
 	sources += [
 		'src/linux/dp/dpdll.c',
 		'src/linux/dp/dpmem.c',

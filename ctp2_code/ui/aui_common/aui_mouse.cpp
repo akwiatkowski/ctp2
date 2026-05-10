@@ -27,7 +27,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -36,6 +36,8 @@
 
 #include <chrono>
 #include <thread>
+
+BOOL g_mouseShouldTerminateThread = FALSE;
 
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_ui.h"
@@ -405,7 +407,7 @@ AUI_ERRCODE aui_Mouse::Start( void )
 		CreateThread( NULL, 0, MouseThreadProc, (LPVOID)this, 0, &m_threadId );
 #elif defined(__AUI_USE_SDL__)
 	m_thread =
-                SDL_CreateThread(MouseThreadProc, this);
+		SDL_CreateThread(MouseThreadProc, "MouseThread", this);
 	m_threadId = SDL_GetThreadID(m_thread);
 #endif
 
@@ -490,7 +492,7 @@ AUI_ERRCODE aui_Mouse::End( void )
 		else
 			TerminateThread( m_thread, 1 );
 #elif defined(__AUI_USE_SDL__)
-		SDL_KillThread(m_thread);
+		// SDL2 removed SDL_KillThread; thread should exit via m_terminateEvent
 #endif
 
 		Erase();

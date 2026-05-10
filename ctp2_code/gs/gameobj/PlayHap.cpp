@@ -35,7 +35,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_utils/primitives.h"
@@ -47,12 +47,12 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/installationtree.h"
 
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/terrainutil.h"
 
 #include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 
 #include "gs/gameobj/Army.h"
 

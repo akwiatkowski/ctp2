@@ -49,7 +49,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/utility/Globals.h"
 #include "gs/world/Cell.h"

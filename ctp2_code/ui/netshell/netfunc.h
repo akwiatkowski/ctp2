@@ -15,8 +15,8 @@
 #include <list>
 
 #ifdef USE_SDL
-#include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_thread.h>
 #endif
 
 #if defined(WIN32)
@@ -173,7 +173,7 @@ public:
 
         if (i == this->end())
         {
-			push_back(t);
+			this->push_back(t);
 			return t;
 		}
         else
@@ -191,7 +191,7 @@ public:
 		if (i != this->end())
         {
 			delete *i;
-			erase(i);
+			this->erase(i);
 		}
 	}
 
@@ -202,7 +202,7 @@ public:
 		if (i == this->end())
         {
 			T *n = new T(*t);
-			push_back(n);
+			this->push_back(n);
 			return n;
 		}
         else

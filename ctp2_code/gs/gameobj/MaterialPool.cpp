@@ -35,7 +35,7 @@
 #include "net/general/net_action.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/Player.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 
 extern Player **g_player;
 

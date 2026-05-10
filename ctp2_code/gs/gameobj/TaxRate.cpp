@@ -3,7 +3,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/database/DB.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/Player.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"

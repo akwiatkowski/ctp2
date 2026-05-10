@@ -38,7 +38,7 @@
 
 #include <vector>
 #include "ctp/ctp2_utils/c3debugstl.h"
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 #include "gs/events/GameEventManager.h"
 
 extern TurnCount *g_turn;

@@ -20,14 +20,14 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/c3ui.h"
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/fileio/prjfile.h"
 
 #include "gs/database/StrDB.h"
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 
 #include "gs/gameobj/advanceutil.h"
 #include "ui/ldl/ldl_file.hpp"

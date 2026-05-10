@@ -39,7 +39,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/utility/RandGen.h"
 #include "gs/newdb/UnitRec.h"
@@ -51,7 +51,7 @@
 #include "net/general/net_endgame.h"
 #include "gs/utility/directions.h"
 #include "gs/fileio/gamefile.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
 #define k_WORMHOLE_GOOD_ID_STR		"WORMHOLE"
 

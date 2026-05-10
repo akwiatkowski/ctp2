@@ -13,7 +13,7 @@
 #include "gs/world/World.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 

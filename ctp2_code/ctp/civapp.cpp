@@ -42,9 +42,9 @@
 // - Keep the user's leader name when the data is consistent.
 // - Skip begin turn handling when loading from a file.
 // - Fixed a repetitive memory leak in the Great Libary caused by
-//   scenario loading, by Martin Gühmann.
+//   scenario loading, by Martin Gï¿½hmann.
 // - Removed some redundant code, because it is already done
-//   somewhere else, by Martin Gühmann.
+//   somewhere else, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 //
@@ -68,45 +68,45 @@
 // - Used the new ColorSet option to select civilisation colors.
 // - Memory leak repaired: clean up the turn counter override information.
 // - Hot seat handling improved.
-// - Static member of StatusBar is now deleted correctly, by Martin Gühmann.
+// - Static member of StatusBar is now deleted correctly, by Martin Gï¿½hmann.
 // - Cleaned up music screen.
 // - The civilisation index from the profile is now reset if it is too high.
-//   This prevents the game from crashing. - April 12th 2005 Martin Gühmann
+//   This prevents the game from crashing. - April 12th 2005 Martin Gï¿½hmann
 // - Added crash prevention during game loading.
 // - Added another civilisation index check.
 // - Option added to include multiple data directories.
 // - Added Slic segment cleanup.
-// - Replaced old civilisation database by new one. (Aug 22nd 2005 Martin Gühmann)
-// - Made progress bar more fluently. (Aug 22nd 2005 Martin Gühmann)
-// - Removed the old endgame and installation databases. (Aug 29th 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 22nd 2005 Martin Gï¿½hmann)
+// - Made progress bar more fluently. (Aug 22nd 2005 Martin Gï¿½hmann)
+// - Removed the old endgame and installation databases. (Aug 29th 2005 Martin Gï¿½hmann)
 // - Removed old sprite state databases, removed olf good's icon
-//   database (unused), replaced old risk database by new one. (Aug 29th 2005 Martin Gühmann)
-// - The right color set is now selected afterwards the ProfileDB is available. (Aug 29th 2005 Martin Gühmann)
-// - Added cleanup of gaia controller and info window. (Sep 13th 2005 Martin Gühmann)
-// - Added ArmyData and Network cleanup. (Sep 25th 2005 Martin Gühmann)
-// - Added graphicsresscreen_Cleanup. (Sep 25th 2005 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old pollution database by new one. (July 15th 2006 Martin Gühmann)
-// - Replaced old global warming database by new one. (July 15th 2006 Martin Gühmann)
-// - Added new map icon database. (3-Mar-2007 Martin Gühmann)
-// - Replaced old map database by new one. (27-Mar-2007 Martin Gühmann)
-// - Replaced old concept database by new one. (31-Mar-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - Fixed PBEM BeginTurn event execution. (27-Oct-2007 Martin Gühmann)
-// - Games can now be saved if the visible player is a robot. (30-Jan-2008 Martin Gühmann)
+//   database (unused), replaced old risk database by new one. (Aug 29th 2005 Martin Gï¿½hmann)
+// - The right color set is now selected afterwards the ProfileDB is available. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Added cleanup of gaia controller and info window. (Sep 13th 2005 Martin Gï¿½hmann)
+// - Added ArmyData and Network cleanup. (Sep 25th 2005 Martin Gï¿½hmann)
+// - Added graphicsresscreen_Cleanup. (Sep 25th 2005 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old pollution database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Replaced old global warming database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Added new map icon database. (3-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old map database by new one. (27-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old concept database by new one. (31-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - Fixed PBEM BeginTurn event execution. (27-Oct-2007 Martin Gï¿½hmann)
+// - Games can now be saved if the visible player is a robot. (30-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
 
-#include "gs/newdb/AdvanceBranchRecord.h"
-#include "gs/newdb/AdvanceListRecord.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceBranchRecord.h"
+#include "AdvanceListRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/advanceutil.h"
-#include "gs/newdb/AgeCityStyleRecord.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeCityStyleRecord.h"
+#include "AgeRecord.h"
 #include <algorithm>                    // std::find
 #include "ui/interface/ancientwindows.h"
 #include "ctp/ctp2_utils/appstrings.h"
@@ -118,10 +118,10 @@
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/battleview.h"
 #include "ui/aui_ctp2/bevellesswindow.h"
-#include "gs/newdb/BuildingBuildListRecord.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingBuildListRecord.h"
+#include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"
-#include "gs/newdb/BuildListSequenceRecord.h"
+#include "BuildListSequenceRecord.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_checkbox.h"
 #include "ui/aui_ctp2/c3_dropdown.h"
@@ -132,16 +132,16 @@
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3windows.h"
 #include "ui/interface/chatbox.h"
-#include "gs/newdb/CitySizeRecord.h"
-#include "gs/newdb/CityStyleRecord.h"
+#include "CitySizeRecord.h"
+#include "CityStyleRecord.h"
 #include "ui/interface/citywindow.h"
 #include "ctp/civ3_main.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"
 #include "gs/fileio/civscenarios.h"
-#include "gs/newdb/ConceptRecord.h"
-#include "gs/newdb/ConstRecord.h"                    // g_theConstDB
+#include "ConceptRecord.h"
+#include "ConstRecord.h"                    // g_theConstDB
 #include "ui/interface/controlpanelwindow.h"
 #include "ai/ctpai.h"
 #include "ctp/fingerprint/ctp_finger.h"
@@ -149,11 +149,11 @@
 #include "gs/database/DB.h"
 #include "gs/newdb/DBLexer.h"
 #include "ctp/debugtools/debugmemory.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "ui/interface/DiplomacyDetails.h"
-#include "gs/newdb/DiplomacyProposalRecord.h"
-#include "gs/newdb/DiplomacyRecord.h"
-#include "gs/newdb/DiplomacyThreatRecord.h"
+#include "DiplomacyProposalRecord.h"
+#include "DiplomacyRecord.h"
+#include "DiplomacyThreatRecord.h"
 #include "ai/diplomacy/diplomacyutil.h"
 #include "ui/interface/diplomacywindow.h"
 #include "ui/interface/dipwizard.h"
@@ -161,11 +161,11 @@
 #include "ctp/display.h"
 #include "ui/interface/DomesticManagementDialog.h"
 #include "ui/interface/EditQueue.h"
-#include "gs/newdb/EndGameObjectRecord.h"
+#include "EndGameObjectRecord.h"
 #include "ui/interface/EndgameWindow.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Exclusions.h"
-#include "gs/newdb/FeatRecord.h"
+#include "FeatRecord.h"
 #include "gs/database/filenamedb.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/fileio/gamefile.h"                   // SAVE_LEADER_NAME_SIZE
@@ -175,16 +175,16 @@
 #include "sound/gamesounds.h"
 #include "gfx/gfx_utils/gfx_options.h"
 #include "gs/utility/Globals.h"                    // allocated::clear, allocated::reassign
-#include "gs/newdb/GlobalWarmingRecord.h"
-#include "gs/newdb/GoalRecord.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GlobalWarmingRecord.h"
+#include "GoalRecord.h"
+#include "GovernmentRecord.h"
 #include "ui/aui_ctp2/grabitem.h"
 #include "ui/interface/graphicsresscreen.h"          // graphicsresscreen_Cleanup
 #include "ui/interface/graphicsscreen.h"
 #include "ui/interface/greatlibrarywindow.h"
 #include "ui/interface/helptile.h"
-#include "gs/newdb/IconRecord.h"
-#include "gs/newdb/ImprovementListRecord.h"
+#include "IconRecord.h"
+#include "ImprovementListRecord.h"
 #include "ui/aui_ctp2/InfoBar.h"
 #include "ui/interface/infowin.h"
 #include "ui/interface/infowindow.h"                 // Info Window cleanup
@@ -196,8 +196,8 @@
 #include "ui/interface/km_screen.h"
 #include "ui/interface/loadsavewindow.h"
 #include "ui/interface/MainControlPanel.h"
-#include "gs/newdb/MapIconRecord.h"
-#include "gs/newdb/MapRecord.h"
+#include "MapIconRecord.h"
+#include "MapRecord.h"
 #include "gs/gameobj/message.h"
 #include "gs/gameobj/MessagePool.h"                // g_theMessagePool
 #include "ui/interface/messagewin.h"
@@ -210,12 +210,12 @@
 #include "net/general/network.h"
 #include "ui/interface/optionswindow.h"
 #include "ui/interface/optionwarningscreen.h"
-#include "gs/newdb/OrderRecord.h"
-#include "gs/newdb/PersonalityRecord.h"
+#include "OrderRecord.h"
+#include "PersonalityRecord.h"
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/database/PlayListDB.h"
-#include "gs/newdb/PollutionRecord.h"
-#include "gs/newdb/PopRecord.h"
+#include "PollutionRecord.h"
+#include "PopRecord.h"
 #include "gs/fileio/prjfile.h"
 #include "gs/database/profileDB.h"                  // g_theProfileDB
 #include "ui/interface/ProfileEdit.h"
@@ -223,8 +223,8 @@
 #include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
 #include "ui/interface/radarwindow.h"
 #include "gs/utility/RandGen.h"                    // g_rand
-#include "gs/newdb/ResourceRecord.h"
-#include "gs/newdb/RiskRecord.h"
+#include "ResourceRecord.h"
+#include "RiskRecord.h"
 #include "robot/utility/RoboInit.h"
 #include "ui/interface/scenariowindow.h"
 #include "ui/interface/sci_advancescreen.h"
@@ -237,40 +237,40 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"                // SlicSegment::Cleanup
 #include "sound/soundmanager.h"               // g_soundManager
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 #include "ui/interface/soundscreen.h"
-#include "gs/newdb/SpecialAttackInfoRecord.h"
-#include "gs/newdb/SpecialEffectRecord.h"
+#include "SpecialAttackInfoRecord.h"
+#include "SpecialEffectRecord.h"
 #include "ui/interface/scenarioeditor.h"
 #include "ui/interface/splash.h"						// g_splash_old
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/interface/spriteeditor.h"
-#include "gs/newdb/SpriteRecord.h"
+#include "SpriteRecord.h"
 #include "ui/interface/statswindow.h"
 #include "ui/aui_ctp2/statuswindow.h"
-#include "gs/newdb/StrategyRecord.h"
+#include "StrategyRecord.h"
 #include "gs/database/StrDB.h"
 #include <string>                       // std::string
 #include "gs/database/thronedb.h"                   // g_theThroneDB
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/interface/trademanager.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "ui/interface/tutorialwin.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/newdb/UnitBuildListRecord.h"
+#include "UnitBuildListRecord.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ui/interface/unitmanager.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/database/UVDB.h"
 #include "ui/interface/victorywin.h"
-#include "gs/newdb/WonderBuildListRecord.h"
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/WonderMovieRecord.h"
+#include "WonderBuildListRecord.h"
+#include "WonderRecord.h"
+#include "WonderMovieRecord.h"
 #include "ui/interface/workwin.h"
 
 #ifndef _NO_GAME_WATCH
@@ -570,7 +570,7 @@ namespace Os
 
 void check_leak()
 {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(WIN32)
 	if (g_tempLeakCheck)
 	{
 		_CrtMemState new_state;
@@ -2633,7 +2633,7 @@ sint32 CivApp::ProcessProfile(void)
 
 sint32 CivApp::Process(void)
 {
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(WIN32)
 	if(g_tempLeakCheck) {
 		_CrtMemState new_state;
 		_CrtMemCheckpoint(&new_state);

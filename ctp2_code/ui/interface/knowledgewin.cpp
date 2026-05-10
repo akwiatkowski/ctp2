@@ -64,14 +64,14 @@
 #include "ui/aui_ctp2/c3_listbox.h"
 
 #include "gs/database/StrDB.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/utility/globals.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Readiness.h"

@@ -56,7 +56,7 @@
 #include "ctp/civ3_main.h"
 #include "ctp/civapp.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/fileio/civscenarios.h"               // g_civScenarios
 #include "ui/aui_ctp2/ctp2_button.h"
 #ifdef WIN32

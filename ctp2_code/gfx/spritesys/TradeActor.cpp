@@ -59,7 +59,7 @@
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
 #include "gs/world/Cell.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
 extern SpriteGroupList	*g_goodSpriteGroupList;
 

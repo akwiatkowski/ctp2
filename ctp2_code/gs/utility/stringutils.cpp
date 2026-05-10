@@ -28,7 +28,7 @@
 // - fixed for japanese by t.s. 2003.12
 // - Made the interpretation text size a parameter to support the German
 //   version.
-// - Removed unneeded inlcude files. (Aug 20th 2005 Martin Gühmann)
+// - Removed unneeded inlcude files. (Aug 20th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@
 #include "gs/slic/SlicContext.h"
 #include "gs/utility/stringutils.h"
 #include "gs/slic/sliccmd.h"
-#include "gs/slic/sc.tab.h"
+#include "sliccmd.tab.h"
 
 #if defined(_JAPANESE)
 #include "gs/utility/japanese.h"

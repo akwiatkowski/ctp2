@@ -30,7 +30,7 @@
 #include "ctp/c3.h"
 
 #include "gs/gameobj/Diffcly.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ui/interface/TurnYearStatus.h"

@@ -28,7 +28,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added new map icon database. (3-Mar-2007 Martin Gühmann)
+// - Added new map icon database. (3-Mar-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -48,13 +48,12 @@
 
 #include "gs/fileio/CivPaths.h"   // g_civPaths
 #include "gfx/gfx_utils/rimutils.h"
-#include "gs/newdb/MapIconRecord.h"
+#include "MapIconRecord.h"
 
 #include "gs/fileio/prjfile.h"
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
+#include <sys/mman.h>
 #include <sys/stat.h>
 #endif
 #ifdef HAVE_SYS_TYPES_H

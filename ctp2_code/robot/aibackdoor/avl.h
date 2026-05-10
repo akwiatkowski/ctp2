@@ -4,6 +4,13 @@
 #ifndef __AVL_H__
 #define __AVL_H__ 1
 
+#include <cassert>
+#ifndef _WIN32
+#ifndef _ASSERTE
+#define _ASSERTE assert
+#endif
+#endif
+
 
 typedef enum {AVL_LEFT = 0, AVL_RIGHT = 1, AVL_MID = 2} AVL_INDEX_TYPE;
 

@@ -11,7 +11,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <SDL/SDL_timer.h>
+#include <SDL2/SDL_timer.h>
 
 #include "os/nowin32/windows.h"
 

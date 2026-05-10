@@ -25,24 +25,24 @@
 //
 // Modifications from the original Activision code:
 //
-// - Modified by Martin Gühmann on October the 28th: line added in
+// - Modified by Martin Gï¿½hmann on October the 28th: line added in
 //   sint32 GreatLibrary::UpdateList( DATABASE database )
 //   to make sure that also goods with the GLHidden flag aren't shown.
 // - Start the great library with the current research project of the player.
 // - Clears the research goal of the player, when an item is selected that
-//   enabling advance has been researched already, by Martin Gühmann.
-// - The tech goal can now also set for tile improvements, by Martin Gühmann.
+//   enabling advance has been researched already, by Martin Gï¿½hmann.
+// - The tech goal can now also set for tile improvements, by Martin Gï¿½hmann.
 // - Handle Japanese input data, by t.s. (2003.12).
 // - Memory leaks repaired.
 // - Increased maximum library text size to support the German version.
 // - Exported database name size max.
 // - Added function to look up an item name on creation index.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Fixed display of topics after the fixing of the alphanumerical
-//   indexing of the databases. (Sep 13th 2005 Martin Gühmann)
-// - Search now searches now in the topic names, prerq and vari texts. (Sep 13th 2005 Martin Gühmann)
-// - Replaced old concept database by new one. (31-Mar-2007 Martin Gühmann)
-// - Search does not find items that are supposed to be hidden. (21-Apr-2007 Martin Gühmann)
+//   indexing of the databases. (Sep 13th 2005 Martin Gï¿½hmann)
+// - Search now searches now in the topic names, prerq and vari texts. (Sep 13th 2005 Martin Gï¿½hmann)
+// - Replaced old concept database by new one. (31-Mar-2007 Martin Gï¿½hmann)
+// - Search does not find items that are supposed to be hidden. (21-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 //
@@ -52,7 +52,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/greatlibrary.h"
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_listbox.h"
@@ -60,12 +60,12 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_switchgroup.h"
 #include "ui/aui_common/aui_uniqueid.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/chart.h"
 #include "gfx/gfx_utils/colorset.h"
-#include "gs/newdb/ConceptRecord.h"
+#include "ConceptRecord.h"
 #include "ui/aui_ctp2/controlsheet.h"
 #include <cstdlib>
 #include "ui/aui_ctp2/ctp2_button.h"
@@ -79,30 +79,30 @@
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/directvideo.h"
 #include "gs/utility/Globals.h"            // allocated::clear
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "ui/interface/greatlibrarywindow.h"
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/MessageBoxDialog.h"
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"          // g_theProfileDB
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/interface/screenutils.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "ui/interface/String_Search.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "TerrainRecord.h"
 #include "ui/interface/text_hasher.h"
 #include "ui/aui_ctp2/texttab.h"
 #include "ui/interface/UIUtils.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include <vector>
 #include "gfx/gfx_utils/videoutils.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/wonderutil.h"
 
 extern sint32		g_ScreenWidth;
@@ -1675,7 +1675,7 @@ void GreatLibrary::HandleListButton
 
 		if (item)
 		{
-		    int const   index = reinterpret_cast<int>(item->GetUserData());
+		    intptr_t const   index = reinterpret_cast<intptr_t>(item->GetUserData());
     		SetLibrary(GetIndexFromAlpha(index, m_listDatabase), m_listDatabase);
         }
     }

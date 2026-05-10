@@ -58,10 +58,10 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/terrainutil.h"
-#include "gs/newdb/ConstRecord.h"		// g_theConstDB
-#include "gs/newdb/ResourceRecord.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "ConstRecord.h"		// g_theConstDB
+#include "ResourceRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "TerrainRecord.h"
 #include "gs/utility/QuadTree.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"              // g_theWorld

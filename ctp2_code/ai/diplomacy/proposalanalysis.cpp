@@ -5,7 +5,7 @@
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Player.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
@@ -13,7 +13,7 @@
 #include "gs/gameobj/GSLogs.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "gs/gameobj/Gold.h"
-#include "gs/newdb/DiplomacyProposalRecord.h"
+#include "DiplomacyProposalRecord.h"
 #include "ai/diplomacy/diplomacyutil.h"
 
 void ProposalAnalysis::ComputeResult( const NewProposal & proposal,

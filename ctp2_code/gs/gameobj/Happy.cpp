@@ -47,7 +47,7 @@
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"             // g_player
-#include "gs/newdb/ConstRecord.h"        // g_theConstDB
+#include "ConstRecord.h"        // g_theConstDB
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/citydata.h"
 #include "ui/aui_ctp2/SelItem.h"            // g_theSelectedItem
@@ -56,9 +56,9 @@
 
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"              // g_theWorld
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/Diffcly.h"
 #include "gs/slic/SlicEngine.h"
@@ -70,11 +70,11 @@
 
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/Cell.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/FeatTracker.h"
-#include "gs/newdb/DifficultyRecord.h"   //EMOD
+#include "DifficultyRecord.h"   //EMOD
 #include "gs/gameobj/GameSettings.h"
 #include "gs/database/profileDB.h"
 

@@ -12,7 +12,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/newdb/DiplomacyRecord.h"
+#include "DiplomacyRecord.h"
 
 #include "gs/gameobj/Player.h"
 

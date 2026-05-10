@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "eclock.h"
 
-static nCalls = 0;
+static int nCalls = 0;
 
 /*------------------------------------------------------------------------------
  Return the filename that the next call to logPkt_open() will use.

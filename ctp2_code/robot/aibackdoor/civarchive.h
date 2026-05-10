@@ -31,8 +31,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added put and get methods for MBCHAR* (Aug 24th 2005 Martin Gühmann)
-// - Removed DoubleUp method. (Sep 9th 2005 Martin Gühmann)
+// - Added put and get methods for MBCHAR* (Aug 24th 2005 Martin Gï¿½hmann)
+// - Removed DoubleUp method. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ class CivArchive;
 
 #include "gs/outcom/ic3CivArchive.h"
 #include "os/include/ctp2_inttypes.h"
-// #include "SDL/SDL_endian.h"
+// #include "SDL2/SDL_endian.h"
 
 #define k_ARCHIVE_MAGIC_VALUE_1	'OTAK'
 #define k_ARCHIVE_MAGIC_VALUE_2	'U-98'
@@ -67,7 +67,11 @@ class DataCheck ;
 #define SDL_LIL_ENDIAN	1234
 #define SDL_BIG_ENDIAN	4321
 
-#if defined(i386) || defined(WIN32) || defined(__alpha__)
+#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define SDL_BYTEORDER	SDL_LIL_ENDIAN
+#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define SDL_BYTEORDER	SDL_BIG_ENDIAN
+#elif defined(i386) || defined(WIN32) || defined(__alpha__) || defined(__x86_64__) || defined(__aarch64__)
 #define SDL_BYTEORDER	SDL_LIL_ENDIAN
 #else
 #define SDL_BYTEORDER	SDL_BIG_ENDIAN
@@ -75,7 +79,7 @@ class DataCheck ;
 
 #define SDL_Swap16(X)  ((X<<8)|(X>>8))
 #define SDL_Swap32(X)  ((X<<24)|((X<<8)&0x00FF0000)|((X>>8)&0x0000FF00)|(X>>24))
-#define SDL_Swap64(X)  "How do we swap a 64-bit value?"
+#define SDL_Swap64(X)  (((uint64)(X)<<56)|(((uint64)(X)<<40)&0x00FF000000000000ULL)|(((uint64)(X)<<24)&0x0000FF0000000000ULL)|(((uint64)(X)<<8)&0x000000FF00000000ULL)|(((uint64)(X)>>8)&0x00000000FF000000ULL)|(((uint64)(X)>>24)&0x0000000000FF0000ULL)|(((uint64)(X)>>40)&0x000000000000FF00ULL)|((uint64)(X)>>56))
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define SDL_SwapLE16(X)	(X)

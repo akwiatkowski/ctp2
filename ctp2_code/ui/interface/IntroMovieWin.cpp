@@ -41,8 +41,8 @@
 
 #include "gs/database/moviedb.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/AgeRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "AgeRecord.h"
+#include "WonderRecord.h"
 
 #include "ui/interface/initialplaywindow.h"
 #include "sound/soundmanager.h"

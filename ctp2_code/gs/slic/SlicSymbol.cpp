@@ -68,7 +68,7 @@
 #include "gs/slic/SlicStack.h"
 #include "gs/slic/SlicStruct.h"
 #include "gs/gameobj/ArmyPool.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/slic/SlicNamedSymbol.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"

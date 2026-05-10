@@ -30,7 +30,7 @@
 //
 // - Modified GetSettleTargets so that no settle targets are found that cannot
 //   be settled, because the player does not has any units for the tile in
-//   question. (May 20th 2006 Martin Gühmann)
+//   question. (May 20th 2006 Martin Gï¿½hmann)
 // - Corrected delete operator for array.
 // - Improved settle radius determination on city growth.
 //
@@ -45,13 +45,13 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
-#include "gs/newdb/CitySizeRecord.h"
+#include "CitySizeRecord.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gfx/gfx_utils/gfx_options.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "gs/newdb/StrategyRecord.h"
-#include "gs/newdb/TerrainRecord.h"
-#include "gs/newdb/UnitRecord.h"
+#include "StrategyRecord.h"
+#include "TerrainRecord.h"
+#include "UnitRecord.h"
 #include <utility>
 #include <vector>
 #include "gs/world/World.h"		            // g_theWorld
@@ -63,7 +63,8 @@ namespace
 
 SettleMap SettleMap::s_settleMap;
 
-MapGrid<double>::MapGridArray MapGrid<double>::s_scratch;
+template<class T>
+typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
 
 SettleMap::SettleMap()
 :

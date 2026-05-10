@@ -519,7 +519,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetMaterialsStored) (THIS_) PURE;
+     STDMETHOD_ (sint32, GetMaterialsStored) (THIS) PURE;
 
 
 
@@ -527,7 +527,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetUnusedFreight) (THIS_) PURE;
+     STDMETHOD_ (sint32, GetUnusedFreight) (THIS) PURE;
 
 
 
@@ -535,7 +535,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetTotalFreight) (THIS_) PURE;
+     STDMETHOD_ (sint32, GetTotalFreight) (THIS) PURE;
 
 
 
@@ -692,7 +692,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetWagesPerPerson) (THIS_) PURE;
+     STDMETHOD_ (sint32, GetWagesPerPerson) (THIS) PURE;
 
 
 
@@ -700,7 +700,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetTotalBuildingUpkeep)(THIS_) PURE;
+     STDMETHOD_ (sint32, GetTotalBuildingUpkeep)(THIS) PURE;
 
 
 
@@ -742,7 +742,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
 
 
 
-     STDMETHOD_ (sint32, GetReadinessLevel)(THIS_ ) PURE;
+     STDMETHOD_ (sint32, GetReadinessLevel)(THIS) PURE;
 
 
 
@@ -890,7 +890,7 @@ DECLARE_INTERFACE_(IC3Player, IUnknown)
          BOOL *revealed_unexplored
          ) PURE;
 
-STDMETHOD_ (sint32, GetParadropMaxDistance) (THIS_ ) PURE;
+STDMETHOD_ (sint32, GetParadropMaxDistance) (THIS) PURE;
 
 STDMETHOD_ (BOOL, CanParadropNow) (THIS_ BOOL *is_unknown_id, uint32 u_id) PURE;
 
@@ -1009,7 +1009,7 @@ sint32 idx_gov
 
 
 
-     STDMETHOD_ (sint32, GetGovernmentType) (THIS_) PURE;
+     STDMETHOD_ (sint32, GetGovernmentType) (THIS) PURE;
 
 
 
@@ -1163,7 +1163,7 @@ STDMETHOD_ (void, MakeTradeOffer) (THIS_ uint32 city, sint32 resource,
 								   sint32 gold) PURE;
 STDMETHOD_ (BOOL, PlayerCanSeeCity) (THIS_ uint32 city, sint32 otherPlayer) PURE;
 
-STDMETHOD_ (sint32, UnusedTradePoints) (THIS_) PURE;
+STDMETHOD_ (sint32, UnusedTradePoints) (THIS) PURE;
 
 STDMETHOD_ (sint32, GetCityPopulation) (THIS_ sint32 player, uint32 city_id, BOOL *is_unknown_id) PURE;
 STDMETHOD_ (sint32, GetCityProduction) (THIS_ sint32 player, uint32 city_id, BOOL *is_unknown_id) PURE;
@@ -1236,14 +1236,14 @@ STDMETHOD_(uint32, CreateUnit)(THIS_ sint32 type, MapPointData *pos, uint32 home
         sint32 *in_num, sint32 *in_max, sint32 *out_num, sint32 *out_max) PURE;
 
 	STDMETHOD_(BOOL, CanSeeHisCity) (THIS_ uint32 cityId, sint32 cityOwner) PURE;
-	STDMETHOD_ (sint32, GetSlavesPerMilitaryUnit) (THIS_) PURE;
+	STDMETHOD_ (sint32, GetSlavesPerMilitaryUnit) (THIS) PURE;
 
 	STDMETHOD_ (BOOL, BuildCapitalization)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
 	STDMETHOD_ (BOOL, ArmyHasLeftMap)(THIS_ uint32 army_id, BOOL *is_unknown_id) PURE;
 
-	STDMETHOD_ (sint32, GetStage)(THIS_ ) PURE;
+	STDMETHOD_ (sint32, GetStage)(THIS) PURE;
 	STDMETHOD_ (sint32, GetNumberBuilt)(THIS_ sint32 type) PURE;
-	STDMETHOD_ (BOOL, HasLab)(THIS_ ) PURE;
+	STDMETHOD_ (BOOL, HasLab)(THIS) PURE;
 
     STDMETHOD_ (void, DipLogStr) (THIS_ sint32 player_idx, char *str) PURE;
 	STDMETHOD_(BOOL, IsActuallyVisible) (THIS_ sint32 player, uint32 army_id) PURE;

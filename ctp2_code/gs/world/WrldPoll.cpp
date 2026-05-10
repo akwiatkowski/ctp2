@@ -38,12 +38,12 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/Cell.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/TerrainRecord.h"
-#include "gs/newdb/GlobalWarmingRecord.h"
+#include "TerrainRecord.h"
+#include "GlobalWarmingRecord.h"
 #include "gs/database/UVDB.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "net/general/network.h"
 #include "gs/gameobj/GoodyHuts.h"
 #include "gfx/tilesys/tiledmap.h"
@@ -59,7 +59,7 @@
 
 #include "gfx/spritesys/director.h"
 
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 #include "gs/utility/MoveFlags.h"
 

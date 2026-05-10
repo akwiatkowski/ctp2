@@ -82,19 +82,19 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/strategy/scheduler/Scheduler.h"
 #include "ai/strategy/goals/Goal.h"
-#include "gs/newdb/GoalRecord.h"                     // g_theGoalDB
+#include "GoalRecord.h"                     // g_theGoalDB
 #include "ai/strategy/agents/agent.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/CityManagement/governor.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/newdb/DiplomacyProposalRecord.h"
+#include "DiplomacyProposalRecord.h"
 #include "robot/pathing/robotastar2.h"
 #include "gs/gameobj/gaiacontroller.h"
-#include "gs/newdb/OrderRecord.h"
-#include "gs/newdb/AdvanceListRecord.h"
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/EndGameObjectRecord.h"
+#include "OrderRecord.h"
+#include "AdvanceListRecord.h"
+#include "AdvanceRecord.h"
+#include "EndGameObjectRecord.h"
 #include "gs/database/profileDB.h"
 #include "ai/diplomacy/RegardEvent.h"
 #include "ai/diplomacy/reactevent.h"
@@ -114,7 +114,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/unitutil.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/world/World.h"                          // g_theWorld
@@ -136,8 +136,8 @@
 #include "ai/mapanalysis/settlemap.h"
 #include "ai/ctpaidebug.h"
 #include "gs/utility/TurnCnt.h"                        // g_turn
-#include "gs/newdb/ConstRecord.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "ConstRecord.h"
+#include "DifficultyRecord.h"
 #include "ui/interface/splash.h"
 
 PLAYER_INDEX CtpAi::s_maxPlayers = 0;

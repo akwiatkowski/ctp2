@@ -46,7 +46,7 @@
 
 #include "gfx/gfx_utils/arproces.h"
 #include "gs/gameobj/terrainutil.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 
 extern CivPaths		*g_civPaths;
 

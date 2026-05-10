@@ -23,7 +23,7 @@ DECLARE_INTERFACE_(IC3Population, IUnknown)
 	STDMETHOD_ (BOOL, WasImprovementBuilt)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
 	STDMETHOD_ (BOOL, WasTerrainImprovementBuilt)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
 	STDMETHOD_ (BOOL, WasHappinessAttacked)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
-	STDMETHOD_ (BOOL, WasTerrainPolluted)(THIS_ void) PURE;
+	STDMETHOD_ (BOOL, WasTerrainPolluted)(THIS) PURE;
 	STDMETHOD_ (sint32, GetCityPopCount)(THIS_ uint32 city_id, BOOL *is_unknowned_id) PURE;
 	STDMETHOD_ (sint32, GetCitySlaveCount)(THIS_ uint32 city_id, BOOL *is_unknowned_id) PURE;
 	STDMETHOD_ (void, SetCityPopInCity)(THIS_ uint32 city_id, uint32 pop_idx, BOOL inCity, BOOL *is_unknown_id) PURE ;
@@ -49,8 +49,8 @@ DECLARE_INTERFACE_(IC3Population, IUnknown)
     STDMETHOD_ (double, GetCityGruntOutput)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
     STDMETHOD_ (double, GetCityMusicianOutput)(THIS_ uint32 city_id, BOOL *is_unknown_id) PURE;
 
-    STDMETHOD_ (double, GetCitizensHunger) (THIS_) PURE;
-    STDMETHOD_ (double, GetSlaveHunger) (THIS_ ) PURE;
+    STDMETHOD_ (double, GetCitizensHunger) (THIS) PURE;
+    STDMETHOD_ (double, GetSlaveHunger) (THIS) PURE;
 	} ;
 
 #endif __IC3Population_H__

@@ -41,11 +41,11 @@
 #include "ctp/c3.h"                 // pre-compiled header
 #include "gs/gameobj/Advances.h"           // own declarations
 
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"             // g_player
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/AgeRecord.h"
+#include "WonderRecord.h"
+#include "AgeRecord.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "net/general/network.h"
 #include "net/general/net_info.h"
@@ -61,18 +61,18 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Gold.h"
-#include "gs/newdb/DifficultyRecord.h"   // g_theDifficultyDB
+#include "DifficultyRecord.h"   // g_theDifficultyDB
 #include "gs/gameobj/Diffcly.h"
 #include "gs/database/profileDB.h"          // g_theProfileDB
-#include "gs/newdb/ConstRecord.h"        // g_theConstDB
+#include "ConstRecord.h"        // g_theConstDB
 #include "gs/utility/RandGen.h"            // g_rand
 #include "ui/interface/statswindow.h"
 #include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
 #include "gs/gameobj/GameSettings.h"
-#include "gs/newdb/AgeRecord.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "AgeRecord.h"
+#include "BuildingRecord.h"
 #include "gs/utility/UnitDynArr.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"

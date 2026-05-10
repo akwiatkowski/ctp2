@@ -71,7 +71,7 @@
 #include "gs/gameobj/TradeOfferPool.h"             // g_theTradeOfferPool
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/AgreementPool.h"              // g_theAgreementPool
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"

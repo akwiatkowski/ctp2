@@ -26,8 +26,8 @@
 //
 // - Option added to select which order buttons are displayed for an army.
 // - Added unit display name.
-// - Standartized code (May 21st 2006 Martin Gühmann)
-// - Added a custom status bar text for the upgrade order. (13-Sep-2008 Martin Gühmann)
+// - Standartized code (May 21st 2006 Martin Gï¿½hmann)
+// - Added a custom status bar text for the upgrade order. (13-Sep-2008 Martin Gï¿½hmann)
 // - Changed occurances of UnitRecord::GetMaxHP to
 //   UnitData::CalculateTotalHP. (Aug 3rd 2009 Maq)
 //
@@ -45,13 +45,13 @@
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
-#include "gs/newdb/IconRecord.h"
-#include "gs/newdb/OrderRecord.h"
+#include "IconRecord.h"
+#include "OrderRecord.h"
 #include "gfx/gfx_utils/pixeltypes.h"
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/World.h"
 #include "gs/database/StrDB.h"
 #include "ui/aui_common/aui_tipwindow.h"
@@ -292,7 +292,7 @@ void ScenarioEditor::TerrainImprovementSwitch(aui_Control *control, uint32 actio
 	if (action == AUI_SWITCH_ACTION_PRESS)
 		DisableErase();
 
-	sint32 ter = (sint32)cookie;
+	sint32 ter = (intptr_t)cookie;
 
 	if(s_scenarioEditor->m_terrainImpSwitches[ter]->GetState() == 0) {
 		s_scenarioEditor->m_paintTerrainImprovement = -1;
@@ -1031,7 +1031,7 @@ void UnitControlPanel::NextUnitButtonActionCallback(aui_Control *control,
 AUI_ERRCODE UnitControlPanel::HealthBarActionCallback(ctp2_Static *control,
 	aui_Surface *surface, RECT &rect, void *cookie)
 {
-	Unit        unit        (reinterpret_cast<uint32>(cookie));
+	Unit        unit        (static_cast<uint32>(reinterpret_cast<uintptr_t>(cookie)));
 
 	AUI_ERRCODE errorCode =
 		g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
@@ -1070,7 +1070,7 @@ AUI_ERRCODE UnitControlPanel::HealthBarActionCallback(ctp2_Static *control,
 AUI_ERRCODE UnitControlPanel::FuelBarDrawCallback(ctp2_Static *control,
  												  aui_Surface *surface, RECT &rect, void *cookie)
 {
-	Unit        u  (reinterpret_cast<uint32>(cookie));
+	Unit        u  (static_cast<uint32>(reinterpret_cast<uintptr_t>(cookie)));
 	AUI_ERRCODE errCode = g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
 
 	if(errCode != AUI_ERRCODE_OK)
@@ -1191,7 +1191,7 @@ AUI_ERRCODE UnitControlPanel::DrawCargoCallback(ctp2_Static *control,
 										 RECT &rect,
 										 void *cookie)
 {
-	Unit theTransport   (reinterpret_cast<uint32>(cookie));
+	Unit theTransport   (static_cast<uint32>(reinterpret_cast<uintptr_t>(cookie)));
 	if (!theTransport.IsValid())
 		return AUI_ERRCODE_OK;
 

@@ -30,7 +30,7 @@
 
 #include "gs/world/Cell.h"
 #include "gs/gameobj/installationtree.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 
 sint32 Terrain::GetFood() const
 {

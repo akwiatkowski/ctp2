@@ -43,7 +43,7 @@
 // - Moved DirectX API-Version to use into "ctp2_config.h"
 // - Added struct for automatic debug tool initialization and
 //   cleanup so that it is the first respective the last thing
-//   that is done in the program. (Oct 3rd 2005 Martin Gühmann)
+//   that is done in the program. (Oct 3rd 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -107,7 +107,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>

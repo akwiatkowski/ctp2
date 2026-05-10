@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Crash prevented.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -325,7 +325,8 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
         if (bmp->format->Gmask >> bmp->format->Gshift == 0x1F)
             printf("%s L%d: 555 image!\n", __FILE__, __LINE__);
 	if (NULL == surf) {
-		surf = SDL_DisplayFormat(bmp);
+		// SDL2: SDL_DisplayFormat removed; convert to a reasonable default format
+		surf = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGB565, 0);
 	}
 	SDL_FreeSurface(bmp);
 	if (NULL == surf)

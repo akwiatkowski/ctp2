@@ -1,5 +1,5 @@
 #include "ctp/c3.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/advanceutil.h"
 
 sint32 s_nukeAdvance = -1;

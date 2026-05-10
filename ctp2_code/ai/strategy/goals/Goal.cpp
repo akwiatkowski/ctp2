@@ -105,11 +105,11 @@ using namespace std;
 const Utility Goal::BAD_UTILITY = -99999999;
 const Utility Goal::MAX_UTILITY =  99999999;
 
-#include "gs/newdb/ConstRecord.h"
-#include "gs/newdb/GoalRecord.h"
-#include "gs/newdb/OrderRecord.h"
-#include "gs/newdb/StrategyRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "ConstRecord.h"
+#include "GoalRecord.h"
+#include "OrderRecord.h"
+#include "StrategyRecord.h"
+#include "WonderRecord.h"
 
 #include "gs/gameobj/advanceutil.h"
 #include "gs/gameobj/terrainutil.h"

@@ -40,9 +40,9 @@ DECLARE_INTERFACE_(IC3World, IUnknown)
 
     STDMETHOD_ (int, Test) (THIS)  PURE;
 
-    STDMETHOD_ (sint16, GetXWidth) (THIS_) PURE;
-    STDMETHOD_ (sint16, GetYHeight) (THIS_) PURE;
-    STDMETHOD_ (sint16, GetZHeight) (THIS_) PURE;
+    STDMETHOD_ (sint16, GetXWidth) (THIS) PURE;
+    STDMETHOD_ (sint16, GetYHeight) (THIS) PURE;
+    STDMETHOD_ (sint16, GetZHeight) (THIS) PURE;
 
     STDMETHOD_ (double, GetMoveCost)(THIS_ MapPointData *pos) PURE;
     STDMETHOD_ (BOOL, GetTileType) (THIS_  MapPointData *pos,
@@ -162,16 +162,16 @@ DECLARE_INTERFACE_(IC3World, IUnknown)
 
     STDMETHOD_ (sint16, GetContinent)(THIS_ const MapPointData &pos) PURE;
 
-    STDMETHOD_ (sint16, GetMinWaterContinent)(THIS_) PURE;
-    STDMETHOD_ (sint16, GetMaxWaterContinent)(THIS_) PURE;
-    STDMETHOD_ (sint16, GetMinLandContinent)(THIS_) PURE;
-    STDMETHOD_ (sint16, GetMaxLandContinent)(THIS_) PURE;
+    STDMETHOD_ (sint16, GetMinWaterContinent)(THIS) PURE;
+    STDMETHOD_ (sint16, GetMaxWaterContinent)(THIS) PURE;
+    STDMETHOD_ (sint16, GetMinLandContinent)(THIS) PURE;
+    STDMETHOD_ (sint16, GetMaxLandContinent)(THIS) PURE;
 
-    STDMETHOD_ (sint32, IsXwrap)(THIS_) PURE;
-    STDMETHOD_ (sint32, IsYwrap)(THIS_) PURE;
+    STDMETHOD_ (sint32, IsXwrap)(THIS) PURE;
+    STDMETHOD_ (sint32, IsYwrap)(THIS) PURE;
 
 #ifdef CELL_COLOR
-    STDMETHOD_ (BOOL, ClearColor) (THIS_) PURE;
+    STDMETHOD_ (BOOL, ClearColor) (THIS) PURE;
     STDMETHOD_ (BOOL, SetColor) (THIS_  MapPointData *pos, sint32 r, sint32 g, sint32 b) PURE;
     STDMETHOD_ (BOOL, SetColor) (THIS_ MapPointData *pos, sint32 c) PURE;
 #endif
@@ -186,7 +186,7 @@ DECLARE_INTERFACE_(IC3World, IUnknown)
     STDMETHOD_ (BOOL, IsLandNextTooWater)(THIS_ const sint32 landc, const sint32 waterc) PURE;
 	STDMETHOD_ (sint32, GetCitySlaveCount) (THIS_ MapPointData *pos) PURE;
 
-    STDMETHOD_ (MapValueStruct ***, GetMapValue) (THIS_) PURE;
+    STDMETHOD_ (MapValueStruct ***, GetMapValue) (THIS) PURE;
     STDMETHOD_ (sint16, GetSettleValue) (THIS_ sint16 x, sint16 y, sint16 z) PURE;
 
 	STDMETHOD_ (BOOL, IsWormholeVisible)(const sint32 &player_id) PURE;

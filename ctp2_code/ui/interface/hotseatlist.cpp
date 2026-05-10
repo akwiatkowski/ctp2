@@ -64,13 +64,13 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/database/StrDB.h"					// g_theStringDB
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
+#include "TerrainRecord.h"
 #include "ui/interface/UIUtils.h"
 #include "net/general/network.h"
 #include "ui/aui_ctp2/keypress.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/utility/gameinit.h"
 #include "gs/database/profileDB.h"				// g_theProfileDB
 #include "gs/gameobj/CivilisationPool.h"

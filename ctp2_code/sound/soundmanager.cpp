@@ -34,7 +34,7 @@
 // - #pragmas commented out
 // - Includes fixed for case sensitive filesystems
 // - Added sdl sound and cdrom support
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@
 #include "sound/soundmanager.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/database/profileDB.h"
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 #include "gs/fileio/CivPaths.h"
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/database/PlayListDB.h"
@@ -211,7 +211,7 @@ void SoundManager::InitRedbook()
 {
 #if defined(USE_SDL)
     if (!m_cdrom) {
-        int errcode = SDL_Init(SDL_INIT_CDROM | m_SDLInitFlags);
+        int errcode = SDL_Init(m_SDLInitFlags);
 
         Assert(0 == errcode);
         if (errcode < 0) {

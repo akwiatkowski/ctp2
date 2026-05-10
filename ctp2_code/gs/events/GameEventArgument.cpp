@@ -40,8 +40,8 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/Player.h"              // g_player
-#include "gs/newdb/AdvanceRecord.h"       // g_theAdvanceDB
-#include "gs/newdb/WonderRecord.h"        // g_theWonderDB
+#include "AdvanceRecord.h"       // g_theAdvanceDB
+#include "WonderRecord.h"        // g_theWonderDB
 #include "gs/database/profileDB.h"           // g_theProfileDB
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"

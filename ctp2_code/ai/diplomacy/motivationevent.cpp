@@ -46,7 +46,7 @@
 
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "gs/newdb/GoalRecord.h"
+#include "GoalRecord.h"
 #include "ai/strategy/goals/Goal.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/utility/stringutils.h"

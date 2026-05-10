@@ -59,7 +59,7 @@ class VisibilityDurationArray;
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/world/MapPoint.h"
 
 class UnitList;

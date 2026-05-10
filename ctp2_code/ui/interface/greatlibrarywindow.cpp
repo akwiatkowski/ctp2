@@ -47,14 +47,14 @@
 
 #include "gs/world/World.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
+#include "AdvanceRecord.h"
+#include "TerrainImprovementRecord.h"
 
-#include "gs/newdb/TerrainRecord.h"
-#include "gs/newdb/ConceptRecord.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "TerrainRecord.h"
+#include "ConceptRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/fileio/prjfile.h"
 
 
@@ -75,18 +75,18 @@
 #include "ui/interface/debugwindow.h"
 #include "sound/soundmanager.h"
 
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/IconRecord.h"
-#include "gs/newdb/IconRecord.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "UnitRecord.h"
+#include "IconRecord.h"
+#include "IconRecord.h"
+#include "TerrainRecord.h"
 
 #include "gs/gameobj/wonderutil.h"
 
 #include "ui/interface/text_hasher.h"
 
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 
 #include "gs/utility/stringutils.h"
 

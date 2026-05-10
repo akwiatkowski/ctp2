@@ -60,7 +60,7 @@
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/citydata.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/newdb/ConstRecord.h"            // g_theConstDB
+#include "ConstRecord.h"            // g_theConstDB
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/Globals.h"
@@ -71,9 +71,9 @@
 #include "gs/utility/PQueue.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/utility/RandGen.h"                // g_rand
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/fileio/StartingPosition.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gfx/tilesys/tiledmap.h"               // g_tiledMap
 #include "gfx/tilesys/TileInfo.h"

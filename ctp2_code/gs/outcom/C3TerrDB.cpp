@@ -2,12 +2,12 @@
 #include "gs/utility/Globals.h"
 #include "civarchive.h"
 
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 
 #include "gs/outcom/C3GameState.h"
 #include "gs/outcom/C3TerrDB.h"
 #include "gs/gameobj/TerrImproveData.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 
 STDMETHODIMP C3TerrainDB::QueryInterface(REFIID riid, void **obj)
 {

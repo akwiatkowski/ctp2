@@ -36,7 +36,7 @@
 #include "ui/interface/cityespionage.h"
 
 #include "ui/aui_common/aui_ldl.h"
-#include "gs/newdb/BuildingRecord.h"     // g_theBuildingDB
+#include "BuildingRecord.h"     // g_theBuildingDB
 #include "ui/aui_ctp2/c3ui.h"               // C3UI
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
@@ -48,13 +48,13 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "gs/utility/gstypes.h"            // k_MAX_ARMY_SIZE
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/utility/stringutils.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/WonderRecord.h"       // g_theWonderDB
+#include "UnitRecord.h"
+#include "WonderRecord.h"       // g_theWonderDB
 #include "gs/world/World.h"              // g_theWorld
 
 extern C3UI *   g_c3ui;

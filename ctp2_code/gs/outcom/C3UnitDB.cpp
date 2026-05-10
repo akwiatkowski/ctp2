@@ -11,7 +11,7 @@
 #include "gs/world/World.h"
 #include "civarchive.h"
 #include "gs/world/MapPoint.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 #include "gs/database/StrDB.h"
 

@@ -55,7 +55,7 @@ enum C3_RADAR_ACTION {
 class aui_Surface;
 class MapPoint;
 class Player;
-enum COLOR;
+#include "gfx/gfx_utils/colorset.h"
 
 class RadarMap : public aui_Control, public PatternBase
 {

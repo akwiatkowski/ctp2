@@ -31,10 +31,10 @@ aui_SDLMouse::GetInput(void)
    for ( sint32 numInputs = 200; numInputs; numInputs-- ) {
       SDL_Event od;
       // check for one of the mouse events
+      // SDL2: SDL_PeepEvents uses minType/maxType instead of event masks
       int numElements =
          SDL_PeepEvents(&od, 1, SDL_GETEVENT,
-         		SDL_EVENTMASK(SDL_MOUSEMOTION) | SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN) |
-         			SDL_EVENTMASK(SDL_MOUSEBUTTONUP));
+          		SDL_MOUSEMOTION, SDL_MOUSEWHEEL);
       if (0 > numElements) {
          fprintf(stderr, "Mouse PeepEvents failed: %s\n", SDL_GetError());
          return AUI_ERRCODE_GETDEVICEDATAFAILED;

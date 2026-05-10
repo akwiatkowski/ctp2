@@ -42,7 +42,7 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gs/gameobj/Player.h"         // g_player
 #include "ui/aui_ctp2/SelItem.h"        // g_selected_item
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gfx/tilesys/tileutils.h"
 

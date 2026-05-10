@@ -9,7 +9,7 @@
 #include "ui/aui_common/aui_action.h"
 
 class Sequence;
-enum GAME_OVER;
+#include "gs/gameobj/GameOver.h"
 
 void victorymoviewin_Initialize(std::weak_ptr<Sequence> seq);
 void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason);

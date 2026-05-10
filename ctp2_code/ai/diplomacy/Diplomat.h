@@ -59,13 +59,13 @@ class Diplomat;
 #include "robot/aibackdoor/civarchive.h"             // CivArchive
 #include "os/include/ctp2_inttypes.h"          // sintN, uintN
 #include "gs/database/dbtypes.h"                // StringId
-#include "gs/newdb/DiplomacyRecord.h"        // DiplomacyRecord
+#include "DiplomacyRecord.h"        // DiplomacyRecord
 #include "ai/diplomacy/diplomattypes.h"          // ai, AiState, Motivation, Threat, etc.
 #include "Foreigner.h"              // Foreigner
-#include "gs/newdb/PersonalityRecord.h"      // PersonalityRecord
+#include "PersonalityRecord.h"      // PersonalityRecord
 #include "gs/gameobj/Player.h"                 // PLAYER_INDEX, k_MAX_PLAYERS
 #include "gs/slic/SlicContext.h"            // SlicContext
-#include "gs/newdb/StrategyRecord.h"         // StrategyRecord
+#include "StrategyRecord.h"         // StrategyRecord
 #include "gs/gameobj/Unit.h"                   // Unit
 
 //----------------------------------------------------------------------------

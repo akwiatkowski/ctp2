@@ -25,10 +25,10 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added some casts. (Aug 7th 2005 Martin Gühmann)
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Added some casts. (Aug 7th 2005 Martin Gï¿½hmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Improved CTP2 disk detection.
-// - c3files_fopen can now ignore scenario paths. (9-Apr-2007 Martin Gühmann)
+// - c3files_fopen can now ignore scenario paths. (9-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -439,6 +439,11 @@ bool c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND
 
 bool c3files_HasLegalCD()
 {
+	// macOS: no CD copy protection needed for digital distribution
+#ifdef __APPLE__
+	return true;
+#endif
+
 	bool success = false;
 
 	if (g_soundManager)

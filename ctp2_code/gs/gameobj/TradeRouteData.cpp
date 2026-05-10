@@ -42,11 +42,11 @@
 #include "robot/pathing/TradeAstar.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/CityRadius.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 #include "net/general/network.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "ui/aui_ctp2/radarmap.h"
 #include "gs/gameobj/tradeutil.h"

@@ -42,8 +42,9 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+// SDL2 removed CD-ROM support; stubbed for macOS
 #ifdef USE_SDL
-#include <SDL/SDL_cdrom.h>
+#include "os/include/sdl_cdrom_stub.h"
 #endif
 #include "ctp/ctp2_utils/cheatkey.h"
 

@@ -38,10 +38,39 @@
 #define BOOL uint32
 #define FALSE 0
 #define TRUE 1
+
+/* C-only: min/max macros for generated lex code */
+#ifndef __cplusplus
+#ifndef min
+#define min(a,b) (((a)<(b))?(a):(b))
+#endif
+#ifndef max
+#define max(a,b) (((a)>(b))?(a):(b))
+#endif
+#endif
 typedef char CHAR;
 typedef char TCHAR;
 typedef uint32 COLORREF;
-typedef sint32 GUID;
+typedef struct _GUID {
+	uint32 Data1;
+	uint16 Data2;
+	uint16 Data3;
+	uint8  Data4[8];
+} GUID;
+
+#ifdef __cplusplus
+inline bool operator==(const GUID& a, const GUID& b) {
+	return a.Data1 == b.Data1 && a.Data2 == b.Data2 &&
+	       a.Data3 == b.Data3 &&
+	       a.Data4[0] == b.Data4[0] && a.Data4[1] == b.Data4[1] &&
+	       a.Data4[2] == b.Data4[2] && a.Data4[3] == b.Data4[3] &&
+	       a.Data4[4] == b.Data4[4] && a.Data4[5] == b.Data4[5] &&
+	       a.Data4[6] == b.Data4[6] && a.Data4[7] == b.Data4[7];
+}
+inline bool operator!=(const GUID& a, const GUID& b) {
+	return !(a == b);
+}
+#endif
 typedef sint32 HRESULT;
 typedef sint32 LPARAM;
 typedef const CHAR *LPCSTR;
@@ -187,6 +216,10 @@ void OffsetRect(RECT *pr, int x, int y);
 BOOL PtInRect(RECT* pr, struct POINT m);
 void SetRect(RECT* R, int left, int top, int right, int bottom);
 void SubtractRect(RECT* r, const RECT* a, const RECT* b);
+#define _getcwd(buf, size) getcwd(buf, size)
+#define _chdir(path) chdir(path)
+#define _unlink(path) unlink(path)
+#define fcloseall() do {} while(0)
 #define lstrlen(s) strlen(s)
 #ifndef stricmp
 int stricmp(const char* s1, const char* s2);

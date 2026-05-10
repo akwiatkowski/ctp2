@@ -69,7 +69,7 @@ DEFINE_GUID(CLSID_IC3BuildingDB,
 DECLARE_INTERFACE_(IC3BuildingDB, IUnknown)
 {
 
-    STDMETHOD_ (sint32, GetNumBuildings) (THIS_) PURE;
+    STDMETHOD_ (sint32, GetNumBuildings) (THIS) PURE;
 
     STDMETHOD_(sint32, GetProductionCost) (THIS_ sint32 building_type) PURE;
     STDMETHOD_ (sint32, GetGoldUpkeep) (THIS_ sint32 building_type) PURE;

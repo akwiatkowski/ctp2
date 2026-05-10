@@ -29,7 +29,7 @@
 #include "gs/world/World.h"              // g_theWorld
 #include "gs/world/Cell.h"
 #include "gs/world/MapPoint.h"
-#include "gs/newdb/WonderRecord.h"
+#include "WonderRecord.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gfx/spritesys/GoodActor.h"
 #include "gs/gameobj/citydata.h"

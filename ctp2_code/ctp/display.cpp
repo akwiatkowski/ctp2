@@ -9,7 +9,7 @@
 #ifdef __AUI_USE_DIRECTX__
 #include <multimon.h>
 #elif defined(__AUI_USE_SDL__)
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #endif
 
 PointerList<CTPDisplayMode>	*g_displayModes = NULL;
@@ -136,53 +136,43 @@ void display_EnumerateDisplayModes(void)
 
 	g_displayModes = new PointerList<CTPDisplayMode>;
 #else
-	SDL_PixelFormat fmt = { 0 };
-	fmt.BitsPerPixel = 16;
-	SDL_Rect **modes = SDL_ListModes(&fmt, SDL_FULLSCREEN);
-
 	g_displayModes = new PointerList<CTPDisplayMode>;
 
-	if (0 == modes) {
-		return;
-	} else if ((SDL_Rect **) -1 == modes) {
-		// Fallback if SDL reports us to support anything,
-		// we'll pick 800 x 600 and 1024 x 768
-		const SDL_VideoInfo *info = SDL_GetVideoInfo();
-		if (0 == info) {
-			return;
-		}
-		if (0 == info->vfmt) {
-			return;
-		}
-		if (16 < info->vfmt->BitsPerPixel) {
-			return;
-		}
+	int numModes = SDL_GetNumDisplayModes(0);
+	if (numModes < 0) {
+		// Fallback: pick common resolutions
 		CTPDisplayMode *mode;
 		mode = new CTPDisplayMode;
-		if  (!mode)
-			return;
-		mode->width  = 800;
-		mode->height = 600;
-		g_displayModes->AddTail(mode);
+		if (mode) {
+			mode->width  = 800;
+			mode->height = 600;
+			g_displayModes->AddTail(mode);
+		}
 		mode = new CTPDisplayMode;
-		if (!mode)
-			return;
-		mode->width  = 1024;
-		mode->height = 768;
-		g_displayModes->AddTail(mode);
-	} else {
-		for (int i = 0; modes[i]; i++) {
-			// We might get modes multiple times for each bpp
-			// supported. Thus, check if we got it already.
-			if (!display_IsLegalResolution(modes[i]->w,
-			                               modes[i]->h)) {
-				CTPDisplayMode *mode = new CTPDisplayMode;
-				if (!mode)
-					return;
-				mode->width = modes[i]->w;
-				mode->height = modes[i]->h;
-				g_displayModes->AddTail(mode);
-			}
+		if (mode) {
+			mode->width  = 1024;
+			mode->height = 768;
+			g_displayModes->AddTail(mode);
+		}
+		return;
+	}
+
+	for (int i = 0; i < numModes; i++) {
+		SDL_DisplayMode sdlMode;
+		if (SDL_GetDisplayMode(0, i, &sdlMode) != 0)
+			continue;
+
+		// Only consider modes with at least 16bpp equivalent
+		if (SDL_BITSPERPIXEL(sdlMode.format) < 16)
+			continue;
+
+		if (!display_IsLegalResolution(sdlMode.w, sdlMode.h)) {
+			CTPDisplayMode *mode = new CTPDisplayMode;
+			if (!mode)
+				return;
+			mode->width = sdlMode.w;
+			mode->height = sdlMode.h;
+			g_displayModes->AddTail(mode);
 		}
 	}
 #endif

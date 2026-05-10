@@ -35,7 +35,7 @@
 #include "ctp/c3.h"
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
-#include "gs/newdb/SoundRecord.h"
+#include "SoundRecord.h"
 
 extern SoundManager	*g_soundManager;
 

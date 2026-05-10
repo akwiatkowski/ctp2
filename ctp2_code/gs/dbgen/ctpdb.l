@@ -3,7 +3,7 @@
 #include "os/include/ctp2_inttypes.h"
 
 #include "ctpdb.h"
-#include "y.tab.h"
+#include "ctpdb.tab.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,7 +31,7 @@ prebody       { return PREBODY; }
 alsire        { return ALLOWS_SINGLE_RECORD; }
 
 {name}        {
-			      yylval.name = (char*)_strdup(yytext);
+			      yylval.name = strdup(yytext);
 				  return NAME;
 			  }
 {string}      {

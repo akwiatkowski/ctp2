@@ -34,8 +34,8 @@
 //
 // - Removed non-standard include file <iostream.h>.
 // - Standardised min/max usage.
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -43,8 +43,8 @@
 #ifdef _PLAYTEST
 #include "ctp/ctp2_utils/c3cmdline.h"
 
-#include "gs/newdb/CivilisationRecord.h"
-#include "gs/newdb/ConstRecord.h"
+#include "CivilisationRecord.h"
+#include "ConstRecord.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ctp/debugtools/debugmemory.h"
 #include "ctp/debugtools/log.h"
@@ -70,10 +70,10 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
 #include "gs/gameobj/Regard.h"
@@ -96,29 +96,25 @@
 #include "gs/slic/SlicNamedSymbol.h"
 #include "gs/slic/sliccmd.h"
 /** \todo Unique header names */
-#ifndef WIN32
-#include "ysc.tab.h"
-#else
-#include "gs/slic/sc.tab.h"
-#endif
+#include "sliccmd.tab.h"
 
 #include "ui/slic_debug/watchlist.h"
 
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/newdb/DBLexer.h"
-#include "gs/newdb/TerrainRecord.h"
-#include "gs/newdb/ResourceRecord.h"
+#include "TerrainRecord.h"
+#include "ResourceRecord.h"
 
-#include "gs/newdb/GoalRecord.h"
-#include "gs/newdb/UnitBuildListRecord.h"
-#include "gs/newdb/WonderBuildListRecord.h"
-#include "gs/newdb/BuildingBuildListRecord.h"
-#include "gs/newdb/ImprovementListRecord.h"
-#include "gs/newdb/StrategyRecord.h"
-#include "gs/newdb/BuildListSequenceRecord.h"
-#include "gs/newdb/DiplomacyRecord.h"
-#include "gs/newdb/AdvanceListRecord.h"
-#include "gs/newdb/PersonalityRecord.h"
+#include "GoalRecord.h"
+#include "UnitBuildListRecord.h"
+#include "WonderBuildListRecord.h"
+#include "BuildingBuildListRecord.h"
+#include "ImprovementListRecord.h"
+#include "StrategyRecord.h"
+#include "BuildListSequenceRecord.h"
+#include "DiplomacyRecord.h"
+#include "AdvanceListRecord.h"
+#include "PersonalityRecord.h"
 
 #include "gs/gameobj/wonderutil.h"
 

@@ -5,7 +5,10 @@
 #include "ctp/debugtools/debugcallstack.h"
 #include "ctp/debugtools/breakpoint.h"
 #include "ctp/debugtools/log.h"
+
+#ifdef _WIN32
 #include <windows.h>
+
 
 
 
@@ -22,6 +25,7 @@ struct DebugException
 };
 
 static DebugException debug_exception = {0};
+
 
 
 
@@ -59,10 +63,18 @@ void DebugException_Open (DebugExceptionClientFunction function_enter)
 
 
 
+
+
+
+
+
 void DebugException_Close (void)
 {
 
 }
+
+
+
 
 
 
@@ -224,6 +236,10 @@ static LONG _cdecl DebugException_Filter (LPEXCEPTION_POINTERS exception_pointer
 
 
 
+
+
+
+
 void DebugException_Execute (DebugExceptionClientFunction function_monitored)
 {
 
@@ -237,5 +253,30 @@ void DebugException_Execute (DebugExceptionClientFunction function_monitored)
 	}
 }
 
+#else // !_WIN32
+// Stub implementations for non-Windows platforms
 
-#endif
+struct DebugException
+{
+	DebugExceptionClientFunction DebugException_Enter;
+};
+
+static DebugException debug_exception = {0};
+
+void DebugException_Open (DebugExceptionClientFunction function_enter)
+{
+	debug_exception.DebugException_Enter = function_enter;
+}
+
+void DebugException_Close (void)
+{
+}
+
+void DebugException_Execute (DebugExceptionClientFunction function_monitored)
+{
+	function_monitored();
+}
+
+#endif // _WIN32
+
+#endif // _DEBUG

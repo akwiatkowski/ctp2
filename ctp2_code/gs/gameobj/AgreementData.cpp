@@ -42,7 +42,7 @@
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
@@ -50,7 +50,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 
 #include "gs/gameobj/Agreement.h"
 

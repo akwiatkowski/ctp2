@@ -70,14 +70,14 @@
 #include "ui/aui_ctp2/c3_listbox.h"
 
 #include "gs/database/StrDB.h"                  // g_theStringDB
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "BuildingRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/utility/Globals.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Readiness.h"
@@ -109,7 +109,7 @@
 #include "ui/interface/sciencewin.h"
 #include "ui/aui_ctp2/keypress.h"
 
-#include "gs/newdb/AdvanceBranchRecord.h"
+#include "AdvanceBranchRecord.h"
 #include "ctp/ctp2_utils/c3math.h"		            // AsPercentage
 
 extern sint32			    g_modalWindow;

@@ -2,6 +2,8 @@
 #ifndef __IC3STRING_H__
 #define __IC3STRING_H__
 
+#include <OBJBASE.H>
+
 DEFINE_GUID(CLSID_IC3String,
 			0x1a3ca3a0,
 			0x442,

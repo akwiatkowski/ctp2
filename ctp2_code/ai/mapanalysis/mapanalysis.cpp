@@ -26,12 +26,12 @@
 //
 // - Relaxed an Assert to prevent lots of popups with e.g. the CTC mod.
 // - Corrected the Distance To Empire Center computation
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standartized code (May 21st 2006 Martin Gühmann)
-// - Standartized army strength computation. (30-Apr-2008 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standartized code (May 21st 2006 Martin Gï¿½hmann)
+// - Standartized army strength computation. (30-Apr-2008 Martin Gï¿½hmann)
 // - Added AI attack, defense, ranged, land bombard, sea bombard, and air bombard
-//   player power grids to the mapanalysis. (30-Apr-2008 Martin Gühmann)
-// - Fixed AI city rank calculation. (9-Nov-2009 Martin Gühmann)
+//   player power grids to the mapanalysis. (30-Apr-2008 Martin Gï¿½hmann)
+// - Fixed AI city rank calculation. (9-Nov-2009 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -42,13 +42,13 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Player.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/c3debug.h"
-#include "gs/newdb/CitySizeRecord.h"
+#include "CitySizeRecord.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/world/Cell.h"
@@ -60,7 +60,8 @@
 #include <vector>
 #include <limits>
 
-MapGrid < sint32 >::MapGridArray MapGrid < sint32 >::s_scratch;
+template<class T>
+typename MapGrid<T>::MapGridArray MapGrid<T>::s_scratch;
 
 MapAnalysis MapAnalysis::s_mapAnalysis;
 

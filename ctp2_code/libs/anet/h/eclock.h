@@ -44,7 +44,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 clock_t eclock_sparc(void);
 #define eclock() eclock_sparc()
 
-#else /* Not SPARC */
+#elif defined(__APPLE__)
+
+/********************************* macOS ******************************/
+#include <unistd.h>
+#include <time.h>
+#include <sys/times.h>
+#define ECLOCKS_PER_SEC 100 /* typical BSD CLK_TCK value */
+
+#define eclock() times(NULL)
+
+#else /* Not SPARC, not macOS */
 
 /********************************* Linux ******************************/
 #include <unistd.h>

@@ -47,7 +47,7 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/terrainutil.h"
 

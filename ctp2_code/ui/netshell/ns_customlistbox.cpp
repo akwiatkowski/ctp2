@@ -26,8 +26,8 @@
 //
 // - Corrected strange access of non-static members from static data.
 // - Replaced typename T in specialized template member function by the
-//   the type for that the function is specialized, by Martin Gühmann.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+//   the type for that the function is specialized, by Martin Gï¿½hmann.
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -50,12 +50,17 @@
 
 sint32 ns_TransportListBox::m_version = 102;
 
+template<>
 bool NETFunc::ListHandler<nf_PlayerSetup>::Handle(NETFunc::Message *m) {return false;}
+template<>
 void NETFunc::ListHandler<nf_PlayerSetup>::SetKey(void) {}
 
+template<>
 bool NETFunc::ListHandler<nf_GameSetup>::Handle(NETFunc::Message *m) {return false;}
+template<>
 void NETFunc::ListHandler<nf_GameSetup>::SetKey(void) {}
 
+template<>
 bool NETFunc::ListHandler<nf_AIPlayer>::Handle(NETFunc::Message *m) {
 	nf_AIPlayer t;
 	if(m->GetCode() == NETFunc::Message::ENTERGAME) {
@@ -81,9 +86,12 @@ bool NETFunc::ListHandler<nf_AIPlayer>::Handle(NETFunc::Message *m) {
 	}
 	return false;
 }
+template<>
 void NETFunc::ListHandler<nf_AIPlayer>::SetKey(void) {}
 
+template<>
 bool NETFunc::ListHandler<NETFunc::Transport>::Handle(NETFunc::Message *m) {return false;}
+template<>
 void NETFunc::ListHandler<NETFunc::Transport>::SetKey(void) {}
 
 ns_PlayerSetupListBox::ns_PlayerSetupListBox (
@@ -589,8 +597,8 @@ void ns_GPlayerListBox::Insert( NETFunc::Player *player )
 
 	switch ( g_allinoneWindow->GetMode() )
 	{
-	case g_allinoneWindow->CONTINUE_CREATE:
-	case g_allinoneWindow->CONTINUE_JOIN:
+	case AllinoneWindow::CONTINUE_CREATE:
+	case AllinoneWindow::CONTINUE_JOIN:
 		if(!g_allinoneWindow->GetScenarioInfo() ||
 			!g_allinoneWindow->GetScenarioInfo()->isScenario) {
 			item->GetTribeButton()->Enable( FALSE );
@@ -754,6 +762,7 @@ void ns_GPlayerListBox::UpdateHPlayerItem(
 
 
 
+template<>
 AUI_ERRCODE ns_ListBox<NETFunc::Player, ns_Player>::StoreAppropriateData(
 	ns_Item<NETFunc::Player, ns_Player> *item,
 	sint32 i )
@@ -789,8 +798,8 @@ AUI_ERRCODE ns_ListBox<NETFunc::Player, ns_Player>::StoreAppropriateData(
 
 		case ns_Accessor<NETFunc::Player>::INT:
 			item->SetTextBold(netShellObject->IsMine());
-			return item->SetText
-				(itoa(* reinterpret_cast<sint32 const *>(dataPtr), scratch, 10));
+			 sprintf(scratch, "%d", * reinterpret_cast<sint32 const *>(dataPtr));
+			 return item->SetText(scratch);
 
 		case ns_Accessor<NETFunc::Player>::ICON:
 			return item->SetIcon(* reinterpret_cast<MBCHAR * *>(dataPtr));
@@ -864,8 +873,8 @@ void ns_AIPlayerListBox::Insert( nf_AIPlayer *player )
 
 	switch ( g_allinoneWindow->GetMode() )
 	{
-	case g_allinoneWindow->CONTINUE_CREATE:
-	case g_allinoneWindow->CONTINUE_JOIN:
+	case AllinoneWindow::CONTINUE_CREATE:
+	case AllinoneWindow::CONTINUE_JOIN:
 		item->GetTribeButton()->Enable( FALSE );
 		break;
 	}

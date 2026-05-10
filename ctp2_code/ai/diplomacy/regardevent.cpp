@@ -59,7 +59,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/utility/newturncount.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"

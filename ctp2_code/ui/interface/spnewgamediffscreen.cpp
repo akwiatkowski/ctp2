@@ -51,8 +51,8 @@
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
-#include "gs/newdb/DifficultyRecord.h"
-#include "gs/newdb/RiskRecord.h"
+#include "DifficultyRecord.h"
+#include "RiskRecord.h"
 
 #include "ui/aui_ctp2/keypress.h"
 

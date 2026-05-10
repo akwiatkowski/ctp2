@@ -28,7 +28,7 @@
 // - Always return to main menu, never SP menu (JJB)
 // - Repaired memory leaks.
 // - Added tribe index check.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -651,10 +651,10 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
 	return new ctp2_Button
         (errcode, aui_UniqueId(), textBlock,
          buttonFlavor,
-		 500, 10,
-		 100, 20,
-		 NULL,
-		 callback
+         500, 10,
+         100, 20,
+         NULL,
+         reinterpret_cast<void *>(callback)
         );
 }
 

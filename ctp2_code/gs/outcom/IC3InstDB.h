@@ -24,7 +24,7 @@ DECLARE_INTERFACE_(IC3InstDB, IUnknown)
 {
 
 
-    STDMETHOD_ (sint32, GetNumInstallations) (THIS_) PURE;
+    STDMETHOD_ (sint32, GetNumInstallations) (THIS) PURE;
     STDMETHOD_ (BOOL, IsEnabled) (THIS_ sint32 type_inst) PURE;
 	STDMETHOD_ (sint32, EnablingDiscovery)(THIS_ sint32 type_inst) PURE ;
     STDMETHOD_ (BOOL, ConstructInstallation) (THIS_ sint32 inst_type, sint32 extra_data,

@@ -40,12 +40,12 @@
 #else
 #include <strstream>
 #endif
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_common/aui_surface.h"
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 #include "gs/gameobj/Player.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/aui_ctp2/SelItem.h"
@@ -53,7 +53,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/gameobj/pollution.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ctp/ctp2_utils/c3math.h"             // AsPercentage
 #include "ui/aui_ctp2/c3ui.h"

@@ -114,16 +114,16 @@
 #include "gs/gameobj/message.h"
 
 #include "gs/events/GameEventManager.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
-#include "gs/newdb/ResourceRecord.h"
+#include "ResourceRecord.h"
 #include "gs/utility/MoveFlags.h"
 
 #include "ui/interface/armymanagerwindow.h"
 #include "gs/gameobj/ArmyData.h"
 
 #include "ui/interface/scenarioeditor.h"
-#include "gs/newdb/OrderRecord.h"
+#include "OrderRecord.h"
 
 #include "ui/interface/MainControlPanel.h"
 

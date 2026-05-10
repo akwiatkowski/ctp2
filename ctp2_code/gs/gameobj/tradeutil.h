@@ -33,7 +33,7 @@
 #ifndef TRADEUTIL_H__
 #define TRADEUTIL_H__
 
-#include "gs/newdb/ConstRecord.h"
+#include "ConstRecord.h"
 #include "os/include/ctp2_inttypes.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/Globals.h"         // MAPSIZE

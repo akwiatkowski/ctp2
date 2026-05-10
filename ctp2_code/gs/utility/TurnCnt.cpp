@@ -41,18 +41,18 @@
 #include "gs/gameobj/AgreementPool.h"          // g_theAgreementPool
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Barbarians.h"
-#include "gs/newdb/BuildingRecord.h"
+#include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/citydata.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/CivPaths.h"               // g_civPaths
 #include "gfx/gfx_utils/colorset.h"
-#include "gs/newdb/ConstRecord.h"            // g_theConstDB
+#include "ConstRecord.h"            // g_theConstDB
 #include "gs/database/DB.h"
 #include "ctp/debugtools/debugmemory.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gs/newdb/DifficultyRecord.h"
+#include "DifficultyRecord.h"
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"  // g_theDiplomaticRequestPool
@@ -63,7 +63,7 @@
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
 #include "sound/gamesounds.h"
-#include "gs/newdb/GovernmentRecord.h"
+#include "GovernmentRecord.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "ui/interface/messagemodal.h"
 #include "ui/interface/messagewin.h"
@@ -88,7 +88,7 @@
 #include "gfx/tilesys/tiledmap.h"               // g_tiledMap
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"                  // g_theWorld
 

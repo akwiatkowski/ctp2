@@ -56,7 +56,7 @@ typedef sint32  AdvanceType;
 // Project dependencies
 //----------------------------------------------------------------------------
 
-#include "gs/newdb/AdvanceRecord.h"  // AdvanceRecord
+#include "AdvanceRecord.h"  // AdvanceRecord
 #include "gs/outcom/AICause.h"	    // CAUSE_SCI
 #include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "os/include/ctp2_inttypes.h"  // uint8, uint16, sint32

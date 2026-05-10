@@ -16,6 +16,7 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include "ctp/debugtools/log.h"
 
 
@@ -69,8 +70,8 @@ void DebugAssert_Close (void);
 
 
 #undef ASSERT
-#define ASSERT(condition)													\
-	{if (! ((int) (condition))) {											\
+#define ASSERT(condition)											\
+	{if (! ((intptr_t) (condition))) {										\
 		DebugAssert_Assert ( __FILE__, __LINE__, LOG_ASSERT, #condition);	\
 	}}
 
@@ -90,7 +91,7 @@ void DebugAssert_Close (void);
 
 
 #define ASSERT_CLASS(log_class, condition)								\
-	{if (! ((int) (condition))) {										\
+	{if (! ((intptr_t) (condition))	) {									\
 		DebugAssert_Assert (__FILE__, __LINE__, log_class, #condition);	\
 	}}
 
@@ -107,7 +108,7 @@ void DebugAssert_Close (void);
 
 
 #define ASSERT_INDIRECT(module_name, module_line, condition)					\
-	{if (! ((int) (condition))) {												\
+	{if (! ((intptr_t) (condition))	) {											\
 		DebugAssert_Assert (module_name, module_line, LOG_ASSERT, #condition);	\
 	}}
 

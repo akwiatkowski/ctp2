@@ -53,7 +53,7 @@ extern sint32				g_ScreenWidth;
 extern sint32				g_ScreenHeight;
 extern DisplayDevice		g_displayDevice;
 
-extern BOOL g_SDL_flags;
+BOOL g_SDL_flags = FALSE;
 
 aui_SDLUI::aui_SDLUI
 (
@@ -133,7 +133,19 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 
-       	m_lpdds = SDL_SetVideoMode(m_width, m_height, m_bpp, g_SDL_flags); // mod by lynx |SDL_FULLSCREEN);
+	// SDL2: create window instead of SDL_SetVideoMode
+	Uint32 windowFlags = SDL_WINDOW_SHOWN;
+	if (g_SDL_flags) {
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
+	}
+	m_window = SDL_CreateWindow("Call to Power 2",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		m_width, m_height, windowFlags);
+	if (!m_window) {
+		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
+	}
+
+	m_lpdds = SDL_GetWindowSurface(m_window);
 	if (!m_lpdds) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
@@ -164,8 +176,9 @@ aui_SDLUI::getDisplay()
 
 aui_SDLUI::~aui_SDLUI( void )
 {
-	if ( m_lpdds ) {
-		// m_lpdds is deleted by SDL_Quit()
+	if ( m_window ) {
+		SDL_DestroyWindow(m_window);
+		m_window = NULL;
 		m_lpdds = NULL;
 	}
 #ifdef HAVE_X11

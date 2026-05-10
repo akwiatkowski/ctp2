@@ -16,21 +16,21 @@ typedef sint32 PLAYER_INDEX;
 
 DECLARE_INTERFACE_(IC3DiplomaticRequest, IUnknown)
 {
-	STDMETHOD_(PLAYER_INDEX,        GetOwner) (THIS_) PURE;
-	STDMETHOD_(PLAYER_INDEX,        GetRecipient) (THIS_) PURE;
-	STDMETHOD_(REQUEST_TYPE,        GetRequest) (THIS_) PURE;
-	STDMETHOD_(AdvanceType,         GetAdvance) (THIS_) PURE;
-	STDMETHOD_(AdvanceType,         GetWantedAdvance) (THIS_) PURE;
-	STDMETHOD_(uint32,              GetWantedCity) (THIS_) PURE;
-	STDMETHOD_(PLAYER_INDEX,        GetThirdParty) (THIS_) PURE;
-	STDMETHOD_(REQUEST_RESPONSE_TYPE, GetResponse) (THIS_) PURE;
-	STDMETHOD_(uint32,              GetTarget) (THIS_) PURE;
-	STDMETHOD_(sint32,              GetGold) (THIS_) PURE;
+	STDMETHOD_(PLAYER_INDEX,        GetOwner) (THIS) PURE;
+	STDMETHOD_(PLAYER_INDEX,        GetRecipient) (THIS) PURE;
+	STDMETHOD_(REQUEST_TYPE,        GetRequest) (THIS) PURE;
+	STDMETHOD_(AdvanceType,         GetAdvance) (THIS) PURE;
+	STDMETHOD_(AdvanceType,         GetWantedAdvance) (THIS) PURE;
+	STDMETHOD_(uint32,              GetWantedCity) (THIS) PURE;
+	STDMETHOD_(PLAYER_INDEX,        GetThirdParty) (THIS) PURE;
+	STDMETHOD_(REQUEST_RESPONSE_TYPE, GetResponse) (THIS) PURE;
+	STDMETHOD_(uint32,              GetTarget) (THIS) PURE;
+	STDMETHOD_(sint32,              GetGold) (THIS) PURE;
 
-	STDMETHOD_(void,                Reject) (THIS_) PURE;
-	STDMETHOD_(void,                Enact) (THIS_) PURE;
+	STDMETHOD_(void,                Reject) (THIS) PURE;
+	STDMETHOD_(void,                Enact) (THIS) PURE;
 
-	STDMETHOD_(sint32,              GetTone) (THIS_) PURE;
+	STDMETHOD_(sint32,              GetTone) (THIS) PURE;
 
 };
 

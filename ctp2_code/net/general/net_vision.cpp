@@ -45,7 +45,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gfx/spritesys/SpriteState.h"
-#include "gs/newdb/UnitRecord.h"
+#include "UnitRecord.h"
 
 //----------------------------------------------------------------------------
 //

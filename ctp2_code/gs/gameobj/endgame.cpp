@@ -16,7 +16,7 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/EndgameWindow.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/newdb/AdvanceRecord.h"
+#include "AdvanceRecord.h"
 #include "net/general/network.h"
 #include "net/general/net_endgame.h"
 #include "gs/database/StrDB.h"

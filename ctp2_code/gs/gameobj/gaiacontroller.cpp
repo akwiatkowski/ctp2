@@ -22,7 +22,7 @@
 // Modifications from the original Activision code:
 //
 // - Fixed neutral tile improvment bug by preventing the game
-//   from reading invalid memory, by Martin Gühmann.
+//   from reading invalid memory, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 
@@ -33,10 +33,10 @@
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/newturncount.h"
 #include "gs/gameobj/Player.h"
-#include "gs/newdb/AdvanceRecord.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "AdvanceRecord.h"
+#include "BuildingRecord.h"
+#include "TerrainImprovementRecord.h"
+#include "WonderRecord.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "gs/world/World.h"
@@ -47,7 +47,7 @@
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/gaiacontroller.h"
-#include "gs/newdb/EndGameObjectRecord.h"
+#include "EndGameObjectRecord.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/terrainutil.h"
@@ -108,7 +108,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_PROCESSING_TOWER");
 
 	Assert(sm_towerEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_towerEndgameIndex) >= 0);
+	Assert(g_theEndGameObjectDB->Get(sm_towerEndgameIndex) != NULL);
 	if (sm_towerEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_towerEndgameIndex))
 	{
 		terr_rec = g_theEndGameObjectDB->Get(sm_towerEndgameIndex)->
@@ -120,7 +120,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_POWER_SATELLITE");
 
 	Assert(sm_satelliteEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex) >= 0);
+	Assert(g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex) != NULL);
 	if (sm_satelliteEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex))
 	{
 		building_rec = g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex)->
@@ -132,7 +132,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_GAIA_COMPUTER");
 
 	Assert(sm_mainframeEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex) >= 0);
+	Assert(g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex) != NULL);
 	if (sm_mainframeEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex))
 	{
 		building_rec = g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex)->
@@ -331,7 +331,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 	Cell *cell = g_theWorld->GetCell(pos);
 	owner = cell->GetOwner();
 
-	//Added by Martin Gühmann to prevent
+	//Added by Martin Gï¿½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
@@ -375,7 +375,7 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	//Added by Martin Gühmann to prevent
+	//Added by Martin Gï¿½hmann to prevent
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing

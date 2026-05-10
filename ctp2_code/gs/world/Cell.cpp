@@ -47,10 +47,10 @@
 #include "ctp/c3.h"
 
 #include "gs/world/Cell.h"
-#include "gs/newdb/TerrainRecord.h"
+#include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "gs/newdb/TerrainImprovementRecord.h"
-#include "gs/newdb/ResourceRecord.h" // For accessing the goods on the terrain
+#include "TerrainImprovementRecord.h"
+#include "ResourceRecord.h" // For accessing the goods on the terrain
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/tilesys/tileutils.h"

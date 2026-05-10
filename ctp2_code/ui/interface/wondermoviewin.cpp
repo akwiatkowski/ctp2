@@ -39,14 +39,14 @@
 #include "ui/interface/wondermoviewindow.h"
 #include "ui/interface/wondermoviewin.h"
 
-#include "gs/newdb/WonderRecord.h"
-#include "gs/newdb/WonderMovieRecord.h"
+#include "WonderRecord.h"
+#include "WonderMovieRecord.h"
 #include "gs/database/StrDB.h"
 
 #include "sound/soundmanager.h"
 
 #include "gfx/spritesys/director.h"
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 #include "ui/interface/greatlibrary.h"
 #include "gs/slic/SlicObject.h"
 

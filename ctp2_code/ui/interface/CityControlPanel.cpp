@@ -27,18 +27,18 @@
 //
 // - Made rush buy button behaviour consistent with other windows.
 // - Disabled rushbuy button if infrastructure or captalization are
-//   at the front of the build queue, by Martin Gühmann.
+//   at the front of the build queue, by Martin Gï¿½hmann.
 // - If infrastructure or capitalization are at the front of the
-//   build queue no cost or turns are shown anymore, by Martin Gühmann.
+//   build queue no cost or turns are shown anymore, by Martin Gï¿½hmann.
 // - Rush buy button should be disabled when it is not the player's turn
 //   unfortunatly the button state is not updated on the end turn event.
 // - Made update of rush buy button possible when (only) the gold of the
 //   player has changed.
 // - #01 Standardization of city selection and focus handling
 //   (L. Hirth 6/2004)
-// - Disabled ForceSelect while updating the city list. (Feb 4th 2007 Martin Gühmann)
-// - Cleaned and made the build progress bar green. (Feb 4th 2007 Martin Gühmann)
-// - The city tab is now updated when you modify the city in the city manager. (9-Feb-2008 Martin Gühmann)
+// - Disabled ForceSelect while updating the city list. (Feb 4th 2007 Martin Gï¿½hmann)
+// - Cleaned and made the build progress bar green. (Feb 4th 2007 Martin Gï¿½hmann)
+// - The city tab is now updated when you modify the city in the city manager. (9-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -48,8 +48,8 @@
 #include <strstream>
 
 #include "ui/aui_common/aui_ldl.h"
-#include "gs/newdb/BuildingRecord.h"
-#include "gs/newdb/BuildListSequenceRecord.h"
+#include "BuildingRecord.h"
+#include "BuildListSequenceRecord.h"
 #include "gs/gameobj/citydata.h"
 #include "ui/interface/citywindow.h"
 #include "ui/aui_ctp2/ctp2_button.h"
@@ -57,12 +57,12 @@
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/interface/EditQueue.h"
-#include "gs/newdb/IconRecord.h"
+#include "IconRecord.h"
 #include "gs/gameobj/Player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
-#include "gs/newdb/UnitRecord.h"
-#include "gs/newdb/WonderRecord.h"
+#include "UnitRecord.h"
+#include "WonderRecord.h"
 #include "gs/world/World.h"
 #include "gfx/gfx_utils/colorset.h"
 #include "ui/aui_ctp2/radarmap.h"
@@ -366,7 +366,7 @@ CityData *CityControlPanel::GetSelectedCity()
 	ctp2_ListItem *selItem = (ctp2_ListItem *)m_cityListDropDown->GetListBox()->GetSelectedItem();
 	if(!selItem) return NULL;
 	Unit u;
-	u.m_id = (uint32)selItem->GetUserData();
+	u.m_id = (uintptr_t)selItem->GetUserData();
 	if(!u.IsValid()) return NULL;
 	return u.CD();
 }
@@ -826,7 +826,7 @@ void CityControlPanel::SelectedCity()
 	for(i = 0; i < numberOfItems; i++) {
 		ctp2_ListItem *item = static_cast<ctp2_ListItem*>(m_cityListDropDown->GetListBox()->GetItemByIndex(i));
 		if(item) {
-			Unit thisCity; thisCity.m_id = (uint32)item->GetUserData();
+			Unit thisCity; thisCity.m_id = (uintptr_t)item->GetUserData();
 			if(thisCity.m_id == newCity.m_id) {
 				m_cityListDropDown->SetSelectedItem(i);
 				break;
@@ -870,7 +870,7 @@ AUI_ERRCODE CityControlPanel::ProgressDrawCallback(ctp2_Static *control,
 												   RECT &rect,
 												   void *cookie)
 {
-	Unit city; city.m_id = (uint32)cookie;
+	Unit city; city.m_id = (uintptr_t)cookie;
 
 	g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
 

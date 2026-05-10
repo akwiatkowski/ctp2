@@ -72,7 +72,7 @@
 extern LoadSaveWindow *g_loadsaveWindow;
 
 #include "gs/database/profileDB.h"
-#include "gs/newdb/AgeRecord.h"
+#include "AgeRecord.h"
 
 GameSelectWindow *g_gameSelectWindow = NULL;
 StartSelectingWindow *g_startSelectingWindow = NULL;

@@ -37,9 +37,9 @@
 #include "ui/aui_common/aui_movie.h"
 
 #ifdef __AUI_USE_SDL__
-#include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
-#include <SDL/SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_syswm.h>
 #include "sound/soundmanager.h"		// g_soundManager
 #include "ui/aui_sdl/aui_sdlsurface.h"
 

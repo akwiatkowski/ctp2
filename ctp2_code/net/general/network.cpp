@@ -132,8 +132,8 @@ extern sint32 g_debugOwner;
 extern StringDB			*g_theStringDB;
 
 #include "gs/gameobj/GameSettings.h"
-#include "gs/newdb/AgeRecord.h"
-#include "gs/newdb/CivilisationRecord.h"
+#include "AgeRecord.h"
+#include "CivilisationRecord.h"
 #include "gs/events/GameEventManager.h"
 #include "ai/ctpai.h"
 #include "net/general/chatlist.h"

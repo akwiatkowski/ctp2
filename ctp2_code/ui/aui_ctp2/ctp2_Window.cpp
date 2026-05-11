@@ -94,8 +94,13 @@ AUI_ERRCODE ctp2_Window::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	RECT rect = { 0, 0, m_width, m_height };
 
+	fprintf(stderr, "[C3W] DrawThis: id=%u pattern=%p surface=%p w=%d h=%d\n",
+		Id(), (void*)m_pattern, (void*)m_surface, m_width, m_height);
+
 	if (m_pattern)
 		m_pattern->Draw( m_surface, &rect );
+	else
+		fprintf(stderr, "[C3W] DrawThis: id=%u NO PATTERN - will be black\n", Id());
 
 	m_dirtyList->AddRect( &rect );
 

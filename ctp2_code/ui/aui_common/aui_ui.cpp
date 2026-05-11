@@ -460,6 +460,9 @@ AUI_ERRCODE aui_UI::AddChild( aui_Region *child )
 
 	window->SetParent( this );
 
+	fprintf(stderr, "[AUI] AddChild: window id=%u w=%d h=%d hidden=%d\n",
+		window->Id(), window->Width(), window->Height(), window->IsHidden());
+
 	window->Draw();
 
 	return AUI_ERRCODE_OK;
@@ -788,6 +791,8 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate(void)
 
 		if ( !window->IsHidden() )
 		{
+			fprintf(stderr, "[AUI] ClipAndConsolidate: window id=%u dirty=%d\n",
+				window->Id(), window->m_dirtyList->L());
 
 			windowX = window->X();
 			windowY = window->Y();
@@ -1078,6 +1083,9 @@ AUI_ERRCODE aui_UI::Draw( void )
 	if ( !m_primary ) return AUI_ERRCODE_OK;
 
 	AUI_ERRCODE errcode;
+
+	fprintf(stderr, "[AUI] Draw: children=%d dirtyList=%d dirtyRectInfo=%d\n",
+		m_childList->L(), m_dirtyList->L(), m_dirtyRectInfoList->L());
 
 	ClipAndConsolidate();
 

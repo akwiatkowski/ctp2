@@ -1436,6 +1436,7 @@ void main_InitializeLogs(void)
 
 int main(int argc, char **argv)
 {
+	fprintf(stderr, "[MAIN] main() started\n");
 	int const   r = CivMain(argc, argv);
 
 	if (r < 0)
@@ -1527,6 +1528,7 @@ int CivMain
 	char **	    pSzCmdLine   // argv
 )
 {
+	fprintf(stderr, "[MAIN] CivMain started\n");
 // FIXME: Remove unneeded arguments.
 	HINSTANCE hInstance = NULL;
 #else	// __GNUC__
@@ -1660,7 +1662,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			}
 		}
 	} else {
+		fprintf(stderr, "[MAIN] calling InitializeApp\n");
 		g_civApp->InitializeApp(hInstance, iCmdShow);
+		fprintf(stderr, "[MAIN] InitializeApp returned\n");
 	}
 
 #ifdef __AUI_USE_SDL__

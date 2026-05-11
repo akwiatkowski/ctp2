@@ -76,6 +76,11 @@ sint32	initialplayscreen_displayMyWindow()
 {
     sint32 retval = (s_initplayWindow) ? 0 : initialplayscreen_Initialize();
 
+	fprintf(stderr, "[IPS] displayMyWindow: adding window %p w=%d h=%d\n",
+		(void*)s_initplayWindow,
+		s_initplayWindow ? s_initplayWindow->Width() : 0,
+		s_initplayWindow ? s_initplayWindow->Height() : 0);
+
 	g_c3ui->AddWindow(s_initplayWindow);
 
 	return retval;
@@ -95,10 +100,13 @@ sint32 initialplayscreen_removeMyWindow(uint32 action)
 
 AUI_ERRCODE initialplayscreen_Initialize( void )
 {
+	fprintf(stderr, "[IPS] Initialize: called, s_initplayWindow=%p\n", (void*)s_initplayWindow);
+
 	if ( s_initplayWindow )
 		return AUI_ERRCODE_OK;
 
 	s_initplayWindow = (C3Window *)aui_Ldl::BuildHierarchyFromRoot(s_initplayWindowLDLBlock);
+	fprintf(stderr, "[IPS] Initialize: BuildHierarchyFromRoot returned %p\n", (void*)s_initplayWindow);
 	Assert (s_initplayWindow != NULL);
 	if (s_initplayWindow == NULL)
 		return AUI_ERRCODE_INVALIDPARAM;

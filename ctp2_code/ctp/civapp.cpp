@@ -596,17 +596,30 @@ CivApp::CivApp()
 
 void CivApp::InitializeAppUI(void)
 {
+	fprintf(stderr, "[CIVAPP] InitializeAppUI: called\n");
 	// Set CTP2 specific data for the Anet library (multiplayer only)
 	NETFunc::GameType	= GAMEID;				// CTP2 game id for Anet
 	NETFunc::DllPath	= "dll" FILE_SEP "net";	// Anet DLLs are in dll\net (relative to executable)
 
 	if (g_useIntroMovie && !g_no_shell)
 	{
+#if defined(__AUI_USE_SDL__)
+		// SDL builds: skip intro movie since video playback is not yet supported
+		fprintf(stderr, "[CIVAPP] InitializeAppUI: skipping intro movie on SDL\n");
+#else
+		fprintf(stderr, "[CIVAPP] InitializeAppUI: intro movie branch\n");
   		intromoviewin_Initialize();
     	intromoviewin_DisplayIntroMovie();
+#endif
 	}
-	else
+
+	if (!g_useIntroMovie || g_no_shell
+#if defined(__AUI_USE_SDL__)
+		|| TRUE  // SDL: always show main menu after skipping intro
+#endif
+		)
 	{
+		fprintf(stderr, "[CIVAPP] InitializeAppUI: main menu branch\n");
 		if (g_soundManager)
 		{
 			g_soundManager->EnableMusic();
@@ -616,10 +629,20 @@ void CivApp::InitializeAppUI(void)
 
 		AUI_ERRCODE errcode = initialplayscreen_Initialize();
 		Assert(errcode == AUI_ERRCODE_OK);
+		fprintf(stderr, "[CIVAPP] InitializeAppUI: initialplayscreen_Initialize returned %d\n", errcode);
 
 		if(!g_no_shell && !g_launchScenario)
+		{
+			fprintf(stderr, "[CIVAPP] InitializeAppUI: calling displayMyWindow\n");
 			initialplayscreen_displayMyWindow();
+		}
+		else
+		{
+			fprintf(stderr, "[CIVAPP] InitializeAppUI: skipping displayMyWindow (no_shell=%d launchScenario=%d)\n",
+				g_no_shell, g_launchScenario);
+		}
 	}
+	fprintf(stderr, "[CIVAPP] InitializeAppUI: done\n");
 }
 
 #ifdef _DEBUG
@@ -734,6 +757,7 @@ bool CivApp::InitializeAppDB(void)
 	g_theWonderMovieDB          = new CTPDatabase<WonderMovieRecord>;
 
     // Firstly get the string database up and running - so we can display texts
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing StringDB\n");
     if (!g_theStringDB->Parse(g_stringdb_filename))
     {
         return false;
@@ -744,6 +768,7 @@ bool CivApp::InitializeAppDB(void)
 
     // Fill the databases from file
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing SoundDB\n");
 	if (!g_theSoundDB->Parse(C3DIR_GAMEDATA, g_sounddb_filename))
     {
 		return false;
@@ -753,6 +778,7 @@ bool CivApp::InitializeAppDB(void)
 
 	if (strcmp(g_mapicondb_filename, ""))   // May not exist for mods
 	{
+		fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing MapIconDB\n");
 		if (!g_theMapIconDB->Parse(C3DIR_GAMEDATA, g_mapicondb_filename))
 		{
 			return false;
@@ -761,6 +787,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 30 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing IconDB\n");
 	if (!g_theIconDB->Parse(C3DIR_GAMEDATA, g_uniticondb_filename))
     {
 		return false;
@@ -768,6 +795,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 40 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing ConstDB\n");
 	if (!g_theConstDB->Parse(C3DIR_GAMEDATA, g_constdb_filename))
     {
 		return false;
@@ -775,6 +803,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 50 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing WonderMovieDB\n");
 	if (!g_theWonderMovieDB->Parse(C3DIR_GAMEDATA, g_wondermoviedb_filename))
     {
 		return false;
@@ -782,6 +811,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 60 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing VictoryMovieDB\n");
 	if (!g_theVictoryMovieDB->Parse(g_victorymoviedb_filename))
     {
 	    return false;
@@ -789,6 +819,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 70 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing PlayListDB\n");
 	if (!g_thePlayListDB->Parse(g_playlistdb_filename))
     {
 		return false;
@@ -796,6 +827,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 80 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing SpriteDB\n");
 	if (!g_theSpriteDB->Parse(C3DIR_GAMEDATA, "newsprite.txt"))
     {
 		return false;
@@ -803,6 +835,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 90 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing SpecialEffectDB\n");
 	if (!g_theSpecialEffectDB->Parse(C3DIR_GAMEDATA, g_specialeffectdb_filename))
     {
 		return false;
@@ -810,6 +843,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 100 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing SpecialAttackInfoDB\n");
 	if (!g_theSpecialAttackInfoDB->Parse(C3DIR_GAMEDATA, g_specialattackinfodb_filename))
     {
 		return false;
@@ -817,6 +851,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 110 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing AdvanceBranchDB\n");
 	if (!g_theAdvanceBranchDB->Parse(C3DIR_GAMEDATA, g_branchdb_filename))
     {
 		return false;
@@ -824,6 +859,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 120 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing AdvanceDB\n");
 	if (!g_theAdvanceDB->Parse(C3DIR_GAMEDATA, g_advancedb_filename))
     {
 		return false;
@@ -831,6 +867,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 130 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing GovernmentDB\n");
 	if (!g_theGovernmentDB->Parse(C3DIR_GAMEDATA, g_government_filename))
     {
 	    return false;
@@ -838,6 +875,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 140 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing UnitDB\n");
 	if (!g_theUnitDB->Parse(C3DIR_GAMEDATA, g_unitdb_filename))
     {
 		return false;
@@ -845,6 +883,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 150 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing DifficultyDB\n");
 	if (!g_theDifficultyDB->Parse(C3DIR_GAMEDATA, g_difficultydb_filename))
     {
 		ExitGame();
@@ -853,6 +892,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 160 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing AgeDB\n");
 	if (!g_theAgeDB->Parse(C3DIR_GAMEDATA, g_agedb_filename))
     {
 		ExitGame();
@@ -861,10 +901,12 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 170 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing ThroneDB\n");
 	g_theThroneDB->Init(g_thronedb_filename );
 
 	g_theProgressWindow->StartCountingTo( 180 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing ConceptDB\n");
 	if (!g_theConceptDB->Parse(C3DIR_GAMEDATA, g_conceptdb_filename))
     {
 		ExitGame();
@@ -873,6 +915,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 190 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing TerrainImprovementDB\n");
 	if (!g_theTerrainImprovementDB->Parse(C3DIR_GAMEDATA, g_tileimprovementdb_filename))
     {
 		ExitGame();
@@ -881,6 +924,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 200 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing ResourceDB\n");
 	if (!g_theResourceDB->Parse(C3DIR_GAMEDATA, g_goods_filename))
     {
 		ExitGame();
@@ -889,6 +933,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 210 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing TerrainDB\n");
 	if (!g_theTerrainDB->Parse(C3DIR_GAMEDATA, g_terrain_filename))
     {
 		ExitGame();
@@ -897,6 +942,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 220 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing BuildingDB\n");
 	if (!g_theBuildingDB->Parse(C3DIR_GAMEDATA, g_improve_filename))
     {
 		return false;
@@ -904,6 +950,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 230 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing PollutionDB\n");
 	if (!g_thePollutionDB->Parse(C3DIR_GAMEDATA, g_pollution_filename))
     {
 		return false;
@@ -911,6 +958,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 240 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing GlobalWarmingDB\n");
 	if (!g_theGlobalWarmingDB->Parse(C3DIR_GAMEDATA, g_global_warming_filename))
     {
 		return false;
@@ -918,6 +966,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 250 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing UVDB\n");
 	if (!g_theUVDB->Initialise(g_ozone_filename, C3DIR_GAMEDATA))
 	{
 		ExitGame();
@@ -926,6 +975,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 260 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing CivilisationDB\n");
 	if (!g_theCivilisationDB->Parse(C3DIR_GAMEDATA, g_civilisation_filename))
     {
 		return false;
@@ -937,6 +987,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 270 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing WonderDB\n");
 	if (!g_theWonderDB->Parse(C3DIR_GAMEDATA, g_wonder_filename))
     {
 		return false;
@@ -944,6 +995,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 280 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing RiskDB\n");
 	if (!g_theRiskDB->Parse(C3DIR_GAMEDATA, g_risk_filename))
     {
 		return false;
@@ -951,6 +1003,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 290 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing MessageIconFileDB\n");
 	if (!g_theMessageIconFileDB->Parse(g_messageiconfdb_filename))
     {
 		ExitGame();
@@ -959,6 +1012,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 300 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing MapDB\n");
 	if (!g_theMapDB->Parse(C3DIR_GAMEDATA, g_mapdb_filename))
     {
 		return false;
@@ -966,6 +1020,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 310 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing OrderDB\n");
 	if (!g_theOrderDB->Parse(C3DIR_GAMEDATA, g_orderdb_filename))
     {
 		return false;
@@ -973,6 +1028,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 320 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing FeatDB\n");
 	if (!g_theFeatDB->Parse(C3DIR_GAMEDATA, g_featdb_filename))
     {
 		return false;
@@ -980,6 +1036,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 330 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing EndGameObjectDB\n");
 	if (!g_theEndGameObjectDB->Parse(C3DIR_GAMEDATA, g_endgameobject_filename))
     {
 		return false;
@@ -987,6 +1044,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 340 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing GoalDB\n");
 	if (!g_theGoalDB->Parse(C3DIR_AIDATA, g_goal_db_filename))
     {
 		return false;
@@ -994,6 +1052,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 350 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing PersonalityDB\n");
 	if (!g_thePersonalityDB->Parse(C3DIR_AIDATA, g_personality_db_filename))
     {
 		return false;
@@ -1001,6 +1060,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 360 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing UnitBuildListDB\n");
 	if (!g_theUnitBuildListDB->Parse(C3DIR_AIDATA, g_unit_buildlist_db_filename))
     {
 		return false;
@@ -1008,6 +1068,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 370 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing WonderBuildListDB\n");
 	if (!g_theWonderBuildListDB->Parse(C3DIR_AIDATA, g_wonder_buildlist_db_filename))
     {
 		return false;
@@ -1015,6 +1076,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 380 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing BuildingBuildListDB\n");
 	if (!g_theBuildingBuildListDB->Parse(C3DIR_AIDATA, g_building_buildlist_db_filename))
     {
 		return false;
@@ -1022,6 +1084,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 390 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing ImprovementListDB\n");
 	if (!g_theImprovementListDB->Parse(C3DIR_AIDATA, g_improvement_list_db_filename))
     {
 		return false;
@@ -1029,6 +1092,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 400 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing StrategyDB\n");
 	if (!g_theStrategyDB->Parse(C3DIR_AIDATA, g_strategy_db_filename))
     {
 		return false;
@@ -1036,6 +1100,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 410 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing BuildListSequenceDB\n");
 	if (!g_theBuildListSequenceDB->Parse(C3DIR_AIDATA, g_buildlist_sequence_db_filename))
     {
 		return false;
@@ -1043,6 +1108,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 420 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing DiplomacyDB\n");
 	if (!g_theDiplomacyDB->Parse(C3DIR_AIDATA, g_diplomacy_db_filename))
     {
 		return false;
@@ -1050,6 +1116,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 430 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing DiplomacyProposalDB\n");
 	if (!g_theDiplomacyProposalDB->Parse(C3DIR_AIDATA, g_diplomacy_proposal_filename))
     {
 		return false;
@@ -1057,6 +1124,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 440 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing DiplomacyThreatDB\n");
 	if (!g_theDiplomacyThreatDB->Parse(C3DIR_AIDATA, g_diplomacy_threat_filename))
     {
 		return false;
@@ -1064,6 +1132,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 450 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing AdvanceListDB\n");
 	if (!g_theAdvanceListDB->Parse(C3DIR_AIDATA, g_advance_list_db_filename))
     {
 		return false;
@@ -1071,6 +1140,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 460 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing CityStyleDB\n");
 	if (!g_theCityStyleDB->Parse(C3DIR_GAMEDATA, g_city_style_db_filename))
     {
 		return false;
@@ -1078,6 +1148,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 470 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing AgeCityStyleDB\n");
 	if (!g_theAgeCityStyleDB->Parse(C3DIR_GAMEDATA, g_age_city_style_db_filename))
     {
 		return false;
@@ -1094,6 +1165,7 @@ bool CivApp::InitializeAppDB(void)
 
 		sprintf(lastdot, "%d.txt", 0);
 
+		fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing CitySizeDB\n");
 		if (!g_theCitySizeDB->Parse(C3DIR_GAMEDATA, g_citysize_filename))
 			return false;
 
@@ -1102,6 +1174,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 490 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing PopDB\n");
 	if (!g_thePopDB->Parse(C3DIR_GAMEDATA, g_pop_filename))
     {
 		return false;
@@ -1109,6 +1182,7 @@ bool CivApp::InitializeAppDB(void)
 
 	g_theProgressWindow->StartCountingTo( 500 );
 
+	fprintf(stderr, "[CIVAPP] InitializeAppDB: Creating Exclusions, resolving references\n");
     g_exclusions = new Exclusions();
 
 	if(!g_theUnitDB->ResolveReferences())               return false;
@@ -1258,13 +1332,16 @@ bool CivApp::InitializeAppDB(void)
 
 sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 {
+	fprintf(stderr, "[CIVAPP] InitializeApp: started\n");
 #ifdef WIN32
     // COM needed for DirectX/Movies
 	CoInitialize(NULL);
 #endif
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: Splash::Initialize\n");
 	Splash::Initialize();
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: CivPaths_InitCivPaths\n");
 	CivPaths_InitCivPaths();
 
 	g_theProfileDB = new ProfileDB;
@@ -1285,20 +1362,27 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	gameWatch.RecordingSystem("gwciv");
 #endif
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: display_Initialize\n");
 	display_Initialize(hInstance, iCmdShow);
+	fprintf(stderr, "[CIVAPP] InitializeApp: init_keymap\n");
 	init_keymap();
+	fprintf(stderr, "[CIVAPP] InitializeApp: ui_Initialize\n");
 	(void) ui_Initialize();
+	fprintf(stderr, "[CIVAPP] InitializeApp: SoundManager::Initialize\n");
 	SoundManager::Initialize();
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: sharedsurface_Initialize\n");
 	if ( sharedsurface_Initialize() != AUI_ERRCODE_OK ) {
 		c3errors_FatalDialog( "CivApp", "Unable to init shared surface." );
 		return -1;
 	}
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: CursorManager::Initialize\n");
 	CursorManager::Initialize();
 
 	InitializeImageMaps();
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: ProgressWindow\n");
 	ProgressWindow::BeginProgress(
 		g_theProgressWindow,
 		"InitProgressWindow",
@@ -1306,6 +1390,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	g_theProgressWindow->StartCountingTo( 10 );
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: gameinit_InitializeGameFiles\n");
 	if (!gameinit_InitializeGameFiles())
     {
         ExitGame();
@@ -1318,6 +1403,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	g_theProgressWindow->StartCountingTo( 540 );
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: InitializeAppDB\n");
 	if (!InitializeAppDB())
     {
 		c3errors_FatalDialog("CivApp", "Unable to Init the Databases.");
@@ -1326,15 +1412,19 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	g_theProgressWindow->StartCountingTo( 550 );
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: InitializeGreatLibrary\n");
 	InitializeGreatLibrary();
 
 	g_theProgressWindow->StartCountingTo( 560 );
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: InitializeSoundPF\n");
 	InitializeSoundPF();
 
 	g_theProgressWindow->StartCountingTo( 570 );
 
+	fprintf(stderr, "[CIVAPP] InitializeApp: calling InitializeAppUI\n");
 	InitializeAppUI();
+	fprintf(stderr, "[CIVAPP] InitializeApp: InitializeAppUI returned\n");
 
 	g_theProgressWindow->StartCountingTo( 580 );
 

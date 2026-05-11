@@ -9,11 +9,10 @@ class aui_SDLBlitter : public aui_Blitter
 {
 public:
 
-	aui_SDLBlitter()
-	{
-	}
+	aui_SDLBlitter() {}
 	virtual ~aui_SDLBlitter() {}
 
+	virtual RobustBltFunc Blt;
 	virtual NakedBltFunc Blt16To16;
 	virtual NakedColorBltFunc ColorBlt16;
 	virtual NakedStretchBltFunc StretchBlt16To16;

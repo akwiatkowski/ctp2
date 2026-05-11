@@ -190,6 +190,19 @@ void aui_SDLSurface::Flip( void )
 		SDL_UpdateWindowSurface( m_window );
 		SDL_UnlockMutex(m_bltMutex);
 	}
+	
+	// DEBUG: If this is the secondary surface, save it periodically
+	if ( !m_isPrimary && m_lpdds )
+	{
+		static int flipCount = 0;
+		if (++flipCount == 60 || flipCount == 120 || flipCount == 300) {
+			char fname[256];
+			snprintf(fname, sizeof(fname), "/tmp/ctp2_sec_%d.bmp", flipCount);
+			SDL_SaveBMP(m_lpdds, fname);
+			fprintf(stderr, "DEBUG: Saved secondary surface to %s (%dx%d @ %dbpp)\n",
+				fname, m_lpdds->w, m_lpdds->h, m_lpdds->format->BitsPerPixel);
+		}
+	}
 }
 
 #endif

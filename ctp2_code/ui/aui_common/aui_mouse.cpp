@@ -1066,6 +1066,8 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 
+	fprintf(stderr, "[MOUSE] BltDirtyRectInfoToPrimary: %d dirty rects\n", driList->L());
+
 	ListPos position = driList->GetHeadPosition();
 	for ( sint32 j = driList->L(); j; j-- )
 	{

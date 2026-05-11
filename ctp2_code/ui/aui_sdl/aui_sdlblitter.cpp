@@ -17,6 +17,48 @@
 #define DDERR_WASSTILLDRAWING 4
 #endif
 
+AUI_ERRCODE aui_SDLBlitter::Blt(
+	aui_Surface *destSurf,
+	sint32 destx,
+	sint32 desty,
+	aui_Surface *srcSurf,
+	RECT *srcRect,
+	uint32 flags )
+{
+	// If both surfaces are SDL surfaces, use SDL_BlitSurface which handles
+	// format conversion automatically (e.g., RGB565 -> ARGB8888)
+	if (destSurf && srcSurf
+	 && destSurf->IsThisA(aui_SDLSurface::m_SDLSurfaceClassId)
+	 && srcSurf->IsThisA(aui_SDLSurface::m_SDLSurfaceClassId)
+	 && (!flags || (flags & k_AUI_BLITTER_FLAG_COPY) || (flags & k_AUI_BLITTER_FLAG_CHROMAKEY)))
+	{
+		aui_SDLSurface* sdlDest = static_cast<aui_SDLSurface*>(destSurf);
+		aui_SDLSurface* sdlSrc  = static_cast<aui_SDLSurface*>(srcSurf);
+
+		SDL_LockMutex(sdlDest->m_bltMutex);
+		SDL_LockMutex(sdlSrc->m_bltMutex);
+
+		SDL_Rect ssrc = { srcRect->left, srcRect->top,
+		                  srcRect->right - srcRect->left,
+		                  srcRect->bottom - srcRect->top };
+		SDL_Rect sdst = { destx, desty, 0, 0 };
+
+		AUI_ERRCODE retcode = AUI_ERRCODE_OK;
+		if (SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst) < 0) {
+			fprintf(stderr, "SDL_Blt: Blit failed: %s\n", SDL_GetError());
+			retcode = AUI_ERRCODE_BLTFAILED;
+		}
+
+		SDL_UnlockMutex(sdlSrc->m_bltMutex);
+		SDL_UnlockMutex(sdlDest->m_bltMutex);
+
+		return retcode;
+	}
+
+	// Fall back to base blitter for non-SDL surfaces or special flags
+	return aui_Blitter::Blt(destSurf, destx, desty, srcSurf, srcRect, flags);
+}
+
 AUI_ERRCODE aui_SDLBlitter::Blt16To16(
     aui_Surface *destSurf,
     RECT *destRect,

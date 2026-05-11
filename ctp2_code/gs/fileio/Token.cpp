@@ -35,13 +35,13 @@
 // - Fix Token::Next() for japanese sjis code
 // - Prevented crash on missing input file.
 // - Load default strings if they are missing in the database so that mods
-//   also have a full set of strings. (Jan 30th 2006 Martin Gühmann)
-// - Removed unused tokens. (July 15th 2006 Martin Gühmann)
+//   also have a full set of strings. (Jan 30th 2006 Martin Gï¿½hmann)
+// - Removed unused tokens. (July 15th 2006 Martin Gï¿½hmann)
 // - Added new token so that the loading of default strings in scenarios
-//   can be skipped. (9-Apr-2007 Martin Gühmann)
+//   can be skipped. (9-Apr-2007 Martin Gï¿½hmann)
 // - Old default string skip token does not prevent loading default strings
-//   in scenarios anymore. (9-Apr-2007 Martin Gühmann)
-// - Scenario path can now be ignored. (9-Apr-2007 Martin Gühmann)
+//   in scenarios anymore. (9-Apr-2007 Martin Gï¿½hmann)
+// - Scenario path can now be ignored. (9-Apr-2007 Martin Gï¿½hmann)
 // - Improved handling of "unexpected" EOF, caused by incorrect input.
 //
 //----------------------------------------------------------------------------
@@ -405,6 +405,10 @@ void Token::CloseImport(void)
 sint32 Token::Next()
 
 {
+	static int nextCallCount = 0;
+	nextCallCount++;
+	fprintf(stderr, "[TOKEN] Next() call #%d file=%s m_cur=%d '%c' fin=%p\n",
+		nextCallCount, m_filename, m_cur, (m_cur >= 32 && m_cur < 127) ? m_cur : '?', (void*)m_fin);
 	while (1) {
 
 		for ( ; IsWhitespace(m_cur) ; m_cur = getc(m_fin))

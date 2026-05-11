@@ -28,7 +28,7 @@
 // Modifications from the original Activision code:
 //
 // - Unit stacking indications and special indecations are placed according
-//   their size. (9-Feb-2008 Martin Gühmann)
+//   their size. (9-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -217,18 +217,23 @@ class UnitActor : public Actor {
   void GetBoundingRect(RECT* rect) const;
 
   sint32 GetHoldingCurAnimPos(UNITACTION action) const {
+    if (action < 0 || action >= UNITACTION_MAX) return 0;
     return m_holdingCurAnimPos[action];
   }
   sint32 GetHoldingCurAnimDelayEnd(UNITACTION action) const {
+    if (action < 0 || action >= UNITACTION_MAX) return 0;
     return m_holdingCurAnimDelayEnd[action];
   }
   sint32 GetHoldingCurAnimElapsed(UNITACTION action) const {
+    if (action < 0 || action >= UNITACTION_MAX) return 0;
     return m_holdingCurAnimElapsed[action];
   }
   sint32 GetHoldingCurAnimLastFrameTime(UNITACTION action) const {
+    if (action < 0 || action >= UNITACTION_MAX) return 0;
     return m_holdingCurAnimLastFrameTime[action];
   }
   sint32 GetHoldingCurAnimSpecialDelayProcess(UNITACTION action) const {
+    (void)action;
     return m_holdingCurAnimSpecialDelayProcess;
   }
 

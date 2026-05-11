@@ -48,7 +48,13 @@ quit
 def send_command(sock, cmd):
     """Send a JSON command to the game and return the response."""
     request = json.dumps({"cmd": cmd}) + "\n"
-    sock.sendall(request.encode())
+    try:
+        sock.sendall(request.encode())
+    except (BrokenPipeError, OSError):
+        # Game exited before/during send (expected for quit)
+        if cmd == "quit":
+            return {"status": "ok", "cmd": cmd, "detail": "game_exited"}
+        return {"status": "error", "cmd": cmd, "detail": "broken_pipe"}
 
     # Read response (simple line-based)
     sock.settimeout(10)
@@ -57,6 +63,11 @@ def send_command(sock, cmd):
         return json.loads(response)
     except socket.timeout:
         return {"status": "error", "cmd": cmd, "detail": "timeout"}
+    except (BrokenPipeError, OSError):
+        # Game exited before response (expected for quit)
+        if cmd == "quit":
+            return {"status": "ok", "cmd": cmd, "detail": "game_exited"}
+        return {"status": "error", "cmd": cmd, "detail": "broken_pipe"}
     except json.JSONDecodeError:
         return {"status": "error", "cmd": cmd, "detail": "bad_json"}
 

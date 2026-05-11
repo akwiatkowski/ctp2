@@ -30,7 +30,7 @@
 //
 // - Added to the database error dialog the possibility to close the program.
 //   This dialog is also used for slic errors and therefore also very useful.
-//   (Aug 26th 2005 Martin Gühmann)
+//   (Aug 26th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -129,8 +129,21 @@ void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 	MessageBox(NULL, str, dbTitle, MB_OK | MB_ICONEXCLAMATION) ;
 }
 
+extern BOOL g_smokeTest;
+
 void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 {
+	// In smoke test mode, skip modal dialogs and just log the error
+	if (g_smokeTest) {
+		va_list list;
+		va_start(list, fmt);
+		char buf[1024];
+		vsnprintf(buf, sizeof(buf), fmt, list);
+		va_end(list);
+		fprintf(stderr, "[SMOKE-ERROR] %s: %s\n", module ? module : "CTP 2", buf);
+		return;
+	}
+
 	LPTSTR			szTitle;
 	LPCTSTR			szTitleText = "%s Error";
 

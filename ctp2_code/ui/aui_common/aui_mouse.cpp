@@ -492,7 +492,11 @@ AUI_ERRCODE aui_Mouse::End( void )
 		else
 			TerminateThread( m_thread, 1 );
 #elif defined(__AUI_USE_SDL__)
-		// SDL2 removed SDL_KillThread; thread should exit via m_terminateEvent
+		g_mouseShouldTerminateThread = TRUE;
+		if (m_thread) {
+			SDL_WaitThread(m_thread, NULL);
+			m_thread = NULL;
+		}
 #endif
 
 		Erase();

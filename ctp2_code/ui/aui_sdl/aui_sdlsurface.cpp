@@ -28,6 +28,11 @@ aui_SDLSurface::aui_SDLSurface(
 		height = lpdds->h;
 		bpp = lpdds->format->BitsPerPixel;
 	}
+	// If wrapping an existing surface (like the window surface), use its actual bpp
+	// so m_Bpp and offset calculations are correct
+	if (lpdds != 0 && !takeOwnership) {
+		bpp = lpdds->format->BitsPerPixel;
+	}
 	*retval = aui_Surface::InitCommon( width, height, bpp, isPrimary );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -39,7 +44,14 @@ aui_SDLSurface::aui_SDLSurface(
 	SDL_PixelFormat* fmt = SDL_GetWindowSurface(m_window)->format;
 	if ( !(m_lpdds = lpdds) )
 	{
-		m_lpdds = SDL_CreateRGBSurface(0, width, height, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+		// Create secondary surface with the requested bpp (usually 16-bit).
+		// The game renders in 16-bit; SDL_BlitSurface handles conversion
+		// to the primary's 32-bit window format on macOS.
+		if (bpp == 16) {
+			m_lpdds = SDL_CreateRGBSurface(0, width, height, 16, 0xF800, 0x07E0, 0x001F, 0);
+		} else {
+			m_lpdds = SDL_CreateRGBSurface(0, width, height, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+		}
 		if ( m_lpdds == NULL )
 		{
 			*retval = AUI_ERRCODE_MEMALLOCFAILED;
@@ -57,13 +69,13 @@ aui_SDLSurface::aui_SDLSurface(
 	    m_allocated = takeOwnership;
             }
 
-	//just checking (fmt->Gmask >> fmt->Gshift == 0x3F) should be enough
-        //but save is save...
-	if ((fmt->Rmask >> fmt->Rshift == 0x1F) && (fmt->Gmask >> fmt->Gshift == 0x3F) && (fmt->Bmask >> fmt->Bshift == 0x1F)) {
+	// Detect pixel format from the ACTUAL surface, not the window format
+	SDL_PixelFormat* actualFmt = m_lpdds->format;
+	if ((actualFmt->Rmask >> actualFmt->Rshift == 0x1F) && (actualFmt->Gmask >> actualFmt->Gshift == 0x3F) && (actualFmt->Bmask >> actualFmt->Bshift == 0x1F)) {
             m_pixelFormat = AUI_SURFACE_PIXELFORMAT_565;
             //printf("%s L%d: AUI_SURFACE_PIXELFORMAT_565\n", __FILE__, __LINE__);
             }
-        if ((fmt->Rmask >> fmt->Rshift == 0x1F) && (fmt->Gmask >> fmt->Gshift == 0x1F) && (fmt->Bmask >> fmt->Bshift == 0x1F)) {
+        if ((actualFmt->Rmask >> actualFmt->Rshift == 0x1F) && (actualFmt->Gmask >> actualFmt->Gshift == 0x1F) && (actualFmt->Bmask >> actualFmt->Bshift == 0x1F)) {
             m_pixelFormat = AUI_SURFACE_PIXELFORMAT_555;
             //printf("%s L%d: AUI_SURFACE_PIXELFORMAT_555\n", __FILE__, __LINE__);
             }

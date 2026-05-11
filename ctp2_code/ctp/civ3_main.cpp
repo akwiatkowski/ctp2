@@ -416,7 +416,11 @@ int ui_Initialize(void)
 	if (!g_exclusiveMode)
 		main_HideTaskBar();
 
+#ifndef __AUI_USE_SDL__
 	g_is565Format = AUI_SURFACE_PIXELFORMAT_565 == g_c3ui->PixelFormat();
+#endif
+	// On SDL builds, g_is565Format keeps its default TRUE value.
+	// The primary window surface may be 32-bit, but game data is always 565.
 
 	ColorSet::Initialize();
     g_c3ui->RegisterCleanup(&ColorSet::Cleanup);
@@ -1673,6 +1677,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
                 //printf("%s L%d: g_civApp->Process() done!\n", __FILE__, __LINE__);
 
 #ifdef __AUI_USE_SDL__
+		SDL_PumpEvents();  // Required on macOS for window visibility and OS event processing
 		SDL_Event event;
 		while (1) { //there is a break;)
 			// SDL2: SDL_PeepEvents uses minType/maxType instead of event masks

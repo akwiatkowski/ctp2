@@ -279,6 +279,7 @@ BOOL g_useIntroMovie = TRUE;
 BOOL g_noAssertDialogs = FALSE;
 BOOL g_runInBackground = FALSE;
 BOOL g_eventLog = FALSE;
+BOOL g_smokeTest = FALSE;
 
 
 BOOL g_use_profile_process = FALSE;
@@ -736,10 +737,11 @@ bool ui_CheckForScroll(void)
 			lastdeltaX = deltaX;
 			lastdeltaY = deltaY;
 
-			g_tiledMap->SetScrolling(true);
-			g_tiledMap->ScrollMap(deltaX, deltaY);
+		g_tiledMap->SetScrolling(true);
+		if (!g_tiledMap->ScrollMap(deltaX, deltaY))
+			return false;
 
-			return true;
+		return true;
 		}
 	}
 	else
@@ -835,10 +837,12 @@ bool ui_CheckForScroll(void)
 		if (smoothY < -vscroll)
 			smoothY = -vscroll;
 
-		if (g_smoothScroll)
+		if (g_smoothScroll) {
 			g_tiledMap->ScrollMapSmooth(smoothX, smoothY);
-		else
-	  		g_tiledMap->ScrollMap(deltaX, deltaY);
+		} else {
+		  	if (!g_tiledMap->ScrollMap(deltaX, deltaY))
+		  		scrolled = false;
+		}
 
 	}
 	else
@@ -1179,6 +1183,7 @@ void ParseCommandLine(PSTR szCmdLine)
 	g_runInBackground = (NULL != strstr(szCmdLine, "runinbackground"));
 
 	g_eventLog = (NULL != strstr(szCmdLine, "eventlog"));
+	g_smokeTest = (NULL != strstr(szCmdLine, "smoke-test"));
 
 	g_createDirectDrawOnSecondary = (NULL != strstr(szCmdLine, "multimon"));
 	g_autoAltTab = (NULL != strstr(szCmdLine, "autoalttab"));

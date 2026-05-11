@@ -791,8 +791,10 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate(void)
 
 		if ( !window->IsHidden() )
 		{
+			#ifdef CTP2_DEBUG_LOGGING
 			fprintf(stderr, "[AUI] ClipAndConsolidate: window id=%u dirty=%d\n",
 				window->Id(), window->m_dirtyList->L());
+			#endif
 
 			windowX = window->X();
 			windowY = window->Y();
@@ -1084,8 +1086,10 @@ AUI_ERRCODE aui_UI::Draw( void )
 
 	AUI_ERRCODE errcode;
 
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[AUI] Draw: children=%d dirtyList=%d dirtyRectInfo=%d\n",
 		m_childList->L(), m_dirtyList->L(), m_dirtyRectInfoList->L());
+	#endif
 
 	ClipAndConsolidate();
 
@@ -1827,6 +1831,17 @@ AUI_ERRCODE aui_UI::Process( void )
 	Idle();
 
 	// Scan human interface devices - when available
+#ifdef __AUI_USE_SDL__
+	// On SDL, mouse input is processed on the main thread (the mouse thread
+	// was removed to avoid SDL event queue race conditions). We need to
+	// pump input, update cursor animation, and blit the cursor here.
+	if (m_mouse) {
+		m_mouse->HandleAnim();
+		m_mouse->GetInput();  // read SDL mouse events into m_data
+		m_mouse->ReactToInput();  // blit cursor
+		m_mouse->ManipulateInputs(m_mouse->GetLatestMouseEvent(), TRUE);
+	}
+#endif
 	if (m_mouse)    HandleMouseEvents();
 	if (m_keyboard) HandleKeyboardEvents();
 	if (m_joystick) HandleJoystickEvents();

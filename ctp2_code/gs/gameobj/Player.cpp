@@ -1121,7 +1121,9 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 
 Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 {
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: player=%d cause=%d\n", m_owner, cause);
+	#endif
 	if(g_network.IsHost() && IsNetwork() &&
 	   ((cause != CAUSE_NEW_ARMY_INITIAL) &&
 		(cause != CAUSE_NEW_ARMY_REMOTE_GROUPING) &&
@@ -1130,9 +1132,13 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 		g_network.Block(m_owner);
 	}
 
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: creating army...\n");
+	#endif
 	Army army = g_theArmyPool->Create();
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: army created id=%u\n", (uint32)army.m_id);
+	#endif
 	army.SetOwner(m_owner);
 
 	if(g_network.IsHost() && IsNetwork() &&
@@ -1167,13 +1173,19 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	}
 #endif
 
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: g_gevManager=%p, calling Pause...\n", (void*)g_gevManager);
+	#endif
 	g_gevManager->Pause();
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: calling AddEvent army_id=%u...\n", (uint32)army.m_id);
+	#endif
 	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatedArmy,
 						   GEA_Army, army,
 						   GEA_End);
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: AddEvent returned, calling Resume...\n");
+	#endif
 	g_gevManager->Resume();
 
 	m_totalArmiesCreated++;
@@ -2254,6 +2266,7 @@ sint32 Player::CalcUnitSupportGold()
 
 void Player::BeginTurn()
 {
+	fprintf(stderr, "[TURN] Player::BeginTurn owner=%d round=%d\n", m_owner, m_current_round);
 
 #ifdef _DEBUG
     AIValidateArmyID();
@@ -2469,6 +2482,7 @@ void Player::EndTurnSoon()
 
 void Player::EndTurn()
 {
+	fprintf(stderr, "[TURN] Player::EndTurn owner=%d\n", m_owner);
 	int i;
 	sint32 n;
 

@@ -24,11 +24,11 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 // - Added Event for handling HotSeat and PBEM meassage and PBEM saving,
-//   so that PBEM saving can be done after all events have been executed. (14-Nov-2007 Martin Gühmann)
+//   so that PBEM saving can be done after all events have been executed. (14-Nov-2007 Martin Gï¿½hmann)
 // - Moved the startegic state calculation before everthing else, so that
-//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin Gühmann)
+//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -63,6 +63,7 @@ STDEHANDLER(BeginTurnEvent)
 	}
 
 	Assert(g_player[player] != NULL);
+	fprintf(stderr, "[TURN] BeginTurnEvent player=%d round=%d\n", player, round);
 
 	g_player[player]->m_current_round = round;
 

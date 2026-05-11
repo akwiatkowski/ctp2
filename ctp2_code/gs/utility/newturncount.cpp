@@ -26,12 +26,12 @@
 //
 // - Relaxed assert
 // - Moved needs refueling check to Unit.cpp to remove code duplication.
-//   - April 24th 2005 Martin Gühmann
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - Fixed PBEM BeginTurn event execution. (27-Oct-2007 Martin Gühmann)
+//   - April 24th 2005 Martin Gï¿½hmann
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - Fixed PBEM BeginTurn event execution. (27-Oct-2007 Martin Gï¿½hmann)
 // - PollutionBeginTurn is now triggered from PlayerBeginTurn if executed
-//   so that flood events make players invalid after all the player events. (29-Oct-2007 Martin Gühmann)
+//   so that flood events make players invalid after all the player events. (29-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -122,6 +122,7 @@ void NewTurnCount::SetStopPlayer(const sint32 &player_index)
 
 void NewTurnCount::StartNextPlayer(bool stop)
 {
+	fprintf(stderr, "[TURN] StartNextPlayer stop=%d curPlayer=%d\n", stop, g_selected_item->GetCurPlayer());
 	DPRINTF(1, ("NewTurnCount::StartNextPlayer(%d), curPlayer: %d\n", stop, g_selected_item->GetCurPlayer()));
 
 	static bool warned=false;

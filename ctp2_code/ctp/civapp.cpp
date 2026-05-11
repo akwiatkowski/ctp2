@@ -100,6 +100,13 @@
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
 
+#ifdef __AUI_USE_SDL__
+#include <SDL2/SDL.h>
+#include <queue>
+extern std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
+extern SDL_mutex* g_secondaryKeyboardEventQueueMutex;
+#endif
+
 #include "AdvanceBranchRecord.h"
 #include "AdvanceListRecord.h"
 #include "AdvanceRecord.h"
@@ -245,6 +252,7 @@
 #include "ui/interface/splash.h"						// g_splash_old
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamewindow.h"
+#include "test/smoketest_server.h"
 #include "ui/interface/spriteeditor.h"
 #include "SpriteRecord.h"
 #include "ui/interface/statswindow.h"
@@ -312,6 +320,7 @@ extern BOOL                 g_no_exit_action;
 extern BOOL                 g_no_shell;
 extern BOOL                 g_no_timeslice;
 extern BOOL                 g_runInBackground;
+extern BOOL                 g_smokeTest;
 extern sint32               g_scenarioUsePlayerNumber;
 extern BOOL                 g_use_profile_process;
 extern BOOL                 g_useIntroMovie;
@@ -1494,6 +1503,11 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	m_appLoaded = true;
 
+	if (g_smokeTest) {
+		fprintf(stderr, "[SMOKE] Smoke test mode enabled, starting command server\n");
+		smoketest_server_init();
+	}
+
 	return 0;
 }
 
@@ -1644,6 +1658,10 @@ void CivApp::CleanupApp(void)
 #endif
 
 		display_Cleanup();
+	}
+
+	if (g_smokeTest) {
+		smoketest_server_shutdown();
 	}
 
 	m_appLoaded = false;
@@ -2571,24 +2589,45 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 		if (m_gameLoaded && !g_modalWindow) {
 			if (!netGameLoading && ui_CheckForScroll()) {
-				do {
+				uint32 scroll_loop_last_tick = Os::GetTicks();
+				// Use while (not do-while) so ui_CheckForScroll runs FIRST each
+				// iteration. If the user moves the mouse away, we exit immediately
+				// without another heavy ScrollMap + RepaintTiles pass.
+				while (ui_CheckForScroll()) {
+					// Frame-limit scroll loop: cap at ~20 fps (50 ms) to give
+					// ScrollMap / RepaintTiles more time on unexplored terrain.
+					uint32 scroll_loop_now = Os::GetTicks();
+					uint32 scroll_loop_elapsed = scroll_loop_now - scroll_loop_last_tick;
+					if (scroll_loop_elapsed < 50) {
+						Os::Sleep(50 - scroll_loop_elapsed);
+					}
+					scroll_loop_last_tick = Os::GetTicks();
 
 					g_tiledMap->CopyMixDirtyRects(g_background->GetDirtyList());
 
-
-
-
-
-
+					// Pump SDL keyboard events so KEYUP gets processed while
+					// we're in this loop. Without this, keyboard scroll state
+					// never updates because CivMain's SDL_PeepEvents isn't running.
+					#ifdef __AUI_USE_SDL__
+					SDL_PumpEvents();
+					SDL_Event sdlEvent;
+					while (SDL_PeepEvents(&sdlEvent, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP) > 0) {
+						if (g_secondaryKeyboardEventQueueMutex) {
+							if (-1 != SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+								g_secondaryKeyboardEventQueue.push(sdlEvent);
+								SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex);
+							}
+						}
+					}
+					#endif
 
 					g_c3ui->Process();
-
 
 					uint32 target_milliseconds=30;
 					uint32 used_milliseconds;
 
 					ProcessNet(target_milliseconds, used_milliseconds);
-				} while (ui_CheckForScroll());
+				}
 
 				g_tiledMap->RetargetTileSurface(NULL);
 				g_tiledMap->Refresh();
@@ -2617,6 +2656,48 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 		if (g_director)
 			g_director->Process();
+	}
+
+	// Smoke test command dispatch
+	if (g_smokeTest) {
+		char cmd[256];
+		if (smoketest_poll_command(cmd, sizeof(cmd))) {
+			fprintf(stderr, "[SMOKE] Executing command: %s\n", cmd);
+
+			if (strcmp(cmd, "new_game") == 0) {
+				if (m_appLoaded && !m_gameLoaded) {
+					initialplayscreen_newgamePress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+					smoketest_send_response("ok", cmd, NULL);
+				} else {
+					smoketest_send_response("error", cmd, "not_on_main_menu");
+				}
+			}
+			else if (strcmp(cmd, "start_game") == 0) {
+				if (m_appLoaded && !m_gameLoaded) {
+					spnewgamescreen_startPress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+					smoketest_send_response("ok", cmd, NULL);
+				} else {
+					smoketest_send_response("error", cmd, "not_on_new_game_screen");
+				}
+			}
+			else if (strcmp(cmd, "end_turn") == 0) {
+				if (m_gameLoaded) {
+					g_director->AddEndTurn();
+					smoketest_send_response("ok", cmd, NULL);
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strcmp(cmd, "quit") == 0) {
+				smoketest_send_response("ok", cmd, NULL);
+				// Give socket thread time to send response before we tear down
+				Os::Sleep(100);
+				ExitGame();
+			}
+			else {
+				smoketest_send_response("error", cmd, "unknown_command");
+			}
+		}
 	}
 
 	return 0;

@@ -131,8 +131,10 @@ GameEventManager::~GameEventManager()
 GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 										  GAME_EVENT type, ...)
 {
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] AddEvent: insert=%d type=%d(%s)\n", insert, type,
 		(type >= 0 && type < GEV_MAX) ? g_eventDescriptions[type].name : "INVALID");
+	#endif
 	Assert((type >= (GAME_EVENT) 0) && (type < GEV_MAX));
 	if(type < (GAME_EVENT)0 || type >= GEV_MAX)
 		return GEV_ERR_BadEvent;
@@ -155,9 +157,13 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 	va_list vl;
 	va_start(vl, type);
 
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] AddEvent: calling VerifyArgs...\n");
+	#endif
 	bool argsOk = VerifyArgs(type, &vl);
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] AddEvent: VerifyArgs returned %d\n", argsOk);
+	#endif
 	va_end(vl);
 
 	EVENTLOG(("): Serial: %d\n", m_serial));
@@ -498,7 +504,9 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 
 	GameEventDescription *desc = &g_eventDescriptions[type];
 	char *argString = desc->args;
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] VerifyArgs: type=%d argString='%s'\n", type, argString ? argString : "(null)");
+	#endif
 
 	bool done = false;
 	GAME_EVENT_ARGUMENT nextArg;
@@ -508,7 +516,9 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 
 	while(!done) {
 		nextArg = va_arg(*vl, GAME_EVENT_ARGUMENT);
+		#ifdef CTP2_DEBUG_LOGGING
 		fprintf(stderr, "[CTP2] VerifyArgs: argNum=%d nextArg=%d\n", argNum, nextArg);
+		#endif
 
 		if(nextArg == GEA_End && *argString == 0)
 			return true;

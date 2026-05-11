@@ -124,7 +124,13 @@ playtest:
 doc:
 	$(MAKE) -C doc
 
-.PHONY: all deps setup build test clean-build local playtest doc
+# Smoke test: run game under lldb with automated command injection
+smoke-test: build
+	@echo "Running smoke test..."
+	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
+	@python3 test/smoke_test.py
+
+.PHONY: all deps setup build test clean-build local playtest doc smoke-test
 
 SRCDIRS=\
 	ctp2_code \

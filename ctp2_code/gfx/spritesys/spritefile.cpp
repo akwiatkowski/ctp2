@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - Crash prevention, small clean-ups.
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Fixed crashes when zooming out and exiting the program.
 //
 //----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 	uint32		compressed_ssizes[800];
 	for (i=0; i<s->GetNumFrames(); i++)
 	{
-		spriteutils_ConvertPixelFormatForFile(s->GetFrameData(i), s->GetWidth(), s->GetHeight());
+		spriteutils_ConvertPixelFormatForFile(s->GetFrameData(i), s->GetWidth(), s->GetHeight(), s->GetFrameDataSize(i));
 
 		size_t          size            = s->GetFrameDataSize(i);
 		uint8 *         CompressedData  = CompressData((void *)s->GetFrameData(i), size);
@@ -132,7 +132,7 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 	for (i=0; i<s->GetNumFrames(); i++)
 	{
 		spriteutils_ConvertPixelFormatForFile
-            (s->GetMiniFrameData(i), s->GetWidth()/2, s->GetHeight()/2);
+            (s->GetMiniFrameData(i), s->GetWidth()/2, s->GetHeight()/2, s->GetMiniFrameDataSize(i));
 		WriteData((uint8 *)s->GetMiniFrameData(i), s->GetMiniFrameDataSize(i));
 	}
 }
@@ -173,7 +173,7 @@ void SpriteFile::WriteFacedSpriteData(FacedSprite *s)
 		for (i=0; i<num_frames; i++)
 		{
 			spriteutils_ConvertPixelFormatForFile(s->GetFrameData(j,i),
-													s->GetWidth(), s->GetHeight());
+												s->GetWidth(), s->GetHeight(), normal_ssizes[j][i]);
 
 			size_t  size            = normal_ssizes[j][i];
 		    uint8 * CompressedData  = CompressData((void *)s->GetFrameData(j,i),size);
@@ -192,7 +192,7 @@ void SpriteFile::WriteFacedSpriteData(FacedSprite *s)
 		for (i=0; i<num_frames; i++) {
 
 			spriteutils_ConvertPixelFormatForFile(s->GetMiniFrameData(j,i),
-													s->GetWidth()/2, s->GetHeight()/2);
+												s->GetWidth()/2, s->GetHeight()/2, normal_msizes[j][i]);
 			WriteData((uint8 *)s->GetMiniFrameData(j,i), normal_msizes[j][i]);
 		}
 	}
@@ -394,7 +394,7 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 
 	delete [] CompressedData;
 
-	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight());
+	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 
 	s->SetFrameData(0, ActualData, actual_size);
 
@@ -413,7 +413,7 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 	ActualData  = (Pixel16 *)new uint8[size];
 	ReadData((void *)ActualData, size);
 
-	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2);
+	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
 
 	s->SetMiniFrameData(0, ActualData, size);
 
@@ -473,7 +473,7 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 
 		delete [] CompressedData;
 
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight());
+		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 		s->SetFrameData(i, ActualData, actual_size);
 	}
 
@@ -482,7 +482,7 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 		uint32      size        = msizes[i];
 		Pixel16 *   ActualData  = (Pixel16 *) new uint8[size];
 		ReadData((void *)ActualData, size);
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth()/2, s->GetHeight()/2);
+		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
 		s->SetMiniFrameData(i, ActualData, size);
 	}
 }
@@ -571,7 +571,7 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 
 		delete [] CompressedData;
 
-		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight());
+		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 		s->SetFrameData(j, 0, ActualData, actual_size);
 
 		for (i=1; i<s->GetNumFrames(); i++)
@@ -589,7 +589,7 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 		size = msizes[j][0];
 		ActualData = (Pixel16 *)new uint8[size];
 		ReadData((void *)ActualData, size);
-		spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2);
+		spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
 		s->SetMiniFrameData(j, 0, ActualData, size);
 
 		for (i=1; i<s->GetNumFrames(); i++)
@@ -652,7 +652,7 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 
 			delete [] CompressedData;
 
-			spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight());
+	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 			s->SetFrameData(j, i, ActualData, actual_size);
 		}
 
@@ -661,7 +661,7 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 			uint32 size = msizes[j][i];
 			ActualData= (Pixel16 *) new uint8[size];
 			ReadData((void *)ActualData, size);
-			spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2);
+			spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth()/2, s->GetHeight()/2, size);
 			s->SetMiniFrameData(j, i, ActualData, size);
 		}
 	}
@@ -758,7 +758,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			{
 				data = (Pixel16 *) new uint8[size];
 				ReadData((void *)data, size);
-				spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight());
+					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
 			}
 			else
 			{
@@ -774,7 +774,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			{
 				data = (Pixel16 *) new uint8[size];
 				ReadData((void *)data, size);
-				spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2);
+				spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
 			}
 			else
 			{
@@ -792,7 +792,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				{
 					data = (Pixel16 *) new uint8[size];
 					ReadData((void *)data, size);
-					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight());
+					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth(), s->GetHeight(), size);
 				}
 				else
 				{
@@ -808,7 +808,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				{
 					data = (Pixel16 *) new uint8[size];
 					ReadData((void *)data, size);
-					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2);
+					spriteutils_ConvertPixelFormat((Pixel16 *)data, s->GetWidth()/2, s->GetHeight()/2, size);
 				}
 				else
 				{

@@ -406,9 +406,12 @@ AUI_ERRCODE aui_Mouse::Start( void )
 	m_thread =
 		CreateThread( NULL, 0, MouseThreadProc, (LPVOID)this, 0, &m_threadId );
 #elif defined(__AUI_USE_SDL__)
-	m_thread =
-		SDL_CreateThread(MouseThreadProc, "MouseThread", this);
-	m_threadId = SDL_GetThreadID(m_thread);
+	// On SDL/macOS, we process mouse input on the main thread instead of
+	// a separate thread. This avoids race conditions with SDL's event queue
+	// and rendering context which are not thread-safe.
+	// See: https://wiki.libsdl.org/SDL2/CategoryThread
+	m_thread = NULL;
+	m_threadId = 0;
 #endif
 
 	m_curCursor = m_cursors + m_firstIndex;
@@ -1075,7 +1078,9 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 
+	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[MOUSE] BltDirtyRectInfoToPrimary: %d dirty rects\n", driList->L());
+	#endif
 
 	ListPos position = driList->GetHeadPosition();
 	for ( sint32 j = driList->L(); j; j-- )

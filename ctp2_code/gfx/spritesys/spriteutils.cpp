@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Repaired memory leaks.
 //
 //----------------------------------------------------------------------------
@@ -613,10 +613,14 @@ void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcH
 }
 
 
-void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height)
+void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height, size_t bufferSize)
 {
 	Pixel16     *table = frame+1;
 	Pixel16     *dataStart = table + height;
+	Pixel16     *frameEnd = frame + (bufferSize / sizeof(Pixel16));
+
+	static bool s_loggedConvert = false;
+	bool loggedThisCall = false;
 
 	for(sint32 j=0; j<height; j++) {
 		if (table[j] != k_EMPTY_TABLE_ENTRY) {
@@ -625,17 +629,38 @@ void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height)
 
 			rowData = dataStart + table[j];
 
+			// Bounds check: rowData must be within buffer
+			if (rowData >= frameEnd) {
+				if (!loggedThisCall) {
+					fprintf(stderr, "[SPRITE] Corrupt sprite detected (ConvertPixelFormat), first bad row %d\n", j);
+					loggedThisCall = true;
+				}
+				continue;
+			}
+
 			tag = *rowData++;
 
 			tag = tag & 0x0FFF;
 
+			sint32 runCount = 0;
+			sint32 maxRuns = width * 2 + 10;  // generous safety margin
 			while ((tag & 0xF000) == 0) {
+				if (++runCount > maxRuns || rowData >= frameEnd) {
+					if (!loggedThisCall) {
+						fprintf(stderr, "[SPRITE] Corrupt sprite detected (ConvertPixelFormat), first bad row %d\n", j);
+						loggedThisCall = true;
+					}
+					break;
+				}
 				switch ((tag & 0x0F00) >> 8) {
 					case k_CHROMAKEY_RUN_ID :
 						break;
 					case k_COPY_RUN_ID      : {
 							short len = (tag & 0x00FF);
 							for (short i=0; i<len; i++) {
+								if (rowData >= frameEnd) {
+									break;
+								}
 #ifdef CLEAN_INSTEAD_OF_CONVERT
 								if (*rowData == 0x0000)
 									*rowData = 0x0001;
@@ -652,6 +677,9 @@ void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height)
 
 						break;
 					case k_FEATHERED_RUN_ID :
+							if (rowData >= frameEnd) {
+								break;
+							}
 #ifdef CLEAN_INSTEAD_OF_CONVERT
 							if (*rowData == 0x0000)
 								*rowData = 0x0001;
@@ -665,21 +693,32 @@ void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height)
 					default:
 						Assert(FALSE);
 				}
+				if (rowData >= frameEnd) {
+					break;
+				}
 				tag = *rowData++;
 			}
 		}
+	}
+	if (loggedThisCall && !s_loggedConvert) {
+		s_loggedConvert = true;
+		fprintf(stderr, "[SPRITE] Corrupt sprite: further warnings suppressed for ConvertPixelFormat\n");
 	}
 }
 
 
 
 
-void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 height)
+void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 height, size_t bufferSize)
 {
 	if (g_is565Format) return;
 
 	Pixel16     *table = frame+1;
 	Pixel16     *dataStart = table + height;
+	Pixel16     *frameEnd = frame + (bufferSize / sizeof(Pixel16));
+
+	static bool s_loggedForFile = false;
+	bool loggedThisCall = false;
 
 	for(sint32 j=0; j<height; j++) {
 		if (table[j] != k_EMPTY_TABLE_ENTRY) {
@@ -688,22 +727,42 @@ void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 
 
 			rowData = dataStart + table[j];
 
+			if (rowData >= frameEnd) {
+				if (!loggedThisCall) {
+					fprintf(stderr, "[SPRITE] Corrupt sprite detected (ForFile), first bad row %d\n", j);
+					loggedThisCall = true;
+				}
+				continue;
+			}
+
 			tag = *rowData++;
 
 			tag = tag & 0x0FFF;
 
+			sint32 runCount = 0;
+			sint32 maxRuns = width * 2 + 10;
 			while ((tag & 0xF000) == 0) {
+				if (++runCount > maxRuns || rowData >= frameEnd) {
+					if (!loggedThisCall) {
+						fprintf(stderr, "[SPRITE] Corrupt sprite detected (ForFile), first bad row %d\n", j);
+						loggedThisCall = true;
+					}
+					break;
+				}
 				switch ((tag & 0x0F00) >> 8) {
 					case k_CHROMAKEY_RUN_ID :
 						break;
 					case k_COPY_RUN_ID      : {
 							short len = (tag & 0x00FF);
 							for (short i=0; i<len; i++) {
+								if (rowData >= frameEnd) {
+									break;
+								}
 #ifdef CLEAN_INSTEAD_OF_CONVERT
 								if (*rowData == 0x0000)
 									*rowData = 0x0001;
 #else
-								*rowData = pixelutils_Convert565to555(*rowData);
+								*rowData = pixelutils_Convert555to565(*rowData);
 								if (!*rowData)
 									*rowData = 1;
 #endif
@@ -715,6 +774,9 @@ void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 
 
 						break;
 					case k_FEATHERED_RUN_ID :
+							if (rowData >= frameEnd) {
+								break;
+							}
 #ifdef CLEAN_INSTEAD_OF_CONVERT
 							if (*rowData == 0x0000)
 								*rowData = 0x0001;
@@ -728,9 +790,16 @@ void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 
 					default:
 						Assert(FALSE);
 				}
+				if (rowData >= frameEnd) {
+					break;
+				}
 				tag = *rowData++;
 			}
 		}
+	}
+	if (loggedThisCall && !s_loggedForFile) {
+		s_loggedForFile = true;
+		fprintf(stderr, "[SPRITE] Corrupt sprite: further warnings suppressed for ConvertPixelFormatForFile\n");
 	}
 }
 

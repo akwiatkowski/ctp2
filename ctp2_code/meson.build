@@ -824,7 +824,8 @@ main_sources = [
 	'mapgen/FaultGen.cpp',
 	'mapgen/Geometric.cpp',
 	'mapgen/PlasmaGen2.cpp',
-	'ctp/civ3_main.cpp'
+	'ctp/civ3_main.cpp',
+	'test/smoketest_server.cpp'
 ]
 
 ctpdb = executable('ctpdb', [

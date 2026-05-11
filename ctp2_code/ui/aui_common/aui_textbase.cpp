@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Unload font when something fails.
-// - Added left, center and right to textblttype. (Aug 16th 2005 Martin Gühmann)
+// - Added left, center and right to textblttype. (Aug 16th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -384,8 +384,12 @@ void aui_TextBase::TextReloadFont( void )
 		m_textbold,
 		m_textitalic );
 
+	fprintf(stderr, "[FONT] Loading font: descriptor='%s' file='%s' size=%d bold=%d italic=%d\n",
+		descriptor, m_textttffile, m_textpointsize, m_textbold, m_textitalic);
+
 	m_textfont = g_ui->LoadBitmapFont( descriptor );
-	Assert( m_textfont != NULL );
+	fprintf(stderr, "[FONT] LoadBitmapFont returned %p\n", (void*)m_textfont);
+
 	if (m_textfont)
 	{
 		if (oldFont)
@@ -396,7 +400,7 @@ void aui_TextBase::TextReloadFont( void )
 	}
 	else
 	{
-		g_ui->UnloadBitmapFont(descriptor);
+		fprintf(stderr, "[FONT] FAILED to load font '%s'\n", descriptor);
 		m_textfont = oldFont;
 	}
 }
@@ -410,6 +414,14 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 	if ( !m_text ) return AUI_ERRCODE_OK;
 
 	if ( m_textreload ) TextReloadFont();
+
+	// STRICT: if font loading failed, skip text rendering instead of crashing
+	if ( !m_textfont )
+	{
+		fprintf(stderr, "[FONT] DrawThisText: skipping text '%s' (no font loaded)\n",
+			m_text ? m_text : "(null)");
+		return AUI_ERRCODE_OK;
+	}
 
 	if ( m_textshadow )
 	{

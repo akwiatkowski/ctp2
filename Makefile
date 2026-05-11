@@ -69,6 +69,12 @@ test: build
 	@echo "Running tests..."
 	meson test -C build
 
+# Run the game (from project root so it finds appstr.txt, civpaths.txt, ctp2_data/)
+run: build
+	@echo "Starting CTP2..."
+	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
+	@./build/ctp2
+
 # Clean build directory
 clean-build:
 	@echo "Cleaning build directory..."

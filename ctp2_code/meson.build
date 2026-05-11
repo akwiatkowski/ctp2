@@ -71,6 +71,11 @@ if not win32
 	conf.set('PATH_SEPC', '\':\'')
 
 	conf.set('USE_COM_REPLACEMENT', 1, description : 'Do not use COM')
+
+	# Disable libc++ hardening on Darwin - it inserts brk traps with no diagnostics
+	if host_system == 'darwin'
+		add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE', language : ['cpp'])
+	endif
 endif
 
 conf.set('CTP2_ENABLE_SLICDEBUG', 0, description : 'Enable slic debugging code')
@@ -815,6 +820,10 @@ main_sources = [
 	'ai/CityManagement/governor.cpp',
 	'ai/ctpai.cpp',
 	'ai/ctpaidebug.cpp',
+	'mapgen/Crater.cpp',
+	'mapgen/FaultGen.cpp',
+	'mapgen/Geometric.cpp',
+	'mapgen/PlasmaGen2.cpp',
 	'ctp/civ3_main.cpp'
 ]
 

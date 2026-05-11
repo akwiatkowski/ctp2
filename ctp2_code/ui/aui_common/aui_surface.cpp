@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Corrected a reported memory leak.
-// - Added back buffering capability. (1-Jan-2010 Martin Gühmann)
+// - Added back buffering capability. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -227,15 +227,11 @@ uint32 aui_Surface::SetChromaKey( uint8 red, uint8 green, uint8 blue )
 
 
 		case AUI_SURFACE_PIXELFORMAT_565:
-#ifdef __AUI_USE_DIRECTX__
+			// 565: RRRRRGGGGGGBBBBB
+			// Correct conversion for all platforms
 			return SetChromaKey(	((r & 0xF8) << 8) |
-									((g & 0xF8) << 3) |
-									((b & 0xF8) >> 3));
-#else
-			return SetChromaKey(	((r & 0xF8) << 8) |
-						((g & 0xFC) << 3) | //pixbug FC
-						((g & 0xF8) >> 3));
-#endif
+						((g & 0xFC) << 3) |
+						((b & 0xF8) >> 3));
 
 
 		default:

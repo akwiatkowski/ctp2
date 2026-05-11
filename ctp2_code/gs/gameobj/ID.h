@@ -66,9 +66,7 @@ public:
     :   m_id    (val)
     {  };
 
-    ID (const ID & i)
-    :   m_id    (i.m_id)
-    {  };
+    ID (const ID & i) = default;
 
 	void DelPointers()
     {

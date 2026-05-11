@@ -1121,6 +1121,7 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 
 Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 {
+	fprintf(stderr, "[CTP2] GetNewArmy: player=%d cause=%d\n", m_owner, cause);
 	if(g_network.IsHost() && IsNetwork() &&
 	   ((cause != CAUSE_NEW_ARMY_INITIAL) &&
 		(cause != CAUSE_NEW_ARMY_REMOTE_GROUPING) &&
@@ -1129,7 +1130,9 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 		g_network.Block(m_owner);
 	}
 
+	fprintf(stderr, "[CTP2] GetNewArmy: creating army...\n");
 	Army army = g_theArmyPool->Create();
+	fprintf(stderr, "[CTP2] GetNewArmy: army created id=%u\n", (uint32)army.m_id);
 	army.SetOwner(m_owner);
 
 	if(g_network.IsHost() && IsNetwork() &&
@@ -1164,10 +1167,13 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	}
 #endif
 
+	fprintf(stderr, "[CTP2] GetNewArmy: g_gevManager=%p, calling Pause...\n", (void*)g_gevManager);
 	g_gevManager->Pause();
+	fprintf(stderr, "[CTP2] GetNewArmy: calling AddEvent army_id=%u...\n", (uint32)army.m_id);
 	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatedArmy,
 						   GEA_Army, army,
 						   GEA_End);
+	fprintf(stderr, "[CTP2] GetNewArmy: AddEvent returned, calling Resume...\n");
 	g_gevManager->Resume();
 
 	m_totalArmiesCreated++;

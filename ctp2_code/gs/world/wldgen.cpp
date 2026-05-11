@@ -29,18 +29,18 @@
 // Modifications from the original Activision code:
 //
 // - X-wrap added to A* heuristics costs
-// - Implemented CalcTerrainFreightCost by Martin Gühmann
+// - Implemented CalcTerrainFreightCost by Martin Gï¿½hmann
 // - Resolved ambiguous sqrt call.
 // - Standardised min/max usage.
 // - Repaired memory leaks.
 // - Force a good value recalculation on reload if the ressouce database was
-//   modified (goods added removed). - May 19th 2005 Martin Gühmann
+//   modified (goods added removed). - May 19th 2005 Martin Gï¿½hmann
 // - Wrap handling improved
 // - Using /importmap to import a text map no longer causes the river mouths
 //   to be deleted - 2005-07-01 Shaun Dove
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Replaced old map database by new one. (27-Mar-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Replaced old map database by new one. (27-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Added a no goody huts option (20-Mar-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -90,6 +90,12 @@
 #endif
 #include "gs/outcom/C3Rand.h"
 #include "mapgen/IMapGen.h"
+
+// Builtin map generators (compiled into the executable on macOS/SDL)
+#include "mapgen/Geometric.h"
+#include "mapgen/FaultGen.h"
+#include "mapgen/Crater.h"
+#include "mapgen/PlasmaGen2.h"
 
 extern MapPoint g_mp_size;
 
@@ -2522,6 +2528,32 @@ void World::GenerateGoodyHuts()
 	}
 }
 
+static IMapGenerator *CreateBuiltinMapGenerator(const char *name)
+{
+	// Match generator by name (handles both short names and full Windows paths)
+	if (strstr(name, "geometric") || strstr(name, "Geometric")) {
+		IMapGenerator *gen = new Geometric();
+		gen->AddRef();
+		return gen;
+	}
+	if (strstr(name, "crater") || strstr(name, "Crater")) {
+		IMapGenerator *gen = new Crater();
+		gen->AddRef();
+		return gen;
+	}
+	if (strstr(name, "fault") || strstr(name, "Fault")) {
+		IMapGenerator *gen = new FaultGenerator();
+		gen->AddRef();
+		return gen;
+	}
+	if (strstr(name, "plasma2") || strstr(name, "Plasma2") || strstr(name, "plasma")) {
+		IMapGenerator *gen = new PlasmaGenerator2();
+		gen->AddRef();
+		return gen;
+	}
+	return NULL;
+}
+
 IMapGenerator *World::LoadMapPlugin(sint32 pass)
 {
 #ifndef USE_COM_REPLACEMENT
@@ -2532,6 +2564,18 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 	const char *name = g_theProfileDB->MapPluginName(pass);
 	if(stricmp(name, "none") == 0)
 		return NULL;
+
+	// On SDL builds, prefer builtin generators compiled into the executable.
+	// This avoids relying on platform-specific shared libraries.
+#ifdef USE_COM_REPLACEMENT
+	IMapGenerator *builtin = CreateBuiltinMapGenerator(name);
+	if (builtin) {
+		fprintf(stderr, "[MAPGEN] Using builtin generator for '%s'\n", name);
+		m_current_plugin = NULL;
+		return builtin;
+	}
+#endif
+
 #ifndef USE_COM_REPLACEMENT
 	plugin = LoadLibrary(name);
 #else
@@ -2597,6 +2641,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 
 void World::FreeMapPlugin()
 {
+	if (!m_current_plugin) return;  // builtin generator â€” nothing to unload
 #ifndef USE_COM_REPLACEMENT
 	FreeLibrary(m_current_plugin);
 #else

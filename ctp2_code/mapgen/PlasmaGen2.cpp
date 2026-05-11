@@ -45,7 +45,7 @@
 #include "mapgen/PlasmaGen2.h"
 
 #if defined(USE_COM_REPLACEMENT)
-extern "C" IMapGenerator *CoCreateMapGenerator()
+extern "C" IMapGenerator *CoCreatePlasma2MapGenerator()
 {
 	IMapGenerator *gen = new PlasmaGenerator2();
 	gen->AddRef();

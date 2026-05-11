@@ -147,10 +147,16 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
 
+	// Ensure cursor is hidden inside the window (macOS may need this after window creation)
+	SDL_ShowCursor(SDL_DISABLE);
+
 	m_lpdds = SDL_GetWindowSurface(m_window);
 	if (!m_lpdds) {
 		c3errors_FatalDialog("aui_SDLUI", SDL_GetError());
 	}
+
+	fprintf(stderr, "[SDLUI] Requested screen: %dx%d @ %dbpp\n", m_width, m_height, m_bpp);
+	fprintf(stderr, "[SDLUI] Window surface:  %dx%d @ %dbpp\n", m_lpdds->w, m_lpdds->h, m_lpdds->format->BitsPerPixel);
 
 	m_primary = new aui_SDLSurface(
 		&errcode,
@@ -163,6 +169,16 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	assert( AUI_NEWOK(m_primary,errcode) );
 	if ( !AUI_NEWOK(m_primary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
+	fprintf(stderr, "[SDLUI] Primary surface: %dx%d @ %dbpp\n", m_primary->Width(), m_primary->Height());
+
+	// Update UI dimensions to match actual surface size (critical for Retina / macOS)
+	if (m_primary->Width() != m_width || m_primary->Height() != m_height) {
+		fprintf(stderr, "[SDLUI] Updating UI dimensions from %dx%d to %dx%d\n",
+			m_width, m_height, m_primary->Width(), m_primary->Height());
+		Resize(m_primary->Width(), m_primary->Height());
+	}
+
+	// Use actual primary surface dimensions for secondary to avoid mismatch on Retina
 	m_secondary = new aui_SDLSurface(
 		&errcode,
 		m_width,
@@ -173,6 +189,8 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 	Assert( AUI_NEWOK(m_secondary,errcode) );
 	assert( AUI_NEWOK(m_secondary,errcode) );
 	if ( !AUI_NEWOK(m_secondary,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
+
+	fprintf(stderr, "[SDLUI] Secondary surface: %dx%d @ %dbpp\n", m_secondary->Width(), m_secondary->Height());
 
 	m_pixelFormat = m_primary->PixelFormat();
 

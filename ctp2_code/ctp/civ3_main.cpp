@@ -1683,39 +1683,42 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 #ifdef __AUI_USE_SDL__
 		SDL_PumpEvents();  // Required on macOS for window visibility and OS event processing
 		SDL_Event event;
-		while (1) { //there is a break;)
-			// SDL2: SDL_PeepEvents uses minType/maxType instead of event masks
-		int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT,
-                            SDL_FIRSTEVENT, SDL_LASTEVENT);
-			if (0 > n) {
-                            //fprintf(stderr, "[CivMain] PeepEvents failed: %s\n", SDL_GetError());
-                            printf("%s L%d: SDL_PeepEvents: Still events stored! Error?: %s\n", __FILE__, __LINE__, SDL_GetError());
 
+		// Consume only events the main thread handles.
+		// SDL_PeepEvents scans for the first event in the type range, skipping others,
+		// so mouse events (handled by the mouse thread) are not stolen.
+
+		// Process quit events
+		while (1) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT);
+			if (n <= 0) break;
+			gDone = TRUE;
+			DoFinalCleanup();
+		}
+
+		// Process keyboard events
+		while (1) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP);
+			if (n <= 0) break;
+
+			// Re-enqueue for aui_sdlkeyboard
+			if (-1==SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+				fprintf(stderr, "[CivMain] SDL_LockMutex failed: %s\n", SDL_GetError());
 				break;
 			}
-			if (0 == n) {
-				// other events are handled in other threads
-				// or no more events
+			g_secondaryKeyboardEventQueue.push(event);
+			if (-1==SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex)) {
+				fprintf(stderr, "[CivMain] SDL_UnlockMutex failed: %s\n", SDL_GetError());
 				break;
 			}
-			if (SDL_QUIT == event.type)
-				gDone = TRUE;
 
-			// If a keyboard event then we must reenqueue it so that aui_sdlkeyboard has a chance to look at it
-			if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-				if (-1==SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
-					fprintf(stderr, "[CivMain] SDL_LockMutex failed: %s\n", SDL_GetError());
-					break;
-				}
+			SDLMessageHandler(event);
+		}
 
-				g_secondaryKeyboardEventQueue.push(event);
-
-				if (-1==SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex)) {
-					fprintf(stderr, "[CivMain] SDL_UnlockMutex failed: %s\n", SDL_GetError());
-					break;
-				}
-			}
-
+		// Process mouse wheel events (ui_HandleMouseWheel is in this compilation unit)
+		while (1) {
+			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
+			if (n <= 0) break;
 			SDLMessageHandler(event);
 #else // __AUI_USE_SDL__
 

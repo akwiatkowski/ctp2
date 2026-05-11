@@ -23,7 +23,7 @@ struct georect {
 };
 
 #if defined(USE_COM_REPLACEMENT)
-extern "C" IMapGenerator *CoCreateMapGenerator()
+extern "C" IMapGenerator *CoCreateGeometricMapGenerator()
 {
 	IMapGenerator *gen = new Geometric();
 	gen->AddRef();

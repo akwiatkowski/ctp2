@@ -32,6 +32,7 @@ aui_TextField::aui_TextField(
 	aui_Win( retval, id, ldlBlock, ActionFunc, cookie ),
 #ifndef __AUI_USE_DIRECTX__
 	m_Font( NULL ),
+	m_Text( NULL ),
 #endif
 	m_holdfont( NULL )
 {
@@ -59,6 +60,7 @@ aui_TextField::aui_TextField(
 	aui_Win( retval, id, x, y, width, height, ActionFunc, cookie ),
 #ifndef __AUI_USE_DIRECTX__
 	m_Font( NULL ),
+	m_Text( NULL ),
 #endif
 	m_holdfont( NULL )
 {
@@ -215,6 +217,8 @@ AUI_ERRCODE aui_TextField::InitCommon(
 
 	ReleaseDC( m_hwnd, hdc );
 #else
+	delete[] m_Text;
+	m_Text = new MBCHAR[m_maxFieldLen + 1];
 	m_Text[m_maxFieldLen] = '\0';
 	if (text == NULL)
 		*m_Text = '\0';

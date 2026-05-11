@@ -26,7 +26,7 @@
 //
 // - Prevented an unnecessary call to the overloaded sqrt function to support
 //   VC++ .NET compilation.
-// - Removed c3.h include, it is unecessary. - Jul 23rd 2005 Martin Gühmann
+// - Removed c3.h include, it is unecessary. - Jul 23rd 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 #include "os/include/ctp2_config.h"
@@ -42,7 +42,7 @@
 #include "gs/outcom/IC3Rand.h"
 
 #if defined(USE_COM_REPLACEMENT)
-extern "C" IMapGenerator *CoCreateMapGenerator()
+extern "C" IMapGenerator *CoCreateCraterMapGenerator()
 {
 	IMapGenerator *gen = new Crater();
 	gen->AddRef();

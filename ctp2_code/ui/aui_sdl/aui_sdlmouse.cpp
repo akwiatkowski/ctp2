@@ -51,6 +51,11 @@ aui_SDLMouse::GetInput(void)
          m_data.position.y = od.motion.y;
          m_data.lbutton = !!(od.motion.state & SDL_BUTTON_LMASK);
          m_data.rbutton = !!(od.motion.state & SDL_BUTTON_RMASK);
+         static int motionLogCount = 0;
+         if (++motionLogCount <= 20) {
+            fprintf(stderr, "[MOUSE-IN] SDL motion: (%d, %d) state=%d\n",
+                    od.motion.x, od.motion.y, od.motion.state);
+         }
          break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:

@@ -64,7 +64,7 @@ LPCRITICAL_SECTION aui_Mouse::m_lpcs = NULL;
 SDL_mutex *aui_Mouse::m_lpcs = NULL;
 #endif
 
-#define k_AUI_MOUSE_THREAD_SLEEP_TIME	10
+#define k_AUI_MOUSE_THREAD_SLEEP_TIME	2
 
 #include "ctp/civapp.h"
 extern CivApp		*g_civApp;
@@ -726,6 +726,15 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		m_data.position.x - hotspot.x,
 		m_data.position.y - hotspot.y
 	};
+
+	static int reactLogCount = 0;
+	if (++reactLogCount <= 20) {
+		fprintf(stderr, "[MOUSE-DRAW] pos=(%ld,%ld) hotspot=(%ld,%ld) image=(%ld,%ld) clip={%ld,%ld,%ld,%ld}\n",
+			m_data.position.x, m_data.position.y,
+			hotspot.x, hotspot.y,
+			image.x, image.y,
+			m_clip.left, m_clip.top, m_clip.right, m_clip.bottom);
+	}
 
 	static POINT prevImage = image;
 	if ( m_reset )

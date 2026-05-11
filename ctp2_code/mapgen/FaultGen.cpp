@@ -30,7 +30,7 @@ STDAPI CoCreateMapGenerator(IUnknown **obj)
 }
 
 #else
-extern "C" IMapGenerator *CoCreateMapGenerator()
+extern "C" IMapGenerator *CoCreateFaultMapGenerator()
 {
 	IMapGenerator *gen = new FaultGenerator();
 	gen->AddRef();

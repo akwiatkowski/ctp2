@@ -45,8 +45,9 @@ public:
 	BOOL                            IsDCGot( void ) const { return m_dcIsGot
 ; }
 
-        virtual BOOL IsOK( void ) const;
+	virtual BOOL IsOK( void ) const;
 	virtual AUI_ERRCODE Blank(const uint32 &color);
+	virtual void Flip( void );
 
 	static uint32 m_SDLSurfaceClassId;
 

@@ -31,12 +31,12 @@
 // Modifications from the original Activision code:
 //
 // - Moved CalculateHash to aui_Base
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Prevented processing of uninitialised input
 // - Marked DirectX specific items
 // - Handled race condition with mouse initialisation at startup
 // - Added graphics DirectX built in double buffering and extended it
-//   to manual tripple buffering. (1-Jan-2010 Martin Gühmann)
+//   to manual tripple buffering. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 

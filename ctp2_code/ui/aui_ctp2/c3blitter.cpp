@@ -226,7 +226,8 @@ L1:
 L2:
 					}
 #else // _MSC_VER
-					assert(0);
+					// Portable fallback for non-x86 (ARM64, etc.)
+					memcpy(destBuf, srcBuf, scanWidth);
 #endif // _MSC_VER
 				} while ( (srcBuf += srcPitch) != stop );
 			}
@@ -550,11 +551,12 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 
 					FPUCopyDone:
 
-					   	shr ecx,1
-					   	rep movsw
+				    	shr ecx,1
+				    	rep movsw
 					}
 #else // _MSC_VER
-					assert(0);
+					// Portable fallback for non-x86 (ARM64, etc.)
+					memcpy(destBuf, srcBuf, scanWidth);
 #endif // _MSC_VER
 				} while ( (srcBuf += srcPitch) != stop );
 			}
@@ -700,7 +702,8 @@ End:	add		ecx, eax
 	rep movsb
 	}
 #else // _MSC_VER
-	assert(0);
+					// Portable fallback for non-x86 (ARM64, etc.)
+					memcpy(destBuf, srcBuf, scanWidth);
 #endif // _MSC_VER
 #else // non-x86
 	memcpy(dest, src, len);

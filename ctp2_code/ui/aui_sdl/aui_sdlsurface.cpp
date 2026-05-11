@@ -170,4 +170,14 @@ AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 	return AUI_ERRCODE_BLTFAILED;
 }
 
+void aui_SDLSurface::Flip( void )
+{
+	if ( m_isPrimary && m_window )
+	{
+		SDL_LockMutex(m_bltMutex);
+		SDL_UpdateWindowSurface( m_window );
+		SDL_UnlockMutex(m_bltMutex);
+	}
+}
+
 #endif

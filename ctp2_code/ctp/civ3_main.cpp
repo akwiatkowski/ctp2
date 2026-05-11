@@ -485,6 +485,9 @@ int ui_Initialize(void)
 	g_c3ui->AddBitmapFontSearchPath(s);
 #elif defined(HAVE_X11)
 	Display *display = g_c3ui->getDisplay();
+	if (!display) {
+		// X11 not available (e.g. on macOS), skip font path discovery
+	} else {
 	int ndirs;
 	bool noPath = true;
 	char **fontpaths = XGetFontPath(display, &ndirs);
@@ -527,6 +530,7 @@ int ui_Initialize(void)
 			}
 		}
 	}
+	} // end of else (display != NULL)
 #endif
 
     for (i = 0; g_civPaths->FindPath(C3DIR_VIDEOS, i, s); ++i)

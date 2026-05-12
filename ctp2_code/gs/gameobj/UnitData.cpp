@@ -566,21 +566,24 @@ sint32 UnitData::ResetMovement()
 	}
 
 	sint32 amt;
-	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()) &&
-	   ((amt = wonderutil_GetIncreaseBoatMovement(g_player[m_owner]->m_builtWonders)) > 0))
+	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()))
 	{
-		m_movement_points += amt;
+		amt = wonderutil_GetIncreaseBoatMovement(g_player[m_owner]->m_builtWonders);
+		if(amt > 0)
+			m_movement_points += amt;
 	}
-	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()) &&
-	   ((amt = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner)) > 0))
+	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()))
 	{
-		m_movement_points += amt;
+		amt = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner);
+		if(amt > 0)
+			m_movement_points += amt;
 	}
 	// EMOD for civ bonuses
-	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()) &&
-	   ((amt = g_player[m_owner]->CivBoatBonus()) > 0))
+	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()))
 	{
-		m_movement_points += amt;
+		amt = g_player[m_owner]->CivBoatBonus();
+		if(amt > 0)
+			m_movement_points += amt;
 	}
 
 	if(Flag(k_UDF_IS_ENTRENCHING)) {

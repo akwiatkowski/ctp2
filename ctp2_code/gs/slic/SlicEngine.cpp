@@ -1067,7 +1067,7 @@ void SlicEngine::GetCurrentMessage(Message &message) const
 
 void SlicEngine::KillCurrentMessage()
 {
-	if(!m_currentMessage || !g_theMessagePool->IsValid(*m_currentMessage))
+	if(!m_currentMessage || !g_theMessagePool || !g_theMessagePool->IsValid(*m_currentMessage))
 		return;
 	m_currentMessage->Kill();
 	*m_currentMessage = Message();

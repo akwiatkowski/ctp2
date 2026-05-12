@@ -67,10 +67,16 @@ void ActionQueue::Push(const ActionPtr &action) {
 }
 
 void ActionQueue::Pop() {
-  m_actionQueue.pop_back();
+  if (!m_actionQueue.empty()) {
+    m_actionQueue.pop_back();
+  }
 }
 
 ActionQueue::ActionPtr &ActionQueue::Back() {
+  if (m_actionQueue.empty()) {
+    static ActionPtr s_emptyAction;
+    return s_emptyAction;
+  }
   return m_actionQueue.back();
 }
 

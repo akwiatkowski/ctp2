@@ -720,8 +720,8 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	g_theProgressWindow->StartCountingTo( 70 );
 
-	size_t ulLen = 0;
-	n = c3files_fread(&ulLen, sizeof(ulLen), 1, fpLoad);
+	uint32 ulLen32 = 0;
+	n = c3files_fread(&ulLen32, sizeof(ulLen32), 1, fpLoad);
 	Assert(n==1);
 	if (n!=1)
 	{
@@ -734,13 +734,13 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 	g_theProgressWindow->StartCountingTo( 80 );
 
 	CivArchive	archive;
-	archive.SetSize(ulLen);
+	archive.SetSize(static_cast<size_t>(ulLen32));
 	archive.SetLoad();
 
 	g_theProgressWindow->StartCountingTo( 90 );
 
-	size_t	compressedSize = 0;
-	n = c3files_fread(&compressedSize, sizeof(compressedSize), 1, fpLoad);
+	uint32	compressedSize32 = 0;
+	n = c3files_fread(&compressedSize32, sizeof(compressedSize32), 1, fpLoad);
 
 	if (n!=1)
 	{
@@ -749,6 +749,8 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
+
+	size_t compressedSize = static_cast<size_t>(compressedSize32);
 
 	/* Guard against corrupt save files that declare an impossibly large size.
 	   A legitimate CTP2 save game is typically 1-20 MiB compressed. */
@@ -776,9 +778,9 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	g_theProgressWindow->StartCountingTo( 120 );
 
-    unsigned long tlen = ulLen;
+    unsigned long tlen = ulLen32;
     if (    (Z_OK != uncompress(archive.GetStream(), &tlen, compressedData, compressedSize))
-         ||	(tlen != ulLen)
+         ||	(tlen != ulLen32)
        )
     {
         c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_INCORRECT_FILE_SIZE");

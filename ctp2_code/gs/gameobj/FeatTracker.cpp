@@ -577,12 +577,14 @@ void FeatTracker::CheckConquerFeat(sint32 defeated, sint32 defeatedByWhom)
 		sint32 minCityCount = 0;
 		if(g_theFeatDB->Get(featIndex)->GetMinimumSizeOfCiv(minCityCount))
 		{
-			if (safe_player(defeated)->GetMaxCityCount() >= minCityCount)
-			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
-									   GEA_Int, featIndex,
-									   GEA_Player, defeatedByWhom,
-									   GEA_End);
+			if (Player* dp = safe_player(defeated)) {
+				if (dp->GetMaxCityCount() >= minCityCount)
+				{
+					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+										   GEA_Int, featIndex,
+										   GEA_Player, defeatedByWhom,
+										   GEA_End);
+				}
 			}
 		}
 	}

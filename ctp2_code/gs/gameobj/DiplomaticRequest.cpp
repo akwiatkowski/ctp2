@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
@@ -45,14 +46,14 @@ void DiplomaticRequest::RemoveAllReferences()
 		}
     sint32 r = GetRecipient();
 
-	if(g_player[r]) {
-		g_player[r]->RemoveDiplomaticReferences(*this) ;
+	if(Player* rp = safe_player(r)) {
+		rp->RemoveDiplomaticReferences(*this) ;
 	}
 
     sint32 o = GetOwner();
 
-	if(g_player[o]) {
-		g_player[o]->RemoveDiplomaticReferences(*this) ;
+	if(Player* op = safe_player(o)) {
+		op->RemoveDiplomaticReferences(*this) ;
 	}
 
 	g_theDiplomaticRequestPool->Del(*this) ;

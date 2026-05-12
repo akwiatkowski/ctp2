@@ -275,14 +275,30 @@ def run_scenario(steps):
         print("[HARNESS] Scenario completed, game still running. Terminating...")
         process.terminate()
         try:
-            process.wait(timeout=5)
+            process.wait(timeout=3)
         except subprocess.TimeoutExpired:
+            print("[HARNESS] Terminate timed out, force killing...")
             process.kill()
-            process.wait()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                print("[HARNESS] Kill timed out, using SIGKILL...")
+                import signal
+                os.kill(process.pid, signal.SIGKILL)
+                process.wait()
         success = True
     else:
         print(f"[HARNESS] Game exited with code {exit_code}")
         success = (exit_code == 0)
+
+    # Final cleanup: ensure CTP process is dead
+    try:
+        if process.poll() is None:
+            print("[HARNESS] Process still alive after cleanup, force killing...")
+            process.kill()
+            process.wait(timeout=2)
+    except Exception:
+        pass
 
     sock.close()
     os.unlink(lldb_script)

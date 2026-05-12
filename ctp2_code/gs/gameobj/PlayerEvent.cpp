@@ -39,6 +39,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/PlayerEvent.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Player.h"
@@ -107,7 +108,7 @@ STDEHANDLER(ContactMadeEvent)
 	if(!secondPlayerArg || !(secondPlayerArg->GetPlayer(p2)))
 		return GEV_HD_Continue;
 
-	g_player[p1]->ContactMade(p2);
+	safe_player(p1)->ContactMade(p2);
 	return GEV_HD_Continue;
 }
 
@@ -137,11 +138,11 @@ STDEHANDLER(PeaceMovementEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	Player *p = g_player[player];
+	Player *p = safe_player(player);
 
-	g_player[player]->m_global_happiness->CalcPeaceMovement(g_player[player],
-	                                                        *g_player[player]->m_all_armies,
-	                                                        *g_player[player]->m_all_cities);
+	safe_player(player)->m_global_happiness->CalcPeaceMovement(g_player[player],
+	                                                        *safe_player(player)->m_all_armies,
+	                                                        *safe_player(player)->m_all_cities);
 
 
 	if(p->m_assasinationTimer > 0) {
@@ -159,7 +160,7 @@ STDEHANDLER(PollutionTurnEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->BeginTurnPollution();
+	safe_player(player)->BeginTurnPollution();
 	return GEV_HD_Continue;
 }
 
@@ -170,7 +171,7 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	Player *p = g_player[player];
+	Player *p = safe_player(player);
 
 	p->m_pop_science = 0;
 
@@ -184,9 +185,9 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 		g_theWorld->FindCityDistances(p->m_owner, pos);
 	}
 
-	g_player[player]->m_virtualGoldSpent = 0;
+	safe_player(player)->m_virtualGoldSpent = 0;
 
-	if(g_player[player]->GetGaiaController()->CanStartCountdown()) {
+	if(safe_player(player)->GetGaiaController()->CanStartCountdown()) {
 		SlicSegment *       seg  = g_slicEngine->GetSegment("GCReadyToActivateUs");
 		if (seg && !seg->TestLastShown(player, 10000))
 		{
@@ -211,7 +212,7 @@ STDEHANDLER(BeginTurnProductionEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->BeginTurnProduction();
+	safe_player(player)->BeginTurnProduction();
 	return GEV_HD_Continue;
 }
 
@@ -221,7 +222,7 @@ STDEHANDLER(BeginTurnSupportEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	Player *p = g_player[player];
+	Player *p = safe_player(player);
 
 	p->BeginTurnWonders();
 	p->BeginTurnCommodityMarket();
@@ -237,7 +238,7 @@ STDEHANDLER(BeginTurnImprovementsEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->BeginTurnImprovements();
+	safe_player(player)->BeginTurnImprovements();
 	return GEV_HD_Continue;
 }
 
@@ -247,7 +248,7 @@ STDEHANDLER(BeginTurnAgreementsEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->BeginTurnAgreements();
+	safe_player(player)->BeginTurnAgreements();
 	return GEV_HD_Continue;
 }
 
@@ -257,10 +258,10 @@ STDEHANDLER(ResetAllMovementEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->ResetAllMovement();
+	safe_player(player)->ResetAllMovement();
 
-	g_player[player]->m_oversea_lost_unit_count = 0;
-	g_player[player]->m_home_lost_unit_count = 0;
+	safe_player(player)->m_oversea_lost_unit_count = 0;
+	safe_player(player)->m_home_lost_unit_count = 0;
 
 	return GEV_HD_Continue;
 }
@@ -271,7 +272,7 @@ STDEHANDLER(AttemptRevoltEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	g_player[player]->AttemptRevolt();
+	safe_player(player)->AttemptRevolt();
 	return GEV_HD_Continue;
 }
 
@@ -286,7 +287,7 @@ STDEHANDLER(BeginTurnGovernmentEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	Player *p = g_player[player];
+	Player *p = safe_player(player);
 	Assert(p != NULL);
 	if((p != NULL) && p->m_change_government_turn == p->GetCurRound()) {
 		p->ActuallySetGovernment(p->m_set_government_type);
@@ -306,7 +307,7 @@ STDEHANDLER(FinishBeginTurnEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	Player *p = g_player[player];
+	Player *p = safe_player(player);
 
 	bool atPeace = true;
 
@@ -457,7 +458,7 @@ STDEHANDLER(CreateCityEvent)
 	if(g_player[player])
 	{
 		sint32 cityType = unitutil_GetCityTypeFor(pos);
-		Unit city = g_player[player]->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, NULL, unitType);
+		Unit city = safe_player(player)->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, NULL, unitType);
 		if(city.IsValid())
 		{
 			args->Add(new GameEventArgument(GEA_City, city));
@@ -504,9 +505,9 @@ STDEHANDLER(CreateImprovementEvent)
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 	if(!args->GetInt(0, imptype)) return GEV_HD_Continue;
 
-	g_player[player]->CreateImprovement(imptype, pos, 0);
+	safe_player(player)->CreateImprovement(imptype, pos, 0);
 
-	if(g_player[player] && g_player[player]->GetGaiaController()->HasMinTowersBuilt()) {
+	if(g_player[player] && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
 		SlicSegment *	seg = g_slicEngine->GetSegment("GCMinObelisksReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000))
 		{
@@ -534,7 +535,7 @@ STDEHANDLER(GrantAdvanceEvent)
 	if(!args->GetInt   (0, advance)) return GEV_HD_Continue;
 	if(!args->GetInt   (1, cause))   return GEV_HD_Continue;
 
-	g_player[player]->m_advances->GiveAdvance(advance, (CAUSE_SCI)cause, false);
+	safe_player(player)->m_advances->GiveAdvance(advance, (CAUSE_SCI)cause, false);
 	return GEV_HD_Continue;
 }
 
@@ -569,7 +570,7 @@ STDEHANDLER(TradeBidEvent)
 	if(!args->GetCity(0, sourceCity)) return GEV_HD_Continue;
 	if(!args->GetCity(1, destCity)) return GEV_HD_Continue;
 
-	g_player[player]->CreateTradeBid(sourceCity, resIndex, destCity);
+	safe_player(player)->CreateTradeBid(sourceCity, resIndex, destCity);
 	return GEV_HD_Continue;
 }
 
@@ -586,7 +587,7 @@ STDEHANDLER(SubGoldEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, amt)) return GEV_HD_Continue;
 
-	g_player[player]->SubGold(amt);
+	safe_player(player)->SubGold(amt);
 	return GEV_HD_Continue;
 }
 
@@ -597,7 +598,7 @@ STDEHANDLER(AddGoldEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, amt)) return GEV_HD_Continue;
 
-	g_player[player]->AddGold(amt);
+	safe_player(player)->AddGold(amt);
 	return GEV_HD_Continue;
 }
 
@@ -662,7 +663,7 @@ STDEHANDLER(StartMovePhaseEvent)
 	sint32 player;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	if(g_player[player]->IsRobot()
+	if(safe_player(player)->IsRobot()
 	&& (!g_network.IsActive() || g_network.IsHost())
 	){
 	}
@@ -690,7 +691,7 @@ STDEHANDLER(ProcessUnitOrdersEvent)
 	sint32 player;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	g_player[player]->ProcessUnitOrders();
+	safe_player(player)->ProcessUnitOrders();
 	return GEV_HD_Continue;
 }
 
@@ -743,7 +744,7 @@ STDEHANDLER(EnterAgeEvent)
 	if(!args->GetInt(0, age)) return GEV_HD_Continue;
 
 	Assert(g_player[player] != NULL);
-	g_player[player]->EnterNewAge(age);
+	safe_player(player)->EnterNewAge(age);
 	return GEV_HD_Continue;
 }
 

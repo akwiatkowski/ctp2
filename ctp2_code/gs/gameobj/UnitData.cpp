@@ -92,6 +92,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/UnitData.h"
 
 #include <algorithm>                    // std::max
@@ -2038,7 +2039,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	uint64 wonders = m_city_data->GetBuiltWonders();
 	for (sint32 w = 0; w < 64; w++)
 	{
-		if(wonders & ((uint64)1 << w)) {
+		if(wonders & (safe_shift_left_u64(w))) {
 			Unit me(m_id);
 			g_player[m_owner]->RemoveWonder(w, false);
 			g_player[newo]->AddWonder(w, me);

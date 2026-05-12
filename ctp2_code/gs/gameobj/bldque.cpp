@@ -50,6 +50,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/BldQue.h"
 
 #include "ctp/ctp2_utils/c3errors.h"
@@ -1735,7 +1736,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 		uint64 buildings = cd->GetEffectiveBuildings();
 		for(sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++) {
 			if(buildingutil_Get(i, m_owner)->GetEnablesAllVeterans()) {
-				if((buildings & ((uint64)1 << uint64(i)))) {
+				if((buildings & (safe_shift_left_u64(i)))) {
 					u.SetVeteran();
 				}
 			}
@@ -1743,7 +1744,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 			  (buildingutil_Get(i, m_owner)->GetEnablesLandVeterans())
 			&&(rec->GetMovementTypeLand() || rec->GetMovementTypeMountain())
 			){
-				if((buildings & ((uint64)1 << uint64(i)))) {
+				if((buildings & (safe_shift_left_u64(i)))) {
 					u.SetVeteran();
 				}
 			}
@@ -1752,7 +1753,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 			  (buildingutil_Get(i, m_owner)->GetEnablesSeaVeterans())
 			&&(rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater())
 			){
-				if((buildings & ((uint64)1 << uint64(i)))) {
+				if((buildings & (safe_shift_left_u64(i)))) {
 					u.SetVeteran();
 				}
 			}
@@ -1761,7 +1762,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 			  (buildingutil_Get(i, m_owner)->GetEnablesAirVeterans())
 			&&(rec->GetMovementTypeAir())
 			){
-				if((buildings & ((uint64)1 << uint64(i)))) {
+				if((buildings & (safe_shift_left_u64(i)))) {
 					u.SetVeteran();
 				}
 			}

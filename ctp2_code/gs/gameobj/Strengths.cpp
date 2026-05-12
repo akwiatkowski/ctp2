@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/Player.h"
 #include "robot/aibackdoor/civarchive.h"
@@ -181,7 +182,7 @@ sint32 Strengths::GetTotalBuildingCost() const
 	for(i = cities->Num() - 1; i >= 0; i--) {
 		uint64 builtImprovements = cities->Access(i).GetImprovements();
 		for(j = g_theBuildingDB->NumRecords() - 1; j >= 0; j--) {
-			if(builtImprovements & ((uint64)1 << (uint64)j)) {
+			if(builtImprovements & (safe_shift_left_u64(j))) {
 				c += buildingutil_Get(j, m_owner)->GetProductionCost();
 			}
 		}

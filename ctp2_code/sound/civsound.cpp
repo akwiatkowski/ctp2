@@ -83,12 +83,13 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
 #if !defined(USE_SDL)
 	m_hAudio = AIL_quick_load_mem(m_dataptr, m_datasize);
 #else
-# if 0
-    // Argh, audio format mismatch!!!
-	m_Audio = Mix_QuickLoad_RAW((Uint8 *) m_dataptr, (Uint32) m_datasize);
-# else
-    m_Audio = Mix_LoadWAV_RW(SDL_RWFromMem(m_dataptr, m_datasize), 1);
-# endif
+    // Use Mix_QuickLoad_WAV to avoid SDL2_mixer 2.8.x double-free bug in
+    // Mix_LoadWAV_RW. The WAV files are already in the mixer format
+    // (22050 Hz, 16-bit stereo) so no conversion is needed.
+    // Mix_QuickLoad_WAV sets chunk->allocated=0, so Mix_FreeChunk only
+    // frees the Mix_Chunk struct, not the audio buffer. The audio buffer
+    // is managed by ProjectFile (freed via freeData in the destructor).
+	m_Audio = Mix_QuickLoad_WAV((Uint8 *) m_dataptr);
 #endif
 }
 

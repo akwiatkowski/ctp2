@@ -345,31 +345,10 @@ void SoundManager::Process(const uint32 &target_milliseconds,
 		while (m_soundWalker->IsValid()) {
 			sound = m_soundWalker->GetObj();
 			Assert(sound);
-			if (!sound) continue;
-
-			if (sound->IsPlaying()) {
-#if !defined(USE_SDL)
-				if (AIL_quick_status(sound->GetHAudio()) == QSTAT_DONE) {
-#else
-                if (!Mix_Playing(sound->GetChannel())) {
-#endif
-					m_soundWalker->Remove();
-
-					delete sound;
-				} else {
-					m_soundWalker->Next();
-				}
+			if (!sound) {
+				m_soundWalker->Next();
+				continue;
 			}
-		}
-	}
-
-	if (m_voiceSounds->GetCount() > 0) {
-
-		m_soundWalker->SetList(m_voiceSounds);
-		while (m_soundWalker->IsValid()) {
-			sound = m_soundWalker->GetObj();
-			Assert(sound);
-			if (!sound) continue;
 
 			if (sound->IsPlaying()) {
 #if !defined(USE_SDL)
@@ -383,6 +362,40 @@ void SoundManager::Process(const uint32 &target_milliseconds,
 				} else {
 					m_soundWalker->Next();
 				}
+			} else {
+				// Looping sounds are added without IsPlaying(TRUE), so
+				// we must advance to avoid an infinite loop.
+				m_soundWalker->Next();
+			}
+		}
+	}
+
+	if (m_voiceSounds->GetCount() > 0) {
+
+		m_soundWalker->SetList(m_voiceSounds);
+		while (m_soundWalker->IsValid()) {
+			sound = m_soundWalker->GetObj();
+			Assert(sound);
+			if (!sound) {
+				m_soundWalker->Next();
+				continue;
+			}
+
+			if (sound->IsPlaying()) {
+#if !defined(USE_SDL)
+				if (AIL_quick_status(sound->GetHAudio()) == QSTAT_DONE) {
+#else
+                if ((-1 == sound->GetChannel()) ||
+                    (!Mix_Playing(sound->GetChannel()))) {
+#endif
+					m_soundWalker->Remove();
+					delete sound;
+				} else {
+					m_soundWalker->Next();
+				}
+			} else {
+				// Defensive: advance walker even for non-playing sounds
+				m_soundWalker->Next();
 			}
 		}
 	}

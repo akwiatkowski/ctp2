@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed gold support cost so that it does not break the save game format. (April 29th 2006 Martin Gühmann)
-// - Added difficulty dependent AI keep units over budget cheat. (April 29th 2006 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
+// - Fixed gold support cost so that it does not break the save game format. (April 29th 2006 Martin Gï¿½hmann)
+// - Added difficulty dependent AI keep units over budget cheat. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
 // - added profile options for nogoldhunger, noshieldhinger, and noproduction deficit
 //
 //----------------------------------------------------------------------------
@@ -35,6 +35,7 @@
 //Also need to add in Player and Citydata??
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/Readiness.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/database/DB.h"
@@ -263,7 +264,7 @@ void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,
 	READINESS_LEVEL oldLevel = m_readinessLevel;
 	m_readinessLevel = level;
 
-	m_delta = (GetReadyHP(gov, m_readinessLevel) - GetReadyHP(gov, oldLevel))/turns;
+	m_delta = safe_divide_double((GetReadyHP(gov, m_readinessLevel) - GetReadyHP(gov, oldLevel)), static_cast<double>(turns));
 	RecalcCost();
 
 	g_slicEngine->RunTrigger(TRIGGER_LIST_READINESS,

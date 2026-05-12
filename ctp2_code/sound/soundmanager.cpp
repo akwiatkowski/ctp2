@@ -39,6 +39,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "sound/soundmanager.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/database/profileDB.h"
@@ -978,7 +979,14 @@ void SoundManager::PickNextTrack(void)
 		break;
 
 	case MUSICSTYLE_RANDOM:
-		m_curTrack = (1 + s_startTrack) + rand() % (m_numTracks - (1 + s_startTrack));
+	{
+		sint32 trackRange = m_numTracks - (1 + s_startTrack);
+		if (trackRange <= 0) {
+			m_curTrack = s_startTrack;
+		} else {
+			m_curTrack = (1 + s_startTrack) + rand() % trackRange;
+		}
+	}
 		break;
 
 	case MUSICSTYLE_USER:

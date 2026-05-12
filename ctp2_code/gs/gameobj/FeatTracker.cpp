@@ -323,7 +323,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 		{
 			for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 			{
-				if(g_player[p] && g_player[p]->HasAdvance(rec->GetExcludeAdvanceIndex(a)))
+				if(g_player[p] && safe_player(p)->HasAdvance(rec->GetExcludeAdvanceIndex(a)))
 				{
 					return;
 				}
@@ -577,7 +577,7 @@ void FeatTracker::CheckConquerFeat(sint32 defeated, sint32 defeatedByWhom)
 		sint32 minCityCount = 0;
 		if(g_theFeatDB->Get(featIndex)->GetMinimumSizeOfCiv(minCityCount))
 		{
-			if (g_player[defeated]->GetMaxCityCount() >= minCityCount)
+			if (safe_player(defeated)->GetMaxCityCount() >= minCityCount)
 			{
 				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 									   GEA_Int, featIndex,
@@ -660,7 +660,7 @@ STDEHANDLER(AccomplishFeat)
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACCOMPLISHED_FEAT,
 									  featIndex,
 									  player,
-									  g_player[player]->GetCurRound()
+									  safe_player(player)->GetCurRound()
 									 )
 						 );
 		g_network.Unblock(player);

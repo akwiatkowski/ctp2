@@ -68,6 +68,7 @@
 //..\ctp2_code\gs\slic\SlicEngine.cpp
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/slic/SlicFunc.h"
 #include "gs/slic/slicif.h"
 #include "gs/database/StrDB.h"
@@ -7395,7 +7396,10 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
 		}
 	}
 
-	amt = p / g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetBuildingRushModifier();
+	sint32 modifier = g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetBuildingRushModifier();
+	if (modifier == 0)
+		return SFN_ERROR_INTERNAL;
+	amt = p / modifier;
 	if (amt >= 0)
 		g_player[pl]->m_gold->AddGold(amt);
 
@@ -7455,7 +7459,10 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
 		}
 	}
 
-	amt = p / g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetBuildingRushModifier();
+	sint32 modifier = g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetBuildingRushModifier();
+	if (modifier == 0)
+		return SFN_ERROR_INTERNAL;
+	amt = p / modifier;
 
     if(amt >= 0)
 		g_player[pl]->m_materialPool->AddMaterials(amt);

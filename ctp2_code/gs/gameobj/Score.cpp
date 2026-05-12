@@ -31,6 +31,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/Score.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/Player.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Diffcly.h"
@@ -220,7 +221,7 @@ sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 			uint64 built = pl->m_builtWonders;
 			for(i = 0; i < 64; i++)
 			{
-				if(((uint64)1 << (uint64)i) & built)
+				if(safe_shift_left_u64(i) & built)
 					count++;
 			}
 			break;

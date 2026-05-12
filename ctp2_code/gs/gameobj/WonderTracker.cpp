@@ -30,6 +30,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/WonderTracker.h"
+#include "gs/utility/safety.h"
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"        // k_GAME_OBJ_TYPE_WONDER
@@ -87,7 +88,7 @@ void WonderTracker::Serialize(CivArchive &archive)
 
 bool WonderTracker::HasWonderBeenBuilt(sint32 which)
 {
-	return (m_builtWonders & ((uint64)1 << (uint64)which)) != 0;
+	return (m_builtWonders & safe_shift_left_u64(which)) != 0;
 }
 
 sint32 WonderTracker::WhoOwnsWonder(sint32 which)
@@ -98,7 +99,7 @@ sint32 WonderTracker::WhoOwnsWonder(sint32 which)
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(g_player[i]) {
-			if(g_player[i]->m_builtWonders & ((uint64)1 << (uint64)which)) {
+			if(g_player[i]->m_builtWonders & safe_shift_left_u64(which)) {
 				return i;
 			}
 		}
@@ -108,7 +109,7 @@ sint32 WonderTracker::WhoOwnsWonder(sint32 which)
 
 void WonderTracker::AddBuilt(sint32 which)
 {
-	m_builtWonders |= (uint64)1 << (uint64)which;
+	m_builtWonders |= safe_shift_left_u64(which);
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_BUILT_WONDERS,
 									  (uint32)(m_builtWonders & 0xffffffff),
@@ -129,7 +130,7 @@ bool WonderTracker::GetCityWithWonder(sint32 which, Unit &city)
 			continue;
 		sint32 c;
 		for(c = g_player[p]->m_all_cities->Num() - 1; c >= 0; c--) {
-			if(g_player[p]->m_all_cities->Access(c).GetData()->GetCityData()->GetBuiltWonders() & ((uint64)1 << which)) {
+			if(g_player[p]->m_all_cities->Access(c).GetData()->GetCityData()->GetBuiltWonders() & safe_shift_left_u64(which)) {
 
 				city = g_player[p]->m_all_cities->Access(c);
 				return true;
@@ -141,17 +142,17 @@ bool WonderTracker::GetCityWithWonder(sint32 which, Unit &city)
 void WonderTracker::SetBuildingWonder(sint32 which, PLAYER_INDEX who)
 {
 
-	m_buildingWonders[who] |= (uint64)1 << (uint64)which;
+	m_buildingWonders[who] |= safe_shift_left_u64(which);
 }
 
 void WonderTracker::ClearBuildingWonder(sint32 which, PLAYER_INDEX who)
 {
-	m_buildingWonders[who] &= ~((uint64)1 << (uint64)which);
+	m_buildingWonders[who] &= ~safe_shift_left_u64(which);
 }
 
 bool WonderTracker::IsBuildingWonder(sint32 which, PLAYER_INDEX who)
 {
-	return (m_buildingWonders[who] & ((uint64)1 << (uint64)which)) != 0;
+	return (m_buildingWonders[who] & safe_shift_left_u64(which)) != 0;
 }
 
 void WonderTracker::RecomputeIsBuilding(const PLAYER_INDEX who)

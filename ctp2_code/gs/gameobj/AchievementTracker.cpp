@@ -1,5 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/AchievementTracker.h"
+#include "gs/utility/safety.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "net/general/network.h"
@@ -23,12 +24,12 @@ void AchievementTracker::Serialize(CivArchive &archive)
 
 BOOL AchievementTracker::HasAchieved(sint32 which)
 {
-	return (m_achievements & ((uint64)1 << (uint64)which)) != 0;
+	return (m_achievements & safe_shift_left_u64(which)) != 0;
 }
 
 void AchievementTracker::AddAchievement(sint32 which)
 {
-	m_achievements |= (uint64)1 << (uint64)which;
+	m_achievements |= safe_shift_left_u64(which);
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACHIEVEMENTS,
 									  (uint32)(m_achievements & 0xffffffff),

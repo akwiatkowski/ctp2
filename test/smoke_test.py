@@ -223,8 +223,9 @@ def main():
     default_scenario = [
         {"cmd": "new_game", "wait": 2000},
         {"cmd": "start_game", "wait": 10000},  # Game needs time to generate map
-        {"cmd": "end_turn", "wait": 10000},     # Turn processing
-        {"cmd": "quit", "wait": 2000},          # Clean exit
+        {"cmd": "build_city", "wait": 5000},   # Build city with starting settler
+        {"cmd": "end_turn", "wait": 10000},    # Turn processing
+        {"cmd": "quit", "wait": 2000},         # Clean exit
     ]
 
     scenario_file = sys.argv[1] if len(sys.argv) > 1 else None

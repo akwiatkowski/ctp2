@@ -2688,6 +2688,42 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
+			else if (strcmp(cmd, "build_city") == 0) {
+				if (m_gameLoaded) {
+					Player *human = NULL;
+					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+						if (g_player[p] && g_player[p]->IsHuman()) {
+							human = g_player[p];
+							break;
+						}
+					}
+
+					if (!human) {
+						smoketest_send_response("error", cmd, "no_human_player");
+					} else {
+						DynamicArray<Army> *armies = human->GetAllArmiesList();
+						bool found = false;
+						for (sint32 i = 0; i < armies->Num(); i++) {
+							Army army = armies->Access(i);
+							if (army.IsValid() && army.CanSettle()) {
+								fprintf(stderr, "[SMOKE] Found settler army %d for player %d, queueing settle\n",
+									i, human->GetOwner());
+								army.AccessData()->Settle();
+								found = true;
+								break;
+							}
+						}
+
+						if (found) {
+							smoketest_send_response("ok", cmd, NULL);
+						} else {
+							smoketest_send_response("error", cmd, "no_settler_found");
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
 			else if (strcmp(cmd, "quit") == 0) {
 				smoketest_send_response("ok", cmd, NULL);
 				// Give socket thread time to send response before we tear down

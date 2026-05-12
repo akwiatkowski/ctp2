@@ -1,4 +1,5 @@
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Gold.h"
@@ -39,11 +40,11 @@ void Agreement::KillAgreement()
 
 void Agreement::RemoveAllReferences()
 {
-	if(g_player[GetRecipient()]) {
-		g_player[GetRecipient()]->RemoveAgreementReferences(*this) ;
+	if(Player* r = safe_player(GetRecipient())) {
+		r->RemoveAgreementReferences(*this) ;
 	}
-	if(g_player[GetOwner()]) {
-		g_player[GetOwner()]->RemoveAgreementReferences(*this) ;
+	if(Player* o = safe_player(GetOwner())) {
+		o->RemoveAgreementReferences(*this) ;
 	}
 
 	if(g_network.IsHost()) {

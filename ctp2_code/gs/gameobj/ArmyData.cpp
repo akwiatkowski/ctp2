@@ -1868,7 +1868,7 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
     for(sint32 i = 0; i < m_nElements; i++) {
         if(m_array[i].GetDBRec()->HasStealTechnology()) {
             sint32 num;
-            uint8 *canSteal = g_player[m_owner]->m_advances->CanAskFor(g_player[c.GetOwner()]->m_advances,
+            uint8 *canSteal = g_player[m_owner]->m_advances->CanAskFor(safe_player(c.GetOwner())->m_advances,
                                                                        num);
             if(num > 0) {
 
@@ -2164,7 +2164,7 @@ ORDER_RESULT ArmyData::Franchise(const MapPoint &point)
 		DPRINTF(k_DBG_GAMESTATE, ("Franchise established\n"));
 		ActionSuccessful(SPECATTACK_CREATEFRANCHISE, u, city);
 		g_slicEngine->Execute(new CityReport("193BranchCompleteVictim", city));
-		g_player[city.GetOwner()]->ContactMade(m_owner);
+		safe_player(city.GetOwner())->ContactMade(m_owner);
 		return ORDER_RESULT_SUCCEEDED;
 	}
 	else
@@ -3490,7 +3490,7 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 	}
 
 	double const    baseCost        =
-	    (g_player[c.GetOwner()]->m_gold->GetLevel() + 5000) *
+	    (safe_player(c.GetOwner())->m_gold->GetLevel() + 5000) *
 	    static_cast<double>(c.PopCount()) *
 	    (1 / distanceCost) *
 	    g_theConstDB->Get(0)->GetInciteUprisingGoldCoefficient();
@@ -3564,13 +3564,13 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 	if(g_player[m_owner]->HasWarWith(c.GetOwner()))
 		return ORDER_RESULT_ILLEGAL;
 
-	if(wonderutil_GetCloseEmbassies(g_player[c.GetOwner()]->m_builtWonders)) {
+	if(wonderutil_GetCloseEmbassies(safe_player(c.GetOwner())->m_builtWonders)) {
 		SlicObject *so = new SlicObject("145NoEmbassiesWonder");
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		sint32 w;
 		for(w = 0; w < g_theWonderDB->NumRecords(); w++) {
-			if((g_player[c.GetOwner()]->m_builtWonders & safe_shift_left_u64(w)) &&
+			if((safe_player(c.GetOwner())->m_builtWonders & safe_shift_left_u64(w)) &&
 			   !wonderutil_IsObsolete(w)) {
 				so->AddWonder(w);
 				break;
@@ -4119,7 +4119,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		so->AddCity(city);
 		sint32 i;
 		for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
-			if(i >= 64 || !g_player[city.GetOwner()]->m_builtWonders & safe_shift_left_u64(i))
+			if(i >= 64 || !safe_player(city.GetOwner())->m_builtWonders & safe_shift_left_u64(i))
 				continue;
 
 			if(wonderutil_Get(i, m_owner)->GetPreventConversion()) {
@@ -6884,7 +6884,7 @@ bool ArmyData::FinishMove(WORLD_DIRECTION d, MapPoint &newPos, UNIT_ORDER_TYPE o
 					if((moveType & k_BIT_MOVEMENT_TYPE_SHALLOW_WATER)
 					&&!(moveType & k_BIT_MOVEMENT_TYPE_WATER)
 					&&  g_theWorld->GetCell(newPos)->GetEnv() & k_BIT_MOVEMENT_TYPE_WATER
-					&&  wonderutil_GetAllBoatsDeepWater(g_player[GetOwner()]->m_builtWonders)
+					&&  wonderutil_GetAllBoatsDeepWater(safe_player(GetOwner())->m_builtWonders)
 					){
 
 					}
@@ -8665,7 +8665,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	||   g_turn->IsEmail()
 	||   g_theProfileDB->GetUseAttackMessages()
 	    )
-	&&   g_player[defender.GetOwner()]->IsHuman()
+	&&   safe_player(defender.GetOwner())->IsHuman()
 	){
 		SlicObject *so = NULL;
 		if (c.IsValid())
@@ -9826,7 +9826,7 @@ bool ArmyData::GetInciteUprisingCost( const MapPoint &point, sint32 &attackCost 
 	if(c.IsCapitol()) {
 		capitolPenalty = sint32(g_theConstDB->Get(0)->GetInciteUprisingCapitolPenalty());
 	}
-	double cost = (g_player[c.GetOwner()]->m_gold->GetLevel() + 5000) *
+	double cost = (safe_player(c.GetOwner())->m_gold->GetLevel() + 5000) *
 		static_cast<double>(c.PopCount()) * (1.0 / distcost) *
 		 g_theConstDB->Get(0)->GetInciteUprisingGoldCoefficient() +
 		 capitolPenalty;

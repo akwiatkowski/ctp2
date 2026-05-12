@@ -31,6 +31,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "gs/utility/Globals.h"
@@ -113,14 +114,14 @@ AgreementData::AgreementData(const ID id, const PLAYER_INDEX owner,
 	m_recipient = recipient ;
 	m_isBroken = FALSE;
 
-	if(g_player[owner]) {
+	if(safe_player(owner)) {
 		m_ownerPollution = g_player[owner]->GetCurrentPollution();
 	} else {
 		m_ownerPollution = 0;
 	}
 
-	if(g_player[recipient]) {
-		m_recipientPollution = g_player[m_recipient]->GetCurrentPollution();
+	if(safe_player(recipient)) {
+		m_recipientPollution = safe_player(m_recipient)->GetCurrentPollution();
 	} else {
 		m_recipientPollution = 0;
 	}
@@ -537,15 +538,15 @@ void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpa
 	switch (indexId)
 		{
 		case 0 :
-			civ = g_player[m_owner]->GetCivilisation() ;
+			civ = safe_player(m_owner)->GetCivilisation() ;
 			break ;
 
 		case 1 :
-			civ = g_player[m_recipient]->GetCivilisation() ;
+			civ = safe_player(m_recipient)->GetCivilisation() ;
 			break ;
 
 		case 2 :
-			civ = g_player[m_thirdParty]->GetCivilisation() ;
+			civ = safe_player(m_thirdParty)->GetCivilisation() ;
 			break ;
 
 		default :
@@ -1270,7 +1271,7 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer)
 void AgreementData::BeginTurnOwner()
 {
 
-	if(!g_player[m_recipient] || g_player[m_recipient]->m_isDead)
+	if(!g_player[m_recipient] || safe_player(m_recipient)->m_isDead)
 		return;
 
 	switch(m_agreement) {
@@ -1278,7 +1279,7 @@ void AgreementData::BeginTurnOwner()
 		{
 			if(g_player[m_recipient]) {
 
-				sint32 trade = g_player[m_recipient]->GetTradeWith(m_thirdParty);
+				sint32 trade = safe_player(m_recipient)->GetTradeWith(m_thirdParty);
 				if(trade > 0) {
 					RecipientIsViolating(m_owner);
 				}
@@ -1289,7 +1290,7 @@ void AgreementData::BeginTurnOwner()
 		{
 			if(g_player[m_recipient]) {
 
-				DynamicArray<Army> *armies = g_player[m_recipient]->m_all_armies;
+				DynamicArray<Army> *armies = safe_player(m_recipient)->m_all_armies;
 				sint32 i, n = armies->Num();
 				for(i = 0; i < n; i++) {
 					MapPoint pos;
@@ -1316,7 +1317,7 @@ void AgreementData::BeginTurnOwner()
 		case AGREEMENT_TYPE_REDUCE_POLLUTION:
 		{
 			if(g_player[m_recipient]) {
-				if(g_player[m_recipient]->GetCurrentPollution() >= m_recipientPollution) {
+				if(safe_player(m_recipient)->GetCurrentPollution() >= m_recipientPollution) {
 					RecipientIsViolating(m_owner);
 				}
 			}
@@ -1342,17 +1343,17 @@ void AgreementData::BeginTurnOwner()
 				sint32 now = g_turn->GetRound();
 				sint32 rounds = now - m_round;
 				Agreement me(m_id);
-				if(g_player[m_owner]->GetCurrentPollution() > m_ownerPollution &&
-				   g_player[m_owner]->GetCurrentPollution() > uint32(g_theConstDB->Get(0)->GetMinEcoPactViolationLevel())) {
+				if(safe_player(m_owner)->GetCurrentPollution() > m_ownerPollution &&
+				   safe_player(m_owner)->GetCurrentPollution() > uint32(g_theConstDB->Get(0)->GetMinEcoPactViolationLevel())) {
 					OwnerIsViolating(m_owner);
 				}
 
 
 				if(g_theAgreementPool->IsValid(me)) {
 					if(rounds > g_theConstDB->Get(0)->GetEndPollutionRounds()) {
-						m_ownerPollution = g_player[m_owner]->GetCurrentPollution();
+						m_ownerPollution = safe_player(m_owner)->GetCurrentPollution();
 						if(g_player[m_recipient]) {
-							m_recipientPollution = g_player[m_recipient]->GetCurrentPollution();
+							m_recipientPollution = safe_player(m_recipient)->GetCurrentPollution();
 						}
 
 						m_round = now;
@@ -1366,7 +1367,7 @@ void AgreementData::BeginTurnOwner()
 		case AGREEMENT_TYPE_DEMAND_ATTACK_ENEMY:
 		{
 			if(g_player[m_recipient]) {
-				if(g_player[m_recipient]->GetLastAttacked(m_thirdParty) < m_round) {
+				if(safe_player(m_recipient)->GetLastAttacked(m_thirdParty) < m_round) {
 					RecipientIsViolating(m_owner);
 				}
 			}
@@ -1407,7 +1408,7 @@ void AgreementData::BeginTurnRecipient()
 	return;
 
 #if 0   // Unreachable
-    if(!g_player[m_owner] || g_player[m_owner]->m_isDead)
+    if(!g_player[m_owner] || safe_player(m_owner)->m_isDead)
 		return;
 
 	switch(m_agreement) {
@@ -1415,7 +1416,7 @@ void AgreementData::BeginTurnRecipient()
 		{
 			if(g_player[m_recipient]) {
 
-				sint32 trade = g_player[m_recipient]->GetTradeWith(m_thirdParty);
+				sint32 trade = safe_player(m_recipient)->GetTradeWith(m_thirdParty);
 				if(trade > 0) {
 					RecipientIsViolating(m_recipient);
 				}
@@ -1426,7 +1427,7 @@ void AgreementData::BeginTurnRecipient()
 		{
 			if(g_player[m_recipient]) {
 
-				DynamicArray<Army> *armies = g_player[m_recipient]->m_all_armies;
+				DynamicArray<Army> *armies = safe_player(m_recipient)->m_all_armies;
 				sint32 i, n = armies->Num();
 				for(i = 0; i < n; i++) {
 					MapPoint pos;
@@ -1453,7 +1454,7 @@ void AgreementData::BeginTurnRecipient()
 		case AGREEMENT_TYPE_REDUCE_POLLUTION:
 		{
 			if(g_player[m_recipient]) {
-				if(g_player[m_recipient]->GetCurrentPollution() >= m_recipientPollution) {
+				if(safe_player(m_recipient)->GetCurrentPollution() >= m_recipientPollution) {
 					RecipientIsViolating(m_recipient);
 				}
 			}
@@ -1480,17 +1481,17 @@ void AgreementData::BeginTurnRecipient()
 				sint32 rounds = now - m_round;
 				Agreement me(m_id);
 
-				if(g_player[m_recipient]->GetCurrentPollution() > m_recipientPollution &&
-				   g_player[m_recipient]->GetCurrentPollution() > uint32(g_theConstDB->MinEcoPactViolationLevel())) {
+				if(safe_player(m_recipient)->GetCurrentPollution() > m_recipientPollution &&
+				   safe_player(m_recipient)->GetCurrentPollution() > uint32(g_theConstDB->MinEcoPactViolationLevel())) {
 					RecipientIsViolating(m_recipient);
 				}
 
 
 				if(g_theAgreementPool->IsValid(me)) {
 					if(rounds > g_theConstDB->EndPollutionRounds()) {
-						m_ownerPollution = g_player[m_owner]->GetCurrentPollution();
+						m_ownerPollution = safe_player(m_owner)->GetCurrentPollution();
 						if(g_player[m_recipient]) {
-							m_recipientPollution = g_player[m_recipient]->GetCurrentPollution();
+							m_recipientPollution = safe_player(m_recipient)->GetCurrentPollution();
 						}
 
 						m_round = now;
@@ -1504,7 +1505,7 @@ void AgreementData::BeginTurnRecipient()
 		case AGREEMENT_TYPE_DEMAND_ATTACK_ENEMY:
 		{
 			if(g_player[m_recipient]) {
-				if(g_player[m_recipient]->GetLastAttacked(m_thirdParty) < m_round) {
+				if(safe_player(m_recipient)->GetLastAttacked(m_thirdParty) < m_round) {
 					RecipientIsViolating(m_recipient);
 				}
 			}

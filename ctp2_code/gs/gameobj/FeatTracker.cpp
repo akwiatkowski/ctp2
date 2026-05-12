@@ -311,6 +311,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	const FeatRecord *rec = g_theFeatDB->Get(type);
 	Assert(rec);
 	if(!rec) return;
+	if(type < 0 || type >= g_theFeatDB->NumRecords()) return;
 
 	if(m_achieved[type])
 	{

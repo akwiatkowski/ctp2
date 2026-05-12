@@ -1381,6 +1381,9 @@ STDEHANDLER(LawsuitEvent)
 
 	a->InformAI(UNIT_ORDER_SUE, point);
 
+	if(cell->GetNumUnits() <= 0)
+		return GEV_HD_Continue;
+
 	sint32 victim = cell->AccessUnit(0)->GetOwner();
 	sint32 i, n = cell->GetNumUnits();
 	sint32 utype = -1;

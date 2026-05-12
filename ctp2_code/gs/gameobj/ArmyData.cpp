@@ -1026,6 +1026,8 @@ bool ArmyData::CanPatrol() const
 // Returns true if this army is a sentinal.
 bool ArmyData::IsAsleep() const
 {
+	if (m_nElements == 0)
+		return false;
 	return m_array[0].IsAsleep();
 }
 
@@ -1059,12 +1061,16 @@ void ArmyData::WakeUp()
 // Returns true if this army is entrenched (fortified)
 bool ArmyData::IsEntrenched() const
 {
+	if (m_nElements == 0)
+		return false;
 	return m_array[0].IsEntrenched();
 }
 
 // Returns true if this army is entrenching
 bool ArmyData::IsEntrenching() const
 {
+	if (m_nElements == 0)
+		return false;
 	return m_array[0].IsEntrenching();
 }
 

@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Removed unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Removed unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1767,26 +1767,58 @@ inline void Sprite::__Shadow_565_16(PixelAddress &dest,sint32 dest_inc,sint32 nu
 
 
 
-inline void Sprite::__Shadow_565_32(PixelAddress &dest,PixelAddress &src,sint32 dest_inc,sint32 src_inc,sint32 num)
+/**
+ * Apply the shadow effect to @a num 32-bit pixel pairs, reading from @a src
+ * and writing to @a dest.
+ *
+ * @param dest      Destination pixel address (updated).
+ * @param src       Source pixel address (updated).
+ * @param dest_inc  Number of 32-bit pixels to advance dest after each write.
+ * @param src_inc   Number of 32-bit pixels to advance src after each read.
+ * @param num       Number of 32-bit pixels to process.
+ *
+ * @note Uses memcpy via byte pointers to avoid UBSan "misaligned pointer use"
+ *       when the destination X coordinate is odd (2-byte misaligned for 32-bit).
+ */
+inline void Sprite::__Shadow_565_32(PixelAddress &dest,
+									PixelAddress &src,
+									sint32 dest_inc,
+									sint32 src_inc,
+									sint32 num)
 {
   while (num)
   {
   	 num--;
-  	*dest.l_ptr = pixelutils_Shadow32_565(*src.l_ptr);
-  	 dest.l_ptr+=dest_inc;
-  	 src.l_ptr +=src_inc;
+	Pixel32 shadowedPixel;
+	memcpy(&shadowedPixel, src.b_ptr, sizeof(Pixel32));
+	shadowedPixel = pixelutils_Shadow32_565(shadowedPixel);
+	memcpy(dest.b_ptr, &shadowedPixel, sizeof(Pixel32));
+  	 dest.b_ptr += dest_inc * sizeof(Pixel32);
+  	 src.b_ptr  += src_inc * sizeof(Pixel32);
   }
 }
 
-
-
-
-inline void Sprite::__Shadow_565_32(PixelAddress &dest,sint32 dest_inc,sint32 num)
+/**
+ * Apply the shadow effect in-place to @a num 32-bit pixel pairs.
+ *
+ * @param dest      Destination pixel address (updated).
+ * @param dest_inc  Number of 32-bit pixels to advance dest after each write.
+ * @param num       Number of 32-bit pixels to process.
+ *
+ * @note Uses memcpy via byte pointers to avoid UBSan "misaligned pointer use"
+ *       when the destination X coordinate is odd (2-byte misaligned for 32-bit).
+ */
+inline void Sprite::__Shadow_565_32(PixelAddress &dest,
+									sint32 dest_inc,
+									sint32 num)
 {
   while (num)
   {
   	 num--;
-  	*dest.l_ptr = pixelutils_Shadow32_565(*dest.l_ptr);
-  	 dest.l_ptr+=dest_inc;
+	Pixel32 shadowedPixel;
+	memcpy(&shadowedPixel, dest.b_ptr, sizeof(Pixel32));
+	shadowedPixel = pixelutils_Shadow32_565(shadowedPixel);
+	memcpy(dest.b_ptr, &shadowedPixel, sizeof(Pixel32));
+  	 dest.b_ptr += dest_inc * sizeof(Pixel32);
   }
 }

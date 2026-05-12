@@ -1014,11 +1014,11 @@ gfxutils = static_library('libgfxgfx_utils', [
 	'gfx/gfx_utils/tiffutils.cpp',
 	'gfx/gfx_utils/videoutils.cpp'],
 		include_directories : incdir,
-		dependencies : cdb_header)
+		dependencies : [ cdb_header, tiff, sdl ])
 
 gfxlayers = static_library('libgfxlayers', 'gfx/layers/citylayer.cpp',
 		include_directories : incdir,
-		dependencies : cdb_header)
+		dependencies : [ cdb_header, sdl ])
 
 gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/action.cpp',
@@ -1057,7 +1057,7 @@ gfxspritesys = static_library('libgfxspritesys', [
 	'gfx/spritesys/SpriteStateDB.cpp',
 	'gfx/spritesys/spritelow.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet ])
+		dependencies : [ cdb_header, anet, sdl ])
 
 gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/maputils.cpp',
@@ -1072,7 +1072,7 @@ gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/tileutils.cpp',
 	'gfx/tilesys/workmap.cpp'],
 		include_directories : incdir,
-		dependencies : [ cdb_header, anet ])
+		dependencies : [ cdb_header, anet, sdl ])
 
 # mapgen plugins
 p_crater = shared_library('crater', 'mapgen/Crater.cpp', 

@@ -236,7 +236,20 @@ protected:
 
 
 
-	void __Copy_16(PixelAddress &dest,PixelAddress &src,sint32 dest_inc,sint32 src_inc,sint32 num)
+	/**
+	 * Copy @a num 16-bit (2-byte) pixels from @a src to @a dest.
+	 *
+	 * @param dest      Destination pixel address (updated).
+	 * @param src       Source pixel address (updated).
+	 * @param dest_inc  Number of 16-bit pixels to advance dest after each copy.
+	 * @param src_inc   Number of 16-bit pixels to advance src after each copy.
+	 * @param num       Number of 16-bit pixels to copy.
+	 */
+	void __Copy_16(PixelAddress &dest,
+				   PixelAddress &src,
+				   sint32 dest_inc,
+				   sint32 src_inc,
+				   sint32 num)
 	{
 		while(num)
 		{
@@ -250,13 +263,30 @@ protected:
 
 
 
-	void __Copy_32(PixelAddress &dest,PixelAddress &src,sint32 dest_inc,sint32 src_inc,sint32 num)
+	/**
+	 * Copy @a num 32-bit (4-byte) pixels from @a src to @a dest.
+	 *
+	 * @param dest      Destination pixel address (updated).
+	 * @param src       Source pixel address (updated).
+	 * @param dest_inc  Number of 32-bit pixels to advance dest after each copy.
+	 * @param src_inc   Number of 32-bit pixels to advance src after each copy.
+	 * @param num       Number of 32-bit pixels to copy.
+	 *
+	 * @note Uses memcpy via the byte-pointer union member to avoid UBSan
+	 *       "misaligned pointer use" on ARM64.  The destination X coordinate
+	 *       may be odd, making the Pixel32* misaligned by 2 bytes.
+	 */
+	void __Copy_32(PixelAddress &dest,
+				   PixelAddress &src,
+				   sint32 dest_inc,
+				   sint32 src_inc,
+				   sint32 num)
 	{
 		while(num)
 		{
-			*dest.l_ptr = *src.l_ptr;
-			dest.l_ptr += dest_inc;
-			src.l_ptr  += src_inc;
+			memcpy(dest.b_ptr, src.b_ptr, sizeof(Pixel32));
+			dest.b_ptr += dest_inc * sizeof(Pixel32);
+			src.b_ptr  += src_inc * sizeof(Pixel32);
 			num--;
 		}
 	};

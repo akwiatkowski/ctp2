@@ -192,7 +192,7 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 
 		if (g_gevManager)
 		{
-			m_event = g_gevManager->GetEventIndex(pobj->m_event_name);
+			m_event = GameEventManager::GetEventIndex(pobj->m_event_name);
 			g_gevManager->AddCallback(m_event, m_priority, this);
 		}
 	}
@@ -756,15 +756,14 @@ bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, 
 			return false;
 		codePtr++;
 
-		line = *((sint32 *)codePtr);
+		slicif_read_sint32(codePtr, &line);
 		codePtr += sizeof(sint32);
 
-		offset = *((sint32 *)codePtr);
-
+		slicif_read_sint32(codePtr, &offset);
 
 		if(offset < 0) {
 			offset = SlicFrame::FindFileOffset(m_filename, line);
-			*((sint32 *)codePtr) = offset;
+			slicif_store_sint32(codePtr, offset);
 		}
 		codePtr += sizeof(int);
 

@@ -176,7 +176,7 @@ aui_Win::~aui_Win()
 
 
 
-	ListPos position = m_winList->Find( GetWinFromHWND(m_hwnd) );
+	ListPos position = m_winList->Find( this );
 	if ( position )
 		m_winList->DeleteAt( position );
 

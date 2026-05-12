@@ -601,7 +601,7 @@ void TileSet::Load(void)
 void TileSet::QuickLoadTransforms(uint8 **dataPtr)
 {
 	if (dataPtr) {
-	    m_numTransforms = *(uint16 *)(*dataPtr);
+	    memcpy(&m_numTransforms, *dataPtr, sizeof(uint16));
 		(*dataPtr) += sizeof(uint16);
 
 		m_transforms = new sint16*[m_numTransforms];
@@ -617,18 +617,25 @@ void TileSet::QuickLoadTransforms(uint8 **dataPtr)
 void TileSet::QuickLoadTransitions(uint8 **dataPtr)
 {
 
-	uint32		transitionCount = *(uint32 *)(*dataPtr);
+	uint32		transitionCount;
+
+	memcpy(&transitionCount, *dataPtr, sizeof(uint32));
 	(*dataPtr) += sizeof(uint32);
 
-	uint32		transitionSize  = *(uint32 *)(*dataPtr);
+	uint32		transitionSize;
+
+	memcpy(&transitionSize, *dataPtr, sizeof(uint32));
 	(*dataPtr) += sizeof(uint32);
 
 	for (uint32 i = 0; i < transitionCount; ++i)
     {
-		sint16 from = *(sint16 *)(*dataPtr);
+		sint16		from;
+		memcpy(&from, *dataPtr, sizeof(sint16));
 		(*dataPtr) += sizeof(sint16);
 
-		sint16 to = *(sint16 *)(*dataPtr);
+		sint16		to;
+
+		memcpy(&to, *dataPtr, sizeof(sint16));
 		(*dataPtr) += sizeof(sint16);
 
 		for (size_t k = 0; k < k_TRANSITIONS_PER_TILE; ++k)
@@ -641,7 +648,8 @@ void TileSet::QuickLoadTransitions(uint8 **dataPtr)
 
 void TileSet::QuickLoadBaseTiles(uint8 **dataPtr)
 {
-	uint32			baseTileCount = *(uint32 *)(*dataPtr);
+	uint32		baseTileCount;
+	memcpy(&baseTileCount, *dataPtr, sizeof(uint32));
 	(*dataPtr) += sizeof(uint32);
 
 	for (uint32 i = 0; i < baseTileCount; ++i)
@@ -655,7 +663,8 @@ void TileSet::QuickLoadBaseTiles(uint8 **dataPtr)
 
 void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 {
-	uint16		numRiverTransforms = *(uint16 *)(*dataPtr);;
+	uint16		numRiverTransforms;
+	memcpy(&numRiverTransforms, *dataPtr, sizeof(uint16));;
 	(*dataPtr) += sizeof(uint16);
 
 	if (numRiverTransforms > 0)
@@ -669,7 +678,9 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 			m_riverTransforms[i] = (sint16 *)(*dataPtr);
 			(*dataPtr) += (sizeof(sint16)*k_RIVER_TRANSFORM_SIZE);
 
-			uint32 len = *(uint32 *)(*dataPtr);
+			uint32		len;
+
+			memcpy(&len, *dataPtr, sizeof(uint32));
 			(*dataPtr) += sizeof(uint32);
 
 			if (len > 0)
@@ -687,15 +698,19 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 
 void TileSet::QuickLoadImprovements(uint8 **dataPtr)
 {
-	uint16		numImprovements = *(uint16 *)(*dataPtr);
+	uint16		numImprovements;
+	memcpy(&numImprovements, *dataPtr, sizeof(uint16));
 	(*dataPtr) += sizeof(numImprovements);
 
 	for (uint16 i = 0; i < numImprovements; ++i)
     {
-		uint16 impNum = *(uint16 *)(*dataPtr);
+		uint16		impNum;
+		memcpy(&impNum, *dataPtr, sizeof(uint16));
 		(*dataPtr) += sizeof(uint16);
 
-		uint32 len = *(uint32 *)(*dataPtr);
+		uint32		len;
+
+		memcpy(&len, *dataPtr, sizeof(uint32));
 		(*dataPtr) += sizeof(uint32);
 
 		if (len > 0)
@@ -712,19 +727,20 @@ void TileSet::QuickLoadImprovements(uint8 **dataPtr)
 
 void TileSet::QuickLoadMegaTiles(uint8 **dataPtr)
 {
-	m_numMegaTiles = *(uint16 *)(*dataPtr);
+	memcpy(&m_numMegaTiles, *dataPtr, sizeof(uint16));
 	(*dataPtr) += sizeof(m_numMegaTiles);
 
 	for (uint16 i = 0; i < m_numMegaTiles; ++i)
     {
-		uint16	megaLen = *(uint16 *)(*dataPtr);
+		uint16		megaLen;
+		memcpy(&megaLen, *dataPtr, sizeof(uint16));
 		(*dataPtr) += sizeof(megaLen);
 
 		m_megaTileLengths[i] = megaLen;
 
 		if (megaLen > 0)
         {
-			memcpy(m_megaTileData[i], (MegaTileStep *)(*dataPtr), sizeof(MegaTileStep) * megaLen);
+			memcpy(m_megaTileData[i], *dataPtr, sizeof(MegaTileStep) * megaLen);
 			(*dataPtr) += (megaLen * sizeof(MegaTileStep));
 		}
 	}

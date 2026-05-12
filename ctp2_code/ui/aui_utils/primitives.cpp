@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
-// - Added primitives_GetScreenAdjustedRectCopy function. (3-Mar-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
+// - Added primitives_GetScreenAdjustedRectCopy function. (3-Mar-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -161,11 +161,28 @@ PRIMITIVES_ERRCODE primitives_FrameRect16(
 #define GREEN565(c) (((c)>>5)&0x3f)
 #define BLUE565(c) (((c)>>11)&0x1f)
 
+/**
+ * Scale a 16-bit source surface into a destination surface.
+ *
+ * @param pSrc     Source surface.
+ * @param pDst     Destination surface.
+ * @param srcRect  Source rectangle (in source pixel coordinates).
+ * @param dstRect  Destination rectangle (in destination pixel coordinates).
+ * @param bFilter  If true, apply bilinear filtering; otherwise use nearest-neighbour.
+ *
+ * @return Error code.
+ *
+ * @note Source coordinates are clamped to the valid source rectangle before
+ *       casting to integer indices.  This prevents UBSan "float cast overflow"
+ *       when the destination rectangle is very small (near-zero height/width)
+ *       and the scale factors become extreme, or when bilinear sampling would
+ *       read just outside the source image.
+ */
 PRIMITIVES_ERRCODE primitives_Scale16(
 	aui_Surface *pSrc,
 	aui_Surface *pDst,
-	const fRect &sRect,
-	const fRect &dRect,
+	const fRect &srcRect,
+	const fRect &dstRect,
 	bool bFilter
 	)
 {
@@ -178,13 +195,14 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 		return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	}
 
-	Assert(dRect.left <= dRect.right);
-	Assert(dRect.top <= dRect.bottom);
-	if ((dRect.left >= dRect.right) || (dRect.top >= dRect.bottom)) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	Assert(dstRect.left <= dstRect.right);
+	Assert(dstRect.top <= dstRect.bottom);
+	if ((dstRect.left >= dstRect.right) || (dstRect.top >= dstRect.bottom))
+		return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 width = static_cast<sint32>(ceil(dRect.right) - ceil(dRect.left));
-	sint32 height = static_cast<sint32>(ceil(dRect.bottom) - ceil(dRect.top));
-	if ((width == 0) || (height == 0))
+	sint32 dstWidth  = static_cast<sint32>(ceil(dstRect.right) - ceil(dstRect.left));
+	sint32 dstHeight = static_cast<sint32>(ceil(dstRect.bottom) - ceil(dstRect.top));
+	if ((dstWidth == 0) || (dstHeight == 0))
 		return PRIMITIVES_ERRCODE_OK;
 
 	uint16 *pSrcBase;
@@ -209,62 +227,78 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 		pDstBase = (uint16 *)pDst->Buffer();
 	}
 
-	sint32 srow = pSrc->Pitch()>>1;
-	sint32 drow = pDst->Pitch()>>1;
+	sint32 srcPixelsPerRow = pSrc->Pitch() >> 1;
+	sint32 dstPixelsPerRow = pDst->Pitch() >> 1;
 
 
-	sint32 dst_y0 = static_cast<sint32>(ceil(dRect.top));
-	sint32 dst_x0 = static_cast<sint32>(ceil(dRect.left));
-	uint16 *pDstPixel = pDstBase + dst_y0 * drow + dst_x0;
+	sint32 dst_y0 = static_cast<sint32>(ceil(dstRect.top));
+	sint32 dst_x0 = static_cast<sint32>(ceil(dstRect.left));
+	uint16 *pDstPixel = pDstBase + dst_y0 * dstPixelsPerRow + dst_x0;
 
-	double src_dy = (sRect.bottom - sRect.top)/(dRect.bottom - dRect.top);
-	double src_dx = (sRect.right - sRect.left)/(dRect.right - dRect.left);
-	double src_y = sRect.top + (dst_y0 - dRect.top) * src_dy;
-	if (bFilter) src_y -= 0.5;
-	for (sint32 j=0;j<height;j++)
+	double srcPixelsPerDstPixelY = (srcRect.bottom - srcRect.top) / (dstRect.bottom - dstRect.top);
+	double srcPixelsPerDstPixelX = (srcRect.right - srcRect.left) / (dstRect.right - dstRect.left);
+	double srcSampleY = srcRect.top + (dst_y0 - dstRect.top) * srcPixelsPerDstPixelY;
+	if (bFilter) srcSampleY -= 0.5;
+	for (sint32 dstRow = 0; dstRow < dstHeight; dstRow++)
 	{
-		double src_x = sRect.left + (dst_x0 - dRect.left) * src_dx;
-		if (bFilter) src_x -= 0.5;
-		uint16 *pSrcPixel = &pSrcBase[srow * ((uint32 )floor(src_y))];
-		double fy = src_y - floor(src_y);
-		for (sint32 i=0;i<width;i++)
+		double srcSampleX = srcRect.left + (dst_x0 - dstRect.left) * srcPixelsPerDstPixelX;
+		if (bFilter) srcSampleX -= 0.5;
+
+		/* Clamp vertical source coordinate to valid source rectangle.
+		   Prevents UBSan float-cast-overflow when scale factors are extreme. */
+		double clampedSrcY = srcSampleY;
+		if (clampedSrcY < 0) clampedSrcY = 0;
+		if (clampedSrcY >= (srcRect.bottom - srcRect.top)) clampedSrcY = (srcRect.bottom - srcRect.top) - 1;
+		uint16 *pSrcRowStart = &pSrcBase[srcPixelsPerRow * ((uint32)floor(clampedSrcY))];
+		double fracY = clampedSrcY - floor(clampedSrcY);
+
+		for (sint32 dstCol = 0; dstCol < dstWidth; dstCol++)
 		{
-			uint32 x = uint32(floor(src_x));
+			/* Clamp horizontal source coordinate to valid source rectangle.
+			   The -1 ensures we can safely read x+1 for bilinear filtering. */
+			double clampedSrcX = srcSampleX;
+			if (clampedSrcX < 0) clampedSrcX = 0;
+			if (clampedSrcX >= (srcRect.right - srcRect.left) - 1)
+				clampedSrcX = (srcRect.right - srcRect.left) - 1;
+			uint32 srcCol = uint32(floor(clampedSrcX));
+
 			if (!bFilter)
 			{
-				pDstPixel[i] = pSrcPixel[x];
+				pDstPixel[dstCol] = pSrcRowStart[srcCol];
 			}
 			else
 			{
-				uint16 c0 = pSrcPixel[x], c1 = pSrcPixel[x+1];
-				uint16 c2 = pSrcPixel[x + srow], c3 = pSrcPixel[x + srow + 1];
+				uint16 c0 = pSrcRowStart[srcCol];
+				uint16 c1 = pSrcRowStart[srcCol + 1];
+				uint16 c2 = pSrcRowStart[srcCol + srcPixelsPerRow];
+				uint16 c3 = pSrcRowStart[srcCol + srcPixelsPerRow + 1];
 				double f0, f1, f2, f3;
-				double fx = src_x - floor(src_x);
-				f1 = 1.0 - fy;
-				f2 = 1.0 - fx;
-				f3 = fx * fy;
+				double fracX = srcSampleX - floor(srcSampleX);
+				f1 = 1.0 - fracY;
+				f2 = 1.0 - fracX;
+				f3 = fracX * fracY;
 				f0 = f1 * f2;
-				f1 *= fx;
-				f2 *= fy;
+				f1 *= fracX;
+				f2 *= fracY;
 				if (g_is565Format)
 				{
 					double red = f0 * RED565(c0) + f1 * RED565(c1) + f2 * RED565(c2) + f3 * RED565(c3);
 					double green = f0 * GREEN565(c0) + f1 * GREEN565(c1) + f2 * GREEN565(c2) + f3 * GREEN565(c3);
 					double blue = f0 * BLUE565(c0) + f1 * BLUE565(c1) + f2 * BLUE565(c2) + f3 * BLUE565(c3);
-					pDstPixel[i] = ((uint16)red) + (((uint16)green)<<5) + (((uint16)blue)<<11);
+					pDstPixel[dstCol] = ((uint16)red) + (((uint16)green)<<5) + (((uint16)blue)<<11);
 				}
 				else
 				{
 					double red = f0 * RED555(c0) + f1 * RED555(c1) + f2 * RED555(c2) + f3 * RED555(c3);
 					double green = f0 * GREEN555(c0) + f1 * GREEN555(c1) + f2 * GREEN555(c2) + f3 * GREEN555(c3);
 					double blue = f0 * BLUE555(c0) + f1 * BLUE555(c1) + f2 * BLUE555(c2) + f3 * BLUE555(c3);
-					pDstPixel[i] = ((uint16)red) + (((uint16)green)<<5) + (((uint16)blue)<<10);
+					pDstPixel[dstCol] = ((uint16)red) + (((uint16)green)<<5) + (((uint16)blue)<<10);
 				}
 			}
-			src_x += src_dx;
+			srcSampleX += srcPixelsPerDstPixelX;
 		}
-		src_y += src_dy;
-		pDstPixel += drow;
+		srcSampleY += srcPixelsPerDstPixelY;
+		pDstPixel += dstPixelsPerRow;
 	}
 
 	if (srcUnlocked) {

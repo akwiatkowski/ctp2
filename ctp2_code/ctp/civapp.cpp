@@ -1780,7 +1780,7 @@ sint32 CivApp::InitializeGameUI(void)
 
 
 
-sint32 CivApp::InitializeGame(CivArchive &archive)
+sint32 CivApp::InitializeGame(CivArchive *archive)
 {
 #ifndef _NO_GAME_WATCH
 	SPLASH_STRING("Initializing Game Watch...");
@@ -1870,7 +1870,7 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 
 	g_theProgressWindow->StartCountingTo( 610 );
 
-	if(g_isScenario && (&archive != NULL &&
+	if(g_isScenario && (archive != NULL &&
 	   (g_startInfoType != STARTINFOTYPE_NONE ||
 		g_saveFileVersion < gamefile_CurrentVersion()))) {
 
@@ -1938,7 +1938,7 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 	GraphicsOptions::Initialize();
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(&archive != NULL);
+	tile_Initialize(archive != NULL);
 
 	g_theProgressWindow->StartCountingTo( 660 );
 
@@ -1971,7 +1971,7 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{
-		if ((&archive == NULL) ||										// launch button
+		if ((archive == NULL) ||										// launch button
 			((g_startInfoType != STARTINFOTYPE_NONE) && g_isScenario)	// scenario start
 		   )
 		{
@@ -1986,7 +1986,7 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 	g_theProgressWindow->StartCountingTo( 720 );
 
 	if(!g_network.IsActive()) {
-		if (NULL == &archive ||
+		if (archive == NULL ||
 			(g_saveFileVersion >= 42 &&
 
 
@@ -2006,7 +2006,7 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 
 	g_theProgressWindow->StartCountingTo( 740 );
 
-	if(g_turn->IsEmail() && NULL != &archive) {
+	if(g_turn->IsEmail() && archive != NULL) {
 		g_selected_item->KeyboardSelectFirstUnit();
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
@@ -2029,14 +2029,14 @@ sint32 CivApp::InitializeGame(CivArchive &archive)
 
 	g_theProgressWindow->StartCountingTo( 760 );
 
-	if ((&archive) && g_turn->IsHotSeat())
+	if ((archive) && g_turn->IsHotSeat())
     {
 	    // Indicate the resuming player when loading a saved hotseat game
 	    g_turn->SendNextPlayerMessage();
     }
 	else if (g_selected_item)
     {
-        if (!&archive)
+        if (!archive)
         {
             g_selected_item->Refresh();
         }
@@ -2178,7 +2178,7 @@ sint32 InitializeSpriteEditorUI(void)
 
 
 
-sint32 CivApp::InitializeSpriteEditor(CivArchive &archive)
+sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 {
 	ProgressWindow::BeginProgress(
 		g_theProgressWindow,
@@ -2232,7 +2232,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive &archive)
 
 	g_theProgressWindow->StartCountingTo( 720 );
 
-	if (    (&archive != NULL)
+	if (    (archive != NULL)
          && (g_startInfoType != STARTINFOTYPE_NONE ||
 		     g_saveFileVersion < gamefile_CurrentVersion()
             )
@@ -2257,7 +2257,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive &archive)
 	g_theProgressWindow->StartCountingTo( 750 );
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(&archive != NULL);
+	tile_Initialize(archive != NULL);
 
 	g_theProgressWindow->StartCountingTo( 760 );
 
@@ -2278,7 +2278,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive &archive)
 	g_turn->BeginNewTurn(FALSE);
 
 	if(!g_network.IsActive()) {
-		if (NULL == &archive ||
+		if (archive == NULL ||
 			(g_saveFileVersion >= 42 &&
 
 
@@ -2302,7 +2302,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive &archive)
 
 	g_theProgressWindow->StartCountingTo( 800 );
 
-	if(g_turn->IsEmail() && NULL != &archive) {
+	if(g_turn->IsEmail() && archive != NULL) {
 		g_selected_item->KeyboardSelectFirstUnit();
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
@@ -3289,12 +3289,12 @@ sint32 CivApp::Process(void)
 
 sint32 CivApp::StartGame(void)
 {
-	return InitializeGame((*(CivArchive *)(NULL)));
+	return InitializeGame(NULL);
 }
 
 sint32 CivApp::StartSpriteEditor(void)
 {
-	return InitializeSpriteEditor((*(CivArchive *)(NULL)));
+	return InitializeSpriteEditor(NULL);
 }
 
 

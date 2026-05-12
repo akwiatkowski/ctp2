@@ -12,6 +12,7 @@ A scenario is a JSON file with a list of steps. If no file is given,
 a default smoke test runs: new_game -> start_game -> end_turn -> quit.
 """
 
+import argparse
 import json
 import os
 import queue
@@ -22,7 +23,7 @@ import tempfile
 import threading
 import time
 
-# Configuration
+# Configuration (may be overridden by --build-dir)
 GAME_EXE = "./build/ctp2"
 SOCKET_PATH = "/tmp/ctp2-smoke.sock"
 DEFAULT_TIMEOUT = 30  # seconds per step
@@ -159,9 +160,11 @@ def run_scenario(steps):
     t.start()
 
     # Wait for server to be ready (read from queue)
+    # Longer timeout for sanitizer builds which run much slower
+    startup_timeout = 120
     server_ready = False
     start = time.time()
-    while time.time() - start < 30:
+    while time.time() - start < startup_timeout:
         try:
             line = stdout_queue.get(timeout=0.5)
             if line is None:
@@ -201,7 +204,7 @@ def run_scenario(steps):
     # Connect to socket with retries
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     connected = False
-    for attempt in range(10):
+    for attempt in range(30):
         time.sleep(0.5)
         try:
             sock.connect(SOCKET_PATH)
@@ -288,6 +291,15 @@ def run_scenario(steps):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="CTP2 Smoke Test Harness")
+    parser.add_argument("scenario_file", nargs="?", help="JSON scenario file")
+    parser.add_argument("--build-dir", default="build", help="Meson build directory (default: build)")
+    args = parser.parse_args()
+
+    # Override GAME_EXE if build-dir specified
+    global GAME_EXE
+    GAME_EXE = f"./{args.build_dir}/ctp2"
+
     # Default smoke test scenario
     default_scenario = [
         {"cmd": "new_game", "wait": 2000},
@@ -305,13 +317,11 @@ def main():
         {"cmd": "quit", "wait": 2000},                     # Clean exit
     ]
 
-    scenario_file = sys.argv[1] if len(sys.argv) > 1 else None
-
-    if scenario_file:
-        with open(scenario_file) as f:
+    if args.scenario_file:
+        with open(args.scenario_file) as f:
             scenario = json.load(f)
         steps = scenario.get("steps", [])
-        print(f"[HARNESS] Loaded scenario from {scenario_file}: {len(steps)} steps")
+        print(f"[HARNESS] Loaded scenario from {args.scenario_file}: {len(steps)} steps")
     else:
         steps = default_scenario
         print(f"[HARNESS] Using default scenario: {len(steps)} steps")

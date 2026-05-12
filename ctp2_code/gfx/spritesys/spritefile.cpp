@@ -558,6 +558,15 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 	{
       	// Read normal size sprites
 		size_t  size            = ssizes[j][0];
+
+		/* Guard against corrupt or malicious sprite files that declare
+		   an impossibly large compressed size.  Without this check, a
+		   garbage 32-bit value (e.g. 0xFFFFFFFF) causes ASan to abort
+		   with "allocation-size-too-big".  64 MiB is generous for a
+		   single sprite frame; legitimate data is usually < 1 MiB. */
+		if (size > 64 * 1024 * 1024) {
+			continue;
+		}
 		uint8 * CompressedData  = new uint8[size];
 
 		if (m_version>k_SPRITEFILE_VERSION1)
@@ -927,10 +936,18 @@ void SpriteFile::ReadAnimDataFull(Anim *a)
 	ReadData(&data16, sizeof(data16));
 	a->SetDelay(data16);
 
+	// Validate: corrupt sprite files may have 0 frames
+	uint16 numFrames = a->GetNumFrames();
+	if (numFrames == 0) {
+		numFrames = 1;
+		a->SetNumFrames(numFrames);
+		a->SetPlaybackTime(0);
+	}
+
 	uint16 *    u = a->GetFrames();
 	if (u == NULL)
-		u = new uint16[a->GetNumFrames()];
-	ReadData((void *)u, sizeof(uint16) * a->GetNumFrames());
+		u = new uint16[numFrames];
+	ReadData((void *)u, sizeof(uint16) * numFrames);
 	a->SetFrames(u);
 
 	POINT *     p = a->GetDeltas();
@@ -2162,6 +2179,16 @@ SPRITEFILEERR SpriteFile::ReadData(void *data, size_t bytes)
 	return (countRead == bytes) ? SPRITEFILEERR_OK : SPRITEFILEERR_READERR;
 }
 
+/**
+ * Return the current file position as a plain 'long' offset.
+ *
+ * @return Byte offset from the start of the file.
+ *
+ * @note fpos_t is a struct on Linux (with a __pos member) but a scalar on
+ *       Windows and macOS.  The #ifdef branches extract the offset correctly
+ *       for each platform.  Missing the macOS branch caused UBSan
+ *       "Missing return" because the function fell through without returning.
+ */
 long SpriteFile::GetFilePos(void)
 {
 	sint32	err = c3files_fgetpos(m_file, &m_filePos);
@@ -2171,9 +2198,20 @@ long SpriteFile::GetFilePos(void)
 	return static_cast<long>(m_filePos);
 #elif defined(LINUX)
 	return m_filePos.__pos;
+#else
+	/* macOS and other BSDs: fpos_t is a scalar type (__darwin_off_t). */
+	return static_cast<long>(m_filePos);
 #endif
 }
 
+/**
+ * Seek to an absolute byte offset in the sprite file.
+ *
+ * @param pos  Target byte offset from the start of the file.
+ *
+ * @note fpos_t representation differs by platform (see GetFilePos).
+ *       The #else branch for macOS was missing, leaving filePos uninitialised.
+ */
 void SpriteFile::SetFilePos(long pos)
 {
 	fpos_t		filePos;
@@ -2185,6 +2223,9 @@ void SpriteFile::SetFilePos(long pos)
 	err = c3files_fgetpos(m_file, &filePos);
 	Assert(err == 0);
 	filePos.__pos = pos;
+#else
+	/* macOS and other BSDs: fpos_t is a scalar, assign directly. */
+	filePos = pos;
 #endif
 
 	err = c3files_fsetpos(m_file, &filePos);

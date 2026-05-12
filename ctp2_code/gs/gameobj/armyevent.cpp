@@ -27,13 +27,13 @@
 // - Do not generate an Assert popup when slaves revolt and take over a city.
 // - Do not generate an Assert popup when an army is destroyed in an attack.
 // - Added Elite and Leader Chance 6-4-2007
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - The FinishMoveEvent event now fills a transporter up to the transport
 //   capacy limit even if the army to be transported has more units than the
-//   transporter space, the units that do not fit on board stay at land. (25-Jan-2008 Martin Gühmann)
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
-// - Merged finish move. (13-Aug-2008 Martin Gühmann)
-// - Added an upgrade order event. (13-Sep-2008 Martin Gühmann)
+//   transporter space, the units that do not fit on board stay at land. (25-Jan-2008 Martin Gï¿½hmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
+// - Merged finish move. (13-Aug-2008 Martin Gï¿½hmann)
+// - Added an upgrade order event. (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1212,7 +1212,12 @@ STDEHANDLER(MoveUnitsEvent)
 	sint32 new_cell_owner = g_theWorld->GetCell(to)->GetOwner();
 	sint32 army_owner = a->GetOwner();
 
-	Player *player_ptr = g_player[new_cell_owner];
+	/* Guard the g_player array access: new_cell_owner can be -1 (unowned / barbarian
+	   territory) or an out-of-range value from corrupt map data.  g_player is
+	   allocated with k_MAX_PLAYERS (32) entries. */
+	Player *player_ptr = (new_cell_owner >= 0 && new_cell_owner < k_MAX_PLAYERS)
+		? g_player[new_cell_owner]
+		: nullptr;
 	if ( new_cell_owner != -1 &&
 		 new_cell_owner != army_owner &&
 		 player_ptr &&

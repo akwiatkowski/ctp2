@@ -64,6 +64,26 @@ FILE *debuglog = NULL;
 
 #define k_MAX_PAREN_LEVEL 128
 
+template<typename T, typename PtrT>
+static void slicif_store(PtrT ptr, T value) {
+    memcpy(ptr, &value, sizeof(T));
+}
+
+template<typename T, typename PtrT>
+static void slicif_emit(PtrT &ptr, T value) {
+    memcpy(ptr, &value, sizeof(T));
+    ptr += sizeof(T);
+}
+
+template<typename T, typename PtrT>
+static T slicif_read(PtrT &ptr) {
+    T value;
+    memcpy(&value, ptr, sizeof(T));
+    ptr += sizeof(T);
+    return value;
+}
+
+
 struct PSlicObject **g_slicObjectArray = NULL;
 int g_slicArraySize = 0;
 int g_slicNumEntries = 0;
@@ -423,14 +443,12 @@ void slicif_add_op(SOP op, ...)
 		case SOP_PUSHD:
 
 			dval = va_arg(vl, double);
-			*((double*)s_code_ptr) = dval;
-			s_code_ptr += sizeof(double);
+			slicif_emit(s_code_ptr, (double)dval);
 			break;
 		case SOP_PUSHI:
 
 			ival = va_arg(vl, int);
-			*((int*)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 			if(!s_argValuePushed && s_parenLevel > 0) {
 				s_argValuePushed = true;
 			}
@@ -445,8 +463,7 @@ void slicif_add_op(SOP op, ...)
 				yyerror(errbuf);
 				symval = g_slicEngine->GetOrMakeSymbol(name);
 			}
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
@@ -469,8 +486,7 @@ void slicif_add_op(SOP op, ...)
 				yyerror(errbuf);
 				symval = g_slicEngine->GetOrMakeSymbol(name);
 			}
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
 				s_argValuePushed = true;
@@ -504,11 +520,9 @@ void slicif_add_op(SOP op, ...)
 				}
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
-			*((int *)s_code_ptr) = member;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)member);
 
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
@@ -545,11 +559,9 @@ void slicif_add_op(SOP op, ...)
 				}
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
-			*((int *)s_code_ptr) = member;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)member);
 
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
@@ -584,8 +596,7 @@ void slicif_add_op(SOP op, ...)
 					yyerror(errbuf);
 				}
 			}
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
 			s_argSymbol = symval;
 
@@ -595,8 +606,7 @@ void slicif_add_op(SOP op, ...)
 			break;
 		case SOP_ARGS:
 			ival = va_arg(vl, int);
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 
 			slicif_check_string_argument();
 			s_argValuePushed = false;
@@ -613,8 +623,7 @@ void slicif_add_op(SOP op, ...)
 				Assert(symval->GetType() == SLIC_SYM_STRING);
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
 			slicif_check_hard_string_argument();
 			s_argValuePushed = false;
@@ -650,8 +659,7 @@ void slicif_add_op(SOP op, ...)
 					symval->SetType(SLIC_SYM_FUNC);
 				}
 			}
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			break;
 		case SOP_EVENT:
 		{
@@ -661,43 +669,37 @@ void slicif_add_op(SOP op, ...)
 			s_currentEvent = GEV_MAX;
 
 			name = va_arg(vl, char *);
-			GAME_EVENT ev = g_gevManager->GetEventIndex(name);
-			*((int *)s_code_ptr) = (int)ev;
-			s_code_ptr += sizeof(int);
+			GAME_EVENT ev = GameEventManager::GetEventIndex(name);
+			slicif_emit(s_code_ptr, (int)(int)ev);
 			break;
 		}
 
 		case SOP_SBLK:
 			ival = va_arg(vl, int);
 			s_block_ptr[ival] = s_code_ptr;
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 			break;
 		case SOP_END:
 
 			ival = va_arg(vl, int);
 
-			*((int *)s_code_ptr) = -1;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(-1));
 
 			offset = s_code_ptr - s_code;
-			*((int *)s_block_ptr[ival]) = offset;
+			slicif_store(s_block_ptr[ival], (int)offset);
 			s_block_ptr[ival][-1] = SOP_JMP;
 
 			break;
 		case SOP_BUTN:
 			offset = s_block_ptr[s_level] - s_code;
-			*((int *)s_code_ptr) = offset + sizeof(int);
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(offset + sizeof(int)));
 
 			ival = va_arg(vl, int);
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 			break;
 		case SOP_OCLS:
 			offset = s_block_ptr[s_level] - s_code;
-			*((int *)s_code_ptr) = offset + sizeof(int);
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(offset + sizeof(int)));
 			break;
 		case SOP_BNT:
 		case SOP_BNEV:
@@ -705,7 +707,7 @@ void slicif_add_op(SOP op, ...)
 			sptr = (char *)(s_block_ptr[s_level] - 1);
 			*sptr = static_cast<char>(op);
 			sptr++;
-			*((int*)sptr) = (int)(s_code_ptr - s_code) - 1;
+			slicif_store(sptr, (int)((int)(s_code_ptr - s_code) - 1));
 
 
 			s_block_ptr[s_level] = s_code_ptr - 5;
@@ -721,8 +723,7 @@ void slicif_add_op(SOP op, ...)
 
 		case SOP_JMP:
 			ival = va_arg(vl, int);
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 			break;
 		case SOP_ASSN:
 
@@ -743,8 +744,7 @@ void slicif_add_op(SOP op, ...)
 				yyerror(errbuf);
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			break;
 		case SOP_ASSNA:
 
@@ -762,8 +762,7 @@ void slicif_add_op(SOP op, ...)
 				yyerror(errbuf);
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			break;
 		case SOP_ASSNM:
 		case SOP_ASSNAM:
@@ -793,11 +792,9 @@ void slicif_add_op(SOP op, ...)
 				}
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
-			*((int *)s_code_ptr) = member;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)member);
 
 			break;
 		}
@@ -806,15 +803,12 @@ void slicif_add_op(SOP op, ...)
 			break;
 		case SOP_LINE:
 			ival = va_arg(vl, int);
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 
 			ival = va_arg(vl, int);
-			*((int *)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 
-			*((void **)s_code_ptr) = NULL;
-			s_code_ptr += sizeof(void *);
+			slicif_emit(s_code_ptr, (void *)NULL);
 
 			break;
 		case SOP_ASIZE:
@@ -831,8 +825,7 @@ void slicif_add_op(SOP op, ...)
 				yyerror(errbuf);
 			}
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			break;
 //Added by Martin G�hmann for database support
 		case SOP_DBNAME:
@@ -859,8 +852,7 @@ void slicif_add_op(SOP op, ...)
 			*((char*)s_code_ptr) = dbName[i];
 			s_code_ptr += sizeof(char);
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
@@ -908,8 +900,7 @@ void slicif_add_op(SOP op, ...)
 			*((char*)s_code_ptr) = dbName[i];
 			s_code_ptr += sizeof(char);
 
-			*((int *)s_code_ptr) = symval->GetIndex();
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
 			//Do the same thing with the record member name:
 			for(i = 0; name[i] != '\0'; ++i){
@@ -957,8 +948,7 @@ void slicif_add_op(SOP op, ...)
 			*((char*)s_code_ptr) = dbName[i];
 			s_code_ptr += sizeof(char);
 
-			*((int*)s_code_ptr) = ival;
-			s_code_ptr += sizeof(int);
+			slicif_emit(s_code_ptr, (int)ival);
 
 			//Do the same thing with the record member name:
 			for(i = 0; name[i] != '\0'; ++i){
@@ -1102,7 +1092,7 @@ void slicif_end_if()
 {
 	int i;
 	for(i = 0; i < s_if_stack[s_if_level].count; i++) {
-		*((int *)s_if_stack[s_if_level].array[i]) = s_code_ptr - s_code;
+		slicif_store(s_if_stack[s_if_level].array[i], (int)(s_code_ptr - s_code));
 	}
 	--s_if_level;
 }
@@ -1126,7 +1116,7 @@ void slicif_end_while()
 	sptr = (char *)(s_block_ptr[s_level] - 1);
 	*sptr = SOP_BNT;
 	sptr++;
-	*((int *)sptr) = (int)(s_code_ptr - s_code);
+	slicif_store(sptr, (int)((int)(s_code_ptr - s_code)));
 
 	s_while_level--;
 }
@@ -1173,19 +1163,16 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 		switch(op) {
 			case SOP_PUSHI:
 				fprintf(debuglog, "pushi ");
-				ival = *((int*)codePtr);
+				ival = slicif_read<int>(codePtr);
 				fprintf(debuglog, "%d\n", ival);
-				codePtr += sizeof(int);
 				break;
 			case SOP_PUSHD:
 				fprintf(debuglog, "pushd ");
-				dval = *((double*)codePtr);
+				dval = slicif_read<double>(codePtr);
 				fprintf(debuglog, "%lf\n", dval);
-				codePtr += sizeof(int);
 				break;
 			case SOP_PUSHV:
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1198,8 +1185,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				fprintf(debuglog, "pushv %s(%d)\n", symval->GetName(), ival);
 				break;
 			case SOP_PUSHA:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1213,12 +1199,10 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				break;
 			case SOP_PUSHM:
 				{
-				    ival = *((int *)codePtr);
-				    codePtr += sizeof(int);
+				    ival = slicif_read<int>(codePtr);
 				    symval = g_slicEngine->GetSymbol(ival);
 
-				    ival2 = *((int *)codePtr);
-				    codePtr += sizeof(int);
+				    ival2 = slicif_read<int>(codePtr);
 
                     SlicStructInstance *    gotStruct   = symval->GetStruct();
                     char const *            memberName  =
@@ -1232,8 +1216,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				break;
 			case SOP_PUSHAM:
 
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				symval = g_slicEngine->GetSymbol(ival);
 
 				if(!symval) {
@@ -1241,8 +1224,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 					return;
 				}
 
-				ival2 = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival2 = slicif_read<int>(codePtr);
 				fprintf(debuglog, "pusham %s(%d)[].%s(%d)\n", symval->GetName(), symval->GetIndex(),
 						symval->GetArray()->GetStructTemplate()->GetMemberName(ival2), ival2);
 				break;
@@ -1267,8 +1249,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_ARGE: fprintf(debuglog, "arge\n"); break;
 			case SOP_NEQ:  fprintf(debuglog, "neq\n"); break;
 			case SOP_ARGID:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1286,8 +1267,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				fprintf(debuglog, "argid %s(%d)\n", symval->GetName(), ival);
 				break;
 			case SOP_ARGS:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1300,8 +1280,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				fprintf(debuglog, "args  %d(%s)\n", ival, symval->GetName());
 				break;
 			case SOP_ARGST:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1315,8 +1294,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				break;
 			case SOP_CALL:
 			case SOP_CALLR:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1336,10 +1314,9 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 						symval->GetName(), ival);
 				break;
 			case SOP_EVENT:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
-				fprintf(debuglog, "event %s\n", g_gevManager->GetEventName((GAME_EVENT)ival));
+				fprintf(debuglog, "event %s\n", GameEventManager::GetEventName((GAME_EVENT)ival));
 				break;
 			case SOP_SBLK:
 				fprintf(debuglog, "dangling SBLK\n");
@@ -1349,25 +1326,20 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				codePtr += sizeof(int);
 				break;
 			case SOP_JMP:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				fprintf(debuglog, "jmp   0x%04lx\n", ival);
 				break;
 			case SOP_BNT:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				fprintf(debuglog, "bnt   0x%04lx\n", ival);
 				break;
 			case SOP_BNEV:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				fprintf(debuglog, "bnev  0x%04lx\n", ival);
 				break;
 			case SOP_BUTN:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
-				ival2 = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
+				ival2 = slicif_read<int>(codePtr);
 
 
 
@@ -1382,8 +1354,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 						symval->GetIndex(), symval->GetName());
 				break;
 			case SOP_OCLS:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				fprintf(debuglog, "ocls  0x%04lx\n", ival);
 				break;
 			case SOP_STOP:
@@ -1393,8 +1364,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				fprintf(debuglog, "neg\n");
 				break;
 			case SOP_ASSN:
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1407,8 +1377,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				fprintf(debuglog, "assn  %s(%d)\n", symval->GetName(), ival);
 				break;
 			case SOP_ASSNA:
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 
 
@@ -1426,18 +1395,15 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_SARGS: fprintf(debuglog, "sargs\n"); break;
 			case SOP_RET:   fprintf(debuglog, "ret\n"); break;
 			case SOP_LINE:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
-				ival2 = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival2 = slicif_read<int>(codePtr);
 
 				codePtr += sizeof(void *);
 				fprintf(debuglog, "line  %d/%d\n", ival, ival2);
 				break;
 			case SOP_ASIZE:
-				ival = *((int *)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 				symval = g_slicEngine->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
@@ -1456,8 +1422,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 				if(!g_slicEngine->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
@@ -1484,8 +1449,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 				//Get the member name:
 				name = ((char*)codePtr);
@@ -1519,8 +1483,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 				//Get the member name:
 				name = ((char*)codePtr);
@@ -1553,8 +1516,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				ival = *((int*)codePtr);
-				codePtr += sizeof(int);
+				ival = slicif_read<int>(codePtr);
 
 				//Get the member name:
 				name = ((char*)codePtr);
@@ -1909,11 +1871,11 @@ void slicif_end_for()
 	char * sptr = (char *)(s_block_ptr[s_level] - 1);
 	*sptr = SOP_BNT;
 	sptr++;
-	*((int *)sptr) = (int)(s_code_ptr - s_code);
+	slicif_store(sptr, (int)((int)(s_code_ptr - s_code)));
 
 	sptr = (char*)(s_code +  s_while_stack[s_while_level].increment - 5);
 	sptr++;
-	*((int *)sptr) = (int)(s_block_ptr[s_level] - 1 - s_code);
+	slicif_store(sptr, (int)((int)(s_block_ptr[s_level] - 1 - s_code)));
 
 	s_while_level--;
 }
@@ -1930,7 +1892,7 @@ void slicif_add_const(char *name, int value)
 
 void slicif_check_event_exists(char *name)
 {
-	GAME_EVENT ev = g_gevManager->GetEventIndex(name);
+	GAME_EVENT ev = GameEventManager::GetEventIndex(name);
 	if(ev >= GEV_MAX) {
 		char errbuf[1024];
 		sprintf(errbuf, "No event named %s", name);
@@ -1959,7 +1921,7 @@ SLIC_PRI slicif_get_priority()
 void slicif_set_event_checking(char *eventname)
 {
 	s_event_checking = 1;
-	const char *argString = g_gevManager->GetArgString(g_gevManager->GetEventIndex(eventname));
+	const char *argString = GameEventManager::GetArgString(GameEventManager::GetEventIndex(eventname));
 
 	memset(s_arg_counts, 0, sizeof(s_arg_counts));
 
@@ -1969,7 +1931,7 @@ void slicif_set_event_checking(char *eventname)
 		if(!*argString)
 			break;
 
-		GAME_EVENT_ARGUMENT argType = g_gevManager->ArgCharToIndex(*argString);
+		GAME_EVENT_ARGUMENT argType = GameEventManager::ArgCharToIndex(*argString);
 		s_arg_counts[argType]++;
 		argString++;
 	}
@@ -2036,7 +1998,7 @@ void slicif_start_event(char *name)
 {
 	char errbuf[1024];
 
-	s_currentEvent = g_gevManager->GetEventIndex(name);
+	s_currentEvent = GameEventManager::GetEventIndex(name);
 	if(s_currentEvent >= GEV_MAX) {
 		sprintf(errbuf, "Event %s does not exist", name);
 		yyerror(errbuf);
@@ -2094,7 +2056,7 @@ void slicif_check_arg_symbol(SLIC_SYM type, char *typeName)
 void slicif_check_argument()
 {
 	if(s_currentEvent < GEV_MAX) {
-		char argChar = g_gevManager->ArgChar(s_currentEvent, s_currentEventArgument[s_parenLevel]);
+		char argChar = GameEventManager::ArgChar(s_currentEvent, s_currentEventArgument[s_parenLevel]);
 		switch(argChar) {
 			case GEAC_ARMY:
 				slicif_check_arg_symbol(SLIC_SYM_ARMY, "army_t");
@@ -2146,10 +2108,10 @@ void slicif_check_num_args()
 	char errbuf[1024];
 
 	if((s_currentEvent < GEV_MAX) && s_parenLevel == 1) {
-		if((s_currentEventArgument[s_parenLevel]) != g_gevManager->GetNumArgs(s_currentEvent)) {
+		if((s_currentEventArgument[s_parenLevel]) != GameEventManager::GetNumArgs(s_currentEvent)) {
 			sprintf(errbuf, "Wrong number of arguments for event %s, expected %u",
-			        g_gevManager->GetEventName(s_currentEvent),
-			        g_gevManager->GetNumArgs(s_currentEvent));
+			        GameEventManager::GetEventName(s_currentEvent),
+			        GameEventManager::GetNumArgs(s_currentEvent));
 			yyerror(errbuf);
 			return;
 		}

@@ -25,7 +25,8 @@
 class BoundingRect {
 
 public:
-	BoundingRect() : m_isValid(false) {}
+	BoundingRect() : m_isValid(false), m_xWrapOk(false), m_yWrapOk(false),
+	                 m_ul_x_wrap(false), m_lr_x_wrap(false), m_ul_y_wrap(false), m_lr_y_wrap(false) {}
 
 	BoundingRect( const BoundingRect & rect ) { *this = rect; }
 

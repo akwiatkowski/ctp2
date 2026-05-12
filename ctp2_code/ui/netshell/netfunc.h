@@ -396,16 +396,33 @@ public:
         size = static_cast<SizeT>(size + s);
 	}
 
+	/**
+	 * Append a value to the end of the packet buffer.
+	 *
+	 * @tparam type  Type of the value to push.
+	 * @param t      Value to append.
+	 *
+	 * @note Uses memcpy to avoid UBSan "misaligned pointer use" when the
+	 *       current packet size is not a multiple of sizeof(type).
+	 */
 	template<typename type>
 	void Push(type t) {
 		Grow(sizeof(type));
-		*(type *)(body + size - sizeof(type)) = t;
+		memcpy(body + size - sizeof(type), &t, sizeof(type));
 	}
 
+	/**
+	 * Read a value from the front of the packet buffer and advance the cursor.
+	 *
+	 * @tparam type  Type of the value to pop.
+	 * @param t      Reference to store the read value.
+	 *
+	 * @note Uses memcpy to avoid UBSan "misaligned pointer use" when the
+	 *       read cursor is not aligned for sizeof(type).
+	 */
 	template<typename type>
 	void Pop(type& t) {
-
-		t = *(type *)(first);
+		memcpy(&t, first, sizeof(type));
 		first += sizeof(type);
 
 	}

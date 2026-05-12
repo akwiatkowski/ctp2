@@ -59,6 +59,22 @@ setup:
 	meson setup build ctp2_code --buildtype=debug
 	@echo "Configure complete. Run 'make build' to compile."
 
+# Meson build with AddressSanitizer + UndefinedBehaviorSanitizer
+setup-sanitized:
+	@echo "Configuring meson build with sanitizers (ASan + UBSan)..."
+	@rm -rf build-sanitized
+	meson setup build-sanitized ctp2_code \
+		--buildtype=debug \
+		-Db_sanitize=address,undefined \
+		-Db_lundef=false \
+		-Dcpp_args="-fno-omit-frame-pointer" \
+		-Dc_args="-fno-omit-frame-pointer"
+	@echo "Sanitized build configured. Run 'make build-sanitized' to compile."
+
+build-sanitized:
+	@echo "Building CTP2 with sanitizers..."
+	meson compile -C build-sanitized
+
 # Compile the project
 build:
 	@echo "Building CTP2..."
@@ -129,6 +145,13 @@ smoke-test: build
 	@echo "Running smoke test..."
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@python3 test/smoke_test.py
+
+# Smoke test with sanitizers enabled
+smoke-test-sanitized: build-sanitized
+	@echo "Running smoke test with sanitizers..."
+	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
+	@ASAN_OPTIONS=detect_leaks=0:abort_on_error=1:print_legend=1 \
+		python3 test/smoke_test.py --build-dir=build-sanitized
 
 .PHONY: all deps setup build test clean-build local playtest doc smoke-test
 

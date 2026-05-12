@@ -41,15 +41,15 @@
 // - Prevented crash on incorrect input (personality typo).
 // - Improved CleanupAll.
 // - Some agreements have limited duration, PFT 05 MAR 05
-// - Replaced old civilisation database by new civilisation database. (Aug 20th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
+// - Replaced old civilisation database by new civilisation database. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
 // - Made limited duration optional.
-// - Added war over message. (Feb 4th 2007 Martin Gühmann)
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Added war over message. (Feb 4th 2007 Martin Gï¿½hmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gühmann)
-// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin Gühmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
+// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -4786,7 +4786,8 @@ void Diplomat::ComputeIncursionPermission()
                 )
            )
 		{
-			m_incursionPermission |= (1 << foreignerId);
+			if (foreignerId >= 0 && foreignerId < 32)
+				m_incursionPermission |= (1U << foreignerId);
 		}
 	}
 }
@@ -4796,9 +4797,22 @@ uint32 Diplomat::GetIncursionPermission() const
 	return m_incursionPermission;
 }
 
+/**
+ * Test whether @a foreignerId has explicit permission to enter this player's territory.
+ *
+ * @param foreignerId  Index of the foreign player to check.
+ *
+ * @return true if the foreign player has incursion permission.
+ *
+ * @note The bit-shift is guarded because foreignerId can be -1 (invalid / barbarians)
+ *       which would invoke undefined behaviour in a left-shift.  The mask width
+ *       (32) matches k_MAX_PLAYERS and the uint32 size of m_incursionPermission.
+ */
 bool Diplomat::IncursionPermission(const PLAYER_INDEX foreignerId) const
 {
-	return (m_incursionPermission & (1 << foreignerId)) != 0;
+	if (foreignerId < 0 || foreignerId >= 32)
+		return false;
+	return (m_incursionPermission & (1U << foreignerId)) != 0;
 }
 
 void Diplomat::SetHotwarAttack(const PLAYER_INDEX foreignerId, const sint16 last_hot_war_attack)

@@ -24,22 +24,22 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added slic database access, by Martin Gühmann.
-// - Added a way to find out the size of a slic database, by Martin Gühmann.
-// - Repaired memory leak caused by one of the contructors, by Martin Gühmann.
+// - Added slic database access, by Martin Gï¿½hmann.
+// - Added a way to find out the size of a slic database, by Martin Gï¿½hmann.
+// - Repaired memory leak caused by one of the contructors, by Martin Gï¿½hmann.
 // - Replaced Debug Assertion for slic division by 0 by slic error message
 //   the problem must be solved by the slicer not by a c++ coder,
-//   by Martin Gühmann
+//   by Martin Gï¿½hmann
 // - Treat modulo (%) 0 errors in the same way as errors with division by 0.
-// - Fixed slic database access after a reload by Martin Gühmann.
+// - Fixed slic database access after a reload by Martin Gï¿½hmann.
 // - Added '**' operator handling
 // - Added bitwise operator handling
 // - Repaired memory leaks.
 // - Repaired crash with invalid input.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Added database array access. (Sep 16th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Added database array access. (Sep 16th 2005 Martin Gï¿½hmann)
 // - Repaired crashes with game saved with original Activision executable.
-// - Standardized code. (May 29th 2006 Martin Gühmann)
+// - Standardized code. (May 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@
 #include "gs/slic/SlicArray.h"
 #include "gs/database/profileDB.h"
 
-//Added by Martin Gühmann for database access
+//Added by Martin Gï¿½hmann for database access
 #include "gs/slic/SlicDBConduit.h"
 #include <math.h>
 
@@ -92,7 +92,8 @@ namespace
         else
         {
             // Compatibility mode: DB is stored by index with the Activision 1.1 patch
-            int     dbIndex     = *(reinterpret_cast<int *>(instructionPointer));
+            int     dbIndex;
+            memcpy(&dbIndex, instructionPointer, sizeof(int));
             instructionPointer += sizeof(int);
 
             switch (dbIndex)
@@ -368,27 +369,27 @@ BOOL SlicFrame::DoInstruction(SOP op)
 	sint32 res;
 	BOOL calcOffset = TRUE;
 
-	//Added by Martin Gühmann for database access
+	//Added by Martin Gï¿½hmann for database access
 	SlicDBInterface *conduit;
 	char* name;
 
 	switch(op) {
 		case SOP_PUSHI:
-			sval1.m_int = *(reinterpret_cast<sint32 *>(codePtr));
+			slicif_read_sint32(codePtr, &sval1.m_int);
 			codePtr += sizeof(sint32);
 			m_stack->Push(SS_TYPE_INT, sval1);
 			break;
 
 		case SOP_PUSHD:
 #if defined(SLIC_DOUBLES)
-			dval = *((double*)codePtr);
+			memcpy(&dval, codePtr, sizeof(double));
             // Probably some handling missing here. Now, we just skip some bytes.
 #endif
 			codePtr += sizeof(sint32);
 			break;
 
 		case SOP_PUSHV:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(int);
 			sval1.m_sym = g_slicEngine->GetSymbol(ival);
 			if (sval1.m_sym)
@@ -404,7 +405,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 		case SOP_PUSHM:
 		{
-			ival = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -422,7 +423,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			SlicStructInstance *theStruct = symval->GetStruct();
 			Assert(theStruct);
 
-			ival2 = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
 			sval1.m_sym = theStruct->GetMemberSymbol(ival2);
@@ -433,7 +434,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_PUSHAM:
 		{
 
-			ival = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -477,7 +478,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			SlicStructInstance *theStruct = structSym->GetStruct();
 			Assert(theStruct);
 
-			ival2 = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
 			sval1.m_sym = theStruct->GetMemberSymbol(ival2);
@@ -486,7 +487,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		}
 
 		case SOP_PUSHA:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(int);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -590,7 +591,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			Assert(sp >= 0);
 			if(Eval(type1, sval1) == 0) {
 
-				//Added by Martin Gühmann
+				//Added by Martin Gï¿½hmann
 				//It is a problem of slic code and not of the ctp2.exe,
 				//the slicer has to solve the problem.
 				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -728,7 +729,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			AddArg(type1, sval1);
 			break;
 		case SOP_ARGID:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -743,7 +744,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			m_argList->AddArg(symval->GetSegment(), symval);
 			break;
 		case SOP_ARGS:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(symval->GetType() != SLIC_SYM_SVAR) {
@@ -753,7 +754,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			m_argList->AddArg(SA_TYPE_STRING, sint32(symval->GetStringId()));
 			break;
 		case SOP_ARGST:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(symval->GetType() != SLIC_SYM_STRING) {
@@ -766,7 +767,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_CALLR:
 		{
 
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -855,7 +856,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		}
 		case SOP_EVENT:
 		{
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			if(g_gevManager->IsProcessing()) {
 				EVENTLOG(("    "));
@@ -891,11 +892,11 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			codePtr += sizeof(sint32);
 			break;
 		case SOP_JMP:
-			m_offset    = *(reinterpret_cast<sint32 *>(codePtr));
+			slicif_read_sint32(codePtr, &m_offset);
 			calcOffset  = FALSE;
 			break;
 		case SOP_BNT:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			sp = m_stack->Pop(type2, sval2);
 			if(!Eval(type2, sval2)) {
@@ -910,9 +911,9 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			break;
 		case SOP_BUTN:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			ival2 = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
 			symval = g_slicEngine->GetSymbol(ival2);
@@ -925,7 +926,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				ival, g_slicEngine->GetContext()));
 			break;
 		case SOP_OCLS:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 
 			g_slicEngine->GetContext()->AddButton(new SlicButton(
@@ -942,7 +943,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			m_stack->Push(SS_TYPE_INT, sval3);
 			break;
 		case SOP_ASSN:
-			ival = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 
 			symval = g_slicEngine->GetSymbol(ival);
@@ -958,7 +959,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			break;
 		case SOP_ASSNA:
 
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -985,7 +986,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			break;
 		case SOP_ASSNM:
 		{
-			ival = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			if(!symval) {
@@ -1003,7 +1004,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			SlicStructInstance *theStruct = symval->GetStruct();
 			Assert(theStruct);
 
-			ival2 = *((sint32*)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
 			symval = theStruct->GetMemberSymbol(ival2);
@@ -1017,11 +1018,11 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		{
 
 
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			SlicSymbolData *arraySym = g_slicEngine->GetSymbol(ival);
 
-			ival2 = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
 			if(!arraySym) {
@@ -1096,22 +1097,23 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_LBRK:
 		{
 
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			m_currentLine = ival;
 
-			ival2 = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival2);
 			if(m_segment->GetFilename()) {
 				if(ival2 < 0) {
 
-					*((sint32 *)codePtr) = FindFileOffset(m_segment->GetFilename(), ival);
-					ival2 = *((sint32 *)codePtr);
+					slicif_store_sint32(codePtr, FindFileOffset(m_segment->GetFilename(), ival));
+					slicif_read_sint32(codePtr, &ival2);
 				}
 			}
 
 			codePtr += sizeof(sint32);
 
-			SlicConditional *cond = *((SlicConditional **)codePtr);
+			SlicConditional *cond;
+			memcpy(&cond, codePtr, sizeof(SlicConditional *));
 			codePtr += sizeof(SlicConditional *);
 
 			if(op == SOP_LBRK || g_slicEngine->BreakRequested()) {
@@ -1127,7 +1129,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			break;
 		}
 		case SOP_ASIZE:
-			ival = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 			symval = g_slicEngine->GetSymbol(ival);
 			Assert(symval);
@@ -1140,11 +1142,11 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			m_stack->Push(SS_TYPE_INT, sval1);
 			break;
 
-		//Added by Martin Gühmann for database support
+		//Added by Martin Gï¿½hmann for database support
 		case SOP_DBNAME:
 		{
 			conduit     = GetDatabase(codePtr);
-			ival        = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr    += sizeof(sint32);
 			symval      = g_slicEngine->GetSymbol(ival);
 
@@ -1174,7 +1176,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_DBNAMEREF:
 		{
 			conduit     = GetDatabase(codePtr);
-			ival        = *((sint32 *)codePtr);
+			slicif_read_sint32(codePtr, &ival);
 			codePtr    += sizeof(sint32);
 			symval      = g_slicEngine->GetSymbol(ival);
 
@@ -1213,7 +1215,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_DBNAMEARRAY:
 		{
 			conduit     = GetDatabase(codePtr);
-			ival        = *((int*)codePtr);
+			slicif_read_int(codePtr, &ival);
 			codePtr    += sizeof(int);
 			symval      = g_slicEngine->GetSymbol(ival);
 
@@ -1261,7 +1263,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
             if (conduit)
             {
-			    sval3.m_int = *((sint32 *)codePtr);
+			    slicif_read_sint32(codePtr, &sval3.m_int);
 			    codePtr    += sizeof(sint32);
 			    //Get the member:
 			    name = reinterpret_cast<char *>(codePtr);
@@ -1408,7 +1410,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		}
 		case SOP_DBSIZE:
 		{
-			//Added by Martin Gühmann to figure out via
+			//Added by Martin Gï¿½hmann to figure out via
 			//slic how many records the database contains
 			//Get the database:
 			conduit = GetDatabase(codePtr);

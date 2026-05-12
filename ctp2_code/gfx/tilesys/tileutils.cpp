@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -155,127 +155,183 @@ Pixel16 *tileutils_TGA2mem(char *filename, uint16 *width, uint16 *height)
 	return buffer;
 }
 
-void tileutils_EncodeCopyRun(Pixel32 **inBuf, int *pos, int width, Pixel16 **outBufPtr)
+/**
+ * Encode a run of identical 32-bit pixels into a tile copy-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated as we consume pixels).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (0-based, updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ *
+ * @note Guard added to prevent reading past the end of the scanline buffer.
+ */
+void tileutils_EncodeCopyRun(Pixel32 **inBuf,
+							 int *currentPixelPos,
+							 int scanlineWidth,
+							 Pixel16 **outBufPtr)
 {
-	Pixel16			pix16;
-	unsigned char	alpha;
-	int				runLen      = 0;
-	Pixel16	*       headerPtr   = *outBufPtr;
+	Pixel16			blendedPixel16;
+	unsigned char	pixelAlpha;
+	int				runLength      = 0;
+	Pixel16	*       headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	RGB32Info(**inBuf, &pix16, &alpha);
-	Pixel32         pix32 = (**inBuf) & k_32_BIT_RGB_MASK;
+	RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+	Pixel32         currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
 
-	while (pix32 != k_32_BIT_SKIP_PIXEL
-				&& pix32 != k_32_BIT_SHADOW_PIXEL
-				&& pix32 != k_32_BIT_COLORIZE_PIXEL
-				&& (*pos < width)) {
+	while (currentPixel32 != k_32_BIT_SKIP_PIXEL
+				&& currentPixel32 != k_32_BIT_SHADOW_PIXEL
+				&& currentPixel32 != k_32_BIT_COLORIZE_PIXEL
+				&& (*currentPixelPos < scanlineWidth)) {
 
-		**outBufPtr = pix16;
+		**outBufPtr = blendedPixel16;
 
 		(*outBufPtr)++;
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		RGB32Info(**inBuf, &pix16, &alpha);
-		pix32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		if (*currentPixelPos < scanlineWidth) {
+			RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		}
 	}
 
-	Pixel16			footer      = static_cast<Pixel16>(k_TILE_COPY_RUN_ID << 8 | runLen);
+	Pixel16			footer      = static_cast<Pixel16>(k_TILE_COPY_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-void tileutils_EncodeColorizeRun(Pixel32 **inBuf, int *pos, int width, Pixel16 **outBufPtr)
+/**
+ * Encode a run of colorize pixels (32-bit source) into a tile colorize-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ */
+void tileutils_EncodeColorizeRun(Pixel32 **inBuf,
+								 int *currentPixelPos,
+								 int scanlineWidth,
+								 Pixel16 **outBufPtr)
 {
-	Pixel16			pix16;
-	unsigned char	alpha;
-	int				runLen      = 0;
-	Pixel16	*       headerPtr   = *outBufPtr;
+	Pixel16			blendedPixel16;
+	unsigned char	pixelAlpha;
+	int				runLength      = 0;
+	Pixel16	*       headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	RGB32Info(**inBuf, &pix16, &alpha);
-	Pixel32			pix32       = (**inBuf) & k_32_BIT_RGB_MASK;
-	while (pix32 == k_32_BIT_COLORIZE_PIXEL && (*pos < width)) {
+	RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+	Pixel32			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+	while (currentPixel32 == k_32_BIT_COLORIZE_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		RGB32Info(**inBuf, &pix16, &alpha);
-		pix32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		if (*currentPixelPos < scanlineWidth) {
+			RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		}
 	}
 
-	Pixel16			footer      = static_cast<Pixel16>(k_TILE_COLORIZE_RUN_ID << 8 | runLen);
+	Pixel16			footer = static_cast<Pixel16>(k_TILE_COLORIZE_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-void tileutils_EncodeShadowRun(Pixel32 **inBuf, int *pos, int width, Pixel16 **outBufPtr)
+/**
+ * Encode a run of shadow pixels (32-bit source) into a tile shadow-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ */
+void tileutils_EncodeShadowRun(Pixel32 **inBuf,
+							   int *currentPixelPos,
+							   int scanlineWidth,
+							   Pixel16 **outBufPtr)
 {
-	Pixel16			pix16;
-	unsigned char	alpha;
-	int				runLen      = 0;
-	Pixel16	*       headerPtr   = *outBufPtr;
+	Pixel16			blendedPixel16;
+	unsigned char	pixelAlpha;
+	int				runLength      = 0;
+	Pixel16	*       headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	RGB32Info(**inBuf, &pix16, &alpha);
-	Pixel32			pix32       = (**inBuf) & k_32_BIT_RGB_MASK;
-	while (pix32 == k_32_BIT_SHADOW_PIXEL && (*pos < width)) {
+	RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+	Pixel32			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+	while (currentPixel32 == k_32_BIT_SHADOW_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		RGB32Info(**inBuf, &pix16, &alpha);
-		pix32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		if (*currentPixelPos < scanlineWidth) {
+			RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		}
 	}
 
-    Pixel16         footer      = static_cast<Pixel16>(k_TILE_SHADOW_RUN_ID << 8 | runLen);
+	Pixel16			footer = static_cast<Pixel16>(k_TILE_SHADOW_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-char tileutils_EncodeSkipRun(Pixel32 **inBuf, int *pos, int width, Pixel16 **outBufPtr)
+/**
+ * Encode a run of skip pixels (32-bit source) into a tile skip-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ *
+ * @return 0 if the skip run consumed the entire scanline, 1 otherwise.
+ */
+char tileutils_EncodeSkipRun(Pixel32 **inBuf,
+							 int *currentPixelPos,
+							 int scanlineWidth,
+							 Pixel16 **outBufPtr)
 {
-	Pixel16			pix16;
-	unsigned char	alpha;
-	int				runLen = 0;
+	Pixel16			blendedPixel16;
+	unsigned char	pixelAlpha;
+	int				runLength = 0;
 
-	RGB32Info(**inBuf, &pix16, &alpha);
-	Pixel32			pix32   = (**inBuf) & k_32_BIT_RGB_MASK;
+	RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+	Pixel32			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
 
-	while (pix32 == k_32_BIT_SKIP_PIXEL && (*pos < width)) {
+	while (currentPixel32 == k_32_BIT_SKIP_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		RGB32Info(**inBuf, &pix16, &alpha);
-		pix32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		if (*currentPixelPos < scanlineWidth) {
+			RGB32Info(**inBuf, &blendedPixel16, &pixelAlpha);
+			currentPixel32 = (**inBuf) & k_32_BIT_RGB_MASK;
+		}
 	}
 
-	if (runLen < width) {
+	if (runLength < scanlineWidth) {
 
-		Pixel16			footer = static_cast<Pixel16>(k_TILE_SKIP_RUN_ID << 8 | runLen);
+		Pixel16			footer = static_cast<Pixel16>(k_TILE_SKIP_RUN_ID << 8 | runLength);
 
-		if (*pos >= width) footer |= k_EOLN_ID << 8;
+		if (*currentPixelPos >= scanlineWidth) footer |= k_EOLN_ID << 8;
 
 		**outBufPtr = footer;
 		(*outBufPtr)++;
@@ -385,140 +441,205 @@ Pixel16 *tileutils_EncodeTile(Pixel32 *buf, uint16 width, uint16 height, uint32 
 	return (Pixel16 *)returnBuf;
 }
 
-void tileutils_EncodeCopyRun16(Pixel16 **inBuf, int *pos, int width, Pixel16 **outBufPtr,
+/**
+ * Encode a run of identical 16-bit pixels into a tile copy-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated as we consume pixels).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (0-based, updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ * @param sourceDataIs565  If true, convert 565-format pixels to 555 format on the fly.
+ *
+ * @note The original code read the next input pixel AFTER incrementing the cursor,
+ *       which caused a heap-buffer-overflow when the last pixel of a row was consumed.
+ *       The guard `if (*currentPixelPos < scanlineWidth)` prevents the read-past-end.
+ */
+void tileutils_EncodeCopyRun16(Pixel16 **inBuf,
+							   int *currentPixelPos,
+							   int scanlineWidth,
+							   Pixel16 **outBufPtr,
 							   BOOL sourceDataIs565)
 {
-	int			runLen      = 0;
-	Pixel16	*   headerPtr   = *outBufPtr;
+	int			runLength      = 0;
+	Pixel16	*	headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	Pixel16		pix16       = (**inBuf);
+	Pixel16		currentPixel   = (**inBuf);
 	if (sourceDataIs565)
-		pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
 
-	while (pix16 != k_16_BIT_SKIP_PIXEL
-				&& pix16 != k_16_BIT_SHADOW_PIXEL
-				&& pix16 != k_16_BIT_COLORIZE_PIXEL
-				&& (*pos < width)) {
+	while (currentPixel != k_16_BIT_SKIP_PIXEL
+				&& currentPixel != k_16_BIT_SHADOW_PIXEL
+				&& currentPixel != k_16_BIT_COLORIZE_PIXEL
+				&& (*currentPixelPos < scanlineWidth)) {
 
-		**outBufPtr = pix16;
+		**outBufPtr = currentPixel;
 
 		(*outBufPtr)++;
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		pix16 = (**inBuf);
-		if (sourceDataIs565)
-			pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		/* Only read the next pixel if we have not reached the end of the row.
+		   Otherwise we would read past the end of the scanline buffer. */
+		if (*currentPixelPos < scanlineWidth) {
+			currentPixel = (**inBuf);
+			if (sourceDataIs565)
+				currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+		}
 	}
 
-	Pixel16			footer  = static_cast<Pixel16>(k_TILE_COPY_RUN_ID << 8 | runLen);
+	Pixel16			footer = static_cast<Pixel16>(k_TILE_COPY_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-void tileutils_EncodeColorizeRun16(Pixel16 **inBuf, int *pos, int width, Pixel16 **outBufPtr,
+/**
+ * Encode a run of colorize pixels (16-bit source) into a tile colorize-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ * @param sourceDataIs565  If true, convert 565-format pixels to 555 format on the fly.
+ */
+void tileutils_EncodeColorizeRun16(Pixel16 **inBuf,
+								   int *currentPixelPos,
+								   int scanlineWidth,
+								   Pixel16 **outBufPtr,
 								   BOOL sourceDataIs565)
 {
-	int			runLen      = 0;
-	Pixel16 *   headerPtr   = *outBufPtr;
+	int			runLength      = 0;
+	Pixel16 *   headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	Pixel16		pix16       = (**inBuf);
+	Pixel16		currentPixel   = (**inBuf);
 	if (sourceDataIs565)
-		pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
 
-	while (pix16 == k_16_BIT_COLORIZE_PIXEL && (*pos < width)) {
+	while (currentPixel == k_16_BIT_COLORIZE_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		pix16 = (**inBuf);
-		if (sourceDataIs565)
-			pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		if (*currentPixelPos < scanlineWidth) {
+			currentPixel = (**inBuf);
+			if (sourceDataIs565)
+				currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+		}
 	}
 
-	Pixel16		footer  = static_cast<Pixel16>(k_TILE_COLORIZE_RUN_ID << 8 | runLen);
+	Pixel16			footer = static_cast<Pixel16>(k_TILE_COLORIZE_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-void tileutils_EncodeShadowRun16(Pixel16 **inBuf, int *pos, int width, Pixel16 **outBufPtr,
+/**
+ * Encode a run of shadow pixels (16-bit source) into a tile shadow-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ * @param sourceDataIs565  If true, convert 565-format pixels to 555 format on the fly.
+ */
+void tileutils_EncodeShadowRun16(Pixel16 **inBuf,
+								 int *currentPixelPos,
+								 int scanlineWidth,
+								 Pixel16 **outBufPtr,
 								 BOOL sourceDataIs565)
 {
-	int			runLen      = 0;
-	Pixel16 *   headerPtr   = *outBufPtr;
+	int			runLength      = 0;
+	Pixel16 *   headerPtr      = *outBufPtr;
 	(*outBufPtr)++;
 
-	Pixel16		pix16       = (**inBuf);
+	Pixel16		currentPixel   = (**inBuf);
 	if (sourceDataIs565)
-		pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
-	while (pix16 == k_16_BIT_SHADOW_PIXEL && (*pos < width)) {
+		currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+
+	while (currentPixel == k_16_BIT_SHADOW_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		pix16 = (**inBuf);
-		if (sourceDataIs565)
-			pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		if (*currentPixelPos < scanlineWidth) {
+			currentPixel = (**inBuf);
+			if (sourceDataIs565)
+				currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+		}
 	}
 
-	Pixel16		footer      = static_cast<Pixel16>(k_TILE_SHADOW_RUN_ID << 8 | runLen);
+	Pixel16			footer = static_cast<Pixel16>(k_TILE_SHADOW_RUN_ID << 8 | runLength);
 
-	if (*pos >= width) footer |= k_TILE_EOLN_ID << 8;
+	if (*currentPixelPos >= scanlineWidth) footer |= k_TILE_EOLN_ID << 8;
 
 	*headerPtr = footer;
 }
 
-char tileutils_EncodeSkipRun16(Pixel16 **inBuf, int *pos, int width, Pixel16 **outBufPtr,
+/**
+ * Encode a run of skip pixels (16-bit source) into a tile skip-run record.
+ *
+ * @param inBuf            Pointer to the current input pixel (updated).
+ * @param currentPixelPos  Pointer to the current X position within the scanline (updated).
+ * @param scanlineWidth    Total width of the scanline in pixels.
+ * @param outBufPtr        Pointer to the output buffer cursor (updated).
+ * @param sourceDataIs565  If true, convert 565-format pixels to 555 format on the fly.
+ *
+ * @return 0 if the skip run consumed the entire scanline, 1 otherwise.
+ */
+char tileutils_EncodeSkipRun16(Pixel16 **inBuf,
+							   int *currentPixelPos,
+							   int scanlineWidth,
+							   Pixel16 **outBufPtr,
 							   BOOL sourceDataIs565)
 {
-	int				runLen = 0;
+	int			runLength = 0;
 
-	Pixel16			pix16   = (**inBuf);
+	Pixel16		currentPixel   = (**inBuf);
 	if (sourceDataIs565)
-		pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
-	while (pix16 == k_16_BIT_SKIP_PIXEL && (*pos < width)) {
+		currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+
+	while (currentPixel == k_16_BIT_SKIP_PIXEL && (*currentPixelPos < scanlineWidth)) {
 
 		(*inBuf)++;
 
-		(*pos)++;
+		(*currentPixelPos)++;
 
-		runLen++;
+		runLength++;
 
-		pix16 = (**inBuf);
-		if (sourceDataIs565)
-			pix16 = ((pix16 & 0xFFC0) >> 1) | (pix16 & 0x001F);
+		if (*currentPixelPos < scanlineWidth) {
+			currentPixel = (**inBuf);
+			if (sourceDataIs565)
+				currentPixel = ((currentPixel & 0xFFC0) >> 1) | (currentPixel & 0x001F);
+		}
 	}
 
-	if (runLen < width) {
+	if (runLength < scanlineWidth) {
 
-	    Pixel16 footer  = static_cast<Pixel16>(k_TILE_SKIP_RUN_ID << 8 | runLen);
+		Pixel16			footer = static_cast<Pixel16>(k_TILE_SKIP_RUN_ID << 8 | runLength);
 
-		if (*pos >= width) footer |= k_EOLN_ID << 8;
+		if (*currentPixelPos >= scanlineWidth) footer |= k_EOLN_ID << 8;
 
 		**outBufPtr = footer;
 		(*outBufPtr)++;
-	    return FALSE;
+		return FALSE;
 	} else {
 
 		return TRUE;
 	}
-
 }
 
 char tileutils_EncodeScanline16(Pixel16 *scanline, int width, Pixel16 **outBufPtr,

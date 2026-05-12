@@ -24,15 +24,15 @@
  *
  * Modifications from the original Activision code:
  *
- * - SOP types added by Martin Gühmann to allow:
+ * - SOP types added by Martin Gï¿½hmann to allow:
  *   - Slic database access
  *   - Slic database size access
  * - slicif_cleanup() added.
  * - Replaced slicif_is_sym by slicif_is_name function. This function is
  *   modelled slicif_find_db_index but without error message if this
- *   function fails to retrieve the database index. - Feb. 24th 2005 Martin Gühmann
+ *   function fails to retrieve the database index. - Feb. 24th 2005 Martin Gï¿½hmann
  * - Added bitwise operators
- * - Added database array access. (Sep 16th 2005 Martin Gühmann)
+ * - Added database array access. (Sep 16th 2005 Martin Gï¿½hmann)
  *
  *----------------------------------------------------------------------------
  */
@@ -117,7 +117,7 @@ typedef enum {
 	SOP_EVENT,
 	SOP_ASIZE,
 
-//Added by Martin Gühmann for database support
+//Added by Martin Gï¿½hmann for database support
 	SOP_DBNAME,
 	SOP_DBNAMEREF,
 	SOP_DB,
@@ -130,7 +130,7 @@ typedef enum {
 	SOP_BOR,
 	SOP_BXOR,
 	SOP_BNOT,
-//Added by Martin Gühmann for database array support
+//Added by Martin Gï¿½hmann for database array support
 	SOP_DBNAMEARRAY,
 	SOP_DBNAMECONSTARRAY,
 
@@ -284,7 +284,7 @@ int slicif_find_db_value_by_index(void *dbptr, int index, const char *valname);
 int slicif_find_db_array_value(void *dbptr, const char *recname, const char *valname, int val);
 int slicif_find_db_array_value_by_index(void *dbptr, int index, const char *valname, int val);
 
-/* Added by Martin Gühmann */
+/* Added by Martin Gï¿½hmann */
 int slicif_is_name(void *dbptr, const char *name);
 
 #if defined(__cplusplus)
@@ -292,6 +292,49 @@ int slicif_is_name(void *dbptr, const char *name);
 #endif
 
 #if defined(__cplusplus)
+#include <string.h>
+
+/**
+ * @name Safe unaligned integer read/write helpers
+ *
+ * The SLIC bytecode compiler packs integer literals and jump offsets directly
+ * into the instruction stream without any alignment padding.  On x86/x64 this
+ * works because the CPU allows unaligned loads/stores, but on ARM64 (and under
+ * UBSan on any architecture) a direct cast such as
+ *
+ *     sint32 value = *((sint32 *)bytePtr);
+ *
+ * is undefined behaviour when bytePtr is not 4-byte aligned.
+ *
+ * These helpers use memcpy() to perform the transfer safely.  Modern compilers
+ * (Clang, GCC, MSVC) optimise memcpy of a scalar size into a single aligned or
+ * unaligned machine instruction, so there is no runtime overhead.
+ *
+ * Use these helpers whenever you read or write a multi-byte integer from/to
+ * the SLIC bytecode buffer (unsigned char *).
+ */
+//@{
+/** Read a 32-bit signed integer from an unaligned source address. */
+inline void slicif_read_sint32(const unsigned char *src, sint32 *dst) {
+	memcpy(dst, src, sizeof(sint32));
+}
+
+/** Read a platform 'int' from an unaligned source address. */
+inline void slicif_read_int(const unsigned char *src, int *dst) {
+	memcpy(dst, src, sizeof(int));
+}
+
+/** Write a 32-bit signed integer to an unaligned destination address. */
+inline void slicif_store_sint32(unsigned char *dst, sint32 value) {
+	memcpy(dst, &value, sizeof(sint32));
+}
+
+/** Write a platform 'int' to an unaligned destination address. */
+inline void slicif_store_int(unsigned char *dst, int value) {
+	memcpy(dst, &value, sizeof(int));
+}
+//@}
+
 class SlicNamedSymbol;
 SlicNamedSymbol *slicif_get_symbol(char *name);
 #endif

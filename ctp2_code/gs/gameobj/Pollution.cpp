@@ -27,7 +27,7 @@
 // - Do not trigger disaster warnings when there is no pollution at all.
 // - Memory leak repaired.
 // - Improved pollution warning recipient handling.
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -326,7 +326,10 @@ void Pollution::EndRound()
 
 	sint32 pollution = m_history[0];
 
-	memcpy(&m_history[1], &m_history[0], sizeof(m_history)-sizeof(m_history[0]));
+	/* Shift the pollution history array one slot to the right (older entries
+	   move to higher indices).  Source and destination overlap, so memmove
+	   is required; memcpy is undefined behaviour for overlapping ranges. */
+	memmove(&m_history[1], &m_history[0], sizeof(m_history)-sizeof(m_history[0]));
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{

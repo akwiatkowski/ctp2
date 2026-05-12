@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ void Order::AssociateEventsWithOrders()
 		if(g_theOrderDB->GetNamedItem(g_orderInfo[order_index].m_name, dbIndex)) {
 			event_name = g_theOrderDB->Get(dbIndex)->GetEventName();
 			if (strlen(event_name) > 0)
-				s_orderToEventMap[g_orderInfo[order_index].m_type] = g_gevManager->GetEventIndex(event_name);
+				s_orderToEventMap[g_orderInfo[order_index].m_type] = GameEventManager::GetEventIndex(event_name);
 			else {
 				s_orderToEventMap[g_orderInfo[order_index].m_type] = GEV_MAX;
 			}

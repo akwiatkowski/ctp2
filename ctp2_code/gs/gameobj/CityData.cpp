@@ -6982,7 +6982,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 				}
 			}
 			if(bf->GetPercentCities(percent)) {
-				sint32 havePercent = (numCities * 100) / g_player[m_owner]->m_all_cities->Num();
+				sint32 havePercent = safe_divide((numCities * 100), g_player[m_owner]->m_all_cities->Num());
 				if(havePercent >= percent) {
 					enoughPercent = true;
 				}
@@ -7290,7 +7290,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 				return false;
 			}
 			else if(bf->GetPercentCities(percent)) {
-				sint32 havePercent = (numCities * 100) / g_player[m_owner]->m_all_cities->Num();
+				sint32 havePercent = safe_divide((numCities * 100), g_player[m_owner]->m_all_cities->Num());
 				if(havePercent >= percent) {
 					return true;
 				}

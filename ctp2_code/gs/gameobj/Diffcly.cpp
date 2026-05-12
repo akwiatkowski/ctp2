@@ -22,12 +22,13 @@
 //
 //----------------------------------------------------------------------------
 //
-// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
+// - Moved some functionality from DiffDB to create the diffutils. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"
@@ -118,7 +119,7 @@ double diffutil_GetAiAdjustment(const sint32 diff,
 
 			percent_spread = rec->GetAIMaxBehind() - rec->GetAIMinBehind();
 			value_spread = max_behind_value - min_behind_value;
-			rank_spread_percent = (rec->GetAIMinBehind() - rank_percent) / fabs(percent_spread);
+			rank_spread_percent = safe_divide_double((rec->GetAIMinBehind() - rank_percent), fabs(percent_spread));
 			value = min_behind_value + (value_spread * rank_spread_percent);
 		}
 	}
@@ -131,7 +132,7 @@ double diffutil_GetAiAdjustment(const sint32 diff,
 
 		percent_spread = rec->GetAIMaxAhead() - rec->GetAIMinAhead();
 		value_spread =  max_ahead_value - min_ahead_value;
-		rank_spread_percent = (rec->GetAIMinAhead() - rank_percent) / fabs(percent_spread);
+		rank_spread_percent = safe_divide_double((rec->GetAIMinAhead() - rank_percent), fabs(percent_spread));
 		value = max_ahead_value + (value_spread * rank_spread_percent);
 	}
 

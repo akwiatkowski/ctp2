@@ -269,6 +269,7 @@ extern SDL_mutex* g_secondaryKeyboardEventQueueMutex;
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "ui/interface/tutorialwin.h"
 #include "gs/gameobj/Unit.h"
+#include "gs/gameobj/UnitData.h"
 #include "UnitBuildListRecord.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ui/interface/unitmanager.h"
@@ -2718,6 +2719,147 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							smoketest_send_response("ok", cmd, NULL);
 						} else {
 							smoketest_send_response("error", cmd, "no_settler_found");
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "set_production ", 15) == 0) {
+				if (m_gameLoaded) {
+					int city_idx = 0;
+					char unit_keyword[64];
+					if (sscanf(cmd + 15, "%d %63s", &city_idx, unit_keyword) != 2) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						Player *human = NULL;
+						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+							if (g_player[p] && g_player[p]->IsHuman()) {
+								human = g_player[p];
+								break;
+							}
+						}
+
+						if (!human) {
+							smoketest_send_response("error", cmd, "no_human_player");
+						} else if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num()) {
+							smoketest_send_response("error", cmd, "bad_city_index");
+						} else {
+							Unit city = human->GetAllCitiesList()->Access(city_idx);
+							if (!city.IsValid() || !city.GetData()->GetCityData()) {
+								smoketest_send_response("error", cmd, "invalid_city");
+							} else {
+								sint32 unit_type = -1;
+								sint32 gov_type = human->GetGovernmentType();
+
+								if (strcmp(unit_keyword, "cheapest_military") == 0) {
+									sint32 best_cost = 0x7fffffff;
+									for (sint32 i = 0; i < g_theUnitDB->NumRecords(); i++) {
+										const UnitRecord *rec = g_theUnitDB->Get(i, gov_type);
+										if (!rec || rec->GetCantBuild()) continue;
+										if (rec->GetAttack() <= 0.0) continue;
+										if (!city.GetData()->GetCityData()->CanBuildUnit(i)) continue;
+
+										sint32 cost = rec->GetShieldCost();
+										if (cost > 0 && cost < best_cost) {
+											best_cost = cost;
+											unit_type = i;
+										}
+									}
+								} else if (strcmp(unit_keyword, "settler") == 0) {
+									sint32 best_cost = 0x7fffffff;
+									for (sint32 i = 0; i < g_theUnitDB->NumRecords(); i++) {
+										const UnitRecord *rec = g_theUnitDB->Get(i, gov_type);
+										if (!rec || rec->GetCantBuild()) continue;
+										if (!rec->GetSettle() && rec->GetNumCanSettleOn() <= 0) continue;
+										if (!city.GetData()->GetCityData()->CanBuildUnit(i)) continue;
+
+										sint32 cost = rec->GetShieldCost();
+										if (cost > 0 && cost < best_cost) {
+											best_cost = cost;
+											unit_type = i;
+										}
+									}
+								} else {
+									unit_type = atoi(unit_keyword);
+								}
+
+								if (unit_type < 0 || unit_type >= g_theUnitDB->NumRecords()) {
+									smoketest_send_response("error", cmd, "unit_not_found");
+								} else if (!city.GetData()->GetCityData()->CanBuildUnit(unit_type)) {
+									smoketest_send_response("error", cmd, "cannot_build_unit");
+								} else {
+									fprintf(stderr, "[SMOKE] Setting city %d to build unit %d\n",
+										city_idx, unit_type);
+									city.GetData()->GetCityData()->BuildUnit(unit_type);
+									smoketest_send_response("ok", cmd, NULL);
+								}
+							}
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "enable_governor ", 16) == 0) {
+				if (m_gameLoaded) {
+					char target[32];
+					char gov_name[32];
+					if (sscanf(cmd + 16, "%31s %31s", target, gov_name) != 2) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						sint32 gov_idx = -1;
+						if (strcmp(gov_name, "production") == 0) gov_idx = 0;
+						else if (strcmp(gov_name, "growth") == 0) gov_idx = 1;
+						else if (strcmp(gov_name, "offense") == 0) gov_idx = 2;
+						else if (strcmp(gov_name, "defense") == 0) gov_idx = 3;
+						else if (strcmp(gov_name, "science") == 0) gov_idx = 4;
+						else if (strcmp(gov_name, "gold") == 0) gov_idx = 5;
+						else if (strcmp(gov_name, "wonders") == 0) gov_idx = 6;
+						else if (strcmp(gov_name, "happiness") == 0) gov_idx = 7;
+						else if (strcmp(gov_name, "default") == 0) gov_idx = 8;
+						else gov_idx = atoi(gov_name);
+
+						if (gov_idx < 0 || gov_idx >= g_theBuildListSequenceDB->NumRecords()) {
+							smoketest_send_response("error", cmd, "bad_governor_type");
+						} else {
+							Player *human = NULL;
+							for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+								if (g_player[p] && g_player[p]->IsHuman()) {
+									human = g_player[p];
+									break;
+								}
+							}
+
+							if (!human) {
+								smoketest_send_response("error", cmd, "no_human_player");
+							} else {
+								bool all_cities = (strcmp(target, "all") == 0);
+								sint32 city_idx = all_cities ? -1 : atoi(target);
+
+								if (!all_cities && (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num())) {
+									smoketest_send_response("error", cmd, "bad_city_index");
+								} else {
+									if (all_cities) {
+										for (sint32 i = 0; i < human->GetAllCitiesList()->Num(); i++) {
+											Unit city = human->GetAllCitiesList()->Access(i);
+											if (city.IsValid() && city.GetData()->GetCityData()) {
+												city.GetData()->GetCityData()->SetUseGovernor(true);
+												city.GetData()->GetCityData()->SetBuildListSequenceIndex(gov_idx);
+											}
+										}
+									} else {
+										Unit city = human->GetAllCitiesList()->Access(city_idx);
+										if (city.IsValid() && city.GetData()->GetCityData()) {
+											city.GetData()->GetCityData()->SetUseGovernor(true);
+											city.GetData()->GetCityData()->SetBuildListSequenceIndex(gov_idx);
+										}
+									}
+									fprintf(stderr, "[SMOKE] Enabled %s governor for %s\n",
+										gov_name, all_cities ? "all cities" : target);
+									smoketest_send_response("ok", cmd, NULL);
+								}
+							}
 						}
 					}
 				} else {

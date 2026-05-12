@@ -224,6 +224,8 @@ def main():
         {"cmd": "new_game", "wait": 2000},
         {"cmd": "start_game", "wait": 10000},  # Game needs time to generate map
         {"cmd": "build_city", "wait": 5000},   # Build city with starting settler
+        {"cmd": "set_production 0 cheapest_military", "wait": 2000},
+        {"cmd": "enable_governor all growth", "wait": 2000},
         {"cmd": "end_turn", "wait": 10000},    # Turn processing
         {"cmd": "quit", "wait": 2000},         # Clean exit
     ]

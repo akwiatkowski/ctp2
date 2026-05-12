@@ -1,0 +1,4 @@
+# Recordings directory - ignore auto-generated session files
+*.json
+session_*/
+*.sav

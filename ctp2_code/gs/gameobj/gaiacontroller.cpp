@@ -279,8 +279,8 @@ STDEHANDLER(GaiaController_CaptureCity)
 	sint32 type;
 	for (type = 0; type < g_theBuildingDB->NumRecords() && type < 64; type++)
 		{
-			if ((city_buildings & ((uint64)0x1 << (uint64)type)) &&
-				(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
+			if ((city_buildings & safe_shift_left_u64(type)) &&
+				(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type)))
 				{
 
 					if (owner_player &&	owner_player->GetGaiaController())
@@ -299,8 +299,8 @@ STDEHANDLER(GaiaController_CaptureCity)
 
 	for (type = 0; type < g_theWonderDB->NumRecords() && type < 64; type++)
 		{
-			if ((city_wonders & ((uint64)0x1 << (uint64)type)) &&
-				(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
+			if ((city_wonders & safe_shift_left_u64(type)) &&
+				(GaiaController::sm_endgameWonders & safe_shift_left_u64(type)))
 				{
 
 					if (owner_player &&	owner_player->GetGaiaController())
@@ -353,7 +353,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 			type = cell->GetDBImprovement(i);
 
 		if (type >= 0 && type < 64 &&
-			(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type)))
+			(GaiaController::sm_endgameImprovements & safe_shift_left_u64(type)))
 			{
 				owner_player->GetGaiaController()->
 					HandleTerrImprovementChange(type,pos, -1);
@@ -393,7 +393,7 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameImprovements & safe_shift_left_u64(type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -419,7 +419,7 @@ STDEHANDLER(GaiaController_SellBuilding)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -446,7 +446,7 @@ STDEHANDLER(GaiaController_CreateBuilding)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type)))
 		{
 			owner_player->GetGaiaController()->
 				HandleBuildingChange(type, city, 1);
@@ -483,8 +483,8 @@ STDEHANDLER(GaiaController_DisbandCity)
 	sint32 type;
 	for (type = 0; type < g_theBuildingDB->NumRecords() && type < 64; type++)
 		{
-			if ((city_buildings & ((uint64)0x1 << (uint64)type)) &&
-				(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
+			if ((city_buildings & safe_shift_left_u64(type)) &&
+				(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type)))
 				{
 
 					owner_player->GetGaiaController()->
@@ -494,8 +494,8 @@ STDEHANDLER(GaiaController_DisbandCity)
 
 	for (type = 0; type < g_theWonderDB->NumRecords() && type < 64; type++)
 		{
-			if ((city_wonders & ((uint64)0x1 << (uint64)type)) &&
-				(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
+			if ((city_wonders & safe_shift_left_u64(type)) &&
+				(GaiaController::sm_endgameWonders & safe_shift_left_u64(type)))
 				{
 
 					owner_player->GetGaiaController()->
@@ -523,7 +523,7 @@ STDEHANDLER(GaiaController_CreateWonder)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameWonders & safe_shift_left_u64(type)))
 		{
 			owner_player->GetGaiaController()->
 				HandleWonderChange(type, 1);
@@ -548,7 +548,7 @@ STDEHANDLER(GaiaController_BuildingRemoved)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -574,7 +574,7 @@ STDEHANDLER(GaiaController_WonderRemoved)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
-		(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
+		(GaiaController::sm_endgameWonders & safe_shift_left_u64(type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -629,7 +629,7 @@ void GaiaController::CleanupEvents()
 void GaiaController::HandleBuildingChange(const sint32 type, Unit & city, const sint16 delta)
 {
 	Assert(type >= 0 && type < 64);
-	Assert(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type));
+	Assert(GaiaController::sm_endgameBuildings & safe_shift_left_u64(type));
 
 	if (sm_satelliteBuildingIndex == type)
 	{
@@ -640,7 +640,7 @@ void GaiaController::HandleBuildingChange(const sint32 type, Unit & city, const 
 		{
 			Assert(city->GetCityData());
 			CityData *city_data = city->GetCityData();
-			city_data->SetImprovements(city_data->GetImprovements() & ~((uint64)0x1 << (uint64)type));
+			city_data->SetImprovements(city_data->GetImprovements() & ~safe_shift_left_u64(type));
 		}
 		else
 		{
@@ -663,7 +663,7 @@ void GaiaController::HandleBuildingChange(const sint32 type, Unit & city, const 
 void GaiaController::HandleWonderChange(const sint32 type, const sint16 delta)
 {
 	Assert(type >= 0 && type < 64);
-	Assert(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type));
+	Assert(GaiaController::sm_endgameWonders & safe_shift_left_u64(type));
 	m_numWondersBuilt += delta;
 
 	if (delta < 0)
@@ -677,7 +677,7 @@ void GaiaController::HandleWonderChange(const sint32 type, const sint16 delta)
 void GaiaController::HandleTerrImprovementChange(const sint32 type, const MapPoint & pos, const sint16 delta)
 {
 	Assert(type >= 0 && type < 64);
-	Assert(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type));
+	Assert(GaiaController::sm_endgameImprovements & safe_shift_left_u64(type));
 	if (sm_towerTileImpIndex == type)
 		{
 			m_numTowersBuilt += delta;

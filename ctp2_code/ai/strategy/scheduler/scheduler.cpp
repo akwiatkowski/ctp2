@@ -1326,6 +1326,9 @@ bool Scheduler::Prune_Goals()
 
 		GOAL_TYPE goal_type = GetMaxEvalExec(goal_element_ptr, max_eval, max_exec);
 
+		if (goal_type < 0 || static_cast<size_t>(goal_type) >= m_goals_of_type.size())
+			continue;
+
 //		max_eval = m_goals_of_type[goal_type].size(); // Temporary, maybe permanetly
 
 		Sorted_Goal_Iter pruned_goal_iter = m_goals_of_type[goal_type].end();

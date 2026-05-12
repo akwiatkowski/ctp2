@@ -191,7 +191,10 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		idleSprite->ParseFromTokens(theToken);
 
 		printf(" [Idle");
-		for(i=0; i<idleSprite->GetNumFrames(); i++) {
+		size_t numFrames = idleSprite->GetNumFrames();
+		if (numFrames > k_MAX_NAMES)
+			numFrames = k_MAX_NAMES;
+		for(i=0; i<numFrames; i++) {
 			MBCHAR			name[k_MAX_NAME_LENGTH];
 
 			sprintf(name, "%sGG%.2dS.%d.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
@@ -201,7 +204,7 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 			strcpy(imageNames[i], name);
 		}
 
-		idleSprite->Import(idleSprite->GetNumFrames(), imageNames, shadowNames);
+		idleSprite->Import(numFrames, imageNames, shadowNames);
 		delete m_sprites[GOODACTION_IDLE];
 		m_sprites[GOODACTION_IDLE] = idleSprite;
 		printf("]\n");

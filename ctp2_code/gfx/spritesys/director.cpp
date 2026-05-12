@@ -643,6 +643,7 @@ void Director::HandleNextAction(void) {
         (!g_theProfileDB->IsEnemyMoves() && item->GetOwner() != -1 &&
          item->GetOwner() != g_selected_item->GetVisiblePlayer()) ||
         (!g_theProfileDB->IsUnitAnim() && item->GetOwner() != -1 &&
+         item->GetOwner() >= 0 && item->GetOwner() < k_MAX_PLAYERS &&
          g_player[item->GetOwner()] != NULL &&
          g_player[item->GetOwner()]->IsRobot())) {
       executeType = DHEXECUTE_IMMEDIATE;
@@ -1376,16 +1377,20 @@ void Director::AddEndTurn(void) {
   DPRINTF(k_DBG_GAMESTATE, ("Director::AddEndTurn, curPlayer = %d\n",
                             g_selected_item->GetCurPlayer()));
 
-  if (g_selected_item->GetCurPlayer() == g_selected_item->GetVisiblePlayer()) {
+  sint32 curPlayer = g_selected_item->GetCurPlayer();
+  if (curPlayer < 0 || curPlayer >= k_MAX_PLAYERS || !g_player[curPlayer])
+    return;
+
+  if (curPlayer == g_selected_item->GetVisiblePlayer()) {
     static sint32 last_turn_processed = -1;
     if (last_turn_processed !=
-        g_player[g_selected_item->GetCurPlayer()]->m_current_round) {
+        g_player[curPlayer]->m_current_round) {
       last_turn_processed =
-          g_player[g_selected_item->GetCurPlayer()]->m_current_round;
+          g_player[curPlayer]->m_current_round;
 
       g_gevManager->Pause();
 
-      Player* p = g_player[g_selected_item->GetCurPlayer()];
+      Player* p = g_player[curPlayer];
       p->m_endingTurn = TRUE;
 
       for (sint32 i = 0; i < p->m_all_armies->Num(); i++) {
@@ -1394,7 +1399,7 @@ void Director::AddEndTurn(void) {
                                p->m_all_armies->Access(i).m_id, GEA_End);
       }
 
-      g_player[g_selected_item->GetCurPlayer()]->m_endingTurn = FALSE;
+      g_player[curPlayer]->m_endingTurn = FALSE;
       g_gevManager->Resume();
     }
   }
@@ -1411,7 +1416,9 @@ void Director::AddEndTurn(void) {
   static sint32 lastPlayer = -1;
   static sint32 lastRound = -1;
 
-  if (g_selected_item->GetCurPlayer() == lastPlayer && g_player[lastPlayer] &&
+  sint32 curPlayer2 = g_selected_item->GetCurPlayer();
+  if (curPlayer2 >= 0 && curPlayer2 < k_MAX_PLAYERS &&
+      curPlayer2 == lastPlayer && g_player[lastPlayer] &&
       g_player[lastPlayer]->m_current_round == lastRound) {
     for (DQItemPtr& item : m_itemQueue) {
       if (item->m_type == DQITEM_ENDTURN) {
@@ -1928,12 +1935,16 @@ void Director::DecrementPendingGameActions() {
 
 void Director::ReloadAllSprites() {
   sint32 p, i;
+  sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+  if (visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !g_player[visiblePlayer])
+    return;
+
   for (p = 0; p < k_MAX_PLAYERS; p++) {
     if (!g_player[p])
       continue;
     // PFT  29 mar 05
     // cycle through human players' cities
-    if (g_player[g_selected_item->GetVisiblePlayer()]->IsHuman()) {
+    if (g_player[visiblePlayer]->IsHuman()) {
       for (i = 0; i < g_player[p]->m_all_cities->Num(); i++) {
         Unit u = g_player[p]->m_all_cities->Access(i);
 

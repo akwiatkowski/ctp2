@@ -820,11 +820,17 @@ void MapAnalysis::UpdateBoundingRectangle(const Unit & city)
 
 const BoundingRect & MapAnalysis::GetBoundingRectangle(const PLAYER_INDEX & player) const
 {
+	static BoundingRect s_dummyRect;
+	if (player < 0 || static_cast<size_t>(player) >= m_empireBoundingRect.size())
+		return s_dummyRect;
 	return m_empireBoundingRect[player];
 }
 
 const MapPoint & MapAnalysis::GetEmpireCenter(const PLAYER_INDEX player) const
 {
+	static MapPoint s_dummyPoint;
+	if (player < 0 || static_cast<size_t>(player) >= m_empireCenter.size())
+		return s_dummyPoint;
 	return m_empireCenter[player];
 }
 

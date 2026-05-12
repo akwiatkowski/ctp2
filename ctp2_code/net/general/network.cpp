@@ -33,8 +33,8 @@
 // - Updated the above to prevent an invalid second delete.
 // - Feat tracking added.
 // - Memory leaks repaired.
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Database in synchronicity check is now done on all databases. (Aug 25th 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Database in synchronicity check is now done on all databases. (Aug 25th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -2217,7 +2217,7 @@ sint32 Network::FindEmptySlot(PlayerData *player, uint16 id)
 			}
 		}
 	}
-	if(!g_player[newslot])
+	if (newslot < 0 || newslot >= k_MAX_PLAYERS || !g_player[newslot])
 		return -1;
 
 	return newslot;

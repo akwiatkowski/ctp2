@@ -1887,11 +1887,12 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 						civ = g_theProfileDB->GetCivIndex();
 					}
 
+					sint32 safePositionCount = (positionCount > k_MAX_START_POINTS) ? k_MAX_START_POINTS : positionCount;
 					sint32 usedPositions[k_MAX_START_POINTS];
 					sint32 usedCivs = 0;
 					memset(usedPositions, 0, sizeof(usedPositions));
 
-					for (j = 0; j < positionCount; ++j)
+					for (j = 0; j < safePositionCount; ++j)
 					{
 						if (g_theWorld->GetStartingPointCiv(j) == civ)
 						{
@@ -1900,8 +1901,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 							break;
 						}
 					}
-					Assert(j < positionCount);
-					if (j >= positionCount)
+					Assert(j < safePositionCount);
+					if (j >= safePositionCount)
 					{
 						civ = g_theWorld->GetStartingPointCiv(0);
 						usedPositions[0] = 1;
@@ -1913,15 +1914,15 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					g_player[humanIndex]->m_starting_index = j;
 
 					// Add robots
-					Assert(g_useScenarioCivs <= positionCount);
-					for (i = 1; (i <= g_useScenarioCivs) && (i < positionCount); ++i)
+					Assert(g_useScenarioCivs <= safePositionCount);
+					for (i = 1; (i <= g_useScenarioCivs) && (i < safePositionCount); ++i)
 					{
 						if (i != humanIndex)
 						{
 							civ				= gameinit_GetCivForSlot(i);
-							sint32 whichCiv = (civ == CIV_INDEX_RANDOM) ? positionCount : 0;
+							sint32 whichCiv = (civ == CIV_INDEX_RANDOM) ? safePositionCount : 0;
 
-							for (; whichCiv < positionCount; ++whichCiv)
+							for (; whichCiv < safePositionCount; ++whichCiv)
 							{
 								if (usedPositions[whichCiv])
 									continue;
@@ -1930,15 +1931,15 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 									break;
 							}
 
-							if (whichCiv >= positionCount)
+							if (whichCiv >= safePositionCount)
 							{
 								// Random, or position already assigned.
 								// Find an(other) unassigned random position.
-								whichCiv = g_rand->Next(positionCount);
+								whichCiv = g_rand->Next(safePositionCount);
 								while (usedPositions[whichCiv])
 								{
 									whichCiv++;
-									if (whichCiv >= positionCount)
+									if (whichCiv >= safePositionCount)
 										whichCiv = 0;
 								}
 

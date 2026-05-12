@@ -5774,7 +5774,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		m_readiness->RecalcCost();
 	}
 
-	if(wonderutil_GetNukesEliminated((uint64) 1 << wonder)) {
+	if(wonder < 64 && wonderutil_GetNukesEliminated((uint64) 1 << wonder)) {
 		sint32 i, p;
 		SlicObject *so = new SlicObject("251NaniteDefuseEliminatesNukes");
 		so->AddWonder(wonder);
@@ -7947,13 +7947,13 @@ void Player::ContactMade(PLAYER_INDEX with)
 	if(with == m_owner)
 		return;
 
-	if(!(m_contactedPlayers & (1 << with)))
+	if(with >= 0 && with < 32 && !(m_contactedPlayers & (1 << with)))
 	{
 		m_contactedPlayers |= (1 << with);
 		Assert(g_player[with]);
 		if(g_player[with])
 		{
-			if(g_player[with]->m_contactedPlayers & (1 << m_owner))
+			if(m_owner >= 0 && m_owner < 32 && (g_player[with]->m_contactedPlayers & (1 << m_owner)))
 			{
 				if (with != 0 && m_owner != 0)
 				{

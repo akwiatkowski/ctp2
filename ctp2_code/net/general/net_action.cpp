@@ -275,7 +275,7 @@ NetAction::NetAction(NET_ACTION action, ...)
 	char str[1024];
 	sprintf(str, "NetAction: action=%d ", m_action);
 #endif
-	if(m_args[m_action] > 0) {
+	if(m_action >= 0 && m_action < NET_ACTION_NULL && m_args[m_action] > 0) {
 		va_start( vl, action );
 		for(i = 0; i < m_args[m_action]; i++) {
 			m_data[i] = va_arg( vl, uint32 );
@@ -318,6 +318,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	Assert(g_network.IsHost());
 
 	PULLSHORTTYPE(m_action, NET_ACTION);
+	if(m_action < 0 || m_action >= NET_ACTION_NULL) return;
 	for(uint32 i = 0; i < m_args[m_action]; i++) {
 		PULLLONG(m_data[i]);
 	}

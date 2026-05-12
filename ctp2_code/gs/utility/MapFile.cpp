@@ -27,7 +27,7 @@
 // - Replaced non-standard sizeof(enum) occurrences
 // - Corrected invalid index in LoadAdvances
 // - Repaired memory leaks
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 //
@@ -713,6 +713,10 @@ bool MapFile::LoadMap(FILE *infile)
 			return false;
 		}
 
+		if (chunkSize < 0 || chunkSize > 1024*1024*100) {
+			Assert(chunkSize > 0 && chunkSize <= 1024*1024*100);
+			return false;
+		}
 		uint8 * buf = new uint8[chunkSize];
 #define LoadMapStop()	{ delete [] buf; return false; }
 

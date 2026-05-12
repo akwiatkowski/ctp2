@@ -69,6 +69,11 @@ sint32 ThroneDB::Init(MBCHAR *filename)
 
 ThroneInfo *ThroneDB::GetThroneInfo( sint32 type, sint32 level ) const
 {
+	if (type < 0 || type >= m_nThroneTypes || level < 0 || level >= m_nThroneLevels) {
+		Assert(type >= 0 && type < m_nThroneTypes);
+		Assert(level >= 0 && level < m_nThroneLevels);
+		return NULL;
+	}
 
 	sint32 index = (type * m_nThroneLevels) + level;
 

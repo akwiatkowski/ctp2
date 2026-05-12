@@ -88,6 +88,11 @@ void SpriteFile::WriteSpriteData(Sprite *s)
 
 	long      frame_offset_pos = GetFilePos();
 
+	if (s->GetNumFrames() > 800) {
+		Assert(s->GetNumFrames() <= 800);
+		return;
+	}
+
 	uint32		normal_ssizes[800];
 	uint32		normal_msizes[800];
 	uint16		i;
@@ -373,6 +378,10 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 	s->AllocateFrameArrays(data16);
 
 
+	if (s->GetNumFrames() > 800) {
+		Assert(s->GetNumFrames() <= 800);
+		return;
+	}
 	uint32		ssizes[800];
 	ReadData((uint8 *)ssizes, sizeof(uint32) * s->GetNumFrames());
 
@@ -449,6 +458,10 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 	ReadData((void *)&data16, sizeof(data16));
 	s->AllocateFrameArrays(data16);
 
+    if (s->GetNumFrames() > 800) {
+		Assert(s->GetNumFrames() <= 800);
+		return;
+	}
     uint32		ssizes[800];
 	ReadData((uint8 *)ssizes, sizeof(uint32) * s->GetNumFrames());
 
@@ -631,6 +644,10 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 	s->AllocateFrameArrays(data16);
 
 	uint16		j;
+	if (s->GetNumFrames() > 800) {
+		Assert(s->GetNumFrames() <= 800);
+		return;
+	}
 	uint32		ssizes[k_MAX_FACINGS][800];
 	uint32		msizes[k_MAX_FACINGS][800];
 

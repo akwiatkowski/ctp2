@@ -318,6 +318,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 {
 	Assert(buf[0] == 'I' && buf[1] == 'I');
 	m_type = (NET_INFO_CODE)getshort(&buf[2]);
+	if(m_type < 0 || m_type >= NET_INFO_CODE_NULL) return;
 
 	// Test code for detection of unexpected messages
 	Assert(size == 4 + (4 * m_args[m_type]));

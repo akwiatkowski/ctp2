@@ -1481,10 +1481,12 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
     MapPoint topleft(pos.x - maxActiveDefenseRange, pos.y);
 
     UnitDynamicArray possibleDefenders;
+    sint32 armyOwner = m_array[0].GetOwner();
+    uint32 ownerMask = (armyOwner >= 0 && armyOwner < 32) ? (1u << armyOwner) : 0u;
     g_theUnitTree->SearchRect(possibleDefenders, topleft,
                               static_cast<sint16>(maxActiveDefenseRange * 2 + 1),
                               static_cast<sint16>(maxActiveDefenseRange * 2 + 1),
-                              ~(1 << m_array[0].GetOwner()));
+                              ~ownerMask);
     if(possibleDefenders.Num() <= 0)
         return false;
 
@@ -4110,7 +4112,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		so->AddCity(city);
 		sint32 i;
 		for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
-			if(!g_player[city.GetOwner()]->m_builtWonders & ((uint64)1 << (uint64)i))
+			if(i >= 64 || !g_player[city.GetOwner()]->m_builtWonders & ((uint64)1 << (uint64)i))
 				continue;
 
 			if(wonderutil_Get(i, m_owner)->GetPreventConversion()) {

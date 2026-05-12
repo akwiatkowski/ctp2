@@ -974,7 +974,7 @@ void CityData::Initialize(sint32 settlerType)
 	// Gives all starting age buildings to a new city.
 	if(g_network.IsActive() && g_network.GetStartingAge() > 0)
 	{
-		for(sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++)
+		for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 		{
 			if(buildingutil_GetDesignatesCapitol(((uint64)1 << (uint64)i, m_owner), m_owner))
 				continue;
@@ -993,7 +993,7 @@ void CityData::Initialize(sint32 settlerType)
 	{
 		if (g_theProfileDB->GetSPStartingAge() > 0)
 		{
-			for(sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++)
+			for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 			{
 				if(buildingutil_GetDesignatesCapitol(((uint64)1 << (uint64)i, m_owner), m_owner))
 					continue;
@@ -2158,7 +2158,7 @@ void CityData::CollectResources()
 // Add if city has building GetEnablesGood >0 then that good will be added to the city for trade
 
 	sint32 good;
-	for(sint32 b = 0; b < g_theBuildingDB->NumRecords(); b++){
+	for(sint32 b = 0; b < g_theBuildingDB->NumRecords() && b < 64; b++){
 		if(m_built_improvements & ((uint64)1 << b)){
 			const BuildingRecord *rec = buildingutil_Get(b, m_owner);
 	//		Check If needsGood for the building a make bonuses dependent on having that good for further bonus
@@ -2173,7 +2173,7 @@ void CityData::CollectResources()
 // end building enables good
 
 	// Add if city has wonder GetEnablesGood >0 then that good will be dded to the city for trade
-	for(sint32 w = 0; w < g_theWonderDB->NumRecords(); w++){
+	for(sint32 w = 0; w < g_theWonderDB->NumRecords() && w < 64; w++){
 		if(m_builtWonders & ((uint64)1 << w)){
 			const WonderRecord *wrec = wonderutil_Get(w, m_owner);
 //			Check If needsGood for the building a make bonuses dependent on having that good for further bonus

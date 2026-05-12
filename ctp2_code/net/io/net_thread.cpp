@@ -263,6 +263,11 @@ void NetThread::Run()
 					BOOL busy = FALSE;
 					while(!busy && ((packet = outgoing->RemoveHead()) != NULL)) {
 						static uint8 buf[dp_MAXLEN_UNRELIABLE * 2];
+						if(packet->m_len > dp_MAXLEN_UNRELIABLE * 2) {
+							Assert(packet->m_len <= dp_MAXLEN_UNRELIABLE * 2);
+							delete packet;
+							continue;
+						}
 						memcpy(buf, packet->m_buf, packet->m_len);
 
 						NET_ERR err = m_anet->Send(packet->m_id,
@@ -497,6 +502,11 @@ NET_ERR NetThread::Idle()
 			}
 		} else {
 			if(packet->m_buf[0] == k_COMPRESSED_PACKET) {
+				if(packet->m_len < 5) {
+					Assert(packet->m_len >= 5);
+					delete packet;
+					continue;
+				}
 				uLongf uSize = getlong(&packet->m_buf[1]);
 
 				uint8 *uBuf = new uint8[uSize];

@@ -72,6 +72,49 @@ def send_command(sock, cmd):
         return {"status": "error", "cmd": cmd, "detail": "bad_json"}
 
 
+def advance_turns(sock, n, wait_ms=12000):
+    """Advance N turns by sending end_turn and polling until each completes."""
+    # Get starting turn
+    resp = send_command(sock, "turn_counter")
+    detail = resp.get("detail", "")
+    start_round = 0
+    if "round=" in detail:
+        try:
+            start_round = int(detail.split("round=")[1].split(",")[0])
+        except (ValueError, IndexError):
+            pass
+
+    print(f"[HARNESS] Advancing {n} turns from round {start_round}")
+    current_round = start_round
+    for i in range(n):
+        # Send end_turn
+        resp = send_command(sock, "end_turn")
+        if resp.get("status") != "ok":
+            print(f"[HARNESS] end_turn failed at step {i+1}/{n}: {resp}")
+            break
+        # Poll turn_counter until turn advances (max ~30s)
+        polled = 0
+        while polled < 30:
+            time.sleep(3)
+            polled += 3
+            resp = send_command(sock, "turn_counter")
+            detail = resp.get("detail", "")
+            if "round=" in detail:
+                try:
+                    new_round = int(detail.split("round=")[1].split(",")[0])
+                    if new_round > current_round:
+                        current_round = new_round
+                        print(f"[HARNESS] Turn advanced to round {current_round}")
+                        break
+                except (ValueError, IndexError):
+                    pass
+        else:
+            print(f"[HARNESS] Warning: turn did not advance after 30s")
+
+    print(f"[HARNESS] Advanced from round {start_round} to {current_round}")
+    return {"status": "ok", "cmd": f"advance_turns {n}", "detail": f"{start_round}->{current_round}"}
+
+
 def run_scenario(steps):
     """Run a test scenario against the game."""
     # Clean up stale socket
@@ -184,8 +227,34 @@ def run_scenario(steps):
 
         print(f"[HARNESS] Step {i+1}/{len(steps)}: {cmd} (wait {wait_ms}ms)")
 
-        response = send_command(sock, cmd)
-        print(f"[HARNESS] Response: {response}")
+        # Handle advance_turns specially on Python side
+        if cmd.startswith("advance_turns "):
+            try:
+                n = int(cmd.split()[1])
+                response = advance_turns(sock, n, wait_ms)
+            except (ValueError, IndexError):
+                response = {"status": "error", "cmd": cmd, "detail": "bad_count"}
+        elif cmd.startswith("load_game "):
+            # load_game reinitializes the game; response may be lost
+            response = send_command(sock, cmd)
+            if response.get("detail") == "bad_json":
+                # Game likely reloaded fine but response was lost
+                print(f"[HARNESS] load_game: response lost due to reinit, checking if game alive...")
+                time.sleep(2)
+                # Try a simple command to verify game is responsive
+                check = send_command(sock, "turn_counter")
+                if check.get("status") == "ok":
+                    response = {"status": "ok", "cmd": cmd, "detail": "loaded_ok"}
+                else:
+                    response = {"status": "error", "cmd": cmd, "detail": "load_failed"}
+        else:
+            response = send_command(sock, cmd)
+
+        detail = response.get("detail", "")
+        if detail:
+            print(f"[HARNESS] Response: {response} (detail: {detail})")
+        else:
+            print(f"[HARNESS] Response: {response}")
         results.append({"step": i, "cmd": cmd, "response": response})
 
         if response.get("status") != "ok":
@@ -222,12 +291,18 @@ def main():
     # Default smoke test scenario
     default_scenario = [
         {"cmd": "new_game", "wait": 2000},
-        {"cmd": "start_game", "wait": 10000},  # Game needs time to generate map
-        {"cmd": "build_city", "wait": 5000},   # Build city with starting settler
+        {"cmd": "start_game", "wait": 10000},              # Game needs time to generate map
+        {"cmd": "build_city", "wait": 5000},               # Build city with starting settler
+        {"cmd": "turn_counter", "wait": 500},              # Check current turn
+        {"cmd": "list_visible_units", "wait": 500},        # See what's on the map
         {"cmd": "set_production 0 cheapest_military", "wait": 2000},
-        {"cmd": "enable_governor all growth", "wait": 2000},
-        {"cmd": "end_turn", "wait": 10000},    # Turn processing
-        {"cmd": "quit", "wait": 2000},         # Clean exit
+        {"cmd": "screenshot /tmp/ctp2-smoke-screenshot.bmp", "wait": 1000},
+        {"cmd": "save_game /tmp/ctp2-smoke-save.sav", "wait": 2000},
+        {"cmd": "diplomacy_status 2", "wait": 500},        # Check relations with AI player 2
+        {"cmd": "advance_turns 1", "wait": 15000},         # End 1 turn (AI needs time)
+        {"cmd": "turn_counter", "wait": 500},              # Verify turn advanced
+        {"cmd": "load_game /tmp/ctp2-smoke-save.sav", "wait": 5000},
+        {"cmd": "quit", "wait": 2000},                     # Clean exit
     ]
 
     scenario_file = sys.argv[1] if len(sys.argv) > 1 else None

@@ -268,6 +268,10 @@ extern SDL_mutex* g_secondaryKeyboardEventQueueMutex;
 #include "ui/interface/trademanager.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "ui/interface/tutorialwin.h"
+#include "gs/fileio/gamefile.h"
+#ifdef USE_SDL
+#include "ui/aui_sdl/aui_sdlsurface.h"
+#endif
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitBuildListRecord.h"
@@ -2861,6 +2865,229 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								}
 							}
 						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strcmp(cmd, "turn_counter") == 0) {
+				if (m_gameLoaded && g_turn) {
+					char detail[64];
+					snprintf(detail, sizeof(detail), "round=%d", g_turn->GetRound());
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "set_research ", 13) == 0) {
+				if (m_gameLoaded) {
+					const char *adv_name = cmd + 13;
+					if (!adv_name[0]) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						Player *human = NULL;
+						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+							if (g_player[p] && g_player[p]->IsHuman()) {
+								human = g_player[p];
+								break;
+							}
+						}
+						if (!human) {
+							smoketest_send_response("error", cmd, "no_human_player");
+						} else {
+							StringId str_id;
+							if (!g_theStringDB->GetStringID(adv_name, str_id)) {
+								smoketest_send_response("error", cmd, "advance_name_not_found");
+							} else {
+								sint32 adv_idx = -1;
+								if (!g_theAdvanceDB->GetNamedItem(str_id, adv_idx)) {
+									fprintf(stderr, "[SMOKE] Setting research to advance %d (%s)\n",
+										adv_idx, adv_name);
+									human->SetResearching(adv_idx);
+									smoketest_send_response("ok", cmd, NULL);
+								} else {
+									smoketest_send_response("error", cmd, "advance_not_in_db");
+								}
+							}
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "diplomacy_status ", 17) == 0) {
+				if (m_gameLoaded) {
+					int target_player = atoi(cmd + 17);
+					if (target_player < 0 || target_player >= k_MAX_PLAYERS) {
+						smoketest_send_response("error", cmd, "bad_player_index");
+					} else {
+						Player *human = NULL;
+						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+							if (g_player[p] && g_player[p]->IsHuman()) {
+								human = g_player[p];
+								break;
+							}
+						}
+						if (!human) {
+							smoketest_send_response("error", cmd, "no_human_player");
+						} else if (!g_player[target_player]) {
+							smoketest_send_response("error", cmd, "player_not_active");
+						} else {
+							DIPLOMATIC_STATE state = human->GetDiplomaticState(target_player);
+							const char *state_str = "unknown";
+							switch(state) {
+								case DIPLOMATIC_STATE_WAR:       state_str = "war"; break;
+								case DIPLOMATIC_STATE_CEASEFIRE: state_str = "ceasefire"; break;
+								case DIPLOMATIC_STATE_NEUTRAL:   state_str = "neutral"; break;
+								case DIPLOMATIC_STATE_ALLIED:    state_str = "allied"; break;
+							}
+							char detail[64];
+							snprintf(detail, sizeof(detail), "player=%d,state=%s", target_player, state_str);
+							smoketest_send_response("ok", cmd, detail);
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "save_game ", 10) == 0) {
+				if (m_gameLoaded) {
+					const char *path = cmd + 10;
+					if (!path[0]) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						fprintf(stderr, "[SMOKE] Saving game to %s\n", path);
+						GameFile::SaveGame(path, NULL);
+						smoketest_send_response("ok", cmd, NULL);
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strncmp(cmd, "load_game ", 10) == 0) {
+				const char *path = cmd + 10;
+				if (!path[0]) {
+					smoketest_send_response("error", cmd, "bad_args");
+				} else {
+					fprintf(stderr, "[SMOKE] Loading game from %s\n", path);
+					GameFile::RestoreGame(path);
+					smoketest_send_response("ok", cmd, NULL);
+				}
+			}
+			else if (strncmp(cmd, "screenshot ", 11) == 0) {
+				const char *path = cmd + 11;
+				if (!path[0]) {
+					smoketest_send_response("error", cmd, "bad_args");
+				} else {
+#ifdef USE_SDL
+					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(g_c3ui->Primary());
+					if (sdlSurf && sdlSurf->DDS()) {
+						if (SDL_SaveBMP(sdlSurf->DDS(), path) == 0) {
+							fprintf(stderr, "[SMOKE] Screenshot saved to %s\n", path);
+							smoketest_send_response("ok", cmd, NULL);
+						} else {
+							smoketest_send_response("error", cmd, "sdl_save_failed");
+						}
+					} else {
+						smoketest_send_response("error", cmd, "no_surface");
+					}
+#else
+					smoketest_send_response("error", cmd, "not_sdl");
+#endif
+				}
+			}
+			else if (strncmp(cmd, "move_unit ", 10) == 0) {
+				if (m_gameLoaded) {
+					int city_idx = 0, dx = 0, dy = 0;
+					if (sscanf(cmd + 10, "%d %d %d", &city_idx, &dx, &dy) != 3) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						Player *human = NULL;
+						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+							if (g_player[p] && g_player[p]->IsHuman()) {
+								human = g_player[p];
+								break;
+							}
+						}
+						if (!human) {
+							smoketest_send_response("error", cmd, "no_human_player");
+						} else if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num()) {
+							smoketest_send_response("error", cmd, "bad_city_index");
+						} else {
+							Unit city = human->GetAllCitiesList()->Access(city_idx);
+							if (!city.IsValid()) {
+								smoketest_send_response("error", cmd, "invalid_city");
+							} else {
+								MapPoint city_pos;
+								city.GetPos(city_pos);
+								MapPoint dest(city_pos.x + dx, city_pos.y + dy);
+
+								Cell *cell = g_theWorld->GetCell(city_pos);
+								bool moved = false;
+								if (cell) {
+									for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
+										Unit u = cell->AccessUnit(i);
+										if (u.IsValid() && !u.IsCity() && u.GetOwner() == human->GetOwner()) {
+											Army army = u.GetArmy();
+											if (army.IsValid()) {
+												army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
+												fprintf(stderr, "[SMOKE] Moving unit from (%d,%d) to (%d,%d)\n",
+												city_pos.x, city_pos.y, dest.x, dest.y);
+												moved = true;
+												break;
+											}
+										}
+									}
+								}
+								if (moved) {
+									smoketest_send_response("ok", cmd, NULL);
+								} else {
+									smoketest_send_response("error", cmd, "no_movable_unit");
+								}
+							}
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
+			else if (strcmp(cmd, "list_visible_units") == 0) {
+				if (m_gameLoaded) {
+					Player *human = NULL;
+					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+						if (g_player[p] && g_player[p]->IsHuman()) {
+							human = g_player[p];
+							break;
+						}
+					}
+					if (!human) {
+						smoketest_send_response("error", cmd, "no_human_player");
+					} else {
+						sint32 vis_player = g_selected_item->GetVisiblePlayer();
+						char detail[512];
+						detail[0] = '\0';
+						int count = 0;
+						for (sint32 p = 0; p < k_MAX_PLAYERS && count < 10; p++) {
+							if (!g_player[p]) continue;
+							for (sint32 i = 0; i < g_player[p]->m_all_units->Num() && count < 10; i++) {
+								Unit u = g_player[p]->m_all_units->Access(i);
+								if (u.IsValid() && (u.GetVisibility() & (1 << vis_player))) {
+									MapPoint pos;
+									u.GetPos(pos);
+									char entry[64];
+									snprintf(entry, sizeof(entry), "%s%d@(%d,%d)",
+										count > 0 ? "," : "",
+										p, pos.x, pos.y);
+									if (strlen(detail) + strlen(entry) < sizeof(detail) - 1) {
+										strcat(detail, entry);
+										count++;
+									}
+								}
+							}
+						}
+						char full_detail[576];
+						snprintf(full_detail, sizeof(full_detail), "count=%d,%s", count, detail);
+						smoketest_send_response("ok", cmd, full_detail);
 					}
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");

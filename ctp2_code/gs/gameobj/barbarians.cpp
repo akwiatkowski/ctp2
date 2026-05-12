@@ -27,16 +27,16 @@
 // - Alter the algorithm used to place barbarians in single player games,
 //   making it the same as that used in multiplayer games - JJB 2004/12/13
 // - Add a NoBarbarian flag which makes the unit not appear as barbarian
-// - Replaced old risk database by new one. (Aug 29th 2005 Martin Gühmann)
+// - Replaced old risk database by new one. (Aug 29th 2005 Martin Gï¿½hmann)
 // - Added Pirate generation. (April 14th 2006 E)
 // - Game does not try to generate barbarian units of invalid type anymore
-//   if there is no valid unit type available. (April 29th 2006 Martin Gühmann)
+//   if there is no valid unit type available. (April 29th 2006 Martin Gï¿½hmann)
 // - Added but not implemented AddInsurgent Code it maynot be necessary
 // - Added but outcommented Barbarian Special Forces difficulty code
 // - added outcomment for disaster/random event code
-// - Standardizes in Babarian period computation. (25-Jan-2008 Martin Gühmann)
-// - Standardized visibility check. (22-Feb-2008 Martin Gühmann)
-// - Barbarians do not show up inside the borders of a protected civ. (22-Feb-2008 Martin Gühmann)
+// - Standardizes in Babarian period computation. (25-Jan-2008 Martin Gï¿½hmann)
+// - Standardized visibility check. (22-Feb-2008 Martin Gï¿½hmann)
+// - Barbarians do not show up inside the borders of a protected civ. (22-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -156,7 +156,9 @@ sint32 Barbarians::ChooseUnitType()
 		} else {
 			rankMax = risk->GetBarbarianUnitRankMax();
 		}
-		sint32 whichbest = g_rand->Next(count - rankMax) + rankMax;
+		sint32 range = count - rankMax;
+		if (range <= 0) range = 1;
+		sint32 whichbest = g_rand->Next(range) + rankMax;
 		if(whichbest >= count)
 			whichbest = count - 1;
 
@@ -190,11 +192,15 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 	sint32 maxBarbarians;
 	if(fromGoodyHut)
 	{
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
+		sint32 maxHut = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians();
+		if (maxHut < 1) maxHut = 1;
+		maxBarbarians = g_rand->Next(maxHut - 1) + 1;
 	}
 	else
 	{
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
+		sint32 maxSpont = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians();
+		if (maxSpont < 1) maxSpont = 1;
+		maxBarbarians = g_rand->Next(maxSpont - 1) + 1;
 	}
 
 	sint32 count = 0;

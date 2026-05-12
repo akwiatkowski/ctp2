@@ -29,8 +29,8 @@
 //   waiting for it to finish.
 // - Prevented messages appearing out of turn in hoseat mode
 // - PFT 29 mar 05, show # turns until city next grows a pop
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Outcommented some unreachable code. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Outcommented some unreachable code. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Fixed memory leaks.
 // - Removed some unused items
 // - Changed occurances of UnitRecord::GetMaxHP to
@@ -1454,8 +1454,8 @@ void Director::AddAttack(Unit attacker, Unit defender) {
     action->attacker_ID = attacker.GetAttackSoundID();
     action->attacker_IsCity = attacker.IsCity();
 
-    attackerActor->SetHealthPercent(attacker.GetHP() /
-                                    attacker->CalculateTotalHP());
+    sint32 attackerTotalHP = attacker->CalculateTotalHP();
+    attackerActor->SetHealthPercent(attackerTotalHP > 0 ? attacker.GetHP() / attackerTotalHP : 0);
 
     Army army = attacker.GetArmy();
     if (army.IsValid()) {
@@ -1470,8 +1470,8 @@ void Director::AddAttack(Unit attacker, Unit defender) {
     action->defender_ID = defender.GetAttackSoundID();
     action->defender_IsCity = defender.IsCity();
 
-    defenderActor->SetHealthPercent(defender.GetHP() /
-                                    defender->CalculateTotalHP());
+    sint32 defenderTotalHP = defender->CalculateTotalHP();
+    defenderActor->SetHealthPercent(defenderTotalHP > 0 ? defender.GetHP() / defenderTotalHP : 0);
 
     CellUnitList* unitList;
     unitList = g_theWorld->GetCell(defender.RetPos())->UnitArmy();

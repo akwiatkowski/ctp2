@@ -529,11 +529,13 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 			if(bf->GetBuildingIndex() == building)
 			{
 				sint32 numCities = 0;
-				for(sint32 c = 0; c < g_player[city.GetOwner()]->m_all_cities->Num(); c++)
-				{
-					Unit aCity = g_player[city.GetOwner()]->m_all_cities->Access(c);
-					if(aCity.CD()->HasBuilding(building))
-						numCities++;
+				if (Player* owner = safe_player(city.GetOwner())) {
+					for(sint32 c = 0; c < owner->m_all_cities->Num(); c++)
+					{
+						Unit aCity = owner->m_all_cities->Access(c);
+						if(aCity.CD()->HasBuilding(building))
+							numCities++;
+					}
 				}
 
 				sint32 num, percent;
@@ -550,7 +552,10 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 				}
 				else if(bf->GetPercentCities(percent))
 				{
-					sint32 havePercent = safe_divide((numCities * 100), g_player[city.GetOwner()]->m_all_cities->Num());
+					sint32 totalCities = 0;
+					if (Player* owner = safe_player(city.GetOwner()))
+						totalCities = owner->m_all_cities->Num();
+					sint32 havePercent = safe_divide((numCities * 100), totalCities);
 					if(havePercent >= percent)
 					{
 						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,

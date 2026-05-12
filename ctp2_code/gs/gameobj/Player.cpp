@@ -135,6 +135,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/safety.h"
 #include "gs/gameobj/Player.h"
 
 #include "gs/gameobj/AchievementTracker.h"
@@ -5674,7 +5675,7 @@ void Player::BuildEndGame(sint32 type, Unit city)
 void Player::AddWonder(sint32 wonder, Unit &city)
 {
 	DPRINTF(k_DBG_GAMESTATE, ("Player %d built wonder %d\n", m_owner, wonder));
-	m_builtWonders |= ((uint64)1 << wonder);
+	m_builtWonders |= (safe_shift_left_u64(wonder));
 
 	const WonderRecord *wrec = wonderutil_Get(wonder, m_owner);
 
@@ -5727,7 +5728,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	}
 
 	//one time affect
-	if(wonderutil_GetFreeSlaves((uint64)1 << wonder)) {
+	if(wonderutil_GetFreeSlaves(safe_shift_left_u64(wonder))) {
 		sint32 i, n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
 			m_all_cities->Access(i).FreeSlaves();
@@ -5751,7 +5752,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		}
 	}
 
-	sint32 hpBonus = wonderutil_GetIncreaseHP((uint64)1 << wonder);
+	sint32 hpBonus = wonderutil_GetIncreaseHP(safe_shift_left_u64(wonder));
 	if(hpBonus > 0) {
 		sint32 i, n = m_all_units->Num();
 		for(i = 0; i < n; i++) {
@@ -5760,7 +5761,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	}
 
 	sint32 fullHappinessTurns = wonderutil_GetTemporaryFullHappiness(
-		((uint64)1 << wonder));
+		(safe_shift_left_u64(wonder)));
 	if(fullHappinessTurns > 0) {
 		sint32 i, n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
@@ -5768,7 +5769,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		}
 	}
 
-	sint32 readinessReduction = wonderutil_GetReadinessCostReduction((uint64)1 << wonder);
+	sint32 readinessReduction = wonderutil_GetReadinessCostReduction(safe_shift_left_u64(wonder));
 	if(readinessReduction > 0) {
 		m_readiness->RecalcCost();
 	}
@@ -5796,7 +5797,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		g_slicEngine->Execute(so);
 	}
 
-	if(wonderutil_GetCloseEmbassies((uint64)1 << wonder)) {
+	if(wonderutil_GetCloseEmbassies(safe_shift_left_u64(wonder))) {
 		sint32 p;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
 			if(g_player[p]) {
@@ -5807,7 +5808,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		}
 	}
 
-	if(wonderutil_GetEmbassiesEverywhereEvenAtWar((uint64)1 << wonder)) {
+	if(wonderutil_GetEmbassiesEverywhereEvenAtWar(safe_shift_left_u64(wonder))) {
 		sint32 p;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
 			if(g_player[p]) {
@@ -5880,7 +5881,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 	sint32 buildingIndex;
 	if(wrec->GetBuildingEverywhereIndex(buildingIndex)) {
-		m_wonderBuildings |= ((uint64)1 << buildingIndex);
+		m_wonderBuildings |= (safe_shift_left_u64(buildingIndex));
 	}
 	//EMOD to actually create the wonder building
 
@@ -5896,7 +5897,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 	sint32 buildingIndex2;
 	if(wrec->GetBuildingEffectEverywhereIndex(buildingIndex2)) {
-		m_wonderBuildings |= ((uint64)1 << buildingIndex2);
+		m_wonderBuildings |= (safe_shift_left_u64(buildingIndex2));
 	}
 
 	//end EMOD
@@ -5904,11 +5905,11 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 void Player::RemoveWonder(sint32 which, bool destroyed)
 {
-	m_builtWonders &= ~((uint64)1 << which);
+	m_builtWonders &= ~safe_shift_left_u64(which);
 
 	if (!wonderutil_IsObsolete(which)) {
 		/// @todo Find out what was supposed to happen here: this is doing nothing
-		sint32 increaseRegard = wonderutil_GetIncreaseRegard((uint64)1 << which);
+		sint32 increaseRegard = wonderutil_GetIncreaseRegard(safe_shift_left_u64(which));
 
 	}
 
@@ -5926,7 +5927,7 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 
 	sint32 buildingIndex;
 	if(wonderutil_Get(which, m_owner)->GetBuildingEverywhereIndex(buildingIndex)) {
-		m_wonderBuildings &= ~((uint64)1 << buildingIndex);
+		m_wonderBuildings &= ~safe_shift_left_u64(buildingIndex);
 	}
 
 	if(wonderutil_Get(which, m_owner)->GetGlobalRadar()) {

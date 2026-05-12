@@ -1369,7 +1369,7 @@ void Diplomat::UpdateRegard(const PLAYER_INDEX foreignerId)
 	Assert(foreignerId >= 0);
 	Assert(static_cast<size_t>(foreignerId) < m_foreigners.size());
 
-	if (foreignerId < 0 || static_cast<size_t>(foreignerId) > m_foreigners.size())
+	if (foreignerId < 0 || static_cast<size_t>(foreignerId) >= m_foreigners.size())
 		return;
 
 	ai::Regard baseRegard = GetBaseRegard(foreignerId);
@@ -3106,25 +3106,40 @@ bool Diplomat::InvalidNewProposal(const PLAYER_INDEX & foreignerId, const Diplom
 
 	if (rec->GetClassTreaty())
 	{
-		if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_CEASEFIRE])->GetProposal()) &&
+		const DiplomacyRecord::ProposalElement * elem;
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_CEASEFIRE]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_CEASEFIRE))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_PEACE])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_PEACE]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_PEACE))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_TRADE_PACT])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_TRADE_PACT]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_TRADE_PACT))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_MILITARY_PACT])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_MILITARY_PACT]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_MILITARY_PACT))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_RESEARCH_PACT])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_RESEARCH_PACT]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_RESEARCH_PACT))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_POLLUTION_PACT])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_POLLUTION_PACT]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_POLLUTION_PACT))
 			return true;
-		else if ((rec == m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_ALLIANCE])->GetProposal()) &&
+
+		elem = m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[PROPOSAL_TREATY_ALLIANCE]);
+		if (elem && (rec == elem->GetProposal()) &&
 			AgreementMatrix::s_agreements.HasAgreement(m_playerId, foreignerId, PROPOSAL_TREATY_ALLIANCE))
 			return true;
 	}
@@ -3413,6 +3428,8 @@ const NegotiationEventList & Diplomat::GetNegotiationEvents( const PLAYER_INDEX 
 sint32 Diplomat::GetNewProposalPriority(const PLAYER_INDEX foreignerId,
 							  const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return -1;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
@@ -3434,10 +3451,14 @@ sint32 Diplomat::GetNewProposalPriority(const PLAYER_INDEX foreignerId,
 sint32 Diplomat::GetAcceptPriority(const PLAYER_INDEX foreignerId,
 						 const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return -1;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
 		m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[proposalType]);
+	if (!elem)
+		return -1;
 	sint32 value;
 	elem->GetAcceptPriority(value);
 	return value;
@@ -3446,10 +3467,14 @@ sint32 Diplomat::GetAcceptPriority(const PLAYER_INDEX foreignerId,
 sint32 Diplomat::GetRejectPriority(const PLAYER_INDEX foreignerId,
 						 const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return -1;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
 		m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[proposalType]);
+	if (!elem)
+		return -1;
 
 	sint32 value;
 	elem->GetRejectPriority(value);
@@ -3459,10 +3484,14 @@ sint32 Diplomat::GetRejectPriority(const PLAYER_INDEX foreignerId,
 sint32 Diplomat::GetSenderRegardResult(const PLAYER_INDEX foreignerId,
 							 const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return 0;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
 		m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[proposalType]);
+	if (!elem)
+		return 0;
 
 	sint32 value;
 	elem->GetSenderRegardResult(value);
@@ -3472,6 +3501,8 @@ sint32 Diplomat::GetSenderRegardResult(const PLAYER_INDEX foreignerId,
 sint32 Diplomat::GetReceiverRegardResult(const PLAYER_INDEX foreignerId,
 							   const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return 0;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
@@ -3488,10 +3519,14 @@ sint32 Diplomat::GetReceiverRegardResult(const PLAYER_INDEX foreignerId,
 sint32 Diplomat::GetViolationRegardCost(const PLAYER_INDEX foreignerId,
 							  const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return 0;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
 		m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[proposalType]);
+	if (!elem)
+		return 0;
 
 	sint32 value;
 	elem->GetViolationRegardCost(value);
@@ -3499,12 +3534,16 @@ sint32 Diplomat::GetViolationRegardCost(const PLAYER_INDEX foreignerId,
 }
 
 sint32 Diplomat::GetViolationTrustCost(const PLAYER_INDEX foreignerId,
-							 const PROPOSAL_TYPE proposalType ) const
+								 const PROPOSAL_TYPE proposalType ) const
 {
+	if (proposalType < 0 || proposalType >= PROPOSAL_MAX)
+		return 0;
 	Assert(s_proposalTypeToElemIndex[proposalType] < m_diplomacy[foreignerId].GetNumProposalElement());
 
 	const DiplomacyRecord::ProposalElement * elem =
 		m_diplomacy[foreignerId].GetProposalElement(s_proposalTypeToElemIndex[proposalType]);
+	if (!elem)
+		return 0;
 
 	sint32 value;
 	elem->GetViolationTrustCost(value);
@@ -4817,22 +4856,30 @@ bool Diplomat::IncursionPermission(const PLAYER_INDEX foreignerId) const
 
 void Diplomat::SetHotwarAttack(const PLAYER_INDEX foreignerId, const sint16 last_hot_war_attack)
 {
+	if (foreignerId < 0 || static_cast<size_t>(foreignerId) >= m_foreigners.size())
+		return;
 	m_foreigners[foreignerId].SetHotwarAttack(last_hot_war_attack);
 }
 
 sint32 Diplomat::GetLastHotwarAttack(const PLAYER_INDEX foreignerId) const
 {
+	if (foreignerId < 0 || static_cast<size_t>(foreignerId) >= m_foreigners.size())
+		return 0;
 	return m_foreigners[foreignerId].GetLastHotwarAttack();
 }
 
 void Diplomat::SetColdwarAttack(const PLAYER_INDEX foreignerId, const sint16 last_cold_war_attack)
 {
+	if (foreignerId < 0 || static_cast<size_t>(foreignerId) >= m_foreigners.size())
+		return;
 	m_foreigners[foreignerId].SetColdwarAttack(last_cold_war_attack);
 }
 
 sint32 Diplomat::GetLastColdwarAttack(const PLAYER_INDEX foreignerId) const
 {
-	return m_foreigners[foreignerId].GetLastColdwarAttack();
+	if (foreignerId < 0 || static_cast<size_t>(foreignerId) >= m_foreigners.size())
+		return 0;
+	return m_foreigners[foreignerId].GetLastHotwarAttack();
 }
 
 PLAYER_INDEX Diplomat::ComputeNuclearLaunchTarget()

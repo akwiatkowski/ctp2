@@ -325,7 +325,7 @@ namespace Os
 	    return std::basic_string<TCHAR>();
 
 	ssize_t size = readlink(szLink, szTemp, sizeof(szTemp));
-	if ((size < 0) || (static_cast<size_t>(size) > sizeof(szTemp)))
+	if ((size < 0) || (static_cast<size_t>(size) >= sizeof(szTemp)))
 	    return std::basic_string<TCHAR>();
 	szTemp[size] = 0;
 

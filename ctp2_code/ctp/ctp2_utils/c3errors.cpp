@@ -168,7 +168,7 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
    sprintf(szTitle, szTitleText, szTmp);
 #endif
 
-	LPTSTR  szFmtTmp    = szTitle + (lstrlen(szTitle)+2)*sizeof(TCHAR);
+	LPTSTR  szFmtTmp    = szTitle + lstrlen(szTitle) + 2;
 
 	va_list list;
 	va_start(list, fmt);

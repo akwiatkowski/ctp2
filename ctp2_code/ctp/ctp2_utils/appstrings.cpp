@@ -38,7 +38,9 @@ void appstrings_Initialize(void)
 		if (!fgets(inStr, _MAX_PATH, inFile)) {
 			c3errors_FatalDialog("appstr.txt", "Error in appstr.txt.  Terminating app.");
 		}
-		inStr[strlen(inStr)-1] = '\0';
+		size_t len = strlen(inStr);
+		if (len > 0)
+			inStr[len - 1] = '\0';
 		s_appStrings[i] = new MBCHAR[sizeof(inStr) + 1];
 		strcpy(s_appStrings[i], inStr);
 	}

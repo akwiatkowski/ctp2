@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -253,6 +253,7 @@ AUI_ERRCODE C3Slider::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	{
 		if ( m_orientation == AUI_RANGER_ORIENTATION_VERTICAL )
 		{
+			if (m_maxY == m_minY) return AUI_ERRCODE_INVALIDPARAM;
 			sint32 spacing = m_height / ( m_maxY - m_minY ) - 1;
 			RECT tickRect;
 			for ( sint32 i = m_maxY - m_minY; i >= 0; i -= m_ticks )
@@ -270,6 +271,7 @@ AUI_ERRCODE C3Slider::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 		}
 		else
 		{
+			if (m_maxX == m_minX) return AUI_ERRCODE_INVALIDPARAM;
 			sint32 spacing = m_width / ( m_maxX - m_minX ) - 1;
 			RECT tickRect;
 			for ( sint32 i = m_maxX - m_minX; i >= 0; i -= m_ticks )

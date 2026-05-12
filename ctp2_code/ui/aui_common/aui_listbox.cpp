@@ -1740,8 +1740,8 @@ void aui_ListBox::MouseRGrabInside( aui_MouseEvent *mouseData )
 
 		if ( y < maxY )
 		{
-			sint32 itemIndex =
-				y / m_maxItemHeight + m_verticalRanger->GetValueY();
+			sint32 itemIndex = (m_maxItemHeight > 0) ?
+				y / m_maxItemHeight + m_verticalRanger->GetValueY() : 0;
 
 			ListPos position = m_selectedList->Find( itemIndex );
 			if ( position )
@@ -1978,8 +1978,8 @@ void aui_ListBox::MouseLDoubleClickInside( aui_MouseEvent *mouseData )
 
 		if ( y < maxY )
 		{
-			sint32 itemIndex =
-				y / m_maxItemHeight + m_verticalRanger->GetValueY();
+			sint32 itemIndex = (m_maxItemHeight > 0) ?
+				y / m_maxItemHeight + m_verticalRanger->GetValueY() : 0;
 
 			SendSelectCallback(
 				AUI_LISTBOX_ACTION_DOUBLECLICKSELECT,

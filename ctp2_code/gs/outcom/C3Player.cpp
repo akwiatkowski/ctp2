@@ -727,7 +727,7 @@ STDMETHODIMP_ (sint32) C3Player::CancelCityRoutesToPlayer(uint32 city_id, BOOL *
 
 	TradeDynamicArray* dest = the_city->GetTradeDestinationList();
     if (dest) {
-        route_num = src->Num();
+        route_num = dest->Num();
         for (route_idx=route_num-1; 0<=route_idx; route_idx--) {
             nth_route = dest->Access(route_idx);
             if (nth_route.GetSource().GetOwner() == no_trade_for_you) {

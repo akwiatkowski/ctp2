@@ -147,6 +147,8 @@ template <class T> T* Database<T>::Access(const sint32 i)
 {
 	Assert(0<=i);
 	Assert(i<m_nRec);
+	if(i < 0 || i >= m_nRec)
+		return NULL;
 	return &(m_rec[i]);
 }
 

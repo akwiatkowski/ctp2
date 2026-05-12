@@ -247,5 +247,20 @@ ctp2_code/ctp/ldlparselog.txt
 ctp2_code/ctp/slicdbg.txt
 ctp2_code/ctp/usercritmsgs.txt
 ctp2_code/ctp/CTP_LEAKS*
+ctp2_code/ctp/ubsan-suppressions.txt
+
+# Game generated files
+dipcombo.txt
+eventcb.txt
+eventlog.txt
+fix_gameinit.py
+ldlparselog.txt
+mise.toml
+slicdbg.txt
+ubsan-suppressions.txt
+usercritmsgs.txt
+userprofile.txt
+"logs\\messages.txt"
+"logs\\oldseed.txt"
 # macOS temp files
 .!*

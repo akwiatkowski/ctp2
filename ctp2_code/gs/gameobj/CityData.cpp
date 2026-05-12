@@ -2582,10 +2582,10 @@ void CityData::ComputeSpecialistsEffects()
 	sint32 totalGold = GetGoldFromRing(-1);
 
 	for(sint32 i = 0; i < g_theCitySizeDB->NumRecords(); ++i){
-		m_farmersEff[i]     = (m_foodFromOnePop - m_crimeFoodLossOfOnePop) - m_net_food * (static_cast<double>(m_ringFood[i]) / static_cast<double>(totalFood));
-		m_laborersEff[i]    = (m_prodFromOnePop - m_crimeProdLossOfOnePop - m_bioinfectionProdLossOfOnePop - m_franchiseProdLossOfOnePop) - m_net_production * (static_cast<double>(m_ringProd[i]) / static_cast<double>(totalProd));
-		m_merchantsEff[i]   = (m_goldFromOnePop - m_crimeGoldLossOfOnePop - m_conversionGoldLossOfOnePop) - m_net_gold * (static_cast<double>(m_ringGold[i]) / static_cast<double>(totalGold));
-		m_scientistsEff[i]  = (m_scieFromOnePop - m_crimeScieLossOfOnePop) - m_science * (static_cast<double>(m_ringGold[i]) / static_cast<double>(totalGold));
+		m_farmersEff[i]     = (m_foodFromOnePop - m_crimeFoodLossOfOnePop) - m_net_food * ((totalFood > 0) ? static_cast<double>(m_ringFood[i]) / static_cast<double>(totalFood) : 0.0);
+		m_laborersEff[i]    = (m_prodFromOnePop - m_crimeProdLossOfOnePop - m_bioinfectionProdLossOfOnePop - m_franchiseProdLossOfOnePop) - m_net_production * ((totalProd > 0) ? static_cast<double>(m_ringProd[i]) / static_cast<double>(totalProd) : 0.0);
+		m_merchantsEff[i]   = (m_goldFromOnePop - m_crimeGoldLossOfOnePop - m_conversionGoldLossOfOnePop) - m_net_gold * ((totalGold > 0) ? static_cast<double>(m_ringGold[i]) / static_cast<double>(totalGold) : 0.0);
+		m_scientistsEff[i]  = (m_scieFromOnePop - m_crimeScieLossOfOnePop) - m_science * ((totalGold > 0) ? static_cast<double>(m_ringGold[i]) / static_cast<double>(totalGold) : 0.0);
 	}
 }
 
@@ -3760,22 +3760,27 @@ double CityData::CalculateGrossGrowthRate(double &overcrowdingCoeff, double &bas
 	}
 	else
 	{
-		double popRatio = static_cast<double>(PopCount() - overcrowding) / static_cast<double>(maxPop - overcrowding);
-		overcrowdingCoeff = 1 - (popRatio * popRatio);
-		baseRate = overcrowdingCoeff * maxGrowthRate;
+		if (maxPop > overcrowding) {
+			double popRatio = static_cast<double>(PopCount() - overcrowding) / static_cast<double>(maxPop - overcrowding);
+			overcrowdingCoeff = 1 - (popRatio * popRatio);
+			baseRate = overcrowdingCoeff * maxGrowthRate;
+		} else {
+			overcrowdingCoeff = 0;
+			baseRate = 0;
+		}
 	}
 
 	if(m_food_delta + bonusFood < 0)
 	{
 		double maxPop = static_cast<double>(rec->GetPopulation());
-		double popScale = (static_cast<double>(PopCount()) - minPop) / (maxPop - minPop);
+		double popScale = (maxPop > minPop) ? (static_cast<double>(PopCount()) - minPop) / (maxPop - minPop) : 0.0;
 		double growthRate = maxGrowthRate - popScale * (maxGrowthRate - minGrowthRate);
 
-		return(((m_food_delta + bonusFood) / static_cast<double>(maxSurplusFood)) * growthRate);
+		return (maxSurplusFood > 0) ? (((m_food_delta + bonusFood) / static_cast<double>(maxSurplusFood)) * growthRate) : 0.0;
 	}
 	else
 	{
-		return((m_food_delta + bonusFood) / static_cast<double>(PopCount()));
+		return (PopCount() > 0) ? ((m_food_delta + bonusFood) / static_cast<double>(PopCount())) : 0.0;
 	}
 }
 

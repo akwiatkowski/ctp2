@@ -2952,6 +2952,9 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 bool ArmyData::CanSlaveRaid(double &success, double &death,
 							sint32 &timer, sint32 &amount) const
 {
+	if (m_nElements <= 0)
+		return false;
+
 	const UnitRecord::SlaveRaidsData *data = NULL;
 	for(sint32 i = 0; i < m_nElements; i++) {
 		if( !m_array[i].GetDBRec()->GetSlaveRaids(data)) {
@@ -2959,6 +2962,9 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 			return false;
 		}
 	}
+
+	if (data == NULL)
+		return false;
 
 	success = data->GetChance();
 	death = data->GetDeathChance();

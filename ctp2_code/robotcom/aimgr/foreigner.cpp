@@ -1492,6 +1492,7 @@ void Foreigner::ComputeLandContinentShared(AiMain *ai,
 {
     if (NULL == m_known_cities) {
         continents_shared = 0.0;
+        return;
     }
 
     sint32 cont_num = ai->m_continents->GetNumLandCont();

@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - The finish method just deletes the MessageData from the asscicated
-//   SlicFrame as the SlicFrame may be used later. (Sep. 24th 2006 Martin Gühmann)
+//   SlicFrame as the SlicFrame may be used later. (Sep. 24th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -101,7 +101,7 @@ SlicObject::SlicObject(char const * id)
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    (new char[strlen(id) + 1]),
+    m_id                    (id ? new char[strlen(id) + 1] : NULL),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -121,7 +121,7 @@ SlicObject::SlicObject(char const * id)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	strcpy(m_id, id);
+	if (m_id) strcpy(m_id, id);
 
 	m_segment   = g_slicEngine->GetSegment(m_id);
 	m_frame     = new SlicFrame(m_segment);
@@ -136,7 +136,7 @@ SlicObject::SlicObject(SlicSegment *segment)
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    (new char[strlen(segment->GetName()) + 1]),
+    m_id                    ((segment && segment->GetName()) ? new char[strlen(segment->GetName()) + 1] : NULL),
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
@@ -156,7 +156,7 @@ SlicObject::SlicObject(SlicSegment *segment)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	strcpy(m_id, segment->GetName());
+	if (m_id && segment && segment->GetName()) strcpy(m_id, segment->GetName());
 	if (m_segment && !m_segment->IsHelp())
     {
 		m_class = k_NON_TUTORIAL_MESSAGE_CLASS;
@@ -167,7 +167,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 :
     SlicContext             (copy),
     m_refCount              (0),
-    m_id                    (new char[strlen(segment->GetName()) + 1]),
+    m_id                    ((segment && segment->GetName()) ? new char[strlen(segment->GetName()) + 1] : NULL),
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
@@ -187,7 +187,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	strcpy(m_id, segment->GetName());
+	if (m_id && segment && segment->GetName()) strcpy(m_id, segment->GetName());
 	m_request               = new ID(*copy->m_request);
 }
 
@@ -195,7 +195,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 :
     SlicContext             (copy),
     m_refCount              (0),
-    m_id                    (new char[strlen(id) + 1]),
+    m_id                    (id ? new char[strlen(id) + 1] : NULL),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -215,7 +215,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	strcpy(m_id, id);
+	if (m_id && id) strcpy(m_id, id);
 	m_segment   = g_slicEngine->GetSegment(m_id);
 	m_frame     = new SlicFrame(m_segment);
 	if (m_segment && !m_segment->IsHelp())
@@ -550,9 +550,9 @@ void SlicObject::Serialize(CivArchive &archive)
 	if (archive.IsStoring()) {
 		archive.PerformMagic(SLICLIST_MAGIC) ;
 
-		l = strlen(m_id) + 1;
+		l = (m_id) ? strlen(m_id) + 1 : 1;
 		archive << l;
-		archive.Store((uint8 *)m_id, l);
+		if (m_id) archive.Store((uint8 *)m_id, l);
 
 		archive<<m_seconds ;
 		archive<<m_numRecipients ;

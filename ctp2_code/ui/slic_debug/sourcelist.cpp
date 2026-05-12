@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -131,6 +131,9 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	m_continue = NULL;
 	m_list = NULL;
 	m_exit = NULL;
+	m_step = NULL;
+	m_stepInto = NULL;
+	m_status = NULL;
 
 	if (ldlBlock) strcpy(windowBlock,ldlBlock);
 	else strcpy(windowBlock,"SourceListPopup");

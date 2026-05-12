@@ -151,21 +151,24 @@ void GaiaController::InitializeStatics()
 				{
 					terr_rec = g_theEndGameObjectDB->Get(i)->GetTerrainImprovementPtr();
 					type = terr_rec->GetIndex();
-					sm_endgameImprovements |= uint64((uint64)1 << (uint64)type);
+					if (type >= 0 && type < 64)
+						sm_endgameImprovements |= uint64((uint64)1 << (uint64)type);
 				}
 
 			if (g_theEndGameObjectDB->Get(i)->HasBuilding())
 				{
 					building_rec = g_theEndGameObjectDB->Get(i)->GetBuildingPtr();
 					type = building_rec->GetIndex();
-					sm_endgameBuildings |= uint64((uint64)1 << (uint64)type);
+					if (type >= 0 && type < 64)
+						sm_endgameBuildings |= uint64((uint64)1 << (uint64)type);
 				}
 
 			if (g_theEndGameObjectDB->Get(i)->HasWonder())
 				{
 					wonder_rec = g_theEndGameObjectDB->Get(i)->GetWonderPtr();
 					type = wonder_rec->GetIndex();
-					sm_endgameWonders |= uint64((uint64)1 << (uint64)type);
+					if (type >= 0 && type < 64)
+						sm_endgameWonders |= uint64((uint64)1 << (uint64)type);
 				}
 		}
 }
@@ -275,7 +278,7 @@ STDEHANDLER(GaiaController_CaptureCity)
 		return GEV_HD_Continue;
 
 	sint32 type;
-	for (type = 0; type < g_theBuildingDB->NumRecords(); type++)
+	for (type = 0; type < g_theBuildingDB->NumRecords() && type < 64; type++)
 		{
 			if ((city_buildings & ((uint64)0x1 << (uint64)type)) &&
 				(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
@@ -295,7 +298,7 @@ STDEHANDLER(GaiaController_CaptureCity)
 				}
 		}
 
-	for (type = 0; type < g_theWonderDB->NumRecords(); type++)
+	for (type = 0; type < g_theWonderDB->NumRecords() && type < 64; type++)
 		{
 			if ((city_wonders & ((uint64)0x1 << (uint64)type)) &&
 				(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
@@ -350,11 +353,12 @@ STDEHANDLER(GaiaController_CutImprovements)
 		{
 			type = cell->GetDBImprovement(i);
 
-			if (GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type))
-				{
-					owner_player->GetGaiaController()->
-						HandleTerrImprovementChange(type,pos, -1);
-				}
+		if (type >= 0 && type < 64 &&
+			(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type)))
+			{
+				owner_player->GetGaiaController()->
+					HandleTerrImprovementChange(type,pos, -1);
+			}
 		}
 
 		return GEV_HD_Continue;
@@ -389,7 +393,8 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -414,7 +419,8 @@ STDEHANDLER(GaiaController_SellBuilding)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -440,9 +446,9 @@ STDEHANDLER(GaiaController_CreateBuilding)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
 		{
-
 			owner_player->GetGaiaController()->
 				HandleBuildingChange(type, city, 1);
 		}
@@ -476,7 +482,7 @@ STDEHANDLER(GaiaController_DisbandCity)
 		return GEV_HD_Continue;
 
 	sint32 type;
-	for (type = 0; type < g_theBuildingDB->NumRecords(); type++)
+	for (type = 0; type < g_theBuildingDB->NumRecords() && type < 64; type++)
 		{
 			if ((city_buildings & ((uint64)0x1 << (uint64)type)) &&
 				(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
@@ -487,7 +493,7 @@ STDEHANDLER(GaiaController_DisbandCity)
 				}
 		}
 
-	for (type = 0; type < g_theWonderDB->NumRecords(); type++)
+	for (type = 0; type < g_theWonderDB->NumRecords() && type < 64; type++)
 		{
 			if ((city_wonders & ((uint64)0x1 << (uint64)type)) &&
 				(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
@@ -517,9 +523,9 @@ STDEHANDLER(GaiaController_CreateWonder)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
 		{
-
 			owner_player->GetGaiaController()->
 				HandleWonderChange(type, 1);
 		}
@@ -542,7 +548,8 @@ STDEHANDLER(GaiaController_BuildingRemoved)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -567,7 +574,8 @@ STDEHANDLER(GaiaController_WonderRemoved)
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
 
-	if (GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type))
+	if (type >= 0 && type < 64 &&
+		(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type)))
 		{
 
 			owner_player->GetGaiaController()->
@@ -621,6 +629,7 @@ void GaiaController::CleanupEvents()
 
 void GaiaController::HandleBuildingChange(const sint32 type, Unit & city, const sint16 delta)
 {
+	Assert(type >= 0 && type < 64);
 	Assert(GaiaController::sm_endgameBuildings & ((uint64)0x1 << (uint64)type));
 
 	if (sm_satelliteBuildingIndex == type)
@@ -654,6 +663,7 @@ void GaiaController::HandleBuildingChange(const sint32 type, Unit & city, const 
 
 void GaiaController::HandleWonderChange(const sint32 type, const sint16 delta)
 {
+	Assert(type >= 0 && type < 64);
 	Assert(GaiaController::sm_endgameWonders & ((uint64)0x1 << (uint64)type));
 	m_numWondersBuilt += delta;
 
@@ -667,6 +677,7 @@ void GaiaController::HandleWonderChange(const sint32 type, const sint16 delta)
 
 void GaiaController::HandleTerrImprovementChange(const sint32 type, const MapPoint & pos, const sint16 delta)
 {
+	Assert(type >= 0 && type < 64);
 	Assert(GaiaController::sm_endgameImprovements & ((uint64)0x1 << (uint64)type));
 	if (sm_towerTileImpIndex == type)
 		{

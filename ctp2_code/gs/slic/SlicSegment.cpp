@@ -439,9 +439,9 @@ void SlicSegment::Serialize(CivArchive &archive)
 
 		archive >> l;
 		m_id = (char *)malloc(l);
-		archive.Load((uint8*)m_id, l);
+		if (m_id) archive.Load((uint8*)m_id, l);
 		m_code = (uint8*)malloc(m_codeSize);
-		archive.Load((uint8*)m_code, m_codeSize);
+		if (m_code) archive.Load((uint8*)m_code, m_codeSize);
 
 		if (m_num_trigger_symbols < 1) {
 			m_trigger_symbols_indices = NULL;
@@ -456,7 +456,7 @@ void SlicSegment::Serialize(CivArchive &archive)
 		archive >> l;
 		if(l > 0) {
 			m_uiComponent = (char *)malloc(l);
-			archive.Load((uint8*)m_uiComponent, l);
+			if (m_uiComponent) archive.Load((uint8*)m_uiComponent, l);
 		} else {
 			m_uiComponent = NULL;
 		}
@@ -470,8 +470,10 @@ void SlicSegment::Serialize(CivArchive &archive)
 		l = archive.GetSINT32();
 		if(l > 0) {
 			m_filename = (char *)malloc(l + 1);
-			archive.Load((uint8*)m_filename, l);
-			m_filename[l] = 0;
+			if (m_filename) {
+				archive.Load((uint8*)m_filename, l);
+				m_filename[l] = 0;
+			}
 		} else {
 			m_filename = NULL;
 		}

@@ -3252,7 +3252,8 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 		memset(goalString, 0, strlen(myText) + 40);
 		memset(myString,   0, strlen(myText) + 80);
 
-		for (uint8 myComp = 0; myComp < strlen(myText) - 5; myComp++)
+		size_t textLen = strlen(myText);
+		for (uint8 myComp = 0; myComp + 5 < textLen; myComp++)
 		{
 			goalString[myComp] = myText[myComp + 5];
 		}

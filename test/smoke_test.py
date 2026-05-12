@@ -93,11 +93,11 @@ def advance_turns(sock, n, wait_ms=12000):
         if resp.get("status") != "ok":
             print(f"[HARNESS] end_turn failed at step {i+1}/{n}: {resp}")
             break
-        # Poll turn_counter until turn advances (max ~30s)
+        # Poll turn_counter until turn advances (max ~15s)
         polled = 0
-        while polled < 30:
-            time.sleep(3)
-            polled += 3
+        while polled < 15:
+            time.sleep(1)
+            polled += 1
             resp = send_command(sock, "turn_counter")
             detail = resp.get("detail", "")
             if "round=" in detail:
@@ -204,8 +204,8 @@ def run_scenario(steps):
     # Connect to socket with retries
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     connected = False
-    for attempt in range(30):
-        time.sleep(0.5)
+    for attempt in range(50):
+        time.sleep(0.2)
         try:
             sock.connect(SOCKET_PATH)
             connected = True
@@ -226,7 +226,7 @@ def run_scenario(steps):
     results = []
     for i, step in enumerate(steps):
         cmd = step.get("cmd")
-        wait_ms = step.get("wait", 2000)
+        wait_ms = step.get("wait", 1000)
 
         print(f"[HARNESS] Step {i+1}/{len(steps)}: {cmd} (wait {wait_ms}ms)")
 
@@ -268,7 +268,7 @@ def run_scenario(steps):
         time.sleep(wait_ms / 1000.0)
 
     # Give game a bit more time, then check if still alive
-    time.sleep(2)
+    time.sleep(1)
     exit_code = process.poll()
 
     if exit_code is None:
@@ -302,19 +302,19 @@ def main():
 
     # Default smoke test scenario
     default_scenario = [
-        {"cmd": "new_game", "wait": 2000},
-        {"cmd": "start_game", "wait": 10000},              # Game needs time to generate map
-        {"cmd": "build_city", "wait": 5000},               # Build city with starting settler
-        {"cmd": "turn_counter", "wait": 500},              # Check current turn
-        {"cmd": "list_visible_units", "wait": 500},        # See what's on the map
-        {"cmd": "set_production 0 cheapest_military", "wait": 2000},
-        {"cmd": "screenshot /tmp/ctp2-smoke-screenshot.bmp", "wait": 1000},
-        {"cmd": "save_game /tmp/ctp2-smoke-save.sav", "wait": 2000},
-        {"cmd": "diplomacy_status 2", "wait": 500},        # Check relations with AI player 2
-        {"cmd": "advance_turns 1", "wait": 15000},         # End 1 turn (AI needs time)
-        {"cmd": "turn_counter", "wait": 500},              # Verify turn advanced
-        {"cmd": "load_game /tmp/ctp2-smoke-save.sav", "wait": 5000},
-        {"cmd": "quit", "wait": 2000},                     # Clean exit
+        {"cmd": "new_game", "wait": 1000},
+        {"cmd": "start_game", "wait": 5000},               # Game needs time to generate map
+        {"cmd": "build_city", "wait": 3000},               # Build city with starting settler
+        {"cmd": "turn_counter", "wait": 300},              # Check current turn
+        {"cmd": "list_visible_units", "wait": 300},        # See what's on the map
+        {"cmd": "set_production 0 cheapest_military", "wait": 1000},
+        {"cmd": "screenshot /tmp/ctp2-smoke-screenshot.bmp", "wait": 500},
+        {"cmd": "save_game /tmp/ctp2-smoke-save.sav", "wait": 1000},
+        {"cmd": "diplomacy_status 2", "wait": 300},        # Check relations with AI player 2
+        {"cmd": "advance_turns 1", "wait": 10000},         # End 1 turn (AI needs time)
+        {"cmd": "turn_counter", "wait": 300},              # Verify turn advanced
+        {"cmd": "load_game /tmp/ctp2-smoke-save.sav", "wait": 3000},
+        {"cmd": "quit", "wait": 1000},                     # Clean exit
     ]
 
     if args.scenario_file:

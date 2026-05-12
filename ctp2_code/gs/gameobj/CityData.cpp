@@ -212,6 +212,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/citydata.h"
+#include "gs/utility/safety.h"
 
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
@@ -976,7 +977,7 @@ void CityData::Initialize(sint32 settlerType)
 	{
 		for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 		{
-			if(buildingutil_GetDesignatesCapitol(((uint64)1 << (uint64)i, m_owner), m_owner))
+			if(buildingutil_GetDesignatesCapitol((safe_shift_left_u64(i), m_owner), m_owner))
 				continue;
 
 			if(!CanBuildBuilding(i))
@@ -985,7 +986,7 @@ void CityData::Initialize(sint32 settlerType)
 			sint32 enable = buildingutil_Get(i, m_owner)->GetEnableAdvanceIndex();
 			if(g_theAdvanceDB->Get(enable, g_player[m_owner]->GetGovernmentType())->GetAgeIndex() < g_network.GetStartingAge())
 			{
-				m_built_improvements |= (uint64)1 << (uint64)i;
+				m_built_improvements |= safe_shift_left_u64(i);
 			}
 		}
 	}
@@ -995,7 +996,7 @@ void CityData::Initialize(sint32 settlerType)
 		{
 			for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 			{
-				if(buildingutil_GetDesignatesCapitol(((uint64)1 << (uint64)i, m_owner), m_owner))
+				if(buildingutil_GetDesignatesCapitol((safe_shift_left_u64(i), m_owner), m_owner))
 					continue;
 
 				if(!CanBuildBuilding(i))
@@ -1004,7 +1005,7 @@ void CityData::Initialize(sint32 settlerType)
 				sint32 enable = buildingutil_Get(i, m_owner)->GetEnableAdvanceIndex();
 				if(g_theAdvanceDB->Get(enable, g_player[m_owner]->GetGovernmentType())->GetAgeIndex() < g_theProfileDB->GetSPStartingAge())
 				{
-					m_built_improvements |= (uint64)1 << (uint64)i;
+					m_built_improvements |= safe_shift_left_u64(i);
 				}
 			}
 		}
@@ -1713,7 +1714,7 @@ void CityData::CalcPollution(void)
 
 	for(i=0; i<g_theWonderDB->NumRecords(); i++)
 	{
-		buildingCheck = (uint64)1 << (uint64)i;
+		buildingCheck = safe_shift_left_u64(i);
 		if(GetBuiltWonders() & buildingCheck)
 		{
 			if(wonderutil_Get(i, m_owner)->GetPollutionAmount(temp))
@@ -2159,7 +2160,7 @@ void CityData::CollectResources()
 
 	sint32 good;
 	for(sint32 b = 0; b < g_theBuildingDB->NumRecords() && b < 64; b++){
-		if(m_built_improvements & ((uint64)1 << b)){
+		if(m_built_improvements & (safe_shift_left_u64(b))){
 			const BuildingRecord *rec = buildingutil_Get(b, m_owner);
 	//		Check If needsGood for the building a make bonuses dependent on having that good for further bonus
 			if((rec->GetNumEnablesGood() > 0) && (IsBuildingOperational(b))){
@@ -2174,7 +2175,7 @@ void CityData::CollectResources()
 
 	// Add if city has wonder GetEnablesGood >0 then that good will be dded to the city for trade
 	for(sint32 w = 0; w < g_theWonderDB->NumRecords() && w < 64; w++){
-		if(m_builtWonders & ((uint64)1 << w)){
+		if(m_builtWonders & (safe_shift_left_u64(w))){
 			const WonderRecord *wrec = wonderutil_Get(w, m_owner);
 //			Check If needsGood for the building a make bonuses dependent on having that good for further bonus
 			if(wrec->GetNumEnablesGood() > 0){
@@ -5020,7 +5021,7 @@ void CityData::AddWonder(sint32 type)
 		GenerateBorders(point, m_owner, intRad, sqRad);
 	}
 // EMOD add HolyCity...need to link to religion DB (once Religion DB is done)
-//	if (wonderutil_GetDesignatesHolyCity((uint64)1 << (uint64)type)) {
+//	if (wonderutil_GetDesignatesHolyCity(safe_shift_left_u64(type))) {
 //		g_player[m_owner]->SetHolyCity(m_home_city);
 //		g_player[m_owner]->RegisterNewHolyCity(m_home_city);
 //	}
@@ -5143,7 +5144,7 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 		irec = buildingutil_Get(item_type, m_owner);
 		Assert(irec);
 
-		if ((buildingutil_GetDesignatesCapitol((uint64)1 << item_type, m_owner)) &&
+		if ((buildingutil_GetDesignatesCapitol(safe_shift_left_u64(item_type), m_owner)) &&
 			(g_player[m_owner]->m_capitol->m_id != (0)))
 		{
 			SlicObject *so = new SlicObject("38IACapitolWarning");
@@ -5219,10 +5220,10 @@ void CityData::DestroyCapitol()
 	{
 		for(uint64 i = 0; i < g_theBuildingDB->NumRecords(); i++)
 		{
-			if(buildingutil_GetDesignatesCapitol((uint64)1 << (uint64)i, m_owner) &&
-			   m_built_improvements & uint64((uint64)1 << i))
+			if(buildingutil_GetDesignatesCapitol(safe_shift_left_u64(i), m_owner) &&
+			   m_built_improvements & uint64(safe_shift_left_u64(i)))
 			{
-				m_built_improvements &= ~((uint64)1 << i);
+				m_built_improvements &= ~(safe_shift_left_u64(i));
 			}
 		}
 	}
@@ -5232,7 +5233,7 @@ void CityData::DestroyCapitol()
 
 void CityData::DestroyImprovement(sint32 imp)
 {
-	if(!(m_built_improvements & ((uint64)1 << uint64(imp))))
+	if(!(m_built_improvements & (safe_shift_left_u64(imp))))
 		return;
 
 	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BuildingRemoved,
@@ -5240,7 +5241,7 @@ void CityData::DestroyImprovement(sint32 imp)
 		GEA_Int, imp,
 		GEA_End);
 
-	m_built_improvements &= ~((uint64)1 << uint64(imp));
+	m_built_improvements &= ~safe_shift_left_u64(imp);
 
 	m_build_queue.RemoveIllegalItems();
 
@@ -5609,7 +5610,7 @@ void CityData::SetCapitol()
 	{
 		if(buildingutil_Get(i, m_owner)->GetCapitol())
 		{
-			m_built_improvements |= ((uint64)1 << i);
+			m_built_improvements |= (safe_shift_left_u64(i));
 
 			return;
 		}
@@ -5914,7 +5915,7 @@ void CityData::NanoInfect( sint32 player )
 
 	for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 	{
-		if(m_built_improvements & ((uint64)1 << i))
+		if(m_built_improvements & (safe_shift_left_u64(i)))
 		{
 			if(g_rand->Next(100) < (g_theConstDB->Get(0)->GetNanoBuildingKillPercentage() * 100.0))
 			{
@@ -6488,7 +6489,7 @@ sint32 CityData::HowMuchLonger(sint32 productionRemaining) const
 
 void CityData::SellBuilding(sint32 which, bool byChoice)
 {
-	if((m_built_improvements & ((uint64)1 << uint64(which)))) {
+	if((m_built_improvements & (safe_shift_left_u64(which)))) {
 		if(byChoice) {
 			if(m_alreadySoldABuilding)
 				return;
@@ -6515,11 +6516,11 @@ void CityData::SellBuilding(sint32 which, bool byChoice)
 			g_player[m_owner]->m_gold->AddGold(gold);
 		else
 			m_net_gold += gold;
-		m_built_improvements &= ~((uint64)1 << uint64(which));
+		m_built_improvements &= ~safe_shift_left_u64(which);
 
 //		g_player[m_owner]->RegisterLostBuilding(m_home_city, which); Maybe worth of reimplementation
 		m_build_queue.RemoveIllegalItems(true);
-		if(buildingutil_GetDesignatesCapitol(((uint64)1 << (uint64)which), m_owner)) {
+		if(buildingutil_GetDesignatesCapitol((safe_shift_left_u64(which)), m_owner)) {
 			Assert(g_player[m_owner]->m_capitol->m_id == m_home_city.m_id);
 			if(g_player[m_owner]->m_capitol->m_id == m_home_city.m_id) {
 				g_player[m_owner]->m_capitol->m_id = 0;
@@ -7517,7 +7518,7 @@ void CityData::NotifyAdvance(AdvanceType advance)
 {
 	for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++)
 	{
-		if (m_built_improvements & ((uint64)1 << i))
+		if (m_built_improvements & (safe_shift_left_u64(i)))
 		{
 			BuildingRecord const * irec =
 			    buildingutil_Get(i, m_owner);
@@ -7670,9 +7671,9 @@ void CityData::DestroyRandomBuilding()
 	sint32 count = 0;
 	sint32 i;
 	for(i = 0; i < k_MAX_BUILDINGS; i++) {
-		if(m_built_improvements & ((uint64)1 << (uint64)i)) {
+		if(m_built_improvements & safe_shift_left_u64(i)) {
 
-			if(!buildingutil_GetDesignatesCapitol((uint64)1 << (uint64)i, m_owner))
+			if(!buildingutil_GetDesignatesCapitol(safe_shift_left_u64(i), m_owner))
 				buildings[count++] = i;
 		}
 	}
@@ -7680,7 +7681,7 @@ void CityData::DestroyRandomBuilding()
 	if(count > 0) {
 		sint32 which = g_rand->Next(count);
 
-		m_built_improvements &= ~((uint64)1 << uint64(buildings[which]));
+		m_built_improvements &= ~safe_shift_left_u64(buildings[which]);
 //		g_player[m_owner]->RegisterLostBuilding(m_home_city, buildings[which]); //  Maybe worth of reimplementation
 		m_build_queue.RemoveIllegalItems(true);
 	}
@@ -7774,7 +7775,7 @@ void CityData::EliminateNukes()
 {
 	if(buildingutil_IsNuclearPlant(m_built_improvements, m_owner)) {
 		for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++) {
-			if(buildingutil_IsNuclearPlant((uint64)1 << i, m_owner)) {
+			if(buildingutil_IsNuclearPlant(safe_shift_left_u64(i), m_owner)) {
 				DestroyImprovement(i);
 			}
 		}
@@ -7974,7 +7975,7 @@ sint32 CityData::CityGrowthCoefficient()
 
 void CityData::DestroyWonder(sint32 which)
 {
-	m_builtWonders &= ~((uint64)1 << (uint64)which);
+	m_builtWonders &= ~safe_shift_left_u64(which);
 	g_player[m_owner]->RemoveWonder(which, true);
 
 	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_WonderRemoved,
@@ -8019,7 +8020,7 @@ sint32 CityData::GetValue() const
 	sint32 value = 0;
 
 	sint32 i;
-	uint64 wonders = m_builtWonders&(((uint64)1<<(uint64)g_theWonderDB->NumRecords())-1);
+	uint64 wonders = m_builtWonders & (safe_shift_left_u64(g_theWonderDB->NumRecords()) - 1);
 	for(i=0;wonders!=0; i++,wonders>>=1)
 	{
 		if ((wonders&0xFF) == 0) {
@@ -8033,7 +8034,7 @@ sint32 CityData::GetValue() const
 		}
 	}
 
-	uint64 buildings = GetEffectiveBuildings()&(((uint64)1<<(uint64)g_theBuildingDB->NumRecords())-1);
+	uint64 buildings = GetEffectiveBuildings() & (safe_shift_left_u64(g_theBuildingDB->NumRecords()) - 1);
 	for(i=0;buildings!=0; i++,buildings>>=1)
 	{
 
@@ -8604,10 +8605,10 @@ void CityData::AddImprovement(sint32 type)
 	MapPoint point(m_home_city.RetPos()); //EMOD add for borders
 	const BuildingRecord *rec = buildingutil_Get(type, m_owner); //EMOD add for borders
 
-	SetImprovements(m_built_improvements | ((uint64)1 << (uint64)type));
+	SetImprovements(m_built_improvements | safe_shift_left_u64(type));
 	IndicateImprovementBuilt();
 
-	if (buildingutil_GetDesignatesCapitol((uint64)1 << (uint64)type, m_owner)) {
+	if (buildingutil_GetDesignatesCapitol(safe_shift_left_u64(type), m_owner)) {
 		g_player[m_owner]->SetCapitol(m_home_city);
 	}
 
@@ -8705,7 +8706,7 @@ void CityData::AddImprovement(sint32 type)
 	}
 
 	//EMOD for Buildings to increase HP
-	sint32 hpBonus = buildingutil_GetIncreaseHP((uint64)1 << type, m_owner);
+	sint32 hpBonus = buildingutil_GetIncreaseHP(safe_shift_left_u64(type), m_owner);
 	if(hpBonus > 0)
 	{
 		sint32 n = g_player[m_owner]->m_all_units->Num();
@@ -10405,7 +10406,7 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 
 	for(sint32 b = 0; b < g_theBuildingDB->NumRecords(); b++)
 	{
-		if(m_built_improvements & ((uint64)1 << b))
+		if(m_built_improvements & (safe_shift_left_u64(b)))
 		{
 			const BuildingRecord *rec = buildingutil_Get(b, owner);
 
@@ -10807,7 +10808,7 @@ void CityData::CityGovernmentModifiers()
 	}
 	//EMOD if Player PrereqBuilding is different than the government than destroy it
 	for(sint32 b = 0; b < g_theBuildingDB->NumRecords(); b++){
-		if(m_built_improvements & ((uint64)1 << b)){
+		if(m_built_improvements & (safe_shift_left_u64(b))){
 			const BuildingRecord *rec = buildingutil_Get(b, m_owner);
 			for(sint32 i = 0; i < rec->GetNumGovernmentType(); i++) {
 				if(rec->GetExcludedByGovernmentTypeIndex(i) != g_player[m_owner]->GetGovernmentType()) {
@@ -10840,7 +10841,7 @@ void CityData::Militia()
 		// empty creates cheapest unit could be human exploit though.
 		for(sint32 b = 0; b < g_theBuildingDB->NumRecords(); b++)
 		{
-			if(m_built_improvements & ((uint64)1 << b))
+			if(m_built_improvements & (safe_shift_left_u64(b)))
 			{
 				const BuildingRecord *rec = buildingutil_Get(b, m_owner);
 
@@ -10861,9 +10862,9 @@ void CityData::DestroyOnePerCiv()
 	if(buildingutil_GetDesignatesOnePerCiv(m_built_improvements, m_owner)) {
 		uint64 i;
 		for(i = 0; i < g_theBuildingDB->NumRecords(); i++) {
-			if(buildingutil_GetDesignatesCapitol((uint64)1 << (uint64)i, m_owner) &&
-			   m_built_improvements & uint64((uint64)1 << i)) {
-				m_built_improvements &= ~((uint64)1 << i);
+			if(buildingutil_GetDesignatesCapitol(safe_shift_left_u64(i), m_owner) &&
+			   m_built_improvements & uint64(safe_shift_left_u64(i))) {
+				m_built_improvements &= ~(safe_shift_left_u64(i));
 			}
 		}
 	}

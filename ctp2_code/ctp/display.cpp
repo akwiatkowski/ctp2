@@ -26,6 +26,7 @@ extern HWND					gHwnd;
 extern LRESULT CALLBACK		WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 extern sint32				g_ScreenWidth;
 extern sint32				g_ScreenHeight;
+extern BOOL					g_cmdlineResolutionSet;
 extern BOOL					g_exclusiveMode;
 extern BOOL					g_createDirectDrawOnSecondary;
 
@@ -141,18 +142,28 @@ void display_EnumerateDisplayModes(void)
 	int numModes = SDL_GetNumDisplayModes(0);
 	if (numModes < 0) {
 		// Fallback: pick common resolutions
-		CTPDisplayMode *mode;
-		mode = new CTPDisplayMode;
-		if (mode) {
-			mode->width  = 800;
-			mode->height = 600;
-			g_displayModes->AddTail(mode);
-		}
-		mode = new CTPDisplayMode;
-		if (mode) {
-			mode->width  = 1024;
-			mode->height = 768;
-			g_displayModes->AddTail(mode);
+		static const struct { sint32 w; sint32 h; } s_commonModes[] = {
+			{ 800, 600 },
+			{ 1024, 768 },
+			{ 1280, 720 },
+			{ 1280, 800 },
+			{ 1366, 768 },
+			{ 1440, 900 },
+			{ 1600, 900 },
+			{ 1680, 1050 },
+			{ 1920, 1080 },
+			{ 1920, 1200 },
+			{ 2560, 1440 },
+			{ 2560, 1600 },
+			{ 3840, 2160 },
+		};
+		for (size_t i = 0; i < sizeof(s_commonModes)/sizeof(s_commonModes[0]); i++) {
+			CTPDisplayMode *mode = new CTPDisplayMode;
+			if (mode) {
+				mode->width  = s_commonModes[i].w;
+				mode->height = s_commonModes[i].h;
+				g_displayModes->AddTail(mode);
+			}
 		}
 		return;
 	}
@@ -166,14 +177,30 @@ void display_EnumerateDisplayModes(void)
 		if (SDL_BITSPERPIXEL(sdlMode.format) < 16)
 			continue;
 
-		if (!display_IsLegalResolution(sdlMode.w, sdlMode.h)) {
-			CTPDisplayMode *mode = new CTPDisplayMode;
-			if (!mode)
-				return;
-			mode->width = sdlMode.w;
-			mode->height = sdlMode.h;
-			g_displayModes->AddTail(mode);
+		// Filter: minimum 640x480, skip weird aspect ratios
+		if (sdlMode.w < 640 || sdlMode.h < 480)
+			continue;
+
+		// Skip duplicate modes (check against already-added list)
+		bool alreadyAdded = false;
+		PointerList<CTPDisplayMode>::PointerListNode *node = g_displayModes->GetHeadNode();
+		while (node) {
+			CTPDisplayMode *existing = node->GetObj();
+			if (existing->width == sdlMode.w && existing->height == sdlMode.h) {
+				alreadyAdded = true;
+				break;
+			}
+			node = node->GetNext();
 		}
+		if (alreadyAdded)
+			continue;
+
+		CTPDisplayMode *mode = new CTPDisplayMode;
+		if (!mode)
+			return;
+		mode->width = sdlMode.w;
+		mode->height = sdlMode.h;
+		g_displayModes->AddTail(mode);
 	}
 #endif
 
@@ -307,16 +334,27 @@ int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 #endif
 	display_EnumerateDisplayModes();
 
-
-
+	// If user specified --resolution, add it to the list and use it
+	if (g_cmdlineResolutionSet && g_ScreenWidth > 0 && g_ScreenHeight > 0) {
+		if (!display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight)) {
+			CTPDisplayMode *mode = new CTPDisplayMode;
+			if (mode) {
+				mode->width = g_ScreenWidth;
+				mode->height = g_ScreenHeight;
+				g_displayModes->AddTail(mode);
+			}
+		}
+	}
 
 	BOOL foundRes = FALSE;
 
-	if (g_theProfileDB->IsTryWindowsResolution()) {
+	if (g_cmdlineResolutionSet) {
+		// Command-line resolution always takes precedence
+		foundRes = display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight);
+	} else if (g_theProfileDB->IsTryWindowsResolution()) {
 		if (display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight))
 			foundRes = TRUE;
 	}
-
 
 	if (!foundRes) {
 		if (display_IsLegalResolution(g_theProfileDB->GetScreenResWidth(),

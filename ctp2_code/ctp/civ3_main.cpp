@@ -223,6 +223,7 @@ LPCSTR                              gszMainWindowClass = "CTP II";
 LPCSTR                              gszMainWindowName = "CTP II";
 sint32                              g_ScreenWidth = 0;
 sint32                              g_ScreenHeight = 0;
+BOOL                                g_cmdlineResolutionSet = FALSE;
 
 C3UI                                *g_c3ui = NULL;
 StatusWindow                        *g_statusWindow = NULL;
@@ -1184,6 +1185,26 @@ void ParseCommandLine(PSTR szCmdLine)
 
 	g_eventLog = (NULL != strstr(szCmdLine, "eventlog"));
 	g_smokeTest = (NULL != strstr(szCmdLine, "smoke-test"));
+
+	// Parse --resolution WxH (e.g., --resolution 1920x1080)
+	{
+		char *resArg = strstr(szCmdLine, "--resolution");
+		if (!resArg)
+			resArg = strstr(szCmdLine, "--res");
+		if (resArg) {
+			resArg = strchr(resArg, ' ');
+			if (resArg) {
+				while (*resArg == ' ') resArg++;
+				sint32 w = 0, h = 0;
+				if (sscanf(resArg, "%dx%d", &w, &h) == 2 && w >= 640 && h >= 480) {
+					g_ScreenWidth = w;
+					g_ScreenHeight = h;
+					g_cmdlineResolutionSet = TRUE;
+					fprintf(stderr, "[MAIN] Command-line resolution: %dx%d\n", w, h);
+				}
+			}
+		}
+	}
 
 	g_createDirectDrawOnSecondary = (NULL != strstr(szCmdLine, "multimon"));
 	g_autoAltTab = (NULL != strstr(szCmdLine, "autoalttab"));

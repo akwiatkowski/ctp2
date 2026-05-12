@@ -230,7 +230,12 @@ void c3debug_dprintf(char const * format, ...)
 		}
 
 		va_start(list, format);
-		vsprintf(g_last_debug_text + strlen(g_last_debug_text), format, list);
+		size_t debug_len = strlen(g_last_debug_text);
+		size_t debug_rem = sizeof(g_last_debug_text) - debug_len;
+		if (debug_rem > 1) {
+			vsnprintf(g_last_debug_text + debug_len, debug_rem, format, list);
+			g_last_debug_text[sizeof(g_last_debug_text) - 1] = '\0';
+		}
 		va_end(list);
 #ifndef _AIDLL
 

@@ -668,7 +668,8 @@ void GameEventManager::Log(const char *fmt, ...)
 	char text[1024];
 	va_list vl;
 	va_start(vl, fmt);
-	vsprintf(text, fmt, vl);
+	vsnprintf(text, sizeof(text), fmt, vl);
+	text[sizeof(text) - 1] = '\0';
 	va_end(vl);
 
 	FILE *f = fopen(EVENTLOGNAME, "a");

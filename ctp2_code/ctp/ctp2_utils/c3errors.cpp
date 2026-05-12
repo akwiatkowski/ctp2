@@ -48,11 +48,11 @@ void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 	char str[_MAX_PATH];
 
     va_start(list, fmt);
-	vsprintf(str, fmt, list);
+	vsnprintf(str, sizeof(str), fmt, list);
+	str[sizeof(str) - 1] = '\0';
 	va_end(list);
 
 	c3errors_ErrorDialog(module, str);
-	va_end(list);
 
 	Assert(FALSE);
 
@@ -89,7 +89,8 @@ void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 	//   nevertheless, that this works should be checked at some point.  The same applies to the
 	//   next function (c3errors_ErrorDialogFromDB) - JJB
 	va_start(list, err) ;
-	vsprintf(str, dbError, list) ;
+	vsnprintf(str, sizeof(str), dbError, list) ;
+	str[sizeof(str) - 1] = '\0';
 	va_end(list) ;
 
 	MessageBox(NULL, str, dbTitle, MB_OK | MB_ICONEXCLAMATION);
@@ -123,7 +124,8 @@ void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 	va_list		list;
 	MBCHAR	    str[_MAX_PATH];
 	va_start(list, err);
-	vsprintf(str, dbError, list);
+	vsnprintf(str, sizeof(str), dbError, list);
+	str[sizeof(str) - 1] = '\0';
 	va_end(list);
 
 	MessageBox(NULL, str, dbTitle, MB_OK | MB_ICONEXCLAMATION) ;

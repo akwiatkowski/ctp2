@@ -147,7 +147,8 @@ NetCheat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("The Winnie Lee Commemorative Cheat Has Been Activated"));
 			Unit city(m_data[0]);
 			uint64 built_improvements = city.AccessData()->GetCityData()->GetImprovements();
-			city.AccessData()->GetCityData()->SetImprovements(built_improvements | ((uint64)1 << m_data[1]));
+			if (m_data[1] >= 0 && m_data[1] < 64)
+				city.AccessData()->GetCityData()->SetImprovements(built_improvements | ((uint64)1 << m_data[1]));
 			g_network.Enqueue(city.AccessData(), city.AccessData()->GetCityData());
 			break;
 		}

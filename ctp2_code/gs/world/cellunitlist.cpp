@@ -29,9 +29,9 @@
 //   suggestions by NelsonAndBronte.
 // - Make unit types with 0 movement stand still (compiler option).
 // - Handled crashes with invalid units.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standartized army strength computation. (30-Apr-2008 Martin Gühmann)
-// - Position strength can now be calculated independently from position. (13-Aug-2008 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standartized army strength computation. (30-Apr-2008 Martin Gï¿½hmann)
+// - Position strength can now be calculated independently from position. (13-Aug-2008 Martin Gï¿½hmann)
 // - Added LowestMoveBonusUnit to return movement required if cellunitlist contains
 //	 only movebonus units, otherwise regular move cost check is used. (15-Mar-2009 Maq)
 // - Changed occurances of UnitRecord::GetMaxHP to
@@ -284,7 +284,7 @@ bool CellUnitList::IsEnemy(PLAYER_INDEX owner) const
 	}
 
 	uint32 a = ~(g_player[m_array[0].GetOwner()]->GetMaskAlliance());
-	uint32 b = (0x00000001 << owner);
+	uint32 b = (owner >= 0 && owner < 32) ? (1u << owner) : 0u;
 
 	return (a & b) != 0;
 }

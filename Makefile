@@ -59,9 +59,9 @@ setup:
 	meson setup build ctp2_code --buildtype=debug
 	@echo "Configure complete. Run 'make build' to compile."
 
-# Meson build with AddressSanitizer + UndefinedBehaviorSanitizer
+# Meson build with AddressSanitizer + UndefinedBehaviorSanitizer + hardening
 setup-sanitized:
-	@echo "Configuring meson build with sanitizers (ASan + UBSan)..."
+	@echo "Configuring meson build with sanitizers (ASan + UBSan) + hardening..."
 	@rm -rf build-sanitized
 	meson setup build-sanitized ctp2_code \
 		--buildtype=debug \

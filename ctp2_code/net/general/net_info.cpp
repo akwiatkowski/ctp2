@@ -1256,7 +1256,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Wonder %d built at %lx\n", m_data, m_data2));
 			Unit city(m_data2);
 			if(g_theUnitPool->IsValid(city)) {
-				CityData *cd = city.GetData()->GetCityData();
+			CityData *cd = city.GetData()->GetCityData();
+			if (m_data >= 0 && m_data < 64)
 				cd->SetWonders(cd->GetBuiltWonders() | ((uint64)1 << (uint64)m_data));
 				wonderutil_AddBuilt(m_data);
 				if(g_player[cd->GetOwner()]) {

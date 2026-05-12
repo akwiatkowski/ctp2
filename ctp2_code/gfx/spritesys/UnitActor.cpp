@@ -2396,7 +2396,7 @@ void UnitActor::DrawCityImprovements(bool fogged) {
   Unit unit(m_unitID);
   sint32 cityIcon = 0;
   if (unit.IsValid() && unit.IsCity()) {
-    for (sint32 b = 0; b < g_theBuildingDB->NumRecords(); b++) {
+    for (sint32 b = 0; b < g_theBuildingDB->NumRecords() && b < 64; b++) {
       if (buildingutil_Get(b, m_playerNum)
               ->GetShowCityIconBottomIndex(cityIcon)) {
         if (unit.CD()->GetImprovements() & ((uint64)1 << b)) {
@@ -2427,7 +2427,7 @@ void UnitActor::DrawCityImprovements(bool fogged) {
       }
     }
 
-    for (sint32 i = 0; i < g_theWonderDB->NumRecords(); i++) {
+    for (sint32 i = 0; i < g_theWonderDB->NumRecords() && i < 64; i++) {
       if (wonderutil_Get(i, m_playerNum)
               ->GetShowCityIconBottomIndex(cityIcon)) {
         if (unit.CD()->GetBuiltWonders() & (uint64)1 << (uint64)i) {

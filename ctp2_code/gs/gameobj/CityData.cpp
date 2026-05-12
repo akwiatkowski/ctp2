@@ -5009,7 +5009,8 @@ void CityData::AddWonder(sint32 type)
 	const WonderRecord* rec = wonderutil_Get(type, m_owner); // Added by E
 	MapPoint point(m_home_city.RetPos());
 
-	m_builtWonders |= (uint64(1) << (uint64)type);
+	if (type >= 0 && type < 64)
+		m_builtWonders |= (uint64(1) << (uint64)type);
 
 	// EMOD wonders add borders too
 	sint32 intRad;
@@ -5911,7 +5912,7 @@ void CityData::NanoInfect( sint32 player )
 	m_nanoInfectionTurns = g_theConstDB->Get(0)->GetNanoInfectionTurns();
 	DPRINTF(k_DBG_GAMESTATE, ("City %lx: all buildings and wonders destroyed\n", uint32(m_home_city)));
 
-	for(sint32 i = 0; i < g_theBuildingDB->NumRecords(); i++)
+	for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 	{
 		if(m_built_improvements & ((uint64)1 << i))
 		{

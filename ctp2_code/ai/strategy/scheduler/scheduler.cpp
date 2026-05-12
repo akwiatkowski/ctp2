@@ -1723,7 +1723,8 @@ void Scheduler::SetContactCache(sint32 player)
 
 		if(g_player[player]->HasContactWith(i))
 		{
-			m_contactCache |= (1<<i);
+			if (i >= 0 && i < 32)
+				m_contactCache |= (1u<<i);
 		}
 	}
 }
@@ -1764,7 +1765,8 @@ void Scheduler::SetIsNeutralRegardCache(sint32 player)
 	{
 		if(diplomat.TestEffectiveRegard(i, NEUTRAL_REGARD))
 		{
-			m_neutralRegardCache |= (1<<i);
+			if (i >= 0 && i < 32)
+				m_neutralRegardCache |= (1u<<i);
 		}
 	}
 }
@@ -1802,7 +1804,8 @@ void Scheduler::SetIsAllyRegardCache(sint32 player)
 	{
 		if(diplomat.TestAlliedRegard(i))
 		{
-			m_allyRegardCache |= (1<<i);
+			if (i >= 0 && i < 32)
+				m_allyRegardCache |= (1u<<i);
 		}
 	}
 }

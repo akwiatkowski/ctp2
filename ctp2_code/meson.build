@@ -72,14 +72,34 @@ if not win32
 
 	conf.set('USE_COM_REPLACEMENT', 1, description : 'Do not use COM')
 
-	# Disable libc++ hardening on Darwin - it inserts brk traps with no diagnostics
+	# libc++ hardening: use DEBUG mode for debug builds (assertions with messages),
+	# FAST mode for release (minimal overhead, aborts on violation)
 	if host_system == 'darwin'
-		add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_NONE', language : ['cpp'])
+		if get_option('buildtype').startswith('debug')
+			add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG', language : ['cpp'])
+		else
+			add_global_arguments('-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST', language : ['cpp'])
+		endif
 	endif
 endif
 
 conf.set('CTP2_ENABLE_SLICDEBUG', 0, description : 'Enable slic debugging code')
 conf.set('_BFR_', 1, description : 'Build final release')
+
+# Compiler hardening flags for non-Windows builds
+if not win32
+	# Stack protection: canaries on functions with arrays/alloca
+	add_global_arguments('-fstack-protector-strong', language : ['c', 'cpp'])
+
+	# libc fortification: compile-time + runtime bounds checking for string/memory ops
+	add_global_arguments('-D_FORTIFY_SOURCE=3', language : ['c', 'cpp'])
+
+	# Additional hardening for debug builds
+	if get_option('buildtype').startswith('debug')
+		# Trap on undefined behavior that UBSan doesn't catch
+		add_global_arguments('-ftrapv', language : ['c', 'cpp'])
+	endif
+endif
 
 if compiler.has_header('linux/kernel.h')
 	conf.set('LINUX', 1)

@@ -2999,8 +2999,9 @@ void DebugMaskCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	uint32 bit = atoi(argv[1]);
-	if(g_debug_mask & (1 << bit))
-		g_debug_mask &= ~(1 << bit);
+	if(bit >= 32) return;
+	if(g_debug_mask & (1u << bit))
+		g_debug_mask &= ~(1u << bit);
 	else
 		g_debug_mask |= (1 << bit);
 #endif

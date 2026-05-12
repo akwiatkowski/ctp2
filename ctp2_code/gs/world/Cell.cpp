@@ -24,23 +24,23 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added CalcTerrainFreightCost by Martin Gühmann
+// - Added CalcTerrainFreightCost by Martin Gï¿½hmann
 // - Corrected handling of tile improvements that did not have a Freight
 //   modifier.
 // - Standardised min/max usage.
 // - Prevented some crashes.
 // - Added GetFoodFromTerrain, GetShieldsFromTerrain and GetGoldFromTerrain
 //   with a hypothetical terrain type argument to check whether there is a
-//   a good terraforming option. - Sep. 21st 2004 Martin Gühmann
+//   a good terraforming option. - Sep. 21st 2004 Martin Gï¿½hmann
 // - GetGoldProduced function now uses GetGoldFromTerrain function to avoid
-//   duplicating code. - Sep. 21st 2004 Martin Gühmann
+//   duplicating code. - Sep. 21st 2004 Martin Gï¿½hmann
 // - Moved Peter's good's fix to the according Get*FromTerrain functions.
-//   - April 13th 2005 Martin Gühmann
-// - Fix retrieval of good boni. - May 18th 2005 Martin Gühmann
+//   - April 13th 2005 Martin Gï¿½hmann
+// - Fix retrieval of good boni. - May 18th 2005 Martin Gï¿½hmann
 // - Prevented crash with multiple instances of an improvement that is deleted.
-// - Moved some Upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gühmann)
+// - Moved some Upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gï¿½hmann)
 // - Added methods to retrieve the future terrain move costs of tile
-//   improvments under construction. (17-Jan-2008 Martin Gühmann)
+//   improvments under construction. (17-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -340,7 +340,9 @@ sint32 Cell::GetFoodFromTerrain(sint8 terrainType) const
 
 	sint32 good;
 	if(g_theWorld->GetGood(this, good)) {
-		food += g_theResourceDB->Get(good)->GetFood();
+		const ResourceRecord *rec = g_theResourceDB->Get(good);
+		if (rec)
+			food += rec->GetFood();
 	}
 
 	return food;
@@ -981,8 +983,11 @@ void Cell::SetTerrain(sint32 terrain)
 
 void Cell::CalcMovementType()
 {
-	m_env = (m_env & (~(k_MASK_ENV_MOVEMENT_TYPE))) |
-		(g_theTerrainDB->Get(m_terrain_type)->GetMovementType() << k_SHIFT_ENV_MOVEMENT_TYPE);
+	const TerrainRecord *terrainRec = g_theTerrainDB->Get(m_terrain_type);
+	if (terrainRec) {
+		m_env = (m_env & (~(k_MASK_ENV_MOVEMENT_TYPE))) |
+			(terrainRec->GetMovementType() << k_SHIFT_ENV_MOVEMENT_TYPE);
+	}
 	if(m_env & (k_MASK_ENV_ROAD)) {
 		m_env |= (k_Unit_MovementType_Land_Bit << k_SHIFT_ENV_MOVEMENT_TYPE);
 	}

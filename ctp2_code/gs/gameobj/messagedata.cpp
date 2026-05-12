@@ -194,8 +194,12 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
-	m_text = new char[strlen(s) + 1];
-	strcpy(m_text, s);
+	if (s) {
+		m_text = new char[strlen(s) + 1];
+		strcpy(m_text, s);
+	} else {
+		m_text = NULL;
+	}
 
     if (g_turn)
     {
@@ -324,7 +328,7 @@ MessageData::~MessageData()
 		KillMessageWindow();
 	}
 
-	if (m_advanceSet)
+	if (m_advanceSet && m_owner >= 0 && m_owner < k_MAX_PLAYERS && g_player[m_owner])
     {
 		g_player[m_owner]->StartResearching(m_advance);
     }
@@ -346,8 +350,12 @@ MessageData::~MessageData()
 void MessageData::SetMsgText(MBCHAR const * s)
 {
 	delete [] m_text;
-	m_text = new char[strlen(s) + 1];
-	strcpy(m_text, s);
+	if (s) {
+		m_text = new char[strlen(s) + 1];
+		strcpy(m_text, s);
+	} else {
+		m_text = NULL;
+	}
 }
 
 
@@ -1413,8 +1421,12 @@ void MessageData::ToString(MBCHAR *s)
 void MessageData::SetTitle(MBCHAR *title)
 {
 	delete [] m_title;
-	m_title = new MBCHAR[strlen(title) + 1];
-	strcpy(m_title, title);
+	if (title) {
+		m_title = new MBCHAR[strlen(title) + 1];
+		strcpy(m_title, title);
+	} else {
+		m_title = NULL;
+	}
 }
 
 void MessageData::NotifySlicReload()

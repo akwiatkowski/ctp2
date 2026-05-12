@@ -62,6 +62,8 @@ DllExport void GWArchive::Archive(char *basePath)
 
 DllExport void GWArchive::CreateDirectory(char *path)
 {
+	if (!path)
+		return;
 
 	if((_mkdir(path) == -1) && (errno == ENOENT)) {
 

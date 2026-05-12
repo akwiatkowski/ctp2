@@ -71,6 +71,9 @@ DllExport bool GWFile::Deliver(char *stamp, void *data, long numOfBytes)
 	}
 
 
+	if (!stamp)
+		return false;
+
 	size_t stampSize = strlen(stamp) + 1;
 
 	fwrite(&stampSize, sizeof(stampSize), 1, dataFile);

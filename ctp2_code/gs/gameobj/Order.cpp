@@ -117,7 +117,7 @@ Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 ar
 {
 	m_order = order;
 	m_path = path;
-	m_round = g_turn->GetRound();
+	m_round = g_turn ? g_turn->GetRound() : 0;
 	m_point = point;
 	m_argument = arg;
 	m_gameEventArgs = NULL;
@@ -197,6 +197,8 @@ void *Order::operator new(size_t size)
 
 void Order::operator delete(void *ptr)
 {
+	if (!ptr)
+		return;
 	Order *order = (Order *)ptr;
 
 	g_theOrderPond->Release_Pointer(order->m_index);

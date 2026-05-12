@@ -28,30 +28,30 @@
 // - IsValid marked as const.
 // - AddDisplayName added.
 // - PFT 29 mar 05, show # turns until city next grows a pop
-// - Made GetFuel method const - April 24th 2005 Martin Gühmann
+// - Made GetFuel method const - April 24th 2005 Martin Gï¿½hmann
 // - Added NeedsRefueling method to remove code duplications.
-//   - April 24th 2005 Martin Gühmann
+//   - April 24th 2005 Martin Gï¿½hmann
 // - Moved UnitValidForOrder from ArmyData to be able to access the Unit
-//   properties as well. - April 24th 2005 Martin Gühmann
-// - Implemented GovernmentModified for the UnitDB.  - April 24th 2005 Martin Gühmann
+//   properties as well. - April 24th 2005 Martin Gï¿½hmann
+// - Implemented GovernmentModified for the UnitDB.  - April 24th 2005 Martin Gï¿½hmann
 // - Removed some unsused method to removed some unused in methods in
-//   CityData.. - Aug 6th 2005 Martin Gühmann
-// - Removed another unused and unecessary function. (Aug 12th 2005 Martin Gühmann)
+//   CityData.. - Aug 6th 2005 Martin Gï¿½hmann
+// - Removed another unused and unecessary function. (Aug 12th 2005 Martin Gï¿½hmann)
 // - Added GetAllTerrainAsImp by E 2-24-2006
 // - Corrected pollution handling.
-// - Moved sinking and upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gühmann)
+// - Moved sinking and upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gï¿½hmann)
 // - Added IsReligion bools 1-23-2007
 // - Added IsHiddenNationality bool 2-7-2007
 // - The upgrade function now selects the best unit type for upgrading
 //   according to the unit transport capacity or the unit attack, defense and
-//   range statitics. (19-May-2007 Martin Gühmann)
+//   range statitics. (19-May-2007 Martin Gï¿½hmann)
 // - modified sink to display the sink message and the unit type
 // - If a unit dies it now uses the value of LaunchPollution if present
-//   to pollute the environment, instead of using a value of 1. (9-Jun-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - Added an IsInVisionRange test. (25-Jan-2008 Martin Gühmann)
-// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gühmann).
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
+//   to pollute the environment, instead of using a value of 1. (9-Jun-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - Added an IsInVisionRange test. (25-Jan-2008 Martin Gï¿½hmann)
+// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gï¿½hmann).
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
 // - Changed occurances of UnitRecord::GetMaxHP to
 //   UnitData::CalculateTotalHP. (Aug 3rd 2009 Maq)
 //
@@ -115,14 +115,17 @@ namespace
 void Unit::KillUnit(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy)
 {
 	sint32  pollution;
-	if(GetDBRec()->GetDeathPollution(pollution))
-	{
-		g_player[GetOwner()]->AdjustEventPollution(pollution);
-	}
+	PLAYER_INDEX owner = GetOwner();
+	if(owner >= 0 && owner < k_MAX_PLAYERS && g_player[owner]) {
+		if(GetDBRec()->GetDeathPollution(pollution))
+		{
+			g_player[owner]->AdjustEventPollution(pollution);
+		}
 
-	if(GetDBRec()->GetLaunchPollution(pollution))
-	{
-		g_player[GetOwner()]->AdjustEventPollution(pollution);
+		if(GetDBRec()->GetLaunchPollution(pollution))
+		{
+			g_player[owner]->AdjustEventPollution(pollution);
+		}
 	}
 
 	Unit tmp(m_id);
@@ -227,7 +230,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		}
 	}
 
-	if(!IsTempSlaveUnit())
+	if(!IsTempSlaveUnit() && owner >= 0 && owner < k_MAX_PLAYERS && g_player[owner])
 	{
 		r = g_player[owner]->RemoveUnitReference(*this, cause, killedBy);
 		Assert(r);

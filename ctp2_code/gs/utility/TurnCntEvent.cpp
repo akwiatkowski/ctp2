@@ -63,6 +63,8 @@ STDEHANDLER(BeginTurnEvent)
 	}
 
 	Assert(g_player[player] != NULL);
+	if (!g_player[player])
+		return GEV_HD_Continue;
 	fprintf(stderr, "[TURN] BeginTurnEvent player=%d round=%d\n", player, round);
 
 	g_player[player]->m_current_round = round;

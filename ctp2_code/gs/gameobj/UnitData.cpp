@@ -403,7 +403,8 @@ void UnitData::SetPosAndNothingElse(const MapPoint &p)
 	m_pos = p;
 
 	Assert(g_player[m_owner]);
-	g_player[m_owner]->RegisterYourArmyWasMoved(m_army, m_pos);
+	if (g_player[m_owner])
+		g_player[m_owner]->RegisterYourArmyWasMoved(m_army, m_pos);
 }
 
 void UnitData::SetPos(const MapPoint &p, bool &left_map)

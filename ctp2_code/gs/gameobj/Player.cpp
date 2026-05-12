@@ -4043,6 +4043,8 @@ void Player::Revolt(const sint32 idx)
 // ToDo: Check whether they are used and remove them if possible.
 void Player::GiveAdvance(PLAYER_INDEX recipient, AdvanceType adv, CAUSE_SCI cause)
 {
+	if (!g_player[recipient])
+		return;
 	if (HasAdvance(adv))
 	{
 		g_player[recipient]->m_advances->GiveAdvance(adv, cause);
@@ -4083,6 +4085,8 @@ void Player::StopTradingWith(PLAYER_INDEX bannedRecipient)
 
 void Player::FormAlliance(PLAYER_INDEX ally)
 {
+	if (!g_player[ally] || !g_player[m_owner])
+		return;
 	g_player[ally]->SetAlliance(m_owner);
 	g_player[m_owner]->SetAlliance(ally);
 }
@@ -4091,6 +4095,8 @@ void Player::SetAlliance(PLAYER_INDEX ally)
 {
 	Assert(ally!=m_owner);
 	if (ally == m_owner)
+		return;
+	if (!g_player[ally])
 		return;
 
 	mask_alliance |= (0x01<<ally);
@@ -4115,6 +4121,8 @@ void Player::ClearAlliance(PLAYER_INDEX ally)
 
 void Player::BreakAlliance(PLAYER_INDEX ally)
 {
+	if (!g_player[ally])
+		return;
 	if(!(mask_alliance & (1 << ally)) &&
 	   !(g_player[ally]->mask_alliance & (1 << m_owner))) {
 
@@ -4154,6 +4162,8 @@ void Player::ExchangeMap(PLAYER_INDEX recipient)
 
 void Player::GiveMap(PLAYER_INDEX recipient)
 {
+	if (!g_player[recipient])
+		return;
 	g_player[recipient]->m_vision->MergeMap(m_vision);
 	if(g_selected_item->GetVisiblePlayer() == recipient) {
 		g_director->AddCopyVision();

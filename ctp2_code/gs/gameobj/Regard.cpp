@@ -76,6 +76,8 @@ REGARD_TYPE Regard::GetUpdatedRegard(const PLAYER_INDEX me,
 
 
 
+        if (!g_player[me])
+            return REGARD_TYPE_NEUTRAL;
         switch (g_player[me]->GetDiplomaticState(him)) {
         case DIPLOMATIC_STATE_WAR:
             return REGARD_TYPE_HOTWAR;

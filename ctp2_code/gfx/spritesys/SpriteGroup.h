@@ -123,13 +123,13 @@ public:
 	LOADTYPE		GetLoadType(void) const { return m_loadType; }
 	void			SetLoadType(LOADTYPE type) { m_loadType = type; }
 
-	Sprite *        GetGroupSprite(GAME_ACTION action) const { return m_sprites[action]; }
-	void			SetGroupSprite (GAME_ACTION action, Sprite *sprite) { m_sprites[action] = sprite; }
+	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action] : NULL; }
+	void			SetGroupSprite (GAME_ACTION action, Sprite *sprite) { if ((action >= 0) && (action < ACTION_MAX)) m_sprites[action] = sprite; }
 
-	Anim *          GetGroupAnim(uint32 action) const { return m_anims[action]; }
-	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { m_anims[action] = anim; }
+	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action] : NULL; }
+	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { if ((action >= 0) && (action < ACTION_MAX)) m_anims[action] = anim; }
 
-	Anim *          GetAnim(GAME_ACTION action) const { return m_anims[action]; }
+	Anim *          GetAnim(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : NULL; }
 
 	sint32			GetWidth(void) const { return m_width; };
 	sint32			GetHeight(void) const { return m_height; };

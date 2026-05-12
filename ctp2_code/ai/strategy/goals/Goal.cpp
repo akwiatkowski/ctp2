@@ -99,6 +99,7 @@
 #include "ai/strategy/goals/Goal.h"
 
 #include <inttypes.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -3245,7 +3246,8 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 
 		//I want to see armytext even in optimized test version - Calvitix
 		Utility val = Compute_Agent_Matching_Value(first_army);
-		uint8 magnitude = (uint8) (((5000000 - val)* 255.0) / 5000000);
+		double rawMagnitude = ((5000000.0 - val) * 255.0) / 5000000.0;
+		uint8 magnitude = (uint8) std::max(0.0, std::min(255.0, rawMagnitude));
 		const char * myText = goal_rec->GetNameText();
 		MBCHAR * myString   = new MBCHAR[strlen(myText) + 80];
 		MBCHAR * goalString = new MBCHAR[strlen(myText) + 40];

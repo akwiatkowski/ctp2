@@ -30,6 +30,8 @@
 
 #include <functional>
 
+#include "gs/utility/safety.h"
+
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/newturncount.h"
 #include "gs/gameobj/Player.h"
@@ -151,24 +153,21 @@ void GaiaController::InitializeStatics()
 				{
 					terr_rec = g_theEndGameObjectDB->Get(i)->GetTerrainImprovementPtr();
 					type = terr_rec->GetIndex();
-					if (type >= 0 && type < 64)
-						sm_endgameImprovements |= uint64((uint64)1 << (uint64)type);
+					sm_endgameImprovements |= safe_shift_left_u64(type);
 				}
 
 			if (g_theEndGameObjectDB->Get(i)->HasBuilding())
 				{
 					building_rec = g_theEndGameObjectDB->Get(i)->GetBuildingPtr();
 					type = building_rec->GetIndex();
-					if (type >= 0 && type < 64)
-						sm_endgameBuildings |= uint64((uint64)1 << (uint64)type);
+					sm_endgameBuildings |= safe_shift_left_u64(type);
 				}
 
 			if (g_theEndGameObjectDB->Get(i)->HasWonder())
 				{
 					wonder_rec = g_theEndGameObjectDB->Get(i)->GetWonderPtr();
 					type = wonder_rec->GetIndex();
-					if (type >= 0 && type < 64)
-						sm_endgameWonders |= uint64((uint64)1 << (uint64)type);
+					sm_endgameWonders |= safe_shift_left_u64(type);
 				}
 		}
 }

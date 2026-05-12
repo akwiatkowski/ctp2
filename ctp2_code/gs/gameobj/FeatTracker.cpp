@@ -26,13 +26,14 @@
 //
 // - Memory leak repaired.
 // - Propagate feat accomplishments.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Added HasFeat to check if a feat has been achieved by E 5-11-2006
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
 #include "gs/gameobj/FeatTracker.h"
+#include "gs/utility/safety.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/newturncount.h"
 #include "ctp/ctp2_utils/pointerlist.h"
@@ -378,7 +379,9 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	so->AddInt(type);
 	g_slicEngine->Execute(so);
 
-	g_player[player]->m_score->AddFeat();
+	if (Player* p = safe_player(player)) {
+		p->m_score->AddFeat();
+	}
 
 	g_eventTracker->AddEvent(EVENT_TYPE_FEAT, player, theFeat->GetRound(), type);
 
@@ -387,7 +390,9 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	{
 		if(hpBonus > 0)
 		{
-			g_player[player]->AddFeatHPBonus(hpBonus);
+			if (Player* p = safe_player(player)) {
+				p->AddFeatHPBonus(hpBonus);
+			}
 		}
 	}
 }
@@ -545,7 +550,7 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 				}
 				else if(bf->GetPercentCities(percent))
 				{
-					sint32 havePercent = (numCities * 100) / g_player[city.GetOwner()]->m_all_cities->Num();
+					sint32 havePercent = safe_divide((numCities * 100), g_player[city.GetOwner()]->m_all_cities->Num());
 					if(havePercent >= percent)
 					{
 						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,

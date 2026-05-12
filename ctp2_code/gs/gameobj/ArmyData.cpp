@@ -143,6 +143,7 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/utility/safety.h"
 
 #include <algorithm>                    // std::min
 #include <functional>                   // std::mem_fun_ref
@@ -3569,7 +3570,7 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 		so->AddCity(c);
 		sint32 w;
 		for(w = 0; w < g_theWonderDB->NumRecords(); w++) {
-			if((g_player[c.GetOwner()]->m_builtWonders & ((uint64)1 << w)) &&
+			if((g_player[c.GetOwner()]->m_builtWonders & safe_shift_left_u64(w)) &&
 			   !wonderutil_IsObsolete(w)) {
 				so->AddWonder(w);
 				break;
@@ -4118,7 +4119,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		so->AddCity(city);
 		sint32 i;
 		for(i = 0; i < g_theWonderDB->NumRecords(); i++) {
-			if(i >= 64 || !g_player[city.GetOwner()]->m_builtWonders & ((uint64)1 << (uint64)i))
+			if(i >= 64 || !g_player[city.GetOwner()]->m_builtWonders & safe_shift_left_u64(i))
 				continue;
 
 			if(wonderutil_Get(i, m_owner)->GetPreventConversion()) {

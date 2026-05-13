@@ -694,7 +694,7 @@ BOOL World::IsContinentBiggerThan(uint32 size,
 
 void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 {
-	Cell *thisCell = m_map[point.x][point.y];
+	Cell *thisCell = GetCell(point);
 	Cell *neighborCell;
 	MapPoint neighbor;
 
@@ -742,7 +742,7 @@ void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 void World::CutImprovements(const MapPoint &point)
 {
 	MapPoint neighbor;
-	Cell *thisCell = m_map[point.x][point.y];
+	Cell *thisCell = GetCell(point);
 
 	thisCell->SetEnv(thisCell->GetEnv() & ~(k_MASK_ENV_ROAD | k_MASK_ENV_IRRIGATION |
 										    k_MASK_ENV_MINE | k_MASK_ENV_INSTALLATION |

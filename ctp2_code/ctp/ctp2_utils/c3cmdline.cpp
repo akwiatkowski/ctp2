@@ -6338,7 +6338,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 			sint32 n = cityList->Num();
 			for(sint32 j = 0; j < n; j++) {
 				char buf[1024];
-				sprintf(buf, "    %2d %4d ", i, j);
+				size_t bufPos = sprintf(buf, "    %2d %4d ", i, j);
 				CityData* cityData = cityList->Get(j).GetData()->GetCityData();
 				for(sint32 r = 0; r < g_theResourceDB->NumRecords(); r++)
                 {
@@ -6351,8 +6351,12 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
                     if (rc > 0)
 					{
 						char rbuf[80];
-						sprintf(rbuf, "%d:%d ", r, rc);
-						strcat(buf, rbuf);
+						int n = sprintf(rbuf, "%d:%d ", r, rc);
+						if (n > 0 && bufPos + (size_t)n < sizeof(buf)) {
+							memcpy(buf + bufPos, rbuf, (size_t)n);
+							bufPos += (size_t)n;
+							buf[bufPos] = '\0';
+						}
 					}
 				}
 				primitives_DrawText(surf, k_LEFT_EDGE, (k_TOP_EDGE + k_TEXT_SPACING) + l * k_TEXT_SPACING,

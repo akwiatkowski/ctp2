@@ -548,7 +548,7 @@ BOOL ProfileDB::Parse(FILE *file)
 		linenum++;
 		sint32 len = strlen(line);
 
-		while(isspace(line[len - 1])) {
+		while(len > 0 && isspace(line[len - 1])) {
 			line[len - 1] = 0;
 			len--;
 		}
@@ -619,7 +619,7 @@ BOOL ProfileDB::Parse(FILE *file)
 						break;
 					case PV_STRING:
 						if(strlen(value) > k_MAX_NAME_LEN - 1) {
-							c3errors_ErrorDialog("Profile", "Line %d: string too long");
+							c3errors_ErrorDialog("Profile", "Line %d: string too long", linenum);
 							return FALSE;
 						}
 						strcpy(var->m_stringValue, value);

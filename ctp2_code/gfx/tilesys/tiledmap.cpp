@@ -2411,7 +2411,8 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 
 
-				strcpy(text, city.GetName());
+				strncpy(text, city.GetName(), sizeof(text) - 1);
+			text[sizeof(text) - 1] = '\0';
 
 				DrawSomeText(TRUE, text, tx, ty+10,
 								g_colorSet->GetColorRef(COLOR_YELLOW),
@@ -2429,7 +2430,8 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 
 
-				strcpy(text, al->Access(0).GetName());
+				strncpy(text, al->Access(0).GetName(), sizeof(text) - 1);
+			text[sizeof(text) - 1] = '\0';
 
 				DrawSomeText(TRUE, text, tx, ty,
 					g_colorSet->GetColorRef(COLOR_BLACK),

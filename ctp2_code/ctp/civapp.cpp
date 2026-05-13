@@ -501,7 +501,8 @@ void AddSearchPacks
 void InitDataIncludePath(void)
 {
 	MBCHAR                  ruleSets[MAX_PATH];
-	strcpy(ruleSets, g_theProfileDB->GetRuleSets());
+	strncpy(ruleSets, g_theProfileDB->GetRuleSets(), MAX_PATH - 1);
+	ruleSets[MAX_PATH - 1] = '\0';
 
 	std::vector<MBCHAR *>   pathStarts;
 	MBCHAR *                nextPath    = ruleSets;

@@ -118,3 +118,112 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData starvation starts at zero")
 
     CHECK(city.GetStarvationTurns() == 0);
 }
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData name can be set and retrieved")
+{
+    CityData city(0, Unit(), MapPoint(1, 1));
+
+    city.SetName("Testville");
+    CHECK(strcmp(city.GetName(), "Testville") == 0);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData starts with no improvements or wonders")
+{
+    CityData city(0, Unit(), MapPoint(3, 3));
+
+    CHECK(city.GetImprovements() == 0);
+    CHECK(city.GetBuiltWonders() == 0);
+    CHECK(city.HasBuilding(0) == false);
+    CHECK(city.HasCityWonder(0) == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData improvement and wonder flags can be set")
+{
+    CityData city(0, Unit(), MapPoint(4, 4));
+
+    city.SetImprovements(0x05);  // bits 0 and 2
+    CHECK(city.HasBuilding(0) == true);
+    CHECK(city.HasBuilding(1) == false);
+    CHECK(city.HasBuilding(2) == true);
+
+    city.SetWonders(0x02);  // bit 1
+    CHECK(city.HasCityWonder(1) == true);
+    CHECK(city.HasCityWonder(0) == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData is not a capitol by default")
+{
+    CityData city(0, Unit(), MapPoint(6, 6));
+
+    CHECK(city.IsCapitol() == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData population defaults")
+{
+    CityData city(0, Unit(), MapPoint(7, 7));
+
+    CHECK(city.GetNumPop() == 1);   // GetNumPop clamps to minimum 1
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData contribution toggles work")
+{
+    CityData city(0, Unit(), MapPoint(8, 8));
+
+    CHECK(city.GetMaterialContribution() == true);
+    CHECK(city.GetMilitaryContribution() == true);
+
+    city.SetMaterialContribution(false);
+    city.SetMilitaryContribution(false);
+
+    CHECK(city.GetMaterialContribution() == false);
+    CHECK(city.GetMilitaryContribution() == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData status flags default to false")
+{
+    CityData city(0, Unit(), MapPoint(9, 9));
+
+    CHECK(city.GetIsRioting() == false);
+    CHECK(city.IsFranchised() == false);
+    CHECK(city.IsConverted() == false);
+    CHECK(city.IsBioInfected() == false);
+    CHECK(city.IsNanoInfected() == false);
+    CHECK(city.IsInjoined() == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData BuildQueue and Happy are allocated")
+{
+    CityData city(0, Unit(), MapPoint(2, 2));
+
+    CHECK(city.GetBuildQueue() != nullptr);
+    CHECK(city.GetHappy() != nullptr);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData shield store can be modified")
+{
+    CityData city(0, Unit(), MapPoint(3, 3));
+
+    CHECK(city.GetStoredCityProduction() == 0);
+    city.AddShields(50);
+    CHECK(city.GetStoredCityProduction() == 50);
+    city.AddShields(25);
+    CHECK(city.GetStoredCityProduction() == 75);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData starts with no trade routes")
+{
+    CityData city(0, Unit(), MapPoint(4, 4));
+
+    CHECK(city.GetNumTradeRoutes() == 0);
+    CHECK(city.GetIncomingTrade() == 0);
+    CHECK(city.GetOutgoingTrade() == 0);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
+{
+    CityData city(0, Unit(), MapPoint(5, 5));
+
+    CHECK(city.GetScience() == 0);
+    CHECK(city.GetTradeCrime() == 0);
+    CHECK(city.GetProdCrime() == 0);
+}

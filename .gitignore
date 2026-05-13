@@ -262,4 +262,4 @@ usercritmsgs.txt
 userprofile.txt
 # macOS temp files
 .!*
-logs\oldseed.txt
+logs\\oldseed.txt

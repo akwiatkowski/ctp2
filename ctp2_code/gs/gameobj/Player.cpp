@@ -3938,10 +3938,14 @@ uint32 Player::GetAverageEventPollution(void)
 {
 	uint32	average = 0;
 
-	for (sint32 i=0; i<g_theConstDB->Get(0)->GetAveragePollutionTurns(); i++)
+	sint32 turns = g_theConstDB->Get(0)->GetAveragePollutionTurns();
+	if (turns <= 0)
+		return 0;
+
+	for (sint32 i=0; i<turns; i++)
 		average += m_event_pollution[i] ;
 
-	average /= g_theConstDB->Get(0)->GetAveragePollutionTurns() ;
+	average /= turns;
 
 	return (average) ;
 }

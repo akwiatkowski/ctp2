@@ -28,7 +28,7 @@
 // - Corrected wrap computation for city influence and borders.
 // - Fixed first RadiusIterator constructor so that it does the same as
 //   in the original version. The defect caused a significant AI
-//   performance loss. July 16th 2005 Martin Gühmann
+//   performance loss. July 16th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -514,6 +514,9 @@ sint32 OldSquaredDistance(const MapPoint &uPos, const MapPoint &pos)
 	sint32 dx1, dy1, dx2, dy2, dx3, dy3;
 	sint16 w = sint16(g_theWorld->GetXWidth());
 	sint16 h = sint16(g_theWorld->GetYHeight());
+
+	if (w <= 0 || h <= 0)
+		return 0;
 
 	if(!g_theWorld->IsXwrap()) {
 

@@ -238,8 +238,8 @@ void GaiaController::RecomputeCoverage()
 					}
 			}
 	}
-	m_percentCoverage = ((float) covered_cells /
-						 (g_theWorld->GetXWidth() * g_theWorld->GetYHeight()));
+	sint32 area = g_theWorld->GetXWidth() * g_theWorld->GetYHeight();
+	m_percentCoverage = (area > 0) ? ((float) covered_cells / area) : 0.0f;
 
 }
 
@@ -808,8 +808,8 @@ float GaiaController::NewCoverageFrom(const MapPoint & pos, const sint16 radius)
 			if (m_coveredCells.Get(cell_pos.x, cell_pos.y) != FALSE)
 				covered_cells++;
 		}
-	return (float) (covered_cells /
-			(g_theWorld->GetXWidth() * g_theWorld->GetYHeight()));
+	sint32 area = g_theWorld->GetXWidth() * g_theWorld->GetYHeight();
+	return (area > 0) ? ((float) covered_cells / area) : 0.0f;
 }
 
 const Bit_Table & GaiaController::GetCoverage() const

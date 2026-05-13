@@ -4245,6 +4245,8 @@ sint32 Diplomat::GetGoldSurplusPercent() const
 
 	sint32 goldSpent = lost_to_cleric + lost_to_crime + maintenance + wages +
 		science;
+	if (goldSpent == 0)
+		return 0;
 	return static_cast<sint32>(floor( (current_savings / goldSpent) * 100.0 ));
 }
 
@@ -4264,6 +4266,8 @@ sint32 Diplomat::GetAdvanceLevelPercent(const PLAYER_INDEX &foreignId) const {
 		return 0;
 	Assert(g_player[m_playerId] != NULL);
 	sint32 my_advances = g_player[m_playerId]->NumAdvances();
+	if (my_advances == 0)
+		return 0;
 	return static_cast<sint32>(floor((foreign_advances/ my_advances) * 100.0));
 }
 
@@ -4960,7 +4964,7 @@ PLAYER_INDEX Diplomat::ComputeNuclearLaunchTarget()
 			continue;
 
 		double risk;
-		if (m_strategy.GetPreemptiveStrikeRiskRatio(risk))
+		if (m_strategy.GetPreemptiveStrikeRiskRatio(risk) && our_vulnerable_city_count > 0)
 		{
 			if (((double) tmp_nuke_count / our_vulnerable_city_count) > risk)
 				return PLAYER_UNASSIGNED;
@@ -4974,7 +4978,7 @@ PLAYER_INDEX Diplomat::ComputeNuclearLaunchTarget()
 		}
 
 		double superiority;
-		if (m_strategy.GetPreemptiveStrikeSuperiorityRatio(superiority))
+		if (m_strategy.GetPreemptiveStrikeSuperiorityRatio(superiority) && foreign_vulnerable_city_count > 0)
 		{
 			if (((double) our_nuke_count / foreign_vulnerable_city_count) < superiority)
 				return PLAYER_UNASSIGNED;

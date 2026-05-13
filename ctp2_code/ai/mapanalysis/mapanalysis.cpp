@@ -1070,15 +1070,18 @@ sint16 MapAnalysis::GetLandArea(const PLAYER_INDEX playerId) const
 
 double MapAnalysis::GetPopulationPercent(const PLAYER_INDEX playerId) const
 {
-    Assert(m_worldPopulation);
+    if (m_worldPopulation == 0)
+        return 0.0;
     return (double)m_totalPopulation[playerId] / m_worldPopulation;
 }
 
 double MapAnalysis::GetLandPercent(const PLAYER_INDEX playerId) const
 {
     Assert(g_theWorld);
-    return (double)m_landArea[playerId] /
-                (g_theWorld->GetWidth() * g_theWorld->GetHeight());
+    sint32 area = g_theWorld->GetWidth() * g_theWorld->GetHeight();
+    if (area == 0)
+        return 0.0;
+    return (double)m_landArea[playerId] / area;
 }
 
 void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX & leaderId, double & population, double & land) const

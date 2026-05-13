@@ -210,7 +210,7 @@ double C3Wonder::MaxPecentageThisWonderDone(sint32 wonder_type)
             if (node->m_category != k_GAME_OBJ_TYPE_WONDER) continue;
             if (node->m_type != wonder_type) continue;
 
-            p = the_city->GetStoredCityProduction() / node->m_cost;
+            p = (node->m_cost > 0) ? (the_city->GetStoredCityProduction() / node->m_cost) : 0;
             if (max_percent < p) {
                 max_percent = p;
             }

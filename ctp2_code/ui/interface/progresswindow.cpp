@@ -30,6 +30,7 @@
 
 #include "ctp/c3.h"
 #include "ui/interface/progresswindow.h"
+#include "gs/utility/Globals.h"
 
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -46,6 +47,11 @@ void ProgressWindow::BeginProgress(
 {
 	Assert( maxval >= 0 );
 	if ( maxval < 0 ) return;
+
+	if (g_headlessMode) {
+		progwin = (ProgressWindow *)0x1;
+		return;
+	}
 
 	if ( !progwin )
 	{
@@ -85,6 +91,8 @@ void ProgressWindow::BeginProgress(
 
 void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 {
+	if (g_headlessMode) return;
+
 	if ( message )
 	{
 		m_message->SetText( message );
@@ -103,6 +111,11 @@ void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 
 void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 {
+	if (g_headlessMode) {
+		progwin = NULL;
+		return;
+	}
+
 	if ( progwin )
 	{
 

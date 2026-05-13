@@ -52,6 +52,9 @@ HappyTracker::~HappyTracker()
 
 void HappyTracker::RefreshStringIds(void)
 {
+	if (!g_theStringDB)
+		return;
+
 	g_theStringDB->GetStringID("HAPPY_REASON_CITY_SIZE", sm_happinessNames[HAPPY_REASON_CITY_SIZE]);
 	g_theStringDB->GetStringID("HAPPY_REASON_DISTANCE_FROM_CAPITOL", sm_happinessNames[HAPPY_REASON_DISTANCE_FROM_CAPITOL]);
 	g_theStringDB->GetStringID("HAPPY_REASON_ENEMY_ACTION", sm_happinessNames[HAPPY_REASON_ENEMY_ACTION]);

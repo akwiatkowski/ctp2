@@ -8784,21 +8784,37 @@ sint32 CityData::GetDistanceToGood(sint32 good)
 
 void CityData::RemoveBorders()
 {
+	const ConstRecord *rec = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
+	if (!rec)
+		return;
+
 	terrainutil_RemoveBorders(m_home_city.RetPos(), m_owner,
-	                          g_theConstDB->Get(0)->GetBorderIntRadius(),
-	                          g_theConstDB->Get(0)->GetBorderSquaredRadius(),
+	                          rec->GetBorderIntRadius(),
+	                          rec->GetBorderSquaredRadius(),
 	                          m_home_city);
 }
 
 void CityData::ResetStarvationTurns()
 {
-	m_starvation_turns = g_theConstDB->Get(0)->GetBaseStarvationProtection();
-	m_starvation_turns += buildingutil_GetStarvationProtection(GetEffectiveBuildings(), m_owner);
+	const ConstRecord *rec = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
+	if (rec)
+	{
+		m_starvation_turns = rec->GetBaseStarvationProtection();
+		m_starvation_turns += buildingutil_GetStarvationProtection(GetEffectiveBuildings(), m_owner);
+	}
+	else
+	{
+		m_starvation_turns = 0;
+	}
 }
 
 sint32 CityData::GetStarvationProtection()
 {
-	sint32 turns  = g_theConstDB->Get(0)->GetBaseStarvationProtection();
+	const ConstRecord *rec = g_theConstDB ? g_theConstDB->Get(0) : nullptr;
+	if (!rec)
+		return 0;
+
+	sint32 turns  = rec->GetBaseStarvationProtection();
 	       turns += buildingutil_GetStarvationProtection(GetEffectiveBuildings(), m_owner);
 
 	return turns;
@@ -8822,6 +8838,9 @@ double CityData::GetOffenseBonus(const Unit &defender)
 
 uint64 CityData::GetEffectiveBuildings() const
 {
+	if (!g_player || !g_player[m_owner])
+		return m_built_improvements;
+
 	return m_built_improvements | g_player[m_owner]->GetWonderBuildings();
 }
 

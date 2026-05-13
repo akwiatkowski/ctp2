@@ -195,14 +195,14 @@ void World::SetCurrent(const sint32 x, const sint32 y)
 void World::SetRiver(const MapPoint &pos)
 {
 	GetCell(pos)->m_env |= k_BIT_ENV_RIV_CUR;
-	Cell *thisCell = m_map[pos.x][pos.y];
+	Cell *thisCell = GetCell(pos);
 	thisCell->CalcTerrainMoveCost();
 }
 
 void World::UnsetRiver(const sint32 x, const sint32 y)
 {
-	m_map[x][y]->m_env &= ~k_BIT_ENV_RIV_CUR;
-	Cell *thisCell = m_map[x][y];
+	GetCell(x, y)->m_env &= ~k_BIT_ENV_RIV_CUR;
+	Cell *thisCell = GetCell(x, y);
 	thisCell->CalcTerrainMoveCost();
 }
 
@@ -544,7 +544,7 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 {
 	MapPoint neighbor;
 	BOOL firstcall = FALSE;
-	Cell *thisCell = m_map[pnt.x][pnt.y];
+	Cell *thisCell = GetCell(pnt);
 
 	if(thisCell->GetCity().m_id != (0)) {
 		if(thisCell->GetCity().GetOwner() == owner)

@@ -199,7 +199,7 @@ incdir += include_directories(
 	'ai/CityManagement'
 )
 
-main_sources = [
+game_core_sources = [
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',
 	'ctp/ctp2_utils/c3cpu.cpp',
@@ -877,9 +877,17 @@ main_sources = [
 	'mapgen/FaultGen.cpp',
 	'mapgen/Geometric.cpp',
 	'mapgen/PlasmaGen2.cpp',
-	'ctp/civ3_main.cpp',
-	'test/smoketest_server.cpp'
 ]
+
+# Entry-point sources — added only to the game executable.
+# ctp/civ3_main.cpp is included in the test target with -DUNIT_TEST_BUILD
+# to suppress its main() function while keeping global definitions.
+game_entry_sources = [
+	'ctp/civ3_main.cpp',
+	'test/smoketest_server.cpp',
+]
+
+main_sources = game_core_sources + game_entry_sources
 
 ctpdb = executable('ctpdb', [
 	'gs/dbgen/Datum.cpp',
@@ -1144,9 +1152,26 @@ p_plasma2 = shared_library('plasma2', 'mapgen/PlasmaGen2.cpp',
 		include_directories : incdir)
 
 # main exe
-executable('ctp2', main_sources, 
+executable('ctp2', main_sources,
 		include_directories : incdir,
 		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
 		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs' ],
 		link_args : [ '-lltdl', use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
+
+# unit tests
+doctest_incdir = include_directories('test/cpp')
+
+cpp_test_sources = [
+  'test/cpp/main.cpp',
+  'ctp/civ3_main.cpp',
+  'test/smoketest_server.cpp',
+]
+
+executable('ctp2_unit_tests', cpp_test_sources + game_core_sources,
+  include_directories : [ incdir, doctest_incdir ],
+  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
+  link_args : [ '-lltdl', use_ld ],
+  link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+)

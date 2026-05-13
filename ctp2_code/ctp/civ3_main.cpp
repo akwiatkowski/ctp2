@@ -1458,6 +1458,8 @@ void main_InitializeLogs(void)
 #endif
 }
 
+#ifndef UNIT_TEST_BUILD
+
 #if defined(__GNUC__)
 
 int main(int argc, char **argv)
@@ -1508,6 +1510,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 }
 
 #endif // __GNUC__
+
+#endif // UNIT_TEST_BUILD
 
 void main_DisplayPatchDisclaimer()
 {

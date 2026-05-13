@@ -86,7 +86,8 @@ GameEventManager::GameEventManager()
 	m_processingEvent   (GEV_MAX),
 	m_serial            (0),
     m_needUserInput     (false),
-    m_pauseCount        (0)
+    m_pauseCount        (0),
+    m_synchronous       (false)
 {
 #ifdef _DEBUG
 	FILE *  f = fopen(EVENTLOGNAME, "w");
@@ -215,9 +216,15 @@ GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
 			return GEV_ERR_BadInsert;
 	}
 
-	g_director->IncrementPendingGameActions();
+	if (g_director) {
+		g_director->IncrementPendingGameActions();
+	}
 
-	return Process();
+	if (m_synchronous) {
+		return Process();
+	}
+
+	return GEV_ERR_OK;
 }
 
 GAME_EVENT_ERR GameEventManager::Process()

@@ -131,4 +131,7 @@ template <typename T> void clearContainer(T & a_Container)
 
 } // namespace allocated
 
+/// When true, the game runs without UI/rendering. Used by unit tests.
+extern bool g_headlessMode;
+
 #endif

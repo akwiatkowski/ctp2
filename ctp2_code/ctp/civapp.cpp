@@ -406,6 +406,8 @@ sint32 g_oldRandSeed = FALSE;
 
 ProgressWindow *g_theProgressWindow = NULL;
 
+bool    g_headlessMode = false;
+
 bool    g_tempLeakCheck = false;
 
 #ifndef _NO_GAME_WATCH

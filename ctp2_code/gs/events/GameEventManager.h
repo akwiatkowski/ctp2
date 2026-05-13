@@ -135,6 +135,8 @@ public:
 	void Pause();
 	void Resume();
 
+	void SetSynchronous(bool synchronous) { m_synchronous = synchronous; }
+
 #ifdef _DEBUG
 	void Log(const char *fmt, ...);
 	void Dump();
@@ -182,6 +184,8 @@ private:
 	bool m_needUserInput;
 
 	sint32 m_pauseCount;
+
+	bool m_synchronous;
 };
 
 #endif

@@ -91,6 +91,12 @@ run: build
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
 	@./build/ctp2
 
+# Run the game at Full HD (1920x1080) with crash logging via run_game.sh
+run-hd: build-sanitized
+	@echo "Starting CTP2 at 1920x1080 with crash logging..."
+	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
+	@./run_game.sh --resolution 1920x1080
+
 # Clean build directory
 clean-build:
 	@echo "Cleaning build directory..."
@@ -153,7 +159,7 @@ smoke-test-sanitized: build-sanitized
 	@ASAN_OPTIONS=detect_leaks=0:abort_on_error=1:print_legend=1 \
 		python3 test/smoke_test.py --build-dir=build-sanitized
 
-.PHONY: all deps setup build test clean-build local playtest doc smoke-test
+.PHONY: all deps setup build test clean-build local playtest doc smoke-test run-hd
 
 SRCDIRS=\
 	ctp2_code \

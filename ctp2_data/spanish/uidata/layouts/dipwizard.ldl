@@ -1,7 +1,7 @@
 
 template CTP2_PARCHMENT_FONT {
 	# Times New Roman Bold
-	string fontname 			"timesbi.ttf" #"timesbd.ttf"
+	string fontname 			"timesbd.ttf" #Bold; the previous "timesbi.ttf" (Bold Italic) is not shipped.
 
 	# 10 point
 	int fontsize				10

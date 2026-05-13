@@ -3488,12 +3488,12 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	MBCHAR const *  autosaveName    = g_theStringDB->GetNameStr(autosaveItem);
 
 	MBCHAR			leaderName[k_MAX_NAME_LEN];
-	strcpy(leaderName, g_theProfileDB->GetLeaderName());
+	strncpy(leaderName, g_theProfileDB->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
 	leaderName[SAVE_LEADER_NAME_SIZE] = '\0';
 	c3files_StripSpaces(leaderName);
 
 	MBCHAR			filename[_MAX_PATH];
-	sprintf(filename, "%s-%s", autosaveName, leaderName);
+	snprintf(filename, sizeof(filename), "%s-%s", autosaveName, leaderName);
 
 	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 
@@ -3501,7 +3501,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	g_civPaths->GetSavePath(dir, path);
 
 	MBCHAR			fullpath[_MAX_PATH];
-	sprintf(fullpath, "%s%s%s", path, FILE_SEP, leaderName);
+	snprintf(fullpath, sizeof(fullpath), "%s%s%s", path, FILE_SEP, leaderName);
 
 	if (c3files_PathIsValid(fullpath) || c3files_CreateDirectory(fullpath))
 	{
@@ -3564,7 +3564,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	g_civPaths->GetSavePath(dir, path);
 
 	MBCHAR			fullpath[_MAX_PATH];
-	sprintf(fullpath, "%s%s%s", path, FILE_SEP, leaderName);
+	snprintf(fullpath, sizeof(fullpath), "%s%s%s", path, FILE_SEP, leaderName);
 
 	if (c3files_PathIsValid(fullpath) || c3files_CreateDirectory(fullpath))
 	{

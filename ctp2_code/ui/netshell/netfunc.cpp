@@ -2570,7 +2570,8 @@ NETFunc::STATUS NETFunc::SetServer(Server *s) {
 			return ERR;
 		status = LOGIN;
 
-		strncpy(servername, s->GetName(), 64);
+		strncpy(servername, s->GetName(), sizeof(servername));
+		servername[sizeof(servername) - 1] = '\0';
 		return OK;
 	}
 	return ERR;
@@ -2685,7 +2686,9 @@ NETFunc::STATUS NETFunc::Connect(dp_t *d, PlayerStats *stats, bool h) {
 	host = h;
 
 	strncpy(player.player.name, playername, dp_PNAMELEN);
+	player.player.name[dp_PNAMELEN - 1] = '\0';
 	strncpy(session.session.sessionName, sessionname, dp_SNAMELEN);
+	session.session.sessionName[dp_SNAMELEN - 1] = '\0';
 
 	if(stats) {
 		playerStats = new PlayerStats();
@@ -3281,7 +3284,8 @@ NETFunc::SessionCallBack(dp_session_t *s, long *pTimeout, long flags, void *cont
 		((NETFunc *)context)->session.SetKey();
 		((NETFunc *)context)->session.flags = 0;
 
-		strncpy(sessionname, s->sessionName, dp_SNAMELEN);
+		strncpy(sessionname, s->sessionName, sizeof(sessionname));
+		sessionname[sizeof(sessionname) - 1] = '\0';
 		EnumSessions(false);
 		if(((NETFunc *)context)->session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
 			EnumSessions(true);
@@ -3309,12 +3313,14 @@ NETFunc::PlayerCallBack(dpid_t id, dp_char_t *n, long flags, void *context) {
 
 	if(n) {
 
-		strcpy(((NETFunc *)context)->player.player.name, n);
+		strncpy(((NETFunc *)context)->player.player.name, n, dp_PNAMELEN);
+		((NETFunc *)context)->player.player.name[dp_PNAMELEN - 1] = '\0';
 		((NETFunc *)context)->player.player.id = id;
 		((NETFunc *)context)->player.SetKey();
 		((NETFunc *)context)->status = OK;
 
-		strncpy(playername, n, dp_PNAMELEN);
+		strncpy(playername, n, sizeof(playername));
+		playername[sizeof(playername) - 1] = '\0';
 
 		if(((NETFunc *)context)->session.IsLobby())
 			PushMessage(new Message(Message::ENTERLOBBY, ((NETFunc *)context)->session.GetKey(), sizeof(KeyStruct)));

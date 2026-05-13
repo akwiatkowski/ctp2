@@ -1164,6 +1164,7 @@ doctest_incdir = include_directories('test/cpp')
 
 cpp_test_sources = [
   'test/cpp/main.cpp',
+  'test/cpp/test_randgen.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]

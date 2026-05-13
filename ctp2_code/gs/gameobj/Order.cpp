@@ -253,6 +253,8 @@ static GAME_EVENT s_orderToEventMap[UNIT_ORDER_MAX];
 
 GAME_EVENT Order::OrderToEvent(UNIT_ORDER_TYPE order)
 {
+	if (order < 0 || order >= UNIT_ORDER_MAX)
+		return GEV_MAX;
 	return s_orderToEventMap[order];
 }
 

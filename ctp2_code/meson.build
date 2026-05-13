@@ -1168,6 +1168,7 @@ cpp_test_sources = [
   'test/cpp/test_citydata.cpp',
   'test/cpp/test_buildqueue.cpp',
   'test/cpp/test_happy.cpp',
+  'test/cpp/test_bugfixes.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]

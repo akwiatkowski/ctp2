@@ -684,19 +684,20 @@ void Agent::Group_With( Agent_ptr second_army )
 	const GoalRecord* rec = g_theGoalDB->Get(m_goal->Get_Goal_Type());
 
 	const char * myText = rec->GetNameText();
-	MBCHAR * myString   = new MBCHAR[strlen(myText) + 80];
-	MBCHAR * goalString = new MBCHAR[strlen(myText) + 40];
-	memset(goalString, 0, strlen(myText) + 40);
-	memset(myString,   0, strlen(myText) + 80);
+	size_t textLen = strlen(myText);
+	MBCHAR * myString   = new MBCHAR[textLen + 80];
+	MBCHAR * goalString = new MBCHAR[textLen + 40];
+	memset(goalString, 0, textLen + 40);
+	memset(myString,   0, textLen + 80);
 
-	for (uint8 myComp = 0; myComp < strlen(myText) - 5; myComp++)
+	for (size_t myComp = 0; myComp + 5 < textLen; myComp++)
 	{
 		goalString[myComp] = myText[myComp + 5];
 	}
 
 	MapPoint dest_pos = m_goal->Get_Target_Pos();
 
-	sprintf(myString, "Grouping at (%d,%d) to %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
+	snprintf(myString, textLen + 80, "Grouping at (%d,%d) to %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
 	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
 
 	delete[] goalString;
@@ -925,12 +926,13 @@ void Agent::ClearOrders()
 		const GoalRecord* rec = g_theGoalDB->Get(m_goal->Get_Goal_Type());
 
 		const char * myText = rec->GetNameText();
-		MBCHAR * myString   = new MBCHAR[strlen(myText) + 80];
-		MBCHAR * goalString = new MBCHAR[strlen(myText) + 40];
-		memset(goalString, 0, strlen(myText) + 40);
-		memset(myString,   0, strlen(myText) + 80);
+		size_t textLen = strlen(myText);
+		MBCHAR * myString   = new MBCHAR[textLen + 80];
+		MBCHAR * goalString = new MBCHAR[textLen + 40];
+		memset(goalString, 0, textLen + 40);
+		memset(myString,   0, textLen + 80);
 
-		for(uint8 myComp = 0; myComp < strlen(myText) - 5; myComp++)
+		for(size_t myComp = 0; myComp + 5 < textLen; myComp++)
 		{
 			goalString[myComp] = myText[myComp + 5];
 		}
@@ -941,11 +943,11 @@ void Agent::ClearOrders()
 		{
 			MapPoint dest_pos = m_goal->Get_Target_Pos();
 
-			sprintf(myString, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
+			snprintf(myString, textLen + 80, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
 		}
 		else
 		{
-			sprintf(myString, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, m_targetPos.x, m_targetPos.y);
+			snprintf(myString, textLen + 80, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, m_targetPos.x, m_targetPos.y);
 		}
 
 		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());

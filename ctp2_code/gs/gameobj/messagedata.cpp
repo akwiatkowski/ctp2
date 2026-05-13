@@ -284,7 +284,8 @@ MessageData::MessageData(const ID id, MessageData *copy)
 
 	m_slicSegment = copy->m_slicSegment;
 
-	strcpy(m_caption, copy->m_caption);
+	strncpy(m_caption, copy->m_caption, k_MAX_MSG_LEN - 1);
+	m_caption[k_MAX_MSG_LEN - 1] = '\0';
 	m_class = copy->m_class;
 
 	if(copy->m_title) {
@@ -1390,7 +1391,8 @@ AdvanceType MessageData::GetSelectedAdvance() const
 
 void MessageData::SetMsgCaption(const MBCHAR *caption)
 {
-	strcpy(m_caption, caption);
+	strncpy(m_caption, caption, k_MAX_MSG_LEN - 1);
+	m_caption[k_MAX_MSG_LEN - 1] = '\0';
 }
 
 void MessageData::SetDuration(sint32 duration)

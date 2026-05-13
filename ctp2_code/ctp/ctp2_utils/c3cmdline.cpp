@@ -3077,7 +3077,7 @@ void ChatCommand::Execute(sint32 argc, char **argv)
 	sint32 pos = 0;
 
 	for(sint32 i = 1; i < argc; i++) {
-		if(pos + strlen(argv[i]) >= k_MAX_CHAT_LEN)
+		if(pos + strlen(argv[i]) + 1 >= k_MAX_CHAT_LEN)
 			break;
 		memcpy(&str[pos], argv[i], strlen(argv[i]));
 		pos += strlen(argv[i]);

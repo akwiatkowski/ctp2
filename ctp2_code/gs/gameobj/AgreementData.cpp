@@ -25,8 +25,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -434,35 +434,37 @@ void AgreementData::Dump(const sint32 i)
 	{
 	MBCHAR	s[_MAX_PATH] ;
 
-	sprintf(s, "%d (%d) - P%d & P%d agree to ", i, m_expires, m_owner, m_recipient) ;
+	int len = snprintf(s, sizeof(s), "%d (%d) - P%d & P%d agree to ", i, m_expires, m_owner, m_recipient) ;
+	if (len < 0 || len >= (int)sizeof(s)) return;
+
 	switch (m_agreement)
 		{
 		case AGREEMENT_TYPE_DEMAND_STOP_TRADE :
-			sprintf(s, "%s stop trade with P%d", s, m_thirdParty) ;
+			snprintf(s + len, sizeof(s) - len, " stop trade with P%d", m_thirdParty) ;
 			break ;
 
 		case AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS :
-			sprintf(s, "%s leave the lands", s) ;
+			snprintf(s + len, sizeof(s) - len, " leave the lands") ;
 			break ;
 
 		case AGREEMENT_TYPE_REDUCE_POLLUTION :
-			sprintf(s, "%s reduce pollution", s) ;
+			snprintf(s + len, sizeof(s) - len, " reduce pollution") ;
 			break ;
 
 		case AGREEMENT_TYPE_CEASE_FIRE :
-			sprintf(s, "%s cease fire", s) ;
+			snprintf(s + len, sizeof(s) - len, " cease fire") ;
 			break ;
 
 		case AGREEMENT_TYPE_PACT_CAPTURE_CITY :
-			sprintf(s, "%s capture city %d", s, m_targetCity.m_id) ;
+			snprintf(s + len, sizeof(s) - len, " capture city %d", m_targetCity.m_id) ;
 			break ;
 
 		case AGREEMENT_TYPE_PACT_END_POLLUTION :
-			sprintf(s, "%s end pollution", s) ;
+			snprintf(s + len, sizeof(s) - len, " end pollution") ;
 			break ;
 
 		default :
-			sprintf(s, "%s \"Unknown diplomatic agreement type\"", s) ;
+			snprintf(s + len, sizeof(s) - len, " \"Unknown diplomatic agreement type\"") ;
 			break ;
 
 		}
@@ -1049,7 +1051,7 @@ void AgreementData::ToString(MBCHAR *s)
 			Assert(FALSE) ;
 
 			c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "AGREEMENT_ERROR_UNKNOWN_AGREEMENT") ;
-			sprintf(s, "%s \"Unknown diplomatic agreement type\"", s) ;
+			strcpy(s, "Unknown diplomatic agreement type") ;
 			break ;
 
 		}

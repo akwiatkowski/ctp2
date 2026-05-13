@@ -27,9 +27,9 @@
 // - Standardised min/max usage.
 // - Reimplemented m_timedChanges as std::list, to prevent Asserts
 // - Added Copy method to copy data from another instance into this
-//   instance, savely. - Jul 7th 2005 Martin Gühmann
+//   instance, savely. - Jul 7th 2005 Martin Gï¿½hmann
 // - Added happiness boni for players civilisation and city's city style.
-//   (Oct 7th 2005 Martin Gühmann)
+//   (Oct 7th 2005 Martin Gï¿½hmann)
 // - Added GoodHappinessIncrease if a good give a happy bonus then if the city
 //   is buying or collecting then it will add to that city's happiness (4-27-2006 by E)
 // - Aded SectarianHappiness modifier by E 5-24-2006
@@ -37,8 +37,8 @@
 // - Added profile option for NoAICityLimit and NoCityLimit
 // - Added comment for wonders
 // - Outcommented sectarian happiness
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - Wages, rations, and work day give now happiness boni as supposed. (07-Sep-2008 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - Wages, rations, and work day give now happiness boni as supposed. (07-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -597,6 +597,10 @@ void Happy::CalcHappiness(CityData &cd, bool projectedOnly,
                           bool isFirstPass)
 {
 	Player *p = g_player[cd.m_owner];
+	if (!p) {
+		m_happiness = 0;
+		return;
+	}
 
 	CountAffectivePop(cd);
 

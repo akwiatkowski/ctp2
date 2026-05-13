@@ -38,6 +38,15 @@ AUI_ERRCODE aui_SDLBlitter::Blt(
 		SDL_LockMutex(sdlDest->m_bltMutex);
 		SDL_LockMutex(sdlSrc->m_bltMutex);
 
+		// SDL_BlitSurface honours the source surface's color key whenever
+		// SDL_SetColorKey was set with SDL_TRUE. The DirectX blitter treats
+		// the color key as opt-in per blit, so we mirror that here: enable
+		// the color key for CHROMAKEY blits and disable it for plain COPY.
+		const bool useChromaKey = (flags & k_AUI_BLITTER_FLAG_CHROMAKEY) != 0;
+		SDL_SetColorKey(sdlSrc->DDS(),
+		                useChromaKey ? SDL_TRUE : SDL_FALSE,
+		                sdlSrc->GetChromaKey());
+
 		SDL_Rect ssrc = { srcRect->left, srcRect->top,
 		                  srcRect->right - srcRect->left,
 		                  srcRect->bottom - srcRect->top };
@@ -87,14 +96,12 @@ AUI_ERRCODE aui_SDLBlitter::Blt16To16(
         SDL_Rect ssrc = { srcRect->left, srcRect->top, srcRect->right-srcRect->left, srcRect->bottom-srcRect->top };
         SDL_Rect sdst = { destRect->left, destRect->top, 0, 0 };
 
-/*        if ( flags & k_AUI_BLITTER_FLAG_CHROMAKEY ) { //is k_AUI_BLITTER_FLAG_CHROMAKEY in flags?
-            //ChromaKey and SDL_SRCCOLORKEY  should be set with aui_SDLSurface::SetChromaKey on
-            //the SDL-surface already but if SDL_SRCCOLORKEY is missing we set it here:
-            if (SDL_SetColorKey(sdlSrc->DDS(), SDL_SRCCOLORKEY, sdlSrc->GetChromaKey())) //sdlSrc->DDS()->format->colorkey))
-                printf("%s L%d: SDL_SRCCOLORKEY setting failed! key %#X\n", __FILE__, __LINE__, sdlSrc->DDS()->format->colorkey);
-            //else printf("%s L%d: SDL_SRCCOLORKEY setting succeded!\n", __FILE__, __LINE__);
-            }
-*/  //there seems no need for all this
+        // Mirror DirectX semantics: the color key is opt-in per blit.
+        const bool useChromaKey = (flags & k_AUI_BLITTER_FLAG_CHROMAKEY) != 0;
+        SDL_SetColorKey(sdlSrc->DDS(),
+                        useChromaKey ? SDL_TRUE : SDL_FALSE,
+                        sdlSrc->GetChromaKey());
+
         if (SDL_BlitSurface(sdlSrc->DDS(), &ssrc, sdlDest->DDS(), &sdst) < 0) {
                 fprintf(stderr, "%s L%d: Blit failed: %s\n", __FILE__, __LINE__, SDL_GetError());
                 retcode = AUI_ERRCODE_BLTFAILED;

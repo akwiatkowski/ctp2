@@ -5341,21 +5341,25 @@ void Player::DumpAllies(void)
 
 	DPRINTF(k_DBG_INFO, ("Dumping alliances for Player #%d", m_owner)) ;
 	s[0] = 0;
+	int pos = 0;
 	for(sint32 i=0; i<k_MAX_PLAYERS; i++)
 	{
 		if ((mask_alliance & (0x01<<i)) && (i != m_owner))
-			sprintf(s, "%s P%d, ", s, i) ;
-
+		{
+			int n = snprintf(s + pos, sizeof(s) - pos, " P%d,", i);
+			if (n > 0) pos += n;
+		}
 	}
 
-	if (strlen(s))
+	if (pos > 0)
 	{
-		s[strlen(s)-2] = 0 ;
+		if (pos >= 2)
+			s[pos - 2] = 0 ;
 		DPRINTF(k_DBG_INFO, ("%s", s)) ;
 	}
 	else
 	{
-		DPRINTF(k_DBG_INFO, ("No alliances formed")) ;
+		DPRINTF(k_DBG_INFO, ("No alliances.")) ;
 	}
 }
 

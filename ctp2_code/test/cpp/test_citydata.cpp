@@ -17,6 +17,9 @@
 #include "ResourceRecord.h"
 #include "ConstRecord.h"
 #include "BuildingRecord.h"
+#include "gs/utility/Globals.h"
+#include "gs/database/profileDB.h"
+#include "gs/utility/safety.h"
 
 // Minimal fixture: CityData constructor dereferences g_theWorld, g_player,
 // g_theCitySizeDB and g_theResourceDB. We provide bare-bones stubs so the
@@ -226,4 +229,258 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
     CHECK(city.GetScience() == 0);
     CHECK(city.GetTradeCrime() == 0);
     CHECK(city.GetProdCrime() == 0);
+}
+
+//----------------------------------------------------------------------------
+// Heavy fixture: loads all real game databases from ctp2_data/.
+// Databases are loaded once (static) and reused across tests for speed.
+// Each test gets a fresh World; Player array remains null (defensive null
+// checks in production code handle this gracefully).
+//----------------------------------------------------------------------------
+
+#include "ctp/civapp.h"
+#include "gs/fileio/CivPaths.h"
+#include "gs/utility/gameinit.h"
+
+struct HeavyCityDataFixture
+{
+    static bool s_dbsLoaded;
+    static CivApp *s_app;
+
+    World *world = nullptr;
+
+    HeavyCityDataFixture()
+    {
+        if (!s_dbsLoaded)
+        {
+            g_headlessMode = true;
+
+            fprintf(stderr, "[HeavyFixture] Loading databases...\n");
+            CivPaths_InitCivPaths();
+
+            if (!gameinit_InitializeGameFiles())
+            {
+                fprintf(stderr, "[HeavyFixture] WARNING: gameinit_InitializeGameFiles failed\n");
+            }
+
+            g_theProfileDB = new ProfileDB();
+            g_theProfileDB->Init(FALSE);
+
+            s_app = new CivApp();
+            if (!s_app->InitializeAppDB())
+            {
+                fprintf(stderr, "[HeavyFixture] WARNING: InitializeAppDB failed\n");
+            }
+
+            fprintf(stderr, "[HeavyFixture] Databases loaded.\n");
+            s_dbsLoaded = true;
+        }
+
+        world = new World(MapPoint(64, 48), false, false);
+        g_theWorld = world;
+
+        g_player = new Player *[k_MAX_PLAYERS];
+        for (int i = 0; i < k_MAX_PLAYERS; ++i)
+        {
+            g_player[i] = nullptr;
+        }
+    }
+
+    ~HeavyCityDataFixture()
+    {
+        g_theWorld = nullptr;
+        delete world;
+
+        delete[] g_player;
+        g_player = nullptr;
+    }
+};
+
+bool HeavyCityDataFixture::s_dbsLoaded = false;
+CivApp *HeavyCityDataFixture::s_app = nullptr;
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real ConstDB")
+{
+    REQUIRE(g_theConstDB != nullptr);
+    CHECK(g_theConstDB->NumRecords() > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real BuildingDB")
+{
+    REQUIRE(g_theBuildingDB != nullptr);
+    CHECK(g_theBuildingDB->NumRecords() > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real CitySizeDB")
+{
+    REQUIRE(g_theCitySizeDB != nullptr);
+    CHECK(g_theCitySizeDB->NumRecords() > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "Heavy fixture loads real ResourceDB")
+{
+    REQUIRE(g_theResourceDB != nullptr);
+    CHECK(g_theResourceDB->NumRecords() > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData with real DBs gets real starvation protection")
+{
+    CityData city(0, Unit(), MapPoint(5, 5));
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    CHECK(city.GetStarvationTurns() == rec->GetBaseStarvationProtection());
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData with real DBs has non-zero city size records")
+{
+    CityData city(0, Unit(), MapPoint(3, 3));
+
+    CHECK(g_theCitySizeDB->NumRecords() > 0);
+    const CitySizeRecord *rec = g_theCitySizeDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    // CityData constructor allocates ring arrays sized by NumRecords()
+    // and sets m_sizeIndex = 0. Verify the first record exists.
+    CHECK(rec->GetPopulation() >= 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData is not a capitol with empty improvements even with real DB")
+{
+    CityData city(0, Unit(), MapPoint(7, 7));
+
+    CHECK(city.IsCapitol() == false);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData with real DBs has real starvation protection value")
+{
+    CityData city(0, Unit(), MapPoint(5, 5));
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    // BaseStarvationProtection from default ConstDB is typically > 0
+    CHECK(rec->GetBaseStarvationProtection() > 0);
+    CHECK(city.GetStarvationTurns() == rec->GetBaseStarvationProtection());
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData capitol detection works with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(8, 8));
+
+    // Find the building that designates a capitol
+    sint32 capitolIndex = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        if (g_theBuildingDB->Get(i)->GetCapitol())
+        {
+            capitolIndex = i;
+            break;
+        }
+    }
+
+    REQUIRE(capitolIndex >= 0);
+
+    // Without the building, city is not a capitol
+    CHECK(city.IsCapitol() == false);
+
+    // Set the capitol bit
+    city.SetImprovements(safe_shift_left_u64(capitolIndex));
+    CHECK(city.IsCapitol() == true);
+
+    // Clear it again
+    city.SetImprovements(0);
+    CHECK(city.IsCapitol() == false);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData city walls detection works with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(9, 9));
+
+    // Find the building that provides city walls
+    sint32 wallsIndex = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        if (g_theBuildingDB->Get(i)->GetCityWalls())
+        {
+            wallsIndex = i;
+            break;
+        }
+    }
+
+    REQUIRE(wallsIndex >= 0);
+
+    CHECK(city.HasCityWalls() == false);
+
+    city.SetImprovements(safe_shift_left_u64(wallsIndex));
+    CHECK(city.HasCityWalls() == true);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData airport detection works with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(10, 10));
+
+    sint32 airportIndex = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        if (g_theBuildingDB->Get(i)->GetAirport())
+        {
+            airportIndex = i;
+            break;
+        }
+    }
+
+    REQUIRE(airportIndex >= 0);
+
+    CHECK(city.HasAirport() == false);
+
+    city.SetImprovements(safe_shift_left_u64(airportIndex));
+    CHECK(city.HasAirport() == true);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData safe from nukes detection works with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(11, 11));
+
+    sint32 shelterIndex = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        if (g_theBuildingDB->Get(i)->GetProtectFromNukes())
+        {
+            shelterIndex = i;
+            break;
+        }
+    }
+
+    REQUIRE(shelterIndex >= 0);
+
+    CHECK(city.SafeFromNukes() == false);
+
+    city.SetImprovements(safe_shift_left_u64(shelterIndex));
+    CHECK(city.SafeFromNukes() == true);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData first CitySizeDB record has valid population")
+{
+    CityData city(0, Unit(), MapPoint(12, 12));
+
+    const CitySizeRecord *rec = g_theCitySizeDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    // First city size tier should have a non-negative population threshold
+    CHECK(rec->GetPopulation() >= 0);
+    // Growth rate should be positive
+    CHECK(rec->GetGrowthRate() > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData ConstDB has positive border radius")
+{
+    CityData city(0, Unit(), MapPoint(13, 13));
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    CHECK(rec->GetBorderIntRadius() > 0);
+    CHECK(rec->GetBorderSquaredRadius() > 0);
 }

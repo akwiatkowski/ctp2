@@ -543,7 +543,8 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	g_theWorld->SetCapitolDistanceDirtyFlags(1 << owner);
 
 	// Set the style of the founder of the city - if any.
-	if (g_player[owner] && g_player[owner]->GetCivilisation())
+	if (g_player[owner] && g_player[owner]->GetCivilisation()
+	&&  g_player[owner]->GetCivilisation()->GetData())
 	{
 		m_cityStyle = g_player[owner]->GetCivilisation()->GetCityStyle();
 	} //for citystyle

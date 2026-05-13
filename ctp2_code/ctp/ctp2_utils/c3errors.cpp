@@ -132,11 +132,12 @@ void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 }
 
 extern BOOL g_smokeTest;
+extern bool g_headlessMode;
 
 void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 {
-	// In smoke test mode, skip modal dialogs and just log the error
-	if (g_smokeTest) {
+	// In smoke test or headless mode, skip modal dialogs and just log the error
+	if (g_smokeTest || g_headlessMode) {
 		va_list list;
 		va_start(list, fmt);
 		char buf[1024];

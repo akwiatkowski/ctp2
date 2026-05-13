@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gühmann)
+// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -187,7 +187,7 @@ public:
 
 
 	void SetCurPlayer (PLAYER_INDEX p);
-	PLAYER_INDEX GetCurPlayer() const { return m_current_player; };
+	PLAYER_INDEX GetCurPlayer() const;
 	void RemovePlayer(PLAYER_INDEX p);
 	void AddPlayer(PLAYER_INDEX p) ;
 	sint32 GetVisiblePlayer() const;

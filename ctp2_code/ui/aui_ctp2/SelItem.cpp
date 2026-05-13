@@ -29,15 +29,15 @@
 //   correct stop player is set.
 // - #01 Standardization of city selection and focus handling
 //   (L. Hirth 6/2004)
-// - Entrenching units are treated like Entrenched units. (Oct 16th 2005 Martin Gühmann)
-// - Added select city instead of army option. (Oct 16th 2005 Martin Gühmann)
+// - Entrenching units are treated like Entrenched units. (Oct 16th 2005 Martin Gï¿½hmann)
+// - Added select city instead of army option. (Oct 16th 2005 Martin Gï¿½hmann)
 // - Added option to avoid an end turn if there are cities with empty build
-//   queues. (Oct. 22nd 2005 Martin Gühmann) Doesn't really work.
+//   queues. (Oct. 22nd 2005 Martin Gï¿½hmann) Doesn't really work.
 // - Added option to allow end turn if the game runs in the background,
-//   useful for automatic AI testing. (Oct. 22nd 2005 Martin Gühmann)
-// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gühmann)
+//   useful for automatic AI testing. (Oct. 22nd 2005 Martin Gï¿½hmann)
+// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gï¿½hmann)
 // - If the keyboard is used for moving the map is only centered if the auto
-//   center option is active. (23-Feb-2008 Martin Gühmann)
+//   center option is active. (23-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -242,7 +242,7 @@ SelectedItem::SelectedItem(CivArchive &archive)
 
 	SetPlayerOnScreen(m_current_player);
 
-	//Added by Martin Gühmann
+	//Added by Martin Gï¿½hmann
 	//To make sure that save games saved with other players than
 	//player one can be continued without using the cheat editor.
 	NewTurnCount::SetStopPlayer(m_current_player);
@@ -848,6 +848,11 @@ void SelectedItem::SetCurPlayer(PLAYER_INDEX p)
 	{
 		// Do nothing for whatever reason
 	}
+}
+
+PLAYER_INDEX SelectedItem::GetCurPlayer() const
+{
+	return m_current_player;
 }
 
 void SelectedItem::NextRound()

@@ -20,6 +20,8 @@
 #include "gs/utility/Globals.h"
 #include "gs/database/profileDB.h"
 #include "gs/utility/safety.h"
+#include "gs/gameobj/GameSettings.h"
+#include "gs/gameobj/CivilisationPool.h"
 
 // Minimal fixture: CityData constructor dereferences g_theWorld, g_player,
 // g_theCitySizeDB and g_theResourceDB. We provide bare-bones stubs so the
@@ -241,6 +243,13 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 #include "ctp/civapp.h"
 #include "gs/fileio/CivPaths.h"
 #include "gs/utility/gameinit.h"
+#include "ui/aui_ctp2/SelItem.h"
+#include "gs/slic/SlicEngine.h"
+#include "gs/utility/RandGen.h"
+#include "gs/utility/TurnCnt.h"
+
+extern CivApp *g_civApp;
+extern TurnCount *g_turn;
 
 struct HeavyCityDataFixture
 {
@@ -248,6 +257,7 @@ struct HeavyCityDataFixture
     static CivApp *s_app;
 
     World *world = nullptr;
+    Player *player = nullptr;
 
     HeavyCityDataFixture()
     {
@@ -265,6 +275,9 @@ struct HeavyCityDataFixture
 
             g_theProfileDB = new ProfileDB();
             g_theProfileDB->Init(FALSE);
+
+            g_theGameSettings = new GameSettings();
+            g_theCivilisationPool = new CivilisationPool();
 
             s_app = new CivApp();
             if (!s_app->InitializeAppDB())
@@ -284,15 +297,34 @@ struct HeavyCityDataFixture
         {
             g_player[i] = nullptr;
         }
+
+        // g_civApp may have been nulled by a previous test's fixture destructor.
+        // Always restore it since s_app is a process-wide singleton.
+        g_civApp = s_app;
+
+        // SelectedItem and SlicEngine must exist before Player construction.
+        // Player::InitPlayer calls Advances::InitialAdvance which calls
+        // g_slicEngine->CallMod, and other sub-objects may query g_selected_item.
+        g_selected_item = new SelectedItem(1);
+        g_slicEngine = new SlicEngine();
+        g_rand = new RandomGenerator(12345);
+        g_turn = new TurnCount();
+
+        player = new Player(0, 0, PLAYER_TYPE_HUMAN);
     }
 
     ~HeavyCityDataFixture()
     {
+        // Intentionally leak player, world, g_player array, selected_item,
+        // and slic_engine. Their destructors access globals in ways not set
+        // up in the test harness.
         g_theWorld = nullptr;
-        delete world;
-
-        delete[] g_player;
         g_player = nullptr;
+        g_selected_item = nullptr;
+        g_slicEngine = nullptr;
+        g_civApp = nullptr;
+        g_rand = nullptr;
+        g_turn = nullptr;
     }
 };
 
@@ -602,4 +634,78 @@ TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData sea attack bonus with real Bui
 
     city.SetImprovements(safe_shift_left_u64(buildingIdx));
     CHECK(city.GetCitySeaAttackBonus() > 0.0);
+}
+
+//----------------------------------------------------------------------------
+// Economy tests: real Player provides rations, real DBs provide thresholds.
+//----------------------------------------------------------------------------
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData food required per citizen with real Player")
+{
+    CityData city(0, Unit(), MapPoint(19, 19));
+
+    double rations = city.GetFoodRequiredPerCitizen();
+
+    // Player::InitPlayer calls SetRationsLevel with default expectation,
+    // which uses ConstDB values. Rations should be positive.
+    CHECK(rations > 0.0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData food required is zero for empty city")
+{
+    CityData city(0, Unit(), MapPoint(20, 20));
+
+    // New city has PopCount() == 0, SlaveCount() == 0
+    CHECK(city.GetFoodRequired() == 0.0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData max pop from real CitySizeDB is positive")
+{
+    CityData city(0, Unit(), MapPoint(21, 21));
+
+    sint32 maxPop = city.GetMaxPop();
+
+    // First city size tier should have a positive base max pop
+    CHECK(maxPop > 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData growth rate calculates without crash")
+{
+    CityData city(0, Unit(), MapPoint(22, 22));
+
+    // With zero food delta and default population, this should not crash
+    city.CalculateGrowthRate();
+
+    // Growth rate should be set to some finite value
+    sint32 rate = city.GetGrowthRate();
+    CHECK(rate == 0);  // No food, no growth
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData net and gross food start at zero")
+{
+    CityData city(0, Unit(), MapPoint(23, 23));
+
+    CHECK(city.GetNetCityFood() == 0);
+    CHECK(city.GetGrossCityFood() == 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData gold and production start at zero")
+{
+    CityData city(0, Unit(), MapPoint(24, 24));
+
+    CHECK(city.GetNetCityGold() == 0);
+    CHECK(city.GetGrossCityGold() == 0);
+    CHECK(city.GetNetCityProduction() == 0);
+    CHECK(city.GetGrossCityProduction() == 0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData ConstDB base rations is positive")
+{
+    CityData city(0, Unit(), MapPoint(25, 25));
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    // Base rations should be a positive value (food each citizen needs)
+    CHECK(rec->GetBaseRations() > 0.0);
 }

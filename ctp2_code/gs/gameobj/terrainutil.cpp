@@ -34,12 +34,12 @@
 // - Added a check in terrainutil_CanPlayerBuildAt for the IsRestrictedToGood
 //   flag so a tile improvement can only be built on a tile with a
 //   certain good on it - (E 2005/03/12)
-// - Removed .NET warnings - May 7th 2005 Martin Gühmann
+// - Removed .NET warnings - May 7th 2005 Martin Gï¿½hmann
 // - terrainutil_CanPlayerSpecialBuildAt added by E 4-1-2006
 // - Added outcommented terrainutil_HasUpgrader, terrainutil_CanBeCaptured,
 //   terrainutil_HasColony by E (4-25-2006) fo future use
 // - implemented above and added HasMinefield by E 5-30-2006
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 // - Added CanBuildAlly and CanBuildWasteland checks
 // - Added outcommented infrastructure flags
 // - Added IsWonder Check to specialbuildat
@@ -47,9 +47,9 @@
 // - Added HasWonder method
 // - FINALLY got contiguous irrigation to work 4.12.2007
 // - City Radius tileimps
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Added terrainutil_GetMinimumProductionCost to retrieve the minimum
-//   costs of a tile improvement. (17-Jan-2008 Martin Gühmann)
+//   costs of a tile improvement. (17-Jan-2008 Martin Gï¿½hmann)
 // - Fixed GetNeedsIrrigation in terrainutil_CanPlayerBuildAt. CityInfluenceIterator
 //	 was not finding irrigation squares next to a city with irrigation from a tile imp.
 //	 (10-Mar-2009 Maq)
@@ -414,7 +414,7 @@ void terrainutil_DoVision(const MapPoint &point)
 	}
 
 	sint32  cellOwner           = cell->GetOwner();
-	if (cellOwner >= 0)
+	if (cellOwner >= 0 && cellOwner < k_MAX_PLAYERS && g_player[cellOwner])
 	{
 		g_player[cellOwner]->AddUnitVision(point, maxVisionRange);
 	}

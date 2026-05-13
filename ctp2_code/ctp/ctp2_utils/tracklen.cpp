@@ -120,7 +120,7 @@ static int tracklen_GetTrackLengthsViaHandle( DWORD *trackLenBuf, unsigned int w
 	MCI_SET_PARMS mp;
 	long totalLen_ms;
 #else
-	uint64 totalLen_ms;
+	uint64 totalLen_ms = 0;
 #endif
 	DWORD i;
 	int iRet;
@@ -377,7 +377,9 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 	{
 #if defined(WIN32)
 		GetModuleFileName( NULL, szTemp, MAX_PATH );
-		*(char*)_mbsrchr( (BYTE*)szTemp, '\\' ) = 0;
+		char *pos = (char*)_mbsrchr( (BYTE*)szTemp, '\\' );
+		if (pos)
+			*pos = 0;
 		strcat( szTemp, "\\" );
 		strcat( szTemp, szFile );
 #elif defined(HAVE_UNISTD_H) && defined(LINUX)

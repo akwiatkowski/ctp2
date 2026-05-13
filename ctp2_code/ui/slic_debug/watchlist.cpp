@@ -264,7 +264,7 @@ sint32 WatchList::UpdateData(void)
 
 void WatchList::AddExpression(char *exp)
 {
-	AUI_ERRCODE retval;
+	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 	WatchListItem *item = new WatchListItem(&retval, 0, exp, "WatchListItem");
 	m_list->AddItem(item);
 }

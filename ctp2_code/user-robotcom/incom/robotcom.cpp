@@ -20,6 +20,8 @@
 STDAPI CoCreateInstanceRobotCom(IUnknown *&obj)
 {
     obj = new IC3RobotCom();
+	if (!obj)
+		return E_OUTOFMEMORY;
 	obj->AddRef();
 
 	return S_OK;

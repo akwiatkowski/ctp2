@@ -495,6 +495,8 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 	Pixel16     *table = data+1;
 	Pixel16     *dataStart = table + height * 2;
 	Pixel16     *outBuf = (Pixel16 *)malloc(width * height * 8);
+	if (!outBuf)
+		return;
 	Pixel16     *destPixel = outBuf;
 
 	for(sint32 j=0; j<height; j++) {

@@ -566,7 +566,7 @@ AUI_ERRCODE ScenarioEditor::Display()
 	    }
 	}
 
-	if(!g_attractWindow) {
+	if(g_attractWindow) {
 		g_attractWindow->Initialize();
 	}
 

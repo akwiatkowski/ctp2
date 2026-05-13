@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ sint32 SegmentList::UpdateData(void)
 	SlicSegmentHash *hash = g_slicEngine->GetSegmentHash();
 	    for (sint32 i = 0; i < hash->m_numSegments; ++i)
         {
-            AUI_ERRCODE         retval;
+            AUI_ERRCODE         retval = AUI_ERRCODE_OK;
 		    SegmentListItem *   item    =
                 new SegmentListItem(&retval, i, hash->m_segments[i], ldlBlock);
 		m_list->AddItem((c3_ListItem *)item);

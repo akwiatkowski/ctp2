@@ -318,7 +318,7 @@ sint32 SourceList::UpdateData(void)
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 
-	AUI_ERRCODE retval;
+	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
 	strcpy(ldlBlock, "SourceListItem");
 

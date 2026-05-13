@@ -6402,10 +6402,10 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 								tradeOffers->Get(j).GetAskingResource());
 						break;
 				}
-				strcat(buf, buf2);
-				sprintf(buf2, " to city %d", (int)tradeOffers->Get(j).GetToCity());
-
-				strcat(buf, buf2);
+					size_t bufLen = strlen(buf);
+				bufLen += snprintf(buf + bufLen, sizeof(buf) - bufLen, "%s", buf2);
+				snprintf(buf2, sizeof(buf2), " to city %d", (int)tradeOffers->Get(j).GetToCity());
+				bufLen += snprintf(buf + bufLen, sizeof(buf) - bufLen, "%s", buf2);
 				primitives_DrawText(surf, k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 									(MBCHAR *)buf, 0, 0);
 				l++;

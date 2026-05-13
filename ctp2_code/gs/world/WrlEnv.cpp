@@ -565,7 +565,7 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 	for(d = (sint32)NORTH; d < (sint32)NOWHERE; d++) {
 		if(pnt.GetNeighborPosition((WORLD_DIRECTION)d, neighbor)) {
 			if(!array[neighbor.y * m_size.x + neighbor.x]) {
-				Cell* neighborCell = m_map[neighbor.x][neighbor.y];
+				Cell* neighborCell = GetCell(neighbor);
 				if((neighborCell->GetOwner() == (sint8)owner) ||
 				   (neighborCell->GetCity().m_id != (0))) {
 					if(IsConnectedToCity(neighbor, owner, array)) {

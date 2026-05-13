@@ -260,7 +260,5 @@ slicdbg.txt
 ubsan-suppressions.txt
 usercritmsgs.txt
 userprofile.txt
-"logs\\messages.txt"
-"logs\\oldseed.txt"
 # macOS temp files
 .!*

@@ -153,9 +153,9 @@ void SoundManager::InitSoundDriver()
 #if defined(USE_SDL)
 	int     use_digital     = 1;
 	int     use_MIDI        = 0;
-	int     output_rate     = 22050;	// 22khz @ 16 Bit stereo
+	int     output_rate     = 22050;	// 22khz @ 16 Bit mono
 	Uint16  output_format   = AUDIO_S16SYS;
-	int     output_channels = 2;
+	int     output_channels = 1;		// WAV files are mono; Mix_QuickLoad_WAV does not convert
 	int     errcode         = SDL_Init(SDL_INIT_AUDIO | m_SDLInitFlags);
 
     if (errcode < 0)

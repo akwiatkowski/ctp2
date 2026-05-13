@@ -85,7 +85,7 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
 #else
     // Use Mix_QuickLoad_WAV to avoid SDL2_mixer 2.8.x double-free bug in
     // Mix_LoadWAV_RW. The WAV files are already in the mixer format
-    // (22050 Hz, 16-bit stereo) so no conversion is needed.
+    // (22050 Hz, 16-bit mono) so no conversion is needed.
     // Mix_QuickLoad_WAV sets chunk->allocated=0, so Mix_FreeChunk only
     // frees the Mix_Chunk struct, not the audio buffer. The audio buffer
     // is managed by ProjectFile (freed via freeData in the destructor).

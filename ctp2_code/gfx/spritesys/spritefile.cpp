@@ -961,22 +961,23 @@ void SpriteFile::ReadAnimDataFull(Anim *a)
 		a->SetPlaybackTime(0);
 	}
 
-	uint16 *    u = a->GetFrames();
-	if (u == NULL)
-		u = new uint16[numFrames];
+	// Always (re)allocate buffers sized for the just-read numFrames.
+	// Why: the Anim may have been partially populated by an earlier
+	// ReadAnimDataBasic call whose numFrames differed from this one's.
+	// Reusing the old buffer caused a heap-buffer-overflow in fread.
+	delete [] a->GetFrames();
+	uint16 *    u = new uint16[numFrames];
 	ReadData((void *)u, sizeof(uint16) * numFrames);
 	a->SetFrames(u);
 
-	POINT *     p = a->GetDeltas();
-	if (p == NULL)
-		p = new POINT[a->GetNumFrames()];
-	ReadData((void *)p, sizeof(POINT) * a->GetNumFrames());
+	delete [] a->GetDeltas();
+	POINT *     p = new POINT[numFrames];
+	ReadData((void *)p, sizeof(POINT) * numFrames);
 	a->SetDeltas(p);
 
-	u = a->GetTransparencies();
-	if (u == NULL)
-		u = new uint16[a->GetNumFrames()];
-	ReadData((void *)u, sizeof(uint16) * a->GetNumFrames());
+	delete [] a->GetTransparencies();
+	u = new uint16[numFrames];
+	ReadData((void *)u, sizeof(uint16) * numFrames);
 	a->SetTransparencies(u);
 }
 

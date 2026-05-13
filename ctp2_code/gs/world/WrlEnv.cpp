@@ -27,7 +27,7 @@
 //
 // - Prevented memory leak report (not an actual leak).
 // - Added second World::GetGood method, usefull if you already have a Cell
-//   pointer. - May 18th 2005 Martin Gühmann
+//   pointer. - May 18th 2005 Martin Gï¿½hmann
 // - Prevented crash with multiple instances of an improvement that is deleted.
 //
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ bool World::IsLand(const sint32 x, const sint32 y) const
 	Assert (m_isYwrap ? (-k_MAP_WRAPAROUND < y) : 0 <= y);
 	Assert (m_isYwrap ? (y < (m_size.y + k_MAP_WRAPAROUND)) : y < m_size.y);
 
-	return EnvIsLand(m_map[x][y]->m_env);
+	return EnvIsLand(GetCell(x, y)->m_env);
 }
 
 bool World::EnvIsSpace(const uint32 env) const

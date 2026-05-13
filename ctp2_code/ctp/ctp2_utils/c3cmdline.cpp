@@ -2503,8 +2503,13 @@ void SlicCommand::Execute(sint32 argc, char **argv)
 	sint32 i;
 	buf[0] = 0;
 	for(i = 1; i < argc; i++) {
-		strcat(buf, argv[i]);
-		strcat(buf, " ");
+		size_t curLen = strlen(buf);
+		size_t argLen = strlen(argv[i]);
+		if(curLen + argLen + 2 >= sizeof(buf))
+			break;
+		memcpy(buf + curLen, argv[i], argLen);
+		buf[curLen + argLen] = ' ';
+		buf[curLen + argLen + 1] = '\0';
 	}
 
 	char outputBuf[1024];

@@ -462,7 +462,6 @@ BOOL Continents::GetContinent(AiMain *ai, MapPointData &pos, sint32 &cont, BOOL 
     } else {
 
         cont = ai->m_world->GetContinent(pos);
-#ifdef _DEBUG
         if (cont < 0) {
             INSANE(CONTINENT_NUMBER_INVALID);
             return FALSE;
@@ -478,7 +477,6 @@ BOOL Continents::GetContinent(AiMain *ai, MapPointData &pos, sint32 &cont, BOOL 
             cont = ai->m_world->GetContinent(pos);
             return FALSE;
         }
-#endif
 
         if (m_min_land_cont <= cont) {
             cont -= m_min_land_cont;

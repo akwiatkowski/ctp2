@@ -312,11 +312,14 @@ BOOL aui_TextField::SetFieldText( const MBCHAR *text )
 
 	return success;
 #else
+	if (!m_Text) return FALSE;
 	strncpy(m_Text, text, m_maxFieldLen);
-        //printf("%s L%d: aui_textfield text assigned: %s!\n", __FILE__, __LINE__, m_Text);
+	// strncpy does not null-terminate when src length >= n; re-assert the
+	// sentinel byte at m_maxFieldLen in case it was clobbered by a prior bug.
+	m_Text[m_maxFieldLen] = '\0';
 
 	// select nothing, move insertion point to end
-	m_selStart = m_selEnd = strlen(m_Text);
+	m_selStart = m_selEnd = (sint32) strlen(m_Text);
 
 	if ( GetKeyboardFocus() == this ) g_winFocus = this;
 
@@ -370,12 +373,28 @@ sint32 aui_TextField::SetMaxFieldLen( sint32 maxFieldLen )
 {
 	sint32 prevMaxFieldLen = m_maxFieldLen;
 
+	if (maxFieldLen <= 0 || maxFieldLen == prevMaxFieldLen)
+		return prevMaxFieldLen;
+
 	m_maxFieldLen = maxFieldLen;
 
-#if 0 // not doing anything
-	if (m_maxFieldLen != prevMaxFieldLen)
+#ifndef __AUI_USE_DIRECTX__
+	// Reallocate the SDL-managed buffer so a later SetFieldText cannot
+	// overflow the heap. Preserve as much of the existing content as fits,
+	// then clamp the selection to the new length.
+	if (m_Text)
 	{
+		MBCHAR *newText = new MBCHAR[m_maxFieldLen + 1];
+		newText[m_maxFieldLen] = '\0';
+		strncpy(newText, m_Text, m_maxFieldLen);
+		delete[] m_Text;
+		m_Text = newText;
 
+		sint32 newLen = (sint32) strlen(m_Text);
+		if (m_selStart < 0)      m_selStart = 0;
+		if (m_selStart > newLen) m_selStart = newLen;
+		if (m_selEnd   < 0)      m_selEnd   = 0;
+		if (m_selEnd   > newLen) m_selEnd   = newLen;
 	}
 #endif
 
@@ -530,10 +549,18 @@ AUI_ERRCODE aui_TextField::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	m_Font->DrawString(surface, &rect, &rect, m_Text,
 	                   k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT,
 	                   RGB(20,20,20), 0);
-	char save = m_Text[m_selStart];
-	m_Text[m_selStart] = '\0';
+	// Clamp the cursor index against the actual text length before indexing.
+	// m_selStart can be left out-of-range by SetSelection callers or by
+	// stale state across resize/text changes; reading past the buffer here
+	// caused a heap-buffer-overflow in aui_textfield.cpp:533.
+	sint32 textLen = (sint32) strlen(m_Text);
+	sint32 selPos  = m_selStart < 0      ? 0
+	               : m_selStart > textLen ? textLen
+	               : m_selStart;
+	char save = m_Text[selPos];
+	m_Text[selPos] = '\0';
 	int offset = m_Font->GetStringWidth(m_Text);
-	m_Text[m_selStart] = save;
+	m_Text[selPos] = save;
 	SDL_Rect r2 = { rect.left+offset-1, rect.top+2, 2, rect.bottom-rect.top-4 };
 	SDL_FillRect(SDLsurf, &r2, 0);
 #endif
@@ -601,8 +628,15 @@ void aui_TextField::SetSelection(sint32 start, sint32 end)
 	SendMessage( m_hwnd, EM_SETSEL, (WPARAM)start, (LPARAM)end);
 	UpdateWindow( m_hwnd );
 #else
+	// Clamp the selection range to [0, strlen(m_Text)] so DrawThis cannot
+	// index past the buffer.
+	sint32 textLen = m_Text ? (sint32) strlen(m_Text) : 0;
+	if (start < 0)       start = 0;
+	if (end   < 0)       end   = 0;
+	if (start > textLen) start = textLen;
+	if (end   > textLen) end   = textLen;
 	m_selStart = start;
-	m_selEnd = end;
+	m_selEnd   = end;
 #endif
 }
 

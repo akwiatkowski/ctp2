@@ -1172,10 +1172,26 @@ cpp_test_sources = [
   'test/smoketest_server.cpp',
 ]
 
-executable('ctp2_unit_tests', cpp_test_sources + game_core_sources,
+unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sources,
   include_directories : [ incdir, doctest_incdir ],
   dependencies : [ cdb_header, anet, freetype, main_dependencies ],
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
   link_args : [ '-lltdl', use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+)
+
+# meson.build lives in ctp2_code/, but data files (appstr.txt, etc.) are in the parent dir
+cwd_for_tests = join_paths(meson.project_source_root(), '..')
+
+test('unit', unit_test_exe, timeout : 60, workdir : cwd_for_tests)
+
+# e2e smoke test: launches the real game binary and drives it via Unix socket
+find_program('python3', required : true)
+test('smoke',
+  find_program('test/smoke_test.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 120,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
 )

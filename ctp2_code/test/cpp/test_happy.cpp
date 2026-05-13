@@ -1,0 +1,138 @@
+// test/cpp/test_happy.cpp
+// Tests for Happy (city happiness tracker).
+
+#include "doctest.h"
+#include "ctp/c3.h"
+#include "gs/gameobj/Happy.h"
+#include "gs/gameobj/CityData.h"
+#include "gs/utility/Globals.h"
+#include "gs/fileio/CivPaths.h"
+#include "gs/utility/gameinit.h"
+#include "gs/database/profileDB.h"
+#include "ctp/civapp.h"
+#include "ConstRecord.h"
+
+struct HappyFixture
+{
+    static bool s_dbsLoaded;
+    static CivApp *s_app;
+
+    HappyFixture()
+    {
+        if (!s_dbsLoaded)
+        {
+            g_headlessMode = true;
+
+            fprintf(stderr, "[HappyFixture] Loading databases...\n");
+            CivPaths_InitCivPaths();
+            gameinit_InitializeGameFiles();
+
+            g_theProfileDB = new ProfileDB();
+            g_theProfileDB->Init(FALSE);
+
+            s_app = new CivApp();
+            s_app->InitializeAppDB();
+
+            fprintf(stderr, "[HappyFixture] Databases loaded.\n");
+            s_dbsLoaded = true;
+        }
+    }
+
+    ~HappyFixture()
+    {
+    }
+};
+
+bool HappyFixture::s_dbsLoaded = false;
+CivApp *HappyFixture::s_app = nullptr;
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy default values are zero")
+{
+    Happy h;
+
+    CHECK(h.GetHappiness() == 0.0);
+    CHECK(h.GetBase() == 0.0);
+    CHECK(h.GetSize() == 0.0);
+    CHECK(h.GetPollution() == 0.0);
+    CHECK(h.GetConquestDistress() == 0.0);
+    CHECK(h.GetEmpireDist() == 0.0);
+    CHECK(h.GetEnemyAction() == 0.0);
+    CHECK(h.GetPeace() == 0.0);
+    CHECK(h.GetWorkday() == 0.0);
+    CHECK(h.GetWages() == 0.0);
+    CHECK(h.GetRations() == 0.0);
+    CHECK(h.GetMartialLaw() == 0.0);
+    CHECK(h.GetPopEntertainment() == 0.0);
+    CHECK(h.GetImprovement() == 0.0);
+    CHECK(h.GetWonders() == 0.0);
+    CHECK(h.GetCrime() == 0.0);
+    CHECK(h.GetTooManyCities() == 0.0);
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy tracker is allocated")
+{
+    Happy h;
+
+    CHECK(h.GetHappyTracker() != nullptr);
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy timer add and remove")
+{
+    Happy h;
+
+    h.AddTimer(5, 1.0, HAPPY_REASON_CITY_SIZE);
+    h.AddTimer(3, 2.0, HAPPY_REASON_POLLUTION);
+    h.AddTimer(7, -1.0, HAPPY_REASON_CITY_SIZE);
+
+    // Remove all CITY_SIZE timers
+    h.RemoveTimerReason(HAPPY_REASON_CITY_SIZE);
+
+    // Clear remaining
+    h.ClearTimedChanges();
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy cost to capitol can be set")
+{
+    Happy h;
+
+    CHECK(h.GetCostToCapitol() == 0);
+    h.SetCostToCapitol(42);
+    CHECK(h.GetCostToCapitol() == 42);
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy IsVeryHappy uses real ConstDB threshold")
+{
+    Happy h;
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    double threshold = rec->GetVeryHappyThreshold();
+
+    // Default happiness is 0, which is below threshold
+    CHECK(h.IsVeryHappy() == (0.0 >= threshold));
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy ShouldRevolt uses real ConstDB revolution level")
+{
+    Happy h;
+
+    const ConstRecord *rec = g_theConstDB->Get(0);
+    REQUIRE(rec != nullptr);
+
+    double revoltLevel = rec->GetRevolutionLevel();
+
+    // Default happiness is 0; with no incite bonus, revolts if 0 < revoltLevel
+    CHECK(h.ShouldRevolt(0) == (0.0 < revoltLevel));
+}
+
+TEST_CASE_FIXTURE(HappyFixture, "Happy conquest distress can be reset")
+{
+    Happy h;
+
+    h.ResetConquestDistress(5.0);
+    CHECK(h.GetConquestDistress() == 5.0);
+
+    h.ResetConquestDistress(0.0);
+    CHECK(h.GetConquestDistress() == 0.0);
+}

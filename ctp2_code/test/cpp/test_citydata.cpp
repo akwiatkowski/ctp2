@@ -484,3 +484,122 @@ TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData ConstDB has positive border ra
     CHECK(rec->GetBorderIntRadius() > 0);
     CHECK(rec->GetBorderSquaredRadius() > 0);
 }
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData overcrowding bonus with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(14, 14));
+
+    // Find a building that raises overcrowding level
+    sint32 buildingIdx = -1;
+    sint32 expectedLevel = 0;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        sint32 level;
+        if (g_theBuildingDB->Get(i)->GetRaiseOvercrowdingLevel(level))
+        {
+            buildingIdx = i;
+            expectedLevel = level;
+            break;
+        }
+    }
+
+    REQUIRE(buildingIdx >= 0);
+
+    CHECK(city.GetBuildingOvercrowdingBonus() == 0);
+
+    city.SetImprovements(safe_shift_left_u64(buildingIdx));
+    CHECK(city.GetBuildingOvercrowdingBonus() == expectedLevel);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData defenders bonus with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(15, 15));
+
+    // Find a building that provides defenders bonus
+    sint32 buildingIdx = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        double bonus;
+        if (g_theBuildingDB->Get(i)->GetDefendersPercent(bonus) && bonus > 0)
+        {
+            buildingIdx = i;
+            break;
+        }
+    }
+
+    REQUIRE(buildingIdx >= 0);
+
+    CHECK(city.GetDefendersBonusNoWalls() == 0.0);
+
+    city.SetImprovements(safe_shift_left_u64(buildingIdx));
+    CHECK(city.GetDefendersBonusNoWalls() > 0.0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData land attack bonus with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(16, 16));
+
+    sint32 buildingIdx = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        double bonus;
+        if (g_theBuildingDB->Get(i)->GetOffenseBonusLand(bonus) && bonus > 0)
+        {
+            buildingIdx = i;
+            break;
+        }
+    }
+
+    REQUIRE(buildingIdx >= 0);
+
+    CHECK(city.GetCityLandAttackBonus() == 0.0);
+
+    city.SetImprovements(safe_shift_left_u64(buildingIdx));
+    CHECK(city.GetCityLandAttackBonus() > 0.0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData air attack bonus with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(17, 17));
+
+    sint32 buildingIdx = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        double bonus;
+        if (g_theBuildingDB->Get(i)->GetOffenseBonusAir(bonus) && bonus > 0)
+        {
+            buildingIdx = i;
+            break;
+        }
+    }
+
+    REQUIRE(buildingIdx >= 0);
+
+    CHECK(city.GetCityAirAttackBonus() == 0.0);
+
+    city.SetImprovements(safe_shift_left_u64(buildingIdx));
+    CHECK(city.GetCityAirAttackBonus() > 0.0);
+}
+
+TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData sea attack bonus with real BuildingDB")
+{
+    CityData city(0, Unit(), MapPoint(18, 18));
+
+    sint32 buildingIdx = -1;
+    for (sint32 i = 0; i < g_theBuildingDB->NumRecords(); ++i)
+    {
+        double bonus;
+        if (g_theBuildingDB->Get(i)->GetOffenseBonusWater(bonus) && bonus > 0)
+        {
+            buildingIdx = i;
+            break;
+        }
+    }
+
+    REQUIRE(buildingIdx >= 0);
+
+    CHECK(city.GetCitySeaAttackBonus() == 0.0);
+
+    city.SetImprovements(safe_shift_left_u64(buildingIdx));
+    CHECK(city.GetCitySeaAttackBonus() > 0.0);
+}

@@ -385,7 +385,9 @@ void MapAnalysis::BeginTurn()
                 }
 
                 const DynamicArray < MapPoint > * path = trade_routes->Get(j)->GetPath();
-                sint32 per_cell_value =
+                sint32 per_cell_value = 0;
+                if (path->Num() > 0)
+                    per_cell_value =
                             (sint32)(((double)route_value / path->Num()) * 1000.0);
                 for (sint32 k = 0; k < path->Num(); k++)
                 {

@@ -100,7 +100,7 @@ STDEHANDLER(DestroyCityAccept_ThreatResponseEvent)
 		bool fear_nukes_from = receiver_diplomat.FearNukesFrom(sender);
 		bool fear_nano_from = receiver_diplomat.FearNanoAttackFrom(sender);
 		bool lost_respect = (receiver_diplomat.GetTrust(sender) < HOTWAR_REGARD / 2);
-		bool reasonable_demand = (((double)value_requested / max_value) < 0.33);
+		bool reasonable_demand = (max_value > 0) && (((double)value_requested / max_value) < 0.33);
 
 		if ((fear_nukes_from || fear_nano_from) && reasonable_demand && !lost_respect)
 		{

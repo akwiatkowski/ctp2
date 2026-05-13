@@ -762,7 +762,7 @@ sint32 C3UnitDB::Unittype_String_To_Int(char * unittype_string)
 char * C3UnitDB::Unittype_Int_To_String(sint32 index)
 {
 	StringId str_id;
-	char * unittype_string;
+	char * unittype_string = NULL;
 
 	if (g_theUnitDB->GetNamedItemID(index, str_id))
 		{

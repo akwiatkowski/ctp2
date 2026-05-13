@@ -34,12 +34,12 @@
 // - Variable 'or' renamed, because this a reserved symbol (same as ||) now.
 // - Modifed db_add_bit_pair function to allow bit pairs to have default
 //   values so that when two records are merged, only the bit is merged
-//   in that is set. - Sep. 28th 2004 Martin Gühmann
+//   in that is set. - Sep. 28th 2004 Martin Gï¿½hmann
 // - Portability improved (ctplinuxfan).
 // - Added method to determine the number of entries that should be parsed
-//   in order to support the old pollution database. (July 15th 2006 Martin Gühmann)
-// - Added map.txt support. (27-Mar-2007 Martin Gühmann)
-// - Added Const.txt support. (29-Jul-2007 Martin Gühmann)
+//   in order to support the old pollution database. (July 15th 2006 Martin Gï¿½hmann)
+// - Added map.txt support. (27-Mar-2007 Martin Gï¿½hmann)
+// - Added Const.txt support. (29-Jul-2007 Martin Gï¿½hmann)
 // - Reported failure to create a (writable) destination file in copy_file
 //
 //----------------------------------------------------------------------------
@@ -366,7 +366,7 @@ void db_end_record(char *name)
 	FILE * stamp = fopen(filename, "w");
 	Assert(stamp);
 	if(stamp) {
-		fprintf(stamp, "//%" PRId64 "\n", time(0));
+		fprintf(stamp, "//%ld\n", (long)time(0));
 		fclose(stamp);
 	}
 

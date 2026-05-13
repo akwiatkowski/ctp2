@@ -22,7 +22,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed Destructor to fix some memory leaks, by Martin Gühmann.
+// - Fixed Destructor to fix some memory leaks, by Martin Gï¿½hmann.
 //
 //----------------------------------------------------------------------------
 
@@ -416,9 +416,9 @@ void Anim::Export(FILE *file)
 
 	fprintf(file, "\t\t%s\t%d\n", g_allTokens[TOKEN_ANIM_NUM_FRAMES].keyword, m_numFrames);
 
-	fprintf(file, "\t\t%s\t%ld\n", g_allTokens[TOKEN_ANIM_PLAYBACK_TIME].keyword, m_playbackTime);
+	fprintf(file, "\t\t%s\t%u\n", g_allTokens[TOKEN_ANIM_PLAYBACK_TIME].keyword, m_playbackTime);
 
-	fprintf(file, "\t\t%s\t%ld\n", g_allTokens[TOKEN_ANIM_DELAY].keyword, m_delay);
+	fprintf(file, "\t\t%s\t%u\n", g_allTokens[TOKEN_ANIM_DELAY].keyword, m_delay);
 
 	fprintf(file, "\t\t%s", g_allTokens[TOKEN_ANIM_FRAME_DATA].keyword);
 	for (i=0; i<m_numFrames; i++)

@@ -105,7 +105,7 @@ STDMETHODIMP_ (sint32) C3EndGameDB::End_Game_Object_String_To_Int(char *object_s
 STDMETHODIMP_ (char *) C3EndGameDB::End_Game_Object_Int_To_String(sint32 index)
 {
 	StringId str_id;
-	char * end_game_string;
+	char * end_game_string = NULL;
 
 	if (g_theEndGameDB->GetNamedItemID(index, str_id))
 	{

@@ -24,12 +24,12 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Reorganised to try to prevent crashes.
 // - Number of colors in a ColorsXX.txt must be now either 58 like in the
 //   original game or 74 like in the source code edition. If there are just
 //   58 the missing player colors are filled with the map colors at that
-//   like in the original version. (Oct 22nd 2005 Martin Gühmann)
+//   like in the original version. (Oct 22nd 2005 Martin Gï¿½hmann)
 // - Relaxed the above to allow more than 74 color entries in the future.
 // - Added check for invalid/unassigned player index in ComputePlayerColor.
 //
@@ -190,7 +190,7 @@ void ColorSet::Initialize(uint32 fileNumber)
 void ColorSet::Import(uint32 fileNumber)
 {
 	MBCHAR		filename[_MAX_PATH];
-	sprintf(filename, "Colors%.2ld.txt", fileNumber);
+	sprintf(filename, "Colors%.2u.txt", fileNumber);
 	Token       theToken(filename, C3DIR_GAMEDATA);
 
     try

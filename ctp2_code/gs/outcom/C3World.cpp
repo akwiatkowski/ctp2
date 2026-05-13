@@ -1644,12 +1644,12 @@ BOOL C3World::IsLandNextTooWater(const sint32 landc, const sint32 waterc)
 
 MapValueStruct*** C3World::GetMapValue ()
 {
-
+	return NULL;
 }
 
 sint16 C3World::GetSettleValue(sint16 x, sint16 y, sint16 z)
 {
-
+	return 0;
 }
 
 sint32 C3World::GetCitySlaveCount (MapPointData *pos)

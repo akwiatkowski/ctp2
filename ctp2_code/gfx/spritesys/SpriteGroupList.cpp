@@ -285,7 +285,8 @@ void SpriteGroupList::RefreshBasicLoads(GROUPTYPE groupType)
 		k_MAX_SPRITES-1 );
 
 	MBCHAR s[_MAX_PATH];
-	sprintf( s, g_theStringDB->GetNameStr("LOADING") );
+	strncpy( s, g_theStringDB->GetNameStr("LOADING"), sizeof(s) - 1 );
+	s[sizeof(s) - 1] = '\0';
 
 	for (sint32 i=0; i<k_MAX_SPRITES; i++)
 	{

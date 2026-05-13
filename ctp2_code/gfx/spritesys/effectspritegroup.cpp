@@ -189,10 +189,10 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		for(i=0; i<numFrames; i++)
 		{
 
-			sprintf(name, "%sGX%.2dES.%d.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
+			sprintf(name, "%sGX%.2dES.%zu.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
 			strcpy(shadowNames[i], name);
 
-			sprintf(name, "%sGX%.2dEA.%d.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
+			sprintf(name, "%sGX%.2dEA.%zu.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
 			strcpy(imageNames[i], name);
 		}
 
@@ -231,7 +231,7 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 			flashNumFrames = k_MAX_NAMES;
 		for(i=0; i<flashNumFrames; i++)
 		{
-			sprintf(name, "%sGX%.2dFA.%d.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
+			sprintf(name, "%sGX%.2dFA.%zu.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
 			strcpy(imageNames[i], name);
 
 			strcpy(shadowNames[i], "");

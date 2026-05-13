@@ -404,8 +404,11 @@ dp_dprintf(
 			fp = fopen(logfile, (fp == NULL) ? "wt" : "at");
 		atomic = TRUE;
 
-		if (strnicmp(__format, "ERROR: ", sizeof("ERROR: ") - 1) == 0)
+		if (strnicmp(__format, "ERROR: ", sizeof("ERROR: ") - 1) == 0) {
+			va_start(argptr, __format);
 			vprintf(__format, argptr);
+			va_end(argptr);
+		}
 	}
 
 	if ((fp != NULL) && (fp != dp_LOG_FILE_NONE)) {

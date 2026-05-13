@@ -24,10 +24,10 @@
 //
 // Modifications from the original Activision code:
 //
-// - Memory leaks repaired in LoadText by Martin Gühmann.
-// - Added variable and requirement retriever methods. (Sep 13th 2005 Martin Gühmann)
-// - Replaced old concept database by new one. (31-Mar-2007 Martin Gühmann)
-// - Fixed terrain database item mismatch. (21-Apr-2007 Martin Gühmann)
+// - Memory leaks repaired in LoadText by Martin Gï¿½hmann.
+// - Added variable and requirement retriever methods. (Sep 13th 2005 Martin Gï¿½hmann)
+// - Replaced old concept database by new one. (31-Mar-2007 Martin Gï¿½hmann)
+// - Fixed terrain database item mismatch. (21-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -338,12 +338,18 @@ sint32 GreatLibraryWindow::SetTechMode ( sint32 theMode, DATABASE theDatabase )
 
 	if (iconRec)
     {
-		sprintf( m_still_file, iconRec->GetFirstFrame());
-		sprintf( m_movie_file, iconRec->GetMovie());
-		sprintf( m_gameplay_file, iconRec->GetGameplay());
-		sprintf( m_history_file, iconRec->GetHistorical());
-		sprintf( m_requirement_file, iconRec->GetPrereq());
-		sprintf( m_variable_file, iconRec->GetVari());
+		strncpy( m_still_file, iconRec->GetFirstFrame(), sizeof(m_still_file) - 1 );
+		m_still_file[sizeof(m_still_file) - 1] = '\0';
+		strncpy( m_movie_file, iconRec->GetMovie(), sizeof(m_movie_file) - 1 );
+		m_movie_file[sizeof(m_movie_file) - 1] = '\0';
+		strncpy( m_gameplay_file, iconRec->GetGameplay(), sizeof(m_gameplay_file) - 1 );
+		m_gameplay_file[sizeof(m_gameplay_file) - 1] = '\0';
+		strncpy( m_history_file, iconRec->GetHistorical(), sizeof(m_history_file) - 1 );
+		m_history_file[sizeof(m_history_file) - 1] = '\0';
+		strncpy( m_requirement_file, iconRec->GetPrereq(), sizeof(m_requirement_file) - 1 );
+		m_requirement_file[sizeof(m_requirement_file) - 1] = '\0';
+		strncpy( m_variable_file, iconRec->GetVari(), sizeof(m_variable_file) - 1 );
+		m_variable_file[sizeof(m_variable_file) - 1] = '\0';
 	}
 
 	return TRUE;

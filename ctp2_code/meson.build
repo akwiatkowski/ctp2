@@ -87,16 +87,49 @@ conf.set('CTP2_ENABLE_SLICDEBUG', 0, description : 'Enable slic debugging code')
 conf.set('_BFR_', 1, description : 'Build final release')
 
 # Compiler hardening flags for non-Windows builds
+hardening_level = get_option('hardening_level')
 if not win32
-	# Stack protection: canaries on functions with arrays/alloca
-	add_global_arguments('-fstack-protector-strong', language : ['c', 'cpp'])
+	if hardening_level != 'none'
+		# Layer 1: Stack protection — canaries on functions with arrays/alloca
+		add_global_arguments('-fstack-protector-strong', language : ['c', 'cpp'])
 
-	# libc fortification: compile-time + runtime bounds checking for string/memory ops
-	add_global_arguments('-D_FORTIFY_SOURCE=3', language : ['c', 'cpp'])
+		# Layer 1: libc fortification — compile-time + runtime bounds checking
+		add_global_arguments('-D_FORTIFY_SOURCE=3', language : ['c', 'cpp'])
+	endif
 
-	# Additional hardening for debug builds
-	if get_option('buildtype').startswith('debug')
-		# Trap on undefined behavior that UBSan doesn't catch
+	if hardening_level == 'strong' or hardening_level == 'maximum'
+		# Use add_project_arguments (not global) so subprojects like anet aren't affected.
+		# Catch format string mismatches at compile time (addresses ~65 FORMAT_STRING_BUGs).
+		# Use -Wformat=2 (warning) rather than -Werror=format for now — the codebase
+		# has many format mismatches that need systematic cleanup. See hardening plan.
+		add_project_arguments('-Wformat=2', language : ['c', 'cpp'])
+		add_project_arguments('-Werror=format-security', language : ['c', 'cpp'])
+
+		# Catch functions missing return values on some paths
+		add_project_arguments('-Werror=return-type', language : ['c', 'cpp'])
+
+		# Catch use of uninitialized variables
+		add_project_arguments('-Werror=uninitialized', language : ['c', 'cpp'])
+
+		# Catch implicit function declarations (often lead to wrong calling conventions)
+		add_project_arguments('-Werror=implicit-function-declaration', language : ['c'])
+	endif
+
+	if hardening_level == 'maximum'
+		# Trap on signed integer overflow (UB that ASan doesn't always catch)
+		add_global_arguments('-ftrapv', language : ['c', 'cpp'])
+
+		# Extra format warnings before they become errors
+		add_global_arguments('-Wformat=2', language : ['c', 'cpp'])
+
+		# Enable _GLIBCXX_ASSERTIONS on Linux (libstdc++ bounds checking)
+		if host_system == 'linux'
+			add_global_arguments('-D_GLIBCXX_ASSERTIONS', language : ['cpp'])
+		endif
+	endif
+
+	# ftrapv is always enabled in debug builds regardless of hardening level
+	if get_option('buildtype').startswith('debug') and hardening_level != 'maximum'
 		add_global_arguments('-ftrapv', language : ['c', 'cpp'])
 	endif
 endif

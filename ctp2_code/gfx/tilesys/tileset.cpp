@@ -461,7 +461,8 @@ void TileSet::LoadMapIcons(void)
 	for (sint32 i = 0; i < g_theMapIconDB->NumRecords(); ++i)
 	{
 
-		sprintf(name, g_theMapIconDB->Get(i)->GetValue());
+		strncpy(name, g_theMapIconDB->Get(i)->GetValue(), sizeof(name) - 1);
+		name[sizeof(name) - 1] = '\0';
 
 		if (g_civPaths->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
 

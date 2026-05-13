@@ -170,7 +170,7 @@ void RecordDescription::ExportHeader(FILE *outfile)
 	}
 
     // Tokens and flags
-	fprintf(outfile, "\n#define k_Num_%sRecord_Tokens %d\n\n", m_name, tokenCount);
+	fprintf(outfile, "\n#define k_Num_%sRecord_Tokens %zu\n\n", m_name, tokenCount);
 	ExportBits(outfile);
 	ExportRanges(outfile);
 
@@ -436,7 +436,7 @@ void RecordDescription::ExportBits(FILE *outfile)
 				fprintf(outfile, "//\n// m_flags%d: %s\n", bit / 32, m_name);
 			}
 			sprintf(nicename, "k_%s_%s_Bit", m_name, dat->m_name);
-			fprintf(outfile, "#define %-40s 0x%08lx\n", nicename, 1 << (bit % 32));
+			fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << (bit % 32));
 			bit++;
 		}
 	}
@@ -458,7 +458,7 @@ void RecordDescription::ExportBits(FILE *outfile)
             )
             {
 				sprintf(nicename, "k_%s_%s_%s_Bit", m_name, dat->m_name, node->name);
-				fprintf(outfile, "#define %-40s 0x%08lx\n", nicename, 1 << bit);
+				fprintf(outfile, "#define %-40s 0x%08x\n", nicename, 1 << bit);
 				bit++;
 				Assert(bit <= 32);
 			}

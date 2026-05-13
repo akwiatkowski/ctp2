@@ -26,18 +26,18 @@
 //
 // - Modified ExportBitPairInitialization function to allow bit pairs to
 //   have default values so that when two records are merged, only the bit
-//   is merged in that is set. - Sep. 28th 2004 Martin Gühmann
+//   is merged in that is set. - Sep. 28th 2004 Martin Gï¿½hmann
 // - Updated ExportBitPairAccessorProto function so that the default
 //   values of bits can be accesses if these bits have default values.
-// - Added serilization method export. (Aug 24th 2005 Martin Gühmann)
+// - Added serilization method export. (Aug 24th 2005 Martin Gï¿½hmann)
 // - Output files only have spaces instead of tabs as indent and indetion
-//   was fixed. (Aug 25th 2005 Martin Gühmann)
+//   was fixed. (Aug 25th 2005 Martin Gï¿½hmann)
 // - Added alias names and the possibility to have default values from
-//   other entries. (Aug 26th 2005 Martin Gühmann)
+//   other entries. (Aug 26th 2005 Martin Gï¿½hmann)
 // - Modernised destructor code.
-// - Fixed operator equal generation for non-integer arrays. (Jan 3rd 2006 Martin Gühmann)
+// - Fixed operator equal generation for non-integer arrays. (Jan 3rd 2006 Martin Gï¿½hmann)
 // - Added support for default values taken from other databases like the
-//   Const database. (9-Dec-2007 Martin Gühmann)
+//   Const database. (9-Dec-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -552,7 +552,7 @@ void Datum::ExportBitPairInitialization(FILE *outfile)
 		case DATUM_STRING:
 			if (m_hasValue)
 			{
-				fprintf(outfile, "    m_%s = new char[%d];\n", m_bitPairDatum->m_name, strlen(val.textValue) + 1);
+				fprintf(outfile, "    m_%s = new char[%zu];\n", m_bitPairDatum->m_name, strlen(val.textValue) + 1);
 				fprintf(outfile, "    strcpy(m_%s, \"%s\");\n", m_bitPairDatum->m_name, val.textValue);
 			}
 			else
@@ -655,7 +655,7 @@ void Datum::ExportInitialization(FILE *outfile)
 			case DATUM_STRING:
 				if (m_hasValue)
 				{
-					fprintf(outfile, "    m_%s = new char[%d];\n", m_name, strlen(val.textValue) + 1);
+					fprintf(outfile, "    m_%s = new char[%zu];\n", m_name, strlen(val.textValue) + 1);
 					fprintf(outfile, "    strcpy(m_%s, \"%s\");\n", m_name, val.textValue);
 				}
 				else

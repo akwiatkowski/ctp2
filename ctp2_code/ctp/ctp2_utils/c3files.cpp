@@ -347,10 +347,10 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 	g_civPaths->GetSavePath(dirID, path);
 
 #ifdef _WIN32
-	if (ext) sprintf(strbuf,"*.%s",ext);
-	else strcpy(strbuf, "*.*");
+	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
+	else { strncpy(strbuf, "*.*", sizeof(strbuf) - 1); strbuf[sizeof(strbuf) - 1] = '\0'; }
 
-	strcat(path,strbuf);
+	strncat(path, strbuf, sizeof(path) - strlen(path) - 1);
 
 	WIN32_FIND_DATA	fileData;
 	HANDLE          lpFileList = FindFirstFile(path, &fileData);
@@ -407,12 +407,12 @@ bool c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND
 
 	g_civPaths->GetSavePath(dirID, path);
 
-	if (ext) sprintf(strbuf,"*.%s",ext);
-	else strcpy(strbuf, "*.*");
+	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
+	else { strncpy(strbuf, "*.*", sizeof(strbuf) - 1); strbuf[sizeof(strbuf) - 1] = '\0'; }
 
-	strcat(path,strbuf);
+	strncat(path, strbuf, sizeof(path) - strlen(path) - 1);
 
-	WIN32_FIND_DATA *   lpFileData  = new WIN32_FIND_DATA;
+	WIN32_FIND_DATA *	lpFileData	= new WIN32_FIND_DATA;
 	HANDLE              lpFileList  = FindFirstFile(path, lpFileData);
 
 	if (lpFileList == INVALID_HANDLE_VALUE)

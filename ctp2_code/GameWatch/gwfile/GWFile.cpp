@@ -49,7 +49,7 @@ DllExport bool GWFile::Deliver(char *stamp, void *data, long numOfBytes)
 	}
 
 	char shortName[32];
-	sprintf(shortName, "record%d.dat", fileNumber);
+	snprintf(shortName, sizeof(shortName), "record%d.dat", fileNumber);
 
 	char *fileName = CreateFullName(GetParameters(), shortName);
 
@@ -128,7 +128,7 @@ DllExport bool GWFile::Receive(char **stamp, void **data, long *numOfBytes)
 	fileNumber--;
 
 	char shortName[32];
-	sprintf(shortName, "record%d.dat", fileNumber);
+	snprintf(shortName, sizeof(shortName), "record%d.dat", fileNumber);
 
 	char *fileName = CreateFullName(GetParameters(), shortName);
 
@@ -203,7 +203,7 @@ DllExport char *GWFile::CreateFullName(char *path, char *fileName)
 
 	char *fullName = new char[length];
 
-	sprintf(fullName, "%s\\%s", path, fileName);
+	snprintf(fullName, sizeof(fullName), "%s\\%s", path, fileName);
 
 	return(fullName);
 }

@@ -141,7 +141,7 @@ void c3debug_InitDebugLog()
 	s_logFileNumber = 0;
 	s_logLinesThisFile = 0;
 
-	sprintf(s_logFileName, k_FILENAME, s_logFileNumber);
+	snprintf(s_logFileName, sizeof(s_logFileName), k_FILENAME, s_logFileNumber);
 
 	g_theLogFile = fopen(s_logFileName, "w");
 	Assert(g_theLogFile);
@@ -169,7 +169,7 @@ void c3debug_dprintfPrefix
 			{
 				s_logFileNumber++;
 				s_logLinesThisFile = 0;
-				sprintf(s_logFileName, k_FILENAME, s_logFileNumber);
+				snprintf(s_logFileName, sizeof(s_logFileName), k_FILENAME, s_logFileNumber);
 				fclose(g_theLogFile);
 				g_theLogFile = fopen(s_logFileName, "a");
 				fprintf(g_theLogFile, "[Continued from Part %#.3d]\n\n", s_logFileNumber-1);
@@ -205,7 +205,7 @@ void c3debug_dprintf(char const * format, ...)
 			{
 				s_logFileNumber++;
 				s_logLinesThisFile = 0;
-				sprintf(s_logFileName, k_FILENAME, s_logFileNumber);
+				snprintf(s_logFileName, sizeof(s_logFileName), k_FILENAME, s_logFileNumber);
 				fclose(g_theLogFile);
 				g_theLogFile = fopen(s_logFileName, "a");
 				fprintf(g_theLogFile, "[Continued from Part %#.3d]\n\n", s_logFileNumber-1);

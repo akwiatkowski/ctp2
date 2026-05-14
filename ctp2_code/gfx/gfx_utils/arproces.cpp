@@ -101,9 +101,11 @@ sint32 RealConvolution(Pixel32 *InImage,
 						}
 					}
 
-					rSum = rSum / howMany;
-					gSum = gSum / howMany;
-					bSum = bSum / howMany;
+					if(howMany > 0) {
+						rSum = rSum / howMany;
+						gSum = gSum / howMany;
+						bSum = bSum / howMany;
+					}
 
 					if (Absolute) {
 						rSum = fabs(rSum);

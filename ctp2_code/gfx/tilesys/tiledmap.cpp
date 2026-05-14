@@ -3686,6 +3686,8 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 	sint32	mapHeight	= g_theWorld->GetHeight();
 	sint32	hscroll		= GetZoomTilePixelWidth();
 	sint32	vscroll		= GetZoomTilePixelHeight() >> 1;
+	if(hscroll < 1) hscroll = 1;
+	if(vscroll < 1) vscroll = 1;
 	sint32  deltaX      = m_smoothOffsetX / hscroll;
 	sint32  deltaY      = m_smoothOffsetY / vscroll;
 

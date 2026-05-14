@@ -315,6 +315,8 @@ bool Agent::FindPathToBoard(const uint32 & move_intersection, const MapPoint & d
 	double move_points;
 	m_army->MinMovementPoints(move_points);
 
+	if(move_points <= 0.0)
+		move_points = 1.0;
 	double trans_max_r = 100.0 / move_points;
 	sint32 cont = g_theWorld->GetContinent(dest_pos);
 

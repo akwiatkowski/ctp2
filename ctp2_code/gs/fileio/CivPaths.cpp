@@ -26,7 +26,7 @@
 //
 // - Added option to use multiple data directories.
 // - Memory leak/crash fix
-// - FindFile can ignore files in scenario paths. (9-Apr-2007 Martin Gühmann)
+// - FindFile can ignore files in scenario paths. (9-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -82,18 +82,25 @@ CivPaths::CivPaths ()
     FILE *  fin = fopen("civpaths.txt", "r");
     Assert(fin);
 
-	fscanf(fin, "%s", m_hdPath);
-	fscanf(fin, "%s", m_cdPath);
-	fscanf(fin, "%s", m_defaultPath);
-	fscanf(fin, "%s", m_localizedPath);
-	fscanf(fin, "%s", m_dataPath);
-	fscanf(fin, "%s", m_scenariosPath);
-	fscanf(fin, "%s", m_savePath);
-	fscanf(fin, "%s", m_saveGamePath);
-	fscanf(fin, "%s", m_saveQueuePath);
-	fscanf(fin, "%s", m_saveMPPath);
-	fscanf(fin, "%s", m_saveSCENPath);
-	fscanf(fin, "%s", m_saveMapPath);
+	auto readPath = [fin](MBCHAR *buf) {
+		if(fgets(buf, _MAX_PATH, fin)) {
+			size_t len = strlen(buf);
+			while(len > 0 && (buf[len-1] == '\n' || buf[len-1] == '\r'))
+				buf[--len] = '\0';
+		}
+	};
+	readPath(m_hdPath);
+	readPath(m_cdPath);
+	readPath(m_defaultPath);
+	readPath(m_localizedPath);
+	readPath(m_dataPath);
+	readPath(m_scenariosPath);
+	readPath(m_savePath);
+	readPath(m_saveGamePath);
+	readPath(m_saveQueuePath);
+	readPath(m_saveMPPath);
+	readPath(m_saveSCENPath);
+	readPath(m_saveMapPath);
 	fscanf(fin, "%s", m_saveClipsPath);
 
 	for (size_t dir = 0; dir < C3DIR_MAX; ++dir)

@@ -3130,7 +3130,7 @@ bool World::ImportMap(MBCHAR const * filename)
 		}
 
 		char buff[1024];
-		sprintf(buff, "%s\n%s", str, filename);
+		snprintf(buff, sizeof(buff), "%s\n%s", str, filename);
 		MessageBoxDialog::Information(buff, "FileDoesNotExist");
 		return false;
 	}
@@ -3147,7 +3147,7 @@ bool World::ImportMap(MBCHAR const * filename)
 		}
 
 		char buff[1024];
-		sprintf(buff, "%s(%i,%i)/(%i,%i)", str, m_size.x, m_size.y, size.x, size.y);
+		snprintf(buff, sizeof(buff), "%s(%i,%i)/(%i,%i)", str, m_size.x, m_size.y, size.x, size.y);
 		MessageBoxDialog::Information(buff, "MapSizesDiffer");
 		fclose(infile);
 		return false;

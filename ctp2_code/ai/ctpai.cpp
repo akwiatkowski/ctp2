@@ -549,6 +549,8 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
+	if (!g_player[playerId]) return GEV_HD_Continue;
+
 	sint32  round   = g_player[playerId]->GetCurRound();
 	time_t  t1      = GetTickCount();
 	DPRINTF(k_DBG_AI, (LOG_SECTION_START));
@@ -629,6 +631,8 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
+	if (!g_player[playerId]) return GEV_HD_Continue;
+
 	sint32 round = g_player[playerId]->GetCurRound();
 
 #ifdef _DEBUG
@@ -697,6 +701,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 		diff_cycles = 2;
 
 	Player *    player_ptr  = g_player[playerId];
+	if (!player_ptr) return GEV_HD_Continue;
 	sint32      round       = player_ptr->GetCurRound();
 	time_t      t1          = GetTickCount();
 	Scheduler & scheduler   = Scheduler::GetScheduler(playerId);

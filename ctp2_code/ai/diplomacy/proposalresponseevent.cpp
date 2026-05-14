@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gühmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1057,20 +1057,20 @@ STDEHANDLER(ReduceWeapons_ProposalResponseEvent)
 	if (sender_nano_count > 0)
 	{
 		proposal_type = PROPOSAL_OFFER_REDUCE_NANO_WEAPONS;
-		sender_losses = ((double)receiver_nano_count / sender_city_count);
-		receiver_losses = ((double)sender_nano_count / receiver_city_count);
+		sender_losses = (sender_city_count > 0) ? ((double)receiver_nano_count / sender_city_count) : 0.0;
+		receiver_losses = (receiver_city_count > 0) ? ((double)sender_nano_count / receiver_city_count) : 0.0;
 	}
 	else if (sender_bio_count > 0)
 	{
 		proposal_type = PROPOSAL_OFFER_REDUCE_BIO_WEAPONS;
-		sender_losses = ((double)receiver_bio_count / sender_city_count);
-		receiver_losses = ((double)sender_bio_count / receiver_city_count);
+		sender_losses = (sender_city_count > 0) ? ((double)receiver_bio_count / sender_city_count) : 0.0;
+		receiver_losses = (receiver_city_count > 0) ? ((double)sender_bio_count / receiver_city_count) : 0.0;
 	}
 	else if (sender_nukes_count > 0)
 	{
 		proposal_type = PROPOSAL_OFFER_REDUCE_NUCLEAR_WEAPONS;
-		sender_losses = ((double)receiver_nukes_count / sender_city_count);
-		receiver_losses = ((double)sender_nukes_count / receiver_city_count);
+		sender_losses = (sender_city_count > 0) ? ((double)receiver_nukes_count / sender_city_count) : 0.0;
+		receiver_losses = (receiver_city_count > 0) ? ((double)sender_nukes_count / receiver_city_count) : 0.0;
 	}
 	else
 	{
@@ -1081,7 +1081,7 @@ STDEHANDLER(ReduceWeapons_ProposalResponseEvent)
 	}
 
 	double reduce_percent;
-	if (sender_losses <= 0.0)
+	if (sender_losses <= 0.0 || receiver_losses <= 0.0)
 		reduce_percent = 1.0;
 	else if (receiver_losses > 0.5)
 		reduce_percent = (receiver_losses - 0.5) / receiver_losses;

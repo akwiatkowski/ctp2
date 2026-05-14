@@ -33,30 +33,30 @@
 // - Adapted the tile improvement choice to take the CTP2 ringwise fractional
 //   worker utilisation into account.
 // - Ambiguous floor call removed for .NET compilation.
-// - Removed .NET warnings, by Martin Gühmann.
-// - Enabled AI and mayors to build undersea tunnels, by Martin Gühmann.
-// - Allowed AI to build food tile improvements when city growth is low, by Martin Gühmann.
-// - Allowed to link cities on different continents with undersea tunnels, by Martin Gühmann.
-// - Added owner call to FindRoadPath to match the new function signature, by Martin Gühmann.
+// - Removed .NET warnings, by Martin Gï¿½hmann.
+// - Enabled AI and mayors to build undersea tunnels, by Martin Gï¿½hmann.
+// - Allowed AI to build food tile improvements when city growth is low, by Martin Gï¿½hmann.
+// - Allowed to link cities on different continents with undersea tunnels, by Martin Gï¿½hmann.
+// - Added owner call to FindRoadPath to match the new function signature, by Martin Gï¿½hmann.
 // - Added terrain boni arguments to FindBestTileImprovement to record the
-//   already given terrain boni for that city, by Martin Gühmann
+//   already given terrain boni for that city, by Martin Gï¿½hmann
 // - Added roads around all cities. -Calvitix
 // - Disabled the last change as it takes to much roads even if there is no
 //   city to bypass.
 // - Added GetBestTerraformImprovement function to find the best terraform
-//   improvement. - Sep. 21st 2004 Martin Gühmann
+//   improvement. - Sep. 21st 2004 Martin Gï¿½hmann
 // - Modified FindBestTileImprovement function so that the AI can now
 //   terraform if there is no food improvement for that terrain, and the
-//   according city needs more food. - Sep. 21st 2004 Martin Gühmann
+//   according city needs more food. - Sep. 21st 2004 Martin Gï¿½hmann
 // - Disabled the utilization factor for first ring food improvements, such
 //   cities benefit from food improvmements even if the ring is not filled.
-//   - Oct. 6th 2004 Martin Gühmann
-// - Cleaned up GetBestTerraformImprovement function. - Oct. 6th 2004 Martin Gühmann
-// - Fixed an error in the should terraform logic. - Oct. 6th 2004 Martin Gühmann
+//   - Oct. 6th 2004 Martin Gï¿½hmann
+// - Cleaned up GetBestTerraformImprovement function. - Oct. 6th 2004 Martin Gï¿½hmann
+// - Fixed an error in the should terraform logic. - Oct. 6th 2004 Martin Gï¿½hmann
 // - Disabled the utilization factor for all first ring improvements, so that
-//   small ciries are more likly improved. - Feb. 21st 2005 Martin Gühmann
+//   small ciries are more likly improved. - Feb. 21st 2005 Martin Gï¿½hmann
 // - Replaced c-sytle casts by by standart static_cast's.
-//   - Feb. 21st 2005 Martin Gühmann
+//   - Feb. 21st 2005 Martin Gï¿½hmann
 // - Fixed AssignPopulation function, at least it is now in the state as
 //   supposed to be, however this is still far from perfect:
 //   - Fixed population assignment if city has slaves.
@@ -67,10 +67,10 @@
 //     in CityData have to be created.
 //   - Optimization for the food, production, happiness, science and gold
 //     have to be implemented, again the problem of missing tools.
-//   - Mar. 1st 2005 Martin Gühmann
+//   - Mar. 1st 2005 Martin Gï¿½hmann
 // - Fixed crash in debug version
 // - Replaced ComputeMinimumFoodWorkers by ComputeMinimumWorkers function.
-//   - April 4th 2005 Martin Gühmann
+//   - April 4th 2005 Martin Gï¿½hmann
 // - Redesigned AssignPopulation function:
 //   - Instead calculating an assigned variable, the amount of free workers
 //     is now taken to figure out whether more pops can be assigned. This
@@ -80,30 +80,30 @@
 //     of assigned specialists at least if pollotion is on.
 //   - All pops are turned into workers before pop assignment to make
 //     assigned variable superflous.
-//   - April 4th 2005 Martin Gühmann
+//   - April 4th 2005 Martin Gï¿½hmann
 // - Cleaned a little bit functions and added experimental code for slider
 //   optimization, the code is currently outcommented as it seemed that it
-//   harms the AI more than it helps. - April 15th 2005 Martin Gühmann
+//   harms the AI more than it helps. - April 15th 2005 Martin Gï¿½hmann
 // - Improved cleanup to reduce memory leak reports.
 // - Removed debug allocator version.
 // - Added copy constructor to bypass a problem concerning memory
-//   allocation. - June 18th 2005 Martin Gühmann
+//   allocation. - June 18th 2005 Martin Gï¿½hmann
 // - Added OptimizeSliders method and updated TestSliders method for
-//   better AI sliders optimisation routines. - Jul 18th 2005 Martin Gühmann
-// - Added code for new city resource calculation. (Aug 12th 2005 Martin Gühmann)
+//   better AI sliders optimisation routines. - Jul 18th 2005 Martin Gï¿½hmann
+// - Added code for new city resource calculation. (Aug 12th 2005 Martin Gï¿½hmann)
 // - Repaired incorrect AddEvent parameters.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
 // - Restored happiness calculation when testing slider settings.
 // - Cleaned up (double Get-calls, unused stuff, casts).
-// - GetDBUnitRec added to get government dependent unit recs. (June 5th 2006 Martin Gühmann)
+// - GetDBUnitRec added to get government dependent unit recs. (June 5th 2006 Martin Gï¿½hmann)
 // - Allow spending all unused freight
 // - Improved handling when no suitable item of a category is available
 //   (including settlers, to support mods).
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - AIs now consider path between more than one city. (17-Jan-2008 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - AIs now consider path between more than one city. (17-Jan-2008 Martin Gï¿½hmann)
 // - The AI now builds settlers, ships, and special units, while it is
-//   replacing its garrison units. (30-Jun-2008 Martin Gühmann)
+//   replacing its garrison units. (30-Jun-2008 Martin Gï¿½hmann)
 // - Corrected iterator problems (detected with _HAS_ITERATOR_DEBUGGING).
 // - Prepared for trade route ordering on profit per invested caravan.
 // - Allowed selection of government update when it will improve the situation
@@ -112,13 +112,13 @@
 //   preferred when currently having a limit of 10.
 // - Prevented crash with missing population assignment data.
 // - If the AI loses its Capitol it builds a new one in its most productive
-//   city. (08-Sep-2008 Martin Gühmann)
+//   city. (08-Sep-2008 Martin Gï¿½hmann)
 // - Changed science formula to deduct crime after the government coefficient
 //   like all other resources. (22-Jul-2009 Maq)
 // - The AI can now select a special build list for small cities with enough
 //   garrison units, and can use a special build list for maximum size
-//   increasing increasing buildings. (20-Aug-2009 Martin Gühmann)
-// - Fixed AI city rank calculation. (9-Nov-2009 Martin Gühmann)
+//   increasing increasing buildings. (20-Aug-2009 Martin Gï¿½hmann)
+// - Fixed AI city rank calculation. (9-Nov-2009 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -682,7 +682,7 @@ sint32 Governor::SetSliders(const SlidersSetting & sliders_setting, const bool &
 		CityData * city = city_list->Access(i)->GetCityData();
 		double old_happiness = city->GetHappiness();
 
-		//Added by Martin Gühmann to take specialists into account.
+		//Added by Martin Gï¿½hmann to take specialists into account.
 		//Well this has an effect but the AI seems to perform worse with it.
 		//Right direction but more debug work is needed.
 		AssignPopulation(city);
@@ -1157,7 +1157,7 @@ bool Governor::TestSliderSettings(const SlidersSetting & sliders_setting,
 		Assert(city_unit->GetCityData());
 		CityData * city = city_unit->GetCityData();
 
-		//Added by Martin Gühmann to take specialists into account.
+		//Added by Martin Gï¿½hmann to take specialists into account.
 		//Well this has an effect but the AI seems to perform worse with it.
 		//Right direction but more debug work is needed.
 		AssignPopulation(city);
@@ -2872,6 +2872,8 @@ sint32 Governor::GetMinNumOfFieldWorkers(const CityData *city, double resourceFr
 	for (sint32 i = 0; i < g_theCitySizeDB->NumRecords(); ++i)
 	{
 		double const numPeople = static_cast<double>(city->GetRingSize(i));
+		if(numPeople <= 0.0)
+			continue;
 		double const peopleFraction = totalTilesForWorking / numPeople;
 
 		if(resourceFraction > neededFraction + peopleFraction)
@@ -2978,10 +2980,10 @@ sint32 Governor::ComputeMinimumWorkers(CityData *city,
 	double goldRequired = static_cast<double>(city->GetSupport());
 	double scieRequired = 1.0; // At least one science, better requirement needed.
 
-	double foodFraction = foodRequired / food;
-	double prodFraction = prodRequired / prod;
-	double goldFraction = goldRequired / gold;
-	double scieFraction = scieRequired / scie;
+	double foodFraction = (food > 0.0) ? foodRequired / food : 1.0;
+	double prodFraction = (prod > 0.0) ? prodRequired / prod : 1.0;
+	double goldFraction = (gold > 0.0) ? goldRequired / gold : 1.0;
+	double scieFraction = (scie > 0.0) ? scieRequired / scie : 1.0;
 
 	minFood = GetMinNumOfFieldWorkers(city, foodFraction);
 	minProd = GetMinNumOfFieldWorkers(city, prodFraction);
@@ -3137,7 +3139,7 @@ sint32 Governor::ComputeMinimumWorkers(CityData *city,
 		sint32 partSquaredRadius = part_rec->GetSquaredRadius();
 		sint32 fullSquaredRadius = full_rec->GetSquaredRadius();
 
-		DPRINTF(k_DBG_GOVERNOR, ("//  elapsed time per city and pop asignment ß = %f ms\n", t1.getElapsedTimeInMilliSec()));
+		DPRINTF(k_DBG_GOVERNOR, ("//  elapsed time per city and pop asignment ï¿½ = %f ms\n", t1.getElapsedTimeInMilliSec()));
 
 		fullTerrainFood += partTerrainFood;
 		fullTerrainProd += partTerrainProd;

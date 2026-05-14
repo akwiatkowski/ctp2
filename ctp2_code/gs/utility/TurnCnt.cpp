@@ -27,10 +27,10 @@
 // - Propagate PW each turn update
 // - Altered filename generating for PBEM saves (JJB 2004/12/30)
 // - Moved needs refueling check to Unit.cpp to remove code duplication.
-//   - April 24th 2005 Martin Gühmann
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - Put SendNextPlayerMessage into its own event. (14-Nov-2007 Martin Gühmann)
+//   - April 24th 2005 Martin Gï¿½hmann
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - Put SendNextPlayerMessage into its own event. (14-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1163,14 +1163,15 @@ void TurnCount::SendNextPlayerMessageEvent()
 		g_isScenario = FALSE;
 
 		MBCHAR fullPath[_MAX_PATH], *c, *startc, *fc;
-		strcpy(fullPath, g_civPaths->GetDesktopPath());
+		strncpy(fullPath, g_civPaths->GetDesktopPath(), sizeof(fullPath));
+		fullPath[sizeof(fullPath) - 1] = '\0';
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
-		strcat(fullPath, "\\CTP2 Email To ");
+		strncat(fullPath, "\\CTP2 Email To ", sizeof(fullPath) - strlen(fullPath) - 1);
 
 		startc = g_player[player]->m_email;
 		c = startc;
 		fc = &fullPath[strlen(fullPath)];
-		while(*c && ((c - startc) < (_MAX_PATH - 50))) {
+		while(*c && (fc - fullPath) < (sint32)(sizeof(fullPath) - 50)) {
 			if((*c >= 'a' && *c <= 'z') ||
 			   (*c >= 'A' && *c <= 'Z') ||
 			   (*c >= '0' && *c <= '9') ||
@@ -1183,11 +1184,11 @@ void TurnCount::SendNextPlayerMessageEvent()
 			c++;
 		}
 		MBCHAR turnString[_MAX_PATH];
-		// JJB changed this from m_round to GetRound()
+		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
 		// since m_round seems to always be zero
-		sprintf(turnString, " (Turn %d)", GetRound()); // New turn is changed with the BeginTurn event, which still has to be executed.
-		strcat(fullPath, turnString);
-		strcat(fullPath, ".c2g");
+		snprintf(turnString, sizeof(turnString), " (Turn %d)", GetRound()); // New turn is changed with the BeginTurn event, which still has to be executed.
+		strncat(fullPath, turnString, sizeof(fullPath) - strlen(fullPath) - 1);
+		strncat(fullPath, ".c2g", sizeof(fullPath) - strlen(fullPath) - 1);
 		GameFile::SaveGame(fullPath, NULL);
 	}
 

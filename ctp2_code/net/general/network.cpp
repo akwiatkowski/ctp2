@@ -2374,17 +2374,17 @@ void Network::AddChatText(MBCHAR *str, sint32 len, uint8 from, BOOL priv)
 
 
 	if(!priv)
-		sprintf(m_chatStr, "[%s] ",
+		snprintf(m_chatStr, sizeof(m_chatStr), "[%s] ",
 				((from == 0) ? g_theStringDB->GetNameStr("NETWORK_SENDER_SYSTEM") :
 				 (g_player[from] ? (g_player[from]->m_civilisation->GetLeaderName()) : ".")));
 	else
-		sprintf(m_chatStr, "[P] (%s) ", ((from == 0) ?
+		snprintf(m_chatStr, sizeof(m_chatStr), "[P] (%s) ", ((from == 0) ?
 										 (g_theStringDB->GetNameStr("NETWORK_SENDER_SYSTEM")) :
 										 (g_player[from] ?
 										  (g_player[from]->m_civilisation->GetLeaderName()) :
 										  ("."))));
 
-	strcat(m_chatStr, str);
+	strncat(m_chatStr, str, sizeof(m_chatStr) - strlen(m_chatStr) - 1);
 
 	if (g_chatBox) {
 		MBCHAR *c;

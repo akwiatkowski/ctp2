@@ -9,7 +9,7 @@
 	GAME_EVENT_HOOK_DISPOSITION GEVHookCallback(GAME_EVENT gameEventType, \
 												GameEventArgList *args);\
     void GetDescription(char *str, sint32 maxsize) { \
-        sprintf(str, "%s: %s@%d", #name, __FILE__, __LINE__); \
+        snprintf(str, maxsize, "%s: %s@%d", #name, __FILE__, __LINE__); \
 	} \
 } s_##name;\
 GAME_EVENT_HOOK_DISPOSITION name::GEVHookCallback(GAME_EVENT gameEventType,\

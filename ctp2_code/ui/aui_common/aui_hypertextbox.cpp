@@ -113,7 +113,7 @@ AUI_ERRCODE aui_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			m_ranger = new aui_Ranger(

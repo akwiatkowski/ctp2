@@ -1175,7 +1175,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 
 	MBCHAR buffer[ 256 ];
 
-	sprintf( buffer, "%d, %d, %d, %d", m_editRect.left, m_editRect.top,
+	snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d", m_editRect.left, m_editRect.top,
 									   m_editRect.right, m_editRect.bottom );
 
 	m_localRectText->SetText( buffer );
@@ -1185,7 +1185,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 
 	region->ExpandRect( &m_editRect );
 
-	sprintf( buffer, "%d, %d, %d, %d", m_editRect.left, m_editRect.top,
+	snprintf(buffer, sizeof(buffer), "%d, %d, %d, %d", m_editRect.left, m_editRect.top,
 									   m_editRect.right, m_editRect.bottom );
 
 	m_absoluteRectText->SetText( buffer );

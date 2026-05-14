@@ -174,7 +174,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 			{
 				aui_Cursor *cursor = NULL;
 
-				sprintf( temp, k_MOUSE_LDL_CURSOR "%d", i );
+				snprintf(temp, sizeof(temp), k_MOUSE_LDL_CURSOR "%d", i );
 
 				MBCHAR *filename = block->GetString( temp );
 				if ( filename )
@@ -193,8 +193,8 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 					}
 
 					MBCHAR temp2[ k_AUI_LDL_MAXBLOCK + 1 ] = "";
-					sprintf( temp, k_MOUSE_LDL_HOTSPOTX "%d", i );
-					sprintf( temp2, k_MOUSE_LDL_HOTSPOTY "%d", i );
+					snprintf(temp, sizeof(temp), k_MOUSE_LDL_HOTSPOTX "%d", i );
+					snprintf(temp2, sizeof(temp2), k_MOUSE_LDL_HOTSPOTY "%d", i );
 
 					cursor->SetHotspot(
 						block->GetInt( temp ),
@@ -215,7 +215,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 		MBCHAR temp[ k_AUI_LDL_MAXBLOCK + 1 ] = "";
 		while ( 1 )
 		{
-			sprintf( temp, "%s.%s%d", ldlBlock, k_MOUSE_LDL_ANIM, i++ );
+			snprintf(temp, sizeof(temp), "%s.%s%d", ldlBlock, k_MOUSE_LDL_ANIM, i++ );
 
 			ldl_datablock *blk = aui_Ldl::GetLdl()->FindDataBlock( temp );
 			if ( !blk ) break;
@@ -243,7 +243,7 @@ sint32 aui_Mouse::FindNumCursorsFromLdl( ldl_datablock *block )
 	while ( found )
 	{
 		found = FALSE;
-		sprintf( temp, k_MOUSE_LDL_CURSOR "%d", ++i );
+		snprintf(temp, sizeof(temp), k_MOUSE_LDL_CURSOR "%d", ++i );
 		if ( block->GetString( temp ) ) found = TRUE;
 	}
 

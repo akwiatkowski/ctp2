@@ -492,7 +492,7 @@ void *aui_Ldl::GetObject(const MBCHAR *parentBlock, const MBCHAR *regionBlock)
 		return NULL;
 
 	MBCHAR		ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(ldlBlock, "%s.%s", parentBlock, regionBlock);
+	snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", parentBlock, regionBlock);
 
 	return GetObject(ldlBlock);
 }
@@ -955,7 +955,7 @@ AUI_ERRCODE aui_Ldl::SetActionFuncAndCookie
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	MBCHAR		ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(ldlBlock, "%s.%s", parentBlock, regionBlock);
+	snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", parentBlock, regionBlock);
 
 	return SetActionFuncAndCookie(ldlBlock, actionFunc, cookie);
 }

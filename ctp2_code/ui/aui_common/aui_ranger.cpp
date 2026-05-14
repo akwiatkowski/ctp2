@@ -224,7 +224,7 @@ aui_Button *aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
 				RangerButtonActionCallback, this);
 		} else {
 
-			sprintf(block, "%s.%s", ldlBlock, ldlName);
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, ldlName);
 
             if (aui_Ldl::FindDataBlock(block))
 				arrowButton = new aui_Button(&errcode, aui_UniqueId(),
@@ -260,7 +260,7 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR *ldlBlock)
 
 
 		if(!m_rangeContainer) {
-			sprintf(block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DISPLAY);
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DISPLAY);
             if (aui_Ldl::FindDataBlock(block))
 				m_rangeContainer = new aui_Static(&errcode,
 				aui_UniqueId(), block);
@@ -274,7 +274,7 @@ AUI_ERRCODE aui_Ranger::CreateButtonsAndThumb(MBCHAR *ldlBlock)
 		(m_type == AUI_RANGER_TYPE_SCROLLER)) {
 
 		if(ldlBlock) {
-			sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
             if (aui_Ldl::FindDataBlock(block))
 				m_thumb = new aui_Thumb(&errcode, aui_UniqueId(), block,

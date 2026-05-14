@@ -56,7 +56,7 @@ AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR *ldlBlock )
 	if ( !AUI_SUCCESS(errcode) ) return errcode;
 
 	MBCHAR tipBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( tipBlock, "%s.%s", ldlBlock, k_AUI_TIPWINDOW_LDL_TIP );
+	snprintf(tipBlock, sizeof(tipBlock), "%s.%s", ldlBlock, k_AUI_TIPWINDOW_LDL_TIP );
 
 
     if (aui_Ldl::FindDataBlock(tipBlock))

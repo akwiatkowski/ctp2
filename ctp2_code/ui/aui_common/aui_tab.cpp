@@ -88,7 +88,7 @@ AUI_ERRCODE aui_Tab::InitCommon( MBCHAR *ldlBlock )
 {
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", ldlBlock, "pane" );
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pane" );
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	m_pane = new aui_Static( &errcode, aui_UniqueId(), block );

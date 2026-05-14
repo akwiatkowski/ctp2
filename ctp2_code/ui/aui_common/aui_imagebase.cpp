@@ -161,7 +161,7 @@ AUI_ERRCODE aui_ImageBase::InitCommonLdl(MBCHAR const *ldlBlock)
 		for ( sint32 i = 0; i < m_numStateImageGroups; i++ )
 		for ( sint32 j = 0; j < AUI_IMAGEBASE_SUBSTATE_LAST; j++ )
 		{
-			sprintf( temp, "%s%d", m_substateLdlKeywords[ j ], i );
+			snprintf(temp, sizeof(temp), "%s%d", m_substateLdlKeywords[ j ], i );
 			SetImage(
 				block->GetString( temp ),
 				i,
@@ -187,7 +187,7 @@ sint32 aui_ImageBase::FindNumStateImageGroupsFromLdl( ldl_datablock *block )
 		found = FALSE;
 		for ( sint32 j = 0; j < AUI_IMAGEBASE_SUBSTATE_LAST && !found; j++ )
 		{
-			sprintf( temp, "%s%d", m_substateLdlKeywords[ j ], i );
+			snprintf(temp, sizeof(temp), "%s%d", m_substateLdlKeywords[ j ], i );
 			if ( block->GetString( temp ) ) found = TRUE;
 		}
 	}

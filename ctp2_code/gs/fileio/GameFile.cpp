@@ -635,7 +635,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 
 #ifndef _NO_GAME_WATCH
 	char gameWatchFilename[_MAX_PATH];
-	sprintf(gameWatchFilename, "%s.gw", filepath);
+	snprintf(gameWatchFilename, sizeof(gameWatchFilename), "%s.gw", filepath);
 
 	gameWatch.SaveGame(g_gameWatchID, gameWatchFilename);
 #endif
@@ -991,7 +991,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 #ifndef _NO_GAME_WATCH
 	char gameWatchFilename[_MAX_PATH];
-	sprintf(gameWatchFilename, "%s.gw", filepath);
+	snprintf(gameWatchFilename, sizeof(gameWatchFilename), "%s.gw", filepath);
 
 	g_gameWatchID = gameWatch.LoadGame(gameWatchFilename);
 #endif
@@ -1816,7 +1816,7 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 {
 	MBCHAR		filepath[_MAX_PATH];
-	sprintf(filepath, "%s%s%s", path, FILE_SEP, info->fileName);
+	snprintf(filepath, sizeof(filepath), "%s%s%s", path, FILE_SEP, info->fileName);
 
 	FILE *  saveFile = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
 	if (saveFile == NULL)
@@ -1901,7 +1901,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 	if (!g_civPaths->GetSavePath(dir, dirPath)) return list;
 
 #ifdef WIN32
-	sprintf(path, "%s%s*.*", dirPath, FILE_SEP);
+	snprintf(path, sizeof(path), "%s%s*.*", dirPath, FILE_SEP);
 
 	WIN32_FIND_DATA fileData;
 	HANDLE lpDirList = FindFirstFile(path, &fileData);
@@ -1938,7 +1938,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 			strcpy(gameInfo->name, name);
 
-			sprintf(gameInfo->path, "%s%s%s", dirPath, FILE_SEP, name);
+			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
 
 			gameInfo->files = new PointerList<SaveInfo>;
 
@@ -1948,7 +1948,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 			WIN32_FIND_DATA		fileData2;
 			HANDLE				lpFileList;
 
-			sprintf(path, "%s%s*.*", gameInfo->path, FILE_SEP);
+			snprintf(path, sizeof(path), "%s%s*.*", gameInfo->path, FILE_SEP);
 
 			lpFileList = FindFirstFile(path, &fileData2);
 			if (lpFileList == INVALID_HANDLE_VALUE) continue;
@@ -1977,7 +1977,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 					strcpy(saveInfo->fileName, name);
 
-					sprintf(saveInfo->pathName, "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
+					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
 					if (!ValidateGameFile(gameInfo->path, saveInfo)) {
 						delete saveInfo;
@@ -2444,7 +2444,7 @@ void GameMapFile::GetExtendedInfoFromProfile(SaveMapInfo *info)
 bool GameMapFile::ValidateGameMapFile(MBCHAR const * path, SaveMapInfo *info)
 {
 	MBCHAR		filepath[_MAX_PATH];
-	sprintf(filepath, "%s%s%s", path, FILE_SEP, info->fileName);
+	snprintf(filepath, sizeof(filepath), "%s%s%s", path, FILE_SEP, info->fileName);
 
 	FILE *  saveFile = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
 	if (saveFile == NULL)
@@ -2477,7 +2477,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 	if (!g_civPaths->GetSavePath(dir, dirPath)) return list;
 
 #ifdef WIN32
-	sprintf(path, "%s%s*.*", dirPath, FILE_SEP);
+	snprintf(path, sizeof(path), "%s%s*.*", dirPath, FILE_SEP);
 
 	WIN32_FIND_DATA fileData;
 	HANDLE          lpDirList = FindFirstFile(path, &fileData);
@@ -2512,7 +2512,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 
 			gameInfo = new GameMapInfo();
 			strcpy(gameInfo->name, name);
-			sprintf(gameInfo->path, "%s%s%s", dirPath, FILE_SEP, name);
+			snprintf(gameInfo->path, sizeof(gameInfo->path), "%s%s%s", dirPath, FILE_SEP, name);
 			gameInfo->files = new PointerList<SaveMapInfo>;
 
 			list->AddTail(gameInfo);
@@ -2521,7 +2521,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 			WIN32_FIND_DATA		fileData2;
 			HANDLE				lpFileList;
 
-			sprintf(path, "%s%s*.*", gameInfo->path, FILE_SEP);
+			snprintf(path, sizeof(path), "%s%s*.*", gameInfo->path, FILE_SEP);
 
 			lpFileList = FindFirstFile(path, &fileData2);
 			if (lpFileList == INVALID_HANDLE_VALUE) continue;
@@ -2549,7 +2549,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 
 					strcpy(saveInfo->fileName, name);
 
-					sprintf(saveInfo->pathName, "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
+					snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
 					if (!ValidateGameMapFile(gameInfo->path, saveInfo)) {
 						delete saveInfo;

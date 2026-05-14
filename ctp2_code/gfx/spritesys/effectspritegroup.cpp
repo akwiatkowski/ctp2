@@ -189,11 +189,13 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		for(i=0; i<numFrames; i++)
 		{
 
-			sprintf(name, "%sGX%.2dES.%zu.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
-			strcpy(shadowNames[i], name);
+			snprintf(name, sizeof(name), "%sGX%.2dES.%zu.tif", prefixStr,  id, i+effectSprite->GetFirstFrame());
+			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
+			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
-			sprintf(name, "%sGX%.2dEA.%zu.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
-			strcpy(imageNames[i], name);
+			snprintf(name, sizeof(name), "%sGX%.2dEA.%zu.tif", prefixStr, id, i+effectSprite->GetFirstFrame());
+			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}
 
 		effectSprite->Import(numFrames, imageNames, shadowNames);
@@ -231,8 +233,9 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 			flashNumFrames = k_MAX_NAMES;
 		for(i=0; i<flashNumFrames; i++)
 		{
-			sprintf(name, "%sGX%.2dFA.%zu.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
-			strcpy(imageNames[i], name);
+			snprintf(name, sizeof(name), "%sGX%.2dFA.%zu.tif", prefixStr, id, i+flashSprite->GetFirstFrame());
+			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
 			strcpy(shadowNames[i], "");
 		}

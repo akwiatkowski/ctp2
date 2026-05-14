@@ -1002,11 +1002,12 @@ SPRITEFILEERR SpriteFile::Create(SPRITEFILETYPE type,unsigned version,unsigned c
 	MBCHAR			path[_MAX_PATH];
 
 #if defined(__MAKESPR__) || defined(__SPRITETEST__)
-	strcpy(path, m_filename);
+	strncpy(path, m_filename, sizeof(path));
+	path[sizeof(path) - 1] = '\0';
 #else
 	MBCHAR fullPath[_MAX_PATH];
 	g_civPaths->GetSpecificPath(C3DIR_SPRITES, fullPath, FALSE);
-	sprintf(path, "%s%s%s", fullPath, FILE_SEP, m_filename);
+	snprintf(path, sizeof(path), "%s%s%s", fullPath, FILE_SEP, m_filename);
 #endif
 
     if (m_file)

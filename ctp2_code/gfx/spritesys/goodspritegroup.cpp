@@ -197,11 +197,13 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		for(i=0; i<numFrames; i++) {
 			MBCHAR			name[k_MAX_NAME_LENGTH];
 
-			sprintf(name, "%sGG%.2dS.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
-			strcpy(shadowNames[i], name);
+			snprintf(name, sizeof(name), "%sGG%.2dS.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
+			strncpy(shadowNames[i], name, k_MAX_NAME_LENGTH - 1);
+			shadowNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 
-			sprintf(name, "%sGG%.2dA.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
-			strcpy(imageNames[i], name);
+			snprintf(name, sizeof(name), "%sGG%.2dA.%zu.tif", prefixStr, id, i+idleSprite->GetFirstFrame());
+			strncpy(imageNames[i], name, k_MAX_NAME_LENGTH - 1);
+			imageNames[i][k_MAX_NAME_LENGTH - 1] = '\0';
 		}
 
 		idleSprite->Import(numFrames, imageNames, shadowNames);

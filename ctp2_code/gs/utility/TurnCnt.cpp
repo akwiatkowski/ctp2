@@ -1024,7 +1024,7 @@ void TurnCount::LogPlayerStats(void)
 {
 	PLAYER_INDEX    playerNum   = g_selected_item->GetCurPlayer();
 	MBCHAR          filename[80];
-	sprintf(filename, "Playerlog%#.2d.txt", playerNum);
+	snprintf(filename, sizeof(filename), "Playerlog%#.2d.txt", playerNum);
 	FILE *  logfile = fopen(filename, "rt");
 
 	if (logfile)

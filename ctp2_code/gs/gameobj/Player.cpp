@@ -1191,7 +1191,7 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 
 	m_totalArmiesCreated++;
 	static MBCHAR buf[40];
-	sprintf(buf, "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_totalArmiesCreated);
+	snprintf(buf, sizeof(buf), "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_totalArmiesCreated);
 	army->SetName(buf);
 
 	AddArmy(army, cause, FALSE, Unit());
@@ -3795,7 +3795,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 
 		strcpy(messageStr, dstring);
 
-		sprintf(tempStr, "%#.3d", (sint32)advance);
+			snprintf(tempStr, sizeof(tempStr), "%03d", (sint32)advance);
 
 		MBCHAR *p = strstr(messageStr, "000>");
 		if(p) {
@@ -6802,13 +6802,13 @@ void Player::DisplayAdvances()
 
 	AdvanceType	adv ;
 
-	sprintf(s, "Advances, Player %ld:", m_owner);
+		snprintf(s, sizeof(s), "Advances, Player %d:", m_owner);
 	g_debugWindow->AddText(s);
 
 		for (adv=0; adv<m_advances->GetNum(); adv++)
 			if (HasAdvance(adv))
 				{
-				sprintf(s, " %s", g_theAdvanceDB->GetNameStr(adv)) ;
+				snprintf(s, sizeof(s), " %s", g_theAdvanceDB->GetNameStr(adv)) ;
 				g_debugWindow->AddText(s);
 				}
 
@@ -6821,17 +6821,17 @@ void Player::DisplayWWR()
     m_global_happiness->DisplayWWR();
 
     char str[80];
-    sprintf(str, "  readiness level %d cost  %3.1f  %%  %3.1f",  m_readiness->GetLevel(),
+    snprintf(str, sizeof(str), "  readiness level %d cost  %3.1f  %%  %3.1f",  m_readiness->GetLevel(),
         m_readiness->GetCost(),
         100.0 * m_readiness->GetPecentLastTurn());
 	g_debugWindow->AddText(str);
-    sprintf(str, "  materials %% %3.1f materials current %d", 100.0 * m_materialsTax, m_materialPool->GetMaterials());
+    snprintf(str, sizeof(str), "  materials %% %3.1f materials current %d", 100.0 * m_materialsTax, m_materialPool->GetMaterials());
 	g_debugWindow->AddText(str);
     double tmp;
     m_tax_rate->GetScienceTaxRate(tmp);
-    sprintf(str, "  science %% %3.1f science current %3.1f", tmp, 100.0 * m_science->GetLevel());
+    snprintf(str, sizeof(str), "  science %% %3.1f science current %3.1f", tmp, 100.0 * m_science->GetLevel());
 	g_debugWindow->AddText(str);
-    sprintf(str, "  gold %d", m_gold->GetLevel());
+    snprintf(str, sizeof(str), "  gold %d", m_gold->GetLevel());
 	g_debugWindow->AddText(str);
 
 

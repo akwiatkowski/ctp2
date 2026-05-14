@@ -2487,7 +2487,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 		GetLocalTime(&localTime);
 
 		char stamp[1024];
-		sprintf(stamp, "Civilization III CTP - %s on %s at %d/%d/%d %d:%d:%d", userName, computerName,
+		snprintf(stamp, sizeof(stamp), "Civilization III CTP - %s on %s at %d/%d/%d %d:%d:%d", userName, computerName,
 		        localTime.wMonth, localTime.wDay, localTime.wYear, localTime.wHour,
 		        localTime.wMinute, localTime.wSecond);
 

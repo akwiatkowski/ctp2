@@ -993,7 +993,7 @@ void WorkMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const Unit 
 
 	sint32 const pop = cityData->PopCount();
 	MBCHAR str[80];
-	sprintf(str,"%i",pop);
+	snprintf(str, sizeof(str),"%i",pop);
 
     sint32  popEdgeSize = std::max<sint32>(k_POP_BOX_SIZE_MINIMUM, k_POP_BOX_SIZE);
 	sint32  nudge       = 0;
@@ -1159,7 +1159,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	Assert(resourceIcon); if (!resourceIcon) return;
 	g_tiledMap->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
-	sprintf(str, "%ld", prod);
+	snprintf(str, sizeof(str), "%ld", prod);
 
 	if (g_tiledMap && g_tiledMap->GetFont()) {
 		width = g_tiledMap->GetFont()->GetStringWidth(str);
@@ -1193,7 +1193,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	Assert(resourceIcon); if (!resourceIcon) return;
 	g_tiledMap->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
-	sprintf(str, "%ld", food);
+	snprintf(str, sizeof(str), "%ld", food);
 
 	if (g_tiledMap && g_tiledMap->GetFont()) {
 		width = g_tiledMap->GetFont()->GetStringWidth(str);
@@ -1227,7 +1227,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	Assert( resourceIcon ); if ( !resourceIcon ) return;
 	g_tiledMap->DrawColorizedOverlay( resourceIcon, surface, iconRect.left, iconRect.top, color );
 
-	sprintf( str, "%d", gold );
+	snprintf(str, sizeof(str), "%d", gold );
 
 	if (g_tiledMap && g_tiledMap->GetFont()) {
 		width = g_tiledMap->GetFont()->GetStringWidth(str);

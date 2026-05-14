@@ -777,12 +777,12 @@ void TiledMap::DrawLegalMove
 					if ((!special_box_done) && (special_line_segment == line_segment_count))
 					{
 						special_box_done = true;
-						sprintf(turnNumber, "*");
+						snprintf(turnNumber, sizeof(turnNumber), "*");
 						actual_line_color = k_TURN_COLOR_SPECIAL;
 					}
 					else
 					{
-						sprintf(turnNumber,"%d",turn);
+						snprintf(turnNumber, sizeof(turnNumber),"%d",turn);
 						actual_line_color = turnColor;
 					}
 
@@ -836,7 +836,7 @@ void TiledMap::DrawLegalMove
                 dist = drawPos.NormalizedDistance(target_pos);//pft
 				if(dist > max_rge){
 					MBCHAR turnNumber[80];
-					sprintf(turnNumber, "*");
+					snprintf(turnNumber, sizeof(turnNumber), "*");
 					actual_line_color	= k_TURN_COLOR_SPECIAL;
 					special_box_done	= true;
 
@@ -1095,7 +1095,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 
 						MBCHAR turnNumber[80];
 
-						sprintf(turnNumber,"%d",turn);
+						snprintf(turnNumber, sizeof(turnNumber),"%d",turn);
 
 						COLORREF color = g_colorSet->GetColorRef(k_TURN_COLOR);
 

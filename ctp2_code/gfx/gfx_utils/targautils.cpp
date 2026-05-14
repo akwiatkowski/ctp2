@@ -57,7 +57,7 @@ namespace
     void ReportFileNotFound(char const * a_FileName)
     {
         char error[128];
-        sprintf(error, "%s not found.", a_FileName);
+        snprintf(error, sizeof(error), "%s not found.", a_FileName);
         MessageBox(NULL, error, NULL, MB_OK);
     }
 

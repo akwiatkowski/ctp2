@@ -466,16 +466,16 @@ void TileSet::LoadMapIcons(void)
 
 		if (g_civPaths->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
 
-			sprintf(path, "%s", name);
+			snprintf(path, sizeof(path), "%s", name);
 			char * lastDot = strrchr(path, '.');
 			if (lastDot)
 			{
 				++lastDot;
-				sprintf(lastDot, "rim");
+				snprintf(lastDot, sizeof(lastDot), "rim");
 			}
 			else
 			{
-				sprintf(path, "%s.rim", path);
+				snprintf(path, sizeof(path), "%s.rim", path);
 			}
 
 			size_t  testlen = 0;
@@ -532,10 +532,10 @@ Pixel16 TileSet::ConvertMapIcons(const MBCHAR *name)  //EMOD
 
 	//for (int i = 0; i < MAPICON_MAX; ++i)
     //{
-	//	sprintf(name, "UPC%.3d.TGA", i+1);
+	//	snprintf(name, sizeof(name), "UPC%.3d.TGA", i+1);
 
 		if (g_civPaths->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
-			//sprintf(path, "upc%.3d.rim", i+1);
+			//snprintf(path, sizeof(path), "upc%.3d.rim", i+1);
             size_t  testlen = 0;
 			uint8 * buf = reinterpret_cast<uint8 *>(g_ImageMapPF->getData(path, testlen));
             len = testlen;

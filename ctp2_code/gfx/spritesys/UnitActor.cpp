@@ -1741,7 +1741,7 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
 
   // Generate text
   MBCHAR strn[80];
-  sprintf(strn, "%i", stack);
+  snprintf(strn, sizeof(strn), "%i", stack);
 
   /// @todo Scale and center text
   if (stack > 1 && stack <= 9) {

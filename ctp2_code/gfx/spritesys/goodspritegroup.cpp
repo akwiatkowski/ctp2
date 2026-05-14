@@ -155,8 +155,8 @@ sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 	MBCHAR			scriptName[k_MAX_NAME_LENGTH];
 	char			prefixStr[80];
 
-	sprintf(prefixStr, ".%s%d%s", FILE_SEP, id, FILE_SEP);
-	sprintf(scriptName, "GG%.2d.txt", id);
+	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
+	snprintf(scriptName, sizeof(scriptName), "GG%.2d.txt", id);
 
 	Token * theToken = new Token(scriptName, C3DIR_SPRITES);
 	Assert(theToken);

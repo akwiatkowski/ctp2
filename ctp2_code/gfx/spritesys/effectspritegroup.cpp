@@ -156,8 +156,8 @@ sint32 EffectSpriteGroup::Parse(uint16 id,GROUPTYPE group)
 		shadowNames[i] = new MBCHAR[k_MAX_NAME_LENGTH];
 	}
 
-	sprintf(prefixStr, ".%s%d%s", FILE_SEP, id, FILE_SEP);
-	sprintf(scriptName, "GX%.2d.txt", id);
+	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
+	snprintf(scriptName, sizeof(scriptName), "GX%.2d.txt", id);
 
     printf("Processing '%s'\n", scriptName);
 

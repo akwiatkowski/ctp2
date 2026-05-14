@@ -97,13 +97,13 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 		    newSpriteGroup = new UnitSpriteGroup(type);
 
         // A unit sprite file may have 3 or 2 digits in the name.
-        sprintf(inFile, "GU%.3d.SPR", index);
+        snprintf(inFile, sizeof(inFile), "GU%.3d.SPR", index);
 
         MBCHAR fullPath[_MAX_PATH];
         if (!g_civPaths->FindFile(C3DIR_SPRITES, inFile, fullPath, TRUE, FALSE))
         {
             // No 3 digit version found: try the 2 digit version.
-            sprintf(inFile, "GU%.2d.SPR", index);
+            snprintf(inFile, sizeof(inFile), "GU%.2d.SPR", index);
 	    }
 	    break;
 
@@ -114,18 +114,18 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 	case GROUPTYPE_EFFECT :
 		 if(newSpriteGroup==NULL)
 		    newSpriteGroup = new EffectSpriteGroup(type);
-		 sprintf(inFile, "GX%.2d.SPR", index);
+		 snprintf(inFile, sizeof(inFile), "GX%.2d.SPR", index);
 
 		 break;
 	case GROUPTYPE_CITY:
 		 if(newSpriteGroup==NULL)
 		    newSpriteGroup = new UnitSpriteGroup(type);
-		 sprintf(inFile, "GC%.3d.SPR", index);
+		 snprintf(inFile, sizeof(inFile), "GC%.3d.SPR", index);
 		 break;
 	case GROUPTYPE_GOOD:
 		 if(newSpriteGroup==NULL)
 		    newSpriteGroup = new GoodSpriteGroup(type);
-		 sprintf(inFile, "GG%.3d.SPR", index);
+		 snprintf(inFile, sizeof(inFile), "GG%.3d.SPR", index);
 		 break;
 	default:
 		Assert(type > GROUPTYPE_GROUP && type < GROUPTYPE_MAX);

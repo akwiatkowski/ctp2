@@ -229,7 +229,7 @@ void  TiledMap::DrawRectMetrics()
 
 	MBCHAR  text[256];
 
-	sprintf(text,"%4.2f",ratio);
+	snprintf(text, sizeof(text),"%4.2f",ratio);
 
 	if (g_screenManager && g_screenManager->GetSurface())
 	{
@@ -3002,7 +3002,7 @@ void TiledMap::DrawNumber(aui_Surface *surface, sint32 num, sint32 color, sint32
 	if (!surface) surface = m_surface;
 
 	MBCHAR buf[80];
-	sprintf(buf, "%d", num);
+	snprintf(buf, sizeof(buf), "%d", num);
 
     UnlockSurface();
 
@@ -3647,7 +3647,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 
 							// Put the city's pop in str
 							MBCHAR str[80];
-							sprintf(str,"%i",pop);
+							snprintf(str, sizeof(str),"%i",pop);
 							// The top line of the pop rectangle
 							//y = boxRect.bottom + 1; //original
 
@@ -3725,11 +3725,11 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 								MBCHAR strn[80];
 								if (nextpop < THRESHOLD_SLOW_GROWTH)
 								{
-									sprintf(strn, "%i", nextpop);
+									snprintf(strn, sizeof(strn), "%i", nextpop);
 								}
 								else
 								{
-									sprintf(strn, "%s", TEXT_NONE);
+									snprintf(strn, sizeof(strn), "%s", TEXT_NONE);
 								}
 								//width and height of the pop number
 								width = m_font->GetStringWidth(strn);
@@ -3849,11 +3849,11 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 									if (buildItemTime < THRESHOLD_PROD_TIME
 										&& buildItemTime != 0)
 									{
-										sprintf(strbt, "%i", buildItemTime);
+										snprintf(strbt, sizeof(strbt), "%i", buildItemTime);
 									}
 									else
 									{
-										sprintf(strbt, "%s", TEXT_NONE);
+										snprintf(strbt, sizeof(strbt), "%s", TEXT_NONE);
 									}
 
 									//width and height of the pop number

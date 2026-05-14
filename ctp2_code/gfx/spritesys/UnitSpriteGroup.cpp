@@ -341,10 +341,10 @@ UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
 	char			 fname[512];
 
     va_start(v_args, format);
-    vsprintf(name,format,v_args);
+    vsnprintf(name, sizeof(name),format,v_args);
     va_end( v_args );
 
-	sprintf(fname,"%s.%s",name,"TGA");
+	snprintf(fname, sizeof(fname),"%s.%s",name,"TGA");
 
 	if (c3files_PathIsValid(fname))
 	{
@@ -352,7 +352,7 @@ UnitSpriteGroup::GetImageFileName(MBCHAR * name, char *format,...)
 		return true;
 	}
 
-	sprintf(fname,"%s.%s",name,"TIF");
+	snprintf(fname, sizeof(fname),"%s.%s",name,"TIF");
 
 	if (c3files_PathIsValid(fname))
 	{
@@ -394,17 +394,17 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		shadowNames[i] = new MBCHAR[2 * k_MAX_NAME_LENGTH];
 	}
 
-	sprintf(prefixStr, ".%s%d%s", FILE_SEP, id, FILE_SEP);
+	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
 
 	if (type == GROUPTYPE_UNIT)
 	{
-		sprintf(scriptName, "GU%.3d.txt", id);
+		snprintf(scriptName, sizeof(scriptName), "GU%.3d.txt", id);
 
 		if (!c3files_PathIsValid(scriptName))
-			sprintf(scriptName, "GU%.2d.txt", id);
+			snprintf(scriptName, sizeof(scriptName), "GU%.2d.txt", id);
 	}
 	else
-		sprintf(scriptName, "GC%.3d.txt", id);
+		snprintf(scriptName, sizeof(scriptName), "GC%.3d.txt", id);
 
 	printf("Processing '%s'\n", scriptName);
 

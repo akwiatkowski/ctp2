@@ -752,7 +752,7 @@ void ResourceMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const U
 
 	sint32 pop          = cityData->PopCount();
 	MBCHAR str[80];
-	sprintf(str,"%i",pop);
+	snprintf(str, sizeof(str),"%i",pop);
 
     sint32  popEdgeSize = std::max(k_POP_BOX_SIZE, k_POP_BOX_SIZE_MINIMUM);
 	sint32  nudge       = 0;

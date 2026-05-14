@@ -100,7 +100,7 @@ AUI_ERRCODE c3_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 	{
 		AUI_ERRCODE errcode;
 		MBCHAR imageBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-		sprintf(imageBlock, "%s.%s", ldlBlock, k_C3_HEADERSWITCH_IMAGE );
+		snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, k_C3_HEADERSWITCH_IMAGE );
 
         if (aui_Ldl::FindDataBlock(imageBlock))
 		{

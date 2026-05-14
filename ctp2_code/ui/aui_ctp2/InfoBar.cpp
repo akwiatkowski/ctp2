@@ -211,7 +211,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 #endif // _DEBUG
 		{
 			MBCHAR buf[k_MAX_NAME_LEN];
-			sprintf(buf, " (%d, %d)", point.x, point.y);
+			snprintf(buf, sizeof(buf), " (%d, %d)", point.x, point.y);
 			Concat(buf);
 		}
 
@@ -404,19 +404,19 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			char numBuf[20];
 			if(food > 0) {
 				Concat(g_theStringDB->GetNameStr("INFOBAR_FOOD_LABEL"));
-				sprintf(numBuf, "%d", food);
+				snprintf(numBuf, sizeof(numBuf), "%d", food);
 				Concat(numBuf);
 			}
 
 			if(prod > 0) {
 				Concat(g_theStringDB->GetNameStr("INFOBAR_PROD_LABEL"));
-				sprintf(numBuf, "%d", prod);
+				snprintf(numBuf, sizeof(numBuf), "%d", prod);
 				Concat(numBuf);
 			}
 
 			if(gold > 0) {
 				Concat(g_theStringDB->GetNameStr("INFOBAR_GOLD_LABEL"));
-				sprintf(numBuf, "%d", gold);
+				snprintf(numBuf, sizeof(numBuf), "%d", gold);
 				Concat(numBuf);
 			}
 
@@ -434,7 +434,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 #endif // _DEBUG
 		{
 			MBCHAR buf[k_MAX_NAME_LEN];
-			sprintf(buf, " (%d, %d) ", point.x, point.y);
+			snprintf(buf, sizeof(buf), " (%d, %d) ", point.x, point.y);
 			Concat(buf);
 		}
 

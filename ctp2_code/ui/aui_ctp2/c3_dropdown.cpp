@@ -132,7 +132,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_STATICPANE );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_STATICPANE );
 
         if (aui_Ldl::FindDataBlock(block))
 		{
@@ -152,7 +152,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_BUTTON );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_BUTTON );
 
         if (aui_Ldl::FindDataBlock(block))
 		{
@@ -181,7 +181,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW );
 
         if ( aui_Ldl::FindDataBlock(block))
 		{
@@ -201,7 +201,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 				m_listBoxWindow->Resize( m_width + m_buttonSize, m_windowSize );
 			}
 
-			sprintf( block, "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
+			snprintf(block, sizeof(block), "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
 
             if (aui_Ldl::FindDataBlock(block))
 				m_listBox = new c3_ListBox(

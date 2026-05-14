@@ -80,7 +80,7 @@ c3_FancyWindow::c3_FancyWindow
 
 	if ( exitCallBack ) {
 		MBCHAR buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-		sprintf( buttonBlock, "c3_FancyCancel" );
+		snprintf(buttonBlock, sizeof(buttonBlock), "c3_FancyCancel" );
 		m_cancel = new c3_Button( retval, aui_UniqueId(), buttonBlock, exitCallBack, this );
 		Assert( AUI_NEWOK(m_cancel, *retval) );
 		if ( !AUI_NEWOK(m_cancel, *retval) ) return;
@@ -88,7 +88,7 @@ c3_FancyWindow::c3_FancyWindow
 		m_cancel->Move( 0, m_height - m_cancel->Height() );
 		AddControl( m_cancel );
 
-		sprintf( buttonBlock, "c3_FancyOk" );
+		snprintf(buttonBlock, sizeof(buttonBlock), "c3_FancyOk" );
 		m_ok = new c3_Button( retval, aui_UniqueId(), buttonBlock, exitCallBack, this );
 		Assert( AUI_NEWOK(m_ok, *retval) );
 		if ( !AUI_NEWOK(m_ok, *retval) ) return;

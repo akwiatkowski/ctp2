@@ -171,7 +171,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 
 
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "UnitImageButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitImageButton");
 	m_unitImage = new c3_ColorIconButton(&errcode, aui_UniqueId(), controlBlock);
 
 	Assert( AUI_NEWOK(m_unitImage, errcode) );
@@ -186,14 +186,14 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	m_unitImage->SetAction((aui_Action *)buttonAction);
 
 
-	sprintf( fortifyBlock, "%s.%s", controlBlock, "UnitF" );
+	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitF" );
 	m_unitFortify = new c3_Static( &errcode, aui_UniqueId(), fortifyBlock );
 	Assert( AUI_NEWOK( m_unitFortify, errcode) );
 	if ( !AUI_NEWOK( m_unitFortify, errcode ) ) return errcode;
 
 	m_unitFortify->SetBlindness( TRUE );
 
-	sprintf( fortifyBlock, "%s.%s", controlBlock, "UnitV" );
+	snprintf(fortifyBlock, sizeof(fortifyBlock), "%s.%s", controlBlock, "UnitV" );
 	m_unitVeteran = new c3_Static( &errcode, aui_UniqueId(), fortifyBlock );
 	Assert( AUI_NEWOK( m_unitVeteran, errcode) );
 	if ( !AUI_NEWOK( m_unitVeteran, errcode ) ) return errcode;
@@ -201,7 +201,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	m_unitVeteran->SetBlindness( TRUE );
 
 
-	sprintf( coloredBlock, "%s.%s", controlBlock, "Cargo" );
+	snprintf(coloredBlock, sizeof(coloredBlock), "%s.%s", controlBlock, "Cargo" );
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
 		m_cargo[i] = new c3_ColoredStatic( &errcode, aui_UniqueId(), coloredBlock );
@@ -219,52 +219,52 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	}
 
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "UnitARDText");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARDText");
 	m_unitARDText = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitARDText, errcode) );
 	if ( !AUI_NEWOK(m_unitARDText, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "UnitARD");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitARD");
 	m_unitARD = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitARD, errcode) );
 	if ( !AUI_NEWOK(m_unitARD, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "UnitMText");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMText");
 	m_unitMText = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitMText, errcode) );
 	if ( !AUI_NEWOK(m_unitMText, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "UnitMovement");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitMovement");
 	m_unitMovement = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_unitMovement, errcode) );
 	if ( !AUI_NEWOK(m_unitMovement, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "ActiveDefenseIcon");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ActiveDefenseIcon");
 	m_activeDefenseIcon = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_activeDefenseIcon, errcode) );
 	if ( !AUI_NEWOK(m_activeDefenseIcon, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "VeteranIcon");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "VeteranIcon");
 	m_veteranIcon = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_veteranIcon, errcode) );
 	if ( !AUI_NEWOK(m_veteranIcon, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", ldlBlock, "UnitHealthBar" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitHealthBar" );
 	m_unitHealthBar = new Thermometer( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_unitHealthBar, errcode) );
 	if ( !AUI_NEWOK(m_unitHealthBar, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", ldlBlock, "FuelLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelLabel" );
 	m_fuelLabel = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_fuelLabel, errcode) );
 	if ( !AUI_NEWOK(m_fuelLabel, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", ldlBlock, "FuelBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "FuelBox" );
 	m_fuelBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_fuelBox, errcode) );
 	if ( !AUI_NEWOK(m_fuelBox, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", ldlBlock, "UnitName" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "UnitName" );
 	m_unitName = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(m_unitName, errcode) );
 	if ( !AUI_NEWOK(m_unitName, errcode) ) return errcode;
@@ -440,11 +440,11 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 		m_unitImage->RemoveSubControl( m_unitFortify->Id() );
 	}
 
-	sprintf(s, "%ld/%ld/%ld", (sint32)(theUnit.GetAttack() / 10.0),
+	snprintf(s, sizeof(s), "%ld/%ld/%ld", (sint32)(theUnit.GetAttack() / 10.0),
 		(sint32)(theUnit.GetZBRange() / 10.0), (sint32)(theUnit.GetDefense() / 10.0) );
 	m_unitARD->SetText(s);
 
-	sprintf(s, "%ld/%ld", (sint32)(theUnit.GetMovementPoints() / 100.0), (sint32)(theUnit.GetMaxMovePoints() / 100.0));
+	snprintf(s, sizeof(s), "%ld/%ld", (sint32)(theUnit.GetMovementPoints() / 100.0), (sint32)(theUnit.GetMaxMovePoints() / 100.0));
 	m_unitMovement->SetText(s);
 
 	sint32 healthPercent  = (sint32)( theUnit.GetHP() * 100  / theUnit->CalculateTotalHP());//.GetDBRec()->GetMaxHP() );
@@ -454,7 +454,7 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 
 	if ( theUnit.GetMovementTypeAir() ) {
 		double fuel = theUnit.GetFuel() / 100.0;
-		sprintf( s, "%.1f", fuel );
+		snprintf(s, sizeof(s), "%.1f", fuel );
 		m_fuelBox->SetText( s );
 		AddSubControl( m_fuelLabel );
 		AddSubControl( m_fuelBox );

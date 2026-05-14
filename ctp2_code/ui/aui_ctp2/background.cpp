@@ -369,7 +369,7 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 			char lemurpoo[_MAX_PATH];
 			x = m_current_mouse_tile.x;
 			y = m_current_mouse_tile.y;
-			sprintf(lemurpoo, "x: %d, y: %d", x, y);
+			snprintf(lemurpoo, sizeof(lemurpoo), "x: %d, y: %d", x, y);
 			ctp2_Static *tf = (ctp2_Static *)aui_Ldl::GetObject("ScenarioEditor.WorldControls.PosField");
 			tf->SetText(lemurpoo);
 		}

@@ -143,7 +143,7 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR *ldlBlock )
 		sint32 i = 0;
 		do
 		{
-			sprintf( block, "%s.%s%d", ldlBlock, k_AUI_HEADER_LDL_SWITCH, i );
+			snprintf(block, sizeof(block), "%s.%s%d", ldlBlock, k_AUI_HEADER_LDL_SWITCH, i );
 
             if ( !aui_Ldl::FindDataBlock( block ) )
 				break;

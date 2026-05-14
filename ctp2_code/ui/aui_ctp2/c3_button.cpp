@@ -275,7 +275,7 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_C3_EDITBUTTON_LDL_FIELD );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_C3_EDITBUTTON_LDL_FIELD );
 
         if (aui_Ldl::FindDataBlock( block ) )
 			m_field = new C3TextField(
@@ -339,7 +339,7 @@ AUI_ERRCODE c3_EditButton::SetValue( sint32 val )
 	m_val = val;
 
 	MBCHAR text[ 50 ];
-	sprintf( text, "%d", m_val ); // itoa( m_val, text, 10 );
+	snprintf(text, sizeof(text), "%d", m_val ); // itoa( m_val, text, 10 );
 	SetText( text );
 
 	if ( changed ) DoCallback();
@@ -399,7 +399,7 @@ void c3_EditButtonCallback( aui_Control *control, uint32 action, uint32 data, vo
 	button->GetParent()->RemoveChild( button->Id() );
 
 	MBCHAR text[ 50 ];
-	sprintf(text, "%d", button->GetValue()); // itoa( button->GetValue(), text, 10 );
+	snprintf(text, sizeof(text), "%d", button->GetValue()); // itoa( button->GetValue(), text, 10 );
 
 	field->SetFieldText( text );
 	field->SetKeyboardFocus();

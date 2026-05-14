@@ -1935,10 +1935,10 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 				} else if(sym->GetCity(u)) {
 					sprintf(buf, "%s=City    %lx", sym->GetName(), u.m_id);
 					if(!g_theUnitPool->IsValid(u)) {
-						strcat(buf, " [Invalid city]");
-					} else {
-						strcat(buf, " ");
-						strcat(buf, u.GetData()->GetCityData()->GetName());
+					strncat(buf, " [Invalid city]", sizeof(buf) - strlen(buf) - 1);
+				} else {
+					strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);
+					strncat(buf, u.GetData()->GetCityData()->GetName(), sizeof(buf) - strlen(buf) - 1);
 					}
 				} else if(sym->GetPos(pos)) {
 					sprintf(buf, "%s=Point   (%d,%d)", sym->GetName(),

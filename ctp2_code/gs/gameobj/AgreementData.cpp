@@ -576,7 +576,7 @@ void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpa
 			break ;
 
 		case 4 :
-			sprintf(sExpanded, "%ld", g_player[civ->GetOwner()]->GetGold()) ;
+			snprintf(sExpanded, sizeof(sExpanded), "%ld", g_player[civ->GetOwner()]->GetGold()) ;
 			break ;
 
 		default :
@@ -1116,7 +1116,7 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetStopTradeRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "008StopTradeWithBroken");
+				snprintf(objName, sizeof(objName), "008StopTradeWithBroken");
 				otherCiv = m_thirdParty;
 			}
 			break;
@@ -1124,14 +1124,14 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetLeaveOurLandsRounds() || force) {
 				sendMessage = TRUE;
-				sprintf(objName, "260LeaveOurLandsBroken");
+				snprintf(objName, sizeof(objName), "260LeaveOurLandsBroken");
 			}
 			break;
 		case AGREEMENT_TYPE_REDUCE_POLLUTION:
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetReducePollutionRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "261ReducePollutionBroken");
+				snprintf(objName, sizeof(objName), "261ReducePollutionBroken");
 			}
 			break;
 #if 0
@@ -1139,7 +1139,7 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetCaptureCityRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "262CaptureCityBroken");
+				snprintf(objName, sizeof(objName), "262CaptureCityBroken");
 				addCity = TRUE;
 			}
 			break;
@@ -1148,21 +1148,21 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetEndPollutionRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "263EndPollutionBroken");
+				snprintf(objName, sizeof(objName), "263EndPollutionBroken");
 			}
 			break;
 		case AGREEMENT_TYPE_DEMAND_ATTACK_ENEMY:
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetAttackEnemyRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "264AttackEnemyBroken");
+				snprintf(objName, sizeof(objName), "264AttackEnemyBroken");
 				otherCiv = m_thirdParty;
 			}
 			break;
 		case AGREEMENT_TYPE_NO_PIRACY:
 			tellAi = TRUE;
 			sendMessage = TRUE;
-			sprintf(objName, "004NoPiracyBroken");
+			snprintf(objName, sizeof(objName), "004NoPiracyBroken");
 			break;
 		default:
 			break;
@@ -1226,7 +1226,7 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer)
 			tellAi = TRUE;
 			if(rounds > g_theConstDB->Get(0)->GetEndPollutionRounds()) {
 				sendMessage = TRUE;
-				sprintf(objName, "263EndPollutionBroken");
+				snprintf(objName, sizeof(objName), "263EndPollutionBroken");
 			}
 			break;
 		default:

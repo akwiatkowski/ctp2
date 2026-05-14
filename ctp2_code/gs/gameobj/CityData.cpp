@@ -4969,7 +4969,7 @@ bool CityData::BuildWonder(sint32 type)
 #ifdef _DEBUG
 		char error_msg[300];
 
-		sprintf(error_msg, "Cannot build wonder %d",
+		snprintf(error_msg, sizeof(error_msg), "Cannot build wonder %d",
 			type);
 #ifdef WIN32
 		_RPT0(_CRT_WARN, error_msg);

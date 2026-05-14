@@ -28,12 +28,12 @@
 // - Repaired memory leaks.
 // - Reimplemented ** as vector of *, to make it less error prone.
 // - Load default strings if they are missing in the database so that mods
-//   also have a full set of strings. (Jan 30th 2006 Martin Gühmann)
+//   also have a full set of strings. (Jan 30th 2006 Martin Gï¿½hmann)
 // - If a nested import occurs, it is ignored instead of canceling the
-//   string loading. (Jan 30th 2006 Martin Gühmann)
+//   string loading. (Jan 30th 2006 Martin Gï¿½hmann)
 // - Added export method so that the string database in the system can be
-//   written to one textfile. Only experiental. (Jan 30th 2006 Martin Gühmann)
-// - Loading of default strings ignores now scenario paths. (9-Apr-2007 Martin Gühmann)
+//   written to one textfile. Only experiental. (Jan 30th 2006 Martin Gï¿½hmann)
+// - Loading of default strings ignores now scenario paths. (9-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ bool StringDB::InsertStr
 		// number.
 
 		MBCHAR * 	tempstr	= new MBCHAR[strlen(add_id) + 7];
-		sprintf(tempstr, "%s#COUNT", add_id);
+		snprintf(tempstr, strlen(add_id) + 7, "%s#COUNT", add_id);
 
 		MBCHAR *	countstr;
 		if (GetStrNode(GetHead(tempstr), tempstr, &countstr))
@@ -193,7 +193,7 @@ bool StringDB::InsertStr
 
 		// Create a new numbered key.
 		int const	count	= atoi(countstr);
-		sprintf(tempstr, "%s#%d", add_id, count);
+		snprintf(tempstr, strlen(add_id) + 7, "%s#%d", add_id, count);
 		AddStrNode(GetHead(tempstr), tempstr, new_text, newRec);
 
 		// Update the sequence counter.
@@ -647,7 +647,7 @@ void StringDB::Export(MBCHAR * file)
 	char buff[_MAX_PATH];
 	MBCHAR *path = new MBCHAR[_MAX_PATH];
 	g_civPaths->GetSpecificPath(C3DIR_GAMEDATA, path, TRUE);
-	sprintf(buff, "%s%s%s", path, FILE_SEP, file);
+	snprintf(buff, sizeof(buff), "%s%s%s", path, FILE_SEP, file);
 
 	FILE* fout = fopen(buff, "w");
 

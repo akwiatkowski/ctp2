@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -388,7 +388,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 		&& event->GetContextName() != NULL)
 		{
 			char buf[1024];
-			sprintf(buf, "Parameter #%i of type %s of event %s is invalid.\nThe event was called during execution of event %s.\nIt was called from object %s at line %i in file:\n%s\nPossible Explanation: Data became invlid during internal or slic code executation.",
+			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was called during execution of event %s.\nIt was called from object %s at line %i in file:\n%s\nPossible Explanation: Data became invlid during internal or slic code executation.",
 			             argIndex,
 			             g_gevManager->ArgToName(m_type),
 			             g_gevManager->GetEventName(type),
@@ -402,7 +402,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 		else if(g_slicEngine->GetContext())
 		{
 			char buf[1024];
-			sprintf(buf, "Parameter #%i of type %s of event %s is invalid, the argument is invalid at event call.\nThe event was called during execution of event %s\nThe event was called from object %s at line %i in file:\n%s\nThe argument was already invalid at event call time.",
+			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid, the argument is invalid at event call.\nThe event was called during execution of event %s\nThe event was called from object %s at line %i in file:\n%s\nThe argument was already invalid at event call time.",
 			             argIndex,
 			             g_gevManager->ArgToName(m_type),
 			             g_gevManager->GetEventName(type),
@@ -419,7 +419,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 
 			if(event != NULL)
 			{
-				sprintf(buf, "Parameter #%i of type %s of event %s is invalid.\nThe event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed if it was not caused by slic interference.\nPossible reason for the problem: The data became invalid between event call and event execution.",
+				snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed if it was not caused by slic interference.\nPossible reason for the problem: The data became invalid between event call and event execution.",
 				             argIndex,
 				             g_gevManager->ArgToName(m_type),
 				             g_gevManager->GetEventName(type),
@@ -427,7 +427,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			}
 			else
 			{
-				sprintf(buf, "Parameter #%i of type %s of event %s is invalid.The event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed.\nThe data was already invalid at event call time.",
+				snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.The event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed.\nThe data was already invalid at event call time.",
 				             argIndex,
 				             g_gevManager->ArgToName(m_type),
 				             g_gevManager->GetEventName(type),

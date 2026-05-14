@@ -618,7 +618,7 @@ void Token::GetNumber(sint32 &n)
 
 char const * Token::ErrStr()
 {
-	sprintf(m_estr, "%s line %d:", m_filename, g_parse_line);
+	snprintf(m_estr, sizeof(m_estr), "%s line %d:", m_filename, g_parse_line);
 	return m_estr;
 }
 

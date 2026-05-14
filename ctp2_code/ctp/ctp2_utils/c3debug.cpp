@@ -113,7 +113,7 @@ void c3debug_InitDebugLog()
 		MBCHAR fileName[256];
 		do
 		{
-			sprintf(fileName, "logs%s%s", FILE_SEP, fileData.cFileName);
+			snprintf(fileName, sizeof(fileName), "logs%s%s", FILE_SEP, fileData.cFileName);
 			DeleteFile(fileName);
 		} while(FindNextFile(lpFileList,&fileData));
 
@@ -131,7 +131,7 @@ void c3debug_InitDebugLog()
 			if (entry->d_name[0] == '.')
 				continue;
 			MBCHAR fileName[256];
-			sprintf(fileName, "logs%s%s", FILE_SEP, entry->d_name);
+			snprintf(fileName, sizeof(fileName), "logs%s%s", FILE_SEP, entry->d_name);
 			unlink(fileName);
 		}
 		closedir(dir);
@@ -313,7 +313,7 @@ static LONG _cdecl c3debug_CivExceptionHandler (LPEXCEPTION_POINTERS exception_p
 	GetLocalTime(&localTime);
 
 	char stamp[1024];
-	sprintf(stamp, "Civilization III CTP - %s on %s at %d/%d/%d %d:%d:%d", userName, computerName,
+	snprintf(stamp, sizeof(stamp), "Civilization III CTP - %s on %s at %d/%d/%d %d:%d:%d", userName, computerName,
 		localTime.wMonth, localTime.wDay, localTime.wYear, localTime.wHour,
 		localTime.wMinute, localTime.wSecond);
 

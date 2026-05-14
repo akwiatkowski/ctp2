@@ -237,7 +237,7 @@ MBCHAR *CivPaths::MakeSavePath(MBCHAR *fullPath, MBCHAR *s1, MBCHAR *s2, MBCHAR 
 #endif
 
 		if (!r) {
-			strcat(fullPath, FILE_SEP);
+			strncat(fullPath, FILE_SEP, sizeof(fullPath) - strlen(fullPath) - 1);
 			return fullPath;
 		}
 		else return NULL;

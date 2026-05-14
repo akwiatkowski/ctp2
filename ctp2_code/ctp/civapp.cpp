@@ -448,8 +448,8 @@ void AddSearchDirectories
             a_ProjectFile->addPath(path);
 
             // A predefined packed file in the directory
-            strcat(path, FILE_SEP);
-            strcat(path, a_PackFileName);
+            strncat(path, FILE_SEP, sizeof(path) - strlen(path) - 1);
+            strncat(path, a_PackFileName, sizeof(path) - strlen(path) - 1);
             a_ProjectFile->addPath(path);
         }
     }
@@ -474,8 +474,8 @@ void AddSearchPacks
         if (path[0])
         {
             // A predefined packed file in the directory
-            strcat(path, FILE_SEP);
-            strcat(path, a_PackFileName);
+            strncat(path, FILE_SEP, sizeof(path) - strlen(path) - 1);
+            strncat(path, a_PackFileName, sizeof(path) - strlen(path) - 1);
             a_ProjectFile->addPath(path, TRUE);
         }
     }

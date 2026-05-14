@@ -9864,7 +9864,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 				&&  g_network.IsLocalPlayer(m_owner))
 				){
 					char turnBuf[32];
-					sprintf(turnBuf, "%d", ag.GetTurns() + 1);
+					snprintf(turnBuf, sizeof(turnBuf), "%d", ag.GetTurns() + 1);
 					SlicObject *so = new SlicObject("13IAEnteringLands");
 					so->AddCivilisation(m_owner);
 					so->AddCivilisation(cell->GetOwner());
@@ -10926,7 +10926,7 @@ const MBCHAR * ArmyData::GetName() const
 	{
 		/// @todo Check possible reentrancy problems
 		static MBCHAR buf[40];
-		sprintf(buf, "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_id & (0x0fffffff));
+		snprintf(buf, sizeof(buf), "%s%d", g_theStringDB->GetNameStr("ARMY_NAME_PREFIX"), m_id & (0x0fffffff));
 		return buf;
 	}
 }

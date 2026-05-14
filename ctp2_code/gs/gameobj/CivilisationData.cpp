@@ -27,8 +27,8 @@
 //
 // - Fixed number of city styles removed.
 // - Update city style when resetting civilisation.
-// - Replaced old civilsation databse by new one. (Aug 21st 2005 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced old civilsation databse by new one. (Aug 21st 2005 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -255,10 +255,12 @@ void CivilisationData::GetCityName(const sint32 name, MBCHAR *s) const
 	Assert(name >= 0);
 	Assert(name < g_theCivilisationDB->Get(m_civ)->GetNumCityName());
 	strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
-	if (m_cityname_count[name] > 0)
-		sprintf(s, "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
-	else
-		strcpy(s, g_theStringDB->GetNameStr(strId));
+	if (m_cityname_count[name] > 0) {
+		snprintf(s, k_MAX_NAME_LEN, "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+	} else {
+		strncpy(s, g_theStringDB->GetNameStr(strId), k_MAX_NAME_LEN - 1);
+		s[k_MAX_NAME_LEN - 1] = '\0';
+	}
 }
 
 
@@ -286,10 +288,12 @@ void CivilisationData::UseCityName(const sint32 name)
 		MBCHAR	s[k_MAX_NAME_LEN];
 
 		strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
-		if (m_cityname_count[name] > 0)
-			sprintf(s, "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
-		else
-			strcpy(s, g_theStringDB->GetNameStr(strId));
+		if (m_cityname_count[name] > 0) {
+			snprintf(s, sizeof(s), "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+		} else {
+			strncpy(s, g_theStringDB->GetNameStr(strId), sizeof(s) - 1);
+			s[sizeof(s) - 1] = '\0';
+		}
 
 		DPRINTF(k_DBG_INFO, ("City Name %s used\n", s));
 	}
@@ -320,10 +324,12 @@ void CivilisationData::ReleaseCityName(const sint32 name)
 		MBCHAR	s[k_MAX_NAME_LEN];
 
 		strId = g_theCivilisationDB->Get(m_civ)->GetCityName(name);
-		if (m_cityname_count[name] > 0)
-			sprintf(s, "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
-		else
-			strcpy(s, g_theStringDB->GetNameStr(strId));
+		if (m_cityname_count[name] > 0) {
+			snprintf(s, sizeof(s), "%s%d", g_theStringDB->GetNameStr(strId), m_cityname_count[name]);
+		} else {
+			strncpy(s, g_theStringDB->GetNameStr(strId), sizeof(s) - 1);
+			s[sizeof(s) - 1] = '\0';
+		}
 
 		DPRINTF(k_DBG_INFO, ("City Name %s release\n", s));
 		}

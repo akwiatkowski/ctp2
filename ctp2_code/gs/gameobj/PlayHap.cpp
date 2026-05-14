@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -221,12 +221,12 @@ void PlayerHappiness::DisplayWWR()
 {
 	char str[80];
 
-	sprintf(str, "work    %d work per person:%f  ",  m_unitless_workday, m_workday_per_person);
+	snprintf(str, sizeof(str), "work    %d work per person:%f  ",  m_unitless_workday, m_workday_per_person);
 	g_debugWindow->AddText(str);
-	sprintf(str, "wage    %d wage per person:%f  ",  m_unitless_wages, m_wages_per_person);
+	snprintf(str, sizeof(str), "wage    %d wage per person:%f  ",  m_unitless_wages, m_wages_per_person);
 	g_debugWindow->AddText(str);
 
-	sprintf(str, "rations %d  rations per person:%f ", m_unitless_rations, m_rations_per_person * g_theConstDB->Get(0)->GetBaseRations());
+	snprintf(str, sizeof(str), "rations %d  rations per person:%f ", m_unitless_rations, m_rations_per_person * g_theConstDB->Get(0)->GetBaseRations());
 	g_debugWindow->AddText(str);
 
 

@@ -782,7 +782,7 @@ void C3Robot_Time_Logging()
 
 			}
 
-			sprintf(timing_file_name, "Timing_%s.txt", time_stamp);
+			snprintf(timing_file_name, sizeof(timing_file_name), "Timing_%s.txt", time_stamp);
 
 			time_file = fopen(timing_file_name, "w");
 			start_timing_time = my_time;
@@ -832,7 +832,7 @@ void C3Robot_Memory_Logging()
 
 		}
 
-		sprintf(memory_file_name, "memorylog_%s.txt", time_stamp);
+		snprintf(memory_file_name, sizeof(memory_file_name), "memorylog_%s.txt", time_stamp);
 
 	}
 

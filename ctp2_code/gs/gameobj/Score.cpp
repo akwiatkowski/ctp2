@@ -450,7 +450,7 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 
 	cpw_NumberToCommas((sint32 )value, commaValue);
 	cpw_NumberToCommas(count, commaCount);
-	sprintf(buffer, formatStr, commaCount, commaValue);
+	snprintf(buffer, sizeof(buffer), formatStr, commaCount, commaValue);
 
 	return buffer;
 }

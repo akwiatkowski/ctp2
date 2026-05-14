@@ -36,16 +36,16 @@
 // - Allow infastructure and capitalisation when loading the build queue
 //   (modification as posted by Peter Triggs).
 // - Players are now notified if someone starts to build the first wonder
-//   from the database. - Feb. 23rd 2005 Martin Gühmann
-// - Added assignment operator. - Jul 16th 2005 Martin Gühmann
-// - Removed old endgame database, doesn't seem to be uses. (Aug 29th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+//   from the database. - Feb. 23rd 2005 Martin Gï¿½hmann
+// - Added assignment operator. - Jul 16th 2005 Martin Gï¿½hmann
+// - Removed old endgame database, doesn't seem to be uses. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Report (wonder) start of second item when deleting the first item.
 // - Improved handling of multiple build queue actions in a turn.
 // - Add PopCostsToBuild to allow for Units with higher than 1 (BuildingRemovesaPop)
 //   population cost to be removed from a city.
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1390,11 +1390,11 @@ void BuildQueue::Dump(const sint32 shieldstore, MBCHAR *s)
 
 		if (firstTime)
 			{
-			sprintf(s, "%s(%d/%d), ", s, node->m_cost, node->m_cost - shieldstore) ;
+			snprintf(s, k_MAX_NAME_LEN, "%s(%d/%d), ", s, node->m_cost, node->m_cost - shieldstore) ;
 			firstTime = false;
 			}
 		else
-			sprintf(s, "%s(%d), ", s, node->m_cost) ;
+			snprintf(s, k_MAX_NAME_LEN, "%s(%d), ", s, node->m_cost) ;
 
 		node = node->m_next ;
 		}

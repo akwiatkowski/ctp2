@@ -202,7 +202,7 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "WatchList" );
+	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "WatchList" );
 	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, WatchListActionCallback, this);
 	m_list->SetAbsorbancy(FALSE);
 	m_list->Clear();
@@ -211,13 +211,13 @@ sint32 WatchList::Initialize(MBCHAR *windowBlock)
 	if ( !AUI_NEWOK(m_list, errcode) )
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "NewButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NewButton");
 	m_newButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ClearButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ClearButton");
 	m_clearButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ExitButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
 	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, WatchListButtonCallback, this);
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
@@ -337,17 +337,17 @@ AUI_ERRCODE WatchListItem::InitCommonLdl(MBCHAR *ldlBlock)
 	c3_Static *valueItem;
 	c3_Static *breakItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Break");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Break");
 	breakItem = new c3_Static(&retval, aui_UniqueId(), block);
 	breakItem->SetActionFuncAndCookie(WatchBreakItemCallback, this);
 	AddChild(breakItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "Expression");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Expression");
 	expressionItem = new C3TextField(&retval, aui_UniqueId(), block, WatchExpressionItemCallback, this);
 	expressionItem->SetFieldText(m_line);
 	AddChild(expressionItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "Value");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Value");
 	valueItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(valueItem);
 

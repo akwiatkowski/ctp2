@@ -227,38 +227,38 @@ sint32 SourceList::Initialize(MBCHAR *windowBlock)
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "SourceList" );
+	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SourceList" );
 	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SourceListActionCallback, this);
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) )
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ContinueButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ContinueButton");
 	m_continue = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_continue, errcode));
 	if( !AUI_NEWOK(m_continue, errcode))
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ExitButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
 	m_exit = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_exit, errcode));
 	if( !AUI_NEWOK(m_exit, errcode))
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "StepButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepButton");
 	m_step = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_step, errcode));
 	if( !AUI_NEWOK(m_step, errcode))
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "StepIntoButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StepIntoButton");
 	m_stepInto = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SourceListButtonCallback, this);
 	Assert(AUI_NEWOK(m_stepInto, errcode));
 	if( !AUI_NEWOK(m_stepInto, errcode))
 		return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "Status");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Status");
 	m_status = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert(AUI_NEWOK(m_status, errcode));
 	if(!AUI_NEWOK(m_status, errcode))
@@ -362,7 +362,7 @@ void SourceList::ShowBreak(sint32 offset)
 	sint32 i;
 
 	char statusBuf[1024];
-	sprintf(statusBuf, "Break at %s:%d", m_segment->GetName(), lineNumber);
+	snprintf(statusBuf, sizeof(statusBuf), "Break at %s:%d", m_segment->GetName(), lineNumber);
 
 	for(i = 0; i < m_list->NumItems(); i++) {
 		SourceListItem *item = (SourceListItem *)m_list->GetItemByIndex(i);
@@ -370,8 +370,8 @@ void SourceList::ShowBreak(sint32 offset)
 			item->ShowBreak();
 			SlicConditional *cond = item->GetSegment()->GetConditional(lineNumber);
 			if(cond) {
-				strcat(statusBuf, " when ");
-				strcat(statusBuf, cond->GetExpression());
+				strncat(statusBuf, " when ", sizeof(statusBuf) - strlen(statusBuf) - 1);
+				strncat(statusBuf, cond->GetExpression(), sizeof(statusBuf) - strlen(statusBuf) - 1);
 			}
 			break;
 		}
@@ -452,12 +452,12 @@ AUI_ERRCODE SourceListItem::InitCommonLdl(SlicSegment *segment,
 	c3_Static *breakItem;
 	c3_Static *textItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Break");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Break");
 	breakItem = new c3_Static(&retval, aui_UniqueId(), block);
 	breakItem->SetActionFuncAndCookie(SourceBreakItemCallback, this);
 	AddChild(breakItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "Line");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Line");
 	textItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(textItem);
 

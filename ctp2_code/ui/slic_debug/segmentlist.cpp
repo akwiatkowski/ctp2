@@ -178,18 +178,18 @@ sint32 SegmentList::Initialize(MBCHAR *windowBlock)
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "SegmentList" );
+	snprintf( controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SegmentList" );
 	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, SegmentListActionCallback, this);
 
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "WatchButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "WatchButton");
 	m_watchButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
 	Assert(AUI_NEWOK(m_watchButton, errcode));
 	if(!AUI_NEWOK(m_watchButton, errcode)) return -1;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ExitButton");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton");
 	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), controlBlock, SegmentListButtonCallback, this);
 	Assert(AUI_NEWOK(m_exitButton, errcode));
 	if(!AUI_NEWOK(m_exitButton, errcode)) return -1;
@@ -268,7 +268,7 @@ AUI_ERRCODE SegmentListItem::InitCommonLdl(SlicSegment *segment,
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	sprintf(block, "%s.%s", ldlBlock, "Segment");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Segment");
 	c3_Static * subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 

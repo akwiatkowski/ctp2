@@ -59,6 +59,9 @@ STDEHANDLER(ThreatenAttackCity_CounterResponseEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
+	if (!g_player[sender] || !g_player[receiver])
+		return GEV_HD_Continue;
+
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
 
@@ -536,6 +539,9 @@ STDEHANDLER(ReciprocateAction_CounterResponseEvent)
 		return GEV_HD_Continue;
 
 	if (!args->GetPlayer(1, receiver))
+		return GEV_HD_Continue;
+
+	if (!g_player[sender] || !g_player[receiver])
 		return GEV_HD_Continue;
 
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);

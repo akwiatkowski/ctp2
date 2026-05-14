@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gühmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -78,6 +78,9 @@ STDEHANDLER(ResponseEvent)
 		return GEV_HD_Continue;
 
 	if (!args->GetPlayer(1, receiver))
+		return GEV_HD_Continue;
+
+	if (!g_player[sender] || !g_player[receiver])
 		return GEV_HD_Continue;
 
 	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);

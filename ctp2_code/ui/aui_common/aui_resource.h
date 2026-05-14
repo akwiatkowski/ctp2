@@ -29,7 +29,7 @@
 // - Crash preventions
 // - moved aui_UI::CalculateHash -> aui_Base::CalculateHash
 // - fixed some filesystem portability issues
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -280,7 +280,7 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 
 	if (size)
 	{
-		sprintf(tempName, "%s%d", resName, size);
+		snprintf(tempName, sizeof(tempName), "%s%d", resName, size);
 		name = tempName;
 	}
 	else
@@ -366,7 +366,7 @@ BOOL aui_Resource<T>::FindFile( MBCHAR *fullPath, const MBCHAR *name )
 			for ( sint32 i = m_pathList->L(); i; i-- )
 			{
 				MBCHAR *path = m_pathList->GetNext( position );
-				sprintf( fullPath, "%s%s%s", path, FILE_SEP, name );
+				snprintf( fullPath, MAX_PATH + 1, "%s%s%s", path, FILE_SEP, name );
 
 #if defined(WIN32)
 				if ( GetFileAttributes( fullPath ) != 0xffffffff )

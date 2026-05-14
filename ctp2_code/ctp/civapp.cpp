@@ -1180,7 +1180,7 @@ bool CivApp::InitializeAppDB(void)
 		if(!lastdot)
 			lastdot = g_citysize_filename + strlen(g_citysize_filename);
 
-		sprintf(lastdot, "%d.txt", 0);
+		snprintf(lastdot, _MAX_PATH - (lastdot - g_citysize_filename), "%d.txt", 0);
 
 		fprintf(stderr, "[CIVAPP] InitializeAppDB: Parsing CitySizeDB\n");
 		if (!g_theCitySizeDB->Parse(C3DIR_GAMEDATA, g_citysize_filename))
@@ -3521,7 +3521,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 void CivApp::RestoreAutoSave(sint32 player)
 {
 	MBCHAR		filename[_MAX_PATH];
-	sprintf(filename, "auto%d.sav", player);
+	snprintf(filename, sizeof(filename), "auto%d.sav", player);
 
 	g_c3ui->AddAction(new LoadSaveGameAction(filename));
 }
@@ -3557,7 +3557,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	c3files_StripSpaces(leaderName);
 
 	MBCHAR			filename[_MAX_PATH];
-	sprintf(filename, "%s-%s", g_theStringDB->GetNameStr("QUICKSAVE_NAME"), leaderName);
+	snprintf(filename, sizeof(filename), "%s-%s", g_theStringDB->GetNameStr("QUICKSAVE_NAME"), leaderName);
 
 	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 

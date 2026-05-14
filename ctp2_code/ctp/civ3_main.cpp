@@ -2237,7 +2237,7 @@ void DisplayFrame(aui_Surface *surf)
 	g_ave_frame_rate = fr_decay * g_ave_frame_rate + (1.0 - fr_decay) * (1000.0/d);
 
 	char str[80];
-	sprintf(str, "ave frame rate %4.2f/sec - ave frame time %5.1fms",
+	snprintf(str, sizeof(str), "ave frame rate %4.2f/sec - ave frame time %5.1fms",
 	        g_ave_frame_rate, g_ave_frame_time
 	       );
 	primitives_DrawText(surf, 100, 100, str, 1, 0);

@@ -237,7 +237,13 @@ MBCHAR *CivPaths::MakeSavePath(MBCHAR *fullPath, MBCHAR *s1, MBCHAR *s2, MBCHAR 
 #endif
 
 		if (!r) {
-			strncat(fullPath, FILE_SEP, sizeof(fullPath) - strlen(fullPath) - 1);
+			// NOTE: do NOT convert this strcat to strncat. fullPath is a pointer
+			// parameter with no accompanying size, so sizeof(fullPath) would be
+			// the pointer size (4/8 bytes), not the buffer size — producing a
+			// negative bound that wraps to a huge size_t. Callers guarantee
+			// fullPath points to a _MAX_PATH buffer; appending one FILE_SEP
+			// after _fullpath() succeeded is within bounds. See batch 49 revert.
+			strcat(fullPath, FILE_SEP);
 			return fullPath;
 		}
 		else return NULL;

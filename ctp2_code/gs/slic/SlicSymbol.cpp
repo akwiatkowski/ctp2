@@ -27,7 +27,7 @@
 // - Repaired memory leaks.
 // - Removed assert to prevent lots of pop-ups with e.g. the LOTR scenario.
 // - GetText function now returns FALSE if there is no proper string to
-//   retrieve, so that this can be checked if. - Nov 5th 2004 Martin Gühmann
+//   retrieve, so that this can be checked if. - Nov 5th 2004 Martin Gï¿½hmann
 // - Added validity checks to GetPos.
 //
 //----------------------------------------------------------------------------
@@ -615,7 +615,7 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 	switch(GetType()) {
 		case SLIC_SYM_IVAR:
 			GetIntValue(ival);
-			snprintf(text, sizeof(text), "%d", ival);
+			snprintf(text, maxLen, "%d", ival);
 			break;
 		case SLIC_SYM_STRUCT:
 			dataSym = m_val.m_struct->GetDataSymbol();
@@ -628,12 +628,12 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 			if(g_theStringDB->GetNameStr(m_val.m_string_value)) {
 				strcpy(text, g_theStringDB->GetNameStr(m_val.m_string_value));
 			} else {
-				snprintf(text, sizeof(text), "<Bad String ID %d>", m_val.m_string_value);
+				snprintf(text, maxLen, "<Bad String ID %d>", m_val.m_string_value);
 			}
 			break;
 		default:
-			snprintf(text, sizeof(text), "??? (Symbol type %d)", GetType());
-// Added by Martin Gühmann to figure out whether there is a string for a given slic symbol.
+			snprintf(text, maxLen, "??? (Symbol type %d)", GetType());
+// Added by Martin Gï¿½hmann to figure out whether there is a string for a given slic symbol.
 			return FALSE;
 			break;
 	}
@@ -653,69 +653,69 @@ void SlicSymbolData::GetDebugText(MBCHAR *text, sint32 len) const
 	switch(GetType()) {
 		case SLIC_SYM_IVAR:
 			GetIntValue(ival);
-			snprintf(text, sizeof(text), "%d", ival);
+			snprintf(text, len, "%d", ival);
 			break;
 		case SLIC_SYM_SVAR:
-			snprintf(text, sizeof(text), "\"%s\"", m_val.m_hard_string);
+			snprintf(text, len, "\"%s\"", m_val.m_hard_string);
 			break;
 		case SLIC_SYM_ID:
-			snprintf(text, sizeof(text), "'%s'", GetName());
+			snprintf(text, len, "'%s'", GetName());
 			break;
 		case SLIC_SYM_FUNC:
-			snprintf(text, sizeof(text), "%s()", GetName());
+			snprintf(text, len, "%s()", GetName());
 			break;
 		case SLIC_SYM_STRING:
-			snprintf(text, sizeof(text), "<%d> ID_%s: \"%s\"", m_val.m_string_value,
+			snprintf(text, len, "<%d> ID_%s: \"%s\"", m_val.m_string_value,
 					g_theStringDB->GetIdStr(m_val.m_string_value),
 					g_theStringDB->GetNameStr(m_val.m_string_value));
 			break;
 		case SLIC_SYM_CITY:
 			if(GetCity(city)) {
-				snprintf(text, sizeof(text), "City %lx: %s", city.m_id,
+				snprintf(text, len, "City %lx: %s", city.m_id,
 						city.GetName());
 			} else {
-				snprintf(text, sizeof(text), "Invalid city (%lx?)", m_val.m_city_id);
+				snprintf(text, len, "Invalid city (%lx?)", m_val.m_city_id);
 			}
 			break;
 		case SLIC_SYM_UNIT:
 			if(GetUnit(u)) {
 
-				snprintf(text, sizeof(text), "Unit %lx: %s", u.m_id,
+				snprintf(text, len, "Unit %lx: %s", u.m_id,
 						u.IsValid() ? u.GetName() : "<DEAD>");
 			} else {
-				snprintf(text, sizeof(text), "Invalid unit (%lx?)", m_val.m_unit_id);
+				snprintf(text, len, "Invalid unit (%lx?)", m_val.m_unit_id);
 			}
 			break;
 		case SLIC_SYM_ARMY:
 			if(GetArmy(army)) {
-				snprintf(text, sizeof(text), "Army %lx", army.m_id);
+				snprintf(text, len, "Army %lx", army.m_id);
 			} else {
-				snprintf(text, sizeof(text), "Invalid army (%lx?)", m_val.m_army_id);
+				snprintf(text, len, "Invalid army (%lx?)", m_val.m_army_id);
 			}
 			break;
 		case SLIC_SYM_LOCATION:
 			if(GetPos(pos)) {
-				snprintf(text, sizeof(text), "Location: %d,%d",
+				snprintf(text, len, "Location: %d,%d",
 						pos.x,
 						pos.y);
 			} else {
-				snprintf(text, sizeof(text), "Invalid location (%x,%x)?",
+				snprintf(text, len, "Invalid location (%x,%x)?",
 						m_val.m_location.x,
 						m_val.m_location.y);
 			}
 			break;
 		case SLIC_SYM_ARRAY:
-			snprintf(text, sizeof(text), "Array");
+			snprintf(text, len, "Array");
 			break;
 		case SLIC_SYM_STRUCT:
 			dataSym = m_val.m_struct->GetDataSymbol();
 			dataSym->GetDebugText(text, len);
 			break;
 		case SLIC_SYM_PLAYER:
-			snprintf(text, sizeof(text), "Player");
+			snprintf(text, len, "Player");
 			break;
 		default:
-			snprintf(text, sizeof(text), "???");
+			snprintf(text, len, "???");
 	}
 }
 

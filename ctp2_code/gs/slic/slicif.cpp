@@ -1902,8 +1902,9 @@ void slicif_check_event_exists(char *name)
 
 char *slicif_create_name(char *base)
 {
-	char *name = (char *)malloc(strlen(base) + 10);
-	snprintf(name, sizeof(name), "%s!%08lx", base, s_temp_name_counter++);
+	size_t const nameSize = strlen(base) + 10;
+	char *name = (char *)malloc(nameSize);
+	snprintf(name, nameSize, "%s!%08lx", base, s_temp_name_counter++);
 	return name;
 }
 

@@ -113,6 +113,20 @@ if not win32
 
 		# Catch implicit function declarations (often lead to wrong calling conventions)
 		add_project_arguments('-Werror=implicit-function-declaration', language : ['c'])
+
+		# String / buffer safety warnings — catch the bug classes introduced by the
+		# sprintf→snprintf and strcat→strncat conversion batches. The key one is
+		# -Wsizeof-pointer-memaccess, which detects sizeof(ptr) used as a buffer-size
+		# argument (the trap that bit batch 59 in CivPaths::MakeSavePath).
+		# Some flags are GCC-only; use get_supported_arguments to filter portably.
+		string_safety_warnings = compiler.get_supported_arguments([
+			'-Wsizeof-pointer-memaccess',
+			'-Wstringop-overflow=4',
+			'-Wstringop-truncation',
+			'-Wformat-truncation=2',
+			'-Wmemset-transposed-args',
+		])
+		add_project_arguments(string_safety_warnings, language : ['c', 'cpp'])
 	endif
 
 	if hardening_level == 'maximum'

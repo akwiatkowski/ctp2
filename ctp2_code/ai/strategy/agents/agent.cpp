@@ -722,7 +722,7 @@ void Agent::Ungroup_Order()
 	Set_Can_Be_Executed(false);
 
 	MBCHAR * myString = new MBCHAR[256];
-	sprintf(myString, "Ungrouping at (%d,%d)", pos.x, pos.y);
+	snprintf(myString, 256, "Ungrouping at (%d,%d)", pos.x, pos.y);
 	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
 	delete[] myString;
 }
@@ -913,7 +913,7 @@ void Agent::WaitHere(const MapPoint & goal_pos)
 		MapPoint pos;
 		m_army->GetPos(pos);
 		MBCHAR * myString = new MBCHAR[255];
-		sprintf(myString, "Waiting GROUP @ (%d,%d) to GO (%d,%d)", pos.x, pos.y, goal_pos.x, goal_pos.y);
+		snprintf(myString, 255, "Waiting GROUP @ (%d,%d) to GO (%d,%d)", pos.x, pos.y, goal_pos.x, goal_pos.y);
 		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
 		delete[] myString;
 	}

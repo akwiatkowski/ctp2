@@ -1842,7 +1842,7 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 
 				uint8   magnitude = (uint8) (((max_desired_goals - desired_goals) * 255) / max_desired_goals);
 				char buf[10];
-				sprintf(buf, "%4.0f", settle_target.m_value);
+				snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
 				g_graphicsOptions->AddTextToCell(settle_target.m_pos, buf, magnitude);
 
 				desired_goals--;

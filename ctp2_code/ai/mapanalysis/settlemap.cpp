@@ -335,7 +335,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
-			sprintf(buf,"*%4.0f*",settle_target.m_value);
+			snprintf(buf, sizeof(buf), "*%4.0f*", settle_target.m_value);
 			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 		}
 
@@ -346,9 +346,9 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		{
 			if (g_graphicsOptions->IsCellTextOn())
 			{
-				char buf[16];
-				sprintf(buf,"(%4.0f)",settle_target.m_value);
-				g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
+			char buf[16];
+			snprintf(buf, sizeof(buf), "(%4.0f)", settle_target.m_value);
+			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 			}
 
 			continue;
@@ -360,7 +360,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
-			sprintf(buf,"%4.0f",settle_target.m_value);
+			snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
 			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 		}
 
@@ -555,7 +555,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
-			sprintf(buf,"*%4.0f*",settle_target.m_value);
+			snprintf(buf, sizeof(buf), "*%4.0f*", settle_target.m_value);
 			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 		}
 
@@ -566,9 +566,9 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		{
 			if (g_graphicsOptions->IsCellTextOn())
 			{
-				char buf[16];
-				sprintf(buf,"(%4.0f)",settle_target.m_value);
-				g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
+			char buf[16];
+			snprintf(buf, sizeof(buf), "(%4.0f)", settle_target.m_value);
+			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 			}
 
 			continue;
@@ -580,7 +580,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
-			sprintf(buf,"%4.0f",settle_target.m_value);
+			snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
 			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
 		}
 

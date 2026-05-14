@@ -30,7 +30,7 @@ DllExport void GWArchive::Archive(char *basePath)
 		int recordID = recordingArchive->CreateRecord(data, numOfBytes);
 
 		char exportName[1024];
-		sprintf(exportName, "%s\\export%d", basePath, index);
+		snprintf(exportName, sizeof(exportName), "%s\\export%d", basePath, index);
 
 		index++;
 
@@ -52,7 +52,7 @@ DllExport void GWArchive::Archive(char *basePath)
 	}
 
 	char mergeName[1024];
-	sprintf(mergeName, "%s\\summary", basePath);
+	snprintf(mergeName, sizeof(mergeName), "%s\\summary", basePath);
 
 
 	recordingArchive->ExportRecord(mergeID, mergeName, NULL);

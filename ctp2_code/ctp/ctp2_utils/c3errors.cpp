@@ -175,7 +175,7 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 	va_start(list, fmt);
 	vsprintf(szFmtTmp, fmt, list);
 	char Tmp[2000];
-	sprintf(Tmp, "%s\n\nContinue?", szFmtTmp);
+	snprintf(Tmp, sizeof(Tmp), "%s\n\nContinue?", szFmtTmp);
 	va_end(list);
 
 	DPRINTF(k_DBG_FIX, ("Error: %s, %s\n", szTitle, szFmtTmp));

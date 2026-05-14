@@ -1840,7 +1840,7 @@ void CleanSpritesCommand::Execute(sint32 argc, char **argv)
 		usg = new UnitSpriteGroup(GROUPTYPE_UNIT);
 		name = unitFileNames[i];
 		usg->LoadFull(name);
-		sprintf(saveName, "Output\\%s", name);
+		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		usg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
 		delete usg;
 	}
@@ -1849,7 +1849,7 @@ void CleanSpritesCommand::Execute(sint32 argc, char **argv)
 		gsg = new GoodSpriteGroup(GROUPTYPE_GOOD);
 		name = goodFileNames[i];
 		gsg->LoadFull(name);
-		sprintf(saveName, "Output\\%s", name);
+		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		gsg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
 		delete gsg;
 	}
@@ -1858,7 +1858,7 @@ void CleanSpritesCommand::Execute(sint32 argc, char **argv)
 		usg = new UnitSpriteGroup(GROUPTYPE_CITY);
 		name = cityFileNames[i];
 		usg->LoadFull(name);
-		sprintf(saveName, "Output\\%s", name);
+		snprintf(saveName, sizeof(saveName), "Output\\%s", name);
 		usg->Save(saveName,k_SPRITEFILE_VERSION0,SPRDATA_REGULAR);
 		delete usg;
 	}

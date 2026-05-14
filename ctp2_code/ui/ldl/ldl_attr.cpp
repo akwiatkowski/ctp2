@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -74,16 +74,16 @@ char *ldl_attribute::GetValueText()
 	static char buf[1024];
 	switch(m_type) {
 		case ATTRIBUTE_TYPE_BOOL:
-			sprintf(buf, "%s", GetBoolValue() ? "true" : "false");
+			snprintf(buf, sizeof(buf), "%s", GetBoolValue() ? "true" : "false");
 			break;
 		case ATTRIBUTE_TYPE_INT:
-			sprintf(buf, "%d", GetIntValue());
+			snprintf(buf, sizeof(buf), "%d", GetIntValue());
 			break;
 		case ATTRIBUTE_TYPE_DOUBLE:
-			sprintf(buf, "%lf", GetFloatValue());
+			snprintf(buf, sizeof(buf), "%lf", GetFloatValue());
 			break;
 		case ATTRIBUTE_TYPE_STRING:
-			sprintf(buf, "%s", GetStringValue());
+			snprintf(buf, sizeof(buf), "%s", GetStringValue());
 			break;
 	}
 	return buf;

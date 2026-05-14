@@ -1089,9 +1089,13 @@ void ParseCommandLine(PSTR szCmdLine)
 #ifdef WIN32
 #ifndef _BFR_
 	if(stricmp(szCmdLine, "crash.txt") == 0) {
+		FILE *crash = fopen("crash.txt", "r");
 		FILE *txt = fopen("crashmap.txt", "w");
-		fprintf(txt, "%s\n", c3debug_ExceptionStackTraceFromFile(fopen("crash.txt", "r")));
-		fclose(txt);
+		if(crash && txt) {
+			fprintf(txt, "%s\n", c3debug_ExceptionStackTraceFromFile(crash));
+		}
+		if(crash) fclose(crash);
+		if(txt) fclose(txt);
 		exit(0);
 	}
 #endif // _BFR_

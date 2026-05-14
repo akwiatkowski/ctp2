@@ -74,7 +74,8 @@ void iparser::Report_Error
     sprintf (message, "%s", raw_message);
 
 	va_start(list, message);
-	vsprintf(buf, message, list);
+	vsnprintf(buf, sizeof(buf), message, list);
+	buf[sizeof(buf) - 1] = '\0';
 	va_end(list);
 	ai->m_gs->GetErrorReport()->ReportError(buf);
 

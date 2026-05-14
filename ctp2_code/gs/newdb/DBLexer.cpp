@@ -27,8 +27,8 @@
 // - Repaired memory leaks.
 // - Prevented files staying open.
 // - Fixed PeekAhead method so that the real next token is returned.
-//   (Sept 3rd 2005 Martin Gühmann)
-// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gühmann)
+//   (Sept 3rd 2005 Martin Gï¿½hmann)
+// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -331,9 +331,9 @@ void DBLexer::ReportError(char *fmt, ...)
 	va_start(list, fmt);
 
 	char buf[1024];
-	sprintf(buf, "%s:%d: ", GetFilename(), GetLineNumber());
-
-	vsprintf(buf + strlen(buf), fmt, list);
+	size_t prefixLen = snprintf(buf, sizeof(buf), "%s:%d: ", GetFilename(), GetLineNumber());
+	vsnprintf(buf + prefixLen, sizeof(buf) - prefixLen, fmt, list);
+	buf[sizeof(buf) - 1] = '\0';
 
 	va_end(list);
 

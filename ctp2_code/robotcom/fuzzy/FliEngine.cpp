@@ -295,7 +295,8 @@ void FliEngine::ReportDBError(const MBCHAR *stringId, ...)
 		sprintf(buf, "String '%s' not in DB", stringId);
 	} else {
 		va_start(list, stringId);
-		vsprintf(buf, fmt, list);
+		vsnprintf(buf, sizeof(buf), fmt, list);
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(list);
 	}
 	m_gs->GetErrorReport()->ReportError(buf);
@@ -307,7 +308,8 @@ void FliEngine::ReportError(const MBCHAR *text, ...)
 	va_list list;
 
 	va_start(list, text);
-	vsprintf(buf, text, list);
+	vsnprintf(buf, sizeof(buf), text, list);
+	buf[sizeof(buf) - 1] = '\0';
 	va_end(list);
 	m_gs->GetErrorReport()->ReportError(buf);
 }

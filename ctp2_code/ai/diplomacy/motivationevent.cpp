@@ -135,6 +135,9 @@ STDEHANDLER(DesireGold_MotivationEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
+	if(!g_player[playerId])
+		return GEV_HD_Continue;
+
 	sint32 rank = g_player[playerId]->GetRank(STRENGTH_CAT_GOLD);
 	sint32 needed_reserves = g_player[playerId]->m_gold->GetIncome() * 2;
 	bool low_reserves = (needed_reserves < g_player[playerId]->GetGold());
@@ -330,6 +333,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 
 	sint32 enemies = diplomat.GetEnemyCount();
 	sint32 at_war_count = diplomat.AtWarCount();
+
 	sint32 rank = g_player[playerId]->GetRank(STRENGTH_CAT_KNOWLEDGE);
 	sint32 priority;
 	Motivation motivation;

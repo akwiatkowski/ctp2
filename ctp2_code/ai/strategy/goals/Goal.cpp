@@ -1714,7 +1714,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 #endif //_DEBUG
 
 		if (!Barbarians::InBarbarianPeriod()
-		||  wonderutil_GetProtectFromBarbarians(g_player[agent_ptr->Get_Army()->GetOwner()]->m_builtWonders)
+		||  (g_player[agent_ptr->Get_Army()->GetOwner()] && wonderutil_GetProtectFromBarbarians(g_player[agent_ptr->Get_Army()->GetOwner()]->m_builtWonders))
 		){
 			bonus += g_theGoalDB->Get(m_goal_type)->GetNoBarbarianBonus();
 		}
@@ -2183,7 +2183,7 @@ Utility Goal::Compute_Raw_Priority()
 	    && cbRec->GetSmallTargetEmpireBonus() != 0
 	    && target_owner != m_playerId
 	    && target_owner > -1
-	    && g_player[target_owner]->GetNumCities() < cbRec->GetSmallTargetEmpireSize()
+	    && g_player[target_owner] && g_player[target_owner]->GetNumCities() < cbRec->GetSmallTargetEmpireSize()
 	  )
 	{
 		cell_value += cbRec->GetSmallTargetEmpireBonus();

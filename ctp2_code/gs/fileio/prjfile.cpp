@@ -198,7 +198,7 @@ int ProjectFile::mergeEntries(PFEntry *newList, int newCount)
         m_num_entries = 0;
     }
     if (m_entries == NULL) {
-        sprintf(m_error_string, "Not enough memory");
+        snprintf(m_error_string, sizeof(m_error_string), "Not enough memory");
         return(0);
     }
 
@@ -231,13 +231,13 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
 
 	if ((dir == C3DIR_DIRECT) || !g_civPaths->FindFile(dir, entry->rname, tempstr))
     {
-		sprintf(tempstr, "%s%s%s", m_paths[entry->path].dos_path, FILE_SEP, entry->rname);
+		snprintf(tempstr, sizeof(tempstr), "%s%s%s", m_paths[entry->path].dos_path, FILE_SEP, entry->rname);
 	}
 
     FILE *fp = fopen(tempstr, "rb");
 
     if (fp == NULL) {
-        sprintf(m_error_string, "Couldn't open file \"%s\"", tempstr);
+        snprintf(m_error_string, sizeof(m_error_string), "Couldn't open file \"%s\"", tempstr);
         return(NULL);
     }
     setvbuf(fp, NULL, _IONBF, 0);
@@ -246,13 +246,13 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
     size = ftell(fp);
     char *data = (char *) malloc(size);
     if (data == NULL) {
-        sprintf(m_error_string, "Could not malloc data for record %s\n", tempstr);
+        snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n", tempstr);
         return(NULL);
     }
 
     fseek(fp, 0, SEEK_SET);
     if (fread(data, size, 1, fp) < 1) {
-        sprintf(m_error_string, "Could not read file \"%s\"", tempstr);
+        snprintf(m_error_string, sizeof(m_error_string), "Could not read file \"%s\"", tempstr);
         free(data);
         fclose(fp);
         return(NULL);
@@ -274,14 +274,14 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
     char *  data = (char *) malloc(size);
     if (data == NULL)
     {
-        sprintf(m_error_string, "Could not malloc data for record %s\n",
+        snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n",
                 entry->rname);
         return NULL;
     }
 
     fseek(fp, entry->offset, SEEK_SET);
     if (fread(data, size, 1, fp) < 1) {
-        sprintf(m_error_string, "Could not read record \"%s\" from \"%s\"" ,
+        snprintf(m_error_string, sizeof(m_error_string), "Could not read record \"%s\" from \"%s\"" ,
                 entry->rname, m_paths[entry->path].dos_path);
         free(data);
         return NULL;
@@ -314,7 +314,7 @@ void *ProjectFile::getData(char const * rname, size_t & size, C3DIR dir)
 
     if (!entry)
     {
-        sprintf(m_error_string, "Couldn't find record \"%s\"", rname);
+        snprintf(m_error_string, sizeof(m_error_string), "Couldn't find record \"%s\"", rname);
         size = 0;
         return NULL;
     }
@@ -335,7 +335,7 @@ void *ProjectFile::getData(char const * rname, size_t & size,
 
     if (!entry)
     {
-        sprintf(m_error_string, "Couldn't find record \"%s\"", rname);
+        snprintf(m_error_string, sizeof(m_error_string), "Couldn't find record \"%s\"", rname);
         size = 0;
         *hFileMap = NULL;
         offset = 0;
@@ -344,7 +344,7 @@ void *ProjectFile::getData(char const * rname, size_t & size,
 
     if (m_paths[entry->path].type != PRJFILE_PATH_ZMS)
     {
-        sprintf(m_error_string, "Record \"%s\" is not file mapped", rname);
+        snprintf(m_error_string, sizeof(m_error_string), "Record \"%s\" is not file mapped", rname);
         size = 0;
         *hFileMap = NULL;
         offset = 0;
@@ -373,7 +373,7 @@ void ProjectFile::freeData(void *ptr)
 int ProjectFile::readDOSdir(long path, PFEntry *table)
 {
     char tmp[256];
-    sprintf(tmp, "%s%s*.*", m_paths[path].dos_path, FILE_SEP);
+    snprintf(tmp, sizeof(tmp), "%s%s*.*", m_paths[path].dos_path, FILE_SEP);
 
 #ifdef WIN32
     WIN32_FIND_DATA dirent;
@@ -387,7 +387,7 @@ int ProjectFile::readDOSdir(long path, PFEntry *table)
     if (!dir)
 #endif
     {
-        sprintf(m_error_string, "Couldn't find \"%s\"", tmp);
+        snprintf(m_error_string, sizeof(m_error_string), "Couldn't find \"%s\"", tmp);
         return(0);
     }
 
@@ -498,7 +498,7 @@ int ProjectFile::addPath_ZFS(char const * path)
 {
     FILE * fp = fopen(path, "rb");
 	if (fp == NULL) {
-		sprintf(m_error_string, "Could not open file \"%s\"", path);
+		snprintf(m_error_string, sizeof(m_error_string), "Could not open file \"%s\"", path);
 		return(0);
 	}
     setvbuf(fp, NULL, _IONBF, 0);
@@ -506,7 +506,8 @@ int ProjectFile::addPath_ZFS(char const * path)
     int pathnum = m_num_paths;
 
     m_paths[pathnum].type   = PRJFILE_PATH_ZFS;
-    strcpy(m_paths[pathnum].dos_path, path);
+    strncpy(m_paths[pathnum].dos_path, path, sizeof(m_paths[pathnum].dos_path) - 1);
+    m_paths[pathnum].dos_path[sizeof(m_paths[pathnum].dos_path) - 1] = '\0';
     m_paths[pathnum].zfs_fp = fp;
 
     m_num_paths++;
@@ -516,12 +517,12 @@ int ProjectFile::addPath_ZFS(char const * path)
 
     ZFS_FHEADER header;
 	if (fread(&header, sizeof(ZFS_FHEADER), 1, fp) < 1) {
-		sprintf(m_error_string, "Could not read header of file \"%s\"", path);
+		snprintf(m_error_string, sizeof(m_error_string), "Could not read header of file \"%s\"", path);
 		return(0);
 	}
 
     if (!verify_ZFS_header(&header)) {
-		sprintf(m_error_string, "Invalid header in file \"%s\"", path);
+		snprintf(m_error_string, sizeof(m_error_string), "Invalid header in file \"%s\"", path);
 		return(0);
 	}
 
@@ -536,7 +537,7 @@ int ProjectFile::addPath_ZFS(char const * path)
         fseek(fp, dhead, SEEK_SET);
 
         if (fread(&dtable, sizeof(ZFS_DTABLE), 1, fp) < 1) {
-            sprintf(m_error_string, "File \"%s\" is corrupt", path);
+            snprintf(m_error_string, sizeof(m_error_string), "File \"%s\" is corrupt", path);
             delete [] tmpList;
             return(0);
         }
@@ -568,7 +569,7 @@ int ProjectFile::addPath_ZMS(char const * path)
         );
 #endif
     if (fbase == NULL) {
-        sprintf(m_error_string, "Could not open file \"%s\"", path);
+        snprintf(m_error_string, sizeof(m_error_string), "Could not open file \"%s\"", path);
         return(0);
     }
 
@@ -580,7 +581,7 @@ int ProjectFile::addPath_ZMS(char const * path)
 
     ZFS_FHEADER * header = (ZFS_FHEADER *) fbase;
     if (!verify_ZFS_header(header)) {
-		sprintf(m_error_string, "Invalid header in file \"%s\"", path);
+		snprintf(m_error_string, sizeof(m_error_string), "Invalid header in file \"%s\"", path);
 		return(0);
 	}
 
@@ -608,7 +609,7 @@ int ProjectFile::addPath(char const * path, bool use_filemapping)
 {
 
     if (m_num_paths >= MAX_PRJFILE_PATHS) {
-        sprintf(m_error_string, "Couldn't add \"%s\", too many paths", path);
+        snprintf(m_error_string, sizeof(m_error_string), "Couldn't add \"%s\", too many paths", path);
         return(0);
     }
 

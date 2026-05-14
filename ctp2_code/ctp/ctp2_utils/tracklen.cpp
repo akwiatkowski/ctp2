@@ -65,7 +65,7 @@ char *tracklen_cryptAscii(char *s)
 	static char buf[256];
 	char *q = buf;
 
-	while (*p) {
+	while (*p && (q - buf) < (int)sizeof(buf) - 1) {
 		int k = keyy[i++] & 31;
 		if (*p >= 32)
 			*q++ = *p++ ^ k;
@@ -73,7 +73,7 @@ char *tracklen_cryptAscii(char *s)
 			*q++ = *p++;
 		if (!keyy[i]) i = 0;
 	}
-	*q++ = 0;
+	*q = 0;
 	return buf;
 }
 
@@ -380,8 +380,8 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 		char *pos = (char*)_mbsrchr( (BYTE*)szTemp, '\\' );
 		if (pos)
 			*pos = 0;
-		strcat( szTemp, "\\" );
-		strcat( szTemp, szFile );
+		strncat( szTemp, "\\", sizeof(szTemp) - strlen(szTemp) - 1 );
+		strncat( szTemp, szFile, sizeof(szTemp) - strlen(szTemp) - 1 );
 #elif defined(HAVE_UNISTD_H) && defined(LINUX)
 		char szLink[MAX_PATH] = { 0 };
 		struct stat st = { 0 };

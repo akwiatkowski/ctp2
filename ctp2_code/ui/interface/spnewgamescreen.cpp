@@ -390,7 +390,7 @@ void spnewgamescreen_editorPress( aui_Control *control, uint32 action, uint32 da
 void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	MBCHAR	tempPath[_MAX_PATH];
-	sprintf(tempPath, "%s%s%s",
+	snprintf(tempPath, sizeof(tempPath), "%s%s%s",
 	        g_civPaths->GetCurScenarioPath(),
 	        FILE_SEP,
 	        k_SCENARIO_DEFAULT_SAVED_GAME_NAME
@@ -616,7 +616,7 @@ c3_Button* spNew_c3_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new c3_Button(errcode, aui_UniqueId(), textBlock, callback);
 }
@@ -625,7 +625,7 @@ ctp2_Button* spNew_ctp2_Button(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *l
 							   void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new ctp2_Button(errcode, aui_UniqueId(), textBlock, callback);
 }
@@ -644,9 +644,9 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
 	MBCHAR		textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	if (ldlParent==NULL)
-		sprintf( textBlock, "%s",ldlMe );
+		snprintf(textBlock, sizeof(textBlock), "%s",ldlMe );
 	else
-		sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+		snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new ctp2_Button
         (errcode, aui_UniqueId(), textBlock,
@@ -663,7 +663,7 @@ c3_Switch* spNew_c3_Switch(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe
 					void (*callback)(aui_Control*,uint32,uint32,void*), void *cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new c3_Switch( errcode, aui_UniqueId(), textBlock, callback, cookie );
 }
@@ -675,7 +675,7 @@ aui_Switch* spNew_aui_Switch(
 	void *cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new aui_Switch( errcode, aui_UniqueId(), textBlock, callback, cookie );
 }
@@ -685,7 +685,7 @@ c3_ListBox* spNew_c3_ListBox(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldl
 					void *cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new c3_ListBox(errcode,aui_UniqueId(), textBlock, callback,cookie );
 }
@@ -694,7 +694,7 @@ c3_DropDown* spNew_c3_DropDown(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *l
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(textBlock, "%s.%s", ldlParent, ldlMe);
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe);
 
 	c3_DropDown * myDropDown = new c3_DropDown( errcode, aui_UniqueId(), textBlock);
 	myDropDown->GetListBox()->SetActionFuncAndCookie(callback,myDropDown);
@@ -731,7 +731,7 @@ void spFillListBox(AUI_ERRCODE *retval, c3_ListBox *mylist, aui_StringTable *myt
 c3_Static* spNew_c3_Static(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlMe)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new c3_Static(errcode, aui_UniqueId(), textBlock);
 }
@@ -741,7 +741,7 @@ C3TextField* spNewTextEntry(AUI_ERRCODE *errcode, MBCHAR *ldlParent,MBCHAR *ldlM
 
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new C3TextField( errcode, aui_UniqueId(), textBlock, callback, cookie);
 }
@@ -756,7 +756,7 @@ TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, M
 	if(choices && choices->GetNumStrings()==2)
 	{ c0 = choices->GetString(0); c1 = choices->GetString(1); }
 
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 	TwoChoiceButton * mybutton = new TwoChoiceButton(errcode,aui_UniqueId(),textBlock,c0,c1,state,callback);
 
 	delete choices;
@@ -767,7 +767,7 @@ C3Slider* spNew_C3Slider(AUI_ERRCODE *errcode, MBCHAR *ldlParent, MBCHAR *ldlMe,
 	 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
     return new C3Slider(errcode, aui_UniqueId(), textBlock, callback);
 }
@@ -775,7 +775,7 @@ c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR *
 					uint32 state, void (*callback)(aui_Control*,uint32,uint32,void*), void*cookie)
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	c3_CheckBox * mycheck = new c3_CheckBox(errcode,aui_UniqueId(),textBlock,callback,cookie);
 	mycheck->SetState(state);
@@ -785,7 +785,7 @@ c3_CheckBox* spNew_c3_CheckBox(AUI_ERRCODE *errcode, MBCHAR* ldlParent, MBCHAR *
 aui_SwitchGroup* spNew_aui_SwitchGroup( AUI_ERRCODE *errcode, MBCHAR *ldlParent, MBCHAR *ldlMe )
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( textBlock, "%s.%s", ldlParent, ldlMe );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
 
 	return new aui_SwitchGroup(errcode, aui_UniqueId(), textBlock);
 }

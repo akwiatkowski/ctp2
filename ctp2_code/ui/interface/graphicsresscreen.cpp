@@ -139,12 +139,12 @@ AUI_ERRCODE graphicsresscreen_Initialize( void )
 	s_graphicsResScreen->AddTitle( "ScreenResScreen.Name" );
 	s_graphicsResScreen->AddClose( graphicsresscreen_acceptPress );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResList" );
 	s_resList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, ScreenResListCallback, NULL);
 	Assert( AUI_NEWOK(s_resList, errcode) );
 	if ( !AUI_NEWOK(s_resList, errcode) ) return errcode;
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "Warning");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Warning");
 	s_warning = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_warning, errcode) );
 	if ( !AUI_NEWOK(s_warning, errcode) ) return errcode;
@@ -154,7 +154,7 @@ AUI_ERRCODE graphicsresscreen_Initialize( void )
 
 	s_warning->Hide();
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "ScreenResListItem");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ScreenResListItem");
 
 
 
@@ -250,12 +250,12 @@ AUI_ERRCODE ScreenResListItem::InitCommonLdl(CTPDisplayMode *mode, MBCHAR *ldlBl
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "ScreenRes");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScreenRes");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	Assert(subItem);
 
 	MBCHAR resName[80];
-	sprintf(resName, "%d x %d", mode->width, mode->height);
+	snprintf(resName, sizeof(resName), "%d x %d", mode->width, mode->height);
 	subItem->SetText(resName);
 
 	AddChild(subItem);

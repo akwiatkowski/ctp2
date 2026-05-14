@@ -99,43 +99,43 @@ AUI_ERRCODE WonderMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR			buttonBlock[k_AUI_LDL_MAXBLOCK+1];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "MovieButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "MovieButton");
 	m_movieButton = new aui_MovieButton(&errcode, aui_UniqueId(), buttonBlock, wondermoviewin_MovieButtonCallback);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_movieButton);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "WonderName");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "WonderName");
 	m_wonderName = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_wonderName);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "TopBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
 	m_topBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_topBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "LeftBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "LeftBorder");
 	m_leftBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_leftBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "RightBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RightBorder");
 	m_rightBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_rightBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "BottomBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BottomBorder");
 	m_bottomBorder = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;
 	AddControl(m_bottomBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "Text");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "Text");
 	m_textBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if(errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;

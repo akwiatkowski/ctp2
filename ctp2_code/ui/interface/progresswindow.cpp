@@ -159,7 +159,7 @@ ProgressWindow::ProgressWindow(
 	}
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.progressbar", ldlBlock );
+	snprintf(block, sizeof(block), "%s.progressbar", ldlBlock );
 	m_pbar = new StandardProgressBar(
 		retval,
 		aui_UniqueId(),
@@ -171,7 +171,7 @@ ProgressWindow::ProgressWindow(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	sprintf( block, "%s.message", ldlBlock );
+	snprintf(block, sizeof(block), "%s.message", ldlBlock );
 	m_message = new c3_Static(
 		retval,
 		aui_UniqueId(),

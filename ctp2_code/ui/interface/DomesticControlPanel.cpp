@@ -336,10 +336,10 @@ void DomesticControlPanel::UpdateScience()
 
 	if(numberOfTurns < 0)
 
-		sprintf(numTurns, "---");
+		snprintf(numTurns, sizeof(numTurns), "---");
 	else
 
-		sprintf(numTurns, "%d", numberOfTurns + 1);
+		snprintf(numTurns, sizeof(numTurns), "%d", numberOfTurns + 1);
 	m_scienceTurnButton->SetText(numTurns);
 }
 
@@ -387,22 +387,22 @@ void DomesticControlPanel::UpdateStats()
 
 	MBCHAR stringBuffer[50];
 
-	sprintf(stringBuffer, "%d/%d", cities, g_theGovernmentDB->Get(government)->GetTooManyCitiesThreshold());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d/%d", cities, g_theGovernmentDB->Get(government)->GetTooManyCitiesThreshold());
 	m_citiesValue->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", population);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", population);
 	m_populationValue->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d%%", pw);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d%%", pw);
 	m_publicWorksValue->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%s", g_theGovernmentDB->Get(government)->GetNameText());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s", g_theGovernmentDB->Get(government)->GetNameText());
 	m_governmentValue->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d%%", science);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d%%", science);
 	m_scienceValue->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", pollution);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", pollution);
 	m_pollutionValue->SetText(stringBuffer);
 
 	static_cast<ctp2_Button*>(aui_Ldl::GetObject(m_ldlBlock,
@@ -426,12 +426,12 @@ void DomesticControlPanel::UpdateGoldPW()
 
 
 	MBCHAR goldStr[50];
-	sprintf(goldStr, "%d", gold);
+	snprintf(goldStr, sizeof(goldStr), "%d", gold);
 
 	m_menuGoldValue->SetText(goldStr);
 
 	MBCHAR pwStr[50];
-	sprintf(pwStr, "%d", pw);
+	snprintf(pwStr, sizeof(pwStr), "%d", pw);
 	m_publicWorksValue->SetText(pwStr);
 	m_menuPublicWorksValue->SetText(pwStr);
 

@@ -307,7 +307,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_okButton, errcode) );
 	if ( !AUI_NEWOK(s_okButton, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "askstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "askstatic" );
 	s_askStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -315,7 +315,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_askStatic, errcode) );
 	if ( !AUI_NEWOK(s_askStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "joinstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "joinstatic" );
 	s_joinStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -323,7 +323,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_joinStatic, errcode) );
 	if ( !AUI_NEWOK(s_joinStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "yesnoswitchgroup" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup" );
 	s_yesnoSwitchGroup = new aui_SwitchGroup(
 		&errcode,
 		aui_UniqueId(),
@@ -331,7 +331,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_yesnoSwitchGroup, errcode) );
 	if ( !AUI_NEWOK(s_yesnoSwitchGroup, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "yesnoswitchgroup.yesradio" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup.yesradio" );
 	s_yesRadio = new aui_Radio(
 		&errcode,
 		aui_UniqueId(),
@@ -343,7 +343,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 
 	s_yesnoSwitchGroup->AddSwitch( s_yesRadio );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "yesnoswitchgroup.noradio" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "yesnoswitchgroup.noradio" );
 	s_noRadio = new aui_Radio(
 		&errcode,
 		aui_UniqueId(),
@@ -354,7 +354,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 
 	s_yesnoSwitchGroup->AddSwitch( s_noRadio );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "inputstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "inputstatic" );
 	s_inputStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -364,7 +364,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_yesnoSwitchGroup, errcode) );
 	if ( !AUI_NEWOK(s_yesnoSwitchGroup, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "inputtextfield" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "inputtextfield" );
 	s_inputTextField = new C3TextField(
 		&errcode,
 		aui_UniqueId(),
@@ -373,7 +373,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_inputTextField, errcode) );
 	if ( !AUI_NEWOK(s_inputTextField, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "denystatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "denystatic" );
 	s_denyStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -381,7 +381,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_denyStatic, errcode) );
 	if ( !AUI_NEWOK(s_denyStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "fullstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "fullstatic" );
 	s_fullStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -389,7 +389,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_fullStatic, errcode) );
 	if ( !AUI_NEWOK(s_fullStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "nolobbystatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "nolobbystatic" );
 	s_nolobbyStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -397,7 +397,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_nolobbyStatic, errcode) );
 	if ( !AUI_NEWOK(s_nolobbyStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "connectionloststatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "connectionloststatic" );
 	s_connectionlostStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -405,7 +405,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_connectionlostStatic, errcode) );
 	if ( !AUI_NEWOK(s_connectionlostStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "nodialupstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "nodialupstatic" );
 	s_nodialupStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -413,7 +413,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_nodialupStatic, errcode) );
 	if ( !AUI_NEWOK(s_nodialupStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "connectionerrstatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "connectionerrstatic" );
 	s_connectionerrStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),
@@ -421,7 +421,7 @@ AUI_ERRCODE passwordscreen_Initialize( void )
 	Assert( AUI_NEWOK(s_connectionerrStatic, errcode) );
 	if ( !AUI_NEWOK(s_connectionerrStatic, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "noscenariostatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "noscenariostatic" );
 	s_scenarionotfoundStatic = new c3_Static(
 		&errcode,
 		aui_UniqueId(),

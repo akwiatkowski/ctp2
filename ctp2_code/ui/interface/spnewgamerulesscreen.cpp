@@ -237,7 +237,7 @@ AUI_ERRCODE spnewgamerulesscreen_Initialize( void )
 	spnewgamerulesscreen_updateData();
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", windowBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
 	s_spNewGameRulesScreen->AddTitle( block );
 	s_spNewGameRulesScreen->AddClose( spnewgamerulesscreen_exitPress );
 
@@ -291,7 +291,7 @@ void spnewgamerulesscreen_agesPress(aui_Control *control, uint32 action, uint32 
 		m_ruleDetails->Show();
 
 		char buf[1024];
-		sprintf(buf, "%s", m_ruleDetailsStrings->GetString(14));
+		snprintf(buf, sizeof(buf), "%s", m_ruleDetailsStrings->GetString(14));
 
 		m_ruleDetails->SetText(buf);
 	}
@@ -337,7 +337,7 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 			m_ruleDetails->SetText("", NULL);
 
 			char buf[1024];
-			sprintf(buf, "%s", m_ruleDetailsStrings->GetString(rule));
+			snprintf(buf, sizeof(buf), "%s", m_ruleDetailsStrings->GetString(rule));
 			m_ruleDetails->SetText(buf);
 		}
 		else

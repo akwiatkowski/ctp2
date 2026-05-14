@@ -281,7 +281,7 @@ namespace
 void km_screen_loadKeyList(void)
 {
 	MBCHAR ldl[_MAX_PATH];
-	sprintf(ldl, "KeyListItem");
+	snprintf(ldl, sizeof(ldl), "KeyListItem");
 
     KEY_FUNCTION const  *   functionList;
     size_t                  functionCount;
@@ -387,13 +387,13 @@ AUI_ERRCODE km_screen_Initialize( void )
 
 	s_km_screen->AddClose( km_screen_backPress );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_km_screen->AddTitle( controlBlock );
 
 
 	s_switch = new ctp2_Button*[KM_MAX];
 
-	sprintf( groupBlock, "%s.%s", windowBlock, "Group" );
+	snprintf(groupBlock, sizeof(groupBlock), "%s.%s", windowBlock, "Group" );
 
 
 
@@ -403,7 +403,7 @@ AUI_ERRCODE km_screen_Initialize( void )
 	if(!AUI_NEWOK(s_groupStatic, errcode)) return errcode;
 
 	for ( i = KM_BASIC;i < KM_MAX;i++ ) {
-		sprintf(controlBlock, "%s.%s", groupBlock, TAB[i]->Name);
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", groupBlock, TAB[i]->Name);
 		s_switch[i] = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, km_screen_switchPress );
 		Assert( AUI_NEWOK(s_switch[i], errcode) );
 		if ( !AUI_NEWOK(s_switch[i], errcode) ) return errcode;
@@ -411,17 +411,17 @@ AUI_ERRCODE km_screen_Initialize( void )
 
 	s_switch[s_selected]->SetToggleState(true);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResetButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResetButton" );
 	s_resetButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, km_screen_resetPress );
 	Assert( AUI_NEWOK(s_resetButton, errcode) );
 	if ( !AUI_NEWOK(s_resetButton, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "KeyList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "KeyList" );
 	s_keyList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_keyList, errcode) );
 	if ( !AUI_NEWOK(s_keyList, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s", "KeylistStrings" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s", "KeylistStrings" );
 	s_strings = new aui_StringTable( &errcode, controlBlock );
 	Assert( AUI_NEWOK(s_strings , errcode) );
 	if ( !AUI_NEWOK(s_strings , errcode) ) return errcode;
@@ -605,11 +605,11 @@ AUI_ERRCODE KeyListItem::InitCommonLdl(sint32 index, uint32 keycode, MBCHAR *ldl
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf( block, "%s.%s", ldlBlock, "Keycode" );
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Keycode" );
 	subItem = new c3_Static( &retval, aui_UniqueId(), block );
 	AddChild( subItem );
 
@@ -652,19 +652,19 @@ MBCHAR const * km_GetKeyName(uint32 code)
 		default:
 			if(code >= ('1' | 0x80) && code <= ('9' | 0x80))
 			{
-				sprintf(str, "F%d", code & 0x7f - '1' + 1);
+				snprintf(str, sizeof(str), "F%d", code & 0x7f - '1' + 1);
 			}
 			else if(isprint(code))
 			{
-				sprintf(str, "%c", code);
+				snprintf(str, sizeof(str), "%c", code);
 			}
 			else if(code >= 1 && code <= 26)
 			{
-				sprintf(str, "%s + %c", ctrl, code + 'a' - 1);
+				snprintf(str, sizeof(str), "%s + %c", ctrl, code + 'a' - 1);
 			}
 			else
 			{
-				sprintf(str, "%c", code);
+				snprintf(str, sizeof(str), "%c", code);
 			}
 			break;
 	}

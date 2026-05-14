@@ -349,7 +349,7 @@ void UnitManager::UpdateStatsList()
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_COUNT_COL);
 				if(child) {
 					MBCHAR buf[20];
-					sprintf(buf, "%d", unitcount[i]);
+					snprintf(buf, sizeof(buf), "%d", unitcount[i]);
 					child->SetText(buf);
 				}
 
@@ -361,33 +361,33 @@ void UnitManager::UpdateStatsList()
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_SUPPORT_COL);
 				if(child) {
 					MBCHAR buf[20];
-					sprintf(buf, "%d", g_theUnitDB->Get(i)->GetShieldHunger());
+					snprintf(buf, sizeof(buf), "%d", g_theUnitDB->Get(i)->GetShieldHunger());
 					child->SetText(buf);
 				}
 
 				MBCHAR buf[100];
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_A_COL);
 				if(child) {
-					sprintf(buf, "%d",
+					snprintf(buf, sizeof(buf), "%d",
 							(sint32)rec->GetAttack());
 					child->SetText(buf);
 				}
 
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_R_COL);
 				if(child) {
-					sprintf(buf, "%d",
+					snprintf(buf, sizeof(buf), "%d",
 							(sint32)rec->GetZBRangeAttack());
 					child->SetText(buf);
 				}
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_D_COL);
 				if(child) {
-					sprintf(buf, "%d",
+					snprintf(buf, sizeof(buf), "%d",
 							(sint32)rec->GetDefense());
 					child->SetText(buf);
 				}
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_M_COL);
 				if(child) {
-					sprintf(buf, "%d",
+					snprintf(buf, sizeof(buf), "%d",
 							(sint32)rec->GetMaxMovePoints());
 					child->SetText(buf);
 				}
@@ -536,13 +536,13 @@ void UnitManager::UpdateAdvice()
 		MBCHAR buf[20];
 		child = (ctp2_Static *)item->GetChildByIndex(k_ADVICE_PERCENT_COL);
 		if(child) {
-			sprintf(buf, "%d%%", sint32((100.0 * walk.GetObj()->numUnits) / double(pl->m_all_units->Num())));
+			snprintf(buf, sizeof(buf), "%d%%", sint32((100.0 * walk.GetObj()->numUnits) / double(pl->m_all_units->Num())));
 			child->SetText(buf);
 		}
 
 		child = (ctp2_Static *)item->GetChildByIndex(k_ADVICE_TOTAL_COL);
 		if(child) {
-			sprintf(buf, "%d", walk.GetObj()->numUnits);
+			snprintf(buf, sizeof(buf), "%d", walk.GetObj()->numUnits);
 			child->SetText(buf);
 		}
 
@@ -561,7 +561,7 @@ void UnitManager::UpdateAdvice()
 	else
 		p = (sint32(100.0 * (pl->m_readiness->GetCost() / totalProd)));
 
-	sprintf(buf, g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+	snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
 
 	ctp2_Button *upkeepButt = (ctp2_Button *)aui_Ldl::GetObject(s_unitManagerAdviceBlock, "UpkeepButton");
 	Assert(upkeepButt);
@@ -609,7 +609,7 @@ void  UnitManager::UpdateNumUnits()
 	if(!pl) return;
 
 	MBCHAR buf[20];
-	sprintf(buf, "%d", pl->m_all_units->Num());
+	snprintf(buf, sizeof(buf), "%d", pl->m_all_units->Num());
 	counter->SetText(buf);
 }
 
@@ -865,7 +865,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 
 	if(strstr(butt->GetText(), "%")) {
 		pl->m_readiness->RecalcCost();
-		sprintf(buf, g_theStringDB->GetNameStr("str_ldl_UpkeepTotalFormat"), (sint32)pl->m_readiness->GetCost());
+		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepTotalFormat"), (sint32)pl->m_readiness->GetCost());
 	} else {
 
 		double totalProd = pl->m_total_production;
@@ -878,7 +878,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 		else
 			p = (sint32(100.0 * (readinessCost / totalProd)));
 
-		sprintf(buf, g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
 	}
 	butt->SetText(buf);
 }

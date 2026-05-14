@@ -180,7 +180,7 @@ void ProfileEdit::FillList()
 			if(!label) break;
 
 			char localId[k_MAX_NAME_LEN];
-			sprintf(localId, "str_profile_%s", walk.GetObj()->m_name);
+			snprintf(localId, sizeof(localId), "str_profile_%s", walk.GetObj()->m_name);
 			const char *localName = g_theStringDB->GetNameStr(localId);
 
 			if(localName) {
@@ -210,7 +210,7 @@ void ProfileEdit::FillList()
 					Assert(field);
 					if(field) {
 						char buf[50];
-						sprintf(buf, "%d", *walk.GetObj()->m_numValue);
+						snprintf(buf, sizeof(buf), "%d", *walk.GetObj()->m_numValue);
 						field->SetFieldText(buf);
 						field->SetActionFuncAndCookie(SetNumVar, walk.GetObj());
 					}

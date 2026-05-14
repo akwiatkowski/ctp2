@@ -244,7 +244,7 @@ void IntelligenceWindow::SetRegardTip(MBCHAR *buf, const sint32 player, const si
 	else
 		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_NEUTRAL_BUTTON");
 
-	sprintf(buf, "%s%s", regard_str, trust_str);
+	snprintf(buf, sizeof(buf), "%s%s", regard_str, trust_str);
 }
 
 void IntelligenceWindow::Update(ctp2_ListBox *theList)

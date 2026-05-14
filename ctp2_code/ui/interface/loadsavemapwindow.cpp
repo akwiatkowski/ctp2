@@ -103,7 +103,7 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 
-	sprintf( block, "%s.%s", ldlBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name" );
 	AddTitle( block );
 
 	AddOk( loadsavemapscreen_executePress, NULL, "c3_PopupOk" );
@@ -119,7 +119,7 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	Assert(m_nameString);
 	if (!m_nameString) return AUI_ERRCODE_LOADFAILED;
 
-	sprintf(block, "%s.%s", ldlBlock, "TitlePanel");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TitlePanel");
 	m_titlePanel = new c3_Static(&errcode, aui_UniqueId(), block);
 	Assert(m_titlePanel);
 	if (!m_titlePanel) return AUI_ERRCODE_LOADFAILED;
@@ -160,19 +160,19 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	Assert(m_listTwo);
 	if (!m_listTwo) return AUI_ERRCODE_LOADFAILED;
 
-	sprintf(tabGroupBlock, "%s.%s", ldlBlock, "LoadTabGroup" );
+	snprintf(tabGroupBlock, sizeof(tabGroupBlock), "%s.%s", ldlBlock, "LoadTabGroup" );
 	m_tabGroup = new aui_TabGroup( &errcode, aui_UniqueId(), tabGroupBlock );
 	Assert( AUI_NEWOK(m_tabGroup, errcode) );
 	if (!m_tabGroup) return AUI_ERRCODE_LOADFAILED;
 
 	m_tabGroup->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
-	sprintf(tabBlock, "%s.%s", tabGroupBlock, "MapTab");
+	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "MapTab");
 	m_mapTab = new TextTab(&errcode, aui_UniqueId(), tabBlock, NULL);
 	Assert( AUI_NEWOK(m_mapTab, errcode) );
 	if ( !AUI_NEWOK(m_mapTab, errcode) ) return AUI_ERRCODE_LOADFAILED;
 
-	sprintf(block, "%s.pane.%s", tabBlock, "MapImage");
+	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "MapImage");
 	m_mapTabImage = new c3_Static(&errcode, aui_UniqueId(), block);
 	Assert(m_mapTabImage);
 	if (!m_mapTabImage) return AUI_ERRCODE_LOADFAILED;
@@ -661,7 +661,7 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	if (gameMapName == NULL)
 		SetGameMapName(theGameMapName);
 
-	sprintf(saveMapName, "%s", theGameMapName);
+	snprintf(saveMapName, sizeof(saveMapName), "%s", theGameMapName);
 
 
 	strcpy(name, saveMapName);

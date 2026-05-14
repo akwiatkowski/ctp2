@@ -226,19 +226,19 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 
 	if ( !callback ) callback = spnewgamemapshapescreen_backPress;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_spNewGameMapShapeScreen->AddTitle( controlBlock );
 	s_spNewGameMapShapeScreen->AddClose( callback );
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Group" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
 	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
 
 	for (i = 0; i < WORLD_SHAPE_COUNT; ++i)
     {
-		sprintf(switchBlock, "%s.%s", controlBlock, checknames[i]);
+		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i]);
 		aui_Radio *	shape	=
 			new aui_Radio(&errcode, aui_UniqueId(), switchBlock);
 		s_checkBox.push_back(shape);

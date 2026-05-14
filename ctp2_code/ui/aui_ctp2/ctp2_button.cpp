@@ -66,7 +66,7 @@ AUI_ERRCODE ctp2_Button::InitCommonLdl(MBCHAR *ldlBlock, MBCHAR *ldlTemplate,
 
 
 		char layerIndexString[20];
-		sprintf(layerIndexString, "%d", layerIndex);
+		snprintf(layerIndexString, sizeof(layerIndexString), "%d", layerIndex);
 
 		InitializeLayerFlag(theBlock, layerIndex, k_CTP2_BUTTON_LDL_LAYER_UP,
 							k_CTP2_BUTTON_LAYER_FLAG_UP, layerIndexString);

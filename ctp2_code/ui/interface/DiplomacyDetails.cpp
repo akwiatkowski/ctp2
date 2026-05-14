@@ -295,7 +295,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 						regard->SetDrawCallbackAndCookie(DrawPlayerRegard, (void *) p, true);
 #if 0   // buf filled, but never used
 						MBCHAR buf[k_MAX_NAME_LEN];
-						sprintf(buf, "%s: %d",
+						snprintf(buf, sizeof(buf), "%s: %d",
 								g_theStringDB->GetNameStr("str_ldl_Regard"),
 								Diplomat::GetDiplomat(p).GetPublicRegard(detailPlayer));
 #endif
@@ -307,7 +307,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 						strength->SetDrawCallbackAndCookie(DrawPlayerStrength, (void *) p, true);
 #if 0   // buf filled, but never used
 						MBCHAR buf[k_MAX_NAME_LEN];
-						sprintf(buf, "%s: %d",
+						snprintf(buf, sizeof(buf), "%s: %d",
 								g_theStringDB->GetNameStr("str_ldl_Strength"),
 								MapAnalysis::GetMapAnalysis().TotalValue(p));
 #endif
@@ -336,7 +336,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			strcpy(needEmbassy,g_theStringDB->GetNameStr("str_ldl_DipDetails_NoEmbassy"));
 
 			interp[0] = 0;
-			sprintf(interp, g_theStringDB->GetNameStr("str_ldl_DipDetails_Pollution"), g_player[detailPlayer]->GetPollutionLevel());
+			snprintf(interp, sizeof(interp), g_theStringDB->GetNameStr("str_ldl_DipDetails_Pollution"), g_player[detailPlayer]->GetPollutionLevel());
 			st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PollutionLabel");
 			st->SetText(interp);
 
@@ -356,7 +356,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				st->SetText(interp);
 
 				interp[0] = 0;
-				sprintf(interp, g_theStringDB->GetNameStr("str_ldl_DipDetails_Population"), g_player[detailPlayer]->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+g_player[detailPlayer]->GetPartialPopulation());
+				snprintf(interp, sizeof(interp), g_theStringDB->GetNameStr("str_ldl_DipDetails_Population"), g_player[detailPlayer]->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+g_player[detailPlayer]->GetPartialPopulation());
 				st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.PopulationLabel");
 				st->SetText(interp);
 

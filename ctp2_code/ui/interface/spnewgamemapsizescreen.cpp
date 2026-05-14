@@ -194,12 +194,12 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 
 	if ( !callback ) callback = spnewgamemapsizescreen_backPress;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_spNewGameMapSizeScreen->AddTitle( controlBlock );
 	s_spNewGameMapSizeScreen->AddClose( callback );
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Group" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
 	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
@@ -207,7 +207,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 	s_checkBox = new aui_Radio*[k_NUM_MAPSIZEBOXES];
 
 	for ( i = 0;i < k_NUM_MAPSIZEBOXES;i++ ) {
-		sprintf( switchBlock, "%s.%s", controlBlock, checknames[i] );
+		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i] );
 		s_checkBox[i] = new aui_Radio( &errcode, aui_UniqueId(), switchBlock );
 		Assert( AUI_NEWOK(s_checkBox[i], errcode) );
 		if ( !AUI_NEWOK(s_checkBox[i], errcode) ) return errcode;

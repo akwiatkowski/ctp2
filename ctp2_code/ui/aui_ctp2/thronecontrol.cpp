@@ -157,7 +157,7 @@ void ThroneControl::InitCommonLdl(MBCHAR *ldlBlock)
 	    AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
 	    MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-		sprintf( block, "%s.%s", ldlBlock, k_THRONE_LDL_MESSAGE );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_THRONE_LDL_MESSAGE );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
         {
@@ -165,13 +165,13 @@ void ThroneControl::InitCommonLdl(MBCHAR *ldlBlock)
 		}
 
 		for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
-			sprintf( block, "%s.%s", ldlBlock, s_currentName[i] );
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, s_currentName[i] );
 
             if (aui_Ldl::GetLdl()->FindDataBlock( block ) ) {
 				m_currentText[i] = new c3_Static( &errcode, aui_UniqueId(), block );
 			}
 
-			sprintf( block, "%s.%s", ldlBlock, s_upgradeName[i] );
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, s_upgradeName[i] );
 
 			if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			{

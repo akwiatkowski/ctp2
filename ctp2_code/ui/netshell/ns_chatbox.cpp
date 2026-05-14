@@ -95,15 +95,13 @@ void ns_ChatBox::Receive(NETFunc::Player *p, TYPE t, char *m) {
 		color = m_textstyleSystem->GetTextColor();
 		bold = m_textstyleSystem->GetTextFont()->GetBold();
 		italic = m_textstyleSystem->GetTextFont()->GetItalic();
-		sprintf(
-			buf,
+		snprintf(buf, sizeof(buf),
 			"<System:> %s\n",
 			m );
 	} else {
 		static ns_String privString( "strings.privatemessage" );
 		static ns_String teamString( "strings.teammessage" );
-		sprintf(
-			buf,
+		snprintf(buf, sizeof(buf),
 			"<%s%s:> %s\n",
 			p ? p->GetName() : "???",
 			(t==PRIVATE) ? privString.GetString() :

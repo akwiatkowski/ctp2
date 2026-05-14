@@ -90,7 +90,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	aui_Control *control;
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( block, "%s.titlestatictext", ldlBlock );
+	snprintf(block, sizeof(block), "%s.titlestatictext", ldlBlock );
 	if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -104,7 +104,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
 
-	sprintf( block, "%s.titlebox", ldlBlock );
+	snprintf(block, sizeof(block), "%s.titlebox", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -118,7 +118,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_TITLEBOX ] = control;
 
-	sprintf( block, "%s.lefttopcorner", ldlBlock );
+	snprintf(block, sizeof(block), "%s.lefttopcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -132,7 +132,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_LEFTTOPCORNER ] = control;
 
-	sprintf( block, "%s.righttopcorner", ldlBlock );
+	snprintf(block, sizeof(block), "%s.righttopcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -146,7 +146,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_RIGHTTOPCORNER ] = control;
 
-	sprintf( block, "%s.leftbottomcorner", ldlBlock );
+	snprintf(block, sizeof(block), "%s.leftbottomcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -160,7 +160,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_LEFTBOTTOMCORNER ] = control;
 
-	sprintf( block, "%s.rightbottomcorner", ldlBlock );
+	snprintf(block, sizeof(block), "%s.rightbottomcorner", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -174,7 +174,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_RIGHTBOTTOMCORNER ] = control;
 
-	sprintf( block, "%s.leftedge", ldlBlock );
+	snprintf(block, sizeof(block), "%s.leftedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -188,7 +188,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_LEFTEDGE ] = control;
 
-	sprintf( block, "%s.rightedge", ldlBlock );
+	snprintf(block, sizeof(block), "%s.rightedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -202,7 +202,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_RIGHTEDGE ] = control;
 
-	sprintf( block, "%s.topedge", ldlBlock );
+	snprintf(block, sizeof(block), "%s.topedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -216,7 +216,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_TOPEDGE ] = control;
 
-	sprintf( block, "%s.bottomedge", ldlBlock );
+	snprintf(block, sizeof(block), "%s.bottomedge", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -230,7 +230,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_BOTTOMEDGE ] = control;
 
-	sprintf( block, "%s.descriptionstatictext", ldlBlock );
+	snprintf(block, sizeof(block), "%s.descriptionstatictext", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_Static(
@@ -244,7 +244,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		control = NULL;
 	m_controls[ CONTROL_DESCRIPTIONSTATICTEXT ] = control;
 
-	sprintf( block, "%s.progressbar", ldlBlock );
+	snprintf(block, sizeof(block), "%s.progressbar", ldlBlock );
     if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 	{
 		control = new aui_ProgressBar(
@@ -260,7 +260,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 
 	do
 	{
-		sprintf( block, "%s.button%d", ldlBlock, m_numButtons );
+		snprintf(block, sizeof(block), "%s.button%d", ldlBlock, m_numButtons );
 
         if ( !aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			break;
@@ -280,7 +280,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		for ( sint32 i = 0; i < m_numButtons; i++ )
 		{
 
-			sprintf( block, "button%d", i );
+			snprintf(block, sizeof(block), "button%d", i );
 
 			m_buttons[ i ] = spNew_ctp2_Button(
 				&errcode,

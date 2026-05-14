@@ -116,10 +116,10 @@ LoadSaveWindow::LoadSaveWindow(AUI_ERRCODE *retval, uint32 id,
     m_deleteButton              (NULL)
 	// MBCHAR m_mostRecentName[_MAX_PATH]
 {
-	sprintf(m_mostRecentName, "");
+	snprintf(m_mostRecentName, sizeof(m_mostRecentName), "");
 
     MBCHAR  block[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	AddTitle(block);
 	AddCancel(loadsavescreen_backPress);
 	AddOk(loadsavescreen_executePress, NULL, "c3_PopupOk");
@@ -133,7 +133,7 @@ LoadSaveWindow::LoadSaveWindow(AUI_ERRCODE *retval, uint32 id,
 
 	m_nameString = spNewStringTable(retval, "LSSStringTable");
 
-	sprintf(block, "%s.%s", ldlBlock, "TitlePanel");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TitlePanel");
 	m_titlePanel = new c3_Static(retval, aui_UniqueId(), block);
 
 	m_gameText = spNew_c3_Static(retval, block, "GameText");
@@ -162,32 +162,32 @@ LoadSaveWindow::LoadSaveWindow(AUI_ERRCODE *retval, uint32 id,
 									loadsavescreen_ListTwoHandler, (void *)this);
 
 	MBCHAR			tabGroupBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(tabGroupBlock, "%s.%s", ldlBlock, "LoadTabGroup" );
+	snprintf(tabGroupBlock, sizeof(tabGroupBlock), "%s.%s", ldlBlock, "LoadTabGroup" );
 
 	m_tabGroup = new aui_TabGroup(retval, aui_UniqueId(), tabGroupBlock );
 	m_tabGroup->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
 	MBCHAR			tabBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(tabBlock, "%s.%s", tabGroupBlock, "InfoTab");
+	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "InfoTab");
 
 	m_powerTab = new TextTab(retval, aui_UniqueId(), tabBlock, NULL);
 
-	sprintf(block, "%s.pane.%s", tabBlock, "InfoImage");
+	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "InfoImage");
 	m_powerTabImage = new c3_Static(retval, aui_UniqueId(), block);
 
 	m_powerTabImageBackup = new aui_Image(retval, m_powerTabImage->GetImage()->GetFilename());
 	m_powerTabImageBackup->Load();
 
-	sprintf(tabBlock, "%s.%s", tabGroupBlock, "MapTab");
+	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "MapTab");
 	m_mapTab = new TextTab(retval, aui_UniqueId(), tabBlock, NULL);
 
-	sprintf(block, "%s.pane.%s", tabBlock, "MapImage");
+	snprintf(block, sizeof(block), "%s.pane.%s", tabBlock, "MapImage");
 	m_mapTabImage = new c3_Static(retval, aui_UniqueId(), block);
 
 	m_mapTabImageBackup = new aui_Image(retval, m_mapTabImage->GetImage()->GetFilename());
 	m_mapTabImageBackup->Load();
 
-	sprintf(tabBlock, "%s.%s", tabGroupBlock, "CivsTab");
+	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "CivsTab");
 	m_civsTab = new TextTab(retval, aui_UniqueId(), tabBlock, NULL);
 
 	m_civsList = spNew_c3_ListBox(retval, tabGroupBlock, "CivsTab.pane.CivsList",
@@ -943,14 +943,14 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 #if !defined(_JAPANESE)
 		tempName[SAVE_LEADER_NAME_SIZE] = '\0';
 		c3files_StripSpaces(tempName);
-		sprintf(saveName, "%s-%s-%s", tempName, civName, theYear);
+		snprintf(saveName, sizeof(saveName), "%s-%s-%s", tempName, civName, theYear);
 	} else {
-		sprintf(saveName, "%s-%s-%s", theGameName, civName, theYear);
+		snprintf(saveName, sizeof(saveName), "%s-%s-%s", theGameName, civName, theYear);
 #else
 		c3files_StripSpaces(tempName);
-		sprintf(saveName, "%s-%s", theYear, tempName);
+		snprintf(saveName, sizeof(saveName), "%s-%s", theYear, tempName);
 	} else {
-		sprintf(saveName, "%s-%s", theYear, theGameName);
+		snprintf(saveName, sizeof(saveName), "%s-%s", theYear, theGameName);
 #endif
 	}
 

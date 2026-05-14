@@ -186,7 +186,7 @@ AUI_ERRCODE MessageModal::CreateStandardTextBox( MBCHAR *ldlBlock )
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf( textBlock, "%s.%s", ldlBlock, "MessageTextBox" );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
 	m_messageText = new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_messageText, errcode ));
 	if ( !AUI_NEWOK( m_messageText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -271,7 +271,7 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	ctp2_Button		*lastbutton = NULL;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "ModalResponseButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ModalResponseButton");
 	sint32			responseCount = 0;
 
 	m_messageModalResponseButton = new tech_WLList<ctp2_Button *>;

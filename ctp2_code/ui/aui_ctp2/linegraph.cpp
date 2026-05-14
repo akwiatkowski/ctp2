@@ -315,14 +315,14 @@ void LineGraph::LabelAxes(void)
 
 	if (m_enableXNumber)
 	{
-		if (m_enablePrecision) sprintf(s, "%#.3f", m_xmin);
-		else sprintf(s, "%d", (sint32)m_xmin);
+		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.3f", m_xmin);
+		else snprintf(s, sizeof(s), "%d", (sint32)m_xmin);
 
 		primitives_DrawText(m_surface, m_graphRect.left, m_graphRect.bottom + (m_events?20:0),
 								s, g_colorSet->GetColorRef(COLOR_WHITE), TRUE);
 
-		if (m_enablePrecision) sprintf(s, "%#.3f", m_xmax);
-		else sprintf(s, "%d", (sint32)m_xmax);
+		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.3f", m_xmax);
+		else snprintf(s, sizeof(s), "%d", (sint32)m_xmax);
 
         primitives_DrawText(m_surface, std::max(0L, m_graphRect.right-35L), m_graphRect.bottom + (m_events?20:0),
 								s, g_colorSet->GetColorRef(COLOR_WHITE), TRUE);
@@ -337,8 +337,8 @@ void LineGraph::LabelAxes(void)
 
 	if (m_enableYNumber)
 	{
-		if (m_enablePrecision) sprintf(s, "%#.1f", m_ymin);
-		else sprintf(s, "%d", (sint32)m_ymin);
+		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.1f", m_ymin);
+		else snprintf(s, sizeof(s), "%d", (sint32)m_ymin);
 
         primitives_DrawText(m_surface,
                             std::max(0L, m_graphRect.left-45L),
@@ -348,8 +348,8 @@ void LineGraph::LabelAxes(void)
                             TRUE
                            );
 
-		if (m_enablePrecision) sprintf(s, "%#.1f", m_ymax);
-		else sprintf(s, "%d", (sint32)m_ymax);
+		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.1f", m_ymax);
+		else snprintf(s, sizeof(s), "%d", (sint32)m_ymax);
 
         primitives_DrawText(m_surface,
                             std::max(0L, m_graphRect.left-45L),
@@ -373,7 +373,7 @@ void LineGraph::DrawIndicator(void)
 							xpos, m_graphRect.bottom - 1,
 							g_colorSet->GetColor(COLOR_YELLOW));
 
-	sprintf(s, "%#.3f", m_indicatorValue);
+	snprintf(s, sizeof(s), "%#.3f", m_indicatorValue);
 	sint32 len = textutils_GetWidth(m_surface, s);
 	primitives_DrawText(m_surface, xpos - (len/2), m_graphRect.top+15, s, g_colorSet->GetColorRef(COLOR_YELLOW), TRUE);
 }

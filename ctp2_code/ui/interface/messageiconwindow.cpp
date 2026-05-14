@@ -76,7 +76,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	if ( m_prev )
 		m_prev->SetNext( this );
 
-	sprintf( iconDataBlock, "%s.%s", ldlBlock, "icon" );
+	snprintf(iconDataBlock, sizeof(iconDataBlock), "%s.%s", ldlBlock, "icon" );
 	m_icon = new MessageIconButton( &errcode, aui_UniqueId(), iconDataBlock );
 	Assert( AUI_NEWOK( m_icon, errcode ));
 	if ( !AUI_NEWOK( m_icon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;

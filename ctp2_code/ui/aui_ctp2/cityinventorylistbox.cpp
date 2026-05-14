@@ -129,7 +129,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 		uint64 improvements = unit.GetImprovements();
 		for(i = 0 ; i < g_theBuildingDB->NumRecords(); i++) {
 			if(improvements & ((uint64)1 << (uint64)i)) {
-				sprintf(str, "%s    %i", g_theStringDB->GetNameStr(g_theBuildingDB->Get(i)->m_name), buildingutil_Get(i, unit->GetOwner())->GetUpkeep());
+				snprintf(str, sizeof(str), "%s    %i", g_theStringDB->GetNameStr(g_theBuildingDB->Get(i)->m_name), buildingutil_Get(i, unit->GetOwner())->GetUpkeep());
 
 				item = new StaticTextItem(
 					&errcode,
@@ -149,7 +149,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 		uint64 wonders = unit.GetData()->GetCityData()->GetBuiltWonders();
 		for(i = 0 ; i < g_theWonderDB->NumRecords(); i++) {
 			if(wonders & ((uint64)1 << (uint64)i)) {
-				sprintf(str, "%s", g_theStringDB->GetNameStr(wonderutil_Get(i, unit->GetOwner())->m_name));
+				snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(wonderutil_Get(i, unit->GetOwner())->m_name));
 
 				sint32 j = aui_UniqueId();
 				item = new StaticTextItem(
@@ -239,7 +239,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 
 		if((p->m_advances->HasAdvance(enable) || (enable < 0)))
 		{
-			sprintf(str, "%s",g_theStringDB->GetNameStr(rec->m_name));
+			snprintf(str, sizeof(str), "%s",g_theStringDB->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
 				item = new StaticTextItem(
 					&errcode,
@@ -275,7 +275,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 
 		if((p->m_advances->HasAdvance(enable) || (enable < 0)))
 		{
-			sprintf(str, "%s",g_theStringDB->GetNameStr(rec->m_name));
+			snprintf(str, sizeof(str), "%s",g_theStringDB->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
 				item = new StaticTextItem(
 					&errcode,
@@ -305,7 +305,7 @@ void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 		if(isObsolete)
 			continue;
 		if((p->m_advances->HasAdvance(enable) || (enable < 0))) {
-			sprintf(str, "%s",g_theStringDB->GetNameStr(rec->m_name));
+			snprintf(str, sizeof(str), "%s",g_theStringDB->GetNameStr(rec->m_name));
 				sint32 j = aui_UniqueId();
 				item = new StaticTextItem(
 					&errcode,
@@ -354,7 +354,7 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 	if (text) {
 
 
-		sprintf(str,"");
+		snprintf(str, sizeof(str),"");
 
 	}
 
@@ -364,11 +364,11 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 		sint32 completed = bq->GetPercentCompleted(unit.GetData()->GetCityData()->GetStoredCityProduction());
 
 		if (bn->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
-			sprintf(str, "%s", g_theStringDB->GetNameStr(g_theBuildingDB->Get(bn->m_type, govType)->m_name));
+			snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(g_theBuildingDB->Get(bn->m_type, govType)->m_name));
 
 		}
 		else if (bn->m_category == k_GAME_OBJ_TYPE_UNIT) {
-			sprintf(str, "%s", g_theStringDB->GetNameStr(g_theUnitDB->Get(bn->m_type, govType)->m_name));
+			snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(g_theUnitDB->Get(bn->m_type, govType)->m_name));
 
 		}
 
@@ -376,7 +376,7 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 
 	else {
 
-		sprintf(str,"");
+		snprintf(str, sizeof(str),"");
 
 	}
 

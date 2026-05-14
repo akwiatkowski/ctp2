@@ -468,17 +468,17 @@ sint32 knowledgewin_Initialize( void )
 
 
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "GivesBox" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "GivesBox" );
 	s_givesBox = new c3_HyperTextBox( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_givesBox, errcode) );
 	if ( !AUI_NEWOK(s_givesBox, errcode) ) return -4;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "CivBox" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "CivBox" );
 	s_civBox = new c3_Static( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK(s_civBox, errcode) );
 	if ( !AUI_NEWOK(s_civBox, errcode) ) return -5;
 
-	sprintf( controlBlock, "%s.%s", buttonBlock, "CivText" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", buttonBlock, "CivText" );
 	s_civText = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_civText, errcode) );
 	if ( !AUI_NEWOK(s_civText, errcode) ) return -6;
@@ -487,7 +487,7 @@ sint32 knowledgewin_Initialize( void )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleText" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleText" );
 	s_titleText = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_titleText, errcode ) );
 	if ( !AUI_NEWOK(s_titleText, errcode) ) return -23;
@@ -514,44 +514,44 @@ sint32 knowledgewin_InitGraphicTrim( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		imageBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( imageBlock, "%s.%s", windowBlock, "Lt" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Lt" );
 	s_lt = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_lt, errcode) );
 	if ( !AUI_NEWOK(s_lt, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "Ct" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Ct" );
 	s_ct = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_ct, errcode) );
 	if ( !AUI_NEWOK(s_ct, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "Rt" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Rt" );
 	s_rt = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_rt, errcode) );
 	if ( !AUI_NEWOK(s_rt, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "LeftImage" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "LeftImage" );
 	s_left = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_left, errcode) );
 	if ( !AUI_NEWOK(s_left, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "RightImage" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "RightImage" );
 	s_right = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_right, errcode) );
 	if ( !AUI_NEWOK(s_right, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "BottomImage" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "BottomImage" );
 	s_bottom = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_bottom, errcode) );
 	if ( !AUI_NEWOK(s_bottom, errcode) ) return -10;
 
-	sprintf( imageBlock, "%s.%s", windowBlock, "ListTop" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListTop" );
 	s_listtop = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listtop, errcode) );
 	if ( !AUI_NEWOK(s_listtop, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "ListBl" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBl" );
 	s_listbl = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbl, errcode) );
 	if ( !AUI_NEWOK(s_listbl, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "ListBc" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBc" );
 	s_listbc = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbc, errcode) );
 	if ( !AUI_NEWOK(s_listbc, errcode) ) return -10;
-	sprintf( imageBlock, "%s.%s", windowBlock, "ListBr" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "ListBr" );
 	s_listbr = new c3_Static( &errcode, aui_UniqueId(), imageBlock);
 	Assert( AUI_NEWOK(s_listbr, errcode) );
 	if ( !AUI_NEWOK(s_listbr, errcode) ) return -10;
@@ -689,7 +689,7 @@ AUI_ERRCODE KnowledgeListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -750,7 +750,7 @@ AUI_ERRCODE EmbassyListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -838,47 +838,47 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	c3_Static		*subItem;
 	c3_Static		*branchItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "PlayerFlag");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "PlayerFlag");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "SymTwo");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "SymTwo");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-		sprintf( subBlock, "%s.%s", block, "Branch" );
+		snprintf(subBlock, sizeof(subBlock), "%s.%s", block, "Branch" );
 		branchItem = new c3_Static( &retval, aui_UniqueId(), subBlock );
 		subItem->AddChild( branchItem );
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagOne");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagOne");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagTwo");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagTwo");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagThree");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagThree");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagFour");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagFour");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagFive");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagFive");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagSix");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagSix");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "FlagSeven");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "FlagSeven");
 	subItem = new c3_Icon(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -892,7 +892,7 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 		MBCHAR name[k_MAX_NAME_LEN];
 
-		sprintf(name, "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
+		snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
 
 		ldl->Associate((aui_Control *)this, name);
 	}
@@ -1110,72 +1110,72 @@ sint32 ScienceWin::Initialize( MBCHAR *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CloseButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CloseButton" );
 	m_closeButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, sciencewin_ExitCallback );
 	TestControl( m_closeButton );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Title" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Title" );
 	m_title = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_title );
 	m_title->SetBlindness( TRUE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "AdvanceList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AdvanceList" );
 	m_advanceList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, sciencewin_AdvanceListCallback );
 	TestControl( m_advanceList );
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "ChangeButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ChangeButton" );
 	m_changeButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, sciencewin_ChangeButtonCallback );
 	TestControl( m_changeButton );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResearchBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResearchBox" );
 	m_researchBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_researchBox );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResearchMeter" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResearchMeter" );
 	m_researchMeter = new Thermometer( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_researchMeter );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResearchClock" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResearchClock" );
 	m_researchClock = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_researchClock );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TurnsBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TurnsBox" );
 	m_turnsBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_turnsBox );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CostLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CostLabel" );
 	m_costLabel = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_costLabel );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CostBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CostBox" );
 	m_costBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_costBox );
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "PlusButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "PlusButton" );
 	m_plusButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, sciencewin_SciButtonCallback );
 	TestControl( m_plusButton );
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "MinusButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "MinusButton" );
 	m_minusButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, sciencewin_SciButtonCallback );
 	TestControl( m_minusButton );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PercentBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PercentBox" );
 	m_percentBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_percentBox );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "SciLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SciLabel" );
 	m_sciLabel = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_sciLabel );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "SciBeaker" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SciBeaker" );
 	m_sciBeaker = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_sciBeaker );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "SciBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "SciBox" );
 	m_sciBox = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_sciBox );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Chart" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Chart" );
 	m_tree = new Chart( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_tree );
 	m_tree->Update(0);
@@ -1189,11 +1189,11 @@ sint32 ScienceWin::Initialize( MBCHAR *windowBlock )
 		m_tree->GetLeadsToButton(i)->SetActionFuncAndCookie( sciencewin_LeadsToActionCallback, m_tree );
 	}
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "LibraryButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "LibraryButton" );
 	m_libraryButton = new c3_Button( &errcode, aui_UniqueId(), buttonBlock, sciencewin_LibraryButtonCallback, m_tree );
 	TestControl( m_libraryButton );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "KnownToLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "KnownToLabel" );
 	m_knownToLabel = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	TestControl( m_knownToLabel );
 
@@ -1201,11 +1201,11 @@ sint32 ScienceWin::Initialize( MBCHAR *windowBlock )
 	m_playerFlag = new c3_Icon*[ k_EXTRA_PLAYERS];
 
 	for ( i = 0;i < k_EXTRA_PLAYERS;i++ ) {
-		sprintf( controlBlock, "%s.%s", windowBlock, s_ldlBlocks[i] );
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, s_ldlBlocks[i] );
 		m_playerLabel[i] = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 		TestControl( m_playerLabel );
 
-		sprintf( controlBlock, "%s.%s", windowBlock, s_flagBlocks[i] );
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, s_flagBlocks[i] );
 		m_playerFlag[i] = new c3_Icon( &errcode, aui_UniqueId(), controlBlock );
 		TestControl( m_playerFlag );
 		m_playerFlag[i]->SetMapIcon( MAPICON_MAX );
@@ -1311,7 +1311,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	}
 	else
 	{
-		sprintf( str, "%s", g_theAdvanceDB->GetNameStr(researching) );
+		snprintf(str, sizeof(str), "%s", g_theAdvanceDB->GetNameStr(researching) );
 	}
 	m_researchBox->SetText( str );
 
@@ -1333,7 +1333,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	}
 	else
 	{
-		sprintf( str, "%d/%d", sciLevel, advanceCost );
+		snprintf(str, sizeof(str), "%d/%d", sciLevel, advanceCost );
 	}
 	m_costBox->SetText( str );
 
@@ -1341,7 +1341,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	if ( sciLevel < 0 ) {
 		sciLevel = 0;
 	}
-	sprintf( str, "%d", sciLevel );
+	snprintf(str, sizeof(str), "%d", sciLevel );
 	m_sciBox->SetText( str );
 
 	double scienceTax;
@@ -1350,19 +1350,19 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 
 	s_scienceTax = AsPercentage(scienceTax);
 
-	sprintf(str,"%d%%",s_scienceTax);
+	snprintf(str, sizeof(str),"%d%%",s_scienceTax);
 	m_percentBox->SetText(str);
 
 	sint32 advanceTurns = p->m_advances->TurnsToNextAdvance();
 
 	if ( advanceTurns == -1 ) {
-		sprintf( str, "-" );
+		snprintf(str, sizeof(str), "-" );
 	}
 	else if ( advanceTurns < 0 ) {
-		sprintf( str, "1" );
+		snprintf(str, sizeof(str), "1" );
 	}
 	else {
-		sprintf( str, "%d", advanceTurns + 1 );
+		snprintf(str, sizeof(str), "%d", advanceTurns + 1 );
 	}
 
 	m_turnsBox->SetText( str );
@@ -1415,7 +1415,7 @@ void ScienceWin::UpdateList(void)
 
 	m_advanceList->Clear();
 
-	sprintf( ldlBlock, "AdvanceListItem" );
+	snprintf(ldlBlock, sizeof(ldlBlock), "AdvanceListItem" );
 
 	for ( sint32 i = 0;i < num;i++ ) {
 

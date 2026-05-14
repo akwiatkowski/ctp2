@@ -516,7 +516,7 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
 	m_frames = new aui_StringTable(&errcode, ldlString);
 	Assert(m_frames);
 
@@ -772,7 +772,7 @@ void EndGameWindow::Update(EndGame *endGame)
 			sint32 numberRequired = ((endGame->GetStage() < 0) ||
 				(endGame->GetStage() >= g_theEndGameDB->GetNumStages())) ? 0 :
 				g_theEndGameDB->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
-			sprintf(textBuffer, "%d/%d/%d", endGame->GetNumberBuilt(i),
+			snprintf(textBuffer, sizeof(textBuffer), "%d/%d/%d", endGame->GetNumberBuilt(i),
 				numberRequired, g_theEndGameDB->Get(i)->GetMaxAllowed());
 			m_containmentFieldRatio->SetText(textBuffer);
 		}
@@ -782,14 +782,14 @@ void EndGameWindow::Update(EndGame *endGame)
 			sint32 numberRequired = ((endGame->GetStage() < 0) ||
 				(endGame->GetStage() >= g_theEndGameDB->GetNumStages())) ? 0 :
 				g_theEndGameDB->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
-			sprintf(textBuffer, "%d/%d/%d", endGame->GetNumberBuilt(i),
+			snprintf(textBuffer, sizeof(textBuffer), "%d/%d/%d", endGame->GetNumberBuilt(i),
 				numberRequired, g_theEndGameDB->Get(i)->GetMaxAllowed());
 			m_ecdRatio->SetText(textBuffer);
 		}
 		if(!strcmp(m_splicerName, requirementName)) {
 			SetSplicers(endGame->GetNumberBuilt(i), endGame->GetNumberShown(i), soundID);
 
-			sprintf(textBuffer, "%d/-/%d", endGame->GetNumberBuilt(i),
+			snprintf(textBuffer, sizeof(textBuffer), "%d/-/%d", endGame->GetNumberBuilt(i),
 				g_theEndGameDB->Get(i)->GetMaxAllowed());
 			m_splicerRatio->SetText(textBuffer);
 		}
@@ -812,11 +812,11 @@ void EndGameWindow::Update(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->MetRequirementsForNextStage()))
 		m_turnProgress->SetBarColor(k_ENDGAME_FB_TURN_GREEN);
 
-	if(turnsForNextStage) sprintf(textBuffer, "%d", turnsForNextStage - turnsSinceStageBegan + 1);
-	else sprintf(textBuffer, "");
+	if(turnsForNextStage) snprintf(textBuffer, sizeof(textBuffer), "%d", turnsForNextStage - turnsSinceStageBegan + 1);
+	else snprintf(textBuffer, sizeof(textBuffer), "");
 	m_turnsRemaining->SetText(textBuffer);
 
-	sprintf(textBuffer, "%d%%", endGame->GetCataclysmChance());
+	snprintf(textBuffer, sizeof(textBuffer), "%d%%", endGame->GetCataclysmChance());
 	m_chanceOfFailure->SetText(textBuffer);
 
 	endGame->UpdateDisplayState();
@@ -842,8 +842,8 @@ void EndGameWindow::UpdateTurn(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->MetRequirementsForNextStage()))
 		m_turnProgress->SetBarColor(k_ENDGAME_FB_TURN_GREEN);
 
-	if(turnsForNextStage) sprintf(textBuffer, "%d", turnsForNextStage - turnsSinceStageBegan + 1);
-	else sprintf(textBuffer, "");
+	if(turnsForNextStage) snprintf(textBuffer, sizeof(textBuffer), "%d", turnsForNextStage - turnsSinceStageBegan + 1);
+	else snprintf(textBuffer, sizeof(textBuffer), "");
 	m_turnsRemaining->SetText(textBuffer);
 
 	ShouldDraw(TRUE);
@@ -912,7 +912,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_ECDName				= datablock->GetString(k_LDL_ENDGAME_ECD_NAME);
 	m_splicerName			= datablock->GetString(k_LDL_ENDGAME_SPLICER_NAME);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_BACKGROUND);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BACKGROUND);
 	m_background = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_background);
 
@@ -920,25 +920,25 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_backgroundAnim = new c3_Animation *[m_numberOfBackgroundAnims];
 
 	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_BACKANIM_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_BACKANIM_BASE, index+1);
 		m_backgroundAnim[index] = new c3_Animation(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_backgroundAnim[index]);
 		m_backgroundAnim[index]->SetBlend(k_C3_BLEND_MAXBLEND);
 	}
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_TANK);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_TANK);
 	m_embryoTank = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_embryoTank);
 
 	m_embryoTank->HideThis();
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_BROKEN_TANK);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BROKEN_TANK);
 	m_brokenTank = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_brokenTank);
 
 	m_brokenTank->HideThis();
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_GLOW);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EMBRYO_GLOW);
 	m_embryoGlow = new c3_Animation(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_embryoGlow);
 
@@ -948,7 +948,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_embryoStage = new c3_Blend *[m_numberOfStages];
 
 	for(index = 0; index < m_numberOfStages; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_STAGE_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_STAGE_BASE, index+1);
 		m_embryoStage[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_embryoStage[index]);
 		m_embryoStage[index]->HideThis();
@@ -958,7 +958,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_containmentField = new c3_Blend *[m_numberOfContainmentFields];
 
 	for(index = 0; index < m_numberOfContainmentFields; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_CONTAIN_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_CONTAIN_BASE, index+1);
 		m_containmentField[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_containmentField[index]);
 		m_containmentField[index]->HideThis();
@@ -968,7 +968,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_ECD = new c3_Blend *[m_numberOfECDs];
 
 	for(index = 0; index < m_numberOfECDs; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_ECD_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_ECD_BASE, index+1);
 		m_ECD[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_ECD[index]);
 		m_ECD[index]->HideThis();
@@ -979,7 +979,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 
 	for(index = 0; index < m_numberOfSplicers; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_SPLICER_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_SPLICER_BASE, index+1);
 		m_splicer[index] = new c3_Blend(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_splicer[index]);
 		m_splicer[index]->HideThis();
@@ -990,7 +990,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	}
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_DARKEN_AREA);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_DARKEN_AREA);
 	m_darkenArea = new c3_DarkenArea(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_darkenArea);
 
@@ -998,7 +998,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_labels = new aui_Static *[m_numberOfLabels];
 
 	for(index = 0; index < m_numberOfLabels; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LABEL_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LABEL_BASE, index+1);
 		m_labels[index] = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_labels[index]);
 	}
@@ -1007,45 +1007,45 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_stageLights = new c3_ColoredStatic *[m_numberOfStageLights];
 
 	for(index = 0; index < m_numberOfStageLights; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LIGHT_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_ENDGAME_FB_LIGHT_BASE, index+1);
 		m_stageLights[index] = new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_stageLights[index]);
 	}
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_PROGRESS_BG);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_PROGRESS_BG);
 	m_progressBackground = new c3_ColoredStatic(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_progressBackground);
 	m_progressBackground->SetColor(k_ENDGAME_FB_STAGE_GREY);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURN_PROGRESS);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURN_PROGRESS);
 	m_turnProgress = new c3_YetAnotherProgressBar(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_turnProgress);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURNS_REMAINING);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_TURNS_REMAINING);
 	m_turnsRemaining = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_turnsRemaining);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_ECD_RATIO);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_ECD_RATIO);
 	m_ecdRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_ecdRatio);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_CONTAIN_RATIO);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_CONTAIN_RATIO);
 	m_containmentFieldRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_containmentFieldRatio);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_SPLICER_RATIO);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_SPLICER_RATIO);
 	m_splicerRatio = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_splicerRatio);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_FAILURE_CHANCE);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_FB_FAILURE_CHANCE);
 	m_chanceOfFailure = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_chanceOfFailure);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_BORDER);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_BORDER);
 	m_border = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_border);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_ENDGAME_EXIT_BUTTON);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_ENDGAME_EXIT_BUTTON);
 	m_exitButton = new c3_Button(&errcode, aui_UniqueId(), ldlString, endgamewindow_ExitButtonActionCallback);
 	Assert(m_exitButton);
 

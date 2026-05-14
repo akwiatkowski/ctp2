@@ -163,7 +163,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	sint32 i;
 	for(i = 0; i < DIP_WIZ_STAGE_MAX; i++) {
 		MBCHAR stageName[k_MAX_NAME_LEN];
-		sprintf(stageName, "%s.Stage%d", s_dipWizardBlock, i);
+		snprintf(stageName, sizeof(stageName), "%s.Stage%d", s_dipWizardBlock, i);
 		m_stages[i] = (ctp2_Static *)aui_Ldl::GetObject(stageName);
 		Assert(m_stages[i]);
 	}
@@ -173,7 +173,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 
 	for(i = 0; i < DIPLOMATIC_TONE_MAX; i++) {
 		MBCHAR buttName[k_MAX_NAME_LEN];
-		sprintf(buttName, "%s.Stage0.Tones.Tone%d", s_dipWizardBlock, i);
+		snprintf(buttName, sizeof(buttName), "%s.Stage0.Tones.Tone%d", s_dipWizardBlock, i);
 		m_toneButtons[i] = (ctp2_Button *)aui_Ldl::GetObject(buttName);
 		Assert(m_toneButtons[i]);
 
@@ -182,12 +182,12 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 		}
 
 		MBCHAR labelName[k_MAX_NAME_LEN];
-		sprintf(labelName, "%s.Stage0.Tones.ToneLabel%d", s_dipWizardBlock, i);
+		snprintf(labelName, sizeof(labelName), "%s.Stage0.Tones.ToneLabel%d", s_dipWizardBlock, i);
 		ctp2_Static *label = (ctp2_Static *)aui_Ldl::GetObject(labelName);
 		Assert(label);
 
 		MBCHAR toneId[k_MAX_NAME_LEN];
-		sprintf(toneId, "str_ldl_DipTone%d", i);
+		snprintf(toneId, sizeof(toneId), "str_ldl_DipTone%d", i);
 		label->SetText(g_theStringDB->GetNameStr(toneId));
 
 	}
@@ -1718,7 +1718,7 @@ void DipWizard::ProposalTabCallback(aui_Control *control, uint32 action, uint32 
 	if(action != ctp2_Tab::ACTION_ACTIVATED) return;
 
 	MBCHAR buf[k_MAX_NAME_LEN];
-	sprintf(buf, "%s.Stage%d.Tabs.%s.TabPanel.List", s_dipWizardBlock, DIP_WIZ_STAGE_PROPOSAL,
+	snprintf(buf, sizeof(buf), "%s.Stage%d.Tabs.%s.TabPanel.List", s_dipWizardBlock, DIP_WIZ_STAGE_PROPOSAL,
 			GetCategoryName(DIP_WIZ_PROP_TAB((intptr_t)cookie)));
 
 	ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(buf);
@@ -1736,7 +1736,7 @@ void DipWizard::ExchangeTabCallback(aui_Control *control, uint32 action, uint32 
 	if(action != ctp2_Tab::ACTION_ACTIVATED) return;
 
 	MBCHAR buf[k_MAX_NAME_LEN];
-	sprintf(buf, "%s.Stage%d.Tabs.%s.TabPanel.List", s_dipWizardBlock, DIP_WIZ_STAGE_EXCHANGE,
+	snprintf(buf, sizeof(buf), "%s.Stage%d.Tabs.%s.TabPanel.List", s_dipWizardBlock, DIP_WIZ_STAGE_EXCHANGE,
 			GetCategoryName(DIP_WIZ_PROP_TAB((intptr_t)cookie)));
 
 	ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(buf);
@@ -2667,7 +2667,7 @@ void DipWizard::DisplayParchment(sint32 player)
 	Assert(m_parchment);
 	if(m_parchment) {
 		char buf[50];
-		sprintf(buf, "UPDG%02d.tga", g_player[player]->m_civilisation->GetDBRec()->GetParchment());
+		snprintf(buf, sizeof(buf), "UPDG%02d.tga", g_player[player]->m_civilisation->GetDBRec()->GetParchment());
 		m_parchment->ExchangeImage(0,0, buf);
 	}
 }

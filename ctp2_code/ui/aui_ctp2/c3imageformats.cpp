@@ -122,7 +122,7 @@ AUI_ERRCODE TargaImageFormat::Load(MBCHAR const * filename, aui_Image *image)
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) {
 		MBCHAR	s[200];
-		sprintf(s, "Unable to load the file '%s' (w:%d, h:%d)", filename, width, height);
+		snprintf(s, sizeof(s), "Unable to load the file '%s' (w:%d, h:%d)", filename, width, height);
 		c3errors_ErrorDialog("Targa Load", s, filename);
 		return AUI_ERRCODE_LOADFAILED;
 	}

@@ -403,7 +403,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 		{
 
-			sprintf( windowBlock, "mywindow" );
+			snprintf(windowBlock, sizeof(windowBlock), "mywindow" );
 
 			g_testWindow = new C3Window(
 				&errcode,
@@ -420,7 +420,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 			{
 
-				sprintf( controlBlock, "%s.%s", windowBlock, "mybutton" );
+				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "mybutton" );
 
 				button = new TextButton(
 					&errcode,
@@ -443,7 +443,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 			{
 
-				sprintf( controlBlock, "%s.%s", windowBlock, "myspinner" );
+				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "myspinner" );
 
 				spinner = new C3Spinner(
 					&errcode,
@@ -456,7 +456,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 			{
 
-				sprintf( controlBlock, "%s.%s", windowBlock, "mytabgroup" );
+				snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "mytabgroup" );
 
 				moodyTabGroup = new aui_TabGroup(
 					&errcode,
@@ -474,7 +474,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				{
 
-					sprintf( tabBlock, "%s.%s", controlBlock, "sadtab" );
+					snprintf(tabBlock, sizeof(tabBlock), "%s.%s", controlBlock, "sadtab" );
 
 					sadTab = new TextTab(
 						&errcode,
@@ -491,7 +491,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					{
 
-						sprintf( checkboxBlock, "%s.pane.%s", tabBlock, "checkbox" );
+						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "checkbox" );
 
 						checkbox = new Checkbox(
 							&errcode,
@@ -506,7 +506,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					{
 
-						sprintf( checkboxBlock, "%s.pane.%s", tabBlock, "dragcheckbox" );
+						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "dragcheckbox" );
 
 						dragcheckbox = new Checkbox(
 							&errcode,
@@ -520,7 +520,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					{
 
-						sprintf( checkboxBlock, "%s.pane.%s", tabBlock, "transparentcheckbox" );
+						snprintf(checkboxBlock, sizeof(checkboxBlock), "%s.pane.%s", tabBlock, "transparentcheckbox" );
 
 						transparentcheckbox = new Checkbox(
 							&errcode,
@@ -536,7 +536,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 				{
 
-					sprintf( tabBlock, "%s.%s", controlBlock, "indifferenttab" );
+					snprintf(tabBlock, sizeof(tabBlock), "%s.%s", controlBlock, "indifferenttab" );
 
 					indifferentTab = new TextTab(
 						&errcode,
@@ -553,7 +553,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 					{
 
-						sprintf( radiogroupBlock, "%s.pane.%s", tabBlock, "modalradiogroup" );
+						snprintf(radiogroupBlock, sizeof(radiogroupBlock), "%s.pane.%s", tabBlock, "modalradiogroup" );
 
 						modalRadioGroup = new RadioGroup(
 							&errcode,
@@ -569,7 +569,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						{
 
-							sprintf( radioBlock, "%s.%s", radiogroupBlock, "stronglymodalradio" );
+							snprintf(radioBlock, sizeof(radioBlock), "%s.%s", radiogroupBlock, "stronglymodalradio" );
 
 							stronglyModalRadio = new TextRadio(
 								&errcode,
@@ -583,7 +583,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 						{
 
-							sprintf( radioBlock, "%s.%s", radiogroupBlock, "weaklymodalradio" );
+							snprintf(radioBlock, sizeof(radioBlock), "%s.%s", radiogroupBlock, "weaklymodalradio" );
 
 							weaklyModalRadio = new TextRadio(
 								&errcode,
@@ -1012,7 +1012,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 		for ( sint32 i = 0; i < 14; i++ )
 		{
 			static char s[ 50 ];
-			sprintf( s, "row=%d col=%d", i, 0 );
+			snprintf(s, sizeof(s), "row=%d col=%d", i, 0 );
 
 			items[ i ] = new TextSwitch(
 				&errcode,
@@ -1025,7 +1025,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 
 			for ( sint32 j = 0; j < 5; j++ )
 			{
-				sprintf( s, "row=%d col=%d", i, j+1 );
+				snprintf(s, sizeof(s), "row=%d col=%d", i, j+1 );
 
 				subItems[ i ][ j ] = new TextSwitch(
 					&errcode,

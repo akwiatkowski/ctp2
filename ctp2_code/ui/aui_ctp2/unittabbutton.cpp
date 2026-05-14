@@ -79,7 +79,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( void )
 		m_cargo[i] = NULL;
 	}
 
-	sprintf( buttonBlock, "UnitTabButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "UnitTabButton" );
 
 	m_button = new c3_ColorIconButton(&errcode, aui_UniqueId(), 0, m_barHeight,
 			m_width, m_height - m_barHeight, "upba0119.tga", "" );
@@ -94,7 +94,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( void )
 	errcode = AddSubControl(m_button);
 	Assert(errcode == AUI_ERRCODE_OK);
 
-		sprintf( ldlBlock, "%s.%s", buttonBlock, "Arrow" );
+		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Arrow" );
 		m_arrow = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_arrow, errcode) );
 		if ( !AUI_NEWOK(m_arrow, errcode) ) return errcode;
@@ -104,7 +104,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( void )
 		errcode = m_button->AddSubControl( m_arrow );
 		Assert( errcode == AUI_ERRCODE_OK );
 
-		sprintf( ldlBlock, "%s.%s", buttonBlock, "Fortify" );
+		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Fortify" );
 		m_fortify = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_fortify, errcode) );
 		if ( !AUI_NEWOK(m_fortify, errcode) ) return errcode;
@@ -114,7 +114,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( void )
 		errcode = m_button->AddSubControl( m_fortify );
 		Assert( errcode == AUI_ERRCODE_OK );
 
-		sprintf( ldlBlock, "%s.%s", buttonBlock, "Veteran" );
+		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Veteran" );
 		m_veteran = new c3_Static( &errcode, aui_UniqueId(), ldlBlock );
 		Assert( AUI_NEWOK( m_veteran, errcode) );
 		if ( !AUI_NEWOK(m_veteran, errcode) ) return errcode;
@@ -124,7 +124,7 @@ AUI_ERRCODE UnitTabButton::InitCommon( void )
 		errcode = m_button->AddSubControl( m_veteran );
 		Assert( errcode == AUI_ERRCODE_OK );
 
-		sprintf( ldlBlock, "%s.%s", buttonBlock, "Cargo" );
+		snprintf(ldlBlock, sizeof(ldlBlock), "%s.%s", buttonBlock, "Cargo" );
 
 		for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
 			m_cargo[i] = new c3_ColoredStatic( &errcode, aui_UniqueId(), ldlBlock );

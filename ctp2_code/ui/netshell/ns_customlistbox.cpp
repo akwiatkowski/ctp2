@@ -739,7 +739,7 @@ void ns_GPlayerListBox::UpdateHPlayerItem(
 		SetText( name );
 
 	MBCHAR ping[ 10 ];
-	sprintf( ping, "%d", player->GetLatency() );
+	snprintf(ping, sizeof(ping), "%d", player->GetLatency() );
 	item->GetPingItem()->
 		SetText( ping );
 
@@ -798,7 +798,7 @@ AUI_ERRCODE ns_ListBox<NETFunc::Player, ns_Player>::StoreAppropriateData(
 
 		case ns_Accessor<NETFunc::Player>::INT:
 			item->SetTextBold(netShellObject->IsMine());
-			 sprintf(scratch, "%d", * reinterpret_cast<sint32 const *>(dataPtr));
+			 snprintf(scratch, sizeof(scratch), "%d", * reinterpret_cast<sint32 const *>(dataPtr));
 			 return item->SetText(scratch);
 
 		case ns_Accessor<NETFunc::Player>::ICON:

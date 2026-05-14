@@ -118,7 +118,7 @@ sint32 scorewarn_Initialize( void )
 	g_scorewarn->AddCancel( scorewarn_CancelButtonActionCallback );
 
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(buttonBlock, "%s.%s", windowBlock, "Message");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "Message");
 	s_message = new c3_Static(&errcode,	aui_UniqueId(),	buttonBlock);
 	Assert(AUI_NEWOK(s_message, errcode));
 	if (!AUI_NEWOK(s_message, errcode)) return -1;
@@ -209,7 +209,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf(buttonBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TitleLabel");
 	s_disclaimerLabel = new c3_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(AUI_NEWOK(s_disclaimerLabel, errcode));
 	if (!AUI_NEWOK(s_disclaimerLabel, errcode)) return -1;
@@ -217,7 +217,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "AgreeButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "AgreeButton" );
 	s_disclaimerAcceptButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock,
 		disclaimer_AcceptButtonActionCallback);
 	Assert( AUI_NEWOK(s_disclaimerAcceptButton, errcode) );
@@ -227,7 +227,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "DisagreeButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "DisagreeButton" );
 	s_disclaimerDeclineButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock,
 		disclaimer_DeclineButtonActionCallback);
 	Assert( AUI_NEWOK(s_disclaimerDeclineButton, errcode) );
@@ -236,7 +236,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 
-	sprintf(buttonBlock, "%s.%s", windowBlock, "DisclaimerText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "DisclaimerText");
 	s_disclaimerTextBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_disclaimerTextBox, errcode) );
 	if ( !AUI_NEWOK(s_disclaimerTextBox, errcode) ) return -1;

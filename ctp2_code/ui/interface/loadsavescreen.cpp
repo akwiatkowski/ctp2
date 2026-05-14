@@ -564,7 +564,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 {
 	MBCHAR		path[_MAX_PATH];
-	sprintf(path, "%s%s%s", directoryPath, FILE_SEP, saveInfo->fileName);
+	snprintf(path, sizeof(path), "%s%s%s", directoryPath, FILE_SEP, saveInfo->fileName);
 
 	if (saveInfo->startInfoType != STARTINFOTYPE_NONE) {
 
@@ -589,7 +589,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				sprintf(tempStr, "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenario",NULL, NULL, "str_ldl_MB_OK", false);
 				return;
@@ -625,7 +625,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				sprintf(tempStr, "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenarioData",NULL, NULL, "str_ldl_MB_OK", false);
 				return;
@@ -771,7 +771,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 			MessageBoxDialog::Information("str_ldl_InvalidCharsFixed", "InfoInvalidCharsFixed");
 		}
 
-		sprintf(fullPath, "%s%s%s", path, FILE_SEP, saveInfo->gameName);
+		snprintf(fullPath, sizeof(fullPath), "%s%s%s", path, FILE_SEP, saveInfo->gameName);
 
 		// Verify that this directory exists, and if it doesn't, create it
 		if (!c3files_PathIsValid(fullPath)) {
@@ -802,7 +802,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 		// Full path, including the save file's filename
 		sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
 	} else {
-		sprintf(fullPath, "%s", path);
+		snprintf(fullPath, sizeof(fullPath), "%s", path);
 		strcpy(saveInfo->fileName, useName);
 		sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, useName);
 	}
@@ -852,7 +852,7 @@ void loadsavescreen_LoadMPGame(void)
 
 	MBCHAR		path[_MAX_PATH];
 
-	sprintf(path, "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
+	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 	g_civApp->PostLoadSaveGameAction(path);
 }
 
@@ -897,7 +897,7 @@ void loadsavescreen_SaveMPGame(void)
 	if (!g_civPaths->GetSavePath(C3SAVEDIR_MP, path)) return;
 
 	MBCHAR	fullPath[_MAX_PATH];
-	sprintf(fullPath, "%s%s%s", path, FILE_SEP, saveInfo->gameName);
+	snprintf(fullPath, sizeof(fullPath), "%s%s%s", path, FILE_SEP, saveInfo->gameName);
 
 	// Verify that this directory exists, and if it doesn't, create it
 	if (!c3files_PathIsValid(fullPath)) {
@@ -942,7 +942,7 @@ void loadsavescreen_LoadSCENGame(void)
 
 	MBCHAR		path[_MAX_PATH];
 
-	sprintf(path, "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
+	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 //	g_civApp->PostLoadSaveGameAction(path);
 
 	g_civPaths->SetCurScenarioPath(gameInfo->path);
@@ -1009,7 +1009,7 @@ void loadsavescreen_SaveSCENGame(void)
 	if (!g_civPaths->GetSavePath(C3SAVEDIR_SCEN, path)) return;
 
 	MBCHAR	fullPath[_MAX_PATH];
-	sprintf(fullPath, "%s%s%s", path, FILE_SEP, saveInfo->gameName);
+	snprintf(fullPath, sizeof(fullPath), "%s%s%s", path, FILE_SEP, saveInfo->gameName);
 
 	// Verify that this directory exists, and if it doesn't, create it
 	if (!c3files_PathIsValid(fullPath)) {
@@ -1110,7 +1110,7 @@ void loadsavescreen_delete( void )
 	{
 		MBCHAR		path[_MAX_PATH];
 
-		sprintf(path, "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
+		snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 
 #ifdef WIN32
 		if ( DeleteFile( path ) )
@@ -1148,13 +1148,13 @@ void loadsavescreen_delete( void )
 	{
 #ifdef WIN32
 		MBCHAR		path[_MAX_PATH];
-		sprintf(path, "%s%s*.*", gameInfo->path, FILE_SEP);
+		snprintf(path, sizeof(path), "%s%s*.*", gameInfo->path, FILE_SEP);
 
 		_finddata_t findData;
 		int fileHandle=_findfirst(path,&findData);
 		while(fileHandle)
 		{
-			sprintf(path, "%s%s%s", gameInfo->path, FILE_SEP, findData.name);
+			snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, findData.name);
 			DeleteFile(path);
 			if(_findnext(fileHandle,&findData))
 			{
@@ -1162,7 +1162,7 @@ void loadsavescreen_delete( void )
 				fileHandle=0;
 			}
 		}
-		sprintf(path, "%s", gameInfo->path);
+		snprintf(path, sizeof(path), "%s", gameInfo->path);
 		int retval=_rmdir(path);
 		assert(!retval);
 		g_loadsaveWindow->FillListTwo(NULL);

@@ -443,7 +443,7 @@ return 1;
 			Assert( AUI_NEWOK( window, retval ));
 			if ( !AUI_NEWOK( window, retval )) return -1;
 
-			sprintf( buttonBlock, "%s.%s", windowBlock, "icon" );
+			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "icon" );
 			button = new aui_Button( &retval, aui_UniqueId(), buttonBlock );
 			Assert( AUI_NEWOK( button, retval ));
 			if ( !AUI_NEWOK( button, retval )) return -1;
@@ -515,7 +515,7 @@ return 1;
 			Assert( AUI_NEWOK( window, retval ));
 			if ( !AUI_NEWOK( window, retval )) return -1;
 
-			sprintf( buttonBlock, "%s.%s", windowBlock, "icon" );
+			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "icon" );
 			button = new aui_Button( &retval, aui_UniqueId(), buttonBlock );
 			Assert( AUI_NEWOK( button, retval ));
 			if ( !AUI_NEWOK( button, retval )) return -1;

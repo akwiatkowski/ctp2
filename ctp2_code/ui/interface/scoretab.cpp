@@ -124,6 +124,6 @@ void ScoreTab::Update(void)
 	}
 
 	char buf[40];
-	sprintf(buf, "%d", rank);
+	snprintf(buf, sizeof(buf), "%d", rank);
 	m_rank->SetText(buf);
 }

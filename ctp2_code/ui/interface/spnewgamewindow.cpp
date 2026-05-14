@@ -259,7 +259,7 @@ void SPNewGameWindow::Update( void )
 	index = g_theProfileDB->GetDifficulty();
 //Added by Martin Gühmann
 //Makes sure that the game doesn't crash if the according map size string is invalid.
-	sprintf( s, "%s", m_string->GetString(SP_NEWGAME_STR_CHIEFTAIN + index) );
+	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_CHIEFTAIN + index) );
 	m_spDifficulty->SetText( s );
 
 
@@ -295,20 +295,20 @@ void SPNewGameWindow::Update( void )
 
 //Added by Martin Gühmann
 //Makes sure that the game doesn't crash if the according map size string is invalid.
-	sprintf( s, "%s", m_string->GetString(SP_NEWGAME_STR_SMALL + index) );
+	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_SMALL + index) );
 	m_spMapSize->SetText( s );
 
 	sint32 shape = g_theProfileDB->GetWorldShape();
 //Added by Martin Gühmann
 //Makes sure that the game doesn't crash if the according world shape string is invalid.
-	sprintf( s, "%s", m_string->GetString(SP_NEWGAME_STR_EARTH + shape) );
+	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_EARTH + shape) );
 	m_worldShapeButton->SetText( s );
 
 
 	sint32 numPlayers = g_theProfileDB->GetNPlayers() - 1;
 
 	// Removed the alteration to the value when it was below 3 - JJB
-	sprintf( s, "%d", numPlayers);
+	snprintf(s, sizeof(s), "%d", numPlayers);
 	m_spPlayers->SetText( s );
 
 	// Make sure start and end ages are still within range.
@@ -512,7 +512,7 @@ SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
 	{
 		for(uint32 i=3; i<=16; i++) {
 			MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-			sprintf(textBlock, "%d",i);
+			snprintf(textBlock, sizeof(textBlock), "%d",i);
 			c3_ListItem *myitem = new SPDropDownListItem(retval,"SPDropDownListItem","Opponent", textBlock);
 			if(myitem) m_opponent->AddItem(myitem);
 		}

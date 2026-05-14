@@ -439,7 +439,7 @@ int StatsWindow_Initialize( void )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ScreensSwitch" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ScreensSwitch" );
 
 
 
@@ -449,7 +449,7 @@ int StatsWindow_Initialize( void )
 
 	for ( i = 0;i < k_STATS_NUM_BUTTONS;i++ )
 	{
-		sprintf( controlBlock, "%s.%s", windowBlock, s_buttonName[i] );
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, s_buttonName[i] );
 
 
  		s_statsButton[i] = spNew_ctp2_Button(&errcode,

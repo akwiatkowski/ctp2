@@ -259,7 +259,7 @@ AUI_ERRCODE gameplayoptions_Initialize( void )
 	gameplayoptions_updateData();
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", windowBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
 	s_gameplayoptionsWindow->AddTitle( block );
 	s_gameplayoptionsWindow->AddClose( gameplayoptions_exitPress );
 

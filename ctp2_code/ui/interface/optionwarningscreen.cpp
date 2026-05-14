@@ -141,7 +141,7 @@ AUI_ERRCODE optionwarningscreen_Initialize( void )
 	s_but2String		= spNewStringTable(&errcode,"OWSBut2StringTable");
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", windowBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
 	s_optionwarningscreenWindow->AddTitle( block );
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );

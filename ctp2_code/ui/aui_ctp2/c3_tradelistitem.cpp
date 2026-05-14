@@ -46,19 +46,19 @@ AUI_ERRCODE c3_TradeListItem::InitCommonLdl(TradeRoute *route, sint32 gold, sint
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "goodsName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "goodsName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "cityFrom");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "cityFrom");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "cityTo");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "cityTo");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "goodsValue");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "goodsValue");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -105,7 +105,7 @@ void c3_TradeListItem::Update(void)
 	}
 
 	subItem = (c3_Static *)GetChildByIndex(3);
-	sprintf(s, "%ld", m_gold);
+	snprintf(s, sizeof(s), "%ld", m_gold);
 	subItem->SetText(s);
 }
 

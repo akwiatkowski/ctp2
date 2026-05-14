@@ -437,14 +437,14 @@ void CauseAndEffectTab::UpdateGeneral()
 
 	static char stringBuffer[16];
 
-	sprintf(stringBuffer, "%d", player->GetNumCities());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", player->GetNumCities());
 	m_numberOfCities->SetText(stringBuffer);
-	sprintf(stringBuffer, "%d", player->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+player->GetPartialPopulation());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", player->GetTotalPopulation()*k_PEOPLE_PER_POPULATION+player->GetPartialPopulation());
 	m_population->SetText(stringBuffer);
 
 	sint32 happiness;
 	happiness=player->GetAverageHappiness();
-	sprintf(stringBuffer, "%d", happiness);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", happiness);
 	m_happinessValue->SetText(stringBuffer);
 
 	const GovernmentRecord *government =
@@ -561,49 +561,49 @@ void CauseAndEffectTab::UpdateFoodValues()
 	static char stringBuffer[16];
 	static char formatBuffer[64];
 
-	//sprintf(stringBuffer, "%d", totalFoodRequired);
+	//snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalFoodRequired);
 	//m_foodRequired->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalTerrainFood);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalTerrainFood);
 	m_detailsFoodTerrainTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodFromBuildings);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodFromBuildings);
 	m_detailsFoodFromBuildings->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodFarmers);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodFarmers);
 	m_detailsFoodFarmers->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFeatWonderFood);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFeatWonderFood);
 	m_detailsFoodFeatWonder->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodGovBonus);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodGovBonus);
 	m_detailsFoodGovBonus->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFood);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFood);
 	m_detailsFoodTotal->SetText(stringBuffer);
 	m_summaryFoodTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodCrime);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodCrime);
 	m_detailsFoodCrime->SetText(stringBuffer);
 	m_summaryFoodCrime->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodConsumed);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodConsumed);
 	m_detailsFoodConsumed->SetText(stringBuffer);
 	m_summaryFoodConsumed->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFoodStored);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFoodStored);
 	m_detailsFoodStored->SetText(stringBuffer);
 	m_summaryFoodStored->SetText(stringBuffer);
 
 	sint32 happiness = static_cast<sint32>(
 		Happy::CalcCityIndependentRations(player));
-	sprintf(stringBuffer, "%d", happiness);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", happiness);
 	m_foodHappinessValue->SetText(stringBuffer);
 	SetHappinessIcon(m_foodHappinessIcon, happiness);
 
-	sprintf(formatBuffer, "EMPIRE_RATIONS_AMOUNT_%i",
+	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_RATIONS_AMOUNT_%i",
 		(int) player->GetUnitlessRations()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION);
-	sprintf(stringBuffer, "%s%s", g_theStringDB->GetNameStr(formatBuffer),
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
 		g_theStringDB->GetNameStr("EMPIRE_RATIONS_AMOUNT_UNIT"));
 	m_foodCurValue->SetText(stringBuffer);
 }
@@ -728,57 +728,57 @@ void CauseAndEffectTab::UpdateProductionValues()
 	static char formatBuffer[64];
 
 	// sub total
-	sprintf(stringBuffer, "%.0f", totalProduction);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalProduction);
 	m_detailsProductionTotal->SetText(stringBuffer);
 	m_summaryProductionTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalTerrainProd);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalTerrainProd);
 	m_detailsProdTerrainTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalWorkdayBonus);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalWorkdayBonus);
 	m_detailsProdWorkdayTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalProdFromBuildings);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalProdFromBuildings);
 	m_detailsProdFromBuildingsTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalLaborersProd);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalLaborersProd);
 	m_detailsProductionLaborersTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFeatWonderProd);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFeatWonderProd);
 	m_detailsProductionFeatWonderTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalProdGovBonus);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalProdGovBonus);
 	m_detailsProductionGovBonusTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalFranchiseBioLoss);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalFranchiseBioLoss);
 	m_detailsProductionFranchiseBioLoss->SetText(stringBuffer);
 	m_summaryProductionFranchiseBioLoss->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalProductionCrime);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalProductionCrime);
 	m_detailsProductionCrime->SetText(stringBuffer);
 	m_summaryProductionCrime->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalProductionUnitUpkeep);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalProductionUnitUpkeep);
 	m_detailsProductionUnitUpkeep->SetText(stringBuffer);
 	m_summaryProductionUnitUpkeep->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalProductionPublicWorks);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalProductionPublicWorks);
 	m_detailsProductionPublicWorks->SetText(stringBuffer);
 	m_summaryProductionPublicWorks->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f", totalProductionCityUse);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f", totalProductionCityUse);
 	m_detailsProductionCityUse->SetText(stringBuffer);
 	m_summaryProductionCityUse->SetText(stringBuffer);
 
 	sint32 happiness = static_cast<sint32>(
 		Happy::CalcCityIndependentWorkday(player));
-	sprintf(stringBuffer, "%d", happiness);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", happiness);
 	m_productionHappinessValue->SetText(stringBuffer);
 	SetHappinessIcon(m_productionHappinessIcon, happiness);
 
-	sprintf(formatBuffer, "EMPIRE_WORKDAY_AMOUNT_%i",
+	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_WORKDAY_AMOUNT_%i",
 		(int) (4-(player->GetUnitlessWorkday()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION)));
-	sprintf(stringBuffer, "%s%s", g_theStringDB->GetNameStr(formatBuffer),
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
 		g_theStringDB->GetNameStr("EMPIRE_WORKDAY_AMOUNT_UNIT"));
 	m_productionCurValue->SetText(stringBuffer);
 }
@@ -998,97 +998,97 @@ void CauseAndEffectTab::UpdateCommerceValues()
 	static char stringBuffer[16];
 	static char formatBuffer[64];
 
-	sprintf(stringBuffer, "%d", totalCommerceTerrain);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceTerrain);
 	m_detailsCommerceTerrain->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceWages);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceWages);
 	m_detailsCommerceWages->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceCityBuildingUpkeep);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceCityBuildingUpkeep);
 	m_detailsCommerceBuildingUpkeep->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerce);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerce);
 	m_detailsCommerceTotal->SetText(stringBuffer);
 	m_summaryCommerceTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalScienceFromCommerce);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalScienceFromCommerce);
 	m_detailsCommerceScienceBasic->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldFromCommerce);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldFromCommerce);
 	m_detailsGoldFromCommerce->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceScience);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceScience);
 	m_detailsCommerceScience->SetText(stringBuffer);
 	m_summaryCommerceScience->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalScienceFromBuildings);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalScienceFromBuildings);
 	m_detailsCommerceScienceBuildings->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldFromBuildings);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldFromBuildings);
 	m_detailsCommerceGoldBuildings->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalScientistsScie);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalScientistsScie);
 	m_detailsCommerceScientistsScie->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalFeatWonderScie);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalFeatWonderScie);
 	m_detailsCommerceFeatWonderScie->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalMerchantsGold);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalMerchantsGold);
 	m_detailsCommerceMerchantsGold->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalFeatWonderGold);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalFeatWonderGold);
 	m_detailsCommerceFeatWonderGold->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldTradeRoutes);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldTradeRoutes);
 	m_detailsCommerceTradeGold->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalScienceGov);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalScienceGov);
 	m_detailsCommerceScienceGov->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldGov);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldGov);
 	m_detailsCommerceGoldGov->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalScieSubTotal);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalScieSubTotal);
 	m_detailsCommerceScieSubTotal->SetText(stringBuffer);
 	m_summaryCommerceScieSubTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldSubTotal);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldSubTotal);
 	m_detailsCommerceGoldSubTotal->SetText(stringBuffer);
 	m_summaryCommerceGoldSubTotal->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldConversionLoss);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldConversionLoss);
 	m_detailsCommerceConvGoldLoss->SetText(stringBuffer);
 	m_summaryCommerceConvGoldLoss->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalUnitWages);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalUnitWages);
 	m_detailsCommerceUnitWages->SetText(stringBuffer);
 	m_summaryCommerceUnitWages->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceGoldCrime);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceGoldCrime);
 	m_detailsCommerceGoldCrime->SetText(stringBuffer);
 	m_summaryCommerceGoldCrime->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceScieCrime);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceScieCrime);
 	m_detailsCommerceScieCrime->SetText(stringBuffer);
 	m_summaryCommerceScieCrime->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalCommerceSavings);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalCommerceSavings);
 	m_detailsCommerceSavings->SetText(stringBuffer);
 	m_summaryCommerceSavings->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d", totalGoldConversions);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", totalGoldConversions);
 	m_detailsCommerceConversionsGold->SetText(stringBuffer);
 	m_summaryCommerceConversionsGold->SetText(stringBuffer);
 
 	sint32 happiness = static_cast<sint32>(
 		Happy::CalcCityIndependentWages(player));
-	sprintf(stringBuffer, "%d", happiness);
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", happiness);
 	m_commerceHappinessValue->SetText(stringBuffer);
 	SetHappinessIcon(m_commerceHappinessIcon, happiness);
 
-	sprintf(formatBuffer, "EMPIRE_COMMERCE_AMOUNT_%i",
+	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_COMMERCE_AMOUNT_%i",
 		(int) player->GetUnitlessWages()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION);
-	sprintf(stringBuffer, "%s%s", g_theStringDB->GetNameStr(formatBuffer),
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
 		g_theStringDB->GetNameStr("EMPIRE_COMMERCE_AMOUNT_UNIT"));
 	m_commerceCurValue->SetText(stringBuffer);
 }

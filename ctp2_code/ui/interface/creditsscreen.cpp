@@ -260,7 +260,7 @@ void c3_SimpleAnimation::InitCommonLdl(MBCHAR *ldlBlock)
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
 
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(ldlString, "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
 	AUI_ERRCODE errcode;
 	m_frames = new aui_StringTable(&errcode, ldlString);
 	Assert(m_frames);
@@ -490,7 +490,7 @@ void c3_TriggeredAnimation::InitCommonLdl(MBCHAR *ldlBlock)
 
 	AUI_ERRCODE errcode;
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(ldlString, "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_C3_ANIMATION_FRAMES);
 	m_frames = new aui_StringTable(&errcode, ldlString);
 	Assert(m_frames);
 
@@ -789,7 +789,7 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	if(!datablock) return;
 
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_BACKGROUND);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_BACKGROUND);
 	AUI_ERRCODE errcode;
 	m_background = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_background);
@@ -801,7 +801,7 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	int index;
 
 	for(index = 0; index < m_numberOfBackgroundAnims; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_CREDITS_BACKANIM_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_CREDITS_BACKANIM_BASE, index+1);
 		m_backgroundAnim[index] = new c3_SimpleAnimation(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_backgroundAnim[index]);
 		m_backgroundAnim[index]->IgnoreEvents(TRUE);
@@ -813,7 +813,7 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_triggeredAnim = m_numberOfTriggeredAnims > 0 ? new c3_TriggeredAnimation *[m_numberOfTriggeredAnims] : NULL;
 
 	for(index = 0; index < m_numberOfTriggeredAnims; index++) {
-		sprintf(ldlString, "%s.%s%d", ldlBlock, k_LDL_CREDITS_TRIGGERANIM_BASE, index+1);
+		snprintf(ldlString, sizeof(ldlString), "%s.%s%d", ldlBlock, k_LDL_CREDITS_TRIGGERANIM_BASE, index+1);
 		m_triggeredAnim[index] = new c3_TriggeredAnimation(&errcode, aui_UniqueId(), ldlString);
 		Assert(m_triggeredAnim[index]);
 		m_triggeredAnim[index]->IgnoreEvents(TRUE);
@@ -853,28 +853,28 @@ void CreditsWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_IMAGE);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_IMAGE);
 	m_secretImage = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_secretImage);
 	m_secretImage->IgnoreEvents(TRUE);
 	m_secretImage->Hide();
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_BORDER);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_BORDER);
 	m_border = new aui_Static(&errcode, aui_UniqueId(), ldlString);
 	Assert(m_border);
 	m_border->IgnoreEvents(TRUE);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_PAUSE_BUTTON);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_PAUSE_BUTTON);
 	m_pauseButton = new aui_Button(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_PauseButtonActionCallback);
 	Assert(m_pauseButton);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_BUTTON);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_SECRET_BUTTON);
 	m_secretButton = new aui_Button(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_SecretButtonActionCallback);
 	Assert(m_secretButton);
 
-	sprintf(ldlString, "%s.%s", ldlBlock, k_LDL_CREDITS_EXIT_BUTTON);
+	snprintf(ldlString, sizeof(ldlString), "%s.%s", ldlBlock, k_LDL_CREDITS_EXIT_BUTTON);
 	m_exitButton = new ctp2_Button(&errcode, aui_UniqueId(), ldlString,
 		creditsscreen_ExitButtonActionCallback);
 	Assert(m_exitButton);
@@ -1143,7 +1143,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 				currFont = GetFontNumber(currToken);
 				if ((currFont == NUMBER_INVALID) || (currFont > m_numFonts) )
 				{
-					sprintf(errorStr, "%s line %d: Bad font specifier '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font specifier '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
 					delete this;
@@ -1163,7 +1163,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 					}
 					else
 					{
-						sprintf(errorStr, "%s line %d: Bad font filename '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+						snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font filename '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 						MessageBoxDialog::Information(errorStr, "CreditsError");
 
 						delete this;
@@ -1171,7 +1171,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 					}
 					break;
 				}
-				sprintf(errorStr, "%s line %d: Illegal text'%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+				snprintf(errorStr, sizeof(errorStr), "%s line %d: Illegal text'%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 				MessageBoxDialog::Information(errorStr, "CreditsError");
 
 				delete this;
@@ -1183,7 +1183,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 				m_currFontNumber = GetFontNumber(currToken);
 				if (m_currFontNumber == NUMBER_INVALID)
 				{
-					sprintf(errorStr, "%s line %d: Bad font definition '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font definition '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
 					delete this;
@@ -1196,7 +1196,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 				m_currFontSize = GetFontSize(currToken);
 				if (m_currFontSize == NUMBER_INVALID)
 				{
-					sprintf(errorStr, "%s line %d: Bad font size '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+					snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad font size '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 					MessageBoxDialog::Information(errorStr, "CreditsError");
 
 					delete this;
@@ -1224,7 +1224,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 			}
 			case kBadToken:
 			{
-				sprintf(errorStr, "%s line %d: Bad token '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
+				snprintf(errorStr, sizeof(errorStr), "%s line %d: Bad token '%s'", k_CREDITS_FILENAME, m_currTextfileLine, currToken);
 				MessageBoxDialog::Information(errorStr, "CreditsError");
 
 				delete this;
@@ -1235,7 +1235,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 
 	}
 
-	sprintf(errorStr, "%s line %d: Unexpected end of file found", k_CREDITS_FILENAME, m_currTextfileLine);
+	snprintf(errorStr, sizeof(errorStr), "%s line %d: Unexpected end of file found", k_CREDITS_FILENAME, m_currTextfileLine);
 	MessageBoxDialog::Information(errorStr, "CreditsError");
 
 	delete this;
@@ -1346,7 +1346,7 @@ bool c3_CreditsText::ParseFontDef(MBCHAR *pToken)
 	if (m_fonts[m_currFontNumber])
 	{
 
-		sprintf(errorStr, "%s line %d: Font already defined '%s'", k_CREDITS_FILENAME, m_currTextfileLine, pToken);
+		snprintf(errorStr, sizeof(errorStr), "%s line %d: Font already defined '%s'", k_CREDITS_FILENAME, m_currTextfileLine, pToken);
 		MessageBoxDialog::Information(errorStr, "CreditsError");
 
 		return FALSE;

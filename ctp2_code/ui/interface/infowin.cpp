@@ -366,19 +366,19 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR			controlSubBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleBox" );
 	s_titleBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_titleBox, errcode) );
 	if ( !AUI_NEWOK(s_titleBox, errcode) ) return -1;
 	s_titleBox->SetBlindness( TRUE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "BottomRightBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "BottomRightBox" );
 	s_bottomRightBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_bottomRightBox, errcode) );
 	if ( !AUI_NEWOK(s_bottomRightBox, errcode) ) return -1;
 
 	strcpy(controlSubBlock, controlBlock);
-	sprintf( controlBlock, "%s.%s", controlSubBlock, "BottomRightImage" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "BottomRightImage" );
 	s_bottomRightImage = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_bottomRightImage, errcode) );
 	if ( !AUI_NEWOK(s_bottomRightImage, errcode) ) return -1;
@@ -388,12 +388,12 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 
 
 
-	sprintf( controlBlock, "%s.%s", controlSubBlock, "TurnsBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "TurnsBox" );
 	s_turnsBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_turnsBox, errcode) );
 	if ( !AUI_NEWOK(s_turnsBox, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", controlSubBlock, "FoundedBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "FoundedBox" );
 	s_foundedBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_foundedBox, errcode) );
 	if ( !AUI_NEWOK(s_foundedBox, errcode) ) return -1;
@@ -403,53 +403,53 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 
 
 
-	sprintf( controlBlock, "%s.%s", controlSubBlock, "TurnsLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "TurnsLabel" );
 	s_turnsLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_turnsLabel, errcode) );
 	if ( !AUI_NEWOK(s_turnsLabel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", controlSubBlock, "FoundedLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", controlSubBlock, "FoundedLabel" );
 	s_foundedLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_foundedLabel, errcode) );
 	if ( !AUI_NEWOK(s_foundedLabel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PollutionBox" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionBox" );
 	s_pollutionBox = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionBox, errcode) );
 	if ( !AUI_NEWOK(s_pollutionBox, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PollutionLabel" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionLabel" );
 	s_pollutionLabel = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionLabel, errcode) );
 	if ( !AUI_NEWOK(s_pollutionLabel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PollutionTherm" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionTherm" );
 	s_pollutionTherm = new Thermometer(&errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(s_pollutionTherm, errcode) );
 	if ( !AUI_NEWOK(s_pollutionTherm, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PollutionList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionList" );
 	s_pollutionList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_pollutionList, errcode) );
 	if ( !AUI_NEWOK(s_pollutionList, errcode) ) return -1;
 
 	s_pollutionList->GetHeader()->Enable( FALSE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "InfoPlayerList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoPlayerList" );
 	s_infoPlayerList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_infoPlayerList, errcode) );
 	if ( !AUI_NEWOK(s_infoPlayerList, errcode) ) return -1;
 
 	s_infoPlayerList->GetHeader()->Enable( FALSE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "InfoBigList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoBigList" );
 	s_infoBigList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, InfoBigListCallback, NULL);
 	Assert( AUI_NEWOK(s_infoBigList, errcode) );
 	if ( !AUI_NEWOK(s_infoBigList, errcode) ) return -1;
 
 	s_infoBigList->GetHeader()->Enable( FALSE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "InfoScoreList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoScoreList" );
 	s_infoScoreList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_infoScoreList, errcode) );
 	if ( !AUI_NEWOK(s_infoScoreList, errcode) ) return -1;
@@ -459,12 +459,12 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	aui_Ranger	*s_infoScoreListRanger = s_infoScoreList->GetVerticalRanger();
 	s_infoScoreListRanger->Enable(TRUE);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "InfoWonderList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoWonderList" );
 	s_infoWonderList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_infoWonderList, errcode) );
 	if ( !AUI_NEWOK(s_infoWonderList, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "InfoGraph" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoGraph" );
 	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL, g_eventTracker);
 	Assert( AUI_NEWOK(s_infoGraph, errcode) );
 	if ( !AUI_NEWOK(s_infoGraph, errcode) ) return -1;
@@ -472,18 +472,18 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_currentWonderDisplay=0;
 	for(int i=0; i<17; i++)
 	{
-		sprintf( buttonBlock, "%s.%s%i", controlBlock, "EventsInfoButton",i+1 );
+		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s%i", controlBlock, "EventsInfoButton",i+1 );
 		s_eventsInfoButton[i] = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 		Assert( AUI_NEWOK(s_eventsInfoButton[i], errcode) );
 		if ( !AUI_NEWOK(s_eventsInfoButton[i], errcode) ) return -1;
 	}
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "EventsInfoButtonLeft");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "EventsInfoButtonLeft");
 	s_eventsInfoButtonLeft = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_eventsInfoButtonLeft, errcode) );
 	if ( !AUI_NEWOK(s_eventsInfoButtonLeft, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "EventsInfoButtonRight");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "EventsInfoButtonRight");
 	s_eventsInfoButtonRight = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, EventsInfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_eventsInfoButtonRight, errcode) );
 	if ( !AUI_NEWOK(s_eventsInfoButtonRight, errcode) ) return -1;
@@ -491,7 +491,7 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_infoGraph->EnableYNumber(FALSE);
 	s_infoGraph->EnablePrecision(FALSE);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PollutionGraph" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionGraph" );
 	s_pollutionGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(s_pollutionGraph, errcode) );
 	if ( !AUI_NEWOK(s_pollutionGraph, errcode) ) return -1;
@@ -499,37 +499,37 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_pollutionGraph->EnableYNumber(FALSE);
 	s_pollutionGraph->EnablePrecision(FALSE);
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "BigButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "BigButton" );
 	s_bigButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_bigButton, errcode) );
 	if ( !AUI_NEWOK(s_bigButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "WonderButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "WonderButton" );
 	s_wonderButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_wonderButton, errcode) );
 	if ( !AUI_NEWOK(s_wonderButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "StrengthButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "StrengthButton" );
 	s_strengthButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_strengthButton, errcode) );
 	if ( !AUI_NEWOK(s_strengthButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "ScoreButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ScoreButton" );
 	s_scoreButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_scoreButton, errcode) );
 	if ( !AUI_NEWOK(s_scoreButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "LabButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "LabButton" );
 	s_labButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_labButton, errcode) );
 	if ( !AUI_NEWOK(s_labButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "ThroneButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "ThroneButton" );
 	s_throneButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_throneButton, errcode) );
 	if ( !AUI_NEWOK(s_throneButton, errcode) ) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "PollutionButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "PollutionButton" );
 	s_pollutionButton = new c3_Button(&errcode, aui_UniqueId(), buttonBlock, InfoButtonActionCallback);
 	Assert( AUI_NEWOK(s_pollutionButton, errcode) );
 	if ( !AUI_NEWOK(s_pollutionButton, errcode) ) return -1;
@@ -588,19 +588,19 @@ sint32 infowin_UpdateCivData( void )
 
 		if (yearFounded > 0)
 		{
-			sprintf(strbuf,"%d AD",yearFounded);
+			snprintf(strbuf, sizeof(strbuf),"%d AD",yearFounded);
 		}
 		else
 		{
 
 			yearFounded *= -1;
-			sprintf(strbuf,"%d BC",yearFounded);
+			snprintf(strbuf, sizeof(strbuf),"%d BC",yearFounded);
 		}
 #endif
 		s_foundedBox->SetText(yearStr);
 
 		sint32 turnsOld = g_turn->GetRound() - turnFounded;
-		sprintf(strbuf,"%d",turnsOld);
+		snprintf(strbuf, sizeof(strbuf),"%d",turnsOld);
 		s_turnsBox->SetText(strbuf);
 
 	}
@@ -716,7 +716,7 @@ sint32 infowin_UpdateScoreList( void )
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	posValue += item->GetValue();
 
-	sprintf(strbuf,"%d",posValue);
+	snprintf(strbuf, sizeof(strbuf),"%d",posValue);
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(1), strbuf, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
@@ -742,7 +742,7 @@ sint32 infowin_UpdateScoreList( void )
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 	negValue += item->GetValue();
 
-	sprintf(strbuf,"%d",negValue);
+	snprintf(strbuf, sizeof(strbuf),"%d",negValue);
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(3), strbuf, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
@@ -761,7 +761,7 @@ sint32 infowin_UpdateScoreList( void )
 	}
 	if(score) {
 		sint32 totalValue = score->GetTotalScore();
-		sprintf(strbuf,"%d",totalValue);
+		snprintf(strbuf, sizeof(strbuf),"%d",totalValue);
 	} else {
 		strcpy(strbuf, "0");
 	}
@@ -770,7 +770,7 @@ sint32 infowin_UpdateScoreList( void )
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
 	sint32 civScore = infowin_GetCivScore(curPlayer);
-	sprintf(strbuf,"%d%%",civScore);
+	snprintf(strbuf, sizeof(strbuf),"%d%%",civScore);
 	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(5), strbuf, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
@@ -1143,7 +1143,7 @@ sint32 infowin_UpdatePollutionData( void )
 	}
 	else
 	{
-		sprintf(strbuf, "%d", turnsLeft);
+		snprintf(strbuf, sizeof(strbuf), "%d", turnsLeft);
 		double const	val0 = g_thePollution->GetGlobalPollutionLevel();
 		double const	val1 = g_thePollution->GetNextTrigger();
 		percent = static_cast<sint32>(100.0 * (val0 / val1));
@@ -1481,65 +1481,65 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	Civilisation *civ = p->GetCivilisation();
 
 	civ->GetSingularCivName(strbuf);
-	sprintf(m_civ_name,"%s", strbuf);
+	snprintf(m_civ_name, sizeof(m_civ_name),"%s", strbuf);
 
 	c3_Static		*subItem;
 	c3_Static		*iconItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "CityName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CityName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "CivName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CivName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "PopSize");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "PopSize");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "WonderBlock");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "WonderBlock");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
 	strcpy(subBlock,block);
-	sprintf(block, "%s.%s", subBlock, "CountBlock1");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock1");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "IconBlock1");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock1");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "CountBlock2");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock2");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "IconBlock2");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock2");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "CountBlock3");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock3");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "IconBlock3");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock3");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "CountBlock4");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock4");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "IconBlock4");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock4");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "CountBlock5");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "CountBlock5");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
-	sprintf(block, "%s.%s", subBlock, "IconBlock5");
+	snprintf(block, sizeof(block), "%s.%s", subBlock, "IconBlock5");
 	iconItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->AddChild(iconItem);
 
@@ -1578,7 +1578,7 @@ void InfoBigListItem::Update(void)
 	subItem->SetText(m_civ_name);
 
 	subItem = (c3_Static *)GetChildByIndex(2);
-	sprintf(strbuf,"%d",cd->PopCount());
+	snprintf(strbuf, sizeof(strbuf),"%d",cd->PopCount());
 	subItem->SetText(strbuf);
 
 	uint64 wonders = cd->GetBuiltWonders();
@@ -1606,23 +1606,23 @@ void InfoBigListItem::Update(void)
 
 
 	subItem = (c3_Static *)GetChildByIndex(3)->GetChildByIndex(0);
-	sprintf(strbuf,"%d",wonderCount[0]);
+	snprintf(strbuf, sizeof(strbuf),"%d",wonderCount[0]);
 	subItem->SetText(strbuf);
 
 	subItem = (c3_Static *)GetChildByIndex(3)->GetChildByIndex(2);
-	sprintf(strbuf,"%d",wonderCount[1]);
+	snprintf(strbuf, sizeof(strbuf),"%d",wonderCount[1]);
 	subItem->SetText(strbuf);
 
 	subItem = (c3_Static *)GetChildByIndex(3)->GetChildByIndex(4);
-	sprintf(strbuf,"%d",wonderCount[2]);
+	snprintf(strbuf, sizeof(strbuf),"%d",wonderCount[2]);
 	subItem->SetText(strbuf);
 
 	subItem = (c3_Static *)GetChildByIndex(3)->GetChildByIndex(6);
-	sprintf(strbuf,"%d",wonderCount[3]);
+	snprintf(strbuf, sizeof(strbuf),"%d",wonderCount[3]);
 	subItem->SetText(strbuf);
 
 	subItem = (c3_Static *)GetChildByIndex(3)->GetChildByIndex(8);
-	sprintf(strbuf,"%d",wonderCount[4]);
+	snprintf(strbuf, sizeof(strbuf),"%d",wonderCount[4]);
 	subItem->SetText(strbuf);
 
 }
@@ -1660,15 +1660,15 @@ AUI_ERRCODE InfoWonderListItem::InitCommonLdl(sint32 player, sint32 index, MBCHA
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "WonderName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "WonderName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "CivName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CivName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "CityName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "CityName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -1693,7 +1693,7 @@ void InfoWonderListItem::Update(void)
 	Civilisation *civ = p->GetCivilisation();
 
 	civ->GetSingularCivName(strbuf);
-	sprintf(civName,"%s", strbuf);
+	snprintf(civName, sizeof(civName),"%s", strbuf);
 
 	subItem = (c3_Static *)GetChildByIndex(1);
 
@@ -1756,11 +1756,11 @@ AUI_ERRCODE InfoScoreListItem::InitCommonLdl(sint32 player, sint32 index, MBCHAR
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "ScoreCategory");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreCategory");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "ScoreValue");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreValue");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -1800,7 +1800,7 @@ void InfoScoreListItem::Update(void)
 	m_value = score->GetPartialScore((SCORE_CATEGORY)m_index);
 
 	subItem = (c3_Static *)GetChildByIndex(1);
-	sprintf(strbuf,"%d",m_value);
+	snprintf(strbuf, sizeof(strbuf),"%d",m_value);
 	subItem->SetText(strbuf);
 }
 
@@ -1836,11 +1836,11 @@ AUI_ERRCODE InfoScoreLabelListItem::InitCommonLdl(MBCHAR *label, MBCHAR *text, M
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "ScoreCategory");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreCategory");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "ScoreValue");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ScoreValue");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -1896,7 +1896,7 @@ AUI_ERRCODE InfoPlayerListItem::InitCommonLdl(MBCHAR *name, sint32 index, MBCHAR
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "Civilization");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Civilization");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 

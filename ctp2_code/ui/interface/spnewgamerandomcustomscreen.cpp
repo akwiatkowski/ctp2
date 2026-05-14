@@ -125,12 +125,12 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 	}
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_spNewGameRandomCustomScreen->AddTitle( controlBlock );
 	s_spNewGameRandomCustomScreen->AddClose( callback ? callback : spnewgamerandomcustomscreen_backPress );
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Group" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Group" );
 	s_group = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_group, errcode) );
 	if ( !AUI_NEWOK(s_group, errcode) ) return errcode;
@@ -138,7 +138,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
 	s_checkBox = new aui_Radio*[k_NUM_RANDOMCUSTOMBOXES];
 
 	for ( i = 0;i < k_NUM_RANDOMCUSTOMBOXES;i++ ) {
-		sprintf( switchBlock, "%s.%s", controlBlock, checknames[i] );
+		snprintf(switchBlock, sizeof(switchBlock), "%s.%s", controlBlock, checknames[i] );
 		s_checkBox[i] = new aui_Radio( &errcode, aui_UniqueId(), switchBlock );
 		Assert( AUI_NEWOK(s_checkBox[i], errcode) );
 		if ( !AUI_NEWOK(s_checkBox[i], errcode) ) return errcode;

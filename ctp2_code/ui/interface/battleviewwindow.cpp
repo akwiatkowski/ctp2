@@ -211,125 +211,125 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_battleView = new BattleView();
 	Assert(m_battleView != NULL);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "TitleText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TitleText");
 	m_titleText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_titleText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "AttackersText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersText");
 	m_attackersText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "AttackersName");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersName");
 	m_attackersName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersName);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "AttackersFlag");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "AttackersFlag");
 	m_attackersFlag = new c3_Icon(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_attackersFlag);
 	m_attackersFlag->SetMapIcon( MAPICON_FLAG );
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "DefendersText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersText");
 	m_defendersText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "DefendersName");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersName");
 	m_defendersName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersName);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "DefendersFlag");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "DefendersFlag");
 	m_defendersFlag = new c3_Icon(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_defendersFlag);
 	m_defendersFlag->SetMapIcon( MAPICON_FLAG );
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "TerrainBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusText");
 	m_terrainBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_terrainBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "TerrainBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TerrainBonusValue");
 	m_terrainBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_terrainBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusText");
 	m_cityBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityBonusValue");
 	m_cityBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityLandAttackBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusText");
 	m_citylandattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_citylandattackBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityLandAttackBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityLandAttackBonusValue");
 	m_citylandattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_citylandattackBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityAirAttackBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusText");
 	m_cityairattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityairattackBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityAirAttackBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityAirAttackBonusValue");
 	m_cityairattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityairattackBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CitySeaAttackBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusText");
 	m_cityseaattackBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityseaattackBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CitySeaAttackBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CitySeaAttackBonusValue");
 	m_cityseaattackBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityseaattackBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "CityName");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "CityName");
 	m_cityName = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_cityName);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "FortBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusText");
 	m_fortBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "FortBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortBonusValue");
 	m_fortBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortBonusValue);
 
 	m_fortBonusImage = NULL;
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "FortifiedBonusText");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusText");
 	m_fortifiedBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortifiedBonusText);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "FortifiedBonusValue");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusValue");
 	m_fortifiedBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortifiedBonusValue);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "ExitButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ExitButton");
 	m_exitButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
 		battleview_ExitButtonActionCallback);
 	Assert(m_exitButton != NULL);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "RetreatButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RetreatButton");
 	m_retreatButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
 		battleview_RetreatButtonActionCallback);
 	Assert(m_retreatButton != NULL);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "TopBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
 	m_topBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_topBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "LeftBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "LeftBorder");
 	m_leftBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_leftBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "RightBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RightBorder");
 	m_rightBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_rightBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "BottomBorder");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BottomBorder");
 	m_bottomBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_bottomBorder);
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "BattleViewArea");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "BattleViewArea");
 
     ldl_datablock *block = aui_Ldl::GetLdl()->FindDataBlock( buttonBlock );
 	Assert(block);
@@ -413,7 +413,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 
 	double bonus = battle->GetTerrainBonus();
 	MBCHAR s[k_MAX_NAME_LEN];
-	sprintf(s, "+%d%%", (sint32)(bonus * 100.0));
+	snprintf(s, sizeof(s), "+%d%%", (sint32)(bonus * 100.0));
 	m_terrainBonusValue->SetText(s);
 
 	if(battle->GetCityImage() != -1) {
@@ -440,27 +440,27 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	}
 
 	bonus = battle->GetCityBonus();
-	sprintf(s, "+%d", (sint32)bonus);
+	snprintf(s, sizeof(s), "+%d", (sint32)bonus);
 	m_cityBonusValue->SetText(s);
 
 	bonus = battle->GetCityLandAttackBonus();
-	sprintf(s, "+%d", (sint32)bonus);
+	snprintf(s, sizeof(s), "+%d", (sint32)bonus);
 	m_citylandattackBonusValue->SetText(s);
 
 	bonus = battle->GetCityAirAttackBonus();
-	sprintf(s, "+%d", (sint32)bonus);
+	snprintf(s, sizeof(s), "+%d", (sint32)bonus);
 	m_cityairattackBonusValue->SetText(s);
 
 	bonus = battle->GetCitySeaAttackBonus();
-	sprintf(s, "+%d", (sint32)bonus);
+	snprintf(s, sizeof(s), "+%d", (sint32)bonus);
 	m_cityseaattackBonusValue->SetText(s);
 
 	bonus = battle->GetFortBonus();
-	sprintf(s, "+%d%%", (sint32)(bonus * 100.0));
+	snprintf(s, sizeof(s), "+%d%%", (sint32)(bonus * 100.0));
 	m_fortBonusValue->SetText(s);
 
 	bonus = battle->GetFortifiedBonus();
-	sprintf(s, "+%d%%", (sint32)(bonus * 100.0));
+	snprintf(s, sizeof(s), "+%d%%", (sint32)(bonus * 100.0));
 	m_fortifiedBonusValue->SetText(s);
 
 	m_attackersFlag->SetColor( battle->GetAttackersColor() );

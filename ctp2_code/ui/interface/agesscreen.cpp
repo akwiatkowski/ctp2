@@ -176,7 +176,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	s_end = spNew_c3_Static(&errcode,windowBlock,"EndStatic");
 
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( controlBlock, "%s.%s", windowBlock, "StartDropDown" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "StartDropDown" );
 
 	s_startDropDown = new ctp2_DropDown(
 		&errcode,
@@ -187,7 +187,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	Assert( AUI_NEWOK(s_startDropDown, errcode) );
 	if ( !AUI_NEWOK(s_startDropDown, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "EndDropDown" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "EndDropDown" );
 
 	s_endDropDown = new ctp2_DropDown(
 		&errcode,

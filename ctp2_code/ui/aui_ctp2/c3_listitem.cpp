@@ -55,7 +55,7 @@ AUI_ERRCODE SingleListItem::InitCommonLdl(MBCHAR const *name, sint32 value, MBCH
 	m_value = value;
 
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
     AUI_ERRCODE     retval = AUI_ERRCODE_OK;
 	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
 

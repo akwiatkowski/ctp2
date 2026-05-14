@@ -254,7 +254,7 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 	s_homodiverse->SetValue(g_theProfileDB->GetHomoDiverse(), 0);
 	s_goodcount->SetValue(g_theProfileDB->GetGoodCount(), 0);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_customMapWindow->AddTitle( controlBlock );
 
 	s_closeButtonStrings = new aui_StringTable(

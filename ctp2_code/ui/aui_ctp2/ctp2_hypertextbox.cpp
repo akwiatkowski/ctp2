@@ -403,7 +403,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_HYPERTEXTBOX_LDL_RANGERY );
 
         if (aui_Ldl::FindDataBlock( block ) )
 			m_ranger = new c3_Ranger(

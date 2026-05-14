@@ -206,7 +206,7 @@ AUI_ERRCODE optionsscreen_Initialize( void )
 	g_optionsWindow->GrabRegion()->Resize( g_optionsWindow->Width(), 20 );
 	g_optionsWindow->SetDraggable( TRUE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	g_optionsWindow->AddTitle( controlBlock );
 	g_optionsWindow->Title()->SetBlindness( TRUE );
 

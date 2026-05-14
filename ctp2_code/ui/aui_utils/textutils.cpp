@@ -574,42 +574,42 @@ void textutils_TestFonts(
 	HFONT bickleyScript;
 	bickleyScript = textutils_CreateFont(pDirectSurface, "Bickley Script LET", 80, 0, 0, TRUE);
 	textutils_SelectFont(bickleyScript);
-	sprintf(l,"Bickley Script test");
+	snprintf(l, sizeof(l),"Bickley Script test");
 	primitives_DropText(pDirectSurface,15,100,l,0xcccc,1);
 	textutils_DeleteFont(bickleyScript);
 
 	HFONT fineHand;
 	fineHand = textutils_CreateFont(pDirectSurface, "Fine Hand LET", 180, 0, 0, TRUE);
 	textutils_SelectFont(fineHand);
-	sprintf(l,"Fine Hand test");
+	snprintf(l, sizeof(l),"Fine Hand test");
 	primitives_DropText(pDirectSurface,15,140,l,0xcccc,1);
 	textutils_DeleteFont(fineHand);
 
 	HFONT flight;
 	flight = textutils_CreateFont(pDirectSurface, "Flight LET", 150, 0, 0, TRUE);
 	textutils_SelectFont(flight);
-	sprintf(l,"Flight test");
+	snprintf(l, sizeof(l),"Flight test");
 	primitives_DropText(pDirectSurface,15,180,l,0xcccc,1);
 	textutils_DeleteFont(flight);
 
 	HFONT johnHandy;
 	johnHandy = textutils_CreateFont(pDirectSurface, "John Handy LET", 200, 0, 0, TRUE);
 	textutils_SelectFont(johnHandy);
-	sprintf(l,"John Handy test");
+	snprintf(l, sizeof(l),"John Handy test");
 	primitives_DropText(pDirectSurface,15,220,l,0xcccc,1);
 	textutils_DeleteFont(johnHandy);
 
 	HFONT rageItalic;
 	rageItalic = textutils_CreateFont(pDirectSurface, "Rage Italic LET", 120, 0, 0, TRUE);
 	textutils_SelectFont(rageItalic);
-	sprintf(l,"Rage Italic test");
+	snprintf(l, sizeof(l),"Rage Italic test");
 	primitives_DropText(pDirectSurface,15,260,l,0xcccc,1);
 	textutils_DeleteFont(rageItalic);
 
 	HFONT symbol;
 	symbol = textutils_CreateFont(pDirectSurface, "Symbol", 70, 0, 0, TRUE);
 	textutils_SelectFont(symbol);
-	sprintf(l,"Symbol test");
+	snprintf(l, sizeof(l),"Symbol test");
 	primitives_DropText(pDirectSurface,15,300,l,0xcccc,1);
 	textutils_DeleteFont(symbol);
 

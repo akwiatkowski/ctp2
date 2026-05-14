@@ -211,7 +211,7 @@ AUI_ERRCODE graphicsscreen_Initialize( void )
 	s_cityProd			->SetState(g_theProfileDB->IsShowCityProduction());
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", windowBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
 	s_graphicsWindow->AddTitle( block );
 	s_graphicsWindow->AddClose( graphicsscreen_exitPress );
 

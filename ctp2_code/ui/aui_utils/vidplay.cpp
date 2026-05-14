@@ -574,24 +574,24 @@ DWORD CDVDPlayer::GetStatusText(AM_DVD_RENDERSTATUS *pStatus,
     ZeroMemory(achBuffer, sizeof(TCHAR) * 1000) ;
     if (pStatus->iNumStreamsFailed > 0)
     {
-        iChars = wsprintf(lpszBuff,
+        iChars = wsnprintf(lpszBuff, sizeof(lpszBuff),
             TEXT("* %d out of %d DVD-Video streams failed to render properly\n"),
             pStatus->iNumStreamsFailed, pStatus->iNumStreams) ;
         lpszBuff += iChars ;
 
         if (pStatus->dwFailedStreamsFlag & AM_DVD_STREAM_VIDEO)
         {
-            iChars = wsprintf(lpszBuff, TEXT("    - video stream\n")) ;
+            iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("    - video stream\n")) ;
             lpszBuff += iChars ;
         }
         if (pStatus->dwFailedStreamsFlag & AM_DVD_STREAM_AUDIO)
         {
-            iChars = wsprintf(lpszBuff, TEXT("    - audio stream\n")) ;
+            iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("    - audio stream\n")) ;
             lpszBuff += iChars ;
         }
         if (pStatus->dwFailedStreamsFlag & AM_DVD_STREAM_SUBPIC)
         {
-            iChars = wsprintf(lpszBuff, TEXT("    - subpicture stream\n")) ;
+            iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("    - subpicture stream\n")) ;
             lpszBuff += iChars ;
         }
     }
@@ -608,23 +608,23 @@ DWORD CDVDPlayer::GetStatusText(AM_DVD_RENDERSTATUS *pStatus,
 
     if (pStatus->bDvdVolInvalid)
     {
-        iChars = wsprintf(lpszBuff, TEXT("* Specified DVD-Video volume was invalid\n")) ;
+        iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("* Specified DVD-Video volume was invalid\n")) ;
         lpszBuff += iChars ;
     }
     else if (pStatus->bDvdVolUnknown)
     {
-        iChars = wsprintf(lpszBuff, TEXT("* No valid DVD-Video volume could be located\n")) ;
+        iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("* No valid DVD-Video volume could be located\n")) ;
         lpszBuff += iChars ;
     }
 
     if (pStatus->bNoLine21In)
     {
-        iChars = wsprintf(lpszBuff, TEXT("* The video decoder doesn't produce closed caption data\n")) ;
+        iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("* The video decoder doesn't produce closed caption data\n")) ;
         lpszBuff += iChars ;
     }
     if (pStatus->bNoLine21Out)
     {
-        iChars = wsprintf(lpszBuff, TEXT("* Decoded closed caption data not rendered properly\n")) ;
+        iChars = wsnprintf(lpszBuff, sizeof(lpszBuff), TEXT("* Decoded closed caption data not rendered properly\n")) ;
         lpszBuff += iChars ;
     }
 

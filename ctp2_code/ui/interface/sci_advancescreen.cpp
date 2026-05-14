@@ -323,7 +323,7 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 
 	s_name = new ctp2_Static(&errcode, aui_UniqueId(), "SciAdvanceScreen.Background.Name");
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Background.SciAdvanceList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.SciAdvanceList" );
 	s_advanceList = new ctp2_ListBox( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_listAction );
 	Assert( AUI_NEWOK(s_advanceList, errcode) );
@@ -342,20 +342,20 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 	s_goaltext = new ctp2_Static( &errcode, aui_UniqueId(),
 		"SciAdvanceScreen.Background.ResearchGoal" );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Background.GlStats" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.GlStats" );
 	s_glStats = new ctp2_HyperTextBox( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_StatsCallback );
 	Assert( AUI_NEWOK(s_glStats, errcode) );
 	if ( !AUI_NEWOK(s_glStats, errcode) ) return errcode;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Background.Message" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Background.Message" );
 	s_message = new ctp2_HyperTextBox( &errcode, aui_UniqueId(), controlBlock,
 		sci_advancescreen_StatsCallback);
 
 	Assert( AUI_NEWOK(s_message, errcode) );
 	if ( !AUI_NEWOK(s_message, errcode) ) return errcode;
 
-	sprintf( controlBlock, "SciAdvanceString" );
+	snprintf(controlBlock, sizeof(controlBlock), "SciAdvanceString" );
 	s_advanceString = new aui_StringTable( &errcode, controlBlock );
 	if ( !AUI_NEWOK(s_advanceString, errcode) ) return errcode;
 
@@ -508,12 +508,12 @@ sint32 sci_advancescreen_loadList( void )
 	if(p->m_researchGoal >= 0)
 	{
 		sci_advancescreen_fillgoalarray(p->m_researchGoal);
-		sprintf(str,"%s %s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"),
+		snprintf(str, sizeof(str),"%s %s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"),
 			g_theAdvanceDB->Get(p->m_researchGoal)->GetNameText());
 	}
 	else
 	{
-		sprintf(str,"%s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"));
+		snprintf(str, sizeof(str),"%s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"));
 	}
 	s_goaltext->SetText(str);
 
@@ -537,11 +537,11 @@ sint32 sci_advancescreen_loadList( void )
 		if( advances[i] ) {
 			if(s_scienceGoalTree[i])
 			{
-				sprintf( str, "%s*", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
+				snprintf(str, sizeof(str), "%s*", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
 			}
 			else
 			{
-				sprintf( str, "%s", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
+				snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
 			}
 
 			item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("SciListItem");
@@ -600,7 +600,7 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 	item = (ctp2_ListItem*)s_advanceList->GetSelectedItem();
 
 	if ( !item ) {
-		sprintf( str, "-" );
+		snprintf(str, sizeof(str), "-" );
 		s_turnsBox->SetText( str );
 		s_changeBox->SetText( "" );
 		s_glStats->SetHyperText( "" );
@@ -622,14 +622,14 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 	advanceTurns = p->m_advances->TurnsToNextAdvance((AdvanceType)(intptr_t)item->GetUserData());
 
 	if ( advanceTurns == -1 ) {
-		sprintf( str, "-" );
+		snprintf(str, sizeof(str), "-" );
 	}
 	else {
 		if ( advanceTurns <= 0 ) {
-			sprintf( str, "1" );
+			snprintf(str, sizeof(str), "1" );
 		}
 		else {
-			sprintf( str, "%d", advanceTurns + 1 );
+			snprintf(str, sizeof(str), "%d", advanceTurns + 1 );
 		}
 	}
 
@@ -673,12 +673,12 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 			if( !isAdvance )
 			{
-				sprintf(givesText, "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
+				snprintf(givesText, sizeof(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_UNITS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_UNITS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
 			strncat(givesText, linkText, GIVES_TEXT_LEN - strlen(givesText));
 		}
 	}
@@ -702,7 +702,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_BUILDINGS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_BUILDINGS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
 			strncat(givesText, linkText, GIVES_TEXT_LEN - strlen(givesText));
 		}
 	}
@@ -727,7 +727,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_WONDERS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_WONDERS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
 			strncat(givesText, linkText, GIVES_TEXT_LEN - strlen(givesText));
 		}
 	}
@@ -745,7 +745,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 				isTileImp = true;
 				anyAdvance = true;
 			}
-			sprintf(linkText, "  <L:DATABASE_TILE_IMPROVEMENTS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_TILE_IMPROVEMENTS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
 			strncat(givesText, linkText, GIVES_TEXT_LEN - strlen(givesText));
 		}
 	}
@@ -759,7 +759,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 				isGov = true;
 				anyAdvance = true;
 			}
-			sprintf(linkText, "  <L:DATABASE_GOVERNMENTS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_GOVERNMENTS,%s>%s<e>\n", rec->GetIDText(), rec->GetNameText());
 			strncat(givesText, linkText, GIVES_TEXT_LEN - strlen(givesText));
 		}
 	}
@@ -767,13 +767,13 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 	if( !anyAdvance )
 	{
-		sprintf( givesText, "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
+		snprintf(givesText, sizeof(givesText), "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
 	}
 
 	s_glStats->SetHyperText(givesText);
 
 #if 0
-    sprintf( variableFile, g_theAdvanceDB->Get(index)->GetIcon()->GetVari() );
+    snprintf(variableFile, sizeof(variableFile), g_theAdvanceDB->Get(index)->GetIcon()->GetVari() );
 
     text = (char *)(g_GreatLibPF->getData(variableFile, &size));
 

@@ -406,36 +406,36 @@ void GovernmentTab::UpdateGovernmentInformation(
 	static char stringBuffer[32];
 	static char formatBuffer[64];
 
-	sprintf(stringBuffer, "%d", government->GetTooManyCitiesThreshold());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d", government->GetTooManyCitiesThreshold());
 	information[GII_CITIES]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * government->GetFoodCoef()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * government->GetFoodCoef()));
 	information[GII_GROWTH]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * government->GetProductionCoef()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * government->GetProductionCoef()));
 	information[GII_PRODUCTION]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * (government->GetMaxScienceRate() * government->GetKnowledgeCoef())));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * (government->GetMaxScienceRate() * government->GetKnowledgeCoef())));
 	information[GII_RESEARCH]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * government->GetGoldCoef()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * government->GetGoldCoef()));
 	information[GII_ECONOMIC]->SetText(stringBuffer);
 
 	//"Crime/Corruption Levels"
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * government->GetCrimeCoef()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * government->GetCrimeCoef()));
 	information[GII_COMMERCE]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(100.0 * government->GetSupportCoef()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(100.0 * government->GetSupportCoef()));
 	information[GII_MILITARY]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%.0f%%", ceil(10.0 * government->GetWarDiscontentMaxUnits()));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%.0f%%", ceil(10.0 * government->GetWarDiscontentMaxUnits()));
 	information[GII_LOYALTY]->SetText(stringBuffer);
 
-	sprintf(stringBuffer, "%d x %.0f", government->GetMaxMartialLawUnits(), government->GetMartialLawEffect());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%d x %.0f", government->GetMaxMartialLawUnits(), government->GetMartialLawEffect());
 	information[GII_MARTIAL_LAW]->SetText(stringBuffer);
 
-	sprintf(formatBuffer,"EMPIRE_VALUE_DESC_ANTI_POLLUTION_%i",government->GetPollutionRank());
-	sprintf(stringBuffer, "%s", g_theStringDB->GetNameStr(formatBuffer));
+	snprintf(formatBuffer, sizeof(formatBuffer),"EMPIRE_VALUE_DESC_ANTI_POLLUTION_%i",government->GetPollutionRank());
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s", g_theStringDB->GetNameStr(formatBuffer));
 	information[GII_ANTI_POLLUTION]->SetText(stringBuffer);
 }
 

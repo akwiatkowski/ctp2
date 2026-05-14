@@ -422,7 +422,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 						strlen( truncname ) + trunclen );
 				}
 
-				sprintf( name, format.GetString(), truncname );
+				snprintf(name, sizeof(name), format.GetString(), truncname );
 
 				strcpy( sess->sessionName, name );
 			}
@@ -736,7 +736,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 				strlen( truncname ) + trunclen );
 		}
 
-		sprintf( name, format.GetString(), truncname );
+		snprintf(name, sizeof(name), format.GetString(), truncname );
 
 		char test[ dp_SNAMELEN + 1 ];
 		strncpy( test, name, dp_SNAMELEN );
@@ -761,7 +761,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 				break;
 			}
 
-			sprintf( test, "%s %d", name, num++ );
+			snprintf(test, sizeof(test), "%s %d", name, num++ );
 		}
 
 		s->SetName( name );
@@ -860,7 +860,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 				strlen( truncname ) + trunclen );
 		}
 
-		sprintf( name, format.GetString(), truncname );
+		snprintf(name, sizeof(name), format.GetString(), truncname );
 
 		char test[ dp_SNAMELEN + 1 ];
 		strncpy( test, name, dp_SNAMELEN );
@@ -885,7 +885,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 				break;
 			}
 
-			sprintf( test, "%s %d", name, num++ );
+			snprintf(test, sizeof(test), "%s %d", name, num++ );
 		}
 
 		s->SetName( name );

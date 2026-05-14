@@ -470,7 +470,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 						}
 
 						MBCHAR buf[20];
-						sprintf(buf, "%d", maxPrice[i]);
+						snprintf(buf, sizeof(buf), "%d", maxPrice[i]);
 						if (ctp2_Static * price = (ctp2_Static *)item->GetChildByIndex(k_PRICE_COL_INDEX))
                         {
 							price->SetText(buf);
@@ -478,7 +478,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 
 						if (ctp2_Static * count = (ctp2_Static *)item->GetChildByIndex(k_CARAVANS_COL_INDEX))
                         {
-							sprintf(buf, "%d", data->m_caravans);
+							snprintf(buf, sizeof(buf), "%d", data->m_caravans);
 							count->SetText(buf);
 						}
 
@@ -526,13 +526,13 @@ void TradeManager::UpdateAdviceWindow()
 
 	ctp2_Static *child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "Available");
 	if(child) {
-		sprintf(buf, "%d", g_player[pl]->m_tradeTransportPoints - g_player[pl]->m_usedTradeTransportPoints);
+		snprintf(buf, sizeof(buf), "%d", g_player[pl]->m_tradeTransportPoints - g_player[pl]->m_usedTradeTransportPoints);
 		child->SetText(buf);
 	}
 
 	child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "InUse");
 	if(child) {
-		sprintf(buf, "%d", g_player[pl]->m_usedTradeTransportPoints);
+		snprintf(buf, sizeof(buf), "%d", g_player[pl]->m_usedTradeTransportPoints);
 		child->SetText(buf);
 	}
 
@@ -548,13 +548,13 @@ void TradeManager::UpdateAdviceWindow()
 
 	child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "Profit");
 	if(child) {
-		sprintf(buf, "%d", totalProfit);
+		snprintf(buf, sizeof(buf), "%d", totalProfit);
 		child->SetText(buf);
 	}
 
 	child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "Routes");
 	if(child) {
-		sprintf(buf, "%d", totalRoutes);
+		snprintf(buf, sizeof(buf), "%d", totalRoutes);
 		child->SetText(buf);
 	}
 
@@ -733,7 +733,7 @@ void TradeManager::UpdateSummaryList()
 
 			MBCHAR buf[20];
 			if(rtype == ROUTE_TYPE_RESOURCE) {
-				sprintf(buf, "%d", route->GetValue());
+				snprintf(buf, sizeof(buf), "%d", route->GetValue());
 			} else {
 				strcpy(buf, "---");
 			}
@@ -745,7 +745,7 @@ void TradeManager::UpdateSummaryList()
 
 			if (ctp2_Static * count = (ctp2_Static *)item->GetChildByIndex(k_CARAVANS_COL_SUM_INDEX))
             {
-				sprintf(buf, "%.0f", route.GetCost());
+				snprintf(buf, sizeof(buf), "%.0f", route.GetCost());
 				count->SetText(buf);
 			}
 
@@ -1184,7 +1184,7 @@ void TradeManager::SetNumCities(sint32 num)
     m_numCities = std::min<sint32>(num, k_MAX_CITIES_PER_GOOD);
 
 	char buf[10];
-	sprintf(buf, "%d", m_numCities);
+	snprintf(buf, sizeof(buf), "%d", m_numCities);
 	m_numCitiesLabel->SetText(buf);
 }
 

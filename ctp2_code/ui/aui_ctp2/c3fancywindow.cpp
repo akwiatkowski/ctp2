@@ -90,7 +90,7 @@ C3FancyWindow::C3FancyWindow(
 
 	if(exitCallBack && m_border[TR]) {
 		MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-		sprintf( buttonBlock, "%s.%s", ldlBorder[TR], "ExitButton" );
+		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBorder[TR], "ExitButton" );
 		m_exit = new c3_Button( retval, aui_UniqueId(), buttonBlock, exitCallBack );
 		Assert( AUI_NEWOK(m_exit, *retval) );
 		*retval = m_border[TR]->AddControl(m_exit);

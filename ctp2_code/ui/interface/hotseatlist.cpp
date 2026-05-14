@@ -170,7 +170,7 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 
 	m_window->AddOk(HotseatListButtonActionCallback);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PlayerList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
 	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
@@ -427,17 +427,17 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 	C3TextField *subText;
 
 	SetBlindness(TRUE);
-	sprintf(block, "%s.%s", ldlBlock, "Civ");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Civ");
 	subButton = new c3_Button(&retval, aui_UniqueId(), block,
 							HotseatCivCallback, this);
 	AddChild(subButton);
 
-	sprintf(block, "%s.%s", ldlBlock, "AIOrHuman");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "AIOrHuman");
 	subButton = new c3_Button(&retval, aui_UniqueId(), block,
 							  HotseatAIToggleCallback, this);
 	AddChild(subButton);
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	subText = new C3TextField(&retval, aui_UniqueId(), block,
 							  HotseatNameCallback,  this);
 	if(m_index == 0) {
@@ -446,7 +446,7 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 
 	AddChild(subText);
 
-	sprintf(block, "%s.%s", ldlBlock, "Email");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Email");
 	subText = new C3TextField(&retval, aui_UniqueId(), block,
 							  HotseatEmailCallback, this);
 	AddChild(subText);

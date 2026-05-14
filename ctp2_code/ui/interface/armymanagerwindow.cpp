@@ -104,11 +104,11 @@ ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
 	sint32 i;
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR name[k_MAX_NAME_LEN];
-		sprintf(name, "%s.InArmyBox.Unit%d", s_armyWindowBlock, i);
+		snprintf(name, sizeof(name), "%s.InArmyBox.Unit%d", s_armyWindowBlock, i);
 		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::InArmy, NULL);
 		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackInArmy,(void *)i);
 
-		sprintf(name, "%s.OutOfArmyBox.Unit%d", s_armyWindowBlock, i);
+		snprintf(name, sizeof(name), "%s.OutOfArmyBox.Unit%d", s_armyWindowBlock, i);
 		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::OutOfArmy, NULL);
 		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackOutOfArmy,(void *)i);
 	}
@@ -307,7 +307,7 @@ void ArmyManagerWindow::Update()
 
 			const IconRecord *irec = u.GetDBRec()->GetDefaultIcon();
 
-			sprintf(switchName, "OutOfArmyBox.Unit%d", sw++);
+			snprintf(switchName, sizeof(switchName), "OutOfArmyBox.Unit%d", sw++);
 			ctp2_Switch *inCellSwitch = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 			Assert(inCellSwitch);
 			if(inCellSwitch) {
@@ -322,7 +322,7 @@ void ArmyManagerWindow::Update()
 	}
 
 	for(i = sw; i < k_MAX_ARMY_SIZE; i++) {
-		sprintf(switchName, "OutOfArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "OutOfArmyBox.Unit%d", i);
 		ctp2_Switch *inCellSwitch = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(inCellSwitch);
 		m_outOfArmy[i].m_id = 0;
@@ -342,7 +342,7 @@ void ArmyManagerWindow::Update()
 
 			m_inArmy[i] = m_army[i];
 
-			sprintf(switchName, "InArmyBox.Unit%d", i);
+			snprintf(switchName, sizeof(switchName), "InArmyBox.Unit%d", i);
 			ctp2_Switch *inArmySwitch = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 			Assert(inArmySwitch);
 			if(inArmySwitch) {
@@ -358,7 +358,7 @@ void ArmyManagerWindow::Update()
 	}
 
 	for(; i < k_MAX_ARMY_SIZE; i++) {
-		sprintf(switchName, "InArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "InArmyBox.Unit%d", i);
 		ctp2_Switch *inArmySwitch = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(inArmySwitch);
 
@@ -442,7 +442,7 @@ void ArmyManagerWindow::UpdateArmyItem(ctp2_ListItem *item)
 		if(count) {
 			MBCHAR text[20];
 			if(g_theArmyPool->IsValid(node->m_army)) {
-				sprintf(text, "%d", node->m_army.Num());
+				snprintf(text, sizeof(text), "%d", node->m_army.Num());
 			} else {
 				strcpy(text, "0");
 			}
@@ -663,7 +663,7 @@ void ArmyManagerWindow::AddAll(aui_Control *control, uint32 action, uint32 data,
 	sint32 i;
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "OutOfArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "OutOfArmyBox.Unit%d", i);
 		ctp2_Switch *sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		if(s_armyWindow->m_outOfArmy[i].m_id)
@@ -684,7 +684,7 @@ void ArmyManagerWindow::RemoveAll(aui_Control *control, uint32 action, uint32 da
 	sint32 i;
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "InArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "InArmyBox.Unit%d", i);
 		ctp2_Switch *sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		if(s_armyWindow->m_inArmy[i].m_id)
@@ -718,7 +718,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "OutOfArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "OutOfArmyBox.Unit%d", i);
 		ctp2_Switch *sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		if(sw && sw->IsSelected()) {
@@ -834,7 +834,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "InArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "InArmyBox.Unit%d", i);
 		ctp2_Switch *sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		if(sw && sw->IsSelected()) {
@@ -887,7 +887,7 @@ void ArmyManagerWindow::InArmy(aui_Control *control, uint32 action, uint32 data,
 	for (int i = 0; (i < k_MAX_ARMY_SIZE) && !enableRemoveButton; ++i)
 	{
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "InArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "InArmyBox.Unit%d", i);
 		ctp2_Switch *sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		enableRemoveButton = sw && sw->IsSelected();
@@ -918,7 +918,7 @@ void ArmyManagerWindow::OutOfArmy(aui_Control *control, uint32 action, uint32 da
 	for (int i = 0; (i < k_MAX_ARMY_SIZE) && ! enableAddButton; ++i)
 	{
 		MBCHAR switchName[k_MAX_NAME_LEN];
-		sprintf(switchName, "OutOfArmyBox.Unit%d", i);
+		snprintf(switchName, sizeof(switchName), "OutOfArmyBox.Unit%d", i);
 		ctp2_Switch * sw = (ctp2_Switch *)aui_Ldl::GetObject(s_armyWindowBlock, switchName);
 		Assert(sw);
 		if(s_armyWindow->m_outOfArmy[i].m_id)

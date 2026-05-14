@@ -67,7 +67,7 @@ void LaunchGame( void )
 				if(g_civScenarios->FindScenario(g_scenarioName,
 												&pack, &scen)) {
 					MBCHAR path[_MAX_PATH];
-					sprintf(path, "%s\\%s",
+					snprintf(path, sizeof(path), "%s\\%s",
 							scen->m_path,
 							k_SCENARIO_DEFAULT_SAVED_GAME_NAME);
 					g_civApp->PostLoadSaveGameAction(path);

@@ -92,7 +92,7 @@ AUI_ERRCODE IntroMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR			buttonBlock[k_AUI_LDL_MAXBLOCK+1];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf(buttonBlock, "%s.%s", ldlBlock, "MovieButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "MovieButton");
 	m_movieButton = new aui_MovieButton(&errcode, aui_UniqueId(), buttonBlock, intromoviewin_MovieButtonCallback);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return AUI_ERRCODE_LOADFAILED;

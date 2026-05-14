@@ -443,12 +443,12 @@ sint32 controlpanelwindow_InitializeHats()
 
 	strcpy(windowBlock, "ControlPanelRightHat");
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ZoomPlusButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ZoomPlusButton" );
 	s_zoomPlusButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, ZoomPlusButtonActionCallback );
 	Assert( AUI_NEWOK(s_zoomPlusButton, errcode) );
 	if ( !AUI_NEWOK(s_zoomPlusButton, errcode) ) return -3;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ZoomMinusButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ZoomMinusButton" );
 	s_zoomMinusButton = new ctp2_Button( &errcode, aui_UniqueId(), controlBlock, ZoomMinusButtonActionCallback );
 	Assert( AUI_NEWOK(s_zoomMinusButton, errcode) );
 	if ( !AUI_NEWOK(s_zoomMinusButton, errcode) ) return -3;

@@ -579,7 +579,7 @@ TechListItem::TechListItem(AUI_ERRCODE * retval, sint32 index, DATABASE database
 AUI_ERRCODE TechListItem::InitCommonLdl(MBCHAR const * ldlBlock)
 {
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 
 	AUI_ERRCODE		retval = AUI_ERRCODE_OK;
 	AddChild(new ctp2_Static(&retval, aui_UniqueId(), block));
@@ -915,43 +915,43 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 	switchGroup->SetBlindness( TRUE );
 
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( buttonBlock, "%s.%s", controlBlock, "UnitsButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "UnitsButton" );
 	m_unitsButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_unitsButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "GoodsButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "GoodsButton" );
 	m_goodsButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_goodsButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "OrdersButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "OrdersButton" );
 	m_ordersButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_ordersButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "ImproveButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "ImproveButton" );
 	m_improveButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_improveButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "WondersButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "WondersButton" );
 	m_wondersButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_wondersButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "AdvancesButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "AdvancesButton" );
 	m_advancesButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_advancesButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "GovernButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "GovernButton" );
 	m_governButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_governButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "TerrainButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "TerrainButton" );
 	m_terrainButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_terrainButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "TileImpButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "TileImpButton" );
 	m_tileimpButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_tileimpButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
-	sprintf( buttonBlock, "%s.%s", controlBlock, "ConceptButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", controlBlock, "ConceptButton" );
 	m_conceptButton = (ctp2_Button *)aui_Ldl::GetObject(windowBlock, buttonBlock);
 	m_conceptButton->SetActionFuncAndCookie( greatlibrary_IndexButtonCallback, NULL );
 
@@ -1228,19 +1228,19 @@ void GreatLibrary::HandleSetGoal( void )
 		{
 			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryGoalSetTo");
 			if (!fmt) fmt = "Goal set to: %s";
-			sprintf(goal_set_message, fmt, selection_name);
+			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
 		else if(tmp == 0)
 		{
 			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryGoalKnown");
 			if (!fmt) fmt = "%s is already known. No goal was set.";
-			sprintf(goal_set_message, fmt, selection_name);
+			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
 		else
 		{
 			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryNoGoalPossible");
 			if (!fmt) fmt = "%s cannot be researched.";
-			sprintf(goal_set_message, fmt, selection_name);
+			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
 
 		MessageBoxDialog::Information(goal_set_message, "InfoSetGoal");

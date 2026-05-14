@@ -104,57 +104,57 @@ sint32 tileimptracker_Initialize()
 	Assert( AUI_NEWOK(g_tileImpTrackerWindow, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "TimeN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "TimeN");
 	s_trackerTimeN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerTimeN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "TimeV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "TimeV");
 	s_trackerTimeV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerTimeV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "MatN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "MatN");
 	s_trackerMatN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerMatN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "MatV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "MatV");
 	s_trackerMatV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerMatV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "FoodN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "FoodN");
 	s_trackerFoodN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerFoodN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "FoodV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "FoodV");
 	s_trackerFoodV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerFoodV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "ProductionN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "ProductionN");
 	s_trackerProductionN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerProductionN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "ProductionV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "ProductionV");
 	s_trackerProductionV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerProductionV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "GoldN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "GoldN");
 	s_trackerGoldN = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerGoldN, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "GoldV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "GoldV");
 	s_trackerGoldV = new c3_Static( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(s_trackerGoldV, errcode) );
 	if( !AUI_SUCCESS(errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", textBlock, "Background");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "Background");
 	s_trackerBackground = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 	Assert(AUI_NEWOK(s_trackerBackground, errcode));
 	if(!AUI_SUCCESS(errcode)) return -1;
@@ -294,16 +294,16 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 			gold = dGold + cell->GetGoldFromTerrain();
 		}
 
-		sprintf(mytext,"%d", (sint32)time);
+		snprintf(mytext, sizeof(mytext),"%d", (sint32)time);
 		s_trackerTimeV->SetText(mytext);
-		sprintf(mytext,"%d", (sint32)mat);
+		snprintf(mytext, sizeof(mytext),"%d", (sint32)mat);
 		s_trackerMatV->SetText(mytext);
 
-		sprintf(mytext,"%d", food);
+		snprintf(mytext, sizeof(mytext),"%d", food);
 		s_trackerFoodV->SetText(mytext);
-		sprintf(mytext,"%d", production);
+		snprintf(mytext, sizeof(mytext),"%d", production);
 		s_trackerProductionV->SetText(mytext);
-		sprintf(mytext,"%d", gold);
+		snprintf(mytext, sizeof(mytext),"%d", gold);
 		s_trackerGoldV->SetText(mytext);
 
 		ERR_BUILD_INST err;

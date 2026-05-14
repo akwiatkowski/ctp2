@@ -95,7 +95,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_CHART_LDL_LEFTIMAGE );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_CHART_LDL_LEFTIMAGE );
 
         if (aui_Ldl::GetLdl()->FindDataBlock(block))
 		{
@@ -108,7 +108,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_CHART_LDL_RIGHTIMAGE );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_CHART_LDL_RIGHTIMAGE );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 		{
@@ -121,7 +121,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_CHART_LDL_BUTTON );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_CHART_LDL_BUTTON );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 		{
@@ -447,10 +447,10 @@ sint32 Chart::SetTipInfo( ctp2_Button *button, sint32 index )
 
 	MBCHAR name[k_MAX_NAME_LEN];
 
-	sprintf(name, "%s_HELP", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
+	snprintf(name, sizeof(name), "%s_HELP", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
 
 	MBCHAR str[_MAX_PATH];
-	sprintf( str, "%s", g_theStringDB->GetNameStr(name) );
+	snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(name) );
 	tipWindow->SetHyperTipText( str );
 
     return(1);
@@ -504,7 +504,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_preReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			sprintf(name, "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_preReqButton[i], name);
 		}
 
@@ -547,7 +547,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_eitherPreReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			sprintf(name, "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_eitherPreReqButton[i], name);
 		}
 
@@ -588,7 +588,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		ldl->Remove((void *)m_centerButton);
 
 		MBCHAR name[k_MAX_NAME_LEN];
-		sprintf(name, "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
+		snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
 		ldl->Associate((aui_Control *)m_centerButton, name);
 	}
 
@@ -625,7 +625,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_leadsToButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			sprintf(name, "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_leadsToButton[i], name);
 		}
 

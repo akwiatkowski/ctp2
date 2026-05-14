@@ -38,7 +38,7 @@ AUI_ERRCODE ns_ListItem::InitCommonLdl(
 	MBCHAR			block[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		retval;
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	c3_Static *subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	AddChild(subItem);
 
@@ -105,28 +105,28 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 	SetBlindness( TRUE );
 	SetImageBltFlag( AUI_IMAGEBASE_BLTFLAG_CHROMAKEY );
 
-	sprintf(block, "%s.%s", ldlBlock, "launched");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "launched");
 	m_launchedItem = new c3_Static(&retval, aui_UniqueId(), block);
 	m_launchedItem->SetImageBltFlag( AUI_IMAGEBASE_BLTFLAG_CHROMAKEY );
 	m_launchedItem->SetBlindness( TRUE );
 	AddChild(m_launchedItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "name");
 	m_nameItem = new c3_Static(&retval, aui_UniqueId(), block);
 	m_nameItem->SetBlindness( TRUE );
 	AddChild(m_nameItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "ping");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "ping");
 	m_pingItem = new c3_Static(&retval, aui_UniqueId(), block);
 	m_pingItem->SetBlindness( TRUE );
 	AddChild(m_pingItem);
 
 
-	sprintf(block, "%s.%s", ldlBlock, "tribe");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "tribe");
 	m_tribeItem = new c3_Static(&retval, aui_UniqueId(), block);
 
 	aui_Control::ControlActionCallback TribesButtonCallback;
-	sprintf(block, "%s.%s", ldlBlock, "tribe.button");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "tribe.button");
 	m_tribeButton = new c3_Button(
 		&retval,
 		aui_UniqueId(),
@@ -157,11 +157,11 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 
 
 
-	sprintf(block, "%s.%s", ldlBlock, "civpoints");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "civpoints");
 	m_civpointsItem = new c3_Static(&retval, aui_UniqueId(),block);
 
 	aui_Control::ControlActionCallback CivPointsButtonCallback;
-	sprintf(block, "%s.%s", ldlBlock, "civpoints.button");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "civpoints.button");
 	m_civpointsButton = new c3_EditButton(
 		&retval,
 		aui_UniqueId(),
@@ -173,11 +173,11 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 
 	AddChild(m_civpointsItem);
 
-	sprintf(block, "%s.%s", ldlBlock, "pwpoints");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pwpoints");
 	m_pwpointsItem = new c3_Static(&retval, aui_UniqueId(),block);
 
 	aui_Control::ControlActionCallback PwPointsButtonCallback;
-	sprintf(block, "%s.%s", ldlBlock, "pwpoints.button");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "pwpoints.button");
 	m_pwpointsButton = new c3_EditButton(
 		&retval,
 		aui_UniqueId(),

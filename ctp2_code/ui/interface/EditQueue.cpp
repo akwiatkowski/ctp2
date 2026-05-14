@@ -420,7 +420,7 @@ static void setIntColumn(ctp2_Static *box, sint32 col, sint32 val)
 	if(val < 0) {
 		sb->SetText("-");
 	} else {
-		sprintf(buf, "%d", val);
+		snprintf(buf, sizeof(buf), "%d", val);
 		sb->SetText(buf);
 	}
 }
@@ -558,7 +558,7 @@ void EditQueue::AddChoiceItem(const MBCHAR *text, EditItemInfo *userData, sint32
 			if(timeLabel) {
 				if(time >= 0 && time < 0x7fffffff) {
 					MBCHAR buf[20];
-					sprintf(buf, "%d", time);
+					snprintf(buf, sizeof(buf), "%d", time);
 					timeLabel->SetText(buf);
 				} else {
 					timeLabel->SetText("");
@@ -696,17 +696,17 @@ void EditQueue::UpdateChoiceLists()
 			MBCHAR buf[k_MAX_NAME_LEN];
 #if 0
 			if(!rec->GetIsTrader()) {
-				sprintf(buf, g_theStringDB->GetNameStr("str_ldl_EditQueueUnitItemFormat"),
+				snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_EditQueueUnitItemFormat"),
 						rec->GetNameText(),
 						(sint32)rec->GetAttack(),
 						(sint32)rec->GetZBRangeAttack(),
 						(sint32)rec->GetDefense(),
 						(sint32)(rec->GetMaxMovePoints() / 100.0));
 			} else {
-				sprintf(buf, "%s", rec->GetNameText());
+				snprintf(buf, sizeof(buf), "%s", rec->GetNameText());
 			}
 #endif
-			sprintf(buf, "%s", rec->GetNameText());
+			snprintf(buf, sizeof(buf), "%s", rec->GetNameText());
 
 			if(m_mode == EDIT_QUEUE_MODE_MULTI) {
 				AddChoiceItem(buf,
@@ -1085,7 +1085,7 @@ void EditQueue::UpdateButtons()
 			else
 			{
 				char buf[20];
-				sprintf(buf, "%d", cost);
+				snprintf(buf, sizeof(buf), "%d", cost);
 				m_rushBuyCost->SetText(buf);
 
 				sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
@@ -1343,7 +1343,7 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 					MBCHAR buf[k_MAX_NAME_LEN];
 					sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-					sprintf(buf, g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+					snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 					MessageBoxDialog::Query(buf,
 											"QuerySwitchProduction",
@@ -1369,7 +1369,7 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 					MBCHAR buf[k_MAX_NAME_LEN];
 					sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-					sprintf(buf, g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+					snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 					MessageBoxDialog::Query(buf,
 											"QuerySwitchProduction",
@@ -1530,7 +1530,7 @@ void EditQueue::Remove(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						sprintf(buf, g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -1599,7 +1599,7 @@ void EditQueue::Up(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						sprintf(buf, g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -1676,7 +1676,7 @@ void EditQueue::Down(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						sprintf(buf, g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -1734,7 +1734,7 @@ void EditQueue::ToggleBuildings(aui_Control *control, uint32 action, uint32 data
 	s_editQueue->SelectChoiceList(s_editQueue->m_buildingList);
 //	if(!s_editQueue->m_cityData) return;
 //	char buff[200];
-//	sprintf(buff, "Baut Kapitalisierung: %i, Baut Infrastruktur: %i\n", s_editQueue->m_cityData->IsBuildingCapitalization(), s_editQueue->m_cityData->IsBuildingInfrastructure());
+//	snprintf(buff, sizeof(buff), "Baut Kapitalisierung: %i, Baut Infrastruktur: %i\n", s_editQueue->m_cityData->IsBuildingCapitalization(), s_editQueue->m_cityData->IsBuildingInfrastructure());
 //	MessageBoxDialog::Information(buff, "InfoMustName");
 }
 
@@ -2191,7 +2191,7 @@ void EditQueue::SaveCallback(aui_Control *control, uint32 action, uint32 data, v
 		MBCHAR buf[k_MAX_NAME_LEN];
 		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyOverwrite");
 		if(!fmt) fmt = "Overwrite queue %s?";
-		sprintf(buf, fmt, saveName);
+		snprintf(buf, sizeof(buf), fmt, saveName);
 
 		MessageBoxDialog::Query(buf, SaveQueryCallback, (void *)saveFileName);
 	}
@@ -2259,14 +2259,14 @@ void EditQueue::LoadCallback(aui_Control *control, uint32 action, uint32 data, v
 		MBCHAR buf[k_MAX_NAME_LEN];
 		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyLoad");
 		if(!fmt) fmt = "Load queue %s, for city %s?";
-		sprintf(buf, fmt, loadName, s_editQueue->m_cityData->GetName());
+		snprintf(buf, sizeof(buf), fmt, loadName, s_editQueue->m_cityData->GetName());
 
 		MessageBoxDialog::Query(buf, "QueryLoadQueue", LoadQueryCallback, (void *)loadName);
 	} else if(s_editQueue->m_mode == EDIT_QUEUE_MODE_MULTI) {
 		MBCHAR buf[k_MAX_NAME_LEN];
 		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyLoadMulti");
 		if(!fmt) fmt = "Load Queue %s into all selected cities?";
-		sprintf(buf, fmt, loadName);
+		snprintf(buf, sizeof(buf), fmt, loadName);
 
 		MessageBoxDialog::Query(buf, "QueryLoadQueueMulti", LoadQueryCallback, (void *)loadName);
 	} else {
@@ -2504,7 +2504,7 @@ void EditQueue::DeleteCallback(aui_Control *control, uint32 action, uint32 data,
 	char buf[k_MAX_NAME_LEN];
 	const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyDelete");
 	if(!fmt) fmt = "Permanently delete Queue %s?";
-	sprintf(buf, fmt, queueName);
+	snprintf(buf, sizeof(buf), fmt, queueName);
 
 	MessageBoxDialog::Query(buf, "QueryDeleteQueue", DeleteQueryCallback, (void *)queueName);
 
@@ -2662,7 +2662,7 @@ void ConfirmOverwriteQueueAction::Execute(aui_Control *control, uint32 action, u
 	MBCHAR buf[k_MAX_NAME_LEN];
 	const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyOverwrite");
 	if(!fmt) fmt = "Overwrite queue %s?";
-	sprintf(buf, fmt, m_text);
+	snprintf(buf, sizeof(buf), fmt, m_text);
 
 	MessageBoxDialog::Query(buf, "QueryOverwiteQueue", EditQueue::SaveQueryCallback, (void *)m_saveFileName);
 };

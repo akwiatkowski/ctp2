@@ -239,16 +239,16 @@ void ScienceManagementDialog::UpdateScience()
 	sint32 numberOfTurns = advances->TurnsToNextAdvance();
 	MBCHAR buffer[64];
 	if(numberOfTurns < 0)
-		sprintf(buffer, "-");
+		snprintf(buffer, sizeof(buffer), "-");
 	else
-		sprintf(buffer, "%d", numberOfTurns + 1);
+		snprintf(buffer, sizeof(buffer), "%d", numberOfTurns + 1);
 	m_scienceTurnButton->SetText(buffer);
 	m_scienceTurnValue->SetText(buffer);
 
-	sprintf(buffer, "%d", player->m_science->GetLevel());
+	snprintf(buffer, sizeof(buffer), "%d", player->m_science->GetLevel());
 	m_scienceCurrentValue->SetText(buffer);
 
-	sprintf(buffer, "%d", player->GetCurrentScienceCost());
+	snprintf(buffer, sizeof(buffer), "%d", player->GetCurrentScienceCost());
 	m_scienceTotalValue->SetText(buffer);
 
 	size_t      textLength  = 0;
@@ -578,12 +578,12 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 			if( !isAdvance )
 			{
-				sprintf(givesText, "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
+				snprintf(givesText, sizeof(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_UNITS,%s><e>\n", rec->GetIDText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_UNITS,%s><e>\n", rec->GetIDText());
 			strncat(givesText, linkText, k_MAX_GL_ENTRY - strlen(givesText));
 		}
 	}
@@ -607,7 +607,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_BUILDINGS,%s><e>\n", rec->GetIDText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_BUILDINGS,%s><e>\n", rec->GetIDText());
 			strncat(givesText, linkText, k_MAX_GL_ENTRY - strlen(givesText));
 		}
 	}
@@ -632,7 +632,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_WONDERS,%s><e>\n", rec->GetIDText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_WONDERS,%s><e>\n", rec->GetIDText());
 			strncat(givesText, linkText, k_MAX_GL_ENTRY - strlen(givesText));
 		}
 	}
@@ -649,7 +649,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_TILE_IMPROVEMENTS,%s><e>\n", rec->GetIDText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_TILE_IMPROVEMENTS,%s><e>\n", rec->GetIDText());
 			strncat(givesText, linkText, k_MAX_GL_ENTRY - strlen(givesText));
 		}
 	}
@@ -664,14 +664,14 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 				anyAdvance = true;
 			}
 
-			sprintf(linkText, "  <L:DATABASE_GOVERNMENTS,%s><e>\n", rec->GetIDText());
+			snprintf(linkText, sizeof(linkText), "  <L:DATABASE_GOVERNMENTS,%s><e>\n", rec->GetIDText());
 			strncat(givesText, linkText, k_MAX_GL_ENTRY - strlen(givesText));
 		}
 	}
 
 	if( !anyAdvance )
 	{
-		sprintf( givesText, "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
+		snprintf(givesText, sizeof(givesText), "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
 	}
 
 	pMe->m_scienceDescription->SetHyperText(givesText);

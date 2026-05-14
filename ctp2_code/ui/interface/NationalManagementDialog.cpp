@@ -618,7 +618,7 @@ void NationalManagementDialog::UpdateRushBuy()
 	else
 	{
 		static MBCHAR stringBuffer[32];
-		sprintf(stringBuffer, "%d", rushBuyTotal);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", rushBuyTotal);
 		m_rushBuyValue->SetText(stringBuffer);
 	}
 }
@@ -665,14 +665,14 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_POPULATION)) {
 		sint32 population = 0;
 		cityData->GetPop(population);
-		sprintf(stringBuffer, "%d", population);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", population);
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_HAPPINESS)) {
 		sint32 happiness = static_cast<sint32>(cityData->GetHappiness());
-		sprintf(stringBuffer, "%d", happiness);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", happiness);
 		column->SetText(stringBuffer);
 		if (happiness < g_theConstDB->Get(0)->GetRiotLevel()) {
 			column->SetTextColor(colorCritical);
@@ -683,7 +683,7 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_PRODUCTION)) {
 		// Use net production instead gross production. - Martin G�hmann
-		sprintf(stringBuffer, "%d", cityData->GetNetCityProduction());
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", cityData->GetNetCityProduction());
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
@@ -691,7 +691,7 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_FOOD)) {
 		// Use net food instead of gross food. - Martin G�hmann
 		sint32 food = cityData->GetNetCityFood();
-		sprintf(stringBuffer, "%d", food);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", food);
 		column->SetText(stringBuffer);
 		if (food < 0) { // Corrected the condition to match net food.
 			column->SetTextColor(colorCritical);
@@ -702,7 +702,7 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_GOLD)) {
 		sint32 gold = cityData->GetNetCityGold();
-		sprintf(stringBuffer, "%d", gold);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", gold);
 		column->SetText(stringBuffer);
 		if (gold < 0) { // Gold is critical display in red as well. - Martin G�hmann
 			column->SetTextColor(colorCritical);
@@ -712,14 +712,14 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_SCIENCE)) {
-		sprintf(stringBuffer, "%d", cityData->GetScience());
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", cityData->GetScience());
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_POLLUTION)) {
 		sint32 pollution = cityData->GetPollution();
-		sprintf(stringBuffer, "%d", pollution);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", pollution);
 		column->SetText(stringBuffer);
 		if (pollution > g_theConstDB->Get(0)->GetLocalPollutionLevel()) {
 			column->SetTextColor(colorCritical);
@@ -729,14 +729,14 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_CRIME)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->GetHappyCrime() * 100.0));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->GetHappyCrime() * 100.0));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_CONVERSION)) {
 		sint32 convertedGold = cityData->GetConvertedGold();
-		sprintf(stringBuffer, "%d", convertedGold);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", convertedGold);
 		column->SetText(stringBuffer);
 		if (convertedGold > 0 && cityData->GetConvertedTo() > -1) {
 			COLOR color = g_colorSet->ComputePlayerColor(cityData->GetConvertedTo());
@@ -747,7 +747,7 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_RES_FRANCHISE)) {
 		sint32 franchise = cityData->GetProductionLostToFranchise();
-		sprintf(stringBuffer, "%d", franchise);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", franchise);
 		column->SetText(stringBuffer);
 		if (franchise > 0 && cityData->GetFranchiseOwner() > -1) {
 			COLOR color = g_colorSet->ComputePlayerColor(cityData->GetFranchiseOwner());
@@ -849,9 +849,9 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 			//Added by Martin G�hmann to disable the turn display in case of capitalization and infrastructure
 			|| cityData->GetBuildQueue()->GetHead()->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION
 			|| cityData->GetBuildQueue()->GetHead()->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE)
-				sprintf(stringBuffer, "---");
+				snprintf(stringBuffer, sizeof(stringBuffer), "---");
 			else
-				sprintf(stringBuffer, "%d", turns);
+				snprintf(stringBuffer, sizeof(stringBuffer), "%d", turns);
 			column->SetText(stringBuffer);
 		} else
 			column->SetText(g_theStringDB->GetNameStr("str_ldl_ND_NA"));
@@ -928,55 +928,55 @@ void NationalManagementDialog::UpdateSpecialistItem(ctp2_ListItem *item,
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_POPULATION)) {
 		sint32 population = 0;
 		cityData->GetPop(population);
-		sprintf(stringBuffer, "%d", population);
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", population);
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_WORKER)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->WorkerCount()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->WorkerCount()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_SLAVE)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->SlaveCount()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->SlaveCount()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_ENTERTAINER)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->EntertainerCount()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->EntertainerCount()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_FARMER)) {
-		sprintf(stringBuffer, "%d", cityData->FarmerCount());
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", cityData->FarmerCount());
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_LABORER)) {
-		sprintf(stringBuffer, "%d", cityData->LaborerCount());
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", cityData->LaborerCount());
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_MERCHANT)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->MerchantCount()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->MerchantCount()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_SCIENTIST)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->ScientistCount()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->ScientistCount()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_SPEC_COMBAT_UNITS)) {
-		sprintf(stringBuffer, "%d", (sint32)(cityData->GetCombatUnits()));
+		snprintf(stringBuffer, sizeof(stringBuffer), "%d", (sint32)(cityData->GetCombatUnits()));
 		column->SetText(stringBuffer);
 		column->SetTextColor(colorNorm);
 	}

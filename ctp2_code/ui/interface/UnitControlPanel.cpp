@@ -142,7 +142,7 @@ m_transportSelectionIcon(static_cast<ctp2_Button *>(
 		NUMBER_OF_MULTIPLE_SELECTION_BUTTONS; multiIndex++) {
 
 		MBCHAR multiButtonName[128];
-		sprintf(multiButtonName,
+		snprintf(multiButtonName, sizeof(multiButtonName),
 			"UnitTab.TabPanel.UnitSelectionDisplay.MultipleSelect.Unit%d",
 			multiIndex);
 
@@ -157,7 +157,7 @@ m_transportSelectionIcon(static_cast<ctp2_Button *>(
 		NUMBER_OF_ARMY_SELECTION_BUTTONS; armyIndex++) {
 
 		MBCHAR armyButtonName[128];
-		sprintf(armyButtonName,
+		snprintf(armyButtonName, sizeof(armyButtonName),
 			"UnitTab.TabPanel.UnitSelectionDisplay.ArmySelect.Unit%d",
 			armyIndex);
 
@@ -174,7 +174,7 @@ m_transportSelectionIcon(static_cast<ctp2_Button *>(
 	sint32 transIndex;
 	for(transIndex = 0; transIndex < k_MAX_CP_CARGO; transIndex++) {
 		MBCHAR transportButtonName[256];
-		sprintf(transportButtonName, "UnitTab.TabPanel.UnitSelectionDisplay.TransportSelect.Cargo%d",
+		snprintf(transportButtonName, sizeof(transportButtonName), "UnitTab.TabPanel.UnitSelectionDisplay.TransportSelect.Cargo%d",
 				transIndex);
 		m_transportSelectionButton[transIndex] = (ctp2_Switch *)aui_Ldl::GetObject(ldlBlock, transportButtonName);
 		m_transportSelectionHealth[transIndex] = (ctp2_Static *)m_transportSelectionButton[transIndex]->GetChildByIndex(0);
@@ -185,7 +185,7 @@ m_transportSelectionIcon(static_cast<ctp2_Button *>(
 	for(int orderIndex = 0; orderIndex < NUMBER_OF_ORDER_BUTTONS; orderIndex++) {
 
 		MBCHAR orderButtonName[128];
-		sprintf(orderButtonName,
+		snprintf(orderButtonName, sizeof(orderButtonName),
 			"UnitTab.TabPanel.UnitOrderButtonGrid.Order%d", orderIndex);
 
 		m_orderButton[orderIndex] = static_cast<ctp2_Button*>(
@@ -495,24 +495,24 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 	MBCHAR valueString[16];
 
 
-	sprintf(valueString, "%d",
+	snprintf(valueString, sizeof(valueString), "%d",
 		static_cast<sint32>(unit.GetAttack()));
 	m_singleSelectionAttack->SetText(valueString);
-	sprintf(valueString, "%d",
+	snprintf(valueString, sizeof(valueString), "%d",
 		static_cast<sint32>(unit.GetDefense()));
 	m_singleSelectionDefend->SetText(valueString);
 
-	sprintf(valueString, "%d",
+	snprintf(valueString, sizeof(valueString), "%d",
 		static_cast<sint32>(ceil(unit.GetMovementPoints() / 100.0)));
 	m_singleSelectionMove->SetText(valueString);
-	sprintf(valueString, "%d",
+	snprintf(valueString, sizeof(valueString), "%d",
 		static_cast<sint32>(unit.GetZBRange()));
 	m_singleSelectionRange->SetText(valueString);
 
-	sprintf(valueString, "%d", (sint32)(unit.GetDBRec()->GetArmor()));
+	snprintf(valueString, sizeof(valueString), "%d", (sint32)(unit.GetDBRec()->GetArmor()));
 	m_singleSelectionArmor->SetText(valueString);
 
-	sprintf(valueString, "%d", (sint32)(unit.GetDBRec()->GetFirepower()));
+	snprintf(valueString, sizeof(valueString), "%d", (sint32)(unit.GetDBRec()->GetFirepower()));
 	m_singleSelectionFirepower->SetText(valueString);
 
 	m_singleSelectionFuel->SetDrawCallbackAndCookie(FuelBarDrawCallback, (void *)unit.m_id);
@@ -840,14 +840,14 @@ void UnitControlPanel::UpdateOrderButtons()  //emod3 this is the method
 					  )
 					{
 						char buff[1024];
-						sprintf(buff, "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetStatusText()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
+						snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetStatusText()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
 
 						m_orderButton[orderButtonIndex]->SetStatusTextCopy(buff);
 
 						aui_TipWindow *tipwin = (aui_TipWindow *)m_orderButton[orderButtonIndex]->GetTipWindow();
 						if(tipwin)
 						{
-							sprintf(buff, "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetLocalizedName()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
+							snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetLocalizedName()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
 							tipwin->SetTipText(buff);
 						}
 					}

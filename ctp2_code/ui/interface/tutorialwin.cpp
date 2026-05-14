@@ -171,25 +171,25 @@ sint32 TutorialWin::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "List" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "List" );
 	m_list = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ListCallback, NULL );
 	TestControl( m_list );
 	m_list->Hide();
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleButton" );
 	m_titleButton = new c3_Switch( &errcode, aui_UniqueId(), controlBlock, tutorialwin_SwitchCallback );
 	TestControl( m_titleButton );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "EndButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "EndButton" );
 	m_endButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
 	TestControl( m_endButton );
 	m_endButton->Hide();
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ExitButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton" );
 	m_exitButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ButtonCallback );
 	TestControl( m_exitButton );
 
-	sprintf( controlBlock, "TutorialWinStrings" );
+	snprintf(controlBlock, sizeof(controlBlock), "TutorialWinStrings" );
 	m_string = new aui_StringTable( &errcode, controlBlock );
 	TestControl( m_string );
 
@@ -241,7 +241,7 @@ sint32 TutorialWin::UpdateData( void )
 
 	m_list->Clear();
 
-	sprintf( ldlBlock, "TutorialListItem" );
+	snprintf(ldlBlock, sizeof(ldlBlock), "TutorialListItem" );
 	SingleListItem *item;
 
 	PointerList<SlicRecord>::Walker walk(recordList);
@@ -268,7 +268,7 @@ sint32 TutorialWin::AddToList( MBCHAR *text, sint32 index )
 	PointerList<SlicRecord> *recordList = g_slicEngine->GetRecords(player);
 	if ( !recordList ) return -1;
 
-	sprintf( ldlBlock, "TutorialListItem" );
+	snprintf(ldlBlock, sizeof(ldlBlock), "TutorialListItem" );
 	SingleListItem *item;
 
 	item = new SingleListItem( &errcode, text, index, ldlBlock );

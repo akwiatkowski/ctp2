@@ -85,19 +85,19 @@ sint32 specialAttackWindow_Initialize()
 	Assert(AUI_NEWOK(g_theSpecialAttackWindow, errcode));
 	if(!AUI_SUCCESS(errcode)) return -1;
 
-	sprintf(controlBlock, "%s.%s", textBlock, "SpecialAttackCostN");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "SpecialAttackCostN");
     if (aui_Ldl::IsValid(controlBlock))
     {
 	    s_saWindowCostN = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
     }
 
-	sprintf(controlBlock, "%s.%s", textBlock, "SpecialAttackCostV");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "SpecialAttackCostV");
     if (aui_Ldl::IsValid(controlBlock))
     {
 	    s_saWindowCostV = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
     }
 
-	sprintf(controlBlock, "%s.%s", textBlock, "Background");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", textBlock, "Background");
     if (aui_Ldl::IsValid(controlBlock))
     {
 	    s_saWindowBackground = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
@@ -158,7 +158,7 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
     if (s_saWindowCostV)
     {
 	    MBCHAR       mytext[256];
-	    sprintf(mytext,"%d", costs);
+	    snprintf(mytext, sizeof(mytext),"%d", costs);
 	    s_saWindowCostV->SetText(mytext);
     }
 

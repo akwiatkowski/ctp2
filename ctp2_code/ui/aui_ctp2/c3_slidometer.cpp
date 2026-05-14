@@ -174,7 +174,7 @@ AUI_ERRCODE c3_Slidometer::CreateThumb( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			m_thumb = new C3Thumb(

@@ -137,13 +137,13 @@ AUI_ERRCODE musictrackscreen_Initialize( void )
 	s_musicTrackScreen->AddClose( musictrackscreen_acceptPress );
 
 	MBCHAR		controlBlock[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf( controlBlock, "%s.%s", windowBlock, "TrackList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TrackList" );
 	s_trackList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, MusicTrackListCallback, NULL);
 	Assert( AUI_NEWOK(s_trackList, errcode) );
 	if ( !AUI_NEWOK(s_trackList, errcode) ) return errcode;
 	s_trackList->SetForceSelect(FALSE);
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "TrackNames");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TrackNames");
 	s_trackNames = new aui_StringTable(&errcode, controlBlock);
 	Assert(AUI_NEWOK(s_trackNames, errcode));
 	if (!AUI_NEWOK(s_trackNames, errcode)) return errcode;
@@ -151,7 +151,7 @@ AUI_ERRCODE musictrackscreen_Initialize( void )
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
 
-	sprintf(controlBlock, "%s.%s", windowBlock, "MusicTrackListItem");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MusicTrackListItem");
 	for (sint32 i = 0; i < s_trackNames->GetNumStrings(); ++i)
     {
 		s_trackList->AddItem
@@ -221,7 +221,7 @@ AUI_ERRCODE MusicTrackListItem::InitCommonLdl(sint32 trackNum, MBCHAR *name, MBC
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "TrackName");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "TrackName");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->SetText(name);
 

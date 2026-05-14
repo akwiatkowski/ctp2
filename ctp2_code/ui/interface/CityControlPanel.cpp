@@ -479,7 +479,7 @@ void CityControlPanel::UpdateBuildItem()
 	else
 	{
 		char buf[20];
-		sprintf(buf, "%d", cost);
+		snprintf(buf, sizeof(buf), "%d", cost);
 		m_rushBuyCost->SetText(buf);
 		m_buildRushBuy->Enable(isMyTurn && (cost <= player->GetGold()));
 	}
@@ -540,11 +540,11 @@ void CityControlPanel::UpdateBuildItem()
 		theCity->IsBuildingInfrastructure()
 	   )
 	{
-		sprintf(numTurns, "---");
+		snprintf(numTurns, sizeof(numTurns), "---");
 	}
 	else
 	{
-		sprintf(numTurns, "%d", turns);
+		snprintf(numTurns, sizeof(numTurns), "%d", turns);
 	}
 	m_buildItemTurnButton->SetText(numTurns);
 }

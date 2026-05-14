@@ -92,7 +92,7 @@ void ctp2_Spinner::SetDisplay()
 	if(m_displayValue)
 	{
 		static char s[20];
-		sprintf(s, "%d",
+		snprintf(s, sizeof(s), "%d",
 			((m_orientation == AUI_RANGER_ORIENTATION_VERTICAL) ?
 			GetValueY() : GetValueX()));
 

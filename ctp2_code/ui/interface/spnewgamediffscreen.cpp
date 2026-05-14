@@ -180,7 +180,7 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 
 	if ( !callback ) callback = spnewgamediffscreen_backPress;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_spNewGameDiffScreen->AddTitle( controlBlock );
 	s_spNewGameDiffScreen->AddClose( callback );
 

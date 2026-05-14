@@ -88,7 +88,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 		AUI_ERRCODE         errcode         = AUI_ERRCODE_OK;
 		aui_StringTable *   table           = new aui_StringTable(&errcode, "YearStrings");
 		sint32 const        yearStringIndex = (currentYear < 0) ? 0 : 1;
-		sprintf(buf, "%ld%s", abs(currentYear), table->GetString(yearStringIndex));
+		snprintf(buf, sizeof(buf), "%ld%s", abs(currentYear), table->GetString(yearStringIndex));
 		delete table;
 	}
 
@@ -128,7 +128,7 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 	sint32 round = g_player[g_selected_item->GetVisiblePlayer()] ?
 	                   g_player[g_selected_item->GetVisiblePlayer()]->m_current_round :
 	                   NewTurnCount::GetCurrentRound();
-	sprintf(buf, "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
+	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
 	return buf;
 #if 0
 
@@ -146,7 +146,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 	if (g_isScenario || (g_scenarioName && *g_scenarioName))
 	{
 		MBCHAR overridePath[_MAX_PATH];
-		sprintf(overridePath, "%s%s%s", g_civPaths->GetCurScenarioPath(), FILE_SEP, "turnlength.txt");
+		snprintf(overridePath, sizeof(overridePath), "%s%s%s", g_civPaths->GetCurScenarioPath(), FILE_SEP, "turnlength.txt");
 
 		s_useCustomYear = false;
 

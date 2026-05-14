@@ -264,26 +264,26 @@ void ScienceVictoryDialog::UpdateConstructionInformation(
 
 	char buffer[256];
 
-	sprintf(buffer, "%d%s",
+	snprintf(buffer, sizeof(buffer), "%d%s",
 		static_cast<sint32>(gaiaController->GetTowerCoverage() * 100.0f),
 		g_theStringDB->GetNameStr("str_ldl_percent"));
 	m_coverage->SetText(buffer);
 
-	sprintf(buffer, "%d", gaiaController->GetTowerRadius());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->GetTowerRadius());
 	m_towerRadius->SetText(buffer);
 
-	sprintf(buffer, "%d", gaiaController->NumMainframesRequired());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumMainframesRequired());
 	m_mainframeReq->SetText(buffer);
-	sprintf(buffer, "%d", gaiaController->NumTowersRequired());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumTowersRequired());
 	m_towerReq->SetText(buffer);
-	sprintf(buffer, "%d", gaiaController->NumSatellitesRequired());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumSatellitesRequired());
 	m_satReq->SetText(buffer);
 
-	sprintf(buffer, "%d", gaiaController->NumMainframesBuilt());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumMainframesBuilt());
 	m_mainframeCom->SetText(buffer);
-	sprintf(buffer, "%d", gaiaController->NumTowersBuilt());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumTowersBuilt());
 	m_towerCom->SetText(buffer);
-	sprintf(buffer, "%d", gaiaController->NumSatellitesLaunched());
+	snprintf(buffer, sizeof(buffer), "%d", gaiaController->NumSatellitesLaunched());
 	m_satCom->SetText(buffer);
 }
 
@@ -320,7 +320,7 @@ ctp2_ListItem *ScienceVictoryDialog::CreateMainframeItem(const Unit &city,
 		else {
 
 			char buffer[32];
-			sprintf(buffer, "%d", timeRemaining);
+			snprintf(buffer, sizeof(buffer), "%d", timeRemaining);
 			column->SetText(buffer);
 		}
 	}
@@ -404,7 +404,7 @@ void ScienceVictoryDialog::UpdateStatus(const GaiaController *gaiaController)
 {
 
 	char buffer[256];
-	sprintf(buffer, g_theStringDB->GetNameStr("str_ldl_SV_COUNTDOWN_SEQUENCE"),
+	snprintf(buffer, sizeof(buffer), g_theStringDB->GetNameStr("str_ldl_SV_COUNTDOWN_SEQUENCE"),
 		gaiaController->TurnsToComplete());
 	m_statusText->SetText(buffer);
 

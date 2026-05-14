@@ -146,7 +146,7 @@ AUI_ERRCODE soundscreen_Initialize( void )
 
 
 	MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( block, "%s.%s", windowBlock, "Name" );
+	snprintf(block, sizeof(block), "%s.%s", windowBlock, "Name" );
 	s_soundWindow->AddTitle( block );
 	s_soundWindow->AddClose( soundscreen_exitPress );
 

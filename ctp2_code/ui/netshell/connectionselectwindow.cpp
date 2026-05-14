@@ -240,7 +240,7 @@ void ConnectionSelectWindow::Update(void)
 		if(dot)
 			*dot = 0;
 		static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
-		sprintf( block, "connectionselectwindow.connectiondescriptionstrings.%s", filename );
+		snprintf(block, sizeof(block), "connectionselectwindow.connectiondescriptionstrings.%s", filename );
 		if(dot)
 			*dot = '.';
 

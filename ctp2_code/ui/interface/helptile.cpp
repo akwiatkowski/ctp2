@@ -113,7 +113,7 @@ static AUI_ERRCODE newC3Static(MBCHAR *parent,MBCHAR *name,c3_Static **mystatic)
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	sprintf( textBlock, "%s.%s", parent, name );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", parent, name );
 	*mystatic = new c3_Static( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK(*mystatic, errcode) );
 	return errcode;
@@ -167,7 +167,7 @@ sint32 helptile_Initialize( void )
 	if(newC3Static(windowBlock,"TileIBR",&s_tileIBR)) return -1;
 	if(newC3Static(windowBlock,"TileIBottom",&s_tileIBottom)) return -1;
 
-	sprintf( buttonBlock, "%s.%s", windowBlock, "TileImage" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "TileImage" );
 	s_tileImage = new TileControl( &errcode, aui_UniqueId(), buttonBlock);
 	Assert( AUI_NEWOK(s_tileImage, errcode) );
 	if ( !AUI_NEWOK(s_tileImage, errcode) ) return -1;
@@ -234,13 +234,13 @@ void helptile_displayData(const MapPoint &p)
 		strcpy(myname, g_theStringDB->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
-		sprintf( mytext , "%d\n", ucell.m_unseenCell->GetFoodProduced());
+		snprintf(mytext, sizeof(mytext), "%d\n", ucell.m_unseenCell->GetFoodProduced());
 		s_tileFoodV->SetText(mytext);
 
-		sprintf( mytext , "%d\n", ucell.m_unseenCell->GetShieldsProduced());
+		snprintf(mytext, sizeof(mytext), "%d\n", ucell.m_unseenCell->GetShieldsProduced());
 		s_tileProdV->SetText(mytext);
 
-		sprintf( mytext, "%d", ucell.m_unseenCell->GetGoldProduced());
+		snprintf(mytext, sizeof(mytext), "%d", ucell.m_unseenCell->GetGoldProduced());
 		s_tileGoldV->SetText(mytext);
 
 		// Unfortunatly this kind of information is not stored in the
@@ -252,19 +252,19 @@ void helptile_displayData(const MapPoint &p)
 			myTile->GetGoodsIndex(goods);
 
 			goodStrID = g_theWorld->GetTerrain(p)->GetResources(goods)->GetName();
-			sprintf( mytext , "%s\n", g_theStringDB->GetNameStr(goodStrID));
+			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}
 		else
 		{
-			sprintf( mytext , "%s\n", s_stringTable->GetString(STR_NONE));
+			snprintf(mytext, sizeof(mytext), "%s\n", s_stringTable->GetString(STR_NONE));
 			s_tileGoodV->SetText(mytext);
 		}
 
 		s_tileSaleV->SetText("\0");
 		s_tileSale->SetText("\0");
 
-		sprintf( mytext , "%.1f\n", (float)(ucell.m_unseenCell->m_move_cost / 100.0) );
+		snprintf(mytext, sizeof(mytext), "%.1f\n", (float)(ucell.m_unseenCell->m_move_cost / 100.0) );
 		s_tileMoveV->SetText(mytext);
 	}
 	else
@@ -272,13 +272,13 @@ void helptile_displayData(const MapPoint &p)
 		strcpy(myname, g_theWorld->GetTerrainName(p));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
-		sprintf( mytext , "%d\n", myTile->GetFoodProduced());
+		snprintf(mytext, sizeof(mytext), "%d\n", myTile->GetFoodProduced());
 		s_tileFoodV->SetText(mytext);
 
-		sprintf( mytext , "%d\n", myTile->GetShieldsProduced());
+		snprintf(mytext, sizeof(mytext), "%d\n", myTile->GetShieldsProduced());
 		s_tileProdV->SetText(mytext);
 
-		sprintf( mytext, "%d", myTile->GetGoldProduced());
+		snprintf(mytext, sizeof(mytext), "%d", myTile->GetGoldProduced());
 		s_tileGoldV->SetText(mytext);
 
 		if(g_theWorld->IsGood(p))
@@ -288,19 +288,19 @@ void helptile_displayData(const MapPoint &p)
 			myTile->GetGoodsIndex(goods);
 
 			goodStrID = g_theWorld->GetTerrain(p)->GetResources(goods)->GetName();
-			sprintf( mytext , "%s\n", g_theStringDB->GetNameStr(goodStrID));
+			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}
 		else
 		{
-			sprintf( mytext , "%s\n", s_stringTable->GetString(STR_NONE));
+			snprintf(mytext, sizeof(mytext), "%s\n", s_stringTable->GetString(STR_NONE));
 			s_tileGoodV->SetText(mytext);
 		}
 
 		s_tileSaleV->SetText("\0");
 		s_tileSale->SetText("\0");
 
-		sprintf( mytext , "%.1f\n", (float)(myTile->GetMoveCost() / 100.0) );
+		snprintf(mytext, sizeof(mytext), "%.1f\n", (float)(myTile->GetMoveCost() / 100.0) );
 		s_tileMoveV->SetText(mytext);
 	}
 

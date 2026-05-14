@@ -198,7 +198,7 @@ AUI_ERRCODE C3Spinner::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 
 	static char s[ 20 ];
-	sprintf( s, "%d", 100 - ( m_isVertical ? GetValueY() : GetValueX() ) );
+	snprintf(s, sizeof(s), "%d", 100 - ( m_isVertical ? GetValueY() : GetValueX() ) );
 
 	primitives_DropText(
 		surface,

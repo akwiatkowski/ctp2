@@ -1387,13 +1387,13 @@ void ScenarioEditor::SetTab(SCEN_TAB tab)
 {
 	for (sint32 t = 0; t < SCEN_TAB_MAX; t++) {
 		MBCHAR panelName[k_MAX_NAME_LEN];
-		sprintf(panelName, "%s.TabGroup.%s", s_scenarioEditorBlock, s_scenTabNames[t]);
+		snprintf(panelName, sizeof(panelName), "%s.TabGroup.%s", s_scenarioEditorBlock, s_scenTabNames[t]);
 
 		MBCHAR ctrlsName[k_MAX_NAME_LEN];
-		sprintf(ctrlsName, "%s.%sControls", s_scenarioEditorBlock, s_scenTabNames[t]);
+		snprintf(ctrlsName, sizeof(ctrlsName), "%s.%sControls", s_scenarioEditorBlock, s_scenTabNames[t]);
 
 		MBCHAR extraName[k_MAX_NAME_LEN];
-		sprintf(extraName, "%s.%sExtraControls", s_scenarioEditorBlock, s_scenTabNames[t]);
+		snprintf(extraName, sizeof(extraName), "%s.%sExtraControls", s_scenarioEditorBlock, s_scenTabNames[t]);
 
 		ctp2_Static *panel = (ctp2_Static *)aui_Ldl::GetObject(panelName);
 		ctp2_Static *ctrls = (ctp2_Static *)aui_Ldl::GetObject(ctrlsName);
@@ -2450,7 +2450,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
 	if (mode == SCEN_START_LOC_MODE_PLAYER ||
 		mode == SCEN_START_LOC_MODE_PLAYER_WITH_CIV)
     {
-		sprintf(labelString, "%s (%d/%d)",
+		snprintf(labelString, sizeof(labelString), "%s (%d/%d)",
 					g_theStringDB->GetNameStr("str_ldl_Player_Text"),
 					index,
 					g_theProfileDB->GetNPlayers()-1);
@@ -2458,12 +2458,12 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
     else if (mode == SCEN_START_LOC_MODE_CIV)
     {
 		if(g_theCivilisationDB->Get(index)) {
-			sprintf(labelString, "%s (%d/%d)",
+		sprintf(labelString, "%s (%d/%d)",
 					g_theStringDB->GetNameStr(g_theCivilisationDB->Get(index)->GetPluralCivName()),
 					index,
 					g_theCivilisationDB->NumRecords()-1);
 		} else {
-			sprintf(labelString, "???");
+			snprintf(labelString, sizeof(labelString), "???");
 		}
 	}
 }
@@ -2839,7 +2839,7 @@ void ScenarioEditor::UpdatePlayerCount()
 	ctp2_Static *st = (ctp2_Static *)aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.Players");
 	MBCHAR tempstr[_MAX_PATH];
 
-	sprintf(tempstr, "%d", GetNumPlayers());
+	snprintf(tempstr, sizeof(tempstr), "%d", GetNumPlayers());
 	st->SetText(tempstr);
 }
 

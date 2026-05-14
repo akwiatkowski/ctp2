@@ -194,7 +194,7 @@ AUI_ERRCODE TextTable::InitCommon( uint32 columns, aui_Surface *surface )
 	TextSwitch **headerPtr = m_table_headers;
 	for ( i = 0; i < m_columns; i++ )
 	{
-		sprintf(strbuf,"col-%d",i);
+		snprintf(strbuf, sizeof(strbuf),"col-%d",i);
 		*headerPtr = new TextSwitch(
 			&errcode,
 			aui_UniqueId(),
@@ -282,7 +282,7 @@ BOOL TextTable::AddColumn( uint32 pos, MBCHAR *text )
 	if (!pos || (pos > m_columns)) pos = m_columns;
 
 	if (!text)
-		sprintf(strbuf,"col-%d",pos);
+		snprintf(strbuf, sizeof(strbuf),"col-%d",pos);
 	else strcpy(strbuf, text);
 
 	m_item_width = m_width / (m_columns + 1);
@@ -313,7 +313,7 @@ BOOL TextTable::AddRow( uint32 pos, MBCHAR *text )
 	if (!pos || (pos > m_rows)) pos = m_rows;
 
 	if (!text)
-		sprintf(strbuf,"row-%d",pos);
+		snprintf(strbuf, sizeof(strbuf),"row-%d",pos);
 	else strcpy(strbuf, text);
 
 

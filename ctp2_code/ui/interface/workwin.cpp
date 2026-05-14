@@ -151,7 +151,7 @@ sint32 workwin_Initialize( void )
 	g_workWindow->GrabRegion()->Resize( g_workWindow->Width(), 20 );
 	g_workWindow->SetDraggable( TRUE );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ResourceMap" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResourceMap" );
 	g_resourceMap = new ResourceMap( &errcode, aui_UniqueId(), controlBlock );
 	Assert( AUI_NEWOK(g_resourceMap, errcode) );
 	if ( !AUI_NEWOK(g_resourceMap, errcode) ) return -3;
@@ -165,7 +165,7 @@ sint32 workwin_Initialize( void )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ExitButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExitButton" );
 	s_exitButton = new c3_Button( &errcode, aui_UniqueId(), controlBlock, WorkExitButtonActionCallback );
 	Assert( AUI_NEWOK(s_exitButton, errcode) );
 	if ( !AUI_NEWOK(s_exitButton, errcode) ) return -5;

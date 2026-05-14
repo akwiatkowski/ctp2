@@ -99,7 +99,7 @@ AUI_ERRCODE CityManagerWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	}
 
 	MBCHAR controlBlock[k_AUI_LDL_MAXBLOCK + 1];
-	sprintf(controlBlock, "%s.%s", ldlBlock, "OK_BUTTON");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "OK_BUTTON");
 
 	AUI_ERRCODE ret;
 	m_ok = new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
@@ -111,7 +111,7 @@ AUI_ERRCODE CityManagerWindow::InitCommonLdl(MBCHAR *ldlBlock)
 						   this);
 	AddControl(m_ok);
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "CANCEL_BUTTON");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "CANCEL_BUTTON");
 	m_cancel = new ctp2_Button(&ret, aui_UniqueId(), controlBlock,
 							   "CTP2_BUTTON_TEXT_RIGHT_LARGE",
 							   526, 414,

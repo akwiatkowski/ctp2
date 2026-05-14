@@ -38,7 +38,7 @@ ctp2_Button(retval, id, ldlBlock, ActionFunc, cookie)
 
 
 		char layerIndexString[20];
-		sprintf(layerIndexString, "%d", layerIndex);
+		snprintf(layerIndexString, sizeof(layerIndexString), "%d", layerIndex);
 
 		InitializeLayerFlag(block, layerIndex, k_CTP2_BUTTON_LDL_LAYER_LEFT,
 			k_CTP2_TAB_BUTTON_LAYER_FLAG_LEFT, layerIndexString);

@@ -195,13 +195,13 @@ AUI_ERRCODE ChatWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR			controlBlock[k_AUI_LDL_MAXBLOCK + 1];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "ChatTextBox");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ChatTextBox");
 	m_textBox = new c3_HyperTextBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(m_textBox, errcode) );
 	if ( !AUI_NEWOK(m_textBox, errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 	AddControl(m_textBox);
 
-	sprintf(controlBlock, "%s.%s", ldlBlock, "ChatTextField");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ChatTextField");
 	m_textField = new C3TextField(&errcode, aui_UniqueId(), controlBlock,
 									ChatWindow::ChatCallback, (void *)this);
 	Assert( AUI_NEWOK(m_textField, errcode) );
@@ -233,11 +233,11 @@ void ChatWindow::ColorizeString(MBCHAR *destString, MBCHAR *srcString, COLORREF 
 	uint32 b = (colorRef & 0x00FF0000) >> 16;
 
 	MBCHAR		colorString[20];
-	sprintf(colorString, "<c:%u,%u,%u>", r, g, b);
+	snprintf(colorString, sizeof(colorString), "<c:%u,%u,%u>", r, g, b);
 	strcat(destString, colorString);
 	strcat(destString, srcString);
 
-	sprintf(colorString, "<e>");
+	snprintf(colorString, sizeof(colorString), "<e>");
 	strcat(destString, colorString);
 }
 

@@ -593,7 +593,7 @@ SpriteEditWindow::FileExists(char *name)
 	MBCHAR spritePath[_MAX_PATH];
 	MBCHAR fullPath[_MAX_PATH];
 	g_civPaths->GetSpecificPath(C3DIR_SPRITES, spritePath, FALSE);
-	sprintf(fullPath, "%s%s%s", spritePath, FILE_SEP, name);
+	snprintf(fullPath, sizeof(fullPath), "%s%s%s", spritePath, FILE_SEP, name);
 
 	return c3files_PathIsValid(fullPath);
 }
@@ -619,7 +619,7 @@ SpriteEditWindow::LoadSprite(char *name)
 	if (name==NULL)
 		return;
 
-	sprintf(tbuffer,"%s.SPR",name);
+	snprintf(tbuffer, sizeof(tbuffer),"%s.SPR",name);
 
 	if (!FileExists(tbuffer))
 		return;
@@ -703,11 +703,11 @@ SpriteEditWindow::SaveSprite(char *name)
 	if ((m_currentSprite==NULL)||(name==NULL))
 		return;
 
-	sprintf(tbuffer,"%s.SPR",name);
+	snprintf(tbuffer, sizeof(tbuffer),"%s.SPR",name);
 
 	m_currentSprite->Save(name,k_SPRITEFILE_VERSION2,SPRDATA_LZW1);
 
-	sprintf(tbuffer,"%s.TXT",fname);
+	snprintf(tbuffer, sizeof(tbuffer),"%s.TXT",fname);
 
 	m_currentSprite->ExportScript(name);
 }
@@ -864,7 +864,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 		char tbuffer[256];
 
-		sprintf(tbuffer,"HotSpot:\t%d,%d",sav.x,sav.y);
+		snprintf(tbuffer, sizeof(tbuffer),"HotSpot:\t%d,%d",sav.x,sav.y);
 		m_hotCoordsCurrent  ->SetText(tbuffer);
 
 		RECT HotRect;
@@ -880,7 +880,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 		POINT *hPoint = m_currentSprite->GetShieldPoints((UNITACTION)m_animation);
 		if(hPoint) {
-			sprintf(tbuffer, "Herald:\t%d,%d", hPoint->x, hPoint->y);
+			snprintf(tbuffer, sizeof(tbuffer), "Herald:\t%d,%d", hPoint->x, hPoint->y);
 			m_hotCoordsHerald->SetText(tbuffer);
 		}
 		m_largeImage->ShouldDraw(TRUE);
@@ -921,7 +921,7 @@ AUI_ERRCODE SpriteEditWindow::Idle( void )
 		mx = (int)((float)(me->position.x-m_largeRectAbs.left)*m_widthRatio);
 		my = (int)((float)(me->position.y-m_largeRectAbs.top )*m_heightRatio);
 
-		sprintf(tbuffer,"Cursor:\t%d,%d",mx,my);
+		snprintf(tbuffer, sizeof(tbuffer),"Cursor:\t%d,%d",mx,my);
 		m_hotCoordsMouse  ->SetText(tbuffer);
 	}
 

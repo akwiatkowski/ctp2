@@ -61,9 +61,9 @@ AUI_ERRCODE ns_Spinner::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	primitives_BevelRect16( surface, &rect, 1, 1, 16, 16 );
 
 	if ( m_orientation == AUI_RANGER_ORIENTATION_HORIZONTAL )
-		sprintf( m_text, "%d", m_valX );
+		snprintf(m_text, sizeof(m_text), "%d", m_valX );
 	else
-		sprintf( m_text, "%d", m_valY );
+		snprintf(m_text, sizeof(m_text), "%d", m_valY );
 
 	DrawThisText(
 		surface,

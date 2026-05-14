@@ -131,7 +131,7 @@ CityEspionage::~CityEspionage()
 	for (size_t unitIndex = 0; unitIndex < k_MAX_ARMY_SIZE; ++unitIndex)
 	{
 		MBCHAR  block [k_MAX_NAME_LEN];
-		sprintf(block, "DialogBackground.FortifiedUnitsBox.Unit%i", unitIndex);
+		snprintf(block, sizeof(block), "DialogBackground.FortifiedUnitsBox.Unit%i", unitIndex);
 
 		ctp2_Static * unitPicture  = static_cast<ctp2_Static *>
 		                                (aui_Ldl::GetObject(LDL_BLOCK, block));
@@ -254,7 +254,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 			for (sint32 multiIndex = 0; multiIndex < k_MAX_ARMY_SIZE; ++multiIndex)
 			{
 				MBCHAR interp[k_MAX_NAME_LEN];
-				sprintf(interp, "DialogBackground.FortifiedUnitsBox.Unit%i", multiIndex);
+				snprintf(interp, sizeof(interp), "DialogBackground.FortifiedUnitsBox.Unit%i", multiIndex);
 				ctp2_Static * st = (ctp2_Static *) aui_Ldl::GetObject(LDL_BLOCK, interp);
 
 				if (st)

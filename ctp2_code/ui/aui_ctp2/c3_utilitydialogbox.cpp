@@ -373,7 +373,7 @@ sint32 c3_UtilityCityListPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
 	m_window->AddTitle( controlBlock );
 	m_window->AddCancel(C3UtilityCityListButtonActionCallback, this);
 	m_window->AddOk(C3UtilityCityListButtonActionCallback, this);
@@ -395,7 +395,7 @@ sint32 c3_UtilityCityListPopup::Initialize( MBCHAR *windowBlock )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CityList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CityList" );
 	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -505,22 +505,22 @@ sint32 c3_PiracyPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PirateButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PirateButton" );
 	m_pirate = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
 	Assert( AUI_NEWOK(m_pirate, errcode) );
 	if ( !AUI_NEWOK(m_pirate, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CancelButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CancelButton" );
 	m_cancel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3PiracyButtonCallback, this);
 	Assert( AUI_NEWOK(m_cancel, errcode) );
 	if ( !AUI_NEWOK(m_cancel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
 	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PlayerList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
 	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -631,22 +631,22 @@ sint32 c3_ExpelPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "AttackButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AttackButton" );
 	m_attack = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_attack, errcode) );
 	if ( !AUI_NEWOK(m_attack, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "ExpelButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ExpelButton" );
 	m_expel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_expel, errcode) );
 	if ( !AUI_NEWOK(m_expel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CancelButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CancelButton" );
 	m_cancel = new c3_Button(&errcode, aui_UniqueId(), controlBlock, C3ExpelButtonCallback, this);
 	Assert( AUI_NEWOK(m_cancel, errcode) );
 	if ( !AUI_NEWOK(m_cancel, errcode) ) return -1;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
 	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
@@ -762,7 +762,7 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
 	m_window->AddTitle( controlBlock );
 	m_window->AddCancel(C3UtilityTextFieldButtonActionCallback, this);
 	m_window->AddOk(C3UtilityTextFieldButtonActionCallback, this);
@@ -778,14 +778,14 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR *windowBlock )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TextMessage");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
 	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 	if (m_title_text)
 		m_title_label->SetText(m_title_text);
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TextField");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextField");
 	m_text = new C3TextField( &errcode, aui_UniqueId(), controlBlock,
 		C3UtilityTextFieldButtonActionCallback, this);
 	Assert( AUI_NEWOK(m_text, errcode) );
@@ -908,7 +908,7 @@ sint32 c3_UtilityTextMessagePopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TitleLabel");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TitleLabel");
 	m_window->AddTitle( controlBlock );
 
 	switch ( m_type ) {
@@ -947,7 +947,7 @@ sint32 c3_UtilityTextMessagePopup::Initialize( MBCHAR *windowBlock )
 
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TextMessage");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
 	m_text = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_text, errcode) );
 	if ( !AUI_NEWOK(m_text, errcode) ) return -1;
@@ -1145,18 +1145,18 @@ sint32 c3_UtilityAbortPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "AbortButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AbortButton" );
 	m_abort = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3AbortButtonActionCallback, this);
 	TestControl( m_abort );
 
 	if (m_type == k_UTILITY_PROGRESS_ABORT)
 	{
-		sprintf( controlBlock, "%s.%s", windowBlock, "Meter" );
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Meter" );
 		m_meter = new Thermometer(&errcode, aui_UniqueId(), controlBlock );
 		TestControl( m_meter );
 	}
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "TextMessage");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextMessage");
 	m_text = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_text, errcode) );
 	if ( !AUI_NEWOK(m_text, errcode) ) return -1;
@@ -1274,23 +1274,23 @@ sint32 c3_UtilityPlayerListPopup::Initialize( MBCHAR *windowBlock )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "AbortButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "AbortButton" );
 	m_abort = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_abort );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "KickButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "KickButton" );
 	m_kick = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_kick );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "OpenButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "OpenButton" );
 	m_open = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_open );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "CloseButton" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CloseButton" );
 	m_close = new ctp2_Button(&errcode, aui_UniqueId(), controlBlock, C3UtilityPlayerListButtonActionCallback, this);
 	TestControl( m_close );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PlayerList" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
 	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -1450,10 +1450,10 @@ AUI_ERRCODE DoubleListItem::InitCommonLdl(MBCHAR *name, sint32 value, MBCHAR *te
 		strcpy( m_text, "" );
 	}
 
-	sprintf(block, "%s.%s", ldlBlock, "Name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name");
 	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
 
-	sprintf(block, "%s.%s", ldlBlock, "Text");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Text");
 	AddChild(new c3_Static(&retval, aui_UniqueId(), block));
 
 	Update();

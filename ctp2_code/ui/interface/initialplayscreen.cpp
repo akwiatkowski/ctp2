@@ -203,7 +203,7 @@ spritetest_spPress(aui_Control *control, uint32 action, uint32 data, void *cooki
 
 			MBCHAR fieldText[k_MAX_NAME_LEN];
 
-			sprintf(fieldText,"Jerry");
+			snprintf(fieldText, sizeof(fieldText),"Jerry");
 
 
   			g_theProfileDB->SetLeaderName(fieldText);

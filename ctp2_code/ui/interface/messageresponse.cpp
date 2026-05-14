@@ -55,7 +55,7 @@ AUI_ERRCODE MessageResponseListItem::InitCommonLdl(MBCHAR const * name, sint32 i
 
 	c3_Static		*subItem;
 
-	sprintf(block, "%s.%s", ldlBlock, "name");
+	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "name");
 	subItem = new c3_Static(&retval, aui_UniqueId(), block);
 	subItem->TextFlags() = k_AUI_BITMAPFONT_DRAWFLAG_JUSTCENTER;
 	AddChild(subItem);
@@ -129,7 +129,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
     {
 		MBCHAR const *  text    = sButton->GetName();
 
-		sprintf(buttonBlock, "%s.%s", ldlBlock, "StandardResponseButton");
+		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
 		ctp2_Button	*   button  = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock);
 		Assert( AUI_NEWOK( button, errcode ));
 		if ( !AUI_NEWOK( button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -183,7 +183,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	{
 		if(g_theCriticalMessagesPrefs->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
 		{
-			sprintf(buttonBlock, "%s.%s", ldlBlock, "StandardDontShowButton");
+			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDontShowButton");
 			m_dontShowButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
 			Assert( AUI_NEWOK( m_dontShowButton, errcode ));
 			m_dontShowButton->SetActionFuncAndCookie(	DontShowButtonActionCallback, this);
@@ -282,7 +282,7 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	m_action        = NULL;
 	m_dropdown      = NULL;
 
-	sprintf( buttonBlock, "%s.%s", ldlBlock, "StandardResponseButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
 	m_submitButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_submitButton, errcode ));
 	if ( !AUI_NEWOK( m_submitButton, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -317,14 +317,14 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	}
 #endif
 
-	sprintf( buttonBlock, "%s.%s", ldlBlock, "StandardResponseDropdown" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdown" );
 	m_dropdown = new c3_DropDown( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_dropdown, errcode ));
 	if ( !AUI_NEWOK( m_dropdown, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action->SetDropdown( m_dropdown );
 
-	sprintf( buttonBlock, "%s.%s", ldlBlock, "StandardResponseDropdownItem" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseDropdownItem" );
 	sint32 i = 0;
 	while (SlicButton * sButton = window->GetMessage()->AccessData()->GetButton(i++))
     {

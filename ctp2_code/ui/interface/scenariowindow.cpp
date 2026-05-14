@@ -171,7 +171,7 @@ void ScenarioWindow::FillListWithScenarios(ctp2_ListBox *available)
 					ctp2_Static *image = (ctp2_Static *)box->GetChildByIndex(2);
 					if(image) {
 						MBCHAR imPath[_MAX_PATH];
-						sprintf(imPath, "%s\\%s", scen->m_path, "scenicon.tga");
+						snprintf(imPath, sizeof(imPath), "%s\\%s", scen->m_path, "scenicon.tga");
 						if(c3files_PathIsValid(imPath)) {
 							image->SetImage(imPath);
 						}
@@ -196,7 +196,7 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 	for (i=0; i<g_civScenarios->GetNumScenarioPacks(); i++) {
 		scenPack = g_civScenarios->GetScenarioPack(i);
 
-		sprintf(checkFile,"%s\\%s",scenPack->m_path,"Activision.txt");
+		snprintf(checkFile, sizeof(checkFile),"%s\\%s",scenPack->m_path,"Activision.txt");
 		if(!(hideOriginalScenarios && !stat(checkFile,&fileStatus)))
 		{
 			ctp2_ListItem	*item=NULL;
@@ -218,7 +218,7 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 					ctp2_Static *image = (ctp2_Static *)box->GetChildByIndex(2);
 					if(image) {
 						MBCHAR imPath[_MAX_PATH];
-						sprintf(imPath, "%s\\%s", scenPack->m_path, "packicon.tga");
+						snprintf(imPath, sizeof(imPath), "%s\\%s", scenPack->m_path, "packicon.tga");
 						if(c3files_PathIsValid(imPath)) {
 							image->SetImage(imPath);
 						}

@@ -222,7 +222,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	}
 
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_spNewGamePlayersScreen->AddTitle( controlBlock );
 
 	if (!callback) callback = spnewgameplayersscreen_backPress;
@@ -230,7 +230,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	s_spNewGamePlayersScreen->AddClose( callback );
 
 	// May not exist for mods
-	sprintf( controlBlock, "%s.%s", windowBlock, "NumPlayerSpinner");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NumPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
 		s_num_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
@@ -241,12 +241,12 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 		}
 		s_spNewGamePlayersScreen->AddControl(s_num_player_spinner);
 
-		sprintf( controlBlock, "%s.%s", windowBlock, "NumPlayerText");
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NumPlayerText");
 		s_num_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 		s_spNewGamePlayersScreen->AddControl(s_num_player);
 	}
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "MaxPlayerSpinner");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MaxPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
 		s_max_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
@@ -257,12 +257,12 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 		}
 		s_spNewGamePlayersScreen->AddControl(s_max_player_spinner);
 
-		sprintf( controlBlock, "%s.%s", windowBlock, "MaxPlayerText");
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MaxPlayerText");
 		s_max_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 		s_spNewGamePlayersScreen->AddControl(s_max_player);
 	}
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "PlayerSpinner");
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
 		s_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock);
@@ -271,7 +271,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 		s_player_spinner->SetMaximum(g_theProfileDB->GetNPlayers() - 1, 0);
 		s_spNewGamePlayersScreen->AddControl(s_player_spinner);
 
-		sprintf( controlBlock, "%s.%s", windowBlock, "PlayerText");
+		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerText");
 		s_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
 		s_player->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(g_theProfileDB->GetPlayerIndex())));
 	//	s_player->SetTextShadow(true);

@@ -174,7 +174,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 			m_header = NULL;
 		}
 
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
 
 		if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			m_header = new ns_Header(
@@ -201,7 +201,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERY );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			m_verticalRanger = new c3_Ranger(
@@ -231,7 +231,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_RANGERX );
 
         if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 			m_horizontalRanger = new c3_Ranger(

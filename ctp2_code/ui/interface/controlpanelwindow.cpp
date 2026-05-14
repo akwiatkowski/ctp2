@@ -2571,7 +2571,7 @@ ControlPanelWindow::CreateTileImpBanks()
 	for(panel = 0; panel < CP_TILEIMP_MAX; panel++) {
 		for(column = 0; column < CP_TILEIMP_COLS; column++) {
 			for(row = 0; row < CP_TILEIMP_ROWS; row++) {
-				sprintf(button_id,"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",panels[panel],column+1,row+1);
+				snprintf(button_id, sizeof(button_id),"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",panels[panel],column+1,row+1);
 
 				a_button=(ctp2_Button*)aui_Ldl::GetObject(button_id);
 				Assert(a_button);
@@ -2675,7 +2675,7 @@ ControlPanelWindow::CreateTileImpBanks()
 		{
 			row		= timpRec->GetLevel();
 
-			sprintf(button_id,"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",thePaneLDL,column+1,row);
+			snprintf(button_id, sizeof(button_id),"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",thePaneLDL,column+1,row);
 
 			a_button=(ctp2_Button*)aui_Ldl::GetObject(button_id);
 
@@ -2757,7 +2757,7 @@ ControlPanelWindow::CreateTileImpBanks()
 
 
 
-		sprintf(button_id,"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",thePaneLDL,column+1,row+1);
+		snprintf(button_id, sizeof(button_id),"ControlPanelWindow.ControlPanel.ControlTabPanel.TilesTab.TabPanel.%s.b%d%d",thePaneLDL,column+1,row+1);
 
 		a_button=(ctp2_Button*)aui_Ldl::GetObject(button_id);
 
@@ -3592,7 +3592,7 @@ ControlPanelWindow::TileImpButtonRedisplay(uint32 player_id,uint32 button)
 		MBCHAR iconName[30];
 		sint32 terrain;
 		rec->GetTerraformTerrainIndex(terrain);
-		sprintf(iconName, "UPNI%02d.tga", g_theTerrainDB->Get(terrain)->GetTilesetIndex());
+		snprintf(iconName, sizeof(iconName), "UPNI%02d.tga", g_theTerrainDB->Get(terrain)->GetTilesetIndex());
 		m_tileImpButtons[button]->ExchangeImage(4, 0, iconName);
 		if(tipwin)
 			tipwin->SetTipText((char *)g_theStringDB->GetNameStr(rec->GetTooltip()));
@@ -3736,19 +3736,19 @@ void cpw_NumberToCommas( uint64 number, MBCHAR *s )
 	c[sizeof(c) - 1] = '\0';
 
 	if ( trillion ) {
-		sprintf( s, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
+		sprintf(s, "%ld%s%.3ld%s%.3ld%s%.3ld%s%.3" PRIu64, trillion, c, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( billion ) {
-		sprintf( s, "%ld%s%.3ld%s%.3ld%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
+		sprintf(s, "%ld%s%.3ld%s%.3ld%s%.3" PRIu64, billion, c, million, c, thousand, c, temp );
 	}
 	else if ( million ) {
-		sprintf( s, "%ld%s%.3ld%s%.3" PRIu64, million, c, thousand, c, temp );
+		sprintf(s, "%ld%s%.3ld%s%.3" PRIu64, million, c, thousand, c, temp );
 	}
 	else if ( thousand ) {
-		sprintf( s, "%ld%s%.3" PRIu64, thousand, c, temp );
+		sprintf(s, "%ld%s%.3" PRIu64, thousand, c, temp );
 	}
 	else {
-		sprintf( s, "%" PRIu64, temp );
+		sprintf(s, "%" PRIu64, temp );
 	}
 }
 

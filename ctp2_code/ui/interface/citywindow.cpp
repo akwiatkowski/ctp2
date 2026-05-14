@@ -211,15 +211,15 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
 
 	MBCHAR buttonBlock[k_AUI_LDL_MAXBLOCK + 1];
 
-	sprintf(buttonBlock, "%s.%s", s_cityWindowBlock, "CloseButton");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", s_cityWindowBlock, "CloseButton");
 	*err = aui_Ldl::SetActionFuncAndCookie(buttonBlock, CityWindow::Close, NULL);
 	Assert(*err == AUI_ERRCODE_OK);
 
-	sprintf(buttonBlock, "%s.%s", s_cityWindowBlock, "CityList.Next");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", s_cityWindowBlock, "CityList.Next");
 	*err = aui_Ldl::SetActionFuncAndCookie(buttonBlock, CityWindow::NextCity, NULL);
 	Assert(*err == AUI_ERRCODE_OK);
 
-	sprintf(buttonBlock, "%s.%s", s_cityWindowBlock, "CityList.Previous");
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", s_cityWindowBlock, "CityList.Previous");
 	*err = aui_Ldl::SetActionFuncAndCookie(buttonBlock, CityWindow::PreviousCity, NULL);
 	Assert(*err == AUI_ERRCODE_OK);
 
@@ -383,7 +383,7 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
 	for(y = 0; y < 3; y++) {
 		for(x = 0; x < 4; x++) {
 			char buf[256];
-			sprintf(buf, "GarrisonSection.UnitButtons.b%c%c.IconBorder.Button", char(x + '0'), char(y + '0'));
+			snprintf(buf, sizeof(buf), "GarrisonSection.UnitButtons.b%c%c.IconBorder.Button", char(x + '0'), char(y + '0'));
 			m_unitButtons[unitButton] = (ctp2_Button *)aui_Ldl::GetObject(s_cityWindowBlock, buf);
 			Assert(m_unitButtons[unitButton]);
 			if(m_unitButtons[unitButton]) {
@@ -644,19 +644,19 @@ void CityWindow::Update()
 	ctp2_Static *text = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.Globals.WorkersCount");
 	char value[1024];
 	if(text) {
-		sprintf(value, "%d", m_cityData->WorkerCount());
+		snprintf(value, sizeof(value), "%d", m_cityData->WorkerCount());
 		text->SetText(value);
 	}
 
 	text = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.Globals.SlaveCount");
 	if(text) {
-		sprintf(value, "%d", m_cityData->SlaveCount());
+		snprintf(value, sizeof(value), "%d", m_cityData->SlaveCount());
 		text->SetText(value);
 	}
 
 	text = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.Globals.TotalCount");
 	if(text) {
-		sprintf(value, "%d", m_cityData->PopCount());
+		snprintf(value, sizeof(value), "%d", m_cityData->PopCount());
 		text->SetText(value);
 	}
 
@@ -685,10 +685,10 @@ void CityWindow::Update()
 							(g_thePopDB->Get(m_cityData->GetBestSpecialist(POP_FARMER),
 							player->GetGovernmentType())->GetFood());
 					}
-					sprintf(value, "+%d", amt);
+					snprintf(value, sizeof(value), "+%d", amt);
 					break;
 				case CW_RES_HAPPY:
-					sprintf(value, "+%d", static_cast<sint32>(m_cityData->GetHappyPopEntertainment()));
+					snprintf(value, sizeof(value), "+%d", static_cast<sint32>(m_cityData->GetHappyPopEntertainment()));
 					break;
 				case CW_RES_PROD:
 					if (m_cityData->LaborerCount() > 0)
@@ -697,7 +697,7 @@ void CityWindow::Update()
 							(g_thePopDB->Get(m_cityData->GetBestSpecialist(POP_LABORER),
 							player->GetGovernmentType())->GetProduction());
 					}
-					sprintf(value, "+%d", amt);
+					snprintf(value, sizeof(value), "+%d", amt);
 					break;
 				case CW_RES_TRADE:
 					if (m_cityData->MerchantCount() > 0)
@@ -706,7 +706,7 @@ void CityWindow::Update()
 							(g_thePopDB->Get(m_cityData->GetBestSpecialist(POP_MERCHANT),
 							player->GetGovernmentType())->GetCommerce());
 					}
-					sprintf(value, "+%d", amt);
+					snprintf(value, sizeof(value), "+%d", amt);
 					break;
 				case CW_RES_SCI:
 					if (m_cityData->ScientistCount() > 0)
@@ -715,7 +715,7 @@ void CityWindow::Update()
 							(g_thePopDB->Get(m_cityData->GetBestSpecialist(POP_SCIENTIST),
 							player->GetGovernmentType())->GetScience());
 					}
-					sprintf(value, "+%d", amt);
+					snprintf(value, sizeof(value), "+%d", amt);
 					break;
 			}
 			m_resVal[i]->SetText(value);
@@ -757,7 +757,7 @@ void CityWindow::Update()
 	char buf[20];
 	if(m_growthDelta) {
 		if (m_cityData->GetGrowthRate() >= 0) {
-			sprintf(buf, "+%d", m_cityData->GetGrowthRate());
+			snprintf(buf, sizeof(buf), "+%d", m_cityData->GetGrowthRate());
 			m_growthDelta->SetText(buf);
 			m_growthDelta->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
 		} else {
@@ -771,7 +771,7 @@ void CityWindow::Update()
 	}
 
 	if(m_happinessValue) {
-		sprintf(buf, "%d", static_cast<sint32>(m_cityData->GetHappiness()));
+		snprintf(buf, sizeof(buf), "%d", static_cast<sint32>(m_cityData->GetHappiness()));
 		m_happinessValue->SetText(buf);
 	}
 
@@ -779,7 +779,7 @@ void CityWindow::Update()
 
 	if(m_conversionLossValue) {
 		sint32 convertedGold = m_cityData->GetConvertedGold();
-		sprintf(buf, "%d", convertedGold);
+		snprintf(buf, sizeof(buf), "%d", convertedGold);
 		m_conversionLossValue->SetText(buf);
 		if (convertedGold > 0 && m_cityData->GetConvertedTo() > -1) {
 			COLOR color = g_colorSet->ComputePlayerColor(m_cityData->GetConvertedTo());
@@ -790,7 +790,7 @@ void CityWindow::Update()
 
 	if(m_franchiseLossValue) {
 		sint32 franchise = m_cityData->GetProductionLostToFranchise();
-		sprintf(buf, "%d", franchise);
+		snprintf(buf, sizeof(buf), "%d", franchise);
 		m_franchiseLossValue->SetText(buf);
 		if (franchise > 0 && m_cityData->GetFranchiseOwner() > -1) {
 			COLOR color = g_colorSet->ComputePlayerColor(m_cityData->GetFranchiseOwner());
@@ -800,34 +800,34 @@ void CityWindow::Update()
 	}
 
 	if(m_growthTurns) {
-		sprintf(buf, "%d", static_cast<sint32>(m_cityData->TurnsToNextPop()));
+		snprintf(buf, sizeof(buf), "%d", static_cast<sint32>(m_cityData->TurnsToNextPop()));
 		m_growthTurns->SetText(buf);
 	}
 
 	if(m_globalFood) {
 		// Display net food instead of gross food. - Martin G�hmann
-		sprintf(buf, "%d", m_cityData->GetNetCityFood());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->GetNetCityFood());
 		m_globalFood->SetText(buf);
 	}
 
 	if(m_globalTrade) {
-		sprintf(buf, "%d", m_cityData->GetNetCityGold());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->GetNetCityGold());
 		m_globalTrade->SetText(buf);
 	}
 
 	if(m_globalScience) {
-		sprintf(buf, "%d", m_cityData->GetScience());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->GetScience());
 		m_globalScience->SetText(buf);
 	}
 
 	if(m_globalProduction) {
 		// Display net production instead of gross production - Martin G�hmann
-		sprintf(buf, "%d", m_cityData->GetNetCityProduction());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->GetNetCityProduction());
 		m_globalProduction->SetText(buf);
 	}
 
 	if(m_globalPopulation) {
-		sprintf(buf, "%d", m_cityData->PopCount() * k_PEOPLE_PER_POPULATION + m_cityData->GetPartialPopulation());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->PopCount() * k_PEOPLE_PER_POPULATION + m_cityData->GetPartialPopulation());
 		m_globalPopulation->SetText(buf);
 	}
 
@@ -888,7 +888,7 @@ void CityWindow::UpdateBuildTabs()
 		if(turns >= 0 && turns < 0x7fffffff
 		&& m_cityData->GetBuildQueue()->GetHead()->m_category != k_GAME_OBJ_TYPE_CAPITALIZATION
 		&& m_cityData->GetBuildQueue()->GetHead()->m_category != k_GAME_OBJ_TYPE_INFRASTRUCTURE)
-			sprintf(buf, "%d", turns);
+			snprintf(buf, sizeof(buf), "%d", turns);
 		else
 			strcpy(buf, "---");
 		turnCountButton->SetText(buf);
@@ -912,7 +912,7 @@ void CityWindow::UpdateBuildTabs()
 						label->SetText(g_theBuildingDB->Get(i)->GetNameText());
 
 						label = (ctp2_Static *)box->GetChildByIndex(1);
-						sprintf(buf, "%d", buildingutil_Get(i, m_cityData->GetOwner())->GetUpkeep());
+						snprintf(buf, sizeof(buf), "%d", buildingutil_Get(i, m_cityData->GetOwner())->GetUpkeep());
 						label->SetText(buf);
 					}
 					InventoryItemInfo *info = new InventoryItemInfo(true, i);
@@ -1030,7 +1030,7 @@ void CityWindow::UpdateCostsGives()
 		costsValue->SetText("---");
 	} else {
 		MBCHAR buf[20];
-		sprintf(buf, "%d", m_cityData->GetOvertimeCost());
+		snprintf(buf, sizeof(buf), "%d", m_cityData->GetOvertimeCost());
 		costsValue->SetText(buf);
 	}
 
@@ -1058,7 +1058,7 @@ void CityWindow::UpdateCostsGives()
 					givesValue->SetText("---");
 				} else {
 					MBCHAR buf[20];
-					sprintf(buf, "%d", sint32(double(buildingutil_Get(info->m_type, m_cityData->GetOwner())->GetProductionCost()) *
+					snprintf(buf, sizeof(buf), "%d", sint32(double(buildingutil_Get(info->m_type, m_cityData->GetOwner())->GetProductionCost()) *
 							g_theConstDB->Get(0)->GetBuildingProductionToValueModifier()));
 					givesValue->SetText(buf);
 				}
@@ -1592,7 +1592,7 @@ void CityWindow::BuildListSelect(aui_Control *control, uint32 action, uint32 dat
 			(node->m_category != k_GAME_OBJ_TYPE_INFRASTRUCTURE)
 		   )
 		{
-			sprintf(buf, "%d", turns);
+			snprintf(buf, sizeof(buf), "%d", turns);
 		}
 		else
 		{
@@ -1767,7 +1767,7 @@ void CityWindow::PopulateQueueList(CityData *cd, ctp2_ListBox *lb, char *itemBlo
 				}
 				else
 				{
-					sprintf(buf, "%d", turns);
+					snprintf(buf, sizeof(buf), "%d", turns);
 				}
 				turnstatic->SetText(buf);
 			}
@@ -2245,7 +2245,7 @@ void CityWindow::FillHappinessList()
 		}
 
 		char buf[k_MAX_NAME_LEN];
-		sprintf(buf, format, (sint32)m_cityData->GetHappiness());
+		snprintf(buf, sizeof(buf), format, (sint32)m_cityData->GetHappiness());
 	}
 
 	sint32 i;
@@ -2292,7 +2292,7 @@ void CityWindow::FillHappinessList()
 		}
 
 		char buf[20];
-		sprintf(buf, "%c%d", char(happies[i].amount > 0 ? '+' : ' '), (sint32)happies[i].amount);
+		snprintf(buf, sizeof(buf), "%c%d", char(happies[i].amount > 0 ? '+' : ' '), (sint32)happies[i].amount);
 		ctp2_Static *numeric = (ctp2_Static *)box->GetChildByIndex(3);
 		if (numeric)
 		{
@@ -2407,7 +2407,7 @@ void CityWindow::FillPollutionList()
 		const char *format2 = g_theStringDB->GetNameStr("str_code_TotalPollutionFormat");
 		Assert(format2);
 		if(format2) {
-			sprintf(buf, format2,  m_cityData->GetPollution());
+			snprintf(buf, sizeof(buf), format2,  m_cityData->GetPollution());
 			pollutionLabel2->SetText(buf);
 		} else {
 			pollutionLabel2->SetText("");
@@ -2436,7 +2436,7 @@ void CityWindow::FillPollutionList()
 			sublabel = (ctp2_Static *)label->GetChildByIndex(0);
 			sublabel->SetText(g_theStringDB->GetNameStr("str_ldl_PollutionList_Population"));
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
-			sprintf(interp,"%i",m_cityData->GetPopulationPollution());
+			snprintf(interp, sizeof(interp),"%i",m_cityData->GetPopulationPollution());
 			sublabel->SetText(interp);
 			item->SetUserData((void *)m_cityData->GetPopulationPollution());
 			allAbsItems[numAbsItems++] = item;
@@ -2452,7 +2452,7 @@ void CityWindow::FillPollutionList()
 			sublabel = (ctp2_Static *)label->GetChildByIndex(0);
 			sublabel->SetText(g_theStringDB->GetNameStr("str_ldl_PollutionList_Production"));
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
-			sprintf(interp,"%i",m_cityData->GetProductionPollution());
+			snprintf(interp, sizeof(interp),"%i",m_cityData->GetProductionPollution());
 			sublabel->SetText(interp);
 			item->SetUserData((void *)m_cityData->GetProductionPollution());
 			allAbsItems[numAbsItems++] = item;
@@ -2499,7 +2499,7 @@ void CityWindow::FillPollutionList()
 					sublabel = (ctp2_Static *)label->GetChildByIndex(0);
 					sublabel->SetText(rec->GetNameText());
 					sublabel = (ctp2_Static *)label->GetChildByIndex(1);
-					sprintf(interp,"%d",(sint32) value);
+					snprintf(interp, sizeof(interp),"%d",(sint32) value);
 					sublabel->SetText(interp);
 					item->SetUserData((void *)(sint32)value);
 					allAbsItems[numAbsItems++] = item;
@@ -2528,7 +2528,7 @@ void CityWindow::FillStatsLists()
 	ctp2_Static *crimeBox2 = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.CrimePercentage");
 	if(crimeBox2) {
 		MBCHAR buf[k_MAX_NAME_LEN];
-		sprintf(buf, g_theStringDB->GetNameStr("str_ldl_CityWinSpecTabCrimeFormat"), sint32(100.0 * m_cityData->GetHappyCrime()));
+		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_CityWinSpecTabCrimeFormat"), sint32(100.0 * m_cityData->GetHappyCrime()));
 		crimeBox2->SetText(buf);
 	}
 }

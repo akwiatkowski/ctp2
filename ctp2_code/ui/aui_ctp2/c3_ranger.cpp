@@ -172,7 +172,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 	{
 		if ( ldlBlock )
 		{
-			sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
+			snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_THUMB );
 
 			if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 				m_thumb = new c3_Thumb(
@@ -209,7 +209,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 		{
 			if ( ldlBlock )
 			{
-				sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCX );
+				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCX );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 					m_incXButton = new c3_Button(
@@ -235,7 +235,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			sint32 i = 2;
-			sprintf(block, "RangerRight");
+			snprintf(block, sizeof(block), "RangerRight");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
 				m_arrows[ i ] = new aui_Static(
@@ -259,7 +259,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 
 			if ( ldlBlock )
 			{
-				sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECX );
+				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECX );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 					m_decXButton = new c3_Button(
@@ -285,7 +285,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			i = 3;
-			sprintf( block, "RangerLeft" );
+			snprintf(block, sizeof(block), "RangerLeft" );
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
 				m_arrows[ i ] = new aui_Static(
@@ -313,7 +313,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 		{
 			if ( ldlBlock )
 			{
-				sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCY );
+				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_INCY );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 					m_incYButton = new c3_Button(
@@ -338,7 +338,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			sint32 i = 0;
-			sprintf(block, "RangerDown");
+			snprintf(block, sizeof(block), "RangerDown");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
 				m_arrows[ i ] = new aui_Static(
@@ -362,7 +362,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 
 			if ( ldlBlock )
 			{
-				sprintf( block, "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECY );
+				snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_RANGER_LDL_DECY );
 
                 if (aui_Ldl::GetLdl()->FindDataBlock( block ) )
 					m_decYButton = new c3_Button(
@@ -387,7 +387,7 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			i = 1;
-			sprintf(block, "RangerUp");
+			snprintf(block, sizeof(block), "RangerUp");
             if (aui_Ldl::GetLdl()->FindDataBlock(block))
 			{
 				m_arrows[ i ] = new aui_Static(

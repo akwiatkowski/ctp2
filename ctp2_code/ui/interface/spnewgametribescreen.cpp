@@ -248,7 +248,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 
 	if ( !callback ) callback = spnewgametribescreen_backPress;
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "Name" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	g_spNewGameTribeScreen->AddTitle( controlBlock );
 	g_spNewGameTribeScreen->AddClose( callback );
 
@@ -258,19 +258,19 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 
 	spnewgametribescreen_addAllTribes();
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "leadernamestatic" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "leadernamestatic" );
 	s_leaderNameStatic = new c3_Static(&errcode, aui_UniqueId(), controlBlock );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "leadernametextfield" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "leadernametextfield" );
 	s_leaderNameTextField = new C3TextField(&errcode, aui_UniqueId(), controlBlock );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "malefemaleswitchgroup" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup" );
 	s_maleFemaleSwitchGroup = new aui_SwitchGroup( &errcode, aui_UniqueId(), controlBlock );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "malefemaleswitchgroup.maleradio" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup.maleradio" );
 	s_maleRadio = new aui_Radio(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_malePress );
 
-	sprintf( controlBlock, "%s.%s", windowBlock, "malefemaleswitchgroup.femaleradio" );
+	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup.femaleradio" );
 	s_femaleRadio = new aui_Radio(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_femalePress );
 
 	if(g_isScenario && g_startInfoType == STARTINFOTYPE_NOLOCS)

@@ -131,7 +131,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_STATICPANE );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_STATICPANE );
 
         if (aui_Ldl::FindDataBlock( block ) )
 		{
@@ -148,7 +148,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 			AddChild(m_staticPane);
 		}
 
-        sprintf(block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_BUTTON );
+        snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_BUTTON );
 		aui_Ldl::BuildHierarchyFromRoot(std::string(ldlBlock).append(".autobutton").c_str());
         m_button = static_cast<aui_Button*>(aui_Ldl::GetObject(ldlBlock, "autobutton"));
 
@@ -185,7 +185,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	if ( ldlBlock )
 	{
-		sprintf( block, "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW );
+		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW );
 
         if (aui_Ldl::FindDataBlock( block ) ) {
 			m_listBoxWindow = new aui_Window(
@@ -203,7 +203,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 				m_listBoxWindow->Resize( m_width + m_buttonSize, m_windowSize );
 			}
 
-			sprintf( block, "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
+			snprintf(block, sizeof(block), "%s.%s.%s", ldlBlock, k_AUI_DROPDOWN_LDL_WINDOW, k_AUI_DROPDOWN_LDL_LISTBOX );
 
             if (aui_Ldl::FindDataBlock( block ) )
 				m_listBox = new ctp2_ListBox(

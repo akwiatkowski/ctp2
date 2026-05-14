@@ -164,23 +164,23 @@ AUI_ERRCODE MessageWindow::CreateWindowEdges( MBCHAR *ldlBlock )
 	MBCHAR			imageBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf( imageBlock, "%s.%s", ldlBlock, "MessageLeftBar" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageLeftBar" );
 	m_leftBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_leftBar, errcode ));
 	if ( !AUI_NEWOK( m_leftBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	sprintf( imageBlock, "%s.%s", ldlBlock, "MessageTopBar" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageTopBar" );
 	m_topBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_topBar, errcode ));
 	if ( !AUI_NEWOK( m_topBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_topBar->SetImageBltType( AUI_IMAGEBASE_BLTTYPE_TILE );
 
-	sprintf( imageBlock, "%s.%s", ldlBlock, "MessageRightBar" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageRightBar" );
 	m_rightBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_rightBar, errcode ));
 	if ( !AUI_NEWOK( m_rightBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	sprintf( imageBlock, "%s.%s", ldlBlock, "MessageBottomBar" );
+	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", ldlBlock, "MessageBottomBar" );
 	m_bottomBar = new aui_Static( &errcode, aui_UniqueId(), imageBlock );
 	Assert( AUI_NEWOK( m_bottomBar, errcode ));
 	if ( !AUI_NEWOK( m_bottomBar, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -245,7 +245,7 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf( textBlock, "%s.%s", ldlBlock, "TurnTextBox" );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "TurnTextBox" );
 	m_turnText = new aui_Static( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_turnText, errcode ));
 	if ( !AUI_NEWOK( m_turnText, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -263,7 +263,7 @@ AUI_ERRCODE MessageWindow::CreateTurnText( MBCHAR *ldlBlock )
 	}
 	else
 	{
-		sprintf( copyBlock, "%s", TurnYearStatus::GetYearString(m_message.AccessData()->GetTimeStamp(), -1));
+		snprintf(copyBlock, sizeof(copyBlock), "%s", TurnYearStatus::GetYearString(m_message.AccessData()->GetTimeStamp(), -1));
 	}
 
 	errcode = ((aui_TextBase *)m_turnText)->SetText( copyBlock );
@@ -279,7 +279,7 @@ AUI_ERRCODE MessageWindow::CreateStandardTextBox( MBCHAR *ldlBlock )
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sprintf( textBlock, "%s.%s", ldlBlock, "MessageTextBox" );
+	snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlBlock, "MessageTextBox" );
 
 	m_messageText = new aui_HyperTextBox( &errcode, aui_UniqueId(), textBlock );
 	Assert( AUI_NEWOK( m_messageText, errcode ));
@@ -303,7 +303,7 @@ AUI_ERRCODE MessageWindow::CreateStandardDismissButton( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( buttonBlock, "%s.%s", ldlBlock, "StandardDismissButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDismissButton" );
 	m_dismissIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_dismissIcon, errcode ));
 	if ( !AUI_NEWOK( m_dismissIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -327,7 +327,7 @@ AUI_ERRCODE MessageWindow::CreateStandardMinimizeButton( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sprintf( buttonBlock, "%s.%s", ldlBlock, "StandardMinimizeButton" );
+	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardMinimizeButton" );
 	m_minimizeIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_minimizeIcon, errcode ));
 	if ( !AUI_NEWOK( m_minimizeIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -356,7 +356,7 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 	if ( g_theMessagePool->IsValid(m_message) &&
 		 m_message.AccessData()->GetGreatLibraryButton() ) {
 
-		sprintf( buttonBlock, "%s.%s", ldlBlock, "GreatLibraryButton" );
+		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "GreatLibraryButton" );
 		m_libraryIcon = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
 		Assert( AUI_NEWOK( m_libraryIcon, errcode ));
 		if ( !AUI_NEWOK( m_libraryIcon, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;

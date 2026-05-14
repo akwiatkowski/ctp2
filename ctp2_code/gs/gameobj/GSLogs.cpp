@@ -64,7 +64,8 @@ void gslog_print(char *fmt, ...)
 	char buf[k_MAX_NAME_LEN];
 	va_list vl;
 	va_start(vl, fmt);
-	vsprintf(buf, fmt, vl);
+	vsnprintf(buf, sizeof(buf), fmt, vl);
+	buf[sizeof(buf) - 1] = '\0';
 	va_end(vl);
 
 	if(f) {
@@ -88,7 +89,8 @@ void gslog_dipprint(char *fmt, ...)
 	char buf[k_MAX_NAME_LEN];
 	va_list vl;
 	va_start(vl, fmt);
-	vsprintf(buf, fmt, vl);
+	vsnprintf(buf, sizeof(buf), fmt, vl);
+	buf[sizeof(buf) - 1] = '\0';
 	va_end(vl);
 
 	if(f) {

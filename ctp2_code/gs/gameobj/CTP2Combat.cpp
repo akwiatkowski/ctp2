@@ -96,7 +96,8 @@ static void combat_print(sint32 level, const char *fmt, ...)
 	char text[1024];
 	va_list vl;
 	va_start(vl, fmt);
-	vsprintf(text, fmt, vl);
+	vsnprintf(text, sizeof(text), fmt, vl);
+	text[sizeof(text) - 1] = '\0';
 	va_end(vl);
 
 	fprintf(s_output, "%s", text);
@@ -125,7 +126,8 @@ static void combat_print(sint32 level, const char *fmt, ...)
 		char buf[1024];
 		va_list vl;
 		va_start(vl, fmt);
-		vsprintf(buf, fmt, vl);
+		vsnprintf(buf, sizeof(buf), fmt, vl);
+		buf[sizeof(buf) - 1] = '\0';
 		va_end(vl);
 
 		DPRINTF(k_DBG_GAMESTATE, ("%s", buf));
@@ -761,7 +763,8 @@ void error_exit(char *s, ...)
 	char text[1024];
 	va_list vl;
 	va_start(vl, s);
-	vsprintf(text, s, vl);
+	vsnprintf(text, sizeof(text), s, vl);
+	text[sizeof(text) - 1] = '\0';
 	va_end(vl);
 
 	combat_print(k_COMBAT_DEBUG_CRITICAL, "%s", text);

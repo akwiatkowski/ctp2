@@ -3212,7 +3212,8 @@ ControlPanelWindow::SetControlText(aui_Control *control,MBCHAR *fmt,...)
 	char			 text[512];
 
     va_start(v_args, fmt);
-    vsprintf(text,fmt,v_args);
+    vsnprintf(text, sizeof(text), fmt, v_args);
+    text[sizeof(text) - 1] = '\0';
     va_end( v_args );
 
 	control->SetText(text);

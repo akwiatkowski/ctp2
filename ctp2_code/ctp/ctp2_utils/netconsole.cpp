@@ -259,7 +259,8 @@ void NetConsole::Print(const char *fmt, va_list vl)
 
 	static char buf[33000];
 	sint32 len;
-	vsprintf((char *)buf, fmt, vl);
+	vsnprintf((char *)buf, sizeof(buf), fmt, vl);
+	buf[sizeof(buf) - 1] = '\0';
 	len = strlen(buf);
 
 	char *c = buf;

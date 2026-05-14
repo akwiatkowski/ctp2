@@ -130,7 +130,8 @@ void DebugWindow::AddText(const char *err, ...)
         MBCHAR	str[_MAX_PATH]={0};
 
         va_start(list, err) ;
-	    vsprintf(str, err, list) ;
+	    vsnprintf(str, sizeof(str), err, list) ;
+	    str[sizeof(str) - 1] = '\0';
 	    va_end(list) ;
 
        	if (m_textBox) {

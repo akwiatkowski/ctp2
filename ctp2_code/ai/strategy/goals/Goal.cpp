@@ -2229,7 +2229,7 @@ Utility Goal::Compute_Raw_Priority()
 	if(CtpAiDebug::DebugLogCheck(this->Get_Player_Index(), this->Get_Goal_Type(), -1))
 	{
 		char buff[1024];
-		sprintf(buff, "\t %9" PRIXPTR ",\t%s,\t%i, \t\trc(%3d,%3d),\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f, rc(%3d,%3d),\t%8f, rc(%3d,%3d), \t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,",
+		snprintf(buff, sizeof(buff), "\t %9" PRIXPTR ",\t%s,\t%i, \t\trc(%3d,%3d),\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f, rc(%3d,%3d),\t%8f, rc(%3d,%3d), \t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,\t%8f,",
             (uintptr_t)this,
 		        goal_rec->GetNameText(),
 		        m_raw_priority,
@@ -3261,28 +3261,29 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 		}
 
 		MapPoint targetPos = Get_Target_Pos(first_army->Get_Army());
-		switch (m_sub_task)
-		{
-			case SUB_TASK_RALLY:
-				sprintf(myString, "Group to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
-				break;
-			case SUB_TASK_TRANSPORT_TO_BOARD:
-				sprintf(myString, "Boat to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
-				break;
-			case SUB_TASK_TRANSPORT_TO_GOAL:
-				sprintf(myString, "Transp. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
-				break;
-			case SUB_TASK_CARGO_TO_BOARD:
-				sprintf(myString, "Cargo. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
-				break;
-			case SUB_TASK_AIRLIFT:
-				sprintf(myString, "Airlift to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
-				break;
-			case SUB_TASK_GOAL:
-			default:
-				sprintf(myString, "%s (%d,%d)", goalString, dest_pos.x, dest_pos.y);
-				break;
-		}
+			size_t myStringSize = strlen(myText) + 80;
+			switch (m_sub_task)
+			{
+				case SUB_TASK_RALLY:
+					snprintf(myString, myStringSize, "Group to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					break;
+				case SUB_TASK_TRANSPORT_TO_BOARD:
+					snprintf(myString, myStringSize, "Boat to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					break;
+				case SUB_TASK_TRANSPORT_TO_GOAL:
+					snprintf(myString, myStringSize, "Transp. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					break;
+				case SUB_TASK_CARGO_TO_BOARD:
+					snprintf(myString, myStringSize, "Cargo. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					break;
+				case SUB_TASK_AIRLIFT:
+					snprintf(myString, myStringSize, "Airlift to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					break;
+				case SUB_TASK_GOAL:
+				default:
+					snprintf(myString, myStringSize, "%s (%d,%d)", goalString, dest_pos.x, dest_pos.y);
+					break;
+			}
 
 		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, magnitude, m_goal_type);
 		delete[] myString;
@@ -3313,9 +3314,10 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 	else
 	{
 		const char * myText = goal_rec->GetNameText();
-		MBCHAR * myString = new MBCHAR[strlen(myText) + 80];
-		memset(myString, 0, strlen(myText) + 80);
-		sprintf(myString, "%s failed at (%d, %d), order: %s", goal_rec->GetNameText(), dest_pos.x, dest_pos.y, order_rec->GetNameText());
+		size_t myStringSize = strlen(myText) + 80;
+		MBCHAR * myString = new MBCHAR[myStringSize];
+		memset(myString, 0, myStringSize);
+		snprintf(myString, myStringSize, "%s failed at (%d, %d), order: %s", goal_rec->GetNameText(), dest_pos.x, dest_pos.y, order_rec->GetNameText());
 
 		g_graphicsOptions->AddTextToArmy(first_army->Get_Army(), myString, 0, m_goal_type);
 		delete[] myString;
@@ -3451,11 +3453,11 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			        ("GOAL %x (%d):GotoTransportTaskSolution:: No path found from army to destination (x=%d,y=%d) (SUB_TASK_TRANSPORT_TO_BOARD):\n",
 			        this, m_goal_type, dest_pos.x, dest_pos.y));
 			the_transport->Log_Debug_Info(k_DBG_SCHEDULER, this);
-			        uint8 magnitude = 220;
-			        MBCHAR * myString = new MBCHAR[256];
-			        sprintf(myString, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
-			        g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-			        delete[] myString;
+			uint8 magnitude = 220;
+			MBCHAR * myString = new MBCHAR[256];
+			snprintf(myString, 256, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
+			g_graphicsOptions->AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type);
+			delete[] myString;
 			Set_Cannot_Be_Used(the_transport, true);
 		}
 		else
@@ -3540,11 +3542,11 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			        ("GOAL %x (%d): GotoTransportTaskSolution: No path found from army to destination (x=%d,y=%d) (SUB_TASK_CARGO_TO_BOARD):\n",
 			        this, m_goal_type, dest_pos.x, dest_pos.y));
 			the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
-			        uint8 magnitude = 220;
-			        MBCHAR * myString = new MBCHAR[256];
-			        sprintf(myString, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
-			        g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-			        delete[] myString;
+			uint8 magnitude = 220;
+			MBCHAR * myString = new MBCHAR[256];
+			snprintf(myString, 256, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
+			g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
+			delete[] myString;
 		}
 
 		if (found && FollowPathToTask(the_army, the_transport, dest_pos, found_path) )
@@ -3676,7 +3678,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
-				sprintf(myString, "NO PATH to (%d,%d) - %s", goal_pos.x, goal_pos.y, g_theGoalDB->Get(m_goal_type)->GetNameText());
+				snprintf(myString, 256, "NO PATH to (%d,%d) - %s", goal_pos.x, goal_pos.y, g_theGoalDB->Get(m_goal_type)->GetNameText());
 				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
 
 				delete[] myString;
@@ -3691,7 +3693,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				Utility val = Compute_Agent_Matching_Value(the_army);
 				uint8 magnitude = (uint8)(((5000000 - val) * 255.0) / 5000000);
 				MBCHAR * myString = new MBCHAR[256];
-				sprintf(myString, "Waiting GROUP to GO (%d,%d)\n", goal_pos.x, goal_pos.y);
+				snprintf(myString, 256, "Waiting GROUP to GO (%d,%d)\n", goal_pos.x, goal_pos.y);
 				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
 				delete[] myString;
 
@@ -3706,7 +3708,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
-				sprintf(myString, "NO PATH (GROUP)(%d,%d)", goal_pos.x, goal_pos.y);
+				snprintf(myString, 256, "NO PATH (GROUP)(%d,%d)", goal_pos.x, goal_pos.y);
 				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
 				delete[] myString;
 			}
@@ -3723,7 +3725,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
 				MBCHAR * myString = new MBCHAR[256];
-				sprintf(myString, "NO PATH (TRANSP.)(%d,%d)", goal_pos.x, goal_pos.y);
+				snprintf(myString, 256, "NO PATH (TRANSP.)(%d,%d)", goal_pos.x, goal_pos.y);
 				g_graphicsOptions->AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
 				delete[] myString;
 			}
@@ -4216,7 +4218,7 @@ bool Goal::RallyTroops()
 				MBCHAR * myString = new MBCHAR[256];
 				MapPoint goal_pos;
 				goal_pos = Get_Target_Pos(agent1_ptr->Get_Army());
-				sprintf(myString, "Waiting GROUP to GO (%d,%d)", goal_pos.x, goal_pos.y);
+				snprintf(myString, 256, "Waiting GROUP to GO (%d,%d)", goal_pos.x, goal_pos.y);
 				g_graphicsOptions->AddTextToArmy(agent1_ptr->Get_Army(), myString, magnitude);
 				delete[] myString;
 			}

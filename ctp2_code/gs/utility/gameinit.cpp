@@ -604,14 +604,14 @@ sint32 gameinit_InitializeGameFiles(void)
 
 	MBCHAR dir[_MAX_PATH];
 	dir[0] = 0;
-	sprintf(g_stringdb_filename, "%s%s", dir, str1);
+	snprintf(g_stringdb_filename, sizeof(g_stringdb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing sounds file");
 		return FALSE;
 	}
-	sprintf(g_sounddb_filename, "%s%s", dir, str1);
+	snprintf(g_sounddb_filename, sizeof(g_sounddb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
@@ -619,42 +619,42 @@ sint32 gameinit_InitializeGameFiles(void)
 		return FALSE;
 	}
 
-	sprintf (g_constdb_filename, "%s%s", dir, str1);
+	snprintf(g_constdb_filename, sizeof(g_constdb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing Age file");
 		return FALSE;
 	}
-	sprintf (g_agedb_filename, "%s%s", dir, str1);
+	snprintf(g_agedb_filename, sizeof(g_agedb_filename), "%s%s", dir, str1);
 
 	r = fscanf( fin, "%s", str1 );
 	if ( r == EOF ) {
 		c3errors_ErrorDialog( fn, "Missing Throne file" );
 		return FALSE;
 	}
-	sprintf( g_thronedb_filename, "%s%s", dir, str1 );
+	snprintf(g_thronedb_filename, sizeof(g_thronedb_filename), "%s%s", dir, str1 );
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing TerrainIconDB file");
 		return FALSE;
 	}
-	sprintf (g_terrainicondb_filename, "%s%s", dir, str1);
+	snprintf(g_terrainicondb_filename, sizeof(g_terrainicondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing terrain file");
 		return FALSE;
 	}
-	sprintf (g_terrain_filename, "%s%s", dir, str1);
+	snprintf(g_terrain_filename, sizeof(g_terrain_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing AdvanceIconDB file");
 		return FALSE;
 	}
-	sprintf (g_advanceicondb_filename, "%s%s", dir, str1);
+	snprintf(g_advanceicondb_filename, sizeof(g_advanceicondb_filename), "%s%s", dir, str1);
 
 	SPLASH_STRING("Loading Advance DB...");
 	r=fscanf (fin, "%s", str1);
@@ -662,35 +662,35 @@ sint32 gameinit_InitializeGameFiles(void)
 	c3errors_ErrorDialog  (fn, "Missing advances file");
 		return FALSE;
 	}
-	sprintf (g_advancedb_filename, "%s%s", dir, str1);
+	snprintf(g_advancedb_filename, sizeof(g_advancedb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing concepts file");
 		return FALSE;
 	}
-	sprintf (g_conceptdb_filename, "%s%s", dir, str1);
+	snprintf(g_conceptdb_filename, sizeof(g_conceptdb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing MapIconDB file");
 		return FALSE;
 	}
-	sprintf (g_mapicondb_filename, "%s%s", dir, str1);
+	snprintf(g_mapicondb_filename, sizeof(g_mapicondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing tile improvements file");
 		return FALSE;
 	}
-	sprintf (g_tileimprovementdb_filename, "%s%s", dir, str1);
+	snprintf(g_tileimprovementdb_filename, sizeof(g_tileimprovementdb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing TileImprovmentIconDB file");
 		return FALSE;
 	}
-	sprintf (g_tileimprovementicondb_filename, "%s%s", dir, str1);
+	snprintf(g_tileimprovementicondb_filename, sizeof(g_tileimprovementicondb_filename), "%s%s", dir, str1);
 
 	SPLASH_STRING("Loading Sprite DB...");
 	r = fscanf (fin, "%s", str1);
@@ -698,49 +698,49 @@ sint32 gameinit_InitializeGameFiles(void)
 		c3errors_ErrorDialog  (fn, "Missing sprite file");
 		return FALSE;
 	}
-	sprintf (g_spritestatedb_filename, "%s%s", dir, str1);
+	snprintf(g_spritestatedb_filename, sizeof(g_spritestatedb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing Special Effect ID file");
 		return FALSE;
 	}
-	sprintf (g_specialeffectdb_filename, "%s%s", dir, str1);
+	snprintf(g_specialeffectdb_filename, sizeof(g_specialeffectdb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing Special Attack Info DB file");
 		return FALSE;
 	}
-	sprintf(g_specialattackinfodb_filename, "%s%s", dir, str1);
+	snprintf(g_specialattackinfodb_filename, sizeof(g_specialattackinfodb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing GoodsSpriteID file");
 		return FALSE;
 	}
-	sprintf(g_goodsspritestatedb_filename, "%s%s", dir, str1);
+	snprintf(g_goodsspritestatedb_filename, sizeof(g_goodsspritestatedb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing GoodsSpriteID file");
 		return FALSE;
 	}
-	sprintf(g_cityspritestatedb_filename, "%s%s", dir, str1);
+	snprintf(g_cityspritestatedb_filename, sizeof(g_cityspritestatedb_filename), "%s%s", dir, str1);
 
 	r = fscanf( fin, "%s", str1 );
 	if ( r == EOF ) {
 		c3errors_ErrorDialog( fn, "Missing BranchID file" );
 		return FALSE;
 	}
-	sprintf( g_branchdb_filename, "%s%s", dir, str1 );
+	snprintf(g_branchdb_filename, sizeof(g_branchdb_filename), "%s%s", dir, str1 );
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing UnitIconDB file");
 		return FALSE;
 	}
-	sprintf (g_uniticondb_filename, "%s%s", dir, str1);
+	snprintf(g_uniticondb_filename, sizeof(g_uniticondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
@@ -748,189 +748,189 @@ sint32 gameinit_InitializeGameFiles(void)
 		return FALSE;
 	}
 
-	sprintf (g_unitdb_filename, "%s%s", dir, str1);
+	snprintf(g_unitdb_filename, sizeof(g_unitdb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing wonder file");
 		return FALSE;
 	}
-	sprintf (g_wonder_filename, "%s%s", dir, str1);
+	snprintf(g_wonder_filename, sizeof(g_wonder_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing WonderIconDB file");
 		return FALSE;
 	}
-	sprintf (g_wondericondb_filename, "%s%s", dir, str1);
+	snprintf(g_wondericondb_filename, sizeof(g_wondericondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing WonderMovieDB file");
 		return FALSE;
 	}
-	sprintf (g_wondermoviedb_filename, "%s%s", dir, str1);
+	snprintf(g_wondermoviedb_filename, sizeof(g_wondermoviedb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing VictoryMovieDB file");
 		return FALSE;
 	}
-	sprintf (g_victorymoviedb_filename, "%s%s", dir, str1);
+	snprintf(g_victorymoviedb_filename, sizeof(g_victorymoviedb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing improvement file");
 		return FALSE;
 	}
-	sprintf (g_improve_filename, "%s%s", dir, str1);
+	snprintf(g_improve_filename, sizeof(g_improve_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing UnitIconDB file");
 		return FALSE;
 	}
-	sprintf (g_improveicondb_filename, "%s%s", dir, str1);
+	snprintf(g_improveicondb_filename, sizeof(g_improveicondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing pollution file");
 		return FALSE;
 	}
-	sprintf (g_pollution_filename, "%s%s", dir, str1);
+	snprintf(g_pollution_filename, sizeof(g_pollution_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing global warming pollution file");
 		return FALSE;
 	}
-	sprintf (g_global_warming_filename, "%s%s", dir, str1);
+	snprintf(g_global_warming_filename, sizeof(g_global_warming_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing ozone pollution file");
 		return FALSE;
 	}
-	sprintf (g_ozone_filename, "%s%s", dir, str1);
+	snprintf(g_ozone_filename, sizeof(g_ozone_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing government file");
 		return FALSE;
 	}
-	sprintf (g_government_filename, "%s%s", dir, str1);
+	snprintf(g_government_filename, sizeof(g_government_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing government icondb file");
 		return FALSE;
 	}
-	sprintf (g_governmenticondb_filename, "%s%s", dir, str1);
+	snprintf(g_governmenticondb_filename, sizeof(g_governmenticondb_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing population file");
 		return FALSE;
 	}
-	sprintf (g_pop_filename, "%s%s", dir, str1);
+	snprintf(g_pop_filename, sizeof(g_pop_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing difficulty file");
 		return FALSE;
 	}
-	sprintf (g_difficultydb_filename, "%s%s", dir, str1);
+	snprintf(g_difficultydb_filename, sizeof(g_difficultydb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing installations file");
 		return FALSE;
 	}
-	sprintf(g_installation_filename, "%s%s", dir, str1);
+	snprintf(g_installation_filename, sizeof(g_installation_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing civilisations file");
 		return FALSE;
 	}
-	sprintf(g_civilisation_filename, "%s%s", dir, str1);
+	snprintf(g_civilisation_filename, sizeof(g_civilisation_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing slic file");
 		return FALSE;
 	}
-	sprintf(g_slic_filename, "%s%s", dir, str1);
+	snprintf(g_slic_filename, sizeof(g_slic_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing tutorial file");
 		return FALSE;
 	}
-	sprintf(g_tutorial_filename, "%s%s", dir, str1);
+	snprintf(g_tutorial_filename, sizeof(g_tutorial_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing goods file");
 		return FALSE;
 	}
-	sprintf(g_goods_filename, "%s%s", dir, str1);
+	snprintf(g_goods_filename, sizeof(g_goods_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing risk file");
 		return FALSE;
 	}
-	sprintf(g_risk_filename, "%s%s", dir, str1);
+	snprintf(g_risk_filename, sizeof(g_risk_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing end game database");
 		return FALSE;
 	}
-	sprintf(g_endgame_filename, "%s%s", dir, str1);
+	snprintf(g_endgame_filename, sizeof(g_endgame_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing end game icon database");
 		return FALSE;
 	}
-	sprintf(g_endgameicondb_filename, "%s%s", dir, str1);
+	snprintf(g_endgameicondb_filename, sizeof(g_endgameicondb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if (r==EOF) {
 		c3errors_ErrorDialog(fn, "Missing Message Icon Filename database");
 		return FALSE;
 	}
-	sprintf(g_messageiconfdb_filename, "%s%s", dir, str1);
+	snprintf(g_messageiconfdb_filename, sizeof(g_messageiconfdb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if (r==EOF) {
 		c3errors_ErrorDialog(fn, "Missing Goods Icon Filename database");
 		return FALSE;
 	}
-	sprintf(g_goodsicondb_filename, "%s%s", dir, str1);
+	snprintf(g_goodsicondb_filename, sizeof(g_goodsicondb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing Order DB filename");
 		return FALSE;
 	}
-	sprintf(g_orderdb_filename, "%s%s", dir, str1);
+	snprintf(g_orderdb_filename, sizeof(g_orderdb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing map database filename");
 		return FALSE;
 	}
-	sprintf(g_mapdb_filename, "%s%s", dir, str1);
+	snprintf(g_mapdb_filename, sizeof(g_mapdb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing playlist database filename");
 		return FALSE;
 	}
-	sprintf(g_playlistdb_filename, "%s%s", dir, str1);
+	snprintf(g_playlistdb_filename, sizeof(g_playlistdb_filename), "%s%s", dir, str1);
 
 
 
@@ -941,126 +941,126 @@ sint32 gameinit_InitializeGameFiles(void)
 		c3errors_ErrorDialog  (fn, "Missing squad classes DB filename");
 		return FALSE;
 	}
-	sprintf (g_squad_class_db_filename, "%s%s", dir, str1);
+	snprintf(g_squad_class_db_filename, sizeof(g_squad_class_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing goals DB filename");
 		return FALSE;
 	}
-	sprintf (g_goal_db_filename, "%s%s", dir, str1);
+	snprintf(g_goal_db_filename, sizeof(g_goal_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing wonder build lists DB filename");
 		return FALSE;
 	}
-	sprintf (g_wonder_buildlist_db_filename, "%s%s", dir, str1);
+	snprintf(g_wonder_buildlist_db_filename, sizeof(g_wonder_buildlist_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing building build lists DB filename");
 		return FALSE;
 	}
-	sprintf (g_building_buildlist_db_filename, "%s%s", dir, str1);
+	snprintf(g_building_buildlist_db_filename, sizeof(g_building_buildlist_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing unit build lists DB filename");
 		return FALSE;
 	}
-	sprintf (g_unit_buildlist_db_filename, "%s%s", dir, str1);
+	snprintf(g_unit_buildlist_db_filename, sizeof(g_unit_buildlist_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing improvement lists DB filename");
 		return FALSE;
 	}
-	sprintf (g_improvement_list_db_filename, "%s%s", dir, str1);
+	snprintf(g_improvement_list_db_filename, sizeof(g_improvement_list_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing strategies DB filename");
 		return FALSE;
 	}
-	sprintf (g_strategy_db_filename, "%s%s", dir, str1);
+	snprintf(g_strategy_db_filename, sizeof(g_strategy_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing build list sequence DB filename");
 		return FALSE;
 	}
-	sprintf (g_buildlist_sequence_db_filename, "%s%s", dir, str1);
+	snprintf(g_buildlist_sequence_db_filename, sizeof(g_buildlist_sequence_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing diplomacy DB filename");
 		return FALSE;
 	}
-	sprintf (g_diplomacy_db_filename, "%s%s", dir, str1);
+	snprintf(g_diplomacy_db_filename, sizeof(g_diplomacy_db_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing city size DB filename");
 		return FALSE;
 	}
-	sprintf(g_citysize_filename, "%s%s", dir, str1);
+	snprintf(g_citysize_filename, sizeof(g_citysize_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing diplomacy proposal DB filename");
 		return FALSE;
 	}
-	sprintf(g_diplomacy_proposal_filename, "%s%s", dir, str1);
+	snprintf(g_diplomacy_proposal_filename, sizeof(g_diplomacy_proposal_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing diplomacy threat DB filename");
 		return FALSE;
 	}
-	sprintf(g_diplomacy_threat_filename, "%s%s", dir, str1);
+	snprintf(g_diplomacy_threat_filename, sizeof(g_diplomacy_threat_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing advance list DB filename");
 		return FALSE;
 	}
-	sprintf(g_advance_list_db_filename, "%s%s", dir, str1);
+	snprintf(g_advance_list_db_filename, sizeof(g_advance_list_db_filename), "%s%s", dir, str1);
 
 	r = fscanf (fin, "%s", str1);
 	if (r == EOF) {
 		c3errors_ErrorDialog  (fn, "Missing personality DB filename");
 		return FALSE;
 	}
-	sprintf (g_personality_db_filename, "%s%s", dir, str1);
+	snprintf(g_personality_db_filename, sizeof(g_personality_db_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing feat DB filename");
 		return FALSE;
 	}
-	sprintf(g_featdb_filename, "%s%s", dir, str1);
+	snprintf(g_featdb_filename, sizeof(g_featdb_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing end game object DB filename");
 		return FALSE;
 	}
-	sprintf(g_endgameobject_filename, "%s%s", dir, str1);
+	snprintf(g_endgameobject_filename, sizeof(g_endgameobject_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing city style DB filename");
 		return FALSE;
 	}
-	sprintf(g_city_style_db_filename, "%s%s", dir, str1);
+	snprintf(g_city_style_db_filename, sizeof(g_city_style_db_filename), "%s%s", dir, str1);
 
 	r = fscanf(fin, "%s", str1);
 	if(r == EOF) {
 		c3errors_ErrorDialog(fn, "Missing age city style DB filename");
 		return FALSE;
 	}
-	sprintf(g_age_city_style_db_filename, "%s%s", dir, str1);
+	snprintf(g_age_city_style_db_filename, sizeof(g_age_city_style_db_filename), "%s%s", dir, str1);
 
 	c3files_fclose(fin);
 

@@ -24,16 +24,16 @@
 //
 // Modifications from the original Activision code:
 //
-// - Exposed strategies to personalities.txt by Martin Gühmann.
+// - Exposed strategies to personalities.txt by Martin Gï¿½hmann.
 // - Fixed advice string for BuildupStrength and SeigeCities
-//   strategies by Martin Gühmann.
-// - Added over city limit strategy by Martin Gühmann.
+//   strategies by Martin Gï¿½hmann.
+// - Added over city limit strategy by Martin Gï¿½hmann.
 // - Restored backward compatibility with old personalities.txts
-//   by Martin Gühmann
+//   by Martin Gï¿½hmann
 // - Activated consideration of a defined nuclear strike strategy.
 // - added difficulty where AI ignores any citylimit because the flag causes
 //   no unhappiness for ai
-// - Moved code of InitSStateEvent to Diplomat. (13-Jun-2008 Martin Gühmann)
+// - Moved code of InitSStateEvent to Diplomat. (13-Jun-2008 Martin Gï¿½hmann)
 // - Stopped the AI checking it's city limit if no city limit rule is enabled.
 //   (25-Jul-2009 Maq)
 //
@@ -896,6 +896,9 @@ STDEHANDLER(CheckCityLimit_NextSStateEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 	AiState state;
+
+	if(!g_player[playerId])
+		return GEV_HD_Continue;
 
 	const GovernmentRecord *government =
 	      g_theGovernmentDB->Get(g_player[playerId]->GetGovernmentType());

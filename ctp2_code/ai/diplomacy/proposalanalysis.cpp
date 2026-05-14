@@ -867,9 +867,11 @@ void ProposalAnalysis::AcceptTreatyCondition(const PLAYER_INDEX playerId,
 	}
 	if (treaty_type == PROPOSAL_TREATY_POLLUTION_PACT)
 	{
+		if(!g_player[playerId] || !g_player[foreignerId])
+			return;
 		uint32 player_pollution = g_player[playerId]->GetPollutionLevel();
 		uint32 foreigner_pollution = g_player[foreignerId]->GetPollutionLevel();
-		double pollution_ratio = (double) player_pollution / foreigner_pollution;
+		double pollution_ratio = (foreigner_pollution > 0) ? (double)player_pollution / foreigner_pollution : 0.0;
 
 		double requested_reduction = 1.0 - ((double)treaty_arg.pollution / player_pollution);
 

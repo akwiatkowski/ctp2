@@ -499,7 +499,7 @@ void yyerror(char *s)
     if(debuglog)
 		fprintf(debuglog, "line %d: %s\n", g_slicLineNumber, s);
 #endif
-	sprintf(slic_parser_error_text, "%s:%d: %s",
+	snprintf(slic_parser_error_text, sizeof(slic_parser_error_text), "%s:%d: %s",
 			slicif_get_filename(), g_slicLineNumber, s);
 	slicif_report_error(slic_parser_error_text);
 	/*slic_parse_error = SLIC_ERROR_SYNTAX;*/

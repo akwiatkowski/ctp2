@@ -256,7 +256,7 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 			getsym = g_slicEngine->GetSymbol(value.m_int);
 			if(!sym->SetValueFrom(getsym)) {
 				char buf[1024];
-				sprintf(buf, "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
+				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
 				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", buf);
 				}
@@ -266,7 +266,7 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 			getsym = value.m_sym;
 			if(!sym->SetValueFrom(getsym)) {
 				char buf[1024];
-				sprintf(buf, "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
+				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
 				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", buf);
 				}
@@ -1495,7 +1495,7 @@ void SlicFrame::ReportSFError(SFN_ERROR err, SlicSymbolData *sym)
 {
 	MBCHAR buf[1024];
 
-	sprintf(buf, "In object %s, function %s: ",
+	snprintf(buf, sizeof(buf), "In object %s, function %s: ",
 			m_segment->GetName(), sym->GetFunction()->GetName());
 	switch(err) {
 		case SFN_ERROR_NUM_ARGS:
@@ -1529,7 +1529,7 @@ void SlicFrame::ReportSFError(SFN_ERROR err, SlicSymbolData *sym)
 			strcat(buf, "Invalid message type");
 			break;
 		case SFN_ERROR_NOT_SEGMENT:
-			sprintf(buf + strlen(buf), "There is no object named %s", g_missingSegment);
+			snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "There is no object named %s", g_missingSegment);
 			break;
 		case SFN_ERROR_NOT_TRADE_BID:
 			strcat(buf, "Not in a trade bid message");

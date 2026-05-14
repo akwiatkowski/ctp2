@@ -615,7 +615,7 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 	switch(GetType()) {
 		case SLIC_SYM_IVAR:
 			GetIntValue(ival);
-			sprintf(text, "%d", ival);
+			snprintf(text, sizeof(text), "%d", ival);
 			break;
 		case SLIC_SYM_STRUCT:
 			dataSym = m_val.m_struct->GetDataSymbol();
@@ -628,11 +628,11 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 			if(g_theStringDB->GetNameStr(m_val.m_string_value)) {
 				strcpy(text, g_theStringDB->GetNameStr(m_val.m_string_value));
 			} else {
-				sprintf(text, "<Bad String ID %d>", m_val.m_string_value);
+				snprintf(text, sizeof(text), "<Bad String ID %d>", m_val.m_string_value);
 			}
 			break;
 		default:
-			sprintf(text, "??? (Symbol type %d)", GetType());
+			snprintf(text, sizeof(text), "??? (Symbol type %d)", GetType());
 // Added by Martin Gühmann to figure out whether there is a string for a given slic symbol.
 			return FALSE;
 			break;
@@ -653,69 +653,69 @@ void SlicSymbolData::GetDebugText(MBCHAR *text, sint32 len) const
 	switch(GetType()) {
 		case SLIC_SYM_IVAR:
 			GetIntValue(ival);
-			sprintf(text, "%d", ival);
+			snprintf(text, sizeof(text), "%d", ival);
 			break;
 		case SLIC_SYM_SVAR:
-			sprintf(text, "\"%s\"", m_val.m_hard_string);
+			snprintf(text, sizeof(text), "\"%s\"", m_val.m_hard_string);
 			break;
 		case SLIC_SYM_ID:
-			sprintf(text, "'%s'", GetName());
+			snprintf(text, sizeof(text), "'%s'", GetName());
 			break;
 		case SLIC_SYM_FUNC:
-			sprintf(text, "%s()", GetName());
+			snprintf(text, sizeof(text), "%s()", GetName());
 			break;
 		case SLIC_SYM_STRING:
-			sprintf(text, "<%d> ID_%s: \"%s\"", m_val.m_string_value,
+			snprintf(text, sizeof(text), "<%d> ID_%s: \"%s\"", m_val.m_string_value,
 					g_theStringDB->GetIdStr(m_val.m_string_value),
 					g_theStringDB->GetNameStr(m_val.m_string_value));
 			break;
 		case SLIC_SYM_CITY:
 			if(GetCity(city)) {
-				sprintf(text, "City %lx: %s", city.m_id,
+				snprintf(text, sizeof(text), "City %lx: %s", city.m_id,
 						city.GetName());
 			} else {
-				sprintf(text, "Invalid city (%lx?)", m_val.m_city_id);
+				snprintf(text, sizeof(text), "Invalid city (%lx?)", m_val.m_city_id);
 			}
 			break;
 		case SLIC_SYM_UNIT:
 			if(GetUnit(u)) {
 
-				sprintf(text, "Unit %lx: %s", u.m_id,
+				snprintf(text, sizeof(text), "Unit %lx: %s", u.m_id,
 						u.IsValid() ? u.GetName() : "<DEAD>");
 			} else {
-				sprintf(text, "Invalid unit (%lx?)", m_val.m_unit_id);
+				snprintf(text, sizeof(text), "Invalid unit (%lx?)", m_val.m_unit_id);
 			}
 			break;
 		case SLIC_SYM_ARMY:
 			if(GetArmy(army)) {
-				sprintf(text, "Army %lx", army.m_id);
+				snprintf(text, sizeof(text), "Army %lx", army.m_id);
 			} else {
-				sprintf(text, "Invalid army (%lx?)", m_val.m_army_id);
+				snprintf(text, sizeof(text), "Invalid army (%lx?)", m_val.m_army_id);
 			}
 			break;
 		case SLIC_SYM_LOCATION:
 			if(GetPos(pos)) {
-				sprintf(text, "Location: %d,%d",
+				snprintf(text, sizeof(text), "Location: %d,%d",
 						pos.x,
 						pos.y);
 			} else {
-				sprintf(text, "Invalid location (%x,%x)?",
+				snprintf(text, sizeof(text), "Invalid location (%x,%x)?",
 						m_val.m_location.x,
 						m_val.m_location.y);
 			}
 			break;
 		case SLIC_SYM_ARRAY:
-			sprintf(text, "Array");
+			snprintf(text, sizeof(text), "Array");
 			break;
 		case SLIC_SYM_STRUCT:
 			dataSym = m_val.m_struct->GetDataSymbol();
 			dataSym->GetDebugText(text, len);
 			break;
 		case SLIC_SYM_PLAYER:
-			sprintf(text, "Player");
+			snprintf(text, sizeof(text), "Player");
 			break;
 		default:
-			sprintf(text, "???");
+			snprintf(text, sizeof(text), "???");
 	}
 }
 

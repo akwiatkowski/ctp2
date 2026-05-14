@@ -1661,7 +1661,7 @@ SFN_ERROR Slic_MessageType::Call(SlicArgList *args)
 		return SFN_ERROR_NOT_MESSAGE_TYPE;
 
 	char fullselectedname[1024];
-	sprintf(fullselectedname, "%s_SELECTED", tname);
+	snprintf(fullselectedname, sizeof(fullselectedname), "%s_SELECTED", tname);
 
 	sint32 msgTypeIndex = g_theMessageIconFileDB->FindTypeIndex(tname);
 	if(msgTypeIndex < 0) {

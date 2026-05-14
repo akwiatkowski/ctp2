@@ -153,7 +153,7 @@ void ldlif_add_block_to_tree(ldl_datablock *block)
 	Comparable<ldl_datablock *> *cmp = new Comparable<ldl_datablock *>(block, ldlif_compare_blocks);
 	if(s_blockTree->Insert(cmp)) {
 		char buf[300];
-		sprintf(buf, "Duplicate block %s\n", fullname);
+		snprintf(buf, sizeof(buf), "Duplicate block %s\n", fullname);
 		ldlif_report_error(buf);
 		delete cmp;
 	}

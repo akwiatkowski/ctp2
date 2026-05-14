@@ -1645,12 +1645,14 @@ GOAL_TYPE Scheduler::GetMaxEvalExec(const StrategyRecord::GoalElement *goal_elem
 	double tmp_eval = goal_element_ptr->GetMaxEval();
 	double tmp_exec = goal_element_ptr->GetMaxExec();
 
-	if (goal_element_ptr->GetEvalPerCity() ||
-		goal_element_ptr->GetPerCity())
+	if ((goal_element_ptr->GetEvalPerCity() ||
+		goal_element_ptr->GetPerCity()) &&
+		g_player[m_playerId])
 		tmp_eval *= g_player[m_playerId]->GetNumCities();
 
-	if (goal_element_ptr->GetExecPerCity() ||
-		goal_element_ptr->GetPerCity())
+	if ((goal_element_ptr->GetExecPerCity() ||
+		goal_element_ptr->GetPerCity()) &&
+		g_player[m_playerId])
 		tmp_exec *= g_player[m_playerId]->GetNumCities();
 
 	max_eval = (sint16) floor(tmp_eval);
@@ -1724,7 +1726,7 @@ void Scheduler::SetContactCache(sint32 player)
 	{
 		if(i==player) continue;
 
-		if(g_player[player]->HasContactWith(i))
+		if(g_player[player] && g_player[player]->HasContactWith(i))
 		{
 			if (i >= 0 && i < 32)
 				m_contactCache |= (1u<<i);
@@ -1901,6 +1903,8 @@ void Scheduler::ResetTransport()
 
 void Scheduler::Assign_Garrison()
 {
+	if(!g_player[m_playerId])
+		return;
 	sint32 cityNum = g_player[m_playerId]->GetNumCities();
 	Sorted_Agent_List_Vector garrisonAgents;
 

@@ -203,7 +203,7 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 	}
 
 	static MBCHAR stblock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sprintf( stblock, "%s.%s", ldlBlock, k_AUI_CONTROL_LDL_STRINGTABLE );
+	snprintf( stblock, sizeof(stblock), "%s.%s", ldlBlock, k_AUI_CONTROL_LDL_STRINGTABLE );
     ldl_datablock *ldlblock = aui_Ldl::GetLdl()->FindDataBlock( stblock );
 	if ( ldlblock )
 	{
@@ -1015,7 +1015,7 @@ void aui_Control::InitializeLayerFlag(ldl_datablock *theBlock, sint32 layerIndex
 	if(!layerIndexString) {
 
 
-		sprintf(localLayerIndexString, "%d", layerIndex);
+		snprintf(localLayerIndexString, sizeof(localLayerIndexString), "%d", layerIndex);
 
 		layerIndexString = localLayerIndexString;
 	}
@@ -1080,7 +1080,7 @@ void aui_Control::InitializeLayerFlags(ldl_datablock *theBlock,
 
 
 	char layerIndexString[20];
-	sprintf(layerIndexString, "%d", layerIndex);
+	snprintf(layerIndexString, sizeof(layerIndexString), "%d", layerIndex);
 
 	InitializeLayerFlag(theBlock, layerIndex, k_AUI_CONTROL_LDL_LAYER_ALWAYS,
 		k_AUI_CONTROL_LAYER_FLAG_ALWAYS, layerIndexString);
@@ -1137,7 +1137,7 @@ void aui_Control::LoadLayerImages(ldl_datablock *theBlock,
 
 
 		char imageAttributeString[k_MAX_NAME_LEN];
-		sprintf(imageAttributeString, "%s%d%d", k_AUI_CONTROL_LDL_IMAGE, layerIndex, imageIndex);
+		snprintf(imageAttributeString, sizeof(imageAttributeString), "%s%d%d", k_AUI_CONTROL_LDL_IMAGE, layerIndex, imageIndex);
 
 		const char *imageName = theBlock->GetString(imageAttributeString);
 
@@ -1149,7 +1149,7 @@ void aui_Control::LoadLayerImages(ldl_datablock *theBlock,
 
 
 		char imageBltTypeStringName[k_MAX_NAME_LEN];
-		sprintf(imageBltTypeStringName, "%s%d%d", k_AUI_IMAGEBASE_LDL_BLTTYPE, layerIndex, imageIndex);
+		snprintf(imageBltTypeStringName, sizeof(imageBltTypeStringName), "%s%d%d", k_AUI_IMAGEBASE_LDL_BLTTYPE, layerIndex, imageIndex);
 		const char *imageBltTypeString = theBlock->GetString(imageBltTypeStringName);
 
 		AUI_IMAGEBASE_BLTTYPE imageBltType = AUI_IMAGEBASE_BLTTYPE_COPY;
@@ -1172,8 +1172,8 @@ void aui_Control::LoadLayerImages(ldl_datablock *theBlock,
 
 			char stretchXAttributeString[k_MAX_NAME_LEN];
 			char stretchYAttributeString[k_MAX_NAME_LEN];
-			sprintf(stretchXAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
-			sprintf(stretchYAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
+			snprintf(stretchXAttributeString, sizeof(stretchXAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
+			snprintf(stretchYAttributeString, sizeof(stretchYAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
 
 			if(theBlock->GetBool(stretchXAttributeString) ||
 			   theBlock->GetBool(stretchYAttributeString)) {
@@ -1186,7 +1186,7 @@ void aui_Control::LoadLayerImages(ldl_datablock *theBlock,
 
 
 		char imageBltFlagStringName[k_MAX_NAME_LEN];
-		sprintf(imageBltFlagStringName, "%s%d%d", k_AUI_IMAGEBASE_LDL_BLTFLAG, layerIndex, imageIndex);
+		snprintf(imageBltFlagStringName, sizeof(imageBltFlagStringName), "%s%d%d", k_AUI_IMAGEBASE_LDL_BLTFLAG, layerIndex, imageIndex);
 		const char *imageBltFlagString = theBlock->GetString(imageBltFlagStringName);
 
 		AUI_IMAGEBASE_BLTFLAG imageBltFlag = GetImageBltFlag();
@@ -1201,13 +1201,13 @@ void aui_Control::LoadLayerImages(ldl_datablock *theBlock,
 		}
 
 		char sizeStrName[k_MAX_NAME_LEN];
-		sprintf(sizeStrName, "%s%d%d", k_AUI_LDL_HABSSIZE, layerIndex, imageIndex);
+		snprintf(sizeStrName, sizeof(sizeStrName), "%s%d%d", k_AUI_LDL_HABSSIZE, layerIndex, imageIndex);
 		sint32 width = theBlock->GetInt(sizeStrName);
 		if(width > 0) {
 			imageRectangle.right = imageRectangle.left + width;
 		}
 
-		sprintf(sizeStrName, "%s%d%d", k_AUI_LDL_VABSSIZE, layerIndex, imageIndex);
+		snprintf(sizeStrName, sizeof(sizeStrName), "%s%d%d", k_AUI_LDL_VABSSIZE, layerIndex, imageIndex);
 		sint32 height = theBlock->GetInt(sizeStrName);
 		if(height > 0) {
 			imageRectangle.bottom = imageRectangle.top + height;
@@ -1240,7 +1240,7 @@ sint32 aui_Control::DesiredWidth(ldl_datablock *theBlock,
 
 
 	char widthLayerString[k_MAX_NAME_LEN];
-	sprintf(widthLayerString, "%s%d", k_AUI_LDL_HABSSIZE, layerIndex);
+	snprintf(widthLayerString, sizeof(widthLayerString), "%s%d", k_AUI_LDL_HABSSIZE, layerIndex);
 
 	if(theBlock->GetAttributeType(widthLayerString) == ATTRIBUTE_TYPE_INT) {
 
@@ -1276,7 +1276,7 @@ aui_Control::FillSize aui_Control::WidthToFill(ldl_datablock *theBlock,
 
 
 		char stretchXAttributeString[k_MAX_NAME_LEN];
-		sprintf(stretchXAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
+		snprintf(stretchXAttributeString, sizeof(stretchXAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
 
 		if (theBlock->GetAttributeType(stretchXAttributeString) &&
 			theBlock->GetBool(stretchXAttributeString)
@@ -1314,7 +1314,7 @@ bool aui_Control::FillWidth(ldl_datablock *theBlock,
 
 
 		char xAttributeString[k_MAX_NAME_LEN];
-		sprintf(xAttributeString, "%s%d%d", k_AUI_LDL_HABSPOSITION, layerIndex, imageIndex);
+		snprintf(xAttributeString, sizeof(xAttributeString), "%s%d%d", k_AUI_LDL_HABSPOSITION, layerIndex, imageIndex);
 
 		if(theBlock->GetAttributeType(xAttributeString) == ATTRIBUTE_TYPE_INT) {
 
@@ -1334,7 +1334,7 @@ bool aui_Control::FillWidth(ldl_datablock *theBlock,
 
 
 		char stretchXAttributeString[k_MAX_NAME_LEN];
-		sprintf(stretchXAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
+		snprintf(stretchXAttributeString, sizeof(stretchXAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_X, layerIndex, imageIndex);
 
 		if(theBlock->GetAttributeType(stretchXAttributeString) &&
 			theBlock->GetBool(stretchXAttributeString)) {
@@ -1392,7 +1392,7 @@ sint32 aui_Control::DesiredHeight(ldl_datablock *theBlock,
 
 
 	char heightLayerString[k_MAX_NAME_LEN];
-	sprintf(heightLayerString, "%s%d", k_AUI_LDL_VABSSIZE, layerIndex);
+	snprintf(heightLayerString, sizeof(heightLayerString), "%s%d", k_AUI_LDL_VABSSIZE, layerIndex);
 
 	if(theBlock->GetAttributeType(heightLayerString) == ATTRIBUTE_TYPE_INT) {
 
@@ -1428,7 +1428,7 @@ aui_Control::FillSize aui_Control::HeightToFill(ldl_datablock *theBlock,
 
 
 		char stretchYAttributeString[k_MAX_NAME_LEN];
-		sprintf(stretchYAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
+		snprintf(stretchYAttributeString, sizeof(stretchYAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
 
 		if (theBlock->GetAttributeType(stretchYAttributeString) &&
 			theBlock->GetBool(stretchYAttributeString)
@@ -1478,7 +1478,7 @@ bool aui_Control::FillHeight(ldl_datablock *theBlock,
 
 
 		char yAttributeString[k_MAX_NAME_LEN];
-		sprintf(yAttributeString, "%s%d%d", k_AUI_LDL_VABSPOSITION, layerIndex, imageIndex);
+		snprintf(yAttributeString, sizeof(yAttributeString), "%s%d%d", k_AUI_LDL_VABSPOSITION, layerIndex, imageIndex);
 
 		if(theBlock->GetAttributeType(yAttributeString) == ATTRIBUTE_TYPE_INT) {
 
@@ -1498,7 +1498,7 @@ bool aui_Control::FillHeight(ldl_datablock *theBlock,
 
 
 		char stretchYAttributeString[k_MAX_NAME_LEN];
-		sprintf(stretchYAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
+		snprintf(stretchYAttributeString, sizeof(stretchYAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_STRETCH_Y, layerIndex, imageIndex);
 
 		if(theBlock->GetAttributeType(stretchYAttributeString) &&
 			theBlock->GetBool(stretchYAttributeString)) {
@@ -1617,7 +1617,7 @@ sint32 aui_Control::SegmentImages(ldl_datablock *theBlock,
 
 
 		char nextRowAttributeString[k_MAX_NAME_LEN];
-		sprintf(nextRowAttributeString, "%s%d%d", k_AUI_CONTROL_IMAGE_NEXT_ROW, layerIndex, imageIndex);
+		snprintf(nextRowAttributeString, sizeof(nextRowAttributeString), "%s%d%d", k_AUI_CONTROL_IMAGE_NEXT_ROW, layerIndex, imageIndex);
 
 		if(theBlock->GetAttributeType(nextRowAttributeString) &&
 			theBlock->GetBool(nextRowAttributeString)) {

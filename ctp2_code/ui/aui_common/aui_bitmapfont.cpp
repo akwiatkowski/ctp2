@@ -42,8 +42,8 @@
 //  add
 //      aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo2( MBCHAR *c )
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code (May 21th 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -89,8 +89,9 @@ void aui_BitmapFont::AttributesToDescriptor(
 	sint32 bold,
 	sint32 italic )
 {
-	sprintf(
+	snprintf(
 		out,
+		k_AUI_BITMAPFONT_MAXDESCLEN + 1,
 		"%s|%d|%d|%d",
 		ttffile,
 		pointSize,

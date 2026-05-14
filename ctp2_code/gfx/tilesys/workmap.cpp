@@ -1057,9 +1057,9 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 
 	if ( m_totalFood < 0 || m_totalProd < 0 || m_totalGold < 0 ) return;
 
-	sprintf(foodStr, "%s %d", m_string->GetString(WM_FOOD), m_totalFood );
-	sprintf(prodStr, "%s %d", m_string->GetString(WM_PROD), m_totalProd );
-	sprintf(goldStr, "%s %d", m_string->GetString(WM_GOLD), m_totalGold );
+	snprintf(foodStr, sizeof(foodStr), "%s %d", m_string->GetString(WM_FOOD), m_totalFood );
+	snprintf(prodStr, sizeof(prodStr), "%s %d", m_string->GetString(WM_PROD), m_totalProd );
+	snprintf(goldStr, sizeof(goldStr), "%s %d", m_string->GetString(WM_GOLD), m_totalGold );
 
 	if (g_tiledMap && g_tiledMap->GetFont()) {
 		foodWidth = g_tiledMap->GetFont()->GetStringWidth(foodStr);

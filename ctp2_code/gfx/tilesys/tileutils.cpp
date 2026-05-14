@@ -1365,7 +1365,7 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 	uint16	width=0, height=0;
 
 	MBCHAR		fname[_MAX_PATH];
-	sprintf(fname, "source" FILE_SEP "xitions" FILE_SEP "%s", filename);
+	snprintf(fname, sizeof(fname), "source" FILE_SEP "xitions" FILE_SEP "%s", filename);
 
 	tif = tileutils_TIF2mem(fname, &width, &height);
 	Assert(tif != NULL);

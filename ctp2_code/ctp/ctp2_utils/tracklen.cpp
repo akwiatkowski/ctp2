@@ -177,11 +177,11 @@ static int tracklen_GetTrackLengthsViaHandle( DWORD *trackLenBuf, unsigned int w
 		}
 		trackLenBuf[i] = msp.dwReturn;
 #elif defined(USE_SDL)
-		uint64 ui = cdrom->track[i - 1].length * 1000 / CD_FPS;
+		uint64 ui = (uint64)cdrom->track[i - 1].length * 1000 / CD_FPS;
 		// FIXME: This may not be reusable
 		// ALL tracks on CTP2 CD are one ms shorter due to rounding
 		trackLenBuf[i] = ++ui;
-		totalLen_ms += cdrom->track[i - 1].length * 1000;
+		totalLen_ms += (uint64)cdrom->track[i - 1].length * 1000;
 #else
 		return __LINE__;
 #endif

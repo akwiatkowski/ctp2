@@ -612,6 +612,8 @@ MBCHAR const * c3files_GetVolumeName(DriveIdType id)
 	/// \todo Add code to determine beginsector of iso_primary_sector
 	/// On german ctp2 cd, it starts on sector 16 (byte 16 << 11 = 0x8000)
 	const char *cd_dev = SDL_CDName(id);
+	if(!cd_dev)
+		return NULL;
 	FILE *cd = fopen(cd_dev, "rb");
         int lerrno= errno;
 	if (cd == NULL) {

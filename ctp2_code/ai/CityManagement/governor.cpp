@@ -1330,6 +1330,7 @@ void Governor::OptimizeSliders(SlidersSetting & sliders_setting) const
 	SlidersSetting gold_sliders_setting;
 	SlidersSetting food_sliders_setting;
 
+	if (!g_player[m_playerId]) return;
 	g_player[m_playerId]->PreResourceCalculation();
 
 	while( !ProdSliderReachedMin(sliders_setting)
@@ -2292,6 +2293,7 @@ void Governor::GetBestTerraformImprovement(const MapPoint & pos, sint32 & food_i
 void Governor::AssignPopulations()
 {
 	Assert(g_player[m_playerId]);
+	if (!g_player[m_playerId]) return;
 
 	g_player[m_playerId]->PreResourceCalculation();
 

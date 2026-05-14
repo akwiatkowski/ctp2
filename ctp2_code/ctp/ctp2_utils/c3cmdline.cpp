@@ -1163,7 +1163,7 @@ void ShowVisCommand::Execute(sint32 argc, char **argv)
 
 		for(u = 0; u < g_player[p]->m_all_armies->Num(); u++) {
 			char buf[40];
-			sprintf(buf, "VIS: %lx", g_player[p]->m_all_armies->Access(u).Access(0).GetVisibility());
+			snprintf(buf, sizeof(buf), "VIS: %lx", g_player[p]->m_all_armies->Access(u).Access(0).GetVisibility());
 			g_graphicsOptions->AddTextToArmy(g_player[p]->m_all_armies->Access(u), buf, 255, -1);
 		}
 	}
@@ -1926,14 +1926,14 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 				MapPoint pos;
 				char buf[1024];
 				if(sym->GetUnit(u)) {
-					sprintf(buf, "%s=Unit    %lx", sym->GetName(), u.m_id);
+					snprintf(buf, sizeof(buf), "%s=Unit    %lx", sym->GetName(), u.m_id);
 					if(g_theUnitPool->IsValid(u)) {
-						sprintf(buf + strlen(buf), ", Type=%d", u.GetType());
+						snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ", Type=%d", u.GetType());
 					} else {
-						sprintf(buf + strlen(buf), " [Invalid unit]");
+						snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [Invalid unit]");
 					}
 				} else if(sym->GetCity(u)) {
-					sprintf(buf, "%s=City    %lx", sym->GetName(), u.m_id);
+					snprintf(buf, sizeof(buf), "%s=City    %lx", sym->GetName(), u.m_id);
 					if(!g_theUnitPool->IsValid(u)) {
 					strncat(buf, " [Invalid city]", sizeof(buf) - strlen(buf) - 1);
 				} else {
@@ -1941,12 +1941,12 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 					strncat(buf, u.GetData()->GetCityData()->GetName(), sizeof(buf) - strlen(buf) - 1);
 					}
 				} else if(sym->GetPos(pos)) {
-					sprintf(buf, "%s=Point   (%d,%d)", sym->GetName(),
+					snprintf(buf, sizeof(buf), "%s=Point   (%d,%d)", sym->GetName(),
 							pos.x, pos.y);
 				} else {
 					sint32 value;
 					sym->GetIntValue(value);
-					sprintf(buf, "%s=Integer %d", sym->GetName(), value);
+					snprintf(buf, sizeof(buf), "%s=Integer %d", sym->GetName(), value);
 				}
 				g_debugWindow->AddText(buf);
 			}
@@ -3541,7 +3541,7 @@ void DumpFZRegardCommand::Execute(sint32 argc, char **argv)
 
 	char out_str[80];
 	sint32 i;
-	sprintf (out_str, "Player %d regards", p);
+	snprintf(out_str, sizeof(out_str), "Player %d regards", p);
 	g_chatBox->AddLine(g_selected_item->GetCurPlayer(), out_str);
 
 	for (i=0; i<k_MAX_PLAYERS; i++) {
@@ -6323,7 +6323,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 		}
 		if (commands[i].m_name) {
 
-			sprintf(buf, "[~help %d] for next page", (m_helpStart / k_HELP_LINES) + 1);
+			snprintf(buf, sizeof(buf), "[~help %d] for next page", (m_helpStart / k_HELP_LINES) + 1);
 			primitives_DrawText(surf, k_LEFT_EDGE, (k_TOP_EDGE + k_TEXT_SPACING) + (i - m_helpStart) * k_TEXT_SPACING,
 								(MBCHAR*)buf, 0, 0);
 		}
@@ -6338,7 +6338,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 			sint32 n = cityList->Num();
 			for(sint32 j = 0; j < n; j++) {
 				char buf[1024];
-				size_t bufPos = sprintf(buf, "    %2d %4d ", i, j);
+				size_t bufPos = snprintf(buf, sizeof(buf), "    %2d %4d ", i, j);
 				CityData* cityData = cityList->Get(j).GetData()->GetCityData();
 				for(sint32 r = 0; r < g_theResourceDB->NumRecords(); r++)
                 {
@@ -6351,7 +6351,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
                     if (rc > 0)
 					{
 						char rbuf[80];
-						int n = sprintf(rbuf, "%d:%d ", r, rc);
+						int n = snprintf(rbuf, sizeof(rbuf), "%d:%d ", r, rc);
 						if (n > 0 && bufPos + (size_t)n < sizeof(buf)) {
 							memcpy(buf + bufPos, rbuf, (size_t)n);
 							bufPos += (size_t)n;
@@ -6373,32 +6373,32 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 				char buf2[1024];
 				switch(tradeOffers->Get(j).GetOfferType()) {
 					case ROUTE_TYPE_RESOURCE:
-						sprintf(buf, "Player %d offers resource %d from %d in exchange for ",
+						snprintf(buf, sizeof(buf), "Player %d offers resource %d from %d in exchange for ",
 								i, tradeOffers->Get(j).GetOfferResource(),
 								(uint32)tradeOffers->Get(j).GetFromCity());
 						break;
 					case ROUTE_TYPE_GOLD:
-						sprintf(buf, "Player %d offers %d gold from %d in exchange for ",
+						snprintf(buf, sizeof(buf), "Player %d offers %d gold from %d in exchange for ",
 								i, tradeOffers->Get(j).GetOfferResource(),
 								(uint32)tradeOffers->Get(j).GetFromCity());
 						break;
 					case ROUTE_TYPE_FOOD:
-						sprintf(buf, "Player %d offers %d food from %d in exchange for ",
+						snprintf(buf, sizeof(buf), "Player %d offers %d food from %d in exchange for ",
 								i, tradeOffers->Get(j).GetOfferResource(),
 								(uint32)tradeOffers->Get(j).GetFromCity());
 						break;
 				}
 				switch(tradeOffers->Get(j).GetAskingType()) {
 					case ROUTE_TYPE_RESOURCE:
-						sprintf(buf2, "resource %d",
+						snprintf(buf2, sizeof(buf2), "resource %d",
 								tradeOffers->Get(j).GetAskingResource());
 						break;
 					case ROUTE_TYPE_GOLD:
-						sprintf(buf2, "%d gold",
+						snprintf(buf2, sizeof(buf2), "%d gold",
 								tradeOffers->Get(j).GetAskingResource());
 						break;
 					case ROUTE_TYPE_FOOD:
-						sprintf(buf2, "%d food",
+						snprintf(buf2, sizeof(buf2), "%d food",
 								tradeOffers->Get(j).GetAskingResource());
 						break;
 				}
@@ -6415,17 +6415,17 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 #ifdef _DEBUG_MEMORY
 
 		l=0;
-		sprintf (buf, "EXE total bytes: %d", DebugMemory_GetTotalFromEXE());
+		snprintf(buf, sizeof(buf), "EXE total bytes: %d", DebugMemory_GetTotalFromEXE());
 		primitives_DrawText(surf, k_LEFT_EDGE,
 			k_TOP_EDGE + l * k_TEXT_SPACING, (MBCHAR *)buf, 0, 0);
 
 		l++;
-		sprintf (buf, "DLL total bytes: %d", DebugMemory_GetTotalFromDLL());
+		snprintf(buf, sizeof(buf), "DLL total bytes: %d", DebugMemory_GetTotalFromDLL());
 		primitives_DrawText(surf, k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 			(MBCHAR *)buf, 0, 0);
 
 		l++;
-		sprintf (buf, "Combined total : %d", DebugMemory_GetTotalFromEXE()+DebugMemory_GetTotalFromDLL());
+		snprintf(buf, sizeof(buf), "Combined total : %d", DebugMemory_GetTotalFromEXE()+DebugMemory_GetTotalFromDLL());
 		primitives_DrawText(surf, k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 			(MBCHAR *)buf, 0, 0);
 #elif defined(_DEBUG) && defined(WIN32)
@@ -6434,19 +6434,19 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
        _CrtMemCheckpoint(&new_state);
 
        l = 0;
-       sprintf (buf, "call count %d", new_state.lCounts[1]);
+       snprintf(buf, sizeof(buf), "call count %d", new_state.lCounts[1]);
 	   primitives_DrawText(surf,
                 k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 									(MBCHAR *)buf, 0, 0);
         l++;
-       sprintf (buf, "currently allocated %d", new_state.lSizes[1]);
+       snprintf(buf, sizeof(buf), "currently allocated %d", new_state.lSizes[1]);
 	   primitives_DrawText(surf,
                 k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 									(MBCHAR *)buf, 0, 0);
 
        l++;
        l++;
-       sprintf (buf, "cumlative total %d", new_state.lTotalCount);
+       snprintf(buf, sizeof(buf), "cumlative total %d", new_state.lTotalCount);
 	   primitives_DrawText(surf,
                 k_LEFT_EDGE, k_TOP_EDGE + l * k_TEXT_SPACING,
 									(MBCHAR *)buf, 0, 0);
@@ -6456,7 +6456,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
        m_flux = m_flux_decay * m_flux + (1.0 - m_flux_decay) * raw_flux;
 
        l++;
-       sprintf (buf, "           flux %d", sint32(m_flux));
+       snprintf(buf, sizeof(buf), "           flux %d", sint32(m_flux));
        sint32 color;
        if (1000 < m_flux) {
           color = RGB(255,0, 0);

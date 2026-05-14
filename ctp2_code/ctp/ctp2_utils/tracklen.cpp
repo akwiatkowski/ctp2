@@ -413,8 +413,10 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 		}
 #endif
 	}
-	else
-		strcpy( szTemp, szFile );
+	else {
+		strncpy( szTemp, szFile, sizeof(szTemp) );
+		szTemp[sizeof(szTemp) - 1] = '\0';
+	}
 
 #ifdef WIN32
 	HANDLE hFile = CreateFile( szTemp, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL );

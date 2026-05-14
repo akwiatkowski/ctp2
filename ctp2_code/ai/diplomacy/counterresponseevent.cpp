@@ -599,7 +599,7 @@ STDEHANDLER(ReciprocateAction_CounterResponseEvent)
 
 			if (receiver_response.counter.second_type == PROPOSAL_OFFER_END_EMBARGO &&
 				(receiver_diplomat.GetEmbargo(sender) ||
-				((double) receiver_piracy / sender_trade_total) < 0.5))
+				(sender_trade_total > 0 && (double)receiver_piracy / sender_trade_total < 0.5)))
 				return GEV_HD_Continue;
 
 

@@ -435,7 +435,7 @@ STDMETHODIMP_(void) IC3RobotCom::RegisterPlayerInfo(PLAYER_INDEX index, C3Player
 void IC3RobotCom::SetPersonality(const char *filename)
 {
 	char fullname[1024];
-	sprintf(fullname, "personality%s.fli", filename);
+	snprintf(fullname, sizeof(fullname), "personality%s.fli", filename);
 	m_ai_main->SetPersonalityFilename(fullname);
 }
 

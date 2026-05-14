@@ -540,9 +540,11 @@ void Network::InitFromNetFunc()
 
 			char nonConstStr[1024];
 			if(str) {
-				strcpy(nonConstStr, str);
+				strncpy(nonConstStr, str, sizeof(nonConstStr) - 1);
+				nonConstStr[sizeof(nonConstStr) - 1] = '\0';
 			} else {
-				strcpy(nonConstStr, "Waiting on players");
+				strncpy(nonConstStr, "Waiting on players", sizeof(nonConstStr) - 1);
+				nonConstStr[sizeof(nonConstStr) - 1] = '\0';
 			}
 			c3_AbortMessage(nonConstStr, k_UTILITY_ABORT, network_AbortCallback);
 		} else if(!m_crcError) {

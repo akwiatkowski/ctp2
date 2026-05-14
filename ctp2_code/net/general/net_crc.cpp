@@ -24,13 +24,13 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Fixed SerializeDBs method to fix the database in saync check. (Aug 25th 2005 Martin Gühmann)
-// - Added the risk database for sync check. (Aug 29th 2005 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old pollution database by new one. (July 15th 2006 Martin Gühmann)
-// - Replaced old global warming database by new one. (July 15th 2006 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Fixed SerializeDBs method to fix the database in saync check. (Aug 25th 2005 Martin Gï¿½hmann)
+// - Added the risk database for sync check. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old pollution database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Replaced old global warming database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -356,9 +356,11 @@ void NetCRC::Error(char *buf)
 	const char *str = g_theStringDB->GetNameStr("str_ldl_mp_dbase_out_of_synch");
 	char nonConstStr[1024];
 	if (str) {
-		strcpy(nonConstStr, str);
+		strncpy(nonConstStr, str, sizeof(nonConstStr) - 1);
+		nonConstStr[sizeof(nonConstStr) - 1] = '\0';
 	} else {
-		strcpy(nonConstStr, "Databases out of sync, returning to lobby");
+		strncpy(nonConstStr, "Databases out of sync, returning to lobby", sizeof(nonConstStr) - 1);
+		nonConstStr[sizeof(nonConstStr) - 1] = '\0';
 	}
 	c3_RemoveAbortMessage();
 	g_civApp->ProcessGraphicsCallback();

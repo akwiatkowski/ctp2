@@ -3925,6 +3925,8 @@ StringId Governor::GetCityBuildQueueAdvice(const CityData *city) const
 
 StringId Governor::GetUnitsAdvice(SlicContext & sc) const
 {
+	if (!g_player[m_playerId]) return 0;
+
 	static StringId neededUnitAdviceId = -1;
 	static StringId lowMilitaryRankAdviceId = -1;
 	static StringId highMilitaryRankAdviceId = -1;
@@ -4105,6 +4107,7 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 		return g_theBuildListSequenceDB->Get(city->GetBuildListSequenceIndex());
 
 	Assert(g_player[m_playerId]);
+	if (!g_player[m_playerId]) return g_theBuildListSequenceDB->Get(0);
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
 
 	double rank = 0.0;
@@ -5066,6 +5069,7 @@ struct GoodsRoute
 void Governor::ManageGoodsTradeRoutes()
 {
 	Assert(g_player[m_playerId] != NULL);
+	if (!g_player[m_playerId]) return;
 	Player *player_ptr = g_player[m_playerId];
 
 	double unused_freight = player_ptr->GetUnusedFreight();

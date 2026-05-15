@@ -32,7 +32,7 @@ GAME_BINARY = os.path.abspath(GAME_BINARY)
 
 SOCKET_PATH = "/tmp/ctp2-smoke.sock"
 TIMEOUT_INIT = 30
-TURNS = int(os.environ.get("AUTOPLAY_TURNS", "50"))
+TURNS = int(os.environ.get("AUTOPLAY_TURNS", "100"))
 TURN_TIMEOUT = int(os.environ.get("AUTOPLAY_TURN_TIMEOUT", "60"))
 # end_turn queues an event in g_director and returns "ok" immediately, so we
 # must pace the driver to let the AI actually process. Tune via env var.

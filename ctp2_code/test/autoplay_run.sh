@@ -157,12 +157,25 @@ echo | tee -a "$REPORT"
     echo
 } | tee -a "$REPORT"
 
-if compgen -G "/tmp/asan-auto.log.*" > /dev/null; then
+# When ASan and UBSan are linked together (as in a build with both -fsanitize
+# flags), their runtimes share output streams — ASan errors can land in the
+# UBSan log_path and vice versa. Scan both globs for ASan signatures.
+SAN_LOGS=()
+compgen -G "/tmp/asan-auto.log.*" > /dev/null && SAN_LOGS+=(/tmp/asan-auto.log.*)
+compgen -G "/tmp/ubsan-auto.log.*" > /dev/null && SAN_LOGS+=(/tmp/ubsan-auto.log.*)
+
+if [[ ${#SAN_LOGS[@]} -gt 0 ]] && grep -lE 'AddressSanitizer:' "${SAN_LOGS[@]}" >/dev/null 2>&1; then
     {
         echo '```'
-        cat /tmp/asan-auto.log.* | grep -E 'AddressSanitizer|SUMMARY|ERROR|#[0-9]+ 0x' | head -100
+        grep -hE 'AddressSanitizer:|SUMMARY: AddressSanitizer|#[0-9]+ 0x.*UnitActor|#[0-9]+ 0x.*SpriteGroupList' "${SAN_LOGS[@]}" 2>/dev/null | head -60
         echo '```'
-        echo "Raw logs: \`/tmp/asan-auto.log.*\`"
+        echo
+        echo "Source locations in ASan stack traces:"
+        grep -hE 'in .* [^/]+\.(cpp|h):[0-9]+' "${SAN_LOGS[@]}" 2>/dev/null \
+            | grep -oE '[^ /]+\.(cpp|h):[0-9]+' | sort | uniq -c | sort -rn | head -20 \
+            | awk '{printf "  %4d  %s\n", $1, $2}'
+        echo
+        echo "Raw logs: \`/tmp/{asan,ubsan}-auto.log.*\`"
     } | tee -a "$REPORT"
 else
     echo "_None._" | tee -a "$REPORT"
@@ -175,7 +188,9 @@ echo | tee -a "$REPORT"
     echo
 } | tee -a "$REPORT"
 
-ASSERT_HITS=$(grep -cE '^Assert|^ASSERT|aborted|Abort trap' /tmp/ctp2-autoplay-game.log 2>/dev/null || echo 0)
+# BSD grep -c exits 1 on zero matches; pipe to wc -l to get a clean integer
+# regardless of match count or missing file.
+ASSERT_HITS=$(grep -E '^Assert|^ASSERT|aborted|Abort trap' /tmp/ctp2-autoplay-game.log 2>/dev/null | wc -l | tr -d ' ')
 if [[ "$ASSERT_HITS" -gt 0 ]]; then
     {
         echo '```'
@@ -196,8 +211,8 @@ echo | tee -a "$REPORT"
         UBSAN_TOTAL=$(grep -c 'runtime error' /tmp/ubsan-auto.log.* 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
     fi
     ASAN_TOTAL=0
-    if compgen -G "/tmp/asan-auto.log.*" > /dev/null; then
-        ASAN_TOTAL=$(grep -c 'AddressSanitizer' /tmp/asan-auto.log.* 2>/dev/null | awk -F: '{s+=$NF} END{print s+0}')
+    if [[ ${#SAN_LOGS[@]} -gt 0 ]]; then
+        ASAN_TOTAL=$(grep -hE 'AddressSanitizer:' "${SAN_LOGS[@]}" 2>/dev/null | wc -l | tr -d ' ')
     fi
     echo "- UBSan: **${UBSAN_TOTAL}** total events"
     echo "- ASan: **${ASAN_TOTAL}** total events"

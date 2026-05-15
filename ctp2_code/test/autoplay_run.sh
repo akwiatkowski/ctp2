@@ -84,8 +84,13 @@ export AUTOPLAY_TURN_TIMEOUT="$TURN_TIMEOUT"
 
 # halt_on_error=0 keeps execution going past each error so we capture the full
 # set, not just the first one. log_path writes per-PID log files we can scrape.
-export ASAN_OPTIONS="abort_on_error=0:halt_on_error=0:detect_leaks=0:log_path=/tmp/asan-auto.log"
+# detect_leaks=1 surfaces LSan output at exit — CTP2 has many known leaks but
+# tracking them here means new ones become visible against a stable baseline.
+export ASAN_OPTIONS="abort_on_error=0:halt_on_error=0:detect_leaks=1:log_path=/tmp/asan-auto.log"
 export UBSAN_OPTIONS="halt_on_error=0:print_stacktrace=1:suppressions=$PROJECT_ROOT/ubsan-suppressions.txt:log_path=/tmp/ubsan-auto.log"
+# LSAN_OPTIONS controls leak-detection-specific knobs; print_suppressions=0
+# avoids spamming the output with the (huge) default suppressions list.
+export LSAN_OPTIONS="print_suppressions=0"
 
 echo "## Driver Output" | tee -a "$REPORT"
 echo '```' >> "$REPORT"
@@ -202,6 +207,105 @@ else
 fi
 echo | tee -a "$REPORT"
 
+# --- Memory leaks (LSan) ---
+{
+    echo "## Memory Leaks (LSan)"
+    echo
+} | tee -a "$REPORT"
+
+LEAK_TOTAL=0
+LEAK_BYTES="?"
+if [[ ${#SAN_LOGS[@]} -gt 0 ]]; then
+    LEAK_TOTAL=$(grep -hE 'Direct leak|Indirect leak' "${SAN_LOGS[@]}" 2>/dev/null | wc -l | tr -d ' ')
+    LEAK_BYTES=$(grep -hE 'SUMMARY: AddressSanitizer:.*leaked' "${SAN_LOGS[@]}" 2>/dev/null \
+                  | grep -oE '[0-9]+ byte\(s\) leaked' | tail -1)
+fi
+if [[ "$LEAK_TOTAL" -gt 0 ]]; then
+    {
+        echo "Total leak records: **${LEAK_TOTAL}**${LEAK_BYTES:+ — ${LEAK_BYTES}}"
+        echo
+        echo "### Allocation sites (top 20 by record count)"
+        echo
+        echo '```'
+        # Group leaks by the first user-code frame in each stack.
+        grep -hA 12 -E 'Direct leak|Indirect leak' "${SAN_LOGS[@]}" 2>/dev/null \
+            | grep -oE 'in [^ ]+ [^ /]+\.(cpp|h):[0-9]+' \
+            | sort | uniq -c | sort -rn | head -20
+        echo '```'
+    } | tee -a "$REPORT"
+else
+    echo "_No leaks reported (note: detect_leaks=1 is on, so absence is meaningful)._" | tee -a "$REPORT"
+fi
+echo | tee -a "$REPORT"
+
+# --- Slic script errors in game log ---
+{
+    echo "## Slic Script Errors"
+    echo
+} | tee -a "$REPORT"
+
+SLIC_HITS=0
+if [[ -f /tmp/ctp2-autoplay-game.log ]]; then
+    SLIC_HITS=$(grep -iE 'slic.*error|slic.*warning|undeclared|undefined symbol' /tmp/ctp2-autoplay-game.log 2>/dev/null | wc -l | tr -d ' ')
+fi
+if [[ "$SLIC_HITS" -gt 0 ]]; then
+    {
+        echo "Total slic-related lines: **${SLIC_HITS}**"
+        echo '```'
+        grep -iE 'slic.*error|slic.*warning|undeclared|undefined symbol' /tmp/ctp2-autoplay-game.log | sort -u | head -30
+        echo '```'
+    } | tee -a "$REPORT"
+else
+    echo "_None._" | tee -a "$REPORT"
+fi
+echo | tee -a "$REPORT"
+
+# --- Generic ERROR / FATAL / WARNING patterns ---
+{
+    echo "## Other Error/Warning Patterns in Game Log"
+    echo
+} | tee -a "$REPORT"
+
+# Skip pure debug-tag lines like [TURN], [SCROLL], [SMOKE]; only catch lines
+# that look like real diagnostics. Deduplicate aggressively since many are
+# repeated every turn.
+GENERIC_HITS=0
+if [[ -f /tmp/ctp2-autoplay-game.log ]]; then
+    GENERIC_HITS=$(grep -E '\b(ERROR|FATAL|WARNING|warn|invalid|corrupt|failed|leak|overflow|underflow)\b' /tmp/ctp2-autoplay-game.log 2>/dev/null \
+                    | grep -vE '^\[(SMOKE|TURN|SCROLL|AUTO)\]' | wc -l | tr -d ' ')
+fi
+if [[ "$GENERIC_HITS" -gt 0 ]]; then
+    {
+        echo "Total matches: **${GENERIC_HITS}** (deduplicated below to top 20 unique lines)"
+        echo '```'
+        grep -E '\b(ERROR|FATAL|WARNING|warn|invalid|corrupt|failed|leak|overflow|underflow)\b' /tmp/ctp2-autoplay-game.log \
+            | grep -vE '^\[(SMOKE|TURN|SCROLL|AUTO)\]' \
+            | sort | uniq -c | sort -rn | head -20
+        echo '```'
+    } | tee -a "$REPORT"
+else
+    echo "_None._" | tee -a "$REPORT"
+fi
+echo | tee -a "$REPORT"
+
+# --- Slow turns (driver-side observation) ---
+{
+    echo "## Slow Turns (>5s wall, driver-observed)"
+    echo
+} | tee -a "$REPORT"
+
+SLOW_HITS=$(grep -E '\[AUTO\] turn .* wall=([5-9]|[1-9][0-9]+)\.' "$REPORT" 2>/dev/null | wc -l | tr -d ' ')
+if [[ "$SLOW_HITS" -gt 0 ]]; then
+    {
+        echo '```'
+        grep -E '\[AUTO\] turn .* wall=([5-9]|[1-9][0-9]+)\.' "$REPORT"
+        echo '```'
+    } | tee -a "$REPORT"
+else
+    echo "_None — every turn finished within 5s wall time._" | tee -a "$REPORT"
+fi
+echo | tee -a "$REPORT"
+
 # --- Verdict ---
 {
     echo "## Verdict"
@@ -216,7 +320,11 @@ echo | tee -a "$REPORT"
     fi
     echo "- UBSan: **${UBSAN_TOTAL}** total events"
     echo "- ASan: **${ASAN_TOTAL}** total events"
-    echo "- Asserts: **${ASSERT_HITS}**"
+    echo "- LSan leak records: **${LEAK_TOTAL}**"
+    echo "- Asserts/aborts: **${ASSERT_HITS}**"
+    echo "- Slic errors: **${SLIC_HITS}**"
+    echo "- Generic ERROR/WARNING lines: **${GENERIC_HITS}**"
+    echo "- Slow turns (>5s): **${SLOW_HITS}**"
     echo "- Driver: exit=${RUN_EXIT}, rounds=${ROUNDS}/${TURNS} requested"
 } | tee -a "$REPORT"
 

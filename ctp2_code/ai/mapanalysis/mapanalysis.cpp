@@ -659,9 +659,11 @@ double MapAnalysis::GetProductionRank(const CityData * city) const
 	Assert(city);
 	sint32 prod = city->GetGrossCityProduction();
 
-	if(m_maxCityProduction - m_minCityProduction <= 0)
+	// Compare values directly: m_min* starts at INT_MAX and m_max* at INT_MIN,
+	// so subtracting them before any city is populated overflows sint32.
+	if(m_maxCityProduction <= m_minCityProduction)
 	{
-		// If we only have one city
+		// Zero or one city — no meaningful spread to rank against.
 		return 0.0;
 	}
 	else
@@ -675,9 +677,8 @@ double MapAnalysis::GetGrowthRank(const CityData * city) const
 	Assert(city);
 	sint32 food = city->GetGrowthRate();
 
-	if(m_maxCityGrowth - m_minCityGrowth <= 0)
+	if(m_maxCityGrowth <= m_minCityGrowth)
 	{
-		// If we have only one city
 		return 0.0;
 	}
 	else
@@ -691,9 +692,8 @@ double MapAnalysis::GetCommerceRank(const CityData * city) const
 	Assert(city);
 	sint32 commerce = city->GetGrossCityGold();
 
-	if(m_maxCityGold - m_minCityGold <= 0)
+	if(m_maxCityGold <= m_minCityGold)
 	{
-		// If we only have one city
 		return 0.0;
 	}
 	else

@@ -131,6 +131,7 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/aui_ctp2/radarmap.h"                       // g_radarMap
 #include "gs/utility/MoveFlags.h"
+#include <limits>
 #include <list>
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
@@ -2417,7 +2418,11 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 		}
 
 		rush_buy.first = city.CD()->HowMuchLonger();
-		if(rush_buy.first > 1)
+		// HowMuchLonger() returns INT_MAX as a sentinel for "no production"
+		// (empty queue or non-positive net production). Adding the threat
+		// adjustment below would overflow sint32, so skip such cities entirely —
+		// there's nothing meaningful to rush-buy.
+		if(rush_buy.first > 1 && rush_buy.first < std::numeric_limits<sint32>::max())
 		{
 			rush_buy.first +=
 				(sint32) ceil(1.0 - MapAnalysis::GetMapAnalysis().GetThreatRank(city.CD()) * threat_bonus);

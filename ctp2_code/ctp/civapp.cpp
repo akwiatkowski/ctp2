@@ -2732,6 +2732,22 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
+			else if (strcmp(cmd, "enable_autoplay") == 0) {
+				if (m_gameLoaded) {
+					sint32 flipped = 0;
+					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+						if (g_player[p]) {
+							g_player[p]->m_playerType = PLAYER_TYPE_ROBOT;
+							flipped++;
+						}
+					}
+					char detail[64];
+					snprintf(detail, sizeof(detail), "flipped=%d", flipped);
+					smoketest_send_response("ok", cmd, detail);
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
 			else if (strncmp(cmd, "set_production ", 15) == 0) {
 				if (m_gameLoaded) {
 					int city_idx = 0;

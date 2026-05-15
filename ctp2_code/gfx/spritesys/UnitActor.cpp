@@ -405,15 +405,23 @@ void UnitActor::GetIDAndType(sint32 owner,
 UnitActor::~UnitActor() {
   DumpAllActions();
 
+  // Global sprite lists can already be freed by the time UnitActor smart-ptrs
+  // unwind during shutdown — guard against the teardown-order race rather
+  // than dereferencing a dangling/null pointer. (ASan SEGV under 100-turn
+  // autoplay traced to this destructor at shutdown.)
   if (m_type == GROUPTYPE_UNIT) {
-    g_unitSpriteGroupList->ReleaseSprite(m_spriteID, m_loadType);
-    if (LOADTYPE_BASIC != m_loadType) {
-      g_unitSpriteGroupList->ReleaseSprite(m_spriteID, LOADTYPE_BASIC);
+    if (g_unitSpriteGroupList) {
+      g_unitSpriteGroupList->ReleaseSprite(m_spriteID, m_loadType);
+      if (LOADTYPE_BASIC != m_loadType) {
+        g_unitSpriteGroupList->ReleaseSprite(m_spriteID, LOADTYPE_BASIC);
+      }
     }
   } else {
-    g_citySpriteGroupList->ReleaseSprite(m_spriteID, m_loadType);
-    if (LOADTYPE_BASIC != m_loadType) {
-      g_citySpriteGroupList->ReleaseSprite(m_spriteID, LOADTYPE_BASIC);
+    if (g_citySpriteGroupList) {
+      g_citySpriteGroupList->ReleaseSprite(m_spriteID, m_loadType);
+      if (LOADTYPE_BASIC != m_loadType) {
+        g_citySpriteGroupList->ReleaseSprite(m_spriteID, LOADTYPE_BASIC);
+      }
     }
   }
 }

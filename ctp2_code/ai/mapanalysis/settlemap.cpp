@@ -39,6 +39,7 @@
 #include "ctp/c3.h"
 #include "ai/mapanalysis/settlemap.h"
 
+#include <algorithm>
 #include <functional>
 
 #include "ai/mapanalysis/boundingrect.h"
@@ -465,7 +466,16 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		}
 	}
 
-	targets.sort(std::greater<SettleTarget>()); // Should have been sorted already
+	// Route through a vector for sorting: libc++'s std::list::sort uses
+	// iterator-based midpoint finding (each std::advance is O(N) for
+	// bidirectional iterators), giving O(N log² N) advance cost — observed
+	// to hang the main thread on large late-game lists. Random-access
+	// std::sort over a vector is true O(N log N) introsort.
+	{
+		std::vector<SettleTarget> tmp(targets.begin(), targets.end());
+		std::sort(tmp.begin(), tmp.end(), std::greater<SettleTarget>());
+		targets.assign(tmp.begin(), tmp.end());
+	}
 }*/
 
 void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
@@ -670,7 +680,12 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		}
 	}
 
-	targets.sort(std::greater<SettleTarget>());
+	// See companion comment in the other GetSettleTargets overload above.
+	{
+		std::vector<SettleTarget> tmp(targets.begin(), targets.end());
+		std::sort(tmp.begin(), tmp.end(), std::greater<SettleTarget>());
+		targets.assign(tmp.begin(), tmp.end());
+	}
 }
 
 bool SettleMap::CanSettlePos(const MapPoint & rc_pos) const

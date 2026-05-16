@@ -58,6 +58,21 @@ EOF
     echo "Created default $SUPP"
 fi
 
+# Kill any orphaned ctp2 smoke-test processes from a previous hang. Without
+# this, the new run's bind() races with the orphan's socket and the smoke
+# server can't deliver commands — the symptom is end_turn timing out at 62s
+# every iteration. SIGKILL is correct here because the orphan is, by
+# definition, not responding to SIGTERM (that's why it's orphaned).
+ORPHANS=$(pgrep -f "ctp2 smoke-test" || true)
+if [[ -n "$ORPHANS" ]]; then
+    echo "Killing stale ctp2 smoke-test process(es): $ORPHANS"
+    # shellcheck disable=SC2086  # word-splitting is intentional
+    kill -9 $ORPHANS 2>/dev/null || true
+    sleep 1
+fi
+# Also unlink the socket in case the orphan left it behind.
+/bin/rm -f /tmp/ctp2-smoke.sock
+
 # Fresh slate for sanitizer logs.
 /bin/rm -f /tmp/asan-auto.log.* /tmp/ubsan-auto.log.* /tmp/ctp2-autoplay-game.log
 
@@ -97,7 +112,10 @@ export UBSAN_OPTIONS="halt_on_error=0:print_stacktrace=1:suppressions=$PROJECT_R
 echo "## Driver Output" | tee -a "$REPORT"
 echo '```' >> "$REPORT"
 t0=$(date +%s)
-timeout "$OVERALL_TIMEOUT" python3 "$SCRIPT_DIR/autoplay_test.py" 2>&1 | tee -a "$REPORT"
+# python3 -u: unbuffered stdout. Without it, progress lines get stuck in
+# Python's block buffer when stdout is piped through tee, and the report
+# ends up with an empty "Driver Output" section after a timeout/SIGTERM.
+timeout "$OVERALL_TIMEOUT" python3 -u "$SCRIPT_DIR/autoplay_test.py" 2>&1 | tee -a "$REPORT"
 RUN_EXIT=${PIPESTATUS[0]}
 t1=$(date +%s)
 echo '```' >> "$REPORT"

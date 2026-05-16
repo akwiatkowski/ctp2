@@ -2639,6 +2639,12 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 
 		unsigned short *    destPixel =
             (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		// Right-edge clamp: the RLE decoder below blindly trusted that the
+		// sprite fits within the surface row. ASan caught a heap-buffer-
+		// overflow when a unit at the right edge of the viewport had a
+		// selection bracket whose colorize run reached past surfWidth.
+		unsigned short *    destRowEnd  =
+            (unsigned short *)(surfBase + ((y + j) * surfPitch)) + surfWidth;
 		Pixel16	*           rowData     = dataStart + table[j-start];
 		Pixel16		tag;
 
@@ -2648,21 +2654,20 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
 						destPixel += (tag & 0x00FF);
+						if (destPixel >= destRowEnd) goto rowDone;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
-
 						while (len--) {
-
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel++ = *rowData++;
 						}
 					}
 					break;
 				case k_TILE_SHADOW_RUN_ID		: {
 						len = (tag & 0x00FF);
-
 						while (len--) {
-
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel = pixelutils_Shadow(*destPixel);
 							destPixel++;
 						}
@@ -2671,7 +2676,7 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 				case k_TILE_COLORIZE_RUN_ID		: {
 						len = (tag & 0x00FF);
 						while (len--) {
-
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel = color;
 							destPixel++;
 						}
@@ -2679,6 +2684,7 @@ sint32 TiledMap::DrawColorizedOverlay(Pixel16 *data, aui_Surface *surface, sint3
 					break;
 			}
 		} while ((tag & 0xF000) == 0);
+	rowDone: ;
 	}
 
 	return 0;
@@ -2696,6 +2702,7 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 	uint8 * surfBase    = g_screenManager->GetSurfBase();
 	if (!surfBase) return 0;
 
+	sint32 surfWidth  = g_screenManager->GetSurfWidth();
 	sint32 surfHeight = g_screenManager->GetSurfHeight();
 	sint32 surfPitch = g_screenManager->GetSurfPitch();
 
@@ -2713,6 +2720,11 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 
 		unsigned short *    destPixel   =
             (unsigned short *)(surfBase + ((y + j) * surfPitch) + (x * 2));
+		// Right-edge clamp — see companion DrawColorizedOverlay above. Without
+		// this the COLORIZE run for selection brackets near the right edge of
+		// the viewport writes past the row, producing ASan heap-buffer-overflow.
+		unsigned short *    destRowEnd  =
+            (unsigned short *)(surfBase + ((y + j) * surfPitch)) + surfWidth;
 
 		Pixel16 *           rowData     = dataStart + table[j-start];
 
@@ -2724,19 +2736,20 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 			switch ((tag & 0x0F00) >> 8) {
 				case k_TILE_SKIP_RUN_ID	:
 						destPixel += (tag & 0x00FF);
+						if (destPixel >= destRowEnd) goto rowDone;
 					break;
 				case k_TILE_COPY_RUN_ID			: {
 						len = (tag & 0x00FF);
-
 						while (len--) {
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel++ = *rowData++;
 						}
 					}
 					break;
 				case k_TILE_SHADOW_RUN_ID		: {
 						len = (tag & 0x00FF);
-
 						while (len--) {
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel = pixelutils_Shadow(*destPixel);
 							destPixel++;
 						}
@@ -2746,6 +2759,7 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 						len = (tag & 0x00FF);
 
 						while (len--) {
+							if (destPixel >= destRowEnd) goto rowDone;
 							*destPixel = color;
 							destPixel++;
 						}
@@ -2753,6 +2767,7 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 					break;
 			}
 		} while ((tag & 0xF000) == 0);
+	rowDone: ;
 	}
 
 	return 0;

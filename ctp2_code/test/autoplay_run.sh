@@ -84,13 +84,15 @@ export AUTOPLAY_TURN_TIMEOUT="$TURN_TIMEOUT"
 
 # halt_on_error=0 keeps execution going past each error so we capture the full
 # set, not just the first one. log_path writes per-PID log files we can scrape.
-# detect_leaks=1 surfaces LSan output at exit — CTP2 has many known leaks but
-# tracking them here means new ones become visible against a stable baseline.
-export ASAN_OPTIONS="abort_on_error=0:halt_on_error=0:detect_leaks=1:log_path=/tmp/asan-auto.log"
+# detect_leaks: only enable on Linux — Apple's ASan runtime does not ship with
+# LSan and aborts on startup if detect_leaks=1 is set.
+LEAK_OPT="detect_leaks=0"
+if [[ "$(uname -s)" == "Linux" ]]; then
+    LEAK_OPT="detect_leaks=1"
+    export LSAN_OPTIONS="print_suppressions=0"
+fi
+export ASAN_OPTIONS="abort_on_error=0:halt_on_error=0:${LEAK_OPT}:log_path=/tmp/asan-auto.log"
 export UBSAN_OPTIONS="halt_on_error=0:print_stacktrace=1:suppressions=$PROJECT_ROOT/ubsan-suppressions.txt:log_path=/tmp/ubsan-auto.log"
-# LSAN_OPTIONS controls leak-detection-specific knobs; print_suppressions=0
-# avoids spamming the output with the (huge) default suppressions list.
-export LSAN_OPTIONS="print_suppressions=0"
 
 echo "## Driver Output" | tee -a "$REPORT"
 echo '```' >> "$REPORT"
@@ -112,7 +114,8 @@ WALL=$((t1 - t0))
 # --- Coverage ---
 ROUNDS=0
 if [[ -f /tmp/ctp2-autoplay-game.log ]]; then
-    ROUNDS=$(grep -c 'BeginTurnEvent' /tmp/ctp2-autoplay-game.log || echo 0)
+    # BSD grep -c returns 1 on zero matches — pipe to wc -l for a clean integer.
+    ROUNDS=$(grep -E 'BeginTurnEvent' /tmp/ctp2-autoplay-game.log 2>/dev/null | wc -l | tr -d ' ')
 fi
 {
     echo "## Coverage"

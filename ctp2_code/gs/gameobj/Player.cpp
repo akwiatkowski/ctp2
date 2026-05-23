@@ -7117,9 +7117,14 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 		if (reason == GAME_OVER_LOST_SCIENCE ||
 			reason == GAME_OVER_LOST_DIPLOMACY) {
 
-			infowin_Initialize();
-			victorywin_Initialize(k_VICWIN_DEFEAT);
-			victorywin_DisplayWindow(k_VICWIN_DEFEAT);
+			// UI-only victory-screen path.  Headless build leaves the
+			// game-over event observable via g_gameObservers (logged by
+			// HeadlessGameObserver) and exits via the driver's turn loop.
+			if (!g_headlessMode) {
+				infowin_Initialize();
+				victorywin_Initialize(k_VICWIN_DEFEAT);
+				victorywin_DisplayWindow(k_VICWIN_DEFEAT);
+			}
 		} else {
 
 			if (g_director) {

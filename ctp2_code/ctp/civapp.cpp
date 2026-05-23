@@ -415,7 +415,7 @@ bool    g_headlessMode = false;
 // this helper at every loading-progress call site.
 static inline void ProgressTo(sint32 val, MBCHAR const * msg = NULL)
 {
-	if (g_theProgressWindow) ProgressTo(val, msg);
+	if (g_theProgressWindow) g_theProgressWindow->StartCountingTo(val, msg);
 }
 
 bool    g_tempLeakCheck = false;

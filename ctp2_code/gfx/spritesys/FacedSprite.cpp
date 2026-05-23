@@ -559,7 +559,31 @@ sint32 FacedSprite::ParseFromTokens(Token *theToken)
 //----------------------------------------------------------------------------
 void FacedSprite::AllocateFrameArrays(size_t count)
 {
-    Assert(0 == m_facedFrameCount);
+    // Two-phase sprite loads (Basic then Full) reuse the same FacedSprite
+    // object.  Mirror the destructor: free any previously allocated per-frame
+    // buffers and per-facing arrays before reallocating.  The old Assert was
+    // a no-op in release builds and silently leaked.
+    for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
+    {
+        for (size_t i = 0; i < m_facedFrameCount; ++i)
+        {
+            if (m_frames[facing] && m_frames[facing][i])
+            {
+                delete m_frames[facing][i];
+                m_frames[facing][i] = NULL;
+            }
+            if (m_miniframes[facing] && m_miniframes[facing][i])
+            {
+                delete m_miniframes[facing][i];
+                m_miniframes[facing][i] = NULL;
+            }
+        }
+        delete [] m_frames[facing];          m_frames[facing] = NULL;
+        delete [] m_framesSizes[facing];     m_framesSizes[facing] = NULL;
+        delete [] m_miniframes[facing];      m_miniframes[facing] = NULL;
+        delete [] m_miniframesSizes[facing]; m_miniframesSizes[facing] = NULL;
+    }
+    m_facedFrameCount = 0;
 
 	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
     {

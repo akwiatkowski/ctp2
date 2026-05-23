@@ -867,7 +867,28 @@ sint32 FacedSpriteWshadow::ParseFromTokens(Token *theToken)
 //----------------------------------------------------------------------------
 void FacedSpriteWshadow::AllocateFrameArrays(size_t count)
 {
-    Assert(0 == m_shadowFrameCount);
+    // Two-phase sprite loads (Basic then Full) reuse the same object.  Free
+    // any previously allocated buffers + arrays before reallocating.  The old
+    // Assert was a no-op in release builds and silently leaked.
+    for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
+    {
+        for (size_t i = 0; i < m_shadowFrameCount; ++i)
+        {
+            if (m_frames[facing])           delete m_frames[facing][i];
+            if (m_miniframes[facing])       delete m_miniframes[facing][i];
+            if (m_shadowFrames[facing])     delete m_shadowFrames[facing][i];
+            if (m_miniShadowFrames[facing]) delete m_miniShadowFrames[facing][i];
+        }
+        delete [] m_frames[facing];                m_frames[facing] = NULL;
+        delete [] m_framesSizes[facing];           m_framesSizes[facing] = NULL;
+        delete [] m_miniframes[facing];            m_miniframes[facing] = NULL;
+        delete [] m_miniframesSizes[facing];       m_miniframesSizes[facing] = NULL;
+        delete [] m_shadowFrames[facing];          m_shadowFrames[facing] = NULL;
+        delete [] m_shadowFramesSizes[facing];     m_shadowFramesSizes[facing] = NULL;
+        delete [] m_miniShadowFrames[facing];      m_miniShadowFrames[facing] = NULL;
+        delete [] m_miniShadowFramesSizes[facing]; m_miniShadowFramesSizes[facing] = NULL;
+    }
+    m_shadowFrameCount = 0;
 
 	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
 	{

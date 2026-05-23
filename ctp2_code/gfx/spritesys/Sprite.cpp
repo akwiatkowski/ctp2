@@ -860,14 +860,40 @@ sint32 Sprite::ParseFromTokens(Token *theToken)
 
 void Sprite::AllocateFrameArrays(size_t count)
 {
-    Assert(!m_frames && !m_miniframes);
-    Assert(!m_framesSizes && !m_miniframesSizes);
+    // Two-phase sprite loads (Basic then Full) reuse the same Sprite object.
+    // Free any previously allocated arrays and per-frame buffers before we
+    // reallocate; the old Asserts here were no-ops in release builds and
+    // silently leaked.  See lessons/ctp2.md (Anim buffer-reuse pattern).
+    for (size_t i = 0; i < m_numFrames; ++i)
+    {
+        if (m_frames && m_frames[i])
+        {
+            delete [] m_frames[i];
+            m_frames[i] = NULL;
+        }
+        if (m_miniframes && m_miniframes[i])
+        {
+            delete [] m_miniframes[i];
+            m_miniframes[i] = NULL;
+        }
+    }
+    delete [] m_frames;          m_frames = NULL;
+    delete [] m_framesSizes;     m_framesSizes = NULL;
+    delete [] m_miniframes;      m_miniframes = NULL;
+    delete [] m_miniframesSizes; m_miniframesSizes = NULL;
 
     m_numFrames     = static_cast<uint16>(count);
 	m_frames        = new Pixel16*[m_numFrames];
 	m_framesSizes   = new size_t[m_numFrames];
 	m_miniframes    = new Pixel16*[m_numFrames];
 	m_miniframesSizes = new size_t[m_numFrames];
+    for (size_t i = 0; i < m_numFrames; ++i)
+    {
+        m_frames[i]          = NULL;
+        m_framesSizes[i]     = 0;
+        m_miniframes[i]      = NULL;
+        m_miniframesSizes[i] = 0;
+    }
 }
 
 void Sprite::Export(FILE *file)

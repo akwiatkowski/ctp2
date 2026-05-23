@@ -9462,7 +9462,13 @@ sint32 CityData::HowMuchMoreFoodNeeded(sint32 bonusFood, bool onlyGrwoth, bool c
 //	DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(foodForNextPop)));
 //	DPRINTF(k_DBG_GAMESTATE, ("FoodNextPop: %i\n", static_cast<sint32>(food)));
 
-	return static_cast<sint32>(ceil(food));
+	// food can be NaN when the divisor (timePerPop * GetGrowthRate) above is
+	// zero — empty population or a strategy/CitySize record with a zero
+	// growth rate.  Casting NaN to sint32 is UB (caught by UBSan during
+	// autoplay).  Treat non-finite as "no food needed".
+	double const result = ceil(food);
+	if (!std::isfinite(result)) return 0;
+	return static_cast<sint32>(result);
 
 #endif
 }

@@ -99,6 +99,7 @@
 
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
+#include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
 
 #ifdef __AUI_USE_SDL__
 #include <SDL2/SDL.h>
@@ -1360,6 +1361,11 @@ bool CivApp::InitializeAppDB(void)
 sint32 CivApp::InitializeEngine(void)
 {
 	fprintf(stderr, "[CIVAPP] InitializeEngine: started\n");
+
+	// Wire the game-observer registry global before anything else that might
+	// fire Notify*().  See game_observer.cpp for why this is deferred from
+	// static-init time.
+	g_gameObservers = &GameObserverRegistry::Instance();
 
 	Splash::Initialize();
 
@@ -3401,16 +3407,14 @@ sint32 CivApp::InitializeGameHeadless(void)
 		return FALSE;
 	}
 
-	// Create TiledMap without UI window (normally done in tile_Initialize)
+	// Create TiledMap without UI window (normally done in tile_Initialize).
+	// Skip LoadTileset entirely — this function is the headless-only path,
+	// and LoadTileset needs g_ImageMapPF which is initialized in
+	// InitializeImageMaps (UI-only).  Map data is sufficient for logic;
+	// tile graphics are not needed.
 	if (g_theWorld && !g_tiledMap) {
 		MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
 		g_tiledMap = new TiledMap(mapsize);
-		// Skip LoadTileset in headless — it needs g_ImageMapPF which is
-		// initialized in InitializeImageMaps (UI-only). The map data is
-		// sufficient for logic; tile graphics are not needed.
-		if (!g_headlessMode) {
-			g_tiledMap->LoadTileset();
-		}
 	}
 
 	m_gameLoaded = TRUE;

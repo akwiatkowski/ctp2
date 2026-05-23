@@ -144,5 +144,11 @@ void GameObserverRegistry::NotifyUpdateMessages(sint32 player)
     }
 }
 
-// Global instance pointer for convenience.
-GameObserverRegistry* g_gameObservers = &GameObserverRegistry::Instance();
+// Global instance pointer.  Initialized inside CivApp::InitializeEngine
+// (called by both the UI and headless entry points) before any observer
+// registration runs.  Eager static-init via `= &Instance()` would have been
+// undefined-behavior if some other TU's global constructor reached
+// g_gameObservers->Notify() before this one ran — C++ doesn't guarantee
+// inter-TU init order.  Deferring to InitializeEngine makes the lifetime
+// explicit and ordered.
+GameObserverRegistry* g_gameObservers = nullptr;

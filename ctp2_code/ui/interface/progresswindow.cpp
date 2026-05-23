@@ -49,7 +49,11 @@ void ProgressWindow::BeginProgress(
 	if ( maxval < 0 ) return;
 
 	if (g_headlessMode) {
-		progwin = (ProgressWindow *)0x1;
+		// Leave progwin = NULL.  Callers must null-guard before dereferencing;
+		// see the ProgressTo() helper in civapp.cpp for the canonical
+		// `g_theProgressWindow->StartCountingTo(...)` call wrapper.  An older
+		// 0x1 sentinel attempt here passed pointer-truthiness checks but
+		// UBSan-faulted on the very next member call (misaligned `this`).
 		return;
 	}
 

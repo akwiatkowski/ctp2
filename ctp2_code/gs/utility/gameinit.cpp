@@ -1446,7 +1446,9 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 {
 
-	g_debugWindow->SetDebugMask(k_DBG_AI);
+	if (g_debugWindow) {
+		g_debugWindow->SetDebugMask(k_DBG_AI);
+	}
 
 	uint32 seed;
 

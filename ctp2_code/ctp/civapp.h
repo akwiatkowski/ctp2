@@ -85,6 +85,7 @@ public:
     sint32		InitializeApp(HINSTANCE hInstance, int iCmdShow);
 	sint32		InitializeEngine(void);
 	bool		InitializeAppDB(void);
+	sint32		InitializeGameHeadless(void);
 	sint32		InitializeAppDB(CivArchive &archive);
 	sint32		InitializeGame(CivArchive *archive);
 

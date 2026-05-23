@@ -9,9 +9,12 @@
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
 #include "gs/utility/gameinit.h"
+#include "gs/database/profileDB.h"
+#include "gs/fileio/civscenarios.h"
 #include "gs/gameobj/Player.h"
 #include "gs/world/World.h"
 #include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
 
 #include <stdio.h>
@@ -81,12 +84,60 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    fprintf(stderr, "[HEADLESS] Engine initialized OK\n");
+    // Load game file list and databases (normally done inside InitializeApp)
+    fprintf(stderr, "[HEADLESS] Loading game files...\n");
+    if (!gameinit_InitializeGameFiles()) {
+        fprintf(stderr, "[HEADLESS] gameinit_InitializeGameFiles failed\n");
+        return 1;
+    }
 
-    // TODO: load databases, setup game, run turns
-    // For now, just prove the engine init works
-    fprintf(stderr, "[HEADLESS] Would run %d turns with %d players, seed=%d\n",
-            maxTurns, numPlayers, seed);
+    fprintf(stderr, "[HEADLESS] Loading databases...\n");
+    if (!g_civApp->InitializeAppDB()) {
+        fprintf(stderr, "[HEADLESS] InitializeAppDB failed\n");
+        return 1;
+    }
+
+    CivScenarios::Initialize();
+
+    fprintf(stderr, "[HEADLESS] Engine + DBs initialized OK\n");
+
+    if (newGame) {
+        fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",
+                numPlayers, seed);
+
+        // Set player count and seed in ProfileDB
+        g_theProfileDB->SetNPlayers(numPlayers);
+
+        // Use the headless game init path (no UI windows)
+        err = g_civApp->InitializeGameHeadless();
+        if (err != 0) {
+            fprintf(stderr, "[HEADLESS] Game initialization failed: %d\n", err);
+            return 1;
+        }
+
+        fprintf(stderr, "[HEADLESS] Game initialized OK — running %d turns\n", maxTurns);
+
+        // Run turns
+        for (sint32 t = 0; t < maxTurns; ++t) {
+            fprintf(stderr, "[HEADLESS] Turn %d / %d\n", t + 1, maxTurns);
+
+            // Process one turn for each active player
+            for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
+                if (g_player[p] && !g_player[p]->IsDead()) {
+                    g_player[p]->BeginTurn();
+                    g_player[p]->EndTurn();
+                }
+            }
+
+            // Process any pending events
+            g_gevManager->Process();
+        }
+
+        fprintf(stderr, "[HEADLESS] Completed %d turns\n", maxTurns);
+    } else {
+        fprintf(stderr, "[HEADLESS] Would run %d turns with %d players, seed=%d\n",
+                maxTurns, numPlayers, seed);
+    }
 
     fprintf(stderr, "[HEADLESS] Shutting down\n");
     return 0;

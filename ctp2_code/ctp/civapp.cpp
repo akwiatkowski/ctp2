@@ -1347,18 +1347,12 @@ bool CivApp::InitializeAppDB(void)
 
 
 
-sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
+sint32 CivApp::InitializeEngine(void)
 {
-	fprintf(stderr, "[CIVAPP] InitializeApp: started\n");
-#ifdef WIN32
-    // COM needed for DirectX/Movies
-	CoInitialize(NULL);
-#endif
+	fprintf(stderr, "[CIVAPP] InitializeEngine: started\n");
 
-	fprintf(stderr, "[CIVAPP] InitializeApp: Splash::Initialize\n");
 	Splash::Initialize();
 
-	fprintf(stderr, "[CIVAPP] InitializeApp: CivPaths_InitCivPaths\n");
 	CivPaths_InitCivPaths();
 
 	g_theProfileDB = new ProfileDB;
@@ -1378,6 +1372,21 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	gameWatch.DeliverySystem("gwfile", g_theProfileDB->GetGameWatchDirectory());
 	gameWatch.RecordingSystem("gwciv");
 #endif
+
+	fprintf(stderr, "[CIVAPP] InitializeEngine: done\n");
+	return 0;
+}
+
+sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
+{
+	fprintf(stderr, "[CIVAPP] InitializeApp: started\n");
+#ifdef WIN32
+    // COM needed for DirectX/Movies
+	CoInitialize(NULL);
+#endif
+
+	sint32 err = InitializeEngine();
+	if (err != 0) return err;
 
 	fprintf(stderr, "[CIVAPP] InitializeApp: display_Initialize\n");
 	display_Initialize(hInstance, iCmdShow);

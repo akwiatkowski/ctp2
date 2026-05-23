@@ -129,7 +129,10 @@ public:
 	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action] : NULL; }
 	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { if ((action >= 0) && (action < ACTION_MAX)) m_anims[action] = anim; }
 
-	Anim *          GetAnim(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : NULL; }
+	// Takes int (not GAME_ACTION) so callers passing UNITACTION_NONE (-1) or
+	// any other out-of-range value don't trigger an enum-load UBSan hit at
+	// entry.  Bounds-check then index is safe with an int.
+	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : NULL; }
 
 	sint32			GetWidth(void) const { return m_width; };
 	sint32			GetHeight(void) const { return m_height; };

@@ -480,7 +480,7 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
 			if(g_network.IsActive()) {
 				if(playerIndex == g_network.GetPlayerIndex()) {
 
-					g_director->AddEndTurn();
+					if (g_director) g_director->AddEndTurn();
 				} else if(g_network.IsLocalPlayer(playerIndex)) {
 
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
@@ -931,7 +931,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 			} else {
 
 				if(p == g_selected_item->GetVisiblePlayer()) {
-					g_director->AddEndTurn();
+					if (g_director) g_director->AddEndTurn();
 				} else {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
 				}
@@ -950,12 +950,16 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 						m_the_stop_player = p;
 						g_selected_item->SetPlayerOnScreen(p);
 						g_slicEngine->BlankScreen(TRUE);
-						g_director->NextPlayer();
-						g_director->AddCopyVision();
-						g_tiledMap->InvalidateMix();
-						g_tiledMap->InvalidateMap();
-						g_tiledMap->Refresh();
-						g_radarMap->Update();
+						if (g_director) {
+							g_director->NextPlayer();
+							g_director->AddCopyVision();
+						}
+						if (g_tiledMap) {
+							g_tiledMap->InvalidateMix();
+							g_tiledMap->InvalidateMap();
+							g_tiledMap->Refresh();
+						}
+						if (g_radarMap) g_radarMap->Update();
 						g_turn->InformMessages();
 						g_turn->SendNextPlayerMessage();
 					}
@@ -998,13 +1002,13 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 
 			sint32 oldVisPlayer = g_selected_item->GetVisiblePlayer();
 			if(g_network.IsClient()) {
-				g_director->AddEndTurn();
+				if (g_director) g_director->AddEndTurn();
 			} else {
 				if (m_the_stop_player != p) {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
 				} else if(g_network.IsActive() && g_network.IsHost() && g_player[m_the_stop_player]->GetPlayerType() == PLAYER_TYPE_ROBOT) {
 					if(g_selected_item->GetCurPlayer() == g_selected_item->GetVisiblePlayer()) {
-						g_director->AddEndTurn();
+						if (g_director) g_director->AddEndTurn();
 					} else {
 						g_turn->EndThisTurnBeginNewTurn(FALSE);
 					}
@@ -1017,10 +1021,12 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
             if (g_selected_item->GetVisiblePlayer() != oldVisPlayer)
 			{
                 g_selected_item->SetPlayerOnScreen((PLAYER_INDEX)-1);
-                g_tiledMap->InvalidateMix();
-	     	    g_tiledMap->InvalidateMap();
-		        g_tiledMap->Refresh();
-		        g_radarMap->Update();
+                if (g_tiledMap) {
+			        g_tiledMap->InvalidateMix();
+	      	    	g_tiledMap->InvalidateMap();
+		        	g_tiledMap->Refresh();
+		        }
+		        if (g_radarMap) g_radarMap->Update();
 
 			}
 

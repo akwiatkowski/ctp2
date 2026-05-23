@@ -2274,7 +2274,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 		g_turn->CountActivePlayers();
 
-		g_director->AddCopyVision();
+		if (g_director) g_director->AddCopyVision();
 	}
 
 	if(archive)
@@ -2394,7 +2394,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 	}
-	g_director->AddCopyVision();
+	if (g_director) g_director->AddCopyVision();
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{

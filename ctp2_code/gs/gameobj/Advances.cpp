@@ -67,6 +67,7 @@
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/utility/RandGen.h"            // g_rand
 #include "ui/interface/statswindow.h"
+#include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
@@ -1293,7 +1294,7 @@ sint32 Advances::GetProjectedScience() const
 		s += cities->Access(i).CD()->GetProjectedScience();
 	}
 
-	if(m_owner == g_selected_item->GetVisiblePlayer() && !g_network.IsClient())
+	if(g_controlPanel && m_owner == g_selected_item->GetVisiblePlayer() && !g_network.IsClient())
 	{
 		MainControlPanel::SelectedCity();
 	}

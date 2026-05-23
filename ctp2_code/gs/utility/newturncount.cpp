@@ -171,17 +171,20 @@ void NewTurnCount::StartNextPlayer(bool stop)
 			stop = true;
 		}
 
-		g_director->NextPlayer();
+		if (g_director) {
+			g_director->NextPlayer();
+			g_director->AddCopyVision();
+		}
 
-		g_director->AddCopyVision();
-
-		g_tiledMap->InvalidateMix();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
-		g_radarMap->Update();
+		if (g_tiledMap) {
+			g_tiledMap->InvalidateMix();
+			g_tiledMap->InvalidateMap();
+			g_tiledMap->Refresh();
+		}
+		if (g_radarMap) g_radarMap->Update();
 		g_turn->InformMessages();
 
-		g_controlPanel->Hide();
+		if (g_controlPanel) g_controlPanel->Hide();
 		radarwindow_Hide();
 		close_AllScreens();
 	}
@@ -191,7 +194,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		 (g_network.IsClient() || !g_player[next_player]->IsRobot())))
 	{
 		NewTurnCount::SetStopPlayer(next_player);
-		g_director->NextPlayer();
+		if (g_director) g_director->NextPlayer();
 	}
 
 	if(g_network.IsHost() && GetStopPlayer() == next_player)
@@ -202,12 +205,12 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		}
 	}
 
-	g_controlPanel->UpdatePlayerEndProgress(current_player);
+	if (g_controlPanel) g_controlPanel->UpdatePlayerEndProgress(current_player);
 
 	sint32 oldVis = g_selected_item->GetVisiblePlayer();
 	g_selected_item->SetPlayerOnScreen(NewTurnCount::GetStopPlayer());
 
-	if(oldVis != g_selected_item->GetVisiblePlayer())
+	if(oldVis != g_selected_item->GetVisiblePlayer() && g_tiledMap)
 	{
 		g_tiledMap->CopyVision();
 	}
@@ -242,7 +245,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 	else
 	{
-		g_director->NextPlayer();
+		if (g_director) g_director->NextPlayer();
 		g_thePollution->BeginTurn();
 	}
 }
@@ -253,7 +256,7 @@ void NewTurnCount::ChooseNextActivePlayer()
 
 	do {
 		g_selected_item->NextPlayer();
-		g_director->NextPlayer();
+		if (g_director) g_director->NextPlayer();
 		count++;
 	} while( g_player[g_selected_item->GetCurPlayer()] == NULL );
 }

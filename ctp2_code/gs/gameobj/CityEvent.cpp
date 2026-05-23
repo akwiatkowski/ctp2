@@ -838,19 +838,23 @@ STDEHANDLER(KillTileEvent)
 		g_theWorld->CutImprovements(pos);
 
 		cell->CalcTerrainMoveCost();
-		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-		g_tiledMap->TileChanged(pos);
+		if (g_tiledMap) {
+			g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			g_tiledMap->TileChanged(pos);
+		}
 		MapPoint npos;
 		for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
 			d = (WORLD_DIRECTION)((sint32)d + 1)) {
 			if(pos.GetNeighborPosition(d, npos)) {
-				g_tiledMap->PostProcessTile(
-					npos,
-					g_theWorld->GetTileInfo(npos));
-				g_tiledMap->TileChanged(npos);
+				if (g_tiledMap) {
+					g_tiledMap->PostProcessTile(
+						npos,
+						g_theWorld->GetTileInfo(npos));
+					g_tiledMap->TileChanged(npos);
+				}
 			}
 		}
-		g_tiledMap->RedrawTile(&pos);
+		if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
 	}
 	return GEV_HD_Continue;
 }

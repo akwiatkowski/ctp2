@@ -2206,7 +2206,7 @@ SFN_ERROR Slic_EndTurn::Call(SlicArgList *args)
 {
 
 
-	g_director->AddEndTurn();
+	if (g_director) g_director->AddEndTurn();
 
 	return SFN_ERROR_OK;
 }
@@ -3880,16 +3880,20 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 			break;
 	}
 
-	g_tiledMap->PostProcessTile(tpos, g_theWorld->GetTileInfo(tpos));
-	g_tiledMap->TileChanged(tpos);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(tpos, g_theWorld->GetTileInfo(tpos));
+		g_tiledMap->TileChanged(tpos);
+	}
 	for(WORLD_DIRECTION d = NORTH; d < UP; d = (WORLD_DIRECTION)((sint32)d + 1)) {
 		if(tpos.GetNeighborPosition(d, pos)) {
-			g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-			g_tiledMap->TileChanged(pos);
-			g_tiledMap->RedrawTile(&pos);
+			if (g_tiledMap) {
+				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+				g_tiledMap->TileChanged(pos);
+				g_tiledMap->RedrawTile(&pos);
+			}
 		}
 	}
-	g_tiledMap->RedrawTile(&tpos);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&tpos);
 #endif
 	return SFN_ERROR_OK;
 }
@@ -3904,9 +3908,11 @@ SFN_ERROR Slic_PlantGood::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	g_theWorld->SetRandomGood(pos.x, pos.y);
-	g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-	g_tiledMap->TileChanged(pos);
-	g_tiledMap->RedrawTile(&pos);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+		g_tiledMap->TileChanged(pos);
+		g_tiledMap->RedrawTile(&pos);
+	}
 
 	return SFN_ERROR_OK;
 }
@@ -4846,7 +4852,7 @@ SFN_ERROR Slic_CatchUp::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	g_director->CatchUp();
+	if (g_director) g_director->CatchUp();
 	return SFN_ERROR_OK;
 }
 
@@ -5836,11 +5842,11 @@ SFN_ERROR Slic_BlankScreen::Call(SlicArgList *args)
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
 			g_selected_item->SetSelectCity(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0));
-			g_director->AddCenterMap(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).RetPos());
+			if (g_director) g_director->AddCenterMap(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).RetPos());
 		}
-		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+		if (g_director) g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
 		radarwindow_Show();
-		g_controlPanel->Show();
+		if (g_controlPanel) g_controlPanel->Show();
 	}
 
 	return SFN_ERROR_OK;
@@ -5856,7 +5862,7 @@ SFN_ERROR Slic_AddCenter::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_director->AddCenterMap(pos);
+	if (g_director) g_director->AddCenterMap(pos);
 	return SFN_ERROR_OK;
 }
 
@@ -5893,7 +5899,7 @@ SFN_ERROR Slic_AddEffect::Call(SlicArgList *args)
 	if(soundId < 0)
 		return SFN_ERROR_SOUND_NOT_FOUND;
 
-	g_director->AddSpecialEffect(pos, effectId, soundId);
+	if (g_director) g_director->AddSpecialEffect(pos, effectId, soundId);
 	return SFN_ERROR_OK;
 }
 
@@ -6959,9 +6965,11 @@ SFN_ERROR Slic_PlantSpecificGood::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	g_theWorld->SetGood(pos.x, pos.y, goodsubtype);
-	g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-	g_tiledMap->TileChanged(pos);
-	g_tiledMap->RedrawTile(&pos);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+		g_tiledMap->TileChanged(pos);
+		g_tiledMap->RedrawTile(&pos);
+	}
 
 	return SFN_ERROR_OK;
 }
@@ -6993,9 +7001,11 @@ SFN_ERROR Slic_RemoveGood::Call(SlicArgList *args)
 
 	g_theWorld->SetGood(pos.x, pos.y, 0);
 	// plants a good of subtype 0 AKA no good, at location x,y.
-	g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-	g_tiledMap->TileChanged(pos);
-	g_tiledMap->RedrawTile(&pos);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+		g_tiledMap->TileChanged(pos);
+		g_tiledMap->RedrawTile(&pos);
+	}
 
 	return SFN_ERROR_OK;
 }

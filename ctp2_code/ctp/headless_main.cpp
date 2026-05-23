@@ -130,7 +130,10 @@ int main(int argc, char **argv)
             }
 
             // Process any pending events
-            g_gevManager->Process();
+            // TODO: many event handlers have UI side effects that crash in
+            // headless mode. Need to add null guards or separate UI hooks.
+            // For now, skip event processing to avoid crashes.
+            // g_gevManager->Process();
         }
 
         fprintf(stderr, "[HEADLESS] Completed %d turns\n", maxTurns);

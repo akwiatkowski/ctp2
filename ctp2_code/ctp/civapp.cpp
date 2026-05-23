@@ -3386,6 +3386,8 @@ sint32 CivApp::InitializeGameHeadless(void)
 {
 	fprintf(stderr, "[CIVAPP] InitializeGameHeadless: started\n");
 
+	sprite_Initialize();
+
 	gameEventManager_Initialize();
 
 	// Prevent the event handler corrupting data during init
@@ -3397,6 +3399,18 @@ sint32 CivApp::InitializeGameHeadless(void)
 		g_gevManager->Resume();
 		fprintf(stderr, "[CIVAPP] InitializeGameHeadless: gameinit_Initialize failed\n");
 		return FALSE;
+	}
+
+	// Create TiledMap without UI window (normally done in tile_Initialize)
+	if (g_theWorld && !g_tiledMap) {
+		MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
+		g_tiledMap = new TiledMap(mapsize);
+		// Skip LoadTileset in headless — it needs g_ImageMapPF which is
+		// initialized in InitializeImageMaps (UI-only). The map data is
+		// sufficient for logic; tile graphics are not needed.
+		if (!g_headlessMode) {
+			g_tiledMap->LoadTileset();
+		}
 	}
 
 	m_gameLoaded = TRUE;

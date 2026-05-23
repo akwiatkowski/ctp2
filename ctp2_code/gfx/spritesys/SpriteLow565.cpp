@@ -1819,6 +1819,9 @@ inline void Sprite::__Shadow_565_32(PixelAddress &dest,
 	memcpy(&shadowedPixel, dest.b_ptr, sizeof(Pixel32));
 	shadowedPixel = pixelutils_Shadow32_565(shadowedPixel);
 	memcpy(dest.b_ptr, &shadowedPixel, sizeof(Pixel32));
-  	 dest.b_ptr += dest_inc * sizeof(Pixel32);
+  	 // Use ptrdiff_t so negative dest_inc (reversed/flipped draws) stays
+  	 // signed through the multiply.  size_t promotion would underflow the
+  	 // pointer arithmetic (UBSan-flagged during autoplay).
+  	 dest.b_ptr += (ptrdiff_t)dest_inc * (ptrdiff_t)sizeof(Pixel32);
   }
 }

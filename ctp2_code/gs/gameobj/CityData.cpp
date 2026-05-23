@@ -927,18 +927,22 @@ void CityData::Initialize(sint32 settlerType)
 		g_theWorld->NumberContinents();
 	}
 
-	g_tiledMap->PostProcessTile(center_point, g_theWorld->GetTileInfo(center_point));
-	g_tiledMap->TileChanged(center_point);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(center_point, g_theWorld->GetTileInfo(center_point));
+		g_tiledMap->TileChanged(center_point);
+	}
 	MapPoint pos;
 	for(WORLD_DIRECTION d = NORTH; d < NOWHERE; d = (WORLD_DIRECTION)((sint32)d + 1))
 	{
 		if(center_point.GetNeighborPosition(d, pos))
 		{
-			g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-			g_tiledMap->TileChanged(pos);
+			if (g_tiledMap) {
+				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+				g_tiledMap->TileChanged(pos);
+			}
 		}
 	}
-	g_tiledMap->RedrawTile(&center_point);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&center_point);
 
 	g_network.Enqueue(g_theWorld->GetCell(center_point),
 					  center_point.x, center_point.y);
@@ -1471,12 +1475,12 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 		{
 			sint32 const spriteID = specRec->GetSpriteID()->GetValue();
 
-			if (spriteID >= 0)
+			if (spriteID >= 0 && g_director)
 			{
 				g_director->AddSpecialAttack
 				    (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
 			}
-			else
+			else if (g_soundManager)
 			{
 				sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
 				if ((visiblePlayer == m_owner) ||
@@ -3921,7 +3925,7 @@ void CityData::UpdateSprite(void)
 	SpriteStatePtr ss = m_home_city.GetSpriteState();
 	sint32	type = m_home_city.GetType();
 
-	g_director->AddMorphUnit(actor, ss, type, m_home_city);
+	if (g_director) g_director->AddMorphUnit(actor, ss, type, m_home_city);
 }
 
 void CityData::MakeCitizen(PopDBIndex type, const MapPoint &center_pos,
@@ -3993,7 +3997,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 			if(!route.IsActive())
 			{
 				route.Activate();
-				g_director->TradeActorCreate(route);
+				if (g_director) g_director->TradeActorCreate(route);
 			}
 			route.BeginTurn();
 		}
@@ -4062,7 +4066,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 			if(!route.IsActive())
 			{
 				route.Activate();
-				g_director->TradeActorCreate(route);
+				if (g_director) g_director->TradeActorCreate(route);
 			}
 		}
 		if(route.IsActive() && !killRoute)
@@ -5441,20 +5445,24 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 					cell->CalcTerrainMoveCost();
 					MapPoint nonConstPos = pos;
 
-					g_tiledMap->PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
-					g_tiledMap->TileChanged(nonConstPos);
+					if (g_tiledMap) {
+						g_tiledMap->PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
+						g_tiledMap->TileChanged(nonConstPos);
+					}
 					MapPoint npos;
 					for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
 						d = (WORLD_DIRECTION)((sint32)d + 1)) {
 						if(pos.GetNeighborPosition(d, npos)) {
-							g_tiledMap->PostProcessTile(
-								npos,
-								g_theWorld->GetTileInfo(npos));
-							g_tiledMap->TileChanged(npos);
-							g_tiledMap->RedrawTile(&npos);
+							if (g_tiledMap) {
+								g_tiledMap->PostProcessTile(
+									npos,
+									g_theWorld->GetTileInfo(npos));
+								g_tiledMap->TileChanged(npos);
+								g_tiledMap->RedrawTile(&npos);
+							}
 						}
 					}
-					g_tiledMap->RedrawTile(&pos);
+					if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
 
 					if(g_network.IsHost()) {
 						g_network.Block(m_owner);

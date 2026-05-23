@@ -196,7 +196,7 @@ UnitData::UnitData(
 		m_actor = actor;
 		Unit actorId = actor->GetUnitID();
 
-		g_director->AddMorphUnit(m_actor, m_sprite_state, t, Unit(m_id));
+		if (g_director) g_director->AddMorphUnit(m_actor, m_sprite_state, t, Unit(m_id));
 		if(g_network.IsHost()) {
 			g_network.Block(m_owner);
 			g_network.Enqueue(this, actorId);
@@ -1926,7 +1926,7 @@ void UnitData::SetVisible(PLAYER_INDEX player)
 	m_ever_visible |= (1 << player);
 
 	if (m_actor) {
-		g_director->AddSetVisibility(m_actor, GetVisibility());
+		if (g_director) g_director->AddSetVisibility(m_actor, GetVisibility());
 	}
 }
 
@@ -1936,7 +1936,7 @@ void UnitData::UnsetVisible(PLAYER_INDEX player)
 	m_visibility &= ~(1 << player);
 
 	if (m_actor) {
-		g_director->AddSetVisibility(m_actor, GetVisibility());
+		if (g_director) g_director->AddSetVisibility(m_actor, GetVisibility());
 	}
 }
 
@@ -1956,7 +1956,7 @@ void UnitData::BeginTurnVision(PLAYER_INDEX player)
 
 	if (m_actor)
 	{
-		g_director->AddSetVisibility(m_actor, GetVisibility());
+		if (g_director) g_director->AddSetVisibility(m_actor, GetVisibility());
 	}
 
 	m_radar_visibility &= ~(1 << player);
@@ -2040,8 +2040,10 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	m_temp_visibility |= (1 << newo);
 	m_ever_visible |= m_visibility;
 
-	g_director->AddSetOwner(m_actor, newo);
-	g_director->AddSetVisibility(m_actor, m_visibility);
+	if (g_director) {
+		g_director->AddSetOwner(m_actor, newo);
+		g_director->AddSetVisibility(m_actor, m_visibility);
+	}
 
 	uint64 wonders = m_city_data->GetBuiltWonders();
 	for (sint32 w = 0; w < 64; w++)
@@ -2145,9 +2147,11 @@ void UnitData::ResetUnitOwner(const Unit &me, const PLAYER_INDEX new_owner,
 	m_ever_visible |= m_visibility;
 	if(m_actor)
 	{
-		g_director->AddSetOwner(m_actor, new_owner);
-		g_director->AddSetVisibility(m_actor, m_visibility);
-		g_director->AddSetVisionRange(m_actor, (GetVisionRange()));
+		if (g_director) {
+			g_director->AddSetOwner(m_actor, new_owner);
+			g_director->AddSetVisibility(m_actor, m_visibility);
+			g_director->AddSetVisionRange(m_actor, (GetVisionRange()));
+		}
 	}
 
 	UnitDynamicArray revealed_units;
@@ -2771,7 +2775,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 	}
 
 	if (m_actor) {
-		g_director->AddSetVisibility(m_actor, GetVisibility());
+		if (g_director) g_director->AddSetVisibility(m_actor, GetVisibility());
 	}
 }
 
@@ -3199,7 +3203,7 @@ void UnitData::EndTurn()
 		if(rec->GetSpawnsBarbarians()
 		&& cellowner != m_owner
 		){
-			g_director->AddCenterMap(m_pos);
+			if (g_director) g_director->AddCenterMap(m_pos);
 			Barbarians::AddBarbarians(m_pos, cellowner, FALSE);
 			SlicObject *so = new SlicObject("999GuerrillaSpawn");
 			so->AddRecipient(m_owner);
@@ -6185,9 +6189,9 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 	sint32 soundID = rec->GetSoundIDIndex();
 	sint32 spriteID = rec->GetSpriteID()->GetValue();
 
-	if (spriteID != -1 && soundID != -1) {
+	if (spriteID != -1 && soundID != -1 && g_director) {
 		g_director->AddSpecialAttack(m_actor->GetUnitID(), c, attack);
-	} else {
+	} else if (g_soundManager) {
 		if (soundID != -1) {
 			sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
 			if ((visiblePlayer == m_owner) ||
@@ -6202,8 +6206,8 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 void UnitData::ActionUnsuccessful(void)
 {
 	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-	if ((visiblePlayer == m_owner) ||
-		(m_visibility & (1 << visiblePlayer))) {
+	if (g_soundManager && ((visiblePlayer == m_owner) ||
+		(m_visibility & (1 << visiblePlayer)))) {
 
 		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 							gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL),

@@ -26,7 +26,7 @@
 //
 // - Update the display (rush buy buttons) when receiving gold.
 // - Speeded up goody hut advance and unit selection.
-// - Replaced old risk database by new one. (Aug 29th 2005 Martin Gühmann)
+// - Replaced old risk database by new one. (Aug 29th 2005 Martin Gï¿½hmann)
 // - GoodyHutExcluded added to unit radomizer to prevent some units from appearing
 //   by E 8-MAR-2006
 //
@@ -62,10 +62,12 @@
 #include "gs/events/GameEventManager.h"
 
 #include "ui/interface/MainControlPanel.h"
+#include "ui/interface/controlpanelwindow.h"
 
 extern Player **g_player;
 extern RandomGenerator *g_rand;
 extern TiledMap		*g_tiledMap;
+extern ControlPanelWindow *g_controlPanel;
 
 extern SelectedItem	*g_selected_item;
 
@@ -504,7 +506,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 											);
 				}
 
-				MainControlPanel::Update();	// the received gold may enable rush buying
+				if (g_controlPanel) MainControlPanel::Update();	// the received gold may enable rush buying
 			}
 			break;
 		case GOODY_ADVANCE:

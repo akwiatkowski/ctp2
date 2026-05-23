@@ -116,7 +116,7 @@ bool ExpandBorders(const MapPoint &center, MapPoint curPos, sint32 player, sint3
 			redrawMe = true;
 		}
 
-	if(redrawMe)
+	if(redrawMe && g_tiledMap)
 	{
 		g_tiledMap->RedrawTile(&curPos);
 	}

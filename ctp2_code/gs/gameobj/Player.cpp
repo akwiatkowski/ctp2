@@ -1532,9 +1532,9 @@ bool Player::AddCityReferenceToPlayer(Unit u,  CAUSE_NEW_CITY cause)
 	{
 	}
 
-	if(!IsRobot()
-	|| g_selected_item->GetVisiblePlayer() == m_owner
-	){
+	if(g_controlPanel && (!IsRobot()
+	|| g_selected_item->GetVisiblePlayer() == m_owner))
+	{
 		MainControlPanel::UpdateCityList();
 	}
 
@@ -1615,7 +1615,7 @@ bool Player::RemoveCityReferenceFromPlayer(const Unit &killme,  CAUSE_REMOVE_CIT
 		}
 	}
 
-	MainControlPanel::UpdateCityList();
+	if (g_controlPanel) MainControlPanel::UpdateCityList();
 
 	return true;
 }

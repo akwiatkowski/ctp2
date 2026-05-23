@@ -2553,11 +2553,13 @@ void SlicEngine::BlankScreen(bool blank)
 	if (m_blankScreen != blank)
 	{
 		m_blankScreen = blank;
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
-		g_radarMap->Update();
+		if (g_tiledMap) {
+			g_tiledMap->InvalidateMap();
+			g_tiledMap->Refresh();
+		}
+		if (g_radarMap) g_radarMap->Update();
 
-		if (m_blankScreen)
+		if (m_blankScreen && g_controlPanel)
 		{
 			MainControlPanel::Blank();
 			if (g_greatLibrary)
@@ -2565,7 +2567,7 @@ void SlicEngine::BlankScreen(bool blank)
 				g_greatLibrary->ClearHistory();
 			}
 		}
-		else
+		else if (g_controlPanel)
 		{
 			CheckPendingResearch();
 
@@ -2588,7 +2590,7 @@ void SlicEngine::CheckPendingResearch()
 {
 	if(m_doResearchOnUnblank) {
 		m_doResearchOnUnblank = FALSE;
-		if(m_researchOwner == g_selected_item->GetVisiblePlayer()) {
+		if(m_researchOwner == g_selected_item->GetVisiblePlayer() && g_director) {
 			g_director->AddInvokeResearchAdvance(m_researchText);
 		}
 	}

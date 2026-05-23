@@ -272,7 +272,7 @@ void TurnCount::ChooseNextActivePlayer()
 
 	do {
 		g_selected_item->NextPlayer();
-		g_director->NextPlayer();
+		if (g_director) g_director->NextPlayer();
 		count++;
 	} while(g_player[g_selected_item->GetCurPlayer()] == NULL ||
 			(g_player[g_selected_item->GetCurPlayer()]->IsTurnOver() &&
@@ -356,7 +356,7 @@ void TurnCount::BeginNewRound()
 			m_activePlayers++;
 	}
 	g_selected_item->NextRound();
-	g_director->NextPlayer();
+	if (g_director) g_director->NextPlayer();
 	g_theAgreementPool->EndRound();
 	g_thePollution->EndRound();
 	g_slicEngine->RunYearlyTriggers();
@@ -526,7 +526,7 @@ void TurnCount::EndThisSlice()
 			nextPlayer = m_sliceList->Access(0);
 			m_sliceList->DelIndex(0);
 			g_selected_item->SetCurPlayer(nextPlayer);
-			g_director->NextPlayer();
+			if (g_director) g_director->NextPlayer();
 		} else {
 			ChooseNextActivePlayer();
 		}
@@ -620,7 +620,7 @@ void TurnCount::SetSliceTo(sint32 player)
 	}
 
 	g_selected_item->SetCurPlayer(player);
-	g_director->NextPlayer();
+	if (g_director) g_director->NextPlayer();
 	BeginNewSlice();
 }
 
@@ -755,7 +755,7 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		g_network.SetMyTurn(FALSE);
 		return;
 	} else if(g_network.IsHost()) {
-		g_director->AddEndTurn();
+		if (g_director) g_director->AddEndTurn();
 		return;
 	}
 
@@ -782,16 +782,20 @@ void TurnCount::NetworkEndTurn(BOOL force)
 
 	if (!g_doingFastRounds)
     {
+		if (g_tiledMap) {
+			g_tiledMap->InvalidateMix();
+			g_tiledMap->InvalidateMap();
+			g_tiledMap->Refresh();
+		}
+		if (g_radarMap) g_radarMap->Update();
+	}
+#else
+	if (g_tiledMap) {
 		g_tiledMap->InvalidateMix();
 		g_tiledMap->InvalidateMap();
 		g_tiledMap->Refresh();
-		g_radarMap->Update();
 	}
-#else
-	g_tiledMap->InvalidateMix();
-	g_tiledMap->InvalidateMap();
-	g_tiledMap->Refresh();
-	g_radarMap->Update();
+	if (g_radarMap) g_radarMap->Update();
 #endif
 
 #endif // Unreachable
@@ -984,14 +988,17 @@ sint32 finite_count=0;
 				SendNextPlayerMessage();
 			}
 
-			g_director->NextPlayer();
+			if (g_director) {
+				g_director->NextPlayer();
+				g_director->AddCopyVision();
+			}
 
-			g_director->AddCopyVision();
-
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
-			g_radarMap->Update();
+			if (g_tiledMap) {
+				g_tiledMap->InvalidateMix();
+				g_tiledMap->InvalidateMap();
+				g_tiledMap->Refresh();
+			}
+			if (g_radarMap) g_radarMap->Update();
 			InformMessages();
 		}
 	} while (0);

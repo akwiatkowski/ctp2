@@ -69,6 +69,7 @@
 #include "gs/gameobj/CTP2Combat.h"
 #include "net/general/net_action.h"
 #include "ui/interface/MainControlPanel.h"
+#include "ui/interface/controlpanelwindow.h"
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"
 #include "ai/diplomacy/Diplomat.h"
@@ -85,6 +86,7 @@
 #include "gs/core/game_observer.h"
 
 extern ArmyPool		*g_theArmyPool;
+extern ControlPanelWindow *g_controlPanel;
 
 
 
@@ -186,7 +188,7 @@ STDEHANDLER(ArmyUnloadOrderEvent)
 	if (a.GetOwner() == g_selected_item->GetVisiblePlayer())
 	{
 		CellUnitList cargoToUnload;
-		if (MainControlPanel::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
+		if (g_controlPanel && MainControlPanel::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
 		{
 			ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
 		}

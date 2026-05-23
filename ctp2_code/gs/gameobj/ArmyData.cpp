@@ -679,7 +679,7 @@ bool ArmyData::Insert(const Unit &id)
     Unit u(id);
     u.SetArmy(Army(m_id));
 
-    if(m_nElements > 0) {
+    if(m_nElements > 0 && g_director) {
         g_director->AddShow(id);
     }
 
@@ -1563,7 +1563,7 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
 		}
 		if (validtargets <= 0) break;
 
-        g_director->AddAttackPos(ta, m_pos);
+        if (g_director) g_director->AddAttackPos(ta, m_pos);
         g_slicEngine->RunActiveDefenseTriggers(ta, td);
 
 		activeDefenders[i].Bombard(*this, false);
@@ -2887,7 +2887,7 @@ void ArmyData::FixActors(MapPoint &opos, const MapPoint &npos, UnitDynamicArray 
 	}
 
 	MapPoint newPos(npos);
-	g_director->AddMove(
+	if (g_director) g_director->AddMove(
     top_src,
     opos,
     newPos,
@@ -4701,7 +4701,7 @@ void ArmyData::Reenter()
 		FixActors(oldPos, m_pos, revealedUnits);
 		for (i = 0; i < m_nElements; i++)
 		{
-			g_director->AddShow(m_array[i]);
+			if (g_director) g_director->AddShow(m_array[i]);
 		}
 	}
 }
@@ -5435,7 +5435,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 			AddSpecialActionUsed(m_array[i]);
 			MapPoint nonConstPos = point;
 
-			if(doAnimations)
+			if(doAnimations && g_director)
 			{
 				g_director->AddAttackPos(m_array[i], nonConstPos);
 				bool out_of_fuel;
@@ -5670,11 +5670,11 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 				}
 
 				// * Added auto-center for bombardment
-				if(g_selected_item->IsAutoCenterOn()
+				if(g_director && g_selected_item->IsAutoCenterOn()
 				&& defender.GetOwner() == g_selected_item->GetVisiblePlayer())
 					g_director->AddCenterMap(point);
 
-				g_director->AddAttackPos(m_array[i], point);
+				if (g_director) g_director->AddAttackPos(m_array[i], point);
 
 				AddSpecialActionUsed(m_array[i]);
 
@@ -5915,12 +5915,12 @@ ORDER_RESULT ArmyData::InterceptTrade()
 				//InformAI(UNIT_ORDER_INTERCEPT_TRADE, m_pos); //does nothing here but could be implemented
 				if (g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(m_pos))
 				{
-					if(g_selected_item->IsAutoCenterOn())
+					if(g_director && g_selected_item->IsAutoCenterOn())
 					{
 						g_director->AddCenterMap(m_pos);
 					}
 
-					g_director->AddSpecialEffect(m_pos, effectId, soundId);
+					if (g_director) g_director->AddSpecialEffect(m_pos, effectId, soundId);
 				}
 				AddSpecialActionUsed(m_array[i]);
 				m_isPirating = true;
@@ -7279,7 +7279,7 @@ void ArmyData::Battle(const MapPoint &pos, CellUnitList & defender)
 				defender.Clear();
 				g_theWorld->GetArmy(pos, defender);
 					MapPoint nonConstPos = pos;
-				g_director->AddAttackPos(m_array[i], nonConstPos);
+				if (g_director) g_director->AddAttackPos(m_array[i], nonConstPos);
 				m_array[i].Bombard(defender, false);
 
 				for(sint32 j = 0; j < defender.Num(); j++)
@@ -7693,27 +7693,29 @@ void ArmyData::MoveActors(const MapPoint &pos,
 
 	MapPoint newPos = pos;
 
-	if (teleport || !(top_src.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))) {
-		g_director->AddTeleport(
-      top_src, 
-      m_pos, 
-      newPos, 
-      revealedActors,
-      restOfStack);
-	} else {
-		g_director->AddMove(
-      top_src,
-      m_pos,
-      newPos,
-      revealedActors,
+	if (g_director) {
+		if (teleport || !(top_src.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))) {
+			g_director->AddTeleport(
+	      top_src, 
+	      m_pos, 
+	      newPos, 
+	      revealedActors,
+	      restOfStack);
+		} else {
+			g_director->AddMove(
+	      top_src,
+	      m_pos,
+	      newPos,
+	      revealedActors,
 		  restOfStack,
-      false,
-      top_src.GetMoveSoundID());
+	      false,
+	      top_src.GetMoveSoundID());
 
+		}
+
+		if (top_src.GetData()->HasLeftMap())
+			g_director->AddHide(top_src);
 	}
-
-	if (top_src.GetData()->HasLeftMap())
-		g_director->AddHide(top_src);
 }
 
 //----------------------------------------------------------------------------
@@ -7906,7 +7908,7 @@ void ArmyData::CheckTerrainEvents()
 		}
 
 		MapPoint pos2;
-		g_tiledMap->RedrawTile(&m_pos);
+		if (g_tiledMap) g_tiledMap->RedrawTile(&m_pos);
 		for(
 		    WORLD_DIRECTION d = NORTH;
 		                    d < NOWHERE;
@@ -7915,7 +7917,7 @@ void ArmyData::CheckTerrainEvents()
 		{
 			if(m_pos.GetNeighborPosition(d, pos2))
 			{
-				g_tiledMap->RedrawTile(&pos2);
+				if (g_tiledMap) g_tiledMap->RedrawTile(&pos2);
 			}
 		}
 
@@ -8159,7 +8161,7 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 	}
 
 	MapPoint directorDoesntLikeConsts = pos;
-	g_director->AddMove(
+	if (g_director) g_director->AddMove(
     top_src, 
     m_pos, 
     directorDoesntLikeConsts, 
@@ -8334,13 +8336,13 @@ bool ArmyData::ExecuteUnloadOrder(Order *order)
 	else
 	{
 		sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-		if(visiblePlayer == m_array[0].GetOwner()
-		|| (m_array[0].GetVisibility() & (1 << visiblePlayer)))
+		if(g_soundManager && (visiblePlayer == m_array[0].GetOwner()
+		|| (m_array[0].GetVisibility() & (1 << visiblePlayer))))
 		{
 			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-								m_array[0].GetCantMoveSoundID(),
-								to_pt.x,
-								to_pt.y);
+							m_array[0].GetCantMoveSoundID(),
+							to_pt.x,
+							to_pt.y);
 		}
 	}
 
@@ -8352,8 +8354,8 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 	if(debark.Num() <= 0)
 	{
 		sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-		if ((visiblePlayer == m_array[0].GetOwner()) ||
-			(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+		if (g_soundManager && ((visiblePlayer == m_array[0].GetOwner()) ||
+			(m_array[0].GetVisibility() & (1 << visiblePlayer)))) {
 			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 								m_array[0].GetCantMoveSoundID(),
 								to_pt.x,
@@ -8446,14 +8448,14 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 					if (debark[i].GetActor()) {
 						debark[i].GetActor()->Hide();
 						debark[i].GetActor()->PositionActor(m_pos);
-						g_director->AddShow(debark[i]);
+						if (g_director) g_director->AddShow(debark[i]);
 					}
 				}
 				debark.AutoAddOrders(UNIT_ORDER_MOVE_TO, NULL, to_pt, 0);
 			} else {
 				sint32 i;
 				for(i = 0; i < debark.Num(); i++) {
-					g_director->AddShow(debark[i]);
+					if (g_director) g_director->AddShow(debark[i]);
 				}
 				debark.AutoAddOrders(UNIT_ORDER_TELEPORT_TO, NULL, m_pos, 0);
 			}
@@ -8637,7 +8639,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	}
 	else
 	{
-		if(ta.IsValid() && defender[0].IsValid())
+		if(ta.IsValid() && defender[0].IsValid() && g_director)
 		{
 			g_director->AddAttackPos(ta, defender[0].RetPos());
 		}
@@ -8655,7 +8657,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 
 	defender.GetPos(pos);
 
-	if(g_selected_item->IsAutoCenterOn()
+	if(g_director && g_selected_item->IsAutoCenterOn()
 	&& defender.GetOwner() == g_selected_item->GetVisiblePlayer())
 		g_director->AddCenterMap(pos);
 
@@ -8743,7 +8745,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	}
 
 	if(defenderSucks) {
-		if(ta.IsValid()) {
+		if(ta.IsValid() && g_director) {
 			g_director->AddAttack(ta, td);
 			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_BattleAftermath,
@@ -9157,15 +9159,15 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 			       )
 			     )
 			){
-				g_director->AddCenterMap(m_pos);
+				if (g_director) g_director->AddCenterMap(m_pos);
 			}
 		}
 
-		g_director->AddSpecialAttack(unit, c, attack);
+		if (g_director) g_director->AddSpecialAttack(unit, c, attack);
 	}
 	else
 	{
-		if(soundID != -1)
+		if(soundID != -1 && g_soundManager)
 		{
 			sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
 			{
@@ -9178,8 +9180,8 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 void ArmyData::ActionUnsuccessful(const MapPoint &point)
 {
 	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-	if ((visiblePlayer == m_owner) ||
-		(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+	if (g_soundManager && ((visiblePlayer == m_owner) ||
+		(m_array[0].GetVisibility() & (1 << visiblePlayer)))) {
 
 		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 							gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL),
@@ -9365,7 +9367,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 				sint32	spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_CANT"))->GetValue();
 				sint32	soundID  = gamesounds_GetGameSoundID(GAMESOUNDS_TOOEXPENSIVE);
 
-				g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
+				if (g_director) g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
 			}
 			return true;
 		}
@@ -9511,7 +9513,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			sint32	spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_CANT"))->GetValue();
 			sint32	soundID = gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL);
 
-			g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
+			if (g_director) g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
 		}
 
 		for(sint32 i = m_nElements - 1; i >= 0; i--)
@@ -9535,14 +9537,14 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			if(!order_rec->GetFailSound(soundID))
 				soundID = 0;
 
-			if(g_selected_item->IsAutoCenterOn()
+			if(g_director && g_selected_item->IsAutoCenterOn()
 			&&!g_director->TileWillBeCompletelyVisible(order->m_point.x, order->m_point.y)
 			&& g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(order->m_point)
 			){
 				g_director->AddCenterMap(m_pos);
 			}
 
-			g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
+			if (g_director) g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
 		}
 			break;
 		case ORDER_RESULT_SUCCEEDED:
@@ -9551,7 +9553,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 
 			if (useDefaultSuccessSound)
 			{
-				if(g_selected_item->IsAutoCenterOn()
+				if(g_director && g_selected_item->IsAutoCenterOn()
 				&&!g_director->TileWillBeCompletelyVisible(order->m_point.x, order->m_point.y)
 				&& g_player[g_selected_item->GetVisiblePlayer()]->m_vision->IsVisible(order->m_point)
 				){
@@ -9565,7 +9567,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 					soundID = 0;
 				}
 
-				if(g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(order->m_point))
+				if(g_director && g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(order->m_point))
 				{
 					g_director->AddSpecialEffect(order->m_point, spriteID, soundID);
 				}

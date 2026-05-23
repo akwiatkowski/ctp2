@@ -89,7 +89,16 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
     // Mix_QuickLoad_WAV sets chunk->allocated=0, so Mix_FreeChunk only
     // frees the Mix_Chunk struct, not the audio buffer. The audio buffer
     // is managed by ProjectFile (freed via freeData in the destructor).
-	m_Audio = Mix_QuickLoad_WAV((Uint8 *) m_dataptr);
+    //
+    // Guard against missing/empty sound assets: ProjectFile returns NULL or
+    // a too-small buffer when the .wav isn't packaged or is corrupt, and
+    // Mix_QuickLoad_WAV unconditionally reads the RIFF header (44 bytes).
+    // SEGV on null+0xf observed during autoplay around turn 272.
+    if (m_dataptr && m_datasize >= 44) {
+        m_Audio = Mix_QuickLoad_WAV((Uint8 *) m_dataptr);
+    } else {
+        m_Audio = NULL;
+    }
 #endif
 }
 

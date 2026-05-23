@@ -3070,6 +3070,58 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
+			else if (strncmp(cmd, "auto_explore ", 13) == 0) {
+				// Put a unit (by city-relative-slot, same convention as
+				// move_unit) on auto-explore.  The army receives ORDER_EXPLORE;
+				// the per-turn hook keeps re-picking new targets.
+				if (m_gameLoaded) {
+					int city_idx = 0;
+					if (sscanf(cmd + 13, "%d", &city_idx) != 1) {
+						smoketest_send_response("error", cmd, "bad_args");
+					} else {
+						Player *human = NULL;
+						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
+							if (g_player[p] && g_player[p]->IsHuman()) {
+								human = g_player[p];
+								break;
+							}
+						}
+						if (!human) {
+							smoketest_send_response("error", cmd, "no_human_player");
+						} else if (city_idx < 0 || city_idx >= human->GetAllCitiesList()->Num()) {
+							smoketest_send_response("error", cmd, "bad_city_index");
+						} else {
+							Unit city = human->GetAllCitiesList()->Access(city_idx);
+							MapPoint city_pos;
+							city.GetPos(city_pos);
+							Cell *cell = g_theWorld->GetCell(city_pos);
+							bool issued = false;
+							if (cell) {
+								for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
+									Unit u = cell->AccessUnit(i);
+									if (u.IsValid() && !u.IsCity() && u.GetOwner() == human->GetOwner()) {
+										Army army = u.GetArmy();
+										if (army.IsValid()) {
+											g_gevManager->AddEvent(GEV_INSERT_Tail,
+											                       GEV_ExploreOrder,
+											                       GEA_Army, army,
+											                       GEA_End);
+											fprintf(stderr, "[SMOKE] Auto-explore queued for army at (%d,%d)\n",
+											        city_pos.x, city_pos.y);
+											issued = true;
+											break;
+										}
+									}
+								}
+							}
+							smoketest_send_response(issued ? "ok" : "error", cmd,
+							                        issued ? NULL : "no_movable_unit");
+						}
+					}
+				} else {
+					smoketest_send_response("error", cmd, "game_not_loaded");
+				}
+			}
 			else if (strcmp(cmd, "list_visible_units") == 0) {
 				if (m_gameLoaded) {
 					Player *human = NULL;

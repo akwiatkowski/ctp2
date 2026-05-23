@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - AddUnitToArmyEvent does not crash in the debug version if the unit to
-//   be is transported and has therefore no army. This makes slic code save. (7-Nov-2007 Martin Gühmann)
-// - Added an upgrade unit event. (13-Sep-2008 Martin Gühmann)
+//   be is transported and has therefore no army. This makes slic code save. (7-Nov-2007 Martin Gï¿½hmann)
+// - Added an upgrade unit event. (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -120,6 +120,37 @@ STDEHANDLER(BeginTurnUnitEvent)
 		return GEV_HD_Continue;
 
 	u.BeginTurn();
+
+	// Auto-explore tick: if the unit is on auto-explore and idle (no pending
+	// orders, or arrived at the previous target), re-pick the nearest
+	// unexplored tile and re-issue a MOVE_TO.  Clear the flag if the map is
+	// fully explored from here.
+	UnitData * ud = u.AccessData();
+	if (ud && ud->IsExploring()) {
+		Army army = u.GetArmy();
+		bool needRetarget = !army.IsValid()
+		                 || army.AccessData() == NULL
+		                 || army.AccessData()->NumOrders() == 0;
+
+		MapPoint cur;
+		u.GetPos(cur);
+		if (cur == ud->ExploreTarget()) needRetarget = true;
+
+		if (needRetarget) {
+			Player * owner = g_player[u.GetOwner()];
+			MapPoint target;
+			if (owner && owner->FindNearestUnexplored(cur, target)) {
+				ud->SetExploreTarget(target);
+				if (army.IsValid()) {
+					army.AddOrders(UNIT_ORDER_MOVE_TO, target);
+				}
+			} else {
+				// Nothing left to explore from here.
+				ud->SetExploring(false);
+			}
+		}
+	}
+
 	return GEV_HD_Continue;
 }
 

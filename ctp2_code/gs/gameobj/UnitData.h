@@ -28,13 +28,13 @@
 // - Added GetTurnsToNextPop(sint32 &p)const; PFT 29 mar 05, to help show # turns until city grows
 // - Added IsImmobile( )const; PFT 10 apr 05, to identify immobile units
 // - Removed some unsused method to removed some unused in methods in
-//   CityData.. - Aug 6th 2005 Martin Gühmann
-// - Removed another unused and unecessary function. (Aug 12th 2005 Martin Gühmann)
+//   CityData.. - Aug 6th 2005 Martin Gï¿½hmann
+// - Removed another unused and unecessary function. (Aug 12th 2005 Martin Gï¿½hmann)
 // - Total fuel, total move points and total hp calculation moved into their own
-//   methods. (Dec 24th 2006 Martin Gühmann)
+//   methods. (Dec 24th 2006 Martin Gï¿½hmann)
 // - Added IsReligion bools
-// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gühmann).
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
+// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gï¿½hmann).
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
 // - Added GetRanged, and GetDefCounterAttack for new combat option. (07-Mar-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -216,6 +216,13 @@ private:
 
 	BitMask *m_roundTheWorldMask;
 
+	// Auto-explore state: when set, the per-turn hook in Player re-issues a
+	// GOTO toward m_exploreTarget (an unexplored tile chosen by BFS over the
+	// owner's known map).  Cleared on enemy contact, target reached + nothing
+	// more to explore, or any other order issued by the player.
+	bool m_isExploring;
+	MapPoint m_exploreTarget;
+
 
 	friend class NetCity;
 	friend class NetPop;
@@ -231,6 +238,12 @@ public:
 #ifdef _DEBUG
 	char m_text[80];
 #endif
+
+	// Auto-explore accessors (see m_isExploring above).
+	bool             IsExploring()      const { return m_isExploring; }
+	void             SetExploring(bool v)     { m_isExploring = v;    }
+	MapPoint const & ExploreTarget()    const { return m_exploreTarget; }
+	void             SetExploreTarget(const MapPoint &p) { m_exploreTarget = p; }
 
 	UnitData(const sint32 t, const sint32 trans_t, const Unit &i,
 	         const PLAYER_INDEX o, const MapPoint &center_point, const Unit hc,

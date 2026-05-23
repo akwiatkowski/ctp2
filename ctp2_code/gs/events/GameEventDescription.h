@@ -24,17 +24,17 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gühmann)
-// - Added GobalWarming and OzoneDepletion events. (29-Oct-2007 Martin Gühmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
+// - Added GobalWarming and OzoneDepletion events. (29-Oct-2007 Martin Gï¿½hmann)
 // - Added SendEmailAndHotSeatMessage so that this is event driven and can
-//   be executed after all the other events. (14-Nov-2007 Martin Gühmann)
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
-// - Seperated the CheckOrders event from MoveUnits event. (13-Aug-2008 Martin Gühmann)
+//   be executed after all the other events. (14-Nov-2007 Martin Gï¿½hmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
+// - Seperated the CheckOrders event from MoveUnits event. (13-Aug-2008 Martin Gï¿½hmann)
 // - Moved the startegic state calculation before everthing else, so that
-//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin Gühmann)
-// - Added upgrade events. (13-Sep-2008 Martin Gühmann)
+//   each turn has the right startegy even after a reload. (13-Aug-2008 Martin Gï¿½hmann)
+// - Added upgrade events. (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -66,6 +66,7 @@ GameEventDescription g_eventDescriptions[] =
 	EVENT(MoveToOrder,                "Give a single square move order to an army", "%a%d")
 	EVENT(MovePathOrder,              "Give a move order to an army, creates a new path", "%a%l")
 	EVENT(SleepOrder,                 "Put an army to sleep", "%a")
+	EVENT(ExploreOrder,               "Put an army on auto-explore", "%a")
 	EVENT(UnloadOrder,                "Tell an army to unload its cargo", "%a%l")
 	EVENT(MoveUnloadOrder,            "Army moves then unloads", "%a%p%l%i")
 	EVENT(EntrenchOrder,              "Entrench an army", "%a")

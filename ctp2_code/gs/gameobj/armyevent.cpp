@@ -203,6 +203,46 @@ STDEHANDLER(ArmySleepOrderEvent)
 	return GEV_HD_Continue;
 }
 
+// Auto-explore order: pick the nearest unexplored tile (BFS over the owner's
+// known map), flag every unit in the army as exploring, and seed a MOVE_TO.
+// BeginTurnUnitEvent re-issues each round from the new position; this
+// handler only sets the initial state.  Clears the flag if no reachable
+// unexplored tile remains.
+STDEHANDLER(ArmyExploreOrderEvent)
+{
+	Army a;
+	if (!args->GetArmy(0, a))    return GEV_HD_Continue;
+	if (!a.IsValid())             return GEV_HD_Continue;
+
+	ArmyData * ad = a.AccessData();
+	if (!ad) return GEV_HD_Continue;
+
+	Player * owner = g_player[ad->GetOwner()];
+	if (!owner) return GEV_HD_Continue;
+
+	MapPoint const start = ad->RetPos();
+	MapPoint target;
+	if (!owner->FindNearestUnexplored(start, target)) {
+		// Map fully explored from here — flag stays cleared.
+		for (sint32 i = 0; i < ad->Num(); ++i) {
+			Unit u = ad->Access(i);
+			if (UnitData * ud = u.AccessData()) ud->SetExploring(false);
+		}
+		return GEV_HD_Continue;
+	}
+
+	for (sint32 i = 0; i < ad->Num(); ++i) {
+		Unit u = ad->Access(i);
+		if (UnitData * ud = u.AccessData()) {
+			ud->SetExploring(true);
+			ud->SetExploreTarget(target);
+		}
+	}
+
+	a->AddOrders(UNIT_ORDER_MOVE_TO, target);
+	return GEV_HD_Continue;
+}
+
 STDEHANDLER(ArmyMoveUnloadOrderEvent)
 {
 	Army a;
@@ -1517,6 +1557,7 @@ void armyevent_Initialize()
 
 	g_gevManager->AddCallback(GEV_UnloadOrder, GEV_PRI_Primary, &s_ArmyUnloadOrderEvent);
 	g_gevManager->AddCallback(GEV_SleepOrder, GEV_PRI_Primary, &s_ArmySleepOrderEvent);
+	g_gevManager->AddCallback(GEV_ExploreOrder, GEV_PRI_Primary, &s_ArmyExploreOrderEvent);
 	g_gevManager->AddCallback(GEV_MoveUnloadOrder, GEV_PRI_Primary, &s_ArmyMoveUnloadOrderEvent);
 	g_gevManager->AddCallback(GEV_EntrenchOrder, GEV_PRI_Primary, &s_ArmyEntrenchOrderEvent);
 	g_gevManager->AddCallback(GEV_DetrenchOrder, GEV_PRI_Primary, &s_ArmyDetrenchOrderEvent);

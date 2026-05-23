@@ -20,10 +20,10 @@
 //
 // - UnitPretest of ORDER_REFUEL is now NoFuelThenCrash (outcommented until it works)
 // - UnitPretest of ORDER_PARADROP is now CanParadrop
-//   - April 24th 2005 Martin Gühmann
-// - Fixed targets of Sue and Injoin orders. (29-Oct-2007 Martin Gühmann)
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
-// - Added ORDER_UPGRADE (13-Sep-2008 Martin Gühmann)
+//   - April 24th 2005 Martin Gï¿½hmann
+// - Fixed targets of Sue and Injoin orders. (29-Oct-2007 Martin Gï¿½hmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
+// - Added ORDER_UPGRADE (13-Sep-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -104,6 +104,27 @@ ORDER_SLEEP {
   TargetPretest:None
 
   CPIcon "upsi29.tga"
+  ButtonLocation 3
+  DefaultIcon ICON_ORDER_SLEEP
+  Cursor 28
+  InvalidCursor 29
+}
+
+ORDER_EXPLORE {
+  Gold 0
+  Move 100
+  EventName "ExploreOrder"
+
+  LocalizedName str_ldl_order_explore
+  StatusText str_ldl_order_explore
+
+  UnitPretest_None
+  TargetPretest:None
+
+  CPIcon "upsi29.tga"
+  // Shares slot 3 with ORDER_SLEEP â€” both are long-running idle orders.
+  // The right-click context menu renders independently of this slot, so the
+  // command is still reachable when SLEEP wins the bottom-bar button.
   ButtonLocation 3
   DefaultIcon ICON_ORDER_SLEEP
   Cursor 28

@@ -138,6 +138,9 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/Player.h"
 
+#include <deque>            // FindNearestUnexplored BFS frontier
+#include <vector>           // FindNearestUnexplored visited bitmap
+
 #include "gs/gameobj/AchievementTracker.h"
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
@@ -3921,6 +3924,45 @@ bool Player::IsExplored(sint32 x, sint32 y) const
 {
 	MapPoint pnt(x,y);
 	return m_vision->IsExplored(pnt);
+}
+
+// BFS over the known map, frontier = first unexplored neighbor.  The map is
+// hex-adjacent (use GetNeighborPosition for all WORLD_DIRECTION cardinals).
+// Cost: O(W*H) worst case (a vector-of-bool visited bitmap + a deque
+// frontier).  Acceptable: CTP2 maps are at most 200x200 = 40k cells.
+bool Player::FindNearestUnexplored(const MapPoint &start, MapPoint &out) const
+{
+	const sint32 W = g_theWorld->GetXWidth();
+	const sint32 H = g_theWorld->GetYHeight();
+	if (W <= 0 || H <= 0) return false;
+
+	std::vector<bool> visited(static_cast<size_t>(W) * static_cast<size_t>(H), false);
+	std::deque<MapPoint> frontier;
+	frontier.push_back(start);
+	visited[start.y * W + start.x] = true;
+
+	while (!frontier.empty()) {
+		MapPoint cur = frontier.front();
+		frontier.pop_front();
+
+		for (sint32 d = (sint32)NORTH; d < (sint32)NOWHERE; d++) {
+			MapPoint nb;
+			if (!cur.GetNeighborPosition((WORLD_DIRECTION)d, nb)) continue;
+			if (nb.x < 0 || nb.x >= W || nb.y < 0 || nb.y >= H) continue;
+
+			size_t const idx = static_cast<size_t>(nb.y) * static_cast<size_t>(W)
+			                 + static_cast<size_t>(nb.x);
+			if (visited[idx]) continue;
+			visited[idx] = true;
+
+			if (!IsExplored(nb)) {
+				out = nb;
+				return true;
+			}
+			frontier.push_back(nb);
+		}
+	}
+	return false;
 }
 
 bool Player::IsVisible(sint32 x, sint32 y) const

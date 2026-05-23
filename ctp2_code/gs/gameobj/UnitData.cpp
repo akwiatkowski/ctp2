@@ -356,6 +356,9 @@ void UnitData::Create(const sint32 t,
 
 	m_roundTheWorldMask = new BitMask(g_theWorld->GetXWidth());
 	m_roundTheWorldMask->SetBit(m_pos.x);
+
+	m_isExploring   = false;
+	m_exploreTarget = MapPoint(0, 0);
 }
 
 UnitData::UnitData(CivArchive &archive) : GameObj(0)
@@ -2306,6 +2309,9 @@ void UnitData::Serialize(CivArchive &archive)
 
 		m_target_city.Serialize(archive);
 
+		archive << (uint8)(m_isExploring ? 1 : 0);
+		m_exploreTarget.Serialize(archive);
+
 		archive << (uint32)(m_lesser != NULL);
 
 		if (m_lesser)
@@ -2366,6 +2372,11 @@ void UnitData::Serialize(CivArchive &archive)
 		m_roundTheWorldMask = new BitMask(archive);
 
 		m_target_city.Serialize(archive);
+
+		uint8 isExploringByte;
+		archive >> isExploringByte;
+		m_isExploring = (isExploringByte != 0);
+		m_exploreTarget.Serialize(archive);
 
 		uint32 hasOld;
 

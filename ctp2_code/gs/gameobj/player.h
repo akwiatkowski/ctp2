@@ -30,18 +30,18 @@
 // Modifications from the original Activision code:
 //
 // - Return type of SetResearchGoal function set from void to
-//   sint32, by Martin Gühmann.
-// - Made GetCivilisation method const - May 7th 2005 Martin Gühmann
+//   sint32, by Martin Gï¿½hmann.
+// - Made GetCivilisation method const - May 7th 2005 Martin Gï¿½hmann
 // - Import structure improved, merged with linux version.
 // - Made player.h to compile again.
-// - Removed unused void BeginTurnAllCities all cities method. - Aug. 7th 2005 Martin Gühmann
-// - Added civilisation specific happiness bonus method. (Oct 7th 2005 Martin Gühmann)
+// - Removed unused void BeginTurnAllCities all cities method. - Aug. 7th 2005 Martin Gï¿½hmann
+// - Added civilisation specific happiness bonus method. (Oct 7th 2005 Martin Gï¿½hmann)
 // - Added EnergySupply method 2-28-2007
 // - Slaves are distributed to more than just the closest city, the number
-//   of closest cities to them slaves are sent can be set in const.txt. (25-Jan-2008 Martin Gühmann)
+//   of closest cities to them slaves are sent can be set in const.txt. (25-Jan-2008 Martin Gï¿½hmann)
 // - The player's cargo capacity is now calculated before the AI uses its
-//   units and not afterwards. (3-Feb-2008 Martin Gühmann)
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
+//   units and not afterwards. (3-Feb-2008 Martin Gï¿½hmann)
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
 // - Added stuff for unit and city gold support. (22-Jul-2009 Maq)
 // -Added HasPeaceTreatyWith() and HasAnyPactWith() functions (7-Jan-10 EPW)
 //----------------------------------------------------------------------------
@@ -662,6 +662,12 @@ public:
 	bool IsVisible(const MapPoint &pos) const;
 	bool IsExplored(sint32 x, sint32 y) const;
 	bool IsVisible(sint32 x, sint32 y) const;
+
+	// BFS over this player's known map starting at `start`, returning the
+	// nearest map cell that this player has not yet explored.  Returns false
+	// if no such cell exists (map fully explored) or if no path through
+	// known terrain leads to one.  Used by ORDER_EXPLORE.
+	bool FindNearestUnexplored(const MapPoint &start, MapPoint &out) const;
 	bool GetLastSeen(const MapPoint &pnt, UnseenCellCarton &ucell);
 	void BeginTurnEnemyUnits();
 

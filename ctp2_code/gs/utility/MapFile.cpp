@@ -803,8 +803,10 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 		}
 
 	}
-	g_director->AddCopyVision();
-	g_director->CatchUp();
+	if (g_director) {
+		g_director->AddCopyVision();
+		g_director->CatchUp();
+	}
 
 	g_isCheatModeOn = FALSE;
 
@@ -1111,8 +1113,10 @@ bool MapFile::LoadVision(uint8 *buf, sint32 size)
 		}
 	}
 
-	g_director->AddCopyVision();
-	g_director->CatchUp();
+	if (g_director) {
+		g_director->AddCopyVision();
+		g_director->CatchUp();
+	}
 
 	return true;
 }

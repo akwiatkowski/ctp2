@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Standardized trade route cost calculation. - June 5th 2005 Martin Gühmann
+// - Standardized trade route cost calculation. - June 5th 2005 Martin Gï¿½hmann
 // - Do not report (ENQUEUE) a traderoute twice upon construction.
 //
 //----------------------------------------------------------------------------

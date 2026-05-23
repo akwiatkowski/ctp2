@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed a memory leak concerning g_theCurrentBattle. (7-Nov-2007 Martin Gühmann)
+// - Fixed a memory leak concerning g_theCurrentBattle. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ STDEHANDLER(StartCombatEvent)
 	if (g_theCurrentBattle)
 	{
 		// Close previous screen - if still open
-		if (g_battleViewWindow && g_c3ui->GetWindow(g_battleViewWindow->Id()))
+		if (g_battleViewWindow && g_c3ui && g_c3ui->GetWindow(g_battleViewWindow->Id()))
 		{
 			battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
 		}

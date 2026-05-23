@@ -39,7 +39,7 @@ Installation::RemoveAllReferences()
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());
 		if(myVisionRange > 0) {
 			g_player[GetOwner()]->RemoveUnitVision(pos, myVisionRange);
-			if(GetOwner() == g_selected_item->GetVisiblePlayer()) {
+			if(GetOwner() == g_selected_item->GetVisiblePlayer() && g_director) {
 				g_director->AddCopyVision();
 			}
 		}

@@ -27,8 +27,8 @@
 // - The good sprite index is now taken from the resource database instead of
 //   the good's sprite state database. However this file isn't used as the
 //   wormhole has been removed from the game, but maybe there is someone
-//   who whishes to put it back into the game. (Aug 29th 2005 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+//   who whishes to put it back into the game. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -171,9 +171,9 @@ void Wormhole::BeginTurn(sint32 player)
 		if(walk.GetObj()->m_round + g_theConstDB->WormholeReturnTime() <= g_turn->GetRound()) {
 			EntryRecord *erec = walk.GetObj();
 			walk.Remove();
-			erec->m_unit.ExitWormhole(m_pos);
+			ere1c->m_unit.ExitWormhole(m_pos);
 
-			g_director->AddShow(erec->m_unit);
+			if (g_director) g_director->AddShow(erec->m_unit);
 
 			delete erec;
 

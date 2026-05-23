@@ -28,10 +28,10 @@
 //   numbers.
 // - Updates the graphics of tile improvements under contruction every
 //   turn, so that the process to completeness of a tile improvements is
-//   visualized. - Oct. 16th 2004 Martin Gühmann
+//   visualized. - Oct. 16th 2004 Martin Gï¿½hmann
 // - Moved network handling from TerrainImprovementData constructor to prevent
 //   reporting the temporary when completing the tile improvement.
-// - Restored save game compatibilty. (April 22nd 2006 Martin Gühmann)
+// - Restored save game compatibilty. (April 22nd 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -138,8 +138,10 @@ BOOL TerrainImprovementData::Complete(void)
 		GenerateBorders(m_point, m_owner, intRad, sqRad);
 	}
 
-	g_tiledMap->PostProcessTile(m_point, g_theWorld->GetTileInfo(m_point));
-	g_tiledMap->TileChanged(m_point);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(m_point, g_theWorld->GetTileInfo(m_point));
+		g_tiledMap->TileChanged(m_point);
+	}
 
 	MapPoint pos;
 
@@ -147,13 +149,15 @@ BOOL TerrainImprovementData::Complete(void)
 	{
 		if(m_point.GetNeighborPosition(d, pos))
 		{
-			g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-			g_tiledMap->TileChanged(pos);
-			g_tiledMap->RedrawTile(&pos);
+			if (g_tiledMap) {
+				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+				g_tiledMap->TileChanged(pos);
+				g_tiledMap->RedrawTile(&pos);
+			}
 		}
 	}
 
-	g_tiledMap->RedrawTile(&m_point);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&m_point);
 	if(g_network.IsHost())
 	{
 		g_network.Enqueue(theCell, m_point.x, m_point.y);
@@ -182,9 +186,9 @@ BOOL TerrainImprovementData::AddTurn(sint32 turns)
 	ENQUEUE();
 	g_network.Unblock(m_owner);
 
-// Added by Martin Gühmann to update the tileimprovement graphics,
+// Added by Martin Gï¿½hmann to update the tileimprovement graphics,
 // to indicate increasing completeness.
-	if(m_turnsToComplete > 0){// Is more often true
+	if(m_turnsToComplete > 0 && g_tiledMap){// Is more often true
 		g_tiledMap->RedrawTile(&m_point);
 	}
 	else{
@@ -247,7 +251,7 @@ void TerrainImprovementData::Serialize(CivArchive &archive)
 //----------------------------------------------------------------------------
 sint32 TerrainImprovementData::PercentComplete() const
 {
-	// Function replaced by Martin Gühmann
+	// Function replaced by Martin Gï¿½hmann
 	// Original function always returns 10 instead of the total production turns.
 	sint32 const	totalTurns =
 		terrainutil_GetProductionTime(m_type, m_point, m_transformType);

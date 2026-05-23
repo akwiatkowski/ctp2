@@ -24,10 +24,10 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Replaced old GlobalWarming database by new one. (July 9th 2005 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
-// - GobalWarming and OzoneDepletion are now event handled. (29-Oct-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Replaced old GlobalWarming database by new one. (July 9th 2005 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
+// - GobalWarming and OzoneDepletion are now event handled. (29-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -499,10 +499,14 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		}
 	}
 
-	g_tiledMap->PostProcessMap();
-	g_tiledMap->Refresh();
-	g_radarMap->Update();
-	g_radarMap->ShouldDraw();
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessMap();
+		g_tiledMap->Refresh();
+	}
+	if (g_radarMap) {
+		g_radarMap->Update();
+		g_radarMap->ShouldDraw();
+	}
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
@@ -523,8 +527,10 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		}
 	}
 
-	g_director->AddCopyVision();
-	g_director->CatchUp();
+	if (g_director) {
+		g_director->AddCopyVision();
+		g_director->CatchUp();
+	}
 
 	NumberContinents();
 	SetAllMoveCost();
@@ -670,10 +676,14 @@ void World::OzoneDepletionEvent(void)
 
 	MakeBeaches();
 	SetAllMoveCost();
-	g_tiledMap->PostProcessMap();
-	g_tiledMap->Refresh();
-	g_radarMap->Update();
-	g_radarMap->ShouldDraw();
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessMap();
+		g_tiledMap->Refresh();
+	}
+	if (g_radarMap) {
+		g_radarMap->Update();
+		g_radarMap->ShouldDraw();
+	}
 }
 
 void World::RegenerateRivers()

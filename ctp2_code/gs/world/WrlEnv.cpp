@@ -782,8 +782,10 @@ void World::CutImprovements(const MapPoint &point)
 	thisCell->CalcMovementType();
 	thisCell->CalcTerrainMoveCost();
 	MapPoint pos = point;
-	g_tiledMap->PostProcessTile(pos, GetTileInfo(point));
-	g_tiledMap->RedrawTile(&pos);
+	if (g_tiledMap) {
+		g_tiledMap->PostProcessTile(pos, GetTileInfo(point));
+		g_tiledMap->RedrawTile(&pos);
+	}
 
 	if(g_network.IsHost())
 	{

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added GobalWarming and OzoneDepletion events. (29-Oct-2007 Martin Gühmann)
+// - Added GobalWarming and OzoneDepletion events. (29-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -56,12 +56,14 @@ STDEHANDLER(CutImprovementsEvent)
 	{
 		if(pos.GetNeighborPosition(d, npos))
 		{
-			g_tiledMap->PostProcessTile(npos, g_theWorld->GetTileInfo(npos));
-			g_tiledMap->TileChanged(npos);
+			if (g_tiledMap) {
+				g_tiledMap->PostProcessTile(npos, g_theWorld->GetTileInfo(npos));
+				g_tiledMap->TileChanged(npos);
+			}
 		}
 	}
 
-	g_tiledMap->RedrawTile(&pos);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
 
 	if(g_network.IsHost())
 	{

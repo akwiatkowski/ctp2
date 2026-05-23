@@ -69,7 +69,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	g_player[player]->m_current_round = round;
 
-	g_director->NextPlayer();
+	if (g_director) g_director->NextPlayer();
 
 	if(g_theProfileDB->IsAIOn() && (!g_network.IsClient()))
 	{

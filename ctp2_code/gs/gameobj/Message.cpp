@@ -107,7 +107,7 @@ void Message::Show()
 	if (!AccessData()->GetMessageWindow()) return;
 	if (!AccessData()->GetMessageWindow()->GetIconWindow()) return;
 
-	g_c3ui->AddAction(new MessageOpenAction(AccessData()->GetMessageWindow()->GetIconWindow()));
+	if (g_c3ui) g_c3ui->AddAction(new MessageOpenAction(AccessData()->GetMessageWindow()->GetIconWindow()));
 
 
 	SetRead();

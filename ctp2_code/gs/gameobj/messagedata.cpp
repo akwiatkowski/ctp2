@@ -1450,5 +1450,5 @@ void MessageData::NotifySlicReload()
 void MessageData::SetRead()
 {
 	m_isRead = TRUE;
-	g_controlPanel->SetMessageRead(Message(m_id));
+	if (g_controlPanel) g_controlPanel->SetMessageRead(Message(m_id));
 }

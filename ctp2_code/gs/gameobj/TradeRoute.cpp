@@ -37,7 +37,7 @@ void TradeRoute::KillRoute(CAUSE_KILL_TRADE_ROUTE cause)
 
 void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 {
-	g_director->TradeActorDestroy(*this);
+	if (g_director) g_director->TradeActorDestroy(*this);
 	TradeRouteData* data = AccessData();
 
 

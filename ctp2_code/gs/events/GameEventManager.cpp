@@ -277,7 +277,7 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
     {
 		Assert(event == m_eventList->GetHead());
 		m_eventList->RemoveHead();
-		g_director->DecrementPendingGameActions();
+		if (g_director) g_director->DecrementPendingGameActions();
 
 #if defined(_DEBUG)
         // Debug version: keep the last k_MAX_EVENT_HISTORY handled events

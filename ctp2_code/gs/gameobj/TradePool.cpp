@@ -60,7 +60,7 @@ TradeRoute TradePool::Create(Unit sourceCity,
 	sourceCity.AddTradeRoute(newRoute);
 	destCity.AddTradeRoute(newRoute);
 	m_all_routes->Insert(newRoute);
-	g_director->TradeActorCreate(newRoute);
+	if (g_director) g_director->TradeActorCreate(newRoute);
 	sourceCity.RecalculateResources();
 
 	return newRoute;

@@ -191,14 +191,14 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 			|| cause == CAUSE_REMOVE_ARMY_ATTACKED
 			|| cause == CAUSE_REMOVE_ARMY_SETTLE
 			|| cause == CAUSE_REMOVE_ARMY_DISBANDED
-			|| cause == CAUSE_REMOVE_ARMY_GOVERNMENT_CHANGE
-			|| cause == CAUSE_REMOVE_ARMY_NUKE
-			|| cause == CAUSE_REMOVE_ARMY_PARKRANGER) {
-			g_director->AddFastKill(*this);
+		|| cause == CAUSE_REMOVE_ARMY_GOVERNMENT_CHANGE
+		|| cause == CAUSE_REMOVE_ARMY_NUKE
+		|| cause == CAUSE_REMOVE_ARMY_PARKRANGER) {
+			if (g_director) g_director->AddFastKill(*this);
 		}
 		else
 		{
-			g_director->AddDeath(*this);
+			if (g_director) g_director->AddDeath(*this);
 		}
 	}
 

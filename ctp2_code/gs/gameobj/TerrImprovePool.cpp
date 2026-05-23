@@ -21,7 +21,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Sound added by Martin Gühmann
+// - Sound added by Martin Gï¿½hmann
 // - Crash fixed when there is no sound defined (for mod).
 // - Moved network handling from TerrainImprovementData constructor to prevent
 //   reporting the temporary when completing the tile improvement.
@@ -124,10 +124,10 @@ TerrainImprovementPool::Create
 
 	Insert(newData);
 	g_theWorld->InsertImprovement(newImprovement, point);
-	g_tiledMap->RedrawTile(&point);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&point);
 
 	// Plays a sound when a tile improvement is built
-	if(dbTerrainImprovement->GetSoundIndex() >= 0)
+	if(dbTerrainImprovement->GetSoundIndex() >= 0 && g_soundManager)
 	{
 		SoundRecord const *	soundRecord	= dbTerrainImprovement->GetSound();
 		if (soundRecord)

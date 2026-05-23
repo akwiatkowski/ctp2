@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -354,5 +354,5 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 void InstallationData::SetVisible(sint32 player)
 {
 	m_visibility |= (1 << player);
-	g_tiledMap->RedrawTile(&m_point);
+	if (g_tiledMap) g_tiledMap->RedrawTile(&m_point);
 }

@@ -962,7 +962,7 @@ CTP2Combat::CTP2Combat
 		m_defenders.ReportUnits(m_battle, placementEvent, true);
 		m_battle->AddEvent(placementEvent);
 
-		g_director->AddBattle(m_battle);
+		if (g_director) g_director->AddBattle(m_battle);
 	}
 
 	Assert(!IsDone());

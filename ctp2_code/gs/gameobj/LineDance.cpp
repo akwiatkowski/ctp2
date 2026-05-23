@@ -25,21 +25,21 @@ LineDance::LineDance(CellUnitList &attackers, CellUnitList &defenders)
 		Player::IsThisPlayerARobot(defenders.GetOwner())) return;
 
 	if (attackers.Num() > 1 || defenders.Num() > 1) {
-		if (g_battleViewWindow)
+		if (g_battleViewWindow && g_c3ui)
 			g_c3ui->RemoveWindow(g_battleViewWindow->Id());
 
 		BattleViewWindow::Initialize();
 
 		if (g_battleViewWindow) {
 			g_battleViewWindow->SetupBattle(m_numAttackers, m_attackers,
-											m_numDefenders, m_defenders);
+										m_numDefenders, m_defenders);
 		}
 
-		g_c3ui->AddWindow(g_battleViewWindow);
-		g_battleViewWindow->AddBordersToUI();
+		if (g_c3ui) g_c3ui->AddWindow(g_battleViewWindow);
+		if (g_battleViewWindow) g_battleViewWindow->AddBordersToUI();
 
 	} else {
-		if (g_battleViewWindow) {
+		if (g_battleViewWindow && g_c3ui) {
 			g_c3ui->RemoveWindow(g_battleViewWindow->Id());
 			delete g_battleViewWindow;
 		}

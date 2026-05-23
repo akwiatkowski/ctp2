@@ -3266,8 +3266,10 @@ void World::SmartSetTerrain(const MapPoint &pos, sint32 terr, sint32 radius)
 			MapPoint pos(x,y);
 			Cell *cell = GetCell(pos);
 			if(cell->GetScratch() & k_SMART_SET_POST_PROCESS) {
-				g_tiledMap->PostProcessTile(pos, GetTileInfo(pos));
-				g_tiledMap->RedrawTile(&pos);
+				if (g_tiledMap) {
+					g_tiledMap->PostProcessTile(pos, GetTileInfo(pos));
+					g_tiledMap->RedrawTile(&pos);
+				}
 			}
 		}
 	}

@@ -115,12 +115,12 @@ public:
     }
 
     // --- Research ---
-    void OnAdvanceResearched(sint32 player, sint32 advance) override
-    {
-        if (g_director) {
-            // g_director->AddInvokeResearchAdvance(...) — called from Player.cpp
-        }
-    }
+    // No-op for now: Player::BuildResearchDialog still calls
+    // g_director->AddInvokeResearchAdvance(...) directly with the localised
+    // text payload that this hook doesn't carry.  Don't add a call here
+    // unless that direct call is also removed — otherwise the advance
+    // movie/dialog will fire twice.
+    void OnAdvanceResearched(sint32 player, sint32 advance) override {}
 
     // --- UI refresh ---
     void OnUpdateScienceWindow(sint32 player) override

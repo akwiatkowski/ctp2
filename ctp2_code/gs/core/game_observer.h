@@ -12,12 +12,11 @@
 
 #pragma once
 
-#include "gs/gameobj/Unit.h"  // for Unit
+#include "gs/gameobj/Unit.h"  // for Unit (by value in interface)
 #include "gs/world/MapPoint.h"
 
 class Army;
 class Player;
-class Unit;  // forward declaration if needed
 
 /**
  * @brief Pure virtual interface for observing game events.

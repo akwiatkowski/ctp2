@@ -16,7 +16,7 @@ public:
     void OnTurnStart(sint32 player) override
     {
         DPRINTF(k_DBG_GAMESTATE,
-                ("[HEADLESS] Turn start for player %d (year %d)\n",
+                ("[HEADLESS] Turn start for player %d (round %d)\n",
                  player,
                  g_player[player] ? g_player[player]->GetCurRound() : -1));
     }

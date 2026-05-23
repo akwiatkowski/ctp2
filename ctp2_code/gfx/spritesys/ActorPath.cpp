@@ -85,8 +85,11 @@ void ActorPath::CalcPosition(sint32 start, sint32 end, sint32 current, POINT *po
 
 	double const rat = (double) current / (double)(end - start);
 
-	pos->x = m_points[POINTSPOSTYPE_STARTPOS].x + (uint32)((m_points[POINTSPOSTYPE_ENDPOS].x - m_points[POINTSPOSTYPE_STARTPOS].x) * rat);
-	pos->y = m_points[POINTSPOSTYPE_STARTPOS].y + (uint32)((m_points[POINTSPOSTYPE_ENDPOS].y - m_points[POINTSPOSTYPE_STARTPOS].y) * rat);
+	// Cast to sint32, not uint32: a unit moving left/up makes the delta
+	// negative, and casting a negative double to uint32 is UB (caught by
+	// UBSan during autoplay).  POINT.x/y are already sint32.
+	pos->x = m_points[POINTSPOSTYPE_STARTPOS].x + (sint32)((m_points[POINTSPOSTYPE_ENDPOS].x - m_points[POINTSPOSTYPE_STARTPOS].x) * rat);
+	pos->y = m_points[POINTSPOSTYPE_STARTPOS].y + (sint32)((m_points[POINTSPOSTYPE_ENDPOS].y - m_points[POINTSPOSTYPE_STARTPOS].y) * rat);
 }
 
 sint32 ActorPath::CalcFacing(sint32 start, sint32 end, sint32 current) const

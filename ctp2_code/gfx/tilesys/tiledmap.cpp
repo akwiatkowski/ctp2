@@ -3434,12 +3434,6 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 	sint32		hscroll = GetZoomTilePixelWidth();
 	sint32		vscroll = GetZoomTilePixelHeight()/2;
 
-	fprintf(stderr, "[SCROLL] Start: delta=(%d,%d) view=(%d,%d,%d,%d) bounds=(%d,%d,%d,%d) wrap=(%d,%d)\n",
-		deltaX, deltaY,
-		m_mapViewRect.left, m_mapViewRect.top, m_mapViewRect.right, m_mapViewRect.bottom,
-		m_mapBounds.left, m_mapBounds.top, m_mapBounds.right, m_mapBounds.bottom,
-		g_theWorld->IsXwrap(), g_theWorld->IsYwrap());
-
 	if (!g_theWorld->IsXwrap())
 	{
 		if ((deltaX < 0) && (m_mapViewRect.left + deltaX < kMV_LeftMin ))
@@ -3469,11 +3463,8 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 		}
 	}
 
-	fprintf(stderr, "[SCROLL] After clamp: delta=(%d,%d)\n", deltaX, deltaY);
-
 	// If clamped to zero, nothing to do - return false so caller knows
 	if (deltaX == 0 && deltaY == 0) {
-		fprintf(stderr, "[SCROLL] Clamped to zero, returning false\n");
 		return false;
 	}
 
@@ -3534,23 +3525,12 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 
 	}
 
-	fprintf(stderr, "[SCROLL] Before OffsetSprites: view=(%d,%d,%d,%d) temp=(%d,%d,%d,%d)\n",
-		m_mapViewRect.left, m_mapViewRect.top, m_mapViewRect.right, m_mapViewRect.bottom,
-		tempRect.left, tempRect.top, tempRect.right, tempRect.bottom);
-
 	OffsetSprites(&tempRect, deltaX*hscroll, deltaY*vscroll);
 	ScrollPixels((sint32)(deltaX*hscroll), (sint32)(deltaY*vscroll), m_surface);
 
-	fprintf(stderr, "[SCROLL] Before LockSurface\n");
-
 	LockSurface();
 
-	fprintf(stderr, "[SCROLL] Before RepaintTiles repaint=(%d,%d,%d,%d)\n",
-		repaintRect.left, repaintRect.top, repaintRect.right, repaintRect.bottom);
-
 	RepaintTiles(&repaintRect);
-
-	fprintf(stderr, "[SCROLL] Before RepaintEdgeX/Y\n");
 
 	if (!g_theWorld->IsXwrap())
 		if (m_mapViewRect.left + deltaX < 0 ||
@@ -3562,8 +3542,6 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 			m_mapViewRect.bottom + deltaY > m_mapBounds.bottom-2)
 			RepaintEdgeY(&repaintRect);
 
-	fprintf(stderr, "[SCROLL] Before RepaintHats/Borders/Improvements\n");
-
 	RepaintHats(&tempRect);
 	RepaintBorders(&tempRect);
 	RepaintImprovements(&tempRect);
@@ -3574,11 +3552,7 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 
 	InvalidateMix();
 
-	fprintf(stderr, "[SCROLL] Before RepaintSprites\n");
-
 	RepaintSprites(m_surface, &tempRect, true);
-
-	fprintf(stderr, "[SCROLL] Done\n");
 
 	return true;
 }

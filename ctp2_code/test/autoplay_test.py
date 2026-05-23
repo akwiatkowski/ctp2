@@ -6,8 +6,18 @@ Coverage tool, not a behavior test. The point is to exercise the AI/turn/
 combat/diplomacy paths under ASan/UBSan. We assert nothing about outcomes —
 failure means a sanitizer fired, the process crashed, or the socket timed out.
 
+Optional coverage interleaves (set env to a positive integer to enable):
+    AUTOPLAY_SAVELOAD_INTERVAL    — every N turns, save then load the game.
+                                    Exercises serialization paths that pure
+                                    end_turn loops never touch.
+    AUTOPLAY_SCREENSHOT_INTERVAL  — every N turns, capture the primary surface
+                                    to BMP. Exercises the rendering pipeline
+                                    (tiledraw, sprite blitting, layers) which
+                                    is otherwise idle during AI turns.
+
 Usage:
     AUTOPLAY_TURNS=50 python3 autoplay_test.py
+    AUTOPLAY_TURNS=120 AUTOPLAY_SAVELOAD_INTERVAL=40 python3 autoplay_test.py
 
 Env vars:
     CTP2_BINARY  — path to ctp2 executable (default: build/ctp2)
@@ -38,6 +48,10 @@ TURN_TIMEOUT = int(os.environ.get("AUTOPLAY_TURN_TIMEOUT", "60"))
 # must pace the driver to let the AI actually process. Tune via env var.
 TURN_PACE = float(os.environ.get("AUTOPLAY_TURN_PACE", "2.0"))
 GAME_LOG = "/tmp/ctp2-autoplay-game.log"
+SAVELOAD_INTERVAL = int(os.environ.get("AUTOPLAY_SAVELOAD_INTERVAL", "0"))
+SCREENSHOT_INTERVAL = int(os.environ.get("AUTOPLAY_SCREENSHOT_INTERVAL", "0"))
+SAVE_DIR = "/tmp/ctp2-autoplay-saves"
+SHOT_DIR = "/tmp/ctp2-autoplay-shots"
 
 
 def send_cmd(cmd: str, timeout: float = 20) -> dict:
@@ -121,6 +135,11 @@ def main() -> int:
     if resp:
         print(f"[AUTO] {resp}")
 
+    if SAVELOAD_INTERVAL > 0:
+        os.makedirs(SAVE_DIR, exist_ok=True)
+    if SCREENSHOT_INTERVAL > 0:
+        os.makedirs(SHOT_DIR, exist_ok=True)
+
     for i in range(TURNS):
         if proc.poll() is not None:
             print(f"[AUTO] Game process exited unexpectedly at turn {i} (code={proc.returncode})")
@@ -130,8 +149,22 @@ def main() -> int:
         run("end_turn", timeout=TURN_TIMEOUT)
         time.sleep(TURN_PACE)
         dt = time.time() - turn_t0
+
+        # Coverage interleaves. Run *after* end_turn so the game state is
+        # at a turn boundary — saves/screenshots taken mid-turn would hit
+        # partially-updated AI state and produce noisy artifacts.
+        turn_num = i + 1
+        if SAVELOAD_INTERVAL > 0 and turn_num % SAVELOAD_INTERVAL == 0:
+            path = os.path.join(SAVE_DIR, f"turn-{turn_num:04d}.c2g")
+            print(f"[AUTO] save+load checkpoint at turn {turn_num} -> {path}")
+            run(f"save_game {path}", timeout=60)
+            run(f"load_game {path}", timeout=60)
+        if SCREENSHOT_INTERVAL > 0 and turn_num % SCREENSHOT_INTERVAL == 0:
+            path = os.path.join(SHOT_DIR, f"turn-{turn_num:04d}.bmp")
+            run(f"screenshot {path}", timeout=20, expect_ok=False)
+
         if i % 10 == 0 or dt > 5:
-            print(f"[AUTO] turn {i+1}/{TURNS} wall={dt:.1f}s")
+            print(f"[AUTO] turn {turn_num}/{TURNS} wall={dt:.1f}s")
 
     elapsed = time.time() - t0
     # Verify we actually advanced rounds by parsing the game log.

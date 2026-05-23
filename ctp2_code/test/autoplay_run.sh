@@ -10,11 +10,15 @@
 #   ctp2_code/test/autoplay_run.sh [turns]
 #
 # Env overrides:
-#   AUTOPLAY_TURNS            — number of end_turn cycles (default 100)
-#   AUTOPLAY_TURN_PACE        — seconds to wait between end_turn cmds (default 2.0)
-#   AUTOPLAY_TURN_TIMEOUT     — per-end_turn socket timeout (default 60)
-#   AUTOPLAY_OVERALL_TIMEOUT  — hard cap on the whole run (default 2400)
-#   CTP2_BINARY               — game binary (default: build-sanitized/ctp2)
+#   AUTOPLAY_TURNS               — number of end_turn cycles (default 100)
+#   AUTOPLAY_TURN_PACE           — seconds to wait between end_turn cmds (default 2.0)
+#   AUTOPLAY_TURN_TIMEOUT        — per-end_turn socket timeout (default 60)
+#   AUTOPLAY_OVERALL_TIMEOUT     — hard cap on the whole run (default 2400)
+#   AUTOPLAY_SAVELOAD_INTERVAL   — save+load every N turns (default 0 = off);
+#                                  exercises serialization paths
+#   AUTOPLAY_SCREENSHOT_INTERVAL — capture BMP every N turns (default 0 = off);
+#                                  exercises rendering paths
+#   CTP2_BINARY                  — game binary (default: build-sanitized/ctp2)
 
 set -u
 

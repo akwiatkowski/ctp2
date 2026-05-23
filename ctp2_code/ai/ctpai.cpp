@@ -562,7 +562,7 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 	{
 		DPRINTF(k_DBG_AI, ("//	*** Barbarians do not conduct diplomacy.\n"));
 
-		g_director->AddBeginScheduler(playerId);
+		if (g_director) g_director->AddBeginScheduler(playerId);
 
 		return GEV_HD_Continue;
 	}
@@ -589,7 +589,7 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 
 	if(!found)
 	{
-		if(!g_network.IsClient())
+		if(!g_network.IsClient() && g_director)
 		{
 			g_director->AddBeginScheduler(playerId);
 		}
@@ -784,7 +784,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 						(g_network.IsClient() && player_ptr->IsRobot()))
 					{
 						DPRINTF(k_DBG_GAMESTATE, ("AI End turn, %d\n", playerId));
-						g_director->AddEndTurn();
+						if (g_director) g_director->AddEndTurn();
 					}
 				}
 			}

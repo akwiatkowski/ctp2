@@ -242,7 +242,7 @@ void AgreementMatrix::SetAgreement( const ai::Agreement & agreement )
 #endif
 
 	}
-	if(g_radarMap->IsDisplayRelations())
+	if(g_radarMap && g_radarMap->IsDisplayRelations())
 		g_radarMap->Update();
 }
 

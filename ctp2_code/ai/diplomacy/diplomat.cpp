@@ -2974,8 +2974,8 @@ void Diplomat::ContinueDiplomacy(const PLAYER_INDEX & foreignerId) {
 
 		if (m_outstandingProposals == 0)
 		{
-			if(!g_network.IsActive() ||
-			   (g_network.IsHost() && g_network.IsLocalPlayer(m_playerId))) {
+			if(g_director && (!g_network.IsActive() ||
+			   (g_network.IsHost() && g_network.IsLocalPlayer(m_playerId)))) {
 				g_director->AddBeginScheduler(m_playerId);
 			}
 		}

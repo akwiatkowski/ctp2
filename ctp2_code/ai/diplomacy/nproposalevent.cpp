@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Seperated the NewProposal event from the Response event so that the
-//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gühmann)
+//   NewProposal event can be called from slic witout any problems. (17-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -113,7 +113,7 @@ STDEHANDLER(General_NewProposalEvent)
 		}
 
 		else {
-			if(!g_network.IsClient()) {
+			if(g_director && !g_network.IsClient()) {
 				g_director->AddBeginScheduler(sender);
 			}
 		}

@@ -1173,6 +1173,22 @@ executable('ctp2', main_sources,
 		link_args : [ '-lltdl', use_ld ],
 		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
 
+# headless exe — simulation core without UI/audio/render
+# Same sources as ctp2 for now; stubs out UI at runtime via g_headlessMode.
+# Future: split game_core_sources into engine_sources + ui_sources.
+headless_sources = game_core_sources + [
+	'ctp/headless_main.cpp',
+	'ctp/civ3_main.cpp',
+	'test/smoketest_server.cpp',
+]
+
+executable('ctp2_headless', headless_sources,
+		include_directories : incdir,
+		dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+		cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DHEADLESS_BUILD', '-DUNIT_TEST_BUILD' ],
+		link_args : [ '-lltdl', use_ld ],
+		link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ])
+
 # unit tests
 doctest_incdir = include_directories('test/cpp')
 

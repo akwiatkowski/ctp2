@@ -1062,7 +1062,9 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 	m_waypoints.Clear();
 
-	g_controlPanel->SetStack(Army(), NULL); // empty function
+	if (g_controlPanel) {
+		g_controlPanel->SetStack(Army(), NULL); // empty function
+	}
 
 	if(!u.IsValid())
 		return;
@@ -1158,7 +1160,9 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			}
 		}
 
-		g_controlPanel->SetStack(m_selected_army[o], army);
+		if (g_controlPanel) {
+			g_controlPanel->SetStack(m_selected_army[o], army);
+		}
 
 		SetDrawablePathDest(m_cur_mouse_tile);
 
@@ -2901,7 +2905,9 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 
 bool SelectedItem::ShouldDrawPath()
 {
-	Assert(g_controlPanel != NULL);
+	if (!g_controlPanel) {
+		return false;
+	}
 	if(( g_theProfileDB->IsUseCTP2Mode()
 	&&   g_controlPanel->GetTargetingMode() != CP_TARGETING_MODE_ORDER_PENDING)
 	&& (!IsLocalCity()

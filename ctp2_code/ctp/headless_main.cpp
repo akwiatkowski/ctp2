@@ -16,6 +16,7 @@
 #include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
+#include "gs/core/game_observer_registration.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +102,9 @@ int main(int argc, char **argv)
 
     fprintf(stderr, "[HEADLESS] Engine + DBs initialized OK\n");
 
+    RegisterHeadlessGameObserver();
+    fprintf(stderr, "[HEADLESS] HeadlessGameObserver registered\n");
+
     if (newGame) {
         fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",
                 numPlayers, seed);
@@ -129,11 +133,10 @@ int main(int argc, char **argv)
                 }
             }
 
-            // Process any pending events
-            // TODO: many event handlers have UI side effects that crash in
-            // headless mode. Need to add null guards or separate UI hooks.
-            // For now, skip event processing to avoid crashes.
-            // g_gevManager->Process();
+            // Process any pending events (now safe via GameObserverRegistry)
+            if (g_gevManager) {
+                g_gevManager->Process();
+            }
         }
 
         fprintf(stderr, "[HEADLESS] Completed %d turns\n", maxTurns);

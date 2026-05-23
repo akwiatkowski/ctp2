@@ -2439,14 +2439,16 @@ void Player::BeginTurn()
 
 	if ( m_owner == g_selected_item->GetVisiblePlayer() )
 	{
-		if ( m_can_use_space_button )
+		if ( g_controlPanel && m_can_use_space_button )
 		{
 			g_controlPanel->ShowSpaceButton();
 		}
 
-		g_c3ui->AddAction( new SW_UpdateAction );
-		g_c3ui->AddAction( new USS_UpdateAction );
-		g_c3ui->AddAction( new CSW_UpdateAction(TRUE) );
+		if (g_c3ui) {
+			g_c3ui->AddAction( new SW_UpdateAction );
+			g_c3ui->AddAction( new USS_UpdateAction );
+			g_c3ui->AddAction( new CSW_UpdateAction(TRUE) );
+		}
 	}
 
 	if(g_network.IsHost()) {
@@ -3823,10 +3825,10 @@ void Player::BuildResearchDialog(AdvanceType advance)
 				// (FIXME)
 				) {
 			g_slicEngine->AddResearchOnUnblank(m_owner, text);
-		} else {
+		} else if (g_director) {
 			g_director->AddInvokeResearchAdvance(text);
 		}
-	} else {
+	} else if (g_director) {
 		g_director->AddInvokeResearchAdvance(NULL);
 	}
 }
@@ -3880,7 +3882,7 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->AddVisible(pnt, range);
 	}
-	else
+	else if (g_director)
 	{
 		g_director->AddAddVision(pnt, range);
 	}
@@ -3892,7 +3894,7 @@ void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}
-	else
+	else if (g_director)
 	{
 		g_director->AddRemoveVision(pnt, range);
 	}
@@ -4211,7 +4213,7 @@ void Player::GiveMap(PLAYER_INDEX recipient)
 	if (!g_player[recipient])
 		return;
 	g_player[recipient]->m_vision->MergeMap(m_vision);
-	if(g_selected_item->GetVisiblePlayer() == recipient) {
+	if(g_director && g_selected_item->GetVisiblePlayer() == recipient) {
 		g_director->AddCopyVision();
 	}
 }
@@ -5265,7 +5267,9 @@ void Player::AddMessage(Message &msg)
 			|| !g_currentMessageWindow->GetMessage()
 			|| !g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage()))
 			){
-					g_director->AddMessage(msg);
+					if (g_director) {
+						g_director->AddMessage(msg);
+					}
 				} else if(msg.IsAlertBox()) {
 					if(!messagewin_IsModalMessageDisplayed()) {
 						messagewin_CreateModalMessage(msg);
@@ -5914,7 +5918,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		m_vision->SetTheWholeWorldExplored();
 		m_vision->ClearUnseen();
 
-		if(m_owner == g_selected_item->GetVisiblePlayer())
+		if(g_director && m_owner == g_selected_item->GetVisiblePlayer())
 		{
 			g_director->AddCopyVision();
 		}
@@ -6614,7 +6618,7 @@ bool Player::ActuallySetGovernment(sint32 type)
         so->AddRecipient(m_owner);
         so->AddGovernment(type);
         g_slicEngine->Execute(so) ;
-		if(m_owner == g_selected_item->GetVisiblePlayer() && type != 0) {
+		if(g_director && m_owner == g_selected_item->GetVisiblePlayer() && type != 0) {
 			g_director->AddGameSound(GAMESOUNDS_CHANGE_GOV);
 		}
     }
@@ -7118,8 +7122,10 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 			victorywin_DisplayWindow(k_VICWIN_DEFEAT);
 		} else {
 
-			g_director->CatchUp();
-			g_director->AddPlayVictoryMovie(reason, previouslyWon, previouslyLost);
+			if (g_director) {
+				g_director->CatchUp();
+				g_director->AddPlayVictoryMovie(reason, previouslyWon, previouslyLost);
+			}
 		}
 
 	}
@@ -8136,7 +8142,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 			g_player[wowner]->m_hasGlobalRadar = FALSE;
 			g_theWonderTracker->SetGlobeSatFlags(g_theWonderTracker->GlobeSatFlags() & ~(1 << m_owner));
 			m_vision->ClearUnseen();
-			if(wowner == g_selected_item->GetVisiblePlayer()) {
+			if(g_director && wowner == g_selected_item->GetVisiblePlayer()) {
 				g_director->AddCopyVision();
 			}
 		}

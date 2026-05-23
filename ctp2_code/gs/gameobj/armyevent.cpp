@@ -81,6 +81,9 @@
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/gameobj/Happy.h"
 
+// Clean architecture: game event observer registry
+#include "gs/core/game_observer.h"
+
 extern ArmyPool		*g_theArmyPool;
 
 
@@ -437,7 +440,9 @@ STDEHANDLER(ArmyExpelOrderEvent)
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
 	a->AddOrders(UNIT_ORDER_EXPEL , pos);
-	g_soundManager->AddGameSound(GAMESOUNDS_ALERT);
+	if (g_soundManager) {
+		g_soundManager->AddGameSound(GAMESOUNDS_ALERT);
+	}
 
 	return GEV_HD_Continue;
 }
@@ -964,7 +969,9 @@ STDEHANDLER(MoveIntoTransportEvent)
 	}
 	else
 	{
-		g_soundManager->AddGameSound(GAMESOUNDS_ILLEGAL_MOVE);
+		if (g_soundManager) {
+			g_soundManager->AddGameSound(GAMESOUNDS_ILLEGAL_MOVE);
+		}
 	}
 
 	return GEV_HD_Continue;
@@ -1064,12 +1071,12 @@ STDEHANDLER(AftermathEvent)
 		}
 	}
 
-	if(ta.IsValid())
+	if(ta.IsValid() && g_director)
 	{
 		g_director->AddTerminateFaceoff(ta);
 	}
 
-	if(td.IsValid())
+	if(td.IsValid() && g_director)
 	{
 		g_director->AddTerminateFaceoff(td);
 	}
@@ -1092,12 +1099,12 @@ STDEHANDLER(AftermathEvent)
 
 	if(attackerWon)
 	{
-		if(g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
+		if(g_soundManager && g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
 		}
 
-		if(g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
+		if(g_soundManager && g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
 		}
@@ -1109,12 +1116,12 @@ STDEHANDLER(AftermathEvent)
 	}
 	else
 	{
-		if(g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
+		if(g_soundManager && g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
 
-		if(g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
+		if(g_soundManager && g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
@@ -1357,7 +1364,7 @@ STDEHANDLER(MoveUnitsEvent)
 						//	g_slicEngine->Execute(so);
 						}
 
-						if(c.GetOwner() == g_selected_item->GetVisiblePlayer())
+						if(g_director && c.GetOwner() == g_selected_item->GetVisiblePlayer())
 							g_director->AddCenterMap(to);
 
 						for(sint32 k = 0; k < a->Num(); k++)

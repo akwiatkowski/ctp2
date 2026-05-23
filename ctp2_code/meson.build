@@ -214,6 +214,7 @@ incdir += include_directories(
 )
 
 game_core_sources = [
+	'gs/core/game_observer.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',
 	'ctp/ctp2_utils/c3cpu.cpp',
@@ -685,6 +686,7 @@ game_core_sources = [
 	'ui/aui_ctp2/ctp2_textbuffer.cpp',
 	'ui/aui_ctp2/ctp2_textfield.cpp',
 	'ui/aui_ctp2/ctp2_Window.cpp',
+	'ui/aui_ctp2/ui_game_observer.cpp',
 	'ui/interface/CityControlPanel.cpp',
 	'ui/interface/DomesticControlPanel.cpp',
 	'ui/interface/MessageControlPanel.cpp',
@@ -1178,6 +1180,7 @@ executable('ctp2', main_sources,
 # Future: split game_core_sources into engine_sources + ui_sources.
 headless_sources = game_core_sources + [
 	'ctp/headless_main.cpp',
+	'ctp/headless_game_observer.cpp',
 	'ctp/civ3_main.cpp',
 	'test/smoketest_server.cpp',
 ]

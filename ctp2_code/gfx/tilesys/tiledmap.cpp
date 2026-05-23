@@ -4120,7 +4120,7 @@ bool TiledMap::TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect)
 
 	InflateRect(&shrunkMapViewRect, -shrinkX, -shrinkY);
 
-	if(g_radarWindow->Height()) {
+	if(g_radarWindow && g_radarWindow->Height()) {
 		shrunkMapViewRect.bottom -= (g_radarWindow->Height() / (GetZoomTilePixelHeight())) * 2;
 	}
 	RECT ul = shrunkMapViewRect;

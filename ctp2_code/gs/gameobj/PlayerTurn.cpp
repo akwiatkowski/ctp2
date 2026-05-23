@@ -58,19 +58,17 @@
 #include "gs/database/profileDB.h"
 #include "ctp/civapp.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "ui/interface/controlpanelwindow.h"
-#include "ui/aui_ctp2/c3ui.h"
-#include "ui/interface/sciencewin.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/MessagePool.h"
 #include "net/general/net_strengths.h"
 
-#include "ui/aui_ctp2/ctp2_Window.h"
 #include "ctp/debugtools/debugmemory.h"
 
-extern ControlPanelWindow       *g_controlPanel;
+// Clean architecture: game event observer registry
+#include "gs/core/game_observer.h"
+
 extern sint32                   g_tileImprovementMode;
 extern TurnCount                *g_turn;
 extern Pollution                *g_thePollution;
@@ -83,11 +81,8 @@ void Player::BeginTurn()
 
 	}
 
-	if(g_controlPanel)
-	{
-		g_controlPanel->UpdatePlayerBeginProgress(m_owner);
-		g_controlPanel->GetWindow()->DrawChildren();
-	}
+	g_gameObservers->NotifyTurnStart(m_owner);
+	g_gameObservers->NotifyUpdateControlPanel(m_owner);
 
 	sint32 i;
 	for(i = m_messages->Num() - 1; i >= 0; i--)
@@ -99,8 +94,7 @@ void Player::BeginTurn()
 		}
 	}
 
-	if (g_controlPanel && g_selected_item->GetVisiblePlayer() == m_owner)
-		g_controlPanel->PopulateMessageList(m_owner);
+	g_gameObservers->NotifyUpdateMessages(m_owner);
 
 	m_is_turn_over = FALSE;
 

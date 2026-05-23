@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Readded possibility to gain an advance from a just captured
-//   city, by Martin Gühmann. However with or without the change
+//   city, by Martin Gï¿½hmann. However with or without the change
 //   the CaptureCityEvent leaks, maybe a problem of SlicObject.
 // - Prevented crash when reporting completion of the Solaris project.
 // - Corrected memory leaks for city captures.
@@ -33,7 +33,7 @@
 // - Corrected message recipients for the Gaia Controller messages.
 // - added check to make sure city pop is greater than 1 before city capture options
 // - added city leaves ruins options
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -139,7 +139,7 @@ STDEHANDLER(CaptureCityEvent)
 		// Added by Maq - Reset shield store for captured cities.
 		city.CD()->SetShieldstore(0);
 
-		if (city.GetOwner() == g_selected_item->GetVisiblePlayer())
+		if (g_director && city.GetOwner() == g_selected_item->GetVisiblePlayer())
 		{
 			g_director->AddCenterMap(pos);
 		}
@@ -224,7 +224,7 @@ STDEHANDLER(CaptureCityEvent)
 
 		if(g_rand->Next(100) <
 		   g_theConstDB->Get(0)->GetCaptureCityAdvanceChance() * 100) {
-			//Added by Martin Gühmann to allow city advance gaining from
+			//Added by Martin Gï¿½hmann to allow city advance gaining from
 			//a captured city.
 
 			//Check if there are any advances to steal:
@@ -271,7 +271,7 @@ STDEHANDLER(CaptureCityEvent)
 		g_slicEngine->RunCityCapturedTriggers(newOwner, originalOwner,
 		                                      city);
 
-		if(city.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+		if(g_director && city.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
 		{
 			sint32 soundID = gamesounds_GetGameSoundID(GAMESOUNDS_CITYCONQUERED);
 			if (soundID != 0)

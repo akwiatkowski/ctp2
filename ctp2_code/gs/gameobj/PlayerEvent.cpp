@@ -64,34 +64,29 @@
 #include "ctp/civapp.h"
 #include "ui/aui_ctp2/SelItem.h"
 
-#include "ui/interface/controlpanelwindow.h"
-#include "ui/aui_ctp2/c3ui.h"
-#include "ui/interface/sciencewin.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
+#include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/ArmyData.h"
 #include "ai/ctpai.h"
-#include "ui/interface/MainControlPanel.h"
 #include "gs/outcom/AICause.h"
-#include "sound/soundmanager.h"
-#include "sound/gamesounds.h"
 #include "gs/gameobj/GSLogs.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "net/general/net_action.h"
 #include "gs/gameobj/gaiacontroller.h"
 
-#include "ui/aui_ctp2/ctp2_Window.h"
+// Clean architecture: game event observer registry
+#include "gs/core/game_observer.h"
 
 // Propagate PW each turn update
 #include "gs/gameobj/MaterialPool.h"
 
 extern TurnCount *g_turn;
 extern CivApp *g_civApp;
-extern ControlPanelWindow    *g_controlPanel;
-extern C3UI                  *g_c3ui;
+extern ControlPanelWindow *g_controlPanel;
 
 extern sint32 g_noai_stop_player;
 
@@ -337,10 +332,7 @@ STDEHANDLER(FinishBeginTurnEvent)
 	DPRINTF(k_DBG_GAMESTATE, ("Gold: %d\n", p->m_gold->GetLevel()));
 	DPRINTF(k_DBG_GAMESTATE, ("Public Works: %d\n", p->m_materialPool->GetMaterials()));
 
-	if (g_c3ui && p->m_owner == g_selected_item->GetVisiblePlayer())
-	{
-		g_c3ui->AddAction( new SW_UpdateAction );
-	}
+	g_gameObservers->NotifyUpdateScienceWindow(p->m_owner);
 
 	if(g_network.IsHost())
 	{
@@ -353,7 +345,9 @@ STDEHANDLER(FinishBeginTurnEvent)
 		g_network.Unblock(p->m_owner);
 	}
 
-	if((p->IsHuman() ||
+	// Auto-select first unit — only meaningful when UI is present
+	if(g_controlPanel &&
+	   (p->IsHuman() ||
 	    p->IsNetwork() && g_network.IsLocalPlayer(p->m_owner)) &&
 	    p->m_owner == g_selected_item->GetVisiblePlayer() &&
 	    g_theProfileDB->IsAutoSelectFirstUnit())
@@ -471,17 +465,7 @@ STDEHANDLER(CreateCityEvent)
 				g_slicEngine->Execute(so);
 				DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
 
-				if (g_soundManager)
-				{
-					sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-					if (visiblePlayer == player)
-					{
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-						                         gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
-						                         pos.x,
-						                         pos.y);
-					}
-				}
+				g_gameObservers->NotifyCityFounded(player, city, pos, cause);
 			}
 		}
 		else if(cause == CAUSE_NEW_CITY_GOODY_HUT)
@@ -639,10 +623,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 
 		// Not sure whether this is needed, but it seems logical to update the
 		// control panel data after the build phase.
-		if (g_controlPanel && g_controlPanel->GetWindow())
-		{
-			g_controlPanel->GetWindow()->ShouldDraw(TRUE);
-		}
+		g_gameObservers->NotifyBuildPhaseComplete(player);
 	}
 
 	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_StartMovePhase,

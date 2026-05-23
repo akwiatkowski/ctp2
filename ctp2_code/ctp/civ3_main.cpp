@@ -93,6 +93,7 @@
 #include "ctp/civapp.h"
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
 #include "gs/fileio/civscenarios.h"               // g_civScenarios
+#include "gs/core/game_observer_registration.h"
 #include <clocale>
 #include "gfx/gfx_utils/colorset.h"
 #include "ui/interface/controlpanelwindow.h"         // g_controlPanel
@@ -1699,6 +1700,8 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		fprintf(stderr, "[MAIN] calling InitializeApp\n");
 		g_civApp->InitializeApp(hInstance, iCmdShow);
 		fprintf(stderr, "[MAIN] InitializeApp returned\n");
+		RegisterUIGameObserver();
+		fprintf(stderr, "[MAIN] UIGameObserver registered\n");
 	}
 
 #ifdef __AUI_USE_SDL__

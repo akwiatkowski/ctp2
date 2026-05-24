@@ -103,7 +103,13 @@ int main(int argc, char **argv)
     fprintf(stderr, "[HEADLESS] Engine + DBs initialized OK\n");
 
     RegisterHeadlessGameObserver();
-    fprintf(stderr, "[HEADLESS] HeadlessGameObserver registered\n");
+    // Headless still links SelItem.cpp (it's in game_core_sources) and many
+    // non-UI files — notably newturncount.cpp — dereference g_selected_item
+    // directly.  Until those callers are migrated to player_view::CurPlayer
+    // etc., the headless build needs to allocate a SelectedItem instance.
+    // Reuse the same SelectedItem-backed callbacks the UI build uses.
+    RegisterUIPlayerView();
+    fprintf(stderr, "[HEADLESS] observers + player_view registered\n");
 
     if (newGame) {
         fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",

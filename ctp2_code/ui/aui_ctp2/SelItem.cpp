@@ -80,6 +80,11 @@
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/MovePath.h"
+
+// g_selected_item global — definition lives here next to its class.
+// gameinit.cpp used to own this; moved as part of the clean-architecture
+// effort to remove UI ownership from the simulation core.
+SelectedItem *g_selected_item = NULL;
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Order.h"
 #include "ui/aui_ctp2/battleorderbox.h"

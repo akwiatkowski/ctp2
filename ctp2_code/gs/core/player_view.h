@@ -29,8 +29,11 @@
 
 #include "ctp2_inttypes.h"
 
+class CivArchive;
+
 namespace player_view {
 
+// --- Queries (engine asks UI "what's being viewed?") ---
 using VisiblePlayerFn = sint32 (*)();
 using CurPlayerFn     = sint32 (*)();
 using PlayerAfterFn   = sint32 (*)(sint32);
@@ -42,5 +45,30 @@ void RegisterPlayerAfter(PlayerAfterFn fn);
 sint32 VisiblePlayer();
 sint32 CurPlayer();
 sint32 PlayerAfter(sint32 player);
+
+// --- Lifecycle of the UI-side selection state ---
+// The UI build owns g_selected_item; the engine just asks it to be
+// created/destroyed at the right points in game init/cleanup.  Headless
+// leaves these unregistered (no-op).
+using InitFn            = void (*)(sint32 nPlayers);
+using InitFromArchiveFn = void (*)(CivArchive *archive);
+using CleanupFn         = void (*)();
+using SetCurrentPlayerFn = void (*)(sint32 player);
+using SetVisiblePlayerFn = void (*)(sint32 player);
+using RefreshFn         = void (*)();
+
+void RegisterInit(InitFn fn);
+void RegisterInitFromArchive(InitFromArchiveFn fn);
+void RegisterCleanup(CleanupFn fn);
+void RegisterSetCurrentPlayer(SetCurrentPlayerFn fn);
+void RegisterSetVisiblePlayer(SetVisiblePlayerFn fn);
+void RegisterRefresh(RefreshFn fn);
+
+void Init(sint32 nPlayers);
+void InitFromArchive(CivArchive *archive);
+void Cleanup();
+void SetCurrentPlayer(sint32 player);
+void SetVisiblePlayer(sint32 player);
+void Refresh();
 
 } // namespace player_view

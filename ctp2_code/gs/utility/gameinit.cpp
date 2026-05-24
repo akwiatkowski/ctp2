@@ -105,8 +105,8 @@
 #include "gs/utility/RandGen.h"
 #include "ResourceRecord.h"
 #include "robot/utility/RoboInit.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/core/splash_progress.h"   // SPLASH_STRING macro
+#include "gs/core/player_view.h"       // player_view::Init / Cleanup / etc.
 #include "gs/slic/SlicEngine.h"
 #include "SoundRecord.h"
 #include "SpriteRecord.h"
@@ -272,7 +272,8 @@ sint32                    g_difficultyToSetUponLaunch = 0;
 BOOL                      g_setBarbarianRiskUponLaunch = FALSE;
 sint32                    g_barbarianRiskUponLaunch = 0;
 
-SelectedItem *g_selected_item	= NULL;
+// g_selected_item definition moved to ui/aui_ctp2/SelItem.cpp — the global
+// belongs next to its class, not in game-state init.
 
 BOOL g_startEmailGame = FALSE;
 BOOL g_startHotseatGame = FALSE;
@@ -361,8 +362,7 @@ void CreateInitialHuman
 
 	// Set the selected player so that the game starts with the first turn
 	// and the correct player.
-	g_selected_item->SetPlayerOnScreen(index);
-	g_selected_item->SetCurPlayer(index);
+	player_view::SetCurrentPlayer(index);
 
 	// Make sure that the current player is kept by turning it into the stop
 	// player.
@@ -1117,7 +1117,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	g_turn = new TurnCount();
 
-	g_selected_item = new SelectedItem(nPlayers);
+	player_view::Init(nPlayers);
 
 
 
@@ -1309,14 +1309,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	if ( g_selected_item && g_player[g_selected_item->GetVisiblePlayer()] )
 	{
-
-
-
-
-
-		g_selected_item->Refresh();
+		sint32 visible = player_view::VisiblePlayer();
+		if (visible >= 0 && g_player[visible]) {
+			player_view::Refresh();
+		}
 	}
 
 	g_theWorld->A_star_heuristic->Update();
@@ -1561,9 +1558,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
 	if (archive && loadEverything){
-		g_selected_item = new SelectedItem(*archive);
+		player_view::InitFromArchive(archive);
 	}else {
-		g_selected_item = new SelectedItem(nPlayers);
+		player_view::Init(nPlayers);
 	}
 
 
@@ -2269,8 +2266,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					if (i == g_theProfileDB->GetPlayerIndex())
 					{
 						g_player[i]->SetPlayerType(PLAYER_TYPE_HUMAN);
-						g_selected_item->SetPlayerOnScreen(i);
-						g_selected_item->SetCurPlayer(i);
+						player_view::SetCurrentPlayer(i);
 						NewTurnCount::SetStopPlayer(i);
 					}
 
@@ -2309,12 +2305,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	if (g_selected_item &&
-		g_player[g_selected_item->GetVisiblePlayer()] &&
-		!g_turn->IsHotSeat()
-	   )
 	{
-		g_selected_item->Refresh();
+		sint32 visible = player_view::VisiblePlayer();
+		if (visible >= 0 && g_player[visible] && !g_turn->IsHotSeat()) {
+			player_view::Refresh();
+		}
 	}
 
 	SPLASH_STRING("Update World stats...");
@@ -2387,11 +2382,10 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 
 		g_player[g_scenarioUsePlayerNumber]->m_playerType = PLAYER_TYPE_HUMAN;
-		g_selected_item->SetPlayerOnScreen(g_scenarioUsePlayerNumber);
 
 		//Set current player the selected player so that the
 		//game starts with the first turn and the correct player.
-		g_selected_item->SetCurPlayer(g_scenarioUsePlayerNumber);
+		player_view::SetCurrentPlayer(g_scenarioUsePlayerNumber);
 		//Make sure that the current player is kept by turning it
 		//into the stop player.
 		NewTurnCount::SetStopPlayer(g_scenarioUsePlayerNumber);
@@ -2414,8 +2408,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 				if (g_hsPlayerSetup[i].isHuman && !foundFirstHuman)
 				{
-					NewTurnCount::SetStopPlayer(g_selected_item->GetCurPlayer());
-					g_selected_item->SetPlayerOnScreen(i);
+					NewTurnCount::SetStopPlayer(player_view::CurPlayer());
+					player_view::SetVisiblePlayer(i);
 					foundFirstHuman = true;
 				}
 
@@ -2521,7 +2515,7 @@ void gameinit_Cleanup(void)
 	allocated::clear(g_theUnitPool);
 	allocated::clear(g_theInstallationTree);
 	allocated::clear(g_theUnitTree);
-	allocated::clear(g_selected_item);
+	player_view::Cleanup();
 	allocated::clear(g_theTradePool);
 	allocated::clear(g_theTradeOfferPool);
 	allocated::clear(g_turn);

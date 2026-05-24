@@ -155,7 +155,6 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
-#include "ui/aui_common/aui.h"
 #include "gs/gameobj/Barbarians.h"
 #include "robot/pathing/BFS.h"
 #include "BuildingRecord.h"
@@ -180,7 +179,6 @@
 #include "ai/ctpai.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "gs/utility/DataCheck.h"
-#include "ui/interface/debugwindow.h"
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"
 #include "ai/diplomacy/Diplomat.h"
@@ -189,7 +187,6 @@
 #include "gs/gameobj/DiplomaticRequestPool.h"      // g_theDiplomaticRequestPool
 #include "gfx/spritesys/director.h"
 #include "gs/gameobj/EndGame.h"
-#include "ui/interface/EndgameWindow.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
@@ -203,7 +200,6 @@
 #include "GovernmentRecord.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Gold.h"
-#include "ui/interface/greatlibrary.h"
 #include "gs/gameobj/Happy.h"
 #include "gs/gameobj/HappyTracker.h"
 #include "ui/interface/infowin.h"
@@ -230,9 +226,6 @@
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"
 #include "gs/slic/QuickSlic.h"
-#if defined(_DEBUG)
-#include "ui/aui_utils/primitives.h"
-#endif
 #include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
 #include "gs/utility/RandGen.h"                    // g_rand
 #include "gs/gameobj/Readiness.h"
@@ -252,7 +245,6 @@
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/interface/sciencewin.h"
 #include "ui/interface/screenutils.h"
-#include "ui/interface/statswindow.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/utility/stringutils.h"
@@ -272,7 +264,6 @@
 #include "gs/gameobj/UnitPool.h"
 #include "UnitRecord.h"
 #include "gs/world/UnseenCell.h"
-#include "ui/interface/victorymoviewin.h"
 #include "ui/interface/victorywin.h"
 #include "gs/gameobj/Vision.h"
 #include "WonderRecord.h"
@@ -287,7 +278,6 @@ extern PointerList<Player>     *g_deadPlayer;
 extern Pollution               *g_thePollution;
 extern TopTen                  *g_theTopTen;
 extern MessageWindow           *g_currentMessageWindow;
-extern DebugWindow             *g_debugWindow;
 extern CivApp                  *g_civApp;
 extern sint32                   g_numGoods; // To fix games with altered ressource database
 extern sint32                  *g_newGoods;
@@ -2281,7 +2271,7 @@ void Player::BeginTurn()
 	if (g_tileImprovementMode)
 	{
 		g_tileImprovementMode = 0;
-		g_debugWindow->AddText("Tile Improvement Mode - OFF");
+		DPRINTF(k_DBG_GAMESTATE, ("Tile Improvement Mode - OFF\n"));
 	}
 
 	if(g_controlPanel) g_controlPanel->UpdatePlayerBeginProgress(m_owner);
@@ -2513,7 +2503,7 @@ void Player::EndTurn()
 	if (g_tileImprovementMode)
 	{
 		g_tileImprovementMode = 0;
-		g_debugWindow->AddText("Tile Improvement Mode - OFF");
+		DPRINTF(k_DBG_GAMESTATE, ("Tile Improvement Mode - OFF\n"));
 	}
 
 	if ( g_specialAttackMode )
@@ -6843,42 +6833,31 @@ void Player::AddProductionFromFranchise(sint32 amt)
 
 
 void Player::DisplayAdvances()
-	{
-	MBCHAR	s[512] ;
-
-	AdvanceType	adv ;
-
-		snprintf(s, sizeof(s), "Advances, Player %d:", m_owner);
-	g_debugWindow->AddText(s);
-
-		for (adv=0; adv<m_advances->GetNum(); adv++)
-			if (HasAdvance(adv))
-				{
-				snprintf(s, sizeof(s), " %s", g_theAdvanceDB->GetNameStr(adv)) ;
-				g_debugWindow->AddText(s);
-				}
-
+{
+	DPRINTF(k_DBG_GAMESTATE, ("Advances, Player %d:\n", m_owner));
+	for (AdvanceType adv = 0; adv < m_advances->GetNum(); adv++) {
+		if (HasAdvance(adv)) {
+			DPRINTF(k_DBG_GAMESTATE, (" %s\n", g_theAdvanceDB->GetNameStr(adv)));
+		}
 	}
+}
 #endif
 
 void Player::DisplayWWR()
 {
-	g_debugWindow->AddText("WWR:");
-    m_global_happiness->DisplayWWR();
+	DPRINTF(k_DBG_GAMESTATE, ("WWR:\n"));
+	m_global_happiness->DisplayWWR();
 
-    char str[80];
-    snprintf(str, sizeof(str), "  readiness level %d cost  %3.1f  %%  %3.1f",  m_readiness->GetLevel(),
-        m_readiness->GetCost(),
-        100.0 * m_readiness->GetPecentLastTurn());
-	g_debugWindow->AddText(str);
-    snprintf(str, sizeof(str), "  materials %% %3.1f materials current %d", 100.0 * m_materialsTax, m_materialPool->GetMaterials());
-	g_debugWindow->AddText(str);
-    double tmp;
-    m_tax_rate->GetScienceTaxRate(tmp);
-    snprintf(str, sizeof(str), "  science %% %3.1f science current %3.1f", tmp, 100.0 * m_science->GetLevel());
-	g_debugWindow->AddText(str);
-    snprintf(str, sizeof(str), "  gold %d", m_gold->GetLevel());
-	g_debugWindow->AddText(str);
+	DPRINTF(k_DBG_GAMESTATE, ("  readiness level %d cost  %3.1f  %%  %3.1f\n",
+		m_readiness->GetLevel(), m_readiness->GetCost(),
+		100.0 * m_readiness->GetPecentLastTurn()));
+	DPRINTF(k_DBG_GAMESTATE, ("  materials %% %3.1f materials current %d\n",
+		100.0 * m_materialsTax, m_materialPool->GetMaterials()));
+	double tmp;
+	m_tax_rate->GetScienceTaxRate(tmp);
+	DPRINTF(k_DBG_GAMESTATE, ("  science %% %3.1f science current %3.1f\n",
+		tmp, 100.0 * m_science->GetLevel()));
+	DPRINTF(k_DBG_GAMESTATE, ("  gold %d\n", m_gold->GetLevel()));
 
 
 

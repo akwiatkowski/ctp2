@@ -1359,6 +1359,16 @@ bool CivApp::InitializeAppDB(void)
 
 
 
+bool CivApp::IsScenarioEditorShown(void) const
+{
+	return ScenarioEditor::IsShown();
+}
+
+bool CivApp::IsScenarioEditorGivingAdvances(void) const
+{
+	return ScenarioEditor::IsGivingAdvances();
+}
+
 sint32 CivApp::InitializeEngine(void)
 {
 	fprintf(stderr, "[CIVAPP] InitializeEngine: started\n");

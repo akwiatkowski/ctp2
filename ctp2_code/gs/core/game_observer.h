@@ -16,6 +16,7 @@
 #include "gs/world/MapPoint.h"
 
 class Army;
+class Message;
 class Player;
 
 /**
@@ -50,13 +51,40 @@ public:
 
     // --- Research ---
     virtual void OnAdvanceResearched(sint32 player, sint32 advance) {}
+    virtual void OnResearchAdvanceDialog(sint32 player, sint32 advance,
+                                         const MBCHAR* text) {}
+
+    // --- Vision / map reveal ---
+    virtual void OnVisionAdded(sint32 player, const MapPoint& pos, double range) {}
+    virtual void OnVisionRemoved(sint32 player, const MapPoint& pos, double range) {}
+    virtual void OnVisionCopied(sint32 fromPlayer, sint32 toPlayer) {}
+
+    // --- Government / sound effects driven by Player ---
+    virtual void OnGovernmentChanged(sint32 player, sint32 type) {}
+
+    // --- Game over / victory presentation ---
+    virtual void OnGameOver(sint32 player, sint32 reason,
+                            sint32 previouslyWon, sint32 previouslyLost) {}
+
+    // --- Trade ---
+    virtual void OnTradeChanged() {}
+    virtual void OnForeignTradeBid(sint32 player, const Unit& fromCity,
+                                   const Unit& toCity, sint32 resource) {}
+
+    // --- Player messages (alert boxes, instant messages, message list) ---
+    virtual void OnMessageReceived(const Message& msg, sint32 player) {}
+    virtual void OnMessagesRedisplay(sint32 player) {}
+    virtual void OnModalMessageDismissed(sint32 player) {}
 
     // --- UI refresh requests (no-ops in headless) ---
     virtual void OnUpdateScienceWindow(sint32 player) {}
     virtual void OnUpdateCityList() {}
     virtual void OnUpdateUnitPanel(sint32 player) {}
     virtual void OnUpdateControlPanel(sint32 player) {}
+    virtual void OnControlPanelRedraw(sint32 player) {}
     virtual void OnUpdateMessages(sint32 player) {}
+    virtual void OnRadarMapUpdate(sint32 player) {}
+    virtual void OnAdvanceListReload(sint32 player) {}
 };
 
 /**
@@ -94,13 +122,40 @@ public:
 
     // --- Research ---
     void NotifyAdvanceResearched(sint32 player, sint32 advance);
+    void NotifyResearchAdvanceDialog(sint32 player, sint32 advance,
+                                     const MBCHAR* text);
+
+    // --- Vision ---
+    void NotifyVisionAdded(sint32 player, const MapPoint& pos, double range);
+    void NotifyVisionRemoved(sint32 player, const MapPoint& pos, double range);
+    void NotifyVisionCopied(sint32 fromPlayer, sint32 toPlayer);
+
+    // --- Government ---
+    void NotifyGovernmentChanged(sint32 player, sint32 type);
+
+    // --- Game over ---
+    void NotifyGameOver(sint32 player, sint32 reason,
+                        sint32 previouslyWon, sint32 previouslyLost);
+
+    // --- Trade ---
+    void NotifyTradeChanged();
+    void NotifyForeignTradeBid(sint32 player, const Unit& fromCity,
+                               const Unit& toCity, sint32 resource);
+
+    // --- Messages ---
+    void NotifyMessageReceived(const Message& msg, sint32 player);
+    void NotifyMessagesRedisplay(sint32 player);
+    void NotifyModalMessageDismissed(sint32 player);
 
     // --- UI refresh ---
     void NotifyUpdateScienceWindow(sint32 player);
     void NotifyUpdateCityList();
     void NotifyUpdateUnitPanel(sint32 player);
     void NotifyUpdateControlPanel(sint32 player);
+    void NotifyControlPanelRedraw(sint32 player);
     void NotifyUpdateMessages(sint32 player);
+    void NotifyRadarMapUpdate(sint32 player);
+    void NotifyAdvanceListReload(sint32 player);
 
 private:
     GameObserverRegistry() = default;

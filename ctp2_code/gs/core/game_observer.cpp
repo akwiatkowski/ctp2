@@ -107,6 +107,98 @@ void GameObserverRegistry::NotifyAdvanceResearched(sint32 player, sint32 advance
     }
 }
 
+void GameObserverRegistry::NotifyResearchAdvanceDialog(sint32 player, sint32 advance,
+                                                       const MBCHAR* text)
+{
+    for (auto* obs : m_observers) {
+        obs->OnResearchAdvanceDialog(player, advance, text);
+    }
+}
+
+// --- Vision ---
+
+void GameObserverRegistry::NotifyVisionAdded(sint32 player, const MapPoint& pos,
+                                             double range)
+{
+    for (auto* obs : m_observers) {
+        obs->OnVisionAdded(player, pos, range);
+    }
+}
+
+void GameObserverRegistry::NotifyVisionRemoved(sint32 player, const MapPoint& pos,
+                                               double range)
+{
+    for (auto* obs : m_observers) {
+        obs->OnVisionRemoved(player, pos, range);
+    }
+}
+
+void GameObserverRegistry::NotifyVisionCopied(sint32 fromPlayer, sint32 toPlayer)
+{
+    for (auto* obs : m_observers) {
+        obs->OnVisionCopied(fromPlayer, toPlayer);
+    }
+}
+
+// --- Government ---
+
+void GameObserverRegistry::NotifyGovernmentChanged(sint32 player, sint32 type)
+{
+    for (auto* obs : m_observers) {
+        obs->OnGovernmentChanged(player, type);
+    }
+}
+
+// --- Game over ---
+
+void GameObserverRegistry::NotifyGameOver(sint32 player, sint32 reason,
+                                          sint32 previouslyWon, sint32 previouslyLost)
+{
+    for (auto* obs : m_observers) {
+        obs->OnGameOver(player, reason, previouslyWon, previouslyLost);
+    }
+}
+
+// --- Trade ---
+
+void GameObserverRegistry::NotifyTradeChanged()
+{
+    for (auto* obs : m_observers) {
+        obs->OnTradeChanged();
+    }
+}
+
+void GameObserverRegistry::NotifyForeignTradeBid(sint32 player, const Unit& fromCity,
+                                                 const Unit& toCity, sint32 resource)
+{
+    for (auto* obs : m_observers) {
+        obs->OnForeignTradeBid(player, fromCity, toCity, resource);
+    }
+}
+
+// --- Messages ---
+
+void GameObserverRegistry::NotifyMessageReceived(const Message& msg, sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessageReceived(msg, player);
+    }
+}
+
+void GameObserverRegistry::NotifyMessagesRedisplay(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessagesRedisplay(player);
+    }
+}
+
+void GameObserverRegistry::NotifyModalMessageDismissed(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnModalMessageDismissed(player);
+    }
+}
+
 // --- UI refresh ---
 
 void GameObserverRegistry::NotifyUpdateScienceWindow(sint32 player)
@@ -141,6 +233,27 @@ void GameObserverRegistry::NotifyUpdateMessages(sint32 player)
 {
     for (auto* obs : m_observers) {
         obs->OnUpdateMessages(player);
+    }
+}
+
+void GameObserverRegistry::NotifyControlPanelRedraw(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnControlPanelRedraw(player);
+    }
+}
+
+void GameObserverRegistry::NotifyRadarMapUpdate(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRadarMapUpdate(player);
+    }
+}
+
+void GameObserverRegistry::NotifyAdvanceListReload(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnAdvanceListReload(player);
     }
 }
 

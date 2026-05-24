@@ -160,9 +160,7 @@
 #include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3debug.h"
-#include "ui/interface/c3dialogs.h"
 #include "ctp/ctp2_utils/c3errors.h"
-#include "ui/aui_ctp2/c3ui.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "robot/pathing/CityAstar.h"
@@ -173,11 +171,10 @@
 #include "gs/gameobj/CivilisationPool.h"           // g_theCivilisationPool
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
 #include "ConstRecord.h"                // g_theConstDB
-#include "ui/interface/controlpanelwindow.h"         // g_controlPanel
+#include "gs/core/game_observer.h"      // g_gameObservers
 #include "gfx/gfx_utils/colorset.h"
 #include "gs/gameobj/CreateUnit.h"
 #include "ai/ctpai.h"
-#include "ui/aui_ctp2/ctp2_Window.h"
 #include "gs/utility/DataCheck.h"
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"
@@ -202,17 +199,13 @@
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Happy.h"
 #include "gs/gameobj/HappyTracker.h"
-#include "ui/interface/infowin.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/installationtree.h"           // g_theInstallationTree
 #include "limits"
-#include "ui/interface/MainControlPanel.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/MessagePool.h"
-#include "ui/interface/messagewin.h"
-#include "ui/interface/messagewindow.h"
 #include "net/general/net_action.h"
 #include "net/general/net_army.h"
 #include "net/general/net_endgame.h"
@@ -226,13 +219,11 @@
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"
 #include "gs/slic/QuickSlic.h"
-#include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
 #include "gs/utility/RandGen.h"                    // g_rand
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/Regard.h"
 #include "ResourceRecord.h"
 #include "gs/gameobj/Resources.h"
-#include "ui/interface/scenarioeditor.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Score.h"
 #include "ui/aui_ctp2/SelItem.h"
@@ -242,9 +233,6 @@
 #ifdef MOVED_TO_SOUNDEVENT_CPP
 #include "sound/soundmanager.h"               // g_soundManager
 #endif
-#include "ui/interface/sci_advancescreen.h"
-#include "ui/interface/sciencewin.h"
-#include "ui/interface/screenutils.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/utility/stringutils.h"
@@ -256,7 +244,6 @@
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/TradeBids.h"
-#include "ui/interface/trademanager.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
@@ -264,7 +251,6 @@
 #include "gs/gameobj/UnitPool.h"
 #include "UnitRecord.h"
 #include "gs/world/UnseenCell.h"
-#include "ui/interface/victorywin.h"
 #include "gs/gameobj/Vision.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
@@ -273,11 +259,9 @@
 #include "gs/gameobj/Wormhole.h"
 #include "ai/CityManagement/governor.h"
 
-extern C3UI                    *g_c3ui;
 extern PointerList<Player>     *g_deadPlayer;
 extern Pollution               *g_thePollution;
 extern TopTen                  *g_theTopTen;
-extern MessageWindow           *g_currentMessageWindow;
 extern CivApp                  *g_civApp;
 extern sint32                   g_numGoods; // To fix games with altered ressource database
 extern sint32                  *g_newGoods;
@@ -1522,10 +1506,8 @@ bool Player::AddCityReferenceToPlayer(Unit u,  CAUSE_NEW_CITY cause)
 	{
 	}
 
-	if(g_controlPanel && (!IsRobot()
-	|| g_selected_item->GetVisiblePlayer() == m_owner))
-	{
-		MainControlPanel::UpdateCityList();
+	if (!IsRobot() && g_gameObservers) {
+		g_gameObservers->NotifyUpdateCityList();
 	}
 
 	m_maxCityCount = std::max(m_maxCityCount, m_all_cities->Num());
@@ -1605,7 +1587,7 @@ bool Player::RemoveCityReferenceFromPlayer(const Unit &killme,  CAUSE_REMOVE_CIT
 		}
 	}
 
-	if (g_controlPanel) MainControlPanel::UpdateCityList();
+	if (g_gameObservers) g_gameObservers->NotifyUpdateCityList();
 
 	return true;
 }
@@ -2492,10 +2474,7 @@ void Player::EndTurn()
 	m_is_turn_over = TRUE;
 	m_end_turn_soon = FALSE;
 
-	if(g_controlPanel)
-	{
-		g_controlPanel->GetWindow()->DrawChildren();
-	}
+	if (g_gameObservers) g_gameObservers->NotifyControlPanelRedraw(m_owner);
 
 	if (m_isDead)
 		return;
@@ -3157,7 +3136,7 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 void Player::AddTransportPoints(sint32 delta)
 {
 	m_tradeTransportPoints += delta;
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 void Player::RemoveTransportPoints(sint32 delta)
@@ -3177,7 +3156,7 @@ void Player::RemoveTransportPoints(sint32 delta)
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
 
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 void Player::AddUsedTransportPoints(sint32 delta)
@@ -3187,7 +3166,7 @@ void Player::AddUsedTransportPoints(sint32 delta)
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
 		g_theTradeBids->CancelBidsFrom(m_owner);
 	}
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 void Player::RemoveUsedTransportPoints(sint32 delta)
@@ -3197,7 +3176,7 @@ void Player::RemoveUsedTransportPoints(sint32 delta)
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 void Player::RemoveTradeRoute(TradeRoute route, CAUSE_KILL_TRADE_ROUTE cause)
@@ -3412,7 +3391,9 @@ void Player::CreateTradeBid(Unit &fromCity, sint32 resource, Unit &toCity)
 		return;
 	}
 
-	c3dialogs_PostForeignTradeBidDialog(m_owner, fromCity, toCity, resource);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyForeignTradeBid(m_owner, fromCity, toCity, resource);
+	}
 }
 
 void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toCity,
@@ -3815,11 +3796,11 @@ void Player::BuildResearchDialog(AdvanceType advance)
 				// (FIXME)
 				) {
 			g_slicEngine->AddResearchOnUnblank(m_owner, text);
-		} else if (g_director) {
-			g_director->AddInvokeResearchAdvance(text);
+		} else if (g_gameObservers) {
+			g_gameObservers->NotifyResearchAdvanceDialog(m_owner, advance, text);
 		}
-	} else if (g_director) {
-		g_director->AddInvokeResearchAdvance(NULL);
+	} else if (g_gameObservers) {
+		g_gameObservers->NotifyResearchAdvanceDialog(m_owner, advance, NULL);
 	}
 }
 
@@ -3872,9 +3853,9 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->AddVisible(pnt, range);
 	}
-	else if (g_director)
+	else if (g_gameObservers)
 	{
-		g_director->AddAddVision(pnt, range);
+		g_gameObservers->NotifyVisionAdded(m_owner, pnt, range);
 	}
 }
 
@@ -3884,9 +3865,9 @@ void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}
-	else if (g_director)
+	else if (g_gameObservers)
 	{
-		g_director->AddRemoveVision(pnt, range);
+		g_gameObservers->NotifyVisionRemoved(m_owner, pnt, range);
 	}
 }
 
@@ -4203,8 +4184,8 @@ void Player::GiveMap(PLAYER_INDEX recipient)
 	if (!g_player[recipient])
 		return;
 	g_player[recipient]->m_vision->MergeMap(m_vision);
-	if(g_director && g_selected_item->GetVisiblePlayer() == recipient) {
-		g_director->AddCopyVision();
+	if (g_gameObservers) {
+		g_gameObservers->NotifyVisionCopied(m_owner, recipient);
 	}
 }
 
@@ -5252,55 +5233,24 @@ void Player::AddMessage(Message &msg)
 		   || g_robotMessages
 #endif
 		){
-			if(msg.UseDirector()
-			&&(!g_currentMessageWindow
-			|| !g_currentMessageWindow->GetMessage()
-			|| !g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage()))
-			){
-					if (g_director) {
-						g_director->AddMessage(msg);
-					}
-				} else if(msg.IsAlertBox()) {
-					if(!messagewin_IsModalMessageDisplayed()) {
-						messagewin_CreateModalMessage(msg);
-					}
-				} else {
-					messagewin_CreateMessage( msg );
-				if(msg.IsInstantMessage()
-						// JJB added this to prevent instant messages showing
-						// out of turn in hotseat games.
-						// With the existing behaviour they would show immediately
-						// which would often mean that they show on the wrong players
-						// turn.
-				&& g_selected_item->GetVisiblePlayer() == m_owner
-				&&(!g_currentMessageWindow
-				|| !g_currentMessageWindow->GetMessage()
-				|| !g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage()))
-				){
-						msg.Show();
-					}
-				}
+			if (g_gameObservers) {
+				g_gameObservers->NotifyMessageReceived(msg, m_owner);
 			}
 		}
+	}
 	}
 
 void Player::NotifyModalMessageDestroyed()
 {
-	for(sint32 i = 0; i < m_messages->Num(); i++)
-	{
-		if(!g_theMessagePool->IsValid(m_messages->Access(i)))
-		{
+	// Purge invalid messages (game state).
+	for (sint32 i = m_messages->Num() - 1; i >= 0; i--) {
+		if (!g_theMessagePool->IsValid(m_messages->Access(i))) {
 			m_messages->DelIndex(i);
-			i--;
 		}
-		else
-		{
-			if(m_messages->Access(i).IsAlertBox())
-			{
-				messagewin_CreateModalMessage(m_messages->Access(i));
-				break;
-			}
-		}
+	}
+	// Ask the UI observer (if any) to pop the next pending modal alert.
+	if (g_gameObservers) {
+		g_gameObservers->NotifyModalMessageDismissed(m_owner);
 	}
 }
 
@@ -5908,9 +5858,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		m_vision->SetTheWholeWorldExplored();
 		m_vision->ClearUnseen();
 
-		if(g_director && m_owner == g_selected_item->GetVisiblePlayer())
-		{
-			g_director->AddCopyVision();
+		if (g_gameObservers) {
+			g_gameObservers->NotifyVisionCopied(m_owner, m_owner);
 		}
 	}
 
@@ -6595,7 +6544,7 @@ bool Player::ActuallySetGovernment(sint32 type)
 	}
 
 	SlicObject *so;
-    if (g_civApp->IsGameLoaded() && (type != 0) && !ScenarioEditor::IsShown()) {
+    if (g_civApp->IsGameLoaded() && (type != 0) && !g_civApp->IsScenarioEditorShown()) {
         if (GetCurRound() > 50) {
             so = new SlicObject("012CivNewGov") ;
             so->AddAllRecipientsBut(m_owner);
@@ -6608,8 +6557,8 @@ bool Player::ActuallySetGovernment(sint32 type)
         so->AddRecipient(m_owner);
         so->AddGovernment(type);
         g_slicEngine->Execute(so) ;
-		if(g_director && m_owner == g_selected_item->GetVisiblePlayer() && type != 0) {
-			g_director->AddGameSound(GAMESOUNDS_CHANGE_GOV);
+		if (g_gameObservers) {
+			g_gameObservers->NotifyGovernmentChanged(m_owner, type);
 		}
     }
 
@@ -6949,7 +6898,10 @@ sint32 Player::GetCheapestMilitaryUnit()
 MBCHAR *Player::GenerateDescriptionString(bool is_winner)
 {
     char const * ptag = NULL;
-	sint32 curScore = infowin_GetCivScore(m_owner);
+	// infowin_GetCivScore() (in ui/interface/infowin.cpp) is just this
+	// computation for an existing Player — inlined to keep Player.cpp free
+	// of the ui/interface/infowin.h include.
+	sint32 curScore = m_score->GetTotalScore() + m_difficulty->GetBaseScore();
 
     if (is_winner) {
         if (curScore <= 20)        ptag = "PLAYER_DESCRIPTION_WINNER_RANK_1";
@@ -7087,37 +7039,19 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 		}
 	}
 
-	if (!IsRobot() && m_owner == g_selected_item->GetVisiblePlayer() &&
-		(!g_slicEngine->GetTutorialActive() || g_slicEngine->GetTutorialPlayer() == m_owner))
-	{
-		close_AllScreens();
-
-
-		if (reason == GAME_OVER_LOST_SCIENCE ||
-			reason == GAME_OVER_LOST_DIPLOMACY) {
-
-			// UI-only victory-screen path.  Headless build leaves the
-			// game-over event observable via g_gameObservers (logged by
-			// HeadlessGameObserver) and exits via the driver's turn loop.
-			if (!g_headlessMode) {
-				infowin_Initialize();
-				victorywin_Initialize(k_VICWIN_DEFEAT);
-				victorywin_DisplayWindow(k_VICWIN_DEFEAT);
-			}
-		} else {
-
-			if (g_director) {
-				g_director->CatchUp();
-				g_director->AddPlayVictoryMovie(reason, previouslyWon, previouslyLost);
-			}
-		}
-
+	// Defeat / victory presentation is UI work — visible-player gating,
+	// tutorial gating, close-all-screens, victory-screen vs. movie split —
+	// all owned by the UI observer.  Headless build registers a stub that
+	// just logs the game-over.
+	if (!IsRobot() && g_gameObservers) {
+		g_gameObservers->NotifyGameOver(m_owner, reason,
+		                                previouslyWon, previouslyLost);
 	}
 }
 
 bool Player::CheckPlayerDead()
 {
-	if(g_isCheatModeOn || ScenarioEditor::IsShown())
+	if(g_isCheatModeOn || g_civApp->IsScenarioEditorShown())
 		return false;
 
 	if(m_all_cities->Num() <= 0 && (!m_first_city || m_all_units->Num () < 1)) {
@@ -8015,9 +7949,7 @@ void Player::ContactMade(PLAYER_INDEX with)
 			}
 		}
 
-		if(g_selected_item && g_radarMap && m_owner == g_selected_item->GetVisiblePlayer()) {
-			g_radarMap->Update();
-		}
+		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(m_owner);
 	}
 }
 
@@ -8126,8 +8058,8 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 			g_player[wowner]->m_hasGlobalRadar = FALSE;
 			g_theWonderTracker->SetGlobeSatFlags(g_theWonderTracker->GlobeSatFlags() & ~(1 << m_owner));
 			m_vision->ClearUnseen();
-			if(g_director && wowner == g_selected_item->GetVisiblePlayer()) {
-				g_director->AddCopyVision();
+			if (g_gameObservers) {
+				g_gameObservers->NotifyVisionCopied(wowner, wowner);
 			}
 		}
 
@@ -8197,7 +8129,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 	const AdvanceRecord *advRec = g_theAdvanceDB->Get(advance);
 
-	if(im_the_first && !ScenarioEditor::IsGivingAdvances())
+	if(im_the_first && !g_civApp->IsScenarioEditorGivingAdvances())
 	{
 		CheckWonderObsoletions(advance);
 
@@ -8221,8 +8153,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		m_all_cities->Access(i).NotifyAdvance(advance);
 	}
 
-	if (g_controlPanel!=NULL && m_owner == g_selected_item->GetVisiblePlayer())
-		g_controlPanel->TileImpPanelRedisplay();
+	if (g_gameObservers) g_gameObservers->NotifyUpdateMessages(m_owner);
 
 	sint32 player_idx;
 	sint32 city_idx, city_num;
@@ -8238,7 +8169,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		}
 	}
 
-	if(g_civApp->IsGameLoaded() && !ScenarioEditor::IsGivingAdvances())
+	if(g_civApp->IsGameLoaded() && !g_civApp->IsScenarioEditorGivingAdvances())
 	{
 		if (GetCurRound() > 1 && !init)
 		{
@@ -8291,11 +8222,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 			m_advances->ResetCanResearch(advance);
 		}
 
-		if(sci_advancescreen_isOnScreen() &&
-		   m_owner == g_selected_item->GetVisiblePlayer())
-		{
-			sci_advancescreen_loadList();
-		}
+		if (g_gameObservers) g_gameObservers->NotifyAdvanceListReload(m_owner);
 	}
 
 	if(advRec->GetAgeIndex() > m_age)
@@ -8745,32 +8672,16 @@ void Player::RecoveredProbe(const Unit &city)
 
 void Player::RecreateMessageIcons()
 {
-	DynamicArray<Message> messages = *m_messages;
-	sint32 m;
-	for(m = 0; m < messages.Num(); m++) {
-		Message msg = messages.Access(m);
-
-		if(g_theMessagePool->IsValid(msg)) {
-			if(!IsRobot()) {
-				if(messages.Access(m).IsAlertBox()) {
-
-
-					if(!messagewin_IsModalMessageDisplayed()) {
-						messagewin_CreateModalMessage(messages.Access(m));
-					}
-				} else {
-					messagewin_CreateMessage(messages.Access(m));
-
-
-				}
-			}
-		} else {
-			m_messages->Del(msg);
+	// Purge invalid messages (game state).
+	for (sint32 m = m_messages->Num() - 1; m >= 0; m--) {
+		if (!g_theMessagePool->IsValid(m_messages->Access(m))) {
+			m_messages->Del(m_messages->Access(m));
 		}
 	}
 
-	if(g_controlPanel && m_owner == g_selected_item->GetVisiblePlayer()) {
-		g_controlPanel->PopulateMessageList(m_owner);
+	// Re-render this player's message icons + control-panel list (UI work).
+	if (!IsRobot() && g_gameObservers) {
+		g_gameObservers->NotifyMessagesRedisplay(m_owner);
 	}
 }
 

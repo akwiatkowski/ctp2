@@ -94,6 +94,15 @@ public:
         return m_gameLoaded;
     };
 
+    // Forwards to ScenarioEditor::IsShown / IsGivingAdvances so that game
+    // logic can ask "are we in scenario-editing mode?" without including
+    // ui/interface/scenarioeditor.h.  Defined in civapp.cpp where the editor
+    // include is already pulled in.  Headless build links the same source
+    // but the editor predicates evaluate to false there because the editor
+    // is never instantiated.
+    bool		IsScenarioEditorShown(void) const;
+    bool		IsScenarioEditorGivingAdvances(void) const;
+
 	bool		IsInBackground(void) const
     {
         return m_inBackground;

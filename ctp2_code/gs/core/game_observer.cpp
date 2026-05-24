@@ -80,6 +80,20 @@ void GameObserverRegistry::NotifyArmyMove(const Army& army,
     }
 }
 
+void GameObserverRegistry::NotifyArmyRemoved(sint32 player, const Army& army)
+{
+    for (auto* obs : m_observers) {
+        obs->OnArmyRemoved(player, army);
+    }
+}
+
+void GameObserverRegistry::NotifyPlayerRemoved(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnPlayerRemoved(player);
+    }
+}
+
 void GameObserverRegistry::NotifyCombatStart(const Army& attacker,
                                              const Army& defender,
                                              const MapPoint& pos)

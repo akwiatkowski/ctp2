@@ -172,6 +172,8 @@
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
 #include "ConstRecord.h"                // g_theConstDB
 #include "gs/core/game_observer.h"      // g_gameObservers
+#include "gs/core/player_view.h"        // player_view::VisiblePlayer/CurPlayer/PlayerAfter
+#include "gs/gameobj/MovePath.h"        // army_QueueMovePath
 #include "gfx/gfx_utils/colorset.h"
 #include "gs/gameobj/CreateUnit.h"
 #include "ai/ctpai.h"
@@ -226,7 +228,6 @@
 #include "gs/gameobj/Resources.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Score.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
@@ -1087,7 +1088,9 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 
 
 		}
-		g_selected_item->RegisterCreatedUnit(m_owner);
+		// SelectedItem::RegisterCreatedUnit is a documented no-op in the
+		// current codebase; drop the call rather than route through a
+		// notification that nothing listens for.
 	}
 
 	m_readiness->SupportUnit(u, m_government_type);
@@ -1207,7 +1210,7 @@ void Player::AddArmy(const Army &army,
 void Player::RemoveArmy(const Army &army, CAUSE_REMOVE_ARMY cause,
 						PLAYER_INDEX killedBy, bool fromNetwork)
 {
-	g_selected_item->RegisterRemovedArmy(m_owner, army);
+	if (g_gameObservers) g_gameObservers->NotifyArmyRemoved(m_owner, army);
 
 	sint32 dead = FindArmyIndex(army);
 
@@ -1411,7 +1414,8 @@ Unit Player::CreateCity(
 
 	AddCityReferenceToPlayer(u, cause);
 
-	g_selected_item->RegisterCreatedCity(m_owner);
+	// SelectedItem::RegisterCreatedCity is a documented no-op; OnCityFounded
+	// (fired from PlayerEvent.cpp) is the live notification for new cities.
 	sint32 virtgoldspent = 0;
 	u.CalcHappiness(virtgoldspent, FALSE);
 
@@ -1461,7 +1465,7 @@ Unit Player::CreateCity(
 
 		so = new SlicObject("017SeaCityOthers");
 		so->AddAllRecipientsBut(m_owner);
-		so->AddCivilisation(g_selected_item->GetVisiblePlayer());
+		so->AddCivilisation(player_view::VisiblePlayer());
 		so->AddCivilisation(m_owner);
 		g_slicEngine->Execute(so);
 	}
@@ -2333,7 +2337,7 @@ void Player::BeginTurn()
 
 
 
-		if(g_endgameWindow && (m_owner == g_selected_item->GetVisiblePlayer()))
+		if(g_endgameWindow && (m_owner == player_view::VisiblePlayer()))
 			g_endgameWindow->UpdateTurn(m_endGame);
 
 		if(g_network.IsHost()) {
@@ -2409,7 +2413,7 @@ void Player::BeginTurn()
 	DPRINTF(k_DBG_GAMESTATE, ("It's player %d's turn - year %d.\n", m_owner, GetCurRound()));
 	DPRINTF(k_DBG_GAMESTATE, ("Gold: %d\n", m_gold->GetLevel()));
 
-	if ( m_owner == g_selected_item->GetVisiblePlayer() )
+	if ( m_owner == player_view::VisiblePlayer() )
 	{
 		if ( g_controlPanel && m_can_use_space_button )
 		{
@@ -2435,7 +2439,7 @@ void Player::BeginTurn()
 
 	if((IsHuman() ||
 		IsNetwork() && g_network.IsLocalPlayer(m_owner)) &&
-	   m_owner == g_selected_item->GetVisiblePlayer() &&
+	   m_owner == player_view::VisiblePlayer() &&
 	   g_theProfileDB->IsAutoSelectFirstUnit()) {
 		if(g_selected_item->GetState() == SELECT_TYPE_NONE) {
 			g_selected_item->NextUnmovedUnit(TRUE);
@@ -3225,7 +3229,7 @@ void Player::InterceptTrade(sint32 army_index)
 	MapPoint pnt;
 
 	Assert(0 < m_all_armies->Get(army_index).Num());
-	Unit u = m_all_armies->Get(army_index).GetTopVisibleUnit(g_selected_item->GetVisiblePlayer());
+	Unit u = m_all_armies->Get(army_index).GetTopVisibleUnit(player_view::VisiblePlayer());
 	if (u.m_id == (0)) {
 		u = m_all_armies->Get(army_index).Get(0);
 	}
@@ -7106,11 +7110,11 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
     if (g_theProfileDB->IsAIOn()) {
 
         if (m_owner == NewTurnCount::GetStopPlayer()) {
-            NewTurnCount::SetStopPlayer(g_selected_item->GetPlayerAfterThis(m_owner));
+            NewTurnCount::SetStopPlayer(player_view::PlayerAfter(m_owner));
         }
 
     } else {
-        g_noai_stop_player = g_selected_item->GetPlayerAfterThis(m_owner);
+        g_noai_stop_player = player_view::PlayerAfter(m_owner);
     }
 
 
@@ -7201,7 +7205,7 @@ void Player::RemoveDeadPlayers()
 			g_player[i]->m_vision = NULL;
 
 			g_player[i] = NULL;
-			g_selected_item->RemovePlayer((PLAYER_INDEX)i);
+			if (g_gameObservers) g_gameObservers->NotifyPlayerRemoved((PLAYER_INDEX)i);
 			g_turn->PlayerDead(i);
 
 			CtpAi::RemovePlayer(i);
@@ -8135,7 +8139,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 		sint32 feat;
 		if(!g_network.IsNetworkLaunch()
-		&& g_player[g_selected_item->GetCurPlayer()]
+		&& g_player[player_view::CurPlayer()]
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
 			if(!g_network.IsActive() || g_network.ReadyToStart())
@@ -8272,20 +8276,17 @@ void Player::GiveArmyCommand(Army &army,
 			GetNearestCity(apos, aCity, dist);
 			if(aCity.m_id != (0)) {
 				aCity.GetPos(cpos);
-				g_selected_item->EnterMovePath(m_owner, army,
-											   apos, cpos);
+				army_QueueMovePath(m_owner, army, apos, cpos);
 			}
 			break;
 		case UNIT_COMMAND_NEAREST_FORT:
 			if(GetNearestFort(apos, cpos)) {
-				g_selected_item->EnterMovePath(m_owner, army,
-											   apos, cpos);
+				army_QueueMovePath(m_owner, army, apos, cpos);
 			}
 			break;
 		case UNIT_COMMAND_NEAREST_AIRFIELD:
 			if(GetNearestAirfield(apos, cpos)) {
-				g_selected_item->EnterMovePath(m_owner, army,
-											   apos, cpos);
+				army_QueueMovePath(m_owner, army, apos, cpos);
 			}
 			break;
 		case UNIT_COMMAND_ENTRENCH:
@@ -8979,7 +8980,7 @@ void Player::EnterNewAge(sint32 age)
 	const AgeRecord *rec = g_theAgeDB->Get(age);
 	if(!rec) return;
 
-	if(!g_network.IsNetworkLaunch() && g_player[g_selected_item->GetCurPlayer()]) {
+	if(!g_network.IsNetworkLaunch() && g_player[player_view::CurPlayer()]) {
 		if(!g_network.IsActive() || g_network.ReadyToStart()) {
 
 			SlicObject *so = new SlicObject((char *)rec->GetSlicObject());

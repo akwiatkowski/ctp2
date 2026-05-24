@@ -1701,7 +1701,8 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		g_civApp->InitializeApp(hInstance, iCmdShow);
 		fprintf(stderr, "[MAIN] InitializeApp returned\n");
 		RegisterUIGameObserver();
-		fprintf(stderr, "[MAIN] UIGameObserver registered\n");
+		RegisterUIPlayerView();
+		fprintf(stderr, "[MAIN] UIGameObserver + UIPlayerView registered\n");
 	}
 
 #ifdef __AUI_USE_SDL__

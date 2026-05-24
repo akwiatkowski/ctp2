@@ -215,6 +215,8 @@ incdir += include_directories(
 
 game_core_sources = [
 	'gs/core/game_observer.cpp',
+	'gs/core/player_view.cpp',
+	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',
 	'ctp/ctp2_utils/c3cpu.cpp',
@@ -686,6 +688,7 @@ game_core_sources = [
 	'ui/aui_ctp2/ctp2_textbuffer.cpp',
 	'ui/aui_ctp2/ctp2_textfield.cpp',
 	'ui/aui_ctp2/ctp2_Window.cpp',
+	'ui/aui_ctp2/player_view_ui.cpp',
 	'ui/aui_ctp2/ui_events.cpp',
 	'ui/aui_ctp2/ui_game_observer.cpp',
 	'ui/interface/CityControlPanel.cpp',

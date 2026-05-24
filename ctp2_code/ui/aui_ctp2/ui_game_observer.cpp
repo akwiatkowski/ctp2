@@ -97,6 +97,20 @@ public:
         }
     }
 
+    void OnArmyRemoved(sint32 player, const Army& army) override
+    {
+        if (g_selected_item) {
+            g_selected_item->RegisterRemovedArmy(player, army);
+        }
+    }
+
+    void OnPlayerRemoved(sint32 player) override
+    {
+        if (g_selected_item) {
+            g_selected_item->RemovePlayer(static_cast<PLAYER_INDEX>(player));
+        }
+    }
+
     void OnCombatStart(const Army& attacker, const Army& defender,
                        const MapPoint& pos) override
     {

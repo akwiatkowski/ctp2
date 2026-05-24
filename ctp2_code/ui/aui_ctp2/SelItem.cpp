@@ -79,6 +79,7 @@
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Army.h"
+#include "gs/gameobj/MovePath.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Order.h"
 #include "ui/aui_ctp2/battleorderbox.h"
@@ -2548,29 +2549,9 @@ void SelectedItem::Goto(MapPoint &dest)
 void SelectedItem::EnterMovePath(sint32 owner, Army &army,
 								 MapPoint const & src, MapPoint const & dest)
 {
-	Path *good_path = new Path, bad_path;
-	bool is_broken;
-	float cost;
-	sint32 r = g_theUnitAstar->FindPath(army, src,
-										owner, dest,
-										*good_path, is_broken,
-										bad_path,
-										cost);
-	if (!r || is_broken)
-	{
-		delete good_path;
-		return;
-	}
-
-	army.ClearOrders();
-	good_path->JustSetStart(army->RetPos());
-
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
-						   GEA_Army, army,
-						   GEA_Path, good_path,
-						   GEA_MapPoint, src,
-						   GEA_Int, 0,
-						   GEA_End);
+	// Body lifted to gs/gameobj/MovePath.cpp so non-UI callers (Player,
+	// armyevent, slicfunc) can reach it without depending on SelItem.h.
+	army_QueueMovePath(owner, army, src, dest);
 }
 
 void SelectedItem::EntrenchArmy(sint32 owner, sint32 index)

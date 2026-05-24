@@ -44,10 +44,14 @@ public:
     // --- Army / combat events ---
     virtual void OnArmyMove(const Army& army,
                             const MapPoint& from, const MapPoint& to) {}
+    virtual void OnArmyRemoved(sint32 player, const Army& army) {}
     virtual void OnCombatStart(const Army& attacker, const Army& defender,
                                const MapPoint& pos) {}
     virtual void OnCombatEnd(const Army& attacker, const Army& defender,
                              bool attackerWon) {}
+
+    // --- Player lifecycle ---
+    virtual void OnPlayerRemoved(sint32 player) {}
 
     // --- Research ---
     virtual void OnAdvanceResearched(sint32 player, sint32 advance) {}
@@ -115,10 +119,14 @@ public:
     // --- Army / combat ---
     void NotifyArmyMove(const Army& army,
                         const MapPoint& from, const MapPoint& to);
+    void NotifyArmyRemoved(sint32 player, const Army& army);
     void NotifyCombatStart(const Army& attacker, const Army& defender,
                            const MapPoint& pos);
     void NotifyCombatEnd(const Army& attacker, const Army& defender,
                          bool attackerWon);
+
+    // --- Player lifecycle ---
+    void NotifyPlayerRemoved(sint32 player);
 
     // --- Research ---
     void NotifyAdvanceResearched(sint32 player, sint32 advance);

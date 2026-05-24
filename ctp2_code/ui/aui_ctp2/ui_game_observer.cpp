@@ -19,9 +19,12 @@
 #include "gs/gameobj/GameOver.h"
 #include "gs/slic/SlicEngine.h"
 #include "ui/aui_ctp2/SelItem.h"
+#include "ui/aui_ctp2/background.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/radarmap.h"
+#include "ui/interface/radarwindow.h"
+#include "gfx/tilesys/tiledmap.h"
 #include "ui/interface/c3dialogs.h"
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/interface/infowin.h"
@@ -40,6 +43,7 @@
 extern ControlPanelWindow    *g_controlPanel;
 extern C3UI                  *g_c3ui;
 extern MessageWindow         *g_currentMessageWindow;
+extern Background            *g_background;
 
 class UIGameObserver : public IGameObserver {
 public:
@@ -322,6 +326,47 @@ public:
             return;
         if (sci_advancescreen_isOnScreen()) {
             sci_advancescreen_loadList();
+        }
+    }
+
+    void OnSetGraphMinRound(sint32 round) override
+    {
+        infowin_SetMinRoundForGraphs(round);
+    }
+
+    void OnMapResized() override
+    {
+        // gameinit_ResetMapSize has already rebuilt g_tiledMap and the
+        // world pools.  Load the tileset graphics, recreate the radar
+        // window, and redraw the background — all UI work that the engine
+        // build skips.
+        radarwindow_Cleanup();
+
+        if (g_tiledMap) {
+            g_tiledMap->LoadTileset();
+        }
+
+        if (g_tiledMap && g_background) {
+            RECT rect = {
+                g_background->X(),
+                g_background->Y(),
+                g_background->X() + g_background->Width(),
+                g_background->Y() + g_background->Height()
+            };
+            g_tiledMap->Initialize(&rect);
+            g_tiledMap->Refresh();
+        }
+
+        radarwindow_Initialize();
+        radarwindow_Display();
+
+        if (g_tiledMap) {
+            g_tiledMap->PostProcessMap();
+            g_tiledMap->Refresh();
+        }
+
+        if (g_background) {
+            g_background->Draw();
         }
     }
 

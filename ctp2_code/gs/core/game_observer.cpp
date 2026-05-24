@@ -271,6 +271,20 @@ void GameObserverRegistry::NotifyAdvanceListReload(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifySetGraphMinRound(sint32 round)
+{
+    for (auto* obs : m_observers) {
+        obs->OnSetGraphMinRound(round);
+    }
+}
+
+void GameObserverRegistry::NotifyMapResized()
+{
+    for (auto* obs : m_observers) {
+        obs->OnMapResized();
+    }
+}
+
 // Global instance pointer.  Initialized inside CivApp::InitializeEngine
 // (called by both the UI and headless entry points) before any observer
 // registration runs.  Eager static-init via `= &Instance()` would have been

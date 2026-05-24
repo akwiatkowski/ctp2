@@ -1,5 +1,6 @@
 #include "ctp/c3.h"
 #include "ui/interface/splash.h"
+#include "gs/core/splash_progress.h"
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
@@ -14,9 +15,34 @@ extern C3UI	*   g_c3ui;
 
 Splash *        g_splash    = NULL;
 
+#ifdef _DEBUG
+// SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals
+// live next to the Splash class that owns them.
+sint32          g_splash_cur = 0;
+sint32          g_splash_old = 0;
+MBCHAR          g_splash_buf[100] = {0};
+
+namespace {
+void UISplashShow(const char *msg)
+{
+	if (!g_splash) return;
+	g_splash_cur = GetTickCount();
+	snprintf(g_splash_buf, sizeof(g_splash_buf), " %4.2f secs  ",
+	         double(g_splash_cur - g_splash_old) * 0.001);
+	g_splash_old = g_splash_cur;
+	g_splash->AddTextNL(g_splash_buf);
+	g_splash->AddText(msg);
+}
+} // anonymous namespace
+#endif
+
 void Splash::Initialize(void)
 {
     allocated::reassign(g_splash, new Splash());
+#ifdef _DEBUG
+    // Register the SPLASH_STRING callback once the Splash object exists.
+    splash_progress::Register(&UISplashShow);
+#endif
 }
 
 void Splash::Cleanup(void)

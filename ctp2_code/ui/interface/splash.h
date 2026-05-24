@@ -16,21 +16,13 @@ extern Splash *         g_splash;
 extern sint32           g_splash_cur;
 extern sint32           g_splash_old;
 extern MBCHAR           g_splash_buf[100];
-#define SPLASH_STRING(x) { if (g_splash) { \
-g_splash_cur = GetTickCount(); \
-snprintf(g_splash_buf, sizeof(g_splash_buf), " %4.2f secs  ", double(g_splash_cur - g_splash_old) * 0.001); \
-g_splash_old = g_splash_cur; \
-g_splash->AddTextNL(g_splash_buf); \
-g_splash->AddText(x); \
-}\
-}
-
-#define SPLASH_STRING_SIMPLE(x) { g_splash->AddHilitedTextNL(x); }
-
-#else
-	#define SPLASH_STRING(x)		;
-	#define SPLASH_STRING_SIMPLE(x)	;
 #endif
+
+// SPLASH_STRING / SPLASH_STRING_SIMPLE now live in gs/core/splash_progress.h
+// — they call a UI-registered callback instead of touching g_splash and
+// g_c3ui directly, so non-UI callers (gameinit, ctpai) no longer drag
+// splash.h into the simulation core.
+#include "gs/core/splash_progress.h"
 
 class Splash
 {

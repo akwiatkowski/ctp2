@@ -59,29 +59,19 @@
 #include "gs/gameobj/AgreementPool.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/ArmyPool.h"
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/aui_surface.h"
-#include "ui/aui_common/aui_window.h"
-#include "ui/aui_ctp2/background.h"
 #include "BuildingRecord.h"
 #include "ctp/ctp2_utils/c3debug.h"
 #include "ctp/ctp2_utils/c3errors.h"
-#include "ui/aui_ctp2/c3slider.h"
-#include "ui/aui_ctp2/c3ui.h"
 #include "gs/world/Cell.h"
 #include "ctp/civ3_main.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "gfx/gfx_utils/colorset.h"
 #include "ConstRecord.h"
-#include "ui/interface/controlpanelwindow.h"
+#include "gs/core/game_observer.h"     // g_gameObservers
 #include "gs/gameobj/CriticalMessagesPrefs.h"
-#include "ui/aui_ctp2/ctp2_Window.h"
 #include "ai/ctpai.h"
-#include "ui/interface/custommapscreen.h"
 #include "gs/database/DB.h"
 #include "ctp/debugtools/debugmemory.h"
-#include "ui/interface/debugwindow.h"
 #include "DifficultyRecord.h"
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
@@ -94,7 +84,6 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/utility/Globals.h"                    // allocated::...
 #include "IconRecord.h"
-#include "ui/interface/infowin.h"
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/installationtree.h"
 #include <ios>
@@ -111,18 +100,15 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/gameobj/pollution.h"
 #include "robot/aibackdoor/pool.h"
-#include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"
 #include "gs/utility/QuadTree.h"
-#include "ui/aui_ctp2/radarmap.h"
-#include "ui/interface/radarwindow.h"
 #include "gs/utility/RandGen.h"
 #include "ResourceRecord.h"
 #include "robot/utility/RoboInit.h"
 #include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/splash_progress.h"   // SPLASH_STRING macro
 #include "gs/slic/SlicEngine.h"
 #include "SoundRecord.h"
-#include "ui/interface/splash.h"
 #include "SpriteRecord.h"
 #include "gfx/spritesys/SpriteState.h"
 #include "gs/database/StrDB.h"
@@ -153,19 +139,14 @@
 extern void Astar_Init();
 extern void Astar_Cleanup();
 
-extern C3UI *g_c3ui;
-extern Background *g_background;
 
 extern MBCHAR g_slic_filename[_MAX_PATH];
 extern MBCHAR g_tutorial_filename[_MAX_PATH];
 extern HWND               gHwnd;
 extern void               verifyYwrap();
-extern Splash             *g_splash;
-extern ControlPanelWindow *g_controlPanel;
 extern BOOL               g_aPlayerIsDead;
 extern sint32             g_numGoods; // To fix games with altered ressource database
 extern sint32             *g_newGoods;
-extern DebugWindow *g_debugWindow;
 extern sint32 g_abort_parse;
 extern sint32 g_oldRandSeed;
 extern sint32 g_cheat_age;
@@ -207,9 +188,6 @@ sint32 g_player_start_score[k_MAX_PLAYERS];
 
 sint32 g_abort_parse  = FALSE;
 
-sint32 g_splash_cur;
-sint32 g_splash_old;
-MBCHAR g_splash_buf[100];
 
 MBCHAR g_improve_filename[_MAX_PATH];
 MBCHAR g_pollution_filename[_MAX_PATH];
@@ -1072,7 +1050,8 @@ sint32 gameinit_InitializeGameFiles(void)
 
 sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 {
-	g_debugWindow->SetDebugMask(k_DBG_AI);
+	// (Legacy g_debugWindow->SetDebugMask(k_DBG_AI) dropped — modern code
+	// uses DPRINTF(k_DBG_AI, ...) directly with no UI filtering.)
 
 	g_theProfileDB->SetNPlayers(3); // What's this?
 
@@ -1109,12 +1088,10 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Initializing the Map...");
 
-	custommapscreen_setValues(g_theProfileDB->GetWetDry(),
-	                          g_theProfileDB->GetWarmCold(),
-	                          g_theProfileDB->GetOceanLand(),
-	                          g_theProfileDB->GetIslandContinent(),
-	                          g_theProfileDB->GetHomoDiverse(),
-	                          g_theProfileDB->GetGoodCount());
+	// (custommapscreen_setValues call dropped — it read ProfileDB values and
+	// wrote them straight back, so the net game-state effect was zero.  Its
+	// only real action was refreshing UI slider widgets, which now happens
+	// on the UI side when the custom-map screen opens.)
 
 	MapPoint	mapSize;
 	constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
@@ -1400,7 +1377,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	infowin_SetMinRoundForGraphs(0);
+	if (g_gameObservers) g_gameObservers->NotifySetGraphMinRound(0);
 
 	return 1;
 }
@@ -1445,10 +1422,8 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 
 sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 {
-
-	if (g_debugWindow) {
-		g_debugWindow->SetDebugMask(k_DBG_AI);
-	}
+	// (Legacy g_debugWindow->SetDebugMask(k_DBG_AI) dropped — modern code
+	// uses DPRINTF(k_DBG_AI, ...) directly with no UI filtering.)
 
 	uint32 seed;
 
@@ -1537,12 +1512,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 		g_theWorld->NumberContinents();
 	} else {
-		custommapscreen_setValues(g_theProfileDB->GetWetDry(),
-		                          g_theProfileDB->GetWarmCold(),
-		                          g_theProfileDB->GetOceanLand(),
-		                          g_theProfileDB->GetIslandContinent(),
-		                          g_theProfileDB->GetHomoDiverse(),
-		                          g_theProfileDB->GetGoodCount());
+		// (custommapscreen_setValues call dropped — same rationale as above.)
 
 		MapPoint	mapSize;
 		constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
@@ -2487,7 +2457,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_setBarbarianRiskUponLaunch = FALSE;
 	}
 
-    infowin_SetMinRoundForGraphs(g_isScenario ? g_turn->GetRound() : 0);
+    if (g_gameObservers) {
+        g_gameObservers->NotifySetGraphMinRound(g_isScenario ? g_turn->GetRound() : 0);
+    }
 
 	// Clean good old -> new good table
 	// Created in CityData if the good database was changed in size.
@@ -2624,20 +2596,12 @@ sint32 gameinit_ResetForNetwork()
 
 void gameinit_ResetMapSize()
 {
-	radarwindow_Cleanup();
-
+	// Engine-side reset: rebuild g_tiledMap, reset each player's vision,
+	// recompute continents.  UI build re-renders tileset, radar window,
+	// and background via the OnMapResized observer hook fired at the end.
 	MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
 	delete g_tiledMap;
 	g_tiledMap = new TiledMap(mapsize);
-	g_tiledMap->LoadTileset();
-
-	RECT rect =
-	{
-		g_background->X(),
-		g_background->Y(),
-		g_background->X() + g_background->Width(),
-		g_background->Y() + g_background->Height()
-	};
 
 	for (int i = 0; i < k_MAX_PLAYERS; i++)
     {
@@ -2648,18 +2612,7 @@ void gameinit_ResetMapSize()
 		}
 	}
 
-	g_tiledMap->Initialize(&rect);
-	g_tiledMap->Refresh();
-
-	radarwindow_Initialize();
-	radarwindow_Display();
-
-	g_tiledMap->PostProcessMap();
-	g_tiledMap->Refresh();
-
 	g_theWorld->NumberContinents();
-
-	g_background->Draw();
 
     delete g_theUnitTree;
     g_theUnitTree =
@@ -2700,4 +2653,7 @@ void gameinit_ResetMapSize()
     g_theUnseenPond = new Pool<UnseenCell>(INITIAL_CHUNK_LIST_SIZE);
 
     CtpAi::Initialize();
+
+    // Let the UI (if any) re-render tileset, radar window, background, etc.
+    if (g_gameObservers) g_gameObservers->NotifyMapResized();
 }

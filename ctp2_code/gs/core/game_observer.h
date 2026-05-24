@@ -89,6 +89,17 @@ public:
     virtual void OnUpdateMessages(sint32 player) {}
     virtual void OnRadarMapUpdate(sint32 player) {}
     virtual void OnAdvanceListReload(sint32 player) {}
+
+    // --- Stat-graph time window ---
+    // Set after game init / scenario load so the score/research graphs in
+    // infowin only plot from the right starting round.
+    virtual void OnSetGraphMinRound(sint32 round) {}
+
+    // --- Map size reset (custom-map load) ---
+    // Fired after gameinit_ResetMapSize has rebuilt the world pools and
+    // tiledMap, so the UI observer can reload tileset graphics, recreate
+    // the radar window, and redraw the background.
+    virtual void OnMapResized() {}
 };
 
 /**
@@ -164,6 +175,8 @@ public:
     void NotifyUpdateMessages(sint32 player);
     void NotifyRadarMapUpdate(sint32 player);
     void NotifyAdvanceListReload(sint32 player);
+    void NotifySetGraphMinRound(sint32 round);
+    void NotifyMapResized();
 
 private:
     GameObserverRegistry() = default;

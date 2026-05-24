@@ -216,6 +216,7 @@ incdir += include_directories(
 game_core_sources = [
 	'gs/core/game_observer.cpp',
 	'gs/core/player_view.cpp',
+	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',

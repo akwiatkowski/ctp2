@@ -100,6 +100,7 @@
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
 #include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
+#include "ui/aui_ctp2/ui_events.h"     // ui_events_Initialize / _Cleanup
 
 #ifdef __AUI_USE_SDL__
 #include <SDL2/SDL.h>
@@ -1674,6 +1675,7 @@ void CivApp::CleanupApp(void)
 		allocated::clear(g_theProfileDB);
 
 		gameinit_Cleanup();
+		ui_events_Cleanup();
 		events_Cleanup();
 		gameEventManager_Cleanup();
 		g_network.Cleanup();
@@ -1885,6 +1887,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	g_gevManager->Pause();
 
 	events_Initialize();
+	ui_events_Initialize();
 
 	ProgressTo( 600 );
 
@@ -2252,6 +2255,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 700 );
 
 	events_Initialize();
+	ui_events_Initialize();
 
 	ProgressTo( 710 );
 
@@ -2464,6 +2468,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 
 	gameinit_Cleanup();
 
+	ui_events_Cleanup();
 	events_Cleanup();
 
 	gameEventManager_Cleanup();

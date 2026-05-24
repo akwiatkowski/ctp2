@@ -686,6 +686,7 @@ game_core_sources = [
 	'ui/aui_ctp2/ctp2_textbuffer.cpp',
 	'ui/aui_ctp2/ctp2_textfield.cpp',
 	'ui/aui_ctp2/ctp2_Window.cpp',
+	'ui/aui_ctp2/ui_events.cpp',
 	'ui/aui_ctp2/ui_game_observer.cpp',
 	'ui/interface/CityControlPanel.cpp',
 	'ui/interface/DomesticControlPanel.cpp',

@@ -34,7 +34,6 @@
 #include "DifficultyRecord.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "ai/mapanalysis/mapanalysis.h"
-#include "ui/interface/TurnYearStatus.h"
 #include "gs/database/StrDB.h"
 
 Difficulty::Difficulty(sint32 diff_level, PLAYER_INDEX owner, BOOL isHuman)
@@ -235,7 +234,21 @@ const char *diffutil_GetYearStringFromTurn(sint32 diff, sint32 turn)
 {
 	sint32 year = diffutil_GetYearFromTurn(diff, turn);
 
-	return TurnYearStatus::GetYearString(year, turn);
+	static MBCHAR buf[1024];
+	if(year == 0)
+	{
+		year = 1;
+	}
+
+	const MBCHAR *suffix = (year < 0)
+		? g_theStringDB->GetNameStr("str_tbl_ldl_BC")
+		: g_theStringDB->GetNameStr("str_tbl_ldl_AD");
+
+	if(!suffix)
+		suffix = (year < 0) ? "BC" : "AD";
+
+	snprintf(buf, sizeof(buf), "%ld%s", abs(year), suffix);
+	return buf;
 }
 
 uint32 Diffcly_Difficulty_GetVersion(void)

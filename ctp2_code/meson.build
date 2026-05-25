@@ -1200,6 +1200,32 @@ executable('ctp2_headless', headless_sources,
 # unit tests
 doctest_incdir = include_directories('test/cpp')
 
+# ---------------------------------------------------------------------------
+# Fast test runner — observer + pure unit tests only.
+# These tests have zero global state dependencies, run in < 100 ms, and never
+# crash.  Intended for `make test` after every edit.
+# ---------------------------------------------------------------------------
+cpp_fast_test_sources = [
+  'test/cpp/main.cpp',
+  'test/cpp/test_observer.cpp',
+  'test/cpp/test_randgen.cpp',
+  'test/cpp/test_bugfixes.cpp',
+]
+
+fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_sources,
+  include_directories : [ incdir, doctest_incdir ],
+  dependencies : [ cdb_header, anet, freetype, main_dependencies ],
+  cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
+  link_args : [ '-lltdl', use_ld ],
+  link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+)
+
+test('fast', fast_test_exe, timeout : 30, workdir : cwd_for_tests)
+
+# ---------------------------------------------------------------------------
+# Full unit-test suite — includes slow / database-dependent / crash-prone tests.
+# Run manually with `make test-full` or `ninja test`.
+# ---------------------------------------------------------------------------
 cpp_test_sources = [
   'test/cpp/main.cpp',
   'test/cpp/test_randgen.cpp',
@@ -1220,6 +1246,18 @@ unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sourc
   cpp_args : [ '-fpermissive', '-Wno-narrowing', '-Wno-non-pod-varargs', '-DUNIT_TEST_BUILD' ],
   link_args : [ '-lltdl', use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
+)
+
+test('unit', unit_test_exe, timeout : 60, workdir : cwd_for_tests)
+
+# e2e smoke test: launches the real game binary and drives it via Unix socket
+test('smoke',
+  find_program('test/smoke_test.py'),
+  args : [join_paths(meson.project_build_root(), 'ctp2')],
+  timeout : 120,
+  is_parallel : false,
+  priority : -1,
+  workdir : cwd_for_tests,
 )
 
 # meson.build lives in ctp2_code/, but data files (appstr.txt, etc.) are in the parent dir

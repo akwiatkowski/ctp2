@@ -80,9 +80,14 @@ build:
 	@echo "Building CTP2..."
 	meson compile -C build
 
-# Run tests
+# Run fast tests (observer + pure unit tests, < 1 s)
 test: build
-	@echo "Running tests..."
+	@echo "Running fast tests..."
+	meson test -C build fast
+
+# Run full test suite (includes slow / crash-prone tests)
+test-full: build
+	@echo "Running full test suite..."
 	meson test -C build
 
 # Run the game (from project root so it finds appstr.txt, civpaths.txt, ctp2_data/)

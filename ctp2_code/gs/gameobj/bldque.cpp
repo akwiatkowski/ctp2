@@ -79,15 +79,13 @@
 #include "gs/world/Cell.h"
 #include "sound/soundmanager.h"           // g_soundManager
 #include "sound/gamesounds.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/database/profileDB.h"
 #include "gs/gameobj/WonderTracker.h"
-#include "ui/interface/wondermoviewin.h"
 #include "gs/gameobj/Diffcly.h"
-#include "ui/interface/controlpanelwindow.h"     // g_controlPanel
 #include "gfx/spritesys/director.h"
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
@@ -595,7 +593,7 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
 			m_frontWhenBuilt = m_list->GetHead();
 
 			if (g_soundManager) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = player_view::VisiblePlayer();
 				if (visiblePlayer == m_owner) {
 					g_soundManager->AddSound(SOUNDTYPE_VOICE, (uint32)0,
 											gamesounds_GetGameSoundID(GAMESOUNDS_BUILDING_COMPLETE),
@@ -1159,7 +1157,7 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 
         HandleProductionStart();
 
-		if (g_soundManager && (g_selected_item->GetVisiblePlayer() == m_owner))
+		if (g_soundManager && (player_view::VisiblePlayer() == m_owner))
 		{
 			g_soundManager->AddSound
                 (SOUNDTYPE_VOICE,
@@ -1271,7 +1269,7 @@ bool BuildQueue::InsertTail(sint32 cat, sint32 t, sint32 cost)
 
 	if (m_list->GetCount() == 0)
 	{
-		sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+		sint32 visiblePlayer = player_view::VisiblePlayer();
 		if ((visiblePlayer == m_owner) && g_soundManager)
 		{
 			g_soundManager->AddSound(SOUNDTYPE_VOICE, (uint32)0,

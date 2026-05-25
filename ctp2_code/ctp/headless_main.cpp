@@ -18,6 +18,7 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/core/game_observer.h"            // g_gameObservers
 #include "gs/core/game_observer_registration.h"
+#include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +37,9 @@ static void print_usage(const char *prog)
         "  --players N             Number of AI players (default: 3)\n"
         "  --turns N               Run N turns then exit (default: 10)\n"
         "  --seed N                Pin RNG seed for determinism\n"
-        "  --save-interval N       Save every N turns\n"
+        "  --save-interval N       Save every N turns (currently unimplemented)\n"
+        "  --save-game PATH        After running turns, save to PATH then exit\n"
+        "  --load-game PATH        Load saved game from PATH instead of --new-game\n"
         "  --help                  Show this message\n",
         prog);
 }
@@ -51,6 +54,8 @@ int main(int argc, char **argv)
     sint32 maxTurns = 10;
     sint32 saveInterval = 0;
     sint32 seed = 42;
+    const char *saveGamePath = nullptr;
+    const char *loadGamePath = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--new-game") == 0) {
@@ -63,6 +68,10 @@ int main(int argc, char **argv)
             seed = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--save-interval") == 0 && i + 1 < argc) {
             saveInterval = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "--save-game") == 0 && i + 1 < argc) {
+            saveGamePath = argv[++i];
+        } else if (strcmp(argv[i], "--load-game") == 0 && i + 1 < argc) {
+            loadGamePath = argv[++i];
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;
@@ -112,21 +121,31 @@ int main(int argc, char **argv)
     RegisterUIPlayerView();
     fprintf(stderr, "[HEADLESS] observers + player_view registered\n");
 
-    if (newGame) {
-        fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",
-                numPlayers, seed);
+    if (loadGamePath) {
+        fprintf(stderr, "[HEADLESS] Loading saved game from %s\n", loadGamePath);
+        GameFile::RestoreGame(loadGamePath);
+        fprintf(stderr, "[HEADLESS] RestoreGame returned (state may or may not be valid)\n");
+    }
 
-        // Set player count and seed in ProfileDB
-        g_theProfileDB->SetNPlayers(numPlayers);
+    if (newGame || loadGamePath) {
+        if (newGame) {
+            fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",
+                    numPlayers, seed);
 
-        // Use the headless game init path (no UI windows)
-        err = g_civApp->InitializeGameHeadless();
-        if (err != 0) {
-            fprintf(stderr, "[HEADLESS] Game initialization failed: %d\n", err);
-            return 1;
+            // Set player count and seed in ProfileDB
+            g_theProfileDB->SetNPlayers(numPlayers);
+
+            // Use the headless game init path (no UI windows)
+            err = g_civApp->InitializeGameHeadless();
+            if (err != 0) {
+                fprintf(stderr, "[HEADLESS] Game initialization failed: %d\n", err);
+                return 1;
+            }
+
+            fprintf(stderr, "[HEADLESS] Game initialized OK — running %d turns\n", maxTurns);
+        } else {
+            fprintf(stderr, "[HEADLESS] Loaded — running %d turns\n", maxTurns);
         }
-
-        fprintf(stderr, "[HEADLESS] Game initialized OK — running %d turns\n", maxTurns);
 
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
@@ -153,6 +172,12 @@ int main(int argc, char **argv)
         }
 
         fprintf(stderr, "[HEADLESS] Completed %d turns\n", maxTurns);
+
+        if (saveGamePath) {
+            fprintf(stderr, "[HEADLESS] Saving game to %s\n", saveGamePath);
+            GameFile::SaveGame(saveGamePath, NULL);
+            fprintf(stderr, "[HEADLESS] SaveGame returned\n");
+        }
     } else {
         fprintf(stderr, "[HEADLESS] Would run %d turns with %d players, seed=%d\n",
                 maxTurns, numPlayers, seed);

@@ -41,7 +41,7 @@
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/gameobj/Unit.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 
 #include "gs/utility/TurnCnt.h"
 
@@ -493,14 +493,14 @@ void SlicSegment::AddSpecialVariable(SPECIAL_VAR which)
 void SlicSegment::AddSpecials(SlicObject *obj)
 {
 	if(m_specialVariables & (1 << SPECIAL_VAR_SELECTED_UNIT)) {
-		PLAYER_INDEX	player ;
-		ID	item ;
-		SELECT_TYPE	state ;
+		sint32	player ;
+		sint32	item ;
+		sint32	state ;
 
-		g_selected_item->GetTopCurItem(player, item, state);
-		if(state == SELECT_TYPE_LOCAL_ARMY) {
+		player_view::GetTopCurItem(player, item, state);
+		if(state == 1) { // SELECT_TYPE_LOCAL_ARMY
 			Army army = Army(item);
-			obj->AddUnit(army.GetTopVisibleUnit(g_selected_item->GetVisiblePlayer()));
+			obj->AddUnit(army.GetTopVisibleUnit(player_view::VisiblePlayer()));
 		}
 	}
 }

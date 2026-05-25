@@ -30,6 +30,7 @@ static IsArmySelectedFn   s_isArmySelected   = nullptr;
 static IsCitySelectedFn   s_isCitySelected   = nullptr;
 static GetSelectedIdFn    s_getSelectedArmyId = nullptr;
 static GetSelectedIdFn    s_getSelectedCityId = nullptr;
+static GetTopCurItemFn    s_getTopCurItem     = nullptr;
 static IsModalActiveFn    s_isModalActive     = nullptr;
 static NextPlayerFn       s_nextPlayer        = nullptr;
 static AddPlayerFn        s_addPlayer         = nullptr;
@@ -53,6 +54,7 @@ void RegisterIsArmySelected(IsArmySelectedFn fn)      { s_isArmySelected   = fn;
 void RegisterIsCitySelected(IsCitySelectedFn fn)      { s_isCitySelected   = fn; }
 void RegisterGetSelectedArmyId(GetSelectedIdFn fn)    { s_getSelectedArmyId = fn; }
 void RegisterGetSelectedCityId(GetSelectedIdFn fn)    { s_getSelectedCityId = fn; }
+void RegisterGetTopCurItem(GetTopCurItemFn fn)        { s_getTopCurItem     = fn; }
 void RegisterIsModalMessageActive(IsModalActiveFn fn) { s_isModalActive    = fn; }
 void RegisterNextPlayer(NextPlayerFn fn)              { s_nextPlayer       = fn; }
 void RegisterAddPlayer(AddPlayerFn fn)                { s_addPlayer        = fn; }
@@ -147,6 +149,17 @@ sint32 GetSelectedArmyId()
 sint32 GetSelectedCityId()
 {
 	return s_getSelectedCityId ? s_getSelectedCityId() : 0;
+}
+
+void GetTopCurItem(sint32 &player, sint32 &item, sint32 &state)
+{
+	if (s_getTopCurItem) {
+		s_getTopCurItem(player, item, state);
+	} else {
+		player = 0;
+		item = 0;
+		state = 0;
+	}
 }
 
 bool IsModalMessageActive()

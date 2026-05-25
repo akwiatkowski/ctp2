@@ -153,6 +153,23 @@ sint32 UIGetSelectedCityId()
 	return (state == SELECT_TYPE_LOCAL_CITY) ? item.m_id : 0;
 }
 
+void UIGetTopCurItem(sint32 &player, sint32 &item, sint32 &state)
+{
+	if (!g_selected_item) {
+		player = 0;
+		item = 0;
+		state = 0;
+		return;
+	}
+	PLAYER_INDEX p;
+	ID id;
+	SELECT_TYPE selState;
+	g_selected_item->GetTopCurItem(p, id, selState);
+	player = p;
+	item = id;
+	state = selState;
+}
+
 bool UIIsModalMessageActive()
 {
 	return g_modalMessage != nullptr;
@@ -195,6 +212,7 @@ void RegisterUIPlayerView()
 	player_view::RegisterIsCitySelected(&UIIsCitySelected);
 	player_view::RegisterGetSelectedArmyId(&UIGetSelectedArmyId);
 	player_view::RegisterGetSelectedCityId(&UIGetSelectedCityId);
+	player_view::RegisterGetTopCurItem(&UIGetTopCurItem);
 	player_view::RegisterIsModalMessageActive(&UIIsModalMessageActive);
 	player_view::RegisterNextPlayer(&UINextPlayer);
 	player_view::RegisterAddPlayer(&UIAddPlayer);

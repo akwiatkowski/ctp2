@@ -124,12 +124,11 @@
 #include "gs/gameobj/Gold.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/GameSettings.h"
-#include "ui/aui_ctp2/SelItem.h"                        // g_selected_item
+#include "gs/core/player_view.h"
 #include "net/general/network.h"                        // g_network
 #include "gfx/spritesys/director.h"                       // g_director
 #include "gs/slic/SlicEngine.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "ui/aui_ctp2/radarmap.h"                       // g_radarMap
 #include "gs/utility/MoveFlags.h"
 #include <limits>
 #include <list>
@@ -297,7 +296,7 @@ STDEHANDLER(CtpAi_SettleEvent)
 		&&!(g_network.IsClient()
 		&&  g_network.IsLocalPlayer(owner))
 		&&!(g_network.IsHost()
-		&&  owner == g_selected_item->GetVisiblePlayer())
+		&&  owner == player_view::VisiblePlayer())
 		&&  last_settle == NewTurnCount::GetCurrentRound()
 		&& last_player == owner
 		  )
@@ -610,7 +609,7 @@ STDEHANDLER(CtpAi_ConsiderNuclearWar)
 	Player *player_ptr = g_player[playerId];
 
 	if(!player_ptr->IsRobot() ||
-	   (g_network.IsActive() && playerId == g_selected_item->GetVisiblePlayer())) {
+	   (g_network.IsActive() && playerId == player_view::VisiblePlayer())) {
 		return GEV_HD_Continue;
 	}
 
@@ -640,7 +639,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	static bool s_allOk = true;
 	if(s_allOk)
 	{
-		s_allOk = (playerId == g_selected_item->GetCurPlayer());
+		s_allOk = (playerId == player_view::CurPlayer());
 		Assert(s_allOk);
 	}
 #endif
@@ -775,8 +774,8 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 
 		if (playerId != NewTurnCount::GetStopPlayer())
 		{
-			Assert(playerId == g_selected_item->GetCurPlayer());
-			if (playerId == g_selected_item->GetCurPlayer())
+			Assert(playerId == player_view::CurPlayer());
+			if (playerId == player_view::CurPlayer())
 			{
 				if(!g_network.IsActive() || g_network.IsLocalPlayer(playerId))
 				{
@@ -1179,7 +1178,7 @@ void CtpAi::BeginMapAnalysis(const PLAYER_INDEX player)
 		return;
 
 	Assert(player < s_maxPlayers);
-	Assert(player == g_selected_item->GetCurPlayer());
+	Assert(player == player_view::CurPlayer());
 	Player * player_ptr = g_player[player];
 
 	if(player_ptr == NULL)
@@ -1203,7 +1202,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 		return;
 
 	Assert(player < s_maxPlayers);
-	Assert(player == g_selected_item->GetCurPlayer());
+	Assert(player == player_view::CurPlayer());
 	Player * player_ptr = g_player[player];
 
 	if(player_ptr == NULL)

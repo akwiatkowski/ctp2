@@ -33,6 +33,7 @@ static GetSelectedIdFn    s_getSelectedCityId = nullptr;
 static IsModalActiveFn    s_isModalActive     = nullptr;
 static NextPlayerFn       s_nextPlayer        = nullptr;
 static AddPlayerFn        s_addPlayer         = nullptr;
+static RegisterRemovedArmyFn s_registerRemovedArmy = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -55,6 +56,7 @@ void RegisterGetSelectedCityId(GetSelectedIdFn fn)    { s_getSelectedCityId = fn
 void RegisterIsModalMessageActive(IsModalActiveFn fn) { s_isModalActive    = fn; }
 void RegisterNextPlayer(NextPlayerFn fn)              { s_nextPlayer       = fn; }
 void RegisterAddPlayer(AddPlayerFn fn)                { s_addPlayer        = fn; }
+void RegisterRemovedArmy(RegisterRemovedArmyFn fn)    { s_registerRemovedArmy = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -160,6 +162,11 @@ void NextPlayer()
 void AddPlayer(sint32 player)
 {
 	if (s_addPlayer) s_addPlayer(player);
+}
+
+void ArmyRemoved(sint32 player, const Army &army)
+{
+	if (s_registerRemovedArmy) s_registerRemovedArmy(player, army);
 }
 
 } // namespace player_view

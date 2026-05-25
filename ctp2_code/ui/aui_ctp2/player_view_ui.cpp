@@ -15,6 +15,7 @@
 
 #include "ctp/c3.h"
 #include "gs/core/player_view.h"
+#include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
 #include "gs/utility/Globals.h"        // allocated::clear
@@ -167,6 +168,11 @@ void UIAddPlayer(sint32 player)
 	if (g_selected_item) g_selected_item->AddPlayer(player);
 }
 
+void UIRegisterRemovedArmy(sint32 player, const Army &army)
+{
+	if (g_selected_item) g_selected_item->RegisterRemovedArmy(player, army);
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -192,4 +198,5 @@ void RegisterUIPlayerView()
 	player_view::RegisterIsModalMessageActive(&UIIsModalMessageActive);
 	player_view::RegisterNextPlayer(&UINextPlayer);
 	player_view::RegisterAddPlayer(&UIAddPlayer);
+	player_view::RegisterRemovedArmy(&UIRegisterRemovedArmy);
 }

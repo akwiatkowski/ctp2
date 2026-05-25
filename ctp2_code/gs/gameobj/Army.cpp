@@ -27,7 +27,7 @@
 // - Added option to reduce resync reporting.
 // - Added IsWounded method
 // - Added CanTransport and IsCivilian methods.
-// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gühmann).
+// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gï¿½hmann).
 // - Added check if only movebonus units are in an army, and it returns the
 //	 highest movebonus value of the army (17-Mar-2009 Maq).
 //
@@ -40,7 +40,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"         // g_player
-#include "ui/aui_ctp2/SelItem.h"        // g_selected_item
+#include "gs/core/player_view.h"
 
 bool Army::IsValid() const
 {
@@ -71,7 +71,7 @@ void Army::RemoveAllReferences()
 		g_player[GetOwner()]->RemoveArmy(*this, GetRemoveCause(),
 										 GetKiller());
 	}
-	g_selected_item->RegisterRemovedArmy(GetOwner(), *this);
+	player_view::ArmyRemoved(GetOwner(), *this);
 
 	g_theArmyPool->Del(*this);
 }

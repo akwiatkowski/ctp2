@@ -45,7 +45,7 @@
 #include "AdvanceRecord.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/utility/newturncount.h"
-#include "ui/aui_ctp2/SelItem.h"			// g_selected_item
+#include "gs/core/player_view.h"
 #include "ai/ctpai.h"
 #include "ai/diplomacy/ProposalAnalysis.h"
 #include "gs/gameobj/UnitData.h"
@@ -93,7 +93,7 @@ STDEHANDLER(General_NewProposalEvent)
 
 
 		bool execute = false;
-		if(sender != g_selected_item->GetVisiblePlayer()) {
+		if(sender != player_view::VisiblePlayer()) {
 			if(g_network.IsActive() && !g_network.IsLocalPlayer(sender)) {
 				execute = false;
 			} else if(g_network.IsActive()) {

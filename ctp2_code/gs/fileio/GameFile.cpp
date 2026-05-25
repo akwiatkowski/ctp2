@@ -806,8 +806,9 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
 
-	// TODO(orchestrator): no equivalent for SelectedItem_GetVersion
-	archive>>ver;
+	// SelectedItem version stripped from the save format when SelectedItem was
+	// migrated out of game-state — no read here either. (Save side in the same
+	// file at line 335 does not write it.)
 
 	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
 

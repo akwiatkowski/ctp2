@@ -2415,15 +2415,15 @@ void Player::BeginTurn()
 
 	if ( m_owner == player_view::VisiblePlayer() )
 	{
-		if ( g_controlPanel && m_can_use_space_button )
+		if ( m_can_use_space_button )
 		{
-			g_controlPanel->ShowSpaceButton();
+			if (g_gameObservers) g_gameObservers->NotifyShowSpaceButton(m_owner);
 		}
 
-		if (g_c3ui) {
-			g_c3ui->AddAction( new SW_UpdateAction );
-			g_c3ui->AddAction( new USS_UpdateAction );
-			g_c3ui->AddAction( new CSW_UpdateAction(TRUE) );
+		if (g_gameObservers) {
+			g_gameObservers->NotifyUpdateScienceWindow(m_owner);
+			g_gameObservers->NotifyUpdateUnitSelectionWindow(m_owner);
+			g_gameObservers->NotifyUpdateCityStatusWindow(m_owner);
 		}
 	}
 

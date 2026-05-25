@@ -327,6 +327,27 @@ void GameObserverRegistry::NotifyAdvanceListReload(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifyShowSpaceButton(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnShowSpaceButton(player);
+    }
+}
+
+void GameObserverRegistry::NotifyUpdateUnitSelectionWindow(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUpdateUnitSelectionWindow(player);
+    }
+}
+
+void GameObserverRegistry::NotifyUpdateCityStatusWindow(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUpdateCityStatusWindow(player);
+    }
+}
+
 void GameObserverRegistry::NotifySetGraphMinRound(sint32 round)
 {
     for (auto* obs : m_observers) {

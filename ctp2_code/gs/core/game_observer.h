@@ -98,6 +98,9 @@ public:
     virtual void OnHideMainUI() {}
     virtual void OnUpdatePlayerEndProgress(sint32 player) {}
     virtual void OnAdvanceListReload(sint32 player) {}
+    virtual void OnShowSpaceButton(sint32 player) {}
+    virtual void OnUpdateUnitSelectionWindow(sint32 player) {}
+    virtual void OnUpdateCityStatusWindow(sint32 player) {}
 
     // --- Stat-graph time window ---
     // Set after game init / scenario load so the score/research graphs in
@@ -216,6 +219,9 @@ public:
     void NotifyHideMainUI();
     void NotifyUpdatePlayerEndProgress(sint32 player);
     void NotifyAdvanceListReload(sint32 player);
+    void NotifyShowSpaceButton(sint32 player);
+    void NotifyUpdateUnitSelectionWindow(sint32 player);
+    void NotifyUpdateCityStatusWindow(sint32 player);
     void NotifySetGraphMinRound(sint32 round);
     void NotifyMapResized();
 

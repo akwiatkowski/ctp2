@@ -1,16 +1,11 @@
 #include "ctp/c3.h"
 
-#include "ui/aui_ctp2/c3ui.h"
-
 #include "gs/gameobj/LineDance.h"
 #include "gs/world/cellunitlist.h"
 
-#include "ui/interface/battleview.h"
 #include "robot/aibackdoor/bset.h"
 
 extern UnitDatabase		*g_theUnitDB;
-extern BattleViewWindow	*g_battleViewWindow;
-extern C3UI				*g_c3ui;
 
 LineDance::LineDance(CellUnitList &attackers, CellUnitList &defenders)
 {
@@ -19,33 +14,13 @@ LineDance::LineDance(CellUnitList &attackers, CellUnitList &defenders)
 
 	m_startAttackersRangeSlot = (attackers.Num() + 1) / 2;
 	m_startDefendersRangeSlot = (defenders.Num() + 1) / 2;
-	sint32 i;
 
 	if (Player::IsThisPlayerARobot(attackers.GetOwner()) &&
 		Player::IsThisPlayerARobot(defenders.GetOwner())) return;
 
-	if (attackers.Num() > 1 || defenders.Num() > 1) {
-		if (g_battleViewWindow && g_c3ui)
-			g_c3ui->RemoveWindow(g_battleViewWindow->Id());
-
-		BattleViewWindow::Initialize();
-
-		if (g_battleViewWindow) {
-			g_battleViewWindow->SetupBattle(m_numAttackers, m_attackers,
-										m_numDefenders, m_defenders);
-		}
-
-		if (g_c3ui) g_c3ui->AddWindow(g_battleViewWindow);
-		if (g_battleViewWindow) g_battleViewWindow->AddBordersToUI();
-
-	} else {
-		if (g_battleViewWindow && g_c3ui) {
-			g_c3ui->RemoveWindow(g_battleViewWindow->Id());
-			delete g_battleViewWindow;
-		}
-		g_battleViewWindow = NULL;
-	}
-
+	// Battle view visualization was here. Removed as part of clean-architecture
+	// separation (LineDance is simulation core, battle window is UI).
+	// The battle view is now managed by the combat visualization observer.
 }
 
 LineDance::~LineDance()

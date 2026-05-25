@@ -366,11 +366,15 @@ public:
         }
     }
 
-    // OnUpdateScienceSubWindows and OnSpaceButtonAvailable existed in the
-    // observer interface for a moment but the only Player.cpp call sites
-    // referencing them (USS_UpdateAction, CSW_UpdateAction,
-    // ControlPanelWindow::ShowSpaceButton) sit inside a long-dead #if 0
-    // block.  No live caller, no implementation needed.
+    // ShowSpaceButton was a removed ControlPanelWindow feature.
+    // Kept as no-op for interface compatibility.
+    void OnShowSpaceButton(sint32 player) override {}
+
+    // USS_UpdateAction and CSW_UpdateAction reference UI windows
+    // (UnitSelection, CityStatus) that do not exist in the current
+    // codebase. They are kept as no-ops for compatibility.
+    void OnUpdateUnitSelectionWindow(sint32 player) override {}
+    void OnUpdateCityStatusWindow(sint32 player) override {}
 
     void OnHideMainUI() override
     {

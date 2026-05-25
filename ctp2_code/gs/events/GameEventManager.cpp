@@ -53,7 +53,6 @@
 #include "gs/gameobj/TradeRoute.h"
 
 #include "gfx/spritesys/director.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
 
 GameEventManager *g_gevManager = NULL;
 

@@ -47,7 +47,7 @@
 #include "gs/newdb/UnitRec.h"
 #include "gs/database/DB.h"
 #include "WonderRecord.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/Army.h"
 #include "net/general/network.h"
 #include "gs/slic/SlicEngine.h"
@@ -377,8 +377,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
     uint32	min_vis			= 0xffffffff;
     double	minmove			= -1;
 
-	Army	selectedArmy;
-	g_selected_item->GetSelectedArmy(selectedArmy);
+	sint32	selectedArmyId = player_view::GetSelectedArmyId();
 
 	for (sint32 i = 0; i < m_nElements; ++i)
 	{
@@ -391,9 +390,9 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 				((u.GetVisibility() & (0x01 << looker))						||
 				 (g_player[looker] && g_player[looker]->m_hasGlobalRadar)	||
 				 g_god || g_fog_toggle
-			    )								&&
+			    )									&&
 			    // selected, awake, or out in the open
-			    ((u.GetArmy().m_id == selectedArmy.m_id)					||
+			    ((u.GetArmy().m_id == selectedArmyId)					||
 			     !(u.IsAsleep() || u.IsEntrenched() || u.IsEntrenching())	||
 				 !g_theWorld->HasCity(u.RetPos())
 			    )

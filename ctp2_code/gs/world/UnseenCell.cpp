@@ -67,7 +67,7 @@
 #include "gs/world/World.h"              // g_theWorld
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "gs/core/player_view.h"
 
 namespace
 {
@@ -211,7 +211,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 												                    city.GetVisionRange(),
 												                    city.CD()->GetDesiredSpriteIndex()));
 
-				newActor->SetUnitVisibility((1 << g_selected_item->GetVisiblePlayer())
+				newActor->SetUnitVisibility((1 << player_view::VisiblePlayer())
 										    | actor->GetUnitVisibility());
 				newActor->SetPos(point);
 

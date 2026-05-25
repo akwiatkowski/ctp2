@@ -425,6 +425,13 @@ void GameObserverRegistry::NotifyRequestUnblankScreen()
     }
 }
 
+void GameObserverRegistry::NotifyCityEspionageDisplay(const Unit& city)
+{
+    for (auto* obs : m_observers) {
+        obs->OnCityEspionageDisplay(city);
+    }
+}
+
 void GameObserverRegistry::NotifyBlankScreenChanged(bool blank,
                                                     sint32 visiblePlayer,
                                                     sint32 researchingAdvance)

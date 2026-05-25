@@ -27,6 +27,7 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "gs/core/slic_screen.h"
 #include "ui/interface/AttractWindow.h"
+#include "ui/interface/cityespionage.h"
 #include "ui/interface/citywindow.h"
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/GreatLibraryTypes.h"   // DATABASE enum
@@ -511,6 +512,11 @@ public:
         if (g_controlPanel) {
             g_controlPanel->Show();
         }
+    }
+
+    void OnCityEspionageDisplay(const Unit& city) override
+    {
+        CityEspionage::Display(city);
     }
 
     void OnBlankScreenChanged(bool blank, sint32 visiblePlayer,

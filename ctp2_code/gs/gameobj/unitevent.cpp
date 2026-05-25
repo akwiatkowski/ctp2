@@ -38,7 +38,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
-#include "ui/interface/cityespionage.h"
+#include "gs/core/game_observer.h"
 #include "gfx/spritesys/director.h"                   // g_director
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
@@ -220,7 +220,7 @@ STDEHANDLER(InvestigationEvent)
 
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	CityEspionage::Display(c);
+	if (g_gameObservers) g_gameObservers->NotifyCityEspionageDisplay(c);
 	return GEV_HD_Continue;
 }
 

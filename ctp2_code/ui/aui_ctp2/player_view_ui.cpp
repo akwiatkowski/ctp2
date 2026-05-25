@@ -162,6 +162,11 @@ void UINextPlayer()
 	if (g_selected_item) g_selected_item->NextPlayer();
 }
 
+void UIAddPlayer(sint32 player)
+{
+	if (g_selected_item) g_selected_item->AddPlayer(player);
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -186,4 +191,5 @@ void RegisterUIPlayerView()
 	player_view::RegisterGetSelectedCityId(&UIGetSelectedCityId);
 	player_view::RegisterIsModalMessageActive(&UIIsModalMessageActive);
 	player_view::RegisterNextPlayer(&UINextPlayer);
+	player_view::RegisterAddPlayer(&UIAddPlayer);
 }

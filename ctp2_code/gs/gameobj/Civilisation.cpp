@@ -37,7 +37,7 @@
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"	// g_theCivilisationPool
 #include "net/general/network.h"
-#include "ui/aui_ctp2/SelItem.h"			// g_selected_item
+#include "gs/core/player_view.h"
 #include "gs/outcom/AICause.h"
 #include "gs/database/profileDB.h"			// g_theProfileDB
 #include "net/general/net_player.h"
@@ -158,7 +158,7 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 		    (pi, PLAYER_TYPE_ROBOT, g_player[pi]->GetCivilisation()->GetCivilisation());
 	}
 
-	g_selected_item->AddPlayer(pi);
+	player_view::AddPlayer(pi);
 
 	if (pi != PLAYER_INDEX_VANDALS && 			// Barbarians do not inherit
 	    (old_owner >= 0) && g_player[old_owner]

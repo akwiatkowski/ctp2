@@ -37,7 +37,7 @@
 #include "sound/gamesounds.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Unit.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 
 STDEHANDLER(SoundCreateCityEvent)
 {
@@ -45,7 +45,7 @@ STDEHANDLER(SoundCreateCityEvent)
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
 	if(g_soundManager) {
-		if(g_selected_item->GetVisiblePlayer() == city.GetOwner()) {
+		if(player_view::VisiblePlayer() == city.GetOwner()) {
 			g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
 									 gamesounds_GetGameSoundID(GAMESOUNDS_SETTLE_CITY),
 									 city.RetPos().x,

@@ -36,11 +36,6 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "ConstRecord.h"
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/aui_surface.h"
-#include "ui/aui_utils/primitives.h"
-#include "ui/aui_common/aui_window.h"
-#include "ui/interface/debugwindow.h"
 #include "gs/gameobj/Unit.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/utility/UnitDynArr.h"
@@ -55,8 +50,6 @@
 #include "GovernmentRecord.h"
 
 #include "gs/gameobj/Army.h"
-
-extern DebugWindow *g_debugWindow;
 
 PlayerHappiness::PlayerHappiness()
 
@@ -219,15 +212,13 @@ sint32 PlayerHappiness::GetUnitlessRations ()
 
 void PlayerHappiness::DisplayWWR()
 {
-	char str[80];
-
-	snprintf(str, sizeof(str), "work    %d work per person:%f  ",  m_unitless_workday, m_workday_per_person);
-	g_debugWindow->AddText(str);
-	snprintf(str, sizeof(str), "wage    %d wage per person:%f  ",  m_unitless_wages, m_wages_per_person);
-	g_debugWindow->AddText(str);
-
-	snprintf(str, sizeof(str), "rations %d  rations per person:%f ", m_unitless_rations, m_rations_per_person * g_theConstDB->Get(0)->GetBaseRations());
-	g_debugWindow->AddText(str);
+	DPRINTF(k_DBG_GAMESTATE, ("work    %d work per person:%f\n",
+		m_unitless_workday, m_workday_per_person));
+	DPRINTF(k_DBG_GAMESTATE, ("wage    %d wage per person:%f\n",
+		m_unitless_wages, m_wages_per_person));
+	DPRINTF(k_DBG_GAMESTATE, ("rations %d  rations per person:%f\n",
+		m_unitless_rations,
+		m_rations_per_person * g_theConstDB->Get(0)->GetBaseRations()));
 
 
 

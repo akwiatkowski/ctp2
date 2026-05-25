@@ -166,14 +166,8 @@
 #include "robot/aibackdoor/bset.h"
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"               // g_soundManager
-#include "ui/aui_ctp2/SelItem.h"
-#include "ui/interface/citywindow.h"
-#include "ui/interface/victorymoviewin.h"
-
-#ifdef _DEBUG
-#include "ui/aui_common/aui.h"
-#include "ui/interface/controlpanelwindow.h"         // g_controlPanel
-#endif
+#include "gs/core/game_observer.h"            // g_gameObservers
+#include "gs/core/player_view.h"              // player_view::*
 
 extern bool UnitCanCarry(sint32 dest, sint32 src, sint32 government);
 
@@ -1969,7 +1963,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	DPRINTF(k_DBG_GAMESTATE, ("ResetCityOwner: %lx, new: %d, old: %d, conq: %d, cause: %d\n",
 							  me.m_id, newo, me.IsValid() ? me.GetOwner() : -1, is_conquest, cause));
 
-	CityWindow::NotifyCityCaptured(me);
+	if (g_gameObservers) g_gameObservers->NotifyCityOwnerReset(me);
 
 	Unit u = me;
 	g_theTradeOfferPool->RemoveTradeOffersFromCity(u);
@@ -1979,12 +1973,9 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	Assert (newo < k_MAX_PLAYERS);
 	Assert(m_city_data);
 
-	PLAYER_INDEX	player;
-	ID	            item;
-	SELECT_TYPE	      state;
-	g_selected_item->GetTopCurItem(player, item, state);
-	if (item == me)
-		g_selected_item->Deselect(m_owner);
+	if (player_view::GetSelectedCityId() == me.m_id) {
+		player_view::Deselect(m_owner);
+	}
 
 	if(!u.IsNoZoc()) {
 
@@ -4275,7 +4266,7 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 
 	ActionSuccessful(SPECATTACK_SPY, c);
 
-	if(m_owner == g_selected_item->GetVisiblePlayer())
+	if(m_owner == player_view::VisiblePlayer())
 	{
 		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisplayInvestigationWindow,
 							   GEA_Unit, m_id,
@@ -5464,10 +5455,7 @@ void UnitData::SetType(sint32 type)
 		m_army->UpdateMoveIntersection();
 	}
 
-	if (g_selected_item)
-	{
-		g_selected_item->Refresh();
-	}
+	player_view::Refresh();
 
 	// Maybe more stuff has to be done.
 	//4-8-2007 may have to add a reset movement here?
@@ -6193,7 +6181,7 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 		g_director->AddSpecialAttack(m_actor->GetUnitID(), c, attack);
 	} else if (g_soundManager) {
 		if (soundID != -1) {
-			sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+			sint32 visiblePlayer = player_view::VisiblePlayer();
 			if ((visiblePlayer == m_owner) ||
 				(m_visibility & (1 << visiblePlayer))) {
 
@@ -6205,7 +6193,7 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 
 void UnitData::ActionUnsuccessful(void)
 {
-	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+	sint32 visiblePlayer = player_view::VisiblePlayer();
 	if (g_soundManager && ((visiblePlayer == m_owner) ||
 		(m_visibility & (1 << visiblePlayer)))) {
 

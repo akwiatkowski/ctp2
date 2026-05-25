@@ -11,12 +11,7 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 
-#include "ui/aui_common/aui.h"
-#include "ui/aui_ctp2/c3ui.h"
-#include "ui/interface/messagewindow.h"
-#include "ui/interface/messageiconwindow.h"
-#include "ui/interface/messageactions.h"
-#include "ui/aui_common/aui_button.h"
+#include "gs/core/game_observer.h"   // g_gameObservers
 
 #include "gs/slic/SlicButton.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
@@ -26,8 +21,6 @@ extern DiplomaticRequestPool *g_theDiplomaticRequestPool;
 extern	Player	**g_player ;
 
 extern	MessagePool	*g_theMessagePool ;
-
-extern  C3UI *g_c3ui;
 
 
 
@@ -102,16 +95,9 @@ MessageData* Message::AccessData()
 
 void Message::Show()
 {
-
 	if (!AccessData()) return;
-	if (!AccessData()->GetMessageWindow()) return;
-	if (!AccessData()->GetMessageWindow()->GetIconWindow()) return;
-
-	if (g_c3ui) g_c3ui->AddAction(new MessageOpenAction(AccessData()->GetMessageWindow()->GetIconWindow()));
-
-
+	if (g_gameObservers) g_gameObservers->NotifyMessageShow(*this);
 	SetRead();
-
 }
 
 void Message::SetSelectedAdvance(AdvanceType adv)
@@ -136,6 +122,5 @@ sint32 Message::GetExpiration() const
 
 void Message::MinimizeMessage()
 {
-	AccessData()->GetMessageWindow()->ShowWindow( FALSE );
-	AccessData()->GetMessageWindow()->GetIconWindow()->SetCurrentIconButton(NULL);
+	if (g_gameObservers) g_gameObservers->NotifyMessageMinimize(*this);
 }

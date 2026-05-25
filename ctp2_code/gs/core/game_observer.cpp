@@ -63,6 +63,13 @@ void GameObserverRegistry::NotifyCityCaptured(const Unit& city, sint32 newOwner,
     }
 }
 
+void GameObserverRegistry::NotifyCityOwnerReset(const Unit& city)
+{
+    for (auto* obs : m_observers) {
+        obs->OnCityOwnerReset(city);
+    }
+}
+
 void GameObserverRegistry::NotifyWonderBuilt(const Unit& city, sint32 wonder)
 {
     for (auto* obs : m_observers) {
@@ -213,6 +220,34 @@ void GameObserverRegistry::NotifyModalMessageDismissed(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifyMessageShow(const Message& msg)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessageShow(msg);
+    }
+}
+
+void GameObserverRegistry::NotifyMessageMinimize(const Message& msg)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessageMinimize(msg);
+    }
+}
+
+void GameObserverRegistry::NotifyMessageWindowDestroy(const Message& msg)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessageWindowDestroy(msg);
+    }
+}
+
+void GameObserverRegistry::NotifyMessageRead(const Message& msg)
+{
+    for (auto* obs : m_observers) {
+        obs->OnMessageRead(msg);
+    }
+}
+
 // --- UI refresh ---
 
 void GameObserverRegistry::NotifyUpdateScienceWindow(sint32 player)
@@ -261,6 +296,13 @@ void GameObserverRegistry::NotifyRadarMapUpdate(sint32 player)
 {
     for (auto* obs : m_observers) {
         obs->OnRadarMapUpdate(player);
+    }
+}
+
+void GameObserverRegistry::NotifyAutoSelectFirstUnit(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnAutoSelectFirstUnit(player);
     }
 }
 

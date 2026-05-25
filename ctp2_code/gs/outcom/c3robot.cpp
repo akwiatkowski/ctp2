@@ -3,16 +3,13 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/utility/Globals.h"
 
-#include "ui/aui_common/aui.h"
-#include "ui/interface/debugwindow.h"
-extern DebugWindow *g_debugWindow;
+#include "gs/core/game_observer.h"      // g_gameObservers
+#include "gs/core/player_view.h"        // player_view::*
 
 #include "ConstDB.h"
 extern ConstDB *g_theConstDB;
 
 #include "robot/aibackdoor/dynarr.h"
-#include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem *g_selected_item;
 
 #include "gs/utility/TurnCnt.h"
 extern TurnCount *g_turn;
@@ -49,10 +46,7 @@ extern TurnCount *g_turn;
 #include "RobotAstar.h"
 #include "gs/outcom/c3endgamedb.h"
 
-#include "ui/aui_common/aui_surface.h"
-
 #include "gfx/tilesys/maputils.h"
-#include "ui/aui_utils/primitives.h"
 
 #include "gfx/tilesys/tileset.h"
 
@@ -73,7 +67,6 @@ extern TurnCount *g_turn;
 #include "gs/gameobj/UnitData.h"
 
 #include "gfx/tilesys/tiledmap.h"
-#include "ui/aui_ctp2/radarmap.h"
 
 #include "gs/gameobj/Civilisation.h"
 
@@ -86,13 +79,9 @@ extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 extern Player **g_player;
 extern TiledMap		*g_tiledMap;
-extern RadarMap		*g_radarMap;
 
 #include "gfx/tilesys/tiledmap.h"
 extern TiledMap *g_tiledMap;
-
-#include "ui/interface/chatbox.h"
-extern ChatBox  *g_chatBox;
 
 #include "net/general/network.h"
 #include "net/general/net_info.h"
@@ -475,7 +464,7 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
 										  playerIndex));
 		}
 
-		if(g_selected_item->GetCurPlayer() == playerIndex) {
+		if(player_view::CurPlayer() == playerIndex) {
 			m_my_turn_is_over = TRUE;
 			if(g_network.IsActive()) {
 				if(playerIndex == g_network.GetPlayerIndex()) {
@@ -711,7 +700,7 @@ BOOL RobotInterface::AiIsMovingThisTurn() const
 
 BOOL RobotInterface::BeginTurn()
 {
-    PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+    PLAYER_INDEX p = player_view::CurPlayer();
     m_accumulated_frame_time[p] = 0;
     m_my_turn_is_over=FALSE;
     return FALSE;
@@ -916,7 +905,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
         time_is_remaining = FALSE;
         Assert(finite_loop_count++ < 40);
 
-        PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+        PLAYER_INDEX p = player_view::CurPlayer();
         if ((NULL == g_player[p]) ||
             (g_player[p]->IsDead())) {
 
@@ -930,7 +919,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 				g_turn->EndThisTurnBeginNewTurn(FALSE);
 			} else {
 
-				if(p == g_selected_item->GetVisiblePlayer()) {
+				if(p == player_view::VisiblePlayer()) {
 					if (g_director) g_director->AddEndTurn();
 				} else {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
@@ -948,7 +937,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 						g_turn->EndThisTurnBeginNewTurn(FALSE);
 					} else {
 						m_the_stop_player = p;
-						g_selected_item->SetPlayerOnScreen(p);
+						player_view::SetVisiblePlayer(p);
 						g_slicEngine->BlankScreen(TRUE);
 						if (g_director) {
 							g_director->NextPlayer();
@@ -959,7 +948,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 							g_tiledMap->InvalidateMap();
 							g_tiledMap->Refresh();
 						}
-						if (g_radarMap) g_radarMap->Update();
+						if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(p);
 						g_turn->InformMessages();
 						g_turn->SendNextPlayerMessage();
 					}
@@ -1000,14 +989,14 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 
         if (m_my_turn_is_over) {
 
-			sint32 oldVisPlayer = g_selected_item->GetVisiblePlayer();
+			sint32 oldVisPlayer = player_view::VisiblePlayer();
 			if(g_network.IsClient()) {
 				if (g_director) g_director->AddEndTurn();
 			} else {
 				if (m_the_stop_player != p) {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
 				} else if(g_network.IsActive() && g_network.IsHost() && g_player[m_the_stop_player]->GetPlayerType() == PLAYER_TYPE_ROBOT) {
-					if(g_selected_item->GetCurPlayer() == g_selected_item->GetVisiblePlayer()) {
+					if (player_view::CurPlayer() == player_view::VisiblePlayer()) {
 						if (g_director) g_director->AddEndTurn();
 					} else {
 						g_turn->EndThisTurnBeginNewTurn(FALSE);
@@ -1018,15 +1007,15 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 
 
 
-            if (g_selected_item->GetVisiblePlayer() != oldVisPlayer)
+            if (player_view::VisiblePlayer() != oldVisPlayer)
 			{
-                g_selected_item->SetPlayerOnScreen((PLAYER_INDEX)-1);
+                player_view::SetVisiblePlayer(-1);
                 if (g_tiledMap) {
 			        g_tiledMap->InvalidateMix();
 	      	    	g_tiledMap->InvalidateMap();
 		        	g_tiledMap->Refresh();
 		        }
-		        if (g_radarMap) g_radarMap->Update();
+		        if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(-1);
 
 			}
 
@@ -1538,7 +1527,7 @@ BOOL IsThisPlayerARobot(sint32 p)
 
 sint32 RobotInterface::GetNumFuzzySections() const
 {
-    PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+    PLAYER_INDEX p = player_view::CurPlayer();
 
 
 
@@ -1552,7 +1541,7 @@ sint32 RobotInterface::GetNumFuzzySections() const
 
 sint32 RobotInterface::GetNumFuzzyVariables(const sint32 idx_section) const
 {
-     PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+     PLAYER_INDEX p = player_view::CurPlayer();
 
 
 
@@ -1568,7 +1557,7 @@ void RobotInterface::GetFuzzyGraph(const sint32 idx_section, const sint32 idx_va
         char *&label, double &minx, double &maxx, double &miny, double &maxy,
         sint32 &num_graphs, sint32 &num_x, double ***height, double &defuzz_val)
 {
-     PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+     PLAYER_INDEX p = player_view::CurPlayer();
 
 
 
@@ -1600,7 +1589,7 @@ void RobotInterface::ResetFuzzyInput(const sint32 idx_section,
                                      const sint32 idx_variable,
         double new_defuzz_val)
 {
-    PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+    PLAYER_INDEX p = player_view::CurPlayer();
 
 
 
@@ -1612,7 +1601,7 @@ void RobotInterface::ResetFuzzyInput(const sint32 idx_section,
 
 void RobotInterface::DumpStats()
 {
-    PLAYER_INDEX p = g_selected_item->GetCurPlayer();
+    PLAYER_INDEX p = player_view::CurPlayer();
 
 
 

@@ -62,11 +62,9 @@
 
 #include "gs/database/profileDB.h"
 #include "ctp/civapp.h"
-#include "ui/aui_ctp2/SelItem.h"
 
 #include "net/general/network.h"
 #include "net/general/net_info.h"
-#include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/ArmyData.h"
@@ -80,13 +78,13 @@
 
 // Clean architecture: game event observer registry
 #include "gs/core/game_observer.h"
+#include "gs/core/player_view.h"
 
 // Propagate PW each turn update
 #include "gs/gameobj/MaterialPool.h"
 
 extern TurnCount *g_turn;
 extern CivApp *g_civApp;
-extern ControlPanelWindow *g_controlPanel;
 
 extern sint32 g_noai_stop_player;
 
@@ -345,21 +343,12 @@ STDEHANDLER(FinishBeginTurnEvent)
 		g_network.Unblock(p->m_owner);
 	}
 
-	// Auto-select first unit — only meaningful when UI is present
-	if(g_controlPanel &&
-	   (p->IsHuman() ||
-	    p->IsNetwork() && g_network.IsLocalPlayer(p->m_owner)) &&
-	    p->m_owner == g_selected_item->GetVisiblePlayer() &&
-	    g_theProfileDB->IsAutoSelectFirstUnit())
+	// Auto-select first unit — only meaningful when UI is present.
+	if ((p->IsHuman() ||
+	     (p->IsNetwork() && g_network.IsLocalPlayer(p->m_owner))) &&
+	    g_gameObservers)
 	{
-		if(g_selected_item->GetState() == SELECT_TYPE_NONE)
-		{
-			g_selected_item->NextUnmovedUnit(TRUE);
-		}
-		else if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY)
-		{
-			g_selected_item->MaybeAutoEndTurn(TRUE);
-		}
+		g_gameObservers->NotifyAutoSelectFirstUnit(p->m_owner);
 	}
 
 	if(g_network.IsHost())
@@ -612,7 +601,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
 	if((g_player[player] && !Player::IsThisPlayerARobot(player))
-	||  g_selected_item->GetVisiblePlayer() == player
+	||  player_view::VisiblePlayer() == player
 	){
 		if (g_theProfileDB->IsAutoSave() &&
 			(!g_network.IsActive() || g_network.IsHost())
@@ -659,7 +648,7 @@ STDEHANDLER(StartMovePhaseEvent)
 
 
 #ifndef _BFR_
-	gslog_LogPlayerStats(g_selected_item->GetCurPlayer());
+	gslog_LogPlayerStats(player_view::CurPlayer());
 
 	Diplomat::GetDiplomat(player).LogDebugStatus(1);
 #endif
@@ -735,9 +724,9 @@ STDEHANDLER(EndTurnEvent)
 
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	Assert(player == g_selected_item->GetCurPlayer());
+	Assert(player == player_view::CurPlayer());
 
-	if(player == g_selected_item->GetCurPlayer()) {
+	if(player == player_view::CurPlayer()) {
 		NewTurnCount::StartNextPlayer(false);
 	}
 

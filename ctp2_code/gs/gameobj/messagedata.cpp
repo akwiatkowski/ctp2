@@ -56,11 +56,7 @@
 #include "TerrainRecord.h"
 #include "gs/database/filenamedb.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
-#include "ui/interface/controlpanelwindow.h"
-
-#include "ui/aui_common/aui.h"
-#include "ui/interface/messagewin.h"
-#include "ui/interface/messagemodal.h"
+#include "gs/core/game_observer.h"   // g_gameObservers
 
 extern FilenameDB *g_theMessageIconFileDB;
 extern DiplomaticRequestPool *g_theDiplomaticRequestPool;
@@ -72,8 +68,6 @@ extern DiplomaticRequestPool *g_theDiplomaticRequestPool;
 	extern	Player	**g_player ;
 
 	extern	StringDB	*g_theStringDB ;
-
-extern MessageModal *g_modalMessage;
 
 
 
@@ -1324,22 +1318,14 @@ void MessageData::EyeDropdownCallback(sint32 index)
 
 void MessageData::KillMessageWindow( void )
 {
-	if(m_window) {
-
-		messagewin_PrepareDestroyWindow( m_window );
-	} else if(g_modalMessage && g_modalMessage->GetMessage()->m_id == m_id) {
-		messagemodal_PrepareDestroyWindow();
-
-	}
-
+	if (g_gameObservers) g_gameObservers->NotifyMessageWindowDestroy(Message(m_id));
 	m_window = NULL;
 }
 
 void MessageData::IgnoreMessage( void )
 {
-
-	if (m_window) {
-		messagewin_PrepareDestroyWindow( m_window );
+	if (m_window && g_gameObservers) {
+		g_gameObservers->NotifyMessageWindowDestroy(Message(m_id));
 	}
 	m_window = NULL;
 }
@@ -1450,5 +1436,5 @@ void MessageData::NotifySlicReload()
 void MessageData::SetRead()
 {
 	m_isRead = TRUE;
-	if (g_controlPanel) g_controlPanel->SetMessageRead(Message(m_id));
+	if (g_gameObservers) g_gameObservers->NotifyMessageRead(Message(m_id));
 }

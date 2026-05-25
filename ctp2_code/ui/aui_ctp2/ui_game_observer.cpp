@@ -15,6 +15,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Army.h"
 #include "gs/utility/UnitDynArr.h"   // for Player::m_all_cities access
+#include "gs/database/profileDB.h"   // g_theProfileDB
 #include "gs/gameobj/Message.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/GameOver.h"
@@ -26,6 +27,7 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "gs/core/slic_screen.h"
 #include "ui/interface/AttractWindow.h"
+#include "ui/interface/citywindow.h"
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/GreatLibraryTypes.h"   // DATABASE enum
 #include "ui/interface/greatlibrary.h"
@@ -36,7 +38,10 @@
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/interface/infowin.h"
 #include "ui/interface/MainControlPanel.h"
+#include "ui/interface/messageactions.h"
+#include "ui/interface/messagemodal.h"
 #include "ui/interface/messagewin.h"
+#include "ui/interface/messageiconwindow.h"
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/interface/sciencewin.h"
@@ -50,6 +55,7 @@
 extern ControlPanelWindow    *g_controlPanel;
 extern C3UI                  *g_c3ui;
 extern MessageWindow         *g_currentMessageWindow;
+extern MessageModal          *g_modalMessage;
 extern Background            *g_background;
 extern TutorialWin           *g_tutorialWin;
 
@@ -91,6 +97,13 @@ public:
         if (g_director) {
             g_director->AddCenterMap(pos);
         }
+    }
+
+    void OnCityOwnerReset(const Unit& city) override
+    {
+        // UnitData::ResetCityOwner hook — tell the city panel its city
+        // changed hands so the open window updates its layout.
+        CityWindow::NotifyCityCaptured(const_cast<Unit &>(city));
     }
 
     void OnWonderBuilt(const Unit& city, sint32 wonder) override
@@ -294,6 +307,51 @@ public:
         }
     }
 
+    void OnMessageShow(const Message& msg) override
+    {
+        Message m = msg;
+        MessageData *data = m.AccessData();
+        if (!data || !data->GetMessageWindow() ||
+            !data->GetMessageWindow()->GetIconWindow()) {
+            return;
+        }
+        if (g_c3ui) {
+            g_c3ui->AddAction(new MessageOpenAction(
+                data->GetMessageWindow()->GetIconWindow()));
+        }
+    }
+
+    void OnMessageWindowDestroy(const Message& msg) override
+    {
+        Message m = msg;
+        MessageData *data = m.AccessData();
+        if (data && data->GetMessageWindow()) {
+            messagewin_PrepareDestroyWindow(data->GetMessageWindow());
+        } else if (g_modalMessage &&
+                   g_modalMessage->GetMessage() &&
+                   g_modalMessage->GetMessage()->m_id == m.m_id) {
+            messagemodal_PrepareDestroyWindow();
+        }
+    }
+
+    void OnMessageRead(const Message& msg) override
+    {
+        if (g_controlPanel) {
+            g_controlPanel->SetMessageRead(const_cast<Message &>(msg));
+        }
+    }
+
+    void OnMessageMinimize(const Message& msg) override
+    {
+        Message m = msg;
+        MessageData *data = m.AccessData();
+        if (!data || !data->GetMessageWindow()) return;
+        data->GetMessageWindow()->ShowWindow(FALSE);
+        if (data->GetMessageWindow()->GetIconWindow()) {
+            data->GetMessageWindow()->GetIconWindow()->SetCurrentIconButton(NULL);
+        }
+    }
+
     void OnModalMessageDismissed(sint32 player) override
     {
         // Player::NotifyModalMessageDestroyed collaborator: find the next
@@ -313,6 +371,19 @@ public:
     // referencing them (USS_UpdateAction, CSW_UpdateAction,
     // ControlPanelWindow::ShowSpaceButton) sit inside a long-dead #if 0
     // block.  No live caller, no implementation needed.
+
+    void OnAutoSelectFirstUnit(sint32 player) override
+    {
+        if (!g_selected_item) return;
+        if (player != g_selected_item->GetVisiblePlayer()) return;
+        if (!g_theProfileDB || !g_theProfileDB->IsAutoSelectFirstUnit()) return;
+
+        if (g_selected_item->GetState() == SELECT_TYPE_NONE) {
+            g_selected_item->NextUnmovedUnit(TRUE);
+        } else if (g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY) {
+            g_selected_item->MaybeAutoEndTurn(TRUE);
+        }
+    }
 
     void OnControlPanelRedraw(sint32 player) override
     {

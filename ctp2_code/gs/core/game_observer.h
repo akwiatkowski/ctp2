@@ -40,6 +40,7 @@ public:
                                const MapPoint& pos, sint32 cause) {}
     virtual void OnCityCaptured(const Unit& city, sint32 newOwner,
                                 const MapPoint& pos) {}
+    virtual void OnCityOwnerReset(const Unit& city) {}
     virtual void OnWonderBuilt(const Unit& city, sint32 wonder) {}
 
     // --- Army / combat events ---
@@ -80,6 +81,10 @@ public:
     virtual void OnMessageReceived(const Message& msg, sint32 player) {}
     virtual void OnMessagesRedisplay(sint32 player) {}
     virtual void OnModalMessageDismissed(sint32 player) {}
+    virtual void OnMessageShow(const Message& msg) {}
+    virtual void OnMessageMinimize(const Message& msg) {}
+    virtual void OnMessageWindowDestroy(const Message& msg) {}
+    virtual void OnMessageRead(const Message& msg) {}
 
     // --- UI refresh requests (no-ops in headless) ---
     virtual void OnUpdateScienceWindow(sint32 player) {}
@@ -89,6 +94,7 @@ public:
     virtual void OnControlPanelRedraw(sint32 player) {}
     virtual void OnUpdateMessages(sint32 player) {}
     virtual void OnRadarMapUpdate(sint32 player) {}
+    virtual void OnAutoSelectFirstUnit(sint32 player) {}
     virtual void OnAdvanceListReload(sint32 player) {}
 
     // --- Stat-graph time window ---
@@ -150,6 +156,7 @@ public:
                            const MapPoint& pos, sint32 cause);
     void NotifyCityCaptured(const Unit& city, sint32 newOwner,
                             const MapPoint& pos);
+    void NotifyCityOwnerReset(const Unit& city);
     void NotifyWonderBuilt(const Unit& city, sint32 wonder);
 
     // --- Army / combat ---
@@ -190,6 +197,10 @@ public:
     void NotifyMessageReceived(const Message& msg, sint32 player);
     void NotifyMessagesRedisplay(sint32 player);
     void NotifyModalMessageDismissed(sint32 player);
+    void NotifyMessageShow(const Message& msg);
+    void NotifyMessageMinimize(const Message& msg);
+    void NotifyMessageWindowDestroy(const Message& msg);
+    void NotifyMessageRead(const Message& msg);
 
     // --- UI refresh ---
     void NotifyUpdateScienceWindow(sint32 player);
@@ -199,6 +210,7 @@ public:
     void NotifyControlPanelRedraw(sint32 player);
     void NotifyUpdateMessages(sint32 player);
     void NotifyRadarMapUpdate(sint32 player);
+    void NotifyAutoSelectFirstUnit(sint32 player);
     void NotifyAdvanceListReload(sint32 player);
     void NotifySetGraphMinRound(sint32 round);
     void NotifyMapResized();

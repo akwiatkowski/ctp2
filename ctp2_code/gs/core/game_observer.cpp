@@ -299,6 +299,13 @@ void GameObserverRegistry::NotifyRadarMapUpdate(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifyRadarMapRedrawTile(const MapPoint& pos)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRadarMapRedrawTile(pos);
+    }
+}
+
 void GameObserverRegistry::NotifyAutoSelectFirstUnit(sint32 player)
 {
     for (auto* obs : m_observers) {

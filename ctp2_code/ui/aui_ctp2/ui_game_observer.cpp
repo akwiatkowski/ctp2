@@ -420,6 +420,11 @@ public:
         g_radarMap->Update();
     }
 
+    void OnRadarMapRedrawTile(const MapPoint& pos) override
+    {
+        if (g_radarMap) g_radarMap->RedrawTile(&pos);
+    }
+
     void OnAdvanceListReload(sint32 player) override
     {
         if (!g_selected_item || player != g_selected_item->GetVisiblePlayer())

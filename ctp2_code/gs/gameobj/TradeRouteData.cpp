@@ -48,7 +48,7 @@
 #include "net/general/network.h"
 #include "ResourceRecord.h"
 #include "gs/gameobj/UnitData.h"
-#include "ui/aui_ctp2/radarmap.h"
+#include "gs/core/game_observer.h"
 #include "gs/gameobj/tradeutil.h"
 
 
@@ -149,8 +149,7 @@ void TradeRouteData::RemoveFromCells()
     {
 		if(g_theWorld)
 			g_theWorld->GetCell(m_path[i])->DelTradeRoute(route);
-		if(g_radarMap)
-			g_radarMap->RedrawTile(&m_path[i]);
+		if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(m_path[i]);
 	}
 }
 
@@ -270,7 +269,7 @@ bool TradeRouteData::GeneratePath()
         {
 			m_path.Insert(pnt);
 			g_theWorld->GetCell(pnt)->AddTradeRoute(m_id);
-			g_radarMap->RedrawTile(&pnt);
+			if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(pnt);
 			if (g_theWorld->IsWater(pnt))
             {
 				m_crossesWater = true;

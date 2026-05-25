@@ -12,8 +12,8 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
+#include "gs/core/player_view.h"
 #include "ui/interface/screenutils.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/EndgameWindow.h"
 #include "gs/gameobj/Advances.h"
 #include "AdvanceRecord.h"
@@ -29,7 +29,6 @@
 extern TurnCount *g_turn;
 extern Player **g_player;
 extern RandomGenerator *g_rand;
-extern SelectedItem *g_selected_item;
 extern StringDB *g_theStringDB;
 
 EndGame::EndGame(PLAYER_INDEX owner)
@@ -116,7 +115,7 @@ void EndGame::AddObject(sint32 type)
 		g_network.Unblock(m_owner);
 	}
 
-	if(m_owner == g_selected_item->GetVisiblePlayer()) {
+	if(m_owner == player_view::VisiblePlayer()) {
 
 		if(g_endgameWindow) g_endgameWindow->Update(this);
 		else open_EndGame();
@@ -159,7 +158,7 @@ BOOL EndGame::BeginSequence()
 	m_currentStage = 0;
 	m_currentStageBegan = g_turn->GetRound();
 
-	if(m_owner == g_selected_item->GetVisiblePlayer()) {
+	if(m_owner == player_view::VisiblePlayer()) {
 
 		if(g_endgameWindow) g_endgameWindow->Update(this);
 		else open_EndGame();
@@ -311,7 +310,7 @@ void EndGame::AdvanceStage()
 	  }
 	}
 
-	if(openScreen && m_owner == g_selected_item->GetVisiblePlayer()) {
+	if(openScreen && m_owner == player_view::VisiblePlayer()) {
 
 		if(g_endgameWindow) g_endgameWindow->Update(this);
 		else open_EndGame();
@@ -464,7 +463,7 @@ void EndGame::Cataclysm()
 	}
 
 
-	if(m_owner == g_selected_item->GetVisiblePlayer()) {
+	if(m_owner == player_view::VisiblePlayer()) {
 		close_EndGame();
 	}
 }
@@ -478,7 +477,7 @@ void EndGame::XLabCaptured()
 	}
 
 
-	if(m_owner == g_selected_item->GetVisiblePlayer()) {
+	if(m_owner == player_view::VisiblePlayer()) {
 		close_EndGame();
 	}
 }

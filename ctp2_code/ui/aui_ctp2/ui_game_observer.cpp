@@ -29,6 +29,7 @@
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/GreatLibraryTypes.h"   // DATABASE enum
 #include "ui/interface/greatlibrary.h"
+#include "ui/interface/tutorialwin.h"
 #include "ui/interface/radarwindow.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/interface/c3dialogs.h"
@@ -50,6 +51,7 @@ extern ControlPanelWindow    *g_controlPanel;
 extern C3UI                  *g_c3ui;
 extern MessageWindow         *g_currentMessageWindow;
 extern Background            *g_background;
+extern TutorialWin           *g_tutorialWin;
 
 class UIGameObserver : public IGameObserver {
 public:
@@ -412,6 +414,39 @@ public:
         if (g_controlPanel) {
             g_controlPanel->Show();
         }
+    }
+
+    void OnBlankScreenChanged(bool blank, sint32 visiblePlayer,
+                              sint32 researchingAdvance) override
+    {
+        if (g_radarMap) g_radarMap->Update();
+
+        if (blank && g_controlPanel) {
+            MainControlPanel::Blank();
+            if (g_greatLibrary) {
+                g_greatLibrary->ClearHistory();
+            }
+        } else if (g_controlPanel) {
+            MainControlPanel::UpdatePlayer(visiblePlayer);
+            MainControlPanel::UpdateCityList();
+            MainControlPanel::Update();
+            if (g_greatLibrary) {
+                g_greatLibrary->SetLibrary(researchingAdvance, DATABASE_ADVANCES);
+            }
+        }
+    }
+
+    void OnTutorialAddRecord(const char *title, sint32 index) override
+    {
+        if (g_tutorialWin && title) {
+            g_tutorialWin->AddToList(const_cast<char *>(title), index);
+        }
+    }
+
+    void OnTutorialRecreate() override
+    {
+        // No-op here; SlicEngine still walks its own record list and
+        // emits OnTutorialAddRecord per entry.
     }
 
     void OnMapResized() override

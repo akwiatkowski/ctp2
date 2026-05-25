@@ -80,19 +80,17 @@
 #include "gs/gameobj/Player.h"					// g_player
 #include "gs/gameobj/Unit.h"
 #include "gs/fileio/CivPaths.h"				// g_civPaths
-#include "ui/aui_ctp2/SelItem.h"				// g_selected_item
+#include "gs/core/game_observer.h"             // g_gameObservers
+#include "gs/core/player_view.h"               // player_view::VisiblePlayer
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/MessagePool.h"			// g_theMessagePool
 #include "gs/gameobj/BldQue.h"
 #include "gs/slic/SlicRecord.h"
-#include "ui/interface/tutorialwin.h"			// TutorialWin
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/fileio/gamefile.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "ui/aui_ctp2/radarmap.h"				// g_radarMap
-#include "ui/interface/controlpanelwindow.h"		// g_controlPanel
 #include "gfx/spritesys/director.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicStruct.h"
@@ -100,7 +98,6 @@
 #include "gs/slic/SlicBuiltin.h"
 #include "gs/slic/SlicBuiltinEnum.h"
 #include "gs/slic/SlicArray.h"
-#include "ui/slic_debug/sourcelist.h"
 #include "gs/slic/SlicFrame.h"
 #include "UnitRecord.h"
 #include "AdvanceRecord.h"
@@ -151,12 +148,7 @@
 #include "gs/utility/Globals.h"
 #include "ResourceRecord.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
-#include "ui/interface/messagewindow.h"
 #include "gs/database/profileDB.h"
-#include "ui/interface/greatlibrary.h"
-#include "ui/interface/MainControlPanel.h"
-
-extern TutorialWin *g_tutorialWin;
 
 SlicEngine *g_slicEngine = NULL;
 
@@ -1110,9 +1102,9 @@ void SlicEngine::AddTutorialRecord(sint32 player, MBCHAR *title, MBCHAR *text,
 
     m_records[player]->AddTail(new SlicRecord(player, title, text, segment));
 
-    if (g_tutorialWin && title)
-    {
-        g_tutorialWin->AddToList(title, m_records[player]->GetCount() - 1);
+    if (title && g_gameObservers) {
+        g_gameObservers->NotifyTutorialAddRecord(
+            title, m_records[player]->GetCount() - 1);
     }
 }
 
@@ -1468,9 +1460,9 @@ void SlicEngine::RunTradeScreenTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_TRADE_SCREEN]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddPlayer(g_selected_item->GetVisiblePlayer());
+				obj->AddPlayer(player_view::VisiblePlayer());
 				Execute(obj);
 			}
 		}
@@ -1483,9 +1475,9 @@ void SlicEngine::RunSameGoodTriggers(const Unit &city1, const Unit &city2)
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_SAME_GOOD]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddPlayer(g_selected_item->GetVisiblePlayer());
+				obj->AddPlayer(player_view::VisiblePlayer());
 				obj->AddCity(city1);
 				obj->AddCity(city2);
 				Execute(obj);
@@ -1505,9 +1497,9 @@ void SlicEngine::RunSameGoodAsTradedTriggers(sint32 good, const Unit &city1)
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_SAME_GOOD_AS_TRADED]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				obj->AddCity(city1);
 				Execute(obj);
 			}
@@ -1521,9 +1513,9 @@ void SlicEngine::RunUnitQueueTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_UNIT_QUEUE]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1536,9 +1528,9 @@ void SlicEngine::RunProductionQueueTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_PRODUCTION_QUEUE]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1551,9 +1543,9 @@ void SlicEngine::RunDiplomaticScreenTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_DIPLOMATIC_SCREEN]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1566,9 +1558,9 @@ void SlicEngine::RunCreateStackTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_CREATE_STACK]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1581,9 +1573,9 @@ void SlicEngine::RunCreateMixedStackTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_CREATE_MIXED_STACK]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1596,9 +1588,9 @@ void SlicEngine::RunAutoArrangeOffTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_AUTO_ARRANGE_OFF]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[g_selected_item->GetVisiblePlayer()] != NULL) {
+			if (g_player[player_view::VisiblePlayer()] != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -2101,8 +2093,10 @@ void SlicEngine::RunHelpTriggers(const MBCHAR *helpName)
 	SlicSegment *seg = m_segmentHash->Access(helpName);
 	if(seg && seg->IsEnabled()) {
 		SlicObject *obj = new SlicObject(seg);
-		if (g_selected_item)
-			obj->AddRecipient(g_selected_item->GetVisiblePlayer());
+		{
+			sint32 visible = player_view::VisiblePlayer();
+			if (visible >= 0) obj->AddRecipient(visible);
+		}
 		Execute(obj);
 	}
 }
@@ -2495,17 +2489,15 @@ void SlicEngine::RunTrigger(TRIGGER_LIST tlist, ...)
 
 void SlicEngine::RecreateTutorialRecord()
 {
-	if(!g_tutorialWin)
-		return;
+	if (!g_gameObservers) return;
 
-	sint32 c = 0;
-	if(m_tutorialActive) {
-		if(m_records[m_tutorialPlayer]) {
-			PointerList<SlicRecord>::Walker walk(m_records[m_tutorialPlayer]);
-			while(walk.IsValid()) {
-				g_tutorialWin->AddToList(walk.GetObj()->AccessTitle(), c++);
-				walk.Next();
-			}
+	if (m_tutorialActive && m_records[m_tutorialPlayer]) {
+		sint32 c = 0;
+		PointerList<SlicRecord>::Walker walk(m_records[m_tutorialPlayer]);
+		while (walk.IsValid()) {
+			g_gameObservers->NotifyTutorialAddRecord(
+				walk.GetObj()->AccessTitle(), c++);
+			walk.Next();
 		}
 	}
 }
@@ -2550,39 +2542,26 @@ bool SlicEngine::RunKeyboardTrigger(MBCHAR key)
 
 void SlicEngine::BlankScreen(bool blank)
 {
-	if (m_blankScreen != blank)
-	{
-		m_blankScreen = blank;
-		if (g_tiledMap) {
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
-		}
-		if (g_radarMap) g_radarMap->Update();
+	if (m_blankScreen == blank) return;
 
-		if (m_blankScreen && g_controlPanel)
-		{
-			MainControlPanel::Blank();
-			if (g_greatLibrary)
-			{
-				g_greatLibrary->ClearHistory();
-			}
-		}
-		else if (g_controlPanel)
-		{
-			CheckPendingResearch();
+	m_blankScreen = blank;
+	if (g_tiledMap) {
+		g_tiledMap->InvalidateMap();
+		g_tiledMap->Refresh();
+	}
 
-			PLAYER_INDEX const		player	= g_selected_item->GetVisiblePlayer();
+	if (!blank) {
+		// Fire any deferred research-advance dialog before re-rendering
+		// the control panel so the great-library snaps to that advance.
+		CheckPendingResearch();
+	}
 
-			MainControlPanel::UpdatePlayer(player);
-			MainControlPanel::UpdateCityList();
-			MainControlPanel::Update();
-
-			if (g_greatLibrary)
-			{
-				AdvanceType const	advance	= g_player[player]->m_advances->GetResearching();
-				g_greatLibrary->SetLibrary(advance, DATABASE_ADVANCES);
-			}
-		}
+	sint32 visible = player_view::VisiblePlayer();
+	sint32 researching = (visible >= 0 && g_player[visible])
+		? g_player[visible]->m_advances->GetResearching()
+		: -1;
+	if (g_gameObservers) {
+		g_gameObservers->NotifyBlankScreenChanged(blank, visible, researching);
 	}
 }
 
@@ -2590,8 +2569,9 @@ void SlicEngine::CheckPendingResearch()
 {
 	if(m_doResearchOnUnblank) {
 		m_doResearchOnUnblank = FALSE;
-		if(m_researchOwner == g_selected_item->GetVisiblePlayer() && g_director) {
-			g_director->AddInvokeResearchAdvance(m_researchText);
+		if (m_researchOwner == player_view::VisiblePlayer() && g_gameObservers) {
+			g_gameObservers->NotifyResearchAdvanceDialog(
+				m_researchOwner, -1, m_researchText);
 		}
 	}
 }
@@ -2758,6 +2738,9 @@ void SlicEngine::Break(SlicSegment *segment, sint32 offset, SlicObject *context,
 	m_atBreak = true;
 
 #ifdef CTP2_ENABLE_SLICDEBUG
+	// Forward-declared here so we don't pull ui/slic_debug/sourcelist.h
+	// into the simulation core just for the debug-only call.
+	extern void sourcelist_RegisterBreak(SlicSegment *segment, sint32 offset);
 	sourcelist_RegisterBreak(segment, offset);
 #endif
 }

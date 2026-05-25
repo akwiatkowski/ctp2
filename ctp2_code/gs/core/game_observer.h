@@ -113,6 +113,18 @@ public:
     virtual void OnRequestStopAttract(const char *control) {}
     virtual void OnRequestEditQueue(CityData *city) {}
     virtual void OnRequestUnblankScreen() {}
+
+    // --- Engine-side blank-screen toggle ---
+    // Fired by SlicEngine::BlankScreen when the SLIC engine asks for the
+    // game UI to be blanked / un-blanked.  Headless ignores it; UI observer
+    // updates the control panel, great-library, etc.
+    virtual void OnBlankScreenChanged(bool blank,
+                                      sint32 visiblePlayer,
+                                      sint32 researchingAdvance) {}
+
+    // --- Tutorial window state (driven from SlicEngine) ---
+    virtual void OnTutorialAddRecord(const char *title, sint32 index) {}
+    virtual void OnTutorialRecreate() {}
 };
 
 /**
@@ -198,6 +210,10 @@ public:
     void NotifyRequestStopAttract(const char *control);
     void NotifyRequestEditQueue(CityData *city);
     void NotifyRequestUnblankScreen();
+    void NotifyBlankScreenChanged(bool blank, sint32 visiblePlayer,
+                                  sint32 researchingAdvance);
+    void NotifyTutorialAddRecord(const char *title, sint32 index);
+    void NotifyTutorialRecreate();
 
 private:
     GameObserverRegistry() = default;

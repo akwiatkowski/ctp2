@@ -334,6 +334,29 @@ void GameObserverRegistry::NotifyRequestUnblankScreen()
     }
 }
 
+void GameObserverRegistry::NotifyBlankScreenChanged(bool blank,
+                                                    sint32 visiblePlayer,
+                                                    sint32 researchingAdvance)
+{
+    for (auto* obs : m_observers) {
+        obs->OnBlankScreenChanged(blank, visiblePlayer, researchingAdvance);
+    }
+}
+
+void GameObserverRegistry::NotifyTutorialAddRecord(const char *title, sint32 index)
+{
+    for (auto* obs : m_observers) {
+        obs->OnTutorialAddRecord(title, index);
+    }
+}
+
+void GameObserverRegistry::NotifyTutorialRecreate()
+{
+    for (auto* obs : m_observers) {
+        obs->OnTutorialRecreate();
+    }
+}
+
 // Global instance pointer.  Initialized inside CivApp::InitializeEngine
 // (called by both the UI and headless entry points) before any observer
 // registration runs.  Eager static-init via `= &Instance()` would have been

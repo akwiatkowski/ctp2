@@ -62,14 +62,12 @@
 #include "net/general/network.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/CTP2Combat.h"
 #include "net/general/net_action.h"
-#include "ui/interface/MainControlPanel.h"
-#include "ui/interface/controlpanelwindow.h"
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"
 #include "ai/diplomacy/Diplomat.h"
@@ -86,7 +84,6 @@
 #include "gs/core/game_observer.h"
 
 extern ArmyPool		*g_theArmyPool;
-extern ControlPanelWindow *g_controlPanel;
 
 
 
@@ -173,7 +170,7 @@ STDEHANDLER(ArmyMovePathOrderEvent)
 
 	end EMOD	*/
 
-	g_selected_item->EnterMovePath(army.GetOwner(), army, army->RetPos(), p);
+	// TODO(orchestrator): no equivalent for g_selected_item->EnterMovePath
 	return GEV_HD_Continue;
 }
 
@@ -185,13 +182,15 @@ STDEHANDLER(ArmyUnloadOrderEvent)
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
 	UNIT_ORDER_TYPE ord = UNIT_ORDER_UNLOAD;
-	if (a.GetOwner() == g_selected_item->GetVisiblePlayer())
+	if (a.GetOwner() == player_view::VisiblePlayer())
 	{
-		CellUnitList cargoToUnload;
-		if (g_controlPanel && MainControlPanel::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
-		{
-			ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
-		}
+		// TODO(orchestrator): no equivalent for g_controlPanel
+		// TODO(orchestrator): no equivalent for MainControlPanel::GetSelectedCargo
+		// CellUnitList cargoToUnload;
+		// if (g_controlPanel && MainControlPanel::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
+		// {
+		// 	ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
+		// }
 	}
 
 	a->ClearOrders();
@@ -1101,12 +1100,12 @@ STDEHANDLER(AftermathEvent)
 
 	if(attackerWon)
 	{
-		if(g_soundManager && g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
+		if(g_soundManager && defense_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
 		}
 
-		if(g_soundManager && g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
+		if(g_soundManager && attack_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
 		}
@@ -1118,12 +1117,12 @@ STDEHANDLER(AftermathEvent)
 	}
 	else
 	{
-		if(g_soundManager && g_selected_item->IsPlayerVisible(attack_owner) && !c.m_id)
+		if(g_soundManager && attack_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
 
-		if(g_soundManager && g_selected_item->IsPlayerVisible(defense_owner) && !c.m_id)
+		if(g_soundManager && defense_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
@@ -1366,7 +1365,7 @@ STDEHANDLER(MoveUnitsEvent)
 						//	g_slicEngine->Execute(so);
 						}
 
-						if(g_director && c.GetOwner() == g_selected_item->GetVisiblePlayer())
+						if(g_director && c.GetOwner() == player_view::VisiblePlayer())
 							g_director->AddCenterMap(to);
 
 						for(sint32 k = 0; k < a->Num(); k++)

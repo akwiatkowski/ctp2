@@ -45,19 +45,15 @@
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/Player.h"             // g_player
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
 #include "gs/slic/SlicButton.h"
 #include "net/general/network.h"
 #include "ctp/civapp.h"
-#include "ui/interface/messagewin.h"
+#include "gs/core/game_observer.h"          // g_gameObservers
 #include "gs/gameobj/TradeBids.h"
-#include "ui/interface/messagewindow.h"
 #include "gs/utility/stringutils.h"
 #include "gs/utility/TurnCnt.h"            // g_turn
 #include "gs/utility/Globals.h"
-#include "ui/interface/controlpanelwindow.h"
 
-extern ControlPanelWindow * g_controlPanel;
 extern CivApp			*   g_civApp;
 
 namespace
@@ -391,9 +387,10 @@ void SlicObject::Finish()
 			g_theMessagePool->Insert(newData);
 
 			if(newMessage.IsAlertBox()) {
-				messagewin_CreateModalMessage(newMessage);
+				// TODO(orchestrator): no equivalent for messagewin_CreateModalMessage
+				// messagewin_CreateModalMessage(newMessage);
 			} else {
-				messagewin_CreateMessage( newMessage );
+				if (g_gameObservers) g_gameObservers->NotifyMessageShow(newMessage);
 			}
 		} else {
 			for(sint32 i = 0; i < m_numRecipients; i++) {

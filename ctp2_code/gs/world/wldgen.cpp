@@ -81,7 +81,6 @@
 #include "gs/world/WorldDistance.h"
 #include "gs/gameobj/tradeutil.h"              // constutil_GetMapSizeMapPoint
 #include "gs/database/StrDB.h"
-#include "ui/interface/MessageBoxDialog.h"
 
 #if defined(USE_COM_REPLACEMENT)
 #include <ltdl.h>
@@ -3131,7 +3130,7 @@ bool World::ImportMap(MBCHAR const * filename)
 
 		char buff[1024];
 		snprintf(buff, sizeof(buff), "%s\n%s", str, filename);
-		MessageBoxDialog::Information(buff, "FileDoesNotExist");
+		DPRINTF(k_DBG_GAMESTATE, ("%s\n", buff));
 		return false;
 	}
 
@@ -3148,7 +3147,7 @@ bool World::ImportMap(MBCHAR const * filename)
 
 		char buff[1024];
 		snprintf(buff, sizeof(buff), "%s(%i,%i)/(%i,%i)", str, m_size.x, m_size.y, size.x, size.y);
-		MessageBoxDialog::Information(buff, "MapSizesDiffer");
+		DPRINTF(k_DBG_GAMESTATE, ("%s\n", buff));
 		fclose(infile);
 		return false;
 	}

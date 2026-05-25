@@ -81,7 +81,10 @@ build:
 	meson compile -C build
 
 # Run fast tests (observer + pure unit tests, < 1 s)
-test: build
+# Only builds ctp2_fast_tests — much faster than `make build`.
+test:
+	@echo "Building fast tests..."
+	meson compile -C build ctp2_fast_tests
 	@echo "Running fast tests..."
 	meson test -C build fast
 

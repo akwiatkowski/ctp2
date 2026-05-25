@@ -16,6 +16,7 @@
 #include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
+#include "gs/core/game_observer.h"            // g_gameObservers
 #include "gs/core/game_observer_registration.h"
 
 #include <stdio.h>
@@ -134,8 +135,14 @@ int main(int argc, char **argv)
             // Process one turn for each active player
             for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
                 if (g_player[p] && !g_player[p]->IsDead()) {
+                    if (g_gameObservers) {
+                        g_gameObservers->NotifyTurnStart(p);
+                    }
                     g_player[p]->BeginTurn();
                     g_player[p]->EndTurn();
+                    if (g_gameObservers) {
+                        g_gameObservers->NotifyTurnEnd(p);
+                    }
                 }
             }
 

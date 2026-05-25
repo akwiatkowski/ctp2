@@ -15,16 +15,17 @@ class HeadlessGameObserver : public IGameObserver {
 public:
     void OnTurnStart(sint32 player) override
     {
-        DPRINTF(k_DBG_GAMESTATE,
-                ("[HEADLESS] Turn start for player %d (round %d)\n",
-                 player,
-                 g_player[player] ? g_player[player]->GetCurRound() : -1));
+        // Use fprintf(stderr) instead of DPRINTF so headless output is visible
+        // to smoke tests that capture stderr via popen(). DPRINTF writes to a
+        // log file, not stderr.
+        fprintf(stderr, "[HEADLESS] Turn start for player %d (round %d)\n",
+                player,
+                g_player[player] ? g_player[player]->GetCurRound() : -1);
     }
 
     void OnTurnEnd(sint32 player) override
     {
-        DPRINTF(k_DBG_GAMESTATE,
-                ("[HEADLESS] Turn end for player %d\n", player));
+        fprintf(stderr, "[HEADLESS] Turn end for player %d\n", player);
     }
 
     void OnBuildPhaseComplete(sint32 player) override

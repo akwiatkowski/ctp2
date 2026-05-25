@@ -292,6 +292,13 @@ void GameObserverRegistry::NotifyControlPanelRedraw(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifySelectedCity(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnSelectedCity(player);
+    }
+}
+
 void GameObserverRegistry::NotifyRadarMapUpdate(sint32 player)
 {
     for (auto* obs : m_observers) {

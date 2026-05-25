@@ -1210,6 +1210,8 @@ cpp_fast_test_sources = [
   'test/cpp/test_observer.cpp',
   'test/cpp/test_randgen.cpp',
   'test/cpp/test_bugfixes.cpp',
+  'ctp/civ3_main.cpp',
+  'test/smoketest_server.cpp',
 ]
 
 fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_sources,
@@ -1219,6 +1221,9 @@ fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_
   link_args : [ '-lltdl', use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
+
+# meson.build lives in ctp2_code/, but data files (appstr.txt, etc.) are in the parent dir
+cwd_for_tests = join_paths(meson.project_source_root(), '..')
 
 test('fast', fast_test_exe, timeout : 30, workdir : cwd_for_tests)
 
@@ -1247,21 +1252,6 @@ unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sourc
   link_args : [ '-lltdl', use_ld ],
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
-
-test('unit', unit_test_exe, timeout : 60, workdir : cwd_for_tests)
-
-# e2e smoke test: launches the real game binary and drives it via Unix socket
-test('smoke',
-  find_program('test/smoke_test.py'),
-  args : [join_paths(meson.project_build_root(), 'ctp2')],
-  timeout : 120,
-  is_parallel : false,
-  priority : -1,
-  workdir : cwd_for_tests,
-)
-
-# meson.build lives in ctp2_code/, but data files (appstr.txt, etc.) are in the parent dir
-cwd_for_tests = join_paths(meson.project_source_root(), '..')
 
 test('unit', unit_test_exe, timeout : 60, workdir : cwd_for_tests)
 

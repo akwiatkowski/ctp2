@@ -93,6 +93,7 @@ public:
     virtual void OnUpdateControlPanel(sint32 player) {}
     virtual void OnControlPanelRedraw(sint32 player) {}
     virtual void OnUpdateMessages(sint32 player) {}
+    virtual void OnSelectedCity(sint32 player) {}
     virtual void OnRadarMapUpdate(sint32 player) {}
     virtual void OnRadarMapRedrawTile(const MapPoint& pos) {}
     virtual void OnAutoSelectFirstUnit(sint32 player) {}
@@ -217,6 +218,7 @@ public:
     void NotifyUpdateControlPanel(sint32 player);
     void NotifyControlPanelRedraw(sint32 player);
     void NotifyUpdateMessages(sint32 player);
+    void NotifySelectedCity(sint32 player);
     void NotifyRadarMapUpdate(sint32 player);
     void NotifyRadarMapRedrawTile(const MapPoint& pos);
     void NotifyAutoSelectFirstUnit(sint32 player);

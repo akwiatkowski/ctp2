@@ -49,6 +49,8 @@
 #include "ui/interface/screenutils.h"
 #include "ui/interface/trademanager.h"
 #include "ui/interface/victorywin.h"
+#include "ui/interface/dipwizard.h"
+#include "ai/diplomacy/diplomattypes.h"
 #include "gfx/spritesys/director.h"
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
@@ -612,6 +614,13 @@ public:
     {
         if (g_controlPanel) {
             g_controlPanel->UpdatePlayerBeginProgress(player);
+        }
+    }
+
+    void OnSelectedCity(sint32 player) override
+    {
+        if (g_controlPanel && player == g_selected_item->GetVisiblePlayer()) {
+            MainControlPanel::SelectedCity();
         }
     }
 

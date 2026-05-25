@@ -18,16 +18,37 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Path to the headless binary, relative to the test working directory.
-// meson runs tests from the build root, so the binary is in ./ctp2_headless.
-static const char *HEADLESS_BIN = "./ctp2_headless";
+// Common paths where the headless binary may live, relative to the test
+// working directory (project root when run via meson).
+static const char *HEADLESS_CANDIDATES[] = {
+    "./build/ctp2_headless",
+    "./build-sanitized/ctp2_headless",
+    "./ctp2_headless",   // if running directly from build dir
+    nullptr,
+};
+
+static const char *find_headless_binary()
+{
+    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
+        if (std::FILE *f = std::fopen(*p, "r")) {
+            std::fclose(f);
+            return *p;
+        }
+    }
+    return nullptr;
+}
 
 // Run the headless binary with given arguments and return its stderr output.
 // Returns empty string on failure (cannot spawn process).
 static std::string run_headless(const char *args)
 {
+    const char *bin = find_headless_binary();
+    if (!bin) {
+        return "[ERROR] ctp2_headless binary not found";
+    }
+
     char cmd[1024];
-    std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", HEADLESS_BIN, args);
+    std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
 
     FILE *pipe = popen(cmd, "r");
     if (!pipe) {

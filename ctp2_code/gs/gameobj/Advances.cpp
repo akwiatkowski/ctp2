@@ -55,7 +55,7 @@
 #include "gs/slic/QuickSlic.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/outcom/AICause.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "gs/core/player_view.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 #include "gs/gameobj/Unit.h"
@@ -66,8 +66,7 @@
 #include "gs/database/profileDB.h"          // g_theProfileDB
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/utility/RandGen.h"            // g_rand
-#include "ui/interface/statswindow.h"
-#include "ui/interface/controlpanelwindow.h"
+#include "gs/core/game_observer.h"
 #include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
@@ -77,7 +76,8 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
-#include "ui/interface/MainControlPanel.h"
+#include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
+#include "gs/gameobj/GameSettings.h"       // g_theGameSettings
 #include <stdexcept>            // overflow_error
 
 namespace
@@ -363,12 +363,12 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 		if (g_player[m_owner]->GetPoints() < pointCost)
 			return; // Too expensive
 
-		if (g_network.IsClient() && m_owner != g_selected_item->GetVisiblePlayer())
+		if (g_network.IsClient() && m_owner != player_view::VisiblePlayer())
 			return; // Not for me
 
 		if (g_network.IsHost())
 		{
-			if (!fromClient && m_owner != g_selected_item->GetVisiblePlayer())
+			if (!fromClient && m_owner != player_view::VisiblePlayer())
 				return; // Not for me
 		}
 
@@ -1294,9 +1294,9 @@ sint32 Advances::GetProjectedScience() const
 		s += cities->Access(i).CD()->GetProjectedScience();
 	}
 
-	if(g_controlPanel && m_owner == g_selected_item->GetVisiblePlayer() && !g_network.IsClient())
+	if(m_owner == player_view::VisiblePlayer() && !g_network.IsClient())
 	{
-		MainControlPanel::SelectedCity();
+		if (g_gameObservers) g_gameObservers->NotifySelectedCity(m_owner);
 	}
 
 	return s;

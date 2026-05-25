@@ -47,7 +47,6 @@
 #include "gs/newdb/CTPDatabase.h"
 #include "gs/database/dbtypes.h"                    // k_MAX_NAME_LEN
 #include "gfx/spritesys/director.h"                   // g_director
-#include "ui/interface/MessageBoxDialog.h"           // MessageBoxDialog
 #include "net/io/net_util.h"                   // PULL/PUSH macros
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/database/profileDB.h"
@@ -223,7 +222,7 @@ bool MapFile::SaveTerrain(FILE *outfile)
 
     if (!m_chunk.Save(outfile))
     {
-		MessageBoxDialog::Information("Error saving terrain.","ErrSaveTerrain");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
 		delete [] terrain;
 		return false;
     }
@@ -231,7 +230,7 @@ bool MapFile::SaveTerrain(FILE *outfile)
     uint16 value        = static_cast<uint16>(xSize);
     if (fwrite(&value, sizeof(value), 1, outfile) != 1)
     {
-		MessageBoxDialog::Information("Error saving terrain.","ErrSaveTerrain");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
 		delete [] terrain;
 		return false;
     }
@@ -239,14 +238,14 @@ bool MapFile::SaveTerrain(FILE *outfile)
     value = static_cast<uint16>(ySize);
     if (fwrite(&value, sizeof(value), 1, outfile) != 1)
     {
-		MessageBoxDialog::Information("Error saving terrain.","ErrSaveTerrain");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
 		delete [] terrain;
 		return false;
     }
 
     if (fwrite(terrain, 1, xSize * ySize, outfile) != xSize * ySize)
     {
-		MessageBoxDialog::Information("Error saving terrain.","ErrSaveTerrain");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
 		delete [] terrain;
 		return false;
     }
@@ -272,7 +271,7 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 
     if (!m_chunk.Save(outfile))
     {
-		MessageBoxDialog::Information("Error saving terrain env.","ErrSaveTerrainEnv");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
 		delete [] env;
 		return false;
 	}
@@ -280,7 +279,7 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 	x = (sint16)g_theWorld->GetXWidth();
 	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
 	{
-		MessageBoxDialog::Information("Error saving terrain env.","ErrSaveTerrainEnv");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
 		delete [] env;
 		return false;
 	}
@@ -288,14 +287,14 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 	y = (sint16)g_theWorld->GetYHeight();
 	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
 	{
-		MessageBoxDialog::Information("Error saving terrain env.","ErrSaveTerrainEnv");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
 		delete [] env;
 		return false;
 	}
 
 	if(fwrite(env, 1, x * y * sizeof(uint32), outfile) != (uint32)((x * y) * sizeof(uint32)))
     {
-		MessageBoxDialog::Information("Error saving terrain env.","ErrSaveTerrainEnv");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
 		delete [] env;
 		return false;
 	}
@@ -333,21 +332,21 @@ bool MapFile::SaveCities(FILE *outfile)
 	if(!m_chunk.Save(outfile))
 	{
 
-		MessageBoxDialog::Information("Error saving cities.","ErrSaveCities");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
 		return false;
 	}
 
 	if(fwrite(&cityCount, sizeof(cityCount), 1, outfile) != 1)
 	{
 
-		MessageBoxDialog::Information("Error saving cities.","ErrSaveCities");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
 		return false;
 	}
 
 	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
 	{
 
-		MessageBoxDialog::Information("Error saving cities.","ErrSaveCities");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving cities.\n"));
 		return false;
 	}
 
@@ -360,7 +359,7 @@ bool MapFile::SaveUnits(FILE *outfile)
 	if(!(SaveDBNames(outfile, k_UNIT_TYPES_HEADER, g_theUnitDB)))
 	{
 
-		MessageBoxDialog::Information("Error saving units.","ErrSaveUnits");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
 		return false;
 	}
 
@@ -392,21 +391,21 @@ bool MapFile::SaveUnits(FILE *outfile)
 	if(!m_chunk.Save(outfile))
 	{
 
-		MessageBoxDialog::Information("Error saving units.","ErrSaveUnits");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
 		return false;
 	}
 
 	if(fwrite(&numCellsWithUnits, sizeof(numCellsWithUnits), 1, outfile) != 1)
 	{
 
-		MessageBoxDialog::Information("Error saving units.","ErrSaveUnits");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
 		return false;
 	}
 
 	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
 	{
 
-		MessageBoxDialog::Information("Error saving units.","ErrSaveUnits");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving units.\n"));
 		return false;
 	}
 
@@ -419,7 +418,7 @@ bool MapFile::SaveImprovements(FILE *outfile)
 	if(!SaveDBNames(outfile, k_IMPROVEMENT_TYPES_HEADER, g_theTerrainImprovementDB))
 	{
 
-		MessageBoxDialog::Information("Error saving improvements.","ErrSaveImprovements");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
 		return false;
 	}
 
@@ -451,21 +450,21 @@ bool MapFile::SaveImprovements(FILE *outfile)
 	if(!m_chunk.Save(outfile))
 	{
 
-		MessageBoxDialog::Information("Error saving improvements.","ErrSaveImprovements");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
 		return false;
 	}
 
 	if(fwrite(&numCells, sizeof(numCells), 1, outfile) != 1)
 	{
 
-		MessageBoxDialog::Information("Error saving improvements.","ErrSaveImprovements");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
 		return false;
 	}
 
 	if(fwrite(archive.GetStream(), 1, archive.StreamLen(), outfile) != archive.StreamLen())
 	{
 
-		MessageBoxDialog::Information("Error saving improvements.","ErrSaveImprovements");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving improvements.\n"));
 		return false;
 	}
 
@@ -483,14 +482,14 @@ bool MapFile::SaveVision(FILE *outfile)
 		if(!m_chunk.Save(outfile))
 		{
 
-			MessageBoxDialog::Information("Error saving vision.","ErrSaveVision");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
 			return false;
 		}
 
 		if(fwrite(&p, sizeof(uint8), 1, outfile) != 1)
 		{
 
-			MessageBoxDialog::Information("Error saving vision.","ErrSaveVision");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
 			return false;
 		}
 
@@ -499,14 +498,14 @@ bool MapFile::SaveVision(FILE *outfile)
 		if(fwrite(&w, sizeof(sint16), 1, outfile) != 1)
 		{
 
-			MessageBoxDialog::Information("Error saving vision.","ErrSaveVision");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
 			return false;
 		}
 
 		if(fwrite(&h, sizeof(sint16), 1, outfile) != 1)
 		{
 
-			MessageBoxDialog::Information("Error saving vision.","ErrSaveVision");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
 			return false;
 		}
 
@@ -517,7 +516,7 @@ bool MapFile::SaveVision(FILE *outfile)
 				if(fwrite(&g_player[p]->m_vision->m_array[x][y], 1, sizeof(uint16), outfile) != sizeof(uint16))
 				{
 
-					MessageBoxDialog::Information("Error saving vision.","ErrSaveVision");
+					DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
 					return false;
 				}
 			}
@@ -530,7 +529,7 @@ bool MapFile::SaveAdvances(FILE *outfile)
 {
     if (!SaveDBNames(outfile, k_ADVANCE_TYPES_HEADER, g_theAdvanceDB))
     {
-        MessageBoxDialog::Information("Error saving advances.","ErrSaveAdvances");
+        DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
         return false;
     }
 
@@ -545,19 +544,19 @@ bool MapFile::SaveAdvances(FILE *outfile)
 
 		if (!m_chunk.Save(outfile))
 		{
-			MessageBoxDialog::Information("Error saving advances.","ErrSaveAdvances");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
 			return false;
 		}
 
 		if (fwrite(&p, sizeof(uint8), 1, outfile) != 1)
 		{
-			MessageBoxDialog::Information("Error saving advances.","ErrSaveAdvances");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
 			return false;
 		}
 
 		if (fwrite(&na, sizeof(uint16), 1, outfile) != 1)
 		{
-			MessageBoxDialog::Information("Error saving advances.","ErrSaveAdvances");
+			DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
 			return false;
 		}
 
@@ -566,7 +565,7 @@ bool MapFile::SaveAdvances(FILE *outfile)
 			uint8 hasAdv = g_player[p]->HasAdvance(a);
 			if (fwrite(&hasAdv, sizeof(uint8), 1, outfile) != 1)
 			{
-				MessageBoxDialog::Information("Error saving advances.","ErrSaveAdvances");
+				DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
 				return false;
 			}
 		}
@@ -597,7 +596,7 @@ bool MapFile::SaveHuts(FILE *outfile)
 	}
 
 	if(!m_chunk.Save(outfile)) {
-		MessageBoxDialog::Information("Error saving huts.","ErrSaveHuts");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
 		delete [] terrain;
 		return false;
 	}
@@ -605,7 +604,7 @@ bool MapFile::SaveHuts(FILE *outfile)
 	x = (sint16)g_theWorld->GetXWidth();
 	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
 	{
-		MessageBoxDialog::Information("Error saving huts.","ErrSaveHuts");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
 		delete [] terrain;
 		return false;
 	}
@@ -613,13 +612,13 @@ bool MapFile::SaveHuts(FILE *outfile)
 	y = (sint16)g_theWorld->GetYHeight();
 	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
 	{
-		MessageBoxDialog::Information("Error saving huts.","ErrSaveHuts");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
 		delete [] terrain;
 		return false;
 	}
 
 	if(fwrite(terrain, 1, x * y, outfile) != (uint32)x * y) {
-		MessageBoxDialog::Information("Error saving huts.","ErrSaveHuts");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
 		delete [] terrain;
 		return false;
 	}
@@ -675,14 +674,14 @@ bool MapFile::SaveCivilizations(FILE *outfile)
 
 
 	if (!m_chunk.Save(outfile)) {
-		MessageBoxDialog::Information("Error saving civilizations.","ErrSaveCivs");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
 		delete [] civs;
 		return false;
 	}
 
 	if (fwrite(civs, 1, k_CIVS_BLOCK_LENGTH, outfile) != k_CIVS_BLOCK_LENGTH)
 	{
-		MessageBoxDialog::Information("Error saving civilizations.","ErrSaveCivs");
+		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
 		delete [] civs;
 		return false;
 	}
@@ -709,7 +708,7 @@ bool MapFile::LoadMap(FILE *infile)
 		r = fread(&chunkSize, 1, sizeof(chunkSize), infile);
 		if(r != sizeof(chunkSize))
 		{
-			MessageBoxDialog::Information("Error loading map: can't read chunksize.","ErrLoadMapChunk");
+			DPRINTF(k_DBG_GAMESTATE, ("Error loading map: can't read chunksize.\n"));
 			return false;
 		}
 
@@ -726,11 +725,11 @@ bool MapFile::LoadMap(FILE *infile)
 
 			if (feof(infile))
 			{
-				MessageBoxDialog::Information("Error loading mapfile. Unexpected end of file found.","ErrLoadMapEOF");
+				DPRINTF(k_DBG_GAMESTATE, ("Error loading mapfile. Unexpected end of file found.\n"));
 			}
 			if (ferror(infile))
 			{
-				MessageBoxDialog::Information("Error loading mapfile. File error occurred.","ErrLoadMapFileError");
+				DPRINTF(k_DBG_GAMESTATE, ("Error loading mapfile. File error occurred.\n"));
 			}
 
  			LoadMapStop();
@@ -820,7 +819,7 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 	if(size != (sint32)((w * h) + (sizeof(sint16) * 2)))
 	{
 
-		MessageBoxDialog::Information("Error loading terrain.","ErrLoadTerrain");
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain.\n"));
 		return false;
 	}
 
@@ -847,7 +846,7 @@ bool MapFile::LoadTerrainEnv(uint8 *buf, sint32 size)
 	if(size != (sint32)((w * h * sizeof(uint32)) + (sizeof(sint16) * 2)))
 	{
 
-		MessageBoxDialog::Information("Error loading terrain env.","ErrLoadTerrainEnv");
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading terrain env.\n"));
 		return false;
 	}
 
@@ -1197,7 +1196,7 @@ bool MapFile::LoadHuts(uint8 *buf, sint32 size)
 	if(size != (sint32)((w * h * sizeof(uint8)) + 2 * sizeof(sint16)))
 	{
 
-		MessageBoxDialog::Information("Error loading huts.","ErrLoadHuts");
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading huts.\n"));
 		return false;
 	}
 
@@ -1223,7 +1222,7 @@ bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
 	if (size != k_CIVS_BLOCK_LENGTH)
 	{
 
-		MessageBoxDialog::Information("Error loading civilizations.","ErrLoadCivs");
+		DPRINTF(k_DBG_GAMESTATE, ("Error loading civilizations.\n"));
 		return false;
 	}
 

@@ -24,15 +24,15 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Fixed the BeginTurn, DumpChecksum and DisplayCRC methods. (Aug 25th 2005 Martin Gühmann)
-// - Added the risk database. (Aug 29th 2005 Martin Gühmann)
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
-// - Replaced old pollution database by new one. (July 15th 2006 Martin Gühmann)
-// - Replaced old global warming database by new one. (July 15th 2006 Martin Gühmann)
-// - Added sync check for the new map icon database. (27-Mar-2007 Martin Gühmann)
-// - Added sync check for the new map database. (27-Mar-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Fixed the BeginTurn, DumpChecksum and DisplayCRC methods. (Aug 25th 2005 Martin Gï¿½hmann)
+// - Added the risk database. (Aug 29th 2005 Martin Gï¿½hmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
+// - Replaced old pollution database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Replaced old global warming database by new one. (July 15th 2006 Martin Gï¿½hmann)
+// - Added sync check for the new map icon database. (27-Mar-2007 Martin Gï¿½hmann)
+// - Added sync check for the new map database. (27-Mar-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -105,7 +105,6 @@
 
 // Other includes
 #include "gs/gameobj/pollution.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Player.h"
@@ -129,7 +128,6 @@ extern  UnitPool                *g_theUnitPool;
 
 // Others
 extern  Pollution               *g_thePollution;
-extern  SelectedItem            *g_selected_item;
 extern  World                   *g_theWorld;
 extern  Player                  **g_player;
 extern  TopTen                  *g_theTopTen;
@@ -387,7 +385,6 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(g_theUnitPool, CRC_TYPE_UNITPOOL);
 
 	CHECK_DB(g_thePollution, CRC_TYPE_POLLUTION);
-	CHECK_DB(g_selected_item, CRC_TYPE_SELECTED_ITEM);
 	CHECK_DB(g_theTopTen, CRC_TYPE_TOPTEN);
 	CHECK_DB(g_theWorld, CRC_TYPE_WORLD);
 

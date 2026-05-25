@@ -4,7 +4,7 @@
 #include "net/general/net_info.h"             // NetInfo
 #include "net/general/network.h"              // g_network
 #include "gs/gameobj/Player.h"               // g_player
-#include "ui/aui_ctp2/SelItem.h"              // g_selected_item
+#include "gs/core/player_view.h"
 #include "gs/gameobj/TerrImprovePool.h"      // g_theTerrainImprovementPool
 #include "gs/world/World.h"                // g_theWorld
 
@@ -19,11 +19,11 @@ void TerrainImprovement::RemoveAllReferences()
 	g_player[GetOwner()]->RemoveImprovementReferences(*this);
 	g_theWorld->RemoveImprovement(*this, GetLocation());
 	if(g_network.IsHost()) {
-		if(g_selected_item->GetCurPlayer() == GetOwner())
+		if(player_view::CurPlayer() == GetOwner())
 			g_network.Block(GetOwner());
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_IMPROVEMENT,
 									  uint32(*this)));
-		if(g_selected_item->GetCurPlayer() == GetOwner())
+		if(player_view::CurPlayer() == GetOwner())
 			g_network.Unblock(GetOwner());
 	}
 

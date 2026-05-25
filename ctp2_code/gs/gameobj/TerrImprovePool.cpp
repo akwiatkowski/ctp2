@@ -43,7 +43,7 @@
 #include "TerrainImprovementRecord.h"
 #include "SoundRecord.h"
 #include "sound/soundmanager.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "net/general/network.h"                    // g_network
 
 TerrainImprovementPool::TerrainImprovementPool()
@@ -133,7 +133,7 @@ TerrainImprovementPool::Create
 		if (soundRecord)
 		{
 			sint32 const	soundID		= soundRecord->GetIndex();
-			if ((soundID != -1) && (owner == g_selected_item->GetVisiblePlayer()))
+			if ((soundID != -1) && (owner == player_view::VisiblePlayer()))
 			{
 				g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32) 0, soundID, point.x, point.y);
 			}

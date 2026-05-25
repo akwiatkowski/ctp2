@@ -150,7 +150,7 @@ sint32 UIGetSelectedCityId()
 	ID item;
 	SELECT_TYPE state;
 	g_selected_item->GetTopCurItem(p, item, state);
-	return (state == SELECT_TYPE_LOCAL_CITY) ? item.m_id : 0;
+	return (state == SELECT_TYPE_LOCAL_CITY) ? static_cast<sint32>(item.m_id) : 0;
 }
 
 void UIGetTopCurItem(sint32 &player, sint32 &item, sint32 &state)

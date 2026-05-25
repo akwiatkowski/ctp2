@@ -50,7 +50,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/QuickSlic.h"
 #include "gs/outcom/AICause.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/RandGen.h"
 #include "ConstRecord.h"
@@ -139,14 +139,14 @@ STDEHANDLER(CaptureCityEvent)
 		// Added by Maq - Reset shield store for captured cities.
 		city.CD()->SetShieldstore(0);
 
-		if (g_director && city.GetOwner() == g_selected_item->GetVisiblePlayer())
+		if (g_director && city.GetOwner() == player_view::VisiblePlayer())
 		{
 			g_director->AddCenterMap(pos);
 		}
 
-		if (newOwner == g_selected_item->GetVisiblePlayer())
+		if (newOwner == player_view::VisiblePlayer())
 		{
-			g_selected_item->SetSelectCity(city);
+			player_view::SetSelectCity(city);
 		}
 
 		if (city.AccessData()->CountSlaves() > 0)
@@ -271,7 +271,7 @@ STDEHANDLER(CaptureCityEvent)
 		g_slicEngine->RunCityCapturedTriggers(newOwner, originalOwner,
 		                                      city);
 
-		if(g_director && city.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+		if(g_director && city.GetVisibility() & (1 << player_view::VisiblePlayer()))
 		{
 			sint32 soundID = gamesounds_GetGameSoundID(GAMESOUNDS_CITYCONQUERED);
 			if (soundID != 0)
@@ -522,7 +522,7 @@ STDEHANDLER(NukeCityEvent)
 		}
 	}
 
-	if(g_network.IsHost() && nuker == g_selected_item->GetCurPlayer()) {
+	if(g_network.IsHost() && nuker == player_view::CurPlayer()) {
 
 		g_network.Block(nuker);
 	}
@@ -530,7 +530,7 @@ STDEHANDLER(NukeCityEvent)
 	UnitDynamicArray killList;
 	c.GetNuked(killList);
 
-	if(g_network.IsHost() && nuker == g_selected_item->GetCurPlayer()) {
+	if(g_network.IsHost() && nuker == player_view::CurPlayer()) {
 		g_network.Unblock(nuker);
 	}
 
@@ -749,7 +749,7 @@ STDEHANDLER(CreateWonderEvent)
 	wonderutil_AddBuilt(wonder);
 	g_player[c->GetOwner()]->AddWonder(wonder, c);
 
-	if (c->GetOwner() == g_selected_item->GetVisiblePlayer() &&
+	if (c->GetOwner() == player_view::VisiblePlayer() &&
 		!Player::IsThisPlayerARobot(c->GetOwner())) {
 
 		if ( g_theProfileDB->IsWonderMovies() ) {

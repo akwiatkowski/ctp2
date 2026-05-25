@@ -54,7 +54,6 @@
 #include "net/general/net_info.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/installationtree.h"
-#include "ui/aui_ctp2/radarmap.h"
 #include "gs/world/cellunitlist.h"
 
 #include "gfx/spritesys/director.h"
@@ -69,9 +68,9 @@
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/tradeutil.h"
 #include "gs/events/GameEventManager.h"           // g_gevManager
+#include "gs/core/game_observer.h"                // g_gameObservers
 
 extern  OzoneDatabase   *g_theUVDB ;
-extern  RadarMap        *g_radarMap;
 
 #define N_X(d)      (d)
 #define N_Y(d)      (d-1)
@@ -503,10 +502,7 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		g_tiledMap->PostProcessMap();
 		g_tiledMap->Refresh();
 	}
-	if (g_radarMap) {
-		g_radarMap->Update();
-		g_radarMap->ShouldDraw();
-	}
+	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
@@ -680,10 +676,7 @@ void World::OzoneDepletionEvent(void)
 		g_tiledMap->PostProcessMap();
 		g_tiledMap->Refresh();
 	}
-	if (g_radarMap) {
-		g_radarMap->Update();
-		g_radarMap->ShouldDraw();
-	}
+	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
 }
 
 void World::RegenerateRivers()

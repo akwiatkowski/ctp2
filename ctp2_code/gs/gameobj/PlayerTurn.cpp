@@ -33,7 +33,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Player.h"
 #include "gs/events/GameEventManager.h"
-#include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/PlayerEvent.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Player.h"
@@ -57,7 +56,6 @@
 
 #include "gs/database/profileDB.h"
 #include "ctp/civapp.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/Strengths.h"

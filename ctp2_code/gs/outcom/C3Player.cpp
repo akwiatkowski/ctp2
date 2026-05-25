@@ -914,7 +914,7 @@ BOOL C3Player::AiUnloadAllTransportsInArmy(BOOL *is_unknown_id,
 #ifdef _DEBUG
 void C3Player::Dprint(char *str)
 {
-    WPRINTF(k_DBG_AI, ("%s", str));
+    DPRINTF(k_DBG_AI, ("%s", str));
 }
 #endif
 

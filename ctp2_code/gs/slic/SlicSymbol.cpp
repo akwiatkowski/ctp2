@@ -43,7 +43,6 @@
 #include "gs/database/StrDB.h"
 #include "gs/slic/SlicEngine.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicContext.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"

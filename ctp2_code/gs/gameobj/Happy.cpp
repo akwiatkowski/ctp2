@@ -50,7 +50,6 @@
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/citydata.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_theSelectedItem
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/MapPoint.h"
 

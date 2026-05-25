@@ -40,7 +40,6 @@
 
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Player.h"
-#include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"

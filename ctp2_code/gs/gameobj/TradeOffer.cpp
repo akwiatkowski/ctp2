@@ -9,7 +9,7 @@
 
 #include "gs/gameobj/message.h"
 #include "gs/gameobj/MessageData.h"
-#include "ui/interface/trademanager.h"
+#include "gs/core/game_observer.h"
 
 extern Player **g_player;
 
@@ -44,7 +44,7 @@ void TradeOffer::RemoveAllReferences()
 		}
 	}
 
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 const TradeOfferData* TradeOffer::GetData() const

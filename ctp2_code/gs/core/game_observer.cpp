@@ -285,6 +285,55 @@ void GameObserverRegistry::NotifyMapResized()
     }
 }
 
+void GameObserverRegistry::NotifyRequestOpenGreatLibrary(sint32 entry, sint32 database)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestOpenGreatLibrary(entry, database);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestOpenScenarioEditor()
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestOpenScenarioEditor();
+    }
+}
+
+void GameObserverRegistry::NotifyRequestOpenScreen(sint32 screen)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestOpenScreen(screen);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestAttract(const char *control)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestAttract(control);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestStopAttract(const char *control)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestStopAttract(control);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestEditQueue(CityData *city)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestEditQueue(city);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestUnblankScreen()
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestUnblankScreen();
+    }
+}
+
 // Global instance pointer.  Initialized inside CivApp::InitializeEngine
 // (called by both the UI and headless entry points) before any observer
 // registration runs.  Eager static-init via `= &Instance()` would have been

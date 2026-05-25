@@ -15,6 +15,8 @@
 
 #include "ctp/c3.h"
 #include "gs/core/player_view.h"
+#include "gs/gameobj/Unit.h"
+#include "gs/world/MapPoint.h"
 #include "gs/utility/Globals.h"        // allocated::clear
 #include "ui/aui_ctp2/SelItem.h"
 
@@ -72,6 +74,81 @@ void UIRefresh()
 	}
 }
 
+void UISetSelectUnit(const Unit &unit)
+{
+	if (g_selected_item) {
+		g_selected_item->SetSelectUnit(const_cast<Unit &>(unit));
+	}
+}
+
+void UISetSelectCity(const Unit &city)
+{
+	if (g_selected_item) {
+		g_selected_item->SetSelectCity(const_cast<Unit &>(city));
+	}
+}
+
+void UIEnterArmyMove(sint32 player, const MapPoint &pos)
+{
+	if (g_selected_item) {
+		g_selected_item->EnterArmyMove(player, pos);
+	}
+}
+
+void UISetAutoUnload(bool on)
+{
+	if (g_selected_item) {
+		g_selected_item->SetAutoUnload(on);
+	}
+}
+
+void UIDeselect(sint32 player)
+{
+	if (g_selected_item) {
+		g_selected_item->Deselect(player);
+	}
+}
+
+bool UIIsArmySelected()
+{
+	if (!g_selected_item) return false;
+	PLAYER_INDEX p;
+	ID item;
+	SELECT_TYPE state;
+	g_selected_item->GetTopCurItem(p, item, state);
+	return state == SELECT_TYPE_LOCAL_ARMY;
+}
+
+bool UIIsCitySelected()
+{
+	if (!g_selected_item) return false;
+	PLAYER_INDEX p;
+	ID item;
+	SELECT_TYPE state;
+	g_selected_item->GetTopCurItem(p, item, state);
+	return state == SELECT_TYPE_LOCAL_CITY;
+}
+
+sint32 UIGetSelectedArmyId()
+{
+	if (!g_selected_item) return 0;
+	PLAYER_INDEX p;
+	ID item;
+	SELECT_TYPE state;
+	g_selected_item->GetTopCurItem(p, item, state);
+	return (state == SELECT_TYPE_LOCAL_ARMY) ? item.m_id : 0;
+}
+
+sint32 UIGetSelectedCityId()
+{
+	if (!g_selected_item) return 0;
+	PLAYER_INDEX p;
+	ID item;
+	SELECT_TYPE state;
+	g_selected_item->GetTopCurItem(p, item, state);
+	return (state == SELECT_TYPE_LOCAL_CITY) ? item.m_id : 0;
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -85,4 +162,13 @@ void RegisterUIPlayerView()
 	player_view::RegisterSetCurrentPlayer(&UISetCurrentPlayer);
 	player_view::RegisterSetVisiblePlayer(&UISetVisiblePlayer);
 	player_view::RegisterRefresh(&UIRefresh);
+	player_view::RegisterSetSelectUnit(&UISetSelectUnit);
+	player_view::RegisterSetSelectCity(&UISetSelectCity);
+	player_view::RegisterEnterArmyMove(&UIEnterArmyMove);
+	player_view::RegisterSetAutoUnload(&UISetAutoUnload);
+	player_view::RegisterDeselect(&UIDeselect);
+	player_view::RegisterIsArmySelected(&UIIsArmySelected);
+	player_view::RegisterIsCitySelected(&UIIsCitySelected);
+	player_view::RegisterGetSelectedArmyId(&UIGetSelectedArmyId);
+	player_view::RegisterGetSelectedCityId(&UIGetSelectedCityId);
 }

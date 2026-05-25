@@ -14,6 +14,7 @@
 #include "gs/core/game_observer.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Army.h"
+#include "gs/utility/UnitDynArr.h"   // for Player::m_all_cities access
 #include "gs/gameobj/Message.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/GameOver.h"
@@ -23,6 +24,11 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/radarmap.h"
+#include "gs/core/slic_screen.h"
+#include "ui/interface/AttractWindow.h"
+#include "ui/interface/EditQueue.h"
+#include "ui/interface/GreatLibraryTypes.h"   // DATABASE enum
+#include "ui/interface/greatlibrary.h"
 #include "ui/interface/radarwindow.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/interface/c3dialogs.h"
@@ -332,6 +338,80 @@ public:
     void OnSetGraphMinRound(sint32 round) override
     {
         infowin_SetMinRoundForGraphs(round);
+    }
+
+    // --- SLIC-driven UI commands ---
+    void OnRequestOpenGreatLibrary(sint32 entry, sint32 database) override
+    {
+        if (open_GreatLibrary() && g_greatLibrary) {
+            g_greatLibrary->SetLibrary(entry, static_cast<DATABASE>(database));
+        }
+    }
+
+    void OnRequestOpenScenarioEditor() override
+    {
+        open_ScenarioEditor();
+    }
+
+    void OnRequestOpenScreen(sint32 screen) override
+    {
+        switch (screen) {
+            case SLIC_SCREEN_CIV:       open_CivStatus();          break;
+            case SLIC_SCREEN_CITY:      open_CityStatus();         break;
+            case SLIC_SCREEN_UNIT:      open_UnitStatus();         break;
+            case SLIC_SCREEN_SCIENCE:   open_ScienceStatus();      break;
+            case SLIC_SCREEN_DIPLOMACY: open_Diplomacy();          break;
+            case SLIC_SCREEN_TRADE:     open_TradeStatus();        break;
+            case SLIC_SCREEN_INFO:      open_InfoScreen();         break;
+            case SLIC_SCREEN_OPTIONS:   open_OptionsScreen(1);     break;
+        }
+    }
+
+    void OnRequestAttract(const char *control) override
+    {
+        if (!g_attractWindow) {
+            AttractWindow::Initialize();
+        }
+        if (g_attractWindow) {
+            g_attractWindow->HighlightControl(const_cast<char *>(control));
+        }
+    }
+
+    void OnRequestStopAttract(const char *control) override
+    {
+        if (!g_attractWindow) {
+            AttractWindow::Initialize();
+        }
+        if (g_attractWindow) {
+            g_attractWindow->RemoveControl(const_cast<char *>(control));
+        }
+    }
+
+    void OnRequestEditQueue(CityData *city) override
+    {
+        EditQueue::Display(city);
+    }
+
+    void OnRequestUnblankScreen() override
+    {
+        if (!g_selected_item) return;
+        g_selected_item->KeyboardSelectFirstUnit();
+        sint32 visible = g_selected_item->GetVisiblePlayer();
+        if (g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
+            visible >= 0 && g_player[visible] &&
+            g_player[visible]->m_all_cities->Num() > 0) {
+            g_selected_item->SetSelectCity(g_player[visible]->m_all_cities->Access(0));
+            if (g_director) {
+                g_director->AddCenterMap(g_player[visible]->m_all_cities->Access(0).RetPos());
+            }
+        }
+        if (g_director) {
+            g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+        }
+        radarwindow_Show();
+        if (g_controlPanel) {
+            g_controlPanel->Show();
+        }
     }
 
     void OnMapResized() override

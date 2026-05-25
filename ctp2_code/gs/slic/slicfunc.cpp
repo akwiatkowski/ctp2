@@ -95,8 +95,12 @@
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Civilisation.h"
-#include "ui/interface/screenutils.h"
 #include "ctp/civapp.h"
+#include "gs/core/game_observer.h"      // g_gameObservers
+#include "gs/core/great_library_db.h"   // GL_DB_* constants
+#include "gs/core/player_view.h"        // player_view::*
+#include "gs/core/slic_screen.h"        // SLIC_SCREEN_* constants
+#include "gs/gameobj/MovePath.h"        // army_QueueMovePath
 #include "gs/database/filenamedb.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/Order.h"
@@ -105,18 +109,12 @@
 #include "net/general/network.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/TradeOfferPool.h"
-#include "ui/interface/screenutils.h"
-#include "ui/interface/greatlibrary.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"	//EMOD
 #include "GovernmentRecord.h" //EMOD
-#include "ui/interface/AttractWindow.h"
-#include "ui/aui_ctp2/texttab.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/database/profileDB.h"
-#include "ui/interface/statswindow.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/outcom/AICause.h"
 #include "gs/utility/RandGen.h"
@@ -157,18 +155,12 @@
 #include "FeatRecord.h"
 #include "gs/gameobj/Gold.h"
 
-#include "ui/interface/radarwindow.h"
-#include "ui/interface/controlpanelwindow.h"
-
 #include "gs/gameobj/pollution.h"
 
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/terrainutil.h"
 
 #include "ai/diplomacy/Diplomat.h"
-
-#include "ui/interface/scenarioeditor.h"
-#include "ui/interface/EditQueue.h"
 
 bool g_forceTurnDisplay = false;
 
@@ -179,8 +171,6 @@ bool g_forceTurnDisplay = false;
 
 extern CivApp		*g_civApp;
 extern FilenameDB	*g_theMessageIconFileDB;
-extern GreatLibrary *g_greatLibrary;
-extern AttractWindow *g_attractWindow;
 extern SoundManager *g_soundManager;
 extern Pollution *		g_thePollution;
 
@@ -1817,7 +1807,7 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 	sint32 owner = u.GetOwner();
 
 	if(g_network.IsClient()) {
-		if(owner == g_selected_item->GetVisiblePlayer()) {
+		if(owner == player_view::VisiblePlayer()) {
 			g_network.SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
 										   -1));
@@ -1866,7 +1856,7 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 	sint32 owner = u.GetOwner();
 
 	if(g_network.IsClient()) {
-		if(u.GetOwner() == g_selected_item->GetVisiblePlayer()) {
+		if(u.GetOwner() == player_view::VisiblePlayer()) {
 			g_network.SendAction(new NetAction(NET_ACTION_STEAL_TECHNOLOGY,
 										   u.m_id, context->GetCity(0).m_id,
 										   adv));
@@ -1923,57 +1913,49 @@ SFN_ERROR Slic_EnableScreensButton::Call(SlicArgList *args)
 
 SFN_ERROR Slic_OpenCiv::Call(SlicArgList *args)
 {
-	open_CivStatus();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_CIV);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenCity::Call(SlicArgList *args)
 {
-	open_CityStatus();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_CITY);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenUnit::Call(SlicArgList *args)
 {
-	open_UnitStatus();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_UNIT);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenScience::Call(SlicArgList *args)
 {
-	open_ScienceStatus();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_SCIENCE);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenDiplomacy::Call(SlicArgList *args)
 {
-	open_Diplomacy();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_DIPLOMACY);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenTrade::Call(SlicArgList *args)
 {
-	open_TradeStatus();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_TRADE);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenInfo::Call(SlicArgList *args)
 {
-	open_InfoScreen();
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_INFO);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenOptions::Call(SlicArgList *args)
 {
-	open_OptionsScreen(1);
-
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_OPTIONS);
 	return SFN_ERROR_OK;
 }
 
@@ -2189,8 +2171,7 @@ SFN_ERROR Slic_AddOrder::Call(SlicArgList *args)
 			return SFN_ERROR_OK;
 
 		if(!pos.IsNextTo(curPos)) {
-			g_selected_item->EnterMovePath(army.GetOwner(), army,
-										   curPos, pos);
+			army_QueueMovePath(army.GetOwner(), army, curPos, pos);
 			return SFN_ERROR_OK;
 		} else if(order == UNIT_ORDER_MOVE) {
 
@@ -2258,8 +2239,8 @@ SFN_ERROR Slic_DoAutoUnload::Call(SlicArgList *args)
 	if(!args->GetInt(1, autounload))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_selected_item->SetAutoUnload(autounload != 0);
-	g_selected_item->EnterArmyMove(g_selected_item->GetVisiblePlayer(), pos);
+	player_view::SetAutoUnload(autounload != 0);
+	player_view::EnterArmyMove(player_view::VisiblePlayer(), pos);
 
 	return SFN_ERROR_OK;
 }
@@ -2411,9 +2392,8 @@ SFN_ERROR Slic_LibraryUnit::Call(SlicArgList *args)
 		}
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_UNITS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_UNITS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2432,9 +2412,8 @@ SFN_ERROR Slic_LibraryBuilding::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_BUILDINGS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_BUILDINGS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2453,9 +2432,8 @@ SFN_ERROR Slic_LibraryWonder::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_WONDERS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_WONDERS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2474,9 +2452,8 @@ SFN_ERROR Slic_LibraryAdvance::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_ADVANCES);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_ADVANCES);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2495,9 +2472,8 @@ SFN_ERROR Slic_LibraryTerrain::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_TERRAIN);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_TERRAIN);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2516,9 +2492,8 @@ SFN_ERROR Slic_LibraryConcept::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_CONCEPTS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_CONCEPTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2537,9 +2512,8 @@ SFN_ERROR Slic_LibraryGovernment::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_GOVERNMENTS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_GOVERNMENTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2558,9 +2532,8 @@ SFN_ERROR Slic_LibraryTileImprovement::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (open_GreatLibrary())
-	{
-		g_greatLibrary->SetLibrary(type, DATABASE_TILE_IMPROVEMENTS);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_TILE_IMPROVEMENTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2782,12 +2755,8 @@ SFN_ERROR Slic_Attract::Call(SlicArgList *args)
 	if(!args->GetString(0, string))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_attractWindow) {
-		AttractWindow::Initialize();
-	}
-	Assert(g_attractWindow);
-	if(g_attractWindow) {
-		g_attractWindow->HighlightControl(string);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestAttract(string);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2801,12 +2770,8 @@ SFN_ERROR Slic_StopAttract::Call(SlicArgList *args)
 	if(!args->GetString(0, string))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_attractWindow) {
-		AttractWindow::Initialize();
-	}
-	Assert(g_attractWindow);
-	if(g_attractWindow) {
-		g_attractWindow->RemoveControl(string);
+	if (g_gameObservers) {
+		g_gameObservers->NotifyRequestStopAttract(string);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2822,15 +2787,9 @@ SFN_ERROR Slic_DontSave::Call(SlicArgList *args)
 
 SFN_ERROR Slic_IsUnitSelected::Call(SlicArgList *args)
 {
-	PLAYER_INDEX player;
-	ID item;
-	SELECT_TYPE state;
-
-	g_selected_item->GetTopCurItem(player, item, state);
-
 	m_result.m_int = 0;
 
-	if(state != SELECT_TYPE_LOCAL_ARMY) {
+	if (!player_view::IsArmySelected()) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2842,9 +2801,9 @@ SFN_ERROR Slic_IsUnitSelected::Call(SlicArgList *args)
 		if(!args->GetUnit(0, u)) {
 			return SFN_ERROR_TYPE_ARGS;
 		}
-		if(g_theUnitPool->IsValid(u)) {
-			Army army(item);
-			if(army.IsPresent(u)) {
+		if (g_theUnitPool->IsValid(u)) {
+			Army army(player_view::GetSelectedArmyId());
+			if (g_theArmyPool->IsValid(army) && army.IsPresent(u)) {
 				m_result.m_int = 1;
 			}
 		}
@@ -2855,14 +2814,9 @@ SFN_ERROR Slic_IsUnitSelected::Call(SlicArgList *args)
 
 SFN_ERROR Slic_IsCitySelected::Call(SlicArgList *args)
 {
-	PLAYER_INDEX player;
-	ID item;
-	SELECT_TYPE state;
-
-	g_selected_item->GetTopCurItem(player, item, state);
 	m_result.m_int = 0;
 
-	if(state != SELECT_TYPE_LOCAL_CITY) {
+	if (!player_view::IsCitySelected()) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2874,8 +2828,8 @@ SFN_ERROR Slic_IsCitySelected::Call(SlicArgList *args)
 		if(!args->GetCity(0, city)) {
 			return SFN_ERROR_TYPE_ARGS;
 		}
-		if(g_theUnitPool->IsValid(city)) {
-			if(city.m_id == item.m_id) {
+		if (g_theUnitPool->IsValid(city)) {
+			if (city.m_id == player_view::GetSelectedCityId()) {
 				m_result.m_int = 1;
 			}
 		}
@@ -4841,8 +4795,12 @@ SFN_ERROR Slic_ExecuteAllOrders::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if(g_selected_item && g_player && g_player[g_selected_item->GetCurPlayer()])
-		g_player[g_selected_item->GetCurPlayer()]->ProcessUnitOrders();
+	{
+		sint32 cur = player_view::CurPlayer();
+		if (g_player && cur >= 0 && g_player[cur]) {
+			g_player[cur]->ProcessUnitOrders();
+		}
+	}
 
 	return SFN_ERROR_OK;
 }
@@ -4861,8 +4819,12 @@ SFN_ERROR Slic_Deselect::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if(g_selected_item && g_player && g_player[g_selected_item->GetVisiblePlayer()])
-		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
+	{
+		sint32 visible = player_view::VisiblePlayer();
+		if (g_player && visible >= 0 && g_player[visible]) {
+			player_view::Deselect(visible);
+		}
+	}
 	return SFN_ERROR_OK;
 }
 
@@ -5067,7 +5029,7 @@ SFN_ERROR Slic_SelectUnit::Call(SlicArgList *args)
 	if(!g_theArmyPool->IsValid(u.GetArmy()))
 		return SFN_ERROR_OK;
 
-	g_selected_item->SetSelectUnit(u);
+	player_view::SetSelectUnit(u);
 
 	return SFN_ERROR_OK;
 }
@@ -5084,7 +5046,7 @@ SFN_ERROR Slic_SelectCity::Call(SlicArgList *args)
 	if(!g_theUnitPool->IsValid(city))
 		return SFN_ERROR_OK;
 
-	g_selected_item->SetSelectCity(city);
+	player_view::SetSelectCity(city);
 	return SFN_ERROR_OK;
 }
 
@@ -5837,16 +5799,10 @@ SFN_ERROR Slic_BlankScreen::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	g_slicEngine->BlankScreen(blank != 0);
-	if(!blank && g_selected_item) {
-		g_selected_item->KeyboardSelectFirstUnit();
-		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
-			g_selected_item->SetSelectCity(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0));
-			if (g_director) g_director->AddCenterMap(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).RetPos());
-		}
-		if (g_director) g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
-		radarwindow_Show();
-		if (g_controlPanel) g_controlPanel->Show();
+	if (!blank && g_gameObservers) {
+		// UI build re-selects the first unit/city, recenters the map,
+		// and reshows the radar + control panel.  Headless: no-op.
+		g_gameObservers->NotifyRequestUnblankScreen();
 	}
 
 	return SFN_ERROR_OK;
@@ -6673,7 +6629,7 @@ SFN_ERROR Slic_OpenScenarioEditor::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	open_ScenarioEditor();
+	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScenarioEditor();
 	return SFN_ERROR_OK;
 }
 
@@ -6708,7 +6664,7 @@ SFN_ERROR Slic_OpenBuildQueue::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	EditQueue::Display(city->GetCityData());
+	if (g_gameObservers) g_gameObservers->NotifyRequestEditQueue(city->GetCityData());
 	return SFN_ERROR_OK;
 }
 

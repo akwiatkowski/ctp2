@@ -21,6 +21,15 @@ static CleanupFn          s_cleanup          = nullptr;
 static SetCurrentPlayerFn s_setCurrentPlayer = nullptr;
 static SetVisiblePlayerFn s_setVisiblePlayer = nullptr;
 static RefreshFn          s_refresh          = nullptr;
+static SetSelectUnitFn    s_setSelectUnit    = nullptr;
+static SetSelectCityFn    s_setSelectCity    = nullptr;
+static EnterArmyMoveFn    s_enterArmyMove    = nullptr;
+static SetAutoUnloadFn    s_setAutoUnload    = nullptr;
+static DeselectFn         s_deselect         = nullptr;
+static IsArmySelectedFn   s_isArmySelected   = nullptr;
+static IsCitySelectedFn   s_isCitySelected   = nullptr;
+static GetSelectedIdFn    s_getSelectedArmyId = nullptr;
+static GetSelectedIdFn    s_getSelectedCityId = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -31,6 +40,15 @@ void RegisterCleanup(CleanupFn fn)                    { s_cleanup          = fn;
 void RegisterSetCurrentPlayer(SetCurrentPlayerFn fn)  { s_setCurrentPlayer = fn; }
 void RegisterSetVisiblePlayer(SetVisiblePlayerFn fn)  { s_setVisiblePlayer = fn; }
 void RegisterRefresh(RefreshFn fn)                    { s_refresh          = fn; }
+void RegisterSetSelectUnit(SetSelectUnitFn fn)        { s_setSelectUnit    = fn; }
+void RegisterSetSelectCity(SetSelectCityFn fn)        { s_setSelectCity    = fn; }
+void RegisterEnterArmyMove(EnterArmyMoveFn fn)        { s_enterArmyMove    = fn; }
+void RegisterSetAutoUnload(SetAutoUnloadFn fn)        { s_setAutoUnload    = fn; }
+void RegisterDeselect(DeselectFn fn)                  { s_deselect         = fn; }
+void RegisterIsArmySelected(IsArmySelectedFn fn)      { s_isArmySelected   = fn; }
+void RegisterIsCitySelected(IsCitySelectedFn fn)      { s_isCitySelected   = fn; }
+void RegisterGetSelectedArmyId(GetSelectedIdFn fn)    { s_getSelectedArmyId = fn; }
+void RegisterGetSelectedCityId(GetSelectedIdFn fn)    { s_getSelectedCityId = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -76,6 +94,51 @@ void SetVisiblePlayer(sint32 player)
 void Refresh()
 {
 	if (s_refresh) s_refresh();
+}
+
+void SetSelectUnit(const Unit &unit)
+{
+	if (s_setSelectUnit) s_setSelectUnit(unit);
+}
+
+void SetSelectCity(const Unit &city)
+{
+	if (s_setSelectCity) s_setSelectCity(city);
+}
+
+void EnterArmyMove(sint32 player, const MapPoint &pos)
+{
+	if (s_enterArmyMove) s_enterArmyMove(player, pos);
+}
+
+void SetAutoUnload(bool on)
+{
+	if (s_setAutoUnload) s_setAutoUnload(on);
+}
+
+void Deselect(sint32 player)
+{
+	if (s_deselect) s_deselect(player);
+}
+
+bool IsArmySelected()
+{
+	return s_isArmySelected ? s_isArmySelected() : false;
+}
+
+bool IsCitySelected()
+{
+	return s_isCitySelected ? s_isCitySelected() : false;
+}
+
+sint32 GetSelectedArmyId()
+{
+	return s_getSelectedArmyId ? s_getSelectedArmyId() : 0;
+}
+
+sint32 GetSelectedCityId()
+{
+	return s_getSelectedCityId ? s_getSelectedCityId() : 0;
 }
 
 } // namespace player_view

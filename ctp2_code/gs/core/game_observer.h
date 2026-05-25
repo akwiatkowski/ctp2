@@ -16,6 +16,7 @@
 #include "gs/world/MapPoint.h"
 
 class Army;
+class CityData;
 class Message;
 class Player;
 
@@ -100,6 +101,18 @@ public:
     // tiledMap, so the UI observer can reload tileset graphics, recreate
     // the radar window, and redraw the background.
     virtual void OnMapResized() {}
+
+    // --- SLIC-driven UI commands ---
+    // Triggered when a SLIC script calls one of the UI-opening built-ins
+    // (LibraryUnit, OpenScenarioEditor, Attract, etc.).  Headless ignores
+    // them; UI observer pops the relevant screen.
+    virtual void OnRequestOpenGreatLibrary(sint32 entry, sint32 database) {}
+    virtual void OnRequestOpenScreen(sint32 screen) {}
+    virtual void OnRequestOpenScenarioEditor() {}
+    virtual void OnRequestAttract(const char *control) {}
+    virtual void OnRequestStopAttract(const char *control) {}
+    virtual void OnRequestEditQueue(CityData *city) {}
+    virtual void OnRequestUnblankScreen() {}
 };
 
 /**
@@ -177,6 +190,14 @@ public:
     void NotifyAdvanceListReload(sint32 player);
     void NotifySetGraphMinRound(sint32 round);
     void NotifyMapResized();
+
+    void NotifyRequestOpenGreatLibrary(sint32 entry, sint32 database);
+    void NotifyRequestOpenScreen(sint32 screen);
+    void NotifyRequestOpenScenarioEditor();
+    void NotifyRequestAttract(const char *control);
+    void NotifyRequestStopAttract(const char *control);
+    void NotifyRequestEditQueue(CityData *city);
+    void NotifyRequestUnblankScreen();
 
 private:
     GameObserverRegistry() = default;

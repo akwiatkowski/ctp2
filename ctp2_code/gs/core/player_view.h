@@ -29,7 +29,10 @@
 
 #include "ctp2_inttypes.h"
 
+class Army;
 class CivArchive;
+class MapPoint;
+class Unit;
 
 namespace player_view {
 
@@ -70,5 +73,35 @@ void Cleanup();
 void SetCurrentPlayer(sint32 player);
 void SetVisiblePlayer(sint32 player);
 void Refresh();
+
+// --- Selection commands & queries (used by SLIC built-ins) ---
+using SetSelectUnitFn   = void (*)(const Unit &);
+using SetSelectCityFn   = void (*)(const Unit &);
+using EnterArmyMoveFn   = void (*)(sint32 player, const MapPoint &);
+using SetAutoUnloadFn   = void (*)(bool);
+using DeselectFn        = void (*)(sint32 player);
+using IsArmySelectedFn  = bool (*)();
+using IsCitySelectedFn  = bool (*)();
+using GetSelectedIdFn   = sint32 (*)();
+
+void RegisterSetSelectUnit(SetSelectUnitFn fn);
+void RegisterSetSelectCity(SetSelectCityFn fn);
+void RegisterEnterArmyMove(EnterArmyMoveFn fn);
+void RegisterSetAutoUnload(SetAutoUnloadFn fn);
+void RegisterDeselect(DeselectFn fn);
+void RegisterIsArmySelected(IsArmySelectedFn fn);
+void RegisterIsCitySelected(IsCitySelectedFn fn);
+void RegisterGetSelectedArmyId(GetSelectedIdFn fn);
+void RegisterGetSelectedCityId(GetSelectedIdFn fn);
+
+void SetSelectUnit(const Unit &unit);
+void SetSelectCity(const Unit &city);
+void EnterArmyMove(sint32 player, const MapPoint &pos);
+void SetAutoUnload(bool on);
+void Deselect(sint32 player);
+bool IsArmySelected();   // false in headless
+bool IsCitySelected();   // false in headless
+sint32 GetSelectedArmyId();   // 0 in headless
+sint32 GetSelectedCityId();   // 0 in headless
 
 } // namespace player_view

@@ -29,19 +29,16 @@
 #include "gs/slic/SlicEyePoint.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gfx/gfx_utils/colorset.h"
-#include "ui/aui_ctp2/radarmap.h"
 #include "gs/gameobj/message.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
 #include "gfx/spritesys/director.h"
 
-extern RadarMap *g_radarMap;
 extern TiledMap	*g_tiledMap;
-extern SelectedItem *g_selected_item;
 extern UnitPool *g_theUnitPool;
 extern Director *g_director;
 
@@ -191,8 +188,8 @@ void SlicEyePoint::Callback()
 		case EYE_POINT_TYPE_GENERIC:
 			if(m_unit.m_id != (0)) {
 				if(g_theUnitPool->IsValid(m_unit) &&
-				   m_unit.GetOwner() == g_selected_item->GetVisiblePlayer()) {
-					g_selected_item->SetSelectUnit(m_unit);
+				   m_unit.GetOwner() == player_view::VisiblePlayer()) {
+					player_view::SetSelectUnit(m_unit);
 					g_director->AddCenterMap(m_point);
 					if(obj)
 						obj->AddUnit(m_unit);

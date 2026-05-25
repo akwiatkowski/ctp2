@@ -28,7 +28,7 @@
 // - Corrected strange visibility patterns ("see tile" counter underflow).
 // - Removed causes of memory leak reports (static variables).
 // - Unseen cells are now always created and not only in the case if a
-//   tile improvement is under construction there. - Dec. 21st 2004 Martin Gühmann
+//   tile improvement is under construction there. - Dec. 21st 2004 Martin Gï¿½hmann
 // - Corrected cleanup (using the old m_width!) when reloading in Serialize.
 //
 //----------------------------------------------------------------------------
@@ -47,7 +47,6 @@
 #include "gs/gameobj/Player.h"                   // g_player
 #include "net/general/net_info.h"
 #include "net/general/network.h"
-#include "ui/aui_ctp2/SelItem.h"                  // g_selected_item
 #include "gfx/tilesys/tiledmap.h"                 // g_tiledMap
 #include "gs/world/UnseenCellQuadTree.h"
 #include "gs/world/World.h"                    // g_theWorld

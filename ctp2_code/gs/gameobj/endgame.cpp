@@ -13,8 +13,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/core/player_view.h"
-#include "ui/interface/screenutils.h"
-#include "ui/interface/EndgameWindow.h"
+
 #include "gs/gameobj/Advances.h"
 #include "AdvanceRecord.h"
 #include "net/general/network.h"
@@ -116,9 +115,7 @@ void EndGame::AddObject(sint32 type)
 	}
 
 	if(m_owner == player_view::VisiblePlayer()) {
-
-		if(g_endgameWindow) g_endgameWindow->Update(this);
-		else open_EndGame();
+		// TODO(orchestrator): no equivalent for g_endgameWindow / open_EndGame
 	}
 }
 
@@ -159,9 +156,7 @@ BOOL EndGame::BeginSequence()
 	m_currentStageBegan = g_turn->GetRound();
 
 	if(m_owner == player_view::VisiblePlayer()) {
-
-		if(g_endgameWindow) g_endgameWindow->Update(this);
-		else open_EndGame();
+		// TODO(orchestrator): no equivalent for g_endgameWindow / open_EndGame
 	}
 
 	return TRUE;
@@ -311,9 +306,7 @@ void EndGame::AdvanceStage()
 	}
 
 	if(openScreen && m_owner == player_view::VisiblePlayer()) {
-
-		if(g_endgameWindow) g_endgameWindow->Update(this);
-		else open_EndGame();
+		// TODO(orchestrator): no equivalent for g_endgameWindow / open_EndGame
 	}
 }
 
@@ -464,7 +457,7 @@ void EndGame::Cataclysm()
 
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		close_EndGame();
+		// TODO(orchestrator): no equivalent for close_EndGame
 	}
 }
 
@@ -478,7 +471,7 @@ void EndGame::XLabCaptured()
 
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		close_EndGame();
+		// TODO(orchestrator): no equivalent for close_EndGame
 	}
 }
 

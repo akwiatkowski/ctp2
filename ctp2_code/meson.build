@@ -1210,6 +1210,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_observer.cpp',
   'test/cpp/test_randgen.cpp',
   'test/cpp/test_bugfixes.cpp',
+  'test/cpp/test_player_view.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]
@@ -1239,6 +1240,7 @@ cpp_test_sources = [
   'test/cpp/test_happy.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_observer.cpp',
+  'test/cpp/test_player_view.cpp',
   'test/cpp/test_headless_smoke.cpp',
   'test/cpp/test_headless_determinism.cpp',
   'ctp/civ3_main.cpp',

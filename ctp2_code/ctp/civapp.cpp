@@ -100,6 +100,7 @@
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
 #include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
+#include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
 #include "ui/aui_ctp2/ui_events.h"     // ui_events_Initialize / _Cleanup
 
 #ifdef __AUI_USE_SDL__
@@ -1544,6 +1545,14 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	SelectColorSet(); // Select the right color set.
 
 	ProgressWindow::EndProgress( g_theProgressWindow );
+
+	// Wire UI hooks for the IGameObserver registry and player_view bindings
+	// here, after the registry is initialised by InitializeEngine.  Previously
+	// these were called from civ3_main.cpp only in the default-launch branch,
+	// leaving --load / --launchScenario / --no-shell paths with a null
+	// g_selected_item (player_view::Init was a no-op because s_init was null).
+	RegisterUIGameObserver();
+	RegisterUIPlayerView();
 
 	m_appLoaded = true;
 

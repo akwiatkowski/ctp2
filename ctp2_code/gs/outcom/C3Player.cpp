@@ -912,21 +912,10 @@ BOOL C3Player::AiUnloadAllTransportsInArmy(BOOL *is_unknown_id,
 }
 
 #ifdef _DEBUG
-
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/aui_surface.h"
-#include "ui/aui_utils/primitives.h"
-#include "ui/aui_common/aui_window.h"
-#include "ui/interface/debugwindow.h"
-extern DebugWindow *g_debugWindow;
 void C3Player::Dprint(char *str)
 {
-
     WPRINTF(k_DBG_AI, ("%s", str));
-
-    return;
 }
-
 #endif
 
 BOOL C3Player::GetCargoMovementPoints (BOOL *is_unknown_id,

@@ -45,7 +45,8 @@
 #include "gfx/spritesys/director.h"
 
 #include "gs/slic/SlicObject.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/game_observer.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/Player.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Barbarians.h"
@@ -69,7 +70,6 @@
 #include "gs/gameobj/Score.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
-#include "ui/interface/messagemodal.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
@@ -79,15 +79,9 @@
 
 #include "gs/utility/TurnCnt.h"
 
-#include "ui/aui_ctp2/radarmap.h"
-
-#include "ui/interface/controlpanelwindow.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/gameobj/Gold.h"
-#include "ui/interface/radarwindow.h"
-#include "ui/interface/screenutils.h"
 
-extern SelectedItem             *g_selected_item;
 extern World                    *g_world;
 extern Director                 *g_director;
 extern Player                   **g_player;
@@ -96,8 +90,6 @@ extern Pollution                *g_thePollution;
 
 
 extern ProfileDB                *g_theProfileDB;
-
-extern MessageModal             *g_modalMessage;
 
 sint32 NewTurnCount::sm_the_stop_player = 1;
 
@@ -122,8 +114,8 @@ void NewTurnCount::SetStopPlayer(const sint32 &player_index)
 
 void NewTurnCount::StartNextPlayer(bool stop)
 {
-	fprintf(stderr, "[TURN] StartNextPlayer stop=%d curPlayer=%d\n", stop, g_selected_item->GetCurPlayer());
-	DPRINTF(1, ("NewTurnCount::StartNextPlayer(%d), curPlayer: %d\n", stop, g_selected_item->GetCurPlayer()));
+	fprintf(stderr, "[TURN] StartNextPlayer stop=%d curPlayer=%d\n", stop, player_view::CurPlayer());
+	DPRINTF(1, ("NewTurnCount::StartNextPlayer(%d), curPlayer: %d\n", stop, player_view::CurPlayer()));
 
 	static bool warned=false;
 	if (!VerifyEndTurn(warned))
@@ -133,7 +125,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 	warned=false;
 
-	PLAYER_INDEX current_player = g_selected_item->GetCurPlayer();
+	PLAYER_INDEX current_player = player_view::CurPlayer();
 
 	if(g_network.IsClient()) {
 		g_network.SendAction(new NetAction(NET_ACTION_END_TURN));
@@ -147,7 +139,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	if((g_player[current_player]->IsHuman()
 	|| (g_player[current_player]->IsNetwork()
 	&&  g_network.IsLocalPlayer(current_player)))
-	&&  g_selected_item->GetCurPlayer() == g_selected_item->GetVisiblePlayer()
+	&&  player_view::CurPlayer() == player_view::VisiblePlayer()
 	){
 		g_player[current_player]->m_endingTurn = TRUE;
 		g_player[current_player]->ProcessUnitOrders();
@@ -161,12 +153,12 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 
 	NewTurnCount::ChooseNextActivePlayer();
-	PLAYER_INDEX next_player = g_selected_item->GetCurPlayer();
+	PLAYER_INDEX next_player = player_view::CurPlayer();
 	sint32 next_round = g_player[next_player]->GetCurRound() + 1;
 
 	if(g_turn->IsHotSeat() || g_turn->IsEmail())
 	{
-		if(!g_player[g_selected_item->GetCurPlayer()]->IsRobot())
+		if(!g_player[player_view::CurPlayer()]->IsRobot())
 		{
 			stop = true;
 		}
@@ -181,12 +173,10 @@ void NewTurnCount::StartNextPlayer(bool stop)
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
 		}
-		if (g_radarMap) g_radarMap->Update();
+		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(current_player);
 		g_turn->InformMessages();
 
-		if (g_controlPanel) g_controlPanel->Hide();
-		radarwindow_Hide();
-		close_AllScreens();
+		if (g_gameObservers) g_gameObservers->NotifyHideMainUI();
 	}
 
 	if (stop ||
@@ -201,16 +191,16 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	{
 		if(g_player[next_player]->IsRobot())
 		{
-			SetStopPlayer(g_selected_item->GetVisiblePlayer());
+			SetStopPlayer(player_view::VisiblePlayer());
 		}
 	}
 
-	if (g_controlPanel) g_controlPanel->UpdatePlayerEndProgress(current_player);
+	if (g_gameObservers) g_gameObservers->NotifyUpdatePlayerEndProgress(current_player);
 
-	sint32 oldVis = g_selected_item->GetVisiblePlayer();
-	g_selected_item->SetPlayerOnScreen(NewTurnCount::GetStopPlayer());
+	sint32 oldVis = player_view::VisiblePlayer();
+	player_view::SetVisiblePlayer(NewTurnCount::GetStopPlayer());
 
-	if(oldVis != g_selected_item->GetVisiblePlayer() && g_tiledMap)
+	if (oldVis != player_view::VisiblePlayer() && g_tiledMap)
 	{
 		g_tiledMap->CopyVision();
 	}
@@ -226,7 +216,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 
 	if((g_turn->IsHotSeat() || g_turn->IsEmail())
-	&& !g_player[g_selected_item->GetCurPlayer()]->IsRobot()
+	&& !g_player[player_view::CurPlayer()]->IsRobot()
 	){
 		g_turn->SendNextPlayerMessage();
 
@@ -255,10 +245,10 @@ void NewTurnCount::ChooseNextActivePlayer()
 	sint32 count = 0;
 
 	do {
-		g_selected_item->NextPlayer();
+		player_view::NextPlayer();
 		if (g_director) g_director->NextPlayer();
 		count++;
-	} while( g_player[g_selected_item->GetCurPlayer()] == NULL );
+	} while( g_player[player_view::CurPlayer()] == NULL );
 }
 
 void NewTurnCount::StartNewYear()
@@ -289,7 +279,7 @@ void NewTurnCount::ClientStartNewYear()
 
 sint32 NewTurnCount::GetCurrentYear(sint32 player)
 {
-	PLAYER_INDEX current_player = g_selected_item->GetCurPlayer();
+	PLAYER_INDEX current_player = player_view::CurPlayer();
 	if(player >= 0 && player < k_MAX_PLAYERS)
 		current_player = player;
 
@@ -304,7 +294,7 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 
 sint32 NewTurnCount::GetCurrentRound()
 {
-	PLAYER_INDEX current_player = g_selected_item->GetCurPlayer();
+	PLAYER_INDEX current_player = player_view::CurPlayer();
 	Assert(g_player != NULL);
 	if(!g_player || !g_player[current_player]) return 0;
 
@@ -399,7 +389,7 @@ void NewTurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 {
-	Player *player = g_player[g_selected_item->GetCurPlayer()];
+	Player *player = g_player[player_view::CurPlayer()];
 
 	if (!player->IsHuman())
 	{
@@ -410,7 +400,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		return TRUE;
 	}
 
-	if (g_modalMessage && !force)
+	if (player_view::IsModalMessageActive() && !force)
 		return FALSE;
 
 	if(g_theCriticalMessagesPrefs->IsEnabled("16IAOutOfFuel")) {

@@ -306,6 +306,20 @@ void GameObserverRegistry::NotifyAutoSelectFirstUnit(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifyHideMainUI()
+{
+    for (auto* obs : m_observers) {
+        obs->OnHideMainUI();
+    }
+}
+
+void GameObserverRegistry::NotifyUpdatePlayerEndProgress(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUpdatePlayerEndProgress(player);
+    }
+}
+
 void GameObserverRegistry::NotifyAdvanceListReload(sint32 player)
 {
     for (auto* obs : m_observers) {

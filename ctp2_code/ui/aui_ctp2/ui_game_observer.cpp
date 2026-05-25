@@ -372,6 +372,18 @@ public:
     // ControlPanelWindow::ShowSpaceButton) sit inside a long-dead #if 0
     // block.  No live caller, no implementation needed.
 
+    void OnHideMainUI() override
+    {
+        if (g_controlPanel) g_controlPanel->Hide();
+        radarwindow_Hide();
+        close_AllScreens();
+    }
+
+    void OnUpdatePlayerEndProgress(sint32 player) override
+    {
+        if (g_controlPanel) g_controlPanel->UpdatePlayerEndProgress(player);
+    }
+
     void OnAutoSelectFirstUnit(sint32 player) override
     {
         if (!g_selected_item) return;

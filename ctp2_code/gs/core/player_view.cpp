@@ -30,6 +30,8 @@ static IsArmySelectedFn   s_isArmySelected   = nullptr;
 static IsCitySelectedFn   s_isCitySelected   = nullptr;
 static GetSelectedIdFn    s_getSelectedArmyId = nullptr;
 static GetSelectedIdFn    s_getSelectedCityId = nullptr;
+static IsModalActiveFn    s_isModalActive     = nullptr;
+static NextPlayerFn       s_nextPlayer        = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -49,6 +51,8 @@ void RegisterIsArmySelected(IsArmySelectedFn fn)      { s_isArmySelected   = fn;
 void RegisterIsCitySelected(IsCitySelectedFn fn)      { s_isCitySelected   = fn; }
 void RegisterGetSelectedArmyId(GetSelectedIdFn fn)    { s_getSelectedArmyId = fn; }
 void RegisterGetSelectedCityId(GetSelectedIdFn fn)    { s_getSelectedCityId = fn; }
+void RegisterIsModalMessageActive(IsModalActiveFn fn) { s_isModalActive    = fn; }
+void RegisterNextPlayer(NextPlayerFn fn)              { s_nextPlayer       = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -139,6 +143,16 @@ sint32 GetSelectedArmyId()
 sint32 GetSelectedCityId()
 {
 	return s_getSelectedCityId ? s_getSelectedCityId() : 0;
+}
+
+bool IsModalMessageActive()
+{
+	return s_isModalActive ? s_isModalActive() : false;
+}
+
+void NextPlayer()
+{
+	if (s_nextPlayer) s_nextPlayer();
 }
 
 } // namespace player_view

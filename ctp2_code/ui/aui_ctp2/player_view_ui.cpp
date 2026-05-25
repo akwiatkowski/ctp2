@@ -19,6 +19,9 @@
 #include "gs/world/MapPoint.h"
 #include "gs/utility/Globals.h"        // allocated::clear
 #include "ui/aui_ctp2/SelItem.h"
+#include "ui/interface/messagemodal.h"
+
+extern MessageModal *g_modalMessage;
 
 namespace {
 
@@ -149,6 +152,16 @@ sint32 UIGetSelectedCityId()
 	return (state == SELECT_TYPE_LOCAL_CITY) ? item.m_id : 0;
 }
 
+bool UIIsModalMessageActive()
+{
+	return g_modalMessage != nullptr;
+}
+
+void UINextPlayer()
+{
+	if (g_selected_item) g_selected_item->NextPlayer();
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -171,4 +184,6 @@ void RegisterUIPlayerView()
 	player_view::RegisterIsCitySelected(&UIIsCitySelected);
 	player_view::RegisterGetSelectedArmyId(&UIGetSelectedArmyId);
 	player_view::RegisterGetSelectedCityId(&UIGetSelectedCityId);
+	player_view::RegisterIsModalMessageActive(&UIIsModalMessageActive);
+	player_view::RegisterNextPlayer(&UINextPlayer);
 }

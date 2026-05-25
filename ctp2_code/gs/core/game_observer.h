@@ -95,6 +95,8 @@ public:
     virtual void OnUpdateMessages(sint32 player) {}
     virtual void OnRadarMapUpdate(sint32 player) {}
     virtual void OnAutoSelectFirstUnit(sint32 player) {}
+    virtual void OnHideMainUI() {}
+    virtual void OnUpdatePlayerEndProgress(sint32 player) {}
     virtual void OnAdvanceListReload(sint32 player) {}
 
     // --- Stat-graph time window ---
@@ -211,6 +213,8 @@ public:
     void NotifyUpdateMessages(sint32 player);
     void NotifyRadarMapUpdate(sint32 player);
     void NotifyAutoSelectFirstUnit(sint32 player);
+    void NotifyHideMainUI();
+    void NotifyUpdatePlayerEndProgress(sint32 player);
     void NotifyAdvanceListReload(sint32 player);
     void NotifySetGraphMinRound(sint32 round);
     void NotifyMapResized();

@@ -100,10 +100,7 @@
 #include "net/general/network.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "sound/gamesounds.h"
-#include "ui/aui_common/aui.h"
-#include "ui/aui_common/tech_wllist.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
-#include "ui/aui_utils/primitives.h"
+#include "gs/core/player_view.h"
 
 extern Pollution *  g_thePollution;
 
@@ -280,7 +277,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 
 		CD()->RemoveBorders();
 
-		g_selected_item->RegisterRemovedCity(GetOwner(), *this);
+		player_view::CityRemoved(GetOwner(), *this);
 	}
 
 	AccessData()->KillTransportedUnits();

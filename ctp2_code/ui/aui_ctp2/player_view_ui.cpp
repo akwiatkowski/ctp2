@@ -190,6 +190,11 @@ void UIRegisterRemovedArmy(sint32 player, const Army &army)
 	if (g_selected_item) g_selected_item->RegisterRemovedArmy(player, army);
 }
 
+void UIRegisterRemovedCity(sint32 player, const Unit &city)
+{
+	if (g_selected_item) g_selected_item->RegisterRemovedCity(player, city);
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -217,4 +222,5 @@ void RegisterUIPlayerView()
 	player_view::RegisterNextPlayer(&UINextPlayer);
 	player_view::RegisterAddPlayer(&UIAddPlayer);
 	player_view::RegisterRemovedArmy(&UIRegisterRemovedArmy);
+	player_view::RegisterRemovedCity(&UIRegisterRemovedCity);
 }

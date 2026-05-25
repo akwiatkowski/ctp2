@@ -35,6 +35,7 @@ static IsModalActiveFn    s_isModalActive     = nullptr;
 static NextPlayerFn       s_nextPlayer        = nullptr;
 static AddPlayerFn        s_addPlayer         = nullptr;
 static RegisterRemovedArmyFn s_registerRemovedArmy = nullptr;
+static RegisterRemovedCityFn s_registerRemovedCity = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -59,6 +60,7 @@ void RegisterIsModalMessageActive(IsModalActiveFn fn) { s_isModalActive    = fn;
 void RegisterNextPlayer(NextPlayerFn fn)              { s_nextPlayer       = fn; }
 void RegisterAddPlayer(AddPlayerFn fn)                { s_addPlayer        = fn; }
 void RegisterRemovedArmy(RegisterRemovedArmyFn fn)    { s_registerRemovedArmy = fn; }
+void RegisterRemovedCity(RegisterRemovedCityFn fn)    { s_registerRemovedCity = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -180,6 +182,11 @@ void AddPlayer(sint32 player)
 void ArmyRemoved(sint32 player, const Army &army)
 {
 	if (s_registerRemovedArmy) s_registerRemovedArmy(player, army);
+}
+
+void CityRemoved(sint32 player, const Unit &city)
+{
+	if (s_registerRemovedCity) s_registerRemovedCity(player, city);
 }
 
 } // namespace player_view

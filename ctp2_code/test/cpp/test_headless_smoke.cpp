@@ -128,29 +128,42 @@ TEST_CASE("Headless smoke: game events are logged")
 
 TEST_CASE("Headless smoke: different seeds produce different outputs")
 {
-    // This is a sanity check that the seed is actually wired to the RNG.
-    // If both runs produce identical output, either:
-    //   (a) the seed is not wired (bug), or
-    //   (b) the game is fully deterministic with no RNG (unlikely).
+    // Sanity check that the seed is wired to the RNG.  If both runs produce
+    // identical output, the seed is not wired (bug).  We compare raw stderr
+    // output minus timing-dependent lines.
     std::string out1 = run_headless("--new-game --turns 10 --players 3 --seed 123");
     std::string out2 = run_headless("--new-game --turns 10 --players 3 --seed 456");
 
     CHECK(!out1.empty());
     CHECK(!out2.empty());
 
-    // Strip timing-dependent lines (turn counter, timestamps) before comparing.
-    // We compare the presence/absence of city foundation events, which are
-    // RNG-dependent (goody hut placement, barb spawning).
-    bool hasCity1 = out1.find("founded city") != std::string::npos;
-    bool hasCity2 = out2.find("founded city") != std::string::npos;
+    // Verify both runs succeeded
+    CHECK(out1.find("[EXIT_CODE] 0") == 0);
+    CHECK(out2.find("[EXIT_CODE] 0") == 0);
 
-    // With different seeds, the RNG paths diverge.  It's possible both runs
-    // happen to found a city in 10 turns, but unlikely both have exactly the
-    // same number of city events.  For a stronger check, see the determinism
-    // test (test_headless_determinism.cpp) which compares two runs with the
-    // SAME seed.
-    //
-    // This test just verifies the seed plumbing exists.
-    // Verify at least one run did something interesting
-    CHECK((hasCity1 || hasCity2) == true);
+    // If the seed is wired, the RNG produces different map state / events.
+    // We check that the full stderr output (minus turn counter lines) differs.
+    // If outputs are identical, the seed is not affecting the RNG.
+    auto strip_turn_lines = [](const std::string& s) -> std::string {
+        std::string result;
+        size_t pos = 0;
+        while (pos < s.size()) {
+            size_t end = s.find('\n', pos);
+            if (end == std::string::npos) end = s.size();
+            std::string line = s.substr(pos, end - pos);
+            // Skip turn-counter lines that are identical across runs
+            if (line.find("[HEADLESS] Turn ") == std::string::npos) {
+                result += line;
+                result += '\n';
+            }
+            pos = end + 1;
+        }
+        return result;
+    };
+
+    std::string stripped1 = strip_turn_lines(out1);
+    std::string stripped2 = strip_turn_lines(out2);
+
+    // With different seeds the outputs should diverge somewhere.
+    CHECK(stripped1 != stripped2);
 }

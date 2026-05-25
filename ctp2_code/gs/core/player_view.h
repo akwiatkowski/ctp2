@@ -91,6 +91,7 @@ using SetCurOnlyFn      = void (*)(sint32 player);
 using RegisterManualEndTurnFn = void (*)();
 using AddPlayerFn       = void (*)(sint32 player);
 using RegisterRemovedArmyFn = void (*)(sint32 player, const Army &army);
+using RegisterRemovedCityFn = void (*)(sint32 player, const Unit &city);
 
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
@@ -106,6 +107,7 @@ void RegisterIsModalMessageActive(IsModalActiveFn fn);
 void RegisterNextPlayer(NextPlayerFn fn);
 void RegisterAddPlayer(AddPlayerFn fn);
 void RegisterRemovedArmy(RegisterRemovedArmyFn fn);
+void RegisterRemovedCity(RegisterRemovedCityFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -121,5 +123,6 @@ bool IsModalMessageActive();  // false in headless
 void NextPlayer();            // rotates current player in turn order
 void AddPlayer(sint32 player); // notifies UI of new player (no-op in headless)
 void ArmyRemoved(sint32 player, const Army &army); // notifies UI of removed army (no-op in headless)
+void CityRemoved(sint32 player, const Unit &city); // notifies UI of removed city (no-op in headless)
 
 } // namespace player_view

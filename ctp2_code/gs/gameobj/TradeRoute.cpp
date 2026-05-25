@@ -16,8 +16,7 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gfx/gfx_utils/colorset.h"
-#include "ui/aui_ctp2/radarmap.h"
-#include "ui/interface/trademanager.h"
+#include "gs/core/game_observer.h"
 
 extern World* g_theWorld;
 extern Player** g_player;
@@ -97,7 +96,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 
 	g_theTradePool->Remove(*this);
 
-	TradeManager::Notify();
+	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
 
 Unit TradeRoute::GetSource() const

@@ -40,11 +40,7 @@
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gfx/spritesys/director.h"
-#include "ui/interface/battleviewwindow.h"
-#include "ui/aui_ctp2/c3ui.h"
-#include "ui/aui_common/aui_button.h"
 #include "gs/utility/Globals.h"
-extern C3UI *g_c3ui;
 
 STDEHANDLER(RunCombatEvent)
 {
@@ -113,10 +109,11 @@ STDEHANDLER(StartCombatEvent)
 	if (g_theCurrentBattle)
 	{
 		// Close previous screen - if still open
-		if (g_battleViewWindow && g_c3ui && g_c3ui->GetWindow(g_battleViewWindow->Id()))
-		{
-			battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
-		}
+		// TODO(orchestrator): no equivalent for g_battleViewWindow / g_c3ui / battleview_ExitButtonActionCallback
+		// if (g_battleViewWindow && g_c3ui && g_c3ui->GetWindow(g_battleViewWindow->Id()))
+		// {
+		// 	battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+		// }
 		g_theCurrentBattle->ClearBattle();
 		delete g_theCurrentBattle;
 		g_theCurrentBattle = NULL;

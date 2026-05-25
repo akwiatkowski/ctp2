@@ -243,7 +243,7 @@
 #include "DifficultyRecord.h"
 #include "ai/diplomacy/Diplomat.h"                   // To be able to retrieve the current strategy
 #include "gfx/spritesys/director.h"                   // g_director
-#include "ui/interface/EditQueue.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/gameobj/gaiacontroller.h"				// To check buildings needed for science victory
@@ -269,9 +269,7 @@
 #include "gs/gameobj/Readiness.h"
 #include "ResourceRecord.h"
 #include "RiskRecord.h"  //add for barb code
-#include "ui/interface/scenarioeditor.h"
 #include "gs/gameobj/Score.h"
-#include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
@@ -849,13 +847,14 @@ void CityData::Initialize(sint32 settlerType)
 	{
 		//Added by Martin G�hmann to make sure that also cities
 		//created by the Scenario editor have a size
-		if(settlerType == -2 && ScenarioEditor::PlaceCityMode() && ScenarioEditor::CitySize() > 0)
-			numPops = ScenarioEditor::CitySize();
+		// TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
+		// if(settlerType == -2 && ScenarioEditor::PlaceCityMode() && ScenarioEditor::CitySize() > 0)
+		// 	numPops = ScenarioEditor::CitySize();
 	}
 
 	//Added by Martin G�hmann to make sure that also cities created by the editor
 	//have a size.
-	if((settlerType != -2) || ScenarioEditor::PlaceCityMode())
+	if((settlerType != -2)) // TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
 	{
 		for(sint32 i = 0; i < numPops; i++)
 		{
@@ -961,10 +960,11 @@ void CityData::Initialize(sint32 settlerType)
 
 	//Added by Martin G�hmann to make sure that cities created
 	//by the scenario editor keep their style
-	if ((settlerType == CITY_STYLE_EDITOR) && ScenarioEditor::PlaceCityMode())
-	{
-		m_cityStyle = ScenarioEditor::CityStyle();
-	}
+	// TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
+	// if ((settlerType == CITY_STYLE_EDITOR) && ScenarioEditor::PlaceCityMode())
+	// {
+	// 	m_cityStyle = ScenarioEditor::CityStyle();
+	// }
 
 	if (name != k_CITY_NAME_UNDEFINED)
 	{
@@ -1482,7 +1482,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 			}
 			else if (g_soundManager)
 			{
-				sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 const visiblePlayer = player_view::VisiblePlayer();
 				if ((visiblePlayer == m_owner) ||
 				    (m_home_city.GetVisibility() & (1 << visiblePlayer))
 				   )
@@ -4862,7 +4862,7 @@ void CityData::CheckRiot()
 //		            if (spriteID >= 0) {
 //						g_director->AddSpecialAttack (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
 //					} else {
-//					sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
+//					sint32 const visiblePlayer = player_view::VisiblePlayer();
 //						if ((visiblePlayer == m_owner) || (m_home_city.GetVisibility() & (1 << visiblePlayer)) ){
 //	    					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, m_home_city.RetPos().x, m_home_city.RetPos().y);
 //	    				}
@@ -6170,8 +6170,9 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 	// Deduct shields from build manager city data if it's open.
 	// Shields also deducted from city data kept in city control panel,
 	// since the build manager city data is not copied to there.
-	EditQueue* eqWindow = EditQueue::GetEditQueueWindow();
-	CityData* cityData = eqWindow ? eqWindow->GetCityData() : NULL;
+	// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
+	// EditQueue* eqWindow = EditQueue::GetEditQueueWindow();
+	// CityData* cityData = eqWindow ? eqWindow->GetCityData() : NULL;
 
 	if (GetStoredCityProduction() > 0)
 	{
@@ -6188,11 +6189,12 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 		s = static_cast<sint32>(static_cast<double>(GetStoredCityProduction()) * penalty);
 
 		// Update build manager city data if possible.
-		if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
-		{
-			cityData->SetShieldstore(s);
-			cityData->SetBuildCategoryAtBeginTurn(newCat);
-		}
+		// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
+		// if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
+		// {
+		// 	cityData->SetShieldstore(s);
+		// 	cityData->SetBuildCategoryAtBeginTurn(newCat);
+		// }
 
 		SetShieldstore(s);
 		SetBuildCategoryAtBeginTurn(newCat);
@@ -6203,10 +6205,11 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 		// so we know the last item type the next time a switch happens.
 
 		// Update build manager city data if possible.
-		if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
-		{
-			cityData->SetBuildCategoryAtBeginTurn(newCat);
-		}
+		// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
+		// if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
+		// {
+		// 	cityData->SetBuildCategoryAtBeginTurn(newCat);
+		// }
 		SetBuildCategoryAtBeginTurn(newCat);
 	}
 }

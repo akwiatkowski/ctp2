@@ -37,7 +37,7 @@
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Player.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/cellunitlist.h"
@@ -377,7 +377,7 @@ BOOL World::IsMoveZOC(PLAYER_INDEX owner, const MapPoint &start,
 
 bool World::GetTopVisibleUnit (const MapPoint &pos, Unit &top) const
 {
-	sint32 looking_player = g_selected_item->GetVisiblePlayer();
+	sint32 looking_player = player_view::VisiblePlayer();
 	return GetTopVisibleUnit (looking_player, pos, top, true);
 }
 
@@ -399,12 +399,12 @@ bool World::GetTopVisibleUnit (const sint32 looking_player, const MapPoint &pos,
 
 	if(c->GetNumUnits() > 0)
 	{
-		PLAYER_INDEX s_player;
-		ID s_item;
-		SELECT_TYPE s_state;
+		sint32 s_player;
+		sint32 s_item;
+		sint32 s_state;
 		Army selectedArmy;
-		g_selected_item->GetTopCurItem(s_player, s_item, s_state);
-		if(s_state == SELECT_TYPE_LOCAL_ARMY &&
+		player_view::GetTopCurItem(s_player, s_item, s_state);
+		if(s_state == 1 && // SELECT_TYPE_LOCAL_ARMY
 		   s_player == looking_player )
 		{
 			selectedArmy = s_item;
@@ -426,7 +426,7 @@ bool World::GetTopVisibleUnit (const sint32 looking_player, const MapPoint &pos,
 
 bool World::GetTopVisibleUnitNotCity(const MapPoint &pos, Unit &top) const
 {
-	sint32 player = g_selected_item->GetVisiblePlayer();
+	sint32 player = player_view::VisiblePlayer();
 	return GetTopVisibleUnit(player, pos, top, false);
 }
 
@@ -436,16 +436,16 @@ bool World::GetTopRadarUnit(const MapPoint &pos, Unit &top) const
 	top.m_id = (0);
 	c = GetCell(pos);
 	bool hasGlobalRadar;
-	if(g_player[g_selected_item->GetVisiblePlayer()])
+	if(g_player[player_view::VisiblePlayer()])
 	{
 		hasGlobalRadar = wonderutil_GetGlobalRadar(
-			g_player[g_selected_item->GetVisiblePlayer()]->m_builtWonders);
+			g_player[player_view::VisiblePlayer()]->m_builtWonders);
 	}
 	else
 	{
 		hasGlobalRadar = false;
 	}
-	uint32 playerMask = 1 << g_selected_item->GetVisiblePlayer();
+	uint32 playerMask = 1 << player_view::VisiblePlayer();
 	if(c->GetCity().IsValid() &&
 	   ((c->GetCity().AccessData()->GetRadarVisibility() & playerMask ) ||
 		(c->GetCity().AccessData()->GetEverVisible() & playerMask) ||

@@ -47,8 +47,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
 
-#include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem *g_selected_item;
+#include "gs/core/player_view.h"
 
 #include "net/general/network.h"
 #include "gs/utility/TurnCnt.h"
@@ -93,13 +92,13 @@ STDEHANDLER(ResponseEvent)
 	if (sender_diplomat.GetReceiverHasInitiative(receiver))
 	{
 		show_response =
-		        receiver == g_selected_item->GetVisiblePlayer()
+		        receiver == player_view::VisiblePlayer()
 		    &&!(sender_response_pending == Diplomat::s_badResponse);
 	}
 	else
 	{
 		show_response =
-		        sender == g_selected_item->GetVisiblePlayer()
+		        sender == player_view::VisiblePlayer()
 			&&!(receiver_response_pending == Diplomat::s_badResponse);
 	}
 
@@ -121,7 +120,7 @@ STDEHANDLER(ResponseEvent)
 	    )
 	||  (           g_network.IsActive()
 	       &&       g_network.IsLocalPlayer(sender)
-	       &&       sender != g_selected_item->GetVisiblePlayer()
+	       &&       sender != player_view::VisiblePlayer()
 	    )
 	   )
 	&&             !sender_diplomat.GetReceiverHasInitiative(receiver)
@@ -141,7 +140,7 @@ STDEHANDLER(ResponseEvent)
 	    )
 	||  (           g_network.IsActive()
 	       &&       g_network.IsLocalPlayer(receiver)
-	       &&       receiver != g_selected_item->GetVisiblePlayer()
+	       &&       receiver != player_view::VisiblePlayer()
 	    )
 	   )
 	&&              sender_diplomat.GetReceiverHasInitiative(receiver)

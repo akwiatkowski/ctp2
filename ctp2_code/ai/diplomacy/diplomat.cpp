@@ -105,10 +105,9 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"
-#include "ui/interface/dipwizard.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "net/general/net_action.h"
 #include "robot/pathing/Path.h"
 #include "OrderRecord.h"
@@ -1797,7 +1796,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	{
 		SlicObject *so;
 
-		if (foreignerId == g_selected_item->GetCurPlayer())
+		if (foreignerId == player_view::CurPlayer())
 		{
 
 			so = new SlicObject((MBCHAR *)"DIPLOMACY_POPUP_DECLARE_WAR");
@@ -2591,7 +2590,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 	|| g_turn->IsHotSeat()
 	){
 		if(g_player[sender]->IsHuman()
-		&& g_selected_item->GetVisiblePlayer() != sender
+		&& player_view::VisiblePlayer() != sender
 		){
 			NegotiationEvent negotiation_event;
 			negotiation_event.proposal = s_theDiplomats[sender].GetMyLastNewProposal(receiver);
@@ -2601,7 +2600,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 			AddNewNegotiationEvent(sender, negotiation_event);
 		}
 		else if(g_player[receiver]->IsHuman()
-		&&      g_selected_item->GetVisiblePlayer() != receiver
+		&&      player_view::VisiblePlayer() != receiver
 		){
 			NegotiationEvent negotiation_event;
 			negotiation_event.proposal = s_theDiplomats[sender].GetMyLastNewProposal(receiver);
@@ -2637,7 +2636,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 
 
-		DipWizard::NotifyResponse(response, m_playerId, other_player);
+		// TODO(orchestrator): no equivalent for DipWizard::NotifyResponse
 		g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddAgreement(receiver);
@@ -2663,7 +2662,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		if (other_response == RESPONSE_COUNTER)
 		{
-			DipWizard::NotifyResponse(response, m_playerId, other_player);
+			// TODO(orchestrator): no equivalent for DipWizard::NotifyResponse
 			g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
 		}
 
@@ -2690,7 +2689,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 			static_cast<sint32>(m_playerId)));
 		DPRINTF(k_DBG_DIPLOMACY, ("    (new threat created)\n\n"));
 
-		DipWizard::NotifyThreatRejected(response, sender_response, m_playerId, other_player);
+		// TODO(orchestrator): no equivalent for DipWizard::NotifyThreatRejected
 		g_network.NotifyDiplomacyThreatRejected(response, sender_response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddThreat(receiver);
@@ -3379,7 +3378,7 @@ void Diplomat::ExecuteEventNewProposal( const PLAYER_INDEX & receiver )
 	if((g_turn->IsEmail()
 	||  g_turn->IsHotSeat())
 	&&  g_player[receiver]->IsHuman()
-	&&  g_selected_item->GetVisiblePlayer() != receiver
+	&&  player_view::VisiblePlayer() != receiver
 	){
 		NegotiationEvent negotiation_event;
 		negotiation_event.proposal = proposal;

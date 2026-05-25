@@ -12,6 +12,7 @@
 //
 // These are integration tests, not unit tests — they take seconds, not ms.
 
+#include "ctp/c3.h"
 #include "doctest.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,5 +130,6 @@ TEST_CASE("Headless smoke: different seeds produce different outputs")
     // SAME seed.
     //
     // This test just verifies the seed plumbing exists.
-    CHECK(hasCity1 || hasCity2);  // at least one run did something interesting
+    // Verify at least one run did something interesting
+    CHECK((hasCity1 || hasCity2) == true);
 }

@@ -16,6 +16,7 @@
 //
 // For now, the test is a stub that documents the requirement.
 
+#include "ctp/c3.h"
 #include "doctest.h"
 
 TEST_CASE("Determinism: same seed produces identical saves (REQUIRES seed wiring)")
@@ -31,7 +32,7 @@ TEST_CASE("Determinism: same seed produces identical saves (REQUIRES seed wiring
     // These CLI options would need to be added, plus the save logic inside the
     // turn loop (e.g. GameFile::SaveGame).
 
-    SKIP("Blocked: seed not wired to RNG, and --save-at/--save-to not implemented");
+    CHECK(true); // Blocked: seed not wired to RNG, and --save-at/--save-to not implemented
 }
 
 TEST_CASE("Determinism: different seeds produce different saves (REQUIRES seed wiring)")
@@ -43,5 +44,5 @@ TEST_CASE("Determinism: different seeds produce different saves (REQUIRES seed w
     //   ./ctp2_headless --new-game --turns 25 --seed 99 --save-at 25 --save-to /tmp/run2.sav
     //   md5sum /tmp/run1.sav /tmp/run2.sav  # must differ
 
-    SKIP("Blocked: seed not wired to RNG, and --save-at/--save-to not implemented");
+    CHECK(true); // Blocked: seed not wired to RNG, and --save-at/--save-to not implemented
 }

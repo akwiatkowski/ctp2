@@ -4,6 +4,7 @@
 // These tests exercise the observer dispatch logic without needing the full
 // game engine (no database init, no SDL, no graphics).  They run in < 1 ms.
 
+#include "ctp/c3.h"
 #include "doctest.h"
 #include "gs/core/game_observer.h"
 #include "gs/gameobj/Unit.h"

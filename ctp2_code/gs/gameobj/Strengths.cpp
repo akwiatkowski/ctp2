@@ -45,7 +45,6 @@
 #include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/utility/newturncount.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/buildingutil.h"
 
 Strengths::Strengths(sint32 owner)

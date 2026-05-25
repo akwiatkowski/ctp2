@@ -54,8 +54,6 @@
 
 #include "gs/gameobj/installationtree.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "ui/aui_ctp2/SelItem.h"
-
 #include "gs/gameobj/wonderutil.h"
 #include "gs/utility/newturncount.h"
 

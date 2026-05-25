@@ -74,7 +74,6 @@
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gfx/spritesys/director.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/gaiacontroller.h"
 #include "ai/diplomacy/AgreementMatrix.h"

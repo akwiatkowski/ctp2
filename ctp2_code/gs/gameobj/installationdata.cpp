@@ -43,7 +43,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/world/Cell.h"
 #include "gs/utility/TurnCnt.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
@@ -55,7 +54,6 @@ extern QuadTree<Unit> *g_theUnitTree;
 extern World *g_theWorld;
 extern Player **g_player;
 extern TurnCount *g_turn;
-extern SelectedItem *g_selected_item;
 extern TiledMap *g_tiledMap;
 
 InstallationData::InstallationData(ID id,

@@ -55,21 +55,16 @@
 #include "gs/database/profileDB.h"      // g_theProfileDB
 #include "RiskRecord.h"
 #include "AdvanceRecord.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/game_observer.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/Exclusions.h"
 #include "UnitRecord.h"
 #include "gs/events/GameEventManager.h"
 
-#include "ui/interface/MainControlPanel.h"
-#include "ui/interface/controlpanelwindow.h"
-
 extern Player **g_player;
 extern RandomGenerator *g_rand;
 extern TiledMap		*g_tiledMap;
-extern ControlPanelWindow *g_controlPanel;
-
-extern SelectedItem	*g_selected_item;
 
 namespace
 {
@@ -434,7 +429,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 			if (g_soundManager) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = player_view::VisiblePlayer();
 				if (visiblePlayer == owner) {
 					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 											gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),
@@ -476,7 +471,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 
 
 			if (g_soundManager) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = player_view::VisiblePlayer();
 				if (visiblePlayer == owner) {
 					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 											gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
@@ -494,7 +489,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			g_slicEngine->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get %d gold!\n", m_value));
 			g_player[owner]->AddGold(m_value);
-			if (owner == g_selected_item->GetVisiblePlayer())
+			if (owner == player_view::VisiblePlayer())
 			{
 				if (g_soundManager)
 				{
@@ -506,7 +501,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 											);
 				}
 
-				if (g_controlPanel) MainControlPanel::Update();	// the received gold may enable rush buying
+				if (g_gameObservers) g_gameObservers->NotifyUpdateMainControlPanel(owner);
 			}
 			break;
 		case GOODY_ADVANCE:
@@ -519,7 +514,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			g_slicEngine->Execute(so);
 
 			if (g_soundManager) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = player_view::VisiblePlayer();
 				if (visiblePlayer == owner) {
 					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 											gamesounds_GetGameSoundID(GAMESOUNDS_ADVANCE),
@@ -552,7 +547,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 
 
 			if (g_soundManager) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = player_view::VisiblePlayer();
 				if (visiblePlayer == owner) {
 					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 											gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_UNIT),
@@ -569,7 +564,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 				g_slicEngine->Execute(so);
 
 				if (g_soundManager) {
-					sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+					sint32 visiblePlayer = player_view::VisiblePlayer();
 					if (visiblePlayer == owner) {
 						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												 gamesounds_GetGameSoundID(GAMESOUNDS_BOO),
@@ -584,7 +579,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 				DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 				if (g_soundManager) {
-					sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+					sint32 visiblePlayer = player_view::VisiblePlayer();
 					if (visiblePlayer == owner) {
 						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												 gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),

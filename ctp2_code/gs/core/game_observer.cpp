@@ -348,6 +348,13 @@ void GameObserverRegistry::NotifyUpdateCityStatusWindow(sint32 player)
     }
 }
 
+void GameObserverRegistry::NotifyUpdateMainControlPanel(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUpdateMainControlPanel(player);
+    }
+}
+
 void GameObserverRegistry::NotifySetGraphMinRound(sint32 round)
 {
     for (auto* obs : m_observers) {

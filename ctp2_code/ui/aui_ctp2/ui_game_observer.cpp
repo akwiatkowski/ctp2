@@ -376,6 +376,11 @@ public:
     void OnUpdateUnitSelectionWindow(sint32 player) override {}
     void OnUpdateCityStatusWindow(sint32 player) override {}
 
+    void OnUpdateMainControlPanel(sint32 player) override
+    {
+        if (g_controlPanel) MainControlPanel::Update();
+    }
+
     void OnHideMainUI() override
     {
         if (g_controlPanel) g_controlPanel->Hide();

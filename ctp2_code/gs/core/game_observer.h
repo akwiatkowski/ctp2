@@ -101,6 +101,7 @@ public:
     virtual void OnShowSpaceButton(sint32 player) {}
     virtual void OnUpdateUnitSelectionWindow(sint32 player) {}
     virtual void OnUpdateCityStatusWindow(sint32 player) {}
+    virtual void OnUpdateMainControlPanel(sint32 player) {}
 
     // --- Stat-graph time window ---
     // Set after game init / scenario load so the score/research graphs in
@@ -222,6 +223,7 @@ public:
     void NotifyShowSpaceButton(sint32 player);
     void NotifyUpdateUnitSelectionWindow(sint32 player);
     void NotifyUpdateCityStatusWindow(sint32 player);
+    void NotifyUpdateMainControlPanel(sint32 player);
     void NotifySetGraphMinRound(sint32 round);
     void NotifyMapResized();
 

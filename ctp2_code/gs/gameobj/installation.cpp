@@ -8,13 +8,12 @@
 
 #include "net/general/network.h"
 #include "net/general/net_info.h"
-#include "ui/aui_ctp2/SelItem.h"
+#include "gs/core/player_view.h"
 #include "gfx/spritesys/director.h"
 #include "gs/gameobj/terrainutil.h"
 
 extern Player **g_player;
 extern World *g_theWorld;
-extern SelectedItem *g_selected_item;
 extern Director *g_director;
 
 void
@@ -39,7 +38,7 @@ Installation::RemoveAllReferences()
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());
 		if(myVisionRange > 0) {
 			g_player[GetOwner()]->RemoveUnitVision(pos, myVisionRange);
-			if(GetOwner() == g_selected_item->GetVisiblePlayer() && g_director) {
+			if(GetOwner() == player_view::VisiblePlayer() && g_director) {
 				g_director->AddCopyVision();
 			}
 		}

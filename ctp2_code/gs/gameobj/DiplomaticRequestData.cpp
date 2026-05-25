@@ -52,8 +52,7 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
-#include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem *g_selected_item;
+#include "gs/core/player_view.h"
 
 	extern	StringDB	*g_theStringDB ;
 
@@ -384,24 +383,24 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		g_network.SendAction(new NetAction(NET_ACTION_ENACT_REQUEST,
 										   (uint32)m_id));
 		DiplomaticRequest me(m_id);
-		if(!g_network.IsLocalPlayer(g_selected_item->GetCurPlayer()))
+		if(!g_network.IsLocalPlayer(player_view::CurPlayer()))
 			g_network.AddEnact(me);
 
 		if(!g_network.IsMyTurn())
 			return;
 	} else if(g_network.IsHost()) {
-		if(!fromCurPlayer && !g_network.IsLocalPlayer(g_selected_item->GetCurPlayer())) {
-			g_network.QueuePacket(g_network.IndexToId(g_selected_item->GetCurPlayer()),
+		if(!fromCurPlayer && !g_network.IsLocalPlayer(player_view::CurPlayer())) {
+			g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 								  new NetInfo(NET_INFO_CODE_ENACT_REQUEST_NEED_ACK,
 											  (uint32)m_id));
 			DiplomaticRequest me(m_id);
 			g_network.AddEnact(me);
 			return;
 		} else {
-			g_network.Block(g_selected_item->GetCurPlayer());
+			g_network.Block(player_view::CurPlayer());
 			g_network.Enqueue(new NetInfo(NET_INFO_CODE_ENACT_REQUEST,
 										  (uint32)m_id));
-			g_network.Unblock(g_selected_item->GetCurPlayer());
+			g_network.Unblock(player_view::CurPlayer());
 		}
 	}
 

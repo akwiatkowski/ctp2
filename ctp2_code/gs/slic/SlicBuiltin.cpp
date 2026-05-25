@@ -26,15 +26,15 @@
 //
 // - Added a built in field for player to be able to get the the database
 //   index of the player's current government, by Peter Triggs and
-//   Martin Gühmann.
-// - Added three new globals by Martin Gühmann:
+//   Martin Gï¿½hmann.
+// - Added three new globals by Martin Gï¿½hmann:
 //   - g.num_of_players: Gets the number of players in the current game
 //   - g.last_player:    Gets the last player, the player with the highest
 //                       index in the game
 //   - g.max_player:     Gets the maximum number of players that is in a game
 //                       possible, currently it is 32 including the Barbarians.
 // - The following builtins are not only useful anymore in string replacement
-//   but also in slic code (Changed by Martin Gühmann - Oct. 30th 2004):
+//   but also in slic code (Changed by Martin Gï¿½hmann - Oct. 30th 2004):
 //   - player.capital:           The player's capital as string or city_t.
 //   - player.largestcity:       The player's largest city as string or city_t.
 //   - player.researching:       The database index or name of the current
@@ -47,7 +47,7 @@
 //   Note: leaderperonality should be leaderpersonality but as it is used
 //   in the text files I don't fix it.
 // - Decreased number of Slic errors for mods.
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
 // - Added unit.actualmaxhp to return the maxhp after wonders, feats and civ
 //   hp bonuses have been added. (3rd-Aug-2009 - Maq)
 //
@@ -60,7 +60,7 @@
 #include "gs/gameobj/Army.h"
 #include "BuildingRecord.h"
 #include "ctp/ctp2_utils/c3math.h"             // AsPercentage
-#include "ui/interface/CityControlPanel.h"
+#include "gs/core/player_view.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Civilisation.h"
 #include "CivilisationRecord.h"
@@ -69,12 +69,10 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Readiness.h"
 #include "ResourceRecord.h"
-#include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/utility/TurnCnt.h"
-#include "ui/interface/TurnYearStatus.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "UnitRecord.h"
@@ -104,7 +102,8 @@ class GlobalSymbol_YearString : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_YearString);
 
 	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
-		strncpy(text, TurnYearStatus::GetCurrentYear(), maxLen);
+		// TODO(orchestrator): no equivalent for TurnYearStatus::GetCurrentYear()
+		text[0] = '\0';
 		return TRUE;
 	}
 };
@@ -113,7 +112,7 @@ class GlobalSymbol_Player : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_Player);
 
 	BOOL GetPlayer(sint32 &player) const {
-		player = g_selected_item->GetCurPlayer();
+		player = player_view::CurPlayer();
 		return TRUE;
 	};
 
@@ -445,7 +444,8 @@ class CitySymbol_Building : public SlicStructMemberData {
 		{
 			if(city.CD()->GetBuildQueue()->GetHead())
 			{
-				strncpy(text, CityControlPanel::GetBuildName(city.CD()->GetBuildQueue()->GetHead()), maxLen);
+				// TODO(orchestrator): no equivalent for CityControlPanel::GetBuildName
+				text[0] = '\0';
 			}
 			else
 			{
@@ -464,7 +464,8 @@ class CitySymbol_Building : public SlicStructMemberData {
 		{
 			if(city.CD()->GetBuildQueue()->GetHead())
 			{
-				return CityControlPanel::GetBuildStringId(city.CD()->GetBuildQueue()->GetHead());
+				// TODO(orchestrator): no equivalent for CityControlPanel::GetBuildStringId
+				return -1;
 			}
 			else
 			{
@@ -599,7 +600,7 @@ class PlayerSymbol_Armies : public SlicStructMemberData {
 	}
 };
 // Added by PFT: player[ ].government
-// And a minor improvement by Martin Gühmann
+// And a minor improvement by Martin Gï¿½hmann
 
 class PlayerSymbol_Government : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Government);
@@ -684,7 +685,7 @@ class PlayerSymbol_Capital : public SlicStructMemberData {
 		}
 		return res;
 	}
-	// Added by Martin Gühmann to allow to access the capital
+	// Added by Martin Gï¿½hmann to allow to access the capital
 	// as city_t.
 	BOOL GetCity(Unit &city) const {
 		sint32 pl;
@@ -721,7 +722,7 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
 		}
 		return res;
 	}
-	// Added by Martin Gühmann to allow to access the largest city
+	// Added by Martin Gï¿½hmann to allow to access the largest city
 	// as city_t.
 	BOOL GetCity(Unit &city) const
     {
@@ -781,7 +782,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 		}
 		return -1;
 	}
-	// Added by Martin Gühmann to allow to access the database index
+	// Added by Martin Gï¿½hmann to allow to access the database index
 	// of the current research project.
 	BOOL GetIntValue(sint32 &value) const {
 		PLAYER_INDEX pl = PLAYER_UNASSIGNED;
@@ -848,7 +849,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		}
 		return -1;
 	}
-	// Added by Martin Gühmann to allow to access the index of
+	// Added by Martin Gï¿½hmann to allow to access the index of
 	// the current military readiness level.
 	BOOL GetIntValue(sint32 &value) const {
 		PLAYER_INDEX    pl   = PLAYER_UNASSIGNED;
@@ -877,7 +878,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	// Added by Martin Gühmann to allow access to the database personality
+	// Added by Martin Gï¿½hmann to allow access to the database personality
 	// index of the player leader's personality.
 	BOOL GetIntValue(sint32 &value) const {
 		sint32 pl;
@@ -918,7 +919,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		}
 		return -1;
 	}
-	// Added by Martin Gühmann to access the database index of the
+	// Added by Martin Gï¿½hmann to access the database index of the
 	// current player's government.
 	BOOL GetIntValue(sint32 &value) const {
 		sint32 pl;

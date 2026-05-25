@@ -30,8 +30,8 @@ namespace {
 
 // Ratchet baselines — total `#include "ui/..."` lines, summed across files.
 // Tighten these whenever the migration reduces the actual count.
-constexpr std::size_t GS_UI_INCLUDE_BASELINE = 33;
-constexpr std::size_t AI_UI_INCLUDE_BASELINE = 3;
+constexpr std::size_t GS_UI_INCLUDE_BASELINE = 31;
+constexpr std::size_t AI_UI_INCLUDE_BASELINE = 1;
 
 struct Violation {
     std::string file;

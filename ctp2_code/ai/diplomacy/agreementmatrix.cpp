@@ -45,7 +45,7 @@
 #include "ai/ctpai.h"
 #include "gs/utility/MoveFlags.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "ui/aui_ctp2/radarmap.h"
+#include "gs/core/game_observer.h"
 
 ai::Agreement       AgreementMatrix::s_badAgreement;
 AgreementMatrix     AgreementMatrix::s_agreements;
@@ -242,8 +242,7 @@ void AgreementMatrix::SetAgreement( const ai::Agreement & agreement )
 #endif
 
 	}
-	if(g_radarMap && g_radarMap->IsDisplayRelations())
-		g_radarMap->Update();
+	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
 }
 
 

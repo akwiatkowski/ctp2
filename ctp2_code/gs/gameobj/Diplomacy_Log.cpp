@@ -5,11 +5,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Order.h"
 
-#include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem *g_selected_item;
-
-
-
+#include "gs/core/player_view.h"
 
 #include "gs/utility/TurnCnt.h"
 extern TurnCount *g_turn;
@@ -86,7 +82,7 @@ void Diplomacy_Log::BeginRound()
 
 void Diplomacy_Log::BeginTurn()
 {
-    sint32 player_idx = g_selected_item->GetCurPlayer();
+    sint32 player_idx = player_view::CurPlayer();
 
     if (IsPlayerLogged(player_idx)) {
         FILE *fout = fopen(m_filename, "a");
@@ -119,7 +115,7 @@ void Diplomacy_Log::BeginTurn()
 void Diplomacy_Log::EndTurn()
 {
 
-    sint32 player_idx = g_selected_item->GetCurPlayer();
+    sint32 player_idx = player_view::CurPlayer();
     if (IsPlayerLogged(player_idx)) {
 
         FILE *fout = fopen(m_filename, "a");

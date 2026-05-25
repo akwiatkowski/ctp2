@@ -41,13 +41,12 @@
 #include "gs/outcom/AICause.h"
 #include "gs/utility/RandGen.h"
 
-#include "ui/interface/battleevent.h"
-#include "ui/interface/battleview.h"
-#include "ui/interface/battle.h"
-#include "ui/interface/battleviewwindow.h"
+#include "gs/core/player_view.h"
 #include "gfx/spritesys/director.h"
 
-#include "ui/aui_ctp2/SelItem.h"
+class BattleViewWindow;
+extern BattleViewWindow *g_battleViewWindow;
+
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"
 
@@ -949,20 +948,18 @@ CTP2Combat::CTP2Combat
 	if(!g_theProfileDB->IsShowZoomedCombat())
 		return;
 
-	if(m_attacker == g_selected_item->GetVisiblePlayer()
-	|| m_defender == g_selected_item->GetVisiblePlayer()
+	if(m_attacker == player_view::VisiblePlayer()
+	|| m_defender == player_view::VisiblePlayer()
 	){
-		m_battle = new Battle();
-
-		m_battle->Initialize(attackers[0].GetArmy(), defenders);
-
-		BattleEvent *placementEvent = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
-		Assert(placementEvent);
-		m_attackers.ReportUnits(m_battle, placementEvent, true);
-		m_defenders.ReportUnits(m_battle, placementEvent, true);
-		m_battle->AddEvent(placementEvent);
-
-		if (g_director) g_director->AddBattle(m_battle);
+		// TODO(orchestrator): no equivalent for Battle / BattleEvent
+		// m_battle = new Battle();
+		// m_battle->Initialize(attackers[0].GetArmy(), defenders);
+		// BattleEvent *placementEvent = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
+		// Assert(placementEvent);
+		// m_attackers.ReportUnits(m_battle, placementEvent, true);
+		// m_defenders.ReportUnits(m_battle, placementEvent, true);
+		// m_battle->AddEvent(placementEvent);
+		// if (g_director) g_director->AddBattle(m_battle);
 	}
 
 	Assert(!IsDone());
@@ -972,8 +969,9 @@ CTP2Combat::~CTP2Combat()
 {
 	if(m_battle)
 	{
-		if(g_battleViewWindow)
-			g_battleViewWindow->EndBattle();
+		// TODO(orchestrator): no equivalent for g_battleViewWindow->EndBattle
+		// if(g_battleViewWindow)
+		// 	g_battleViewWindow->EndBattle();
 
 		delete m_battle;
 	}
@@ -1029,13 +1027,14 @@ void CTP2Combat::ExecuteRangedAttack(CombatField *attacker, sint32 attX, sint32 
 	CombatUnit *att = &attacker->GetUnit(attX, attY);
 	CombatUnit *def = &defender->GetUnit(defX, defY);
 
-	if(m_battle && !att->m_alreadyAttacked) {
-		BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
-		m_battle->AddUnitAttack(attackEvent,
-			(attacker == &m_defenders), att->m_unit);
-		m_battle->AddEvent(attackEvent);
-		att->m_alreadyAttacked = true;
-	}
+	// TODO(orchestrator): no equivalent for BattleEvent
+	// if(m_battle && !att->m_alreadyAttacked) {
+	// 	BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
+	// 	m_battle->AddUnitAttack(attackEvent,
+	// 		(attacker == &m_defenders), att->m_unit);
+	// 	m_battle->AddEvent(attackEvent);
+	// 	att->m_alreadyAttacked = true;
+	// }
 
 	const char *attackString = attacker == &m_attackers ? "Attacker" : "Defender";
 	const char *defenseString = defender == &m_defenders ? "Defender" : "Attacker";
@@ -1061,26 +1060,28 @@ void CTP2Combat::ExecuteRangedAttack(CombatField *attacker, sint32 attX, sint32 
 		if(!def->IsAlive()) {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
-			if(m_battle) {
-				BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
-				m_battle->AddUnitDeath(deathEvent,
-					(defender == &m_defenders), def->m_unit);
-				m_battle->AddEvent(deathEvent);
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
+			// 	DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+			// 	m_battle->AddUnitDeath(deathEvent,
+			// 		(defender == &m_defenders), def->m_unit);
+			// 	m_battle->AddEvent(deathEvent);
+			// }
 			s_somethingDied = true;
 		} else {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", %s has %.2lfHP.\n", defenseString, def->GetHP());
 
-			if(m_battle) {
-				if(!def->m_alreadyExploded) {
-					BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
-					m_battle->AddUnitExplosion(explodeEvent,
-											   (defender == &m_defenders), def->m_unit);
-					m_battle->AddEvent(explodeEvent);
-					def->m_alreadyExploded = true;
-				}
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	if(!def->m_alreadyExploded) {
+			// 		BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
+			// 		m_battle->AddUnitExplosion(explodeEvent,
+			// 								   (defender == &m_defenders), def->m_unit);
+			// 		m_battle->AddEvent(explodeEvent);
+			// 		def->m_alreadyExploded = true;
+			// 	}
+			// }
 		}
 	} else {
 		combat_print(k_COMBAT_DEBUG_VERBOSE, "RANGED: %s@(%2d,%2d) MISSED %s@(%2d,%2d).\n", attackString, attX, attY,
@@ -1089,20 +1090,21 @@ void CTP2Combat::ExecuteRangedAttack(CombatField *attacker, sint32 attX, sint32 
 }
 
 void CTP2Combat::ExecuteRangedCounterAttackNC(CombatField *attacker, sint32 attX, sint32 attY,
-									 CombatField *defender, sint32 defX, sint32 defY)
+												 CombatField *defender, sint32 defX, sint32 defY)
 {
 	m_noAttacksPossible = false;
 
 	CombatUnit *att = &attacker->GetUnit(attX, attY);
 	CombatUnit *def = &defender->GetUnit(defX, defY);
 
-	if(m_battle && !att->m_alreadyAttacked) {
-		BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
-		m_battle->AddUnitAttack(attackEvent,
-			(attacker == &m_defenders), att->m_unit);
-		m_battle->AddEvent(attackEvent);
-		att->m_alreadyAttacked = true;
-	}
+	// TODO(orchestrator): no equivalent for BattleEvent
+	// if(m_battle && !att->m_alreadyAttacked) {
+	// 	BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
+	// 	m_battle->AddUnitAttack(attackEvent,
+	// 		(attacker == &m_defenders), att->m_unit);
+	// 	m_battle->AddEvent(attackEvent);
+	// 	att->m_alreadyAttacked = true;
+	// }
 
 	const char *attackString = attacker == &m_attackers ? "Attacker" : "Defender";
 	const char *defenseString = defender == &m_defenders ? "Defender" : "Attacker";
@@ -1128,26 +1130,28 @@ void CTP2Combat::ExecuteRangedCounterAttackNC(CombatField *attacker, sint32 attX
 		if(!def->IsAlive()) {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
-			if(m_battle) {
-				BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
-				m_battle->AddUnitDeath(deathEvent,
-					(defender == &m_defenders), def->m_unit);
-				m_battle->AddEvent(deathEvent);
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
+			// 	DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+			// 	m_battle->AddUnitDeath(deathEvent,
+			// 		(defender == &m_defenders), def->m_unit);
+			// 	m_battle->AddEvent(deathEvent);
+			// }
 			s_somethingDied = true;
 		} else {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", %s has %.2lfHP.\n", defenseString, def->GetHP());
 
-			if(m_battle) {
-				if(!def->m_alreadyExploded) {
-					BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
-					m_battle->AddUnitExplosion(explodeEvent,
-											   (defender == &m_defenders), def->m_unit);
-					m_battle->AddEvent(explodeEvent);
-					def->m_alreadyExploded = true;
-				}
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	if(!def->m_alreadyExploded) {
+			// 		BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
+			// 		m_battle->AddUnitExplosion(explodeEvent,
+			// 								   (defender == &m_defenders), def->m_unit);
+			// 		m_battle->AddEvent(explodeEvent);
+			// 		def->m_alreadyExploded = true;
+			// 	}
+			// }
 		}
 	} else {
 		combat_print(k_COMBAT_DEBUG_VERBOSE, "RANGED: %s@(%2d,%2d) MISSED %s@(%2d,%2d).\n", attackString, attX, attY,
@@ -1212,20 +1216,21 @@ void CTP2Combat::DoRangedCounterAttacks()
 }
 
 void CTP2Combat::ExecuteAttack(CombatField *attacker, sint32 attX, sint32 attY,
-							   CombatField *defender, sint32 defX, sint32 defY)
+								   CombatField *defender, sint32 defX, sint32 defY)
 {
 	m_noAttacksPossible = false;
 
 	CombatUnit *att = &attacker->GetUnit(attX, attY);
 	CombatUnit *def = &defender->GetUnit(defX, defY);
 
-	if(m_battle && !att->m_alreadyAttacked) {
-		BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
-		m_battle->AddUnitAttack(attackEvent,
-			(attacker == &m_defenders), att->m_unit);
-		m_battle->AddEvent(attackEvent);
-		att->m_alreadyAttacked = true;
-	}
+	// TODO(orchestrator): no equivalent for BattleEvent
+	// if(m_battle && !att->m_alreadyAttacked) {
+	// 	BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
+	// 	m_battle->AddUnitAttack(attackEvent,
+	// 		(attacker == &m_defenders), att->m_unit);
+	// 	m_battle->AddEvent(attackEvent);
+	// 	att->m_alreadyAttacked = true;
+	// }
 
 	const char *attackString = attacker == &m_attackers ? "Attacker" : "Defender";
 	const char *defenseString = defender == &m_defenders ? "Defender" : "Attacker";
@@ -1255,26 +1260,28 @@ void CTP2Combat::ExecuteAttack(CombatField *attacker, sint32 attX, sint32 attY,
 		if(!def->IsAlive()) {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
-			if(m_battle) {
-				BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
-				m_battle->AddUnitDeath(deathEvent,
-					(defender == &m_defenders), def->m_unit);
-				m_battle->AddEvent(deathEvent);
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
+			// 	DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+			// 	m_battle->AddUnitDeath(deathEvent,
+			// 		(defender == &m_defenders), def->m_unit);
+			// 	m_battle->AddEvent(deathEvent);
+			// }
 			s_somethingDied = true;
 		} else {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", %s has %.2lfHP.\n", defenseString, def->GetHP());
 
-			if(m_battle) {
-				if(!def->m_alreadyExploded) {
-					BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
-					m_battle->AddUnitExplosion(explodeEvent,
-											   (defender == &m_defenders), def->m_unit);
-					m_battle->AddEvent(explodeEvent);
-					def->m_alreadyExploded = true;
-				}
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	if(!def->m_alreadyExploded) {
+			// 		BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
+			// 		m_battle->AddUnitExplosion(explodeEvent,
+			// 								   (defender == &m_defenders), def->m_unit);
+			// 		m_battle->AddEvent(explodeEvent);
+			// 		def->m_alreadyExploded = true;
+			// 	}
+			// }
 		}
 	} else {
 		combat_print(k_COMBAT_DEBUG_VERBOSE, "NORMAL: %s@(%2d,%2d) MISSED %s@(%2d,%2d).\n", attackString, attX, attY,
@@ -1283,20 +1290,21 @@ void CTP2Combat::ExecuteAttack(CombatField *attacker, sint32 attX, sint32 attY,
 }
 
 void CTP2Combat::ExecuteCounterAttackNC(CombatField *attacker, sint32 attX, sint32 attY,
-							   CombatField *defender, sint32 defX, sint32 defY)
+								   CombatField *defender, sint32 defX, sint32 defY)
 {
 	m_noAttacksPossible = false;
 
 	CombatUnit *att = &attacker->GetUnit(attX, attY);
 	CombatUnit *def = &defender->GetUnit(defX, defY);
 
-	if(m_battle && !att->m_alreadyAttacked) {
-		BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
-		m_battle->AddUnitAttack(attackEvent,
-			(attacker == &m_defenders), att->m_unit);
-		m_battle->AddEvent(attackEvent);
-		att->m_alreadyAttacked = true;
-	}
+	// TODO(orchestrator): no equivalent for BattleEvent
+	// if(m_battle && !att->m_alreadyAttacked) {
+	// 	BattleEvent *attackEvent = new BattleEvent(BATTLE_EVENT_TYPE_ATTACK);
+	// 	m_battle->AddUnitAttack(attackEvent,
+	// 		(attacker == &m_defenders), att->m_unit);
+	// 	m_battle->AddEvent(attackEvent);
+	// 	att->m_alreadyAttacked = true;
+	// }
 
 	const char *attackString = attacker == &m_attackers ? "Attacker" : "Defender";
 	const char *defenseString = defender == &m_defenders ? "Defender" : "Attacker";
@@ -1320,26 +1328,28 @@ void CTP2Combat::ExecuteCounterAttackNC(CombatField *attacker, sint32 attX, sint
 		if(!def->IsAlive()) {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", killing %s.\n", defenseString);
 
-			if(m_battle) {
-				BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
-				DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
-				m_battle->AddUnitDeath(deathEvent,
-					(defender == &m_defenders), def->m_unit);
-				m_battle->AddEvent(deathEvent);
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	BattleEvent *deathEvent = new BattleEvent(BATTLE_EVENT_TYPE_DEATH);
+			// 	DPRINTF(k_DBG_GAMESTATE, ("Adding death for %lx\n", def->m_unit));
+			// 	m_battle->AddUnitDeath(deathEvent,
+			// 		(defender == &m_defenders), def->m_unit);
+			// 	m_battle->AddEvent(deathEvent);
+			// }
 			s_somethingDied = true;
 		} else {
 			combat_print(k_COMBAT_DEBUG_VERBOSE, ", %s has %.2lfHP.\n", defenseString, def->GetHP());
 
-			if(m_battle) {
-				if(!def->m_alreadyExploded) {
-					BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
-					m_battle->AddUnitExplosion(explodeEvent,
-											   (defender == &m_defenders), def->m_unit);
-					m_battle->AddEvent(explodeEvent);
-					def->m_alreadyExploded = true;
-				}
-			}
+			// TODO(orchestrator): no equivalent for BattleEvent
+			// if(m_battle) {
+			// 	if(!def->m_alreadyExploded) {
+			// 		BattleEvent *explodeEvent = new BattleEvent(BATTLE_EVENT_TYPE_EXPLODE);
+			// 		m_battle->AddUnitExplosion(explodeEvent,
+			// 								   (defender == &m_defenders), def->m_unit);
+			// 		m_battle->AddEvent(explodeEvent);
+			// 		def->m_alreadyExploded = true;
+			// 	}
+			// }
 		}
 	} else {
 		combat_print(k_COMBAT_DEBUG_VERBOSE, "NORMAL: %s@(%2d,%2d) MISSED %s@(%2d,%2d).\n", attackString, attX, attY,
@@ -1416,13 +1426,14 @@ void CTP2Combat::DoMovement()
 	m_attackers.Move();
 	m_defenders.Move();
 
-	if(m_battle) {
-		BattleEvent *placementEvent = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
-		Assert(placementEvent);
-		m_attackers.ReportUnits(m_battle, placementEvent, false);
-		m_defenders.ReportUnits(m_battle, placementEvent, false);
-		m_battle->AddEvent(placementEvent);
-	}
+	// TODO(orchestrator): no equivalent for BattleEvent
+	// if(m_battle) {
+	// 	BattleEvent *placementEvent = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
+	// 	Assert(placementEvent);
+	// 	m_attackers.ReportUnits(m_battle, placementEvent, false);
+	// 	m_defenders.ReportUnits(m_battle, placementEvent, false);
+	// 	m_battle->AddEvent(placementEvent);
+	// }
 }
 
 bool CTP2Combat::ResolveOneRound()
@@ -1460,19 +1471,20 @@ bool CTP2Combat::ResolveOneRound()
 	}
 
 	bool playAnimations = true;
-	if(m_battle && (m_round > 1)) {
-		if(IsDone() || s_somethingDied || ++m_roundsSinceUpdate >= g_theProfileDB->GetBattleSpeed()) {
-			if(g_battleViewWindow && m_battle) {
-				g_battleViewWindow->UpdateBattle(m_battle);
-			}
-			m_roundsSinceUpdate = 0;
-
-			m_attackers.StartRound();
-			m_defenders.StartRound();
-		} else {
-			playAnimations = false;
-		}
-	}
+	// TODO(orchestrator): no equivalent for g_battleViewWindow->UpdateBattle / BattleEvent
+	// if(m_battle && (m_round > 1)) {
+	// 	if(IsDone() || s_somethingDied || ++m_roundsSinceUpdate >= g_theProfileDB->GetBattleSpeed()) {
+	// 		if(g_battleViewWindow && m_battle) {
+	// 			g_battleViewWindow->UpdateBattle(m_battle);
+	// 		}
+	// 		m_roundsSinceUpdate = 0;
+	//
+	// 		m_attackers.StartRound();
+	// 		m_defenders.StartRound();
+	// 	} else {
+	// 		playAnimations = false;
+	// 	}
+	// }
 
 
 	if(m_retreating) {

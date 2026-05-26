@@ -139,7 +139,7 @@
 #include "gs/utility/TurnCnt.h"                        // g_turn
 #include "ConstRecord.h"
 #include "DifficultyRecord.h"
-#include "ui/interface/splash.h"
+#include "gs/core/splash_progress.h"
 
 PLAYER_INDEX CtpAi::s_maxPlayers = 0;
 

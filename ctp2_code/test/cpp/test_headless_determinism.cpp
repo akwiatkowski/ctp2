@@ -1,48 +1,126 @@
 // test/cpp/test_headless_determinism.cpp
-// Determinism smoke test for ctp2_headless.
+// Determinism tests for ctp2_headless.
 //
-// GOAL: verify that two runs with the same seed produce identical game state.
+// Two runs of ctp2_headless with the same --seed must produce byte-identical
+// metrics output.  Two runs with different seeds must NOT.
 //
-// CURRENT STATUS: BLOCKED — the headless binary parses --seed but does NOT
-// wire it to the RNG.  The seed is only used for logging.  To enable this
-// test, the following code change is required in headless_main.cpp:
-//
-//   g_theProfileDB->SetMapSeed(seed);   // or equivalent RNG init
-//
-// Once wired, this test will:
-//   1. Run headless with seed=42, save at turn 25
-//   2. Run headless with seed=42, save at turn 25 (second run)
-//   3. Compare save file checksums — they must match
-//
-// For now, the test is a stub that documents the requirement.
+// Determinism is the gate for further refactoring: if the same seed produces
+// different output, some subsystem is reading an unsalted RNG (system clock,
+// hash-map iteration order, uninitialised memory).  These tests catch
+// regressions in that gate.
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <string>
 
-TEST_CASE("Determinism: same seed produces identical saves (REQUIRES seed wiring)")
+namespace {
+
+static const char *HEADLESS_CANDIDATES[] = {
+    "./build/ctp2_headless",
+    "./build-sanitized/ctp2_headless",
+    "./ctp2_headless",
+    nullptr,
+};
+
+const char *find_headless_binary()
 {
-    // Placeholder — will be implemented once seed is wired to RNG.
-    //
-    // Expected usage:
-    //   ./ctp2_headless --new-game --turns 25 --seed 42 --save-at 25 --save-to /tmp/run1.sav
-    //   ./ctp2_headless --new-game --turns 25 --seed 42 --save-at 25 --save-to /tmp/run2.sav
-    //   md5sum /tmp/run1.sav /tmp/run2.sav  # must match
-    //
-    // NOTE: The headless binary currently does not support --save-at or --save-to.
-    // These CLI options would need to be added, plus the save logic inside the
-    // turn loop (e.g. GameFile::SaveGame).
-
-    CHECK(true); // Blocked: seed not wired to RNG, and --save-at/--save-to not implemented
+    for (const char **p = HEADLESS_CANDIDATES; *p; ++p) {
+        if (std::FILE *f = std::fopen(*p, "r")) {
+            std::fclose(f);
+            return *p;
+        }
+    }
+    return nullptr;
 }
 
-TEST_CASE("Determinism: different seeds produce different saves (REQUIRES seed wiring)")
+int run_headless(const char *args, std::string *captured_stderr)
 {
-    // Placeholder — will be implemented once seed is wired to RNG.
-    //
-    // Expected usage:
-    //   ./ctp2_headless --new-game --turns 25 --seed 42 --save-at 25 --save-to /tmp/run1.sav
-    //   ./ctp2_headless --new-game --turns 25 --seed 99 --save-at 25 --save-to /tmp/run2.sav
-    //   md5sum /tmp/run1.sav /tmp/run2.sav  # must differ
+    const char *bin = find_headless_binary();
+    if (!bin) {
+        if (captured_stderr) *captured_stderr = "[ERROR] ctp2_headless not found";
+        return -1;
+    }
+    char cmd[1024];
+    std::snprintf(cmd, sizeof(cmd), "%s %s 2>&1", bin, args);
 
-    CHECK(true); // Blocked: seed not wired to RNG, and --save-at/--save-to not implemented
+    FILE *pipe = popen(cmd, "r");
+    if (!pipe) return -1;
+
+    std::string out;
+    char buf[512];
+    while (std::fgets(buf, sizeof(buf), pipe)) out += buf;
+    int status = pclose(pipe);
+    if (captured_stderr) *captured_stderr = out;
+    return WEXITSTATUS(status);
+}
+
+bool read_file(const char *path, std::string &out)
+{
+    FILE *fp = std::fopen(path, "rb");
+    if (!fp) return false;
+    char buf[4096];
+    size_t n;
+    while ((n = std::fread(buf, 1, sizeof(buf), fp)) > 0) out.append(buf, n);
+    std::fclose(fp);
+    return true;
+}
+
+// Run headless with the given seed and turn count, write metrics to the given
+// path, return the metrics file contents.  Empty string on failure.
+std::string run_and_read_metrics(int seed, int turns, const char *path)
+{
+    std::remove(path);
+    char args[512];
+    std::snprintf(args, sizeof(args),
+                  "--new-game --turns %d --players 4 --seed %d --export-metrics %s",
+                  turns, seed, path);
+    std::string log;
+    int rc = run_headless(args, &log);
+    if (rc != 0) {
+        INFO("headless exited non-zero: " << rc << "\n" << log);
+        return "";
+    }
+    std::string contents;
+    if (!read_file(path, contents)) return "";
+    return contents;
+}
+
+}  // namespace
+
+TEST_CASE("Determinism: same seed produces identical metrics at 5 turns")
+{
+    std::string a = run_and_read_metrics(42, 5, "/tmp/ctp2_det_5a.csv");
+    std::string b = run_and_read_metrics(42, 5, "/tmp/ctp2_det_5b.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics at 25 turns")
+{
+    // 25 turns is enough for the AI to found multiple cities per player and
+    // run combat/diplomacy events; catches divergence sources that only fire
+    // after the opening moves.
+    std::string a = run_and_read_metrics(42, 25, "/tmp/ctp2_det_25a.csv");
+    std::string b = run_and_read_metrics(42, 25, "/tmp/ctp2_det_25b.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: different seeds produce different metrics")
+{
+    std::string a = run_and_read_metrics(42, 10, "/tmp/ctp2_det_seedA.csv");
+    std::string b = run_and_read_metrics(99, 10, "/tmp/ctp2_det_seedB.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    // If these match the RNG seed isn't actually affecting any game decision.
+    CHECK(a != b);
 }

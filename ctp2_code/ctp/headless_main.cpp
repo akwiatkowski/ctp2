@@ -35,6 +35,7 @@
 extern CivApp *g_civApp;
 extern bool    g_headlessMode;
 extern sint32  g_runInBackground;
+extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed override
 
 // Headless mode needs a CurPlayer callback because CtpAi::BeginTurn and
 // BeginMapAnalysis assert(player == player_view::CurPlayer()).  In the
@@ -157,6 +158,16 @@ int main(int argc, char **argv)
 
             // Set player count and seed in ProfileDB
             g_theProfileDB->SetNPlayers(numPlayers);
+
+            // Wire --seed to the RNG.  gameinit_Initialize reads g_oldRandSeed
+            // and uses it as the seed for g_rand when non-zero; otherwise it
+            // falls back to GetTickCount().  Map generation, AI decisions, and
+            // combat all draw from g_rand, so this is the single knob that
+            // makes two runs deterministic.  Seed 0 keeps the legacy "use
+            // system time" semantic for users who want non-deterministic runs.
+            if (seed != 0) {
+                g_oldRandSeed = seed;
+            }
 
             // Enable AI for non-human players — otherwise the turn pipeline
             // ticks but no decisions are dispatched (settlers never settle,

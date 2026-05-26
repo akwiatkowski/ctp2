@@ -85,7 +85,9 @@ std::vector<Violation> scan_directory(const std::string& root,
                                       const char* extension)
 {
     std::vector<Violation> violations;
-    static const std::regex include_ui_re(R"(^\s*#include\s+[<"]ui/)");
+    // ui/netshell/* is the multiplayer network shell, not UI rendering;
+    // consumed by gs/fileio/gamefile.h and gs/network code as a legitimate dependency.
+    static const std::regex include_ui_re(R"(^\s*#include\s+[<\"]ui/(?!netshell/))");
 
     std::vector<std::string> files;
     walk_source_files(root, extension, files);

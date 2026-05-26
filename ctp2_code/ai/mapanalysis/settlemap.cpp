@@ -333,7 +333,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		settle_target.m_value = m_settleValues.GetGridValue(rc_pos);
 		settle_target.m_pos = rc_pos;
 
-		if(g_graphicsOptions->IsCellTextOn())
+		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "*%4.0f*", settle_target.m_value);
@@ -345,7 +345,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 		if(settle_target.m_value <= settle_threshold)
 		{
-			if (g_graphicsOptions->IsCellTextOn())
+			if (g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 			{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "(%4.0f)", settle_target.m_value);
@@ -358,7 +358,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(!settleTerrainTypes[g_theWorld->GetTerrainType(rc_pos)])
 			continue;
 
-		if(g_graphicsOptions->IsCellTextOn())
+		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
@@ -562,7 +562,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		settle_target.m_value = m_settleValues.GetGridValue(rc_pos);
 		settle_target.m_pos = rc_pos;
 
-		if(g_graphicsOptions->IsCellTextOn())
+		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "*%4.0f*", settle_target.m_value);
@@ -574,7 +574,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 		if(settle_target.m_value <= settle_threshold)
 		{
-			if (g_graphicsOptions->IsCellTextOn())
+			if (g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 			{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "(%4.0f)", settle_target.m_value);
@@ -587,7 +587,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(!settleTerrainTypes[g_theWorld->GetTerrainType(rc_pos)])
 			continue;
 
-		if(g_graphicsOptions->IsCellTextOn())
+		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);

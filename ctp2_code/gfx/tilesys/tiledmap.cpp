@@ -1093,6 +1093,13 @@ void TiledMap::TryMegaTiles(MapPoint &pos, BOOL regenTilenum)
 void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 							   BOOL regenTilenum)
 {
+	// Headless builds construct a TiledMap without LoadTileset (see
+	// CivApp::InitializeGameHeadless). Without a tileset, tile-graphics
+	// post-processing has nothing to compute against and TryTransforms
+	// would deref a null TileSet. Skip in that case — the visible-on-screen
+	// transformations are UI concerns, irrelevant for game logic.
+	if (!m_tileSet) return;
+
 	if (theTileInfo->HasGoodActor())
 		theTileInfo->DeleteGoodActor();
 
@@ -3248,6 +3255,10 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 sint32 TiledMap::Refresh(void)
 {
+	// Headless builds construct a TiledMap with no rendering surface.
+	// Refresh is purely a render-pass; no game state lives here.
+	if (!m_surface) return AUI_ERRCODE_OK;
+
 	LPVOID      buffer;
 	AUI_ERRCODE errcode = m_surface->Lock(NULL, &buffer, 0);
 	Assert(errcode == AUI_ERRCODE_OK);
@@ -4074,7 +4085,7 @@ void TiledMap::RedrawTile
 		UnlockSurface();
 	}
 
-	g_radarMap->RedrawTile( point );
+	if (g_radarMap) g_radarMap->RedrawTile( point );
 }
 
 

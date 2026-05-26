@@ -362,7 +362,7 @@ STDEHANDLER(CtpAi_KillCityEvent)
 
 				scheduler.Add_New_Goal( goal_ptr );
 
-				g_graphicsOptions->AddTextToCell(u.RetPos(), "KILLED", 0);
+				if (g_graphicsOptions) g_graphicsOptions->AddTextToCell(u.RetPos(), "KILLED", 0);
 			}
 		}
 	}
@@ -415,7 +415,7 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 
 					scheduler.Add_New_Goal( goal_ptr );
 
-					g_graphicsOptions->AddTextToCell(city.RetPos(), "NUKED", 0);
+					if (g_graphicsOptions) g_graphicsOptions->AddTextToCell(city.RetPos(), "NUKED", 0);
 				}
 			}
 		}
@@ -1439,7 +1439,7 @@ void CtpAi::MoveOutofCityTransportUnits(const PLAYER_INDEX playerId)
 										   GEA_End
 										  );
 
-					g_graphicsOptions->AddTextToArmy
+					if (g_graphicsOptions) g_graphicsOptions->AddTextToArmy
 						(move_army, "Transport OutOfCity", 255);
 
 					found = true;
@@ -1567,7 +1567,7 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 							GEA_Int, FALSE,
 							GEA_End);
 
-						g_graphicsOptions->AddTextToArmy(move_army, "MakeRoom", 255);
+						if (g_graphicsOptions) g_graphicsOptions->AddTextToArmy(move_army, "MakeRoom", 255);
 
 						sint8 defense_count;
 						sint8 tmp_count;
@@ -1846,9 +1846,11 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 				scheduler.Add_New_Goal( goal_ptr );
 
 				uint8   magnitude = (uint8) (((max_desired_goals - desired_goals) * 255) / max_desired_goals);
-				char buf[10];
-				snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
-				g_graphicsOptions->AddTextToCell(settle_target.m_pos, buf, magnitude);
+				if (g_graphicsOptions) {
+					char buf[10];
+					snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
+					g_graphicsOptions->AddTextToCell(settle_target.m_pos, buf, magnitude);
+				}
 
 				desired_goals--;
 			}
@@ -2138,7 +2140,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 		GEA_Int, FALSE,
 		GEA_End);
 
-	g_graphicsOptions->AddTextToArmy(army, "Refuel", 255);
+	if (g_graphicsOptions) g_graphicsOptions->AddTextToArmy(army, "Refuel", 255);
 }
 
 void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)

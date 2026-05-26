@@ -101,6 +101,8 @@
 #include "ctp/civapp.h"
 #include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
 #include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
+#include "robot/utility/RoboInit.h"             // roboinit_Initalize
+#include "ai/ctpai.h"                           // CtpAi::Initialize
 #include "ui/aui_ctp2/ui_events.h"     // ui_events_Initialize / _Cleanup
 
 #ifdef __AUI_USE_SDL__
@@ -3445,6 +3447,13 @@ sint32 CivApp::InitializeGameHeadless(void)
 
 	g_gevManager->Resume();
 	g_gevManager->Process();
+
+	// Initialize AI subsystems (pathfinder, governors, scheduler, diplomat).
+	// The interactive game does this in InitializeGame() via roboinit_Initalize
+	// and CtpAi::Initialize(); the headless path must do the same or the AI
+	// never makes decisions (settlers never settle, score stays flat).
+	roboinit_Initalize(NULL);
+	CtpAi::Initialize();
 
 	fprintf(stderr, "[CIVAPP] InitializeGameHeadless: done (game loaded)\n");
 	return 0;

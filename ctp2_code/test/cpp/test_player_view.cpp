@@ -37,7 +37,7 @@ namespace {
 // Ratchet baselines — total `#include "ui/..."` lines, summed across files.
 // Tighten whenever the migration reduces the actual count.
 constexpr std::size_t GS_UI_CPP_BASELINE    = 0;
-constexpr std::size_t GS_UI_HEADER_BASELINE = 4;
+constexpr std::size_t GS_UI_HEADER_BASELINE = 0;
 constexpr std::size_t AI_UI_CPP_BASELINE    = 1;
 constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 

@@ -31,7 +31,6 @@ extern sint32 g_numOrderInfo;
 extern sint32 g_orderInfoMap[UNIT_ORDER_MAX];
 
 #include "gs/events/GameEventDescription.h"
-#include "ui/interface/cursormanager.h"
 #include "gs/world/MapPoint.h"
 
 class CivArchive;
@@ -75,7 +74,7 @@ public:
 	static GAME_EVENT OrderToEvent(UNIT_ORDER_TYPE order);
 	static void AssociateEventsWithOrders();
 
-	static CURSORINDEX GetCursor(OrderRecord *order);
-	static CURSORINDEX GetInvalidCursor(OrderRecord *order);
+	static sint32 GetCursor(OrderRecord *order);          // cursor id (CURSORINDEX enum value, cast at call site)
+	static sint32 GetInvalidCursor(OrderRecord *order);   // cursor id (CURSORINDEX enum value, cast at call site)
 };
 #endif

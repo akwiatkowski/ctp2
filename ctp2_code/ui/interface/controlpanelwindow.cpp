@@ -1842,7 +1842,7 @@ ControlPanelWindow::OrderDeliveryUpdate()
 			}
 			specialAttackWindow_DisplayData(pos, -1);
 		} else {
-			g_cursorManager->SetCursor(Order::GetCursor(m_currentOrder));
+			g_cursorManager->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
 			if(army->CheckWasEnemyVisible(pos, true)){
 				specialAttackWindow_DisplayData(pos, m_currentOrder->GetIndex());
 			}
@@ -1854,7 +1854,7 @@ ControlPanelWindow::OrderDeliveryUpdate()
 		if(m_currentOrder->GetTargetPretestMovePosition()) {
 			g_cursorManager->SetCursor(CURSORINDEX_NOMOVE);
 		} else {
-			g_cursorManager->SetCursor(Order::GetCursor(m_currentOrder));
+			g_cursorManager->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
 		}
 		specialAttackWindow_DisplayData(pos, -1);
 	}

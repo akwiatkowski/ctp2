@@ -55,6 +55,7 @@
 
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/battleviewwindow.h"  // g_battleViewWindow
+#include "ui/interface/cursormanager.h"
 #include "ui/interface/messagewin.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/interface/screenutils.h"

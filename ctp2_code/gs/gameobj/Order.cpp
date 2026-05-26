@@ -283,12 +283,12 @@ void Order::AssociateEventsWithOrders()
 	}
 }
 
-CURSORINDEX Order::GetCursor(OrderRecord *order)
+sint32 Order::GetCursor(OrderRecord *order)
 {
-	return (CURSORINDEX)order->GetCursor();
+	return order->GetCursor();
 }
 
-CURSORINDEX Order::GetInvalidCursor(OrderRecord *order)
+sint32 Order::GetInvalidCursor(OrderRecord *order)
 {
-	return (CURSORINDEX)order->GetInvalidCursor();
+	return order->GetInvalidCursor();
 }

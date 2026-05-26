@@ -1229,8 +1229,10 @@ cwd_for_tests = join_paths(meson.project_source_root(), '..')
 test('fast', fast_test_exe, timeout : 30, workdir : cwd_for_tests)
 
 # ---------------------------------------------------------------------------
-# Full unit-test suite — includes slow / database-dependent / crash-prone tests.
-# Run manually with `make test-full` or `ninja test`.
+# Full unit-test suite — adds database-dependent and integration tests
+# (BuildQueue + CityData load the real game DBs; headless_* spawn the
+# ctp2_headless binary).  Total ~30 s.  Run with `make test-full` or
+# `meson test`.
 # ---------------------------------------------------------------------------
 cpp_test_sources = [
   'test/cpp/main.cpp',

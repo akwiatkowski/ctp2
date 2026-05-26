@@ -132,7 +132,6 @@ PLAYER_INDEX const  PLAYER_UNASSIGNED   = -1;
 #include "gs/gameobj/Readiness.h"          // READINESS_LEVEL
 #include "gs/gameobj/Strengths.h"          // STRENGTH_CAT
 #include "gs/gameobj/Unit.h"               // UNIT_COMMAND
-#include "ui/interface/GreatLibraryTypes.h"  // DATABASE
 
 template <class T> class DynamicArray;
 template <class T> class Database;
@@ -1024,7 +1023,7 @@ public:
 
 	void EnterNewAge(sint32 age);
 
-	sint32 SetResearchGoal(enum DATABASE db, sint32 item);
+	sint32 SetResearchGoal(sint32 db, sint32 item);   // db is a DATABASE enum value
 
 	void StartResearchingAdvanceForGoal(sint32 goal);
 	bool RecursivelyStartResearching(sint32 advance);

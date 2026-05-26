@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Use the same science percentage everywhere.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -99,6 +99,7 @@
 #include "ui/interface/sci_advancescreen.h"
 
 #include "ui/aui_ctp2/c3windows.h"
+#include "ui/interface/GreatLibraryTypes.h"  // DATABASE definition for sciencewindow.h
 #include "ui/interface/sciencewindow.h"
 
 #include "ui/aui_ctp2/c3window.h"

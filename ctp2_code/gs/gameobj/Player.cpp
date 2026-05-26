@@ -138,6 +138,8 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/Player.h"
 
+#include "gs/core/great_library_db.h"  // GL_DB_* constants mirror DATABASE enum values
+
 #include <deque>            // FindNearestUnexplored BFS frontier
 #include <vector>           // FindNearestUnexplored visited bitmap
 
@@ -9004,7 +9006,7 @@ void Player::EnterNewAge(sint32 age)
 // Description: Sets the research goal of a player given the item has an
 //              enabling advance and that advance is not researched, yet.
 //
-// Parameters : enum DATABASE db - An database enum
+// Parameters : sint32 db - A DATABASE enum value (see great_library_db.h)
 //              sint32 index - An index in the according database
 //
 // Globals    : -
@@ -9015,7 +9017,7 @@ void Player::EnterNewAge(sint32 age)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-sint32 Player::SetResearchGoal(enum DATABASE db, sint32 index)
+sint32 Player::SetResearchGoal(sint32 db, sint32 index)
 {
 	//Added by Martin G�hmann
 	//Clears reseach goal if index is smaller 0:
@@ -9032,30 +9034,30 @@ sint32 Player::SetResearchGoal(enum DATABASE db, sint32 index)
 
 	switch(db)
 	{
-		case DATABASE_DEFAULT:
-		case DATABASE_SEARCH:
-		case DATABASE_ORDERS:
-		case DATABASE_RESOURCE:
-		case DATABASE_CONCEPTS:
-		case DATABASE_TERRAIN:
+		case GL_DB_DEFAULT:
+		case GL_DB_SEARCH:
+		case GL_DB_ORDERS:
+		case GL_DB_RESOURCE:
+		case GL_DB_CONCEPTS:
+		case GL_DB_TERRAIN:
 
 			return 2;
-		case DATABASE_UNITS:
+		case GL_DB_UNITS:
 			advance = g_theUnitDB->Get(index, m_government_type)->GetEnableAdvanceIndex();
 			break;
-		case DATABASE_BUILDINGS:
+		case GL_DB_BUILDINGS:
 			advance = g_theBuildingDB->Get(index, m_government_type)->GetEnableAdvanceIndex();
 			break;
-		case DATABASE_WONDERS:
+		case GL_DB_WONDERS:
 			advance = g_theWonderDB->Get(index, m_government_type)->GetEnableAdvanceIndex();
 			break;
-		case DATABASE_ADVANCES:
+		case GL_DB_ADVANCES:
 			advance = index;
 			break;
-		case DATABASE_GOVERNMENTS:
+		case GL_DB_GOVERNMENTS:
 			advance = g_theGovernmentDB->Get(index)->GetEnableAdvanceIndex();
 			break;
-		case DATABASE_TILE_IMPROVEMENTS:
+		case GL_DB_TILE_IMPROVEMENTS:
 			advance = g_theTerrainImprovementDB->Get(index, m_government_type)->GetTerrainEffect(0)->GetEnableAdvanceIndex();
 			tmpCosts = m_advances->GetCost(advance);
 			for(i = 1; i < g_theTerrainImprovementDB->Get(index)->GetNumTerrainEffect(); i++)

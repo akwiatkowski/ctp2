@@ -43,7 +43,6 @@ typedef unsigned long uint32;
 #include "ConstRecord.h"	// g_theConstDB
 #include "gs/gameobj/Unit.h"
 #include "gs/world/MapPoint.h"
-#include "ui/interface/battle.h"
 #include "robot/aibackdoor/dynarr.h"
 
 #define k_COMBAT_WIDTH 4
@@ -69,6 +68,7 @@ enum UNIT_TYPE {
 class Army;
 class Battle;
 class BattleEvent;
+class CellUnitList;
 
 class CombatUnit {
 private:

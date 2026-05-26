@@ -726,7 +726,8 @@ void CombatField::ReportUnits(Battle *battle, BattleEvent *event, bool initial)
 			if(cu.IsActive()) {
 				if(battle) {
 					DPRINTF(k_DBG_GAMESTATE, ("Positioning unit %lx (%lf HP)\n", cu.m_unit, cu.GetHP()));
-					battle->PositionUnit(event, !m_isOffense, cu.m_unit, x, y, initial);
+					// TODO(orchestrator): no equivalent for Battle
+					// battle->PositionUnit(event, !m_isOffense, cu.m_unit, x, y, initial);
 				}
 			}
 		}

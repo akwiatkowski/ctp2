@@ -110,6 +110,7 @@
 
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CTP2Combat.h"
+#include "ui/interface/battle.h"
 
 #include "ui/interface/armymanagerwindow.h"
 #include "ui/aui_ctp2/ctp2_Window.h"

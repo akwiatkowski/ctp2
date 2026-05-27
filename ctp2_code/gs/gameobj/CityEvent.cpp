@@ -54,7 +54,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/RandGen.h"
 #include "ConstRecord.h"
-#include "sound/gamesounds.h"
+#include "gs/core/audio_types.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/utility/UnitDynArr.h"

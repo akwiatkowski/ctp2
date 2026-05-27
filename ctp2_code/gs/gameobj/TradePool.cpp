@@ -1,7 +1,8 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/TradePool.h"
-#include "gfx/layers/citylayer.h"
 #include "gs/gameobj/TradeRouteData.h"
+
+void DrawTradeRoute(aui_Surface *pSurface, DynamicArray<MapPoint> *pRoute, uint16 route, uint16 outline);
 #include "gs/core/render_observer.h"
 #include "TerrainRecord.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet

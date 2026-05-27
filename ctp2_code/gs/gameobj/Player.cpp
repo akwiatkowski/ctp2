@@ -195,7 +195,7 @@
 #include "gs/utility/gameinit.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
-#include "sound/gamesounds.h"
+#include "gs/core/audio_types.h"
 #include "GovernmentRecord.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Gold.h"

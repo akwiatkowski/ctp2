@@ -43,7 +43,6 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/CityRadius.h"
 #include "TerrainRecord.h"
-#include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 #include "net/general/network.h"
 #include "ResourceRecord.h"

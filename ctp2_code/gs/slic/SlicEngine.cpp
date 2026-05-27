@@ -91,7 +91,6 @@
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/fileio/gamefile.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gfx/spritesys/director.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicStruct.h"
 #include "gs/slic/SlicNamedSymbol.h"

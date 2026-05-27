@@ -36,11 +36,10 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 
 extern TiledMap	*g_tiledMap;
 extern UnitPool *g_theUnitPool;
-extern Director *g_director;
 
 #ifdef _BAD_EYE
 PointerList<SlicEyePoint> s_deletedEyepoints;
@@ -190,12 +189,12 @@ void SlicEyePoint::Callback()
 				if(g_theUnitPool->IsValid(m_unit) &&
 				   m_unit.GetOwner() == player_view::VisiblePlayer()) {
 					player_view::SetSelectUnit(m_unit);
-					g_director->AddCenterMap(m_point);
+					render_observer::AddCenterMap(m_point);
 					if(obj)
 						obj->AddUnit(m_unit);
 				}
 			} else {
-				g_director->AddCenterMap(m_point);
+				render_observer::AddCenterMap(m_point);
 				if(obj)
 					obj->AddLocation(m_point);
 			}

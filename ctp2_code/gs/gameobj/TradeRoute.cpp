@@ -5,7 +5,7 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/TradeRouteData.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/world/MapPoint.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/world/Cell.h"
@@ -20,7 +20,6 @@
 
 extern World* g_theWorld;
 extern Player** g_player;
-extern Director	*g_director;
 extern UnitPool *g_theUnitPool;
 
 bool TradeRoute::IsValid() const
@@ -36,7 +35,7 @@ void TradeRoute::KillRoute(CAUSE_KILL_TRADE_ROUTE cause)
 
 void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 {
-	if (g_director) g_director->TradeActorDestroy(*this);
+	render_observer::TradeActorDestroy(*this);
 	TradeRouteData* data = AccessData();
 
 

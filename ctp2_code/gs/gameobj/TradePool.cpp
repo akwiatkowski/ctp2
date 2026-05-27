@@ -2,7 +2,7 @@
 #include "gs/gameobj/TradePool.h"
 #include "gfx/layers/citylayer.h"
 #include "gs/gameobj/TradeRouteData.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "TerrainRecord.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
@@ -60,7 +60,7 @@ TradeRoute TradePool::Create(Unit sourceCity,
 	sourceCity.AddTradeRoute(newRoute);
 	destCity.AddTradeRoute(newRoute);
 	m_all_routes->Insert(newRoute);
-	if (g_director) g_director->TradeActorCreate(newRoute);
+	render_observer::TradeActorCreate(newRoute);
 	sourceCity.RecalculateResources();
 
 	return newRoute;
@@ -159,7 +159,7 @@ void TradePool::RecreateActors()
 {
 	sint32 i;
 	for(i = 0; i < m_all_routes->Num(); i++) {
-		g_director->TradeActorCreate(m_all_routes->Access(i));
+		render_observer::TradeActorCreate(m_all_routes->Access(i));
 	}
 }
 

@@ -61,7 +61,7 @@
 #include "gs/fileio/gamefile.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
-#include "sound/gamesounds.h"
+#include "gs/core/audio_types.h"
 #include "GovernmentRecord.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/core/game_observer.h"

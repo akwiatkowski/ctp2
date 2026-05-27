@@ -242,7 +242,7 @@
 #include "gs/database/DB.h"
 #include "DifficultyRecord.h"
 #include "ai/diplomacy/Diplomat.h"                   // To be able to retrieve the current strategy
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gs/core/render_observer.h"
 #include "gs/core/player_view.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
@@ -1475,9 +1475,9 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 		{
 			sint32 const spriteID = specRec->GetSpriteID()->GetValue();
 
-			if (spriteID >= 0 && g_director)
+			if (spriteID >= 0)
 			{
-				g_director->AddSpecialAttack
+				render_observer::AddSpecialAttack
 				    (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
 			}
 			else if (g_soundManager)
@@ -3910,7 +3910,7 @@ bool CityData::FoodSupportTroops()
 //
 // Parameters : -
 //
-// Globals    : g_director
+// Globals    : -
 //
 // Returns    : -
 //
@@ -3925,7 +3925,7 @@ void CityData::UpdateSprite(void)
 	SpriteStatePtr ss = m_home_city.GetSpriteState();
 	sint32	type = m_home_city.GetType();
 
-	if (g_director) g_director->AddMorphUnit(actor, ss, type, m_home_city);
+	render_observer::AddMorphUnit(actor, ss, type, m_home_city);
 }
 
 void CityData::MakeCitizen(PopDBIndex type, const MapPoint &center_pos,
@@ -3997,7 +3997,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 			if(!route.IsActive())
 			{
 				route.Activate();
-				if (g_director) g_director->TradeActorCreate(route);
+				render_observer::TradeActorCreate(route);
 			}
 			route.BeginTurn();
 		}
@@ -4066,7 +4066,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 			if(!route.IsActive())
 			{
 				route.Activate();
-				if (g_director) g_director->TradeActorCreate(route);
+				render_observer::TradeActorCreate(route);
 			}
 		}
 		if(route.IsActive() && !killRoute)

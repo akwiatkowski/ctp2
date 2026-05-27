@@ -46,7 +46,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/newdb/CTPDatabase.h"
 #include "gs/database/dbtypes.h"                    // k_MAX_NAME_LEN
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gs/core/render_observer.h"
 #include "net/io/net_util.h"                   // PULL/PUSH macros
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/database/profileDB.h"
@@ -802,10 +802,8 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 		}
 
 	}
-	if (g_director) {
-		g_director->AddCopyVision();
-		g_director->CatchUp();
-	}
+	render_observer::AddCopyVision();
+	render_observer::CatchUp();
 
 	g_isCheatModeOn = FALSE;
 
@@ -1112,10 +1110,8 @@ bool MapFile::LoadVision(uint8 *buf, sint32 size)
 		}
 	}
 
-	if (g_director) {
-		g_director->AddCopyVision();
-		g_director->CatchUp();
-	}
+	render_observer::AddCopyVision();
+	render_observer::CatchUp();
 
 	return true;
 }

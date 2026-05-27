@@ -290,7 +290,6 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
-#include "gfx/spritesys/UnitActor.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
 #include "UnitRecord.h"
@@ -299,6 +298,9 @@
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/world/World.h"                      // g_theWorld
+
+class UnitActor;
+typedef std::shared_ptr<UnitActor> UnitActorPtr;
 
 extern Pollution *      g_thePollution;
 extern TopTen *         g_theTopTen;

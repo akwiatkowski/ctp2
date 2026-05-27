@@ -87,7 +87,7 @@ extern TiledMap *g_tiledMap;
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
 #include "gs/gameobj/Order.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 
 #include "AdvanceRecord.h"
 #include "UnitRecord.h"
@@ -115,8 +115,6 @@ static char time_stamp[300] = NO_TIMING_FILENAME_YET;
 	#endif
 
 #endif
-
-extern Director *g_director;
 
 extern sint32 g_scenarioUsePlayerNumber;
 
@@ -469,7 +467,7 @@ BOOL RobotInterface::AttachRobotTo(sint32 playerIndex)
 			if(g_network.IsActive()) {
 				if(playerIndex == g_network.GetPlayerIndex()) {
 
-					if (g_director) g_director->AddEndTurn();
+					render_observer::AddEndTurn();
 				} else if(g_network.IsLocalPlayer(playerIndex)) {
 
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
@@ -920,7 +918,7 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 			} else {
 
 				if(p == player_view::VisiblePlayer()) {
-					if (g_director) g_director->AddEndTurn();
+					render_observer::AddEndTurn();
 				} else {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
 				}
@@ -939,10 +937,8 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 						m_the_stop_player = p;
 						player_view::SetVisiblePlayer(p);
 						g_slicEngine->BlankScreen(TRUE);
-						if (g_director) {
-							g_director->NextPlayer();
-							g_director->AddCopyVision();
-						}
+						render_observer::NextPlayer();
+						render_observer::AddCopyVision();
 						if (g_tiledMap) {
 							g_tiledMap->InvalidateMix();
 							g_tiledMap->InvalidateMap();
@@ -991,13 +987,13 @@ sint32 RobotInterface::ProcessRobot(const uint32 target_milliseconds)
 
 			sint32 oldVisPlayer = player_view::VisiblePlayer();
 			if(g_network.IsClient()) {
-				if (g_director) g_director->AddEndTurn();
+				render_observer::AddEndTurn();
 			} else {
 				if (m_the_stop_player != p) {
 					g_turn->EndThisTurnBeginNewTurn(FALSE);
 				} else if(g_network.IsActive() && g_network.IsHost() && g_player[m_the_stop_player]->GetPlayerType() == PLAYER_TYPE_ROBOT) {
 					if (player_view::CurPlayer() == player_view::VisiblePlayer()) {
-						if (g_director) g_director->AddEndTurn();
+					render_observer::AddEndTurn();
 					} else {
 						g_turn->EndThisTurnBeginNewTurn(FALSE);
 					}

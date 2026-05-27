@@ -51,25 +51,7 @@
 
 template <class T> class PointerList;
 
-enum SOUNDTYPE {
-	SOUNDTYPE_NONE = 0,
-
-	SOUNDTYPE_SFX,
-	SOUNDTYPE_VOICE,
-	SOUNDTYPE_MUSIC,
-
-	SOUNDTYPE_MAX
-};
-
-enum MUSICSTYLE {
-	MUSICSTYLE_NONE = 0,
-
-	MUSICSTYLE_PLAYLIST,
-	MUSICSTYLE_RANDOM,
-	MUSICSTYLE_USER,
-
-	MUSICSTYLE_MAX
-};
+#include "gs/core/audio_types.h"
 
 #define k_SM_MAX_SFXSOUNDS		4
 #define k_SM_MAX_VOICESOUNDS	4

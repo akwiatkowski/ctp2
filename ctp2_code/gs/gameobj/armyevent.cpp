@@ -70,7 +70,7 @@
 #include "gs/gameobj/CTP2Combat.h"
 #include "net/general/net_action.h"
 #include "sound/gamesounds.h"
-#include "sound/soundmanager.h"
+#include "gs/core/audio_types.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/gameobj/Barbarians.h"			// EMOD

@@ -273,7 +273,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"               // SOUNDTYPE_SFX
+#include "gs/core/audio_types.h"
 #include "SpecialAttackInfoRecord.h"
 #include "SpecialEffectRecord.h"
 #include "StrategyRecord.h"             // For accessing the strategy database

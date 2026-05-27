@@ -232,7 +232,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
 #ifdef MOVED_TO_SOUNDEVENT_CPP
-#include "sound/soundmanager.h"               // g_soundManager
+#include "gs/core/audio_types.h"
 #endif
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/Strengths.h"

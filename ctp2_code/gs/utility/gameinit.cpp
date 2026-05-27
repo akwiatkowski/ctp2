@@ -109,7 +109,6 @@
 #include "gs/slic/SlicEngine.h"
 #include "SoundRecord.h"
 #include "SpriteRecord.h"
-#include "gfx/spritesys/SpriteState.h"
 #include "gs/database/StrDB.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprovePool.h"
@@ -121,7 +120,6 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/tradeutil.h"           // constutil_GetMapSizeMapPoint
 #include "gs/utility/TurnCnt.h"
-#include "gfx/spritesys/UnitActor.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitPool.h"

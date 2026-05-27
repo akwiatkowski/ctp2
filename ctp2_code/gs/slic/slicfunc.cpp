@@ -144,7 +144,7 @@
 #include "UnitRecord.h"
 #include "ResourceRecord.h"
 #include "gs/utility/MoveFlags.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/utility/MapFile.h"
 #include "gs/slic/SlicStruct.h"
 #include "SpecialEffectRecord.h"
@@ -2187,7 +2187,7 @@ SFN_ERROR Slic_EndTurn::Call(SlicArgList *args)
 {
 
 
-	if (g_director) g_director->AddEndTurn();
+	render_observer::AddEndTurn();
 
 	return SFN_ERROR_OK;
 }
@@ -4810,7 +4810,7 @@ SFN_ERROR Slic_CatchUp::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if (g_director) g_director->CatchUp();
+	render_observer::CatchUp();
 	return SFN_ERROR_OK;
 }
 
@@ -5818,7 +5818,7 @@ SFN_ERROR Slic_AddCenter::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if (g_director) g_director->AddCenterMap(pos);
+	render_observer::AddCenterMap(pos);
 	return SFN_ERROR_OK;
 }
 
@@ -5855,7 +5855,7 @@ SFN_ERROR Slic_AddEffect::Call(SlicArgList *args)
 	if(soundId < 0)
 		return SFN_ERROR_SOUND_NOT_FOUND;
 
-	if (g_director) g_director->AddSpecialEffect(pos, effectId, soundId);
+	render_observer::AddSpecialEffect(pos, effectId, soundId);
 	return SFN_ERROR_OK;
 }
 

@@ -165,7 +165,7 @@ class UnitActor;
 #include "robot/aibackdoor/bset.h"
 #include "sound/gamesounds.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"               // SOUNDTYPE / GAMESOUNDS enums
+#include "gs/core/audio_types.h"               // SOUNDTYPE / GAMESOUNDS enums
 #include "gs/core/game_observer.h"            // g_gameObservers
 #include "gs/core/player_view.h"              // player_view::*
 

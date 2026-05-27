@@ -122,7 +122,7 @@
 #include "gs/gameobj/Happy.h"
 #include "SoundRecord.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"
+#include "gs/core/audio_types.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/installationtree.h"
 #include "gfx/tilesys/tiledmap.h"
@@ -172,7 +172,6 @@ bool g_forceTurnDisplay = false;
 
 extern CivApp		*g_civApp;
 extern FilenameDB	*g_theMessageIconFileDB;
-extern SoundManager *g_soundManager;
 extern Pollution *		g_thePollution;
 
 #define k_MESSAGE_TYPE_HASH_SIZE 16

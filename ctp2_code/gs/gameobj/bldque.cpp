@@ -78,7 +78,7 @@
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"
+#include "gs/core/audio_types.h"
 #include "sound/gamesounds.h"
 #include "gs/core/player_view.h"
 

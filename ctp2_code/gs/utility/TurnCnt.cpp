@@ -81,7 +81,7 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"           // SOUNDTYPE_SFX, GAMESOUNDS
+#include "gs/core/audio_types.h"           // SOUNDTYPE_SFX, GAMESOUNDS
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gfx/tilesys/tiledmap.h"               // g_tiledMap
 #include "gs/gameobj/UnitData.h"

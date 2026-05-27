@@ -99,7 +99,7 @@ class UnitActor;
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "sound/gamesounds.h"
+#include "gs/core/audio_types.h"
 #include "gs/core/player_view.h"
 
 extern Pollution *  g_thePollution;

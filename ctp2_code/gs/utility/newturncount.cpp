@@ -42,7 +42,7 @@
 
 #include "ctp/ctp2_utils/c3errors.h"
 
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 
 #include "gs/slic/SlicObject.h"
 #include "gs/core/game_observer.h"
@@ -83,7 +83,6 @@
 #include "gs/gameobj/Gold.h"
 
 extern World                    *g_world;
-extern Director                 *g_director;
 extern Player                   **g_player;
 
 extern Pollution                *g_thePollution;
@@ -163,10 +162,8 @@ void NewTurnCount::StartNextPlayer(bool stop)
 			stop = true;
 		}
 
-		if (g_director) {
-			g_director->NextPlayer();
-			g_director->AddCopyVision();
-		}
+		render_observer::NextPlayer();
+		render_observer::AddCopyVision();
 
 		if (g_tiledMap) {
 			g_tiledMap->InvalidateMix();
@@ -184,7 +181,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		 (g_network.IsClient() || !g_player[next_player]->IsRobot())))
 	{
 		NewTurnCount::SetStopPlayer(next_player);
-		if (g_director) g_director->NextPlayer();
+		render_observer::NextPlayer();
 	}
 
 	if(g_network.IsHost() && GetStopPlayer() == next_player)
@@ -235,7 +232,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 	else
 	{
-		if (g_director) g_director->NextPlayer();
+		render_observer::NextPlayer();
 		g_thePollution->BeginTurn();
 	}
 }
@@ -246,7 +243,7 @@ void NewTurnCount::ChooseNextActivePlayer()
 
 	do {
 		player_view::NextPlayer();
-		if (g_director) g_director->NextPlayer();
+		render_observer::NextPlayer();
 		count++;
 	} while( g_player[player_view::CurPlayer()] == NULL );
 }

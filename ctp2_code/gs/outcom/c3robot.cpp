@@ -46,10 +46,6 @@ extern TurnCount *g_turn;
 #include "RobotAstar.h"
 #include "gs/outcom/c3endgamedb.h"
 
-#include "gfx/tilesys/maputils.h"
-
-#include "gfx/tilesys/tileset.h"
-
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/outcom/ic3DipReq.h"
@@ -79,9 +75,6 @@ extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 extern Player **g_player;
 extern TiledMap		*g_tiledMap;
-
-#include "gfx/tilesys/tiledmap.h"
-extern TiledMap *g_tiledMap;
 
 #include "net/general/network.h"
 #include "net/general/net_info.h"

@@ -43,7 +43,6 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/CityRadius.h"
 #ifdef _DEBUG
-#include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #endif
 #include "gs/utility/TradeDynArr.h"

@@ -44,7 +44,7 @@
 #include "gs/utility/RandGen.h"
 #include "gs/newdb/UnitRec.h"
 #include "gfx/spritesys/GoodActor.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/outcom/AICause.h"
 #include "net/general/network.h"
@@ -173,7 +173,7 @@ void Wormhole::BeginTurn(sint32 player)
 			walk.Remove();
 			ere1c->m_unit.ExitWormhole(m_pos);
 
-			if (g_director) g_director->AddShow(erec->m_unit);
+			render_observer::AddShow(erec->m_unit);
 
 			delete erec;
 

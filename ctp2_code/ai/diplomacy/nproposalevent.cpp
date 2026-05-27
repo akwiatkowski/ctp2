@@ -52,7 +52,7 @@
 #include "gs/gameobj/UnitPool.h"			// g_theUnitPool
 #include "net/general/network.h"
 #include "gs/gameobj/pollution.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/gameobj/Gold.h"
 
 
@@ -113,8 +113,8 @@ STDEHANDLER(General_NewProposalEvent)
 		}
 
 		else {
-			if(g_director && !g_network.IsClient()) {
-				g_director->AddBeginScheduler(sender);
+			if(!g_network.IsClient()) {
+				render_observer::AddBeginScheduler(sender);
 			}
 		}
 

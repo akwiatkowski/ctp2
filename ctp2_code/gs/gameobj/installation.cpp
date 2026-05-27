@@ -9,12 +9,11 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/core/player_view.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/gameobj/terrainutil.h"
 
 extern Player **g_player;
 extern World *g_theWorld;
-extern Director *g_director;
 
 void
 Installation::KillInstallation()
@@ -38,8 +37,8 @@ Installation::RemoveAllReferences()
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());
 		if(myVisionRange > 0) {
 			g_player[GetOwner()]->RemoveUnitVision(pos, myVisionRange);
-			if(GetOwner() == player_view::VisiblePlayer() && g_director) {
-				g_director->AddCopyVision();
+			if(GetOwner() == player_view::VisiblePlayer()) {
+				render_observer::AddCopyVision();
 			}
 		}
 	}

@@ -94,7 +94,7 @@
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/unitutil.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "ai/ctpai.h"
 #include "gs/gameobj/GSLogs.h"
 #include "gs/database/profileDB.h"
@@ -2973,9 +2973,9 @@ void Diplomat::ContinueDiplomacy(const PLAYER_INDEX & foreignerId) {
 
 		if (m_outstandingProposals == 0)
 		{
-			if(g_director && (!g_network.IsActive() ||
-			   (g_network.IsHost() && g_network.IsLocalPlayer(m_playerId)))) {
-				g_director->AddBeginScheduler(m_playerId);
+			if(!g_network.IsActive() ||
+			   (g_network.IsHost() && g_network.IsLocalPlayer(m_playerId))) {
+				render_observer::AddBeginScheduler(m_playerId);
 			}
 		}
 	}

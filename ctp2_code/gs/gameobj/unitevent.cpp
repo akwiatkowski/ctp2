@@ -39,7 +39,7 @@
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/core/game_observer.h"
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gs/core/render_observer.h"
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "net/general/net_info.h"
@@ -660,7 +660,7 @@ STDEHANDLER(LaunchUnitEvent)
 		u.SetFlag(k_UDF_IN_SPACE);
 
 		u.GetArmy()->SetReentry(spaceTurns, pos);
-		if (g_director) g_director->AddHide(u);
+		render_observer::AddHide(u);
 	} else {
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
 							   GEA_Army, u.GetArmy().m_id,

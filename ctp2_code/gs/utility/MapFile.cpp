@@ -52,7 +52,6 @@
 #include "gs/database/profileDB.h"
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"

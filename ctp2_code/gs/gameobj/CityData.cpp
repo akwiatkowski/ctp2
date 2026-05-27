@@ -237,7 +237,6 @@
 #include "CityStyleRecord.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"
-#include "gfx/gfx_utils/colorset.h"
 #include "ConstRecord.h"                    // g_theConstDB
 #include "gs/database/DB.h"
 #include "DifficultyRecord.h"

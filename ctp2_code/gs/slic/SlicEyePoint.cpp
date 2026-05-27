@@ -28,7 +28,6 @@
 #include "ctp/c3.h"
 #include "gs/slic/SlicEyePoint.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gfx/gfx_utils/colorset.h"
 #include "gs/gameobj/message.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/core/player_view.h"

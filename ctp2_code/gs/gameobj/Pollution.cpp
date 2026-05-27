@@ -53,7 +53,6 @@
 #include "gs/utility/RandGen.h"
 
 #include "gs/gameobj/installationtree.h"
-#include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/utility/newturncount.h"
 

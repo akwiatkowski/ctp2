@@ -83,7 +83,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "robot/utility/RoboInit.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/slic/SlicEngine.h"
-#include "sound/soundmanager.h"           // g_soundManager
+#include "gs/core/audio_types.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"

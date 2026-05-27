@@ -77,7 +77,7 @@
 #include "gs/gameobj/GameSettings.h"       // g_theGameSettings
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"             // g_player
-#include "sound/soundmanager.h"       // g_soundManager
+#include "gs/core/audio_types.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/fileio/Token.h"

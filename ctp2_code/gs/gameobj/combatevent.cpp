@@ -39,7 +39,6 @@
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gfx/spritesys/director.h"
 #include "gs/utility/Globals.h"
 
 STDEHANDLER(RunCombatEvent)

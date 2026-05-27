@@ -42,7 +42,6 @@
 #include "gs/utility/RandGen.h"
 
 #include "gs/core/player_view.h"
-#include "gfx/spritesys/director.h"
 
 class BattleViewWindow;
 extern BattleViewWindow *g_battleViewWindow;

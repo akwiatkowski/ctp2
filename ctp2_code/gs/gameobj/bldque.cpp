@@ -87,7 +87,6 @@
 #include "gs/database/profileDB.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gfx/spritesys/director.h"
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
 #include "GovernmentRecord.h"

@@ -56,7 +56,7 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/world/cellunitlist.h"
 
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 
 #include "UnitRecord.h"
 
@@ -523,10 +523,8 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		}
 	}
 
-	if (g_director) {
-		g_director->AddCopyVision();
-		g_director->CatchUp();
-	}
+	render_observer::AddCopyVision();
+	render_observer::CatchUp();
 
 	NumberContinents();
 	SetAllMoveCost();

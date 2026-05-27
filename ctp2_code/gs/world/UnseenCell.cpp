@@ -50,7 +50,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/spritesys/UnitActor.h"
-#include "gfx/spritesys/director.h"           // g_director
+#include "gs/core/render_observer.h"
 #include "gfx/tilesys/TileInfo.h"
 #include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 #include "gs/gameobj/TerrImprove.h"
@@ -84,7 +84,7 @@ namespace
         {
 		    if (--a_Actor->m_refCount <= 0)
         {
-			    if (g_director) g_director->ActiveUnitRemove(a_Actor);
+			render_observer::ActiveUnitRemove(a_Actor);
 			    a_Actor.reset();
 		    }
 	    }

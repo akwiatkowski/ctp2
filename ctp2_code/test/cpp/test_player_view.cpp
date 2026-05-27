@@ -46,7 +46,7 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // gs/ files still include gfx/ headers for type references (UnitActor*,
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
-constexpr std::size_t GS_GFX_CPP_BASELINE    = 30;
+constexpr std::size_t GS_GFX_CPP_BASELINE    = 29;
 constexpr std::size_t GS_GFX_HEADER_BASELINE = 6;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 7;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
@@ -56,7 +56,7 @@ constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
 // Remaining includes are for enum types (SOUNDTYPE, MUSICSTYLE, GAMESOUNDS)
 // passed as sint32 through audio_observer's signature.  Shrinks as those
 // enums move to a neutral header.
-constexpr std::size_t GS_SOUND_CPP_BASELINE    = 22;
+constexpr std::size_t GS_SOUND_CPP_BASELINE    = 10;
 constexpr std::size_t GS_SOUND_HEADER_BASELINE = 0;
 constexpr std::size_t AI_SOUND_CPP_BASELINE    = 0;
 constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;

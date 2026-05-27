@@ -283,7 +283,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainImprovementRecord.h"   //EMOD
 #include "gs/gameobj/TerrImprovePool.h"            //EMOD
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/TradeOfferPool.h"
@@ -928,22 +928,18 @@ void CityData::Initialize(sint32 settlerType)
 		g_theWorld->NumberContinents();
 	}
 
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(center_point, g_theWorld->GetTileInfo(center_point));
-		g_tiledMap->TileChanged(center_point);
-	}
+	tiledmap_observer::PostProcessTile(center_point, g_theWorld->GetTileInfo(center_point));
+	tiledmap_observer::TileChanged(center_point);
 	MapPoint pos;
 	for(WORLD_DIRECTION d = NORTH; d < NOWHERE; d = (WORLD_DIRECTION)((sint32)d + 1))
 	{
 		if(center_point.GetNeighborPosition(d, pos))
 		{
-			if (g_tiledMap) {
-				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-				g_tiledMap->TileChanged(pos);
-			}
+			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::TileChanged(pos);
 		}
 	}
-	if (g_tiledMap) g_tiledMap->RedrawTile(&center_point);
+	tiledmap_observer::RedrawTile(center_point);
 
 	g_network.Enqueue(g_theWorld->GetCell(center_point),
 					  center_point.x, center_point.y);
@@ -5447,24 +5443,20 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 					cell->CalcTerrainMoveCost();
 					MapPoint nonConstPos = pos;
 
-					if (g_tiledMap) {
-						g_tiledMap->PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
-						g_tiledMap->TileChanged(nonConstPos);
-					}
+					tiledmap_observer::PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
+					tiledmap_observer::TileChanged(nonConstPos);
 					MapPoint npos;
 					for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
 						d = (WORLD_DIRECTION)((sint32)d + 1)) {
 						if(pos.GetNeighborPosition(d, npos)) {
-							if (g_tiledMap) {
-								g_tiledMap->PostProcessTile(
-									npos,
-									g_theWorld->GetTileInfo(npos));
-								g_tiledMap->TileChanged(npos);
-								g_tiledMap->RedrawTile(&npos);
-							}
+							tiledmap_observer::PostProcessTile(
+								npos,
+								g_theWorld->GetTileInfo(npos));
+							tiledmap_observer::TileChanged(npos);
+							tiledmap_observer::RedrawTile(npos);
 						}
 					}
-					if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
+					tiledmap_observer::RedrawTile(pos);
 
 					if(g_network.IsHost()) {
 						g_network.Block(m_owner);

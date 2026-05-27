@@ -90,7 +90,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/fileio/gamefile.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicStruct.h"
 #include "gs/slic/SlicNamedSymbol.h"
@@ -2544,10 +2544,8 @@ void SlicEngine::BlankScreen(bool blank)
 	if (m_blankScreen == blank) return;
 
 	m_blankScreen = blank;
-	if (g_tiledMap) {
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
-	}
+	tiledmap_observer::InvalidateMap();
+	tiledmap_observer::Refresh();
 
 	if (!blank) {
 		// Fire any deferred research-advance dialog before re-rendering

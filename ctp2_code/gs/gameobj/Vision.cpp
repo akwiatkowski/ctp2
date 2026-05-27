@@ -47,7 +47,7 @@
 #include "gs/gameobj/Player.h"                   // g_player
 #include "net/general/net_info.h"
 #include "net/general/network.h"
-#include "gfx/tilesys/tiledmap.h"                 // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gs/world/UnseenCellQuadTree.h"
 #include "gs/world/World.h"                    // g_theWorld
 
@@ -180,10 +180,10 @@ void Vision::AddVisible(MapPoint pos, double radius,
 	{
 		for(sint32 i = 0; i < removeadd->Num(); i++)
 		{
-			if(m_amOnScreen && g_tiledMap)
+			if (m_amOnScreen)
 			{
-				if (g_tiledMap->TileIsVisible(removeadd->Access(i).x, removeadd->Access(i).y))
-					g_tiledMap->RedrawTile(&removeadd->Access(i));
+				if (tiledmap_observer::TileIsVisible(removeadd->Access(i).x, removeadd->Access(i).y))
+					tiledmap_observer::RedrawTile(removeadd->Access(i));
 			}
 		}
 	}
@@ -621,9 +621,9 @@ void Vision::DoFillCircleOp(const MapPoint &posRC, CIRCLE_OP op,
 			break;
 	}
 
-	if(g_tiledMap && redraw && m_amOnScreen)
+	if (redraw && m_amOnScreen)
 	{
-		g_tiledMap->RedrawTile(&iso);
+		tiledmap_observer::RedrawTile(iso);
 	}
 }
 

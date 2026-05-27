@@ -29,7 +29,7 @@
 #include "gs/slic/SlicEyePoint.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/message.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/core/player_view.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/slic/SlicEngine.h"
@@ -37,7 +37,6 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/core/render_observer.h"
 
-extern TiledMap	*g_tiledMap;
 extern UnitPool *g_theUnitPool;
 
 #ifdef _BAD_EYE
@@ -197,8 +196,8 @@ void SlicEyePoint::Callback()
 				if(obj)
 					obj->AddLocation(m_point);
 			}
-			g_tiledMap->Refresh();
-			g_tiledMap->InvalidateMap();
+			tiledmap_observer::Refresh();
+			tiledmap_observer::InvalidateMap();
 			break;
 		case EYE_POINT_TYPE_ADVANCE:
 			Assert(*m_message != Message());

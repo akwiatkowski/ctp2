@@ -125,7 +125,7 @@
 #include "gs/core/audio_types.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/installationtree.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/fileio/gamefile.h"
@@ -3834,20 +3834,16 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 			break;
 	}
 
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(tpos, g_theWorld->GetTileInfo(tpos));
-		g_tiledMap->TileChanged(tpos);
-	}
+	tiledmap_observer::PostProcessTile(tpos, g_theWorld->GetTileInfo(tpos));
+	tiledmap_observer::TileChanged(tpos);
 	for(WORLD_DIRECTION d = NORTH; d < UP; d = (WORLD_DIRECTION)((sint32)d + 1)) {
 		if(tpos.GetNeighborPosition(d, pos)) {
-			if (g_tiledMap) {
-				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-				g_tiledMap->TileChanged(pos);
-				g_tiledMap->RedrawTile(&pos);
-			}
+			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::TileChanged(pos);
+			tiledmap_observer::RedrawTile(pos);
 		}
 	}
-	if (g_tiledMap) g_tiledMap->RedrawTile(&tpos);
+	tiledmap_observer::RedrawTile(tpos);
 #endif
 	return SFN_ERROR_OK;
 }
@@ -3862,11 +3858,9 @@ SFN_ERROR Slic_PlantGood::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	g_theWorld->SetRandomGood(pos.x, pos.y);
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-		g_tiledMap->TileChanged(pos);
-		g_tiledMap->RedrawTile(&pos);
-	}
+	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	tiledmap_observer::TileChanged(pos);
+	tiledmap_observer::RedrawTile(pos);
 
 	return SFN_ERROR_OK;
 }
@@ -6921,11 +6915,9 @@ SFN_ERROR Slic_PlantSpecificGood::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	g_theWorld->SetGood(pos.x, pos.y, goodsubtype);
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-		g_tiledMap->TileChanged(pos);
-		g_tiledMap->RedrawTile(&pos);
-	}
+	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	tiledmap_observer::TileChanged(pos);
+	tiledmap_observer::RedrawTile(pos);
 
 	return SFN_ERROR_OK;
 }
@@ -6957,11 +6949,9 @@ SFN_ERROR Slic_RemoveGood::Call(SlicArgList *args)
 
 	g_theWorld->SetGood(pos.x, pos.y, 0);
 	// plants a good of subtype 0 AKA no good, at location x,y.
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-		g_tiledMap->TileChanged(pos);
-		g_tiledMap->RedrawTile(&pos);
-	}
+	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	tiledmap_observer::TileChanged(pos);
+	tiledmap_observer::RedrawTile(pos);
 
 	return SFN_ERROR_OK;
 }

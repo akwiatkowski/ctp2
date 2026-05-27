@@ -41,7 +41,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/TerrImproveData.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/installation.h"
@@ -138,10 +138,8 @@ BOOL TerrainImprovementData::Complete(void)
 		GenerateBorders(m_point, m_owner, intRad, sqRad);
 	}
 
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(m_point, g_theWorld->GetTileInfo(m_point));
-		g_tiledMap->TileChanged(m_point);
-	}
+	tiledmap_observer::PostProcessTile(m_point, g_theWorld->GetTileInfo(m_point));
+	tiledmap_observer::TileChanged(m_point);
 
 	MapPoint pos;
 
@@ -149,15 +147,13 @@ BOOL TerrainImprovementData::Complete(void)
 	{
 		if(m_point.GetNeighborPosition(d, pos))
 		{
-			if (g_tiledMap) {
-				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-				g_tiledMap->TileChanged(pos);
-				g_tiledMap->RedrawTile(&pos);
-			}
+			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::TileChanged(pos);
+			tiledmap_observer::RedrawTile(pos);
 		}
 	}
 
-	if (g_tiledMap) g_tiledMap->RedrawTile(&m_point);
+	tiledmap_observer::RedrawTile(m_point);
 	if(g_network.IsHost())
 	{
 		g_network.Enqueue(theCell, m_point.x, m_point.y);
@@ -188,8 +184,8 @@ BOOL TerrainImprovementData::AddTurn(sint32 turns)
 
 // Added by Martin G�hmann to update the tileimprovement graphics,
 // to indicate increasing completeness.
-	if(m_turnsToComplete > 0 && g_tiledMap){// Is more often true
-		g_tiledMap->RedrawTile(&m_point);
+	if(m_turnsToComplete > 0) {// Is more often true
+		tiledmap_observer::RedrawTile(m_point);
 	}
 	else{
 

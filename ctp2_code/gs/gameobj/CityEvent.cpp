@@ -72,7 +72,7 @@
 #include "gs/gameobj/UnitPool.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/gaiacontroller.h"
@@ -836,23 +836,19 @@ STDEHANDLER(KillTileEvent)
 		g_theWorld->CutImprovements(pos);
 
 		cell->CalcTerrainMoveCost();
-		if (g_tiledMap) {
-			g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
-			g_tiledMap->TileChanged(pos);
-		}
+		tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+		tiledmap_observer::TileChanged(pos);
 		MapPoint npos;
 		for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
 			d = (WORLD_DIRECTION)((sint32)d + 1)) {
 			if(pos.GetNeighborPosition(d, npos)) {
-				if (g_tiledMap) {
-					g_tiledMap->PostProcessTile(
-						npos,
-						g_theWorld->GetTileInfo(npos));
-					g_tiledMap->TileChanged(npos);
-				}
+				tiledmap_observer::PostProcessTile(
+					npos,
+					g_theWorld->GetTileInfo(npos));
+				tiledmap_observer::TileChanged(npos);
 			}
 		}
-		if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
+		tiledmap_observer::RedrawTile(pos);
 	}
 	return GEV_HD_Continue;
 }

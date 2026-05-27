@@ -215,7 +215,6 @@ class UnitActor;
 #include "net/general/net_order.h"
 #include "net/general/network.h"
 #include "robot/pathing/UnitAstar.h"
-#include "sound/gamesounds.h"
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"
 #include "gs/core/player_view.h"

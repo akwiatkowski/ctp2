@@ -153,7 +153,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/strategy/scheduler/Scheduler.h"
-#include "gfx/spritesys/UnitActor.h"
+class UnitActor;
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"
@@ -1123,7 +1123,7 @@ void ArmyData::GetActors(Unit &excludeMe, std::vector<std::weak_ptr<UnitActor> >
 
     for(sint32 i = 0; i < m_nElements; ++i)
     {
-        UnitActorPtr a = m_array[i].GetActor();
+        std::shared_ptr<UnitActor> a = m_array[i].GetActor();
         if (a != excludeMe.GetActor()) {
             restOfStack.push_back(a);
         }
@@ -8619,7 +8619,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	{
 		if(ta.GetActor())
 		{
-			UnitActorPtr actor = ta.GetActor();
+			std::shared_ptr<UnitActor> actor = ta.GetActor();
 
 			if(!actor->HasThisAnim(UNITACTION_ATTACK))
 			{

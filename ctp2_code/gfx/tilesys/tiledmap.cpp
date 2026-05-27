@@ -56,6 +56,7 @@
 
 #include "ctp/c3.h"
 #include "gfx/tilesys/tiledmap.h"
+#include "gfx/tilesys/tiledmap_observer_adapter.h"  // RegisterTiledMapObserverAdapter
 
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::fill
@@ -245,6 +246,13 @@ TiledMap::TiledMap(MapPoint &size)
 	SetRect(&m_mapBounds, 0, 0, size.x, size.y);
 	SetZoomLevel(k_ZOOM_NORMAL);
 	GenerateHitMask();  // fills m_tileHitMask[]
+
+	// Bridge g_tiledMap → tiledmap_observer interface so gs/ and ai/ code
+	// can call tiledmap_observer::RedrawTile(...) etc. without depending
+	// on gfx/.  Headless never constructs a TiledMap → observer stays
+	// unregistered → all calls become no-ops.  Idempotent across the
+	// gameinit_ResetMapSize() delete/new cycle.
+	RegisterTiledMapObserverAdapter();
 
 	AUI_ERRCODE         errcode     = AUI_ERRCODE_OK;
 	aui_StringTable	*   stringTable =

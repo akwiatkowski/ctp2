@@ -71,11 +71,13 @@ public:
 
     // Post-process a tile after a terrain / improvement / city change.
     // TileInfo* is g_theWorld->GetTileInfo(pos) at the call site; the
-    // observer just forwards it.
-    virtual void PostProcessTile(MapPoint const &pos, TileInfo *info) = 0;
+    // observer just forwards it.  Position is passed by non-const ref to
+    // match the underlying TiledMap::PostProcessTile signature.
+    virtual void PostProcessTile(MapPoint &pos, TileInfo *info) = 0;
 
     // Mark a tile as having changed (used to refresh sprite layers, etc.).
-    virtual void TileChanged(MapPoint const &pos) = 0;
+    // Non-const ref matches the underlying TiledMap::TileChanged signature.
+    virtual void TileChanged(MapPoint &pos) = 0;
 
     // Whole-map post-process (currently only WrldPoll calls this).
     virtual void PostProcessMap() = 0;
@@ -101,8 +103,8 @@ Impl *Get();
 // a safe default when no Impl is registered.
 
 void RedrawTile(MapPoint const &pos);
-void PostProcessTile(MapPoint const &pos, TileInfo *info);
-void TileChanged(MapPoint const &pos);
+void PostProcessTile(MapPoint &pos, TileInfo *info);
+void TileChanged(MapPoint &pos);
 void PostProcessMap();
 
 void Refresh();

@@ -18,8 +18,8 @@ Impl *Get()                { return s_impl; }
     do { if (s_impl) s_impl->method(__VA_ARGS__); } while (0)
 
 void RedrawTile(MapPoint const &pos)                  { DISPATCH_VOID(RedrawTile, pos); }
-void PostProcessTile(MapPoint const &pos, TileInfo *info) { DISPATCH_VOID(PostProcessTile, pos, info); }
-void TileChanged(MapPoint const &pos)                 { DISPATCH_VOID(TileChanged, pos); }
+void PostProcessTile(MapPoint &pos, TileInfo *info)   { DISPATCH_VOID(PostProcessTile, pos, info); }
+void TileChanged(MapPoint &pos)                       { DISPATCH_VOID(TileChanged, pos); }
 void PostProcessMap()                                 { DISPATCH_VOID(PostProcessMap); }
 
 void Refresh()                                        { DISPATCH_VOID(Refresh); }

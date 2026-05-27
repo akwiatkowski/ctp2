@@ -176,7 +176,6 @@
 #include "gs/core/game_observer.h"      // g_gameObservers
 #include "gs/core/player_view.h"        // player_view::VisiblePlayer/CurPlayer/PlayerAfter
 #include "gs/gameobj/MovePath.h"        // army_QueueMovePath
-#include "gfx/gfx_utils/colorset.h"
 #include "gs/gameobj/CreateUnit.h"
 #include "ai/ctpai.h"
 #include "gs/utility/DataCheck.h"
@@ -186,7 +185,6 @@
 #include "gs/gameobj/DiplomaticRequest.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"      // g_theDiplomaticRequestPool
-#include "gfx/spritesys/director.h"
 #include "gs/gameobj/EndGame.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Exclusions.h"

@@ -4,7 +4,6 @@
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/core/render_observer.h"
 #include "TerrainRecord.h"
-#include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/utility/TradeDynArr.h"
 #include "gs/database/profileDB.h"

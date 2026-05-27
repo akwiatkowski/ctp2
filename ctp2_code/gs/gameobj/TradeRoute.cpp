@@ -15,7 +15,6 @@
 
 #include "net/general/network.h"
 #include "net/general/net_info.h"
-#include "gfx/gfx_utils/colorset.h"
 #include "gs/core/game_observer.h"
 
 extern World* g_theWorld;

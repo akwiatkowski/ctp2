@@ -63,7 +63,7 @@
 #include "GameWatch/gamewatch/GWRecord.h"
 #include "ai/ctpai.h"
 #include "gfx/spritesys/UnitActor.h"
-#include "gfx/spritesys/director.h"           // g_director
+#include "gs/core/render_observer.h"
 #include "gs/database/DB.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/database/profileDB.h"
@@ -191,11 +191,11 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		|| cause == CAUSE_REMOVE_ARMY_GOVERNMENT_CHANGE
 		|| cause == CAUSE_REMOVE_ARMY_NUKE
 		|| cause == CAUSE_REMOVE_ARMY_PARKRANGER) {
-			if (g_director) g_director->AddFastKill(*this);
+			render_observer::AddFastKill(*this);
 		}
 		else
 		{
-			if (g_director) g_director->AddDeath(*this);
+			render_observer::AddDeath(*this);
 		}
 	}
 
@@ -305,8 +305,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 void Unit::FastKill()
 {
 	if(GetActor()) {
-		if(g_director)
-			g_director->FastKill(GetActor());
+		render_observer::FastKill(GetActor());
 		AccessData()->ResetActor();
 	} else {
 		Assert(false);

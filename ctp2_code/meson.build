@@ -220,6 +220,7 @@ game_core_sources = [
 	'gfx/spritesys/director_render_observer.cpp',
 	'gs/core/audio_observer.cpp',
 	'sound/sound_manager_audio_observer.cpp',
+	'gs/core/tiledmap_observer.cpp',
 	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',

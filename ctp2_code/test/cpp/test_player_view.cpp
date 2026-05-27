@@ -61,6 +61,18 @@ constexpr std::size_t GS_SOUND_HEADER_BASELINE = 0;
 constexpr std::size_t AI_SOUND_CPP_BASELINE    = 0;
 constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 
+// robot/ subsystem — pathing + ai backdoor; gs/ historically depends on
+// these (civarchive, dynarr) for save/load support, but the surface is
+// big and bleeds in transitive includes.  Ratcheting locks the current
+// counts so future work can only reduce them.
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 119;
+constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
+
+// slic/ is a subset of gs/.  Wave 7 cleared all gfx/ includes from
+// slic/; this ratchet locks that at 0 so the SLIC interpreter never
+// re-couples to graphics.
+constexpr std::size_t SLIC_GFX_CPP_BASELINE    = 0;
+
 struct Violation {
     std::string file;
     std::size_t line;
@@ -146,6 +158,13 @@ std::vector<Violation> scan_directory_sound(const std::string& root,
 {
     static const std::regex include_sound_re(R"(^\s*#include\s+[<\"]sound/)");
     return scan_directory_with_regex(root, extension, include_sound_re);
+}
+
+std::vector<Violation> scan_directory_robot(const std::string& root,
+                                            const char* extension)
+{
+    static const std::regex include_robot_re(R"(^\s*#include\s+[<\"]robot/)");
+    return scan_directory_with_regex(root, extension, include_robot_re);
 }
 
 }  // namespace
@@ -390,6 +409,73 @@ TEST_CASE("ai/ .h ratchet: sound includes must not grow above baseline")
         MESSAGE("ai/ .h sound-include count " << violations.size()
                 << " < baseline " << AI_SOUND_HEADER_BASELINE
                 << " — lower AI_SOUND_HEADER_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — robot/ includes (Wave 8a lock).
+// gs/ files still include robot/ headers for save/load support (civarchive,
+// dynarr).  Future work reduces these via pImpl or interface relocation.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/ .cpp ratchet: robot/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_robot("ctp2_code/gs", ".cpp");
+
+    if (violations.size() > GS_ROBOT_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .cpp robot-include count " << violations.size()
+             << " exceeds baseline " << GS_ROBOT_CPP_BASELINE
+             << ". A new include of robot/<header> has been introduced in a "
+                "gs/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < GS_ROBOT_CPP_BASELINE) {
+        MESSAGE("gs/ .cpp robot-include count " << violations.size()
+                << " < baseline " << GS_ROBOT_CPP_BASELINE
+                << " — lower GS_ROBOT_CPP_BASELINE to lock in progress.");
+    }
+}
+
+TEST_CASE("gs/ .h ratchet: robot/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_robot("ctp2_code/gs", ".h");
+
+    if (violations.size() > GS_ROBOT_HEADER_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .h robot-include count " << violations.size()
+             << " exceeds baseline " << GS_ROBOT_HEADER_BASELINE
+             << ". A new include of robot/<header> has been introduced in a "
+                "gs/ header file — revert it or forward-declare.");
+    } else if (violations.size() < GS_ROBOT_HEADER_BASELINE) {
+        MESSAGE("gs/ .h robot-include count " << violations.size()
+                << " < baseline " << GS_ROBOT_HEADER_BASELINE
+                << " — lower GS_ROBOT_HEADER_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — slic/ gfx/ includes (Wave 7 zero-lock).
+// Wave 7 cleared all gfx/ includes from slic/; this ratchet locks that
+// at 0 so the SLIC interpreter never re-couples to graphics.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/slic/ .cpp ratchet: gfx includes must stay at zero")
+{
+    const auto violations = scan_directory_gfx("ctp2_code/gs/slic", ".cpp");
+
+    if (violations.size() > SLIC_GFX_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/slic/ .cpp gfx-include count " << violations.size()
+             << " exceeds baseline " << SLIC_GFX_CPP_BASELINE
+             << ". SLIC must not depend on gfx/; use tiledmap_observer or "
+                "render_observer instead.");
+    } else if (violations.size() < SLIC_GFX_CPP_BASELINE) {
+        MESSAGE("gs/slic/ .cpp gfx-include count " << violations.size()
+                << " < baseline " << SLIC_GFX_CPP_BASELINE
+                << " — lower SLIC_GFX_CPP_BASELINE to lock in progress.");
     }
 }
 

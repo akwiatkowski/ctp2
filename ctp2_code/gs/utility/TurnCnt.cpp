@@ -56,7 +56,7 @@
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"  // g_theDiplomaticRequestPool
-#include "gfx/spritesys/director.h"               // g_director
+#include "gs/core/render_observer.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/fileio/gamefile.h"
@@ -265,7 +265,7 @@ void TurnCount::ChooseNextActivePlayer()
 
 		do {
 		player_view::NextPlayer();
-		if (g_director) g_director->NextPlayer();
+		render_observer::NextPlayer();
 		count++;
 	} while(g_player[player_view::CurPlayer()] == NULL ||
 			(g_player[player_view::CurPlayer()]->IsTurnOver() &&
@@ -350,7 +350,7 @@ void TurnCount::BeginNewRound()
 	}
 	// TODO(orchestrator): no equivalent for g_selected_item->NextRound()
 	// g_selected_item->NextRound();
-	if (g_director) g_director->NextPlayer();
+	render_observer::NextPlayer();
 	g_theAgreementPool->EndRound();
 	g_thePollution->EndRound();
 	g_slicEngine->RunYearlyTriggers();
@@ -520,7 +520,7 @@ void TurnCount::EndThisSlice()
 			nextPlayer = m_sliceList->Access(0);
 			m_sliceList->DelIndex(0);
 			player_view::SetCurrentPlayer(nextPlayer);
-			if (g_director) g_director->NextPlayer();
+			render_observer::NextPlayer();
 		} else {
 			ChooseNextActivePlayer();
 		}
@@ -613,7 +613,7 @@ void TurnCount::SetSliceTo(sint32 player)
 	}
 
 	player_view::SetCurrentPlayer(player);
-	if (g_director) g_director->NextPlayer();
+	render_observer::NextPlayer();
 	BeginNewSlice();
 }
 
@@ -748,7 +748,7 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		g_network.SetMyTurn(FALSE);
 		return;
 	} else if(g_network.IsHost()) {
-		if (g_director) g_director->AddEndTurn();
+		render_observer::AddEndTurn();
 		return;
 	}
 
@@ -979,10 +979,8 @@ sint32 finite_count=0;
 				SendNextPlayerMessage();
 			}
 
-			if (g_director) {
-				g_director->NextPlayer();
-				g_director->AddCopyVision();
-			}
+			render_observer::NextPlayer();
+			render_observer::AddCopyVision();
 
 			if (g_tiledMap) {
 				g_tiledMap->InvalidateMix();

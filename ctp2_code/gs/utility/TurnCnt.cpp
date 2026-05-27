@@ -974,14 +974,14 @@ sint32 finite_count=0;
 				SendNextPlayerMessage();
 			}
 
-		render_observer::NextPlayer();
-		render_observer::AddCopyVision();
+			render_observer::NextPlayer();
+			render_observer::AddCopyVision();
 
-		tiledmap_observer::InvalidateMix();
-		tiledmap_observer::InvalidateMap();
-		tiledmap_observer::Refresh();
-		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
-		InformMessages();
+			tiledmap_observer::InvalidateMix();
+			tiledmap_observer::InvalidateMap();
+			tiledmap_observer::Refresh();
+			if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
+			InformMessages();
 		}
 	} while (0);
 }

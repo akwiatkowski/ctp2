@@ -41,6 +41,7 @@
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 #include "sound/soundmanager.h"
+#include "sound/sound_manager_audio_observer.h"  // RegisterSoundManagerAudioObserver
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/database/profileDB.h"
 #include "SoundRecord.h"
@@ -73,6 +74,11 @@ void SoundManager::Initialize()
 {
     delete g_soundManager;
     g_soundManager = new SoundManager();
+
+    // Bridge g_soundManager → audio_observer interface so gs/ and ai/ code
+    // can call audio_observer::AddSound(...) etc. without depending on
+    // sound/.  Headless leaves this unregistered → all calls become no-ops.
+    RegisterSoundManagerAudioObserver();
 }
 
 void SoundManager::Cleanup()

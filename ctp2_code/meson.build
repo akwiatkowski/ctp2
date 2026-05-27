@@ -218,6 +218,8 @@ game_core_sources = [
 	'gs/core/player_view.cpp',
 	'gs/core/render_observer.cpp',
 	'gfx/spritesys/director_render_observer.cpp',
+	'gs/core/audio_observer.cpp',
+	'sound/sound_manager_audio_observer.cpp',
 	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',

@@ -52,9 +52,6 @@
 #include "TerrainImprovementRecord.h"
 #include "ResourceRecord.h" // For accessing the goods on the terrain
 
-#include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/tilesys/tileutils.h"
-#include "gfx/tilesys/TileInfo.h"
 #include "gs/gameobj/GoodyHuts.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/utility/TradeDynArr.h"

@@ -43,7 +43,6 @@
 #include "UnitRecord.h"
 #include "gs/world/World.h"
 #include "SpecialAttackInfoRecord.h"
-#include "gfx/spritesys/UnitActor.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Army.h"
 #include "gs/world/cellunitlist.h"

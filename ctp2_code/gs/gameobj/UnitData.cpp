@@ -102,7 +102,6 @@
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/core/render_observer.h"
-#include "gfx/tilesys/tiledmap.h"
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"
 #include "gs/events/GameEventManager.h"

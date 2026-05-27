@@ -54,7 +54,8 @@
 #include "net/general/networkevent.h"
 #include "gs/gameobj/tradeevent.h"
 
-#include "gfx/spritesys/directorevent.h"
+void directorevent_Initialize();
+void directorevent_Cleanup();
 
 #include "gs/gameobj/Order.h"
 

@@ -73,7 +73,6 @@
 #include "gs/utility/QuadTree.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
-#include "gfx/spritesys/director.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/gaiacontroller.h"
 #include "ai/diplomacy/AgreementMatrix.h"

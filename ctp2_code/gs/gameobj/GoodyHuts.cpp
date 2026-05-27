@@ -51,7 +51,6 @@
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
 #include "net/general/network.h"
-#include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/Barbarians.h"
 #include "gs/database/profileDB.h"      // g_theProfileDB
 #include "RiskRecord.h"
@@ -65,6 +64,7 @@
 
 extern Player **g_player;
 extern RandomGenerator *g_rand;
+class TiledMap;
 extern TiledMap		*g_tiledMap;
 
 namespace

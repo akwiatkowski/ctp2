@@ -48,7 +48,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/core/audio_observer.h"
-#include "sound/soundmanager.h"
+#include "gs/core/audio_types.h"
 #include "sound/gamesounds.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Barbarians.h"

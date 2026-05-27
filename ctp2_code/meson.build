@@ -1195,6 +1195,7 @@ doctest_incdir = include_directories('test/cpp')
 cpp_fast_test_sources = [
   'test/cpp/main.cpp',
   'test/cpp/test_observer.cpp',
+  'test/cpp/test_tiledmap_observer.cpp',
   'test/cpp/test_randgen.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_player_view.cpp',
@@ -1229,6 +1230,7 @@ cpp_test_sources = [
   'test/cpp/test_happy.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_observer.cpp',
+  'test/cpp/test_tiledmap_observer.cpp',
   'test/cpp/test_player_view.cpp',
   'test/cpp/test_headless_smoke.cpp',
   'test/cpp/test_headless_determinism.cpp',

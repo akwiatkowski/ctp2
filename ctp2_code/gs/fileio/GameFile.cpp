@@ -75,7 +75,7 @@
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"       // g_theInstallationPool
 #include "gs/gameobj/MessagePool.h"            // g_theMessagePool
-#include "gfx/gfx_utils/pixelutils.h"
+Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils/pixelutils.h
 #include "gs/gameobj/Player.h"                 // g_player
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB

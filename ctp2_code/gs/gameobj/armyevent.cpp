@@ -56,7 +56,7 @@
 #include "ConstRecord.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/utility/directions.h"
 #include "net/general/network.h"
@@ -1072,14 +1072,14 @@ STDEHANDLER(AftermathEvent)
 		}
 	}
 
-	if(ta.IsValid() && g_director)
+	if(ta.IsValid())
 	{
-		g_director->AddTerminateFaceoff(ta);
+		render_observer::AddTerminateFaceoff(ta);
 	}
 
-	if(td.IsValid() && g_director)
+	if(td.IsValid())
 	{
-		g_director->AddTerminateFaceoff(td);
+		render_observer::AddTerminateFaceoff(td);
 	}
 
 	bool attackerWon = false;
@@ -1365,8 +1365,8 @@ STDEHANDLER(MoveUnitsEvent)
 						//	g_slicEngine->Execute(so);
 						}
 
-						if(g_director && c.GetOwner() == player_view::VisiblePlayer())
-							g_director->AddCenterMap(to);
+						if(c.GetOwner() == player_view::VisiblePlayer())
+							render_observer::AddCenterMap(to);
 
 						for(sint32 k = 0; k < a->Num(); k++)
 						{

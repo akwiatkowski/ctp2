@@ -35,7 +35,7 @@
 #include "gs/utility/directions.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Events.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"
@@ -56,14 +56,12 @@ STDEHANDLER(CutImprovementsEvent)
 	{
 		if(pos.GetNeighborPosition(d, npos))
 		{
-			if (g_tiledMap) {
-				g_tiledMap->PostProcessTile(npos, g_theWorld->GetTileInfo(npos));
-				g_tiledMap->TileChanged(npos);
-			}
+			tiledmap_observer::PostProcessTile(npos, g_theWorld->GetTileInfo(npos));
+			tiledmap_observer::TileChanged(npos);
 		}
 	}
 
-	if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
+	tiledmap_observer::RedrawTile(pos);
 
 	if(g_network.IsHost())
 	{

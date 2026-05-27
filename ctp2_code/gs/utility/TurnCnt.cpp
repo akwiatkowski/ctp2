@@ -83,7 +83,7 @@
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"           // SOUNDTYPE_SFX, GAMESOUNDS
 #include "gs/database/StrDB.h"                  // g_theStringDB
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "UnitRecord.h"
@@ -774,19 +774,15 @@ void TurnCount::NetworkEndTurn(BOOL force)
 
 	if (!g_doingFastRounds)
     {
-		if (g_tiledMap) {
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
-		}
+		tiledmap_observer::InvalidateMix();
+		tiledmap_observer::InvalidateMap();
+		tiledmap_observer::Refresh();
 		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 	}
 #else
-	if (g_tiledMap) {
-		g_tiledMap->InvalidateMix();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
-	}
+	tiledmap_observer::InvalidateMix();
+	tiledmap_observer::InvalidateMap();
+	tiledmap_observer::Refresh();
 	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 #endif
 
@@ -978,14 +974,12 @@ sint32 finite_count=0;
 				SendNextPlayerMessage();
 			}
 
-			render_observer::NextPlayer();
-			render_observer::AddCopyVision();
+		render_observer::NextPlayer();
+		render_observer::AddCopyVision();
 
-			if (g_tiledMap) {
-				g_tiledMap->InvalidateMix();
-				g_tiledMap->InvalidateMap();
-				g_tiledMap->Refresh();
-			}
+		tiledmap_observer::InvalidateMix();
+		tiledmap_observer::InvalidateMap();
+		tiledmap_observer::Refresh();
 		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 		InformMessages();
 		}

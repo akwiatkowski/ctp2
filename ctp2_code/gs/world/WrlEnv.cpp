@@ -47,7 +47,7 @@
 #endif
 #include "gs/utility/TradeDynArr.h"
 #include "gs/utility/RandGen.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "gs/gameobj/TerrImprove.h"
@@ -58,7 +58,6 @@
 #include "gs/utility/Globals.h"
 
 extern RandomGenerator *g_rand;
-extern TiledMap *g_tiledMap;
 
 extern	StringDB *g_theStringDB ;
 
@@ -781,10 +780,8 @@ void World::CutImprovements(const MapPoint &point)
 	thisCell->CalcMovementType();
 	thisCell->CalcTerrainMoveCost();
 	MapPoint pos = point;
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessTile(pos, GetTileInfo(point));
-		g_tiledMap->RedrawTile(&pos);
-	}
+	tiledmap_observer::PostProcessTile(pos, GetTileInfo(point));
+	tiledmap_observer::RedrawTile(pos);
 
 	if(g_network.IsHost())
 	{

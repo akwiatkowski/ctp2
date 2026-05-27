@@ -75,7 +75,7 @@
 #include "gs/fileio/StartingPosition.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gfx/tilesys/TileInfo.h"
 #include <vector>
 #include "gs/world/WorldDistance.h"
@@ -3265,10 +3265,8 @@ void World::SmartSetTerrain(const MapPoint &pos, sint32 terr, sint32 radius)
 			MapPoint pos(x,y);
 			Cell *cell = GetCell(pos);
 			if(cell->GetScratch() & k_SMART_SET_POST_PROCESS) {
-				if (g_tiledMap) {
-					g_tiledMap->PostProcessTile(pos, GetTileInfo(pos));
-					g_tiledMap->RedrawTile(&pos);
-				}
+			tiledmap_observer::PostProcessTile(pos, GetTileInfo(pos));
+			tiledmap_observer::RedrawTile(pos);
 			}
 		}
 	}

@@ -56,7 +56,7 @@
 #include "gs/database/profileDB.h"
 #include "DifficultyRecord.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 
 #include "gs/gameobj/pollution.h"
 
@@ -165,11 +165,9 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		render_observer::NextPlayer();
 		render_observer::AddCopyVision();
 
-		if (g_tiledMap) {
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
-		}
+		tiledmap_observer::InvalidateMix();
+		tiledmap_observer::InvalidateMap();
+		tiledmap_observer::Refresh();
 		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(current_player);
 		g_turn->InformMessages();
 
@@ -197,9 +195,9 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	sint32 oldVis = player_view::VisiblePlayer();
 	player_view::SetVisiblePlayer(NewTurnCount::GetStopPlayer());
 
-	if (oldVis != player_view::VisiblePlayer() && g_tiledMap)
+	if (oldVis != player_view::VisiblePlayer())
 	{
-		g_tiledMap->CopyVision();
+		tiledmap_observer::CopyVision();
 	}
 
 	if (next_player == 0)

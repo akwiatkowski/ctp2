@@ -46,8 +46,9 @@
 #include "ConstRecord.h"
 #include "net/general/network.h"
 #include "gs/gameobj/GoodyHuts.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Player.h"
+#include "gs/gameobj/Vision.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/UnitData.h"
 
@@ -498,10 +499,8 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		}
 	}
 
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessMap();
-		g_tiledMap->Refresh();
-	}
+	tiledmap_observer::PostProcessMap();
+	tiledmap_observer::Refresh();
 	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
@@ -670,10 +669,8 @@ void World::OzoneDepletionEvent(void)
 
 	MakeBeaches();
 	SetAllMoveCost();
-	if (g_tiledMap) {
-		g_tiledMap->PostProcessMap();
-		g_tiledMap->Refresh();
-	}
+	tiledmap_observer::PostProcessMap();
+	tiledmap_observer::Refresh();
 	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
 }
 

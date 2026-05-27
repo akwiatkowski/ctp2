@@ -77,7 +77,8 @@
 #include "gs/slic/QuickSlic.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "sound/soundmanager.h"           // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
 #include "gs/core/player_view.h"
 
@@ -592,14 +593,11 @@ bool BuildQueue::BuildFront(sint32 &shieldstore, CityData *cd, const MapPoint &p
 
 			m_frontWhenBuilt = m_list->GetHead();
 
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if (visiblePlayer == m_owner) {
-					g_soundManager->AddSound(SOUNDTYPE_VOICE, (uint32)0,
-											gamesounds_GetGameSoundID(GAMESOUNDS_BUILDING_COMPLETE),
-											pos.x,
-											pos.y);
-				}
+			if (player_view::VisiblePlayer() == m_owner) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_VOICE, (uint32)0,
+										gamesounds_GetGameSoundID(GAMESOUNDS_BUILDING_COMPLETE),
+										pos.x,
+										pos.y);
 			}
 		}
 
@@ -1157,10 +1155,10 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 
         HandleProductionStart();
 
-		if (g_soundManager && (player_view::VisiblePlayer() == m_owner))
+		if (player_view::VisiblePlayer() == m_owner)
 		{
-			g_soundManager->AddSound
-                (SOUNDTYPE_VOICE,
+			audio_observer::AddSound
+                ((sint32)SOUNDTYPE_VOICE,
                  (uint32)0,
 										gamesounds_GetGameSoundID(GAMESOUNDS_BUILDING_STARTED),
 										0,
@@ -1269,10 +1267,9 @@ bool BuildQueue::InsertTail(sint32 cat, sint32 t, sint32 cost)
 
 	if (m_list->GetCount() == 0)
 	{
-		sint32 visiblePlayer = player_view::VisiblePlayer();
-		if ((visiblePlayer == m_owner) && g_soundManager)
+		if (player_view::VisiblePlayer() == m_owner)
 		{
-			g_soundManager->AddSound(SOUNDTYPE_VOICE, (uint32)0,
+			audio_observer::AddSound((sint32)SOUNDTYPE_VOICE, (uint32)0,
 									gamesounds_GetGameSoundID(GAMESOUNDS_BUILDING_STARTED),
 									0,
 									0);

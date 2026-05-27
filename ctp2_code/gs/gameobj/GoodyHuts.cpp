@@ -47,7 +47,8 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
-#include "sound/soundmanager.h"   // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
 #include "net/general/network.h"
 #include "gfx/tilesys/tiledmap.h"
@@ -428,14 +429,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			g_slicEngine->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if (visiblePlayer == owner) {
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-											gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),
-											point.x,
-											point.y);
-				}
+			if (player_view::VisiblePlayer() == owner) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+										gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),
+										point.x,
+										point.y);
 			}
 
 			break;
@@ -470,14 +468,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 
 
 
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if (visiblePlayer == owner) {
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-											gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
-											point.x,
-											point.y);
-				}
+			if (player_view::VisiblePlayer() == owner) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+										gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
+										point.x,
+										point.y);
 			}
 #endif
 			break;
@@ -491,15 +486,12 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			g_player[owner]->AddGold(m_value);
 			if (owner == player_view::VisiblePlayer())
 			{
-				if (g_soundManager)
-				{
-					g_soundManager->AddSound(SOUNDTYPE_SFX,
-											 0, // no associated object
-											 gamesounds_GetGameSoundID(GAMESOUNDS_TOOEXPENSIVE),
-											 point.x,
-											 point.y
-											);
-				}
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX,
+										 0, // no associated object
+										 gamesounds_GetGameSoundID(GAMESOUNDS_TOOEXPENSIVE),
+										 point.x,
+										 point.y
+										);
 
 				if (g_gameObservers) g_gameObservers->NotifyUpdateMainControlPanel(owner);
 			}
@@ -513,14 +505,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so->AddAdvance(m_value);
 			g_slicEngine->Execute(so);
 
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if (visiblePlayer == owner) {
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-											gamesounds_GetGameSoundID(GAMESOUNDS_ADVANCE),
-											point.x,
-											point.y);
-				}
+			if (player_view::VisiblePlayer() == owner) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+										gamesounds_GetGameSoundID(GAMESOUNDS_ADVANCE),
+										point.x,
+										point.y);
 			}
 			break;
 		case GOODY_UNIT:
@@ -546,14 +535,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 
 
 
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if (visiblePlayer == owner) {
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-											gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_UNIT),
-											point.x,
-											point.y);
-				}
+			if (player_view::VisiblePlayer() == owner) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+										gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_UNIT),
+										point.x,
+										point.y);
 			}
 			break;
 		}
@@ -563,14 +549,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 				so->AddRecipient(owner);
 				g_slicEngine->Execute(so);
 
-				if (g_soundManager) {
-					sint32 visiblePlayer = player_view::VisiblePlayer();
-					if (visiblePlayer == owner) {
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-												 gamesounds_GetGameSoundID(GAMESOUNDS_BOO),
-												 point.x,
-												 point.y);
-					}
+				if (player_view::VisiblePlayer() == owner) {
+					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+											 gamesounds_GetGameSoundID(GAMESOUNDS_BOO),
+											 point.x,
+											 point.y);
 				}
 			} else {
 				so = new SlicObject("93BesetByNothing");
@@ -578,14 +561,11 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 				g_slicEngine->Execute(so) ;
 				DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
-				if (g_soundManager) {
-					sint32 visiblePlayer = player_view::VisiblePlayer();
-					if (visiblePlayer == owner) {
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-												 gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),
-												 point.x,
-												 point.y);
-					}
+				if (player_view::VisiblePlayer() == owner) {
+					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+											 gamesounds_GetGameSoundID(GAMESOUNDS_DRAGDROP_FAIL),
+											 point.x,
+											 point.y);
 				}
 			}
 			break;

@@ -84,6 +84,7 @@
 #include "gs/gameobj/Sci.h"
 #include "gs/slic/SlicEngine.h"
 #include "sound/soundmanager.h"           // g_soundManager
+#include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"
 #include "TerrainRecord.h"
@@ -1681,18 +1682,15 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 
 
 
-	Assert( g_soundManager != NULL );
-	if ( !g_soundManager ) return;
-
-	g_soundManager->SetAutoRepeat(info->options.autoRepeat);
+	audio_observer::SetAutoRepeat(info->options.autoRepeat);
 	if ( info->options.randomOrder )
-		g_soundManager->SetMusicStyle(MUSICSTYLE_RANDOM);
+		audio_observer::SetMusicStyle((sint32)MUSICSTYLE_RANDOM);
 	else
-		g_soundManager->SetMusicStyle(MUSICSTYLE_NONE);
+		audio_observer::SetMusicStyle((sint32)MUSICSTYLE_NONE);
 	if ( info->options.musicOn )
-		g_soundManager->EnableMusic();
+		audio_observer::EnableMusic();
 	else
-		g_soundManager->DisableMusic();
+		audio_observer::DisableMusic();
 
 	if(g_saveFileVersion >= 42) {
         if(!info->isScenario){// exclude starting new scenarios
@@ -1764,12 +1762,9 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 	info->options.musicVolume = g_theProfileDB->GetMusicVolume();
 	info->options.voiceVolume = g_theProfileDB->GetVoiceVolume();
 
-	Assert( g_soundManager != NULL );
-	if ( !g_soundManager ) return;
-
-	info->options.autoRepeat = g_soundManager->IsAutoRepeat();
-	info->options.randomOrder = g_soundManager->GetMusicStyle() == MUSICSTYLE_RANDOM;
-	info->options.musicOn = g_soundManager->IsMusicEnabled();
+	info->options.autoRepeat = audio_observer::IsAutoRepeat();
+	info->options.randomOrder = audio_observer::GetMusicStyle() == (sint32)MUSICSTYLE_RANDOM;
+	info->options.musicOn = audio_observer::IsMusicEnabled();
 
 
 

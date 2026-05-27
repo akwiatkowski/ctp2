@@ -78,6 +78,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"             // g_player
 #include "sound/soundmanager.h"       // g_soundManager
+#include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/fileio/Token.h"
 
@@ -666,25 +667,19 @@ void ProfileDB::SetPollutionRule( BOOL rule )
 void ProfileDB::SetSFXVolume(sint32 vol)
 {
 	m_sfxVolume = vol;
-	if ( g_soundManager ) {
-		g_soundManager->SetVolume( SOUNDTYPE_SFX, vol );
-	}
+	audio_observer::SetVolume((sint32)SOUNDTYPE_SFX, vol);
 }
 
 void ProfileDB::SetVoiceVolume(sint32 vol)
 {
 	m_voiceVolume = vol;
-	if ( g_soundManager ) {
-		g_soundManager->SetVolume( SOUNDTYPE_VOICE, vol );
-	}
+	audio_observer::SetVolume((sint32)SOUNDTYPE_VOICE, vol);
 }
 
 void ProfileDB::SetMusicVolume(sint32 vol)
 {
 	m_musicVolume = vol;
-	if ( g_soundManager ) {
-		g_soundManager->SetVolume( SOUNDTYPE_MUSIC, vol );
-	}
+	audio_observer::SetVolume((sint32)SOUNDTYPE_MUSIC, vol);
 }
 
 void ProfileDB::SetDifficulty(uint32 x)

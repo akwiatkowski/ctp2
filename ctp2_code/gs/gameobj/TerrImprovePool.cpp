@@ -35,7 +35,7 @@
 #include "TerrainRecord.h"
 #include "gs/gameobj/installationtree.h"
 #include "gs/slic/SlicEngine.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/utility/Globals.h"
@@ -125,7 +125,7 @@ TerrainImprovementPool::Create
 
 	Insert(newData);
 	g_theWorld->InsertImprovement(newImprovement, point);
-	if (g_tiledMap) g_tiledMap->RedrawTile(&point);
+	tiledmap_observer::RedrawTile(point);
 
 	// Plays a sound when a tile improvement is built
 	if(dbTerrainImprovement->GetSoundIndex() >= 0)

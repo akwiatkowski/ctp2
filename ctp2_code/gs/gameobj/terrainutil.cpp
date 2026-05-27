@@ -79,7 +79,7 @@
 #include "ConstRecord.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "AdvanceRecord.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Civilisation.h"
@@ -1368,7 +1368,7 @@ void terrainutil_RemoveBorders(const MapPoint &center, sint32 owner, sint32 intR
 		g_network.Unblock(owner);
 
 	}
-	g_tiledMap->Refresh();
+	tiledmap_observer::Refresh();
 }
 
 #endif

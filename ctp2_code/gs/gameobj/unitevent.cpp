@@ -48,7 +48,7 @@
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/slic/SlicEngine.h"                 // g_slicEngine
 #include "gs/slic/SlicObject.h"
-#include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
@@ -610,11 +610,9 @@ STDEHANDLER(NukeLocationUnitEvent)
 						   GEA_MapPoint, pos,
 						   GEA_End);
 
-	if (g_tiledMap) {
-		g_tiledMap->InvalidateMix();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
-	}
+	tiledmap_observer::InvalidateMix();
+	tiledmap_observer::InvalidateMap();
+	tiledmap_observer::Refresh();
 	return GEV_HD_Continue;
 }
 

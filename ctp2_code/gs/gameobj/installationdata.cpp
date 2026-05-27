@@ -38,12 +38,13 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/utility/QuadTree.h"
 #include "gs/gameobj/Unit.h"
+#include "gs/gameobj/Vision.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/gameobj/Player.h"
 #include "gs/world/Cell.h"
 #include "gs/utility/TurnCnt.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "UnitRecord.h"
@@ -54,7 +55,6 @@ extern QuadTree<Unit> *g_theUnitTree;
 extern World *g_theWorld;
 extern Player **g_player;
 extern TurnCount *g_turn;
-extern TiledMap *g_tiledMap;
 
 InstallationData::InstallationData(ID id,
 								   sint32 owner,
@@ -352,5 +352,5 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 void InstallationData::SetVisible(sint32 player)
 {
 	m_visibility |= (1 << player);
-	if (g_tiledMap) g_tiledMap->RedrawTile(&m_point);
+	tiledmap_observer::RedrawTile(m_point);
 }

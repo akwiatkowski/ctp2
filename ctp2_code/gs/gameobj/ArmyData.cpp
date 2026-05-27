@@ -154,7 +154,7 @@
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ai/strategy/scheduler/Scheduler.h"
 class UnitActor;
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"
 #include "gs/events/GameEventArgList.h"
@@ -178,6 +178,7 @@ class UnitActor;
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/gameobj/UnitData.h"
+#include "gs/gameobj/Vision.h"
 #include "gs/gameobj/advanceutil.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/pollution.h"
@@ -214,6 +215,7 @@ class UnitActor;
 #include "net/general/net_info.h"
 #include "net/general/net_order.h"
 #include "net/general/network.h"
+#include "robot/pathing/Path.h"
 #include "robot/pathing/UnitAstar.h"
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"
@@ -7907,7 +7909,7 @@ void ArmyData::CheckTerrainEvents()
 		}
 
 		MapPoint pos2;
-		if (g_tiledMap) g_tiledMap->RedrawTile(&m_pos);
+		tiledmap_observer::RedrawTile(m_pos);
 		for(
 		    WORLD_DIRECTION d = NORTH;
 		                    d < NOWHERE;
@@ -7916,7 +7918,7 @@ void ArmyData::CheckTerrainEvents()
 		{
 			if(m_pos.GetNeighborPosition(d, pos2))
 			{
-				if (g_tiledMap) g_tiledMap->RedrawTile(&pos2);
+				tiledmap_observer::RedrawTile(pos2);
 			}
 		}
 

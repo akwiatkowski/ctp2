@@ -44,7 +44,7 @@
 
 #include "net/general/network.h"
 
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 
 namespace
 {
@@ -116,9 +116,9 @@ bool ExpandBorders(const MapPoint &center, MapPoint curPos, sint32 player, sint3
 			redrawMe = true;
 		}
 
-	if(redrawMe && g_tiledMap)
+	if(redrawMe)
 	{
-		g_tiledMap->RedrawTile(&curPos);
+		tiledmap_observer::RedrawTile(curPos);
 	}
 
 	return true;
@@ -171,9 +171,9 @@ bool ExpandInfluence(Unit &city, const MapPoint &centerPos, MapPoint curPos,
 			redrawMe = true;
 		}
 
-	if(redrawMe && g_tiledMap)
+	if(redrawMe)
 	{
-		g_tiledMap->RedrawTile(&curPos);
+		tiledmap_observer::RedrawTile(curPos);
 	}
 
 	return true;
@@ -295,10 +295,7 @@ void GenerateCityInfluence(const MapPoint &cpos, sint32 size)
 	if(cpos.GetNeighborPosition(SOUTHWEST, cur)) ExpandInfluence(city, cpos, cur, rec);
 	if(cpos.GetNeighborPosition(NORTHWEST, cur)) ExpandInfluence(city, cpos, cur, rec);
 
-	if (g_tiledMap)
-	{
-		g_tiledMap->RedrawTile(&cpos);
-	}
+	tiledmap_observer::RedrawTile(cpos);
 }
 
 void GenerateBorders(const MapPoint &cpos, sint32 player, sint32 intRadius, sint32 squaredRadius)
@@ -320,8 +317,5 @@ void GenerateBorders(const MapPoint &cpos, sint32 player, sint32 intRadius, sint
 	if(cpos.GetNeighborPosition(SOUTHWEST, cur)) ExpandBorders(cpos, cur, player, squaredRadius);
 	if(cpos.GetNeighborPosition(NORTHWEST, cur)) ExpandBorders(cpos, cur, player, squaredRadius);
 
-	if (g_tiledMap)
-	{
-		g_tiledMap->RedrawTile(&cpos);
-	}
+	tiledmap_observer::RedrawTile(cpos);
 }

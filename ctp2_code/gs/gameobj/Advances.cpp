@@ -57,7 +57,7 @@
 #include "gs/outcom/AICause.h"
 #include "gs/core/player_view.h"
 #include "gfx/spritesys/UnitActor.h"
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Gold.h"
@@ -282,11 +282,8 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 	{
 		g_player[m_owner]->SetDeepOceanVisible(true);
 
-		if (g_tiledMap)
-		{
-			g_tiledMap->Refresh();
-			g_tiledMap->InvalidateMix();
-		}
+		tiledmap_observer::Refresh();
+		tiledmap_observer::InvalidateMix();
 	}
 
 	if (rec->GetCapitalization())

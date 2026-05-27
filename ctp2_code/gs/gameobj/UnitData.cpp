@@ -99,8 +99,8 @@
 
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ctp/ctp2_utils/BitMask.h"
-#include "gfx/spritesys/SpriteState.h"
-#include "gfx/spritesys/UnitActor.h"
+class SpriteState;
+class UnitActor;
 #include "gs/core/render_observer.h"
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"

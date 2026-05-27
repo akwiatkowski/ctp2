@@ -165,7 +165,8 @@
 #include "net/general/network.h"
 #include "robot/aibackdoor/bset.h"
 #include "sound/gamesounds.h"
-#include "sound/soundmanager.h"               // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"               // SOUNDTYPE / GAMESOUNDS enums
 #include "gs/core/game_observer.h"            // g_gameObservers
 #include "gs/core/player_view.h"              // player_view::*
 
@@ -6175,14 +6176,12 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 
 	if (spriteID != -1 && soundID != -1) {
 		render_observer::AddSpecialAttack(m_actor->GetUnitID(), c, attack);
-	} else if (g_soundManager) {
-		if (soundID != -1) {
-			sint32 visiblePlayer = player_view::VisiblePlayer();
-			if ((visiblePlayer == m_owner) ||
-				(m_visibility & (1 << visiblePlayer))) {
+	} else if (soundID != -1) {
+		sint32 visiblePlayer = player_view::VisiblePlayer();
+		if ((visiblePlayer == m_owner) ||
+			(m_visibility & (1 << visiblePlayer))) {
 
-				g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, m_pos.x, m_pos.y);
-			}
+			audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, soundID, m_pos.x, m_pos.y);
 		}
 	}
 }
@@ -6190,10 +6189,10 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 void UnitData::ActionUnsuccessful(void)
 {
 	sint32 visiblePlayer = player_view::VisiblePlayer();
-	if (g_soundManager && ((visiblePlayer == m_owner) ||
-		(m_visibility & (1 << visiblePlayer)))) {
+	if ((visiblePlayer == m_owner) ||
+		(m_visibility & (1 << visiblePlayer))) {
 
-		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+		audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL),
 							m_pos.x,
 							m_pos.y);

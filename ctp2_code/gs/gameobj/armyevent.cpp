@@ -38,6 +38,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/core/audio_observer.h"
 #include "gs/gameobj/ArmyEvent.h"
 
 #include "gs/gameobj/Events.h"
@@ -441,9 +442,7 @@ STDEHANDLER(ArmyExpelOrderEvent)
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
 	a->AddOrders(UNIT_ORDER_EXPEL , pos);
-	if (g_soundManager) {
-		g_soundManager->AddGameSound(GAMESOUNDS_ALERT);
-	}
+	audio_observer::AddGameSound((sint32)GAMESOUNDS_ALERT);
 
 	return GEV_HD_Continue;
 }
@@ -970,9 +969,7 @@ STDEHANDLER(MoveIntoTransportEvent)
 	}
 	else
 	{
-		if (g_soundManager) {
-			g_soundManager->AddGameSound(GAMESOUNDS_ILLEGAL_MOVE);
-		}
+		audio_observer::AddGameSound((sint32)GAMESOUNDS_ILLEGAL_MOVE);
 	}
 
 	return GEV_HD_Continue;
@@ -1100,14 +1097,14 @@ STDEHANDLER(AftermathEvent)
 
 	if(attackerWon)
 	{
-		if(g_soundManager && defense_owner == player_view::VisiblePlayer() && !c.m_id)
+		if(defense_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
-			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
+			audio_observer::AddGameSound((sint32)GAMESOUNDS_VICTORY_FANFARE);
 		}
 
-		if(g_soundManager && attack_owner == player_view::VisiblePlayer() && !c.m_id)
+		if(attack_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
-			g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
+			audio_observer::AddGameSound((sint32)GAMESOUNDS_VICTORY_FANFARE);
 		}
 
 		if(army.IsValid())
@@ -1117,14 +1114,14 @@ STDEHANDLER(AftermathEvent)
 	}
 	else
 	{
-		if(g_soundManager && attack_owner == player_view::VisiblePlayer() && !c.m_id)
+		if(attack_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
-			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
+			audio_observer::AddGameSound((sint32)GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
 
-		if(g_soundManager && defense_owner == player_view::VisiblePlayer() && !c.m_id)
+		if(defense_owner == player_view::VisiblePlayer() && !c.m_id)
 		{
-			g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
+			audio_observer::AddGameSound((sint32)GAMESOUNDS_LOSE_PLAYER_BATTLE);
 		}
 
 		defender.DoVictoryEnslavement(attack_owner);

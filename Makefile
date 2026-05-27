@@ -93,6 +93,30 @@ test-full: build
 	@echo "Running full test suite..."
 	meson test -C build
 
+# Coverage build + report.  Uses a separate build-cov directory so the
+# default build/ stays fast.  Requires gcovr + lcov (`brew install gcovr lcov`).
+#
+# Usage:
+#   make coverage           # build, run tests + headless scenarios, emit report
+#   open build-cov/meson-logs/coveragereport/index.html
+coverage-setup:
+	@test -d build-cov || meson setup build-cov ctp2_code -Db_coverage=true --buildtype=debug
+
+coverage: coverage-setup
+	@echo "Building coverage-instrumented targets..."
+	meson compile -C build-cov ctp2 ctp2_headless ctp2_fast_tests ctp2_unit_tests
+	@echo "Running test suites against coverage build..."
+	meson test -C build-cov fast unit || true
+	@echo "Running headless scenarios for additional coverage..."
+	./build-cov/ctp2_headless --new-game --seed 42 --turns 50 --players 4 --export-metrics /tmp/cov-50.csv 2>/dev/null || true
+	./build-cov/ctp2_headless --new-game --seed 99 --turns 25 --players 4 --export-metrics /tmp/cov-25.csv 2>/dev/null || true
+	./build-cov/ctp2_headless --new-game --seed 42 --turns 25 --players 4 --save-game /tmp/cov-save.sav 2>/dev/null || true
+	./build-cov/ctp2_headless --load-game /tmp/cov-save.sav --turns 25 2>/dev/null || true
+	@echo "Generating HTML report..."
+	ninja -C build-cov coverage-html
+	@echo "Report: build-cov/meson-logs/coveragereport/index.html"
+	@command -v gcovr >/dev/null && gcovr --root ctp2_code --filter 'ctp2_code/(gs|ai)/' --print-summary --object-directory build-cov 2>/dev/null | tail -3 || true
+
 # Run the game (from project root so it finds appstr.txt, civpaths.txt, ctp2_data/)
 run: build
 	@echo "Starting CTP2..."

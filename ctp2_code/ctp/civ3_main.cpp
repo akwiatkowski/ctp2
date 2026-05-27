@@ -107,6 +107,7 @@
 #include "ctp/debugtools/debugmemory.h"
 #include "ui/interface/debugwindow.h"
 #include "gfx/spritesys/director.h"
+#include "gfx/spritesys/director_render_observer.h"  // RegisterDirectorRenderObserver
 #include "gs/utility/ErrMsg.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/gameinit.h"
@@ -932,6 +933,11 @@ int sprite_Initialize(void)
 	spritegrouplist_Initialize();
 
 	g_director = new Director();
+
+	// Bridge g_director → render_observer interface so gs/ and ai/ code
+	// can call render_observer::AddMove(...) etc. without depending on
+	// gfx/.  Headless leaves this unregistered → all calls become no-ops.
+	RegisterDirectorRenderObserver();
 
 	return 0;
 }

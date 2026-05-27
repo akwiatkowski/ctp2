@@ -65,7 +65,6 @@
 #include "gs/world/Cell.h"
 #include "ctp/civ3_main.h"
 #include "gs/gameobj/CivilisationPool.h"
-#include "gfx/gfx_utils/colorset.h"
 #include "ConstRecord.h"
 #include "gs/core/game_observer.h"     // g_gameObservers
 #include "gs/gameobj/CriticalMessagesPrefs.h"

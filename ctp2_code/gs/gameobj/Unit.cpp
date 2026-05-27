@@ -62,7 +62,7 @@
 
 #include "GameWatch/gamewatch/GWRecord.h"
 #include "ai/ctpai.h"
-#include "gfx/spritesys/UnitActor.h"
+class UnitActor;
 #include "gs/core/render_observer.h"
 #include "gs/database/DB.h"
 #include "gs/database/StrDB.h"              // g_theStringDB

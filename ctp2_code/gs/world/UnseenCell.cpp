@@ -52,7 +52,6 @@
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/core/render_observer.h"
 #include "gfx/tilesys/TileInfo.h"
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"

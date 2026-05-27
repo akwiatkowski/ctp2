@@ -44,7 +44,7 @@
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Player.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicObject.h"
@@ -139,9 +139,9 @@ STDEHANDLER(CaptureCityEvent)
 		// Added by Maq - Reset shield store for captured cities.
 		city.CD()->SetShieldstore(0);
 
-		if (g_director && city.GetOwner() == player_view::VisiblePlayer())
+		if (city.GetOwner() == player_view::VisiblePlayer())
 		{
-			g_director->AddCenterMap(pos);
+			render_observer::AddCenterMap(pos);
 		}
 
 		if (newOwner == player_view::VisiblePlayer())
@@ -271,11 +271,11 @@ STDEHANDLER(CaptureCityEvent)
 		g_slicEngine->RunCityCapturedTriggers(newOwner, originalOwner,
 		                                      city);
 
-		if(g_director && city.GetVisibility() & (1 << player_view::VisiblePlayer()))
+		if(city.GetVisibility() & (1 << player_view::VisiblePlayer()))
 		{
 			sint32 soundID = gamesounds_GetGameSoundID(GAMESOUNDS_CITYCONQUERED);
 			if (soundID != 0)
-				g_director->AddPlaySound(soundID, city.RetPos());
+				render_observer::AddPlaySound(soundID, city.RetPos());
 		}
 	}
 	return GEV_HD_Continue;
@@ -753,9 +753,7 @@ STDEHANDLER(CreateWonderEvent)
 		!Player::IsThisPlayerARobot(c->GetOwner())) {
 
 		if ( g_theProfileDB->IsWonderMovies() ) {
-			if (g_director) {
-				g_director->AddPlayWonderMovie(c.CD()->GetBuildQueue()->GetHead()->m_type);
-			}
+			render_observer::AddPlayWonderMovie(c.CD()->GetBuildQueue()->GetHead()->m_type);
 		}
 
 	}

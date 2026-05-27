@@ -130,4 +130,10 @@ enum GAMESOUNDS
 	GAMESOUNDS_MAX
 };
 
+// Forward declaration of the lookup function defined in sound/gamesounds.cpp.
+// Consumers that only need the GAMESOUNDS enum + this lookup can include
+// audio_types.h instead of the heavier sound/gamesounds.h.
+#include "ctp2_inttypes.h"
+sint32 gamesounds_GetGameSoundID(sint32 gamesound);
+
 #endif

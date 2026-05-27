@@ -48,8 +48,6 @@
 #include "gs/world/UnseenCell.h"
 
 #include "ctp/ctp2_utils/pointerlist.h"
-#include "gfx/spritesys/SpriteState.h"
-#include "gfx/spritesys/UnitActor.h"
 #include "gs/core/render_observer.h"
 #include "gfx/tilesys/TileInfo.h"
 #include "gs/gameobj/TerrImprove.h"

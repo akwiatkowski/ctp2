@@ -81,7 +81,8 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
-#include "sound/soundmanager.h"           // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"           // SOUNDTYPE_SFX, GAMESOUNDS
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gfx/tilesys/tiledmap.h"               // g_tiledMap
 #include "gs/gameobj/UnitData.h"
@@ -540,11 +541,10 @@ BOOL TurnCount::BeginNewSlice()
 
 
 
-		if (g_soundManager)
-			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-										gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
-										0,
-										0);
+		audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+									gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
+									0,
+									0);
 	}
 
 	if(g_player[curPlayer]->m_end_turn_soon) {

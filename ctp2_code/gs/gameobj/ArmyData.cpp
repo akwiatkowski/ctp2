@@ -216,7 +216,8 @@
 #include "net/general/network.h"
 #include "robot/pathing/UnitAstar.h"
 #include "sound/gamesounds.h"
-#include "sound/soundmanager.h"               // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"               // SOUNDTYPE_SFX, GAMESOUNDS
 #include "gs/core/player_view.h"
 #include "gs/core/game_observer.h"
 
@@ -8119,13 +8120,13 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 
 				transports[j].GetArmy()->WakeUp();
 
-				if (g_soundManager && top_src.IsValid())
+				if (top_src.IsValid())
 				{
 					sint32 visiblePlayer = player_view::VisiblePlayer();
 					if ((visiblePlayer == top_src.GetOwner()) ||
 						(top_src.GetVisibility() & (1 << visiblePlayer))) {
 						if(transports[j].GetLoadSoundID() >= 0) {
-							g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+							audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							                         transports[j].GetLoadSoundID(),
 							                         top_src.RetPos().x,
 							                         top_src.RetPos().y);
@@ -8335,13 +8336,13 @@ bool ArmyData::ExecuteUnloadOrder(Order *order)
 	else
 	{
 		sint32 visiblePlayer = player_view::VisiblePlayer();
-		if(g_soundManager && (visiblePlayer == m_array[0].GetOwner()
-		|| (m_array[0].GetVisibility() & (1 << visiblePlayer))))
+		if(visiblePlayer == m_array[0].GetOwner()
+		|| (m_array[0].GetVisibility() & (1 << visiblePlayer)))
 		{
-			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-							m_array[0].GetCantMoveSoundID(),
-							to_pt.x,
-							to_pt.y);
+			audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+						m_array[0].GetCantMoveSoundID(),
+						to_pt.x,
+						to_pt.y);
 		}
 	}
 
@@ -8353,10 +8354,10 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 	if(debark.Num() <= 0)
 	{
 		sint32 visiblePlayer = player_view::VisiblePlayer();
-		if (g_soundManager && ((visiblePlayer == m_array[0].GetOwner()) ||
-			(m_array[0].GetVisibility() & (1 << visiblePlayer)))) {
-			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-								m_array[0].GetCantMoveSoundID(),
+		if ((visiblePlayer == m_array[0].GetOwner()) ||
+			(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
+			audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+						m_array[0].GetCantMoveSoundID(),
 								to_pt.x,
 								to_pt.y);
 		}
@@ -8413,15 +8414,13 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 		}
 
 		if(0 < debark.Num()) {
-			if (g_soundManager) {
-				sint32 visiblePlayer = player_view::VisiblePlayer();
-				if ((visiblePlayer == debark[0].GetOwner()) ||
-				    (debark[0].GetVisibility() & (1 << visiblePlayer))) {
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
-									    m_array[0].GetUnloadSoundID(),
-									    to_pt.x,
-									    to_pt.y);
-				}
+			sint32 visiblePlayer = player_view::VisiblePlayer();
+			if ((visiblePlayer == debark[0].GetOwner()) ||
+			    (debark[0].GetVisibility() & (1 << visiblePlayer))) {
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
+							    m_array[0].GetUnloadSoundID(),
+							    to_pt.x,
+							    to_pt.y);
 			}
 		}
 		if (0 < debark.Num())
@@ -9164,11 +9163,11 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 	}
 	else
 	{
-		if(soundID != -1 && g_soundManager)
+		if(soundID != -1)
 		{
 			sint32 visiblePlayer = player_view::VisiblePlayer();
 			{
-				g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, m_pos.x, m_pos.y);
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, 	soundID, m_pos.x, m_pos.y);
 			}
 		}
 	}
@@ -9177,10 +9176,10 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 void ArmyData::ActionUnsuccessful(const MapPoint &point)
 {
 	sint32 visiblePlayer = player_view::VisiblePlayer();
-	if (g_soundManager && ((visiblePlayer == m_owner) ||
-		(m_array[0].GetVisibility() & (1 << visiblePlayer)))) {
+	if ((visiblePlayer == m_owner) ||
+		(m_array[0].GetVisibility() & (1 << visiblePlayer))) {
 
-		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+		audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 							gamesounds_GetGameSoundID(GAMESOUNDS_DEFAULT_FAIL),
 							point.x,
 							point.y);

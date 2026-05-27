@@ -121,6 +121,7 @@
 
 #include "gs/gameobj/Happy.h"
 #include "SoundRecord.h"
+#include "gs/core/audio_observer.h"
 #include "sound/soundmanager.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/installationtree.h"
@@ -3498,8 +3499,8 @@ SFN_ERROR Slic_PlaySound::Call(SlicArgList *args)
 	const char *name = args->m_argValue[0].m_symbol->GetName();
 	sint32 sound = g_theSoundDB->FindTypeIndex(name);
 
-	if(sound >= 0 && g_soundManager) {
-		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+	if(sound >= 0) {
+		audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
 								 sound, 0, 0);
 	}
 	return SFN_ERROR_OK;

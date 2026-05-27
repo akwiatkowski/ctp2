@@ -42,6 +42,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainImprovementRecord.h"
 #include "SoundRecord.h"
+#include "gs/core/audio_observer.h"
 #include "sound/soundmanager.h"
 #include "gs/core/player_view.h"
 #include "net/general/network.h"                    // g_network
@@ -127,7 +128,7 @@ TerrainImprovementPool::Create
 	if (g_tiledMap) g_tiledMap->RedrawTile(&point);
 
 	// Plays a sound when a tile improvement is built
-	if(dbTerrainImprovement->GetSoundIndex() >= 0 && g_soundManager)
+	if(dbTerrainImprovement->GetSoundIndex() >= 0)
 	{
 		SoundRecord const *	soundRecord	= dbTerrainImprovement->GetSound();
 		if (soundRecord)
@@ -135,7 +136,7 @@ TerrainImprovementPool::Create
 			sint32 const	soundID		= soundRecord->GetIndex();
 			if ((soundID != -1) && (owner == player_view::VisiblePlayer()))
 			{
-				g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32) 0, soundID, point.x, point.y);
+				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32) 0, soundID, point.x, point.y);
 			}
 		}
 	}

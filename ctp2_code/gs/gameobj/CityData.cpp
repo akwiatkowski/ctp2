@@ -273,7 +273,8 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
-#include "sound/soundmanager.h"               // g_soundManager
+#include "gs/core/audio_observer.h"
+#include "sound/soundmanager.h"               // SOUNDTYPE_SFX
 #include "SpecialAttackInfoRecord.h"
 #include "SpecialEffectRecord.h"
 #include "StrategyRecord.h"             // For accessing the strategy database
@@ -1480,14 +1481,14 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 				render_observer::AddSpecialAttack
 				    (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
 			}
-			else if (g_soundManager)
+			else
 			{
 				sint32 const visiblePlayer = player_view::VisiblePlayer();
 				if ((visiblePlayer == m_owner) ||
 				    (m_home_city.GetVisibility() & (1 << visiblePlayer))
 				   )
 				{
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID,
+					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, 	soundID,
 					                         m_home_city.RetPos().x, m_home_city.RetPos().y);
 				}
 			}
@@ -4864,7 +4865,7 @@ void CityData::CheckRiot()
 //					} else {
 //					sint32 const visiblePlayer = player_view::VisiblePlayer();
 //						if ((visiblePlayer == m_owner) || (m_home_city.GetVisibility() & (1 << visiblePlayer)) ){
-//	    					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, m_home_city.RetPos().x, m_home_city.RetPos().y);
+//	    				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0, 	soundID, m_home_city.RetPos().x, m_home_city.RetPos().y);
 //	    				}
 //					}
 //				}

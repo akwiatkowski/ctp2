@@ -41,7 +41,7 @@
 #include "gs/gameobj/Player.h"
 
 #include "gs/database/profileDB.h"
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 #include "net/general/network.h"
 #include "ai/ctpai.h"
 #include "gs/utility/newturncount.h"
@@ -69,7 +69,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	g_player[player]->m_current_round = round;
 
-	if (g_director) g_director->NextPlayer();
+	render_observer::NextPlayer();
 
 	if(g_theProfileDB->IsAIOn() && (!g_network.IsClient()))
 	{

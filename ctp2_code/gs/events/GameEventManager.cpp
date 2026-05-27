@@ -52,7 +52,7 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TradeRoute.h"
 
-#include "gfx/spritesys/director.h"
+#include "gs/core/render_observer.h"
 
 GameEventManager *g_gevManager = NULL;
 
@@ -215,9 +215,7 @@ GAME_EVENT_ERR GameEventManager::ArglistAddEvent(GAME_EVENT_INSERT insert,
 			return GEV_ERR_BadInsert;
 	}
 
-	if (g_director) {
-		g_director->IncrementPendingGameActions();
-	}
+	render_observer::IncrementPendingGameActions();
 
 	if (m_synchronous) {
 		return Process();
@@ -276,7 +274,7 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
     {
 		Assert(event == m_eventList->GetHead());
 		m_eventList->RemoveHead();
-		if (g_director) g_director->DecrementPendingGameActions();
+		render_observer::DecrementPendingGameActions();
 
 #if defined(_DEBUG)
         // Debug version: keep the last k_MAX_EVENT_HISTORY handled events

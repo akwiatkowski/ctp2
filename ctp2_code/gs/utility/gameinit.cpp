@@ -75,7 +75,7 @@
 #include "DifficultyRecord.h"
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gs/core/render_observer.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
@@ -2241,7 +2241,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 		g_turn->CountActivePlayers();
 
-		if (g_director) g_director->AddCopyVision();
+		render_observer::AddCopyVision();
 	}
 
 	if(archive)
@@ -2359,7 +2359,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 	}
-	if (g_director) g_director->AddCopyVision();
+	render_observer::AddCopyVision();
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{

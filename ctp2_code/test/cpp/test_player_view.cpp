@@ -51,6 +51,16 @@ constexpr std::size_t GS_GFX_HEADER_BASELINE = 6;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 7;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
 
+// Ratchet baselines — total `#include "sound/..."` lines, summed across files.
+// Phase 3 migrated all g_soundManager call sites onto audio_observer.
+// Remaining includes are for enum types (SOUNDTYPE, MUSICSTYLE, GAMESOUNDS)
+// passed as sint32 through audio_observer's signature.  Shrinks as those
+// enums move to a neutral header.
+constexpr std::size_t GS_SOUND_CPP_BASELINE    = 22;
+constexpr std::size_t GS_SOUND_HEADER_BASELINE = 0;
+constexpr std::size_t AI_SOUND_CPP_BASELINE    = 0;
+constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
+
 struct Violation {
     std::string file;
     std::size_t line;
@@ -129,6 +139,13 @@ std::vector<Violation> scan_directory_gfx(const std::string& root,
 {
     static const std::regex include_gfx_re(R"(^\s*#include\s+[<\"]gfx/)");
     return scan_directory_with_regex(root, extension, include_gfx_re);
+}
+
+std::vector<Violation> scan_directory_sound(const std::string& root,
+                                            const char* extension)
+{
+    static const std::regex include_sound_re(R"(^\s*#include\s+[<\"]sound/)");
+    return scan_directory_with_regex(root, extension, include_sound_re);
 }
 
 }  // namespace
@@ -297,6 +314,82 @@ TEST_CASE("ai/ .h ratchet: gfx includes must not grow above baseline")
         MESSAGE("ai/ .h gfx-include count " << violations.size()
                 << " < baseline " << AI_GFX_HEADER_BASELINE
                 << " — lower AI_GFX_HEADER_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — sound/ includes (Phase 3 lock).
+// gs/ files still include sound/ headers for enum types (SOUNDTYPE,
+// MUSICSTYLE, GAMESOUNDS) passed through audio_observer as sint32.
+// Shrinks as those enums move to a neutral header.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/ .cpp ratchet: sound includes must not grow above baseline")
+{
+    const auto violations = scan_directory_sound("ctp2_code/gs", ".cpp");
+
+    if (violations.size() > GS_SOUND_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .cpp sound-include count " << violations.size()
+             << " exceeds baseline " << GS_SOUND_CPP_BASELINE
+             << ". A new include of sound/<header> has been introduced in a "
+                "gs/ source file — revert it or use audio_observer.");
+    } else if (violations.size() < GS_SOUND_CPP_BASELINE) {
+        MESSAGE("gs/ .cpp sound-include count " << violations.size()
+                << " < baseline " << GS_SOUND_CPP_BASELINE
+                << " — lower GS_SOUND_CPP_BASELINE to lock in progress.");
+    }
+}
+
+TEST_CASE("gs/ .h ratchet: sound includes must not grow above baseline")
+{
+    const auto violations = scan_directory_sound("ctp2_code/gs", ".h");
+
+    if (violations.size() > GS_SOUND_HEADER_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .h sound-include count " << violations.size()
+             << " exceeds baseline " << GS_SOUND_HEADER_BASELINE);
+    } else if (violations.size() < GS_SOUND_HEADER_BASELINE) {
+        MESSAGE("gs/ .h sound-include count " << violations.size()
+                << " < baseline " << GS_SOUND_HEADER_BASELINE
+                << " — lower GS_SOUND_HEADER_BASELINE to lock in progress.");
+    }
+}
+
+TEST_CASE("ai/ .cpp ratchet: sound includes must not grow above baseline")
+{
+    const auto violations = scan_directory_sound("ctp2_code/ai", ".cpp");
+
+    if (violations.size() > AI_SOUND_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ai/ .cpp sound-include count " << violations.size()
+             << " exceeds baseline " << AI_SOUND_CPP_BASELINE);
+    } else if (violations.size() < AI_SOUND_CPP_BASELINE) {
+        MESSAGE("ai/ .cpp sound-include count " << violations.size()
+                << " < baseline " << AI_SOUND_CPP_BASELINE
+                << " — lower AI_SOUND_CPP_BASELINE to lock in progress.");
+    }
+}
+
+TEST_CASE("ai/ .h ratchet: sound includes must not grow above baseline")
+{
+    const auto violations = scan_directory_sound("ctp2_code/ai", ".h");
+
+    if (violations.size() > AI_SOUND_HEADER_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ai/ .h sound-include count " << violations.size()
+             << " exceeds baseline " << AI_SOUND_HEADER_BASELINE);
+    } else if (violations.size() < AI_SOUND_HEADER_BASELINE) {
+        MESSAGE("ai/ .h sound-include count " << violations.size()
+                << " < baseline " << AI_SOUND_HEADER_BASELINE
+                << " — lower AI_SOUND_HEADER_BASELINE to lock in progress.");
     }
 }
 

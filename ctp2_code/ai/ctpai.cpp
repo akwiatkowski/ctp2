@@ -126,7 +126,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/core/player_view.h"
 #include "net/general/network.h"                        // g_network
-#include "gfx/spritesys/director.h"                       // g_director
+#include "gs/core/render_observer.h"
 #include "gs/slic/SlicEngine.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/utility/MoveFlags.h"
@@ -561,7 +561,7 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 	{
 		DPRINTF(k_DBG_AI, ("//	*** Barbarians do not conduct diplomacy.\n"));
 
-		if (g_director) g_director->AddBeginScheduler(playerId);
+		render_observer::AddBeginScheduler(playerId);
 
 		return GEV_HD_Continue;
 	}
@@ -588,9 +588,9 @@ STDEHANDLER(CtpAi_StartNegotiationsEvent)
 
 	if(!found)
 	{
-		if(!g_network.IsClient() && g_director)
+		if(!g_network.IsClient())
 		{
-			g_director->AddBeginScheduler(playerId);
+			render_observer::AddBeginScheduler(playerId);
 		}
 	}
 
@@ -783,7 +783,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 						(g_network.IsClient() && player_ptr->IsRobot()))
 					{
 						DPRINTF(k_DBG_GAMESTATE, ("AI End turn, %d\n", playerId));
-						if (g_director) g_director->AddEndTurn();
+						render_observer::AddEndTurn();
 					}
 				}
 			}

@@ -48,7 +48,7 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
 constexpr std::size_t GS_GFX_CPP_BASELINE    = 9;
 constexpr std::size_t GS_GFX_HEADER_BASELINE = 6;
-constexpr std::size_t AI_GFX_CPP_BASELINE    = 7;
+constexpr std::size_t AI_GFX_CPP_BASELINE    = 1;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
 
 // Ratchet baselines — total `#include "sound/..."` lines, summed across files.

@@ -113,7 +113,8 @@
 #include "TerrainRecord.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/database/thronedb.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
+#include "gs/gameobj/Vision.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
@@ -2591,8 +2592,7 @@ void gameinit_ResetMapSize()
 	// recompute continents.  UI build re-renders tileset, radar window,
 	// and background via the OnMapResized observer hook fired at the end.
 	MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
-	delete g_tiledMap;
-	g_tiledMap = new TiledMap(mapsize);
+	tiledmap_factory_recreate(mapsize.x, mapsize.y);
 
 	for (int i = 0; i < k_MAX_PLAYERS; i++)
     {

@@ -244,9 +244,11 @@ class UnitActor : public Actor {
   void FullLoad(UNITACTION action);
   void DumpFullLoad(void);
 
-  void SetIsFortified(BOOL fort) { m_isFortified = fort; }
+  // m_isFortified removed (UnitActor split Phase 3 batch 1).  Renderer
+  // now reads m_unitID.IsEntrenched() directly from gs/ each frame.
+  // m_isFortifying / m_hasCityWalls / m_hasForceField pending in
+  // subsequent slices.
   void SetIsFortifying(BOOL fort) { m_isFortifying = fort; }
-  BOOL IsFortified(void) const { return m_isFortified; }
   BOOL IsFortifying(void) const { return m_isFortifying; }
 
   void SetHasCityWalls(BOOL has) { m_hasCityWalls = has; }
@@ -338,7 +340,7 @@ class UnitActor : public Actor {
   GROUPTYPE m_type;
   sint32 m_spriteID;
 
-  BOOL m_isFortified;
+  // m_isFortified removed (UnitActor split Phase 3 batch 1).
   BOOL m_isFortifying;
   BOOL m_hasCityWalls;
   BOOL m_hasForceField;

@@ -170,7 +170,6 @@ UnitActor::UnitActor(SpriteStatePtr ss,
       m_isUnseenCellActor(isUnseenCellActor),
       //	GROUPTYPE			m_type;
       //	sint32				m_spriteID;
-      m_isFortified(false),
       m_isFortifying(false),
       m_hasCityWalls(false),
       m_hasForceField(false),
@@ -240,7 +239,6 @@ UnitActor::UnitActor(CivArchive& archive)
       m_isUnseenCellActor(false),
       //	GROUPTYPE			m_type;
       //	sint32				m_spriteID;
-      m_isFortified(false),
       m_isFortifying(false),
       m_hasCityWalls(false),
       m_hasForceField(false),
@@ -320,7 +318,7 @@ void UnitActor::Initialize(void) {
   m_hidden = FALSE;
 
   m_isFortifying = FALSE;
-  m_isFortified = FALSE;
+  // m_isFortified removed — fortified state in gs/ (UnitData::m_flags).
   m_hasCityWalls = FALSE;
   m_hasForceField = FALSE;
 
@@ -1282,7 +1280,10 @@ bool UnitActor::Draw(bool fogged) {
   if (m_unitID.IsValid()) {
     if (m_unitID.IsAsleep()) {
       flags |= k_BIT_DRAWFLAGS_DESATURATED;
-      m_isFortified = FALSE;
+      // m_isFortified removed — fortified state in gs/.  Renderer
+      // can't reset gs/ from here.  The visual effect of "asleep
+      // looks not fortified" is handled at the draw site below by
+      // gating DrawFortified on entrenched-and-not-asleep.
       m_isFortifying = FALSE;
     }
 
@@ -1322,7 +1323,8 @@ bool UnitActor::Draw(bool fogged) {
 
   if ((m_frame == m_oldFrame) && (m_facing == m_oldFacing) &&
       (m_x + xoffset == m_oldOffsetX) && (m_y + yoffset == m_oldOffsetY) &&
-      (flags == m_oldFlags) && (IsFortified() == m_oldIsFortified) &&
+      (flags == m_oldFlags) &&
+      ((m_unitID.IsValid() && m_unitID.IsEntrenched()) == m_oldIsFortified) &&
       (IsFortifying() == m_oldIsFortifying) &&
       (HasForceField() == m_oldHasForceField) &&
       (HasCityWalls() == m_oldHasCityWalls) &&
@@ -1342,7 +1344,7 @@ bool UnitActor::Draw(bool fogged) {
   m_oldOffsetY = m_y + yoffset;
 
   m_oldFlags = flags;
-  m_oldIsFortified = IsFortified();
+  m_oldIsFortified = m_unitID.IsValid() && m_unitID.IsEntrenched();
   m_oldIsFortifying = IsFortifying();
   m_oldHasForceField = HasForceField();
   m_oldHasCityWalls = HasCityWalls();
@@ -1355,7 +1357,9 @@ bool UnitActor::Draw(bool fogged) {
     if (m_unitID.IsValid() && m_unitID.IsCity())  // emod - 3-10-2007
       DrawCityImprovements(fogged);
 
-    if (IsFortified())
+    // Sleeping units don't show the fortified indicator (old code reset
+    // a cached m_isFortified to FALSE in the IsAsleep branch above).
+    if (m_unitID.IsValid() && m_unitID.IsEntrenched() && !m_unitID.IsAsleep())
       DrawFortified(fogged);
 
     if (IsFortifying()) {
@@ -2186,7 +2190,10 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
     return false;
 
   SetIsFortifying(FALSE);
-  SetIsFortified(FALSE);
+  // m_isFortified removed — fortified state lives in gs/ (UnitData::m_flags
+  // k_UDF_IS_ENTRENCHED).  Resetting that bit from the renderer would be
+  // wrong (renderer mutating game state).  If gameplay needs the unit
+  // un-entrenched on move-start, the gs/ side already handles it.
 
   actionObj->SetActionType(UNITACTION_MOVE);
   actionObj->SetAnimPos(GetHoldingCurAnimPos(UNITACTION_MOVE));

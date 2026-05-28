@@ -2596,7 +2596,8 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 				if (g_player[top.GetOwner()] && !Player::IsThisPlayerARobot(top.GetOwner())) {
                     actor->SetIsFortifying(top.IsEntrenching());
                 }
-				actor->SetIsFortified(top.IsEntrenched());
+				// SetIsFortified push removed — UnitActor::Draw reads
+				// m_unitID.IsEntrenched() directly from gs/.
 
 				actor->SetHiddenUnderStack(FALSE);
 				actor->SetUnitVisibility(top.GetVisibility());

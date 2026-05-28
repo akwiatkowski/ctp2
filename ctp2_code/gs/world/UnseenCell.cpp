@@ -212,7 +212,13 @@ UnseenCell::UnseenCell(const MapPoint & point)
 										    | actor->GetUnitVisibility());
 				newActor->SetPos(point);
 
-				newActor->SetIsFortified(actor->IsFortified());
+				// SetIsFortified push removed — UnitActor::Draw reads
+				// m_unitID.IsEntrenched() directly from gs/.  The
+				// fog-of-war snapshot loses the "was-fortified" memory
+				// (newActor's m_unitID points at the live city/unit,
+				// so it reads current state).  Acceptable for now;
+				// re-introduce snapshotting in a later UnseenCell pass
+				// if needed.
 				newActor->SetIsFortifying(actor->IsFortifying());
 				newActor->SetHasCityWalls(actor->HasCityWalls());
 				newActor->SetHasForceField(actor->HasForceField());

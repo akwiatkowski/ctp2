@@ -128,7 +128,7 @@
 #include "net/general/network.h"                        // g_network
 #include "gs/core/render_observer.h"
 #include "gs/slic/SlicEngine.h"
-#include "gfx/tilesys/tiledmap.h"
+#include "gs/core/tiledmap_observer.h"
 #include "gs/utility/MoveFlags.h"
 #include <limits>
 #include <list>

@@ -223,9 +223,8 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
 			for (sint32 i=0; i<allCities->Num(); i++) {
 				Unit		city = allCities->Access(i);
-				UnitActorPtr cityActor = city.GetActor();
-				if (cityActor) {
-					render_observer::ChangeUnitImage(cityActor, city.GetSpriteState(), city.GetType(), city);
+				if (city.GetActor()) {
+					render_observer::ChangeUnitImage(city.GetSpriteState(), city.GetType(), city);
 				}
 			}
 

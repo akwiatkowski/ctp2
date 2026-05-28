@@ -305,7 +305,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 void Unit::FastKill()
 {
 	if(GetActor()) {
-		render_observer::FastKill(GetActor());
+		render_observer::FastKill(*this);
 		AccessData()->ResetActor();
 	} else {
 		Assert(false);

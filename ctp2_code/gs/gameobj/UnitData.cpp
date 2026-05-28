@@ -189,7 +189,7 @@ UnitData::UnitData(
 		m_actor = actor;
 		Unit actorId = actor->GetUnitID();
 
-		render_observer::AddMorphUnit(m_actor, m_sprite_state, t, Unit(m_id));
+		render_observer::AddMorphUnit(m_sprite_state, t, Unit(m_id));
 		if(g_network.IsHost()) {
 			g_network.Block(m_owner);
 			g_network.Enqueue(this, actorId);
@@ -2064,7 +2064,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	m_temp_visibility |= (1 << newo);
 	m_ever_visible |= m_visibility;
 
-	render_observer::AddSetOwner(m_actor, newo);
+	render_observer::AddSetOwner(Unit(m_id), newo);
 	render_observer::AddSetVisibility(Unit(m_id), m_visibility);
 
 	uint64 wonders = m_city_data->GetBuiltWonders();
@@ -2169,9 +2169,9 @@ void UnitData::ResetUnitOwner(const Unit &me, const PLAYER_INDEX new_owner,
 	m_ever_visible |= m_visibility;
 	if(m_actor)
 	{
-		render_observer::AddSetOwner(m_actor, new_owner);
+		render_observer::AddSetOwner(Unit(m_id), new_owner);
 		render_observer::AddSetVisibility(Unit(m_id), m_visibility);
-		render_observer::AddSetVisionRange(m_actor, (GetVisionRange()));
+		render_observer::AddSetVisionRange(Unit(m_id), (GetVisionRange()));
 	}
 
 	UnitDynamicArray revealed_units;

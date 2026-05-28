@@ -17,27 +17,47 @@ void DirectorRenderObserver::AddShow(Unit hider)                                
 void DirectorRenderObserver::AddHide(Unit hider)                                       { g_director->AddHide(hider); }
 void DirectorRenderObserver::AddDeath(Unit dead)                                       { g_director->AddDeath(dead); }
 void DirectorRenderObserver::AddFastKill(Unit dead)                                    { g_director->AddFastKill(dead); }
-void DirectorRenderObserver::FastKill(std::shared_ptr<UnitActor> actor)                { g_director->FastKill(actor); }
+void DirectorRenderObserver::FastKill(Unit unit)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        g_director->FastKill(actor);
+    }
+}
 void DirectorRenderObserver::FastKillEffect(EffectActor *actor)                        { g_director->FastKill(actor); }
-void DirectorRenderObserver::AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 o)   { g_director->AddSetOwner(actor, o); }
+// Phase 3 slice 7b/7c: these Impl overrides take Unit identity (not
+// UnitActorPtr) and look the actor up in g_uiUnitActorRegistry.  When
+// the unit is unknown (pre-spawn-event or already destroyed) the call
+// is silently skipped — the next render-state refresh on this unit
+// will pick up the missed update.
+void DirectorRenderObserver::AddSetOwner(Unit unit, sint32 o)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        g_director->AddSetOwner(actor, o);
+    }
+}
 void DirectorRenderObserver::AddSetVisibility(Unit unit, uint32 v)
 {
-    // Phase 3 slice 7b: look up the actor in the UI-side registry rather
-    // than receive it from gs/.  If the unit predates registry insertion
-    // (e.g. very early bootstrap, or a unit pre-amputation that never
-    // fired OnUnitSpawned) we silently skip — the unit will pick up the
-    // visibility on its next render-state refresh.
     if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
         g_director->AddSetVisibility(actor, v);
     }
 }
-void DirectorRenderObserver::AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r){ g_director->AddSetVisionRange(actor, r); }
-void DirectorRenderObserver::AddMorphUnit(std::shared_ptr<UnitActor> m,
-                                          SpriteStatePtr ss, sint32 type, Unit id)     { g_director->AddMorphUnit(m, ss, type, id); }
-void DirectorRenderObserver::ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                                             SpriteStatePtr ss, sint32 type, Unit id)
+void DirectorRenderObserver::AddSetVisionRange(Unit unit, double r)
 {
-    if (actor) actor->ChangeImage(ss, type, id);
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        g_director->AddSetVisionRange(actor, r);
+    }
+}
+void DirectorRenderObserver::AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(id)) {
+        g_director->AddMorphUnit(actor, ss, type, id);
+    }
+}
+void DirectorRenderObserver::ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(id)) {
+        actor->ChangeImage(ss, type, id);
+    }
 }
 void DirectorRenderObserver::ActiveUnitRemove(std::shared_ptr<UnitActor> u)            { g_director->ActiveUnitRemove(u); }
 void DirectorRenderObserver::TradeActorCreate(TradeRoute newRoute)                     { g_director->TradeActorCreate(newRoute); }

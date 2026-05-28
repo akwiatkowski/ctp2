@@ -3919,11 +3919,10 @@ void CityData::UpdateSprite(void)
 {
 	if (PopCount() == 0) return;
 
-	UnitActorPtr actor = m_home_city.GetActor();
 	SpriteStatePtr ss = m_home_city.GetSpriteState();
 	sint32	type = m_home_city.GetType();
 
-	render_observer::AddMorphUnit(actor, ss, type, m_home_city);
+	render_observer::AddMorphUnit(ss, type, m_home_city);
 }
 
 void CityData::MakeCitizen(PopDBIndex type, const MapPoint &center_pos,

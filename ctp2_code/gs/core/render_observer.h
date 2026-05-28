@@ -69,24 +69,21 @@ public:
     virtual void AddHide(Unit hider)                                            = 0;
     virtual void AddDeath(Unit dead)                                            = 0;
     virtual void AddFastKill(Unit dead)                                         = 0;
-    virtual void FastKill(std::shared_ptr<UnitActor> actor)                     = 0;
+    virtual void FastKill(Unit unit)                                            = 0;
     virtual void FastKillEffect(EffectActor *actor)                             = 0;
-    virtual void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)    = 0;
-    // Phase 3 slice 7b: takes Unit identity (not UnitActorPtr) so gs/ does
-    // not need to hold the actor.  The UI Impl looks up the actor via
-    // g_uiUnitActorRegistry; headless / no-Impl makes this a no-op.
+    // Phase 3 slice 7b/7c: takes Unit identity (not UnitActorPtr) so gs/
+    // does not need to hold the actor.  The UI Impl looks up the actor
+    // via g_uiUnitActorRegistry; headless / no-Impl makes this a no-op.
+    virtual void AddSetOwner(Unit unit, sint32 owner)                           = 0;
     virtual void AddSetVisibility(Unit unit, uint32 visibility)                 = 0;
-    virtual void AddSetVisionRange(std::shared_ptr<UnitActor> actor,
-                                   double range)                                = 0;
-    virtual void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
-                              SpriteStatePtr ss, sint32 type, Unit id)          = 0;
+    virtual void AddSetVisionRange(Unit unit, double range)                     = 0;
+    virtual void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id)          = 0;
 
     // Synchronous re-skin — called when a unit/city advances in age.
     // Not interchangeable with AddMorphUnit (which is async via the
     // Director queue).  Implementation calls UnitActor::ChangeImage()
     // immediately and dumps pending actions.
-    virtual void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                                 SpriteStatePtr ss, sint32 type, Unit id)       = 0;
+    virtual void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)       = 0;
     virtual void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)         = 0;
     virtual void TradeActorCreate(TradeRoute newRoute)                          = 0;
     virtual void TradeActorDestroy(TradeRoute routeToDestroy)                   = 0;
@@ -141,15 +138,13 @@ void AddShow(Unit hider);
 void AddHide(Unit hider);
 void AddDeath(Unit dead);
 void AddFastKill(Unit dead);
-void FastKill(std::shared_ptr<UnitActor> actor);
+void FastKill(Unit unit);
 void FastKillEffect(EffectActor *actor);
-void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner);
+void AddSetOwner(Unit unit, sint32 owner);
 void AddSetVisibility(Unit unit, uint32 visibility);
-void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double range);
-void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
-                  SpriteStatePtr ss, sint32 type, Unit id);
-void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                     SpriteStatePtr ss, sint32 type, Unit id);
+void AddSetVisionRange(Unit unit, double range);
+void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id);
+void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id);
 void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor);
 void TradeActorCreate(TradeRoute newRoute);
 void TradeActorDestroy(TradeRoute routeToDestroy);

@@ -26,15 +26,13 @@ void AddShow(Unit hider)                                           { DISPATCH_VO
 void AddHide(Unit hider)                                           { DISPATCH_VOID(AddHide, hider); }
 void AddDeath(Unit dead)                                           { DISPATCH_VOID(AddDeath, dead); }
 void AddFastKill(Unit dead)                                        { DISPATCH_VOID(AddFastKill, dead); }
-void FastKill(std::shared_ptr<UnitActor> actor)                    { DISPATCH_VOID(FastKill, actor); }
+void FastKill(Unit unit)                                           { DISPATCH_VOID(FastKill, unit); }
 void FastKillEffect(EffectActor *actor)                            { DISPATCH_VOID(FastKillEffect, actor); }
-void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)   { DISPATCH_VOID(AddSetOwner, actor, owner); }
+void AddSetOwner(Unit unit, sint32 owner)                          { DISPATCH_VOID(AddSetOwner, unit, owner); }
 void AddSetVisibility(Unit unit, uint32 v)                         { DISPATCH_VOID(AddSetVisibility, unit, v); }
-void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r) { DISPATCH_VOID(AddSetVisionRange, actor, r); }
-void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
-                  SpriteStatePtr ss, sint32 type, Unit id)         { DISPATCH_VOID(AddMorphUnit, morphingActor, ss, type, id); }
-void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                     SpriteStatePtr ss, sint32 type, Unit id)      { DISPATCH_VOID(ChangeUnitImage, actor, ss, type, id); }
+void AddSetVisionRange(Unit unit, double r)                        { DISPATCH_VOID(AddSetVisionRange, unit, r); }
+void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id)         { DISPATCH_VOID(AddMorphUnit, ss, type, id); }
+void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)      { DISPATCH_VOID(ChangeUnitImage, ss, type, id); }
 void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)        { DISPATCH_VOID(ActiveUnitRemove, unitActor); }
 void TradeActorCreate(TradeRoute newRoute)                         { DISPATCH_VOID(TradeActorCreate, newRoute); }
 void TradeActorDestroy(TradeRoute routeToDestroy)                  { DISPATCH_VOID(TradeActorDestroy, routeToDestroy); }

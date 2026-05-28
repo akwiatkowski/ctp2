@@ -35,13 +35,13 @@ struct RecordingSpy : render_observer::Impl {
     void AddFastKill(Unit dead) override { ++addFastKillCalls; }
 
     int fastKillCalls = 0;
-    void FastKill(std::shared_ptr<UnitActor> actor) override { ++fastKillCalls; }
+    void FastKill(Unit unit) override { ++fastKillCalls; }
 
     int fastKillEffectCalls = 0;
     void FastKillEffect(EffectActor *actor) override { ++fastKillEffectCalls; }
 
     int addSetOwnerCalls = 0;
-    void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner) override {
+    void AddSetOwner(Unit unit, sint32 owner) override {
         ++addSetOwnerCalls;
     }
 
@@ -51,20 +51,17 @@ struct RecordingSpy : render_observer::Impl {
     }
 
     int addSetVisionRangeCalls = 0;
-    void AddSetVisionRange(std::shared_ptr<UnitActor> actor,
-                           double range) override {
+    void AddSetVisionRange(Unit unit, double range) override {
         ++addSetVisionRangeCalls;
     }
 
     int addMorphUnitCalls = 0;
-    void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
-                      SpriteStatePtr ss, sint32 type, Unit id) override {
+    void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id) override {
         ++addMorphUnitCalls;
     }
 
     int changeUnitImageCalls = 0;
-    void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                         SpriteStatePtr ss, sint32 type, Unit id) override {
+    void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id) override {
         ++changeUnitImageCalls;
     }
 
@@ -354,7 +351,7 @@ TEST_CASE("render_observer::AddSetOwner dispatches to Impl")
 {
     RecordingSpy spy;
     ScopedSpy guard(&spy);
-    render_observer::AddSetOwner(nullptr, 7);
+    render_observer::AddSetOwner(Unit(), 7);
     CHECK(spy.addSetOwnerCalls == 1);
 }
 
@@ -370,7 +367,7 @@ TEST_CASE("render_observer::AddSetVisionRange dispatches to Impl")
 {
     RecordingSpy spy;
     ScopedSpy guard(&spy);
-    render_observer::AddSetVisionRange(nullptr, 3.5);
+    render_observer::AddSetVisionRange(Unit(), 3.5);
     CHECK(spy.addSetVisionRangeCalls == 1);
 }
 
@@ -485,12 +482,12 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
     render_observer::AddHide(u);
     render_observer::AddDeath(u);
     render_observer::AddFastKill(u);
-    render_observer::FastKill(nullptr);
+    render_observer::FastKill(u);
     render_observer::FastKillEffect(nullptr);
-    render_observer::AddSetOwner(nullptr, 0);
+    render_observer::AddSetOwner(u, 0);
     render_observer::AddSetVisibility(u, 0);
-    render_observer::AddSetVisionRange(nullptr, 0.0);
-    render_observer::AddMorphUnit(nullptr, nullptr, 0, u);
+    render_observer::AddSetVisionRange(u, 0.0);
+    render_observer::AddMorphUnit(nullptr, 0, u);
     render_observer::ActiveUnitRemove(nullptr);
     // TradeRoute is not default-constructible, skip TradeActorCreate/Destroy
     render_observer::AddMove(u, pt, pt, emptyVec, emptyVec, false, 0);

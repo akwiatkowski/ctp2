@@ -15,16 +15,13 @@ public:
     void AddHide(Unit hider)                                              override;
     void AddDeath(Unit dead)                                              override;
     void AddFastKill(Unit dead)                                           override;
-    void FastKill(std::shared_ptr<UnitActor> actor)                       override;
+    void FastKill(Unit unit)                                              override;
     void FastKillEffect(EffectActor *actor)                               override;
-    void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)      override;
+    void AddSetOwner(Unit unit, sint32 owner)                             override;
     void AddSetVisibility(Unit unit, uint32 visibility)                   override;
-    void AddSetVisionRange(std::shared_ptr<UnitActor> actor,
-                           double range)                                  override;
-    void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
-                      SpriteStatePtr ss, sint32 type, Unit id)            override;
-    void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
-                         SpriteStatePtr ss, sint32 type, Unit id)         override;
+    void AddSetVisionRange(Unit unit, double range)                       override;
+    void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id)            override;
+    void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)         override;
     void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)           override;
     void TradeActorCreate(TradeRoute newRoute)                            override;
     void TradeActorDestroy(TradeRoute routeToDestroy)                     override;

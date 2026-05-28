@@ -111,7 +111,7 @@
 #include "net/general/net_action.h"
 #include "robot/pathing/Path.h"
 #include "OrderRecord.h"
-#include "gfx/gfx_utils/gfx_options.h"
+
 #include "net/general/net_diplomacy.h"
 #include "gs/utility/RandGen.h"            // g_rand
 

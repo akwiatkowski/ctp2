@@ -73,7 +73,7 @@
 #include "GoalRecord.h"
 #include "ai/ctpaidebug.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gfx/gfx_utils/gfx_options.h"
+
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/citydata.h"

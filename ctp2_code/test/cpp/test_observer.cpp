@@ -283,3 +283,221 @@ TEST_CASE("GameObserverRegistry dispatches OnMapResized") {
     CHECK(r.calls == 1);
     reg.Unregister(&r);
 }
+
+// ------------------------------------------------------------------
+// Edge-case tests (wave 9a W8)
+// ------------------------------------------------------------------
+
+// Helper for dispatch-order test (must be at file scope; local structs cannot
+// have static data members).
+struct SequenceSpy : IGameObserver {
+    int id = 0;
+    static std::vector<int> order;
+    void OnTurnStart(sint32) override { order.push_back(id); }
+};
+std::vector<int> SequenceSpy::order;
+
+TEST_CASE("GameObserverRegistry does not deduplicate double registration") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Counter : IGameObserver {
+        int count = 0;
+        void OnTurnStart(sint32) override { ++count; }
+    };
+    Counter c;
+    reg.Register(&c);
+    reg.Register(&c);  // second registration, no deduplication
+    reg.NotifyTurnStart(0);
+    CHECK(c.count == 2);  // dispatched twice
+    // Must unregister twice to fully remove both entries.
+    reg.Unregister(&c);
+    reg.Unregister(&c);
+    // Verify fully removed.
+    reg.NotifyTurnStart(0);
+    CHECK(c.count == 2);
+}
+
+TEST_CASE("GameObserverRegistry dispatches to many observers") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Counter : IGameObserver {
+        int count = 0;
+        void OnTurnStart(sint32) override { ++count; }
+    };
+    Counter obs[10];
+    for (int i = 0; i < 10; ++i) {
+        reg.Register(&obs[i]);
+    }
+    reg.NotifyTurnStart(0);
+    for (int i = 0; i < 10; ++i) {
+        CHECK(obs[i].count == 1);
+    }
+    for (int i = 0; i < 10; ++i) {
+        reg.Unregister(&obs[i]);
+    }
+}
+
+TEST_CASE("GameObserverRegistry dispatch order is registration order") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    // Clear any stale data from previous runs (static persists across TEST_CASEs).
+    SequenceSpy::order.clear();
+
+    SequenceSpy a; a.id = 1;
+    SequenceSpy b; b.id = 2;
+    SequenceSpy c; c.id = 3;
+    reg.Register(&a);
+    reg.Register(&b);
+    reg.Register(&c);
+    reg.NotifyTurnStart(0);
+
+    REQUIRE(SequenceSpy::order.size() == 3);
+    CHECK(SequenceSpy::order[0] == 1);
+    CHECK(SequenceSpy::order[1] == 2);
+    CHECK(SequenceSpy::order[2] == 3);
+
+    reg.Unregister(&a);
+    reg.Unregister(&b);
+    reg.Unregister(&c);
+}
+
+TEST_CASE("GameObserverRegistry register-unregister-re-register cycle") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Counter : IGameObserver {
+        int count = 0;
+        void OnTurnStart(sint32) override { ++count; }
+    };
+    Counter c;
+    reg.Register(&c);
+    reg.NotifyTurnStart(0);
+    CHECK(c.count == 1);
+
+    reg.Unregister(&c);
+    reg.NotifyTurnStart(0);
+    CHECK(c.count == 1);  // should not increment
+
+    reg.Register(&c);
+    reg.NotifyTurnStart(0);
+    CHECK(c.count == 2);  // should resume receiving events
+
+    reg.Unregister(&c);
+}
+
+TEST_CASE("GameObserverRegistry Notify with zero observers is safe") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Dummy : IGameObserver {};
+    Dummy d;
+    reg.Register(&d);
+    reg.Unregister(&d);  // ensure registry is back to empty for this test
+
+    // All Notify variants should be no-ops when no observers are present.
+    // Note: Army/Combat notifies are omitted because Army is an incomplete
+    // type here (forward-declared in game_observer.h) and cannot be
+    // instantiated in a headerless test.
+    Unit dummyCity;
+    MapPoint mp(0, 0);
+
+    reg.NotifyTurnStart(0);
+    reg.NotifyTurnEnd(0);
+    reg.NotifyBuildPhaseComplete(0);
+    reg.NotifyCityFounded(0, dummyCity, mp, 0);
+    reg.NotifyCityCaptured(dummyCity, 0, mp);
+    reg.NotifyCityOwnerReset(dummyCity);
+    reg.NotifyWonderBuilt(dummyCity, 0);
+    reg.NotifyPlayerRemoved(0);
+    reg.NotifyAdvanceResearched(0, 0);
+    reg.NotifyResearchAdvanceDialog(0, 0, nullptr);
+    reg.NotifyVisionAdded(0, mp, 0.0);
+    reg.NotifyVisionRemoved(0, mp, 0.0);
+    reg.NotifyVisionCopied(0, 0);
+    reg.NotifyGovernmentChanged(0, 0);
+    reg.NotifyGameOver(0, 0, 0, 0);
+    reg.NotifyTradeChanged();
+    reg.NotifyForeignTradeBid(0, dummyCity, dummyCity, 0);
+    reg.NotifyUpdateCityList();
+    reg.NotifyHideMainUI();
+    reg.NotifyMapResized();
+    reg.NotifyUpdateScienceWindow(0);
+    reg.NotifyUpdateUnitPanel(0);
+    reg.NotifyUpdateControlPanel(0);
+    reg.NotifyControlPanelRedraw(0);
+    reg.NotifyUpdateMessages(0);
+    reg.NotifySelectedCity(0);
+    reg.NotifyRadarMapUpdate(0);
+    reg.NotifyRadarMapRedrawTile(mp);
+    reg.NotifyAutoSelectFirstUnit(0);
+    reg.NotifyUpdatePlayerEndProgress(0);
+    reg.NotifyAdvanceListReload(0);
+    reg.NotifyShowSpaceButton(0);
+    reg.NotifyUpdateUnitSelectionWindow(0);
+    reg.NotifyUpdateCityStatusWindow(0);
+    reg.NotifyUpdateMainControlPanel(0);
+    reg.NotifySetGraphMinRound(0);
+    reg.NotifyRequestOpenGreatLibrary(0, 0);
+    reg.NotifyRequestOpenScenarioEditor();
+    reg.NotifyRequestOpenScreen(0);
+    reg.NotifyRequestAttract(nullptr);
+    reg.NotifyRequestStopAttract(nullptr);
+    reg.NotifyRequestEditQueue(nullptr);
+    reg.NotifyRequestUnblankScreen();
+    reg.NotifyCityEspionageDisplay(dummyCity);
+    reg.NotifyBlankScreenChanged(false, 0, 0);
+    reg.NotifyTutorialAddRecord(nullptr, 0);
+    reg.NotifyTutorialRecreate();
+
+    CHECK(true);  // if we got here, zero-observer fast-path is safe
+}
+
+TEST_CASE("GameObserverRegistry concrete override is dispatched") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct CityCaptureSpy : IGameObserver {
+        int calls = 0;
+        Unit lastCity;
+        sint32 lastOwner = -1;
+        MapPoint lastPos;
+        void OnCityCaptured(const Unit& city, sint32 newOwner,
+                            const MapPoint& pos) override {
+            ++calls;
+            lastCity = city;
+            lastOwner = newOwner;
+            lastPos = pos;
+        }
+    };
+    CityCaptureSpy spy;
+    reg.Register(&spy);
+
+    Unit dummyCity;
+    MapPoint mp(3, 4);
+    reg.NotifyCityCaptured(dummyCity, 7, mp);
+
+    CHECK(spy.calls == 1);
+    CHECK(spy.lastOwner == 7);
+    CHECK(spy.lastPos.x == 3);
+    CHECK(spy.lastPos.y == 4);
+
+    reg.Unregister(&spy);
+}
+
+// Self-unregister during callback modifies the observer vector while it is
+// being iterated (range-for).  This is undefined behaviour with the current
+// std::vector-based implementation and typically crashes.
+// see #issue — observer self-removal during dispatch
+#if 0
+TEST_CASE("GameObserverRegistry self-unregister during callback is unsafe") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct SelfRemove : IGameObserver {
+        GameObserverRegistry* reg = nullptr;
+        int count = 0;
+        void OnTurnStart(sint32) override {
+            ++count;
+            if (reg) {
+                reg->Unregister(this);
+            }
+        }
+    };
+    SelfRemove s;
+    s.reg = &reg;
+    reg.Register(&s);
+    reg.NotifyTurnStart(0);  // UB: erases during range-for iteration
+    // If execution somehow reaches here, the observer should be gone.
+    reg.NotifyTurnStart(0);
+    CHECK(s.count == 1);
+}
+#endif

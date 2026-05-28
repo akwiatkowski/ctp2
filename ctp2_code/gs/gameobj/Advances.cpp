@@ -56,7 +56,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/outcom/AICause.h"
 #include "gs/core/player_view.h"
-#include "gfx/spritesys/UnitActor.h"
+#include "gs/core/render_observer.h"  // ChangeUnitImage + UnitActorPtr fwd
 #include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Sci.h"
@@ -225,7 +225,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 				Unit		city = allCities->Access(i);
 				UnitActorPtr cityActor = city.GetActor();
 				if (cityActor) {
-					cityActor->ChangeImage(city.GetSpriteState(), city.GetType(), city);
+					render_observer::ChangeUnitImage(cityActor, city.GetSpriteState(), city.GetType(), city);
 				}
 			}
 

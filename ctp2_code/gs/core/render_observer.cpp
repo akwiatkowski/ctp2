@@ -33,6 +33,8 @@ void AddSetVisibility(std::shared_ptr<UnitActor> actor, uint32 v)  { DISPATCH_VO
 void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r) { DISPATCH_VOID(AddSetVisionRange, actor, r); }
 void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                   SpriteStatePtr ss, sint32 type, Unit id)         { DISPATCH_VOID(AddMorphUnit, morphingActor, ss, type, id); }
+void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                     SpriteStatePtr ss, sint32 type, Unit id)      { DISPATCH_VOID(ChangeUnitImage, actor, ss, type, id); }
 void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)        { DISPATCH_VOID(ActiveUnitRemove, unitActor); }
 void TradeActorCreate(TradeRoute newRoute)                         { DISPATCH_VOID(TradeActorCreate, newRoute); }
 void TradeActorDestroy(TradeRoute routeToDestroy)                  { DISPATCH_VOID(TradeActorDestroy, routeToDestroy); }

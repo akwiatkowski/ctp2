@@ -226,6 +226,8 @@ game_core_sources = [
 	'gfx/gfx_utils/gfx_options_observer_adapter.cpp',
 	'gs/core/colorset_observer.cpp',
 	'gfx/gfx_utils/colorset_observer_adapter.cpp',
+	'gs/core/goodactor_factory.cpp',
+	'gfx/spritesys/goodactor_factory_impl.cpp',
 	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',

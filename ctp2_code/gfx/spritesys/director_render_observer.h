@@ -24,6 +24,8 @@ public:
                            double range)                                  override;
     void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                       SpriteStatePtr ss, sint32 type, Unit id)            override;
+    void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                         SpriteStatePtr ss, sint32 type, Unit id)         override;
     void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)           override;
     void TradeActorCreate(TradeRoute newRoute)                            override;
     void TradeActorDestroy(TradeRoute routeToDestroy)                     override;

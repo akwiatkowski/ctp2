@@ -78,6 +78,13 @@ public:
                                    double range)                                = 0;
     virtual void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                               SpriteStatePtr ss, sint32 type, Unit id)          = 0;
+
+    // Synchronous re-skin — called when a unit/city advances in age.
+    // Not interchangeable with AddMorphUnit (which is async via the
+    // Director queue).  Implementation calls UnitActor::ChangeImage()
+    // immediately and dumps pending actions.
+    virtual void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                                 SpriteStatePtr ss, sint32 type, Unit id)       = 0;
     virtual void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)         = 0;
     virtual void TradeActorCreate(TradeRoute newRoute)                          = 0;
     virtual void TradeActorDestroy(TradeRoute routeToDestroy)                   = 0;
@@ -139,6 +146,8 @@ void AddSetVisibility(std::shared_ptr<UnitActor> actor, uint32 visibility);
 void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double range);
 void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                   SpriteStatePtr ss, sint32 type, Unit id);
+void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                     SpriteStatePtr ss, sint32 type, Unit id);
 void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor);
 void TradeActorCreate(TradeRoute newRoute);
 void TradeActorDestroy(TradeRoute routeToDestroy);

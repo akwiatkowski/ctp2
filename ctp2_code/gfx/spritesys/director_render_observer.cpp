@@ -7,6 +7,7 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/director_render_observer.h"
 #include "gfx/spritesys/director.h"
+#include "gfx/spritesys/UnitActor.h"        // UnitActor::ChangeImage
 #include "gs/gameobj/UnitTypes.h"          // SPECATTACK enum cast back
 
 extern Director *g_director;
@@ -22,6 +23,11 @@ void DirectorRenderObserver::AddSetVisibility(std::shared_ptr<UnitActor> actor, 
 void DirectorRenderObserver::AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r){ g_director->AddSetVisionRange(actor, r); }
 void DirectorRenderObserver::AddMorphUnit(std::shared_ptr<UnitActor> m,
                                           SpriteStatePtr ss, sint32 type, Unit id)     { g_director->AddMorphUnit(m, ss, type, id); }
+void DirectorRenderObserver::ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                                             SpriteStatePtr ss, sint32 type, Unit id)
+{
+    if (actor) actor->ChangeImage(ss, type, id);
+}
 void DirectorRenderObserver::ActiveUnitRemove(std::shared_ptr<UnitActor> u)            { g_director->ActiveUnitRemove(u); }
 void DirectorRenderObserver::TradeActorCreate(TradeRoute newRoute)                     { g_director->TradeActorCreate(newRoute); }
 void DirectorRenderObserver::TradeActorDestroy(TradeRoute r)                           { g_director->TradeActorDestroy(r); }

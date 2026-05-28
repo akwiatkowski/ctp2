@@ -63,6 +63,12 @@ struct RecordingSpy : render_observer::Impl {
         ++addMorphUnitCalls;
     }
 
+    int changeUnitImageCalls = 0;
+    void ChangeUnitImage(std::shared_ptr<UnitActor> actor,
+                         SpriteStatePtr ss, sint32 type, Unit id) override {
+        ++changeUnitImageCalls;
+    }
+
     int activeUnitRemoveCalls = 0;
     void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor) override {
         ++activeUnitRemoveCalls;

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ enum SAVEINFOLOAD
 	SAVEINFOLOAD_MAX
 };
 
-#include "gfx/gfx_utils/pixeltypes.h"
+#include "gs/core/pixel_types.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/netshell/ns_gamesetup.h"
 #include "gs/world/MapPoint.h"

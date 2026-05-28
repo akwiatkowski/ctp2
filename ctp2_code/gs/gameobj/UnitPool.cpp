@@ -31,6 +31,8 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/UnitPool.h"
 
+#include "ctp/ctp2_utils/civlog.h"
+
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/gstypes.h"
@@ -141,15 +143,22 @@ void UnitPool::Serialize(CivArchive &archive)
 	}
 	else
 	{
+		auto log = civlog::Get("unitpool");
+		log->debug("UnitPool::Serialize: entered load path");
 		archive.TestMagic(UNITPOOL_MAGIC);
+		log->debug("UnitPool::Serialize: TestMagic passed");
 		ObjPool::Serialize(archive);
+		log->debug("UnitPool::Serialize: ObjPool::Serialize done");
 
 		archive>>count;
+		log->debug("UnitPool::Serialize: loading {} units", count);
 		for (i=0; i<count; i++)
 		{
+			log->trace("UnitPool::Serialize: loading unit {}/{}", i, count);
 			unitData = new UnitData(archive);
 			Insert(unitData);
 		}
+		log->debug("UnitPool::Serialize: loaded all {} units", count);
 	}
 }
 

@@ -50,6 +50,7 @@
 
 #include "ctp/c3.h"
 #include "gs/utility/gameinit.h"
+#include "ctp/ctp2_utils/civlog.h"
 
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 #include "gs/gameobj/AchievementTracker.h"
@@ -1417,6 +1418,10 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 
 sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 {
+	auto log = civlog::Get("gameinit");
+	log->info("gameinit_Initialize: started (archive={}, w={}, h={})",
+	          archive ? "load" : "new", mWidth, mHeight);
+
 	// (Legacy g_debugWindow->SetDebugMask(k_DBG_AI) dropped — modern code
 	// uses DPRINTF(k_DBG_AI, ...) directly with no UI filtering.)
 
@@ -1443,6 +1448,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	// more problems than it solves - JJB
 
 	if (archive) {
+		log->debug("step: new RandomGenerator(archive)");
 		g_rand = new RandomGenerator(*archive);
 	} else {
 #ifdef _DEBUG
@@ -1482,6 +1488,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 
 	if(archive) {
+		log->debug("step: new GameSettings(archive)");
 		g_theGameSettings = new GameSettings(*archive);
 	} else {
 		g_theGameSettings = new GameSettings();
@@ -1491,8 +1498,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	bool loadEverything =
         !g_isScenario || (g_startInfoType == STARTINFOTYPE_NOLOCS);
+	log->debug("loadEverything={}, g_isScenario={}, g_startInfoType={}",
+	           loadEverything, (bool)g_isScenario, (int)g_startInfoType);
 
 	if (archive) {
+		log->debug("step: new World(archive)");
 		g_theWorld = new World(*archive) ;
 		if(
 
@@ -1543,7 +1553,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	Assert(g_theWorld);
 
+	log->debug("step: post-World, before TurnCount");
 	if (archive && loadEverything){
+		log->debug("step: new TurnCount(archive)");
 		g_turn = new TurnCount(*archive);
 	} else {
 		g_turn = new TurnCount();
@@ -1555,11 +1567,15 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	if (archive && loadEverything){
-		player_view::InitFromArchive(archive);
-	}else {
-		player_view::Init(nPlayers);
-	}
+	log->debug("step: player_view::Init({})", nPlayers);
+	// Symmetric with GameFile::SaveGame, which (deliberately) no longer
+	// writes g_selected_item bytes — see the "TODO(orchestrator): no
+	// equivalent for g_selected_item->Serialize" line in
+	// GameFile.cpp::SaveGame.  Attempting InitFromArchive here used to
+	// silently exit(0) on every load because the next archive read
+	// (UnitPool's TestMagic) would drift past its magic header and
+	// CivArchive::TestMagic calls exit(0) on mismatch.
+	player_view::Init(nPlayers);
 
 
 
@@ -1578,20 +1594,26 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	                                                 sint16(g_theWorld->GetYHeight()),
 	                                                 g_theWorld->IsYwrap());
 
-	if (archive && loadEverything)
+	if (archive && loadEverything) {
+		log->debug("step: new UnitPool(archive)");
 		g_theUnitPool = new UnitPool(*archive);
-	else
+	} else {
 		g_theUnitPool = new UnitPool();
+	}
 	Assert(g_theUnitPool);
 
-	if(archive && loadEverything)
+	if(archive && loadEverything) {
+		log->debug("step: new ArmyPool(archive)");
 		g_theArmyPool = new ArmyPool(*archive);
-	else
+	} else {
 		g_theArmyPool = new ArmyPool();
+	}
 	Assert(g_theArmyPool);
 
-	if(archive && loadEverything)
+	if(archive && loadEverything) {
+		log->debug("step: RebuildQuadTree");
 		g_theUnitPool->RebuildQuadTree();
+	}
 
 	if(archive && loadEverything) {
 		g_theTradePool = new TradePool(*archive);

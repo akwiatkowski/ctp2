@@ -8,6 +8,7 @@
 
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
+#include "ctp/ctp2_utils/civlog.h"
 #include "gs/utility/gameinit.h"
 #include "gs/database/profileDB.h"
 #include "gs/fileio/civscenarios.h"
@@ -64,7 +65,9 @@ static void print_usage(const char *prog)
 
 int main(int argc, char **argv)
 {
-    fprintf(stderr, "[HEADLESS] CTP2 Headless Engine starting\n");
+    civlog::Init();
+    auto log = civlog::Get("headless");
+    log->info("CTP2 Headless Engine starting");
 
     // Parse arguments
     bool newGame = false;
@@ -97,7 +100,7 @@ int main(int argc, char **argv)
             print_usage(argv[0]);
             return 0;
         } else {
-            fprintf(stderr, "[HEADLESS] Unknown argument: %s\n", argv[i]);
+            log->error("Unknown argument: {}", argv[i]);
             print_usage(argv[0]);
             return 1;
         }
@@ -109,29 +112,29 @@ int main(int argc, char **argv)
 
     g_civApp = new CivApp();
 
-    fprintf(stderr, "[HEADLESS] Initializing engine...\n");
+    log->info("Initializing engine...");
     sint32 err = g_civApp->InitializeEngine();
     if (err != 0) {
-        fprintf(stderr, "[HEADLESS] Engine initialization failed: %d\n", err);
+        log->error("Engine initialization failed: {}", err);
         return 1;
     }
 
     // Load game file list and databases (normally done inside InitializeApp)
-    fprintf(stderr, "[HEADLESS] Loading game files...\n");
+    log->info("Loading game files...");
     if (!gameinit_InitializeGameFiles()) {
-        fprintf(stderr, "[HEADLESS] gameinit_InitializeGameFiles failed\n");
+        log->error("gameinit_InitializeGameFiles failed");
         return 1;
     }
 
-    fprintf(stderr, "[HEADLESS] Loading databases...\n");
+    log->info("Loading databases...");
     if (!g_civApp->InitializeAppDB()) {
-        fprintf(stderr, "[HEADLESS] InitializeAppDB failed\n");
+        log->error("InitializeAppDB failed");
         return 1;
     }
 
     CivScenarios::Initialize();
 
-    fprintf(stderr, "[HEADLESS] Engine + DBs initialized OK\n");
+    log->info("Engine + DBs initialized OK");
 
     RegisterHeadlessGameObserver();
     // Headless still links SelItem.cpp (it's in game_core_sources) and many
@@ -143,18 +146,17 @@ int main(int argc, char **argv)
     // Override CurPlayer so AI asserts (player == CurPlayer()) pass and
     // NewTurnCount::GetCurrentRound() returns the active player's round.
     player_view::RegisterCurPlayer(&HeadlessCurPlayer);
-    fprintf(stderr, "[HEADLESS] observers + player_view registered\n");
+    log->info("observers + player_view registered");
 
     if (loadGamePath) {
-        fprintf(stderr, "[HEADLESS] Loading saved game from %s\n", loadGamePath);
+        log->info("Loading saved game from {}", loadGamePath);
         GameFile::RestoreGame(loadGamePath);
-        fprintf(stderr, "[HEADLESS] RestoreGame returned (state may or may not be valid)\n");
+        log->info("RestoreGame returned (state may or may not be valid)");
     }
 
     if (newGame || loadGamePath) {
         if (newGame) {
-            fprintf(stderr, "[HEADLESS] Starting new game (players=%d, seed=%d)...\n",
-                    numPlayers, seed);
+            log->info("Starting new game (players={}, seed={})...", numPlayers, seed);
 
             // Set player count and seed in ProfileDB
             g_theProfileDB->SetNPlayers(numPlayers);
@@ -177,7 +179,7 @@ int main(int argc, char **argv)
             // Use the headless game init path (no UI windows)
             err = g_civApp->InitializeGameHeadless();
             if (err != 0) {
-                fprintf(stderr, "[HEADLESS] Game initialization failed: %d\n", err);
+                log->error("Game initialization failed: {}", err);
                 return 1;
             }
 
@@ -190,14 +192,14 @@ int main(int argc, char **argv)
                 if (g_player[p]) g_player[p]->SetPlayerType(PLAYER_TYPE_ROBOT);
             }
 
-            fprintf(stderr, "[HEADLESS] Game initialized OK — running %d turns\n", maxTurns);
+            log->info("Game initialized OK — running {} turns", maxTurns);
         } else {
-            fprintf(stderr, "[HEADLESS] Loaded — running %d turns\n", maxTurns);
+            log->info("Loaded — running {} turns", maxTurns);
         }
 
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
-            fprintf(stderr, "[HEADLESS] Turn %d / %d\n", t + 1, maxTurns);
+            log->info("Turn {} / {}", t + 1, maxTurns);
 
             // Process one turn for each active player.  Drive AI through
             // the same event pipeline the interactive game uses — mirrors
@@ -247,22 +249,21 @@ int main(int argc, char **argv)
             if (g_gevManager) g_gevManager->Process();
         }
 
-        fprintf(stderr, "[HEADLESS] Completed %d turns\n", maxTurns);
+        log->info("Completed {} turns", maxTurns);
 
         if (saveGamePath) {
-            fprintf(stderr, "[HEADLESS] Saving game to %s\n", saveGamePath);
+            log->info("Saving game to {}", saveGamePath);
             GameFile::SaveGame(saveGamePath, NULL);
-            fprintf(stderr, "[HEADLESS] SaveGame returned\n");
+            log->info("SaveGame returned");
         }
 
         if (exportMetricsPath) {
-            fprintf(stderr, "[HEADLESS] Exporting metrics to %s\n", exportMetricsPath);
+            log->info("Exporting metrics to {}", exportMetricsPath);
             FILE *fp = (strcmp(exportMetricsPath, "-") == 0)
                 ? stdout
                 : std::fopen(exportMetricsPath, "w");
             if (!fp) {
-                fprintf(stderr, "[HEADLESS] Could not open %s for writing\n",
-                        exportMetricsPath);
+                log->error("Could not open {} for writing", exportMetricsPath);
             } else {
                 // --- per-player section ---
                 std::fprintf(fp, "# PLAYERS\n");
@@ -304,14 +305,14 @@ int main(int argc, char **argv)
                 }
 
                 if (fp != stdout) std::fclose(fp);
-                fprintf(stderr, "[HEADLESS] Metrics export complete\n");
+                log->info("Metrics export complete");
             }
         }
     } else {
-        fprintf(stderr, "[HEADLESS] Would run %d turns with %d players, seed=%d\n",
-                maxTurns, numPlayers, seed);
+        log->info("Would run {} turns with {} players, seed={}",
+                  maxTurns, numPlayers, seed);
     }
 
-    fprintf(stderr, "[HEADLESS] Shutting down\n");
+    log->info("Shutting down");
     return 0;
 }

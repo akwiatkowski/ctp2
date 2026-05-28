@@ -225,3 +225,88 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
 
     tiledmap_observer::Register(prev);  // restore
 }
+
+TEST_CASE("tiledmap_observer::RedrawTile accumulates across 10 dispatches")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt(1, 2);
+    for (int i = 0; i < 10; ++i) {
+        tiledmap_observer::RedrawTile(pt);
+    }
+    CHECK(spy.redrawTileCalls == 10);
+}
+
+TEST_CASE("tiledmap_observer::RedrawTile forwards negative MapPoint coords")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt(-1, -1);
+    tiledmap_observer::RedrawTile(pt);
+    CHECK(spy.redrawTileCalls == 1);
+    CHECK(spy.lastRedrawPos.x == -1);
+    CHECK(spy.lastRedrawPos.y == -1);
+}
+
+TEST_CASE("tiledmap_observer::Refresh, InvalidateMap, PostProcessMap in sequence")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    tiledmap_observer::Refresh();
+    tiledmap_observer::InvalidateMap();
+    tiledmap_observer::PostProcessMap();
+    CHECK(spy.refreshCalls == 1);
+    CHECK(spy.invalidateMapCalls == 1);
+    CHECK(spy.postProcessMapCalls == 1);
+}
+
+TEST_CASE("tiledmap_observer::GetLocalVision returns nullptr when no Impl is registered")
+{
+    tiledmap_observer::Impl *prev = tiledmap_observer::Get();
+    tiledmap_observer::Register(nullptr);
+    CHECK(tiledmap_observer::GetLocalVision() == nullptr);
+    tiledmap_observer::Register(prev);  // restore
+}
+
+TEST_CASE("tiledmap_observer::GetLocalVision forwards the Impl's pointer when registered")
+{
+    RecordingSpy spy;
+    // Vision is an incomplete type in this TU; use a buffer for pointer
+    // round-trip testing (never dereferenced).
+    static int dummy_storage;
+    Vision const *dummy = reinterpret_cast<Vision const *>(&dummy_storage);
+    spy.getLocalVisionReturn = dummy;
+    ScopedSpy guard(&spy);
+    CHECK(tiledmap_observer::GetLocalVision() == dummy);
+    CHECK(spy.getLocalVisionCalls == 1);
+}
+
+TEST_CASE("tiledmap_observer::TileIsVisible with extreme args doesn't crash")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    // INT32_MIN and INT32_MAX should be forwarded without crashing.
+    CHECK(!tiledmap_observer::TileIsVisible(INT32_MIN, INT32_MAX));
+    CHECK(spy.tileIsVisibleCalls == 1);
+    CHECK(spy.lastTileIsVisibleX == INT32_MIN);
+    CHECK(spy.lastTileIsVisibleY == INT32_MAX);
+}
+
+TEST_CASE("tiledmap_observer::PostProcessTile, TileChanged, RedrawTile in migration sequence")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt(7, 9);
+    tiledmap_observer::PostProcessTile(pt, nullptr);
+    tiledmap_observer::TileChanged(pt);
+    tiledmap_observer::RedrawTile(pt);
+    CHECK(spy.postProcessTileCalls == 1);
+    CHECK(spy.tileChangedCalls == 1);
+    CHECK(spy.redrawTileCalls == 1);
+    CHECK(spy.lastPostProcessPos.x == 7);
+    CHECK(spy.lastPostProcessPos.y == 9);
+    CHECK(spy.lastTileChangedPos.x == 7);
+    CHECK(spy.lastTileChangedPos.y == 9);
+    CHECK(spy.lastRedrawPos.x == 7);
+    CHECK(spy.lastRedrawPos.y == 9);
+}

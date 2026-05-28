@@ -163,8 +163,6 @@ class UnitActor : public Actor {
   // the renderer never mutates gs/-side state.
   void SetState(UnitState const * s) { m_state = s; }
   UnitState const * GetState() const { return m_state; }
-  MapPoint GetSavedPos(void) const { return m_savePos; }
-  void SetSavedPos(MapPoint pnt) { m_savePos = pnt; }
   void GetPixelPos(sint32& x, sint32& y) const {
     x = m_x;
     y = m_y;
@@ -298,7 +296,6 @@ class UnitActor : public Actor {
   UnitState const * m_state = nullptr;
 
   MapPoint m_pos;
-  MapPoint m_savePos;
   Unit m_unitID;
   sint32 m_unitDBIndex;
   sint32 m_playerNum;

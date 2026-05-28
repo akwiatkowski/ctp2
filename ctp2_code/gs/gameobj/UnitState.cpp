@@ -12,24 +12,21 @@
 UnitState::UnitState()
 :
     m_unit_id(),
-    m_pos(),
-    m_savePos()
+    m_pos()
 {
 }
 
 UnitState::UnitState(Unit id)
 :
     m_unit_id(id),
-    m_pos(),
-    m_savePos()
+    m_pos()
 {
 }
 
 UnitState::UnitState(MapPoint snapshot_pos)
 :
     m_unit_id(),
-    m_pos(snapshot_pos),
-    m_savePos()
+    m_pos(snapshot_pos)
 {
 }
 

@@ -64,9 +64,6 @@ public:
     // LIVE to SNAPSHOT later by simply clearing m_unit_id.
     void SetPos(MapPoint pnt) { m_pos = pnt; }
 
-    MapPoint GetSavedPos() const { return m_savePos; }
-    void SetSavedPos(MapPoint pnt) { m_savePos = pnt; }
-
     // Phase 1 placeholder.  Real serialization populates as fields are
     // migrated.  Renderer state is NOT serialized (transient).
     void Serialize(CivArchive &archive);
@@ -74,5 +71,4 @@ public:
 private:
     Unit m_unit_id;
     MapPoint m_pos;
-    MapPoint m_savePos;
 };

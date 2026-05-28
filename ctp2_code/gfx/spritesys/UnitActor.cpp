@@ -135,7 +135,6 @@ UnitActor::UnitActor(SpriteStatePtr ss,
     : Actor(ss),
       m_refCount(1),
       m_pos(pos),
-      m_savePos(),
       m_unitID(id),
       m_unitDBIndex(unitType),
       m_playerNum(owner),
@@ -199,7 +198,6 @@ UnitActor::UnitActor(CivArchive& archive)
     : Actor(NULL),
       m_refCount(1),
       m_pos(),
-      m_savePos(),
       m_unitID(),
       m_unitDBIndex(CTPRecord::INDEX_INVALID),
       m_playerNum(PLAYER_UNASSIGNED),
@@ -293,8 +291,6 @@ void UnitActor::Initialize(void) {
   } else {
     m_directionalAttack = FALSE;
   }
-
-  m_savePos.x = m_savePos.y = 0;
 
   m_x = 0;
   m_y = 0;

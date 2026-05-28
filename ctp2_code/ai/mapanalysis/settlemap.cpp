@@ -48,7 +48,7 @@
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "CitySizeRecord.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "gfx/gfx_utils/gfx_options.h"
+#include "gs/core/gfx_options_observer.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "StrategyRecord.h"
 #include "TerrainRecord.h"
@@ -562,11 +562,11 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		settle_target.m_value = m_settleValues.GetGridValue(rc_pos);
 		settle_target.m_pos = rc_pos;
 
-		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
+		if (gfx_options_observer::IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "*%4.0f*", settle_target.m_value);
-			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
+			gfx_options_observer::AddTextToCell(rc_pos, buf, 255);
 		}
 
 		if(!CanSettlePos(rc_pos))
@@ -574,11 +574,11 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 		if(settle_target.m_value <= settle_threshold)
 		{
-			if (g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
+			if (gfx_options_observer::IsCellTextOn())
 			{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "(%4.0f)", settle_target.m_value);
-			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
+			gfx_options_observer::AddTextToCell(rc_pos, buf, 255);
 			}
 
 			continue;
@@ -587,11 +587,11 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 		if(!settleTerrainTypes[g_theWorld->GetTerrainType(rc_pos)])
 			continue;
 
-		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
+		if (gfx_options_observer::IsCellTextOn())
 		{
 			char buf[16];
 			snprintf(buf, sizeof(buf), "%4.0f", settle_target.m_value);
-			g_graphicsOptions->AddTextToCell(rc_pos, buf, 255);
+			gfx_options_observer::AddTextToCell(rc_pos, buf, 255);
 		}
 
 		targets.push_back(settle_target);

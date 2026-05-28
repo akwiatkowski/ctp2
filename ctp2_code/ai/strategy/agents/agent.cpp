@@ -47,7 +47,7 @@
 #include "ctp/c3.h"
 #include "ai/strategy/agents/agent.h"
 
-#include "gfx/gfx_utils/gfx_options.h"
+#include "gs/core/gfx_options_observer.h"
 #include "robot/pathing/robotastar2.h"
 #include "robot/pathing/CityAstar.h"
 #include "gs/world/Cell.h"
@@ -700,7 +700,7 @@ void Agent::Group_With( Agent_ptr second_army )
 	MapPoint dest_pos = m_goal->Get_Target_Pos();
 
 	snprintf(myString, textLen + 80, "Grouping at (%d,%d) to %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
-	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
+	gfx_options_observer::AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
 
 	delete[] goalString;
 	delete[] myString;
@@ -723,7 +723,7 @@ void Agent::Ungroup_Order()
 
 	MBCHAR * myString = new MBCHAR[256];
 	snprintf(myString, 256, "Ungrouping at (%d,%d)", pos.x, pos.y);
-	g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
+	gfx_options_observer::AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
 	delete[] myString;
 }
 
@@ -856,7 +856,7 @@ sint32 Agent::DisbandObsoleteUnits()
 			const OrderRecord *order_rec = CtpAi::GetDisbandArmyOrder();
 
 			PerformOrderHere(order_rec, &found_path);
-			g_graphicsOptions->AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type());
+			gfx_options_observer::AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type());
 		}
 		return 0;
 	}
@@ -875,7 +875,7 @@ sint32 Agent::DisbandObsoleteUnits()
 	if(order_rec)
 	{
 		PerformOrder(order_rec);
-		g_graphicsOptions->AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type());
+		gfx_options_observer::AddTextToArmy(m_army, "DISBAND", 255, Get_Goal_Type());
 	}
 
 	return unit_count;
@@ -914,7 +914,7 @@ void Agent::WaitHere(const MapPoint & goal_pos)
 		m_army->GetPos(pos);
 		MBCHAR * myString = new MBCHAR[255];
 		snprintf(myString, 255, "Waiting GROUP @ (%d,%d) to GO (%d,%d)", pos.x, pos.y, goal_pos.x, goal_pos.y);
-		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
+		gfx_options_observer::AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
 		delete[] myString;
 	}
 }
@@ -952,7 +952,7 @@ void Agent::ClearOrders()
 			snprintf(myString, textLen + 80, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, m_targetPos.x, m_targetPos.y);
 		}
 
-		g_graphicsOptions->AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
+		gfx_options_observer::AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
 
 		delete[] goalString;
 		delete[] myString;

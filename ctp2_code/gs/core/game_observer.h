@@ -19,6 +19,7 @@ class Army;
 class CityData;
 class Message;
 class Player;
+class UnitState;   // gs/gameobj/UnitState.h — game-state half of the UnitActor split
 
 /**
  * @brief Pure virtual interface for observing game events.
@@ -34,6 +35,16 @@ public:
     virtual void OnTurnStart(sint32 player) {}
     virtual void OnTurnEnd(sint32 player) {}
     virtual void OnBuildPhaseComplete(sint32 player) {}
+
+    // --- Unit lifecycle (Phase 2 of UnitActor split) ---
+    // OnUnitSpawned fires from every UnitData ctor (new or archive-load);
+    // OnUnitDestroyed fires at the start of UnitData::~UnitData.  The
+    // UnitState pointer is valid until the matching OnUnitDestroyed.
+    // The UI-side renderer registry (added in a later phase) uses this
+    // pair to create/destroy UnitRenderer instances bound to that
+    // UnitState.  Headless ignores.
+    virtual void OnUnitSpawned(const Unit& unit, UnitState const *state) {}
+    virtual void OnUnitDestroyed(const Unit& unit) {}
 
     // --- City events ---
     virtual void OnCityFounded(sint32 player, const Unit& city,
@@ -159,6 +170,10 @@ public:
     void NotifyTurnStart(sint32 player);
     void NotifyTurnEnd(sint32 player);
     void NotifyBuildPhaseComplete(sint32 player);
+
+    // --- Unit lifecycle ---
+    void NotifyUnitSpawned(const Unit& unit, UnitState const *state);
+    void NotifyUnitDestroyed(const Unit& unit);
 
     // --- City events ---
     void NotifyCityFounded(sint32 player, const Unit& city,

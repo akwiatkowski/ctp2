@@ -205,6 +205,12 @@ UnitData::UnitData(
 
 		g_network.Enqueue(this);
 	}
+
+	// Phase 2 of the UnitActor split: announce this unit's existence so a
+	// future UI-side renderer registry can create its UnitRenderer bound
+	// to m_state.  Headless ignores.
+	m_state.SetUnitID(Unit(m_id));
+	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 UnitData::UnitData(
@@ -225,6 +231,10 @@ UnitData::UnitData(
 	m_actor->SetUnitVisionRange((GetVisionRange()));
 
 	m_pos = actor_pos;
+
+	// Phase 2 of the UnitActor split — see UnitData::UnitData above.
+	m_state.SetUnitID(Unit(m_id));
+	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 //----------------------------------------------------------------------------
@@ -368,10 +378,19 @@ UnitData::UnitData(CivArchive &archive) : GameObj(0)
 	m_greater = NULL;
 
 	Serialize(archive);
+
+	// Phase 2 of the UnitActor split — m_id is now valid after Serialize.
+	m_state.SetUnitID(Unit(m_id));
+	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 UnitData::~UnitData()
 {
+	// Phase 2 of the UnitActor split: fire BEFORE any member destruction
+	// so subscribers can drop their references to m_state while it's
+	// still valid.
+	if (g_gameObservers) g_gameObservers->NotifyUnitDestroyed(Unit(m_id));
+
 	delete m_cargo_list;
 	delete m_city_data;
 	delete m_roundTheWorldMask;

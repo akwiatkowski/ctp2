@@ -45,6 +45,22 @@ void GameObserverRegistry::NotifyBuildPhaseComplete(sint32 player)
     }
 }
 
+// --- Unit lifecycle ---
+
+void GameObserverRegistry::NotifyUnitSpawned(const Unit& unit, UnitState const *state)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUnitSpawned(unit, state);
+    }
+}
+
+void GameObserverRegistry::NotifyUnitDestroyed(const Unit& unit)
+{
+    for (auto* obs : m_observers) {
+        obs->OnUnitDestroyed(unit);
+    }
+}
+
 // --- City events ---
 
 void GameObserverRegistry::NotifyCityFounded(sint32 player, const Unit& city,

@@ -43,7 +43,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/utility/RandGen.h"
 #include "gs/newdb/UnitRec.h"
-#include "gfx/spritesys/GoodActor.h"
+#include "gs/core/goodactor_factory.h"
 #include "gs/core/render_observer.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/outcom/AICause.h"
@@ -73,7 +73,7 @@ Wormhole::Wormhole(sint32 discoverer)
 	m_discoveredAt = g_turn->GetRound();
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
-	m_actor = new GoodActor(id, m_pos);
+	m_actor = goodactor_factory_create(id, m_pos);
 }
 
 Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos)
@@ -91,7 +91,7 @@ Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos)
 	m_discoveredAt = g_turn->GetRound();
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
-	m_actor = new GoodActor(id, m_pos);
+	m_actor = goodactor_factory_create(id, m_pos);
 }
 
 Wormhole::Wormhole(CivArchive &archive)
@@ -100,7 +100,7 @@ Wormhole::Wormhole(CivArchive &archive)
 	Serialize(archive);
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
-	m_actor = new GoodActor(id, m_pos);
+	m_actor = goodactor_factory_create(id, m_pos);
 }
 
 Wormhole::~Wormhole()
@@ -110,8 +110,7 @@ Wormhole::~Wormhole()
 		delete m_entries;
 	}
 
-	if (m_actor)
-		delete m_actor;
+	goodactor_factory_destroy(m_actor);
 }
 
 void Wormhole::Serialize(CivArchive &archive)

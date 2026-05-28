@@ -224,6 +224,8 @@ game_core_sources = [
 	'gfx/tilesys/tiledmap_observer_adapter.cpp',
 	'gs/core/gfx_options_observer.cpp',
 	'gfx/gfx_utils/gfx_options_observer_adapter.cpp',
+	'gs/core/colorset_observer.cpp',
+	'gfx/gfx_utils/colorset_observer_adapter.cpp',
 	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',

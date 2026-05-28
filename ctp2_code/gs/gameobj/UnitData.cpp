@@ -210,6 +210,10 @@ UnitData::UnitData(
 	// future UI-side renderer registry can create its UnitRenderer bound
 	// to m_state.  Headless ignores.
 	m_state.SetUnitID(Unit(m_id));
+	// Phase 3 slice 3: wire the renderer's view of gs/ state.  Reads
+	// like actor->GetPos() now dispatch through m_state to authoritative
+	// UnitData (live mode) instead of a cached field.
+	if (m_actor) m_actor->SetState(&m_state);
 	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
@@ -232,8 +236,9 @@ UnitData::UnitData(
 
 	m_pos = actor_pos;
 
-	// Phase 2 of the UnitActor split — see UnitData::UnitData above.
+	// Phase 2/3 of the UnitActor split — see UnitData::UnitData above.
 	m_state.SetUnitID(Unit(m_id));
+	if (m_actor) m_actor->SetState(&m_state);
 	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
@@ -379,8 +384,11 @@ UnitData::UnitData(CivArchive &archive) : GameObj(0)
 
 	Serialize(archive);
 
-	// Phase 2 of the UnitActor split — m_id is now valid after Serialize.
+	// Phase 2/3 of the UnitActor split — m_id is now valid after Serialize.
 	m_state.SetUnitID(Unit(m_id));
+	// Serialize() reconstructed m_actor from the archive (see the
+	// `m_actor.reset(new UnitActor(archive))` site).  Wire state now.
+	if (m_actor) m_actor->SetState(&m_state);
 	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 

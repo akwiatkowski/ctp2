@@ -246,6 +246,10 @@ public:
 	char m_text[80];
 #endif
 
+	// Renderer-facing bridge: gs/ owns position et al.; UnitState dispatches
+	// reads to the live UnitData via m_unit_id.  See UnitState.h for modes.
+	UnitState const * GetState() const { return &m_state; }
+
 	// Auto-explore accessors (see m_isExploring above).
 	bool             IsExploring()      const { return m_isExploring; }
 	void             SetExploring(bool v)     { m_isExploring = v;    }

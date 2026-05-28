@@ -53,6 +53,7 @@ typedef std::weak_ptr<UnitActor> UnitActorWeakPtr;
 #include "gfx/spritesys/SpriteGroup.h"      // GROUPTYPE, LOADTYPE
 #include "gfx/spritesys/UnitSpriteGroup.h"  // UNITACTION
 #include "gs/gameobj/Unit.h"                // SPECATTACK, Unit
+#include "gs/gameobj/UnitState.h"           // UnitState (renderer's gs/ view)
 #include "gs/world/MapPoint.h"              // MapPoint
 #include "os/include/ctp2_inttypes.h"       // sintN, uintN
 
@@ -149,8 +150,19 @@ class UnitActor : public Actor {
 
   bool IsAnimating(void) const;
 
-  MapPoint GetPos(void) const { return m_pos; }
+  // GetPos dispatches: when wired to a gs/UnitState (live unit via
+  // UnitData, or fog-of-war snapshot via UnseenCell), reads go through
+  // the state (which for live units defers to authoritative UnitData).
+  // Fallback m_pos is the legacy path used by actors with no state
+  // wired yet — being phased out.
+  MapPoint GetPos(void) const { return m_state ? m_state->GetPos() : m_pos; }
   void SetPos(MapPoint pnt) { m_pos = pnt; }
+
+  // Wired by gs/ (UnitData ctors for live units; UnseenCell ctor for
+  // fog-of-war snapshots) right after construction.  Const pointer:
+  // the renderer never mutates gs/-side state.
+  void SetState(UnitState const * s) { m_state = s; }
+  UnitState const * GetState() const { return m_state; }
   MapPoint GetSavedPos(void) const { return m_savePos; }
   void SetSavedPos(MapPoint pnt) { m_savePos = pnt; }
   void GetPixelPos(sint32& x, sint32& y) const {
@@ -280,6 +292,11 @@ class UnitActor : public Actor {
   void HackSetSpriteID(sint32 spriteID) { m_spriteID = spriteID; }
 
  protected:
+  // Non-owning pointer into a gs/ UnitState.  Wired by UnitData (LIVE)
+  // or UnseenCell (SNAPSHOT) right after this actor's construction.
+  // Null means "no state wired yet — fall back to m_pos cache."
+  UnitState const * m_state = nullptr;
+
   MapPoint m_pos;
   MapPoint m_savePos;
   Unit m_unitID;

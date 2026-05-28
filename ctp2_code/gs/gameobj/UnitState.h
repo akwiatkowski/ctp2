@@ -32,25 +32,47 @@
 #pragma once
 
 #include "ctp2_inttypes.h"
-#include "gs/gameobj/Unit.h"   // Unit (the gs/-side handle, value type)
+#include "gs/gameobj/Unit.h"     // Unit (the gs/-side handle, value type)
+#include "gs/world/MapPoint.h"   // MapPoint (position value type)
 
 class CivArchive;
 
+// Two construction modes determine how reads dispatch:
+//   * LIVE mode    — m_unit_id is valid.  Position reads delegate to the
+//                    authoritative UnitData via m_unit_id.RetPos().
+//                    m_pos is unused.  Used for live units (UnitData ctors).
+//   * SNAPSHOT mode — m_unit_id is default (invalid).  Position reads
+//                    return m_pos.  Used for fog-of-war snapshots that
+//                    must remember a unit's last-known location after
+//                    its gs/ object is gone or has moved.
 class UnitState
 {
 public:
     UnitState();
     explicit UnitState(Unit id);
+    explicit UnitState(MapPoint snapshot_pos);  // SNAPSHOT mode
 
-    // Identity — links back to the gs/-side Unit handle so renderers
-    // can find their state.
     Unit GetUnitID() const { return m_unit_id; }
     void SetUnitID(Unit id) { m_unit_id = id; }
 
+    // Dispatches: LIVE → m_unit_id.RetPos(); SNAPSHOT → m_pos.
+    MapPoint GetPos() const;
+
+    // Writes m_pos unconditionally.  For LIVE units this is a no-op
+    // from the reader's perspective (GetPos doesn't read m_pos), but
+    // the field is kept in sync so a UnitState can be converted from
+    // LIVE to SNAPSHOT later by simply clearing m_unit_id.
+    void SetPos(MapPoint pnt) { m_pos = pnt; }
+
+    MapPoint GetSavedPos() const { return m_savePos; }
+    void SetSavedPos(MapPoint pnt) { m_savePos = pnt; }
+
     // Phase 1 placeholder.  Real serialization populates as fields are
-    // migrated in Phase 3.  Renderer state is NOT serialized (transient).
+    // migrated.  Renderer state is NOT serialized (transient).
     void Serialize(CivArchive &archive);
 
 private:
     Unit m_unit_id;
+    MapPoint m_pos;
+    MapPoint m_savePos;
 };

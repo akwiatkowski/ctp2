@@ -11,14 +11,37 @@
 
 UnitState::UnitState()
 :
-    m_unit_id()
+    m_unit_id(),
+    m_pos(),
+    m_savePos()
 {
 }
 
 UnitState::UnitState(Unit id)
 :
-    m_unit_id(id)
+    m_unit_id(id),
+    m_pos(),
+    m_savePos()
 {
+}
+
+UnitState::UnitState(MapPoint snapshot_pos)
+:
+    m_unit_id(),
+    m_pos(snapshot_pos),
+    m_savePos()
+{
+}
+
+MapPoint UnitState::GetPos() const
+{
+    // LIVE: defer to authoritative gs/UnitData position.
+    if (m_unit_id.IsValid())
+    {
+        return m_unit_id.RetPos();
+    }
+    // SNAPSHOT (fog-of-war, no live unit): use the snapshot.
+    return m_pos;
 }
 
 void UnitState::Serialize(CivArchive &archive)

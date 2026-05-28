@@ -50,6 +50,11 @@ void TiledMapObserverAdapter::CopyVision()
     if (g_tiledMap) g_tiledMap->CopyVision();
 }
 
+Vision const *TiledMapObserverAdapter::GetLocalVision()
+{
+    return g_tiledMap ? g_tiledMap->GetLocalVision() : nullptr;
+}
+
 namespace {
     TiledMapObserverAdapter s_tiledMapObserverAdapter;
 }
@@ -57,4 +62,22 @@ namespace {
 void RegisterTiledMapObserverAdapter()
 {
     tiledmap_observer::Register(&s_tiledMapObserverAdapter);
+}
+
+// --- TiledMap lifecycle factory (UI-side strong definitions) ---
+// Overrides the weak no-op defaults in gs/core/tiledmap_observer.cpp.
+// gameinit.cpp calls these instead of doing the raw new/delete itself,
+// so gs/utility/ does not need to know about the TiledMap class.
+
+void tiledmap_factory_recreate(sint32 width, sint32 height)
+{
+    delete g_tiledMap;
+    MapPoint size(width, height);
+    g_tiledMap = new TiledMap(size);
+}
+
+void tiledmap_factory_destroy()
+{
+    delete g_tiledMap;
+    g_tiledMap = nullptr;
 }

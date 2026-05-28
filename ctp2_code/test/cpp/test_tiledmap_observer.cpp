@@ -73,6 +73,13 @@ struct RecordingSpy : tiledmap_observer::Impl {
     void CopyVision() override {
         ++copyVisionCalls;
     }
+
+    int getLocalVisionCalls = 0;
+    Vision const *getLocalVisionReturn = nullptr;
+    Vision const *GetLocalVision() override {
+        ++getLocalVisionCalls;
+        return getLocalVisionReturn;
+    }
 };
 
 // RAII helper that restores the previous Impl on destruction.

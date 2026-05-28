@@ -18,6 +18,7 @@ public:
     void InvalidateMix() override;
     bool TileIsVisible(sint32 mapX, sint32 mapY) override;
     void CopyVision() override;
+    Vision const *GetLocalVision() override;
 };
 
 // Installs a singleton TiledMapObserverAdapter as the registered

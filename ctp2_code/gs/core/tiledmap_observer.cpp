@@ -30,6 +30,22 @@ bool TileIsVisible(sint32 mapX, sint32 mapY)          { return s_impl ? s_impl->
 
 void CopyVision()                                     { DISPATCH_VOID(CopyVision); }
 
+Vision const *GetLocalVision()                        { return s_impl ? s_impl->GetLocalVision() : nullptr; }
+
 #undef DISPATCH_VOID
 
 } // namespace tiledmap_observer
+
+// --- TiledMap lifecycle factory (default no-op for headless) ---
+// The UI build's tiledmap_observer_adapter.cpp provides a STRONG override
+// of these symbols and wins the link.  This file's definitions exist so
+// the headless build (which does not link the adapter) still has
+// symbols to resolve against.  Headless does NOT create a TiledMap.
+
+// Marked __attribute__((weak)) so the UI-side strong definition takes
+// precedence when both translation units are linked.
+__attribute__((weak))
+void tiledmap_factory_recreate(sint32 /*width*/, sint32 /*height*/) {}
+
+__attribute__((weak))
+void tiledmap_factory_destroy() {}

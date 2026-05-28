@@ -38,10 +38,8 @@
 // Mirrors `gs/core/audio_observer.h` and `gs/core/render_observer.h`.
 //
 // Out of scope for this observer:
-//   - Lifecycle of g_tiledMap itself (new/delete) — owned by the UI build's
-//     initialization code; gameinit.cpp still references TiledMap directly.
-//   - GetLocalVision() — returns Vision*; treated as a query, exposed as a
-//     pointer-returning fan-out below.
+//   - Lifecycle of g_tiledMap itself (new/delete) — handled by the
+//     `tiledmap_factory` free function (see below), implemented UI-side.
 //
 //----------------------------------------------------------------------------
 
@@ -92,6 +90,12 @@ public:
 
     // Vision sync — used between turns.
     virtual void CopyVision() = 0;
+
+    // Returns the Vision pointer the tile-map is currently rendering for
+    // (the "local" player's vision).  May be nullptr.  Used by Player.cpp
+    // to detect when its own vision is the one being rendered.
+    // const-pointer matches the underlying TiledMap::GetLocalVision() signature.
+    virtual Vision const *GetLocalVision() = 0;
 };
 
 // --- Registration ---
@@ -115,4 +119,16 @@ bool TileIsVisible(sint32 mapX, sint32 mapY);   // returns false in headless
 
 void CopyVision();
 
+// Returns nullptr in headless / when no Impl is registered.
+Vision const *GetLocalVision();
+
 } // namespace tiledmap_observer
+
+// --- TiledMap lifecycle factory ---
+// Replaces the inline `delete g_tiledMap; g_tiledMap = new TiledMap(size);`
+// idiom in gameinit.cpp.  Implemented UI-side in
+// `gfx/tilesys/tiledmap_observer_adapter.cpp` (or a sibling file); the
+// headless build links a no-op stub.  Two free functions intentionally —
+// gs/ can call them without pulling in tiledmap.h.
+void tiledmap_factory_recreate(sint32 width, sint32 height);
+void tiledmap_factory_destroy();

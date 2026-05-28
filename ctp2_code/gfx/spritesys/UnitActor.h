@@ -244,17 +244,10 @@ class UnitActor : public Actor {
   void FullLoad(UNITACTION action);
   void DumpFullLoad(void);
 
-  // m_isFortified removed (UnitActor split Phase 3 batch 1).  Renderer
-  // now reads m_unitID.IsEntrenched() directly from gs/ each frame.
-  // m_isFortifying / m_hasCityWalls / m_hasForceField pending in
-  // subsequent slices.
-  void SetIsFortifying(BOOL fort) { m_isFortifying = fort; }
-  BOOL IsFortifying(void) const { return m_isFortifying; }
-
-  void SetHasCityWalls(BOOL has) { m_hasCityWalls = has; }
-  void SetHasForceField(BOOL has) { m_hasForceField = has; }
-  BOOL HasCityWalls(void) const { return m_hasCityWalls; }
-  BOOL HasForceField(void) const { return m_hasForceField; }
+  // m_isFortified / m_isFortifying / m_hasCityWalls / m_hasForceField
+  // removed (UnitActor split Phase 3 slices 1-2).  Renderer reads
+  // m_unitID.IsEntrenched() / IsEntrenching() / HasCityWalls() /
+  // HasForceField() directly from gs/ each frame.
 
   void SetHealthPercent(double p) { m_healthPercent = p; }
   double GetHealthPercent(void) const { return m_healthPercent; }
@@ -340,10 +333,8 @@ class UnitActor : public Actor {
   GROUPTYPE m_type;
   sint32 m_spriteID;
 
-  // m_isFortified removed (UnitActor split Phase 3 batch 1).
-  BOOL m_isFortifying;
-  BOOL m_hasCityWalls;
-  BOOL m_hasForceField;
+  // m_isFortified / m_isFortifying / m_hasCityWalls / m_hasForceField
+  // removed (UnitActor split Phase 3 slices 1-2).
 
   uint32 m_shieldFlashOnTime;
   uint32 m_shieldFlashOffTime;

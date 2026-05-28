@@ -2593,22 +2593,13 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 				UnitActorPtr actor = top.GetActor();
 
 
-				if (g_player[top.GetOwner()] && !Player::IsThisPlayerARobot(top.GetOwner())) {
-                    actor->SetIsFortifying(top.IsEntrenching());
-                }
-				// SetIsFortified push removed — UnitActor::Draw reads
-				// m_unitID.IsEntrenched() directly from gs/.
+				// SetIsFortifying / SetIsFortified / SetHasCityWalls /
+				// SetHasForceField pushes removed — UnitActor::Draw
+				// reads m_unitID.IsEntrenching() / IsEntrenched() /
+				// HasCityWalls() / HasForceField() directly from gs/.
 
 				actor->SetHiddenUnderStack(FALSE);
 				actor->SetUnitVisibility(top.GetVisibility());
-
-				if (top.IsCity())
-				{
-					CityData *cityData = top.GetData()->GetCityData();
-
-					actor->SetHasCityWalls(cityData->HasCityWalls());
-					actor->SetHasForceField(cityData->HasForceField());
-				}
 
 
 

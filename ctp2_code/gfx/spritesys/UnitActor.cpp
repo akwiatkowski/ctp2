@@ -332,7 +332,7 @@ void UnitActor::AddVision(void) {
   STOMPCHECK();
 #endif
   if (!m_isUnseenCellActor) {
-    g_player[m_playerNum]->m_vision->AddVisible(m_pos, m_unitVisionRange);
+    g_player[m_playerNum]->m_vision->AddVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -342,7 +342,7 @@ void UnitActor::RemoveVision(void) {
 #endif
 
   if (!m_isUnseenCellActor) {
-    g_player[m_playerNum]->m_vision->RemoveVisible(m_pos, m_unitVisionRange);
+    g_player[m_playerNum]->m_vision->RemoveVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -448,7 +448,7 @@ void UnitActor::ChangeImage(SpriteStatePtr ss, sint32 type, Unit id) {
 
   GROUPTYPE groupType;
   sint32 spriteID;
-  GetIDAndType(m_playerNum, ss, id, type, m_pos, &spriteID, &groupType);
+  GetIDAndType(m_playerNum, ss, id, type, GetPos(), &spriteID, &groupType);
 
   m_type = groupType;
 
@@ -505,7 +505,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
       DPRINTF(
           k_DBG_INFO,
           ("Removing vision for %lx, owner %d, range %lf, center: %d,%d\n",
-           (uint32)m_unitID, m_playerNum, m_unitVisionRange, m_pos.x, m_pos.y));
+           (uint32)m_unitID, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
     }
   }
 
@@ -517,7 +517,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
         !m_isUnseenCellActor) {
       DPRINTF(k_DBG_INFO,
               ("Adding vision for %lx, owner %d, range %lf, center: %d,%d\n",
-               m_unitID, m_playerNum, m_unitVisionRange, m_pos.x, m_pos.y));
+               m_unitID, m_playerNum, m_unitVisionRange, GetPos().x, GetPos().y));
     }
   }
 
@@ -695,9 +695,10 @@ void UnitActor::Process(void) {
       sint32 num = abs(m_curAction->GetNumOActors());
       m_curAction->SetNumOActors(num);
 
+      MapPoint here = GetPos();
       for (std::weak_ptr<UnitActor> actor : moveActors) {
         if (!actor.expired())
-          actor.lock()->PositionActor(m_pos);
+          actor.lock()->PositionActor(here);
       }
       m_curAction->SetMoveActors(std::vector<std::weak_ptr<UnitActor> >());
     }
@@ -722,7 +723,8 @@ void UnitActor::Process(void) {
       m_y = curPt.y;
     } else {
       sint32 x, y;
-      maputils_MapXY2PixelXY(m_pos.x, m_pos.y, &x, &y);
+      MapPoint const here = GetPos();
+      maputils_MapXY2PixelXY(here.x, here.y, &x, &y);
       m_x = x;
       m_y = y;
     }
@@ -1096,7 +1098,7 @@ void UnitActor::DrawCityWalls(
         styleRec->GetAgeStyle(g_player[unit->GetOwner()]->m_age);
 
     if (ageStyleRec) {
-      bool const isWater = g_theWorld->IsWater(m_pos);
+      bool const isWater = g_theWorld->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
       AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
 
@@ -1182,9 +1184,10 @@ void UnitActor::DrawForceField(bool fogged) {
 
   // Default sprite index (fixed number from original code)
   sint32 which;
-  if (g_theWorld->IsLand(m_pos)) {
+  MapPoint const here = GetPos();
+  if (g_theWorld->IsLand(here)) {
     which = 154;
-  } else if (g_theWorld->IsWater(m_pos)) {
+  } else if (g_theWorld->IsWater(here)) {
     which = 155;
   } else {
     which = 156;  // space?
@@ -1201,7 +1204,7 @@ void UnitActor::DrawForceField(bool fogged) {
         styleRec->GetAgeStyle(g_player[unit->GetOwner()]->m_age);
 
     if (ageStyleRec) {
-      bool const isWater = g_theWorld->IsWater(m_pos);
+      bool const isWater = g_theWorld->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
       AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
 
@@ -1505,7 +1508,7 @@ void UnitActor::DrawHealthBar(void) {
   }
 
   TileSet* tileSet = g_tiledMap->GetTileSet();
-  Cell* myCell = g_theWorld->GetCell(m_pos);
+  Cell* myCell = g_theWorld->GetCell(GetPos());
 
   sint32 stackSize = 1;
   if (m_tempStackSize != 0) {

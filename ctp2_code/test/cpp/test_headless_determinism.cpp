@@ -71,13 +71,13 @@ bool read_file(const char *path, std::string &out)
 
 // Run headless with the given seed and turn count, write metrics to the given
 // path, return the metrics file contents.  Empty string on failure.
-std::string run_and_read_metrics(int seed, int turns, const char *path)
+std::string run_and_read_metrics(int seed, int turns, const char *path, int players = 4)
 {
     std::remove(path);
     char args[512];
     std::snprintf(args, sizeof(args),
-                  "--new-game --turns %d --players 4 --seed %d --export-metrics %s",
-                  turns, seed, path);
+                  "--new-game --turns %d --players %d --seed %d --export-metrics %s",
+                  turns, players, seed, path);
     std::string log;
     int rc = run_headless(args, &log);
     if (rc != 0) {
@@ -123,4 +123,54 @@ TEST_CASE("Determinism: different seeds produce different metrics")
     REQUIRE_FALSE(b.empty());
     // If these match the RNG seed isn't actually affecting any game decision.
     CHECK(a != b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics at 30 turns")
+{
+    std::string a = run_and_read_metrics(42, 30, "/tmp/ctp2_det_30a.csv");
+    std::string b = run_and_read_metrics(42, 30, "/tmp/ctp2_det_30b.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics with 2 players")
+{
+    std::string a = run_and_read_metrics(42, 10, "/tmp/ctp2_det_2p_a.csv", 2);
+    std::string b = run_and_read_metrics(42, 10, "/tmp/ctp2_det_2p_b.csv", 2);
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics with 6 players")
+{
+    std::string a = run_and_read_metrics(42, 10, "/tmp/ctp2_det_6p_a.csv", 6);
+    std::string b = run_and_read_metrics(42, 10, "/tmp/ctp2_det_6p_b.csv", 6);
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics with seed 0")
+{
+    std::string a = run_and_read_metrics(0, 10, "/tmp/ctp2_det_0a.csv");
+    std::string b = run_and_read_metrics(0, 10, "/tmp/ctp2_det_0b.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
+}
+
+TEST_CASE("Determinism: same seed produces identical metrics with large seed")
+{
+    std::string a = run_and_read_metrics(2147483647, 10, "/tmp/ctp2_det_maxa.csv");
+    std::string b = run_and_read_metrics(2147483647, 10, "/tmp/ctp2_det_maxb.csv");
+
+    REQUIRE_FALSE(a.empty());
+    REQUIRE_FALSE(b.empty());
+    CHECK(a == b);
 }

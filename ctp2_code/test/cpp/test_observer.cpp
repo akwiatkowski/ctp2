@@ -186,3 +186,100 @@ TEST_CASE("HeadlessGameObserver logs turn events")
 
     reg.Unregister(&obs);
 }
+
+TEST_CASE("GameObserverRegistry dispatches OnTurnEnd with correct player id") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        sint32 lastPlayer = -1;
+        void OnTurnEnd(sint32 p) override { ++calls; lastPlayer = p; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyTurnEnd(3);
+    CHECK(r.calls == 1);
+    CHECK(r.lastPlayer == 3);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnBuildPhaseComplete with correct player id") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        sint32 lastPlayer = -1;
+        void OnBuildPhaseComplete(sint32 p) override { ++calls; lastPlayer = p; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyBuildPhaseComplete(7);
+    CHECK(r.calls == 1);
+    CHECK(r.lastPlayer == 7);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnPlayerRemoved with correct player id") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        sint32 lastPlayer = -1;
+        void OnPlayerRemoved(sint32 p) override { ++calls; lastPlayer = p; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyPlayerRemoved(2);
+    CHECK(r.calls == 1);
+    CHECK(r.lastPlayer == 2);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnTradeChanged") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        void OnTradeChanged() override { ++calls; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyTradeChanged();
+    CHECK(r.calls == 1);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnUpdateCityList") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        void OnUpdateCityList() override { ++calls; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyUpdateCityList();
+    CHECK(r.calls == 1);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnHideMainUI") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        void OnHideMainUI() override { ++calls; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyHideMainUI();
+    CHECK(r.calls == 1);
+    reg.Unregister(&r);
+}
+
+TEST_CASE("GameObserverRegistry dispatches OnMapResized") {
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct Recorder : IGameObserver {
+        int calls = 0;
+        void OnMapResized() override { ++calls; }
+    };
+    Recorder r;
+    reg.Register(&r);
+    reg.NotifyMapResized();
+    CHECK(r.calls == 1);
+    reg.Unregister(&r);
+}

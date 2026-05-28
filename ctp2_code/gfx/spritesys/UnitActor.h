@@ -101,7 +101,7 @@ class UnitActor : public Actor {
 
   void AddVision(void);
   void RemoveVision(void);
-  void PositionActor(MapPoint& pos);
+  void PositionActor(MapPoint const& pos);
   void Hide(void);
   void Show(void);
 

@@ -346,7 +346,7 @@ void UnitActor::RemoveVision(void) {
   }
 }
 
-void UnitActor::PositionActor(MapPoint& pos) {
+void UnitActor::PositionActor(MapPoint const& pos) {
 #ifndef _TEST
   STOMPCHECK();
 #endif

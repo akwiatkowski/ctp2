@@ -4,7 +4,10 @@
 #ifndef __SPRITE_STATE_H__
 #define __SPRITE_STATE_H__
 
-#include <memory>
+// Forward decl + SpriteStatePtr typedef live in gs/core/sprite_state_fwd.h
+// so gs/ headers can use the typedef without depending on gfx/.  This
+// header re-uses that declaration to keep a single canonical definition.
+#include "gs/core/sprite_state_fwd.h"
 
 class CivArchive ;
 
@@ -35,6 +38,8 @@ public:
 
 };
 
-typedef std::shared_ptr<SpriteState> SpriteStatePtr;
+// SpriteStatePtr typedef is now defined in gs/core/sprite_state_fwd.h
+// (included above).  This re-declaration was here historically but is
+// now redundant.
 
 #endif

@@ -47,7 +47,7 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
 constexpr std::size_t GS_GFX_CPP_BASELINE    = 3;
-constexpr std::size_t GS_GFX_HEADER_BASELINE = 6;
+constexpr std::size_t GS_GFX_HEADER_BASELINE = 3;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
 

@@ -31,21 +31,21 @@
 // - Added GetUtilisationRatio function.
 // - Prevented cities to revolt twice in the same turn. By kaan.
 // - Added NeedMoreFood function to calculate whether a city should
-//   build food tile improvements, by Martin Gühmann.
+//   build food tile improvements, by Martin Gï¿½hmann.
 // - Removed some unused functions and added a lot new ones to be able to
 //   estimate resource production better without the need of recalculation
-//   of everything. - April 4th 2005 Martin Gühmann
+//   of everything. - April 4th 2005 Martin Gï¿½hmann
 // - Added m_turnsNextPop to track city growth - PFT 29 mar 05
 // - Removed private member m_turnsNextPop as there is no need to save it
 //   as its calculation is cheap and in addition there was no get method
-//   or anything else that requires to save it. - April 23rd 2005 Martin Gühmann
-// - Replaced some member names for clarity. - Aug 6th 2005 Martin Gühmann
-// - Removed a bunch of unused and incomplete methods. - Aug 6th 2005 Martin Gühmann
-// - Added new code as preparation for resource calculation redesign.- Aug 6th 2005 Martin Gühmann
-// - Added code for new city resource calculation. (Aug 12th 2005 Martin Gühmann)
-// - Removed CITY_TILE_SIZE and k_CITY_RADIUS they aren't used. (Aug 12th 2005 Martin Gühmann)
-// - Removed more unused methods. (Aug 12th 2005 Martin Gühmann)
-// - Added city style specific happiness bonus method. (Oct 7th 2005 Martin Gühmann)
+//   or anything else that requires to save it. - April 23rd 2005 Martin Gï¿½hmann
+// - Replaced some member names for clarity. - Aug 6th 2005 Martin Gï¿½hmann
+// - Removed a bunch of unused and incomplete methods. - Aug 6th 2005 Martin Gï¿½hmann
+// - Added new code as preparation for resource calculation redesign.- Aug 6th 2005 Martin Gï¿½hmann
+// - Added code for new city resource calculation. (Aug 12th 2005 Martin Gï¿½hmann)
+// - Removed CITY_TILE_SIZE and k_CITY_RADIUS they aren't used. (Aug 12th 2005 Martin Gï¿½hmann)
+// - Removed more unused methods. (Aug 12th 2005 Martin Gï¿½hmann)
+// - Added city style specific happiness bonus method. (Oct 7th 2005 Martin Gï¿½hmann)
 // - Added HasNeededGood method by E
 // - Added HasEitherGood method by E
 // - Added HasTileImpInRadius method by E 4-7-2006 bool if a city has imp in radius
@@ -69,7 +69,8 @@
 
 class CityData;
 
-#include "gfx/spritesys/SpriteState.h"
+// SpriteStatePtr is reached transitively via Unit.h (which uses
+// sprite_state_fwd.h).  No direct dependence here.
 
 #include "gs/gameobj/Unit.h"
 

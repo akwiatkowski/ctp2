@@ -50,7 +50,7 @@
 class UnitData;
 class VisibilityDurationArray;
 
-#include "gfx/spritesys/SpriteState.h"
+#include "gs/core/sprite_state_fwd.h"   // SpriteStatePtr typedef
 #include "gfx/spritesys/UnitActor.h"      // UnitActor
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/GameObj.h"

@@ -77,7 +77,6 @@ class UnitActor;
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/UnitData.h"
-#include "gfx/spritesys/UnitActor.h"       // UnitActor methods
 #include "gs/gameobj/UnitPool.h"           // g_theUnitPool
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/pollution.h"

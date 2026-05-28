@@ -46,15 +46,21 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // gs/ files still include gfx/ headers for type references (UnitActor*,
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
-// Wave 15a W4 added explicit `gfx/spritesys/UnitActor.h` includes to 4
-// .cpp files (Unit.cpp, ArmyData.cpp, CityData.cpp, Player.cpp) that
-// previously got the type transitively through UnitData.h.  Making the
-// dependency explicit unblocks a future fwd-decl of UnitActor in
-// UnitData.h.  The net architectural move is .cpp leak +4, .h leak -1
-// (later) — a smaller blast-radius leak replacing a bigger one.
-// Phase B (Advances.cpp + Wormhole.cpp migrations) drops this by 2.
-constexpr std::size_t GS_GFX_CPP_BASELINE    = 5;
-constexpr std::size_t GS_GFX_HEADER_BASELINE = 2;
+// Remaining gs/.cpp gfx leak: 1 file (TileInfo.cpp's GoodActor.h).
+// TileInfo legitimately owns a GoodActor with 8 distinct operations
+// (construction × 3, copy, archive-load, FullLoad, Serialize, delete).
+// Migrating it would need a 6+ function factory for modest benefit —
+// documented exception.
+//
+// Remaining gs/.h gfx leak: 1 file (UnitData.h's UnitActor.h).
+// UnitData genuinely owns a shared_ptr<UnitActor> and exposes it via
+// Get/SetSpriteState accessors.  The real architectural debt is that
+// UnitActor itself mixes game-state (position, ownership, fortified,
+// walls, vision) with graphics-state (sprite, animation).  The proper
+// fix is splitting UnitActor into a gs-side UnitState + gfx-side
+// UnitRenderer — multi-wave work not done yet.
+constexpr std::size_t GS_GFX_CPP_BASELINE    = 1;
+constexpr std::size_t GS_GFX_HEADER_BASELINE = 1;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
 

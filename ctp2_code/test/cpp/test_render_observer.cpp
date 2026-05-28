@@ -511,3 +511,72 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
 
     render_observer::Register(prev);  // restore
 }
+
+TEST_CASE("render_observer::AddMove dispatched 3 times accumulates counter")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint oldPos(1, 2);
+    MapPoint newPos(3, 4);
+    Unit mover;
+    render_observer::UnitActorVec emptyVec;
+    render_observer::AddMove(mover, oldPos, newPos, emptyVec, emptyVec, false, 42);
+    render_observer::AddMove(mover, oldPos, newPos, emptyVec, emptyVec, false, 43);
+    render_observer::AddMove(mover, oldPos, newPos, emptyVec, emptyVec, false, 44);
+    CHECK(spy.addMoveCalls == 3);
+}
+
+TEST_CASE("render_observer::AddCenterMap with different MapPoints forwards each correctly")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt1(5, 7);
+    render_observer::AddCenterMap(pt1);
+    CHECK(spy.lastCenterMapPos.x == 5);
+    CHECK(spy.lastCenterMapPos.y == 7);
+
+    MapPoint pt2(9, 11);
+    render_observer::AddCenterMap(pt2);
+    CHECK(spy.lastCenterMapPos.x == 9);
+    CHECK(spy.lastCenterMapPos.y == 11);
+}
+
+TEST_CASE("render_observer::NextPlayer called with default arg forwards 0")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::NextPlayer();  // default arg = 0
+    CHECK(spy.nextPlayerCalls == 1);
+    CHECK(spy.lastNextPlayerForcedUpdate == 0);
+}
+
+TEST_CASE("render_observer::NextPlayer called with explicit forcedUpdate=1 forwards 1")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::NextPlayer(1);
+    CHECK(spy.nextPlayerCalls == 1);
+    CHECK(spy.lastNextPlayerForcedUpdate == 1);
+}
+
+TEST_CASE("render_observer::IncrementPendingGameActions and DecrementPendingGameActions are distinct calls")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::IncrementPendingGameActions();
+    render_observer::DecrementPendingGameActions();
+    CHECK(spy.incrementPendingGameActionsCalls == 1);
+    CHECK(spy.decrementPendingGameActionsCalls == 1);
+}
+
+TEST_CASE("render_observer::AddPlaySound forwards soundID and MapPoint correctly")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt(15, 25);
+    render_observer::AddPlaySound(77, pt);
+    CHECK(spy.addPlaySoundCalls == 1);
+    CHECK(spy.lastPlaySoundID == 77);
+    CHECK(spy.lastPlaySoundPos.x == 15);
+    CHECK(spy.lastPlaySoundPos.y == 25);
+}

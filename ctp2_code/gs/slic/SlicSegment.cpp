@@ -40,6 +40,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicObject.h"
+#include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/core/player_view.h"
 

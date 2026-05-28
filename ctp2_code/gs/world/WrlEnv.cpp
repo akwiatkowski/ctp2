@@ -43,7 +43,7 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/CityRadius.h"
 #ifdef _DEBUG
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gs/core/colorset_observer.h"
 #endif
 #include "gs/utility/TradeDynArr.h"
 #include "gs/utility/RandGen.h"
@@ -500,7 +500,7 @@ void World::ShowCellOwners()
 		for(sint32 y = 0; y < m_size.y; y++) {
 			Cell *cell = GetCell(x,y);
 			if(cell->GetOwner() >= 0) {
-				cell->m_color = g_colorSet->GetPlayerColor(cell->GetOwner());
+				cell->m_color = colorset_observer::GetPlayerColor(cell->GetOwner());
 			} else {
 				cell->m_color = 0;
 			}

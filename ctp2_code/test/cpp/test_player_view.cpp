@@ -95,6 +95,21 @@ constexpr std::size_t GS_AI_CPP_BASELINE = 38;
 constexpr std::size_t SLIC_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t SLIC_GFX_HEADER_BASELINE = 0;
 
+// Ratchet baselines — total `#include "gs/database/..."` lines in ai/ .cpp files.
+// ai/ includes gs/database/ headers for DB access and schema types.
+// Ratcheting locks the current count so future decoupling work can only reduce it.
+constexpr std::size_t AI_GS_DATABASE_CPP_BASELINE = 17;
+
+// Ratchet baselines — total `#include "gs/outcom/..."` lines in gs/ .cpp files.
+// gs/outcom/ is a deprecated COM wrapper layer; remaining includes are
+// technical debt.  Ratcheting locks the current count so it can only shrink.
+constexpr std::size_t GS_OUTCOM_CPP_BASELINE = 31;
+
+// Ratchet baselines — total `#include "gs/gameobj/..."` lines in ai/ .h files.
+// ai/ headers include gs/gameobj/ for game object type definitions.
+// Ratcheting locks the current count so future work can only reduce it.
+constexpr std::size_t AI_GS_GAMEOBJ_H_BASELINE = 16;
+
 struct Violation {
     std::string file;
     std::size_t line;
@@ -201,6 +216,27 @@ std::vector<Violation> scan_directory_ai(const std::string& root,
 {
     static const std::regex include_ai_re(R"(^\s*#include\s+[<\"]ai/)");
     return scan_directory_with_regex(root, extension, include_ai_re);
+}
+
+std::vector<Violation> scan_directory_gs_database(const std::string& root,
+                                                   const char* extension)
+{
+    static const std::regex re(R"(^\s*#include\s+[<\"]gs/database/)");
+    return scan_directory_with_regex(root, extension, re);
+}
+
+std::vector<Violation> scan_directory_gs_outcom(const std::string& root,
+                                                const char* extension)
+{
+    static const std::regex re(R"(^\s*#include\s+[<\"]gs/outcom/)");
+    return scan_directory_with_regex(root, extension, re);
+}
+
+std::vector<Violation> scan_directory_gs_gameobj(const std::string& root,
+                                                  const char* extension)
+{
+    static const std::regex re(R"(^\s*#include\s+[<\"]gs/gameobj/)");
+    return scan_directory_with_regex(root, extension, re);
 }
 
 }  // namespace
@@ -638,6 +674,79 @@ TEST_CASE("gs/ .cpp ratchet: ai/ includes must not grow above baseline")
         MESSAGE("gs/ .cpp ai-include count " << violations.size()
                 << " < baseline " << GS_AI_CPP_BASELINE
                 << " — lower GS_AI_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/database/ includes in ai/ .cpp (Wave 10a lock).
+// ai/ files include gs/database/ headers for DB access and schema types.
+// Ratcheting locks the current count so future decoupling work can only
+// reduce it.
+// ---------------------------------------------------------------------------
+TEST_CASE("ai/ .cpp ratchet: gs/database/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs_database("ctp2_code/ai", ".cpp");
+
+    if (violations.size() > AI_GS_DATABASE_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ai/ .cpp gs/database/ include count " << violations.size()
+             << " exceeds baseline " << AI_GS_DATABASE_CPP_BASELINE
+             << ". A new include of gs/database/<header> has been introduced in an "
+                "ai/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < AI_GS_DATABASE_CPP_BASELINE) {
+        MESSAGE("ai/ .cpp gs/database/ include count " << violations.size()
+                << " < baseline " << AI_GS_DATABASE_CPP_BASELINE
+                << " — lower AI_GS_DATABASE_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/outcom/ includes in gs/ .cpp (Wave 10a lock).
+// gs/outcom/ is a deprecated COM wrapper layer; remaining includes are
+// technical debt.  Ratcheting locks the current count so it can only shrink.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/ .cpp ratchet: gs/outcom/ (deprecated) includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs_outcom("ctp2_code/gs", ".cpp");
+
+    if (violations.size() > GS_OUTCOM_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .cpp gs/outcom/ include count " << violations.size()
+             << " exceeds baseline " << GS_OUTCOM_CPP_BASELINE
+             << ". A new include of gs/outcom/<header> has been introduced in a "
+                "gs/ source file — revert it or remove the dependency.");
+    } else if (violations.size() < GS_OUTCOM_CPP_BASELINE) {
+        MESSAGE("gs/ .cpp gs/outcom/ include count " << violations.size()
+                << " < baseline " << GS_OUTCOM_CPP_BASELINE
+                << " — lower GS_OUTCOM_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/gameobj/ includes in ai/ .h (Wave 10a lock).
+// ai/ headers include gs/gameobj/ for game object type definitions.
+// Ratcheting locks the current count so future work can only reduce it.
+// ---------------------------------------------------------------------------
+TEST_CASE("ai/ .h ratchet: gs/gameobj/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs_gameobj("ctp2_code/ai", ".h");
+
+    if (violations.size() > AI_GS_GAMEOBJ_H_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ai/ .h gs/gameobj/ include count " << violations.size()
+             << " exceeds baseline " << AI_GS_GAMEOBJ_H_BASELINE
+             << ". A new include of gs/gameobj/<header> has been introduced in an "
+                "ai/ header file — revert it or forward-declare.");
+    } else if (violations.size() < AI_GS_GAMEOBJ_H_BASELINE) {
+        MESSAGE("ai/ .h gs/gameobj/ include count " << violations.size()
+                << " < baseline " << AI_GS_GAMEOBJ_H_BASELINE
+                << " — lower AI_GS_GAMEOBJ_H_BASELINE to lock in progress.");
     }
 }
 

@@ -48,6 +48,13 @@ if not win32
 	tiff = dependency('libtiff-4')
 	zlib = dependency('zlib')
 
+	# Modern structured logging.  Replaces ad-hoc fprintf(stderr, "[TAG]...")
+	# calls that already exist for [HEADLESS] / [CIVAPP] traces.  Provides
+	# compile-time-filterable levels, named loggers per subsystem, sinks
+	# (stderr / file / rotating), and fmt-style format strings.  Headers
+	# only — no runtime link cost beyond fmt.
+	spdlog = dependency('spdlog')
+
 	# GTK is only used for message dialogs on Linux
 	gtk = dependency('gtk+-3.0', required: false)
 	if gtk.found()
@@ -58,7 +65,7 @@ if not win32
 	if x11.found()
 		conf.set('HAVE_X11', 1, description : 'System with X11 present')
 	endif
-	main_dependencies += [tiff, zlib, sdl, x11]
+	main_dependencies += [tiff, zlib, sdl, x11, spdlog]
 
 	# nowin32 stubs: depend on gtk only if available
 	main_dependencies += declare_dependency( sources : 'os/nowin32/nowin32.cpp', dependencies : gtk )

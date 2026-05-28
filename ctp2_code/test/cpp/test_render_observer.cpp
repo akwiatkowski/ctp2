@@ -318,6 +318,155 @@ TEST_CASE("render_observer::TileWillBeCompletelyVisible forwards to Impl and ret
     CHECK(spy.lastTileWillBeVisibleY == 99);
 }
 
+TEST_CASE("render_observer::AddHide dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    render_observer::AddHide(u);
+    CHECK(spy.addHideCalls == 1);
+}
+
+TEST_CASE("render_observer::AddDeath dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    render_observer::AddDeath(u);
+    CHECK(spy.addDeathCalls == 1);
+}
+
+TEST_CASE("render_observer::AddFastKill dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    render_observer::AddFastKill(u);
+    CHECK(spy.addFastKillCalls == 1);
+}
+
+TEST_CASE("render_observer::AddSetOwner dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddSetOwner(nullptr, 7);
+    CHECK(spy.addSetOwnerCalls == 1);
+}
+
+TEST_CASE("render_observer::AddSetVisibility dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddSetVisibility(nullptr, 0xFF);
+    CHECK(spy.addSetVisibilityCalls == 1);
+}
+
+TEST_CASE("render_observer::AddSetVisionRange dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddSetVisionRange(nullptr, 3.5);
+    CHECK(spy.addSetVisionRangeCalls == 1);
+}
+
+TEST_CASE("render_observer::ActiveUnitRemove dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::ActiveUnitRemove(nullptr);
+    CHECK(spy.activeUnitRemoveCalls == 1);
+}
+
+TEST_CASE("render_observer::AddTeleport dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit top;
+    MapPoint oldPos(1, 2);
+    MapPoint newPos(3, 4);
+    render_observer::UnitActorVec emptyVec;
+    render_observer::AddTeleport(top, oldPos, newPos, emptyVec, emptyVec);
+    CHECK(spy.addTeleportCalls == 1);
+}
+
+TEST_CASE("render_observer::AddAttackPos dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit attacker;
+    MapPoint pt(8, 9);
+    render_observer::AddAttackPos(attacker, pt);
+    CHECK(spy.addAttackPosCalls == 1);
+}
+
+TEST_CASE("render_observer::AddSpecialAttack dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit attacker;
+    Unit attacked;
+    render_observer::AddSpecialAttack(attacker, attacked, 42);
+    CHECK(spy.addSpecialAttackCalls == 1);
+}
+
+TEST_CASE("render_observer::AddSpecialEffect dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    MapPoint pt(5, 6);
+    render_observer::AddSpecialEffect(pt, 100, 200);
+    CHECK(spy.addSpecialEffectCalls == 1);
+}
+
+TEST_CASE("render_observer::AddTerminateFaceoff dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit faceoffer;
+    render_observer::AddTerminateFaceoff(faceoffer);
+    CHECK(spy.addTerminateFaceoffCalls == 1);
+}
+
+TEST_CASE("render_observer::AddCopyVision dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddCopyVision();
+    CHECK(spy.addCopyVisionCalls == 1);
+}
+
+TEST_CASE("render_observer::CatchUp dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::CatchUp();
+    CHECK(spy.catchUpCalls == 1);
+}
+
+TEST_CASE("render_observer::AddBeginScheduler dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddBeginScheduler(3);
+    CHECK(spy.addBeginSchedulerCalls == 1);
+}
+
+TEST_CASE("render_observer::AddPlayWonderMovie dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::AddPlayWonderMovie(5);
+    CHECK(spy.addPlayWonderMovieCalls == 1);
+}
+
+TEST_CASE("render_observer::DecrementPendingGameActions dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    render_observer::DecrementPendingGameActions();
+    CHECK(spy.decrementPendingGameActionsCalls == 1);
+}
+
 TEST_CASE("Null fan-outs are no-ops when no Impl registered")
 {
     render_observer::Impl *prev = render_observer::Get();

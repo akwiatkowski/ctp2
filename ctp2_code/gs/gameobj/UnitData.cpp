@@ -208,13 +208,14 @@ UnitData::UnitData(
 
 	// Phase 2 of the UnitActor split: announce this unit's existence so a
 	// future UI-side renderer registry can create its UnitRenderer bound
-	// to m_state.  Headless ignores.
+	// to m_state.  The actual NotifyUnitSpawned fires from UnitPool::Create
+	// (slice 7a) so subscribers see a fully-installed unit, not one whose
+	// pool lookup is still half-complete.
 	m_state.SetUnitID(Unit(m_id));
 	// Phase 3 slice 3: wire the renderer's view of gs/ state.  Reads
 	// like actor->GetPos() now dispatch through m_state to authoritative
 	// UnitData (live mode) instead of a cached field.
 	if (m_actor) m_actor->SetState(&m_state);
-	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 UnitData::UnitData(
@@ -237,9 +238,9 @@ UnitData::UnitData(
 	m_pos = actor_pos;
 
 	// Phase 2/3 of the UnitActor split — see UnitData::UnitData above.
+	// NotifyUnitSpawned moved to UnitPool::Create (slice 7a).
 	m_state.SetUnitID(Unit(m_id));
 	if (m_actor) m_actor->SetState(&m_state);
-	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 //----------------------------------------------------------------------------
@@ -388,8 +389,8 @@ UnitData::UnitData(CivArchive &archive) : GameObj(0)
 	m_state.SetUnitID(Unit(m_id));
 	// Serialize() reconstructed m_actor from the archive (see the
 	// `m_actor.reset(new UnitActor(archive))` site).  Wire state now.
+	// NotifyUnitSpawned fires from UnitPool::Serialize after Insert (slice 7a).
 	if (m_actor) m_actor->SetState(&m_state);
-	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(Unit(m_id), &m_state);
 }
 
 UnitData::~UnitData()

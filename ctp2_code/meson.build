@@ -693,6 +693,7 @@ game_core_sources = [
 	'ui/aui_ctp2/player_view_ui.cpp',
 	'ui/aui_ctp2/ui_events.cpp',
 	'ui/aui_ctp2/ui_game_observer.cpp',
+	'ui/aui_ctp2/ui_unit_actor_registry.cpp',
 	'ui/interface/CityControlPanel.cpp',
 	'ui/interface/DomesticControlPanel.cpp',
 	'ui/interface/MessageControlPanel.cpp',

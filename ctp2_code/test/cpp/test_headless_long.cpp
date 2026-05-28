@@ -152,9 +152,10 @@ TEST_CASE("Long-turn sanity: 50-turn run completes and reports completion")
 
     // Smoke-level: stderr must show the loop reached its end.  Catches a
     // regression where the binary exits early (e.g. signal handler swallows
-    // an assert) but still returns rc=0.
-    CHECK(out.find("[HEADLESS] Completed 50 turns") != std::string::npos);
-    CHECK(out.find("[HEADLESS] Turn 50 / 50")       != std::string::npos);
+    // an assert) but still returns rc=0.  Match the message body only — the
+    // spdlog prefix ("[ts] [headless] [info] ") is not part of the contract.
+    CHECK(out.find("Completed 50 turns") != std::string::npos);
+    CHECK(out.find("Turn 50 / 50")       != std::string::npos);
 
     Metrics m;
     REQUIRE(parse_metrics(metrics, m));

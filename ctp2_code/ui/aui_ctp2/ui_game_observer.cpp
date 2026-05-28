@@ -54,6 +54,7 @@
 #include "gfx/spritesys/director.h"
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
+#include "ui/aui_ctp2/ui_unit_actor_registry.h"
 
 extern ControlPanelWindow    *g_controlPanel;
 extern C3UI                  *g_c3ui;
@@ -114,6 +115,21 @@ public:
         if (g_director) {
             g_director->AddPlayWonderMovie(wonder);
         }
+    }
+
+    // --- Unit lifecycle (Phase 3 slice 7a: observer-event pivot foundation) ---
+    // Shadow registry so future per-mutation events (OnUnitMoved, …) can
+    // look up the actor without going through gs/-side Unit::GetActor().
+    // Today we just mirror UnitData::m_actor; once the rest of the pivot
+    // lands the registry becomes the canonical owner.
+    void OnUnitSpawned(const Unit& unit, UnitState const * /*state*/) override
+    {
+        g_uiUnitActorRegistry.Insert(unit, unit.GetActor());
+    }
+
+    void OnUnitDestroyed(const Unit& unit) override
+    {
+        g_uiUnitActorRegistry.Remove(unit);
     }
 
     // --- Army / combat ---

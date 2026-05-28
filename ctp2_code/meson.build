@@ -1199,6 +1199,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_audio_observer.cpp',
   'test/cpp/test_render_observer.cpp',
   'test/cpp/test_randgen.cpp',
+  'test/cpp/test_mappoint.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_player_view.cpp',
   'ctp/civ3_main.cpp',
@@ -1227,6 +1228,7 @@ test('fast', fast_test_exe, timeout : 30, workdir : cwd_for_tests)
 cpp_test_sources = [
   'test/cpp/main.cpp',
   'test/cpp/test_randgen.cpp',
+  'test/cpp/test_mappoint.cpp',
   'test/cpp/test_citydata.cpp',
   'test/cpp/test_buildqueue.cpp',
   'test/cpp/test_happy.cpp',

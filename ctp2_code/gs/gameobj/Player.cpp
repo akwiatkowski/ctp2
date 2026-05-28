@@ -158,7 +158,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Barbarians.h"
-#include "robot/pathing/BFS.h"
+#include "robot/pathing/Path.h"
 #include "BuildingRecord.h"
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3debug.h"
@@ -242,7 +242,7 @@
 #include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/TerrImprovePool.h"
-#include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
+#include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
@@ -3853,7 +3853,7 @@ void Player::SetResearching(AdvanceType advance)
 
 void Player::AddUnitVision(const MapPoint &pnt, double range)
 {
-	if(g_tiledMap == NULL || m_vision != g_tiledMap->GetLocalVision())
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->AddVisible(pnt, range);
 	}
@@ -3865,7 +3865,7 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 
 void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 {
-	if(g_tiledMap == NULL || m_vision != g_tiledMap->GetLocalVision())
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}

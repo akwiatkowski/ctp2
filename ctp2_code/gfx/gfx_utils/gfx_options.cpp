@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - The army text now appears in the debug log. (13-Aug-2008 Martin G�hmann)
+// - The army text now appears in the debug log. (13-Aug-2008 Martin G�hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/utility/Globals.h"
 #include "ai/ctpaidebug.h"
+#include "gfx/gfx_utils/gfx_options_observer_adapter.h"  // RegisterGraphicsOptionsObserverAdapter
 
 GraphicsOptions * g_graphicsOptions = NULL;
 
@@ -79,6 +80,12 @@ void GraphicsOptions::Initialize(void)
 {
 	delete g_graphicsOptions;
 	g_graphicsOptions = new GraphicsOptions();
+
+	// Bridge g_graphicsOptions → gfx_options_observer interface so gs/
+	// and ai/ code can call gfx_options_observer::AddTextToCell(...)
+	// without depending on gfx/.  Headless skips Initialize() entirely
+	// → observer stays unregistered → all calls become no-ops.
+	RegisterGraphicsOptionsObserverAdapter();
 }
 
 void GraphicsOptions::Cleanup(void)

@@ -222,6 +222,8 @@ game_core_sources = [
 	'sound/sound_manager_audio_observer.cpp',
 	'gs/core/tiledmap_observer.cpp',
 	'gfx/tilesys/tiledmap_observer_adapter.cpp',
+	'gs/core/gfx_options_observer.cpp',
+	'gfx/gfx_utils/gfx_options_observer_adapter.cpp',
 	'gs/core/splash_progress.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',

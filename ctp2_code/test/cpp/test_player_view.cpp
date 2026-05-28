@@ -115,6 +115,18 @@ constexpr std::size_t GS_OUTCOM_CPP_BASELINE = 31;
 // Ratcheting locks the current count so future work can only reduce it.
 constexpr std::size_t AI_GS_GAMEOBJ_H_BASELINE = 16;
 
+// gfx/ .cpp historically includes gs/database/ for record types used in
+// rendering.  Lock the count.
+constexpr std::size_t GFX_GS_DATABASE_CPP_BASELINE = 17;
+
+// net/ .cpp includes gs/gameobj/ for serializing game objects across the
+// network.  Lock the count.
+constexpr std::size_t NET_GS_GAMEOBJ_CPP_BASELINE = 208;
+
+// ui/ .cpp depends on gs/ broadly — that's architecturally fine.  Lock
+// the count anyway to detect new direct couplings.
+constexpr std::size_t UI_GS_CPP_BASELINE = 785;
+
 struct Violation {
     std::string file;
     std::size_t line;
@@ -241,6 +253,13 @@ std::vector<Violation> scan_directory_gs_gameobj(const std::string& root,
                                                   const char* extension)
 {
     static const std::regex re(R"(^\s*#include\s+[<\"]gs/gameobj/)");
+    return scan_directory_with_regex(root, extension, re);
+}
+
+std::vector<Violation> scan_directory_gs(const std::string& root,
+                                          const char* extension)
+{
+    static const std::regex re(R"(^\s*#include\s+[<\"]gs/)");
     return scan_directory_with_regex(root, extension, re);
 }
 
@@ -752,6 +771,81 @@ TEST_CASE("ai/ .h ratchet: gs/gameobj/ includes must not grow above baseline")
         MESSAGE("ai/ .h gs/gameobj/ include count " << violations.size()
                 << " < baseline " << AI_GS_GAMEOBJ_H_BASELINE
                 << " — lower AI_GS_GAMEOBJ_H_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/database/ includes in gfx/ .cpp (Wave 14a lock).
+// gfx/ files include gs/database/ for record types used in rendering.
+// Ratcheting locks the current count so future decoupling work can only
+// reduce it.
+// ---------------------------------------------------------------------------
+TEST_CASE("gfx/ .cpp ratchet: gs/database/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs_database("ctp2_code/gfx", ".cpp");
+
+    if (violations.size() > GFX_GS_DATABASE_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gfx/ .cpp gs/database/ include count " << violations.size()
+             << " exceeds baseline " << GFX_GS_DATABASE_CPP_BASELINE
+             << ". A new include of gs/database/<header> has been introduced in a "
+                "gfx/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < GFX_GS_DATABASE_CPP_BASELINE) {
+        MESSAGE("gfx/ .cpp gs/database/ include count " << violations.size()
+                << " < baseline " << GFX_GS_DATABASE_CPP_BASELINE
+                << " — lower GFX_GS_DATABASE_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/gameobj/ includes in net/ .cpp (Wave 14a lock).
+// net/ files include gs/gameobj/ for serializing game objects across the
+// network.  Ratcheting locks the current count so future decoupling work
+// can only reduce it.
+// ---------------------------------------------------------------------------
+TEST_CASE("net/ .cpp ratchet: gs/gameobj/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs_gameobj("ctp2_code/net", ".cpp");
+
+    if (violations.size() > NET_GS_GAMEOBJ_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("net/ .cpp gs/gameobj/ include count " << violations.size()
+             << " exceeds baseline " << NET_GS_GAMEOBJ_CPP_BASELINE
+             << ". A new include of gs/gameobj/<header> has been introduced in a "
+                "net/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < NET_GS_GAMEOBJ_CPP_BASELINE) {
+        MESSAGE("net/ .cpp gs/gameobj/ include count " << violations.size()
+                << " < baseline " << NET_GS_GAMEOBJ_CPP_BASELINE
+                << " — lower NET_GS_GAMEOBJ_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — gs/ includes in ui/ .cpp (Wave 14a lock).
+// ui/ depends on gs/ broadly — that's architecturally fine.  We ratchet
+// the count anyway to detect new direct couplings that might signal
+// layering violations.
+// ---------------------------------------------------------------------------
+TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_gs("ctp2_code/ui", ".cpp");
+
+    if (violations.size() > UI_GS_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ui/ .cpp gs/ include count " << violations.size()
+             << " exceeds baseline " << UI_GS_CPP_BASELINE
+             << ". A new include of gs/<header> has been introduced in a "
+                "ui/ source file — review for layering violation.");
+    } else if (violations.size() < UI_GS_CPP_BASELINE) {
+        MESSAGE("ui/ .cpp gs/ include count " << violations.size()
+                << " < baseline " << UI_GS_CPP_BASELINE
+                << " — lower UI_GS_CPP_BASELINE to lock in progress.");
     }
 }
 

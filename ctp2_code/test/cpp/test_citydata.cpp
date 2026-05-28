@@ -709,3 +709,129 @@ TEST_CASE_FIXTURE(HeavyCityDataFixture, "CityData ConstDB base rations is positi
     // Base rations should be a positive value (food each citizen needs)
     CHECK(rec->GetBaseRations() > 0.0);
 }
+
+//----------------------------------------------------------------------------
+// Edge-case coverage on existing fixtures (wave 9a W4)
+//----------------------------------------------------------------------------
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData construction produces consistent default state")
+{
+    CityData city1(0, Unit(), MapPoint(1, 1));
+    CityData city2(0, Unit(), MapPoint(2, 2));
+
+    // Two fresh cities should share identical defaults
+    CHECK(city1.GetStoredCityProduction() == city2.GetStoredCityProduction());
+    CHECK(city1.GetImprovements() == city2.GetImprovements());
+    CHECK(city1.GetBuiltWonders() == city2.GetBuiltWonders());
+    CHECK(city1.GetScience() == city2.GetScience());
+    CHECK(city1.GetCityStyle() == city2.GetCityStyle());
+
+    // Verify specific known defaults
+    CHECK(city1.GetStoredCityProduction() == 0);
+    CHECK(city1.GetScience() == 0);
+    CHECK(strlen(city1.GetName()) == 0);
+    CHECK(city1.GetImprovements() == 0);
+    CHECK(city1.GetBuiltWonders() == 0);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData shield store boundary conditions")
+{
+    CityData city(0, Unit(), MapPoint(3, 3));
+
+    CHECK(city.GetStoredCityProduction() == 0);
+
+    // Zero addition is a no-op
+    city.AddShields(0);
+    CHECK(city.GetStoredCityProduction() == 0);
+
+    // Positive addition
+    city.AddShields(100);
+    CHECK(city.GetStoredCityProduction() == 100);
+
+    // Negative addition subtracts
+    city.AddShields(-30);
+    CHECK(city.GetStoredCityProduction() == 70);
+
+    // Direct assignment to zero
+    city.SetShieldstore(0);
+    CHECK(city.GetStoredCityProduction() == 0);
+
+    // Direct assignment to negative
+    city.SetShieldstore(-50);
+    CHECK(city.GetStoredCityProduction() == -50);
+
+    // Direct assignment to max sint32
+    city.SetShieldstore(2147483647);
+    CHECK(city.GetStoredCityProduction() == 2147483647);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData getters are well-defined without prior setter calls")
+{
+    CityData city(0, Unit(), MapPoint(4, 4));
+
+    // These fields have no public setter; the getter must still return a
+    // well-defined default immediately after construction.
+    CHECK(city.GetTurnFounded() == 0);
+    CHECK(city.GetScience() == 0);
+    CHECK(strlen(city.GetName()) == 0);
+    CHECK(city.GetBuildCategoryAtBeginTurn() == -4);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData repeated set-read cycles persist values")
+{
+    CityData city(0, Unit(), MapPoint(5, 5));
+
+    // Name cycles
+    city.SetName("Alpha");
+    CHECK(strcmp(city.GetName(), "Alpha") == 0);
+    city.SetName("Beta");
+    CHECK(strcmp(city.GetName(), "Beta") == 0);
+    city.SetName("");
+    CHECK(strlen(city.GetName()) == 0);
+
+    // Improvement bit-mask cycles
+    city.SetImprovements(0x01);
+    CHECK(city.GetImprovements() == 0x01);
+    city.SetImprovements(0x03);
+    CHECK(city.GetImprovements() == 0x03);
+    city.SetImprovements(0);
+    CHECK(city.GetImprovements() == 0);
+
+    // Wonder bit-mask cycles
+    city.SetWonders(0x01);
+    CHECK(city.GetBuiltWonders() == 0x01);
+    city.SetWonders(0x00);
+    CHECK(city.GetBuiltWonders() == 0x00);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData probe recovered boolean toggles both ways")
+{
+    CityData city(0, Unit(), MapPoint(6, 6));
+
+    CHECK(city.GetProbeRecoveredHere() == false);
+    city.SetProbeRecoveredHere(true);
+    CHECK(city.GetProbeRecoveredHere() == true);
+    city.SetProbeRecoveredHere(false);
+    CHECK(city.GetProbeRecoveredHere() == false);
+}
+
+TEST_CASE_FIXTURE(CityDataFixture, "CityData InitBeginTurnVariables resets turn flags to default")
+{
+    CityData city(0, Unit(), MapPoint(7, 7));
+
+    // Set turn-local flags via their indicator methods
+    city.IndicateTerrainPolluted();
+    city.IndicateTerrainImprovementBuilt();
+    city.IndicateImprovementBuilt();
+
+    CHECK(city.WasTerrainPolluted() == true);
+    CHECK(city.WasTerrainImprovementBuilt() == true);
+    CHECK(city.WasImprovementBuilt() == true);
+
+    // Reset all turn-local flags
+    city.InitBeginTurnVariables();
+
+    CHECK(city.WasTerrainPolluted() == false);
+    CHECK(city.WasTerrainImprovementBuilt() == false);
+    CHECK(city.WasImprovementBuilt() == false);
+}

@@ -53,7 +53,7 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // UnitData.h.  The net architectural move is .cpp leak +4, .h leak -1
 // (later) — a smaller blast-radius leak replacing a bigger one.
 // Phase B (Advances.cpp + Wormhole.cpp migrations) drops this by 2.
-constexpr std::size_t GS_GFX_CPP_BASELINE    = 7;
+constexpr std::size_t GS_GFX_CPP_BASELINE    = 5;
 constexpr std::size_t GS_GFX_HEADER_BASELINE = 2;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;

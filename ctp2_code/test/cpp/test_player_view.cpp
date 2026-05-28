@@ -73,6 +73,22 @@ constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
 constexpr std::size_t AI_ROBOT_CPP_BASELINE    = 13;
 constexpr std::size_t AI_ROBOT_HEADER_BASELINE = 7;
 
+// Ratchet baselines — total `#include "net/..."` lines in gs/ .cpp files.
+// gs/ historically depends on net/ for multiplayer and network file I/O.
+// Ratcheting locks the current count so future decoupling work can only
+// reduce it.
+constexpr std::size_t NET_INCLUDES_GS_CPP_BASELINE = 134;
+
+// Ratchet baselines — total `#include "net/..."` lines in ai/ .cpp files.
+// ai/ includes net/ headers for multiplayer backdoor and message types.
+// Ratcheting locks the current count so future work can only reduce it.
+constexpr std::size_t AI_NET_CPP_BASELINE = 9;
+
+// Ratchet baselines — total `#include "ai/..."` lines in gs/ .cpp files.
+// gs/ includes ai/ headers for AI backdoor interfaces and strategy types.
+// Ratcheting locks the current count so future work can only reduce it.
+constexpr std::size_t GS_AI_CPP_BASELINE = 38;
+
 // slic/ is a subset of gs/.  Wave 7 cleared all gfx/ includes from
 // slic/; this ratchet locks that at 0 so the SLIC interpreter never
 // re-couples to graphics.
@@ -171,6 +187,20 @@ std::vector<Violation> scan_directory_robot(const std::string& root,
 {
     static const std::regex include_robot_re(R"(^\s*#include\s+[<\"]robot/)");
     return scan_directory_with_regex(root, extension, include_robot_re);
+}
+
+std::vector<Violation> scan_directory_net(const std::string& root,
+                                          const char* extension)
+{
+    static const std::regex include_net_re(R"(^\s*#include\s+[<\"]net/)");
+    return scan_directory_with_regex(root, extension, include_net_re);
+}
+
+std::vector<Violation> scan_directory_ai(const std::string& root,
+                                         const char* extension)
+{
+    static const std::regex include_ai_re(R"(^\s*#include\s+[<\"]ai/)");
+    return scan_directory_with_regex(root, extension, include_ai_re);
 }
 
 }  // namespace
@@ -539,6 +569,75 @@ TEST_CASE("gs/slic/ .h ratchet: gfx includes must stay at zero")
         MESSAGE("gs/slic/ .h gfx-include count " << violations.size()
                 << " < baseline " << SLIC_GFX_HEADER_BASELINE
                 << " — lower SLIC_GFX_HEADER_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — net/ includes (Wave 9a lock).
+// gs/ and ai/ files include net/ headers for multiplayer and network I/O.
+// Ratcheting locks the current counts so future decoupling work can only
+// reduce them.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/ .cpp ratchet: net/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_net("ctp2_code/gs", ".cpp");
+
+    if (violations.size() > NET_INCLUDES_GS_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .cpp net-include count " << violations.size()
+             << " exceeds baseline " << NET_INCLUDES_GS_CPP_BASELINE
+             << ". A new include of net/<header> has been introduced in a "
+                "gs/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < NET_INCLUDES_GS_CPP_BASELINE) {
+        MESSAGE("gs/ .cpp net-include count " << violations.size()
+                << " < baseline " << NET_INCLUDES_GS_CPP_BASELINE
+                << " — lower NET_INCLUDES_GS_CPP_BASELINE to lock in progress.");
+    }
+}
+
+TEST_CASE("ai/ .cpp ratchet: net/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_net("ctp2_code/ai", ".cpp");
+
+    if (violations.size() > AI_NET_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("ai/ .cpp net-include count " << violations.size()
+             << " exceeds baseline " << AI_NET_CPP_BASELINE
+             << ". A new include of net/<header> has been introduced in an "
+                "ai/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < AI_NET_CPP_BASELINE) {
+        MESSAGE("ai/ .cpp net-include count " << violations.size()
+                << " < baseline " << AI_NET_CPP_BASELINE
+                << " — lower AI_NET_CPP_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Ratchet tests — ai/ includes in gs/ (Wave 9a lock).
+// gs/ files include ai/ headers for AI backdoor interfaces and strategy types.
+// Ratcheting locks the current count so future decoupling work can only
+// reduce it.
+// ---------------------------------------------------------------------------
+TEST_CASE("gs/ .cpp ratchet: ai/ includes must not grow above baseline")
+{
+    const auto violations = scan_directory_ai("ctp2_code/gs", ".cpp");
+
+    if (violations.size() > GS_AI_CPP_BASELINE) {
+        for (const auto& v : violations) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("gs/ .cpp ai-include count " << violations.size()
+             << " exceeds baseline " << GS_AI_CPP_BASELINE
+             << ". A new include of ai/<header> has been introduced in a "
+                "gs/ source file — revert it or use an abstraction layer.");
+    } else if (violations.size() < GS_AI_CPP_BASELINE) {
+        MESSAGE("gs/ .cpp ai-include count " << violations.size()
+                << " < baseline " << GS_AI_CPP_BASELINE
+                << " — lower GS_AI_CPP_BASELINE to lock in progress.");
     }
 }
 

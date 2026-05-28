@@ -349,6 +349,7 @@ game_core_sources = [
 	'gs/gameobj/tradeutil.cpp',
 	'gs/gameobj/Unit.cpp',
 	'gs/gameobj/UnitData.cpp',
+	'gs/gameobj/UnitState.cpp',
 	'gs/gameobj/unitevent.cpp',
 	'gs/gameobj/UnitPool.cpp',
 	'gs/gameobj/unitutil.cpp',

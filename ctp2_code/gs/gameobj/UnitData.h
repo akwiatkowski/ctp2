@@ -52,6 +52,7 @@ class VisibilityDurationArray;
 
 #include "gs/core/sprite_state_fwd.h"   // SpriteStatePtr typedef
 #include "gfx/spritesys/UnitActor.h"      // UnitActor
+#include "gs/gameobj/UnitState.h"         // UnitState (Phase 1 scaffold)
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/GameObj.h"
 #include "gs/gameobj/Order.h"          // ORDER_RESULT
@@ -208,6 +209,12 @@ private:
 	SpriteStatePtr m_sprite_state;
 
 	std::shared_ptr<UnitActor> m_actor;
+
+	// Phase 1 scaffold — game-state half of the future UnitActor split.
+	// Empty for now (just m_unit_id).  Subsequent migration phases move
+	// fields one batch at a time from UnitActor into here, then drop
+	// the UnitActor copies and rename UnitActor → UnitRenderer.
+	UnitState m_state;
 
 	VisibilityDurationArray m_temp_visibility_array;
 	Unit m_transport;

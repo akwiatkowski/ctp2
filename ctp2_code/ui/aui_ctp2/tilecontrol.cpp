@@ -33,7 +33,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/tilesys/BaseTile.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_common/aui_control.h"

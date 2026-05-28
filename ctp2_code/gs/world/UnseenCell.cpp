@@ -49,7 +49,7 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/core/render_observer.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"

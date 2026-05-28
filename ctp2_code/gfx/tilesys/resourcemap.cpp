@@ -35,7 +35,7 @@
 #include "gfx/spritesys/UnitActor.h"
 #include "gfx/spritesys/director.h"                   // g_director
 #include "gfx/tilesys/BaseTile.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
 #include "gfx/tilesys/tileset.h"

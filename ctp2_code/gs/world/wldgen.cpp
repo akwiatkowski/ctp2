@@ -76,7 +76,7 @@
 #include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/core/tiledmap_observer.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include <vector>
 #include "gs/world/WorldDistance.h"
 #include "gs/gameobj/tradeutil.h"              // constutil_GetMapSizeMapPoint

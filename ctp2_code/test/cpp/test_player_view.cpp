@@ -46,7 +46,7 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // gs/ files still include gfx/ headers for type references (UnitActor*,
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
-constexpr std::size_t GS_GFX_CPP_BASELINE    = 7;
+constexpr std::size_t GS_GFX_CPP_BASELINE    = 6;
 constexpr std::size_t GS_GFX_HEADER_BASELINE = 6;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;
@@ -65,7 +65,12 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // these (civarchive, dynarr) for save/load support, but the surface is
 // big and bleeds in transitive includes.  Ratcheting locks the current
 // counts so future work can only reduce them.
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 119;
+// Wave 11 moved TileInfo.{h,cpp} from gfx/tilesys/ to gs/world/ — a net
+// architectural win (TileInfo is pure data, belongs with the world model).
+// TileInfo.cpp's existing dependency on robot/aibackdoor/civarchive.h
+// (for save-load Serialize) now counts toward gs/.cpp robot/-include
+// count.  Baseline raised by 1 to reflect this.
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 120;
 constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
 
 // ai/ files include robot/ headers for pathing and backdoor access.

@@ -118,7 +118,7 @@
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gfx/gfx_utils/tiffutils.h"
 #include "gfx/tilesys/TileDrawRoad.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/TradeRoute.h"

@@ -34,7 +34,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/tilesys/tileutils.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/BaseTile.h"
 

@@ -39,7 +39,7 @@
 #include "gfx/tilesys/tiledmap.h"       // g_tiledMap
 #include "ui/aui_ctp2/radarmap.h"       // g_radarMap
 #include "gs/world/UnseenCell.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "ctp/ctp2_utils/pointerlist.h"

@@ -16,7 +16,7 @@
 #include "gfx/spritesys/director.h"           // g_director
 #include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 #include "gfx/tilesys/BaseTile.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/gameobj/Unit.h"

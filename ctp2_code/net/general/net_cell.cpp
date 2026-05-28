@@ -45,7 +45,7 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gs/utility/TradeDynArr.h"
 #include "gs/world/World.h"
 

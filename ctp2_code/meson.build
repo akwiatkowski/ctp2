@@ -1138,7 +1138,7 @@ gfxtilesys = static_library('libgfxtilesys', [
 	'gfx/tilesys/tiledraw.cpp',
 	'gfx/tilesys/tiledrawroad.cpp',
 	'gfx/tilesys/TileHighlight.cpp',
-	'gfx/tilesys/TileInfo.cpp',
+	'gs/world/TileInfo.cpp',
 	'gfx/tilesys/tileset.cpp',
 	'gfx/tilesys/tileutils.cpp',
 	'gfx/tilesys/workmap.cpp'],

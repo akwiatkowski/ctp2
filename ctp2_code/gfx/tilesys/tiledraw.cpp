@@ -86,7 +86,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImproveData.h"
-#include "gfx/tilesys/TileInfo.h"
+#include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/BaseTile.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet

@@ -37,6 +37,7 @@
 
 #include "ctp/c3.h"
 #include "gfx/gfx_utils/colorset.h"
+#include "gfx/gfx_utils/colorset_observer_adapter.h"  // RegisterColorSetObserverAdapter
 
 #include <algorithm>
 
@@ -169,6 +170,12 @@ void ColorSet::Cleanup(void)
 void ColorSet::Initialize(uint32 fileNumber)
 {
 	s_theUniqueColorSet.Import((fileNumber < k_MAX_COLOR_SET) ? fileNumber : 0);
+
+	// Bridge g_colorSet → colorset_observer interface so gs/ and ai/
+	// code can call colorset_observer::GetColor(...) without depending
+	// on gfx/.  Headless skips Initialize() → observer stays
+	// unregistered → all calls return 0.
+	RegisterColorSetObserverAdapter();
 }
 
 //----------------------------------------------------------------------------

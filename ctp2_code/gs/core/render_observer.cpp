@@ -29,7 +29,7 @@ void AddFastKill(Unit dead)                                        { DISPATCH_VO
 void FastKill(std::shared_ptr<UnitActor> actor)                    { DISPATCH_VOID(FastKill, actor); }
 void FastKillEffect(EffectActor *actor)                            { DISPATCH_VOID(FastKillEffect, actor); }
 void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)   { DISPATCH_VOID(AddSetOwner, actor, owner); }
-void AddSetVisibility(std::shared_ptr<UnitActor> actor, uint32 v)  { DISPATCH_VOID(AddSetVisibility, actor, v); }
+void AddSetVisibility(Unit unit, uint32 v)                         { DISPATCH_VOID(AddSetVisibility, unit, v); }
 void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r) { DISPATCH_VOID(AddSetVisionRange, actor, r); }
 void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                   SpriteStatePtr ss, sint32 type, Unit id)         { DISPATCH_VOID(AddMorphUnit, morphingActor, ss, type, id); }

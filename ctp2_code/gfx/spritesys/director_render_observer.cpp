@@ -9,6 +9,7 @@
 #include "gfx/spritesys/director.h"
 #include "gfx/spritesys/UnitActor.h"        // UnitActor::ChangeImage
 #include "gs/gameobj/UnitTypes.h"          // SPECATTACK enum cast back
+#include "ui/aui_ctp2/ui_unit_actor_registry.h"  // g_uiUnitActorRegistry
 
 extern Director *g_director;
 
@@ -19,7 +20,17 @@ void DirectorRenderObserver::AddFastKill(Unit dead)                             
 void DirectorRenderObserver::FastKill(std::shared_ptr<UnitActor> actor)                { g_director->FastKill(actor); }
 void DirectorRenderObserver::FastKillEffect(EffectActor *actor)                        { g_director->FastKill(actor); }
 void DirectorRenderObserver::AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 o)   { g_director->AddSetOwner(actor, o); }
-void DirectorRenderObserver::AddSetVisibility(std::shared_ptr<UnitActor> actor, uint32 v){ g_director->AddSetVisibility(actor, v); }
+void DirectorRenderObserver::AddSetVisibility(Unit unit, uint32 v)
+{
+    // Phase 3 slice 7b: look up the actor in the UI-side registry rather
+    // than receive it from gs/.  If the unit predates registry insertion
+    // (e.g. very early bootstrap, or a unit pre-amputation that never
+    // fired OnUnitSpawned) we silently skip — the unit will pick up the
+    // visibility on its next render-state refresh.
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        g_director->AddSetVisibility(actor, v);
+    }
+}
 void DirectorRenderObserver::AddSetVisionRange(std::shared_ptr<UnitActor> actor, double r){ g_director->AddSetVisionRange(actor, r); }
 void DirectorRenderObserver::AddMorphUnit(std::shared_ptr<UnitActor> m,
                                           SpriteStatePtr ss, sint32 type, Unit id)     { g_director->AddMorphUnit(m, ss, type, id); }

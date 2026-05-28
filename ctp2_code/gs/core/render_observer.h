@@ -72,8 +72,10 @@ public:
     virtual void FastKill(std::shared_ptr<UnitActor> actor)                     = 0;
     virtual void FastKillEffect(EffectActor *actor)                             = 0;
     virtual void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)    = 0;
-    virtual void AddSetVisibility(std::shared_ptr<UnitActor> actor,
-                                  uint32 visibility)                            = 0;
+    // Phase 3 slice 7b: takes Unit identity (not UnitActorPtr) so gs/ does
+    // not need to hold the actor.  The UI Impl looks up the actor via
+    // g_uiUnitActorRegistry; headless / no-Impl makes this a no-op.
+    virtual void AddSetVisibility(Unit unit, uint32 visibility)                 = 0;
     virtual void AddSetVisionRange(std::shared_ptr<UnitActor> actor,
                                    double range)                                = 0;
     virtual void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
@@ -142,7 +144,7 @@ void AddFastKill(Unit dead);
 void FastKill(std::shared_ptr<UnitActor> actor);
 void FastKillEffect(EffectActor *actor);
 void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner);
-void AddSetVisibility(std::shared_ptr<UnitActor> actor, uint32 visibility);
+void AddSetVisibility(Unit unit, uint32 visibility);
 void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double range);
 void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,
                   SpriteStatePtr ss, sint32 type, Unit id);

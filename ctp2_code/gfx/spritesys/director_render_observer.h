@@ -18,8 +18,7 @@ public:
     void FastKill(std::shared_ptr<UnitActor> actor)                       override;
     void FastKillEffect(EffectActor *actor)                               override;
     void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner)      override;
-    void AddSetVisibility(std::shared_ptr<UnitActor> actor,
-                          uint32 visibility)                              override;
+    void AddSetVisibility(Unit unit, uint32 visibility)                   override;
     void AddSetVisionRange(std::shared_ptr<UnitActor> actor,
                            double range)                                  override;
     void AddMorphUnit(std::shared_ptr<UnitActor> morphingActor,

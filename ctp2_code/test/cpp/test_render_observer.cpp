@@ -46,8 +46,7 @@ struct RecordingSpy : render_observer::Impl {
     }
 
     int addSetVisibilityCalls = 0;
-    void AddSetVisibility(std::shared_ptr<UnitActor> actor,
-                          uint32 visibility) override {
+    void AddSetVisibility(Unit unit, uint32 visibility) override {
         ++addSetVisibilityCalls;
     }
 
@@ -363,7 +362,7 @@ TEST_CASE("render_observer::AddSetVisibility dispatches to Impl")
 {
     RecordingSpy spy;
     ScopedSpy guard(&spy);
-    render_observer::AddSetVisibility(nullptr, 0xFF);
+    render_observer::AddSetVisibility(Unit(), 0xFF);
     CHECK(spy.addSetVisibilityCalls == 1);
 }
 
@@ -489,7 +488,7 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
     render_observer::FastKill(nullptr);
     render_observer::FastKillEffect(nullptr);
     render_observer::AddSetOwner(nullptr, 0);
-    render_observer::AddSetVisibility(nullptr, 0);
+    render_observer::AddSetVisibility(u, 0);
     render_observer::AddSetVisionRange(nullptr, 0.0);
     render_observer::AddMorphUnit(nullptr, nullptr, 0, u);
     render_observer::ActiveUnitRemove(nullptr);

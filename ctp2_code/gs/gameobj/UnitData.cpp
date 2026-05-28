@@ -1953,7 +1953,7 @@ void UnitData::SetVisible(PLAYER_INDEX player)
 	m_ever_visible |= (1 << player);
 
 	if (m_actor) {
-		render_observer::AddSetVisibility(m_actor, GetVisibility());
+		render_observer::AddSetVisibility(Unit(m_id), GetVisibility());
 	}
 }
 
@@ -1963,7 +1963,7 @@ void UnitData::UnsetVisible(PLAYER_INDEX player)
 	m_visibility &= ~(1 << player);
 
 	if (m_actor) {
-		render_observer::AddSetVisibility(m_actor, GetVisibility());
+		render_observer::AddSetVisibility(Unit(m_id), GetVisibility());
 	}
 }
 
@@ -1983,7 +1983,7 @@ void UnitData::BeginTurnVision(PLAYER_INDEX player)
 
 	if (m_actor)
 	{
-		render_observer::AddSetVisibility(m_actor, GetVisibility());
+		render_observer::AddSetVisibility(Unit(m_id), GetVisibility());
 	}
 
 	m_radar_visibility &= ~(1 << player);
@@ -2065,7 +2065,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	m_ever_visible |= m_visibility;
 
 	render_observer::AddSetOwner(m_actor, newo);
-	render_observer::AddSetVisibility(m_actor, m_visibility);
+	render_observer::AddSetVisibility(Unit(m_id), m_visibility);
 
 	uint64 wonders = m_city_data->GetBuiltWonders();
 	for (sint32 w = 0; w < 64; w++)
@@ -2170,7 +2170,7 @@ void UnitData::ResetUnitOwner(const Unit &me, const PLAYER_INDEX new_owner,
 	if(m_actor)
 	{
 		render_observer::AddSetOwner(m_actor, new_owner);
-		render_observer::AddSetVisibility(m_actor, m_visibility);
+		render_observer::AddSetVisibility(Unit(m_id), m_visibility);
 		render_observer::AddSetVisionRange(m_actor, (GetVisionRange()));
 	}
 
@@ -2713,7 +2713,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 				}
 
 				if (him->m_actor) {
-					render_observer::AddSetVisibility(him->m_actor, him->GetVisibility());
+					render_observer::AddSetVisibility(Unit(him->m_id), him->GetVisibility());
 				}
 			}
 		}
@@ -2795,7 +2795,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 	}
 
 	if (m_actor) {
-		render_observer::AddSetVisibility(m_actor, GetVisibility());
+		render_observer::AddSetVisibility(Unit(m_id), GetVisibility());
 	}
 }
 

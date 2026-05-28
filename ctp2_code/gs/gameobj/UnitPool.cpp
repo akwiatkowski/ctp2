@@ -33,6 +33,10 @@
 
 #include "ctp/ctp2_utils/civlog.h"
 
+namespace {
+auto unitpool_log = civlog::Get("unitpool");
+}  // namespace
+
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/gstypes.h"
@@ -143,22 +147,21 @@ void UnitPool::Serialize(CivArchive &archive)
 	}
 	else
 	{
-		auto log = civlog::Get("unitpool");
-		log->debug("UnitPool::Serialize: entered load path");
+		unitpool_log->debug("UnitPool::Serialize: entered load path");
 		archive.TestMagic(UNITPOOL_MAGIC);
-		log->debug("UnitPool::Serialize: TestMagic passed");
+		unitpool_log->debug("UnitPool::Serialize: TestMagic passed");
 		ObjPool::Serialize(archive);
-		log->debug("UnitPool::Serialize: ObjPool::Serialize done");
+		unitpool_log->debug("UnitPool::Serialize: ObjPool::Serialize done");
 
 		archive>>count;
-		log->debug("UnitPool::Serialize: loading {} units", count);
+		unitpool_log->debug("UnitPool::Serialize: loading {} units", count);
 		for (i=0; i<count; i++)
 		{
-			log->trace("UnitPool::Serialize: loading unit {}/{}", i, count);
+			unitpool_log->trace("UnitPool::Serialize: loading unit {}/{}", i, count);
 			unitData = new UnitData(archive);
 			Insert(unitData);
 		}
-		log->debug("UnitPool::Serialize: loaded all {} units", count);
+		unitpool_log->debug("UnitPool::Serialize: loaded all {} units", count);
 	}
 }
 

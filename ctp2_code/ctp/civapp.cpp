@@ -430,6 +430,15 @@ bool    g_tempLeakCheck = false;
 int g_gameWatchID = -1;
 #endif
 
+// File-static loggers.  Anonymous namespace = internal linkage; one
+// shared_ptr per translation unit, captured once at startup.  Both
+// names appear as [civapp] / [smoke] in the spdlog pattern, matching
+// the historical [CIVAPP] / [SMOKE] fprintf prefixes.
+namespace {
+auto civapp_log = civlog::Get("civapp");
+auto smoke_log = civlog::Get("smoke");
+}  // namespace
+
 void InitializeGreatLibrary();
 void InitializeSoundPF();
 void InitializeImageMaps();
@@ -629,7 +638,7 @@ CivApp::CivApp()
 
 void CivApp::InitializeAppUI(void)
 {
-	civlog::Get("civapp")->info("InitializeAppUI: called");
+	civapp_log->info("InitializeAppUI: called");
 	// Set CTP2 specific data for the Anet library (multiplayer only)
 	NETFunc::GameType	= GAMEID;				// CTP2 game id for Anet
 	NETFunc::DllPath	= "dll" FILE_SEP "net";	// Anet DLLs are in dll\net (relative to executable)
@@ -638,9 +647,9 @@ void CivApp::InitializeAppUI(void)
 	{
 #if defined(__AUI_USE_SDL__)
 		// SDL builds: skip intro movie since video playback is not yet supported
-		civlog::Get("civapp")->info("InitializeAppUI: skipping intro movie on SDL");
+		civapp_log->info("InitializeAppUI: skipping intro movie on SDL");
 #else
-		civlog::Get("civapp")->info("InitializeAppUI: intro movie branch");
+		civapp_log->info("InitializeAppUI: intro movie branch");
   		intromoviewin_Initialize();
     	intromoviewin_DisplayIntroMovie();
 #endif
@@ -652,7 +661,7 @@ void CivApp::InitializeAppUI(void)
 #endif
 		)
 	{
-		civlog::Get("civapp")->info("InitializeAppUI: main menu branch");
+		civapp_log->info("InitializeAppUI: main menu branch");
 		if (g_soundManager)
 		{
 			g_soundManager->EnableMusic();
@@ -662,20 +671,20 @@ void CivApp::InitializeAppUI(void)
 
 		AUI_ERRCODE errcode = initialplayscreen_Initialize();
 		Assert(errcode == AUI_ERRCODE_OK);
-		civlog::Get("civapp")->info("InitializeAppUI: initialplayscreen_Initialize returned {}", (int)errcode);
+		civapp_log->info("InitializeAppUI: initialplayscreen_Initialize returned {}", (int)errcode);
 
 		if(!g_no_shell && !g_launchScenario)
 		{
-			civlog::Get("civapp")->info("InitializeAppUI: calling displayMyWindow");
+			civapp_log->info("InitializeAppUI: calling displayMyWindow");
 			initialplayscreen_displayMyWindow();
 		}
 		else
 		{
-			civlog::Get("civapp")->info("InitializeAppUI: skipping displayMyWindow (no_shell={} launchScenario={})",
+			civapp_log->info("InitializeAppUI: skipping displayMyWindow (no_shell={} launchScenario={})",
 				(int)g_no_shell, (int)g_launchScenario);
 		}
 	}
-	civlog::Get("civapp")->info("InitializeAppUI: done");
+	civapp_log->info("InitializeAppUI: done");
 }
 
 #ifdef _DEBUG
@@ -790,7 +799,7 @@ bool CivApp::InitializeAppDB(void)
 	g_theWonderMovieDB          = new CTPDatabase<WonderMovieRecord>;
 
     // Firstly get the string database up and running - so we can display texts
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing StringDB");
+	civapp_log->info("InitializeAppDB: Parsing StringDB");
     if (!g_theStringDB->Parse(g_stringdb_filename))
     {
         return false;
@@ -801,7 +810,7 @@ bool CivApp::InitializeAppDB(void)
 
     // Fill the databases from file
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing SoundDB");
+	civapp_log->info("InitializeAppDB: Parsing SoundDB");
 	if (!g_theSoundDB->Parse(C3DIR_GAMEDATA, g_sounddb_filename))
     {
 		return false;
@@ -811,7 +820,7 @@ bool CivApp::InitializeAppDB(void)
 
 	if (strcmp(g_mapicondb_filename, ""))   // May not exist for mods
 	{
-		civlog::Get("civapp")->info("InitializeAppDB: Parsing MapIconDB");
+		civapp_log->info("InitializeAppDB: Parsing MapIconDB");
 		if (!g_theMapIconDB->Parse(C3DIR_GAMEDATA, g_mapicondb_filename))
 		{
 			return false;
@@ -820,7 +829,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 30 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing IconDB");
+	civapp_log->info("InitializeAppDB: Parsing IconDB");
 	if (!g_theIconDB->Parse(C3DIR_GAMEDATA, g_uniticondb_filename))
     {
 		return false;
@@ -828,7 +837,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 40 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing ConstDB");
+	civapp_log->info("InitializeAppDB: Parsing ConstDB");
 	if (!g_theConstDB->Parse(C3DIR_GAMEDATA, g_constdb_filename))
     {
 		return false;
@@ -836,7 +845,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 50 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing WonderMovieDB");
+	civapp_log->info("InitializeAppDB: Parsing WonderMovieDB");
 	if (!g_theWonderMovieDB->Parse(C3DIR_GAMEDATA, g_wondermoviedb_filename))
     {
 		return false;
@@ -844,7 +853,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 60 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing VictoryMovieDB");
+	civapp_log->info("InitializeAppDB: Parsing VictoryMovieDB");
 	if (!g_theVictoryMovieDB->Parse(g_victorymoviedb_filename))
     {
 	    return false;
@@ -852,7 +861,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 70 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing PlayListDB");
+	civapp_log->info("InitializeAppDB: Parsing PlayListDB");
 	if (!g_thePlayListDB->Parse(g_playlistdb_filename))
     {
 		return false;
@@ -860,7 +869,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 80 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing SpriteDB");
+	civapp_log->info("InitializeAppDB: Parsing SpriteDB");
 	if (!g_theSpriteDB->Parse(C3DIR_GAMEDATA, "newsprite.txt"))
     {
 		return false;
@@ -868,7 +877,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 90 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing SpecialEffectDB");
+	civapp_log->info("InitializeAppDB: Parsing SpecialEffectDB");
 	if (!g_theSpecialEffectDB->Parse(C3DIR_GAMEDATA, g_specialeffectdb_filename))
     {
 		return false;
@@ -876,7 +885,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 100 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing SpecialAttackInfoDB");
+	civapp_log->info("InitializeAppDB: Parsing SpecialAttackInfoDB");
 	if (!g_theSpecialAttackInfoDB->Parse(C3DIR_GAMEDATA, g_specialattackinfodb_filename))
     {
 		return false;
@@ -884,7 +893,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 110 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing AdvanceBranchDB");
+	civapp_log->info("InitializeAppDB: Parsing AdvanceBranchDB");
 	if (!g_theAdvanceBranchDB->Parse(C3DIR_GAMEDATA, g_branchdb_filename))
     {
 		return false;
@@ -892,7 +901,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 120 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing AdvanceDB");
+	civapp_log->info("InitializeAppDB: Parsing AdvanceDB");
 	if (!g_theAdvanceDB->Parse(C3DIR_GAMEDATA, g_advancedb_filename))
     {
 		return false;
@@ -900,7 +909,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 130 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing GovernmentDB");
+	civapp_log->info("InitializeAppDB: Parsing GovernmentDB");
 	if (!g_theGovernmentDB->Parse(C3DIR_GAMEDATA, g_government_filename))
     {
 	    return false;
@@ -908,7 +917,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 140 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing UnitDB");
+	civapp_log->info("InitializeAppDB: Parsing UnitDB");
 	if (!g_theUnitDB->Parse(C3DIR_GAMEDATA, g_unitdb_filename))
     {
 		return false;
@@ -916,7 +925,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 150 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing DifficultyDB");
+	civapp_log->info("InitializeAppDB: Parsing DifficultyDB");
 	if (!g_theDifficultyDB->Parse(C3DIR_GAMEDATA, g_difficultydb_filename))
     {
 		ExitGame();
@@ -925,7 +934,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 160 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing AgeDB");
+	civapp_log->info("InitializeAppDB: Parsing AgeDB");
 	if (!g_theAgeDB->Parse(C3DIR_GAMEDATA, g_agedb_filename))
     {
 		ExitGame();
@@ -934,12 +943,12 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 170 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing ThroneDB");
+	civapp_log->info("InitializeAppDB: Parsing ThroneDB");
 	g_theThroneDB->Init(g_thronedb_filename );
 
 	ProgressTo( 180 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing ConceptDB");
+	civapp_log->info("InitializeAppDB: Parsing ConceptDB");
 	if (!g_theConceptDB->Parse(C3DIR_GAMEDATA, g_conceptdb_filename))
     {
 		ExitGame();
@@ -948,7 +957,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 190 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing TerrainImprovementDB");
+	civapp_log->info("InitializeAppDB: Parsing TerrainImprovementDB");
 	if (!g_theTerrainImprovementDB->Parse(C3DIR_GAMEDATA, g_tileimprovementdb_filename))
     {
 		ExitGame();
@@ -957,7 +966,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 200 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing ResourceDB");
+	civapp_log->info("InitializeAppDB: Parsing ResourceDB");
 	if (!g_theResourceDB->Parse(C3DIR_GAMEDATA, g_goods_filename))
     {
 		ExitGame();
@@ -966,7 +975,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 210 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing TerrainDB");
+	civapp_log->info("InitializeAppDB: Parsing TerrainDB");
 	if (!g_theTerrainDB->Parse(C3DIR_GAMEDATA, g_terrain_filename))
     {
 		ExitGame();
@@ -975,7 +984,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 220 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing BuildingDB");
+	civapp_log->info("InitializeAppDB: Parsing BuildingDB");
 	if (!g_theBuildingDB->Parse(C3DIR_GAMEDATA, g_improve_filename))
     {
 		return false;
@@ -983,7 +992,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 230 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing PollutionDB");
+	civapp_log->info("InitializeAppDB: Parsing PollutionDB");
 	if (!g_thePollutionDB->Parse(C3DIR_GAMEDATA, g_pollution_filename))
     {
 		return false;
@@ -991,7 +1000,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 240 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing GlobalWarmingDB");
+	civapp_log->info("InitializeAppDB: Parsing GlobalWarmingDB");
 	if (!g_theGlobalWarmingDB->Parse(C3DIR_GAMEDATA, g_global_warming_filename))
     {
 		return false;
@@ -999,7 +1008,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 250 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing UVDB");
+	civapp_log->info("InitializeAppDB: Parsing UVDB");
 	if (!g_theUVDB->Initialise(g_ozone_filename, C3DIR_GAMEDATA))
 	{
 		ExitGame();
@@ -1008,7 +1017,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 260 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing CivilisationDB");
+	civapp_log->info("InitializeAppDB: Parsing CivilisationDB");
 	if (!g_theCivilisationDB->Parse(C3DIR_GAMEDATA, g_civilisation_filename))
     {
 		return false;
@@ -1020,7 +1029,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 270 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing WonderDB");
+	civapp_log->info("InitializeAppDB: Parsing WonderDB");
 	if (!g_theWonderDB->Parse(C3DIR_GAMEDATA, g_wonder_filename))
     {
 		return false;
@@ -1028,7 +1037,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 280 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing RiskDB");
+	civapp_log->info("InitializeAppDB: Parsing RiskDB");
 	if (!g_theRiskDB->Parse(C3DIR_GAMEDATA, g_risk_filename))
     {
 		return false;
@@ -1036,7 +1045,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 290 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing MessageIconFileDB");
+	civapp_log->info("InitializeAppDB: Parsing MessageIconFileDB");
 	if (!g_theMessageIconFileDB->Parse(g_messageiconfdb_filename))
     {
 		ExitGame();
@@ -1045,7 +1054,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 300 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing MapDB");
+	civapp_log->info("InitializeAppDB: Parsing MapDB");
 	if (!g_theMapDB->Parse(C3DIR_GAMEDATA, g_mapdb_filename))
     {
 		return false;
@@ -1053,7 +1062,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 310 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing OrderDB");
+	civapp_log->info("InitializeAppDB: Parsing OrderDB");
 	if (!g_theOrderDB->Parse(C3DIR_GAMEDATA, g_orderdb_filename))
     {
 		return false;
@@ -1061,7 +1070,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 320 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing FeatDB");
+	civapp_log->info("InitializeAppDB: Parsing FeatDB");
 	if (!g_theFeatDB->Parse(C3DIR_GAMEDATA, g_featdb_filename))
     {
 		return false;
@@ -1069,7 +1078,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 330 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing EndGameObjectDB");
+	civapp_log->info("InitializeAppDB: Parsing EndGameObjectDB");
 	if (!g_theEndGameObjectDB->Parse(C3DIR_GAMEDATA, g_endgameobject_filename))
     {
 		return false;
@@ -1077,7 +1086,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 340 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing GoalDB");
+	civapp_log->info("InitializeAppDB: Parsing GoalDB");
 	if (!g_theGoalDB->Parse(C3DIR_AIDATA, g_goal_db_filename))
     {
 		return false;
@@ -1085,7 +1094,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 350 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing PersonalityDB");
+	civapp_log->info("InitializeAppDB: Parsing PersonalityDB");
 	if (!g_thePersonalityDB->Parse(C3DIR_AIDATA, g_personality_db_filename))
     {
 		return false;
@@ -1093,7 +1102,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 360 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing UnitBuildListDB");
+	civapp_log->info("InitializeAppDB: Parsing UnitBuildListDB");
 	if (!g_theUnitBuildListDB->Parse(C3DIR_AIDATA, g_unit_buildlist_db_filename))
     {
 		return false;
@@ -1101,7 +1110,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 370 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing WonderBuildListDB");
+	civapp_log->info("InitializeAppDB: Parsing WonderBuildListDB");
 	if (!g_theWonderBuildListDB->Parse(C3DIR_AIDATA, g_wonder_buildlist_db_filename))
     {
 		return false;
@@ -1109,7 +1118,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 380 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing BuildingBuildListDB");
+	civapp_log->info("InitializeAppDB: Parsing BuildingBuildListDB");
 	if (!g_theBuildingBuildListDB->Parse(C3DIR_AIDATA, g_building_buildlist_db_filename))
     {
 		return false;
@@ -1117,7 +1126,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 390 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing ImprovementListDB");
+	civapp_log->info("InitializeAppDB: Parsing ImprovementListDB");
 	if (!g_theImprovementListDB->Parse(C3DIR_AIDATA, g_improvement_list_db_filename))
     {
 		return false;
@@ -1125,7 +1134,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 400 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing StrategyDB");
+	civapp_log->info("InitializeAppDB: Parsing StrategyDB");
 	if (!g_theStrategyDB->Parse(C3DIR_AIDATA, g_strategy_db_filename))
     {
 		return false;
@@ -1133,7 +1142,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 410 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing BuildListSequenceDB");
+	civapp_log->info("InitializeAppDB: Parsing BuildListSequenceDB");
 	if (!g_theBuildListSequenceDB->Parse(C3DIR_AIDATA, g_buildlist_sequence_db_filename))
     {
 		return false;
@@ -1141,7 +1150,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 420 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing DiplomacyDB");
+	civapp_log->info("InitializeAppDB: Parsing DiplomacyDB");
 	if (!g_theDiplomacyDB->Parse(C3DIR_AIDATA, g_diplomacy_db_filename))
     {
 		return false;
@@ -1149,7 +1158,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 430 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing DiplomacyProposalDB");
+	civapp_log->info("InitializeAppDB: Parsing DiplomacyProposalDB");
 	if (!g_theDiplomacyProposalDB->Parse(C3DIR_AIDATA, g_diplomacy_proposal_filename))
     {
 		return false;
@@ -1157,7 +1166,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 440 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing DiplomacyThreatDB");
+	civapp_log->info("InitializeAppDB: Parsing DiplomacyThreatDB");
 	if (!g_theDiplomacyThreatDB->Parse(C3DIR_AIDATA, g_diplomacy_threat_filename))
     {
 		return false;
@@ -1165,7 +1174,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 450 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing AdvanceListDB");
+	civapp_log->info("InitializeAppDB: Parsing AdvanceListDB");
 	if (!g_theAdvanceListDB->Parse(C3DIR_AIDATA, g_advance_list_db_filename))
     {
 		return false;
@@ -1173,7 +1182,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 460 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing CityStyleDB");
+	civapp_log->info("InitializeAppDB: Parsing CityStyleDB");
 	if (!g_theCityStyleDB->Parse(C3DIR_GAMEDATA, g_city_style_db_filename))
     {
 		return false;
@@ -1181,7 +1190,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 470 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing AgeCityStyleDB");
+	civapp_log->info("InitializeAppDB: Parsing AgeCityStyleDB");
 	if (!g_theAgeCityStyleDB->Parse(C3DIR_GAMEDATA, g_age_city_style_db_filename))
     {
 		return false;
@@ -1198,7 +1207,7 @@ bool CivApp::InitializeAppDB(void)
 
 		snprintf(lastdot, _MAX_PATH - (lastdot - g_citysize_filename), "%d.txt", 0);
 
-		civlog::Get("civapp")->info("InitializeAppDB: Parsing CitySizeDB");
+		civapp_log->info("InitializeAppDB: Parsing CitySizeDB");
 		if (!g_theCitySizeDB->Parse(C3DIR_GAMEDATA, g_citysize_filename))
 			return false;
 
@@ -1207,7 +1216,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 490 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Parsing PopDB");
+	civapp_log->info("InitializeAppDB: Parsing PopDB");
 	if (!g_thePopDB->Parse(C3DIR_GAMEDATA, g_pop_filename))
     {
 		return false;
@@ -1215,7 +1224,7 @@ bool CivApp::InitializeAppDB(void)
 
 	ProgressTo( 500 );
 
-	civlog::Get("civapp")->info("InitializeAppDB: Creating Exclusions, resolving references");
+	civapp_log->info("InitializeAppDB: Creating Exclusions, resolving references");
     g_exclusions = new Exclusions();
 
 	if(!g_theUnitDB->ResolveReferences())               return false;
@@ -1375,7 +1384,7 @@ bool CivApp::IsScenarioEditorGivingAdvances(void) const
 
 sint32 CivApp::InitializeEngine(void)
 {
-	civlog::Get("civapp")->info("InitializeEngine: started");
+	civapp_log->info("InitializeEngine: started");
 
 	// Wire the game-observer registry global before anything else that might
 	// fire Notify*().  See game_observer.cpp for why this is deferred from
@@ -1404,13 +1413,13 @@ sint32 CivApp::InitializeEngine(void)
 	gameWatch.RecordingSystem("gwciv");
 #endif
 
-	civlog::Get("civapp")->info("InitializeEngine: done");
+	civapp_log->info("InitializeEngine: done");
 	return 0;
 }
 
 sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 {
-	civlog::Get("civapp")->info("InitializeApp: started");
+	civapp_log->info("InitializeApp: started");
 #ifdef WIN32
     // COM needed for DirectX/Movies
 	CoInitialize(NULL);
@@ -1419,27 +1428,27 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	sint32 err = InitializeEngine();
 	if (err != 0) return err;
 
-	civlog::Get("civapp")->info("InitializeApp: display_Initialize");
+	civapp_log->info("InitializeApp: display_Initialize");
 	display_Initialize(hInstance, iCmdShow);
-	civlog::Get("civapp")->info("InitializeApp: init_keymap");
+	civapp_log->info("InitializeApp: init_keymap");
 	init_keymap();
-	civlog::Get("civapp")->info("InitializeApp: ui_Initialize");
+	civapp_log->info("InitializeApp: ui_Initialize");
 	(void) ui_Initialize();
-	civlog::Get("civapp")->info("InitializeApp: SoundManager::Initialize");
+	civapp_log->info("InitializeApp: SoundManager::Initialize");
 	SoundManager::Initialize();
 
-	civlog::Get("civapp")->info("InitializeApp: sharedsurface_Initialize");
+	civapp_log->info("InitializeApp: sharedsurface_Initialize");
 	if ( sharedsurface_Initialize() != AUI_ERRCODE_OK ) {
 		c3errors_FatalDialog( "CivApp", "Unable to init shared surface." );
 		return -1;
 	}
 
-	civlog::Get("civapp")->info("InitializeApp: CursorManager::Initialize");
+	civapp_log->info("InitializeApp: CursorManager::Initialize");
 	CursorManager::Initialize();
 
 	InitializeImageMaps();
 
-	civlog::Get("civapp")->info("InitializeApp: ProgressWindow");
+	civapp_log->info("InitializeApp: ProgressWindow");
 	ProgressWindow::BeginProgress(
 		g_theProgressWindow,
 		"InitProgressWindow",
@@ -1447,7 +1456,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	ProgressTo( 10 );
 
-	civlog::Get("civapp")->info("InitializeApp: gameinit_InitializeGameFiles");
+	civapp_log->info("InitializeApp: gameinit_InitializeGameFiles");
 	if (!gameinit_InitializeGameFiles())
     {
         ExitGame();
@@ -1460,7 +1469,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	ProgressTo( 540 );
 
-	civlog::Get("civapp")->info("InitializeApp: InitializeAppDB");
+	civapp_log->info("InitializeApp: InitializeAppDB");
 	if (!InitializeAppDB())
     {
 		c3errors_FatalDialog("CivApp", "Unable to Init the Databases.");
@@ -1469,19 +1478,19 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	ProgressTo( 550 );
 
-	civlog::Get("civapp")->info("InitializeApp: InitializeGreatLibrary");
+	civapp_log->info("InitializeApp: InitializeGreatLibrary");
 	InitializeGreatLibrary();
 
 	ProgressTo( 560 );
 
-	civlog::Get("civapp")->info("InitializeApp: InitializeSoundPF");
+	civapp_log->info("InitializeApp: InitializeSoundPF");
 	InitializeSoundPF();
 
 	ProgressTo( 570 );
 
-	civlog::Get("civapp")->info("InitializeApp: calling InitializeAppUI");
+	civapp_log->info("InitializeApp: calling InitializeAppUI");
 	InitializeAppUI();
-	civlog::Get("civapp")->info("InitializeApp: InitializeAppUI returned");
+	civapp_log->info("InitializeApp: InitializeAppUI returned");
 
 	ProgressTo( 580 );
 
@@ -1560,7 +1569,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	m_appLoaded = true;
 
 	if (g_smokeTest) {
-		civlog::Get("smoke")->info("Smoke test mode enabled, starting command server");
+		smoke_log->info("Smoke test mode enabled, starting command server");
 		smoketest_server_init();
 	}
 
@@ -2730,7 +2739,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 	if (g_smokeTest) {
 		char cmd[256];
 		if (smoketest_poll_command(cmd, sizeof(cmd))) {
-			civlog::Get("smoke")->info("Executing command: {}", cmd);
+			smoke_log->info("Executing command: {}", cmd);
 
 			if (strcmp(cmd, "new_game") == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
@@ -2774,7 +2783,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						for (sint32 i = 0; i < armies->Num(); i++) {
 							Army army = armies->Access(i);
 							if (army.IsValid() && army.CanSettle()) {
-								civlog::Get("smoke")->info("Found settler army {} for player {}, queueing settle",
+								smoke_log->info("Found settler army {} for player {}, queueing settle",
 									i, (int)human->GetOwner());
 								army.AccessData()->Settle();
 								found = true;
@@ -2872,7 +2881,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								} else if (!city.GetData()->GetCityData()->CanBuildUnit(unit_type)) {
 									smoketest_send_response("error", cmd, "cannot_build_unit");
 								} else {
-									civlog::Get("smoke")->info("Setting city {} to build unit {}",
+									smoke_log->info("Setting city {} to build unit {}",
 										(int)city_idx, (int)unit_type);
 									city.GetData()->GetCityData()->BuildUnit(unit_type);
 									smoketest_send_response("ok", cmd, NULL);
@@ -2938,7 +2947,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 											city.GetData()->GetCityData()->SetBuildListSequenceIndex(gov_idx);
 										}
 									}
-									civlog::Get("smoke")->info("Enabled {} governor for {}",
+									smoke_log->info("Enabled {} governor for {}",
 										gov_name, all_cities ? "all cities" : target);
 									smoketest_send_response("ok", cmd, NULL);
 								}
@@ -2980,7 +2989,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							} else {
 								sint32 adv_idx = -1;
 								if (!g_theAdvanceDB->GetNamedItem(str_id, adv_idx)) {
-									civlog::Get("smoke")->info("Setting research to advance {} ({})",
+									smoke_log->info("Setting research to advance {} ({})",
 										(int)adv_idx, adv_name);
 									human->SetResearching(adv_idx);
 									smoketest_send_response("ok", cmd, NULL);
@@ -3035,7 +3044,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (!path[0]) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
-						civlog::Get("smoke")->info("Saving game to {}", path);
+						smoke_log->info("Saving game to {}", path);
 						GameFile::SaveGame(path, NULL);
 						smoketest_send_response("ok", cmd, NULL);
 					}
@@ -3048,7 +3057,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				if (!path[0]) {
 					smoketest_send_response("error", cmd, "bad_args");
 				} else {
-					civlog::Get("smoke")->info("Loading game from {}", path);
+					smoke_log->info("Loading game from {}", path);
 					GameFile::RestoreGame(path);
 					smoketest_send_response("ok", cmd, NULL);
 				}
@@ -3062,7 +3071,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(g_c3ui->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
 						if (SDL_SaveBMP(sdlSurf->DDS(), path) == 0) {
-							civlog::Get("smoke")->info("Screenshot saved to {}", path);
+							smoke_log->info("Screenshot saved to {}", path);
 							smoketest_send_response("ok", cmd, NULL);
 						} else {
 							smoketest_send_response("error", cmd, "sdl_save_failed");
@@ -3110,7 +3119,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 											Army army = u.GetArmy();
 											if (army.IsValid()) {
 												army.AddOrders(UNIT_ORDER_MOVE_TO, dest);
-												civlog::Get("smoke")->info("Moving unit from ({},{}) to ({},{})",
+												smoke_log->info("Moving unit from ({},{}) to ({},{})",
 												(int)city_pos.x, (int)city_pos.y, (int)dest.x, (int)dest.y);
 												moved = true;
 												break;
@@ -3166,7 +3175,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 											                       GEV_ExploreOrder,
 											                       GEA_Army, army,
 											                       GEA_End);
-											civlog::Get("smoke")->info("Auto-explore queued for army at ({},{})",
+											smoke_log->info("Auto-explore queued for army at ({},{})",
 											        (int)city_pos.x, (int)city_pos.y);
 											issued = true;
 											break;
@@ -3425,29 +3434,28 @@ sint32 CivApp::StartGame(void)
 
 sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 {
-	auto log = civlog::Get("civapp");
-	log->info("InitializeGameHeadless: started (archive={})",
+	civapp_log->info("InitializeGameHeadless: started (archive={})",
 	          archive ? "load" : "new");
 
-	log->debug("calling sprite_Initialize()");
+	civapp_log->debug("calling sprite_Initialize()");
 	sprite_Initialize();
 
-	log->debug("calling gameEventManager_Initialize()");
+	civapp_log->debug("calling gameEventManager_Initialize()");
 	gameEventManager_Initialize();
 
-	log->debug("calling g_gevManager->Pause()");
+	civapp_log->debug("calling g_gevManager->Pause()");
 	g_gevManager->Pause();
 
-	log->debug("calling events_Initialize()");
+	civapp_log->debug("calling events_Initialize()");
 	events_Initialize();
 
-	log->debug("calling gameinit_Initialize(archive={})", (void*)archive);
+	civapp_log->debug("calling gameinit_Initialize(archive={})", (void*)archive);
 	if (!gameinit_Initialize(-1, -1, archive)) {
 		g_gevManager->Resume();
-		log->error("InitializeGameHeadless: gameinit_Initialize failed");
+		civapp_log->error("InitializeGameHeadless: gameinit_Initialize failed");
 		return FALSE;
 	}
-	log->debug("gameinit_Initialize returned OK");
+	civapp_log->debug("gameinit_Initialize returned OK");
 
 	// Create TiledMap without UI window (normally done in tile_Initialize).
 	// Skip LoadTileset entirely — this function is the headless-only path,
@@ -3455,7 +3463,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// InitializeImageMaps (UI-only).  Map data is sufficient for logic;
 	// tile graphics are not needed.
 	if (g_theWorld && !g_tiledMap) {
-		log->debug("creating headless TiledMap (world={}x{})",
+		civapp_log->debug("creating headless TiledMap (world={}x{})",
 		           g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
 		MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
 		g_tiledMap = new TiledMap(mapsize);
@@ -3463,7 +3471,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 
 	m_gameLoaded = TRUE;
 
-	log->debug("calling g_gevManager->Resume + Process");
+	civapp_log->debug("calling g_gevManager->Resume + Process");
 	g_gevManager->Resume();
 	g_gevManager->Process();
 
@@ -3471,11 +3479,11 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// The interactive game does this in InitializeGame() via roboinit_Initalize
 	// and CtpAi::Initialize(); the headless path must do the same or the AI
 	// never makes decisions (settlers never settle, score stays flat).
-	log->debug("calling roboinit_Initalize / CtpAi::Initialize");
+	civapp_log->debug("calling roboinit_Initalize / CtpAi::Initialize");
 	roboinit_Initalize(NULL);
 	CtpAi::Initialize();
 
-	log->info("InitializeGameHeadless: done (game loaded)");
+	civapp_log->info("InitializeGameHeadless: done (game loaded)");
 	return 0;
 }
 

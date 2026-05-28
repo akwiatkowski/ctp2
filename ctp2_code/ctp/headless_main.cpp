@@ -45,6 +45,13 @@ extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed 
 static sint32 s_headlessCurPlayer = 0;
 static sint32 HeadlessCurPlayer() { return s_headlessCurPlayer; }
 
+// File-static logger.  Anonymous namespace = internal linkage.  Name
+// appears as [headless] in the spdlog pattern, matching the historical
+// [HEADLESS] fprintf prefix.
+namespace {
+auto headless_log = civlog::Get("headless");
+}  // namespace
+
 static void print_usage(const char *prog)
 {
     fprintf(stderr,
@@ -66,8 +73,7 @@ static void print_usage(const char *prog)
 int main(int argc, char **argv)
 {
     civlog::Init();
-    auto log = civlog::Get("headless");
-    log->info("CTP2 Headless Engine starting");
+    headless_log->info("CTP2 Headless Engine starting");
 
     // Parse arguments
     bool newGame = false;
@@ -100,7 +106,7 @@ int main(int argc, char **argv)
             print_usage(argv[0]);
             return 0;
         } else {
-            log->error("Unknown argument: {}", argv[i]);
+            headless_log->error("Unknown argument: {}", argv[i]);
             print_usage(argv[0]);
             return 1;
         }
@@ -112,29 +118,29 @@ int main(int argc, char **argv)
 
     g_civApp = new CivApp();
 
-    log->info("Initializing engine...");
+    headless_log->info("Initializing engine...");
     sint32 err = g_civApp->InitializeEngine();
     if (err != 0) {
-        log->error("Engine initialization failed: {}", err);
+        headless_log->error("Engine initialization failed: {}", err);
         return 1;
     }
 
     // Load game file list and databases (normally done inside InitializeApp)
-    log->info("Loading game files...");
+    headless_log->info("Loading game files...");
     if (!gameinit_InitializeGameFiles()) {
-        log->error("gameinit_InitializeGameFiles failed");
+        headless_log->error("gameinit_InitializeGameFiles failed");
         return 1;
     }
 
-    log->info("Loading databases...");
+    headless_log->info("Loading databases...");
     if (!g_civApp->InitializeAppDB()) {
-        log->error("InitializeAppDB failed");
+        headless_log->error("InitializeAppDB failed");
         return 1;
     }
 
     CivScenarios::Initialize();
 
-    log->info("Engine + DBs initialized OK");
+    headless_log->info("Engine + DBs initialized OK");
 
     RegisterHeadlessGameObserver();
     // Headless still links SelItem.cpp (it's in game_core_sources) and many
@@ -146,17 +152,17 @@ int main(int argc, char **argv)
     // Override CurPlayer so AI asserts (player == CurPlayer()) pass and
     // NewTurnCount::GetCurrentRound() returns the active player's round.
     player_view::RegisterCurPlayer(&HeadlessCurPlayer);
-    log->info("observers + player_view registered");
+    headless_log->info("observers + player_view registered");
 
     if (loadGamePath) {
-        log->info("Loading saved game from {}", loadGamePath);
+        headless_log->info("Loading saved game from {}", loadGamePath);
         GameFile::RestoreGame(loadGamePath);
-        log->info("RestoreGame returned (state may or may not be valid)");
+        headless_log->info("RestoreGame returned (state may or may not be valid)");
     }
 
     if (newGame || loadGamePath) {
         if (newGame) {
-            log->info("Starting new game (players={}, seed={})...", numPlayers, seed);
+            headless_log->info("Starting new game (players={}, seed={})...", numPlayers, seed);
 
             // Set player count and seed in ProfileDB
             g_theProfileDB->SetNPlayers(numPlayers);
@@ -179,7 +185,7 @@ int main(int argc, char **argv)
             // Use the headless game init path (no UI windows)
             err = g_civApp->InitializeGameHeadless();
             if (err != 0) {
-                log->error("Game initialization failed: {}", err);
+                headless_log->error("Game initialization failed: {}", err);
                 return 1;
             }
 
@@ -192,14 +198,14 @@ int main(int argc, char **argv)
                 if (g_player[p]) g_player[p]->SetPlayerType(PLAYER_TYPE_ROBOT);
             }
 
-            log->info("Game initialized OK — running {} turns", maxTurns);
+            headless_log->info("Game initialized OK — running {} turns", maxTurns);
         } else {
-            log->info("Loaded — running {} turns", maxTurns);
+            headless_log->info("Loaded — running {} turns", maxTurns);
         }
 
         // Run turns
         for (sint32 t = 0; t < maxTurns; ++t) {
-            log->info("Turn {} / {}", t + 1, maxTurns);
+            headless_log->info("Turn {} / {}", t + 1, maxTurns);
 
             // Process one turn for each active player.  Drive AI through
             // the same event pipeline the interactive game uses — mirrors
@@ -249,21 +255,21 @@ int main(int argc, char **argv)
             if (g_gevManager) g_gevManager->Process();
         }
 
-        log->info("Completed {} turns", maxTurns);
+        headless_log->info("Completed {} turns", maxTurns);
 
         if (saveGamePath) {
-            log->info("Saving game to {}", saveGamePath);
+            headless_log->info("Saving game to {}", saveGamePath);
             GameFile::SaveGame(saveGamePath, NULL);
-            log->info("SaveGame returned");
+            headless_log->info("SaveGame returned");
         }
 
         if (exportMetricsPath) {
-            log->info("Exporting metrics to {}", exportMetricsPath);
+            headless_log->info("Exporting metrics to {}", exportMetricsPath);
             FILE *fp = (strcmp(exportMetricsPath, "-") == 0)
                 ? stdout
                 : std::fopen(exportMetricsPath, "w");
             if (!fp) {
-                log->error("Could not open {} for writing", exportMetricsPath);
+                headless_log->error("Could not open {} for writing", exportMetricsPath);
             } else {
                 // --- per-player section ---
                 std::fprintf(fp, "# PLAYERS\n");
@@ -305,14 +311,14 @@ int main(int argc, char **argv)
                 }
 
                 if (fp != stdout) std::fclose(fp);
-                log->info("Metrics export complete");
+                headless_log->info("Metrics export complete");
             }
         }
     } else {
-        log->info("Would run {} turns with {} players, seed={}",
+        headless_log->info("Would run {} turns with {} players, seed={}",
                   maxTurns, numPlayers, seed);
     }
 
-    log->info("Shutting down");
+    headless_log->info("Shutting down");
     return 0;
 }

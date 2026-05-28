@@ -52,6 +52,12 @@
 #include "gs/utility/gameinit.h"
 #include "ctp/ctp2_utils/civlog.h"
 
+// File-static logger.  Anonymous namespace = internal linkage.  Name
+// "log" suffix avoids std::log (cmath) name collisions in this TU.
+namespace {
+auto gameinit_log = civlog::Get("gameinit");
+}  // namespace
+
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 #include "gs/gameobj/AchievementTracker.h"
 #include "AdvanceRecord.h"
@@ -1418,9 +1424,8 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 
 sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 {
-	auto log = civlog::Get("gameinit");
-	log->info("gameinit_Initialize: started (archive={}, w={}, h={})",
-	          archive ? "load" : "new", mWidth, mHeight);
+	gameinit_log->info("gameinit_Initialize: started (archive={}, w={}, h={})",
+	                   archive ? "load" : "new", mWidth, mHeight);
 
 	// (Legacy g_debugWindow->SetDebugMask(k_DBG_AI) dropped — modern code
 	// uses DPRINTF(k_DBG_AI, ...) directly with no UI filtering.)
@@ -1448,7 +1453,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	// more problems than it solves - JJB
 
 	if (archive) {
-		log->debug("step: new RandomGenerator(archive)");
+		gameinit_log->debug("step: new RandomGenerator(archive)");
 		g_rand = new RandomGenerator(*archive);
 	} else {
 #ifdef _DEBUG
@@ -1488,7 +1493,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 
 	if(archive) {
-		log->debug("step: new GameSettings(archive)");
+		gameinit_log->debug("step: new GameSettings(archive)");
 		g_theGameSettings = new GameSettings(*archive);
 	} else {
 		g_theGameSettings = new GameSettings();
@@ -1498,11 +1503,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	bool loadEverything =
         !g_isScenario || (g_startInfoType == STARTINFOTYPE_NOLOCS);
-	log->debug("loadEverything={}, g_isScenario={}, g_startInfoType={}",
+	gameinit_log->debug("loadEverything={}, g_isScenario={}, g_startInfoType={}",
 	           loadEverything, (bool)g_isScenario, (int)g_startInfoType);
 
 	if (archive) {
-		log->debug("step: new World(archive)");
+		gameinit_log->debug("step: new World(archive)");
 		g_theWorld = new World(*archive) ;
 		if(
 
@@ -1553,9 +1558,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	Assert(g_theWorld);
 
-	log->debug("step: post-World, before TurnCount");
+	gameinit_log->debug("step: post-World, before TurnCount");
 	if (archive && loadEverything){
-		log->debug("step: new TurnCount(archive)");
+		gameinit_log->debug("step: new TurnCount(archive)");
 		g_turn = new TurnCount(*archive);
 	} else {
 		g_turn = new TurnCount();
@@ -1567,7 +1572,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	log->debug("step: player_view::Init({})", nPlayers);
+	gameinit_log->debug("step: player_view::Init({})", nPlayers);
 	// Symmetric with GameFile::SaveGame, which (deliberately) no longer
 	// writes g_selected_item bytes — see the "TODO(orchestrator): no
 	// equivalent for g_selected_item->Serialize" line in
@@ -1595,7 +1600,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	                                                 g_theWorld->IsYwrap());
 
 	if (archive && loadEverything) {
-		log->debug("step: new UnitPool(archive)");
+		gameinit_log->debug("step: new UnitPool(archive)");
 		g_theUnitPool = new UnitPool(*archive);
 	} else {
 		g_theUnitPool = new UnitPool();
@@ -1603,7 +1608,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	Assert(g_theUnitPool);
 
 	if(archive && loadEverything) {
-		log->debug("step: new ArmyPool(archive)");
+		gameinit_log->debug("step: new ArmyPool(archive)");
 		g_theArmyPool = new ArmyPool(*archive);
 	} else {
 		g_theArmyPool = new ArmyPool();
@@ -1611,7 +1616,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	Assert(g_theArmyPool);
 
 	if(archive && loadEverything) {
-		log->debug("step: RebuildQuadTree");
+		gameinit_log->debug("step: RebuildQuadTree");
 		g_theUnitPool->RebuildQuadTree();
 	}
 

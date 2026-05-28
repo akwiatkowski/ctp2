@@ -41,8 +41,10 @@
 #include <deque>
 #include <memory>
 
-class UnitActor;
-typedef std::shared_ptr<UnitActor> UnitActorPtr;
+// class UnitActor + UnitActorPtr typedef live in gs/core/sprite_state_fwd.h
+// so gs/ headers can use the typedef without depending on gfx/.  This
+// header re-uses that declaration for ODR consistency.
+#include "gs/core/sprite_state_fwd.h"
 typedef std::weak_ptr<UnitActor> UnitActorWeakPtr;
 
 #include "gfx/spritesys/Action.h"           // Action, GAME_ACTION

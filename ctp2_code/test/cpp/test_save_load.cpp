@@ -718,3 +718,92 @@ TEST_CASE("Save with --players 2 succeeds")
     REQUIRE(file_exists_and_nonempty(save_path));
     CHECK(file_header_is_known_magic(save_path));
 }
+
+TEST_CASE("Save file size grows monotonically with turn count 5-15-30")
+{
+    const char *path5  = "/tmp/ctp2_test_turn5c.sav";
+    const char *path15 = "/tmp/ctp2_test_turn15b.sav";
+    const char *path30 = "/tmp/ctp2_test_turn30b.sav";
+
+    std::remove(path5);
+    std::remove(path15);
+    std::remove(path30);
+
+    run_headless("--new-game --turns 5  --players 3 --seed 42 "
+                 "--save-game /tmp/ctp2_test_turn5c.sav");
+    run_headless("--new-game --turns 15 --players 3 --seed 42 "
+                 "--save-game /tmp/ctp2_test_turn15b.sav");
+    run_headless("--new-game --turns 30 --players 3 --seed 42 "
+                 "--save-game /tmp/ctp2_test_turn30b.sav");
+
+    struct stat st5, st15, st30;
+    REQUIRE(stat(path5, &st5) == 0);
+    REQUIRE(stat(path15, &st15) == 0);
+    REQUIRE(stat(path30, &st30) == 0);
+
+    CHECK(st5.st_size > 0);
+    CHECK(st15.st_size >= st5.st_size);
+    CHECK(st30.st_size >= st15.st_size);
+    CHECK(file_header_is_known_magic(path5));
+    CHECK(file_header_is_known_magic(path15));
+    CHECK(file_header_is_known_magic(path30));
+}
+
+TEST_CASE("Save with --players 8 produces non-empty file")
+{
+    const char *save_path = "/tmp/ctp2_test_8players.sav";
+    std::remove(save_path);
+
+    std::string output = run_headless(
+        "--new-game --turns 5 --players 8 --seed 42 "
+        "--save-game /tmp/ctp2_test_8players.sav");
+
+    CAPTURE(output);
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Saving game to") != std::string::npos);
+
+    REQUIRE(file_exists_and_nonempty(save_path));
+    CHECK(file_header_is_known_magic(save_path));
+}
+
+TEST_CASE("Two different seeds produce different save bytes")
+{
+    const char *seed42_path = "/tmp/ctp2_test_seed42_only.sav";
+    const char *seed99_path = "/tmp/ctp2_test_seed99_only.sav";
+
+    std::remove(seed42_path);
+    std::remove(seed99_path);
+
+    std::string out42 = run_headless(
+        "--new-game --turns 10 --players 3 --seed 42 "
+        "--save-game /tmp/ctp2_test_seed42_only.sav");
+    CAPTURE(out42);
+    CHECK(out42.find("[EXIT_CODE] 0") == 0);
+    REQUIRE(file_exists_and_nonempty(seed42_path));
+
+    std::string out99 = run_headless(
+        "--new-game --turns 10 --players 3 --seed 99 "
+        "--save-game /tmp/ctp2_test_seed99_only.sav");
+    CAPTURE(out99);
+    CHECK(out99.find("[EXIT_CODE] 0") == 0);
+    REQUIRE(file_exists_and_nonempty(seed99_path));
+
+    CHECK(!files_are_byte_identical(seed42_path, seed99_path));
+}
+
+TEST_CASE("--export-metrics writes a non-empty CSV file")
+{
+    const char *csv_path = "/tmp/ctp2_test_export_metrics.csv";
+    std::remove(csv_path);
+
+    std::string output = run_headless(
+        "--new-game --turns 3 --players 3 --seed 42 "
+        "--export-metrics /tmp/ctp2_test_export_metrics.csv");
+
+    CAPTURE(output);
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+
+    REQUIRE(file_exists_and_nonempty(csv_path));
+}

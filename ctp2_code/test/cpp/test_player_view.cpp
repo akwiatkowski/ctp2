@@ -46,7 +46,14 @@ constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 // gs/ files still include gfx/ headers for type references (UnitActor*,
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.
-constexpr std::size_t GS_GFX_CPP_BASELINE    = 3;
+// Wave 15a W4 added explicit `gfx/spritesys/UnitActor.h` includes to 4
+// .cpp files (Unit.cpp, ArmyData.cpp, CityData.cpp, Player.cpp) that
+// previously got the type transitively through UnitData.h.  Making the
+// dependency explicit unblocks a future fwd-decl of UnitActor in
+// UnitData.h.  The net architectural move is .cpp leak +4, .h leak -1
+// (later) — a smaller blast-radius leak replacing a bigger one.
+// Phase B (Advances.cpp + Wormhole.cpp migrations) drops this by 2.
+constexpr std::size_t GS_GFX_CPP_BASELINE    = 7;
 constexpr std::size_t GS_GFX_HEADER_BASELINE = 2;
 constexpr std::size_t AI_GFX_CPP_BASELINE    = 0;
 constexpr std::size_t AI_GFX_HEADER_BASELINE = 0;

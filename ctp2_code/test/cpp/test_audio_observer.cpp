@@ -201,3 +201,83 @@ TEST_CASE("audio_observer::IsAutoRepeat returns the Impl's value when registered
     ScopedSpy guard(&spy);
     CHECK(audio_observer::IsAutoRepeat() == 1);
 }
+
+TEST_CASE("audio_observer::AddSound called 100 times accumulates call count") {
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    for (int i = 0; i < 100; ++i) {
+        audio_observer::AddSound(1, 2, i, 4, 5);
+    }
+    CHECK(spy.addSoundCalls == 100);
+    CHECK(spy.lastSoundId == 99);
+}
+
+TEST_CASE("audio_observer::SetVolume forwards volume 0") {
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    audio_observer::SetVolume(0, 0);
+    CHECK(spy.setVolumeCalls == 1);
+    CHECK(spy.lastVolumeType == 0);
+    CHECK(spy.lastVolume == 0u);
+}
+
+TEST_CASE("audio_observer::SetVolume forwards max uint32 volume") {
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    audio_observer::SetVolume(3, 0xFFFFFFFFu);
+    CHECK(spy.setVolumeCalls == 1);
+    CHECK(spy.lastVolumeType == 3);
+    CHECK(spy.lastVolume == 0xFFFFFFFFu);
+}
+
+TEST_CASE("audio_observer::AddSound twice records latest args") {
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    audio_observer::AddSound(1, 2, 100, 4, 5);
+    audio_observer::AddSound(6, 7, 200, 9, 10);
+    CHECK(spy.addSoundCalls == 2);
+    CHECK(spy.lastSoundType == 6);
+    CHECK(spy.lastSoundObj  == 7u);
+    CHECK(spy.lastSoundId   == 200);
+    CHECK(spy.lastSoundX    == 9);
+    CHECK(spy.lastSoundY    == 10);
+}
+
+TEST_CASE("audio_observer::Swap Impl mid-test routes to correct Impl") {
+    RecordingSpy spyA;
+    RecordingSpy spyB;
+    audio_observer::Impl *prev = audio_observer::Get();
+
+    audio_observer::Register(&spyA);
+    audio_observer::AddSound(1, 2, 3, 4, 5);
+    CHECK(spyA.addSoundCalls == 1);
+    CHECK(spyB.addSoundCalls == 0);
+
+    audio_observer::Register(&spyB);
+    audio_observer::AddSound(6, 7, 8, 9, 10);
+    CHECK(spyA.addSoundCalls == 1);
+    CHECK(spyB.addSoundCalls == 1);
+    CHECK(spyB.lastSoundId == 8);
+
+    audio_observer::Register(prev);
+}
+
+TEST_CASE("audio_observer::Register nullptr + AddSound is no-op") {
+    RecordingSpy spy;
+    audio_observer::Impl *prev = audio_observer::Get();
+    audio_observer::Register(&spy);
+    CHECK(spy.addSoundCalls == 0);
+
+    audio_observer::Register(nullptr);
+    audio_observer::AddSound(1, 2, 3, 4, 5);
+    CHECK(spy.addSoundCalls == 0);
+
+    audio_observer::Register(prev);
+}
+
+TEST_CASE("audio_observer::GetMusicStyle round-trip forwards custom value") {
+    RecordingSpy spy;
+    spy.getMusicStyleReturn = 5;
+    ScopedSpy guard(&spy);
+    CHECK(audio_observer::GetMusicStyle() == 5);
+}

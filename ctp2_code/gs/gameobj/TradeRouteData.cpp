@@ -43,7 +43,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/CityRadius.h"
 #include "TerrainRecord.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gs/core/colorset_observer.h"
 #include "net/general/network.h"
 #include "ResourceRecord.h"
 #include "gs/gameobj/UnitData.h"
@@ -75,8 +75,8 @@ TradeRouteData::TradeRouteData
 	m_sourceResource                (sourceResource),
 	m_crossesWater                  (false),
 	m_isActive                      (false),
-	m_color                         (g_colorSet->GetColor(COLOR_YELLOW)),
-	m_outline                       (g_colorSet->GetColor(COLOR_BLACK)),
+	m_color                         (colorset_observer::GetColor(COLOR_YELLOW)),
+	m_outline                       (colorset_observer::GetColor(COLOR_BLACK)),
 	m_selectedIndex                 (0),
 	m_valid                         (false),
 	m_gold_in_return                (gold_in_return),

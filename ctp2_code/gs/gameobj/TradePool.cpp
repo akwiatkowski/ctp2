@@ -5,7 +5,7 @@
 void DrawTradeRoute(aui_Surface *pSurface, DynamicArray<MapPoint> *pRoute, uint16 route, uint16 outline);
 #include "gs/core/render_observer.h"
 #include "TerrainRecord.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gs/core/colorset_observer.h"
 #include "gs/utility/TradeDynArr.h"
 #include "gs/database/profileDB.h"
 #include "ResourceRecord.h"
@@ -91,7 +91,7 @@ void TradePool::Draw(aui_Surface* surface)
 		TradeRoute route = m_all_routes->Access(i);
 
 		DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetPath(),
-			g_colorSet->GetPlayerColor(route.GetOwner()),
+			colorset_observer::GetPlayerColor(route.GetOwner()),
 			(uint16)route.GetOutlineColor());
 
 #if 0
@@ -103,15 +103,15 @@ void TradePool::Draw(aui_Surface* surface)
 			{
 
 				DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetSelectedPath(),
-					g_colorSet->GetColor(COLOR_SELECT_1),
-					g_colorSet->GetColor(COLOR_BLACK));
+				colorset_observer::GetColor(COLOR_SELECT_1),
+				colorset_observer::GetColor(COLOR_BLACK));
 			}
 			else
 			{
 
 				DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetSelectedPath(),
-					g_colorSet->GetColor(COLOR_RED),
-					g_colorSet->GetColor(COLOR_BLACK));
+				colorset_observer::GetColor(COLOR_RED),
+				colorset_observer::GetColor(COLOR_BLACK));
 			}
 		}
 #endif

@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -419,6 +419,12 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
                     TRUE,
                     visionRange,
                     m_ucell->m_citySpriteIndex));
+
+    // Phase 3 slice 4: wire fog-of-war snapshot state.  The renderer's
+    // GetPos() dispatches through UnitState; UnseenCell owns the
+    // snapshot lifetime.  See UnitState.h for mode semantics.
+    m_ucell->m_snapshotState = UnitState(m_ucell->m_point);
+    m_ucell->m_actor->SetState(&m_ucell->m_snapshotState);
 
     m_ucell->m_actor->SetUnitVisibility(1 << m_owner);
     m_ucell->m_actor->SetSize(citySize);

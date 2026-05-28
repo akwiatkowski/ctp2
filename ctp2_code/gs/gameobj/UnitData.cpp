@@ -399,6 +399,12 @@ UnitData::~UnitData()
 	// still valid.
 	if (g_gameObservers) g_gameObservers->NotifyUnitDestroyed(Unit(m_id));
 
+	// Phase 3 slice 4: if the actor outlives us (still on the Director
+	// queue for death animation), it would be left with a dangling
+	// m_state pointer into our m_state.  Unwire here; GetPos falls
+	// back to the actor's cached m_pos for whatever it needs.
+	if (m_actor) m_actor->SetState(nullptr);
+
 	delete m_cargo_list;
 	delete m_city_data;
 	delete m_roundTheWorldMask;

@@ -28,10 +28,10 @@
 // Modifications from the original Activision code:
 //
 // - Added new functions to calculate the food, shields and gold values produced
-//   at the storing time of this UnseenCell. - Dec. 22nd 2004 Martin Gühmann
+//   at the storing time of this UnseenCell. - Dec. 22nd 2004 Martin Gï¿½hmann
 // - Added visible city oner flag and get method to be able to figure out
 //   the city in whose radius the tile was at the last visit.
-//   - Dec. 26th 2994 - Martin Gühmann
+//   - Dec. 26th 2994 - Martin Gï¿½hmann
 // - added IsCapitol
 // - added IsReligion 1-23-2006
 //
@@ -56,6 +56,8 @@
 //----------------------------------------------------------------------------
 // Exported names
 //----------------------------------------------------------------------------
+
+#include "gs/gameobj/UnitState.h"  // UnitState â€” fog-of-war snapshot mode
 
 class UnseenCell;
 class UnseenCellCarton;
@@ -173,6 +175,12 @@ private:
 
 	MBCHAR *m_cityName;
   std::shared_ptr<UnitActor> m_actor;
+
+	// Fog-of-war snapshot state for m_actor.  Lifetime tied to this
+	// UnseenCell.  Constructed in SNAPSHOT mode so its GetPos() returns
+	// the remembered position rather than a live lookup.  Phase 3 of
+	// the UnitActor split â€” see UnitState.h for mode semantics.
+	UnitState m_snapshotState;
 
 	sint32 m_poolIndex;
 	/// The ID of the city that owns the tile.

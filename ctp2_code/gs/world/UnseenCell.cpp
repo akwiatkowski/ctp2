@@ -210,7 +210,13 @@ UnseenCell::UnseenCell(const MapPoint & point)
 
 				newActor->SetUnitVisibility((1 << player_view::VisiblePlayer())
 										    | actor->GetUnitVisibility());
-				newActor->SetPos(point);
+
+				// Phase 3 slice 4: position is now owned by a snapshot-mode
+				// UnitState held by this UnseenCell.  The renderer's
+				// GetPos() dispatches through the state pointer; no more
+				// pushing to the actor's legacy m_pos cache.
+				m_snapshotState = UnitState(point);
+				newActor->SetState(&m_snapshotState);
 
 				// SetIsFortified / SetIsFortifying / SetHasCityWalls /
 				// SetHasForceField pushes removed — UnitActor::Draw
@@ -329,6 +335,10 @@ UnseenCell::UnseenCell(UnseenCell *old)
 
 	if (m_actor) {
 		m_actor->m_refCount++;
+		// Phase 3 slice 4: actor still points at OLD's m_snapshotState
+		// after the memberwise copy above.  Re-wire to ours (which is
+		// already value-copied from old's, so it has the right pos).
+		m_actor->SetState(&m_snapshotState);
 	}
 
 	if(old->m_tileInfo) {
@@ -423,6 +433,11 @@ UnseenCell::UnseenCell(CivArchive &archive)
 //----------------------------------------------------------------------------
 UnseenCell::~UnseenCell()
 {
+    // Phase 3 slice 4: if the actor outlives us (refCount > 0 inside
+    // ReleaseActor), it'd be left with a dangling m_state pointer into
+    // our destroyed m_snapshotState.  Unwire first; the actor falls
+    // back to its own cached m_pos (which carries the same value).
+    if (m_actor) m_actor->SetState(nullptr);
     ReleaseActor(m_actor);
 
     delete m_tileInfo;
@@ -941,6 +956,12 @@ void UnseenCell::Serialize(CivArchive &archive)
 		if (hasActor)
 		{
 			m_actor.reset(new UnitActor(archive));
+			// Phase 3 slice 4: wire snapshot state so renderer reads
+			// dispatch through UnitState.  The actor's archived m_pos
+			// IS the snapshot position; mirror it into m_snapshotState
+			// before reads happen.
+			m_snapshotState = UnitState(m_actor->GetPos());
+			m_actor->SetState(&m_snapshotState);
 		}
 
 		delete m_tileInfo;

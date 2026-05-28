@@ -167,3 +167,89 @@ TEST_CASE("Headless smoke: different seeds produce different outputs")
     // With different seeds the outputs should diverge somewhere.
     CHECK(stripped1 != stripped2);
 }
+
+TEST_CASE("Headless smoke: minimum turns (1 turn, 3 players)")
+{
+    std::string output = run_headless("--new-game --turns 1 --players 3 --seed 42");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Completed 1 turns") != std::string::npos);
+    CHECK(output.find("ERROR: AddressSanitizer") == std::string::npos);
+    CHECK(output.find("runtime error:") == std::string::npos);
+}
+
+TEST_CASE("Headless smoke: minimum players (5 turns, 2 players)")
+{
+    std::string output = run_headless("--new-game --turns 5 --players 2 --seed 42");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Completed 5 turns") != std::string::npos);
+    CHECK(output.find("ERROR: AddressSanitizer") == std::string::npos);
+    CHECK(output.find("runtime error:") == std::string::npos);
+}
+
+TEST_CASE("Headless smoke: large player count (10 turns, 8 players)")
+{
+    std::string output = run_headless("--new-game --turns 10 --players 8 --seed 42");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Completed 10 turns") != std::string::npos);
+    CHECK(output.find("ERROR: AddressSanitizer") == std::string::npos);
+    CHECK(output.find("runtime error:") == std::string::npos);
+}
+
+TEST_CASE("Headless smoke: different seed 100 (20 turns, 3 players)")
+{
+    std::string output = run_headless("--new-game --turns 20 --players 3 --seed 100");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Completed 20 turns") != std::string::npos);
+    CHECK(output.find("ERROR: AddressSanitizer") == std::string::npos);
+    CHECK(output.find("runtime error:") == std::string::npos);
+}
+
+TEST_CASE("Headless smoke: different seed 999 (20 turns, 3 players)")
+{
+    std::string output = run_headless("--new-game --turns 20 --players 3 --seed 999");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+    CHECK(output.find("[EXIT_CODE] 0") == 0);
+    CHECK(output.find("Completed 20 turns") != std::string::npos);
+    CHECK(output.find("ERROR: AddressSanitizer") == std::string::npos);
+    CHECK(output.find("runtime error:") == std::string::npos);
+}
+
+TEST_CASE("Headless smoke: baseline output is non-empty (10 turns, 3 players)")
+{
+    std::string output = run_headless("--new-game --turns 10 --players 3 --seed 42");
+
+    if (output.find("[ERROR] ctp2_headless binary not found") != std::string::npos) {
+        return; // skip — binary not built
+    }
+
+    CHECK(!output.empty());
+}

@@ -178,6 +178,7 @@ class UnitActor;
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/gameobj/UnitData.h"
+#include "gfx/spritesys/UnitActor.h"       // UnitActor methods
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/advanceutil.h"
 #include "gs/gameobj/buildingutil.h"

@@ -249,6 +249,7 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "gs/gameobj/UnitData.h"
+#include "gfx/spritesys/UnitActor.h"       // UnitActor methods
 #include "gs/gameobj/UnitPool.h"
 #include "UnitRecord.h"
 #include "gs/world/UnseenCell.h"

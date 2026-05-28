@@ -291,6 +291,7 @@
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "gs/gameobj/UnitData.h"
+#include "gfx/spritesys/UnitActor.h"       // UnitActor methods
 #include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
 #include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"

@@ -1357,8 +1357,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 				for(u = 0; u < g_player[p]->m_all_units->Num(); u++) {
 					Unit unit = g_player[p]->m_all_units->Access(u);
 					sint32 spriteIndex =  unit.GetDBRec()->GetDefaultSprite()->GetValue();
-					unit.GetActor()->GetSpriteState()->SetIndex(spriteIndex);
-					unit->GetActor()->ChangeImage(unit.GetActor()->GetSpriteState(), unit.GetType(), unit);
+					unit.GetSpriteState()->SetIndex(spriteIndex);
+					render_observer::ChangeUnitImage(unit.GetSpriteState(), unit.GetType(), unit);
 				}
 			}
 		}

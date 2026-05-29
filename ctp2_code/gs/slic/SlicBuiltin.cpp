@@ -102,8 +102,7 @@ class GlobalSymbol_YearString : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_YearString);
 
 	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
-		// TODO(orchestrator): no equivalent for TurnYearStatus::GetCurrentYear()
-		text[0] = '\0';
+		player_view::GetCurrentYearString(text, (size_t)maxLen);
 		return TRUE;
 	}
 };
@@ -444,8 +443,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 		{
 			if(city.CD()->GetBuildQueue()->GetHead())
 			{
-				// TODO(orchestrator): no equivalent for CityControlPanel::GetBuildName
-				text[0] = '\0';
+				player_view::GetBuildQueueHeadName(city.CD(), text, (size_t)maxLen);
 			}
 			else
 			{
@@ -464,8 +462,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 		{
 			if(city.CD()->GetBuildQueue()->GetHead())
 			{
-				// TODO(orchestrator): no equivalent for CityControlPanel::GetBuildStringId
-				return -1;
+				return player_view::GetBuildQueueHeadStringId(city.CD());
 			}
 			else
 			{

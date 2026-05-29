@@ -387,8 +387,7 @@ void SlicObject::Finish()
 			g_theMessagePool->Insert(newData);
 
 			if(newMessage.IsAlertBox()) {
-				// TODO(orchestrator): no equivalent for messagewin_CreateModalMessage
-				// messagewin_CreateModalMessage(newMessage);
+				g_gameObservers->NotifyRequestModalMessage(newMessage);
 			} else {
 				if (g_gameObservers) g_gameObservers->NotifyMessageShow(newMessage);
 			}

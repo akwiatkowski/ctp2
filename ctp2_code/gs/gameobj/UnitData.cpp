@@ -5481,7 +5481,7 @@ void UnitData::SetType(sint32 type)
 
 	// Some more stuff has to be done like we have in CreateUnit
 	m_sprite_state->SetIndex(rec->GetDefaultSprite()->GetValue());
-	m_actor->ChangeType(m_sprite_state, m_type, Unit(m_id), true);
+	render_observer::ChangeUnitType(m_sprite_state, m_type, Unit(m_id), true);
 
 	if(m_army.m_id != 0)
 	{

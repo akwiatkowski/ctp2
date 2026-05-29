@@ -1565,6 +1565,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	// g_selected_item (player_view::Init was a no-op because s_init was null).
 	RegisterUIGameObserver();
 	RegisterUIPlayerView();
+	RegisterProgressWindowObserver();
 
 	m_appLoaded = true;
 

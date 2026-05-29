@@ -22,3 +22,14 @@ void RegisterHeadlessGameObserver();
  * g_selected_item is created.  Headless build leaves these unregistered.
  */
 void RegisterUIPlayerView();
+
+/**
+ * @brief Register UI-side ProgressWindow adapter for progress_observer.
+ *
+ * Forwards progress_observer::BeginProgress / StartCountingTo / EndProgress
+ * to the singleton ProgressWindow (ui/interface/progresswindow.h).  Call
+ * once during UI app initialization.  Headless build leaves this
+ * unregistered, so progress calls in engine code become no-ops.
+ */
+void RegisterProgressWindowObserver();
+void UnregisterProgressWindowObserver();

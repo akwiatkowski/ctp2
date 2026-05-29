@@ -71,6 +71,12 @@ static std::string run_headless(const char *args)
     return result;
 }
 
+// Each test in this file launches ctp2_headless as a subprocess and
+// runs 10-50 real turns — a few seconds per case.  Tagged "integration"
+// so the default `unit` meson target excludes them; run via the
+// `integration` meson target or with --test-suite=integration.
+TEST_SUITE_BEGIN("integration");
+
 TEST_CASE("Headless smoke: 10 turns, 3 players")
 {
     std::string output = run_headless("--new-game --turns 10 --players 3 --seed 42");
@@ -253,3 +259,5 @@ TEST_CASE("Headless smoke: baseline output is non-empty (10 turns, 3 players)")
 
     CHECK(!output.empty());
 }
+
+TEST_SUITE_END;

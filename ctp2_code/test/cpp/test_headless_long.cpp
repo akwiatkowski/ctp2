@@ -137,6 +137,12 @@ bool parse_metrics(const char *path, Metrics &out)
 
 }  // namespace
 
+// Each test in this file launches ctp2_headless as a subprocess and
+// runs 50+ real turns — several seconds per case.  Tagged "integration"
+// so the default `unit` meson target excludes them; run via the
+// `integration` meson target or directly with --test-suite=integration.
+TEST_SUITE_BEGIN("integration");
+
 TEST_CASE("Long-turn sanity: 50-turn run completes and reports completion")
 {
     const char *metrics = "/tmp/ctp2_long_50.csv";
@@ -276,3 +282,5 @@ TEST_CASE("Long-turn sanity: player scores diverge by turn 50")
     REQUIRE(non_barbarian_count >= 2);
     CHECK(distinct_scores.size() >= 2);
 }
+
+TEST_SUITE_END;

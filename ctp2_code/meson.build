@@ -1221,6 +1221,7 @@ cpp_fast_test_sources = [
   'test/cpp/test_army.cpp',
   'test/cpp/test_bugfixes.cpp',
   'test/cpp/test_player_view.cpp',
+  'test/cpp/test_ui_command_surface.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]
@@ -1236,7 +1237,11 @@ fast_test_exe = executable('ctp2_fast_tests', cpp_fast_test_sources + game_core_
 # meson.build lives in ctp2_code/, but data files (appstr.txt, etc.) are in the parent dir
 cwd_for_tests = join_paths(meson.project_source_root(), '..')
 
-test('fast', fast_test_exe, timeout : 30, workdir : cwd_for_tests)
+test('fast', fast_test_exe,
+  args : ['--duration=true'],
+  timeout : 60,
+  workdir : cwd_for_tests,
+)
 
 # ---------------------------------------------------------------------------
 # Full unit-test suite — adds database-dependent and integration tests
@@ -1261,6 +1266,7 @@ cpp_test_sources = [
   'test/cpp/test_color_types.cpp',
   'test/cpp/test_render_observer.cpp',
   'test/cpp/test_player_view.cpp',
+  'test/cpp/test_ui_command_surface.cpp',
   'test/cpp/test_headless_smoke.cpp',
   'test/cpp/test_headless_determinism.cpp',
   'test/cpp/test_save_load.cpp',
@@ -1278,7 +1284,26 @@ unit_test_exe = executable('ctp2_unit_tests', cpp_test_sources + game_core_sourc
   link_with : [ gsnewdb, gfxutils, gfxlayers, gfxspritesys, gfxtilesys ],
 )
 
-test('unit', unit_test_exe, timeout : 60, workdir : cwd_for_tests)
+test('unit', unit_test_exe,
+  # Default unit run excludes the headless-subprocess "integration" suite
+  # (test_headless_*.cpp + test_save_load.cpp) which runs real game turns
+  # and takes ~73s.  Run those separately via the `integration` target
+  # below (or with --test-suite=integration on the binary directly).
+  args : ['--duration=true', '--test-suite-exclude=integration'],
+  timeout : 60,
+  workdir : cwd_for_tests,
+)
+
+test('integration', unit_test_exe,
+  # Long-running headless game tests: save/load round-trips, determinism
+  # cross-validation across seeds, multi-turn AI sanity, etc.  Tagged
+  # with TEST_SUITE_BEGIN("integration") at the source.  Expect ~73s on
+  # current hardware.  Run on a slower cadence than the fast loop —
+  # typically every few commits / pre-push, not pre-commit.
+  args : ['--duration=true', '--test-suite=integration'],
+  timeout : 180,
+  workdir : cwd_for_tests,
+)
 
 # e2e smoke test: launches the real game binary and drives it via Unix socket
 find_program('python3', required : true)

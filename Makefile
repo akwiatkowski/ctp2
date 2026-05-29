@@ -80,15 +80,26 @@ build:
 	@echo "Building CTP2..."
 	meson compile -C build
 
-# Run fast tests (observer + pure unit tests, < 1 s)
-# Only builds ctp2_fast_tests — much faster than `make build`.
+# Pre-commit loop — fast + unit (excludes integration / smoke).
+# ~4 seconds total.  Should be run before every commit.
+#   - fast:  ratchets + observer dispatch tests + small unit cases
+#   - unit:  all other test_*.cpp except the headless integration set
+#            (test_headless_*.cpp and test_save_load.cpp are tagged
+#            doctest::test_suite("integration") and excluded here)
 test:
-	@echo "Building fast tests..."
-	meson compile -C build ctp2_fast_tests
-	@echo "Running fast tests..."
-	meson test -C build fast
+	@echo "Building fast + unit tests..."
+	meson compile -C build ctp2_fast_tests ctp2_unit_tests
+	@echo "Running fast + unit tests (no integration)..."
+	meson test -C build fast unit
 
-# Run full test suite (includes slow / crash-prone tests)
+# Slower integration suite — headless game subprocess tests.
+# ~70 seconds.  Run on a slower cadence (every 4+ commits, pre-push).
+test-integration: build
+	@echo "Running integration suite (headless game tests)..."
+	meson test -C build integration
+
+# Full test suite — fast + unit + integration + smoke.
+# ~100 seconds.  Run pre-release or when investigating a regression.
 test-full: build
 	@echo "Running full test suite..."
 	meson test -C build
@@ -208,7 +219,55 @@ smoke-test-sanitized: build-sanitized
 	@ASAN_OPTIONS=detect_leaks=0:abort_on_error=1:print_legend=1 \
 		python3 test/smoke_test.py --build-dir=build-sanitized
 
-.PHONY: all deps setup build test clean-build local playtest doc smoke-test run-hd
+# --------------------------------------------------------------------------
+# Local CI (.ci/) — background daemon runs Tier A on edits and Tier B on
+# commits, writing structured state to .ci/state.json.  See .ci/README.md.
+# --------------------------------------------------------------------------
+
+ci-start:
+	@if [ -f .ci/daemon.pid ] && kill -0 $$(cat .ci/daemon.pid) 2>/dev/null; then \
+		echo "daemon already running (PID $$(cat .ci/daemon.pid))"; \
+	else \
+		nohup .ci/daemon.sh >/dev/null 2>&1 & \
+		sleep 1 && echo "daemon started (PID $$(cat .ci/daemon.pid 2>/dev/null))"; \
+	fi
+
+ci-stop:
+	@if [ -f .ci/daemon.pid ]; then \
+		PID=$$(cat .ci/daemon.pid); \
+		if kill -0 $$PID 2>/dev/null; then \
+			kill $$PID && echo "daemon stopped (PID $$PID)"; \
+		else \
+			echo "daemon not running (stale pid file)"; \
+			rm -f .ci/daemon.pid; \
+		fi; \
+	else \
+		echo "no daemon running"; \
+	fi
+
+ci-status:
+	@if [ -f .ci/state.json ]; then cat .ci/state.json; else echo '{ "overall_status": "unknown" }'; fi
+
+ci-watch:
+	@tail -f .ci/log/daemon.log
+
+ci-failures:
+	@if ls .ci/failures/*.json >/dev/null 2>&1; then \
+		ls -t .ci/failures/*.json | head -1 | xargs cat; \
+	else \
+		echo '{ "failures": [] }'; \
+	fi
+
+ci-reset:
+	@rm -f .ci/STATUS_RED .ci/state.json .ci/last_head; \
+	rm -f .ci/failures/*.json .ci/log/*.log .ci/log/*.xml .ci/log/*.json 2>/dev/null; \
+	echo "CI state cleared"
+
+ci-tier-a:
+	@.ci/tiers/tier-a.sh && echo "tier-a done"
+
+.PHONY: all deps setup build test clean-build local playtest doc smoke-test run-hd \
+        ci-start ci-stop ci-status ci-watch ci-failures ci-reset ci-tier-a
 
 SRCDIRS=\
 	ctp2_code \

@@ -132,6 +132,12 @@ bool parse_metrics(const char *path, Metrics &out)
 
 }  // namespace
 
+// Each test in this file launches ctp2_headless as a subprocess and
+// runs real turns — seconds per case.  Tagged "integration" so the
+// default `unit` meson target excludes them; run via the `integration`
+// meson target or with --test-suite=integration.
+TEST_SUITE_BEGIN("integration");
+
 TEST_CASE("Headless progression: metrics export contains all players")
 {
     const char *metrics = "/tmp/ctp2_test_prog_players.csv";
@@ -200,3 +206,5 @@ TEST_CASE("Headless progression: every non-barbarian player has a city by turn 5
     // Sanity: we actually checked something.
     CHECK(non_barbarian_players_checked >= 1);
 }
+
+TEST_SUITE_END;

@@ -91,6 +91,13 @@ std::string run_and_read_metrics(int seed, int turns, const char *path, int play
 
 }  // namespace
 
+// Each headless-game test in this file launches ctp2_headless as a
+// subprocess and runs real turns — a few seconds per case.  Tagging
+// the whole file as the "integration" suite lets the default `unit`
+// meson target exclude these slow tests; run them via `meson test
+// -C build integration` (or directly with --test-suite=integration).
+TEST_SUITE_BEGIN("integration");
+
 TEST_CASE("Determinism: same seed produces identical metrics at 5 turns")
 {
     std::string a = run_and_read_metrics(42, 5, "/tmp/ctp2_det_5a.csv");
@@ -180,3 +187,5 @@ TEST_CASE("Determinism: same seed produces identical metrics with large seed")
     REQUIRE_FALSE(b.empty());
     CHECK(a == b);
 }
+
+TEST_SUITE_END;

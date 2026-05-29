@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Veteran effect added.
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Added a new combat option (28-Feb-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -66,8 +66,10 @@ enum UNIT_TYPE {
 #define k_NON_FLANKER_PRIORITY 10000
 
 class Army;
-class Battle;
-class BattleEvent;
+// Wave G (TODO(orchestrator) restoration, 2026-05-29): the Battle and
+// BattleEvent classes (defined in ui/interface/battle.h, battleevent.h)
+// are no longer referenced from gs/.  All Battle interactions now go
+// through gs/core/battle_observer.h.
 class CellUnitList;
 
 class CombatUnit {
@@ -165,7 +167,10 @@ public:
 
 #ifndef TEST_APP
 	void FillFrom(CellUnitList &units);
-	void ReportUnits(Battle *battle, BattleEvent *event, bool initial);
+	// Wave G: was `ReportUnits(Battle*, BattleEvent*, bool initial)`.
+	// Fires battle_observer::AddPlacement for each active unit; caller
+	// commits via battle_observer::CommitPlacement when done batching.
+	void ReportUnits(bool initial);
 #endif
 
 	void StartRound();
@@ -218,10 +223,16 @@ public:
 	Army GetAttackerArmy();
 	MapPoint GetDefenderLocation() { return m_defenderPos; }
 
-	Battle *GetBattle() { return m_battle; }
+	// Wave G: was `Battle *GetBattle()`.  Returns whether a battle
+	// animation queue is currently active (the UI adapter owns the
+	// actual Battle*).
+	bool IsBattleActive() const { return m_battleActive; }
 
-	void KillBattle() { delete m_battle; m_battle = NULL; }
-	void ClearBattle() { m_battle = NULL; }
+	// Wave G: was `KillBattle()`/`ClearBattle()`.  Marks the battle
+	// queue inactive â€” used by combatevent.cpp on combat teardown and
+	// by battleviewwindow.cpp when the user closes the view manually.
+	// EndBattle on the bridge is fired separately for the latter.
+	void DeactivateBattle() { m_battleActive = false; }
 #endif
 
 	void AddDeadUnit(Unit &u) { m_deadUnits.Insert(u); }
@@ -236,7 +247,9 @@ private:
 #ifndef TEST_APP
 	uint32 m_army_id;
 	MapPoint m_defenderPos;
-	Battle *m_battle;
+	// Wave G: was `Battle *m_battle`.  The UI adapter owns the Battle*;
+	// gs/ tracks only whether one is currently active.
+	bool m_battleActive;
 	sint32 m_roundsSinceUpdate;
 	DynamicArray<Unit> m_deadUnits;
 #endif

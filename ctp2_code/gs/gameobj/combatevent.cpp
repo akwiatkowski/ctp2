@@ -32,6 +32,7 @@
 #include "gs/gameobj/combatevent.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/CTP2Combat.h"
+#include "gs/core/battle_observer.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Army.h"
 #include "gs/world/MapPoint.h"
@@ -93,7 +94,7 @@ STDEHANDLER(RunCombatEvent)
 		                      );
 	}
 
-	return (playAnimations && g_theCurrentBattle->GetBattle())
+	return (playAnimations && g_theCurrentBattle->IsBattleActive())
 	       ? GEV_HD_NeedUserInput
 	       : GEV_HD_Continue;
 }
@@ -108,12 +109,8 @@ STDEHANDLER(StartCombatEvent)
 	if (g_theCurrentBattle)
 	{
 		// Close previous screen - if still open
-		// TODO(orchestrator): no equivalent for g_battleViewWindow / g_c3ui / battleview_ExitButtonActionCallback
-		// if (g_battleViewWindow && g_c3ui && g_c3ui->GetWindow(g_battleViewWindow->Id()))
-		// {
-		// 	battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
-		// }
-		g_theCurrentBattle->ClearBattle();
+		battle_observer::CloseBattleView();
+		g_theCurrentBattle->DeactivateBattle();
 		delete g_theCurrentBattle;
 		g_theCurrentBattle = NULL;
 	}

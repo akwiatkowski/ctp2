@@ -42,6 +42,7 @@
 #include "gs/utility/RandGen.h"
 
 #include "gs/core/player_view.h"
+#include "gs/core/battle_observer.h"
 
 class BattleViewWindow;
 extern BattleViewWindow *g_battleViewWindow;
@@ -716,18 +717,14 @@ void CombatField::FillHoles()
 }
 
 #ifndef TEST_APP
-void CombatField::ReportUnits(Battle *battle, BattleEvent *event, bool initial)
+void CombatField::ReportUnits(bool initial)
 {
-	sint32 x, y;
-	for(x = 0; x < m_width; x++) {
-		for(y = 0; y < m_height; y++) {
+	for(sint32 x = 0; x < m_width; x++) {
+		for(sint32 y = 0; y < m_height; y++) {
 			CombatUnit cu = GetUnit(x, y);
 			if(cu.IsActive()) {
-				if(battle) {
-					DPRINTF(k_DBG_GAMESTATE, ("Positioning unit %lx (%lf HP)\n", cu.m_unit, cu.GetHP()));
-					// TODO(orchestrator): no equivalent for Battle
-					// battle->PositionUnit(event, !m_isOffense, cu.m_unit, x, y, initial);
-				}
+				DPRINTF(k_DBG_GAMESTATE, ("Positioning unit %lx (%lf HP)\n", cu.m_unit, cu.GetHP()));
+				battle_observer::AddPlacement(cu.m_unit, !m_isOffense, x, y, initial);
 			}
 		}
 	}
@@ -904,7 +901,7 @@ CTP2Combat::CTP2Combat
     m_retreated           (false),
     m_retreating          (false),
     m_noAttacksPossible   (false),
-    m_battle              (NULL),
+    m_battleActive        (false),
     m_round               (0),
     m_army_id             (attackers[0].GetArmy().m_id),
     m_roundsSinceUpdate   (0x7ffffffe),
@@ -967,13 +964,10 @@ CTP2Combat::CTP2Combat
 
 CTP2Combat::~CTP2Combat()
 {
-	if(m_battle)
+	if(m_battleActive)
 	{
-		// TODO(orchestrator): no equivalent for g_battleViewWindow->EndBattle
-		// if(g_battleViewWindow)
-		// 	g_battleViewWindow->EndBattle();
-
-		delete m_battle;
+		battle_observer::EndBattle();
+		m_battleActive = false;
 	}
 }
 #endif

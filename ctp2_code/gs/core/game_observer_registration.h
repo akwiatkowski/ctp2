@@ -43,3 +43,15 @@ void UnregisterProgressWindowObserver();
  */
 void RegisterTextObserverAdapter();
 void UnregisterTextObserverAdapter();
+
+/**
+ * @brief Register UI-side adapter for battle_observer.
+ *
+ * Forwards battle_observer notifications (StartBattle, AddAttack,
+ * AddDeath, AddExplosion, UpdateBattle, EndBattle, CloseBattleView)
+ * to the ui/interface/battle.h Battle class and g_battleViewWindow.
+ * The adapter owns the active Battle*.  Call once during UI app
+ * initialization.
+ */
+void RegisterBattleObserverAdapter();
+void UnregisterBattleObserverAdapter();

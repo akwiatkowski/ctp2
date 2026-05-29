@@ -24,6 +24,7 @@
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/battle.h"
+#include "gs/core/battle_observer.h"
 #include "ui/interface/battleview.h"
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
@@ -43,8 +44,13 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(g_theCurrentBattle && g_battleViewWindow && g_battleViewWindow->GetBattleView() &&
-																	g_battleViewWindow->GetBattleView()->IsCurrentBattle(g_theCurrentBattle->GetBattle()));
+	// Wave G: was `g_theCurrentBattle->GetBattle()` — gs/ no longer holds
+	// a Battle*.  The active Battle is owned by the UI adapter; ask it
+	// directly.
+	extern Battle *BattleObserverAdapter_GetCurrentBattle();
+	Battle *currentBattle = BattleObserverAdapter_GetCurrentBattle();
+	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(g_theCurrentBattle && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
+																	g_battleViewWindow->GetBattleView()->IsCurrentBattle(currentBattle));
 	g_c3ui->AddAction(actionObj);
 
 }
@@ -66,8 +72,14 @@ void battleview_RetreatButtonActionCallback(aui_Control *control, uint32 action,
 void RemoveBattleViewAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
 
-	if(g_theCurrentBattle && m_killBattle)
-		g_theCurrentBattle->KillBattle();
+	if(g_theCurrentBattle && m_killBattle) {
+		// Wave G: was `g_theCurrentBattle->KillBattle()` which did
+		// `delete m_battle; m_battle = NULL;` on the gs-held Battle*.
+		// Now the adapter owns the pointer; tell it to end + clear gs's
+		// active flag.
+		battle_observer::EndBattle();
+		g_theCurrentBattle->DeactivateBattle();
+	}
 
 
 	g_gevManager->GotUserInput();

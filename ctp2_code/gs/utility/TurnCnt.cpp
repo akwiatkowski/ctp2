@@ -348,8 +348,7 @@ void TurnCount::BeginNewRound()
 		if(g_player[i])
 			m_activePlayers++;
 	}
-	// TODO(orchestrator): no equivalent for g_selected_item->NextRound()
-	// g_selected_item->NextRound();
+	player_view::NextRound();
 	render_observer::NextPlayer();
 	g_theAgreementPool->EndRound();
 	g_thePollution->EndRound();
@@ -916,8 +915,7 @@ void TurnCount::NextRound(BOOL fromDirector, BOOL force)
 		return;
 
 	if(!fromDirector) {
-		// TODO(orchestrator): no equivalent for g_selected_item->RegisterManualEndTurn()
-		// g_selected_item->RegisterManualEndTurn();
+		player_view::RegisterManualEndTurn();
 	}
 
 	if (g_theProfileDB->IsAIOn()) {

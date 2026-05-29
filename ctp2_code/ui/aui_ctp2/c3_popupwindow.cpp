@@ -23,7 +23,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Added functionality to support pattern information saving
 //
 //----------------------------------------------------------------------------
@@ -205,7 +205,16 @@ AUI_ERRCODE c3_PopupWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	if (!IsHidden())
 	{
 		RECT rect = { 0, 0, m_width, m_height };
-		m_pattern->Draw( m_surface, &rect );
+		// m_pattern can be NULL when the LDL block this window was built
+		// from couldn't be resolved (e.g. a missing layouts/ asset).  The
+		// game previously SEGV'd here with a misleading "Pattern::Draw"
+		// stack frame â€” the pre-flight asset check in
+		// test/smoke_test.py is the early-warning system; this guard is
+		// the safety net so the binary degrades gracefully.
+		if (m_pattern)
+		{
+			m_pattern->Draw( m_surface, &rect );
+		}
 		m_dirtyList->AddRect( &rect );
 	}
 

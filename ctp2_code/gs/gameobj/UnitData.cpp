@@ -200,7 +200,10 @@ UnitData::UnitData(
 		m_actor.reset(new UnitActor(m_sprite_state, Unit(m_id), m_type, center_pos,
 								                m_owner, false, (GetVisionRange()),
 								                m_city_data ? m_city_data->GetDesiredSpriteIndex() : -1));
-		m_actor->SetUnitVisionRange((GetVisionRange()));
+		// Phase 3 slice 7h: dropped redundant SetUnitVisionRange call —
+		// the UnitActor ctor at line 154 already assigns m_unitVisionRange
+		// from its visionRange param (the same GetVisionRange() we just
+		// passed on line 200).
 		m_actor->SetUnitVisibility(m_visibility);
 
 		g_network.Enqueue(this);
@@ -233,7 +236,7 @@ UnitData::UnitData(
 	m_radar_visibility = 0xffffffff;
 	m_actor.reset(new UnitActor(m_sprite_state, Unit(m_id), m_type, actor_pos,
 							                m_owner, false, (GetVisionRange()), -1));
-	m_actor->SetUnitVisionRange((GetVisionRange()));
+	// Phase 3 slice 7h: dropped redundant SetUnitVisionRange — see ctor above.
 
 	m_pos = actor_pos;
 

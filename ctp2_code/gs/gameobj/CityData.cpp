@@ -849,14 +849,13 @@ void CityData::Initialize(sint32 settlerType)
 	{
 		//Added by Martin G�hmann to make sure that also cities
 		//created by the Scenario editor have a size
-		// TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
-		// if(settlerType == -2 && ScenarioEditor::PlaceCityMode() && ScenarioEditor::CitySize() > 0)
-		// 	numPops = ScenarioEditor::CitySize();
+		if(settlerType == -2 && player_view::IsScenarioEditorPlaceCityMode() && player_view::GetScenarioEditorCitySize() > 0)
+			numPops = player_view::GetScenarioEditorCitySize();
 	}
 
 	//Added by Martin G�hmann to make sure that also cities created by the editor
 	//have a size.
-	if((settlerType != -2)) // TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
+	if((settlerType != -2) || player_view::IsScenarioEditorPlaceCityMode())
 	{
 		for(sint32 i = 0; i < numPops; i++)
 		{
@@ -958,11 +957,10 @@ void CityData::Initialize(sint32 settlerType)
 
 	//Added by Martin G�hmann to make sure that cities created
 	//by the scenario editor keep their style
-	// TODO(orchestrator): no equivalent for ScenarioEditor::PlaceCityMode
-	// if ((settlerType == CITY_STYLE_EDITOR) && ScenarioEditor::PlaceCityMode())
-	// {
-	// 	m_cityStyle = ScenarioEditor::CityStyle();
-	// }
+	if ((settlerType == CITY_STYLE_EDITOR) && player_view::IsScenarioEditorPlaceCityMode())
+	{
+		m_cityStyle = player_view::GetScenarioEditorCityStyle();
+	}
 
 	if (name != k_CITY_NAME_UNDEFINED)
 	{
@@ -6162,9 +6160,6 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 	// Deduct shields from build manager city data if it's open.
 	// Shields also deducted from city data kept in city control panel,
 	// since the build manager city data is not copied to there.
-	// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
-	// EditQueue* eqWindow = EditQueue::GetEditQueueWindow();
-	// CityData* cityData = eqWindow ? eqWindow->GetCityData() : NULL;
 
 	if (GetStoredCityProduction() > 0)
 	{
@@ -6181,12 +6176,8 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 		s = static_cast<sint32>(static_cast<double>(GetStoredCityProduction()) * penalty);
 
 		// Update build manager city data if possible.
-		// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
-		// if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
-		// {
-		// 	cityData->SetShieldstore(s);
-		// 	cityData->SetBuildCategoryAtBeginTurn(newCat);
-		// }
+		player_view::EditQueueSyncShieldstore(m_home_city, s);
+		player_view::EditQueueSyncBuildCategory(m_home_city, newCat);
 
 		SetShieldstore(s);
 		SetBuildCategoryAtBeginTurn(newCat);
@@ -6197,11 +6188,7 @@ void CityData::CheckSwitchProductionPenalty(sint32 newCat)
 		// so we know the last item type the next time a switch happens.
 
 		// Update build manager city data if possible.
-		// TODO(orchestrator): no equivalent for EditQueue::GetEditQueueWindow
-		// if(cityData != NULL && cityData->GetHomeCity() == m_home_city)
-		// {
-		// 	cityData->SetBuildCategoryAtBeginTurn(newCat);
-		// }
+		player_view::EditQueueSyncBuildCategory(m_home_city, newCat);
 		SetBuildCategoryAtBeginTurn(newCat);
 	}
 }

@@ -5671,7 +5671,7 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 				}
 
 				// * Added auto-center for bombardment
-				if(false // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+				if(player_view::IsAutoCenterOn()
 				&& defender.GetOwner() == player_view::VisiblePlayer())
 					render_observer::AddCenterMap(point);
 
@@ -5899,8 +5899,7 @@ ORDER_RESULT ArmyData::InterceptTrade()
 						so->AddOrder(UNIT_ORDER_INTERCEPT_TRADE);
 						g_slicEngine->Execute(so);
 
-						// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-						// g_selected_item->ForceDirectorSelect(Army(m_id));
+						player_view::ForceDirectorSelect(Army(m_id));
 						return ORDER_RESULT_ILLEGAL;
 					}
 				}
@@ -5917,7 +5916,7 @@ ORDER_RESULT ArmyData::InterceptTrade()
 				//InformAI(UNIT_ORDER_INTERCEPT_TRADE, m_pos); //does nothing here but could be implemented
 				if (g_player[player_view::VisiblePlayer()]->IsVisible(m_pos))
 				{
-					if(false) // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+					if(player_view::IsAutoCenterOn())
 					{
 						render_observer::AddCenterMap(m_pos);
 					}
@@ -6776,8 +6775,7 @@ bool ArmyData::Move(WORLD_DIRECTION d, Order *order)
 				}
 				else
 				{
-					// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-					// g_selected_item->ForceDirectorSelect(Army(m_id));
+					player_view::ForceDirectorSelect(Army(m_id));
 					return false;
 				}
 			}
@@ -7373,8 +7371,7 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	so->AddLocation(pos);
 	so->AddOrder(order);
 	g_slicEngine->Execute(so);
-	// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-	// g_selected_item->ForceDirectorSelect(Army(m_id));
+	player_view::ForceDirectorSelect(Army(m_id));
 
 	return false;
 }
@@ -7552,8 +7549,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 			RevealZOCUnits(pos);
 			if(m_owner == player_view::VisiblePlayer())
 			{
-				// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-				// g_selected_item->ForceDirectorSelect(Army(m_id));
+				player_view::ForceDirectorSelect(Army(m_id));
 			}
 		}
 
@@ -7636,10 +7632,9 @@ void ArmyData::MoveActors(const MapPoint &pos,
 						  UnitDynamicArray &revealedUnits,
 						  bool teleport)
 {
-	// TODO(orchestrator): no equivalent for g_selected_item->GetPlayerOnScreen
-	// if(g_selected_item->GetPlayerOnScreen() < 0
-	// && g_selected_item->GetPlayerOnScreen() != player_view::VisiblePlayer())
-	// 	return;
+	if(player_view::GetPlayerOnScreen() < 0
+	&& player_view::GetPlayerOnScreen() != player_view::VisiblePlayer())
+		return;
 
 	Unit top_src = GetTopVisibleUnit(player_view::VisiblePlayer());
 	if (top_src.m_id == 0)
@@ -8656,7 +8651,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 
 	defender.GetPos(pos);
 
-	if(false // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+	if(player_view::IsAutoCenterOn()
 	&& defender.GetOwner() == player_view::VisiblePlayer())
 		render_observer::AddCenterMap(pos);
 
@@ -9143,7 +9138,7 @@ void ArmyData::ActionSuccessful(SPECATTACK attack, Unit &unit, Unit const & c)
 
 	if(spriteID != -1 && soundID != -1)
 	{
-		if(false) // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+		if(player_view::IsAutoCenterOn())
 		{
 			if(
 			     (
@@ -9534,7 +9529,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			if(!order_rec->GetFailSound(soundID))
 				soundID = 0;
 
-			if(false // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+			if(player_view::IsAutoCenterOn()
 			&&!render_observer::TileWillBeCompletelyVisible(order->m_point.x, order->m_point.y)
 			&& g_player[player_view::VisiblePlayer()]->IsVisible(order->m_point)
 			){
@@ -9550,7 +9545,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 
 			if (useDefaultSuccessSound)
 			{
-				if(false // TODO(orchestrator): no equivalent for g_selected_item->IsAutoCenterOn()
+				if(player_view::IsAutoCenterOn()
 				&&!render_observer::TileWillBeCompletelyVisible(order->m_point.x, order->m_point.y)
 				&& g_player[player_view::VisiblePlayer()]->m_vision->IsVisible(order->m_point)
 				){
@@ -9751,8 +9746,7 @@ bool ArmyData::CheckWasEnemyVisible(const MapPoint &pos, bool justCheck)
 
 	if (!justCheck && (m_owner == player_view::VisiblePlayer()))
 	{
-		// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-		// g_selected_item->ForceDirectorSelect(Army(m_id));
+		player_view::ForceDirectorSelect(Army(m_id));
 	}
 
 	return visible;
@@ -9873,8 +9867,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 					so->AddOrder(order_type);
 					so->AddRecipient(m_owner);
 					so->AddUnit(m_array[0]);
-					// TODO(orchestrator): no equivalent for g_selected_item->ForceDirectorSelect
-					// g_selected_item->ForceDirectorSelect(Army(m_id));
+					player_view::ForceDirectorSelect(Army(m_id));
 					g_slicEngine->Execute(so);
 					return true;
 				}

@@ -1352,7 +1352,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 			if(g_player[p]) {
 				for(c = 0; c < g_player[p]->m_all_cities->Num(); c++) {
 					Unit city = g_player[p]->m_all_cities->Access(c);
-					city->GetActor()->HackSetSpriteID(city.CD()->GetDesiredSpriteIndex());
+					render_observer::HackSetSpriteID(city, city.CD()->GetDesiredSpriteIndex());
 				}
 				for(u = 0; u < g_player[p]->m_all_units->Num(); u++) {
 					Unit unit = g_player[p]->m_all_units->Access(u);

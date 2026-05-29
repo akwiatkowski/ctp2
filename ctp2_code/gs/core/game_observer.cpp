@@ -413,6 +413,34 @@ void GameObserverRegistry::NotifyRequestOpenScenarioEditor()
     }
 }
 
+void GameObserverRegistry::NotifyRequestEndGameShow(EndGame *endGame)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestEndGameShow(endGame);
+    }
+}
+
+void GameObserverRegistry::NotifyRequestEndGameClose()
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestEndGameClose();
+    }
+}
+
+void GameObserverRegistry::NotifyRequestModalMessage(const Message& msg)
+{
+    for (auto* obs : m_observers) {
+        obs->OnRequestModalMessage(msg);
+    }
+}
+
+void GameObserverRegistry::NotifyBeginTurnMessage(sint32 player)
+{
+    for (auto* obs : m_observers) {
+        obs->OnBeginTurnMessage(player);
+    }
+}
+
 void GameObserverRegistry::NotifyRequestOpenScreen(sint32 screen)
 {
     for (auto* obs : m_observers) {

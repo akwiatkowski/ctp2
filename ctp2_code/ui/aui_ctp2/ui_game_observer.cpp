@@ -42,6 +42,8 @@
 #include "ui/interface/messageactions.h"
 #include "ui/interface/messagemodal.h"
 #include "ui/interface/messagewin.h"
+#include "ui/interface/EndgameWindow.h"      // Wave C: endgamewindow_Initialize/Cleanup
+extern EndGameWindow *g_endgameWindow;
 #include "ui/interface/messageiconwindow.h"
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/sci_advancescreen.h"
@@ -225,6 +227,45 @@ public:
         if (!g_director || !g_selected_item || type == 0) return;
         if (player != g_selected_item->GetVisiblePlayer()) return;
         g_director->AddGameSound(GAMESOUNDS_CHANGE_GOV);
+    }
+
+    // --- Wave C: endgame-statistics window ---
+    void OnRequestEndGameShow(EndGame *endGame) override
+    {
+        if (!g_endgameWindow)
+        {
+            endgamewindow_Initialize();
+            if (g_endgameWindow && g_c3ui)
+            {
+                g_c3ui->AddWindow(g_endgameWindow);
+            }
+        }
+        if (g_endgameWindow)
+        {
+            g_endgameWindow->Update(endGame);
+        }
+    }
+
+    void OnRequestEndGameClose() override
+    {
+        // endgamewindow_Cleanup() handles: stop sound, RemoveWindow,
+        // RemoveHandler, delete, null.  Same end-state as the action-queued
+        // path used by the exit-button callback, but synchronous — fine for
+        // explicit close requests from gs/.
+        endgamewindow_Cleanup();
+    }
+
+    // --- Wave C: modal alert & turn-start message refresh ---
+    void OnRequestModalMessage(const Message& msg) override
+    {
+        // messagewin_CreateModalMessage takes Message by value (legacy
+        // signature); pass through the const reference.
+        messagewin_CreateModalMessage(msg);
+    }
+
+    void OnBeginTurnMessage(sint32 player) override
+    {
+        messagewin_BeginTurn(player);
     }
 
     // --- Game over (defeat/victory presentation) ---

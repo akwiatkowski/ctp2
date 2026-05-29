@@ -21,6 +21,12 @@
 #include "gs/utility/Globals.h"        // allocated::clear
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/messagemodal.h"
+#include "ui/interface/TurnYearStatus.h"        // GetCurrentYear
+#include "ui/interface/CityControlPanel.h"      // GetBuildName / GetBuildStringId
+#include "ui/interface/MainControlPanel.h"      // GetSelectedCargo
+#include "gs/gameobj/citydata.h"                // CityData::GetBuildQueue
+#include "gs/gameobj/BldQue.h"                  // BuildQueue::GetHead
+#include "gs/world/cellunitlist.h"              // CellUnitList
 
 extern MessageModal *g_modalMessage;
 
@@ -228,6 +234,57 @@ void UIRegisterManualEndTurn()
 	if (g_selected_item) g_selected_item->RegisterManualEndTurn();
 }
 
+// --- Wave C (2026-05-29) HUD-query forwarders ---
+
+void UIGetCurrentYearString(char *out, size_t cap)
+{
+	if (!out || cap == 0) return;
+	const MBCHAR *src = TurnYearStatus::GetCurrentYear();
+	if (src)
+	{
+		strncpy(out, src, cap - 1);
+		out[cap - 1] = '\0';
+	}
+	else
+	{
+		out[0] = '\0';
+	}
+}
+
+void UIGetBuildQueueHeadName(const CityData *city, char *out, size_t cap)
+{
+	if (!out || cap == 0) return;
+	out[0] = '\0';
+	if (!city) return;
+	// CityData::GetBuildQueue returns BuildQueue*; const-cast because the
+	// legacy accessor is not const-qualified.
+	BuildQueue *queue = const_cast<CityData *>(city)->GetBuildQueue();
+	if (!queue) return;
+	const BuildNode *head = queue->GetHead();
+	if (!head) return;
+	const MBCHAR *name = CityControlPanel::GetBuildName(head);
+	if (name)
+	{
+		strncpy(out, name, cap - 1);
+		out[cap - 1] = '\0';
+	}
+}
+
+sint32 UIGetBuildQueueHeadStringId(const CityData *city)
+{
+	if (!city) return -1;
+	BuildQueue *queue = const_cast<CityData *>(city)->GetBuildQueue();
+	if (!queue) return -1;
+	const BuildNode *head = queue->GetHead();
+	if (!head) return -1;
+	return CityControlPanel::GetBuildStringId(head);
+}
+
+bool UIGetSelectedCargo(CellUnitList &out)
+{
+	return MainControlPanel::GetSelectedCargo(out);
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -262,4 +319,8 @@ void RegisterUIPlayerView()
 	player_view::RegisterEnterMovePath(&UIEnterMovePath);
 	player_view::RegisterNextRound(&UINextRound);
 	player_view::RegisterRegisterManualEndTurn(&UIRegisterManualEndTurn);
+	player_view::RegisterGetCurrentYearString(&UIGetCurrentYearString);
+	player_view::RegisterGetBuildQueueHeadName(&UIGetBuildQueueHeadName);
+	player_view::RegisterGetBuildQueueHeadStringId(&UIGetBuildQueueHeadStringId);
+	player_view::RegisterGetSelectedCargo(&UIGetSelectedCargo);
 }

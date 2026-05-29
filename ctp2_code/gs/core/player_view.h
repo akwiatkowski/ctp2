@@ -28,8 +28,11 @@
 #pragma once
 
 #include "ctp2_inttypes.h"
+#include <cstddef>  // size_t (used by Wave C bridge methods)
 
 class Army;
+class CellUnitList;
+class CityData;
 class CivArchive;
 class MapPoint;
 class Unit;
@@ -101,6 +104,17 @@ using EnterMovePathFn       = void   (*)(sint32 owner, Army &army,
                                           const MapPoint &src,
                                           const MapPoint &dest);
 
+// --- Wave C (2026-05-29): HUD queries (turn-year status, build-queue head
+//     name/string-id) consumed by SlicBuiltin, and the unload-selected-cargo
+//     query consumed by armyevent.  `char` rather than MBCHAR in the typedef
+//     since MBCHAR's typedef lives in ui/ headers and gs/core/ must not
+//     include those.
+using GetCurrentYearStringFn = void (*)(char *out, size_t cap);
+using GetBuildQueueHeadNameFn = void (*)(const CityData *city,
+                                          char *out, size_t cap);
+using GetBuildQueueHeadStringIdFn = sint32 (*)(const CityData *city);
+using GetSelectedCargoFn = bool (*)(CellUnitList &out);
+
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
 void RegisterEnterArmyMove(EnterArmyMoveFn fn);
@@ -122,6 +136,10 @@ void RegisterIsAutoCenterOn(IsAutoCenterOnFn fn);
 void RegisterGetPlayerOnScreen(GetPlayerOnScreenFn fn);
 void RegisterForceDirectorSelect(ForceDirectorSelectFn fn);
 void RegisterEnterMovePath(EnterMovePathFn fn);
+void RegisterGetCurrentYearString(GetCurrentYearStringFn fn);
+void RegisterGetBuildQueueHeadName(GetBuildQueueHeadNameFn fn);
+void RegisterGetBuildQueueHeadStringId(GetBuildQueueHeadStringIdFn fn);
+void RegisterGetSelectedCargo(GetSelectedCargoFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -151,5 +169,16 @@ void   EnterMovePath(sint32 owner, Army &army,
                      const MapPoint &src, const MapPoint &dest);
 void   NextRound();
 void   RegisterManualEndTurn();
+
+// --- Wave C surface ---
+// Defaults when no Impl is registered:
+//   GetCurrentYearString → writes empty string (out[0] = '\0' if cap > 0)
+//   GetBuildQueueHeadName → empty string
+//   GetBuildQueueHeadStringId → -1
+//   GetSelectedCargo → false (out stays untouched)
+void   GetCurrentYearString(char *out, size_t cap);
+void   GetBuildQueueHeadName(const CityData *city, char *out, size_t cap);
+sint32 GetBuildQueueHeadStringId(const CityData *city);
+bool   GetSelectedCargo(CellUnitList &out);
 
 } // namespace player_view

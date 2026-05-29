@@ -42,6 +42,10 @@ static IsAutoCenterOnFn       s_isAutoCenterOn       = nullptr;
 static GetPlayerOnScreenFn    s_getPlayerOnScreen    = nullptr;
 static ForceDirectorSelectFn  s_forceDirectorSelect  = nullptr;
 static EnterMovePathFn        s_enterMovePath        = nullptr;
+static GetCurrentYearStringFn       s_getCurrentYearString       = nullptr;
+static GetBuildQueueHeadNameFn      s_getBuildQueueHeadName      = nullptr;
+static GetBuildQueueHeadStringIdFn  s_getBuildQueueHeadStringId  = nullptr;
+static GetSelectedCargoFn           s_getSelectedCargo           = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -73,6 +77,10 @@ void RegisterIsAutoCenterOn(IsAutoCenterOnFn fn)      { s_isAutoCenterOn       =
 void RegisterGetPlayerOnScreen(GetPlayerOnScreenFn fn) { s_getPlayerOnScreen    = fn; }
 void RegisterForceDirectorSelect(ForceDirectorSelectFn fn) { s_forceDirectorSelect = fn; }
 void RegisterEnterMovePath(EnterMovePathFn fn)        { s_enterMovePath        = fn; }
+void RegisterGetCurrentYearString(GetCurrentYearStringFn fn)             { s_getCurrentYearString       = fn; }
+void RegisterGetBuildQueueHeadName(GetBuildQueueHeadNameFn fn)           { s_getBuildQueueHeadName      = fn; }
+void RegisterGetBuildQueueHeadStringId(GetBuildQueueHeadStringIdFn fn)   { s_getBuildQueueHeadStringId  = fn; }
+void RegisterGetSelectedCargo(GetSelectedCargoFn fn)                     { s_getSelectedCargo           = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -230,6 +238,34 @@ void NextRound()
 void RegisterManualEndTurn()
 {
 	if (s_registerManualEndTurn) s_registerManualEndTurn();
+}
+
+void GetCurrentYearString(char *out, size_t cap)
+{
+	if (s_getCurrentYearString) {
+		s_getCurrentYearString(out, cap);
+	} else if (out && cap > 0) {
+		out[0] = '\0';
+	}
+}
+
+void GetBuildQueueHeadName(const CityData *city, char *out, size_t cap)
+{
+	if (s_getBuildQueueHeadName) {
+		s_getBuildQueueHeadName(city, out, cap);
+	} else if (out && cap > 0) {
+		out[0] = '\0';
+	}
+}
+
+sint32 GetBuildQueueHeadStringId(const CityData *city)
+{
+	return s_getBuildQueueHeadStringId ? s_getBuildQueueHeadStringId(city) : -1;
+}
+
+bool GetSelectedCargo(CellUnitList &out)
+{
+	return s_getSelectedCargo ? s_getSelectedCargo(out) : false;
 }
 
 } // namespace player_view

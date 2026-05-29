@@ -17,6 +17,7 @@
 
 class Army;
 class CityData;
+class EndGame;     // gs/gameobj/EndGame.h — fwd-decl for Wave C endgame-window bridge
 class Message;
 class Player;
 class UnitState;   // gs/gameobj/UnitState.h — game-state half of the UnitActor split
@@ -82,6 +83,23 @@ public:
     // --- Game over / victory presentation ---
     virtual void OnGameOver(sint32 player, sint32 reason,
                             sint32 previouslyWon, sint32 previouslyLost) {}
+
+    // Wave C: endgame-statistics window (the per-civ scoring dialog that
+    // pops up at game-over and gets per-turn refreshes while the game
+    // winds down).  OnRequestEndGameShow takes the EndGame data object so
+    // the UI observer can render its current state; the UI side handles
+    // "open if not yet open, otherwise update".  OnRequestEndGameClose
+    // dismisses the window.  Headless ignores both.
+    virtual void OnRequestEndGameShow(EndGame *endGame) {}
+    virtual void OnRequestEndGameClose() {}
+
+    // Wave C: modal alert dialog fired by SLIC when a message is flagged
+    // IsAlertBox.  Headless ignores; UI observer pops the modal.
+    virtual void OnRequestModalMessage(const Message& msg) {}
+
+    // Wave C: turn-start refresh of the message window (so messages roll
+    // forward into the new turn's view).  Headless ignores.
+    virtual void OnBeginTurnMessage(sint32 player) {}
 
     // --- Trade ---
     virtual void OnTradeChanged() {}
@@ -211,6 +229,10 @@ public:
     // --- Game over ---
     void NotifyGameOver(sint32 player, sint32 reason,
                         sint32 previouslyWon, sint32 previouslyLost);
+    void NotifyRequestEndGameShow(EndGame *endGame);
+    void NotifyRequestEndGameClose();
+    void NotifyRequestModalMessage(const Message& msg);
+    void NotifyBeginTurnMessage(sint32 player);
 
     // --- Trade ---
     void NotifyTradeChanged();

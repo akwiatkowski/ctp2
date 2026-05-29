@@ -92,6 +92,14 @@ using RegisterManualEndTurnFn = void (*)();
 using AddPlayerFn       = void (*)(sint32 player);
 using RegisterRemovedArmyFn = void (*)(sint32 player, const Army &army);
 using RegisterRemovedCityFn = void (*)(sint32 player, const Unit &city);
+// --- Wave B (TODO(orchestrator) restoration, 2026-05-29): the SelectedItem
+//     surface used by ArmyData / TurnCnt / armyevent.
+using IsAutoCenterOnFn      = bool   (*)();
+using GetPlayerOnScreenFn   = sint32 (*)();
+using ForceDirectorSelectFn = void   (*)(const Army &army);
+using EnterMovePathFn       = void   (*)(sint32 owner, Army &army,
+                                          const MapPoint &src,
+                                          const MapPoint &dest);
 
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
@@ -108,6 +116,12 @@ void RegisterNextPlayer(NextPlayerFn fn);
 void RegisterAddPlayer(AddPlayerFn fn);
 void RegisterRemovedArmy(RegisterRemovedArmyFn fn);
 void RegisterRemovedCity(RegisterRemovedCityFn fn);
+void RegisterNextRound(NextRoundFn fn);
+void RegisterRegisterManualEndTurn(RegisterManualEndTurnFn fn);
+void RegisterIsAutoCenterOn(IsAutoCenterOnFn fn);
+void RegisterGetPlayerOnScreen(GetPlayerOnScreenFn fn);
+void RegisterForceDirectorSelect(ForceDirectorSelectFn fn);
+void RegisterEnterMovePath(EnterMovePathFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -124,5 +138,18 @@ void NextPlayer();            // rotates current player in turn order
 void AddPlayer(sint32 player); // notifies UI of new player (no-op in headless)
 void ArmyRemoved(sint32 player, const Army &army); // notifies UI of removed army (no-op in headless)
 void CityRemoved(sint32 player, const Unit &city); // notifies UI of removed city (no-op in headless)
+
+// --- Wave B selection surface ---
+// Defaults in headless / when no Impl registered:
+//   IsAutoCenterOn() → false
+//   GetPlayerOnScreen() → -1
+//   All notifications → no-op
+bool   IsAutoCenterOn();
+sint32 GetPlayerOnScreen();
+void   ForceDirectorSelect(const Army &army);
+void   EnterMovePath(sint32 owner, Army &army,
+                     const MapPoint &src, const MapPoint &dest);
+void   NextRound();
+void   RegisterManualEndTurn();
 
 } // namespace player_view

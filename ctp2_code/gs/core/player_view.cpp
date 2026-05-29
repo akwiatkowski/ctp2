@@ -36,6 +36,12 @@ static NextPlayerFn       s_nextPlayer        = nullptr;
 static AddPlayerFn        s_addPlayer         = nullptr;
 static RegisterRemovedArmyFn s_registerRemovedArmy = nullptr;
 static RegisterRemovedCityFn s_registerRemovedCity = nullptr;
+static NextRoundFn            s_nextRound            = nullptr;
+static RegisterManualEndTurnFn s_registerManualEndTurn = nullptr;
+static IsAutoCenterOnFn       s_isAutoCenterOn       = nullptr;
+static GetPlayerOnScreenFn    s_getPlayerOnScreen    = nullptr;
+static ForceDirectorSelectFn  s_forceDirectorSelect  = nullptr;
+static EnterMovePathFn        s_enterMovePath        = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -61,6 +67,12 @@ void RegisterNextPlayer(NextPlayerFn fn)              { s_nextPlayer       = fn;
 void RegisterAddPlayer(AddPlayerFn fn)                { s_addPlayer        = fn; }
 void RegisterRemovedArmy(RegisterRemovedArmyFn fn)    { s_registerRemovedArmy = fn; }
 void RegisterRemovedCity(RegisterRemovedCityFn fn)    { s_registerRemovedCity = fn; }
+void RegisterNextRound(NextRoundFn fn)                { s_nextRound            = fn; }
+void RegisterRegisterManualEndTurn(RegisterManualEndTurnFn fn) { s_registerManualEndTurn = fn; }
+void RegisterIsAutoCenterOn(IsAutoCenterOnFn fn)      { s_isAutoCenterOn       = fn; }
+void RegisterGetPlayerOnScreen(GetPlayerOnScreenFn fn) { s_getPlayerOnScreen    = fn; }
+void RegisterForceDirectorSelect(ForceDirectorSelectFn fn) { s_forceDirectorSelect = fn; }
+void RegisterEnterMovePath(EnterMovePathFn fn)        { s_enterMovePath        = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -187,6 +199,37 @@ void ArmyRemoved(sint32 player, const Army &army)
 void CityRemoved(sint32 player, const Unit &city)
 {
 	if (s_registerRemovedCity) s_registerRemovedCity(player, city);
+}
+
+bool IsAutoCenterOn()
+{
+	return s_isAutoCenterOn ? s_isAutoCenterOn() : false;
+}
+
+sint32 GetPlayerOnScreen()
+{
+	return s_getPlayerOnScreen ? s_getPlayerOnScreen() : -1;
+}
+
+void ForceDirectorSelect(const Army &army)
+{
+	if (s_forceDirectorSelect) s_forceDirectorSelect(army);
+}
+
+void EnterMovePath(sint32 owner, Army &army,
+                   const MapPoint &src, const MapPoint &dest)
+{
+	if (s_enterMovePath) s_enterMovePath(owner, army, src, dest);
+}
+
+void NextRound()
+{
+	if (s_nextRound) s_nextRound();
+}
+
+void RegisterManualEndTurn()
+{
+	if (s_registerManualEndTurn) s_registerManualEndTurn();
 }
 
 } // namespace player_view

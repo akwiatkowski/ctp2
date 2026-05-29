@@ -195,6 +195,39 @@ void UIRegisterRemovedCity(sint32 player, const Unit &city)
 	if (g_selected_item) g_selected_item->RegisterRemovedCity(player, city);
 }
 
+// --- Wave B (TODO(orchestrator) restoration) selection forwarders ---
+
+bool UIIsAutoCenterOn()
+{
+	return g_selected_item ? g_selected_item->IsAutoCenterOn() : false;
+}
+
+sint32 UIGetPlayerOnScreen()
+{
+	return g_selected_item ? g_selected_item->GetPlayerOnScreen() : -1;
+}
+
+void UIForceDirectorSelect(const Army &army)
+{
+	if (g_selected_item) g_selected_item->ForceDirectorSelect(army);
+}
+
+void UIEnterMovePath(sint32 owner, Army &army,
+                     const MapPoint &src, const MapPoint &dest)
+{
+	if (g_selected_item) g_selected_item->EnterMovePath(owner, army, src, dest);
+}
+
+void UINextRound()
+{
+	if (g_selected_item) g_selected_item->NextRound();
+}
+
+void UIRegisterManualEndTurn()
+{
+	if (g_selected_item) g_selected_item->RegisterManualEndTurn();
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -223,4 +256,10 @@ void RegisterUIPlayerView()
 	player_view::RegisterAddPlayer(&UIAddPlayer);
 	player_view::RegisterRemovedArmy(&UIRegisterRemovedArmy);
 	player_view::RegisterRemovedCity(&UIRegisterRemovedCity);
+	player_view::RegisterIsAutoCenterOn(&UIIsAutoCenterOn);
+	player_view::RegisterGetPlayerOnScreen(&UIGetPlayerOnScreen);
+	player_view::RegisterForceDirectorSelect(&UIForceDirectorSelect);
+	player_view::RegisterEnterMovePath(&UIEnterMovePath);
+	player_view::RegisterNextRound(&UINextRound);
+	player_view::RegisterRegisterManualEndTurn(&UIRegisterManualEndTurn);
 }

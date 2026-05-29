@@ -8938,13 +8938,6 @@ void ArmyData::Disband()
 	Diplomat &  cell_diplomat   = Diplomat::GetDiplomat
 	    ((PLAYER_UNASSIGNED == cellOwner) ? PLAYER_INDEX_VANDALS : cellOwner);
 
-	bool cw = false;
-	// TODO(orchestrator): no equivalent for CityWindow::GetCityWindow
-	// CityWindow* cityWindow = CityWindow::GetCityWindow();
-	// CityData* cityData = cityWindow ? cityWindow->GetCityData() : NULL;
-	// if(cityData != NULL && cityData->GetHomeCity() == city)
-	// 	cw = true;
-
 	// Usually, "for (int i = 0; i < n; ++i)" expresses more clearly that you
 	// are going through all items of an array. But when killing/removing items,
 	// it is safer to start from the end, otherwise indices may get shifted
@@ -8953,20 +8946,14 @@ void ArmyData::Disband()
 	{
 		if (city.IsValid())
 		{
-			// Disbanding from the city window requires the
-			// shields to be sent to the citydata of the city window.
-			// TODO(orchestrator): no equivalent for CityWindow::GetCityWindow
-			// if (cw)
-			// {
-			// 	// Shield cost should be difficulty dependent
-			// 	cityData->AddShields
-			// 		(m_array[i].GetDBRec()->GetShieldCost() / 2);
-			// }
-			// else
+			// Disbanding from the city window requires the shields to be sent
+			// to the city window's CityData copy if it's currently showing this
+			// city; otherwise give them to the real city.  The bridge call
+			// returns true if it routed the shields to the window.
+			sint32 shieldRefund = m_array[i].GetDBRec()->GetShieldCost() / 2;
+			if (!player_view::CityWindowAddShieldsIfShowing(city, shieldRefund))
 			{
-				// Shield cost should be difficulty dependent
-				city.AccessData()->GetCityData()->AddShields
-					(m_array[i].GetDBRec()->GetShieldCost() / 2);
+				city.AccessData()->GetCityData()->AddShields(shieldRefund);
 			}
 		}
 

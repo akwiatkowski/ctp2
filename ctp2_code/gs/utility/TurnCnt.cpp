@@ -231,8 +231,7 @@ void TurnCount::InformNetwork()
 
 void TurnCount::InformMessages()
 {
-	// TODO(orchestrator): no equivalent for messagewin_BeginTurn
-	// messagewin_BeginTurn( player_view::VisiblePlayer() );
+	g_gameObservers->NotifyBeginTurnMessage(player_view::VisiblePlayer());
 }
 
 void TurnCount::SliceInformNetwork()

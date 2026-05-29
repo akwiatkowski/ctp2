@@ -184,13 +184,11 @@ STDEHANDLER(ArmyUnloadOrderEvent)
 	UNIT_ORDER_TYPE ord = UNIT_ORDER_UNLOAD;
 	if (a.GetOwner() == player_view::VisiblePlayer())
 	{
-		// TODO(orchestrator): no equivalent for g_controlPanel
-		// TODO(orchestrator): no equivalent for MainControlPanel::GetSelectedCargo
-		// CellUnitList cargoToUnload;
-		// if (g_controlPanel && MainControlPanel::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
-		// {
-		// 	ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
-		// }
+		CellUnitList cargoToUnload;
+		if (player_view::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
+		{
+		    ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
+		}
 	}
 
 	a->ClearOrders();

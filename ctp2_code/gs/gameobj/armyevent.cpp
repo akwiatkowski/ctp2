@@ -170,7 +170,7 @@ STDEHANDLER(ArmyMovePathOrderEvent)
 
 	end EMOD	*/
 
-	// TODO(orchestrator): no equivalent for g_selected_item->EnterMovePath
+	player_view::EnterMovePath(army.GetOwner(), army, army->RetPos(), p);
 	return GEV_HD_Continue;
 }
 

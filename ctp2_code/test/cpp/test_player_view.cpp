@@ -28,8 +28,10 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <fstream>
+#include <map>
 #include <regex>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -180,24 +182,80 @@ void walk_source_files(const std::string& root, const char* extension,
     closedir(dir);
 }
 
+// Cached file contents per (root, extension) pair.  Walking
+// ctp2_code/gs (~490 files) or ctp2_code/ai (~280 files) and reading
+// every line back from disk takes ~3s per pass; with 8+ ratchet test
+// cases each previously triggering its own walk+read, the fast suite
+// spent ~25s on the gs/ tree alone.  Caching the line contents
+// once-per-key collapses that to a single walk+read + N cheap regex
+// passes over in-memory strings.
+//
+// std::map (not unordered_map) because the key is a small pair-of-string
+// and we only have ~6 distinct entries; std::map's deterministic
+// iteration is convenient for any future debugging dump.
+struct FileLines {
+    std::string path;
+    std::vector<std::string> lines;
+};
+
+const std::vector<FileLines>& cached_read(const std::string& root,
+                                          const char* extension)
+{
+    using Key = std::pair<std::string, std::string>;
+    static std::map<Key, std::vector<FileLines>> cache;
+
+    Key key{root, std::string(extension)};
+    auto it = cache.find(key);
+    if (it != cache.end()) {
+        return it->second;
+    }
+
+    std::vector<std::string> file_paths;
+    walk_source_files(root, extension, file_paths);
+
+    std::vector<FileLines> result;
+    result.reserve(file_paths.size());
+    for (auto& path : file_paths) {
+        std::ifstream file(path);
+        if (!file) continue;
+
+        FileLines fl;
+        fl.path = std::move(path);
+        std::string line;
+        while (std::getline(file, line)) {
+            fl.lines.push_back(std::move(line));
+        }
+        result.push_back(std::move(fl));
+    }
+
+    auto inserted = cache.emplace(std::move(key), std::move(result));
+    return inserted.first->second;
+}
+
+// Cheap heuristic: every ratchet regex in this file is anchored to an
+// `#include` line, so we can skip the (expensive) regex_search for any
+// line that doesn't contain `#include` at all.  This cuts work by ~95%
+// because the vast majority of lines in source files aren't includes.
+// std::regex on a typical line takes ~10us; string::find takes ~50ns.
+bool line_might_be_include(const std::string& line)
+{
+    return line.find("#include") != std::string::npos;
+}
+
 std::vector<Violation> scan_directory_with_regex(const std::string& root,
                                                   const char* extension,
                                                   const std::regex& include_re)
 {
     std::vector<Violation> violations;
-    std::vector<std::string> files;
-    walk_source_files(root, extension, files);
+    const auto& files = cached_read(root, extension);
 
-    for (const auto& path : files) {
-        std::ifstream file(path);
-        if (!file) continue;
-
-        std::string line;
+    for (const auto& fl : files) {
         std::size_t line_num = 0;
-        while (std::getline(file, line)) {
+        for (const auto& line : fl.lines) {
             ++line_num;
+            if (!line_might_be_include(line)) continue;
             if (std::regex_search(line, include_re)) {
-                violations.push_back({path, line_num, line});
+                violations.push_back({fl.path, line_num, line});
             }
         }
     }

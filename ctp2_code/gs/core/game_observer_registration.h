@@ -33,3 +33,13 @@ void RegisterUIPlayerView();
  */
 void RegisterProgressWindowObserver();
 void UnregisterProgressWindowObserver();
+
+/**
+ * @brief Register UI-side adapter for text_observer::DrawText.
+ *
+ * Forwards text_observer::DrawText to ui/aui_utils/primitives.h's
+ * primitives_DrawText (currently __AUI_USE_DIRECTX__-gated; no-op on
+ * Mac/SDL).  Call once during UI app initialization.
+ */
+void RegisterTextObserverAdapter();
+void UnregisterTextObserverAdapter();

@@ -1566,6 +1566,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	RegisterUIGameObserver();
 	RegisterUIPlayerView();
 	RegisterProgressWindowObserver();
+	RegisterTextObserverAdapter();
 
 	m_appLoaded = true;
 

@@ -1475,8 +1475,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 
 			if (spriteID >= 0)
 			{
-				render_observer::AddSpecialAttack
-				    (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
+				render_observer::AddSpecialAttack(m_home_city, m_home_city, SPECATTACK_REVOLUTION);
 			}
 			else
 			{

@@ -6207,7 +6207,7 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 	sint32 spriteID = rec->GetSpriteID()->GetValue();
 
 	if (spriteID != -1 && soundID != -1) {
-		render_observer::AddSpecialAttack(m_actor->GetUnitID(), c, attack);
+		render_observer::AddSpecialAttack(Unit(m_id), c, attack);
 	} else if (soundID != -1) {
 		sint32 visiblePlayer = player_view::VisiblePlayer();
 		if ((visiblePlayer == m_owner) ||

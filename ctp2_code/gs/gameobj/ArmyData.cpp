@@ -7510,7 +7510,7 @@ void ArmyData::RevealZOCUnits(const MapPoint &pos)
 				return;
 			units[i].GetPos(hisPos);
 			units[i].ForceVisibleThisTurn(m_owner);
-			units[i].GetActor()->SetUnitVisibility(units[i].GetVisibility());
+			render_observer::AddSetVisibility(units[i], units[i].GetVisibility());
 			return;
 		}
 	}
@@ -8445,7 +8445,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 				sint32 i;
 				for(i = 0; i < debark.Num(); i++) {
 					if (debark[i].GetActor()) {
-						debark[i].GetActor()->Hide();
+						render_observer::AddHide(debark[i]);
 						debark[i].GetActor()->PositionActor(m_pos);
 						render_observer::AddShow(debark[i]);
 					}

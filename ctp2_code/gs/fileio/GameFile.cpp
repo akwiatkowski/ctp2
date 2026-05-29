@@ -84,6 +84,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/gameobj/Sci.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/core/audio_types.h"
+#include "gs/core/progress_observer.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"
@@ -233,72 +234,72 @@ static uint32 CompressData(uint8 *inbuf, size_t insize,
 // Obsolete
 uint32 GameFile::SaveDB(CivArchive &archive)
 {
-	// TODO(orchestrator): no equivalent for ProgressWindow::BeginProgress
+	progress_observer::BeginProgress("InitProgressWindow", 340);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(10, g_theStringDB->GetNameStr("LOADING"));
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(20);
+	progress_observer::StartCountingTo(30);
+	progress_observer::StartCountingTo(40);
+	progress_observer::StartCountingTo(50);
+	progress_observer::StartCountingTo(60);
+	progress_observer::StartCountingTo(70);
+	progress_observer::StartCountingTo(80);
+	progress_observer::StartCountingTo(90);
+	progress_observer::StartCountingTo(100);
+	progress_observer::StartCountingTo(110);
+	progress_observer::StartCountingTo(120);
+	progress_observer::StartCountingTo(130);
+	progress_observer::StartCountingTo(140);
+	progress_observer::StartCountingTo(150);
+	progress_observer::StartCountingTo(160);
+	progress_observer::StartCountingTo(170);
 
 //	g_theDifficultyDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(180);
 
 //	g_theConstDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(190);
+	progress_observer::StartCountingTo(200);
 
 	g_theThroneDB->Serialize( archive );
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(210);
 
 //	g_theConceptDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(220);
+	progress_observer::StartCountingTo(230);
+	progress_observer::StartCountingTo(240);
+	progress_observer::StartCountingTo(250);
+	progress_observer::StartCountingTo(260);
+	progress_observer::StartCountingTo(270);
 
 //	g_thePollutionDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(280);
 
 //	g_theGWDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(290);
 
 	g_theUVDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(300);
 
 	// SaveDB is only called if CivApp::m_saveDBInGameFile is TRUE
 	// fortunatly this is never the case in CTP2 and can be removed
 	// without any problems
 //	g_theCivilisationDB->Serialize(archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(310);
+	progress_observer::StartCountingTo(320);
+	progress_observer::StartCountingTo(330);
+	progress_observer::StartCountingTo(340);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::EndProgress
+	progress_observer::EndProgress();
 
 	return 0;
 }
@@ -320,12 +321,12 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 
 	bool showProgress = !strstr(filepath, "AUTOSAVE");
 
-#define PROGRESS(i) // TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+#define PROGRESS(i) if(showProgress) { progress_observer::StartCountingTo(i); }
 
 	if (showProgress)
     {
-		// TODO(orchestrator): no equivalent for ProgressWindow::BeginProgress
-		// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+		progress_observer::BeginProgress("InitProgressWindow", 520);
+		progress_observer::StartCountingTo(100, g_theStringDB->GetNameStr("SAVING"));
 	}
 
     if (g_civApp->SaveDBInGameFile())
@@ -542,7 +543,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 		c3errors_ErrorDialogFromDB("SAVE_ERROR", "SAVE_FAILED_TO_SAVE");
 
 		if(showProgress) {
-			// TODO(orchestrator): no equivalent for ProgressWindow::EndProgress
+			progress_observer::EndProgress();
 		}
 		return GAMEFILE_ERR_STORE_FAILED;
 	}
@@ -643,7 +644,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 
 	if (showProgress)
 	{
-		// TODO(orchestrator): no equivalent for ProgressWindow::EndProgress
+		progress_observer::EndProgress();
 	}
 
 	return GAMEFILE_ERR_STORE_OK;
@@ -655,9 +656,9 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 	clock_t start = clock();
 #endif
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::BeginProgress
+	progress_observer::BeginProgress("InitProgressWindow", 1090);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(10, g_theStringDB->GetNameStr("LOADING"));
 
 	FILE *  fpLoad = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
 	if (!fpLoad)
@@ -666,7 +667,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(20);
 
 	MBCHAR sHeader[_MAX_PATH];
 	uint32 n = c3files_fread(sHeader, sizeof(uint8), sizeof(k_GAME_MAGIC_VALUE), fpLoad);
@@ -679,7 +680,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(30);
 
 	g_saveFileVersion = -1;
 	sint32 i;
@@ -691,7 +692,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		}
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(40);
 
 	if(g_saveFileVersion < 0)
     {
@@ -701,18 +702,18 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(50);
 
     {
         SaveInfo info;
         LoadExtendedGameInfo(fpLoad, &info);
 
-        // TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+        progress_observer::StartCountingTo(60);
 
         SetProfileFromExtendedInfo(&info);
     }
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(70);
 
 	uint32 ulLen32 = 0;
 	n = c3files_fread(&ulLen32, sizeof(ulLen32), 1, fpLoad);
@@ -725,13 +726,13 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(80);
 
 	CivArchive	archive;
 	archive.SetSize(static_cast<size_t>(ulLen32));
 	archive.SetLoad();
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(90);
 
 	uint32	compressedSize32 = 0;
 	n = c3files_fread(&compressedSize32, sizeof(compressedSize32), 1, fpLoad);
@@ -754,7 +755,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(100);
 
     uint8 * compressedData = new uint8[compressedSize];
     if (compressedSize != c3files_fread(compressedData, sizeof(uint8), compressedSize, fpLoad))
@@ -766,11 +767,11 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
         return GAMEFILE_ERR_LOAD_FAILED;
     }
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(110);
 
 	c3files_fclose(fpLoad);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(120);
 
     unsigned long tlen = ulLen32;
     if (    (Z_OK != uncompress(archive.GetStream(), &tlen, compressedData, compressedSize))
@@ -784,7 +785,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	delete [] compressedData;
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(130);
 
 	uint32	ver;
 	archive >> ver;
@@ -795,7 +796,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(140);
 
 	archive>>ver;
 	if (ver!=Player_Player_GetVersion())
@@ -805,13 +806,13 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(150);
 
 	// SelectedItem version stripped from the save format when SelectedItem was
 	// migrated out of game-state — no read here either. (Save side in the same
 	// file at line 335 does not write it.)
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(160);
 
 	archive>>ver;
 	if (ver!=Advances_Advances_GetVersion())
@@ -821,7 +822,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(170);
 #if 0
 
 	archive>>ver;
@@ -833,7 +834,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 	}
 #endif
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(180);
 
 	archive>>ver;
 	if (ver!=BldQue_BuildQueue_GetVersion())
@@ -843,7 +844,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(190);
 
 	archive>>ver;
 	if (ver!=CityData_CityData_GetVersion())
@@ -853,7 +854,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(200);
 
 	archive>>ver;
 	if (ver!=Diffcly_Difficulty_GetVersion())
@@ -863,7 +864,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(210);
 
 	archive>>ver;
 	if (ver!=GameObj_GameObj_GetVersion())
@@ -873,7 +874,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(220);
 
 	archive>>ver;
 	if (ver!=Gold_Gold_GetVersion())
@@ -883,7 +884,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(230);
 
 	archive>>ver;
 	if (ver!=ID_ID_GetVersion())
@@ -893,7 +894,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(240);
 
 	archive>>ver;
 	if (ver!=ObjPool_ObjPool_GetVersion())
@@ -903,7 +904,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(250);
 
 	archive>>ver;
 	if (ver!=Sci_Science_GetVersion())
@@ -913,7 +914,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(260);
 
 	archive>>ver;
 	if (ver!=TaxRate_TaxRate_GetVersion())
@@ -923,7 +924,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(270);
 
 	archive>>ver;
 	if (ver!=Unit_Unit_GetVersion())
@@ -933,7 +934,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(280);
 
 	archive>>ver;
 	if (ver!=UnitData_UnitData_GetVersion())
@@ -943,7 +944,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(290);
 
 	archive>>ver;
 	if (ver!=UnitPool_UnitPool_GetVersion())
@@ -953,7 +954,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(300);
 
 	archive>>ver;
 	if (ver!=Cell_CELL_GetVersion())
@@ -963,7 +964,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(310);
 
 	archive>>ver;
 	if (ver!=MapPoint_MapPoint_GetVersion())
@@ -973,11 +974,11 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(1080);
 
 	g_civApp->InitializeGame(&archive);
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::StartCountingTo
+	progress_observer::StartCountingTo(1090);
 
 #ifndef _NO_GAME_WATCH
 	char gameWatchFilename[_MAX_PATH];
@@ -990,7 +991,7 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 	        ("Time to load game data = %4.2f seconds\n", (double)(clock() - start) / CLOCKS_PER_SEC)
 	       );
 
-	// TODO(orchestrator): no equivalent for ProgressWindow::EndProgress
+	progress_observer::EndProgress();
 
 	return GAMEFILE_ERR_LOAD_OK;
 }

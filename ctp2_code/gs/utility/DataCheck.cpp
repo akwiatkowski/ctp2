@@ -38,8 +38,7 @@
 
 #include "ctp/c3.h"                        // Precompiled header
 #include "gs/utility/DataCheck.h"
-// TODO(orchestrator): primitives_DrawText was provided by ui/aui_utils/primitives.h
-// which has been removed.  No equivalent exists in player_view / game_observer yet.
+#include "gs/core/text_observer.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Checksum.h"
 
@@ -648,16 +647,16 @@ void DataCheck::draw_crc(aui_Surface *surf, char str1[80], sint32 t, sint32 x, s
 {
 	MBCHAR	str2[80];
 
-	// TODO(orchestrator): migrate primitives_DrawText call
+	text_observer::DrawText(surf, x, y, str1, 0, false);
 
 	if (IsChanged(t))
 	{
 		snprintf(str2, sizeof(str2), "***");
-		// TODO(orchestrator): migrate primitives_DrawText call
+		text_observer::DrawText(surf, x+100, y, str2, 3050, true);
 	}
 
 	snprintf(str2, sizeof(str2), "%08X %08X %08X %08X  %4.2lf", m_crc[t][CRC_ARRAY_0], m_crc[t][CRC_ARRAY_1], m_crc[t][CRC_ARRAY_2], m_crc[t][CRC_ARRAY_3], (double)(m_time[t]) / CLOCKS_PER_SEC);
-	// TODO(orchestrator): migrate primitives_DrawText call
+	text_observer::DrawText(surf, x+125, y, str2, 0, false);
 }
 
 
@@ -673,7 +672,7 @@ void DataCheck::draw_time(aui_Surface *surf, sint32 x, sint32 y) const
 	MBCHAR s[80];
 
 	snprintf(s, sizeof(s), "Total time %4.2lf", (double)(m_total_time) / CLOCKS_PER_SEC);
-	// TODO(orchestrator): migrate primitives_DrawText call
+	text_observer::DrawText(surf, x, y, s, 0, false);
 }
 
 

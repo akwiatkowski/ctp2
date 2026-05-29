@@ -22,6 +22,9 @@ public:
     void AddSetVisionRange(Unit unit, double range)                       override;
     void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id)            override;
     void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)         override;
+    void ChangeUnitType(SpriteStatePtr ss, sint32 type, Unit id,
+                        bool updateVision)                                override;
+    void HackSetSpriteID(Unit unit, sint32 spriteID)                      override;
     void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)           override;
     void TradeActorCreate(TradeRoute newRoute)                            override;
     void TradeActorDestroy(TradeRoute routeToDestroy)                     override;

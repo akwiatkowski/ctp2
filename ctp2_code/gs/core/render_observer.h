@@ -84,6 +84,16 @@ public:
     // Director queue).  Implementation calls UnitActor::ChangeImage()
     // immediately and dumps pending actions.
     virtual void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id)       = 0;
+    // Phase 3 slice 7f: ChangeImage's bigger sibling.  In addition to the
+    // sprite swap, ChangeType updates vision range (when updateVision is
+    // true).  Forwards to UnitActor::ChangeType.
+    virtual void ChangeUnitType(SpriteStatePtr ss, sint32 type, Unit id,
+                                bool updateVision)                              = 0;
+    // Phase 3 slice 7f: forces the actor's sprite-id field to a specific
+    // value, bypassing the usual lookup.  Used at game-init time when
+    // restoring a saved sprite choice (e.g. capital indicator on a city).
+    // The "Hack" name comes from UnitActor::HackSetSpriteID itself.
+    virtual void HackSetSpriteID(Unit unit, sint32 spriteID)                    = 0;
     virtual void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor)         = 0;
     virtual void TradeActorCreate(TradeRoute newRoute)                          = 0;
     virtual void TradeActorDestroy(TradeRoute routeToDestroy)                   = 0;
@@ -151,6 +161,8 @@ void AddSetVisibility(Unit unit, uint32 visibility);
 void AddSetVisionRange(Unit unit, double range);
 void AddMorphUnit(SpriteStatePtr ss, sint32 type, Unit id);
 void ChangeUnitImage(SpriteStatePtr ss, sint32 type, Unit id);
+void ChangeUnitType(SpriteStatePtr ss, sint32 type, Unit id, bool updateVision);
+void HackSetSpriteID(Unit unit, sint32 spriteID);
 void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor);
 void TradeActorCreate(TradeRoute newRoute);
 void TradeActorDestroy(TradeRoute routeToDestroy);

@@ -59,6 +59,19 @@ void DirectorRenderObserver::ChangeUnitImage(SpriteStatePtr ss, sint32 type, Uni
         actor->ChangeImage(ss, type, id);
     }
 }
+void DirectorRenderObserver::ChangeUnitType(SpriteStatePtr ss, sint32 type, Unit id,
+                                            bool updateVision)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(id)) {
+        actor->ChangeType(ss, type, id, updateVision ? TRUE : FALSE);
+    }
+}
+void DirectorRenderObserver::HackSetSpriteID(Unit unit, sint32 spriteID)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        actor->HackSetSpriteID(spriteID);
+    }
+}
 void DirectorRenderObserver::ActiveUnitRemove(std::shared_ptr<UnitActor> u)            { g_director->ActiveUnitRemove(u); }
 void DirectorRenderObserver::TradeActorCreate(TradeRoute newRoute)                     { g_director->TradeActorCreate(newRoute); }
 void DirectorRenderObserver::TradeActorDestroy(TradeRoute r)                           { g_director->TradeActorDestroy(r); }

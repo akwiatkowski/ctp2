@@ -65,6 +65,17 @@ struct RecordingSpy : render_observer::Impl {
         ++changeUnitImageCalls;
     }
 
+    int changeUnitTypeCalls = 0;
+    void ChangeUnitType(SpriteStatePtr ss, sint32 type, Unit id,
+                        bool updateVision) override {
+        ++changeUnitTypeCalls;
+    }
+
+    int hackSetSpriteIDCalls = 0;
+    void HackSetSpriteID(Unit unit, sint32 spriteID) override {
+        ++hackSetSpriteIDCalls;
+    }
+
     int activeUnitRemoveCalls = 0;
     void ActiveUnitRemove(std::shared_ptr<UnitActor> unitActor) override {
         ++activeUnitRemoveCalls;
@@ -416,6 +427,24 @@ TEST_CASE("render_observer::PositionActor dispatches to Impl")
     CHECK(spy.positionActorCalls == 1);
 }
 
+TEST_CASE("render_observer::ChangeUnitType dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    render_observer::ChangeUnitType(nullptr, 0, u, true);
+    CHECK(spy.changeUnitTypeCalls == 1);
+}
+
+TEST_CASE("render_observer::HackSetSpriteID dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    render_observer::HackSetSpriteID(u, 42);
+    CHECK(spy.hackSetSpriteIDCalls == 1);
+}
+
 TEST_CASE("render_observer::AddSpecialAttack dispatches to Impl")
 {
     RecordingSpy spy;
@@ -510,6 +539,8 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
     render_observer::AddAttack(u, u);
     render_observer::AddAttackPos(u, pt);
     render_observer::PositionActor(u, pt);
+    render_observer::ChangeUnitType(nullptr, 0, u, false);
+    render_observer::HackSetSpriteID(u, 0);
     render_observer::AddSpecialAttack(u, u, 0);
     render_observer::AddSpecialEffect(pt, 0, 0);
     render_observer::AddTerminateFaceoff(u);

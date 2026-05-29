@@ -46,6 +46,12 @@ static GetCurrentYearStringFn       s_getCurrentYearString       = nullptr;
 static GetBuildQueueHeadNameFn      s_getBuildQueueHeadName      = nullptr;
 static GetBuildQueueHeadStringIdFn  s_getBuildQueueHeadStringId  = nullptr;
 static GetSelectedCargoFn           s_getSelectedCargo           = nullptr;
+static IsScenarioEditorPlaceCityModeFn s_isScenarioEditorPlaceCityMode = nullptr;
+static GetScenarioEditorCitySizeFn     s_getScenarioEditorCitySize     = nullptr;
+static GetScenarioEditorCityStyleFn    s_getScenarioEditorCityStyle    = nullptr;
+static EditQueueSyncShieldstoreFn      s_editQueueSyncShieldstore      = nullptr;
+static EditQueueSyncBuildCategoryFn    s_editQueueSyncBuildCategory    = nullptr;
+static CityWindowAddShieldsIfShowingFn s_cityWindowAddShieldsIfShowing = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -81,6 +87,12 @@ void RegisterGetCurrentYearString(GetCurrentYearStringFn fn)             { s_get
 void RegisterGetBuildQueueHeadName(GetBuildQueueHeadNameFn fn)           { s_getBuildQueueHeadName      = fn; }
 void RegisterGetBuildQueueHeadStringId(GetBuildQueueHeadStringIdFn fn)   { s_getBuildQueueHeadStringId  = fn; }
 void RegisterGetSelectedCargo(GetSelectedCargoFn fn)                     { s_getSelectedCargo           = fn; }
+void RegisterIsScenarioEditorPlaceCityMode(IsScenarioEditorPlaceCityModeFn fn) { s_isScenarioEditorPlaceCityMode = fn; }
+void RegisterGetScenarioEditorCitySize(GetScenarioEditorCitySizeFn fn)         { s_getScenarioEditorCitySize     = fn; }
+void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn)       { s_getScenarioEditorCityStyle    = fn; }
+void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn)           { s_editQueueSyncShieldstore      = fn; }
+void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn)       { s_editQueueSyncBuildCategory    = fn; }
+void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn) { s_cityWindowAddShieldsIfShowing = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -266,6 +278,38 @@ sint32 GetBuildQueueHeadStringId(const CityData *city)
 bool GetSelectedCargo(CellUnitList &out)
 {
 	return s_getSelectedCargo ? s_getSelectedCargo(out) : false;
+}
+
+bool IsScenarioEditorPlaceCityMode()
+{
+	return s_isScenarioEditorPlaceCityMode ? s_isScenarioEditorPlaceCityMode() : false;
+}
+
+sint32 GetScenarioEditorCitySize()
+{
+	return s_getScenarioEditorCitySize ? s_getScenarioEditorCitySize() : 0;
+}
+
+sint32 GetScenarioEditorCityStyle()
+{
+	return s_getScenarioEditorCityStyle ? s_getScenarioEditorCityStyle() : 0;
+}
+
+void EditQueueSyncShieldstore(const Unit &homeCity, sint32 s)
+{
+	if (s_editQueueSyncShieldstore) s_editQueueSyncShieldstore(homeCity, s);
+}
+
+void EditQueueSyncBuildCategory(const Unit &homeCity, sint32 cat)
+{
+	if (s_editQueueSyncBuildCategory) s_editQueueSyncBuildCategory(homeCity, cat);
+}
+
+bool CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
+{
+	return s_cityWindowAddShieldsIfShowing
+	     ? s_cityWindowAddShieldsIfShowing(city, amount)
+	     : false;
 }
 
 } // namespace player_view

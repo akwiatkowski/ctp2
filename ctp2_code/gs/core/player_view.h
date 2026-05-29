@@ -115,6 +115,18 @@ using GetBuildQueueHeadNameFn = void (*)(const CityData *city,
 using GetBuildQueueHeadStringIdFn = sint32 (*)(const CityData *city);
 using GetSelectedCargoFn = bool (*)(CellUnitList &out);
 
+// --- Wave D (2026-05-29): scenario editor / edit queue / city window
+//     state queries + edit-queue / city-window sync write-throughs.
+//     Consumed by CityData and ArmyData.  Each sync method is a no-op
+//     when the relevant UI window is not open or not showing the named
+//     city — caller does not need to gate.
+using IsScenarioEditorPlaceCityModeFn = bool   (*)();
+using GetScenarioEditorCitySizeFn     = sint32 (*)();
+using GetScenarioEditorCityStyleFn    = sint32 (*)();
+using EditQueueSyncShieldstoreFn      = void   (*)(const Unit &homeCity, sint32 s);
+using EditQueueSyncBuildCategoryFn    = void   (*)(const Unit &homeCity, sint32 cat);
+using CityWindowAddShieldsIfShowingFn = bool   (*)(const Unit &city, sint32 amount);
+
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
 void RegisterEnterArmyMove(EnterArmyMoveFn fn);
@@ -140,6 +152,12 @@ void RegisterGetCurrentYearString(GetCurrentYearStringFn fn);
 void RegisterGetBuildQueueHeadName(GetBuildQueueHeadNameFn fn);
 void RegisterGetBuildQueueHeadStringId(GetBuildQueueHeadStringIdFn fn);
 void RegisterGetSelectedCargo(GetSelectedCargoFn fn);
+void RegisterIsScenarioEditorPlaceCityMode(IsScenarioEditorPlaceCityModeFn fn);
+void RegisterGetScenarioEditorCitySize(GetScenarioEditorCitySizeFn fn);
+void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn);
+void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn);
+void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn);
+void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -180,5 +198,19 @@ void   GetCurrentYearString(char *out, size_t cap);
 void   GetBuildQueueHeadName(const CityData *city, char *out, size_t cap);
 sint32 GetBuildQueueHeadStringId(const CityData *city);
 bool   GetSelectedCargo(CellUnitList &out);
+
+// --- Wave D surface ---
+// Defaults when no Impl is registered:
+//   IsScenarioEditorPlaceCityMode → false
+//   GetScenarioEditorCitySize → 0
+//   GetScenarioEditorCityStyle → 0
+//   EditQueueSync* → no-op (sync write-through is harmless to skip)
+//   CityWindowAddShieldsIfShowing → false (caller falls back to real city)
+bool   IsScenarioEditorPlaceCityMode();
+sint32 GetScenarioEditorCitySize();
+sint32 GetScenarioEditorCityStyle();
+void   EditQueueSyncShieldstore(const Unit &homeCity, sint32 s);
+void   EditQueueSyncBuildCategory(const Unit &homeCity, sint32 cat);
+bool   CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount);
 
 } // namespace player_view

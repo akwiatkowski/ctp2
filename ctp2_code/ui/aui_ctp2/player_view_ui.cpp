@@ -24,6 +24,9 @@
 #include "ui/interface/TurnYearStatus.h"        // GetCurrentYear
 #include "ui/interface/CityControlPanel.h"      // GetBuildName / GetBuildStringId
 #include "ui/interface/MainControlPanel.h"      // GetSelectedCargo
+#include "ui/interface/scenarioeditor.h"        // Wave D: ScenarioEditor statics
+#include "ui/interface/EditQueue.h"             // Wave D: EditQueue::GetEditQueueWindow
+#include "ui/interface/citywindow.h"            // Wave D: CityWindow::GetCityWindow
 #include "gs/gameobj/citydata.h"                // CityData::GetBuildQueue
 #include "gs/gameobj/BldQue.h"                  // BuildQueue::GetHead
 #include "gs/world/cellunitlist.h"              // CellUnitList
@@ -285,6 +288,58 @@ bool UIGetSelectedCargo(CellUnitList &out)
 	return MainControlPanel::GetSelectedCargo(out);
 }
 
+// --- Wave D (2026-05-29) scenario editor / edit queue / city window ---
+
+bool UIIsScenarioEditorPlaceCityMode()
+{
+	return ScenarioEditor::PlaceCityMode();
+}
+
+sint32 UIGetScenarioEditorCitySize()
+{
+	return ScenarioEditor::CitySize();
+}
+
+sint32 UIGetScenarioEditorCityStyle()
+{
+	return ScenarioEditor::CityStyle();
+}
+
+void UIEditQueueSyncShieldstore(const Unit &homeCity, sint32 s)
+{
+	EditQueue *eq = EditQueue::GetEditQueueWindow();
+	if (!eq) return;
+	CityData *cd = eq->GetCityData();
+	if (cd && cd->GetHomeCity() == homeCity)
+	{
+		cd->SetShieldstore(s);
+	}
+}
+
+void UIEditQueueSyncBuildCategory(const Unit &homeCity, sint32 cat)
+{
+	EditQueue *eq = EditQueue::GetEditQueueWindow();
+	if (!eq) return;
+	CityData *cd = eq->GetCityData();
+	if (cd && cd->GetHomeCity() == homeCity)
+	{
+		cd->SetBuildCategoryAtBeginTurn(cat);
+	}
+}
+
+bool UICityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
+{
+	CityWindow *cw = CityWindow::GetCityWindow();
+	if (!cw) return false;
+	CityData *cd = cw->GetCityData();
+	if (cd && cd->GetHomeCity() == city)
+	{
+		cd->AddShields(amount);
+		return true;
+	}
+	return false;
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -323,4 +378,10 @@ void RegisterUIPlayerView()
 	player_view::RegisterGetBuildQueueHeadName(&UIGetBuildQueueHeadName);
 	player_view::RegisterGetBuildQueueHeadStringId(&UIGetBuildQueueHeadStringId);
 	player_view::RegisterGetSelectedCargo(&UIGetSelectedCargo);
+	player_view::RegisterIsScenarioEditorPlaceCityMode(&UIIsScenarioEditorPlaceCityMode);
+	player_view::RegisterGetScenarioEditorCitySize(&UIGetScenarioEditorCitySize);
+	player_view::RegisterGetScenarioEditorCityStyle(&UIGetScenarioEditorCityStyle);
+	player_view::RegisterEditQueueSyncShieldstore(&UIEditQueueSyncShieldstore);
+	player_view::RegisterEditQueueSyncBuildCategory(&UIEditQueueSyncBuildCategory);
+	player_view::RegisterCityWindowAddShieldsIfShowing(&UICityWindowAddShieldsIfShowing);
 }

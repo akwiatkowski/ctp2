@@ -81,6 +81,12 @@ void DirectorRenderObserver::AddTeleport(Unit top,
 void DirectorRenderObserver::AddAttack(Unit attacker, Unit attacked)                   { g_director->AddAttack(attacker, attacked); }
 void DirectorRenderObserver::AddAttackPos(Unit attacker, MapPoint const &pos)          { g_director->AddAttackPos(attacker, pos); }
 void DirectorRenderObserver::AddSpecialAttack(Unit attacker, Unit attacked, sint32 a)  { g_director->AddSpecialAttack(attacker, attacked, (SPECATTACK)a); }
+void DirectorRenderObserver::PositionActor(Unit unit, MapPoint const &pos)
+{
+    if (auto actor = g_uiUnitActorRegistry.Get(unit)) {
+        actor->PositionActor(pos);
+    }
+}
 void DirectorRenderObserver::AddSpecialEffect(MapPoint &pos, sint32 spriteID, sint32 soundID){ g_director->AddSpecialEffect(pos, spriteID, soundID); }
 void DirectorRenderObserver::AddTerminateFaceoff(Unit &faceoffer)                      { g_director->AddTerminateFaceoff(faceoffer); }
 

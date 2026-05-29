@@ -55,6 +55,7 @@ void AddTeleport(Unit top,
 }
 void AddAttack(Unit attacker, Unit attacked)                                  { DISPATCH_VOID(AddAttack, attacker, attacked); }
 void AddAttackPos(Unit attacker, MapPoint const &pos)                         { DISPATCH_VOID(AddAttackPos, attacker, pos); }
+void PositionActor(Unit unit, MapPoint const &pos)                            { DISPATCH_VOID(PositionActor, unit, pos); }
 void AddSpecialAttack(Unit attacker, Unit attacked, sint32 attack)            { DISPATCH_VOID(AddSpecialAttack, attacker, attacked, attack); }
 void AddSpecialEffect(MapPoint &pos, sint32 spriteID, sint32 soundID)         { DISPATCH_VOID(AddSpecialEffect, pos, spriteID, soundID); }
 void AddTerminateFaceoff(Unit &faceoffer)                                     { DISPATCH_VOID(AddTerminateFaceoff, faceoffer); }

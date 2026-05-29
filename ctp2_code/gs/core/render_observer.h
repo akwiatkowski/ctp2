@@ -100,6 +100,12 @@ public:
                              const UnitActorVec &moveActors)                    = 0;
     virtual void AddAttack(Unit attacker, Unit attacked)                        = 0;
     virtual void AddAttackPos(Unit attacker, MapPoint const &pos)               = 0;
+    // Phase 3 slice 7e: synchronous snap of the rendered actor to a map
+    // tile.  Bypasses the Director animation queue — that's the existing
+    // semantic of UnitActor::PositionActor and we preserve it.  The UI
+    // Impl looks up the actor via g_uiUnitActorRegistry; if absent the
+    // call is a no-op.  Used for fog-of-war reveals, debark snaps, etc.
+    virtual void PositionActor(Unit unit, MapPoint const &pos)                  = 0;
     virtual void AddSpecialAttack(Unit attacker, Unit attacked,
                                   sint32 attack)                                = 0;  // SPECATTACK
     virtual void AddSpecialEffect(MapPoint &pos,
@@ -161,6 +167,7 @@ void AddTeleport(Unit top,
                  const UnitActorVec &moveActors);
 void AddAttack(Unit attacker, Unit attacked);
 void AddAttackPos(Unit attacker, MapPoint const &pos);
+void PositionActor(Unit unit, MapPoint const &pos);
 void AddSpecialAttack(Unit attacker, Unit attacked, sint32 attack);
 void AddSpecialEffect(MapPoint &pos, sint32 spriteID, sint32 soundID);
 void AddTerminateFaceoff(Unit &faceoffer);

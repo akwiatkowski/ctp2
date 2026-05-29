@@ -120,6 +120,11 @@ struct RecordingSpy : render_observer::Impl {
         ++addSpecialAttackCalls;
     }
 
+    int positionActorCalls = 0;
+    void PositionActor(Unit unit, MapPoint const &pos) override {
+        ++positionActorCalls;
+    }
+
     int addSpecialEffectCalls = 0;
     void AddSpecialEffect(MapPoint &pos,
                           sint32 spriteID, sint32 soundID) override {
@@ -401,6 +406,16 @@ TEST_CASE("render_observer::AddAttackPos dispatches to Impl")
     CHECK(spy.addAttackPosCalls == 1);
 }
 
+TEST_CASE("render_observer::PositionActor dispatches to Impl")
+{
+    RecordingSpy spy;
+    ScopedSpy guard(&spy);
+    Unit u;
+    MapPoint pt(3, 4);
+    render_observer::PositionActor(u, pt);
+    CHECK(spy.positionActorCalls == 1);
+}
+
 TEST_CASE("render_observer::AddSpecialAttack dispatches to Impl")
 {
     RecordingSpy spy;
@@ -494,6 +509,7 @@ TEST_CASE("Null fan-outs are no-ops when no Impl registered")
     render_observer::AddTeleport(u, pt, pt, emptyVec, emptyVec);
     render_observer::AddAttack(u, u);
     render_observer::AddAttackPos(u, pt);
+    render_observer::PositionActor(u, pt);
     render_observer::AddSpecialAttack(u, u, 0);
     render_observer::AddSpecialEffect(pt, 0, 0);
     render_observer::AddTerminateFaceoff(u);

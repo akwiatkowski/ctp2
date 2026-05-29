@@ -2706,7 +2706,11 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 
 				if(!(him->m_temp_visibility & (1 << m_owner))) {
 					revealedUnits.Insert(Unit(him->m_id));
-					him->m_actor->SetPos(him->m_pos);
+					// Phase 3 slice 7e: removed dead `him->m_actor->SetPos(him->m_pos)`.
+					// After slice 6, UnitActor::GetPos dispatches through
+					// m_state, so writing the actor's local m_pos cache is
+					// unread for live wired actors (which `him` is — we
+					// just read him->m_visibility / him->m_actor above).
 					him->m_temp_visibility |= 1 << m_owner;
 
 					runContactMe = true;

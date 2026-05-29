@@ -39,6 +39,7 @@ public:
     void AddAttack(Unit attacker, Unit attacked)                          override;
     void AddAttackPos(Unit attacker, MapPoint const &pos)                 override;
     void AddSpecialAttack(Unit attacker, Unit attacked, sint32 attack)    override;
+    void PositionActor(Unit unit, MapPoint const &pos)                    override;
     void AddSpecialEffect(MapPoint &pos,
                           sint32 spriteID, sint32 soundID)                override;
     void AddTerminateFaceoff(Unit &faceoffer)                             override;

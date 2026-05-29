@@ -8446,7 +8446,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 				for(i = 0; i < debark.Num(); i++) {
 					if (debark[i].GetActor()) {
 						render_observer::AddHide(debark[i]);
-						debark[i].GetActor()->PositionActor(m_pos);
+						render_observer::PositionActor(debark[i], m_pos);
 						render_observer::AddShow(debark[i]);
 					}
 				}

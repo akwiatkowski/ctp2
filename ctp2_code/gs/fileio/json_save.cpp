@@ -71,6 +71,7 @@
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/ArmyPool.h"
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
 #include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
 #include "CivilisationRecord.h"            // k_MAX_CityName
@@ -1578,6 +1579,41 @@ void from_json(nlohmann::json const &j, ArmyData &a)
         a.m_name = new MBCHAR[name.size() + 1];
         std::memcpy(a.m_name, name.data(), name.size());
         a.m_name[name.size()] = 0;
+    }
+}
+
+// Phase E-4 — ArmyPool
+//
+// Mirrors ArmyPool::Serialize at ArmyPool.cpp:67.  Stores
+// m_nObjs (next-key counter, accessed via HackGetKey/HackSetKey)
+// + array of every live ArmyData entry.  m_id_type is invariant
+// (set by ArmyPool ctor) so it's not persisted.
+
+void to_json(nlohmann::json &j, ArmyPool const &p)
+{
+    nlohmann::json armies = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            armies.push_back(*reinterpret_cast<ArmyData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<ArmyPool &>(p).HackGetKey()},
+        {"armies",   std::move(armies)},
+    };
+}
+
+void from_json(nlohmann::json const &j, ArmyPool &p)
+{
+    // Restore next-key counter so subsequent NewKey() calls continue
+    // from where the saving game left off.
+    p.HackSetKey(j.at("next_key").get<uint32>());
+
+    for (auto const &entry : j.at("armies"))
+    {
+        ArmyData *data = new ArmyData(Army(0));
+        entry.get_to(*data);
+        p.Insert(data);
     }
 }
 

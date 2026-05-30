@@ -7,6 +7,8 @@
 #include "gs/gameobj/ObjPool.h"
 #include "gs/gameobj/Army.h"
 
+#include <nlohmann/json.hpp>
+
 class Army;
 class ArmyData;
 class UnitDynamicArray;
@@ -57,6 +59,13 @@ public:
 	Army Create();
 
 	void Remove(Army army);
+
+	// JSON bridge — mirrors ArmyPool::Serialize at ArmyPool.cpp:67.
+	// Captures ObjPool base (m_id_type + m_nObjs key counter) plus
+	// every live ArmyData entry.  Implementation in json_save.cpp
+	// (needs ArmyData's to_json visible).
+	friend void to_json(nlohmann::json &j, ArmyPool const &p);
+	friend void from_json(nlohmann::json const &j, ArmyPool &p);
 };
 
 extern ArmyPool *g_theArmyPool;

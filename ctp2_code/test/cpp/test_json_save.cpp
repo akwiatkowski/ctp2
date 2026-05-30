@@ -48,6 +48,7 @@
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/ArmyPool.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "CivilisationRecord.h"
@@ -1949,6 +1950,34 @@ TEST_CASE("json round-trip: Unit serialises as uint32 scalar")
     Unit round(0);
     j.get_to(round);
     CHECK(round.m_id == 0xBEEF5678u);
+}
+
+// Phase E-4 — ArmyPool
+
+TEST_CASE("json round-trip: ArmyPool empty preserves next_key")
+{
+    ArmyPool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["armies"].is_array());
+    CHECK(j["armies"].size() == 0);
+    CHECK(j.contains("next_key"));
+
+    ArmyPool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key", 0x42u},
+        {"armies",   nlohmann::json::array()},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x42u);
+}
+
+TEST_CASE("json round-trip: ArmyPool keys are snake_case (no m_ leak)")
+{
+    ArmyPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

@@ -63,7 +63,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern Player **g_player;
-extern RandomGenerator *g_rand;
 extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 extern TurnCount *g_turn;
@@ -158,7 +157,7 @@ sint32 Barbarians::ChooseUnitType()
 		}
 		sint32 range = count - rankMax;
 		if (range <= 0) range = 1;
-		sint32 whichbest = g_rand->Next(range) + rankMax;
+		sint32 whichbest = civrand().Next(range) + rankMax;
 		if(whichbest >= count)
 			whichbest = count - 1;
 
@@ -194,13 +193,13 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 	{
 		sint32 maxHut = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians();
 		if (maxHut < 1) maxHut = 1;
-		maxBarbarians = g_rand->Next(maxHut - 1) + 1;
+		maxBarbarians = civrand().Next(maxHut - 1) + 1;
 	}
 	else
 	{
 		sint32 maxSpont = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians();
 		if (maxSpont < 1) maxSpont = 1;
-		maxBarbarians = g_rand->Next(maxSpont - 1) + 1;
+		maxBarbarians = civrand().Next(maxSpont - 1) + 1;
 	}
 
 	sint32 count = 0;
@@ -211,7 +210,7 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 
 	for(count = 0; count < maxBarbarians && triedCount < 8;)
 	{
-		sint32 use = g_rand->Next(NOWHERE);
+		sint32 use = civrand().Next(NOWHERE);
 		while(tried[use])
 		{
 			use++;
@@ -316,7 +315,7 @@ sint32 Barbarians::ChooseSeaUnitType()
 			rankMax = risk->GetBarbarianUnitRankMax();
 		}
 
-		sint32 whichbest = g_rand->Next(count - rankMax) + rankMax;
+		sint32 whichbest = civrand().Next(count - rankMax) + rankMax;
 		if(whichbest >= count)
 			whichbest = count - 1;
 
@@ -349,11 +348,11 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 	sint32 maxBarbarians;
 	if(fromGoodyHut)
 	{
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
 	}
 	else
 	{
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
 	}
 
 	sint32 count = 0;
@@ -364,7 +363,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 
 	for(count = 0; count < maxBarbarians && triedCount < 8;)
 	{
-		sint32 use = g_rand->Next(NOWHERE);
+		sint32 use = civrand().Next(NOWHERE);
 		while(tried[use])
 		{
 			use++;
@@ -461,7 +460,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 		} else {
 			rankMax = risk->GetBarbarianUnitRankMax();
 		}
-		sint32 whichbest = g_rand->Next(count - rankMax) + rankMax;
+		sint32 whichbest = civrand().Next(count - rankMax) + rankMax;
 		if(whichbest >= count)
 			whichbest = count - 1;
 
@@ -494,9 +493,9 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 
 	sint32 maxBarbarians;
 	if(fromGoodyHut) {
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
 	} else {
-		maxBarbarians = g_rand->Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
 	}
 
 	sint32 count = 0;
@@ -505,7 +504,7 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 	}
 
 	for(count = 0; count < maxBarbarians && triedCount < 8;) {
-		sint32 use = g_rand->Next(NOWHERE);
+		sint32 use = civrand().Next(NOWHERE);
 		while(tried[use]) {
 			use++;
 			if(use >= NOWHERE)
@@ -544,7 +543,7 @@ void Barbarians::BeginYear()
 
 	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
 
-	if(g_rand->Next(10000) < risk->GetBarbarianChance() * 10000)
+	if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000)
 	{
 /// @todo Refactor this (extract functions/methods) to make the code cleaner.
 ///       The combination of continue + multiple break levels makes it very
@@ -560,8 +559,8 @@ void Barbarians::BeginYear()
 
 		// this is for standard attack units
 		for(tries = 0; tries < k_MAX_BARBARIAN_TRIES; tries++) {
-			point.x = sint16(g_rand->Next(g_theWorld->GetXWidth()));
-			point.y = sint16(g_rand->Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
+			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
 
 			sint32 owner = g_theWorld->GetCell(point)->GetOwner();
 			if(owner > 0
@@ -594,8 +593,8 @@ void Barbarians::BeginYear()
 		sint32 ptries;
 		for(ptries = 0; ptries < k_MAX_BARBARIAN_TRIES; ptries++)
 		{
-			point.x = sint16(g_rand->Next(g_theWorld->GetXWidth()));
-			point.y = sint16(g_rand->Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
+			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
 
 			sint32 owner = g_theWorld->GetCell(point)->GetOwner();
 			if(owner > 0
@@ -626,8 +625,8 @@ void Barbarians::BeginYear()
 	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetBarbarianSpecialForces())
 	  {
 		for(sftries = 0; sftries < k_MAX_BARBARIAN_TRIES; ptries++) {
-			point.x = sint16(g_rand->Next(g_theWorld->GetXWidth()));
-			point.y = sint16(g_rand->Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
+			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
 
 			if (!g_theWorld->IsLand(point)) {
 				continue;

@@ -2154,7 +2154,7 @@ ORDER_RESULT ArmyData::Franchise(const MapPoint &point)
 	city.ModifySpecialAttackChance(UNIT_ORDER_FRANCHISE, chance);
 	city.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0)) {
+	if(civrand().Next(100) < sint32(chance * 100.0)) {
 
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakeFranchise,
 							   GEA_Unit, u,
@@ -2608,7 +2608,7 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
     strcpy(unitName, g_theStringDB->
            GetIdStr(g_theUnitDB->GetName(u.GetData()->GetType())));
 
-	if(g_rand->Next(100) >= sint32(chance * 100.0)) {
+	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 
         if (strcmp(unitName, "UNIT_CYBER_NINJA") == 0) {
             g_slicEngine->Execute
@@ -2772,7 +2772,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 	c.ModifySpecialAttackChance(UNIT_ORDER_PLANT_NUKE, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0)) {
+	if(civrand().Next(100) < sint32(chance * 100.0)) {
 		MapPoint pos;
 		MapPoint cpos;
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlantNukeUnit,
@@ -2781,7 +2781,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 							   GEA_End);
 
 		u.GetPos(pos);
-		if(g_rand->Next(100) < sint32(escape_chance)) {
+		if(civrand().Next(100) < sint32(escape_chance)) {
 
 			u.NearestFriendlyCity(cpos);
 			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Teleport,
@@ -3049,7 +3049,7 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 
 	g_slicEngine->RunEnslavementTriggers(m_array[uindex], target_city);
 
-	if(g_rand->Next(100) < sint32(success * 100.0))
+	if(civrand().Next(100) < sint32(success * 100.0))
 	{
 		if(target_city.PopCount() <= 1)
 		{
@@ -3090,7 +3090,7 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 		g_slicEngine->Execute
 		    (new CityReport("138SlaveFailedVictim", target_city));
 
-		if(g_rand->Next(100) < sint32(death * 100.0))
+		if(civrand().Next(100) < sint32(death * 100.0))
 		{
 			MapPoint pos;
 			m_array[uindex].GetPos(pos);
@@ -3407,7 +3407,7 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 
 	c.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(success * 100.0))
+	if(civrand().Next(100) < sint32(success * 100.0))
 	{
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_UndergroundRailwayUnit,
 							   GEA_Unit, m_array[uindex].m_id,
@@ -3419,7 +3419,7 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 	{
 		AddSpecialActionUsed(m_array[uindex]);
 
-		if(g_rand->Next(100) < sint32(death * 100.0))
+		if(civrand().Next(100) < sint32(death * 100.0))
 		{
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_UNDERGROUND_RR_RAID, -1);
 		}
@@ -3734,7 +3734,7 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 	c.ModifySpecialAttackChance(UNIT_ORDER_BIO_INFECT, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0))
+	if(civrand().Next(100) < sint32(chance * 100.0))
 	{
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
@@ -3755,7 +3755,7 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 		so->AddCity(c);
 		g_slicEngine->Execute(so);
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 
 		return ORDER_RESULT_FAILED;
@@ -3834,7 +3834,7 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 	c.ModifySpecialAttackChance(UNIT_ORDER_PLAGUE, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0)) {
+	if(civrand().Next(100) < sint32(chance * 100.0)) {
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
 							   GEA_City, c.m_id,
@@ -3852,7 +3852,7 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 		so->AddCity(c);
 		g_slicEngine->Execute(so);
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 
 		return ORDER_RESULT_FAILED;
@@ -3936,7 +3936,7 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 	c.ModifySpecialAttackChance(UNIT_ORDER_NANO_INFECT, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0)) {
+	if(civrand().Next(100) < sint32(chance * 100.0)) {
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCityUnit,
 							   GEA_Unit, m_array[uindex],
 							   GEA_City, c,
@@ -3961,7 +3961,7 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 		so->AddCity(c);
 		g_slicEngine->Execute(so);
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionTerroristDeathChance() * 100.0))
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 
 		return ORDER_RESULT_FAILED;
@@ -4168,7 +4168,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 	city.ModifySpecialAttackChance(UNIT_ORDER_CONVERT, best_chance);
 	city.SetWatchful();
 
-	if(g_rand->Next(100) < sint32(chance * 100.0)) {
+	if(civrand().Next(100) < sint32(chance * 100.0)) {
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCityUnit,
 							   GEA_Unit, u,
 							   GEA_City, city,
@@ -4209,7 +4209,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		g_slicEngine->Execute
 		    (new AggressorReport("153ConvertFailedAttacker", u, city));
 
-		if(g_rand->Next(100) < sint32(best_death_chance * 100.0)) {
+		if(civrand().Next(100) < sint32(best_death_chance * 100.0)) {
 			DPRINTF(k_DBG_GAMESTATE, ("And cleric died\n"));
 			u.Kill(CAUSE_REMOVE_ARMY_DIED_IN_CONVERT_RAID, -1);
 		}
@@ -4269,7 +4269,7 @@ ORDER_RESULT ArmyData::ReformCity(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetReformationChance() * 100.0))
+	if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetReformationChance() * 100.0))
 	{
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ReformCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
@@ -4301,7 +4301,7 @@ ORDER_RESULT ArmyData::ReformCity(const MapPoint &point)
 	} else {
 		DPRINTF(k_DBG_GAMESTATE, ("Reformation failed\n"));
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetReformationDeathChance() * 100.0)) {
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetReformationDeathChance() * 100.0)) {
 			DPRINTF(k_DBG_GAMESTATE, ("And inquisitor died.\n"));
 
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_REFORMATION, -1);
@@ -5460,7 +5460,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 
 			atLeastOneBombarded = true;
 
-			sint32 r = g_rand->Next(100);
+			sint32 r = civrand().Next(100);
 			DPRINTF(k_DBG_GAMESTATE, ("Bombarding 0x%lx: r1 = %d\n", c.m_id, r));
 
 			prob = static_cast<sint32>(rec->GetZBRangeAttack() - buildingutil_GetCityWallsDefense(c.GetCityData()->GetImprovements(), m_owner));
@@ -5500,7 +5500,7 @@ bool ArmyData::BombardCity(const MapPoint &point, bool doAnimations)
 			else
 			{
 				if(c.PopCount() > 1
-				&&(g_rand->Next(100) < g_theConstDB->Get(0)->GetBombardKillPopChance() * prob)
+				&&(civrand().Next(100) < g_theConstDB->Get(0)->GetBombardKillPopChance() * prob)
 				){
 					DPRINTF(k_DBG_GAMESTATE, ("Removing one pop from 0x%lx\n", c.m_id));
 					c.CD()->ChangePopulation(-1);
@@ -7349,7 +7349,7 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	}
 	// EMOD - Added Civ2 style Dove Party that prevents war
 	// if you have ParliamentaryVoteChance govt
-	else if (g_rand->Next(100) <
+	else if (civrand().Next(100) <
 	         g_theGovernmentDB->Get(g_player[m_owner]->m_government_type)
 	            ->GetParliamentaryVoteChance()
 	        )
@@ -8864,7 +8864,7 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 		CanAskFor(g_player[otherPlayer]->m_advances, num);
 
 	if(num > 0) {
-		sint32 which = g_rand->Next(num);
+		sint32 which = civrand().Next(num);
 		sint32 checked = 0;
 
 		for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
@@ -11277,7 +11277,7 @@ void ArmyData::CheckHostileTerrain()
 	sint32 hpcost;
 	if(trec->GetHostileTerrainCost(hpcost) && m_owner > 0) // Add AI immunity? No cheats, E!
 	{
-		if(g_rand->Next(10000) < risk->GetBarbarianChance() * 10000)
+		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000)
 		{
 
 			if( !terrainutil_HasFort(m_pos)
@@ -11366,7 +11366,7 @@ void ArmyData::BarbarianSpawning()
 	// This should be risk level depending  //EMOD added Risk 10-05-2006
 	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetNumBarbarianCamps())
 	{
-		if(g_rand->Next(10000) < risk->GetBarbarianChance() * 10000) {
+		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
 			for(i = 0; i < m_nElements; i++) {
 //				Cell *cell = g_theWorld->GetCell(m_pos);
 				const DifficultyRecord *drec = g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty());
@@ -11387,7 +11387,7 @@ void ArmyData::BarbarianSpawning()
 	// This should be risk level depending //EMOD added Risk 10-25-2006
 	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetBarbarianCities())
 	{
-		if(g_rand->Next(10000) < risk->GetBarbarianChance() * 10000) {
+		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
 			for(i = 0; i < m_nElements; i++) {
 				if(m_array[i].IsEntrenched()
 				&&!g_theWorld->GetCity(m_pos)
@@ -11421,7 +11421,7 @@ void ArmyData::BarbarianSpawning()
 			if (//new limits to prevent barbarian spam
 				(barbhorde) <= (barbmax^2) // create some kind of max
 			){
-				if(g_rand->Next(10000) < risk->GetBarbarianChance() * 10000) {
+				if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
 					Barbarians::AddBarbarians(m_pos, meat, true);
 				}
 			}

@@ -57,6 +57,9 @@
 #include "gs/gameobj/TradeOfferData.h"
 #include "gs/gameobj/BldQue.h"
 #include "ctp/ctp2_utils/pointerlist.h"    // PointerList<BuildNode>::Walker
+#include "gs/gameobj/FeatTracker.h"
+#include "FeatRecord.h"                    // g_theFeatDB (dbgen-built)
+#include "BuildingRecord.h"                // g_theBuildingDB (dbgen-built)
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1213,6 +1216,76 @@ void from_json(nlohmann::json const &j, BuildQueue &q)
         BuildNode *node = new BuildNode;
         node_json.get_to(*node);
         q.m_list->AddTail(node);
+    }
+}
+
+// Phase D worker batch — Feat + FeatTracker
+void to_json(nlohmann::json &j, Feat const &f)
+{
+    j = nlohmann::json{
+        {"type",   f.m_type},
+        {"player", f.m_player},
+        {"round",  f.m_round},
+    };
+}
+
+void from_json(nlohmann::json const &j, Feat &f)
+{
+    j.at("type")  .get_to(f.m_type);
+    j.at("player").get_to(f.m_player);
+    j.at("round") .get_to(f.m_round);
+}
+
+void to_json(nlohmann::json &j, FeatTracker const &ft)
+{
+    nlohmann::json active = nlohmann::json::array();
+    PointerList<Feat>::Walker walk(ft.m_activeList);
+    while (walk.IsValid())
+    {
+        active.push_back(*walk.GetObj());
+        walk.Next();
+    }
+
+    nlohmann::json achieved      = nlohmann::json::array();
+    nlohmann::json building_feat = nlohmann::json::array();
+    sint32 const   feat_count    = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
+    sint32 const   bldg_count    = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
+    for (sint32 i = 0; i < feat_count; ++i) achieved     .push_back(ft.m_achieved[i]);
+    for (sint32 i = 0; i < bldg_count; ++i) building_feat.push_back(ft.m_buildingFeat[i]);
+
+    j = nlohmann::json{
+        {"active",        std::move(active)},
+        {"achieved",      std::move(achieved)},
+        {"building_feat", std::move(building_feat)},
+    };
+}
+
+void from_json(nlohmann::json const &j, FeatTracker &ft)
+{
+    // Rebuild m_activeList from the JSON array.
+    ft.m_activeList->DeleteAll();
+    for (auto const &feat_json : j.at("active"))
+    {
+        Feat *feat = new Feat(0, 0);  // dummy ctor args; overwritten by JSON
+        feat_json.get_to(*feat);
+        ft.m_activeList->AddTail(feat);
+    }
+
+    // Achieved / building_feat: sized by current DB.  If the JSON
+    // counts don't match the live DB, log + skip (matches the
+    // binary path's tolerance to DB-size drift).
+    auto const &achieved      = j.at("achieved");
+    auto const &building_feat = j.at("building_feat");
+    sint32 const feat_count   = g_theFeatDB     ? g_theFeatDB->NumRecords()     : 0;
+    sint32 const bldg_count   = g_theBuildingDB ? g_theBuildingDB->NumRecords() : 0;
+
+    if (static_cast<sint32>(achieved.size()) == feat_count)
+    {
+        for (sint32 i = 0; i < feat_count; ++i) achieved[i].get_to(ft.m_achieved[i]);
+    }
+    if (static_cast<sint32>(building_feat.size()) == bldg_count)
+    {
+        for (sint32 i = 0; i < bldg_count; ++i) building_feat[i].get_to(ft.m_buildingFeat[i]);
     }
 }
 

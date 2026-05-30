@@ -75,6 +75,8 @@ sint32 const	USE_CURRENT_ROUND			= -1;
 #include "ctp/ctp2_utils/pointerlist.h"		// PointerList
 #include "gs/gameobj/Unit.h"				// Unit
 
+#include <nlohmann/json.hpp>
+
 //----------------------------------------------------------------------------
 // Class declarations
 //----------------------------------------------------------------------------
@@ -94,6 +96,9 @@ class Feat
 
   private:
 
+    friend void to_json(nlohmann::json &j, Feat const &f);
+    friend void from_json(nlohmann::json const &j, Feat &f);
+
 	sint32 m_type;
 	sint32 m_player;
 	sint32 m_round;
@@ -103,6 +108,14 @@ class Feat
 class FeatTracker {
 
 	friend class NetFeatTracker;
+
+    // JSON savegame bridge.  Covers m_activeList (as array of Feat
+    // objects), m_achieved (bool array sized by FeatDB), and
+    // m_buildingFeat (bool array sized by BuildingDB).  OMITS
+    // m_effectList — derived from m_activeList on load, like the
+    // binary path does.
+    friend void to_json(nlohmann::json &j, FeatTracker const &ft);
+    friend void from_json(nlohmann::json const &j, FeatTracker &ft);
 
   public:
 	FeatTracker();

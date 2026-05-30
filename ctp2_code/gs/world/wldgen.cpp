@@ -70,7 +70,7 @@
 #include "gs/gameobj/Player.h"                 // g_player
 #include "gs/utility/PQueue.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
-#include "gs/utility/RandGen.h"                // g_rand
+#include "gs/utility/RandGen.h"                // civrand()
 #include "ResourceRecord.h"
 #include "gs/fileio/StartingPosition.h"
 #include "TerrainRecord.h"
@@ -814,8 +814,8 @@ void World::GenerateGoods()
     sint32 ox, oy;
 	for (ox = b; ox + a < m_size.x ; ox += c) {
 		for (oy = b; oy + a < m_size.y ; oy += c) {
-			x = ox + g_rand->Next(a);
-			y = oy + g_rand->Next(a);
+			x = ox + civrand().Next(a);
+			y = oy + civrand().Next(a);
 
 			if(GetCell(x, y)->GetScratch() >= minAdjacent) {
 				SetRandomGood(x, y);
@@ -823,8 +823,8 @@ void World::GenerateGoods()
 		}
 
 		if (oy < m_size.y) {
-			x = ox + g_rand->Next(a);
-			y = oy + g_rand->Next(m_size.y - oy);
+			x = ox + civrand().Next(a);
+			y = oy + civrand().Next(m_size.y - oy);
 			if(GetCell(x, y)->GetScratch() >= minAdjacent) {
 				SetRandomGood(x, y);
 			}
@@ -835,16 +835,16 @@ void World::GenerateGoods()
 	if (0 < r)
     {
 		for (oy = b; oy + a < m_size.y ; oy += c) {
-			x = ox + g_rand->Next(r);
-			y = oy + g_rand->Next(a);
+			x = ox + civrand().Next(r);
+			y = oy + civrand().Next(a);
 			if(GetCell(x, y)->GetScratch() >= minAdjacent) {
 				SetRandomGood(x, y);
 			}
 		}
 
 		if (oy < m_size.y) {
-			x = ox + g_rand->Next(r);
-			y = oy + g_rand->Next(m_size.y - oy);
+			x = ox + civrand().Next(r);
+			y = oy + civrand().Next(m_size.y - oy);
 			if(GetCell(x, y)->GetScratch() >= minAdjacent) {
 				SetRandomGood(x, y);
 			}
@@ -1122,8 +1122,8 @@ void World::GenerateDeepWater()
 			minx = i * (m_size.x / cellWidth);
 			miny = j * (m_size.y / cellHeight);
 
-			minx += g_rand->Next(cellWidth);
-			miny += g_rand->Next(cellHeight);
+			minx += civrand().Next(cellWidth);
+			miny += civrand().Next(cellHeight);
 			if (m_map[minx][miny]->m_terrain_type == TERRAIN_WATER_DEEP)  {
 				m_map[minx][miny]->m_terrain_type = TERRAIN_WATER_RIFT;
 			}
@@ -1221,7 +1221,7 @@ void World::GenerateDeepWater()
 					if ((m_map[i][j]->m_search_count == oldval) ||
 						(m_map[i][j]->m_search_count == 0)) {
 						m_map[i][j]->m_search_count = rcount;
-					}       else if (g_rand->Next(100) < 95) {
+					}       else if (civrand().Next(100) < 95) {
 						m_map[i][j]->m_search_count = rcount;
 					}
 				}
@@ -1281,7 +1281,7 @@ void World::GenerateTrenches()
 			    && IsNextTo(TERRAIN_WATER_DEEP, i, j)
 			  )
 			{
-				if(g_rand->Next(100) < trench)
+				if(civrand().Next(100) < trench)
 				{
 					pos.Set(i, j);
 					sdcount= 0;
@@ -1457,7 +1457,7 @@ void World::GenerateVolcano()
 	for (i=0; i<m_size.x; i++) {
 		for (j=0; j<m_size.y; j++) {
 			if(m_map[i][j]->m_terrain_type == TERRAIN_WATER_DEEP) {
-				if (g_rand->Next(100) < g_theConstDB->Get(0)->GetPercentVolcano()) {
+				if (civrand().Next(100) < g_theConstDB->Get(0)->GetPercentVolcano()) {
 					m_map[i][j]->m_terrain_type = TERRAIN_WATER_VOLCANO;
 				}
 			}
@@ -2511,9 +2511,9 @@ void World::GenerateGoodyHuts()
 
 	for(x = 0; x < w; x++) {
 		for(y = 0; y < h; y++) {
-			if(g_rand->Next(100) < sint32(hutChance * 100.0)) {
-				sint32 coffx = g_rand->Next(hutBoxSize.x);
-				sint32 coffy = g_rand->Next(hutBoxSize.y);
+			if(civrand().Next(100) < sint32(hutChance * 100.0)) {
+				sint32 coffx = civrand().Next(hutBoxSize.x);
+				sint32 coffy = civrand().Next(hutBoxSize.y);
 				sint32 cellx = x * hutBoxSize.x + coffx;
 				sint32 celly = y * hutBoxSize.y + coffy;
 				Cell * cell = GetCell(cellx, celly);
@@ -2987,7 +2987,7 @@ void World::RemoveIsolatedWater()
 				WORLD_DIRECTION d;
 				sint32 count = 0;
 				do {
-					sint32 dn = g_rand->Next(4);
+					sint32 dn = civrand().Next(4);
 					switch(dn) {
 						case 0: d = NORTHWEST; break;
 						case 1: d = NORTHEAST; break;

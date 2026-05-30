@@ -6,6 +6,7 @@
 
 #include "gs/slic/slicif.h"
 #include "gs/slic/SlicStack.h"
+#include <nlohmann/json.hpp>
 
 enum SS_TYPE;
 class CivArchive;
@@ -42,6 +43,9 @@ public:
 	void SetStructTemplate(SlicStructDescription *desc) { m_structTemplate = desc; }
 
 	sint32 GetSize() { return m_arraySize; }
+
+	friend void to_json(nlohmann::json &j, SlicArray const &a);
+	friend void from_json(nlohmann::json const &j, SlicArray &a);
 };
 
 #endif

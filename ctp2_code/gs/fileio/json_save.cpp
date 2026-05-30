@@ -90,6 +90,8 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicNamedSymbol.h"
+#include "gs/slic/SlicArray.h"
+#include "gs/slic/SlicStruct.h"   // SlicStructDescription::GetType()
 #include "gs/slic/SlicFunc.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
@@ -3081,15 +3083,19 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
         case SLIC_SYM_UNDEFINED:
             // No payload — binary writes nothing for these.
             break;
+        case SLIC_SYM_ARRAY:
+            // F-11: SlicArray bridge wires in here.  Defined below
+            // (the friend declarations in SlicArray.h pick it up).
+            j["array"] = *s.m_val.m_array;
+            break;
         case SLIC_SYM_REGION:
         case SLIC_SYM_COMPLEX_REGION:
         case SLIC_SYM_BUILTIN:
         case SLIC_SYM_POP:
         case SLIC_SYM_PATH:
             throwUnsupportedSym(s.m_type, "to_json");
-        case SLIC_SYM_ARRAY:
         case SLIC_SYM_STRUCT:
-            // Pending SlicArray / SlicStructInstance bridges (F-11/F-12).
+            // Pending SlicStructInstance bridge (F-12).
             throwUnsupportedSym(s.m_type, "to_json");
     }
 }
@@ -3163,13 +3169,18 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
         case SLIC_SYM_STRUCT_MEMBER:
         case SLIC_SYM_UNDEFINED:
             break;
+        case SLIC_SYM_ARRAY:
+            // m_val.m_array takes ownership; ctor args are placeholders
+            // (overwritten by from_json from the JSON's "type"/"var_type").
+            s.m_val.m_array = new SlicArray(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+            j.at("array").get_to(*s.m_val.m_array);
+            break;
         case SLIC_SYM_REGION:
         case SLIC_SYM_COMPLEX_REGION:
         case SLIC_SYM_BUILTIN:
         case SLIC_SYM_POP:
         case SLIC_SYM_PATH:
             throwUnsupportedSym(type, "from_json");
-        case SLIC_SYM_ARRAY:
         case SLIC_SYM_STRUCT:
             throwUnsupportedSym(type, "from_json");
     }
@@ -3235,6 +3246,184 @@ void from_json(nlohmann::json const &j, SlicBuiltinNamedSymbol &s)
 {
     from_json(j, static_cast<SlicNamedSymbol &>(s));
     s.m_builtin = static_cast<SLIC_BUILTIN>(j.at("builtin").get<int>());
+}
+
+// Phase F-11 — SlicArray (and the polymorphic SlicSymbolData factory
+// used by both SlicArray's SYM cells and, later, SlicSymTab).
+//
+// Binary impl: SlicArray::Serialize at SlicArray.cpp:113 and
+// slicsymbol_Load at SlicSymbol.cpp:1135.
+
+namespace {
+
+// Polymorphic to_json companion to loadSlicSymbolFromJson.  Dispatches
+// on GetSerializeType() so a SlicSymbolData* whose dynamic type is one
+// of the F-10 subclasses serialises through the subclass's bridge.
+// nlohmann's ADL alone picks the static type, which would silently
+// drop subclass fields.
+nlohmann::json storeSlicSymbolToJson(SlicSymbolData *sym)
+{
+    if (!sym)
+        return nullptr;
+    switch (sym->GetSerializeType())
+    {
+        case SLIC_SYM_SERIAL_NAMED:
+            return *static_cast<SlicNamedSymbol *>(sym);
+        case SLIC_SYM_SERIAL_PARAMETER:
+            return *static_cast<SlicParameterSymbol *>(sym);
+        case SLIC_SYM_SERIAL_BUILTIN:
+            return *static_cast<SlicBuiltinNamedSymbol *>(sym);
+        case SLIC_SYM_SERIAL_MEMBER:
+            // SlicStructMemberData — F-12.  Binary writes nothing for it
+            // (Serialize is a no-op); fall through to generic for now.
+        case SLIC_SYM_SERIAL_GENERIC:
+        default:
+            return *sym;
+    }
+}
+
+// Mirrors slicsymbol_Load.  Reads "serial_type" from j and news the
+// matching concrete subclass, then populates it via from_json.  Returns
+// nullptr when j is JSON null.  Caller owns the result.
+SlicSymbolData *loadSlicSymbolFromJson(nlohmann::json const &j)
+{
+    if (j.is_null())
+        return nullptr;
+
+    std::string const serial = j.value("serial_type", std::string("generic"));
+
+    if (serial == "named")
+    {
+        auto *p = new SlicNamedSymbol;
+        from_json(j, *p);
+        return p;
+    }
+    if (serial == "parameter")
+    {
+        auto *p = new SlicParameterSymbol;
+        from_json(j, *p);
+        return p;
+    }
+    if (serial == "builtin")
+    {
+        auto *p = new SlicBuiltinNamedSymbol;
+        from_json(j, *p);
+        return p;
+    }
+    // "generic" or missing — base SlicSymbolData.
+    auto *p = new SlicSymbolData;
+    from_json(j, *p);
+    return p;
+}
+
+char const *ssTypeName(SS_TYPE t)
+{
+    switch (t)
+    {
+        case SS_TYPE_INT: return "int";
+        case SS_TYPE_VAR: return "var";
+        case SS_TYPE_SYM: return "sym";
+        case SS_TYPE_BAD: return "bad";
+    }
+    return "bad";
+}
+
+SS_TYPE ssTypeFromName(std::string const &s)
+{
+    if (s == "int") return SS_TYPE_INT;
+    if (s == "var") return SS_TYPE_VAR;
+    if (s == "sym") return SS_TYPE_SYM;
+    if (s == "bad") return SS_TYPE_BAD;
+    throw nlohmann::json::other_error::create(
+        501, "SlicArray: unknown SS_TYPE '" + s + "'", nullptr);
+}
+
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicArray const &a)
+{
+    j = nlohmann::json{
+        {"type",           ssTypeName(a.m_type)},
+        {"var_type",       slicSymTypeName(a.m_varType)},
+        {"allocated_size", a.m_allocatedSize},
+        {"size_is_fixed",  a.m_sizeIsFixed},
+    };
+
+    if (a.m_varType == SLIC_SYM_STRUCT)
+    {
+        // Stored as the SLIC_BUILTIN enum integer to match the binary
+        // path; resolved on load via g_slicEngine->GetStructDescription.
+        j["struct_template"] = a.m_structTemplate
+            ? static_cast<int>(a.m_structTemplate->GetType())
+            : -1;
+    }
+
+    nlohmann::json elements = nlohmann::json::array();
+    if (a.m_type == SS_TYPE_INT)
+    {
+        for (sint32 i = 0; i < a.m_arraySize; ++i)
+            elements.push_back(a.m_array[i].m_int);
+    }
+    else  // SS_TYPE_SYM (or VAR / BAD — preserve structure even if unused)
+    {
+        for (sint32 i = 0; i < a.m_arraySize; ++i)
+            elements.push_back(storeSlicSymbolToJson(a.m_array[i].m_sym));
+    }
+    j["elements"] = std::move(elements);
+}
+
+void from_json(nlohmann::json const &j, SlicArray &a)
+{
+    // Drop any existing storage; matches binary load which discards
+    // pre-existing m_array (the (CivArchive&) ctor allocates fresh).
+    if (a.m_type == SS_TYPE_SYM)
+    {
+        for (size_t i = 0; i < a.m_allocatedSize; ++i)
+            delete a.m_array[i].m_sym;
+    }
+    delete[] a.m_array;
+
+    a.m_type     = ssTypeFromName(j.at("type").get<std::string>());
+    a.m_varType  = slicSymTypeFromName(j.at("var_type").get<std::string>());
+    j.at("allocated_size").get_to(a.m_allocatedSize);
+    j.at("size_is_fixed").get_to(a.m_sizeIsFixed);
+
+    if (a.m_varType == SLIC_SYM_STRUCT)
+    {
+        SLIC_BUILTIN const which =
+            static_cast<SLIC_BUILTIN>(j.value("struct_template", -1));
+        a.m_structTemplate = (g_slicEngine && static_cast<int>(which) >= 0)
+                                 ? g_slicEngine->GetStructDescription(which)
+                                 : nullptr;
+    }
+    else
+    {
+        a.m_structTemplate = nullptr;
+    }
+
+    auto const &elements = j.at("elements");
+    a.m_arraySize = static_cast<sint32>(elements.size());
+
+    // allocated_size must cover arraySize; widen if the JSON was hand-
+    // edited to a smaller capacity than its element list.
+    if (a.m_allocatedSize < static_cast<uint32>(a.m_arraySize))
+        a.m_allocatedSize = static_cast<uint32>(a.m_arraySize);
+    if (a.m_allocatedSize == 0)
+        a.m_allocatedSize = 1;  // matches k_DEFAULT_SLICARRAY_SIZE
+
+    a.m_array = new SlicStackValue[a.m_allocatedSize];
+    std::memset(a.m_array, 0, a.m_allocatedSize * sizeof(SlicStackValue));
+
+    if (a.m_type == SS_TYPE_INT)
+    {
+        for (sint32 i = 0; i < a.m_arraySize; ++i)
+            elements[i].get_to(a.m_array[i].m_int);
+    }
+    else
+    {
+        for (sint32 i = 0; i < a.m_arraySize; ++i)
+            a.m_array[i].m_sym = loadSlicSymbolFromJson(elements[i]);
+    }
 }
 
 namespace json_save {

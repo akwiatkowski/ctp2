@@ -65,6 +65,7 @@
 #include "gs/slic/SlicRecord.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicNamedSymbol.h"
+#include "gs/slic/SlicArray.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2779,8 +2780,8 @@ TEST_CASE("json round-trip: SlicSymbolData REGION/BUILTIN/POP/PATH throw")
 {
     for (SLIC_SYM bad : {SLIC_SYM_REGION, SLIC_SYM_COMPLEX_REGION,
                          SLIC_SYM_BUILTIN, SLIC_SYM_POP, SLIC_SYM_PATH,
-                         // Nested-bridge-pending until F-11/F-12:
-                         SLIC_SYM_ARRAY, SLIC_SYM_STRUCT})
+                         // Nested-bridge-pending until F-12 (STRUCT):
+                         SLIC_SYM_STRUCT})
     {
         SlicSymbolData s(bad);
         nlohmann::json j;
@@ -2883,4 +2884,156 @@ TEST_CASE("json round-trip: F-10 symbol extensions use snake_case (no m_ leak)")
     for (auto const &j : {nlohmann::json(n), nlohmann::json(p)})
         for (auto const &el : j.items())
             CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-11 — SlicArray (and the polymorphic SlicSymbolData factory).
+
+TEST_CASE("json round-trip: SlicArray SS_TYPE_INT")
+{
+    SlicArray orig(SS_TYPE_INT, SLIC_SYM_IVAR);
+    SlicStackValue v;
+    v.m_int = 42;  orig.Insert(0, SS_TYPE_INT, v);
+    v.m_int = -1;  orig.Insert(1, SS_TYPE_INT, v);
+    v.m_int = 7;   orig.Insert(2, SS_TYPE_INT, v);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]            == "int");
+    CHECK(j["var_type"]        == "ivar");
+    CHECK(j["size_is_fixed"]   == false);
+    CHECK(j["elements"].size() == 3);
+    CHECK(j["elements"][0]     == 42);
+    CHECK(j["elements"][1]     == -1);
+    CHECK(j["elements"][2]     == 7);
+    CHECK_FALSE(j.contains("struct_template"));
+
+    SlicArray round(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+    j.get_to(round);
+    CHECK(round.GetType() == SS_TYPE_INT);
+    CHECK(round.GetSize() == 3);
+
+    SS_TYPE rt;
+    SlicStackValue rv;
+    CHECK(round.Lookup(0, rt, rv)); CHECK(rv.m_int == 42);
+    CHECK(round.Lookup(2, rt, rv)); CHECK(rv.m_int == 7);
+}
+
+TEST_CASE("json round-trip: SlicArray SS_TYPE_SYM via factory dispatch")
+{
+    // SlicArray::Insert(SS_TYPE_SYM, ...) does not store the caller's
+    // pointer — it allocates a fresh SlicSymbolData and copies via
+    // SetValueFromStackValue, which loses subclass type.  To exercise
+    // the polymorphic-load factory (NamedSymbol round-trip), construct
+    // the JSON directly and verify load + re-serialise preserves
+    // serial_type.
+    nlohmann::json j = {
+        {"type",           "sym"},
+        {"var_type",       "ivar"},
+        {"allocated_size", 2},
+        {"size_is_fixed",  false},
+        {"elements", {
+            {
+                {"type", "ivar"}, {"int_value", 99},
+                {"serial_type", "named"}, {"name", "hello"},
+                {"index", 4}, {"from_file", 0xFF},
+            },
+            nullptr,
+        }},
+    };
+
+    SlicArray round(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+    j.get_to(round);
+    CHECK(round.GetType() == SS_TYPE_SYM);
+    CHECK(round.GetSize() == 2);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["elements"][0]["serial_type"] == "named");
+    CHECK(j2["elements"][0]["name"]        == "hello");
+    CHECK(j2["elements"][0]["int_value"]   == 99);
+    CHECK(j2["elements"][1].is_null());
+}
+
+TEST_CASE("json round-trip: SlicArray empty")
+{
+    SlicArray orig(SS_TYPE_INT, SLIC_SYM_IVAR);
+    nlohmann::json j = orig;
+    CHECK(j["elements"].size() == 0);
+
+    SlicArray round(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+    j.get_to(round);
+    CHECK(round.GetSize() == 0);
+    CHECK(round.GetType() == SS_TYPE_INT);
+}
+
+TEST_CASE("json round-trip: SlicArray fixed-size flag round-trips")
+{
+    SlicArray orig(SS_TYPE_INT, SLIC_SYM_IVAR);
+    orig.FixSize(4);  // allocates 4, sets m_sizeIsFixed=true, size=4
+
+    nlohmann::json j = orig;
+    CHECK(j["allocated_size"]  == 4);
+    CHECK(j["size_is_fixed"]   == true);
+    CHECK(j["elements"].size() == 4);  // 4 zero-initialised int cells
+
+    SlicArray round(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+    j.get_to(round);
+    CHECK(round.GetSize() == 4);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["size_is_fixed"]  == true);
+    CHECK(j2["allocated_size"] == 4);
+}
+
+TEST_CASE("json round-trip: SlicArray capacity > size (Insert grows capacity)")
+{
+    SlicArray orig(SS_TYPE_INT, SLIC_SYM_IVAR);
+    SlicStackValue v;
+    v.m_int = 1; orig.Insert(0, SS_TYPE_INT, v);
+    v.m_int = 2; orig.Insert(1, SS_TYPE_INT, v);
+    v.m_int = 3; orig.Insert(2, SS_TYPE_INT, v);
+    // k_DEFAULT_SLICARRAY_SIZE=1, doubles to 2 then 4 — capacity 4, size 3.
+
+    nlohmann::json j = orig;
+    CHECK(j["elements"].size() == 3);
+    CHECK(j["allocated_size"]  == 4);
+
+    SlicArray round(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
+    j.get_to(round);
+    CHECK(round.GetSize() == 3);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["allocated_size"] == 4);
+}
+
+TEST_CASE("json round-trip: SlicArray keys are snake_case (no m_ leak)")
+{
+    SlicArray a(SS_TYPE_INT, SLIC_SYM_IVAR);
+    nlohmann::json j = a;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: SlicSymbolData ARRAY composition (F-9 + F-11)")
+{
+    // The F-9 SLIC_SYM_ARRAY case used to throw; verify it now round-
+    // trips through the SlicArray bridge.
+    auto *arr = new SlicArray(SS_TYPE_INT, SLIC_SYM_IVAR);
+    SlicStackValue v; v.m_int = 17;
+    arr->Insert(0, SS_TYPE_INT, v);
+
+    SlicSymbolData orig(arr);   // takes ownership
+
+    nlohmann::json j = orig;
+    CHECK(j["type"] == "array");
+    CHECK(j["array"]["elements"][0] == 17);
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_ARRAY);
+    SlicArray *back = round.GetArray();
+    REQUIRE(back != nullptr);
+    CHECK(back->GetSize() == 1);
+    SS_TYPE rt;
+    SlicStackValue rv;
+    CHECK(back->Lookup(0, rt, rv));
+    CHECK(rv.m_int == 17);
 }

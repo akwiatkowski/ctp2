@@ -3336,3 +3336,69 @@ TEST_CASE("json round-trip: SlicContext keys are snake_case (no m_ leak)")
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }
+
+// Phase F-15b — SlicObject (extends SlicContext).
+
+#include "gs/slic/SlicObject.h"
+
+TEST_CASE("json round-trip: SlicObject default-constructed (mostly null)")
+{
+    SlicObject orig;
+
+    nlohmann::json j = orig;
+    CHECK(j["id"]                       == "");
+    CHECK(j["seconds"]                  == 1);
+    CHECK(j["recipients"].size()        == 0);
+    CHECK(j["segment_name"]             == "");
+    CHECK(j["default_advance_set"]      == 0);
+    CHECK(j["aborted"]                  == 0);
+    CHECK(j["instant_message"]          == 0);
+
+    // Base context fields are flattened into the same JSON object.
+    CHECK(j["cities"].is_null());
+    CHECK(j["actions"].is_array());
+    CHECK(j["actions"].size() == 0);
+
+    SlicObject round;
+    j.get_to(round);
+    CHECK(round.GetIdle() == 1);
+    CHECK(round.GetNumRecipients() == 0);
+    CHECK(round.GetSegment() == nullptr);
+}
+
+TEST_CASE("json round-trip: SlicObject with recipients + flags + base context")
+{
+    // Use default ctor — SlicObject(char const*) dereferences
+    // g_slicEngine which is null in unit tests.
+    SlicObject orig;
+    orig.SetIdle(5);
+    orig.AddRecipient(2);
+    orig.AddRecipient(5);
+    orig.SetClass(7);
+    orig.SetDontSave();
+    orig.AddInt(123);   // exercises base SlicContext field
+
+    nlohmann::json j = orig;
+    CHECK(j["seconds"]      == 5);
+    CHECK(j["recipients"]   == std::vector<sint32>{2, 5});
+    CHECK(j["class"]        == 7);
+    CHECK(j["dont_save"]    != 0);
+    CHECK(j["ints"]         == std::vector<sint32>{123});
+
+    SlicObject round;
+    j.get_to(round);
+    CHECK(round.GetIdle()           == 5);
+    CHECK(round.GetNumRecipients()  == 2);
+    CHECK(round.GetRecipient(0)     == 2);
+    CHECK(round.GetRecipient(1)     == 5);
+    CHECK(round.GetNumInts()        == 1);
+    CHECK(round.GetInt(0)           == 123);
+}
+
+TEST_CASE("json round-trip: SlicObject keys are snake_case (no m_ leak)")
+{
+    SlicObject o;
+    nlohmann::json j = o;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}

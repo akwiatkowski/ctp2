@@ -33,6 +33,7 @@
 #define __SLIC_OBJECT_H__
 
 #include "gs/slic/SlicContext.h"
+#include <nlohmann/json.hpp>
 
 class ID;
 class CivArchive ;
@@ -148,6 +149,8 @@ public:
 	void Continue();
 	void Finish();
 
+	friend void to_json(nlohmann::json &j, SlicObject const &o);
+	friend void from_json(nlohmann::json const &j, SlicObject &o);
 };
 
 #endif

@@ -94,6 +94,8 @@
 #include "gs/slic/SlicStruct.h"   // SlicStructDescription::GetType()
 #include "gs/slic/SlicSymTab.h"
 #include "gs/slic/SlicContext.h"
+#include "gs/slic/SlicObject.h"
+#include "gs/slic/SlicFrame.h"
 #include "gs/slic/SlicFunc.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
@@ -3711,6 +3713,94 @@ void from_json(nlohmann::json const &j, SlicContext &c)
             std::memcpy(c.m_actionList[i], s.c_str(), s.size() + 1);
         }
     }
+}
+
+// Phase F-15b — SlicObject (extends SlicContext with message/event
+// metadata).  Mirrors SlicObject::Serialize at slicobject.cpp:541.
+//
+// Adds to the base SlicContext payload: id, segment (by name),
+// numRecipients + recipientList, seconds, the nine sint32 flags
+// (default_advance_set/default_advance/aborted/instant_message/
+// class/dont_save/close_disabled/is_diplomatic_response/
+// use_director), plus the m_request ID.  Transient fields
+// (m_refCount, m_frame, m_index, m_argList, m_result) are not
+// persisted — matches binary.
+
+void to_json(nlohmann::json &j, SlicObject const &o)
+{
+    // Embed the base context under a nested key so SlicObject's own
+    // fields live at the top level.
+    to_json(j, static_cast<SlicContext const &>(o));
+
+    j["kind"]    = "slic_object";
+    j["id"]      = o.m_id ? std::string(o.m_id) : std::string();
+    j["seconds"] = o.m_seconds;
+
+    nlohmann::json recipients = nlohmann::json::array();
+    for (sint32 i = 0; i < o.m_numRecipients; ++i)
+        recipients.push_back(o.m_recipientList[i]);
+    j["recipients"] = std::move(recipients);
+
+    j["segment_name"] = o.m_segment
+        ? std::string(o.m_segment->GetName())
+        : std::string();
+
+    j["default_advance_set"]     = o.m_defaultAdvanceSet;
+    j["default_advance"]         = o.m_defaultAdvance;
+    j["aborted"]                 = o.m_aborted;
+    j["instant_message"]         = o.m_instantMessage;
+    j["class"]                   = o.m_class;
+    j["dont_save"]               = o.m_dontSave;
+    j["close_disabled"]          = o.m_closeDisabled;
+    j["is_diplomatic_response"]  = o.m_isDiplomaticResponse;
+    j["use_director"]            = o.m_useDirector;
+
+    j["request"] = o.m_request ? static_cast<uint32>(o.m_request->m_id) : 0u;
+}
+
+void from_json(nlohmann::json const &j, SlicObject &o)
+{
+    from_json(j, static_cast<SlicContext &>(o));
+
+    o.m_refCount = 0;
+
+    std::string id = j.at("id").get<std::string>();
+    delete[] o.m_id;
+    o.m_id = new char[id.size() + 1];
+    std::memcpy(o.m_id, id.c_str(), id.size() + 1);
+
+    j.at("seconds").get_to(o.m_seconds);
+
+    auto recipients = j.at("recipients").get<std::vector<sint32>>();
+    delete[] o.m_recipientList;
+    o.m_numRecipients = static_cast<sint32>(recipients.size());
+    o.m_recipientList = o.m_numRecipients > 0
+                           ? new sint32[o.m_numRecipients]
+                           : nullptr;
+    for (sint32 i = 0; i < o.m_numRecipients; ++i)
+        o.m_recipientList[i] = recipients[i];
+
+    std::string segName = j.at("segment_name").get<std::string>();
+    o.m_segment = (g_slicEngine && !segName.empty())
+                      ? g_slicEngine->GetSegment(segName.c_str())
+                      : nullptr;
+    // m_frame is recreated from m_segment by the binary path; do the
+    // same here when possible.
+    delete o.m_frame;
+    o.m_frame = o.m_segment ? new SlicFrame(o.m_segment) : nullptr;
+
+    j.at("default_advance_set").get_to(o.m_defaultAdvanceSet);
+    j.at("default_advance").get_to(o.m_defaultAdvance);
+    j.at("aborted").get_to(o.m_aborted);
+    j.at("instant_message").get_to(o.m_instantMessage);
+    j.at("class").get_to(o.m_class);
+    j.at("dont_save").get_to(o.m_dontSave);
+    j.at("close_disabled").get_to(o.m_closeDisabled);
+    j.at("is_diplomatic_response").get_to(o.m_isDiplomaticResponse);
+    j.at("use_director").get_to(o.m_useDirector);
+
+    if (o.m_request)
+        o.m_request->m_id = j.value("request", 0u);
 }
 
 // Phase F-14 — SlicSegment (compiled SLIC script segment).  Mirrors

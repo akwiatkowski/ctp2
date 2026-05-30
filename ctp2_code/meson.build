@@ -1280,6 +1280,7 @@ cpp_test_sources = [
   'test/cpp/test_ui_command_surface.cpp',
   'test/cpp/test_headless_smoke.cpp',
   'test/cpp/test_headless_determinism.cpp',
+  'test/cpp/test_save_determinism.cpp',
   'test/cpp/test_save_load.cpp',
   'test/cpp/test_headless_progression.cpp',
   'test/cpp/test_headless_long.cpp',

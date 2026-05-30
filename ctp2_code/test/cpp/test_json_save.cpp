@@ -53,6 +53,8 @@
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/gameobj/TopTen.h"
+#include "gs/gameobj/EventTracker.h"
+#include "gs/gameobj/GoodyHuts.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -2171,6 +2173,42 @@ TEST_CASE("json round-trip: TopTen keys are snake_case (no m_ leak)")
     nlohmann::json j = orig;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-3 — EventTracker + GoodyHut
+
+TEST_CASE("json round-trip: EventTracker preserves event list")
+{
+    EventTracker orig;
+    orig.AddEvent(EVENT_TYPE_WONDER, 2, 100, 7);
+    orig.AddEvent(EVENT_TYPE_FEAT,   3, 101, 12);
+
+    nlohmann::json j = orig;
+    CHECK(j["events"].size() == 2);
+    CHECK(j["events"][0]["type"]       == EVENT_TYPE_WONDER);
+    CHECK(j["events"][0]["player_num"] == 2);
+    CHECK(j["events"][1]["db_index"]   == 12);
+
+    EventTracker round;
+    j.get_to(round);
+    CHECK(round.GetEventCount() == 2);
+}
+
+TEST_CASE("json round-trip: GoodyHut preserves value + type")
+{
+    GoodyHut orig(GOODY_GOLD, 1234);
+    nlohmann::json j = orig;
+
+    CHECK(j["value"]      == 1234u);
+    CHECK(j["type_value"] == static_cast<uint32>(GOODY_GOLD));
+
+    // Default ctor uses civrand which may not be initialised in this
+    // test fixture; construct round with explicit (type, value) and
+    // let from_json overwrite.
+    GoodyHut round(0, 0);
+    j.get_to(round);
+    nlohmann::json j2 = round;
+    CHECK(j2 == j);
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

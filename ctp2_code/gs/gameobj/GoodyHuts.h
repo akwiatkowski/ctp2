@@ -64,6 +64,8 @@ enum GOODY
 #include "os/include/ctp2_inttypes.h"      // uint32
 #include "gs/gameobj/Player.h"             // PLAYER_INDEX
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 class MapPoint;
 class NetCellList;
@@ -97,6 +99,24 @@ private:
 	GOODY ChooseType(PLAYER_INDEX const & owner);
 
 	friend class NetCellList;
+
+	// JSON bridge — mirrors GoodyHut::Serialize.  Persists value + type.
+	friend void to_json(nlohmann::json &j, GoodyHut const &g);
+	friend void from_json(nlohmann::json const &j, GoodyHut &g);
 };
+
+inline void to_json(nlohmann::json &j, GoodyHut const &g)
+{
+	j = nlohmann::json{
+		{"value",      g.m_value},
+		{"type_value", g.m_typeValue},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, GoodyHut &g)
+{
+	j.at("value")     .get_to(g.m_value);
+	j.at("type_value").get_to(g.m_typeValue);
+}
 
 #endif

@@ -3,6 +3,8 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
+#include <nlohmann/json.hpp>
+
 void trackerevent_Initialize();
 void trackerevent_Cleanup();
 
@@ -25,6 +27,24 @@ struct EventData
 	sint32 m_dbIndex;
 };
 
+inline void to_json(nlohmann::json &j, EventData const &e)
+{
+	j = nlohmann::json{
+		{"type",       static_cast<sint32>(e.m_type)},
+		{"player_num", e.m_playerNum},
+		{"turn",       e.m_turn},
+		{"db_index",   e.m_dbIndex},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, EventData &e)
+{
+	e.m_type = static_cast<EVENT_TYPE>(j.at("type").get<sint32>());
+	j.at("player_num").get_to(e.m_playerNum);
+	j.at("turn")      .get_to(e.m_turn);
+	j.at("db_index")  .get_to(e.m_dbIndex);
+}
+
 class EventTracker
 {
 public:
@@ -38,7 +58,39 @@ public:
 	int GetEventCount();
 public:
 	PointerList<EventData> *m_dataList;
+
+	// JSON bridge — mirrors EventTracker::Serialize.  Persists every
+	// EventData in m_dataList.
+	friend void to_json(nlohmann::json &j, EventTracker const &t);
+	friend void from_json(nlohmann::json const &j, EventTracker &t);
 };
+
+inline void to_json(nlohmann::json &j, EventTracker const &t)
+{
+	nlohmann::json events = nlohmann::json::array();
+	if (t.m_dataList)
+	{
+		PointerList<EventData>::Walker w(t.m_dataList);
+		while (w.IsValid())
+		{
+			events.push_back(*w.GetObj());
+			w.Next();
+		}
+	}
+	j = nlohmann::json{{"events", std::move(events)}};
+}
+
+inline void from_json(nlohmann::json const &j, EventTracker &t)
+{
+	if (!t.m_dataList) t.m_dataList = new PointerList<EventData>;
+	t.m_dataList->DeleteAll();
+	for (auto const &entry : j.at("events"))
+	{
+		EventData *e = new EventData;
+		entry.get_to(*e);
+		t.m_dataList->AddTail(e);
+	}
+}
 
 extern EventTracker *g_eventTracker;
 

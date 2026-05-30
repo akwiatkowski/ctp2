@@ -29,16 +29,16 @@
 // - Added IsWounded method - Calvitix
 // - Added a isstealth paramater in characterizeArmy method - Calvitix
 // - Moved UnitValidForOrder to Unit.h to be able to access the Unit
-//   properties. - April 24th 2005 Martin Gühmann
-// - Added Cleanup. (Sep. 25th 2005 Martin Gühmann)
+//   properties. - April 24th 2005 Martin Gï¿½hmann
+// - Added Cleanup. (Sep. 25th 2005 Martin Gï¿½hmann)
 // - Moved the upgrade stuff into its own methods, however more work is needed.
-//   (Dec 24th 2006 Martin Gühmann)
-// - Improved Ungroup and transport capacity methods. (5-Aug-2007 Martin Gühmann)
+//   (Dec 24th 2006 Martin Gï¿½hmann)
+// - Improved Ungroup and transport capacity methods. (5-Aug-2007 Martin Gï¿½hmann)
 // - PerformOrderHere move to target order can now be inserted at tail into the
-//   event queue. (30-Jan-2008 Martin Gühmann)
-// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gühmann).
-// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gühmann)
-// - Merged finish move. (13-Aug-2008 Martin Gühmann)
+//   event queue. (30-Jan-2008 Martin Gï¿½hmann)
+// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gï¿½hmann).
+// - Separated the Settle event drom the Settle in City event. (19-Feb-2008 Martin Gï¿½hmann)
+// - Merged finish move. (13-Aug-2008 Martin Gï¿½hmann)
 // - Added HasCargoOnlyStealth. (13-Apr-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -59,6 +59,8 @@
 #include "UnitRecord.h"
 #include "gs/world/MapPoint.h"
 #include "gs/world/cellunitlist.h"
+
+#include <nlohmann/json.hpp>
 
 class CivArchive;
 class Path;
@@ -105,6 +107,14 @@ class ArmyData : public GameObj,
 
 private:
     friend class NetArmy;
+    // JSON bridge â€” mirrors ArmyData::Serialize at ArmyData.cpp:494.
+    // Composes GameObj id + CellUnitList base + Order list + scalars
+    // + variable-length name.  OMITS intrusive list (m_lesser /
+    // m_greater) and transient state (m_tempKillList, m_killMeSoon,
+    // m_debugString, m_reentryTurn/Pos).  m_attackedByDefenders
+    // (UnitDynamicArray*) is captured inline.
+    friend void to_json(nlohmann::json &j, ArmyData const &a);
+    friend void from_json(nlohmann::json const &j, ArmyData &a);
 
     UnitDynamicArray          *m_tempKillList;         // Not really used
 

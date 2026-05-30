@@ -47,6 +47,9 @@
 #include "gs/gameobj/UnitTypes.h"
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"
+#include "gs/gameobj/ArmyData.h"
+#include "gs/world/cellunitlist.h"
+#include "gs/utility/UnitDynArr.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1741,6 +1744,183 @@ TEST_CASE("json round-trip: Order deferred pointer fields are null in JSON")
     CHECK(j["game_event_args"] .is_null());
     CHECK_FALSE(j.contains("index"));
     CHECK_FALSE(j.contains("m_index"));
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase E-2 — CellUnitList tests
+//
+// CellUnitList's data members are protected, so we use a tiny test
+// shim that grants direct access for assertions / seeding.  The
+// to_json/from_json friend functions still operate on the
+// CellUnitList base part — derived slicing is intentional here.
+class TestCellUnitList : public CellUnitList
+{
+public:
+    void Seed(sint32 nElements, uint32 moveIntersection, uint8 flags)
+    {
+        m_nElements        = nElements;
+        m_moveIntersection = moveIntersection;
+        m_flags            = flags;
+        for (sint32 i = 0; i < nElements; ++i)
+            m_array[i] = Unit(0x10000 + i);
+    }
+    sint32 NElements()        const { return m_nElements; }
+    uint32 MoveIntersection() const { return m_moveIntersection; }
+    uint8  Flags()            const { return m_flags; }
+    Unit   At(sint32 i)       const { return m_array[i]; }
+};
+
+TEST_CASE("json round-trip: CellUnitList empty list preserves all scalars")
+{
+    TestCellUnitList orig;
+    orig.Seed(0, 0xDEADBEEFu, k_CULF_IGNORES_ZOC);
+
+    nlohmann::json j = static_cast<CellUnitList const &>(orig);
+    TestCellUnitList round;
+    j.get_to(static_cast<CellUnitList &>(round));
+
+    CHECK(round.NElements()        == 0);
+    CHECK(round.MoveIntersection() == 0xDEADBEEFu);
+    CHECK(round.Flags()            == k_CULF_IGNORES_ZOC);
+    CHECK(j["units"].is_array());
+    CHECK(j["units"].size()        == 0);
+}
+
+TEST_CASE("json round-trip: CellUnitList preserves units + count + flags")
+{
+    TestCellUnitList orig;
+    orig.Seed(3, 0xCAFEBABEu, k_CULF_CAN_SPACE_LAUNCH | k_CULF_IN_SPACE);
+
+    nlohmann::json j = static_cast<CellUnitList const &>(orig);
+    TestCellUnitList round;
+    j.get_to(static_cast<CellUnitList &>(round));
+
+    CHECK(round.NElements()        == 3);
+    CHECK(round.MoveIntersection() == 0xCAFEBABEu);
+    CHECK(round.Flags()            == (k_CULF_CAN_SPACE_LAUNCH | k_CULF_IN_SPACE));
+    CHECK(round.At(0).m_id         == 0x10000u);
+    CHECK(round.At(1).m_id         == 0x10001u);
+    CHECK(round.At(2).m_id         == 0x10002u);
+
+    CHECK(j["units"].size()        == 3);
+}
+
+TEST_CASE("json round-trip: CellUnitList rejects size mismatch")
+{
+    TestCellUnitList orig;
+    orig.Seed(2, 0, 0);
+
+    nlohmann::json j = static_cast<CellUnitList const &>(orig);
+    j["num_elements"] = 5;            // lie about size
+
+    TestCellUnitList round;
+    CHECK_THROWS_AS(j.get_to(static_cast<CellUnitList &>(round)),
+                    nlohmann::json::other_error);
+}
+
+TEST_CASE("json round-trip: CellUnitList keys are exactly the documented set")
+{
+    TestCellUnitList orig;
+    orig.Seed(0, 0, 0);
+    nlohmann::json j = static_cast<CellUnitList const &>(orig);
+
+    CHECK(j.size() == 4);
+    CHECK(j.contains("units"));
+    CHECK(j.contains("move_intersection"));
+    CHECK(j.contains("flags"));
+    CHECK(j.contains("num_elements"));
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase E-2 — ArmyData tests
+//
+// ArmyData has no default ctor; it requires an Army.  We construct
+// with Army(0) which produces an invalid handle suitable for pure
+// JSON-bridge exercise (no game-world dispatch).
+
+TEST_CASE("json round-trip: ArmyData default-constructed produces full key set")
+{
+    // ArmyData's data members are private and there is no default
+    // ctor — we can only round-trip a freshly constructed instance
+    // and assert on the produced JSON shape.  Field-level value
+    // round-trip is verified at the JSON level (from_json → to_json
+    // idempotency) in the next test.
+    ArmyData orig(Army(0));
+    nlohmann::json j = orig;
+
+    CHECK(j.contains("id"));
+    CHECK(j.contains("cell_unit_list"));
+    CHECK(j.contains("attacked_by_defenders"));
+    CHECK(j.contains("pos"));
+    CHECK(j.contains("owner"));
+    CHECK(j.contains("killer"));
+    CHECK(j.contains("remove_cause"));
+    CHECK(j.contains("dont_kill_count"));
+    CHECK(j.contains("need_to_kill"));
+    CHECK(j.contains("has_been_added"));
+    CHECK(j.contains("is_pirating"));
+    CHECK(j.contains("orders"));
+    CHECK(j.contains("name"));
+}
+
+TEST_CASE("json round-trip: ArmyData JSON → ArmyData → JSON is idempotent")
+{
+    // Build a known-shape JSON, from_json into ArmyData, to_json back,
+    // and check the round-trip matches.  This exercises the bridge
+    // without needing private-field access in the test.
+    nlohmann::json const seed = nlohmann::json{
+        {"id",                       0xABCD1234u},
+        {"cell_unit_list",           nlohmann::json{
+            {"units",             nlohmann::json::array()},
+            {"move_intersection", 0u},
+            {"flags",             0},
+            {"num_elements",      0},
+        }},
+        {"attacked_by_defenders",    nlohmann::json::array()},
+        {"pos",                      nlohmann::json{{"x", 5}, {"y", 7}, {"z", 0}}},
+        {"owner",                    3},
+        {"killer",                   2},
+        {"remove_cause",             static_cast<sint32>(CAUSE_REMOVE_ARMY_DIPLOMACY)},
+        {"dont_kill_count",          11},
+        {"need_to_kill",             true},
+        {"has_been_added",           false},
+        {"is_pirating",              true},
+        {"orders",                   nlohmann::json::array()},
+        {"name",                     "first-army"},
+    };
+
+    ArmyData round(Army(0));
+    seed.get_to(round);
+    nlohmann::json const j2 = round;
+
+    CHECK(j2["id"]              == seed["id"]);
+    CHECK(j2["pos"]             == seed["pos"]);
+    CHECK(j2["owner"]           == seed["owner"]);
+    CHECK(j2["killer"]          == seed["killer"]);
+    CHECK(j2["remove_cause"]    == seed["remove_cause"]);
+    CHECK(j2["dont_kill_count"] == seed["dont_kill_count"]);
+    CHECK(j2["need_to_kill"]    == seed["need_to_kill"]);
+    CHECK(j2["has_been_added"]  == seed["has_been_added"]);
+    CHECK(j2["is_pirating"]     == seed["is_pirating"]);
+    CHECK(j2["name"]            == seed["name"]);
+}
+
+TEST_CASE("json round-trip: ArmyData embeds CellUnitList sub-object")
+{
+    ArmyData orig(Army(0));
+    nlohmann::json j = orig;
+
+    CHECK(j.contains("cell_unit_list"));
+    CHECK(j["cell_unit_list"].contains("units"));
+    CHECK(j["cell_unit_list"].contains("num_elements"));
+}
+
+TEST_CASE("json round-trip: ArmyData keys are snake_case (no m_ leak)")
+{
+    ArmyData orig(Army(0));
+    nlohmann::json j = orig;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }

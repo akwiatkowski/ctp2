@@ -70,6 +70,9 @@
 #include "gs/gameobj/PollutionConst.h"      // already included via pollution.h, kept explicit
 #include "gs/gameobj/UnitState.h"
 #include "gs/gameobj/Order.h"
+#include "gs/gameobj/ArmyData.h"
+#include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
+#include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1441,6 +1444,141 @@ void from_json(nlohmann::json const &j, Order &o)
     o.m_eventType = static_cast<GAME_EVENT>(j.at("event_type").get<sint32>());
     o.m_path          = nullptr;
     o.m_gameEventArgs = nullptr;
+}
+
+// Phase E-2 — CellUnitList (base for ArmyData + Cell.m_unit_army)
+// Stores only the first m_nElements of m_array as IDs.  m_array's
+// fixed k_MAX_ARMY_SIZE slots past m_nElements are not persisted.
+
+void to_json(nlohmann::json &j, CellUnitList const &c)
+{
+    nlohmann::json units = nlohmann::json::array();
+    for (sint32 i = 0; i < c.m_nElements; ++i)
+    {
+        units.push_back(static_cast<ID const &>(c.m_array[i]));
+    }
+    j = nlohmann::json{
+        {"units",              std::move(units)},
+        {"move_intersection",  c.m_moveIntersection},
+        {"flags",              c.m_flags},
+        {"num_elements",       c.m_nElements},
+    };
+}
+
+void from_json(nlohmann::json const &j, CellUnitList &c)
+{
+    auto const &units = j.at("units");
+    j.at("num_elements").get_to(c.m_nElements);
+    if (static_cast<sint32>(units.size()) != c.m_nElements
+        || c.m_nElements > k_MAX_ARMY_SIZE)
+    {
+        throw nlohmann::json::other_error::create(
+            580, "cell_unit_list.units size mismatch with num_elements "
+                 "or exceeds k_MAX_ARMY_SIZE", &j);
+    }
+    for (sint32 i = 0; i < c.m_nElements; ++i)
+    {
+        ID id(0);
+        units[i].get_to(id);
+        c.m_array[i] = Unit(id.m_id);
+    }
+    j.at("move_intersection").get_to(c.m_moveIntersection);
+    j.at("flags")            .get_to(c.m_flags);
+}
+
+// Phase E-2 — ArmyData
+//
+// Mirrors ArmyData::Serialize at ArmyData.cpp:494.  Composes GameObj
+// id + CellUnitList base + UnitDynamicArray + Order list + scalars
+// + variable-length name.  OMITS intrusive list (m_lesser/m_greater)
+// + transient state (m_tempKillList, m_killMeSoon, m_debugString,
+// m_reentryTurn, m_reentryPos).
+
+void to_json(nlohmann::json &j, ArmyData const &a)
+{
+    // m_attackedByDefenders is a UnitDynamicArray = DynamicArray<Unit>
+    nlohmann::json attacked_by_defenders = nlohmann::json::array();
+    if (a.m_attackedByDefenders)
+    {
+        for (sint32 i = 0; i < a.m_attackedByDefenders->Num(); ++i)
+        {
+            attacked_by_defenders.push_back(
+                static_cast<ID const &>(a.m_attackedByDefenders->Access(i)));
+        }
+    }
+
+    // m_orders is PointerList<Order>
+    nlohmann::json orders = nlohmann::json::array();
+    if (a.m_orders)
+    {
+        PointerList<Order>::Walker walk(a.m_orders);
+        while (walk.IsValid())
+        {
+            orders.push_back(*walk.GetObj());
+            walk.Next();
+        }
+    }
+
+    j = nlohmann::json{
+        {"id",                       a.m_id},
+        {"cell_unit_list",           static_cast<CellUnitList const &>(a)},
+        {"attacked_by_defenders",    std::move(attacked_by_defenders)},
+        {"pos",                      a.m_pos},
+        {"owner",                    a.m_owner},
+        {"killer",                   a.m_killer},
+        {"remove_cause",             static_cast<sint32>(a.m_removeCause)},
+        {"dont_kill_count",          a.m_dontKillCount},
+        {"need_to_kill",             a.m_needToKill},
+        {"has_been_added",           a.m_hasBeenAdded},
+        {"is_pirating",              a.m_isPirating},
+        {"orders",                   std::move(orders)},
+        {"name",                     a.m_name ? std::string(a.m_name)
+                                              : std::string()},
+    };
+}
+
+void from_json(nlohmann::json const &j, ArmyData &a)
+{
+    j.at("id").get_to(a.m_id);
+    j.at("cell_unit_list").get_to(static_cast<CellUnitList &>(a));
+
+    if (!a.m_attackedByDefenders) a.m_attackedByDefenders = new UnitDynamicArray;
+    a.m_attackedByDefenders->Clear();
+    for (auto const &id_json : j.at("attacked_by_defenders"))
+    {
+        ID id(0);
+        id_json.get_to(id);
+        a.m_attackedByDefenders->Insert(Unit(id.m_id));
+    }
+
+    j.at("pos")              .get_to(a.m_pos);
+    j.at("owner")            .get_to(a.m_owner);
+    j.at("killer")           .get_to(a.m_killer);
+    a.m_removeCause = static_cast<CAUSE_REMOVE_ARMY>(
+        j.at("remove_cause").get<sint32>());
+    j.at("dont_kill_count")  .get_to(a.m_dontKillCount);
+    j.at("need_to_kill")     .get_to(a.m_needToKill);
+    j.at("has_been_added")   .get_to(a.m_hasBeenAdded);
+    j.at("is_pirating")      .get_to(a.m_isPirating);
+
+    if (!a.m_orders) a.m_orders = new PointerList<Order>;
+    a.m_orders->DeleteAll();
+    for (auto const &order_json : j.at("orders"))
+    {
+        Order *order = new Order;
+        order_json.get_to(*order);
+        a.m_orders->AddTail(order);
+    }
+
+    delete[] a.m_name;
+    a.m_name = nullptr;
+    std::string const name = j.at("name").get<std::string>();
+    if (!name.empty())
+    {
+        a.m_name = new MBCHAR[name.size() + 1];
+        std::memcpy(a.m_name, name.data(), name.size());
+        a.m_name[name.size()] = 0;
+    }
 }
 
 // Phase D-9 — CityData (largest single class composite)

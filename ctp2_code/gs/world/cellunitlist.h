@@ -27,8 +27,8 @@
 // - Microsoft extensions removed.
 // - MovementTypeLand added, as suggested by NelsonAndBronte.
 // - Option added to report sync errors only once.
-// - Standartized army strength computation. (30-Apr-2008 Martin Gühmann)
-// - Position strength can now be calculated independently from position. (13-Aug-2008 Martin Gühmann)
+// - Standartized army strength computation. (30-Apr-2008 Martin Gï¿½hmann)
+// - Position strength can now be calculated independently from position. (13-Aug-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 //
@@ -41,6 +41,8 @@
 
 #ifndef CELL_UNIT_LIST_H__
 #define CELL_UNIT_LIST_H__
+
+#include <nlohmann/json.hpp>
 
 //----------------------------------------------------------------------------
 //
@@ -227,6 +229,11 @@ protected:
 	uint8   m_flags;
 	/// Number of units (valid entries in m_array)
 	sint32  m_nElements;
+
+	// JSON bridge â€” base class used by ArmyData + Cell.m_unit_army.
+	// Implementation in json_save.cpp (needs ID's to_json visible).
+	friend void to_json(nlohmann::json &j, CellUnitList const &c);
+	friend void from_json(nlohmann::json const &j, CellUnitList &c);
 };
 
 #endif

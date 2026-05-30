@@ -29,6 +29,29 @@
 
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/ID.h"
+#include "gs/gameobj/GameSettings.h"
+#include "gs/utility/TurnCnt.h"
+#include "gs/utility/RandGen.h"
+
+// Phase B selection block.  SelectedItem (in ui/) is too coupled to
+// Army/Unit objects to round-trip until those types are JSON-
+// serialisable in Phase E.  Phase B records only the scalar current
+// player; the per-player select state, position, and selected
+// army/unit arrays land later.
+struct SelectionState
+{
+    sint32 current_player = -1;
+};
+
+inline void to_json(nlohmann::json &j, SelectionState const &s)
+{
+    j = nlohmann::json{{"current_player", s.current_player}};
+}
+
+inline void from_json(nlohmann::json const &j, SelectionState &s)
+{
+    j.at("current_player").get_to(s.current_player);
+}
 
 // --- Leaf bridges (global namespace, picked up by nlohmann via ADL) ---
 

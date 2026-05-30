@@ -4,6 +4,18 @@ project('ctp2', 'c', 'cpp', version : '1.2', subproject_dir : 'libs',
 conf = configuration_data()
 conf.set_quoted('VERSION', meson.version())
 
+# Capture the current git short SHA at configure time so saves can embed
+# a build identifier ("ctp2_build" key in JSON saves).  Falls back to
+# "unknown" outside a git checkout.  Run with check:false so a missing
+# git binary or non-checkout doesn't fail configure.
+git_sha_result = run_command('git', 'rev-parse', '--short=12', 'HEAD',
+                             check: false)
+if git_sha_result.returncode() == 0
+    conf.set_quoted('CTP2_BUILD_SHA', git_sha_result.stdout().strip())
+else
+    conf.set_quoted('CTP2_BUILD_SHA', 'unknown')
+endif
+
 conf.set('SHOW_ASSERTS', get_option('buildtype').startswith('debug'))
 conf.set('USE_LOGGING', get_option('buildtype').startswith('debug'))
 conf.set('_DEBUG', get_option('buildtype').startswith('debug'))

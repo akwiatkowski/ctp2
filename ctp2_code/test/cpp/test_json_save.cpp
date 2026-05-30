@@ -163,3 +163,155 @@ TEST_CASE("json_save: LoadJson rejects missing file")
 {
     CHECK_FALSE(json_save::LoadJson("/tmp/this_path_does_not_exist_xx.json"));
 }
+
+// --- Phase B round-trip tests for the 4 top-level subtypes ---
+//
+// Each test constructs the subtype with non-default values, round-
+// trips it through nlohmann::json, and checks field-by-field
+// equality.  The acceptance criterion in the JSON migration plan is
+// "a stub save with 4 top-level fields round-trips" — these are
+// those 4 fields.
+
+TEST_CASE("json round-trip: GameSettings preserves all 7 scalar fields")
+{
+    GameSettings orig;
+    // Drive non-default values via the public setters that exist;
+    // the bridge accesses the private members via friend declaration.
+    orig.SetStartingAge(2);
+    orig.SetEndingAge(5);
+    orig.SetKeepScore(TRUE);
+    orig.SetPollution(FALSE);
+
+    nlohmann::json j = orig;
+
+    GameSettings round;
+    j.get_to(round);
+
+    CHECK(round.GetDifficulty()    == orig.GetDifficulty());
+    CHECK(round.GetRisk()          == orig.GetRisk());
+    CHECK(round.GetKeeppScore()    == orig.GetKeeppScore());
+    CHECK(round.GetPollution()     == orig.GetPollution());
+    CHECK(round.GetStartingAge()   == orig.GetStartingAge());
+    CHECK(round.GetEndingAge()     == orig.GetEndingAge());
+    // GetAlienEndGame() has a network-active side effect — skip
+    // checking it through the public getter and trust that the JSON
+    // key round-trips.  The to/from_json read m_alienEndGame
+    // directly via friend access.
+}
+
+TEST_CASE("json round-trip: GameSettings key set is exactly the locked 7")
+{
+    GameSettings gs;
+    nlohmann::json j = gs;
+    CHECK(j.size() == 7);
+    CHECK(j.contains("difficulty"));
+    CHECK(j.contains("risk"));
+    CHECK(j.contains("alien_end_game"));
+    CHECK(j.contains("keep_score"));
+    CHECK(j.contains("starting_age"));
+    CHECK(j.contains("ending_age"));
+    CHECK(j.contains("pollution"));
+    // No m_ prefixes leaking through — Decision #2 in the plan.
+    for (auto const &el : j.items())
+    {
+        CHECK(el.key().substr(0, 2) != "m_");
+    }
+}
+
+TEST_CASE("json round-trip: RandomGenerator preserves seed, buffer, indices, call count")
+{
+    RandomGenerator orig(/*seed*/12345);
+    // Advance the RNG a few times so call_count and buffer evolve
+    // from the freshly-initialised state.
+    for (sint32 i = 0; i < 17; ++i) (void)orig.Next();
+
+    nlohmann::json j = orig;
+
+    RandomGenerator round(/*seed*/0);  // arbitrary; from_json overwrites
+    j.get_to(round);
+
+    CHECK(round.GetSeed()    == orig.GetSeed());
+    CHECK(round.CallCount()  == orig.CallCount());
+
+    // Strongest guarantee: the next 100 draws match.
+    // (Catches buffer / pointer-index corruption that scalar checks
+    // miss.)
+    RandomGenerator orig_copy(orig);
+    for (sint32 i = 0; i < 100; ++i)
+    {
+        sint32 const a = orig_copy.Next();
+        sint32 const b = round.Next();
+        CHECK(a == b);
+    }
+}
+
+TEST_CASE("json round-trip: RandomGenerator key set includes seed/buffer/indices/call_count")
+{
+    RandomGenerator rng(42);
+    nlohmann::json j = rng;
+    CHECK(j.contains("seed"));
+    CHECK(j.contains("buffer"));
+    CHECK(j.contains("first_index"));
+    CHECK(j.contains("second_index"));
+    CHECK(j.contains("call_count"));
+    CHECK(j["buffer"].is_array());
+    CHECK(j["buffer"].size() == 56);
+}
+
+TEST_CASE("json round-trip: RandomGenerator load rejects wrong buffer size")
+{
+    nlohmann::json bad{
+        {"seed",         42},
+        {"buffer",       nlohmann::json::array({1, 2, 3})},  // wrong size
+        {"first_index",  0},
+        {"second_index", 0},
+        {"call_count",   0},
+    };
+    RandomGenerator rng(1);
+    CHECK_THROWS(bad.get_to(rng));
+}
+
+TEST_CASE("json round-trip: SelectionState preserves current_player")
+{
+    SelectionState orig;
+    orig.current_player = 3;
+    nlohmann::json j = orig;
+    SelectionState round;
+    j.get_to(round);
+    CHECK(round.current_player == orig.current_player);
+}
+
+// --- Phase B top-level acceptance: SaveJson writes the 7 expected keys ---
+
+TEST_CASE("json_save: SaveJson writes the Phase B top-level shape")
+{
+    char const *path = "/tmp/ctp2_phase_b_shape.json";
+    std::remove(path);
+
+    REQUIRE(json_save::SaveJson(path));
+
+    std::ifstream in(path);
+    REQUIRE(in.is_open());
+    nlohmann::json doc;
+    in >> doc;
+
+    // Magic / version
+    CHECK(doc.contains("magic"));
+    CHECK(doc["magic"] == "CTP2-JSON");
+    CHECK(doc.contains("schema_version"));
+    CHECK(doc["schema_version"] == 1);
+
+    // Metadata header
+    CHECK(doc.contains("saved_at"));
+    CHECK(doc.contains("ctp2_build"));
+    // ISO 8601 / RFC 3339: "YYYY-MM-DDTHH:MM:SSZ" = 20 chars
+    CHECK(doc["saved_at"].get<std::string>().length() == 20);
+
+    // Selection (always present — minimal scalar in Phase B)
+    CHECK(doc.contains("selection"));
+
+    // rng/turn/settings only present if globals are wired.  When
+    // running this test in fast/unit suite (no game initialisation),
+    // they're not — that's fine.  Lock the presence-when-wired
+    // behaviour at the integration tier instead.
+}

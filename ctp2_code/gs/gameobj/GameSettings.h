@@ -5,6 +5,8 @@
 #ifndef __GAME_SETTINGS_H__
 #define __GAME_SETTINGS_H__
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class GameSettings {
@@ -20,6 +22,11 @@ private:
 	BOOL m_pollution;
 
 	friend class NetGameSettings;
+	// JSON savegame bridges (json_save.cpp).  Friends so the private
+	// fields can be serialised without expanding the public API just
+	// for serialisation.
+	friend void to_json(nlohmann::json &j, GameSettings const &gs);
+	friend void from_json(nlohmann::json const &j, GameSettings &gs);
 
 public:
 	GameSettings();

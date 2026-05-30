@@ -4,6 +4,8 @@
 #ifndef __RAND_GEN_H__
 #define __RAND_GEN_H__ 1
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 #define k_RAND_MBIG 1000000000
@@ -24,6 +26,11 @@ class RandomGenerator
 	sint32 m_callCount;
 
 	friend class NetRand;
+	// JSON savegame bridges (json_save.cpp).  Friends so the private
+	// fields can be serialised without expanding the public API just
+	// for serialisation.
+	friend void to_json(nlohmann::json &j, RandomGenerator const &rng);
+	friend void from_json(nlohmann::json const &j, RandomGenerator &rng);
 
 public:
     RandomGenerator(sint32 seed);

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Put SendNextPlayerMessage into its own event. (14-Nov-2007 Martin Gühmann)
+// - Put SendNextPlayerMessage into its own event. (14-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -35,6 +35,7 @@
 #define __TURN_COUNT_H__
 
 #include "gs/utility/newturncount.h"
+#include <nlohmann/json.hpp>
 
 class CivArchive ;
 template <class T> class SimpleDynamicArray;
@@ -56,6 +57,11 @@ class TurnCount {
 	sint32 m_happinessPlayer;
 
 	friend class NetInfo;
+	// JSON savegame bridges (json_save.cpp).  Friends so the private
+	// fields can be serialised without expanding the public API just
+	// for serialisation.
+	friend void to_json(nlohmann::json &j, TurnCount const &tc);
+	friend void from_json(nlohmann::json const &j, TurnCount &tc);
 
 private:
 	void RunNewYearMessages(void);

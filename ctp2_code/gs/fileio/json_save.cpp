@@ -3088,14 +3088,15 @@ void to_json(nlohmann::json &j, SlicSymbolData const &s)
             // (the friend declarations in SlicArray.h pick it up).
             j["array"] = *s.m_val.m_array;
             break;
+        case SLIC_SYM_STRUCT:
+            // F-12: SlicStructInstance bridge wires in here.
+            j["struct"] = *s.m_val.m_struct;
+            break;
         case SLIC_SYM_REGION:
         case SLIC_SYM_COMPLEX_REGION:
         case SLIC_SYM_BUILTIN:
         case SLIC_SYM_POP:
         case SLIC_SYM_PATH:
-            throwUnsupportedSym(s.m_type, "to_json");
-        case SLIC_SYM_STRUCT:
-            // Pending SlicStructInstance bridge (F-12).
             throwUnsupportedSym(s.m_type, "to_json");
     }
 }
@@ -3175,13 +3176,36 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
             s.m_val.m_array = new SlicArray(SS_TYPE_BAD, SLIC_SYM_UNDEFINED);
             j.at("array").get_to(*s.m_val.m_array);
             break;
+        case SLIC_SYM_STRUCT:
+        {
+            // SlicStructInstance has no default ctor — it needs a
+            // description.  Resolve via g_slicEngine using the
+            // builtin-tag stored in the nested struct JSON.  Without
+            // an engine (test-only path) the symbol falls back to
+            // UNDEFINED rather than crashing — full struct round-
+            // trips require a live SlicEngine fixture.
+            nlohmann::json const &js = j.at("struct");
+            SlicStructDescription *desc = nullptr;
+            if (g_slicEngine && js.contains("description")
+                && !js.at("description").is_null())
+            {
+                desc = g_slicEngine->GetStructDescription(
+                    static_cast<SLIC_BUILTIN>(js.at("description").get<int>()));
+            }
+            if (!desc)
+            {
+                s.m_type = SLIC_SYM_UNDEFINED;
+                break;
+            }
+            s.m_val.m_struct = new SlicStructInstance(desc);
+            js.get_to(*s.m_val.m_struct);
+            break;
+        }
         case SLIC_SYM_REGION:
         case SLIC_SYM_COMPLEX_REGION:
         case SLIC_SYM_BUILTIN:
         case SLIC_SYM_POP:
         case SLIC_SYM_PATH:
-            throwUnsupportedSym(type, "from_json");
-        case SLIC_SYM_STRUCT:
             throwUnsupportedSym(type, "from_json");
     }
 }
@@ -3423,6 +3447,93 @@ void from_json(nlohmann::json const &j, SlicArray &a)
     {
         for (sint32 i = 0; i < a.m_arraySize; ++i)
             a.m_array[i].m_sym = loadSlicSymbolFromJson(elements[i]);
+    }
+}
+
+// Phase F-12 — SlicStructInstance (the per-instance state for a
+// SLIC_SYM_STRUCT symbol).  Mirrors SlicStructInstance::Serialize at
+// SlicStruct.cpp:413.
+//
+// SlicStructDescription itself isn't persisted — it's compile-time
+// metadata reconstructed by g_slicEngine at startup (slicstruct_Init
+// equivalent).  The bridge stores the description's SLIC_BUILTIN tag
+// and re-resolves via g_slicEngine->GetStructDescription on load.
+//
+// JSON shape:
+//   {
+//     "description":       <SLIC_BUILTIN int> | null,
+//     "members": [ <SlicSymbolData json or null>, ... ],   // members only,
+//                                                          // not accessors
+//     "data_symbol":       <SlicSymbolData json or null>,
+//     "created_data":      true | false,
+//     "data_symbol_index": <sint32>     // INDEX_INVALID (-1) by default
+//   }
+
+void to_json(nlohmann::json &j, SlicStructInstance const &s)
+{
+    j = nlohmann::json::object();
+    j["description"] = s.m_description
+        ? static_cast<int>(s.m_description->GetType())
+        : -1;
+
+    nlohmann::json members = nlohmann::json::array();
+    sint32 const numMembers = s.m_description ? s.m_description->GetNumMembers() : 0;
+    for (sint32 i = 0; i < numMembers; ++i)
+        members.push_back(storeSlicSymbolToJson(s.m_members[i]));
+    j["members"] = std::move(members);
+
+    j["created_data"]      = s.m_createdData;
+    j["data_symbol_index"] = s.m_dataSymbolIndex;
+
+    // Binary stores the data symbol's full state only when m_createdData
+    // is true; otherwise it stores just the symbol's index (m_dataSymbol
+    // refers to a shared symbol owned elsewhere — typically the symtab).
+    if (s.m_dataSymbol && s.m_createdData)
+        j["data_symbol"] = storeSlicSymbolToJson(s.m_dataSymbol);
+    else
+        j["data_symbol"] = nullptr;
+}
+
+void from_json(nlohmann::json const &j, SlicStructInstance &s)
+{
+    // Description was set by the constructor before we got here; the
+    // caller (SlicSymbolData::from_json STRUCT case) is responsible
+    // for resolving it via g_slicEngine.  Reset member/data slots.
+    for (size_t i = 0; i < s.m_validIndexCount; ++i)
+    {
+        delete s.m_members[i];
+        s.m_members[i] = nullptr;
+    }
+    if (s.m_createdData)
+        delete s.m_dataSymbol;
+    s.m_dataSymbol = nullptr;
+
+    sint32 const numMembers = s.m_description ? s.m_description->GetNumMembers() : 0;
+    auto const &members = j.at("members");
+    for (sint32 i = 0; i < numMembers && i < static_cast<sint32>(members.size()); ++i)
+    {
+        if (members[i].is_null())
+            continue;
+        s.CreateMember(i);  // allocates m_members[i] as SlicStructMemberData
+        // SlicStructMemberData inherits SlicSymbolData; populate only
+        // the base state — SERIAL_MEMBER's own Serialize is a no-op.
+        from_json(members[i], static_cast<SlicSymbolData &>(*s.m_members[i]));
+        s.m_members[i]->SetParent(&s);
+    }
+
+    j.at("created_data").get_to(s.m_createdData);
+    j.at("data_symbol_index").get_to(s.m_dataSymbolIndex);
+
+    if (s.m_createdData && !j.at("data_symbol").is_null())
+    {
+        s.m_dataSymbol = loadSlicSymbolFromJson(j.at("data_symbol"));
+    }
+    else if (!s.m_dataSymbol && s.m_dataSymbolIndex < 0)
+    {
+        // Mirror the binary path's fallback: create a fresh data symbol
+        // when neither persisted form is available.
+        s.m_dataSymbol  = s.m_description->CreateDataSymbol();
+        s.m_createdData = true;
     }
 }
 

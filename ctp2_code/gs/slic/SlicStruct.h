@@ -33,7 +33,7 @@
 //
 // - pragma once marked as MS specific.
 // - Accessor functionality added.
-// - Standardized code. (May 29th 2006 Martin Gühmann)
+// - Standardized code. (May 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -50,6 +50,7 @@
 #include "gs/slic/SlicStack.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicBuiltinEnum.h"
+#include <nlohmann/json.hpp>
 
 class SlicStruct;
 class SlicSymbolData;
@@ -181,6 +182,9 @@ private:
 	sint32 m_dataSymbolIndex;
 	bool m_createdData;
 	size_t				m_validIndexCount;	// members + accessors
+
+	friend void to_json(nlohmann::json &j, SlicStructInstance const &s);
+	friend void from_json(nlohmann::json const &j, SlicStructInstance &s);
 };
 
 #endif

@@ -2779,9 +2779,7 @@ TEST_CASE("json round-trip: SlicSymbolData UNDEFINED + STRUCT_MEMBER carry no pa
 TEST_CASE("json round-trip: SlicSymbolData REGION/BUILTIN/POP/PATH throw")
 {
     for (SLIC_SYM bad : {SLIC_SYM_REGION, SLIC_SYM_COMPLEX_REGION,
-                         SLIC_SYM_BUILTIN, SLIC_SYM_POP, SLIC_SYM_PATH,
-                         // Nested-bridge-pending until F-12 (STRUCT):
-                         SLIC_SYM_STRUCT})
+                         SLIC_SYM_BUILTIN, SLIC_SYM_POP, SLIC_SYM_PATH})
     {
         SlicSymbolData s(bad);
         nlohmann::json j;
@@ -3036,4 +3034,66 @@ TEST_CASE("json round-trip: SlicSymbolData ARRAY composition (F-9 + F-11)")
     SlicStackValue rv;
     CHECK(back->Lookup(0, rt, rv));
     CHECK(rv.m_int == 17);
+}
+
+// Phase F-12 — SlicStructInstance.
+
+#include "gs/slic/SlicStruct.h"
+
+TEST_CASE("json round-trip: SlicStructInstance with empty description")
+{
+    // Description with zero members — exercises the "no members" path
+    // without needing g_slicEngine.  Default CreateDataSymbol returns
+    // NULL (see SlicStruct.cpp:314), so m_dataSymbol stays nullptr
+    // and data_symbol serialises to JSON null.
+    SlicStructDescription desc("TestStruct", SLIC_BUILTIN_PLAYER);
+    SlicStructInstance orig(&desc);
+
+    nlohmann::json j = orig;
+    CHECK(j["description"]       == SLIC_BUILTIN_PLAYER);
+    CHECK(j["members"].size()    == 0);
+    CHECK(j["created_data"]      == true);
+    CHECK(j["data_symbol_index"] == -1);
+    CHECK(j["data_symbol"].is_null());
+
+    // Round-trip load: into an instance built with the same description
+    // (mimics what the SlicSymbolData::from_json STRUCT case does via
+    // g_slicEngine when one is available).
+    SlicStructInstance round(&desc);
+    j.get_to(round);
+    nlohmann::json j2 = round;
+    CHECK(j2["description"]       == SLIC_BUILTIN_PLAYER);
+    CHECK(j2["data_symbol_index"] == -1);
+}
+
+TEST_CASE("json round-trip: SlicStructInstance keys are snake_case (no m_ leak)")
+{
+    SlicStructDescription desc("S", SLIC_BUILTIN_PLAYER);
+    SlicStructInstance s(&desc);
+    nlohmann::json j = s;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: SlicSymbolData STRUCT composition serialises")
+{
+    // The F-9 SLIC_SYM_STRUCT case used to throw; verify it now emits
+    // a struct payload.  Load is skipped — without g_slicEngine the
+    // from_json path can't resolve the description, and SlicStructInstance
+    // requires one to construct.  Full load round-trip needs an engine
+    // fixture (deferred to integration suite).
+    auto *desc = new SlicStructDescription("CompStruct", SLIC_BUILTIN_GLOBAL);
+    auto *inst = new SlicStructInstance(desc);
+    SlicSymbolData orig(inst);  // takes ownership of inst
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]                       == "struct");
+    CHECK(j["struct"]["description"]      == SLIC_BUILTIN_GLOBAL);
+    CHECK(j["struct"]["members"].size()   == 0);
+
+    // orig owns inst (destructor delete m_val.m_struct in SLIC_SYM_STRUCT
+    // case).  desc is owned by inst's m_description... wait, no — desc
+    // is borrowed.  Leak the desc to avoid double-delete (no global
+    // tracker in this test; in real use g_slicEngine owns descriptions).
+    (void)desc;  // intentionally leaked — engine-owned in production
 }

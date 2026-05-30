@@ -27,8 +27,8 @@
 // - #pragma once commented out
 // - Import structure modified to allow mingw compilation.
 // - Prevent crash when settling in the Alexander scenario.
-// - Replaced old civilsation databse by new one. (Aug 21st 2005 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced old civilsation databse by new one. (Aug 21st 2005 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,6 +61,8 @@ class	CivilisationData;
 #include "gs/gameobj/GameObj.h"            // GAMEOBJ
 #include "gs/utility/gstypes.h"            // PLAYER_INDEX
 #include "gs/gameobj/ID.h"                 // ID
+
+#include <nlohmann/json.hpp>
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -101,6 +103,12 @@ public:
 
 
 	friend class NetCivilization;
+	// JSON bridge â€” covers scalar fields, m_cityname_count[500],
+	// and the 5 char buffers.  OMITS m_lesser/m_greater (intrusive
+	// linked list, pool-level concern) and m_killMeSoon/m_isFromPool
+	// (transient).  Mirrors the AgreementData pattern from Phase D-4.
+	friend void to_json(nlohmann::json &j, CivilisationData const &c);
+	friend void from_json(nlohmann::json const &j, CivilisationData &c);
 
 public:
 	CivilisationData(const ID &id);

@@ -53,6 +53,9 @@
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/AgreementData.h"
 #include "gs/gameobj/GameObj.h"            // GameObj::Serialize base
+#include "gs/gameobj/CivilisationData.h"
+#include "gs/gameobj/TradeOfferData.h"
+#include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -1030,6 +1033,116 @@ void from_json(nlohmann::json const &j, Happy &h)
         h.m_tracker = new HappyTracker();
         j.at("tracker").get_to(*h.m_tracker);
     }
+}
+
+// --- Phase D-5 leaves ---------------------------------------------------
+
+void to_json(nlohmann::json &j, CivilisationData const &c)
+{
+    // m_cityname_count is uint8[500] — store as flat array.
+    nlohmann::json cityname_count = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_CityName; ++i)
+    {
+        cityname_count.push_back(c.m_cityname_count[i]);
+    }
+    // Char buffers: store as plain JSON strings.  The binary path
+    // dumps all 512 bytes of each buffer; JSON form is the
+    // null-terminated portion, which is what modders actually want
+    // to read/edit.
+    j = nlohmann::json{
+        {"id",                       c.m_id},
+        {"owner",                    c.m_owner},
+        {"cityname_count",           std::move(cityname_count)},
+        {"civ",                      c.m_civ},
+        {"gender",                   static_cast<sint32>(c.m_gender)},
+        {"city_style",               c.m_cityStyle},
+        {"leader_name",              std::string(c.m_leader_name)},
+        {"personality_description",  std::string(c.m_personality_description)},
+        {"civilisation_name",        std::string(c.m_civilisation_name)},
+        {"country_name",             std::string(c.m_country_name)},
+        {"singular_name",            std::string(c.m_singular_name)},
+    };
+}
+
+namespace {
+// Copy a std::string into a fixed-size char buffer, zero-filling the
+// remainder so we don't carry uninitialised stack/heap bytes (the
+// Pre-A SaveExtendedGameInfo lesson).
+void load_fixed_string(MBCHAR *dest, std::size_t buf_size,
+                       std::string const &src)
+{
+    std::size_t const n = std::min(src.size(), buf_size - 1);
+    std::memcpy(dest, src.data(), n);
+    std::memset(dest + n, 0, buf_size - n);
+}
+}
+
+void from_json(nlohmann::json const &j, CivilisationData &c)
+{
+    j.at("id")        .get_to(c.m_id);
+    j.at("owner")     .get_to(c.m_owner);
+
+    auto const &cityname_count = j.at("cityname_count");
+    if (static_cast<sint32>(cityname_count.size()) != k_MAX_CityName)
+    {
+        throw nlohmann::json::other_error::create(
+            540, "civilisation_data.cityname_count must have exactly "
+                 "k_MAX_CityName entries", &j);
+    }
+    for (sint32 i = 0; i < k_MAX_CityName; ++i)
+    {
+        cityname_count[i].get_to(c.m_cityname_count[i]);
+    }
+
+    j.at("civ").get_to(c.m_civ);
+    c.m_gender = static_cast<GENDER>(j.at("gender").get<sint32>());
+    j.at("city_style").get_to(c.m_cityStyle);
+
+    load_fixed_string(c.m_leader_name,
+                      k_MAX_NAME_LEN,
+                      j.at("leader_name")            .get<std::string>());
+    load_fixed_string(c.m_personality_description,
+                      k_MAX_NAME_LEN,
+                      j.at("personality_description").get<std::string>());
+    load_fixed_string(c.m_civilisation_name,
+                      k_MAX_NAME_LEN,
+                      j.at("civilisation_name")      .get<std::string>());
+    load_fixed_string(c.m_country_name,
+                      k_MAX_NAME_LEN,
+                      j.at("country_name")           .get<std::string>());
+    load_fixed_string(c.m_singular_name,
+                      k_MAX_NAME_LEN,
+                      j.at("singular_name")          .get<std::string>());
+}
+
+void to_json(nlohmann::json &j, TradeOfferData const &t)
+{
+    j = nlohmann::json{
+        {"id",              t.m_id},
+        {"owner",           t.m_owner},
+        {"from_city",       static_cast<ID const &>(t.m_fromCity)},
+        {"offer_type",      static_cast<sint32>(t.m_offerType)},
+        {"offer_resource",  t.m_offerResource},
+        {"asking_type",     static_cast<sint32>(t.m_askingType)},
+        {"asking_resource", t.m_askingResource},
+        {"to_city",         static_cast<ID const &>(t.m_toCity)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TradeOfferData &t)
+{
+    j.at("id")             .get_to(t.m_id);
+    j.at("owner")          .get_to(t.m_owner);
+    ID from_id(0);
+    j.at("from_city")      .get_to(from_id);
+    t.m_fromCity = Unit(from_id.m_id);
+    t.m_offerType = static_cast<ROUTE_TYPE>(j.at("offer_type").get<sint32>());
+    j.at("offer_resource") .get_to(t.m_offerResource);
+    t.m_askingType = static_cast<ROUTE_TYPE>(j.at("asking_type").get<sint32>());
+    j.at("asking_resource").get_to(t.m_askingResource);
+    ID to_id(0);
+    j.at("to_city")        .get_to(to_id);
+    t.m_toCity = Unit(to_id.m_id);
 }
 
 namespace json_save {

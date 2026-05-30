@@ -39,9 +39,16 @@
 #include "gs/gameobj/ID.h"
 #include "gs/gameobj/TradeRouteData.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class TradeOfferData : public GameObj {
+	// JSON bridge.  OMITS m_lesser/m_greater intrusive-list pointers
+	// (pool-level concern), same pattern as AgreementData/CivilisationData.
+	friend void to_json(nlohmann::json &j, TradeOfferData const &t);
+	friend void from_json(nlohmann::json const &j, TradeOfferData &t);
+
 private:
 
 	PLAYER_INDEX m_owner;

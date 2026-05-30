@@ -33,6 +33,9 @@
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/AgreementData.h"
+#include "gs/gameobj/CivilisationData.h"
+#include "gs/gameobj/TradeOfferData.h"
+#include "CivilisationRecord.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -990,6 +993,119 @@ TEST_CASE("json round-trip: Happy omits m_pad (alignment field)")
     nlohmann::json j = h;
     CHECK_FALSE(j.contains("pad"));
     CHECK_FALSE(j.contains("m_pad"));
+}
+
+// --- Phase D-5 leaf round-trips ---
+
+TEST_CASE("json round-trip: CivilisationData preserves scalars + strings + array")
+{
+    CivilisationData orig(ID(0));
+    nlohmann::json j = orig;
+    j["id"]                       = 99u;
+    j["owner"]                    = 4;
+    j["civ"]                      = 7;
+    j["gender"]                   = 1;
+    j["city_style"]               = 2;
+    j["leader_name"]              = "Julius Caesar";
+    j["personality_description"]  = "Calm and calculating";
+    j["civilisation_name"]        = "Romans";
+    j["country_name"]             = "Rome";
+    j["singular_name"]            = "Roman";
+    // Populate the cityname_count array with a pattern
+    for (sint32 i = 0; i < k_MAX_CityName; ++i)
+    {
+        j["cityname_count"][i] = static_cast<int>(i % 256);
+    }
+    j.get_to(orig);
+
+    CHECK(orig.m_id    == 99u);
+    CHECK(orig.GetOwner() == 4);
+    CHECK(orig.GetCivilisation() == 7);
+    CHECK(std::string(orig.GetLeaderName()) == "Julius Caesar");
+    CHECK(orig.m_cityname_count[0]   == 0);
+    CHECK(orig.m_cityname_count[42]  == 42);
+    CHECK(orig.m_cityname_count[256] == 0);  // wrap
+
+    // Round-trip back through JSON.
+    nlohmann::json j2 = orig;
+    CHECK(j2["leader_name"]       == "Julius Caesar");
+    CHECK(j2["civilisation_name"] == "Romans");
+    CHECK(j2["cityname_count"][42] == 42);
+}
+
+TEST_CASE("json round-trip: CivilisationData omits intrusive list + transient state")
+{
+    CivilisationData c(ID(0));
+    nlohmann::json j = c;
+    CHECK_FALSE(j.contains("lesser"));
+    CHECK_FALSE(j.contains("greater"));
+    CHECK_FALSE(j.contains("m_lesser"));
+    CHECK_FALSE(j.contains("m_greater"));
+    CHECK_FALSE(j.contains("kill_me_soon"));
+    CHECK_FALSE(j.contains("is_from_pool"));
+}
+
+TEST_CASE("json round-trip: CivilisationData string load truncates + null-fills")
+{
+    CivilisationData orig(ID(0));
+    // Drive m_leader_name to a known dirty pattern through a JSON
+    // load — this would catch a regression where we forgot to zero
+    // the remainder past the null terminator (the Pre-A lesson).
+    nlohmann::json j = orig;
+    j["leader_name"] = "Short";
+    j.get_to(orig);
+
+    CHECK(std::string(orig.m_leader_name) == "Short");
+    // Bytes past the null are zero (no garbage carried through).
+    for (sint32 i = 6; i < k_MAX_NAME_LEN; ++i)
+    {
+        CHECK(orig.m_leader_name[i] == 0);
+    }
+}
+
+TEST_CASE("json round-trip: TradeOfferData preserves all 8 fields + 2 Units")
+{
+    TradeOfferData orig(ID(0));
+    nlohmann::json j{
+        {"id",              500u},
+        {"owner",           1},
+        {"from_city",       1000u},
+        {"offer_type",      static_cast<int>(ROUTE_TYPE_RESOURCE)},
+        {"offer_resource",  3},
+        {"asking_type",     static_cast<int>(ROUTE_TYPE_GOLD)},
+        {"asking_resource", 100},
+        {"to_city",         2000u},
+    };
+    j.get_to(orig);
+
+    CHECK(orig.m_id              == 500u);
+    CHECK(orig.GetOwner()        == 1);
+    CHECK(orig.GetFromCity().m_id == 1000u);
+
+    nlohmann::json j2 = orig;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: TradeOfferData omits intrusive list pointers")
+{
+    TradeOfferData t(ID(0));
+    nlohmann::json j = t;
+    CHECK_FALSE(j.contains("lesser"));
+    CHECK_FALSE(j.contains("greater"));
+}
+
+TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")
+{
+    CivilisationData c(ID(0));   nlohmann::json jc = c;
+    TradeOfferData   t(ID(0));   nlohmann::json jt = t;
+
+    for (auto const &j : {jc, jt})
+    {
+        for (auto const &el : j.items())
+        {
+            CHECK(el.key().substr(0, 2) != "m_");
+        }
+    }
 }
 
 TEST_CASE("json round-trip: D-4 leaf bridges all use snake_case (no m_ leak)")

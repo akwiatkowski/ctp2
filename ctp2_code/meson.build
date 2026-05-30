@@ -1,4 +1,5 @@
-project('ctp2', 'c', 'cpp', version : '1.2', subproject_dir : 'libs')
+project('ctp2', 'c', 'cpp', version : '1.2', subproject_dir : 'libs',
+        default_options : ['cpp_std=c++20'])
 
 conf = configuration_data()
 conf.set_quoted('VERSION', meson.version())

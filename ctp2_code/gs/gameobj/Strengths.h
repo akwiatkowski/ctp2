@@ -28,6 +28,7 @@ enum STRENGTH_CAT {
 
 #include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "gs/utility/SimpleDynArr.h"
+#include <nlohmann/json.hpp>
 
 class Strengths {
 private:
@@ -38,6 +39,8 @@ private:
 	friend class NetStrengths;
 	friend class NetFullStrengths;
 	friend class Network;
+	friend void to_json(nlohmann::json &j, Strengths const &s);
+	friend void from_json(nlohmann::json const &j, Strengths &s);
 
 public:
 	Strengths(sint32 owner);

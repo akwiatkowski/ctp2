@@ -29,6 +29,9 @@
 #include "gs/gameobj/AchievementTracker.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/Happy.h"
+#include "gs/gameobj/HappyTracker.h"
+#include "gs/gameobj/Exclusions.h"
+#include "gs/gameobj/Strengths.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -750,6 +753,142 @@ TEST_CASE("json round-trip: Advances load rejects size mismatch")
     j["size"] = 8;
     j["has_advance"] = nlohmann::json::array({1, 2, 3});  // wrong length
     CHECK_THROWS(j.get_to(a));
+}
+
+// --- Phase D-3 leaf round-trips ---
+
+TEST_CASE("json round-trip: HappyTracker preserves happiness_amounts")
+{
+    HappyTracker orig;
+    for (sint32 i = 0; i < HAPPY_REASON_MAX; ++i)
+    {
+        orig.SetHappiness(static_cast<HAPPY_REASON>(i), 0.5 + i * 0.1);
+    }
+
+    nlohmann::json j = orig;
+    HappyTracker round;
+    j.get_to(round);
+
+    for (sint32 i = 0; i < HAPPY_REASON_MAX; ++i)
+    {
+        double amount = 0.0;
+        StringId name = 0;
+        round.GetHappiness(static_cast<HAPPY_REASON>(i), amount, name);
+        CHECK(amount == doctest::Approx(0.5 + i * 0.1));
+    }
+}
+
+TEST_CASE("json round-trip: HappyTracker rejects wrong array size")
+{
+    nlohmann::json bad{
+        {"happiness_amounts", nlohmann::json::array({1.0, 2.0})}
+    };
+    HappyTracker t;
+    CHECK_THROWS(bad.get_to(t));
+}
+
+TEST_CASE("json round-trip: HappyTracker omits m_tempSaveHappiness (transient)")
+{
+    HappyTracker t;
+    nlohmann::json j = t;
+    CHECK_FALSE(j.contains("temp_save_happiness"));
+    CHECK_FALSE(j.contains("m_tempSaveHappiness"));
+    CHECK(j.size() == 1);
+}
+
+TEST_CASE("json round-trip: Exclusions preserves 3 sized heap arrays")
+{
+    // Use JSON-driven construction since the public ExcludeUnit setters
+    // write into the heap array but don't grow it (ctor allocates based
+    // on g_theUnitDB->NumRecords() which requires database init).
+    nlohmann::json j{
+        {"num_units",     3},
+        {"num_buildings", 2},
+        {"num_wonders",   1},
+        {"units",         nlohmann::json::array({0, 1, 0})},
+        {"buildings",     nlohmann::json::array({1, 0})},
+        {"wonders",       nlohmann::json::array({1})},
+    };
+    Exclusions e;
+    j.get_to(e);
+
+    CHECK(e.IsUnitExcluded(0)     == 0);
+    CHECK(e.IsUnitExcluded(1)     == 1);
+    CHECK(e.IsUnitExcluded(2)     == 0);
+    CHECK(e.IsBuildingExcluded(0) == 1);
+    CHECK(e.IsBuildingExcluded(1) == 0);
+    CHECK(e.IsWonderExcluded(0)   == 1);
+
+    nlohmann::json j2 = e;
+    CHECK(j2 == j);  // exact round-trip
+}
+
+TEST_CASE("json round-trip: Exclusions rejects mismatched num/array length")
+{
+    nlohmann::json bad{
+        {"num_units",     5},
+        {"num_buildings", 0},
+        {"num_wonders",   0},
+        {"units",         nlohmann::json::array({1, 2})},  // count says 5
+        {"buildings",     nlohmann::json::array()},
+        {"wonders",       nlohmann::json::array()},
+    };
+    Exclusions e;
+    CHECK_THROWS(bad.get_to(e));
+}
+
+TEST_CASE("json round-trip: Strengths preserves owner + per-category records")
+{
+    Strengths orig(/*owner*/ 4);
+    // Drive non-default via JSON since the public Calculate() method
+    // depends on database singletons.
+    nlohmann::json j{
+        {"owner", 4},
+        {"strength_records", nlohmann::json::array()},
+    };
+    for (sint32 cat = 0; cat < STRENGTH_CAT_MAX; ++cat)
+    {
+        // Each category gets a small history of (cat+1) elements
+        nlohmann::json per_cat = nlohmann::json::array();
+        for (sint32 i = 0; i <= cat; ++i)
+        {
+            per_cat.push_back(cat * 100 + i);
+        }
+        j["strength_records"].push_back(std::move(per_cat));
+    }
+    j.get_to(orig);
+
+    // Round-trip back and verify identity.
+    nlohmann::json j2 = orig;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Strengths rejects wrong category count")
+{
+    nlohmann::json bad{
+        {"owner", 0},
+        {"strength_records",
+            nlohmann::json::array({nlohmann::json::array(),
+                                   nlohmann::json::array()})},
+    };
+    Strengths s(0);
+    CHECK_THROWS(bad.get_to(s));
+}
+
+TEST_CASE("json round-trip: D-3 leaf bridges all use snake_case (no m_ leak)")
+{
+    HappyTracker t;          nlohmann::json jt = t;
+    Strengths    s(0);       nlohmann::json js = s;
+    // Exclusions has a default ctor but allocates based on database
+    // — skip the default instance check.
+
+    for (auto const &j : {jt, js})
+    {
+        for (auto const &el : j.items())
+        {
+            CHECK(el.key().substr(0, 2) != "m_");
+        }
+    }
 }
 
 TEST_CASE("json round-trip: D-2 leaf bridges all use snake_case (no m_ leak)")

@@ -4,10 +4,14 @@
 #ifndef __EXCLUSIONS_H__
 #define __EXCLUSIONS_H__
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class Exclusions
 {
+	friend void to_json(nlohmann::json &j, Exclusions const &e);
+	friend void from_json(nlohmann::json const &j, Exclusions &e);
 private:
 	sint32 m_numUnits;
 	sint32 m_numBuildings;

@@ -47,7 +47,10 @@
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/AchievementTracker.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/gameobj/Happy.h"             // HappyTimer (full Happy is D-3)
+#include "gs/gameobj/Happy.h"             // HappyTimer (full Happy is D-3+)
+#include "gs/gameobj/HappyTracker.h"
+#include "gs/gameobj/Exclusions.h"
+#include "gs/gameobj/Strengths.h"
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -779,6 +782,127 @@ void from_json(nlohmann::json const &j, HappyTimer &ht)
     j.at("turns_remaining").get_to(ht.m_turnsRemaining);
     j.at("adjustment")     .get_to(ht.m_adjustment);
     ht.m_reason = static_cast<HAPPY_REASON>(j.at("reason").get<sint32>());
+}
+
+// --- Phase D-3 leaves ---------------------------------------------------
+
+void to_json(nlohmann::json &j, HappyTracker const &t)
+{
+    nlohmann::json amounts = nlohmann::json::array();
+    for (sint32 i = 0; i < HAPPY_REASON_MAX; ++i)
+    {
+        amounts.push_back(t.m_happinessAmounts[i]);
+    }
+    j = nlohmann::json{{"happiness_amounts", std::move(amounts)}};
+    // m_tempSaveHappiness is transient (only used between Save/Restore
+    // calls within a single turn pipeline) — omitted from JSON, matching
+    // the binary Serialize() at HappyTracker.cpp.
+}
+
+void from_json(nlohmann::json const &j, HappyTracker &t)
+{
+    auto const &amounts = j.at("happiness_amounts");
+    if (static_cast<sint32>(amounts.size()) != HAPPY_REASON_MAX)
+    {
+        throw nlohmann::json::other_error::create(
+            530, "happy_tracker.happiness_amounts must have exactly "
+                 "HAPPY_REASON_MAX entries", &j);
+    }
+    for (sint32 i = 0; i < HAPPY_REASON_MAX; ++i)
+    {
+        amounts[i].get_to(t.m_happinessAmounts[i]);
+    }
+}
+
+void to_json(nlohmann::json &j, Exclusions const &e)
+{
+    nlohmann::json units     = nlohmann::json::array();
+    nlohmann::json buildings = nlohmann::json::array();
+    nlohmann::json wonders   = nlohmann::json::array();
+    for (sint32 i = 0; i < e.m_numUnits;     ++i) units    .push_back(e.m_units[i]);
+    for (sint32 i = 0; i < e.m_numBuildings; ++i) buildings.push_back(e.m_buildings[i]);
+    for (sint32 i = 0; i < e.m_numWonders;   ++i) wonders  .push_back(e.m_wonders[i]);
+
+    j = nlohmann::json{
+        {"num_units",     e.m_numUnits},
+        {"num_buildings", e.m_numBuildings},
+        {"num_wonders",   e.m_numWonders},
+        {"units",         std::move(units)},
+        {"buildings",     std::move(buildings)},
+        {"wonders",       std::move(wonders)},
+    };
+}
+
+void from_json(nlohmann::json const &j, Exclusions &e)
+{
+    j.at("num_units")    .get_to(e.m_numUnits);
+    j.at("num_buildings").get_to(e.m_numBuildings);
+    j.at("num_wonders")  .get_to(e.m_numWonders);
+
+    auto const &units     = j.at("units");
+    auto const &buildings = j.at("buildings");
+    auto const &wonders   = j.at("wonders");
+    if (static_cast<sint32>(units.size())     != e.m_numUnits
+     || static_cast<sint32>(buildings.size()) != e.m_numBuildings
+     || static_cast<sint32>(wonders.size())   != e.m_numWonders)
+    {
+        throw nlohmann::json::other_error::create(
+            531, "exclusions arrays must match their num_* counts", &j);
+    }
+
+    delete[] e.m_units;
+    delete[] e.m_buildings;
+    delete[] e.m_wonders;
+    e.m_units     = new sint32[e.m_numUnits];
+    e.m_buildings = new sint32[e.m_numBuildings];
+    e.m_wonders   = new sint32[e.m_numWonders];
+
+    for (sint32 i = 0; i < e.m_numUnits;     ++i) units    [i].get_to(e.m_units[i]);
+    for (sint32 i = 0; i < e.m_numBuildings; ++i) buildings[i].get_to(e.m_buildings[i]);
+    for (sint32 i = 0; i < e.m_numWonders;   ++i) wonders  [i].get_to(e.m_wonders[i]);
+}
+
+void to_json(nlohmann::json &j, Strengths const &s)
+{
+    // m_strengthRecords[STRENGTH_CAT_MAX] is a fixed-size array of
+    // SimpleDynamicArray<sint32>.  Serialise as a 2D array indexed
+    // first by category, then by per-turn record.
+    nlohmann::json records = nlohmann::json::array();
+    for (sint32 cat = 0; cat < STRENGTH_CAT_MAX; ++cat)
+    {
+        nlohmann::json per_cat = nlohmann::json::array();
+        sint32 const n = s.m_strengthRecords[cat].Num();
+        for (sint32 i = 0; i < n; ++i)
+        {
+            per_cat.push_back(s.m_strengthRecords[cat][i]);
+        }
+        records.push_back(std::move(per_cat));
+    }
+    j = nlohmann::json{
+        {"owner",            s.m_owner},
+        {"strength_records", std::move(records)},
+    };
+}
+
+void from_json(nlohmann::json const &j, Strengths &s)
+{
+    j.at("owner").get_to(s.m_owner);
+
+    auto const &records = j.at("strength_records");
+    if (static_cast<sint32>(records.size()) != STRENGTH_CAT_MAX)
+    {
+        throw nlohmann::json::other_error::create(
+            532, "strengths.strength_records must have exactly "
+                 "STRENGTH_CAT_MAX entries", &j);
+    }
+    for (sint32 cat = 0; cat < STRENGTH_CAT_MAX; ++cat)
+    {
+        s.m_strengthRecords[cat].Clear();
+        for (auto const &val : records[cat])
+        {
+            s.m_strengthRecords[cat].Insert(val.get<sint32>());
+        }
+    }
 }
 
 namespace json_save {

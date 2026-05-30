@@ -49,10 +49,13 @@ enum HAPPY_REASON
 };
 
 #include "gs/database/dbtypes.h"    // StringId
+#include <nlohmann/json.hpp>
 class CivArchive;
 
 class HappyTracker
 {
+	friend void to_json(nlohmann::json &j, HappyTracker const &t);
+	friend void from_json(nlohmann::json const &j, HappyTracker &t);
 public:
 	HappyTracker();
 	HappyTracker(CivArchive &archive);

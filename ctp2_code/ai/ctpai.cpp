@@ -2459,7 +2459,7 @@ void CtpAi::SellRandomBuildings(const Unit & city, const double chance)
 	{
 		if((buildings & ((uint64)1 << uint64(which))))
 		{
-			if(g_rand->Next(100) <= (100 * chance) )
+			if(civrand().Next(100) <= (100 * chance) )
 			{
 				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SellBuilding,
 					GEA_City, city,

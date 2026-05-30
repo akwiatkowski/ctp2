@@ -117,7 +117,7 @@ DamageTracker s_trackedUnits[k_MAX_TRACKED_UNITS];
 
 #else
 
-#define COMBATRAND(x) (g_rand->Next(x))
+#define COMBATRAND(x) (civrand().Next(x))
 
 static void combat_print(sint32 level, const char *fmt, ...)
 {
@@ -1376,7 +1376,7 @@ bool CTP2Combat::ResolveOneRound()
 
 		m_noAttacksPossible = true;
 
-		combat_print(k_COMBAT_DEBUG_VERBOSE, "ROUND %d: (Rand calls: %d)\n", m_round, g_rand->CallCount());
+		combat_print(k_COMBAT_DEBUG_VERBOSE, "ROUND %d: (Rand calls: %d)\n", m_round, civrand().CallCount());
 #ifdef TEST_APP
 		DumpState();
 #endif

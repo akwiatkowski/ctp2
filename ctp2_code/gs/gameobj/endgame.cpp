@@ -28,7 +28,7 @@
 
 extern TurnCount *g_turn;
 extern Player **g_player;
-extern RandomGenerator *g_rand;
+
 extern StringDB *g_theStringDB;
 
 EndGame::EndGame(PLAYER_INDEX owner)
@@ -174,7 +174,7 @@ void EndGame::BeginTurn()
 		double cataclysm_chance = GetCataclysmChance();
 		cataclysm_chance /= GetTurnsForNextStage();
 		cataclysm_chance *= 10;
-		if(g_rand->Next(1000) < sint32(cataclysm_chance)) {
+		if(civrand().Next(1000) < sint32(cataclysm_chance)) {
 			Cataclysm();
 			return;
 		}
@@ -241,7 +241,7 @@ void EndGame::AdvanceStage()
 /*
 	sint32 cataclysm_chance = GetCataclysmChance();
 	if(cataclysm_chance > 0) {
-		if(g_rand->Next(100) < cataclysm_chance) {
+		if(civrand().Next(100) < cataclysm_chance) {
 			Cataclysm();
 			return;
 		}

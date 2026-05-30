@@ -3878,7 +3878,7 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 			if (HasThreat(foreignerId, THREAT_DECLARE_WAR, war_threat))
 			{
 				if (m_personality->GetTrustworthinessLawful() ||
-					g_rand->Next(100) < m_personality->GetThreatFollowThrough() * 100)
+					civrand().Next(100) < m_personality->GetThreatFollowThrough() * 100)
 				{
 					declare_war = true;
 					RemoveThreatById(war_threat.id);
@@ -3904,14 +3904,14 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 		Threat embargo_threat;
 		if (HasThreat(foreignerId, THREAT_TRADE_EMBARGO, embargo_threat))
 		{
-			if (!GetEmbargo(foreignerId))
-			{
-				if (m_personality->GetTrustworthinessLawful() ||
-					g_rand->Next(100) < m_personality->GetThreatFollowThrough() * 100)
+				if (!GetEmbargo(foreignerId))
 				{
-					SetEmbargo(foreignerId, true);
+					if (m_personality->GetTrustworthinessLawful() ||
+						civrand().Next(100) < m_personality->GetThreatFollowThrough() * 100)
+					{
+						SetEmbargo(foreignerId, true);
+					}
 				}
-			}
 
 			RemoveThreatById(embargo_threat.id);
 		}
@@ -3925,7 +3925,7 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 			{
 
 				if (GetDiplomat(nuke_threat.receiverId).FearNukesFrom(m_playerId) ||
-					g_rand->Next(100) < m_personality->GetThreatFollowThrough() * 100)
+					civrand().Next(100) < m_personality->GetThreatFollowThrough() * 100)
 				{
 
 					LaunchNuclearAttackOnCity(nuke_threat.detail.arg.cityId);

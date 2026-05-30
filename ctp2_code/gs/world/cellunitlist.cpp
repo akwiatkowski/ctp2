@@ -574,7 +574,7 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 #endif
 				success = 1.0;
 
-			if(g_rand->Next(100) < sint32(success * 100.0)) {
+			if(civrand().Next(100) < sint32(success * 100.0)) {
 				MapPoint slpos;
 				GetPos(slpos);
 

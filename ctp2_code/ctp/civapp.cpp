@@ -1981,7 +1981,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 
 
-		g_rand->Initialize(static_cast<sint32>(time(0)));
+		civrand().Initialize(static_cast<sint32>(time(0)));
 	}
 
 	ProgressTo( 630 );
@@ -3624,7 +3624,7 @@ sint32 CivApp::RestartGame(void)
 sint32 CivApp::RestartGameSameMap(void)
 {
 	Assert(g_rand);
-	g_oldRandSeed = g_rand ? g_rand->GetSeed() : 0;
+	g_oldRandSeed = g_rand ? civrand().GetSeed() : 0;
 
 	if (m_gameLoaded)
 	{

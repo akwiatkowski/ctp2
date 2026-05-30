@@ -354,7 +354,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 	archive<<MapPoint_MapPoint_GetVersion();
 
 
-	g_rand->Serialize(archive);
+	civrand().Serialize(archive);
 
 	PROGRESS( 110 );
 

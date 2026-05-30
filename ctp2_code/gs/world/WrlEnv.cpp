@@ -57,7 +57,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/Globals.h"
 
-extern RandomGenerator *g_rand;
+
 
 extern	StringDB *g_theStringDB ;
 
@@ -327,7 +327,7 @@ void World::SetRandomGood(const sint32 x, const sint32 y)
 
 	Assert(totalProb <= 1.0);
 	totalProb = 0;
-	sint32 val = g_rand->Next(1000);
+	sint32 val = civrand().Next(1000);
 	for(i = 0; i < k_MAX_GOODS_TYPES_PER_TERRAIN; i++) {
 		if(val < (totalProb + prob[i]) * 1000) {
 			SetGood(x,y,i+1);

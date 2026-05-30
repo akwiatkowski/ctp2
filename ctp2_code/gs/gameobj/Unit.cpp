@@ -2547,7 +2547,7 @@ bool Unit::Sink(sint32 chance)
 	if(urec->GetCanSinkInSea()
 	&& trec->GetMovementTypeSea()
 	){
-		if(g_rand->Next(100) < chance)
+		if(civrand().Next(100) < chance)
 		{
 			// Maybe something else than CAUSE_REMOVE_ARMY_DISBANDED
 			// or it least call it diferently

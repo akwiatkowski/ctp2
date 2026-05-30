@@ -222,7 +222,7 @@ STDEHANDLER(CaptureCityEvent)
             g_slicEngine->Execute(so);
         }
 
-		if(g_rand->Next(100) <
+		if(civrand().Next(100) <
 		   g_theConstDB->Get(0)->GetCaptureCityAdvanceChance() * 100) {
 			//Added by Martin G�hmann to allow city advance gaining from
 			//a captured city.
@@ -234,7 +234,7 @@ STDEHANDLER(CaptureCityEvent)
 			if(num > 0){
 				sint32 i;
 				sint32 count = 0;
-				sint32 which = g_rand->Next(num);
+				sint32 which = civrand().Next(num);
 
 				for(i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
 					if(canSteal[i]) {

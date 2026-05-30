@@ -109,7 +109,6 @@
 #include "gs/world/World.h"
 #include "gs/gameobj/Player.h"
 
-extern  RandomGenerator         *g_rand;
 
 // The Databases
 extern  ProfileDB               *g_theProfileDB;

@@ -706,7 +706,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 
 				for(h = p; h > howMany; h--)
 				{
-					sint32 which = g_rand->Next(p);
+					sint32 which = civrand().Next(p);
 					m_canResearch[possible[which]] = 0;
 					memmove(&possible[which], &possible[which + 1], p - which - 1);
 					p--;
@@ -724,12 +724,12 @@ void Advances::ResetCanResearch(sint32 justGot)
 
 #if 0
 	if(num > g_theConstDB->AdvanceChoicesMin()) {
-		sint32 howMany = g_rand->Next(g_theConstDB->AdvanceChoicesMax() -
+		sint32 howMany = civrand().Next(g_theConstDB->AdvanceChoicesMax() -
 									  g_theConstDB->AdvanceChoicesMin()) +
 			g_theConstDB->AdvanceChoicesMin();
 		while(num > howMany) {
 			sint32 origNum = num;
-			sint32 which = g_rand->Next(num);
+			sint32 which = civrand().Next(num);
 			sint32 found = 0;
 			for(i = 0; i < m_size; i++) {
 				if(m_canResearch[i]) {

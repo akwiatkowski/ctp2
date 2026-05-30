@@ -66,7 +66,7 @@ Wormhole::Wormhole(sint32 discoverer)
 	m_topY = centerY - orbitHeight / 2;
 	m_bottomY = centerY + orbitHeight / 2;
 	m_pos.y = centerY;
-	m_pos.x = sint16(g_rand->Next(g_theWorld->GetXWidth()));
+	m_pos.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
 	m_curDir = NORTHEAST;
 
 	m_entries = new PointerList<EntryRecord>;

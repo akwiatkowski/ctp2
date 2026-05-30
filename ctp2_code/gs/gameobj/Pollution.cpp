@@ -504,7 +504,7 @@ void Pollution::AddNukePollution(const MapPoint &cpos)
 	MapPoint pos;
 	for (sint32 i = 0; i < g_theConstDB->Get(0)->GetNukeKillsTiles(); i++)
 	{
-		if(cpos.GetNeighborPosition((WORLD_DIRECTION)g_rand->Next(sint32(NOWHERE)), pos))
+		if(cpos.GetNeighborPosition((WORLD_DIRECTION)civrand().Next(sint32(NOWHERE)), pos))
 		{
 			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_KillTile,

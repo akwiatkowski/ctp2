@@ -62,7 +62,6 @@
 #include "gs/events/GameEventManager.h"
 
 extern Player **g_player;
-extern RandomGenerator *g_rand;
 class TiledMap;
 extern TiledMap		*g_tiledMap;
 
@@ -245,8 +244,8 @@ namespace
 
 GoodyHut::GoodyHut()
 {
-    m_typeValue = g_rand->Next(100);
-	m_value     = g_rand->Next(k_VALUE_RANGE);
+    m_typeValue = civrand().Next(100);
+	m_value     = civrand().Next(k_VALUE_RANGE);
 }
 
 GoodyHut::GoodyHut(uint32 type, uint32 value)

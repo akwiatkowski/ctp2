@@ -1525,6 +1525,12 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 	for (sint32 i=0; i<k_MAX_PLAYERS; i++) {
 		MBCHAR civName[k_MAX_NAME_LEN];
+		// Zero the full buffer.  GetPluralCivName writes a short string +
+		// null terminator; the remainder used to carry uninitialised
+		// stack memory all the way through to the file, producing a
+		// fresh ~500 bytes of non-determinism per player slot in every
+		// save.  Caught by test_save_determinism.cpp.
+		memset(civName, 0, sizeof(civName));
 
 	    sint32 has_player;
 		GUID guid;
@@ -2033,15 +2039,20 @@ SaveInfo::SaveInfo()
 	showLabels          (false),
 	startingPlayer      (CIV_INDEX_VANDALS)
 {
-	gameName[0] = '\0';
-	fileName[0] = '\0';
-	pathName[0] = '\0';
-	leaderName[0] = '\0';
-	civName[0] = '\0';
-	note[0] = '\0';
+	// Zero each string buffer in full, not just the first byte.  Saves
+	// write these via c3files_fwrite(buf, 1, sizeof(buf), ...) — anything
+	// past the null terminator goes to disk as heap garbage and shows
+	// up as a fresh ~2 KB of non-determinism per save header.  Caught
+	// by test_save_determinism.cpp.
+	memset(gameName,   0, sizeof(gameName));
+	memset(fileName,   0, sizeof(fileName));
+	memset(pathName,   0, sizeof(pathName));
+	memset(leaderName, 0, sizeof(leaderName));
+	memset(civName,    0, sizeof(civName));
+	memset(note,       0, sizeof(note));
 
 	for (sint32 i=0; i<k_MAX_PLAYERS; i++) {
-		civList[i][0] = '\0';
+		memset(civList[i], 0, sizeof(civList[i]));
 		memset(&networkGUID[i], 0, sizeof(CivGuid));
 	}
 

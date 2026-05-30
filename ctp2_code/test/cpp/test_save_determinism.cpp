@@ -13,25 +13,42 @@
 // information?" is indistinguishable from "did my round-trip introduce
 // non-determinism in serialization?".
 //
-// CURRENT STATE (2026-05-30, master @ 8a1d96c3):
-// The same-seed byte-equality tests are RED on master.  Investigation
-// at session-time:
-//   - File sizes match (57085 bytes for 3-player 5-turn save).
-//   - First diff at offset 3122; clustered diffs in 4 groups of 16-
-//     aligned bytes through offset 3185 (= 4×16-byte runs).
-//   - SaveExtendedGameInfo writes one fresh GUID per player into the
-//     save header (GameFile.cpp:1552).  GUID generation on macOS/Linux
-//     pulls entropy from /dev/urandom — non-deterministic by design.
-//   - Hypothesis: the 4 clusters are 4 GUIDs (3 players + 1 spare
-//     slot, or barbarians + 3 players).  Fix is either to write zero
-//     GUIDs in the SaveExtendedGameInfo header, derive them from
-//     seed+player_index, or skip the metadata section entirely.
+// CURRENT STATE (2026-05-30):
 //
-// Until SaveExtendedGameInfo is made deterministic, the same-seed
-// tests are tagged with doctest::skip to keep CI green.  Remove the
-// skip flag when the underlying issue is fixed.  Once removed, this
-// scaffold catches any future RNG-order / serialization regression
-// for free.
+// SaveExtendedGameInfo writes ~3 KB of metadata at the head of every
+// save file (game name, leader name, civ name, note, radar map, power
+// graph, per-player civ list, gameSetup, options, etc.).  Three
+// distinct sources of non-determinism were found during the Pre-A
+// session.  Two are fixed in this commit; one remains.
+//
+// FIXED:
+//   1. Local `MBCHAR civName[k_MAX_NAME_LEN]` inside the per-player
+//      loop (GameFile.cpp::SaveExtendedGameInfo).  GetPluralCivName
+//      writes a short string + null, leaving ~500 bytes of stack
+//      garbage that fwrite then dumps to disk.  Now memset'd to zero.
+//      Wiped ~50 differing bytes / save (4 active player slots).
+//   2. SaveInfo::SaveInfo() initialised only the first byte of each
+//      string buffer (gameName, leaderName, civName, note, fileName,
+//      pathName, per-player civList[k_MAX_PLAYERS][k_MAX_NAME_LEN]).
+//      Now memset to full extent.  Wiped ~2 KB of heap garbage in
+//      the metadata header.
+//
+// REMAINING:
+//   3. `info->gameSetup` (type nf_GameSetup) is a class with multiple
+//      inheritance (nf_GameSetup -> NETFunc::GameSetup -> Game/Packet).
+//      Each level adds a vtable pointer at the start.  fwrite of the
+//      whole class instance dumps these vtable pointers verbatim;
+//      they differ per process (ASLR).  Save format treats a class
+//      instance as raw POD — UB by C++ standard, broken in practice.
+//      Three diff clusters (~9 bytes) survive in current saves.
+//
+//      Fixing #3 requires field-by-field serialization of
+//      nf_GameSetup — a non-trivial refactor that the planned JSON
+//      migration (Phase B) will absorb as part of the GameSettings
+//      to_json / from_json work.  Until then, the same-seed cases
+//      below are tagged with doctest::skip.  Remove the skip flag
+//      after #3 lands (or after the JSON migration's Phase G
+//      deletes the binary path entirely).
 //
 // The "different seeds -> different saves" control case is left
 // active — it passes today and would catch a regression where the

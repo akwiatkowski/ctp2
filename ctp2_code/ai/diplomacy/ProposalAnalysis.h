@@ -4,7 +4,7 @@
 #ifndef __PROPOSAL_ANALYSIS_H__
 #define __PROPOSAL_ANALYSIS_H__
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 class ProposalAnalysis {
 public:

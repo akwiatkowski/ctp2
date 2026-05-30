@@ -54,7 +54,7 @@ class AgreementMatrix;
 //----------------------------------------------------------------------------
 
 #include "robot/aibackdoor/civarchive.h"     // CivArchive
-#include "ai/diplomacy/diplomattypes.h"  // ai::..., PROPOSAL_TYPE
+#include "gs/diplomacy/diplomacy_types.h"  // ai::..., PROPOSAL_TYPE
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
 
 //----------------------------------------------------------------------------

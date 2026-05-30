@@ -18,7 +18,7 @@ class GameEventArgList;
 class Army;
 
 #include "gs/gameobj/UnitTypes.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 
 class SlicContext {

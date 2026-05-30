@@ -43,7 +43,7 @@ class   Foreigner;
 #include "robot/aibackdoor/civarchive.h"
 #include "os/include/ctp2_inttypes.h"
 #include "gs/database/dbtypes.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "DiplomacyRecord.h"
 #include "gs/world/MapPoint.h"
 

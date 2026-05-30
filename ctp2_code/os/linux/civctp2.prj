@@ -80,7 +80,7 @@ module.include.files=\
 	../../../ctp2_code/ai/mapanalysis/boundingrect.h\
 	../../../ctp2_code/ai/mapanalysis/mapgrid.h\
 	../../../ctp2_code/ai/profileai.h\
-	../../../ctp2_code/ai/diplomacy/diplomattypes.h\
+	../../../ctp2_code/gs/diplomacy/diplomacy_types.h\
 	../../../ctp2_code/ai/diplomacy/SStateEvent.h\
 	../../../ctp2_code/ai/diplomacy/CounterResponseEvent.h\
 	../../../ctp2_code/ai/diplomacy/RejectResponseEvent.h\
@@ -1199,7 +1199,7 @@ module.source.files=\
 	../../../ctp2_code/ai/diplomacy/ResponseEvent.cpp\
 	../../../ctp2_code/ai/diplomacy/ReactEvent.cpp\
 	../../../ctp2_code/ai/diplomacy/threatresponseevent.cpp\
-	../../../ctp2_code/ai/diplomacy/diplomattypes.cpp\
+	../../../ctp2_code/gs/diplomacy/diplomacy_types.cpp\
 	../../../ctp2_code/ai/diplomacy/regardevent.cpp\
 	../../../ctp2_code/ai/diplomacy/motivationevent.cpp\
 	../../../ctp2_code/ai/diplomacy/dstateevent.cpp\

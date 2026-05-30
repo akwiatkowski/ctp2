@@ -1,7 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicEngine.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "robot/aibackdoor/civarchive.h"
 
 char *slic_const_test_names[] = {

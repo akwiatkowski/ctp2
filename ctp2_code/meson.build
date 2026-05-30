@@ -889,7 +889,7 @@ game_core_sources = [
 	'ai/diplomacy/agreementmatrix.cpp',
 	'ai/diplomacy/diplomacyutil.cpp',
 	'ai/diplomacy/diplomat.cpp',
-	'ai/diplomacy/diplomattypes.cpp',
+	'gs/diplomacy/diplomacy_types.cpp',
 	'ai/diplomacy/foreigner.cpp',
 	'ai/diplomacy/proposalanalysis.cpp',
 	'ai/strategy/scheduler/Plan.cpp',

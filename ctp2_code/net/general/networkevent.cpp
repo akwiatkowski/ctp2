@@ -41,7 +41,7 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/UnitData.h"
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "ai/diplomacy/Diplomat.h"
 
 #include "ai/ctpai.h"

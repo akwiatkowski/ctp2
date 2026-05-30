@@ -52,7 +52,7 @@ extern EndGameWindow *g_endgameWindow;
 #include "ui/interface/trademanager.h"
 #include "ui/interface/victorywin.h"
 #include "ui/interface/dipwizard.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "gfx/spritesys/director.h"
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"

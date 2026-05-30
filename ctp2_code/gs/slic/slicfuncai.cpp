@@ -52,7 +52,7 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "gs/gameobj/Army.h"
 #include "ai/strategy/scheduler/Scheduler.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "gs/slic/slicif.h"
 #include "gs/database/StrDB.h"
 extern StringDB *g_theStringDB;

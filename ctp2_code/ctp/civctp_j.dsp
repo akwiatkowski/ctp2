@@ -11075,7 +11075,7 @@ SOURCE=..\ai\diplomacy\Diplomat.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\ai\diplomacy\diplomattypes.cpp
+SOURCE=..\gs\diplomacy\diplomacy_types.cpp
 # End Source File
 # Begin Source File
 

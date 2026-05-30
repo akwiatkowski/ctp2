@@ -53,7 +53,7 @@
 #include "ai/diplomacy/diplomacyutil.h"
 #include "ui/interface/diplomacywindow.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "ui/interface/dipwizard.h"
 #include "gs/utility/Globals.h"
 #include "ai/mapanalysis/mapanalysis.h"

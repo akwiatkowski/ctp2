@@ -4803,7 +4803,7 @@
     <ClCompile Include="..\ai\diplomacy\Diplomat.cpp">
       <Filter>ai\Diplomacy</Filter>
     </ClCompile>
-    <ClCompile Include="..\ai\diplomacy\diplomattypes.cpp">
+    <ClCompile Include="..\gs\diplomacy\diplomacy_types.cpp">
       <Filter>ai\Diplomacy</Filter>
     </ClCompile>
     <ClCompile Include="..\ai\diplomacy\Foreigner.cpp">

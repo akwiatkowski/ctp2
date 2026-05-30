@@ -1374,7 +1374,7 @@ rem                                                 if                          
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\ai\personality;..\ctp\ctp2_utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug Browse|Win32'">..\ai\personality;..\ctp\ctp2_utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <ClCompile Include="..\ai\diplomacy\diplomattypes.cpp" />
+    <ClCompile Include="..\gs\diplomacy\diplomacy_types.cpp" />
     <ClCompile Include="..\ai\diplomacy\DStateEvent.cpp" />
     <ClCompile Include="..\ai\diplomacy\Foreigner.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\ai\personality;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

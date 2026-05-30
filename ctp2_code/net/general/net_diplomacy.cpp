@@ -32,7 +32,7 @@
 #include "gs/gameobj/Player.h"             // g_player
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
 #include "ai/diplomacy/Diplomat.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 #include "gs/events/GameEventManager.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 

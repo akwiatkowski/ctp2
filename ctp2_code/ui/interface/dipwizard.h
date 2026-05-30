@@ -67,7 +67,7 @@ enum DIP_WIZ_VIEW_TYPE {
 	DIP_WIZ_VIEW_TYPE_MAX
 };
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 class DipWizard
 {

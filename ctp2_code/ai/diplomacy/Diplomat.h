@@ -60,7 +60,7 @@ class Diplomat;
 #include "os/include/ctp2_inttypes.h"          // sintN, uintN
 #include "gs/database/dbtypes.h"                // StringId
 #include "DiplomacyRecord.h"        // DiplomacyRecord
-#include "ai/diplomacy/diplomattypes.h"          // ai, AiState, Motivation, Threat, etc.
+#include "gs/diplomacy/diplomacy_types.h"          // ai, AiState, Motivation, Threat, etc.
 #include "Foreigner.h"              // Foreigner
 #include "PersonalityRecord.h"      // PersonalityRecord
 #include "gs/gameobj/Player.h"                 // PLAYER_INDEX, k_MAX_PLAYERS

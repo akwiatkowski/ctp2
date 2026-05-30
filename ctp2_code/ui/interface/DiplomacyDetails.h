@@ -13,7 +13,7 @@ class Unit;
 
 #include "ui/aui_ctp2/ctp2_Menu.h"
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 class DiplomacyDetails
 {

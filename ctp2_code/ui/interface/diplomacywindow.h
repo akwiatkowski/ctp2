@@ -15,7 +15,7 @@ class ctp2_Button;
 
 typedef sint32 StringId;
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 #include "ui/aui_ctp2/ctp2_Menu.h"
 

@@ -50,7 +50,7 @@
 #include "gs/slic/SlicSymbol.h"
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/gameobj/Order.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 namespace
 {

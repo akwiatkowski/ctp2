@@ -8,7 +8,7 @@
 #include <vector>
 #include "ctp/ctp2_utils/c3debugstl.h"
 
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 class DipAIP {
 public:

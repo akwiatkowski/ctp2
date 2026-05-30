@@ -21,6 +21,7 @@
 #include "gs/core/game_observer_registration.h"
 #include "gs/core/player_view.h"              // player_view::RegisterCurPlayer
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
+#include "gs/fileio/json_save.h"              // json_save::SaveJson (Phase A)
 #include "gs/gameobj/Score.h"                 // Score::GetTotalScore
 #include "gs/gameobj/CityData.h"              // CityData::PopCount
 #include "gs/gameobj/Unit.h"                  // Unit::GetName / GetPos / CD
@@ -84,6 +85,11 @@ int main(int argc, char **argv)
     const char *saveGamePath = nullptr;
     const char *loadGamePath = nullptr;
     const char *exportMetricsPath = nullptr;
+    // Phase A scaffold flag — writes the JSON skeleton header
+    // ({"magic": "CTP2-JSON", "schema_version": 1}) after turns
+    // complete.  Hidden from --help on purpose; not yet a real save
+    // path.  See ~/projects/claude/plans/ctp2-json-savegame.md.
+    const char *jsonSavePath = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--new-game") == 0) {
@@ -102,6 +108,8 @@ int main(int argc, char **argv)
             loadGamePath = argv[++i];
         } else if (strcmp(argv[i], "--export-metrics") == 0 && i + 1 < argc) {
             exportMetricsPath = argv[++i];
+        } else if (strcmp(argv[i], "--json-save") == 0 && i + 1 < argc) {
+            jsonSavePath = argv[++i];
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;
@@ -261,6 +269,12 @@ int main(int argc, char **argv)
             headless_log->info("Saving game to {}", saveGamePath);
             GameFile::SaveGame(saveGamePath, NULL);
             headless_log->info("SaveGame returned");
+        }
+
+        if (jsonSavePath) {
+            headless_log->info("Saving JSON to {}", jsonSavePath);
+            bool ok = json_save::SaveJson(jsonSavePath);
+            headless_log->info("SaveJson returned {}", ok ? "ok" : "FAIL");
         }
 
         if (exportMetricsPath) {

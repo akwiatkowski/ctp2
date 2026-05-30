@@ -218,7 +218,8 @@ incdir += include_directories(
 	'ai/strategy/agents',
 	'ai/strategy/goals',
 	'ai/strategy/squads',
-	'ai/CityManagement'
+	'ai/CityManagement',
+	'3rdparty'
 )
 
 game_core_sources = [
@@ -241,6 +242,7 @@ game_core_sources = [
 	'gs/core/text_observer.cpp',
 	'gs/core/battle_observer.cpp',
 	'gs/core/diplomacy_observer.cpp',
+	'gs/fileio/json_save.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
 	'ctp/ctp2_utils/c3cmdline.cpp',
@@ -1281,6 +1283,7 @@ cpp_test_sources = [
   'test/cpp/test_headless_smoke.cpp',
   'test/cpp/test_headless_determinism.cpp',
   'test/cpp/test_save_determinism.cpp',
+  'test/cpp/test_json_save.cpp',
   'test/cpp/test_save_load.cpp',
   'test/cpp/test_headless_progression.cpp',
   'test/cpp/test_headless_long.cpp',

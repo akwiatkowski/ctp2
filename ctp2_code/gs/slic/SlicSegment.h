@@ -38,6 +38,7 @@
 #include "gs/slic/SlicError.h"
 #include "gs/slic/SlicFunc.h"
 #include "gs/utility/gstypes.h"
+#include <nlohmann/json.hpp>
 
 class SlicSegment;
 class SlicStack;
@@ -147,6 +148,9 @@ public:
 	SlicConditional *NewConditional(sint32 line, const char *expression);
 
 	static void Cleanup(void);
+
+	friend void to_json(nlohmann::json &j, SlicSegment const &s);
+	friend void from_json(nlohmann::json const &j, SlicSegment &s);
 };
 
 class SlicSegmentHash : public StringHash<SlicSegment>

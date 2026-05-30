@@ -3168,3 +3168,94 @@ TEST_CASE("json round-trip: SlicSymTab rejects generic-serial-type entries")
     SlicSymTab round(/*size*/ 0);
     CHECK_THROWS_AS(j.get_to(round), nlohmann::json::other_error);
 }
+
+// Phase F-14 — SlicSegment.
+
+#include "gs/slic/SlicSegment.h"
+
+TEST_CASE("json round-trip: SlicSegment default-constructed (mostly null)")
+{
+    SlicSegment orig;
+
+    nlohmann::json j = orig;
+    CHECK(j["code_size"]              == 0);
+    CHECK(j["num_trigger_symbols"]    == 0);
+    CHECK(j["num_parameters"]         == 0);
+    CHECK(j["enabled"]                == false);
+    CHECK(j["id"]                     == "");
+    CHECK(j["code"].is_array());
+    CHECK(j["code"].size()            == 0);
+    CHECK(j["trigger_symbol_indices"].is_array());
+    CHECK(j["trigger_symbol_indices"].size() == 0);
+    CHECK(j["last_shown"].is_array());
+    CHECK(j["last_shown"].size()      == k_MAX_PLAYERS);
+    CHECK(j["ui_component"].is_null());
+    CHECK(j["filename"].is_null());
+
+    SlicSegment round;
+    j.get_to(round);
+    CHECK(round.GetType()       == orig.GetType());
+    CHECK(round.IsEnabled()     == FALSE);
+    CHECK(round.GetUIComponent() == nullptr);
+    CHECK(std::string(round.GetName()) == "");
+}
+
+TEST_CASE("json round-trip: SlicSegment with bytecode + filename + lastShown")
+{
+    SlicSegment orig;
+
+    // Poke the private fields through a transient JSON load — that's
+    // the same code path real saves use anyway.
+    nlohmann::json j = {
+        {"type",                  static_cast<int>(SLIC_OBJECT_FUNCTION)},
+        {"code_size",             4},
+        {"num_trigger_symbols",   2},
+        {"num_parameters",        1},
+        {"enabled",               true},
+        {"special_variables",     0x42u},
+        {"is_alert",              true},
+        {"is_help",               false},
+        {"event",                 0},
+        {"priority",              0},
+        {"from_file",             1},
+        {"id",                    "TestSeg"},
+        {"code",                  {0x90, 0x91, 0x92, 0x93}},
+        {"trigger_symbol_indices", {7, 8}},
+        {"last_shown",            std::vector<sint32>(k_MAX_PLAYERS, 0)},
+        {"ui_component",          "TutorialPopup"},
+        {"parameter_indices",     {3}},
+        {"filename",              "test.slc"},
+    };
+    j.at("last_shown")[0] = 17;
+    j.at("last_shown")[3] = 99;
+
+    j.get_to(orig);
+    CHECK(orig.GetType() == SLIC_OBJECT_FUNCTION);
+    CHECK(std::string(orig.GetName()) == "TestSeg");
+    CHECK(std::string(orig.GetFilename()) == "test.slc");
+    CHECK(std::string(orig.GetUIComponent()) == "TutorialPopup");
+    CHECK(orig.IsAlert() == TRUE);
+    CHECK(orig.IsHelp() == FALSE);
+    CHECK(orig.GetLastShown(0) == 17);
+    CHECK(orig.GetLastShown(3) == 99);
+
+    nlohmann::json j2 = orig;
+    CHECK(j2["id"]                       == "TestSeg");
+    CHECK(j2["filename"]                 == "test.slc");
+    CHECK(j2["ui_component"]             == "TutorialPopup");
+    CHECK(j2["code"][2]                  == 0x92);
+    CHECK(j2["code"].size()              == 4);
+    CHECK(j2["trigger_symbol_indices"]   == std::vector<sint32>{7, 8});
+    CHECK(j2["parameter_indices"]        == std::vector<sint32>{3});
+    CHECK(j2["last_shown"][0]            == 17);
+    CHECK(j2["last_shown"][3]            == 99);
+    CHECK(j2["special_variables"]        == 0x42u);
+}
+
+TEST_CASE("json round-trip: SlicSegment keys are snake_case (no m_ leak)")
+{
+    SlicSegment s;
+    nlohmann::json j = s;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}

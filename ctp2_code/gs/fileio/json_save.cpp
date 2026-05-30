@@ -94,6 +94,7 @@
 #include "gs/slic/SlicStruct.h"   // SlicStructDescription::GetType()
 #include "gs/slic/SlicSymTab.h"
 #include "gs/slic/SlicFunc.h"
+#include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -3535,6 +3536,158 @@ void from_json(nlohmann::json const &j, SlicStructInstance &s)
         // when neither persisted form is available.
         s.m_dataSymbol  = s.m_description->CreateDataSymbol();
         s.m_createdData = true;
+    }
+}
+
+// Phase F-14 — SlicSegment (compiled SLIC script segment).  Mirrors
+// SlicSegment::Serialize at SlicSegment.cpp:401.  Carries the
+// bytecode (m_code), per-player cooldown timers (m_lastShown),
+// trigger/parameter indices, and the source filename/UI binding.
+//
+// JSON shape mirrors the field list one-for-one.  Bytecode is an
+// array of uint8 (modders won't hand-edit it but it's necessary for
+// scripts that mutate state then save mid-execution).
+//
+// trigger_symbols / parameter_symbols themselves aren't persisted —
+// they're runtime pointers resolved post-load via LinkTriggerSymbols
+// / LinkParameterSymbols from the indices.  Same as the binary path.
+
+namespace {
+
+std::vector<uint8> bytesToVec(uint8 const *bytes, size_t n)
+{
+    return bytes ? std::vector<uint8>(bytes, bytes + n) : std::vector<uint8>();
+}
+
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicSegment const &s)
+{
+    j = nlohmann::json{
+        {"type",                static_cast<int>(s.m_type)},
+        {"code_size",           s.m_codeSize},
+        {"num_trigger_symbols", s.m_num_trigger_symbols},
+        {"num_parameters",      s.m_num_parameters},
+        {"enabled",             static_cast<bool>(s.m_enabled)},
+        {"special_variables",   s.m_specialVariables},
+        {"is_alert",            static_cast<bool>(s.m_isAlert)},
+        {"is_help",             static_cast<bool>(s.m_isHelp)},
+        {"event",               static_cast<int>(s.m_event)},
+        {"priority",            static_cast<int>(s.m_priority)},
+        {"from_file",           s.m_fromFile},
+        {"id",                  s.m_id ? std::string(s.m_id) : std::string()},
+        {"code",                bytesToVec(s.m_code, s.m_codeSize)},
+        {"last_shown",
+            std::vector<sint32>(s.m_lastShown, s.m_lastShown + k_MAX_PLAYERS)},
+        {"ui_component",        optStringToJson(s.m_uiComponent)},
+        {"filename",            optStringToJson(s.m_filename)},
+    };
+
+    nlohmann::json trigIdx = nlohmann::json::array();
+    for (sint32 i = 0; i < s.m_num_trigger_symbols; ++i)
+        trigIdx.push_back(s.m_trigger_symbols_indices[i]);
+    j["trigger_symbol_indices"] = std::move(trigIdx);
+
+    nlohmann::json paramIdx = nlohmann::json::array();
+    for (sint32 i = 0; i < s.m_num_parameters; ++i)
+    {
+        // Binary stores GetIndex() of each linked SlicParameterSymbol;
+        // when the symbols haven't been linked yet (fresh load path)
+        // it falls back to the index array.
+        if (s.m_parameter_symbols)
+            paramIdx.push_back(
+                static_cast<SlicParameterSymbol *>(s.m_parameter_symbols[i])->GetIndex());
+        else if (s.m_parameter_indices)
+            paramIdx.push_back(s.m_parameter_indices[i]);
+        else
+            paramIdx.push_back(-1);
+    }
+    j["parameter_indices"] = std::move(paramIdx);
+}
+
+void from_json(nlohmann::json const &j, SlicSegment &s)
+{
+    // Free any prior allocations (matches binary path's fresh-new ctor).
+    free(s.m_id);
+    free(s.m_code);
+    free(s.m_uiComponent);
+    free(s.m_filename);
+    delete[] s.m_trigger_symbols_indices;
+    delete[] s.m_parameter_indices;
+    s.m_id = nullptr;
+    s.m_code = nullptr;
+    s.m_uiComponent = nullptr;
+    s.m_filename = nullptr;
+    s.m_trigger_symbols_indices = nullptr;
+    s.m_parameter_indices = nullptr;
+    s.m_trigger_symbols = nullptr;
+    s.m_parameter_symbols = nullptr;
+
+    s.m_type            = static_cast<SLIC_OBJECT>(j.at("type").get<int>());
+    j.at("code_size").get_to(s.m_codeSize);
+    j.at("num_trigger_symbols").get_to(s.m_num_trigger_symbols);
+    j.at("num_parameters").get_to(s.m_num_parameters);
+    s.m_enabled         = j.at("enabled").get<bool>();
+    j.at("special_variables").get_to(s.m_specialVariables);
+    s.m_isAlert         = j.at("is_alert").get<bool>();
+    s.m_isHelp          = j.at("is_help").get<bool>();
+    s.m_event           = static_cast<GAME_EVENT>(j.at("event").get<int>());
+    s.m_priority        = static_cast<GAME_EVENT_PRIORITY>(j.at("priority").get<int>());
+    j.at("from_file").get_to(s.m_fromFile);
+
+    std::string const id = j.at("id").get<std::string>();
+    s.m_id = static_cast<char *>(malloc(id.size() + 1));
+    if (s.m_id) std::memcpy(s.m_id, id.c_str(), id.size() + 1);
+
+    auto code = j.at("code").get<std::vector<uint8>>();
+    if (s.m_codeSize > 0)
+    {
+        s.m_code = static_cast<uint8 *>(malloc(s.m_codeSize));
+        if (s.m_code && !code.empty())
+            std::memcpy(s.m_code, code.data(),
+                        std::min<size_t>(code.size(), s.m_codeSize));
+    }
+
+    auto trigIdx = j.at("trigger_symbol_indices").get<std::vector<sint32>>();
+    if (s.m_num_trigger_symbols > 0)
+    {
+        s.m_trigger_symbols_indices = new sint32[s.m_num_trigger_symbols];
+        for (sint32 i = 0; i < s.m_num_trigger_symbols
+                            && i < static_cast<sint32>(trigIdx.size()); ++i)
+            s.m_trigger_symbols_indices[i] = trigIdx[i];
+    }
+
+    auto lastShown = j.at("last_shown").get<std::vector<sint32>>();
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+        s.m_lastShown[i] = (i < static_cast<sint32>(lastShown.size()))
+                              ? lastShown[i] : 0;
+
+    if (!j.at("ui_component").is_null())
+    {
+        std::string ui = j.at("ui_component").get<std::string>();
+        s.m_uiComponent = static_cast<char *>(malloc(ui.size() + 1));
+        if (s.m_uiComponent) std::memcpy(s.m_uiComponent, ui.c_str(), ui.size() + 1);
+    }
+
+    auto paramIdx = j.at("parameter_indices").get<std::vector<sint32>>();
+    if (s.m_num_parameters > 0)
+    {
+        s.m_parameter_indices = new sint32[s.m_num_parameters];
+        for (sint32 i = 0; i < s.m_num_parameters
+                            && i < static_cast<sint32>(paramIdx.size()); ++i)
+            s.m_parameter_indices[i] = paramIdx[i];
+    }
+
+    if (!j.at("filename").is_null())
+    {
+        std::string fn = j.at("filename").get<std::string>();
+        s.m_filename = static_cast<char *>(malloc(fn.size() + 1));
+        if (s.m_filename) std::memcpy(s.m_filename, fn.c_str(), fn.size() + 1);
+    }
+
+    if (s.m_type == SLIC_OBJECT_HANDLEEVENT && g_gevManager)
+    {
+        g_gevManager->AddCallback(s.m_event, s.m_priority, &s);
     }
 }
 

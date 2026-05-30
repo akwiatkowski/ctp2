@@ -92,6 +92,12 @@ public:
 
 class Happy
 	{
+		// Friend decl drives nlohmann ADL.  Phase D-4: serialises
+		// the 24 scalar happiness modifiers + m_timedChanges list +
+		// nested m_tracker.  Omits m_tracker pointer identity (UI/AI
+		// can rebuild it from the JSON-serialised HappyTracker payload).
+		friend void to_json(nlohmann::json &j, Happy const &h);
+		friend void from_json(nlohmann::json const &j, Happy &h);
 	private:
 
 //----------------------------------------------------------------------------

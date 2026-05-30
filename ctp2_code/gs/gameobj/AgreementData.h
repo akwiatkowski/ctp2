@@ -38,6 +38,8 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/gstypes.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 typedef sint32 PLAYER_INDEX ;
@@ -80,6 +82,13 @@ private:
 
 	friend class NetAgreement ;
 	friend class NetClientAgreement ;
+	// JSON bridge — covers the scalar fields + m_targetCity.  The
+	// intrusive linked-list pointers m_lesser/m_greater are OMITTED:
+	// the AgreementPool's JSON bridge (future work) will flatten
+	// agreements into a top-level array, sidestepping the recursive
+	// binary serialisation pattern.
+	friend void to_json(nlohmann::json &j, AgreementData const &a);
+	friend void from_json(nlohmann::json const &j, AgreementData &a);
 
 public:
 	AgreementData(const ID id) ;

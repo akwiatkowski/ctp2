@@ -51,6 +51,8 @@
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/Strengths.h"
+#include "gs/gameobj/AgreementData.h"
+#include "gs/gameobj/GameObj.h"            // GameObj::Serialize base
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -902,6 +904,131 @@ void from_json(nlohmann::json const &j, Strengths &s)
         {
             s.m_strengthRecords[cat].Insert(val.get<sint32>());
         }
+    }
+}
+
+// --- Phase D-4 leaves ---------------------------------------------------
+
+void to_json(nlohmann::json &j, AgreementData const &a)
+{
+    // GameObj base: only m_id is serialised (per the comment in
+    // GameObj.h:50 "Only serialized member").  m_lesser / m_greater
+    // are intrusive-pool pointers — pool-level concern, OMITTED.
+    j = nlohmann::json{
+        {"id",                a.m_id},
+        {"owner",             a.m_owner},
+        {"recipient",         a.m_recipient},
+        {"third_party",       a.m_thirdParty},
+        {"agreement",         static_cast<sint32>(a.m_agreement)},
+        {"round",             a.m_round},
+        {"expires",           a.m_expires},
+        {"owner_pollution",   a.m_ownerPollution},
+        {"recipient_pollution", a.m_recipientPollution},
+        {"is_broken",         static_cast<bool>(a.m_isBroken)},
+        {"target_city",       static_cast<ID const &>(a.m_targetCity)},
+    };
+}
+
+void from_json(nlohmann::json const &j, AgreementData &a)
+{
+    j.at("id")                .get_to(a.m_id);
+    j.at("owner")             .get_to(a.m_owner);
+    j.at("recipient")         .get_to(a.m_recipient);
+    j.at("third_party")       .get_to(a.m_thirdParty);
+    a.m_agreement = static_cast<AGREEMENT_TYPE>(j.at("agreement").get<sint32>());
+    j.at("round")             .get_to(a.m_round);
+    j.at("expires")           .get_to(a.m_expires);
+    j.at("owner_pollution")   .get_to(a.m_ownerPollution);
+    j.at("recipient_pollution").get_to(a.m_recipientPollution);
+    a.m_isBroken = j.at("is_broken").get<bool>() ? TRUE : FALSE;
+    ID target_id(0);
+    j.at("target_city")       .get_to(target_id);
+    a.m_targetCity = Unit(target_id.m_id);
+}
+
+void to_json(nlohmann::json &j, Happy const &h)
+{
+    // m_timedChanges (std::list<HappyTimer>) -> JSON array of objects
+    nlohmann::json timed_changes = nlohmann::json::array();
+    for (auto const &timer : h.m_timedChanges)
+    {
+        timed_changes.push_back(timer);
+    }
+    j = nlohmann::json{
+        {"happiness",            h.m_happiness},
+        {"last_captured",        h.m_last_captured},
+        {"base",                 h.m_base},
+        {"size",                 h.m_size},
+        {"pollution",            h.m_pollution},
+        {"conquest_distress",    h.m_conquest_distress},
+        {"empire_dist",          h.m_empire_dist},
+        {"enemy_action",         h.m_enemy_action},
+        {"peace",                h.m_peace},
+        {"starvation",           h.m_starvation},
+        {"workday",              h.m_workday},
+        {"wages",                h.m_wages},
+        {"rations",              h.m_rations},
+        {"martial_law",          h.m_martial_law},
+        {"pop_ent",              h.m_pop_ent},
+        {"improvement",          h.m_improvement},
+        {"wonders",              h.m_wonders},
+        {"dist_to_capitol",      h.m_dist_to_capitol},
+        {"cost_to_capitol",      h.m_cost_to_capitol},
+        {"full_happiness_turns", h.m_fullHappinessTurns},
+        {"too_many_cities",      h.m_too_many_cities},
+        {"timed",                h.m_timed},
+        {"crime",                h.m_crime},
+        {"timed_changes",        std::move(timed_changes)},
+    };
+    // m_pad is alignment padding only — never written to JSON.
+    if (h.m_tracker)
+    {
+        j["tracker"] = *h.m_tracker;
+    }
+}
+
+void from_json(nlohmann::json const &j, Happy &h)
+{
+    j.at("happiness")           .get_to(h.m_happiness);
+    j.at("last_captured")       .get_to(h.m_last_captured);
+    j.at("base")                .get_to(h.m_base);
+    j.at("size")                .get_to(h.m_size);
+    j.at("pollution")           .get_to(h.m_pollution);
+    j.at("conquest_distress")   .get_to(h.m_conquest_distress);
+    j.at("empire_dist")         .get_to(h.m_empire_dist);
+    j.at("enemy_action")        .get_to(h.m_enemy_action);
+    j.at("peace")               .get_to(h.m_peace);
+    j.at("starvation")          .get_to(h.m_starvation);
+    j.at("workday")             .get_to(h.m_workday);
+    j.at("wages")               .get_to(h.m_wages);
+    j.at("rations")             .get_to(h.m_rations);
+    j.at("martial_law")         .get_to(h.m_martial_law);
+    j.at("pop_ent")             .get_to(h.m_pop_ent);
+    j.at("improvement")         .get_to(h.m_improvement);
+    j.at("wonders")             .get_to(h.m_wonders);
+    j.at("dist_to_capitol")     .get_to(h.m_dist_to_capitol);
+    j.at("cost_to_capitol")     .get_to(h.m_cost_to_capitol);
+    j.at("full_happiness_turns").get_to(h.m_fullHappinessTurns);
+    j.at("too_many_cities")     .get_to(h.m_too_many_cities);
+    j.at("timed")               .get_to(h.m_timed);
+    j.at("crime")               .get_to(h.m_crime);
+    h.m_pad = 0;  // alignment field — never carried in JSON
+
+    h.m_timedChanges.clear();
+    for (auto const &timer_json : j.at("timed_changes"))
+    {
+        HappyTimer timer;
+        timer_json.get_to(timer);
+        h.m_timedChanges.push_back(timer);
+    }
+
+    // m_tracker is owned by Happy: delete + reconstruct on load.
+    delete h.m_tracker;
+    h.m_tracker = nullptr;
+    if (j.contains("tracker"))
+    {
+        h.m_tracker = new HappyTracker();
+        j.at("tracker").get_to(*h.m_tracker);
     }
 }
 

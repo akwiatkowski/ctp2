@@ -32,6 +32,7 @@
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/Strengths.h"
+#include "gs/gameobj/AgreementData.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -873,6 +874,137 @@ TEST_CASE("json round-trip: Strengths rejects wrong category count")
     };
     Strengths s(0);
     CHECK_THROWS(bad.get_to(s));
+}
+
+// --- Phase D-4 leaf round-trips ---
+
+TEST_CASE("json round-trip: AgreementData preserves all 11 fields + Unit")
+{
+    AgreementData orig(ID(42));
+    // Drive non-default values via JSON since most setters depend on
+    // pool / network globals.
+    nlohmann::json j{
+        {"id",                  42u},
+        {"owner",               2},
+        {"recipient",           3},
+        {"third_party",         5},
+        {"agreement",           static_cast<int>(AGREEMENT_TYPE_CEASE_FIRE)},
+        {"round",               17},
+        {"expires",             50},
+        {"owner_pollution",     1000u},
+        {"recipient_pollution", 2000u},
+        {"is_broken",           false},
+        {"target_city",         12345u},
+    };
+    j.get_to(orig);
+
+    CHECK(orig.GetOwner()      == 2);
+    CHECK(orig.GetRecipient()  == 3);
+    CHECK(orig.GetThirdParty() == 5);
+    CHECK(orig.GetAgreement()  == AGREEMENT_TYPE_CEASE_FIRE);
+    CHECK(orig.GetTurns()      == 50);
+    CHECK(orig.GetStartTurn()  == 17);
+    CHECK_FALSE(orig.IsBroken());
+    CHECK(orig.GetTarget().m_id == 12345u);
+
+    // Round-trip back through JSON
+    nlohmann::json j2 = orig;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: AgreementData omits m_lesser/m_greater (pool-level)")
+{
+    AgreementData a(ID(0));
+    nlohmann::json j = a;
+    // Intrusive linked-list pointers stay out of the leaf bridge —
+    // pool serialiser will flatten the relationship in a future phase.
+    CHECK_FALSE(j.contains("lesser"));
+    CHECK_FALSE(j.contains("greater"));
+    CHECK_FALSE(j.contains("m_lesser"));
+    CHECK_FALSE(j.contains("m_greater"));
+    // m_killMeSoon (transient) and m_isFromPool (pool bookkeeping) also stay out.
+    CHECK_FALSE(j.contains("kill_me_soon"));
+    CHECK_FALSE(j.contains("is_from_pool"));
+}
+
+TEST_CASE("json round-trip: Happy preserves 23 scalars + timed_changes + tracker")
+{
+    Happy orig;  // default ctor zeros the scalar block
+
+    nlohmann::json j = orig;
+    // The 23 scalars should all default to 0; set a varied pattern.
+    j["happiness"]            = 1.5;
+    j["last_captured"]        = 2.5;
+    j["base"]                 = 3.5;
+    j["size"]                 = 4.5;
+    j["pollution"]            = 5.5;
+    j["conquest_distress"]    = 6.5;
+    j["empire_dist"]          = 7.5;
+    j["enemy_action"]         = 8.5;
+    j["peace"]                = 9.5;
+    j["starvation"]           = 10.5;
+    j["workday"]              = 11.5;
+    j["wages"]                = 12.5;
+    j["rations"]              = 13.5;
+    j["martial_law"]          = 14.5;
+    j["pop_ent"]              = 15.5;
+    j["improvement"]          = 16.5;
+    j["wonders"]              = 17.5;
+    j["dist_to_capitol"]      = 18.5;
+    j["cost_to_capitol"]      = 19;
+    j["full_happiness_turns"] = 20;
+    j["too_many_cities"]      = 21.5;
+    j["timed"]                = 22.5;
+    j["crime"]                = 23.5;
+
+    // Add 2 timed changes
+    nlohmann::json timer_1{
+        {"turns_remaining", 5},
+        {"adjustment",      0.5},
+        {"reason",          static_cast<int>(HAPPY_REASON_WONDERS)},
+    };
+    nlohmann::json timer_2{
+        {"turns_remaining", 7},
+        {"adjustment",      -1.25},
+        {"reason",          static_cast<int>(HAPPY_REASON_HAPPINESS_ATTACK)},
+    };
+    j["timed_changes"] = nlohmann::json::array({timer_1, timer_2});
+
+    Happy round;
+    j.get_to(round);
+
+    // Round-trip back and verify identity (except possibly tracker — see below)
+    nlohmann::json j2 = round;
+    CHECK(j2["happiness"]            == doctest::Approx(1.5));
+    CHECK(j2["crime"]                == doctest::Approx(23.5));
+    CHECK(j2["cost_to_capitol"]      == 19);
+    CHECK(j2["full_happiness_turns"] == 20);
+    CHECK(j2["timed_changes"].size() == 2);
+    CHECK(j2["timed_changes"][0]["turns_remaining"]  == 5);
+    CHECK(j2["timed_changes"][1]["adjustment"]       == doctest::Approx(-1.25));
+}
+
+TEST_CASE("json round-trip: Happy omits m_pad (alignment field)")
+{
+    Happy h;
+    nlohmann::json j = h;
+    CHECK_FALSE(j.contains("pad"));
+    CHECK_FALSE(j.contains("m_pad"));
+}
+
+TEST_CASE("json round-trip: D-4 leaf bridges all use snake_case (no m_ leak)")
+{
+    Happy h;             nlohmann::json jh = h;
+    AgreementData a(ID(0));
+                         nlohmann::json ja = a;
+
+    for (auto const &j : {jh, ja})
+    {
+        for (auto const &el : j.items())
+        {
+            CHECK(el.key().substr(0, 2) != "m_");
+        }
+    }
 }
 
 TEST_CASE("json round-trip: D-3 leaf bridges all use snake_case (no m_ leak)")

@@ -97,6 +97,8 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicFrame.h"
 #include "gs/slic/SlicFunc.h"
+#include "gs/slic/SlicEngine.h"
+#include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/gameobj/Unit.h"
@@ -3803,6 +3805,30 @@ void from_json(nlohmann::json const &j, SlicObject &o)
         o.m_request->m_id = j.value("request", 0u);
 }
 
+// Phase F-16 — SlicEngine (top-level slic state composer).  Mirrors
+// SlicEngine::Serialize at SlicEngine.cpp:359.
+//
+// Composes everything F-9..F-15 added.  JSON shape:
+//   {
+//     "tutorial_player":         <sint32>,
+//     "tutorial_active":         <bool>,
+//     "segments":                [<SlicSegment>, ...],   // segment hash
+//     "constants":               [<SlicConst>, ...],     // const hash
+//     "sym_tab":                 <SlicSymTab>,
+//     "records":                 [{"player": N, "entries": [<SlicRecord>, ...]}],
+//     "timer":                   [sint32, ...k_NUM_TIMERS],
+//     "trigger_key":             [int, ...k_MAX_TRIGGER_KEYS],   // MBCHAR cast to int
+//     "do_research_on_unblank":  <bool>,
+//     "research_owner":          <sint32>,
+//     "research_text":           "...",                  // up to 256 chars
+//     "current_message":         <uint32 ID>,            // Message handle
+//     "disabled_classes":        [sint32, ...]
+//   }
+//
+// Not persisted (matches binary): m_functionHash (rebuilt by
+// AddBuiltinFunctions), m_modFunc (rebuilt), m_uiHash (rebuilt by
+// segment LinkTriggerSymbols), runtime caches.
+
 // Phase F-14 — SlicSegment (compiled SLIC script segment).  Mirrors
 // SlicSegment::Serialize at SlicSegment.cpp:401.  Carries the
 // bytecode (m_code), per-player cooldown timers (m_lastShown),
@@ -4028,6 +4054,150 @@ void from_json(nlohmann::json const &j, SlicSymTab &t)
             g_slicEngine->AddBuiltinSymbol(static_cast<SlicBuiltinNamedSymbol *>(named));
         }
     }
+}
+
+// --- Phase F-16 SlicEngine bridge implementation ---------------------
+
+namespace {
+
+template <class T>
+nlohmann::json stringHashToJson(StringHash<T> const *hash)
+{
+    nlohmann::json arr = nlohmann::json::array();
+    if (hash)
+        hash->ForEach([&arr](T const *obj) { arr.push_back(*obj); });
+    return arr;
+}
+
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicEngine const &e)
+{
+    j = nlohmann::json::object();
+    j["tutorial_player"] = e.m_tutorialPlayer;
+    j["tutorial_active"] = static_cast<bool>(e.m_tutorialActive);
+
+    j["segments"]  = stringHashToJson<SlicSegment>(e.m_segmentHash);
+    j["constants"] = stringHashToJson<SlicConst>(e.m_constHash);
+    j["sym_tab"]   = *e.m_symTab;
+
+    nlohmann::json records = nlohmann::json::array();
+    for (sint32 p = 0; p < k_MAX_PLAYERS; ++p)
+    {
+        if (!e.m_records[p]) continue;
+        nlohmann::json entries = nlohmann::json::array();
+        PointerList<SlicRecord>::Walker walk(e.m_records[p]);
+        while (walk.IsValid())
+        {
+            entries.push_back(*walk.GetObj());
+            walk.Next();
+        }
+        records.push_back({{"player", p}, {"entries", std::move(entries)}});
+    }
+    j["records"] = std::move(records);
+
+    j["timer"]       = std::vector<sint32>(e.m_timer, e.m_timer + k_NUM_TIMERS);
+
+    std::vector<int> triggerKey(k_MAX_TRIGGER_KEYS);
+    for (sint32 i = 0; i < k_MAX_TRIGGER_KEYS; ++i)
+        triggerKey[i] = static_cast<unsigned char>(e.m_triggerKey[i]);
+    j["trigger_key"] = std::move(triggerKey);
+
+    j["do_research_on_unblank"] = static_cast<bool>(e.m_doResearchOnUnblank);
+    j["research_owner"]         = e.m_researchOwner;
+    // m_researchText is a 256-MBCHAR null-terminated buffer; truncate
+    // at the first NUL on store, pad-with-zero on load.
+    j["research_text"] = std::string(e.m_researchText,
+        strnlen(e.m_researchText, sizeof(e.m_researchText)));
+
+    j["current_message"]  = e.m_currentMessage
+        ? static_cast<uint32>(e.m_currentMessage->m_id)
+        : 0u;
+    j["disabled_classes"] = sdaToJson(e.m_disabledClasses);
+}
+
+void from_json(nlohmann::json const &j, SlicEngine &e)
+{
+    j.at("tutorial_player").get_to(e.m_tutorialPlayer);
+    e.m_tutorialActive = j.at("tutorial_active").get<bool>();
+
+    // SymTab: re-create from JSON; the existing SymTab was allocated
+    // by the SlicEngine ctor.
+    j.at("sym_tab").get_to(*e.m_symTab);
+
+    // Constants: clear the hash and re-add each entry.
+    if (e.m_constHash)
+    {
+        e.m_constHash->Clear();
+        for (auto const &cj : j.at("constants"))
+        {
+            auto *c = new SlicConst("", 0);
+            cj.get_to(*c);
+            e.m_constHash->Add(c->GetName(), c);
+        }
+    }
+
+    // Segments: clear the segment hash and re-add each entry.  Each
+    // segment registers itself with g_gevManager on load (see F-14).
+    if (e.m_segmentHash)
+    {
+        e.m_segmentHash->Clear();
+        for (auto const &sj : j.at("segments"))
+        {
+            auto *seg = new SlicSegment;
+            sj.get_to(*seg);
+            e.m_segmentHash->Add(seg->GetName(), seg);
+        }
+    }
+
+    // Per-player records.
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        if (e.m_records[i])
+        {
+            e.m_records[i]->DeleteAll();
+            delete e.m_records[i];
+            e.m_records[i] = nullptr;
+        }
+    }
+    for (auto const &rec : j.at("records"))
+    {
+        sint32 p = rec.at("player").get<sint32>();
+        if (p < 0 || p >= k_MAX_PLAYERS) continue;
+        e.m_records[p] = new PointerList<SlicRecord>;
+        for (auto const &entryJson : rec.at("entries"))
+        {
+            auto *r = new SlicRecord(0, nullptr, nullptr, nullptr);
+            entryJson.get_to(*r);
+            e.m_records[p]->AddTail(r);
+        }
+    }
+
+    auto timer = j.at("timer").get<std::vector<sint32>>();
+    for (sint32 i = 0; i < k_NUM_TIMERS; ++i)
+        e.m_timer[i] = (i < static_cast<sint32>(timer.size())) ? timer[i] : 0;
+
+    auto triggerKey = j.at("trigger_key").get<std::vector<int>>();
+    for (sint32 i = 0; i < k_MAX_TRIGGER_KEYS; ++i)
+        e.m_triggerKey[i] = (i < static_cast<sint32>(triggerKey.size()))
+                               ? static_cast<MBCHAR>(triggerKey[i])
+                               : 0;
+
+    e.m_doResearchOnUnblank = j.at("do_research_on_unblank").get<bool>();
+    j.at("research_owner").get_to(e.m_researchOwner);
+    std::string text = j.at("research_text").get<std::string>();
+    std::memset(e.m_researchText, 0, sizeof(e.m_researchText));
+    std::memcpy(e.m_researchText, text.c_str(),
+                std::min<size_t>(text.size(), sizeof(e.m_researchText) - 1));
+
+    if (e.m_currentMessage)
+        e.m_currentMessage->m_id = j.value("current_message", 0u);
+
+    delete e.m_disabledClasses;
+    e.m_disabledClasses = jsonToSda<sint32>(j.at("disabled_classes"));
+    // SlicEngine invariants: m_disabledClasses is always non-null.
+    if (!e.m_disabledClasses)
+        e.m_disabledClasses = new SimpleDynamicArray<sint32>;
 }
 
 namespace json_save {

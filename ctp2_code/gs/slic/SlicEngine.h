@@ -107,6 +107,7 @@ typedef sint32 AdvanceType;
 #include "gs/slic/SlicModFuncEnum.h"
 #include "ctp/c3types.h"            // MBCHAR, sint32
 #include "gs/gameobj/Player.h"             // PLAYER_INDEX
+#include <nlohmann/json.hpp>
 
 class SlicEngine
 {
@@ -358,6 +359,9 @@ private:
 
 	PointerList<SlicObject> *   m_contextStack;
 	bool                        m_breakRequested;
+
+	friend void to_json(nlohmann::json &j, SlicEngine const &e);
+	friend void from_json(nlohmann::json const &j, SlicEngine &e);
 };
 
 extern SlicEngine * g_slicEngine;

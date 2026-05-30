@@ -3402,3 +3402,52 @@ TEST_CASE("json round-trip: SlicObject keys are snake_case (no m_ leak)")
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }
+
+// Phase F-16 — SlicEngine (top-level slic state composer).
+
+#include "gs/slic/SlicEngine.h"
+
+TEST_CASE("json round-trip: SlicEngine default state")
+{
+    // Default ctor allocates symtab, segment hash, const hash, etc.
+    // AddStructs / AddBuiltinFunctions / AddDatabases run at the end.
+    SlicEngine orig;
+
+    nlohmann::json j = orig;
+    CHECK(j.contains("tutorial_player"));
+    CHECK(j.contains("tutorial_active"));
+    CHECK(j.contains("segments"));
+    CHECK(j.contains("constants"));
+    CHECK(j.contains("sym_tab"));
+    CHECK(j.contains("records"));
+    CHECK(j.contains("timer"));
+    CHECK(j.contains("trigger_key"));
+    CHECK(j.contains("research_text"));
+    CHECK(j.contains("disabled_classes"));
+    CHECK(j["timer"].size()       == k_NUM_TIMERS);
+    CHECK(j["trigger_key"].size() == k_MAX_TRIGGER_KEYS);
+    // Records start empty.
+    CHECK(j["records"].size() == 0);
+}
+
+TEST_CASE("json round-trip: SlicEngine keys are snake_case (no m_ leak)")
+{
+    SlicEngine e;
+    nlohmann::json j = e;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: SlicEngine tutorial flags + research fields")
+{
+    SlicEngine orig;
+    orig.SetTutorialPlayer(7);
+
+    nlohmann::json j = orig;
+    CHECK(j["tutorial_player"] == 7);
+
+    // Round-trip into a fresh engine instance.
+    SlicEngine round;
+    j.get_to(round);
+    CHECK(round.GetTutorialPlayer() == 7);
+}

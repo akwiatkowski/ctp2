@@ -10,6 +10,7 @@ class Message;
 #include "gs/gameobj/ID.h"             // ID
 #include "gs/gameobj/MessageData.h"    // MESSAGE_RESPONSE_TYPE, MESSAGE_TYPE
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
+#include <nlohmann/json.hpp>
 
 class Message : public ID
 {
@@ -67,5 +68,16 @@ public:
 		void SetUseDirector() { AccessData()->SetUseDirector(); }
 		BOOL UseDirector() const { return GetData()->UseDirector(); }
 };
+
+// JSON bridge — Message is a pure ID-derived handle, serialise as uint32.
+inline void to_json(nlohmann::json &j, Message const &m)
+{
+    j = m.m_id;
+}
+
+inline void from_json(nlohmann::json const &j, Message &m)
+{
+    m.m_id = j.get<uint32>();
+}
 
 #endif

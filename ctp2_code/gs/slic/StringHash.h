@@ -111,6 +111,20 @@ public:
 	virtual void Add(T *obj);
 	T *Del(const char *str);
 	void Clear();
+
+	// Iterate every entry in the hash, in bucket-then-chain order.
+	// Used by the JSON save bridge in gs/fileio/json_save.cpp to
+	// linearise StringHash<T> contents without exposing m_table.
+	template <class Visitor>
+	void ForEach(Visitor const &visit) const
+	{
+		if (!m_table) return;
+		for (sint32 i = 0; i < m_table_size; ++i)
+		{
+			for (StringHashNode<T> *node = m_table[i]; node; node = node->m_next)
+				visit(node->m_obj);
+		}
+	}
 };
 
 template <class T> StringHash<T>::StringHash(sint32 table_size)

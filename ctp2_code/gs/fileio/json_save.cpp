@@ -42,6 +42,12 @@
 #include "gs/gameobj/TaxRate.h"
 #include "gs/gameobj/Sci.h"               // Science
 #include "gs/gameobj/Readiness.h"         // MilitaryReadiness
+#include "gs/gameobj/pollution.h"
+#include "gs/gameobj/PollutionConst.h"    // k_MAX_GLOBAL_POLLUTION_RECORD_TURNS
+#include "gs/gameobj/WonderTracker.h"
+#include "gs/gameobj/AchievementTracker.h"
+#include "gs/gameobj/Advances.h"
+#include "gs/gameobj/Happy.h"             // HappyTimer (full Happy is D-3)
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -603,6 +609,176 @@ void from_json(nlohmann::json const &j, MilitaryReadiness &r)
     j.at("owner")            .get_to(r.m_owner);
     j.at("turn_started")     .get_to(r.m_turnStarted);
     j.at("cost_gold")        .get_to(r.m_costGold);
+}
+
+// --- Phase D-2 leaves ---------------------------------------------------
+
+void to_json(nlohmann::json &j, Pollution const &p)
+{
+    nlohmann::json history = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; ++i)
+    {
+        history.push_back(p.m_history[i]);
+    }
+    j = nlohmann::json{
+        {"event_trigger_next_round", p.m_eventTriggerNextRound},
+        {"event_triggered",          p.m_eventTriggered},
+        {"trend",                    p.m_trend},
+        {"history",                  std::move(history)},
+        {"phase",                    p.m_phase},
+        {"gw_phase",                 p.m_gwPhase},
+        {"next_level",               p.m_next_level},
+    };
+}
+
+void from_json(nlohmann::json const &j, Pollution &p)
+{
+    j.at("event_trigger_next_round").get_to(p.m_eventTriggerNextRound);
+    j.at("event_triggered")         .get_to(p.m_eventTriggered);
+    j.at("trend")                   .get_to(p.m_trend);
+
+    auto const &history = j.at("history");
+    if (static_cast<sint32>(history.size())
+        != k_MAX_GLOBAL_POLLUTION_RECORD_TURNS)
+    {
+        throw nlohmann::json::other_error::create(
+            520, "pollution.history must have exactly "
+                 "k_MAX_GLOBAL_POLLUTION_RECORD_TURNS entries", &j);
+    }
+    for (sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; ++i)
+    {
+        history[i].get_to(p.m_history[i]);
+    }
+
+    j.at("phase")     .get_to(p.m_phase);
+    j.at("gw_phase")  .get_to(p.m_gwPhase);
+    j.at("next_level").get_to(p.m_next_level);
+}
+
+void to_json(nlohmann::json &j, WonderTracker const &wt)
+{
+    nlohmann::json building = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        building.push_back(wt.m_buildingWonders[i]);
+    }
+    j = nlohmann::json{
+        {"built_wonders",    wt.m_builtWonders},
+        {"building_wonders", std::move(building)},
+        {"globe_sat_flags",  wt.m_globeSatFlags},
+    };
+}
+
+void from_json(nlohmann::json const &j, WonderTracker &wt)
+{
+    j.at("built_wonders").get_to(wt.m_builtWonders);
+
+    auto const &building = j.at("building_wonders");
+    if (static_cast<sint32>(building.size()) != k_MAX_PLAYERS)
+    {
+        throw nlohmann::json::other_error::create(
+            521, "wonder_tracker.building_wonders must have exactly "
+                 "k_MAX_PLAYERS entries", &j);
+    }
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        building[i].get_to(wt.m_buildingWonders[i]);
+    }
+    j.at("globe_sat_flags").get_to(wt.m_globeSatFlags);
+}
+
+void to_json(nlohmann::json &j, AchievementTracker const &at)
+{
+    j = nlohmann::json{{"achievements", at.m_achievements}};
+}
+
+void from_json(nlohmann::json const &j, AchievementTracker &at)
+{
+    j.at("achievements").get_to(at.m_achievements);
+}
+
+void to_json(nlohmann::json &j, Advances const &a)
+{
+    // The three uint8/uint16 arrays are sized by m_size — capture
+    // m_size in the JSON so the load side can validate.
+    nlohmann::json has_advance       = nlohmann::json::array();
+    nlohmann::json can_research      = nlohmann::json::array();
+    nlohmann::json turns_since_offered = nlohmann::json::array();
+    for (sint32 i = 0; i < a.m_size; ++i)
+    {
+        has_advance        .push_back(a.m_hasAdvance[i]);
+        can_research       .push_back(a.m_canResearch[i]);
+        turns_since_offered.push_back(a.m_turnsSinceOffered[i]);
+    }
+    j = nlohmann::json{
+        {"owner",                                 a.m_owner},
+        {"size",                                  a.m_size},
+        {"researching",                           a.m_researching},
+        {"age",                                   a.m_age},
+        {"last_advance_enabled_this_many_advances",
+                                                  a.m_theLastAdvanceEnabledThisManyAdvances},
+        {"total_cost",                            a.m_total_cost},
+        {"discovered",                            a.m_discovered},
+        {"has_advance",                           std::move(has_advance)},
+        {"can_research",                          std::move(can_research)},
+        {"turns_since_offered",
+                                                  std::move(turns_since_offered)},
+    };
+}
+
+void from_json(nlohmann::json const &j, Advances &a)
+{
+    j.at("owner")      .get_to(a.m_owner);
+    j.at("size")       .get_to(a.m_size);
+    j.at("researching").get_to(a.m_researching);
+    j.at("age")        .get_to(a.m_age);
+    j.at("last_advance_enabled_this_many_advances")
+                       .get_to(a.m_theLastAdvanceEnabledThisManyAdvances);
+    j.at("total_cost") .get_to(a.m_total_cost);
+    j.at("discovered") .get_to(a.m_discovered);
+
+    auto const &has_advance         = j.at("has_advance");
+    auto const &can_research        = j.at("can_research");
+    auto const &turns_since_offered = j.at("turns_since_offered");
+    sint32 const expected = a.m_size;
+    if (static_cast<sint32>(has_advance.size())         != expected
+     || static_cast<sint32>(can_research.size())        != expected
+     || static_cast<sint32>(turns_since_offered.size()) != expected)
+    {
+        throw nlohmann::json::other_error::create(
+            522, "advances arrays must match m_size", &j);
+    }
+
+    // Reallocate to match the new size (binary path does the same).
+    delete[] a.m_hasAdvance;
+    delete[] a.m_canResearch;
+    delete[] a.m_turnsSinceOffered;
+    a.m_hasAdvance        = new uint8 [expected];
+    a.m_canResearch       = new uint8 [expected];
+    a.m_turnsSinceOffered = new uint16[expected];
+
+    for (sint32 i = 0; i < expected; ++i)
+    {
+        has_advance        [i].get_to(a.m_hasAdvance[i]);
+        can_research       [i].get_to(a.m_canResearch[i]);
+        turns_since_offered[i].get_to(a.m_turnsSinceOffered[i]);
+    }
+}
+
+void to_json(nlohmann::json &j, HappyTimer const &ht)
+{
+    j = nlohmann::json{
+        {"turns_remaining", ht.m_turnsRemaining},
+        {"adjustment",      ht.m_adjustment},
+        {"reason",          static_cast<sint32>(ht.m_reason)},
+    };
+}
+
+void from_json(nlohmann::json const &j, HappyTimer &ht)
+{
+    j.at("turns_remaining").get_to(ht.m_turnsRemaining);
+    j.at("adjustment")     .get_to(ht.m_adjustment);
+    ht.m_reason = static_cast<HAPPY_REASON>(j.at("reason").get<sint32>());
 }
 
 namespace json_save {

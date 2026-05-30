@@ -23,7 +23,7 @@
 //
 // - Reimplemented m_timedChanges as std::list, to prevent Asserts
 // - Added Copy method to copy data from another instance into this
-//   instance, savely. - Jul 7th 2005 Martin Gühmann
+//   instance, savely. - Jul 7th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -57,6 +57,8 @@ class HappyTimer;
 #include "gs/gameobj/HappyTracker.h"   // HAPPY_REASON, HappyTracker
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX, Player
 
+#include <nlohmann/json.hpp>
+
 class CityData;
 class CivArchive;
 
@@ -66,6 +68,10 @@ class CivArchive;
 
 class HappyTimer {
 public:
+	// Friend decl drives nlohmann ADL even though fields are public.
+	friend void to_json(nlohmann::json &j, HappyTimer const &ht);
+	friend void from_json(nlohmann::json const &j, HappyTimer &ht);
+
 	sint32          m_turnsRemaining;
 	double          m_adjustment;
 	HAPPY_REASON    m_reason;

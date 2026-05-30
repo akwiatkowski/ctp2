@@ -60,6 +60,7 @@ class Pollution;
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/PollutionConst.h"
+#include <nlohmann/json.hpp>
 class CivArchive;
 class MapPoint;
 
@@ -69,6 +70,10 @@ class MapPoint;
 
 class Pollution
 {
+	// Friend decl drives nlohmann ADL even though fields below are
+	// public.
+	friend void to_json(nlohmann::json &j, Pollution const &p);
+	friend void from_json(nlohmann::json const &j, Pollution &p);
 public:
 
 //----------------------------------------------------------------------------

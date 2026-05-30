@@ -28,7 +28,7 @@
 // - Microsoft specifics marked.
 // - Safeguard FindLevel against infinite recursion.
 // - Speeded up goody hut advance and unit selection.
-// - Added FractionComplete methods. (Feb 4th 2007 Martin Gühmann)
+// - Added FractionComplete methods. (Feb 4th 2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,6 +61,8 @@ typedef sint32  AdvanceType;
 #include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "os/include/ctp2_inttypes.h"  // uint8, uint16, sint32
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
+
+#include <nlohmann/json.hpp>
 
 //----------------------------------------------------------------------------
 // Declarations
@@ -101,6 +103,8 @@ private:
 	friend class NetInfo;
 	friend class NetPlayer;
 	friend class NetResearch;
+	friend void to_json(nlohmann::json &j, Advances const &a);
+	friend void from_json(nlohmann::json const &j, Advances &a);
 
 public:
 	Advances(size_t a_Count);

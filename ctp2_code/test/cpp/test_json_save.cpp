@@ -23,6 +23,12 @@
 #include "gs/gameobj/TaxRate.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Readiness.h"
+#include "gs/gameobj/pollution.h"
+#include "gs/gameobj/PollutionConst.h"
+#include "gs/gameobj/WonderTracker.h"
+#include "gs/gameobj/AchievementTracker.h"
+#include "gs/gameobj/Advances.h"
+#include "gs/gameobj/Happy.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -604,6 +610,164 @@ TEST_CASE("json round-trip: MilitaryReadiness preserves all 9 fields")
     nlohmann::json j2 = orig;
     CHECK(j2 == j);  // exact round-trip
     CHECK(orig.GetLevel() == READINESS_LEVEL_ALERT);
+}
+
+// --- Phase D-2 leaf round-trips ---
+
+TEST_CASE("json round-trip: Pollution preserves 7 fields + history array")
+{
+    // Default Pollution ctor initialises everything to 0 — drive
+    // non-default values via synthetic JSON.
+    nlohmann::json j{
+        {"event_trigger_next_round", 42},
+        {"event_triggered",          1},
+        {"trend",                    -3},
+        {"history",                  nlohmann::json::array({10, 20, 30, 40, 50})},
+        {"phase",                    2},
+        {"gw_phase",                 4},
+        {"next_level",               1000},
+    };
+    Pollution p;
+    j.get_to(p);
+
+    // Round-trip back out matches.
+    nlohmann::json j2 = p;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Pollution load rejects wrong history size")
+{
+    nlohmann::json bad{
+        {"event_trigger_next_round", 0},
+        {"event_triggered",          0},
+        {"trend",                    0},
+        {"history",                  nlohmann::json::array({1, 2})},  // wrong
+        {"phase",                    0},
+        {"gw_phase",                 0},
+        {"next_level",               0},
+    };
+    Pollution p;
+    CHECK_THROWS(bad.get_to(p));
+}
+
+TEST_CASE("json round-trip: WonderTracker preserves built/building/sat flags")
+{
+    WonderTracker orig;
+    orig.SetBuiltWonders(0xCAFEBABE12345678ull);
+    orig.SetGlobeSatFlags(0xDEADBEEFu);
+    // Populate building flags directly via JSON since the public
+    // setter (SetBuildingWonder) requires database lookups.
+    nlohmann::json j = orig;
+    j["building_wonders"][3] = 0xABCD1234u;
+    j["building_wonders"][17] = 0xFFFFFFFFu;
+
+    WonderTracker round;
+    j.get_to(round);
+
+    CHECK(round.GetBuiltWonders() == 0xCAFEBABE12345678ull);
+    CHECK(round.GlobeSatFlags()   == 0xDEADBEEFu);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["building_wonders"][3]  == 0xABCD1234u);
+    CHECK(j2["building_wonders"][17] == 0xFFFFFFFFu);
+}
+
+TEST_CASE("json round-trip: AchievementTracker preserves bitfield")
+{
+    AchievementTracker orig;
+    orig.SetData(0x0123456789ABCDEFull);
+
+    nlohmann::json j = orig;
+    AchievementTracker round;
+    j.get_to(round);
+
+    CHECK(round.GetData() == 0x0123456789ABCDEFull);
+    CHECK(j.size() == 1);
+    CHECK(j.contains("achievements"));
+}
+
+TEST_CASE("json round-trip: HappyTimer preserves all 3 fields")
+{
+    HappyTimer orig(/*turns*/ 5,
+                    /*adjust*/ 1.25,
+                    /*reason*/ HAPPY_REASON_WONDERS);
+
+    nlohmann::json j = orig;
+    HappyTimer round(0, 0.0, HAPPY_REASON_SMOKING_CRACK);
+    j.get_to(round);
+
+    CHECK(round.m_turnsRemaining == 5);
+    CHECK(round.m_adjustment     == doctest::Approx(1.25));
+    CHECK(round.m_reason         == HAPPY_REASON_WONDERS);
+}
+
+TEST_CASE("json round-trip: Advances preserves scalars + size-matched arrays")
+{
+    // Advances allocates m_hasAdvance/m_canResearch/m_turnsSinceOffered
+    // sized by ctor argument.  Use a tiny size for testing.
+    Advances orig(/*count*/ 8);
+    orig.SetOwner(2);
+
+    nlohmann::json j = orig;
+    // Patch the arrays via JSON since direct field access requires
+    // a friend or non-existent setter.
+    for (sint32 i = 0; i < 8; ++i)
+    {
+        j["has_advance"][i]         = (i % 2) ? 1 : 0;
+        j["can_research"][i]        = (i % 3 == 0) ? 1 : 0;
+        j["turns_since_offered"][i] = static_cast<uint16>(i * 7);
+    }
+    j["researching"]                              = 3;
+    j["age"]                                      = 1;
+    j["last_advance_enabled_this_many_advances"]  = 12;
+    j["total_cost"]                               = 5000;
+    j["discovered"]                               = 4;
+
+    Advances round(/*count*/ 8);
+    j.get_to(round);
+
+    // Round-trip back and verify identity.
+    nlohmann::json j2 = round;
+    CHECK(j2["owner"]                                       == 2);
+    CHECK(j2["size"]                                        == 8);
+    CHECK(j2["researching"]                                 == 3);
+    CHECK(j2["age"]                                         == 1);
+    CHECK(j2["last_advance_enabled_this_many_advances"]     == 12);
+    CHECK(j2["total_cost"]                                  == 5000);
+    CHECK(j2["discovered"]                                  == 4);
+    for (sint32 i = 0; i < 8; ++i)
+    {
+        CHECK(j2["has_advance"][i].get<int>()       == ((i % 2) ? 1 : 0));
+        CHECK(j2["can_research"][i].get<int>()      == ((i % 3 == 0) ? 1 : 0));
+        CHECK(j2["turns_since_offered"][i].get<int>() == i * 7);
+    }
+}
+
+TEST_CASE("json round-trip: Advances load rejects size mismatch")
+{
+    Advances a(8);
+    nlohmann::json j = a;
+    j["size"] = 8;
+    j["has_advance"] = nlohmann::json::array({1, 2, 3});  // wrong length
+    CHECK_THROWS(j.get_to(a));
+}
+
+TEST_CASE("json round-trip: D-2 leaf bridges all use snake_case (no m_ leak)")
+{
+    Pollution p;                  nlohmann::json jp  = p;
+    WonderTracker wt;             nlohmann::json jwt = wt;
+    AchievementTracker at;        nlohmann::json jat = at;
+    HappyTimer ht(0, 0.0, HAPPY_REASON_SMOKING_CRACK);
+                                  nlohmann::json jht = ht;
+    Advances a(4);                nlohmann::json ja  = a;
+
+    for (auto const &j : {jp, jwt, jat, jht, ja})
+    {
+        for (auto const &el : j.items())
+        {
+            CHECK(el.key().substr(0, 2) != "m_");
+        }
+    }
 }
 
 TEST_CASE("json round-trip: leaf bridges all use snake_case (no m_ leak)")

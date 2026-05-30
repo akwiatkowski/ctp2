@@ -38,8 +38,12 @@ class CivArchive;
 class Unit;
 
 #include "gs/utility/gstypes.h"
+#include <nlohmann/json.hpp>
 
 class WonderTracker {
+	friend void to_json(nlohmann::json &j, WonderTracker const &wt);
+	friend void from_json(nlohmann::json const &j, WonderTracker &wt);
+
 private:
 	uint64 m_builtWonders;
 

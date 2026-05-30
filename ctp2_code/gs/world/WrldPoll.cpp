@@ -423,7 +423,7 @@ void World::GWPhase(const sint32 phase)
 				&& !IsMountain(x,y)
 				&&  IsNextToWaterNotDiagonals(x,y)
 				){
-					if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetFloodChangesCoastToWaterChance() * 100.0))
+					if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetFloodChangesCoastToWaterChance() * 100.0))
 					{
 						GetCell(x,y)->m_search_count = -3;
 					}
@@ -656,7 +656,7 @@ void World::OzoneDepletionEvent(void)
 			Assert(k_NUM_MERIDIANS == 6);
 			Assert(m<=k_NUM_MERIDIANS);
 			double flip_prob = g_theUVDB->GetProb(m);
-			if ((c->GetCanDie()) && (g_rand->NextF() < flip_prob))
+			if ((c->GetCanDie()) && (civrand().NextF() < flip_prob))
 			{
 				pos.Set(x, y);
 
@@ -683,9 +683,9 @@ void World::RegenerateRivers()
 #define k_BASE_HILL_HEIGHT 50
 #define k_BASE_MOUNTAIN_HEIGHT 100
 #define k_HEIGHT_RANGE 40
-#define k_GROUND_HEIGHT static_cast<sint8>(k_BASE_GROUND_HEIGHT + (g_rand->Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
-#define k_HILL_HEIGHT static_cast<sint8>(k_BASE_HILL_HEIGHT + (g_rand->Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
-#define k_MOUNTAIN_HEIGHT static_cast<sint8>(k_BASE_MOUNTAIN_HEIGHT + (g_rand->Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
+#define k_GROUND_HEIGHT static_cast<sint8>(k_BASE_GROUND_HEIGHT + (civrand().Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
+#define k_HILL_HEIGHT static_cast<sint8>(k_BASE_HILL_HEIGHT + (civrand().Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
+#define k_MOUNTAIN_HEIGHT static_cast<sint8>(k_BASE_MOUNTAIN_HEIGHT + (civrand().Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
 #define k_WATER_HEIGHT -50
 
 	sint32 x, y;
@@ -781,7 +781,7 @@ void World::RegenerateRivers()
 				map[y * m_size.x + x] = k_MOUNTAIN_HEIGHT;
 				wetmap[y * m_size.x + x] = 0;
 			}
-			wetmap[y * m_size.x + x] += static_cast<sint8>(g_rand->Next(10) - 5);
+			wetmap[y * m_size.x + x] += static_cast<sint8>(civrand().Next(10) - 5);
 		}
 	}
 
@@ -799,7 +799,7 @@ const GlobalWarmingRecord* World::GetGlobalWarmingDBRec() const
 sint32 World::ChangeType(const double baseProb, const sint32 terrain) const
 {
 	sint32 newTerrainType = terrain;
-	double probability = g_rand->NextF();
+	double probability = civrand().NextF();
 	double lastChance = 999.0f;
 	sint32 i;
 

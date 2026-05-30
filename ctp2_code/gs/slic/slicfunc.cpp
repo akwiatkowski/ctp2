@@ -3291,7 +3291,7 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 
 	if(found) {
 		MapPoint upos;
-		upos = legalPoints[g_rand->Next(legalPoints.Num())];
+		upos = legalPoints[civrand().Next(legalPoints.Num())];
 		Unit unit;
 		if(g_player[owner]) {
 			unit = g_player[owner]->CreateUnit(type, upos,
@@ -3331,7 +3331,7 @@ SFN_ERROR Slic_Random::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 	}
 
-	m_result.m_int = g_rand->Next(range);
+	m_result.m_int = civrand().Next(range);
 	return SFN_ERROR_OK;
 }
 
@@ -3566,7 +3566,7 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 	}
 
 	MapPoint cpos;
-	cpos = legalPoints[g_rand->Next(legalPoints.Num())];
+	cpos = legalPoints[civrand().Next(legalPoints.Num())];
 	const UnitRecord *rec;
 	for(i = 0; i < g_theUnitDB->NumRecords() - 1; i++) {
 		rec = g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType());
@@ -3667,7 +3667,7 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 	}
 
 	MapPoint cpos;
-	cpos = legalPoints[g_rand->Next(legalPoints.Num())];
+	cpos = legalPoints[civrand().Next(legalPoints.Num())];
 	const UnitRecord *rec;
 	for(i = 0; i < g_theUnitDB->NumRecords() - 1; i++) {
 		rec = g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType());
@@ -3915,7 +3915,7 @@ SFN_ERROR Slic_GetRandomNeighbor::Call(SlicArgList *args)
 
 
 
-	sint32 d = g_rand->Next(sint32(NOWHERE));
+	sint32 d = civrand().Next(sint32(NOWHERE));
 	BOOL retry = TRUE;
 	sint32 count = 9;
 	do {

@@ -1932,7 +1932,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 							{
 								// Random, or position already assigned.
 								// Find an(other) unassigned random position.
-								whichCiv = g_rand->Next(safePositionCount);
+								whichCiv = civrand().Next(safePositionCount);
 								while (usedPositions[whichCiv])
 								{
 									whichCiv++;

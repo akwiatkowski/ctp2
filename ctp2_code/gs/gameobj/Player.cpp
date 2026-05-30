@@ -221,7 +221,7 @@
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"
 #include "gs/slic/QuickSlic.h"
-#include "gs/utility/RandGen.h"                    // g_rand
+#include "gs/utility/RandGen.h"                    // civrand()
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/Regard.h"
 #include "ResourceRecord.h"
@@ -495,7 +495,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 				someAdvanceIHave = darec->GetStartAdvanceIndex();
 				granted++;
 			} else if(granted < maxAdvances) {
-				if(g_rand->Next(100) < chance) {
+				if(civrand().Next(100) < chance) {
 					m_advances->InitialAdvance(darec->GetStartAdvanceIndex());
 					granted++;
 					someAdvanceIHave = darec->GetStartAdvanceIndex();
@@ -1711,7 +1711,7 @@ void Player::BeginTurnScience()
 
 	double otherCivRandomAdvanceChance = wonderutil_GetOtherCivRandomAdvanceChance(m_builtWonders);
 	if(otherCivRandomAdvanceChance > 0 &&
-	   g_rand->Next(100) < otherCivRandomAdvanceChance) {
+	   civrand().Next(100) < otherCivRandomAdvanceChance) {
 
 		sint32 i, j;
 
@@ -1736,7 +1736,7 @@ void Player::BeginTurnScience()
 
 		if(num > 0) {
 
-			sint32 which = g_rand->Next(num);
+			sint32 which = civrand().Next(num);
 			sint32 count = 0;
 			for(j = 0; j < g_theAdvanceDB->NumRecords(); j++) {
 				if(mergedCanGet[j]) {
@@ -2852,7 +2852,7 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 
 	for(size_t t = 0; t < max_eval; ++t)
 	{
-		sint32 rand = g_rand->Next(max_eval - t);
+		sint32 rand = civrand().Next(max_eval - t);
 		city.m_id = cityDistQueue[rand].m_city;
 
 		if(city.m_id != (0))
@@ -3631,7 +3631,7 @@ void Player::AddScience(const sint32 delta)
 
 	sint32  wonderAdvanceChance = wonderutil_GetRandomAdvanceChance(m_builtWonders);
 	bool    gotRandomAdvance    = (wonderAdvanceChance > 0) &&
-	                              (g_rand->Next(100) < wonderAdvanceChance);
+	                              (civrand().Next(100) < wonderAdvanceChance);
 
 	DPRINTF(k_DBG_GAMESTATE, ("Advance cost: %d, have: %d\n", m_advances->GetCost(), m_science->GetLevel()));
 
@@ -6531,7 +6531,7 @@ bool Player::SetGovernmentType(sint32 type)
 	else if(!m_changed_government_this_turn)
 	{
 		m_set_government_type = type;
-		sint32 turns = g_rand->Next(g_theConstDB->Get(0)->GetMaxGovernmentChangeTurns()) + 1;
+		sint32 turns = civrand().Next(g_theConstDB->Get(0)->GetMaxGovernmentChangeTurns()) + 1;
 		m_change_government_turn = GetCurRound() + turns;
 		return ActuallySetGovernment(0);
 	}
@@ -9389,7 +9389,7 @@ void Player::PreResourceCalculation(CityData* city)
 			if(rec->HasIntBorderRadius()){ //have all farm colonies require a radius - determines ownership
 				sint32 bge;
 				if (effect->GetBonusFoodExport(bge)) { // i.e. allows for colonies to generate food modifier
-					comfood += g_rand->Next(bge); //randomizes the return per installation
+					comfood += civrand().Next(bge); //randomizes the return per installation
 
 				}
 			}

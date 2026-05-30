@@ -1040,7 +1040,7 @@ STDEHANDLER(AftermathEvent)
 		//add civil war here?  no because its in MoveEvent? Why?  EMOD
 
 		//end EMOD
-		if(g_rand->Next(100) < g_theConstDB->Get(0)->GetAssaultDestroyBuildingChance() * 100)
+		if(civrand().Next(100) < g_theConstDB->Get(0)->GetAssaultDestroyBuildingChance() * 100)
 		{
 			//shouldn't constDB allow players to set how many buildings be destroyed?
 			c.DestroyRandomBuilding();
@@ -1048,13 +1048,13 @@ STDEHANDLER(AftermathEvent)
 		//this code actually isn't used...
 		if(defender.Num() > 0)
 		{
-			if(c.PopCount() > 1 && (g_rand->Next(100) < g_theConstDB->Get(0)->GetAssaultKillPopChance() * 100))
+			if(c.PopCount() > 1 && (civrand().Next(100) < g_theConstDB->Get(0)->GetAssaultKillPopChance() * 100))
 			{
 				//emod allows for differnt city casualty rates instead of just one  6.22.2007
 				sint32 casualties = 0;
 				if (g_theConstDB->Get(0)->GetCapturedCityKillPop() < 0)
 				{
-					casualties = g_rand->Next(c.PopCount()) * -1 ;
+					casualties = civrand().Next(c.PopCount()) * -1 ;
 				}
 				else
 				{
@@ -1134,21 +1134,21 @@ STDEHANDLER(AftermathEvent)
 			//TODO find out why its not running the leader & elite code
 			// apparently a '#' outcomented the value in constDB.txt
 			if( (army[i].GetAttack() > 0)
-			&&  (g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
+			&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 			&&  (army[i].IsElite()) //IsElite
 			){
 				g_player[attack_owner]->CreateLeader(); //Great Leader Code - Emod 6-5-2007
 			}
 
 			if( (army[i].GetAttack() > 0)
-			&&  (g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatEliteChance() * 100.0))
+			&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatEliteChance() * 100.0))
 			&&  (army[i].IsVeteran())
 			){
 				army[i].SetElite(); //elite code - Emod 6-5-2007
 			}
 
 			if( (army[i].GetAttack() > 0)
-			&&  (g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatVeteranChance() * 100.0))
+			&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatVeteranChance() * 100.0))
 			&&  (!army[i].IsVeteran())
 			){
 				army[i].SetVeteran();
@@ -1169,19 +1169,19 @@ STDEHANDLER(AftermathEvent)
 	for(sint32 i = 0; i < defender.Num() ; i++)
 	{
 		if(defender[i].GetAttack() > 0 &&
-		   g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatVeteranChance() * 100.0))
+		   civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatVeteranChance() * 100.0))
 		{
 			defender[i].SetVeteran();
 		}
 		if( (defender[i].GetAttack() > 0)
-		&&  (g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatEliteChance() * 100.0))
+		&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatEliteChance() * 100.0))
 		&&  (defender[i].IsVeteran())
 		){
 			defender[i].SetElite();
 		}
 		//Great Leader Code - Emod 6-5-2007
 		if( (defender[i].GetAttack() > 0)
-		&&  (g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
+		&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 		&&  (defender[i].IsElite())
 		){
 			g_player[defense_owner]->CreateLeader();
@@ -1317,7 +1317,7 @@ STDEHANDLER(MoveUnitsEvent)
 					{
 						PLAYER_INDEX originalOwner = c.GetOwner();
 
-						if(g_rand->Next(100) < g_theConstDB->Get(0)->GetCaptureKillPopChance() * 100)
+						if(civrand().Next(100) < g_theConstDB->Get(0)->GetCaptureKillPopChance() * 100)
 						{
 							g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
 												   GEA_City, c.m_id,

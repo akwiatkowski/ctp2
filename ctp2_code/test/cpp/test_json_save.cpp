@@ -3259,3 +3259,80 @@ TEST_CASE("json round-trip: SlicSegment keys are snake_case (no m_ leak)")
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }
+
+// Phase F-15 — SlicContext.
+
+#include "gs/slic/SlicContext.h"
+
+TEST_CASE("json round-trip: SlicContext empty (all lists null/zero)")
+{
+    SlicContext orig;
+
+    nlohmann::json j = orig;
+    // SimpleDynamicArray lists are null when never populated.
+    CHECK(j["cities"].is_null());
+    CHECK(j["units"].is_null());
+    CHECK(j["armies"].is_null());
+    CHECK(j["players"].is_null());
+    // Raw lists are always emitted as arrays (count 0 → []).
+    CHECK(j["calamities"].is_array());
+    CHECK(j["calamities"].size() == 0);
+    CHECK(j["actions"].is_array());
+    CHECK(j["actions"].size() == 0);
+
+    SlicContext round;
+    j.get_to(round);
+    CHECK(round.GetNumCities()    == 0);
+    CHECK(round.GetNumCalamities()== 0);
+    CHECK(round.GetNumActions()   == 0);
+}
+
+TEST_CASE("json round-trip: SlicContext populated lists round-trip")
+{
+    SlicContext orig;
+    orig.AddCity(Unit(uint32(0x111)));
+    orig.AddUnit(Unit(uint32(0x222)));
+    orig.AddUnit(Unit(uint32(0x333)));
+    orig.AddInt(42);
+    orig.AddInt(-7);
+    orig.AddLocation(MapPoint(5, 6));
+    orig.AddCalamity(2);
+    orig.AddGold(1000);
+    orig.AddAction("PlayMusic");
+
+    nlohmann::json j = orig;
+    CHECK(j["cities"].size()     == 1);
+    CHECK(j["units"].size()      == 2);
+    CHECK(j["ints"]              == std::vector<sint32>{42, -7});
+    CHECK(j["locations"].size()  == 1);
+    CHECK(j["calamities"]        == std::vector<sint32>{2});
+    CHECK(j["golds"]             == std::vector<sint32>{1000});
+    CHECK(j["actions"].size()    == 1);
+    CHECK(j["actions"][0]        == "PlayMusic");
+
+    SlicContext round;
+    j.get_to(round);
+    CHECK(round.GetNumCities()      == 1);
+    CHECK(round.GetCity(0).m_id     == 0x111u);
+    CHECK(round.GetNumUnits()       == 2);
+    CHECK(round.GetUnit(1).m_id     == 0x333u);
+    CHECK(round.GetNumInts()        == 2);
+    CHECK(round.GetInt(0)           == 42);
+    CHECK(round.GetInt(1)           == -7);
+    CHECK(round.GetNumLocations()   == 1);
+    CHECK(round.GetLocation(0).x    == 5);
+    CHECK(round.GetLocation(0).y    == 6);
+    CHECK(round.GetNumCalamities()  == 1);
+    CHECK(round.GetCalamity(0)      == 2);
+    CHECK(round.GetGold(0)          == 1000);
+    CHECK(round.GetNumActions()     == 1);
+    CHECK(std::string(round.GetAction(0)) == "PlayMusic");
+}
+
+TEST_CASE("json round-trip: SlicContext keys are snake_case (no m_ leak)")
+{
+    SlicContext c;
+    nlohmann::json j = c;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}

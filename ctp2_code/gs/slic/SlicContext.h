@@ -19,6 +19,7 @@ class Army;
 
 #include "gs/gameobj/UnitTypes.h"
 #include "gs/diplomacy/diplomacy_types.h"
+#include <nlohmann/json.hpp>
 
 
 class SlicContext {
@@ -214,6 +215,9 @@ public:
 	void Snarf(GameEventArgList *args);
 	void FillBuiltins();
 	void CopyFromBuiltins();
+
+	friend void to_json(nlohmann::json &j, SlicContext const &c);
+	friend void from_json(nlohmann::json const &j, SlicContext &c);
 };
 
 #endif

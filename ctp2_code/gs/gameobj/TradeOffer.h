@@ -7,6 +7,7 @@
 #include "gs/gameobj/ID.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/TradeOfferData.h"
+#include <nlohmann/json.hpp>
 
 class TradeOffer : public ID {
 public:
@@ -33,5 +34,16 @@ public:
 
 	void Castrate() {};
 };
+
+// JSON bridge — TradeOffer is a pure ID-derived handle, serialise as uint32.
+inline void to_json(nlohmann::json &j, TradeOffer const &t)
+{
+    j = t.m_id;
+}
+
+inline void from_json(nlohmann::json const &j, TradeOffer &t)
+{
+    t.m_id = j.get<uint32>();
+}
 
 #endif

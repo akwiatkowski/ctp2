@@ -93,8 +93,13 @@
 #include "gs/slic/SlicArray.h"
 #include "gs/slic/SlicStruct.h"   // SlicStructDescription::GetType()
 #include "gs/slic/SlicSymTab.h"
+#include "gs/slic/SlicContext.h"
 #include "gs/slic/SlicFunc.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
+#include "gs/utility/SimpleDynArr.h"
+#include "gs/gameobj/Unit.h"
+#include "gs/gameobj/Army.h"
+#include "gs/gameobj/TradeOffer.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -3536,6 +3541,175 @@ void from_json(nlohmann::json const &j, SlicStructInstance &s)
         // when neither persisted form is available.
         s.m_dataSymbol  = s.m_description->CreateDataSymbol();
         s.m_createdData = true;
+    }
+}
+
+// Phase F-15 — SlicContext (the per-event context object carrying
+// the lists of game-state references slic scripts can address as
+// "city[0]", "unit[1]", etc.).  Mirrors SlicContext::Serialize at
+// SlicContext.cpp:326.  GameEventArgList (m_eventArgs) is transient
+// (per-event call frame) and not persisted — same as binary.
+//
+// JSON shape: one key per list, snake_case, with the count implicit
+// from array length.  Null SimpleDynamicArray pointers serialise as
+// JSON null (binary writes a 0 hasList flag); empty arrays serialise
+// as []. Raw sint32* lists with a separate count serialise as plain
+// arrays.
+
+namespace {
+
+template <class T>
+nlohmann::json sdaToJson(SimpleDynamicArray<T> const *list)
+{
+    if (!list)
+        return nullptr;
+    nlohmann::json out = nlohmann::json::array();
+    for (sint32 i = 0; i < list->Num(); ++i)
+        out.push_back((*list)[i]);
+    return out;
+}
+
+template <class T>
+SimpleDynamicArray<T> *jsonToSda(nlohmann::json const &j)
+{
+    if (j.is_null())
+        return nullptr;
+    auto *out = new SimpleDynamicArray<T>;
+    for (auto const &el : j)
+    {
+        T value;
+        el.get_to(value);
+        out->Insert(value);
+    }
+    return out;
+}
+
+template <class T>
+void rawToVec(nlohmann::json &j, T const *list, sint32 count)
+{
+    j = nlohmann::json::array();
+    for (sint32 i = 0; i < count; ++i)
+        j.push_back(list[i]);
+}
+
+template <class T>
+void jsonToRaw(nlohmann::json const &j, T *&list, sint32 &count)
+{
+    delete[] list;
+    list = nullptr;
+    auto v = j.get<std::vector<T>>();
+    count = static_cast<sint32>(v.size());
+    if (count > 0)
+    {
+        list = new T[count];
+        std::copy(v.begin(), v.end(), list);
+    }
+}
+
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicContext const &c)
+{
+    j = nlohmann::json::object();
+    j["cities"]       = sdaToJson(c.m_cityList);
+    j["units"]        = sdaToJson(c.m_unitList);
+    j["armies"]       = sdaToJson(c.m_armyList);
+    j["players"]      = sdaToJson(c.m_playerList);
+    j["ints"]         = sdaToJson(c.m_intList);
+    j["unit_records"] = sdaToJson(c.m_unitRecordList);
+    j["locations"]    = sdaToJson(c.m_locationList);
+    j["agreements"]   = sdaToJson(c.m_agreementList);
+    j["trade_offers"] = sdaToJson(c.m_tradeOffersList);
+    j["goods"]        = sdaToJson(c.m_goodList);
+    j["governments"]  = sdaToJson(c.m_governmentList);
+    j["advances"]     = sdaToJson(c.m_advanceList);
+
+    rawToVec(j["calamities"],     c.m_calamityList,     c.m_numCalamities);
+    rawToVec(j["golds"],          c.m_goldList,         c.m_numGolds);
+    rawToVec(j["ranks"],          c.m_rankList,         c.m_numRanks);
+    rawToVec(j["wonders"],        c.m_wonderList,       c.m_numWonders);
+    rawToVec(j["orders"],         c.m_orderList,        c.m_numOrders);
+    rawToVec(j["madlib_choices"], c.m_madlibChoiceList, c.m_numMadlibs);
+    rawToVec(j["madlib_names"],   c.m_madlibNameList,   c.m_numMadlibs);
+    rawToVec(j["attitudes"],      c.m_attitudeList,     c.m_numAttitudes);
+    rawToVec(j["ages"],           c.m_ageList,          c.m_numAges);
+    rawToVec(j["buildings"],      c.m_buildingList,     c.m_numBuildings);
+    rawToVec(j["trade_bids"],     c.m_tradeBidList,     c.m_numTradeBids);
+
+    nlohmann::json actions = nlohmann::json::array();
+    for (sint32 i = 0; i < c.m_numActions; ++i)
+        actions.push_back(c.m_actionList[i] ? std::string(c.m_actionList[i])
+                                            : std::string());
+    j["actions"] = std::move(actions);
+}
+
+void from_json(nlohmann::json const &j, SlicContext &c)
+{
+    // Free existing storage — SlicContext::~SlicContext is dtor-only
+    // (no Reset).  Mimic it inline.
+    delete c.m_cityList;       c.m_cityList = nullptr;
+    delete c.m_unitList;       c.m_unitList = nullptr;
+    delete c.m_armyList;       c.m_armyList = nullptr;
+    delete c.m_playerList;     c.m_playerList = nullptr;
+    delete c.m_intList;        c.m_intList = nullptr;
+    delete c.m_unitRecordList; c.m_unitRecordList = nullptr;
+    delete c.m_locationList;   c.m_locationList = nullptr;
+    delete c.m_agreementList;  c.m_agreementList = nullptr;
+    delete c.m_tradeOffersList;c.m_tradeOffersList = nullptr;
+    delete c.m_goodList;       c.m_goodList = nullptr;
+    delete c.m_governmentList; c.m_governmentList = nullptr;
+    delete c.m_advanceList;    c.m_advanceList = nullptr;
+    if (c.m_actionList)
+    {
+        for (sint32 i = 0; i < c.m_numActions; ++i)
+            delete[] c.m_actionList[i];
+        delete[] c.m_actionList;
+        c.m_actionList = nullptr;
+    }
+    c.m_numActions = 0;
+
+    c.m_cityList        = jsonToSda<Unit>(j.at("cities"));
+    c.m_unitList        = jsonToSda<Unit>(j.at("units"));
+    c.m_armyList        = jsonToSda<Army>(j.at("armies"));
+    c.m_playerList      = jsonToSda<sint32>(j.at("players"));
+    c.m_intList         = jsonToSda<sint32>(j.at("ints"));
+    c.m_unitRecordList  = jsonToSda<sint32>(j.at("unit_records"));
+    c.m_locationList    = jsonToSda<MapPoint>(j.at("locations"));
+    c.m_agreementList   = jsonToSda<ai::Agreement>(j.at("agreements"));
+    c.m_tradeOffersList = jsonToSda<TradeOffer>(j.at("trade_offers"));
+    c.m_goodList        = jsonToSda<sint32>(j.at("goods"));
+    c.m_governmentList  = jsonToSda<sint32>(j.at("governments"));
+    c.m_advanceList     = jsonToSda<sint32>(j.at("advances"));
+
+    jsonToRaw(j.at("calamities"),     c.m_calamityList,     c.m_numCalamities);
+    jsonToRaw(j.at("golds"),          c.m_goldList,         c.m_numGolds);
+    jsonToRaw(j.at("ranks"),          c.m_rankList,         c.m_numRanks);
+    jsonToRaw(j.at("wonders"),        c.m_wonderList,       c.m_numWonders);
+    jsonToRaw(j.at("orders"),         c.m_orderList,        c.m_numOrders);
+    // madlib_choices and madlib_names share a single count; load both
+    // from the choices array's size for safety.
+    jsonToRaw(j.at("madlib_choices"), c.m_madlibChoiceList, c.m_numMadlibs);
+    {
+        sint32 namesCount = 0;
+        jsonToRaw(j.at("madlib_names"), c.m_madlibNameList, namesCount);
+        // namesCount is overwritten — keep m_numMadlibs from choices.
+    }
+    jsonToRaw(j.at("attitudes"),      c.m_attitudeList,     c.m_numAttitudes);
+    jsonToRaw(j.at("ages"),           c.m_ageList,          c.m_numAges);
+    jsonToRaw(j.at("buildings"),      c.m_buildingList,     c.m_numBuildings);
+    jsonToRaw(j.at("trade_bids"),     c.m_tradeBidList,     c.m_numTradeBids);
+
+    auto const &actions = j.at("actions");
+    c.m_numActions = static_cast<sint32>(actions.size());
+    if (c.m_numActions > 0)
+    {
+        c.m_actionList = new MBCHAR *[c.m_numActions];
+        for (sint32 i = 0; i < c.m_numActions; ++i)
+        {
+            std::string s = actions[i].get<std::string>();
+            c.m_actionList[i] = new MBCHAR[s.size() + 1];
+            std::memcpy(c.m_actionList[i], s.c_str(), s.size() + 1);
+        }
     }
 }
 

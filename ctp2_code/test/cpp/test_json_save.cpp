@@ -35,6 +35,7 @@
 #include "gs/gameobj/AgreementData.h"
 #include "gs/gameobj/CivilisationData.h"
 #include "gs/gameobj/TradeOfferData.h"
+#include "gs/gameobj/BldQue.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1155,6 +1156,68 @@ TEST_CASE("json round-trip: D-2 leaf bridges all use snake_case (no m_ leak)")
             CHECK(el.key().substr(0, 2) != "m_");
         }
     }
+}
+
+// --- Phase D worker batch: BuildNode + BuildQueue ---
+
+TEST_CASE("json round-trip: BuildNode preserves all 4 fields")
+{
+    BuildNode orig;
+    orig.m_cost     = 250;
+    orig.m_type     = 7;
+    orig.m_category = 2;
+    orig.m_flags    = 0x42;
+
+    nlohmann::json j = orig;
+    BuildNode round;
+    j.get_to(round);
+
+    CHECK(round.m_cost     == orig.m_cost);
+    CHECK(round.m_type     == orig.m_type);
+    CHECK(round.m_category == orig.m_category);
+    CHECK(round.m_flags    == orig.m_flags);
+}
+
+TEST_CASE("json round-trip: BuildQueue preserves scalars + city Unit + nodes")
+{
+    BuildQueue orig;
+    orig.SetOwner(2);
+    // Populate via JSON since direct field access is friend-restricted.
+
+    nlohmann::json j = orig;
+    j["owner"]           = 2;
+    j["wonder_started"]  = 10;
+    j["wonder_stopped"]  = 20;
+    j["wonder_complete"] = 5;
+    j["name"]            = "Roman Forum";
+    j["city"]            = 12345u;
+    j["nodes"]           = nlohmann::json::array({
+        nlohmann::json{{"cost", 100}, {"type", 1}, {"category", 0}, {"flags", 0}},
+        nlohmann::json{{"cost", 200}, {"type", 2}, {"category", 1}, {"flags", 1}},
+    });
+    j.get_to(orig);
+
+    nlohmann::json j2 = orig;
+    CHECK(j2["owner"]           == 2);
+    CHECK(j2["wonder_started"]  == 10);
+    CHECK(j2["wonder_stopped"]  == 20);
+    CHECK(j2["wonder_complete"] == 5);
+    CHECK(j2["name"]            == "Roman Forum");
+    CHECK(j2["city"]            == 12345u);
+    CHECK(j2["nodes"].size()    == 2);
+    CHECK(j2["nodes"][0]["cost"] == 100);
+    CHECK(j2["nodes"][1]["cost"] == 200);
+}
+
+TEST_CASE("json round-trip: BuildQueue omits transient/cache fields")
+{
+    BuildQueue q;
+    nlohmann::json j = q;
+    CHECK_FALSE(j.contains("settler_pending"));
+    CHECK_FALSE(j.contains("popcoststobuild_pending"));
+    CHECK_FALSE(j.contains("front_when_built"));
+    CHECK_FALSE(j.contains("m_settler_pending"));
+    CHECK_FALSE(j.contains("m_frontWhenBuilt"));
 }
 
 TEST_CASE("json round-trip: leaf bridges all use snake_case (no m_ leak)")

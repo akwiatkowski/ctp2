@@ -55,6 +55,8 @@
 #include "gs/gameobj/GameObj.h"            // GameObj::Serialize base
 #include "gs/gameobj/CivilisationData.h"
 #include "gs/gameobj/TradeOfferData.h"
+#include "gs/gameobj/BldQue.h"
+#include "ctp/ctp2_utils/pointerlist.h"    // PointerList<BuildNode>::Walker
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1143,6 +1145,75 @@ void from_json(nlohmann::json const &j, TradeOfferData &t)
     ID to_id(0);
     j.at("to_city")        .get_to(to_id);
     t.m_toCity = Unit(to_id.m_id);
+}
+
+// Phase D worker batch — BuildNode + BuildQueue
+void to_json(nlohmann::json &j, BuildNode const &n)
+{
+    j = nlohmann::json{
+        {"cost",     n.m_cost},
+        {"type",     n.m_type},
+        {"category", n.m_category},
+        {"flags",    n.m_flags},
+    };
+}
+
+void from_json(nlohmann::json const &j, BuildNode &n)
+{
+    j.at("cost")    .get_to(n.m_cost);
+    j.at("type")    .get_to(n.m_type);
+    j.at("category").get_to(n.m_category);
+    j.at("flags")   .get_to(n.m_flags);
+}
+
+void to_json(nlohmann::json &j, BuildQueue const &q)
+{
+    nlohmann::json nodes = nlohmann::json::array();
+    PointerList<BuildNode>::Walker walk(q.m_list);
+    while (walk.IsValid())
+    {
+        nodes.push_back(*walk.GetObj());
+        walk.Next();
+    }
+
+    j = nlohmann::json{
+        {"owner",           q.m_owner},
+        {"city",            static_cast<ID const &>(q.m_city)},
+        {"wonder_started",  q.m_wonderStarted},
+        {"wonder_stopped",  q.m_wonderStopped},
+        {"name",            std::string(q.m_name)},
+        {"wonder_complete", q.m_wonderComplete},
+        {"nodes",           std::move(nodes)},
+    };
+}
+
+void from_json(nlohmann::json const &j, BuildQueue &q)
+{
+    j.at("owner")          .get_to(q.m_owner);
+    ID city_id(0);
+    j.at("city")           .get_to(city_id);
+    q.m_city = Unit(city_id.m_id);
+    j.at("wonder_started") .get_to(q.m_wonderStarted);
+    j.at("wonder_stopped") .get_to(q.m_wonderStopped);
+
+    // Copy name into the fixed 256-byte buffer with explicit
+    // zero-fill of the tail (Pre-A lesson: never carry uninit
+    // bytes past the null terminator).
+    std::string const name = j.at("name").get<std::string>();
+    std::size_t const n    = std::min(name.size(), std::size_t{255});
+    std::memcpy(q.m_name, name.data(), n);
+    std::memset(q.m_name + n, 0, 256 - n);
+
+    j.at("wonder_complete").get_to(q.m_wonderComplete);
+
+    // Rebuild the PointerList from the JSON array.
+    q.m_list->DeleteAll();
+    for (auto const &node_json : j.at("nodes"))
+    {
+        BuildNode *node = new BuildNode;
+        node_json.get_to(*node);
+        q.m_list->AddTail(node);
+    }
 }
 
 namespace json_save {

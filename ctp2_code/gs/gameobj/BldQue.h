@@ -28,7 +28,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added assignment operator. - Jul 16th 2005 Martin Gühmann
+// - Added assignment operator. - Jul 16th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -76,6 +76,8 @@ template <class T> class PointerList;
 #include "gs/gameobj/Player.h" // PLAYER_INDEX
 #include "gs/gameobj/Unit.h"   // Unit
 
+#include <nlohmann/json.hpp>
+
 //----------------------------------------------------------------------------
 // Class declarations
 //----------------------------------------------------------------------------
@@ -86,6 +88,9 @@ struct BuildNode
 	sint32  m_type;
 	sint32  m_category;
 	uint8   m_flags;
+
+	friend void to_json(nlohmann::json &j, BuildNode const &n);
+	friend void from_json(nlohmann::json const &j, BuildNode &n);
 };
 
 class BuildQueue
@@ -126,6 +131,13 @@ private:
 	void SendMsgWonderStopped(sint32 type);
 
 	friend class NetCityBuildQueue;
+
+	// JSON savegame bridge â€” covers owner, city (Unit), name, wonder
+	// tracking fields, wonder_complete, and the PointerList<BuildNode>
+	// as an array of BuildNode objects.  OMITS the transient
+	// m_settler_pending / m_popcoststobuild_pending / m_frontWhenBuilt.
+	friend void to_json(nlohmann::json &j, BuildQueue const &q);
+	friend void from_json(nlohmann::json const &j, BuildQueue &q);
 
 public:
 

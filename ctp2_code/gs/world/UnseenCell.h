@@ -92,6 +92,8 @@ class UnseenInstallationInfo;
 #include "gs/gameobj/TerrImproveData.h"  // TERRAIN_IMPROVEMENT
 #include "gs/world/Cell.h"             // k_MASK_ENV_RIV_CUR
 
+#include <nlohmann/json.hpp>
+
 template <class T> class PointerList;
 class TileInfo;
 class UnitActor;
@@ -144,6 +146,17 @@ public:
 class UnseenCell
 {
 	friend class NetUnseenCell;
+	// JSON savegame bridges (json_save.cpp).  Phase C-1 covers the
+	// scalar fields + m_point.  Per the JSON migration plan, m_actor
+	// (shared_ptr<UnitActor>) is OMITTED from the JSON schema — it's a
+	// UI-side fog-of-war sprite that the renderer regenerates from
+	// cell + visibility on load via observer.  Slice 7j (Phase C-2)
+	// removes m_actor from the gs/ struct entirely.
+	// m_snapshotState, m_installations, m_improvements, m_cityName,
+	// m_tileInfo: Phase D/E (depend on UnitState / PointerList /
+	// TileInfo serialisation).
+	friend void to_json(nlohmann::json &j, UnseenCell const &uc);
+	friend void from_json(nlohmann::json const &j, UnseenCell &uc);
 
 public:
 	uint32  m_env;

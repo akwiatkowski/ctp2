@@ -31,6 +31,9 @@
 #include "gs/utility/TurnCnt.h"
 #include "gs/utility/RandGen.h"
 #include "gs/gameobj/GameSettings.h"
+#include "gs/world/Cell.h"
+#include "gs/world/TileInfo.h"
+#include "gs/world/UnseenCell.h"
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -174,6 +177,146 @@ void from_json(nlohmann::json const &j, RandomGenerator &rng)
     rng.m_secondp = rng.m_buffer + j.at("second_index").get<sint32>();
     rng.m_endp    = &(rng.m_buffer[56]);
     j.at("call_count").get_to(rng.m_callCount);
+}
+
+// --- World-layer bridges (Phase C-1) ------------------------------------
+// Scalar fields only.  Nested pointer-typed data (CellUnitList,
+// DynamicArray<ID>, GoodyHut on Cell; PointerList<UnseenInstallationInfo>
+// etc. on UnseenCell; GoodActor* on TileInfo) is deferred to Phase D/E
+// when the contained types get their own to_json/from_json.
+
+void to_json(nlohmann::json &j, Cell const &c)
+{
+    j = nlohmann::json{
+        {"env",              c.m_env},
+        {"zoc",              c.m_zoc},
+        {"move_cost",        c.m_move_cost},
+#ifdef BATTLE_FLAGS
+        {"battle_flags",     c.m_battleFlags},
+#endif
+        {"continent_number", c.m_continent_number},
+        {"gf",               c.m_gf},
+        {"terrain_type",     c.m_terrain_type},
+        // m_city is a Unit (ID derivative — wraps a uint32 id).  Serialise
+        // through the ID base.  An empty city has id 0.
+        {"city",             static_cast<ID const &>(c.m_city)},
+        {"cell_owner",       c.m_cellOwner},
+    };
+}
+
+void from_json(nlohmann::json const &j, Cell &c)
+{
+    j.at("env")             .get_to(c.m_env);
+    j.at("zoc")             .get_to(c.m_zoc);
+    j.at("move_cost")       .get_to(c.m_move_cost);
+#ifdef BATTLE_FLAGS
+    if (j.contains("battle_flags"))
+    {
+        j.at("battle_flags").get_to(c.m_battleFlags);
+    }
+#endif
+    j.at("continent_number").get_to(c.m_continent_number);
+    j.at("gf")              .get_to(c.m_gf);
+    j.at("terrain_type")    .get_to(c.m_terrain_type);
+    ID city_id(0);
+    j.at("city")            .get_to(city_id);
+    c.m_city = Unit(city_id.m_id);
+    j.at("cell_owner")      .get_to(c.m_cellOwner);
+}
+
+void to_json(nlohmann::json &j, TileInfo const &t)
+{
+    nlohmann::json transitions = nlohmann::json::array();
+    for (sint32 i = 0; i < k_NUM_TRANSITIONS; ++i)
+    {
+        transitions.push_back(t.m_transitions[i]);
+    }
+    j = nlohmann::json{
+        {"river_piece",  t.m_riverPiece},
+        {"mega_info",    t.m_megaInfo},
+        {"terrain_type", t.m_terrainType},
+        {"transform",    t.m_transform},
+        {"tile_num",     t.m_tileNum},
+        {"transitions",  std::move(transitions)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TileInfo &t)
+{
+    j.at("river_piece") .get_to(t.m_riverPiece);
+    j.at("mega_info")   .get_to(t.m_megaInfo);
+    j.at("terrain_type").get_to(t.m_terrainType);
+    j.at("transform")   .get_to(t.m_transform);
+    j.at("tile_num")    .get_to(t.m_tileNum);
+
+    auto const &transitions = j.at("transitions");
+    if (transitions.size() != k_NUM_TRANSITIONS)
+    {
+        throw nlohmann::json::other_error::create(
+            502, "tile_info.transitions must have exactly "
+                 "k_NUM_TRANSITIONS entries", &j);
+    }
+    for (sint32 i = 0; i < k_NUM_TRANSITIONS; ++i)
+    {
+        transitions[i].get_to(t.m_transitions[i]);
+    }
+    // m_goodActor is a UI sprite pointer — never carried in saves.
+    // The UI regenerates it on load via the goodactor_factory observer.
+}
+
+void to_json(nlohmann::json &j, UnseenCell const &uc)
+{
+    j = nlohmann::json{
+        {"env",                    uc.m_env},
+        {"terrain_type",           uc.m_terrain_type},
+        {"move_cost",              uc.m_move_cost},
+        {"flags",                  uc.m_flags},
+        {"bio_infected_owner",     uc.m_bioInfectedOwner},
+        {"nano_infected_owner",    uc.m_nanoInfectedOwner},
+        {"converted_owner",        uc.m_convertedOwner},
+        {"franchise_owner",        uc.m_franchiseOwner},
+        {"injoined_owner",         uc.m_injoinedOwner},
+        {"happiness_attack_owner", uc.m_happinessAttackOwner},
+        {"city_size",              uc.m_citySize},
+        {"city_owner",             uc.m_cityOwner},
+        {"city_sprite_index",      uc.m_citySpriteIndex},
+        {"cell_owner",             uc.m_cell_owner},
+        {"slave_bits",             uc.m_slaveBits},
+#ifdef BATTLE_FLAGS
+        {"battle_flags",           uc.m_battleFlags},
+#endif
+        {"position",               uc.m_point},
+        {"visible_city_owner",     uc.m_visibleCityOwner},
+    };
+    // m_actor, m_snapshotState, m_installations, m_improvements,
+    // m_cityName, m_tileInfo, m_poolIndex: OMITTED — see header.
+}
+
+void from_json(nlohmann::json const &j, UnseenCell &uc)
+{
+    j.at("env")                   .get_to(uc.m_env);
+    j.at("terrain_type")          .get_to(uc.m_terrain_type);
+    j.at("move_cost")             .get_to(uc.m_move_cost);
+    j.at("flags")                 .get_to(uc.m_flags);
+    j.at("bio_infected_owner")    .get_to(uc.m_bioInfectedOwner);
+    j.at("nano_infected_owner")   .get_to(uc.m_nanoInfectedOwner);
+    j.at("converted_owner")       .get_to(uc.m_convertedOwner);
+    j.at("franchise_owner")       .get_to(uc.m_franchiseOwner);
+    j.at("injoined_owner")        .get_to(uc.m_injoinedOwner);
+    j.at("happiness_attack_owner").get_to(uc.m_happinessAttackOwner);
+    j.at("city_size")             .get_to(uc.m_citySize);
+    j.at("city_owner")            .get_to(uc.m_cityOwner);
+    j.at("city_sprite_index")     .get_to(uc.m_citySpriteIndex);
+    j.at("cell_owner")            .get_to(uc.m_cell_owner);
+    j.at("slave_bits")            .get_to(uc.m_slaveBits);
+#ifdef BATTLE_FLAGS
+    if (j.contains("battle_flags"))
+    {
+        j.at("battle_flags")      .get_to(uc.m_battleFlags);
+    }
+#endif
+    j.at("position")              .get_to(uc.m_point);
+    j.at("visible_city_owner")    .get_to(uc.m_visibleCityOwner);
 }
 
 namespace json_save {

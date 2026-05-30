@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Standardized casts and removed some warnings in .NET.
-//   - April 23rd 2005 Martin Gühmann
+//   - April 23rd 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 //
@@ -70,6 +70,8 @@ class CivArchive;
 //----------------------------------------------------------------------------
 // Class declarations
 //----------------------------------------------------------------------------
+
+#include <nlohmann/json.hpp>
 
 typedef uint16 TILEINDEX;
 
@@ -129,6 +131,13 @@ private:
 	friend class NetCellList;
 	friend class NetCell;
 	friend class NetUnseenCell;
+
+	// JSON savegame bridges (json_save.cpp).  Scalar fields only â€”
+	// m_goodActor (UI sprite pointer) is omitted from the JSON schema
+	// by design; the UI regenerates it from terrain + good_value on
+	// load, mirroring the UnseenCell::m_actor handling.
+	friend void to_json(nlohmann::json &j, TileInfo const &t);
+	friend void from_json(nlohmann::json const &j, TileInfo &t);
 };
 
 #endif

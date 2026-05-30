@@ -15,6 +15,9 @@
 #include "ctp/c3.h"
 #include "doctest.h"
 #include "gs/fileio/json_save.h"
+#include "gs/world/Cell.h"
+#include "gs/world/TileInfo.h"
+#include "gs/world/UnseenCell.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -282,6 +285,161 @@ TEST_CASE("json round-trip: SelectionState preserves current_player")
 }
 
 // --- Phase B top-level acceptance: SaveJson writes the 7 expected keys ---
+
+// --- Phase C-1 world-layer round-trip tests ---
+
+TEST_CASE("json round-trip: TileInfo preserves scalar fields + transitions[]")
+{
+    TileInfo orig;
+    orig.SetTerrainType(7);
+    orig.SetTransform(2);
+    orig.SetRiverPiece(3);
+    orig.SetTileNum(42);
+    orig.SetTransition(0, 11);
+    orig.SetTransition(1, 12);
+    orig.SetTransition(2, 13);
+    orig.SetTransition(3, 14);
+    orig.SetMega(static_cast<uint8>(5));
+
+    nlohmann::json j = orig;
+
+    TileInfo round;
+    j.get_to(round);
+
+    CHECK(round.GetTerrainType() == orig.GetTerrainType());
+    CHECK(round.GetTransform()   == orig.GetTransform());
+    CHECK(round.GetRiverPiece()  == orig.GetRiverPiece());
+    CHECK(round.GetMega()        == orig.GetMega());
+    CHECK(round.GetTransition(0) == 11);
+    CHECK(round.GetTransition(1) == 12);
+    CHECK(round.GetTransition(2) == 13);
+    CHECK(round.GetTransition(3) == 14);
+}
+
+TEST_CASE("json round-trip: TileInfo omits m_goodActor by design")
+{
+    TileInfo t;
+    nlohmann::json j = t;
+    // m_goodActor is a UI sprite pointer — never carried in saves.
+    // Lock the schema so future scope-creep gets caught.
+    CHECK_FALSE(j.contains("good_actor"));
+    CHECK_FALSE(j.contains("m_goodActor"));
+}
+
+TEST_CASE("json round-trip: TileInfo load rejects wrong transitions size")
+{
+    nlohmann::json bad{
+        {"river_piece",  0},
+        {"mega_info",    0},
+        {"terrain_type", 0},
+        {"transform",    0},
+        {"tile_num",     0},
+        {"transitions",  nlohmann::json::array({1, 2})},  // wrong size
+    };
+    TileInfo t;
+    CHECK_THROWS(bad.get_to(t));
+}
+
+TEST_CASE("json round-trip: UnseenCell preserves scalar fields + position")
+{
+    // Use the default ctor — the MapPoint ctor needs g_theWorld, which
+    // is null in unit-tier tests.  Default ctor gives position (0,0)
+    // and an empty fog-of-war cell; we mutate the public scalar fields
+    // and pull position-roundtrip from the deserialised JSON below.
+    UnseenCell orig;
+    orig.m_env                  = 0xDEADBEEF;
+    orig.m_terrain_type         = 4;
+    orig.m_move_cost            = 10;
+    orig.m_flags                = 0x1234;
+    orig.m_citySize             = 7;
+    orig.m_cityOwner            = 3;
+    orig.m_citySpriteIndex      = 12;
+    orig.m_cell_owner           = 2;
+    orig.m_slaveBits            = 0xAABBCCDD;
+
+    nlohmann::json j = orig;
+
+    UnseenCell round;
+    j.get_to(round);
+
+    CHECK(round.m_env             == orig.m_env);
+    CHECK(round.m_terrain_type    == orig.m_terrain_type);
+    CHECK(round.m_move_cost       == orig.m_move_cost);
+    CHECK(round.m_flags           == orig.m_flags);
+    CHECK(round.m_citySize        == orig.m_citySize);
+    CHECK(round.m_cityOwner       == orig.m_cityOwner);
+    CHECK(round.m_citySpriteIndex == orig.m_citySpriteIndex);
+    CHECK(round.m_cell_owner      == orig.m_cell_owner);
+    CHECK(round.m_slaveBits       == orig.m_slaveBits);
+
+    // Position round-trip via JSON edit (default ctor gives (0,0);
+    // edit the JSON and confirm deserialise picks up the new value).
+    j["position"]["x"] = 5;
+    j["position"]["y"] = 9;
+    UnseenCell roundPos;
+    j.get_to(roundPos);
+    MapPoint roundPosPoint;
+    roundPos.GetPos(roundPosPoint);
+    CHECK(roundPosPoint.x == 5);
+    CHECK(roundPosPoint.y == 9);
+}
+
+TEST_CASE("json round-trip: UnseenCell omits m_actor + m_snapshotState by design")
+{
+    UnseenCell uc;
+    nlohmann::json j = uc;
+    // m_actor (fog-of-war sprite shared_ptr) is omitted — UI
+    // regenerates it on load.  Slice 7j removes it from gs/ entirely.
+    CHECK_FALSE(j.contains("actor"));
+    CHECK_FALSE(j.contains("m_actor"));
+    CHECK_FALSE(j.contains("snapshot_state"));
+    CHECK_FALSE(j.contains("m_snapshotState"));
+}
+
+TEST_CASE("json round-trip: Cell preserves scalar fields")
+{
+    Cell orig;
+    // Cell's only public field setters are limited; populate via
+    // the friend-accessible private members through deserialization
+    // round-trip is the cleanest path.  Build the source JSON
+    // explicitly so we control what goes in.
+    nlohmann::json j{
+        {"env",              0x12345678u},
+        {"zoc",              0xAABBCCDDu},
+        {"move_cost",        sint16{100}},
+        {"continent_number", sint16{42}},
+        {"gf",               sint8{7}},
+        {"terrain_type",     sint8{3}},
+        {"city",             0u},
+        {"cell_owner",       sint8{-1}},
+    };
+    Cell round;
+    j.get_to(round);
+
+    // Round-trip back out and verify equality
+    nlohmann::json j2 = round;
+    CHECK(j2["env"]              == j["env"]);
+    CHECK(j2["zoc"]              == j["zoc"]);
+    CHECK(j2["move_cost"]        == j["move_cost"]);
+    CHECK(j2["continent_number"] == j["continent_number"]);
+    CHECK(j2["gf"]               == j["gf"]);
+    CHECK(j2["terrain_type"]     == j["terrain_type"]);
+    CHECK(j2["city"]             == j["city"]);
+    CHECK(j2["cell_owner"]       == j["cell_owner"]);
+}
+
+TEST_CASE("json round-trip: Cell omits nested pointer-typed data by design")
+{
+    Cell c;
+    nlohmann::json j = c;
+    // m_unit_army, m_objects, m_jabba are pointer-typed nested data
+    // that needs the contained types (CellUnitList, DynamicArray<ID>,
+    // GoodyHut) to be JSON-serialisable first — Phase D/E.
+    CHECK_FALSE(j.contains("unit_army"));
+    CHECK_FALSE(j.contains("objects"));
+    CHECK_FALSE(j.contains("goody_hut"));
+    CHECK_FALSE(j.contains("jabba"));
+}
 
 TEST_CASE("json_save: SaveJson writes the Phase B top-level shape")
 {

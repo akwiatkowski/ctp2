@@ -24,13 +24,13 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added CalcTerrainFreightCost by Martin Gühmann
+// - Added CalcTerrainFreightCost by Martin Gï¿½hmann
 // - Added GetFoodFromTerrain, GetShieldsFromTerrain and GetGoldFromTerrain
 //   with a hypothetical terrain type argument to check whether there is a
-//   a good terraforming option. - Sep. 21st 2004 Martin Gühmann
-// - Moved some Upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gühmann)
+//   a good terraforming option. - Sep. 21st 2004 Martin Gï¿½hmann
+// - Moved some Upgrade functionality from ArmyData. (Dec 24th 2006 Martin Gï¿½hmann)
 // - Added methods to retrieve the future terrain move costs of tile
-//   improvments under construction. (17-Jan-2008 Martin Gühmann)
+//   improvments under construction. (17-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -134,6 +134,7 @@ class MapPoint;
 #include "gs/gameobj/Player.h"     // PLAYER_INDEX
 #include "gs/gameobj/Unit.h"
 
+#include <nlohmann/json.hpp>
 
 class Cell {
 
@@ -183,6 +184,12 @@ public:
 	friend class World;
 	friend class NetCellData;
 	friend class NetCellList;
+	// JSON savegame bridges (json_save.cpp).  Phase C-1 covers the
+	// scalar fields only: the optional pointer-typed nested data
+	// (m_unit_army, m_objects, m_jabba) lands in Phase D/E once
+	// CellUnitList / DynamicArray<ID> / GoodyHut are JSON-serialisable.
+	friend void to_json(nlohmann::json &j, Cell const &c);
+	friend void from_json(nlohmann::json const &j, Cell &c);
 
 #ifdef CELL_COLOR
 	int m_color;

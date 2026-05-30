@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-05-28T20:20:51Z",
+  "head": {
+    "sha": "d548f28d",
+    "subject": "refactor(gfx/spritesys): route UnitActor m_pos reads through GetPos (UnitActor split Phase 3 slice 6)",
+    "branch": "master"
+  },
+  "overall_status": "green",
+  "running": null,
+  "tier_a": null,
+  "tier_b": {
+    "last_run_at": "2026-05-28T20:20:51Z",
+    "head_sha": "d548f28d",
+    "status": "green",
+    "duration_s": 97.0,
+    "tests": {
+      "passed": 309,
+      "failed": 0,
+      "skipped": 1
+    },
+    "failures": []
+  },
+  "tier_c": null
+}

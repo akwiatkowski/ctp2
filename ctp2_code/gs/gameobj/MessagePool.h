@@ -16,6 +16,9 @@ typedef sint32 MESSAGE_TYPE;
 
 class MessagePool : public ObjPool
 {
+	friend void to_json(nlohmann::json &j, MessagePool const &p);
+	friend void from_json(nlohmann::json const &j, MessagePool &p);
+
 public:
 		MessageData* AccessMessage(const Message id)
 			{

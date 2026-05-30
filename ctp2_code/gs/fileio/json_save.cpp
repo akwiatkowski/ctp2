@@ -98,6 +98,10 @@
 #include "gs/slic/SlicFrame.h"
 #include "gs/slic/SlicFunc.h"
 #include "gs/slic/SlicEngine.h"
+#include "gs/slic/SlicButton.h"
+#include "gs/slic/SlicEyePoint.h"
+#include "gs/gameobj/MessageData.h"
+#include "gs/gameobj/MessagePool.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
@@ -4198,6 +4202,260 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
     // SlicEngine invariants: m_disabledClasses is always non-null.
     if (!e.m_disabledClasses)
         e.m_disabledClasses = new SimpleDynamicArray<sint32>;
+}
+
+// Phase F-17a — SlicButton.  Mirrors SlicButton::Serialize at
+// SlicButton.cpp:104.
+
+void to_json(nlohmann::json &j, SlicButton const &b)
+{
+    j = nlohmann::json::object();
+    j["name"]         = b.m_name;
+    j["is_close_event"] = b.m_isCloseEvent != 0;
+    j["code_offset"]  = b.m_codeOffset;
+    j["message"]      = b.m_message ? *b.m_message : Message();
+    if (b.m_context)
+        j["context"]  = *b.m_context;
+    else
+        j["context"]  = SlicObject();
+    j["segment_name"] = b.m_segment ? std::string(b.m_segment->GetName())
+                         : (b.m_segmentName ? std::string(b.m_segmentName)
+                                            : std::string());
+}
+
+void from_json(nlohmann::json const &j, SlicButton &b)
+{
+    j.at("name").get_to(b.m_name);
+    b.m_isCloseEvent = j.at("is_close_event").get<bool>() ? 1 : 0;
+    j.at("code_offset").get_to(b.m_codeOffset);
+
+    if (!b.m_message)
+        b.m_message = new Message();
+    j.at("message").get_to(*b.m_message);
+
+    SlicObject *newContext = new SlicObject();
+    j.at("context").get_to(*newContext);
+    newContext->AddRef();
+    if (b.m_context)
+        b.m_context->Release();
+    b.m_context = newContext;
+
+    std::string segName = j.at("segment_name").get<std::string>();
+    if (b.m_segmentName)
+    {
+        delete[] b.m_segmentName;
+        b.m_segmentName = nullptr;
+    }
+    b.m_segment = nullptr;
+    if (!segName.empty() && g_slicEngine)
+    {
+        b.m_segment = g_slicEngine->GetSegment(segName.c_str());
+    }
+    if (!b.m_segment && !segName.empty())
+    {
+        b.m_segmentName = new char[segName.size() + 1];
+        std::strcpy(b.m_segmentName, segName.c_str());
+    }
+}
+
+// Phase F-17b — SlicEyePoint.  Mirrors SlicEyePoint::Serialize at
+// SlicEyePoint.cpp:104.
+
+void to_json(nlohmann::json &j, SlicEyePoint const &e)
+{
+    j = nlohmann::json{
+        {"point",        e.m_point},
+        {"name",         optStringToJson(e.m_name)},
+        {"message",      e.m_message ? *e.m_message : Message()},
+        {"data",         e.m_data},
+        {"unit",         static_cast<ID const &>(e.m_unit)},
+        {"recipient",    e.m_recipient},
+        {"segment_name", e.m_segment ? std::string(e.m_segment->GetName())
+                                      : std::string()},
+        {"type",         static_cast<int>(e.m_type)},
+    };
+}
+
+void from_json(nlohmann::json const &j, SlicEyePoint &e)
+{
+    j.at("point").get_to(e.m_point);
+    jsonToOptString(j.at("name"), e.m_name);
+
+    if (!e.m_message)
+        e.m_message = new Message();
+    j.at("message").get_to(*e.m_message);
+
+    j.at("data").get_to(e.m_data);
+    j.at("unit").get_to(static_cast<ID &>(e.m_unit));
+    j.at("recipient").get_to(e.m_recipient);
+
+    std::string segName = j.at("segment_name").get<std::string>();
+    e.m_segment = (!segName.empty() && g_slicEngine)
+                      ? g_slicEngine->GetSegment(segName.c_str())
+                      : nullptr;
+
+    e.m_type = static_cast<EYE_POINT_TYPE>(j.at("type").get<int>());
+}
+
+// Phase F-17c — MessageData.  Mirrors MessageData::Serialize at
+// messagedata.cpp:367.
+
+void to_json(nlohmann::json &j, MessageData const &m)
+{
+    nlohmann::json buttons = nlohmann::json::array();
+    if (m.m_buttonList)
+    {
+        PointerList<SlicButton>::Walker walk(m.m_buttonList);
+        while (walk.IsValid())
+        {
+            buttons.push_back(*walk.GetObj());
+            walk.Next();
+        }
+    }
+
+    nlohmann::json eyePoints = nlohmann::json::array();
+    if (m.m_eyePoints)
+    {
+        PointerList<SlicEyePoint>::Walker walk(m.m_eyePoints);
+        while (walk.IsValid())
+        {
+            eyePoints.push_back(*walk.GetObj());
+            walk.Next();
+        }
+    }
+
+    nlohmann::json cities = nlohmann::json::array();
+    if (m.m_cityList)
+    {
+        for (sint32 i = 0; i < m.m_cityList->Num(); ++i)
+            cities.push_back(static_cast<ID const &>(m.m_cityList->Access(i)));
+    }
+
+    j = nlohmann::json{
+        {"id",                     m.m_id},
+        {"owner",                  m.m_owner},
+        {"sender",                 m.m_sender},
+        {"is_read",                m.m_isRead != 0},
+        {"msg_type",               m.m_msgType},
+        {"msg_selected_type",      m.m_msgSelectedType},
+        {"timestamp",              m.m_timestamp},
+        {"advance",                m.m_advance},
+        {"advance_set",            m.m_advanceSet != 0},
+        {"expiration",             m.m_expiration},
+        {"is_help_box",            m.m_isHelpBox != 0},
+        {"is_alert_box",           m.m_isAlertBox != 0},
+        {"is_instant",             m.m_isInstant != 0},
+        {"class",                  m.m_class},
+        {"close_disabled",         m.m_closeDisabled != 0},
+        {"is_diplomatic_response", m.m_isDiplomaticResponse != 0},
+        {"use_director",           m.m_useDirector != 0},
+        {"caption",                std::string(m.m_caption,
+                                                strnlen(m.m_caption, k_MAX_MSG_LEN))},
+        {"text",                   optStringToJson(m.m_text)},
+        {"title",                  optStringToJson(m.m_title)},
+        {"buttons",                std::move(buttons)},
+        {"eye_points",             std::move(eyePoints)},
+        {"city_list",              std::move(cities)},
+        {"request",                m.m_request},
+        {"trade_offer",            m.m_tradeOffer},
+    };
+}
+
+void from_json(nlohmann::json const &j, MessageData &m)
+{
+    j.at("id").get_to(m.m_id);
+    j.at("owner").get_to(m.m_owner);
+    j.at("sender").get_to(m.m_sender);
+    m.m_isRead = j.at("is_read").get<bool>() ? 1 : 0;
+    j.at("msg_type").get_to(m.m_msgType);
+    j.at("msg_selected_type").get_to(m.m_msgSelectedType);
+    j.at("timestamp").get_to(m.m_timestamp);
+    j.at("advance").get_to(m.m_advance);
+    m.m_advanceSet = j.at("advance_set").get<bool>() ? 1 : 0;
+    j.at("expiration").get_to(m.m_expiration);
+    m.m_isHelpBox = j.at("is_help_box").get<bool>() ? 1 : 0;
+    m.m_isAlertBox = j.at("is_alert_box").get<bool>() ? 1 : 0;
+    m.m_isInstant = j.at("is_instant").get<bool>() ? 1 : 0;
+    j.at("class").get_to(m.m_class);
+    m.m_closeDisabled = j.at("close_disabled").get<bool>() ? 1 : 0;
+    m.m_isDiplomaticResponse = j.at("is_diplomatic_response").get<bool>() ? 1 : 0;
+    m.m_useDirector = j.at("use_director").get<bool>() ? 1 : 0;
+
+    std::string caption = j.at("caption").get<std::string>();
+    std::fill(m.m_caption, m.m_caption + k_MAX_MSG_LEN, (MBCHAR)0);
+    std::memcpy(m.m_caption, caption.c_str(),
+                std::min<size_t>(caption.size(), k_MAX_MSG_LEN - 1));
+
+    jsonToOptString(j.at("text"), m.m_text);
+    jsonToOptString(j.at("title"), m.m_title);
+
+    if (m.m_buttonList)
+    {
+        m.m_buttonList->DeleteAll();
+        delete m.m_buttonList;
+    }
+    m.m_buttonList = new PointerList<SlicButton>;
+    for (auto const &bj : j.at("buttons"))
+    {
+        auto *btn = new SlicButton();
+        bj.get_to(*btn);
+        m.m_buttonList->AddTail(btn);
+    }
+
+    if (m.m_eyePoints)
+    {
+        m.m_eyePoints->DeleteAll();
+        delete m.m_eyePoints;
+    }
+    m.m_eyePoints = new PointerList<SlicEyePoint>;
+    for (auto const &ej : j.at("eye_points"))
+    {
+        auto *eye = new SlicEyePoint();
+        ej.get_to(*eye);
+        m.m_eyePoints->AddTail(eye);
+    }
+
+    if (!m.m_cityList)
+        m.m_cityList = new UnitDynamicArray;
+    m.m_cityList->Clear();
+    for (auto const &cj : j.at("city_list"))
+    {
+        ID id(0);
+        cj.get_to(id);
+        m.m_cityList->Insert(id);
+    }
+
+    j.at("request").get_to(m.m_request);
+    j.at("trade_offer").get_to(m.m_tradeOffer);
+}
+
+// Phase F-17d — MessagePool.  Mirrors MessagePool::Serialize at
+// MessagePool.cpp:48.
+
+void to_json(nlohmann::json &j, MessagePool const &p)
+{
+    nlohmann::json messages = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            messages.push_back(*reinterpret_cast<MessageData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<MessagePool &>(p).HackGetKey()},
+        {"messages", std::move(messages)},
+    };
+}
+
+void from_json(nlohmann::json const &j, MessagePool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+
+    for (auto const &entry : j.at("messages"))
+    {
+        auto *data = new MessageData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
+    }
 }
 
 namespace json_save {

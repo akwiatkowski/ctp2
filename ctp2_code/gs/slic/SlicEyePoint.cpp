@@ -43,6 +43,18 @@ extern UnitPool *g_theUnitPool;
 PointerList<SlicEyePoint> s_deletedEyepoints;
 #endif
 
+SlicEyePoint::SlicEyePoint()
+:   m_point     (),
+    m_name      (NULL),
+    m_message   (new Message()),
+    m_data      (0),
+    m_unit      (),
+    m_recipient (PLAYER_INDEX_INVALID),
+    m_segment   (NULL),
+    m_type      (EYE_POINT_TYPE_NOTHING)
+{
+}
+
 SlicEyePoint::SlicEyePoint(const MapPoint &point, const MBCHAR *name,
 						   sint32 data, EYE_POINT_TYPE type,
 						   const Unit &unit,

@@ -153,10 +153,6 @@ MessageData::MessageData(const ID id)
 
 
 
-
-
-
-
 MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s)
 :
     GameObj                 (id.m_id),

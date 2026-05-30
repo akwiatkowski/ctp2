@@ -1,0 +1,26 @@
+{
+  "updated_at": "2026-05-28T13:30:00Z",
+  "main_repo": "/Users/olek/projects/llm/games/ctp2",
+  "easy_repo": "/Users/olek/projects/llm/games/ctp2-easy",
+  "main_head": "c9971549",
+  "phase": "Wave 1 — easy tickets in isolated ctp2-easy repo",
+  "batch": {
+    "name": "Easy Wave 1 — 15 H-container tickets",
+    "tasks_total": 15,
+    "tasks_remaining": 15
+  },
+  "branches": {
+    "easy-1": { "repo": "ctp2-easy", "status": "idle", "current_task": null },
+    "easy-2": { "repo": "ctp2-easy", "status": "idle", "current_task": null },
+    "easy-3": { "repo": "ctp2-easy", "status": "idle", "current_task": null },
+    "easy-4": { "repo": "ctp2-easy", "status": "idle", "current_task": null }
+  },
+  "rules": {
+    "one_ticket_one_commit": true,
+    "fast_tests_required": true,
+    "auto_review_enabled": true,
+    "skip_on_failure": true,
+    "max_files_per_ticket": 3,
+    "main_repo_readonly": true
+  }
+}

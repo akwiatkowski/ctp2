@@ -1,0 +1,39 @@
+# Easy Ticket: {{TICKET_ID}}
+
+## Working Directory
+You are working in: `/Users/olek/projects/llm/games/ctp2-easy-{{WORKER_NUM}}`
+All file paths below are relative to THIS directory. When reading or editing files,
+use the full absolute path (e.g., `/Users/olek/projects/llm/games/ctp2-easy-{{WORKER_NUM}}/ctp2_code/...`).
+
+## Source
+{{TICKET_SOURCE}}
+
+## Change Required
+{{DESCRIPTION}}
+
+## Code Evidence
+```cpp
+{{CODE_EVIDENCE}}
+```
+
+## Suggested Direction
+{{DIRECTION}}
+
+## Files You May Edit
+{{FILES}}
+
+## Acceptance Criteria (ALL must pass)
+1. Build passes: `mise exec -- meson compile -C build ctp2_fast_tests`
+2. Fast tests pass: `./build/ctp2_fast_tests`
+3. Diff touches ONLY the files listed above
+4. No new compiler warnings
+5. Commit with conventional commit message
+
+## Commit (REQUIRED)
+```bash
+git add {{FILES}}
+git commit -m "{{COMMIT_MESSAGE}}"
+```
+
+## Working Directory
+`/Users/olek/projects/llm/games/ctp2-easy-{{WORKER_NUM}}`, branch `easy-{{WORKER_NUM}}`

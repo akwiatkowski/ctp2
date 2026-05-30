@@ -3451,3 +3451,254 @@ TEST_CASE("json round-trip: SlicEngine tutorial flags + research fields")
     j.get_to(round);
     CHECK(round.GetTutorialPlayer() == 7);
 }
+
+// Phase F-17a — SlicButton.
+
+#include "gs/slic/SlicButton.h"
+
+TEST_CASE("json round-trip: SlicButton default-constructed")
+{
+    SlicObject *ctx = new SlicObject();
+    SlicButton orig(42, nullptr, 7, ctx);
+
+    nlohmann::json j = orig;
+    CHECK(j["name"] == 42);
+    CHECK(j["is_close_event"] == false);
+    CHECK(j["code_offset"] == 7);
+    CHECK(j["message"] == 0u);
+    CHECK(j["segment_name"] == "");
+
+    SlicButton round(0, nullptr, 0, new SlicObject());
+    j.get_to(round);
+    CHECK(round.GetOffset() == 7);
+    CHECK(round.IsCloseEvent() == FALSE);
+    Message msg;
+    round.GetMessage(msg);
+    CHECK(msg.m_id == 0u);
+}
+
+TEST_CASE("json round-trip: SlicButton with context + segment name")
+{
+    SlicObject *ctx = new SlicObject();
+    ctx->SetIdle(3);
+    ctx->AddInt(123);
+    SlicButton orig(99, nullptr, 13, ctx);
+    Message msg(0xABCD);
+    orig.SetMessage(msg);
+
+    nlohmann::json j = orig;
+    CHECK(j["message"] == 0xABCDu);
+    CHECK(j["context"]["seconds"] == 3);
+    CHECK(j["context"]["ints"] == std::vector<sint32>{123});
+
+    SlicButton round;
+    j.get_to(round);
+    CHECK(round.GetOffset() == 13);
+    CHECK(round.IsCloseEvent() == FALSE);
+    Message roundMsg;
+    round.GetMessage(roundMsg);
+    CHECK(roundMsg.m_id == 0xABCDu);
+    CHECK(round.GetContext()->GetIdle() == 3);
+    CHECK(round.GetContext()->GetNumInts() == 1);
+    CHECK(round.GetContext()->GetInt(0) == 123);
+}
+
+TEST_CASE("json round-trip: SlicButton keys are snake_case (no m_ leak)")
+{
+    SlicButton b;
+    nlohmann::json j = b;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-17b — SlicEyePoint.
+
+#include "gs/slic/SlicEyePoint.h"
+
+TEST_CASE("json round-trip: SlicEyePoint default-constructed")
+{
+    SlicEyePoint orig(MapPoint(), nullptr, 42, EYE_POINT_TYPE_CITY,
+                      Unit(), 3, nullptr);
+
+    nlohmann::json j = orig;
+    CHECK(j["data"] == 42);
+    CHECK(j["recipient"] == 3);
+    CHECK(j["type"] == static_cast<int>(EYE_POINT_TYPE_CITY));
+    CHECK(j["name"].is_null());
+    CHECK(j["segment_name"] == "");
+
+    SlicEyePoint round;
+    j.get_to(round);
+    // Verify via public getters + JSON fields (no public getter for data/recipient/type).
+    MapPoint pt;
+    round.GetPoint(pt);
+    CHECK(pt.x == 0);
+    CHECK(pt.y == 0);
+    CHECK(round.GetName() == nullptr);
+}
+
+TEST_CASE("json round-trip: SlicEyePoint with point + name + unit")
+{
+    SlicEyePoint orig(MapPoint(5, 7), "TestEye", 99,
+                      EYE_POINT_TYPE_UNIT, Unit(0x1234u), 2, nullptr);
+    Message msg(0xBEEF);
+    orig.SetMessage(msg);
+
+    nlohmann::json j = orig;
+    CHECK(j["point"]["x"] == 5);
+    CHECK(j["point"]["y"] == 7);
+    CHECK(j["name"] == "TestEye");
+    CHECK(j["data"] == 99);
+    CHECK(j["unit"] == 0x1234u);
+    CHECK(j["recipient"] == 2);
+    CHECK(j["type"] == static_cast<int>(EYE_POINT_TYPE_UNIT));
+    CHECK(j["message"] == 0xBEEFu);
+
+    SlicEyePoint round;
+    j.get_to(round);
+    MapPoint pt;
+    round.GetPoint(pt);
+    CHECK(pt.x == 5);
+    CHECK(pt.y == 7);
+    CHECK(std::string(round.GetName()) == "TestEye");
+    CHECK(round.GetMessage().m_id == 0xBEEFu);
+}
+
+TEST_CASE("json round-trip: SlicEyePoint keys are snake_case (no m_ leak)")
+{
+    SlicEyePoint e;
+    nlohmann::json j = e;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-17c — MessageData.
+
+#include "gs/gameobj/MessageData.h"
+
+TEST_CASE("json round-trip: MessageData default-constructed")
+{
+    MessageData orig(ID(0x1111));
+    orig.SetOwner(1);
+    orig.SetMsgType(3);
+    orig.SetSelectedMsgType(4);
+    orig.SetClass(6);
+    // Deliberately avoid SetSelectedAdvance — MessageData::~MessageData
+    // dereferences g_player[m_owner] when m_advanceSet is true, and
+    // g_player is null in the unit-test harness.
+
+    nlohmann::json j = orig;
+    CHECK(j["id"] == 0x1111u);
+    CHECK(j["owner"] == 1);
+    CHECK(j["msg_type"] == 3);
+    CHECK(j["msg_selected_type"] == 4);
+    CHECK(j["advance"] == -1);   // default ctor value
+    CHECK(j["class"] == 6);
+    CHECK(j["buttons"].size() == 0);
+    CHECK(j["eye_points"].size() == 0);
+    CHECK(j["city_list"].size() == 0);
+
+    MessageData round(ID(0));
+    j.get_to(round);
+    CHECK(round.GetOwner() == 1);
+    CHECK(round.GetMsgType() == 3);
+    CHECK(round.GetSelectedMsgType() == 4);
+    CHECK(round.GetSelectedAdvance() == -1);
+    CHECK(round.GetClass() == 6);
+}
+
+TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
+{
+    MessageData orig(ID(0x2222));
+    orig.SetMsgText("Hello world");
+    orig.SetTitle("My Title");
+    orig.SetMsgCaption("My Caption");
+
+    SlicObject *ctx = new SlicObject();
+    SlicButton *btn = new SlicButton(77, nullptr, 9, ctx);
+    orig.AddButton(btn);
+
+    SlicEyePoint *eye = new SlicEyePoint(MapPoint(1, 2), "Eye1", 10,
+                                          EYE_POINT_TYPE_GENERIC,
+                                          Unit(0x7777u), 1, nullptr);
+    orig.AddEyePoint(eye);
+
+    nlohmann::json j = orig;
+    CHECK(j["text"] == "Hello world");
+    CHECK(j["title"] == "My Title");
+    CHECK(j["caption"] == "My Caption");
+    CHECK(j["buttons"].size() == 1);
+    CHECK(j["buttons"][0]["code_offset"] == 9);
+    CHECK(j["eye_points"].size() == 1);
+    CHECK(j["eye_points"][0]["name"] == "Eye1");
+    CHECK(j["eye_points"][0]["unit"] == 0x7777u);
+
+    MessageData round(ID(0));
+    j.get_to(round);
+    CHECK(std::string(round.GetMsgText()) == "Hello world");
+    CHECK(std::string(round.GetTitle()) == "My Title");
+    CHECK(std::string(round.GetMsgCaption()) == "My Caption");
+    CHECK(round.GetNumButtons() == 1);
+    CHECK(round.GetButton(0)->GetOffset() == 9);
+    CHECK(round.GetNumEyePoints() == 1);
+    CHECK(std::string(round.GetEyePoint(0)->GetName()) == "Eye1");
+}
+
+TEST_CASE("json round-trip: MessageData keys are snake_case (no m_ leak)")
+{
+    MessageData m(ID(0));
+    nlohmann::json j = m;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-17d — MessagePool.
+
+#include "gs/gameobj/MessagePool.h"
+
+TEST_CASE("json round-trip: MessagePool empty")
+{
+    MessagePool orig;
+
+    nlohmann::json j = orig;
+    CHECK(j["messages"].size() == 0);
+
+    MessagePool round;
+    j.get_to(round);
+    CHECK(round.HackGetKey() == orig.HackGetKey());
+}
+
+TEST_CASE("json round-trip: MessagePool with messages")
+{
+    MessagePool orig;
+
+    MessageData *msg1 = new MessageData(ID(0x1001));
+    msg1->SetOwner(0);
+    msg1->SetMsgText("First message");
+    orig.Insert(msg1);
+
+    MessageData *msg2 = new MessageData(ID(0x1002));
+    msg2->SetOwner(1);
+    msg2->SetMsgText("Second message");
+    orig.Insert(msg2);
+
+    nlohmann::json j = orig;
+    CHECK(j["messages"].size() == 2);
+    CHECK(j["messages"][0]["text"] == "First message");
+    CHECK(j["messages"][1]["text"] == "Second message");
+
+    MessagePool round;
+    j.get_to(round);
+    CHECK(round.AccessMessage(Message(0x1001)) != nullptr);
+    CHECK(round.AccessMessage(Message(0x1002)) != nullptr);
+    CHECK(std::string(round.AccessMessage(Message(0x1001))->GetMsgText()) == "First message");
+    CHECK(std::string(round.AccessMessage(Message(0x1002))->GetMsgText()) == "Second message");
+}
+
+TEST_CASE("json round-trip: MessagePool keys are snake_case (no m_ leak)")
+{
+    MessagePool p;
+    nlohmann::json j = p;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}

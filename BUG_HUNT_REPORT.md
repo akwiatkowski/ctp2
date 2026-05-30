@@ -230,6 +230,12 @@ Generated from automated analysis of 456 suspicious source files across 31 paral
 ## HIGH Severity
 
 
+### SAVE_LOAD_AI_DETERMINISM
+
+- **gs/fileio/GameFile.cpp** — Save+load does not round-trip enough engine state to make load deterministic. A game saved at turn N and resumed for M more turns diverges from a continuous run of N+M turns: player scores, gold, num_cities, and the set of founded cities drift. `g_rand` is serialized (`GameFile.cpp:355`); the divergence appears to come from AI strategy / Goal / Plan / Strategist evaluation state that is rebuilt from scratch rather than restored. Symptom is newly visible after commit `169999b7` repaired the load path (which previously silently `exit(0)`-ed mid-init, masking this issue). The planned save format rework (SQLite-backed, structured rather than raw archive) is expected to address this; see refactoring plan. Until then, `test_save_load.cpp` reports drift via `MESSAGE("WARN: ...")` without failing.
+  *Fix scope: identify which subsystems' `Serialize()` methods omit AI-decision-driving state, or replace the archive-based format with a structured representation that captures the full deterministic input set.*
+
+
 ### BUFFER_OVERFLOW
 
 - **net_thread.cpp:265** — In `NetThread::Run`, a static stack buffer is used: `static uint8 buf[dp_MAXLEN_UNRELIABLE * 2]; memcpy(buf, packet->m_buf, packet->m_len);`. There is no check that `packet->m_len <= dp_MAXLEN_UNRELIABLE * 2`. A large or corrupted packet length causes a stack buffer overflow.

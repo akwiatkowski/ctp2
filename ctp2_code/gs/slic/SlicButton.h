@@ -5,6 +5,8 @@
 #ifndef __SLIC_BUTTON_H__
 #define __SLIC_BUTTON_H__
 
+#include <nlohmann/json.hpp>
+
 typedef sint32 StringId;
 class SlicSegment;
 class SlicObject;
@@ -25,7 +27,11 @@ private:
 	SlicSegment *m_segment;
 	char *m_segmentName;
 
+	friend void to_json(nlohmann::json &j, SlicButton const &b);
+	friend void from_json(nlohmann::json const &j, SlicButton &b);
+
 public:
+	SlicButton();
 	SlicButton(StringId name, SlicSegment *segment,
 			   sint32 codeOffset, SlicObject *context);
 	SlicButton(sint32 codeOffset);

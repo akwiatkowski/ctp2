@@ -4,6 +4,8 @@
 #ifndef __SLIC_EYE_POINT_H__
 #define __SLIC_EYE_POINT_H__
 
+#include <nlohmann/json.hpp>
+
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Unit.h"
 
@@ -21,7 +23,12 @@ enum EYE_POINT_TYPE {
 
 class SlicEyePoint
 {
+private:
+	friend void to_json(nlohmann::json &j, SlicEyePoint const &e);
+	friend void from_json(nlohmann::json const &j, SlicEyePoint &e);
+
 public:
+	SlicEyePoint();
 	SlicEyePoint(const MapPoint &point, const MBCHAR *name,
 				 sint32 data, EYE_POINT_TYPE type,
 				 const Unit &unit,

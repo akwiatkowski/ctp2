@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Cleaned SlicButton::Callback method. (Sep. 24th 2006 Martin Gühmann)
+// - Cleaned SlicButton::Callback method. (Sep. 24th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -44,6 +44,18 @@ extern StringDB *g_theStringDB;
 #ifdef _BAD_BUTTON
 PointerList<SlicButton> s_deletedButtons;
 #endif
+
+SlicButton::SlicButton()
+:   m_name         (-1),
+    m_isCloseEvent (TRUE),
+    m_codeOffset   (0),
+    m_message      (new Message()),
+    m_context      (new SlicObject()),
+    m_segment      (NULL),
+    m_segmentName  (NULL)
+{
+    m_context->AddRef();
+}
 
 SlicButton::SlicButton(StringId name, SlicSegment *segment,
                        sint32 codeOffset, SlicObject *context)

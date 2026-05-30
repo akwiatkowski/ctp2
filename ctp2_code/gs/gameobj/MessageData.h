@@ -34,6 +34,8 @@
 #ifndef __MESSAGEDATA_H__
 #define __MESSAGEDATA_H__
 
+#include <nlohmann/json.hpp>
+
 #include "gs/gameobj/GameObj.h"
 #include "gs/gameobj/ID.h"
 #include "gs/world/MapPoint.h"
@@ -89,6 +91,8 @@ enum MESSAGE_RESPONSE_STYLE
 class MessageData : public GameObj
 	{
 	private:
+		friend void to_json(nlohmann::json &j, MessageData const &m);
+		friend void from_json(nlohmann::json const &j, MessageData &m);
 
 		PLAYER_INDEX	m_owner,
 						m_sender ;

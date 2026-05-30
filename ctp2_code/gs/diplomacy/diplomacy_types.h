@@ -382,6 +382,20 @@ struct ThreatData
 	DiplomacyArg arg;
 };
 
+inline void to_json(nlohmann::json &j, ThreatData const &t)
+{
+	j = nlohmann::json{
+		{"type", static_cast<sint32>(t.type)},
+		{"arg",  t.arg},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, ThreatData &t)
+{
+	t.type = static_cast<THREAT_TYPE>(j.at("type").get<sint32>());
+	j.at("arg").get_to(t.arg);
+}
+
 struct NewProposal {
 	NewProposal()
 	:	id            (-1),
@@ -538,6 +552,32 @@ struct Threat
 	StringId     explainStrId;
 	StringId     newsStrId;
 };
+
+inline void to_json(nlohmann::json &j, Threat const &t)
+{
+	j = nlohmann::json{
+		{"id",             t.id},
+		{"sender_id",      t.senderId},
+		{"receiver_id",    t.receiverId},
+		{"start",          t.start},
+		{"end",            t.end},
+		{"detail",         t.detail},
+		{"explain_str_id", t.explainStrId},
+		{"news_str_id",    t.newsStrId},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, Threat &t)
+{
+	j.at("id")            .get_to(t.id);
+	j.at("sender_id")     .get_to(t.senderId);
+	j.at("receiver_id")   .get_to(t.receiverId);
+	j.at("start")         .get_to(t.start);
+	j.at("end")           .get_to(t.end);
+	j.at("detail")        .get_to(t.detail);
+	j.at("explain_str_id").get_to(t.explainStrId);
+	j.at("news_str_id")   .get_to(t.newsStrId);
+}
 
 namespace ai
 {
@@ -713,6 +753,26 @@ struct AiState {
 	StringId adviceStrId;
 	StringId newsStrId;
 };
+
+inline void to_json(nlohmann::json &j, AiState const &a)
+{
+	j = nlohmann::json{
+		{"priority",      a.priority},
+		{"db_index",      a.dbIndex},
+		{"spy_str_id",    a.spyStrId},
+		{"advice_str_id", a.adviceStrId},
+		{"news_str_id",   a.newsStrId},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, AiState &a)
+{
+	j.at("priority")     .get_to(a.priority);
+	j.at("db_index")     .get_to(a.dbIndex);
+	j.at("spy_str_id")   .get_to(a.spyStrId);
+	j.at("advice_str_id").get_to(a.adviceStrId);
+	j.at("news_str_id")  .get_to(a.newsStrId);
+}
 
 struct OldNegotiationEvent
 {

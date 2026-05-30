@@ -26,8 +26,8 @@
 //
 // - Marked MS version specific code.
 // - Standardised <list> import.
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
-// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin Gühmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
+// - The player's default strategy is restored after save reloading. (13-Jun-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,6 +61,7 @@ class Diplomat;
 #include "gs/database/dbtypes.h"                // StringId
 #include "DiplomacyRecord.h"        // DiplomacyRecord
 #include "gs/diplomacy/diplomacy_types.h"          // ai, AiState, Motivation, Threat, etc.
+#include <nlohmann/json.hpp>
 #include "Foreigner.h"              // Foreigner
 #include "PersonalityRecord.h"      // PersonalityRecord
 #include "gs/gameobj/Player.h"                 // PLAYER_INDEX, k_MAX_PLAYERS
@@ -74,6 +75,16 @@ class Diplomat;
 
 class Diplomat
 {
+	// JSON bridge â€” mirrors Diplomat::Save in diplomat.cpp.
+	// OMITS m_foreigners (ForeignerVector) and m_diplomaticStates
+	// (paired with foreigners) â€” Foreigner has complex
+	// RegardEventList per regard-event type and needs its own bridge
+	// in a follow-up.  Also OMITS the derived/recalculated fields
+	// (m_motivations, m_lastMotivation, m_strategy, m_diplomacy,
+	// m_friendCount, m_enemyCount, etc.) that the binary path skips.
+	friend void to_json(nlohmann::json &j, Diplomat const &d);
+	friend void from_json(nlohmann::json const &j, Diplomat &d);
+
 public:
 	struct PiracyHistory
 	{

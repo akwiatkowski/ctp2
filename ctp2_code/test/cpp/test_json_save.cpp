@@ -40,6 +40,7 @@
 #include "gs/gameobj/gaiacontroller.h"
 #include "gs/diplomacy/diplomacy_types.h"
 #include "ai/diplomacy/AgreementMatrix.h"
+#include "ai/diplomacy/Diplomat.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1288,6 +1289,136 @@ TEST_CASE("json round-trip: AgreementMatrix snake_case ratchet")
     {
         CHECK(el.key().substr(0, 2) != "m_");
     }
+}
+
+// --- Diplomat chain (AiState, ThreatData, Threat, Diplomat) ---
+
+TEST_CASE("json round-trip: AiState preserves all 5 fields")
+{
+    AiState orig;
+    orig.priority    = 7;
+    orig.dbIndex     = 42;
+    orig.spyStrId    = 100;
+    orig.adviceStrId = 200;
+    orig.newsStrId   = 300;
+
+    nlohmann::json j = orig;
+    AiState round;
+    j.get_to(round);
+
+    CHECK(round.priority    == 7);
+    CHECK(round.dbIndex     == 42);
+    CHECK(round.spyStrId    == 100);
+    CHECK(round.adviceStrId == 200);
+    CHECK(round.newsStrId   == 300);
+}
+
+TEST_CASE("json round-trip: ThreatData preserves type + DiplomacyArg")
+{
+    ThreatData orig;
+    orig.type    = THREAT_DESTROY_CITY;
+    orig.arg     = 50;  // sets all fields to 50, percent to 0.5
+
+    nlohmann::json j = orig;
+    ThreatData round;
+    j.get_to(round);
+
+    CHECK(round.type           == THREAT_DESTROY_CITY);
+    CHECK(round.arg.cityId     == 50);
+    CHECK(round.arg.percent    == doctest::Approx(0.5));
+}
+
+TEST_CASE("json round-trip: Threat preserves all 8 fields + nested ThreatData")
+{
+    Threat orig;
+    orig.id            = 99;
+    orig.senderId      = 3;
+    orig.receiverId    = 5;
+    orig.start         = 10;
+    orig.end           = 200;
+    orig.explainStrId  = 777;
+    orig.newsStrId     = 888;
+    orig.detail.type   = THREAT_TRADE_EMBARGO;
+    orig.detail.arg    = 25;
+
+    nlohmann::json j = orig;
+    Threat round;
+    j.get_to(round);
+
+    CHECK(round.id           == 99);
+    CHECK(round.senderId     == 3);
+    CHECK(round.receiverId   == 5);
+    CHECK(round.start        == 10);
+    CHECK(round.end          == 200);
+    CHECK(round.explainStrId == 777);
+    CHECK(round.newsStrId    == 888);
+    CHECK(round.detail.type  == THREAT_TRADE_EMBARGO);
+    CHECK(round.detail.arg.armyId == 25);
+}
+
+TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
+{
+    Diplomat orig;
+    // Drive non-default via JSON since most public setters touch
+    // g_player[] / database globals.
+    nlohmann::json j{
+        {"player_id",                        2},
+        {"personality_name",                 "Strategic"},
+        {"best_strategic_states",            nlohmann::json::array({
+            nlohmann::json{{"priority", 1}, {"db_index", 10}, {"spy_str_id", -1},
+                           {"advice_str_id", -1}, {"news_str_id", -1}},
+            nlohmann::json{{"priority", 2}, {"db_index", 20}, {"spy_str_id", -1},
+                           {"advice_str_id", -1}, {"news_str_id", -1}},
+        })},
+        {"threats", nlohmann::json::array({
+            nlohmann::json{
+                {"id", 1}, {"sender_id", 0}, {"receiver_id", 1},
+                {"start", 5}, {"end", 50},
+                {"detail", nlohmann::json{
+                    {"type", static_cast<int>(THREAT_DESTROY_CITY)},
+                    {"arg", nlohmann::json{
+                        {"player_id", -1}, {"city_id", 100}, {"army_id", -1},
+                        {"agreement_id", -1}, {"advance_type", -1}, {"unit_type", -1},
+                        {"pollution", -1}, {"gold", -1}, {"percent", -0.01}
+                    }}
+                }},
+                {"explain_str_id", -1}, {"news_str_id", -1},
+            },
+        })},
+        {"diplomacy_victory_complete_turn",  sint16{-1}},
+        {"nuclear_attack_target",            -1},
+        {"last_party",                       sint16{-1}},
+        {"launched_nukes",                   false},
+        {"launched_nano_attack",             false},
+    };
+    j.get_to(orig);
+
+    // Round-trip back through JSON.
+    nlohmann::json j2 = orig;
+    CHECK(j2["player_id"]                     == 2);
+    CHECK(j2["personality_name"]              == "Strategic");
+    CHECK(j2["best_strategic_states"].size()  == 2);
+    CHECK(j2["threats"].size()                == 1);
+    CHECK(j2["threats"][0]["detail"]["type"]  == static_cast<int>(THREAT_DESTROY_CITY));
+    CHECK(j2["launched_nukes"]                == false);
+}
+
+TEST_CASE("json round-trip: Diplomat omits Foreigner + derived fields")
+{
+    Diplomat d;
+    nlohmann::json j = d;
+    // OMIT-by-design ratchet — m_foreigners + paired m_diplomaticStates
+    // are deferred until Foreigner has its own bridge.
+    CHECK_FALSE(j.contains("foreigners"));
+    CHECK_FALSE(j.contains("diplomatic_states"));
+    // Derived / transient — match the binary path's exclusions.
+    CHECK_FALSE(j.contains("motivations"));
+    CHECK_FALSE(j.contains("last_motivation"));
+    CHECK_FALSE(j.contains("strategy"));
+    CHECK_FALSE(j.contains("diplomacy"));
+    CHECK_FALSE(j.contains("friend_count"));
+    CHECK_FALSE(j.contains("enemy_count"));
+    CHECK_FALSE(j.contains("piracy_history"));
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

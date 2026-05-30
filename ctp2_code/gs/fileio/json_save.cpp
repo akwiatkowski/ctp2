@@ -62,6 +62,7 @@
 #include "BuildingRecord.h"                // g_theBuildingDB (dbgen-built)
 #include "gs/gameobj/gaiacontroller.h"
 #include "ai/diplomacy/AgreementMatrix.h"
+#include "ai/diplomacy/Diplomat.h"
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1314,6 +1315,72 @@ void from_json(nlohmann::json const &j, GaiaController &gc)
     j.at("num_towers_built") .get_to(gc.m_numTowersBuilt);
     j.at("percent_coverage") .get_to(gc.m_percentCoverage);
     j.at("completed_turn")   .get_to(gc.m_completedTurn);
+}
+
+// Phase D — Diplomat
+//
+// Mirrors Diplomat::Save in diplomat.cpp.  Per the binary path, only
+// a small subset of the class's ~45 fields are persisted.  The
+// remainder (m_motivations, m_strategy, m_diplomacy, m_friendCount,
+// m_enemyCount, etc.) are derived/recalculated and OMITTED.
+//
+// OMITS m_foreigners + paired m_diplomaticStates — Foreigner has
+// complex RegardEventList per regard-event type; needs its own bridge
+// in a follow-up Phase D session.
+
+void to_json(nlohmann::json &j, Diplomat const &d)
+{
+    nlohmann::json best_strategic_states = nlohmann::json::array();
+    for (auto const &state : d.m_bestStrategicStates)
+    {
+        best_strategic_states.push_back(state);
+    }
+
+    nlohmann::json threats = nlohmann::json::array();
+    for (auto const &threat : d.m_threats)
+    {
+        threats.push_back(threat);
+    }
+
+    j = nlohmann::json{
+        {"player_id",                        d.m_playerId},
+        {"personality_name",                 d.m_personalityName},
+        {"best_strategic_states",            std::move(best_strategic_states)},
+        {"threats",                          std::move(threats)},
+        {"diplomacy_victory_complete_turn",  d.m_diplomcyVictoryCompleteTurn},
+        {"nuclear_attack_target",            d.m_nuclearAttackTarget},
+        {"last_party",                       d.m_lastParty},
+        {"launched_nukes",                   d.m_launchedNukes},
+        {"launched_nano_attack",             d.m_launchedNanoAttack},
+    };
+}
+
+void from_json(nlohmann::json const &j, Diplomat &d)
+{
+    j.at("player_id")                       .get_to(d.m_playerId);
+    j.at("personality_name")                .get_to(d.m_personalityName);
+
+    d.m_bestStrategicStates.clear();
+    for (auto const &state_json : j.at("best_strategic_states"))
+    {
+        AiState state;
+        state_json.get_to(state);
+        d.m_bestStrategicStates.push_back(state);
+    }
+
+    d.m_threats.clear();
+    for (auto const &threat_json : j.at("threats"))
+    {
+        Threat threat;
+        threat_json.get_to(threat);
+        d.m_threats.push_back(threat);
+    }
+
+    j.at("diplomacy_victory_complete_turn") .get_to(d.m_diplomcyVictoryCompleteTurn);
+    j.at("nuclear_attack_target")           .get_to(d.m_nuclearAttackTarget);
+    j.at("last_party")                      .get_to(d.m_lastParty);
+    j.at("launched_nukes")                  .get_to(d.m_launchedNukes);
+    j.at("launched_nano_attack")            .get_to(d.m_launchedNanoAttack);
 }
 
 // Phase D — AgreementMatrix

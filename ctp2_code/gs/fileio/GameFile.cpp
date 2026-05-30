@@ -85,6 +85,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/slic/SlicEngine.h"
 #include "gs/core/audio_types.h"
 #include "gs/core/progress_observer.h"
+#include "gs/core/player_view.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"
@@ -808,9 +809,15 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	progress_observer::StartCountingTo(150);
 
-	// SelectedItem version stripped from the save format when SelectedItem was
-	// migrated out of game-state — no read here either. (Save side in the same
-	// file at line 335 does not write it.)
+	// Wave F: SelectedItem version stamp.  Bridge no-ops in headless
+	// (returns true with zero bytes consumed); UI build reads 4 bytes
+	// and compares against SelectedItem_GetVersion().
+	if (!player_view::DeserializeSelectionVersion(archive))
+	{
+		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_INCORRECT_VERSION_INFO");
+
+		return GAMEFILE_ERR_LOAD_FAILED;
+	}
 
 	progress_observer::StartCountingTo(160);
 

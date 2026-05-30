@@ -52,6 +52,9 @@ static GetScenarioEditorCityStyleFn    s_getScenarioEditorCityStyle    = nullptr
 static EditQueueSyncShieldstoreFn      s_editQueueSyncShieldstore      = nullptr;
 static EditQueueSyncBuildCategoryFn    s_editQueueSyncBuildCategory    = nullptr;
 static CityWindowAddShieldsIfShowingFn s_cityWindowAddShieldsIfShowing = nullptr;
+static SerializeSelectionVersionFn     s_serializeSelectionVersion     = nullptr;
+static DeserializeSelectionVersionFn   s_deserializeSelectionVersion   = nullptr;
+static SerializeSelectionFn            s_serializeSelection            = nullptr;
 
 void RegisterVisiblePlayer(VisiblePlayerFn fn)        { s_visiblePlayer    = fn; }
 void RegisterCurPlayer(CurPlayerFn fn)                { s_curPlayer        = fn; }
@@ -93,6 +96,9 @@ void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn)       {
 void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn)           { s_editQueueSyncShieldstore      = fn; }
 void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn)       { s_editQueueSyncBuildCategory    = fn; }
 void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn) { s_cityWindowAddShieldsIfShowing = fn; }
+void RegisterSerializeSelectionVersion(SerializeSelectionVersionFn fn)         { s_serializeSelectionVersion     = fn; }
+void RegisterDeserializeSelectionVersion(DeserializeSelectionVersionFn fn)     { s_deserializeSelectionVersion   = fn; }
+void RegisterSerializeSelection(SerializeSelectionFn fn)                       { s_serializeSelection            = fn; }
 
 sint32 VisiblePlayer()
 {
@@ -310,6 +316,23 @@ bool CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
 	return s_cityWindowAddShieldsIfShowing
 	     ? s_cityWindowAddShieldsIfShowing(city, amount)
 	     : false;
+}
+
+void SerializeSelectionVersion(CivArchive &archive)
+{
+	if (s_serializeSelectionVersion) s_serializeSelectionVersion(archive);
+}
+
+bool DeserializeSelectionVersion(CivArchive &archive)
+{
+	// Default: no bytes consumed; treat as "matches" so headless load
+	// flows past this point without reading anything.
+	return s_deserializeSelectionVersion ? s_deserializeSelectionVersion(archive) : true;
+}
+
+void SerializeSelection(CivArchive &archive)
+{
+	if (s_serializeSelection) s_serializeSelection(archive);
 }
 
 } // namespace player_view

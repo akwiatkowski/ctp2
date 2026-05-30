@@ -127,6 +127,19 @@ using EditQueueSyncShieldstoreFn      = void   (*)(const Unit &homeCity, sint32 
 using EditQueueSyncBuildCategoryFn    = void   (*)(const Unit &homeCity, sint32 cat);
 using CityWindowAddShieldsIfShowingFn = bool   (*)(const Unit &city, sint32 amount);
 
+// --- Wave F (2026-05-29): save/load of the SelectedItem-side cursor
+//     state.  Save format reset accepted — old saves (with no selection
+//     bytes) will no longer load by the post-Wave-F binary, and saves
+//     made by headless / by UI are not interchangeable.
+//     SerializeSelectionVersion writes the version stamp; the matching
+//     DeserializeSelectionVersion returns false on mismatch so the
+//     caller can raise LOAD_INCORRECT_VERSION_INFO.  SerializeSelection
+//     writes the full SelectedItem state; InitFromArchive (already
+//     present in this header above) reads it on load.
+using SerializeSelectionVersionFn   = void (*)(CivArchive &archive);
+using DeserializeSelectionVersionFn = bool (*)(CivArchive &archive);
+using SerializeSelectionFn          = void (*)(CivArchive &archive);
+
 void RegisterSetSelectUnit(SetSelectUnitFn fn);
 void RegisterSetSelectCity(SetSelectCityFn fn);
 void RegisterEnterArmyMove(EnterArmyMoveFn fn);
@@ -158,6 +171,9 @@ void RegisterGetScenarioEditorCityStyle(GetScenarioEditorCityStyleFn fn);
 void RegisterEditQueueSyncShieldstore(EditQueueSyncShieldstoreFn fn);
 void RegisterEditQueueSyncBuildCategory(EditQueueSyncBuildCategoryFn fn);
 void RegisterCityWindowAddShieldsIfShowing(CityWindowAddShieldsIfShowingFn fn);
+void RegisterSerializeSelectionVersion(SerializeSelectionVersionFn fn);
+void RegisterDeserializeSelectionVersion(DeserializeSelectionVersionFn fn);
+void RegisterSerializeSelection(SerializeSelectionFn fn);
 
 void SetSelectUnit(const Unit &unit);
 void SetSelectCity(const Unit &city);
@@ -212,5 +228,17 @@ sint32 GetScenarioEditorCityStyle();
 void   EditQueueSyncShieldstore(const Unit &homeCity, sint32 s);
 void   EditQueueSyncBuildCategory(const Unit &homeCity, sint32 cat);
 bool   CityWindowAddShieldsIfShowing(const Unit &city, sint32 amount);
+
+// --- Wave F surface ---
+// When no Impl is registered (headless / pre-registration):
+//   SerializeSelectionVersion → writes nothing
+//   DeserializeSelectionVersion → returns true (no bytes consumed; version "matches" trivially)
+//   SerializeSelection → writes nothing
+// The headless build therefore produces a save file that is symmetric
+// with its own load path — but a UI-saved file CANNOT be loaded by
+// headless and vice versa (the byte count diverges).
+void SerializeSelectionVersion(CivArchive &archive);
+bool DeserializeSelectionVersion(CivArchive &archive);
+void SerializeSelection(CivArchive &archive);
 
 } // namespace player_view

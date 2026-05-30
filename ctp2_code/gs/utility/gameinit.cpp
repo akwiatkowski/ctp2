@@ -1572,15 +1572,18 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	gameinit_log->debug("step: player_view::Init({})", nPlayers);
-	// Symmetric with GameFile::SaveGame, which (deliberately) no longer
-	// writes g_selected_item bytes — see the "TODO(orchestrator): no
-	// equivalent for g_selected_item->Serialize" line in
-	// GameFile.cpp::SaveGame.  Attempting InitFromArchive here used to
-	// silently exit(0) on every load because the next archive read
-	// (UnitPool's TestMagic) would drift past its magic header and
-	// CivArchive::TestMagic calls exit(0) on mismatch.
-	player_view::Init(nPlayers);
+	gameinit_log->debug("step: player_view::Init / InitFromArchive ({})", nPlayers);
+	// Wave F: symmetric with GameFile::SaveGame's player_view::SerializeSelection
+	// call.  When loading a saved game (archive && loadEverything), the
+	// SelectedItem state is reconstructed from the archive bytes; when
+	// starting fresh, a default-initialized SelectedItem is created.
+	// Each save-side write has a matching load-side read so the archive
+	// position stays consistent across the rest of the load path.
+	if (archive && loadEverything) {
+		player_view::InitFromArchive(archive);
+	} else {
+		player_view::Init(nPlayers);
+	}
 
 
 

@@ -340,6 +340,28 @@ bool UICityWindowAddShieldsIfShowing(const Unit &city, sint32 amount)
 	return false;
 }
 
+// --- Wave F (2026-05-29) save/load of SelectedItem state ---
+
+void UISerializeSelectionVersion(CivArchive &archive)
+{
+	archive << SelectedItem_GetVersion();
+}
+
+bool UIDeserializeSelectionVersion(CivArchive &archive)
+{
+	uint32 ver = 0;
+	archive >> ver;
+	return ver == SelectedItem_GetVersion();
+}
+
+void UISerializeSelection(CivArchive &archive)
+{
+	if (g_selected_item)
+	{
+		g_selected_item->Serialize(archive);
+	}
+}
+
 } // anonymous namespace
 
 void RegisterUIPlayerView()
@@ -384,4 +406,7 @@ void RegisterUIPlayerView()
 	player_view::RegisterEditQueueSyncShieldstore(&UIEditQueueSyncShieldstore);
 	player_view::RegisterEditQueueSyncBuildCategory(&UIEditQueueSyncBuildCategory);
 	player_view::RegisterCityWindowAddShieldsIfShowing(&UICityWindowAddShieldsIfShowing);
+	player_view::RegisterSerializeSelectionVersion(&UISerializeSelectionVersion);
+	player_view::RegisterDeserializeSelectionVersion(&UIDeserializeSelectionVersion);
+	player_view::RegisterSerializeSelection(&UISerializeSelection);
 }

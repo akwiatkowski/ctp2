@@ -8,6 +8,8 @@
 
 #include "gs/gameobj/TradeRoute.h"
 
+#include <nlohmann/json.hpp>
+
 class TradeRouteData;
 enum ROUTE_TYPE;
 class aui_Surface;
@@ -55,6 +57,12 @@ public:
 	void Draw(aui_Surface* surface);
 	void Serialize(CivArchive &archive);
 	void RecreateActors();
+
+	// JSON bridge — mirrors TradePool::Serialize.  Persists ObjPool key
+	// counter + every live TradeRouteData entry.  m_all_routes (a flat
+	// view of the table) is rebuilt during from_json.
+	friend void to_json(nlohmann::json &j, TradePool const &p);
+	friend void from_json(nlohmann::json const &j, TradePool &p);
 
 	sint32 GetSingleGoodValue(sint32 resource, sint32 nth_good);
 

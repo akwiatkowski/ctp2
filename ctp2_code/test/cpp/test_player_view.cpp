@@ -85,7 +85,9 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // TileInfo.cpp's existing dependency on robot/aibackdoor/civarchive.h
 // (for save-load Serialize) now counts toward gs/.cpp robot/-include
 // count.  Baseline raised by 1 to reflect this.
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 120;
+// Phase F-5: json_save.cpp adds #include "robot/pathing/Path.h" for
+// TradeRouteData's embedded Path bridge (+1).
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 121;
 constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
 
 // ai/ files include robot/ headers for pathing and backdoor access.

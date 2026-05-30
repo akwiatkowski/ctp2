@@ -57,6 +57,9 @@
 #include "gs/gameobj/GoodyHuts.h"
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/installationdata.h"
+#include "gs/gameobj/TradePool.h"
+#include "gs/gameobj/TradeRouteData.h"
+#include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -2236,6 +2239,97 @@ TEST_CASE("json round-trip: InstallationPool empty preserves next_key")
 TEST_CASE("json round-trip: InstallationPool keys are snake_case (no m_ leak)")
 {
     InstallationPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-5 — Path + TradeRouteData + TradePool
+
+TEST_CASE("json round-trip: Path preserves cursor + start + steps")
+{
+    Path orig;
+    MapPoint start(3, 5);
+    orig.SetStart(start);
+    orig.AddDir(NORTH);
+    orig.AddDir(SOUTH);
+    orig.AddDir(EAST);
+
+    nlohmann::json j = orig;
+    CHECK(j["step"].size() == 3);
+    CHECK(j["start"]["x"] == 3);
+    CHECK(j["start"]["y"] == 5);
+
+    Path round;
+    j.get_to(round);
+    nlohmann::json j2 = round;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Path keys are snake_case (no m_ leak)")
+{
+    Path p;
+    nlohmann::json j = p;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: TradeRouteData preserves scalars + paths + astar_path")
+{
+    TradeRouteData orig(TradeRoute(0x42));
+    nlohmann::json j = orig;
+
+    // Required shape contracts.
+    CHECK(j.contains("id"));
+    CHECK(j.contains("astar_path"));
+    CHECK(j["passes_through"].is_array());
+    CHECK(j["passes_through"].size() == k_MAX_PLAYERS);
+
+    TradeRouteData round(TradeRoute(0));
+    j.get_to(round);
+    nlohmann::json j2 = round;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: TradeRouteData rejects wrong-size passes_through")
+{
+    TradeRouteData orig(TradeRoute(0));
+    nlohmann::json j = orig;
+    j["passes_through"] = nlohmann::json::array();  // empty
+
+    TradeRouteData round(TradeRoute(0));
+    CHECK_THROWS_AS(j.get_to(round), nlohmann::json::other_error);
+}
+
+TEST_CASE("json round-trip: TradeRouteData keys are snake_case (no m_ leak)")
+{
+    TradeRouteData d(TradeRoute(0));
+    nlohmann::json j = d;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: TradePool empty preserves next_key")
+{
+    TradePool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["routes"].is_array());
+    CHECK(j["routes"].size() == 0);
+    CHECK(j.contains("next_key"));
+
+    TradePool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key", 0x55u},
+        {"routes",   nlohmann::json::array()},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x55u);
+}
+
+TEST_CASE("json round-trip: TradePool keys are snake_case (no m_ leak)")
+{
+    TradePool pool;
     nlohmann::json j = pool;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");

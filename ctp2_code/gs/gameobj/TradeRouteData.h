@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Added SetSourceResource method to correct the trade route index if
-//   the size of the Resource database was increased. - June 4th 2005 Martin Gühmann
+//   the size of the Resource database was increased. - June 4th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -44,6 +44,8 @@ class TradeRouteData;
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/CityRadius.h"
 #include "gs/gameobj/Army.h"
+
+#include <nlohmann/json.hpp>
 
 #define k_TRADEROUTE_NO_PATH		0
 #define k_TRADEROUTE_ORIGINAL_PATH	1
@@ -192,6 +194,14 @@ public:
 	void SetPiratingArmy(Army &a);
 	Army GetPiratingArmy();
 	bool IsBeingPirated();
+
+	// JSON bridge â€” mirrors TradeRouteData::Serialize.  Persists GameObj
+	// id + scalars + 6 MapPoint paths + 2 Unit endpoints + recip
+	// TradeRoute + embedded Path.  Omits m_lesser/m_greater (intrusive
+	// list, pool concern), m_piratingArmy + m_dontAdjustPointsWhenKilled
+	// (not in binary Serialize).  Implementation in json_save.cpp.
+	friend void to_json(nlohmann::json &j, TradeRouteData const &d);
+	friend void from_json(nlohmann::json const &j, TradeRouteData &d);
 
 private:
 	bool GeneratePath();

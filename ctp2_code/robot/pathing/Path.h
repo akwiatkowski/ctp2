@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - SnipEndUntilCanEnter now returns the end MapPoint. (30-Jan-2008 Martin Gühmann)
+// - SnipEndUntilCanEnter now returns the end MapPoint. (30-Jan-2008 Martin Gï¿½hmann)
 // - SnipEndUntilCanEnter is now base on the army's ability to enter cell
-//   and not based on its movement type. (8-Feb-2008 Martin Gühmann)
+//   and not based on its movement type. (8-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -39,6 +39,8 @@
 #include "robot/pathing/astarpnt.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/utility/directions.h"
+
+#include <nlohmann/json.hpp>
 
 struct Direction {
 
@@ -117,6 +119,11 @@ public:
 	MapPoint SnipEndUntilCanEnter(const Army & army);
 	MapPoint SnipEndUntilCannotEnter(const Army & army);
 
+	// JSON bridge â€” mirrors Path::Serialize.  Persists start/current
+	// MapPoints, step list (DynamicArray<Direction>), and two cursor
+	// indices.  Implementation in gs/fileio/json_save.cpp.
+	friend void to_json(nlohmann::json &j, Path const &p);
+	friend void from_json(nlohmann::json const &j, Path &p);
 };
 
 #endif

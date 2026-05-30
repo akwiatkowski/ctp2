@@ -79,6 +79,10 @@
 #include "gs/gameobj/EndGame.h"
 #include "gs/gameobj/installationpool.h"
 #include "gs/gameobj/installationdata.h"
+#include "gs/gameobj/TradePool.h"
+#include "gs/gameobj/TradeRouteData.h"
+#include "gs/utility/TradeDynArr.h"
+#include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
@@ -1753,6 +1757,189 @@ void from_json(nlohmann::json const &j, InstallationPool &p)
         InstallationData *data = new InstallationData(ID(0));
         entry.get_to(*data);
         p.Insert(data);
+    }
+}
+
+// Phase F-5 — Path (embedded in TradeRouteData via m_astarPath).
+// Mirrors Path::Serialize at robot/pathing/Path.cpp:315.  Direction is
+// a one-byte struct (sint8 dir); serialise as raw int — no per-Direction
+// bridge.
+
+void to_json(nlohmann::json &j, Path const &p)
+{
+    nlohmann::json step = nlohmann::json::array();
+    for (sint32 i = 0; i < p.m_step.Num(); ++i)
+    {
+        step.push_back(p.m_step.Access(i).dir);
+    }
+    j = nlohmann::json{
+        {"current",  p.m_current},
+        {"next",     p.m_next},
+        {"next_dir", p.m_next_dir},
+        {"start",    p.m_start},
+        {"step",     std::move(step)},
+    };
+}
+
+void from_json(nlohmann::json const &j, Path &p)
+{
+    j.at("current") .get_to(p.m_current);
+    j.at("next")    .get_to(p.m_next);
+    j.at("next_dir").get_to(p.m_next_dir);
+    j.at("start")   .get_to(p.m_start);
+
+    p.m_step.Clear();
+    for (auto const &dir_json : j.at("step"))
+    {
+        Direction d;
+        d.dir = dir_json.get<sint8>();
+        p.m_step.Insert(d);
+    }
+}
+
+// Phase F-5 — TradeRouteData
+// Mirrors TradeRouteData::Serialize at TradeRouteData.cpp:374.
+// OMITS m_lesser/m_greater (intrusive list, pool concern),
+// m_piratingArmy + m_dontAdjustPointsWhenKilled (not in binary
+// Serialize).
+
+namespace {
+nlohmann::json mapPointArrayToJson(DynamicArray<MapPoint> const &arr)
+{
+    nlohmann::json out = nlohmann::json::array();
+    for (sint32 i = 0; i < arr.Num(); ++i)
+    {
+        out.push_back(arr.Access(i));
+    }
+    return out;
+}
+
+void jsonToMapPointArray(nlohmann::json const &j, DynamicArray<MapPoint> &arr)
+{
+    arr.Clear();
+    for (auto const &mp : j)
+    {
+        MapPoint p;
+        mp.get_to(p);
+        arr.Insert(p);
+    }
+}
+}  // namespace
+
+void to_json(nlohmann::json &j, TradeRouteData const &d)
+{
+    nlohmann::json passes_through = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        passes_through.push_back(static_cast<bool>(d.m_passesThrough[i]));
+    }
+
+    j = nlohmann::json{
+        {"id",                   d.m_id},
+        {"transport_cost",       d.m_transportCost},
+        {"owner",                d.m_owner},
+        {"source_route_type",    static_cast<sint32>(d.m_sourceRouteType)},
+        {"source_resource",      d.m_sourceResource},
+        {"passes_through",       std::move(passes_through)},
+        {"crosses_water",        static_cast<bool>(d.m_crossesWater)},
+        {"is_active",            static_cast<bool>(d.m_isActive)},
+        {"color",                d.m_color},
+        {"outline",              d.m_outline},
+        {"selected_index",       d.m_selectedIndex},
+        {"path_selection_state", d.m_path_selection_state},
+        {"valid",                static_cast<bool>(d.m_valid)},
+        {"paying_for",           d.m_payingFor},
+        {"gold_in_return",       d.m_gold_in_return},
+        {"source_city",          static_cast<ID const &>(d.m_sourceCity)},
+        {"destination_city",     static_cast<ID const &>(d.m_destinationCity)},
+        {"recip",                static_cast<ID const &>(d.m_recip)},
+        {"path",                 mapPointArrayToJson(d.m_path)},
+        {"way_points",           mapPointArrayToJson(d.m_wayPoints)},
+        {"selected_path",        mapPointArrayToJson(d.m_selectedPath)},
+        {"selected_way_points",  mapPointArrayToJson(d.m_selectedWayPoints)},
+        {"set_path",             mapPointArrayToJson(d.m_setPath)},
+        {"set_way_points",       mapPointArrayToJson(d.m_setWayPoints)},
+        {"astar_path",           d.m_astarPath ? nlohmann::json(*d.m_astarPath)
+                                               : nlohmann::json(nullptr)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TradeRouteData &d)
+{
+    j.at("id")                  .get_to(d.m_id);
+    j.at("transport_cost")      .get_to(d.m_transportCost);
+    j.at("owner")               .get_to(d.m_owner);
+    d.m_sourceRouteType = static_cast<ROUTE_TYPE>(
+        j.at("source_route_type").get<sint32>());
+    j.at("source_resource")     .get_to(d.m_sourceResource);
+
+    auto const &passes_through = j.at("passes_through");
+    if (static_cast<sint32>(passes_through.size()) != k_MAX_PLAYERS)
+    {
+        throw nlohmann::json::other_error::create(
+            581, "trade_route_data.passes_through size mismatch with "
+                 "k_MAX_PLAYERS", &j);
+    }
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        d.m_passesThrough[i] = passes_through[i].get<bool>();
+    }
+
+    d.m_crossesWater = j.at("crosses_water").get<bool>();
+    d.m_isActive     = j.at("is_active")    .get<bool>();
+    j.at("color")              .get_to(d.m_color);
+    j.at("outline")            .get_to(d.m_outline);
+    j.at("selected_index")     .get_to(d.m_selectedIndex);
+    j.at("path_selection_state").get_to(d.m_path_selection_state);
+    d.m_valid        = j.at("valid")        .get<bool>();
+    j.at("paying_for")         .get_to(d.m_payingFor);
+    j.at("gold_in_return")     .get_to(d.m_gold_in_return);
+
+    ID id(0);
+    j.at("source_city")     .get_to(id);   d.m_sourceCity      = Unit(id.m_id);
+    j.at("destination_city").get_to(id);   d.m_destinationCity = Unit(id.m_id);
+    j.at("recip")           .get_to(id);   d.m_recip           = TradeRoute(id.m_id);
+
+    jsonToMapPointArray(j.at("path"),                d.m_path);
+    jsonToMapPointArray(j.at("way_points"),          d.m_wayPoints);
+    jsonToMapPointArray(j.at("selected_path"),       d.m_selectedPath);
+    jsonToMapPointArray(j.at("selected_way_points"), d.m_selectedWayPoints);
+    jsonToMapPointArray(j.at("set_path"),            d.m_setPath);
+    jsonToMapPointArray(j.at("set_way_points"),      d.m_setWayPoints);
+
+    if (!d.m_astarPath) d.m_astarPath = new Path;
+    j.at("astar_path").get_to(*d.m_astarPath);
+}
+
+// Phase F-5 — TradePool
+// Mirrors TradePool::Serialize at TradePool.cpp:121.  Persists every
+// live TradeRouteData entry + ObjPool key counter.  m_all_routes (a
+// TradeDynamicArray = flat view of m_table) is rebuilt during load.
+
+void to_json(nlohmann::json &j, TradePool const &p)
+{
+    nlohmann::json routes = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            routes.push_back(*reinterpret_cast<TradeRouteData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<TradePool &>(p).HackGetKey()},
+        {"routes",   std::move(routes)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TradePool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    if (p.m_all_routes) p.m_all_routes->Clear();
+    for (auto const &entry : j.at("routes"))
+    {
+        TradeRouteData *data = new TradeRouteData(TradeRoute(0));
+        entry.get_to(*data);
+        p.Insert(data);
+        if (p.m_all_routes) p.m_all_routes->Insert(TradeRoute(data->m_id));
     }
 }
 

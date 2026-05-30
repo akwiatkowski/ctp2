@@ -335,7 +335,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 
 	archive<<World_World_GetVersion();
 	archive<<Player_Player_GetVersion();
-	// TODO(orchestrator): no equivalent for SelectedItem_GetVersion
+	player_view::SerializeSelectionVersion(archive);
 	archive<<Advances_Advances_GetVersion();
 
 	archive<<BldQue_BuildQueue_GetVersion();
@@ -385,7 +385,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 140 );
 
 	if(saveEverything)
-		// TODO(orchestrator): no equivalent for g_selected_item->Serialize
+		player_view::SerializeSelection(archive);
 
 	PROGRESS( 150 );
 
@@ -1152,7 +1152,11 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	NETFunc::Session *  s       = (NETFunc::Session *) &info->gameSetup;
 	dp_session_t *      sess    =
         (dp_session_t *)((uint8*)s + sizeof(NETFunc::Key));
-	// TODO(orchestrator): no equivalent for GAMEID
+	// GAMEID = 1504, defined in ui/netshell/netshell_game.h.  Inlined here
+	// rather than including the UI-side header to keep gs/fileio/ free of
+	// ui/ deps; revisit if the netshell session-type discriminator is ever
+	// reused outside the save-browser path.
+	sess->sessionType = 1504;
 
 	n = c3files_fread(&info->options, sizeof(SaveInfo::OptionScreenSettings), 1, saveFile);
 	if (n != 1) {

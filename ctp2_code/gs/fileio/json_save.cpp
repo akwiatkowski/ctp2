@@ -75,6 +75,9 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/CivilisationPool.h"
+#include "gs/gameobj/TopTen.h"
+#include "gs/gameobj/EndGame.h"
+#include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
@@ -1700,6 +1703,51 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("target_city")  .get_to(u.m_target_city);
     j.at("is_exploring") .get_to(u.m_isExploring);
     j.at("explore_target").get_to(u.m_exploreTarget);
+}
+
+// Phase F-2 — EndGame
+//
+// Mirrors EndGame::Serialize.  Scalars + two num-built arrays sized
+// by g_theEndGameDB->m_nRec.  (TopTen bridge is inline in TopTen.h
+// since it has no DB dependency.)
+
+void to_json(nlohmann::json &j, EndGame const &g)
+{
+    sint32 const nRec = g_theEndGameDB ? g_theEndGameDB->m_nRec : 0;
+    std::vector<sint32> num_built;
+    std::vector<sint32> saved_num_built;
+    if (g.m_numBuilt)
+        num_built.assign(g.m_numBuilt, g.m_numBuilt + nRec);
+    if (g.m_savedNumBuilt)
+        saved_num_built.assign(g.m_savedNumBuilt, g.m_savedNumBuilt + nRec);
+
+    j = nlohmann::json{
+        {"owner",                 g.m_owner},
+        {"current_stage",         g.m_currentStage},
+        {"saved_current_stage",   g.m_savedCurrentStage},
+        {"current_stage_began",   g.m_currentStageBegan},
+        {"num_built",             std::move(num_built)},
+        {"saved_num_built",       std::move(saved_num_built)},
+    };
+}
+
+void from_json(nlohmann::json const &j, EndGame &g)
+{
+    j.at("owner")              .get_to(g.m_owner);
+    j.at("current_stage")      .get_to(g.m_currentStage);
+    j.at("saved_current_stage").get_to(g.m_savedCurrentStage);
+    j.at("current_stage_began").get_to(g.m_currentStageBegan);
+
+    std::vector<sint32> num_built, saved_num_built;
+    j.at("num_built")      .get_to(num_built);
+    j.at("saved_num_built").get_to(saved_num_built);
+
+    delete[] g.m_numBuilt;
+    delete[] g.m_savedNumBuilt;
+    g.m_numBuilt      = num_built.empty()       ? nullptr : new sint32[num_built.size()];
+    g.m_savedNumBuilt = saved_num_built.empty() ? nullptr : new sint32[saved_num_built.size()];
+    for (size_t i = 0; i < num_built.size();       ++i) g.m_numBuilt[i]      = num_built[i];
+    for (size_t i = 0; i < saved_num_built.size(); ++i) g.m_savedNumBuilt[i] = saved_num_built[i];
 }
 
 // Phase F-1 — CivilisationPool

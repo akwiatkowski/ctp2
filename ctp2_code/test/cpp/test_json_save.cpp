@@ -52,6 +52,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/CivilisationPool.h"
+#include "gs/gameobj/TopTen.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -2128,6 +2129,46 @@ TEST_CASE("json round-trip: CivilisationPool keys are snake_case (no m_ leak)")
 {
     CivilisationPool pool;
     nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-2 — TopTen
+
+TEST_CASE("json round-trip: TopTen preserves both leaderboards")
+{
+    TopTen orig;
+    nlohmann::json j = orig;
+
+    CHECK(j["biggest_cities"] .is_array());
+    CHECK(j["happiest_cities"].is_array());
+    CHECK(j["biggest_cities"] .size() == TOPTEN_LIST_SIZE);
+    CHECK(j["happiest_cities"].size() == TOPTEN_LIST_SIZE);
+
+    TopTen round;
+    j.get_to(round);
+
+    for (sint32 i = 0; i < TOPTEN_LIST_SIZE; ++i)
+    {
+        CHECK(round.GetBiggestCity(i).m_id  == orig.GetBiggestCity(i).m_id);
+        CHECK(round.GetHappiestCity(i).m_id == orig.GetHappiestCity(i).m_id);
+    }
+}
+
+TEST_CASE("json round-trip: TopTen rejects wrong-size leaderboard array")
+{
+    nlohmann::json const bad = nlohmann::json{
+        {"biggest_cities",  nlohmann::json::array()},
+        {"happiest_cities", nlohmann::json::array()},
+    };
+    TopTen round;
+    CHECK_THROWS_AS(bad.get_to(round), nlohmann::json::other_error);
+}
+
+TEST_CASE("json round-trip: TopTen keys are snake_case (no m_ leak)")
+{
+    TopTen orig;
+    nlohmann::json j = orig;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }

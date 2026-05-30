@@ -7,6 +7,8 @@
 class CivArchive;
 #include "gs/utility/gstypes.h"
 
+#include <nlohmann/json.hpp>
+
 class EndGame {
 private:
 
@@ -23,6 +25,11 @@ private:
 	sint32 *m_savedNumBuilt;
 
 	friend class NetEndGame;
+
+	// JSON bridge — mirrors EndGame::Serialize.  Persists scalars +
+	// the two num-built arrays (sized by g_theEndGameDB->m_nRec).
+	friend void to_json(nlohmann::json &j, EndGame const &g);
+	friend void from_json(nlohmann::json const &j, EndGame &g);
 
 public:
 	EndGame(PLAYER_INDEX owner);

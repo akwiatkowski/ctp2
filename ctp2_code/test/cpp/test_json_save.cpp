@@ -55,6 +55,8 @@
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/GoodyHuts.h"
+#include "gs/gameobj/installationpool.h"
+#include "gs/gameobj/installationdata.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -2209,6 +2211,34 @@ TEST_CASE("json round-trip: GoodyHut preserves value + type")
     j.get_to(round);
     nlohmann::json j2 = round;
     CHECK(j2 == j);
+}
+
+// Phase F-4 — InstallationData + InstallationPool
+
+TEST_CASE("json round-trip: InstallationPool empty preserves next_key")
+{
+    InstallationPool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["installations"].is_array());
+    CHECK(j["installations"].size() == 0);
+    CHECK(j.contains("next_key"));
+
+    InstallationPool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key",      0x77u},
+        {"installations", nlohmann::json::array()},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x77u);
+}
+
+TEST_CASE("json round-trip: InstallationPool keys are snake_case (no m_ leak)")
+{
+    InstallationPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

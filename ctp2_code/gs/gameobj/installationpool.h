@@ -7,6 +7,8 @@
 #include "gs/gameobj/ObjPool.h"
 #include "gs/gameobj/installation.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class InstallationPool : public ObjPool
@@ -32,6 +34,11 @@ public:
 
 	void Serialize(CivArchive &archive);
 	void RebuildQuadTree();
+
+	// JSON bridge — mirrors InstallationPool::Serialize.  Persists
+	// ObjPool key counter + every live InstallationData entry.
+	friend void to_json(nlohmann::json &j, InstallationPool const &p);
+	friend void from_json(nlohmann::json const &j, InstallationPool &p);
 };
 
 extern InstallationPool *g_theInstallationPool;

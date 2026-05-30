@@ -77,6 +77,8 @@
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/EndGame.h"
+#include "gs/gameobj/installationpool.h"
+#include "gs/gameobj/installationdata.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
@@ -1703,6 +1705,55 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("target_city")  .get_to(u.m_target_city);
     j.at("is_exploring") .get_to(u.m_isExploring);
     j.at("explore_target").get_to(u.m_exploreTarget);
+}
+
+// Phase F-4 — InstallationData + InstallationPool
+
+void to_json(nlohmann::json &j, InstallationData const &d)
+{
+    j = nlohmann::json{
+        {"id",                  d.m_id},
+        {"owner",               d.m_owner},
+        {"type",                d.m_type},
+        {"point",               d.m_point},
+        {"airfield_last_used",  d.m_airfieldLastUsed},
+        {"visibility",          d.m_visibility},
+    };
+}
+
+void from_json(nlohmann::json const &j, InstallationData &d)
+{
+    j.at("id")                .get_to(d.m_id);
+    j.at("owner")             .get_to(d.m_owner);
+    j.at("type")              .get_to(d.m_type);
+    j.at("point")             .get_to(d.m_point);
+    j.at("airfield_last_used").get_to(d.m_airfieldLastUsed);
+    j.at("visibility")        .get_to(d.m_visibility);
+}
+
+void to_json(nlohmann::json &j, InstallationPool const &p)
+{
+    nlohmann::json installations = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            installations.push_back(*reinterpret_cast<InstallationData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key",      const_cast<InstallationPool &>(p).HackGetKey()},
+        {"installations", std::move(installations)},
+    };
+}
+
+void from_json(nlohmann::json const &j, InstallationPool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    for (auto const &entry : j.at("installations"))
+    {
+        InstallationData *data = new InstallationData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
+    }
 }
 
 // Phase F-2 — EndGame

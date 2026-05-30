@@ -7,6 +7,8 @@
 #include "gs/gameobj/GameObj.h"
 #include "gs/world/MapPoint.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class InstallationData : public GameObj
@@ -45,6 +47,13 @@ public:
 	sint32 AirfieldLastUsed() const;
 
 	void ChangeOwner(sint32 toOwner);
+
+	// JSON bridge — mirrors InstallationData::Serialize.  Persists
+	// GameObj id + 4 scalars + MapPoint.  Omits m_lesser/m_greater
+	// (intrusive list, pool concern).  Implementation in json_save.cpp
+	// (needs MapPoint bridge from json_save.h).
+	friend void to_json(nlohmann::json &j, InstallationData const &d);
+	friend void from_json(nlohmann::json const &j, InstallationData &d);
 };
 
 #endif

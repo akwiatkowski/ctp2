@@ -34,6 +34,7 @@
 #include <utility>
 #include "gs/world/MapPoint.h"
 #include "ctp/ctp2_utils/c3debugstl.h"
+#include <nlohmann/json.hpp>
 
 typedef std::list<MapPoint> MapPoint_List;
 typedef std::list<std::pair<sint32, MapPoint> > Scored_MapPoint_List;
@@ -47,6 +48,10 @@ class GaiaController {
 	static uint64 sm_endgameBuildings;
 	static uint64 sm_endgameWonders;
 
+	GaiaController() : m_playerId(0), m_numMainframes(0), m_numSatellites(0),
+	                   m_numTowersBuilt(0), m_numWondersBuilt(0),
+	                   m_percentCoverage(0.0f), m_completedTurn(-1),
+	                   m_maxPercentCoverage(0.0f) {}
 	GaiaController(const PLAYER_INDEX player);
 
 
@@ -145,6 +150,13 @@ class GaiaController {
 	Bit_Table m_coveredCells;
 	float m_maxPercentCoverage;
 	MapPoint_List m_newTowerPositions;
+
+	// JSON savegame bridge (json_save.cpp).  Phase D worker batch.
+	// Omits m_coveredCells (Bit_Table) and m_newTowerPositions
+	// (MapPoint_List) — both need their own bridges before they can
+	// be included in the JSON schema.
+	friend void to_json(nlohmann::json &j, GaiaController const &gc);
+	friend void from_json(nlohmann::json const &j, GaiaController &gc);
 };
 
 #endif // __GAIA_CONTROLLER_H__

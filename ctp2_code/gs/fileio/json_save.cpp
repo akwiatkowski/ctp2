@@ -60,6 +60,7 @@
 #include "gs/gameobj/FeatTracker.h"
 #include "FeatRecord.h"                    // g_theFeatDB (dbgen-built)
 #include "BuildingRecord.h"                // g_theBuildingDB (dbgen-built)
+#include "gs/gameobj/gaiacontroller.h"
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1287,6 +1288,31 @@ void from_json(nlohmann::json const &j, FeatTracker &ft)
     {
         for (sint32 i = 0; i < bldg_count; ++i) building_feat[i].get_to(ft.m_buildingFeat[i]);
     }
+}
+
+// Phase D worker batch — GaiaController
+void to_json(nlohmann::json &j, GaiaController const &gc)
+{
+    j = nlohmann::json{
+        {"player_id",         gc.m_playerId},
+        {"num_mainframes",    gc.m_numMainframes},
+        {"num_satellites",    gc.m_numSatellites},
+        {"num_wonders_built", gc.m_numWondersBuilt},
+        {"num_towers_built",  gc.m_numTowersBuilt},
+        {"percent_coverage",  gc.m_percentCoverage},
+        {"completed_turn",    gc.m_completedTurn},
+    };
+}
+
+void from_json(nlohmann::json const &j, GaiaController &gc)
+{
+    j.at("player_id")        .get_to(gc.m_playerId);
+    j.at("num_mainframes")   .get_to(gc.m_numMainframes);
+    j.at("num_satellites")   .get_to(gc.m_numSatellites);
+    j.at("num_wonders_built").get_to(gc.m_numWondersBuilt);
+    j.at("num_towers_built") .get_to(gc.m_numTowersBuilt);
+    j.at("percent_coverage") .get_to(gc.m_percentCoverage);
+    j.at("completed_turn")   .get_to(gc.m_completedTurn);
 }
 
 namespace json_save {

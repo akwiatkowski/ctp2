@@ -37,6 +37,7 @@
 #include "gs/gameobj/TradeOfferData.h"
 #include "gs/gameobj/BldQue.h"
 #include "gs/gameobj/FeatTracker.h"
+#include "gs/gameobj/gaiacontroller.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1143,6 +1144,41 @@ TEST_CASE("json round-trip: FeatTracker omits derived m_effectList")
     };
     CHECK_FALSE(synthetic.contains("effect_list"));
     CHECK_FALSE(synthetic.contains("m_effectList"));
+}
+
+// --- Phase D worker batch: GaiaController ---
+
+TEST_CASE("json round-trip: GaiaController preserves all 7 scalar fields")
+{
+    GaiaController orig;
+    // Drive non-default values via synthetic JSON since the public
+    // setters in GaiaController depend on database / game globals.
+    nlohmann::json j{
+        {"player_id",         3},
+        {"num_mainframes",    sint16{2}},
+        {"num_satellites",    sint16{4}},
+        {"num_wonders_built", sint16{6}},
+        {"num_towers_built",  sint16{8}},
+        {"percent_coverage",  0.625f},
+        {"completed_turn",    sint16{42}},
+    };
+    j.get_to(orig);
+
+    // Round-trip back through JSON.
+    nlohmann::json j2 = orig;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: GaiaController omits Bit_Table + MapPoint_List by design")
+{
+    GaiaController gc;
+    nlohmann::json j = gc;
+    CHECK_FALSE(j.contains("covered_cells"));
+    CHECK_FALSE(j.contains("m_coveredCells"));
+    CHECK_FALSE(j.contains("new_tower_positions"));
+    CHECK_FALSE(j.contains("m_newTowerPositions"));
+    CHECK_FALSE(j.contains("max_percent_coverage"));
+    CHECK_FALSE(j.contains("m_maxPercentCoverage"));
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

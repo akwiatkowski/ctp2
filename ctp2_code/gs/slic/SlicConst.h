@@ -4,6 +4,8 @@
 #ifndef __SLIC_CONST_H__
 #define __SLIC_CONST_H__
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class SlicConst {
@@ -24,6 +26,12 @@ public:
 
 	const MBCHAR *GetName() { return m_name; }
 	const sint32 GetValue() { return m_value; }
+
+	// JSON bridge — mirrors SlicConst::Serialize.  Persists the
+	// length-prefixed name string + integer value.  Implementation in
+	// gs/fileio/json_save.cpp.
+	friend void to_json(nlohmann::json &j, SlicConst const &c);
+	friend void from_json(nlohmann::json const &j, SlicConst &c);
 
 private:
 	char *m_name;

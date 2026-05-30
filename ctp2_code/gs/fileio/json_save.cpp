@@ -84,6 +84,7 @@
 #include "gs/utility/TradeDynArr.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TerrImproveData.h"
+#include "gs/slic/SlicConst.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -95,6 +96,7 @@
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
+#include <cstring>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
@@ -2001,6 +2003,27 @@ void from_json(nlohmann::json const &j, TerrainImprovementPool &p)
         entry.get_to(*data);
         p.Insert(data);
     }
+}
+
+// Phase F-7 — SlicConst (smallest Slic-family leaf, no other Slic deps).
+// Mirrors SlicConst::Serialize at gs/slic/SlicConst.cpp:23.  Persists
+// the (length-prefixed) name string and integer value.
+
+void to_json(nlohmann::json &j, SlicConst const &c)
+{
+    j = nlohmann::json{
+        {"name",  c.m_name ? std::string(c.m_name) : std::string()},
+        {"value", c.m_value},
+    };
+}
+
+void from_json(nlohmann::json const &j, SlicConst &c)
+{
+    std::string name = j.at("name").get<std::string>();
+    delete[] c.m_name;
+    c.m_name = new char[name.size() + 1];
+    std::memcpy(c.m_name, name.c_str(), name.size() + 1);
+    j.at("value").get_to(c.m_value);
 }
 
 // Phase F-2 — EndGame

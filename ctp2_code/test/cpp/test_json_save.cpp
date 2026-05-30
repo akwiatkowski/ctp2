@@ -61,6 +61,7 @@
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TerrImproveData.h"
+#include "gs/slic/SlicConst.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2390,6 +2391,42 @@ TEST_CASE("json round-trip: TerrainImprovementData keys are snake_case (no m_ le
 {
     TerrainImprovementData d(ID(0));
     nlohmann::json j = d;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-7 — SlicConst (smallest Slic-family leaf)
+
+TEST_CASE("json round-trip: SlicConst preserves name + value")
+{
+    SlicConst orig("MyConstant", 42);
+    nlohmann::json j = orig;
+
+    CHECK(j["name"]  == "MyConstant");
+    CHECK(j["value"] == 42);
+
+    SlicConst round("", 0);
+    j.get_to(round);
+    CHECK(std::string(round.GetName()) == "MyConstant");
+    CHECK(round.GetValue() == 42);
+}
+
+TEST_CASE("json round-trip: SlicConst preserves empty name")
+{
+    SlicConst orig("", -1);
+    nlohmann::json j = orig;
+    CHECK(j["name"] == "");
+
+    SlicConst round("x", 0);
+    j.get_to(round);
+    CHECK(std::string(round.GetName()) == "");
+    CHECK(round.GetValue() == -1);
+}
+
+TEST_CASE("json round-trip: SlicConst keys are snake_case (no m_ leak)")
+{
+    SlicConst c("foo", 7);
+    nlohmann::json j = c;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }

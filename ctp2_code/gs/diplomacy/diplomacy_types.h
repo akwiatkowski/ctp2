@@ -44,6 +44,7 @@
 #define __DIPLOMAT_TYPES_H__
 
 #include <string>
+#include <nlohmann/json.hpp>
 
 typedef sint32 PLAYER_INDEX;
 typedef sint32 StringId;
@@ -274,6 +275,36 @@ struct DiplomacyArg
 	double       percent;
 };
 
+// JSON bridge for DiplomacyArg.  Inline because the struct is in a
+// shared header and the bridge is trivial.
+inline void to_json(nlohmann::json &j, DiplomacyArg const &d)
+{
+	j = nlohmann::json{
+		{"player_id",    d.playerId},
+		{"city_id",      d.cityId},
+		{"army_id",      d.armyId},
+		{"agreement_id", d.agreementId},
+		{"advance_type", d.advanceType},
+		{"unit_type",    d.unitType},
+		{"pollution",    d.pollution},
+		{"gold",         d.gold},
+		{"percent",      d.percent},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, DiplomacyArg &d)
+{
+	j.at("player_id")   .get_to(d.playerId);
+	j.at("city_id")     .get_to(d.cityId);
+	j.at("army_id")     .get_to(d.armyId);
+	j.at("agreement_id").get_to(d.agreementId);
+	j.at("advance_type").get_to(d.advanceType);
+	j.at("unit_type")   .get_to(d.unitType);
+	j.at("pollution")   .get_to(d.pollution);
+	j.at("gold")        .get_to(d.gold);
+	j.at("percent")     .get_to(d.percent);
+}
+
 struct ProposalData
 {
 	ProposalData()
@@ -305,6 +336,27 @@ struct ProposalData
 	DiplomacyArg    second_arg;
 	DIPLOMATIC_TONE tone;
 };
+
+// JSON bridge for ProposalData.
+inline void to_json(nlohmann::json &j, ProposalData const &p)
+{
+	j = nlohmann::json{
+		{"first_type",  static_cast<sint32>(p.first_type)},
+		{"first_arg",   p.first_arg},
+		{"second_type", static_cast<sint32>(p.second_type)},
+		{"second_arg",  p.second_arg},
+		{"tone",        static_cast<sint32>(p.tone)},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, ProposalData &p)
+{
+	p.first_type  = static_cast<PROPOSAL_TYPE>(j.at("first_type").get<sint32>());
+	j.at("first_arg")  .get_to(p.first_arg);
+	p.second_type = static_cast<PROPOSAL_TYPE>(j.at("second_type").get<sint32>());
+	j.at("second_arg") .get_to(p.second_arg);
+	p.tone        = static_cast<DIPLOMATIC_TONE>(j.at("tone").get<sint32>());
+}
 
 struct ThreatData
 {
@@ -543,6 +595,34 @@ namespace ai
 		StringId     explainStrId;
 		StringId     newsStrId;
 	};
+
+	// JSON bridge for ai::Agreement.  Inline + in ai:: so nlohmann
+	// ADL can find it from any TU that includes this header.
+	inline void to_json(nlohmann::json &j, ai::Agreement const &a)
+	{
+		j = nlohmann::json{
+			{"id",             a.id},
+			{"sender_id",      a.senderId},
+			{"receiver_id",    a.receiverId},
+			{"start",          a.start},
+			{"end",            a.end},
+			{"proposal",       a.proposal},
+			{"explain_str_id", a.explainStrId},
+			{"news_str_id",    a.newsStrId},
+		};
+	}
+
+	inline void from_json(nlohmann::json const &j, ai::Agreement &a)
+	{
+		j.at("id")            .get_to(a.id);
+		j.at("sender_id")     .get_to(a.senderId);
+		j.at("receiver_id")   .get_to(a.receiverId);
+		j.at("start")         .get_to(a.start);
+		j.at("end")           .get_to(a.end);
+		j.at("proposal")      .get_to(a.proposal);
+		j.at("explain_str_id").get_to(a.explainStrId);
+		j.at("news_str_id")   .get_to(a.newsStrId);
+	}
 };
 
 enum MOTIVATION_TYPE {

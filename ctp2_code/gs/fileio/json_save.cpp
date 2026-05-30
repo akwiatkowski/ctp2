@@ -61,6 +61,7 @@
 #include "FeatRecord.h"                    // g_theFeatDB (dbgen-built)
 #include "BuildingRecord.h"                // g_theBuildingDB (dbgen-built)
 #include "gs/gameobj/gaiacontroller.h"
+#include "ai/diplomacy/AgreementMatrix.h"
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1313,6 +1314,31 @@ void from_json(nlohmann::json const &j, GaiaController &gc)
     j.at("num_towers_built") .get_to(gc.m_numTowersBuilt);
     j.at("percent_coverage") .get_to(gc.m_percentCoverage);
     j.at("completed_turn")   .get_to(gc.m_completedTurn);
+}
+
+// Phase D — AgreementMatrix
+void to_json(nlohmann::json &j, AgreementMatrix const &am)
+{
+    nlohmann::json agreements = nlohmann::json::array();
+    for (auto const &agr : am.m_agreements)
+    {
+        agreements.push_back(agr);
+    }
+    j = nlohmann::json{
+        {"max_players", am.m_maxPlayers},
+        {"agreements", std::move(agreements)},
+    };
+}
+
+void from_json(nlohmann::json const &j, AgreementMatrix &am)
+{
+    j.at("max_players").get_to(am.m_maxPlayers);
+    auto const &agreements = j.at("agreements");
+    am.m_agreements.resize(agreements.size());
+    for (std::size_t i = 0; i < agreements.size(); ++i)
+    {
+        agreements[i].get_to(am.m_agreements[i]);
+    }
 }
 
 namespace json_save {

@@ -38,6 +38,8 @@
 #include "gs/gameobj/BldQue.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/gameobj/gaiacontroller.h"
+#include "gs/diplomacy/diplomacy_types.h"
+#include "ai/diplomacy/AgreementMatrix.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1179,6 +1181,113 @@ TEST_CASE("json round-trip: GaiaController omits Bit_Table + MapPoint_List by de
     CHECK_FALSE(j.contains("m_newTowerPositions"));
     CHECK_FALSE(j.contains("max_percent_coverage"));
     CHECK_FALSE(j.contains("m_maxPercentCoverage"));
+}
+
+// --- AgreementMatrix chain (DiplomacyArg, ProposalData, ai::Agreement, AgreementMatrix) ---
+
+TEST_CASE("json round-trip: DiplomacyArg preserves all 9 fields")
+{
+    DiplomacyArg orig;
+    orig.playerId    = 3;
+    orig.cityId      = 100;
+    orig.armyId      = 200;
+    orig.agreementId = 7;
+    orig.advanceType = 12;
+    orig.unitType    = 4;
+    orig.pollution   = 25;
+    orig.gold        = 500;
+    orig.percent     = 0.75;
+
+    nlohmann::json j = orig;
+    DiplomacyArg round;
+    j.get_to(round);
+
+    CHECK(round.playerId    == 3);
+    CHECK(round.cityId      == 100);
+    CHECK(round.armyId      == 200);
+    CHECK(round.agreementId == 7);
+    CHECK(round.advanceType == 12);
+    CHECK(round.unitType    == 4);
+    CHECK(round.pollution   == 25);
+    CHECK(round.gold        == 500);
+    CHECK(round.percent     == doctest::Approx(0.75));
+}
+
+TEST_CASE("json round-trip: ProposalData with nested DiplomacyArgs")
+{
+    ProposalData orig;
+    orig.first_type  = PROPOSAL_OFFER_GIVE_GOLD;
+    orig.first_arg   = 100;  // sets all fields to 100, percent to 1.0
+    orig.second_type = PROPOSAL_NONE;
+    orig.tone        = DIPLOMATIC_TONE_NOT_CHOSEN;
+
+    nlohmann::json j = orig;
+    ProposalData round;
+    j.get_to(round);
+
+    CHECK(round.first_type     == PROPOSAL_OFFER_GIVE_GOLD);
+    CHECK(round.first_arg.gold == 100);
+    CHECK(round.second_type    == PROPOSAL_NONE);
+    CHECK(round.tone           == DIPLOMATIC_TONE_NOT_CHOSEN);
+}
+
+TEST_CASE("json round-trip: ai::Agreement preserves all 8 fields incl. nested proposal")
+{
+    ai::Agreement orig;
+    orig.id            = 42;
+    orig.senderId      = 1;
+    orig.receiverId    = 2;
+    orig.start         = 10;
+    orig.end           = 100;
+    orig.explainStrId  = 555;
+    orig.newsStrId     = 666;
+    orig.proposal.first_type  = PROPOSAL_OFFER_GIVE_GOLD;
+    orig.proposal.first_arg   = 250;
+
+    nlohmann::json j = orig;
+    ai::Agreement round;
+    j.get_to(round);
+
+    CHECK(round.id            == 42);
+    CHECK(round.senderId      == 1);
+    CHECK(round.receiverId    == 2);
+    CHECK(round.start         == 10);
+    CHECK(round.end           == 100);
+    CHECK(round.explainStrId  == 555);
+    CHECK(round.newsStrId     == 666);
+    CHECK(round.proposal.first_type     == PROPOSAL_OFFER_GIVE_GOLD);
+    CHECK(round.proposal.first_arg.gold == 250);
+}
+
+TEST_CASE("json round-trip: AgreementMatrix preserves max_players + agreements vector")
+{
+    AgreementMatrix orig;
+    orig.Resize(8);  // sets m_maxPlayers and resizes m_agreements
+
+    nlohmann::json j = orig;
+    CHECK(j.contains("max_players"));
+    CHECK(j.contains("agreements"));
+    CHECK(j["max_players"] == 8);
+
+    AgreementMatrix round;
+    j.get_to(round);
+
+    CHECK(round.GetMaxPlayers() == 8);
+
+    // Round-trip back
+    nlohmann::json j2 = round;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: AgreementMatrix snake_case ratchet")
+{
+    AgreementMatrix am;
+    am.Resize(4);
+    nlohmann::json j = am;
+    for (auto const &el : j.items())
+    {
+        CHECK(el.key().substr(0, 2) != "m_");
+    }
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

@@ -61,8 +61,17 @@ class AgreementMatrix;
 // Class declarations
 //----------------------------------------------------------------------------
 
+#include <nlohmann/json.hpp>
+
 class AgreementMatrix
 {
+	// JSON bridge.  m_maxPlayers + std::vector<ai::Agreement>.
+	// The vector is serialised as a flat JSON array; on load it
+	// resizes to match.  ai::Agreement's own bridge lives in
+	// gs/diplomacy/diplomacy_types.h.
+	friend void to_json(nlohmann::json &j, AgreementMatrix const &am);
+	friend void from_json(nlohmann::json const &j, AgreementMatrix &am);
+
 public:
 
     static ai::Agreement s_badAgreement;

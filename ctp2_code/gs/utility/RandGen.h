@@ -64,6 +64,22 @@ public:
 
 extern RandomGenerator *g_rand;
 
+// Reference accessor for the active random generator.
+//
+// Why this exists: g_rand is a raw pointer touched by ~215 call sites across
+// 32 files. Tests cannot swap it cleanly today — every fixture either leaks
+// it or hand-rolls a swap. Routing reads through civrand() gives us a single
+// pluggable seam without renaming the global (NetRand has friend access to
+// g_rand and the network layer assumes the pointer name).
+//
+// Migration is opt-in per file: new code uses civrand(), old code keeps
+// g_rand-> until it is touched for other reasons. ScopedRand (test-only)
+// swaps the pointer for the duration of a test, so civrand() returns the
+// fixture's generator inside the scope.
+//
+// Not named rand() because that collides with libc's <cstdlib> rand().
+inline RandomGenerator & civrand() { return *g_rand; }
+
 #else
 
 class RandomGenerator;

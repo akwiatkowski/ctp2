@@ -28,7 +28,7 @@
 // - Added IsWounded method.
 // - Added CanTransport and IsCivilian methods.
 // - Made GetCurrentHP const.
-// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gühmann).
+// - Added check move points option to CanAtLeastOneCargoUnloadAt (8-Feb-2008 Martin Gï¿½hmann).
 // - Added check if only movebonus units are in an army, and it returns the
 //	 highest movebonus value of the army (17-Mar-2009 Maq).
 //
@@ -47,6 +47,8 @@ class Army;
 #include "gs/gameobj/ID.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
+
+#include <nlohmann/json.hpp>
 
 class CivArchive;
 class Path;
@@ -317,5 +319,16 @@ public:
 	static bool GetInciteRevolutionCost( const MapPoint &point, sint32 &attackCost );
 	static bool GetInciteUprisingCost( const MapPoint &point, sint32 &attackCost );
 };
+
+// JSON bridge â€” Army is a pure ID-derived handle, serialise as uint32.
+inline void to_json(nlohmann::json &j, Army const &a)
+{
+    j = a.m_id;
+}
+
+inline void from_json(nlohmann::json const &j, Army &a)
+{
+    a.m_id = j.get<uint32>();
+}
 
 #endif

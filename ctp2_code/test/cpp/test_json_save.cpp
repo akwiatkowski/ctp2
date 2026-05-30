@@ -1925,6 +1925,32 @@ TEST_CASE("json round-trip: ArmyData keys are snake_case (no m_ leak)")
         CHECK(el.key().substr(0, 2) != "m_");
 }
 
+// Phase E-3 — Army + Unit (pure ID-derived handles)
+
+TEST_CASE("json round-trip: Army serialises as uint32 scalar")
+{
+    Army a(0xCAFE1234u);
+    nlohmann::json j = a;
+    CHECK(j.is_number_unsigned());
+    CHECK(j.get<uint32>() == 0xCAFE1234u);
+
+    Army round(0);
+    j.get_to(round);
+    CHECK(round.m_id == 0xCAFE1234u);
+}
+
+TEST_CASE("json round-trip: Unit serialises as uint32 scalar")
+{
+    Unit u(0xBEEF5678u);
+    nlohmann::json j = u;
+    CHECK(j.is_number_unsigned());
+    CHECK(j.get<uint32>() == 0xBEEF5678u);
+
+    Unit round(0);
+    j.get_to(round);
+    CHECK(round.m_id == 0xBEEF5678u);
+}
+
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")
 {
     CivilisationData c(ID(0));   nlohmann::json jc = c;

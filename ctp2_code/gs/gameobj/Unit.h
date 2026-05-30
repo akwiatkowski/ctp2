@@ -54,6 +54,8 @@
 #include <memory>
 #include <string>
 
+#include <nlohmann/json.hpp>
+
 class Unit;
 
 #include "gs/core/sprite_state_fwd.h"   // SpriteStatePtr typedef
@@ -619,5 +621,16 @@ public:
 };
 
 uint32 Unit_Unit_GetVersion(void);
+
+// JSON bridge — Unit is a pure ID-derived handle, serialise as uint32.
+inline void to_json(nlohmann::json &j, Unit const &u)
+{
+    j = u.m_id;
+}
+
+inline void from_json(nlohmann::json const &j, Unit &u)
+{
+    u.m_id = j.get<uint32>();
+}
 
 #endif

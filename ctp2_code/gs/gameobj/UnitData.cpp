@@ -1427,7 +1427,6 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 //            	g_theConstDB
 //				g_theWorld
 //				g_slicEngine
-//				g_rand
 //
 // Returns    : -
 //
@@ -1461,7 +1460,7 @@ void UnitData::Bombard(const UnitRecord *rec, Unit defender,
 
 	for (i = 0; i < n; ++i)
 	{
-		if (g_rand->Next(100) < p)
+		if (civrand().Next(100) < p)
 		{
 			//DPRINTF(k_DBG_GAMESTATE, ("BOMBARD: %i chance hit \n", p));
 			hp -= f * dmr;
@@ -1506,7 +1505,7 @@ void UnitData::BombardOneRound(const UnitRecord *rec, Unit &defender,
 
 	p  = int (p *(1.0 + dbonus));
 
-	if (g_rand->Next(100) < p) {
+	if (civrand().Next(100) < p) {
 		hp -= f * dmr;
 	}
 	defender.SetHP(hp);
@@ -1573,7 +1572,7 @@ bool UnitData::Bombard(CellUnitList &defender, bool isCounterBombardment)
 
 	Assert(0 < defender.Num());
 
-	for (i = g_rand->Next(defender.Num()), j=0;
+	for (i = civrand().Next(defender.Num()), j=0;
 		 j < defender.Num();
 		 i = ((i + 1) % defender.Num()), j++)
 	{
@@ -1609,7 +1608,7 @@ void UnitData::FightOneRound(Unit did, double defenders_bonus,
 		p = sint32(double (0x0fff) * a/(a+d));
 	}
 
-	if ((g_rand->Next() & 0x0fff) < p) {
+	if ((civrand().Next() & 0x0fff) < p) {
 		did.DeductHP(amr * GetDBRec()->GetFirepower());
 	} else {
 		DeductHP(dmr * did.GetFirepower());
@@ -2559,7 +2558,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 		bool sourceOwnerCaught = false;
 		bool destOwnerCaught = false;
 
-		if(g_rand->Next(100) < g_theConstDB->PiracyKillsTraderChance()) {
+		if(civrand().Next(100) < g_theConstDB->PiracyKillsTraderChance()) {
 			g_player[route.GetPayingFor()]->KillATrader();
 		} else {
 			sourceOwnerCaught = true;
@@ -3072,7 +3071,7 @@ void UnitData::CityRadiusFunc(const MapPoint &pos)
 	if(cell->GetCity().m_id != (0) &&
 	   cell->GetCity().GetOwner() != m_owner &&
 	   cell->GetCity().IsCapitol() &&
-	   g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetHearGossipChance() * 100.0)) {
+	   civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetHearGossipChance() * 100.0)) {
 		Unit unit = cell->GetCity();
 		HearGossip(unit);
 	}
@@ -4193,7 +4192,7 @@ bool UnitData::StoppedBySpies(const Unit &c)
 
 		if(chance > 0.001)
 		{
-			if(g_rand->Next(100) <= static_cast<sint32>(chance * 100.0))
+			if(civrand().Next(100) <= static_cast<sint32>(chance * 100.0))
 			{
 				DPRINTF(k_DBG_GAMESTATE, ("Spy was stopped by spies stationed in city\n"));
 				so = new SlicObject("10zStoppedBySpies") ;
@@ -4228,7 +4227,6 @@ bool UnitData::StoppedBySpies(const Unit &c)
 // Parameters : Unit &c       : a city
 //
 // Globals    : g_slicEngine
-//            : g_rand        :
 //
 // Returns    : ORDER_RESULT  : attempt success/failure indication
 //
@@ -4259,11 +4257,11 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 	c.ModifySpecialAttackChance(UNIT_ORDER_INVESTIGATE_CITY, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) >= sint32(chance * 100.0))
+	if(civrand().Next(100) >= sint32(chance * 100.0))
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Spy failed\n"));
 
-		if(g_rand->Next(100) < sint32(deathChance * 100.0))
+		if(civrand().Next(100) < sint32(deathChance * 100.0))
 		{
 			Unit me(m_id);
 			so = new SlicObject("10aInvestigateCityFailed");
@@ -4346,7 +4344,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 	c.SetWatchful();
 
 	ORDER_RESULT    orderResult =
-	    (g_rand->Next(100) < static_cast<sint32>(successRate * 100.0))
+	    (civrand().Next(100) < static_cast<sint32>(successRate * 100.0))
 	    ? ORDER_RESULT_SUCCEEDED
 	    : ORDER_RESULT_FAILED;
 
@@ -4359,7 +4357,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		if (num > 0)
 		{
 			sint32 count = 0;
-			sint32 which = g_rand->Next(num);
+			sint32 which = civrand().Next(num);
 			for (sint32 i = 0; i < g_theAdvanceDB->NumRecords(); i++)
 			{
 				if (canSteal[i])
@@ -4421,7 +4419,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		so->AddUnitRecord(m_type);
 		g_slicEngine->Execute(so);
 
-		if (g_rand->Next(100) < sint32(data->GetDeathChance() * 100.0))
+		if (civrand().Next(100) < sint32(data->GetDeathChance() * 100.0))
 		{
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -4449,7 +4447,6 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 // Parameters : Unit &c       : a city
 //
 // Globals    : g_slicEngine
-//            : g_rand        :
 //
 // Returns    : ORDER_RESULT  : attempt success/failure indication
 //
@@ -4476,7 +4473,7 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 	c.SetWatchful();
 
 	SlicObject	*so;
-	if(g_rand->Next(100) >= sint32(chance * 100.0)) {
+	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Spy failed\n"));
 
 		so = new SlicObject("10cInciteRevolutionFailed");
@@ -4493,7 +4490,7 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 		so->AddUnitRecord(m_type);
 		g_slicEngine->Execute(so);
 
-		if(g_rand->Next(100) < sint32(deathChance * 100.0)) {
+		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 		}
@@ -4537,7 +4534,7 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 	c.ModifySpecialAttackChance(UNIT_ORDER_ASSASSINATE, chance);
 	c.SetWatchful();
 
-	if(g_rand->Next(100) >= sint32(chance * 100.0)) {
+	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Assassination failed."));
 		so = new SlicObject("10dAssassinationFailed") ;
 		so->AddRecipient(c.GetOwner()) ;
@@ -4550,7 +4547,7 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 		so->AddCivilisation(c.GetOwner()) ;
 		so->AddCity(c) ;
 		g_slicEngine->Execute(so) ;
-		if(g_rand->Next(100) < sint32(deathChance * 100.0)) {
+		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 		}
@@ -4582,10 +4579,10 @@ ORDER_RESULT UnitData::NullifyWalls(Unit c)
 
 	c.ModifySpecialAttackChance(UNIT_ORDER_NULLIFY_WALLS, chance);
 
-	if(g_rand->Next(100) >= sint32(chance * 100.0)) {
+	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 		DPRINTF(k_DBG_GAMESTATE, ("City wall nullification failed."));
 
-		if(g_rand->Next(100) < sint32(deathChance * 100.0)) {
+		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 		}
@@ -4674,7 +4671,7 @@ void UnitData::HearGossip(Unit c)
 	UnitDynamicArray maxCostUnits;
 	SlicObject *so = NULL;
 
-	switch(g_rand->Next(3)) {
+	switch(civrand().Next(3)) {
 		case 0: {
 
 			sint32 i, num;
@@ -4721,7 +4718,7 @@ void UnitData::HearGossip(Unit c)
 					g_slicEngine->Execute(so);
 					return;
 				}
-				n = g_rand->Next(maxCostUnits.Num());
+				n = civrand().Next(maxCostUnits.Num());
 				maxCostUnits[n].GetPos(center);
 			}
 			so = new SlicObject("98GossipMap");
@@ -5690,9 +5687,9 @@ bool UnitData::FightOneLineDanceRangedAttack(Unit &defender)
 		return false;
 	}
 
-	if(g_rand->Next(1000) < sint32(chance * 1000)) {
+	if(civrand().Next(1000) < sint32(chance * 1000)) {
 		if(firepower > 1) {
-			defender.DeductHP(g_rand->Next(rec->GetFirepower() - 1) + 1);
+			defender.DeductHP(civrand().Next(rec->GetFirepower() - 1) + 1);
 		} else {
 			defender.DeductHP(1);
 		}
@@ -5708,7 +5705,7 @@ bool UnitData::FightOneLineDanceAssault(Unit &defender)
 	double a = GetAttack(GetDBRec(), defender);
 
 	double chance = a / (a + d);
-	bool	 isAttackerWin = g_rand->Next(1000) < sint32(chance * 1000);
+	bool	 isAttackerWin = civrand().Next(1000) < sint32(chance * 1000);
 
 	if (isAttackerWin)
 	{
@@ -5811,7 +5808,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 
 
 		} else {
-			WORLD_DIRECTION d = (WORLD_DIRECTION)g_rand->Next(UP);
+			WORLD_DIRECTION d = (WORLD_DIRECTION)civrand().Next(UP);
 			MapPoint npos;
 			do {
 				d = (WORLD_DIRECTION)((sint32)d + 1);

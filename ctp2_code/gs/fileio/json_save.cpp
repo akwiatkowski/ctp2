@@ -74,6 +74,8 @@
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
+#include "gs/gameobj/CivilisationPool.h"
+#include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
 #include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
@@ -1698,6 +1700,53 @@ void from_json(nlohmann::json const &j, UnitData &u)
     j.at("target_city")  .get_to(u.m_target_city);
     j.at("is_exploring") .get_to(u.m_isExploring);
     j.at("explore_target").get_to(u.m_exploreTarget);
+}
+
+// Phase F-1 — CivilisationPool
+//
+// Mirrors CivilisationPool::Serialize.  Persists ObjPool key counter
+// + every live CivilisationData entry + m_usedCivs index list.
+
+void to_json(nlohmann::json &j, CivilisationPool const &p)
+{
+    nlohmann::json civs = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            civs.push_back(*reinterpret_cast<CivilisationData const *>(p.m_table[i]));
+    }
+    nlohmann::json used_civs = nlohmann::json::array();
+    if (p.m_usedCivs)
+    {
+        for (sint32 i = 0; i < p.m_usedCivs->Num(); ++i)
+            used_civs.push_back(p.m_usedCivs->Access(i));
+    }
+    j = nlohmann::json{
+        {"next_key",   const_cast<CivilisationPool &>(p).HackGetKey()},
+        {"civs",       std::move(civs)},
+        {"used_civs",  std::move(used_civs)},
+    };
+}
+
+void from_json(nlohmann::json const &j, CivilisationPool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+
+    for (auto const &entry : j.at("civs"))
+    {
+        CivilisationData *data = new CivilisationData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
+    }
+
+    if (!p.m_usedCivs) p.m_usedCivs = new SimpleDynamicArray<sint32>;
+    p.m_usedCivs->Clear();
+    for (auto const &id : j.at("used_civs"))
+    {
+        sint32 v = 0;
+        id.get_to(v);
+        p.m_usedCivs->Insert(v);
+    }
 }
 
 // Phase E-6 — UnitPool

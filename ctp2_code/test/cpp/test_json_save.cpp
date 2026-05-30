@@ -51,6 +51,7 @@
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
+#include "gs/gameobj/CivilisationPool.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -2092,6 +2093,40 @@ TEST_CASE("json round-trip: UnitPool empty preserves next_key")
 TEST_CASE("json round-trip: UnitPool keys are snake_case (no m_ leak)")
 {
     UnitPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-1 — CivilisationPool
+
+TEST_CASE("json round-trip: CivilisationPool empty preserves next_key + used_civs")
+{
+    CivilisationPool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["civs"].is_array());
+    CHECK(j["civs"].size() == 0);
+    CHECK(j.contains("next_key"));
+    CHECK(j["used_civs"].is_array());
+
+    CivilisationPool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key",   0x33u},
+        {"civs",       nlohmann::json::array()},
+        {"used_civs",  nlohmann::json{1, 3, 5, 7}},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x33u);
+    REQUIRE(round.m_usedCivs);
+    CHECK(round.m_usedCivs->Num() == 4);
+    CHECK(round.m_usedCivs->Access(0) == 1);
+    CHECK(round.m_usedCivs->Access(3) == 7);
+}
+
+TEST_CASE("json round-trip: CivilisationPool keys are snake_case (no m_ leak)")
+{
+    CivilisationPool pool;
     nlohmann::json j = pool;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");

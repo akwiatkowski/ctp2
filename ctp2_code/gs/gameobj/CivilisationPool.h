@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Recycle civilisation indices to prevent a game crash.
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -41,6 +41,8 @@ class CivilisationPool;
 #include "gs/gameobj/ObjPool.h"
 #include "gs/gameobj/GameObj_types.h"
 #include "gs/gameobj/Civilisation.h"
+
+#include <nlohmann/json.hpp>
 
 template <class T> class SimpleDynamicArray;
 
@@ -61,6 +63,13 @@ public:
 	void Release(sint32 const & civ);
 
 	void Serialize(CivArchive &archive) ;
+
+	// JSON bridge â€” mirrors CivilisationPool::Serialize.  Persists
+	// ObjPool key counter + every live CivilisationData entry +
+	// m_usedCivs SimpleDynamicArray<sint32>.  Implementation in
+	// json_save.cpp.
+	friend void to_json(nlohmann::json &j, CivilisationPool const &p);
+	friend void from_json(nlohmann::json const &j, CivilisationPool &p);
 };
 
 extern CivilisationPool	*g_theCivilisationPool;

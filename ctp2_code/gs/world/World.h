@@ -26,9 +26,9 @@
 // Modifications from the original Activision code:
 //
 // - Added second World::GetGood method, usefull if you already have a Cell
-//   pointer. - May 18th 2005 Martin Gühmann
-// - Moved some stuff from the old global earming database. (July 15th 2006 Martin Gühmann)
-// - GobalWarming and OzoneDepletion are now event handled. (29-Oct-2007 Martin Gühmann)
+//   pointer. - May 18th 2005 Martin Gï¿½hmann
+// - Moved some stuff from the old global earming database. (July 15th 2006 Martin Gï¿½hmann)
+// - GobalWarming and OzoneDepletion are now event handled. (29-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -70,6 +70,8 @@ enum MAP_GENERATOR
 #include "gs/world/Cell.h"
 #include "gs/utility/MoveFlags.h"
 #include "GlobalWarmingRecord.h"
+
+#include <nlohmann/json.hpp>
 
 class MapPoint;
 class CivArchive ;
@@ -183,6 +185,16 @@ class World : public CityRadiusCallback
 
 	friend class NetGameSettings;
 	friend class NetWorld;
+
+	// JSON savegame bridge (json_save.cpp).  Phase C-2 covers map
+	// dimensions, wrap flags, continent metadata, dense cell array,
+	// dense tile-info storage, civ starts, good-value array.  The
+	// transient bookkeeping fields (m_radiusOp, m_isInsideRadius,
+	// m_distanceQueue, m_capitolDistanceDirtyFlags, etc.) are
+	// OMITTED â€” they're rebuilt during gameplay.  m_water_next_too_land
+	// and the continent DynamicArrays are also OMITTED â€” derived.
+	friend void to_json(nlohmann::json &j, World const &w);
+	friend void from_json(nlohmann::json const &j, World &w);
 
 public:
 	void SetCapitolDistanceDirtyFlags(uint32 flags) {m_capitolDistanceDirtyFlags |= flags;}

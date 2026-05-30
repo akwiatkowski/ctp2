@@ -34,6 +34,9 @@
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
 #include "gs/world/UnseenCell.h"
+#include "gs/world/World.h"
+#include "gs/fileio/StartingPosition.h"
+#include "ResourceRecord.h"               // g_theResourceDB (dbgen-built)
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -46,6 +49,7 @@
 extern TurnCount       *g_turn;
 extern GameSettings    *g_theGameSettings;
 // g_rand is declared in RandGen.h
+// g_theWorld is declared in World.h
 
 // CTP2_BUILD_SHA is injected by meson into config.h (run_command git
 // rev-parse --short).  Fall back to "unknown" if config.h hasn't been
@@ -319,6 +323,177 @@ void from_json(nlohmann::json const &j, UnseenCell &uc)
     j.at("visible_city_owner")    .get_to(uc.m_visibleCityOwner);
 }
 
+// --- StartingPosition bridge (used inside World) ---
+
+void to_json(nlohmann::json &j, StartingPosition const &sp)
+{
+    j = nlohmann::json{
+        {"position",  sp.point},
+        {"civ_index", sp.civIndex},
+    };
+}
+
+void from_json(nlohmann::json const &j, StartingPosition &sp)
+{
+    j.at("position") .get_to(sp.point);
+    j.at("civ_index").get_to(sp.civIndex);
+}
+
+// --- World bridge (Phase C-2) ------------------------------------------
+// Mirrors World::Serialize at wldgen.cpp:2343.  Dense per-cell array
+// per the JSON migration plan ("Recommend dense for v1 — sparse is an
+// optimization for later").  Map dimensions, wrap flags, continent
+// metadata, the dense cell + tile-info arrays, civ starts, and the
+// per-good-record value table all round-trip.  Transient bookkeeping
+// (m_radiusOp, m_distanceQueue, etc.) and derived continent arrays
+// (m_water_next_too_land etc.) are OMITTED — they're rebuilt during
+// gameplay or recomputed by ComputeGoodsValues().
+
+extern sint32 g_numGoods;   // wldgen.cpp:2326
+
+void to_json(nlohmann::json &j, World const &w)
+{
+    sint32 const width  = w.m_size.x;
+    sint32 const height = w.m_size.y;
+    sint32 const len    = width * height;
+
+    // tile_info_storage: flat row-major.
+    nlohmann::json tile_info_storage = nlohmann::json::array();
+    for (sint32 i = 0; i < len; ++i)
+    {
+        tile_info_storage.push_back(w.m_tileInfoStorage[i]);
+    }
+
+    // cells: nested [x][y] arrays so the schema makes the 2D shape
+    // explicit to modders + tools.  Plan recommends dense; this
+    // also keeps load-time bounds checking simple.
+    nlohmann::json cells = nlohmann::json::array();
+    for (sint32 x = 0; x < width; ++x)
+    {
+        nlohmann::json column = nlohmann::json::array();
+        for (sint32 y = 0; y < height; ++y)
+        {
+            column.push_back(*w.m_map[x][y]);
+        }
+        cells.push_back(std::move(column));
+    }
+
+    // civ_starts (only first num_civ_starts entries carry data).
+    nlohmann::json civ_starts = nlohmann::json::array();
+    for (sint32 i = 0; i < w.m_num_civ_starts; ++i)
+    {
+        civ_starts.push_back(w.m_civ_starts[i]);
+    }
+
+    // good_value: per-resource-record value.  Database-sized; the
+    // load side recomputes if the DB grew.
+    nlohmann::json good_value = nlohmann::json::array();
+    if (w.m_goodValue && g_theResourceDB)
+    {
+        sint32 const n = g_theResourceDB->NumRecords();
+        for (sint32 i = 0; i < n; ++i)
+        {
+            good_value.push_back(w.m_goodValue[i]);
+        }
+    }
+
+    j = nlohmann::json{
+        {"size_x",                 width},
+        {"size_y",                 height},
+        {"is_xwrap",               static_cast<bool>(w.m_isXwrap)},
+        {"is_ywrap",               static_cast<bool>(w.m_isYwrap)},
+        {"continents_are_numbered", static_cast<bool>(w.m_continents_are_numbered)},
+        {"water_continent_max",    w.m_water_continent_max},
+        {"land_continent_max",     w.m_land_continent_max},
+        {"tile_info_storage",      std::move(tile_info_storage)},
+        {"cells",                  std::move(cells)},
+        {"num_civ_starts",         w.m_num_civ_starts},
+        {"civ_starts",             std::move(civ_starts)},
+        {"good_value",             std::move(good_value)},
+    };
+}
+
+void from_json(nlohmann::json const &j, World &w)
+{
+    // Free any existing map state and reallocate at the saved size.
+    // Matches the binary load path at wldgen.cpp:2385.
+    w.FreeMap();
+
+    sint32 size_x  = j.at("size_x").get<sint32>();
+    sint32 size_y  = j.at("size_y").get<sint32>();
+    bool   xwrap   = j.at("is_xwrap").get<bool>();
+    bool   ywrap   = j.at("is_ywrap").get<bool>();
+    w.m_isXwrap    = xwrap ? 1 : 0;
+    w.m_isYwrap    = ywrap ? 1 : 0;
+    w.m_continents_are_numbered =
+        j.at("continents_are_numbered").get<bool>() ? TRUE : FALSE;
+    j.at("water_continent_max").get_to(w.m_water_continent_max);
+    j.at("land_continent_max") .get_to(w.m_land_continent_max);
+
+    w.m_size = MapPoint(size_x, size_y);
+    w.AllocateMap();
+
+    auto const &tile_info_storage = j.at("tile_info_storage");
+    sint32 const len = size_x * size_y;
+    if (static_cast<sint32>(tile_info_storage.size()) != len)
+    {
+        throw nlohmann::json::other_error::create(
+            503, "world.tile_info_storage size mismatch with size_x*size_y",
+            &j);
+    }
+    for (sint32 i = 0; i < len; ++i)
+    {
+        tile_info_storage[i].get_to(w.m_tileInfoStorage[i]);
+    }
+
+    auto const &cells = j.at("cells");
+    if (static_cast<sint32>(cells.size()) != size_x)
+    {
+        throw nlohmann::json::other_error::create(
+            504, "world.cells outer length mismatch with size_x", &j);
+    }
+    for (sint32 x = 0; x < size_x; ++x)
+    {
+        auto const &column = cells[x];
+        if (static_cast<sint32>(column.size()) != size_y)
+        {
+            throw nlohmann::json::other_error::create(
+                505, "world.cells inner length mismatch with size_y", &j);
+        }
+        for (sint32 y = 0; y < size_y; ++y)
+        {
+            column[y].get_to(*w.m_map[x][y]);
+        }
+    }
+
+    j.at("num_civ_starts").get_to(w.m_num_civ_starts);
+    auto const &civ_starts = j.at("civ_starts");
+    for (sint32 i = 0; i < w.m_num_civ_starts
+                       && i < static_cast<sint32>(civ_starts.size()); ++i)
+    {
+        civ_starts[i].get_to(w.m_civ_starts[i]);
+    }
+
+    // good_value: re-allocate based on the saved count.  If the
+    // current database doesn't match, the load side discards (matches
+    // wldgen.cpp:2418 — would normally call ComputeGoodsValues).
+    auto const &good_value = j.at("good_value");
+    sint32 const n_goods = static_cast<sint32>(good_value.size());
+    if (g_theResourceDB && n_goods == g_theResourceDB->NumRecords())
+    {
+        delete[] w.m_goodValue;
+        w.m_goodValue = new double[n_goods];
+        for (sint32 i = 0; i < n_goods; ++i)
+        {
+            good_value[i].get_to(w.m_goodValue[i]);
+        }
+        g_numGoods = n_goods;
+    }
+    // Database size changed: the binary path calls
+    // ComputeGoodsValues() here.  Phase C-2 leaves m_goodValue alone
+    // for the JSON path — Phase D's player + city deps will revisit.
+}
+
 namespace json_save {
 
 bool SaveJson(char const *path)
@@ -332,6 +507,7 @@ bool SaveJson(char const *path)
     if (g_rand)             doc["rng"]      = *g_rand;
     if (g_turn)             doc["turn"]     = *g_turn;
     if (g_theGameSettings)  doc["settings"] = *g_theGameSettings;
+    if (g_theWorld)         doc["world"]    = *g_theWorld;
 
     // Selection is currently a scalar projection of player_view
     // state — Phase E expands it.  Skipped when player_view is not
@@ -403,6 +579,10 @@ bool LoadJson(char const *path)
         if (doc.contains("settings") && g_theGameSettings)
         {
             doc.at("settings").get_to(*g_theGameSettings);
+        }
+        if (doc.contains("world") && g_theWorld)
+        {
+            doc.at("world").get_to(*g_theWorld);
         }
         // Selection is currently informational — no public setter
         // for SelectedItem::m_current_player.  Phase E wires a bridge.

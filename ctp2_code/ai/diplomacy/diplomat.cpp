@@ -55,6 +55,7 @@
 
 #include "ctp/c3.h"
 #include "ai/diplomacy/Diplomat.h"
+#include "gs/core/diplomacy_observer.h"
 
 #include <algorithm>            // std::min
 #include <functional>
@@ -2636,7 +2637,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 
 
-		// TODO(orchestrator): no equivalent for DipWizard::NotifyResponse
+		diplomacy_observer::NotifyResponse(response, m_playerId, other_player);
 		g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddAgreement(receiver);
@@ -2662,7 +2663,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		if (other_response == RESPONSE_COUNTER)
 		{
-			// TODO(orchestrator): no equivalent for DipWizard::NotifyResponse
+			diplomacy_observer::NotifyResponse(response, m_playerId, other_player);
 			g_network.NotifyDiplomacyResponse(response, m_playerId, other_player);
 		}
 
@@ -2689,7 +2690,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 			static_cast<sint32>(m_playerId)));
 		DPRINTF(k_DBG_DIPLOMACY, ("    (new threat created)\n\n"));
 
-		// TODO(orchestrator): no equivalent for DipWizard::NotifyThreatRejected
+		diplomacy_observer::NotifyThreatRejected(response, sender_response, m_playerId, other_player);
 		g_network.NotifyDiplomacyThreatRejected(response, sender_response, m_playerId, other_player);
 
 		Diplomat::GetDiplomat(sender).AddThreat(receiver);

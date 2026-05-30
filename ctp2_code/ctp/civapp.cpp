@@ -1568,6 +1568,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 	RegisterProgressWindowObserver();
 	RegisterTextObserverAdapter();
 	RegisterBattleObserverAdapter();
+	RegisterDipWizardObserverAdapter();
 
 	m_appLoaded = true;
 

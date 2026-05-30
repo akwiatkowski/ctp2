@@ -1,7 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicEngine.h"
-#include "ai/diplomacy/diplomattypes.h"
+#include "gs/diplomacy/diplomacy_types.h"
 
 extern std::string s_regardEventNames[REGARD_EVENT_MAX] = {
 	"SCENARIO",

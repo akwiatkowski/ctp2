@@ -55,3 +55,16 @@ void UnregisterTextObserverAdapter();
  */
 void RegisterBattleObserverAdapter();
 void UnregisterBattleObserverAdapter();
+
+/**
+ * @brief Register UI-side adapter for diplomacy_observer.
+ *
+ * Forwards diplomacy_observer::NotifyResponse / NotifyThreatRejected
+ * (fired from ai/diplomacy/diplomat.cpp::ExecuteResponse) to the static
+ * DipWizard::Notify* methods that render the wizard's "new agreement"
+ * and "threat rejected" UI.  Call once during UI app initialization.
+ * Headless build leaves this unregistered; the engine free functions
+ * short-circuit to no-op.
+ */
+void RegisterDipWizardObserverAdapter();
+void UnregisterDipWizardObserverAdapter();

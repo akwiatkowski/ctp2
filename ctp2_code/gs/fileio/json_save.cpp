@@ -85,6 +85,9 @@
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TerrImproveData.h"
 #include "gs/slic/SlicConst.h"
+#include "gs/slic/SlicRecord.h"
+#include "gs/slic/SlicEngine.h"       // g_slicEngine for segment lookup
+#include "gs/slic/SlicSegment.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -2024,6 +2027,59 @@ void from_json(nlohmann::json const &j, SlicConst &c)
     c.m_name = new char[name.size() + 1];
     std::memcpy(c.m_name, name.c_str(), name.size() + 1);
     j.at("value").get_to(c.m_value);
+}
+
+// Phase F-8 — SlicRecord (per-player slic message journal entry).
+// Mirrors SlicRecord::Serialize at gs/slic/SlicRecord.cpp:53.  Persists
+// owner + title/text strings + the segment's name (resolved via
+// g_slicEngine->GetSegment on load — m_segment stays nullptr when
+// g_slicEngine isn't initialised or the segment name is empty).
+//
+// JSON shape distinguishes "missing string" from "empty string":
+// null when the source pointer was NULL (binary path wrote l=-1),
+// otherwise the literal string.
+
+namespace {
+nlohmann::json optStringToJson(MBCHAR const *s)
+{
+    return s ? nlohmann::json(std::string(s)) : nlohmann::json(nullptr);
+}
+
+void jsonToOptString(nlohmann::json const &j, MBCHAR *&dest)
+{
+    delete[] dest;
+    if (j.is_null())
+    {
+        dest = nullptr;
+        return;
+    }
+    std::string s = j.get<std::string>();
+    dest = new MBCHAR[s.size() + 1];
+    std::memcpy(dest, s.c_str(), s.size() + 1);
+}
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicRecord const &r)
+{
+    j = nlohmann::json{
+        {"owner",        r.m_owner},
+        {"title",        optStringToJson(r.m_title)},
+        {"text",         optStringToJson(r.m_text)},
+        {"segment_name", r.m_segment ? std::string(r.m_segment->GetName())
+                                     : std::string()},
+    };
+}
+
+void from_json(nlohmann::json const &j, SlicRecord &r)
+{
+    j.at("owner").get_to(r.m_owner);
+    jsonToOptString(j.at("title"), r.m_title);
+    jsonToOptString(j.at("text"),  r.m_text);
+
+    std::string seg_name = j.at("segment_name").get<std::string>();
+    r.m_segment = (g_slicEngine && !seg_name.empty())
+                      ? g_slicEngine->GetSegment(seg_name.c_str())
+                      : nullptr;
 }
 
 // Phase F-2 — EndGame

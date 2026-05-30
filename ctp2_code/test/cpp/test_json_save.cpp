@@ -62,6 +62,7 @@
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/gameobj/TerrImproveData.h"
 #include "gs/slic/SlicConst.h"
+#include "gs/slic/SlicRecord.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2427,6 +2428,50 @@ TEST_CASE("json round-trip: SlicConst keys are snake_case (no m_ leak)")
 {
     SlicConst c("foo", 7);
     nlohmann::json j = c;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-8 — SlicRecord (per-player slic message journal entry)
+
+TEST_CASE("json round-trip: SlicRecord preserves owner + strings")
+{
+    char title[] = "Discovery!";
+    char text[]  = "You discovered a new advance.";
+    SlicRecord orig(/*owner*/ 2, title, text, /*segment*/ nullptr);
+
+    nlohmann::json j = orig;
+    CHECK(j["owner"]        == 2);
+    CHECK(j["title"]        == "Discovery!");
+    CHECK(j["text"]         == "You discovered a new advance.");
+    CHECK(j["segment_name"] == "");
+
+    SlicRecord round(/*owner*/ 0, nullptr, nullptr, nullptr);
+    j.get_to(round);
+    CHECK(round.GetTitle() != nullptr);
+    CHECK(std::string(round.GetTitle()) == "Discovery!");
+    CHECK(std::string(round.GetText())  == "You discovered a new advance.");
+    CHECK(round.GetSegment() == nullptr);
+}
+
+TEST_CASE("json round-trip: SlicRecord preserves null title + text")
+{
+    SlicRecord orig(/*owner*/ 1, nullptr, nullptr, nullptr);
+    nlohmann::json j = orig;
+    CHECK(j["title"].is_null());
+    CHECK(j["text"].is_null());
+
+    char tmp[] = "garbage";
+    SlicRecord round(/*owner*/ 0, tmp, tmp, nullptr);
+    j.get_to(round);
+    CHECK(round.GetTitle() == nullptr);
+    CHECK(round.GetText()  == nullptr);
+}
+
+TEST_CASE("json round-trip: SlicRecord keys are snake_case (no m_ leak)")
+{
+    SlicRecord r(/*owner*/ 0, nullptr, nullptr, nullptr);
+    nlohmann::json j = r;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }

@@ -59,6 +59,8 @@
 #include "gs/gameobj/installationdata.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
+#include "gs/gameobj/TerrImprovePool.h"
+#include "gs/gameobj/TerrImproveData.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2331,6 +2333,63 @@ TEST_CASE("json round-trip: TradePool keys are snake_case (no m_ leak)")
 {
     TradePool pool;
     nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase F-6 — TerrainImprovementData + TerrainImprovementPool
+
+TEST_CASE("json round-trip: TerrainImprovementData preserves all fields")
+{
+    TerrainImprovementData orig(ID(0));
+    nlohmann::json j = orig;
+
+    CHECK(j.contains("id"));
+    CHECK(j.contains("owner"));
+    CHECK(j.contains("type"));
+    CHECK(j.contains("point"));
+    CHECK(j.contains("turns_to_complete"));
+    CHECK(j.contains("transform_type"));
+    CHECK(j.contains("material_cost"));
+    CHECK(j.contains("is_complete"));
+    CHECK(j.contains("is_building"));
+
+    TerrainImprovementData round(ID(0));
+    j.get_to(round);
+    nlohmann::json j2 = round;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: TerrainImprovementPool empty preserves next_key")
+{
+    TerrainImprovementPool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["improvements"].is_array());
+    CHECK(j["improvements"].size() == 0);
+    CHECK(j.contains("next_key"));
+
+    TerrainImprovementPool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key",     0x33u},
+        {"improvements", nlohmann::json::array()},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x33u);
+}
+
+TEST_CASE("json round-trip: TerrainImprovementPool keys are snake_case (no m_ leak)")
+{
+    TerrainImprovementPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: TerrainImprovementData keys are snake_case (no m_ leak)")
+{
+    TerrainImprovementData d(ID(0));
+    nlohmann::json j = d;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
 }

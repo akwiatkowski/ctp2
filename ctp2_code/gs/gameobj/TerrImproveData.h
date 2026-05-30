@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Restored save game compatibilty. (April 22nd 2006 Martin Gühmann)
+// - Restored save game compatibilty. (April 22nd 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -37,6 +37,8 @@
 #include "gs/gameobj/GameObj.h"
 #include "gs/world/MapPoint.h"
 #include "gs/utility/gstypes.h"
+
+#include <nlohmann/json.hpp>
 
 #if 0
 enum TERRAIN_IMPROVEMENT {
@@ -115,6 +117,13 @@ public:
 	void StartBuilding();
 
 	void Serialize(CivArchive &archive);
+
+	// JSON bridge â€” mirrors TerrainImprovementData::Serialize.  Persists
+	// GameObj id + 8 fields (owner, type, point, turns_to_complete,
+	// transform_type, material_cost, is_complete, is_building).  Omits
+	// m_lesser/m_greater (intrusive list, pool concern).
+	friend void to_json(nlohmann::json &j, TerrainImprovementData const &d);
+	friend void from_json(nlohmann::json const &j, TerrainImprovementData &d);
 };
 
 #endif

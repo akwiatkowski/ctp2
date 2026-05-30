@@ -82,6 +82,8 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
 #include "gs/utility/TradeDynArr.h"
+#include "gs/gameobj/TerrImprovePool.h"
+#include "gs/gameobj/TerrImproveData.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -1940,6 +1942,64 @@ void from_json(nlohmann::json const &j, TradePool &p)
         entry.get_to(*data);
         p.Insert(data);
         if (p.m_all_routes) p.m_all_routes->Insert(TradeRoute(data->m_id));
+    }
+}
+
+// Phase F-6 — TerrainImprovementData + TerrainImprovementPool
+// Mirrors TerrImproveData.cpp:201 and TerrImprovePool.cpp:148.
+
+void to_json(nlohmann::json &j, TerrainImprovementData const &d)
+{
+    j = nlohmann::json{
+        {"id",                 d.m_id},
+        {"owner",              d.m_owner},
+        {"type",               d.m_type},
+        {"point",              d.m_point},
+        {"turns_to_complete",  d.m_turnsToComplete},
+        {"transform_type",     static_cast<sint32>(d.m_transformType)},
+        {"material_cost",      d.m_materialCost},
+        {"is_complete",        d.m_isComplete},
+        {"is_building",        d.m_isBuilding},
+    };
+}
+
+void from_json(nlohmann::json const &j, TerrainImprovementData &d)
+{
+    j.at("id")               .get_to(d.m_id);
+    j.at("owner")            .get_to(d.m_owner);
+    j.at("type")             .get_to(d.m_type);
+    j.at("point")            .get_to(d.m_point);
+    j.at("turns_to_complete").get_to(d.m_turnsToComplete);
+    d.m_transformType = static_cast<TERRAIN_TYPES>(
+        j.at("transform_type").get<sint32>());
+    j.at("material_cost")    .get_to(d.m_materialCost);
+    j.at("is_complete")      .get_to(d.m_isComplete);
+    j.at("is_building")      .get_to(d.m_isBuilding);
+}
+
+void to_json(nlohmann::json &j, TerrainImprovementPool const &p)
+{
+    nlohmann::json improvements = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            improvements.push_back(
+                *reinterpret_cast<TerrainImprovementData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key",     const_cast<TerrainImprovementPool &>(p).HackGetKey()},
+        {"improvements", std::move(improvements)},
+    };
+}
+
+void from_json(nlohmann::json const &j, TerrainImprovementPool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+    for (auto const &entry : j.at("improvements"))
+    {
+        TerrainImprovementData *data = new TerrainImprovementData(ID(0));
+        entry.get_to(*data);
+        p.Insert(data);
     }
 }
 

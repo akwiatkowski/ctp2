@@ -8,6 +8,8 @@
 
 #include "gs/gameobj/TerrImprove.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 class TerrainImprovementPool : public ObjPool
@@ -41,6 +43,11 @@ public:
 							sint32 extraData);
 
 	void Serialize(CivArchive &archive);
+
+	// JSON bridge — mirrors TerrainImprovementPool::Serialize.  Persists
+	// ObjPool key counter + every live TerrainImprovementData entry.
+	friend void to_json(nlohmann::json &j, TerrainImprovementPool const &p);
+	friend void from_json(nlohmann::json const &j, TerrainImprovementPool &p);
 };
 
 extern TerrainImprovementPool *g_theTerrainImprovementPool;

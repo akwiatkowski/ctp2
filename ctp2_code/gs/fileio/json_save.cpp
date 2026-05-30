@@ -88,6 +88,8 @@
 #include "gs/slic/SlicRecord.h"
 #include "gs/slic/SlicEngine.h"       // g_slicEngine for segment lookup
 #include "gs/slic/SlicSegment.h"
+#include "gs/slic/SlicSymbol.h"
+#include "gs/slic/SlicFunc.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
 #include "gs/utility/SimpleDynArr.h"
@@ -2914,6 +2916,261 @@ void from_json(nlohmann::json const &j, AgreementMatrix &am)
     for (std::size_t i = 0; i < agreements.size(); ++i)
     {
         agreements[i].get_to(am.m_agreements[i]);
+    }
+}
+
+// Phase F-9 — SlicSymbolData (the 14-case tagged-union heart of the
+// Slic data model).  Mirrors SlicSymbolData::Serialize at
+// gs/slic/SlicSymbol.cpp:947.  Each variant of the m_val union is
+// dispatched on m_type and serialised under a payload key.
+//
+// JSON shape: every node carries a "type" string (lowercase enum
+// name without the SLIC_SYM_ prefix) and the relevant payload key.
+//
+//   {"type": "ivar",        "int_value": 42}
+//   {"type": "svar",        "string_id": 1234}        // StringId
+//   {"type": "id"|"ufunc",  "segment_name": "Foo"}    // "" if NULL
+//   {"type": "func",        "function_name": "Bar"}   // "" if NULL
+//   {"type": "string",      "hard_string": "hi"}      // null if NULL
+//   {"type": "city"|"unit"|"army", "object_id": 12345}
+//   {"type": "location",    "x": 1, "y": 2, "z": 0}
+//   {"type": "player",      "int_value": 3}
+//   {"type": "improvement", "improvement_id": 99}
+//   {"type": "struct_member"}
+//   {"type": "undefined"}
+//
+// Types that Assert(FALSE) in binary (REGION, COMPLEX_REGION, BUILTIN,
+// POP, PATH) throw nlohmann::json::other_error on to_json — they are
+// documented as never persisted.
+//
+// ARRAY and STRUCT variants reference SlicArray / SlicStructInstance
+// whose own JSON bridges land in F-11 / F-12.  Until those exist this
+// bridge throws for those two variants too.
+
+namespace {
+
+char const *slicSymTypeName(SLIC_SYM t)
+{
+    switch (t)
+    {
+        case SLIC_SYM_IVAR:           return "ivar";
+#ifdef SLIC_DOUBLES
+        case SLIC_SYM_DVAR:           return "dvar";
+#endif
+        case SLIC_SYM_SVAR:           return "svar";
+        case SLIC_SYM_ID:             return "id";
+        case SLIC_SYM_FUNC:           return "func";
+        case SLIC_SYM_REGION:         return "region";
+        case SLIC_SYM_COMPLEX_REGION: return "complex_region";
+        case SLIC_SYM_STRING:         return "string";
+        case SLIC_SYM_CITY:           return "city";
+        case SLIC_SYM_UNIT:           return "unit";
+        case SLIC_SYM_ARMY:           return "army";
+        case SLIC_SYM_LOCATION:       return "location";
+        case SLIC_SYM_ARRAY:          return "array";
+        case SLIC_SYM_BUILTIN:        return "builtin";
+        case SLIC_SYM_STRUCT:         return "struct";
+        case SLIC_SYM_STRUCT_MEMBER:  return "struct_member";
+        case SLIC_SYM_PLAYER:         return "player";
+        case SLIC_SYM_UFUNC:          return "ufunc";
+        case SLIC_SYM_POP:            return "pop";
+        case SLIC_SYM_PATH:           return "path";
+        case SLIC_SYM_IMPROVEMENT:    return "improvement";
+        case SLIC_SYM_UNDEFINED:      return "undefined";
+    }
+    return "undefined";
+}
+
+SLIC_SYM slicSymTypeFromName(std::string const &s)
+{
+    if (s == "ivar")           return SLIC_SYM_IVAR;
+#ifdef SLIC_DOUBLES
+    if (s == "dvar")           return SLIC_SYM_DVAR;
+#endif
+    if (s == "svar")           return SLIC_SYM_SVAR;
+    if (s == "id")             return SLIC_SYM_ID;
+    if (s == "func")           return SLIC_SYM_FUNC;
+    if (s == "region")         return SLIC_SYM_REGION;
+    if (s == "complex_region") return SLIC_SYM_COMPLEX_REGION;
+    if (s == "string")         return SLIC_SYM_STRING;
+    if (s == "city")           return SLIC_SYM_CITY;
+    if (s == "unit")           return SLIC_SYM_UNIT;
+    if (s == "army")           return SLIC_SYM_ARMY;
+    if (s == "location")       return SLIC_SYM_LOCATION;
+    if (s == "array")          return SLIC_SYM_ARRAY;
+    if (s == "builtin")        return SLIC_SYM_BUILTIN;
+    if (s == "struct")         return SLIC_SYM_STRUCT;
+    if (s == "struct_member")  return SLIC_SYM_STRUCT_MEMBER;
+    if (s == "player")         return SLIC_SYM_PLAYER;
+    if (s == "ufunc")          return SLIC_SYM_UFUNC;
+    if (s == "pop")            return SLIC_SYM_POP;
+    if (s == "path")           return SLIC_SYM_PATH;
+    if (s == "improvement")    return SLIC_SYM_IMPROVEMENT;
+    if (s == "undefined")      return SLIC_SYM_UNDEFINED;
+    throw nlohmann::json::other_error::create(
+        501, "SlicSymbolData: unknown type '" + s + "'", nullptr);
+}
+
+[[noreturn]] void throwUnsupportedSym(SLIC_SYM t, char const *direction)
+{
+    throw nlohmann::json::other_error::create(
+        501,
+        std::string("SlicSymbolData: ") + direction + " not supported for type '"
+            + slicSymTypeName(t) + "' (Assert(FALSE) in binary path or pending nested bridge)",
+        nullptr);
+}
+
+}  // namespace
+
+void to_json(nlohmann::json &j, SlicSymbolData const &s)
+{
+    j = nlohmann::json::object();
+    j["type"] = slicSymTypeName(s.m_type);
+
+    switch (s.m_type)
+    {
+        case SLIC_SYM_IVAR:
+        case SLIC_SYM_PLAYER:
+            j["int_value"] = s.m_val.m_int_value;
+            break;
+#ifdef SLIC_DOUBLES
+        case SLIC_SYM_DVAR:
+            j["double_value"] = s.m_val.m_double_value;
+            break;
+#endif
+        case SLIC_SYM_SVAR:
+            j["string_id"] = s.m_val.m_string_value;
+            break;
+        case SLIC_SYM_CITY:
+            j["object_id"] = s.m_val.m_city_id;
+            break;
+        case SLIC_SYM_UNIT:
+            j["object_id"] = s.m_val.m_unit_id;
+            break;
+        case SLIC_SYM_ARMY:
+            j["object_id"] = s.m_val.m_army_id;
+            break;
+        case SLIC_SYM_LOCATION:
+            j["x"] = s.m_val.m_location.x;
+            j["y"] = s.m_val.m_location.y;
+            j["z"] = s.m_val.m_location.z;
+            break;
+        case SLIC_SYM_FUNC:
+            j["function_name"] = s.m_val.m_function_object
+                                     ? std::string(s.m_val.m_function_object->GetName())
+                                     : std::string();
+            break;
+        case SLIC_SYM_STRING:
+            j["hard_string"] = optStringToJson(s.m_val.m_hard_string);
+            break;
+        case SLIC_SYM_UFUNC:
+        case SLIC_SYM_ID:
+            j["segment_name"] = s.m_val.m_segment
+                                    ? std::string(s.m_val.m_segment->GetName())
+                                    : std::string();
+            break;
+        case SLIC_SYM_IMPROVEMENT:
+            // Not persisted by binary Serialize (the case is missing
+            // from its switch).  Keep round-trip parity in JSON for
+            // diagnostics; semantically the field is a unique-object
+            // id like CITY/UNIT/ARMY.
+            j["improvement_id"] = s.m_val.m_improvement_id;
+            break;
+        case SLIC_SYM_STRUCT_MEMBER:
+        case SLIC_SYM_UNDEFINED:
+            // No payload — binary writes nothing for these.
+            break;
+        case SLIC_SYM_REGION:
+        case SLIC_SYM_COMPLEX_REGION:
+        case SLIC_SYM_BUILTIN:
+        case SLIC_SYM_POP:
+        case SLIC_SYM_PATH:
+            throwUnsupportedSym(s.m_type, "to_json");
+        case SLIC_SYM_ARRAY:
+        case SLIC_SYM_STRUCT:
+            // Pending SlicArray / SlicStructInstance bridges (F-11/F-12).
+            throwUnsupportedSym(s.m_type, "to_json");
+    }
+}
+
+void from_json(nlohmann::json const &j, SlicSymbolData &s)
+{
+    SLIC_SYM const type = slicSymTypeFromName(j.at("type").get<std::string>());
+    s.m_type = type;
+
+    // Clear the union to a known state before populating the active
+    // variant.  This matches the binary path's behaviour for new
+    // SlicSymbolData instances and avoids leaking owned pointers from
+    // the previous m_type when from_json is called on a reused object.
+    std::memset(&s.m_val, 0, sizeof(s.m_val));
+
+    switch (type)
+    {
+        case SLIC_SYM_IVAR:
+        case SLIC_SYM_PLAYER:
+            j.at("int_value").get_to(s.m_val.m_int_value);
+            break;
+#ifdef SLIC_DOUBLES
+        case SLIC_SYM_DVAR:
+            j.at("double_value").get_to(s.m_val.m_double_value);
+            break;
+#endif
+        case SLIC_SYM_SVAR:
+            j.at("string_id").get_to(s.m_val.m_string_value);
+            break;
+        case SLIC_SYM_CITY:
+            j.at("object_id").get_to(s.m_val.m_city_id);
+            break;
+        case SLIC_SYM_UNIT:
+            j.at("object_id").get_to(s.m_val.m_unit_id);
+            break;
+        case SLIC_SYM_ARMY:
+            j.at("object_id").get_to(s.m_val.m_army_id);
+            break;
+        case SLIC_SYM_LOCATION:
+            j.at("x").get_to(s.m_val.m_location.x);
+            j.at("y").get_to(s.m_val.m_location.y);
+            j.at("z").get_to(s.m_val.m_location.z);
+            break;
+        case SLIC_SYM_FUNC:
+        {
+            std::string name = j.at("function_name").get<std::string>();
+            s.m_val.m_function_object =
+                (g_slicEngine && !name.empty())
+                    ? g_slicEngine->GetFunction(name.c_str())
+                    : nullptr;
+            break;
+        }
+        case SLIC_SYM_STRING:
+            // optStringToJson stored either a string or null; reuse
+            // the helper to mint a fresh char[] (m_val was zeroed
+            // above, so the helper's `delete[]` is a no-op).
+            jsonToOptString(j.at("hard_string"), s.m_val.m_hard_string);
+            break;
+        case SLIC_SYM_UFUNC:
+        case SLIC_SYM_ID:
+        {
+            std::string name = j.at("segment_name").get<std::string>();
+            s.m_val.m_segment = (g_slicEngine && !name.empty())
+                                    ? g_slicEngine->GetSegment(name.c_str())
+                                    : nullptr;
+            break;
+        }
+        case SLIC_SYM_IMPROVEMENT:
+            j.at("improvement_id").get_to(s.m_val.m_improvement_id);
+            break;
+        case SLIC_SYM_STRUCT_MEMBER:
+        case SLIC_SYM_UNDEFINED:
+            break;
+        case SLIC_SYM_REGION:
+        case SLIC_SYM_COMPLEX_REGION:
+        case SLIC_SYM_BUILTIN:
+        case SLIC_SYM_POP:
+        case SLIC_SYM_PATH:
+            throwUnsupportedSym(type, "from_json");
+        case SLIC_SYM_ARRAY:
+        case SLIC_SYM_STRUCT:
+            throwUnsupportedSym(type, "from_json");
     }
 }
 

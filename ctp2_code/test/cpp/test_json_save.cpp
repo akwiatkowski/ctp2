@@ -63,6 +63,7 @@
 #include "gs/gameobj/TerrImproveData.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicRecord.h"
+#include "gs/slic/SlicSymbol.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2615,5 +2616,188 @@ TEST_CASE("json round-trip: leaf bridges all use snake_case (no m_ leak)")
         {
             CHECK(el.key().substr(0, 2) != "m_");
         }
+    }
+}
+
+// Phase F-9 — SlicSymbolData (the 14-case tagged-union heart of the
+// Slic data model).  Tests cover each persisted variant; FUNC / ID /
+// UFUNC / STRUCT_MEMBER / UNDEFINED with non-null payloads need a
+// live g_slicEngine and are exercised through F-10+ composite tests.
+
+TEST_CASE("json round-trip: SlicSymbolData IVAR")
+{
+    SlicSymbolData orig(SLIC_SYM_IVAR);
+    orig.SetIntValue(42);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]      == "ivar");
+    CHECK(j["int_value"] == 42);
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_IVAR);
+    sint32 v = 0;
+    CHECK(round.GetIntValue(v));
+    CHECK(v == 42);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData PLAYER")
+{
+    // PLAYER has no public int setter (SetIntValue gates on IVAR);
+    // synthesize the JSON directly and verify load round-trips back
+    // to the same JSON.
+    nlohmann::json j = {{"type", "player"}, {"int_value", 3}};
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_PLAYER);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["type"]      == "player");
+    CHECK(j2["int_value"] == 3);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData SVAR (StringId)")
+{
+    SlicSymbolData orig(SLIC_SYM_SVAR);
+    orig.SetStringId(1234);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]      == "svar");
+    CHECK(j["string_id"] == 1234);
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType()     == SLIC_SYM_SVAR);
+    CHECK(round.GetStringId() == 1234);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData LOCATION")
+{
+    SlicSymbolData orig(SLIC_SYM_LOCATION);
+    MapPoint pos(7, 11);
+    orig.SetPos(pos);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"] == "location");
+    CHECK(j["x"]    == 7);
+    CHECK(j["y"]    == 11);
+
+    // GetPos() requires MapPoint::IsValid which needs g_theWorld; skip
+    // it here and verify round-trip by re-serialising.
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_LOCATION);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["x"] == 7);
+    CHECK(j2["y"] == 11);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData STRING null + non-null")
+{
+    SlicSymbolData orig(SLIC_SYM_STRING);
+    orig.SetString("hello world");
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]        == "string");
+    CHECK(j["hard_string"] == "hello world");
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_STRING);
+    MBCHAR buf[64] = {0};
+    CHECK(round.GetText(buf, sizeof(buf)));
+    CHECK(std::string(buf) == "hello world");
+
+    // null variant — m_hard_string is NULL after Init() and GetText
+    // crashes on NULL strings (strcpy on null), so verify via the
+    // JSON shape instead of GetText.
+    SlicSymbolData empty(SLIC_SYM_STRING);
+    nlohmann::json j2 = empty;
+    CHECK(j2["hard_string"].is_null());
+
+    SlicSymbolData round2;
+    j2.get_to(round2);
+    CHECK(round2.GetType() == SLIC_SYM_STRING);
+    nlohmann::json j3 = round2;
+    CHECK(j3["hard_string"].is_null());
+}
+
+TEST_CASE("json round-trip: SlicSymbolData FUNC with null function object")
+{
+    // Without g_slicEngine, function_name=='' round-trips to NULL.
+    SlicSymbolData orig(SLIC_SYM_FUNC);
+    // m_function_object stays nullptr (Init() zeroed m_val).
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]          == "func");
+    CHECK(j["function_name"] == "");
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType()     == SLIC_SYM_FUNC);
+    CHECK(round.GetFunction() == nullptr);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData ID/UFUNC with null segment")
+{
+    SlicSymbolData orig(SLIC_SYM_ID);
+    nlohmann::json j = orig;
+    CHECK(j["type"]         == "id");
+    CHECK(j["segment_name"] == "");
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType()    == SLIC_SYM_ID);
+    CHECK(round.GetSegment() == nullptr);
+
+    SlicSymbolData u(SLIC_SYM_UFUNC);
+    nlohmann::json j2 = u;
+    CHECK(j2["type"] == "ufunc");
+}
+
+TEST_CASE("json round-trip: SlicSymbolData UNDEFINED + STRUCT_MEMBER carry no payload")
+{
+    SlicSymbolData undef(SLIC_SYM_UNDEFINED);
+    nlohmann::json j = undef;
+    CHECK(j["type"] == "undefined");
+    CHECK(j.size() == 1);
+
+    SlicSymbolData round;
+    j.get_to(round);
+    CHECK(round.GetType() == SLIC_SYM_UNDEFINED);
+
+    SlicSymbolData sm(SLIC_SYM_STRUCT_MEMBER);
+    nlohmann::json j2 = sm;
+    CHECK(j2["type"] == "struct_member");
+    CHECK(j2.size() == 1);
+}
+
+TEST_CASE("json round-trip: SlicSymbolData REGION/BUILTIN/POP/PATH throw")
+{
+    for (SLIC_SYM bad : {SLIC_SYM_REGION, SLIC_SYM_COMPLEX_REGION,
+                         SLIC_SYM_BUILTIN, SLIC_SYM_POP, SLIC_SYM_PATH,
+                         // Nested-bridge-pending until F-11/F-12:
+                         SLIC_SYM_ARRAY, SLIC_SYM_STRUCT})
+    {
+        SlicSymbolData s(bad);
+        nlohmann::json j;
+        CHECK_THROWS_AS(to_json(j, s), nlohmann::json::other_error);
+    }
+}
+
+TEST_CASE("json round-trip: SlicSymbolData keys are snake_case (no m_ leak)")
+{
+    for (SLIC_SYM t : {SLIC_SYM_IVAR, SLIC_SYM_SVAR, SLIC_SYM_CITY,
+                       SLIC_SYM_UNIT, SLIC_SYM_ARMY, SLIC_SYM_LOCATION,
+                       SLIC_SYM_PLAYER, SLIC_SYM_STRING, SLIC_SYM_FUNC,
+                       SLIC_SYM_ID, SLIC_SYM_UFUNC, SLIC_SYM_IMPROVEMENT,
+                       SLIC_SYM_STRUCT_MEMBER, SLIC_SYM_UNDEFINED})
+    {
+        SlicSymbolData s(t);
+        nlohmann::json j = s;
+        for (auto const &el : j.items())
+            CHECK(el.key().substr(0, 2) != "m_");
     }
 }

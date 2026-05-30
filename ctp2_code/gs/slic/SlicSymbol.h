@@ -5,6 +5,8 @@
 #include "gs/slic/SlicTriggerLists.h"
 #include "gs/slic/SlicStack.h"
 
+#include <nlohmann/json.hpp>
+
 class SlicSegment;
 typedef sint32 StringId;
 class SlicFunc;
@@ -151,6 +153,9 @@ public:
 	void AddWatch(SlicSymbolWatchCallback *watch);
 	void RemoveWatch(SlicSymbolWatchCallback *watch);
 	void NotifyChange();
+
+	friend void to_json(nlohmann::json &j, SlicSymbolData const &s);
+	friend void from_json(nlohmann::json const &j, SlicSymbolData &s);
 
 private:
    	void Init();

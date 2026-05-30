@@ -3,6 +3,10 @@
 
 #include "robot/aibackdoor/civarchive.h"
 
+#include <cstring>
+#include <vector>
+#include <nlohmann/json.hpp>
+
 #define SIZE_IN_BYTES(bitSize) ((bitSize + 7) / 8)
 
 class BitMask {
@@ -67,6 +71,23 @@ class BitMask {
 		sint32 byte = bit / 8;
 
 		return (m_bytes[byte] & (1 << (bit % 8))) != 0;
+	}
+
+	// JSON bridge — stores size + byte payload (matches Serialize).
+	friend void to_json(nlohmann::json &j, BitMask const &b) {
+		j = nlohmann::json{
+			{"size_in_bits", b.m_sizeInBits},
+			{"bytes",        std::vector<uint8>(b.m_bytes, b.m_bytes + SIZE_IN_BYTES(b.m_sizeInBits))},
+		};
+	}
+
+	friend void from_json(nlohmann::json const &j, BitMask &b) {
+		j.at("size_in_bits").get_to(b.m_sizeInBits);
+		std::vector<uint8> bytes;
+		j.at("bytes").get_to(bytes);
+		delete[] b.m_bytes;
+		b.m_bytes = new uint8[SIZE_IN_BYTES(b.m_sizeInBits)];
+		std::memcpy(b.m_bytes, bytes.data(), bytes.size());
 	}
 
 	bool AllBitsSet() {

@@ -396,6 +396,28 @@ UnitData::UnitData(CivArchive &archive) : GameObj(0)
 	if (m_actor) m_actor->SetState(&m_state);
 }
 
+UnitData::UnitData(nlohmann::json const &j) : GameObj(0)
+{
+#ifdef _DEBUG
+	m_text[0] = 0;
+#endif
+
+	m_cargo_list           = NULL;
+	m_city_data            = NULL;
+	m_actor                = NULL;
+	m_sprite_state         = NULL;
+	m_lesser               = NULL;
+	m_greater              = NULL;
+	m_roundTheWorldMask    = NULL;
+
+	from_json(j, *this);
+
+	m_state.SetUnitID(Unit(m_id));
+	// m_actor is intentionally left null — gfx state isn't persisted
+	// in the JSON path.  The observer-notify on pool insert is the
+	// only consumer that needs the unit handle, not the actor itself.
+}
+
 UnitData::~UnitData()
 {
 	// Phase 2 of the UnitActor split: fire BEFORE any member destruction

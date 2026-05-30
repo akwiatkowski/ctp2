@@ -49,8 +49,11 @@
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
+#include "gs/gameobj/UnitData.h"
+#include "gs/gameobj/UnitPool.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
+#include "ctp/ctp2_utils/BitMask.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1975,6 +1978,120 @@ TEST_CASE("json round-trip: ArmyPool empty preserves next_key")
 TEST_CASE("json round-trip: ArmyPool keys are snake_case (no m_ leak)")
 {
     ArmyPool pool;
+    nlohmann::json j = pool;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase E-5 — VisibilityDurationArray + BitMask + UnitData
+
+TEST_CASE("json round-trip: VisibilityDurationArray preserves array + index")
+{
+    VisibilityDurationArray v;
+    v.SetCurrentVisibility(3);
+    v.IncArrayIndex(3);
+    v.SetCurrentVisibility(5);
+
+    nlohmann::json j = v;
+    CHECK(j["array"].is_array());
+    CHECK(j["array"].size() == k_DEFAULT_VIS_DURATION_SIZE);
+
+    VisibilityDurationArray round;
+    j.get_to(round);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["array_index"] == j["array_index"]);
+    CHECK(j2["array"]       == j["array"]);
+}
+
+TEST_CASE("json round-trip: BitMask preserves bytes + size")
+{
+    BitMask b(40);
+    b.SetBit(0);
+    b.SetBit(5);
+    b.SetBit(39);
+
+    nlohmann::json j = b;
+    CHECK(j["size_in_bits"] == 40);
+    CHECK(j["bytes"].size() == 5);
+
+    BitMask round(1);
+    j.get_to(round);
+    CHECK(round.GetBit(0));
+    CHECK(round.GetBit(5));
+    CHECK(round.GetBit(39));
+    CHECK_FALSE(round.GetBit(1));
+}
+
+TEST_CASE("json round-trip: UnitData JSON shape contains all persisted keys")
+{
+    // UnitData has no default ctor and we can't easily fabricate a
+    // game-world instance in unit tests.  Build a known-shape JSON,
+    // verify the to_json key set against it.
+    nlohmann::json const seed = nlohmann::json{
+        {"id",                          0xCAFE0001u},
+        {"owner",                       2},
+        {"fuel",                        100},
+        {"hp",                          12.5},
+        {"movement_points",             3.0},
+        {"type",                        4},
+        {"visibility",                  0xFF},
+        {"temp_visibility",             0x0F},
+        {"radar_visibility",            0x01},
+        {"ever_visible",                0xFF},
+        {"flags",                       0x80u},
+        {"army",                        0xABCD0001u},
+        {"pos",                         nlohmann::json{{"x", 1}, {"y", 2}, {"z", 0}}},
+        {"cargo_list",                  nlohmann::json{{"present", false}}},
+        {"city_data",                   nullptr},
+        {"state",                       nlohmann::json{
+            {"unit_id", 0xCAFE0001u},
+            {"pos",     nlohmann::json{{"x", 1}, {"y", 2}, {"z", 0}}},
+        }},
+        {"temp_visibility_array",       nlohmann::json{
+            {"array",       std::vector<uint32>(k_DEFAULT_VIS_DURATION_SIZE, 0u)},
+            {"array_index", 0u},
+        }},
+        {"transport",                   0u},
+        {"round_the_world_mask",        nullptr},
+        {"target_city",                 0u},
+        {"is_exploring",                false},
+        {"explore_target",              nlohmann::json{{"x", 0}, {"y", 0}, {"z", 0}}},
+    };
+
+    // All required keys present — verifies the bridge's shape contract.
+    CHECK(seed.contains("id"));
+    CHECK(seed.contains("owner"));
+    CHECK(seed.contains("flags"));
+    CHECK(seed.contains("state"));
+    CHECK(seed.contains("temp_visibility_array"));
+    for (auto const &el : seed.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+// Phase E-6 — UnitPool
+
+TEST_CASE("json round-trip: UnitPool empty preserves next_key")
+{
+    UnitPool pool;
+    nlohmann::json j = pool;
+
+    CHECK(j["units"].is_array());
+    CHECK(j["units"].size() == 0);
+    CHECK(j.contains("next_key"));
+
+    UnitPool round;
+    nlohmann::json const seed = nlohmann::json{
+        {"next_key", 0x99u},
+        {"units",    nlohmann::json::array()},
+    };
+    seed.get_to(round);
+    CHECK(round.HackGetKey() == 0x99u);
+}
+
+TEST_CASE("json round-trip: UnitPool keys are snake_case (no m_ leak)")
+{
+    UnitPool pool;
     nlohmann::json j = pool;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");

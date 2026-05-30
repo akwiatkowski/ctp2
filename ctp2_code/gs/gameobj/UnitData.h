@@ -46,6 +46,7 @@
 #define __UNIT_DATA_H__ 1
 
 #include <memory>
+#include <nlohmann/json.hpp>
 
 class UnitData;
 class VisibilityDurationArray;
@@ -78,6 +79,11 @@ class BitMask;
 #define k_UNITDATA_VERSION_MINOR    0
 
 #define k_DEFAULT_VIS_DURATION_SIZE 2
+
+// JSON bridge — VisibilityDurationArray
+class VisibilityDurationArray;
+inline void to_json(nlohmann::json &j, VisibilityDurationArray const &v);
+inline void from_json(nlohmann::json const &j, VisibilityDurationArray &v);
 
 class VisibilityDurationArray
 {
@@ -136,7 +142,32 @@ private:
 
 
 	friend class NetUnit;
+	friend void to_json(nlohmann::json &j, VisibilityDurationArray const &v);
+	friend void from_json(nlohmann::json const &j, VisibilityDurationArray &v);
 };
+
+inline void to_json(nlohmann::json &j, VisibilityDurationArray const &v)
+{
+	std::vector<uint32> arr(v.m_array, v.m_array + k_DEFAULT_VIS_DURATION_SIZE);
+	j = nlohmann::json{
+		{"array",       std::move(arr)},
+		{"array_index", v.m_array_index},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, VisibilityDurationArray &v)
+{
+	auto const &arr = j.at("array");
+	if (arr.size() != k_DEFAULT_VIS_DURATION_SIZE)
+	{
+		throw nlohmann::json::other_error::create(
+			581, "visibility_duration_array.array size != k_DEFAULT_VIS_DURATION_SIZE",
+			&j);
+	}
+	for (sint32 i = 0; i < k_DEFAULT_VIS_DURATION_SIZE; ++i)
+		arr[i].get_to(v.m_array[i]);
+	j.at("array_index").get_to(v.m_array_index);
+}
 
 #define k_UDF_FIRST_MOVE                             0x00000001
 #define k_UDF_IS_VET                                 0x00000002
@@ -236,6 +267,17 @@ private:
 	friend class NetUnit;
 	friend class NetUnitMove;
 
+	// JSON bridge — mirrors UnitData::Serialize at UnitData.cpp:2290.
+	// Captures every persisted scalar + value member + nullable
+	// sub-objects (cargo list, city data, vision, transport).  OMITS:
+	//   * m_actor (gfx; reconstructed on load via observer notify)
+	//   * m_sprite_state (gfx; mirrors m_actor)
+	//   * m_lesser/m_greater (intrusive list — pool concern)
+	//   * m_text (debug-only)
+	// Implementation in json_save.cpp.
+	friend void to_json(nlohmann::json &j, UnitData const &u);
+	friend void from_json(nlohmann::json const &j, UnitData &u);
+
 #ifdef _PLAYTEST
 
 	friend class CreateImprovementCommand;
@@ -266,6 +308,10 @@ public:
 	void Place(const MapPoint &center);
 
 	UnitData(CivArchive &archive);
+
+	// JSON load — counterpart to the CivArchive ctor.  Same null-init
+	// of pointer-typed members + from_json (see json_save.cpp).
+	explicit UnitData(nlohmann::json const &j);
 
 	virtual ~UnitData();
 

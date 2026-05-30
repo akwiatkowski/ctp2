@@ -41,6 +41,8 @@ class UnitPool;
 
 #include "gs/gameobj/Unit.h"
 
+#include <nlohmann/json.hpp>
+
 class UnitData;
 class CivArchive;
 class MapPoint;
@@ -66,6 +68,12 @@ public:
 
 	void Serialize(CivArchive &archive) ;
 	void RebuildQuadTree();
+
+	// JSON bridge — mirrors UnitPool::Serialize at UnitPool.cpp:129.
+	// Persists ObjPool key counter + every live UnitData entry.
+	// Implementation in json_save.cpp.
+	friend void to_json(nlohmann::json &j, UnitPool const &p);
+	friend void from_json(nlohmann::json const &j, UnitPool &p);
 };
 
 extern UnitPool *g_theUnitPool;

@@ -72,8 +72,12 @@
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
+#include "gs/gameobj/UnitData.h"
+#include "gs/gameobj/UnitPool.h"
+#include "gs/core/game_observer.h"          // NotifyUnitSpawned
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
 #include "gs/utility/UnitDynArr.h"          // UnitDynamicArray
+#include "ctp/ctp2_utils/BitMask.h"        // BitMask (m_roundTheWorldMask)
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1579,6 +1583,154 @@ void from_json(nlohmann::json const &j, ArmyData &a)
         a.m_name = new MBCHAR[name.size() + 1];
         std::memcpy(a.m_name, name.data(), name.size());
         a.m_name[name.size()] = 0;
+    }
+}
+
+// Phase E-5 — UnitData
+//
+// Mirrors UnitData::Serialize at UnitData.cpp:2290.  Captures every
+// persisted scalar + value member + nullable sub-objects (cargo list,
+// city data, vision array, transport, target city, round-the-world
+// mask, explore state).  OMITS gfx/render (m_actor, m_sprite_state),
+// pool intrusive list (m_lesser, m_greater), and debug-only m_text.
+//
+// Slice 7i amputation will eventually remove m_actor entirely — at
+// that point the binary path drops it too and this bridge needs no
+// change.
+
+void to_json(nlohmann::json &j, UnitData const &u)
+{
+    nlohmann::json cargo = nlohmann::json::object();
+    if (u.m_cargo_list)
+    {
+        nlohmann::json units = nlohmann::json::array();
+        for (sint32 i = 0; i < u.m_cargo_list->Num(); ++i)
+            units.push_back(static_cast<ID const &>(u.m_cargo_list->Access(i)));
+        cargo = nlohmann::json{{"present", true}, {"units", std::move(units)}};
+    }
+    else
+    {
+        cargo = nlohmann::json{{"present", false}};
+    }
+
+    j = nlohmann::json{
+        {"id",                          u.m_id},
+        {"owner",                       static_cast<sint32>(u.m_owner)},
+        {"fuel",                        u.m_fuel},
+        {"hp",                          u.m_hp},
+        {"movement_points",             u.m_movement_points},
+        {"type",                        u.m_type},
+        {"visibility",                  u.m_visibility},
+        {"temp_visibility",             u.m_temp_visibility},
+        {"radar_visibility",            u.m_radar_visibility},
+        {"ever_visible",                u.m_ever_visible},
+        {"flags",                       u.m_flags},
+        {"army",                        u.m_army},
+        {"pos",                         u.m_pos},
+        {"cargo_list",                  std::move(cargo)},
+        {"city_data",                   u.m_city_data
+                                            ? nlohmann::json(*u.m_city_data)
+                                            : nlohmann::json(nullptr)},
+        {"state",                       u.m_state},
+        {"temp_visibility_array",       u.m_temp_visibility_array},
+        {"transport",                   u.m_transport},
+        {"round_the_world_mask",        u.m_roundTheWorldMask
+                                            ? nlohmann::json(*u.m_roundTheWorldMask)
+                                            : nlohmann::json(nullptr)},
+        {"target_city",                 u.m_target_city},
+        {"is_exploring",                u.m_isExploring},
+        {"explore_target",              u.m_exploreTarget},
+    };
+}
+
+void from_json(nlohmann::json const &j, UnitData &u)
+{
+    j.at("id")              .get_to(u.m_id);
+    u.m_owner = static_cast<PLAYER_INDEX>(j.at("owner").get<sint32>());
+    j.at("fuel")            .get_to(u.m_fuel);
+    j.at("hp")              .get_to(u.m_hp);
+    j.at("movement_points") .get_to(u.m_movement_points);
+    j.at("type")            .get_to(u.m_type);
+    j.at("visibility")      .get_to(u.m_visibility);
+    j.at("temp_visibility") .get_to(u.m_temp_visibility);
+    j.at("radar_visibility").get_to(u.m_radar_visibility);
+    j.at("ever_visible")    .get_to(u.m_ever_visible);
+    j.at("flags")           .get_to(u.m_flags);
+    j.at("army")            .get_to(u.m_army);
+    j.at("pos")             .get_to(u.m_pos);
+
+    delete u.m_cargo_list;
+    u.m_cargo_list = nullptr;
+    auto const &cargo = j.at("cargo_list");
+    if (cargo.at("present").get<bool>())
+    {
+        u.m_cargo_list = new UnitDynamicArray;
+        for (auto const &id_json : cargo.at("units"))
+        {
+            ID id(0);
+            id_json.get_to(id);
+            u.m_cargo_list->Insert(Unit(id.m_id));
+        }
+    }
+
+    delete u.m_city_data;
+    u.m_city_data = nullptr;
+    if (!j.at("city_data").is_null())
+    {
+        // CityData has no default ctor; use the (owner, hc, pos) form
+        // with placeholders — from_json overwrites all of these.
+        u.m_city_data = new CityData(0, Unit(0), MapPoint(0, 0));
+        j.at("city_data").get_to(*u.m_city_data);
+    }
+
+    j.at("state")                .get_to(u.m_state);
+    j.at("temp_visibility_array").get_to(u.m_temp_visibility_array);
+    j.at("transport")            .get_to(u.m_transport);
+
+    delete u.m_roundTheWorldMask;
+    u.m_roundTheWorldMask = nullptr;
+    if (!j.at("round_the_world_mask").is_null())
+    {
+        u.m_roundTheWorldMask = new BitMask(1);  // dummy size; replaced by from_json
+        j.at("round_the_world_mask").get_to(*u.m_roundTheWorldMask);
+    }
+
+    j.at("target_city")  .get_to(u.m_target_city);
+    j.at("is_exploring") .get_to(u.m_isExploring);
+    j.at("explore_target").get_to(u.m_exploreTarget);
+}
+
+// Phase E-6 — UnitPool
+//
+// Mirrors UnitPool::Serialize at UnitPool.cpp:129.  Persists ObjPool
+// next-key counter + every live UnitData.  On load, fires
+// NotifyUnitSpawned after Insert so observers can see the new unit
+// (mirrors binary-path slice 7a behaviour).
+
+void to_json(nlohmann::json &j, UnitPool const &p)
+{
+    nlohmann::json units = nlohmann::json::array();
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        if (p.m_table[i])
+            units.push_back(*reinterpret_cast<UnitData const *>(p.m_table[i]));
+    }
+    j = nlohmann::json{
+        {"next_key", const_cast<UnitPool &>(p).HackGetKey()},
+        {"units",    std::move(units)},
+    };
+}
+
+void from_json(nlohmann::json const &j, UnitPool &p)
+{
+    p.HackSetKey(j.at("next_key").get<uint32>());
+
+    for (auto const &entry : j.at("units"))
+    {
+        UnitData *data = new UnitData(entry);
+        p.Insert(data);
+        if (g_gameObservers)
+            g_gameObservers->NotifyUnitSpawned(Unit(data->m_id), data->GetState());
     }
 }
 

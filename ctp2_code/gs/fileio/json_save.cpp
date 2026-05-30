@@ -63,6 +63,7 @@
 #include "gs/gameobj/gaiacontroller.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
+#include "ai/diplomacy/Foreigner.h"
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1381,6 +1382,65 @@ void from_json(nlohmann::json const &j, Diplomat &d)
     j.at("last_party")                      .get_to(d.m_lastParty);
     j.at("launched_nukes")                  .get_to(d.m_launchedNukes);
     j.at("launched_nano_attack")            .get_to(d.m_launchedNanoAttack);
+}
+
+// Phase D — Foreigner
+void to_json(nlohmann::json &j, Foreigner const &f)
+{
+    // 2D array of regard events: outer indexed by REGARD_EVENT_TYPE
+    // (excluding REGARD_EVENT_ALL — that's a derived total), inner is
+    // the list of events for that type.
+    nlohmann::json regard_event_list = nlohmann::json::array();
+    for (sint32 type = 0; type < REGARD_EVENT_ALL; ++type)
+    {
+        nlohmann::json events = nlohmann::json::array();
+        for (auto const &ev : f.m_regardEventList[type])
+        {
+            events.push_back(ev);
+        }
+        regard_event_list.push_back(std::move(events));
+    }
+
+    j = nlohmann::json{
+        {"trustworthiness",        f.m_trustworthiness},
+        {"has_initiative",         f.m_hasInitiative},
+        {"last_incursion",         f.m_lastIncursion},
+        {"regard_event_list",      std::move(regard_event_list)},
+        {"hotwar_attacked_me",     f.m_hotwarAttackedMe},
+        {"coldwar_attacked_me",    f.m_coldwarAttackedMe},
+        {"greeting_turn",          f.m_greetingTurn},
+        {"embargo",                f.m_embargo},
+    };
+}
+
+void from_json(nlohmann::json const &j, Foreigner &f)
+{
+    j.at("trustworthiness")    .get_to(f.m_trustworthiness);
+    j.at("has_initiative")     .get_to(f.m_hasInitiative);
+    j.at("last_incursion")     .get_to(f.m_lastIncursion);
+
+    auto const &regard_event_list = j.at("regard_event_list");
+    if (static_cast<sint32>(regard_event_list.size()) != REGARD_EVENT_ALL)
+    {
+        throw nlohmann::json::other_error::create(
+            550, "foreigner.regard_event_list must have exactly "
+                 "REGARD_EVENT_ALL entries", &j);
+    }
+    for (sint32 type = 0; type < REGARD_EVENT_ALL; ++type)
+    {
+        f.m_regardEventList[type].clear();
+        for (auto const &ev_json : regard_event_list[type])
+        {
+            RegardEvent ev;
+            ev_json.get_to(ev);
+            f.m_regardEventList[type].push_back(ev);
+        }
+    }
+
+    j.at("hotwar_attacked_me")  .get_to(f.m_hotwarAttackedMe);
+    j.at("coldwar_attacked_me") .get_to(f.m_coldwarAttackedMe);
+    j.at("greeting_turn")       .get_to(f.m_greetingTurn);
+    j.at("embargo")             .get_to(f.m_embargo);
 }
 
 // Phase D — AgreementMatrix

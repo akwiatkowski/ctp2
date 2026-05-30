@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gühmann)
+// - Added HotSeat and PBEM human-human diplomacy support. (17-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -47,6 +47,8 @@ class   Foreigner;
 #include "DiplomacyRecord.h"
 #include "gs/world/MapPoint.h"
 
+#include <nlohmann/json.hpp>
+
 
 
 
@@ -66,6 +68,24 @@ struct RegardEvent {
 	sint16 duration;
 };
 
+inline void to_json(nlohmann::json &j, RegardEvent const &e)
+{
+	j = nlohmann::json{
+		{"regard",         e.regard},
+		{"turn",           e.turn},
+		{"explain_str_id", e.explainStrId},
+		{"duration",       e.duration},
+	};
+}
+
+inline void from_json(nlohmann::json const &j, RegardEvent &e)
+{
+	j.at("regard")        .get_to(e.regard);
+	j.at("turn")          .get_to(e.turn);
+	j.at("explain_str_id").get_to(e.explainStrId);
+	j.at("duration")      .get_to(e.duration);
+}
+
 typedef std::list<RegardEvent> RegardEventList;
 typedef std::deque<NegotiationEvent> NegotiationEventList;
 typedef std::list<ai::Agreement> AgreementList;
@@ -73,6 +93,19 @@ typedef AgreementList::iterator AgreementListIter;
 
 class Foreigner
 {
+	// JSON bridge â€” mirrors Foreigner::Save in Foreigner.cpp.
+	// Covers m_trustworthiness, m_hasInitiative, m_lastIncursion,
+	// m_regardEventList (per regard event type), m_hotwarAttackedMe,
+	// m_coldwarAttackedMe, m_greetingTurn, m_embargo.
+	//
+	// OMITS m_negotiationEvents (NegotiationEvent has nested types;
+	// follow-up) and the derived/transient fields (m_regard,
+	// m_regardTotal, m_bestRegardExplain, m_effectiveRegardModifier,
+	// m_myLastNewProposal, m_myLastResponse, m_goldFromTrade/Tribute,
+	// m_lastNegotiatedProposal*) that the binary Save also skips.
+	friend void to_json(nlohmann::json &j, Foreigner const &f);
+	friend void from_json(nlohmann::json const &j, Foreigner &f);
+
 public:
 	Foreigner();
 

@@ -41,6 +41,7 @@
 #include "gs/diplomacy/diplomacy_types.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
+#include "ai/diplomacy/Foreigner.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1419,6 +1420,116 @@ TEST_CASE("json round-trip: Diplomat omits Foreigner + derived fields")
     CHECK_FALSE(j.contains("friend_count"));
     CHECK_FALSE(j.contains("enemy_count"));
     CHECK_FALSE(j.contains("piracy_history"));
+}
+
+// --- Foreigner + RegardEvent ---
+
+TEST_CASE("json round-trip: RegardEvent preserves all 4 fields")
+{
+    RegardEvent orig(/*regard*/ 50, /*turn*/ 17, /*explainStrId*/ 999, /*duration*/ 10);
+
+    nlohmann::json j = orig;
+    RegardEvent round;
+    j.get_to(round);
+
+    CHECK(round.regard       == 50);
+    CHECK(round.turn         == 17);
+    CHECK(round.explainStrId == 999);
+    CHECK(round.duration     == 10);
+}
+
+TEST_CASE("json round-trip: Foreigner persisted subset + 2D regard event arrays")
+{
+    Foreigner orig;
+    // Drive non-default via JSON since Foreigner has private fields.
+    nlohmann::json j = orig;
+
+    j["trustworthiness"]     = sint16{60};
+    j["has_initiative"]      = true;
+    j["last_incursion"]      = 42;
+    j["hotwar_attacked_me"]  = sint16{3};
+    j["coldwar_attacked_me"] = sint16{1};
+    j["greeting_turn"]       = sint16{7};
+    j["embargo"]             = false;
+
+    // Populate the per-event-type regard event lists with non-empty
+    // patterns so we exercise the nested array path.
+    nlohmann::json regard_event_list = nlohmann::json::array();
+    for (sint32 type = 0; type < REGARD_EVENT_ALL; ++type)
+    {
+        nlohmann::json events = nlohmann::json::array();
+        // Each type gets (type+1) events with distinct values
+        for (sint32 i = 0; i <= type; ++i)
+        {
+            events.push_back(nlohmann::json{
+                {"regard",         sint16{static_cast<sint16>(type * 10 + i)}},
+                {"turn",           sint16{static_cast<sint16>(i)}},
+                {"explain_str_id", type * 100 + i},
+                {"duration",       sint16{static_cast<sint16>(i + 1)}},
+            });
+        }
+        regard_event_list.push_back(std::move(events));
+    }
+    j["regard_event_list"] = std::move(regard_event_list);
+
+    j.get_to(orig);
+
+    // Round-trip back through JSON and verify identity.
+    nlohmann::json j2 = orig;
+    CHECK(j2["trustworthiness"]     == 60);
+    CHECK(j2["has_initiative"]      == true);
+    CHECK(j2["last_incursion"]      == 42);
+    CHECK(j2["hotwar_attacked_me"]  == 3);
+    CHECK(j2["coldwar_attacked_me"] == 1);
+    CHECK(j2["greeting_turn"]       == 7);
+    CHECK(j2["embargo"]             == false);
+    CHECK(j2["regard_event_list"].size() == REGARD_EVENT_ALL);
+
+    // First type's first event matches
+    CHECK(j2["regard_event_list"][0][0]["regard"] == 0);
+
+    // Last type has REGARD_EVENT_ALL events
+    sint32 const last_type = REGARD_EVENT_ALL - 1;
+    CHECK(j2["regard_event_list"][last_type].size() == last_type + 1);
+}
+
+TEST_CASE("json round-trip: Foreigner rejects wrong regard_event_list size")
+{
+    nlohmann::json bad{
+        {"trustworthiness",    sint16{0}},
+        {"has_initiative",     false},
+        {"last_incursion",     0},
+        {"regard_event_list",  nlohmann::json::array({nlohmann::json::array()})},  // size 1, need REGARD_EVENT_ALL
+        {"hotwar_attacked_me", sint16{0}},
+        {"coldwar_attacked_me", sint16{0}},
+        {"greeting_turn",      sint16{0}},
+        {"embargo",            false},
+    };
+    Foreigner f;
+    CHECK_THROWS(bad.get_to(f));
+}
+
+TEST_CASE("json round-trip: Foreigner omits NegotiationEvents + derived fields")
+{
+    Foreigner f;
+    nlohmann::json j = f;
+    // OMIT-by-design: m_negotiationEvents (deferred until
+    // NegotiationEvent's nested types have bridges).
+    CHECK_FALSE(j.contains("negotiation_events"));
+    // Derived state: matches the binary Save's exclusions.
+    CHECK_FALSE(j.contains("regard"));
+    CHECK_FALSE(j.contains("regard_total"));
+    CHECK_FALSE(j.contains("best_regard_explain"));
+    CHECK_FALSE(j.contains("effective_regard_modifier"));
+    CHECK_FALSE(j.contains("my_last_new_proposal"));
+    CHECK_FALSE(j.contains("my_last_response"));
+    CHECK_FALSE(j.contains("gold_from_trade"));
+    CHECK_FALSE(j.contains("gold_from_tribute"));
+    // Snake_case ratchet
+    for (auto const &el : j.items())
+    {
+        CHECK(el.key().substr(0, 2) != "m_");
+    }
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

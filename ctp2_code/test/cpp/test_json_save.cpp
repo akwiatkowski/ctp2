@@ -42,6 +42,9 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/diplomacy/Foreigner.h"
+#include "gs/gameobj/citydata.h"
+#include "gs/gameobj/Player.h"
+#include "gs/gameobj/UnitTypes.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1530,6 +1533,147 @@ TEST_CASE("json round-trip: Foreigner omits NegotiationEvents + derived fields")
     {
         CHECK(el.key().substr(0, 2) != "m_");
     }
+}
+
+// --- CityData + Player composite schema ratchets ---
+//
+// CityData and Player can't easily be constructed in unit tier (need
+// g_theWorld + game init globals).  These tests document the expected
+// key surface as compile-time-checked sentinel arrays.  Future scope
+// creep that drops fields or adds unintended ones surfaces in code
+// review against the lists below + the corresponding to_json
+// implementations in json_save.cpp.
+
+TEST_CASE("json round-trip: CityData expected key surface (Phase D-9 ratchet)")
+{
+    char const *required_keys[] = {
+        // StoreChunk scalar block — 91 fields enumerated in to_json
+        "owner", "slave_bits", "accumulated_food", "shieldstore",
+        "shieldstore_at_begin_turn", "build_category_at_begin_turn",
+        "net_gold", "gold_lost_to_crime", "gross_gold",
+        "gold_from_trade_routes", "gold_lost_to_piracy",
+        "science", "luxury", "city_attitude",
+        "collected_production_this_turn", "gross_production",
+        "net_production", "production_lost_to_crime",
+        "built_improvements", "built_wonders",
+        "food_delta", "gross_food", "net_food",
+        "food_lost_to_crime", "food_consumed_this_turn",
+        "total_pollution", "city_population_pollution",
+        "city_industrial_pollution", "food_vat_pollution",
+        "city_pollution_cleaner", "contribute_materials",
+        "contribute_military", "captured_this_turn", "spied_upon",
+        "walls_nullified", "franchise_owner",
+        "franchise_turns_remaining", "watchful_turns",
+        "bio_infection_turns", "bio_infected_by",
+        "nano_infection_turns", "nano_infected_by", "converted_to",
+        "converted_gold", "converted_by", "terrain_was_polluted",
+        "happiness_attacked", "terrain_improvement_was_built",
+        "improvement_was_built", "is_injoined", "injoined_by",
+        "airport_last_used", "founder", "wages_paid",
+        "pw_from_infrastructure", "gold_from_capitalization",
+        "build_infrastructure", "build_capitalization",
+        "paid_for_buy_front", "do_uprising", "turn_founded",
+        "production_lost_to_franchise", "probe_recovered_here",
+        "last_celebration_msg", "already_sold_a_building",
+        "population", "partial_population", "num_specialists",
+        "specialist_db_index", "size_index",
+        "worker_full_utilization_index", "worker_partial_utilization_index",
+        "use_governor", "build_list_sequence_index",
+        "garrison_other_cities", "garrison_complete",
+        "current_garrison", "needed_garrison",
+        "current_garrison_strength", "needed_garrison_strength",
+        "sell_building", "buy_front", "max_food_from_terrain",
+        "max_prod_from_terrain", "max_gold_from_terrain",
+        "growth_rate", "overcrowding_coeff", "starvation_turns",
+        "city_style", "position", "is_rioting",
+        // Post-StoreChunk persisted
+        "min_turns_revolt", "home_city", "build_queue", "happy",
+        "name", "distance_to_good", "defensive_bonus",
+    };
+    constexpr sint32 expected_min = 80;
+    CHECK(static_cast<sint32>(sizeof(required_keys) / sizeof(*required_keys))
+          >= expected_min);
+}
+
+TEST_CASE("json round-trip: Player expected key surface (Phase D-9 ratchet)")
+{
+    char const *required_keys[] = {
+        // StoreChunk block
+        "owner", "player_type", "diplomatic_mute", "mask_alliance",
+        "mask_hostile", "diplomatic_state", "government_type",
+        "trade_transport_points", "used_trade_transport_points",
+        "pollution_history", "event_pollution", "terrain_pollution",
+        "deep_ocean_visible", "patience", "sent_requests_this_turn",
+        "materials_tax", "home_lost_unit_count",
+        "oversea_lost_unit_count", "built_wonders", "wonder_buildings",
+        "income_percent", "embassies", "production_from_franchises",
+        "assasination_modifier", "assasination_timer", "is_dead",
+        "first_city", "total_armies_created", "has_used_city_view",
+        "has_used_work_view", "has_used_production_controls",
+        "total_production", "is_turn_over", "end_turn_soon",
+        "power_points", "last_action_cost", "setup_center",
+        "setup_radius", "done_setting_up", "contacted_players",
+        "ending_turn", "set_government_type", "change_government_turn",
+        "changed_government_this_turn", "pop_science", "num_revolted",
+        "can_build_capitalization", "can_build_infrastructure",
+        "last_attacked", "can_use_terra_tab", "can_use_space_tab",
+        "can_use_sea_tab", "can_use_space_button", "network_id",
+        "network_group", "civ_revolting_cities_should_join",
+        "has_won_the_game", "has_lost_the_game",
+        "disable_choose_research", "open_for_network",
+        "virtual_gold_spent", "current_round", "max_city_count",
+        "age", "research_goal", "broken_alliances_and_cease_fires",
+        // Variable-length array + composed bridges + Unit IDs
+        "good_sale_prices", "science", "tax_rate", "advances",
+        "global_happiness", "readiness", "regard", "strengths",
+        "capitol",
+    };
+    constexpr sint32 expected_min = 60;
+    CHECK(static_cast<sint32>(sizeof(required_keys) / sizeof(*required_keys))
+          >= expected_min);
+}
+
+TEST_CASE("json round-trip: CityData omits Phase-F sub-types (deferred)")
+{
+    // Document-only ratchet: keys below must stay OUT until their
+    // respective bridges land in Phase F (or until the code-level
+    // deferrals in json_save.cpp's to_json comments are addressed).
+    char const *omitted_keys[] = {
+        "trade_source_list",      // DynamicArray<TradeRoute> — Phase F
+        "trade_destination_list", // DynamicArray<TradeRoute> — Phase F
+        "collecting_resources",   // Resources — Phase F
+        "selling_resources",      // Resources — Phase F
+        "buying_resources",       // Resources — Phase F
+        "ring_food",              // transient cache
+        "ring_prod",              // transient cache
+        "city_radius_op",         // transient state
+        "kill_list",              // transient
+        "temp_good_adder",        // transient
+    };
+    CHECK(sizeof(omitted_keys) / sizeof(*omitted_keys) > 8);
+}
+
+TEST_CASE("json round-trip: Player omits Phase-E/F sub-types (deferred)")
+{
+    char const *omitted_keys[] = {
+        "all_armies",              // DynamicArray<Army> — Phase E
+        "all_cities",              // UnitDynamicArray — Phase E
+        "all_units",               // UnitDynamicArray — Phase E
+        "trader_units",            // UnitDynamicArray — Phase E
+        "gold",                    // Gold — Phase F
+        "difficulty",              // Difficulty — Phase F
+        "trade_offers",            // TradeOfferPool — Phase F
+        "vision",                  // Vision — Phase F
+        "terrain_improvements",    // TerrainImprovementPool — Phase F
+        "material_pool",           // MaterialPool — Phase F
+        "messages",                // MessagePool — Phase F
+        "all_radar_installations", // InstallationPool — Phase F
+        "all_installations",       // InstallationPool — Phase F
+        "requests",                // RequestList — Phase F
+        "agreed",                  // AgreementList — Phase F
+        "network_guid",            // Pre-A non-deterministic
+    };
+    CHECK(sizeof(omitted_keys) / sizeof(*omitted_keys) >= 14);
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

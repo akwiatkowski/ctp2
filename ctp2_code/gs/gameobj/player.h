@@ -138,6 +138,8 @@ template <class T> class Database;
 
 class UnseenCellCarton;
 class Agreement;
+#include <nlohmann/json.hpp>
+
 class Regard;
 class Civilisation;
 class Message;
@@ -362,6 +364,18 @@ public:
 	friend class NetInfo;
 	friend class NetDifficulty;
 	friend class NetPlayer;
+	// JSON bridge — mirrors Player::Serialize at Player.cpp:699.
+	// StoreChunk block (m_owner..m_broken_alliances_and_cease_fires)
+	// becomes named fields; composed sub-objects use existing bridges
+	// where available (Science, TaxRate, Advances, Happy,
+	// MilitaryReadiness, Regard, Strengths).  Many heavyweight
+	// sub-pools (Gold, Difficulty, TradeOfferPool, Vision,
+	// TerrainImprovementPool, MaterialPool, MessagePool,
+	// InstallationPool, m_all_armies/m_all_cities/m_all_units
+	// DynamicArrays) are deferred to Phase F pool work — see
+	// json_save.cpp for the full OMITTED list.
+	friend void to_json(nlohmann::json &j, Player const &p);
+	friend void from_json(nlohmann::json const &j, Player &p);
 
 public:
 	friend class SelectedItem;

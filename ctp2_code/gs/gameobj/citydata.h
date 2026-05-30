@@ -87,6 +87,7 @@ class CityData;
 #include "gs/world/MapPoint.h"
 
 #include "CitySizeRecord.h"
+#include <nlohmann/json.hpp>
 
 #define k_CITYDATA_VERSION_MAJOR    0
 #define k_CITYDATA_VERSION_MINOR    0
@@ -346,6 +347,14 @@ private:
 	friend class NetCityBuildQueue;
 	friend class C3Player;
 	friend class C3Population;
+	// JSON bridge.  Mirrors CityData::Serialize at CityData.cpp:624 —
+	// the giant StoreChunk block (m_owner..m_is_rioting) becomes
+	// named fields; the discrete sub-objects compose their own
+	// bridges where available.  See json_save.cpp for OMITTED list
+	// (TradeDynamicArray + Resources sub-types still need their own
+	// bridges in Phase F; transient/derived state matches binary).
+	friend void to_json(nlohmann::json &j, CityData const &c);
+	friend void from_json(nlohmann::json const &j, CityData &c);
 
 #ifdef _PLAYTEST
 	friend class CreateImprovementCommand;

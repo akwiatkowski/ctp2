@@ -64,6 +64,10 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/diplomacy/Foreigner.h"
+#include "gs/gameobj/citydata.h"
+#include "gs/gameobj/UnitTypes.h"           // POP_MAX
+#include "gs/gameobj/Player.h"
+#include "gs/gameobj/PollutionConst.h"      // already included via pollution.h, kept explicit
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1382,6 +1386,596 @@ void from_json(nlohmann::json const &j, Diplomat &d)
     j.at("last_party")                      .get_to(d.m_lastParty);
     j.at("launched_nukes")                  .get_to(d.m_launchedNukes);
     j.at("launched_nano_attack")            .get_to(d.m_launchedNanoAttack);
+}
+
+// Phase D-9 — CityData (largest single class composite)
+//
+// Mirrors CityData::Serialize at CityData.cpp:624.  The big StoreChunk
+// block (m_owner..m_is_rioting, ~91 scalar fields) becomes named
+// snake_case keys.  Discrete sub-objects compose their existing
+// bridges (Unit/BuildQueue/Happy).
+//
+// OMITTED with reason:
+//   - m_tradeSourceList / m_tradeDestinationList (TradeDynamicArray =
+//     DynamicArray<TradeRoute>) — TradeRoute needs its own bridge in
+//     Phase F (tail pools).
+//   - m_collectingResources / m_buyingResources / m_sellingResources
+//     (Resources) — needs its own bridge.
+//   - m_ringFood/Prod/Gold/Sizes, NEW_RESOURCE_PROCESS fields,
+//     m_bonus* coeffs, m_cityRadiusOp, m_killList, m_tempGoodAdder,
+//     m_tempGood/Count, m_sentInefficientMessageAlready: transient
+//     state, recomputed during gameplay (matches binary).
+//   - m_build_category_before_load_queue, m_scie_lost_to_crime,
+//     m_gross_food_before_bonuses, m_gross_prod_before_bonuses,
+//     m_happinessAttackedBy: not in binary Serialize either.
+
+void to_json(nlohmann::json &j, CityData const &c)
+{
+    nlohmann::json num_specialists      = nlohmann::json::array();
+    nlohmann::json specialist_db_index  = nlohmann::json::array();
+    for (sint32 i = 0; i < POP_MAX; ++i)
+    {
+        num_specialists    .push_back(c.m_numSpecialists[i]);
+        specialist_db_index.push_back(c.m_specialistDBIndex[i]);
+    }
+
+    nlohmann::json distance_to_good = nlohmann::json::array();
+    if (c.m_distanceToGood && g_theResourceDB)
+    {
+        for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
+        {
+            distance_to_good.push_back(c.m_distanceToGood[i]);
+        }
+    }
+
+    j = nlohmann::json{
+        // StoreChunk block (m_owner..m_is_rioting)
+        {"owner",                            c.m_owner},
+        {"slave_bits",                       c.m_slaveBits},
+        {"accumulated_food",                 c.m_accumulated_food},
+        {"shieldstore",                      c.m_shieldstore},
+        {"shieldstore_at_begin_turn",        c.m_shieldstore_at_begin_turn},
+        {"build_category_at_begin_turn",     c.m_build_category_at_begin_turn},
+        {"net_gold",                         c.m_net_gold},
+        {"gold_lost_to_crime",               c.m_gold_lost_to_crime},
+        {"gross_gold",                       c.m_gross_gold},
+        {"gold_from_trade_routes",           c.m_goldFromTradeRoutes},
+        {"gold_lost_to_piracy",              c.m_goldLostToPiracy},
+        {"science",                          c.m_science},
+        {"luxury",                           c.m_luxury},
+        {"city_attitude",                    static_cast<sint32>(c.m_city_attitude)},
+        {"collected_production_this_turn",   c.m_collected_production_this_turn},
+        {"gross_production",                 c.m_gross_production},
+        {"net_production",                   c.m_net_production},
+        {"production_lost_to_crime",         c.m_production_lost_to_crime},
+        {"built_improvements",               c.m_built_improvements},
+        {"built_wonders",                    c.m_builtWonders},
+        {"food_delta",                       c.m_food_delta},
+        {"gross_food",                       c.m_gross_food},
+        {"net_food",                         c.m_net_food},
+        {"food_lost_to_crime",               c.m_food_lost_to_crime},
+        {"food_consumed_this_turn",          c.m_food_consumed_this_turn},
+        {"total_pollution",                  c.m_total_pollution},
+        {"city_population_pollution",        c.m_cityPopulationPollution},
+        {"city_industrial_pollution",        c.m_cityIndustrialPollution},
+        {"food_vat_pollution",               c.m_foodVatPollution},
+        {"city_pollution_cleaner",           c.m_cityPollutionCleaner},
+        {"contribute_materials",             static_cast<bool>(c.m_contribute_materials)},
+        {"contribute_military",              static_cast<bool>(c.m_contribute_military)},
+        {"captured_this_turn",               static_cast<bool>(c.m_capturedThisTurn)},
+        {"spied_upon",                       c.m_spied_upon},
+        {"walls_nullified",                  static_cast<bool>(c.m_walls_nullified)},
+        {"franchise_owner",                  c.m_franchise_owner},
+        {"franchise_turns_remaining",        c.m_franchiseTurnsRemaining},
+        {"watchful_turns",                   c.m_watchfulTurns},
+        {"bio_infection_turns",              c.m_bioInfectionTurns},
+        {"bio_infected_by",                  c.m_bioInfectedBy},
+        {"nano_infection_turns",             c.m_nanoInfectionTurns},
+        {"nano_infected_by",                 c.m_nanoInfectedBy},
+        {"converted_to",                     c.m_convertedTo},
+        {"converted_gold",                   c.m_convertedGold},
+        {"converted_by",                     static_cast<sint32>(c.m_convertedBy)},
+        {"terrain_was_polluted",             static_cast<bool>(c.m_terrainWasPolluted)},
+        {"happiness_attacked",               static_cast<bool>(c.m_happinessAttacked)},
+        {"terrain_improvement_was_built",    static_cast<bool>(c.m_terrainImprovementWasBuilt)},
+        {"improvement_was_built",            static_cast<bool>(c.m_improvementWasBuilt)},
+        {"is_injoined",                      static_cast<bool>(c.m_isInjoined)},
+        {"injoined_by",                      c.m_injoinedBy},
+        {"airport_last_used",                c.m_airportLastUsed},
+        {"founder",                          c.m_founder},
+        {"wages_paid",                       c.m_wages_paid},
+        {"pw_from_infrastructure",           c.m_pw_from_infrastructure},
+        {"gold_from_capitalization",         c.m_gold_from_capitalization},
+        {"build_infrastructure",             static_cast<bool>(c.m_buildInfrastructure)},
+        {"build_capitalization",             static_cast<bool>(c.m_buildCapitalization)},
+        {"paid_for_buy_front",               static_cast<bool>(c.m_paidForBuyFront)},
+        {"do_uprising",                      static_cast<sint32>(c.m_doUprising)},
+        {"turn_founded",                     c.m_turnFounded},
+        {"production_lost_to_franchise",     c.m_productionLostToFranchise},
+        {"probe_recovered_here",             c.m_probeRecoveredHere},
+        {"last_celebration_msg",             c.m_lastCelebrationMsg},
+        {"already_sold_a_building",          c.m_alreadySoldABuilding},
+        {"population",                       c.m_population},
+        {"partial_population",               c.m_partialPopulation},
+        {"num_specialists",                  std::move(num_specialists)},
+        {"specialist_db_index",              std::move(specialist_db_index)},
+        {"size_index",                       c.m_sizeIndex},
+        {"worker_full_utilization_index",    c.m_workerFullUtilizationIndex},
+        {"worker_partial_utilization_index", c.m_workerPartialUtilizationIndex},
+        {"use_governor",                     static_cast<bool>(c.m_useGovernor)},
+        {"build_list_sequence_index",        c.m_buildListSequenceIndex},
+        {"garrison_other_cities",            c.m_garrisonOtherCities},
+        {"garrison_complete",                static_cast<bool>(c.m_garrisonComplete)},
+        {"current_garrison",                 c.m_currentGarrison},
+        {"needed_garrison",                  c.m_neededGarrison},
+        {"current_garrison_strength",        c.m_currentGarrisonStrength},
+        {"needed_garrison_strength",         c.m_neededGarrisonStrength},
+        {"sell_building",                    c.m_sellBuilding},
+        {"buy_front",                        c.m_buyFront},
+        {"max_food_from_terrain",            c.m_max_food_from_terrain},
+        {"max_prod_from_terrain",            c.m_max_prod_from_terrain},
+        {"max_gold_from_terrain",            c.m_max_gold_from_terrain},
+        {"growth_rate",                      c.m_growth_rate},
+        {"overcrowding_coeff",               c.m_overcrowdingCoeff},
+        {"starvation_turns",                 c.m_starvation_turns},
+        {"city_style",                       c.m_cityStyle},
+        {"position",                         c.m_pos},
+        {"is_rioting",                       static_cast<bool>(c.m_is_rioting)},
+        // Post-StoreChunk persisted fields
+        {"min_turns_revolt",                 c.m_min_turns_revolt},
+        {"home_city",                        static_cast<ID const &>(c.m_home_city)},
+        {"build_queue",                      c.m_build_queue},
+        {"happy",                            c.m_happy ? nlohmann::json(*c.m_happy)
+                                                       : nlohmann::json(nullptr)},
+        {"name",                             std::string(c.m_name)},
+        {"distance_to_good",                 std::move(distance_to_good)},
+        {"defensive_bonus",                  c.m_defensiveBonus},
+    };
+}
+
+void from_json(nlohmann::json const &j, CityData &c)
+{
+    // StoreChunk fields
+    j.at("owner")                           .get_to(c.m_owner);
+    j.at("slave_bits")                      .get_to(c.m_slaveBits);
+    j.at("accumulated_food")                .get_to(c.m_accumulated_food);
+    j.at("shieldstore")                     .get_to(c.m_shieldstore);
+    j.at("shieldstore_at_begin_turn")       .get_to(c.m_shieldstore_at_begin_turn);
+    j.at("build_category_at_begin_turn")    .get_to(c.m_build_category_at_begin_turn);
+    j.at("net_gold")                        .get_to(c.m_net_gold);
+    j.at("gold_lost_to_crime")              .get_to(c.m_gold_lost_to_crime);
+    j.at("gross_gold")                      .get_to(c.m_gross_gold);
+    j.at("gold_from_trade_routes")          .get_to(c.m_goldFromTradeRoutes);
+    j.at("gold_lost_to_piracy")             .get_to(c.m_goldLostToPiracy);
+    j.at("science")                         .get_to(c.m_science);
+    j.at("luxury")                          .get_to(c.m_luxury);
+    c.m_city_attitude = static_cast<CITY_ATTITUDE>(j.at("city_attitude").get<sint32>());
+    j.at("collected_production_this_turn")  .get_to(c.m_collected_production_this_turn);
+    j.at("gross_production")                .get_to(c.m_gross_production);
+    j.at("net_production")                  .get_to(c.m_net_production);
+    j.at("production_lost_to_crime")        .get_to(c.m_production_lost_to_crime);
+    j.at("built_improvements")              .get_to(c.m_built_improvements);
+    j.at("built_wonders")                   .get_to(c.m_builtWonders);
+    j.at("food_delta")                      .get_to(c.m_food_delta);
+    j.at("gross_food")                      .get_to(c.m_gross_food);
+    j.at("net_food")                        .get_to(c.m_net_food);
+    j.at("food_lost_to_crime")              .get_to(c.m_food_lost_to_crime);
+    j.at("food_consumed_this_turn")         .get_to(c.m_food_consumed_this_turn);
+    j.at("total_pollution")                 .get_to(c.m_total_pollution);
+    j.at("city_population_pollution")       .get_to(c.m_cityPopulationPollution);
+    j.at("city_industrial_pollution")       .get_to(c.m_cityIndustrialPollution);
+    j.at("food_vat_pollution")              .get_to(c.m_foodVatPollution);
+    j.at("city_pollution_cleaner")          .get_to(c.m_cityPollutionCleaner);
+    c.m_contribute_materials = j.at("contribute_materials").get<bool>() ? TRUE : FALSE;
+    c.m_contribute_military  = j.at("contribute_military") .get<bool>() ? TRUE : FALSE;
+    c.m_capturedThisTurn     = j.at("captured_this_turn")  .get<bool>() ? TRUE : FALSE;
+    j.at("spied_upon")                      .get_to(c.m_spied_upon);
+    c.m_walls_nullified = j.at("walls_nullified").get<bool>() ? TRUE : FALSE;
+    j.at("franchise_owner")                 .get_to(c.m_franchise_owner);
+    j.at("franchise_turns_remaining")       .get_to(c.m_franchiseTurnsRemaining);
+    j.at("watchful_turns")                  .get_to(c.m_watchfulTurns);
+    j.at("bio_infection_turns")             .get_to(c.m_bioInfectionTurns);
+    j.at("bio_infected_by")                 .get_to(c.m_bioInfectedBy);
+    j.at("nano_infection_turns")            .get_to(c.m_nanoInfectionTurns);
+    j.at("nano_infected_by")                .get_to(c.m_nanoInfectedBy);
+    j.at("converted_to")                    .get_to(c.m_convertedTo);
+    j.at("converted_gold")                  .get_to(c.m_convertedGold);
+    c.m_convertedBy = static_cast<CONVERTED_BY>(j.at("converted_by").get<sint32>());
+    c.m_terrainWasPolluted          = j.at("terrain_was_polluted")         .get<bool>() ? TRUE : FALSE;
+    c.m_happinessAttacked           = j.at("happiness_attacked")           .get<bool>() ? TRUE : FALSE;
+    c.m_terrainImprovementWasBuilt  = j.at("terrain_improvement_was_built").get<bool>() ? TRUE : FALSE;
+    c.m_improvementWasBuilt         = j.at("improvement_was_built")        .get<bool>() ? TRUE : FALSE;
+    c.m_isInjoined                  = j.at("is_injoined")                  .get<bool>() ? TRUE : FALSE;
+    j.at("injoined_by")                     .get_to(c.m_injoinedBy);
+    j.at("airport_last_used")               .get_to(c.m_airportLastUsed);
+    j.at("founder")                         .get_to(c.m_founder);
+    j.at("wages_paid")                      .get_to(c.m_wages_paid);
+    j.at("pw_from_infrastructure")          .get_to(c.m_pw_from_infrastructure);
+    j.at("gold_from_capitalization")        .get_to(c.m_gold_from_capitalization);
+    c.m_buildInfrastructure  = j.at("build_infrastructure") .get<bool>() ? TRUE : FALSE;
+    c.m_buildCapitalization  = j.at("build_capitalization") .get<bool>() ? TRUE : FALSE;
+    c.m_paidForBuyFront      = j.at("paid_for_buy_front")   .get<bool>() ? TRUE : FALSE;
+    c.m_doUprising = static_cast<UPRISING_CAUSE>(j.at("do_uprising").get<sint32>());
+    j.at("turn_founded")                    .get_to(c.m_turnFounded);
+    j.at("production_lost_to_franchise")    .get_to(c.m_productionLostToFranchise);
+    j.at("probe_recovered_here")            .get_to(c.m_probeRecoveredHere);
+    j.at("last_celebration_msg")            .get_to(c.m_lastCelebrationMsg);
+    j.at("already_sold_a_building")         .get_to(c.m_alreadySoldABuilding);
+    j.at("population")                      .get_to(c.m_population);
+    j.at("partial_population")              .get_to(c.m_partialPopulation);
+
+    auto const &num_specialists     = j.at("num_specialists");
+    auto const &specialist_db_index = j.at("specialist_db_index");
+    if (static_cast<sint32>(num_specialists.size()) != POP_MAX
+     || static_cast<sint32>(specialist_db_index.size()) != POP_MAX)
+    {
+        throw nlohmann::json::other_error::create(
+            560, "city_data.num_specialists and specialist_db_index must "
+                 "have exactly POP_MAX entries", &j);
+    }
+    for (sint32 i = 0; i < POP_MAX; ++i)
+    {
+        num_specialists[i]    .get_to(c.m_numSpecialists[i]);
+        specialist_db_index[i].get_to(c.m_specialistDBIndex[i]);
+    }
+
+    j.at("size_index")                      .get_to(c.m_sizeIndex);
+    j.at("worker_full_utilization_index")   .get_to(c.m_workerFullUtilizationIndex);
+    j.at("worker_partial_utilization_index").get_to(c.m_workerPartialUtilizationIndex);
+    c.m_useGovernor = j.at("use_governor").get<bool>() ? TRUE : FALSE;
+    j.at("build_list_sequence_index")       .get_to(c.m_buildListSequenceIndex);
+    j.at("garrison_other_cities")           .get_to(c.m_garrisonOtherCities);
+    c.m_garrisonComplete = j.at("garrison_complete").get<bool>() ? TRUE : FALSE;
+    j.at("current_garrison")                .get_to(c.m_currentGarrison);
+    j.at("needed_garrison")                 .get_to(c.m_neededGarrison);
+    j.at("current_garrison_strength")       .get_to(c.m_currentGarrisonStrength);
+    j.at("needed_garrison_strength")        .get_to(c.m_neededGarrisonStrength);
+    j.at("sell_building")                   .get_to(c.m_sellBuilding);
+    j.at("buy_front")                       .get_to(c.m_buyFront);
+    j.at("max_food_from_terrain")           .get_to(c.m_max_food_from_terrain);
+    j.at("max_prod_from_terrain")           .get_to(c.m_max_prod_from_terrain);
+    j.at("max_gold_from_terrain")           .get_to(c.m_max_gold_from_terrain);
+    j.at("growth_rate")                     .get_to(c.m_growth_rate);
+    j.at("overcrowding_coeff")              .get_to(c.m_overcrowdingCoeff);
+    j.at("starvation_turns")                .get_to(c.m_starvation_turns);
+    j.at("city_style")                      .get_to(c.m_cityStyle);
+    j.at("position")                        .get_to(c.m_pos);
+    c.m_is_rioting = j.at("is_rioting").get<bool>() ? TRUE : FALSE;
+
+    // Post-StoreChunk persisted fields
+    j.at("min_turns_revolt").get_to(c.m_min_turns_revolt);
+
+    ID home_city_id(0);
+    j.at("home_city")       .get_to(home_city_id);
+    c.m_home_city = Unit(home_city_id.m_id);
+
+    j.at("build_queue")     .get_to(c.m_build_queue);
+
+    if (!j.at("happy").is_null())
+    {
+        if (!c.m_happy) c.m_happy = new Happy();
+        j.at("happy").get_to(*c.m_happy);
+    }
+
+    // m_name: fixed k_MAX_NAME_LEN buffer with Pre-A zero-fill discipline.
+    {
+        std::string const name = j.at("name").get<std::string>();
+        std::size_t const n    = std::min(name.size(), std::size_t{k_MAX_NAME_LEN - 1});
+        std::memcpy(c.m_name, name.data(), n);
+        std::memset(c.m_name + n, 0, k_MAX_NAME_LEN - n);
+    }
+
+    // m_distanceToGood: variable-length, sized by current ResourceDB.
+    auto const &distance_to_good = j.at("distance_to_good");
+    if (g_theResourceDB
+        && static_cast<sint32>(distance_to_good.size()) == g_theResourceDB->NumRecords())
+    {
+        delete[] c.m_distanceToGood;
+        c.m_distanceToGood = new sint32[g_theResourceDB->NumRecords()];
+        for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
+        {
+            distance_to_good[i].get_to(c.m_distanceToGood[i]);
+        }
+    }
+
+    j.at("defensive_bonus").get_to(c.m_defensiveBonus);
+}
+
+// Phase D-9 — Player (final composite)
+//
+// Mirrors Player::Serialize at Player.cpp:699.  The big StoreChunk
+// block (m_owner..m_broken_alliances_and_cease_fires, ~55 scalars
+// + 6 arrays) becomes named fields.  m_goodSalePrices is a
+// variable-length array sized by ResourceDB.  Composed sub-objects
+// use existing bridges where available.
+//
+// OMITTED with reason (Phase F pool work):
+//   - m_all_armies, m_all_cities, m_all_units, m_traderUnits
+//     (UnitDynamicArray / DynamicArray<Army>) — pool-level
+//     concern; ArmyPool/UnitPool bridges in Phase E/F.
+//   - m_gold (Gold), m_difficulty (Difficulty), m_vision (Vision),
+//     m_tradeOffers (TradeOfferPool), m_terrainImprovements
+//     (TerrainImprovementPool), m_materialPool (MaterialPool),
+//     m_messages (MessagePool), m_allRadarInstallations,
+//     m_allInstallations (InstallationPool), m_requests, m_agreed —
+//     each needs its own bridge in Phase F.
+//   - m_capitol (Unit*) — serialised as Unit ID (already bridgeable
+//     via ID base).
+//
+// INCLUDED via existing bridges:
+//   - m_science (Science), m_tax_rate (TaxRate), m_advances (Advances),
+//     m_global_happiness (Happy), m_readiness (MilitaryReadiness),
+//     m_regard (Regard), m_strengths (Strengths).
+
+void to_json(nlohmann::json &j, Player const &p)
+{
+    // Per-player arrays (k_MAX_PLAYERS = 32 entries each)
+    nlohmann::json diplomatic_state       = nlohmann::json::array();
+    nlohmann::json patience               = nlohmann::json::array();
+    nlohmann::json sent_requests_this_turn = nlohmann::json::array();
+    nlohmann::json last_attacked          = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        diplomatic_state       .push_back(static_cast<sint32>(p.m_diplomatic_state[i]));
+        patience               .push_back(p.m_patience[i]);
+        sent_requests_this_turn.push_back(p.m_sent_requests_this_turn[i]);
+        last_attacked          .push_back(p.m_last_attacked[i]);
+    }
+
+    // Pollution history arrays
+    nlohmann::json pollution_history  = nlohmann::json::array();
+    nlohmann::json event_pollution    = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_POLLUTION_HISTORY; ++i)
+    {
+        pollution_history.push_back(p.m_pollution_history[i]);
+    }
+    for (sint32 i = 0; i < k_MAX_EVENT_POLLUTION_TURNS; ++i)
+    {
+        event_pollution.push_back(p.m_event_pollution[i]);
+    }
+
+    // m_goodSalePrices (variable-length, sized by ResourceDB)
+    nlohmann::json good_sale_prices = nlohmann::json::array();
+    if (p.m_goodSalePrices && g_theResourceDB)
+    {
+        for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
+        {
+            good_sale_prices.push_back(p.m_goodSalePrices[i]);
+        }
+    }
+
+    j = nlohmann::json{
+        // StoreChunk block
+        {"owner",                              p.m_owner},
+        {"player_type",                        static_cast<sint32>(p.m_playerType)},
+        {"diplomatic_mute",                    p.m_diplomatic_mute},
+        {"mask_alliance",                      p.mask_alliance},
+        {"mask_hostile",                       p.m_mask_hostile},
+        {"diplomatic_state",                   std::move(diplomatic_state)},
+        {"government_type",                    p.m_government_type},
+        {"trade_transport_points",             p.m_tradeTransportPoints},
+        {"used_trade_transport_points",        p.m_usedTradeTransportPoints},
+        {"pollution_history",                  std::move(pollution_history)},
+        {"event_pollution",                    std::move(event_pollution)},
+        {"terrain_pollution",                  static_cast<bool>(p.m_terrainPollution)},
+        {"deep_ocean_visible",                 static_cast<bool>(p.m_deepOceanVisible)},
+        {"patience",                           std::move(patience)},
+        {"sent_requests_this_turn",            std::move(sent_requests_this_turn)},
+        {"materials_tax",                      p.m_materialsTax},
+        {"home_lost_unit_count",               p.m_home_lost_unit_count},
+        {"oversea_lost_unit_count",            p.m_oversea_lost_unit_count},
+        {"built_wonders",                      p.m_builtWonders},
+        {"wonder_buildings",                   p.m_wonderBuildings},
+        {"income_percent",                     p.m_income_Percent},
+        {"embassies",                          p.m_embassies},
+        {"production_from_franchises",         p.m_productionFromFranchises},
+        {"assasination_modifier",              p.m_assasinationModifier},
+        {"assasination_timer",                 p.m_assasinationTimer},
+        {"is_dead",                            static_cast<bool>(p.m_isDead)},
+        {"first_city",                         static_cast<bool>(p.m_first_city)},
+        {"total_armies_created",               p.m_totalArmiesCreated},
+        {"has_used_city_view",                 static_cast<bool>(p.m_hasUsedCityView)},
+        {"has_used_work_view",                 static_cast<bool>(p.m_hasUsedWorkView)},
+        {"has_used_production_controls",       static_cast<bool>(p.m_hasUsedProductionControls)},
+        {"total_production",                   p.m_total_production},
+        {"is_turn_over",                       static_cast<bool>(p.m_is_turn_over)},
+        {"end_turn_soon",                      static_cast<bool>(p.m_end_turn_soon)},
+        {"power_points",                       p.m_powerPoints},
+        {"last_action_cost",                   p.m_lastActionCost},
+        {"setup_center",                       p.m_setupCenter},
+        {"setup_radius",                       p.m_setupRadius},
+        {"done_setting_up",                    static_cast<bool>(p.m_doneSettingUp)},
+        {"contacted_players",                  p.m_contactedPlayers},
+        {"ending_turn",                        static_cast<bool>(p.m_endingTurn)},
+        {"set_government_type",                p.m_set_government_type},
+        {"change_government_turn",             p.m_change_government_turn},
+        {"changed_government_this_turn",       static_cast<bool>(p.m_changed_government_this_turn)},
+        {"pop_science",                        p.m_pop_science},
+        {"num_revolted",                       p.m_num_revolted},
+        {"can_build_capitalization",           static_cast<bool>(p.m_can_build_capitalization)},
+        {"can_build_infrastructure",           static_cast<bool>(p.m_can_build_infrastructure)},
+        {"last_attacked",                      std::move(last_attacked)},
+        {"can_use_terra_tab",                  static_cast<bool>(p.m_can_use_terra_tab)},
+        {"can_use_space_tab",                  static_cast<bool>(p.m_can_use_space_tab)},
+        {"can_use_sea_tab",                    static_cast<bool>(p.m_can_use_sea_tab)},
+        {"can_use_space_button",               static_cast<bool>(p.m_can_use_space_button)},
+        // m_networkGuid: skip (binary writes the bytes but they're
+        // either zero or process-dependent — the Pre-A SaveExtendedGameInfo
+        // lesson said GUIDs are non-deterministic; carry-through here
+        // would defeat Pre-A's same-seed test if it ever gets re-enabled).
+        // Recorded as 0 on save; reconstructed on load via the binary
+        // path's m_networkGuid memset(0) initialisation.
+        {"network_id",                         p.m_networkId},
+        {"network_group",                      p.m_networkGroup},
+        {"civ_revolting_cities_should_join",   p.m_civRevoltingCitiesShouldJoin},
+        {"has_won_the_game",                   static_cast<bool>(p.m_hasWonTheGame)},
+        {"has_lost_the_game",                  static_cast<bool>(p.m_hasLostTheGame)},
+        {"disable_choose_research",            static_cast<bool>(p.m_disableChooseResearch)},
+        {"open_for_network",                   static_cast<bool>(p.m_openForNetwork)},
+        {"virtual_gold_spent",                 p.m_virtualGoldSpent},
+        {"current_round",                      p.m_current_round},
+        {"max_city_count",                     p.m_maxCityCount},
+        {"age",                                p.m_age},
+        {"research_goal",                      p.m_researchGoal},
+        {"broken_alliances_and_cease_fires",   p.m_broken_alliances_and_cease_fires},
+        // m_goodSalePrices + composed sub-bridges
+        {"good_sale_prices",                   std::move(good_sale_prices)},
+        // Composed sub-objects with existing bridges
+        {"science",          p.m_science          ? nlohmann::json(*p.m_science)         : nlohmann::json(nullptr)},
+        {"tax_rate",         p.m_tax_rate         ? nlohmann::json(*p.m_tax_rate)        : nlohmann::json(nullptr)},
+        {"advances",         p.m_advances         ? nlohmann::json(*p.m_advances)        : nlohmann::json(nullptr)},
+        // m_global_happiness is PlayerHappiness, not Happy — needs
+        // its own bridge in Phase F.  Deferred.
+        {"global_happiness", nullptr},
+        {"readiness",        p.m_readiness        ? nlohmann::json(*p.m_readiness)       : nlohmann::json(nullptr)},
+        {"regard",           p.m_regard           ? nlohmann::json(*p.m_regard)          : nlohmann::json(nullptr)},
+        {"strengths",        p.m_strengths        ? nlohmann::json(*p.m_strengths)       : nlohmann::json(nullptr)},
+        // m_capitol via ID
+        {"capitol",          p.m_capitol          ? nlohmann::json(static_cast<ID const &>(*p.m_capitol)) : nlohmann::json(nullptr)},
+    };
+}
+
+void from_json(nlohmann::json const &j, Player &p)
+{
+    // StoreChunk block
+    j.at("owner")                          .get_to(p.m_owner);
+    p.m_playerType = static_cast<PLAYER_TYPE>(j.at("player_type").get<sint32>());
+    j.at("diplomatic_mute")                .get_to(p.m_diplomatic_mute);
+    j.at("mask_alliance")                  .get_to(p.mask_alliance);
+    j.at("mask_hostile")                   .get_to(p.m_mask_hostile);
+
+    auto const &diplomatic_state = j.at("diplomatic_state");
+    if (static_cast<sint32>(diplomatic_state.size()) != k_MAX_PLAYERS)
+        throw nlohmann::json::other_error::create(
+            570, "player.diplomatic_state needs k_MAX_PLAYERS entries", &j);
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        p.m_diplomatic_state[i] =
+            static_cast<DIPLOMATIC_STATE>(diplomatic_state[i].get<sint32>());
+    }
+
+    j.at("government_type")                .get_to(p.m_government_type);
+    j.at("trade_transport_points")         .get_to(p.m_tradeTransportPoints);
+    j.at("used_trade_transport_points")    .get_to(p.m_usedTradeTransportPoints);
+
+    auto const &pollution_history = j.at("pollution_history");
+    if (static_cast<sint32>(pollution_history.size()) != k_MAX_POLLUTION_HISTORY)
+        throw nlohmann::json::other_error::create(
+            571, "player.pollution_history size mismatch", &j);
+    for (sint32 i = 0; i < k_MAX_POLLUTION_HISTORY; ++i)
+        pollution_history[i].get_to(p.m_pollution_history[i]);
+
+    auto const &event_pollution = j.at("event_pollution");
+    if (static_cast<sint32>(event_pollution.size()) != k_MAX_EVENT_POLLUTION_TURNS)
+        throw nlohmann::json::other_error::create(
+            572, "player.event_pollution size mismatch", &j);
+    for (sint32 i = 0; i < k_MAX_EVENT_POLLUTION_TURNS; ++i)
+        event_pollution[i].get_to(p.m_event_pollution[i]);
+
+    p.m_terrainPollution  = j.at("terrain_pollution") .get<bool>() ? TRUE : FALSE;
+    p.m_deepOceanVisible  = j.at("deep_ocean_visible").get<bool>() ? TRUE : FALSE;
+
+    auto const &patience = j.at("patience");
+    auto const &sent_requests = j.at("sent_requests_this_turn");
+    if (static_cast<sint32>(patience.size()) != k_MAX_PLAYERS
+     || static_cast<sint32>(sent_requests.size()) != k_MAX_PLAYERS)
+    {
+        throw nlohmann::json::other_error::create(
+            573, "player.patience / sent_requests_this_turn need "
+                 "k_MAX_PLAYERS entries", &j);
+    }
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        patience[i]     .get_to(p.m_patience[i]);
+        sent_requests[i].get_to(p.m_sent_requests_this_turn[i]);
+    }
+
+    j.at("materials_tax")                  .get_to(p.m_materialsTax);
+    j.at("home_lost_unit_count")           .get_to(p.m_home_lost_unit_count);
+    j.at("oversea_lost_unit_count")        .get_to(p.m_oversea_lost_unit_count);
+    j.at("built_wonders")                  .get_to(p.m_builtWonders);
+    j.at("wonder_buildings")               .get_to(p.m_wonderBuildings);
+    j.at("income_percent")                 .get_to(p.m_income_Percent);
+    j.at("embassies")                      .get_to(p.m_embassies);
+    j.at("production_from_franchises")     .get_to(p.m_productionFromFranchises);
+    j.at("assasination_modifier")          .get_to(p.m_assasinationModifier);
+    j.at("assasination_timer")             .get_to(p.m_assasinationTimer);
+    p.m_isDead                              = j.at("is_dead")    .get<bool>() ? TRUE : FALSE;
+    p.m_first_city                          = j.at("first_city") .get<bool>() ? TRUE : FALSE;
+    j.at("total_armies_created")           .get_to(p.m_totalArmiesCreated);
+    p.m_hasUsedCityView          = j.at("has_used_city_view")          .get<bool>() ? TRUE : FALSE;
+    p.m_hasUsedWorkView          = j.at("has_used_work_view")          .get<bool>() ? TRUE : FALSE;
+    p.m_hasUsedProductionControls= j.at("has_used_production_controls").get<bool>() ? TRUE : FALSE;
+    j.at("total_production")               .get_to(p.m_total_production);
+    p.m_is_turn_over   = j.at("is_turn_over")  .get<bool>() ? TRUE : FALSE;
+    p.m_end_turn_soon  = j.at("end_turn_soon") .get<bool>() ? TRUE : FALSE;
+    j.at("power_points")                   .get_to(p.m_powerPoints);
+    j.at("last_action_cost")               .get_to(p.m_lastActionCost);
+    j.at("setup_center")                   .get_to(p.m_setupCenter);
+    j.at("setup_radius")                   .get_to(p.m_setupRadius);
+    p.m_doneSettingUp = j.at("done_setting_up").get<bool>() ? TRUE : FALSE;
+    j.at("contacted_players")              .get_to(p.m_contactedPlayers);
+    p.m_endingTurn = j.at("ending_turn").get<bool>() ? TRUE : FALSE;
+    j.at("set_government_type")            .get_to(p.m_set_government_type);
+    j.at("change_government_turn")         .get_to(p.m_change_government_turn);
+    p.m_changed_government_this_turn = j.at("changed_government_this_turn").get<bool>() ? TRUE : FALSE;
+    j.at("pop_science")                    .get_to(p.m_pop_science);
+    j.at("num_revolted")                   .get_to(p.m_num_revolted);
+    p.m_can_build_capitalization  = j.at("can_build_capitalization") .get<bool>() ? TRUE : FALSE;
+    p.m_can_build_infrastructure  = j.at("can_build_infrastructure") .get<bool>() ? TRUE : FALSE;
+
+    auto const &last_attacked = j.at("last_attacked");
+    if (static_cast<sint32>(last_attacked.size()) != k_MAX_PLAYERS)
+        throw nlohmann::json::other_error::create(
+            574, "player.last_attacked size mismatch", &j);
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+        last_attacked[i].get_to(p.m_last_attacked[i]);
+
+    p.m_can_use_terra_tab     = j.at("can_use_terra_tab")    .get<bool>() ? TRUE : FALSE;
+    p.m_can_use_space_tab     = j.at("can_use_space_tab")    .get<bool>() ? TRUE : FALSE;
+    p.m_can_use_sea_tab       = j.at("can_use_sea_tab")      .get<bool>() ? TRUE : FALSE;
+    p.m_can_use_space_button  = j.at("can_use_space_button") .get<bool>() ? TRUE : FALSE;
+    // m_networkGuid: leave at zero (see to_json comment).
+    memset(&p.m_networkGuid, 0, sizeof(p.m_networkGuid));
+    j.at("network_id")                     .get_to(p.m_networkId);
+    j.at("network_group")                  .get_to(p.m_networkGroup);
+    j.at("civ_revolting_cities_should_join").get_to(p.m_civRevoltingCitiesShouldJoin);
+    p.m_hasWonTheGame         = j.at("has_won_the_game")         .get<bool>() ? TRUE : FALSE;
+    p.m_hasLostTheGame        = j.at("has_lost_the_game")        .get<bool>() ? TRUE : FALSE;
+    p.m_disableChooseResearch = j.at("disable_choose_research")  .get<bool>() ? TRUE : FALSE;
+    p.m_openForNetwork        = j.at("open_for_network")         .get<bool>() ? TRUE : FALSE;
+    j.at("virtual_gold_spent")             .get_to(p.m_virtualGoldSpent);
+    j.at("current_round")                  .get_to(p.m_current_round);
+    j.at("max_city_count")                 .get_to(p.m_maxCityCount);
+    j.at("age")                            .get_to(p.m_age);
+    j.at("research_goal")                  .get_to(p.m_researchGoal);
+    j.at("broken_alliances_and_cease_fires").get_to(p.m_broken_alliances_and_cease_fires);
+
+    // m_goodSalePrices: variable-length, sized by ResourceDB
+    auto const &good_sale_prices = j.at("good_sale_prices");
+    if (p.m_goodSalePrices && g_theResourceDB
+        && static_cast<sint32>(good_sale_prices.size()) == g_theResourceDB->NumRecords())
+    {
+        for (sint32 i = 0; i < g_theResourceDB->NumRecords(); ++i)
+            good_sale_prices[i].get_to(p.m_goodSalePrices[i]);
+    }
+
+    // Composed sub-objects — null in JSON skips the field on load
+    if (!j.at("science")          .is_null() && p.m_science)          j.at("science")         .get_to(*p.m_science);
+    if (!j.at("tax_rate")         .is_null() && p.m_tax_rate)         j.at("tax_rate")        .get_to(*p.m_tax_rate);
+    if (!j.at("advances")         .is_null() && p.m_advances)         j.at("advances")        .get_to(*p.m_advances);
+    // m_global_happiness deferred (see to_json comment)
+    if (!j.at("readiness")        .is_null() && p.m_readiness)        j.at("readiness")       .get_to(*p.m_readiness);
+    if (!j.at("regard")           .is_null() && p.m_regard)           j.at("regard")          .get_to(*p.m_regard);
+    if (!j.at("strengths")        .is_null() && p.m_strengths)        j.at("strengths")       .get_to(*p.m_strengths);
+
+    // m_capitol (Unit*) — null in JSON skips
+    if (!j.at("capitol").is_null() && p.m_capitol)
+    {
+        ID capitol_id(0);
+        j.at("capitol").get_to(capitol_id);
+        *p.m_capitol = Unit(capitol_id.m_id);
+    }
 }
 
 // Phase D — Foreigner

@@ -1773,7 +1773,7 @@ void CityData::DoLocalPollution()
 		g_slicEngine->Execute(so);
 	}
 
-	if(g_rand->Next(1000) < chance * 1000) {
+	if(civrand().Next(1000) < chance * 1000) {
 		SlicObject *so = new SlicObject("040GrossPolluter");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
@@ -1788,7 +1788,7 @@ void CityData::DoLocalPollution()
 			totalTiles++;
 		}
 
-		m_whichtile = g_rand->Next(totalTiles);
+		m_whichtile = civrand().Next(totalTiles);
 		m_tilecount = 0;
 
 		m_cityRadiusOp = RADIUS_OP_KILL_TILE;
@@ -4663,7 +4663,7 @@ bool CityData::BeginTurn()
 	DoSupport(false);
 #else
 
-	sint32 temper = g_rand->Next(50);
+	sint32 temper = civrand().Next(50);
 	TryToBuild(); // Deal with capitalization/infrastructure. Otherwise, build the front item in this city's buildqueue.
 	//TryToBuild must before capitalisation computation and after production computation
 
@@ -4837,7 +4837,7 @@ void CityData::CheckRiot()
 		return;
 
 	if(m_happy->GetHappiness() < g_theConstDB->Get(0)->GetRiotLevel()) {
-		if(g_rand->Next(100) < ((g_theConstDB->Get(0)->GetRiotLevel() - m_happy->GetHappiness()) *
+		if(civrand().Next(100) < ((g_theConstDB->Get(0)->GetRiotLevel() - m_happy->GetHappiness()) *
 								g_player[m_owner]->GetRiotChance())) {
 			m_is_rioting = TRUE;
 
@@ -5916,7 +5916,7 @@ void CityData::NanoInfect( sint32 player )
 	{
 		if(m_built_improvements & (safe_shift_left_u64(i)))
 		{
-			if(g_rand->Next(100) < (g_theConstDB->Get(0)->GetNanoBuildingKillPercentage() * 100.0))
+			if(civrand().Next(100) < (g_theConstDB->Get(0)->GetNanoBuildingKillPercentage() * 100.0))
 			{
 				DestroyImprovement(i);
 			}
@@ -5940,7 +5940,7 @@ void CityData::SpreadBioTerror()
 		if ((c.IsBioImmune()) || (c.IsBioInfected()))
 			continue;
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionSpreadChance()
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionSpreadChance()
 			                          * 100.0)) {
 			c.BioInfect(0);
 			SlicObject *so = new SlicObject("047InfectedViaTrade");
@@ -5962,7 +5962,7 @@ void CityData::SpreadNanoTerror()
 		if ((c.IsNanoImmune()) || (c.IsNanoInfected()))
 			continue;
 
-		if(g_rand->Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionSpreadChance()
+		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionSpreadChance()
 			                          * 100.0)) {
 			c.NanoInfect(0);
 			SlicObject *so = new SlicObject("047InfectedViaTrade");
@@ -7670,7 +7670,7 @@ void CityData::DestroyRandomBuilding()
 	}
 
 	if(count > 0) {
-		sint32 which = g_rand->Next(count);
+		sint32 which = civrand().Next(count);
 
 		m_built_improvements &= ~safe_shift_left_u64(buildings[which]);
 //		g_player[m_owner]->RegisterLostBuilding(m_home_city, buildings[which]); //  Maybe worth of reimplementation
@@ -7830,7 +7830,7 @@ void CityData::CheckForSlaveUprising()
 
 	sint32 chance = over * g_theConstDB->Get(0)->GetUprisingChancePerUnguardedSlave();
 
-	if(g_rand->Next(100) < chance) {
+	if(civrand().Next(100) < chance) {
 
 		m_doUprising = UPRISING_CAUSE_UNGUARDED_SLAVES;
 	}
@@ -10430,7 +10430,7 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 			// another (mosques, churches, synagogues, etc)
 			for(sint32 i = 0; i < rec->GetNumConflictsWithBuilding(); i++) {
 				if((rec->GetNumConflictsWithBuilding()) && HasBuilding(rec->GetConflictsWithBuildingIndex(i))) {
-					newsecthappy -= g_rand->Next(PopCount() / 3);
+					newsecthappy -= civrand().Next(PopCount() / 3);
 				}
 
 				// Checks if ANY city has a building that conflicts
@@ -10440,7 +10440,7 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 				for(c = 0; c < g_player[m_owner]->m_all_cities->Num(); c++) {
 					Unit aCity = g_player[m_owner]->m_all_cities->Access(c);
 					if(aCity.CD()->HasBuilding(rec->GetConflictsWithBuildingIndex(i))){
-						newsecthappy -= g_rand->Next(PopCount() / 3);
+						newsecthappy -= civrand().Next(PopCount() / 3);
 					}
 				}
 
@@ -10449,14 +10449,14 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 			//checks if govt conflicts prereqgovt
 			for(sint32 g = 0; g < rec->GetNumGovernmentType(); g++) {
 				if(rec->GetGovernmentTypeIndex(g) != g_player[owner]->GetGovernmentType()) {
-					newsecthappy -= g_rand->Next(PopCount() / 3);
+					newsecthappy -= civrand().Next(PopCount() / 3);
 				}
 			}
 
 			//checks if cultureonly conflicts
 			for(sint32 u = 0; u < rec->GetNumCultureOnly(); u++) {
 				if(rec->GetCultureOnlyIndex(u) != g_player[owner]->GetCivilisation()->GetCityStyle()) {
-					newsecthappy -= g_rand->Next(PopCount() / 3);
+					newsecthappy -= civrand().Next(PopCount() / 3);
 				}
 			}
 			//end Buildings
@@ -10468,7 +10468,7 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 	//	&& (g_player[owner]->GetCivilisation()->GetCityStyle() > 0) && (owner != PLAYER_UNASSIGNED) && (citystyle > 0) && (citystyle != NULL)
 	//){ //this STILL didn't fix it
 	//	if(citystyle != g_player[owner]->GetCivilisation()->GetCityStyle()) { //TODO this line causes the crash
-	//			secthappy -= 2; //g_rand->Next(PopCount() / 3);
+	//			secthappy -= 2; //civrand().Next(PopCount() / 3);
 	//	}
 	//}
 
@@ -10484,7 +10484,7 @@ sint32 CityData::ProcessSectarianHappiness(sint32 newsecthappy, sint32 owner, si
 
 		// Checks if the original owner of the city has a different govt than the occupier for political strife
 		//if(g_player[m_founder]->GetGovernmentType() == g_player[m_owner]->GetGovernmentType()) {
-		//	secthappy -= g_rand->Next(PopCount() / 3);
+		//	secthappy -= civrand().Next(PopCount() / 3);
 		//}
 	//m_secthappy += newsecthappy;
 
@@ -10740,7 +10740,7 @@ void CityData::InsurgentSpawn()
 			barbchance += notFounder;
 			barbchance += notCityStyle;
 
-			if(g_rand->Next(10000) < static_cast<sint32>(barbchance * 10000.0)) {
+			if(civrand().Next(10000) < static_cast<sint32>(barbchance * 10000.0)) {
 				// Add some Barbarians nearby cpos.
 				Barbarians::AddBarbarians(cpos, m_owner, false);
 				SlicObject *so = new SlicObject("999InsurgentSpawn");
@@ -10765,7 +10765,7 @@ void CityData::RiotCasualties()
 	   &&     PopCount() >= 10
 	  )
 	{
-		sint32 casualties = (g_rand->Next(PopCount() / 10));
+		sint32 casualties = (civrand().Next(PopCount() / 10));
 
 		if (casualties > 1)
 		{

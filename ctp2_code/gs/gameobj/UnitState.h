@@ -35,6 +35,8 @@
 #include "gs/gameobj/Unit.h"     // Unit (the gs/-side handle, value type)
 #include "gs/world/MapPoint.h"   // MapPoint (position value type)
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 
 // Two construction modes determine how reads dispatch:
@@ -67,6 +69,13 @@ public:
     // Phase 1 placeholder.  Real serialization populates as fields are
     // migrated.  Renderer state is NOT serialized (transient).
     void Serialize(CivArchive &archive);
+
+    // JSON savegame bridge.  Currently serialises just unit_id + pos
+    // — matches the binary path's Phase 1 placeholder (nothing
+    // serialised yet).  Subsequent migration phases that move fields
+    // from UnitActor will extend both Serialize and this bridge.
+    friend void to_json(nlohmann::json &j, UnitState const &s);
+    friend void from_json(nlohmann::json const &j, UnitState &s);
 
 private:
     Unit m_unit_id;

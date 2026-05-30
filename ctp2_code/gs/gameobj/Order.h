@@ -33,12 +33,22 @@ extern sint32 g_orderInfoMap[UNIT_ORDER_MAX];
 #include "gs/events/GameEventDescription.h"
 #include "gs/world/MapPoint.h"
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 class GameEventArgList;
 class OrderRecord;
 class Path;
 
 class Order {
+	// JSON bridge — mirrors Order::Serialize at Order.cpp:146.
+	// Captures the 5 scalars + m_point (MapPoint).  OMITS m_path
+	// (Path *) and m_gameEventArgs (GameEventArgList *) — both
+	// pointer-typed sub-objects need their own bridges (Phase E-2
+	// or later).  Also omits m_index (pool bookkeeping).
+	friend void to_json(nlohmann::json &j, Order const &o);
+	friend void from_json(nlohmann::json const &j, Order &o);
+
 public:
 	UNIT_ORDER_TYPE m_order;
 	Path *m_path;

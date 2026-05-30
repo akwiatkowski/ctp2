@@ -68,6 +68,8 @@
 #include "gs/gameobj/UnitTypes.h"           // POP_MAX
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/PollutionConst.h"      // already included via pollution.h, kept explicit
+#include "gs/gameobj/UnitState.h"
+#include "gs/gameobj/Order.h"
 #include "CivilisationRecord.h"            // k_MAX_CityName
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
@@ -1386,6 +1388,59 @@ void from_json(nlohmann::json const &j, Diplomat &d)
     j.at("last_party")                      .get_to(d.m_lastParty);
     j.at("launched_nukes")                  .get_to(d.m_launchedNukes);
     j.at("launched_nano_attack")            .get_to(d.m_launchedNanoAttack);
+}
+
+// Phase E-1 — UnitState (Phase 1 placeholder)
+// Currently serialises unit_id + pos.  Matches the binary Serialize
+// body (which writes nothing yet).  As fields migrate from UnitActor
+// into UnitState in subsequent UnitActor-split phases, both Serialize
+// and this bridge extend in lockstep.
+
+void to_json(nlohmann::json &j, UnitState const &s)
+{
+    j = nlohmann::json{
+        {"unit_id", static_cast<ID const &>(s.m_unit_id)},
+        {"pos",     s.m_pos},
+    };
+}
+
+void from_json(nlohmann::json const &j, UnitState &s)
+{
+    ID id(0);
+    j.at("unit_id").get_to(id);
+    s.m_unit_id = Unit(id.m_id);
+    j.at("pos").get_to(s.m_pos);
+}
+
+// Phase E-1 — Order
+// Mirrors Order::Serialize at Order.cpp:146.  Persists scalar fields
+// + m_point.  m_path (Path *) and m_gameEventArgs (GameEventArgList *)
+// are pointer-typed sub-objects with their own Serialize methods —
+// they need their own JSON bridges; deferred to Phase E-2 or later.
+// to_json sets them to null; from_json leaves the pointers at nullptr.
+
+void to_json(nlohmann::json &j, Order const &o)
+{
+    j = nlohmann::json{
+        {"order",           static_cast<sint32>(o.m_order)},
+        {"round",           o.m_round},
+        {"point",           o.m_point},
+        {"argument",        o.m_argument},
+        {"event_type",      static_cast<sint32>(o.m_eventType)},
+        {"path",            nullptr},
+        {"game_event_args", nullptr},
+    };
+}
+
+void from_json(nlohmann::json const &j, Order &o)
+{
+    o.m_order = static_cast<UNIT_ORDER_TYPE>(j.at("order").get<sint32>());
+    j.at("round")   .get_to(o.m_round);
+    j.at("point")   .get_to(o.m_point);
+    j.at("argument").get_to(o.m_argument);
+    o.m_eventType = static_cast<GAME_EVENT>(j.at("event_type").get<sint32>());
+    o.m_path          = nullptr;
+    o.m_gameEventArgs = nullptr;
 }
 
 // Phase D-9 — CityData (largest single class composite)

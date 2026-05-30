@@ -45,6 +45,8 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/UnitTypes.h"
+#include "gs/gameobj/UnitState.h"
+#include "gs/gameobj/Order.h"
 #include "CivilisationRecord.h"
 
 #include <cstdio>
@@ -1674,6 +1676,73 @@ TEST_CASE("json round-trip: Player omits Phase-E/F sub-types (deferred)")
         "network_guid",            // Pre-A non-deterministic
     };
     CHECK(sizeof(omitted_keys) / sizeof(*omitted_keys) >= 14);
+}
+
+// --- Phase E-1 Unit-layer leaves ---
+
+TEST_CASE("json round-trip: UnitState preserves unit_id + pos")
+{
+    UnitState orig(MapPoint(5, 9));
+    orig.SetUnitID(Unit(0xABCDE));
+    orig.SetPos(MapPoint(7, 13));
+
+    nlohmann::json j = orig;
+    UnitState round;
+    j.get_to(round);
+
+    CHECK(round.GetUnitID().m_id == 0xABCDEu);
+    nlohmann::json j2 = round;
+    CHECK(j2["unit_id"] == 0xABCDEu);
+    CHECK(j2["pos"]["x"] == 7);
+    CHECK(j2["pos"]["y"] == 13);
+}
+
+TEST_CASE("json round-trip: UnitState key set is exactly {unit_id, pos}")
+{
+    UnitState s;
+    nlohmann::json j = s;
+    CHECK(j.size() == 2);
+    CHECK(j.contains("unit_id"));
+    CHECK(j.contains("pos"));
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: Order preserves 5 scalars + MapPoint")
+{
+    Order orig;
+    orig.m_order      = UNIT_ORDER_MOVE_TO;
+    orig.m_round      = 42;
+    orig.m_point      = MapPoint(11, 17);
+    orig.m_argument   = 12345;
+    orig.m_eventType  = GEV_MoveOrder;
+
+    nlohmann::json j = orig;
+    Order round;
+    j.get_to(round);
+
+    CHECK(round.m_order        == UNIT_ORDER_MOVE_TO);
+    CHECK(round.m_round        == 42);
+    CHECK(round.m_argument     == 12345);
+    CHECK(round.m_eventType    == GEV_MoveOrder);
+    CHECK(round.m_path         == nullptr);
+    CHECK(round.m_gameEventArgs == nullptr);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["point"]["x"] == 11);
+    CHECK(j2["point"]["y"] == 17);
+}
+
+TEST_CASE("json round-trip: Order deferred pointer fields are null in JSON")
+{
+    Order o;
+    nlohmann::json j = o;
+    CHECK(j["path"]            .is_null());
+    CHECK(j["game_event_args"] .is_null());
+    CHECK_FALSE(j.contains("index"));
+    CHECK_FALSE(j.contains("m_index"));
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
 }
 
 TEST_CASE("json round-trip: D-5 leaf bridges all use snake_case (no m_ leak)")

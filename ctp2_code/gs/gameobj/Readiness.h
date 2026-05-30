@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed gold support cost so that it does not break the save game format. (April 29th 2006 Martin Gühmann)
+// - Fixed gold support cost so that it does not break the save game format. (April 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -46,6 +46,8 @@ class CivArchive;
 class Unit;
 template <class T> class DynamicArray;
 class Army;
+
+#include <nlohmann/json.hpp>
 
 class MilitaryReadiness
 {
@@ -72,6 +74,8 @@ private:
 //----------------------------------------------------------------------------
 
     friend class NetReadiness;
+    friend void to_json(nlohmann::json &j, MilitaryReadiness const &r);
+    friend void from_json(nlohmann::json const &j, MilitaryReadiness &r);
 
 public:
 	MilitaryReadiness(sint32 o);

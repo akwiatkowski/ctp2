@@ -21,9 +21,15 @@ class CivArchive;
 #define k_REGARD_VERSION_MINOR	0
 
 #include "gs/utility/gstypes.h"
+#include <nlohmann/json.hpp>
 
 class Regard
 	{
+		// Declared via friend so nlohmann's ADL picks up to_json /
+		// from_json on Regard at call sites that only include this
+		// header (the implementation lives in json_save.cpp).
+		friend void to_json(nlohmann::json &j, Regard const &r);
+		friend void from_json(nlohmann::json const &j, Regard &r);
 
 	public:
 

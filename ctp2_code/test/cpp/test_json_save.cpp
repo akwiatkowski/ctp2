@@ -18,6 +18,11 @@
 #include "gs/world/Cell.h"
 #include "gs/world/TileInfo.h"
 #include "gs/world/UnseenCell.h"
+#include "gs/gameobj/Score.h"
+#include "gs/gameobj/Regard.h"
+#include "gs/gameobj/TaxRate.h"
+#include "gs/gameobj/Sci.h"
+#include "gs/gameobj/Readiness.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -472,4 +477,148 @@ TEST_CASE("json_save: SaveJson writes the Phase B top-level shape")
     // running this test in fast/unit suite (no game initialisation),
     // they're not — that's fine.  Lock the presence-when-wired
     // behaviour at the integration tier instead.
+}
+
+// --- Phase D-1 player-layer leaf round-trips ---
+
+TEST_CASE("json round-trip: Score preserves all 6 scalar fields")
+{
+    Score orig(/*owner*/3);
+    orig.AddCityRecaptured();
+    orig.AddCityRecaptured();           // -> cities_recaptured = 2
+    orig.AddOpponentConquered();         // -> opponents_conquered = 1
+    orig.SetFinalScore(12345);
+    orig.SetVictoryType(kScoreSoloVictory);
+    orig.AddFeat();                      // -> feats = 1
+
+    nlohmann::json j = orig;
+    Score round(0);
+    j.get_to(round);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["owner"]               == j["owner"]);
+    CHECK(j2["cities_recaptured"]   == 2);
+    CHECK(j2["opponents_conquered"] == 1);
+    CHECK(j2["final_score"]         == 12345);
+    CHECK(j2["victory_type"]        == kScoreSoloVictory);
+    CHECK(j2["feats"]               == 1);
+}
+
+TEST_CASE("json round-trip: Score key set is exactly the locked 6")
+{
+    Score s(0);
+    nlohmann::json j = s;
+    CHECK(j.size() == 6);
+    CHECK(j.contains("owner"));
+    CHECK(j.contains("cities_recaptured"));
+    CHECK(j.contains("opponents_conquered"));
+    CHECK(j.contains("final_score"));
+    CHECK(j.contains("victory_type"));
+    CHECK(j.contains("feats"));
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: Regard preserves all k_MAX_PLAYERS entries")
+{
+    Regard orig;
+    // Drive a varied pattern across the 32 player slots.
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        orig.SetForPlayer(i, static_cast<REGARD_TYPE>(i % 6));
+    }
+
+    nlohmann::json j = orig;
+    Regard round;
+    j.get_to(round);
+
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        CHECK(round.GetForPlayer(i) == orig.GetForPlayer(i));
+    }
+}
+
+TEST_CASE("json round-trip: Regard load rejects wrong array size")
+{
+    nlohmann::json bad{{"regard", nlohmann::json::array({0, 1, 2})}};
+    Regard r;
+    CHECK_THROWS(bad.get_to(r));
+}
+
+TEST_CASE("json round-trip: TaxRate preserves both doubles")
+{
+    // SetTaxRates dereferences g_player[owner]->m_government_type
+    // — null in unit-tier tests.  Drive state through a synthetic
+    // JSON and verify the round-trip back.
+    nlohmann::json j{
+        {"science",                0.625},
+        {"science_before_anarchy", 0.375},
+    };
+    TaxRate t;
+    j.get_to(t);
+
+    double science = -1.0;
+    t.GetScienceTaxRate(science);
+    CHECK(science == doctest::Approx(0.625));
+    CHECK(t.GetScienceBeforeAnarchy() == doctest::Approx(0.375));
+
+    // Round back out matches.
+    nlohmann::json j2 = t;
+    CHECK(j2 == j);
+}
+
+TEST_CASE("json round-trip: Science preserves m_level")
+{
+    Science orig;
+    orig.SetLevel(98765);
+
+    nlohmann::json j = orig;
+    Science round;
+    j.get_to(round);
+
+    CHECK(round.GetLevel() == 98765);
+    CHECK(j.contains("level"));
+    CHECK(j.size() == 1);
+}
+
+TEST_CASE("json round-trip: MilitaryReadiness preserves all 9 fields")
+{
+    MilitaryReadiness orig(/*owner*/2);
+
+    // Drive non-default values directly via JSON since the public
+    // API mostly drives state through SetLevel(game, all_armies,...)
+    // which needs game globals.  Roundtrip a deserialised state.
+    nlohmann::json j{
+        {"delta",             1.5},
+        {"hp_modifier",       0.875},
+        {"cost",              42.0},
+        {"percent_last_turn", 0.3},
+        {"readiness_level",   static_cast<sint32>(READINESS_LEVEL_ALERT)},
+        {"ignore_unsupport",  true},
+        {"owner",             2},
+        {"turn_started",      17},
+        {"cost_gold",         101},
+    };
+    j.get_to(orig);
+
+    nlohmann::json j2 = orig;
+    CHECK(j2 == j);  // exact round-trip
+    CHECK(orig.GetLevel() == READINESS_LEVEL_ALERT);
+}
+
+TEST_CASE("json round-trip: leaf bridges all use snake_case (no m_ leak)")
+{
+    Score    sc(0);    nlohmann::json js = sc;
+    Regard   r;        nlohmann::json jr = r;
+    TaxRate  t;        nlohmann::json jt = t;
+    Science  ss;       nlohmann::json jss = ss;
+    MilitaryReadiness mr(0); nlohmann::json jm = mr;
+
+    for (auto const &j : {js, jr, jt, jss, jm})
+    {
+        for (auto const &el : j.items())
+        {
+            CHECK(el.key().substr(0, 2) != "m_");
+        }
+    }
 }

@@ -5,11 +5,16 @@
 #define __TAX_RATE_H__ 1
 
 #include "robot/aibackdoor/civarchive.h"
+#include <nlohmann/json.hpp>
 
 #define k_TAXRATE_VERSION_MAJOR	0
 #define k_TAXRATE_VERSION_MINOR	0
 
 class TaxRate {
+
+	friend void to_json(nlohmann::json &j, TaxRate const &t);
+	friend void from_json(nlohmann::json const &j, TaxRate &t);
+
 
 
 	double m_science;

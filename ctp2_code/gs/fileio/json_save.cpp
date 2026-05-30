@@ -37,6 +37,11 @@
 #include "gs/world/World.h"
 #include "gs/fileio/StartingPosition.h"
 #include "ResourceRecord.h"               // g_theResourceDB (dbgen-built)
+#include "gs/gameobj/Score.h"
+#include "gs/gameobj/Regard.h"
+#include "gs/gameobj/TaxRate.h"
+#include "gs/gameobj/Sci.h"               // Science
+#include "gs/gameobj/Readiness.h"         // MilitaryReadiness
 #include "gs/core/player_view.h"          // player_view::CurPlayer
 
 #include <chrono>
@@ -492,6 +497,112 @@ void from_json(nlohmann::json const &j, World &w)
     // Database size changed: the binary path calls
     // ComputeGoodsValues() here.  Phase C-2 leaves m_goodValue alone
     // for the JSON path — Phase D's player + city deps will revisit.
+}
+
+// --- Player-layer leaf bridges (Phase D-1) -----------------------------
+// Mechanical: mirror each class's Serialize() field set 1:1 with
+// snake_case JSON keys.  These are the simple leaves with no nested
+// pointer state — the larger leaves (Strengths' per-category history,
+// Exclusions' heap arrays, the Happy* family) land in Phase D-2/D-3.
+
+void to_json(nlohmann::json &j, Score const &s)
+{
+    j = nlohmann::json{
+        {"owner",                s.m_owner},
+        {"cities_recaptured",    s.m_cities_recaptured},
+        {"opponents_conquered",  s.m_opponents_conquered},
+        {"final_score",          s.m_finalScore},
+        {"victory_type",         s.m_victory_type},
+        {"feats",                s.m_feats},
+    };
+}
+
+void from_json(nlohmann::json const &j, Score &s)
+{
+    j.at("owner")               .get_to(s.m_owner);
+    j.at("cities_recaptured")   .get_to(s.m_cities_recaptured);
+    j.at("opponents_conquered") .get_to(s.m_opponents_conquered);
+    j.at("final_score")         .get_to(s.m_finalScore);
+    j.at("victory_type")        .get_to(s.m_victory_type);
+    j.at("feats")               .get_to(s.m_feats);
+}
+
+void to_json(nlohmann::json &j, Regard const &r)
+{
+    nlohmann::json regard = nlohmann::json::array();
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        regard.push_back(static_cast<sint32>(r.m_regard[i]));
+    }
+    j = nlohmann::json{{"regard", std::move(regard)}};
+}
+
+void from_json(nlohmann::json const &j, Regard &r)
+{
+    auto const &regard = j.at("regard");
+    if (regard.size() != k_MAX_PLAYERS)
+    {
+        throw nlohmann::json::other_error::create(
+            510, "regard.regard must have exactly k_MAX_PLAYERS entries",
+            &j);
+    }
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    {
+        r.m_regard[i] = static_cast<REGARD_TYPE>(regard[i].get<sint32>());
+    }
+}
+
+void to_json(nlohmann::json &j, TaxRate const &t)
+{
+    j = nlohmann::json{
+        {"science",                t.m_science},
+        {"science_before_anarchy", t.m_science_before_anarchy},
+    };
+}
+
+void from_json(nlohmann::json const &j, TaxRate &t)
+{
+    j.at("science")               .get_to(t.m_science);
+    j.at("science_before_anarchy").get_to(t.m_science_before_anarchy);
+}
+
+void to_json(nlohmann::json &j, Science const &s)
+{
+    j = nlohmann::json{{"level", s.m_level}};
+}
+
+void from_json(nlohmann::json const &j, Science &s)
+{
+    j.at("level").get_to(s.m_level);
+}
+
+void to_json(nlohmann::json &j, MilitaryReadiness const &r)
+{
+    j = nlohmann::json{
+        {"delta",             r.m_delta},
+        {"hp_modifier",       r.m_hp_modifier},
+        {"cost",              r.m_cost},
+        {"percent_last_turn", r.m_percent_last_turn},
+        {"readiness_level",   static_cast<sint32>(r.m_readinessLevel)},
+        {"ignore_unsupport",  static_cast<bool>(r.m_ignore_unsupport)},
+        {"owner",             r.m_owner},
+        {"turn_started",      r.m_turnStarted},
+        {"cost_gold",         r.m_costGold},
+    };
+}
+
+void from_json(nlohmann::json const &j, MilitaryReadiness &r)
+{
+    j.at("delta")            .get_to(r.m_delta);
+    j.at("hp_modifier")      .get_to(r.m_hp_modifier);
+    j.at("cost")             .get_to(r.m_cost);
+    j.at("percent_last_turn").get_to(r.m_percent_last_turn);
+    r.m_readinessLevel = static_cast<READINESS_LEVEL>(
+        j.at("readiness_level").get<sint32>());
+    r.m_ignore_unsupport = j.at("ignore_unsupport").get<bool>() ? TRUE : FALSE;
+    j.at("owner")            .get_to(r.m_owner);
+    j.at("turn_started")     .get_to(r.m_turnStarted);
+    j.at("cost_gold")        .get_to(r.m_costGold);
 }
 
 namespace json_save {

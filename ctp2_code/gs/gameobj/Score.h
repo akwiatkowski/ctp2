@@ -4,6 +4,8 @@
 #ifndef __SCORE_H__
 #define __SCORE_H__
 
+#include <nlohmann/json.hpp>
+
 class CivArchive;
 class Player;
 typedef sint32 PLAYER_INDEX;
@@ -70,6 +72,8 @@ private:
 
 	friend class NetPlayer;
 	friend class NetScores;
+	friend void to_json(nlohmann::json &j, Score const &s);
+	friend void from_json(nlohmann::json const &j, Score &s);
 
 	sint32 GetPartialScoreCount(SCORE_CATEGORY cat);
 	double GetPartialScoreValue(SCORE_CATEGORY cat);

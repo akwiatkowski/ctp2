@@ -6,10 +6,16 @@
 
 class CivArchive;
 
+#include <nlohmann/json.hpp>
+
 #define k_SCIENCE_VERSION_MAJOR	0
 #define k_SCIENCE_VERSION_MINOR	0
 
 class Science {
+
+	friend void to_json(nlohmann::json &j, Science const &s);
+	friend void from_json(nlohmann::json const &j, Science &s);
+
 
 
 

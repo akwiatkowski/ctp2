@@ -4,6 +4,7 @@
 #include "gs/slic/StringHash.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicNamedSymbol.h"
+#include <nlohmann/json.hpp>
 
 #define k_SLIC_SYM_TAB_HASH_SIZE 256
 
@@ -34,6 +35,9 @@ public:
 
 	void GrowBy(sint32 num);
 	void Resize(sint32 num);
+
+	friend void to_json(nlohmann::json &j, SlicSymTab const &t);
+	friend void from_json(nlohmann::json const &j, SlicSymTab &t);
 };
 
 #endif

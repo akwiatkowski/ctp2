@@ -92,6 +92,7 @@
 #include "gs/slic/SlicNamedSymbol.h"
 #include "gs/slic/SlicArray.h"
 #include "gs/slic/SlicStruct.h"   // SlicStructDescription::GetType()
+#include "gs/slic/SlicSymTab.h"
 #include "gs/slic/SlicFunc.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
@@ -3534,6 +3535,81 @@ void from_json(nlohmann::json const &j, SlicStructInstance &s)
         // when neither persisted form is available.
         s.m_dataSymbol  = s.m_description->CreateDataSymbol();
         s.m_createdData = true;
+    }
+}
+
+// Phase F-13 — SlicSymTab (global named-symbol table).  Mirrors
+// SlicSymTab::Serialize at SlicSymTab.cpp:39.
+//
+// JSON shape:
+//   {
+//     "array_size":  N,
+//     "num_entries": M,
+//     "entries":     [<SlicSymbolData json or null>, ...]   // length M
+//   }
+//
+// Each non-null entry MUST carry serial_type in {named, parameter,
+// builtin} — SymTab holds SlicNamedSymbol*, not bare SlicSymbolData.
+// On load, entries are constructed via loadSlicSymbolFromJson, added
+// to the underlying StringHash, and registered with the engine's
+// builtin table when applicable.
+
+void to_json(nlohmann::json &j, SlicSymTab const &t)
+{
+    nlohmann::json entries = nlohmann::json::array();
+    for (sint32 i = 0; i < t.m_numEntries; ++i)
+        entries.push_back(storeSlicSymbolToJson(t.m_array[i]));
+
+    j = nlohmann::json{
+        {"array_size",  t.m_arraySize},
+        {"num_entries", t.m_numEntries},
+        {"entries",     std::move(entries)},
+    };
+}
+
+void from_json(nlohmann::json const &j, SlicSymTab &t)
+{
+    // Drop the placeholder array allocated by SlicSymTab(sint32) (the
+    // only public ctor in the unit-test path).  The (CivArchive&)
+    // ctor leaves m_array uninitialised and lets Serialize allocate;
+    // we do the same here.
+    delete[] t.m_array;
+
+    j.at("array_size").get_to(t.m_arraySize);
+    j.at("num_entries").get_to(t.m_numEntries);
+    t.m_array = new SlicNamedSymbol *[t.m_arraySize];
+    std::fill(t.m_array, t.m_array + t.m_arraySize,
+              static_cast<SlicNamedSymbol *>(nullptr));
+
+    auto const &entries = j.at("entries");
+    for (sint32 i = 0; i < t.m_numEntries && i < static_cast<sint32>(entries.size()); ++i)
+    {
+        SlicSymbolData *sym = loadSlicSymbolFromJson(entries[i]);
+        if (!sym)
+        {
+            t.m_array[i] = nullptr;
+            continue;
+        }
+        // Mirror binary: cast to SlicNamedSymbol* (the factory returns
+        // one of the F-10 derived classes for serial_type in
+        // {named, parameter, builtin}; "generic" would be a malformed
+        // symtab entry).
+        auto *named = dynamic_cast<SlicNamedSymbol *>(sym);
+        if (!named)
+        {
+            delete sym;
+            throw nlohmann::json::other_error::create(
+                501,
+                "SlicSymTab entry " + std::to_string(i) +
+                    " has serial_type 'generic'; expected named/parameter/builtin",
+                nullptr);
+        }
+        t.m_array[i] = named;
+        t.StringHash<SlicNamedSymbol>::Add(named);
+        if (named->IsBuiltin() && g_slicEngine)
+        {
+            g_slicEngine->AddBuiltinSymbol(static_cast<SlicBuiltinNamedSymbol *>(named));
+        }
     }
 }
 

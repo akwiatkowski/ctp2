@@ -3097,3 +3097,74 @@ TEST_CASE("json round-trip: SlicSymbolData STRUCT composition serialises")
     // tracker in this test; in real use g_slicEngine owns descriptions).
     (void)desc;  // intentionally leaked — engine-owned in production
 }
+
+// Phase F-13 — SlicSymTab.
+
+#include "gs/slic/SlicSymTab.h"
+
+TEST_CASE("json round-trip: SlicSymTab empty")
+{
+    SlicSymTab orig(/*size*/ 0);
+
+    nlohmann::json j = orig;
+    CHECK(j["num_entries"]    == 0);
+    CHECK(j["entries"].size() == 0);
+    CHECK(j["array_size"]     >= 1);  // SlicSymTab ctor bumps 0 to 1
+}
+
+TEST_CASE("json round-trip: SlicSymTab with named-symbol entries")
+{
+    SlicSymTab orig(/*size*/ 0);
+    auto *n1 = new SlicNamedSymbol("first",  SLIC_SYM_IVAR);
+    n1->SetIntValue(10);
+    auto *n2 = new SlicNamedSymbol("second", SLIC_SYM_IVAR);
+    n2->SetIntValue(20);
+    orig.Add(n1);  // takes ownership via the array, but dtor doesn't delete
+    orig.Add(n2);  // entries (see SlicSymTab::~SlicSymTab #if 0 block)
+
+    nlohmann::json j = orig;
+    CHECK(j["num_entries"]    == 2);
+    CHECK(j["entries"].size() == 2);
+    CHECK(j["entries"][0]["serial_type"] == "named");
+    CHECK(j["entries"][0]["name"]        == "first");
+    CHECK(j["entries"][0]["int_value"]   == 10);
+    CHECK(j["entries"][1]["name"]        == "second");
+
+    SlicSymTab round(/*size*/ 0);
+    j.get_to(round);
+    CHECK(round.GetNumEntries() == 2);
+    CHECK(std::string(round.Access(0)->GetName()) == "first");
+    CHECK(std::string(round.Access(1)->GetName()) == "second");
+
+    // Underlying StringHash is rebuilt — name lookup should find the
+    // entry.  StringHash<T>::Access returns T* by name (the SymTab
+    // overload Access(sint32) shadows it, so qualify the call).
+    SlicNamedSymbol *byName =
+        round.StringHash<SlicNamedSymbol>::Access("second");
+    CHECK(byName == round.Access(1));
+
+    // n1 and n2 are owned by orig's StringHash (StringHashNode::~
+    // deletes m_obj); no explicit cleanup needed.  round's entries
+    // are owned by round's StringHash similarly.
+}
+
+TEST_CASE("json round-trip: SlicSymTab keys are snake_case (no m_ leak)")
+{
+    SlicSymTab t(/*size*/ 0);
+    nlohmann::json j = t;
+    for (auto const &el : j.items())
+        CHECK(el.key().substr(0, 2) != "m_");
+}
+
+TEST_CASE("json round-trip: SlicSymTab rejects generic-serial-type entries")
+{
+    nlohmann::json j = {
+        {"array_size",  4},
+        {"num_entries", 1},
+        {"entries", {
+            {{"type", "ivar"}, {"int_value", 5}}  // no serial_type -> "generic"
+        }},
+    };
+    SlicSymTab round(/*size*/ 0);
+    CHECK_THROWS_AS(j.get_to(round), nlohmann::json::other_error);
+}

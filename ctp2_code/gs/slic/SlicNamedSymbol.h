@@ -6,6 +6,7 @@
 
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicBuiltinEnum.h"
+#include <nlohmann/json.hpp>
 
 class SlicNamedSymbol : public SlicSymbolData
 {
@@ -45,6 +46,8 @@ public:
 	sint32 GetIndex() const { return m_index; }
 	void SetIndex(sint32 index) { m_index = index; }
 
+	friend void to_json(nlohmann::json &j, SlicNamedSymbol const &s);
+	friend void from_json(nlohmann::json const &j, SlicNamedSymbol &s);
 };
 
 class SlicParameterSymbol : public SlicNamedSymbol
@@ -67,6 +70,9 @@ public:
 	BOOL GetCity(Unit &c) const;
 
 	bool IsParameter() const { return TRUE; }
+
+	friend void to_json(nlohmann::json &j, SlicParameterSymbol const &s);
+	friend void from_json(nlohmann::json const &j, SlicParameterSymbol &s);
 };
 
 class SlicBuiltinNamedSymbol : public SlicNamedSymbol
@@ -88,6 +94,9 @@ public:
 
 	bool IsBuiltin() const { return true; }
 	SLIC_BUILTIN GetBuiltin() { return m_builtin; }
+
+	friend void to_json(nlohmann::json &j, SlicBuiltinNamedSymbol const &s);
+	friend void from_json(nlohmann::json const &j, SlicBuiltinNamedSymbol &s);
 };
 
 #endif

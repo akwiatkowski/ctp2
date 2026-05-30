@@ -89,6 +89,7 @@
 #include "gs/slic/SlicEngine.h"       // g_slicEngine for segment lookup
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicSymbol.h"
+#include "gs/slic/SlicNamedSymbol.h"
 #include "gs/slic/SlicFunc.h"
 #include "robot/pathing/Path.h"
 #include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
@@ -3172,6 +3173,68 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
         case SLIC_SYM_STRUCT:
             throwUnsupportedSym(type, "from_json");
     }
+}
+
+// Phase F-10 — SlicNamedSymbol / SlicParameterSymbol /
+// SlicBuiltinNamedSymbol.  Subclass extensions on SlicSymbolData
+// that the binary path post-dispatches via GetSerializeType() at
+// SlicSymbol.cpp:1113-1132.  Each adds a flat list of fields after
+// the base payload:
+//
+//   SlicNamedSymbol         + name, index, from_file
+//   SlicParameterSymbol     +   parameter_index
+//   SlicBuiltinNamedSymbol  +   builtin
+//
+// JSON adds a "serial_type" discriminator (named / parameter /
+// builtin) so the polymorphic factory equivalent of slicsymbol_Load
+// (lands with SlicSymTab later) can pick the right concrete type.
+
+void to_json(nlohmann::json &j, SlicNamedSymbol const &s)
+{
+    to_json(j, static_cast<SlicSymbolData const &>(s));
+    j["serial_type"] = "named";
+    j["name"]        = s.m_name ? std::string(s.m_name) : std::string();
+    j["index"]       = s.m_index;
+    j["from_file"]   = s.m_fromFile;
+}
+
+void from_json(nlohmann::json const &j, SlicNamedSymbol &s)
+{
+    from_json(j, static_cast<SlicSymbolData &>(s));
+
+    std::string name = j.at("name").get<std::string>();
+    delete[] s.m_name;
+    s.m_name = new char[name.size() + 1];
+    std::memcpy(s.m_name, name.c_str(), name.size() + 1);
+
+    j.at("index").get_to(s.m_index);
+    j.at("from_file").get_to(s.m_fromFile);
+}
+
+void to_json(nlohmann::json &j, SlicParameterSymbol const &s)
+{
+    to_json(j, static_cast<SlicNamedSymbol const &>(s));
+    j["serial_type"]     = "parameter";
+    j["parameter_index"] = s.m_parameterIndex;
+}
+
+void from_json(nlohmann::json const &j, SlicParameterSymbol &s)
+{
+    from_json(j, static_cast<SlicNamedSymbol &>(s));
+    j.at("parameter_index").get_to(s.m_parameterIndex);
+}
+
+void to_json(nlohmann::json &j, SlicBuiltinNamedSymbol const &s)
+{
+    to_json(j, static_cast<SlicNamedSymbol const &>(s));
+    j["serial_type"] = "builtin";
+    j["builtin"]     = static_cast<int>(s.m_builtin);
+}
+
+void from_json(nlohmann::json const &j, SlicBuiltinNamedSymbol &s)
+{
+    from_json(j, static_cast<SlicNamedSymbol &>(s));
+    s.m_builtin = static_cast<SLIC_BUILTIN>(j.at("builtin").get<int>());
 }
 
 namespace json_save {

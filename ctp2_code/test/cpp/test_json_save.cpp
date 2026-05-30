@@ -64,6 +64,7 @@
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicRecord.h"
 #include "gs/slic/SlicSymbol.h"
+#include "gs/slic/SlicNamedSymbol.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/utility/UnitDynArr.h"
@@ -2800,4 +2801,86 @@ TEST_CASE("json round-trip: SlicSymbolData keys are snake_case (no m_ leak)")
         for (auto const &el : j.items())
             CHECK(el.key().substr(0, 2) != "m_");
     }
+}
+
+// Phase F-10 — SlicNamedSymbol + SlicParameterSymbol +
+// SlicBuiltinNamedSymbol subclass extensions on SlicSymbolData.
+
+TEST_CASE("json round-trip: SlicNamedSymbol carries base + name/index/from_file")
+{
+    SlicNamedSymbol orig("MyVar", SLIC_SYM_IVAR);
+    orig.SetIntValue(42);
+    orig.SetIndex(7);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]        == "ivar");
+    CHECK(j["int_value"]   == 42);
+    CHECK(j["serial_type"] == "named");
+    CHECK(j["name"]        == "MyVar");
+    CHECK(j["index"]       == 7);
+    // m_fromFile is initialised to k_GENERATED_BY_EXECUTABLE (0xFF).
+    CHECK(j["from_file"]   == 0xFF);
+
+    SlicNamedSymbol round;
+    j.get_to(round);
+    CHECK(round.GetType()              == SLIC_SYM_IVAR);
+    CHECK(std::string(round.GetName()) == "MyVar");
+    CHECK(round.GetIndex()             == 7);
+    sint32 v = 0;
+    CHECK(round.GetIntValue(v));
+    CHECK(v == 42);
+}
+
+TEST_CASE("json round-trip: SlicParameterSymbol carries parameter_index")
+{
+    SlicParameterSymbol orig("x", /*parameterIndex*/ 2);
+
+    nlohmann::json j = orig;
+    CHECK(j["type"]            == "undefined");  // ctor uses base UNDEFINED
+    CHECK(j["serial_type"]     == "parameter");
+    CHECK(j["name"]            == "x");
+    CHECK(j["parameter_index"] == 2);
+
+    SlicParameterSymbol round;
+    j.get_to(round);
+    CHECK(round.GetType()              == SLIC_SYM_UNDEFINED);
+    CHECK(std::string(round.GetName()) == "x");
+
+    // Re-serialise to confirm parameter_index made the round-trip.
+    nlohmann::json j2 = round;
+    CHECK(j2["parameter_index"] == 2);
+}
+
+TEST_CASE("json round-trip: SlicBuiltinNamedSymbol carries builtin enum")
+{
+    // Default-ctor leaves m_name=NULL and m_builtin uninitialised;
+    // synthesize via JSON to verify load + re-serialise round-trip.
+    nlohmann::json j = {
+        {"type",        "undefined"},
+        {"serial_type", "builtin"},
+        {"name",        "Player"},
+        {"index",       -1},
+        {"from_file",   0xFF},
+        {"builtin",     SLIC_BUILTIN_PLAYER},
+    };
+
+    SlicBuiltinNamedSymbol round;
+    j.get_to(round);
+    CHECK(std::string(round.GetName()) == "Player");
+    CHECK(round.GetBuiltin()           == SLIC_BUILTIN_PLAYER);
+
+    nlohmann::json j2 = round;
+    CHECK(j2["serial_type"] == "builtin");
+    CHECK(j2["builtin"]     == SLIC_BUILTIN_PLAYER);
+    CHECK(j2["name"]        == "Player");
+}
+
+TEST_CASE("json round-trip: F-10 symbol extensions use snake_case (no m_ leak)")
+{
+    SlicNamedSymbol     n("v", SLIC_SYM_IVAR);
+    SlicParameterSymbol p("p", 0);
+
+    for (auto const &j : {nlohmann::json(n), nlohmann::json(p)})
+        for (auto const &el : j.items())
+            CHECK(el.key().substr(0, 2) != "m_");
 }

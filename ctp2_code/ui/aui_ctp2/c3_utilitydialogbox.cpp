@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Fixed memory leaks.
 //
 //----------------------------------------------------------------------------
@@ -1530,7 +1530,7 @@ void NameTheCityDialogBoxCallback(MBCHAR const * text, sint32 val2, void *data)
 		if (s_unit.GetOwner() == g_selected_item->GetVisiblePlayer())
         {
 			s_unit.GetData()->GetCityData()->SetName(text);
-			g_mainControlPanel->UpdateCityList();
+			maincontrolpanel_Get()->UpdateCityList();
 		}
 	}
 }

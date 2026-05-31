@@ -48,7 +48,12 @@
 #include "ui/interface/UnitControlPanel.h"
 #include "ui/interface/ZoomPad.h"
 
-MainControlPanel *       g_mainControlPanel = NULL;
+static MainControlPanel *g_mainControlPanel = NULL;
+
+MainControlPanel * maincontrolpanel_Get(void)
+{
+	return g_mainControlPanel;
+}
 
 static aui_ProgressBar * s_progressBar;
 

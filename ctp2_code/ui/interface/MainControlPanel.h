@@ -116,6 +116,9 @@ private:
 	std::unique_ptr<TurnYearStatus>   m_turnYearStatus;
 };
 
-extern MainControlPanel *g_mainControlPanel;
+// g_mainControlPanel demoted to file-scope `static` in MainControlPanel.cpp.
+// External callers go through maincontrolpanel_Get() (returns NULL when the
+// main control panel has not been initialized).
+MainControlPanel * maincontrolpanel_Get(void);
 
 #endif

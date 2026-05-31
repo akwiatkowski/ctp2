@@ -74,7 +74,12 @@ static const sint32 k_SMD_CIVILIZATION_COLUMNS	= 8;
 
 
 
-ScienceManagementDialog *g_scienceManagementDialog = NULL;
+static ScienceManagementDialog * g_scienceManagementDialog = NULL;
+
+ScienceManagementDialog * sciencemanagementdialog_Get(void)
+{
+    return g_scienceManagementDialog;
+}
 
 #define	k_SCI_COL_ADVANCE 0
 

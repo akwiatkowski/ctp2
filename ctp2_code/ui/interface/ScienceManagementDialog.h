@@ -27,7 +27,7 @@
 // - Display the cost for the player, not the base advancement cost.
 // - Start the great library with the current research project of the player.
 // - Reduced the length of the generated advance effect string.
-// - Added a progress bar to the advance select button. (Feb 4th 2007 Martin Gühmann)
+// - Added a progress bar to the advance select button. (Feb 4th 2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -127,6 +127,9 @@ private:
 	ctp2_ListBox		*m_advanceList;
 };
 
-extern ScienceManagementDialog *g_scienceManagementDialog;
+// g_scienceManagementDialog demoted to file-scope `static`.  Use
+// sciencemanagementdialog_Get() instead.  Returns NULL when the dialog
+// has not been opened yet.
+ScienceManagementDialog * sciencemanagementdialog_Get(void);
 
 #endif // ___BMH_SCIENCE_MANAGEMENT_DIALOG_HEADER

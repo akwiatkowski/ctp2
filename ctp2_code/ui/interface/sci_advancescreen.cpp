@@ -184,8 +184,8 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 			if(!item) return;
 
 			g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( (long)item->GetUserData() );
-			if(g_scienceManagementDialog) {
-				g_scienceManagementDialog->Update();
+			if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
+				smd->Update();
 			}
 
 			if ( g_scienceWin )
@@ -423,8 +423,8 @@ void sci_advancescreen_backPress(aui_Control *control, uint32 action, uint32 dat
 		}
 
 		g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( (long)item->GetUserData() );
-		if(g_scienceManagementDialog) {
-			g_scienceManagementDialog->Update();
+		if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
+			smd->Update();
 		}
 
 		if ( g_scienceWin )
@@ -454,8 +454,8 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 
 	g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( s_oldResearching );
 
-	if(g_scienceManagementDialog) {
-		g_scienceManagementDialog->Update();
+	if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
+		smd->Update();
 	}
 
 	if(sci_advancescreen_removeMyWindow(action)) {

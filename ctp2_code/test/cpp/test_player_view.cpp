@@ -923,6 +923,85 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 }
 
 // ---------------------------------------------------------------------------
+// Ratchet baseline — total `extern g_*` declarations in project headers.
+//
+// Global variables are a multi-threading hazard: every read or write from
+// a non-owning thread becomes a data race unless explicitly synchronised.
+// They're also a coupling hazard in single-threaded code: hidden
+// dependencies, untestable code, order-of-init bugs.  This ratchet locks
+// the current count of source-tree-declared globals so any new commit
+// that grows the count fails CI.  Reductions (via encapsulation behind
+// accessor methods, file-scope `static`-ification, or outright deletion)
+// drop the baseline.
+//
+// Scope: project headers only (.h files under ai/ctp/gfx/gs/net/ui/sound/
+// robot/robotcom/mapgen/GameWatch).  Excludes code-generated headers
+// (build*/ subtrees) and vendored deps (libs/, 3rdparty/) — those are
+// either constants or third-party concerns.
+//
+// Reference inventory + history:
+//   ~/projects/claude/docs/ctp2/globals-audit-2026-05-31.md
+//   ~/projects/claude/docs/ctp2/globals-audit-2026-05-31.tsv
+// Note: 128 declarations vs 115 unique names — some globals are declared
+// in multiple headers (forward-decl + interface decl).  Each declaration
+// counts as an access surface that should be locked.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 128;
+
+std::vector<Violation> scan_extern_globals(const std::string& root)
+{
+    // Match  `extern <type> [*] g_NAME;`  on a single line, after optional
+    // leading whitespace.  The type can include pointer/reference/template
+    // soup, so we accept anything non-greedy up to the identifier.  We
+    // anchor on `g_` to keep the regex cheap on non-global lines.
+    static const std::regex extern_g_re(
+        R"(^\s*extern\s+[^;{}]+\bg_[A-Za-z_][A-Za-z0-9_]*\s*(?:\[[^\]]*\])?\s*;)");
+    std::vector<Violation> hits;
+    const auto& files = cached_read(root, ".h");
+    for (const auto& fl : files) {
+        std::size_t line_num = 0;
+        for (const auto& line : fl.lines) {
+            ++line_num;
+            if (line.find("g_") == std::string::npos) continue;
+            if (line.find("extern") == std::string::npos) continue;
+            if (std::regex_search(line, extern_g_re)) {
+                hits.push_back({fl.path, line_num, line});
+            }
+        }
+    }
+    return hits;
+}
+
+TEST_CASE("globals ratchet: extern g_* declarations must not grow above baseline")
+{
+    std::vector<Violation> all;
+    for (const char* root : {
+        "ctp2_code/ai", "ctp2_code/ctp", "ctp2_code/gfx", "ctp2_code/gs",
+        "ctp2_code/net", "ctp2_code/ui", "ctp2_code/sound",
+        "ctp2_code/robot", "ctp2_code/robotcom", "ctp2_code/mapgen",
+        "ctp2_code/GameWatch",
+    }) {
+        auto hits = scan_extern_globals(root);
+        all.insert(all.end(), hits.begin(), hits.end());
+    }
+
+    if (all.size() > PROJECT_GLOBALS_BASELINE) {
+        for (const auto& v : all) {
+            INFO("  " << v.file << ":" << v.line << " -> " << v.text);
+        }
+        FAIL("extern g_* count " << all.size()
+             << " exceeds baseline " << PROJECT_GLOBALS_BASELINE
+             << ".  A new global has been introduced.  Either encapsulate it "
+                "behind an accessor class, demote it to file-scope `static`, "
+                "or delete it.  See ~/projects/claude/docs/ctp2/"
+                "globals-audit-2026-05-31.md for guidance.");
+    } else if (all.size() < PROJECT_GLOBALS_BASELINE) {
+        MESSAGE("extern g_* count " << all.size()
+                << " < baseline " << PROJECT_GLOBALS_BASELINE
+                << " — lower PROJECT_GLOBALS_BASELINE to lock in progress.");
+    }
+}
+
+// ---------------------------------------------------------------------------
 // player_view defaults in an uninitialised (headless) state.
 // ---------------------------------------------------------------------------
 TEST_CASE("player_view defaults in headless state")

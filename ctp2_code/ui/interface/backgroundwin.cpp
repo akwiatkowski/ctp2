@@ -56,7 +56,6 @@ extern RECT				g_backgroundViewport;
 
 #ifdef _DEBUG
 #include "gs/utility/DataCheck.h"
-extern DataCheck		*g_dataCheck;
 #endif
 
 extern int sprite_Update(aui_Surface *surf);
@@ -207,8 +206,8 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
     {
 #ifdef _DEBUG
 	case k_DEBUG_OWNER_CRC:
-		if(g_dataCheck) {
-			g_dataCheck->DisplayCRC(surface);
+		if(DataCheck *dc = datacheck_Get()) {
+			dc->DisplayCRC(surface);
 			g_tiledMap->InvalidateMix();
 		}
 		break;

@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed the BeginTurn, DumpChecksum and DisplayCRC methods. (Aug 25th 2005 Martin Gühmann)
-// - Added sync check for the new map icon database. (27-Mar-2007 Martin Gühmann)
-// - Added sync check for the new map database. (27-Mar-2007 Martin Gühmann)
+// - Fixed the BeginTurn, DumpChecksum and DisplayCRC methods. (Aug 25th 2005 Martin Gï¿½hmann)
+// - Added sync check for the new map icon database. (27-Mar-2007 Martin Gï¿½hmann)
+// - Added sync check for the new map database. (27-Mar-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -150,6 +150,11 @@ class DataCheck
 void DataCheck_Init();
 void DataCheck_Requiem();
 
-extern DataCheck *g_dataCheck;
+// g_dataCheck demoted to file-scope `static` in DataCheck.cpp.
+// External callers go through datacheck_Get() (returns NULL in all
+// release builds: the only write path is in keypress.cpp under
+// `#ifdef _DEBUG / #if 0`, so the pointer is never assigned in
+// shipping configurations).
+DataCheck * datacheck_Get(void);
 
 #endif

@@ -5441,12 +5441,10 @@ void HelpLinesCommand::Execute(sint32 argc, char **argv)
 	s_helpLines = atoi(argv[1]);
 }
 
-extern DataCheck *g_DataCheck;
-
 void DisplayChecksumOffCommand::Execute(sint32 argc, char **argv)
 {
-	if(g_dataCheck) {
-		g_dataCheck->SetDisplay(FALSE);
+	if(DataCheck *dc = datacheck_Get()) {
+		dc->SetDisplay(FALSE);
 		g_clearTextCommand.Execute(argc, argv);
 	}
 
@@ -5454,9 +5452,9 @@ void DisplayChecksumOffCommand::Execute(sint32 argc, char **argv)
 
 void DumpChecksumCommand::Execute(sint32 argc, char **argv)
 {
-	if(g_dataCheck) {
+	if(DataCheck *dc = datacheck_Get()) {
 		g_debugOwner = k_DEBUG_OWNER_CRC;
-		g_dataCheck->DumpChecksum();
+		dc->DumpChecksum();
 	}
 }
 
@@ -5464,19 +5462,19 @@ void DisplayChecksumCommand::Execute(sint32 argc, char **argv)
 
 {
 	g_debugOwner = k_DEBUG_OWNER_CRC;
-	if(g_dataCheck) {
+	if(DataCheck *dc = datacheck_Get()) {
 		if(argc < 2)
-			g_dataCheck->SetDisplay(2);
+			dc->SetDisplay(2);
 		else
-			g_dataCheck->SetDisplay(atoi(argv[1]));
+			dc->SetDisplay(atoi(argv[1]));
 	}
 }
 
 void CalcChecksumCommand::Execute(sint32 argc, char **argv)
 
 {
-	if(g_dataCheck) {
-		g_dataCheck->BeginTurn();
+	if(DataCheck *dc = datacheck_Get()) {
+		dc->BeginTurn();
 		g_displayChecksumCommand.Execute(argc, argv);
 	}
 }

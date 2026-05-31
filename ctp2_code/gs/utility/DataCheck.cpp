@@ -131,7 +131,12 @@ extern  World                   *g_theWorld;
 extern  Player                  **g_player;
 extern  TopTen                  *g_theTopTen;
 
-        DataCheck               *g_dataCheck;
+static DataCheck                *g_dataCheck = NULL;
+
+DataCheck * datacheck_Get(void)
+{
+	return g_dataCheck;
+}
 
 
 

@@ -13,9 +13,7 @@ class Splash;
 
 #ifdef _DEBUG
 extern Splash *         g_splash;
-extern sint32           g_splash_cur;
 extern sint32           g_splash_old;
-extern MBCHAR           g_splash_buf[100];
 #endif
 
 // SPLASH_STRING / SPLASH_STRING_SIMPLE now live in gs/core/splash_progress.h

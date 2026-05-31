@@ -18,9 +18,9 @@ Splash *        g_splash    = NULL;
 #ifdef _DEBUG
 // SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals
 // live next to the Splash class that owns them.
-sint32          g_splash_cur = 0;
+static sint32          g_splash_cur = 0;
 sint32          g_splash_old = 0;
-MBCHAR          g_splash_buf[100] = {0};
+static MBCHAR          g_splash_buf[100] = {0};
 
 namespace {
 void UISplashShow(const char *msg)

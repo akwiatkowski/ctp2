@@ -99,7 +99,6 @@ extern TerrainImprovementPool	*g_theTerrainImprovementPool;
 extern Player					**g_player;
 extern SelectedItem				*g_selected_item;
 extern TiledMap					*g_tiledMap;
-extern InstallationDatabase		*g_theInstallationDB;
 
 
 extern ProductionTabControl		*g_cp_productionTab;

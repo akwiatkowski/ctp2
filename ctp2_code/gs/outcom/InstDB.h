@@ -24,6 +24,4 @@ public:
 	sint32 GetFirepower(sint32) const { return 0; }
 };
 
-extern InstallationDatabase *g_theInstallationDB;
-
 #endif

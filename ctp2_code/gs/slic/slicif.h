@@ -192,7 +192,6 @@ struct PSlicComplexRegion {
 
 extern struct PSlicObject **g_slicObjectArray;
 extern int g_slicNumEntries;
-extern int g_slicSymTabNumEntries;
 
 extern int slic_parse_error;
 

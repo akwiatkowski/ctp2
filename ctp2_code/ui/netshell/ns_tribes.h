@@ -4,7 +4,10 @@
 class AllinoneWindow;
 
 class ns_Tribes;
-extern ns_Tribes *g_nsTribes;
+// g_nsTribes demoted to file-scope `static` in ns_tribes.cpp.  External
+// callers go through nstribes_Get() (returns NULL before the ns_Tribes
+// singleton has been constructed).
+ns_Tribes * nstribes_Get(void);
 
 class ns_HPlayerItem;
 

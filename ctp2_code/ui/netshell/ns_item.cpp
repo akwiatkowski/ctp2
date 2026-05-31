@@ -197,7 +197,7 @@ AUI_ERRCODE ns_HPlayerItem::InitCommonLdl(
 
 void ns_HPlayerItem::SetTribe( sint32 tribe )
 {
-	m_tribeButton->SetText( g_nsTribes->GetStrings()->GetString( tribe ) );
+	m_tribeButton->SetText( nstribes_Get()->GetStrings()->GetString( tribe ) );
 
 	AllinoneWindow *w = allinonewindow_Get();
 	if ( !IsAI() && w->IsMine( GetPlayer() ) )

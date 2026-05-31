@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -40,7 +40,9 @@
 
 #include "ui/netshell/ns_tribes.h"
 
-ns_Tribes *g_nsTribes = NULL;
+static ns_Tribes *g_nsTribes = NULL;
+
+ns_Tribes * nstribes_Get(void) { return g_nsTribes; }
 
 extern StringDB *g_theStringDB;
 

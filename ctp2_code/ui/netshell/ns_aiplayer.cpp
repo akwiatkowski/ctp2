@@ -49,7 +49,7 @@ void ns_AIPlayer::Update( NETFunc::AIPlayer *aiplayer ) {
 
 
 	nf_AIPlayer aiplayersetup( aiplayer );
-	m_tribe = g_nsTribes->GetStrings()->GetString( aiplayersetup.GetTribe() );
+	m_tribe = nstribes_Get()->GetStrings()->GetString( aiplayersetup.GetTribe() );
 	m_civpoints = aiplayersetup.GetCivPoints();
 	m_pwpoints = aiplayersetup.GetPwPoints();
 }

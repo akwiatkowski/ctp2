@@ -57,7 +57,7 @@ void ns_GPlayer::Update( NETFunc::Player *player ) {
 
 
 	nf_PlayerSetup ps( player );
-	m_tribe = g_nsTribes->GetStrings()->GetString( ps.GetTribe() );
+	m_tribe = nstribes_Get()->GetStrings()->GetString( ps.GetTribe() );
 	m_civpoints = ps.GetCivPoints();
 	m_pwpoints = ps.GetPwPoints();
 }

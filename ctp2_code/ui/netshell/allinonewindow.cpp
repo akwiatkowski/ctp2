@@ -1424,7 +1424,7 @@ sint32 AllinoneWindow::FindTribe( uint16 key, BOOL isAI, BOOL *isFemale )
 		if ( m_mode == CONTINUE_CREATE || m_mode == CONTINUE_JOIN )
 		{
 
-			for ( sint32 i = 2; i < g_nsTribes->GetNumTribes(); i++ )
+			for ( sint32 i = 2; i < nstribes_Get()->GetNumTribes(); i++ )
 			{
 				uint16 curKey;
 				BOOL curIsAI;
@@ -1486,7 +1486,7 @@ sint32 AllinoneWindow::FindTribe( uint16 key, BOOL isAI, BOOL *isFemale )
 		else
 		{
 
-			for ( sint32 i = 2; i < g_nsTribes->GetNumTribes(); i++ )
+			for ( sint32 i = 2; i < nstribes_Get()->GetNumTribes(); i++ )
 			{
 				uint16 curKey;
 				BOOL curIsAI;
@@ -2884,7 +2884,7 @@ void AllinoneWindow::UpdateTribeSwitches( void )
 
 			return;
 
-		for ( i = 2; i < g_nsTribes->GetNumTribes(); i++ )
+		for ( i = 2; i < nstribes_Get()->GetNumTribes(); i++ )
 		{
 			bool found = false;
 			sint32 j;

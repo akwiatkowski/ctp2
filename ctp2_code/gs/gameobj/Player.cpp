@@ -1689,7 +1689,7 @@ void Player::BeginTurnScience()
 	totalScience += m_pop_science;
 
 	totalScience += sint32(double(totalScience) *
-										   (double(g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, m_owner)) / 100.0));
+										   (double(feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, m_owner)) / 100.0));
 
 	// If city hasgood
 
@@ -7131,7 +7131,7 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 		}
 	}
 
-	g_featTracker->CheckConquerFeat(m_owner,data);
+	feattracker_Get()->CheckConquerFeat(m_owner,data);
 
 
 
@@ -8462,10 +8462,11 @@ bool Player::CanBuildUnit(const sint32 type) const
 
 	// Added by E - Compares Unit NeedsFeatToBuild to the FeatTracker	5-11-2006
 	if(rec->GetNumNeedsFeatToBuild() > 0) {
+		FeatTracker *ft = feattracker_Get();
 		sint32 f;
 		bool found = false;
 		for(f = 0; f < rec->GetNumNeedsFeatToBuild(); f++) {
-			if(g_featTracker->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(f), m_owner)) {
+			if(ft->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(f), m_owner)) {
 				found = true;
 				break;
 			}
@@ -8476,10 +8477,11 @@ bool Player::CanBuildUnit(const sint32 type) const
 
 	//Any player must have feat to build
 		if(rec->GetNumNeedsAnyPlayerFeatToBuild() > 0) {
+		FeatTracker *ft = feattracker_Get();
 		sint32 f;
 		bool found = false;
 		for(f = 0; f < rec->GetNumNeedsAnyPlayerFeatToBuild(); f++) {
-			if(g_featTracker->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(f))) {
+			if(ft->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(f))) {
 				found = true;
 				break;
 			}
@@ -9529,10 +9531,11 @@ bool Player::CanBuildLeader(const sint32 type) const
 
 	// Added by E - Compares Unit NeedsFeatToBuild to the FeatTracker	5-11-2006
 	if(rec->GetNumNeedsFeatToBuild() > 0) {
+		FeatTracker *ft = feattracker_Get();
 		sint32 f;
 		bool found = false;
 		for(f = 0; f < rec->GetNumNeedsFeatToBuild(); f++) {
-			if(g_featTracker->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(f), m_owner)) {
+			if(ft->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(f), m_owner)) {
 				found = true;
 				break;
 			}
@@ -9543,10 +9546,11 @@ bool Player::CanBuildLeader(const sint32 type) const
 
 	//Any player must have feat to build
 		if(rec->GetNumNeedsAnyPlayerFeatToBuild() > 0) {
+		FeatTracker *ft = feattracker_Get();
 		sint32 f;
 		bool found = false;
 		for(f = 0; f < rec->GetNumNeedsAnyPlayerFeatToBuild(); f++) {
-			if(g_featTracker->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(f))) {
+			if(ft->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(f))) {
 				found = true;
 				break;
 			}

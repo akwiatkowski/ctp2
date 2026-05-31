@@ -475,7 +475,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 	m_roundTheWorldMask->SetBit(m_pos.x);
 	const UnitRecord *rec = GetDBRec();
 	if(m_roundTheWorldMask->AllBitsSet() && (rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater())) {
-		g_featTracker->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
+		feattracker_Get()->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
 	}
 
 	if(g_wormhole && g_wormhole->CheckEnter(Unit(m_id))) {
@@ -629,7 +629,7 @@ sint32 UnitData::ResetMovement()
 	}
 	if((rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()))
 	{
-		amt = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner);
+		amt = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner);
 		if(amt > 0)
 			m_movement_points += amt;
 	}
@@ -3770,9 +3770,9 @@ double UnitData::GetDefense(const Unit &attacker) const
 						* (g_theGovernmentDB->Get(g_player[m_owner]->m_government_type)->GetDefenseCoef());
 					base -= walldef;// deduct correct walls defence
 				}
-				else if (g_featTracker->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner()))
+				else if (feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner()))
 				{
-					base += g_featTracker->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner());// else just add feat deduction
+					base += feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner());// else just add feat deduction
 				//base -= cityData->GetDefendersBonus();
 				//base += cityData->GetDefendersBonusNoWalls();//@todo this doesn't work
 				}
@@ -6398,7 +6398,7 @@ sint32 UnitData::CalculateTotalHP() const
 {
 	sint32 civHPBonus     = g_player[m_owner]->CivHpBonus();
 	sint32 wonderHPBonus  = wonderutil_GetIncreaseHP(g_player[m_owner]->m_builtWonders);
-	sint32 featHPBonus    = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_HIT_POINTS, m_owner);
+	sint32 featHPBonus    = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_HIT_POINTS, m_owner);
 
 	return GetDBRec()->GetMaxHP() + wonderHPBonus + civHPBonus + featHPBonus;
 }
@@ -6423,7 +6423,7 @@ double UnitData::CalculateTotalMovePoints() const
 			movePoints += amt;
 		}
 
-		amt = static_cast<double>(g_featTracker->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner));
+		amt = static_cast<double>(feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_BOAT_MOVEMENT, m_owner));
 		if(amt > 0.0)
 		{
 			movePoints += amt;

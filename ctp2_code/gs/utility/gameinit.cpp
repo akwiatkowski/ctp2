@@ -191,6 +191,12 @@ EventTracker * eventtracker_Get(void)
 {
 	return g_eventTracker;
 }
+static FeatTracker          *g_featTracker = NULL;
+
+FeatTracker * feattracker_Get(void)
+{
+	return g_featTracker;
+}
 CriticalMessagesPrefs * g_theCriticalMessagesPrefs=NULL;
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];

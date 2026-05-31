@@ -56,7 +56,8 @@
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 
-FeatTracker *g_featTracker = NULL;
+// g_featTracker is defined in gameinit.cpp (where the lifecycle lives);
+// this TU reaches it via feattracker_Get() declared in FeatTracker.h.
 
 //----------------------------------------------------------------------------
 //
@@ -653,7 +654,7 @@ STDEHANDLER(AccomplishFeat)
 	if(!args->GetInt(0, featIndex)) return GEV_HD_Continue;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	g_featTracker->AddFeat(featIndex, player);
+	feattracker_Get()->AddFeat(featIndex, player);
 
 	if (g_network.IsHost())
 	{
@@ -677,7 +678,7 @@ STDEHANDLER(FeatBeginTurn)
 	sint32 player;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	g_featTracker->BeginTurn(player);
+	feattracker_Get()->BeginTurn(player);
 	return GEV_HD_Continue;
 }
 
@@ -689,7 +690,7 @@ STDEHANDLER(FeatBuildingBuilt)
 	if(!args->GetInt(0, building)) return GEV_HD_Continue;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
-	g_featTracker->CheckBuildingFeat(city, building);
+	feattracker_Get()->CheckBuildingFeat(city, building);
 	return GEV_HD_Continue;
 }
 

@@ -1798,7 +1798,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				   );
 			if (g_player[m_data2])
 			{
-				g_featTracker->AddFeat(m_data, m_data2, m_data3);
+				feattracker_Get()->AddFeat(m_data, m_data2, m_data3);
 			}
 			break;
 

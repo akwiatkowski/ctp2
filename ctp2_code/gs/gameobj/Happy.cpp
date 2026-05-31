@@ -904,7 +904,7 @@ void Happy::RestoreTracker()
 
 double Happy::CalcFeats(Player *p)
 {
-	double res = g_featTracker->GetAdditiveEffect
+	double res = feattracker_Get()->GetAdditiveEffect
 	                (FEAT_EFFECT_INCREASE_HAPPINESS, p->m_owner);
 	m_tracker->SetHappiness(HAPPY_REASON_FEATS, res);
 	return res;

@@ -2654,7 +2654,7 @@ double CityData::ProcessProd(sint32 prod) const
 
 	///////////////////////////////////////////////
 	// Apply feat boni
-	sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, m_owner);
+	sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, m_owner);
 	grossProd += grossProd * (static_cast<double>(featPercent) / 100.0);
 
 	///////////////////////////////////////////////
@@ -2698,7 +2698,7 @@ double CityData::ProcessGold(sint32 gold) const
 
 		///////////////////////////////////////////////
 		// Apply feat boni
-		sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, m_owner);
+		sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, m_owner);
 		grossGold += grossGold * (featPercent / 100.0);
 
 		///////////////////////////////////////////////
@@ -3179,7 +3179,7 @@ void CityData::CalculateCoeffProd()
 	buildingutil_GetProductionPercent(GetEffectiveBuildings(), prodBonus, m_owner);
 	m_bonusProdCoeff += prodBonus;
 
-	sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, m_owner);
+	sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, m_owner);
 	m_bonusProdCoeff += static_cast<double>(featPercent) / 100.0;
 	m_bonusProdCoeff += wonderutil_GetIncreaseProduction(g_player[m_owner]->m_builtWonders) * 0.01;
 
@@ -3338,7 +3338,7 @@ void CityData::CalculateCoeffGold()
 	buildingutil_GetCommercePercent(GetEffectiveBuildings(), bonus, m_owner);
 	m_bonusGoldCoeff += bonus;
 
-	sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, m_owner);
+	sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, m_owner);
 	m_bonusGoldCoeff += featPercent / 100.0;
 
 	//EMOD these three EMODs moved inside the less than 0 to prevent multiplication of percent to zero values
@@ -3479,7 +3479,7 @@ void CityData::CalculateCoeffScie()
 	buildingutil_GetSciencePercent(GetEffectiveBuildings(), bonus, m_owner);
 	m_bonusScieCoeff += bonus;
 
-	sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, m_owner);
+	sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, m_owner);
 	m_bonusScieCoeff += static_cast<double>(featPercent) / 100.0;
 
 	m_bonusScieCoeff += 0.01 * wonderutil_GetIncreaseKnowledgePercentage(g_player[m_owner]->GetBuiltWonders());
@@ -6281,7 +6281,7 @@ void CityData::ResetCityOwner(sint32 owner)
 
 	if(m_owner == m_founder) {
 		g_player[m_owner]->m_score->AddCityRecaptured();
-		g_featTracker->AddFeat("FEAT_CITY_RECAPTURED", m_owner);
+		feattracker_Get()->AddFeat("FEAT_CITY_RECAPTURED", m_owner);
 	}
 }
 
@@ -6751,7 +6751,7 @@ bool CityData::CanBuildUnit(sint32 type) const
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumNeedsFeatToBuild(); i++)
 		{
-			if(g_featTracker->HasFeat(rec->GetNeedsFeatToBuildIndex(i)))
+			if(feattracker_Get()->HasFeat(rec->GetNeedsFeatToBuildIndex(i)))
 			{
 				found = true;
 				break;
@@ -7104,7 +7104,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumNeedsFeatToBuild(); i++)
 		{
-			if(g_featTracker->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(i), m_owner))
+			if(feattracker_Get()->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(i), m_owner))
 			{
 				found = true;
 				break;
@@ -7120,7 +7120,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumNeedsAnyPlayerFeatToBuild(); i++)
 		{
-			if(g_featTracker->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(i)))
+			if(feattracker_Get()->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(i)))
 			{
 				found = true;
 				break;
@@ -7394,7 +7394,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumNeedsFeatToBuild(); i++)
 		{
-			if(g_featTracker->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(i), m_owner))
+			if(feattracker_Get()->PlayerHasFeat(rec->GetNeedsFeatToBuildIndex(i), m_owner))
 			{
 				found = true;
 				break;
@@ -7410,7 +7410,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumNeedsAnyPlayerFeatToBuild(); i++)
 		{
-			if(g_featTracker->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(i)))
+			if(feattracker_Get()->HasFeat(rec->GetNeedsAnyPlayerFeatToBuildIndex(i)))
 			{
 				found = true;
 				break;

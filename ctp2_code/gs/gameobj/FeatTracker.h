@@ -153,6 +153,9 @@ class FeatTracker {
 	bool *m_buildingFeat;
 };
 
-extern FeatTracker *g_featTracker;
+// g_featTracker demoted to file-scope `static` in gameinit.cpp (where the
+// lifecycle — new / archive-load / clear — lives).  External callers go
+// through feattracker_Get() (returns NULL before the game state is loaded).
+FeatTracker * feattracker_Get(void);
 
 #endif

@@ -537,7 +537,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 330 );
 
 	if(saveEverything)
-		g_featTracker->Serialize(archive);
+		feattracker_Get()->Serialize(archive);
 
 
 

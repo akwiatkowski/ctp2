@@ -25,11 +25,11 @@
 // Modifications from the original Activision code:
 //
 // - Added unitutil_GetSmallCityMaxSize to figure out the maximum population
-//   size a ring one city. - Oct. 6th 2004 Martin Gühmann
+//   size a ring one city. - Oct. 6th 2004 Martin Gï¿½hmann
 // - EMOD TO DO add check for buildings and wonder for ring size
 // - Added function to compare unit type quality, based on unit cargo capacity
-//   or on the units statistics like attack, defense and range. (19-May-2007 Martin Gühmann)
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+//   or on the units statistics like attack, defense and range. (19-May-2007 Martin Gï¿½hmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 // - Added GetCityLandAttackBonus, GetCityAirAttackBonus and GetCitySeaAttackBonus
 //   for battleview window. Moved leader bonus from positiondefense,
 //   to unitdata::getdefense. (07-Mar-2009 Maq)
@@ -227,7 +227,7 @@ void unitutil_GetAverageDefenseBonus(const MapPoint &pos, const Army &attackers,
 			} else {
 				city_bonus += cityData->GetDefendersBonus();
 
-				double wallval=g_featTracker->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attackers.GetOwner());
+				double wallval=feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attackers.GetOwner());
 				if(wallval)
 				{
 					city_bonus += wallval;
@@ -426,7 +426,7 @@ double unitutil_GetPositionDefense(const UnitRecord * rec, const bool isEntrench
 
 		if (cityData->HasCityWalls() && attacker.IsValid())
 		{
-			if(g_featTracker->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner()) > 0)
+			if(feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_REDUCE_CITY_WALLS, attacker.GetOwner()) > 0)
 			{
 				def += buildingutil_GetCityWallsDefense(cityData->GetEffectiveBuildings(), cityData->GetOwner());
 			}

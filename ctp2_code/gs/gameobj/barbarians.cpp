@@ -94,7 +94,7 @@ bool SomeoneCanHave(const UnitRecord *rec)
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
 			if(!g_network.IsActive() || g_network.ReadyToStart()) {
-				g_featTracker->AddFeat(feat, m_owner);
+				feattracker_Get()->AddFeat(feat, m_owner);
 			}
 		}
 	}

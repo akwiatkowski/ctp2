@@ -4635,7 +4635,7 @@ bool SaveJson(char const *path)
     // --- Trackers + exclusions (GameFile::Save:474-503) --------------
     if (g_theWonderTracker)  doc["wonder_tracker"]            = *g_theWonderTracker;
     if (g_exclusions)        doc["exclusions"]                = *g_exclusions;
-    if (g_featTracker)       doc["feat_tracker"]              = *g_featTracker;
+    if (FeatTracker *ft = feattracker_Get()) doc["feat_tracker"] = *ft;
     if (EventTracker *et = eventtracker_Get()) doc["event_tracker"] = *et;
 
     // --- TopTen: not written by GameFile::Save (legacy-load-only in the
@@ -4772,7 +4772,7 @@ bool LoadJson(char const *path)
         // Trackers
         if (doc.contains("wonder_tracker") && g_theWonderTracker) doc.at("wonder_tracker").get_to(*g_theWonderTracker);
         if (doc.contains("exclusions")     && g_exclusions)       doc.at("exclusions")    .get_to(*g_exclusions);
-        if (doc.contains("feat_tracker")   && g_featTracker)      doc.at("feat_tracker")  .get_to(*g_featTracker);
+        if (FeatTracker *ft = feattracker_Get(); doc.contains("feat_tracker") && ft) doc.at("feat_tracker").get_to(*ft);
         if (EventTracker *et = eventtracker_Get(); doc.contains("event_tracker") && et) doc.at("event_tracker").get_to(*et);
         if (doc.contains("top_ten")        && g_theTopTen)        doc.at("top_ten")       .get_to(*g_theTopTen);
 

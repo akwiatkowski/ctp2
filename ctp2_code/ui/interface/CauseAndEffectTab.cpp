@@ -26,14 +26,14 @@
 //
 // - Use the same science percentage everywhere.
 // - Added optimize sliders button and according callback function to allow
-//   the player to optimize sliders, automaticly. - April 8th 2005 Martin Gühmann
+//   the player to optimize sliders, automaticly. - April 8th 2005 Martin Gï¿½hmann
 // - Backwards compatibility crash prevention
 // - All food, production and gold values are now updated, when a single
 //   slider is moved, because happiness modifies crime, crime modifies
 //   losses and production modifies pollution and pollution modifies crime.
 //   This means all the values are modified even if only a single slider
-//   is moved. Jul 7th 2005 Martin Gühmann
-// - Added preparations for city resource calculation replacement. (Aug 12th 2005 Martin Gühmann)
+//   is moved. Jul 7th 2005 Martin Gï¿½hmann
+// - Added preparations for city resource calculation replacement. (Aug 12th 2005 Martin Gï¿½hmann)
 // - Added SupportGold and CommodityGold to totalsaving calculation
 // - TODO: need to expand this window and break down income (add franchises, advertsing etc)
 // - Added more information to empire manager domestic tab. (22-Jul-2009 Maq)
@@ -79,7 +79,7 @@ m_tabPanel(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock))),
 m_detailsButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 	"DomesticDialog.DetailsButton"))),
 m_optimizeSliderButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
-	"DomesticDialog.OptimizeSlidersButton"))), // Added by Martin Gühmann
+	"DomesticDialog.OptimizeSlidersButton"))), // Added by Martin Gï¿½hmann
 m_numberOfCities(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
 	"CitiesValue"))),
 m_population(static_cast<ctp2_Static*>(aui_Ldl::GetObject(ldlBlock,
@@ -650,7 +650,7 @@ void CauseAndEffectTab::UpdateProductionValues()
 		double featWonderProd = 0.0;
 		double featProd = 0.0;
 		double wonderProd = 0.0;
-		sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, cityData->GetOwner());
+		sint32 featPercent = feattracker_Get()->GetAdditiveEffect(FEAT_EFFECT_INCREASE_PRODUCTION, cityData->GetOwner());
 		featProd = ceil(buildingsWorkdayAndBaseProd * (static_cast<double>(featPercent) / 100.0));
 		wonderProd = ceil((buildingsWorkdayAndBaseProd + featProd) *
 		                    (wonderutil_GetIncreaseProduction(player->m_builtWonders) * 0.01));
@@ -847,7 +847,8 @@ void CauseAndEffectTab::UpdateCommerceValues()
 
 		// science feats multiply terrain scie + buildings scie - see citydata::splitscience.
 		sint32 featWonderScie = 0;
-		sint32 featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, player->GetOwner());
+		FeatTracker *ft = feattracker_Get();
+		sint32 featPercent = ft->GetAdditiveEffect(FEAT_EFFECT_INCREASE_SCIENCE, player->GetOwner());
 		sint32 featScie = static_cast<sint32>(ceil(buildingAndTaxScience * (static_cast<double>(featPercent) / 100.0)));
 
 		// science wonders multiply terrain scie + buildings scie + feats scie - see citydata::splitscience.
@@ -862,7 +863,7 @@ void CauseAndEffectTab::UpdateCommerceValues()
 		sint32 buildingAndTaxGold = goldFromCommerce + goldBuildingsBonus;
 
 		// Gold savings feat multiplies terrain gold + buildings gold.
-		featPercent = g_featTracker->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, player->GetOwner());
+		featPercent = ft->GetAdditiveEffect(FEAT_EFFECT_INCREASE_COMMERCE, player->GetOwner());
 		featGold = static_cast<sint32>(buildingAndTaxGold * featPercent / 100.0);
 
 		// Gold wonders are done on an empire-wide basis.

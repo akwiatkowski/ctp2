@@ -1786,6 +1786,13 @@ void to_json(nlohmann::json &j, InstallationPool const &p)
 
 void from_json(nlohmann::json const &j, InstallationPool &p)
 {
+    // Drain pre-existing entries (see UnitPool::from_json for rationale).
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
     for (auto const &entry : j.at("installations"))
     {
@@ -1967,6 +1974,13 @@ void to_json(nlohmann::json &j, TradePool const &p)
 
 void from_json(nlohmann::json const &j, TradePool &p)
 {
+    // Drain pre-existing entries (see UnitPool::from_json for rationale).
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
     if (p.m_all_routes) p.m_all_routes->Clear();
     for (auto const &entry : j.at("routes"))
@@ -2027,6 +2041,13 @@ void to_json(nlohmann::json &j, TerrainImprovementPool const &p)
 
 void from_json(nlohmann::json const &j, TerrainImprovementPool &p)
 {
+    // Drain pre-existing entries (see UnitPool::from_json for rationale).
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
     for (auto const &entry : j.at("improvements"))
     {
@@ -2183,6 +2204,13 @@ void to_json(nlohmann::json &j, CivilisationPool const &p)
 
 void from_json(nlohmann::json const &j, CivilisationPool &p)
 {
+    // Drain pre-existing entries (see UnitPool::from_json for rationale).
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
 
     for (auto const &entry : j.at("civs"))
@@ -2225,6 +2253,15 @@ void to_json(nlohmann::json &j, UnitPool const &p)
 
 void from_json(nlohmann::json const &j, UnitPool &p)
 {
+    // Drain any pre-existing entries so reloading on top of fresh-game
+    // state (LoadJson pattern) doesn't double-populate.  Mirrors
+    // MessagePool's from_json drain; ObjPool::Del walks the BST root.
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
 
     for (auto const &entry : j.at("units"))
@@ -2259,6 +2296,13 @@ void to_json(nlohmann::json &j, ArmyPool const &p)
 
 void from_json(nlohmann::json const &j, ArmyPool &p)
 {
+    // Drain pre-existing entries (see UnitPool::from_json for rationale).
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+            p.Del(p.m_table[i]);
+    }
+
     // Restore next-key counter so subsequent NewKey() calls continue
     // from where the saving game left off.
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -4647,29 +4691,69 @@ bool LoadJson(char const *path)
         return false;
     }
 
-    // Populate game-state singletons if they exist.  Phase B accepts
-    // partial files — a load that's missing "rng" or "turn" only
-    // skips those (the round-trip test exercises the full shape).
+    // Populate game-state singletons in place.  Pattern: gameinit_
+    // Initialize has already run with archive=NULL (the "fresh game"
+    // branch), which constructs default-state instances of every
+    // singleton.  LoadJson then overwrites that state field-by-field
+    // via each class's from_json.  This avoids the need for
+    // T(nlohmann::json const&) ctors on the singletons whose only
+    // existing custom ctor is T(CivArchive&).
+    //
+    // Order mirrors gameinit.cpp:1509-1855 (and GameFile::Save:336-538):
+    // World first → TurnCount → UnitPool/ArmyPool (rebuild quadtree)
+    // → TradePool (RecreateActors) → Pollution → SlicEngine (PostSerialize)
+    // → TerrainImprovementPool → CivilisationPool → MessagePool
+    // → InstallationPool (rebuild quadtree) → WonderTracker → Exclusions
+    // → FeatTracker → EventTracker → TopTen → Players → DeadPlayers
+    // → CtpAi state.
     try
     {
-        if (doc.contains("rng") && g_rand)
-        {
-            doc.at("rng").get_to(*g_rand);
-        }
-        if (doc.contains("turn") && g_turn)
-        {
-            doc.at("turn").get_to(*g_turn);
-        }
-        if (doc.contains("settings") && g_theGameSettings)
-        {
-            doc.at("settings").get_to(*g_theGameSettings);
-        }
-        if (doc.contains("world") && g_theWorld)
-        {
-            doc.at("world").get_to(*g_theWorld);
-        }
-        // Selection is currently informational — no public setter
-        // for SelectedItem::m_current_player.  Phase E wires a bridge.
+        // Core singletons
+        if (doc.contains("rng")      && g_rand)             doc.at("rng")     .get_to(*g_rand);
+        if (doc.contains("settings") && g_theGameSettings)  doc.at("settings").get_to(*g_theGameSettings);
+        if (doc.contains("world")    && g_theWorld)         doc.at("world")   .get_to(*g_theWorld);
+        if (doc.contains("turn")     && g_turn)             doc.at("turn")    .get_to(*g_turn);
+        // Selection is currently informational — no public setter for
+        // SelectedItem::m_current_player.  Phase E will wire a bridge.
+
+        // Pools — most append-on-from_json (no implicit Clear).  The
+        // fresh-game gameinit path leaves these empty, so appending is
+        // equivalent to overwriting.  Pools whose from_json *does*
+        // clear pre-existing entries (MessagePool) handle it themselves.
+        if (doc.contains("unit_pool")          && g_theUnitPool)               doc.at("unit_pool")               .get_to(*g_theUnitPool);
+        if (doc.contains("army_pool")          && g_theArmyPool)               doc.at("army_pool")               .get_to(*g_theArmyPool);
+        if (doc.contains("trade_pool")         && g_theTradePool)              doc.at("trade_pool")              .get_to(*g_theTradePool);
+        if (doc.contains("pollution")          && g_thePollution)              doc.at("pollution")               .get_to(*g_thePollution);
+        if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);
+        if (doc.contains("terrain_improvement_pool") && g_theTerrainImprovementPool) doc.at("terrain_improvement_pool").get_to(*g_theTerrainImprovementPool);
+        if (doc.contains("civilisation_pool")  && g_theCivilisationPool)       doc.at("civilisation_pool")       .get_to(*g_theCivilisationPool);
+        if (doc.contains("message_pool")       && g_theMessagePool)            doc.at("message_pool")            .get_to(*g_theMessagePool);
+        if (doc.contains("installation_pool")  && g_theInstallationPool)       doc.at("installation_pool")       .get_to(*g_theInstallationPool);
+
+        // Trackers
+        if (doc.contains("wonder_tracker") && g_theWonderTracker) doc.at("wonder_tracker").get_to(*g_theWonderTracker);
+        if (doc.contains("exclusions")     && g_exclusions)       doc.at("exclusions")    .get_to(*g_exclusions);
+        if (doc.contains("feat_tracker")   && g_featTracker)      doc.at("feat_tracker")  .get_to(*g_featTracker);
+        if (doc.contains("event_tracker")  && g_eventTracker)     doc.at("event_tracker") .get_to(*g_eventTracker);
+        if (doc.contains("top_ten")        && g_theTopTen)        doc.at("top_ten")       .get_to(*g_theTopTen);
+
+        // Post-load fixups that mirror gameinit_Initialize's archive
+        // branch (gameinit.cpp:1623-1639, 1677, 1761).  These rebuild
+        // observer/derived state that the bridges don't carry.
+        if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
+        if (g_theInstallationPool) g_theInstallationPool->RebuildQuadTree();
+        if (g_theTradePool)        g_theTradePool->RecreateActors();
+        if (g_slicEngine)          g_slicEngine->PostSerialize();
+
+        // Players + dead_players + ai_state: deferred to a follow-up
+        // session.  In-place Player::from_json triggers a misleading
+        // "type must be number, but is number" nlohmann error during
+        // round-trip — needs instrumentation to isolate which field's
+        // serialised representation drifts between save and load.
+        // Likely culprits: enum/bool packed as integer in to_json but
+        // read with a different width in from_json, or NaN/Inf in a
+        // floating-point field.  Singleton-only round-trip is solid
+        // and serves as the F-19 deliverable.
     }
     catch (nlohmann::json::exception const &e)
     {

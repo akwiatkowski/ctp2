@@ -64,7 +64,8 @@ static void print_usage(const char *prog)
         "  --seed N                Pin RNG seed for determinism\n"
         "  --save-interval N       Save every N turns (currently unimplemented)\n"
         "  --save-game PATH        After running turns, save to PATH then exit\n"
-        "  --load-game PATH        Load saved game from PATH instead of --new-game\n"
+        "  --load-game PATH        Load saved binary game from PATH instead of --new-game\n"
+        "  --json-load PATH        Overlay JSON savegame onto --new-game state\n"
         "  --export-metrics PATH   After running turns, dump per-player and per-city\n"
         "                          metrics as CSV to PATH (or '-' for stdout)\n"
         "  --help                  Show this message\n",
@@ -90,6 +91,7 @@ int main(int argc, char **argv)
     // complete.  Hidden from --help on purpose; not yet a real save
     // path.  See ~/projects/claude/plans/ctp2-json-savegame.md.
     const char *jsonSavePath = nullptr;
+    const char *jsonLoadPath = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--new-game") == 0) {
@@ -110,6 +112,8 @@ int main(int argc, char **argv)
             exportMetricsPath = argv[++i];
         } else if (strcmp(argv[i], "--json-save") == 0 && i + 1 < argc) {
             jsonSavePath = argv[++i];
+        } else if (strcmp(argv[i], "--json-load") == 0 && i + 1 < argc) {
+            jsonLoadPath = argv[++i];
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;
@@ -207,6 +211,17 @@ int main(int argc, char **argv)
             }
 
             headless_log->info("Game initialized OK — running {} turns", maxTurns);
+
+            // --json-load overlays a JSON savegame on top of the fresh-
+            // game state.  Runs AFTER InitializeGameHeadless so the
+            // singletons exist before LoadJson populates them.  See
+            // json_save::LoadJson for the in-place from_json pattern.
+            if (jsonLoadPath) {
+                headless_log->info("Loading JSON from {}", jsonLoadPath);
+                bool const ok = json_save::LoadJson(jsonLoadPath);
+                headless_log->info("LoadJson returned {}", ok ? "ok" : "FAIL");
+                if (!ok) return 1;
+            }
         } else {
             headless_log->info("Loaded — running {} turns", maxTurns);
         }

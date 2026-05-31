@@ -28,11 +28,11 @@
 // Modifications from the original Activision code:
 //
 // - Memory leak repaired.
-// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 21st 2005 Martin Gï¿½hmann)
 // - The ages in the summary are now displayed correctly.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code. (May 29th 2006 Martin Gühmann)
-// - Replaced old civ selection button bank by list box. (2-Jan-2008 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code. (May 29th 2006 Martin Gï¿½hmann)
+// - Replaced old civ selection button bank by list box. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -104,8 +104,8 @@ extern aui_Radio *s_maleRadio;
 
 static DialogBoxWindow *s_dbw = NULL;
 AllinoneWindow *g_allinoneWindow = NULL;
-DialogBoxWindow *g_rulesWindow = NULL;
-DialogBoxWindow *g_exclusionsWindow = NULL;
+static DialogBoxWindow *g_rulesWindow = NULL;
+static DialogBoxWindow *g_exclusionsWindow = NULL;
 
 #ifdef _DEBUG
 #define DEBUG_PushChatMessage(arg) (g_netfunc->PushChatMessage("DEBUG: " arg))

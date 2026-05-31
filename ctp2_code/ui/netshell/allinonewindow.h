@@ -16,8 +16,6 @@ class aui_StringTable;
 class ns_HPlayerItem;
 
 class DialogBoxWindow;
-extern DialogBoxWindow *g_rulesWindow;
-extern DialogBoxWindow *g_exclusionsWindow;
 
 class AllinoneWindow;
 extern AllinoneWindow *g_allinoneWindow;

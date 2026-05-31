@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed reference to outdated special effect database. (Aug 26th 2005 Martin Gühmann)
-// - Removed unnecessary include files. (Aug 28th 2005 Martin Gühmann)
+// - Removed reference to outdated special effect database. (Aug 26th 2005 Martin Gï¿½hmann)
+// - Removed unnecessary include files. (Aug 28th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -515,7 +515,7 @@ void BattleView::Process(void)
 				m_walker->Remove();
 				delete event;
 
-				if (!IsProcessing() && (!g_theCurrentBattle || !g_theCurrentBattle->IsDone()))
+				if (!IsProcessing() && (!combat_Get() || !combat_Get()->IsDone()))
                 {
 					g_gevManager->GotUserInput();
                 }

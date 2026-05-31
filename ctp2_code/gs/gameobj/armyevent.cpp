@@ -1010,11 +1010,11 @@ STDEHANDLER(AftermathEvent)
 	sint32 fromARealBattle;
 	if(!args->GetInt(0, fromARealBattle)) return GEV_HD_Continue;
 
-	Assert(!fromARealBattle || g_theCurrentBattle);
-	if (g_theCurrentBattle)
+	Assert(!fromARealBattle || combat_Get());
+	if (combat_Get())
 	{
-		delete g_theCurrentBattle;
-		g_theCurrentBattle = NULL;
+		delete combat_Get();
+		combat_Set(NULL);
 	}
 
 	args->GetArmy(0, army);

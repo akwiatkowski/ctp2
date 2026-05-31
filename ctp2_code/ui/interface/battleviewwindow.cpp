@@ -44,12 +44,12 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	// Wave G: was `g_theCurrentBattle->GetBattle()` — gs/ no longer holds
+	// Wave G: was `combat_Get()->GetBattle()` — gs/ no longer holds
 	// a Battle*.  The active Battle is owned by the UI adapter; ask it
 	// directly.
 	extern Battle *BattleObserverAdapter_GetCurrentBattle();
 	Battle *currentBattle = BattleObserverAdapter_GetCurrentBattle();
-	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(g_theCurrentBattle && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
+	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(combat_Get() && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
 																	g_battleViewWindow->GetBattleView()->IsCurrentBattle(currentBattle));
 	g_c3ui->AddAction(actionObj);
 
@@ -64,21 +64,21 @@ void battleview_RetreatButtonActionCallback(aui_Control *control, uint32 action,
 
 	control->Enable(false);
 
-	if(g_theCurrentBattle)
-		g_theCurrentBattle->Retreat();
+	if(combat_Get())
+		combat_Get()->Retreat();
 }
 
 
 void RemoveBattleViewAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
 
-	if(g_theCurrentBattle && m_killBattle) {
-		// Wave G: was `g_theCurrentBattle->KillBattle()` which did
+	if(combat_Get() && m_killBattle) {
+		// Wave G: was `combat_Get()->KillBattle()` which did
 		// `delete m_battle; m_battle = NULL;` on the gs-held Battle*.
 		// Now the adapter owns the pointer; tell it to end + clear gs's
 		// active flag.
 		battle_observer::EndBattle();
-		g_theCurrentBattle->DeactivateBattle();
+		combat_Get()->DeactivateBattle();
 	}
 
 
@@ -374,10 +374,10 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 		return;
 	if(!battle)
 		return;
-	if(!g_theCurrentBattle)
+	if(!combat_Get())
 		return;
 
-	if (g_theCurrentBattle->GetAttacker() ==
+	if (combat_Get()->GetAttacker() ==
 		    g_selected_item->GetVisiblePlayer()
 	    && !g_network.IsActive()
        )

@@ -711,7 +711,7 @@ Network::Process()
 
 	static time_t battleEndedTime = -1;
 
-	if(g_battleViewWindow && g_c3ui->GetWindow(g_battleViewWindow->Id()) && (!g_theCurrentBattle || g_theCurrentBattle->IsDone())) {
+	if(g_battleViewWindow && g_c3ui->GetWindow(g_battleViewWindow->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
 		if(battleEndedTime < 0) {
 			battleEndedTime = time(0);
 		} else if(battleEndedTime + 30 < time(0)) {

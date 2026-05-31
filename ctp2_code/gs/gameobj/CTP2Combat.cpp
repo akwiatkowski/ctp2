@@ -67,7 +67,17 @@ extern BattleViewWindow *g_battleViewWindow;
 
 #include "gs/gameobj/CTP2Combat.h"
 
-CTP2Combat *g_theCurrentBattle = NULL;
+static CTP2Combat * g_theCurrentBattle = NULL;
+
+CTP2Combat * combat_Get(void)
+{
+    return g_theCurrentBattle;
+}
+
+void combat_Set(CTP2Combat *battle)
+{
+    g_theCurrentBattle = battle;
+}
 
 extern BattleViewWindow *g_battleViewWindow;
 

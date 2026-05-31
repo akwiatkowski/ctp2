@@ -283,7 +283,12 @@ private:
 };
 
 #ifndef TEST_APP
-extern CTP2Combat *g_theCurrentBattle;
+// g_theCurrentBattle demoted to file-scope `static` in CTP2Combat.cpp.
+// Accessors below.  combat_Set(NULL) tears down the current battle;
+// combat_Set(new ...) replaces it.  Future multi-threading: the setter
+// is the natural mutex point.
+CTP2Combat * combat_Get(void);
+void         combat_Set(CTP2Combat *battle);
 #endif
 
 #endif

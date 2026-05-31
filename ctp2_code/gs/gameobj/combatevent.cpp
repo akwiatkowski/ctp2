@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Fixed a memory leak concerning g_theCurrentBattle. (7-Nov-2007 Martin G�hmann)
+// - Fixed a memory leak concerning combat_Get(). (7-Nov-2007 Martin G�hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -56,18 +56,18 @@ STDEHANDLER(RunCombatEvent)
 		return(GEV_HD_Continue);
 	if(!args->GetPlayer(1, defender))
 		return(GEV_HD_Continue);
-	if(!g_theCurrentBattle)
+	if(!combat_Get())
 		return(GEV_HD_Continue);
 
-	bool const  isDoneAtStart   = g_theCurrentBattle->IsDone();
+	bool const  isDoneAtStart   = combat_Get()->IsDone();
 	bool const  playAnimations  =
-	    isDoneAtStart ? false : g_theCurrentBattle->ResolveOneRound();
+	    isDoneAtStart ? false : combat_Get()->ResolveOneRound();
 
 	if (isDoneAtStart)
 	{
 		// No action: probably a place holder for the final user click.
 	}
-	else if (g_theCurrentBattle->IsDone())
+	else if (combat_Get()->IsDone())
 	{
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_BattleAftermath,
@@ -80,7 +80,7 @@ STDEHANDLER(RunCombatEvent)
 		                       GEA_Int,      1,
 		                       GEA_End
 		                      );
-		g_theCurrentBattle->KillUnits(GEV_INSERT_AfterCurrent);
+		combat_Get()->KillUnits(GEV_INSERT_AfterCurrent);
 	}
 	else
 	{
@@ -94,7 +94,7 @@ STDEHANDLER(RunCombatEvent)
 		                      );
 	}
 
-	return (playAnimations && g_theCurrentBattle->IsBattleActive())
+	return (playAnimations && combat_Get()->IsBattleActive())
 	       ? GEV_HD_NeedUserInput
 	       : GEV_HD_Continue;
 }
@@ -106,13 +106,13 @@ STDEHANDLER(StartCombatEvent)
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 	if(!args->GetPos(0, p)) return GEV_HD_Continue;
 
-	if (g_theCurrentBattle)
+	if (combat_Get())
 	{
 		// Close previous screen - if still open
 		battle_observer::CloseBattleView();
-		g_theCurrentBattle->DeactivateBattle();
-		delete g_theCurrentBattle;
-		g_theCurrentBattle = NULL;
+		combat_Get()->DeactivateBattle();
+		delete combat_Get();
+		combat_Set(NULL);
 	}
 
 	CellUnitList defender;
@@ -124,7 +124,7 @@ STDEHANDLER(StartCombatEvent)
 	    a.GetOwner() != defender.GetOwner()
 	   )
 	{
-		g_theCurrentBattle = new CTP2Combat(k_COMBAT_WIDTH, k_COMBAT_HEIGHT, *a.AccessData(), defender);
+		combat_Set(new CTP2Combat(k_COMBAT_WIDTH, k_COMBAT_HEIGHT, *a.AccessData(), defender));
 	}
 
 	return GEV_HD_Continue;
@@ -138,5 +138,6 @@ void combatevent_Initialize()
 
 void combatevent_Cleanup()
 {
-	allocated::clear(g_theCurrentBattle);
+	delete combat_Get();
+	combat_Set(NULL);
 }

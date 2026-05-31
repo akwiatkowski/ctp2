@@ -45,7 +45,7 @@ struct MapPointData;
 #define HEURISTIC_TILES_PER_GRID 4
 
 
-extern World * g_theWorld;
+// g_theWorld extern lives in gs/world/World.h (already included above).
 
 
 

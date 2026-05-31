@@ -70,7 +70,7 @@
 
 extern C3UI			*g_c3ui;
 
-SourceList *g_sourceList = NULL;
+static SourceList *g_sourceList = NULL;
 
 class SourceListItemContinueAction : public aui_Action
 {

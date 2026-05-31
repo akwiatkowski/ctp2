@@ -93,7 +93,6 @@ void sourcelist_Display(SlicSegment *segment);
 void sourcelist_Remove();
 void sourcelist_RegisterBreak(SlicSegment *segment, sint32 offset);
 
-extern SourceList *g_sourceList;
 #endif // CTP2_ENABLE_SLICDEBUG
 
 #endif

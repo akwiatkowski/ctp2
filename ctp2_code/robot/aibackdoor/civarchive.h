@@ -57,14 +57,9 @@ class CivArchive;
 class GameFile ;
 class DataCheck ;
 
-#if defined(USE_COM_REPLACEMENT)
-  #define   REFCOUNT_TYPE                 uint32
-  #define   INTERFACE_RESULT_TYPE(a_Type) virtual a_Type
-#else
-  // Windows COM interface (original CTP2 code)
-  #define   REFCOUNT_TYPE                 ULONG
-  #define   INTERFACE_RESULT_TYPE(a_Type) STDMETHODIMP_(a_Type)
-#endif
+// G-4b/c: REFCOUNT_TYPE and INTERFACE_RESULT_TYPE macros removed —
+// they were COM-only typedefs (ULONG / STDMETHODIMP_) and have no
+// callers now that the IUnknown layer is gone.
 
 #define SDL_LIL_ENDIAN	1234
 #define SDL_BIG_ENDIAN	4321
@@ -108,8 +103,6 @@ class DataCheck ;
 class CivArchive
 {
 private:
-      REFCOUNT_TYPE m_refCount;
-
 		bool	m_bIsStoring ;
 
 		uint32	m_ulAllocated,
@@ -139,14 +132,11 @@ public:
 		CivArchive(uint32 ulSize) ;
 		virtual ~CivArchive() ;
 
-#if !defined(USE_COM_REPLACEMENT)
-    STDMETHODIMP QueryInterface(REFIID, void **obj);
-#endif
-
-    INTERFACE_RESULT_TYPE(REFCOUNT_TYPE) AddRef();
-    INTERFACE_RESULT_TYPE(REFCOUNT_TYPE) Release();
-    INTERFACE_RESULT_TYPE(void) Load(uint8 *pbData, uint32 ulLen);
-    INTERFACE_RESULT_TYPE(void) Store(uint8 *pbData, uint32 ulLen);
+    // G-4b/c: COM scaffolding removed.  CivArchive used to implement
+    // IUnknown (QueryInterface / AddRef / Release).  No external
+    // callers ever invoked those.  Lifetime is now plain new/delete.
+    void Load(uint8 *pbData, uint32 ulLen);
+    void Store(uint8 *pbData, uint32 ulLen);
 
 #ifndef HUNT_SERIALIZE
     void StoreChunk(uint8 *start, uint8 *end);
@@ -326,7 +316,7 @@ public:
 		void PerformMagic(uint32 id) ;
 		void TestMagic(uint32 id) ;
 
-      INTERFACE_RESULT_TYPE(BOOL) IsStoring(void) { return m_bIsStoring; };
+      BOOL IsStoring(void) { return m_bIsStoring; };
 
 		void StoreArray( sint8 * dataarray, size_t size ) {
 			Store((uint8 *)dataarray, size);

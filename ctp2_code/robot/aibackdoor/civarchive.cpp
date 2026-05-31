@@ -29,8 +29,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added put and get methods for MBCHAR* (Aug 24th 2005 Martin Gühmann)
-// - Removed DoubleUp method. (Sep 9th 2005 Martin Gühmann)
+// - Added put and get methods for MBCHAR* (Aug 24th 2005 Martin Gï¿½hmann)
+// - Removed DoubleUp method. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -41,40 +41,19 @@
 
 #include "robot/aibackdoor/civarchive.h"
 
-#ifndef USE_COM_REPLACEMENT
-STDMETHODIMP CivArchive::QueryInterface(REFIID riid, void **obj)
-{
-	return E_NOINTERFACE;
-}
-
-STDMETHODIMP_(ULONG) CivArchive::AddRef()
-#else
-uint32 CivArchive::AddRef()
-#endif
-{
-	return ++m_refCount;
-}
-
-#ifndef USE_COM_REPLACEMENT
-STDMETHODIMP_(ULONG) CivArchive::Release()
-#else
-uint32 CivArchive::Release()
-#endif
-{
-	--m_refCount;
-	if(m_refCount)
-		return m_refCount;
-
-	delete this;
-	return 0;
-}
+// G-4b/c: COM scaffolding removed.  CivArchive used to implement
+// IUnknown (QueryInterface / AddRef / Release / m_refCount) as a
+// concession to the original Activision Robot/AI backdoor that talked
+// to game state via COM.  None of that ever shipped; the only AddRef /
+// Release calls anywhere in the tree were inside CivArchive's own
+// methods.  CivArchive is now a plain RAII-managed class with new/delete
+// lifetime semantics owned by GameFile / Restore.
 
 #define k_ALLOC_SIZE		((uint32)8096)
 
 CivArchive::CivArchive()
 {
 	Assert (0 < k_ALLOC_SIZE);
-	m_refCount = 0;
 	m_pbBaseMemory = new uint8[k_ALLOC_SIZE];
 	m_ulAllocated = k_ALLOC_SIZE;
 	m_pbInsert = m_pbBaseMemory;
@@ -85,7 +64,6 @@ CivArchive::CivArchive()
 CivArchive::CivArchive(uint32 ulSize)
 {
 	Assert(0<ulSize);
-	m_refCount = 0;
 	m_pbBaseMemory = new uint8[ulSize];
 	m_ulAllocated = ulSize;
 	m_pbInsert = m_pbBaseMemory;

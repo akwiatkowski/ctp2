@@ -2099,18 +2099,14 @@ void UnitActor::Serialize(CivArchive& archive) {
     archive.PutUINT8((uint8)m_isUnseenCellActor);
 
     archive.PutUINT8((uint8)m_type);
-#if USE_FORMAT_67
-    archive << m_spriteID;
-#else
+    // G-4: USE_FORMAT_67 collapsed to the CTP0066-and-earlier shape;
+    // CTP0067 was never released.  m_spriteID + m_unitDBIndex are
+    // truncated to uint8 here, matching the binary format we actually
+    // produce.  (The JSON path persists the full sint32 width.)
     archive.PutUINT8((uint8)m_spriteID);
-#endif
     archive.PutUINT8((uint8)m_playerNum);
     archive.PutUINT32((uint32)m_unitID);
-#if USE_FORMAT_67
-    archive << m_unitDBIndex;
-#else
     archive.PutUINT8((uint8)m_unitDBIndex);
-#endif
     archive << m_unitVisionRange;
     archive << m_unitVisibility;
 

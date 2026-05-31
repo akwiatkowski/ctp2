@@ -67,13 +67,12 @@ enum	SPRITELISTERR
 // Class declarations
 //----------------------------------------------------------------------------
 
-#if USE_FORMAT_67
-uint32 const    k_MAX_SPRITES   = 511;
-#else
+// G-4: USE_FORMAT_67 collapsed.  CTP0067 was an unreleased Apolyton
+// variant; canonical binary saves cap m_spriteID at 8 bits (see
+// UnitActor::Serialize).  JSON saves persist the full sint32 width
+// regardless, so this limit only applies to binary saves still being
+// produced by --legacy-binary-save.
 uint8  const    k_MAX_SPRITES   = 255;
-// uint8 restriction: see UnitActor::Serialize. Going beyond 255 will require
-// a file format update.
-#endif
 
 class SpriteGroupList
 {

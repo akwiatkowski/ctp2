@@ -138,15 +138,12 @@ extern PointerList<Player> *        g_deadPlayer;
 
 
 
-#if USE_FORMAT_67
-#define k_GAME_MAGIC_VALUE		"CTP0067"
-#else
+// G-4: USE_FORMAT_67 ifdefs collapsed.  CTP0066 is the canonical magic
+// for binary CTP2 saves; CTP0067 was an unreleased Apolyton variant
+// that never shipped.  With JSON as the default save format (G-3) the
+// binary path only needs to recognise files that already exist on disk
+// — i.e. CTP0049..CTP0066.
 #define k_GAME_MAGIC_VALUE		"CTP0066"
-#endif
-
-
-
-
 
 
 struct MagicValue {
@@ -154,11 +151,7 @@ struct MagicValue {
 	sint32 version;
 };
 
-#if USE_FORMAT_67
-#define k_NUM_MAGIC_VALUES 19
-#else
 #define k_NUM_MAGIC_VALUES 18
-#endif
 MagicValue s_magicValue[k_NUM_MAGIC_VALUES] = {
 	{ "CTP0049", 49},
 	{ "CTP0050", 50},
@@ -177,12 +170,7 @@ MagicValue s_magicValue[k_NUM_MAGIC_VALUES] = {
 	{ "CTP0063", 63},   // Activision Alexander the Great scenario
 	{ "CTP0064", 64},
 	{ "CTP0065", 65},   // Activision CTP2 unpatched
-#if USE_FORMAT_67
-	{ "CTP0066", 66},   // Activision CTP2 patched
-	{ "CTP0067", 67},   // Apolyton
-#else
-	{ "CTP0066", 66}
-#endif
+	{ "CTP0066", 66}    // Activision CTP2 patched (canonical binary magic)
 };
 
 sint32 gamefile_CurrentVersion()

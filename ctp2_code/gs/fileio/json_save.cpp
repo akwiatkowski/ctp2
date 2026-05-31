@@ -103,6 +103,8 @@
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/EventTracker.h"
+#include "gs/gameobj/installationtree.h"     // g_theInstallationTree (G-4)
+#include "gs/utility/QuadTree.h"              // g_theUnitTree (G-4)
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
@@ -4749,6 +4751,15 @@ bool LoadJson(char const *path)
         // Post-load fixups that mirror gameinit_Initialize's archive
         // branch (gameinit.cpp:1623-1639, 1677, 1761).  These rebuild
         // observer/derived state that the bridges don't carry.
+        // Clear the spatial indices before rebuild — gameinit's fresh-
+        // game branch populated them with units/installations from the
+        // throwaway initial state, and those references are now stale
+        // (pool drains in from_json deleted the backing UnitData /
+        // InstallationData).  Walking the stale tree during Insert
+        // crashes (intermittent SIGSEGV in UnitData::GetPos via a
+        // null-this dereference; ASAN-confirmed).
+        if (g_theUnitTree)         g_theUnitTree->Clear();
+        if (g_theInstallationTree) g_theInstallationTree->Clear();
         if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
         if (g_theInstallationPool) g_theInstallationPool->RebuildQuadTree();
         if (g_theTradePool)        g_theTradePool->RecreateActors();

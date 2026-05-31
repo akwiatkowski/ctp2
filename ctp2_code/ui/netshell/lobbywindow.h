@@ -7,7 +7,9 @@
 
 class aui_StringTable;
 class LobbyWindow;
-extern LobbyWindow *g_lobbyWindow;
+// g_lobbyWindow demoted to file-scope `static` in lobbywindow.cpp.
+// Use lobbywindow_Get() instead.  Returns NULL when no lobby is active.
+LobbyWindow * lobbywindow_Get(void);
 
 
 #define k_PP_PUBLIC		0

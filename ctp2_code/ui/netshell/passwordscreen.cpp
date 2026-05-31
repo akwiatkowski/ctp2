@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -523,7 +523,7 @@ void PasswordScreenCallback(
 			}
 			else
 			{
-				g_lobbyWindow->PasswordScreenDone( password );
+				lobbywindow_Get()->PasswordScreenDone( password );
 			}
 		}
 		else if(s_passwordScreen->GetChild(s_nolobbyStatic->Id()))

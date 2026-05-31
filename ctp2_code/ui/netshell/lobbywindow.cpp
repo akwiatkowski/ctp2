@@ -26,7 +26,7 @@
 //
 // - Memory leak repaired.
 // - Memory leak report prevented.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,7 +61,12 @@
 static DialogBoxWindow *	s_dbw				= NULL;
 static time_t				s_startedLeavingAt	= 0;
 
-LobbyWindow *g_lobbyWindow = NULL;
+static LobbyWindow * g_lobbyWindow = NULL;
+
+LobbyWindow * lobbywindow_Get(void)
+{
+    return g_lobbyWindow;
+}
 
 extern MBCHAR g_serverName[ 100 + 1 ];
 

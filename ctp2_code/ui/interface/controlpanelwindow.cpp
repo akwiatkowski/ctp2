@@ -228,7 +228,6 @@ extern ProgressWindow *g_theProgressWindow;
 extern sint32               g_ScreenWidth;
 extern sint32               g_ScreenHeight;
 extern C3UI                 *g_c3ui;
-extern InfoBar              *g_infoBar;
 extern CursorManager        *g_cursorManager;
 extern KEYMAP               *theKeyMap;
 
@@ -3761,12 +3760,13 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 
 		g_controlPanel->ClearTargetingMode();
 
+		MainControlPanel *mcp = maincontrolpanel_Get();
 		switch(tab) {
 			case CP_TAB_UNIT:
-				g_mainControlPanel->UnitPanelActivated();
+				mcp->UnitPanelActivated();
 				break;
 			case CP_TAB_CITY:
-				g_mainControlPanel->CityPanelActivated();
+				mcp->CityPanelActivated();
 				break;
 			case CP_TAB_MSGLOG:
 				ctp2_Static *tabLabel;

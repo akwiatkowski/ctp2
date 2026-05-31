@@ -358,10 +358,11 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 			g_selected_item->SetCurMouseTile(m_current_mouse_tile);
 		}
 
-		g_infoBar->SetTextFromMap(m_current_mouse_tile);
+		InfoBar *ib = infobar_Get();
+		ib->SetTextFromMap(m_current_mouse_tile);
 
 		if(!GetWhichSeesMouse() || GetWhichSeesMouse() == this)
-			StatusBar::SetText(g_infoBar->GetText());
+			StatusBar::SetText(ib->GetText());
 
 		if(ScenarioEditor::IsShown())
 		{

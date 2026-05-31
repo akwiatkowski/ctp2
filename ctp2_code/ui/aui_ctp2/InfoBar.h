@@ -48,6 +48,9 @@ public:
 	static void Cleanup();
 };
 
-extern InfoBar *g_infoBar;
+// g_infoBar demoted to file-scope `static` in InfoBar.cpp.
+// External callers go through infobar_Get() (returns NULL when the
+// info bar has not been initialized).
+InfoBar * infobar_Get(void);
 
 #endif

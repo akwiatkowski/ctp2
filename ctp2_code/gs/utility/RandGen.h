@@ -69,7 +69,7 @@ public:
     void Serialize (CivArchive &archive);
 };
 
-extern RandomGenerator *g_rand;
+// (g_rand extern declared at the top of this header, before the class def.)
 
 // Reference accessor for the active random generator.
 //

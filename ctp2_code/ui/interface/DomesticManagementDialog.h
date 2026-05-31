@@ -43,6 +43,9 @@ private:
 	std::unique_ptr<GovernmentTab>		m_governmentTab;
 };
 
-extern DomesticManagementDialog *g_domesticManagementDialog;
+// g_domesticManagementDialog demoted to file-scope `static`.  Use
+// domesticmanagementdialog_Get() instead.  Returns NULL when the
+// dialog has not been opened yet.
+DomesticManagementDialog * domesticmanagementdialog_Get(void);
 
 #endif

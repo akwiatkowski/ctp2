@@ -13,7 +13,12 @@
 
 extern C3UI *g_c3ui;
 
-DomesticManagementDialog *g_domesticManagementDialog = NULL;
+static DomesticManagementDialog * g_domesticManagementDialog = NULL;
+
+DomesticManagementDialog * domesticmanagementdialog_Get(void)
+{
+    return g_domesticManagementDialog;
+}
 
 void DomesticManagementDialog::Open()
 {

@@ -112,6 +112,4 @@ private:
 	ctp2_Button		*m_closeButton;
 };
 
-extern ScienceVictoryDialog *g_scienceVictoryDialog;
-
 #endif

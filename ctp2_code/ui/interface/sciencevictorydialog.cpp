@@ -56,7 +56,7 @@
 
 extern C3UI		*g_c3ui;
 
-ScienceVictoryDialog *g_scienceVictoryDialog = NULL;
+static ScienceVictoryDialog *g_scienceVictoryDialog = NULL;
 
 const sint32 k_SWITCH_CONSTRUCTION		= 0;
 const sint32 k_SWITCH_STATUS			= 1;

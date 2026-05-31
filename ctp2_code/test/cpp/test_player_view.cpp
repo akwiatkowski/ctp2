@@ -946,9 +946,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // (Pre-cleanup baseline was 128 with 115 unique names — some globals had
 // forward-decl + interface-decl duplication.)
 //
-// 2026-05-31: dropped 128 → 119 after the first globals-cleanup batch
-// (8 workers demoted 9 UI/debug globals to file-scope `static`).
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 119;
+// 2026-05-31: dropped 128 → 119 after the first globals-cleanup batch.
+// 2026-05-31: dropped 119 → 117 after batch 2 (g_splash + g_numPlayers
+// static-ified; 4 sibling targets in batch 2 found unexpected cross-TU
+// consumers and were left as [WIP] for follow-up accessor refactors).
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 117;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

@@ -24,7 +24,6 @@
 
 extern C3UI					*g_c3ui;
 extern ProfileDB			*g_theProfileDB;
-extern CivScenarios			*g_civScenarios;
 extern CivPaths				*g_civPaths;
 extern CivApp				*g_civApp;
 

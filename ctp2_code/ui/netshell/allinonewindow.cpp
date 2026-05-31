@@ -95,7 +95,6 @@
 #include "ui/aui_ctp2/textswitch.h"
 #include "ui/aui_ctp2/texttab.h"
 
-extern CivScenarios *g_civScenarios;
 extern Exclusions *g_exclusions;
 extern sint32 g_is565Format;
 extern Network g_network;
@@ -1747,7 +1746,7 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 		strcpy(m_scenInfo.m_scenarioName, info->scenarioName);
 		ScenarioPack *pack;
 		Scenario *scen;
-		if(!g_civScenarios->FindScenario(m_scenInfo.m_scenarioName,
+		if(!civscenarios_Get()->FindScenario(m_scenInfo.m_scenarioName,
 										 &pack, &scen)) {
 			return FALSE;
 		}
@@ -2100,9 +2099,10 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			if(IsScenarioGame()) {
 				ScenarioPack *pack;
 				Scenario *scen;
-				if(g_civScenarios->FindScenario(g_scenarioName,
+				CivScenarios *cs = civscenarios_Get();
+				if(cs->FindScenario(g_scenarioName,
 												&pack, &scen)) {
-					info = g_civScenarios->LoadSaveInfo(scen);
+					info = cs->LoadSaveInfo(scen);
 					if(info)
 						deleteIt = TRUE;
 				}
@@ -2402,7 +2402,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 						ScenarioPack *pack;
 						Scenario *scen;
 						strcpy(g_scenarioName, m_scenInfo.m_gameName);
-						if(g_civScenarios->FindScenario(g_scenarioName,
+						if(civscenarios_Get()->FindScenario(g_scenarioName,
 														&pack, &scen)) {
 
 							g_civPaths->SetCurScenarioPath(scen->m_path);
@@ -2424,7 +2424,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 						strcpy(g_scenarioName, m_scenInfo.m_scenarioName);
 						ScenarioPack *pack;
 						Scenario *scen;
-						if(g_civScenarios->FindScenario(g_scenarioName,
+						if(civscenarios_Get()->FindScenario(g_scenarioName,
 														&pack, &scen)) {
 							g_civPaths->SetCurScenarioPath(scen->m_path);
 							g_civPaths->SetCurScenarioPackPath(pack->m_path);
@@ -3922,7 +3922,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 		ScenarioPack *pack;
 		Scenario *scen;
 		strcpy(g_scenarioName, scenInfo->m_gameName);
-		if(g_civScenarios->FindScenario(g_scenarioName,
+		if(civscenarios_Get()->FindScenario(g_scenarioName,
 										&pack, &scen)) {
 
 			g_civPaths->SetCurScenarioPath(scen->m_path);
@@ -3933,7 +3933,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 			strcpy(g_scenarioName, scenInfo->m_scenarioName);
 			ScenarioPack *pack;
 			Scenario *scen;
-			if(g_civScenarios->FindScenario(g_scenarioName,
+			if(civscenarios_Get()->FindScenario(g_scenarioName,
 											&pack, &scen)) {
 
 				g_theProfileDB->SetIsScenario(TRUE);

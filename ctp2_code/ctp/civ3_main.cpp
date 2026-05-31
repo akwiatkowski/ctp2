@@ -1661,7 +1661,8 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		ScenarioPack	*pack;
 		Scenario		*scen;
 
-		if (g_civScenarios->FindScenarioFromSaveFile(g_cmdline_load_filename, &pack, &scen)) {
+		CivScenarios *cs = civscenarios_Get();
+		if (cs->FindScenarioFromSaveFile(g_cmdline_load_filename, &pack, &scen)) {
 
 			g_civPaths->SetCurScenarioPath(scen->m_path);
 
@@ -1669,7 +1670,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			g_theProfileDB->SetIsScenario(TRUE);
 
-			if (g_civScenarios->ScenarioHasSavedGame(scen)) {
+			if (cs->ScenarioHasSavedGame(scen)) {
 
 				spnewgamescreen_scenarioExitCallback(NULL, 0, NULL, NULL);
 			} else {
@@ -1686,7 +1687,8 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		ScenarioPack	*pack;
 		Scenario		*scen;
 
-		if (g_civScenarios->FindScenario(g_scenarioName, &pack, &scen)) {
+		CivScenarios *cs2 = civscenarios_Get();
+		if (cs2->FindScenario(g_scenarioName, &pack, &scen)) {
 
 			g_civPaths->SetCurScenarioPath(scen->m_path);
 
@@ -1694,7 +1696,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			g_theProfileDB->SetIsScenario(TRUE);
 
-			if (g_civScenarios->ScenarioHasSavedGame(scen)) {
+			if (cs2->ScenarioHasSavedGame(scen)) {
 
 				spnewgamescreen_scenarioExitCallback(NULL, 0, NULL, NULL);
 			} else {

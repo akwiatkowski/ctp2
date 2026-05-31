@@ -86,6 +86,9 @@ private:
 	ScenarioPack	*m_scenarioPacks;
 };
 
-extern CivScenarios		*g_civScenarios;
+// g_civScenarios demoted to file-scope `static` in civscenarios.cpp.
+// External callers go through civscenarios_Get() (returns NULL before
+// scenario discovery has run).
+CivScenarios * civscenarios_Get(void);
 
 #endif

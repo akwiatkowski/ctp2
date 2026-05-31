@@ -40,7 +40,12 @@
 
 extern CivPaths		*g_civPaths;
 
-CivScenarios		*g_civScenarios = NULL;
+static CivScenarios	*g_civScenarios = NULL;
+
+CivScenarios * civscenarios_Get(void)
+{
+	return g_civScenarios;
+}
 
 
 void CivScenarios::Initialize(void)

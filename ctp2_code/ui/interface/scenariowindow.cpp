@@ -62,7 +62,6 @@
 #include "ctp/civapp.h"
 
 extern StringDB                     *g_theStringDB;
-extern CivScenarios                 *g_civScenarios;
 extern C3UI                         *g_c3ui;
 extern sint32                       g_startInfoType;
 extern CivApp                       *g_civApp;
@@ -193,8 +192,9 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 	MBCHAR checkFile[_MAX_PATH];
 	struct stat fileStatus;
 
-	for (i=0; i<g_civScenarios->GetNumScenarioPacks(); i++) {
-		scenPack = g_civScenarios->GetScenarioPack(i);
+	CivScenarios *cs = civscenarios_Get();
+	for (i=0; i<cs->GetNumScenarioPacks(); i++) {
+		scenPack = cs->GetScenarioPack(i);
 
 		snprintf(checkFile, sizeof(checkFile),"%s\\%s",scenPack->m_path,"Activision.txt");
 		if(!(hideOriginalScenarios && !stat(checkFile,&fileStatus)))
@@ -693,7 +693,7 @@ void ScenarioWindow::NewPackOk(aui_Control *control, uint32 action, uint32 data,
 		return;
 	}
 
-	CIV_SCEN_ERR err = g_civScenarios->MakeNewPack(dir, name, desc);
+	CIV_SCEN_ERR err = civscenarios_Get()->MakeNewPack(dir, name, desc);
 	Assert(err == CIV_SCEN_OK);
 
 	Assert(s_ScenarioWindow);
@@ -756,10 +756,11 @@ void ScenarioWindow::NewScenOk(aui_Control *control, uint32 action, uint32 data,
 		MBCHAR scenPackDir[_MAX_PATH];
 		strcpy(scenPackDir, s_ScenarioWindow->m_scenarioPack->m_path);
 
-		CIV_SCEN_ERR err = g_civScenarios->MakeNewScenario(s_ScenarioWindow->m_scenarioPack, name, desc);
+		CivScenarios *cs = civscenarios_Get();
+		CIV_SCEN_ERR err = cs->MakeNewScenario(s_ScenarioWindow->m_scenarioPack, name, desc);
 		Assert(err == CIV_SCEN_OK);
 
-		s_ScenarioWindow->m_scenarioPack = g_civScenarios->GetScenarioPackByPath(scenPackDir);
+		s_ScenarioWindow->m_scenarioPack = cs->GetScenarioPackByPath(scenPackDir);
 		Assert(s_ScenarioWindow->m_scenarioPack);
 		if(s_ScenarioWindow->m_scenarioPack) {
 

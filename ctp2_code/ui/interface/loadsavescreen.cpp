@@ -582,7 +582,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			Scenario		*scen;
 			ScenarioPack	*pack;
 
-			if (g_civScenarios->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
+			if (civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
 
 				g_civPaths->SetCurScenarioPath(scen->m_path);
 				g_civPaths->SetCurScenarioPackPath(pack->m_path);
@@ -622,7 +622,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 			Scenario *scen;
 			ScenarioPack *pack;
-			if(g_civScenarios->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
+			if(civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
 				g_civPaths->SetCurScenarioPath(scen->m_path);
 				g_civPaths->SetCurScenarioPackPath(pack->m_path);
 			} else {

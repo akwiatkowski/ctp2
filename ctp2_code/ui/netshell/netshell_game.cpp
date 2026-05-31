@@ -15,7 +15,6 @@
 
 #include "ui/netshell/netshell_game.h"
 #include "gs/fileio/civscenarios.h"
-extern CivScenarios *g_civScenarios;
 
 extern CivApp *g_civApp;
 
@@ -64,7 +63,7 @@ void LaunchGame( void )
 			if(w->GetScenarioInfo()->m_haveSavedGame) {
 				ScenarioPack *pack;
 				Scenario *scen;
-				if(g_civScenarios->FindScenario(g_scenarioName,
+				if(civscenarios_Get()->FindScenario(g_scenarioName,
 												&pack, &scen)) {
 					MBCHAR path[_MAX_PATH];
 					snprintf(path, sizeof(path), "%s\\%s",

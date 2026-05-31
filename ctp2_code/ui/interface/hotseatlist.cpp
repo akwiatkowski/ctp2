@@ -291,9 +291,10 @@ sint32 HotseatList::UpdateData( void )
 	Scenario *scen;
 	ScenarioPack *pack;
 	SaveInfo *info = NULL;
-	if(g_civScenarios->FindScenario(g_scenarioName,
+	CivScenarios *cs = civscenarios_Get();
+	if(cs->FindScenario(g_scenarioName,
 								    &pack, &scen)) {
-		info = g_civScenarios->LoadSaveInfo(scen);
+		info = cs->LoadSaveInfo(scen);
 	}
 
 	for ( sint32 i = 0 ; i < g_theProfileDB->GetNPlayers() - 1; i++ )

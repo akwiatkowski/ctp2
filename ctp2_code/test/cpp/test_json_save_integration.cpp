@@ -151,15 +151,17 @@ TEST_CASE("SaveJson composite: full game state writes all expected top-level key
     CHECK(doc["ai_state"]["diplomats"].size() == 3);
 }
 
-TEST_CASE("LoadJson singletons: --json-load applies a saved JSON to fresh-game state")
+TEST_CASE("LoadJson round-trip: save / load / save preserves all state")
 {
     const char *bin = find_headless();
     REQUIRE(bin);
 
     const char *patha = "/tmp/ctp2_rt_a.json";
+    const char *pathb = "/tmp/ctp2_rt_b.json";
     std::remove(patha);
+    std::remove(pathb);
 
-    // Run 1: play 3 turns + save (the source-of-truth state).
+    // Run 1: play 3 turns + save (source-of-truth state).
     {
         char cmd[1024];
         std::snprintf(cmd, sizeof(cmd),
@@ -174,33 +176,67 @@ TEST_CASE("LoadJson singletons: --json-load applies a saved JSON to fresh-game s
         REQUIRE(WEXITSTATUS(rc) == 0);
     }
 
-    // Run 2: fresh init + LoadJson.  Verifies the load runs cleanly to
-    // completion ("LoadJson returned ok") without aborting partway.
-    //
-    // The follow-up step (save again, byte-compare) is intentionally
-    // NOT exercised here: a post-load shutdown crash fires intermittently
-    // (~1/3 of runs) before the second SaveJson can finish.  The
-    // underlying bug is non-deterministic (likely memory-layout-dependent
-    // iteration order in one of the drained-and-refilled object pools)
-    // and is the next session's debugging target.  This test proves
-    // F-19's value-add — LoadJson actually overlays JSON onto fresh
-    // singletons without exploding during the load itself.
+    // Run 2: fresh init → LoadJson → SaveJson.  Verifies the full
+    // round-trip: gameinit's fresh state is overwritten by the saved
+    // state, and the second SaveJson reproduces the same content.
     {
         char cmd[1024];
         std::snprintf(cmd, sizeof(cmd),
                       "%s --new-game --turns 0 --players 3 --seed 42 "
-                      "--json-load %s 2>&1", bin, patha);
+                      "--json-load %s --json-save %s 2>&1",
+                      bin, patha, pathb);
         std::FILE *pipe = popen(cmd, "r");
         REQUIRE(pipe != nullptr);
         char buf[512];
         std::string log;
         while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
-        pclose(pipe);
-
+        int rc = pclose(pipe);
         INFO(log);
         REQUIRE(log.find("LoadJson returned ok") != std::string::npos);
-        REQUIRE(log.find("LoadJson returned FAIL") == std::string::npos);
+        REQUIRE(log.find("SaveJson returned ok") != std::string::npos);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);
     }
+
+    std::string ra, rb;
+    REQUIRE(read_file(patha, ra));
+    REQUIRE(read_file(pathb, rb));
+
+    nlohmann::json a = nlohmann::json::parse(ra);
+    nlohmann::json b = nlohmann::json::parse(rb);
+
+    // Keys that should round-trip exactly.  Excludes:
+    //   - saved_at, ctp2_build: clock + build SHA, expected to differ.
+    //   - selection: load not implemented (no SelectedItem setter).
+    //   - slic_engine: ~6-byte diff in sym_tab / segments ordering
+    //     (StringHash iteration order differs after reload); content-
+    //     equivalent but not byte-equivalent.  Validated separately.
+    for (const char *key : {
+        "magic", "schema_version",
+        "rng", "settings", "world", "turn",
+        "unit_pool", "army_pool", "trade_pool", "pollution",
+        "terrain_improvement_pool", "civilisation_pool",
+        "message_pool", "installation_pool",
+        "wonder_tracker", "exclusions", "feat_tracker",
+        "event_tracker", "top_ten",
+        "players", "dead_players", "ai_state",
+    }) {
+        INFO("round-trip key: " << key);
+        REQUIRE(a.contains(key));
+        REQUIRE(b.contains(key));
+        CHECK(a[key] == b[key]);
+    }
+
+    // slic_engine: size invariant (content drift is in hash-table
+    // iteration order, not in the data).  Same top-level sub-keys and
+    // very similar byte counts.
+    REQUIRE(a.contains("slic_engine"));
+    REQUIRE(b.contains("slic_engine"));
+    auto const sa_size = a["slic_engine"].dump().size();
+    auto const sb_size = b["slic_engine"].dump().size();
+    INFO("slic_engine sizes: a=" << sa_size << " b=" << sb_size);
+    CHECK(std::abs(static_cast<long>(sa_size) - static_cast<long>(sb_size)) < 100);
+    CHECK(a["slic_engine"].size() == b["slic_engine"].size());
 }
 
 TEST_SUITE_END;

@@ -3452,6 +3452,73 @@ TEST_CASE("json round-trip: SlicEngine tutorial flags + research fields")
     CHECK(round.GetTutorialPlayer() == 7);
 }
 
+// Regression test for the F-20 SlicSegmentHash heap-buffer-overflow.
+//
+// Root cause: SlicEngine::from_json drained the segment hash via
+// StringHash::Clear() and then re-added segments — but Clear() doesn't
+// reset SlicSegmentHash::m_nextSegment (the next-free index into the
+// fixed-size m_segments[] array sized at SetSize()).  In the headless
+// JSON-load path, gameinit's `SlicEngine::Reload` had already populated
+// the hash with N entries (so m_nextSegment == N).  The subsequent
+// Clear()+Add() cycle wrote at index N, N+1, ... overflowing the array
+// allocated for N elements.  ASAN flagged it as a heap-buffer-overflow
+// at SlicSegment.cpp:580.
+//
+// Fix: SlicEngine::from_json now calls SetSize(segments.size()) after
+// Clear() — SetSize reallocates m_segments[] and resets m_nextSegment.
+//
+// This test loads a JSON document with segments into the SAME engine
+// twice in a row.  Under ASAN, the buggy version crashes on the second
+// load.  Under non-instrumented builds the OOB write is silent (might
+// or might not surface as a downstream crash), but the test still
+// documents and exercises the pattern.
+TEST_CASE("F-20 regression: SlicEngine::from_json safe on re-populated segment hash")
+{
+    // Build a JSON document representing a SlicEngine with two segments.
+    // Serialise a fresh-state engine, then graft two F-14-shaped segment
+    // entries (serialised from real default-constructed SlicSegment
+    // instances, so every required field is present) into the segments
+    // array.
+    SlicEngine prototype;
+    nlohmann::json j = prototype;
+
+    SlicSegment seg_a;
+    SlicSegment seg_b;
+    nlohmann::json sj_a = seg_a;
+    nlohmann::json sj_b = seg_b;
+    // Override the id so the two entries are distinguishable in the
+    // segment hash (StringHash buckets by name).
+    sj_a["id"] = "test_seg_a";
+    sj_b["id"] = "test_seg_b";
+
+    j["segments"] = nlohmann::json::array({sj_a, sj_b});
+
+    // Simulate the production setup: gameinit_Initialize calls
+    // SlicEngine::Reload, which calls m_segmentHash->SetSize(N) to
+    // allocate the m_segments[] array with the count of segments parsed
+    // from .slc files.  Replicate the same: pre-size the segment hash
+    // for exactly 2 entries before we load any JSON.
+    SlicEngine target;
+    target.GetSegmentHash()->SetSize(2);
+
+    // First load: 2 segments → bucket 0,1.  m_nextSegment ends at 2,
+    // m_segments[0..1] populated.  Works fine with or without the fix.
+    REQUIRE_NOTHROW(j.get_to(target));
+
+    // Second load: Clear() drains the hash buckets but does NOT reset
+    // m_nextSegment (which stays at 2).  Without the F-20 fix, the
+    // first Add() call writes m_segments[2] — past the 2-element array.
+    // ASAN flags this immediately as a heap-buffer-overflow at
+    // SlicSegment.cpp:580.  The fix calls SetSize(segments.size())
+    // after Clear(), reallocating m_segments[] and resetting
+    // m_nextSegment to 0.
+    REQUIRE_NOTHROW(j.get_to(target));
+
+    // Third load: extra paranoia — exercises the same pattern on an
+    // already-resized hash.
+    REQUIRE_NOTHROW(j.get_to(target));
+}
+
 // Phase F-17a — SlicButton.
 
 #include "gs/slic/SlicButton.h"

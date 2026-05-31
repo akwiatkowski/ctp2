@@ -4195,10 +4195,19 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
 
     // Segments: clear the segment hash and re-add each entry.  Each
     // segment registers itself with g_gevManager on load (see F-14).
+    //
+    // Crucial: SlicSegmentHash owns a fixed-size m_segments[] array
+    // sized at SetSize().  StringHash::Clear() drains the hash buckets
+    // but leaves m_nextSegment and m_segments untouched — so calling
+    // Add() after a Clear() (with the hash already filled from gameinit's
+    // fresh-game SlicEngine::Reload) walks past the array bounds.
+    // Re-size the segment array to the incoming segment count.
     if (e.m_segmentHash)
     {
+        auto const &segments_j = j.at("segments");
         e.m_segmentHash->Clear();
-        for (auto const &sj : j.at("segments"))
+        e.m_segmentHash->SetSize(static_cast<sint32>(segments_j.size()));
+        for (auto const &sj : segments_j)
         {
             auto *seg = new SlicSegment;
             sj.get_to(*seg);
@@ -4745,15 +4754,49 @@ bool LoadJson(char const *path)
         if (g_theTradePool)        g_theTradePool->RecreateActors();
         if (g_slicEngine)          g_slicEngine->PostSerialize();
 
-        // Players + dead_players + ai_state: deferred to a follow-up
-        // session.  In-place Player::from_json triggers a misleading
-        // "type must be number, but is number" nlohmann error during
-        // round-trip — needs instrumentation to isolate which field's
-        // serialised representation drifts between save and load.
-        // Likely culprits: enum/bool packed as integer in to_json but
-        // read with a different width in from_json, or NaN/Inf in a
-        // floating-point field.  Singleton-only round-trip is solid
-        // and serves as the F-19 deliverable.
+        // Players: per-slot in-place from_json (F-20).  Requires that
+        // gameinit_Initialize already allocated a Player at each slot
+        // that's marked alive in the save.  Slots dead in the save
+        // but alive in-memory (or vice versa) are left untouched —
+        // proper construction/teardown lands in a follow-up.
+        if (doc.contains("players") && g_player)
+        {
+            auto const &players = doc.at("players");
+            sint32 const n = std::min(static_cast<sint32>(players.size()),
+                                      static_cast<sint32>(k_MAX_PLAYERS));
+            for (sint32 i = 0; i < n; ++i)
+            {
+                auto const &slot = players[i];
+                bool const alive = slot.value("alive", false);
+                if (alive && g_player[i] && slot.contains("data"))
+                {
+                    slot.at("data").get_to(*g_player[i]);
+                }
+            }
+        }
+
+        // AI state (CtpAi::Save mirror): Resize the diplomat vector to
+        // the saved count, then per-slot from_json.
+        if (doc.contains("ai_state"))
+        {
+            auto const &ai = doc.at("ai_state");
+            if (ai.contains("diplomats") && ai["diplomats"].is_array())
+            {
+                sint32 const n = static_cast<sint32>(ai["diplomats"].size());
+                Diplomat::ResizeAll(n);
+                for (sint32 i = 0; i < n; ++i)
+                    ai["diplomats"][i].get_to(Diplomat::GetDiplomat(i));
+            }
+            if (ai.contains("diplomat_next_id") && Diplomat::Count() > 0)
+            {
+                // SetNextId is non-static but writes the static s_nextId;
+                // any instance works.  Slot 0 always exists post-Resize.
+                Diplomat::GetDiplomat(0).SetNextId(
+                    ai["diplomat_next_id"].get<sint32>());
+            }
+            if (ai.contains("agreements"))
+                ai["agreements"].get_to(AgreementMatrix::s_agreements);
+        }
     }
     catch (nlohmann::json::exception const &e)
     {

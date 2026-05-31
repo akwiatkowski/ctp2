@@ -59,7 +59,12 @@ private:
     std::unordered_map<uint32, UnitActorPtr> m_actors;  // keyed by Unit::m_id
 };
 
-// Single global instance.  Declared here, defined in the .cpp.  In the
-// headless build the instance still exists (so unit tests that link
-// the UI sources can poke at it) but no observer feeds it.
-extern UIUnitActorRegistry g_uiUnitActorRegistry;
+// Single global instance.  Defined in the .cpp as a file-scope
+// `static`; access via the accessor below.  In the headless build the
+// instance still exists (so unit tests that link the UI sources can
+// poke at it) but no observer feeds it.
+//
+// Future synchronisation: drop a `std::shared_mutex` inside this
+// accessor (or behind dedicated Insert/Remove/Get operations that
+// already exist on the class) — all readers go through one point.
+UIUnitActorRegistry & uiunitactorregistry_Get(void);

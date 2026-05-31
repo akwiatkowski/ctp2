@@ -126,12 +126,12 @@ public:
     // lands the registry becomes the canonical owner.
     void OnUnitSpawned(const Unit& unit, UnitState const * /*state*/) override
     {
-        g_uiUnitActorRegistry.Insert(unit, unit.GetActor());
+        uiunitactorregistry_Get().Insert(unit, unit.GetActor());
     }
 
     void OnUnitDestroyed(const Unit& unit) override
     {
-        g_uiUnitActorRegistry.Remove(unit);
+        uiunitactorregistry_Get().Remove(unit);
     }
 
     // --- Army / combat ---

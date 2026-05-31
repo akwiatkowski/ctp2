@@ -4,7 +4,12 @@
 #include "ctp/c3.h"
 #include "ui/aui_ctp2/ui_unit_actor_registry.h"
 
-UIUnitActorRegistry g_uiUnitActorRegistry;
+static UIUnitActorRegistry g_uiUnitActorRegistry;
+
+UIUnitActorRegistry & uiunitactorregistry_Get(void)
+{
+    return g_uiUnitActorRegistry;
+}
 
 void UIUnitActorRegistry::Insert(Unit unit, UnitActorPtr actor)
 {

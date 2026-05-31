@@ -286,8 +286,8 @@ AUI_ERRCODE DiplomacyWindow::Display()
 
 		s_dipWindow->Update();
 
-		if(g_attractWindow) {
-			g_attractWindow->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+		if(AttractWindow *aw = attractwindow_Get()) {
+			aw->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 		}
 
 		EnableButtons(FALSE);
@@ -1905,9 +1905,9 @@ STDEHANDLER(DipWinResponseReady)
 		}
 
 		if(!DiplomacyWindow::IsShown()) {
-			g_attractWindow->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+			attractwindow_Get()->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 		} else {
-			g_attractWindow->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+			attractwindow_Get()->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 
 			s_dipWindow->ShowReceivedProposalDetails();
 		}
@@ -1923,16 +1923,17 @@ STDEHANDLER(DipWinNewProposalEvent)
 
 	if(p2 == g_selected_item->GetVisiblePlayer()) {
 
-		if(!g_attractWindow) {
+		if(!attractwindow_Get()) {
 			AttractWindow::Initialize();
 		}
 
-		Assert(g_attractWindow);
-		if(g_attractWindow) {
+		AttractWindow *aw = attractwindow_Get();
+		Assert(aw);
+		if(aw) {
 			if(!DiplomacyWindow::IsShown()) {
-				g_attractWindow->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+				aw->HighlightControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 			} else {
-				g_attractWindow->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
+				aw->RemoveControl(k_DIP_WINDOW_ATTRACT_BUTTON);
 			}
 		}
 

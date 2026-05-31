@@ -528,21 +528,21 @@ public:
 
     void OnRequestAttract(const char *control) override
     {
-        if (!g_attractWindow) {
+        if (!attractwindow_Get()) {
             AttractWindow::Initialize();
         }
-        if (g_attractWindow) {
-            g_attractWindow->HighlightControl(const_cast<char *>(control));
+        if (AttractWindow *aw = attractwindow_Get()) {
+            aw->HighlightControl(const_cast<char *>(control));
         }
     }
 
     void OnRequestStopAttract(const char *control) override
     {
-        if (!g_attractWindow) {
+        if (!attractwindow_Get()) {
             AttractWindow::Initialize();
         }
-        if (g_attractWindow) {
-            g_attractWindow->RemoveControl(const_cast<char *>(control));
+        if (AttractWindow *aw = attractwindow_Get()) {
+            aw->RemoveControl(const_cast<char *>(control));
         }
     }
 

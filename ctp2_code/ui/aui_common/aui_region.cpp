@@ -26,7 +26,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -307,9 +307,9 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 
 aui_Region::~aui_Region()
 {
-	if (g_attractWindow && CanAttract())
+	if (AttractWindow *aw = attractwindow_Get(); aw && CanAttract())
 	{
-		g_attractWindow->RemoveRegion(this);
+		aw->RemoveRegion(this);
 	}
 
 	aui_Ldl::Remove(this);

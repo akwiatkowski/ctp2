@@ -17,7 +17,12 @@
 
 extern C3UI			*g_c3ui;
 
-AttractWindow		*g_attractWindow;
+static AttractWindow	*g_attractWindow;
+
+AttractWindow * attractwindow_Get(void)
+{
+	return g_attractWindow;
+}
 
 #define k_ATTRACT_FINAL_STAGE		20
 #define k_ATTRACT_DURATION			120000

@@ -204,7 +204,7 @@ void ctp2_Button::SetAttract(bool on, uint32 ticksSinceStart)
 		}
 	} else {
 		Highlight(false);
-		g_attractWindow->RemoveRegion(this);
+		attractwindow_Get()->RemoveRegion(this);
 	}
 }
 

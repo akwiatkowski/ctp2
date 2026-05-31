@@ -51,6 +51,9 @@ private:
 	PointerList<AttractRegion> m_regions;
 };
 
-extern AttractWindow *g_attractWindow;
+// g_attractWindow demoted to file-scope `static` in AttractWindow.cpp.
+// External callers go through attractwindow_Get() (returns NULL when the
+// attract overlay has not been initialized).
+AttractWindow * attractwindow_Get(void);
 
 #endif

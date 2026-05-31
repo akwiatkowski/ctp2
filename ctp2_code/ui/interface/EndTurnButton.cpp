@@ -30,7 +30,7 @@ void EndTurnButton::UpdatePlayer(PLAYER_INDEX player)
 	else
 		m_endTurn->Enable(false);
 
-	g_attractWindow->RemoveRegion(m_endTurn);
+	attractwindow_Get()->RemoveRegion(m_endTurn);
 }
 
 void EndTurnButton::EndTurnButtonActionCallback(aui_Control *control, uint32 action,

@@ -3392,8 +3392,8 @@ sint32 CivApp::Process(void)
 
 	ProcessUI(target_milliseconds, used_milliseconds);
 
-	if(g_attractWindow)
-		g_attractWindow->AppIdle();
+	if(AttractWindow *aw = attractwindow_Get())
+		aw->AppIdle();
 
 
 	ProcessSLIC();

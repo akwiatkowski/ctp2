@@ -639,7 +639,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 
 	if(!found)
 	{
-		g_attractWindow->HighlightControl("ControlPanelWindow.ControlPanel.TurnButton");
+		attractwindow_Get()->HighlightControl("ControlPanelWindow.ControlPanel.TurnButton");
 		if(g_theProfileDB->GetEndTurnSound())
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_ENDTURN);

@@ -88,7 +88,12 @@ extern C3UI*		g_c3ui;
 extern StringDB*	g_theStringDB;
 extern SoundManager	*g_soundManager;
 
-EndGameWindow*			g_endgameWindow = NULL;
+static EndGameWindow *	g_endgameWindow = NULL;
+
+EndGameWindow * endgamewindow_Get(void)
+{
+	return g_endgameWindow;
+}
 
 
 

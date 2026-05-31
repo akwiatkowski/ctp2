@@ -120,6 +120,9 @@ private:
 	uint32 lastIdle;
 };
 
-extern EndGameWindow*	g_endgameWindow;
+// g_endgameWindow demoted to file-scope `static` in EndgameWindow.cpp.
+// External callers go through endgamewindow_Get() (returns NULL when the
+// end-game dialog has not been opened).
+EndGameWindow * endgamewindow_Get(void);
 
 #endif

@@ -43,7 +43,6 @@
 #include "ui/interface/messagemodal.h"
 #include "ui/interface/messagewin.h"
 #include "ui/interface/EndgameWindow.h"      // Wave C: endgamewindow_Initialize/Cleanup
-extern EndGameWindow *g_endgameWindow;
 #include "ui/interface/messageiconwindow.h"
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/sci_advancescreen.h"
@@ -232,17 +231,17 @@ public:
     // --- Wave C: endgame-statistics window ---
     void OnRequestEndGameShow(EndGame *endGame) override
     {
-        if (!g_endgameWindow)
+        if (!endgamewindow_Get())
         {
             endgamewindow_Initialize();
-            if (g_endgameWindow && g_c3ui)
+            if (EndGameWindow *egw = endgamewindow_Get(); egw && g_c3ui)
             {
-                g_c3ui->AddWindow(g_endgameWindow);
+                g_c3ui->AddWindow(egw);
             }
         }
-        if (g_endgameWindow)
+        if (EndGameWindow *egw = endgamewindow_Get())
         {
-            g_endgameWindow->Update(endGame);
+            egw->Update(endGame);
         }
     }
 

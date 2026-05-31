@@ -102,6 +102,7 @@
 #include "gs/slic/SlicEyePoint.h"
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
+#include "gs/gameobj/EventTracker.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
@@ -126,10 +127,17 @@
 #include <iostream>
 #include <sstream>
 
-extern TurnCount       *g_turn;
-extern GameSettings    *g_theGameSettings;
-// g_rand is declared in RandGen.h
-// g_theWorld is declared in World.h
+extern TurnCount             *g_turn;
+extern GameSettings          *g_theGameSettings;
+extern Pollution             *g_thePollution;
+extern TopTen                *g_theTopTen;
+extern PointerList<Player>   *g_deadPlayer;
+extern EventTracker          *g_eventTracker;
+// g_rand declared in RandGen.h.  g_theWorld in World.h.
+// g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
+// g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
+// g_theInstallationPool / g_theWonderTracker / g_exclusions / g_featTracker /
+// g_player are extern'd by their respective headers (already included above).
 
 // CTP2_BUILD_SHA is injected by meson into config.h (run_command git
 // rev-parse --short).  Fall back to "unknown" if config.h hasn't been
@@ -4438,7 +4446,7 @@ void to_json(nlohmann::json &j, MessagePool const &p)
     for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
     {
         if (p.m_table[i])
-            messages.push_back(*reinterpret_cast<MessageData const *>(p.m_table[i]));
+            messages.push_back(*static_cast<MessageData const *>(p.m_table[i]));
     }
     j = nlohmann::json{
         {"next_key", const_cast<MessagePool &>(p).HackGetKey()},
@@ -4448,6 +4456,18 @@ void to_json(nlohmann::json &j, MessagePool const &p)
 
 void from_json(nlohmann::json const &j, MessagePool &p)
 {
+    // Clear any pre-existing entries so re-deserialization doesn't leak or
+    // produce a hybrid pool. Mirrors MessageData::from_json semantics.
+    // Each m_table slot is a GameObj BST root (m_lesser/m_greater), so we
+    // must drain via Del() — matches ~ObjPool at ObjPool.cpp:48.
+    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    {
+        while (p.m_table[i])
+        {
+            p.Del(p.m_table[i]);
+        }
+    }
+
     p.HackSetKey(j.at("next_key").get<uint32>());
 
     for (auto const &entry : j.at("messages"))
@@ -4458,8 +4478,44 @@ void from_json(nlohmann::json const &j, MessagePool &p)
     }
 }
 
+// --- CtpAi composite bridge (Phase F-18) --------------------------------
+//
+// CtpAi::Save(archive) is a thin wrapper over Diplomat::SaveAll, which
+// writes three things: s_nextId, AgreementMatrix::s_agreements, and the
+// per-player Diplomat vector.  All three already have JSON bridges; this
+// helper composes them into a single "ai_state" sub-object so SaveJson /
+// LoadJson stay flat.
+//
+// Composes statics directly rather than introducing a wrapper struct —
+// there's no per-instance object to bind to here.
+
+namespace {
+
+nlohmann::json ctpai_state_to_json()
+{
+    nlohmann::json j;
+    j["diplomat_next_id"] = Diplomat::PeekNextId();
+    j["agreements"]       = AgreementMatrix::s_agreements;
+
+    nlohmann::json diplomats = nlohmann::json::array();
+    size_t const   count     = Diplomat::Count();
+    for (size_t i = 0; i < count; ++i)
+    {
+        diplomats.push_back(Diplomat::GetDiplomat(static_cast<sint32>(i)));
+    }
+    j["diplomats"] = std::move(diplomats);
+    return j;
+}
+
+}  // namespace
+
 namespace json_save {
 
+// Compose the full game state into a single JSON document and write to
+// `path`.  Mirrors GameFile::Save's binary archive order (gs/fileio/
+// GameFile.cpp:336-538) so the JSON top-level keys appear in the same
+// logical sequence — useful for diffs against a binary→JSON one-shot
+// converter (Phase G).
 bool SaveJson(char const *path)
 {
     nlohmann::json doc;
@@ -4468,17 +4524,81 @@ bool SaveJson(char const *path)
     doc["saved_at"]       = iso_utc_now();
     doc["ctp2_build"]     = CTP2_BUILD_SHA;
 
-    if (g_rand)             doc["rng"]      = *g_rand;
-    if (g_turn)             doc["turn"]     = *g_turn;
-    if (g_theGameSettings)  doc["settings"] = *g_theGameSettings;
-    if (g_theWorld)         doc["world"]    = *g_theWorld;
+    // --- Core singletons (mirror civrand / settings / world / turn
+    // order in GameFile::Save:357-388) --------------------------------
+    if (g_rand)              doc["rng"]                       = *g_rand;
+    if (g_theGameSettings)   doc["settings"]                  = *g_theGameSettings;
+    if (g_theWorld)          doc["world"]                     = *g_theWorld;
+    if (g_turn)              doc["turn"]                      = *g_turn;
 
-    // Selection is currently a scalar projection of player_view
-    // state — Phase E expands it.  Skipped when player_view is not
-    // wired (headless before InitializeGameHeadless).
+    // Selection is currently a scalar projection of player_view state.
+    // SelectedItem (the full per-player ui-side state) is too coupled
+    // to Army/Unit to round-trip until Phase E lands a richer bridge.
     SelectionState sel;
     sel.current_player = player_view::CurPlayer();
     doc["selection"] = sel;
+
+    // --- Object pools (GameFile::Save:393-458) -----------------------
+    if (g_theUnitPool)               doc["unit_pool"]                  = *g_theUnitPool;
+    if (g_theArmyPool)               doc["army_pool"]                  = *g_theArmyPool;
+    if (g_theTradePool)              doc["trade_pool"]                 = *g_theTradePool;
+    if (g_thePollution)              doc["pollution"]                  = *g_thePollution;
+    if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
+    if (g_theTerrainImprovementPool) doc["terrain_improvement_pool"]   = *g_theTerrainImprovementPool;
+    if (g_theCivilisationPool)       doc["civilisation_pool"]          = *g_theCivilisationPool;
+    if (g_theMessagePool)            doc["message_pool"]               = *g_theMessagePool;
+    if (g_theInstallationPool)       doc["installation_pool"]          = *g_theInstallationPool;
+
+    // --- Trackers + exclusions (GameFile::Save:474-503) --------------
+    if (g_theWonderTracker)  doc["wonder_tracker"]            = *g_theWonderTracker;
+    if (g_exclusions)        doc["exclusions"]                = *g_exclusions;
+    if (g_featTracker)       doc["feat_tracker"]              = *g_featTracker;
+    if (g_eventTracker)      doc["event_tracker"]             = *g_eventTracker;
+
+    // --- TopTen: not written by GameFile::Save (legacy-load-only in the
+    // binary path); included in JSON so leaderboard state persists across
+    // save/load.  See plan section "Open questions before coding".
+    if (g_theTopTen)         doc["top_ten"]                   = *g_theTopTen;
+
+    // --- Players (GameFile::Save:508-532) ----------------------------
+    // Per-slot {alive, data}.  Dead slots emit alive:false with no data
+    // — keeps array indices stable so a future scenario-load can address
+    // slot N directly.  Mirrors the playerAlive sentinel byte the binary
+    // path writes.
+    if (g_player)
+    {
+        nlohmann::json players = nlohmann::json::array();
+        for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+        {
+            nlohmann::json slot;
+            if (g_player[i])
+            {
+                slot["alive"] = true;
+                slot["data"]  = *g_player[i];
+            }
+            else
+            {
+                slot["alive"] = false;
+            }
+            players.push_back(std::move(slot));
+        }
+        doc["players"] = std::move(players);
+    }
+
+    if (g_deadPlayer)
+    {
+        nlohmann::json dead = nlohmann::json::array();
+        PointerList<Player>::Walker walk(g_deadPlayer);
+        while (walk.IsValid())
+        {
+            dead.push_back(*walk.GetObj());
+            walk.Next();
+        }
+        doc["dead_players"] = std::move(dead);
+    }
+
+    // --- AI state (GameFile::Save:537 → CtpAi::Save) -----------------
+    doc["ai_state"] = ctpai_state_to_json();
 
     std::ofstream out(path);
     if (!out)

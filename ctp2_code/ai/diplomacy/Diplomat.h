@@ -173,6 +173,16 @@ public:
 
 	void SetNextId(const sint32 & id);
 
+	// Read-only peek at s_nextId — used by the JSON savegame path to
+	// emit the next-id counter without bumping it (GetNextId() is a
+	// post-increment).  Mirror Diplomat::SaveAll's archive << s_nextId.
+	static sint32 PeekNextId() { return s_nextId; }
+
+	// Number of per-player Diplomat slots — equals CtpAi::s_maxPlayers
+	// after ResizeAll.  Exposed here so gs/ code (JSON save path) can
+	// iterate without including ai/ctpai.h.
+	static size_t Count() { return s_theDiplomats.size(); }
+
 
 
 

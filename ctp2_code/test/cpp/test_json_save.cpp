@@ -3695,6 +3695,27 @@ TEST_CASE("json round-trip: MessagePool with messages")
     CHECK(std::string(round.AccessMessage(Message(0x1002))->GetMsgText()) == "Second message");
 }
 
+TEST_CASE("json round-trip: MessagePool preserves next_key")
+{
+    MessagePool orig;
+
+    MessageData *msg1 = new MessageData(ID(0x1001));
+    orig.Insert(msg1);
+
+    // Advance the next-key counter so HackGetKey != default.
+    orig.HackSetKey(orig.HackGetKey() + 5);
+    uint32 const expectedKey = orig.HackGetKey();
+
+    nlohmann::json j = orig;
+
+    MessagePool round;
+    j.get_to(round);
+
+    CHECK(round.HackGetKey() == expectedKey);
+    CHECK(round.AccessMessage(Message(0x1001)) != nullptr);
+}
+
+
 TEST_CASE("json round-trip: MessagePool keys are snake_case (no m_ leak)")
 {
     MessagePool p;

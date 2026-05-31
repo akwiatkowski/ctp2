@@ -24,8 +24,8 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed references to the old civilisation database. (Aug 20th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Removed references to the old civilisation database. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Cleaned up static data.
 //
 //----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 
 
-VictoryWindow                   *g_victoryWindow = NULL;
+static VictoryWindow *          g_victoryWindow = NULL;
 
 static ctp2_Button              *s_okButton;
 static ctp2_Static              **s_staticControls;

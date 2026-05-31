@@ -47,6 +47,4 @@ private:
 
 };
 
-extern VictoryWindow	*g_victoryWindow;
-
 #endif

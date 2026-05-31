@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -55,7 +55,6 @@
 #include "gfx/spritesys/director.h"
 extern MovieDB			*g_theVictoryMovieDB;
 extern C3UI				*g_c3ui;
-extern VictoryWindow	*g_victoryWindow;
 
 #include "sound/soundmanager.h"
 extern SoundManager		*g_soundManager;

@@ -12,7 +12,6 @@ class Splash;
 #define	k_SPLASH_TEXT_INC		15
 
 #ifdef _DEBUG
-extern Splash *         g_splash;
 extern sint32           g_splash_old;
 #endif
 

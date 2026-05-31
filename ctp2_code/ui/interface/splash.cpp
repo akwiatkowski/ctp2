@@ -13,7 +13,7 @@
 
 extern C3UI	*   g_c3ui;
 
-Splash *        g_splash    = NULL;
+static Splash *        g_splash    = NULL;
 
 #ifdef _DEBUG
 // SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals

@@ -1061,12 +1061,12 @@ PRIMITIVES_ERRCODE primitives_DrawText(
 	oldColor = SetTextColor(hdc, color);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	TextOut(hdc,x,y,pString,strlen(pString));
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1114,8 +1114,8 @@ PRIMITIVES_ERRCODE primitives_DrawBoundedText(
 	oldColor = SetTextColor(hdc, g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP));
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	DrawText(hdc,pString,-1,bound,DT_WORDBREAK);
 
@@ -1125,7 +1125,7 @@ PRIMITIVES_ERRCODE primitives_DrawBoundedText(
 	OffsetRect(&bound2, -1, -1);
 	DrawText(hdc,pString,-1,&bound2,DT_WORDBREAK);
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1181,8 +1181,8 @@ PRIMITIVES_ERRCODE primitives_DrawTextBatch(
 	oldColor = SetTextColor(hdc, color);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	for (sint32 i=0;i < numStrings;i++)
 	{
@@ -1190,7 +1190,7 @@ PRIMITIVES_ERRCODE primitives_DrawTextBatch(
 		y += tm.tmHeight + tm.tmExternalLeading;
 	}
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1242,8 +1242,8 @@ PRIMITIVES_ERRCODE primitives_DropText(
 	oldColor = SetTextColor(hdc, 0);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
@@ -1253,7 +1253,7 @@ PRIMITIVES_ERRCODE primitives_DropText(
 	SetTextColor(hdc, color);
 	TextOut(hdc,x,y,pString,strlen(pString));
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1306,8 +1306,8 @@ PRIMITIVES_ERRCODE primitives_ColoredDropText(
 	oldColor = SetTextColor(hdc, 0);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 
 
@@ -1319,7 +1319,7 @@ PRIMITIVES_ERRCODE primitives_ColoredDropText(
 	SetTextColor(hdc, textColor);
 	TextOut(hdc,x,y,pString,strlen(pString));
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1366,8 +1366,8 @@ PRIMITIVES_ERRCODE primitives_DropTextCentered(
 	oldColor = SetTextColor(hdc, 0);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
@@ -1382,7 +1382,7 @@ PRIMITIVES_ERRCODE primitives_DropTextCentered(
 	SetTextColor(hdc, color);
 	TextOut(hdc,x,y,pString,strlen(pString));
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1430,8 +1430,8 @@ PRIMITIVES_ERRCODE primitives_ColoredDropTextCentered(
 	oldColor = SetTextColor(hdc, 0);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 
 
@@ -1448,7 +1448,7 @@ PRIMITIVES_ERRCODE primitives_ColoredDropTextCentered(
 	SetTextColor(hdc, textColor);
 	TextOut(hdc,x,y,pString,strlen(pString));
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);
@@ -1506,8 +1506,8 @@ PRIMITIVES_ERRCODE primitives_DropTextBatch(
 	oldColor = SetTextColor(hdc, 0);
 
 	HFONT hOldFont = NULL;
-	if (g_hFont)
-		hOldFont = (HFONT)SelectObject(hdc,g_hFont);
+	if (hfont_Get())
+		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
 	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
@@ -1530,7 +1530,7 @@ PRIMITIVES_ERRCODE primitives_DropTextBatch(
 		y += tm.tmHeight + tm.tmExternalLeading;
 	}
 
-	if (g_hFont)
+	if (hfont_Get())
 		SelectObject(hdc,hOldFont);
 
 	SetTextColor(hdc, oldColor);

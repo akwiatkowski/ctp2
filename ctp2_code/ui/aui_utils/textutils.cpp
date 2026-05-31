@@ -35,7 +35,12 @@
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 #include "gs/fileio/CivPaths.h"               // g_civPaths
 
-HFONT				g_hFont;
+static HFONT		g_hFont;
+
+HFONT hfont_Get(void)
+{
+	return g_hFont;
+}
 
 #define k_FONT_FILE_NAME	"ArialBd.ttf"
 #define k_FONT_FACE_NAME	"Arial Bold"

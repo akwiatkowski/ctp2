@@ -14,7 +14,10 @@ class aui_Surface;
 #define k_FONT_ATTR_UNDERLINE	4
 #define k_FONT_ATTR_STRIKEOUT	8
 
-extern HFONT g_hFont;
+// g_hFont demoted to file-scope `static` in textutils.cpp.  External
+// callers go through hfont_Get() (returns NULL before
+// textutils_SetCurrentFont has been called).
+HFONT hfont_Get(void);
 
 void	textutils_Initialize(void);
 void	textutils_Cleanup(void);

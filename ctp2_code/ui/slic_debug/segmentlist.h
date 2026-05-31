@@ -70,8 +70,6 @@ private:
 void segmentlist_Display();
 void segmentlist_Remove();
 
-extern SegmentList *g_segmentList;
-
 #endif //CTP2_ENABLE_SLICDEBUG
 
 #endif

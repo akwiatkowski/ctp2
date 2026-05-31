@@ -65,7 +65,7 @@
 #include "gs/slic/SlicSegment.h"
 
 extern C3UI			*g_c3ui;
-SegmentList *g_segmentList = NULL;
+static SegmentList *g_segmentList = NULL;
 
 void segmentlist_Callback(sint32 arg)
 {

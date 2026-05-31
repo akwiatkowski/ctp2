@@ -942,10 +942,13 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // Reference inventory + history:
 //   ~/projects/claude/docs/ctp2/globals-audit-2026-05-31.md
 //   ~/projects/claude/docs/ctp2/globals-audit-2026-05-31.tsv
-// Note: 128 declarations vs 115 unique names — some globals are declared
-// in multiple headers (forward-decl + interface decl).  Each declaration
-// counts as an access surface that should be locked.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 128;
+// Each declaration counts as an access surface that should be locked.
+// (Pre-cleanup baseline was 128 with 115 unique names — some globals had
+// forward-decl + interface-decl duplication.)
+//
+// 2026-05-31: dropped 128 → 119 after the first globals-cleanup batch
+// (8 workers demoted 9 UI/debug globals to file-scope `static`).
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 119;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

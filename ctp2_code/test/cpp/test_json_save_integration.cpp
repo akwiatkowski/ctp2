@@ -320,4 +320,66 @@ TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-s
     CHECK(alive == 3);
 }
 
+TEST_CASE("Phase G-2: GameFile::Restore auto-detects JSON vs binary save format")
+{
+    // G-2: --load-game (which calls GameFile::Restore) now peeks the
+    // first non-whitespace byte: '{' routes through json_save::LoadJson
+    // via gameinit's fresh-init branch; anything else falls through to
+    // the legacy CivArchive binary path.  This test verifies both
+    // formats are recognised correctly.
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *binpath  = "/tmp/ctp2_g2_bin.c2g";
+    const char *jsonpath = "/tmp/ctp2_g2_json.json";
+    std::remove(binpath);
+    std::remove(jsonpath);
+
+    // Produce a binary save and a JSON save from equivalent runs.
+    auto run = [&](char const *fmt_flag, char const *path) {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 3 --players 3 --seed 42 "
+                      "%s %s 2>&1", bin, fmt_flag, path);
+        std::FILE *pipe = popen(cmd, "r");
+        REQUIRE(pipe != nullptr);
+        char buf[512];
+        while (std::fgets(buf, sizeof(buf), pipe)) { /* drain */ }
+        int rc = pclose(pipe);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);
+    };
+    run("--save-game", binpath);
+    run("--json-save", jsonpath);
+
+    // Both files should now be loadable via --load-game alone.
+    auto load = [&](char const *path) -> std::string {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --load-game %s --turns 0 2>&1", bin, path);
+        std::FILE *pipe = popen(cmd, "r");
+        REQUIRE(pipe != nullptr);
+        char buf[512];
+        std::string log;
+        while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+        int rc = pclose(pipe);
+        INFO(log);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);
+        return log;
+    };
+
+    std::string binLog  = load(binpath);
+    std::string jsonLog = load(jsonpath);
+
+    // Both should report a clean RestoreGame.
+    CHECK(binLog .find("RestoreGame returned") != std::string::npos);
+    CHECK(jsonLog.find("RestoreGame returned") != std::string::npos);
+    // JSON path emits SaveJson loading log (json_save::LoadJson) before
+    // the RestoreGame returns; binary path emits the CivArchive loading
+    // signature in the form of version-stamp progress messages.
+    // (We don't strictly require either — the key check is exit code +
+    // RestoreGame returning.)
+}
+
 TEST_SUITE_END;

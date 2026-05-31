@@ -70,6 +70,9 @@
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/gameinit.h"
+#include "gs/fileio/json_save.h"               // json_save::LoadJson (G-2)
+#include <cctype>                              // std::isspace (G-2)
+#include <cstdio>                              // std::fgetc (G-2)
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/installation.h"
@@ -660,6 +663,31 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 	progress_observer::BeginProgress("InitProgressWindow", 1090);
 
 	progress_observer::StartCountingTo(10, g_theStringDB->GetNameStr("LOADING"));
+
+	// G-2: format auto-detection.  Peek the first non-whitespace byte:
+	// '{' means JSON (CTP2-JSON format from Phase F-18), anything else
+	// is the legacy CivArchive-based binary path.  JSON loads route
+	// through gameinit's fresh-init branch followed by LoadJson, which
+	// matches the headless --new-game + --json-load shape.
+	{
+		FILE *fpProbe = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
+		if (fpProbe)
+		{
+			int ch;
+			do { ch = std::fgetc(fpProbe); }
+			while (ch != EOF && std::isspace(static_cast<unsigned char>(ch)));
+			c3files_fclose(fpProbe);
+			if (ch == '{')
+			{
+				progress_observer::StartCountingTo(1080);
+				g_civApp->InitializeGame(NULL);
+				bool const ok = json_save::LoadJson(filepath);
+				progress_observer::StartCountingTo(1090);
+				progress_observer::EndProgress();
+				return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
+			}
+		}
+	}
 
 	FILE *  fpLoad = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
 	if (!fpLoad)

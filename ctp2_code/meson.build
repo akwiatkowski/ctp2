@@ -511,7 +511,6 @@ game_core_sources = [
 	'robot/pathing/robotastar2.cpp',
 	'robot/pathing/TradeAstar.cpp',
 	'robot/pathing/unitastar.cpp',
-	'robot/aibackdoor/bset.cpp',
 	'robot/aibackdoor/civarchive.cpp',
 	'sound/civsound.cpp',
 	'sound/gamesounds.cpp',

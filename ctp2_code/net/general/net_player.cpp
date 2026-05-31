@@ -5,11 +5,9 @@
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Advances.h"
-#include "robot/aibackdoor/bset.h"
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/TaxRate.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "robot/aibackdoor/bset.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Score.h"

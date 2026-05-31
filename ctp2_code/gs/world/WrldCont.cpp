@@ -32,7 +32,6 @@
 #include "ctp/c3.h"
 #include "gs/world/World.h"
 
-#include "robot/aibackdoor/bset.h"
 #include "gs/world/Cell.h"
 #include "gs/utility/directions.h"
 #include "robot/aibackdoor/dynarr.h"

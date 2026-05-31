@@ -162,7 +162,6 @@ class UnitActor;
 #include "net/general/net_info.h"
 #include "net/general/net_unit.h"
 #include "net/general/network.h"
-#include "robot/aibackdoor/bset.h"
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"               // SOUNDTYPE / GAMESOUNDS enums
 #include "gs/core/game_observer.h"            // g_gameObservers

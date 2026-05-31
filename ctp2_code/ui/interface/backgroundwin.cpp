@@ -24,7 +24,6 @@
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/controlpanelwindow.h"
 
-#include "robot/aibackdoor/bset.h"
 
 #include "gs/database/profileDB.h"
 

@@ -3,7 +3,6 @@
 #include "gs/gameobj/LineDance.h"
 #include "gs/world/cellunitlist.h"
 
-#include "robot/aibackdoor/bset.h"
 
 extern UnitDatabase		*g_theUnitDB;
 

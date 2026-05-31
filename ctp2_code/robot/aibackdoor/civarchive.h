@@ -45,7 +45,9 @@
 
 class CivArchive;
 
-#include "gs/outcom/ic3CivArchive.h"
+// G-4b: Ic3CivArchive base removed; CivArchive is a plain concrete
+// class.  The COM-style interface (DECLARE_INTERFACE_, GUIDs, IUnknown
+// base) was never used outside CivArchive itself.
 #include "os/include/ctp2_inttypes.h"
 // #include "SDL2/SDL_endian.h"
 
@@ -103,7 +105,7 @@ class DataCheck ;
 #define SDL_SwapLE64(x) (x)
 */
 
-class CivArchive : public IC3CivArchive
+class CivArchive
 {
 private:
       REFCOUNT_TYPE m_refCount;

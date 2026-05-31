@@ -32,11 +32,10 @@
 
 #include "robot/aibackdoor/civarchive.h"
 
-#ifdef COM_INTERFACE
-#define ARCHIVE IC3CivArchive *
-#else
+// G-4b: COM_INTERFACE branch collapsed.  IC3CivArchive (the COM-style
+// archive interface) is dead — never instantiated outside the CivArchive
+// concrete class.  CivArchive & is the only archive shape that ships.
 #define ARCHIVE CivArchive &
-#endif
 
 template <class T> class StringHashNode {
 public:
@@ -63,11 +62,8 @@ public:
 	};
 
 	void Serialize(ARCHIVE archive) {
-#ifndef COM_INTERFACE
 		uint8 isPresent;
 		if(archive.IsStoring()) {
-
-
 			m_obj->Serialize(archive);
 
 			isPresent = (m_next != NULL);
@@ -75,7 +71,6 @@ public:
 			if(m_next)
 				m_next->Serialize(archive);
 		} else {
-
 			m_obj = new T(archive);
 			archive >> isPresent;
 
@@ -85,7 +80,6 @@ public:
 				m_next = NULL;
 			}
 		}
-#endif
 	}
 };
 
@@ -168,7 +162,6 @@ template <class T> void StringHash<T>::Clear()
 
 template <class T> void StringHash<T>::Serialize(ARCHIVE archive)
 {
-#ifndef COM_INTERFACE
 	uint8 isPresent;
 
 	if(archive.IsStoring()) {
@@ -196,7 +189,6 @@ template <class T> void StringHash<T>::Serialize(ARCHIVE archive)
 			}
 		}
 	}
-#endif
 }
 
 template <class T> uint16 StringHash<T>::Key(const char *str)

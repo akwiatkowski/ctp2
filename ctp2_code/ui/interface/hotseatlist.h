@@ -26,8 +26,8 @@
 //
 // - Code strucure improvements: multiple include guard added, cleanup in
 //   destructor.
-// - Increased the number of players in a HotSeat and PBEM game. (4-Dec-2007 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Increased the number of players in a HotSeat and PBEM game. (4-Dec-2007 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -139,6 +139,13 @@ sint32 hotseatlist_NumEnabled(void);
 
 
 
-extern HotseatList *g_hotseatList;
+// g_hotseatList demoted to file-scope `static` in hotseatlist.cpp.
+// External callers go through operations that encapsulate lifecycle:
+//   hotseatlist_DisplayWindow(callback)  â€” lazy-create + show.
+//   hotseatlist_Cleanup()                â€” destroy and reset.
+// The accessor below is read-only and returns NULL when no list exists.
+void hotseatlist_DisplayWindow(HotseatListCallback *callback);
+void hotseatlist_Cleanup(void);
+HotseatList * hotseatlist_Get(void);
 
 #endif

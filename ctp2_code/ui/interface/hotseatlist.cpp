@@ -25,10 +25,10 @@
 // Modifications from the original Activision code:
 //
 // - Memory leaks repaired, cleanup in destructor.
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standartized code (May 21st 2006 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standartized code (May 21st 2006 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -79,7 +79,25 @@
 
 extern C3UI *g_c3ui;
 
-HotseatList *g_hotseatList = NULL;
+static HotseatList * g_hotseatList = NULL;
+
+HotseatList * hotseatlist_Get(void)
+{
+    return g_hotseatList;
+}
+
+void hotseatlist_DisplayWindow(HotseatListCallback *callback)
+{
+    if (!g_hotseatList) {
+        g_hotseatList = new HotseatList(callback);
+    }
+    g_hotseatList->DisplayWindow();
+}
+
+void hotseatlist_Cleanup(void)
+{
+    allocated::clear(g_hotseatList);
+}
 
 sint32       s_hotseatCivList[k_MAX_PLAYERS];
 bool        *s_legalCivList = NULL;

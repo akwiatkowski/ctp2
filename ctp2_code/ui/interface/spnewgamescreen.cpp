@@ -192,7 +192,7 @@ void spnewgamescreen_Cleanup(void)
 	custommapscreen_Cleanup();
 	scenarioscreen_Cleanup();
 
-	allocated::clear(g_hotseatList);
+	hotseatlist_Cleanup();
 
 	// Clean up main screen
 	if (g_spNewGameWindow)
@@ -832,8 +832,6 @@ void spnewgamescreen_SetupHotseatOrEmail()
 	hotseatlist_ClearOptions();
 	hotseatlist_EnableAllCivs();
 
-	if(!g_hotseatList) {
-		g_hotseatList = new HotseatList((HotseatListCallback *)spnewgamescreen_HotseatCallback);
-	}
-	g_hotseatList->DisplayWindow();
+	hotseatlist_DisplayWindow(
+		(HotseatListCallback *)spnewgamescreen_HotseatCallback);
 }

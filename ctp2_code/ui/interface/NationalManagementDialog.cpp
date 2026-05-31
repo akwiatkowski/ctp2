@@ -127,7 +127,12 @@ static const sint32 k_NMD_SPEC_MERCHANT     = 7;
 static const sint32 k_NMD_SPEC_SCIENTIST    = 8;
 static const sint32 k_NMD_SPEC_COMBAT_UNITS = 9;
 
-NationalManagementDialog *g_nationalManagementDialog = NULL;
+static NationalManagementDialog * g_nationalManagementDialog = NULL;
+
+NationalManagementDialog * nationalmanagementdialog_Get(void)
+{
+    return g_nationalManagementDialog;
+}
 
 void NationalManagementDialog::Open()
 {

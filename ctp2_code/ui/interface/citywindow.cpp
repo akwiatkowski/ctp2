@@ -1138,8 +1138,8 @@ void CityWindow::CopyCitiesBack()
 				if(s_cityWindow->m_cityData == copiedCityData)
 					s_cityWindow->m_cityData = NULL;
 			}
-			if(g_nationalManagementDialog) {
-				g_nationalManagementDialog->Update();
+			if(NationalManagementDialog *nmd = nationalmanagementdialog_Get()) {
+				nmd->Update();
 			}
 		}
 	}

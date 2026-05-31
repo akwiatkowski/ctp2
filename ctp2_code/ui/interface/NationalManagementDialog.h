@@ -26,7 +26,7 @@
 //
 // - #01 Added a third tab to the dialog that shows the nuber of experts and
 //   military units in each city. (L. Hirth 6/2004)
-// - Added City Manager button and functions callback. - July 24th 2005 Martin Gühmann
+// - Added City Manager button and functions callback. - July 24th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -179,6 +179,9 @@ private:
 	bool m_mirroring;
 };
 
-extern NationalManagementDialog *g_nationalManagementDialog;
+// g_nationalManagementDialog demoted to file-scope `static` in
+// NationalManagementDialog.cpp.  Use nationalmanagementdialog_Get() instead.
+// Returns NULL when the dialog has not been opened yet.
+NationalManagementDialog * nationalmanagementdialog_Get(void);
 
 #endif

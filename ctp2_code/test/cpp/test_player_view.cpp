@@ -967,7 +967,15 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // via orderinfo_Get(idx) / orderinfo_Num() / orderinfo_MapAt(unitOrder)
 // with bound-check Asserts.  3 cross-layer consumers (ArmyData,
 // slicfunc, net_action) migrated.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 106;
+// 2026-05-31: dropped 106 → 102 after batch 6 (4 more mid-fanout):
+//   - g_uiUnitActorRegistry  (gfx+gs+ui, 13 sites)
+//   - g_allinoneWindow       (4 ui/netshell consumers, 11 sites)
+//   - g_loadsaveWindow       (3 ui consumers, 8 sites + 2 redundant
+//                             local externs deleted)
+//   - g_theCurrentBattle     (5 cross-layer consumers, 30 sites,
+//                             get+set accessor pattern for the
+//                             lifecycle-managed pointer)
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 102;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

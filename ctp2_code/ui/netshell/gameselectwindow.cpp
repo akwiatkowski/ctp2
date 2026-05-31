@@ -68,9 +68,6 @@
 #include "ui/interface/scenariowindow.h"
 
 #include "ui/interface/spnewgamewindow.h"
-
-extern LoadSaveWindow *g_loadsaveWindow;
-
 #include "gs/database/profileDB.h"
 #include "AgeRecord.h"
 
@@ -389,12 +386,12 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 	AllinoneWindow *w = allinonewindow_Get();
 	AllinoneWindow::Mode mode = w->JOIN;
 
-	TellEricAboutThisBug( g_loadsaveWindow );
+	TellEricAboutThisBug( loadsavewindow_Get() );
 
-	if ( g_loadsaveWindow && g_ui->GetChild( g_loadsaveWindow->Id() ) )
+	if ( loadsavewindow_Get() && g_ui->GetChild( loadsavewindow_Get()->Id() ) )
 	{
 
-		SaveInfo *saveInfo = g_loadsaveWindow->GetSaveInfo();
+		SaveInfo *saveInfo = loadsavewindow_Get()->GetSaveInfo();
 		Assert( saveInfo != NULL );
 		if ( saveInfo )
 		{
@@ -434,7 +431,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 
 			mode = w->CONTINUE_CREATE;
 
-			switch ( g_loadsaveWindow->GetType() )
+			switch ( loadsavewindow_Get()->GetType() )
 			{
 			case LSS_LOAD_GAME:
 			case LSS_LOAD_MP:
@@ -944,6 +941,6 @@ void StartSelectingLoadSaveCallback(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if ( g_loadsaveWindow->GetSaveInfo() )
+	if ( loadsavewindow_Get()->GetSaveInfo() )
 		passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_ASK );
 }

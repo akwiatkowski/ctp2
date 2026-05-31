@@ -102,7 +102,12 @@ extern BOOL					g_setBarbarianRiskUponLaunch;
 extern sint32				g_barbarianRiskUponLaunch;
 
 SaveInfo *                  g_savedGameRequest  = NULL;
-LoadSaveWindow	*           g_loadsaveWindow    = NULL;
+static LoadSaveWindow *     g_loadsaveWindow    = NULL;
+
+LoadSaveWindow * loadsavewindow_Get(void)
+{
+    return g_loadsaveWindow;
+}
 
 static uint32               s_type              = LSS_TOTAL;
 static c3_Static *          s_name				= NULL;

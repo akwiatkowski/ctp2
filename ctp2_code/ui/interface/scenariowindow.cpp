@@ -553,7 +553,7 @@ void ScenarioWindow::SavePress(aui_Control *control, uint32 action, uint32 data,
 		}
 
 		loadsavescreen_Initialize();
-		g_loadsaveWindow->SetType(LSS_SAVE_GAME);
+		loadsavewindow_Get()->SetType(LSS_SAVE_GAME);
 
 		loadsavescreen_SaveGame(s_ScenarioWindow->m_scenario->m_path,
 								k_SCENARIO_DEFAULT_SAVED_GAME_NAME);

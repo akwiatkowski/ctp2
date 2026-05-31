@@ -99,7 +99,6 @@ extern CivScenarios *g_civScenarios;
 extern Exclusions *g_exclusions;
 extern sint32 g_is565Format;
 extern Network g_network;
-extern LoadSaveWindow *g_loadsaveWindow;
 extern aui_Radio *s_maleRadio;
 
 static DialogBoxWindow *s_dbw = NULL;
@@ -2110,7 +2109,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				if(!info)
 					SetupNewScenario();
 			} else {
-				info = g_loadsaveWindow->GetSaveInfo();
+				info = loadsavewindow_Get()->GetSaveInfo();
 			}
 
 			if ( info )

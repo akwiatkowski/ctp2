@@ -234,6 +234,9 @@ private:
 
 AUI_ACTION_BASIC(LSCleanupAction);
 
-extern LoadSaveWindow				*g_loadsaveWindow;
+// g_loadsaveWindow demoted to file-scope `static` in loadsavescreen.cpp.
+// External callers go through loadsavewindow_Get() (returns NULL when
+// the load/save dialog has not been opened).
+LoadSaveWindow * loadsavewindow_Get(void);
 
 #endif

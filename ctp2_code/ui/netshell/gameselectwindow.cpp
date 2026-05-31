@@ -75,7 +75,7 @@ extern LoadSaveWindow *g_loadsaveWindow;
 #include "AgeRecord.h"
 
 GameSelectWindow *g_gameSelectWindow = NULL;
-StartSelectingWindow *g_startSelectingWindow = NULL;
+static StartSelectingWindow *g_startSelectingWindow = NULL;
 
 GameSelectWindow::GameSelectWindow(
 	AUI_ERRCODE *retval )

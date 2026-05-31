@@ -51,7 +51,6 @@ protected:
 };
 
 class StartSelectingWindow;
-extern StartSelectingWindow *g_startSelectingWindow;
 
 class StartSelectingWindow : public ns_Window
 {

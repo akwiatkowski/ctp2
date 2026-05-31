@@ -961,7 +961,13 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_hotseatList: switched to operation API
 //     (hotseatlist_DisplayWindow / hotseatlist_Cleanup) because external
 //     consumers were writing the pointer, not just reading it.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 109;
+// 2026-05-31: dropped 109 → 106 after batch 5 — first non-UI accessor
+// wrap, the g_orderInfo[] / g_numOrderInfo / g_orderInfoMap[] triplet
+// in gs/gameobj/Order.{h,cpp}.  Read-only after static-init; exposed
+// via orderinfo_Get(idx) / orderinfo_Num() / orderinfo_MapAt(unitOrder)
+// with bound-check Asserts.  3 cross-layer consumers (ArmyData,
+// slicfunc, net_action) migrated.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 106;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

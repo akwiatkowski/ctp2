@@ -71,7 +71,7 @@
 
 extern C3UI			*g_c3ui;
 
-WatchList *g_watchList = NULL;
+static WatchList *g_watchList = NULL;
 
 void watchlist_Callback(sint32 arg)
 {

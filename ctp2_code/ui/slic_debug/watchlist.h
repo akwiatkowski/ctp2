@@ -92,7 +92,6 @@ void watchlist_Remove();
 void watchlist_Refresh();
 void watchlist_AddExpression(char *exp);
 
-extern WatchList *g_watchList;
 #endif//CTP2_ENABLE_SLICDEBUG
 
 #endif

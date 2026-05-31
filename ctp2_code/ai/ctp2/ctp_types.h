@@ -20,7 +20,7 @@ typedef char				MBCHAR;
 
 #error "Do not use this"
 
-extern sint32 g_turn;
+// (g_turn extern removed — file is forbidden via #error above.)
 
 struct MapPointData {
 	MapPointData(sint16 X=0,

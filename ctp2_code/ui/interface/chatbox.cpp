@@ -216,7 +216,7 @@ AUI_ERRCODE ChatWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_grabRegion->Move(0, 0);
 	m_grabRegion->Resize(m_width, m_height);
 
-	Move(0, g_radarWindow->Y() - m_height);
+	Move(0, radarwindow_Get()->Y() - m_height);
 
 	return AUI_ERRCODE_OK;
 }

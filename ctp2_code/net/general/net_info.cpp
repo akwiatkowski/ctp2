@@ -406,7 +406,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_MAP_DONE:
 		{
 
-			g_c3ui->RemoveWindow(g_radarWindow->Id());
+			g_c3ui->RemoveWindow(radarwindow_Get()->Id());
 			radarwindow_Cleanup();
 
 			delete g_tiledMap;

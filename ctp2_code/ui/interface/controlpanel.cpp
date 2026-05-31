@@ -559,7 +559,7 @@ HideControlPanel()
 	HideElement(g_debugWindow           );
 	HideElement(g_workWindow            );
 
-	HideElement(g_radarWindow           );
+	HideElement(radarwindow_Get()       );
 
 
 	HideElement((aui_Window*)g_controlPanel->GetWindow());

@@ -726,7 +726,7 @@ bool ui_CheckForScroll(void)
             {
 				if (topWindow != g_controlPanel->GetWindow() &&
                     topWindow != g_statusWindow &&
-                    topWindow != g_radarWindow &&
+                    topWindow != radarwindow_Get() &&
                     topWindow != g_controlPanel->GetMenuBar()
                    )
                 {

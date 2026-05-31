@@ -16,6 +16,9 @@ void    radarwindow_Hide();
 void    radarwindow_Show();
 void    radarwindow_Toggle();
 
-extern ctp2_Window *g_radarWindow;
+// g_radarWindow demoted to file-scope `static` in radarwindow.cpp.
+// External callers go through radarwindow_Get() (returns NULL when the
+// radar window has not been initialized).
+ctp2_Window * radarwindow_Get(void);
 
 #endif

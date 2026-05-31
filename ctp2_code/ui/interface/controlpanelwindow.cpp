@@ -3849,7 +3849,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 			g_theProgressWindow->SetType(AUI_WINDOW_TYPE_SINKING);
 
-			g_theProgressWindow->Move(0, g_radarWindow->Y() - g_theProgressWindow->Height());
+			g_theProgressWindow->Move(0, radarwindow_Get()->Y() - g_theProgressWindow->Height());
 
 		}
 

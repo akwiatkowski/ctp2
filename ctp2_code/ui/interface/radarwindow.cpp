@@ -40,7 +40,12 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "gs/utility/gameinit.h"		// g_startHotseatGame
 
-ctp2_Window *g_radarWindow = NULL;
+static ctp2_Window *g_radarWindow = NULL;
+
+ctp2_Window * radarwindow_Get(void)
+{
+	return g_radarWindow;
+}
 
 
 extern sint32		g_ScreenHeight;

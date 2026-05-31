@@ -171,8 +171,14 @@ public:
 	GameFile();
 
 	uint32 SaveDB(CivArchive &archive);
-	uint32 Save(MBCHAR const * filepath, SaveInfo *info);
-	uint32 Restore(MBCHAR const * filepath);
+	// G-4c-2 prep: the legacy CivArchive binary-format save/restore
+	// routines.  Public entry points (SaveGame / RestoreGame) dispatch
+	// to these only when g_useJsonSave is false (or when the file's
+	// first non-whitespace byte isn't '{').  Renamed so the binary
+	// path is a clear deletion target once existing .c2g scenarios
+	// have been migrated to JSON via the converter (Phase G-1).
+	uint32 SaveLegacyBinary(MBCHAR const * filepath, SaveInfo *info);
+	uint32 RestoreLegacyBinary(MBCHAR const * filepath);
 
 	static bool LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info);
 	static bool LoadBasicGameInfo(FILE *saveFile, SaveInfo *info);

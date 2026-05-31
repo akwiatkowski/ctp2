@@ -190,14 +190,40 @@ MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 
 
 
+// G-4c-2 prep: format-detection dispatcher.  Peek the first non-
+// whitespace byte to decide between the JSON path (LoadJson via
+// gameinit's fresh-init branch — G-2) and the legacy CivArchive
+// binary path (RestoreLegacyBinary).  Returns the binary-path return
+// code; JSON path returns OK/FAILED in the same shape.
+static uint32 DispatchRestore(GameFile *gf, MBCHAR const *filepath)
+{
+	FILE *fpProbe = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
+	if (fpProbe)
+	{
+		int ch;
+		do { ch = std::fgetc(fpProbe); }
+		while (ch != EOF && std::isspace(static_cast<unsigned char>(ch)));
+		c3files_fclose(fpProbe);
+		if (ch == '{')
+		{
+			g_civApp->InitializeGame(NULL);
+			bool const ok = json_save::LoadJson(filepath);
+			return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
+		}
+	}
+	return gf->RestoreLegacyBinary(filepath);
+}
+
 void GameFile::RestoreGame(MBCHAR const * name)
 {
-	GameFile().Restore(name);
+	GameFile gf;
+	DispatchRestore(&gf, name);
 }
 
 void GameFile::RestoreScenarioGame(MBCHAR const * name)
 {
-	GameFile().Restore(name);
+	GameFile gf;
+	DispatchRestore(&gf, name);
 }
 
 // G-3: Default save format.  When `true` (the new default),
@@ -229,7 +255,7 @@ void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
 		json_save::SaveJson(filename);
 		return;
 	}
-	GameFile().Save(filename, info);
+	GameFile().SaveLegacyBinary(filename, info);
 }
 
 
@@ -323,7 +349,7 @@ uint32 GameFile::SaveDB(CivArchive &archive)
 	return 0;
 }
 
-uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
+uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 {
 #if defined(_DEBUG) || defined(USE_LOGGING)
 	clock_t start = clock();
@@ -669,7 +695,7 @@ uint32 GameFile::Save(const MBCHAR *filepath, SaveInfo *info)
 	return GAMEFILE_ERR_STORE_OK;
 }
 
-uint32 GameFile::Restore(const MBCHAR *filepath)
+uint32 GameFile::RestoreLegacyBinary(const MBCHAR *filepath)
 {
 #if defined(_DEBUG) || defined(USE_LOGGING)
 	clock_t start = clock();
@@ -679,30 +705,9 @@ uint32 GameFile::Restore(const MBCHAR *filepath)
 
 	progress_observer::StartCountingTo(10, g_theStringDB->GetNameStr("LOADING"));
 
-	// G-2: format auto-detection.  Peek the first non-whitespace byte:
-	// '{' means JSON (CTP2-JSON format from Phase F-18), anything else
-	// is the legacy CivArchive-based binary path.  JSON loads route
-	// through gameinit's fresh-init branch followed by LoadJson, which
-	// matches the headless --new-game + --json-load shape.
-	{
-		FILE *fpProbe = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-		if (fpProbe)
-		{
-			int ch;
-			do { ch = std::fgetc(fpProbe); }
-			while (ch != EOF && std::isspace(static_cast<unsigned char>(ch)));
-			c3files_fclose(fpProbe);
-			if (ch == '{')
-			{
-				progress_observer::StartCountingTo(1080);
-				g_civApp->InitializeGame(NULL);
-				bool const ok = json_save::LoadJson(filepath);
-				progress_observer::StartCountingTo(1090);
-				progress_observer::EndProgress();
-				return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
-			}
-		}
-	}
+	// G-2 format auto-detection lives in DispatchRestore (the
+	// GameFile::RestoreGame entry point).  By the time we get here,
+	// the dispatcher has already decided this is the binary branch.
 
 	FILE *  fpLoad = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
 	if (!fpLoad)

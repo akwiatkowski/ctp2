@@ -291,7 +291,7 @@ TEST_CASE("Headless save: --save-game writes a valid save file")
 
     std::string output = run_headless(
         "--new-game --turns 3 --players 3 --seed 42 "
-        "--save-game /tmp/ctp2_test_save_load.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_save_load.sav");
 
     CAPTURE(output);
     CHECK(!output.empty());
@@ -319,9 +319,9 @@ TEST_CASE("Headless save: produces non-trivial files at different turn counts")
     std::remove(long_path);
 
     run_headless("--new-game --turns 1  --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_save_short.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_save_short.sav");
     run_headless("--new-game --turns 10 --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_save_long.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_save_long.sav");
 
     struct stat st_short, st_long;
     REQUIRE(stat(short_path, &st_short) == 0);
@@ -358,7 +358,7 @@ TEST_CASE("Save-load round-trip: 10t save + 10t resume = 20t continuous")
     std::string save_out;
     int save_rc = run_headless_capture(
         "--new-game --players 4 --seed 42 --turns 10 "
-        "--save-game /tmp/midgame-10.sav --export-metrics /tmp/savepoint-10.csv",
+        "--legacy-binary-save --save-game /tmp/midgame-10.sav --export-metrics /tmp/savepoint-10.csv",
         &save_out);
     CAPTURE(save_out);
     REQUIRE(save_rc == 0);
@@ -427,7 +427,7 @@ TEST_CASE("Save-load round-trip: 25t save + 25t resume = 50t continuous")
     std::string save_out;
     int save_rc = run_headless_capture(
         "--new-game --players 4 --seed 42 --turns 25 "
-        "--save-game /tmp/midgame.sav --export-metrics /tmp/savepoint-25.csv",
+        "--legacy-binary-save --save-game /tmp/midgame.sav --export-metrics /tmp/savepoint-25.csv",
         &save_out);
     CAPTURE(save_out);
     REQUIRE(save_rc == 0);
@@ -496,7 +496,7 @@ TEST_CASE("Save-load round-trip with 5 players")
     std::string save_out;
     int save_rc = run_headless_capture(
         "--new-game --players 5 --seed 42 --turns 10 "
-        "--save-game /tmp/midgame-5p.sav --export-metrics /tmp/savepoint-5p.csv",
+        "--legacy-binary-save --save-game /tmp/midgame-5p.sav --export-metrics /tmp/savepoint-5p.csv",
         &save_out);
     CAPTURE(save_out);
     REQUIRE(save_rc == 0);
@@ -570,7 +570,7 @@ TEST_CASE("Save-load determinism across two different seeds")
         std::string out;
         int rc = run_headless_capture(
             "--new-game --players 4 --seed 42 --turns 10 "
-            "--save-game /tmp/seed42.sav --export-metrics /tmp/seed42-save.csv",
+            "--legacy-binary-save --save-game /tmp/seed42.sav --export-metrics /tmp/seed42-save.csv",
             &out);
         CAPTURE(out);
         REQUIRE(rc == 0);
@@ -610,7 +610,7 @@ TEST_CASE("Save-load determinism across two different seeds")
         std::string out;
         int rc = run_headless_capture(
             "--new-game --players 4 --seed 99 --turns 10 "
-            "--save-game /tmp/seed99.sav --export-metrics /tmp/seed99-save.csv",
+            "--legacy-binary-save --save-game /tmp/seed99.sav --export-metrics /tmp/seed99-save.csv",
             &out);
         CAPTURE(out);
         REQUIRE(rc == 0);
@@ -645,7 +645,7 @@ TEST_CASE("Headless save produces non-empty file even at turn 1")
 
     std::string output = run_headless(
         "--new-game --turns 1 --players 3 --seed 42 "
-        "--save-game /tmp/ctp2_test_turn1.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_turn1.sav");
 
     CAPTURE(output);
     CHECK(!output.empty());
@@ -666,11 +666,11 @@ TEST_CASE("Save file size grows monotonically with turn count")
     std::remove(path20);
 
     run_headless("--new-game --turns 5  --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn5.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn5.sav");
     run_headless("--new-game --turns 10 --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn10.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn10.sav");
     run_headless("--new-game --turns 20 --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn20.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn20.sav");
 
     struct stat st5, st10, st20;
     REQUIRE(stat(path5, &st5) == 0);
@@ -692,7 +692,7 @@ TEST_CASE("Save with --players 2 succeeds")
 
     std::string output = run_headless(
         "--new-game --turns 5 --players 2 --seed 42 "
-        "--save-game /tmp/ctp2_test_2players.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_2players.sav");
 
     CAPTURE(output);
     CHECK(!output.empty());
@@ -714,11 +714,11 @@ TEST_CASE("Save file size grows monotonically with turn count 5-15-30")
     std::remove(path30);
 
     run_headless("--new-game --turns 5  --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn5c.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn5c.sav");
     run_headless("--new-game --turns 15 --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn15b.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn15b.sav");
     run_headless("--new-game --turns 30 --players 3 --seed 42 "
-                 "--save-game /tmp/ctp2_test_turn30b.sav");
+                 "--legacy-binary-save --save-game /tmp/ctp2_test_turn30b.sav");
 
     struct stat st5, st15, st30;
     REQUIRE(stat(path5, &st5) == 0);
@@ -740,7 +740,7 @@ TEST_CASE("Save with --players 8 produces non-empty file")
 
     std::string output = run_headless(
         "--new-game --turns 5 --players 8 --seed 42 "
-        "--save-game /tmp/ctp2_test_8players.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_8players.sav");
 
     CAPTURE(output);
     CHECK(!output.empty());
@@ -761,14 +761,14 @@ TEST_CASE("Two different seeds produce different save bytes")
 
     std::string out42 = run_headless(
         "--new-game --turns 10 --players 3 --seed 42 "
-        "--save-game /tmp/ctp2_test_seed42_only.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_seed42_only.sav");
     CAPTURE(out42);
     CHECK(out42.find("[EXIT_CODE] 0") == 0);
     REQUIRE(file_exists_and_nonempty(seed42_path));
 
     std::string out99 = run_headless(
         "--new-game --turns 10 --players 3 --seed 99 "
-        "--save-game /tmp/ctp2_test_seed99_only.sav");
+        "--legacy-binary-save --save-game /tmp/ctp2_test_seed99_only.sav");
     CAPTURE(out99);
     CHECK(out99.find("[EXIT_CODE] 0") == 0);
     REQUIRE(file_exists_and_nonempty(seed99_path));

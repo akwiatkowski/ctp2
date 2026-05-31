@@ -212,8 +212,35 @@ void GameFile::RestoreScenarioGame(MBCHAR const * name)
 	GameFile().Restore(name);
 }
 
+// G-3: Default save format.  When `true` (the new default),
+// GameFile::SaveGame writes the JSON format from Phase F-18.  Set to
+// `false` (or define DISABLE_JSON_SAVE_DEFAULT at build time) to keep
+// the legacy CivArchive binary path as the autosave/quicksave output —
+// useful for bisecting save-format regressions or for environments
+// that need byte-for-byte compatibility with pre-JSON tooling.
+//
+// GameFile::Restore auto-detects format (G-2), so flipping this knob
+// affects only the write side.
+#ifndef DISABLE_JSON_SAVE_DEFAULT
+bool g_useJsonSave = true;
+#else
+bool g_useJsonSave = false;
+#endif
+
 void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
 {
+	if (g_useJsonSave)
+	{
+		// SaveInfo (radar map snapshot, leader name, etc.) is metadata
+		// the binary path interleaves into the file header.  The JSON
+		// schema doesn't carry these fields yet (Phase F-18 schema is
+		// game-state-only); the load-save browser UI that consumes them
+		// is not yet wired to JSON saves.  Out of scope here; the
+		// SaveInfo argument is intentionally ignored.
+		(void)info;
+		json_save::SaveJson(filename);
+		return;
+	}
 	GameFile().Save(filename, info);
 }
 

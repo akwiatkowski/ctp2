@@ -92,6 +92,7 @@ int main(int argc, char **argv)
     // path.  See ~/projects/claude/plans/ctp2-json-savegame.md.
     const char *jsonSavePath = nullptr;
     const char *jsonLoadPath = nullptr;
+    bool forceLegacyBinary = false;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--new-game") == 0) {
@@ -114,6 +115,12 @@ int main(int argc, char **argv)
             jsonSavePath = argv[++i];
         } else if (strcmp(argv[i], "--json-load") == 0 && i + 1 < argc) {
             jsonLoadPath = argv[++i];
+        } else if (strcmp(argv[i], "--legacy-binary-save") == 0) {
+            // Force GameFile::SaveGame back to the CivArchive binary
+            // path (the pre-Phase-G-3 default).  Used by the binary-
+            // format regression tests and by the binary→JSON converter
+            // test that needs a binary input.
+            forceLegacyBinary = true;
         } else if (strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return 0;
@@ -281,9 +288,20 @@ int main(int argc, char **argv)
         headless_log->info("Completed {} turns", maxTurns);
 
         if (saveGamePath) {
-            headless_log->info("Saving game to {}", saveGamePath);
+            // G-3: GameFile::SaveGame writes JSON by default; flip
+            // g_useJsonSave off for --legacy-binary-save callers (the
+            // pre-existing binary-format regression tests).
+            extern bool g_useJsonSave;
+            bool const savedFmt = g_useJsonSave;
+            if (forceLegacyBinary) g_useJsonSave = false;
+
+            headless_log->info("Saving game to {} (format={})",
+                               saveGamePath,
+                               g_useJsonSave ? "json" : "binary");
             GameFile::SaveGame(saveGamePath, NULL);
             headless_log->info("SaveGame returned");
+
+            g_useJsonSave = savedFmt;
         }
 
         if (jsonSavePath) {

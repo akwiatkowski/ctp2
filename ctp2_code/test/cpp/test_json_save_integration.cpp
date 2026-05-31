@@ -260,7 +260,7 @@ TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-s
         char cmd[1024];
         std::snprintf(cmd, sizeof(cmd),
                       "%s --new-game --turns 3 --players 3 --seed 42 "
-                      "--save-game %s 2>&1", bin, binpath);
+                      "--legacy-binary-save --save-game %s 2>&1", bin, binpath);
         std::FILE *pipe = popen(cmd, "r");
         REQUIRE(pipe != nullptr);
         char buf[512];
@@ -349,7 +349,7 @@ TEST_CASE("Phase G-2: GameFile::Restore auto-detects JSON vs binary save format"
         REQUIRE(WIFEXITED(rc));
         REQUIRE(WEXITSTATUS(rc) == 0);
     };
-    run("--save-game", binpath);
+    run("--legacy-binary-save --save-game", binpath);
     run("--json-save", jsonpath);
 
     // Both files should now be loadable via --load-game alone.
@@ -380,6 +380,47 @@ TEST_CASE("Phase G-2: GameFile::Restore auto-detects JSON vs binary save format"
     // signature in the form of version-stamp progress messages.
     // (We don't strictly require either — the key check is exit code +
     // RestoreGame returning.)
+}
+
+TEST_CASE("Phase G-3: --save-game writes JSON by default")
+{
+    // G-3: GameFile::SaveGame defaults to the JSON format (via
+    // g_useJsonSave = true at module init).  This test verifies that
+    // --save-game (which calls GameFile::SaveGame) produces a file
+    // that starts with the JSON object marker rather than the legacy
+    // CTP0XXX magic header.
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *path = "/tmp/ctp2_g3_default.save";
+    std::remove(path);
+
+    char cmd[1024];
+    std::snprintf(cmd, sizeof(cmd),
+                  "%s --new-game --turns 3 --players 3 --seed 42 "
+                  "--save-game %s 2>&1", bin, path);
+    std::FILE *pipe = popen(cmd, "r");
+    REQUIRE(pipe != nullptr);
+    char buf[512];
+    std::string log;
+    while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+    int rc = pclose(pipe);
+    INFO(log);
+    REQUIRE(WIFEXITED(rc));
+    REQUIRE(WEXITSTATUS(rc) == 0);
+
+    // File must exist + start with '{' (after any leading whitespace)
+    // confirming JSON format.
+    std::string raw;
+    REQUIRE(read_file(path, raw));
+    size_t i = 0;
+    while (i < raw.size() && std::isspace(static_cast<unsigned char>(raw[i]))) ++i;
+    REQUIRE(i < raw.size());
+    CHECK(raw[i] == '{');
+
+    // Parse and check the magic field.
+    nlohmann::json doc = nlohmann::json::parse(raw);
+    CHECK(doc["magic"] == "CTP2-JSON");
 }
 
 TEST_SUITE_END;

@@ -6,7 +6,10 @@
 #include "ui/netshell/ns_customlistbox.h"
 
 class GameSelectWindow;
-extern GameSelectWindow *g_gameSelectWindow;
+// g_gameSelectWindow demoted to file-scope `static` in gameselectwindow.cpp.
+// Use gameselectwindow_Get() instead.  Returns NULL when the window
+// has not been opened (or has already been torn down).
+GameSelectWindow * gameselectwindow_Get(void);
 
 class GameSelectWindow : public ns_Window
 {

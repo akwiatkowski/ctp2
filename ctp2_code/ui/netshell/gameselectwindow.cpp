@@ -74,8 +74,13 @@ extern LoadSaveWindow *g_loadsaveWindow;
 #include "gs/database/profileDB.h"
 #include "AgeRecord.h"
 
-GameSelectWindow *g_gameSelectWindow = NULL;
+static GameSelectWindow * g_gameSelectWindow = NULL;
 static StartSelectingWindow *g_startSelectingWindow = NULL;
+
+GameSelectWindow * gameselectwindow_Get(void)
+{
+    return g_gameSelectWindow;
+}
 
 GameSelectWindow::GameSelectWindow(
 	AUI_ERRCODE *retval )

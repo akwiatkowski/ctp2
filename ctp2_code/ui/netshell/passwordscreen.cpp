@@ -519,7 +519,7 @@ void PasswordScreenCallback(
 
 			if ( s_passwordScreen->GetChild( s_yesnoSwitchGroup->Id() ) )
 			{
-				g_gameSelectWindow->PasswordScreenDone( password );
+				gameselectwindow_Get()->PasswordScreenDone( password );
 			}
 			else
 			{

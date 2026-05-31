@@ -3706,13 +3706,11 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 		strcat(fullpath, filename);
 
 		g_isScenario = FALSE;
-		// AutoSave keeps the binary path explicitly.  Routing it
-		// through SaveGame's JSON default exposes a separate UTF-8
-		// cleanliness bug in JSON serialisation for 8-player games
-		// (civ/leader names with extended chars).  Tracked as a
-		// future cleanup; for now, autosaves stay binary.  Explicit
-		// user saves via GameFile::SaveGame still get JSON.
-		GameFile().SaveLegacyBinary(fullpath, NULL);
+		// Route through the public SaveGame dispatcher so the JSON
+		// default (g_useJsonSave) applies to autosave too.  The UTF-8
+		// cleanliness bug that previously kept this on the binary path
+		// is fixed by utf8_safe() in json_save.cpp.
+		GameFile::SaveGame(fullpath, NULL);
 	}
 	else
 	{

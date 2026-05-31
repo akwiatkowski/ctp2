@@ -423,4 +423,49 @@ TEST_CASE("Phase G-3: --save-game writes JSON by default")
     CHECK(doc["magic"] == "CTP2-JSON");
 }
 
+TEST_CASE("UTF-8: SaveJson handles 8-player games with Latin-1 civ names")
+{
+    // Regression test for the JSON UTF-8 cleanliness bug.  CTP2's
+    // civ/leader/country/city/army names are stored in fixed char[]
+    // buffers populated from ISO-8859-1 / Windows-1252 sources (CTP2
+    // shipped pre-UTF-8).  nlohmann::json::dump() throws type_error 316
+    // on invalid UTF-8.
+    //
+    // Before the fix: with `--players 8 --seed 42`, the per-turn
+    // autosave triggered by GEV_StartMovePhase used to crash mid-turn 1
+    // with `[json.exception.type_error.316] invalid UTF-8 byte at index 6:
+    // 0x6F` — civ name "Czechosłowacja" or similar.
+    //
+    // After the fix: utf8_safe() in json_save.cpp expands Latin-1 bytes
+    // ≥ 0x80 into two-byte UTF-8 on the write side, lossless for the
+    // common case.
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *path = "/tmp/ctp2_utf8_8p.save";
+    std::remove(path);
+
+    char cmd[1024];
+    std::snprintf(cmd, sizeof(cmd),
+                  "%s --new-game --turns 5 --players 8 --seed 42 "
+                  "--save-game %s 2>&1", bin, path);
+    std::FILE *pipe = popen(cmd, "r");
+    REQUIRE(pipe != nullptr);
+    char buf[512];
+    std::string log;
+    while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+    int rc = pclose(pipe);
+    INFO(log);
+    REQUIRE(WIFEXITED(rc));
+    REQUIRE(WEXITSTATUS(rc) == 0);
+    REQUIRE(log.find("type_error.316") == std::string::npos);
+    REQUIRE(log.find("invalid UTF-8")   == std::string::npos);
+
+    // Verify the file is well-formed JSON (parses cleanly — that's the
+    // post-condition the UTF-8 fix protects).
+    std::string raw;
+    REQUIRE(read_file(path, raw));
+    REQUIRE_NOTHROW(nlohmann::json::parse(raw));
+}
+
 TEST_SUITE_END;

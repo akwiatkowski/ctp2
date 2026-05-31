@@ -165,6 +165,37 @@ std::string iso_utc_now()
     return out.str();
 }
 
+// Sanitise a NUL-terminated C string into a UTF-8-clean std::string.
+// CTP2's leader/civ/country names are stored as fixed char[] buffers
+// originally populated from ISO-8859-1 or Windows-1252 sources (CTP2
+// shipped before UTF-8 was the default).  nlohmann::json::dump() throws
+// type_error 316 on invalid UTF-8, which historically crashed autosaves
+// for games whose civs have names containing extended characters (e.g.
+// "Czechosłowacja" — 0xB3 in slot 6).
+//
+// Strategy: bytes ≤ 0x7F are ASCII (UTF-8 by definition).  For any
+// byte ≥ 0x80, expand to a two-byte UTF-8 sequence treating the byte
+// as a U+00xx Latin-1 code point.  Lossless for the common case where
+// game data is Latin-1 encoded; never produces invalid UTF-8 even for
+// arbitrary binary garbage.
+std::string utf8_safe(MBCHAR const *src)
+{
+    if (!src) return std::string();
+    std::string out;
+    while (*src)
+    {
+        unsigned char const b = static_cast<unsigned char>(*src++);
+        if (b < 0x80) {
+            out.push_back(static_cast<char>(b));
+        } else {
+            // U+0080..U+00FF → two-byte UTF-8: 110xxxxx 10xxxxxx
+            out.push_back(static_cast<char>(0xC0 | (b >> 6)));
+            out.push_back(static_cast<char>(0x80 | (b & 0x3F)));
+        }
+    }
+    return out;
+}
+
 }  // namespace
 
 // --- gs/ singleton bridges ----------------------------------------------
@@ -1127,11 +1158,11 @@ void to_json(nlohmann::json &j, CivilisationData const &c)
         {"civ",                      c.m_civ},
         {"gender",                   static_cast<sint32>(c.m_gender)},
         {"city_style",               c.m_cityStyle},
-        {"leader_name",              std::string(c.m_leader_name)},
-        {"personality_description",  std::string(c.m_personality_description)},
-        {"civilisation_name",        std::string(c.m_civilisation_name)},
-        {"country_name",             std::string(c.m_country_name)},
-        {"singular_name",            std::string(c.m_singular_name)},
+        {"leader_name",              utf8_safe(c.m_leader_name)},
+        {"personality_description",  utf8_safe(c.m_personality_description)},
+        {"civilisation_name",        utf8_safe(c.m_civilisation_name)},
+        {"country_name",             utf8_safe(c.m_country_name)},
+        {"singular_name",            utf8_safe(c.m_singular_name)},
     };
 }
 
@@ -1250,7 +1281,7 @@ void to_json(nlohmann::json &j, BuildQueue const &q)
         {"city",            static_cast<ID const &>(q.m_city)},
         {"wonder_started",  q.m_wonderStarted},
         {"wonder_stopped",  q.m_wonderStopped},
-        {"name",            std::string(q.m_name)},
+        {"name",            utf8_safe(q.m_name)},
         {"wonder_complete", q.m_wonderComplete},
         {"nodes",           std::move(nodes)},
     };
@@ -1585,8 +1616,7 @@ void to_json(nlohmann::json &j, ArmyData const &a)
         {"has_been_added",           a.m_hasBeenAdded},
         {"is_pirating",              a.m_isPirating},
         {"orders",                   std::move(orders)},
-        {"name",                     a.m_name ? std::string(a.m_name)
-                                              : std::string()},
+        {"name",                     utf8_safe(a.m_name)},
     };
 }
 
@@ -2093,7 +2123,7 @@ void from_json(nlohmann::json const &j, SlicConst &c)
 namespace {
 nlohmann::json optStringToJson(MBCHAR const *s)
 {
-    return s ? nlohmann::json(std::string(s)) : nlohmann::json(nullptr);
+    return s ? nlohmann::json(utf8_safe(s)) : nlohmann::json(nullptr);
 }
 
 void jsonToOptString(nlohmann::json const &j, MBCHAR *&dest)
@@ -2456,7 +2486,7 @@ void to_json(nlohmann::json &j, CityData const &c)
         {"build_queue",                      c.m_build_queue},
         {"happy",                            c.m_happy ? nlohmann::json(*c.m_happy)
                                                        : nlohmann::json(nullptr)},
-        {"name",                             std::string(c.m_name)},
+        {"name",                             utf8_safe(c.m_name)},
         {"distance_to_good",                 std::move(distance_to_good)},
         {"defensive_bonus",                  c.m_defensiveBonus},
     };
@@ -4412,8 +4442,7 @@ void to_json(nlohmann::json &j, MessageData const &m)
         {"close_disabled",         m.m_closeDisabled != 0},
         {"is_diplomatic_response", m.m_isDiplomaticResponse != 0},
         {"use_director",           m.m_useDirector != 0},
-        {"caption",                std::string(m.m_caption,
-                                                strnlen(m.m_caption, k_MAX_MSG_LEN))},
+        {"caption",                utf8_safe(m.m_caption)},
         {"text",                   optStringToJson(m.m_text)},
         {"title",                  optStringToJson(m.m_title)},
         {"buttons",                std::move(buttons)},

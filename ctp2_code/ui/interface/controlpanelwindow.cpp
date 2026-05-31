@@ -228,7 +228,6 @@ extern ProgressWindow *g_theProgressWindow;
 extern sint32               g_ScreenWidth;
 extern sint32               g_ScreenHeight;
 extern C3UI                 *g_c3ui;
-extern CursorManager        *g_cursorManager;
 extern KEYMAP               *theKeyMap;
 
 ctp2_MenuBar                *s_menubar=NULL;
@@ -1824,9 +1823,9 @@ ControlPanelWindow::OrderDeliveryUpdate()
 				defender.Clear();
 				g_theWorld->GetArmy(pos, defender);
 				if(army->CanAtLeastOneCaptureCity() || army->CanFight(defender)) {
-					g_cursorManager->SetCursor(CURSORINDEX_ASSAULT);
+					cursormanager_Get()->SetCursor(CURSORINDEX_ASSAULT);
 				} else {
-					g_cursorManager->SetCursor(CURSORINDEX_NOMOVE);
+					cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
 				}
 // Added by Martin G�hmann to fix the crossed sword bug
 			}
@@ -1835,13 +1834,13 @@ ControlPanelWindow::OrderDeliveryUpdate()
 			&&      army->CanAtLeastOneCaptureCity()
 			&&      army->CheckWasEnemyVisible(pos, true)
 			){
-				g_cursorManager->SetCursor(CURSORINDEX_ASSAULT);
+				cursormanager_Get()->SetCursor(CURSORINDEX_ASSAULT);
 			} else {
-				g_cursorManager->SetCursor(CURSORINDEX_MOVE);
+				cursormanager_Get()->SetCursor(CURSORINDEX_MOVE);
 			}
 			specialAttackWindow_DisplayData(pos, -1);
 		} else {
-			g_cursorManager->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
+			cursormanager_Get()->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
 			if(army->CheckWasEnemyVisible(pos, true)){
 				specialAttackWindow_DisplayData(pos, m_currentOrder->GetIndex());
 			}
@@ -1851,9 +1850,9 @@ ControlPanelWindow::OrderDeliveryUpdate()
 		}
 	} else {
 		if(m_currentOrder->GetTargetPretestMovePosition()) {
-			g_cursorManager->SetCursor(CURSORINDEX_NOMOVE);
+			cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
 		} else {
-			g_cursorManager->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
+			cursormanager_Get()->SetCursor((CURSORINDEX)Order::GetCursor(m_currentOrder));
 		}
 		specialAttackWindow_DisplayData(pos, -1);
 	}
@@ -1898,18 +1897,18 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 
 	if (CursorOverControlPanel())
 	{
-		g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+		cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
 		tileimptracker_DisplayData(pos, -1);
 	} else
 	{
 		if (player->CanCreateImprovement(m_currentTerrainImpRec->GetIndex(),pos,0,true,err))
 		{
-			g_cursorManager->SetCursor(CURSORINDEX_MOVE);
+			cursormanager_Get()->SetCursor(CURSORINDEX_MOVE);
 			color = g_colorSet->GetColor(COLOR_GREEN);
 		}
 		else
 		{
-			g_cursorManager->SetCursor(CURSORINDEX_NOMOVE);
+			cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
 			color = g_colorSet->GetColor(COLOR_RED);
 		}
 		if(g_player[player_id]->IsExplored(pos)) {
@@ -1976,9 +1975,9 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 	ORDER_TEST test=army->TestOrderHere(m_currentOrder,pos);
 
 	if (test!=ORDER_TEST_INVALID_TARGET)
-		g_cursorManager->SetCursor(CURSORINDEX_MOVE);
+		cursormanager_Get()->SetCursor(CURSORINDEX_MOVE);
 	else
-		g_cursorManager->SetCursor(CURSORINDEX_NOMOVE);
+		cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
 
 	bool handled = false;
 
@@ -2117,9 +2116,8 @@ void ControlPanelWindow::ClearTargetingMode()
 	m_currentTerrainRec    = NULL;
 	m_currentTerrainImpRec = NULL;
 
-	if(g_cursorManager)
-
-		g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+	if (CursorManager *cm = cursormanager_Get())
+		cm->SetCursor(CURSORINDEX_DEFAULT);
 
 	if(!g_tiledMap) return;
 
@@ -3168,7 +3166,7 @@ ControlPanelWindow::Idle()
 	if (m_targetingMode)
 		TargetingMode();
 	else
-		g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+		cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
 }
 
 void

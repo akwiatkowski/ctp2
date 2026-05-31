@@ -23,7 +23,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added 6 new cursor indeces. - April 30th 2005 Martin Gühmann
+// - Added 6 new cursor indeces. - April 30th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 #ifdef HAVE_PRAGMA_ONCE
@@ -157,6 +157,9 @@ private:
 	CURSORINDEX		m_savedCursor;
 };
 
-extern CursorManager *g_cursorManager;
+// g_cursorManager demoted to file-scope `static` in cursormanager.cpp.
+// External callers go through cursormanager_Get() (returns NULL before
+// CursorManager::Initialize() runs).
+CursorManager * cursormanager_Get(void);
 
 #endif

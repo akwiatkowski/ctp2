@@ -927,7 +927,7 @@ void dh_battle(DQAction* itemAction,
   if (BattleViewWindow *bvw = battleviewwindow_Get()) {
     bvw->SetupBattle(action->battle);
     g_c3ui->AddWindow(bvw);
-    g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+    cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
   }
 }
 

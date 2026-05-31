@@ -786,7 +786,7 @@ bool ui_CheckForScroll(void)
 
 		if(scrolled) {
 			if (isMouseScrolling)
-				g_cursorManager->SetCursor(scrollCursor);
+				cursormanager_Get()->SetCursor(scrollCursor);
 
 			if(!scrolled_last_time) {
 				scroll_start = GetTickCount();
@@ -854,7 +854,7 @@ bool ui_CheckForScroll(void)
 
 		if (isMouseScrolling)
         {
-			g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+			cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
 		    isMouseScrolling = false;
 		}
 

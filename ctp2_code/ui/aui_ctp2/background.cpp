@@ -52,7 +52,6 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_common/aui_ldl.h"
 
-extern CursorManager	*g_cursorManager;
 extern C3UI				*g_c3ui;
 extern MessageWindow	*g_currentMessageWindow;
 
@@ -275,7 +274,7 @@ void Background::MouseMoveOver(aui_MouseEvent *data)
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	g_cursorManager->RestoreCursor();
+	cursormanager_Get()->RestoreCursor();
 }
 
 void Background::MouseMoveOutside(aui_MouseEvent *data)
@@ -315,8 +314,8 @@ void Background::MouseMoveAway(aui_MouseEvent *data)
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	g_cursorManager->SaveCursor();
-	g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
+	cursormanager_Get()->SaveCursor();
+	cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
 
 	m_lbutton_isdown = FALSE;
 }

@@ -8,7 +8,9 @@
 
 extern C3UI			*g_c3ui;
 
-CursorManager		*g_cursorManager = NULL;
+static CursorManager		*g_cursorManager = NULL;
+
+CursorManager * cursormanager_Get(void) { return g_cursorManager; }
 
 
 void CursorManager::Initialize(void)

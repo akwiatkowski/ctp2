@@ -78,7 +78,7 @@ sint32 MapAnalysis::m_militaryPower = 12;
 sint32 MapAnalysis::m_totalCityValue = 13;
 
 sint32 g_turn = 0;
-sint32 g_numPlayers = 3;
+static sint32 g_numPlayers = 3;
 
 int main(int argc, char* argv[])
 {

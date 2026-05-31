@@ -21,7 +21,6 @@ typedef char				MBCHAR;
 #error "Do not use this"
 
 extern sint32 g_turn;
-extern sint32 g_numPlayers;
 
 struct MapPointData {
 	MapPointData(sint16 X=0,

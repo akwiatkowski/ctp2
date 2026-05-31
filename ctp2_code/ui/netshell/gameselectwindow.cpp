@@ -386,7 +386,7 @@ uint32 TellEricAboutThisBug( aui_Window *w )
 void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 {
 
-	AllinoneWindow *w = g_allinoneWindow;
+	AllinoneWindow *w = allinonewindow_Get();
 	AllinoneWindow::Mode mode = w->JOIN;
 
 	TellEricAboutThisBug( g_loadsaveWindow );
@@ -714,7 +714,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_allinoneWindow->SetScenarioGame(FALSE);
+	allinonewindow_Get()->SetScenarioGame(FALSE);
 
 	GameSelectWindow *w = g_gameSelectWindow;
 	ns_GameSetupListBox *listbox = (ns_GameSetupListBox *)w->
@@ -900,7 +900,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		c3_Button *button = (c3_Button *)w->FindControl( w->CONTROL_OKBUTTON );
 		button->GetAction()->Execute( button, AUI_BUTTON_ACTION_EXECUTE, 0 );
 	}
-	g_allinoneWindow->SetScenarioGame(TRUE);
+	allinonewindow_Get()->SetScenarioGame(TRUE);
 	passwordscreen_displayMyWindow(PASSWORDSCREEN_MODE_ASK);
 }
 

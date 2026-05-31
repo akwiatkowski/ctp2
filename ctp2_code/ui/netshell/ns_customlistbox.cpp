@@ -595,12 +595,12 @@ void ns_GPlayerListBox::Insert( NETFunc::Player *player )
 
 	}
 
-	switch ( g_allinoneWindow->GetMode() )
+	switch ( allinonewindow_Get()->GetMode() )
 	{
 	case AllinoneWindow::CONTINUE_CREATE:
 	case AllinoneWindow::CONTINUE_JOIN:
-		if(!g_allinoneWindow->GetScenarioInfo() ||
-			!g_allinoneWindow->GetScenarioInfo()->isScenario) {
+		if(!allinonewindow_Get()->GetScenarioInfo() ||
+			!allinonewindow_Get()->GetScenarioInfo()->isScenario) {
 			item->GetTribeButton()->Enable( FALSE );
 		}
 		break;
@@ -632,7 +632,7 @@ void ns_GPlayerListBox::Delete( NETFunc::Player *player )
 
 	if ( g_netfunc->IsHost() )
 	{
-		BOOL success = g_allinoneWindow->AssignTribe(
+		BOOL success = allinonewindow_Get()->AssignTribe(
 			0,
 			*(uint16 *)player->GetKey()->buf,
 			FALSE,
@@ -871,7 +871,7 @@ void ns_AIPlayerListBox::Insert( nf_AIPlayer *player )
 
 	}
 
-	switch ( g_allinoneWindow->GetMode() )
+	switch ( allinonewindow_Get()->GetMode() )
 	{
 	case AllinoneWindow::CONTINUE_CREATE:
 	case AllinoneWindow::CONTINUE_JOIN:
@@ -895,7 +895,7 @@ void ns_AIPlayerListBox::Delete( nf_AIPlayer *player )
 
 	if ( g_netfunc->IsHost() )
 	{
-		BOOL success = g_allinoneWindow->AssignTribe(
+		BOOL success = allinonewindow_Get()->AssignTribe(
 			0,
 			*(uint16 *)player->GetKey()->buf,
 			TRUE,

@@ -36,7 +36,7 @@ void LeaveMainMenu( void )
 
 void LaunchGame( void )
 {
-	AllinoneWindow *w = g_allinoneWindow;
+	AllinoneWindow *w = allinonewindow_Get();
 
 
 	switch ( w->GetMode() )

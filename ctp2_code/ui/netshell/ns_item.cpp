@@ -199,7 +199,7 @@ void ns_HPlayerItem::SetTribe( sint32 tribe )
 {
 	m_tribeButton->SetText( g_nsTribes->GetStrings()->GetString( tribe ) );
 
-	AllinoneWindow *w = g_allinoneWindow;
+	AllinoneWindow *w = allinonewindow_Get();
 	if ( !IsAI() && w->IsMine( GetPlayer() ) )
 		spnewgametribescreen_setTribeIndex(
 			tribe - 1,

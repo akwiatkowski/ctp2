@@ -18,7 +18,10 @@ class ns_HPlayerItem;
 class DialogBoxWindow;
 
 class AllinoneWindow;
-extern AllinoneWindow *g_allinoneWindow;
+// g_allinoneWindow demoted to file-scope `static` in allinonewindow.cpp.
+// External consumers go through allinonewindow_Get().  Returns NULL
+// when no allinone window has been instantiated.
+AllinoneWindow * allinonewindow_Get(void);
 
 #define k_PPT_PUBLIC	0
 #define k_PPT_PRIVATE	1

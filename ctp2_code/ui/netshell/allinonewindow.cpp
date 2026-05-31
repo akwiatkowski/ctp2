@@ -103,7 +103,12 @@ extern LoadSaveWindow *g_loadsaveWindow;
 extern aui_Radio *s_maleRadio;
 
 static DialogBoxWindow *s_dbw = NULL;
-AllinoneWindow *g_allinoneWindow = NULL;
+static AllinoneWindow * g_allinoneWindow = NULL;
+
+AllinoneWindow * allinonewindow_Get(void)
+{
+    return g_allinoneWindow;
+}
 static DialogBoxWindow *g_rulesWindow = NULL;
 static DialogBoxWindow *g_exclusionsWindow = NULL;
 

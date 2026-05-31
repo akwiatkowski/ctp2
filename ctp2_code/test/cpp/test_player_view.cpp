@@ -950,7 +950,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // 2026-05-31: dropped 119 → 117 after batch 2 (g_splash + g_numPlayers
 // static-ified; 4 sibling targets in batch 2 found unexpected cross-TU
 // consumers and were left as [WIP] for follow-up accessor refactors).
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 117;
+// 2026-05-31: dropped 117 → 113 after batch 3 (accessor-wrap pattern):
+//   - g_slicWarnUndeclared deleted outright (dead)
+//   - g_creditsWindow + g_lobbyWindow + g_nationalManagementDialog
+//     demoted to file-scope `static`, exposed via *_Get() accessors.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 113;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

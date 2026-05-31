@@ -90,8 +90,6 @@
 extern C3UI                 *g_c3ui;
 extern WorkWindow           *g_workWindow;
 
-extern GreatLibrary         *g_greatLibrary;
-
 extern ScienceWin           *g_scienceWin;
 
 extern DebugWindow          *g_debugWindow;
@@ -102,7 +100,6 @@ extern SelectedItem         *g_selected_item;
 extern ProfileDB            *g_theProfileDB;
 
 extern Network              g_network;
-extern BattleViewWindow     *g_battleViewWindow;
 extern sint32               g_modalWindow;
 
 double	g_screenTime = 0.0;
@@ -326,7 +323,7 @@ bool open_GreatLibrary(sint32 index, bool sci)
 	Assert(!err);
 	if (err) return false;
 
-	g_greatLibrary->Display();
+	greatlibrary_Get()->Display();
 
 #ifdef _DEBUG
 	GET_ELAPSED_TIME("Great Library");
@@ -362,9 +359,9 @@ bool open_GreatLibrary( void )
 
 void close_GreatLibrary(void)
 {
-	if (g_greatLibrary)
+	if (GreatLibrary *gl = greatlibrary_Get())
     {
-		g_greatLibrary->Remove();
+		gl->Remove();
 	}
 }
 
@@ -532,7 +529,7 @@ void close_AllScreens(void)
 	DipWizard::Hide();
 	ScienceVictoryDialog::Close();
 
-	if (g_battleViewWindow)
+	if (battleviewwindow_Get())
     {
 		g_modalWindow = 1;
 
@@ -581,7 +578,7 @@ void close_AllScreensAndUpdateInfoScreen(void)
 	DipWizard::Hide();
 	ScienceVictoryDialog::Close();
 
-	if (g_battleViewWindow)
+	if (battleviewwindow_Get())
     {
 		g_modalWindow = 1;
 		battleview_ExitButtonActionCallback

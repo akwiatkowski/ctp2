@@ -711,7 +711,7 @@ Network::Process()
 
 	static time_t battleEndedTime = -1;
 
-	if(g_battleViewWindow && g_c3ui->GetWindow(g_battleViewWindow->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
+	if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && g_c3ui->GetWindow(bvw->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
 		if(battleEndedTime < 0) {
 			battleEndedTime = time(0);
 		} else if(battleEndedTime + 30 < time(0)) {
@@ -741,8 +741,9 @@ Network::Process()
 			}
 		}
 
+		BattleViewWindow *bvw = battleviewwindow_Get();
 		if(g_c3ui &&
-		   (g_battleViewWindow && g_c3ui->GetWindow(g_battleViewWindow->Id())) ||
+		   (bvw && g_c3ui->GetWindow(bvw->Id())) ||
 		   (diplomacyShouldPause)) {
 			if(m_battleViewOpenedTime < 0) {
 				m_battleViewOpenedTime = timeNow;

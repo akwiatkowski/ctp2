@@ -918,15 +918,15 @@ void dh_battle(DQAction* itemAction,
 
   DQActionBattle* action = (DQActionBattle*)itemAction;
 
-  if (g_battleViewWindow) {
+  if (battleviewwindow_Get()) {
     BattleViewWindow::Cleanup();
   }
 
   BattleViewWindow::Initialize(seq);
 
-  if (g_battleViewWindow) {
-    g_battleViewWindow->SetupBattle(action->battle);
-    g_c3ui->AddWindow(g_battleViewWindow);
+  if (BattleViewWindow *bvw = battleviewwindow_Get()) {
+    bvw->SetupBattle(action->battle);
+    g_c3ui->AddWindow(bvw);
     g_cursorManager->SetCursor(CURSORINDEX_DEFAULT);
   }
 }

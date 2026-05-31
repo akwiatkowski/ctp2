@@ -35,7 +35,6 @@
 
 extern Director         *g_director;
 extern C3UI             *g_c3ui;
-extern BattleViewWindow *g_battleViewWindow;
 
 // Forward declared in battle_view layer; used by combatevent.cpp's
 // "close previous view" path.
@@ -113,16 +112,16 @@ public:
 
     void UpdateBattle() override
     {
-        if (m_battle && g_battleViewWindow)
+        if (BattleViewWindow *bvw = battleviewwindow_Get(); m_battle && bvw)
         {
-            g_battleViewWindow->UpdateBattle(m_battle);
+            bvw->UpdateBattle(m_battle);
         }
     }
 
     void EndBattle() override
     {
         if (!m_battle) return;
-        if (g_battleViewWindow) g_battleViewWindow->EndBattle();
+        if (BattleViewWindow *bvw = battleviewwindow_Get()) bvw->EndBattle();
         // Note: any uncommitted m_pendingPlacement is orphaned here.
         // Battle::~Battle() doesn't iterate uncommitted events, so this
         // is a minor leak by design — matches the legacy gs/-side
@@ -135,8 +134,8 @@ public:
 
     void CloseBattleView() override
     {
-        if (g_battleViewWindow && g_c3ui &&
-            g_c3ui->GetWindow(g_battleViewWindow->Id()))
+        if (BattleViewWindow *bvw = battleviewwindow_Get();
+            bvw && g_c3ui && g_c3ui->GetWindow(bvw->Id()))
         {
             battleview_ExitButtonActionCallback(NULL,
                                                 AUI_BUTTON_ACTION_EXECUTE,

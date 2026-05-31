@@ -32,7 +32,12 @@
 extern C3UI		*g_c3ui;
 extern sint32	g_modalWindow;
 
-BattleViewWindow			*g_battleViewWindow = NULL;
+static BattleViewWindow		*g_battleViewWindow = NULL;
+
+BattleViewWindow * battleviewwindow_Get(void)
+{
+	return g_battleViewWindow;
+}
 
 
 void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )

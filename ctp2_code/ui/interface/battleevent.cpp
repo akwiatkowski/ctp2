@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -39,7 +39,6 @@
 #include "sound/soundmanager.h"
 
 extern SoundManager		*g_soundManager;
-extern BattleViewWindow	*g_battleViewWindow;
 
 
 BattleEvent::BattleEvent(BATTLE_EVENT_TYPE type)
@@ -162,11 +161,12 @@ void BattleEvent::ProcessPlacement(void)
 			if(data->positionActor) {
 
 				sint32		x, y;
+				BattleViewWindow *bvw = battleviewwindow_Get();
 				if (data->positionIsDefender) {
-					g_battleViewWindow->GetDefenderPos(data->positionColumn, data->positionRow,
+					bvw->GetDefenderPos(data->positionColumn, data->positionRow,
 													   &x, &y);
 				} else {
-					g_battleViewWindow->GetAttackerPos(data->positionColumn, data->positionRow,
+					bvw->GetAttackerPos(data->positionColumn, data->positionRow,
 													   &x, &y);
 				}
 				DPRINTF(k_DBG_GAMESTATE, ("Process placement for actor %lx (unit %lx)\n", data->positionActor, data->positionActor->GetUnitID().m_id));
@@ -414,7 +414,7 @@ void BattleEvent::ProcessDeath(void)
 
 				delete m_walker->Remove();
 				if(actor) {
-					g_battleViewWindow->RemoveActor(actor);
+					battleviewwindow_Get()->RemoveActor(actor);
 				}
 			} else {
 				m_walker->Next();

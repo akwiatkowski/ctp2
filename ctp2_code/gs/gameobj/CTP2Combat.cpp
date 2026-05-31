@@ -44,9 +44,6 @@
 #include "gs/core/player_view.h"
 #include "gs/core/battle_observer.h"
 
-class BattleViewWindow;
-extern BattleViewWindow *g_battleViewWindow;
-
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"
 
@@ -78,8 +75,6 @@ void combat_Set(CTP2Combat *battle)
 {
     g_theCurrentBattle = battle;
 }
-
-extern BattleViewWindow *g_battleViewWindow;
 
 #define k_COMBAT_DEBUG_VERBOSE 2
 #define k_COMBAT_DEBUG_NORMAL 1

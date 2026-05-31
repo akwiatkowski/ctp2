@@ -124,6 +124,9 @@ private:
 	bool m_killBattle;
 };
 
-extern BattleViewWindow *g_battleViewWindow;
+// g_battleViewWindow demoted to file-scope `static` in battleviewwindow.cpp.
+// External callers go through battleviewwindow_Get() (returns NULL when
+// no battle is in progress).
+BattleViewWindow * battleviewwindow_Get(void);
 
 #endif

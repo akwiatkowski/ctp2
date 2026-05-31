@@ -44,7 +44,9 @@ static int s_winsockInitialized = 0;
 
 #define k_MAX_SOCK_READ 2048
 
-NetConsole *g_netConsole = NULL;
+static NetConsole *g_netConsole = NULL;
+
+NetConsole * netconsole_Get(void) { return g_netConsole; }
 
 void netconsole_Initialize()
 {

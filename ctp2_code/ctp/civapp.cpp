@@ -3363,12 +3363,12 @@ sint32 CivApp::Process(void)
 #endif
 
 
-	if(g_netConsole) {
+	if (NetConsole *nc = netconsole_Get()) {
 		static uint32 last_tick = 0;
 
 		if (Os::GetTicks() > last_tick + 250)
 		{
-			g_netConsole->Idle();
+			nc->Idle();
 			last_tick = Os::GetTicks();
 		}
 	}

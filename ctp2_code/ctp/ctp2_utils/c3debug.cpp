@@ -213,9 +213,9 @@ void c3debug_dprintf(char const * format, ...)
 
 			va_start(list, format);
 
-			if(g_netConsole)
+			if (NetConsole *nc = netconsole_Get())
 			{
-				g_netConsole->Print(format, list);
+				nc->Print(format, list);
 			}
 
 			va_end(list);

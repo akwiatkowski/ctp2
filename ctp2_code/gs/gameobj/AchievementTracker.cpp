@@ -9,7 +9,9 @@
 
 extern Player **g_player;
 
-AchievementTracker *g_theAchievementTracker = NULL;
+// g_theAchievementTracker is defined in gameinit.cpp (where the lifecycle
+// lives); reachable via achievementtracker_Get() declared in
+// AchievementTracker.h.
 
 void AchievementTracker::Serialize(CivArchive &archive)
 {

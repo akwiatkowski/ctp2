@@ -28,6 +28,9 @@ public:
 	void AddAchievement(sint32 which);
 };
 
-extern AchievementTracker *g_theAchievementTracker;
+// g_theAchievementTracker demoted to file-scope `static` in gameinit.cpp
+// (where the lifecycle lives).  External callers go through
+// achievementtracker_Get() (returns NULL before the game state is loaded).
+AchievementTracker * achievementtracker_Get(void);
 
 #endif

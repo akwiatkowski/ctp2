@@ -7,7 +7,7 @@ void NetAchievementTracker::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_ACHIEVEMENT_TRACKER_ID);
-	PUSHLONG64(g_theAchievementTracker->GetData());
+	PUSHLONG64(achievementtracker_Get()->GetData());
 }
 
 void NetAchievementTracker::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -19,7 +19,7 @@ void NetAchievementTracker::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	uint64 built;
 	PULLLONG64(built);
-	g_theAchievementTracker->SetData(built);
+	achievementtracker_Get()->SetData(built);
 
 	Assert(pos == size);
 }

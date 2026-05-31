@@ -1095,7 +1095,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Achievements changed"));
 			uint64 built = (uint64)m_data | (((uint64)m_data2) << 32);
-			g_theAchievementTracker->SetData(built);
+			achievementtracker_Get()->SetData(built);
 			break;
 		}
 		case NET_INFO_CODE_BUILT_WONDERS:

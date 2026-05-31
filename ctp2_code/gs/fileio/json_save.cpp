@@ -134,7 +134,6 @@ extern GameSettings          *g_theGameSettings;
 extern Pollution             *g_thePollution;
 extern TopTen                *g_theTopTen;
 extern PointerList<Player>   *g_deadPlayer;
-extern EventTracker          *g_eventTracker;
 // g_rand declared in RandGen.h.  g_theWorld in World.h.
 // g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
@@ -4637,7 +4636,7 @@ bool SaveJson(char const *path)
     if (g_theWonderTracker)  doc["wonder_tracker"]            = *g_theWonderTracker;
     if (g_exclusions)        doc["exclusions"]                = *g_exclusions;
     if (g_featTracker)       doc["feat_tracker"]              = *g_featTracker;
-    if (g_eventTracker)      doc["event_tracker"]             = *g_eventTracker;
+    if (EventTracker *et = eventtracker_Get()) doc["event_tracker"] = *et;
 
     // --- TopTen: not written by GameFile::Save (legacy-load-only in the
     // binary path); included in JSON so leaderboard state persists across
@@ -4774,7 +4773,7 @@ bool LoadJson(char const *path)
         if (doc.contains("wonder_tracker") && g_theWonderTracker) doc.at("wonder_tracker").get_to(*g_theWonderTracker);
         if (doc.contains("exclusions")     && g_exclusions)       doc.at("exclusions")    .get_to(*g_exclusions);
         if (doc.contains("feat_tracker")   && g_featTracker)      doc.at("feat_tracker")  .get_to(*g_featTracker);
-        if (doc.contains("event_tracker")  && g_eventTracker)     doc.at("event_tracker") .get_to(*g_eventTracker);
+        if (EventTracker *et = eventtracker_Get(); doc.contains("event_tracker") && et) doc.at("event_tracker").get_to(*et);
         if (doc.contains("top_ten")        && g_theTopTen)        doc.at("top_ten")       .get_to(*g_theTopTen);
 
         // Post-load fixups that mirror gameinit_Initialize's archive

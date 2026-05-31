@@ -106,7 +106,7 @@ STDEHANDLER(TrackCreateWonderEvent)
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 	if(!args->GetInt(0, wonder)) return GEV_HD_Continue;
 
-	g_eventTracker->AddEvent(EVENT_TYPE_WONDER,c->GetOwner(),NewTurnCount::GetCurrentRound(),wonder);
+	eventtracker_Get()->AddEvent(EVENT_TYPE_WONDER,c->GetOwner(),NewTurnCount::GetCurrentRound(),wonder);
 
 	return GEV_HD_Continue;
 }

@@ -92,6 +92,9 @@ inline void from_json(nlohmann::json const &j, EventTracker &t)
 	}
 }
 
-extern EventTracker *g_eventTracker;
+// g_eventTracker demoted to file-scope `static` in gameinit.cpp.
+// External callers go through eventtracker_Get() (returns NULL before
+// the game state is loaded).
+EventTracker * eventtracker_Get(void);
 
 #endif

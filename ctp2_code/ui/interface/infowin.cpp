@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Do not trigger disaster warnings when there is no pollution at all.
-// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gühmann)
+// - Replaced old difficulty database by new one. (April 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -248,8 +248,9 @@ void EventsInfoButtonActionCallback( aui_Control *control, uint32 action, uint32
 	else if ((c3_Button*)control == s_eventsInfoButtonRight)
 	{
 		s_currentWonderDisplay++;
-		if(s_currentWonderDisplay>=g_eventTracker->GetEventCount())
-			s_currentWonderDisplay=g_eventTracker->GetEventCount()-1;
+		EventTracker *et = eventtracker_Get();
+		if(s_currentWonderDisplay>=et->GetEventCount())
+			s_currentWonderDisplay=et->GetEventCount()-1;
 		s_infoGraph->RenderGraph(s_currentWonderDisplay);
 		s_infoGraph->ShouldDraw(TRUE);
 	}
@@ -465,7 +466,7 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	if ( !AUI_NEWOK(s_infoWonderList, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoGraph" );
-	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL, g_eventTracker);
+	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL, eventtracker_Get());
 	Assert( AUI_NEWOK(s_infoGraph, errcode) );
 	if ( !AUI_NEWOK(s_infoGraph, errcode) ) return -1;
 

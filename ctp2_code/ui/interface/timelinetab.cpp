@@ -54,7 +54,7 @@ TimelineTab::TimelineTab(ctp2_Window *parent) :
 
 	m_infoYCount = 0;
 
-	m_infoGraph->SetEventTracker(g_eventTracker);
+	m_infoGraph->SetEventTracker(eventtracker_Get());
 
 	m_infoGraph->EnableYNumber(FALSE);
 	m_infoGraph->EnablePrecision(FALSE);
@@ -100,8 +100,9 @@ void TimelineTab::doButtonCallback(ctp2_Button *button)
 	else if (button == m_rightButton)
 	{
 		m_currentWonderDisplay++;
-		if(m_currentWonderDisplay>=g_eventTracker->GetEventCount())
-			m_currentWonderDisplay=g_eventTracker->GetEventCount()-1;
+		EventTracker *et = eventtracker_Get();
+		if(m_currentWonderDisplay>=et->GetEventCount())
+			m_currentWonderDisplay=et->GetEventCount()-1;
 		m_infoGraph->RenderGraph(m_currentWonderDisplay);
 		m_infoGraph->ShouldDraw(TRUE);
 	}

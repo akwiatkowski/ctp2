@@ -8993,7 +8993,7 @@ void Player::EnterNewAge(sint32 age)
 		m_all_cities->Access(i).CD()->UpdateSprite();
 	}
 	if(!g_network.IsNetworkLaunch()) {
-		g_eventTracker->AddEvent(EVENT_TYPE_AGES,m_owner,NewTurnCount::GetCurrentRound(),age);
+		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,NewTurnCount::GetCurrentRound(),age);
 	}
 }
 

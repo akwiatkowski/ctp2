@@ -206,7 +206,7 @@ void WonderTab::UpdateList()
 {
 	m_list->Clear();
 
-	PointerList<EventData>::Walker walk(g_eventTracker->m_dataList);
+	PointerList<EventData>::Walker walk(eventtracker_Get()->m_dataList);
 	for(; walk.IsValid(); walk.Next()) {
 		switch(walk.GetObj()->m_type) {
 			case EVENT_TYPE_WONDER:

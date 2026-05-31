@@ -384,7 +384,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 		p->m_score->AddFeat();
 	}
 
-	g_eventTracker->AddEvent(EVENT_TYPE_FEAT, player, theFeat->GetRound(), type);
+	eventtracker_Get()->AddEvent(EVENT_TYPE_FEAT, player, theFeat->GetRound(), type);
 
 	sint32 hpBonus;
 	if(rec->GetEffectIncreaseHitPoints(hpBonus))

@@ -185,7 +185,12 @@ FilenameDB                  *g_theMessageIconFileDB = NULL;
 Pool<Order>                 *g_theOrderPond = NULL;
 Pool<UnseenCell>            *g_theUnseenPond = NULL;
 Diplomacy_Log               *g_theDiplomacyLog=NULL;
-EventTracker                *g_eventTracker;
+static EventTracker         *g_eventTracker = NULL;
+
+EventTracker * eventtracker_Get(void)
+{
+	return g_eventTracker;
+}
 CriticalMessagesPrefs * g_theCriticalMessagesPrefs=NULL;
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];

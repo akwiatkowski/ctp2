@@ -198,7 +198,6 @@ extern int slic_parse_error;
 
 extern int g_slicLineNumber;
 
-extern int g_slicWarnUndeclared;
 extern FILE *debuglog;
 
 SLIC_ERROR slicif_run_parser(char *filename, int symStart);

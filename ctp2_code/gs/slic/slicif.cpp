@@ -126,8 +126,6 @@ static LoopStackDescriptor s_while_stack[k_MAX_SLIC_LEVELS];
 static char s_current_segment_name[1024];
 static SF_RET s_function_return_type = (SF_RET)0;
 
-int g_slicWarnUndeclared = 0;
-
 static int s_event_checking = 0;
 
 static int s_arg_counts[GEA_End];

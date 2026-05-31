@@ -48,7 +48,7 @@ extern char *include_filename_stack[MAX_INCLUDE_DEPTH];
 int include_line_number_stack[MAX_INCLUDE_DEPTH];
 
 extern int include_stack_ptr;
-extern int g_slicWarnUndeclared;
+// g_slicWarnUndeclared removed in globals-cleanup batch 3 (no readers).
 
 %}
 string 		\"[^\"\n]*[\"\n]
@@ -61,7 +61,6 @@ name		[a-zA-Z]+[a-zA-Z0-9_]*
 
 %%
 ^#include	{ BEGIN(incl); }
-^#warnings   { g_slicWarnUndeclared = 1; }
 <incl>[ \t]* {}
 <incl>\"    { BEGIN(fname); }
 <fname>[a-zA-Z0-9_.\\]+\" { /* Got the include file name */

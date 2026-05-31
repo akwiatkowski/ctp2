@@ -458,7 +458,7 @@ void SlicObject::Finish()
 						Create(m_recipientList[i], m_frame->GetMessageData());
 
 					if(GetNumTradeBids() > 0) {
-						g_theTradeBids->SetMessage(GetTradeBid(0), realMessage);
+						tradebids_Get()->SetMessage(GetTradeBid(0), realMessage);
 					}
 
 					if(m_defaultAdvanceSet) {

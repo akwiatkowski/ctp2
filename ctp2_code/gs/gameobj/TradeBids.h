@@ -23,7 +23,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made the Unit argments of AddBit method const. June 18th 2005 Martin Gühmann
+// - Made the Unit argments of AddBit method const. June 18th 2005 Martin Gï¿½hmann
 // - Guarded #pragma once
 //
 //----------------------------------------------------------------------------
@@ -89,6 +89,9 @@ public:
 	void SetMessage(uint32 id, const Message &msg);
 };
 
-extern TradeBids *g_theTradeBids;
+// g_theTradeBids demoted to file-scope `static` in gameinit.cpp (where
+// the lifecycle lives).  External callers go through tradebids_Get()
+// (returns NULL before the game state is loaded).
+TradeBids * tradebids_Get(void);
 
 #endif

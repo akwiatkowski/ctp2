@@ -2023,7 +2023,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 
 	Unit u = me;
 	g_theTradeOfferPool->RemoveTradeOffersFromCity(u);
-	g_theTradeBids->CancelBidsWithCity(u);
+	tradebids_Get()->CancelBidsWithCity(u);
 
 	Assert (0 <= newo);
 	Assert (newo < k_MAX_PLAYERS);

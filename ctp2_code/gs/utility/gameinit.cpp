@@ -197,6 +197,18 @@ FeatTracker * feattracker_Get(void)
 {
 	return g_featTracker;
 }
+static TradeBids            *g_theTradeBids = NULL;
+
+TradeBids * tradebids_Get(void)
+{
+	return g_theTradeBids;
+}
+static AchievementTracker   *g_theAchievementTracker = NULL;
+
+AchievementTracker * achievementtracker_Get(void)
+{
+	return g_theAchievementTracker;
+}
 CriticalMessagesPrefs * g_theCriticalMessagesPrefs=NULL;
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];

@@ -1452,9 +1452,9 @@ Unit Player::CreateCity(
 		}
 	}
 
-	if (!(g_theAchievementTracker->HasAchieved(ACHIEVE_UNDERSEA_CITY)) &&
+	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_UNDERSEA_CITY)) &&
 		g_theWorld->IsWater(pos)) {
-		g_theAchievementTracker->AddAchievement(ACHIEVE_UNDERSEA_CITY);
+		achievementtracker_Get()->AddAchievement(ACHIEVE_UNDERSEA_CITY);
 
 		SlicObject *so;
 
@@ -1470,9 +1470,9 @@ Unit Player::CreateCity(
 		g_slicEngine->Execute(so);
 	}
 
-	if (!(g_theAchievementTracker->HasAchieved(ACHIEVE_SPACE_CITY)) &&
+	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_SPACE_CITY)) &&
 		g_theWorld->IsSpace(pos)) {
-		g_theAchievementTracker->AddAchievement(ACHIEVE_SPACE_CITY);
+		achievementtracker_Get()->AddAchievement(ACHIEVE_SPACE_CITY);
 
 		SlicObject *so;
 
@@ -3152,7 +3152,7 @@ void Player::RemoveTransportPoints(sint32 delta)
 	}
 	if(m_tradeTransportPoints - m_usedTradeTransportPoints <= 0 &&
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
-		g_theTradeBids->CancelBidsFrom(m_owner);
+		tradebids_Get()->CancelBidsFrom(m_owner);
 	}
 
 	if(g_network.IsHost()) {
@@ -3168,7 +3168,7 @@ void Player::AddUsedTransportPoints(sint32 delta)
 	m_usedTradeTransportPoints += delta;
 	if(m_tradeTransportPoints - m_usedTradeTransportPoints <= 0 &&
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
-		g_theTradeBids->CancelBidsFrom(m_owner);
+		tradebids_Get()->CancelBidsFrom(m_owner);
 	}
 	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
@@ -3423,7 +3423,7 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 		g_network.Unblock(toCity.GetOwner());
 	}
 
-	uint32 bidId = g_theTradeBids->AddBid(m_owner,
+	uint32 bidId = tradebids_Get()->AddBid(m_owner,
 	                                      fromCity,
 	                                      resource,
 	                                      toCity,

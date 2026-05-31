@@ -258,7 +258,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		}
 
 		g_theTradeOfferPool->RemoveTradeOffersFromCity(*this);
-		g_theTradeBids->CancelBidsWithCity(*this);
+		tradebids_Get()->CancelBidsWithCity(*this);
 
 		if (cell->UnitArmy())
 		{

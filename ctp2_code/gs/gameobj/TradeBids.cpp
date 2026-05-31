@@ -23,7 +23,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made the Unit argments of AddBit method const. June 18th 2005 Martin Gühmann
+// - Made the Unit argments of AddBit method const. June 18th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -38,7 +38,8 @@
 extern Player **g_player;
 extern MessagePool *g_theMessagePool;
 
-TradeBids *g_theTradeBids = NULL;
+// g_theTradeBids is defined in gameinit.cpp (where the lifecycle lives);
+// this TU reaches it via tradebids_Get() declared in TradeBids.h.
 
 void TradeBids::Bid::Serialize(CivArchive &archive)
 {

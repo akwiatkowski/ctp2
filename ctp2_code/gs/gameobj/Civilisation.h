@@ -26,7 +26,7 @@
 //
 // - pragma commented out
 // - Fixed city style enumeration removed.
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -103,7 +103,5 @@ public:
 
 PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner);
 void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner);
-
-extern Civilisation	*g_theCivilisation ;
 
 #endif

@@ -416,7 +416,7 @@ void ScienceManagementDialog::HyperlinkActionCallback(aui_Control *control,
 
 	if(hyperlink) {
 		open_GreatLibrary();
-		g_greatLibrary->SetLibrary(hyperlink->m_index,
+		greatlibrary_Get()->SetLibrary(hyperlink->m_index,
 			static_cast<DATABASE>(hyperlink->m_db));
 	}
 }

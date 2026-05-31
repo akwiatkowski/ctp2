@@ -501,8 +501,10 @@ public:
     // --- SLIC-driven UI commands ---
     void OnRequestOpenGreatLibrary(sint32 entry, sint32 database) override
     {
-        if (open_GreatLibrary() && g_greatLibrary) {
-            g_greatLibrary->SetLibrary(entry, static_cast<DATABASE>(database));
+        if (open_GreatLibrary()) {
+            if (GreatLibrary *gl = greatlibrary_Get()) {
+                gl->SetLibrary(entry, static_cast<DATABASE>(database));
+            }
         }
     }
 
@@ -584,15 +586,15 @@ public:
 
         if (blank && g_controlPanel) {
             MainControlPanel::Blank();
-            if (g_greatLibrary) {
-                g_greatLibrary->ClearHistory();
+            if (GreatLibrary *gl = greatlibrary_Get()) {
+                gl->ClearHistory();
             }
         } else if (g_controlPanel) {
             MainControlPanel::UpdatePlayer(visiblePlayer);
             MainControlPanel::UpdateCityList();
             MainControlPanel::Update();
-            if (g_greatLibrary) {
-                g_greatLibrary->SetLibrary(researchingAdvance, DATABASE_ADVANCES);
+            if (GreatLibrary *gl = greatlibrary_Get()) {
+                gl->SetLibrary(researchingAdvance, DATABASE_ADVANCES);
             }
         }
     }

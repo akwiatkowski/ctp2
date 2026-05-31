@@ -28,7 +28,7 @@
 // - Interpret a zero-length link text as display of the text from gl_str.txt.
 //   Example: <L:DATABASE_UNITS,UNIT_STEALTH_BOMBER><e> will display a
 //            "Stealth Bomber" hyperlink when using the English version.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -575,7 +575,7 @@ AUI_ERRCODE ctp2_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 					// Perform database text lookup.
 					if (hyperLinkDB)
 					{
-						MBCHAR const *	ptr	= g_greatLibrary->GetObjectName
+						MBCHAR const *	ptr	= greatlibrary_Get()->GetObjectName
 												(hyperLinkDB, hyperLinkIndex);
 
 						FormatText(ptr,
@@ -788,8 +788,8 @@ void ctp2_HyperTextBox::MouseLDropInside( aui_MouseEvent *mouseData )
 				else {
 
 					open_GreatLibrary();
-					if(g_greatLibrary) {
-						g_greatLibrary->SetLibrary(m_selectedHyperLink->m_index, (DATABASE)m_selectedHyperLink->m_db);
+					if(GreatLibrary *gl = greatlibrary_Get()) {
+						gl->SetLibrary(m_selectedHyperLink->m_index, (DATABASE)m_selectedHyperLink->m_db);
 					}
 				}
 			}

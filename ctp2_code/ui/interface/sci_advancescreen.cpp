@@ -81,7 +81,6 @@ extern Director		*g_director;
 
 extern C3UI			*g_c3ui;
 extern ProjectFile	*g_GreatLibPF;
-extern GreatLibrary	*g_greatLibrary;
 
 extern ScienceWin	*g_scienceWin;
 
@@ -140,7 +139,7 @@ void sci_advancescreen_StatsCallback( aui_Control *control, uint32 action, uint3
 
 	if ( hl ) {
 		open_GreatLibrary();
-		g_greatLibrary->SetLibrary( hl->m_index, (DATABASE)hl->m_db );
+		greatlibrary_Get()->SetLibrary( hl->m_index, (DATABASE)hl->m_db );
 	}
 }
 

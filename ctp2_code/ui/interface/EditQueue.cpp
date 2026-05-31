@@ -1755,15 +1755,16 @@ void EditQueue::Library(aui_Control *control, uint32 action, uint32 data, void *
 	}
 
 	open_GreatLibrary();
+	GreatLibrary *gl = greatlibrary_Get();
 	switch(s_editQueue->m_itemCategory) {
 		case k_GAME_OBJ_TYPE_UNIT:
-			g_greatLibrary->SetLibrary(s_editQueue->m_itemType, DATABASE_UNITS);
+			gl->SetLibrary(s_editQueue->m_itemType, DATABASE_UNITS);
 			break;
 		case k_GAME_OBJ_TYPE_IMPROVEMENT:
-			g_greatLibrary->SetLibrary(s_editQueue->m_itemType, DATABASE_BUILDINGS);
+			gl->SetLibrary(s_editQueue->m_itemType, DATABASE_BUILDINGS);
 			break;
 		case k_GAME_OBJ_TYPE_WONDER:
-			g_greatLibrary->SetLibrary(s_editQueue->m_itemType, DATABASE_WONDERS);
+			gl->SetLibrary(s_editQueue->m_itemType, DATABASE_WONDERS);
 			break;
 	}
 }

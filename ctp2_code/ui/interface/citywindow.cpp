@@ -1683,7 +1683,7 @@ void CityWindow::HyperLink( aui_Control *control, uint32 action, uint32 data, vo
 
 	if ( hl ) {
 		open_GreatLibrary();
-		g_greatLibrary->SetLibrary( hl->m_index, (DATABASE)hl->m_db );
+		greatlibrary_Get()->SetLibrary( hl->m_index, (DATABASE)hl->m_db );
 	}
 }
 

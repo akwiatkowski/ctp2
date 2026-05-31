@@ -127,7 +127,12 @@ static char const s_database_names[DATABASE_MAX][GL_MAX_DB_NAME_SIZE] =
 
 };
 
-GreatLibrary	*g_greatLibrary = NULL;
+static GreatLibrary	*g_greatLibrary = NULL;
+
+GreatLibrary * greatlibrary_Get(void)
+{
+	return g_greatLibrary;
+}
 
 Text_Hasher<char *> * GreatLibrary::s_great_library_info = NULL;
 

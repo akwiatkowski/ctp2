@@ -29,7 +29,7 @@
 // - Increased maximum library text size to support the German version.
 // - Exported database name size max.
 // - Added function to look up an item name on creation index.
-// - Added alpha <-> index functions. (Sep 13th 2005 Martin Gühmann)
+// - Added alpha <-> index functions. (Sep 13th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 //
@@ -319,6 +319,9 @@ const MBCHAR *  glutil_LoadText(const char * filename, SlicContext & so);
 bool            greatlibrary_Initialize(sint32 theMode, bool sci = false);
 void            greatlibrary_Cleanup(void);
 
-extern GreatLibrary	*   g_greatLibrary;
+// g_greatLibrary demoted to file-scope `static` in greatlibrary.cpp.
+// External callers go through greatlibrary_Get() (returns NULL when the
+// great library has not been opened).
+GreatLibrary * greatlibrary_Get(void);
 
 #endif

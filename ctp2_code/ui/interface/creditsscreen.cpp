@@ -25,8 +25,8 @@
 // Modifications from the original Activision code:
 //
 // - Corrected initialisations that were causing ambiguity.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standardized code. (May 29th 2006 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standardized code. (May 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -93,7 +93,12 @@ size_t const	k_CreditsLineLen		= 80;
 size_t const	kCreditsTextNumFonts	= 6;
 uint32 const    NUMBER_INVALID          = static_cast<uint32>(-1);
 
-CreditsWindow*			g_creditsWindow = NULL;
+static CreditsWindow *  g_creditsWindow = NULL;
+
+CreditsWindow * creditsscreen_GetWindow(void)
+{
+    return g_creditsWindow;
+}
 
 AUI_ACTION_BASIC(RemoveCreditsAction);
 

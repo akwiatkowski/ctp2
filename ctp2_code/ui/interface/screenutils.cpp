@@ -28,7 +28,7 @@
 // - Start the great library with the current research project of the player.
 // - Prevent production errors when pressing F3 after end of turn.
 // - Added close_AllScreensAndUpdateInfoScreen so that on a new turn the
-//   information window can stay open. (Aug. 7th 2005 Martin Gühmann)
+//   information window can stay open. (Aug. 7th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -484,7 +484,7 @@ sint32 open_CreditsScreen()
 	Assert(!err);
 	if(err) return(-1);
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(g_creditsWindow);
+	AUI_ERRCODE auiErr = g_c3ui->AddWindow(creditsscreen_GetWindow());
 	Assert(auiErr == AUI_ERRCODE_OK);
     return (auiErr == AUI_ERRCODE_OK) ? 0 : -1;
 }

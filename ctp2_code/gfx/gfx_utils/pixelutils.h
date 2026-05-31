@@ -34,16 +34,18 @@ Pixel32 ComponentsToRGB32(Pixel16 r, Pixel16 g, Pixel16 b, Pixel16 a) ;
 void RGB32Info(Pixel32 pixel, Pixel16 *outPixel, unsigned char *alpha);
 void pixelutils_ComputeBlendTable(void);
 
-
-
+// Shared inline-pixel-blending state.  Hoisted to file scope so the
+// inline functions below don't each carry their own function-scoped
+// extern declarations (9 + 3 of them, all referenced by the globals
+// ratchet — see test_player_view.cpp).
+extern sint32 g_is565Format;
+extern short  gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 
 inline Pixel16 pixelutils_Blend(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
 	short			r1, g1, b1, r2, g2, b2;
 	short			r0, g0, b0;
-	extern sint32		g_is565Format;
-	extern short	gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 	if (g_is565Format)
 	{
@@ -79,7 +81,6 @@ inline Pixel16 pixelutils_Blend(Pixel16 pixel1, Pixel16 pixel2, short blend)
 
 inline Pixel16 pixelutils_Additive(Pixel16 pixel1, Pixel16 pixel2)
 {
-	extern sint32		g_is565Format;
 
 	Pixel16				r, g, b, sum = (short)(pixel2 & 0x1F) ;
 
@@ -113,7 +114,6 @@ inline Pixel16 pixelutils_BlendFast(sint32 pixel1, sint32 pixel2, sint32 blend)
 {
 	sint32 rb2, g2;
 	sint32 rb0, g0;
-	extern sint32		g_is565Format;
 
 	if (g_is565Format)
 	{
@@ -145,7 +145,6 @@ inline Pixel16 pixelutils_BlendFast(sint32 pixel1, sint32 pixel2, sint32 blend)
 
 inline Pixel16 pixelutils_Shadow(Pixel16 pixel)
 {
-	extern sint32		g_is565Format;
 
 	if (g_is565Format)
       return static_cast<Pixel16>((pixel&0xF7DF)>>1);
@@ -166,7 +165,6 @@ inline Pixel16 pixelutils_Shadow(Pixel16 pixel)
 inline Pixel16 pixelutils_Lightening(Pixel16 pixel)
 {
 	short		r, g, b;
-	extern sint32		g_is565Format;
 
 	if (g_is565Format)
 	{
@@ -203,7 +201,6 @@ inline Pixel16 pixelutils_PercentDarken(Pixel16 pixel, sint32 percent)
 	sint32 r32, g32, b32;
 	sint16 r, g, b;
 	sint32 newPercent = k_MAX_PERCENT - percent;
-	extern sint32		g_is565Format;
 
 	if (g_is565Format)
 	{
@@ -242,7 +239,6 @@ inline Pixel16 pixelutils_PercentLighten(Pixel16 pixel, sint32 percent)
 	sint32 r32, g32, b32;
 	sint16 r, g, b;
 	sint32 newPercent = k_MAX_PERCENT + percent;
-	extern sint32		g_is565Format;
 
 	if (g_is565Format)
 	{
@@ -293,7 +289,6 @@ inline Pixel16 pixelutils_PercentLighten(Pixel16 pixel, sint32 percent)
 
 inline Pixel16 pixelutils_Convert565to555(Pixel16 pixel)
 {
-	extern sint32		g_is565Format;
 
 	if (g_is565Format) return pixel;
 
@@ -302,7 +297,6 @@ inline Pixel16 pixelutils_Convert565to555(Pixel16 pixel)
 
 inline Pixel16 pixelutils_Convert555to565(Pixel16 pixel)
 {
-	extern sint32		g_is565Format;
 
 	if (!g_is565Format) return pixel;
 
@@ -322,7 +316,6 @@ inline Pixel16 pixelutils_Blend_565(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
 	Pixel16			r1, g1, b1, r2, g2, b2;
 	Pixel16			r0, g0, b0;
-	extern short	gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 	r1 = ((pixel1 & 0xF800) >> 10) ;
 	g1 = ((pixel1 & 0x07E0) >> 5);
@@ -475,7 +468,6 @@ inline Pixel16 pixelutils_Blend_555(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
 	Pixel16			r1, g1, b1, r2, g2, b2;
 	Pixel16			r0, g0, b0;
-	extern short	gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 	r1 = ((pixel1 & 0x7C00) >> 9) ;
 	g1 = ((pixel1 & 0x03E0) >> 4) ;

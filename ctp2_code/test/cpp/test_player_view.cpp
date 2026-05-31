@@ -954,7 +954,14 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_slicWarnUndeclared deleted outright (dead)
 //   - g_creditsWindow + g_lobbyWindow + g_nationalManagementDialog
 //     demoted to file-scope `static`, exposed via *_Get() accessors.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 113;
+// 2026-05-31: dropped 113 → 109 after batch 4 (more accessor-wraps):
+//   - g_scienceManagementDialog (3 cross-TU sites consolidated)
+//   - g_domesticManagementDialog (2 cross-TU sites consolidated)
+//   - g_gameSelectWindow (1 cross-TU site)
+//   - g_hotseatList: switched to operation API
+//     (hotseatlist_DisplayWindow / hotseatlist_Cleanup) because external
+//     consumers were writing the pointer, not just reading it.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 109;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

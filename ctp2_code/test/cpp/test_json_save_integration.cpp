@@ -239,4 +239,85 @@ TEST_CASE("LoadJson round-trip: save / load / save preserves all state")
     CHECK(a["slic_engine"].size() == b["slic_engine"].size());
 }
 
+TEST_CASE("Phase G converter: binary save → JSON save via --load-game --json-save")
+{
+    // The one-shot converter mentioned in the JSON-savegame plan is free
+    // via the existing CLI: --load-game reads a binary save, --json-save
+    // writes JSON.  Together they convert old .c2g files (or any binary
+    // savegame the engine can read) to the new JSON format.  This test
+    // is the Phase G acceptance check that the conversion path works
+    // end-to-end against a freshly-produced binary save.
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *binpath  = "/tmp/ctp2_g_binsave.c2g";
+    const char *jsonpath = "/tmp/ctp2_g_converted.json";
+    std::remove(binpath);
+    std::remove(jsonpath);
+
+    // Step 1: produce a binary save via --save-game.
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 3 --players 3 --seed 42 "
+                      "--save-game %s 2>&1", bin, binpath);
+        std::FILE *pipe = popen(cmd, "r");
+        REQUIRE(pipe != nullptr);
+        char buf[512];
+        std::string log;
+        while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+        int rc = pclose(pipe);
+        INFO(log);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);
+        REQUIRE(log.find("SaveGame returned") != std::string::npos);
+    }
+
+    std::string binraw;
+    REQUIRE(read_file(binpath, binraw));
+    CHECK(binraw.size() > 1024);
+
+    // Step 2: convert binary → JSON via --load-game + --json-save.
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --load-game %s --turns 0 --json-save %s 2>&1",
+                      bin, binpath, jsonpath);
+        std::FILE *pipe = popen(cmd, "r");
+        REQUIRE(pipe != nullptr);
+        char buf[512];
+        std::string log;
+        while (std::fgets(buf, sizeof(buf), pipe)) log += buf;
+        int rc = pclose(pipe);
+        INFO(log);
+        REQUIRE(WIFEXITED(rc));
+        REQUIRE(WEXITSTATUS(rc) == 0);
+        REQUIRE(log.find("SaveJson returned ok") != std::string::npos);
+    }
+
+    // Step 3: the converted JSON should parse and contain the expected
+    // top-level structure.
+    std::string jsonraw;
+    REQUIRE(read_file(jsonpath, jsonraw));
+
+    nlohmann::json doc = nlohmann::json::parse(jsonraw);
+    CHECK(doc["magic"] == "CTP2-JSON");
+    CHECK(doc["schema_version"] == 1);
+    for (const char *key : {
+        "rng", "settings", "world", "turn",
+        "unit_pool", "army_pool", "trade_pool", "slic_engine",
+        "civilisation_pool", "message_pool", "players", "ai_state",
+    }) {
+        INFO("missing key in converted JSON: " << key);
+        CHECK(doc.contains(key));
+    }
+
+    // Expect 3 alive players matching --players 3.
+    REQUIRE(doc.contains("players"));
+    REQUIRE(doc["players"].is_array());
+    int alive = 0;
+    for (auto const &slot : doc["players"]) if (slot.value("alive", false)) ++alive;
+    CHECK(alive == 3);
+}
+
 TEST_SUITE_END;

@@ -44,7 +44,7 @@
 extern TurnCount *g_turn;
 extern Pool<Order> *g_theOrderPond;
 
-OrderInfo g_orderInfo[] = {
+static OrderInfo g_orderInfo[] = {
 	{UNIT_ORDER_NONE,                       "ORDER_NONE",                       0, 0, 0, 0, NULL}, // 00
 	{UNIT_ORDER_MOVE,                       "ORDER_MOVE",                       0, 0, 0, 0, NULL}, // 01
 	{UNIT_ORDER_PATROL,                     "ORDER_PATROL",                     0, 0, 0, 0, NULL}, // 02
@@ -111,8 +111,28 @@ OrderInfo g_orderInfo[] = {
 	{UNIT_ORDER_EXPLORE,                    "ORDER_EXPLORE",                    0, 0, 0, 0, NULL}  // 63
 };
 
-sint32 g_numOrderInfo = sizeof(g_orderInfo) / sizeof(OrderInfo);
-sint32 g_orderInfoMap[UNIT_ORDER_MAX];
+static sint32 g_numOrderInfo = sizeof(g_orderInfo) / sizeof(OrderInfo);
+static sint32 g_orderInfoMap[UNIT_ORDER_MAX];
+
+// Read-only accessors for the file-static order-info table.  Bound
+// checks fold in here so call sites stop having to repeat the
+// `if(index >= 0 && index < g_numOrderInfo)` pattern.
+OrderInfo const & orderinfo_Get(sint32 idx)
+{
+    Assert(idx >= 0 && idx < g_numOrderInfo);
+    return g_orderInfo[idx];
+}
+
+sint32 orderinfo_Num(void)
+{
+    return g_numOrderInfo;
+}
+
+sint32 orderinfo_MapAt(sint32 unitOrder)
+{
+    Assert(unitOrder >= 0 && unitOrder < UNIT_ORDER_MAX);
+    return g_orderInfoMap[unitOrder];
+}
 
 Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 arg)
 {

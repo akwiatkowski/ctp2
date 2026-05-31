@@ -26,9 +26,14 @@ struct OrderInfo {
 	void *m_userData;
 };
 
-extern OrderInfo g_orderInfo[];
-extern sint32 g_numOrderInfo;
-extern sint32 g_orderInfoMap[UNIT_ORDER_MAX];
+// Order-info table accessors.  The actual storage is file-static in
+// Order.cpp.  The table is read-only after static init — these
+// accessors are safe to call from any thread once the program is
+// past startup (future multi-threading hardening can add `const`-only
+// guarantees here).
+OrderInfo const & orderinfo_Get(sint32 idx);
+sint32           orderinfo_Num(void);
+sint32           orderinfo_MapAt(sint32 unitOrder);
 
 #include "gs/events/GameEventDescription.h"
 #include "gs/world/MapPoint.h"

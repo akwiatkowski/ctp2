@@ -839,10 +839,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			ORDER_RESULT res = u.StealTechnology(city, advance);
 			if(res != ORDER_RESULT_ILLEGAL) {
-				sint32 ordindex = g_orderInfoMap[UNIT_ORDER_STEAL_TECHNOLOGY];
-				OrderInfo *oi = NULL;
-				if(ordindex >= 0 && ordindex < g_numOrderInfo) {
-					oi = &g_orderInfo[ordindex];
+				sint32 ordindex = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
+				OrderInfo const *oi = NULL;
+				if(ordindex >= 0 && ordindex < orderinfo_Num()) {
+					oi = &orderinfo_Get(ordindex);
 				}
 
 				if(oi && oi->m_goldCost > 0) {

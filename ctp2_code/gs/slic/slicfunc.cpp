@@ -1816,10 +1816,10 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 
 	ORDER_RESULT res = u.StealTechnology(context->GetCity(0), (sint32)-1);
 	if(res != ORDER_RESULT_ILLEGAL) {
-		sint32 index = g_orderInfoMap[UNIT_ORDER_STEAL_TECHNOLOGY];
-		OrderInfo *oi = NULL;
-		if(index >= 0 && index < g_numOrderInfo) {
-			oi = &g_orderInfo[index];
+		sint32 index = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
+		OrderInfo const *oi = NULL;
+		if(index >= 0 && index < orderinfo_Num()) {
+			oi = &orderinfo_Get(index);
 		}
 
 		if(oi && oi->m_goldCost > 0) {
@@ -1865,10 +1865,10 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 
 	ORDER_RESULT res = u.StealTechnology(context->GetCity(0), adv);
 	if(res != ORDER_RESULT_ILLEGAL) {
-		sint32 index = g_orderInfoMap[UNIT_ORDER_STEAL_TECHNOLOGY];
-		OrderInfo *oi = NULL;
-		if(index >= 0 && index < g_numOrderInfo) {
-			oi = &g_orderInfo[index];
+		sint32 index = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
+		OrderInfo const *oi = NULL;
+		if(index >= 0 && index < orderinfo_Num()) {
+			oi = &orderinfo_Get(index);
 		}
 
 		if(oi && oi->m_goldCost > 0) {

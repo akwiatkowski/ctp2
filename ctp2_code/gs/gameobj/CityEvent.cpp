@@ -120,7 +120,7 @@ STDEHANDLER(CaptureCityEvent)
 
 	if (city.GetData()->GetCityData()->PopCount() < 1)
     {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillCity,
 			GEA_City, city,
 			GEA_Int, CAUSE_REMOVE_ARMY_ATTACKED,
 			GEA_Player, newOwner,
@@ -543,7 +543,7 @@ STDEHANDLER(NukeCityEvent)
 	}
 
 	for(j = 0; j < killList.Num(); j++) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 		                       GEA_Unit, killList[j],
 		                       GEA_Int, CAUSE_REMOVE_ARMY_NUKE,
 		                       GEA_Player, nuker,
@@ -856,46 +856,46 @@ STDEHANDLER(KillTileEvent)
 
 void cityevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_CaptureCity, GEV_PRI_Primary, &s_CaptureCityEvent);
+	gevmanager_Get()->AddCallback(GEV_CaptureCity, GEV_PRI_Primary, &s_CaptureCityEvent);
 
-	g_gevManager->AddCallback(GEV_CityTurnPreProduction, GEV_PRI_Primary, &s_CityTurnPreProductionEvent);
-	g_gevManager->AddCallback(GEV_CityBeginTurn, GEV_PRI_Primary, &s_CityBeginTurnEvent);
-	g_gevManager->AddCallback(GEV_CityBeginTurnVision, GEV_PRI_Primary, &s_CityBeginTurnVisionEvent);
-	g_gevManager->AddCallback(GEV_BuildFront, GEV_PRI_Primary, &s_CityBuildFrontEvent);
-	g_gevManager->AddCallback(GEV_CreateUnit, GEV_PRI_Post, &s_CityCreateUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_CityTurnPreProduction, GEV_PRI_Primary, &s_CityTurnPreProductionEvent);
+	gevmanager_Get()->AddCallback(GEV_CityBeginTurn, GEV_PRI_Primary, &s_CityBeginTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_CityBeginTurnVision, GEV_PRI_Primary, &s_CityBeginTurnVisionEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildFront, GEV_PRI_Primary, &s_CityBuildFrontEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateUnit, GEV_PRI_Post, &s_CityCreateUnitEvent);
 
-	g_gevManager->AddCallback(GEV_BuildUnit, GEV_PRI_Primary, &s_CityBuildUnitEvent);
-	g_gevManager->AddCallback(GEV_BuildBuilding, GEV_PRI_Primary, &s_CityBuildBuildingEvent);
-	g_gevManager->AddCallback(GEV_BuildWonder, GEV_PRI_Primary, &s_CityBuildWonderEvent);
-	g_gevManager->AddCallback(GEV_ZeroProduction, GEV_PRI_Primary, &s_ZeroProductionEvent);
-	g_gevManager->AddCallback(GEV_RollOverProduction, GEV_PRI_Primary, &s_RollOverProductionEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildUnit, GEV_PRI_Primary, &s_CityBuildUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildBuilding, GEV_PRI_Primary, &s_CityBuildBuildingEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildWonder, GEV_PRI_Primary, &s_CityBuildWonderEvent);
+	gevmanager_Get()->AddCallback(GEV_ZeroProduction, GEV_PRI_Primary, &s_ZeroProductionEvent);
+	gevmanager_Get()->AddCallback(GEV_RollOverProduction, GEV_PRI_Primary, &s_RollOverProductionEvent);
 
-	g_gevManager->AddCallback(GEV_MakePop, GEV_PRI_Primary, &s_MakePopEvent);
-	g_gevManager->AddCallback(GEV_KillPop, GEV_PRI_Primary, &s_KillPopEvent);
+	gevmanager_Get()->AddCallback(GEV_MakePop, GEV_PRI_Primary, &s_MakePopEvent);
+	gevmanager_Get()->AddCallback(GEV_KillPop, GEV_PRI_Primary, &s_KillPopEvent);
 
-	g_gevManager->AddCallback(GEV_FinishUprising, GEV_PRI_Primary, &s_FinishUprisingEvent);
-	g_gevManager->AddCallback(GEV_CleanupUprising, GEV_PRI_Primary, &s_CleanupUprisingEvent);
+	gevmanager_Get()->AddCallback(GEV_FinishUprising, GEV_PRI_Primary, &s_FinishUprisingEvent);
+	gevmanager_Get()->AddCallback(GEV_CleanupUprising, GEV_PRI_Primary, &s_CleanupUprisingEvent);
 
-	g_gevManager->AddCallback(GEV_NukeCity, GEV_PRI_Primary, &s_NukeCityEvent);
-	g_gevManager->AddCallback(GEV_MakeFranchise, GEV_PRI_Primary, &s_MakeFranchiseEvent);
-	g_gevManager->AddCallback(GEV_SlaveRaidCity, GEV_PRI_Primary, &s_SlaveRaidCityEvent);
-	g_gevManager->AddCallback(GEV_BioInfectCity, GEV_PRI_Primary, &s_BioInfectCityEvent);
-	g_gevManager->AddCallback(GEV_PlagueCity, GEV_PRI_Primary, &s_PlagueCityEvent);
-	g_gevManager->AddCallback(GEV_NanoInfectCity, GEV_PRI_Primary, &s_NanoInfectCityEvent);
-	g_gevManager->AddCallback(GEV_ConvertCity, GEV_PRI_Primary, &s_ConvertCityEvent);
-	g_gevManager->AddCallback(GEV_UnconvertCity, GEV_PRI_Primary, &s_UnconvertCityEvent);
-	g_gevManager->AddCallback(GEV_AddHappyTimer, GEV_PRI_Primary, &s_AddHappyTimerEvent);
-	g_gevManager->AddCallback(GEV_CreatePark, GEV_PRI_Primary, &s_CreateParkEvent);
-	g_gevManager->AddCallback(GEV_InjoinCity, GEV_PRI_Primary, &s_InjoinCityEvent);
+	gevmanager_Get()->AddCallback(GEV_NukeCity, GEV_PRI_Primary, &s_NukeCityEvent);
+	gevmanager_Get()->AddCallback(GEV_MakeFranchise, GEV_PRI_Primary, &s_MakeFranchiseEvent);
+	gevmanager_Get()->AddCallback(GEV_SlaveRaidCity, GEV_PRI_Primary, &s_SlaveRaidCityEvent);
+	gevmanager_Get()->AddCallback(GEV_BioInfectCity, GEV_PRI_Primary, &s_BioInfectCityEvent);
+	gevmanager_Get()->AddCallback(GEV_PlagueCity, GEV_PRI_Primary, &s_PlagueCityEvent);
+	gevmanager_Get()->AddCallback(GEV_NanoInfectCity, GEV_PRI_Primary, &s_NanoInfectCityEvent);
+	gevmanager_Get()->AddCallback(GEV_ConvertCity, GEV_PRI_Primary, &s_ConvertCityEvent);
+	gevmanager_Get()->AddCallback(GEV_UnconvertCity, GEV_PRI_Primary, &s_UnconvertCityEvent);
+	gevmanager_Get()->AddCallback(GEV_AddHappyTimer, GEV_PRI_Primary, &s_AddHappyTimerEvent);
+	gevmanager_Get()->AddCallback(GEV_CreatePark, GEV_PRI_Primary, &s_CreateParkEvent);
+	gevmanager_Get()->AddCallback(GEV_InjoinCity, GEV_PRI_Primary, &s_InjoinCityEvent);
 
-	g_gevManager->AddCallback(GEV_CreateBuilding, GEV_PRI_Primary, &s_CreateBuildingEvent);
-	g_gevManager->AddCallback(GEV_CreateWonder, GEV_PRI_Primary, &s_CreateWonderEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateBuilding, GEV_PRI_Primary, &s_CreateBuildingEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateWonder, GEV_PRI_Primary, &s_CreateWonderEvent);
 
-	g_gevManager->AddCallback(GEV_BuyFront, GEV_PRI_Primary, &s_RushBuyEvent);
-	g_gevManager->AddCallback(GEV_DisbandCity, GEV_PRI_Primary, &s_DisbandCityEvent);
-	g_gevManager->AddCallback(GEV_SellBuilding, GEV_PRI_Primary, &s_SellBuildingEvent);
+	gevmanager_Get()->AddCallback(GEV_BuyFront, GEV_PRI_Primary, &s_RushBuyEvent);
+	gevmanager_Get()->AddCallback(GEV_DisbandCity, GEV_PRI_Primary, &s_DisbandCityEvent);
+	gevmanager_Get()->AddCallback(GEV_SellBuilding, GEV_PRI_Primary, &s_SellBuildingEvent);
 
-	g_gevManager->AddCallback(GEV_KillTile, GEV_PRI_Primary, &s_KillTileEvent);
+	gevmanager_Get()->AddCallback(GEV_KillTile, GEV_PRI_Primary, &s_KillTileEvent);
 
 }
 

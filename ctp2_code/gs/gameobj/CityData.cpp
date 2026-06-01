@@ -806,7 +806,7 @@ bool NeedsCanalTunnel(MapPoint const & center_point)
 //
 // Globals    : g_network
 //            : g_theUnitDB
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_theBuildingDB
 //            : installation_tree_Get()
 //            : world_Get()
@@ -858,7 +858,7 @@ void CityData::Initialize(sint32 settlerType)
 	{
 		for(sint32 i = 0; i < numPops; i++)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 			                       GEA_City, m_home_city,
 			                       GEA_End);
 		}
@@ -873,7 +873,7 @@ void CityData::Initialize(sint32 settlerType)
 			Assert(bi < g_theBuildingDB->NumRecords());
 			if(bi >= 0 && bi < g_theBuildingDB->NumRecords())
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
 				                       GEA_City, m_home_city.m_id,
 				                       GEA_Int, bi,
 				                       GEA_End);
@@ -1020,7 +1020,7 @@ void CityData::Initialize(sint32 settlerType)
 
 	UpdateSprite();
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_OpenInitialCityInterface,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_OpenInitialCityInterface,
 	                       GEA_City, m_home_city,
 	                       GEA_End);
 
@@ -1452,7 +1452,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 	world_Get()->GetCell(city_pos)->GetArmy(army) ;
 	n=army.Num() ;
 	for (i=0; i<n; i++) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 		                       GEA_Unit, army[i].m_id,
 		                       GEA_Int, CAUSE_REMOVE_ARMY_UPRISING,
 		                       GEA_Player, newowner,
@@ -1504,7 +1504,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 //              sint32 foreigner              : recipient
 //
 // Globals    : world_Get()
-//            : g_gevManager
+//            : gevmanager_Get()
 //
 // Returns    : -
 //
@@ -1528,7 +1528,7 @@ void CityData::TeleportUnits(const MapPoint &pos, bool &revealed_foreign_units, 
 	}
 
 	for(i = 0; i < armies.Num(); i++) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_GetExpelledOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_GetExpelledOrder,
 		                       GEA_Army, armies[i],
 		                       GEA_MapPoint, pos,
 		                       GEA_Player, foreigner,
@@ -3792,7 +3792,7 @@ double CityData::CalculateGrossGrowthRate(double &overcrowdingCoeff, double &bas
 //
 // Parameters : -
 //
-// Globals    : g_gevManager
+// Globals    : gevmanager_Get()
 //
 // Returns    : bool: true if the city is either starving or changes pop size
 //
@@ -3839,7 +3839,7 @@ bool CityData::GrowOrStarve()
 
 		if(m_partialPopulation >= k_PEOPLE_PER_POPULATION)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 			                       GEA_City, m_home_city.m_id,
 			                       GEA_End);
 			m_partialPopulation -= k_PEOPLE_PER_POPULATION;
@@ -3855,7 +3855,7 @@ bool CityData::GrowOrStarve()
 			if(SlaveCount() > 0 )
 				ChangeSpecialists(POP_SLAVE, -1);
 
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
 			                       GEA_City, m_home_city.m_id,
 			                       GEA_End);
 
@@ -3874,7 +3874,7 @@ bool CityData::GrowOrStarve()
 
 		if(m_partialPopulation >= k_PEOPLE_PER_POPULATION)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 			                       GEA_City, m_home_city.m_id,
 			                       GEA_End);
 
@@ -3927,7 +3927,7 @@ void CityData::MakeCitizen(PopDBIndex type, const MapPoint &center_pos,
 	DPRINTF(k_DBG_GAMESTATE, ("MakeCitizen(%d, %d,%d)\n", type,
 	                          center_pos.x, center_pos.y));
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 	                       GEA_City, m_home_city.m_id,
 	                       GEA_End);
 }
@@ -4075,14 +4075,14 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 		{
 			if(deadRoutes[i].GetSource().m_id == m_home_city.m_id)
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
 									   GEA_TradeRoute, deadRoutes[i],
 									   GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 									   GEA_End);
 			}
 			else
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
 									   GEA_TradeRoute, deadRoutes[i],
 									   GEA_Int, CAUSE_KILL_TRADE_ROUTE_RECIPIENT_KILLED,
 									   GEA_End);
@@ -4611,7 +4611,7 @@ void CityData::TryToBuild()
 			m_buildInfrastructure = FALSE;
 			m_pw_from_infrastructure = 0;
 
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 			                       GEV_BuildFront,
 			                       GEA_City, m_home_city,
 			                       GEA_End);
@@ -4799,7 +4799,7 @@ bool CityData::BeginTurn()
 void CityData::EndTurn()
 {
 	if(m_sellBuilding >= 0) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SellBuilding,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SellBuilding,
 		                       GEA_City, m_home_city,
 		                       GEA_Int, m_sellBuilding,
 		                       GEA_End);
@@ -4807,7 +4807,7 @@ void CityData::EndTurn()
 	}
 
 	if(m_buyFront) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BuyFront,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BuyFront,
 		                       GEA_City, m_home_city,
 		                       GEA_End);
 
@@ -5234,7 +5234,7 @@ void CityData::DestroyImprovement(sint32 imp)
 	if(!(m_built_improvements & (safe_shift_left_u64(imp))))
 		return;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BuildingRemoved,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BuildingRemoved,
 		GEA_City, m_home_city.m_id,
 		GEA_Int, imp,
 		GEA_End);
@@ -5528,7 +5528,7 @@ void CityData::GetNuked(UnitDynamicArray &killList)
 	if(pn >= 3) {
 		sint32 i;
 		for(i = 0; i < kill; i++) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
 			                       GEA_City, m_home_city.m_id,
 			                       GEA_End);
 		}
@@ -5536,7 +5536,7 @@ void CityData::GetNuked(UnitDynamicArray &killList)
 	} else {
 
 		killList.Insert(m_home_city);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillTile,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillTile,
 		                       GEA_MapPoint, m_home_city.RetPos(),
 		                       GEA_End);
 	}
@@ -5691,7 +5691,7 @@ void CityData::RemoveOneSlave(PLAYER_INDEX p)
 	if (SlaveCount() > 0)
 	{
 		ChangeSpecialists(POP_SLAVE, -1);
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
 		                       GEA_City,        m_home_city.m_id,
 		                       GEA_End
 		                      );
@@ -5758,14 +5758,14 @@ void CityData::DoUprising(UPRISING_CAUSE cause)
 
 	Army sa = g_player[si]->GetNewArmy(CAUSE_NEW_ARMY_UPRISING);
 	for(i = 0; i < numSlaves; i++) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddUnitToArmy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AddUnitToArmy,
 		                       GEA_Unit, slaveArmy[i],
 		                       GEA_Army, sa,
 		                       GEA_Int, CAUSE_NEW_ARMY_UPRISING,
 		                       GEA_End);
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_FinishUprising,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_FinishUprising,
 	                       GEA_City, m_home_city,
 	                       GEA_Army, sa,
 	                       GEA_Int, cause,
@@ -5815,7 +5815,7 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 	if (startedBattle)
     {
 		sa->IncrementDontKillCount();
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CleanupUprising,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CleanupUprising,
 		                       GEA_Army, sa,
 		                       GEA_City, m_home_city.m_id,
 		                       GEA_End);
@@ -5889,7 +5889,7 @@ void CityData::Plague(sint32 player)
 	}
 
 	for(sint32 i = 0; i < kill; i++) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
 		                       GEA_City, m_home_city.m_id,
 		                       GEA_End);
 
@@ -6561,7 +6561,7 @@ void CityData::SetSize(sint32 size)
 
 	for (sint32 i = 0; i < size - PopCount(); i++)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 		                       GEA_City, m_home_city.m_id,
 		                       GEA_End);
 	}
@@ -7781,7 +7781,7 @@ bool CityData::BreakOneSourceRoute(ROUTE_TYPE type, sint32 resource)
 		sint32 r;
 		m_tradeSourceList[i].GetSourceResource(t, r);
 		if(t == type && r == resource) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
 			                       GEA_TradeRoute, m_tradeSourceList[i],
 			                       GEA_Int, (sint32)CAUSE_KILL_TRADE_ROUTE_CHANGED_DESTINATION,
 			                       GEA_End);
@@ -7968,7 +7968,7 @@ void CityData::DestroyWonder(sint32 which)
 	m_builtWonders &= ~safe_shift_left_u64(which);
 	g_player[m_owner]->RemoveWonder(which, true);
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_WonderRemoved,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_WonderRemoved,
 	                       GEA_City, m_home_city.m_id,
 	                       GEA_Int, which,
 	                       GEA_End);
@@ -8207,7 +8207,7 @@ sint32 CityData::GetBestSpecialist(const POP_TYPE & type) const
 //
 // Parameters : -
 //
-// Globals    : g_gevManager: The slic game event manager.
+// Globals    : gevmanager_Get(): The slic game event manager.
 //
 // Returns    : -
 //
@@ -8237,7 +8237,7 @@ void CityData::AdjustSizeIndices()
 
 	if (m_sizeIndex == 0 || m_sizeIndex != oldSizeIndex)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CityInfluenceChanged,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CityInfluenceChanged,
 								   GEA_City, m_home_city.m_id,
 								   GEA_Int, (oldSizeIndex - m_sizeIndex),
 								   GEA_End);
@@ -8314,7 +8314,7 @@ void CityData::ChangePopulation(sint32 delta)
 	}
 
 	if(m_population <= 0) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillCity,
 		                       GEA_City, m_home_city.m_id,
 		                       GEA_Int, CAUSE_REMOVE_CITY_UNKNOWN,
 		                       GEA_Player, PLAYER_UNASSIGNED,

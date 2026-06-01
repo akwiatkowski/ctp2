@@ -501,7 +501,7 @@ void CtpAi::GroupWithEscort(const Army & army)
 
 	if (min_army.IsValid())
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GroupUnitOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupUnitOrder,
 			GEA_Army, army,
 			GEA_Unit, min_army[0],
 			GEA_End);
@@ -676,7 +676,7 @@ STDEHANDLER(CtpAi_BeginSchedulerEvent)
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %d ms\n", (GetTickCount() - t1)));
 
 	Scheduler::s_needAnotherCycle = false;
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
 						   GEA_Player, playerId,
 						   GEA_Int, 0,
 						   GEA_End);
@@ -735,7 +735,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 	if ( cycle < g_theConstDB->Get(0)->GetMaxMatchListCycles() + diff_cycles || Scheduler::s_needAnotherCycle)
 	{
 		Scheduler::s_needAnotherCycle = false;
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProcessMatches,
 							   GEA_Player, playerId,
 							   GEA_Int, cycle,
 							   GEA_End);
@@ -766,7 +766,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 		{
 			for(sint32 i = 0; i < player_ptr->m_all_armies->Num(); i++)
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BeginTurnExecute,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BeginTurnExecute,
 									   GEA_Army, player_ptr->m_all_armies->Access(i).m_id,
 									   GEA_End);
 			}
@@ -902,67 +902,67 @@ void CtpAi::InitializeEvents()
 
 	ArmyData::AssociateEventsWithOrdersDB();
 
-	g_gevManager->AddCallback(GEV_AiBeginTurn,
+	gevmanager_Get()->AddCallback(GEV_AiBeginTurn,
 		GEV_PRI_Primary,
 		&s_CtpAi_BeginTurnEvent);
 
-	g_gevManager->AddCallback(GEV_AiBeginMapAnalysis,
+	gevmanager_Get()->AddCallback(GEV_AiBeginMapAnalysis,
 		GEV_PRI_Primary,
 		&s_CtpAi_BeginMapAnalysis);
 
-	g_gevManager->AddCallback(GEV_StartNegotiations,
+	gevmanager_Get()->AddCallback(GEV_StartNegotiations,
 		GEV_PRI_Primary,
 		&s_CtpAi_StartNegotiationsEvent);
 
-	g_gevManager->AddCallback(GEV_BeginScheduler,
+	gevmanager_Get()->AddCallback(GEV_BeginScheduler,
 		GEV_PRI_Pre,
 		&s_CtpAi_ConsiderNuclearWar);
 
-	g_gevManager->AddCallback(GEV_BeginScheduler,
+	gevmanager_Get()->AddCallback(GEV_BeginScheduler,
 		GEV_PRI_Primary,
 		&s_CtpAi_BeginSchedulerEvent);
 
-	g_gevManager->AddCallback(GEV_ProcessMatches,
+	gevmanager_Get()->AddCallback(GEV_ProcessMatches,
 		GEV_PRI_Primary,
 		&s_CtpAi_ProcessMatchesEvent);
 
-	g_gevManager->AddCallback(GEV_CaptureCity,
+	gevmanager_Get()->AddCallback(GEV_CaptureCity,
 		GEV_PRI_Pre,
 		&s_CtpAi_CaptureCityEvent);
 
-	g_gevManager->AddCallback(GEV_CreateCity,
+	gevmanager_Get()->AddCallback(GEV_CreateCity,
 		GEV_PRI_Post,
 		&s_CtpAi_CreateCityEvent);
 
-	g_gevManager->AddCallback(GEV_Settle,
+	gevmanager_Get()->AddCallback(GEV_Settle,
 		GEV_PRI_Pre,
 		&s_CtpAi_SettleEvent);
 
-	g_gevManager->AddCallback(GEV_CityInfluenceChanged,
+	gevmanager_Get()->AddCallback(GEV_CityInfluenceChanged,
 		GEV_PRI_Primary,
 		&s_CtpAi_GrowCityEvent);
 
-	g_gevManager->AddCallback(GEV_CreatedArmy,
+	gevmanager_Get()->AddCallback(GEV_CreatedArmy,
 		GEV_PRI_Post,
 		&s_CtpAi_CreatedArmyEvent);
 
-	g_gevManager->AddCallback(GEV_AddUnitToArmy,
+	gevmanager_Get()->AddCallback(GEV_AddUnitToArmy,
 		GEV_PRI_Post,
 		&s_CtpAi_AddUnitToArmyEvent);
 
-	g_gevManager->AddCallback(GEV_MoveIntoTransport,
+	gevmanager_Get()->AddCallback(GEV_MoveIntoTransport,
 		GEV_PRI_Pre,
 		&s_CtpAi_TransportLoaded);
 
-	g_gevManager->AddCallback(GEV_ImprovementComplete,
+	gevmanager_Get()->AddCallback(GEV_ImprovementComplete,
 		GEV_PRI_Post,
 		&s_CtpAi_ImprovementComplete);
 
-	g_gevManager->AddCallback(GEV_KillCity,
+	gevmanager_Get()->AddCallback(GEV_KillCity,
 		GEV_PRI_Pre,
 		&s_CtpAi_KillCityEvent);
 
-	g_gevManager->AddCallback(GEV_NukeCityUnit,
+	gevmanager_Get()->AddCallback(GEV_NukeCityUnit,
 		GEV_PRI_Post,
 		&s_CtpAi_NukeCityUnit);
 }
@@ -1369,7 +1369,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 //
 // Globals    : g_player
 //              world_Get()
-//              g_gevManager
+//              gevmanager_Get()
 //
 // Returns    : -
 //
@@ -1431,7 +1431,7 @@ void CtpAi::MoveOutofCityTransportUnits(const PLAYER_INDEX playerId)
 					tmpPath->AddDir(static_cast<WORLD_DIRECTION>(dir));
 					tmpPath->Start(pos);
 
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 										   GEA_Army,		move_army,
 										   GEA_Path,		tmpPath,
 										   GEA_MapPoint,	dest,
@@ -1497,7 +1497,7 @@ void CtpAi::UnGroupGarrisonUnits(const PLAYER_INDEX playerId)
 					(candidateArmy.IsEntrenched() || candidateArmy.IsEntrenching())
 				   )
 				{
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 										   GEA_Army,		candidateArmy,
 										   GEA_End
 										  );
@@ -1560,7 +1560,7 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 						tmpPath->AddDir((WORLD_DIRECTION)j);
 						tmpPath->Start(pos);
 
-						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
+						gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 							GEA_Army, move_army,
 							GEA_Path, tmpPath,
 							GEA_MapPoint, dest,
@@ -2131,7 +2131,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 	Path *tmpPath = new Path(new_path);
 	MapPoint target_pos = tmpPath->GetEnd();
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 		GEA_Army, army,
 		GEA_Path, tmpPath,
 		GEA_MapPoint, target_pos,
@@ -2186,14 +2186,14 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 	//	if(army.CanEntrench())
 	//	{
 			// We need to find something more interesting to do here
-			g_gevManager->AddEvent( GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent( GEV_INSERT_AfterCurrent,
 									GEV_EntrenchOrder,
 									GEA_Army, army.m_id,
 									GEA_End);
 	/*	}
 		else
 		{
-			g_gevManager->AddEvent( GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent( GEV_INSERT_AfterCurrent,
 									GEV_SleepOrder,
 									GEA_Army, army.m_id,
 									GEA_End);
@@ -2446,7 +2446,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 
 		current_savings -= rush_buy_cost;
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BuyFront,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BuyFront,
 			GEA_City, city,
 			GEA_End);
 	}
@@ -2461,7 +2461,7 @@ void CtpAi::SellRandomBuildings(const Unit & city, const double chance)
 		{
 			if(civrand().Next(100) <= (100 * chance) )
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SellBuilding,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SellBuilding,
 					GEA_City, city,
 					GEA_Int, which,
 					GEA_End);
@@ -2526,7 +2526,7 @@ void CtpAi::BombardNearbyEnemies(const Army & army, const sint32 & max_rge)
 					min_dist = dist;
 					if(min_dist <= max_rge)
 					{
-						g_gevManager->AddEvent( GEV_INSERT_Tail,
+						gevmanager_Get()->AddEvent( GEV_INSERT_Tail,
 												GEV_BombardOrder,
 												GEA_Army, army.m_id,
 												GEA_MapPoint, def_pos,
@@ -2560,7 +2560,7 @@ void CtpAi::BombardNearbyEnemies(const Army & army, const sint32 & max_rge)
 					min_dist = dist;
 					if(min_dist <= max_rge)
 					{
-						g_gevManager->AddEvent( GEV_INSERT_Tail,
+						gevmanager_Get()->AddEvent( GEV_INSERT_Tail,
 												GEV_BombardOrder,
 												GEA_Army, army.m_id,
 												GEA_MapPoint, def_pos,
@@ -2602,7 +2602,7 @@ void CtpAi::ExpellAdjacentUnits(const Army & army)
 			&&  g_player[playerId]
 			&& !g_player[playerId]->HasAllianceWith(adj_army->GetOwner())
 			){
-				g_gevManager->AddEvent( GEV_INSERT_Tail,
+				gevmanager_Get()->AddEvent( GEV_INSERT_Tail,
 										GEV_ExpelOrder,
 										GEA_Army, army.m_id,
 										GEA_MapPoint, adj,

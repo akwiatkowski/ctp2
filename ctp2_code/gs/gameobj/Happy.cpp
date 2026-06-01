@@ -246,7 +246,7 @@ double Happy::CalcTooManyCities(Player *p)
 	{
 		res = -s * (num_cities - t);
 
-		if (g_slicEngine->GetSegment("28IAMaxCitiesReached")->TestLastShown(p->m_owner, 10)) {
+		if (g_slicEngine->GetSegment("28IAMaxCitiesReached")->TestLastShown(p->m_owner, 10, g_turn->GetRound())) {
 			SlicObject *so = new SlicObject("28IAMaxCitiesReached");
 			so->AddRecipient(p->m_owner);
 			g_slicEngine->Execute(so);
@@ -335,7 +335,7 @@ double Happy::CalcPeaceMovement(CityData &cd, Player *p)
 
 
 	if (((m_peace <= -1.0) && (prev_peace > -1.0)) || (m_peace <= -2.0)) {
-		if (g_slicEngine->GetSegment("27IAWarDiscontentRising")->TestLastShown(p->m_owner, 10)) {
+		if (g_slicEngine->GetSegment("27IAWarDiscontentRising")->TestLastShown(p->m_owner, 10, g_turn->GetRound())) {
 			SlicObject *so = new SlicObject("27IAWarDiscontentRising") ;
 			so->AddRecipient(p->m_owner) ;
 			so->AddCivilisation(p->m_owner) ;

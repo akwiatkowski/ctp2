@@ -44,7 +44,6 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/core/player_view.h"
 
-#include "gs/utility/TurnCnt.h"
 
 #include "gs/events/GameEventManager.h"
 #include "gs/slic/SlicNamedSymbol.h"
@@ -391,11 +390,11 @@ void SlicSegment::operator delete(void *ptr)
 	}
 }
 
-BOOL SlicSegment::TestLastShown(sint32 player, sint32 turn)
+BOOL SlicSegment::TestLastShown(sint32 player, sint32 turn, sint32 currentRound)
 {
 	int ls = GetLastShown(player);
 
-	return(!HasBeenShown(player) || ((g_turn->GetRound() - ls) >= turn));
+	return(!HasBeenShown(player) || ((currentRound - ls) >= turn));
 }
 
 void SlicSegment::Serialize(CivArchive &archive)

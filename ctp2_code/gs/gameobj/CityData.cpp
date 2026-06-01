@@ -1765,7 +1765,7 @@ void CityData::DoLocalPollution()
 	double chance = diff * g_theConstDB->Get(0)->GetLocalPollutionChance();
 
 	if ((chance > 0.10) &&
-		(g_slicEngine->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10))) {
+		(g_slicEngine->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, g_turn->GetRound()))) {
 		SlicObject *so = new SlicObject("080CityPollutionWarning");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);

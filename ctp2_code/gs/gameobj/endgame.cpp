@@ -186,21 +186,21 @@ void EndGame::BeginTurn(sint32 currentRound)
             AdvanceStage(currentRound);
         } else {
 			if (!HaveEnoughECDs() &&
-				(g_slicEngine->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5))) {
+				(g_slicEngine->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("061NeedEcd");
 				so->AddRecipient(m_owner);
 				g_slicEngine->Execute(so);
 			}
 
 			if(!HaveEnoughFields() &&
-			   (g_slicEngine->GetSegment("062NeedField")->TestLastShown(m_owner, 5))) {
+			   (g_slicEngine->GetSegment("062NeedField")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("062NeedField");
 				so->AddRecipient(m_owner);
 				g_slicEngine->Execute(so);
 			}
 
 			if(!HaveMaxSplicers() &&
-			   (g_slicEngine->GetSegment("063ShouldBuildSplicer")->TestLastShown(m_owner, 5))) {
+			   (g_slicEngine->GetSegment("063ShouldBuildSplicer")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("063ShouldBuildSplicer");
 				so->AddRecipient(m_owner);
 				g_slicEngine->Execute(so);
@@ -210,7 +210,7 @@ void EndGame::BeginTurn(sint32 currentRound)
 			  turnsForNextStage >= 0 &&
 			  (((m_currentStageBegan + turnsForNextStage) -
 				currentRound) < 5)) {
-		if(g_slicEngine->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5)) {
+		if(g_slicEngine->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5, currentRound)) {
 			so = new SlicObject("053AlienAlmostDone");
 			so->AddRecipient(m_owner);
 			g_slicEngine->Execute(so);

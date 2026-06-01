@@ -6998,7 +6998,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 						return true;
 					}
 
-					if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10)) {
+					if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
 						so = new SlicObject("49WorldPollutionNuclearWar") ;
 						so->AddCity(city);
 						so->AddAllRecipients();
@@ -7073,7 +7073,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 
 
 
-                    if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10)) {
+                    if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
                         so = new SlicObject("49WorldPollutionNuclearWar") ;
                         so->AddAllRecipients() ;
                         g_slicEngine->Execute(so) ;

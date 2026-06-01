@@ -55,6 +55,7 @@
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 
 #include "gs/events/GameEventManager.h"
 
@@ -131,7 +132,7 @@ void Pollution::WarnPlayers()
 	{
 		if(g_player[i]				&&
 			!g_player[i]->IsDead()	&&
-			!seg->TestLastShown(i, k_ROUNDS_BEFORE_DISASTER)
+			!seg->TestLastShown(i, k_ROUNDS_BEFORE_DISASTER, g_turn->GetRound())
 		  )
 		{
 			so->AddRecipient(i);

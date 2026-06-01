@@ -38,6 +38,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gs/utility/TurnCnt.h"
 
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/CityEvent.h"
@@ -695,7 +696,7 @@ STDEHANDLER(CreateBuildingEvent)
 	}
 	if(g_player[player]->GetGaiaController()->HasMaxSatsBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMaxSatsReached");
-		if(seg && !seg->TestLastShown(player, 10000)) {
+		if(seg && !seg->TestLastShown(player, 10000, g_turn->GetRound())) {
 			so = new SlicObject("GCMaxSatsReached");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
@@ -705,7 +706,7 @@ STDEHANDLER(CreateBuildingEvent)
 
 	if(g_player[player]->GetGaiaController()->HasMinSatsBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMinSatsReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000))
+		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
 			so = new SlicObject("GCMinSatsReachedUs");
 			so->AddPlayer(player);
@@ -721,7 +722,7 @@ STDEHANDLER(CreateBuildingEvent)
 
 	if(g_player[player]->GetGaiaController()->HasMinCoresBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMinCoresReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000))
+		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
 			so = new SlicObject("GCMinCoresReachedUs");
 			so->AddRecipient(player);

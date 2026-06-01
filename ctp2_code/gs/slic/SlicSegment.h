@@ -119,7 +119,7 @@ public:
 	BOOL IsHelp() const { return m_isHelp; }
 	void SetLastShown(sint32 player, sint32 turn) { m_lastShown[player] = (turn | SLICLS_FLAG); }
 	sint32 GetLastShown(sint32 player) { return (m_lastShown[player] & ~SLICLS_FLAG); }
-	BOOL TestLastShown(sint32 player, sint32 turn);
+	BOOL TestLastShown(sint32 player, sint32 turn, sint32 currentRound);
 	BOOL HasBeenShown(sint32 player) {
 	    Assert(m_lastShown);
 	    if (!m_lastShown) return FALSE;

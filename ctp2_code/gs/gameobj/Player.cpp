@@ -2507,7 +2507,7 @@ void Player::EndTurn()
 	}
 
 	if ((m_gold->GetLevel() < 50) && (m_gold->DeltaThisTurn() < 0) &&
-	    (g_slicEngine->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10)))
+	    (g_slicEngine->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, g_turn->GetRound())))
 	{
 		SlicObject *so = new SlicObject("027NotEnoughGold") ;
 		so->AddRecipient(m_owner) ;

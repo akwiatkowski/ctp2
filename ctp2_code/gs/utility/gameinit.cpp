@@ -223,6 +223,10 @@ static InstallationQuadTree *g_theInstallationTree = NULL;
 InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
 TopTen                      *g_theTopTen = NULL;
+
+TopTen * topten_Get(void)                     { return g_theTopTen; }
+void     topten_Set(TopTen *p)                { g_theTopTen = p; }
+
 TurnCount                   *g_turn = NULL;
 ProfileDB                   *g_theProfileDB = NULL;
 MovieDB                     *g_theVictoryMovieDB = NULL;

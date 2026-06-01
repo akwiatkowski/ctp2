@@ -114,3 +114,8 @@ inline void from_json(nlohmann::json const &j, TopTen &t)
 class TopTen ;
 
 #endif
+
+// Session-singleton accessor pair.  Callers should use topten_Get()
+// instead of reaching for the legacy g_theTopTen global directly.
+TopTen * topten_Get(void);
+void     topten_Set(TopTen *p);

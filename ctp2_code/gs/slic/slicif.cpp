@@ -272,7 +272,7 @@ void slicif_add_object(struct PSlicObject *obj)
 		memcpy(obj->m_parameters, s_parameters, s_num_parameters * sizeof(int));
 		obj->m_return_type = s_function_return_type;
 
-		funcSym = g_slicEngine->GetOrMakeSymbol(obj->m_id);
+		funcSym = slicengine_Get()->GetOrMakeSymbol(obj->m_id);
 		Assert(funcSym->GetType() == SLIC_SYM_FUNC || funcSym->GetType() == SLIC_SYM_UFUNC || funcSym->GetType() == SLIC_SYM_UNDEFINED);
 		if(funcSym->GetType() == SLIC_SYM_UNDEFINED)
 			funcSym->SetType(SLIC_SYM_UFUNC);
@@ -305,9 +305,9 @@ void slicif_declare_sym(char *name, SLIC_SYM type)
 
 	if(s_inSegment) {
 		slicif_get_local_name(realname, name);
-		sym = g_slicEngine->GetOrMakeSymbol(realname);
+		sym = slicengine_Get()->GetOrMakeSymbol(realname);
 	} else {
-		sym = g_slicEngine->GetOrMakeSymbol(name);
+		sym = slicengine_Get()->GetOrMakeSymbol(name);
 	}
 
 	if(sym) {
@@ -315,7 +315,7 @@ void slicif_declare_sym(char *name, SLIC_SYM type)
 			snprintf(buf, sizeof(buf), "Symbol '%s' already has a type", name);
 			yyerror(buf);
 		} else {
-			SlicStructDescription *desc = g_slicEngine->GetStructDescription(type);
+			SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 			if(desc) {
 				sym->SetType(SLIC_SYM_STRUCT);
 				sym->SetStruct(new SlicStructInstance(desc));
@@ -332,14 +332,14 @@ void slicif_declare_sym(char *name, SLIC_SYM type)
 void slicif_declare_array(char *name, SLIC_SYM type)
 {
 	char buf[1024];
-	SlicNamedSymbol *sym = g_slicEngine->GetOrMakeSymbol(name);
+	SlicNamedSymbol *sym = slicengine_Get()->GetOrMakeSymbol(name);
 	if(sym) {
 		if(sym->GetType() != SLIC_SYM_UNDEFINED) {
 			snprintf(buf, sizeof(buf), "Symbol '%s' in array declaration already has a type", name);
 			yyerror(buf);
 		} else {
 			sym->SetType(SLIC_SYM_ARRAY);
-			SlicStructDescription *desc = g_slicEngine->GetStructDescription(type);
+			SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 			if(desc) {
 				sym->SetArrayType(SLIC_SYM_STRUCT);
 				sym->GetArray()->SetStructTemplate(desc);
@@ -356,7 +356,7 @@ void slicif_declare_array(char *name, SLIC_SYM type)
 void slicif_declare_fixed_array(char *name, SLIC_SYM type, int size)
 {
 	char buf[1024];
-	SlicNamedSymbol *sym = g_slicEngine->GetOrMakeSymbol(name);
+	SlicNamedSymbol *sym = slicengine_Get()->GetOrMakeSymbol(name);
 	if(sym) {
 		if(sym->GetType() != SLIC_SYM_UNDEFINED) {
 			snprintf(buf, sizeof(buf), "Symbol '%s' in array declaration already has a type", name);
@@ -365,7 +365,7 @@ void slicif_declare_fixed_array(char *name, SLIC_SYM type, int size)
 			sym->SetType(SLIC_SYM_ARRAY);
 			sym->GetArray()->FixSize(size);
 
-			SlicStructDescription *desc = g_slicEngine->GetStructDescription(type);
+			SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 			if(desc) {
 				sym->SetArrayType(SLIC_SYM_STRUCT);
 				sym->GetArray()->SetStructTemplate(desc);
@@ -462,7 +462,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 
@@ -485,7 +485,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol '%s' is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 			slicif_emit(s_code_ptr, (int)(symval->GetIndex()));
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
@@ -508,7 +508,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", structname);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(structname);
+				symval = slicengine_Get()->GetOrMakeSymbol(structname);
 			} else if(symval->GetType() != SLIC_SYM_STRUCT) {
 				snprintf(errbuf, sizeof(errbuf), "%s is not a structure", structname);
 				yyerror(errbuf);
@@ -547,7 +547,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", structname);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(structname);
+				symval = slicengine_Get()->GetOrMakeSymbol(structname);
 			} else if(symval->GetType() != SLIC_SYM_ARRAY) {
 				snprintf(errbuf, sizeof(errbuf), "%s is not an array", structname);
 				yyerror(errbuf);
@@ -588,7 +588,7 @@ void slicif_add_op(SOP op, ...)
 			break;
 		case SOP_ARGID:
 			name = va_arg(vl, char*);
-			symval = g_slicEngine->GetOrMakeSymbol(name);
+			symval = slicengine_Get()->GetOrMakeSymbol(name);
 			if(symval->GetType() != SLIC_SYM_ID) {
 				if(symval->GetType() == SLIC_SYM_UNDEFINED) {
 					symval->SetType(SLIC_SYM_ID);
@@ -616,7 +616,7 @@ void slicif_add_op(SOP op, ...)
 			break;
 		case SOP_ARGST:
 			name = va_arg(vl, char *);
-			symval = g_slicEngine->GetOrMakeSymbol(name);
+			symval = slicengine_Get()->GetOrMakeSymbol(name);
 			if(symval->GetType() == SLIC_SYM_UNDEFINED) {
 				symval->SetType(SLIC_SYM_STRING);
 			} else {
@@ -637,7 +637,7 @@ void slicif_add_op(SOP op, ...)
 			s_parenLevel--;
 
 			name    = va_arg(vl, char*);
-            symval  = g_slicEngine->GetSymbol(name);
+            symval  = slicengine_Get()->GetSymbol(name);
 
 			if (symval)
             {
@@ -649,14 +649,14 @@ void slicif_add_op(SOP op, ...)
 			} else {
 				strcpy(internalName, "_");
 				strcat(internalName, name);
-				if(!g_slicEngine->GetFunction(internalName)) {
+				if(!slicengine_Get()->GetFunction(internalName)) {
 					snprintf(errbuf, sizeof(errbuf), "No function named %s", name);
 					yyerror(errbuf);
 				}
 
-                symval = g_slicEngine->GetSymbol(internalName);
+                symval = slicengine_Get()->GetSymbol(internalName);
 				if (!symval) {
-					symval = g_slicEngine->GetOrMakeSymbol(internalName);
+					symval = slicengine_Get()->GetOrMakeSymbol(internalName);
 					symval->SetType(SLIC_SYM_FUNC);
 				}
 			}
@@ -733,7 +733,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 
 			if(symval->GetType() == SLIC_SYM_UNDEFINED) {
@@ -755,7 +755,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 
 			if(symval->GetType() != SLIC_SYM_ARRAY) {
@@ -776,7 +776,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", structname);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(structname);
+				symval = slicengine_Get()->GetOrMakeSymbol(structname);
 			}
 
 			if(symval->GetType() != SLIC_SYM_STRUCT) {
@@ -818,7 +818,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 
 			if(symval->GetType() != SLIC_SYM_ARRAY) {
@@ -839,7 +839,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 			}
 
 			//Save the database name to the code data, by saving every
@@ -879,7 +879,7 @@ void slicif_add_op(SOP op, ...)
 			if(!symval) {
 				snprintf(errbuf, sizeof(errbuf), "Symbol %s is undefined", name);
 				yyerror(errbuf);
-				symval = g_slicEngine->GetOrMakeSymbol(name);
+				symval = slicengine_Get()->GetOrMakeSymbol(name);
 				//variable name is now free and can be reused.
 			}
 
@@ -1178,7 +1178,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
 					return;
@@ -1191,7 +1191,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
 					return;
@@ -1201,7 +1201,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_PUSHM:
 				{
 				    ival = slicif_read<int>(codePtr);
-				    symval = g_slicEngine->GetSymbol(ival);
+				    symval = slicengine_Get()->GetSymbol(ival);
 
 				    ival2 = slicif_read<int>(codePtr);
 
@@ -1218,7 +1218,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 			case SOP_PUSHAM:
 
 				ival = slicif_read<int>(codePtr);
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
@@ -1255,7 +1255,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad Mojo, NULL symbol %d\n", ival);
 					return;
@@ -1273,7 +1273,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(symval->GetType() != SLIC_SYM_SVAR) {
 					fprintf(debuglog, "Bad Mojo, string id arg doesn't have string id type\n");
 					return;
@@ -1286,7 +1286,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(symval->GetType() != SLIC_SYM_STRING) {
 					fprintf(debuglog, "Bad Mojo, string arg doesn't have string type\n");
 					return;
@@ -1300,7 +1300,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad Mojo, NULL symbol %d\n", ival);
 					return;
@@ -1346,7 +1346,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival2);
+				symval = slicengine_Get()->GetSymbol(ival2);
 				if(symval->GetType() != SLIC_SYM_SVAR) {
 					fprintf(debuglog, "Bad Mojo, button string arg doesn't have string type\n");
 					return;
@@ -1370,7 +1370,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
 					return;
@@ -1383,7 +1383,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 
 
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
 				} else {
@@ -1405,7 +1405,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				break;
 			case SOP_ASIZE:
 				ival = slicif_read<int>(codePtr);
-				symval = g_slicEngine->GetSymbol(ival);
+				symval = slicengine_Get()->GetSymbol(ival);
 				if(!symval) {
 					fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
 				} else {
@@ -1425,12 +1425,12 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 
 				ival = slicif_read<int>(codePtr);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
 
-					symval = g_slicEngine->GetSymbol(ival);
+					symval = slicengine_Get()->GetSymbol(ival);
 					if(!symval) {
 						fprintf(debuglog, "%s\n", dbName);
 						fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
@@ -1459,12 +1459,12 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
 
-					symval = g_slicEngine->GetSymbol(ival);
+					symval = slicengine_Get()->GetSymbol(ival);
 					if(!symval) {
 						fprintf(debuglog, "%s\n", dbName);
 						fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
@@ -1493,11 +1493,11 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
-					symval = g_slicEngine->GetSymbol(ival);
+					symval = slicengine_Get()->GetSymbol(ival);
 					if(!symval) {
 						fprintf(debuglog, "%s\n", dbName);
 						fprintf(debuglog, "Bad mojo, NULL symbol %d\n", ival);
@@ -1526,11 +1526,11 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
-					fprintf(debuglog, "%s(%s).%s[]\n", dbName, g_slicEngine->GetDBConduit(dbName)->GetRecordNameByIndex(ival), name);
+					fprintf(debuglog, "%s(%s).%s[]\n", dbName, slicengine_Get()->GetDBConduit(dbName)->GetRecordNameByIndex(ival), name);
 				}
 				break;
 			}
@@ -1544,7 +1544,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
@@ -1569,7 +1569,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
@@ -1594,7 +1594,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
@@ -1614,7 +1614,7 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 				}
 				codePtr += sizeof(char);
 
-				if(!g_slicEngine->GetDBConduit(dbName)) {
+				if(!slicengine_Get()->GetDBConduit(dbName)) {
 					fprintf(debuglog, "%s\n", dbName);
 					fprintf(debuglog, "Bad mojo, NULL db\n");
 				} else {
@@ -1634,7 +1634,7 @@ int slicif_find_string(char *id)
 {
 	char errbuf[1024];
 
-	SlicNamedSymbol *sym = g_slicEngine->GetOrMakeSymbol(id + 3);
+	SlicNamedSymbol *sym = slicengine_Get()->GetOrMakeSymbol(id + 3);
 	if(sym->GetType() == SLIC_SYM_UNDEFINED) {
 		sym->SetType(SLIC_SYM_SVAR);
 	} else if(sym->GetType() != SLIC_SYM_SVAR) {
@@ -1787,7 +1787,7 @@ void slicif_add_parameter(SLIC_SYM type, char *name)
 	char namebuf[1024];
 	slicif_get_local_name(namebuf, name);
 
-	SlicSymbolData * sym = g_slicEngine->GetSymbol(namebuf);
+	SlicSymbolData * sym = slicengine_Get()->GetSymbol(namebuf);
 
 	if (sym)
     {
@@ -1796,10 +1796,10 @@ void slicif_add_parameter(SLIC_SYM type, char *name)
 		yyerror(errbuf);
 	} else {
 
-		SlicParameterSymbol *psym = g_slicEngine->GetParameterSymbol(namebuf, s_parameter_index++);
+		SlicParameterSymbol *psym = slicengine_Get()->GetParameterSymbol(namebuf, s_parameter_index++);
 		Assert(psym);
 		Assert(psym->IsParameter());
-		SlicStructDescription *desc = g_slicEngine->GetStructDescription(type);
+		SlicStructDescription *desc = slicengine_Get()->GetStructDescription(type);
 		if(desc) {
 			psym->SetType(SLIC_SYM_STRUCT);
 			psym->SetStruct(new SlicStructInstance(desc, psym));
@@ -1823,7 +1823,7 @@ void slicif_get_local_name(char *localName, char *name)
 
 void slicif_add_prototype(char *name)
 {
-	SlicSymbolData * sym = g_slicEngine->GetOrMakeSymbol(name);
+	SlicSymbolData * sym = slicengine_Get()->GetOrMakeSymbol(name);
 	char errbuf[1024];
 	if(sym->GetType() != SLIC_SYM_UNDEFINED) {
 		snprintf(errbuf, sizeof(errbuf), "Symbol '%s' is already defined", name);
@@ -1883,12 +1883,12 @@ void slicif_end_for()
 
 int slicif_find_const(char *name, int *value)
 {
-	return (int)g_slicEngine->FindConst(name, (sint32*)value);
+	return (int)slicengine_Get()->FindConst(name, (sint32*)value);
 }
 
 void slicif_add_const(char *name, int value)
 {
-	g_slicEngine->AddConst((MBCHAR *)name, (sint32)value);
+	slicengine_Get()->AddConst((MBCHAR *)name, (sint32)value);
 }
 
 void slicif_check_event_exists(char *name)
@@ -1950,7 +1950,7 @@ void slicif_add_local_struct(char *structtype, char *name)
 	char localname[1024];
 	struct PSlicSymbol *sym;
 
-	SlicStruct *theStruct = g_slicEngine->GetStruct(structtype);
+	SlicStruct *theStruct = slicengine_Get()->GetStruct(structtype);
 	if(!theStruct) {
 		snprintf(errbuf, sizeof(errbuf), "Unknown struct %s", structtype);
 		yyerror(errbuf);
@@ -1988,11 +1988,11 @@ SlicNamedSymbol *slicif_get_symbol(char *name)
 	char localname[1024];
 	slicif_get_local_name(localname, name);
 
-	SlicNamedSymbol *sym = g_slicEngine->GetSymbol(localname);
+	SlicNamedSymbol *sym = slicengine_Get()->GetSymbol(localname);
 	if(sym)
 		return sym;
 
-	sym = g_slicEngine->GetSymbol(name);
+	sym = slicengine_Get()->GetSymbol(name);
 	return sym;
 }
 
@@ -2148,7 +2148,7 @@ void slicif_check_hard_string_argument()
 //----------------------------------------------------------------------------
 int slicif_find_db(const char *dbname, void **dbptr)
 {
-	SlicDBInterface *conduit = g_slicEngine->GetDBConduit(dbname);
+	SlicDBInterface *conduit = slicengine_Get()->GetDBConduit(dbname);
 	if(conduit) {
 		*dbptr = (void *)conduit;
 		return TRUE;

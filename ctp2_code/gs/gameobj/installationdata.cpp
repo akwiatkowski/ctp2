@@ -43,7 +43,6 @@
 #include "gs/world/World.h"
 #include "gs/gameobj/Player.h"
 #include "gs/world/Cell.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
@@ -53,7 +52,6 @@
 
 extern World *g_theWorld;
 extern Player **g_player;
-extern TurnCount *g_turn;
 
 InstallationData::InstallationData(ID id,
 								   sint32 owner,
@@ -305,9 +303,9 @@ void InstallationData::RebuildQuadTree()
 		((InstallationData*)m_greater)->RebuildQuadTree();
 }
 
-void InstallationData::UseAirfield()
+void InstallationData::UseAirfield(sint32 currentRound)
 {
-	m_airfieldLastUsed = g_turn->GetRound();
+	m_airfieldLastUsed = currentRound;
 }
 
 sint32 InstallationData::AirfieldLastUsed() const

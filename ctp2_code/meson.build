@@ -1302,6 +1302,7 @@ cpp_test_sources = [
   'test/cpp/test_headless_progression.cpp',
   'test/cpp/test_headless_long.cpp',
   'test/cpp/test_city_visibility.cpp',
+  'test/cpp/test_installationdata.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]

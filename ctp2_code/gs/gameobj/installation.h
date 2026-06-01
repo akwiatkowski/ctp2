@@ -33,7 +33,7 @@ public:
 	void UnsetVisible(sint32 player) { AccessData()->UnsetVisible(player); }
 	void CheckVision(sint32 owner) { AccessData()->CheckVision(owner); }
 
-	void UseAirfield();
+	void UseAirfield(sint32 currentRound);
 	sint32 AirfieldLastUsed() const;
 
 	void ChangeOwner(sint32 i);

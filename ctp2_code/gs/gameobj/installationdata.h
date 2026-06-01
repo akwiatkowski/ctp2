@@ -43,7 +43,7 @@ public:
 	void Serialize(CivArchive &archive);
 	void RebuildQuadTree();
 
-	void UseAirfield();
+	void UseAirfield(sint32 currentRound);
 	sint32 AirfieldLastUsed() const;
 
 	void ChangeOwner(sint32 toOwner);

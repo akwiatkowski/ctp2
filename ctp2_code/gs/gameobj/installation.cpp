@@ -65,9 +65,9 @@ const TerrainImprovementRecord *Installation::GetDBRec() const
 	return g_theTerrainImprovementDB->Get(GetData()->GetType());
 }
 
-void Installation::UseAirfield()
+void Installation::UseAirfield(sint32 currentRound)
 {
-	AccessData()->UseAirfield();
+	AccessData()->UseAirfield(currentRound);
 }
 
 sint32 Installation::AirfieldLastUsed() const

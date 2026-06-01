@@ -142,7 +142,6 @@ SelectedItem *g_selected_item = NULL;
 extern ControlPanelWindow       *g_controlPanel;
 extern WorkWindow               *g_workWindow;
 extern UnitAstar                *g_theUnitAstar;
-extern Pollution                *g_thePollution ;
 
 sint32                           g_tradeSelectedState = 0;
 extern GrabItem                 *g_grabbedItem;

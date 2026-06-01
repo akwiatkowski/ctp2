@@ -53,7 +53,6 @@
 #include "ai/ctpai.h"
 
 #include "gs/gameobj/pollution.h"
-extern Pollution *g_thePollution;
 
 STDEHANDLER(MotivationEvent)
 {
@@ -389,7 +388,7 @@ STDEHANDLER(FearPollution_MotivationEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	sint32 next_disaster = g_thePollution->GetRoundsToNextDisaster();
+	sint32 next_disaster = pollution_Get()->GetRoundsToNextDisaster();
 
 	if (diplomat.GetPersonality()->GetDiscoveryEcotopian() &&
 		next_disaster > 200)

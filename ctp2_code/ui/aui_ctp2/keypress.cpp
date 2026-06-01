@@ -147,7 +147,6 @@ extern StatusWindow	*g_statusWindow;
 extern Player		**g_player;
 extern World        *g_theWorld;
 extern SelectedItem *g_selected_item;
-extern Pollution	*g_thePollution ;
 
 extern BOOL			g_helpMode;
 

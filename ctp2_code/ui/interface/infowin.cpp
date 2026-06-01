@@ -103,7 +103,6 @@ extern TopTen                   *g_theTopTen;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 extern WorkMap                  *g_workMap;
-extern Pollution                *g_thePollution;
 
 
 #define k_INFORADAR_WIDTH       202
@@ -1134,7 +1133,7 @@ sint32 infowin_UpdatePollutionData( void )
 	}
 
 
-	sint32 turnsLeft = g_thePollution->GetRoundsToNextDisaster();
+	sint32 turnsLeft = pollution_Get()->GetRoundsToNextDisaster();
 	sint32 percent;
 
 	if ((turnsLeft < 0) || (turnsLeft >= Pollution::ROUNDS_COUNT_IMMEASURABLE))
@@ -1145,8 +1144,8 @@ sint32 infowin_UpdatePollutionData( void )
 	else
 	{
 		snprintf(strbuf, sizeof(strbuf), "%d", turnsLeft);
-		double const	val0 = g_thePollution->GetGlobalPollutionLevel();
-		double const	val1 = g_thePollution->GetNextTrigger();
+		double const	val0 = pollution_Get()->GetGlobalPollutionLevel();
+		double const	val1 = pollution_Get()->GetNextTrigger();
 		percent = static_cast<sint32>(100.0 * (val0 / val1));
 	}
 

@@ -3,10 +3,8 @@
 #include "net/io/net_util.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/Player.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Score.h"
 
-extern TurnCount *g_turn;
 extern Player **g_player;
 
 NetStrengths::NetStrengths(sint32 player)

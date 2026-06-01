@@ -57,7 +57,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/gameobj/Strengths.h"
-#include "gs/utility/TurnCnt.h"            // g_turn
 
 extern C3UI *g_c3ui;
 extern PointerList<Player>      *g_deadPlayer;

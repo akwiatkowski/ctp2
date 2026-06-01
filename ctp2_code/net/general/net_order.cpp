@@ -5,7 +5,6 @@
 #include "net/io/net_util.h"
 #include "net/general/network.h"
 #include "ui/aui_ctp2/SelItem.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/ArmyPool.h"
 
 #include "robot/pathing/Path.h"
@@ -15,7 +14,6 @@
 
 extern Player **g_player;
 
-extern TurnCount *g_turn;
 extern SelectedItem *g_selected_item;
 
 NetOrder::NetOrder(sint32 owner, const Army &army,

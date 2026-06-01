@@ -50,7 +50,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/EndGame.h"
-#include "gs/utility/TurnCnt.h"
+
 #include "gs/gameobj/Score.h"
 #include "gs/gameobj/pollution.h"                  // g_thePollution
 
@@ -68,7 +68,6 @@
 #include "gs/core/game_observer.h"
 
 extern sint32                   g_tileImprovementMode;
-extern TurnCount                *g_turn;
 extern Pollution                *g_thePollution;
 
 void Player::BeginTurn()

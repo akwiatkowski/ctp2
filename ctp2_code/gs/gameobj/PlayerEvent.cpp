@@ -57,7 +57,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/EndGame.h"
-#include "gs/utility/TurnCnt.h"
+#include "gs/utility/newturncount.h"
 #include "gs/gameobj/Score.h"
 
 #include "gs/database/profileDB.h"
@@ -83,7 +83,6 @@
 // Propagate PW each turn update
 #include "gs/gameobj/MaterialPool.h"
 
-extern TurnCount *g_turn;
 extern CivApp *g_civApp;
 
 extern sint32 g_noai_stop_player;

@@ -62,7 +62,7 @@
 #include "gs/gameobj/MaterialPool.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "net/general/net_playerdata.h"
-#include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"                   // unitpool_Get()
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
@@ -698,7 +698,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Player %d building wonder %d in city %lx\n",
 								index, m_data[1], m_data[0]));
-			if(g_theUnitPool->IsValid(Unit(m_data[0])))
+			if(unitpool_Get()->IsValid(Unit(m_data[0])))
 				Unit(m_data[0]).BuildWonder(m_data[1]);
 			break;
 		}
@@ -828,11 +828,11 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit u(m_data[0]);
 			Unit city(m_data[1]);
 			sint32 advance = sint32(m_data[2]);
-			if(!g_theUnitPool->IsValid(u)) {
+			if(!unitpool_Get()->IsValid(u)) {
 				g_network.Resync(index);
 				break;
 			}
-			if(!g_theUnitPool->IsValid(city)) {
+			if(!unitpool_Get()->IsValid(city)) {
 				g_network.Resync(index);
 				break;
 			}
@@ -849,7 +849,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					g_player[index]->m_gold->SubGold(oi->m_goldCost);
 				}
 
-				if(g_theUnitPool->IsValid(u)) {
+				if(unitpool_Get()->IsValid(u)) {
 					u.SetFlag(k_UDF_USED_SPECIAL_ACTION_THIS_TURN);
 					if(oi && oi->m_moveCost > 0) {
 						bool out_of_fuel;
@@ -1400,7 +1400,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_BUY_FRONT:
 		{
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				Assert(index == city.GetOwner());
 				if(index == city.GetOwner()) {
 					city.BuyFront();
@@ -1449,7 +1449,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Client %d selling building %d in city %lx\n",
 								index, m_data[1], m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->SellBuilding(m_data[1]);
 			}
 			break;
@@ -1467,8 +1467,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Client %d removed build item %d from city %lx\n",
 								index, m_data[1], m_data[0]));
 			Unit city(m_data[0]);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.AccessData()->GetCityData()->GetBuildQueue()->RemoveNodeByIndex(m_data[1],
 																					 (CAUSE_REMOVE_BUILD_ITEM)m_data[2]);
 			}
@@ -1546,8 +1546,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(g_player[m_data[0]]) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
-				if(g_theUnitPool->IsValid(fromCity) &&
-				   g_theUnitPool->IsValid(toCity))
+				if(unitpool_Get()->IsValid(fromCity) &&
+				   unitpool_Get()->IsValid(toCity))
 					g_player[m_data[0]]->SendTradeBid(fromCity, m_data[2],
 													  toCity, m_data[4]);
 			}
@@ -1562,8 +1562,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(g_player[m_data[0]]) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
-				if(g_theUnitPool->IsValid(fromCity) &&
-				   g_theUnitPool->IsValid(toCity))
+				if(unitpool_Get()->IsValid(fromCity) &&
+				   unitpool_Get()->IsValid(toCity))
 					g_player[m_data[0]]->AcceptTradeBid(fromCity, m_data[2],
 														toCity, m_data[4]);
 			}
@@ -1577,8 +1577,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(g_player[m_data[0]]) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
-				if(g_theUnitPool->IsValid(fromCity) &&
-				   g_theUnitPool->IsValid(toCity))
+				if(unitpool_Get()->IsValid(fromCity) &&
+				   unitpool_Get()->IsValid(toCity))
 					g_player[m_data[0]]->RejectTradeBid(fromCity, m_data[2],
 														toCity, m_data[4]);
 			}
@@ -1589,8 +1589,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Client %d creating new army for unit %lx\n",
 								index, m_data[0]));
 			Unit unit(m_data[0]);
-			Assert(g_theUnitPool->IsValid(unit));
-			if(g_theUnitPool->IsValid(unit)) {
+			Assert(unitpool_Get()->IsValid(unit));
+			if(unitpool_Get()->IsValid(unit)) {
 				unit.AccessData()->CreateOwnArmy();
 			}
 			break;
@@ -1601,10 +1601,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data[0], m_data[1]));
 			Unit fromCity(m_data[0]);
 			Unit toCity(m_data[1]);
-			Assert(g_theUnitPool->IsValid(fromCity));
-			Assert(g_theUnitPool->IsValid(toCity));
-			if(g_theUnitPool->IsValid(fromCity) &&
-			   g_theUnitPool->IsValid(toCity)) {
+			Assert(unitpool_Get()->IsValid(fromCity));
+			Assert(unitpool_Get()->IsValid(toCity));
+			if(unitpool_Get()->IsValid(fromCity) &&
+			   unitpool_Get()->IsValid(toCity)) {
 				fromCity.SendSlaveTo(toCity);
 			}
 			break;
@@ -1628,8 +1628,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("City %lx building infrastructure\n", m_data[0]));
 			Unit city(m_data[0]);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				Assert(city.GetOwner() == index);
 				if(city.GetOwner() == index)
 					city.BuildInfrastructure();
@@ -1640,8 +1640,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("City %lx building capitalization\n", m_data[0]));
 			Unit city(m_data[0]);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				Assert(city.GetOwner() == index);
 				if(city.GetOwner() == index)
 					city.BuildCapitalization();
@@ -1652,8 +1652,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("City %lx building end game object %d\n", m_data[0], m_data[1]));
 			Unit city(m_data[0]);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.BuildEndGame(m_data[1]);
 			}
 			break;
@@ -1662,8 +1662,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("City %lx disbanded by client %d\n", m_data[0], index));
 			Unit city(m_data[0]);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity,
 									   GEA_City, city.m_id,
 									   GEA_End);
@@ -1737,7 +1737,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d clearing queue for city %lx\n",
 								index, m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city) && city->GetOwner() == index) {
+			if(unitpool_Get()->IsValid(city) && city->GetOwner() == index) {
 				city.GetData()->GetCityData()->GetBuildQueue()->Clear();
 			}
 			break;
@@ -1793,7 +1793,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Player %d killing all trade routes at %lx\n",
 								index, m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				Assert(index == city.GetOwner());
 				if(index == city.GetOwner()) {
 					g_network.Block(index);
@@ -1815,7 +1815,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Client %d acknowledges RemoveIllegalItems at %lx\n", index, m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 
 
 				if(city.GetOwner() == index) {
@@ -1830,7 +1830,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0]));
 			Unit city(m_data[0]);
 
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->ClearAllButHead();
 			}
 			break;
@@ -1871,7 +1871,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Finish building from %d at %lx\n",
 								index, m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				if(city.GetOwner() == index) {
 					city.GetData()->GetCityData()->FinishBuilding();
 				}
@@ -1883,7 +1883,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d frees slaves at %lx\n",
 								index, m_data[0]));
 			Unit city(m_data[0]);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				if(city.GetOwner() == index) {
 					if(!city.GetData()->GetCityData()->CapturedThisTurn()) {
 						g_network.Resync(index);
@@ -1899,7 +1899,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d selected %lx for unloading\n",
 								index, m_data[0]));
 			Unit unit(m_data[0]);
-			if(g_theUnitPool->IsValid(unit)) {
+			if(unitpool_Get()->IsValid(unit)) {
 				unit.SetFlag(k_UDF_TEMP_TRANSPORT_SELECT);
 			}
 			break;
@@ -1909,7 +1909,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d unselected %lx for unloading\n",
 								index, m_data[0]));
 			Unit unit(m_data[0]);
-			if(g_theUnitPool->IsValid(unit)) {
+			if(unitpool_Get()->IsValid(unit)) {
 				unit.ClearFlag(k_UDF_TEMP_TRANSPORT_SELECT);
 			}
 			break;
@@ -1926,7 +1926,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				sint32		resIndex = 0;
 
 				Unit sourceCity = route.GetSource();
-				if(!g_theUnitPool->IsValid(sourceCity)) {
+				if(!unitpool_Get()->IsValid(sourceCity)) {
 					g_network.Resync(index);
 					return;
 				}
@@ -1935,7 +1935,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				route.GetSourceResource(routeType, resIndex);
 
 				Unit destCity = route.GetDestination();
-				if(!g_theUnitPool->IsValid(destCity)) {
+				if(!unitpool_Get()->IsValid(destCity)) {
 					g_network.Resync(index);
 					return;
 				}

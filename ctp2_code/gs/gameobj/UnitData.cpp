@@ -718,7 +718,7 @@ bool UnitData::InsertCargo(const Unit &addme)
 	if (m_cargo_list->Num() < GetDBRec()->GetCargoDataPtr()->GetMaxCargo()) {
 		m_cargo_list->Insert(addme);
 
-		g_slicEngine->RunTrigger(TRIGGER_LIST_EMBARKED,
+		slicengine_Get()->RunTrigger(TRIGGER_LIST_EMBARKED,
 		                         ST_UNIT, addme,
 		                         ST_PLAYER, m_owner,
 		                         ST_END);
@@ -1376,7 +1376,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 	double				bonuses	= 0.0;//cumulative % bonuses
 
 	sint32 intAttack = (sint32)base;
-	sint32 modAttack = g_slicEngine->CallMod(mod_UnitAttack, intAttack, m_id, defender.m_id, intAttack);
+	sint32 modAttack = slicengine_Get()->CallMod(mod_UnitAttack, intAttack, m_id, defender.m_id, intAttack);
 	if(modAttack != intAttack) base = modAttack;
 
 	// Added for Leaders to increase attack
@@ -1445,10 +1445,8 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 //            : Unit defender	          : the defending unit
 //            : bool isCounterBombardment : toggles Slic Bombardment/CounterBombardmentTriggers
 //
-// Globals    : g_slicEngine
-//            	g_theConstDB
+// Globals    : g_theConstDB
 //				world_Get()
-//				g_slicEngine
 //
 // Returns    : -
 //
@@ -1470,7 +1468,7 @@ void UnitData::Bombard(const UnitRecord *rec, Unit defender,
 
 	double hp = defender.GetHP();
 
-	g_slicEngine->RunCounterBombardmentTriggers(defender, Unit(m_id));
+	slicengine_Get()->RunCounterBombardmentTriggers(defender, Unit(m_id));
 
 	double defenseStrength = defender->GetDefense(Unit(m_id));
 	double attack = Unit(m_id)->GetRanged(defender);
@@ -1497,11 +1495,11 @@ void UnitData::Bombard(const UnitRecord *rec, Unit defender,
 	defender.SetHP(hp);
 	if(isCounterBombardment)
 	{
-		g_slicEngine->RunCounterBombardmentTriggers(Unit(m_id), defender);
+		slicengine_Get()->RunCounterBombardmentTriggers(Unit(m_id), defender);
 	}
 	else
 	{
-		g_slicEngine->RunBombardmentTriggers(Unit(m_id), defender);
+		slicengine_Get()->RunBombardmentTriggers(Unit(m_id), defender);
 	}
 }
 
@@ -1904,7 +1902,7 @@ bool UnitData::Settle()
 		SlicObject *so = new SlicObject("29IASettlingTooClose") ;
 		so->AddRecipient(m_owner);
 		so->AddCity(nearbyCity);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 			DPRINTF(k_DBG_GAMESTATE, ("Tile already owned!\n"));
 		return false;
 	}
@@ -1915,15 +1913,15 @@ bool UnitData::Settle()
 								  Flag(k_UDF_FIRST_MOVE)));
 
 		if(!g_theProfileDB->AllowAISettleMoveCheat()) {
-			g_slicEngine->RunCantSettleMovementTriggers(Unit(m_id));
+			slicengine_Get()->RunCantSettleMovementTriggers(Unit(m_id));
 			return false;
 		}
 
 		if(!g_player[m_owner]->IsRobot()) {
-			g_slicEngine->RunCantSettleMovementTriggers(Unit(m_id));
+			slicengine_Get()->RunCantSettleMovementTriggers(Unit(m_id));
 			return false;
 		} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-			g_slicEngine->RunCantSettleMovementTriggers(Unit(m_id));
+			slicengine_Get()->RunCantSettleMovementTriggers(Unit(m_id));
 			return false;
 		} else {
 			return false;
@@ -2625,7 +2623,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 			sint32 resource;
 			route.GetSourceResource(type, resource);
 			so->AddGood(resource);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		if(toCity.m_id != (0)) {
 			if(fromCity.m_id == (0) || toCity.GetOwner() != fromCity.GetOwner()) {
@@ -2643,13 +2641,13 @@ ORDER_RESULT UnitData::InterceptTrade()
 				sint32 resource;
 				route.GetSourceResource(type, resource);
 				so->AddGood(resource);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 		}
 		g_player[m_owner]->AddGold(g_theConstDB->GoldFromPiracy());
 
 		Unit me(m_id);
-		g_slicEngine->RunPiracyTriggers(route, me);
+		slicengine_Get()->RunPiracyTriggers(route, me);
 
 		route.Kill(CAUSE_KILL_TRADE_ROUTE_PIRATED);
 		numPirated++;
@@ -2748,14 +2746,14 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 
 		if(runContactMe || runContactHim)
 		{
-			g_slicEngine->RunContactTriggers(Unit(him->m_id), Unit(m_id));
+			slicengine_Get()->RunContactTriggers(Unit(him->m_id), Unit(m_id));
 		}
 
 		if(runContactMe) {
 			Assert(g_player[m_owner]);
 			if(g_player[m_owner]) {
 				g_player[m_owner]->ContactMade(him->m_owner);
-				g_slicEngine->RunTrigger(TRIGGER_LIST_SIGHTED_UNIT,
+				slicengine_Get()->RunTrigger(TRIGGER_LIST_SIGHTED_UNIT,
 										 ST_UNIT, him->m_id,
 										 ST_UNIT, m_id,
 										 ST_PLAYER, m_owner,
@@ -2768,7 +2766,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 			Assert(g_player[him->m_owner]);
 			if(g_player[him->m_owner]) {
 				g_player[him->m_owner]->ContactMade(m_owner);
-				g_slicEngine->RunTrigger(TRIGGER_LIST_SIGHTED_UNIT,
+				slicengine_Get()->RunTrigger(TRIGGER_LIST_SIGHTED_UNIT,
 										 ST_UNIT, m_id,
 										 ST_UNIT, him->m_id,
 										 ST_PLAYER, him->m_owner,
@@ -3059,7 +3057,7 @@ void UnitData::Entrench()
 	ClearFlag(k_UDF_IS_ASLEEP);
 	SetFlag(k_UDF_IS_ENTRENCHING);
 
-	g_slicEngine->RunTrigger(TRIGGER_LIST_FORTIFY,
+	slicengine_Get()->RunTrigger(TRIGGER_LIST_FORTIFY,
 							 ST_UNIT, Unit(m_id),
 							 ST_PLAYER, m_owner,
 							 ST_END);
@@ -3157,7 +3155,7 @@ void UnitData::BeginTurn()
 		}
 	}
 
-	g_slicEngine->RunUnitBeginTurnTriggers(Unit(m_id));
+	slicengine_Get()->RunUnitBeginTurnTriggers(Unit(m_id));
 
 	if(Flag(k_UDF_ALREADY_PERFORMED_SPACE_TRANSITION)) {
 		ClearFlag(k_UDF_ALREADY_PERFORMED_SPACE_TRANSITION);
@@ -3256,7 +3254,7 @@ void UnitData::EndTurn()
 			SlicObject *so = new SlicObject("999GuerrillaSpawn");
 			so->AddRecipient(m_owner);
 			so->AddUnitRecord(GetType());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		if (rec->GetNumSettleImprovement())
@@ -3273,7 +3271,7 @@ void UnitData::EndTurn()
 					//so->AddRecipient(m_owner);
 					//so->AddUnit(m_id);
 					//so->TileImp????????????
-					//g_slicEngine->Execute(so);  //this needed for handling?
+					//slicengine_Get()->Execute(so);  //this needed for handling?
 				}
 			}
 		}
@@ -3382,7 +3380,6 @@ double UnitData::GetPositionDefense(const Unit &attacker) const
 //
 // Globals    : world_Get()
 //				g_theConstDB
-//				g_slicEngine
 //				g_theCivilisationDB
 //				g_player
 //				g_theProfileDB
@@ -3404,7 +3401,7 @@ double UnitData::GetOffense(const Unit &defender) const
 	Cell *		cell	= world_Get()->GetCell(m_pos);
 
 	sint32 intAttack = (sint32)base;
-	sint32 modAttack = g_slicEngine->CallMod(mod_UnitAttack, intAttack, m_id, defender.m_id, intAttack);
+	sint32 modAttack = slicengine_Get()->CallMod(mod_UnitAttack, intAttack, m_id, defender.m_id, intAttack);
 	if(modAttack != intAttack) base = modAttack;
 
 	// Added for Leaders to increase attack
@@ -3576,7 +3573,6 @@ double UnitData::GetOffense(const Unit &defender) const
 //
 // Globals    : world_Get()
 //				g_theConstDB
-//				g_slicEngine
 //				g_theProfileDB
 //				g_theGovernmentDB
 //				g_player
@@ -3598,7 +3594,7 @@ double UnitData::GetDefense(const Unit &attacker) const
 	Cell *		   cell = world_Get()->GetCell(m_pos);
 
 	sint32 intDef = (sint32)base;
-	sint32 modDef = g_slicEngine->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
+	sint32 modDef = slicengine_Get()->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
 	if(modDef != intDef)
 		base = modDef;
 
@@ -3799,7 +3795,6 @@ double UnitData::GetDefense(const Unit &attacker) const
 //
 // Globals    : world_Get()
 //				g_theConstDB
-//				g_slicEngine
 //
 // Returns    : Returns the unit's ranged attack points.
 //
@@ -3817,7 +3812,7 @@ double UnitData::GetRanged(const Unit &defender) const
 	double				bonuses = 0.0;
 
 	sint32 intAttack = (sint32)base;
-	sint32 modAttack = g_slicEngine->CallMod(mod_UnitRangedAttack, intAttack, m_id, defender.m_id, intAttack);
+	sint32 modAttack = slicengine_Get()->CallMod(mod_UnitRangedAttack, intAttack, m_id, defender.m_id, intAttack);
 	if(modAttack != intAttack)
 		base = modAttack;
 
@@ -3960,7 +3955,6 @@ double UnitData::GetRanged(const Unit &defender) const
 //
 // Globals    : world_Get()
 //				g_theConstDB
-//				g_slicEngine
 //
 // Returns    : Returns the unit's defence points.
 //
@@ -3979,7 +3973,7 @@ double UnitData::GetDefCounterAttack(const Unit &attacker) const
 	Cell *		   cell = world_Get()->GetCell(m_pos);
 
 	sint32 intDef = (sint32)base;
-	sint32 modDef = g_slicEngine->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
+	sint32 modDef = slicengine_Get()->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
 	if(modDef != intDef)
 		base = modDef;
 
@@ -4222,14 +4216,14 @@ bool UnitData::StoppedBySpies(const Unit &c)
 				so->AddCivilisation(m_owner) ;
 				so->AddCity(c) ;
 				so->AddUnitRecord(m_type);
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 
 				so = new SlicObject("11zStoppedBySpies") ;
 				so->AddRecipient(m_owner) ;
 				so->AddCivilisation(c.GetOwner()) ;
 				so->AddCity(c) ;
 				so->AddUnitRecord(m_type);
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 				Unit me(m_id);
 				me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 
@@ -4248,7 +4242,7 @@ bool UnitData::StoppedBySpies(const Unit &c)
 //
 // Parameters : Unit &c       : a city
 //
-// Globals    : g_slicEngine
+// Globals    : -
 //
 // Returns    : ORDER_RESULT  : attempt success/failure indication
 //
@@ -4291,13 +4285,13 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 			so->AddCivilisation(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("11aInvestigateCityFailed");
 			so->AddRecipient(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
 		}
@@ -4308,13 +4302,13 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 			so->AddCivilisation(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("11aInvestigateCityFailedEsc");
 			so->AddRecipient(m_owner);
 			so->AddCity(c);
 			so->AddUnitRecord(m_type);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		return ORDER_RESULT_FAILED;
@@ -4413,7 +4407,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		so->AddAdvance(whichAdvance);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("186StealTechnologyVictim");
 		so->AddRecipient(c.GetOwner());
@@ -4421,7 +4415,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		so->AddAdvance(whichAdvance);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		ActionSuccessful(SPECATTACK_STEALTECH, c);
 	}
@@ -4432,14 +4426,14 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		so->AddCivilisation(m_owner);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11bStealTechnologyFailed");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if (civrand().Next(100) < sint32(data->GetDeathChance() * 100.0))
 		{
@@ -4454,7 +4448,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	return orderResult;
@@ -4468,7 +4462,7 @@ ORDER_RESULT UnitData::StealTechnology(Unit c, sint32 whichAdvance)
 //
 // Parameters : Unit &c       : a city
 //
-// Globals    : g_slicEngine
+// Globals    : -
 //
 // Returns    : ORDER_RESULT  : attempt success/failure indication
 //
@@ -4503,14 +4497,14 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 		so->AddCivilisation(m_owner);
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11cInciteRevolutionFailed");
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
 		so->AddUnitRecord(m_type);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
@@ -4530,7 +4524,7 @@ ORDER_RESULT UnitData::InciteRevolution(Unit c)
 	so->AddRecipient(city_owner);
 	so->AddCity(c);
 	so->AddUnitRecord(m_type);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	return ORDER_RESULT_SUCCEEDED;
 }
@@ -4562,13 +4556,13 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 		so->AddRecipient(c.GetOwner()) ;
 		so->AddCivilisation(m_owner) ;
 		so->AddCity(c) ;
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 
 		so = new SlicObject("11dAssassinationFailed") ;
 		so->AddRecipient(m_owner) ;
 		so->AddCivilisation(c.GetOwner()) ;
 		so->AddCity(c) ;
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 		if(civrand().Next(100) < sint32(deathChance * 100.0)) {
 			Unit me(m_id);
 			me.Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -4707,7 +4701,7 @@ void UnitData::HearGossip(Unit c)
 					so = new SlicObject("146GossipCompleteAttacker") ;
 					so->AddRecipient(m_owner) ;
 					so->AddAdvance(i) ;
-					g_slicEngine->Execute(so);
+					slicengine_Get()->Execute(so);
 
 					break;
 				}
@@ -4737,7 +4731,7 @@ void UnitData::HearGossip(Unit c)
 					so = new SlicObject("97GossipBoring");
 					so->AddCivilisation(oplayer);
 					so->AddRecipient(m_owner);
-					g_slicEngine->Execute(so);
+					slicengine_Get()->Execute(so);
 					return;
 				}
 				n = civrand().Next(maxCostUnits.Num());
@@ -4747,7 +4741,7 @@ void UnitData::HearGossip(Unit c)
 			so->AddCivilisation(oplayer);
 			so->AddRecipient(m_owner);
 			so->AddLocation(center);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			g_player[m_owner]->m_vision->CopyCircle(g_player[oplayer]->m_vision,
 													center,
@@ -4771,7 +4765,7 @@ void UnitData::HearGossip(Unit c)
 			}
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(c.GetOwner());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			break;
 		}
@@ -5566,7 +5560,7 @@ void UnitData::Upgrade(const sint32 type, const sint32 costs)
 	so->AddRecipient(m_owner);
 	so->AddUnitRecord(m_type);
 	so->AddUnitRecord(type);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	// And remove gold
 	g_player[m_owner]->m_gold->SubGold(costs);
@@ -5658,7 +5652,7 @@ void UnitData::SetVeteran() //copy and make for elite units
 		SlicObject *so = new SlicObject("250UnitGainedVeteranStatus");
 		so->AddUnit(Unit(m_id));
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 }
 
@@ -5819,7 +5813,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 			so->AddUnit(Unit(m_id));
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			if (cell->HasCity())
 			{
@@ -5851,7 +5845,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 		so->AddUnit(Unit(m_id));
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if (cell->HasCity())
 		{
@@ -6460,7 +6454,7 @@ void UnitData::SetElite() //copy and make for elite units SetVeteran
 		SlicObject *so = new SlicObject("999UnitGainedEliteStatus");
 		so->AddUnit(Unit(m_id));
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 }
 

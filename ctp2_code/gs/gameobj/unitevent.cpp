@@ -77,14 +77,14 @@ STDEHANDLER(KillUnitEvent)
 	if(u->GetCargoList() && u->GetCargoList()->Num() > 0) {
 
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 							   GEA_Unit, u,
 							   GEA_Int, cause,
 							   GEA_Player, killer,
 							   GEA_End);
 		sint32 c;
 		for(c = 0; c < u->GetCargoList()->Num(); c++) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 								   GEA_Unit, u->GetCargoList()->Access(c).m_id,
 								   GEA_Int, CAUSE_REMOVE_ARMY_TRANSPORT_DIED,
 								   GEA_Player, killer,
@@ -276,7 +276,7 @@ STDEHANDLER(UndergroundRailwayUnitEvent)
 
 	MapPoint cpos;
 	hc.GetPos(cpos);
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 						   GEA_City, hc.m_id,
 						   GEA_End);
 
@@ -388,7 +388,7 @@ STDEHANDLER(BioInfectCityUnitEvent)
 	so->AddCity(c) ;
 	g_slicEngine->Execute(so) ;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCity,
 						   GEA_City, c.m_id,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -424,7 +424,7 @@ STDEHANDLER(PlagueCityUnitEvent)
 	so->AddCity(c) ;
 	g_slicEngine->Execute(so) ;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCity,
 						   GEA_City, c.m_id,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -449,7 +449,7 @@ STDEHANDLER(NanoInfectCityUnitEvent)
 	so->AddCity(c) ;
 	g_slicEngine->Execute(so) ;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCity,
 						   GEA_City, c.m_id,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -466,14 +466,14 @@ STDEHANDLER(ConvertCityUnitEvent)
 
 	DPRINTF(k_DBG_GAMESTATE, ("Conversion succeeded\n"));
 	if(u.GetDBRec()->GetIsTelevangelist()) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCity,
 							   GEA_City, c.m_id,
 							   GEA_Player, u.GetOwner(),
 							   GEA_Int, CONVERTED_BY_TELEVANGELIST,
 							   GEA_End);
 
 	} else {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCity,
 							   GEA_City, c.m_id,
 							   GEA_Player, u.GetOwner(),
 							   GEA_Int, CONVERTED_BY_CLERIC,
@@ -490,7 +490,7 @@ STDEHANDLER(ConvertCityUnitEvent)
 	}
 
 	u.GetArmy()->ActionSuccessful(SPECATTACK_CONVERTCITY, u, c);
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ContactMade,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ContactMade,
 						   GEA_Player, c.GetOwner(),
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -506,7 +506,7 @@ STDEHANDLER(ReformCityUnitEvent)
 
 	DPRINTF(k_DBG_GAMESTATE, ("Reformation succeeded\n"));
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_UnconvertCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_UnconvertCity,
 						   GEA_City, c.m_id,
 						   GEA_End);
 
@@ -525,7 +525,7 @@ STDEHANDLER(CreateParkUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatePark,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatePark,
 						   GEA_City, c.m_id,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -539,7 +539,7 @@ STDEHANDLER(InjoinUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_InjoinCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_InjoinCity,
 						   GEA_City, c.m_id,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
@@ -553,12 +553,12 @@ STDEHANDLER(NukeCityUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
 						   GEA_City, c,
 						   GEA_Player, u.GetOwner(),
 						   GEA_End);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 		GEA_Unit, u,
 		GEA_Int, CAUSE_REMOVE_ARMY_NUKE,
 		GEA_Player, -1,
@@ -577,7 +577,7 @@ STDEHANDLER(NukeLocationUnitEvent)
 
 	sint32 nukeOwner = u.GetOwner();
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 						   GEA_Unit, u.m_id,
 						   GEA_Int, CAUSE_REMOVE_ARMY_NUKE,
 						   GEA_Player, -1,
@@ -598,14 +598,14 @@ STDEHANDLER(NukeLocationUnitEvent)
 
 
 	for(sint32 j = 0; j < tempKillList.Num(); j++) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 							   GEA_Unit, tempKillList[j].m_id,
 							   GEA_Int, CAUSE_REMOVE_ARMY_NUKE,
 							   GEA_Player, nukeOwner,
 							   GEA_End);
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 						   GEV_KillTile,
 						   GEA_MapPoint, pos,
 						   GEA_End);
@@ -621,7 +621,7 @@ STDEHANDLER(MADLaunchEvent)
 	Unit u;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MovePathOrder,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MovePathOrder,
 						   GEA_Army, u->GetArmy(),
 						   GEA_MapPoint, u->GetTargetCity().RetPos(),
 						   GEA_End);
@@ -660,7 +660,7 @@ STDEHANDLER(LaunchUnitEvent)
 		u.GetArmy()->SetReentry(spaceTurns, pos);
 		render_observer::AddHide(u);
 	} else {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
 							   GEA_Army, u.GetArmy().m_id,
 							   GEA_End);
 	}
@@ -699,12 +699,12 @@ STDEHANDLER(ActivateAllUnitsEvent)
 	Cell *cell = g_theWorld->GetCell(pos);
 	for(i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).IsEntrenched()) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_DetrenchUnit,
 								   GEA_Unit, cell->AccessUnit(i),
 								   GEA_End);
 		} else if(cell->AccessUnit(i).IsAsleep()) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_WakeUnit,
 								   GEA_Unit, cell->AccessUnit(i),
 								   GEA_End);
@@ -744,47 +744,47 @@ STDEHANDLER(UpgradeUnit)
 
 void unitevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_KillUnit, GEV_PRI_Primary, &s_KillUnitEvent);
-	g_gevManager->AddCallback(GEV_KillCity, GEV_PRI_Primary, &s_KillUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_KillUnit, GEV_PRI_Primary, &s_KillUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_KillCity, GEV_PRI_Primary, &s_KillUnitEvent);
 
-	g_gevManager->AddCallback(GEV_UnitBeginTurnVision, GEV_PRI_Primary, &s_UnitBeginTurnVisionEvent);
-	g_gevManager->AddCallback(GEV_BeginTurnUnit, GEV_PRI_Primary, &s_BeginTurnUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_UnitBeginTurnVision, GEV_PRI_Primary, &s_UnitBeginTurnVisionEvent);
+	gevmanager_Get()->AddCallback(GEV_BeginTurnUnit, GEV_PRI_Primary, &s_BeginTurnUnitEvent);
 
-	g_gevManager->AddCallback(GEV_AddUnitToArmy, GEV_PRI_Primary, &s_AddUnitToArmyEvent);
+	gevmanager_Get()->AddCallback(GEV_AddUnitToArmy, GEV_PRI_Primary, &s_AddUnitToArmyEvent);
 
-	g_gevManager->AddCallback(GEV_SleepUnit, GEV_PRI_Primary, &s_SleepUnitEvent);
-	g_gevManager->AddCallback(GEV_WakeUnit, GEV_PRI_Primary, &s_WakeUnitEvent);
-	g_gevManager->AddCallback(GEV_EntrenchUnit, GEV_PRI_Primary, &s_EntrenchUnitEvent);
-	g_gevManager->AddCallback(GEV_DetrenchUnit, GEV_PRI_Primary, &s_DetrenchUnitEvent);
-	g_gevManager->AddCallback(GEV_DisplayInvestigationWindow, GEV_PRI_Primary, &s_InvestigationEvent);
-	g_gevManager->AddCallback(GEV_InciteRevolutionUnit, GEV_PRI_Primary, &s_InciteRevolutionUnitEvent);
-	g_gevManager->AddCallback(GEV_AssassinateRulerUnit, GEV_PRI_Primary, &s_AssassinateRulerUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_SleepUnit, GEV_PRI_Primary, &s_SleepUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_WakeUnit, GEV_PRI_Primary, &s_WakeUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_EntrenchUnit, GEV_PRI_Primary, &s_EntrenchUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_DetrenchUnit, GEV_PRI_Primary, &s_DetrenchUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_DisplayInvestigationWindow, GEV_PRI_Primary, &s_InvestigationEvent);
+	gevmanager_Get()->AddCallback(GEV_InciteRevolutionUnit, GEV_PRI_Primary, &s_InciteRevolutionUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_AssassinateRulerUnit, GEV_PRI_Primary, &s_AssassinateRulerUnitEvent);
 
-	g_gevManager->AddCallback(GEV_PlantNukeUnit, GEV_PRI_Primary, &s_PlantNukeUnitEvent);
-	g_gevManager->AddCallback(GEV_UndergroundRailwayUnit, GEV_PRI_Primary, &s_UndergroundRailwayUnitEvent);
-	g_gevManager->AddCallback(GEV_InciteUprisingUnit, GEV_PRI_Primary, &s_InciteUprisingUnitEvent);
-	g_gevManager->AddCallback(GEV_EstablishEmbassyUnit, GEV_PRI_Primary, &s_EstablishEmbassyUnitEvent);
-	g_gevManager->AddCallback(GEV_ThrowPartyUnit, GEV_PRI_Primary, &s_ThrowPartyUnitEvent);
-	g_gevManager->AddCallback(GEV_BioInfectCityUnit, GEV_PRI_Primary, &s_BioInfectCityUnitEvent);
-	g_gevManager->AddCallback(GEV_PlagueCityUnit, GEV_PRI_Primary, &s_PlagueCityUnitEvent);
-	g_gevManager->AddCallback(GEV_NanoInfectCityUnit, GEV_PRI_Primary, &s_NanoInfectCityUnitEvent);
-	g_gevManager->AddCallback(GEV_ConvertCityUnit, GEV_PRI_Primary, &s_ConvertCityUnitEvent);
-	g_gevManager->AddCallback(GEV_ReformCityUnit, GEV_PRI_Primary, &s_ReformCityUnitEvent);
-	g_gevManager->AddCallback(GEV_CreateParkUnit, GEV_PRI_Primary, &s_CreateParkUnitEvent);
-	g_gevManager->AddCallback(GEV_InjoinUnit, GEV_PRI_Primary, &s_InjoinUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_PlantNukeUnit, GEV_PRI_Primary, &s_PlantNukeUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_UndergroundRailwayUnit, GEV_PRI_Primary, &s_UndergroundRailwayUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_InciteUprisingUnit, GEV_PRI_Primary, &s_InciteUprisingUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_EstablishEmbassyUnit, GEV_PRI_Primary, &s_EstablishEmbassyUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_ThrowPartyUnit, GEV_PRI_Primary, &s_ThrowPartyUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_BioInfectCityUnit, GEV_PRI_Primary, &s_BioInfectCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_PlagueCityUnit, GEV_PRI_Primary, &s_PlagueCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_NanoInfectCityUnit, GEV_PRI_Primary, &s_NanoInfectCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_ConvertCityUnit, GEV_PRI_Primary, &s_ConvertCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_ReformCityUnit, GEV_PRI_Primary, &s_ReformCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateParkUnit, GEV_PRI_Primary, &s_CreateParkUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_InjoinUnit, GEV_PRI_Primary, &s_InjoinUnitEvent);
 
-	g_gevManager->AddCallback(GEV_NukeCityUnit, GEV_PRI_Primary, &s_NukeCityUnitEvent);
-	g_gevManager->AddCallback(GEV_NukeLocationUnit, GEV_PRI_Primary, &s_NukeLocationUnitEvent);
-	g_gevManager->AddCallback(GEV_DisbandUnit, GEV_PRI_Primary, &s_DisbandUnitEvent);
-	g_gevManager->AddCallback(GEV_LaunchUnit, GEV_PRI_Primary, &s_LaunchUnitEvent);
-	g_gevManager->AddCallback(GEV_SetTarget, GEV_PRI_Primary, &s_SetTargetEvent);
-	g_gevManager->AddCallback(GEV_ClearTarget, GEV_PRI_Primary, &s_ClearTargetEvent);
-	g_gevManager->AddCallback(GEV_MADLaunch, GEV_PRI_Primary, &s_MADLaunchEvent);
+	gevmanager_Get()->AddCallback(GEV_NukeCityUnit, GEV_PRI_Primary, &s_NukeCityUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_NukeLocationUnit, GEV_PRI_Primary, &s_NukeLocationUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_DisbandUnit, GEV_PRI_Primary, &s_DisbandUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_LaunchUnit, GEV_PRI_Primary, &s_LaunchUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_SetTarget, GEV_PRI_Primary, &s_SetTargetEvent);
+	gevmanager_Get()->AddCallback(GEV_ClearTarget, GEV_PRI_Primary, &s_ClearTargetEvent);
+	gevmanager_Get()->AddCallback(GEV_MADLaunch, GEV_PRI_Primary, &s_MADLaunchEvent);
 
-	g_gevManager->AddCallback(GEV_ActivateAllUnits, GEV_PRI_Primary, &s_ActivateAllUnitsEvent);
+	gevmanager_Get()->AddCallback(GEV_ActivateAllUnits, GEV_PRI_Primary, &s_ActivateAllUnitsEvent);
 
-	g_gevManager->AddCallback(GEV_SetUnloadMovementUnit, GEV_PRI_Primary, &s_SetUnloadMovementUnitEvent);
-	g_gevManager->AddCallback(GEV_UpgradeUnit, GEV_PRI_Primary, &s_UpgradeUnit);
+	gevmanager_Get()->AddCallback(GEV_SetUnloadMovementUnit, GEV_PRI_Primary, &s_SetUnloadMovementUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_UpgradeUnit, GEV_PRI_Primary, &s_UpgradeUnit);
 }
 
 void unitevent_Cleanup()

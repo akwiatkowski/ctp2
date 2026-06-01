@@ -536,7 +536,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 300 );
 
 	if(saveEverything)
-		g_theWonderTracker->Serialize(archive);
+		wonder_tracker_Get()->Serialize(archive);
 
 	PROGRESS( 310 );
 

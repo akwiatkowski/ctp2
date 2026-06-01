@@ -4848,13 +4848,13 @@ sint32 Governor::GetNeededWonderType(const CityData *city, const WonderBuildList
 {
 	Assert(g_player[m_playerId]);
 	Assert(city);
-	Assert(g_theWonderTracker);
+	Assert(wonder_tracker_Get());
 
 	for (int i = 0; i < build_list_rec->GetNumWonder(); i++)
 	{
 		sint32 const wonder_type = build_list_rec->GetWonderIndex(i);
 
-		if (g_theWonderTracker->IsBuildingWonder(wonder_type, m_playerId))
+		if (wonder_tracker_Get()->IsBuildingWonder(wonder_type, m_playerId))
 			continue;
 
 		if ( city->CanBuildWonder(wonder_type))

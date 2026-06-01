@@ -106,7 +106,7 @@ void WonderTab::LoadData()
 void WonderTab::AddWonderItem(sint32 wonder, sint32 player, sint32 turn)
 {
 	Unit curCity;
-	if(!g_theWonderTracker->GetCityWithWonder(wonder, curCity))
+	if(!wonder_tracker_Get()->GetCityWithWonder(wonder, curCity))
 		curCity.m_id = 0;
 
 	const WonderRecord *rec = wonderutil_Get(wonder, player);

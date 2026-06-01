@@ -1368,7 +1368,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 
 	PLAYER_INDEX        newowner    = PLAYER_UNASSIGNED;
 
-	if(wonderutil_GetRevoltingCitiesJoinPlayer(g_theWonderTracker->GetBuiltWonders()))
+	if(wonderutil_GetRevoltingCitiesJoinPlayer(wonder_tracker_Get()->GetBuiltWonders()))
 	{
 		for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 		{
@@ -4753,7 +4753,7 @@ bool CityData::BeginTurn()
 		if(g_theResourceDB->Get(slavegood)->GetAddsASlave())
 		{
 			if(HasNeededGood(slavegood))
-			{ //&& if(!wonderutil_GetFreeSlaves(g_theWonderTracker->GetBuiltWonders()))
+			{ //&& if(!wonderutil_GetFreeSlaves(wonder_tracker_Get()->GetBuiltWonders()))
 				ChangePopulation(+1);
 				ChangeSpecialists(POP_SLAVE, +1);
 			}
@@ -6335,7 +6335,7 @@ bool CityData::BuyFront()
 		return false;
 
 	//cant rush wonders?
-	//g_theWonderTracker->SetBuildingWonder(m_wonderStarted, m_owner)
+	//wonder_tracker_Get()->SetBuildingWonder(m_wonderStarted, m_owner)
 	// if(m_build_queue.Get
 
 	if(m_shieldstore >= m_build_queue.GetFrontCost()) {
@@ -6871,7 +6871,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 	}
 
 	if(rec->GetNuclearPlant()
-	&& wonderutil_GetNukesEliminated(g_theWonderTracker->GetBuiltWonders())
+	&& wonderutil_GetNukesEliminated(wonder_tracker_Get()->GetBuiltWonders())
 	){
 		return false;
 	}
@@ -6911,12 +6911,12 @@ bool CityData::CanBuildBuilding(sint32 type) const
 	// Added by Maq - fix so science victory buildings need gaia controller race to be started first,
 	//                in vanilla this is triggered by anyone building the "Solaris Project" wonder
 	if(rec->GetIndex() == GaiaController::GetMainframeBuildingIndex()
-	&& !wonderutil_GetStartGaiaController(g_theWonderTracker->GetBuiltWonders())
+	&& !wonderutil_GetStartGaiaController(wonder_tracker_Get()->GetBuiltWonders())
 	){
 		return false;
 	}
 	if(rec->GetIndex() == GaiaController::GetSatelliteBuildingIndex()
-	&& !wonderutil_GetStartGaiaController(g_theWonderTracker->GetBuiltWonders())
+	&& !wonderutil_GetStartGaiaController(wonder_tracker_Get()->GetBuiltWonders())
 	){
 		return false;
 	}
@@ -10320,7 +10320,7 @@ bool CityData::IsBuildingOperational(sint32 type) const
 	}
 
 	if((rec->GetNuclearPlant() &&
-	   wonderutil_GetNukesEliminated(g_theWonderTracker->GetBuiltWonders()))) {
+	   wonderutil_GetNukesEliminated(wonder_tracker_Get()->GetBuiltWonders()))) {
 		return false;
 	}
 

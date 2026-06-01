@@ -2017,7 +2017,7 @@ void ScenarioEditor::AddAddButton(aui_Control *control, uint32 action, uint32 da
 				return;
 
 			Unit oldCity;
-			if(g_theWonderTracker->GetCityWithWonder(dbindex, oldCity)) {
+			if(wonder_tracker_Get()->GetCityWithWonder(dbindex, oldCity)) {
 				oldCity.CD()->DestroyWonder(dbindex);
 			}
 			city.CD()->SetWonders(city.CD()->GetBuiltWonders() | ((uint64)1 << (uint64)dbindex));

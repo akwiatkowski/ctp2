@@ -337,7 +337,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	{
 		for(sint32 w = 0; w < rec->GetNumExcludeWonder(); w++)
 		{
-			if(g_theWonderTracker->HasWonderBeenBuilt(rec->GetExcludeWonderIndex(w)))
+			if(wonder_tracker_Get()->HasWonderBeenBuilt(rec->GetExcludeWonderIndex(w)))
 				return;
 		}
 	}

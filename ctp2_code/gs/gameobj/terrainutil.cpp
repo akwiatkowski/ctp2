@@ -559,7 +559,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 	// Added by Maq - fix so science victory tile imp needs gaia controller race to be started first,
 	//                in vanilla this is triggered by anyone building the "Solaris Project" wonder
 	if(rec->GetIndex() == GaiaController::TheTowerTileImpIndex()
-	&& !wonderutil_GetStartGaiaController(g_theWonderTracker->GetBuiltWonders())
+	&& !wonderutil_GetStartGaiaController(wonder_tracker_Get()->GetBuiltWonders())
 	){
 		return false;
 	}

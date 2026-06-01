@@ -2678,7 +2678,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 
 	if(!IsCity())
 	{
-		m_visibility = (1 << m_owner) | g_theWonderTracker->GlobeSatFlags();
+		m_visibility = (1 << m_owner) | wonder_tracker_Get()->GlobeSatFlags();
 		m_radar_visibility = 1 << m_owner;
 		m_ever_visible |= m_visibility;
 	}

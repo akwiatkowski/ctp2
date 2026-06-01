@@ -1100,7 +1100,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Built wonders changed"));
 			uint64 built = (uint64)m_data | (((uint64)m_data2) << 32);
-			g_theWonderTracker->SetBuiltWonders(built);
+			wonder_tracker_Get()->SetBuiltWonders(built);
 			break;
 		}
 		case NET_INFO_CODE_BUILD_WONDER:

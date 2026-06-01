@@ -346,11 +346,11 @@ void BuildQueue::EndTurn(void)
 // Correct the condition with the index shift
         if (m_wonderStopped >= 0) {
             SendMsgWonderStopped(m_wonderStopped) ;
-            g_theWonderTracker->ClearBuildingWonder(m_wonderStopped, m_owner);
+            wonder_tracker_Get()->ClearBuildingWonder(m_wonderStopped, m_owner);
         }
         if (m_wonderStarted != m_wonderComplete && m_wonderStarted >= 0) {
             SendMsgWonderStarted(m_wonderStarted) ;
-            g_theWonderTracker->SetBuildingWonder(m_wonderStarted, m_owner);
+            wonder_tracker_Get()->SetBuildingWonder(m_wonderStarted, m_owner);
         }
     }
 
@@ -812,7 +812,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 //
 // Parameters : -
 //
-// Globals    : g_theWonderTracker  : updated when a wonder is completed
+// Globals    : wonder_tracker_Get()  : updated when a wonder is completed
 //
 // Returns    : -
 //
@@ -840,7 +840,7 @@ void BuildQueue::HandleProductionComplete(void)
 				m_wonderStarted = NOTHING_THIS_TURN;
 			}
 			SendMsgWonderComplete(m_city.CD(), m_wonderComplete);
-			g_theWonderTracker->ClearBuildingWonder(m_wonderComplete, m_owner);
+			wonder_tracker_Get()->ClearBuildingWonder(m_wonderComplete, m_owner);
 			break;
 
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
@@ -864,7 +864,7 @@ void BuildQueue::HandleProductionComplete(void)
 //
 // Parameters : -
 //
-// Globals    : g_theWonderTracker  : updated when a wonder is started
+// Globals    : wonder_tracker_Get()  : updated when a wonder is started
 //
 // Returns    : -
 //
@@ -892,7 +892,7 @@ void BuildQueue::HandleProductionStart(void)
 			{
 				m_wonderStarted = newHead->m_type;		// start new
 			}
-			g_theWonderTracker->SetBuildingWonder(newHead->m_type, m_owner);
+			wonder_tracker_Get()->SetBuildingWonder(newHead->m_type, m_owner);
             break;
 
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
@@ -921,7 +921,7 @@ void BuildQueue::HandleProductionStart(void)
 //
 // Parameters : -
 //
-// Globals    : g_theWonderTracker  : updated when a wonder is stopped
+// Globals    : wonder_tracker_Get()  : updated when a wonder is stopped
 //
 // Returns    : -
 //
@@ -949,7 +949,7 @@ void BuildQueue::HandleProductionStop(void)
 			{
 				m_wonderStopped = oldHead->m_type;		// stop
 			}
-			g_theWonderTracker->ClearBuildingWonder(oldHead->m_type, m_owner);
+			wonder_tracker_Get()->ClearBuildingWonder(oldHead->m_type, m_owner);
 			break;
 
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
@@ -1233,7 +1233,7 @@ bool BuildQueue::DoInsertChecks(sint32 cat, sint32 t, sint32 cost)
 			if (!m_list->GetHead()) {
 			       m_wonderStarted = t;
 
-				g_theWonderTracker->SetBuildingWonder(m_wonderStarted, m_owner);
+				wonder_tracker_Get()->SetBuildingWonder(m_wonderStarted, m_owner);
 			}
 		}
 		break ;
@@ -1424,11 +1424,11 @@ bool BuildQueue::RemoveNode( BuildNode *node, CAUSE_REMOVE_BUILD_ITEM cause )
 					if (cause == CAUSE_REMOVE_BUILD_ITEM_ILLEGAL) {
 
 
-						g_theWonderTracker->ClearBuildingWonder(m_list->GetHead()->m_type, m_owner);
+						wonder_tracker_Get()->ClearBuildingWonder(m_list->GetHead()->m_type, m_owner);
 					} else {
 						m_wonderStopped = m_list->GetHead()->m_type;
 
-						g_theWonderTracker->ClearBuildingWonder(m_wonderStopped, m_owner);
+						wonder_tracker_Get()->ClearBuildingWonder(m_wonderStopped, m_owner);
 					}
 				}
 			}

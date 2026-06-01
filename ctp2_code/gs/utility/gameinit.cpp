@@ -223,6 +223,11 @@ FilenameDB                  *g_theMessageIconFileDB = NULL;
 Pool<Order>                 *g_theOrderPond = NULL;
 Pool<UnseenCell>            *g_theUnseenPond = NULL;
 Diplomacy_Log               *g_theDiplomacyLog=NULL;
+static WonderTracker        *g_theWonderTracker = NULL;
+
+WonderTracker * wonder_tracker_Get(void)             { return g_theWonderTracker; }
+void            wonder_tracker_Set(WonderTracker *p) { g_theWonderTracker = p; }
+
 static EventTracker         *g_eventTracker = NULL;
 
 EventTracker * eventtracker_Get(void)

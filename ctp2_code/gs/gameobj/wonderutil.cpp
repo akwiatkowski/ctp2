@@ -334,7 +334,7 @@ sint32 wonderutil_GetIncreaseRegard(const uint64 builtWonders)
 
 bool wonderutil_IsAvailable(sint32 wonder, sint32 player)
 {
-	if(g_theWonderTracker->HasWonderBeenBuilt(wonder)) {
+	if(wonder_tracker_Get()->HasWonderBeenBuilt(wonder)) {
 		return false;
 	}
 
@@ -369,7 +369,7 @@ bool wonderutil_IsAvailable(sint32 wonder, sint32 player)
 
 PLAYER_INDEX wonderutil_GetOwner(sint32 wonder)
 {
-	PLAYER_INDEX who = g_theWonderTracker->WhoOwnsWonder(wonder);
+	PLAYER_INDEX who = wonder_tracker_Get()->WhoOwnsWonder(wonder);
 	if(who < 0)
 		return PLAYER_INDEX_INVALID;
 	return who;
@@ -377,12 +377,12 @@ PLAYER_INDEX wonderutil_GetOwner(sint32 wonder)
 
 void wonderutil_AddBuilt(sint32 wonder)
 {
-	g_theWonderTracker->AddBuilt(wonder);
+	wonder_tracker_Get()->AddBuilt(wonder);
 }
 
 bool wonderutil_IsBuilt(sint32 wonder)
 {
-	return g_theWonderTracker->HasWonderBeenBuilt(wonder);
+	return wonder_tracker_Get()->HasWonderBeenBuilt(wonder);
 }
 
 

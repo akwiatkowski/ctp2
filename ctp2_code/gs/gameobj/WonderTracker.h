@@ -73,6 +73,10 @@ public:
 	void SetGlobeSatFlags(uint32 flags) { m_globeSatFlags = flags; }
 };
 
-extern WonderTracker *g_theWonderTracker;
+// Lifecycle (new during gameinit + allocated::clear cleanup) lives in
+// gs/utility/gameinit.cpp; the variable is file-scope `static` there.
+// External readers go through wonder_tracker_Get().
+WonderTracker * wonder_tracker_Get(void);
+void            wonder_tracker_Set(WonderTracker *p);
 
 #endif

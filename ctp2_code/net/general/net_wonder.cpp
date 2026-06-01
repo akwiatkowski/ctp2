@@ -7,8 +7,8 @@ void NetWonderTracker::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_WONDER_TRACKER_ID);
-	PUSHLONG64(g_theWonderTracker->GetBuiltWonders());
-	PUSHLONG(g_theWonderTracker->GlobeSatFlags());
+	PUSHLONG64(wonder_tracker_Get()->GetBuiltWonders());
+	PUSHLONG(wonder_tracker_Get()->GlobeSatFlags());
 }
 
 void NetWonderTracker::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -20,11 +20,11 @@ void NetWonderTracker::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	uint64 built;
 	PULLLONG64(built);
-	g_theWonderTracker->SetBuiltWonders(built);
+	wonder_tracker_Get()->SetBuiltWonders(built);
 
 	uint32 globeSatFlags;
 	PULLLONG(globeSatFlags);
-	g_theWonderTracker->SetGlobeSatFlags(globeSatFlags);
+	wonder_tracker_Get()->SetGlobeSatFlags(globeSatFlags);
 
 	Assert(pos == size);
 }

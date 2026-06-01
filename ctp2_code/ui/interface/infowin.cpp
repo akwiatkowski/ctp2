@@ -793,7 +793,7 @@ sint32 infowin_UpdateWonderList( void )
 	for ( sint32 i = 0; i < g_theWonderDB->NumRecords() ; i++ )
 	{
 
-		if (wonderutil_IsBuilt(i) && g_theWonderTracker->GetCityWithWonder(i, city))
+		if (wonderutil_IsBuilt(i) && wonder_tracker_Get()->GetCityWithWonder(i, city))
 		{
 			thePlayer = wonderutil_GetOwner(i);
 			if (thePlayer != PLAYER_INDEX_INVALID)
@@ -1408,7 +1408,7 @@ sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name)
 {
 	Unit city;
 
-	if (g_theWonderTracker->GetCityWithWonder( index, city ))
+	if (wonder_tracker_Get()->GetCityWithWonder( index, city ))
 	{
 		strcpy(name, city.GetData()->GetCityData()->GetName());
 	}

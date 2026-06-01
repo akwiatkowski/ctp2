@@ -2041,7 +2041,7 @@ void Player::BeginTurnWonders()
 {
 	m_gold->AddGold(CalcWonderGold());
 
-	g_theWonderTracker->RecomputeIsBuilding(m_owner);
+	wonder_tracker_Get()->RecomputeIsBuilding(m_owner);
 }
 
 void Player::BeginTurnUnitSupportGold()
@@ -5835,7 +5835,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 	if(wonderutil_Get(wonder, m_owner)->GetGlobalRadar()) {
 		m_hasGlobalRadar = TRUE;
-		g_theWonderTracker->SetGlobeSatFlags(g_theWonderTracker->GlobeSatFlags() | (1 << m_owner));
+		wonder_tracker_Get()->SetGlobeSatFlags(wonder_tracker_Get()->GlobeSatFlags() | (1 << m_owner));
 
 		sint32 p;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
@@ -5923,7 +5923,7 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 	if (destroyed)
 	{
 		Unit c;
-		g_theWonderTracker->GetCityWithWonder(which, c);
+		wonder_tracker_Get()->GetCityWithWonder(which, c);
 
 		SlicObject * so = new SlicObject("097WonderDestroyed");
 		so->AddAllRecipientsBut(PLAYER_INDEX_VANDALS);
@@ -5939,7 +5939,7 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 
 	if(wonderutil_Get(which, m_owner)->GetGlobalRadar()) {
 		m_hasGlobalRadar = FALSE;
-		g_theWonderTracker->SetGlobeSatFlags(g_theWonderTracker->GlobeSatFlags() & ~(1 << m_owner));
+		wonder_tracker_Get()->SetGlobeSatFlags(wonder_tracker_Get()->GlobeSatFlags() & ~(1 << m_owner));
 	}
 
 	sint32 value;
@@ -8023,7 +8023,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
                 if (g_player[player_idx] == NULL) continue;
                 if (player_idx == m_owner) continue;
 
-                if (g_theWonderTracker->IsBuildingWonder(i, player_idx) &&
+                if (wonder_tracker_Get()->IsBuildingWonder(i, player_idx) &&
                     (GetCurRound() > 1)) {
 
                     // Send the player a message, that the wonder he builds is obsolete
@@ -8060,7 +8060,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 
 		if(wrec->GetGlobalRadar()) {
 			g_player[wowner]->m_hasGlobalRadar = FALSE;
-			g_theWonderTracker->SetGlobeSatFlags(g_theWonderTracker->GlobeSatFlags() & ~(1 << m_owner));
+			wonder_tracker_Get()->SetGlobeSatFlags(wonder_tracker_Get()->GlobeSatFlags() & ~(1 << m_owner));
 			m_vision->ClearUnseen();
 			if (g_gameObservers) {
 				g_gameObservers->NotifyVisionCopied(wowner, wowner);
@@ -8529,14 +8529,14 @@ bool Player::CanBuildUnit(const sint32 type) const
 	// End resources
 
 	if(rec->HasNuclearAttack() &&
-	   wonderutil_GetNukesEliminated(g_theWonderTracker->GetBuiltWonders())) {
+	   wonderutil_GetNukesEliminated(wonder_tracker_Get()->GetBuiltWonders())) {
 		return false;
 	}
 
 	if(rec->HasSlaveRaids() || rec->HasSettlerSlaveRaids() ||
 	   rec->HasSlaveUprising()) {
-		//if(wonderutil_GetFreeSlaves(g_theWonderTracker->GetBuiltWonders())) { //original
-	   if(wonderutil_GetProhibitSlavers(g_theWonderTracker->GetBuiltWonders())) {
+		//if(wonderutil_GetFreeSlaves(wonder_tracker_Get()->GetBuiltWonders())) { //original
+	   if(wonderutil_GetProhibitSlavers(wonder_tracker_Get()->GetBuiltWonders())) {
 			return false;
 		}
 	}
@@ -8565,7 +8565,7 @@ bool Player::CanBuildUnit(const sint32 type) const
 	}
 
 	if(rec->HasCreateParks() &&
-	   !wonderutil_GetParkRangersEnabled(g_theWonderTracker->GetBuiltWonders())) {
+	   !wonderutil_GetParkRangersEnabled(wonder_tracker_Get()->GetBuiltWonders())) {
 		return false;
 	}
 
@@ -9598,14 +9598,14 @@ bool Player::CanBuildLeader(const sint32 type) const
 	// End resources
 
 	if(rec->HasNuclearAttack() &&
-	   wonderutil_GetNukesEliminated(g_theWonderTracker->GetBuiltWonders())) {
+	   wonderutil_GetNukesEliminated(wonder_tracker_Get()->GetBuiltWonders())) {
 		return false;
 	}
 
 	if(rec->HasSlaveRaids() || rec->HasSettlerSlaveRaids() ||
 	   rec->HasSlaveUprising()) {
-		//if(wonderutil_GetFreeSlaves(g_theWonderTracker->GetBuiltWonders())) { //original
-	   if(wonderutil_GetProhibitSlavers(g_theWonderTracker->GetBuiltWonders())) {
+		//if(wonderutil_GetFreeSlaves(wonder_tracker_Get()->GetBuiltWonders())) { //original
+	   if(wonderutil_GetProhibitSlavers(wonder_tracker_Get()->GetBuiltWonders())) {
 			return false;
 		}
 	}
@@ -9634,7 +9634,7 @@ bool Player::CanBuildLeader(const sint32 type) const
 	}
 
 	if(rec->HasCreateParks() &&
-	   !wonderutil_GetParkRangersEnabled(g_theWonderTracker->GetBuiltWonders())) {
+	   !wonderutil_GetParkRangersEnabled(wonder_tracker_Get()->GetBuiltWonders())) {
 		return false;
 	}
 

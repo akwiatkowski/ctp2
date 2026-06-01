@@ -47,7 +47,8 @@
 #include "gs/gameobj/UnitPool.h"
 
 
-WonderTracker *g_theWonderTracker = NULL;
+// Storage + accessors moved to gs/utility/gameinit.cpp where the rest
+// of the gs/ singletons live.
 
 WonderTracker::WonderTracker()
 :   m_builtWonders      (0),

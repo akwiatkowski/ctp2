@@ -713,6 +713,12 @@ private:
 
 extern World *g_theWorld;
 
+// Session-singleton accessor pair, mirroring pollution_Get / topten_Get
+// / unitpool_Get.  Callers should use world_Get() instead of reaching
+// for g_theWorld directly.
+World * world_Get(void);
+void    world_Set(World *p);
+
 uint32 World_World_GetVersion(void);
 
 #endif

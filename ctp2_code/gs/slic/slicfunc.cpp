@@ -2152,7 +2152,7 @@ SFN_ERROR Slic_AddOrder::Call(SlicArgList *args)
 
 
 	Army army = unit.GetArmy();
-	if(!g_theArmyPool->IsValid(army)) {
+	if(!armypool_Get()->IsValid(army)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2276,7 +2276,7 @@ SFN_ERROR Slic_DoPillageOwnLand::Call(SlicArgList *args)
 	unit.GetPos(pos);
 
 	Army army = unit.GetArmy();
-	if(!g_theArmyPool->IsValid(army)) {
+	if(!armypool_Get()->IsValid(army)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2803,7 +2803,7 @@ SFN_ERROR Slic_IsUnitSelected::Call(SlicArgList *args)
 		}
 		if (g_theUnitPool->IsValid(u)) {
 			Army army(player_view::GetSelectedArmyId());
-			if (g_theArmyPool->IsValid(army) && army.IsPresent(u)) {
+			if (armypool_Get()->IsValid(army) && army.IsPresent(u)) {
 				m_result.m_int = 1;
 			}
 		}
@@ -4054,7 +4054,7 @@ SFN_ERROR Slic_AddExpelOrder::Call(SlicArgList *args)
 		return SFN_ERROR_OK;
 
 	Army army = u.GetArmy();
-	if(!g_theArmyPool->IsValid(army))
+	if(!armypool_Get()->IsValid(army))
 		return SFN_ERROR_OK;
 
 	army.AddOrders(UNIT_ORDER_EXPEL, pos);
@@ -4535,7 +4535,7 @@ SFN_ERROR Slic_ClearOrders::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(g_theUnitPool->IsValid(u) &&
-		g_theArmyPool->IsValid(u.GetArmy())) {
+		armypool_Get()->IsValid(u.GetArmy())) {
 		u.GetArmy().ClearOrders();
 	}
 	return SFN_ERROR_OK;
@@ -5020,7 +5020,7 @@ SFN_ERROR Slic_SelectUnit::Call(SlicArgList *args)
 	if(!g_theUnitPool->IsValid(u))
 		return SFN_ERROR_OK;
 
-	if(!g_theArmyPool->IsValid(u.GetArmy()))
+	if(!armypool_Get()->IsValid(u.GetArmy()))
 		return SFN_ERROR_OK;
 
 	player_view::SetSelectUnit(u);
@@ -5966,7 +5966,7 @@ SFN_ERROR Slic_GetArmyFromUnit::Call(SlicArgList *args)
 	if(args->m_argValue[1].m_type != SA_TYPE_INT_VAR)
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theArmyPool->IsValid(u.GetArmy()))
+	if(!armypool_Get()->IsValid(u.GetArmy()))
 		return SFN_ERROR_OK;
 
 	SlicSymbolData *sym = args->m_argValue[1].m_symbol;

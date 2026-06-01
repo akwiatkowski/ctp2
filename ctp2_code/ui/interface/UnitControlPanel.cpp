@@ -948,7 +948,7 @@ void UnitControlPanel::GiveOrder(OrderRecord *order)  //emod4 this needs to work
 #if 0
 
 	Army army = GetSelectedArmy();
-	if(!g_theArmyPool->IsValid(army))
+	if(!armypool_Get()->IsValid(army))
 		return;
 
 

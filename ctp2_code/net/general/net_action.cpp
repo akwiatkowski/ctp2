@@ -1480,7 +1480,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0]));
 			Army army(m_data[0]);
 
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				army.ClearOrders();
 			} else {
 				DPRINTF(k_DBG_NET, ("Invalid army %lx\n", m_data[0]));
@@ -1494,7 +1494,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0]));
 			Army army(m_data[0]);
 
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				g_gevManager->Pause();
 				BOOL res = army->ExecuteOrders();
 				Assert(res);
@@ -1760,9 +1760,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d claims Army %lx is at (%d,%d)\n",
 								index, m_data[0], m_data[1], m_data[2]));
 			Army army(m_data[0]);
-			Assert(g_theArmyPool->IsValid(army));
+			Assert(armypool_Get()->IsValid(army));
 
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				MapPoint apos;
 				army.GetPos(apos);
 				Assert(apos.x == (sint16)m_data[1]);

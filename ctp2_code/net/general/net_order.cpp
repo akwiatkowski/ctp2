@@ -134,7 +134,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTETYPE(m_order, UNIT_ORDER_TYPE);
 	PULLSHORTTYPE(m_event, GAME_EVENT);
 
-	if(!g_theArmyPool->IsValid(m_army)) {
+	if(!armypool_Get()->IsValid(m_army)) {
 		DPRINTF(k_DBG_NET, ("Received order for invalid army %lx\n", m_army.m_id));
 		if(g_network.IsHost()) {
 			g_network.Resync(g_network.IdToIndex(id));

@@ -202,8 +202,8 @@ void NetArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)army);
 
-	if(g_theArmyPool->IsValid(army)) {
-		m_data = g_theArmyPool->AccessArmy(army);
+	if(armypool_Get()->IsValid(army)) {
+		m_data = armypool_Get()->AccessArmy(army);
 	} else {
 		m_data = new ArmyData(army);
 	}
@@ -223,9 +223,9 @@ void NetArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLSHORT(m_data->m_pos.y);
 	PULLLONGTYPE(m_data->m_removeCause, CAUSE_REMOVE_ARMY);
 
-	if(!g_theArmyPool->IsValid(army)) {
-		g_theArmyPool->HackSetKey(((uint32)m_data->m_id & k_ID_KEY_MASK) + 1);
-		g_theArmyPool->Insert(m_data);
+	if(!armypool_Get()->IsValid(army)) {
+		armypool_Get()->HackSetKey(((uint32)m_data->m_id & k_ID_KEY_MASK) + 1);
+		armypool_Get()->Insert(m_data);
 
 		CtpAi::AddGoalsForArmy(army);
 	}
@@ -266,8 +266,8 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Army theArmy;
 
 	if(m_armyId != 0) {
-		Assert(g_theArmyPool->IsValid(m_armyId));
-		if(!g_theArmyPool->IsValid(m_armyId)) {
+		Assert(armypool_Get()->IsValid(m_armyId));
+		if(!armypool_Get()->IsValid(m_armyId)) {
 			g_network.Resync(g_network.IdToIndex(id));
 			return;
 		}

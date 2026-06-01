@@ -439,7 +439,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 160 );
 
 	if(saveEverything)
-		g_theArmyPool->Serialize(archive);
+		armypool_Get()->Serialize(archive);
 
 	PROGRESS( 170 );
 

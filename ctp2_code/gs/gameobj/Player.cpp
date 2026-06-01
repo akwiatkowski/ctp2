@@ -1080,7 +1080,7 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 				g_network.Enqueue(army.AccessData());
 			} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner) &&
 					  cause != CAUSE_NEW_ARMY_INITIAL) {
-				g_network.AddCreatedObject(g_theArmyPool->AccessArmy(army));
+				g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
 				g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 												   army));
 			}
@@ -1116,7 +1116,7 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: creating army...\n");
 	#endif
-	Army army = g_theArmyPool->Create();
+	Army army = armypool_Get()->Create();
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: army created id=%u\n", (uint32)army.m_id);
 	#endif
@@ -1139,7 +1139,7 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 		g_network.Enqueue(army.AccessData());
 	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner) &&
 		cause != CAUSE_NEW_ARMY_INITIAL) {
-		g_network.AddCreatedObject(g_theArmyPool->AccessArmy(army));
+		g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
 		g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 			army.m_id, cause));
 	}
@@ -1148,7 +1148,7 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 		g_network.AddNewArmy(m_owner, army);
 		g_network.Unblock(m_owner);
 	} else if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)) {
-		g_network.AddCreatedObject(g_theArmyPool->AccessArmy(army));
+		g_network.AddCreatedObject(armypool_Get()->AccessArmy(army));
 		g_network.SendAction(new NetAction(NET_ACTION_CREATED_ARMY,
 										   (uint32)army));
 	}
@@ -1196,7 +1196,7 @@ void Player::AddArmy(const Army &army,
 		if(cause != CAUSE_NEW_ARMY_INITIAL)
 			g_network.Block(m_owner);
 
-		g_network.Enqueue(g_theArmyPool->AccessArmy(army));
+		g_network.Enqueue(armypool_Get()->AccessArmy(army));
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY,
 									  (uint32)m_owner,
 									  (uint32)cause,
@@ -2655,7 +2655,7 @@ void Player::ProcessUnitOrders(bool currentOnly)
 
 	army_num = tmp_list.Num();
 	for (army_idx=army_num-1; 0 <= army_idx; army_idx--) {
-		if(g_theArmyPool->IsValid(tmp_list.Access(army_idx))) {
+		if(armypool_Get()->IsValid(tmp_list.Access(army_idx))) {
 			tmp_list.Access(army_idx).ExecuteOrders();
 		}
 	}
@@ -8256,8 +8256,8 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 void Player::GiveArmyCommand(Army &army,
 							 UNIT_COMMAND command)
 {
-	Assert(g_theArmyPool->IsValid(army));
-	if(!g_theArmyPool->IsValid(army))
+	Assert(armypool_Get()->IsValid(army));
+	if(!armypool_Get()->IsValid(army))
 		return;
 
 	Assert(army.GetOwner() == m_owner);

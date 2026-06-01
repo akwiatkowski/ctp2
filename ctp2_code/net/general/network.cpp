@@ -1420,7 +1420,7 @@ void Network::SetReady(uint16 id)
 		for(n = 0; n < g_player[p]->m_all_armies->Num(); n++) {
 			Army army = g_player[p]->m_all_armies->Access(n);
 			chunkPackets.AddTail(
-						new NetArmy(g_theArmyPool->AccessArmy(army)));
+						new NetArmy(armypool_Get()->AccessArmy(army)));
 
 			chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_ADD_ARMY,
 												  p,
@@ -1523,7 +1523,7 @@ void Network::SetReady(uint16 id)
 
 	chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_END_UNITS,
 										  g_theUnitPool->HackGetKey(),
-										  g_theArmyPool->HackGetKey()));
+										  armypool_Get()->HackGetKey()));
 
 	PROGRESS(95);
 

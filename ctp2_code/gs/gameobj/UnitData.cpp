@@ -5770,7 +5770,7 @@ sint32 UnitData::CreateOwnArmy()
 	Army newArmy = g_player[m_owner]->GetNewArmy(CAUSE_NEW_ARMY_UNKNOWN);
 	if(g_network.IsHost()) {
 		g_network.Block(m_owner);
-		g_network.Enqueue(g_theArmyPool->AccessArmy(newArmy));
+		g_network.Enqueue(armypool_Get()->AccessArmy(newArmy));
 		g_network.Unblock(m_owner);
 	}
 	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,

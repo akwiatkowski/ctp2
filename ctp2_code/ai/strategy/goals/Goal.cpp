@@ -2824,7 +2824,7 @@ bool Goal::Get_Totally_Complete() const
 		){
 			return true;
 		}
-		else if(g_theArmyPool->IsValid(m_target_army)
+		else if(armypool_Get()->IsValid(m_target_army)
 		     && target_owner != m_playerId
 		     ){
 			return true;
@@ -2850,7 +2850,7 @@ bool Goal::Get_Invalid() const
 	if(goal_record->GetTargetTypeAttackUnit()
 	|| goal_record->GetTargetTypeSpecialUnit()
 	){
-		if(!g_theArmyPool->IsValid(m_target_army))
+		if(!armypool_Get()->IsValid(m_target_army))
 			return true;
 		else if(m_target_army->Num() <= 0)
 			return true;
@@ -2919,7 +2919,7 @@ bool Goal::Get_Invalid() const
 				 &&  city->GetOwner() == m_playerId)
 				return true;
 		}
-//		else if(g_theArmyPool->IsValid(m_target_army)){ // Aircraft carriers are missing
+//		else if(armypool_Get()->IsValid(m_target_army)){ // Aircraft carriers are missing
 //			return Cannot carry aircrafts;
 //		}
 		return !g_theWorld->IsAirfield(Get_Target_Pos());

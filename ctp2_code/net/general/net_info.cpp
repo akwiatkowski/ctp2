@@ -469,7 +469,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_END_UNITS:
 		{
 			g_theUnitPool->HackSetKey(m_data);
-			g_theArmyPool->HackSetKey(m_data2);
+			armypool_Get()->HackSetKey(m_data2);
 
 
 
@@ -990,7 +990,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data));
 			Army army(m_data);
 
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				army.ClearOrders();
 			} else {
 				DPRINTF(k_DBG_NET, ("Server: Received CLEAR_ORDERS for invalid army %lx\n", m_data));
@@ -1004,7 +1004,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					m_data));
 			Army army(m_data);
 
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				g_gevManager->Pause();
 				BOOL res = army->ExecuteOrders();
 
@@ -1051,7 +1051,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit unit(m_data);
 			Assert(g_theUnitPool->IsValid(unit) || g_network.DeadUnit(unit.m_id));
 			if(g_theUnitPool->IsValid(unit)) {
-				if(!g_theArmyPool->IsValid(m_data2)) {
+				if(!armypool_Get()->IsValid(m_data2)) {
 					g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				} else {
 					unit.SetArmy(m_data2);
@@ -1692,7 +1692,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 
 			DPRINTF(k_DBG_NET, ("Server says group unit %lx into army %lx\n", m_data2, m_data));
-			if(!g_theArmyPool->IsValid(m_data)) {
+			if(!armypool_Get()->IsValid(m_data)) {
 				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				break;
 			}
@@ -1734,7 +1734,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_REENTER:
 		{
 			DPRINTF(k_DBG_NET, ("Reentry for army %lx\n", m_data));
-			if(!g_theArmyPool->IsValid(m_data)) {
+			if(!armypool_Get()->IsValid(m_data)) {
 				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
 			} else {
 				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,

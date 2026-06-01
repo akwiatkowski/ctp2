@@ -5782,7 +5782,7 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 	if (g_network.IsHost())
     {
 		g_network.Block(oldOwner);
-		g_network.Enqueue(g_theArmyPool->AccessArmy(sa));
+		g_network.Enqueue(armypool_Get()->AccessArmy(sa));
 		g_network.Unblock(oldOwner);
 	}
 
@@ -5833,7 +5833,7 @@ void CityData::CleanupUprising(Army &sa)
 	sint32 i;
 
 	sint32 oldOwner = m_owner;
-	if(!g_theArmyPool->IsValid(sa) || sa.Num() < 1)
+	if(!armypool_Get()->IsValid(sa) || sa.Num() < 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("The uprising was crushed\n"));
 

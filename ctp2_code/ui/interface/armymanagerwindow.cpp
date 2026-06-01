@@ -336,7 +336,7 @@ void ArmyManagerWindow::Update()
 		}
 	}
 
-	if(g_theArmyPool->IsValid(m_army)) {
+	if(armypool_Get()->IsValid(m_army)) {
 		for(i = 0; i < m_army->Num(); i++) {
 			const IconRecord *irec = m_army[i].GetDBRec()->GetDefaultIcon();
 
@@ -441,7 +441,7 @@ void ArmyManagerWindow::UpdateArmyItem(ctp2_ListItem *item)
 		Assert(count);
 		if(count) {
 			MBCHAR text[20];
-			if(g_theArmyPool->IsValid(node->m_army)) {
+			if(armypool_Get()->IsValid(node->m_army)) {
 				snprintf(text, sizeof(text), "%d", node->m_army.Num());
 			} else {
 				strcpy(text, "0");
@@ -493,7 +493,7 @@ void ArmyManagerWindow::RemoveDeadArmies()
 			ctp2_ListItem *item = (ctp2_ListItem *)armyList->GetItemByIndex(i);
 			Assert((ArmyListNode *)item->GetUserData() == walk.GetObj());
 			if((walk.GetObj()->m_army.m_id != 0) &&
-			   !g_theArmyPool->IsValid(walk.GetObj()->m_army)) {
+			   !armypool_Get()->IsValid(walk.GetObj()->m_army)) {
 				walk.Remove();
 				armyList->RemoveItemByIndex(i);
 				delete item;
@@ -591,7 +591,7 @@ void ArmyManagerWindow::Close(aui_Control *control, uint32 action, uint32 data, 
 
 	if(s_armyWindow) {
 		s_armyWindow->RenameArmy();
-		if(g_theArmyPool->IsValid(s_armyWindow->m_army) &&
+		if(armypool_Get()->IsValid(s_armyWindow->m_army) &&
 			(s_armyWindow->m_army.Num() > 0)) {
 			g_selected_item->SetSelectUnit(s_armyWindow->m_army[0]);
 		}
@@ -617,7 +617,7 @@ void ArmyManagerWindow::List(aui_Control *control, uint32 action, uint32 data, v
 		ArmyListNode *node = (ArmyListNode *)selItem->GetUserData();
 		s_armyWindow->m_army = node->m_army;
 
-		if(g_theArmyPool->IsValid(node->m_army) &&
+		if(armypool_Get()->IsValid(node->m_army) &&
 		   node->m_army.Num() > 0) {
 			Army a;
 			if(g_selected_item->GetSelectedArmy(a)) {
@@ -750,8 +750,8 @@ void ArmyManagerWindow::AddSelectedUnits()
 		node->m_army = theArmy;
 		m_army = theArmy;
 	} else {
-		Assert(g_theArmyPool->IsValid(node->m_army));
-		if(g_theArmyPool->IsValid(node->m_army)) {
+		Assert(armypool_Get()->IsValid(node->m_army));
+		if(armypool_Get()->IsValid(node->m_army)) {
 			theArmy = node->m_army;
 		} else {
 
@@ -861,7 +861,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 		return;
 	}
 
-	if(!g_theArmyPool->IsValid(theArmy) ||
+	if(!armypool_Get()->IsValid(theArmy) ||
 		theArmy.Num() <= 0)
 		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
 

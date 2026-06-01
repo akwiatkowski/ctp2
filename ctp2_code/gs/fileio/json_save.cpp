@@ -4623,7 +4623,7 @@ bool SaveJson(char const *path)
 
     // --- Object pools (GameFile::Save:393-458) -----------------------
     if (g_theUnitPool)               doc["unit_pool"]                  = *g_theUnitPool;
-    if (g_theArmyPool)               doc["army_pool"]                  = *g_theArmyPool;
+    if (ArmyPool *ap = armypool_Get()) doc["army_pool"] = *ap;
     if (TradePool *tp = tradepool_Get()) doc["trade_pool"] = *tp;
     if (g_thePollution)              doc["pollution"]                  = *g_thePollution;
     if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
@@ -4760,7 +4760,7 @@ bool LoadJson(char const *path)
         // equivalent to overwriting.  Pools whose from_json *does*
         // clear pre-existing entries (MessagePool) handle it themselves.
         if (doc.contains("unit_pool")          && g_theUnitPool)               doc.at("unit_pool")               .get_to(*g_theUnitPool);
-        if (doc.contains("army_pool")          && g_theArmyPool)               doc.at("army_pool")               .get_to(*g_theArmyPool);
+        if (ArmyPool *ap = armypool_Get(); doc.contains("army_pool") && ap) doc.at("army_pool").get_to(*ap);
         if (TradePool *tp = tradepool_Get(); doc.contains("trade_pool") && tp) doc.at("trade_pool").get_to(*tp);
         if (doc.contains("pollution")          && g_thePollution)              doc.at("pollution")               .get_to(*g_thePollution);
         if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);

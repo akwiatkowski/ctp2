@@ -68,6 +68,9 @@ public:
 	friend void from_json(nlohmann::json const &j, ArmyPool &p);
 };
 
-extern ArmyPool *g_theArmyPool;
+// Lifecycle (new / archive-load / Cleanup) lives in
+// gs/utility/gameinit.cpp; the variable is now file-scope `static`
+// there.  External readers go through armypool_Get().
+ArmyPool * armypool_Get(void);
 
 #endif

@@ -8389,7 +8389,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 			}
 		} else if(g_theWorld->GetCity(to_pt).m_id != 0 &&
 			      g_theWorld->GetCity(to_pt).GetOwner() != m_owner) {
-			if(!g_theArmyPool->AccessArmy(debark)->CanAtLeastOneCaptureCity()) {
+			if(!armypool_Get()->AccessArmy(debark)->CanAtLeastOneCaptureCity()) {
 				for(i = debark.Num() - 1; i >= 0; i--) {
 					bool inserted = false;
 					for(sint32 j = 0; j < m_nElements && !inserted; j++) {

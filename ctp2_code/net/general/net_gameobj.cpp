@@ -208,7 +208,7 @@ void NetGameObj::CheckReceived(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_ARMY:
 		{
 			Army army(id);
-			if(g_theArmyPool->IsValid(army)) {
+			if(armypool_Get()->IsValid(army)) {
 				if(m_createdHash.IsPresent(id)) {
 					reap = TRUE;
 				}
@@ -343,7 +343,7 @@ void NetGameObj::FixKey(uint32 id)
 			g_theMessagePool->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_ARMY:
-			g_theArmyPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			armypool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		default:
 			Assert(FALSE);

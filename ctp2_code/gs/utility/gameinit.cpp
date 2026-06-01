@@ -162,7 +162,9 @@ ThroneDB                    *g_theThroneDB = NULL;
 PlayListDB                  *g_thePlayListDB = NULL;
 World                       *g_theWorld=NULL;
 UnitPool                    *g_theUnitPool=NULL;
-ArmyPool                    *g_theArmyPool=NULL;
+static ArmyPool             *g_theArmyPool=NULL;
+
+ArmyPool * armypool_Get(void) { return g_theArmyPool; }
 Player                      **g_player=NULL;
 PointerList<Player>         *g_deadPlayer = NULL;
 RandomGenerator             *g_rand=NULL;

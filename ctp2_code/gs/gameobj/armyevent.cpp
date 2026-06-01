@@ -83,7 +83,7 @@
 // Clean architecture: game event observer registry
 #include "gs/core/game_observer.h"
 
-extern ArmyPool		*g_theArmyPool;
+#include "gs/gameobj/ArmyPool.h"  // armypool_Get()
 
 
 
@@ -941,7 +941,7 @@ STDEHANDLER(MoveIntoTransportEvent)
 
 	if(!args->GetArmy(0, a))
 	{
-		Assert( g_theArmyPool->IsValid(a) );
+		Assert( armypool_Get()->IsValid(a) );
 		return GEV_HD_Continue;
 	}
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;

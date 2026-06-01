@@ -44,7 +44,7 @@
 
 bool Army::IsValid() const
 {
-	return g_theArmyPool->IsValid(m_id);
+	return armypool_Get()->IsValid(m_id);
 }
 
 void Army::KillArmy()
@@ -73,25 +73,25 @@ void Army::RemoveAllReferences()
 	}
 	player_view::ArmyRemoved(GetOwner(), *this);
 
-	g_theArmyPool->Del(*this);
+	armypool_Get()->Del(*this);
 }
 
 void Army::FastKill()
 {
 	if (IsValid())
 	{
-		g_theArmyPool->Del(*this);
+		armypool_Get()->Del(*this);
 	}
 }
 
 const ArmyData *Army::GetData() const
 {
-	return g_theArmyPool->GetArmy(m_id);
+	return armypool_Get()->GetArmy(m_id);
 }
 
 ArmyData *Army::AccessData() const
 {
-	return g_theArmyPool->AccessArmy(m_id);
+	return armypool_Get()->AccessArmy(m_id);
 }
 
 Unit & Army::operator [] (const sint32 i)

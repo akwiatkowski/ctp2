@@ -158,7 +158,7 @@ extern CityAstar                 g_city_astar;
 
 bool CanAutoSelect(const Army &army)
 {
-	if (!g_theArmyPool->IsValid(army)) return false;
+	if (!armypool_Get()->IsValid(army)) return false;
 	if(army.Num() < 1) return false;
 
 	if(!army.IsAsleep() &&
@@ -407,7 +407,7 @@ void SelectedItem::ClipCurrentItem()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			if(!g_theArmyPool->IsValid(m_selected_army[player]))
+			if(!armypool_Get()->IsValid(m_selected_army[player]))
 			{
 				m_select_state[player] = SELECT_TYPE_NONE;
 			}
@@ -620,7 +620,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 										   GEA_Army, selectArmy,
 										   GEA_End);
 
-					if(!g_theArmyPool->IsValid(selectArmy) ||
+					if(!armypool_Get()->IsValid(selectArmy) ||
 					   !CanAutoSelect(selectArmy)
 					   || selectArmy.NumOrders() > 0)
 					{
@@ -1500,7 +1500,7 @@ void SelectedItem::PlaySelectedSound(Unit &unit)
 		{
 			bool canMove = false;
 
-			if (unit.GetArmy().m_id != 0 && g_theArmyPool->IsValid(unit.GetArmy()))
+			if (unit.GetArmy().m_id != 0 && armypool_Get()->IsValid(unit.GetArmy()))
 			{
 				if (unit.GetArmy().CanMove())
 					canMove = true;
@@ -2862,7 +2862,7 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 	{
 		if(g_controlPanel)
 		{
-			if(g_theArmyPool->IsValid(m_selected_army[player]))
+			if(armypool_Get()->IsValid(m_selected_army[player]))
 			{
 				m_selected_army[player].GetPos(army_pos);
 				g_controlPanel->SetStack(m_selected_army[player],

@@ -877,7 +877,7 @@ bool Unit::CanCounterBombard(CellUnitList &defender) const
 
 bool Unit::CanActivelyDefend(const Army &attacker) const
 {
-	CellUnitList * list = g_theArmyPool->AccessArmy(attacker);
+	CellUnitList * list = armypool_Get()->AccessArmy(attacker);
 	return GetData()->CanActivelyDefend(*list);
 }
 

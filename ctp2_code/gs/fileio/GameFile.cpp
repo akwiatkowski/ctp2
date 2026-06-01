@@ -121,7 +121,6 @@ extern int g_gameWatchID;
 
 extern  CivApp                      *g_civApp;
 extern  OzoneDatabase               *g_theUVDB;
-extern  Pollution                   *g_thePollution;
 extern  TopTen                      *g_theTopTen;
 extern  nf_GameSetup                g_gamesetup;
 extern sint32                       g_isGridOn;
@@ -478,7 +477,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 200 );
 
 	if(saveEverything)
-		g_thePollution->Serialize(archive);
+		pollution_Get()->Serialize(archive);
 
 	PROGRESS( 210 );
 

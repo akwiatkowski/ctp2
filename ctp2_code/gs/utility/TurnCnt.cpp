@@ -92,7 +92,6 @@
 
 extern Diplomacy_Log *  g_theDiplomacyLog;
 extern Network          g_network;
-extern Pollution *      g_thePollution;
 
 sint32 g_cantEndTurn = 0;
 
@@ -349,7 +348,7 @@ void TurnCount::BeginNewRound()
 	player_view::NextRound();
 	render_observer::NextPlayer();
 	agreementpool_Get()->EndRound();
-	g_thePollution->EndRound();
+	pollution_Get()->EndRound();
 	g_slicEngine->RunYearlyTriggers();
 
 	if(m_simultaneousMode && g_network.IsHost()) {

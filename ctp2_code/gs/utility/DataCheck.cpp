@@ -126,7 +126,6 @@ extern  OzoneDatabase           *g_theUVDB ;
 extern  UnitPool                *g_theUnitPool;
 
 // Others
-extern  Pollution               *g_thePollution;
 extern  World                   *g_theWorld;
 extern  Player                  **g_player;
 extern  TopTen                  *g_theTopTen;
@@ -388,7 +387,7 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(tradeofferpool_Get(), CRC_TYPE_TRADEOFFERPOOL);
 	CHECK_DB(g_theUnitPool, CRC_TYPE_UNITPOOL);
 
-	CHECK_DB(g_thePollution, CRC_TYPE_POLLUTION);
+	CHECK_DB(pollution_Get(), CRC_TYPE_POLLUTION);
 	CHECK_DB(g_theTopTen, CRC_TYPE_TOPTEN);
 	CHECK_DB(g_theWorld, CRC_TYPE_WORLD);
 

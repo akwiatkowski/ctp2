@@ -131,7 +131,6 @@
 
 extern TurnCount             *g_turn;
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
-extern Pollution             *g_thePollution;
 extern TopTen                *g_theTopTen;
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
@@ -4625,7 +4624,7 @@ bool SaveJson(char const *path)
     if (g_theUnitPool)               doc["unit_pool"]                  = *g_theUnitPool;
     if (ArmyPool *ap = armypool_Get()) doc["army_pool"] = *ap;
     if (TradePool *tp = tradepool_Get()) doc["trade_pool"] = *tp;
-    if (g_thePollution)              doc["pollution"]                  = *g_thePollution;
+    if (Pollution *pol = pollution_Get()) doc["pollution"]             = *pol;
     if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
     if (TerrainImprovementPool *tip = terrimprovepool_Get()) doc["terrain_improvement_pool"] = *tip;
     if (CivilisationPool *cp = civilisationpool_Get()) doc["civilisation_pool"] = *cp;
@@ -4762,7 +4761,7 @@ bool LoadJson(char const *path)
         if (doc.contains("unit_pool")          && g_theUnitPool)               doc.at("unit_pool")               .get_to(*g_theUnitPool);
         if (ArmyPool *ap = armypool_Get(); doc.contains("army_pool") && ap) doc.at("army_pool").get_to(*ap);
         if (TradePool *tp = tradepool_Get(); doc.contains("trade_pool") && tp) doc.at("trade_pool").get_to(*tp);
-        if (doc.contains("pollution")          && g_thePollution)              doc.at("pollution")               .get_to(*g_thePollution);
+        if (Pollution *pol = pollution_Get(); doc.contains("pollution") && pol) doc.at("pollution").get_to(*pol);
         if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);
         if (TerrainImprovementPool *tip = terrimprovepool_Get(); doc.contains("terrain_improvement_pool") && tip) doc.at("terrain_improvement_pool").get_to(*tip);
         if (CivilisationPool *cp = civilisationpool_Get(); doc.contains("civilisation_pool") && cp) doc.at("civilisation_pool").get_to(*cp);

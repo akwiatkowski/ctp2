@@ -85,9 +85,6 @@
 extern World                    *g_world;
 extern Player                   **g_player;
 
-extern Pollution                *g_thePollution;
-
-
 extern ProfileDB                *g_theProfileDB;
 
 sint32 NewTurnCount::sm_the_stop_player = 1;
@@ -231,7 +228,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	else
 	{
 		render_observer::NextPlayer();
-		g_thePollution->BeginTurn();
+		pollution_Get()->BeginTurn();
 	}
 }
 
@@ -259,7 +256,7 @@ void NewTurnCount::StartNewYear()
 
 	g_slicEngine->RunYearlyTriggers();
 
-	g_thePollution->EndRound();
+	pollution_Get()->EndRound();
 
 	RunNewYearMessages();
 }

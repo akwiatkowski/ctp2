@@ -827,7 +827,7 @@ SFN_ERROR Slic_IsContinentBiggerThan::Call(SlicArgList *args)
 	if(!res)
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	m_result.m_int = g_theWorld->IsContinentBiggerThan(size, point);
+	m_result.m_int = world_Get()->IsContinentBiggerThan(size, point);
 	return SFN_ERROR_OK;
 }
 
@@ -989,7 +989,7 @@ SFN_ERROR Slic_IsUnderseaCity::Call(SlicArgList *args)
 
 	MapPoint pos;
 	city.GetPos(pos);
-	m_result.m_int = g_theWorld->IsWater(pos);
+	m_result.m_int = world_Get()->IsWater(pos);
 	return SFN_ERROR_OK;
 }
 
@@ -1162,7 +1162,7 @@ SFN_ERROR Slic_UnitsInCell::Call(SlicArgList *args)
 	if (!args->GetPos(0, point))
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	m_result.m_int = g_theWorld->GetCell(point)->GetNumUnits();
+	m_result.m_int = world_Get()->GetCell(point)->GetNumUnits();
 	return SFN_ERROR_OK;
 }
 
@@ -1304,7 +1304,7 @@ SFN_ERROR Slic_ControlsRegion::Call(SlicArgList *args)
 		m_result.m_int = TRUE;
 		for(sint32 x = region.x1; x <= region.x2 && !done; x++) {
 			for(sint32 y = region.y1; y <= region.y2 && !done; y++) {
-				sint32 owner = g_theWorld->GetCell(x,y)->GetOwner();
+				sint32 owner = world_Get()->GetCell(x,y)->GetOwner();
 				if(owner != player && owner >= 0) {
 					m_result.m_int = FALSE;
 					done = TRUE;
@@ -1322,7 +1322,7 @@ SFN_ERROR Slic_ControlsRegion::Call(SlicArgList *args)
 		for(; cregion && !done; cregion = cregion->next) {
 			for(sint32 x = cregion->x1; x <= cregion->x2 && !done; x++) {
 				for(sint32 y = cregion->y1; y <= cregion->y2 && !done; y++) {
-					sint32 owner = g_theWorld->GetCell(x,y)->GetOwner();
+					sint32 owner = world_Get()->GetCell(x,y)->GetOwner();
 					if(owner != player && owner >= 0) {
 						m_result.m_int = FALSE;
 						done = TRUE;
@@ -2366,7 +2366,7 @@ SFN_ERROR Slic_TerrainType::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	m_result.m_int = g_theWorld->GetTerrainType(pos);
+	m_result.m_int = world_Get()->GetTerrainType(pos);
 	return SFN_ERROR_OK;
 }
 
@@ -3269,13 +3269,13 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 	sint32 x, y;
 	BOOL found = FALSE;
 	DynamicArray<MapPoint> legalPoints;
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint chk(x, y);
 			sint32 dist = pos.NormalizedDistance(chk);
-			Cell *cell = g_theWorld->GetCell(chk);
+			Cell *cell = world_Get()->GetCell(chk);
 			if(dist == distance &&
-			   g_theWorld->CanEnter(chk, rec->GetMovementType()) &&
+			   world_Get()->CanEnter(chk, rec->GetMovementType()) &&
 			   (!cell->UnitArmy() ||
 				(cell->UnitArmy()->GetOwner() == owner &&
 				 cell->UnitArmy()->Num() < k_MAX_ARMY_SIZE)) &&
@@ -3526,14 +3526,14 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 	static DynamicArray<MapPoint> legalPoints;
 	legalPoints.Clear();
 
-	sint16 origContinent = g_theWorld->GetContinent(pos);
+	sint16 origContinent = world_Get()->GetContinent(pos);
 
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint chk(x, y);
-			if(g_theWorld->GetContinent(chk) == origContinent &&
-			   !g_theWorld->IsNextToCity(chk) &&
-			   !g_theWorld->IsCity(chk)) {
+			if(world_Get()->GetContinent(chk) == origContinent &&
+			   !world_Get()->IsNextToCity(chk) &&
+			   !world_Get()->IsCity(chk)) {
 				legalPoints.Insert(chk);
 				found = TRUE;
 			}
@@ -3570,12 +3570,12 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 		rec = g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType());
 		if(!rec->GetHasPopAndCanBuild())
 			continue;
-		if((g_theWorld->IsLand(cpos) || g_theWorld->IsMountain(cpos)) &&
-		   !g_theWorld->IsWater(cpos) && rec->GetMovementTypeLand())
+		if((world_Get()->IsLand(cpos) || world_Get()->IsMountain(cpos)) &&
+		   !world_Get()->IsWater(cpos) && rec->GetMovementTypeLand())
 			break;
-		if(g_theWorld->IsWater(cpos) && rec->GetMovementTypeSea())
+		if(world_Get()->IsWater(cpos) && rec->GetMovementTypeSea())
 			break;
-		if(g_theWorld->IsSpace(cpos) && rec->GetMovementTypeSpace())
+		if(world_Get()->IsSpace(cpos) && rec->GetMovementTypeSpace())
 			break;
 	}
 	if(i >= g_theUnitDB->NumRecords() - 1) {
@@ -3626,15 +3626,15 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 	static DynamicArray<MapPoint> legalPoints;
 	legalPoints.Clear();
 
-	sint16 origContinent = g_theWorld->GetContinent(pos);
+	sint16 origContinent = world_Get()->GetContinent(pos);
 
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint chk(x, y);
-			if(g_theWorld->GetContinent(chk) == origContinent &&
-			   !g_theWorld->IsNextToCity(chk) &&
-			   !g_theWorld->IsCity(chk) &&
-			   g_theWorld->IsNextToWater(chk.x, chk.y)) {
+			if(world_Get()->GetContinent(chk) == origContinent &&
+			   !world_Get()->IsNextToCity(chk) &&
+			   !world_Get()->IsCity(chk) &&
+			   world_Get()->IsNextToWater(chk.x, chk.y)) {
 				legalPoints.Insert(chk);
 				found = TRUE;
 			}
@@ -3671,12 +3671,12 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 		rec = g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType());
 		if(!rec->GetHasPopAndCanBuild())
 			continue;
-		if((g_theWorld->IsLand(cpos) || g_theWorld->IsMountain(cpos)) &&
-		   !g_theWorld->IsWater(cpos) && rec->GetMovementTypeLand())
+		if((world_Get()->IsLand(cpos) || world_Get()->IsMountain(cpos)) &&
+		   !world_Get()->IsWater(cpos) && rec->GetMovementTypeLand())
 			break;
-		if(g_theWorld->IsWater(cpos) && rec->GetMovementTypeSea())
+		if(world_Get()->IsWater(cpos) && rec->GetMovementTypeSea())
 			break;
-		if(g_theWorld->IsSpace(cpos) && rec->GetMovementTypeSpace())
+		if(world_Get()->IsSpace(cpos) && rec->GetMovementTypeSpace())
 			break;
 	}
 	if(i >= g_theUnitDB->NumRecords() - 1) {
@@ -3746,7 +3746,7 @@ SFN_ERROR Slic_FindCoastalCity::Call(SlicArgList *args)
 	for(i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
 		MapPoint pos;
 		g_player[player]->m_all_cities->Access(i).GetPos(pos);
-		if(g_theWorld->IsNextToWater(pos.x, pos.y)) {
+		if(world_Get()->IsNextToWater(pos.x, pos.y)) {
 
 			SlicSymbolData *sym = args->m_argValue[1].m_symbol;
 			if(sym->GetType() != SLIC_SYM_CITY) {
@@ -3780,9 +3780,9 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 	}
 
-	g_theWorld->SmartSetTerrain(tpos, terrain, 0);
+	world_Get()->SmartSetTerrain(tpos, terrain, 0);
 #if 0
-	Cell *cell = g_theWorld->GetCell(tpos);
+	Cell *cell = world_Get()->GetCell(tpos);
 	cell->SetTerrain(terrain);
 	cell->SetEnv(cell->GetEnv() & ~(k_MASK_ENV_ROAD |
 										  k_MASK_ENV_IRRIGATION |
@@ -3809,34 +3809,34 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 		case TERRAIN_BROWN_HILL:
 		case TERRAIN_WHITE_HILL:
 		case TERRAIN_DEAD_HILL:
-			g_theWorld->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_LAND);
+			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_LAND);
 			break;
 		case TERRAIN_MOUNTAIN:
 		case TERRAIN_BROWN_MOUNTAIN:
 		case TERRAIN_WHITE_MOUNTAIN:
-			g_theWorld->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_MOUNTAIN);
+			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_MOUNTAIN);
 			break;
 		case TERRAIN_WATER_SHALLOW:
 		case TERRAIN_WATER_BEACH:
-			g_theWorld->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SHALLOW_WATER | k_MOVEMENT_TYPE_WATER);
+			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SHALLOW_WATER | k_MOVEMENT_TYPE_WATER);
 			break;
 		case TERRAIN_WATER_DEEP:
 		case TERRAIN_WATER_VOLCANO:
 		case TERRAIN_WATER_SHELF:
 		case TERRAIN_WATER_TRENCH:
 		case TERRAIN_WATER_RIFT:
-			g_theWorld->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_WATER);
+			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_WATER);
 			break;
 		case TERRAIN_SPACE:
-			g_theWorld->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SPACE);
+			world_Get()->SetMovementType(tpos.x, tpos.y, k_MOVEMENT_TYPE_SPACE);
 			break;
 	}
 
-	tiledmap_observer::PostProcessTile(tpos, g_theWorld->GetTileInfo(tpos));
+	tiledmap_observer::PostProcessTile(tpos, world_Get()->GetTileInfo(tpos));
 	tiledmap_observer::TileChanged(tpos);
 	for(WORLD_DIRECTION d = NORTH; d < UP; d = (WORLD_DIRECTION)((sint32)d + 1)) {
 		if(tpos.GetNeighborPosition(d, pos)) {
-			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 			tiledmap_observer::TileChanged(pos);
 			tiledmap_observer::RedrawTile(pos);
 		}
@@ -3855,8 +3855,8 @@ SFN_ERROR Slic_PlantGood::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_theWorld->SetRandomGood(pos.x, pos.y);
-	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	world_Get()->SetRandomGood(pos.x, pos.y);
+	tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 	tiledmap_observer::TileChanged(pos);
 	tiledmap_observer::RedrawTile(pos);
 
@@ -3873,7 +3873,7 @@ SFN_ERROR Slic_HasGood::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	sint32 good;
-	if(!g_theWorld->GetGood(pos, good)) {
+	if(!world_Get()->GetGood(pos, good)) {
 		m_result.m_int = -1;
 	} else {
 		m_result.m_int = good;
@@ -3919,14 +3919,14 @@ SFN_ERROR Slic_GetRandomNeighbor::Call(SlicArgList *args)
 	do {
 		if(pos.GetNeighborPosition((WORLD_DIRECTION)d, npos)) {
 			sym->SetPos(npos);
-			if((g_theWorld->IsLand(pos) || g_theWorld->IsMountain(pos)) &&
-			   !g_theWorld->IsWater(pos)) {
-				if((g_theWorld->IsLand(npos) || g_theWorld->IsMountain(npos)) &&
-				   !g_theWorld->IsWater(npos)) {
+			if((world_Get()->IsLand(pos) || world_Get()->IsMountain(pos)) &&
+			   !world_Get()->IsWater(pos)) {
+				if((world_Get()->IsLand(npos) || world_Get()->IsMountain(npos)) &&
+				   !world_Get()->IsWater(npos)) {
 					retry = FALSE;
 				}
-			} else if(g_theWorld->IsWater(pos)) {
-				if(g_theWorld->IsWater(npos)) {
+			} else if(world_Get()->IsWater(pos)) {
+				if(world_Get()->IsWater(npos)) {
 					retry = FALSE;
 				}
 			}
@@ -4069,7 +4069,7 @@ SFN_ERROR Slic_AllUnitsCanBeExpelled::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetNumUnits() < 1) {
 		m_result.m_int = 0;
 		return SFN_ERROR_OK;
@@ -4175,9 +4175,9 @@ SFN_ERROR Slic_GetNearestWater::Call(SlicArgList *args)
 	MapPoint nearest;
 	sint32 minDist = 0x7fffffff;
 
-	for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-		for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-			if(!g_theWorld->IsWater(x,y))
+	for(y = 0; y < world_Get()->GetYHeight(); y++) {
+		for(x = 0; x < world_Get()->GetXWidth(); x++) {
+			if(!world_Get()->IsWater(x,y))
 				continue;
 			MapPoint chk(x,y);
 			sint32 dist = pos.NormalizedDistance(chk);
@@ -4289,7 +4289,7 @@ SFN_ERROR Slic_HasRiver::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = g_theWorld->IsRiver(pos);
+	m_result.m_int = world_Get()->IsRiver(pos);
 	return SFN_ERROR_OK;
 }
 
@@ -4361,7 +4361,7 @@ SFN_ERROR Slic_IsInZOC::Call(SlicArgList *args)
 	for(d = 0; d < sint32(NOWHERE); d++) {
 		MapPoint n;
 		if(pos.GetNeighborPosition((WORLD_DIRECTION)d, n)) {
-			Cell *theCell = g_theWorld->GetCell(n);
+			Cell *theCell = world_Get()->GetCell(n);
 			if(theCell->UnitArmy() && theCell->UnitArmy()->GetOwner() == player) {
 				m_result.m_int = 1;
 				return SFN_ERROR_OK;
@@ -4699,8 +4699,8 @@ SFN_ERROR Slic_MakeLocation::Call(SlicArgList *args)
 
 	long width,height;
 
-	width=g_theWorld->GetXWidth();
-	height=g_theWorld->GetYHeight();
+	width=world_Get()->GetXWidth();
+	height=world_Get()->GetYHeight();
 
 	if(x < 0 || x >= width)
 		return SFN_ERROR_OUT_OF_RANGE;
@@ -4752,7 +4752,7 @@ SFN_ERROR Slic_Flood::Call(SlicArgList *args)
 	if(!args->GetInt(0, stage))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_theWorld->GlobalWarming(stage);
+	world_Get()->GlobalWarming(stage);
 	return SFN_ERROR_OK;
 }
 
@@ -4761,7 +4761,7 @@ SFN_ERROR Slic_Ozone::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	g_theWorld->OzoneDepletion();
+	world_Get()->OzoneDepletion();
 	return SFN_ERROR_OK;
 }
 
@@ -5141,13 +5141,13 @@ SFN_ERROR Slic_GetCityByLocation::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if(pos.x < 0 || pos.x >= g_theWorld->GetXWidth())
+	if(pos.x < 0 || pos.x >= world_Get()->GetXWidth())
 		return SFN_ERROR_OUT_OF_RANGE;
 
-	if(pos.y < 0 || pos.y >= g_theWorld->GetYHeight())
+	if(pos.y < 0 || pos.y >= world_Get()->GetYHeight())
 		return SFN_ERROR_OUT_OF_RANGE;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetCity().m_id == 0) {
 		return SFN_ERROR_OK;
 	}
@@ -5688,7 +5688,7 @@ SFN_ERROR Slic_Stacked::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	CellUnitList *units = g_theWorld->GetCell(pos)->UnitArmy();
+	CellUnitList *units = world_Get()->GetCell(pos)->UnitArmy();
 	if(!units || units->Num() < 1)
 		return SFN_ERROR_OK;
 
@@ -6092,13 +6092,13 @@ SFN_ERROR Slic_GetUnitsAtLocation::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(pos.x < 0 || pos.x >= g_theWorld->GetXWidth())
+	if(pos.x < 0 || pos.x >= world_Get()->GetXWidth())
 		return SFN_ERROR_OUT_OF_RANGE;
 
-	if(pos.y < 0 || pos.y >= g_theWorld->GetYHeight())
+	if(pos.y < 0 || pos.y >= world_Get()->GetYHeight())
 		return SFN_ERROR_OUT_OF_RANGE;
 
-	m_result.m_int = g_theWorld->GetCell(pos)->GetNumUnits();
+	m_result.m_int = world_Get()->GetCell(pos)->GetNumUnits();
 	return SFN_ERROR_OK;
 }
 
@@ -6121,7 +6121,7 @@ SFN_ERROR Slic_GetUnitFromCell::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	if(index < 0 || index >= cell->GetNumUnits()) {
 		return SFN_ERROR_OUT_OF_RANGE;
@@ -6145,8 +6145,8 @@ SFN_ERROR Slic_IsRoad::Call(SlicArgList *args)
 	if(!args->GetPos(1, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if (g_theWorld->IsRoad(0,pos)&&
-		(g_theWorld->GetOwner(pos)==owner))
+	if (world_Get()->IsRoad(0,pos)&&
+		(world_Get()->GetOwner(pos)==owner))
 	  m_result.m_int = 1;
 	else
 	  m_result.m_int = 0;
@@ -6159,7 +6159,7 @@ SFN_ERROR Slic_GetMapHeight::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = g_theWorld->GetYHeight();
+	m_result.m_int = world_Get()->GetYHeight();
 	return SFN_ERROR_OK;
 	}
 
@@ -6169,7 +6169,7 @@ SFN_ERROR Slic_GetMapWidth::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = g_theWorld->GetXWidth();
+	m_result.m_int = world_Get()->GetXWidth();
 	return SFN_ERROR_OK;
 	}
 
@@ -6211,7 +6211,7 @@ SFN_ERROR Slic_IsFortress::Call(SlicArgList *args)
 
     m_result.m_int = 0;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -6310,7 +6310,7 @@ SFN_ERROR Slic_CellOwner::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(!cell) {
 		return SFN_ERROR_OUT_OF_RANGE;
 	}
@@ -6538,7 +6538,7 @@ SFN_ERROR Slic_FinishImprovements::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	g_gevManager->Pause();
 
@@ -6674,7 +6674,7 @@ SFN_ERROR Slic_TileHasImprovement::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	m_result.m_int = 0;
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
 		if(imp == cell->GetDBImprovement(i)){
@@ -6887,7 +6887,7 @@ SFN_ERROR Slic_FreeAllSlaves::Call(SlicArgList *args)
 // Parameters : SlicArg 0: location
 //              SlicArg 1: int
 //
-// Globals    : g_theWorld	: World gamestate functionality
+// Globals    : world_Get()	: World gamestate functionality
 //                   g_tiledMap  : UI update functionality
 //
 // Returns    : SFN_ERROR		: execution result
@@ -6912,8 +6912,8 @@ SFN_ERROR Slic_PlantSpecificGood::Call(SlicArgList *args)
 	if(goodsubtype<0 || goodsubtype>4)
 		return SFN_ERROR_OUT_OF_RANGE;
 
-	g_theWorld->SetGood(pos.x, pos.y, goodsubtype);
-	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	world_Get()->SetGood(pos.x, pos.y, goodsubtype);
+	tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 	tiledmap_observer::TileChanged(pos);
 	tiledmap_observer::RedrawTile(pos);
 
@@ -6930,7 +6930,7 @@ SFN_ERROR Slic_PlantSpecificGood::Call(SlicArgList *args)
 //
 // Parameters : SlicArg 0: location
 //
-// Globals    : g_theWorld	: World gamestate functionality
+// Globals    : world_Get()	: World gamestate functionality
 //				g_tiledMap  : UI update functionality
 //
 // Returns    : SFN_ERROR		: execution result
@@ -6945,9 +6945,9 @@ SFN_ERROR Slic_RemoveGood::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_theWorld->SetGood(pos.x, pos.y, 0);
+	world_Get()->SetGood(pos.x, pos.y, 0);
 	// plants a good of subtype 0 AKA no good, at location x,y.
-	tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+	tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 	tiledmap_observer::TileChanged(pos);
 	tiledmap_observer::RedrawTile(pos);
 
@@ -7108,7 +7108,7 @@ SFN_ERROR Slic_GetUnitFromCargo::Call(SlicArgList *args)
 //
 // Parameters : SlicArg 0: location
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -7122,7 +7122,7 @@ SFN_ERROR Slic_GetContinent::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = g_theWorld->GetContinent(pos);
+	m_result.m_int = world_Get()->GetContinent(pos);
 
 	return SFN_ERROR_OK;
 }
@@ -7137,7 +7137,7 @@ SFN_ERROR Slic_GetContinent::Call(SlicArgList *args)
 //
 // Parameters : SlicArg 0: location
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -7151,11 +7151,11 @@ SFN_ERROR Slic_GetContinentSize::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(g_theWorld->IsWater(pos)){
-		m_result.m_int = g_theWorld->GetWaterContinentSize(g_theWorld->GetContinent(pos));
+	if(world_Get()->IsWater(pos)){
+		m_result.m_int = world_Get()->GetWaterContinentSize(world_Get()->GetContinent(pos));
 	}
 	else{
-		m_result.m_int = g_theWorld->GetLandContinentSize(g_theWorld->GetContinent(pos));
+		m_result.m_int = world_Get()->GetLandContinentSize(world_Get()->GetContinent(pos));
 	}
 
 	return SFN_ERROR_OK;
@@ -7171,7 +7171,7 @@ SFN_ERROR Slic_GetContinentSize::Call(SlicArgList *args)
 //
 // Parameters : SlicArg 0: location
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -7185,7 +7185,7 @@ SFN_ERROR Slic_IsWater::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = g_theWorld->IsWater(pos);
+	m_result.m_int = world_Get()->IsWater(pos);
 
 	return SFN_ERROR_OK;
 }
@@ -7200,7 +7200,7 @@ SFN_ERROR Slic_IsWater::Call(SlicArgList *args)
 //
 // Parameters : SlicArg 0,1: locations
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -7218,7 +7218,7 @@ SFN_ERROR Slic_IsOnSameContinent::Call(SlicArgList *args)
 	if (!args->GetPos(1, pos2))
 		return SFN_ERROR_TYPE_ARGS;
 
-    m_result.m_int = g_theWorld->IsOnSameContinent(pos, pos2);
+    m_result.m_int = world_Get()->IsOnSameContinent(pos, pos2);
 
 	return SFN_ERROR_OK;
 }

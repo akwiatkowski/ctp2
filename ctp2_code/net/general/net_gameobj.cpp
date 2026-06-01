@@ -289,7 +289,7 @@ void NetGameObj::KillObject(uint32 id)
 		{
 			DiplomaticRequest rid(id);
 
-			if(g_theDiplomaticRequestPool->IsValid(rid))
+			if(diplomaticrequestpool_Get()->IsValid(rid))
 				rid.Kill();
 			break;
 		}
@@ -325,7 +325,7 @@ void NetGameObj::FixKey(uint32 id)
 			tradepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TRADE_OFFER:
-			g_theTradeOfferPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			tradeofferpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT:
 			terrimprovepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
@@ -337,7 +337,7 @@ void NetGameObj::FixKey(uint32 id)
 			g_theCivilisationPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST:
-			g_theDiplomaticRequestPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			diplomaticrequestpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_MESSAGE:
 			g_theMessagePool->HackSetKey((id & k_ID_KEY_MASK) + 1);

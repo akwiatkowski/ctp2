@@ -2497,7 +2497,7 @@ void Player::EndTurn()
 	if(g_network.IsClient() && m_owner != g_network.GetPlayerIndex())
 		return;
 
-	g_theDiplomaticRequestPool->EndTurn(m_owner) ;
+	diplomaticrequestpool_Get()->EndTurn(m_owner) ;
 	m_terrainPollution = FALSE ;
 
 	n = m_all_cities->Num();
@@ -3259,7 +3259,7 @@ TradeOffer Player::CreateTradeOffer(Unit fromCity,
 									ROUTE_TYPE askingType, sint32 askingResource,
 									Unit toCity)
 {
-	TradeOffer offer = g_theTradeOfferPool->Create(fromCity,
+	TradeOffer offer = tradeofferpool_Get()->Create(fromCity,
 												   offerType, offerResource,
 												   askingType, askingResource,
 												   toCity);
@@ -3303,7 +3303,7 @@ void Player::RemoveTradeOffer(TradeOffer offer)
 
 void Player::WithdrawTradeOffer(TradeOffer offer)
 {
-	if(!g_theTradeOfferPool->IsValid(offer)) {
+	if(!tradeofferpool_Get()->IsValid(offer)) {
 
 		return;
 	}
@@ -4328,7 +4328,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 
 Agreement Player::MakeEndPollutionPact(PLAYER_INDEX player)
 {
-	Agreement a = g_theAgreementPool->Create(m_owner, player, AGREEMENT_TYPE_PACT_END_POLLUTION) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, player, AGREEMENT_TYPE_PACT_END_POLLUTION) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4340,7 +4340,7 @@ Agreement Player::MakeEndPollutionPact(PLAYER_INDEX player)
 
 Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 {
-	Agreement a = g_theAgreementPool->Create(m_owner, player, AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, player, AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4392,7 +4392,7 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 
 Agreement Player::MakeReducePollution(PLAYER_INDEX player)
 {
-	Agreement a = g_theAgreementPool->Create(m_owner, player, AGREEMENT_TYPE_REDUCE_POLLUTION) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, player, AGREEMENT_TYPE_REDUCE_POLLUTION) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4404,7 +4404,7 @@ Agreement Player::MakeReducePollution(PLAYER_INDEX player)
 
 Agreement Player::MakeCaptureCityPact(PLAYER_INDEX player, Unit &city)
 {
-	Agreement a = g_theAgreementPool->Create(m_owner, player, AGREEMENT_TYPE_PACT_CAPTURE_CITY) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, player, AGREEMENT_TYPE_PACT_CAPTURE_CITY) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4466,7 +4466,7 @@ void Player::MakeNoPiracyPact(PLAYER_INDEX other_player)
 		return;
 	}
 
-	Agreement a = g_theAgreementPool->Create(m_owner, other_player, AGREEMENT_TYPE_NO_PIRACY) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, other_player, AGREEMENT_TYPE_NO_PIRACY) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4477,7 +4477,7 @@ void Player::MakeNoPiracyPact(PLAYER_INDEX other_player)
 void Player::MakeShortCeaseFire(PLAYER_INDEX other_player, AGREEMENT_TYPE agreement,
 								PLAYER_INDEX third_party)
 {
-	Agreement a = g_theAgreementPool->Create(m_owner, other_player, agreement) ;
+	Agreement a = agreementpool_Get()->Create(m_owner, other_player, agreement) ;
 	if (a==Agreement())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4506,7 +4506,7 @@ void Player::MakeCeaseFire(PLAYER_INDEX other_player)
 {
 	if (FindAgreement(AGREEMENT_TYPE_CEASE_FIRE, other_player) == Agreement())
 	{
-		Agreement a = g_theAgreementPool->Create(m_owner, other_player, AGREEMENT_TYPE_CEASE_FIRE) ;
+		Agreement a = agreementpool_Get()->Create(m_owner, other_player, AGREEMENT_TYPE_CEASE_FIRE) ;
 		if (a==Agreement())
 			c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_AGREEMENT_ID") ;
 
@@ -4585,7 +4585,7 @@ void Player::BeginTurnAgreements()
 	DynamicArray<Agreement>   agreed(*m_agreed);
 
 	for(i = n - 1; i >= 0; i--) {
-		if(!g_theAgreementPool->IsValid(agreed[i]))
+		if(!agreementpool_Get()->IsValid(agreed[i]))
 			continue;
 		Agreement ag = agreed.Access(i);
 
@@ -4597,7 +4597,7 @@ void Player::BeginTurnAgreements()
 			Assert(false);
 		}
 
-		if(g_theAgreementPool->IsValid(ag) &&
+		if(agreementpool_Get()->IsValid(ag) &&
 		   ag.GetTurns() == 2) {
 			SlicObject *so = new SlicObject("001TreatyToExpire");
 			if(ag.GetRecipient() == m_owner) {
@@ -4653,7 +4653,7 @@ void Player::AddDiplomaticRequest(DiplomaticRequest &request)
 
 void Player::RequestGreeting(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_GREETING) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_GREETING) ;
 	if (r==DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4670,7 +4670,7 @@ void Player::RequestGreeting(const PLAYER_INDEX recipient)
 
 void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType advance)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_ADVANCE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_ADVANCE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4688,7 +4688,7 @@ void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType adva
 
 void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_CITY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_CITY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4706,7 +4706,7 @@ void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
 
 void Player::RequestDemandMap(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_MAP) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_MAP) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4723,7 +4723,7 @@ void Player::RequestDemandMap(const PLAYER_INDEX recipient)
 void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
 {
 
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_GOLD) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_GOLD) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4741,7 +4741,7 @@ void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
 
 void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_STOP_TRADE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_STOP_TRADE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4759,7 +4759,7 @@ void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_I
 
 void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_NO_PIRACY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_NO_PIRACY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4775,7 +4775,7 @@ void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
 
 void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_ATTACK_ENEMY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_ATTACK_ENEMY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4793,7 +4793,7 @@ void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER
 
 void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4809,7 +4809,7 @@ void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
 
 void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_REDUCE_POLLUTION) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_DEMAND_REDUCE_POLLUTION) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4825,7 +4825,7 @@ void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
 
 void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &advance)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_ADVANCE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_ADVANCE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4843,7 +4843,7 @@ void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &adva
 
 void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_CITY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_CITY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4862,7 +4862,7 @@ void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
 
 void Player::RequestOfferMap(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_MAP) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_MAP) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4878,7 +4878,7 @@ void Player::RequestOfferMap(const PLAYER_INDEX recipient)
 
 void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_GOLD) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_GOLD) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4896,7 +4896,7 @@ void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
 
 void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_CEASE_FIRE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_CEASE_FIRE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4913,7 +4913,7 @@ void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
 
 void Player::RequestOfferPermanentAlliance(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PERMANENT_ALLIANCE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4929,7 +4929,7 @@ void Player::RequestOfferPermanentAlliance(const PLAYER_INDEX recipient)
 
 void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &city)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PACT_CAPTURE_CITY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4948,7 +4948,7 @@ void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &cit
 
 void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PACT_END_POLLUTION) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_OFFER_PACT_END_POLLUTION) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4964,7 +4964,7 @@ void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
 
 void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &advance, AdvanceType &desired_advance)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_ADVANCE) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_ADVANCE) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -4984,7 +4984,7 @@ void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &a
 
 void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, Unit &wantCity)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_CITY) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_CITY) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -5004,7 +5004,7 @@ void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, 
 
 void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
 {
-	DiplomaticRequest	r = g_theDiplomaticRequestPool->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_MAP) ;
+	DiplomaticRequest	r = diplomaticrequestpool_Get()->Create(m_owner, recipient, REQUEST_TYPE_EXCHANGE_MAP) ;
 	if (r == DiplomaticRequest())
 		c3errors_FatalDialogFromDB("DIPLOMACY_ERROR", "DIPLOMACY_INVALID_REQUEST_ID") ;
 
@@ -7912,7 +7912,7 @@ void Player::RegisterAttack(PLAYER_INDEX against)
 	DiplomaticRequest req;
 	for(i = m_messages->Num() - 1; i >= 0; i--) {
 		req = m_messages->Access(i).GetDiplomaticRequest();
-		if(g_theDiplomaticRequestPool->IsValid(req)) {
+		if(diplomaticrequestpool_Get()->IsValid(req)) {
 			if(req.GetOwner() == against) {
 				m_messages->Access(i).Reject();
 			}
@@ -7921,7 +7921,7 @@ void Player::RegisterAttack(PLAYER_INDEX against)
 
 	for(i = g_player[against]->m_messages->Num() - 1; i >= 0; i--) {
 		req = g_player[against]->m_messages->Access(i).GetDiplomaticRequest();
-		if(g_theDiplomaticRequestPool->IsValid(req)) {
+		if(diplomaticrequestpool_Get()->IsValid(req)) {
 			if(req.GetOwner() == m_owner) {
 				g_player[against]->m_messages->Access(i).Reject();
 			}

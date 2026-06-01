@@ -43,10 +43,10 @@ void NetTradeOffer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)offer);
 
-	if(!g_theTradeOfferPool->IsValid(offer)) {
+	if(!tradeofferpool_Get()->IsValid(offer)) {
 		m_offerData = new TradeOfferData(offer);
 	} else {
-		m_offerData = g_theTradeOfferPool->AccessTradeOffer(offer);
+		m_offerData = tradeofferpool_Get()->AccessTradeOffer(offer);
 	}
 
 	pos = 6;
@@ -60,9 +60,9 @@ void NetTradeOffer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PULLLONG(toCity);
 	m_offerData->m_toCity = Unit(toCity);
 
-	if(!g_theTradeOfferPool->IsValid(offer)) {
-		g_theTradeOfferPool->HackSetKey(((uint32)offer & k_ID_KEY_MASK) + 1);
-		g_theTradeOfferPool->Insert(m_offerData);
-		g_theTradeOfferPool->AddFromNetwork(offer);
+	if(!tradeofferpool_Get()->IsValid(offer)) {
+		tradeofferpool_Get()->HackSetKey(((uint32)offer & k_ID_KEY_MASK) + 1);
+		tradeofferpool_Get()->Insert(m_offerData);
+		tradeofferpool_Get()->AddFromNetwork(offer);
 	}
 }

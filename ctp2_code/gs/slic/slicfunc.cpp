@@ -1731,12 +1731,12 @@ SFN_ERROR Slic_AcceptTradeOffer::Call(SlicArgList *args)
 
 	SlicObject *context = g_slicEngine->GetContext();
 	TradeOffer offer = context->GetTradeOffer(index - 1);
-	if(g_theTradeOfferPool->IsValid(offer)) {
+	if(tradeofferpool_Get()->IsValid(offer)) {
 
 		if(offer.Accept(context->GetPlayer(0),
 						context->GetCity(2),
 						context->GetCity(3))) {
-			if(g_theTradeOfferPool->IsValid(offer)) {
+			if(tradeofferpool_Get()->IsValid(offer)) {
 				offer.Kill();
 			}
 		}
@@ -4454,7 +4454,7 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 	sint32 i;
 	for(i = g_player[unitOwner]->m_agreed->Num() - 1; i >= 0; i--) {
 		Agreement ag = g_player[unitOwner]->m_agreed->Access(i);
-		if(g_theAgreementPool->IsValid(ag) &&
+		if(agreementpool_Get()->IsValid(ag) &&
 		   ag.GetRecipient() == unitOwner &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS) {
 			if(g_network.IsClient()) {
@@ -4499,7 +4499,7 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 	sint32 i;
 	for(i = g_player[pirate]->m_agreed->Num() - 1; i >= 0; i--) {
 		Agreement ag = g_player[pirate]->m_agreed->Access(i);
-		if(g_theAgreementPool->IsValid(ag) &&
+		if(agreementpool_Get()->IsValid(ag) &&
 		   ag.GetRecipient() == pirate &&
 		   ag.GetOwner() == victim &&
 		   ag.GetAgreement() == AGREEMENT_TYPE_NO_PIRACY) {

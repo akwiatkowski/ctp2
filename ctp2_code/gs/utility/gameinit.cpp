@@ -169,13 +169,19 @@ RandomGenerator             *g_rand=NULL;
 static TradePool            *g_theTradePool = NULL;
 
 TradePool * tradepool_Get(void) { return g_theTradePool; }
-TradeOfferPool              *g_theTradeOfferPool = NULL;
+static TradeOfferPool       *g_theTradeOfferPool = NULL;
+
+TradeOfferPool * tradeofferpool_Get(void) { return g_theTradeOfferPool; }
 QuadTree<Unit>              *g_theUnitTree = NULL;
 Pollution                   *g_thePollution=NULL;
-DiplomaticRequestPool       *g_theDiplomaticRequestPool=NULL;
+static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
+
+DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }
 MessagePool                 *g_theMessagePool=NULL;
 CivilisationPool            *g_theCivilisationPool=NULL;
-AgreementPool               *g_theAgreementPool=NULL;
+static AgreementPool        *g_theAgreementPool=NULL;
+
+AgreementPool * agreementpool_Get(void) { return g_theAgreementPool; }
 static TerrainImprovementPool *g_theTerrainImprovementPool = NULL;
 
 TerrainImprovementPool * terrimprovepool_Get(void) { return g_theTerrainImprovementPool; }

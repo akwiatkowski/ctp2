@@ -116,13 +116,13 @@ extern  StringDB                *g_theStringDB ;
 extern  OzoneDatabase           *g_theUVDB ;
 
 // The Pools
-extern  AgreementPool           *g_theAgreementPool;
+#include "gs/gameobj/AgreementPool.h"     // agreementpool_Get()
 extern  CivilisationPool        *g_theCivilisationPool;
-extern  DiplomaticRequestPool   *g_theDiplomaticRequestPool ;
+#include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
 extern  MessagePool             *g_theMessagePool ;
 #include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
 #include "gs/gameobj/TradePool.h"        // tradepool_Get()
-extern  TradeOfferPool          *g_theTradeOfferPool;
+#include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
 extern  UnitPool                *g_theUnitPool;
 
 // Others
@@ -379,13 +379,13 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(g_theWonderDB, CRC_TYPE_WONDER_DB);
 	CHECK_DB(g_theWonderBuildListDB, CRC_TYPE_WONDER_BUILD_LIST_DB);
 
-	CHECK_DB(g_theAgreementPool, CRC_TYPE_AGREEMENTPOOL);
+	CHECK_DB(agreementpool_Get(), CRC_TYPE_AGREEMENTPOOL);
 	CHECK_DB(g_theCivilisationPool, CRC_TYPE_CIVILISATIONPOOL);
-	CHECK_DB(g_theDiplomaticRequestPool, CRC_TYPE_DIPLOMATICREQUESTPOOL);
+	CHECK_DB(diplomaticrequestpool_Get(), CRC_TYPE_DIPLOMATICREQUESTPOOL);
 	CHECK_DB(g_theMessagePool, CRC_TYPE_MESSAGEPOOL);
 	CHECK_DB(terrimprovepool_Get(), CRC_TYPE_TERRAIN_IMPROVEMENT_POOL);
 	CHECK_DB(tradepool_Get(), CRC_TYPE_TRADEPOOL);
-	CHECK_DB(g_theTradeOfferPool, CRC_TYPE_TRADEOFFERPOOL);
+	CHECK_DB(tradeofferpool_Get(), CRC_TYPE_TRADEOFFERPOOL);
 	CHECK_DB(g_theUnitPool, CRC_TYPE_UNITPOOL);
 
 	CHECK_DB(g_thePollution, CRC_TYPE_POLLUTION);

@@ -2022,7 +2022,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	if (g_gameObservers) g_gameObservers->NotifyCityOwnerReset(me);
 
 	Unit u = me;
-	g_theTradeOfferPool->RemoveTradeOffersFromCity(u);
+	tradeofferpool_Get()->RemoveTradeOffersFromCity(u);
 	tradebids_Get()->CancelBidsWithCity(u);
 
 	Assert (0 <= newo);

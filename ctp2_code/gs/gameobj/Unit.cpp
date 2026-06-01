@@ -257,7 +257,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 			g_network.Enqueue(cell, pos.x, pos.y);
 		}
 
-		g_theTradeOfferPool->RemoveTradeOffersFromCity(*this);
+		tradeofferpool_Get()->RemoveTradeOffersFromCity(*this);
 		tradebids_Get()->CancelBidsWithCity(*this);
 
 		if (cell->UnitArmy())

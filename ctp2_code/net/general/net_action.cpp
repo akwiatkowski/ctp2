@@ -517,7 +517,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Withdrawing trade offer %d\n",
 								m_data[0]));
 			if(g_player[index]) {
-				if(g_theTradeOfferPool->IsValid(TradeOffer(m_data[0])))
+				if(tradeofferpool_Get()->IsValid(TradeOffer(m_data[0])))
 				   g_player[index]->WithdrawTradeOffer(TradeOffer(m_data[0]));
 			}
 			break;
@@ -755,7 +755,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Player %d created diplomatic request %lx to player %d, type %d\n",
 								m_data[0], m_data[3], m_data[1], m_data[2]));
 			g_network.Bookmark(id);
-			DiplomaticRequest req = g_theDiplomaticRequestPool->Create(
+			DiplomaticRequest req = diplomaticrequestpool_Get()->Create(
 							   m_data[0], m_data[1], REQUEST_TYPE(m_data[2]));
 			if(req != DiplomaticRequest(m_data[3])) {
 				g_network.QueuePacketBookmark(id, new NetInfo(
@@ -1090,8 +1090,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_THIRD_PARTY:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1103,8 +1103,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_RESPONSE:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1135,8 +1135,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_TARGET_CITY:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1147,8 +1147,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_REQUEST_GOLD:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1159,8 +1159,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_ADVANCE:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1171,8 +1171,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_WANTED_ADVANCE:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1184,8 +1184,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_SET_WANTED_CITY:
 		{
 			DiplomaticRequest request(m_data[0]);
-			Assert(g_theDiplomaticRequestPool->IsValid(request));
-			if(!g_theDiplomaticRequestPool->IsValid(request)) {
+			Assert(diplomaticrequestpool_Get()->IsValid(request));
+			if(!diplomaticrequestpool_Get()->IsValid(request)) {
 				return;
 			}
 
@@ -1262,7 +1262,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DiplomaticRequest req(m_data[0]);
 
-			if(!g_theDiplomaticRequestPool->IsValid(req)) {
+			if(!diplomaticrequestpool_Get()->IsValid(req)) {
 				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_ENACT,
 													  m_data[0]));
 				break;
@@ -1282,7 +1282,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DiplomaticRequest req(m_data[0]);
 
-			if(!g_theDiplomaticRequestPool->IsValid(req))
+			if(!diplomaticrequestpool_Get()->IsValid(req))
 				break;
 			Assert(req.GetRecipient() == index);
 			if(req.GetRecipient() != index) {
@@ -1674,7 +1674,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Client %d takes trade offer %lx\n", index, m_data[0]));
 			TradeOffer offer(m_data[0]);
-			if(g_theTradeOfferPool->IsValid(offer)) {
+			if(tradeofferpool_Get()->IsValid(offer)) {
 				if(g_player[index]) {
 					Unit unit1(m_data[1]);
 					Unit unit2(m_data[2]);
@@ -1688,12 +1688,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d accepted trade offer %lx\n",
 								index, m_data[0]));
 			TradeOffer offer(m_data[0]);
-			if(g_theTradeOfferPool->IsValid(offer)) {
+			if(tradeofferpool_Get()->IsValid(offer)) {
 				if(g_player[index]) {
 					if(offer.Accept(m_data[1],
 									Unit(m_data[2]),
 									Unit(m_data[3]))) {
-						if(g_theTradeOfferPool->IsValid(offer)) {
+						if(tradeofferpool_Get()->IsValid(offer)) {
 							offer.Kill();
 						}
 					}
@@ -1706,7 +1706,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d is killing agreement %lx\n",
 								index, m_data[0]));
 			Agreement agreement(m_data[0]);
-			if(g_theAgreementPool->IsValid(agreement)) {
+			if(agreementpool_Get()->IsValid(agreement)) {
 				agreement.Kill();
 			}
 			break;
@@ -1840,7 +1840,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d claims it's in violation of %lx\n",
 								m_data[0]));
 			Agreement ag(m_data[0]);
-			if(g_theAgreementPool->IsValid(ag)) {
+			if(agreementpool_Get()->IsValid(ag)) {
 				Assert(ag.GetRecipient() == index);
 				if(ag.GetRecipient() == index) {
 					ag.AccessData()->RecipientIsViolating(ag.GetOwner(), TRUE);

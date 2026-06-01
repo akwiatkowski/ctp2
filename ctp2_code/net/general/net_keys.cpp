@@ -20,14 +20,14 @@ void NetKeys::Packetize(uint8 *buf, uint16 &size)
 	PUSHID(k_PACKET_KEYS_ID);
 	PUSHLONG(g_theUnitPool->HackGetKey());
 	PUSHLONG(tradepool_Get()->HackGetKey());
-	PUSHLONG(g_theTradeOfferPool->HackGetKey());
+	PUSHLONG(tradeofferpool_Get()->HackGetKey());
 	PUSHLONG(terrimprovepool_Get()->HackGetKey());
 	PUSHLONG(installationpool_Get()->HackGetKey());
 	PUSHLONG(g_theCivilisationPool->HackGetKey());
-	PUSHLONG(g_theDiplomaticRequestPool->HackGetKey());
+	PUSHLONG(diplomaticrequestpool_Get()->HackGetKey());
 	PUSHLONG(g_theMessagePool->HackGetKey());
 	PUSHLONG(g_theArmyPool->HackGetKey());
-	PUSHLONG(g_theAgreementPool->HackGetKey());
+	PUSHLONG(agreementpool_Get()->HackGetKey());
 }
 
 void NetKeys::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -40,14 +40,14 @@ void NetKeys::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint32 key;
 	PULLLONG(key); g_theUnitPool->HackSetKey(key);
 	PULLLONG(key); tradepool_Get()->HackSetKey(key);
-	PULLLONG(key); g_theTradeOfferPool->HackSetKey(key);
+	PULLLONG(key); tradeofferpool_Get()->HackSetKey(key);
 	PULLLONG(key); terrimprovepool_Get()->HackSetKey(key);
 	PULLLONG(key); installationpool_Get()->HackSetKey(key);
 	PULLLONG(key); g_theCivilisationPool->HackSetKey(key);
-	PULLLONG(key); g_theDiplomaticRequestPool->HackSetKey(key);
+	PULLLONG(key); diplomaticrequestpool_Get()->HackSetKey(key);
 	PULLLONG(key); g_theMessagePool->HackSetKey(key);
 	PULLLONG(key); g_theArmyPool->HackSetKey(key);
-	PULLLONG(key); g_theAgreementPool->HackSetKey(key);
+	PULLLONG(key); agreementpool_Get()->HackSetKey(key);
 
 	Assert(pos == size);
 }

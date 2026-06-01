@@ -48,5 +48,8 @@ public:
 	void AddFromNetwork(const TradeOffer &offer);
 };
 
-extern TradeOfferPool *g_theTradeOfferPool;
+// g_theTradeOfferPool's lifecycle (new / archive-load / Cleanup) lives
+// in gs/utility/gameinit.cpp; the variable is now file-scope `static`
+// there.  External readers go through tradeofferpool_Get().
+TradeOfferPool * tradeofferpool_Get(void);
 #endif

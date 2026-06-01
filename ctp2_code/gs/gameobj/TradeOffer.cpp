@@ -33,7 +33,7 @@ void TradeOffer::RemoveAllReferences()
 	}
 
 
-	g_theTradeOfferPool->Remove(*this);
+	tradeofferpool_Get()->Remove(*this);
 
 	sint32 p;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
@@ -49,12 +49,12 @@ void TradeOffer::RemoveAllReferences()
 
 const TradeOfferData* TradeOffer::GetData() const
 {
-	return g_theTradeOfferPool->GetTradeOffer(*this);
+	return tradeofferpool_Get()->GetTradeOffer(*this);
 }
 
 TradeOfferData* TradeOffer::AccessData()
 {
-	return g_theTradeOfferPool->AccessTradeOffer(*this);
+	return tradeofferpool_Get()->AccessTradeOffer(*this);
 }
 
 BOOL TradeOffer::Accept(PLAYER_INDEX player,

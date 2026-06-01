@@ -593,8 +593,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.RemoveDeadUnit(m_data);
 			} else {
 				TradeOffer offer(m_data);
-				Assert(g_theTradeOfferPool->IsValid(offer));
-				if(g_theTradeOfferPool->IsValid(offer)) {
+				Assert(tradeofferpool_Get()->IsValid(offer));
+				if(tradeofferpool_Get()->IsValid(offer)) {
 					offer.KillOffer();
 				}
 				g_network.RemoveDeadUnit(m_data);
@@ -710,7 +710,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DiplomaticRequest request(m_data);
 
 			g_network.RemoveEnact(request);
-			if(!g_theDiplomaticRequestPool->IsValid(request))
+			if(!diplomaticrequestpool_Get()->IsValid(request))
 				return;
 			request.Kill();
 			break;
@@ -847,7 +847,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.SendAction(new NetAction(NET_ACTION_ACK_ENACT,
 												   req.m_id));
 			}
-			if(!g_theDiplomaticRequestPool->IsValid(req))
+			if(!diplomaticrequestpool_Get()->IsValid(req))
 				break;
 			req.Enact(TRUE);
 
@@ -859,7 +859,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data));
 			DiplomaticRequest req(m_data);
 
-			if(!g_theDiplomaticRequestPool->IsValid(req))
+			if(!diplomaticrequestpool_Get()->IsValid(req))
 				break;
 			req.Reject(TRUE);
 			break;
@@ -1193,8 +1193,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data2, m_data));
 			if(g_player[m_data]) {
 				TradeOffer offer(m_data2);
-				Assert(g_theTradeOfferPool->IsValid(offer));
-				if(g_theTradeOfferPool->IsValid(offer)) {
+				Assert(tradeofferpool_Get()->IsValid(offer));
+				if(tradeofferpool_Get()->IsValid(offer)) {
 					Unit unit1(m_data3);
 					Unit unit2(m_data4);
 					g_player[m_data]->AcceptTradeOffer(offer, unit1, unit2);
@@ -1217,7 +1217,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Agreement %lx killed\n", m_data));
 			Agreement agreement(m_data);
 
-			if(g_theAgreementPool->IsValid(agreement)) {
+			if(agreementpool_Get()->IsValid(agreement)) {
 				agreement.Kill();
 			}
 			break;
@@ -1614,7 +1614,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Agreement %lx violated by %d\n", m_data, m_data2));
 			Agreement ag(m_data);
-			if(g_theAgreementPool->IsValid(ag)) {
+			if(agreementpool_Get()->IsValid(ag)) {
 				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE);
 			}
 			break;

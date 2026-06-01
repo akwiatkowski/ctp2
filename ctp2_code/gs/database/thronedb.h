@@ -59,6 +59,11 @@ protected:
 };
 
 
-extern ThroneDB *g_theThroneDB;
+// Lifecycle (new in civapp + cleanup via allocated::clear) lives in
+// civapp.cpp; the variable is file-scope `static` in gs/utility/gameinit.cpp.
+// External readers go through thronedb_Get(); the civapp lifecycle code
+// uses thronedb_Set() for the new/clear writes.
+ThroneDB * thronedb_Get(void);
+void       thronedb_Set(ThroneDB *p);
 
 #endif

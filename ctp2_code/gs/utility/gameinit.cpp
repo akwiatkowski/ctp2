@@ -167,7 +167,10 @@ void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
 
 StringDB                    *g_theStringDB=NULL;
 OzoneDatabase               *g_theUVDB=NULL;
-ThroneDB                    *g_theThroneDB = NULL;
+static ThroneDB             *g_theThroneDB = NULL;
+
+ThroneDB * thronedb_Get(void)        { return g_theThroneDB; }
+void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
 World                       *g_theWorld=NULL;
 UnitPool                    *g_theUnitPool=NULL;

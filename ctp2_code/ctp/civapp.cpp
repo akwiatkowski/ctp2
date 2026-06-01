@@ -789,7 +789,7 @@ bool CivApp::InitializeAppDB(void)
 	g_theStringDB               = new StringDB();
 	g_theTerrainDB              = new CTPDatabase<TerrainRecord>;
 	g_theTerrainImprovementDB   = new CTPDatabase<TerrainImprovementRecord>;
-	g_theThroneDB               = new ThroneDB();
+	thronedb_Set(new ThroneDB());
 	g_theUVDB                   = new OzoneDatabase();
 	g_theUnitBuildListDB        = new CTPDatabase<UnitBuildListRecord>;
 	g_theUnitDB                 = new CTPDatabase<UnitRecord>;
@@ -944,7 +944,7 @@ bool CivApp::InitializeAppDB(void)
 	ProgressTo( 170 );
 
 	civapp_log->info("InitializeAppDB: Parsing ThroneDB");
-	g_theThroneDB->Init(g_thronedb_filename );
+	thronedb_Get()->Init(g_thronedb_filename );
 
 	ProgressTo( 180 );
 
@@ -1647,7 +1647,7 @@ void CivApp::CleanupAppDB(void)
     allocated::clear(g_theResourceDB);
     allocated::clear(g_theGovernmentDB);
     allocated::clear(g_theConceptDB);
-    allocated::clear(g_theThroneDB);
+    { ThroneDB *p = thronedb_Get(); delete p; thronedb_Set(NULL); };
     allocated::clear(g_theAgeDB);
     allocated::clear(g_theCityStyleDB);
     allocated::clear(g_theAgeCityStyleDB);

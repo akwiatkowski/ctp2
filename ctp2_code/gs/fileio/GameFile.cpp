@@ -324,7 +324,7 @@ uint32 GameFile::SaveDB(CivArchive &archive)
 	progress_observer::StartCountingTo(190);
 	progress_observer::StartCountingTo(200);
 
-	g_theThroneDB->Serialize( archive );
+	thronedb_Get()->Serialize( archive );
 
 	progress_observer::StartCountingTo(210);
 

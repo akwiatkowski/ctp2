@@ -133,7 +133,7 @@ extern TurnCount             *g_turn;
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
-// g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
+// g_theArmyPool / g_theTradePool / g_slicEngine /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
 // g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
 // g_player are extern'd by their respective headers (already included above).
@@ -4620,7 +4620,7 @@ bool SaveJson(char const *path)
     doc["selection"] = sel;
 
     // --- Object pools (GameFile::Save:393-458) -----------------------
-    if (g_theUnitPool)               doc["unit_pool"]                  = *g_theUnitPool;
+    if (unitpool_Get())               doc["unit_pool"]                  = *unitpool_Get();
     if (ArmyPool *ap = armypool_Get()) doc["army_pool"] = *ap;
     if (TradePool *tp = tradepool_Get()) doc["trade_pool"] = *tp;
     if (Pollution *pol = pollution_Get()) doc["pollution"]             = *pol;
@@ -4757,7 +4757,7 @@ bool LoadJson(char const *path)
         // fresh-game gameinit path leaves these empty, so appending is
         // equivalent to overwriting.  Pools whose from_json *does*
         // clear pre-existing entries (MessagePool) handle it themselves.
-        if (doc.contains("unit_pool")          && g_theUnitPool)               doc.at("unit_pool")               .get_to(*g_theUnitPool);
+        if (doc.contains("unit_pool")          && unitpool_Get())               doc.at("unit_pool")               .get_to(*unitpool_Get());
         if (ArmyPool *ap = armypool_Get(); doc.contains("army_pool") && ap) doc.at("army_pool").get_to(*ap);
         if (TradePool *tp = tradepool_Get(); doc.contains("trade_pool") && tp) doc.at("trade_pool").get_to(*tp);
         if (Pollution *pol = pollution_Get(); doc.contains("pollution") && pol) doc.at("pollution").get_to(*pol);
@@ -4786,7 +4786,7 @@ bool LoadJson(char const *path)
         // null-this dereference; ASAN-confirmed).
         if (unit_tree_Get())         unit_tree_Get()->Clear();
         if (installation_tree_Get()) installation_tree_Get()->Clear();
-        if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
+        if (unitpool_Get())         unitpool_Get()->RebuildQuadTree();
         if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();
         if (TradePool *tp = tradepool_Get()) tp->RecreateActors();
         if (g_slicEngine)          g_slicEngine->PostSerialize();

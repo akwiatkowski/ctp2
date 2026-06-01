@@ -1392,7 +1392,7 @@ void Network::SetReady(uint16 id)
 		UnitDynamicArray *unitList = g_player[p]->GetAllCitiesList();
 		for(n = 0; n < unitList->Num(); n++) {
 			UnitData * unitData =
-                g_theUnitPool->GetUnit(unitList->Get(n).m_id);
+                unitpool_Get()->GetUnit(unitList->Get(n).m_id);
 
 			chunkPackets.AddTail(new NetUnit(unitData));
 
@@ -1413,7 +1413,7 @@ void Network::SetReady(uint16 id)
 
 		unitList = g_player[p]->GetAllUnitList();
 		for(n = 0; n < unitList->Num(); n++) {
-			chunkPackets.AddTail(new NetUnit(g_theUnitPool->GetUnit(unitList->Get(n).m_id)));
+			chunkPackets.AddTail(new NetUnit(unitpool_Get()->GetUnit(unitList->Get(n).m_id)));
 		}
 
 		for(n = 0; n < g_player[p]->m_all_armies->Num(); n++) {
@@ -1446,7 +1446,7 @@ void Network::SetReady(uint16 id)
 		UnitDynamicArray* traderList = g_player[p]->GetTradersList();
 		for(n = 0; n < traderList->Num(); n++) {
 			UnitData * unitData =
-                g_theUnitPool->GetUnit(traderList->Get(n).m_id);
+                unitpool_Get()->GetUnit(traderList->Get(n).m_id);
 			chunkPackets.AddTail(new NetUnit(unitData));
 		}
 
@@ -1521,7 +1521,7 @@ void Network::SetReady(uint16 id)
 	}
 
 	chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_END_UNITS,
-										  g_theUnitPool->HackGetKey(),
+										  unitpool_Get()->HackGetKey(),
 										  armypool_Get()->HackGetKey()));
 
 	PROGRESS(95);
@@ -3291,7 +3291,7 @@ void Network::DoResetCityOwnerHack()
 
 	for(i = 0; i < n; i++) {
 		Unit u = m_resetCityOwnerHackList->Access(i);
-		if(g_theUnitPool->IsValid(u)) {
+		if(unitpool_Get()->IsValid(u)) {
 			Enqueue(u.AccessData());
 			Enqueue(u.AccessData(),
 					u.AccessData()->GetCityData(),

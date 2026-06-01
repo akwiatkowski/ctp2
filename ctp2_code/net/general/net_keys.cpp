@@ -18,7 +18,7 @@ void NetKeys::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_KEYS_ID);
-	PUSHLONG(g_theUnitPool->HackGetKey());
+	PUSHLONG(unitpool_Get()->HackGetKey());
 	PUSHLONG(tradepool_Get()->HackGetKey());
 	PUSHLONG(tradeofferpool_Get()->HackGetKey());
 	PUSHLONG(terrimprovepool_Get()->HackGetKey());
@@ -38,7 +38,7 @@ void NetKeys::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_KEYS_ID);
 
 	uint32 key;
-	PULLLONG(key); g_theUnitPool->HackSetKey(key);
+	PULLLONG(key); unitpool_Get()->HackSetKey(key);
 	PULLLONG(key); tradepool_Get()->HackSetKey(key);
 	PULLLONG(key); tradeofferpool_Get()->HackSetKey(key);
 	PULLLONG(key); terrimprovepool_Get()->HackSetKey(key);

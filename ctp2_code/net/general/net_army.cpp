@@ -12,7 +12,6 @@
 #include "net/general/net_info.h"
 
 extern Player **g_player;
-extern UnitPool *g_theUnitPool;
 
 NetNewArmy::NetNewArmy(PLAYER_INDEX player, const ArmyList &army,
 					   sint32 armyIndex, CAUSE_NEW_ARMY cause)
@@ -80,7 +79,7 @@ void NetNewArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	al.Clear();
 	for(i = 0; i < m_numUnits; i++) {
 		Unit unit(m_unitId[i]);
-		Assert(g_theUnitPool->IsValid(unit));
+		Assert(unitpool_Get()->IsValid(unit));
 		al.Insert(unit);
 	}
 	g_player[m_player]->CopyArmyIntoPlayer(al, m_cause,
@@ -149,7 +148,7 @@ void NetRemoveArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	al.Clear();
 	for(i = 0; i < m_numUnits; i++) {
 		Unit unit(m_unitId[i]);
-		Assert(g_theUnitPool->IsValid(unit));
+		Assert(unitpool_Get()->IsValid(unit));
 		al.Insert(unit);
 	}
 
@@ -214,7 +213,7 @@ void NetArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	for(i = 0; i < c; i++) {
 		Unit u;
 		PULLLONGTYPE(u, Unit);
-		if(g_theUnitPool->IsValid(u))
+		if(unitpool_Get()->IsValid(u))
 			m_data->Insert(u);
 	}
 

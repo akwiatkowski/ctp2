@@ -10,7 +10,6 @@
 
 #include "gs/gameobj/Player.h"
 extern Player **g_player;
-extern UnitPool *g_theUnitPool;
 
 NetTradeOffer::NetTradeOffer(TradeOfferData* data) : m_offerData(data)
 {

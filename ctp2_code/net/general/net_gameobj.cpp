@@ -55,7 +55,6 @@
 #include "gs/outcom/AICause.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 
-extern UnitPool *g_theUnitPool;
 
 NetGameObj::GameObjRecord::GameObjRecord(GameObj *obj)
 {
@@ -184,7 +183,7 @@ void NetGameObj::CheckReceived(uint32 id)
 
 
 			Unit u(id);
-			if(g_theUnitPool->IsValid(u)) {
+			if(unitpool_Get()->IsValid(u)) {
 				if(m_createdHash.IsPresent(id)) {
 					reap = TRUE;
 				}
@@ -319,7 +318,7 @@ void NetGameObj::FixKey(uint32 id)
 	DPRINTF(k_DBG_NET, ("NetGameObj: Fixing key %lx\n", id));
 	switch(id & k_ID_TYPE_MASK) {
 		case k_BIT_GAME_OBJ_TYPE_UNIT:
-			g_theUnitPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			unitpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE:
 			tradepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);

@@ -36,7 +36,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Happy.h"
-#include "gs/gameobj/UnitPool.h"       // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"       // UnitPool
 #include "gs/gameobj/PlayHap.h"
 #include "gs/gameobj/Player.h"         // g_player
 
@@ -112,7 +112,7 @@ NetHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLLONG(unitid);
 
-	if(!g_theUnitPool->IsValid(unitid))
+	if(!unitpool_Get()->IsValid(unitid))
 		return;
 
 	Unit u(unitid);

@@ -101,7 +101,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/gameobj/TradePool.h"
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"               // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"               // UnitPool
 #include "gs/database/UVDB.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
@@ -453,7 +453,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 150 );
 
 	if(saveEverything)
-		g_theUnitPool->Serialize(archive);
+		unitpool_Get()->Serialize(archive);
 
 	PROGRESS( 160 );
 

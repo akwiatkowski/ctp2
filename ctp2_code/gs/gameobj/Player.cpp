@@ -261,7 +261,6 @@
 #include "ai/CityManagement/governor.h"
 
 extern PointerList<Player>     *g_deadPlayer;
-extern Pollution               *g_thePollution;
 extern TopTen                  *g_theTopTen;
 extern CivApp                  *g_civApp;
 extern sint32                   g_numGoods; // To fix games with altered ressource database
@@ -2302,7 +2301,7 @@ void Player::BeginTurn()
 		//BeginTurnAllCities();  //2-27-2007  the intro says this method was removed
 		// Read the precompiler derectives and you see that this code is not used at all.
 
-		g_thePollution->BeginTurn() ;
+		pollution_Get()->BeginTurn() ;
 
 		BeginTurnImprovements();
 		BeginTurnEnemyUnits();

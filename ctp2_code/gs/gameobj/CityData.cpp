@@ -302,7 +302,6 @@
 class UnitActor;
 typedef std::shared_ptr<UnitActor> UnitActorPtr;
 
-extern Pollution *      g_thePollution;
 extern TopTen *         g_theTopTen;
 
 
@@ -5548,7 +5547,7 @@ void CityData::GetNuked(UnitDynamicArray &killList)
 	m_cityRadiusOp = RADIUS_OP_REMOVE_IMPROVEMENTS;
 	AdjacentIterator(cpos, this);
 
-	g_thePollution->AddNukePollution(cpos);
+	pollution_Get()->AddNukePollution(cpos);
 }
 
 bool CityData::SafeFromNukes() const

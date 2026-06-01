@@ -68,7 +68,6 @@
 #include "gs/core/game_observer.h"
 
 extern sint32                   g_tileImprovementMode;
-extern Pollution                *g_thePollution;
 
 void Player::BeginTurn()
 {
@@ -227,7 +226,7 @@ void Player::BeginTurn()
 		                       GEA_End);
 	}
 
-	g_thePollution->BeginTurn();
+	pollution_Get()->BeginTurn();
 
 	g_player[m_owner]->PreResourceCalculation();
 }

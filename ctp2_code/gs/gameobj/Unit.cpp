@@ -102,7 +102,7 @@ class UnitActor;
 #include "gs/core/audio_types.h"
 #include "gs/core/player_view.h"
 
-extern Pollution *  g_thePollution;
+
 
 namespace
 {

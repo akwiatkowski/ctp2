@@ -225,7 +225,6 @@ class UnitActor;
 #include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 #include "gs/utility/TurnCnt.h"
 extern Diplomacy_Log *  g_theDiplomacyLog;
-extern Pollution *      g_thePollution;
 extern UnitAstar *      g_theUnitAstar;
 extern TurnCount *      g_turn;
 
@@ -7087,7 +7086,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 					    g_player[m_owner]->AdjustEventPollution(pollution);
                     }
 
-					g_thePollution->AddNukePollution(pos);
+					pollution_Get()->AddNukePollution(pos);
 
 					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeLocationUnit,
 										   GEA_Unit, m_array[i],

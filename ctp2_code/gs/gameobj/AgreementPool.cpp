@@ -17,8 +17,6 @@
 	extern	Player	**g_player ;
 	extern	TurnCount	*g_turn ;
 
-	extern Pollution *g_thePollution ;
-
 
 
 
@@ -139,7 +137,7 @@ void AgreementPool::EndRound(void)
 			if (agreeData->GetAgreement() == AGREEMENT_TYPE_PACT_END_POLLUTION)
 				{
 
-				if (g_thePollution->GetTrend() == k_TREND_DOWNWARD)
+				if (pollution_Get()->GetTrend() == k_TREND_DOWNWARD)
 					{
 
 					expired.Insert(m_table[i]->m_id) ;

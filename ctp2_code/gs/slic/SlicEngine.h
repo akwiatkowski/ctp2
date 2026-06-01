@@ -366,4 +366,9 @@ private:
 
 extern SlicEngine * g_slicEngine;
 
+// Session-singleton accessor pair, mirroring world_Get / gevmanager_Get
+// / unitpool_Get / pollution_Get.
+SlicEngine * slicengine_Get(void);
+void         slicengine_Set(SlicEngine *p);
+
 #endif

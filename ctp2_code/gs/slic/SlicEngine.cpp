@@ -151,6 +151,9 @@
 
 SlicEngine *g_slicEngine = NULL;
 
+SlicEngine * slicengine_Get(void)        { return g_slicEngine; }
+void         slicengine_Set(SlicEngine *p) { g_slicEngine = p; }
+
 char g_slic_filename[_MAX_PATH];
 char g_tutorial_filename[_MAX_PATH];
 

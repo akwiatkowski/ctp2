@@ -410,7 +410,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 				ns_String format( "strings.newgame" );
 
 				char truncname[ dp_PNAMELEN + 1 ];
-				strcpy( truncname, g_playersetup.GetName() );
+				strcpy( truncname, playersetup_Get().GetName() );
 
 				sint32 trunclen = dp_SNAMELEN -
 					( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
@@ -420,7 +420,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 					memset( truncname, 0, sizeof( truncname ) );
 					strncpy(
 						truncname,
-						g_playersetup.GetName(),
+						playersetup_Get().GetName(),
 						strlen( truncname ) + trunclen );
 				}
 
@@ -495,7 +495,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		psw->GetPlayerSetup(g_netfunc->GetPlayer())->Reset();
 
-		g_playersetup.SetReadyToLaunch(false);
+		playersetup_Get().SetReadyToLaunch(false);
 		if(g_netfunc->Create(&g_gamesetup) == NETFunc::OK) {
 			w->SetMode(mode);
 			g_netshell->GotoScreen( NetShell::SCREEN_ALLINONE );
@@ -724,7 +724,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		ns_String format( "strings.newgame" );
 
 		char truncname[ dp_PNAMELEN + 1 ];
-		strcpy( truncname, g_playersetup.GetName() );
+		strcpy( truncname, playersetup_Get().GetName() );
 
 		sint32 trunclen = dp_SNAMELEN -
 			( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
@@ -734,7 +734,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 			memset( truncname, 0, sizeof( truncname ) );
 			strncpy(
 				truncname,
-				g_playersetup.GetName(),
+				playersetup_Get().GetName(),
 				strlen( truncname ) + trunclen );
 		}
 
@@ -848,7 +848,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		ns_String format( "strings.newgame" );
 
 		char truncname[ dp_PNAMELEN + 1 ];
-		strcpy( truncname, g_playersetup.GetName() );
+		strcpy( truncname, playersetup_Get().GetName() );
 
 		sint32 trunclen = dp_SNAMELEN -
 			( strlen( truncname ) + ( strlen( format.GetString() ) - 2  ) );
@@ -858,7 +858,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 			memset( truncname, 0, sizeof( truncname ) );
 			strncpy(
 				truncname,
-				g_playersetup.GetName(),
+				playersetup_Get().GetName(),
 				strlen( truncname ) + trunclen );
 		}
 

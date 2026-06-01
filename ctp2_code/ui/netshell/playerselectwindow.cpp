@@ -435,9 +435,9 @@ void PlayerSelectWindow::OKButtonAction::Execute(
 		((aui_ListBox *)listbox)->InsertItem( item, 0 );
 		listbox->SelectItem( (sint32)0 );
 
-		g_playersetup = nf_PlayerSetup(*(item->GetNetShellObject()->
+		playersetup_Get() = nf_PlayerSetup(*(item->GetNetShellObject()->
 										 GetNETFuncObject()));
-		g_netfunc->SetPlayerSetup(&g_playersetup);
+		g_netfunc->SetPlayerSetup(&playersetup_Get());
 
 		g_netfunc->Connect();
 

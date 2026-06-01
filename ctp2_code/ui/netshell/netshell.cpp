@@ -58,7 +58,9 @@ extern MBCHAR g_serverName[ 100 + 1 ];
 NetShell *          g_netshell          = NULL;
 NETFunc *           g_netfunc           = NULL;
 nf_GameSetup        g_gamesetup;
-nf_PlayerSetup      g_playersetup;
+static nf_PlayerSetup g_playersetup;
+
+nf_PlayerSetup & playersetup_Get(void) { return g_playersetup; }
 static nf_PlayerSetup g_rplayersetup;
 
 nf_PlayerSetup & rplayersetup_Get(void) { return g_rplayersetup; }

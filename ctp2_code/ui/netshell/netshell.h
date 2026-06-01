@@ -33,7 +33,11 @@ extern NetShell	*g_netshell;
 extern NETFunc	*g_netfunc;
 
 extern nf_GameSetup g_gamesetup;
-extern nf_PlayerSetup g_playersetup;
+// Local player setup buffer (sibling to g_rplayersetup which is the
+// remote one).  Storage is file-scope `static` in netshell.cpp; callers
+// get a writable reference via playersetup_Get() and use it for method
+// calls / assignment / address-of.
+nf_PlayerSetup & playersetup_Get(void);
 // Remote player setup buffer.  Definition is file-scope `static` in
 // netshell.cpp; callers (allinonewindow, lobbywindow) get a writable
 // reference via rplayersetup_Get() and use it for assignment / method

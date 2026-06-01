@@ -694,7 +694,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 				}
 			}
 
-			g_playersetup.SetReadyToLaunch(false);
+			playersetup_Get().SetReadyToLaunch(false);
 			if(g_netfunc->Join(g, temp) == NETFunc::OK) {
 				g_gamesetup = nf_GameSetup(g);
 
@@ -925,7 +925,7 @@ void LobbyWindow::InfoButtonAction::Execute(
 	if(item) {
 		if(item->GetNetShellObject()->IsMine()) {
 			PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYEREDIT );
-			p->SetPlayerSetup(&g_playersetup);
+			p->SetPlayerSetup(&playersetup_Get());
 			p->SetMode(p->EDIT);
 			g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
 		} else {

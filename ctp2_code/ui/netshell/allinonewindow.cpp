@@ -1171,36 +1171,36 @@ void AllinoneWindow::SetMode( Mode m )
 	switch( m_mode = m )
 	{
 	case CREATE:
-		m_controls[ CONTROL_KICKBUTTON ]->Enable( !g_playersetup.IsReadyToLaunch() );;
-		m_controls[ CONTROL_GAMENAMETEXTFIELD ]->Enable( !g_playersetup.IsReadyToLaunch() );
-		m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->Enable( !g_playersetup.IsReadyToLaunch() );
-		m_controls[ CONTROL_PLAYSTYLEVALUESPINNER ]->Enable( !g_playersetup.IsReadyToLaunch() );
-		m_controls[ CONTROL_LOCKSWITCH ]->Enable( !g_playersetup.IsReadyToLaunch() );
-		m_controls[ CONTROL_ADDAIBUTTON ]->Enable( !g_playersetup.IsReadyToLaunch() );
+		m_controls[ CONTROL_KICKBUTTON ]->Enable( !playersetup_Get().IsReadyToLaunch() );;
+		m_controls[ CONTROL_GAMENAMETEXTFIELD ]->Enable( !playersetup_Get().IsReadyToLaunch() );
+		m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->Enable( !playersetup_Get().IsReadyToLaunch() );
+		m_controls[ CONTROL_PLAYSTYLEVALUESPINNER ]->Enable( !playersetup_Get().IsReadyToLaunch() );
+		m_controls[ CONTROL_LOCKSWITCH ]->Enable( !playersetup_Get().IsReadyToLaunch() );
+		m_controls[ CONTROL_ADDAIBUTTON ]->Enable( !playersetup_Get().IsReadyToLaunch() );
 
-		m_controls[ CONTROL_CIVPOINTSBUTTON ]->Enable( !g_playersetup.IsReadyToLaunch() );
-		m_controls[ CONTROL_PWPOINTSBUTTON ]->Enable( !g_playersetup.IsReadyToLaunch() );
+		m_controls[ CONTROL_CIVPOINTSBUTTON ]->Enable( !playersetup_Get().IsReadyToLaunch() );
+		m_controls[ CONTROL_PWPOINTSBUTTON ]->Enable( !playersetup_Get().IsReadyToLaunch() );
 
 
-		m_controls[ CONTROL_RULESSHEET ]->Enable( !g_playersetup.IsReadyToLaunch() );
+		m_controls[ CONTROL_RULESSHEET ]->Enable( !playersetup_Get().IsReadyToLaunch() );
 
 		pane = ((aui_ListBox *)m_controls[ CONTROL_UNITSLISTBOX ])
 			->GetPane();
 		pos = pane->ChildList()->GetHeadPosition();
 		for ( i = pane->ChildList()->L(); i; i-- )
-			pane->ChildList()->GetNext( pos )->Enable( !g_playersetup.IsReadyToLaunch() );
+			pane->ChildList()->GetNext( pos )->Enable( !playersetup_Get().IsReadyToLaunch() );
 
 		pane = ((aui_ListBox *)m_controls[ CONTROL_IMPROVEMENTSLISTBOX ])
 			->GetPane();
 		pos = pane->ChildList()->GetHeadPosition();
 		for ( i = pane->ChildList()->L(); i; i-- )
-			pane->ChildList()->GetNext( pos )->Enable( !g_playersetup.IsReadyToLaunch() );
+			pane->ChildList()->GetNext( pos )->Enable( !playersetup_Get().IsReadyToLaunch() );
 
 		pane = ((aui_ListBox *)m_controls[ CONTROL_WONDERSLISTBOX ])
 			->GetPane();
 		pos = pane->ChildList()->GetHeadPosition();
 		for ( i = pane->ChildList()->L(); i; i-- )
-			pane->ChildList()->GetNext( pos )->Enable( !g_playersetup.IsReadyToLaunch() );
+			pane->ChildList()->GetNext( pos )->Enable( !playersetup_Get().IsReadyToLaunch() );
 
 		break;
 
@@ -1211,7 +1211,7 @@ void AllinoneWindow::SetMode( Mode m )
 		if(m_mode != CONTINUE_CREATE) {
 			m_controls[ CONTROL_GAMENAMETEXTFIELD ]->Enable( false );
 		} else {
-			m_controls[ CONTROL_GAMENAMETEXTFIELD ]->Enable( !g_playersetup.IsReadyToLaunch() );
+			m_controls[ CONTROL_GAMENAMETEXTFIELD ]->Enable( !playersetup_Get().IsReadyToLaunch() );
 		}
 		m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->Enable( false );
 		m_controls[ CONTROL_PLAYSTYLEVALUESPINNER ]->Enable( false );
@@ -1597,9 +1597,9 @@ BOOL AllinoneWindow::AssignTribe(
 		if ( !isAI )
 		{
 
-			if ( *(uint16 *)g_playersetup.GetKey()->buf == key )
+			if ( *(uint16 *)playersetup_Get().GetKey()->buf == key )
 			{
-				g_playersetup.SetTribe( index );
+				playersetup_Get().SetTribe( index );
 				UpdatePlayerSetup();
 			}
 			else
@@ -1882,7 +1882,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			{
 			case NETFunc::Message::UNLAUNCH:
 				EnableButtonsForUnlaunch();
-				g_playersetup.SetReadyToLaunch(false);
+				playersetup_Get().SetReadyToLaunch(false);
 				break;
 			case NETFunc::Message::NETWORKERR:
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_CONNECTIONERR );
@@ -2054,8 +2054,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 	if(joinedgame && g_netfunc->GetStatus() == NETFunc::OK) {
 		PlayerSelectWindow *w = (PlayerSelectWindow *)g_netshell->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
-		g_playersetup = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
-		g_netfunc->SetPlayerSetup(&g_playersetup);
+		playersetup_Get() = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
+		g_netfunc->SetPlayerSetup(&playersetup_Get());
 
 		g_netfunc->PushChatMessage(m_messageGameCreate->GetString());
 
@@ -2083,7 +2083,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 
 
-		g_playersetup.SetKey( g_netfunc->GetPlayer()->GetKey() );
+		playersetup_Get().SetKey( g_netfunc->GetPlayer()->GetKey() );
 
 		BOOL success = FALSE;
 		if ( m_mode == CONTINUE_CREATE ||
@@ -2123,7 +2123,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 					if(m_civGuids[i].guid == *g_network.GetGuid()) {
 						success = AssignTribe(
 							m_civGuids[i].civIndex + 1,
-							*(uint16 *)g_playersetup.GetKey()->buf,
+							*(uint16 *)playersetup_Get().GetKey()->buf,
 							FALSE,
 							FALSE,
 							FALSE );
@@ -2170,7 +2170,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		{
 			success = AssignTribe(
 				FindTribe( 0, FALSE ),
-				*(uint16 *)g_playersetup.GetKey()->buf,
+				*(uint16 *)playersetup_Get().GetKey()->buf,
 				FALSE,
 				FALSE,
 				FALSE );
@@ -2244,7 +2244,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			if ( (!g_gamesetup.GetDynamicJoin() && CurNumHumanPlayers() < 2) ||
 				 (g_gamesetup.GetDynamicJoin() && ((ns_HPlayerListBox *)
 			m_controls[ CONTROL_HPLAYERSLISTBOX ])->NumItems() < 2 )
-				 || g_playersetup.IsReadyToLaunch() )
+				 || playersetup_Get().IsReadyToLaunch() )
 			{
 				if ( !m_controls[ CONTROL_OKBUTTON ]->IsDisabled() )
 					m_controls[ CONTROL_OKBUTTON ]->Enable( false );
@@ -2308,10 +2308,10 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				((LobbyWindow *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
 				break;
 			case NETFunc::Message::UNLAUNCH:
-				if(g_playersetup.IsReadyToLaunch())
+				if(playersetup_Get().IsReadyToLaunch())
 					g_netfunc->PushChatMessage(m_messageGameSetup->GetString());
 				EnableButtonsForUnlaunch();
-				g_playersetup.SetReadyToLaunch(false);
+				playersetup_Get().SetReadyToLaunch(false);
 				break;
 			default:
 				break;
@@ -2322,7 +2322,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			{
 				g_netfunc->PushChatMessage(m_messageRequestDenied->GetString());
 
-				if ( g_playersetup.GetTribe() == 0 )
+				if ( playersetup_Get().GetTribe() == 0 )
 					RequestTribe( 0 );
 			}
 			else if ( m->GetCode() == dp_USER_PLAYERDATA_PACKET_ID )
@@ -2555,8 +2555,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 		PlayerSelectWindow *w = (PlayerSelectWindow *)g_netshell->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
-		g_playersetup = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
-		g_netfunc->SetPlayerSetup(&g_playersetup);
+		playersetup_Get() = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
+		g_netfunc->SetPlayerSetup(&playersetup_Get());
 
 		g_netfunc->PushChatMessage(m_messageGameEnter->GetString());
 
@@ -2590,7 +2590,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 
 
-		g_playersetup.SetKey( g_netfunc->GetPlayer()->GetKey() );
+		playersetup_Get().SetKey( g_netfunc->GetPlayer()->GetKey() );
 		if ( m_mode == CONTINUE_JOIN )
 		{
 
@@ -2680,11 +2680,11 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		default: Assert( FALSE ); break;
 		}
 
-		if ( !FindTribe( *(uint16 *)g_playersetup.GetKey()->buf, FALSE ) )
+		if ( !FindTribe( *(uint16 *)playersetup_Get().GetKey()->buf, FALSE ) )
 		{
 			BOOL success = AssignTribe(
 				FindTribe( 0, FALSE ),
-				*(uint16 *)g_playersetup.GetKey()->buf,
+				*(uint16 *)playersetup_Get().GetKey()->buf,
 				FALSE,
 				FALSE,
 				FALSE );
@@ -2811,7 +2811,7 @@ void AllinoneWindow::UpdateDisplay( void )
 		}
 	}
 
-	if ( !g_playersetup.IsReadyToLaunch() )
+	if ( !playersetup_Get().IsReadyToLaunch() )
 		m_controls[ CONTROL_OKBUTTON ]->Enable( TRUE );
 
 
@@ -2829,11 +2829,11 @@ void AllinoneWindow::UpdateTribeSwitches( void )
 		for ( sint32 i = 0; i < k_NS_MAX_PLAYERS; i++ )
 		{
 			if ( !tribeSlots[ i ].isAI )
-			if ( tribeSlots[ i ].key == *(uint16 *)g_playersetup.GetKey()->buf )
+			if ( tribeSlots[ i ].key == *(uint16 *)playersetup_Get().GetKey()->buf )
 			{
-				if ( g_playersetup.GetTribe() != tribeSlots[ i ].tribe )
+				if ( playersetup_Get().GetTribe() != tribeSlots[ i ].tribe )
 				{
-					g_playersetup.SetTribe( tribeSlots[ i ].tribe );
+					playersetup_Get().SetTribe( tribeSlots[ i ].tribe );
 					UpdatePlayerSetup();
 				}
 
@@ -2862,7 +2862,7 @@ void AllinoneWindow::UpdateTribeSwitches( void )
 	sint32 i;
 	for ( i = 0; i < k_NS_MAX_PLAYERS; i++ )
 	{
-		if ( tribeSlots[ i ].tribe != g_playersetup.GetTribe() )
+		if ( tribeSlots[ i ].tribe != playersetup_Get().GetTribe() )
 			spnewgametribescreen_removeTribe( tribeSlots[ i ].tribe - 1 );
 	}
 
@@ -2921,7 +2921,7 @@ void AllinoneWindow::UpdateConfig( void )
 	aui_Static *sheet = (aui_Static *)m_controls[ CONTROL_RULESSHEET ];
 
 #ifdef LOCKSETTINGSONLAUNCH
-	if ( hand->IsOn() && !g_playersetup.IsReadyToLaunch() )
+	if ( hand->IsOn() && !playersetup_Get().IsReadyToLaunch() )
 #else
 	if ( hand->IsOn() )
 #endif
@@ -3067,15 +3067,15 @@ void AllinoneWindow::UpdatePlayerSetup(void)
 {
 	m_shouldUpdatePlayer = true;
 
-	g_playersetup.Update();
+	playersetup_Get().Update();
 
 	ns_PlayerSetupListBox *l = (ns_PlayerSetupListBox *)
 		((ns_Window *)g_netshell->
 		 FindWindow( NetShell::WINDOW_PLAYERSELECT ))->
 		FindControl( PlayerSelectWindow::CONTROL_PLAYERNAMELISTBOX );
 
-	if( l->FindItem( &g_playersetup ) )
-		l->ChangeItem( &g_playersetup );
+	if( l->FindItem( &playersetup_Get() ) )
+		l->ChangeItem( &playersetup_Get() );
 
 	m_shouldUpdatePlayer = false;
 }
@@ -3293,7 +3293,7 @@ AUI_ERRCODE AllinoneWindow::SetParent( aui_Region *region )
 
 		m_joinedGame = false;
 		m_receivedGuids = false;
-		g_playersetup.SetTribe( 0 );
+		playersetup_Get().SetTribe( 0 );
 
 		memset( m_lname, 0, sizeof( m_lname ) );
 
@@ -3557,7 +3557,7 @@ void AllinoneWindow::InfoButtonAction::Execute(
 		{
 			PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
 				FindWindow( NetShell::WINDOW_PLAYEREDIT );
-			p->SetPlayerSetup(&g_playersetup);
+			p->SetPlayerSetup(&playersetup_Get());
 			p->SetMode(p->EDIT_GAMESETUP);
 			g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
 		}
@@ -3576,7 +3576,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if ( g_playersetup.IsReadyToLaunch() ) return;
+	if ( playersetup_Get().IsReadyToLaunch() ) return;
 
 	if (g_netfunc->IsHost() && !c3files_HasLegalCD() )
 	{
@@ -3622,7 +3622,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	g_theProfileDB->SetCivName( g_playersetup.GetName() );
+	g_theProfileDB->SetCivName( playersetup_Get().GetName() );
 
 
 	if ( g_netfunc->IsHost() )
@@ -3721,7 +3721,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 	spnewgametribescreen_setTribeIndex(
-		g_playersetup.GetTribe() - 1,
+		playersetup_Get().GetTribe() - 1,
 		strlen( w->m_lname ) ? w->m_lname : NULL );
 
 	custommapscreen_setValues(
@@ -3795,7 +3795,7 @@ void AllinoneWindow::OKButtonAction::Execute(
     Assert(NETFunc::OK == status);
 
 
-	g_playersetup.SetReadyToLaunch( true );
+	playersetup_Get().SetReadyToLaunch( true );
 	control->Enable( FALSE );
 
 #ifdef LOCKSETTINGSONLAUNCH
@@ -4738,8 +4738,8 @@ void AllinoneWindow::HandicappingSwitchAction::Execute(
 
 	if ( !g_gamesetup.GetHandicapping() )
 	{
-		g_playersetup.SetCivPoints( g_gamesetup.GetCivPoints() );
-		g_playersetup.SetPwPoints( g_gamesetup.GetPwPoints() );
+		playersetup_Get().SetCivPoints( g_gamesetup.GetCivPoints() );
+		playersetup_Get().SetPwPoints( g_gamesetup.GetPwPoints() );
 		w->UpdatePlayerSetup();
 
 		if ( g_netfunc->IsHost() )
@@ -5000,7 +5000,7 @@ void AllinoneWindow::CivPointsButtonAction::Execute(
 
 	if ( !g_gamesetup.GetHandicapping() )
 	{
-		g_playersetup.SetCivPoints( g_gamesetup.GetCivPoints() );
+		playersetup_Get().SetCivPoints( g_gamesetup.GetCivPoints() );
 		w->UpdatePlayerSetup();
 
 		if ( g_netfunc->IsHost() )
@@ -5043,7 +5043,7 @@ void AllinoneWindow::PwPointsButtonAction::Execute(
 
 	if ( !g_gamesetup.GetHandicapping() )
 	{
-		g_playersetup.SetPwPoints( g_gamesetup.GetPwPoints() );
+		playersetup_Get().SetPwPoints( g_gamesetup.GetPwPoints() );
 		w->UpdatePlayerSetup();
 
 		if ( g_netfunc->IsHost() )
@@ -5150,7 +5150,7 @@ void AllinoneWindow::AgesButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( g_netfunc->IsHost() && g_playersetup.IsReadyToLaunch() ) );
+		( g_netfunc->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5190,7 +5190,7 @@ void AllinoneWindow::MapSizeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( g_netfunc->IsHost() && g_playersetup.IsReadyToLaunch() ),
+		( g_netfunc->IsHost() && playersetup_Get().IsReadyToLaunch() ),
 		0 );
 }
 
@@ -5209,7 +5209,7 @@ void AllinoneWindow::WorldShapeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( g_netfunc->IsHost() && g_playersetup.IsReadyToLaunch() ) );
+		( g_netfunc->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 
 }
 
@@ -5335,7 +5335,7 @@ void AllinoneTribeCallback(
 
 
 			spnewgametribescreen_setTribeIndex(
-				g_playersetup.GetTribe() - 1,
+				playersetup_Get().GetTribe() - 1,
 				strlen( w->m_lname ) ? w->m_lname : NULL );
 		}
 	}
@@ -5398,7 +5398,7 @@ void AllinoneWindow::WorldTypeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( g_netfunc->IsHost() && g_playersetup.IsReadyToLaunch() ) );
+		( g_netfunc->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5444,7 +5444,7 @@ void AllinoneWindow::DifficultyButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( g_netfunc->IsHost() && g_playersetup.IsReadyToLaunch() ) );
+		( g_netfunc->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5624,7 +5624,7 @@ void TribesButtonCallback(
 
 	if ( item->IsAI() )
 	{
-		spnewgametribescreen_removeTribe( g_playersetup.GetTribe() - 1 );
+		spnewgametribescreen_removeTribe( playersetup_Get().GetTribe() - 1 );
 		spnewgametribescreen_addTribeNoDuplicate( item->GetAIPlayer()->GetTribe() - 1 );
 		spnewgametribescreen_setTribeIndex(item->GetAIPlayer()->GetTribe() - 1);
 	}
@@ -5632,7 +5632,7 @@ void TribesButtonCallback(
 	{
 		g_allinoneWindow->UpdateTribeSwitches();
 		spnewgametribescreen_setTribeIndex(
-			g_playersetup.GetTribe() - 1,
+			playersetup_Get().GetTribe() - 1,
 			strlen( w->m_lname ) ? w->m_lname : NULL );
 	}
 
@@ -5782,9 +5782,9 @@ void CivPointsButtonCallback(
 
 		if ( gplistbox->NumItems() && w->IsMine( item->GetPlayer() ) )
 		{
-			if ( value != g_playersetup.GetCivPoints() )
+			if ( value != playersetup_Get().GetCivPoints() )
 			{
-				g_playersetup.SetCivPoints( value );
+				playersetup_Get().SetCivPoints( value );
 				w->UpdatePlayerSetup();
 			}
 		}
@@ -5827,9 +5827,9 @@ void PwPointsButtonCallback(
 
 		if ( gplistbox->NumItems() && w->IsMine( item->GetPlayer() ) )
 		{
-			if ( value != g_playersetup.GetPwPoints() )
+			if ( value != playersetup_Get().GetPwPoints() )
 			{
-				g_playersetup.SetPwPoints( value );
+				playersetup_Get().SetPwPoints( value );
 				w->UpdatePlayerSetup();
 			}
 		}

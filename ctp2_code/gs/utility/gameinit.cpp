@@ -175,7 +175,9 @@ MessagePool                 *g_theMessagePool=NULL;
 CivilisationPool            *g_theCivilisationPool=NULL;
 AgreementPool               *g_theAgreementPool=NULL;
 TerrainImprovementPool      *g_theTerrainImprovementPool = NULL;
-InstallationPool            *g_theInstallationPool = NULL;
+static InstallationPool     *g_theInstallationPool = NULL;
+
+InstallationPool * installationpool_Get(void) { return g_theInstallationPool; }
 InstallationQuadTree        *g_theInstallationTree = NULL;
 TopTen                      *g_theTopTen = NULL;
 TurnCount                   *g_turn = NULL;

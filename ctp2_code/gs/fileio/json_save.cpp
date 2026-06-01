@@ -4630,7 +4630,7 @@ bool SaveJson(char const *path)
     if (g_theTerrainImprovementPool) doc["terrain_improvement_pool"]   = *g_theTerrainImprovementPool;
     if (g_theCivilisationPool)       doc["civilisation_pool"]          = *g_theCivilisationPool;
     if (g_theMessagePool)            doc["message_pool"]               = *g_theMessagePool;
-    if (g_theInstallationPool)       doc["installation_pool"]          = *g_theInstallationPool;
+    if (InstallationPool *ip = installationpool_Get()) doc["installation_pool"] = *ip;
 
     // --- Trackers + exclusions (GameFile::Save:474-503) --------------
     if (g_theWonderTracker)  doc["wonder_tracker"]            = *g_theWonderTracker;
@@ -4767,7 +4767,7 @@ bool LoadJson(char const *path)
         if (doc.contains("terrain_improvement_pool") && g_theTerrainImprovementPool) doc.at("terrain_improvement_pool").get_to(*g_theTerrainImprovementPool);
         if (doc.contains("civilisation_pool")  && g_theCivilisationPool)       doc.at("civilisation_pool")       .get_to(*g_theCivilisationPool);
         if (doc.contains("message_pool")       && g_theMessagePool)            doc.at("message_pool")            .get_to(*g_theMessagePool);
-        if (doc.contains("installation_pool")  && g_theInstallationPool)       doc.at("installation_pool")       .get_to(*g_theInstallationPool);
+        if (InstallationPool *ip = installationpool_Get(); doc.contains("installation_pool") && ip) doc.at("installation_pool").get_to(*ip);
 
         // Trackers
         if (doc.contains("wonder_tracker") && g_theWonderTracker) doc.at("wonder_tracker").get_to(*g_theWonderTracker);
@@ -4789,7 +4789,7 @@ bool LoadJson(char const *path)
         if (g_theUnitTree)         g_theUnitTree->Clear();
         if (g_theInstallationTree) g_theInstallationTree->Clear();
         if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
-        if (g_theInstallationPool) g_theInstallationPool->RebuildQuadTree();
+        if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();
         if (g_theTradePool)        g_theTradePool->RecreateActors();
         if (g_slicEngine)          g_slicEngine->PostSerialize();
 

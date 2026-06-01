@@ -272,7 +272,7 @@ void NetGameObj::KillObject(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_INSTALLATION:
 		{
 			Installation inst(id);
-			if(g_theInstallationPool->IsValid(inst)) {
+			if(installationpool_Get()->IsValid(inst)) {
 				inst.KillInstallation();
 			}
 			break;
@@ -331,7 +331,7 @@ void NetGameObj::FixKey(uint32 id)
 			g_theTerrainImprovementPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_INSTALLATION:
-			g_theInstallationPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			installationpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_CIVILISATION:
 			g_theCivilisationPool->HackSetKey((id & k_ID_KEY_MASK) + 1);

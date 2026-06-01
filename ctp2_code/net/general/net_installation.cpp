@@ -39,10 +39,10 @@ void NetInstallation::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)inst);
 
-	if(!g_theInstallationPool->IsValid(inst)) {
+	if(!installationpool_Get()->IsValid(inst)) {
 		m_data = new InstallationData(inst);
 	} else {
-		m_data = g_theInstallationPool->AccessInstallation(inst);
+		m_data = installationpool_Get()->AccessInstallation(inst);
 	}
 
 	pos = 6;
@@ -52,9 +52,9 @@ void NetInstallation::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLSHORT(m_data->m_point.y);
 	PULLLONG(m_data->m_visibility);
 
-	if(!g_theInstallationPool->IsValid(inst)) {
-		g_theInstallationPool->HackSetKey(((uint32)inst & k_ID_KEY_MASK) + 1);
-		g_theInstallationPool->Insert(m_data);
+	if(!installationpool_Get()->IsValid(inst)) {
+		installationpool_Get()->HackSetKey(((uint32)inst & k_ID_KEY_MASK) + 1);
+		installationpool_Get()->Insert(m_data);
 		g_player[m_data->m_owner]->AddInstallation(inst);
 		g_theWorld->InsertInstallation(inst, m_data->m_point);
 		m_data->DoVision();

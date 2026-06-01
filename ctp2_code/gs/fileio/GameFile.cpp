@@ -499,7 +499,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 280 );
 
 	if(saveEverything)
-		g_theInstallationPool->Serialize(archive);
+		installationpool_Get()->Serialize(archive);
 
 	PROGRESS( 290 );
 

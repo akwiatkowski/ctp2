@@ -41,6 +41,9 @@ public:
 	friend void from_json(nlohmann::json const &j, InstallationPool &p);
 };
 
-extern InstallationPool *g_theInstallationPool;
+// g_theInstallationPool's lifecycle (new / archive-load / Cleanup) lives
+// in gs/utility/gameinit.cpp; the variable is now file-scope `static`
+// there.  External readers go through installationpool_Get().
+InstallationPool * installationpool_Get(void);
 
 #endif

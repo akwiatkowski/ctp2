@@ -5555,7 +5555,7 @@ Installation Player::CreateInstallation(sint32 type,
 	if(g_network.IsHost()) {
 		g_network.Block(m_owner);
 	}
-	Installation theInst = g_theInstallationPool->Create(m_owner,
+	Installation theInst = installationpool_Get()->Create(m_owner,
 														 point,
 														 type);
 	if (theInst.m_id != 0) {
@@ -8850,7 +8850,7 @@ void Player::ResetVision()
 	for(j = 0; j < m_allInstallations->Num(); j++) {
 		MapPoint pos;
 		Installation inst = m_allInstallations->Access(j);
-		if(!g_theInstallationPool->IsValid(inst.m_id)) {
+		if(!installationpool_Get()->IsValid(inst.m_id)) {
 			Assert(false);
 			continue;
 		}

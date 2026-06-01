@@ -47,17 +47,17 @@ Installation::RemoveAllReferences()
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_KILL_INSTALLATION,
 									  uint32(*this)));
 	}
-	g_theInstallationPool->Del(*this);
+	installationpool_Get()->Del(*this);
 }
 
 const InstallationData *Installation::GetData() const
 {
-	return g_theInstallationPool->GetInstallation(*this);
+	return installationpool_Get()->GetInstallation(*this);
 }
 
 InstallationData *Installation::AccessData()
 {
-	return g_theInstallationPool->AccessInstallation(*this);
+	return installationpool_Get()->AccessInstallation(*this);
 }
 
 const TerrainImprovementRecord *Installation::GetDBRec() const

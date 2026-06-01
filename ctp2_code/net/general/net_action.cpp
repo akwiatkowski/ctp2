@@ -606,7 +606,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			MapPoint pnt(m_data[1], m_data[2]);
 			Installation inst(m_data[3]);
 			MapPoint rpnt;
-			if(!g_theInstallationPool->IsValid(inst)) {
+			if(!installationpool_Get()->IsValid(inst)) {
 				g_network.QueuePacket(id, new NetInfo(
 					NET_INFO_CODE_NAK_OBJECT, m_data[3], 0));
 				return;

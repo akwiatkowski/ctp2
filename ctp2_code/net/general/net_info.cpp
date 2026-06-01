@@ -622,7 +622,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Net: Killing installation %lx\n", m_data));
 			Installation inst(m_data);
-			if(g_theInstallationPool->IsValid(inst)) {
+			if(installationpool_Get()->IsValid(inst)) {
 				Installation(m_data).Kill();
 			}
 			break;
@@ -951,7 +951,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Installation %d changed owner from %d to %d\n",
 								m_data, m_data2, m_data3));
 			Installation inst(m_data);
-			if(g_theInstallationPool->IsValid(inst)) {
+			if(installationpool_Get()->IsValid(inst)) {
 				if(m_data2 != (uint32)inst.GetOwner()) {
 					inst.ChangeOwner(m_data3);
 				} else {

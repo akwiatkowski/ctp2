@@ -253,7 +253,10 @@ ScreenManager                       *g_screenManager = NULL;
 
 TiledMap                            *g_tiledMap = NULL;
 
-RadarMap                            *g_radarMap = NULL;
+static RadarMap                     *g_radarMap = NULL;
+
+RadarMap * radar_map_Get(void)        { return g_radarMap; }
+void       radar_map_Set(RadarMap *p) { g_radarMap = p; }
 
 CivApp                              *g_civApp = NULL;
 
@@ -1706,9 +1709,11 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		fprintf(stderr, "[MAIN] calling InitializeApp\n");
 		g_civApp->InitializeApp(hInstance, iCmdShow);
 		fprintf(stderr, "[MAIN] InitializeApp returned\n");
-		RegisterUIGameObserver();
-		RegisterUIPlayerView();
-		fprintf(stderr, "[MAIN] UIGameObserver + UIPlayerView registered\n");
+		// Observer registration moved into InitializeApp (civapp.cpp:1566)
+		// so --load / --launchScenario / --no-shell paths get it too.
+		// Calling it again here would double-register; the registry now
+		// dedups defensively, but keeping the call removed avoids relying
+		// on that.
 	}
 
 #ifdef __AUI_USE_SDL__

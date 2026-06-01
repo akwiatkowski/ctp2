@@ -129,7 +129,6 @@ extern C3UI					*g_c3ui;
 #include "ui/interface/trademanager.h"
 
 extern Background	*g_background;
-extern RadarMap     *g_radarMap;
 extern CivPaths     *g_civPaths;
 extern SoundManager	*g_soundManager;
 extern void player_ActivateSpaceButton(sint32 pl);
@@ -476,7 +475,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			g_director->NextPlayer();
 
-			g_radarMap->Update();
+			radar_map_Get()->Update();
 
 			sint32 i;
 			for(i = 0; i < k_MAX_PLAYERS; i++) {

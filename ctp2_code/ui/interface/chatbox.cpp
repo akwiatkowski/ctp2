@@ -52,7 +52,7 @@
 #include "ctp/civapp.h"
 #include "ui/interface/controlpanelwindow.h"     // g_controlPanel
 #include "gfx/spritesys/director.h"               // g_director
-#include "ui/aui_ctp2/radarmap.h"               // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"               // radar_map_Get()
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Player.h"                 // g_player
 #include "gs/slic/SlicEngine.h"
@@ -357,7 +357,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			g_tiledMap->InvalidateMix();
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
-			g_radarMap->Update();
+			radar_map_Get()->Update();
 			g_turn->InformMessages();
 		}
 

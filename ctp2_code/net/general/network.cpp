@@ -144,7 +144,6 @@ extern ProgressWindow		*g_theProgressWindow;
 
 extern TurnCount		*g_turn;
 extern TiledMap			*g_tiledMap;
-extern RadarMap			*g_radarMap;
 extern ProfileDB		*g_theProfileDB;
 extern NETFunc			*g_netfunc;
 extern CivApp			*g_civApp;
@@ -1298,8 +1297,8 @@ void Network::SetReady(uint16 id)
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
 		}
-		if(g_radarMap) {
-			g_radarMap->Update();
+		if(radar_map_Get()) {
+			radar_map_Get()->Update();
 		}
 
 		MainControlPanel::UpdateCityList();
@@ -2330,8 +2329,8 @@ Network::ProcessNewPlayer(uint16 id)
 				g_tiledMap->InvalidateMap();
 				g_tiledMap->Refresh();
 			}
-			if(g_radarMap) {
-				g_radarMap->Update();
+			if(radar_map_Get()) {
+				radar_map_Get()->Update();
 			}
 		}
 
@@ -3551,7 +3550,7 @@ void Network::SetReadyToStart(BOOL ready)
 		g_tiledMap->InvalidateMix();
 		g_tiledMap->InvalidateMap();
 		g_tiledMap->Refresh();
-		g_radarMap->Update();
+		radar_map_Get()->Update();
 
 		if(g_player[m_playerIndex]->m_first_city) {
 			MapPoint pos;

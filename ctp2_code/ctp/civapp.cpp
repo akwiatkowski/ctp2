@@ -231,7 +231,7 @@
 #include "gs/database/profileDB.h"                  // g_theProfileDB
 #include "ui/interface/ProfileEdit.h"
 #include "ui/interface/progresswindow.h"
-#include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "ui/interface/radarwindow.h"
 #include "gs/utility/RandGen.h"                    // g_rand
 #include "ResourceRecord.h"

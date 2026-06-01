@@ -162,7 +162,6 @@
 
 extern C3UI *               g_c3ui;
 extern sint32               g_fog_toggle;
-extern RadarMap *           g_radarMap;
 extern ControlPanelWindow * g_controlPanel;
 extern CivApp *             g_civApp;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
@@ -1724,7 +1723,7 @@ void ScenarioEditor::CivAddRemovePlayer(aui_Control *control, uint32 action, uin
 			g_tiledMap->InvalidateMix();
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
-			g_radarMap->Update();
+			radar_map_Get()->Update();
 			g_turn->InformMessages();
 
 		}
@@ -2241,7 +2240,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 		g_tiledMap->InvalidateMix();
 		g_tiledMap->InvalidateMap();
 		g_tiledMap->Refresh();
-		g_radarMap->Update();
+		radar_map_Get()->Update();
 		g_turn->InformMessages();
 		MainControlPanel::UpdateCityList();
 	}

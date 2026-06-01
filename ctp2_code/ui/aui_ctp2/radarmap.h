@@ -233,6 +233,9 @@ private:
 											    // for each player (Hotseat)
 };
 
-extern RadarMap *g_radarMap;
+// Storage is file-scope `static` in civ3_main.cpp.  Readers use
+// radar_map_Get(); radarwindow's lifecycle (create + clear) uses _Set.
+RadarMap * radar_map_Get(void);
+void       radar_map_Set(RadarMap *p);
 
 #endif

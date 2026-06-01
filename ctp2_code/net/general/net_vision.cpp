@@ -37,7 +37,7 @@
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/Player.h"         // g_player
 #include "gfx/tilesys/tiledmap.h"       // g_tiledMap
-#include "ui/aui_ctp2/radarmap.h"       // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"       // radar_map_Get()
 #include "gs/world/UnseenCell.h"
 #include "gs/world/TileInfo.h"
 #include "gs/gameobj/Vision.h"

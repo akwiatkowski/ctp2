@@ -100,7 +100,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"                  // g_theProfileDB
-#include "ui/aui_ctp2/radarmap.h"                   // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "ui/interface/radarwindow.h"
 #include "ResourceRecord.h"
 #include "ui/interface/scenarioeditor.h"
@@ -4084,7 +4084,7 @@ void TiledMap::RedrawTile
 		UnlockSurface();
 	}
 
-	if (g_radarMap) g_radarMap->RedrawTile( point );
+	if (radar_map_Get()) radar_map_Get()->RedrawTile( point );
 }
 
 
@@ -5439,7 +5439,7 @@ void TiledMap::ZoomUpdate(sint32 zoomLevel)
 
 	CalculateMetrics();
 
-	g_radarMap->CenterMap(MapPoint(mapViewCenterXTile, mapViewCenterYWrap));
+	radar_map_Get()->CenterMap(MapPoint(mapViewCenterXTile, mapViewCenterYWrap));
 
 	Refresh();
 

@@ -139,7 +139,6 @@
 extern C3UI			*g_c3ui;
 extern BOOL			gSuspended;
 extern TiledMap 	*g_tiledMap;
-extern RadarMap     *g_radarMap;
 extern ResourceMap		*g_resourceMap;
 extern Background	*g_background;
 extern WorkWindow	*g_workWindow;
@@ -732,7 +731,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			{
 				Army army(s_item);
 				army.GetPos(pos);
-				g_radarMap->CenterMap(pos);
+				radar_map_Get()->CenterMap(pos);
 				g_tiledMap->Refresh();
 				g_tiledMap->InvalidateMap();
 				break;
@@ -741,7 +740,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			{
 				Unit unit(s_item);
 				unit.GetPos(pos);
-				g_radarMap->CenterMap(pos);
+				radar_map_Get()->CenterMap(pos);
 				g_tiledMap->Refresh();
 				g_tiledMap->InvalidateMap();
 
@@ -829,7 +828,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			g_tiledMap->InvalidateMix();
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
-			g_radarMap->Update();
+			radar_map_Get()->Update();
 			g_turn->InformMessages();
 		}
 		move = FALSE;
@@ -1408,7 +1407,7 @@ void WhackScreen()
 {
 	g_tiledMap->Refresh();
 	g_tiledMap->InvalidateMap();
-	g_radarMap->Update();
+	radar_map_Get()->Update();
 }
 
 bool keypress_IsGameFunction(KEY_FUNCTION kf)

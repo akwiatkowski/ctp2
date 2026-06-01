@@ -149,8 +149,6 @@ extern GrabItem                 *g_grabbedItem;
 extern C3UI                     *g_c3ui;
 
 extern ResourceMap              *g_resourceMap;
-extern RadarMap                 *g_radarMap;
-
 extern SoundManager             *g_soundManager;
 extern CityAstar                 g_city_astar;
 

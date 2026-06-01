@@ -58,7 +58,6 @@
 #include "gfx/spritesys/director.h"
 #include "gs/database/profileDB.h"				// g_theProfileDB
 
-extern RadarMap			*g_radarMap;
 extern C3UI				*g_c3ui;
 
 void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 data )
@@ -277,7 +276,7 @@ void MessageListboxEyePointAction::Execute( aui_Control *control, uint32 action,
 
 	MapPoint pos;
 	message->AccessData()->GetEyePointMapPosition( m_index, pos );
-	g_radarMap->CenterMap( pos );
+	radar_map_Get()->CenterMap( pos );
 
 
 

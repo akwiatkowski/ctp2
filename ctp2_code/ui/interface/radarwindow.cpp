@@ -51,16 +51,6 @@ ctp2_Window * radarwindow_Get(void)
 extern sint32		g_ScreenHeight;
 extern sint32       g_ScreenWidth;
 extern C3UI			*g_c3ui;
-extern RadarMap		*g_radarMap;
-
-
-
-
-
-
-
-
-
 void UnitsToggleButtonActionCallback
 (
 	aui_Control *control,
@@ -72,10 +62,10 @@ void UnitsToggleButtonActionCallback
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayUnits( true );
+		radar_map_Get()->DisplayUnits( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayUnits( false );
+		radar_map_Get()->DisplayUnits( false );
 		break;
 	}
 }
@@ -91,10 +81,10 @@ void CitiesToggleButtonActionCallback
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayCities( true );
+		radar_map_Get()->DisplayCities( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayCities( false );
+		radar_map_Get()->DisplayCities( false );
 		break;
 	}
 }
@@ -110,10 +100,10 @@ void BordersToggleButtonActionCallback
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayBorders( true );
+		radar_map_Get()->DisplayBorders( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayBorders( false );
+		radar_map_Get()->DisplayBorders( false );
 		break;
 	}
 }
@@ -124,10 +114,10 @@ void FilterToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->Filter( true );
+		radar_map_Get()->Filter( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->Filter( false );
+		radar_map_Get()->Filter( false );
 		break;
 	}
 }
@@ -138,10 +128,10 @@ void TradeToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayTrade( true );
+		radar_map_Get()->DisplayTrade( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayTrade( false );
+		radar_map_Get()->DisplayTrade( false );
 		break;
 	}
 }
@@ -152,10 +142,10 @@ void TerrainToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayTerrain( true );
+		radar_map_Get()->DisplayTerrain( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayTerrain( false );
+		radar_map_Get()->DisplayTerrain( false );
 		break;
 	}
 }
@@ -181,10 +171,10 @@ void PoliticalToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayPolitical( true );
+		radar_map_Get()->DisplayPolitical( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayPolitical( false );
+		radar_map_Get()->DisplayPolitical( false );
 		break;
 	}
 }
@@ -195,10 +185,10 @@ void CapitolsToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayCapitols( true );
+		radar_map_Get()->DisplayCapitols( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayCapitols( false );
+		radar_map_Get()->DisplayCapitols( false );
 		break;
 	}
 }
@@ -209,10 +199,10 @@ void RelationsToggleButtonActionCallback(aui_Control *control,
 	switch (action)
 	{
 	case AUI_SWITCH_ACTION_ON:
-		g_radarMap->DisplayRelations( true );
+		radar_map_Get()->DisplayRelations( true );
 		break;
 	case AUI_SWITCH_ACTION_OFF:
-		g_radarMap->DisplayRelations( false );
+		radar_map_Get()->DisplayRelations( false );
 		break;
 	}
 }
@@ -230,8 +220,8 @@ sint32 radarwindow_Initialize()
 
 	g_radarWindow->SetType(AUI_WINDOW_TYPE_SINKING);
 
-	g_radarMap = static_cast<RadarMap*>(aui_Ldl::GetObject(
-		"RadarWindow.RadarMap"));
+	radar_map_Set(static_cast<RadarMap*>(aui_Ldl::GetObject(
+		"RadarWindow.RadarMap")));
 
 	ctp2_Static *topBorder		= static_cast<ctp2_Static*>(aui_Ldl::GetObject(
 		"RadarWindow.TopBorder"));
@@ -266,8 +256,8 @@ sint32 radarwindow_Initialize()
 	rightBorder->Move(leftSize + radarSize, topSize);
 	bottomBorder->Move(0, topSize + radarSize);
 
-	g_radarMap->Resize(radarSize, radarSize);
-	g_radarMap->Move(leftSize, topSize);
+	radar_map_Get()->Resize(radarSize, radarSize);
+	radar_map_Get()->Move(leftSize, topSize);
 
 
 
@@ -321,15 +311,15 @@ sint32 radarwindow_Initialize()
 	Assert(citiesButton);
 	Assert(bordersButton);
 
-	unitsButton->SetState( g_radarMap->IsDisplayUnits() );
-	citiesButton->SetState( g_radarMap->IsDisplayCities() );
-	bordersButton->SetState( g_radarMap->IsDisplayBorders() );
-	filterButton->SetState( g_radarMap->IsFilter() );
-	tradeButton->SetState( g_radarMap->IsDisplayTrade());
-	terrainButton->SetState( g_radarMap->IsDisplayTerrain());
-	politicalButton->SetState( g_radarMap->IsDisplayPolitical());
-	capitolsButton->SetState( g_radarMap->IsDisplayCapitols());
-	relationsButton->SetState( g_radarMap->IsDisplayRelations());
+	unitsButton->SetState( radar_map_Get()->IsDisplayUnits() );
+	citiesButton->SetState( radar_map_Get()->IsDisplayCities() );
+	bordersButton->SetState( radar_map_Get()->IsDisplayBorders() );
+	filterButton->SetState( radar_map_Get()->IsFilter() );
+	tradeButton->SetState( radar_map_Get()->IsDisplayTrade());
+	terrainButton->SetState( radar_map_Get()->IsDisplayTerrain());
+	politicalButton->SetState( radar_map_Get()->IsDisplayPolitical());
+	capitolsButton->SetState( radar_map_Get()->IsDisplayCapitols());
+	relationsButton->SetState( radar_map_Get()->IsDisplayRelations());
 
 	unitsButton->SetActionFuncAndCookie(UnitsToggleButtonActionCallback, NULL);
 	citiesButton->SetActionFuncAndCookie(CitiesToggleButtonActionCallback, NULL);
@@ -372,7 +362,7 @@ sint32 radarwindow_Cleanup( void )
 	}
 
 	g_radarWindow = NULL;
-	g_radarMap = NULL;
+	radar_map_Set(NULL);
 
 	return(0);
 }

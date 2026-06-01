@@ -51,7 +51,7 @@
 
 #include "ui/aui_ctp2/background.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "ui/aui_ctp2/radarmap.h"  // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"  // radar_map_Get()
 
 #include "ui/interface/backgroundwin.h"
 #include "ui/interface/battleviewwindow.h"  // g_battleViewWindow
@@ -125,7 +125,7 @@ void dh_move(DQAction* itemAction,
     if (g_selected_item->GetVisiblePlayer() != theActor->GetPlayerNum() &&
         !g_tiledMap->TileIsVisible(theActor->GetPos().x,
                                    theActor->GetPos().y)) {
-      g_radarMap->CenterMap(theActor->GetPos());
+      radar_map_Get()->CenterMap(theActor->GetPos());
       g_tiledMap->Refresh();
       g_tiledMap->InvalidateMap();
       g_tiledMap->InvalidateMix();
@@ -857,7 +857,7 @@ void dh_copyVision(DQAction* itemAction,
   //	DQActionCopyVision	*action = (DQActionCopyVision *)itemAction;
 
   g_tiledMap->CopyVision();
-  g_radarMap->Update();
+  radar_map_Get()->Update();
   g_director->ActionFinished(seq);
 }
 
@@ -870,7 +870,7 @@ void dh_centerMap(DQAction* itemAction,
   DQActionCenterMap* action = (DQActionCenterMap*)itemAction;
 
   if (!g_selected_item->GetIsPathing()) {
-    g_radarMap->CenterMap(action->centerMap_pos);
+    radar_map_Get()->CenterMap(action->centerMap_pos);
 
     g_tiledMap->Refresh();
     g_tiledMap->InvalidateMap();

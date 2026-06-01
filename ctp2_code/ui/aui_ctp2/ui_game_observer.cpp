@@ -474,14 +474,14 @@ public:
 
     void OnRadarMapUpdate(sint32 player) override
     {
-        if (!g_radarMap || !g_selected_item) return;
+        if (!radar_map_Get() || !g_selected_item) return;
         if (player != g_selected_item->GetVisiblePlayer()) return;
-        g_radarMap->Update();
+        radar_map_Get()->Update();
     }
 
     void OnRadarMapRedrawTile(const MapPoint& pos) override
     {
-        if (g_radarMap) g_radarMap->RedrawTile(&pos);
+        if (radar_map_Get()) radar_map_Get()->RedrawTile(&pos);
     }
 
     void OnAdvanceListReload(sint32 player) override
@@ -582,7 +582,7 @@ public:
     void OnBlankScreenChanged(bool blank, sint32 visiblePlayer,
                               sint32 researchingAdvance) override
     {
-        if (g_radarMap) g_radarMap->Update();
+        if (radar_map_Get()) radar_map_Get()->Update();
 
         if (blank && g_controlPanel) {
             MainControlPanel::Blank();

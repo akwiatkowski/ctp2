@@ -7725,7 +7725,7 @@ void ArmyData::MoveActors(const MapPoint &pos,
 // Globals    : g_network               : multiplayer manager
 //              g_selectedItem          : selected unit or city
 //              g_gevManager            :
-//              g_radarMap              :
+//              radar_map_Get()              :
 //              g_theWorld              : the map
 //              g_player	            : player array
 //

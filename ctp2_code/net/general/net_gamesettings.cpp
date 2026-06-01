@@ -24,7 +24,6 @@
 extern World *g_theWorld;
 extern Player **g_player;
 extern TiledMap *g_tiledMap;
-extern RadarMap *g_radarMap;
 extern SelectedItem *g_selected_item;
 extern Background			*g_background;
 extern C3UI					*g_c3ui;

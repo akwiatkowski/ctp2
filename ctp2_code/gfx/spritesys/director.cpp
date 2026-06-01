@@ -81,7 +81,7 @@
 #include "sound/soundmanager.h"  // g_soundManager
 #include "ui/aui_common/tech_wllist.h"
 #include "ui/aui_ctp2/SelItem.h"   // g_selected_item
-#include "ui/aui_ctp2/radarmap.h"  // g_radarMap
+#include "ui/aui_ctp2/radarmap.h"  // radar_map_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/cursormanager.h"
 
@@ -1901,7 +1901,7 @@ BOOL Director::TileWillBeCompletelyVisible(sint32 x, sint32 y) {
       DQActionCenterMap* action = (DQActionCenterMap*)item->m_action;
       if (action) {
         MapPoint pos = action->centerMap_pos;
-        g_radarMap->ComputeCenteredMap(pos, &tempViewRect);
+        radar_map_Get()->ComputeCenteredMap(pos, &tempViewRect);
       }
     }
   }

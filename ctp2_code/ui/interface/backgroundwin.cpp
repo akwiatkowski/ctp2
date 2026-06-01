@@ -217,7 +217,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 		break;
 #endif
 	case k_DEBUG_OWNER_COMMANDLINE:
-		g_commandLine.DisplayOutput(surface);
+		command_line_Get().DisplayOutput(surface);
 		g_tiledMap->InvalidateMix();
 		break;
     case k_DEBUG_OWNER_FRAME_RATE:

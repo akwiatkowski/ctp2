@@ -251,7 +251,9 @@ extern BOOL	g_drawArmyClumps;
 #include "ui/interface/NationalManagementDialog.h"
 #include "ui/interface/ScienceManagementDialog.h"
 
-CommandLine g_commandLine;
+static CommandLine g_commandLine;
+
+CommandLine & command_line_Get(void) { return g_commandLine; }
 
                                       ZBCommand g_zbCommand;
                                      PopCommand g_popCommand;

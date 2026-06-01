@@ -239,7 +239,7 @@ void NetConsole::Idle()
 					buf[r] = 0;
 					uint8 *c;
 					for(c = buf; c < buf + r; c++) {
-						g_commandLine.AddKey(*c);
+						command_line_Get().AddKey(*c);
 					}
 				}
 			}

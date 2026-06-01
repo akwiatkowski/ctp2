@@ -24,7 +24,7 @@ AUI_ERRCODE StatusWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	primitives_BevelRect16( m_surface, &rect, 1, 1, 16, 16 );
 
 #ifdef _PLAYTEST
-	g_commandLine.Draw();
+	command_line_Get().Draw();
 #endif
 
 	m_dirtyList->AddRect( &rect );

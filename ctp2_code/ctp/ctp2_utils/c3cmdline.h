@@ -392,7 +392,11 @@ private:
     double m_flux_decay;
 };
 
-extern CommandLine g_commandLine;
+// In-game debug console.  Definition is file-scope `static` in
+// c3cmdline.cpp; consumers (keypress, statuswindow, backgroundwin,
+// netconsole) get a writable reference via command_line_Get() and call
+// methods on it as before.
+CommandLine & command_line_Get(void);
 #else
 class CommandLine;
 #endif

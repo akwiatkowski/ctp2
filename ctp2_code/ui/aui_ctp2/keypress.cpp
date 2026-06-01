@@ -161,7 +161,6 @@ extern SelectedItem *g_selected_item;
 extern TurnCount	*g_turn;
 
 #ifdef _PLAYTEST
-extern CommandLine	g_commandLine;
 #endif
 
 KEYMAP *theKeyMap = NULL;
@@ -325,7 +324,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			case '\t' + 128: wParam = '\t'; break;
 			case 8 + 128: wParam = 8; break;
 		}
-		commandMode = g_commandLine.AddKey(static_cast<char>(wParam));
+		commandMode = command_line_Get().AddKey(static_cast<char>(wParam));
 		return TRUE;
 	}
 #endif

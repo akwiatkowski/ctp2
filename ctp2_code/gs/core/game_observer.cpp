@@ -1,6 +1,8 @@
 #include "ctp/c3.h"
 #include "gs/core/game_observer.h"
 
+#include <algorithm>  // std::find for Register dedup
+
 GameObserverRegistry& GameObserverRegistry::Instance()
 {
     static GameObserverRegistry s_instance;
@@ -9,9 +11,15 @@ GameObserverRegistry& GameObserverRegistry::Instance()
 
 void GameObserverRegistry::Register(IGameObserver* observer)
 {
-    if (observer) {
-        m_observers.push_back(observer);
-    }
+    if (!observer) return;
+    // Idempotent: duplicate registrations would fire each notify twice,
+    // doubling deferred director queue items.  Hit during fog-of-war
+    // diagnosis on 2026-06-01: RegisterUIGameObserver was being called
+    // from both civapp.cpp and civ3_main.cpp, doubling every
+    // OnVisionAdded/OnVisionRemoved and miscounting vision refs.
+    if (std::find(m_observers.begin(), m_observers.end(), observer)
+        != m_observers.end()) return;
+    m_observers.push_back(observer);
 }
 
 void GameObserverRegistry::Unregister(IGameObserver* observer)

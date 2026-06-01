@@ -1,0 +1,63 @@
+# CTP2 clangd configuration
+# Place this file in ctp2_code/ so clangd finds it when indexing source files.
+# It points at the Meson-generated compile_commands.json in build/.
+
+---
+# Use the Meson compilation database
+CompileFlags:
+  CompilationDatabase: build
+  # Remove -Wno-non-pod-varargs from the compile flags for clangd's own parsing
+  # (the project needs it for GCC compatibility, but clangd handles variadics better)
+  Remove: [-Wno-non-pod-varargs, -fno-omit-frame-pointer, -fsanitize=address, -fsanitize=undefined]
+
+---
+# Enable clang-tidy diagnostics inside clangd
+# This picks up the .clang-tidy file at the repo root automatically.
+Diagnostics:
+  ClangTidy:
+    Add: [
+      bugprone-*,
+      cppcoreguidelines-*,
+      performance-*,
+      portability-*,
+      security-*,
+      modernize-*,
+    ]
+    Remove: [
+      cppcoreguidelines-avoid-magic-numbers,
+      cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+      cppcoreguidelines-pro-bounds-constant-array-index,
+      cppcoreguidelines-pro-type-vararg,
+      cppcoreguidelines-special-member-functions,
+      cppcoreguidelines-avoid-const-or-ref-data-members,
+      bugprone-easily-swappable-parameters,
+      bugprone-implicit-widening-of-multiplication-result,
+      bugprone-narrowing-conversions,
+      bugprone-suspicious-include,
+      modernize-use-trailing-return-type,
+      modernize-avoid-c-arrays,
+      readability-*,
+    ]
+
+---
+# Background indexing for cross-references (go-to-definition, find-references)
+# This builds an index in ~/.cache/clangd/index/ and enables instant lookups.
+Index:
+  Background: Build
+  StandardLibrary: Yes
+
+---
+# Inlay hints: show parameter names and types at call sites
+# Example: `foo(/*width=*/800, /*height=*/600)`
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+
+---
+# Exclude generated files from indexing to reduce noise
+# These are produced by flex/byacc/dbgen and don't need IDE intelligence.
+If:
+  PathMatch: .*\.(tab\.c|tab\.h|lex\..*\.c|yy\.c)$
+Index:
+  Background: Skip

@@ -297,7 +297,16 @@ struct SequenceSpy : IGameObserver {
 };
 std::vector<int> SequenceSpy::order;
 
-TEST_CASE("GameObserverRegistry does not deduplicate double registration") {
+TEST_CASE("GameObserverRegistry deduplicates double registration") {
+    // Regression: until 2026-06-01 Register() was not idempotent.
+    // RegisterUIGameObserver was called from both civapp.cpp and civ3_main.cpp
+    // on default-launch, which doubled every observer notify.  For
+    // OnVisionAdded/OnVisionRemoved that meant every director-queue
+    // AddVision/RemoveVision was queued twice — combined with game-start
+    // direct-path vision adds (which ran before g_tiledMap was up and so
+    // were not doubled), this drifted m_vision's ref count negative once
+    // any unit moved, fogging the player's own first founded city.
+    // The fix made Register() idempotent.  This test pins the contract.
     GameObserverRegistry &reg = GameObserverRegistry::Instance();
     struct Counter : IGameObserver {
         int count = 0;
@@ -305,15 +314,52 @@ TEST_CASE("GameObserverRegistry does not deduplicate double registration") {
     };
     Counter c;
     reg.Register(&c);
-    reg.Register(&c);  // second registration, no deduplication
+    reg.Register(&c);  // dedup: second registration must be a no-op
     reg.NotifyTurnStart(0);
-    CHECK(c.count == 2);  // dispatched twice
-    // Must unregister twice to fully remove both entries.
+    CHECK(c.count == 1);
+    // A single unregister removes it (no second entry to worry about).
     reg.Unregister(&c);
-    reg.Unregister(&c);
-    // Verify fully removed.
     reg.NotifyTurnStart(0);
-    CHECK(c.count == 2);
+    CHECK(c.count == 1);
+}
+
+TEST_CASE("GameObserverRegistry NotifyVisionAdded fires once per observer (fog regression)") {
+    // The fog-of-war first-city bug was caused by a duplicate observer in
+    // the registry: the deferred director-queue path
+    // (Player::AddUnitVision → NotifyVisionAdded → ui_game_observer::
+    // OnVisionAdded → g_director->AddAddVision) doubled, while the
+    // game-start direct-path adds (g_tiledMap not yet up) ran once.
+    // Net result: m_vision ref count drifted negative once any unit
+    // moved, fogging the player's first city.
+    // This test verifies a single registered observer fires exactly
+    // once per NotifyVisionAdded — even after an attempted double
+    // registration.
+    GameObserverRegistry &reg = GameObserverRegistry::Instance();
+    struct VisionObs : IGameObserver {
+        int added = 0;
+        int removed = 0;
+        double lastRange = 0.0;
+        void OnVisionAdded(sint32, const MapPoint&, double range) override {
+            ++added;
+            lastRange = range;
+        }
+        void OnVisionRemoved(sint32, const MapPoint&, double range) override {
+            ++removed;
+            lastRange = range;
+        }
+    };
+    VisionObs obs;
+    reg.Register(&obs);
+    reg.Register(&obs);  // would have doubled before the fix
+
+    MapPoint pos(30, 4);
+    reg.NotifyVisionAdded(/*player*/1, pos, /*range*/1.414);
+    reg.NotifyVisionRemoved(/*player*/1, pos, /*range*/1.000);
+
+    CHECK(obs.added == 1);
+    CHECK(obs.removed == 1);
+
+    reg.Unregister(&obs);
 }
 
 TEST_CASE("GameObserverRegistry dispatches to many observers") {

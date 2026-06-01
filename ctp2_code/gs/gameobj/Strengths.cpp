@@ -41,7 +41,6 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Gold.h"
-#include "gs/utility/TurnCnt.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/utility/newturncount.h"
@@ -50,12 +49,12 @@
 Strengths::Strengths(sint32 owner)
 {
 	m_owner = owner;
-
-	if (g_turn==NULL)
+ 
+	sint32 const curRound = NewTurnCount::GetCurrentRound();
+ 
+	if (curRound <= 0)
 		return;
-
-	sint32 const	curRound = NewTurnCount::GetCurrentRound();
-
+ 
 	sint32 c, y;
 	for(y = 1; y < curRound; y++) {
 		for(c = 0; c < sint32(STRENGTH_CAT_MAX); c++) {

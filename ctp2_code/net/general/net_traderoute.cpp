@@ -82,10 +82,10 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)route);
 
-	if(!g_theTradePool->IsValid(route)) {
+	if(!tradepool_Get()->IsValid(route)) {
 		m_routeData = new TradeRouteData(route);
 	} else {
-		m_routeData = g_theTradePool->AccessTradeRoute(route);
+		m_routeData = tradepool_Get()->AccessTradeRoute(route);
 	}
 	pos = 6;
 	uint8 newRoute;
@@ -114,7 +114,7 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(sourceCityID);
 	PULLLONG(destCityID);
 
-	if(!g_theTradePool->IsValid(m_routeData->m_id)) {
+	if(!tradepool_Get()->IsValid(m_routeData->m_id)) {
 		m_routeData->m_sourceCity = Unit(sourceCityID);
 		m_routeData->m_destinationCity = Unit(destCityID);
 	} else {
@@ -150,12 +150,12 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		g_theWorld->GetCell(pnt)->AddTradeRoute(route);
 	}
 
-	if(!g_theTradePool->IsValid(route)) {
-		g_theTradePool->HackSetKey(((uint32)m_routeData->m_id & k_ID_KEY_MASK) + 1);
-		g_theTradePool->Insert(m_routeData);
+	if(!tradepool_Get()->IsValid(route)) {
+		tradepool_Get()->HackSetKey(((uint32)m_routeData->m_id & k_ID_KEY_MASK) + 1);
+		tradepool_Get()->Insert(m_routeData);
 		m_routeData->m_sourceCity.AddTradeRoute(route, !m_newRoute);
 		m_routeData->m_destinationCity.AddTradeRoute(route, !m_newRoute);
-		g_theTradePool->m_all_routes->Insert(route);
+		tradepool_Get()->m_all_routes->Insert(route);
 		g_director->TradeActorCreate(route);
 	}
 

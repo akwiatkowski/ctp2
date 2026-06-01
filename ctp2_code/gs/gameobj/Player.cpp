@@ -2080,17 +2080,17 @@ sint32 Player::CalcWonderGold()
 	sint32 goldPerWaterRoute = wonderutil_GetGoldPerWaterTradeRoute(m_builtWonders);
 	sint32 goldPerInternationalRoute = wonderutil_GetGoldPerInternationalTradeRoute(m_builtWonders);
 	if(goldPerWaterRoute > 0 || goldPerInternationalRoute > 0) {
-		n = g_theTradePool->GetAllRoutes().Num();
+		n = tradepool_Get()->GetAllRoutes().Num();
 		for(i = 0; i < n; i++) {
 			sint32 owner;
-			owner = g_theTradePool->GetAllRoutes().Get(i).GetSource().GetOwner();
+			owner = tradepool_Get()->GetAllRoutes().Get(i).GetSource().GetOwner();
 
-				if(g_theTradePool->GetAllRoutes().Get(i).CrossesWater()) {
+				if(tradepool_Get()->GetAllRoutes().Get(i).CrossesWater()) {
 					totalWonderGold += goldPerWaterRoute;
 				}
 
 			sint32 destOwner;
-			destOwner = g_theTradePool->GetAllRoutes().Get(i).GetDestination().GetOwner();
+			destOwner = tradepool_Get()->GetAllRoutes().Get(i).GetDestination().GetOwner();
 			if(destOwner != owner)
 				totalWonderGold += goldPerInternationalRoute;
 		}
@@ -3092,7 +3092,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		return TradeRoute();
 	}
 
-	TradeRoute newRoute = g_theTradePool->Create(sourceCity, destCity, m_owner,
+	TradeRoute newRoute = tradepool_Get()->Create(sourceCity, destCity, m_owner,
 												 sourceType, sourceResource,
 												 paying_for,
 												 gold_in_return);
@@ -3115,7 +3115,7 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 		if(g_network.IsClient()) {
 
 
-			g_theTradePool->HackSetKey((uint32)newRoute & k_ID_KEY_MASK);
+			tradepool_Get()->HackSetKey((uint32)newRoute & k_ID_KEY_MASK);
 		}
 
 		newRoute.KillRoute(CAUSE_KILL_TRADE_ROUTE_NO_INITIAL_CARAVANS);
@@ -8637,7 +8637,7 @@ void Player::IncrementSentRequests(PLAYER_INDEX otherPlayer)
 
 void Player::ReconsiderCostOfTrade()
 {
-	const TradeDynamicArray *allRoutes = g_theTradePool->AccessAllRoutes();
+	const TradeDynamicArray *allRoutes = tradepool_Get()->AccessAllRoutes();
 	sint32 i;
 
 	m_usedTradeTransportPoints = 0;

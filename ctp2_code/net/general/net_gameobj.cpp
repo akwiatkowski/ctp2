@@ -250,7 +250,7 @@ void NetGameObj::KillObject(uint32 id)
 		}
 		case k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE:
 		{
-			if(g_theTradePool->IsValid(id)) {
+			if(tradepool_Get()->IsValid(id)) {
 				TradeRoute route(id);
 				route.KillRoute(CAUSE_KILL_TRADE_ROUTE_UNKNOWN);
 			}
@@ -322,7 +322,7 @@ void NetGameObj::FixKey(uint32 id)
 			g_theUnitPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE:
-			g_theTradePool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			tradepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TRADE_OFFER:
 			g_theTradeOfferPool->HackSetKey((id & k_ID_KEY_MASK) + 1);

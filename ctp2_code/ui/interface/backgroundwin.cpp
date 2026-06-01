@@ -183,7 +183,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
         g_tiledMap->DrawWater();
     }
 
-	g_theTradePool->Draw(surface);
+	tradepool_Get()->Draw(surface);
 	g_tiledMap->RepaintSprites(surface, g_tiledMap->GetMapViewRect(), false);
 
 	if (g_director)

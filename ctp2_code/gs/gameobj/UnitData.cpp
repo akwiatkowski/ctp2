@@ -2544,7 +2544,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 	for(i = cell->GetNumTradeRoutes() - 1; i >= 0; i--)
 	{
 		TradeRoute route = cell->GetTradeRoute(i);
-		if(!g_theTradePool->IsValid(route)) {
+		if(!tradepool_Get()->IsValid(route)) {
 			if(g_network.IsClient()) {
 				g_network.RequestResync(RESYNC_BAD_TRADE_ROUTE);
 				return ORDER_RESULT_ILLEGAL;

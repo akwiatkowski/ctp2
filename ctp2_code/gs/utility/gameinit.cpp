@@ -166,7 +166,9 @@ ArmyPool                    *g_theArmyPool=NULL;
 Player                      **g_player=NULL;
 PointerList<Player>         *g_deadPlayer = NULL;
 RandomGenerator             *g_rand=NULL;
-TradePool                   *g_theTradePool = NULL;
+static TradePool            *g_theTradePool = NULL;
+
+TradePool * tradepool_Get(void) { return g_theTradePool; }
 TradeOfferPool              *g_theTradeOfferPool = NULL;
 QuadTree<Unit>              *g_theUnitTree = NULL;
 Pollution                   *g_thePollution=NULL;

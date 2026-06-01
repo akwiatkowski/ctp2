@@ -1102,13 +1102,13 @@ void CityData::Copy(CityData *copy)
 
 		sint32 i;
 		for(i = copy->m_tradeSourceList.Num() - 1; i >= 0; i--) {
-			if(!g_theTradePool->IsValid(copy->m_tradeSourceList[i])) {
+			if(!tradepool_Get()->IsValid(copy->m_tradeSourceList[i])) {
 				copy->m_tradeSourceList.DelIndex(i);
 			}
 		}
 
 		for(i = copy->m_tradeDestinationList.Num() - 1; i >= 0; i--) {
-			if(!g_theTradePool->IsValid(copy->m_tradeDestinationList[i])) {
+			if(!tradepool_Get()->IsValid(copy->m_tradeDestinationList[i])) {
 				copy->m_tradeDestinationList.DelIndex(i);
 			}
 		}
@@ -3978,7 +3978,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 	for(i = 0; i < n; i++)
 	{
 		TradeRoute route = m_tradeSourceList[i];
-		if(!g_theTradePool->IsValid(route))
+		if(!tradepool_Get()->IsValid(route))
 		{
 			if(g_network.IsClient())
 			{
@@ -4032,7 +4032,7 @@ void CityData::CalculateTradeRoutes(bool projectedOnly)
 	for(i = 0; i < n; i++)
 	{
 		TradeRoute route = m_tradeDestinationList[i];
-		if(!g_theTradePool->IsValid(route))
+		if(!tradepool_Get()->IsValid(route))
 		{
 			if(g_network.IsClient())
 			{

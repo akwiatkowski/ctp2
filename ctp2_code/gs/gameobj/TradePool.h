@@ -73,9 +73,13 @@ public:
 	void BreakOffTrade(PLAYER_INDEX pl1, PLAYER_INDEX pl2);
 };
 
-extern TradePool* g_theTradePool;
+// g_theTradePool's lifecycle (new / archive-load / Cleanup) lives in
+// gs/utility/gameinit.cpp; the variable is now file-scope `static`
+// there.  External readers go through tradepool_Get().
+TradePool * tradepool_Get(void);
 #else
 
 class TradePool;
+TradePool * tradepool_Get(void);
 
 #endif

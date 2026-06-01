@@ -459,7 +459,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 													  m_data[4], (uint32)route));
 				TradeRoute otherRoute(m_data[4]);
-				if(g_theTradePool->IsValid(otherRoute))
+				if(tradepool_Get()->IsValid(otherRoute))
 					g_network.QueuePacket(id, new NetTradeRoute(otherRoute.AccessData(), true));
 
 				if (route.IsValid()) {
@@ -1919,7 +1919,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d reset route %lx\n", index, m_data[0]));
 			TradeRoute route(m_data[0]);
 
-			if(!g_theTradePool->IsValid(route)) {
+			if(!tradepool_Get()->IsValid(route)) {
 				g_network.Resync(index);
 			} else {
 				ROUTE_TYPE	routeType;

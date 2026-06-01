@@ -19,7 +19,7 @@ void NetKeys::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 	PUSHID(k_PACKET_KEYS_ID);
 	PUSHLONG(g_theUnitPool->HackGetKey());
-	PUSHLONG(g_theTradePool->HackGetKey());
+	PUSHLONG(tradepool_Get()->HackGetKey());
 	PUSHLONG(g_theTradeOfferPool->HackGetKey());
 	PUSHLONG(terrimprovepool_Get()->HackGetKey());
 	PUSHLONG(installationpool_Get()->HackGetKey());
@@ -39,7 +39,7 @@ void NetKeys::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	uint32 key;
 	PULLLONG(key); g_theUnitPool->HackSetKey(key);
-	PULLLONG(key); g_theTradePool->HackSetKey(key);
+	PULLLONG(key); tradepool_Get()->HackSetKey(key);
 	PULLLONG(key); g_theTradeOfferPool->HackSetKey(key);
 	PULLLONG(key); terrimprovepool_Get()->HackSetKey(key);
 	PULLLONG(key); installationpool_Get()->HackSetKey(key);

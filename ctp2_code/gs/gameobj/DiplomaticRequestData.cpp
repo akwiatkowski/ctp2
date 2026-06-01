@@ -67,7 +67,6 @@
 extern Diplomacy_Log *g_theDiplomacyLog;
 
 #include "gs/gameobj/TradePool.h"
-extern TradePool *g_theTradePool;
 
 
 
@@ -466,7 +465,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_DEMAND_STOP_TRADE :
 			g_player[m_owner]->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_STOP_TRADE, m_thirdParty) ;
 			g_player[m_recipient]->StopTradingWith(m_thirdParty) ;
-            g_theTradePool->BreakOffTrade(m_owner, m_thirdParty);
+            tradepool_Get()->BreakOffTrade(m_owner, m_thirdParty);
 			so = new SlicObject("01dipAcceptDemandStoptrade");
 			so->AddRecipient(m_owner) ;
 			so->AddCivilisation(m_owner) ;
@@ -489,8 +488,8 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
             so->AddAttitude(GetAttitude(m_recipient, m_owner));
 
 
-            g_theTradePool->BreakOffTrade(m_owner, m_thirdParty);
-            g_theTradePool->BreakOffTrade(m_recipient, m_thirdParty);
+            tradepool_Get()->BreakOffTrade(m_owner, m_thirdParty);
+            tradepool_Get()->BreakOffTrade(m_recipient, m_thirdParty);
 			break ;
 
 		case REQUEST_TYPE_DEMAND_LEAVE_OUR_LANDS :

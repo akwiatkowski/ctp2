@@ -1860,7 +1860,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 		g_network.Unblock(m_playerId);
 	}
 
-    g_theTradePool->BreakOffTrade(m_playerId, foreignerId);
+    tradepool_Get()->BreakOffTrade(m_playerId, foreignerId);
 
 	player_ptr->CloseEmbassy(foreignerId);
 	foreigner_ptr->CloseEmbassy(m_playerId);
@@ -1896,7 +1896,7 @@ void Diplomat::SetEmbargo(const PLAYER_INDEX foreignerId, const bool state)
 				1);
 		}
 
-		g_theTradePool->BreakOffTrade(m_playerId, foreignerId);
+		tradepool_Get()->BreakOffTrade(m_playerId, foreignerId);
 	}
 
 	m_foreigners[foreignerId].SetEmbargo(state);

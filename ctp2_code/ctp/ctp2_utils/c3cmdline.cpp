@@ -5268,7 +5268,7 @@ UntradeRouteCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	g_player[g_selected_item->GetVisiblePlayer()]->CancelTradeRoute(
-		g_theTradePool->GetRouteIndex(atoi(argv[1])));
+		tradepool_Get()->GetRouteIndex(atoi(argv[1])));
 }
 
 void

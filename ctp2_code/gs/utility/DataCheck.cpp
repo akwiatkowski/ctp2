@@ -121,7 +121,7 @@ extern  CivilisationPool        *g_theCivilisationPool;
 extern  DiplomaticRequestPool   *g_theDiplomaticRequestPool ;
 extern  MessagePool             *g_theMessagePool ;
 #include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
-extern  TradePool               *g_theTradePool;
+#include "gs/gameobj/TradePool.h"        // tradepool_Get()
 extern  TradeOfferPool          *g_theTradeOfferPool;
 extern  UnitPool                *g_theUnitPool;
 
@@ -384,7 +384,7 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(g_theDiplomaticRequestPool, CRC_TYPE_DIPLOMATICREQUESTPOOL);
 	CHECK_DB(g_theMessagePool, CRC_TYPE_MESSAGEPOOL);
 	CHECK_DB(terrimprovepool_Get(), CRC_TYPE_TERRAIN_IMPROVEMENT_POOL);
-	CHECK_DB(g_theTradePool, CRC_TYPE_TRADEPOOL);
+	CHECK_DB(tradepool_Get(), CRC_TYPE_TRADEPOOL);
 	CHECK_DB(g_theTradeOfferPool, CRC_TYPE_TRADEOFFERPOOL);
 	CHECK_DB(g_theUnitPool, CRC_TYPE_UNITPOOL);
 

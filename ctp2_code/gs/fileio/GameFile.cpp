@@ -446,7 +446,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 180 );
 
 	if(saveEverything)
-		g_theTradePool->Serialize(archive);
+		tradepool_Get()->Serialize(archive);
 
 	PROGRESS( 190 );
 

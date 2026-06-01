@@ -567,7 +567,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.RemoveDeadUnit(m_data);
 			} else {
 				TradeRoute route(m_data);
-				if(g_theTradePool->IsValid(route)) {
+				if(tradepool_Get()->IsValid(route)) {
 					route.KillRoute(CAUSE_KILL_TRADE_ROUTE(m_data2));
 
 					g_network.RemoveDeadUnit(m_data);

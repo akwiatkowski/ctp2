@@ -1507,9 +1507,9 @@ void Network::SetReady(uint16 id)
 	chunkPackets.AddTail(new NetExclusions());
 
 	chunkPackets.AddTail(new NetWorld());
-	n = g_theTradePool->m_all_routes->Num();
+	n = tradepool_Get()->m_all_routes->Num();
 	for(i = 0; i < n; i++) {
-		chunkPackets.AddTail(new NetTradeRoute(g_theTradePool->m_all_routes->Access(i).AccessData(), false));
+		chunkPackets.AddTail(new NetTradeRoute(tradepool_Get()->m_all_routes->Access(i).AccessData(), false));
 	}
 
 	PROGRESS(90);

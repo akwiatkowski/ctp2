@@ -4624,7 +4624,7 @@ bool SaveJson(char const *path)
     // --- Object pools (GameFile::Save:393-458) -----------------------
     if (g_theUnitPool)               doc["unit_pool"]                  = *g_theUnitPool;
     if (g_theArmyPool)               doc["army_pool"]                  = *g_theArmyPool;
-    if (g_theTradePool)              doc["trade_pool"]                 = *g_theTradePool;
+    if (TradePool *tp = tradepool_Get()) doc["trade_pool"] = *tp;
     if (g_thePollution)              doc["pollution"]                  = *g_thePollution;
     if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
     if (TerrainImprovementPool *tip = terrimprovepool_Get()) doc["terrain_improvement_pool"] = *tip;
@@ -4761,7 +4761,7 @@ bool LoadJson(char const *path)
         // clear pre-existing entries (MessagePool) handle it themselves.
         if (doc.contains("unit_pool")          && g_theUnitPool)               doc.at("unit_pool")               .get_to(*g_theUnitPool);
         if (doc.contains("army_pool")          && g_theArmyPool)               doc.at("army_pool")               .get_to(*g_theArmyPool);
-        if (doc.contains("trade_pool")         && g_theTradePool)              doc.at("trade_pool")              .get_to(*g_theTradePool);
+        if (TradePool *tp = tradepool_Get(); doc.contains("trade_pool") && tp) doc.at("trade_pool").get_to(*tp);
         if (doc.contains("pollution")          && g_thePollution)              doc.at("pollution")               .get_to(*g_thePollution);
         if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);
         if (TerrainImprovementPool *tip = terrimprovepool_Get(); doc.contains("terrain_improvement_pool") && tip) doc.at("terrain_improvement_pool").get_to(*tip);
@@ -4790,7 +4790,7 @@ bool LoadJson(char const *path)
         if (g_theInstallationTree) g_theInstallationTree->Clear();
         if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
         if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();
-        if (g_theTradePool)        g_theTradePool->RecreateActors();
+        if (TradePool *tp = tradepool_Get()) tp->RecreateActors();
         if (g_slicEngine)          g_slicEngine->PostSerialize();
 
         // Players: per-slot in-place from_json (F-20).  Requires that

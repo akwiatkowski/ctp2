@@ -23,7 +23,7 @@ extern UnitPool *g_theUnitPool;
 
 bool TradeRoute::IsValid() const
 {
-	return g_theTradePool->IsValid(m_id);
+	return tradepool_Get()->IsValid(m_id);
 }
 
 void TradeRoute::KillRoute(CAUSE_KILL_TRADE_ROUTE cause)
@@ -92,7 +92,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 		g_network.AddDeadUnit(m_id);
 	}
 
-	g_theTradePool->Remove(*this);
+	tradepool_Get()->Remove(*this);
 
 	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
 }
@@ -114,14 +114,14 @@ PLAYER_INDEX TradeRoute::GetPayingFor() const
 
 const TradeRouteData* TradeRoute::GetData() const
 {
-    Assert(g_theTradePool);
-	return g_theTradePool->GetTradeRoute(*this);
+    Assert(tradepool_Get());
+	return tradepool_Get()->GetTradeRoute(*this);
 }
 
 TradeRouteData* TradeRoute::AccessData() const
 {
-    Assert(g_theTradePool);
-	return g_theTradePool->AccessTradeRoute(*this);
+    Assert(tradepool_Get());
+	return tradepool_Get()->AccessTradeRoute(*this);
 }
 
 Unit TradeRoute::GetDestination() const

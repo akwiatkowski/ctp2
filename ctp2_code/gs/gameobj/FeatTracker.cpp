@@ -81,8 +81,13 @@ Feat::Feat(sint32 type, sint32 player, sint32 round)
 :	m_type		(type),
 	m_player	(player)
 {
+	// USE_CURRENT_ROUND is a sentinel that says "look up the round now."
+	// The previous implementation routed through NewTurnCount which was
+	// internally null-safe; preserve the same behaviour explicitly so
+	// constructing a Feat without a live g_turn (e.g. in json_save tests)
+	// doesn't crash.
 	m_round = (USE_CURRENT_ROUND == round)
-	          ? g_turn->GetSessionRound()
+	          ? (g_turn ? g_turn->GetSessionRound() : 0)
 	          : round;
 }
 

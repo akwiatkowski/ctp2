@@ -78,9 +78,18 @@ public:
 
 extern UnitPool *g_theUnitPool;
 
+// Session-singleton accessor pair, mirroring pollution_Get / topten_Get.
+// Callers should use unitpool_Get() instead of reaching for the legacy
+// g_theUnitPool global directly.
+UnitPool * unitpool_Get(void);
+void       unitpool_Set(UnitPool *p);
+
 uint32 UnitPool_UnitPool_GetVersion(void) ;
 #else
 
 class UnitPool;
+
+UnitPool * unitpool_Get(void);
+void       unitpool_Set(UnitPool *p);
 
 #endif

@@ -175,6 +175,9 @@ void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
 World                       *g_theWorld=NULL;
 UnitPool                    *g_theUnitPool=NULL;
+
+UnitPool * unitpool_Get(void)               { return g_theUnitPool; }
+void       unitpool_Set(UnitPool *p)        { g_theUnitPool = p; }
 static ArmyPool             *g_theArmyPool=NULL;
 
 ArmyPool * armypool_Get(void) { return g_theArmyPool; }

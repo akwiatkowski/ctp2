@@ -56,7 +56,7 @@
 #include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/Vision.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 
 #define k_TERRAIN_HEADER 'TERR'
 #define k_TERRAIN_ENV_HEADER 'TENV'
@@ -202,9 +202,9 @@ bool MapFile::SaveMap(FILE *outfile)
 
 bool MapFile::SaveTerrain(FILE *outfile)
 {
-    Assert(g_theWorld);
-    size_t const  xSize = g_theWorld->GetXWidth();
-    size_t const  ySize = g_theWorld->GetYHeight();
+    Assert(world_Get());
+    size_t const  xSize = world_Get()->GetXWidth();
+    size_t const  ySize = world_Get()->GetYHeight();
 
     m_chunk.m_size      = (xSize * ySize) + sizeof(uint16) * 2;
     m_chunk.m_id        = k_TERRAIN_HEADER;
@@ -215,7 +215,7 @@ bool MapFile::SaveTerrain(FILE *outfile)
     {
         for (size_t x = 0; x < xSize; ++x)
         {
-            *tptr++ = static_cast<uint8>(g_theWorld->GetCell(x, y)->GetTerrain());
+            *tptr++ = static_cast<uint8>(world_Get()->GetCell(x, y)->GetTerrain());
         }
     }
 
@@ -255,15 +255,15 @@ bool MapFile::SaveTerrain(FILE *outfile)
 
 bool MapFile::SaveTerrainEnv(FILE *outfile)
 {
-	m_chunk.m_size = ((g_theWorld->GetXWidth() * g_theWorld->GetYHeight()) * sizeof(uint32)) + sizeof(sint16) * 2;
+	m_chunk.m_size = ((world_Get()->GetXWidth() * world_Get()->GetYHeight()) * sizeof(uint32)) + sizeof(sint16) * 2;
 	m_chunk.m_id = k_TERRAIN_ENV_HEADER;
 
 	uint32 *env = new uint32[m_chunk.m_size];
 	uint32 *eptr = env;
 	sint16 x, y;
-	for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-		for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-			*eptr = g_theWorld->GetCell(x, y)->GetEnv();
+	for(y = 0; y < world_Get()->GetYHeight(); y++) {
+		for(x = 0; x < world_Get()->GetXWidth(); x++) {
+			*eptr = world_Get()->GetCell(x, y)->GetEnv();
 			eptr++;
 		}
 	}
@@ -275,7 +275,7 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 		return false;
 	}
 
-	x = (sint16)g_theWorld->GetXWidth();
+	x = (sint16)world_Get()->GetXWidth();
 	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
@@ -283,7 +283,7 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 		return false;
 	}
 
-	y = (sint16)g_theWorld->GetYHeight();
+	y = (sint16)world_Get()->GetYHeight();
 	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain env.\n"));
@@ -310,9 +310,9 @@ bool MapFile::SaveCities(FILE *outfile)
 	sint32 cityCount = 0;
 
 	sint16 x, y;
-	for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-		for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-			Cell *cell = g_theWorld->GetCell(x, y);
+	for(y = 0; y < world_Get()->GetYHeight(); y++) {
+		for(x = 0; x < world_Get()->GetXWidth(); x++) {
+			Cell *cell = world_Get()->GetCell(x, y);
 			if (cell->HasCity())
             {
 				archive << x;
@@ -366,11 +366,11 @@ bool MapFile::SaveUnits(FILE *outfile)
 	CivArchive archive;
 	archive.SetStore();
 
-	for (int y = 0; y < g_theWorld->GetYHeight(); y++)
+	for (int y = 0; y < world_Get()->GetYHeight(); y++)
     {
-		for (int x = 0; x < g_theWorld->GetXWidth(); x++)
+		for (int x = 0; x < world_Get()->GetXWidth(); x++)
         {
-			Cell *cell = g_theWorld->GetCell(x, y);
+			Cell *cell = world_Get()->GetCell(x, y);
 			CellUnitList *units = cell->UnitArmy();
 			if(units) {
 				archive << static_cast<uint16>(x);
@@ -425,11 +425,11 @@ bool MapFile::SaveImprovements(FILE *outfile)
 	CivArchive archive;
 	archive.SetStore();
 
-	for (int y = 0; y < g_theWorld->GetYHeight(); y++)
+	for (int y = 0; y < world_Get()->GetYHeight(); y++)
     {
-		for (int x = 0; x < g_theWorld->GetXWidth(); x++)
+		for (int x = 0; x < world_Get()->GetXWidth(); x++)
         {
-			Cell *cell = g_theWorld->GetCell(x, y);
+			Cell *cell = world_Get()->GetCell(x, y);
 			if (cell->GetNumDBImprovements() > 0)
             {
 				archive << static_cast<uint16>(x);
@@ -472,7 +472,7 @@ bool MapFile::SaveImprovements(FILE *outfile)
 
 bool MapFile::SaveVision(FILE *outfile)
 {
-	m_chunk.m_size = (g_theWorld->GetXWidth() * g_theWorld->GetYHeight() * sizeof(uint16)) + sizeof(sint16) * 2 + sizeof(sint8);
+	m_chunk.m_size = (world_Get()->GetXWidth() * world_Get()->GetYHeight() * sizeof(uint16)) + sizeof(sint16) * 2 + sizeof(sint8);
 	m_chunk.m_id = k_VISION_HEADER;
 	for (uint8 p = 0; p < k_MAX_PLAYERS; p++)
     {
@@ -492,8 +492,8 @@ bool MapFile::SaveVision(FILE *outfile)
 			return false;
 		}
 
-		sint16 w = (sint16)g_theWorld->GetXWidth();
-		sint16 h = (sint16)g_theWorld->GetYHeight();
+		sint16 w = (sint16)world_Get()->GetXWidth();
+		sint16 h = (sint16)world_Get()->GetYHeight();
 		if(fwrite(&w, sizeof(sint16), 1, outfile) != 1)
 		{
 
@@ -576,7 +576,7 @@ bool MapFile::SaveAdvances(FILE *outfile)
 
 bool MapFile::SaveHuts(FILE *outfile)
 {
-	m_chunk.m_size = g_theWorld->GetXWidth() * g_theWorld->GetYHeight() * sizeof(uint8) + sizeof(sint16) * 2;
+	m_chunk.m_size = world_Get()->GetXWidth() * world_Get()->GetYHeight() * sizeof(uint8) + sizeof(sint16) * 2;
 	m_chunk.m_id = k_HUTS_HEADER;
 
 	uint8 *terrain = new uint8[m_chunk.m_size];
@@ -585,12 +585,12 @@ bool MapFile::SaveHuts(FILE *outfile)
 	MapPoint mappoint;
 	uint8 zero = 0;
 	uint8 one = 1;
-	for (y = 0; y < g_theWorld->GetYHeight(); y++)
+	for (y = 0; y < world_Get()->GetYHeight(); y++)
     {
-		for (x = 0; x < g_theWorld->GetXWidth(); x++)
+		for (x = 0; x < world_Get()->GetXWidth(); x++)
         {
 			mappoint.Set(x,y);
-            *tptr++ = g_theWorld->GetGoodyHut(mappoint) ? one : zero;
+            *tptr++ = world_Get()->GetGoodyHut(mappoint) ? one : zero;
 		}
 	}
 
@@ -600,7 +600,7 @@ bool MapFile::SaveHuts(FILE *outfile)
 		return false;
 	}
 
-	x = (sint16)g_theWorld->GetXWidth();
+	x = (sint16)world_Get()->GetXWidth();
 	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
@@ -608,7 +608,7 @@ bool MapFile::SaveHuts(FILE *outfile)
 		return false;
 	}
 
-	y = (sint16)g_theWorld->GetYHeight();
+	y = (sint16)world_Get()->GetYHeight();
 	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
@@ -768,14 +768,14 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 {
 	sint32 pos = 0;
 	sint16 x, y;
-	sint16 w = (sint16)g_theWorld->GetXWidth();
-	sint16 h = (sint16)g_theWorld->GetYHeight();
+	sint16 w = (sint16)world_Get()->GetXWidth();
+	sint16 h = (sint16)world_Get()->GetYHeight();
 
 	g_isCheatModeOn = TRUE;
 
 	for(y = 0; y < h; y++) {
 		for(x = 0; x < w; x++) {
-			Cell *cell = g_theWorld->GetCell(x,y);
+			Cell *cell = world_Get()->GetCell(x,y);
 			while(cell->GetNumUnits() > 0) {
 				cell->AccessUnit(0).Kill(CAUSE_REMOVE_ARMY_UNKNOWN, -1);
 			}
@@ -811,7 +811,7 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 
 	bool yWrapOk = (h % w == 0);
 
-	g_theWorld->Reset(w, h, yWrapOk ? g_theProfileDB->IsYWrap() : FALSE, g_theProfileDB->IsXWrap());
+	world_Get()->Reset(w, h, yWrapOk ? g_theProfileDB->IsYWrap() : FALSE, g_theProfileDB->IsXWrap());
 
 	if(size != (sint32)((w * h) + (sizeof(sint16) * 2)))
 	{
@@ -824,7 +824,7 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 		for(x = 0; x < w; x++) {
 			uint8 terr;
 			PULLBYTE(terr);
-			g_theWorld->GetCell(x, y)->SetTerrain((sint32)terr);
+			world_Get()->GetCell(x, y)->SetTerrain((sint32)terr);
 		}
 	}
 
@@ -853,18 +853,18 @@ bool MapFile::LoadTerrainEnv(uint8 *buf, sint32 size)
 			uint32 env;
 			PULLLONG(env);
 			env &= ~(k_MASK_ENV_CITY | k_MASK_ENV_CITY_RADIUS);
-			g_theWorld->GetCell(x, y)->SetEnv(env);
+			world_Get()->GetCell(x, y)->SetEnv(env);
 		}
 	}
 
 	for(y = 0; y < h; y++) {
 		for(x = 0; x < w; x++) {
-			g_theWorld->GetCell(x, y)->CalcMovementType();
-			g_theWorld->GetCell(x, y)->CalcTerrainMoveCost();
+			world_Get()->GetCell(x, y)->CalcMovementType();
+			world_Get()->GetCell(x, y)->CalcTerrainMoveCost();
 		}
 	}
 
-	g_theWorld->NumberContinents();
+	world_Get()->NumberContinents();
 	return true;
 }
 
@@ -957,7 +957,7 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 			PULLBYTE(name[j]);
 		}
 
-		if(g_theWorld->IsLand(x, y)) {
+		if(world_Get()->IsLand(x, y)) {
 			citytype = unitutil_GetLandCity();
 		} else {
 			citytype = unitutil_GetSeaCity();
@@ -984,9 +984,9 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 {
 	sint32 x, y;
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-			Cell *cell = g_theWorld->GetCell(x, y);
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
+			Cell *cell = world_Get()->GetCell(x, y);
 			cell->SetEnv(cell->GetEnv() & ~(k_MASK_ENV_CITY | k_MASK_ENV_CITY_RADIUS));
 		}
 	}
@@ -1010,7 +1010,7 @@ bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 		PULLLONG64(wonders);
 		PULLBYTE(owner);
 
-		if(g_theWorld->IsLand(x, y)) {
+		if(world_Get()->IsLand(x, y)) {
 			citytype = unitutil_GetLandCity();
 		} else {
 			citytype = unitutil_GetSeaCity();
@@ -1056,7 +1056,7 @@ bool MapFile::LoadImprovements(uint8 *buf, sint32 size)
 			if(m_improvementTypeMap[type] < 0)
 				continue;
 
-			g_theWorld->GetCell(x, y)->InsertDBImprovement(m_improvementTypeMap[type]);
+			world_Get()->GetCell(x, y)->InsertDBImprovement(m_improvementTypeMap[type]);
 		}
 	}
 
@@ -1095,8 +1095,8 @@ bool MapFile::LoadVision(uint8 *buf, sint32 size)
 	PULLBYTE(p);
 	PULLSHORT(w);
 	PULLSHORT(h);
-	Assert(w == g_theWorld->GetXWidth());
-	Assert(h == g_theWorld->GetYHeight());
+	Assert(w == world_Get()->GetXWidth());
+	Assert(h == world_Get()->GetYHeight());
 
 	if(!g_player[p])
 		return true;
@@ -1202,7 +1202,7 @@ bool MapFile::LoadHuts(uint8 *buf, sint32 size)
 			PULLBYTE(isHut);
 			if (isHut)
 			{
-				g_theWorld->GetCell(x, y)->CreateGoodyHut();
+				world_Get()->GetCell(x, y)->CreateGoodyHut();
 			}
 		}
 	}

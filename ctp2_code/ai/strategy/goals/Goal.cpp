@@ -475,7 +475,7 @@ Utility Goal::Compute_Matching_Value(Plan_List & matches, const bool update)
 	            "\tCompute Matching Value for goal: %s, raw_match: %i (%s)\n",
 	            g_theGoalDB->Get(m_goal_type)->GetNameText(),
 	            m_raw_priority,
-	            (g_theWorld->HasCity(Get_Target_Pos()) ? g_theWorld->GetCity(Get_Target_Pos()).GetName() : "field")
+	            (world_Get()->HasCity(Get_Target_Pos()) ? world_Get()->GetCity(Get_Target_Pos()).GetName() : "field")
 	           )
 	          );
 
@@ -1019,7 +1019,7 @@ const MapPoint Goal::Get_Target_Pos(const Army & army) const
 
 			for (sint32 j = 1; j < path->Num()-1; j++)
 			{
-				Cell *cell = g_theWorld->GetCell(path->Get(j));
+				Cell *cell = world_Get()->GetCell(path->Get(j));
 
 				if (cell->HasCity())
 					continue;
@@ -1057,7 +1057,7 @@ const MapPoint Goal::Get_Target_Pos(const Army & army) const
 			CityInfluenceIterator it(m_target_city.RetPos(), m_target_city.GetCityData()->GetSizeIndex());
 			for(it.Start(); !it.End(); it.Next())
 			{
-				Cell *cell = g_theWorld->GetCell(it.Pos());
+				Cell *cell = world_Get()->GetCell(it.Pos());
 
 				if (m_target_city.RetPos() == it.Pos())
 					continue;
@@ -1202,8 +1202,8 @@ PLAYER_INDEX Goal::Get_Target_Owner() const
 		target_owner = m_target_army.GetOwner();
 	}
 	else if(goal_record->GetTargetTypePetrolStation()){
-		if(m_target_city != ID() || g_theWorld->IsAirfield(Get_Target_Pos())){
-			target_owner = g_theWorld->GetOwner(Get_Target_Pos());
+		if(m_target_city != ID() || world_Get()->IsAirfield(Get_Target_Pos())){
+			target_owner = world_Get()->GetOwner(Get_Target_Pos());
 		}
 		else if(m_target_army != ID()){
 			target_owner = m_target_army.GetOwner();
@@ -1212,7 +1212,7 @@ PLAYER_INDEX Goal::Get_Target_Owner() const
 	else{
 		MapPoint pos(Get_Target_Pos());
 		if(pos.x >= 0){
-			target_owner = g_theWorld->GetOwner(Get_Target_Pos());
+			target_owner = world_Get()->GetOwner(Get_Target_Pos());
 		}
 	}
 
@@ -1546,7 +1546,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	//to goalpriority + matching
 
 	MapPoint armyPos      = agent_ptr->Get_Pos();
-	PLAYER_INDEX PosOwner = g_theWorld->GetOwner(armyPos);
+	PLAYER_INDEX PosOwner = world_Get()->GetOwner(armyPos);
 
 	if(g_theGoalDB->Get(m_goal_type)->GetTargetTypeCity()
 	&& g_theGoalDB->Get(m_goal_type)->GetTargetOwnerSelf()
@@ -1582,7 +1582,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 			  (
 			       g_theGoalDB->Get(m_goal_type)->GetTargetTypeCity()
 			    && m_target_city.IsValid()
-			    && g_theWorld->GetCell(m_target_city->GetPos())->GetNumUnits() == 0
+			    && world_Get()->GetCell(m_target_city->GetPos())->GetNumUnits() == 0
 			  )
 			{
 				// Opportunity action march into the city even if the army contains a settler
@@ -1603,7 +1603,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 		  (
 		        m_target_city.IsValid()
 		    && !m_target_city->HasAdjacentFreeLand()
-		    &&  g_theWorld->GetCell(m_target_city->GetPos())->GetNumUnits() != 0
+		    &&  world_Get()->GetCell(m_target_city->GetPos())->GetNumUnits() != 0
 		    && !agent_ptr->Get_Army()->CanBeachAssault()
 		  )
 		{
@@ -1692,7 +1692,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 
 	if(g_theGoalDB->Get(m_goal_type)->GetTreaspassingArmyBonus() > 0)
 	{
-		PLAYER_INDEX pos_owner = g_theWorld->GetCell(agent_ptr->Get_Pos())->GetOwner();
+		PLAYER_INDEX pos_owner = world_Get()->GetCell(agent_ptr->Get_Pos())->GetOwner();
 
 		bool incursion_permissin = Diplomat::GetDiplomat(m_playerId).IncursionPermission(pos_owner);
 		if (pos_owner >= 0 && !(incursion_permissin))
@@ -1731,7 +1731,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 
 	if(!agent_ptr->Get_Army()->HasCargo())
 	{
-		if(!g_theWorld->IsOnSameContinent(dest_pos, agent_ptr->Get_Pos()) // Same continent problem
+		if(!world_Get()->IsOnSameContinent(dest_pos, agent_ptr->Get_Pos()) // Same continent problem
 		&& !agent_ptr->Get_Army()->GetMovementTypeAir()
 		&& g_player[m_playerId]->GetCargoCapacity() <= 0
 		&& m_current_attacking_strength.Get_Transport() <= 0
@@ -1788,7 +1788,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	report_NoBarbsPresent,                         // If no Barbarian are present bonus
 	is_transporter,                                // Whether the agent is a transporter
 	agent_ptr->Get_Goal(),                         // The goal to that this agent is asigned to
-	(g_theWorld->HasCity(target_pos) ? g_theWorld->GetCity(target_pos).GetName() : "field")
+	(world_Get()->HasCity(target_pos) ? world_Get()->GetCity(target_pos).GetName() : "field")
 	));
 #endif //_DEBUG
 
@@ -1826,7 +1826,7 @@ Utility Goal::Compute_Raw_Priority()
 	const MapPoint & target_pos = Get_Target_Pos();
 
 	if(!player_ptr->CanUseSeaTab()
-	&& (g_theWorld->IsWater(target_pos) || g_theWorld->IsShallowWater(target_pos))
+	&& (world_Get()->IsWater(target_pos) || world_Get()->IsShallowWater(target_pos))
 	){
 		AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1, ("\t  No sea tab\n"));
 		m_raw_priority = Goal::BAD_UTILITY;
@@ -1957,7 +1957,7 @@ Utility Goal::Compute_Raw_Priority()
 	}
 	else
 	{
-		if(g_theWorld->IsOnSameContinent(target_pos, empire_center))
+		if(world_Get()->IsOnSameContinent(target_pos, empire_center))
 		{
 			sint32 distance;
 			float costs = 0.0f;
@@ -1989,7 +1989,7 @@ Utility Goal::Compute_Raw_Priority()
 		}
 		else
 		{
-			if(g_theWorld->IsOnSameContinent(target_pos, foreign_empire_center))
+			if(world_Get()->IsOnSameContinent(target_pos, foreign_empire_center))
 			{
 				sint32 distance;
 				float costs = 0.0f;
@@ -2030,7 +2030,7 @@ Utility Goal::Compute_Raw_Priority()
 	report_cell_lastvalue     = cell_value;
 #endif //_DEBUG
 
-	if (g_theWorld->GetCell( target_pos )->GetIsChokePoint())
+	if (world_Get()->GetCell( target_pos )->GetIsChokePoint())
 	{
 		cell_value += goal_rec->GetChokePointBonus();
 	}
@@ -2044,8 +2044,8 @@ Utility Goal::Compute_Raw_Priority()
 	{
 		if
 		  (
-		       g_theWorld->IsCity(target_pos)
-		    && g_theWorld->GetCell(target_pos)->m_cityHasVisibleTileImprovement
+		       world_Get()->IsCity(target_pos)
+		    && world_Get()->GetCell(target_pos)->m_cityHasVisibleTileImprovement
 		  )
 		{
 			// Nothing to add
@@ -2071,7 +2071,7 @@ Utility Goal::Compute_Raw_Priority()
 	report_cell_lastvalue  = cell_value;
 #endif //_DEBUG
 
-	PLAYER_INDEX territoryOwner = g_theWorld->GetCell( target_pos )->GetOwner();
+	PLAYER_INDEX territoryOwner = world_Get()->GetCell( target_pos )->GetOwner();
 	if(m_playerId == territoryOwner)
 	{
 		cell_value += goal_rec->GetInHomeTerritoryBonus();
@@ -2266,7 +2266,7 @@ Utility Goal::Compute_Raw_Priority()
 		                                 report_cell_CityConnected,
 		                                 report_cell_SmallEmpireBonus,
 		                                 report_cell_WeakestEnemyBonus,
-		                                 (g_theWorld->HasCity(target_pos) ? g_theWorld->GetCity(target_pos).GetName() : "field")));
+		                                 (world_Get()->HasCity(target_pos) ? world_Get()->GetCity(target_pos).GetName() : "field")));
 	}
 	// For some reason the following does not work in VC6:
 /*	AI_DPRINTF(k_DBG_SCHEDULER_DETAIL, m_playerId, m_goal_type, -1,
@@ -2293,7 +2293,7 @@ Utility Goal::Compute_Raw_Priority()
 	report_cell_Unexplored,
 	report_cell_NotVisible,
 	threaten_bonus,
-	(g_theWorld->HasCity(target_pos) ? g_theWorld->GetCity(target_pos).GetName() : "field")
+	(world_Get()->HasCity(target_pos) ? world_Get()->GetCity(target_pos).GetName() : "field")
 	));*/
 #endif //_DEBUG
 
@@ -2513,7 +2513,7 @@ bool Goal::Get_Totally_Complete() const
 	if ( goal_record->GetTargetTypeAttackUnit() ||
 		goal_record->GetTargetTypeSpecialUnit() )
 	{
-		if(g_theWorld->GetCity(m_target_army->RetPos()).m_id != 0)
+		if(world_Get()->GetCity(m_target_army->RetPos()).m_id != 0)
 			return true;
 
 		sint32 maxdefense;
@@ -2547,9 +2547,9 @@ bool Goal::Get_Totally_Complete() const
 
 	if(goal_record->GetTargetTypeUnexplored())
 	{
-		Unit city = g_theWorld->GetCity(target_pos);
+		Unit city = world_Get()->GetCity(target_pos);
 		CellUnitList army;
-		g_theWorld->GetArmy(target_pos,army);
+		world_Get()->GetArmy(target_pos,army);
 		if (army.Num() > 0 || city.m_id != 0x0)
 			return true;
 	}
@@ -2665,7 +2665,7 @@ bool Goal::Get_Totally_Complete() const
 			}
 			else
 			{
-				if (g_theWorld->GetCell(target_pos)->GetNumDBImprovements() <= 0)
+				if (world_Get()->GetCell(target_pos)->GetNumDBImprovements() <= 0)
 					return true;
 			}
 			break;
@@ -2690,8 +2690,8 @@ bool Goal::Get_Totally_Complete() const
 	{
 		CellUnitList army;
 
-		g_theWorld->GetArmy(target_pos, army);
-		if(g_theWorld->GetCell(target_pos)->GetNumUnits() > 0
+		world_Get()->GetArmy(target_pos, army);
+		if(world_Get()->GetCell(target_pos)->GetNumUnits() > 0
 		&& army.GetOwner() != m_playerId)
 			return false;
 
@@ -2707,7 +2707,7 @@ bool Goal::Get_Totally_Complete() const
 
 	if(order_record->GetTargetPretestEnemySpecialUnit())
 	{
-		if(g_theWorld->GetOwner(target_pos) != m_playerId)
+		if(world_Get()->GetOwner(target_pos) != m_playerId)
 			return true;
 	}
 
@@ -2831,7 +2831,7 @@ bool Goal::Get_Totally_Complete() const
 		     ){
 			return true;
 		}
-		else if(!g_theWorld->IsAirfield(target_pos)){
+		else if(!world_Get()->IsAirfield(target_pos)){
 			return true;
 		}
 	}
@@ -2896,12 +2896,12 @@ bool Goal::Get_Invalid() const
 		if(!SettleMap::s_settleMap.CanSettlePos(Get_Target_Pos()))
 			return true;
 
-		if(g_theWorld->HasCity(Get_Target_Pos()))
+		if(world_Get()->HasCity(Get_Target_Pos()))
 			return true;
 	}
 
 	if(goal_record->GetTargetTypeGoodyHut())
-		return(g_theWorld->GetGoodyHut(Get_Target_Pos()) == NULL);
+		return(world_Get()->GetGoodyHut(Get_Target_Pos()) == NULL);
 
 	// Check whether the target can refuel the given army
 	if(goal_record->GetTargetTypePetrolStation())
@@ -2924,7 +2924,7 @@ bool Goal::Get_Invalid() const
 //		else if(armypool_Get()->IsValid(m_target_army)){ // Aircraft carriers are missing
 //			return Cannot carry aircrafts;
 //		}
-		return !g_theWorld->IsAirfield(Get_Target_Pos());
+		return !world_Get()->IsAirfield(Get_Target_Pos());
 	}
 
 	return false;
@@ -2970,9 +2970,9 @@ bool Goal::Pretest_Bid(const Agent_ptr agent_ptr, const MapPoint & target_pos) c
 
 	if (goal_rec->GetSquadClassCanBombard())
 	{
-		if(g_theWorld->GetCell(target_pos)->IsAnyUnitInCell())
+		if(world_Get()->GetCell(target_pos)->IsAnyUnitInCell())
 		{
-			CellUnitList* defenders = g_theWorld->GetCell(target_pos)->UnitArmy();
+			CellUnitList* defenders = world_Get()->GetCell(target_pos)->UnitArmy();
 			if(!army->CanBombardTargetType(*defenders))
 				return false;
 		}
@@ -3023,8 +3023,8 @@ bool Goal::Pretest_Bid(const Agent_ptr agent_ptr, const MapPoint & target_pos) c
 	}
 
 	if ( army->CanNukeCity() &&
-		 (g_theWorld->GetCell(target_pos)->GetOwner() != m_playerId ||
-		  g_theWorld->GetCity(target_pos).m_id != 0x0) )
+		 (world_Get()->GetCell(target_pos)->GetOwner() != m_playerId ||
+		  world_Get()->GetCity(target_pos).m_id != 0x0) )
 		return false;
 
 	if ( army->TestOrder(order_rec) == ORDER_TEST_ILLEGAL )
@@ -3059,7 +3059,7 @@ void Goal::Log_Debug_Info(const int &log) const
 		                m_raw_priority,
 		                pos.x,
 		                pos.y,
-		                (g_theWorld->HasCity(pos) ? g_theWorld->GetCity(pos).GetName() : "field")
+		                (world_Get()->HasCity(pos) ? world_Get()->GetCity(pos).GetName() : "field")
 		           )
 		          );
 	}
@@ -3079,7 +3079,7 @@ void Goal::Log_Debug_Info(const int &log) const
 		                name,
 		                pos.x,
 		                pos.y,
-		                (g_theWorld->HasCity(pos) ? g_theWorld->GetCity(pos).GetName() : "field")
+		                (world_Get()->HasCity(pos) ? world_Get()->GetCity(pos).GetName() : "field")
 		           )
 		          );
 	}
@@ -3170,7 +3170,7 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
                                 MapPoint &dest_pos,
                                 Path &found_path)
 {
-	Unit city = g_theWorld->GetCity(first_army->Get_Pos());
+	Unit city = world_Get()->GetCity(first_army->Get_Pos());
 	if(city.m_id != 0)
 	{
 		if(first_army->Get_Pos() != dest_pos)
@@ -3224,8 +3224,8 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 			   )
 			    ||
 			   (
-			        g_theWorld->HasCity(dest_pos)
-			     && g_theWorld->GetCity(dest_pos)->GetOwner() == first_army->Get_Army()->GetOwner()
+			        world_Get()->HasCity(dest_pos)
+			     && world_Get()->GetCity(dest_pos)->GetOwner() == first_army->Get_Army()->GetOwner()
 			   )
 			  )
 			{
@@ -3352,7 +3352,7 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 	{
 		MapPoint start_pos = the_army->Get_Pos();
 
-		sint16 cargo_cont = g_theWorld->GetContinent(start_pos); // Dangerous with transport target can be closer
+		sint16 cargo_cont = world_Get()->GetContinent(start_pos); // Dangerous with transport target can be closer
 
 		Unit nearest_city;
 		MapPoint nearest_airfield;
@@ -3591,9 +3591,9 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 
 	bool     waiting_for_buddies = !Ok_To_Rally()
 	                            && m_sub_task == SUB_TASK_RALLY
-	                            && g_theWorld->IsOnSameContinent(goal_pos, the_army->Get_Pos())
-	                            && g_theWorld->IsLand(goal_pos)
-	                            && g_theWorld->IsLand(the_army->Get_Pos());
+	                            && world_Get()->IsOnSameContinent(goal_pos, the_army->Get_Pos())
+	                            && world_Get()->IsLand(goal_pos)
+	                            && world_Get()->IsLand(the_army->Get_Pos());
 
 	bool     found               = false;
 
@@ -3601,7 +3601,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 	&& the_army->Get_Army()->GetMovementTypeAir()
 	&& the_army->Get_Army()->CanSpaceLaunch()
 	){
-		sint16 target_cont = g_theWorld->GetContinent(goal_pos);
+		sint16 target_cont = world_Get()->GetContinent(goal_pos);
 
 		Unit   nearest_city;
 		double city_distance = 0.0;
@@ -3758,7 +3758,7 @@ bool Goal::Ok_To_Rally() const
 	if (m_agents.size() == 1)
 		return false;
 
-	if (!g_theWorld->IsLand(Get_Target_Pos())) // Problematic if we want to attack a stack of Destroyers
+	if (!world_Get()->IsLand(Get_Target_Pos())) // Problematic if we want to attack a stack of Destroyers
 		return true;
 
 	sint32          num_in_water    = 0;
@@ -3780,9 +3780,9 @@ bool Goal::Ok_To_Rally() const
 		{
 			MapPoint const	army_pos		= agent_ptr->Get_Pos();
 
-			if (g_theWorld->IsLand(army_pos))
+			if (world_Get()->IsLand(army_pos))
 			{
-				if(g_theWorld->IsOnSameContinent(army_pos, targetPos))
+				if(world_Get()->IsOnSameContinent(army_pos, targetPos))
 				{
 					++num_at_dest;
 				}
@@ -3942,7 +3942,7 @@ MapPoint Goal::MoveToTarget(Agent_ptr rallyAgent)
 MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 {
 	MapPoint rallyPos = rallyAgent->Get_Pos();
-	if(g_theWorld->GetCity(rallyPos).IsValid())
+	if(world_Get()->GetCity(rallyPos).IsValid())
 	{
 		MapPoint tempPos;
 		for(sint32 i = 0 ; i < NOWHERE; i++)
@@ -3951,7 +3951,7 @@ MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 			if(result)
 			{
 				CellUnitList *the_army = NULL;
-				the_army = g_theWorld->GetArmyPtr(tempPos);
+				the_army = world_Get()->GetArmyPtr(tempPos);
 				if(!the_army
 				&& rallyAgent->Get_Army()->CanEnter(tempPos)
 				){	//search for cell without army
@@ -4011,7 +4011,7 @@ MapPoint Goal::GetFreeNeighborPos(MapPoint pos) const
 		bool result = pos.GetNeighborPosition(WORLD_DIRECTION(i), tempPos);
 		if(result)
 		{
-			CellUnitList *the_army = g_theWorld->GetArmyPtr(tempPos);
+			CellUnitList *the_army = world_Get()->GetArmyPtr(tempPos);
 			if(!the_army)
 			{	//search for cell without army
 				nextPos = tempPos;
@@ -4206,7 +4206,7 @@ bool Goal::RallyTroops()
 			// To avoid Groups to be blocked when an unit is in a city
 			// (problem with garrison -> not enough room)
 			sint32 cells;
-			if(!g_theWorld->GetCity(closest_agent_pos).IsValid()
+			if(!world_Get()->GetCity(closest_agent_pos).IsValid()
 			||  agent1_ptr->GetRounds(closest_agent_pos, cells) > 2
 			){
 				// Should be superflous
@@ -4226,16 +4226,16 @@ bool Goal::RallyTroops()
 			}
 
 			MapPoint agent1_pos = agent1_ptr->Get_Pos();
-			if( g_theWorld->GetCity(closest_agent_pos).IsValid() || closest_agent_ptr->GetRounds(agent1_pos, cells) > 2)
+			if( world_Get()->GetCity(closest_agent_pos).IsValid() || closest_agent_ptr->GetRounds(agent1_pos, cells) > 2)
 			{
-				if (g_theWorld->GetCity(agent1_pos).IsValid() && g_theWorld->GetCity(closest_agent_pos).IsValid()) //two units are in another town
+				if (world_Get()->GetCity(agent1_pos).IsValid() && world_Get()->GetCity(closest_agent_pos).IsValid()) //two units are in another town
 				{
 					MapPoint tempPos;
 					for(sint32 i = 0 ; i < NOWHERE; i++)
 					{
 						if(closest_agent_pos.GetNeighborPosition(WORLD_DIRECTION(i),tempPos))
 						{
-							CellUnitList *the_army = g_theWorld->GetArmyPtr(tempPos);
+							CellUnitList *the_army = world_Get()->GetArmyPtr(tempPos);
 							if(!the_army)
 							{	//search for cell without army
 								agent1_pos = tempPos;
@@ -4252,7 +4252,7 @@ bool Goal::RallyTroops()
 			}
 			else
 			{
-				CellUnitList *the_army = g_theWorld->GetArmyPtr(closest_agent_pos);
+				CellUnitList *the_army = world_Get()->GetArmyPtr(closest_agent_pos);
 				if(static_cast<uint32>(the_army->Num()) >= m_agents.size() && m_agents.size() > k_MAX_ARMY_SIZE/2)
 				{
 					MapPoint tempPos;
@@ -4260,7 +4260,7 @@ bool Goal::RallyTroops()
 					{
 						if(closest_agent_pos.GetNeighborPosition(WORLD_DIRECTION(i),tempPos))
 						{
-							CellUnitList *the_army = g_theWorld->GetArmyPtr(tempPos);
+							CellUnitList *the_army = world_Get()->GetArmyPtr(tempPos);
 							if(!the_army)
 							{	//search for cell without army
 								// Should be superflous

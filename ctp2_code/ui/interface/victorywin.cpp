@@ -124,7 +124,6 @@
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;
 extern C3UI                     *g_c3ui;
-extern TopTen                   *g_theTopTen;
 extern CivApp                   *g_civApp;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;

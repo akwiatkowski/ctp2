@@ -302,7 +302,7 @@
 class UnitActor;
 typedef std::shared_ptr<UnitActor> UnitActorPtr;
 
-extern TopTen *         g_theTopTen;
+
 
 
 
@@ -4509,7 +4509,7 @@ void CityData::CheckTopTen()
 #if 0
 	sint32	pos;
 
-	if (g_theTopTen->IsTopTenCity(m_home_city, TOPTENTYPE_BIGGEST_CITY, pos)) {
+	if (topten_Get()->IsTopTenCity(m_home_city, TOPTENTYPE_BIGGEST_CITY, pos)) {
 		m_currentlyTopTen = TRUE;
 	} else {
 		m_currentlyTopTen = FALSE;

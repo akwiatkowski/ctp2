@@ -261,7 +261,6 @@
 #include "ai/CityManagement/governor.h"
 
 extern PointerList<Player>     *g_deadPlayer;
-extern TopTen                  *g_theTopTen;
 extern CivApp                  *g_civApp;
 extern sint32                   g_numGoods; // To fix games with altered ressource database
 extern sint32                  *g_newGoods;

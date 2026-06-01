@@ -99,7 +99,6 @@
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;
 extern C3UI                     *g_c3ui;
-extern TopTen                   *g_theTopTen;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 extern WorkMap                  *g_workMap;
@@ -617,8 +616,8 @@ sint32 infowin_UpdateCivData( void )
 
 sint32 infowin_UpdateBigList( void )
 {
-	if (!g_theTopTen) return 0;
-	g_theTopTen->CalculateBiggestCities();
+	if (!topten_Get()) return 0;
+	topten_Get()->CalculateBiggestCities();
 
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -628,7 +627,7 @@ sint32 infowin_UpdateBigList( void )
 
 	for (sint32 i = 0 ; i < 5 ; i++ )
 	{
-		Unit unit = g_theTopTen->GetBiggestCity(i);
+		Unit unit = topten_Get()->GetBiggestCity(i);
 		if ( g_theUnitPool->IsValid(unit) )
 		{
 			c3_ListItem* bItem = new InfoBigListItem(&retval, &unit, i, ldlBlock);

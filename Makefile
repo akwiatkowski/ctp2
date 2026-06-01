@@ -147,9 +147,9 @@ coverage-html: coverage-setup
 
 # Run the game (from project root so it finds appstr.txt, civpaths.txt, ctp2_data/)
 run: build
-	@echo "Starting CTP2..."
+	@echo "Starting CTP2 at 1920x1080..."
 	@test -f appstr.txt || ln -sf ctp2_code/ctp/appstr.txt appstr.txt
-	@./build/ctp2
+	@./build/ctp2 --resolution 1920x1080
 
 # Run the game at Full HD (1920x1080) with crash logging via run_game.sh
 run-hd: build-sanitized

@@ -575,7 +575,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	m_tax_rate->InitTaxRates(g_theGovernmentDB->Get(m_government_type)->GetMaxScienceRate(),
 							 m_owner);
-	m_readiness->SetLevel(m_government_type, *m_all_armies, READINESS_LEVEL_WAR);
+	m_readiness->SetLevel(m_government_type, *m_all_armies, READINESS_LEVEL_WAR, g_turn->GetRound());
 
 	if(i >= g_theGovernmentDB->NumRecords())
 	{
@@ -5641,7 +5641,7 @@ sint32 Player::GetReadinessCost() const
 
 void Player::SetReadinessLevel(READINESS_LEVEL level, bool immediate)
 {
-	m_readiness->SetLevel(m_government_type, *m_all_armies, level, immediate);
+	m_readiness->SetLevel(m_government_type, *m_all_armies, level, g_turn->GetRound(), immediate);
 	if(g_network.IsClient()) {
 		g_network.SendAction(new NetAction(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate));
 	}

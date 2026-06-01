@@ -81,7 +81,7 @@ public:
 	MilitaryReadiness(sint32 o);
 
     void SetLevel(sint32 gov, DynamicArray<Army> &m_all_armies,
-              READINESS_LEVEL level, BOOL immediate = FALSE);
+              READINESS_LEVEL level, sint32 currentRound, BOOL immediate = FALSE);
 	READINESS_LEVEL GetLevel() const { return m_readinessLevel; }
     double GetCost() const { return m_cost; }
 
@@ -107,7 +107,7 @@ public:
     void Serialize(CivArchive &archive);
 
 	sint32 GetTurnStarted() const { return m_turnStarted; }
-	sint32 GetTurnsToNewReadiness();
+	sint32 GetTurnsToNewReadiness(sint32 currentRound);
 };
 
 #endif

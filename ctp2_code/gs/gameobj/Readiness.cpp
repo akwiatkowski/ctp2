@@ -48,7 +48,6 @@
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Army.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
@@ -243,7 +242,7 @@ void MilitaryReadiness::UnsupportUnit(const Unit &u, sint32 gov)
 }
 
 void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,
-              READINESS_LEVEL level, BOOL immediate)
+              READINESS_LEVEL level, sint32 currentRound, BOOL immediate)
 {
 	if (level == m_readinessLevel)
 		return;
@@ -258,7 +257,7 @@ void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,
 		m_turnStarted = -1;
 	} else {
 		turns = g_theGovernmentDB->Get(gov)->GetTurnsToNewReadiness();
-		m_turnStarted = g_turn->GetRound();
+		m_turnStarted = currentRound;
 	}
 
 	READINESS_LEVEL oldLevel = m_readinessLevel;
@@ -450,7 +449,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 	delete [] prof_units;
 }
 
-sint32 MilitaryReadiness::GetTurnsToNewReadiness()
+sint32 MilitaryReadiness::GetTurnsToNewReadiness(sint32 currentRound)
 {
 	if(m_turnStarted < 0)
 		return 0;
@@ -458,10 +457,10 @@ sint32 MilitaryReadiness::GetTurnsToNewReadiness()
 		GetTurnsToNewReadiness();
 	sint32 finish = m_turnStarted + turns;
 
-	if(finish <= g_turn->GetRound())
+	if(finish <= currentRound)
 		return 0;
 
-	return finish - g_turn->GetRound();
+	return finish - currentRound;
 }
 
 //----------------------------------------------------------------------------

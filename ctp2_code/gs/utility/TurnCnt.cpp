@@ -98,10 +98,10 @@ sint32 g_cantEndTurn = 0;
 
 sint32 TurnCount::sm_the_stop_player = 1;
 
-TurnCount::TurnCount()
+TurnCount::TurnCount(sint32 numPlayers, sint32 initialYear)
 {
 	m_sliceList = new SimpleDynamicArray<sint32>;
-	Init();
+	Init(numPlayers, initialYear);
 }
 
 TurnCount::TurnCount(CivArchive &archive)
@@ -116,14 +116,13 @@ TurnCount::~TurnCount()
 	m_sliceList = NULL;
 }
 
-void TurnCount::Init()
-
+void TurnCount::Init(sint32 numPlayers, sint32 initialYear)
 {
 	m_turn = 0;
 	m_round = 0;
 	m_simultaneousMode = FALSE;
-	m_activePlayers = g_theProfileDB->GetNPlayers();
-	m_year = diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
+	m_activePlayers = numPlayers;
+	m_year = initialYear;
 	m_lastBeginTurn = -1;
 	m_isHotSeat = FALSE;
 	m_isEmail = FALSE;

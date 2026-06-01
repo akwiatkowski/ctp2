@@ -308,7 +308,9 @@ struct HeavyCityDataFixture
         g_selected_item = new SelectedItem(1);
         g_slicEngine = new SlicEngine();
         rand_ptr_Set(new RandomGenerator(12345));
-        g_turn = new TurnCount();
+        // Test fixture: no real game setup. Default to 0 players, year 0;
+        // the test exercises CityData logic, not TurnCount semantics.
+        g_turn = new TurnCount(0, 0);
 
         player = new Player(0, 0, PLAYER_TYPE_HUMAN);
     }

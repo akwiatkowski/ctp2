@@ -31,8 +31,15 @@ public:
     Game(Game&&) noexcept;
     Game& operator=(Game&&) noexcept;
 
-    // Lifecycle
-    void NewGame();
+    // Lifecycle.
+    //
+    // NewGame's parameters are the session-state inputs TurnCount needs:
+    // the number of active players and the calendar's starting year
+    // (computed by the caller from the difficulty record).  We pass them
+    // explicitly rather than reaching for g_theProfileDB/gamesettings_Get
+    // from inside TurnCount, so the class is constructible in isolation
+    // (e.g. from unit tests).
+    void NewGame(sint32 numPlayers, sint32 initialYear);
     void LoadGame(CivArchive& archive);
     void SaveGame(CivArchive& archive);
     void Cleanup();

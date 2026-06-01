@@ -74,11 +74,14 @@ public:
 	static sint32 GetStopPlayer() { return sm_the_stop_player; }
 	static void SetStopPlayer(const sint32 &player_index) { sm_the_stop_player = player_index; }
 
-	TurnCount();
+	// Explicit initial state: number of active players + initial calendar
+	// year. Callers compute these from session-state sources (profile DB +
+	// difficulty record); we don't reach for globals from inside Init.
+	TurnCount(sint32 numPlayers, sint32 initialYear);
 	TurnCount(CivArchive &archive);
 	~TurnCount();
 
-	void Init();
+	void Init(sint32 numPlayers, sint32 initialYear);
 	void Init(CivArchive &archive);
 
 	void ChooseNextActivePlayer();

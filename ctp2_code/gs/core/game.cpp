@@ -22,8 +22,8 @@ Game::~Game() = default;
 Game::Game(Game&&) noexcept = default;
 Game& Game::operator=(Game&&) noexcept = default;
 
-void Game::NewGame() {
-    m_turn = std::make_unique<TurnCount>();
+void Game::NewGame(sint32 numPlayers, sint32 initialYear) {
+    m_turn = std::make_unique<TurnCount>(numPlayers, initialYear);
 }
 
 void Game::LoadGame(CivArchive& archive) {

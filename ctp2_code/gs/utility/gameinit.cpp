@@ -73,6 +73,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "ctp/civ3_main.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ConstRecord.h"
+#include "gs/gameobj/Diffcly.h"   // diffutil_GetYearFromTurn
 #include "gs/core/game_observer.h"     // g_gameObservers
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "ai/ctpai.h"
@@ -1200,7 +1201,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	Assert(g_theWorld);
 
-	g_turn = new TurnCount();
+	g_turn = new TurnCount(g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0));
 
 	player_view::Init(nPlayers);
 
@@ -1643,7 +1645,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		gameinit_log->debug("step: new TurnCount(archive)");
 		g_turn = new TurnCount(*archive);
 	} else {
-		g_turn = new TurnCount();
+		g_turn = new TurnCount(g_theProfileDB->GetNPlayers(),
+			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0));
 		if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
 			sint32 startAge = g_network.GetStartingAge();
 			if(startAge != 0) {

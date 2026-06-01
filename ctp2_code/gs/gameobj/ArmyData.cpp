@@ -1566,7 +1566,7 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
 		if (validtargets <= 0) break;
 
         render_observer::AddAttackPos(ta, m_pos);
-        g_slicEngine->RunActiveDefenseTriggers(ta, td);
+        slicengine_Get()->RunActiveDefenseTriggers(ta, td);
 
 		activeDefenders[i].Bombard(*this, false);
 		activeDefenders[i].SetFlag(k_UDF_USED_ACTIVE_DEFENSE);
@@ -1851,7 +1851,7 @@ ORDER_RESULT ArmyData::NullifyWalls(const MapPoint &point)
 // Globals    : g_player                : player array
 //            : g_network               :
 //            : g_theAdvanceDB
-//            : g_slicEngine
+//            : slicengine_Get()
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
 //
@@ -1892,14 +1892,14 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
                         so->AddAdvance(j);
                     }
                 }
-                g_slicEngine->Execute(so);
+                slicengine_Get()->Execute(so);
                 delete [] canSteal;
                 return ORDER_RESULT_INCOMPLETE;
             } else {
                 SlicObject *so = new SlicObject("102NoAdvancesToSteal");
                 so->AddRecipient(m_owner);
                 so->AddCivilisation(c.GetOwner());
-                g_slicEngine->Execute(so);
+                slicengine_Get()->Execute(so);
                 delete [] canSteal;
                 return ORDER_RESULT_ILLEGAL;
             }
@@ -1974,7 +1974,7 @@ ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point)
 // Parameters : MapPoint
 //
 // Globals    : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
 //
@@ -2003,20 +2003,20 @@ ORDER_RESULT ArmyData::AssassinateRuler(const MapPoint &point)
 								   GEA_End);
 			Unit u = m_array[i];
 
-			g_slicEngine->Execute
+			slicengine_Get()->Execute
 			    (new CityReport("911ConductHitCompleteVictim", c));
-			g_slicEngine->Execute
+			slicengine_Get()->Execute
 			    (new AggressorReport("911ConductHitCompleteAttacker", u, c));
 
 			return ORDER_RESULT_INCOMPLETE;
 		}
 	}
 
-	g_slicEngine->Execute(new CityReport("911ConductHitFailedVictim", c));
+	slicengine_Get()->Execute(new CityReport("911ConductHitFailedVictim", c));
 	SlicObject *so = new SlicObject("911ConductHitFailedAttack");
 	so->AddRecipient(m_owner);
 	so->AddCity(c);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	return ORDER_RESULT_ILLEGAL;
 }
@@ -2117,7 +2117,7 @@ bool ArmyData::CanFranchise(double &chance, sint32 &uindex) const
 //
 // Globals    : world_Get
 //            : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //            : rand_ptr()
 //            : g_player                : player array
 //
@@ -2165,14 +2165,14 @@ ORDER_RESULT ArmyData::Franchise(const MapPoint &point)
 
 		DPRINTF(k_DBG_GAMESTATE, ("Franchise established\n"));
 		ActionSuccessful(SPECATTACK_CREATEFRANCHISE, u, city);
-		g_slicEngine->Execute(new CityReport("193BranchCompleteVictim", city));
+		slicengine_Get()->Execute(new CityReport("193BranchCompleteVictim", city));
 		safe_player(city.GetOwner())->ContactMade(m_owner);
 		return ORDER_RESULT_SUCCEEDED;
 	}
 	else
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Franchise attempt failed\n"));
-		g_slicEngine->Execute(new CityReport("195BranchFailedVictim", city));
+		slicengine_Get()->Execute(new CityReport("195BranchFailedVictim", city));
 		return ORDER_RESULT_FAILED;
 	}
 }
@@ -2266,7 +2266,7 @@ bool ArmyData::CanBeSued() const
 //
 // Globals    : world_Get
 //            : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
 //
@@ -2307,12 +2307,12 @@ ORDER_RESULT ArmyData::Sue(const MapPoint &point)
 	SlicObject *so = new SlicObject("911SueCompleteVictim");
 	so->AddRecipient(cell->UnitArmy()->GetOwner());
 	so->AddUnitRecord(m_array[uindex].GetType());
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	so = new SlicObject("911SueCompleteAttacker");
 	so->AddRecipient(attacking_unit.GetOwner());
 	so->AddUnitRecord(m_array[uindex].GetType());
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	return ORDER_RESULT_SUCCEEDED;
 }
@@ -2327,7 +2327,7 @@ ORDER_RESULT ArmyData::Sue(const MapPoint &point)
 //
 // Globals    : world_Get
 //            : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
 //
@@ -2372,9 +2372,9 @@ ORDER_RESULT ArmyData::SueFranchise(const MapPoint &point)
 	SlicObject *so = new SlicObject("911SueFranchiseCompleteVictim");
 	so->AddRecipient(cell->GetCity().GetFranchiseOwner());
 	so->AddCity(cell->GetCity());
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
-	g_slicEngine->Execute
+	slicengine_Get()->Execute
         (new AggressorReport("911SueFranchiseCompleteAttacker", u, cell->GetCity()));
 
 	return ORDER_RESULT_SUCCEEDED;
@@ -2524,7 +2524,7 @@ bool ArmyData::CanCauseUnhappiness(double &chance, sint32 &timer, sint32 &amt,
 // Parameters : MapPoint point  : a point adjacent to this army's location (which should contain a city).
 //            : sint32 uindex   : the index in this army's CellUnitList of the unit that executes the order.
 //
-// Globals    : g_slicEngine
+// Globals    : slicengine_Get()
 //            : g_network
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
@@ -2557,7 +2557,7 @@ bool ArmyData::CanCauseUnhappiness(double &chance, sint32 &timer, sint32 &amt) c
 // Parameters : MapPoint point  : a point adjacent to this army's location (which should contain a city).
 //            : sint32 uindex   : the index in this army's CellUnitList of the unit that executes the order.
 //
-// Globals    : g_slicEngine
+// Globals    : slicengine_Get()
 //            : g_network
 //            : g_theUnitDB     : The unit database
 //
@@ -2612,9 +2612,9 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	if(civrand().Next(100) >= sint32(chance * 100.0)) {
 
         if (strcmp(unitName, "UNIT_CYBER_NINJA") == 0) {
-            g_slicEngine->Execute
+            slicengine_Get()->Execute
                 (new CityReport("230TerrorhackFailedVictim", c));
-            g_slicEngine->Execute
+            slicengine_Get()->Execute
                 (new AggressorReport("229TerrorhackFailedAttacker", u, c));
         }
 
@@ -2637,15 +2637,15 @@ ORDER_RESULT ArmyData::CauseUnhappiness(const MapPoint &point,
 	c.AccessData()->GetCityData()->HappinessAttackedBy(m_owner) ;
 
     if (strcmp(unitName, "UNIT_CYBER_NINJA") == 0) {
-        g_slicEngine->Execute
+        slicengine_Get()->Execute
             (new CityReport("228TerrorhackCompleteVictim", c));
-        g_slicEngine->Execute
+        slicengine_Get()->Execute
             (new AggressorReport("227TerrorhackCompleteAttacker", u, c)) ;
 
     } else if (strcmp(unitName, "UNIT_SUBNEURAL_ADS") == 0) {
         SlicObject * so = new CityReport("197AdvertiseCompleteVictim", c);
 		so->AddCivilisation(GetOwner());
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
 
     }
 
@@ -2736,7 +2736,7 @@ bool ArmyData::CanPlantNuke(double &chance, double &escape_chance) const
 //
 // Parameters : MapPoint point  : a point adjacent to this army's location (which should contain a city).
 //
-// Globals    : g_slicEngine
+// Globals    : slicengine_Get()
 //            : gevmanager_Get()
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
@@ -2768,7 +2768,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 
 	AddSpecialActionUsed(u);
 
-	g_slicEngine->RunTerrorismTriggers(u, c);
+	slicengine_Get()->RunTerrorismTriggers(u, c);
 
 	c.ModifySpecialAttackChance(UNIT_ORDER_PLANT_NUKE, chance);
 	c.SetWatchful();
@@ -2794,22 +2794,22 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 
 		ActionSuccessful(SPECATTACK_PLANTNUKE, u, c);
 
-        g_slicEngine->Execute(new CityReport("178NukeCompleteVictim", c));
+        slicengine_Get()->Execute(new CityReport("178NukeCompleteVictim", c));
 
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
 							   GEA_City,    c,
 							   GEA_Player,  m_owner,
 							   GEA_End);
 
-		g_slicEngine->Execute
+		slicengine_Get()->Execute
             (new AggressorReport("911NukeCompleteAggressor", u, c));
 
 		return ORDER_RESULT_SUCCEEDED;
 	}
     else
     {
-        g_slicEngine->Execute(new CityReport("10gNukeFailed", c));
-        g_slicEngine->Execute(new AggressorReport("11gNukeFailed", u, c));
+        slicengine_Get()->Execute(new CityReport("10gNukeFailed", c));
+        slicengine_Get()->Execute(new AggressorReport("11gNukeFailed", u, c));
     }
 	return ORDER_RESULT_FAILED;
 }
@@ -2994,7 +2994,7 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 // Parameters : MapPoint point  : A point adjacent to this army's location
 //                                (which should contain a city).
 //
-// Globals    : g_slicEngine
+// Globals    : slicengine_Get()
 //            : rand_ptr()
 //            : gevmanager_Get()
 //            : g_player        : Player array [see Player::InitPlayer for
@@ -3048,7 +3048,7 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	g_slicEngine->RunEnslavementTriggers(m_array[uindex], target_city);
+	slicengine_Get()->RunEnslavementTriggers(m_array[uindex], target_city);
 
 	if(civrand().Next(100) < sint32(success * 100.0))
 	{
@@ -3074,21 +3074,21 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 			target_city.AddHappyTimer(timer, -amount, HAPPY_REASON_SLAVES_TAKEN);
 		}
 
-		g_slicEngine->Execute
+		slicengine_Get()->Execute
 		    (new CityReport("137SlaveCompleteVictim", target_city));
 
 		SlicObject * so = new SlicObject("137SlaveryCompleteAttacker");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(GetOwner());
 		so->AddCity(home_city);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		ActionSuccessful(SPECATTACK_SLAVERAID, m_array[uindex], target_city);
 		return ORDER_RESULT_SUCCEEDED;
 	}
 	else
 	{
-		g_slicEngine->Execute
+		slicengine_Get()->Execute
 		    (new CityReport("138SlaveFailedVictim", target_city));
 
 		if(civrand().Next(100) < sint32(death * 100.0))
@@ -3103,7 +3103,7 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 			so->AddRecipient(GetOwner());
 			so->AddCivilisation(GetOwner());
 			so->AddCity(target_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		else
 		{
@@ -3111,18 +3111,18 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 			so->AddRecipient(GetOwner());
 			so->AddCivilisation(GetOwner());
 			so->AddCity(target_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 		}
 
 		if(slaveryReduction < 1.0)
 		{
-			g_slicEngine->Execute
+			slicengine_Get()->Execute
 			    (new CityReport("140ProtectedFromSlaveryVictim", target_city));
 			SlicObject * so = new SlicObject("141ProtectedFromSlaveryAttacker");
 			so->AddRecipient(GetOwner());
 			so->AddCity(target_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 		}
 
@@ -3281,7 +3281,7 @@ bool ArmyData::CanEnslaveSettler(sint32 &uindex) const
 // Globals    : g_player        : player array
 //            : world_Get
 //            : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
 //
@@ -3320,13 +3320,13 @@ ORDER_RESULT ArmyData::EnslaveSettler(const MapPoint &point, const sint32 uindex
 
 	SlicObject *    so = new SlicObject("139SettlerSlavedVictim");
 	so->AddRecipient(settlerOwner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	so = new SlicObject("137SlaveryCompleteAttacker");
 	so->AddRecipient(m_owner);
 	so->AddCivilisation(m_owner);
 	so->AddCity(home_city);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	AddSpecialActionUsed(m_array[uindex]);
 
@@ -3390,7 +3390,7 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 		so = new SlicObject("167FreeslaveNoSlavesToFree");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -3425,12 +3425,12 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_UNDERGROUND_RR_RAID, -1);
 		}
 
-		g_slicEngine->Execute(new CityReport("164FreeslaveFailedVictim", c));
+		slicengine_Get()->Execute(new CityReport("164FreeslaveFailedVictim", c));
 
 		so = new SlicObject("166FreeslaveFailedAgressor");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3471,7 +3471,7 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 		so = new SlicObject("167FreeslaveNoSlavesToFree");
 		so->AddRecipient(GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_ILLEGAL;
 	}
@@ -3519,7 +3519,7 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 	so = new SlicObject("208UprisingCompleteVictim") ;
 	so->AddRecipient(cityOwner) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	ActionSuccessful(SPECATTACK_SLAVEUPRISING, m_array[uindex], c);
 
@@ -3583,7 +3583,7 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 			delete so;
 		} else {
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		return ORDER_RESULT_FAILED;
 	}
@@ -3719,13 +3719,13 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 		DPRINTF(k_DBG_GAMESTATE, ("Bio infection failed because city immune\n"));
 		so = new CityReport("10iImmuneToBioInfect", c);
 		so->AddCivilisation(c.GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11iImmuneToBioInfect");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c) ;
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3748,13 +3748,13 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 		DPRINTF(k_DBG_GAMESTATE, ("Bio infection failed because I said so.\n"));
 		so = new CityReport("10iBioInfectFailed", c);
 		so->AddCivilisation(GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11iBioInfectFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -3819,13 +3819,13 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 		DPRINTF(k_DBG_GAMESTATE, ("Plague failed because city immune\n"));
 		so = new CityReport("10jImmuneToPlague", c);
 		so->AddCivilisation(GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11jImmuneToPlague");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_FAILED;
 	}
@@ -3845,13 +3845,13 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 		DPRINTF(k_DBG_GAMESTATE, ("Plague failed because I said so.\n"));
 		so = new CityReport("10jPlagueFailed", c);
 		so->AddCivilisation(GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11jPlagueFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetBioInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -3921,13 +3921,13 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 	if(c.IsNanoImmune()) {
 		so = new CityReport("10hImmuneToNanoTerror", c);
 		so->AddCivilisation(GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11hImmuneToNanoTerror");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		DPRINTF(k_DBG_GAMESTATE, ("Nano infection failed: City immune\n"));
 
@@ -3946,7 +3946,7 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 
 		so = new CityReport("911CrisisCityIsNanoInfected", c);
 		so->AddCivilisation(c->GetOwner()); // ToDo: Move this into CityReport if possible
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		return ORDER_RESULT_SUCCEEDED;
 	} else {
@@ -3954,13 +3954,13 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 
 		so = new CityReport("10hNanoTerrorFailed", c);
 		so->AddCivilisation(GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("11hNanoTerrorFailed");
 		so->AddRecipient(GetOwner());
 		so->AddCivilisation(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetNanoInfectionTerroristDeathChance() * 100.0))
 			m_array[uindex].Kill(CAUSE_REMOVE_ARMY_DIED_IN_SPYING, -1);
@@ -4095,7 +4095,7 @@ bool ArmyData::CanConvertCity(const MapPoint &point) const
 //
 // Globals    : rand_ptr()
 //            : gevmanager_Get()
-//            : g_slicEngine
+//            : slicengine_Get()
 //            : g_theWonderDB
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
@@ -4133,7 +4133,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 		if(i >= g_theWonderDB->NumRecords()) {
 			so->AddCivilisation(city.GetOwner());
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		} else {
 			delete so;
 		}
@@ -4205,9 +4205,9 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 	else {
 		DPRINTF(k_DBG_GAMESTATE, ("Conversion failed\n"));
 
-		g_slicEngine->Execute
+		slicengine_Get()->Execute
 		    (new VictimReport("152ConvertFailedVictim", u, city));
-		g_slicEngine->Execute
+		slicengine_Get()->Execute
 		    (new AggressorReport("153ConvertFailedAttacker", u, city));
 
 		if(civrand().Next(100) < sint32(best_death_chance * 100.0)) {
@@ -4416,19 +4416,19 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 
 	// Teleevangelist unit may not have index 66 in unit database
 	if(u.GetDBRec()->GetIsTelevangelist()) {
-		g_slicEngine->Execute(new CityReport("911FaithHealVictim", c));
+		slicengine_Get()->Execute(new CityReport("911FaithHealVictim", c));
 
 		SlicObject * so  = new SlicObject("911FaithHealAttacker");
 		so->AddRecipient(u.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	} else {
-		g_slicEngine->Execute(new CityReport("911IndulgenceCompleteVictim", c));
+		slicengine_Get()->Execute(new CityReport("911IndulgenceCompleteVictim", c));
 
 		SlicObject * so = new SlicObject("911IndulgenceCompleteAttacker");
 		so->AddRecipient(u.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	ActionSuccessful(SPECATTACK_SELLINDULGENCE, m_array[uindex], c);
@@ -4474,9 +4474,9 @@ ORDER_RESULT ArmyData::Soothsay(const MapPoint &point)
 		Unit c = GetAdjacentCity(point);
 		if (c.IsValid())
         {
-			g_slicEngine->Execute
+			slicengine_Get()->Execute
                 (new VictimReport("911SoothsayCompleteVictim", u, c));
-			g_slicEngine->Execute
+			slicengine_Get()->Execute
                 (new AggressorReport("911SoothsayCompleteAttacker", u, c));
 		}
 	}
@@ -4523,7 +4523,7 @@ ORDER_RESULT ArmyData::Advertise(const MapPoint &point)
 	SlicObject *so = new SlicObject("911AdvertiseCompleteAttacker");
 	so->AddRecipient(u.GetOwner());
 	so->AddCity(c);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	// establish that building there. Used to spread corporations
 	for (sint32 i = m_nElements - 1; i>= 0; i--) {
@@ -4918,7 +4918,7 @@ ORDER_RESULT ArmyData::CreatePark(const MapPoint &point)
 
 	SlicObject * so = new CityReport("911NaniteCleanseCompleteVictim", c);
 	so->AddCivilisation(c->GetOwner());
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateParkUnit,
 						   GEA_Unit, m_array[uindex].m_id,
@@ -5013,7 +5013,7 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 		so->AddRecipient(m_owner) ;
 		so->AddUnit(m_array[0]);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
         return ORDER_RESULT_ILLEGAL;
     }
 
@@ -5127,7 +5127,7 @@ ORDER_RESULT ArmyData::Injoin(const MapPoint &point)
 						   GEA_City, c.m_id,
 						   GEA_End);
 	ActionSuccessful(SPECATTACK_INJOIN, u, c);
-	g_slicEngine->Execute
+	slicengine_Get()->Execute
 	    (new AggressorReport("911InjunctionCompleteAttack", u, c));
 
 	return ORDER_RESULT_SUCCEEDED;
@@ -5898,7 +5898,7 @@ ORDER_RESULT ArmyData::InterceptTrade()
 						so->AddUnit(m_array[i]);
 						so->AddLocation(m_pos);
 						so->AddOrder(UNIT_ORDER_INTERCEPT_TRADE);
-						g_slicEngine->Execute(so);
+						slicengine_Get()->Execute(so);
 
 						player_view::ForceDirectorSelect(Army(m_id));
 						return ORDER_RESULT_ILLEGAL;
@@ -6982,13 +6982,13 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 					if(city.SafeFromNukes()) {
 						so = new CityReport("10gSafeFromNukes", city);
 						so->AddCivilisation(city.GetOwner());
-						g_slicEngine->Execute(so);
+						slicengine_Get()->Execute(so);
 
 						so = new SlicObject("11gSafeFromNukes");
 						so->AddRecipient(GetOwner());
 						so->AddCivilisation(city.GetOwner());
 						so->AddCity(city);
-						g_slicEngine->Execute(so);
+						slicengine_Get()->Execute(so);
 
 						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 											   GEA_Unit, m_array[i],
@@ -6999,11 +6999,11 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 						return true;
 					}
 
-					if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
+					if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
 						so = new SlicObject("49WorldPollutionNuclearWar") ;
 						so->AddCity(city);
 						so->AddAllRecipients();
-						g_slicEngine->Execute(so) ;
+						slicengine_Get()->Execute(so) ;
 					}
 
 					sint32 pollution;
@@ -7074,10 +7074,10 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 
 
 
-                    if (g_slicEngine->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
+                    if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
                         so = new SlicObject("49WorldPollutionNuclearWar") ;
                         so->AddAllRecipients() ;
-                        g_slicEngine->Execute(so) ;
+                        slicengine_Get()->Execute(so) ;
                     }
 
                     sint32 pollution;
@@ -7371,7 +7371,7 @@ bool ArmyData::VerifyAttack(UNIT_ORDER_TYPE order, const MapPoint &pos,
 	so->AddUnit(m_array[0]);
 	so->AddLocation(pos);
 	so->AddOrder(order);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 	player_view::ForceDirectorSelect(Army(m_id));
 
 	return false;
@@ -8630,7 +8630,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 				}
 			}
 		}
-		g_slicEngine->RunAttackTriggers(ta, td);
+		slicengine_Get()->RunAttackTriggers(ta, td);
 	}
 	else
 	{
@@ -8678,7 +8678,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 		so->AddLocation(pos);
 		so->AddUnit(ta);
 		so->AddUnit(td);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	double defenders_bonus = 0.0;
@@ -8877,7 +8877,7 @@ void ArmyData::GetAdvanceFromCityAssault(const Unit &c,
 					so->AddRecipient(m_owner);
 					so->AddCity(c);
 					so->AddAdvance(i);
-					g_slicEngine->Execute(so);
+					slicengine_Get()->Execute(so);
 					break;
 				}
 				checked++;
@@ -9578,7 +9578,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 			Unit c = GetAdjacentCity(order->m_point);
 			if (c.IsValid())
 			{
-				g_slicEngine->Execute(new CityReport(sText, c));
+				slicengine_Get()->Execute(new CityReport(sText, c));
 			}
 		}
 	}
@@ -9856,7 +9856,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 					so->AddRecipient(m_owner);
 					so->AddUnit(m_array[0]);
 					player_view::ForceDirectorSelect(Army(m_id));
-					g_slicEngine->Execute(so);
+					slicengine_Get()->Execute(so);
 					return true;
 				}
 				else
@@ -11293,7 +11293,7 @@ void ArmyData::CheckHostileTerrain()
 						SlicObject *so = new SlicObject("999HostileTerrain");
 						so->AddRecipient(m_owner);
 						so->AddUnitRecord(m_array[i].GetType());
-						g_slicEngine->Execute(so);
+						slicengine_Get()->Execute(so);
 
 						if (m_array[i].GetHP() < 0.999) {
 							m_array[i].Kill(CAUSE_REMOVE_ARMY_DISBANDED, -1);

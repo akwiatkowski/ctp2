@@ -129,7 +129,7 @@
 #include "UnitRecord.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
 #include "gs/world/UnseenCell.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 
 extern C3UI             *g_c3ui;
 extern Background       *g_background;
@@ -1085,7 +1085,7 @@ void TiledMap::TryMegaTiles(MapPoint &pos, BOOL regenTilenum)
         {
 			for (uint16 j = 0; j < pathLen; j++)
             {
-				TileInfo *	theTileInfo = g_theWorld->GetTileInfo(goodPath[j]);
+				TileInfo *	theTileInfo = world_Get()->GetTileInfo(goodPath[j]);
 
 				theTileInfo->SetTileNum(goodPathTiles[j]);
 				theTileInfo->SetLastMega(goodPathLastDirs[j]);
@@ -1111,11 +1111,11 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 		theTileInfo->DeleteGoodActor();
 
 	sint32			goodIndex;
-	if(g_theWorld->GetGood(pos, goodIndex)) {
+	if(world_Get()->GetGood(pos, goodIndex)) {
 		theTileInfo->SetGoodActor(g_theResourceDB->Get(goodIndex)->GetSpriteID(), pos);
 	}
 
-	uint8 index = static_cast<uint8>(g_theWorld->GetTerrain(pos.x, pos.y));
+	uint8 index = static_cast<uint8>(world_Get()->GetTerrain(pos.x, pos.y));
 	if(regenTilenum)
 		theTileInfo->SetTileNum(static_cast<TILEINDEX>(g_theTerrainDB->Get(index)->GetTilesetIndex()));
 
@@ -1128,13 +1128,13 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 	BOOL		rn, rne, re, rse, rs, rsw, rw, rnw;
 
 	uint16 c = static_cast<uint16>(g_theTerrainDB->Get(index)->GetTilesetIndex());
-	BOOL	rc = g_theWorld->IsRiver(pos.x, pos.y);
+	BOOL	rc = world_Get()->IsRiver(pos.x, pos.y);
 
 	MapPoint	newPos;
 	if(pos.GetNeighborPosition(NORTH, newPos)) {
 
-		n = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rn = g_theWorld->IsRiver(newPos.x, newPos.y);
+		n = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rn = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		n = index;
 		rn = FALSE;
@@ -1142,8 +1142,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(SOUTH, newPos)) {
 
-		s = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rs = g_theWorld->IsRiver(newPos.x, newPos.y);
+		s = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rs = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		s = index;
 		rs = FALSE;
@@ -1151,8 +1151,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(EAST, newPos)) {
 
-		e = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		re = g_theWorld->IsRiver(newPos.x, newPos.y);
+		e = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		re = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		e = index;
 		re = FALSE;
@@ -1160,8 +1160,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(WEST, newPos)) {
 
-		w = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rw = g_theWorld->IsRiver(newPos.x, newPos.y);
+		w = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rw = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		w = index;
 		rw = FALSE;
@@ -1169,8 +1169,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(SOUTHWEST, newPos)) {
 
-		sw = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rsw = g_theWorld->IsRiver(newPos.x, newPos.y);
+		sw = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rsw = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		sw = index;
 		rsw = FALSE;
@@ -1178,8 +1178,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(NORTHWEST, newPos)) {
 
-		nw = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rnw = g_theWorld->IsRiver(newPos.x, newPos.y);
+		nw = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rnw = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		nw = index;
 		rnw = FALSE;
@@ -1187,8 +1187,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(NORTHEAST, newPos)) {
 
-		ne = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rne = g_theWorld->IsRiver(newPos.x, newPos.y);
+		ne = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rne = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		ne = index;
 		rne = FALSE;
@@ -1196,8 +1196,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 	if(pos.GetNeighborPosition(SOUTHEAST, newPos)) {
 
-		se = static_cast<uint16>(g_theWorld->GetTerrain(newPos.x, newPos.y));
-		rse = g_theWorld->IsRiver(newPos.x, newPos.y);
+		se = static_cast<uint16>(world_Get()->GetTerrain(newPos.x, newPos.y));
+		rse = world_Get()->IsRiver(newPos.x, newPos.y);
 	} else {
 		se = index;
 		rse = FALSE;
@@ -1255,10 +1255,10 @@ void TiledMap::PostProcessMap(BOOL regenTilenums)
 	TILEINDEX       origTilenum = 0;
 	uint8           origMega = 0;
 
-	Assert (g_theWorld != NULL);
-	if (g_theWorld == NULL) return;
+	Assert (world_Get() != NULL);
+	if (world_Get() == NULL) return;
 
-//	MapPoint * size = g_theWorld->GetSize();
+//	MapPoint * size = world_Get()->GetSize();
 
 	TileInfo		*theTileInfo = NULL;
 
@@ -1268,7 +1268,7 @@ void TiledMap::PostProcessMap(BOOL regenTilenums)
 			pos.x = j;
 			pos.y = i;
 
-			theTileInfo = g_theWorld->GetTileInfoStoragePtr(pos);
+			theTileInfo = world_Get()->GetTileInfoStoragePtr(pos);
 
 			if(!regenTilenums) {
 				origTilenum = theTileInfo->GetTileNum();
@@ -1301,7 +1301,7 @@ void TiledMap::PostProcessMap(BOOL regenTilenums)
 			pos.y = i;
 
 			if(!regenTilenums) {
-				theTileInfo = g_theWorld->GetTileInfoStoragePtr(pos);
+				theTileInfo = world_Get()->GetTileInfoStoragePtr(pos);
 				origTilenum = theTileInfo->GetTileNum();
 				origMega = theTileInfo->GetMega();
 			}
@@ -1392,8 +1392,8 @@ void TiledMap::TileChanged(MapPoint &pos)
 
 void TiledMap::ReloadGoodActors(void)
 {
-	Assert (g_theWorld);
-	if (g_theWorld == NULL) return;
+	Assert (world_Get());
+	if (world_Get() == NULL) return;
 
 	LOADTYPE const	loadType = (g_theProfileDB->IsGoodAnim()) ? LOADTYPE_FULL : LOADTYPE_BASIC;
 
@@ -1401,7 +1401,7 @@ void TiledMap::ReloadGoodActors(void)
 	{
 		for (sint16 j = 0; j < m_mapBounds.right; ++j)
 		{
-			TileInfo *  theTileInfo = g_theWorld->GetTileInfoStoragePtr(MapPoint(j, i));
+			TileInfo *  theTileInfo = world_Get()->GetTileInfoStoragePtr(MapPoint(j, i));
 
 			if (theTileInfo)
 			{
@@ -1580,12 +1580,12 @@ sint32 TiledMap::CalculateWrap
 		}
 		else
 		{
-			terrainType = g_theWorld->GetTerrain(tempPos.x,tempPos.y);
+			terrainType = world_Get()->GetTerrain(tempPos.x,tempPos.y);
 		}
 	}
 	else
 	{
-		terrainType = g_theWorld->GetTerrain(tempPos.x, tempPos.y);
+		terrainType = world_Get()->GetTerrain(tempPos.x, tempPos.y);
 	}
 
 	sint16		river = tileInfo->GetRiverPiece();
@@ -1691,7 +1691,7 @@ sint32 TiledMap::CalculateWrap
 
 	if (g_is_debug_map_color)
 	{
-		sint32 color = g_theWorld->GetColor(pos);
+		sint32 color = world_Get()->GetColor(pos);
 		if (0 < color)
 		{
 			sint32 r=0,g=0, b;
@@ -1754,12 +1754,12 @@ sint32 TiledMap::CalculateWrapClipped(
         }
 		else
         {
-			terrainType = g_theWorld->GetTerrain(tempPos.x,tempPos.y);
+			terrainType = world_Get()->GetTerrain(tempPos.x,tempPos.y);
         }
 	}
 	else
 	{
-		terrainType = g_theWorld->GetTerrain(tempPos.x, tempPos.y);
+		terrainType = world_Get()->GetTerrain(tempPos.x, tempPos.y);
 	}
 
 	MapPoint    pos = tempPos;
@@ -1852,7 +1852,7 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
     sint32              numDBImprovements;
 	bool				hasGoody = false;
 
-	bool visiblePlayerOwnsThis = g_selected_item->GetVisiblePlayer() == g_theWorld->GetOwner(pos);
+	bool visiblePlayerOwnsThis = g_selected_item->GetVisiblePlayer() == world_Get()->GetOwner(pos);
 
 // Added by Martin G�hmann
 	if(!g_fog_toggle // The sense of toogling off the fog is to see something
@@ -1867,7 +1867,7 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
 	}
 	else
 	{
-		cell = g_theWorld->GetCell(pos);
+		cell = world_Get()->GetCell(pos);
 
 		if (cell==NULL)
 		   return 0;
@@ -1877,7 +1877,7 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
 		numDBImprovements	= cell->GetNumDBImprovements();
 		numImprovements		= cell->GetNumImprovements();
 
-		hasGoody = (g_theWorld->GetGoodyHut(pos) != NULL);
+		hasGoody = (world_Get()->GetGoodyHut(pos) != NULL);
 	}
 
 	uint32 mask = (k_MASK_ENV_INSTALLATION |
@@ -1934,9 +1934,9 @@ sint32 TiledMap::RepaintTiles(RECT *repaintRect)
 	GetMapMetrics(&mapWidth,&mapHeight);
 
 	for (sint32 i=repaintRect->top; i<repaintRect->bottom; i++){
-		if (g_theWorld->IsYwrap() || (i >= 0 && i < mapHeight)) {
+		if (world_Get()->IsYwrap() || (i >= 0 && i < mapHeight)) {
 			for (sint32 j=repaintRect->left; j<repaintRect->right; j++) {
-				if (g_theWorld->IsXwrap() || (j >= 0 && j < mapWidth)) {
+				if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
 					CalculateWrap(NULL,i,j);
 				}
 			}
@@ -1965,9 +1965,9 @@ sint32 TiledMap::RepaintImprovements(RECT *repaintRect,bool clip)
 	GetMapMetrics(&mapWidth,&mapHeight);
 
 	for (i=repaintRect->top; i<repaintRect->bottom; i++){
-		if (g_theWorld->IsYwrap() || (i >= 0 && i < mapHeight)) {
+		if (world_Get()->IsYwrap() || (i >= 0 && i < mapHeight)) {
 			for (sint32 j=repaintRect->left; j<repaintRect->right; j++) {
-				if (g_theWorld->IsXwrap() || (j >= 0 && j < mapWidth)) {
+				if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
 					DrawImprovements(NULL,i,j,0);
 				}
 			}
@@ -2053,11 +2053,11 @@ sint32 TiledMap::RepaintHats(RECT *repaintRect,bool clip)
 
 	for (sint32 j = tempRect.top;j < tempRect.bottom;j++)
 	{
-		if (g_theWorld->IsYwrap() || ((j >= 0) && (j <= mapHeight)) || clip)
+		if (world_Get()->IsYwrap() || ((j >= 0) && (j <= mapHeight)) || clip)
 		{
 			for (sint32 i = tempRect.left;i<=tempRect.right;i++)
 			{
-				if (g_theWorld->IsXwrap() || (i >= 0 && i < mapWidth)||clip)
+				if (world_Get()->IsXwrap() || (i >= 0 && i < mapWidth)||clip)
 					RedrawHat(NULL, j,i,clip);
 			}
 		}
@@ -2075,11 +2075,11 @@ sint32 TiledMap::RepaintBorders(RECT *repaintRect, bool clip)
 
 	for (sint32 j = tempRect.top;j < tempRect.bottom;j++)
 	{
-		if (g_theWorld->IsYwrap() || ((j >= 0) && (j <= mapHeight)) || clip)
+		if (world_Get()->IsYwrap() || ((j >= 0) && (j <= mapHeight)) || clip)
 		{
 			for (sint32 i = tempRect.left;i<=tempRect.right;i++)
 			{
-				if (g_theWorld->IsXwrap() || (i >= 0 && i < mapWidth)||clip)
+				if (world_Get()->IsXwrap() || (i >= 0 && i < mapWidth)||clip)
 					RedrawBorders(NULL, j,i,clip);
 			}
 		}
@@ -2105,9 +2105,9 @@ sint32 TiledMap::RepaintEdgeX(RECT *repaintRect)
 		primitives_PaintRect16(m_surface,&erase,0x0000);
 
 		for (sint32 i=m_mapViewRect.top; i<m_mapViewRect.bottom; i++){
-			if (g_theWorld->IsYwrap() || (i>=0 && i < mapHeight)) {
+			if (world_Get()->IsYwrap() || (i>=0 && i < mapHeight)) {
 				for (sint32 j=0; j<1; j++) {
-					if (g_theWorld->IsXwrap() || (j >= 0 && j < mapWidth)) {
+					if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
 						CalculateWrap(NULL,i,j);
 					}
 				}
@@ -2120,9 +2120,9 @@ sint32 TiledMap::RepaintEdgeX(RECT *repaintRect)
 		primitives_PaintRect16(m_surface,&erase,0x0000);
 
 		for (sint32 i=m_mapViewRect.top; i<m_mapViewRect.bottom; i++){
-			if (g_theWorld->IsYwrap() || (i>=0 && i < mapHeight)) {
+			if (world_Get()->IsYwrap() || (i>=0 && i < mapHeight)) {
 				for (sint32 j=m_mapBounds.right-2; j<m_mapBounds.right; j++) {
-					if (g_theWorld->IsXwrap() || (j >=0 && j < mapWidth)) {
+					if (world_Get()->IsXwrap() || (j >=0 && j < mapWidth)) {
 						CalculateWrap(NULL,i,j);
 					}
 				}
@@ -2149,9 +2149,9 @@ sint32 TiledMap::RepaintEdgeY(RECT *repaintRect)
 		primitives_PaintRect16(m_surface,&erase,0x0000);
 
 		for (sint32 i=0; i<1; i++) {
-			if (g_theWorld->IsYwrap() || (i >= 0 && i < mapHeight)) {
+			if (world_Get()->IsYwrap() || (i >= 0 && i < mapHeight)) {
 				for (sint32 j=m_mapViewRect.left; j<m_mapViewRect.right; j++) {
-					if (g_theWorld->IsXwrap() || (j >= 0 && j < mapWidth)) {
+					if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
 						CalculateWrap(NULL,i,j);
 					}
 				}
@@ -2167,9 +2167,9 @@ sint32 TiledMap::RepaintEdgeY(RECT *repaintRect)
 		primitives_PaintRect16(m_surface,&erase,0x0000);
 
 		for (sint32 i=m_mapBounds.bottom-3; i<m_mapBounds.bottom; i++) {
-			if (g_theWorld->IsYwrap() || (i >= 0 && i < mapHeight)) {
+			if (world_Get()->IsYwrap() || (i >= 0 && i < mapHeight)) {
 				for (sint32 j=m_mapViewRect.left; j<m_mapViewRect.right; j++) {
-					if (g_theWorld->IsXwrap() || (j >= 0 && j < mapWidth)) {
+					if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
 						CalculateWrap(NULL,i,j);
 					}
 				}
@@ -2265,7 +2265,7 @@ void TiledMap::PaintArmyActors(MapPoint &pos)
 				*unitActor2 = NULL,
 				*unitActor3 = NULL;
 
-	if (!g_theWorld->GetTopVisibleUnit(pos, topUnit)) return;
+	if (!world_Get()->GetTopVisibleUnit(pos, topUnit)) return;
 
 	unitActor1 = topUnit.GetActor();
 
@@ -2411,7 +2411,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 			sint32	tx = (sint32)(actor->GetX()+(k_TILE_PIXEL_WIDTH*m_scale)/2),
 					ty = (sint32)(actor->GetY()+(k_TILE_PIXEL_HEIGHT*m_scale));
 
-			Cell *c = g_theWorld->GetCell(pos);
+			Cell *c = world_Get()->GetCell(pos);
 			Unit city = c->GetCity();
 
 			if ((city != Unit()) && g_show_ai_dbg)
@@ -2509,7 +2509,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 	for (sint32 i=paintRect->top; i<paintRect->bottom; i++) {
 		for (sint32 j=paintRect->left; j<paintRect->right; j++) {
 
-			if(!g_theWorld->IsXwrap() && (j < 0 || j >= g_theWorld->GetXWidth()))
+			if(!world_Get()->IsXwrap() && (j < 0 || j >= world_Get()->GetXWidth()))
 				continue;
 
 			sint32 tileX,tileY;
@@ -2520,9 +2520,9 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			MapPoint    pos     = MapPoint(mapX, mapY);
 
 #if 0
-			if(g_theWorld->IsCity(pos))
+			if(world_Get()->IsCity(pos))
 			{
-				Unit city=g_theWorld->GetCity(pos);
+				Unit city=world_Get()->GetCity(pos);
 
 				sint32 pop;
 
@@ -2531,7 +2531,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			}
 #endif
 
-			if (g_theWorld->IsGood(pos) && m_localVision->IsExplored(pos))
+			if (world_Get()->IsGood(pos) && m_localVision->IsExplored(pos))
 			{
 				TileInfo *curTileInfo = GetTileInfo(pos);
 				Assert(curTileInfo);
@@ -2550,7 +2550,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			Unit		top;
 
 			if (m_localVision && !m_localVision->IsExplored(pos)
-				&& !g_theWorld->GetTopVisibleUnit(pos, top))
+				&& !world_Get()->GetTopVisibleUnit(pos, top))
 				continue;
 
 			bool fog =
@@ -2577,7 +2577,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			{
 
 
-				if (!g_theWorld->GetTopVisibleUnit(pos, top)) continue;
+				if (!world_Get()->GetTopVisibleUnit(pos, top)) continue;
 
 				if (g_drawArmyClumps)
                 {
@@ -2643,7 +2643,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			   	if (actor->IsActive())
 			   	{
 					Unit	second;
-					if (g_theWorld->GetSecondUnit(pos, second))
+					if (world_Get()->GetSecondUnit(pos, second))
 					{
 						top = second;
 						actor = top.GetActor();
@@ -2665,7 +2665,7 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 
 					Unit hypotheticalUnit;
 
-					if (!g_theWorld->GetTopVisibleUnitNotCity(pos, hypotheticalUnit)) {
+					if (!world_Get()->GetTopVisibleUnitNotCity(pos, hypotheticalUnit)) {
 
 
 						PLAYER_INDEX	s_player;
@@ -2782,16 +2782,16 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 
 			Assert(curTileInfo != NULL);
 
-			CurrentCell = g_theWorld->GetCell(pos);
+			CurrentCell = world_Get()->GetCell(pos);
 
-			if(g_theWorld->IsGood(pos) && m_localVision->IsExplored(pos))
+			if(world_Get()->IsGood(pos) && m_localVision->IsExplored(pos))
 			{
 				if(curTileInfo && curTileInfo->HasGoodActor())
 				{
 					curGoodActor = curTileInfo->GetGoodActor();
 
 
-					if (g_theWorld->GetCity(pos).m_id == 0)
+					if (world_Get()->GetCity(pos).m_id == 0)
 						curGoodActor->Process();
 				}
 			}
@@ -2817,7 +2817,7 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 				ProcessUnit(CurrentCell->UnitArmy());
 #if 0
 
-				unit = g_theWorld->GetCell(pos)->GetCity();
+				unit = world_Get()->GetCell(pos)->GetCity();
 
 				if (unit.IsValid())
 				{
@@ -2827,7 +2827,7 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 						curUnitActor->Process();
 				}
 
-				CellUnitList * unitList = g_theWorld->GetCell(pos)->UnitArmy();
+				CellUnitList * unitList = world_Get()->GetCell(pos)->UnitArmy();
 
 				if (unitList)
 				{
@@ -2878,7 +2878,7 @@ sint32 TiledMap::OffsetLayerSprites(RECT *paintRect, sint32 deltaX, sint32 delta
 			TileInfo *curTileInfo = GetTileInfo(pos);
 			Assert(curTileInfo != NULL);
 
-			if(g_theWorld->IsGood(pos) && m_localVision->IsExplored(pos)) {
+			if(world_Get()->IsGood(pos) && m_localVision->IsExplored(pos)) {
 				GoodActor *curGoodActor;
 				if(curTileInfo && curTileInfo->HasGoodActor()) {
 					curGoodActor = curTileInfo->GetGoodActor();
@@ -2903,13 +2903,13 @@ sint32 TiledMap::OffsetLayerSprites(RECT *paintRect, sint32 deltaX, sint32 delta
 			} else {
 				Unit		top;
 
-				if (!g_theWorld->GetTopVisibleUnit(pos, top)) continue;
+				if (!world_Get()->GetTopVisibleUnit(pos, top)) continue;
 
 				UnitActorPtr actor = top.GetActor();
 
 				if (actor->IsActive()) {
 					Unit	second;
-					if (g_theWorld->GetSecondUnit(pos, second)) {
+					if (world_Get()->GetSecondUnit(pos, second)) {
 						top = second;
 						actor = top.GetActor();
 					}
@@ -2925,7 +2925,7 @@ sint32 TiledMap::OffsetLayerSprites(RECT *paintRect, sint32 deltaX, sint32 delta
 
 				if (top.IsCity()) {
 
-					if (!g_theWorld->GetTopVisibleUnitNotCity(pos, top)) continue;
+					if (!world_Get()->GetTopVisibleUnitNotCity(pos, top)) continue;
 
 					actor = top.GetActor();
 
@@ -3012,15 +3012,15 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 
 	SCEN_START_LOC_MODE mode = ScenarioEditor::GetStartLocMode();
 
-	for (sint32 i=0; i<g_theWorld->GetNumStartingPositions(); i++) {
+	for (sint32 i=0; i<world_Get()->GetNumStartingPositions(); i++) {
 		MapPoint		pos;
 		sint32			playerOrCiv;
 
-		pos = g_theWorld->GetStartingPoint(i);
+		pos = world_Get()->GetStartingPoint(i);
 
 
 		if (mode == SCEN_START_LOC_MODE_CIV) {
-			playerOrCiv = g_theWorld->GetStartingPointCiv(i);
+			playerOrCiv = world_Get()->GetStartingPointCiv(i);
 		} else {
 
 			playerOrCiv = i+1;
@@ -3113,40 +3113,40 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 
 sint32 TiledMap::DrawCityRadius(const MapPoint &cpos, COLOR color, sint32 pop)
 {
-	if (g_theWorld->GetCell(cpos)->HasCity())
+	if (world_Get()->GetCell(cpos)->HasCity())
 	{
 		return 0; // Following code not used
 #if 0
 	    Pixel16 pixelColor = g_colorSet->GetColor(color);
-		CityInfluenceIterator it(cpos, g_theWorld->GetCity(cpos).CD()->GetSizeIndex());
+		CityInfluenceIterator it(cpos, world_Get()->GetCity(cpos).CD()->GetSizeIndex());
 
 		for(it.Start(); !it.End(); it.Next()) {
 			MapPoint neighbor;
-			Cell *cell = g_theWorld->GetCell(it.Pos());
+			Cell *cell = world_Get()->GetCell(it.Pos());
 
 			if(it.Pos().GetNeighborPosition(NORTHWEST, neighbor)) {
-				if(g_theWorld->GetCell(neighbor)->GetCityOwner().m_id !=
+				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
 					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, NORTHWEST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(SOUTHWEST, neighbor)) {
-				if(g_theWorld->GetCell(neighbor)->GetCityOwner().m_id !=
+				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
 					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, SOUTHWEST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(NORTHEAST, neighbor)) {
-				if(g_theWorld->GetCell(neighbor)->GetCityOwner().m_id !=
+				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
 					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, NORTHEAST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(SOUTHEAST, neighbor)) {
-				if(g_theWorld->GetCell(neighbor)->GetCityOwner().m_id !=
+				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
 					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, SOUTHEAST);
 				}
@@ -3439,12 +3439,12 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 
 	RetargetTileSurface(g_background->TheSurface());
 
-	sint32		mapWidth = g_theWorld->GetWidth();
-	sint32		mapHeight = g_theWorld->GetHeight();
+	sint32		mapWidth = world_Get()->GetWidth();
+	sint32		mapHeight = world_Get()->GetHeight();
 	sint32		hscroll = GetZoomTilePixelWidth();
 	sint32		vscroll = GetZoomTilePixelHeight()/2;
 
-	if (!g_theWorld->IsXwrap())
+	if (!world_Get()->IsXwrap())
 	{
 		if ((deltaX < 0) && (m_mapViewRect.left + deltaX < kMV_LeftMin ))
 		{
@@ -3458,7 +3458,7 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 		}
 	}
 
-	if (!g_theWorld->IsYwrap())
+	if (!world_Get()->IsYwrap())
 	{
 		if ((deltaY < 0) && (m_mapViewRect.top + deltaY < kMV_TopMin))
 		{
@@ -3542,12 +3542,12 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 
 	RepaintTiles(&repaintRect);
 
-	if (!g_theWorld->IsXwrap())
+	if (!world_Get()->IsXwrap())
 		if (m_mapViewRect.left + deltaX < 0 ||
 			m_mapViewRect.right + deltaX > m_mapBounds.right-1)
 			RepaintEdgeX(&repaintRect);
 
-	if (!g_theWorld->IsYwrap())
+	if (!world_Get()->IsYwrap())
 		if (m_mapViewRect.top + deltaY < 0 ||
 			m_mapViewRect.bottom + deltaY > m_mapBounds.bottom-2)
 			RepaintEdgeY(&repaintRect);
@@ -3666,8 +3666,8 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 
 	RetargetTileSurface(g_background->TheSurface());
 
-	sint32	mapWidth	= g_theWorld->GetWidth();
-	sint32	mapHeight	= g_theWorld->GetHeight();
+	sint32	mapWidth	= world_Get()->GetWidth();
+	sint32	mapHeight	= world_Get()->GetHeight();
 	sint32	hscroll		= GetZoomTilePixelWidth();
 	sint32	vscroll		= GetZoomTilePixelHeight() >> 1;
 	if(hscroll < 1) hscroll = 1;
@@ -3688,7 +3688,7 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 	m_smoothLastX =	pdeltaX;
 	m_smoothLastY =	pdeltaY;
 
-   	if ((!g_theWorld->IsXwrap())&&signX)
+   	if ((!world_Get()->IsXwrap())&&signX)
    	{
    		if ((m_mapViewRect.left + signX) <= 0)
 		{
@@ -3705,7 +3705,7 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 		}
    	}
 
-   	if ((!g_theWorld->IsYwrap())&&(signY))
+   	if ((!world_Get()->IsYwrap())&&(signY))
    	{
    		if ((m_mapViewRect.top+signY) < 0)
 		{
@@ -3791,12 +3791,12 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 
 	RepaintTiles(&repaintRect);
 
-	if (!g_theWorld->IsXwrap())
+	if (!world_Get()->IsXwrap())
 		if (m_mapViewRect.left + deltaX < 0 ||
 			m_mapViewRect.right + deltaX > m_mapBounds.right-1)
 			RepaintEdgeX(&repaintRect);
 
-	if (!g_theWorld->IsYwrap())
+	if (!world_Get()->IsYwrap())
 		if (m_mapViewRect.top + deltaY < 0 ||
 			m_mapViewRect.bottom + deltaY > m_mapBounds.bottom-2)
 			RepaintEdgeY(&repaintRect);
@@ -3867,13 +3867,13 @@ sint32 TiledMap::RedrawHat(
 		}
 		else
 		{
-			terrainType = g_theWorld->GetTerrain(tempPos.x,tempPos.y);
+			terrainType = world_Get()->GetTerrain(tempPos.x,tempPos.y);
 			tileInfo = GetTileInfo(tempPos);
 		}
 	}
 	else
 	{
-		terrainType = g_theWorld->GetTerrain(tempPos.x, tempPos.y);
+		terrainType = world_Get()->GetTerrain(tempPos.x, tempPos.y);
 		tileInfo = GetTileInfo(tempPos);
 	}
 
@@ -4225,7 +4225,7 @@ bool TiledMap::TileIsVisible(sint32 mapX, sint32 mapY, sint32 /* mapZ */)
 	POINT point = {tileX,tileY};
 
       /// @todo Check IsYwrap
-	if(!g_theWorld->IsXwrap()) {
+	if(!world_Get()->IsXwrap()) {
 		if(m_mapViewRect.left < 0) {
 			return PtInRect(&ul, point) || PtInRect(&ll, point);
 		}
@@ -4450,13 +4450,13 @@ UnitActorPtr TiledMap::GetClickedUnit(aui_MouseEvent *data)
 
 			Unit		top;
 
-			if (!g_theWorld->GetTopVisibleUnit(pos, top)) continue;
+			if (!world_Get()->GetTopVisibleUnit(pos, top)) continue;
 
 			UnitActorPtr actor = top.GetActor();
 
 			if (actor->IsActive()) {
 				Unit	second;
-				if (g_theWorld->GetSecondUnit(pos, second)) {
+				if (world_Get()->GetSecondUnit(pos, second)) {
 					top = second;
 					actor = top.GetActor();
 				}
@@ -4535,10 +4535,10 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 		tilePos.y = pos.y * 2;
 	}
 
-	if(!g_theWorld->IsXwrap()) {
+	if(!world_Get()->IsXwrap()) {
 		if(pos.x < 0)
 			return false;
-		if(pos.x >= g_theWorld->GetXWidth())
+		if(pos.x >= world_Get()->GetXWidth())
 			return false;
 	}
 
@@ -4552,20 +4552,20 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 
 
 
-	if (tilePos.x <0) tilePos.x = static_cast<sint16>(g_theWorld->GetWidth()) + tilePos.x;
-	else if (g_theWorld->GetWidth() <= tilePos.x) tilePos.x = tilePos.x - static_cast<sint16>(g_theWorld->GetWidth());
+	if (tilePos.x <0) tilePos.x = static_cast<sint16>(world_Get()->GetWidth()) + tilePos.x;
+	else if (world_Get()->GetWidth() <= tilePos.x) tilePos.x = tilePos.x - static_cast<sint16>(world_Get()->GetWidth());
 
-	if (g_theWorld->IsYwrap()) {
+	if (world_Get()->IsYwrap()) {
 		sint16 sx, sy;
 
 		if (tilePos.y < 0) {
-			sx = (sint16)g_theWorld->GetWidth();
-			sy = (sint16)g_theWorld->GetHeight();
+			sx = (sint16)world_Get()->GetWidth();
+			sy = (sint16)world_Get()->GetHeight();
 			tilePos.y = sy + tilePos.y;
 			tilePos.x = (tilePos.x + (sx - (sy/2))) % sx;
-		} else if (g_theWorld->GetHeight() <= tilePos.y) {
-			sx = (sint16)g_theWorld->GetWidth();
-			sy = (sint16)g_theWorld->GetHeight();
+		} else if (world_Get()->GetHeight() <= tilePos.y) {
+			sx = (sint16)world_Get()->GetWidth();
+			sy = (sint16)world_Get()->GetHeight();
 			tilePos.y = tilePos.y - sy;
 			tilePos.x = (tilePos.x - (sx - (sy/2))) % sx;
 		}
@@ -4574,8 +4574,8 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 		if (tilePos.y <0) {
 			tilePos.y = 0;
 			return false;
-		} else if (g_theWorld->GetHeight() <= tilePos.y) {
-			tilePos.y = static_cast<sint16>(g_theWorld->GetHeight() -1);
+		} else if (world_Get()->GetHeight() <= tilePos.y) {
+			tilePos.y = static_cast<sint16>(world_Get()->GetHeight() -1);
 			return false;
 		}
 	}
@@ -4599,19 +4599,19 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 	bool needPostProcess = false;
 	if(ScenarioEditor::PaintHutMode()) {
-		if(g_theWorld->GetCell(pos)->GetGoodyHut()) {
-			g_theWorld->GetCell(pos)->DeleteGoodyHut();
+		if(world_Get()->GetCell(pos)->GetGoodyHut()) {
+			world_Get()->GetCell(pos)->DeleteGoodyHut();
 		} else {
-			g_theWorld->GetCell(pos)->CreateGoodyHut();
+			world_Get()->GetCell(pos)->CreateGoodyHut();
 		}
 		needPostProcess = true;
 	}
 
 	if(ScenarioEditor::PaintRiverMode()) {
-		if (g_theWorld->IsRiver(pos)) {
-			g_theWorld->UnsetRiver(pos.x, pos.y);
+		if (world_Get()->IsRiver(pos)) {
+			world_Get()->UnsetRiver(pos.x, pos.y);
 		} else {
-			g_theWorld->SetRiver( pos );
+			world_Get()->SetRiver( pos );
 		}
 
 		needPostProcess = true;
@@ -4619,10 +4619,10 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 	if(ScenarioEditor::PaintGoodsMode()) {
 		sint32 curGood;
-		if(g_theWorld->GetGood(pos, curGood)) {
-			g_theWorld->ClearGoods(pos.x, pos.y);
+		if(world_Get()->GetGood(pos, curGood)) {
+			world_Get()->ClearGoods(pos.x, pos.y);
 		} else {
-			g_theWorld->SetGood(pos.x, pos.y, ScenarioEditor::PaintGood() + 1);
+			world_Get()->SetGood(pos.x, pos.y, ScenarioEditor::PaintGood() + 1);
 		}
 		needPostProcess = true;
 	}
@@ -4667,13 +4667,13 @@ void TiledMap::HandleCheat(MapPoint &pos)
 		if (g_placeGoodsMode)
         {
 			sint32 curGood;
-			if(g_theWorld->GetGood(pos, curGood))
+			if(world_Get()->GetGood(pos, curGood))
             {
-				g_theWorld->ClearGoods(pos.x, pos.y);
+				world_Get()->ClearGoods(pos.x, pos.y);
 			}
             else
             {
-				g_theWorld->SetGood(pos.x, pos.y, g_placeGoodsMode);
+				world_Get()->SetGood(pos.x, pos.y, g_placeGoodsMode);
 			}
 		}
         else
@@ -4681,16 +4681,16 @@ void TiledMap::HandleCheat(MapPoint &pos)
 			switch (tileNum)
             {
 			case TILEPAD_TYPE_GOODY:
-				if (g_theWorld->IsLand(pos))
+				if (world_Get()->IsLand(pos))
                 {
-                    GoodyHut * hut = g_theWorld->GetGoodyHut(pos);
+                    GoodyHut * hut = world_Get()->GetGoodyHut(pos);
 					if (hut)
                     {
-						g_theWorld->GetCell(pos)->DeleteGoodyHut();
+						world_Get()->GetCell(pos)->DeleteGoodyHut();
 					}
                     else
                     {
-						g_theWorld->GetCell(pos)->CreateGoodyHut();
+						world_Get()->GetCell(pos)->CreateGoodyHut();
 					}
 					river = true;
 				}
@@ -4701,13 +4701,13 @@ void TiledMap::HandleCheat(MapPoint &pos)
 				break;
 
 			case TILEPAD_TYPE_RIVER:
-				if (g_theWorld->IsRiver(pos))
+				if (world_Get()->IsRiver(pos))
                 {
-					g_theWorld->UnsetRiver(pos.x, pos.y);
+					world_Get()->UnsetRiver(pos.x, pos.y);
 				}
                 else
                 {
-					g_theWorld->SetRiver( pos );
+					world_Get()->SetRiver( pos );
 				}
 				river = true;
 				break;
@@ -4718,7 +4718,7 @@ void TiledMap::HandleCheat(MapPoint &pos)
 			}
 		}
 
-		g_theWorld->CutImprovements(pos);
+		world_Get()->CutImprovements(pos);
 
 		if (!river && !g_placeGoodsMode)
         {
@@ -4736,22 +4736,22 @@ void TiledMap::HandleCheat(MapPoint &pos)
 				break;
 			}
 
-			g_theWorld->SmartSetTerrain(pos, tileNum, radius);
+			world_Get()->SmartSetTerrain(pos, tileNum, radius);
 		}
 
 #if 0
 
-		g_theWorld->GetCell(pos)->CalcTerrainMoveCost();
+		world_Get()->GetCell(pos)->CalcTerrainMoveCost();
 
-		if (g_theWorld->GetCell(pos)->IsAnyUnitInCell()) {
-			if (!g_theWorld->GetCell(pos)->UnitArmy()->CanEnter(pos)) {
-				g_theWorld->GetCell(pos)->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_CHEAT, -1);
+		if (world_Get()->GetCell(pos)->IsAnyUnitInCell()) {
+			if (!world_Get()->GetCell(pos)->UnitArmy()->CanEnter(pos)) {
+				world_Get()->GetCell(pos)->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_CHEAT, -1);
 			}
 		}
 
-		if (g_theWorld->HasCity(pos)) {
-			if (!g_theWorld->CanEnter(pos, g_theWorld->GetCell(pos)->GetCity().GetMovementType())) {
-				g_theWorld->GetCell(pos)->GetCity().KillUnit(CAUSE_REMOVE_ARMY_CHEAT, -1);
+		if (world_Get()->HasCity(pos)) {
+			if (!world_Get()->CanEnter(pos, world_Get()->GetCell(pos)->GetCity().GetMovementType())) {
+				world_Get()->GetCell(pos)->GetCity().KillUnit(CAUSE_REMOVE_ARMY_CHEAT, -1);
 			}
 		}
 #endif
@@ -4784,7 +4784,7 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 		if (g_killMode) {
 
-			Cell *cell = g_theWorld->GetCell(pos);
+			Cell *cell = world_Get()->GetCell(pos);
 			if(cell->UnitArmy()) {
 				cell->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_TOE, -1);
 				g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
@@ -4795,12 +4795,12 @@ void TiledMap::HandleCheat(MapPoint &pos)
 			}
 		} else
 		if (unitNum != -1) {
-			if (g_theWorld->CanEnter(pos, g_theUnitDB->Get(unitNum, govType)->GetMovementType()) ||
+			if (world_Get()->CanEnter(pos, g_theUnitDB->Get(unitNum, govType)->GetMovementType()) ||
 				g_theUnitDB->Get(unitNum, govType)->GetHasPopAndCanBuild() ||
 				g_theUnitDB->Get(unitNum, govType)->GetIsTrader()) {
 
 				if(g_theUnitDB->Get(unitNum, govType)->GetHasPopAndCanBuild()) {
-					if(g_theWorld->IsWater(pos) || g_theWorld->IsShallowWater(pos)) {
+					if(world_Get()->IsWater(pos) || world_Get()->IsShallowWater(pos)) {
 						sint32 i;
 						for(i = 0; i < g_theUnitDB->NumRecords(); i++) {
 							if(g_theUnitDB->Get(i, govType)->GetHasPopAndCanBuild() &&
@@ -4816,8 +4816,8 @@ void TiledMap::HandleCheat(MapPoint &pos)
 					//End Add
 				} else {
 
-					if (g_theWorld->HasCity(pos)) {
-						if (g_theWorld->GetCell(pos)->GetCity().GetOwner() == g_selected_item->GetVisiblePlayer()) {
+					if (world_Get()->HasCity(pos)) {
+						if (world_Get()->GetCell(pos)->GetCity().GetOwner() == g_selected_item->GetVisiblePlayer()) {
 							Unit id1 = p->CreateUnit(unitNum, pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
 						}
 					} else {
@@ -4842,7 +4842,7 @@ void TiledMap::AdjustForOverlappingSprite(POINT mousePt, MapPoint &pos)
 	Unit			top;
 
 	pos.GetNeighborPosition(SOUTH, newPos);
-	if (g_theWorld->GetTopVisibleUnit(newPos, top)) {
+	if (world_Get()->GetTopVisibleUnit(newPos, top)) {
 		if (top.GetActor()) {
 			if (top.GetActor()->HitTest(mousePt)) {
 				pos = newPos;
@@ -4852,7 +4852,7 @@ void TiledMap::AdjustForOverlappingSprite(POINT mousePt, MapPoint &pos)
 	}
 
 	pos.GetNeighborPosition(SOUTHWEST, newPos);
-	if (g_theWorld->GetTopVisibleUnit(newPos, top)) {
+	if (world_Get()->GetTopVisibleUnit(newPos, top)) {
 		if (top.GetActor()) {
 			if (top.GetActor()->HitTest(mousePt)) {
 				pos = newPos;
@@ -4862,7 +4862,7 @@ void TiledMap::AdjustForOverlappingSprite(POINT mousePt, MapPoint &pos)
 	}
 
 	pos.GetNeighborPosition(SOUTHEAST, newPos);
-	if (g_theWorld->GetTopVisibleUnit(newPos, top)) {
+	if (world_Get()->GetTopVisibleUnit(newPos, top)) {
 		if (top.GetActor()) {
 			if (top.GetActor()->HitTest(mousePt)) {
 				pos = newPos;
@@ -5039,7 +5039,7 @@ TileInfo *TiledMap::GetTileInfo(const MapPoint &pos)
 				return ucell.m_unseenCell->GetTileInfo();
 		}
 	}
-	return g_theWorld->GetTileInfo(pos);
+	return world_Get()->GetTileInfo(pos);
 }
 
 void TiledMap::NextPlayer(void)

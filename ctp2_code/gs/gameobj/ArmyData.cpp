@@ -1691,7 +1691,7 @@ void ArmyData::BeginTurn()
     }
 
     if(m_flags & k_CULF_IN_SPACE) {
-        if(NewTurnCount::GetCurrentRound() >= m_reentryTurn) {
+        if(g_turn->GetSessionRound() >= m_reentryTurn) {
             if(g_network.IsHost()) {
                 g_network.Block(m_owner);
                 g_network.Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
@@ -4654,7 +4654,7 @@ ORDER_RESULT ArmyData::ClearTarget()
 
 void ArmyData::SetReentry(sint32 turns, MapPoint &pos)
 {
-	m_reentryTurn = NewTurnCount::GetCurrentRound() + turns;
+	m_reentryTurn = g_turn->GetSessionRound() + turns;
 	m_reentryPos = pos;
 	m_flags |= k_CULF_IN_SPACE;
 }

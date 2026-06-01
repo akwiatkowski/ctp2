@@ -43,14 +43,14 @@
 #include "gs/gameobj/Gold.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/buildingutil.h"
 
 Strengths::Strengths(sint32 owner)
 {
 	m_owner = owner;
  
-	sint32 const curRound = NewTurnCount::GetCurrentRound();
+	sint32 const curRound = g_turn ? g_turn->GetSessionRound() : 0;
  
 	if (curRound <= 0)
 		return;

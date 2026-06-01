@@ -44,6 +44,8 @@
 #ifndef __GAME_EVENT_DESCRIPTION_H__
 #define __GAME_EVENT_DESCRIPTION_H__
 
+#include "ctp/c3types.h"   // sint32 for event_description accessor
+
 struct GameEventDescription {
 	char *name;
 	char *description;
@@ -59,7 +61,11 @@ struct GameEventDescription {
 enum GAME_EVENT
 #else
 #define EVENT(name, description, args) {#name, description, args},
-GameEventDescription g_eventDescriptions[] =
+// Demoted from extern to file-scope `static`: only
+// GameEventDescription.cpp materialises the table (it's the only TU
+// that defines MAKE_EVENT_DESCRIPTIONS).  External readers go through
+// event_description(type).
+static GameEventDescription s_eventDescriptions[] =
 #endif
 {
 	EVENT(MoveOrder,                  "Give a pathed move order to an army", "%a%p%l%i")
@@ -351,6 +357,12 @@ GameEventDescription g_eventDescriptions[] =
 	EVENT(MAX,                        "This is not a real event, it marks the end of the list", "")
 };
 
-extern GameEventDescription g_eventDescriptions[];
+// Lookup accessor for the descriptions table.  Bounds-checking is the
+// caller's responsibility (see existing GEV_MAX guards in
+// GameEventManager.cpp:136).  Returns a non-const reference because
+// some callers store the pointer in a non-const local (the table itself
+// is initialised once and treated as immutable at runtime — non-const
+// here is just preserving the historical signature).
+GameEventDescription & event_description(sint32 type);
 
 #endif

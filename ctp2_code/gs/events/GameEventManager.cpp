@@ -133,7 +133,7 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 {
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] AddEvent: insert=%d type=%d(%s)\n", insert, type,
-		(type >= 0 && type < GEV_MAX) ? g_eventDescriptions[type].name : "INVALID");
+		(type >= 0 && type < GEV_MAX) ? event_description(type).name : "INVALID");
 	#endif
 	Assert((type >= (GAME_EVENT) 0) && (type < GEV_MAX));
 	if(type < (GAME_EVENT)0 || type >= GEV_MAX)
@@ -152,7 +152,7 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 	if(m_processing) {
 		EVENTLOG(("    "));
 	}
-	EVENTLOG(("AddEvent: %s(", g_eventDescriptions[type].name));
+	EVENTLOG(("AddEvent: %s(", event_description(type).name));
 
 	va_list vl;
 	va_start(vl, type);
@@ -262,7 +262,7 @@ GAME_EVENT_ERR GameEventManager::ProcessHead()
 	m_processingEvent       = event->GetType();
 
 	EVENTLOG(("ProcessEvent: %s Serial: %d\n",
-            g_eventDescriptions[m_processingEvent].name,
+            event_description(m_processingEvent).name,
 			      event->GetSerial()));
 
 	GAME_EVENT_ERR  err     = event->Process();
@@ -410,7 +410,7 @@ const char *GameEventManager::GetArgString(GAME_EVENT ev)
 	if(ev < (GAME_EVENT)0 || ev >= GEV_MAX) {
 		return "";
 	}
-	return g_eventDescriptions[ev].args;
+	return event_description(ev).args;
 }
 
 bool GameEventManager::CheckArg(sint32 num, char got, char want)
@@ -441,7 +441,7 @@ char GameEventManager::ArgChar(GAME_EVENT type, size_t index)
 
 	for
 	(
-	    char const * argString = g_eventDescriptions[type].args;
+	    char const * argString = event_description(type).args;
 	    *argString;
 	    ++argString
 	)
@@ -475,7 +475,7 @@ size_t GameEventManager::GetNumArgs(GAME_EVENT type)
 
     for
     (
-        char const * argString = g_eventDescriptions[type].args;
+        char const * argString = event_description(type).args;
         *argString;
         ++argString
     )
@@ -506,7 +506,7 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 	if(type < (GAME_EVENT)0 || type >= GEV_MAX)
 		return false;
 
-	GameEventDescription *desc = &g_eventDescriptions[type];
+	GameEventDescription *desc = &event_description(type);
 	char *argString = desc->args;
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] VerifyArgs: type=%d argString='%s'\n", type, argString ? argString : "(null)");
@@ -691,9 +691,9 @@ void GameEventManager::Dump()
 	GAME_EVENT ev;
 	for(ev = (GAME_EVENT)0; ev < GEV_MAX; ev = GAME_EVENT((sint32)ev + 1)) {
 
-		fprintf(f, "%d: GEV_%s(", (sint32)ev, g_eventDescriptions[ev].name);
+		fprintf(f, "%d: GEV_%s(", (sint32)ev, event_description(ev).name);
 
-		char *argString = g_eventDescriptions[ev].args;
+		char *argString = event_description(ev).args;
 		BOOL first = TRUE;
 
 
@@ -726,7 +726,7 @@ void GameEventManager::Dump()
 
 		}
 
-		fprintf(f, "): %s\n", g_eventDescriptions[ev].description);
+		fprintf(f, "): %s\n", event_description(ev).description);
 
 		if(m_hooks[ev]) {
 			m_hooks[ev]->Dump(f);
@@ -743,7 +743,7 @@ GAME_EVENT GameEventManager::GetEventIndex(const MBCHAR *name)
 {
 	GAME_EVENT e;
 	for(e = (GAME_EVENT)0; e < GEV_MAX; e = GAME_EVENT(sint32(e) + 1)) {
-		if(!stricmp(g_eventDescriptions[e].name, name))
+		if(!stricmp(event_description(e).name, name))
 			return e;
 	}
 	return GEV_MAX;
@@ -755,7 +755,7 @@ const char *GameEventManager::GetEventName(GAME_EVENT ev)
 		return "EventNone";
 	}
 
-	return g_eventDescriptions[ev].name;
+	return event_description(ev).name;
 }
 
 bool GameEventManager::EventsPending() const

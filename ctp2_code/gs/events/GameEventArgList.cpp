@@ -49,7 +49,7 @@ GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 	          (PointerList<GameEventArgument> *) NULL
 	         );
 
-	char *argString = g_eventDescriptions[eventType].args;
+	char *argString = event_description(eventType).args;
 
 	while(vl) {
 		GAME_EVENT_ARGUMENT arg = va_arg(*vl, GAME_EVENT_ARGUMENT);

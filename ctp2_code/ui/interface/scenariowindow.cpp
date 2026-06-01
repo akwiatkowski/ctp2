@@ -68,7 +68,6 @@ extern CivApp                       *g_civApp;
 
 ScenarioWindow                      *s_ScenarioWindow = NULL;
 
-extern MBCHAR                       g_scenarioName[k_SCENARIO_NAME_MAX];
 
 
 
@@ -476,7 +475,7 @@ void ScenarioWindow::CancelPress(aui_Control *control, uint32 action, uint32 dat
 		if (s_ScenarioWindow->GetMode() == SCENARIO_WINDOW_MODE_LOAD_PACK) {
 
 
-			memset(g_scenarioName, '\0', k_SCENARIO_NAME_MAX);
+			memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
 
 			g_civPaths->ClearCurScenarioPath();
 			g_civPaths->ClearCurScenarioPackPath();
@@ -529,7 +528,7 @@ void ScenarioWindow::SavePress(aui_Control *control, uint32 action, uint32 data,
 
 
 
-		g_scenarioName[0] = 0;
+		scenario_name_buf()[0] = 0;
 
 		g_isScenario = TRUE;
 
@@ -617,7 +616,7 @@ void ScenarioWindow::SetProfileFromScenario( void )
 
 			g_theProfileDB->SetIsScenario(TRUE);
 
-			strcpy(g_scenarioName, s_ScenarioWindow->GetScenario()->m_name);
+			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
 
 			g_civApp->CleanupAppDB();
 			g_civApp->InitializeAppDB((*(CivArchive *)(NULL)));

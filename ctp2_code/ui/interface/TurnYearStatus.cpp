@@ -143,7 +143,7 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 
 void TurnYearStatus::BuildTurnLengthOverride()
 {
-	if (g_isScenario || (g_scenarioName && *g_scenarioName))
+	if (g_isScenario || (scenario_name_buf() && *scenario_name_buf()))
 	{
 		MBCHAR overridePath[_MAX_PATH];
 		snprintf(overridePath, sizeof(overridePath), "%s%s%s", g_civPaths->GetCurScenarioPath(), FILE_SEP, "turnlength.txt");

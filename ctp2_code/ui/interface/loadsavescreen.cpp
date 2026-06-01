@@ -588,7 +588,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				g_civPaths->SetCurScenarioPackPath(pack->m_path);
 				g_theProfileDB->SetIsScenario(TRUE);
 
-				strcpy(g_scenarioName, saveInfo->scenarioName);
+				strcpy(scenario_name_buf(), saveInfo->scenarioName);
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];

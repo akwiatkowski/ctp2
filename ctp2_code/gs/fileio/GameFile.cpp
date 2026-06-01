@@ -193,7 +193,9 @@ void show_unit_labels_Set(bool value)  { g_showUnitLabels = value ? TRUE : FALSE
 
 sint32 g_startingPlayer = -1;
 
-MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
+static MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
+
+MBCHAR * scenario_name_buf(void) { return g_scenarioName; }
 
 
 

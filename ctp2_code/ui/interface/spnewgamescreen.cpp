@@ -286,7 +286,7 @@ spnewgamescreen_returnPress(aui_Control *control, uint32 action, uint32 data, vo
 	gameinit_SetHotseatGame(FALSE);
 	gameinit_SetEmailGame(FALSE);
 	g_isScenario        = FALSE;
-	memset(g_scenarioName, '\0', k_SCENARIO_NAME_MAX);
+	memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
 	g_civPaths->ClearCurScenarioPath();
 	g_civPaths->ClearCurScenarioPackPath();
 

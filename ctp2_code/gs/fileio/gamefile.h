@@ -249,7 +249,11 @@ extern sint32 g_isScenario;
 // gameinit's scenario-load path read/write through the accessors.
 sint32 scenario_civs_Get(void);
 void   scenario_civs_Set(sint32 v);
-extern MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
+// Scenario name buffer.  Definition in GameFile.cpp as file-scope
+// `static`; callers treat the returned pointer as a writable buffer of
+// k_SCENARIO_NAME_MAX bytes (used directly by strcpy / memset / char
+// indexing across the UI + civ3_main bootstrap).
+MBCHAR * scenario_name_buf(void);
 
 // Lifecycle: definition lives in gs/fileio/GameFile.cpp as file-scope
 // `static`.  Read sites use show_unit_labels_Get(); the scenario editor

@@ -2533,7 +2533,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 		g_theProfileDB->SetIsScenario(FALSE);
 		g_civPaths->ClearCurScenarioPath();
 		g_civPaths->ClearCurScenarioPackPath();
-		memset(g_scenarioName, '\0', k_SCENARIO_NAME_MAX);
+		memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
 		CleanupAppDB();
 		InitializeAppDB();
 	}

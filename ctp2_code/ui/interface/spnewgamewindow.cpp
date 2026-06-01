@@ -69,7 +69,6 @@
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;
 
-extern MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 
 
 
@@ -315,8 +314,8 @@ void SPNewGameWindow::Update( void )
 	// A scenario was loaded.
 	if (g_civPaths->GetCurScenarioPath() != NULL) {
 
-		if (strlen(g_scenarioName) > 0) {
-			m_scenarioName->SetText(g_scenarioName);
+		if (strlen(scenario_name_buf()) > 0) {
+			m_scenarioName->SetText(scenario_name_buf());
 			m_scenarioName->ShouldDraw(TRUE);
 		}
 		m_spScenario->SetText(g_theStringDB->GetNameStr("str_ldl_SP_STANDARD_GAME"));

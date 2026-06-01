@@ -1167,18 +1167,18 @@ void ParseCommandLine(PSTR szCmdLine)
 
 		for (i=0; i<k_SCENARIO_NAME_MAX && *scenName != '\0'; i++, scenName++)
 		{
-			g_scenarioName[i] = *scenName;
+			scenario_name_buf()[i] = *scenName;
 		}
 
 		if (i >= k_SCENARIO_NAME_MAX)
 		{
 			g_launchScenario = FALSE;
-			std::fill(g_scenarioName, g_scenarioName + k_SCENARIO_NAME_MAX,'\0');
+			std::fill(scenario_name_buf(), scenario_name_buf() + k_SCENARIO_NAME_MAX,'\0');
 		}
 		else
 		{
 			g_launchScenario = TRUE;
-			g_scenarioName[i] = '\0';
+			scenario_name_buf()[i] = '\0';
 		}
 	}
 
@@ -1687,7 +1687,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		Scenario		*scen;
 
 		CivScenarios *cs2 = civscenarios_Get();
-		if (cs2->FindScenario(g_scenarioName, &pack, &scen)) {
+		if (cs2->FindScenario(scenario_name_buf(), &pack, &scen)) {
 
 			g_civPaths->SetCurScenarioPath(scen->m_path);
 

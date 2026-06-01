@@ -292,7 +292,7 @@ sint32 HotseatList::UpdateData( void )
 	ScenarioPack *pack;
 	SaveInfo *info = NULL;
 	CivScenarios *cs = civscenarios_Get();
-	if(cs->FindScenario(g_scenarioName,
+	if(cs->FindScenario(scenario_name_buf(),
 								    &pack, &scen)) {
 		info = cs->LoadSaveInfo(scen);
 	}

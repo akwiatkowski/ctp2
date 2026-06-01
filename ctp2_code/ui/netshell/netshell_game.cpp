@@ -63,7 +63,7 @@ void LaunchGame( void )
 			if(w->GetScenarioInfo()->m_haveSavedGame) {
 				ScenarioPack *pack;
 				Scenario *scen;
-				if(civscenarios_Get()->FindScenario(g_scenarioName,
+				if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 												&pack, &scen)) {
 					MBCHAR path[_MAX_PATH];
 					snprintf(path, sizeof(path), "%s\\%s",

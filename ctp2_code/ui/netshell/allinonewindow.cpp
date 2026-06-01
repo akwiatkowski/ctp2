@@ -1741,7 +1741,7 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 	m_scenInfo.isScenario = (uint8)info->isScenario;
 	m_scenInfo.m_haveSavedGame = TRUE;
 	strcpy(m_scenInfo.m_fileName, info->fileName);
-	strcpy(m_scenInfo.m_gameName, g_scenarioName);
+	strcpy(m_scenInfo.m_gameName, scenario_name_buf());
 	if(info->isScenario && info->scenarioName) {
 		strcpy(m_scenInfo.m_scenarioName, info->scenarioName);
 		ScenarioPack *pack;
@@ -1800,7 +1800,7 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 void AllinoneWindow::SetupNewScenario()
 {
 	m_scenInfo.isScenario = TRUE;
-	strcpy(m_scenInfo.m_gameName, g_scenarioName);
+	strcpy(m_scenInfo.m_gameName, scenario_name_buf());
 	m_scenInfo.m_fileName[0] = 0;
 	m_scenInfo.m_startInfoType = STARTINFOTYPE_NONE;
 	m_scenInfo.m_haveSavedGame = FALSE;
@@ -2097,7 +2097,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				ScenarioPack *pack;
 				Scenario *scen;
 				CivScenarios *cs = civscenarios_Get();
-				if(cs->FindScenario(g_scenarioName,
+				if(cs->FindScenario(scenario_name_buf(),
 												&pack, &scen)) {
 					info = cs->LoadSaveInfo(scen);
 					if(info)
@@ -2398,8 +2398,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 						ScenarioPack *pack;
 						Scenario *scen;
-						strcpy(g_scenarioName, m_scenInfo.m_gameName);
-						if(civscenarios_Get()->FindScenario(g_scenarioName,
+						strcpy(scenario_name_buf(), m_scenInfo.m_gameName);
+						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
 
 							g_civPaths->SetCurScenarioPath(scen->m_path);
@@ -2418,10 +2418,10 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 						UpdateTribeSwitches();
 
 					} else if(m_scenInfo.m_scenarioName[0] != 0) {
-						strcpy(g_scenarioName, m_scenInfo.m_scenarioName);
+						strcpy(scenario_name_buf(), m_scenInfo.m_scenarioName);
 						ScenarioPack *pack;
 						Scenario *scen;
-						if(civscenarios_Get()->FindScenario(g_scenarioName,
+						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
 							g_civPaths->SetCurScenarioPath(scen->m_path);
 							g_civPaths->SetCurScenarioPackPath(pack->m_path);
@@ -2429,7 +2429,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 							dontHaveScenario = true;
 						}
 					} else {
-						g_scenarioName[0] = 0;
+						scenario_name_buf()[0] = 0;
 					}
 
 
@@ -3915,8 +3915,8 @@ void AllinoneWindow_SetupGameForLaunch( void )
 
 		ScenarioPack *pack;
 		Scenario *scen;
-		strcpy(g_scenarioName, scenInfo->m_gameName);
-		if(civscenarios_Get()->FindScenario(g_scenarioName,
+		strcpy(scenario_name_buf(), scenInfo->m_gameName);
+		if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 										&pack, &scen)) {
 
 			g_civPaths->SetCurScenarioPath(scen->m_path);
@@ -3924,10 +3924,10 @@ void AllinoneWindow_SetupGameForLaunch( void )
 		}
 	} else {
 		if(scenInfo->m_scenarioName[0] != 0) {
-			strcpy(g_scenarioName, scenInfo->m_scenarioName);
+			strcpy(scenario_name_buf(), scenInfo->m_scenarioName);
 			ScenarioPack *pack;
 			Scenario *scen;
-			if(civscenarios_Get()->FindScenario(g_scenarioName,
+			if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 											&pack, &scen)) {
 
 				g_theProfileDB->SetIsScenario(TRUE);

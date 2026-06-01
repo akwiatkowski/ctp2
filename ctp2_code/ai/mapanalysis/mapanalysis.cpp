@@ -135,8 +135,8 @@ void MapAnalysis::Resize
 
 void MapAnalysis::ResizeContinents()
 {
-    sint32 maxLandCont = g_theWorld->GetMaxLandContinent() -
-                            g_theWorld->GetMinLandContinent();
+    sint32 maxLandCont = world_Get()->GetMaxLandContinent() -
+                            world_Get()->GetMinLandContinent();
     sint32 maxPlayerId = m_threatGrid.size();
     m_cityOnContinent.Resize(maxPlayerId, maxLandCont, FALSE);
     m_armyOnContinent.Resize(maxPlayerId, maxLandCont, FALSE);
@@ -321,7 +321,7 @@ void MapAnalysis::BeginTurn()
 
 			bool    is_land;
 			sint16  cont;
-			g_theWorld->GetContinent(pos, cont, is_land);
+			world_Get()->GetContinent(pos, cont, is_land);
 
 			if(is_land)
 			{
@@ -398,12 +398,12 @@ void MapAnalysis::BeginTurn()
 
             bool    is_land;
             sint16  cont;
-            g_theWorld->GetContinent(pos, cont, is_land);
+            world_Get()->GetContinent(pos, cont, is_land);
             if (is_land)
             {
                 m_cityOnContinent.Set(player, cont, TRUE);
 
-                m_continentSize[player] += g_theWorld->GetLandContinentSize(cont) / num_cities;
+                m_continentSize[player] += world_Get()->GetLandContinentSize(cont) / num_cities;
             }
 
         }
@@ -759,22 +759,22 @@ void MapAnalysis::UpdateBoundingRectangle(const Army & army)
     MapPoint xy_pos(0, 0);
     MapPoint rc_pos;
     army.GetPos(rc_pos);
-    xy_pos.rc2xy(rc_pos, * g_theWorld->GetSize());
+    xy_pos.rc2xy(rc_pos, * world_Get()->GetSize());
 
-    MapPoint xy_map_size(g_theWorld->GetWidth() * 2, g_theWorld->GetHeight());
+    MapPoint xy_map_size(world_Get()->GetWidth() * 2, world_Get()->GetHeight());
 
     if (!m_empireBoundingRect[player].IsValid())
     {
         m_empireBoundingRect[player].Initialize
-			(xy_pos, 2, xy_map_size, g_theWorld->IsXwrap(), g_theWorld->IsYwrap());
+			(xy_pos, 2, xy_map_size, world_Get()->IsXwrap(), world_Get()->IsYwrap());
     }
 
-    BoundingRect armyRect(xy_pos, 2, xy_map_size, g_theWorld->IsXwrap(), g_theWorld->IsYwrap());
+    BoundingRect armyRect(xy_pos, 2, xy_map_size, world_Get()->IsXwrap(), world_Get()->IsYwrap());
 
     bool added = m_empireBoundingRect[player].Add(armyRect);
     Assert(added);
 
-	m_empireCenter[player].xy2rc(m_empireBoundingRect[player].GetCenter(), * g_theWorld->GetSize());
+	m_empireCenter[player].xy2rc(m_empireBoundingRect[player].GetCenter(), * world_Get()->GetSize());
 	DPRINTF(k_DBG_SCHEDULER, ("Empire Center for player %d :  rc(%3d,%3d)   \n",
 		player,
 		m_empireCenter[player].x,
@@ -786,14 +786,14 @@ void MapAnalysis::UpdateBoundingRectangle(const Unit & city)
     const PLAYER_INDEX player = city.GetOwner();
 
     MapPoint xy_center(0, 0);
-    xy_center.rc2xy(city.RetPos(), * g_theWorld->GetSize());
+    xy_center.rc2xy(city.RetPos(), * world_Get()->GetSize());
 
-    MapPoint xy_map_size(g_theWorld->GetWidth() * 2, g_theWorld->GetHeight());
+    MapPoint xy_map_size(world_Get()->GetWidth() * 2, world_Get()->GetHeight());
 
     if (!m_empireBoundingRect[player].IsValid())
     {
         m_empireBoundingRect[player].Initialize
-			(xy_center, 0, xy_map_size, g_theWorld->IsXwrap(), g_theWorld->IsYwrap());
+			(xy_center, 0, xy_map_size, world_Get()->IsXwrap(), world_Get()->IsYwrap());
     }
 
     sint32 city_size = city->GetCityData()->GetSizeIndex();
@@ -807,13 +807,13 @@ void MapAnalysis::UpdateBoundingRectangle(const Unit & city)
         xy_radius++;
 
     BoundingRect cityRect(xy_center, xy_radius, xy_map_size,
-						  g_theWorld->IsXwrap(), g_theWorld->IsYwrap()
+						  world_Get()->IsXwrap(), world_Get()->IsYwrap()
 						 );
 
     bool added = m_empireBoundingRect[player].Add(cityRect);
     Assert(added);
 
-	m_empireCenter[player].xy2rc(m_empireBoundingRect[player].GetCenter(), * g_theWorld->GetSize());
+	m_empireCenter[player].xy2rc(m_empireBoundingRect[player].GetCenter(), * world_Get()->GetSize());
 	DPRINTF(k_DBG_SCHEDULER, ("Empire Center for player %d :  rc(%3d,%3d)   \n",
 		player,
 		m_empireCenter[player].x,
@@ -838,7 +838,7 @@ const MapPoint & MapAnalysis::GetEmpireCenter(const PLAYER_INDEX player) const
 
 const MapPoint & MapAnalysis::GetNearestForeigner(const PLAYER_INDEX player, const MapPoint & pos) const
 {
-    sint32 min_squared_distance = (g_theWorld->GetWidth() * g_theWorld->GetHeight());
+    sint32 min_squared_distance = (world_Get()->GetWidth() * world_Get()->GetHeight());
     min_squared_distance *= min_squared_distance;
     size_t	closest_player = 1;
 
@@ -995,8 +995,8 @@ const PLAYER_INDEX victimId) const
 bool MapAnalysis::ShareContinent(const PLAYER_INDEX playerId,
 const PLAYER_INDEX foreignerId) const
 {
-    sint32 maxLandCont = g_theWorld->GetMaxLandContinent() -
-    g_theWorld->GetMinLandContinent();
+    sint32 maxLandCont = world_Get()->GetMaxLandContinent() -
+    world_Get()->GetMinLandContinent();
 
     for (sint32 cont = 0; cont < maxLandCont; cont++)
     {
@@ -1016,7 +1016,7 @@ bool MapAnalysis::PlayerCanEnter
     const MapPoint &    pos
 ) const
 {
-    return g_theWorld->GetCell(pos)->CanEnter(m_movementTypeUnion[playerId]);
+    return world_Get()->GetCell(pos)->CanEnter(m_movementTypeUnion[playerId]);
 }
 
 sint16 MapAnalysis::GetNuclearWeaponsCount(const PLAYER_INDEX playerId) const
@@ -1079,8 +1079,8 @@ double MapAnalysis::GetPopulationPercent(const PLAYER_INDEX playerId) const
 
 double MapAnalysis::GetLandPercent(const PLAYER_INDEX playerId) const
 {
-    Assert(g_theWorld);
-    sint32 area = g_theWorld->GetWidth() * g_theWorld->GetHeight();
+    Assert(world_Get());
+    sint32 area = world_Get()->GetWidth() * world_Get()->GetHeight();
     if (area == 0)
         return 0.0;
     return (double)m_landArea[playerId] / area;
@@ -1123,9 +1123,9 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
 
     if (m_worldPopulation)
     {
-        Assert(g_theWorld);
+        Assert(world_Get());
         population = (double)alliance_population / m_worldPopulation;
-        land = (double)alliance_land / (g_theWorld->GetWidth() * g_theWorld->GetHeight());
+        land = (double)alliance_land / (world_Get()->GetWidth() * world_Get()->GetHeight());
     }
 
     if (allies <= 1)

@@ -55,7 +55,7 @@
 #include "UnitRecord.h"
 #include <utility>
 #include <vector>
-#include "gs/world/World.h"		            // g_theWorld
+#include "gs/world/World.h"		            // world_Get()
 
 namespace
 {
@@ -86,7 +86,7 @@ SettleMap::SettleMap()
 // Parameters : const MapPoint & pos: The position for that the settle
 //                                    score should be computed.
 //
-// Globals    : g_theWorld: The game world
+// Globals    : world_Get(): The game world
 //
 // Returns    : double:     The settle score for the given map position
 //
@@ -100,7 +100,7 @@ double SettleMap::ComputeSettleValue(const MapPoint & pos) const
 
 	for (it.Start(); !it.End(); it.Next())
 	{
-		const Cell * cell = g_theWorld->GetCell(it.Pos());
+		const Cell * cell = world_Get()->GetCell(it.Pos());
 		if (!cell->GetCityOwner())
 		{
 			score += cell->GetScore();
@@ -121,8 +121,8 @@ void SettleMap::Cleanup()
 
 void SettleMap::Initialize()
 {
-	size_t const    x_size  = g_theWorld->GetWidth();
-	size_t const    y_size  = g_theWorld->GetHeight();
+	size_t const    x_size  = world_Get()->GetWidth();
+	size_t const    y_size  = world_Get()->GetHeight();
 	MapPoint rc_pos;
 	MapPoint xy_pos;
 
@@ -135,19 +135,19 @@ void SettleMap::Initialize()
 		for (rc_pos.y = 0; static_cast<size_t>(rc_pos.y) < y_size; rc_pos.y++)
 		{
 #if defined(USE_WORLDSIZE_CLASS)
-			xy_pos.rc2xy(rc_pos, g_theWorld->GetSize());
+			xy_pos.rc2xy(rc_pos, world_Get()->GetSize());
 #else
-			xy_pos.rc2xy(rc_pos, *g_theWorld->GetSize());
+			xy_pos.rc2xy(rc_pos, *world_Get()->GetSize());
 #endif
 			double value    = VALUE_NEAR_EDGE_OF_WORLD;
 
-			if ( ( g_theWorld->IsYwrap() ||
+			if ( ( world_Get()->IsYwrap() ||
 				   ( (xy_pos.y >= k_minimum_settle_city_size) &&
 				     (xy_pos.y + k_minimum_settle_city_size <= y_size)
                    )
                  )
                  &&
-                 (  g_theWorld->IsXwrap() ||
+                 (  world_Get()->IsXwrap() ||
 					( (xy_pos.x >= k_minimum_settle_city_size) &&
 					  (xy_pos.x + k_minimum_settle_city_size <= (x_size * 2))
                     )
@@ -226,9 +226,9 @@ bool SettleMap::HasSettleTargets(const PLAYER_INDEX &playerId, bool isWater) con
 	for(sint32 i = 0; rect.Get(i, xy_pos, rows, cols); i++)
 	{
 #if defined(USE_WORLDSIZE_CLASS)
-		rc_pos.xy2rc(xy_pos, g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, world_Get()->GetSize());
 #else
-		rc_pos.xy2rc(xy_pos, *g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, *world_Get()->GetSize());
 #endif
 
 		if(!CanSettlePos(rc_pos))
@@ -239,7 +239,7 @@ bool SettleMap::HasSettleTargets(const PLAYER_INDEX &playerId, bool isWater) con
 			continue;
 		}
 
-		if(g_theWorld->IsWater(rc_pos) == isWater)
+		if(world_Get()->IsWater(rc_pos) == isWater)
 		{
 			return true;
 		}
@@ -325,9 +325,9 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 	for(i = 0; rect.Get(i, xy_pos, rows, cols); i++)
 	{
 #if defined(USE_WORLDSIZE_CLASS)
-		rc_pos.xy2rc(xy_pos, g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, world_Get()->GetSize());
 #else
-		rc_pos.xy2rc(xy_pos, *g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, *world_Get()->GetSize());
 #endif
 
 		settle_target.m_value = m_settleValues.GetGridValue(rc_pos);
@@ -355,7 +355,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 			continue;
 		}
 
-		if(!settleTerrainTypes[g_theWorld->GetTerrainType(rc_pos)])
+		if(!settleTerrainTypes[world_Get()->GetTerrainType(rc_pos)])
 			continue;
 
 		if(g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
@@ -377,8 +377,8 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 	targets.sort(std::greater<SettleTarget>());
 
-	sint16 max_water_cont = g_theWorld->GetMaxWaterContinent() - g_theWorld->GetMinWaterContinent();
-	sint16 max_land_cont  = g_theWorld->GetMaxLandContinent () - g_theWorld->GetMinLandContinent ();
+	sint16 max_water_cont = world_Get()->GetMaxWaterContinent() - world_Get()->GetMinWaterContinent();
+	sint16 max_land_cont  = world_Get()->GetMaxLandContinent () - world_Get()->GetMinLandContinent ();
 
 	std::vector<sint16> water_continent_count(max_water_cont, 0);
 	std::vector<sint16>  land_continent_count(max_land_cont,  0);
@@ -430,7 +430,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 	while (iter != targets.end())
 	{
-		g_theWorld->GetContinent(iter->m_pos, cont, is_land);
+		world_Get()->GetContinent(iter->m_pos, cont, is_land);
 
 #ifdef _DEBUG
                   if (is_land) {Assert(cont < max_land_cont);}
@@ -554,9 +554,9 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 	for(i = 0; rect.Get(i, xy_pos, rows, cols); i++)
 	{
 #if defined(USE_WORLDSIZE_CLASS)
-		rc_pos.xy2rc(xy_pos, g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, world_Get()->GetSize());
 #else
-		rc_pos.xy2rc(xy_pos, *g_theWorld->GetSize());
+		rc_pos.xy2rc(xy_pos, *world_Get()->GetSize());
 #endif
 
 		settle_target.m_value = m_settleValues.GetGridValue(rc_pos);
@@ -584,7 +584,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 			continue;
 		}
 
-		if(!settleTerrainTypes[g_theWorld->GetTerrainType(rc_pos)])
+		if(!settleTerrainTypes[world_Get()->GetTerrainType(rc_pos)])
 			continue;
 
 		if (gfx_options_observer::IsCellTextOn())
@@ -606,8 +606,8 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 	targets.sort(std::greater<SettleTarget>());
 
-	sint16 max_water_cont = g_theWorld->GetMaxWaterContinent() - g_theWorld->GetMinWaterContinent();
-	sint16 max_land_cont  = g_theWorld->GetMaxLandContinent () - g_theWorld->GetMinLandContinent ();
+	sint16 max_water_cont = world_Get()->GetMaxWaterContinent() - world_Get()->GetMinWaterContinent();
+	sint16 max_land_cont  = world_Get()->GetMaxLandContinent () - world_Get()->GetMinLandContinent ();
 
 	std::vector<sint16> water_continent_count(max_water_cont, 0);
 	std::vector<sint16>  land_continent_count(max_land_cont,  0);
@@ -626,7 +626,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 
 	while (iter != targets.end())
 	{
-		g_theWorld->GetContinent(iter->m_pos, cont, is_land);
+		world_Get()->GetContinent(iter->m_pos, cont, is_land);
 
 #ifdef _DEBUG
                   if (is_land) {Assert(cont < max_land_cont);}

@@ -271,24 +271,24 @@ void UnitData::Place(const MapPoint &center_pos)
 		SetVisible(m_owner);
 		AddUnitVision();
 
-		if(g_theWorld->GetCell(center_pos)->GetGoodyHut())
+		if(world_Get()->GetCell(center_pos)->GetGoodyHut())
 		{
-			g_theWorld->GetCell(center_pos)->DeleteGoodyHut();
+			world_Get()->GetCell(center_pos)->DeleteGoodyHut();
 		}
 
 		if(!GetDBRec()->GetNoZoc() &&
-		   (!g_theWorld->HasCity(m_pos) || GetDBRec()->GetHasPopAndCanBuild())) {
+		   (!world_Get()->HasCity(m_pos) || GetDBRec()->GetHasPopAndCanBuild())) {
 			sint32 dd;
 			MapPoint chk;
-			g_theWorld->AddZOC(center_pos, m_owner);
+			world_Get()->AddZOC(center_pos, m_owner);
 			uint32 moveType = GetDBRec()->GetMovementType();
 			for(dd = (sint32)NORTH; dd < (sint32)NOWHERE; dd++)
 			{
 				if(center_pos.GetNeighborPosition((WORLD_DIRECTION)dd, chk))
 				{
-					if(g_theWorld->CanEnter(chk, moveType))
+					if(world_Get()->CanEnter(chk, moveType))
 					{
-						g_theWorld->AddZOC(chk, m_owner);
+						world_Get()->AddZOC(chk, m_owner);
 					}
 				}
 			}
@@ -366,7 +366,7 @@ void UnitData::Create(const sint32 t,
 
 	m_transport.m_id = (0);
 
-	m_roundTheWorldMask = new BitMask(g_theWorld->GetXWidth());
+	m_roundTheWorldMask = new BitMask(world_Get()->GetXWidth());
 	m_roundTheWorldMask->SetBit(m_pos.x);
 
 	m_isExploring   = false;
@@ -490,7 +490,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 		left_map = false;
 		AddUnitVision();
 
-		Cell *cell = g_theWorld->GetCell(p);
+		Cell *cell = world_Get()->GetCell(p);
 		if(wormhole_Get()) {
 			if(GetDBRec()->GetWormholeProbe() && Flag(k_UDF_RETURNED_FROM_WORMHOLE)) {
 				if(cell->GetCity().m_id != 0) {
@@ -680,7 +680,7 @@ sint32 UnitData::ResetMovement()
 //
 // Parameters : -
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : -
 //
@@ -691,7 +691,7 @@ void UnitData::GetInserted(const Unit &transport)
 {
 	Unit me(m_id);
 	SetIsInTransport(transport);
-	g_theWorld->RemoveUnitReference(m_pos, me);
+	world_Get()->RemoveUnitReference(m_pos, me);
 	UndoVision();
 	RemoveUnitVision();
 }
@@ -951,15 +951,15 @@ bool UnitData::IsMovePointsEnough(const MapPoint &pos) const
 			cost = static_cast<double>(fixMoveCosts);
 
 		// Prevent ships from diving under and using tunnels.
-		} else if (g_theWorld->IsTunnel(pos) &&
+		} else if (world_Get()->IsTunnel(pos) &&
 		          !GetDBRec()->GetMovementTypeLand()
 		          )
 		{
 			sint32 icost;
-			g_theWorld->GetTerrain(pos)->GetEnvBase()->GetMovement(icost);
+			world_Get()->GetTerrain(pos)->GetEnvBase()->GetMovement(icost);
 			cost = icost;
 		} else {
-			cost = g_theWorld->GetMoveCost(pos);
+			cost = world_Get()->GetMoveCost(pos);
 		}
 
 		return (cost <= m_movement_points );
@@ -1037,7 +1037,7 @@ bool UnitData::CanThisCargoUnloadAt
 	if(check_move_points && !the_cargo_data->IsMovePointsEnough(new_pos))
 		return false;
 
-	Cell *          the_dest        = g_theWorld->GetCell(new_pos);
+	Cell *          the_dest        = world_Get()->GetCell(new_pos);
 	CellUnitList *  the_dest_army   = the_dest ? the_dest->UnitArmy() : NULL;
 	sint32          destUnitCount   = the_dest_army ? the_dest_army->Num() : 0;
 
@@ -1064,7 +1064,7 @@ bool UnitData::CanThisCargoUnloadAt
 
 		if (    (m_pos != new_pos)
 		     && !the_cargo.IsIgnoresZOC()
-		     && g_theWorld->IsMoveZOC(m_owner, m_pos, new_pos, false)
+		     && world_Get()->IsMoveZOC(m_owner, m_pos, new_pos, false)
 		   )
 		{
 			// Zone of control violation
@@ -1080,7 +1080,7 @@ bool UnitData::CanThisCargoUnloadAt
 		return false;
 	}
 
-	return g_theWorld->CanEnter(new_pos, the_cargo.GetMovementType());
+	return world_Get()->CanEnter(new_pos, the_cargo.GetMovementType());
 }
 
 //----------------------------------------------------------------------------
@@ -1107,16 +1107,16 @@ bool UnitData::UnloadCargo(const MapPoint &new_pos, Army &debark,
 	if(!m_cargo_list)
 		return false;
 
-	Cell *cell = g_theWorld->GetCell(new_pos);
+	Cell *cell = world_Get()->GetCell(new_pos);
 
 	sint32 max_debark;
 	if(cell->UnitArmy() && cell->UnitArmy()->GetOwner() != m_owner) {
 	//compute the max number of units we can unload
-		max_debark = k_MAX_ARMY_SIZE - g_theWorld->GetCell(m_pos)->GetNumUnits();
+		max_debark = k_MAX_ARMY_SIZE - world_Get()->GetCell(m_pos)->GetNumUnits();
 	} else {
 		max_debark = std::min
 		    (k_MAX_ARMY_SIZE - cell->GetNumUnits(),
-		     k_MAX_ARMY_SIZE - g_theWorld->GetCell(m_pos)->GetNumUnits()
+		     k_MAX_ARMY_SIZE - world_Get()->GetCell(m_pos)->GetNumUnits()
 		    );
 	}
 	sint32 const        n       = GetNumCarried();
@@ -1141,7 +1141,7 @@ bool UnitData::UnloadCargo(const MapPoint &new_pos, Army &debark,
 			passenger .UnsetIsInTransport();
 
 			UnitDynamicArray revealedUnits;
-			g_theWorld->InsertUnit(m_pos, passenger, revealedUnits);
+			world_Get()->InsertUnit(m_pos, passenger, revealedUnits);
 
 			passenger.AddUnitVision();
 
@@ -1177,11 +1177,11 @@ bool UnitData::UnloadSelectedCargo(const MapPoint &new_pos, Army &debark)
 	if(!m_cargo_list)
 		return false;
 
-	Cell *cell = g_theWorld->GetCell(new_pos);
+	Cell *cell = world_Get()->GetCell(new_pos);
 	//how many units can we unload
 	sint32 max_debark =
 	    std::min(k_MAX_ARMY_SIZE - cell->GetNumUnits(),
-	             k_MAX_ARMY_SIZE - g_theWorld->GetCell(m_pos)->GetNumUnits()
+	             k_MAX_ARMY_SIZE - world_Get()->GetCell(m_pos)->GetNumUnits()
 	            );// not m_cargo_list ?
 
 	sint32 const        n       = GetNumCarried();
@@ -1208,7 +1208,7 @@ bool UnitData::UnloadSelectedCargo(const MapPoint &new_pos, Army &debark)
 			passenger .UnsetIsInTransport();
 
 			UnitDynamicArray revealedUnits;
-			g_theWorld->InsertUnit(m_pos, passenger, revealedUnits);
+			world_Get()->InsertUnit(m_pos, passenger, revealedUnits);
 			g_player[m_owner]->RegisterUnloadCargo(m_army.m_id, passenger.GetType(), (sint32)passenger.GetHP());
 
 			passenger.AddUnitVision();
@@ -1366,7 +1366,7 @@ UnitData::GetOffense when used. - 02-08-2009 - Maq. */
 double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 {
 	UnitRecord const *	defrec	= defender.GetDBRec();
-	Cell *				cell = g_theWorld->GetCell(m_pos);
+	Cell *				cell = world_Get()->GetCell(m_pos);
 
 	if(!(rec->GetCanAttack() & defrec->GetMovementType())) {
 		return 0.0;
@@ -1399,7 +1399,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 	}
 	MapPoint	dpos;
 	defender.GetPos(dpos);
-	if ((g_theWorld->GetCell(dpos)->GetCity().m_id != (0))//city unit will attack
+	if ((world_Get()->GetCell(dpos)->GetCity().m_id != (0))//city unit will attack
 		 && rec->GetAttackCityBonus(value)) {
 		bonuses += value;
 	}
@@ -1426,7 +1426,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 	base += (base * bonuses);
 	// finally add city attack buildings, so they're not subject to bonuses.
 	if (!g_theProfileDB->IsNewCombat()) {
-		Unit	city	= g_theWorld->GetCity(m_pos);
+		Unit	city	= world_Get()->GetCity(m_pos);
 		if(city.IsValid()) {
 			base += city.CD()->GetOffenseBonus(defender);
 		}
@@ -1447,7 +1447,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 //
 // Globals    : g_slicEngine
 //            	g_theConstDB
-//				g_theWorld
+//				world_Get()
 //				g_slicEngine
 //
 // Returns    : -
@@ -1458,7 +1458,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 void UnitData::Bombard(const UnitRecord *rec, Unit defender,
 					   bool isCounterBombardment)
 {
-	Cell *	cell    = g_theWorld->GetCell(m_pos);
+	Cell *	cell    = world_Get()->GetCell(m_pos);
 	double armor = defender.GetDBRec()->GetArmor();
 	sint32 f = (armor > 0.0) ? (sint32)(rec->GetFirepower() / armor) : 0;
 	sint32 n;
@@ -1580,7 +1580,7 @@ bool UnitData::CanBombardType(const Unit & defender) const
 //            : bool isCounterBombardment : toggles Slic Bombardment/CounterBombardmentTriggers
 //                                          later (when doing damage to defender)
 //
-// Globals    : g_theWorld  : the map
+// Globals    : world_Get() : the map
 //
 // Returns    : bool        : true if successful
 //
@@ -1598,7 +1598,7 @@ bool UnitData::Bombard(CellUnitList &defender, bool isCounterBombardment)
 		 j < defender.Num();
 		 i = ((i + 1) % defender.Num()), j++)
 	{
-		if(!(defender[i].GetVisibility() & (1 << m_owner)) && !g_theWorld->GetCity(defender[i].RetPos()).IsValid())
+		if(!(defender[i].GetVisibility() & (1 << m_owner)) && !world_Get()->GetCity(defender[i].RetPos()).IsValid())
 			continue;
 
 		// EMOD - add something like bombarding reduces city defenses here?
@@ -1658,7 +1658,7 @@ void UnitData::DeductHP(double fp)
 // Parameters : sint32 unit_type       : Variable for the type of unit
 //              const MapPoint &pos    : Variable for tile on map
 //
-// Globals    : g_theWorld             : The game world properties
+// Globals    : world_Get()            : The game world properties
 //              g_theUnitDB            : Unit properties
 //
 // Returns    : bool                   : Returns true if an unit-type can
@@ -1686,14 +1686,14 @@ bool UDUnitTypeCanSettle(sint32 unit_type, sint32 government, const MapPoint &po
 		return false;
 	}
 
-	if(!settleOnCity && g_theWorld->HasCity(pos))
+	if(!settleOnCity && world_Get()->HasCity(pos))
 		return false;
 
 	if(rec->GetNumCanSettleOn() > 0)
 	{
 		for(sint32 i = 0; i < rec->GetNumCanSettleOn(); i++)
 		{
-			if(rec->GetCanSettleOnIndex(i) == g_theWorld->GetCell(pos)->GetTerrain())
+			if(rec->GetCanSettleOnIndex(i) == world_Get()->GetCell(pos)->GetTerrain())
 			{
 				return true;
 			}
@@ -1701,13 +1701,13 @@ bool UDUnitTypeCanSettle(sint32 unit_type, sint32 government, const MapPoint &po
 		return false;
 	}
 
-	if (rec->GetSettleLand() && g_theWorld->IsLand(pos))
+	if (rec->GetSettleLand() && world_Get()->IsLand(pos))
 		return true;
-	else if (rec->GetSettleMountain() && g_theWorld->IsMountain(pos))
+	else if (rec->GetSettleMountain() && world_Get()->IsMountain(pos))
 		return true;
-	else if (rec->GetSettleWater() && g_theWorld->IsWater(pos))
+	else if (rec->GetSettleWater() && world_Get()->IsWater(pos))
 		return true;
-	else if (rec->GetSettleSpace() && g_theWorld->IsSpace(pos))
+	else if (rec->GetSettleSpace() && world_Get()->IsSpace(pos))
 		return true;
 
 	return false;
@@ -1897,7 +1897,7 @@ bool UnitData::Settle()
 		return false;
 	}
 
-	Unit    nearbyCity  = g_theWorld->GetCell(m_pos)->GetCityOwner();
+	Unit    nearbyCity  = world_Get()->GetCell(m_pos)->GetCityOwner();
 
 	if (nearbyCity.IsValid())
 	{
@@ -1933,7 +1933,7 @@ bool UnitData::Settle()
 	const UnitRecord *rec = GetDBRec();
 	sint32 t = rec->GetSettleCityTypeIndex();
 
-	if((g_theWorld->IsWater(m_pos) || g_theWorld->IsShallowWater(m_pos)) &&
+	if((world_Get()->IsWater(m_pos) || world_Get()->IsShallowWater(m_pos)) &&
 	   !g_theUnitDB->Get(t, g_player[GetOwner()]->GetGovernmentType())->GetMovementTypeSea()) {
 		DPRINTF(k_DBG_GAMESTATE, ("Wrong terrain type\n"));
 		return false;
@@ -2036,14 +2036,14 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 
 	if(!u.IsNoZoc()) {
 
-		g_theWorld->RemoveZOC(m_pos, m_owner);
-		g_theWorld->AddOtherArmyZOC(m_pos, m_owner, Army(), me);
+		world_Get()->RemoveZOC(m_pos, m_owner);
+		world_Get()->AddOtherArmyZOC(m_pos, m_owner, Army(), me);
 		for (sint32 dd = 0; dd < (sint32)NOWHERE; dd++) {
 			MapPoint npos;
 			if(m_pos.GetNeighborPosition((WORLD_DIRECTION)dd, npos)) {
-				g_theWorld->RemoveZOC(npos, m_owner);
-				g_theWorld->AddOtherArmyZOC(npos, m_owner, Army(), me);
-				g_theWorld->AddZOC(npos, newo);
+				world_Get()->RemoveZOC(npos, m_owner);
+				world_Get()->AddOtherArmyZOC(npos, m_owner, Army(), me);
+				world_Get()->AddZOC(npos, newo);
 			}
 		}
 	}
@@ -2114,7 +2114,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	DoVision(revealed_units);
 
 #if 0
-	Cell *cell = g_theWorld->GetCell(m_pos);
+	Cell *cell = world_Get()->GetCell(m_pos);
 	for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).GetOwner() != m_owner) {
 			g_gevManager->Pause();
@@ -2501,7 +2501,7 @@ void UnitData::DelTradeRoute(TradeRoute route)
 
 bool UnitData::CanInterceptTrade() const
 {
-	Cell* cell = g_theWorld->GetCell(m_pos);
+	Cell* cell = world_Get()->GetCell(m_pos);
 
 	if (!GetDBRec()->GetCanPirate())
 		return false;
@@ -2535,7 +2535,7 @@ bool UnitData::CanInterceptTrade() const
 
 ORDER_RESULT UnitData::InterceptTrade()
 {
-	Cell* cell = g_theWorld->GetCell(m_pos);
+	Cell* cell = world_Get()->GetCell(m_pos);
 	Assert(cell);
 	if(!cell) return ORDER_RESULT_ILLEGAL;
 
@@ -3089,7 +3089,7 @@ void UnitData::WakeUp()
 
 void UnitData::CityRadiusFunc(const MapPoint &pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetCity().m_id != (0) &&
 	   cell->GetCity().GetOwner() != m_owner &&
 	   cell->GetCity().IsCapitol() &&
@@ -3145,11 +3145,11 @@ void UnitData::BeginTurn()
 		needsEnqueue = true;
 	}
 
-	if(g_theWorld->IsInstallation(m_pos)) {
+	if(world_Get()->IsInstallation(m_pos)) {
 
 		if (rec->GetNoFuelThenCrash()
 		&&  terrainutil_HasAirfield(m_pos)
-		&&	g_theWorld->GetOwner(m_pos) == m_owner
+		&&	world_Get()->GetOwner(m_pos) == m_owner
 	//	|| (!g_player[m_owner]->HasWarWith(CellOwner)) //EMOD TODO add treaty?
 		&&	m_fuel < rec->GetMaxFuel()) {
 			m_fuel = rec->GetMaxFuel();
@@ -3171,7 +3171,7 @@ void UnitData::BeginTurn()
 	}
 
 	// Moved Harvest here since it should be only one unit doing it
-	Cell *cell = g_theWorld->GetCell(m_pos);
+	Cell *cell = world_Get()->GetCell(m_pos);
 	sint32 cellowner = cell->GetOwner();       /// @todo local variables start with a lower case letter
 
 	if(
@@ -3195,7 +3195,7 @@ void UnitData::EndTurn()
 	const UnitRecord *rec = GetDBRec();
 
 	// Emod adding cellowner
-	Cell *cell = g_theWorld->GetCell(m_pos);
+	Cell *cell = world_Get()->GetCell(m_pos);
 	sint32 cellowner = cell->GetOwner();
 	// EMOD add civbonus
 
@@ -3380,7 +3380,7 @@ double UnitData::GetPositionDefense(const Unit &attacker) const
 // Parameters : -
 //
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //				g_theConstDB
 //				g_slicEngine
 //				g_theCivilisationDB
@@ -3401,7 +3401,7 @@ double UnitData::GetOffense(const Unit &defender) const
 	rec					= GetDBRec();
 	double		base	= rec->GetAttack();
 	double		bonuses	= 0.0;//cumulative % bonuses
-	Cell *		cell	= g_theWorld->GetCell(m_pos);
+	Cell *		cell	= world_Get()->GetCell(m_pos);
 
 	sint32 intAttack = (sint32)base;
 	sint32 modAttack = g_slicEngine->CallMod(mod_UnitAttack, intAttack, m_id, defender.m_id, intAttack);
@@ -3510,7 +3510,7 @@ double UnitData::GetOffense(const Unit &defender) const
 
 	MapPoint	dpos;
 	defender.GetPos(dpos);
-	if ((g_theWorld->GetCell(dpos)->GetCity().m_id != (0))
+	if ((world_Get()->GetCell(dpos)->GetCity().m_id != (0))
 		 && rec->GetAttackCityBonus(value))
 	{
 		bonuses += value;
@@ -3556,7 +3556,7 @@ double UnitData::GetOffense(const Unit &defender) const
 	// Note: This are only used with old combat.
 	if (!g_theProfileDB->IsNewCombat())
 	{
-		Unit	city	= g_theWorld->GetCity(m_pos);
+		Unit	city	= world_Get()->GetCity(m_pos);
 		if(city.IsValid())
 		{
 			base += city.CD()->GetOffenseBonus(defender);
@@ -3574,7 +3574,7 @@ double UnitData::GetOffense(const Unit &defender) const
 // Parameters : -
 //
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //				g_theConstDB
 //				g_slicEngine
 //				g_theProfileDB
@@ -3595,7 +3595,7 @@ double UnitData::GetDefense(const Unit &attacker) const
 	myRec				= GetDBRec();
 	double base			= myRec->GetDefense();
 	double bonuses		= 0.0;// cumulative bonuses
-	Cell *		   cell = g_theWorld->GetCell(m_pos);
+	Cell *		   cell = world_Get()->GetCell(m_pos);
 
 	sint32 intDef = (sint32)base;
 	sint32 modDef = g_slicEngine->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
@@ -3744,10 +3744,10 @@ double UnitData::GetDefense(const Unit &attacker) const
 		bonuses += fort_bonus;
 
 		if(terrain_bonus > 0 &&
-			(myRec->GetMovementTypeLand() && g_theWorld->IsLand(m_pos)) ||
-			(myRec->GetMovementTypeMountain() && g_theWorld->IsMountain(m_pos)) ||
-			(myRec->GetMovementTypeSea() && g_theWorld->IsWater(m_pos)) ||
-			(myRec->GetMovementTypeSpace() && g_theWorld->IsSpace(m_pos)))
+			(myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
+			(myRec->GetMovementTypeMountain() && world_Get()->IsMountain(m_pos)) ||
+			(myRec->GetMovementTypeSea() && world_Get()->IsWater(m_pos)) ||
+			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos)))
 		{
 			bonuses += terrain_bonus;
 		}
@@ -3797,7 +3797,7 @@ double UnitData::GetDefense(const Unit &attacker) const
 // Parameters : -
 //
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //				g_theConstDB
 //				g_slicEngine
 //
@@ -3813,7 +3813,7 @@ double UnitData::GetRanged(const Unit &defender) const
 						defrec  = defender.GetDBRec();
 						rec		= GetDBRec();
 	double              base	= rec->GetZBRangeAttack();
-	Cell *				cell    = g_theWorld->GetCell(m_pos);
+	Cell *				cell    = world_Get()->GetCell(m_pos);
 	double				bonuses = 0.0;
 
 	sint32 intAttack = (sint32)base;
@@ -3917,13 +3917,13 @@ double UnitData::GetRanged(const Unit &defender) const
 
 	MapPoint	dpos;
 	defender.GetPos(dpos);
-	if ((g_theWorld->GetCell(dpos)->GetCity().m_id != (0))
+	if ((world_Get()->GetCell(dpos)->GetCity().m_id != (0))
 		 && rec->GetRangedAttackCityBonus(value))
 	{
 		bonuses += value;
 	}
 
-	Unit	city	= g_theWorld->GetCity(m_pos);
+	Unit	city	= world_Get()->GetCity(m_pos);
 	if(city.IsValid())
 	{
 		if(rec->GetRangedDefendCityBonus(value))
@@ -3958,7 +3958,7 @@ double UnitData::GetRanged(const Unit &defender) const
 // Parameters : -
 //
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //				g_theConstDB
 //				g_slicEngine
 //
@@ -3976,7 +3976,7 @@ double UnitData::GetDefCounterAttack(const Unit &attacker) const
 	myRec				= GetDBRec();
 	double base			= myRec->GetDefense();
 	double bonuses		= 0.0;// cumulative bonuses
-	Cell *		   cell = g_theWorld->GetCell(m_pos);
+	Cell *		   cell = world_Get()->GetCell(m_pos);
 
 	sint32 intDef = (sint32)base;
 	sint32 modDef = g_slicEngine->CallMod(mod_UnitDefense, intDef, m_id, attacker.m_id, intDef);
@@ -3997,10 +3997,10 @@ double UnitData::GetDefCounterAttack(const Unit &attacker) const
 		bonuses += fort_bonus;
 
 		if(terrain_bonus > 0 &&
-			(myRec->GetMovementTypeLand() && g_theWorld->IsLand(m_pos)) ||
-			(myRec->GetMovementTypeMountain() && g_theWorld->IsMountain(m_pos)) ||
-			(myRec->GetMovementTypeSea() && g_theWorld->IsWater(m_pos)) ||
-			(myRec->GetMovementTypeSpace() && g_theWorld->IsSpace(m_pos)))
+			(myRec->GetMovementTypeLand() && world_Get()->IsLand(m_pos)) ||
+			(myRec->GetMovementTypeMountain() && world_Get()->IsMountain(m_pos)) ||
+			(myRec->GetMovementTypeSea() && world_Get()->IsWater(m_pos)) ||
+			(myRec->GetMovementTypeSpace() && world_Get()->IsSpace(m_pos)))
 		{
 
 			bonuses += terrain_bonus;
@@ -4137,7 +4137,7 @@ double UnitData::GetDefCounterAttack(const Unit &attacker) const
 
 	// finally add city attack buildings, so they're not subject to bonuses.
 	// These are added even if the unit has NoDefenseBonuses.
-	Unit	city	= g_theWorld->GetCity(m_pos);
+	Unit	city	= world_Get()->GetCity(m_pos);
 	if(city.IsValid())
 	{
 		base += city.CD()->GetOffenseBonus(attacker);// ballista etc
@@ -4198,7 +4198,7 @@ bool UnitData::StoppedBySpies(const Unit &c)
 	SlicObject	*so ;
 	MapPoint pos;
 	c.GetPos(pos);
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	sint32 n = cell->GetNumUnits();
 
@@ -5533,7 +5533,7 @@ bool UnitData::CanUpgrade(sint32 & upgradeType, sint32 & upgradeCosts) const
 		        ||
 		          ( //If "UpgradeAnywhere" flag is present, skips position check
 		              ( GetDBRec()->GetUpgradeAnywhere()
-                    || g_theWorld->GetCell(m_pos)->IsUnitUpgradePosition(m_owner) )
+                    || world_Get()->GetCell(m_pos)->IsUnitUpgradePosition(m_owner) )
 		            && upgradeCosts <= g_player[m_owner]->m_gold->GetLevel()
 		          )
 		      );
@@ -5802,7 +5802,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 	g_player[m_owner]->RecoveredProbe(Unit());
 
 #if 0
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	UnitDynamicArray revealedUnits;
 	Unit me(m_id);
 
@@ -5812,7 +5812,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 		   cell->UnitArmy()->Num() < k_MAX_ARMY_SIZE) {
 			SetPosAndNothingElse(pos);
 			m_army.ResetPos();
-			g_theWorld->InsertUnit(pos, Unit(m_id), revealedUnits);
+			world_Get()->InsertUnit(pos, Unit(m_id), revealedUnits);
 			AddUnitVision();
 
 			SlicObject *so = new SlicObject("307EndGameProbeReturned");
@@ -5844,7 +5844,7 @@ void UnitData::ExitWormhole(MapPoint &pos)
 	} else {
 		SetPosAndNothingElse(pos);
 		m_army.ResetPos();
-		g_theWorld->InsertUnit(pos, Unit(m_id), revealedUnits);
+		world_Get()->InsertUnit(pos, Unit(m_id), revealedUnits);
 		AddUnitVision();
 
 		SlicObject *so = new SlicObject("307EndGameProbeReturned");
@@ -6164,7 +6164,7 @@ bool UnitData::CheckForRefuel()
 		return true;
 	}
 
-	Unit c = g_theWorld->GetCity(m_pos);
+	Unit c = world_Get()->GetCity(m_pos);
 	if (c.IsValid())
 	{
 		m_fuel = rec->GetMaxFuel();
@@ -6172,12 +6172,12 @@ bool UnitData::CheckForRefuel()
 		return true;
 	}
 
-	if (g_theWorld->IsInstallation(m_pos)) {
-	//	Cell *cell = g_theWorld->GetCell(m_pos);
+	if (world_Get()->IsInstallation(m_pos)) {
+	//	Cell *cell = world_Get()->GetCell(m_pos);
 	//	sint32 CellOwner = cell->GetOwner();
 
 		if( terrainutil_HasAirfield(m_pos) &&
-			g_theWorld->GetOwner(m_pos) == m_owner) { //add (!IsEnemy(CellOwner) || g_player[m_owner]->HasWarWith(defense_owner))
+			world_Get()->GetOwner(m_pos) == m_owner) { //add (!IsEnemy(CellOwner) || g_player[m_owner]->HasWarWith(defense_owner))
 			m_fuel = rec->GetMaxFuel();
 			m_movement_points = 0;
 			return true;
@@ -6317,12 +6317,12 @@ void UnitData::UpdateZOCForInsertion()
 	if(!me.IsNoZoc() && !IsTempSlaveUnit()) {
 		MapPoint chk;
 
-		g_theWorld->AddZOC(m_pos, m_owner);
+		world_Get()->AddZOC(m_pos, m_owner);
 		uint32 moveType = GetDBRec()->GetMovementType();
 		for (sint32 dd = (sint32)NORTH; dd < (sint32)NOWHERE; dd++) {
 			if(m_pos.GetNeighborPosition((WORLD_DIRECTION)dd, chk)) {
-				if(g_theWorld->CanEnter(chk, moveType)) {
-					g_theWorld->AddZOC(chk, m_owner);
+				if(world_Get()->CanEnter(chk, moveType)) {
+					world_Get()->AddZOC(chk, m_owner);
 				}
 			}
 		}
@@ -6480,13 +6480,13 @@ bool UnitData::HasAdjacentFreeLand() const
 			if
 			  (
 			   (
-			        g_theWorld->IsLand(neighbor)
-			     || g_theWorld->IsMountain(neighbor)
+			        world_Get()->IsLand(neighbor)
+			     || world_Get()->IsMountain(neighbor)
 			   )
 			   &&
 			   (
-			        g_theWorld->GetCell(neighbor)->GetNumUnits() == 0
-			     || g_theWorld->GetCell(neighbor)->AccessUnit(0)->GetOwner() == m_owner
+			        world_Get()->GetCell(neighbor)->GetNumUnits() == 0
+			     || world_Get()->GetCell(neighbor)->AccessUnit(0)->GetOwner() == m_owner
 			   )
 			  )
 			{

@@ -34,7 +34,7 @@
 #include <sstream>
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/ctp2_button.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/database/StrDB.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/SelItem.h"
@@ -50,11 +50,11 @@ bool                 TurnYearStatus::s_useCustomYear          = false;
 
 const MBCHAR *TurnYearStatus::GetCurrentYear()
 {
-	sint32 currentYear = NewTurnCount::GetCurrentYear(g_selected_item->GetVisiblePlayer());
+	sint32 currentYear = g_turn->GetSessionYear();
 
 	sint32 round       = g_player[g_selected_item->GetVisiblePlayer()] ?
 	                     g_player[g_selected_item->GetVisiblePlayer()]->m_current_round :
-	                     NewTurnCount::GetCurrentRound();
+	                     g_turn->GetSessionRound();
 
 	return TurnYearStatus::GetYearString(currentYear, round);
 }
@@ -100,7 +100,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 
 	if (s_useCustomYear && g_pTurnLengthOverride)
 	{
-		uint32 round = NewTurnCount::GetCurrentRound();
+		uint32 round = g_turn->GetSessionRound();
 		if (round > s_turnLengthOverrideSize)
 		{
 			round = s_turnLengthOverrideSize;
@@ -127,13 +127,13 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 	static MBCHAR buf[1024];
 	sint32 round = g_player[g_selected_item->GetVisiblePlayer()] ?
 	                   g_player[g_selected_item->GetVisiblePlayer()]->m_current_round :
-	                   NewTurnCount::GetCurrentRound();
+	                   g_turn->GetSessionRound();
 	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
 	return buf;
 #if 0
 
 	std::stringstream roundString;
-	roundString << NewTurnCount::GetCurrentRound() << " "
+	roundString << g_turn->GetSessionRound() << " "
 		<< g_theStringDB->GetNameStr("str_ldl_Turns")
 		<< std::ends;
 
@@ -225,7 +225,7 @@ void TurnYearStatus::Update()
 		case DISPLAY_YEAR:
 			if (s_useCustomYear && s_pTurnLengthOverride)
 			{
-				uint32 round = NewTurnCount::GetCurrentRound();
+				uint32 round = g_turn->GetSessionRound();
 				if (round > s_turnLengthOverrideSize)
 				{
 					round = s_turnLengthOverrideSize;

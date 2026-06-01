@@ -94,7 +94,7 @@ class UnitActor;
 #include "gs/utility/RandGen.h"            // rand_ptr()
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "gs/world/cellunitlist.h"
 #include "net/general/net_info.h"
 #include "net/general/network.h"
@@ -214,7 +214,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 	&& !IsBeingTransported()
 	&& !HasLeftMap()
 	){
-		r = g_theWorld->RemoveUnitReference(pos, *this);
+		r = world_Get()->RemoveUnitReference(pos, *this);
 		Assert(r);
 	}
 	else
@@ -222,7 +222,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		if(GetArmy().IsValid())
 		{
 			Assert(false);
-			r = g_theWorld->RemoveUnitReference(pos, *this);
+			r = world_Get()->RemoveUnitReference(pos, *this);
 			Assert(r);
 		}
 	}
@@ -244,13 +244,13 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		if(cause != CAUSE_REMOVE_ARMY_POLLUTION
 		&& cause != CAUSE_REMOVE_ARMY_FLOOD
 		){
-			g_theWorld->SetCanalTunnel(pos, 0);
+			world_Get()->SetCanalTunnel(pos, 0);
 			is_renumber_cont = true;
 		}
 
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 
-		g_theWorld->CutImprovements(pos);
+		world_Get()->CutImprovements(pos);
 
 		if(g_network.IsHost())
 		{
@@ -267,7 +267,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 				for (sint32 i = cell->UnitArmy()->Num() - 1; i >= 0; --i)
 				{
 					Unit    u = cell->UnitArmy()->Access(i);
-					if (u.IsValid() && !g_theWorld->CanEnter(pos, u.GetMovementType()))
+					if (u.IsValid() && !world_Get()->CanEnter(pos, u.GetMovementType()))
 					{
 						u.Kill(CAUSE_REMOVE_ARMY_ILLEGAL_CELL, -1);
 					}
@@ -297,7 +297,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 
 	if(is_renumber_cont)
 	{
-		g_theWorld->NumberContinents();
+		world_Get()->NumberContinents();
 	}
 }
 
@@ -454,7 +454,7 @@ bool Unit::NearestUnexplored(sint32 searchRadius, MapPoint &pos) const
 	{
 		if (    !g_player[GetOwner()]->IsExplored(it.Pos())
 		     && GetArmy()->CanEnter(it.Pos())
-		     && g_theWorld->IsOnSameContinent(it.Pos(), center)
+		     && world_Get()->IsOnSameContinent(it.Pos(), center)
 		   )
 		{
 			size_t  target_distance = static_cast<size_t>
@@ -517,12 +517,12 @@ bool Unit::NearestFriendlyCityWithRoom(MapPoint &p, sint32 needRoom,
 	{
 		g_player[GetOwner()]->m_all_cities->Get(i).GetPos(city_pos);
 
-		if (g_theWorld->GetCell(city_pos)->GetNumUnits() + needRoom > k_MAX_ARMY_SIZE)
+		if (world_Get()->GetCell(city_pos)->GetNumUnits() + needRoom > k_MAX_ARMY_SIZE)
 			continue;
 
 		if (testWaterMove &&
-			(!g_theWorld->IsNextToWater(city_pos.x, city_pos.y) &&
-			 !g_theWorld->IsWater(city_pos)
+			(!world_Get()->IsNextToWater(city_pos.x, city_pos.y) &&
+			 !world_Get()->IsWater(city_pos)
             )
            )
 			continue;
@@ -598,7 +598,7 @@ bool Unit::SetPosition(const MapPoint &p, UnitDynamicArray &revealed)
 	bool left_map = false;
 	AccessData()->SetPos(p, left_map);
 
-	return left_map || g_theWorld->InsertUnit(p, *this, revealed);
+	return left_map || world_Get()->InsertUnit(p, *this, revealed);
 }
 
 void Unit::SetPosAndNothingElse(const MapPoint &p)
@@ -623,7 +623,7 @@ void Unit::SetMovementPoints(double m)
 
 bool Unit::CanBeExpelled() const
 {
-	return GetDBRec()->GetCanBeExpelled() && g_theWorld->GetOwner(RetPos()) != GetOwner();
+	return GetDBRec()->GetCanBeExpelled() && world_Get()->GetOwner(RetPos()) != GetOwner();
 }
 
 double Unit::GetAttack() const
@@ -2270,7 +2270,7 @@ void Unit::UpdateZOCForRemoval()
 	if(!IsNoZoc() && !IsTempSlaveUnit() && !HasLeftMap() && !IsBeingTransported()) {
 		MapPoint pos;
 		GetPos(pos);
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		CellUnitList *units = cell->UnitArmy();
 		sint32 i;
 
@@ -2292,15 +2292,15 @@ void Unit::UpdateZOCForRemoval()
 		}
 
 		if(updateZoc) {
-			g_theWorld->RemoveZOC(pos, GetOwner());
-			g_theWorld->AddOtherArmyZOC(pos, GetOwner(), Army(), Unit());
+			world_Get()->RemoveZOC(pos, GetOwner());
+			world_Get()->AddOtherArmyZOC(pos, GetOwner(), Army(), Unit());
 
 			sint32 dd;
 			for(dd = 0; dd < (sint32)NOWHERE; dd++) {
 				MapPoint npos;
 				if(pos.GetNeighborPosition((WORLD_DIRECTION)dd, npos)) {
-					g_theWorld->RemoveZOC(npos, GetOwner());
-					g_theWorld->AddOtherArmyZOC(npos, GetOwner(), Army(), Unit());
+					world_Get()->RemoveZOC(npos, GetOwner());
+					world_Get()->AddOtherArmyZOC(npos, GetOwner(), Army(), Unit());
 				}
 			}
 		}
@@ -2542,7 +2542,7 @@ bool Unit::UnitValidForOrder(const OrderRecord * order_rec) const
 bool Unit::Sink(sint32 chance)
 {
 	const UnitRecord *urec = GetDBRec();
-	const TerrainRecord * trec = g_theTerrainDB->Get(g_theWorld->GetTerrainType(RetPos()));
+	const TerrainRecord * trec = g_theTerrainDB->Get(world_Get()->GetTerrainType(RetPos()));
 
 	if(urec->GetCanSinkInSea()
 	&& trec->GetMovementTypeSea()

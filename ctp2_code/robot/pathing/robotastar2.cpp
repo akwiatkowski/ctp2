@@ -40,7 +40,7 @@
 #include "robot/pathing/Path.h"
 #include "robot/pathing/UnitAstar.h"
 
-#include "gs/world/World.h"          // g_theWorld
+#include "gs/world/World.h"          // world_Get()
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/gameobj/Player.h"
 #include "gs/utility/RandGen.h"
@@ -72,9 +72,9 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 {
 	if (can_enter)
 	{
-		sint32 cont     = g_theWorld->GetContinent(pos);
-		bool is_land    = ( g_theWorld->IsLand(pos) || g_theWorld->IsMountain(pos) );
-		bool wrong_cont = ( cont != m_transDestCont ) && (!g_theWorld->IsCity(pos));
+		sint32 cont     = world_Get()->GetContinent(pos);
+		bool is_land    = ( world_Get()->IsLand(pos) || world_Get()->IsMountain(pos) );
+		bool wrong_cont = ( cont != m_transDestCont ) && (!world_Get()->IsCity(pos));
 
 		bool occupied = (m_army->HasCargo() && (!m_army.CanAtLeastOneCargoUnloadAt(prev, pos, false, !m_is_robot)));
 
@@ -82,9 +82,9 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 		{
 			if(  is_land
 			   &&
-			     (    g_theWorld->IsWater(prev)
-			       || g_theWorld->IsShallowWater(prev)
-			       || g_theWorld->IsCity(prev)
+			     (    world_Get()->IsWater(prev)
+			       || world_Get()->IsShallowWater(prev)
+			       || world_Get()->IsCity(prev)
 			     )
 			  )
 			{
@@ -94,15 +94,15 @@ bool RobotAstar2::TransportPathCallback (const bool & can_enter,
 			}
 		}
 
-		if(g_theWorld->IsWater(pos) || g_theWorld->IsShallowWater(pos))
+		if(world_Get()->IsWater(pos) || world_Get()->IsShallowWater(pos))
 		{
 			if
 			  (
 			       (
-			           g_theWorld->IsLand(prev)
-			        || g_theWorld->IsMountain(prev)
+			           world_Get()->IsLand(prev)
+			        || world_Get()->IsMountain(prev)
 			       )
-			    && g_theWorld->GetContinent(prev) == m_transDestCont
+			    && world_Get()->GetContinent(prev) == m_transDestCont
 			  )
 			{
 				// Return invalid if we leave the target continent
@@ -138,14 +138,14 @@ bool RobotAstar2::AirliftPathCallback (const bool & can_enter,
 		        pos == m_dest
 		    &&
 		   (
-		        g_theWorld->GetCell(pos)->GetNumUnits() > 0
-		    &&  g_theWorld->GetArmyPtr(pos)->GetOwner() != m_army->GetOwner()
-		    && !m_army->CanFight(*g_theWorld->GetArmyPtr(pos))
+		        world_Get()->GetCell(pos)->GetNumUnits() > 0
+		    &&  world_Get()->GetArmyPtr(pos)->GetOwner() != m_army->GetOwner()
+		    && !m_army->CanFight(*world_Get()->GetArmyPtr(pos))
 		   )
 		    ||
 		   (
-		        g_theWorld->HasCity(pos)
-		    &&  g_theWorld->GetCity(pos).GetOwner() != m_army->GetOwner()
+		        world_Get()->HasCity(pos)
+		    &&  world_Get()->GetCity(pos).GetOwner() != m_army->GetOwner()
 		    && !m_army->CanAtLeastOneCaptureCity()
 		   )
 		  )
@@ -183,13 +183,13 @@ bool RobotAstar2::DefensivePathCallback (const bool & can_enter,
 	PLAYER_INDEX pos_owner;
 	PLAYER_INDEX prev_owner;
 
-	pos_owner = g_theWorld->GetCell(pos)->GetOwner();
+	pos_owner = world_Get()->GetCell(pos)->GetOwner();
 	if (can_enter)
 	{
 		if ((pos_owner < 0) || (m_incursionPermission & (0x1 << pos_owner)))
 			return true;
 
-		prev_owner = g_theWorld->GetCell(prev)->GetOwner();
+		prev_owner = world_Get()->GetCell(prev)->GetOwner();
 		if ((prev_owner == pos_owner) &&
 			!(m_incursionPermission & (0x1 << prev_owner)))
 		{
@@ -226,7 +226,7 @@ bool RobotAstar2::FindPath( const PathType & pathType,
 	m_pathType = pathType;
 	m_transDestCont = trans_dest_cont;
 	m_transMaxR = trans_max_r;
-	m_owner = g_theWorld->GetOwner(start);
+	m_owner = world_Get()->GetOwner(start);
 
 	sint32 nUnits;
 	uint32 move_intersection;

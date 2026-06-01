@@ -54,7 +54,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/world/Cell.h"
 #include "gs/world/MapPoint.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_Factory.h"
@@ -393,7 +393,7 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 #if 0   // Useless local variable updates
             sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
 			MapPoint tempPos( mapX, pos.y);
-			Cell *cell = g_theWorld->GetCell(tempPos);
+			Cell *cell = world_Get()->GetCell(tempPos);
 #endif
 			index++;
 		}
@@ -406,7 +406,7 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 #if 0   // Useless local variable updates
 			sint32 mapX = maputils_TileX2MapX(i+x,pos.y);
 			MapPoint tempPos (mapX, pos.y);
-			Cell *cell = g_theWorld->GetCell(tempPos);
+			Cell *cell = world_Get()->GetCell(tempPos);
 #endif
 			index++;
 		}
@@ -423,7 +423,7 @@ sint32 ResourceMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, s
 
 BOOL ResourceMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
-	Unit		city = g_theWorld->GetCell(pos)->GetCity();
+	Unit		city = world_Get()->GetCell(pos)->GetCity();
 	if (city.m_id == 0) return FALSE;
 
 	UnitActorPtr actor = city.GetActor();
@@ -456,7 +456,7 @@ BOOL ResourceMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *c
 
 BOOL ResourceMap::DrawALandCity(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
-	Unit		city = g_theWorld->GetCell(pos)->GetCity();
+	Unit		city = world_Get()->GetCell(pos)->GetCity();
 	if (city.m_id == 0) return FALSE;
 
 	UnitActorPtr actor = city.GetActor();
@@ -567,7 +567,7 @@ BOOL ResourceMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *c
 		resourceMap->m_usedRect.bottom = y + g_tiledMap->GetZoomTilePixelHeight();
 	}
 
-	Cell	*cell = g_theWorld->GetCell(pos);
+	Cell	*cell = world_Get()->GetCell(pos);
 
 	if (cell) {
 		Unit	c;
@@ -634,7 +634,7 @@ BOOL ResourceMap::DrawSprites(aui_Surface *pSurface, RECT *destRect)
 
 	m_totalFood = m_totalProd = m_totalGold = 0;
 
-	Cell *cell = g_theWorld->GetCell( pos );
+	Cell *cell = world_Get()->GetCell( pos );
 	m_totalFood += cell->GetFoodProduced();
 	m_totalProd += cell->GetShieldsProduced();
 
@@ -894,25 +894,25 @@ BOOL ResourceMap::MousePointToTilePos(POINT point, MapPoint &tilePos)
 		}
 	}
 
-	if (g_theWorld->IsYwrap()) {
+	if (world_Get()->IsYwrap()) {
 		if (tilePos.x <0)
 		{
-			tilePos.x += static_cast<sint16>(g_theWorld->GetWidth());
+			tilePos.x += static_cast<sint16>(world_Get()->GetWidth());
 		}
-		else if (g_theWorld->GetWidth() <= tilePos.x)
+		else if (world_Get()->GetWidth() <= tilePos.x)
 		{
-			tilePos.x -= static_cast<sint16>(g_theWorld->GetWidth());
+			tilePos.x -= static_cast<sint16>(world_Get()->GetWidth());
 		}
 
 		sint16 sx, sy;
 		if (tilePos.y < 0) {
-			sx = (sint16)g_theWorld->GetWidth();
-			sy = (sint16)g_theWorld->GetHeight();
+			sx = (sint16)world_Get()->GetWidth();
+			sy = (sint16)world_Get()->GetHeight();
 			tilePos.y += sy;
 			tilePos.x = (tilePos.x + (sx - (sy/2))) % sx;
-		} else if (g_theWorld->GetHeight() <= tilePos.y) {
-			sx = (sint16)g_theWorld->GetWidth();
-			sy = (sint16)g_theWorld->GetHeight();
+		} else if (world_Get()->GetHeight() <= tilePos.y) {
+			sx = (sint16)world_Get()->GetWidth();
+			sy = (sint16)world_Get()->GetHeight();
 			tilePos.y -= sy;
 			tilePos.x = (tilePos.x - (sx - (sy/2))) % sx;
 		}
@@ -923,20 +923,20 @@ BOOL ResourceMap::MousePointToTilePos(POINT point, MapPoint &tilePos)
 			tilePos.y = 0;
 			return FALSE;
 		}
-		else if (g_theWorld->GetHeight() <= tilePos.y)
+		else if (world_Get()->GetHeight() <= tilePos.y)
 		{
-			tilePos.y = static_cast<sint16>(g_theWorld->GetHeight() - 1);
+			tilePos.y = static_cast<sint16>(world_Get()->GetHeight() - 1);
 			return FALSE;
 		}
 	}
 
 	if (tilePos.x <0)
 	{
-		tilePos.x += static_cast<sint16>(g_theWorld->GetWidth());
+		tilePos.x += static_cast<sint16>(world_Get()->GetWidth());
 	}
-	else if (g_theWorld->GetWidth() <= tilePos.x)
+	else if (world_Get()->GetWidth() <= tilePos.x)
 	{
-		tilePos.x -= static_cast<sint16>(g_theWorld->GetWidth());
+		tilePos.x -= static_cast<sint16>(world_Get()->GetWidth());
 	}
 
 	return TRUE;

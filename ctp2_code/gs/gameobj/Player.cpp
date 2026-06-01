@@ -422,7 +422,9 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	}
 
 	m_is_turn_over = FALSE;
-	m_current_round = NewTurnCount::GetCurrentRound();
+	// Null-safe form: InitPlayer can run during gameinit before g_turn
+	// is allocated; route through the session field once available.
+	m_current_round = g_turn ? g_turn->GetSessionRound() : 0;
 	m_end_turn_soon = FALSE;
 
 	m_powerPoints = 0;
@@ -2269,7 +2271,7 @@ void Player::BeginTurn()
 	}
 
 	m_is_turn_over = FALSE;
-	m_current_round = NewTurnCount::GetCurrentRound();
+	m_current_round = g_turn->GetSessionRound();
 	m_end_turn_soon = FALSE;
 
 	if(!g_network.IsActive() || g_network.IsHost() || (m_owner == g_network.GetPlayerIndex())) {
@@ -2473,7 +2475,7 @@ void Player::EndTurn()
 						              m_owner));
 	}
 
-	m_current_round = NewTurnCount::GetCurrentRound();
+	m_current_round = g_turn->GetSessionRound();
 
 	m_is_turn_over = TRUE;
 	m_end_turn_soon = FALSE;
@@ -8995,7 +8997,7 @@ void Player::EnterNewAge(sint32 age)
 		m_all_cities->Access(i).CD()->UpdateSprite();
 	}
 	if(!g_network.IsNetworkLaunch()) {
-		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,NewTurnCount::GetCurrentRound(),age);
+		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,g_turn->GetSessionRound(),age);
 	}
 }
 

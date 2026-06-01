@@ -58,7 +58,7 @@ namespace
 // Parameters : a_Center    : center of the block
 //              a_Radius    : radius of the block
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : -
 //
@@ -71,13 +71,13 @@ void ClearScratch(MapPoint const & a_Center, size_t const a_Radius)
 
 	for (it.Start(); !it.End(); it.Next())
 	{
-		g_theWorld->GetCell(it.Pos())->SetScratch(0);
+		world_Get()->GetCell(it.Pos())->SetScratch(0);
 	}
 };
 
 bool ExpandBorders(const MapPoint &center, MapPoint curPos, sint32 player, sint32 squaredRadius)
 {
-	Cell *cell = g_theWorld->GetCell(curPos);
+	Cell *cell = world_Get()->GetCell(curPos);
 	Assert(cell);
 
 	if (cell->GetScratch() != 0) return false;
@@ -127,7 +127,7 @@ bool ExpandBorders(const MapPoint &center, MapPoint curPos, sint32 player, sint3
 bool ExpandInfluence(Unit &city, const MapPoint &centerPos, MapPoint curPos,
 					 const CitySizeRecord *rec)
 {
-	Cell *cell = g_theWorld->GetCell(curPos);
+	Cell *cell = world_Get()->GetCell(curPos);
 
 	if(cell->GetScratch() != 0) return false;
 	if(cell->GetCityOwner().m_id != 0 && cell->GetCityOwner().m_id != city.m_id) return false;
@@ -223,7 +223,7 @@ sint32 RadiusFromIndex(sint32 sizeIndex)
 // Parameters : center          : location of city
 //              size            : size of city (as index in city size database)
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //              g_theCitySizeDB
 //
 // Returns    : -
@@ -233,7 +233,7 @@ sint32 RadiusFromIndex(sint32 sizeIndex)
 //----------------------------------------------------------------------------
 CityInfluenceIterator::CityInfluenceIterator(MapPoint const & center, sint32 size)
 :	RadiusIterator  (center, RadiusFromIndex(size)),
-    m_cityId        (g_theWorld->GetCell(center)->GetCityOwner().m_id)
+    m_cityId        (world_Get()->GetCell(center)->GetCityOwner().m_id)
 {
 }
 
@@ -247,7 +247,7 @@ CityInfluenceIterator::CityInfluenceIterator(MapPoint const & center, sint32 siz
 // Parameters : -
 //              size           : size of city (as index in city size database)
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //              g_theCitySizeDB
 //
 // Returns    : bool            : valid location
@@ -258,7 +258,7 @@ CityInfluenceIterator::CityInfluenceIterator(MapPoint const & center, sint32 siz
 bool CityInfluenceIterator::IsIncluded()
 {
 	return (m_testXY.IsValid() &&
-	        (g_theWorld->GetCell(m_testXY.GetRC())->GetCityOwner().m_id == m_cityId)
+	        (world_Get()->GetCell(m_testXY.GetRC())->GetCityOwner().m_id == m_cityId)
 	       );
 }
 
@@ -271,7 +271,7 @@ bool CityInfluenceIterator::IsIncluded()
 // Parameters : cpos                : location of city
 //              size                : size of city
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //              g_tiledMap
 //              g_theCitySizeDB
 //
@@ -282,11 +282,11 @@ bool CityInfluenceIterator::IsIncluded()
 //----------------------------------------------------------------------------
 void GenerateCityInfluence(const MapPoint &cpos, sint32 size)
 {
-	Assert(g_theWorld->GetCell(cpos)->HasCity());
-	Unit					city		= g_theWorld->GetCell(cpos)->GetCity();
+	Assert(world_Get()->GetCell(cpos)->HasCity());
+	Unit					city		= world_Get()->GetCell(cpos)->GetCity();
 	sint32 const			intRadius	= RadiusFromIndex(size);
 	ClearScratch(cpos, size);
-	g_theWorld->GetCell(cpos)->SetScratch(1);
+	world_Get()->GetCell(cpos)->SetScratch(1);
 
 	MapPoint				cur;
 	CitySizeRecord const *  rec         = g_theCitySizeDB->Get(size);
@@ -304,7 +304,7 @@ void GenerateBorders(const MapPoint &cpos, sint32 player, sint32 intRadius, sint
 
 	MapPoint cur;
 
-	Cell *cell = g_theWorld->GetCell(cpos);
+	Cell *cell = world_Get()->GetCell(cpos);
 	cell->SetOwner(player);
 	cell->SetScratch(1);
 

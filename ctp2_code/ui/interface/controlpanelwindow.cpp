@@ -147,7 +147,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/world/Cell.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 #include "gfx/spritesys/director.h"                   // g_director
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
@@ -313,10 +313,10 @@ void CityManagerButtonCallback(aui_Control *control, uint32 action, uint32 data,
 		selection = city.CD();
 	}
 	else if (g_selected_item->GetSelectedArmy(a) &&
-		     g_theWorld->HasCity(a->RetPos())
+		     world_Get()->HasCity(a->RetPos())
             )
 	{
-		selection = g_theWorld->GetCity(a->RetPos()).CD();
+		selection = world_Get()->GetCity(a->RetPos()).CD();
 	}
 
 	CityWindow::Display(selection);
@@ -598,7 +598,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 	bool haveCity = g_selected_item->GetSelectedCity(city) != FALSE;
 
 	if(!haveCity) {
-		city = g_theWorld->GetCity(g_selected_item->GetCurSelectPos());
+		city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
 		if(city.IsValid()) {
 			haveCity = true;
 
@@ -658,7 +658,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 			Army a;
 			if(!g_selected_item->GetSelectedArmy(a)) {
 				MapPoint pos = g_selected_item->GetCurSelectPos();
-				Cell *cell = g_theWorld->GetCell(pos);
+				Cell *cell = world_Get()->GetCell(pos);
 				if(cell->UnitArmy()) {
 					g_selected_item->SetSelectUnit(cell->UnitArmy()->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer()));
 					g_selected_item->GetSelectedArmy(a);
@@ -689,7 +689,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 							if(g_network.IsClient()) {
 								CellUnitList units;
 								sint32 i;
-								Cell *cell = g_theWorld->GetCell(a->RetPos());
+								Cell *cell = world_Get()->GetCell(a->RetPos());
 								for(i = 0; i < cell->GetNumUnits(); i++) {
 									if(cell->AccessUnit(i).GetArmy().m_id != a.m_id) {
 										units.Insert(cell->AccessUnit(i));
@@ -775,7 +775,7 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 	bool haveCity = g_selected_item->GetSelectedCity(city) != FALSE;
 
 	if(!haveCity) {
-		city = g_theWorld->GetCity(g_selected_item->GetCurSelectPos());
+		city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
 		if(city.IsValid())
 			haveCity = true;
 
@@ -1821,7 +1821,7 @@ ControlPanelWindow::OrderDeliveryUpdate()
 
 				static CellUnitList defender;
 				defender.Clear();
-				g_theWorld->GetArmy(pos, defender);
+				world_Get()->GetArmy(pos, defender);
 				if(army->CanAtLeastOneCaptureCity() || army->CanFight(defender)) {
 					cursormanager_Get()->SetCursor(CURSORINDEX_ASSAULT);
 				} else {
@@ -1829,8 +1829,8 @@ ControlPanelWindow::OrderDeliveryUpdate()
 				}
 // Added by Martin G�hmann to fix the crossed sword bug
 			}
-			else if(g_theWorld->HasCity(pos)
-			&&      g_theWorld->GetCity(pos)->GetOwner() != army->GetOwner()
+			else if(world_Get()->HasCity(pos)
+			&&      world_Get()->GetCity(pos)->GetOwner() != army->GetOwner()
 			&&      army->CanAtLeastOneCaptureCity()
 			&&      army->CheckWasEnemyVisible(pos, true)
 			){
@@ -2869,7 +2869,7 @@ ControlPanelWindow::BuildUnitList ()
 
 	if (!army.IsValid()) {
 		MapPoint pos = g_selected_item->GetCurSelectPos();
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		if(cell->AccessUnit(0).GetOwner() == g_selected_item->GetVisiblePlayer()) {
 			Unit top = cell->UnitArmy()->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer());
 
@@ -2898,7 +2898,7 @@ ControlPanelWindow::BuildUnitList ()
 
 		ArmyData *  data = army.AccessData();
         Assert(data);
-		Cell *      cell = g_theWorld->GetCell(data->RetPos());
+		Cell *      cell = world_Get()->GetCell(data->RetPos());
 		if(cell->GetNumUnits() != data->Num()) {
 
 			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_GROUP_ALL"), NULL, (void *)k_UNIT_CONTEXT_GROUP_ALL);
@@ -3010,7 +3010,7 @@ ControlPanelWindow::BuildCityList (const MapPoint &pos)
 	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_RENAME"), NULL, (void *)k_CONTEXT_CITY_RENAME);
 	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_DISBAND"), NULL, (void *)k_CONTEXT_CITY_DISBAND);
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	sint32 i;
 	for(i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).IsEntrenched() ||
@@ -3054,7 +3054,7 @@ ControlPanelWindow::BuildList (sint32 index)
 		return;
 
 	MapPoint pos = g_selected_item->GetCurSelectPos();
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetNumUnits() > 0) {
 		if(cell->AccessUnit(0).GetOwner() == g_selected_item->GetVisiblePlayer()) {
 			BuildUnitList();

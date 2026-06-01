@@ -81,7 +81,7 @@
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
 #include "gs/gameobj/Player.h"
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/TerrImprove.h"
@@ -291,7 +291,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 
 	bool	    fog                     = !m_localVision->IsVisible(pos);
 	bool        visiblePlayerOwnsThis   =
-	    (g_selected_item->GetVisiblePlayer() == g_theWorld->GetOwner(pos));
+	    (g_selected_item->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;
 	Cell *      cell                    = NULL;
 	bool		isAirfield              = false;
@@ -341,8 +341,8 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	}
 	else
 	{
-		hasHut		= (g_theWorld->GetGoodyHut(pos) != NULL);
-		cell = g_theWorld->GetCell(pos);
+		hasHut		= (world_Get()->GetGoodyHut(pos) != NULL);
+		cell = world_Get()->GetCell(pos);
 
 		if (cell)
 		{
@@ -3483,7 +3483,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 				{
 					Unit unit;
 					// if there's a unit at pos
-					if (g_theWorld->GetTopVisibleUnit(pos,unit)) {
+					if (world_Get()->GetTopVisibleUnit(pos,unit)) {
 						//and it's a city visible to the current player
 						if (unit.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()) && unit.IsCity())
 						{
@@ -4633,7 +4633,7 @@ TiledMap::DrawAnImprovement(aui_Surface *surface, Pixel16 *data, sint32 x, sint3
 sint32 TiledMap::GetVisibleCellOwner(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
-	&& g_selected_item->GetVisiblePlayer() != g_theWorld->GetCell(pos)->GetOwner()
+	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4642,14 +4642,14 @@ sint32 TiledMap::GetVisibleCellOwner(const MapPoint &pos) const
 		}
 	}
 
-	return g_theWorld->GetCell(pos)->GetOwner();
+	return world_Get()->GetCell(pos)->GetOwner();
 }
 
 uint32 TiledMap::GetVisibleCityOwner(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != g_theWorld->GetCell(pos)->GetOwner()
+	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4658,14 +4658,14 @@ uint32 TiledMap::GetVisibleCityOwner(const MapPoint &pos) const
 		}
 	}
 
-	return g_theWorld->GetCell(pos)->GetCityOwner().m_id;
+	return world_Get()->GetCell(pos)->GetCityOwner().m_id;
 }
 
 uint32 TiledMap::GetVisibleTerrainType(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != g_theWorld->GetCell(pos)->GetOwner()
+	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4674,14 +4674,14 @@ uint32 TiledMap::GetVisibleTerrainType(const MapPoint &pos) const
 		}
 	}
 
-	return g_theWorld->GetCell(pos)->GetTerrainType();
+	return world_Get()->GetCell(pos)->GetTerrainType();
 }
 
 bool TiledMap::HasVisibleCity(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != g_theWorld->GetCell(pos)->GetOwner()
+	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4690,7 +4690,7 @@ bool TiledMap::HasVisibleCity(const MapPoint &pos) const
 		}
 	}
 
-	return g_theWorld->GetCell(pos)->GetCity().IsValid();
+	return world_Get()->GetCell(pos)->GetCity().IsValid();
 }
 
 void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
@@ -5000,7 +5000,7 @@ void TiledMap::DrawCityReligionIcons
 	)
 {
 	Unit unit;
-	if(!g_theWorld->GetTopVisibleUnit(pos,unit))
+	if(!world_Get()->GetTopVisibleUnit(pos,unit))
 		return;
 
 	TileSet *   tileSet     = GetTileSet();
@@ -5077,7 +5077,7 @@ void TiledMap::DrawCitySpecialIcons
 	)
 {
 	Unit unit;
-	if(!g_theWorld->GetTopVisibleUnit(pos,unit))
+	if(!world_Get()->GetTopVisibleUnit(pos,unit))
 		return;
 
 	//Future Use - use special icon for everything else and just position the icons elsewhere

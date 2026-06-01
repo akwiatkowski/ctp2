@@ -39,7 +39,7 @@
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "gs/utility/directions.h"
 #include "ctp/ctp2_utils/c3math.h"
 
@@ -337,7 +337,7 @@ bool MapPoint::IsNextTo(MapPoint const & neighbor) const
 // Parameters : -
 //
 // Globals    : g_mp_size
-//              g_theWorld
+//              world_Get()
 //
 // Returns    : bool	: point is valid
 //
@@ -364,7 +364,7 @@ bool MapPoint::IsValid(void) const
 // Parameters : dest            : the point to go to from here
 //
 // Globals    : g_mp_size
-//              g_theWorld
+//              world_Get()
 //
 // Returns    : MapPointData     : the difference, in XY coordinates
 //
@@ -379,11 +379,11 @@ MapPointData MapPoint::NormalizedSubtract(MapPoint const & dest) const
 
 	MapPointData    diff    (to.x, to.y);
 
-	if (g_theWorld->IsXwrap())
+	if (world_Get()->IsXwrap())
 	{
 		diff.x = static_cast<sint16>(WrapDelta(diff.x, 2 * g_mp_size.x));
 	}
-	if (g_theWorld->IsYwrap())
+	if (world_Get()->IsYwrap())
 	{
 		diff.y = static_cast<sint16>(WrapDelta(diff.y, g_mp_size.y));
 	}
@@ -441,7 +441,7 @@ void MapPoint::OldNormalizedSubtract(const MapPoint &dest, MapPoint &diff) const
 	delta_down.y = (g_mp_size.x - s.y) + d.y;
 	sqmp(delta_down, sq_min, diff);
 
-	if (g_theWorld->IsYwrap()) {
+	if (world_Get()->IsYwrap()) {
 
 		delta_right.x = g_mp_size.y + d.x - s.x;
 		delta_right.y = d.y - s.y;
@@ -512,13 +512,13 @@ void MapPoint::Norm2Iso(const MapPoint &pos)
 sint32 OldSquaredDistance(const MapPoint &uPos, const MapPoint &pos)
 {
 	sint32 dx1, dy1, dx2, dy2, dx3, dy3;
-	sint16 w = sint16(g_theWorld->GetXWidth());
-	sint16 h = sint16(g_theWorld->GetYHeight());
+	sint16 w = sint16(world_Get()->GetXWidth());
+	sint16 h = sint16(world_Get()->GetYHeight());
 
 	if (w <= 0 || h <= 0)
 		return 0;
 
-	if(!g_theWorld->IsXwrap()) {
+	if(!world_Get()->IsXwrap()) {
 
 		sint32 adjX1 = (((uPos.x + (uPos.y / 2)) % w) * 2) + (uPos.y & 1);
 		sint32 adjX2 = (((pos.x + (pos.y / 2)) % w) * 2) + (pos.y & 1);
@@ -540,7 +540,7 @@ sint32 OldSquaredDistance(const MapPoint &uPos, const MapPoint &pos)
 
 	dy1 = (uPos.y - pos.y) + dx1;
 
-	if(g_theWorld->IsYwrap()) {
+	if(world_Get()->IsYwrap()) {
 		sint16 magicXAdj = (h - (w * 2)) / 2;
 
 		MapPoint topPos = pos;
@@ -849,7 +849,7 @@ void OrthogonalPoint::Move
 //
 // Parameters : -
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //              g_mp_size
 //
 // Returns    : -
@@ -859,7 +859,7 @@ void OrthogonalPoint::Move
 //----------------------------------------------------------------------------
 void OrthogonalPoint::Normalise(void)
 {
-	if (g_theWorld->IsXwrap())
+	if (world_Get()->IsXwrap())
 	{
 		while (m_point.x < 0)
 		{
@@ -871,7 +871,7 @@ void OrthogonalPoint::Normalise(void)
 		}
 	}
 
-	if (g_theWorld->IsYwrap())
+	if (world_Get()->IsYwrap())
 	{
 		while (m_point.y < 0)
 		{

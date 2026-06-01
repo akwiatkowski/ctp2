@@ -77,7 +77,7 @@
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
-#include "gs/gameobj/GameSettings.h"       // g_theGameSettings
+#include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include <stdexcept>            // overflow_error
 
 namespace

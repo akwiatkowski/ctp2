@@ -74,7 +74,7 @@
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"   // g_theDifficultyDB
 #include "gs/gameobj/Diplomacy_Log.h"
-#include "gs/gameobj/GameSettings.h"       // g_theGameSettings
+#include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"             // g_player
 #include "gs/core/audio_types.h"

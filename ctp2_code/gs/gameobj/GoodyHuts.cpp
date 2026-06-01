@@ -269,7 +269,7 @@ GoodyHut::GoodyHut(CivArchive &archive)
 //
 // Parameters : owner       : the player
 //
-// Globals    : g_theGameSettings
+// Globals    : gamesettings_Get()
 //              g_theRiskDB
 //              g_player
 //              g_theAdvanceDB

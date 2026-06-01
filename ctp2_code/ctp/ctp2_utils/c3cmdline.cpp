@@ -204,7 +204,6 @@ extern Player**       g_player;
 extern StatusWindow*  g_statusWindow;
 extern sint32         g_debugOwner;
 extern SelectedItem   *g_selected_item;
-extern World          *g_theWorld;
 extern TiledMap       *g_tiledMap;
 
 extern sint32         g_fog_toggle;
@@ -1591,9 +1590,9 @@ void SetGoodsCommand::Execute(sint32 argc, char **argv)
 
 	type= atoi(argv[1]);
 
-	g_theWorld->SetGood(point.x, point.y, type);
+	world_Get()->SetGood(point.x, point.y, type);
 
-	g_tiledMap->PostProcessTile(point, g_theWorld->GetTileInfo(point));
+	g_tiledMap->PostProcessTile(point, world_Get()->GetTileInfo(point));
 	g_tiledMap->TileChanged(point);
 }
 
@@ -1633,10 +1632,10 @@ void AiDebugCommand::Execute(sint32 argc, char **argv)
 		CtpAiDebug::SetDebugGoalType(-1);
 	}
 
- 	Cell *cell = g_theWorld->GetCell(pos);
+ 	Cell *cell = world_Get()->GetCell(pos);
 
 	debug_player = cell->GetOwner();
-	g_theWorld->GetArmy(pos, unit_list);
+	world_Get()->GetArmy(pos, unit_list);
 
 	if (unit_list.Num() <= 0)
 	{
@@ -2100,7 +2099,7 @@ void SendSlaveCommand::Execute(sint32 argc, char **argv)
 
 		MapPoint pos;
 		g_tiledMap->GetMouseTilePos(pos);
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		Unit toCity = cell->GetCity();
 		Assert(toCity != Unit());
 
@@ -2149,7 +2148,7 @@ void ForceRevoltCommand::Execute(sint32 argc, char **argv)
 	MapPoint point;
 	g_tiledMap->GetMouseTilePos(point);
 
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 	if(cell->GetCity() != Unit()) {
 		cell->GetCity().AccessData()->GetCityData()->Revolt(g_player[cell->GetCity().GetOwner()]->m_civRevoltingCitiesShouldJoin, TRUE);
 	}
@@ -2442,14 +2441,14 @@ void YumCommand::Execute(sint32 argc, char **argv)
 	MapPoint point;
 	g_tiledMap->GetMouseTilePos(point);
 
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 	sint32 good;
 	if(!cell->GetGoodsIndex(good))
 		good = -1;
 	DPRINTF(k_DBG_INFO, ("(%d,%d): Prod: %d, Food: %d, Good: %d\n",
 						 point.x, point.y,
-						 g_theWorld->GetShieldsProduced(point),
-						 g_theWorld->GetFoodProduced(point),
+						 world_Get()->GetShieldsProduced(point),
+						 world_Get()->GetFoodProduced(point),
 						 good));
 }
 
@@ -2463,11 +2462,11 @@ void ToggleMapColorCommand::Execute(sint32 argc, char **argv)
 	if(g_is_debug_map_color == 2) {
 		MapPoint pos;
 		MapPoint *size;
-		size = g_theWorld->GetSize();
+		size = world_Get()->GetSize();
 		Cell *c;
 		for (pos.x = 0; pos.x < size->x; pos.x++) {
 			for (pos.y=0; pos.y < size->y; pos.y++) {
-				c = g_theWorld->AccessCell(pos);
+				c = world_Get()->AccessCell(pos);
 				if (c->GetRawZoc()) {
 					c->m_color = 1;
 				} else {
@@ -3143,7 +3142,7 @@ void TerrainImprovementCompleteCommand::Execute(sint32 argc, char **argv)
 	sint32 vplayer = g_selected_item->GetVisiblePlayer();
 #endif
 
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 
 	for (sint32 i = 0; i < cell->GetNumImprovements(); i++)
 		cell->AccessImprovement(i).Complete();
@@ -3172,7 +3171,7 @@ void KillTileCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	g_tiledMap->GetMouseTilePos(pos);
-	c = g_theWorld->GetCell(pos.x, pos.y);
+	c = world_Get()->GetCell(pos.x, pos.y);
 	c->Kill();
 
 	g_tiledMap->PostProcessMap();
@@ -4987,7 +4986,7 @@ void FloodCommand::Execute(sint32 argc, char **argv)
 		g_network.SendCheat(new NetCheat(NET_CHEAT_GLOBAL_WARMING,
 										 atoi(argv[1])));
 	} else {
-		g_theWorld->GlobalWarming(atoi(argv[1]));
+		world_Get()->GlobalWarming(atoi(argv[1]));
 	}
 }
 
@@ -5010,7 +5009,7 @@ void OzoneCommand::Execute(sint32 argc, char **argv)
 		g_network.SendCheat(new NetCheat(NET_CHEAT_OZONE_DEPLETION,
 										 atoi(argv[1])));
 	} else {
-		g_theWorld->OzoneDepletion();
+		world_Get()->OzoneDepletion();
 	}
 }
 
@@ -5045,7 +5044,7 @@ void TileTypeCommand::Execute(sint32 argc, char** argv)
 		pos.z = atoi(argv[3]);
 		}
 
-	Cell	*c = g_theWorld->GetCell(pos.x, pos.y, pos.z);
+	Cell	*c = world_Get()->GetCell(pos.x, pos.y, pos.z);
 
 	switch (c->GetTerrainType())
 		{

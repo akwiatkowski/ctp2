@@ -85,14 +85,14 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	MapPoint mp(m_x, m_y);
 
 	DPRINTF(k_DBG_NET, ("Handling cell at %d/%d\n", m_x, m_y));
-	m_cell = g_theWorld->AccessCell(mp);
+	m_cell = world_Get()->AccessCell(mp);
 	PULLLONG(m_cell->m_env);
 	PULLBYTE(m_cell->m_terrain_type);
 	sint16 old_move_cost = m_cell->m_move_cost;
 	PULLSHORT(m_cell->m_move_cost);
 
 	if (old_move_cost != m_cell->m_move_cost)
-		g_theWorld->SetCapitolDistanceDirtyFlags(0xffffffff);
+		world_Get()->SetCapitolDistanceDirtyFlags(0xffffffff);
 	PULLSHORT(m_cell->m_continent_number);
 
 	uint8 owner;
@@ -119,7 +119,7 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	if (g_tiledMap)
 	{
-		g_tiledMap->PostProcessTile(mp, g_theWorld->GetTileInfo(mp));
+		g_tiledMap->PostProcessTile(mp, world_Get()->GetTileInfo(mp));
 		g_tiledMap->TileChanged(mp);
 
 		MapPoint npos;
@@ -128,7 +128,7 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if (mp.GetNeighborPosition(static_cast<WORLD_DIRECTION>(d), npos))
 			{
 				g_tiledMap->PostProcessTile
-					(npos, g_theWorld->GetTileInfo(npos));
+					(npos, world_Get()->GetTileInfo(npos));
 				g_tiledMap->TileChanged(npos);
 				g_tiledMap->RedrawTile(&npos);
 			}
@@ -151,16 +151,16 @@ void NetCellList::Packetize(uint8* buf, uint16& size)
 	size_t cells = 0;
 
 #if defined(USE_WORLDSIZE_CLASS)
-	WorldSize mapsize = g_theWorld->GetSize();
+	WorldSize mapsize = world_Get()->GetSize();
 #else
-	MapPoint  mapsize = *g_theWorld->GetSize();
+	MapPoint  mapsize = *world_Get()->GetSize();
 #endif
 	for (sint32 x = m_x; x < mapsize.x; x++)
 	{
 		for (sint32 y = m_y; y < mapsize.y; y++)
 		{
 			MapPoint mp(x,y);
-			Cell const * cell = g_theWorld->GetCell(mp);
+			Cell const * cell = world_Get()->GetCell(mp);
 			PUSHLONG(cell->m_env);
 
 			uint8 terrainPlusFlags = cell->m_terrain_type;
@@ -220,16 +220,16 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 	size_t cells = 0;
 
 #if defined(USE_WORLDSIZE_CLASS)
-	WorldSize mapsize = g_theWorld->GetSize();
+	WorldSize mapsize = world_Get()->GetSize();
 #else
-	MapPoint  mapsize = *g_theWorld->GetSize();
+	MapPoint  mapsize = *world_Get()->GetSize();
 #endif
 	for (sint32 x = m_x; x < mapsize.x; x++)
 	{
 		for (sint32 y = m_y; y < mapsize.y; y++)
 		{
 			MapPoint mp(x,y);
-			Cell* cell = g_theWorld->AccessCell(mp);
+			Cell* cell = world_Get()->AccessCell(mp);
 
 			delete cell->m_unit_army;
 			cell->m_unit_army = NULL;
@@ -285,10 +285,10 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 
 			cell->CalcTerrainMoveCost();
 
-			if (g_theWorld->GetTileInfo(mp))
+			if (world_Get()->GetTileInfo(mp))
 			{
-				delete g_theWorld->GetTileInfo(mp)->m_goodActor;
-				g_theWorld->GetTileInfo(mp)->m_goodActor = NULL;
+				delete world_Get()->GetTileInfo(mp)->m_goodActor;
+				world_Get()->GetTileInfo(mp)->m_goodActor = NULL;
 			}
 
 			cells++;
@@ -307,7 +307,7 @@ void NetCellUnitOrder::Packetize(uint8 *buf, uint16 &size)
 	PUSHID(k_PACKET_CELL_UNIT_ORDER_ID);
 	PUSHSHORT(m_x);
 	PUSHSHORT(m_y);
-	CellUnitList *units = g_theWorld->GetCell(m_x, m_y)->UnitArmy();
+	CellUnitList *units = world_Get()->GetCell(m_x, m_y)->UnitArmy();
 
 	Assert(units && (units->Num() > 1));
 	if (units && (units->Num() > 1))
@@ -330,7 +330,7 @@ void NetCellUnitOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLSHORT(m_x);
 	PULLSHORT(m_y);
-	CellUnitList *units = g_theWorld->GetCell(m_x, m_y)->UnitArmy();
+	CellUnitList *units = world_Get()->GetCell(m_x, m_y)->UnitArmy();
 	Assert(units && (units->Num() > 1));
 	if (units && (units->Num() > 1))
 	{

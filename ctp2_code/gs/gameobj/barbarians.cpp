@@ -62,7 +62,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern Player **g_player;
-extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 
 struct BestUnit
@@ -222,8 +221,8 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 		{
 			if
 			  (
-			        g_theWorld->IsLand(neighbor)
-			    && !g_theWorld->IsCity(neighbor)
+			        world_Get()->IsLand(neighbor)
+			    && !world_Get()->IsCity(neighbor)
 			  )
 			{
 				count++;
@@ -375,8 +374,8 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 		{
 			if
 			  (
-			        g_theWorld->IsWater(neighbor)
-			    && !g_theWorld->IsCity(neighbor)
+			        world_Get()->IsWater(neighbor)
+			    && !world_Get()->IsCity(neighbor)
 			  )
 			{
 				count++;
@@ -512,8 +511,8 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 		tried[use] = TRUE;
 		triedCount++;
 		if(point.GetNeighborPosition((WORLD_DIRECTION)use, neighbor)) {
-			if(g_theWorld->IsLand(neighbor) &&
-			   !g_theWorld->IsCity(neighbor)) {
+			if(world_Get()->IsLand(neighbor) &&
+			   !world_Get()->IsCity(neighbor)) {
 				count++;
 				Unit u = g_player[PLAYER_INDEX_VANDALS]->CreateUnit(unitIndex,
 														   neighbor,
@@ -557,10 +556,10 @@ void Barbarians::BeginYear(sint32 currentRound)
 
 		// this is for standard attack units
 		for(tries = 0; tries < k_MAX_BARBARIAN_TRIES; tries++) {
-			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
-			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(world_Get()->GetXWidth()));
+			point.y = sint16(civrand().Next(world_Get()->GetYHeight()));
 
-			sint32 owner = g_theWorld->GetCell(point)->GetOwner();
+			sint32 owner = world_Get()->GetCell(point)->GetOwner();
 			if(owner > 0
 			&& g_player[owner]
 			&& wonderutil_GetProtectFromBarbarians(g_player[owner]->m_builtWonders)
@@ -568,7 +567,7 @@ void Barbarians::BeginYear(sint32 currentRound)
 				continue;
 			}
 
-			if(!g_theWorld->IsLand(point))
+			if(!world_Get()->IsLand(point))
 			{
 				continue;
 			}
@@ -591,10 +590,10 @@ void Barbarians::BeginYear(sint32 currentRound)
 		sint32 ptries;
 		for(ptries = 0; ptries < k_MAX_BARBARIAN_TRIES; ptries++)
 		{
-			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
-			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(world_Get()->GetXWidth()));
+			point.y = sint16(civrand().Next(world_Get()->GetYHeight()));
 
-			sint32 owner = g_theWorld->GetCell(point)->GetOwner();
+			sint32 owner = world_Get()->GetCell(point)->GetOwner();
 			if(owner > 0
 			&& g_player[owner]
 			&& wonderutil_GetProtectFromBarbarians(g_player[owner]->m_builtWonders)
@@ -602,7 +601,7 @@ void Barbarians::BeginYear(sint32 currentRound)
 				continue;
 			}
 
-			if (!g_theWorld->IsWater(point))
+			if (!world_Get()->IsWater(point))
 			{
 				continue;
 			}
@@ -623,10 +622,10 @@ void Barbarians::BeginYear(sint32 currentRound)
 	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetBarbarianSpecialForces())
 	  {
 		for(sftries = 0; sftries < k_MAX_BARBARIAN_TRIES; ptries++) {
-			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
-			point.y = sint16(civrand().Next(g_theWorld->GetYHeight()));
+			point.x = sint16(civrand().Next(world_Get()->GetXWidth()));
+			point.y = sint16(civrand().Next(world_Get()->GetYHeight()));
 
-			if (!g_theWorld->IsLand(point)) {
+			if (!world_Get()->IsLand(point)) {
 				continue;
 			}
 

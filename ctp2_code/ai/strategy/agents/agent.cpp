@@ -284,7 +284,7 @@ void Agent::Log_Debug_Info(const int & log, const Goal * const goal) const
 	            pos.y,
 	            (m_goal ? 1 : 0),
 	            ((goal == m_goal) ? 1 : 0),
-	            (g_theWorld->HasCity(pos) ? g_theWorld->GetCity(pos).GetName() : "field")
+	            (world_Get()->HasCity(pos) ? world_Get()->GetCity(pos).GetName() : "field")
 	           )
 	          );
 
@@ -318,7 +318,7 @@ bool Agent::FindPathToBoard(const uint32 & move_intersection, const MapPoint & d
 	if(move_points <= 0.0)
 		move_points = 1.0;
 	double trans_max_r = 100.0 / move_points;
-	sint32 cont = g_theWorld->GetContinent(dest_pos);
+	sint32 cont = world_Get()->GetContinent(dest_pos);
 
 	if (RobotAstar2::s_aiPathing.FindPath( RobotAstar2::PATH_TYPE_TRANSPORT,
 										   m_army,
@@ -365,7 +365,7 @@ bool Agent::FindPath(const Army & army, const MapPoint & target_pos, const bool 
 		return true;
 	}
 
-	sint32 cont = g_theWorld->GetContinent(target_pos);
+	sint32 cont = world_Get()->GetContinent(target_pos);
 
 	double trans_max_r = 0.8;
 	bool tmp_check_dest = check_dest;
@@ -440,8 +440,8 @@ double Agent::GetRoundsPrecise(const MapPoint & pos, sint32 & cells) const
 	{
 		///Improvement of rounds evaluation (based on minimum cost point between
 		///start and destination mappoints. - Calvitix
-		Cell *          myCell      = g_theWorld->GetCell(pos);
-		Cell *          otherCell   = g_theWorld->GetCell(Get_Pos());
+		Cell *          myCell      = world_Get()->GetCell(pos);
+		Cell *          otherCell   = world_Get()->GetCell(Get_Pos());
 		double const    movement    = 100.0;
 		// This does not do the trick, better avaerage
 		// over all tiles from pos to target, unfortunately this
@@ -473,12 +473,12 @@ bool Agent::CanReachTargetContinent(const MapPoint & pos) const
 	bool   origin_is_land;
 	bool   target_is_land;
 
-	g_theWorld->GetContinent( Get_Pos(), my_continent, origin_is_land );
-	g_theWorld->GetContinent( pos, target_cont, target_is_land );
+	world_Get()->GetContinent( Get_Pos(), my_continent, origin_is_land );
+	world_Get()->GetContinent( pos, target_cont, target_is_land );
 
 	if(origin_is_land && target_is_land)
 	{
-		return g_theWorld->LandShareWater(my_continent, target_cont);
+		return world_Get()->LandShareWater(my_continent, target_cont);
 	}
 	else if(!origin_is_land && !target_is_land)
 	{
@@ -486,11 +486,11 @@ bool Agent::CanReachTargetContinent(const MapPoint & pos) const
 	}
 	else if(origin_is_land && !target_is_land)
 	{
-		return g_theWorld->IsLandNextTooWater(my_continent, target_cont);
+		return world_Get()->IsLandNextTooWater(my_continent, target_cont);
 	}
 	else // if(!origin_is_land && target_is_land) // Last possibility
 	{
-		return g_theWorld->IsLandNextTooWater(target_cont, my_continent);
+		return world_Get()->IsLandNextTooWater(target_cont, my_continent);
 	}
 }
 
@@ -511,17 +511,17 @@ bool Agent::EstimateTransportUtility(const Agent_ptr transport, Utility & utilit
 		sint16 trans_cont;
 		sint16 my_continent;
 
-		g_theWorld->GetContinent( Get_Pos(), my_continent, is_land );
-		g_theWorld->GetContinent( trans_pos, trans_cont, is_land );
+		world_Get()->GetContinent( Get_Pos(), my_continent, is_land );
+		world_Get()->GetContinent( trans_pos, trans_cont, is_land );
 
 		if ( is_land )
 		{
-			if (!g_theWorld->LandShareWater( trans_cont, my_continent ))
+			if (!world_Get()->LandShareWater( trans_cont, my_continent ))
 				return false;
 		}
 		else
 		{
-			if (!g_theWorld->IsLandNextTooWater(my_continent, trans_cont))
+			if (!world_Get()->IsLandNextTooWater(my_continent, trans_cont))
 				return false;
 		}
 	}
@@ -752,7 +752,7 @@ void Agent::UnloadCargo()
 	m_army->GetPos(pos);
 	sint32 cargoNum = m_army->GetCargoNum();
 
-	if(cargoNum + g_theWorld->GetCell(pos)->GetNumUnits() > k_MAX_ARMY_SIZE)
+	if(cargoNum + world_Get()->GetCell(pos)->GetNumUnits() > k_MAX_ARMY_SIZE)
 	{
 		for(
 		    WORLD_DIRECTION d = NORTH;
@@ -764,7 +764,7 @@ void Agent::UnloadCargo()
 			  (
 			       pos.GetNeighborPosition(d, pos2)
 			    && m_army->CargoCanEnter(pos2)
-			    && cargoNum + g_theWorld->GetCell(pos2)->GetNumUnits() <= k_MAX_ARMY_SIZE
+			    && cargoNum + world_Get()->GetCell(pos2)->GetNumUnits() <= k_MAX_ARMY_SIZE
 			  )
 			{
 				pos = pos2;
@@ -825,7 +825,7 @@ sint32 Agent::DisbandObsoleteUnits()
 	if ( (power > 0) && ((threat/(double)power) > 1.0))
 		return 0;
 
-	Unit        city_unit   = g_theWorld->GetCity(pos);
+	Unit        city_unit   = world_Get()->GetCity(pos);
 
 	if (city_unit.m_id == 0)
 	{
@@ -865,7 +865,7 @@ sint32 Agent::DisbandObsoleteUnits()
 	Assert(city);
 
 	CellUnitList city_units;
-	g_theWorld->GetArmy(pos, city_units);
+	world_Get()->GetArmy(pos, city_units);
 	sint32 remaining_defenders = city_units.Num() - unit_count;
 
 	if (remaining_defenders < city->GetNeededGarrison())

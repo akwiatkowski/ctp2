@@ -276,7 +276,7 @@ struct HeavyCityDataFixture
             g_theProfileDB = new ProfileDB();
             g_theProfileDB->Init(FALSE);
 
-            g_theGameSettings = new GameSettings();
+            gamesettings_Set(new GameSettings());
             civilisationpool_Set(new CivilisationPool());
 
             s_app = new CivApp();

@@ -402,7 +402,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 
 	PROGRESS( 110 );
 
-	g_theGameSettings->Serialize(archive);
+	gamesettings_Get()->Serialize(archive);
 
 	PROGRESS( 120 );
 

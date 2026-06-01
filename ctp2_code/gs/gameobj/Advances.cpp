@@ -478,7 +478,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 			uint8 canResearch = TRUE;
 			BOOL  justEnabled = FALSE;
 
-			if((g_network.IsActive() && rec->GetAgeIndex() > g_theGameSettings->GetEndingAge())
+			if((g_network.IsActive() && rec->GetAgeIndex() > gamesettings_Get()->GetEndingAge())
 				|| (!g_network.IsActive() && g_theProfileDB->GetSPEndingAge() >= 0
 			    && rec->GetAgeIndex() > g_theProfileDB->GetSPEndingAge()))
 			{
@@ -962,7 +962,7 @@ sint32 Advances::GetCost(const AdvanceType adv) const
 
 	double techCostKnownMod = 0.0;
 
-	if (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->
+	if (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->
 		GetTechCostKnownDeduction(techCostKnownMod))
 	{
 		double knownToCivs = 0.0;
@@ -1010,12 +1010,12 @@ sint32 Advances::GetCost(const AdvanceType adv) const
 		sint32 age = 0;
 
 		cost = static_cast<sint32>(ceil(static_cast<double>(cost) *
-			diffutil_GetAiTechnologyCost(g_theGameSettings->GetDifficulty(), m_owner, age)));
+			diffutil_GetAiTechnologyCost(gamesettings_Get()->GetDifficulty(), m_owner, age)));
 	}
 	else
 	{
 		cost += static_cast<sint32>(ceil(static_cast<double>(cost) *
-			g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetHumanScienceBonus()));
+			g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetHumanScienceBonus()));
 	}
 
 	return cost;

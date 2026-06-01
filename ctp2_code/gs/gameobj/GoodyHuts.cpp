@@ -289,7 +289,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 		return GOODY_BOGUS;
 	}
 
-	GoodyRiskData   risk    = GoodyRiskData(g_theGameSettings, g_theRiskDB);
+	GoodyRiskData   risk    = GoodyRiskData(gamesettings_Get(), g_theRiskDB);
 	GOODY           result  = risk.Select(m_typeValue);
 
 	switch (result)

@@ -1649,7 +1649,7 @@ void CityData::StopTradingWith(PLAYER_INDEX bannedRecipient)
 //----------------------------------------------------------------------------
 void CityData::CalcPollution(void)
 {
-	if (!g_theGameSettings->GetPollution())
+	if (!gamesettings_Get()->GetPollution())
 	{
 		m_cityPopulationPollution   = 0;
 		m_cityIndustrialPollution   = 0;
@@ -1658,7 +1658,7 @@ void CityData::CalcPollution(void)
 	}
 
 	sint32 populationPolluting = PopCount() -
-		g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetPollutionStartPopulationLevel();
+		g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetPollutionStartPopulationLevel();
 
 	if (populationPolluting <= 0)
 	{
@@ -1667,13 +1667,13 @@ void CityData::CalcPollution(void)
 	else
 	{
 		populationPolluting = (sint32)(populationPolluting *
-			g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetPollutionPopulationRatio());
+			g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetPollutionPopulationRatio());
 
 		populationPolluting = (sint32)(populationPolluting * g_player[m_owner]->GetPollutionCoef());
 	}
 
 	sint32 productionPolluting = m_gross_production -
-		g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetPollutionStartProductionLevel();
+		g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetPollutionStartProductionLevel();
 	if (productionPolluting <= 0)
 	{
 		productionPolluting = 0;
@@ -1681,7 +1681,7 @@ void CityData::CalcPollution(void)
 	else
 	{
 		productionPolluting = (sint32)(productionPolluting *
-			g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetPollutionProductionRatio());
+			g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetPollutionProductionRatio());
 
 		productionPolluting = (sint32)(productionPolluting * g_player[m_owner]->GetPollutionCoef());
 	}
@@ -1755,7 +1755,7 @@ void CityData::CalcPollution(void)
 //----------------------------------------------------------------------------
 void CityData::DoLocalPollution()
 {
-	if(!g_theGameSettings->GetPollution())
+	if(!gamesettings_Get()->GetPollution())
 		return;
 
 	if(m_total_pollution < g_theConstDB->Get(0)->GetLocalPollutionLevel())
@@ -4216,7 +4216,7 @@ sint32 CityData::GetSupportCityCost() const
 {
 	sint32 goldPerCity = 0;
 
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetGoldPerCity(goldPerCity))
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetGoldPerCity(goldPerCity))
 	{
 		return goldPerCity * PopCount();
 	}
@@ -5261,7 +5261,7 @@ void CityData::NewGovernment(sint32 government_type)
 double CityData::GetDefendersBonus() const
 {
 	// EMOD add population as a contributor to defense for AI, to make larger cities even tougher. It takes total population * defense coefficient * percentage of people that are happy (and most likely to resist)
-	if((g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAICityDefenderBonus()
+	if((g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAICityDefenderBonus()
 	||  g_theProfileDB->IsAICityDefenderBonus())
 	&& g_player[m_owner]->IsRobot()
 	){
@@ -8340,7 +8340,7 @@ void CityData::FindBestSpecialists()
 
 		if(!g_player[m_owner]->HasAdvance(rec->GetEnableAdvanceIndex()))
 			continue;
-//		if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetSpecialistCap() {
+//		if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetSpecialistCap() {
 ////////////////////////SCIENTISTS
 //			sint32 EnabledScientists = buildingutil_GetEnablesScientists(GetEffectiveBuildings());
 //			scientists += EnabledScientists;
@@ -9069,7 +9069,7 @@ void CityData::ProcessGold(sint32 &gold, bool considerOnlyFromTerrain) const
 	//EMOD to assist AI
 	if(gold < 0)
 	{
-		if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetNoAIGoldDeficit()
+		if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetNoAIGoldDeficit()
 			&& g_player[m_owner]->IsRobot())
 		{
 			gold = 0;
@@ -10399,7 +10399,7 @@ bool CityData::IsBuildingOperational(sint32 type) const
 sint32 CityData::SectarianHappiness() const
 {
 	if(
-	  (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetSectarianHappiness())
+	  (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetSectarianHappiness())
 	||(g_theProfileDB->IsSectarianHappiness())
 	) {
 		ProcessSectarianHappiness(m_secthappy, m_owner, m_cityStyle);
@@ -10716,9 +10716,9 @@ void CityData::InsurgentSpawn()
 	MapPoint cpos = m_home_city.RetPos();
 
 	//EMOD diffDB so sometimes your city when it riots creates barbs 10-25-2006
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetRevoltInsurgents()
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetRevoltInsurgents()
 	|| g_theProfileDB->IsRevoltInsurgents()
 	){
 		double barbchance   = risk->GetBarbarianChance();
@@ -10759,7 +10759,7 @@ void CityData::RiotCasualties()
 	//EMOD diffDB so sometimes your city when it riots creates barbs 10-25-2006
 	//EMOD to cut population after a revolt (adds realism and minimizes repeat revolts/ feral cities)
 	if(
-	   (      g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetRevoltCasualties()
+	   (      g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetRevoltCasualties()
 	      ||  g_theProfileDB->IsRevoltCasualties()
 	   )
 	   &&     PopCount() >= 10
@@ -10846,7 +10846,7 @@ void CityData::Militia()
 		sint32 cheapUnit = g_player[m_owner]->GetCheapestMilitaryUnit();
 
 		// If DiffDB AI gets a free unit when city ungarrisoned then give cheapest unit
-		if((g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAIMilitiaUnit()
+		if((g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAIMilitiaUnit()
 		|| 	g_theProfileDB->IsAIMilitiaUnit())
 		&& g_player[m_owner]->IsRobot()
 		){

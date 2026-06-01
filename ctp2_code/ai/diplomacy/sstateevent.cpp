@@ -886,7 +886,7 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 //----------------------------------------------------------------------------
 STDEHANDLER(CheckCityLimit_NextSStateEvent)
 {
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoCityLimit()
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoCityLimit()
 		|| g_theProfileDB->IsNoCityLimit())
 		return GEV_HD_Continue;
 

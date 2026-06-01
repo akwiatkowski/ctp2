@@ -431,8 +431,8 @@ STDEHANDLER(MakePopEvent)
 		origPlayer = -1;
 
 // EMOD to ADD City population caps
-//	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetCityPopCap() {
-//	sint32 PopCap = g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetCityPopCap()
+//	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetCityPopCap() {
+//	sint32 PopCap = g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetCityPopCap()
 //	sint32 PopCapIncrease = buildingutil_GetIncreasesPopCap(city.CD->GetEffectiveBuildings());
 //			PopCap += PopCapIncrease;
 //		if cd.Popcount() < PopCap {

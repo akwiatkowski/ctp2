@@ -185,7 +185,7 @@ double MilitaryReadiness::GetSupportCost(const Unit &u)
 
 	unitCost *= g_theGovernmentDB->Get(g_player[m_owner]->m_government_type)->GetSupportCoef();
 //EMOD for AI
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoShieldHunger()
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoShieldHunger()
 		&& g_player[m_owner]->IsRobot())
 	{
 			unitCost -= unitCost;
@@ -221,7 +221,7 @@ sint32 MilitaryReadiness::GetSupportCostGold(const Unit &u)
 	}
 
 	//EMOD for AI
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoGoldHunger()
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoGoldHunger()
 		&& g_player[m_owner]->IsRobot())
 	{
 		unitCostGold -= unitCostGold;
@@ -324,7 +324,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 		return;
 
 //EMOD AI can run deficit? but cant build production?
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetNoAIProductionDeficit()
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetNoAIProductionDeficit()
 		&& g_player[m_owner]->IsRobot())
 		return;
 

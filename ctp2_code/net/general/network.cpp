@@ -2409,23 +2409,23 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 	if(str[0] == '/') {
 		if(stricmp(str, "/rules") == 0) {
 			char buf[1024];
-			sprintf(buf, "Difficulty: %d", g_theGameSettings->GetDifficulty());
+			sprintf(buf, "Difficulty: %d", gamesettings_Get()->GetDifficulty());
 			g_chatBox->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Risk: %d", g_theGameSettings->GetRisk());
+			sprintf(buf, "Risk: %d", gamesettings_Get()->GetRisk());
 			g_chatBox->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Pollution: %s", g_theGameSettings->GetPollution() ? "On" : "Off");
+			sprintf(buf, "Pollution: %s", gamesettings_Get()->GetPollution() ? "On" : "Off");
 			g_chatBox->AddLine(m_playerIndex, buf);
 
-			sprintf(buf, "Bloodlust: %s", g_theGameSettings->GetAlienEndGame() ? "Off" : "On");
+			sprintf(buf, "Bloodlust: %s", gamesettings_Get()->GetAlienEndGame() ? "Off" : "On");
 			g_chatBox->AddLine(m_playerIndex, buf);
 
-			if(g_theGameSettings->GetStartingAge() > 0 || g_theGameSettings->GetEndingAge() < g_theAgeDB->NumRecords()) {
-				sprintf(buf, "Starting Age: %d", g_theGameSettings->GetStartingAge());
+			if(gamesettings_Get()->GetStartingAge() > 0 || gamesettings_Get()->GetEndingAge() < g_theAgeDB->NumRecords()) {
+				sprintf(buf, "Starting Age: %d", gamesettings_Get()->GetStartingAge());
 				g_chatBox->AddLine(m_playerIndex, buf);
 
-				sprintf(buf, "Ending Age: %d", g_theGameSettings->GetEndingAge());
+				sprintf(buf, "Ending Age: %d", gamesettings_Get()->GetEndingAge());
 				g_chatBox->AddLine(m_playerIndex, buf);
 			}
 

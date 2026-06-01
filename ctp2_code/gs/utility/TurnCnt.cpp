@@ -123,7 +123,7 @@ void TurnCount::Init()
 	m_round = 0;
 	m_simultaneousMode = FALSE;
 	m_activePlayers = g_theProfileDB->GetNPlayers();
-	m_year = diffutil_GetYearFromTurn(g_theGameSettings->GetDifficulty(), m_round);
+	m_year = diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
 	m_lastBeginTurn = -1;
 	m_isHotSeat = FALSE;
 	m_isEmail = FALSE;
@@ -142,7 +142,7 @@ void TurnCount::Init(CivArchive &archive)
 void TurnCount::SkipToRound(sint32 round)
 {
 	m_round = round;
-	m_year = diffutil_GetYearFromTurn(g_theGameSettings->GetDifficulty(), m_round);
+	m_year = diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
 }
 
 void TurnCount::Serialize(CivArchive &archive)
@@ -337,7 +337,7 @@ void TurnCount::BeginNewRound()
 
 	ChooseHappinessPlayer();
 
-	m_year += diffutil_GetYearIncrementFromTurn(g_theGameSettings->GetDifficulty(), m_round);
+	m_year += diffutil_GetYearIncrementFromTurn(gamesettings_Get()->GetDifficulty(), m_round);
 
 	RunNewYearMessages() ;
 	if(g_network.IsHost()) {
@@ -827,7 +827,7 @@ void TurnCount::RunNewYearMessages(void)
 				}
 			}
 		} else {
-			g_theGameSettings->SetKeepScore(FALSE);
+			gamesettings_Get()->SetKeepScore(FALSE);
 		}
 	}
 }

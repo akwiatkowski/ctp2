@@ -417,8 +417,8 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	if(!treatAsRobot) {
 		m_gold->SetLevel(m_difficulty->GetStartingGold());
 	} else {
-		m_gold->SetLevel(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAIStartGold());
-		m_materialPool->SetLevel(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAIStartPublicWorks());
+		m_gold->SetLevel(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAIStartGold());
+		m_materialPool->SetLevel(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAIStartPublicWorks());
 	}
 
 	m_is_turn_over = FALSE;
@@ -2142,7 +2142,7 @@ sint32 Player::CalcWonderGold()
 	/* This is now retrieved from CityData::GetSupportCityCost,
 	which is used in CityData::SupportBuildings.-Maq
 	sint32 goldPerCity;
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetGoldPerCity(goldPerCity)
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetGoldPerCity(goldPerCity)
 	&& IsHuman()
 	){
 		totalWonderGold += goldPerCity * m_all_cities->Num()
@@ -2182,7 +2182,7 @@ sint32 Player::CalcUnitSupportGold()
 	 Multiplying by wages is currently too much, and while gold is deducted
 	 from savings it makes no sense to the player to multiply by wages.
 	sint32 goldPerUnitSupport;
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetGoldPerUnitSupport(goldPerUnitSupport)
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetGoldPerUnitSupport(goldPerUnitSupport)
 	&& IsHuman()
 	){
 	totalWonderGold += goldPerUnitSupport * m_readiness->TotalUnitGoldSupport() * GetWagesPerPerson()
@@ -2194,7 +2194,7 @@ sint32 Player::CalcUnitSupportGold()
 
 	// diffDB.txt entry, can define exact modifier to unit gold support.
 	// If it exists, this method takes precedence above the userprofile/rules window choice.
-	if (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetGoldPerUnitSupport(goldPerUnitSupport))
+	if (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetGoldPerUnitSupport(goldPerUnitSupport))
 	{
 		if (IsHuman())
 		{
@@ -2203,7 +2203,7 @@ sint32 Player::CalcUnitSupportGold()
 		}
 		else
 		{
-			if (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoGoldHunger())
+			if (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoGoldHunger())
 			{
 				// do nothing.
 			}
@@ -2226,7 +2226,7 @@ sint32 Player::CalcUnitSupportGold()
 		}
 		else
 		{
-			if (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoGoldHunger())
+			if (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoGoldHunger())
 			{
 				// do nothing.
 			}
@@ -2567,7 +2567,7 @@ void Player::EndTurnPollution(void)
 	for(i = 0; i < m_all_cities->Num(); i++)
 	{
 		city = m_all_cities->Access(i);
-		if(g_theGameSettings->GetPollution())
+		if(gamesettings_Get()->GetPollution())
 		{
 			m_pollution_history[0] += city.GetPollution();
 		}
@@ -5389,13 +5389,13 @@ bool Player::GetArmyIndex(const Unit &u, sint32 &idx)
 
 void Player::AdjustPollution(const sint32 amount)
 {
-	if (g_theGameSettings->GetPollution())
+	if (gamesettings_Get()->GetPollution())
 		m_pollution_history[0] += amount;
 }
 
 void Player::AdjustEventPollution(const sint32 amount)
 {
-	if (g_theGameSettings->GetPollution())
+	if (gamesettings_Get()->GetPollution())
 		m_event_pollution[0] += amount ;
 }
 
@@ -9166,7 +9166,7 @@ void Player::SetPlayerType(PLAYER_TYPE pt)
 
 bool Player::HasFreeUnitUpgrades() const
 {
-	return (g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAIFreeUpgrade()
+	return (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAIFreeUpgrade()
 	        && IsRobot());
 //	    || HasFreeUpgradeWonder like Civ2's Leonardo's workshop
 //	    || FreeUpgradeFeat

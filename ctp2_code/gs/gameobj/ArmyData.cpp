@@ -11269,7 +11269,7 @@ bool ArmyData::UpgradeTypeAndCosts(bool & full, sint32 & costs, sint32 & fullCos
 
 void ArmyData::CheckHostileTerrain()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	Cell *cell = g_theWorld->GetCell(m_pos);
 	sint32 cellowner = cell->GetOwner();
 	// EMOD: If Hostileterrain and not fort than deduct HP from the unit
@@ -11306,7 +11306,7 @@ void ArmyData::CheckHostileTerrain()
 
 void ArmyData::CheckMineField()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	Cell *cell = g_theWorld->GetCell(m_pos);
 	sint32 CellOwner = cell->GetOwner();
 		//EMOD If tile has tileimp that is a minefield then deduct HP
@@ -11339,7 +11339,7 @@ bool ArmyData::CheckSink()
 	sint32 chance = g_theConstDB->Get(0)->GetChanceLostAtSea();
 	if( chance > 0
 	&&(!g_player[m_owner]->IsRobot()
-	|| !g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoSinking())
+	|| !g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoSinking())
 	){
 		for(sint32 i = 0; i < m_nElements; i++)
 		{
@@ -11354,7 +11354,7 @@ bool ArmyData::CheckSink()
 
 void ArmyData::BarbarianSpawning()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 i;
 	//const MapAnalysis & map = MapAnalysis::GetMapAnalysis();
 	//MapPoint epos = map.GetNearestForeigner(PLAYER_INDEX_VANDALS, m_pos);
@@ -11364,12 +11364,12 @@ void ArmyData::BarbarianSpawning()
 
 	// EMOD Barbarian Camps
 	// This should be risk level depending  //EMOD added Risk 10-05-2006
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetNumBarbarianCamps())
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetNumBarbarianCamps())
 	{
 		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
 			for(i = 0; i < m_nElements; i++) {
 //				Cell *cell = g_theWorld->GetCell(m_pos);
-				const DifficultyRecord *drec = g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty());
+				const DifficultyRecord *drec = g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty());
 				//sint32 j;
 				//sint32 newimp = drec->GetBarbarianCampsIndex(j);
 				if(m_array[i].IsEntrenched()
@@ -11385,7 +11385,7 @@ void ArmyData::BarbarianSpawning()
 	}
 
 	// This should be risk level depending //EMOD added Risk 10-25-2006
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetBarbarianCities())
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetBarbarianCities())
 	{
 		if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
 			for(i = 0; i < m_nElements; i++) {
@@ -11406,11 +11406,11 @@ void ArmyData::BarbarianSpawning()
 	// Barbarian leader spawn
 	// This should be risk level depending ADDED EMOD 10-05-2006
 	if(m_owner == PLAYER_INDEX_VANDALS) {
-		sint32 barbmax = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians();
+		sint32 barbmax = g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetMaxSpontaniousBarbarians();
 		sint32 barbhorde = g_player[PLAYER_INDEX_VANDALS]->m_all_units->Num();
 
 		if(
-			(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetBarbarianSpawnsBarbarian())
+			(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetBarbarianSpawnsBarbarian())
 		||  (g_theProfileDB->IsBarbarianSpawnsBarbarian())
 		){
 

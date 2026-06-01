@@ -70,10 +70,10 @@ void NetGameSettings::Packetize(uint8 *buf, uint16 &size)
 	}
 	PUSHLONG(playerMask);
 
-	PUSHLONG(g_theGameSettings->m_difficulty);
-	PUSHLONG(g_theGameSettings->m_risk);
-	PUSHLONG(g_theGameSettings->m_alienEndGame);
-	PUSHLONG(g_theGameSettings->m_pollution);
+	PUSHLONG(gamesettings_Get()->m_difficulty);
+	PUSHLONG(gamesettings_Get()->m_risk);
+	PUSHLONG(gamesettings_Get()->m_alienEndGame);
+	PUSHLONG(gamesettings_Get()->m_pollution);
 
 	PUSHLONG(g_theWorld->m_isYwrap);
 	PUSHLONG(g_theWorld->m_isXwrap);
@@ -98,10 +98,10 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(m_cityTime);
 	PULLLONG(playerMask);
 
-	PULLLONG(g_theGameSettings->m_difficulty);
-	PULLLONG(g_theGameSettings->m_risk);
-	PULLLONG(g_theGameSettings->m_alienEndGame);
-	PULLLONG(g_theGameSettings->m_pollution);
+	PULLLONG(gamesettings_Get()->m_difficulty);
+	PULLLONG(gamesettings_Get()->m_risk);
+	PULLLONG(gamesettings_Get()->m_alienEndGame);
+	PULLLONG(gamesettings_Get()->m_pollution);
 
 	BOOL isYwrap, isXwrap;
 	PULLLONG(isYwrap);

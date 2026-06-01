@@ -130,7 +130,7 @@
 #include <sstream>
 
 extern TurnCount             *g_turn;
-extern GameSettings          *g_theGameSettings;
+#include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern Pollution             *g_thePollution;
 extern TopTen                *g_theTopTen;
 extern PointerList<Player>   *g_deadPlayer;
@@ -4610,7 +4610,7 @@ bool SaveJson(char const *path)
     // --- Core singletons (mirror civrand / settings / world / turn
     // order in GameFile::Save:357-388) --------------------------------
     if (g_rand)              doc["rng"]                       = *g_rand;
-    if (g_theGameSettings)   doc["settings"]                  = *g_theGameSettings;
+    if (GameSettings *gs = gamesettings_Get()) doc["settings"] = *gs;
     if (g_theWorld)          doc["world"]                     = *g_theWorld;
     if (g_turn)              doc["turn"]                      = *g_turn;
 
@@ -4749,7 +4749,7 @@ bool LoadJson(char const *path)
     {
         // Core singletons
         if (doc.contains("rng")      && g_rand)             doc.at("rng")     .get_to(*g_rand);
-        if (doc.contains("settings") && g_theGameSettings)  doc.at("settings").get_to(*g_theGameSettings);
+        if (GameSettings *gs = gamesettings_Get(); doc.contains("settings") && gs) doc.at("settings").get_to(*gs);
         if (doc.contains("world")    && g_theWorld)         doc.at("world")   .get_to(*g_theWorld);
         if (doc.contains("turn")     && g_turn)             doc.at("turn")    .get_to(*g_turn);
         // Selection is currently informational — no public setter for

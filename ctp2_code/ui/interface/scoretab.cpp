@@ -97,7 +97,7 @@ void ScoreTab::Update(void)
 	Score *     score       = pl->m_score;
 	MBCHAR      commaNumber[80];
 
-	m_difficulty->SetText(m_difficultyStrings->GetString(g_theGameSettings->GetDifficulty()));
+	m_difficulty->SetText(m_difficultyStrings->GetString(gamesettings_Get()->GetDifficulty()));
 
 	for (int i = 0; i < SCORE_CAT_MAX; i++)
 	{

@@ -1119,7 +1119,7 @@ void BuildQueue::RawInsertTail(sint32 cat, sint32 t, sint32 cost)
 			!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
 			sint32 age = 0;
 			cost = static_cast<sint32>(static_cast<double>(cost) *
-				diffutil_GetAiProductionCostAdjustment(g_theGameSettings->GetDifficulty(), o, age));
+				diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
 		}
 	}
 
@@ -1147,7 +1147,7 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 			!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
 			sint32 age = 0;
 			cost = static_cast<sint32>(static_cast<double>(cost) *
-				diffutil_GetAiProductionCostAdjustment(g_theGameSettings->GetDifficulty(), o, age));
+				diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
 		}
 		oldHead->m_cost     = cost;
 

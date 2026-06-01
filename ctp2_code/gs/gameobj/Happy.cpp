@@ -234,7 +234,7 @@ double Happy::CalcTooManyCities(Player *p)
 
 	double res;
 	if (num_cities <= t
-		|| g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetAINoCityLimit() && p->IsRobot()
+		|| g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoCityLimit() && p->IsRobot()
 		|| g_theProfileDB->IsNoCityLimit())
 	{
 		res = 0.0;

@@ -697,7 +697,7 @@ STDEHANDLER(CtpAi_ProcessMatchesEvent)
 
 	cycle++;
 	sint32 diff_cycles = 0;
-	if (g_theGameSettings->GetDifficulty() == (g_theDifficultyDB->NumRecords() - 1))
+	if (gamesettings_Get()->GetDifficulty() == (g_theDifficultyDB->NumRecords() - 1))
 		diff_cycles = 2;
 
 	Player *    player_ptr  = g_player[playerId];

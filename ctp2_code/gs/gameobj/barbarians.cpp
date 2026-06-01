@@ -102,7 +102,7 @@ bool SomeoneCanHave(const UnitRecord *rec)
 
 sint32 Barbarians::ChooseUnitType()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
 	BestUnit *best = new BestUnit[num_best_units];
 	sint32 i, j, k;
@@ -191,13 +191,13 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 	sint32 maxBarbarians;
 	if(fromGoodyHut)
 	{
-		sint32 maxHut = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians();
+		sint32 maxHut = g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetHutMaxBarbarians();
 		if (maxHut < 1) maxHut = 1;
 		maxBarbarians = civrand().Next(maxHut - 1) + 1;
 	}
 	else
 	{
-		sint32 maxSpont = g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians();
+		sint32 maxSpont = g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetMaxSpontaniousBarbarians();
 		if (maxSpont < 1) maxSpont = 1;
 		maxBarbarians = civrand().Next(maxSpont - 1) + 1;
 	}
@@ -251,7 +251,7 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 
 sint32 Barbarians::ChooseSeaUnitType()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
 	BestUnit *best = new BestUnit[num_best_units];
 	sint32 i, j, k;
@@ -348,11 +348,11 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 	sint32 maxBarbarians;
 	if(fromGoodyHut)
 	{
-		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
 	}
 	else
 	{
-		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
 	}
 
 	sint32 count = 0;
@@ -401,7 +401,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 
 /*sint32 Barbarians::ChooseInsurgentUnitType()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
 	BestUnit *best = new BestUnit[num_best_units];
 	sint32 i, j, k;
@@ -477,8 +477,8 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
 		return FALSE;
 
-	if(g_turn->GetRound() < g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetBarbarianFirstTurn() ||
-	   g_turn->GetRound() >= g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetBarbarianLastTurn()) {
+	if(g_turn->GetRound() < g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianFirstTurn() ||
+	   g_turn->GetRound() >= g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianLastTurn()) {
 		return FALSE;
 	}
 
@@ -493,9 +493,9 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 
 	sint32 maxBarbarians;
 	if(fromGoodyHut) {
-		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetHutMaxBarbarians() - 1) + 1;
 	} else {
-		maxBarbarians = civrand().Next(g_theRiskDB->Get(g_theGameSettings->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
+		maxBarbarians = civrand().Next(g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetMaxSpontaniousBarbarians() - 1) + 1;
 	}
 
 	sint32 count = 0;
@@ -541,7 +541,7 @@ void Barbarians::BeginYear()
 	if(!InBarbarianPeriod())
 		return;
 
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 
 	if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000)
 	{
@@ -622,7 +622,7 @@ void Barbarians::BeginYear()
 		}
 /*  EMOD Barbarian Special Forces code
 		sint32 sftries;
-	if(g_theDifficultyDB->Get(g_theGameSettings->GetDifficulty())->GetBarbarianSpecialForces())
+	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetBarbarianSpecialForces())
 	  {
 		for(sftries = 0; sftries < k_MAX_BARBARIAN_TRIES; ptries++) {
 			point.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
@@ -665,7 +665,7 @@ sint32 Barbarians::IsVisibleToAnyone(MapPoint point)
 
 bool Barbarians::InBarbarianPeriod()
 {
-	const RiskRecord *risk = g_theRiskDB->Get(g_theGameSettings->GetRisk());
+	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 
 	return g_turn->GetRound() >= risk->GetBarbarianFirstTurn() // First turn is included.
 	    && g_turn->GetRound() <= risk->GetBarbarianLastTurn(); // Last turn is included, too.

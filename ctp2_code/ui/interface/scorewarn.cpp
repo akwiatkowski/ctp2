@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ void scorewarn_AcceptWarningCallback( aui_Control *control, uint32 action, uint3
 
 		ScenarioEditor::Display();
 
-		g_theGameSettings->SetKeepScore( FALSE );
+		gamesettings_Get()->SetKeepScore( FALSE );
 	}
 }
 
@@ -92,7 +92,7 @@ void scorewarn_CancelButtonActionCallback( aui_Control *control, uint32 action, 
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	g_theGameSettings->SetKeepScore( TRUE );
+	gamesettings_Get()->SetKeepScore( TRUE );
 }
 
 sint32 scorewarn_Initialize( void )

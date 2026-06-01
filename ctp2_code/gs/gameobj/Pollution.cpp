@@ -150,7 +150,7 @@ void Pollution::WarnPlayers()
 
 sint32 Pollution::AtTriggerLevel(void)
 {
-	if(!g_theGameSettings->GetPollution())
+	if(!gamesettings_Get()->GetPollution())
 		return FALSE;
 
 	sint32 i;
@@ -271,7 +271,7 @@ void Pollution::SetGlobalPollutionLevel(sint32 requiredPollution)
 
 void Pollution::BeginTurn(void)
 {
-	if(!g_theGameSettings->GetPollution())
+	if(!gamesettings_Get()->GetPollution())
 		return;
 
 	if(GetRoundsToNextDisaster() < k_ROUNDS_BEFORE_DISASTER)

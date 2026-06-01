@@ -49,5 +49,8 @@ public:
 	void Serialize(CivArchive &archive);
 };
 
-extern GameSettings *g_theGameSettings;
+// Lifecycle in gs/utility/gameinit.cpp; backing static there.
+// test_citydata.cpp re-allocates the singleton via gamesettings_Set().
+GameSettings * gamesettings_Get(void);
+void           gamesettings_Set(GameSettings *p);
 #endif

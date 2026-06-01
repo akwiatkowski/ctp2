@@ -26,7 +26,7 @@
 //
 // - 7 modifications required to add a button
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - added citycapture options
 // - added show enemy health
 // - added show debug AI text
@@ -122,7 +122,8 @@ sint32 gameplayoptions_updateData()
 {
 	if ( !g_theProfileDB ) return -1;
 
-	sint32 diff = g_theGameSettings ? g_theGameSettings->GetDifficulty() : g_theProfileDB->GetDifficulty();
+	GameSettings *gs = gamesettings_Get();
+	sint32 diff = gs ? gs->GetDifficulty() : g_theProfileDB->GetDifficulty();
 
 	if(diff >= 2 || g_network.IsActive()) {
 		s_tutorialadvice->SetState(0);

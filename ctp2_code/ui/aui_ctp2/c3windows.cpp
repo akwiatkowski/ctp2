@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -110,7 +110,6 @@ extern RECT g_backgroundViewport;
 
 DebugWindow					*g_debugWindow;
 extern SelectedItem	*g_selected_item;
-extern GameSettings		*g_theGameSettings;
 
 
 
@@ -1239,7 +1238,7 @@ void CheatButtonActionCallback( aui_Control *control, uint32 action, uint32 data
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 
-	g_theGameSettings->SetKeepScore( FALSE );
+	gamesettings_Get()->SetKeepScore( FALSE );
 
 }
 

@@ -582,7 +582,7 @@ sint32 infowin_UpdateCivData( void )
 
 		sint32 turnFounded = unit->GetData()->GetCityData()->GetTurnFounded();
 
-		const char *yearStr = diffutil_GetYearStringFromTurn(g_theGameSettings->GetDifficulty(), turnFounded);
+		const char *yearStr = diffutil_GetYearStringFromTurn(gamesettings_Get()->GetDifficulty(), turnFounded);
 
 #if 0
 		sint32 yearFounded = diffutil_GetYearFromTurn(g_theProfileDB->GetDifficulty(), turnFounded);

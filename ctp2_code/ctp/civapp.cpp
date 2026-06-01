@@ -315,7 +315,6 @@ extern sint32               g_modalWindow;
 extern CivApp               *g_civApp;
 extern ChatBox              *g_chatBox;
 extern SlicEngine           *g_slicEngine;
-extern GameSettings         *g_theGameSettings;
 extern TutorialWin          *g_tutorialWin;
 extern SaveInfo *           g_savedGameRequest;
 
@@ -3413,12 +3412,12 @@ sint32 CivApp::Process(void)
 				g_director->CatchUp();
 
 			if (g_launchIntoCheatMode)
-				g_theGameSettings->SetKeepScore(TRUE);
+				gamesettings_Get()->SetKeepScore(TRUE);
 
     		GameFile::SaveGame(g_savedGameRequest->pathName, g_savedGameRequest);
 
 			if (g_launchIntoCheatMode)
-				g_theGameSettings->SetKeepScore(FALSE);
+				gamesettings_Get()->SetKeepScore(FALSE);
 
 			allocated::clear(g_savedGameRequest);
 		}

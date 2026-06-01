@@ -267,7 +267,7 @@ void EndGame::AdvanceStage()
 		g_player[m_owner]->GameOver(GAME_OVER_WON_WORMHOLE, -1);
 		m_currentStage = g_theEndGameDB->GetNumStages();
 		openScreen = false;
-		g_theGameSettings->SetAlienEndGameWon(m_owner);
+		gamesettings_Get()->SetAlienEndGameWon(m_owner);
 
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {

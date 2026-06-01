@@ -284,7 +284,7 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 
 	sint32 round = g_player[current_player]->GetCurRound();
 
-	return diffutil_GetYearFromTurn(g_theGameSettings->GetDifficulty(), round);
+	return diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), round);
 }
 
 sint32 NewTurnCount::GetCurrentRound()
@@ -352,7 +352,7 @@ void NewTurnCount::RunNewYearMessages(void)
 		}
 		else
 		{
-			g_theGameSettings->SetKeepScore(FALSE);
+			gamesettings_Get()->SetKeepScore(FALSE);
 		}
 	}
 }

@@ -2342,8 +2342,8 @@ void ScenarioEditor::NameTheScenarioCallback(MBCHAR *text, sint32 accepted, void
 
 		strcpy(s_scenarioEditor->m_scenarioName, text);
 
-		s_wasKeepingScore = g_theGameSettings->GetKeeppScore();
-		g_theGameSettings->SetKeepScore( TRUE );
+		s_wasKeepingScore = gamesettings_Get()->GetKeeppScore();
+		gamesettings_Get()->SetKeepScore( TRUE );
 
 		scenarioeditor_SetSaveOptionsFromMode();
 		g_isScenario = TRUE;

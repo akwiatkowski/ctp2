@@ -659,8 +659,8 @@ void ProfileDB::SetPollutionRule( BOOL rule )
 {
 	m_pollution = rule;
 
-	if ( g_theGameSettings ) {
-		g_theGameSettings->SetPollution( m_pollution );
+	if (GameSettings *gs = gamesettings_Get()) {
+		gs->SetPollution( m_pollution );
 	}
 }
 

@@ -156,6 +156,11 @@ extern sint32 g_abort_parse;
 extern sint32 g_oldRandSeed;
 extern sint32 g_cheat_age;
 
+static GameSettings         *g_theGameSettings = NULL;
+
+GameSettings * gamesettings_Get(void)             { return g_theGameSettings; }
+void           gamesettings_Set(GameSettings *p)  { g_theGameSettings = p; }
+
 StringDB                    *g_theStringDB=NULL;
 OzoneDatabase               *g_theUVDB=NULL;
 ThroneDB                    *g_theThroneDB = NULL;

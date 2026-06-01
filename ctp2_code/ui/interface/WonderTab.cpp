@@ -132,7 +132,7 @@ void WonderTab::AddWonderItem(sint32 wonder, sint32 player, sint32 turn)
 			st = (ctp2_Static *)box->GetChildByIndex(2);
 			Assert(st);
 			if(st) {
-				const char *year = diffutil_GetYearStringFromTurn(g_theGameSettings->GetDifficulty(), turn);
+				const char *year = diffutil_GetYearStringFromTurn(gamesettings_Get()->GetDifficulty(), turn);
 				if(year) {
 					st->SetText(year);
 				} else {

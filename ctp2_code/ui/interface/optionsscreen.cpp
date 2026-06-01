@@ -27,7 +27,7 @@
 // - When you close the options screen after opening it from the main menu
 //   it returns you to the main menu rather than to the SP menu
 //   (JJB)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -78,7 +78,6 @@
 
 extern C3UI					*g_c3ui;
 extern c3_PopupWindow		*g_scorewarn;
-extern GameSettings			*g_theGameSettings;
 
 extern Network				g_network;
 
@@ -328,7 +327,7 @@ void optionsscreen_AcceptWarningCallback(aui_Control *control, uint32 action, ui
 void optionsscreen_ConfirmScoreWarning(bool confirm, void *data)
 {
 	if(confirm) {
-		g_theGameSettings->SetKeepScore(FALSE);
+		gamesettings_Get()->SetKeepScore(FALSE);
 		disclaimer_Initialize(optionsscreen_AcceptWarningCallback);
 	}
 }

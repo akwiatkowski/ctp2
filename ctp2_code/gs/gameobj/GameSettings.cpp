@@ -41,7 +41,8 @@ extern sint32		g_difficultyToSetUponLaunch;
 extern BOOL			g_setBarbarianRiskUponLaunch;
 extern sint32		g_barbarianRiskUponLaunch;
 
-GameSettings *g_theGameSettings = NULL;
+// g_theGameSettings definition moved to gs/utility/gameinit.cpp (where
+// the lifecycle lives).  External callers go through gamesettings_Get().
 
 GameSettings::GameSettings()
 {

@@ -99,6 +99,8 @@
 
 #include "ctp/c3.h"
 #include "ctp/civapp.h"
+#include "gs/core/game.h"     // Ctp2::Game (owned by CivApp)
+#include "gs/gameobj/Diffcly.h"  // diffutil_GetYearFromTurn
 #include "ctp/ctp2_utils/civlog.h"
 #include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
 #include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
@@ -632,9 +634,14 @@ CivApp::CivApp()
     m_aiFinishedThisTurn    (true),
     m_inBackground          (false),
     m_isKeyboardScrolling   (false),
-    m_keyboardScrollingKey  (0)
+    m_keyboardScrollingKey  (0),
+    m_game                  (nullptr)
 {
 }
+
+// Out-of-line dtor — Ctp2::Game is forward-declared in civapp.h, so
+// the unique_ptr's deleter needs to see the full type here.
+CivApp::~CivApp() = default;
 
 void CivApp::InitializeAppUI(void)
 {
@@ -2030,6 +2037,17 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 690 );
 
+	// Allocate per-session Ctp2::Game container.  gameinit_Initialize
+	// has already created the legacy globals (g_turn, g_thePollution,
+	// g_theTopTen, etc.); the container's own NewGame() instantiates
+	// its TurnCount alongside.  During the long-running globals refactor
+	// they coexist; callers will migrate to game.GetTurn() incrementally.
+	m_game = std::make_unique<Ctp2::Game>();
+	m_game->NewGame(
+		g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
+	);
+
 	m_gameLoaded = TRUE;
 	//g_gevManager->Resume();
 	//g_gevManager->Process();
@@ -2344,6 +2362,13 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 780 );
 
+	// See comment at the matching site in InitializeGameHeadless.
+	m_game = std::make_unique<Ctp2::Game>();
+	m_game->NewGame(
+		g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
+	);
+
 	m_gameLoaded = TRUE;
 
 	g_director->CatchUp();
@@ -2489,6 +2514,15 @@ void CivApp::CleanupGameUI(void)
 
 void CivApp::CleanupGame(bool keepScenInfo)
 {
+	// Reset the Ctp2::Game container before the legacy gameinit cleanup
+	// runs.  Game::Cleanup() resets only the subsystems Game owns
+	// (TurnCount today); the legacy globals are torn down by
+	// gameinit_Cleanup() below.
+	if (m_game) {
+		m_game->Cleanup();
+		m_game.reset();
+	}
+
 	gameinit_CleanupMessages();
 	uint32 target_milliseconds = 100000;
 	uint32 used_milliseconds;
@@ -3467,6 +3501,13 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 		MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
 		g_tiledMap = new TiledMap(mapsize);
 	}
+
+	// See comment at the matching site in InitializeGameHeadless.
+	m_game = std::make_unique<Ctp2::Game>();
+	m_game->NewGame(
+		g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
+	);
 
 	m_gameLoaded = TRUE;
 

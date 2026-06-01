@@ -55,10 +55,13 @@ class CivApp;
 //
 //----------------------------------------------------------------------------
 
+#include <memory>                      // std::unique_ptr
+
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"     // aui_Action
 #include "os/include/ctp2_inttypes.h"  // sint32, uint32
 class CivArchive;
+namespace Ctp2 { class Game; }
 
 //----------------------------------------------------------------------------
 //
@@ -70,6 +73,17 @@ class CivApp
 {
 public:
 	CivApp();
+	~CivApp();
+
+	// Non-copyable, non-movable: there's only one CivApp per process,
+	// and it owns large session state via Ctp2::Game.
+	CivApp(const CivApp&)            = delete;
+	CivApp& operator=(const CivApp&) = delete;
+
+	// Access the per-session game container.  Returns nullptr before
+	// InitializeGame and after CleanupGame.
+	Ctp2::Game *       GetGame()       { return m_game.get(); }
+	const Ctp2::Game * GetGame() const { return m_game.get(); }
 
 	void		AutoSave(sint32 player, bool isQuickSave = false);
 	void		BeginKeyboardScrolling(sint32 key);
@@ -174,6 +188,11 @@ private:
 	bool		m_inBackground;
 	bool		m_isKeyboardScrolling;
 	sint32		m_keyboardScrollingKey;
+
+	// Session-state container.  Allocated by InitializeGame and reset
+	// by CleanupGame.  Holds TurnCount today; subsystems migrate in
+	// per the long-running globals refactor.
+	std::unique_ptr<Ctp2::Game>  m_game;
 };
 
 AUI_ACTION_BASIC(EndGameAction);

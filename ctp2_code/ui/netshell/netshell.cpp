@@ -59,7 +59,9 @@ NetShell *          g_netshell          = NULL;
 NETFunc *           g_netfunc           = NULL;
 nf_GameSetup        g_gamesetup;
 nf_PlayerSetup      g_playersetup;
-nf_PlayerSetup      g_rplayersetup;
+static nf_PlayerSetup g_rplayersetup;
+
+nf_PlayerSetup & rplayersetup_Get(void) { return g_rplayersetup; }
 
 
 AUI_ERRCODE NetShell::Enter( uint32 flags )

@@ -2039,10 +2039,10 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 					 NETFunc::Player *player = item->GetPlayer();
 					 PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
 						 FindWindow( NetShell::WINDOW_PLAYEREDIT );
-					 *(NETFunc::PlayerSetup *)&g_rplayersetup =
+					 *(NETFunc::PlayerSetup *)&rplayersetup_Get() =
 						 NETFunc::PlayerSetup(player);
-					 g_rplayersetup.Packet::Set(m->GetBodySize(), m->GetBody());
-					 p->SetPlayerSetup(&g_rplayersetup);
+					 rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
+					 p->SetPlayerSetup(&rplayersetup_Get());
 					 p->SetMode(p->VIEW);
 					 g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
 				 }
@@ -2498,10 +2498,10 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 					NETFunc::Player *player = item->GetPlayer();
 					PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
 						FindWindow( NetShell::WINDOW_PLAYEREDIT );
-					*(NETFunc::PlayerSetup *)&g_rplayersetup =
+					*(NETFunc::PlayerSetup *)&rplayersetup_Get() =
 						NETFunc::PlayerSetup(player);
-					g_rplayersetup.Packet::Set(m->GetBodySize(), m->GetBody());
-					p->SetPlayerSetup(&g_rplayersetup);
+					rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
+					p->SetPlayerSetup(&rplayersetup_Get());
 					p->SetMode(p->VIEW);
 					g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
 				}

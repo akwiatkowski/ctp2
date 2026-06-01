@@ -34,7 +34,11 @@ extern NETFunc	*g_netfunc;
 
 extern nf_GameSetup g_gamesetup;
 extern nf_PlayerSetup g_playersetup;
-extern nf_PlayerSetup g_rplayersetup;
+// Remote player setup buffer.  Definition is file-scope `static` in
+// netshell.cpp; callers (allinonewindow, lobbywindow) get a writable
+// reference via rplayersetup_Get() and use it for assignment / method
+// calls / address-of as before.
+nf_PlayerSetup & rplayersetup_Get(void);
 
 
 #define k_PACKET_DELAY 2000

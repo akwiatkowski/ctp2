@@ -56,6 +56,9 @@
 
 GameEventManager *g_gevManager = NULL;
 
+GameEventManager * gevmanager_Get(void)               { return g_gevManager; }
+void               gevmanager_Set(GameEventManager *p) { g_gevManager = p; }
+
 extern BOOL g_eventLog;
 
 #define EVENTLOGNAME "eventlog.txt"

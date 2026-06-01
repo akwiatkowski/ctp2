@@ -79,6 +79,12 @@ void gameEventManager_Cleanup();
 
 extern GameEventManager *   g_gevManager;
 
+// Session-singleton accessor pair, mirroring world_Get / unitpool_Get
+// / pollution_Get.  Callers should use gevmanager_Get() instead of
+// reaching for g_gevManager directly.
+GameEventManager * gevmanager_Get(void);
+void               gevmanager_Set(GameEventManager *p);
+
 //----------------------------------------------------------------------------
 // Class declarations
 //----------------------------------------------------------------------------

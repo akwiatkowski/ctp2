@@ -280,7 +280,7 @@ void TurnCount::EndThisTurn()
 	PLAYER_INDEX curPlayer = player_view::CurPlayer();
 
 #ifdef _DEBUG
-	if (g_theDiplomacyLog) g_theDiplomacyLog->EndTurn();
+	if (g_theDiplomacyLog) g_theDiplomacyLog->EndTurn(GetRound());
 #endif
 
 	if(!g_player[curPlayer]->IsTurnOver()) {
@@ -329,7 +329,7 @@ void TurnCount::BeginNewRound()
 
 #ifdef _DEBUG
     if (g_theDiplomacyLog) {
-        g_theDiplomacyLog->BeginRound();
+        g_theDiplomacyLog->BeginRound(GetRound());
     }
 #endif // _DEBUG
 

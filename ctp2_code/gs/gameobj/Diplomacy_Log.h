@@ -32,9 +32,9 @@ public:
 	void UnlogPlayer(const sint32 player_idx);
     BOOL IsPlayerLogged(const sint32 player_idx);
 
-    void BeginRound();
-	void BeginTurn();
-	void EndTurn();
+    void BeginRound(sint32 currentRound);
+	void BeginTurn(sint32 currentRound);
+	void EndTurn(sint32 currentRound);
 
     void LogStr(const sint32 player_idx, char *str);
     void LogHostileAction(const UNIT_ORDER_TYPE order_type, const sint32 target_player,

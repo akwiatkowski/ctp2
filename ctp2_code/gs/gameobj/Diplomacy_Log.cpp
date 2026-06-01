@@ -7,8 +7,6 @@
 
 #include "gs/core/player_view.h"
 
-#include "gs/utility/TurnCnt.h"
-extern TurnCount *g_turn;
 
 #include "gs/gameobj/Player.h"
 extern Player **g_player;
@@ -68,7 +66,7 @@ BOOL Diplomacy_Log::IsPlayerLogged(const sint32 player_idx)
     return (m_player_bit_mask & (1 << player_idx)) != 0;
 }
 
-void Diplomacy_Log::BeginRound()
+void Diplomacy_Log::BeginRound(sint32 currentRound)
 {
     if (m_player_bit_mask == 0)  return;
 
@@ -76,11 +74,11 @@ void Diplomacy_Log::BeginRound()
     Assert(fout);
     if (!fout) return;
 
-    fprintf (fout, "***************************ROUND %d ***********************\n", g_turn->GetRound());
+    fprintf (fout, "***************************ROUND %d ***********************\n", currentRound);
     fclose(fout);
 }
 
-void Diplomacy_Log::BeginTurn()
+void Diplomacy_Log::BeginTurn(sint32 currentRound)
 {
     sint32 player_idx = player_view::CurPlayer();
 
@@ -89,7 +87,7 @@ void Diplomacy_Log::BeginTurn()
         Assert(fout);
         if (!fout) return;
 
-        fprintf (fout, "----------------Begin Turn %d:%d--------------------\n", g_turn->GetRound(), player_idx);
+        fprintf (fout, "----------------Begin Turn %d:%d--------------------\n", currentRound, player_idx);
 
         if (Player::IsThisPlayerARobot(player_idx)) {
 
@@ -112,7 +110,7 @@ void Diplomacy_Log::BeginTurn()
     }
 }
 
-void Diplomacy_Log::EndTurn()
+void Diplomacy_Log::EndTurn(sint32 currentRound)
 {
 
     sint32 player_idx = player_view::CurPlayer();
@@ -141,7 +139,7 @@ void Diplomacy_Log::EndTurn()
 
         }
 
-        fprintf (fout, ".....................End Turn %d:%d...................\n", g_turn->GetRound(), player_idx);
+        fprintf (fout, ".....................End Turn %d:%d...................\n", currentRound, player_idx);
 
         fclose(fout);
     }

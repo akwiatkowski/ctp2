@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Prevented memory leaks and debug exit popups.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -218,9 +218,9 @@ NetShell::NetShell()
 	{
 		g_netshell = this;
 		/// @todo Check next 4 lines
-		g_nsUnits = new ns_Units;
-		g_nsImprovements = new ns_Improvements;
-		g_nsWonders = new ns_Wonders;
+		nsunits_Set(new ns_Units);
+		nsimprovements_Set(new ns_Improvements);
+		nswonders_Set(new ns_Wonders);
 		strncpy( g_serverName, "", 100 );
 	}
 
@@ -373,9 +373,9 @@ NetShell::~NetShell()
 
     if (g_netshell == this)
     {
-        allocated::clear(g_nsUnits);
-        allocated::clear(g_nsImprovements);
-        allocated::clear(g_nsWonders);
+        delete nsunits_Get();        nsunits_Set(NULL);
+        delete nsimprovements_Get(); nsimprovements_Set(NULL);
+        delete nswonders_Get();      nswonders_Set(NULL);
 
         g_netshell = NULL;
     }

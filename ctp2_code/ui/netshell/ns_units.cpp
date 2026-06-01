@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #include "ctp/c3.h"
@@ -36,7 +36,10 @@
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "UnitRecord.h"         // g_theUnitDB
 
-ns_Units *  g_nsUnits = NULL;
+static ns_Units *g_nsUnits = NULL;
+
+ns_Units * nsunits_Get(void)         { return g_nsUnits; }
+void       nsunits_Set(ns_Units *p)  { g_nsUnits = p; }
 
 ns_Units::ns_Units()
 :

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #include "ctp/c3.h"
@@ -36,7 +36,10 @@
 #include "BuildingRecord.h"     // g_theBuildingDB
 #include "gs/database/StrDB.h"              // g_theStringDB
 
-ns_Improvements * g_nsImprovements = NULL;
+static ns_Improvements *g_nsImprovements = NULL;
+
+ns_Improvements * nsimprovements_Get(void)                { return g_nsImprovements; }
+void              nsimprovements_Set(ns_Improvements *p)  { g_nsImprovements = p; }
 
 ns_Improvements::ns_Improvements()
 :

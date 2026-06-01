@@ -4,7 +4,10 @@
 class aui_StringTable;
 
 class ns_Improvements;
-extern ns_Improvements *g_nsImprovements;
+// g_nsImprovements demoted to file-scope `static` in ns_improvements.cpp.
+// External callers go through nsimprovements_Get() / nsimprovements_Set().
+ns_Improvements * nsimprovements_Get(void);
+void              nsimprovements_Set(ns_Improvements *p);
 
 
 #define k_IMPROVEMENTS_MAX 70

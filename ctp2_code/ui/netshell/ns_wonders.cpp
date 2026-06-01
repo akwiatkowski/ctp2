@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 #include "ctp/c3.h"
@@ -37,7 +37,10 @@
 #include "WonderRecord.h"       // g_theWonderDB
 
 
-ns_Wonders *    g_nsWonders = NULL;
+static ns_Wonders *g_nsWonders = NULL;
+
+ns_Wonders * nswonders_Get(void)            { return g_nsWonders; }
+void         nswonders_Set(ns_Wonders *p)   { g_nsWonders = p; }
 
 ns_Wonders::ns_Wonders()
 :

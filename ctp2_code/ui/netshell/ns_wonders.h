@@ -4,7 +4,10 @@
 class aui_StringTable;
 
 class ns_Wonders;
-extern ns_Wonders *g_nsWonders;
+// g_nsWonders demoted to file-scope `static` in ns_wonders.cpp.
+// External callers go through nswonders_Get() / nswonders_Set().
+ns_Wonders * nswonders_Get(void);
+void         nswonders_Set(ns_Wonders *p);
 
 
 #define k_WONDERS_MAX 50

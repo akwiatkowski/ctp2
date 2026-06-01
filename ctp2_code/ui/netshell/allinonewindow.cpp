@@ -959,7 +959,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 	listbox->SetAbsorbancy( FALSE );
 	sint32 height = listbox->Height();
 
-	m_numAvailUnits = g_nsUnits->GetStrings()->GetNumStrings();
+	m_numAvailUnits = nsunits_Get()->GetStrings()->GetNumStrings();
 	g_gamesetup.SetNumAvailUnits( m_numAvailUnits );
 
 	aui_Switch *item = NULL;
@@ -968,7 +968,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 	sint32 i;
 	for ( i = 0; i < m_numAvailUnits; i++ )
 	{
-		if ( !g_nsUnits->m_noIndex[ i ] )
+		if ( !nsunits_Get()->m_noIndex[ i ] )
 		{
 			item = new aui_Switch(
 				&errcode,
@@ -977,7 +977,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			item->SetText( g_nsUnits->GetStrings()->GetString( i ) );
+			item->SetText( nsunits_Get()->GetStrings()->GetString( i ) );
 			item->SetAction(new UnitExclusionAction(i));
 
 			m_units[ i ] = item;
@@ -993,7 +993,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 
 	for ( i++; i < m_numAvailUnits; i++ )
 	{
-		if ( !g_nsUnits->m_noIndex[ i ] )
+		if ( !nsunits_Get()->m_noIndex[ i ] )
 		{
 			unitList.GetNext( pos )->AddChild( item );
 
@@ -1004,7 +1004,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 			Assert( AUI_NEWOK(item,errcode) );
 			if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-			item->SetText( g_nsUnits->GetStrings()->GetString( i ) );
+			item->SetText( nsunits_Get()->GetStrings()->GetString( i ) );
 			item->SetAction(new UnitExclusionAction(i));
 
 			m_units[ i ] = item;
@@ -1028,7 +1028,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 
 	tech_WLList<aui_Switch *> improvementList;
 
-	m_numAvailImprovements = g_nsImprovements->GetStrings()->GetNumStrings();
+	m_numAvailImprovements = nsimprovements_Get()->GetStrings()->GetNumStrings();
 	g_gamesetup.SetNumAvailImprovements( m_numAvailImprovements );
 	for ( i = 0; i < m_numAvailImprovements; i++ )
 	{
@@ -1039,7 +1039,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		item->SetText( g_nsImprovements->GetStrings()->GetString( i ) );
+		item->SetText( nsimprovements_Get()->GetStrings()->GetString( i ) );
 		item->SetAction(new ImprovementExclusionAction(i));
 
 		m_improvements[ i ] = item;
@@ -1063,7 +1063,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		item->SetText( g_nsImprovements->GetStrings()->GetString( i ) );
+		item->SetText( nsimprovements_Get()->GetStrings()->GetString( i ) );
 		item->SetAction(new ImprovementExclusionAction(i));
 
 		m_improvements[ i ] = item;
@@ -1086,7 +1086,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 
 	tech_WLList<aui_Switch *> wonderList;
 
-	m_numAvailWonders = g_nsWonders->GetStrings()->GetNumStrings();
+	m_numAvailWonders = nswonders_Get()->GetStrings()->GetNumStrings();
 	g_gamesetup.SetNumAvailWonders( m_numAvailWonders );
 	for ( i = 0; i < m_numAvailWonders; i++ )
 	{
@@ -1097,7 +1097,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		item->SetText( g_nsWonders->GetStrings()->GetString( i ) );
+		item->SetText( nswonders_Get()->GetStrings()->GetString( i ) );
 		item->SetAction(new WonderExclusionAction(i));
 
 		m_wonders[ i ] = item;
@@ -1121,7 +1121,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
 		Assert( AUI_NEWOK(item,errcode) );
 		if ( !AUI_NEWOK(item,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-		item->SetText( g_nsWonders->GetStrings()->GetString( i ) );
+		item->SetText( nswonders_Get()->GetStrings()->GetString( i ) );
 		item->SetAction(new WonderExclusionAction(i));
 
 		m_wonders[ i ] = item;
@@ -2073,12 +2073,9 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		((aui_TextField *)(FindControl(CONTROL_GAMENAMETEXTFIELD)))->
 			SetFieldText(g_netfunc->GetSession()->GetName());
 
-        delete g_nsUnits;
-        g_nsUnits = new ns_Units();
-        delete g_nsImprovements;
-        g_nsImprovements = new ns_Improvements();
-        delete g_nsWonders;
-        g_nsWonders = new ns_Wonders();
+        delete nsunits_Get();        nsunits_Set(new ns_Units());
+        delete nsimprovements_Get(); nsimprovements_Set(new ns_Improvements());
+        delete nswonders_Get();      nswonders_Set(new ns_Wonders());
 
 		CreateExclusions();
 
@@ -2586,12 +2583,9 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 		didntdoyet = false;
 
-        delete g_nsUnits;
-        g_nsUnits = new ns_Units();
-        delete g_nsImprovements;
-        g_nsImprovements = new ns_Improvements();
-        delete g_nsWonders;
-        g_nsWonders = new ns_Wonders();
+        delete nsunits_Get();        nsunits_Set(new ns_Units());
+        delete nsimprovements_Get(); nsimprovements_Set(new ns_Improvements());
+        delete nswonders_Get();      nswonders_Set(new ns_Wonders());
 
 		CreateExclusions();
 

@@ -25,7 +25,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed old endgame database include file. (Aug 20th 2005 Martin Gühmann)
+// - Removed old endgame database include file. (Aug 20th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -149,26 +149,27 @@ void NetWormhole::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 	PUSHID(k_PACKET_WORMHOLE_ID);
 
-	if(!g_wormhole) {
+	Wormhole *wh = wormhole_Get();
+	if(!wh) {
 		PUSHBYTE(0);
 		return;
 	} else {
 		PUSHBYTE(1);
 	}
 
-	PUSHLONG(g_wormhole->m_discoverer);
-	sint32 packpos = g_network.PackedPos(g_wormhole->m_pos);
+	PUSHLONG(wh->m_discoverer);
+	sint32 packpos = g_network.PackedPos(wh->m_pos);
 	PUSHLONG(packpos);
 
-	PUSHBYTE(g_wormhole->m_curDir);
-	PUSHLONG(g_wormhole->m_horizontalMoves);
-	PUSHLONG(g_wormhole->m_topY);
-	PUSHLONG(g_wormhole->m_bottomY);
-	PUSHLONG(g_wormhole->m_discoveredAt);
+	PUSHBYTE(wh->m_curDir);
+	PUSHLONG(wh->m_horizontalMoves);
+	PUSHLONG(wh->m_topY);
+	PUSHLONG(wh->m_bottomY);
+	PUSHLONG(wh->m_discoveredAt);
 
-	sint32 numEntries = g_wormhole->m_entries->GetCount();
+	sint32 numEntries = wh->m_entries->GetCount();
 	PUSHLONG(numEntries);
-	PointerList<EntryRecord>::Walker walk(g_wormhole->m_entries);
+	PointerList<EntryRecord>::Walker walk(wh->m_entries);
 	while(walk.IsValid()) {
 		PUSHLONG(walk.GetObj()->m_unit.m_id);
 		PUSHLONG(walk.GetObj()->m_round);
@@ -203,9 +204,9 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint8 haveWormhole;
 	PULLBYTE(haveWormhole);
 	if(!haveWormhole) {
-		if(g_wormhole) {
-			delete g_wormhole;
-			g_wormhole = NULL;
+		if(Wormhole *wh = wormhole_Get()) {
+			delete wh;
+			wormhole_Set(NULL);
 		}
 		return;
 	}
@@ -218,18 +219,20 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(packpos);
 	g_network.UnpackedPos(packpos, wpos);
 
-	if(!g_wormhole) {
-		g_wormhole = new Wormhole(discoverer, wpos);
+	Wormhole *wh = wormhole_Get();
+	if(!wh) {
+		wh = new Wormhole(discoverer, wpos);
+		wormhole_Set(wh);
 	}
 
-	g_wormhole->m_pos = wpos;
-	g_wormhole->m_discoverer = discoverer;
+	wh->m_pos = wpos;
+	wh->m_discoverer = discoverer;
 
-	PULLBYTETYPE(g_wormhole->m_curDir, WORLD_DIRECTION);
-	PULLLONG(g_wormhole->m_horizontalMoves);
-	PULLLONG(g_wormhole->m_topY);
-	PULLLONG(g_wormhole->m_bottomY);
-	PULLLONG(g_wormhole->m_discoveredAt);
+	PULLBYTETYPE(wh->m_curDir, WORLD_DIRECTION);
+	PULLLONG(wh->m_horizontalMoves);
+	PULLLONG(wh->m_topY);
+	PULLLONG(wh->m_bottomY);
+	PULLLONG(wh->m_discoveredAt);
 
 	sint32 numEntries;
 	PULLLONG(numEntries);
@@ -239,6 +242,6 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	for(i = 0; i < numEntries; i++) {
 		PULLLONG(unit.m_id);
 		PULLLONG(round);
-		g_wormhole->m_entries->AddTail(new EntryRecord(unit, round));
+		wh->m_entries->AddTail(new EntryRecord(unit, round));
 	}
 }

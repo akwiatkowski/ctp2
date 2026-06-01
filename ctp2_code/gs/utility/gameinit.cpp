@@ -161,6 +161,10 @@ static GameSettings         *g_theGameSettings = NULL;
 GameSettings * gamesettings_Get(void)             { return g_theGameSettings; }
 void           gamesettings_Set(GameSettings *p)  { g_theGameSettings = p; }
 
+static Wormhole             *g_wormhole=NULL;
+Wormhole * wormhole_Get(void)    { return g_wormhole; }
+void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
+
 StringDB                    *g_theStringDB=NULL;
 OzoneDatabase               *g_theUVDB=NULL;
 ThroneDB                    *g_theThroneDB = NULL;

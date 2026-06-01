@@ -2281,8 +2281,8 @@ void Player::BeginTurn()
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
 			m_sent_requests_this_turn[p] = 0;
 		}
-		if(g_wormhole) {
-			g_wormhole->BeginTurn(m_owner);
+		if(Wormhole *wh = wormhole_Get()) {
+			wh->BeginTurn(m_owner);
 		}
 
 		m_global_happiness->CalcPeaceMovement(this, *m_all_armies,

@@ -55,7 +55,8 @@
 
 #define k_WORMHOLE_GOOD_ID_STR		"WORMHOLE"
 
-Wormhole *g_wormhole = NULL;
+// Wormhole's definition + lifecycle moved to gs/utility/gameinit.cpp
+// (matches the rest of the gs/ singletons). Accessor pair in Wormhole.h.
 
 Wormhole::Wormhole(sint32 discoverer)
 {

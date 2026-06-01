@@ -111,8 +111,8 @@ STDEHANDLER(WormholeEvent)
 	if(!args->GetPlayer(0, player))
 		return GEV_HD_Continue;
 
-	if(g_wormhole)
-		g_wormhole->BeginTurn(player);
+	if(Wormhole *wh = wormhole_Get())
+		wh->BeginTurn(player);
 	return GEV_HD_Continue;
 }
 

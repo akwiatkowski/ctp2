@@ -60,6 +60,11 @@ public:
 	MapPoint	GetPos(void) { return m_pos; }
 };
 
-extern Wormhole *g_wormhole;
+// Lifecycle (new from archive / NULL / cleanup) lives in
+// gs/utility/gameinit.cpp; the variable is file-scope `static` there.
+// External readers go through wormhole_Get(); the cleanup path uses
+// wormhole_Set(NULL) after destroying the instance.
+Wormhole * wormhole_Get(void);
+void       wormhole_Set(Wormhole *w);
 
 #endif

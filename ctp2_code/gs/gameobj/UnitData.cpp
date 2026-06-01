@@ -478,7 +478,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 		feattracker_Get()->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
 	}
 
-	if(g_wormhole && g_wormhole->CheckEnter(Unit(m_id))) {
+	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id))) {
 		left_map = true;
 		SetFlag(k_UDF_HAS_LEFT_MAP);
 		SetFlag(k_UDF_IN_WORMHOLE);
@@ -490,7 +490,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 		AddUnitVision();
 
 		Cell *cell = g_theWorld->GetCell(p);
-		if(g_wormhole) {
+		if(wormhole_Get()) {
 			if(GetDBRec()->GetWormholeProbe() && Flag(k_UDF_RETURNED_FROM_WORMHOLE)) {
 				if(cell->GetCity().m_id != 0) {
 					g_player[m_owner]->RecoveredProbe(cell->GetCity());

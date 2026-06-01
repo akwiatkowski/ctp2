@@ -4628,7 +4628,7 @@ bool SaveJson(char const *path)
     if (g_thePollution)              doc["pollution"]                  = *g_thePollution;
     if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
     if (TerrainImprovementPool *tip = terrimprovepool_Get()) doc["terrain_improvement_pool"] = *tip;
-    if (g_theCivilisationPool)       doc["civilisation_pool"]          = *g_theCivilisationPool;
+    if (CivilisationPool *cp = civilisationpool_Get()) doc["civilisation_pool"] = *cp;
     if (MessagePool *mp = messagepool_Get()) doc["message_pool"] = *mp;
     if (InstallationPool *ip = installationpool_Get()) doc["installation_pool"] = *ip;
 
@@ -4765,7 +4765,7 @@ bool LoadJson(char const *path)
         if (doc.contains("pollution")          && g_thePollution)              doc.at("pollution")               .get_to(*g_thePollution);
         if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);
         if (TerrainImprovementPool *tip = terrimprovepool_Get(); doc.contains("terrain_improvement_pool") && tip) doc.at("terrain_improvement_pool").get_to(*tip);
-        if (doc.contains("civilisation_pool")  && g_theCivilisationPool)       doc.at("civilisation_pool")       .get_to(*g_theCivilisationPool);
+        if (CivilisationPool *cp = civilisationpool_Get(); doc.contains("civilisation_pool") && cp) doc.at("civilisation_pool").get_to(*cp);
         if (MessagePool *mp = messagepool_Get(); doc.contains("message_pool") && mp) doc.at("message_pool").get_to(*mp);
         if (InstallationPool *ip = installationpool_Get(); doc.contains("installation_pool") && ip) doc.at("installation_pool").get_to(*ip);
 

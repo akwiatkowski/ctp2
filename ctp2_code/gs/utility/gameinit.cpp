@@ -183,7 +183,10 @@ static MessagePool          *g_theMessagePool=NULL;
 
 MessagePool * messagepool_Get(void)              { return g_theMessagePool; }
 void          messagepool_Set(MessagePool *p)    { g_theMessagePool = p; }
-CivilisationPool            *g_theCivilisationPool=NULL;
+static CivilisationPool     *g_theCivilisationPool=NULL;
+
+CivilisationPool * civilisationpool_Get(void)                { return g_theCivilisationPool; }
+void               civilisationpool_Set(CivilisationPool *p) { g_theCivilisationPool = p; }
 static AgreementPool        *g_theAgreementPool=NULL;
 
 AgreementPool * agreementpool_Get(void) { return g_theAgreementPool; }

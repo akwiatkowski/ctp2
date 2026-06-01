@@ -280,7 +280,7 @@ void NetGameObj::KillObject(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_CIVILISATION:
 		{
 			Civilisation cid(id);
-			if(g_theCivilisationPool->IsValid(cid)) {
+			if(civilisationpool_Get()->IsValid(cid)) {
 				cid.KillCivilisation();
 			}
 			break;
@@ -334,7 +334,7 @@ void NetGameObj::FixKey(uint32 id)
 			installationpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_CIVILISATION:
-			g_theCivilisationPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			civilisationpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST:
 			diplomaticrequestpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);

@@ -117,7 +117,7 @@ extern  OzoneDatabase           *g_theUVDB ;
 
 // The Pools
 #include "gs/gameobj/AgreementPool.h"     // agreementpool_Get()
-extern  CivilisationPool        *g_theCivilisationPool;
+#include "gs/gameobj/CivilisationPool.h"  // civilisationpool_Get()
 #include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
 #include "gs/gameobj/MessagePool.h"       // messagepool_Get()
 #include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
@@ -380,7 +380,7 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(g_theWonderBuildListDB, CRC_TYPE_WONDER_BUILD_LIST_DB);
 
 	CHECK_DB(agreementpool_Get(), CRC_TYPE_AGREEMENTPOOL);
-	CHECK_DB(g_theCivilisationPool, CRC_TYPE_CIVILISATIONPOOL);
+	CHECK_DB(civilisationpool_Get(), CRC_TYPE_CIVILISATIONPOOL);
 	CHECK_DB(diplomaticrequestpool_Get(), CRC_TYPE_DIPLOMATICREQUESTPOOL);
 	CHECK_DB(messagepool_Get(), CRC_TYPE_MESSAGEPOOL);
 	CHECK_DB(terrimprovepool_Get(), CRC_TYPE_TERRAIN_IMPROVEMENT_POOL);

@@ -1923,7 +1923,7 @@ void UnitActor::DrawSpecialIndicators(
 
         if (p) {
           Civilisation* civP = p->GetCivilisation();
-          if (civP != NULL && g_theCivilisationPool->IsValid(*civP)) {
+          if (civP != NULL && civilisationpool_Get()->IsValid(*civP)) {
             if (civP->GetOwner() == displayedOwner) {
               civ = civP->GetCivilisation();
             }

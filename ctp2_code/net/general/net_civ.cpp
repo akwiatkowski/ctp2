@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -84,13 +84,13 @@ void NetCivilization::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)cid);
 
-	if(!g_theCivilisationPool)
+	if(!civilisationpool_Get())
 		return;
 
-	if(!g_theCivilisationPool->IsValid(cid)) {
+	if(!civilisationpool_Get()->IsValid(cid)) {
 		m_data = new CivilisationData(cid);
 	} else {
-		m_data = g_theCivilisationPool->AccessData(cid);
+		m_data = civilisationpool_Get()->AccessData(cid);
 	}
 
 	m_data->m_id = (uint32)cid;
@@ -111,9 +111,9 @@ void NetCivilization::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLBYTE(m_data->m_cityname_count[i]);
 	}
 
-	if(!g_theCivilisationPool->IsValid(cid)) {
-		g_theCivilisationPool->HackSetKey(((uint32)cid + k_ID_KEY_MASK) + 1);
-		g_theCivilisationPool->Insert(m_data);
+	if(!civilisationpool_Get()->IsValid(cid)) {
+		civilisationpool_Get()->HackSetKey(((uint32)cid + k_ID_KEY_MASK) + 1);
+		civilisationpool_Get()->Insert(m_data);
 		*g_player[m_data->m_owner]->m_civilisation = cid;
 	}
 }

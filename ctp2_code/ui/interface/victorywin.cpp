@@ -1007,7 +1007,7 @@ sint32 victorywin_LoadGraphData( void )
 
 			p = g_player[i];
 			civ = p->GetCivilisation();
-			if(g_theCivilisationPool->IsValid(civ->m_id)) {
+			if(civilisationpool_Get()->IsValid(civ->m_id)) {
 				civ->GetSingularCivName(strbuf);
 			} else {
 				strbuf[0] = 0;
@@ -1028,7 +1028,7 @@ sint32 victorywin_LoadGraphData( void )
 
 		p = walk.GetObj();
 		civ = p->GetCivilisation();
-		if(g_theCivilisationPool->IsValid(civ->m_id)) {
+		if(civilisationpool_Get()->IsValid(civ->m_id)) {
 			civ->GetSingularCivName(strbuf);
 		} else {
 			strbuf[0] = 0;

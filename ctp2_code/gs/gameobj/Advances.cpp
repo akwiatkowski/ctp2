@@ -232,7 +232,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
 
 
-            if (!forceUpdate && g_player[m_owner] && g_theCivilisationPool->IsValid(*g_player[m_owner]->m_civilisation)) {
+            if (!forceUpdate && g_player[m_owner] && civilisationpool_Get()->IsValid(*g_player[m_owner]->m_civilisation)) {
                 sint32 i;
                 SlicObject *so;
 

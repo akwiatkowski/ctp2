@@ -24,11 +24,11 @@
 //
 // Modifications from the original Activision code:
 //
-// - Added pollution power graph (Nov 2nd 2003 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Redesigned constructor, fixed possible crash. (June 5th 2006 Martin Gühmann)
+// - Added pollution power graph (Nov 2nd 2003 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Redesigned constructor, fixed possible crash. (June 5th 2006 Martin Gï¿½hmann)
 // - Repaired crashes and memory leaks
-// - Moved graph functionality to LineGraph (30-Sep-2007 Martin Gühmann)
+// - Moved graph functionality to LineGraph (30-Sep-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -280,7 +280,7 @@ void RankingTab::UpdatePlayerList( void )
 			}
 
 			Civilisation * civ = p->GetCivilisation();
-			if (civ && g_theCivilisationPool->IsValid(*civ))
+			if (civ && civilisationpool_Get()->IsValid(*civ))
 			{
 				civ->GetSingularCivName(strbuf);
 				m_infoPlayerList->AddItem
@@ -309,7 +309,7 @@ void RankingTab::UpdatePlayerList( void )
 			}
 
 			Civilisation * civ = p->GetCivilisation();
-			if (civ  && g_theCivilisationPool->IsValid(*civ))
+			if (civ  && civilisationpool_Get()->IsValid(*civ))
 			{
 				civ->GetSingularCivName(strbuf);
 				m_infoPlayerList->AddItem

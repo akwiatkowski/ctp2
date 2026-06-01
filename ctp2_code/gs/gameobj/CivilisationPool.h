@@ -72,6 +72,9 @@ public:
 	friend void from_json(nlohmann::json const &j, CivilisationPool &p);
 };
 
-extern CivilisationPool	*g_theCivilisationPool;
+// Lifecycle in gs/utility/gameinit.cpp; backing static there.  Tests
+// re-allocate via civilisationpool_Set() to bypass full game init.
+CivilisationPool * civilisationpool_Get(void);
+void               civilisationpool_Set(CivilisationPool *p);
 
 #endif

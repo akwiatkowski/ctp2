@@ -946,7 +946,7 @@ void CityData::Initialize(sint32 settlerType)
 	MBCHAR s[k_MAX_NAME_LEN];
 	sint32 name;
 	Civilisation *civ = g_player[m_owner]->GetCivilisation();
-	CivilisationData *civData = g_theCivilisationPool->AccessData(*civ);
+	CivilisationData *civData = civilisationpool_Get()->AccessData(*civ);
 	if (g_player[m_owner]->GetNumCities() == 0)
 	{
 		name = civData->GetCapitalName();

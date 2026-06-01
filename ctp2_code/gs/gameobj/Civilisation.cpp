@@ -63,8 +63,8 @@ void Civilisation::KillCivilisation()
 
 void Civilisation::RemoveAllReferences()
 {
-	g_theCivilisationPool->Release(GetCivilisation());
-	g_theCivilisationPool->Del(*this);
+	civilisationpool_Get()->Release(GetCivilisation());
+	civilisationpool_Get()->Del(*this);
 }
 
 
@@ -77,7 +77,7 @@ void Civilisation::RemoveAllReferences()
 
 const CivilisationData* Civilisation::GetData() const
 {
-	return (g_theCivilisationPool->GetData(*this));
+	return (civilisationpool_Get()->GetData(*this));
 }
 
 
@@ -90,7 +90,7 @@ const CivilisationData* Civilisation::GetData() const
 
 CivilisationData* Civilisation::AccessData() const
 {
-	return (g_theCivilisationPool->AccessData(*this));
+	return (civilisationpool_Get()->AccessData(*this));
 }
 
 PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)

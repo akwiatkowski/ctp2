@@ -1056,7 +1056,7 @@ sint32 infowin_UpdatePlayerList( void )
 			else color = myData[lineIndex++].color;
 
 			civ = g_player[i]->GetCivilisation();
-			if (civ != NULL && g_theCivilisationPool->IsValid(*civ)) {
+			if (civ != NULL && civilisationpool_Get()->IsValid(*civ)) {
 				civ->GetSingularCivName(strbuf);
 
 				s_infoPlayerList->AddItem
@@ -1086,7 +1086,7 @@ sint32 infowin_UpdatePlayerList( void )
             }
 
 			civ = p->GetCivilisation();
-			if (civ && g_theCivilisationPool->IsValid(*civ))
+			if (civ && civilisationpool_Get()->IsValid(*civ))
             {
 				civ->GetSingularCivName(strbuf);
 

@@ -1358,8 +1358,8 @@ void Network::SetReady(uint16 id)
 		chunkPackets.AddTail(new NetResearch(g_player[p]->m_advances));
 		chunkPackets.AddTail(
 					new NetDifficulty(g_player[p]->GetDifficulty()));
-		Assert(g_theCivilisationPool->IsValid(*g_player[p]->m_civilisation));
-		if(g_theCivilisationPool->IsValid(*g_player[p]->m_civilisation)) {
+		Assert(civilisationpool_Get()->IsValid(*g_player[p]->m_civilisation));
+		if(civilisationpool_Get()->IsValid(*g_player[p]->m_civilisation)) {
 			chunkPackets.AddTail(
 						new NetCivilization(g_player[p]->m_civilisation->AccessData()));
 		}

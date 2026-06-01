@@ -483,7 +483,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 250 );
 
 	if(saveEverything)
-		g_theCivilisationPool->Serialize(archive);
+		civilisationpool_Get()->Serialize(archive);
 
 	PROGRESS( 260 );
 

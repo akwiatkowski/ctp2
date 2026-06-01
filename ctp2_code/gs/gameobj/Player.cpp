@@ -293,7 +293,7 @@ Player::Player(const PLAYER_INDEX o, sint32 d, PLAYER_TYPE pt, const sint32 civ,
 	memset(this, 0, sizeof(*this));
 
 	InitPlayer(o, d, pt) ;
-	*m_civilisation = g_theCivilisationPool->Create(m_owner, civ, gender);
+	*m_civilisation = civilisationpool_Get()->Create(m_owner, civ, gender);
 }
 
 void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
@@ -670,7 +670,7 @@ Player::~Player()
 
 	if (m_civilisation)
 	{
-		if( g_theCivilisationPool->IsValid(*m_civilisation))
+		if( civilisationpool_Get()->IsValid(*m_civilisation))
 			m_civilisation->Kill();
 
 		delete m_civilisation;

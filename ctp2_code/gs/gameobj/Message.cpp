@@ -16,8 +16,6 @@
 #include "gs/slic/SlicButton.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
 
-extern DiplomaticRequestPool *g_theDiplomaticRequestPool;
-
 extern	Player	**g_player ;
 
 extern	MessagePool	*g_theMessagePool ;

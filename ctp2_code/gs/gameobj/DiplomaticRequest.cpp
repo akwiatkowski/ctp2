@@ -13,7 +13,7 @@
 
 extern	Player	**g_player ;
 
-extern	DiplomaticRequestPool	*g_theDiplomaticRequestPool ;
+#include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
 
 
 
@@ -56,7 +56,7 @@ void DiplomaticRequest::RemoveAllReferences()
 		op->RemoveDiplomaticReferences(*this) ;
 	}
 
-	g_theDiplomaticRequestPool->Del(*this) ;
+	diplomaticrequestpool_Get()->Del(*this) ;
 	}
 
 
@@ -69,7 +69,7 @@ void DiplomaticRequest::RemoveAllReferences()
 
 const DiplomaticRequestData* DiplomaticRequest::GetData() const
 	{
-	return (g_theDiplomaticRequestPool->GetDiplomaticRequest(*this)) ;
+	return (diplomaticrequestpool_Get()->GetDiplomaticRequest(*this)) ;
 	}
 
 
@@ -82,7 +82,7 @@ const DiplomaticRequestData* DiplomaticRequest::GetData() const
 
 DiplomaticRequestData* DiplomaticRequest::AccessData()
 	{
-	return (g_theDiplomaticRequestPool->AccessDiplomaticRequest(*this)) ;
+	return (diplomaticrequestpool_Get()->AccessDiplomaticRequest(*this)) ;
 	}
 
 void DiplomaticRequest::Complete()

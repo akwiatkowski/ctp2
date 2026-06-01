@@ -147,7 +147,6 @@ extern TiledMap			*g_tiledMap;
 extern RadarMap			*g_radarMap;
 extern ProfileDB		*g_theProfileDB;
 extern NETFunc			*g_netfunc;
-extern DiplomaticRequestPool	*g_theDiplomaticRequestPool;
 extern CivApp			*g_civApp;
 
 #include "ui/aui_ctp2/SelItem.h"
@@ -3404,7 +3403,7 @@ void Network::RemoveEnact(DiplomaticRequest &req)
 			Resync(g_selected_item->GetCurPlayer());
 			return;
 		}
-		if(g_theDiplomaticRequestPool->IsValid(req)) {
+		if(diplomaticrequestpool_Get()->IsValid(req)) {
 
 			m_enactedDiplomaticRequests->Access(0).Enact(TRUE);
 		}

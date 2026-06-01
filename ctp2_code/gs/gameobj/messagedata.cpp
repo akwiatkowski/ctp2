@@ -59,7 +59,6 @@
 #include "gs/core/game_observer.h"   // g_gameObservers
 
 extern FilenameDB *g_theMessageIconFileDB;
-extern DiplomaticRequestPool *g_theDiplomaticRequestPool;
 
 #define AND_I_AM_STEVE
 

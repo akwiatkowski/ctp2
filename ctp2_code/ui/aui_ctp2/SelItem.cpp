@@ -613,7 +613,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 				if(selectArmy.NumOrders() > 0)
 				{
 //					g_director->IncrementPendingGameActions();
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
 										   GEA_Army, selectArmy,
 										   GEA_End);
 
@@ -753,7 +753,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 					{
 						MapPoint pos;
 						g_player[o]->m_all_units->Access(u).GetPos(pos);
-						if(g_theWorld->IsCity(pos)) {
+						if(world_Get()->IsCity(pos)) {
 
 							continue;
 						}
@@ -1089,13 +1089,13 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		u.GetPos(pos);
 		m_select_pos[o] = pos;
-		g_theWorld->GetCell(pos)->GetArmy(army);
+		world_Get()->GetCell(pos)->GetArmy(army);
 
 		g_controlPanel->SetStack(Army(), &army);
 
 		didSelect = true;
 
-		g_slicEngine->RunCitySelectedTriggers(u);
+		slicengine_Get()->RunCitySelectedTriggers(u);
 
 		g_c3ui->AddAction( new WorkWinUpdateAction );
 
@@ -1133,7 +1133,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		u.GetPos(pos);
 		m_select_pos[o] = pos;
-		army = g_theWorld->GetCell(pos)->UnitArmy();
+		army = world_Get()->GetCell(pos)->UnitArmy();
 
 		if ( all && g_player[o]->IsHuman() &&
 			 (g_theProfileDB->IsAutoGroup() || isDoubleClick))
@@ -1169,7 +1169,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		SetDrawablePathDest(m_cur_mouse_tile);
 
-		g_slicEngine->RunSelectedUnitTriggers(u);
+		slicengine_Get()->RunSelectedUnitTriggers(u);
 
 		didSelect = true;
 	}
@@ -1199,7 +1199,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 	{
 		if(u.IsCity())
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CitySelected, GEA_City, u, GEA_End);
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CitySelected, GEA_City, u, GEA_End);
 			if(g_theProfileDB->GetAutoSwitchTabs())
 			{
 				g_controlPanel->SetTab(CP_TAB_CITY);
@@ -1210,7 +1210,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			Army a;
 			if(GetSelectedArmy(a))
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ArmySelected, GEA_Army, a, GEA_End);
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ArmySelected, GEA_Army, a, GEA_End);
 				if(g_theProfileDB->GetAutoSwitchTabs())
 				{
 					g_controlPanel->SetTab(CP_TAB_UNIT);
@@ -1229,16 +1229,16 @@ void SelectedItem::SetSelectGood(const MapPoint &pos)
 {
 	PLAYER_INDEX o = GetVisiblePlayer();
 
-	Assert(g_theWorld->IsGood(pos));
+	Assert(world_Get()->IsGood(pos));
 
-	if (!g_theWorld->IsGood(pos)) return;
+	if (!world_Get()->IsGood(pos)) return;
 
 	m_select_state[o] = SELECT_TYPE_GOOD;
 	m_select_pos[o] = pos;
 
 	sint32 goodIndex;
 
-	if (g_theWorld->GetGood(pos, goodIndex))
+	if (world_Get()->GetGood(pos, goodIndex))
 	{
 		sint32 goodSoundID = g_theResourceDB->Get(goodIndex)->GetSoundIndex();
 		if (g_soundManager)
@@ -1272,10 +1272,10 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 {
 	Army a;
 	if(GetSelectedArmy(a))
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ArmyDeselected, GEA_Army, a, GEA_End);
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ArmyDeselected, GEA_Army, a, GEA_End);
 	Unit c;
 	if(GetSelectedCity(c))
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CityDeselected, GEA_City, c, GEA_End);
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CityDeselected, GEA_City, c, GEA_End);
 
 	// #01 Standardization of city selection and focus handling
 	if (g_controlPanel)
@@ -1308,19 +1308,19 @@ bool SelectedItem::GetTopUnitOrCity(const MapPoint &pos, Unit &top)
 	bool	unitIsThere = false;
 
 	if(g_theProfileDB->GetValueByName("CityClick")
-	&& g_theWorld->IsCity(pos)
+	&& world_Get()->IsCity(pos)
 	){
-		top = g_theWorld->GetCity(pos);
+		top = world_Get()->GetCity(pos);
 		unitIsThere = true;
 	}
 	else
 	{
-		unitIsThere = g_theWorld->GetTopVisibleUnit(pos, top);
+		unitIsThere = world_Get()->GetTopVisibleUnit(pos, top);
 	}
 
 	if(!unitIsThere)
 	{
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		if(cell->GetCity().m_id != 0)
 		{
 			top = cell->GetCity();
@@ -1346,10 +1346,10 @@ bool SelectedItem::GetTopUnitOrCity(const MapPoint &pos, Unit &top)
 
 bool SelectedItem::GetTopUnit(const MapPoint &pos, Unit &top)
 {
-	bool unitIsThere = g_theWorld->GetTopVisibleUnitNotCity(pos, top);
+	bool unitIsThere = world_Get()->GetTopVisibleUnitNotCity(pos, top);
 	if(!unitIsThere)
 	{
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		for(sint32 i=0; i< cell->GetNumUnits(); i++)
 		{
 			Unit u = cell->AccessUnit(i);
@@ -1422,7 +1422,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 				MapPoint    test(m_selected_army[player]->RetPos());
 				goodPath->Start(test);
 
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveUnloadOrder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveUnloadOrder,
 				                       GEA_Army,        m_selected_army[player],
 				                       GEA_Path,        goodPath,
 				                       GEA_MapPoint,    pos,
@@ -1442,7 +1442,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 				while(!goodPath->IsEnd())
 				{
 					goodPath->Next(curPos);
-					Cell *cell = g_theWorld->GetCell(curPos);
+					Cell *cell = world_Get()->GetCell(curPos);
 					if(cell->GetCity().m_id != 0 &&
 					   cell->GetCity().GetOwner() != player)
 					{
@@ -1459,7 +1459,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 
 				goodPath->Restart(start);
 
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 				                       GEA_Army,        m_selected_army[player],
 				                       GEA_Path,        goodPath,
 				                       GEA_MapPoint,    curPos,
@@ -1531,7 +1531,7 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 		extern BOOL g_toeMode;
 		if(g_toeMode)
 		{
-			Cell *cell = g_theWorld->GetCell(pos);
+			Cell *cell = world_Get()->GetCell(pos);
 			if(cell->UnitArmy())
 			{
 				cell->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_TOE, -1);
@@ -1544,7 +1544,7 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 				Deselect(GetVisiblePlayer());
 			}
 
-			g_theWorld->CutImprovements(pos);
+			world_Get()->CutImprovements(pos);
 			return;
 		}
 
@@ -1562,7 +1562,7 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 		DPRINTF(k_DBG_GAMESTATE, ("POS %d %d : %s\n", pos.x, pos.y, leftDrag ? "DRAG" : (leftDrop ? "DROP" : "CLICK")));
 		DPRINTF(k_DBG_GAMESTATE, (" ai %d %d\n", converted.x, converted.y));
 		DPRINTF(k_DBG_GAMESTATE, (" xy %d %d\n", tileX, tileY));
-		DPRINTF(k_DBG_GAMESTATE, ("zoc 0x%lx, owner %d\n", g_theWorld->GetCell(pos)->GetRawZoc(), g_theWorld->GetCell(pos)->GetOwner()));
+		DPRINTF(k_DBG_GAMESTATE, ("zoc 0x%lx, owner %d\n", world_Get()->GetCell(pos)->GetRawZoc(), world_Get()->GetCell(pos)->GetOwner()));
 		DPRINTF(k_DBG_GAMESTATE, ("\n"));
 #endif
 	}
@@ -1573,7 +1573,7 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 
 void SelectedItem::SelectTradeRoute( const MapPoint &pos )
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	sint32 tradeNum = cell->GetNumTradeRoutes();
 	const UnitData *ud = NULL;
 	CityData *cd = NULL;
@@ -1829,14 +1829,14 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 		uint32 movetype = a.GetMovementType();
 		if((movetype & k_BIT_MOVEMENT_TYPE_SHALLOW_WATER) &&
 		   !(movetype & k_BIT_MOVEMENT_TYPE_WATER) &&
-		   g_theWorld->IsShallowWater(m_waypoints[0])
+		   world_Get()->IsShallowWater(m_waypoints[0])
 		  )
 		{
 			QuickSlic("36IATriremeDeepwaterTip", player);
 		}
 		if((movetype & k_BIT_MOVEMENT_TYPE_LAND) &&
 		   !(movetype & k_BIT_MOVEMENT_TYPE_MOUNTAIN) &&
-		   g_theWorld->IsMountain(m_waypoints[0])
+		   world_Get()->IsMountain(m_waypoints[0])
 		  )
 		{
 			QuickSlic("35IANomountainUnitTip", player);
@@ -1883,7 +1883,7 @@ void SelectedItem::Settle()
 
 	if ((SELECT_TYPE_LOCAL_ARMY == s_state) && isMyTurn)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_SettleOrder,
 		                       GEA_Army, s_item.m_id,
 		                       GEA_End
@@ -1898,7 +1898,7 @@ void SelectedItem::Entrench()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_EntrenchOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_EntrenchOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -1921,7 +1921,7 @@ void SelectedItem::Detrench()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DetrenchOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DetrenchOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -1938,7 +1938,7 @@ void SelectedItem::Sleep()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SleepOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SleepOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -1961,7 +1961,7 @@ void SelectedItem::Disband()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandArmyOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandArmyOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -1979,7 +1979,7 @@ void SelectedItem::GroupArmy()
 	switch (m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -1995,7 +1995,7 @@ void SelectedItem::UngroupArmy()
 	switch (m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -2038,7 +2038,7 @@ void SelectedItem::Paradrop(const MapPoint &point)
 		case SELECT_TYPE_LOCAL_ARMY:
 			m_is_pathing = false;
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ParadropOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ParadropOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_MapPoint, point,
 								   GEA_End);
@@ -2055,7 +2055,7 @@ void SelectedItem::SpaceLaunch()
 	switch(m_select_state[player])
 	{
 		case SELECT_TYPE_LOCAL_ARMY:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_LaunchOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_LaunchOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_End);
 
@@ -2072,7 +2072,7 @@ void SelectedItem::InvestigateCity(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InvestigateCityOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InvestigateCityOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2087,7 +2087,7 @@ void SelectedItem::NullifyWalls(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NullifyWallsOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NullifyWallsOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2102,7 +2102,7 @@ void SelectedItem::StealTechnology(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_StealTechnologyOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_StealTechnologyOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2117,7 +2117,7 @@ void SelectedItem::InciteRevolution(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InciteRevolutionOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InciteRevolutionOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2132,7 +2132,7 @@ void SelectedItem::AssassinateRuler(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AssassinateRulerOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AssassinateRulerOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2147,7 +2147,7 @@ void SelectedItem::InvestigateReadiness(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InvestigateReadinessOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InvestigateReadinessOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2162,7 +2162,7 @@ void SelectedItem::Bombard(const MapPoint &pnt)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BombardOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BombardOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, pnt,
 							   GEA_End);
@@ -2175,7 +2175,7 @@ void SelectedItem::Franchise(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_FranchiseOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_FranchiseOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2187,7 +2187,7 @@ void SelectedItem::Sue(const MapPoint &point)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SueOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SueOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2200,7 +2200,7 @@ void SelectedItem::SueFranchise(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SueFranchiseOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SueFranchiseOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2213,7 +2213,7 @@ void SelectedItem::Expel(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ExpelOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ExpelOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2226,7 +2226,7 @@ void SelectedItem::EstablishEmbassy(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_EstablishEmbassyOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_EstablishEmbassyOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2239,7 +2239,7 @@ void SelectedItem::Advertise(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AdvertiseOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AdvertiseOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2252,7 +2252,7 @@ void SelectedItem::PlantNuke(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_PlantNukeOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_PlantNukeOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2265,7 +2265,7 @@ void SelectedItem::SlaveRaid(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SlaveRaidOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SlaveRaidOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2304,7 +2304,7 @@ void SelectedItem::EnslaveSettler(const MapPoint &point)
 
 		if (!target_is_city)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_EnslaveSettlerOrder,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_EnslaveSettlerOrder,
 								   GEA_Army, m_selected_army[player],
 								   GEA_MapPoint, point,
 								   GEA_End);
@@ -2318,7 +2318,7 @@ void SelectedItem::UndergroundRailway(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UndergroundRailwayOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UndergroundRailwayOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2331,7 +2331,7 @@ void SelectedItem::InciteUprising(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InciteUprisingOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InciteUprisingOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2344,7 +2344,7 @@ void SelectedItem::BioInfect(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BioInfectOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BioInfectOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2357,7 +2357,7 @@ void SelectedItem::NanoInfect(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NanoInfectOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NanoInfectOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2370,7 +2370,7 @@ void SelectedItem::ConvertCity(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY  )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ConvertCityOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ConvertCityOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2383,7 +2383,7 @@ void SelectedItem::ReformCity(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ReformCityOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ReformCityOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2396,7 +2396,7 @@ void SelectedItem::IndulgenceSale(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SellIndulgencesOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SellIndulgencesOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2408,7 +2408,7 @@ void SelectedItem::Soothsay(const MapPoint &point)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY  )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SoothsayOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SoothsayOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2420,7 +2420,7 @@ void SelectedItem::Cloak()
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CloakOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CloakOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 	}
@@ -2431,7 +2431,7 @@ void SelectedItem::Uncloak()
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UncloakOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UncloakOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 	}
@@ -2442,7 +2442,7 @@ void SelectedItem::Rustle(const MapPoint &point)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY  )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_RustleOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_RustleOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2454,7 +2454,7 @@ void SelectedItem::CreatePark(const MapPoint &point)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateParkOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateParkOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2467,7 +2467,7 @@ void SelectedItem::CreateRift(const MapPoint &point)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY  )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateRiftOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateRiftOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2480,7 +2480,7 @@ void SelectedItem::Pillage()
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_PillageOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_PillageOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 	}
@@ -2492,7 +2492,7 @@ void SelectedItem::Injoin(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InjoinOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InjoinOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2504,7 +2504,7 @@ void SelectedItem::UseSpaceLadder()
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UseSpaceLadderOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UseSpaceLadderOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 	}
@@ -2515,7 +2515,7 @@ void SelectedItem::Airlift(const MapPoint &dest)
 	PLAYER_INDEX player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AirliftOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AirliftOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_MapPoint, dest,
 							   GEA_End);
@@ -2527,7 +2527,7 @@ void SelectedItem::Descend()
 	sint32 player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DescendOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DescendOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 
@@ -2571,7 +2571,7 @@ void SelectedItem::InterceptTrade(void)
 	sint32 player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_PirateOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_PirateOrder,
 							   GEA_Army, m_selected_army[player],
 							   GEA_End);
 	}
@@ -2605,11 +2605,11 @@ void SelectedItem::UnitCityToggle()
 		case SELECT_TYPE_LOCAL_ARMY:
 		case SELECT_TYPE_REMOTE_ARMY:
 			m_selected_army[player].GetPos(pos);
-			if(g_theWorld->GetCell(pos)->GetCity().m_id != (0))
+			if(world_Get()->GetCell(pos)->GetCity().m_id != (0))
 			{
-				SetSelectUnit(g_theWorld->GetCell(pos)->GetCity());
+				SetSelectUnit(world_Get()->GetCell(pos)->GetCity());
 			}
-			else if(g_theWorld->IsGood(pos))
+			else if(world_Get()->IsGood(pos))
 			{
 				SetSelectGood(pos);
 			}
@@ -2617,7 +2617,7 @@ void SelectedItem::UnitCityToggle()
 		case SELECT_TYPE_LOCAL_CITY:
 		case SELECT_TYPE_REMOTE_CITY:
 			m_selected_city[player].GetPos(pos);
-			if(g_theWorld->IsGood(pos))
+			if(world_Get()->IsGood(pos))
 			{
 				SetSelectGood(pos);
 			}
@@ -2632,9 +2632,9 @@ void SelectedItem::UnitCityToggle()
 			{
 				SetSelectUnit(u);
 			}
-			else if(g_theWorld->GetCell(pos)->GetCity().m_id != (0))
+			else if(world_Get()->GetCell(pos)->GetCity().m_id != (0))
 			{
-				SetSelectUnit(g_theWorld->GetCell(pos)->GetCity());
+				SetSelectUnit(world_Get()->GetCell(pos)->GetCity());
 			}
 			break;
 		default:
@@ -2863,12 +2863,12 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 			{
 				m_selected_army[player].GetPos(army_pos);
 				g_controlPanel->SetStack(m_selected_army[player],
-										 g_theWorld->GetCell(army_pos)->UnitArmy());
+										 world_Get()->GetCell(army_pos)->UnitArmy());
 			}
 		}
 	}
 
-	if(g_slicEngine->GetTutorialActive())
+	if(slicengine_Get()->GetTutorialActive())
 	{
 		bool allMoved = true;
 		for(sint32 i = g_player[player]->m_all_armies->Num() - 1; i >= 0; i--)
@@ -2881,7 +2881,7 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 		}
 		if(allMoved)
 		{
-			g_slicEngine->RunAllUnitsMovedTriggers();
+			slicengine_Get()->RunAllUnitsMovedTriggers();
 		}
 	}
 }

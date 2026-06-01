@@ -74,6 +74,12 @@ FILE *debuglog;
 int slic_parser_done = 0;
 int slic_parse_error;
 
+/* slic.l owns g_slicLineNumber; bison TU needs visibility for the
+ * line-number references in yyerror() and the parser-init block.
+ * Extern is in this prologue rather than slicif.h to keep the public
+ * header free of g_* externs (globals ratchet in test_player_view.cpp). */
+extern int g_slicLineNumber;
+
 char slic_parser_error_text[1024];
 char *include_filename_stack[MAX_INCLUDE_DEPTH];
 

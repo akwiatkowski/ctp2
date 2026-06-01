@@ -988,9 +988,9 @@ void SlicEngine::Link()
         m_symTab = new SlicSymTab(0);
     }
 
-    m_segmentHash->SetSize(g_slicNumEntries);
+    m_segmentHash->SetSize(slic_num_entries_Get());
 
-    for (sint32 i = 0; i < g_slicNumEntries; i++)
+    for (sint32 i = 0; i < slic_num_entries_Get(); i++)
     {
         SlicSegment * seg = new SlicSegment(i);
         m_segmentHash->Add(seg->GetName(), seg);

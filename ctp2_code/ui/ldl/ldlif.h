@@ -18,7 +18,9 @@ void ldlif_remove_block_from_tree(ldl_datablock *block);
 extern "C" {
 #endif
 
-extern int g_ldlLineNumber;
+// g_ldlLineNumber is owned by the flex-generated lexer (ldl.l) and used
+// only inside ldl.l + ldl.y.  No C++ TU reads it — extern declaration
+// removed.
 
 int ldlif_open_first_file(char *file);
 const char *ldlif_current_file();

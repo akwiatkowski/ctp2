@@ -190,12 +190,17 @@ struct PSlicComplexRegion {
 #define MAX_INCLUDE_DEPTH 64
 #define k_MAX_PARAMETERS 16
 
-extern struct PSlicObject **g_slicObjectArray;
-extern int g_slicNumEntries;
+// Parser state.  Definitions are file-scope `static` in slicif.cpp;
+// external readers (SlicEngine, SlicSegment) go through the accessors.
+struct PSlicObject ** slic_object_array_Get(void);
+int slic_num_entries_Get(void);
 
 extern int slic_parse_error;
 
-extern int g_slicLineNumber;
+// g_slicLineNumber lives as file-scope `static` inside slic.l (the
+// flex-generated lexer that increments it).  External readers use the
+// accessor; the variable itself is no longer visible across TUs.
+int slic_line_number_Get(void);
 
 extern FILE *debuglog;
 

@@ -113,7 +113,7 @@ SlicSegment::SlicSegment()
 //
 // Parameters : slicifIndex         : index of stored object
 //
-// Globals    : g_slicObjectArray   : stored objects
+// Globals    : slic_object_array_Get()   : stored objects
 //              g_slicEngine        : game engine
 //              g_gevManager        : game event manager
 //
@@ -149,8 +149,8 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
 
-	Assert(slicifIndex < g_slicNumEntries);
-	struct PSlicObject *pobj = g_slicObjectArray[slicifIndex];
+	Assert(slicifIndex < slic_num_entries_Get());
+	struct PSlicObject *pobj = slic_object_array_Get()[slicifIndex];
 
 	m_type = pobj->m_type;
 	m_id = pobj->m_id;
@@ -198,7 +198,7 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 		}
 	}
 
-	g_slicObjectArray[slicifIndex] = NULL;
+	slic_object_array_Get()[slicifIndex] = NULL;
 
 	m_enabled = TRUE;
 

@@ -41,7 +41,13 @@
 #include "slicif.h"
 
 int state;
+/* slic.l owns the storage; slic.y has a parallel `extern int
+ * g_slicLineNumber;` in its prologue (bison-generated TU needs
+ * write access).  External readers go through slic_line_number_Get()
+ * declared in slicif.h. */
 int g_slicLineNumber = 1;
+
+int slic_line_number_Get(void) { return g_slicLineNumber; }
 
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 extern char *include_filename_stack[MAX_INCLUDE_DEPTH];

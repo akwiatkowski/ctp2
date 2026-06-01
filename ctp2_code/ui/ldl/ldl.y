@@ -17,6 +17,12 @@ void yyerror(char* err);
 int ldl_parser_done = 0;
 int ldl_parse_error;
 
+/* ldl.l owns the storage as `static int g_ldlLineNumber`.  Bison's
+ * generated TU needs visibility for the rules in this file; the extern
+ * is intentionally here rather than ldlif.h so the public header stays
+ * free of g_* externs (globals ratchet in test_player_view.cpp). */
+extern int g_ldlLineNumber;
+
 char *ldl_include_filename_stack[MAX_INCLUDE_DEPTH];
 int ldl_include_stack_ptr = 0;
 

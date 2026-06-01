@@ -84,9 +84,12 @@ static T slicif_read(PtrT &ptr) {
 }
 
 
-struct PSlicObject **g_slicObjectArray = NULL;
+static struct PSlicObject **g_slicObjectArray = NULL;
 int g_slicArraySize = 0;
-int g_slicNumEntries = 0;
+static int g_slicNumEntries = 0;
+
+struct PSlicObject ** slic_object_array_Get(void) { return g_slicObjectArray; }
+int slic_num_entries_Get(void) { return g_slicNumEntries; }
 
 namespace
 {
@@ -1769,7 +1772,7 @@ void slicif_start_segment(char *name)
 {
 	s_inSegment = 1;
 	strcpy(s_current_segment_name, name);
-	slicif_register_line(g_slicLineNumber, -1);
+	slicif_register_line(slic_line_number_Get(), -1);
 }
 
 char *slicif_get_segment_name_copy()

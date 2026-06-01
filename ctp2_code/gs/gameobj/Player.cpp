@@ -1063,7 +1063,7 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 	if(cause != CAUSE_NEW_ARMY_NETWORK) {
 		if(u.GetArmy().m_id == (0)) {
 			Army army = GetNewArmy(cause);
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
 								   GEA_Unit, u,
 								   GEA_Army, army,
 								   GEA_Int, g_network.IsClient() && cause == CAUSE_NEW_ARMY_INITIAL ? CAUSE_NEW_ARMY_NETWORK : cause,
@@ -1155,19 +1155,19 @@ Army Player::GetNewArmy(CAUSE_NEW_ARMY cause)
 #endif
 
 	#ifdef CTP2_DEBUG_LOGGING
-	fprintf(stderr, "[CTP2] GetNewArmy: g_gevManager=%p, calling Pause...\n", (void*)g_gevManager);
+	fprintf(stderr, "[CTP2] GetNewArmy: gevmanager_Get()=%p, calling Pause...\n", (void*)gevmanager_Get());
 	#endif
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: calling AddEvent army_id=%u...\n", (uint32)army.m_id);
 	#endif
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatedArmy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreatedArmy,
 						   GEA_Army, army,
 						   GEA_End);
 	#ifdef CTP2_DEBUG_LOGGING
 	fprintf(stderr, "[CTP2] GetNewArmy: AddEvent returned, calling Resume...\n");
 	#endif
-	g_gevManager->Resume();
+	gevmanager_Get()->Resume();
 
 	m_totalArmiesCreated++;
 	static MBCHAR buf[40];
@@ -1461,13 +1461,13 @@ Unit Player::CreateCity(
 		so = new SlicObject("016SeaCityBuilder");
 		so->AddRecipient(m_owner);
 		so->AddCity(u);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("017SeaCityOthers");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(player_view::VisiblePlayer());
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_SPACE_CITY)) &&
@@ -1479,12 +1479,12 @@ Unit Player::CreateCity(
 		so = new SlicObject("014SpaceCityBuilder");
 		so->AddRecipient(m_owner);
 		so->AddCity(u);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("015SpaceCityOthers");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	return u;
@@ -1746,7 +1746,7 @@ void Player::BeginTurnScience()
 						SlicObject *so = new SlicObject("116InternetDiscovery");
 						so->AddRecipient(m_owner);
 						so->AddAdvance(j);
-						g_slicEngine->Execute(so);
+						slicengine_Get()->Execute(so);
 						break;
 					}
 					count++;
@@ -1939,7 +1939,7 @@ void Player::BeginTurnImprovements()  //this might only be for tileimps under co
 
 	for(i=0; i < n; i++)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_ImprovementAddTurn,
 							   GEA_Improvement, m_terrainImprovements->Access(i),
 							   GEA_End);
@@ -1981,7 +1981,7 @@ void Player::BeginTurnEnemyUnits()
 
 		n = g_player[p]->m_all_units->Num();
 		for(i=0; i<n; i++) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 								   GEV_UnitBeginTurnVision,
 								   GEA_Unit, g_player[p]->m_all_units->Access(i),
 								   GEA_Player, m_owner,
@@ -1991,7 +1991,7 @@ void Player::BeginTurnEnemyUnits()
 
 		n = g_player[p]->m_all_cities->Num();
 		for(i=0; i<n; i++) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 								   GEV_CityBeginTurnVision,
 								   GEA_City, g_player[p]->m_all_cities->Access(i),
 								   GEA_Player, m_owner,
@@ -2016,7 +2016,7 @@ void Player::BeginTurnUnits()
 	}
 	sint32 n = m_all_units->Num();
 	for(i = 0; i < n; i++) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_BeginTurnUnit,
 							   GEA_Unit, m_all_units->Access(i),
 							   GEA_End);
@@ -2025,7 +2025,7 @@ void Player::BeginTurnUnits()
 
 	n = m_all_armies->Num();
 	for(i = n - 1; i >= 0; i--) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_BeginTurnArmy,
 							   GEA_Army, m_all_armies->Access(i),
 							   GEA_End);
@@ -2356,7 +2356,7 @@ void Player::BeginTurn()
 			m_changed_government_this_turn = FALSE;
 		}
 
-		g_slicEngine->RunPlayerTriggers(m_owner);
+		slicengine_Get()->RunPlayerTriggers(m_owner);
 
 		CheckResourcesForTutorial();
 
@@ -2401,7 +2401,7 @@ void Player::BeginTurn()
 	}
 
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CalcScores,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CalcScores,
 							   GEA_Player, m_owner,
 							   GEA_End);
 
@@ -2507,12 +2507,12 @@ void Player::EndTurn()
 	}
 
 	if ((m_gold->GetLevel() < 50) && (m_gold->DeltaThisTurn() < 0) &&
-	    (g_slicEngine->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, g_turn->GetRound())))
+	    (slicengine_Get()->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, g_turn->GetRound())))
 	{
 		SlicObject *so = new SlicObject("027NotEnoughGold") ;
 		so->AddRecipient(m_owner) ;
 		so->AddPlayer(m_owner);
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 	}
 
 	if(g_network.IsHost()) {
@@ -3049,7 +3049,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 			if(!sourceCity.HasResource(sourceResource) &&
 				sourceCity.CD()->IsLocalResource(sourceResource)) {
 				if(sourceCity.AccessData()->GetCityData()->BreakOneSourceRoute(sourceType, sourceResource)) {
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
 										   GEA_Int, sourceResource,
 										   GEA_City, sourceCity,
 										   GEA_City, destCity,
@@ -3080,7 +3080,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		SlicObject *so = new SlicObject("30IATooManyTradeRoutes");
 		so->AddRecipient(m_owner);
 		so->AddCity(sourceCity);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 		return TradeRoute();
 	}
 
@@ -3088,7 +3088,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		SlicObject *so = new SlicObject("30IATooManyTradeRoutes");
 		so->AddRecipient(m_owner);
 		so->AddCity(destCity);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 		return TradeRoute();
 	}
 
@@ -3264,7 +3264,7 @@ TradeOffer Player::CreateTradeOffer(Unit fromCity,
 												   askingType, askingResource,
 												   toCity);
 	if(offer != TradeOffer()) {
-		g_slicEngine->RunTradeOfferTriggers(offer);
+		slicengine_Get()->RunTradeOfferTriggers(offer);
 
 		if(offerType == ROUTE_TYPE_RESOURCE && askingType == ROUTE_TYPE_GOLD) {
 			SetLastSalePrice(offerResource, askingResource);
@@ -3361,7 +3361,7 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 		so->AddCity(destCity);
 		so->AddCivilisation(m_owner);
 
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 #if 0
@@ -3372,7 +3372,7 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 		so->AddCity(sourceCity) ;
 		so->AddCity(destCity) ;
 		so->AddCivilisation(destCity.GetOwner()) ;
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 		offer.KillOffer();
 	}
 #endif
@@ -3391,7 +3391,7 @@ void Player::CreateTradeBid(Unit &fromCity, sint32 resource, Unit &toCity)
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
 		SlicObject *so = new SlicObject("NoTraders");
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 		return;
 	}
 
@@ -3437,7 +3437,7 @@ void Player::SendTradeBid(const Unit &fromCity, sint32 resource, const Unit &toC
 	so->AddCity(toCity);
 	so->AddGold(price);
 	so->AddTradeBid(bidId);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 }
 
 void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &toCity,
@@ -3450,7 +3450,7 @@ void Player::AcceptTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 	so->AddCity(fromCity);
 	so->AddCity(toCity);
 	so->AddGold(price);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if(g_network.IsClient()) {
 		g_network.SendAction(new NetAction(NET_ACTION_ACCEPT_TRADE_BID,
@@ -3475,7 +3475,7 @@ void Player::RejectTradeBid(const Unit &fromCity, sint32 resource, const Unit &t
 	so->AddCity(fromCity);
 	so->AddCity(toCity);
 	so->AddGold(price);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if(g_network.IsClient()) {
 		g_network.SendAction(new NetAction(NET_ACTION_REJECT_TRADE_BID,
@@ -3606,7 +3606,7 @@ void Player::SetMaterialsTax(double m)
 										   (uint32)((m_materialsTax + 0.001) * 100.)));
 	}
 
-	g_slicEngine->RunPublicWorksTaxTriggers(m_owner);
+	slicengine_Get()->RunPublicWorksTaxTriggers(m_owner);
 }
 
 sint32 Player::GetCurrentScienceCost()
@@ -3642,7 +3642,7 @@ void Player::AddScience(const sint32 delta)
 		m_science->SetLevel(std::max<sint32>(0, remainsAfterCost));
 
 		sint32 const    advanceIndex    = m_advances->GetResearching();
-		g_gevManager->AddEvent(
+		gevmanager_Get()->AddEvent(
 		                       GEV_INSERT_AfterCurrent,
 		                       GEV_GrantAdvance,
 		                       GEA_Player,              m_owner,
@@ -3656,7 +3656,7 @@ void Player::AddScience(const sint32 delta)
 			SlicObject * so = new SlicObject("115EdisonDiscovery");
 			so->AddRecipient(m_owner);
 			so->AddAdvance(advanceIndex);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 }
@@ -3672,7 +3672,7 @@ void Player::SpecialDiscoveryNotices(AdvanceType advance)
 		so->AddRecipient(GetOwner());
 		so->AddAdvance(m_advances->GetResearching());
 		so->AddAction(g_theAdvanceDB->GetDiscoveryHoopla(m_advances->GetResearching()));
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		so = new SlicObject("30SpecialDiscovery");
 		so->AddAdvance(m_advances->GetResearching());
@@ -3681,12 +3681,12 @@ void Player::SpecialDiscoveryNotices(AdvanceType advance)
 			if ((g_player[i]) && (i != GetOwner()))
 				so->AddRecipient(i);
 
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		}
 #endif
 
-	g_slicEngine->RunDiscoveryTriggers(advance, m_owner);
+	slicengine_Get()->RunDiscoveryTriggers(advance, m_owner);
 }
 
 void Player::GovernmentDiscoveryNotices(AdvanceType advance)
@@ -3701,7 +3701,7 @@ void Player::GovernmentDiscoveryNotices(AdvanceType advance)
 			so = new SlicObject("57PlayerDiscoversNewGovernment");
 			so->AddRecipient(GetOwner());
 			so->AddGovernment(i);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 	}
@@ -3747,7 +3747,7 @@ void Player::ObsoleteNotices(AdvanceType advance)
 	so->AddUnit(Unit());
 	so->AddAdvance(advance);
 	so->AddRecipient(m_owner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 }
 
 void Player::BuildResearchDialog(AdvanceType advance)
@@ -3790,7 +3790,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 		if((g_turn->IsHotSeat() || g_turn->IsEmail())
 				// ... and replaced it with this, which makes much more sense,
 				// but doesn't work because BlankScreen() is called too late
-				//&& (g_slicEngine->ShouldScreenBeBlank())
+				//&& (slicengine_Get()->ShouldScreenBeBlank())
 				// So, I've left it without a further condition,
 				// which means the window (probably) won't appear in PBEM/hotseat
 				// games when the advance currently
@@ -3799,7 +3799,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 				// 2005/01/02
 				// (FIXME)
 				) {
-			g_slicEngine->AddResearchOnUnblank(m_owner, text);
+			slicengine_Get()->AddResearchOnUnblank(m_owner, text);
 		} else if (g_gameObservers) {
 			g_gameObservers->NotifyResearchAdvanceDialog(m_owner, advance, text);
 		}
@@ -4169,12 +4169,12 @@ void Player::BreakAlliance(PLAYER_INDEX ally)
 	SlicObject *so = new SlicObject("106YouBrokeAlliance");
 	so->AddRecipient(m_owner);
 	so->AddCivilisation(ally);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	so = new SlicObject("107AllianceBroken");
 	so->AddRecipient(ally);
 	so->AddCivilisation(m_owner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 }
 
 void Player::ExchangeMap(PLAYER_INDEX recipient)
@@ -4291,7 +4291,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 			else
 				so->AddCivilisation(agree.GetRecipient()) ;
 
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 
 			so = new SlicObject("86PactFulfilledCityCapturedSecondParty") ;
 			if (m_owner != agree.GetOwner())
@@ -4307,7 +4307,7 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 			else
 				so->AddCivilisation(agree.GetRecipient()) ;
 
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 			killList.Insert(agree) ;
 		}
 		else
@@ -4376,14 +4376,14 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 				so = new SlicObject("40IALeftLandsButNotAll");
 			}
 			so->AddRecipient(player) ;
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 		}
 
 		if(atLeastOneCouldntBeExpelled) {
 			SlicObject *so = new SlicObject("364AtLeastOneArmyCouldntBeExpelled");
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -4546,7 +4546,7 @@ void Player::BreakCeaseFire(PLAYER_INDEX other_player, bool sendMessages)
 	{
 		DPRINTF(k_DBG_INFO, ("Player #%d breaks an agreement with Player #%d\n", m_owner, other_player)) ;
 		a.Break();
-		g_slicEngine->RunTreatyBrokenTriggers(m_owner, other_player, a);
+		slicengine_Get()->RunTreatyBrokenTriggers(m_owner, other_player, a);
 		a.KillAgreement() ;
 		m_broken_alliances_and_cease_fires++;
 
@@ -4555,12 +4555,12 @@ void Player::BreakCeaseFire(PLAYER_INDEX other_player, bool sendMessages)
 			SlicObject *so = new SlicObject("108YouBrokeCeaseFire");
 			so->AddRecipient(m_owner);
 			so->AddCivilisation(other_player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("109CeaseFireBroken");
 			so->AddRecipient(other_player);
 			so->AddCivilisation(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		SetDiplomaticState(other_player, DIPLOMATIC_STATE_WAR);
@@ -4607,7 +4607,7 @@ void Player::BeginTurnAgreements()
 				so->AddRecipient(ag.GetRecipient());
 				so->AddCivilisation(ag.GetOwner());
 			}
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 }
@@ -4665,7 +4665,7 @@ void Player::RequestGreeting(const PLAYER_INDEX recipient)
 
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType advance)
@@ -4683,7 +4683,7 @@ void Player::RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType adva
 	so->AddAdvance(advance) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
@@ -4701,7 +4701,7 @@ void Player::RequestDemandCity(const PLAYER_INDEX recipient, Unit &city)
 	so->AddCity(city) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandMap(const PLAYER_INDEX recipient)
@@ -4717,7 +4717,7 @@ void Player::RequestDemandMap(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
@@ -4736,7 +4736,7 @@ void Player::RequestDemandGold(const PLAYER_INDEX recipient, Gold &amount)
 	so->AddGold(amount.GetLevel()) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
@@ -4754,7 +4754,7 @@ void Player::RequestDemandStopTrade(const PLAYER_INDEX recipient, const PLAYER_I
 	so->AddCivilisation(thirdParty) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
@@ -4770,7 +4770,7 @@ void Player::RequestDemandNoPiracy(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER_INDEX thirdParty)
@@ -4788,7 +4788,7 @@ void Player::RequestDemandAttackEnemy(const PLAYER_INDEX recipient, const PLAYER
 	so->AddCivilisation(thirdParty) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
@@ -4804,7 +4804,7 @@ void Player::RequestDemandLeaveOurLands(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
@@ -4820,7 +4820,7 @@ void Player::RequestDemandReducePollution(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &advance)
@@ -4838,7 +4838,7 @@ void Player::RequestOfferAdvance(const PLAYER_INDEX recipient, AdvanceType &adva
 	so->AddAdvance(advance) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
@@ -4857,7 +4857,7 @@ void Player::RequestOfferCity(const PLAYER_INDEX recipient, Unit &city)
 
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferMap(const PLAYER_INDEX recipient)
@@ -4873,7 +4873,7 @@ void Player::RequestOfferMap(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
@@ -4891,7 +4891,7 @@ void Player::RequestOfferGold(const PLAYER_INDEX recipient, const Gold &amount)
 	so->AddGold(amount.GetLevel()) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
@@ -4907,8 +4907,8 @@ void Player::RequestOfferCeaseFire(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
-	g_slicEngine->RunSentCeaseFireTriggers(m_owner, recipient);
+	slicengine_Get()->Execute(so) ;
+	slicengine_Get()->RunSentCeaseFireTriggers(m_owner, recipient);
 }
 
 void Player::RequestOfferPermanentAlliance(const PLAYER_INDEX recipient)
@@ -4924,7 +4924,7 @@ void Player::RequestOfferPermanentAlliance(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &city)
@@ -4943,7 +4943,7 @@ void Player::RequestOfferPactCaptureCity(const PLAYER_INDEX recipient, Unit &cit
 	so->AddCity(city) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
@@ -4959,7 +4959,7 @@ void Player::RequestOfferPactEndPollution(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &advance, AdvanceType &desired_advance)
@@ -4979,7 +4979,7 @@ void Player::RequestExchangeAdvance(const PLAYER_INDEX recipient, AdvanceType &a
 	so->AddAdvance(desired_advance) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, Unit &wantCity)
@@ -4999,7 +4999,7 @@ void Player::RequestExchangeCity(const PLAYER_INDEX recipient, Unit &offerCity, 
 	so->AddCity(wantCity) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
@@ -5016,7 +5016,7 @@ void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
 	so->AddCivilisation(recipient) ;
 	Assert(g_player[recipient]);
 	so->AddAttitude(GetAttitude(recipient));
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 }
 
@@ -5168,7 +5168,7 @@ void Player::GiveCity(const PLAYER_INDEX recipient, Unit city)
 		CellUnitList *units = cell->UnitArmy();
 		if(units) {
 			for(i = units->Num() - 1; i >= 0; i--) {
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 									   GEA_Unit, units->Access(i),
 									   GEA_Int, CAUSE_REMOVE_ARMY_DIPLOMACY,
 									   GEA_Player, recipient,
@@ -5304,7 +5304,7 @@ void Player::SendTestMessage(void)
 const MBCHAR *Player::GetLeaderName(void)
 {
 	if(!g_network.IsActive()
-	&& !g_slicEngine->GetTutorialActive()
+	&& !slicengine_Get()->GetTutorialActive()
 	&& g_theProfileDB->GetPlayerIndex() == m_owner
 	){
 		return g_theProfileDB->GetLeaderName();
@@ -5802,7 +5802,7 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 				}
 			}
 		}
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if(wonderutil_GetCloseEmbassies(safe_shift_left_u64(wonder))) {
@@ -5929,7 +5929,7 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 		so->AddAllRecipientsBut(PLAYER_INDEX_VANDALS);
 		so->AddWonder(which);
 		so->AddCity(c);
-		 g_slicEngine->Execute(so);
+		 slicengine_Get()->Execute(so);
 	}
 
 	sint32 buildingIndex;
@@ -6554,13 +6554,13 @@ bool Player::ActuallySetGovernment(sint32 type)
             so->AddAllRecipientsBut(m_owner);
             so->AddCivilisation(m_owner);
             so->AddGovernment(type);
-            g_slicEngine->Execute(so) ;
+            slicengine_Get()->Execute(so) ;
         }
 
         so = new SlicObject("012NewGovEnacted") ;
         so->AddRecipient(m_owner);
         so->AddGovernment(type);
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
 		if (g_gameObservers) {
 			g_gameObservers->NotifyGovernmentChanged(m_owner, type);
 		}
@@ -6604,7 +6604,7 @@ bool Player::ActuallySetGovernment(sint32 type)
 
 		if(!found)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
 			                       GEA_Unit, m_all_units->Access(i),
 			                       GEA_Int, CAUSE_REMOVE_ARMY_GOVERNMENT_CHANGE,
 			                       GEA_Player, -1,
@@ -6619,7 +6619,7 @@ bool Player::ActuallySetGovernment(sint32 type)
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(m_owner);
 		so->AddGovernment(type);
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 	}
 
 	sint32 p;
@@ -6655,7 +6655,7 @@ bool Player::ActuallySetGovernment(sint32 type)
 	// recalc the military support costs under the new government
 	m_readiness->RecalcCost();
 
-	g_slicEngine->RunGovernmentChangedTriggers(m_owner);
+	slicengine_Get()->RunGovernmentChangedTriggers(m_owner);
 
 	return true;
 }
@@ -6673,7 +6673,7 @@ void Player::UngroupArmy(Army &army)
 
 
 		Army newArmy = GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddUnitToArmy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AddUnitToArmy,
 							   GEA_Unit, army[i],
 							   GEA_Army, newArmy,
 							   GEA_End);
@@ -7073,7 +7073,7 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 		return;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillPlayer,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillPlayer,
 						   GEA_Player, m_owner,
 						   GEA_Int, reason,
 						   GEA_Player, data,
@@ -7086,14 +7086,14 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
     SlicObject *so = new SlicObject("77YouLose") ;
     so->AddRecipient(m_owner) ;
 	so->AddPlayer(m_owner);
-    g_slicEngine->Execute(so) ;
+    slicengine_Get()->Execute(so) ;
 
     if (reason == GAME_OVER_LOST_CONQUERED && data != m_owner) {
         so = new SlicObject("76PlayerDefeatedBy") ;
         so->AddCivilisation(m_owner) ;
         so->AddCivilisation(data) ;
         so->AddAllRecipientsBut(m_owner);
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
 		if(g_player[data]) {
 			g_player[data]->m_score->AddOpponentConquered();
 		}
@@ -7101,7 +7101,7 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
         so = new SlicObject("75PlayerDefeated") ;
         so->AddCivilisation(m_owner) ;
         so->AddAllRecipientsBut(m_owner);
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
     }
 
 	m_isDead = TRUE;
@@ -7345,7 +7345,7 @@ void Player::BeginTurnMonopoly(void)  //EMOD add back in but grant a feat?
 				so->AddCivilisation(m_owner) ;
 				so->AddGood(i) ;
 				so->AddCity(m_all_cities->Get(j)) ;
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 
 				break;
 				}
@@ -7369,7 +7369,7 @@ bool Player::ContinentShared() const
 void Player::CheckResourcesForTutorial() const
 {
 #ifdef CTP1_TRADE
-	if(!g_slicEngine->SpecialSameGoodEnabled())
+	if(!slicengine_Get()->SpecialSameGoodEnabled())
 		return;
 
 	sint32 i, j;
@@ -7377,7 +7377,7 @@ void Player::CheckResourcesForTutorial() const
 		for(j = i+1; j < m_all_cities->Num(); j++) {
 			if(m_all_cities->Access(i).GetResources()->FindMatch(
 				m_all_cities->Access(j).GetResources()) >= 0) {
-				g_slicEngine->RunSameGoodTriggers(m_all_cities->Access(i),
+				slicengine_Get()->RunSameGoodTriggers(m_all_cities->Access(i),
 												  m_all_cities->Access(j));
 				return;
 			}
@@ -7766,7 +7766,7 @@ void Player::BuildDiplomaticSlicMessage(DiplomaticRequest &r)
 			Assert(false);
 			break;
 	}
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 }
 
@@ -8031,7 +8031,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
                     so->AddRecipient(player_idx);
                     so->AddAdvance(advance);
                     so->AddWonder(i);
-                    g_slicEngine->Execute(so);
+                    slicengine_Get()->Execute(so);
                 }
             }
 
@@ -8079,7 +8079,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
             so->AddRecipient(wowner);
             so->AddAdvance(advance);
             so->AddWonder(i);
-            g_slicEngine->Execute(so);
+            slicengine_Get()->Execute(so);
         }
     }
 }
@@ -8117,7 +8117,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		SlicObject *so = new SlicObject("GCDiscoveredSolarisProjectUs");
 		so->AddRecipient(m_owner);
 		so->AddPlayer(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 		{
@@ -8126,7 +8126,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 				SlicObject *so = new SlicObject("GCDiscoveredSolarisProjectThem");
 				so->AddRecipient(i);
 				so->AddPlayer(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 		}
 	}
@@ -8144,7 +8144,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		){
 			if(!g_network.IsActive() || g_network.ReadyToStart())
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 									   GEA_Int, feat,
 									   GEA_Player, m_owner,
 									   GEA_End);
@@ -8371,7 +8371,7 @@ bool Player::CanBuildCapitalization() const { return m_can_build_capitalization 
 //
 // Globals    : g_player:     The list of players
 //              g_theUnitDB:  The unit database
-//              g_slicEngine: The slic engine
+//              slicengine_Get(): The slic engine
 //              g_TheWonderTracker: The list of wonders
 //
 // Returns    : Whether the player can build the unit specified by type.
@@ -8595,7 +8595,7 @@ void Player::RemoveEmptyCities(CAUSE_REMOVE_ARMY cause)
                 SlicObject *so = new SlicObject("04CitiesKilledByCalamity");
                 so->AddRecipient(m_owner);
                 so->AddCity(city);
-                g_slicEngine->Execute(so);
+                slicengine_Get()->Execute(so);
             }
 
             city.Kill(cause, -1);
@@ -8670,7 +8670,7 @@ void Player::RecoveredProbe(const Unit &city)
 	SlicObject *so = new SlicObject("306EndGameRecoveredProbe");
 	so->AddRecipient(m_owner);
 
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 }
 
 void Player::RecreateMessageIcons()
@@ -8706,7 +8706,7 @@ void Player::SetDiplomaticState(const PLAYER_INDEX p, const DIPLOMATIC_STATE s)
 		so->AddCivilisation(m_owner);
 		so->AddCivilisation(p);
 		so->AddAllRecipients();
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	Assert(g_player[p]);
@@ -8745,7 +8745,7 @@ void Player::ThisMeansWAR(PLAYER_INDEX defense_owner)
 		so->AddCivilisation(attack_owner);
 		so->AddCivilisation(defense_owner);
 		so->AddAllRecipientsBut(attack_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 //	sint32 oldBrokenAlliances = m_broken_alliances_and_cease_fires;
@@ -8987,7 +8987,7 @@ void Player::EnterNewAge(sint32 age)
 
 			SlicObject *so = new SlicObject((char *)rec->GetSlicObject());
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 	sint32 i;
@@ -9449,7 +9449,7 @@ void Player::CreateLeader()
 			SlicObject *so = new SlicObject("999GreatLeaderSpawn");
 			so->AddUnit(Unit(leader));
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			if (g_network.IsHost())
 			{

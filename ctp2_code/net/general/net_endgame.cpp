@@ -34,6 +34,9 @@
 #include "net/general/net_endgame.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Wormhole.h"
+#include "gs/utility/TurnCnt.h"
+
+extern TurnCount *g_turn;
 #include "gs/gameobj/EndGame.h" // Not part of the project
 #include "net/io/net_util.h"
 #include "gs/gameobj/Player.h"
@@ -221,7 +224,7 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Wormhole *wh = wormhole_Get();
 	if(!wh) {
-		wh = new Wormhole(discoverer, wpos);
+		wh = new Wormhole(discoverer, wpos, g_turn->GetRound());
 		wormhole_Set(wh);
 	}
 

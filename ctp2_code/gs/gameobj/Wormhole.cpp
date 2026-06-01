@@ -35,7 +35,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Wormhole.h"
 #include "gs/gameobj/Player.h"
-#include "gs/utility/TurnCnt.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
@@ -58,7 +57,7 @@
 // Wormhole's definition + lifecycle moved to gs/utility/gameinit.cpp
 // (matches the rest of the gs/ singletons). Accessor pair in Wormhole.h.
 
-Wormhole::Wormhole(sint32 discoverer)
+Wormhole::Wormhole(sint32 discoverer, sint32 currentRound)
 {
 	m_discoverer = discoverer;
 
@@ -71,13 +70,13 @@ Wormhole::Wormhole(sint32 discoverer)
 	m_curDir = NORTHEAST;
 
 	m_entries = new PointerList<EntryRecord>;
-	m_discoveredAt = g_turn->GetRound();
+	m_discoveredAt = currentRound;
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
 	m_actor = goodactor_factory_create(id, m_pos);
 }
 
-Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos)
+Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound)
 {
 	m_discoverer = discoverer;
 	sint16 centerY =  static_cast<sint16>(g_theWorld->GetYHeight() / 2);
@@ -89,7 +88,7 @@ Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos)
 	m_curDir = NORTHEAST;
 
 	m_entries = new PointerList<EntryRecord>;
-	m_discoveredAt = g_turn->GetRound();
+	m_discoveredAt = currentRound;
 
 	sint32 id = g_theResourceDB->Get(g_theResourceDB->FindRecordNameIndex(k_WORMHOLE_GOOD_ID_STR))->GetSpriteID();
 	m_actor = goodactor_factory_create(id, m_pos);
@@ -132,7 +131,7 @@ void Wormhole::Serialize(CivArchive &archive)
 	}
 }
 
-BOOL Wormhole::CheckEnter(const Unit &unit)
+BOOL Wormhole::CheckEnter(const Unit &unit, sint32 currentRound)
 {
 	MapPoint upos;
 	if(!unit.GetDBRec()->GetWormholeProbe())
@@ -142,7 +141,7 @@ BOOL Wormhole::CheckEnter(const Unit &unit)
 	if(m_pos != upos) {
 		return FALSE;
 	}
-	m_entries->AddTail(new EntryRecord(unit, g_turn->GetRound()));
+	m_entries->AddTail(new EntryRecord(unit, currentRound));
 	return TRUE;
 }
 
@@ -168,7 +167,7 @@ void Wormhole::BeginTurn(sint32 player)
 
 #if 0
 
-		if(walk.GetObj()->m_round + g_theConstDB->WormholeReturnTime() <= g_turn->GetRound()) {
+		if(walk.GetObj()->m_round + g_theConstDB->WormholeReturnTime() <= 0 /* g_turn->GetRound() — dead branch, see #if 0 */) {
 			EntryRecord *erec = walk.GetObj();
 			walk.Remove();
 			ere1c->m_unit.ExitWormhole(m_pos);
@@ -229,9 +228,9 @@ void Wormhole::Move()
 	DPRINTF(k_DBG_INFO, ("Wormhole now at %d,%d\n", m_pos.x, m_pos.y));
 }
 
-BOOL Wormhole::IsVisible(sint32 player)
+BOOL Wormhole::IsVisible(sint32 player, sint32 currentRound) const
 {
-	if(m_discoveredAt + g_theConstDB->Get(0)->GetWormholeVisibleToAllTurns() <= g_turn->GetRound()) {
+	if(m_discoveredAt + g_theConstDB->Get(0)->GetWormholeVisibleToAllTurns() <= currentRound) {
 		return TRUE;
 	} else if(player == m_discoverer) {
 		return TRUE;

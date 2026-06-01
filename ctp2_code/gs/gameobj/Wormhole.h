@@ -43,18 +43,20 @@ private:
 	friend class NetWormhole;
 
 public:
-	Wormhole(sint32 discoverer);
-	Wormhole(sint32 discoverer, MapPoint &startPos);
+	Wormhole(sint32 discoverer, sint32 currentRound);
+	Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound);
 
 	Wormhole(CivArchive &archive);
 	~Wormhole();
 
 	void Serialize(CivArchive &archive);
 
-	BOOL IsVisible(sint32 player);
+	BOOL IsVisible(sint32 player, sint32 currentRound) const;
 
-	BOOL CheckEnter(const Unit &unit);
+	BOOL CheckEnter(const Unit &unit, sint32 currentRound);
 	void BeginTurn(sint32 player);
+
+	sint32 GetDiscoveredAt() const { return m_discoveredAt; }
 
 	GoodActor *GetActor(void) { return m_actor;}
 	MapPoint	GetPos(void) { return m_pos; }

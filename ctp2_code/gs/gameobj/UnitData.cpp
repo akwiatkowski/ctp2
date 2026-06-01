@@ -479,7 +479,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 		feattracker_Get()->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
 	}
 
-	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id))) {
+	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id), g_turn->GetRound())) {
 		left_map = true;
 		SetFlag(k_UDF_HAS_LEFT_MAP);
 		SetFlag(k_UDF_IN_WORMHOLE);

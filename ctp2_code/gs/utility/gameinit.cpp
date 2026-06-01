@@ -345,7 +345,10 @@ BOOL gameinit_IsEmailGame(void)         { return g_startEmailGame; }
 void gameinit_SetEmailGame(BOOL v)      { g_startEmailGame = v; }
 BOOL gameinit_IsHotseatGame(void)       { return g_startHotseatGame; }
 void gameinit_SetHotseatGame(BOOL v)    { g_startHotseatGame = v; }
-HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
+static HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
+
+HotseatPlayerSetup * hs_player_setup_buf(void) { return g_hsPlayerSetup; }
+void hs_player_setup_Clear(void) { memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup)); }
 
 //----------------------------------------------------------------------------
 

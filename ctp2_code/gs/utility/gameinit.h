@@ -35,6 +35,11 @@ struct HotseatPlayerSetup {
 	MBCHAR *name;
 	MBCHAR *email;
 };
-extern HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
+// Hotseat per-slot setup buffer.  Definition is file-scope `static`
+// in gs/utility/gameinit.cpp; callers index via hs_player_setup_buf()
+// and clear via hs_player_setup_Clear() (replaces the previous
+// memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup)) idiom).
+HotseatPlayerSetup * hs_player_setup_buf(void);
+void hs_player_setup_Clear(void);
 
 #endif

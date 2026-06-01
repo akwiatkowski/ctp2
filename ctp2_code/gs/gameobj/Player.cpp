@@ -163,7 +163,6 @@
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3debug.h"
 #include "ctp/ctp2_utils/c3errors.h"
-#include "ctp/ctp2_utils/civlog.h"  // TEMP: fog-of-war first-city bug diagnostic
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "robot/pathing/CityAstar.h"
@@ -307,7 +306,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	bool treatAsRobot = IsRobot();
 	if(treatAsRobot && (gameinit_IsHotseatGame() || gameinit_IsEmailGame()) &&
-	   g_hsPlayerSetup[m_owner].isHuman)
+	   hs_player_setup_buf()[m_owner].isHuman)
 		treatAsRobot = false;
 
 	m_all_armies = new DynamicArray<Army>;
@@ -3854,16 +3853,7 @@ void Player::SetResearching(AdvanceType advance)
 
 void Player::AddUnitVision(const MapPoint &pnt, double range)
 {
-	// TEMP: fog-of-war first-city bug diagnostic
-	bool const localIsNull   = (tiledmap_observer::GetLocalVision() == nullptr);
-	bool const isLocalPlayer = !localIsNull && (m_vision == tiledmap_observer::GetLocalVision());
-	civlog::Get("vision-dbg")->info(
-		"AddUnitVision owner={} pos=({},{}) range={:.3f} route={} obs={}",
-		m_owner, pnt.x, pnt.y, range,
-		isLocalPlayer ? "observer(deferred)" : "direct(immediate)",
-		g_gameObservers ? "yes" : "NULL");
-
-	if(localIsNull || !isLocalPlayer)
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->AddVisible(pnt, range);
 	}
@@ -3875,15 +3865,7 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 
 void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 {
-	// TEMP: fog-of-war first-city bug diagnostic
-	bool const localIsNull   = (tiledmap_observer::GetLocalVision() == nullptr);
-	bool const isLocalPlayer = !localIsNull && (m_vision == tiledmap_observer::GetLocalVision());
-	civlog::Get("vision-dbg")->info(
-		"RemoveUnitVision owner={} pos=({},{}) range={:.3f} route={}",
-		m_owner, pnt.x, pnt.y, range,
-		isLocalPlayer ? "observer(deferred)" : "direct(immediate)");
-
-	if(localIsNull || !isLocalPlayer)
+	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}

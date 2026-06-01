@@ -264,14 +264,14 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 
 	} else {
 
-		g_hsPlayerSetup[player].civ = civ;
-		g_hsPlayerSetup[player].isHuman = human;
-		delete [] g_hsPlayerSetup[player].name;
-		delete [] g_hsPlayerSetup[player].email;
-		g_hsPlayerSetup[player].name = new MBCHAR[strlen(name) + 1];
-		strcpy(g_hsPlayerSetup[player].name, name);
-		g_hsPlayerSetup[player].email = new MBCHAR[strlen(email) + 1];
-		strcpy(g_hsPlayerSetup[player].email, email);
+		hs_player_setup_buf()[player].civ = civ;
+		hs_player_setup_buf()[player].isHuman = human;
+		delete [] hs_player_setup_buf()[player].name;
+		delete [] hs_player_setup_buf()[player].email;
+		hs_player_setup_buf()[player].name = new MBCHAR[strlen(name) + 1];
+		strcpy(hs_player_setup_buf()[player].name, name);
+		hs_player_setup_buf()[player].email = new MBCHAR[strlen(email) + 1];
+		strcpy(hs_player_setup_buf()[player].email, email);
 	}
 }
 
@@ -281,7 +281,7 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 
 void loadsavescreen_SetupHotseatOrEmail(void)
 {
-	memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup));
+	hs_player_setup_Clear();
 
 	hotseatlist_DisplayWindow(
 		(HotseatListCallback *)loadsavescreen_HotseatCallback);

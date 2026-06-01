@@ -263,7 +263,7 @@ struct HeavyCityDataFixture
     {
         if (!s_dbsLoaded)
         {
-            g_headlessMode = true;
+            set_headless(true);
 
             fprintf(stderr, "[HeavyFixture] Loading databases...\n");
             CivPaths_InitCivPaths();

@@ -26,7 +26,7 @@ struct BuildQueueFixture
     {
         if (!s_dbsLoaded)
         {
-            g_headlessMode = true;
+            set_headless(true);
 
             fprintf(stderr, "[BuildQueueFixture] Loading databases...\n");
             CivPaths_InitCivPaths();

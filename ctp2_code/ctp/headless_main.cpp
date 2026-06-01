@@ -26,6 +26,7 @@
 #include "gs/gameobj/CityData.h"              // CityData::PopCount
 #include "gs/gameobj/Unit.h"                  // Unit::GetName / GetPos / CD
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
+#include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/gameobj/Events.h"                // GEV_AiBeginTurn / GEV_AiBeginMapAnalysis
 #include "gs/events/GameEventManager.h"       // g_gevManager
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
@@ -35,8 +36,8 @@
 #include <string.h>
 
 extern CivApp *g_civApp;
-extern bool    g_headlessMode;
 extern sint32  g_runInBackground;
+#include "gs/utility/Globals.h"   // set_headless()
 extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed override
 
 // Headless mode needs a CurPlayer callback because CtpAi::BeginTurn and
@@ -132,7 +133,7 @@ int main(int argc, char **argv)
     }
 
     // Force headless mode before any initialization
-    g_headlessMode = true;
+    set_headless(true);
     g_runInBackground = true;
 
     g_civApp = new CivApp();
@@ -337,8 +338,14 @@ int main(int argc, char **argv)
                 }
 
                 // --- per-city section ---
+                // visible_owner / explored_owner: queried against the city
+                // owner's m_vision at the city tile.  A founded city must
+                // be visible to its own owner, otherwise the UI renders
+                // it fogged and the cell can't be clicked.  See
+                // test_city_visibility.cpp.
                 std::fprintf(fp, "\n# CITIES\n");
-                std::fprintf(fp, "player_idx,city_name,pos_x,pos_y,population\n");
+                std::fprintf(fp, "player_idx,city_name,pos_x,pos_y,population,"
+                                 "visible_owner,explored_owner\n");
                 for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
                     if (!g_player[p]) continue;
                     UnitDynamicArray *cities = g_player[p]->GetAllCitiesList();
@@ -351,9 +358,15 @@ int main(int argc, char **argv)
                         u.GetPos(pos);
                         CityData *cd = u.GetCityData();
                         sint32 pop = cd ? cd->PopCount() : 0;
-                        std::fprintf(fp, "%d,%s,%d,%d,%d\n",
+                        bool visible  = g_player[p]->m_vision &&
+                                        g_player[p]->m_vision->IsVisible(pos);
+                        bool explored = g_player[p]->m_vision &&
+                                        g_player[p]->m_vision->IsExplored(pos);
+                        std::fprintf(fp, "%d,%s,%d,%d,%d,%s,%s\n",
                                      (int)p, cname,
-                                     (int)pos.x, (int)pos.y, (int)pop);
+                                     (int)pos.x, (int)pos.y, (int)pop,
+                                     visible  ? "yes" : "no",
+                                     explored ? "yes" : "no");
                     }
                 }
 

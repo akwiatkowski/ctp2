@@ -410,7 +410,10 @@ sint32 g_oldRandSeed = FALSE;
 
 ProgressWindow *g_theProgressWindow = NULL;
 
-bool    g_headlessMode = false;
+static bool g_headlessMode = false;
+
+bool is_headless(void)      { return g_headlessMode; }
+void set_headless(bool v)   { g_headlessMode = v; }
 
 // Null-safe wrapper around ProgressTo.  In headless
 // mode the global stays NULL (ProgressWindow::BeginProgress short-circuits),

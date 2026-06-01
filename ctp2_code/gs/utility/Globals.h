@@ -131,7 +131,10 @@ template <typename T> void clearContainer(T & a_Container)
 
 } // namespace allocated
 
-/// When true, the game runs without UI/rendering. Used by unit tests.
-extern bool g_headlessMode;
+/// When true, the game runs without UI/rendering. Used by unit tests
+/// and ctp2_headless.  Backing storage is file-scope `static` in
+/// civapp.cpp.
+bool is_headless(void);
+void set_headless(bool v);
 
 #endif

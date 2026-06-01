@@ -48,7 +48,7 @@ void ProgressWindow::BeginProgress(
 	Assert( maxval >= 0 );
 	if ( maxval < 0 ) return;
 
-	if (g_headlessMode) {
+	if (is_headless()) {
 		// Leave progwin = NULL.  Callers must null-guard before dereferencing;
 		// see the ProgressTo() helper in civapp.cpp for the canonical
 		// `g_theProgressWindow->StartCountingTo(...)` call wrapper.  An older
@@ -95,7 +95,7 @@ void ProgressWindow::BeginProgress(
 
 void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 {
-	if (g_headlessMode) return;
+	if (is_headless()) return;
 
 	if ( message )
 	{
@@ -115,7 +115,7 @@ void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 
 void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 {
-	if (g_headlessMode) {
+	if (is_headless()) {
 		progwin = NULL;
 		return;
 	}

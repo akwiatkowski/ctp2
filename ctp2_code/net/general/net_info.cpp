@@ -465,7 +465,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_END_UNITS:
 		{
-			g_theUnitPool->HackSetKey(m_data);
+			unitpool_Get()->HackSetKey(m_data);
 			armypool_Get()->HackSetKey(m_data2);
 
 
@@ -577,7 +577,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Net: City %d building unit %d\n",
 								m_data2, m_data));
 			Unit u(m_data2);
-			Assert(g_theUnitPool->IsValid(u));
+			Assert(unitpool_Get()->IsValid(u));
 			if(u.IsValid()) {
 				u.BuildUnit(m_data);
 			}
@@ -675,8 +675,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server says city %lx built something\n",
 								m_data));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(!g_theUnitPool->IsValid(city))
+			Assert(unitpool_Get()->IsValid(city));
+			if(!unitpool_Get()->IsValid(city))
 				return;
 
 
@@ -717,7 +717,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server says reset city %lx to owner %d, conq: %d\n",
 								m_data, m_data2, m_data3));
 			Unit unit(m_data);
-			if(g_theUnitPool->IsValid(unit)) {
+			if(unitpool_Get()->IsValid(unit)) {
 				if(unit.GetOwner() != (sint32)m_data2) {
 
 					unit.ResetCityOwner(m_data2, m_data3, CAUSE_REMOVE_CITY(m_data4));
@@ -962,8 +962,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: City %lx had build item %d removed\n",
 								m_data, m_data2));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.AccessData()->GetCityData()->GetBuildQueue()->
 					RemoveNodeByIndex(m_data2, CAUSE_REMOVE_BUILD_ITEM_NETWORK);
 			}
@@ -974,8 +974,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: City %lx suffered a happiness attack of %d for %d turns\n",
 								m_data, m_data2, m_data3));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.AddHappyTimer(m_data2, double(-((sint32)m_data3)), HAPPY_REASON_HAPPINESS_ATTACK);
 				city.AccessData()->GetCityData()->IndicateHappinessAttacked();
 			}
@@ -1046,8 +1046,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Unit %lx now belongs to Army %lx\n",
 								m_data, m_data2));
 			Unit unit(m_data);
-			Assert(g_theUnitPool->IsValid(unit) || g_network.DeadUnit(unit.m_id));
-			if(g_theUnitPool->IsValid(unit)) {
+			Assert(unitpool_Get()->IsValid(unit) || g_network.DeadUnit(unit.m_id));
+			if(unitpool_Get()->IsValid(unit)) {
 				if(!armypool_Get()->IsValid(m_data2)) {
 					g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
 				} else {
@@ -1106,8 +1106,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: City %lx is building wonder %d\n"));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				if(g_player[city.GetOwner()]) {
 					g_player[city.GetOwner()]->BuildWonder(m_data2, city);
 				}
@@ -1136,10 +1136,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data, m_data2));
 			Unit fromCity(m_data);
 			Unit toCity(m_data2);
-			Assert(g_theUnitPool->IsValid(fromCity));
-			Assert(g_theUnitPool->IsValid(toCity));
-			if(g_theUnitPool->IsValid(fromCity) &&
-			   g_theUnitPool->IsValid(toCity)) {
+			Assert(unitpool_Get()->IsValid(fromCity));
+			Assert(unitpool_Get()->IsValid(toCity));
+			if(unitpool_Get()->IsValid(fromCity) &&
+			   unitpool_Get()->IsValid(toCity)) {
 				fromCity.SendSlaveTo(toCity);
 			}
 			break;
@@ -1153,8 +1153,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: city %lx building capitalization\n", m_data));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.BuildCapitalization();
 			}
 			break;
@@ -1163,8 +1163,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: city %lx building infrastructure\n", m_data));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.BuildInfrastructure();
 			}
 			break;
@@ -1173,8 +1173,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: city %lx building end game %d\n", m_data, m_data2));
 			Unit city(m_data);
-			Assert(g_theUnitPool->IsValid(city));
-			if(g_theUnitPool->IsValid(city)) {
+			Assert(unitpool_Get()->IsValid(city));
+			if(unitpool_Get()->IsValid(city)) {
 				city.BuildEndGame(m_data2);
 			}
 			break;
@@ -1204,7 +1204,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("City %lx sold building %d\n",
 								m_data, m_data2));
 			Unit city(m_data);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->SellBuilding(m_data2);
 			}
 			break;
@@ -1239,7 +1239,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Build queue for city %lx cleared\n",
 								m_data));
 			Unit city(m_data);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->Clear(TRUE);
 			}
 			break;
@@ -1253,7 +1253,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Wonder %d built at %lx\n", m_data, m_data2));
 			Unit city(m_data2);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 			CityData *cd = city.GetData()->GetCityData();
 			if (m_data >= 0 && m_data < 64)
 				cd->SetWonders(cd->GetBuiltWonders() | ((uint64)1 << (uint64)m_data));
@@ -1270,7 +1270,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Send offer accept message, Src: %lx, dest: %lx, res: %d\n",
 								m_data, m_data2, m_data3));
 			Unit src(m_data), dest(m_data2);
-			if(g_theUnitPool->IsValid(src) && g_theUnitPool->IsValid(dest)) {
+			if(unitpool_Get()->IsValid(src) && unitpool_Get()->IsValid(dest)) {
 				SlicObject *so = new SlicObject("363TradeOfferAccepted");
 				so->AddRecipient(dest.GetOwner());
 				so->AddCivilisation(src.GetOwner());
@@ -1315,7 +1315,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Reset unit %lx to owner %d, cause= %d\n",
 								m_data, m_data2, m_data3));
 			Unit unit(m_data);
-			if(g_theUnitPool->IsValid(m_data)) {
+			if(unitpool_Get()->IsValid(m_data)) {
 				if(unit.GetOwner() != (PLAYER_INDEX)m_data2) {
 					unit.ResetUnitOwner(m_data2, (CAUSE_REMOVE_ARMY)m_data3);
 				}
@@ -1343,7 +1343,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: remove illegal items at city %lx\n",
 								m_data));
 			Unit city(m_data);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->RemoveIllegalItems();
 			}
 			g_network.SendAction(new NetAction(NET_ACTION_ACK_REMOVE_ILLEGAL,
@@ -1355,7 +1355,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Unit %lx is now a real unit\n",
 								m_data));
 			Unit unit(m_data);
-			if(g_theUnitPool->IsValid(unit)) {
+			if(unitpool_Get()->IsValid(unit)) {
 				if(!g_player[unit.GetOwner()]) {
 					g_network.RequestResync(RESYNC_BAD_PLAYER);
 					break;
@@ -1380,7 +1380,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Build queue for city %lx cleared\n",
 								m_data));
 			Unit city(m_data);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->ClearAllButHead(TRUE);
 			}
 			break;
@@ -1429,7 +1429,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Wonder %d almost finished by %d at %lx\n",
 								m_data2, m_data, m_data3));
-			if(g_theUnitPool->IsValid(m_data3)) {
+			if(unitpool_Get()->IsValid(m_data3)) {
 				SlicObject *so = new SlicObject("45WonderAlmostFinished");
 				so->AddAllRecipientsBut(m_data);
 				so->AddWonder(m_data2);
@@ -1467,7 +1467,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Player %d's city %lx revolted to join %d (egalitarians = %d)\n",
 								m_data, m_data3, m_data2, m_data4));
 			Unit city(m_data3);
-			if(g_theUnitPool->IsValid(city)) {
+			if(unitpool_Get()->IsValid(city)) {
 				SlicObject *so = new SlicObject("010NewCiv");
 				so->AddAllRecipients();
 				so->AddCivilisation(m_data);
@@ -1694,7 +1694,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				break;
 			}
 
-			if(!g_theUnitPool->IsValid(m_data2)) {
+			if(!unitpool_Get()->IsValid(m_data2)) {
 				g_network.RequestResync(RESYNC_INVALID_UNIT);
 				break;
 			}

@@ -222,7 +222,7 @@ class UnitActor;
 #include "gs/core/player_view.h"
 #include "gs/core/game_observer.h"
 
-extern AgreementPool *  g_theAgreementPool;
+#include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 extern Diplomacy_Log *  g_theDiplomacyLog;
 extern Pollution *      g_thePollution;
 extern UnitAstar *      g_theUnitAstar;
@@ -9838,7 +9838,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 		}
 		if(atLeastOneNonSpecialUnit) {
 			Agreement ag = g_player[cell->GetOwner()]->FindAgreement(AGREEMENT_TYPE_DEMAND_LEAVE_OUR_LANDS, m_owner);
-			if(g_theAgreementPool->IsValid(ag) && ag.GetRecipient() == m_owner) {
+			if(agreementpool_Get()->IsValid(ag) && ag.GetRecipient() == m_owner) {
 
 				if(!g_player[m_owner]->IsRobot()
 				|| (g_network.IsClient()

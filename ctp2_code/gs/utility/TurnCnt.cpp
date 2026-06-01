@@ -349,7 +349,7 @@ void TurnCount::BeginNewRound()
 	}
 	player_view::NextRound();
 	render_observer::NextPlayer();
-	g_theAgreementPool->EndRound();
+	agreementpool_Get()->EndRound();
 	g_thePollution->EndRound();
 	g_slicEngine->RunYearlyTriggers();
 

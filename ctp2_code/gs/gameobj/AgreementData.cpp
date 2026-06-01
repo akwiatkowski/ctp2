@@ -65,7 +65,7 @@ extern	TurnCount	*g_turn ;
 extern UnitPool *g_theUnitPool;
 extern World *g_theWorld;
 
-extern AgreementPool *g_theAgreementPool;
+#include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 
 #include "gs/gameobj/Diplomacy_Log.h"
 extern Diplomacy_Log *g_theDiplomacyLog;
@@ -1203,7 +1203,7 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 
 
 		Agreement me(m_id);
-		if(g_theAgreementPool->IsValid(me)) {
+		if(agreementpool_Get()->IsValid(me)) {
 			me.Kill();
 		}
 	}
@@ -1264,7 +1264,7 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer)
 
 
 		Agreement me(m_id);
-		if(g_theAgreementPool->IsValid(me)) {
+		if(agreementpool_Get()->IsValid(me)) {
 			me.Kill();
 		}
 	}
@@ -1351,7 +1351,7 @@ void AgreementData::BeginTurnOwner()
 				}
 
 
-				if(g_theAgreementPool->IsValid(me)) {
+				if(agreementpool_Get()->IsValid(me)) {
 					if(rounds > g_theConstDB->Get(0)->GetEndPollutionRounds()) {
 						m_ownerPollution = safe_player(m_owner)->GetCurrentPollution();
 						if(g_player[m_recipient]) {
@@ -1489,7 +1489,7 @@ void AgreementData::BeginTurnRecipient()
 				}
 
 
-				if(g_theAgreementPool->IsValid(me)) {
+				if(agreementpool_Get()->IsValid(me)) {
 					if(rounds > g_theConstDB->EndPollutionRounds()) {
 						m_ownerPollution = safe_player(m_owner)->GetCurrentPollution();
 						if(g_player[m_recipient]) {

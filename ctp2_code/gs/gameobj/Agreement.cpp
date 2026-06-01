@@ -14,7 +14,7 @@
 
 	extern	Player	**g_player ;
 
-	extern	AgreementPool*	g_theAgreementPool ;
+	#include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 
 
 
@@ -55,7 +55,7 @@ void Agreement::RemoveAllReferences()
 										   m_id));
 	}
 
-	g_theAgreementPool->Del(*this) ;
+	agreementpool_Get()->Del(*this) ;
 }
 
 
@@ -85,7 +85,7 @@ void Agreement::RemoveAllReferences()
 
 const AgreementData* Agreement::GetData() const
 	{
-	return (g_theAgreementPool->GetAgreement(*this)) ;
+	return (agreementpool_Get()->GetAgreement(*this)) ;
 	}
 
 
@@ -98,7 +98,7 @@ const AgreementData* Agreement::GetData() const
 
 AgreementData* Agreement::AccessData()
 	{
-	return (g_theAgreementPool->AccessAgreement(*this)) ;
+	return (agreementpool_Get()->AccessAgreement(*this)) ;
 	}
 
 void Agreement::Break()

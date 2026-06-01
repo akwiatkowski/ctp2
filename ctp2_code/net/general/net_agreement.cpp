@@ -10,7 +10,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/utility/AgreementDynArr.h"
 
-extern AgreementPool *g_theAgreementPool;
 extern Player **g_player;
 
 NetAgreement::NetAgreement(AgreementData *data)
@@ -77,16 +76,16 @@ void NetAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONGTYPE(ag, Agreement);
 
 	g_network.CheckReceivedObject((uint32)ag);
-	if(!g_theAgreementPool->IsValid(ag)) {
+	if(!agreementpool_Get()->IsValid(ag)) {
 		m_data = new AgreementData(ag);
 	} else {
-		m_data = g_theAgreementPool->AccessAgreement(ag);
+		m_data = agreementpool_Get()->AccessAgreement(ag);
 	}
 
 	UnpacketizeData(m_data, buf, pos, size);
 
-	if(!g_theAgreementPool->IsValid(ag)) {
-		g_theAgreementPool->Insert(m_data);
+	if(!agreementpool_Get()->IsValid(ag)) {
+		agreementpool_Get()->Insert(m_data);
 
 		g_player[m_data->m_owner]->m_agreed->Insert(ag);
 		g_player[m_data->m_recipient]->m_agreed->Insert(ag);
@@ -125,7 +124,7 @@ void NetClientAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	g_network.Block(g_network.IdToIndex(id));
 
 	Agreement createdAgreement =
-		g_theAgreementPool->Create(m_data->m_owner, m_data->m_recipient,
+		agreementpool_Get()->Create(m_data->m_owner, m_data->m_recipient,
 								   m_data->m_agreement);
 	g_network.Unblock(g_network.IdToIndex(id));
 

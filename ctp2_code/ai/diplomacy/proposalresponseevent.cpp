@@ -1744,87 +1744,87 @@ STDEHANDLER(DefaultTreatyResponse_ProposalResponseEvent)
 void ProposalResponseEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_LandForPeace_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_Accept_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_Reject_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_PayTribute_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_PayForAdvance_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_AdvanceForGold_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_AdvanceExchange_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_StopPiracy_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_GiveMap_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_PeaceTreaty_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_AcceptAlliance_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_CeasefireForGold_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_AcceptGifts_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_StopResearch_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_ReduceWeapons_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_ReducePollution_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_HonorMilitaryAgreement_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_HonorPollutionAgreement_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_EndEmbargo_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_DefaultTreatyResponse_ProposalResponseEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Pre,
 							  &s_MutualWithdraw_ProposalResponseEvent);
 

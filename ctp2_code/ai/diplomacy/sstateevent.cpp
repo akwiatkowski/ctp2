@@ -961,59 +961,59 @@ STDEHANDLER(CheckCityLimit_NextSStateEvent)
 //----------------------------------------------------------------------------
 void StrategicStateEventCallbacks::AddCallbacks()
 {
-	g_gevManager->AddCallback(GEV_InitStrategicState,
+	gevmanager_Get()->AddCallback(GEV_InitStrategicState,
 							  GEV_PRI_Primary,
 							  &s_InitSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Primary,
 							  &s_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_InitSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_FullAttack_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_BuildupStrength_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_SeigeCities_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_NuclearReadiness_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_NuclearStrike_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_OpeningGambit_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_IslandNation_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_SetExpansion_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_SetExploration_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_DefenseLevel_NextSStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextStrategicState,
+	gevmanager_Get()->AddCallback(GEV_NextStrategicState,
 							  GEV_PRI_Pre,
 							  &s_CheckCityLimit_NextSStateEvent);
 }

@@ -1934,7 +1934,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	// Prevent the event handler corrupting the (diplomacy) data in the
 	// middle of a file restore operation.
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 
 	events_Initialize();
 	ui_events_Initialize();
@@ -1945,7 +1945,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	g_god = FALSE;
 
 	if (!gameinit_Initialize(-1, -1, archive)) {
-		g_gevManager->Resume();
+		gevmanager_Get()->Resume();
 		return FALSE;
 	}
 
@@ -2011,7 +2011,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 640 );
 
 #ifdef _DEBUG
-	g_gevManager->Dump();
+	gevmanager_Get()->Dump();
 #endif
 
 	ProgressTo( 650 );
@@ -2049,15 +2049,15 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	);
 
 	m_gameLoaded = TRUE;
-	//g_gevManager->Resume();
-	//g_gevManager->Process();
+	//gevmanager_Get()->Resume();
+	//gevmanager_Get()->Process();
 
 	ProgressTo( 700 );
 
 	g_director->CatchUp();
 
-  g_gevManager->Resume();
-  g_gevManager->Process();
+  gevmanager_Get()->Resume();
+  gevmanager_Get()->Process();
 
 	ProgressTo( 710 );
 
@@ -2067,7 +2067,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			((start_info_type_Get() != STARTINFOTYPE_NONE) && is_scenario_Get())	// scenario start
 		   )
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 				GEV_BeginTurn,
 				GEA_Player, g_selected_item->GetCurPlayer(),
 				GEA_Int, g_player[g_selected_item->GetCurPlayer()]->m_current_round,
@@ -2154,7 +2154,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	if (    g_turn->IsEmail()
 	     && g_player[g_selected_item->GetCurPlayer()]->IsTurnOver()
 	){
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurn,
 		                       GEA_Player, g_selected_item->GetCurPlayer(),
 		                       GEA_Int,    g_player[g_selected_item->GetCurPlayer()]->GetCurRound() + 1,
@@ -2338,7 +2338,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 730 );
 
 #ifdef _DEBUG
-	g_gevManager->Dump();
+	gevmanager_Get()->Dump();
 #endif
 
 	ProgressTo( 740 );
@@ -3204,7 +3204,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									if (u.IsValid() && !u.IsCity() && u.GetOwner() == human->GetOwner()) {
 										Army army = u.GetArmy();
 										if (army.IsValid()) {
-											g_gevManager->AddEvent(GEV_INSERT_Tail,
+											gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 											                       GEV_ExploreOrder,
 											                       GEA_Army, army,
 											                       GEA_End);
@@ -3432,8 +3432,8 @@ sint32 CivApp::Process(void)
 	if (g_soundManager)
 		g_soundManager->Process(target_milliseconds, used_milliseconds);
 
-	if(g_gevManager)
-		g_gevManager->Process();
+	if(gevmanager_Get())
+		gevmanager_Get()->Process();
 
 
 	if (m_gameLoaded && g_savedGameRequest && g_selected_item)
@@ -3476,15 +3476,15 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	civapp_log->debug("calling gameEventManager_Initialize()");
 	gameEventManager_Initialize();
 
-	civapp_log->debug("calling g_gevManager->Pause()");
-	g_gevManager->Pause();
+	civapp_log->debug("calling gevmanager_Get()->Pause()");
+	gevmanager_Get()->Pause();
 
 	civapp_log->debug("calling events_Initialize()");
 	events_Initialize();
 
 	civapp_log->debug("calling gameinit_Initialize(archive={})", (void*)archive);
 	if (!gameinit_Initialize(-1, -1, archive)) {
-		g_gevManager->Resume();
+		gevmanager_Get()->Resume();
 		civapp_log->error("InitializeGameHeadless: gameinit_Initialize failed");
 		return FALSE;
 	}
@@ -3511,9 +3511,9 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 
 	m_gameLoaded = TRUE;
 
-	civapp_log->debug("calling g_gevManager->Resume + Process");
-	g_gevManager->Resume();
-	g_gevManager->Process();
+	civapp_log->debug("calling gevmanager_Get()->Resume + Process");
+	gevmanager_Get()->Resume();
+	gevmanager_Get()->Process();
 
 	// Initialize AI subsystems (pathfinder, governors, scheduler, diplomat).
 	// The interactive game does this in InitializeGame() via roboinit_Initalize

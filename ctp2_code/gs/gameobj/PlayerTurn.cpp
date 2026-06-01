@@ -116,29 +116,29 @@ void Player::BeginTurn()
 			m_sent_requests_this_turn[p] = 0;
 		}
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_WormholeTurn,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_PlayerPatience,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_PeaceMovement,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
 		m_gold->ClearStats();
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_PollutionTurn,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnAllCities,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
@@ -146,60 +146,60 @@ void Player::BeginTurn()
 		sint32 n = m_all_cities->Num();
 		for(i = 0; i < n; i++)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 			                       GEV_CityTurnPreProduction,
 			                       GEA_City, m_all_cities->Access(i),
 			                       GEA_End);
 		}
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnProduction,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
 		for(i = 0; i < n; i++)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 			                       GEV_CityBeginTurn,
 			                       GEA_City, m_all_cities->Access(i),
 			                       GEA_End);
 		}
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnSupport,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnImprovements,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
 		BeginTurnEnemyUnits();
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnAgreements,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_ResetAllMovement,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_AttemptRevolt,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnEndGame,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
 
 		BeginTurnUnits();
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurnGovernment,
 		                       GEA_Player, m_owner,
 		                       GEA_End);
@@ -220,7 +220,7 @@ void Player::BeginTurn()
 
 	if(!g_network.IsClient())
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_FinishBeginTurn,
 		                       GEA_Player, m_owner,
 		                       GEA_End);

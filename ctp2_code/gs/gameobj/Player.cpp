@@ -901,13 +901,13 @@ Unit Player::CreateUnit(const sint32 t,
 	if(!rec)
 		return Unit();
 
-	if(g_theWorld->GetCell(pos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
+	if(world_Get()->GetCell(pos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
 	   !rec->GetIsTrader()) {
 		return Unit();
 	}
 
-	if(g_theWorld->GetCell(pos)->GetNumUnits() > 0 &&
-	   g_theWorld->GetCell(pos)->AccessUnit(0).GetOwner() != m_owner) {
+	if(world_Get()->GetCell(pos)->GetNumUnits() > 0 &&
+	   world_Get()->GetCell(pos)->AccessUnit(0).GetOwner() != m_owner) {
 		return Unit();
 	}
 
@@ -942,11 +942,11 @@ Unit Player::CreateUnit(const sint32 t,
 		}
 	}
 
-	if(!g_theWorld->CanEnter(pos, rec->GetMovementType()))
+	if(!world_Get()->CanEnter(pos, rec->GetMovementType()))
 	{
 		if(!rec->GetIsTrader())
 		{
-			if(!g_theWorld->HasCity(pos) || g_theWorld->GetCity(pos).GetOwner() != m_owner)
+			if(!world_Get()->HasCity(pos) || world_Get()->GetCity(pos).GetOwner() != m_owner)
 			{
 				return Unit();
 			}
@@ -1348,7 +1348,7 @@ Unit Player::CreateCity(
                         sint32 settlerType)
 
 {
-	if(g_theWorld->IsNextToCity(pos) || g_theWorld->IsCity(pos))
+	if(world_Get()->IsNextToCity(pos) || world_Get()->IsCity(pos))
 	{
 		return Unit();
 	}
@@ -1402,7 +1402,7 @@ Unit Player::CreateCity(
 		g_network.AddCreatedCity(m_owner, u);
 	}
 
-	bool r = g_theWorld->InsertCity(pos, u);
+	bool r = world_Get()->InsertCity(pos, u);
 	Assert(r);
 
 	if (cause == CAUSE_NEW_CITY_CHEAT)
@@ -1453,7 +1453,7 @@ Unit Player::CreateCity(
 	}
 
 	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_UNDERSEA_CITY)) &&
-		g_theWorld->IsWater(pos)) {
+		world_Get()->IsWater(pos)) {
 		achievementtracker_Get()->AddAchievement(ACHIEVE_UNDERSEA_CITY);
 
 		SlicObject *so;
@@ -1471,7 +1471,7 @@ Unit Player::CreateCity(
 	}
 
 	if (!(achievementtracker_Get()->HasAchieved(ACHIEVE_SPACE_CITY)) &&
-		g_theWorld->IsSpace(pos)) {
+		world_Get()->IsSpace(pos)) {
 		achievementtracker_Get()->AddAchievement(ACHIEVE_SPACE_CITY);
 
 		SlicObject *so;
@@ -1823,7 +1823,7 @@ void Player::BeginTurnProduction()
 				rec->GetIntBorderRadius(radius);
 				CityInfluenceIterator it(inst.RetPos(), radius);
 				for(it.Start(); !it.End(); it.Next()) {
-					Cell *radiuscell = g_theWorld->GetCell(it.Pos());
+					Cell *radiuscell = world_Get()->GetCell(it.Pos());
 
 					if (rec->GetCanExportTileValue()) {
 						m_materialPool->AddMaterials(radiuscell->GetShieldsProduced());
@@ -1831,7 +1831,7 @@ void Player::BeginTurnProduction()
 					}
 
 					sint32 good;
-					if ((rec->GetCanExportGood()) && (g_theWorld->GetGood(it.Pos(), good))){
+					if ((rec->GetCanExportGood()) && (world_Get()->GetGood(it.Pos(), good))){
 						for (sint32 c=0; c < n; c++) {
 							CityData *cd = m_all_cities->Access(c).CD();
 							if(!cd->IsLocalResource (good)) {
@@ -1845,7 +1845,7 @@ void Player::BeginTurnProduction()
 				if (rec->GetCanExportTileValueRadius()) {
 					RadiusIterator it(inst.RetPos(), radius);
 					for(it.Start(); !it.End(); it.Next()) {
-						Cell *radiuscell = g_theWorld->GetCell(it.Pos());
+						Cell *radiuscell = world_Get()->GetCell(it.Pos());
 						m_materialPool->AddMaterials(radiuscell->GetShieldsProduced());		//addsPW
 						m_gold->AddGold(radiuscell->GetGoldProduced());						//addsGold
 					}
@@ -1950,7 +1950,7 @@ void Player::BeginTurnImprovements()  //this might only be for tileimps under co
 		for(sint32 b = 0; b < m_allInstallations->Num(); b++) {
 			Installation inst = m_allInstallations->Access(b);
 			const TerrainImprovementRecord *rec = inst.GetDBRec();
-//			Cell *instcell = g_theWorld->GetCell(inst.RetPos());
+//			Cell *instcell = world_Get()->GetCell(inst.RetPos());
 			if (rec->GetSpawnsBarbarians()) {
 					Barbarians::AddBarbarians(inst.RetPos(), -1, FALSE, g_turn->GetRound());
 			}
@@ -2738,7 +2738,7 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 
 	if
 	  (
-	        g_theWorld->HasCity(pos)
+	        world_Get()->HasCity(pos)
 	    && !butNotThisOne
 	    &&
 	       (
@@ -2746,12 +2746,12 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 	         ||
 	            (
 	                 mustHaveRoom
-	              && g_theWorld->GetCell(pos)->GetNumUnits() < k_MAX_ARMY_SIZE
+	              && world_Get()->GetCell(pos)->GetNumUnits() < k_MAX_ARMY_SIZE
 	            )
 	       )
 	  )
 	{
-		nearest = g_theWorld->GetCity(pos);
+		nearest = world_Get()->GetCity(pos);
 		if(nearest.GetOwner() == m_owner)
 		{
 			distance = 0;
@@ -2769,12 +2769,12 @@ bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 		if(cpos == pos && butNotThisOne)
 			continue;
 
-		if(mustHaveRoom && g_theWorld->GetCell(cpos)->GetNumUnits() == k_MAX_ARMY_SIZE)
+		if(mustHaveRoom && world_Get()->GetCell(cpos)->GetNumUnits() == k_MAX_ARMY_SIZE)
 			continue;
 
 		if(continent != -1)
 		{
-			cont = g_theWorld->GetContinent(cpos);
+			cont = world_Get()->GetContinent(cpos);
 			if (cont != continent)
 				continue;
 		}
@@ -2815,7 +2815,7 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 		}
 
 		c.GetPos(cpos);
-		Cell *cell = g_theWorld->GetCell(cpos);
+		Cell *cell = world_Get()->GetCell(cpos);
 		sint32 numMilitaryUnits = 0;
 
 		for(j = 0; j < cell->GetNumUnits(); j++)
@@ -2915,12 +2915,12 @@ bool Player::GetNearestAirfield(const MapPoint &src, MapPoint &dest, const sint3
 		if(terrainutil_HasAirfield(chkpos))
 		{
 
-			if(g_theWorld->GetCell(chkpos)->GetNumUnits() == k_MAX_ARMY_SIZE)
+			if(world_Get()->GetCell(chkpos)->GetNumUnits() == k_MAX_ARMY_SIZE)
 				continue;
 
 			if(continent != -1)
 			{
-				cont = g_theWorld->GetContinent(chkpos);
+				cont = world_Get()->GetContinent(chkpos);
 				if (cont != continent)
 					continue;
 			}
@@ -2949,14 +2949,14 @@ bool Player::SettleInCity(Army &settle_army)
 	MapPoint pos;
 	settle_army.GetPos(pos);
 
-	if(!g_theWorld->HasCity(pos))
+	if(!world_Get()->HasCity(pos))
 		return false;
 
 	for(sint32 i = 0; i < settle_army.Num(); i++)
 	{
 		if(settle_army[i].CanSettle(pos, true))
 		{
-			Unit c = g_theWorld->GetCity(pos);
+			Unit c = world_Get()->GetCity(pos);
 			c.CD()->ChangePopulation(settle_army[i].GetDBRec()->GetSettleSize());
 			settle_army[i].KillUnit(CAUSE_REMOVE_ARMY_SETTLE, GetOwner());
 
@@ -2977,7 +2977,7 @@ bool Player::Settle(Army &settle_army)
 	MapPoint pos;
 	settle_army.GetPos(pos);
 
-	if(g_theWorld->HasCity(pos))
+	if(world_Get()->HasCity(pos))
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Player %d settles on top of a city at (%d, %d)\n", settle_army.GetOwner(), pos.x, pos.y));
 		return false;
@@ -3878,10 +3878,10 @@ void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 void Player::OwnExploredArea()
 {
 	sint32 x,y;
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			if(IsExplored(x,y)) {
-				g_theWorld->GetCell(x,y)->SetOwner((sint8)m_owner);
+				world_Get()->GetCell(x,y)->SetOwner((sint8)m_owner);
 			}
 		}
 	}
@@ -3909,8 +3909,8 @@ bool Player::IsExplored(sint32 x, sint32 y) const
 // frontier).  Acceptable: CTP2 maps are at most 200x200 = 40k cells.
 bool Player::FindNearestUnexplored(const MapPoint &start, MapPoint &out) const
 {
-	const sint32 W = g_theWorld->GetXWidth();
-	const sint32 H = g_theWorld->GetYHeight();
+	const sint32 W = world_Get()->GetXWidth();
+	const sint32 H = world_Get()->GetYHeight();
 	if (W <= 0 || H <= 0) return false;
 
 	std::vector<bool> visited(static_cast<size_t>(W) * static_cast<size_t>(H), false);
@@ -4355,7 +4355,7 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 		for(i = 0; i < n; i++) {
 			MapPoint pos;
 			armies->Access(i).GetPos(pos);
-			if(g_theWorld->GetCell(pos)->GetOwner() == m_owner) {
+			if(world_Get()->GetCell(pos)->GetOwner() == m_owner) {
 				MapPoint cpos;
 				BOOL foundCity =
 					armies->Access(i)[0].NearestFriendlyCityWithRoom(cpos, armies->Access(i).Num(), armies->Access(i));
@@ -5081,7 +5081,7 @@ bool Player::IsViolatingBorders(PLAYER_INDEX player)
 	for (i=0; i<armyNum; i++)
 	{
 		m_all_armies->Get(i).GetPos(armyPos) ;
-		o = (PLAYER_INDEX)g_theWorld->GetCell(armyPos)->GetOwner() ;
+		o = (PLAYER_INDEX)world_Get()->GetCell(armyPos)->GetOwner() ;
 		if (o == player)
 		{
 			DPRINTF(k_DBG_INFO, ("Player %d is violating the borders of Player %d\n", m_owner, player)) ;
@@ -5164,7 +5164,7 @@ void Player::GiveCity(const PLAYER_INDEX recipient, Unit city)
 
 	if(!GetNearestCity(oldPos, c, dist, TRUE)) {
 		sint32 i;
-		Cell *cell = g_theWorld->GetCell(oldPos);
+		Cell *cell = world_Get()->GetCell(oldPos);
 		CellUnitList *units = cell->UnitArmy();
 		if(units) {
 			for(i = units->Num() - 1; i >= 0; i--) {
@@ -5415,7 +5415,7 @@ bool Player::CanCreateImprovement(sint32 type,
 								  const bool check_materials, ERR_BUILD_INST &err)
 {
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 
 	Assert(rec != NULL);
 	if(!rec)
@@ -5606,7 +5606,7 @@ void Player::RemoveInstallationReferences(const Installation &inst)
 void Player::AddBattleFlag(const MapPoint &point)
 {
 	m_battleFlags->Insert(point);
-	g_theWorld->GetCell(point);
+	world_Get()->GetCell(point);
 }
 
 void Player::BeginTurnBattleFlags()
@@ -5616,7 +5616,7 @@ void Player::BeginTurnBattleFlags()
 	sint32 *dead_index = new sint32[n];
 
 	for(i = 0; i < n; i++) {
-		if(!g_theWorld->GetCell(m_battleFlags->Get(i))->DecayBattleFlag()) {
+		if(!world_Get()->GetCell(m_battleFlags->Get(i))->DecayBattleFlag()) {
 			dead_index[d++] = i;
 		}
 	}
@@ -6463,7 +6463,7 @@ void Player::SetCapitol(const Unit &c)
 		m_capitol->DestroyCapitol();
 	}
 	c.GetCityData()->SetCapitol();
-	g_theWorld->SetCapitolDistanceDirtyFlags(1<<m_owner);
+	world_Get()->SetCapitolDistanceDirtyFlags(1<<m_owner);
 	*m_capitol = c;
 }
 
@@ -7155,7 +7155,7 @@ void Player::RemoveDeadPlayers()
 
 
 
-			g_theWorld->RegisterPlayerDead(i);
+			world_Get()->RegisterPlayerDead(i);
 
 			sint32 j, k;
 
@@ -7361,7 +7361,7 @@ bool Player::ContinentShared() const
 	MapPoint capitolPos;
 	m_capitol->GetPos(capitolPos);
 
-	return g_theWorld->IsContinentSharedWithOthers(capitolPos,
+	return world_Get()->IsContinentSharedWithOthers(capitolPos,
 												   m_owner,
 												   NULL);
 }
@@ -7822,7 +7822,7 @@ void Player::TradeUnitsForPoints(const MapPoint &pnt)
 		return;
 	}
 
-	Cell *cell = g_theWorld->GetCell(pnt);
+	Cell *cell = world_Get()->GetCell(pnt);
 	if(cell->GetNumUnits() <= 0) {
 		if(cell->GetCity().m_id != (0)) {
 			Unit unit = cell->GetCity();
@@ -7882,7 +7882,7 @@ void Player::TradeImprovementsForPoints(const MapPoint &pnt)
 	   !g_powerPointsMode)
 		return;
 
-	Cell *cell = g_theWorld->GetCell(pnt);
+	Cell *cell = world_Get()->GetCell(pnt);
 	if(!cell->GetNumImprovements())
 		return;
 
@@ -9226,7 +9226,7 @@ double Player::EnergySupply()
 				CityInfluenceIterator it(inst.RetPos(), radius);
 				for(it.Start(); !it.End(); it.Next())
 				{
-					Cell *radiuscell = g_theWorld->GetCell(it.Pos());
+					Cell *radiuscell = world_Get()->GetCell(it.Pos());
 
 					if (rec->GetProducesEnergy())
 					{
@@ -9670,7 +9670,7 @@ void Player::MergeCivs(sint32 Merger, sint32 Mergee)  //Merger is the civ gainin
 
 		//reset unit owner as well
 
-		Cell * cell = g_theWorld->GetCell(oldPos);
+		Cell * cell = world_Get()->GetCell(oldPos);
 		for (sint32 j = 0; j < cell->GetNumUnits(); j++)
 		{
 			UnitDynamicArray    revealed;

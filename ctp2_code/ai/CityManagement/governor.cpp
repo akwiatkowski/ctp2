@@ -1471,13 +1471,13 @@ bool Governor::AddRoadPriority(Path & path, const double & priority_delta)
 
 		if(
 		         ti_goal.type >= 0
-		    &&  !g_theWorld->GetCell(pos)->HasTerrainImprovementOrInFuture(ti_goal.type)
-		    &&   g_theWorld->GetCell(pos)->FutureMoveCostsAreReallyBig()
+		    &&  !world_Get()->GetCell(pos)->HasTerrainImprovementOrInFuture(ti_goal.type)
+		    &&   world_Get()->GetCell(pos)->FutureMoveCostsAreReallyBig()
 		  )
 		{
 			ti_goal.pos = pos;
 
-			g_theWorld->GetCell(pos)->CalculateTmpFutureMoveCosts(ti_goal.type);
+			world_Get()->GetCell(pos)->CalculateTmpFutureMoveCosts(ti_goal.type);
 
 			m_tileImprovementGoals.push_back(ti_goal);
 			addedRoadToQueue = true;
@@ -1494,7 +1494,7 @@ void Governor::ComputeRoadPriorities()
 	UnitDynamicArray *  cityList    = player_ptr->GetAllCitiesList();
 	sint32 const        num_cities  = cityList ? cityList->Num() : 0;
 
-	g_theWorld->ResetAllTmpFutureMoveCosts();
+	world_Get()->ResetAllTmpFutureMoveCosts();
 
 	s_CityPairList.clear();
 
@@ -1625,7 +1625,7 @@ void Governor::PlaceTileImprovements()
 			if(unit.RetPos() == it.Pos())
 				continue;
 
-			Cell const * cell = g_theWorld->GetCell(it.Pos());
+			Cell const * cell = world_Get()->GetCell(it.Pos());
 
 			if(!(cell->GetCityOwner() == unit))
 				continue;
@@ -1691,7 +1691,7 @@ void Governor::PlaceTileImprovements()
 // Parameters : pos:             Position of the tile on the map
 //
 // Globals    : g_player:        List of players in the game
-//				g_theWorld:      Map information
+//				world_Get():      Map information
 //
 // Returns    : bool:            The tile can be improved
 //              goal:            Type and priority value of the tile improvement
@@ -1714,21 +1714,21 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
 	MapAnalysis & the_map =  MapAnalysis::GetMapAnalysis();
 
-	Unit city_owner = g_theWorld->GetCell(pos)->GetCityOwner();
+	Unit city_owner = world_Get()->GetCell(pos)->GetCityOwner();
 	CityData* city = city_owner.GetCityData();
 	Assert(city);
 
 	double growth_rank     = the_map.GetGrowthRank    (city);
 	double production_rank = the_map.GetProductionRank(city);
 	double gold_rank       = the_map.GetCommerceRank  (city);
-	double terr_food_rank = (g_theWorld->GetCell(pos)->GetFoodFromTerrain()) /
+	double terr_food_rank = (world_Get()->GetCell(pos)->GetFoodFromTerrain()) /
 		(double) World::GetAvgFoodFromTerrain();
-	double terr_prod_rank = (g_theWorld->GetCell(pos)->GetShieldsFromTerrain()) /
+	double terr_prod_rank = (world_Get()->GetCell(pos)->GetShieldsFromTerrain()) /
 		(double) World::GetAvgShieldsFromTerrain();
-	double terr_gold_rank = (g_theWorld->GetCell(pos)->GetGoldFromTerrain()) /
+	double terr_gold_rank = (world_Get()->GetCell(pos)->GetGoldFromTerrain()) /
 		(double) World::GetAvgGoldFromTerrain();
 	double bonus;
-	sint32 terrain_type = g_theWorld->GetCell(pos)->GetTerrainType();
+	sint32 terrain_type = world_Get()->GetCell(pos)->GetTerrainType();
 
 	sint32 best_growth_improvement;
 	sint32 best_production_improvement;
@@ -1745,17 +1745,17 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 
 	sint32 citySize;
 
-	if (!g_theWorld->IsGood(pos))
+	if (!world_Get()->IsGood(pos))
 	{
 		bool shouldTerraform = true;
 		for
 		(
 			sint32 i = 0;
-			i < g_theWorld->GetCell(pos)->GetNumDBImprovements() && shouldTerraform;
+			i < world_Get()->GetCell(pos)->GetNumDBImprovements() && shouldTerraform;
 			++i
 		)
 		{
-			rec = g_theTerrainImprovementDB->Get(g_theWorld->GetCell(pos)->GetDBImprovement(i));
+			rec = g_theTerrainImprovementDB->Get(world_Get()->GetCell(pos)->GetDBImprovement(i));
 
 			effect = terrainutil_GetTerrainEffect(rec, pos);
 			if (effect)
@@ -1805,7 +1805,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			goal.utility +=  bonus * (1.0 - growth_rank);
 		}
 
-		if(g_theWorld->IsGood(pos)){
+		if(world_Get()->IsGood(pos)){
 		    strategy.GetImproveGoodBonus(bonus);
 			goal.utility += bonus;
 		}
@@ -1815,9 +1815,9 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 	){
 		if(g_theTerrainImprovementDB->Get(food_ter)->GetTerraformTerrainIndex(terrain))
 		{
-			bonusFood += g_theWorld->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetFoodFromTerrain();
-			bonusProduction += g_theWorld->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetShieldsFromTerrain();
-			bonusCommerce += g_theWorld->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - g_theWorld->GetCell(pos)->GetGoldFromTerrain();
+			bonusFood += world_Get()->GetCell(pos)->GetFoodFromTerrain((sint8)terrain) - world_Get()->GetCell(pos)->GetFoodFromTerrain();
+			bonusProduction += world_Get()->GetCell(pos)->GetShieldsFromTerrain((sint8)terrain) - world_Get()->GetCell(pos)->GetShieldsFromTerrain();
+			bonusCommerce += world_Get()->GetCell(pos)->GetGoldFromTerrain((sint8)terrain) - world_Get()->GetCell(pos)->GetGoldFromTerrain();
 
 			goal.type = food_ter;
 
@@ -1870,7 +1870,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			goal.utility += bonus *	production_rank;
 		}
 
-		if(g_theWorld->IsGood(pos))
+		if(world_Get()->IsGood(pos))
 		{
 			strategy.GetImproveGoodBonus(bonus);
 			goal.utility += bonus;
@@ -1902,13 +1902,13 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 			strategy.GetImproveLargeCityProductionBonus(bonus);
 			goal.utility += bonus * production_rank;
 		}
-		if(g_theWorld->IsGood(pos))
+		if(world_Get()->IsGood(pos))
 		{
 			strategy.GetImproveGoodBonus(bonus);
 			goal.utility += bonus;
 		}
 	}
-	else if(g_theWorld->IsGood(pos) == FALSE)
+	else if(world_Get()->IsGood(pos) == FALSE)
 	{ // Should be removed
 		ERR_BUILD_INST err;
 		if(terrain_type == terrainutil_GetGlacier()
@@ -2006,7 +2006,7 @@ bool Governor::FindBestTileImprovement(const MapPoint &pos, TiGoal &goal, sint32
 //----------------------------------------------------------------------------
 sint32 Governor::GetBestRoadImprovement(const MapPoint & pos) const
 {
-	Cell const * cell = g_theWorld->GetCell(pos);
+	Cell const * cell = world_Get()->GetCell(pos);
 	if (cell->HasCity())
 	{
 		return -1;
@@ -2043,7 +2043,7 @@ sint32 Governor::GetBestRoadImprovement(const MapPoint & pos) const
 // Parameters : pos: Position of the tile on the map
 //
 // Globals    : g_player:                  List of players in the game
-//              g_theWorld:                Map information
+//              world_Get():                Map information
 //              g_theTerrainImprovementDB: The tile improvement database
 //
 // Returns    : food_imp: Best food tile improvement
@@ -2060,7 +2060,7 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 	prod_imp = -1;
 	gold_imp = -1;
 
-	Cell const *  cell = g_theWorld->GetCell(pos);
+	Cell const *  cell = world_Get()->GetCell(pos);
 	if (cell->HasCity()) // Do not find improvements for city tiles
 		return;
 
@@ -2112,7 +2112,7 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 	Assert(g_player[m_playerId]);
 	Player *player_ptr = g_player[m_playerId];
 
-	const TERRAIN_TYPES terrain_type = g_theWorld->GetTerrainType(pos);
+	const TERRAIN_TYPES terrain_type = world_Get()->GetTerrainType(pos);
 
 	for (type = 0; type < g_theTerrainImprovementDB->NumRecords(); type++)
 	{
@@ -2162,7 +2162,7 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 //              pwPerBonus: Whether the PW costs should be taken into account
 //
 // Globals    : g_player:                  List of players in the game
-//              g_theWorld:                Map information
+//              world_Get():                Map information
 //              g_theTerrainDB:            The terrain databse
 //              g_theTerrainImprovementDB: The tile improvement database
 //
@@ -2180,7 +2180,7 @@ void Governor::GetBestTerraformImprovement(const MapPoint & pos, sint32 & food_i
 	prod_imp = -1;
 	gold_imp = -1;
 
-	Cell const * cell = g_theWorld->GetCell(pos);
+	Cell const * cell = world_Get()->GetCell(pos);
 	if (cell->HasCity()) // Do not terraform city tiles
 		return;
 
@@ -3770,7 +3770,7 @@ void Governor::ComputeDesiredUnits()
 		strategy.GetRangedGarrisonCount(desired_ranged);
 
 		unit->GetPos(pos);
-		CellUnitList *  units_ptr   = g_theWorld->GetArmyPtr(pos);
+		CellUnitList *  units_ptr   = world_Get()->GetArmyPtr(pos);
 		sint32          unitCount   = units_ptr ? units_ptr->Num() : 0;
 		for (sint32 unit_index = 0; unit_index < unitCount; unit_index++)
 		{
@@ -3997,7 +3997,7 @@ void Governor::ComputeNextBuildItem(CityData *city, sint32 & cat, sint32 & type,
 	}
 
 	bool city_full =
-		(g_theWorld->GetCell(city->GetHomeCity().RetPos())->GetNumUnits() >= k_MAX_ARMY_SIZE);
+		(world_Get()->GetCell(city->GetHomeCity().RetPos())->GetNumUnits() >= k_MAX_ARMY_SIZE);
 
 	for (sint32 i = 0; i < build_list_sequence->GetNumBuildListElement(); i++)
 	{
@@ -4153,7 +4153,7 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 
 		if(elem->GetMinNumUnits(minNumUnits))
 		{
-			if(g_theWorld->GetCell(city->GetHomeCity()->GetPos())->GetNumUnits() < minNumUnits)
+			if(world_Get()->GetCell(city->GetHomeCity()->GetPos())->GetNumUnits() < minNumUnits)
 				continue;
 		}
 
@@ -4349,7 +4349,7 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 		|| static_cast<BUILD_UNIT_LIST>(list_num) == BUILD_UNIT_LIST_SEA
 		|| static_cast<BUILD_UNIT_LIST>(list_num) == BUILD_UNIT_LIST_SEA_SETTLER
 		){
-			if (!g_theWorld->GetAdjacentOcean(city->GetHomeCity().RetPos(), cont))
+			if (!world_Get()->GetAdjacentOcean(city->GetHomeCity().RetPos(), cont))
 				continue;
 		}
 
@@ -4564,7 +4564,7 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 	strategy.GetBuildTransportProductionLevel(build_transport_production_level);
 	strategy.GetBuildSettlerProductionLevel(build_settler_production_level);
 
-	Assert( g_theWorld );
+	Assert( world_Get() );
 	BUILD_UNIT_LIST max_list = BUILD_UNIT_LIST_MAX;
 	sint32 max_production = 0;
 	sint32 needed_production = 0;
@@ -4582,7 +4582,7 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 		|| static_cast<BUILD_UNIT_LIST>(list_num) == BUILD_UNIT_LIST_SEA
 		|| static_cast<BUILD_UNIT_LIST>(list_num) == BUILD_UNIT_LIST_SEA_SETTLER
 		){
-			if (!g_theWorld->GetAdjacentOcean(city->GetHomeCity().RetPos(), cont))
+			if (!world_Get()->GetAdjacentOcean(city->GetHomeCity().RetPos(), cont))
 				continue;
 		}
 
@@ -4789,7 +4789,7 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 				needed_production = list_ref.m_perCityGarrison *
 					GetDBUnitRec(list_ref.m_bestType)->GetShieldCost();
 
-				g_theWorld->GetArmy( city->GetHomeCity().RetPos(), garrison_army );
+				world_Get()->GetArmy( city->GetHomeCity().RetPos(), garrison_army );
 				for (sint32 i = 0; i < garrison_army.Num(); i++)
 				{
 					if ( garrison_army.Get(i).GetDBRec()->GetIndex() == list_ref.m_bestType)
@@ -5001,7 +5001,7 @@ StringId Governor::GetTacticalAdvice(SlicContext & sc) const
 		Unit city = player_ptr->m_all_cities->Access(i);
 		Assert(city.IsValid() && city->GetCityData());
 
-		g_theWorld->GetArmy(city.RetPos(), garrison);
+		world_Get()->GetArmy(city.RetPos(), garrison);
 
 		sint32 j;
 		for (j = 0; j < garrison.Num(); j++)
@@ -5295,7 +5295,7 @@ void Governor::RebuildCapitol() const
 
 		if
 		  (
-		      g_theWorld->GetCell(city.RetPos())->GetNumUnits() > 0
+		      world_Get()->GetCell(city.RetPos())->GetNumUnits() > 0
 		   && city->CanBuildBuilding(type)
 		  )
 		{

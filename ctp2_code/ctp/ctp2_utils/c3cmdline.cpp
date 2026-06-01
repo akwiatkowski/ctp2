@@ -206,7 +206,6 @@ extern sint32         g_debugOwner;
 extern SelectedItem   *g_selected_item;
 extern World          *g_theWorld;
 extern TiledMap       *g_tiledMap;
-extern UnitPool       *g_theUnitPool;
 
 extern sint32         g_fog_toggle;
 
@@ -1929,14 +1928,14 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 				char buf[1024];
 				if(sym->GetUnit(u)) {
 					snprintf(buf, sizeof(buf), "%s=Unit    %lx", sym->GetName(), u.m_id);
-					if(g_theUnitPool->IsValid(u)) {
+					if(unitpool_Get()->IsValid(u)) {
 						snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), ", Type=%d", u.GetType());
 					} else {
 						snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [Invalid unit]");
 					}
 				} else if(sym->GetCity(u)) {
 					snprintf(buf, sizeof(buf), "%s=City    %lx", sym->GetName(), u.m_id);
-					if(!g_theUnitPool->IsValid(u)) {
+					if(!unitpool_Get()->IsValid(u)) {
 					strncat(buf, " [Invalid city]", sizeof(buf) - strlen(buf) - 1);
 				} else {
 					strncat(buf, " ", sizeof(buf) - strlen(buf) - 1);

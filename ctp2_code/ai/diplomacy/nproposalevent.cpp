@@ -49,7 +49,7 @@
 #include "ai/ctpai.h"
 #include "ai/diplomacy/ProposalAnalysis.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"			// g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "net/general/network.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/core/render_observer.h"

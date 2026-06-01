@@ -37,8 +37,6 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/core/render_observer.h"
 
-extern UnitPool *g_theUnitPool;
-
 #ifdef _BAD_EYE
 PointerList<SlicEyePoint> s_deletedEyepoints;
 #endif
@@ -196,7 +194,7 @@ void SlicEyePoint::Callback()
 		case EYE_POINT_TYPE_CITY:
 		case EYE_POINT_TYPE_GENERIC:
 			if(m_unit.m_id != (0)) {
-				if(g_theUnitPool->IsValid(m_unit) &&
+				if(unitpool_Get()->IsValid(m_unit) &&
 				   m_unit.GetOwner() == player_view::VisiblePlayer()) {
 					player_view::SetSelectUnit(m_unit);
 					render_observer::AddCenterMap(m_point);

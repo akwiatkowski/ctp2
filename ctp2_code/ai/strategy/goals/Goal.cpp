@@ -2821,7 +2821,7 @@ bool Goal::Get_Totally_Complete() const
 
 	if(order_record->GetUnitPretest_NoFuelThenCrash())
 	{
-		if(g_theUnitPool->IsValid(m_target_city)
+		if(unitpool_Get()->IsValid(m_target_city)
 		&& target_owner != m_playerId
 		){
 			return true;
@@ -2864,7 +2864,7 @@ bool Goal::Get_Invalid() const
 	|| goal_record->GetTargetTypeTradeRoute()
 	|| goal_record->GetTargetTypeImprovement()
 	){
-		if(!g_theUnitPool->IsValid(m_target_city))
+		if(!unitpool_Get()->IsValid(m_target_city))
 			return true;
 
 		CityData *city = m_target_city->GetCityData();
@@ -2906,7 +2906,7 @@ bool Goal::Get_Invalid() const
 	// Check whether the target can refuel the given army
 	if(goal_record->GetTargetTypePetrolStation())
 	{
-		if(g_theUnitPool->IsValid(m_target_city))
+		if(unitpool_Get()->IsValid(m_target_city))
 		{
 			CityData *city = m_target_city->GetCityData();
 			if(city == NULL){

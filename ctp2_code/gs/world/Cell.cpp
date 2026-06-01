@@ -69,7 +69,6 @@
 extern void WhackScreen();
 
 class CivArchive ;
-extern UnitPool *g_theUnitPool;
 
 int Cell::m_playerLandArea[k_MAX_PLAYERS+1];
 

@@ -50,7 +50,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern bool player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him);
-extern UnitPool *g_theUnitPool;
 
 bool World::InsertUnit (const MapPoint &pos, Unit &id,
 						  UnitDynamicArray &revealedUnits)
@@ -713,7 +712,7 @@ void World::RecalculateZOC()
 			} else if(cell->UnitArmy()) {
 
 				for(i = 0; i < cell->UnitArmy()->Num(); i++) {
-					if(!g_theUnitPool->IsValid(cell->UnitArmy()->Access(i))) {
+					if(!unitpool_Get()->IsValid(cell->UnitArmy()->Access(i))) {
 						cell->RemoveUnitReference(cell->UnitArmy()->Access(i));
 						i--;
 						if(!cell->UnitArmy())

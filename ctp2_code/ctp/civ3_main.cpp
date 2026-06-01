@@ -151,7 +151,7 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
-#include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
 #include "ui/interface/workwin.h"
 #include "ui/interface/workwindow.h"

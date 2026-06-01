@@ -3921,7 +3921,7 @@ void Diplomat::SetDiplomaticState(const PLAYER_INDEX & foreignerId, const AiStat
 		{
 			if (declare_war &&
 				MapAnalysis::GetMapAnalysis().GetNuclearWeaponsCount(m_playerId) &&
-				g_theUnitPool->IsValid(nuke_threat.detail.arg.cityId))
+				unitpool_Get()->IsValid(nuke_threat.detail.arg.cityId))
 			{
 
 				if (GetDiplomat(nuke_threat.receiverId).FearNukesFrom(m_playerId) ||

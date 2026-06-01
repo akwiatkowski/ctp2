@@ -88,7 +88,7 @@ STDEHANDLER(DestroyCityAccept_ThreatResponseEvent)
 //	sint32 receiver_nano  = MapAnalysis::GetMapAnalysis().GetNanoWeaponsCount(receiver);
 
 	Unit city(sender_response.threat.arg.cityId);
-	if (!g_theUnitPool->IsValid(city.m_id))
+	if (!unitpool_Get()->IsValid(city.m_id))
 		return GEV_HD_Continue;
 
 	sint32 value_at_risk = MapAnalysis::GetMapAnalysis().GetAlliedValue(receiver,city.RetPos());

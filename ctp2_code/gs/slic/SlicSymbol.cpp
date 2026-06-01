@@ -470,7 +470,7 @@ BOOL SlicSymbolData::GetCity(Unit &city) const
 {
 	if(GetType() == SLIC_SYM_CITY) {
 		city = Unit(m_val.m_city_id);
-		if(g_theUnitPool->IsValid(city))
+		if(unitpool_Get()->IsValid(city))
 			return TRUE;
 	} else if(GetType() == SLIC_SYM_STRUCT) {
 		if(m_val.m_struct->GetDataSymbol()) {

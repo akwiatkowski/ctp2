@@ -6030,7 +6030,7 @@ void ArmyData::AutoAddOrders(UNIT_ORDER_TYPE order, Path *path,
 		ClearOrders();
 	}
 
-	m_orders->AddTail(new Order(order, path, point, argument));
+	m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && g_player[m_owner]) {
@@ -6062,7 +6062,7 @@ void ArmyData::AutoAddOrdersWrongTurn(UNIT_ORDER_TYPE order, Path *path,
 {
 	ClearOrders();
 
-	m_orders->AddTail(new Order(order, path, point, argument));
+	m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && g_player[m_owner]) {
@@ -6123,7 +6123,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	    (point.IsNextTo(curOrder->m_path->GetEnd())) ||
 		(point == curOrder->m_path->GetEnd()))) {
 
-		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, NULL, point, argument);
+		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, NULL, point, argument, g_turn ? g_turn->GetRound() : 0);
 		GameEventArgList *args = new GameEventArgList();
 
 		args->Add(new GameEventArgument(GEA_Army, m_id));
@@ -6152,7 +6152,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			ClearOrders();
 		}
 
-		m_orders->AddTail(new Order(order, path, point, argument));
+		m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
 		if(order == UNIT_ORDER_ADD_EVENT) {
 			Order *o = m_orders->GetTail();
 			o->m_eventType = passedEvent;

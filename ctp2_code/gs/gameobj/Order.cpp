@@ -31,7 +31,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Order.h"
 #include "robot/pathing/Path.h"
-#include "gs/utility/TurnCnt.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/pool.h"
 #include "gs/events/GameEventArgList.h"
@@ -41,7 +40,6 @@
 #include "OrderRecord.h"
 #include "gs/events/GameEventManager.h"
 
-extern TurnCount *g_turn;
 extern Pool<Order> *g_theOrderPond;
 
 static OrderInfo g_orderInfo[] = {
@@ -134,11 +132,11 @@ sint32 orderinfo_MapAt(sint32 unitOrder)
     return g_orderInfoMap[unitOrder];
 }
 
-Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 arg)
+Order::Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point, sint32 arg, sint32 currentRound)
 {
 	m_order = order;
 	m_path = path;
-	m_round = g_turn ? g_turn->GetRound() : 0;
+	m_round = currentRound;
 	m_point = point;
 	m_argument = arg;
 	m_gameEventArgs = NULL;

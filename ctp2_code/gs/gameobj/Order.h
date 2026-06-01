@@ -66,7 +66,7 @@ public:
 	GameEventArgList *m_gameEventArgs;
 
 	Order(UNIT_ORDER_TYPE order, Path *path, const MapPoint &point,
-		  sint32 argument);
+		  sint32 argument, sint32 currentRound);
 	Order(CivArchive &archive);
 	Order()
 	{

@@ -924,7 +924,7 @@ void Diplomat::BeginTurn()
 		iter->SetMyLastNewProposal( Diplomat::s_badNewProposal );
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ComputeMotivations,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ComputeMotivations,
 			  GEA_Player, m_playerId,
 			  GEA_End);
 
@@ -1471,7 +1471,7 @@ void Diplomat::EnactStopPiracy(const PLAYER_INDEX victimId, const PLAYER_INDEX p
 
 			if (army.IsValid() && (army.GetOwner() == pirateId))
 			{
-				g_gevManager->AddEvent
+				gevmanager_Get()->AddEvent
                     (GEV_INSERT_Tail, GEV_SetPiratingArmy,
 					 GEA_TradeRoute, route,
 					 GEA_Army, 0,
@@ -1581,14 +1581,14 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 		break;
 	case PROPOSAL_OFFER_GIVE_CITY:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GiveCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GiveCity,
 			GEA_City, proposal_arg.cityId,
 			GEA_Player, receiver,
 			GEA_End);
 		break;
 	case PROPOSAL_REQUEST_GIVE_CITY:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GiveCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GiveCity,
 			GEA_City, proposal_arg.cityId,
 			GEA_Player, sender,
 			GEA_End);
@@ -1646,14 +1646,14 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 		Diplomat::GetDiplomat(receiver).DisbandNanoWeapons(proposal_arg.percent);
 		break;
 	case PROPOSAL_OFFER_GIVE_ADVANCE:
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_GrantAdvance,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_GrantAdvance,
 			GEA_Player, receiver,
 			GEA_Int,    proposal_arg.advanceType,
 			GEA_Int,    CAUSE_SCI_DIPLOMACY,
 			GEA_End);
 		break;
 	case PROPOSAL_REQUEST_GIVE_ADVANCE:
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_GrantAdvance,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_GrantAdvance,
 			GEA_Player, sender,
 			GEA_Int,    proposal_arg.advanceType,
 			GEA_Int,    CAUSE_SCI_DIPLOMACY,
@@ -1663,12 +1663,12 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 
 		gold = std::min(proposal_arg.gold, g_player[sender]->m_gold->GetLevel());
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
 			GEA_Player, sender,
 			GEA_Int, gold,
 			GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
 			GEA_Player, receiver,
 			GEA_Int, gold,
 			GEA_End);
@@ -1677,12 +1677,12 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 
 		gold = std::min(proposal_arg.gold, g_player[receiver]->m_gold->GetLevel());
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SubGold,
 			GEA_Player, receiver,
 			GEA_Int, gold,
 			GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AddGold,
 			GEA_Player, sender,
 			GEA_Int, gold,
 			GEA_End);
@@ -1695,14 +1695,14 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 		break;
 	case PROPOSAL_OFFER_MAP:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GiveMap,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GiveMap,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
 		break;
 	case PROPOSAL_REQUEST_MAP:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GiveMap,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GiveMap,
 			GEA_Player, receiver,
 			GEA_Player, sender,
 			GEA_End);
@@ -2641,7 +2641,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		Diplomat::GetDiplomat(sender).AddAgreement(receiver);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2668,7 +2668,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		Diplomat::GetDiplomat(sender).AddRejection(receiver);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2694,7 +2694,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 		Diplomat::GetDiplomat(sender).AddThreat(receiver);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ContinueDiplomacy,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2702,7 +2702,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 		return;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ToggleInitiative,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ToggleInitiative,
 						   GEA_Player, sender,
 						   GEA_Player, receiver,
 						   GEA_End);
@@ -2710,7 +2710,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 	switch (response.type) {
 	case RESPONSE_REJECT:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_Reject,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_Reject,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2718,7 +2718,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 	case RESPONSE_COUNTER:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_Counter,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_Counter,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2727,7 +2727,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 
 	case RESPONSE_THREATEN:
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_Threaten,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_Threaten,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2807,7 +2807,7 @@ void Diplomat::ExecuteResponse(const Response & response, bool runAI)
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
 							   GEA_Player, response.senderId,
 							   GEA_Player, response.receiverId,
 							   GEA_End);
@@ -3278,7 +3278,7 @@ void Diplomat::ChooseNewProposal(const PLAYER_INDEX & foreignerId) {
 			DPRINTF(k_DBG_DIPLOMACY,("  Player %d has top motivation: %s.\n",
 									 m_playerId, s_motivationNames[topMotivation.type].c_str()));
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, motivation_event,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, motivation_event,
 								   GEA_Player, m_playerId,
 								   GEA_Player, foreignerId,
 								   GEA_Int, static_cast<sint32>(topMotivation.type),
@@ -3287,7 +3287,7 @@ void Diplomat::ChooseNewProposal(const PLAYER_INDEX & foreignerId) {
 		}
 
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ReactionMotivation,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ReactionMotivation,
 		GEA_Player, m_playerId,
 		GEA_Player, foreignerId,
 		GEA_End);
@@ -3351,7 +3351,7 @@ void Diplomat::ExecuteNewProposal(const NewProposal & proposal)
 
 void Diplomat::ExecuteNewProposal( const PLAYER_INDEX & receiver )
 {
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NewProposal,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NewProposal,
 	                       GEA_Player, m_playerId,
 	                       GEA_Player, receiver,
 	                       GEA_End);
@@ -3387,7 +3387,7 @@ void Diplomat::ExecuteEventNewProposal( const PLAYER_INDEX & receiver )
 	}
 	else if(g_player[receiver]->IsRobot()) // Maybe some condition are missing here
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ProposalResponse,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ProposalResponse,
 				GEA_Player, m_playerId,
 				GEA_Player, receiver,
 				GEA_End);
@@ -3611,7 +3611,7 @@ void Diplomat::InitStrategicState() {
 	else
 	{
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InitStrategicState,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InitStrategicState,
 							   GEA_Player, m_playerId,
 							   GEA_End);
 	}
@@ -3636,7 +3636,7 @@ void Diplomat::NextStrategicState() {
 	else
 	{
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NextStrategicState,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NextStrategicState,
 							   GEA_Player, m_playerId,
 							   GEA_End);
 	}
@@ -3757,7 +3757,7 @@ void Diplomat::InitDiplomaticState(const PLAYER_INDEX & foreignerId)
          && (foreignerId != m_playerId)
        )
     {
-    	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_InitDiplomaticState,
+    	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_InitDiplomaticState,
 	                           GEA_Player, m_playerId,
 			                   GEA_Player, foreignerId,
 			                   GEA_End
@@ -3769,7 +3769,7 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
 {
 	m_bestDiplomaticState = s_badAiState;
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NextDiplomaticState,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NextDiplomaticState,
                            GEA_Player, m_playerId,
                            GEA_Player, foreignerId,
 			               GEA_End
@@ -4792,7 +4792,7 @@ void Diplomat::AddNewNegotiationEvent(const PLAYER_INDEX foreignerId, const Nego
 {
 	m_foreigners[foreignerId].AddNewNegotiationEvent(negotiation_event);
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NewNegotiationEvent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NewNegotiationEvent,
 	                       GEA_Player, m_playerId,
 	                       GEA_Player, foreignerId,
 	                       GEA_End

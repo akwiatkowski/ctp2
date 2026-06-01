@@ -1158,11 +1158,11 @@ STDEHANDLER(InjoinUnit_RegardEvent)
 void RegardEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_KillUnit,
+	gevmanager_Get()->AddCallback(GEV_KillUnit,
 							  GEV_PRI_Pre,
 							  &s_KillUnitRegardEvent);
 
-	g_gevManager->AddCallback(GEV_BorderIncursion,
+	gevmanager_Get()->AddCallback(GEV_BorderIncursion,
 							  GEV_PRI_Pre,
 							  &s_BorderIncursionRegardEvent);
 
@@ -1172,107 +1172,107 @@ void RegardEventCallbacks::AddCallbacks()
 
 
 
-	g_gevManager->AddCallback(GEV_MoveUnits,
+	gevmanager_Get()->AddCallback(GEV_MoveUnits,
 							  GEV_PRI_Pre,
 							  &s_InvaderMovementRegardEvent);
 
-	g_gevManager->AddCallback(GEV_BattleAftermath,
+	gevmanager_Get()->AddCallback(GEV_BattleAftermath,
 							  GEV_PRI_Pre,
 							  &s_BattleAftermathRegardEvent);
 
-	g_gevManager->AddCallback(GEV_SetPiratingArmy,
+	gevmanager_Get()->AddCallback(GEV_SetPiratingArmy,
 							  GEV_PRI_Pre,
 							  &s_StopPiracyRegardEvent);
 
-	g_gevManager->AddCallback(GEV_CaptureCity,
+	gevmanager_Get()->AddCallback(GEV_CaptureCity,
 							  GEV_PRI_Pre,
 							  &s_CaptureCityRegardEvent);
 
-	g_gevManager->AddCallback(GEV_BeginTurn,
+	gevmanager_Get()->AddCallback(GEV_BeginTurn,
 							  GEV_PRI_Pre,
 							  &s_NeighborHatredRegardEvent);
 
-	g_gevManager->AddCallback(GEV_InciteRevolutionUnit,
+	gevmanager_Get()->AddCallback(GEV_InciteRevolutionUnit,
 							  GEV_PRI_Pre,
 							  &s_InciteRevolution_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_AssassinateRulerUnit,
+	gevmanager_Get()->AddCallback(GEV_AssassinateRulerUnit,
 							  GEV_PRI_Pre,
 							  &s_AssassinateRulerUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_MakeFranchise,
+	gevmanager_Get()->AddCallback(GEV_MakeFranchise,
 							  GEV_PRI_Pre,
 							  &s_MakeFranchise_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_PlantNukeUnit,
+	gevmanager_Get()->AddCallback(GEV_PlantNukeUnit,
 							  GEV_PRI_Pre,
 							  &s_PlantNukeUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_SlaveRaidCity,
+	gevmanager_Get()->AddCallback(GEV_SlaveRaidCity,
 							  GEV_PRI_Pre,
 							  &s_SlaveRaidCity_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_Lawsuit,
+	gevmanager_Get()->AddCallback(GEV_Lawsuit,
 							  GEV_PRI_Pre,
 							  &s_Lawsuit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_ExpelUnits,
+	gevmanager_Get()->AddCallback(GEV_ExpelUnits,
 							  GEV_PRI_Pre,
 							  &s_ExpelUnits_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_NukeCityUnit,
+	gevmanager_Get()->AddCallback(GEV_NukeCityUnit,
 							  GEV_PRI_Pre,
 							  &s_NukeCityUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_NukeLocationUnit,
+	gevmanager_Get()->AddCallback(GEV_NukeLocationUnit,
 							  GEV_PRI_Pre,
 							  &s_NukeLocationUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_EnslaveSettler,
+	gevmanager_Get()->AddCallback(GEV_EnslaveSettler,
 							  GEV_PRI_Pre,
 							  &s_EnslaveSettler_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_UndergroundRailwayUnit,
+	gevmanager_Get()->AddCallback(GEV_UndergroundRailwayUnit,
 							  GEV_PRI_Pre,
 							  &s_UndergroundRailwayUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_InciteUprisingUnit,
+	gevmanager_Get()->AddCallback(GEV_InciteUprisingUnit,
 							  GEV_PRI_Pre,
 							  &s_InciteUprisingUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_BioInfectCityUnit,
+	gevmanager_Get()->AddCallback(GEV_BioInfectCityUnit,
 							  GEV_PRI_Pre,
 							  &s_BioInfectCityUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_PlagueCityUnit,
+	gevmanager_Get()->AddCallback(GEV_PlagueCityUnit,
 							  GEV_PRI_Pre,
 							  &s_PlagueCityUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_NanoInfectCityUnit,
+	gevmanager_Get()->AddCallback(GEV_NanoInfectCityUnit,
 							  GEV_PRI_Pre,
 							  &s_NanoInfectCityUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_ConvertCityUnit,
+	gevmanager_Get()->AddCallback(GEV_ConvertCityUnit,
 							  GEV_PRI_Pre,
 							  &s_ConvertCityUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_IndulgenceSaleMade,
+	gevmanager_Get()->AddCallback(GEV_IndulgenceSaleMade,
 							  GEV_PRI_Pre,
 							  &s_IndulgenceSaleMade_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_CreateParkUnit,
+	gevmanager_Get()->AddCallback(GEV_CreateParkUnit,
 							  GEV_PRI_Pre,
 							  &s_CreateParkUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_PillageUnit,
+	gevmanager_Get()->AddCallback(GEV_PillageUnit,
 							  GEV_PRI_Pre,
 							  &s_PillageUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_InjoinUnit,
+	gevmanager_Get()->AddCallback(GEV_InjoinUnit,
 							  GEV_PRI_Pre,
 							  &s_InjoinUnit_RegardEvent);
 
-	g_gevManager->AddCallback(GEV_BeginTurn,
+	gevmanager_Get()->AddCallback(GEV_BeginTurn,
 							  GEV_PRI_Pre,
 							  &s_EmbargoRegardEvent);
 }

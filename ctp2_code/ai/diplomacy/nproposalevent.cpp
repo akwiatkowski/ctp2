@@ -84,7 +84,7 @@ STDEHANDLER(General_NewProposalEvent)
 
 
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NewProposalReady,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NewProposalReady,
 						   GEA_Player, sender,
 						   GEA_Player, receiver,
 						   GEA_End);
@@ -2020,7 +2020,7 @@ STDEHANDLER(RequestEndEmbargo_NewProposalEvent)
 void NewProposalEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_ReactionMotivation,
+	gevmanager_Get()->AddCallback(GEV_ReactionMotivation,
 							  GEV_PRI_Primary,
 							  &s_General_NewProposalEvent);
 
@@ -2028,38 +2028,38 @@ void NewProposalEventCallbacks::AddCallbacks()
 
 
 
-	g_gevManager->AddCallback(GEV_ReactionMotivation,
+	gevmanager_Get()->AddCallback(GEV_ReactionMotivation,
 							  GEV_PRI_Pre,
 							  &s_LeaveOurBorders_NewProposalEvent);
 
 
 
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_Scenario_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_StopPiracy_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_StopResearch_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_ReduceWeapons_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_CeaseFire_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_ReducePollution_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_HonorPollutionAgreement_NewProposalEvent);
 
@@ -2067,64 +2067,64 @@ void NewProposalEventCallbacks::AddCallbacks()
 
 
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_Scenario_NewProposalEvent);
 
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_Alliance_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_TradePact_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_ResearchPact_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_PollutionPact_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_FearMotivation,
+	gevmanager_Get()->AddCallback(GEV_FearMotivation,
 							  GEV_PRI_Pre,
 							  &s_RequestAdvance_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_ExchangeMaps_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_MakePeace_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_BegForGold_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_BlackmailGold_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_RequestTribute_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_BreakAgreementWithEnemy_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_RequestCity_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_RequestHonorMilitaryAgeement_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_DesireMotivation,
+	gevmanager_Get()->AddCallback(GEV_DesireMotivation,
 							  GEV_PRI_Pre,
 							  &s_RequestEndEmbargo_NewProposalEvent);
 

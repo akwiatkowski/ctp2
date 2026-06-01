@@ -95,7 +95,6 @@ extern C3Window		*g_floatingWindow;
 extern DebugWindow	*g_debugWindow;
 extern WorkWindow	*g_workWindow;
 
-extern TerrainImprovementPool	*g_theTerrainImprovementPool;
 extern Player					**g_player;
 extern SelectedItem				*g_selected_item;
 extern TiledMap					*g_tiledMap;

@@ -4644,14 +4644,14 @@ void TiledMap::HandleCheat(MapPoint &pos)
 		Player * p = g_player[g_selected_item->GetVisiblePlayer()];
 		if (!p) return;
 		TerrainImprovement theImprovement =
-            g_theTerrainImprovementPool->Create
+            terrimprovepool_Get()->Create
                 (p->m_owner,
 				 pos,
 				 ScenarioEditor::PaintTerrainImprovement(),
 				 0
                 );
 
-		if (g_theTerrainImprovementPool->IsValid(theImprovement.m_id))
+		if (terrimprovepool_Get()->IsValid(theImprovement.m_id))
         {
 			p->m_terrainImprovements->Insert(theImprovement);
 			theImprovement.Complete();

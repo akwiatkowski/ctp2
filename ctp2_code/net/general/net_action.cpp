@@ -580,12 +580,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 														  NET_INFO_CODE_NAK_OBJECT, m_data[4], (uint32)imp));
 
 
-					if(g_theTerrainImprovementPool->IsValid(oops)) {
+					if(terrimprovepool_Get()->IsValid(oops)) {
 						g_network.QueuePacket(id,
 											  new NetTerrainImprovement(oops.AccessData()));
 					}
 
-					if(g_theTerrainImprovementPool->IsValid(imp)) {
+					if(terrimprovepool_Get()->IsValid(imp)) {
 
 						g_network.QueuePacket(id,
 											  new NetTerrainImprovement(imp.AccessData()));

@@ -472,7 +472,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 230 );
 
 	if(saveEverything)
-		g_theTerrainImprovementPool->Serialize(archive);
+		terrimprovepool_Get()->Serialize(archive);
 
 	PROGRESS( 240 );
 

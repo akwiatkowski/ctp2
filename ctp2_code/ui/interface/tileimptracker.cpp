@@ -26,8 +26,8 @@
 //
 // - Added option to show info for tile improvements that are too expensive
 //   and made it modifiable in-game.
-// - Added a construction time line to the tileimp tracker window. (Aug 14th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Added a construction time line to the tileimp tracker window. (Aug 14th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 
 
-	BOOL alreadyHasIt = g_theTerrainImprovementPool->HasImprovement(p,
+	BOOL alreadyHasIt = terrimprovepool_Get()->HasImprovement(p,
 																	TERRAIN_IMPROVEMENT(s_tileImprovementNum),
 																	extraData);
 

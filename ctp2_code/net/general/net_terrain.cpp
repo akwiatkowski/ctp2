@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -120,10 +120,10 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.CheckReceivedObject((uint32)imp);
 
-	if(!g_theTerrainImprovementPool->IsValid(imp)) {
+	if(!terrimprovepool_Get()->IsValid(imp)) {
 		m_data = new TerrainImprovementData(imp);
 	} else {
-		m_data = g_theTerrainImprovementPool->AccessTerrainImprovement(imp);
+		m_data = terrimprovepool_Get()->AccessTerrainImprovement(imp);
 		oldpoint = m_data->m_point;
 		oldOwner = m_data->m_owner;
 	}
@@ -137,9 +137,9 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTETYPE(m_data->m_transformType,TERRAIN_TYPES);
 	PULLLONG(m_data->m_materialCost);
 
-	if(!g_theTerrainImprovementPool->IsValid(imp)) {
-		g_theTerrainImprovementPool->HackSetKey(((uint32)imp & k_ID_KEY_MASK) + 1);
-		g_theTerrainImprovementPool->Insert(m_data);
+	if(!terrimprovepool_Get()->IsValid(imp)) {
+		terrimprovepool_Get()->HackSetKey(((uint32)imp & k_ID_KEY_MASK) + 1);
+		terrimprovepool_Get()->Insert(m_data);
 		g_theWorld->InsertImprovement(imp, m_data->m_point);
 		g_tiledMap->RedrawTile(&m_data->m_point);
 		g_player[m_data->m_owner]->AddImprovement(imp);

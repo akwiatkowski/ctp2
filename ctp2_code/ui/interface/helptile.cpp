@@ -24,10 +24,10 @@
 // Modifications from the original Activision code:
 //
 // - Does not show anymore the current tarrain stats but those from
-//   the last visit. - Dec. 23rd 2004 Martin Gühmann
+//   the last visit. - Dec. 23rd 2004 Martin Gï¿½hmann
 // - Add in food, shields, and gold from any good that is present. PFT 3 apr 05
 // - Moved Peter's last modification to Cell.cpp and UnseenCell.cpp, idially
-//   such code should only be put at one place. - April 12th 2005 Martin Gühmann
+//   such code should only be put at one place. - April 12th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -73,7 +73,6 @@ extern sint32		g_god;
 extern C3UI						*g_c3ui;
 extern World					*g_theWorld;
 extern StringDB					*g_theStringDB;
-extern TerrainImprovementPool	*g_theTerrainImprovementPool;
 
 c3_PopupWindow					*g_helpTileWindow = NULL;
 

@@ -174,7 +174,9 @@ DiplomaticRequestPool       *g_theDiplomaticRequestPool=NULL;
 MessagePool                 *g_theMessagePool=NULL;
 CivilisationPool            *g_theCivilisationPool=NULL;
 AgreementPool               *g_theAgreementPool=NULL;
-TerrainImprovementPool      *g_theTerrainImprovementPool = NULL;
+static TerrainImprovementPool *g_theTerrainImprovementPool = NULL;
+
+TerrainImprovementPool * terrimprovepool_Get(void) { return g_theTerrainImprovementPool; }
 static InstallationPool     *g_theInstallationPool = NULL;
 
 InstallationPool * installationpool_Get(void) { return g_theInstallationPool; }

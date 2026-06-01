@@ -5472,12 +5472,12 @@ TerrainImprovement Player::CreateImprovement(sint32 dbIndex,
 	if(!CanCreateImprovement(dbIndex, point, extraData, true, err))
 		return theImprovement;
 
-	theImprovement = g_theTerrainImprovementPool->Create(m_owner,
+	theImprovement = terrimprovepool_Get()->Create(m_owner,
 														 point,
 														 dbIndex,
 														 extraData);
 
-	if(g_theTerrainImprovementPool->IsValid(theImprovement.m_id)) {
+	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
 		if(g_network.IsClient()) {
 			g_network.AddCreatedObject(theImprovement.AccessData());
 			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,
@@ -5507,12 +5507,12 @@ TerrainImprovement Player::CreateSpecialImprovement(sint32 dbIndex,
 //	if(!CanCreateImprovement(dbIndex, point, extraData, true, err))
 //		return theImprovement;
 
-	theImprovement = g_theTerrainImprovementPool->Create(m_owner,
+	theImprovement = terrimprovepool_Get()->Create(m_owner,
 														 point,
 														 dbIndex,
 														 extraData);
 
-	if(g_theTerrainImprovementPool->IsValid(theImprovement.m_id)) {
+	if(terrimprovepool_Get()->IsValid(theImprovement.m_id)) {
 		if(g_network.IsClient()) {
 			g_network.AddCreatedObject(theImprovement.AccessData());
 			g_network.SendAction(new NetAction(NET_ACTION_TERRAIN_IMPROVEMENT,

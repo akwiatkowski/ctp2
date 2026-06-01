@@ -196,7 +196,7 @@ void NetGameObj::CheckReceived(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT:
 		{
 			TerrainImprovement imp(id);
-			if(g_theTerrainImprovementPool->IsValid(imp)) {
+			if(terrimprovepool_Get()->IsValid(imp)) {
 				if(m_createdHash.IsPresent(id)) {
 					reap = TRUE;
 				}
@@ -264,7 +264,7 @@ void NetGameObj::KillObject(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT:
 		{
 			TerrainImprovement imp(id);
-			if(g_theTerrainImprovementPool->IsValid(imp)) {
+			if(terrimprovepool_Get()->IsValid(imp)) {
 				imp.KillImprovement();
 			}
 			break;
@@ -328,7 +328,7 @@ void NetGameObj::FixKey(uint32 id)
 			g_theTradeOfferPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT:
-			g_theTerrainImprovementPool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			terrimprovepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_INSTALLATION:
 			installationpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);

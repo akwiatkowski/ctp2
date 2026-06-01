@@ -614,7 +614,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Net: Killing improvement %lx\n", m_data));
 			TerrainImprovement imp(m_data);
-			if(g_theTerrainImprovementPool->IsValid(imp))
+			if(terrimprovepool_Get()->IsValid(imp))
 				TerrainImprovement(m_data).Kill();
 			break;
 		}

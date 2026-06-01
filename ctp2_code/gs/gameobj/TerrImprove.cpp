@@ -27,17 +27,17 @@ void TerrainImprovement::RemoveAllReferences()
 			g_network.Unblock(GetOwner());
 	}
 
-	g_theTerrainImprovementPool->Del(*this);
+	terrimprovepool_Get()->Del(*this);
 }
 
 const TerrainImprovementData *TerrainImprovement::GetData() const
 {
-	return g_theTerrainImprovementPool->GetTerrainImprovement(*this);
+	return terrimprovepool_Get()->GetTerrainImprovement(*this);
 }
 
 TerrainImprovementData *TerrainImprovement::AccessData() const
 {
-	return g_theTerrainImprovementPool->AccessTerrainImprovement(*this);
+	return terrimprovepool_Get()->AccessTerrainImprovement(*this);
 }
 
 void TerrainImprovement::AddTurn()
@@ -47,5 +47,5 @@ void TerrainImprovement::AddTurn()
 
 bool TerrainImprovement::IsValid()
 {
-	return g_theTerrainImprovementPool->IsValid(*this);
+	return terrimprovepool_Get()->IsValid(*this);
 }

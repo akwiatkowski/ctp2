@@ -297,7 +297,7 @@
 #include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get
 
 class UnitActor;
 typedef std::shared_ptr<UnitActor> UnitActorPtr;
@@ -539,7 +539,7 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_name[0] = 0;
 	m_build_queue.SetOwner(m_owner);
 	m_build_queue.SetCity(m_home_city);
-	g_theWorld->SetCapitolDistanceDirtyFlags(1 << owner);
+	world_Get()->SetCapitolDistanceDirtyFlags(1 << owner);
 
 	// Set the style of the founder of the city - if any.
 	if (g_player[owner] && g_player[owner]->GetCivilisation()
@@ -772,7 +772,7 @@ void CityData::Serialize(CivArchive &archive)
 //
 // Parameters : MapPoint &center_point     : The center of the city's radius
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //
 // Returns    : true if center_point is in water terrain and doesn't have a tunnel
 //
@@ -781,17 +781,17 @@ void CityData::Serialize(CivArchive &archive)
 //----------------------------------------------------------------------------
 bool NeedsCanalTunnel(MapPoint const & center_point)
 {
-	if (g_theWorld->IsCanal(center_point))
+	if (world_Get()->IsCanal(center_point))
     {
 		return false;
     }
-    else if (g_theWorld->IsTunnel(center_point))
+    else if (world_Get()->IsTunnel(center_point))
     {
 		return false;
 	}
 
 	TerrainRecord const * rec =
-        g_theTerrainDB->Get(g_theWorld->GetTerrainType(center_point));
+        g_theTerrainDB->Get(world_Get()->GetTerrainType(center_point));
 
 	return rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater();
 }
@@ -809,7 +809,7 @@ bool NeedsCanalTunnel(MapPoint const & center_point)
 //            : g_gevManager
 //            : g_theBuildingDB
 //            : installation_tree_Get()
-//            : g_theWorld
+//            : world_Get()
 //            : g_tiledMap
 //            : g_theCivilisationPool
 //            : g_theAdvanceDB
@@ -883,7 +883,7 @@ void CityData::Initialize(sint32 settlerType)
 
 	//add 	DynamicArray<Religion> ReligionArray; //why doesn't cities use like player.cpp -> m_allInstallations = new DynamicArray<Installation>; ????
 
-	Cell *cell = g_theWorld->GetCell(center_point);
+	Cell *cell = world_Get()->GetCell(center_point);
 	if(cell->GetEnv() & k_BIT_ENV_INSTALLATION)
 	{
 		DynamicArray<Installation> instArray;
@@ -898,7 +898,7 @@ void CityData::Initialize(sint32 settlerType)
 
 
 	sint32 good;
-	if(g_theWorld->GetGood(center_point, good))
+	if(world_Get()->GetGood(center_point, good))
 	{
 		if(CanCollectGood(good))
 		{
@@ -914,32 +914,32 @@ void CityData::Initialize(sint32 settlerType)
 	SetRoad();
 	if (NeedsCanalTunnel(center_point))
 	{
-		g_theWorld->SetCanalTunnel(center_point, true);
+		world_Get()->SetCanalTunnel(center_point, true);
 	}
 
-	if (g_theWorld->IsWater(center_point))
+	if (world_Get()->IsWater(center_point))
 	{
-		g_theWorld->NumberContinents();
+		world_Get()->NumberContinents();
 	}
-	else if (g_theWorld->IsNextToWater(center_point.x, center_point.y))
+	else if (world_Get()->IsNextToWater(center_point.x, center_point.y))
 	{
-		g_theWorld->NumberContinents();
+		world_Get()->NumberContinents();
 	}
 
-	tiledmap_observer::PostProcessTile(center_point, g_theWorld->GetTileInfo(center_point));
+	tiledmap_observer::PostProcessTile(center_point, world_Get()->GetTileInfo(center_point));
 	tiledmap_observer::TileChanged(center_point);
 	MapPoint pos;
 	for(WORLD_DIRECTION d = NORTH; d < NOWHERE; d = (WORLD_DIRECTION)((sint32)d + 1))
 	{
 		if(center_point.GetNeighborPosition(d, pos))
 		{
-			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 			tiledmap_observer::TileChanged(pos);
 		}
 	}
 	tiledmap_observer::RedrawTile(center_point);
 
-	g_network.Enqueue(g_theWorld->GetCell(center_point),
+	g_network.Enqueue(world_Get()->GetCell(center_point),
 					  center_point.x, center_point.y);
 
 	MBCHAR s[k_MAX_NAME_LEN];
@@ -1216,7 +1216,7 @@ void CityData::PrepareToRemove(const CAUSE_REMOVE_ARMY cause,
 	for(it.Start(); !it.End(); it.Next())
 	{
 		if(it.Pos() == m_home_city.RetPos()) continue;
-		g_theWorld->GetCell(it.Pos())->SetCityOwner(Unit());
+		world_Get()->GetCell(it.Pos())->SetCityOwner(Unit());
 	}
 }
 
@@ -1449,7 +1449,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 	AddHappyTimer(50, 100, HAPPY_REASON_POST_REVOULTION_BLISS);
 #endif
 
-	g_theWorld->GetCell(city_pos)->GetArmy(army) ;
+	world_Get()->GetCell(city_pos)->GetArmy(army) ;
 	n=army.Num() ;
 	for (i=0; i<n; i++) {
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
@@ -1503,7 +1503,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 //              bool &revealed_foreign_units  : zeroed out
 //              sint32 foreigner              : recipient
 //
-// Globals    : g_theWorld
+// Globals    : world_Get()
 //            : g_gevManager
 //
 // Returns    : -
@@ -1515,7 +1515,7 @@ void CityData::TeleportUnits(const MapPoint &pos, bool &revealed_foreign_units, 
 {
 
 	sint32 i;
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 
 	DynamicArray<Army> armies;
 
@@ -1550,7 +1550,7 @@ void CityData::TeleportUnits(const MapPoint &pos, bool &revealed_foreign_units, 
 	         n;
 
 	m_home_city.GetPos(city_pos);
-	g_theWorld->GetCell(city_pos)->GetArmy(units);
+	world_Get()->GetCell(city_pos)->GetArmy(units);
 	n = units.Num();
 
 	revealed_foreign_units = false;
@@ -1563,7 +1563,7 @@ void CityData::TeleportUnits(const MapPoint &pos, bool &revealed_foreign_units, 
 
 		units[i].GetPos(oldpos);
 
-		g_theWorld->RemoveUnitReference(oldpos, units[i]);
+		world_Get()->RemoveUnitReference(oldpos, units[i]);
 		units[i].SetPosition(pos, revealed);
 
 
@@ -2188,14 +2188,14 @@ void CityData::CollectResources()
 	CityInfluenceIterator it(cityPos, m_sizeIndex);
 	for(it.Start(); !it.End(); it.Next())
 	{
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 		sint32 ring = GetRing(it.Pos());
 		m_ringFood[ring] += cell->GetFoodProduced();
 		m_ringProd[ring] += cell->GetShieldsProduced();
 		m_ringGold[ring] += cell->GetGoldProduced();
 		m_ringSizes[ring]++;
 		sint32 good;
-		if(g_theWorld->GetGood(it.Pos(), good)
+		if(world_Get()->GetGood(it.Pos(), good)
 #if !defined(NEW_RESOURCE_PROCESS)
 		&& MapPoint::GetSquaredDistance(cityPos, it.Pos()) <= partSquaredRadius
 #endif
@@ -3436,7 +3436,7 @@ void CityData::CalculateBonusScie()
 	CityInfluenceIterator it(cityPos, m_sizeIndex);
 	for(it.Start(); !it.End(); it.Next())
 	{
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 		for(sint32 t = 0; t < cell->GetNumDBImprovements(); t++)
 		{
 			sint32 imp = cell->GetDBImprovement(t);
@@ -4732,7 +4732,7 @@ bool CityData::BeginTurn()
 	Cell *cell;
 	for(it.Start(); !it.End(); it.Next())
 	{
-		cell = g_theWorld->GetCell(it.Pos());
+		cell = world_Get()->GetCell(it.Pos());
 
 		if(!m_terrainImprovementWasBuilt
 		&& it.Pos() != pos
@@ -5035,8 +5035,8 @@ void CityData::AddWonder(sint32 type)
 		const TerrainImprovementRecord *trec = g_theTerrainImprovementDB->Get(s);
 		for(it.Start(); !it.End(); it.Next())
 		{
-			Cell *ncell = g_theWorld->GetCell(it.Pos());
-			Cell *ocell = g_theWorld->GetCell(SpotFound);
+			Cell *ncell = world_Get()->GetCell(it.Pos());
+			Cell *ocell = world_Get()->GetCell(SpotFound);
 			if(point == it.Pos())
 				continue;
 
@@ -5313,7 +5313,7 @@ void CityData::ImprovementHealUnitsInCity() const
 	MapPoint pos;
 
 	m_home_city.GetPos(pos);
-	g_theWorld->GetArmy(pos, a);
+	world_Get()->GetArmy(pos, a);
 
 	sint32 n = a.Num();
 	sint32 i;
@@ -5333,7 +5333,7 @@ void CityData::ImprovementRefuelUnitsInCity() const
 	MapPoint pos;
 
 	m_home_city.GetPos(pos);
-	g_theWorld->GetArmy(pos, a);
+	world_Get()->GetArmy(pos, a);
 
 	sint32 n = a.Num();
 	sint32 i;
@@ -5385,12 +5385,12 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 {
 	switch(m_cityRadiusOp) {
 		case RADIUS_OP_REMOVE_IMPROVEMENTS:
-			g_theWorld->CutImprovements(pos);
+			world_Get()->CutImprovements(pos);
 			break;
 		case RADIUS_OP_KILL_UNITS:
-			if(g_theWorld->GetCell(pos)->UnitArmy()) {
+			if(world_Get()->GetCell(pos)->UnitArmy()) {
 				sint32 i;
-				CellUnitList *units = g_theWorld->GetCell(pos)->UnitArmy();
+				CellUnitList *units = world_Get()->GetCell(pos)->UnitArmy();
 				for(i = 0; i < units->Num(); i++) {
 
 					if(!units->Access(i)->Flag(k_UDF_MAD_LAUNCHED))
@@ -5401,15 +5401,15 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 		case RADIUS_OP_RESET_OWNER:
 		{
 #if 0
-			Cell *cell = g_theWorld->GetCell(pos);
+			Cell *cell = world_Get()->GetCell(pos);
 			if(cell->GetOwner() == m_owner) {
 				MapPoint myPos;
 				m_home_city.GetPos(myPos);
 
 				if((pos == myPos) ||
-				   !g_theWorld->IsInsideCityRadiusOfPlayerOtherThan(pos, m_radiusNewOwner, m_home_city)) {
+				   !world_Get()->IsInsideCityRadiusOfPlayerOtherThan(pos, m_radiusNewOwner, m_home_city)) {
 					cell->SetOwner(-1);
-					g_theWorld->ChangeOwner(pos, -1, m_radiusNewOwner);
+					world_Get()->ChangeOwner(pos, -1, m_radiusNewOwner);
 				}
 			}
 #endif
@@ -5423,7 +5423,7 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 				break;
 
 			if(m_tilecount == m_whichtile) {
-				Cell *cell = g_theWorld->GetCell(pos);
+				Cell *cell = world_Get()->GetCell(pos);
 				if(cell->GetCanDie()) {
 					MapPoint tmp = pos;
 
@@ -5432,13 +5432,13 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 
 					cell->Kill();
 
-					g_theWorld->CutImprovements(pos);
+					world_Get()->CutImprovements(pos);
 
 
 					cell->CalcTerrainMoveCost();
 					MapPoint nonConstPos = pos;
 
-					tiledmap_observer::PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
+					tiledmap_observer::PostProcessTile(nonConstPos, world_Get()->GetTileInfo(nonConstPos));
 					tiledmap_observer::TileChanged(nonConstPos);
 					MapPoint npos;
 					for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
@@ -5446,7 +5446,7 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 						if(pos.GetNeighborPosition(d, npos)) {
 							tiledmap_observer::PostProcessTile(
 								npos,
-								g_theWorld->GetTileInfo(npos));
+								world_Get()->GetTileInfo(npos));
 							tiledmap_observer::TileChanged(npos);
 							tiledmap_observer::RedrawTile(npos);
 						}
@@ -5455,7 +5455,7 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 
 					if(g_network.IsHost()) {
 						g_network.Block(m_owner);
-						g_network.Enqueue(g_theWorld->GetCell(pos), pos.x, pos.y);
+						g_network.Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
 						g_network.Unblock(m_owner);
 					}
 				}
@@ -5464,17 +5464,17 @@ void CityData::CityRadiusFunc(const MapPoint &pos)
 			break;
 		}
 		case RADIUS_OP_ADD_GOODS:
-			if(g_theWorld->IsGood(pos)) {
+			if(world_Get()->IsGood(pos)) {
 				sint32 good;
-				g_theWorld->GetGood(pos, good);
+				world_Get()->GetGood(pos, good);
 				if(!m_tempGoodAdder->HaveGoodOfType(good))
 					m_tempGoodAdder->AddGood(good);
 			}
 			break;
 		case RADIUS_OP_COUNT_GOODS:
-			if(g_theWorld->IsGood(pos)) {
+			if(world_Get()->IsGood(pos)) {
 				sint32 good;
-				g_theWorld->GetGood(pos, good);
+				world_Get()->GetGood(pos, good);
 				if(good == m_tempGood || m_tempGood < 0)
 					m_tempGoodCount++;
 			}
@@ -5775,7 +5775,7 @@ void CityData::DoUprising(UPRISING_CAUSE cause)
 void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 {
 	sint32 oldOwner = m_owner;
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 	sint32 numPossibleDefenders = cell->GetNumUnits();
 
 	if (g_network.IsHost())
@@ -5828,7 +5828,7 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 
 void CityData::CleanupUprising(Army &sa)
 {
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 	sint32 i;
 
 	sint32 oldOwner = m_owner;
@@ -5858,7 +5858,7 @@ void CityData::CleanupUprising(Army &sa)
 				sa[i].AddUnitVision();
 
 				UnitDynamicArray revealedUnits;
-				g_theWorld->InsertUnit(m_home_city.RetPos(), sa[i], revealedUnits);
+				world_Get()->InsertUnit(m_home_city.RetPos(), sa[i], revealedUnits);
 				g_player[sa.GetOwner()]->InsertUnitReference(sa[i],
 												  CAUSE_NEW_ARMY_UPRISING,
 												  m_home_city);
@@ -6046,7 +6046,7 @@ bool CityData::HasTileImpInRadius(sint32 tileimp) const
 
 	for(it.Start(); !it.End(); it.Next())
 	{
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 
 		for(sint32 i = 0; i < cell->GetNumDBImprovements(); ++i)
 		{
@@ -6065,7 +6065,7 @@ bool CityData::HasAnyTileImpInRadiusAndIsExploredBy(const sint32 player) const
 
 	for(it.Start(); !it.End(); it.Next())
 	{
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 
 		if
 		  (
@@ -6220,10 +6220,10 @@ void CityData::ResetCityOwner(sint32 owner)
 
 	CityInfluenceIterator it(pos, m_sizeIndex);
 	for(it.Start(); !it.End(); it.Next()) {
-		g_theWorld->GetCell(it.Pos())->SetCityOwner(m_home_city);
-		g_theWorld->GetCell(it.Pos())->SetOwner(owner);
+		world_Get()->GetCell(it.Pos())->SetCityOwner(m_home_city);
+		world_Get()->GetCell(it.Pos())->SetOwner(owner);
 		g_network.Block(owner);
-		g_network.Enqueue(g_theWorld->GetCell(it.Pos()), it.Pos().x, it.Pos().y);
+		g_network.Enqueue(world_Get()->GetCell(it.Pos()), it.Pos().x, it.Pos().y);
 		g_network.Unblock(owner);
 	}
 
@@ -6231,7 +6231,7 @@ void CityData::ResetCityOwner(sint32 owner)
 
 	if (m_owner != owner)
 	{
-		g_theWorld->SetCapitolDistanceDirtyFlags(1<<owner);
+		world_Get()->SetCapitolDistanceDirtyFlags(1<<owner);
 		m_owner = (PLAYER_INDEX)owner;
 	}
 
@@ -6530,7 +6530,7 @@ void CityData::SellBuilding(sint32 which, bool byChoice)
 void CityData::SetRoad() const
 {
 	MapPoint    pos     (m_home_city.RetPos());
-	Cell *      cell    = g_theWorld->GetCell(pos);
+	Cell *      cell    = world_Get()->GetCell(pos);
 
 	TerrainImprovementRecord const *
                 rec     = terrainutil_GetBestRoad(m_owner, pos);
@@ -6594,7 +6594,7 @@ sint32 CityData::GetCombatUnits() const
 {
 	MapPoint pos;
 	m_home_city.GetPos(pos);
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	sint32 count = 0;
 
 	for(sint32 i = 0; i < cell->GetNumUnits(); i++) {
@@ -6616,7 +6616,7 @@ sint32 CityData::GetCombatUnits() const
 // Globals    : g_player:     The list of players
 //              g_theUnitDB:  The unit database
 //              g_slicEngine: The slic engine
-//              g_theWorld:   The world properties
+//              world_Get():   The world properties
 //
 // Returns    : Whether the city can build the unit specified by type.
 //
@@ -6765,20 +6765,20 @@ bool CityData::CanBuildUnit(sint32 type) const
 
 	if(!rec->GetMovementTypeLand() && !rec->GetMovementTypeTrade() && !rec->GetIsTrader())
 	{
-		if(g_theWorld->IsWater(pos.x, pos.y) && rec->GetSeaCityCanBuild())
+		if(world_Get()->IsWater(pos.x, pos.y) && rec->GetSeaCityCanBuild())
 		{
 			return true;
 		}
 
-		if((g_theWorld->IsLand(pos.x, pos.y) ||
-			g_theWorld->IsMountain(pos.x, pos.y)) &&
+		if((world_Get()->IsLand(pos.x, pos.y) ||
+			world_Get()->IsMountain(pos.x, pos.y)) &&
 			rec->GetLandCityCanBuild()) {
 
 			return true;
 		}
 
 		if(rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater()) {
-			if(g_theWorld->IsNextToWater(pos.x, pos.y)) {
+			if(world_Get()->IsNextToWater(pos.x, pos.y)) {
 				return true;
 			}
 
@@ -6806,7 +6806,7 @@ bool CityData::CanBuildUnit(sint32 type) const
 // Globals    : g_player:        The list of players
 //              g_theBuildingDB: The building database
 //              g_slicEngine:    The slic engine
-//              g_theWorld:      The world properties
+//              world_Get():      The world properties
 //
 // Returns    : Whether the city can build the building specified by type.
 //
@@ -6855,7 +6855,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 
 	MapPoint pos;
 	m_home_city.GetPos(pos);
-	if(g_theWorld->IsWater(pos)) {
+	if(world_Get()->IsWater(pos)) {
 		if(rec->GetCantBuildInSea())
 			return false;
 	} else {
@@ -6865,7 +6865,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 
 	if (rec->GetCoastalBuilding())
 	{
-		if(!g_theWorld->IsNextToWater(pos.x, pos.y))
+		if(!world_Get()->IsNextToWater(pos.x, pos.y))
 			return false;
 	}
 
@@ -7165,7 +7165,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 // Globals    : g_player:        The list of players
 //              g_theWonderDB:   The building database
 //              g_slicEngine:    The slic engine
-//              g_theWorld:      The world properties
+//              world_Get():      The world properties
 //
 // Returns    : Whether the city can build the wonder specified by type.
 //
@@ -7252,7 +7252,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 		MapPoint pos;
 		m_home_city.GetPos(pos);
 
-		if(!g_theWorld->IsNextToWater(pos.x, pos.y))
+		if(!world_Get()->IsNextToWater(pos.x, pos.y))
 			return false;
 	}
 
@@ -7814,7 +7814,7 @@ void CityData::CheckForSlaveUprising()
 		return;
 
 	sint32 numMilitaryUnits = 0;
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 
     for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->UnitArmy()->Access(i).GetAttack() > 0) {
@@ -7861,14 +7861,14 @@ void CityData::Disband()
 	sint32 settler = -1;
 	for(i = 0; i < g_theUnitDB->NumRecords(); i++) {
 		if(g_theUnitDB->Get(i, g_player[m_owner]->GetGovernmentType())->GetSettleLand() &&
-		   (g_theWorld->IsLand(pos) || g_theWorld->IsMountain(pos)) &&
-		   !g_theWorld->IsWater(pos) && !g_theWorld->IsShallowWater(pos)) {
+		   (world_Get()->IsLand(pos) || world_Get()->IsMountain(pos)) &&
+		   !world_Get()->IsWater(pos) && !world_Get()->IsShallowWater(pos)) {
 			settler = i;
 			break;
-		} else if(g_theUnitDB->Get(i, g_player[m_owner]->GetGovernmentType())->GetSettleWater() && g_theWorld->IsWater(pos)) {
+		} else if(g_theUnitDB->Get(i, g_player[m_owner]->GetGovernmentType())->GetSettleWater() && world_Get()->IsWater(pos)) {
 			settler = i;
 			break;
-		} else if(g_theUnitDB->Get(i, g_player[m_owner]->GetGovernmentType())->GetSettleSpace() && g_theWorld->IsSpace(pos)) {
+		} else if(g_theUnitDB->Get(i, g_player[m_owner]->GetGovernmentType())->GetSettleSpace() && world_Get()->IsSpace(pos)) {
 			settler = i;
 			break;
 		}
@@ -7938,7 +7938,7 @@ sint32 CityData::SubtractAccumulatedFood(sint32 amount)
 
 bool CityData::HasSleepingUnits(void) const
 {
-	CellUnitList * units = g_theWorld->GetArmyPtr(m_home_city.RetPos());
+	CellUnitList * units = world_Get()->GetArmyPtr(m_home_city.RetPos());
 
 	if (units)
     {
@@ -8253,7 +8253,7 @@ void CityData::AdjustSizeIndices()
 			CityInfluenceIterator it(m_home_city.RetPos(), oldSizeIndex);
 			for(it.Start(); !it.End(); it.Next()) {
 				if(it.Pos() != m_home_city.RetPos())
-					g_theWorld->GetCell(it.Pos())->SetCityOwner(Unit());
+					world_Get()->GetCell(it.Pos())->SetCityOwner(Unit());
 			}
 		}
 		GenerateCityInfluence(m_home_city.RetPos(), m_sizeIndex);
@@ -8264,7 +8264,7 @@ void CityData::AdjustSizeIndices()
 	CityInfluenceIterator it(m_home_city.RetPos(), m_sizeIndex);
 	for(it.Start(); !it.End(); it.Next()) {
 		sint32 good;
-		if(g_theWorld->GetGood(it.Pos(), good)) {
+		if(world_Get()->GetGood(it.Pos(), good)) {
 			if(CanCollectGood(good)){  //EMOD to prevent Free Collection of a good 5-1-2006
 				m_collectingResources.AddResource(good);
 			}
@@ -8643,8 +8643,8 @@ void CityData::AddImprovement(sint32 type)
 					{
 						if
 						  (
-						       g_theWorld->GetCell(spot)->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s))     // ToDo: check whether the new improvement would remove any of the old ones, if the new one doesn't remove any of the old ones no new location is needed.
-						   && !g_theWorld->GetCell(it.Pos())->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s))
+						       world_Get()->GetCell(spot)->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s))     // ToDo: check whether the new improvement would remove any of the old ones, if the new one doesn't remove any of the old ones no new location is needed.
+						   && !world_Get()->GetCell(it.Pos())->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s))
 						  )
 						{
 							spot = it.Pos();
@@ -8656,7 +8656,7 @@ void CityData::AddImprovement(sint32 type)
 						spot = it.Pos();
 						found = true;
 
-						if(!g_theWorld->GetCell(it.Pos())->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s)))
+						if(!world_Get()->GetCell(it.Pos())->HasTerrainImprovementOrInFuture(rec->GetShowOnMapIndex(s)))
 						{
 							break;
 						}
@@ -8725,7 +8725,7 @@ void CityData::AddImprovement(sint32 type)
 bool CityData::FindGoodDistancesCallback(const MapPoint &pos, Cell *cell, void *cookie)
 {
 	sint32 good;
-	if(!g_theWorld->GetGood(pos, good))
+	if(!world_Get()->GetGood(pos, good))
 		return false;
 
 	CityData *cd = (CityData *)cookie;
@@ -8743,7 +8743,7 @@ void CityData::FindGoodDistances()
 	sint32 specialdistance = 0;		//EMOD
 	for(sint32 i = 0; i < g_theResourceDB->NumRecords(); i++)
 	{
-		if(g_theWorld->GetGoodValue(i) <= g_theConstDB->Get(0)->GetMaxGoodValue())
+		if(world_Get()->GetGoodValue(i) <= g_theConstDB->Get(0)->GetMaxGoodValue())
 		{
 			goodsToFind++;
 		}
@@ -8756,9 +8756,9 @@ void CityData::FindGoodDistances()
 		m_distanceToGood[i] = 0 + specialdistance;
 	}
 
-//	g_theWorld->FindDistances(m_owner, m_home_city.RetPos(), goodsToFind,
+//	world_Get()->FindDistances(m_owner, m_home_city.RetPos(), goodsToFind,
 //	                          FindGoodDistancesCallback, this);
-	g_theWorld->FindDistances(m_owner, m_pos, goodsToFind,
+	world_Get()->FindDistances(m_owner, m_pos, goodsToFind,
 	                          FindGoodDistancesCallback, this);
 }
 
@@ -8840,7 +8840,7 @@ sint32 CityData::GetDesiredSpriteIndex(bool justTryLand)
 	// We want to retreive the underlying terrain type
 	// not the terrain type as modified by improvements
 	// as a sea city on a tunnel will turn into a land city
-	const TerrainRecord *rec = g_theTerrainDB->Get(g_theWorld->GetTerrainType(m_pos));
+	const TerrainRecord *rec = g_theTerrainDB->Get(world_Get()->GetTerrainType(m_pos));
 	bool isLand = justTryLand || !(rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater());
 
 	//
@@ -10562,7 +10562,7 @@ sint32 CityData::TileImpHappinessIncr() const
 	CityInfluenceIterator it(m_home_city.RetPos(), m_sizeIndex);
 	for (it.Start(); !it.End(); it.Next())
 	{
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 		for (sint32 t = 0; t < cell->GetNumDBImprovements(); t++)
 		{
 			sint32 timp = cell->GetDBImprovement(t);
@@ -10840,7 +10840,7 @@ void CityData::Militia()
 	//EMOD Militia code diffdb and building
 	MapPoint cpos = m_home_city.RetPos();
 
-	if(g_theWorld->GetCell(cpos)->GetNumUnits() <= 0)
+	if(world_Get()->GetCell(cpos)->GetNumUnits() <= 0)
 	{
 		sint32 cheapUnit = g_player[m_owner]->GetCheapestMilitaryUnit();
 
@@ -10904,7 +10904,7 @@ bool CityData::IsReligious() const
 
 bool CityData::CityIsOnTradeRoute()
 {
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 	Assert(cell);
 	if(cell) {
 		sint32 i;
@@ -10921,7 +10921,7 @@ void CityData::GiveTradeRouteGold()
 {
 	//if SilkRoad wonder?
 	//if Trade feat?
-	Cell *cell = g_theWorld->GetCell(m_home_city.RetPos());
+	Cell *cell = world_Get()->GetCell(m_home_city.RetPos());
 	Assert(cell);
 	if(cell) {
 		sint32 i;
@@ -10967,8 +10967,8 @@ void CityData::AddCityExpansion()
 		bool found = false;
 
 		for(it.Start(); !it.End(); it.Next()) {
-			Cell *ncell = g_theWorld->GetCell(it.Pos());
-			Cell *ocell = g_theWorld->GetCell(SpotFound);
+			Cell *ncell = world_Get()->GetCell(it.Pos());
+			Cell *ocell = world_Get()->GetCell(SpotFound);
 			UrbanImp = GetUrbanTileAvailable(it.Pos()); //includes advance check
 			if (UrbanImp < 0)
 				continue;      // On the next tile an urban tilimp could be available
@@ -11056,8 +11056,8 @@ void CityData::AddCitySlum()
 			return;
 
 		for(it.Start(); !it.End(); it.Next()) {
-			Cell *ncell = g_theWorld->GetCell(it.Pos());
-			Cell *ocell = g_theWorld->GetCell(SpotFound);
+			Cell *ncell = world_Get()->GetCell(it.Pos());
+			Cell *ocell = world_Get()->GetCell(SpotFound);
 			sint32 UrbanImp = GetSlumTileAvailable(it.Pos());
 			if (UrbanImp < 0)
 				return;
@@ -11089,7 +11089,7 @@ void CityData::AddCitySlum()
 bool CityData::IsCoastal() const
 {
 	MapPoint pos = m_home_city.RetPos();
-	return g_theWorld->IsNextToWater(pos.x, pos.y);
+	return world_Get()->IsNextToWater(pos.x, pos.y);
 }
 
 void CityData::PreResourceCalculation()

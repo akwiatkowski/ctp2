@@ -51,7 +51,7 @@ void RandomGenerator::Serialize(CivArchive &archive)
         archive>>tmp;
         m_secondp = m_buffer + tmp;
         m_endp = &(m_buffer[56]);
-		if(g_saveFileVersion >= 56) {
+		if(save_file_version_Get() >= 56) {
 			archive >> m_callCount;
 		}
     }

@@ -1946,7 +1946,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	if(g_isScenario && (archive != NULL &&
 	   (g_startInfoType != STARTINFOTYPE_NONE ||
-		g_saveFileVersion < gamefile_CurrentVersion()))) {
+		save_file_version_Get() < gamefile_CurrentVersion()))) {
 
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
 			if(g_player[i]) {
@@ -2061,7 +2061,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	if(!g_network.IsActive()) {
 		if (archive == NULL ||
-			(g_saveFileVersion >= 42 &&
+			(save_file_version_Get() >= 42 &&
 
 
 
@@ -2309,7 +2309,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	if (    (archive != NULL)
          && (g_startInfoType != STARTINFOTYPE_NONE ||
-		     g_saveFileVersion < gamefile_CurrentVersion()
+		     save_file_version_Get() < gamefile_CurrentVersion()
             )
        )
     {
@@ -2354,7 +2354,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	if(!g_network.IsActive()) {
 		if (archive == NULL ||
-			(g_saveFileVersion >= 42 &&
+			(save_file_version_Get() >= 42 &&
 
 
 

@@ -71,7 +71,7 @@ void TradeOfferPool::Serialize(CivArchive &archive)
 	if(archive.IsStoring()) {
 		Assert(FALSE);
 	} else {
-		if(g_saveFileVersion < 55) {
+		if(save_file_version_Get() < 55) {
 			archive.TestMagic(TRADEOFFERPOOL_MAGIC) ;
 			ObjPool::Serialize(archive);
 
@@ -82,7 +82,7 @@ void TradeOfferPool::Serialize(CivArchive &archive)
 			}
 		}
 	}
-	if(g_saveFileVersion < 55 && !archive.IsStoring()) {
+	if(save_file_version_Get() < 55 && !archive.IsStoring()) {
 		m_all_offers->Serialize(archive);
 	}
 }

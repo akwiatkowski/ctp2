@@ -119,7 +119,7 @@ void Wormhole::Serialize(CivArchive &archive)
 	sint32 i, c;
 	if(archive.IsStoring()) {
 	} else {
-		if(g_saveFileVersion < 55) {
+		if(save_file_version_Get() < 55) {
 			archive.LoadChunk((uint8*)&m_pos, (uint8*)((uint8*)&m_discoveredAt + sizeof(m_discoveredAt)));
 			archive >> c;
 			for(i = 0; i < c; i++) {

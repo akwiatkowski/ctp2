@@ -68,7 +68,7 @@ void AgreementPool::Serialize(CivArchive &archive)
 		}
 	else
 		{
-			if(g_saveFileVersion < 55) {
+			if(save_file_version_Get() < 55) {
 				archive.TestMagic(AGREEMENTPOOL_MAGIC) ;
 				archive>>count;
 				for (i=0; i<count; i++)

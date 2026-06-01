@@ -74,7 +74,7 @@ void Score::Serialize(CivArchive &archive)
 	if(archive.IsStoring()) {
 		archive.StoreChunk((uint8*)&m_owner, (uint8*)&m_feats + sizeof(m_feats));
 	} else {
-		if(g_saveFileVersion >= 57)
+		if(save_file_version_Get() >= 57)
 		{
 			archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_feats + sizeof(m_feats));
 		}

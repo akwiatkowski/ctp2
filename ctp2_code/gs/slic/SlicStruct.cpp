@@ -464,7 +464,7 @@ void SlicStructInstance::Serialize(CivArchive &archive)
 			m_dataSymbol = NULL;
 		}
 
-		if(g_saveFileVersion >= 64) {
+		if(save_file_version_Get() >= 64) {
 			archive >> m_dataSymbolIndex;
 		} else {
 			m_dataSymbolIndex = INDEX_INVALID;

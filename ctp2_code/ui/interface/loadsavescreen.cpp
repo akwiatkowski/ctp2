@@ -478,7 +478,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 				if (s_tempSaveInfo->startInfoType == STARTINFOTYPE_NOLOCS)
 				{
 
-					if (g_saveFileVersion >= 50 && s_tempSaveInfo->startingPlayer != -1)
+					if (save_file_version_Get() >= 50 && s_tempSaveInfo->startingPlayer != -1)
 					{
 						// Only one player is enabled
 						spnewgametribescreen_addTribe(s_tempSaveInfo->playerCivIndexList[s_tempSaveInfo->startingPlayer]);

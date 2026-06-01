@@ -642,7 +642,7 @@ void CityData::Serialize(CivArchive &archive)
 	}
 	else
 	{
-		if (g_saveFileVersion >= 66)
+		if (save_file_version_Get() >= 66)
 		{
 			archive >> m_min_turns_revolt;
 		}

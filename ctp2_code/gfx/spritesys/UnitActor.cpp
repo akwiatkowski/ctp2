@@ -79,7 +79,7 @@
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"   // g_tiledMap
 #include "gs/database/profileDB.h"  // g_theProfileDB
-#include "gs/fileio/gamefile.h"     // g_saveFileVersion
+#include "gs/fileio/gamefile.h"     // save_file_version_Get()
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Player.h"  // g_player
@@ -2121,7 +2121,7 @@ void UnitActor::Serialize(CivArchive& archive) {
 
     m_type = (GROUPTYPE)archive.GetUINT8();
 
-    if (g_saveFileVersion >= 67) {
+    if (save_file_version_Get() >= 67) {
       archive >> m_spriteID;
     } else {
       m_spriteID = (sint32)archive.GetUINT8();
@@ -2130,7 +2130,7 @@ void UnitActor::Serialize(CivArchive& archive) {
     m_playerNum = (sint32)archive.GetUINT8();
     m_unitID = Unit(archive.GetUINT32());
 
-    if (g_saveFileVersion >= 67) {
+    if (save_file_version_Get() >= 67) {
       archive >> m_unitDBIndex;
     } else {
       m_unitDBIndex = (sint32)archive.GetUINT8();

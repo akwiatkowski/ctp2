@@ -102,7 +102,7 @@ void HappyTracker::Serialize(CivArchive &archive)
     }
     else
     {
-        if (g_saveFileVersion <= 64)
+        if (save_file_version_Get() <= 64)
         {
             // Apparently HAPPY_REASON_FEATS was middle-inserted by Activision
             // in version 65, requiring a shift of all items with higher index.
@@ -115,7 +115,7 @@ void HappyTracker::Serialize(CivArchive &archive)
 	        }
 		    m_happinessAmounts[HAPPY_REASON_FEATS] = 0.0;
         }
-        else if (g_saveFileVersion <= 66)
+        else if (save_file_version_Get() <= 66)
         {
             archive.Load((uint8*) m_happinessAmounts,
                          sizeof(double) * HAPPY_REASON_MAX_VERSION_66

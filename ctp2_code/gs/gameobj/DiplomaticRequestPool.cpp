@@ -72,7 +72,7 @@ void DiplomaticRequestPool::Serialize(CivArchive &archive)
 		}
 	else
 	{
-		if(g_saveFileVersion < 55)
+		if(save_file_version_Get() < 55)
 		{
 			archive.TestMagic(DIPREQPOOL_MAGIC) ;
 			archive>>count;

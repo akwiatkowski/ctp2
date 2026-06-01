@@ -44,6 +44,7 @@
 #include "gs/utility/newturncount.h"
 
 #include "gs/slic/SlicObject.h"
+#include "gs/fileio/gamefile.h"        // save_file_version_Get
 #include "gs/slic/SlicEngine.h"
 #include "gs/utility/stringutils.h"
 #include "gs/database/StrDB.h"
@@ -51,7 +52,6 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/GSLogs.h"
 
-extern sint32 g_saveFileVersion;
 
 namespace
 {
@@ -123,7 +123,7 @@ void Foreigner::Load(CivArchive & archive)
 
 		for (i = 0; i < size; i++)
 		{
-			if (g_saveFileVersion >= 57)
+			if (save_file_version_Get() >= 57)
 			{
 				archive >> event.regard;
 				archive >> event.turn;
@@ -155,7 +155,7 @@ void Foreigner::Load(CivArchive & archive)
 	m_negotiationEvents.clear();
 	for (i = 0; i < size; i++)
 	{
-		if (g_saveFileVersion >= 60)
+		if (save_file_version_Get() >= 60)
 		{
 			archive.Load((uint8 *) &negotiation, sizeof(NegotiationEvent));
 		}
@@ -176,7 +176,7 @@ void Foreigner::Load(CivArchive & archive)
 	archive >> m_coldwarAttackedMe;
 	archive >> m_greetingTurn;
 
-	if (g_saveFileVersion >= 51)
+	if (save_file_version_Get() >= 51)
 	{
 		archive >> val;
 		m_embargo = (val?true:false);

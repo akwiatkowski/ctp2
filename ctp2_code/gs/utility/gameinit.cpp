@@ -1702,7 +1702,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_theTradePool = new TradePool();
 
     // 55 is probably the last save game version for CTP1
-	if (archive && loadEverything && (g_saveFileVersion < 55))
+	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theTradeOfferPool = new TradeOfferPool(*archive);
 	}
@@ -1718,7 +1718,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_thePollution = new Pollution();
 	Assert(g_thePollution);
 
-	if (archive && loadEverything && (g_saveFileVersion < 55))
+	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theTopTen = new TopTen(*archive);
 	}
@@ -1775,7 +1775,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_theTerrainImprovementPool = new TerrainImprovementPool();
 	Assert(g_theTerrainImprovementPool) ;
 
-	if (archive && loadEverything && (g_saveFileVersion < 55))
+	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theDiplomaticRequestPool = new DiplomaticRequestPool(*archive) ;
 	}
@@ -1791,7 +1791,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_theCivilisationPool = new CivilisationPool() ;
 	Assert(g_theCivilisationPool) ;
 
-	if (archive && loadEverything && (g_saveFileVersion < 55))
+	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theAgreementPool = new AgreementPool(*archive) ;
 	}
@@ -1820,7 +1820,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	g_theInstallationPool->RebuildQuadTree();
 
-	if (archive && loadEverything && (g_saveFileVersion < 55))
+	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
 		sint32 wormholeExists;
 		*archive >> wormholeExists;
@@ -1837,7 +1837,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_theWonderTracker = new WonderTracker();
 	}
 
-	if(archive && loadEverything && (g_saveFileVersion < 55))
+	if(archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theAchievementTracker = new AchievementTracker(*archive);
 	}
@@ -1862,7 +1862,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_featTracker = new FeatTracker;
 	}
 
-	if(archive && loadEverything && (g_saveFileVersion < 55))
+	if(archive && loadEverything && (save_file_version_Get() < 55))
     {
 		g_theTradeBids = new TradeBids(*archive);
 	}

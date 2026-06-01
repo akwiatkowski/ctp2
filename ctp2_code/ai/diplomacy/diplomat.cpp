@@ -56,6 +56,7 @@
 #include "ctp/c3.h"
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/core/diplomacy_observer.h"
+#include "gs/fileio/gamefile.h"        // save_file_version_Get
 
 #include <algorithm>            // std::min
 #include <functional>
@@ -116,7 +117,6 @@
 #include "net/general/net_diplomacy.h"
 #include "gs/utility/RandGen.h"            // g_rand
 
-extern sint32 g_saveFileVersion;
 
 namespace
 {
@@ -578,12 +578,12 @@ void Diplomat::Load(CivArchive & archive)
 	archive >> m_diplomcyVictoryCompleteTurn;
 	archive >> m_nuclearAttackTarget;
 
-	if (g_saveFileVersion >= 59)
+	if (save_file_version_Get() >= 59)
 	{
 		archive >> m_lastParty;
 	}
 
-	if (g_saveFileVersion >= 61)
+	if (save_file_version_Get() >= 61)
 	{
 		uint8 val;
 		archive >> val;

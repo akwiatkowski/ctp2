@@ -18,7 +18,7 @@ void AchievementTracker::Serialize(CivArchive &archive)
 	if(archive.IsStoring()) {
 
 	} else {
-		if(g_saveFileVersion < 55) {
+		if(save_file_version_Get() < 55) {
 			archive >> m_achievements;
 		}
 	}

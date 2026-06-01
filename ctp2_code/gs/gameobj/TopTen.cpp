@@ -77,7 +77,7 @@ void TopTen::Serialize(CivArchive &archive)
 	}
 	else
 	{
-		if (g_saveFileVersion < 55)
+		if (save_file_version_Get() < 55)
         {
 			archive.TestMagic(TOPTEN_MAGIC) ;
 			for (sint32 i = 0; i < TOPTEN_LIST_SIZE; i++)

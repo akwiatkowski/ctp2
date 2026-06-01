@@ -163,6 +163,7 @@
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3debug.h"
 #include "ctp/ctp2_utils/c3errors.h"
+#include "ctp/ctp2_utils/civlog.h"  // TEMP: fog-of-war first-city bug diagnostic
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "robot/pathing/CityAstar.h"
@@ -821,7 +822,7 @@ void Player::Serialize(CivArchive &archive)
 
 	m_civilisation->Serialize(archive) ;
 
-	if(!archive.IsStoring() && g_saveFileVersion < 54) {
+	if(!archive.IsStoring() && save_file_version_Get() < 54) {
 
 		sint32 upgrades;
 		archive >> upgrades;
@@ -3853,7 +3854,16 @@ void Player::SetResearching(AdvanceType advance)
 
 void Player::AddUnitVision(const MapPoint &pnt, double range)
 {
-	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
+	// TEMP: fog-of-war first-city bug diagnostic
+	bool const localIsNull   = (tiledmap_observer::GetLocalVision() == nullptr);
+	bool const isLocalPlayer = !localIsNull && (m_vision == tiledmap_observer::GetLocalVision());
+	civlog::Get("vision-dbg")->info(
+		"AddUnitVision owner={} pos=({},{}) range={:.3f} route={} obs={}",
+		m_owner, pnt.x, pnt.y, range,
+		isLocalPlayer ? "observer(deferred)" : "direct(immediate)",
+		g_gameObservers ? "yes" : "NULL");
+
+	if(localIsNull || !isLocalPlayer)
 	{
 		m_vision->AddVisible(pnt, range);
 	}
@@ -3865,7 +3875,15 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 
 void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 {
-	if(tiledmap_observer::GetLocalVision() == nullptr || m_vision != tiledmap_observer::GetLocalVision())
+	// TEMP: fog-of-war first-city bug diagnostic
+	bool const localIsNull   = (tiledmap_observer::GetLocalVision() == nullptr);
+	bool const isLocalPlayer = !localIsNull && (m_vision == tiledmap_observer::GetLocalVision());
+	civlog::Get("vision-dbg")->info(
+		"RemoveUnitVision owner={} pos=({},{}) range={:.3f} route={}",
+		m_owner, pnt.x, pnt.y, range,
+		isLocalPlayer ? "observer(deferred)" : "direct(immediate)");
+
+	if(localIsNull || !isLocalPlayer)
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}

@@ -41,11 +41,11 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
+#include "gs/fileio/gamefile.h"        // save_file_version_Get
 #include "WonderRecord.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/UnitPool.h"
 
-extern sint32 g_saveFileVersion;
 
 WonderTracker *g_theWonderTracker = NULL;
 
@@ -68,9 +68,9 @@ void WonderTracker::Serialize(CivArchive &archive)
 	} else {
 		archive >> m_builtWonders;
 
-		if (g_saveFileVersion >= 58) {
+		if (save_file_version_Get() >= 58) {
 			archive.Load((uint8*)m_buildingWonders, k_MAX_PLAYERS * sizeof(uint64));
-			if(g_saveFileVersion >= 63) {
+			if(save_file_version_Get() >= 63) {
 				archive >> m_globeSatFlags;
 			} else {
 				m_globeSatFlags = 0;

@@ -241,7 +241,13 @@ public:
 	static PointerList<GameMapInfo> *BuildSaveMapList(C3SAVEDIR dir);
 };
 
-extern sint32 g_saveFileVersion;
+// Save-file version: -1 if no save loaded yet; otherwise the schema
+// version pulled from the file's magic value (see s_magicValue table
+// in GameFile.cpp).  Almost every gs/ Serialize() reads this to gate
+// backward-compat branches.  Definition is file-scope `static` in
+// GameFile.cpp; external readers go through save_file_version_Get().
+sint32 save_file_version_Get(void);
+void   save_file_version_Set(sint32 v);
 extern sint32 g_startInfoType;
 extern sint32 g_isScenario;
 // Number of scenario civs the player picked.  Definition in GameFile.cpp

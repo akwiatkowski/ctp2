@@ -150,7 +150,7 @@ void BuildQueue::Serialize(CivArchive &archive)
     else
     {
 		archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_name + sizeof(m_name));
-		if(g_saveFileVersion >= 62) {
+		if(save_file_version_Get() >= 62) {
 			archive >> m_wonderComplete;
 		} else {
 			m_wonderComplete = NOTHING_THIS_TURN;

@@ -14,7 +14,6 @@
 #include "gs/fileio/civscenarios.h"
 #include "gs/gameobj/Player.h"
 #include "gs/world/World.h"
-#include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/core/game_observer.h"            // g_gameObservers
@@ -170,7 +169,7 @@ int main(int argc, char **argv)
     // Reuse the same SelectedItem-backed callbacks the UI build uses.
     RegisterUIPlayerView();
     // Override CurPlayer so AI asserts (player == CurPlayer()) pass and
-    // NewTurnCount::GetCurrentRound() returns the active player's round.
+    // the active player's round is returned.
     player_view::RegisterCurPlayer(&HeadlessCurPlayer);
     headless_log->info("observers + player_view registered");
 

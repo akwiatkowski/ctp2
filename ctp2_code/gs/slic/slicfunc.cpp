@@ -6276,7 +6276,7 @@ SFN_ERROR Slic_GetCurrentRound::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = NewTurnCount::GetCurrentRound();
+	m_result.m_int = g_turn->GetSessionRound();
 	return SFN_ERROR_OK;
 }
 
@@ -6285,7 +6285,7 @@ SFN_ERROR Slic_GetCurrentYear::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = NewTurnCount::GetCurrentYear();
+	m_result.m_int = g_turn->GetSessionYear();
 	return SFN_ERROR_OK;
 }
 

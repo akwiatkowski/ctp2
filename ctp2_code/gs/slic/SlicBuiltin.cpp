@@ -72,7 +72,7 @@
 #include "gs/slic/SlicSymbol.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "UnitRecord.h"
@@ -93,7 +93,7 @@ class GlobalSymbol_Year : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_Year);
 
 	BOOL GetIntValue(sint32 &value) const {
-		value = NewTurnCount::GetCurrentRound();
+		value = g_turn->GetSessionRound();
 		return TRUE;
 	}
 };

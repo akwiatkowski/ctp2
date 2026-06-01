@@ -6262,7 +6262,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 
 void DRayTestCode::Execute(sint32 argc, char **argv)
 {
-	int const curRound	= std::min<sint32>(NewTurnCount::GetCurrentRound(), 200);
+	int const curRound	= std::min<sint32>(g_turn->GetSessionRound(), 200);
 	int turnStrength[200];
 	int i;
 	for(i=0; i<curRound; i++)

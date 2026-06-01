@@ -37,7 +37,9 @@
 #include <chrono>
 #include <thread>
 
-BOOL g_mouseShouldTerminateThread = FALSE;
+static BOOL g_mouseShouldTerminateThread = FALSE;
+
+void aui_mouse_RequestTerminate(void) { g_mouseShouldTerminateThread = TRUE; }
 
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_ui.h"

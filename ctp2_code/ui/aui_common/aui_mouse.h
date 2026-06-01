@@ -24,7 +24,7 @@
 // Modifications from the original Activision code:
 //
 // - Increased k_MOUSE_MAXNUMCURSORS to allow some additional cursors.
-//   - April 30th 2005 Martin Gühmann
+//   - April 30th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -87,9 +87,10 @@ struct aui_MouseEvent
 #define k_MOUSE_DEFAULTANIMDELAY	100
 
 #ifdef USE_SDL
-// HACK: Use this global variable to halt mouse event handling
-// thread on game exit
-extern BOOL g_mouseShouldTerminateThread;
+// HACK: Halt mouse event handling thread on game exit.  Backing storage
+// is `static BOOL g_mouseShouldTerminateThread` in aui_mouse.cpp.
+// civ3_main.cpp's shutdown path is the only cross-TU writer.
+void aui_mouse_RequestTerminate(void);
 #endif
 
 class aui_Mouse : public aui_Base, public virtual aui_Input

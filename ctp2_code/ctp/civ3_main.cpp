@@ -1059,7 +1059,7 @@ void AtExitProc(void)
     // What about this?
     Mix_CloseAudio();
 # endif
-	g_mouseShouldTerminateThread = TRUE;
+	aui_mouse_RequestTerminate();
 
 	// Destroy the mutex used for the secondary keyboard event queue
 #ifdef __AUI_USE_SDL__

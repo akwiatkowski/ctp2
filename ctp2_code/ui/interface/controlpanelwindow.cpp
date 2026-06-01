@@ -1140,7 +1140,7 @@ m_terraFormMode(false)
 	m_mainWindow->SetStencilFromImage("control_panel_stencil.tga");
 
 	g_c3ui->AddWindow(m_mainWindow);
-	if (g_startHotseatGame)
+	if (gameinit_IsHotseatGame())
 	{
 		// Do not display control panel yet.
 		Hide();

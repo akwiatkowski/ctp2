@@ -410,7 +410,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 
 	if (s_tempSaveInfo->startInfoType == STARTINFOTYPE_CIVSFIXED)
 	{
-		if (g_startEmailGame || g_startHotseatGame)
+		if (gameinit_IsEmailGame() || gameinit_IsHotseatGame())
 		{
 			hotseatlist_ClearOptions();
 			for (sint32 i=0; i<g_theProfileDB->GetNPlayers(); i++)
@@ -429,7 +429,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 	}
 	else
 	{
-		if (g_startEmailGame || g_startHotseatGame)
+		if (gameinit_IsEmailGame() || gameinit_IsHotseatGame())
 		{
 			if (s_tempSaveInfo->startInfoType == STARTINFOTYPE_POSITIONSFIXED)
 			{

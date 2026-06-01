@@ -344,7 +344,7 @@ sint32 radarwindow_Initialize()
 
 	g_c3ui->AddWindow(g_radarWindow);
 
-	if (g_startHotseatGame)
+	if (gameinit_IsHotseatGame())
 	{
 		// Do not display map information before the user has pressed Ready.
 		g_radarWindow->Hide();

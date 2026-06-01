@@ -305,7 +305,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_playerType = pt;
 
 	bool treatAsRobot = IsRobot();
-	if(treatAsRobot && (g_startHotseatGame || g_startEmailGame) &&
+	if(treatAsRobot && (gameinit_IsHotseatGame() || gameinit_IsEmailGame()) &&
 	   g_hsPlayerSetup[m_owner].isHuman)
 		treatAsRobot = false;
 

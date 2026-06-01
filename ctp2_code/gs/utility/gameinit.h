@@ -21,8 +21,13 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight);
 
 void gameinit_SpewUnits(sint32 player, MapPoint &pos);
 
-extern BOOL g_startEmailGame;
-extern BOOL g_startHotseatGame;
+// g_startEmailGame / g_startHotseatGame demoted to file-scope `static`
+// in gameinit.cpp.  Flags driven by the new-game / hotseat-list UI and
+// consulted by the simulation core during turn setup.
+BOOL gameinit_IsEmailGame(void);
+void gameinit_SetEmailGame(BOOL v);
+BOOL gameinit_IsHotseatGame(void);
+void gameinit_SetHotseatGame(BOOL v);
 
 struct HotseatPlayerSetup {
 	sint32 civ;

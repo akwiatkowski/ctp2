@@ -258,7 +258,7 @@ spnewgamescreen_startPress(aui_Control *control, uint32 action, uint32 data, voi
 			g_spNewGameWindow->m_spName->GetFieldText(fieldText, k_MAX_NAME_LEN);
 			g_theProfileDB->SetLeaderName(fieldText);
 
-			if (g_startEmailGame || g_startHotseatGame)
+			if (gameinit_IsEmailGame() || gameinit_IsHotseatGame())
 			{
 				spnewgamescreen_SetupHotseatOrEmail();
 			}
@@ -280,11 +280,11 @@ spnewgamescreen_returnPress(aui_Control *control, uint32 action, uint32 data, vo
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 #if 0 // not used
-	bool wasPBEMOrHotseat = g_startHotseatGame || g_startEmailGame;
+	bool wasPBEMOrHotseat = gameinit_IsHotseatGame() || gameinit_IsEmailGame();
 #endif
 
-	g_startHotseatGame  = FALSE;
-	g_startEmailGame    = FALSE;
+	gameinit_SetHotseatGame(FALSE);
+	gameinit_SetEmailGame(FALSE);
 	g_isScenario        = FALSE;
 	memset(g_scenarioName, '\0', k_SCENARIO_NAME_MAX);
 	g_civPaths->ClearCurScenarioPath();

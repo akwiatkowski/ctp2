@@ -303,8 +303,13 @@ sint32                    g_barbarianRiskUponLaunch = 0;
 // g_selected_item definition moved to ui/aui_ctp2/SelItem.cpp — the global
 // belongs next to its class, not in game-state init.
 
-BOOL g_startEmailGame = FALSE;
-BOOL g_startHotseatGame = FALSE;
+static BOOL g_startEmailGame   = FALSE;
+static BOOL g_startHotseatGame = FALSE;
+
+BOOL gameinit_IsEmailGame(void)         { return g_startEmailGame; }
+void gameinit_SetEmailGame(BOOL v)      { g_startEmailGame = v; }
+BOOL gameinit_IsHotseatGame(void)       { return g_startHotseatGame; }
+void gameinit_SetHotseatGame(BOOL v)    { g_startHotseatGame = v; }
 HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
 
 //----------------------------------------------------------------------------
@@ -464,7 +469,7 @@ sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_M
 		}
 		else
 		{
-			if((g_startHotseatGame || g_startEmailGame) &&
+			if((gameinit_IsHotseatGame() || gameinit_IsEmailGame()) &&
 			   g_hsPlayerSetup[i].isHuman)
 			{
 				nUnits = 1;
@@ -1366,8 +1371,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	g_turn->SetHotSeat(FALSE);
 	g_turn->SetEmail(FALSE);
 
-	g_startHotseatGame = FALSE;
-	g_startEmailGame = FALSE;
+	gameinit_SetHotseatGame(FALSE);
+	gameinit_SetEmailGame(FALSE);
 
 	{
 		sint32 p, c, u;
@@ -1467,8 +1472,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if(g_network.IsActive()
 	|| g_network.IsNetworkLaunch()
-	|| g_startHotseatGame
-	|| g_startEmailGame
+	|| gameinit_IsHotseatGame()
+	|| gameinit_IsEmailGame()
 	){
 		g_theProfileDB->SetTutorialAdvice(FALSE);
 	}
@@ -2447,7 +2452,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (!(archive) || g_isScenario)
 	{
-		if (g_startHotseatGame || g_startEmailGame)
+		if (gameinit_IsHotseatGame() || gameinit_IsEmailGame())
 		{
 			bool foundFirstHuman = false;
 
@@ -2485,12 +2490,12 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 
-        g_turn->SetHotSeat(g_startHotseatGame);
-        g_turn->SetEmail(g_startEmailGame);
+        g_turn->SetHotSeat(gameinit_IsHotseatGame());
+        g_turn->SetEmail(gameinit_IsEmailGame());
 	}
 
-	g_startHotseatGame = FALSE;
-	g_startEmailGame = FALSE;
+	gameinit_SetHotseatGame(FALSE);
+	gameinit_SetEmailGame(FALSE);
 
 	if (g_setDifficultyUponLaunch) {
 		g_theProfileDB->SetDifficulty(g_difficultyToSetUponLaunch);

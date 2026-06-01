@@ -234,7 +234,7 @@ void initialplayscreen_hotseatPress(aui_Control *control, uint32 action, uint32 
 	if(action != (uint32)AUI_BUTTON_ACTION_EXECUTE) return;
 
 	if(initialplayscreen_removeMyWindow(action)) {
-		g_startHotseatGame = TRUE;
+		gameinit_SetHotseatGame(TRUE);
 		spnewgamescreen_displayMyWindow();
 	}
 }
@@ -244,7 +244,7 @@ void initialplayscreen_emailPress(aui_Control *control, uint32 action, uint32 da
 	if(action != (uint32)AUI_BUTTON_ACTION_EXECUTE) return;
 
 	if(initialplayscreen_removeMyWindow(action)) {
-		g_startEmailGame = TRUE;
+		gameinit_SetEmailGame(TRUE);
 		spnewgamescreen_displayMyWindow();
 	}
 }

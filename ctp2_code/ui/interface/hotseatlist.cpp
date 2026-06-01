@@ -123,7 +123,7 @@ void HotseatListButtonActionCallback( aui_Control *control, uint32 action, uint3
 			item->Update();
 			if(item->IsHuman()) {
 				if(strlen(item->GetName()) < 1 ||
-				   (g_startEmailGame && strlen(item->GetEmail()) < 1)) {
+				   (gameinit_IsEmailGame() && strlen(item->GetEmail()) < 1)) {
 					return;
 				}
 				numHumans++;
@@ -198,10 +198,10 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 
 	m_window->Title()->Move( (m_window->Width() - m_window->Title()->Width()) / 2, 17 );
 
-	if (g_startEmailGame) {
+	if (gameinit_IsEmailGame()) {
 		m_window->TitleText()->SetText(g_theStringDB->GetNameStr("ldl_str_EMAIL_LIST_TITLE"));
 	} else {
-		if (g_startHotseatGame) {
+		if (gameinit_IsHotseatGame()) {
 			m_window->TitleText()->SetText(g_theStringDB->GetNameStr("ldl_str_HOTSEAT_LIST_TITLE"));
 		}
 	}
@@ -500,7 +500,7 @@ void HotseatListItem::Update(void)
 		subText = (C3TextField *)GetChildByIndex(3);
 		subText->GetFieldText(m_email, 255);
 
-		if(g_startEmailGame)
+		if(gameinit_IsEmailGame())
 			subText->Enable(true);
 		else
 			subText->Enable(false);
@@ -525,7 +525,7 @@ void HotseatListItem::SetHuman(bool human)
 	m_isHuman = human;
 	C3TextField *subText;
 	subText = (C3TextField *)GetChildByIndex(3);
-	if(m_isHuman && g_startEmailGame) {
+	if(m_isHuman && gameinit_IsEmailGame()) {
 		subText->Enable(true);
 	} else {
 		subText->SetFieldText("");

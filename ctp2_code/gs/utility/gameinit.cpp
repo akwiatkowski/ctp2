@@ -1865,8 +1865,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive)
     {
-		delete g_exclusions;
-		g_exclusions = new Exclusions(*archive);
+		delete exclusions_Get();
+		exclusions_Set(new Exclusions(*archive));
 	}
     else
     {

@@ -8399,7 +8399,7 @@ bool Player::CanBuildUnit(const sint32 type) const
 			return false;
 	}
 
-	if(g_exclusions->IsUnitExcluded(type))
+	if(exclusions_Get()->IsUnitExcluded(type))
 		return false;
 
 	if(rec->GetCantBuild()) {
@@ -9479,7 +9479,7 @@ bool Player::CanBuildLeader(const sint32 type) const
 			return false;
 	}
 
-	if(g_exclusions->IsUnitExcluded(type))
+	if(exclusions_Get()->IsUnitExcluded(type))
 		return false;
 ///removed cantbuild
 /*

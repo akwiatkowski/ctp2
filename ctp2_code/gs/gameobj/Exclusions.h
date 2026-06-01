@@ -38,5 +38,9 @@ public:
 	void ExcludeWonder(sint32 type, sint32 exclude) { m_wonders[type] = exclude; }
 };
 
-extern Exclusions *g_exclusions;
+// Lifecycle spans gameinit / civapp / network setup.  Storage is
+// file-scope `static` in Exclusions.cpp; readers use exclusions_Get(),
+// writers (the net layer swaps it for game-rules setup) use _Set.
+Exclusions * exclusions_Get(void);
+void         exclusions_Set(Exclusions *p);
 #endif

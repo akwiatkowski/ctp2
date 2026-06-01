@@ -124,7 +124,7 @@ sint32 Barbarians::ChooseUnitType()
 		if(rec->GetAttack() < 1)
 			continue;
 
-		if(g_exclusions && g_exclusions->IsUnitExcluded(i))
+		if(exclusions_Get() && exclusions_Get()->IsUnitExcluded(i))
 			continue;
 		if(rec->GetNoBarbarian())
 			continue;
@@ -275,7 +275,7 @@ sint32 Barbarians::ChooseSeaUnitType()
 		if(rec->GetAttack() < 1)
 			continue;
 
-		if(g_exclusions && g_exclusions->IsUnitExcluded(i))
+		if(exclusions_Get() && exclusions_Get()->IsUnitExcluded(i))
 			continue;
 		if(rec->GetNoBarbarian())
 			continue;
@@ -426,7 +426,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 		if(rec->GetAttack() < 1)
 			continue;
 
-		if(g_exclusions && g_exclusions->IsUnitExcluded(i))
+		if(exclusions_Get() && exclusions_Get()->IsUnitExcluded(i))
 			continue;
 		if(rec->GetNoBarbarian())
 			continue;

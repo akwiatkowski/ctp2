@@ -6831,7 +6831,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 		return false;
 	}
 
-	if(g_exclusions->IsBuildingExcluded(type))
+	if(exclusions_Get()->IsBuildingExcluded(type))
 		return false;
 
 	const BuildingRecord* rec = buildingutil_Get(type, m_owner);
@@ -7189,7 +7189,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 	if(!wonderutil_IsAvailable(type, m_owner))
 		return false;
 
-	if(g_exclusions->IsWonderExcluded(type))
+	if(exclusions_Get()->IsWonderExcluded(type))
 		return false;
 
 	// Added Wonder database

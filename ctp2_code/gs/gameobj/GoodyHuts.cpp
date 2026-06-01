@@ -378,7 +378,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 					continue;   // EMOD new flag to prevent some unts from appearing
 				if (rec->GetHasPopAndCanBuild())
 					continue;   // settler, handled separately
-				if (g_exclusions->IsUnitExcluded(i))
+				if (exclusions_Get()->IsUnitExcluded(i))
 					continue;   // excluded (MP, mod)
 				if (rec->GetNumGovernmentType() > 0)
 					continue;   // government specific?

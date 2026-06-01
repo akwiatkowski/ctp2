@@ -137,7 +137,7 @@ extern PointerList<Player>   *g_deadPlayer;
 // g_rand declared in RandGen.h.  g_theWorld in World.h.
 // g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
-// g_theInstallationPool / wonder_tracker_Get() / g_exclusions / g_featTracker /
+// g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
 // g_player are extern'd by their respective headers (already included above).
 
 // CTP2_BUILD_SHA is injected by meson into config.h (run_command git
@@ -4634,7 +4634,7 @@ bool SaveJson(char const *path)
 
     // --- Trackers + exclusions (GameFile::Save:474-503) --------------
     if (wonder_tracker_Get())  doc["wonder_tracker"]            = *wonder_tracker_Get();
-    if (g_exclusions)        doc["exclusions"]                = *g_exclusions;
+    if (exclusions_Get())        doc["exclusions"]                = *exclusions_Get();
     if (FeatTracker *ft = feattracker_Get()) doc["feat_tracker"] = *ft;
     if (EventTracker *et = eventtracker_Get()) doc["event_tracker"] = *et;
 
@@ -4771,7 +4771,7 @@ bool LoadJson(char const *path)
 
         // Trackers
         if (doc.contains("wonder_tracker") && wonder_tracker_Get()) doc.at("wonder_tracker").get_to(*wonder_tracker_Get());
-        if (doc.contains("exclusions")     && g_exclusions)       doc.at("exclusions")    .get_to(*g_exclusions);
+        if (doc.contains("exclusions")     && exclusions_Get())       doc.at("exclusions")    .get_to(*exclusions_Get());
         if (FeatTracker *ft = feattracker_Get(); doc.contains("feat_tracker") && ft) doc.at("feat_tracker").get_to(*ft);
         if (EventTracker *et = eventtracker_Get(); doc.contains("event_tracker") && et) doc.at("event_tracker").get_to(*et);
         if (doc.contains("top_ten")        && g_theTopTen)        doc.at("top_ten")       .get_to(*g_theTopTen);

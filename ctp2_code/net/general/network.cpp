@@ -438,8 +438,8 @@ Network::Cleanup()
 
 	m_dynamicJoin = FALSE;
 
-	if(!g_exclusions) {
-		g_exclusions = new Exclusions();
+	if(!exclusions_Get()) {
+		exclusions_Set(new Exclusions());
 	}
 
 	if(m_rememberExclusions) {
@@ -466,8 +466,8 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 	m_launchHost = g_netfunc->IsHost();
 
 
-	m_rememberExclusions = g_exclusions;
-	g_exclusions = NULL;
+	m_rememberExclusions = exclusions_Get();
+	exclusions_Set(NULL);
 
 	if(!m_noThread) {
 		((NetThread *)m_netIO)->SetDP(g_netfunc->GetDP());
@@ -504,17 +504,17 @@ void Network::InitFromNetFunc()
 		}
 		g_gamesetup.SetSize(static_cast<sint16>(numLegalSlots));
 		SetMaxPlayers(numLegalSlots);
-		if(!g_exclusions) {
+		if(!exclusions_Get()) {
 
-			g_exclusions = m_rememberExclusions;
+			exclusions_Set(m_rememberExclusions);
 			m_rememberExclusions = NULL;
 		}
 	} else {
 		if(m_rememberExclusions) {
-			if(g_exclusions) {
-				delete g_exclusions;
+			if(exclusions_Get()) {
+				delete exclusions_Get();
 			}
-			g_exclusions = m_rememberExclusions;
+			exclusions_Set(m_rememberExclusions);
 			m_rememberExclusions = NULL;
 		}
 	}

@@ -1225,7 +1225,7 @@ bool CivApp::InitializeAppDB(void)
 	ProgressTo( 500 );
 
 	civapp_log->info("InitializeAppDB: Creating Exclusions, resolving references");
-    g_exclusions = new Exclusions();
+    exclusions_Set(new Exclusions());
 
 	if(!g_theUnitDB->ResolveReferences())               return false;
 	if(!g_theAdvanceDB->ResolveReferences())            return false;
@@ -1634,7 +1634,7 @@ void CivApp::CleanupAppUI(void)
 void CivApp::CleanupAppDB(void)
 {
     allocated::clear(g_theMapDB);
-    allocated::clear(g_exclusions);
+    { Exclusions *p = exclusions_Get(); delete p; exclusions_Set(NULL); }
     allocated::clear(g_theMessageIconFileDB);
     allocated::clear(g_theRiskDB);
     allocated::clear(g_theWonderDB);

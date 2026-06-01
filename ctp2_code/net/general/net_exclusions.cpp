@@ -6,35 +6,35 @@
 void NetExclusions::Packetize(uint8 *buf, uint16 &size)
 {
 	PUSHID(k_PACKET_EXCLUSIONS_ID);
-	PUSHLONG(g_exclusions->m_numUnits);
-	PUSHLONG(g_exclusions->m_numBuildings);
-	PUSHLONG(g_exclusions->m_numWonders);
+	PUSHLONG(exclusions_Get()->m_numUnits);
+	PUSHLONG(exclusions_Get()->m_numBuildings);
+	PUSHLONG(exclusions_Get()->m_numWonders);
 
 	sint32 i;
 	sint32 bitPos;
 	uint8 next;
-	for(i = 0; i < g_exclusions->m_numUnits; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numUnits; i += 8) {
 		next = 0;
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numUnits); bitPos++) {
-			if(g_exclusions->IsUnitExcluded(i + bitPos))
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numUnits); bitPos++) {
+			if(exclusions_Get()->IsUnitExcluded(i + bitPos))
 				next |= 1 << bitPos;
 		}
 		PUSHBYTE(next);
 	}
 
-	for(i = 0; i < g_exclusions->m_numBuildings; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numBuildings; i += 8) {
 		next = 0;
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numBuildings); bitPos++) {
-			if(g_exclusions->IsBuildingExcluded(i + bitPos))
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numBuildings); bitPos++) {
+			if(exclusions_Get()->IsBuildingExcluded(i + bitPos))
 				next |= 1 << bitPos;
 		}
 		PUSHBYTE(next);
 	}
 
-	for(i = 0; i < g_exclusions->m_numWonders; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numWonders; i += 8) {
 		next = 0;
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numWonders); bitPos++) {
-			if(g_exclusions->IsWonderExcluded(i + bitPos))
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numWonders); bitPos++) {
+			if(exclusions_Get()->IsWonderExcluded(i + bitPos))
 				next |= 1 << bitPos;
 		}
 		PUSHBYTE(next);
@@ -49,52 +49,52 @@ void NetExclusions::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLID(packid);
 	Assert(packid == k_PACKET_EXCLUSIONS_ID);
 
-	if(!g_exclusions) {
-		g_exclusions = new Exclusions();
+	if(!exclusions_Get()) {
+		exclusions_Set(new Exclusions());
 	}
 
-	PULLLONG(g_exclusions->m_numUnits);
-	PULLLONG(g_exclusions->m_numBuildings);
-	PULLLONG(g_exclusions->m_numWonders);
+	PULLLONG(exclusions_Get()->m_numUnits);
+	PULLLONG(exclusions_Get()->m_numBuildings);
+	PULLLONG(exclusions_Get()->m_numWonders);
 
-	delete [] g_exclusions->m_units;
-	delete [] g_exclusions->m_buildings;
-	delete [] g_exclusions->m_wonders;
+	delete [] exclusions_Get()->m_units;
+	delete [] exclusions_Get()->m_buildings;
+	delete [] exclusions_Get()->m_wonders;
 
-	g_exclusions->m_units = new sint32[g_exclusions->m_numUnits];
-	g_exclusions->m_buildings = new sint32[g_exclusions->m_numBuildings];
-	g_exclusions->m_wonders = new sint32[g_exclusions->m_numWonders];
-	memset(g_exclusions->m_units, 0, sizeof(sint32) * g_exclusions->m_numUnits);
-	memset(g_exclusions->m_buildings, 0, sizeof(sint32) * g_exclusions->m_numBuildings);
-	memset(g_exclusions->m_wonders, 0, sizeof(sint32) * g_exclusions->m_numWonders);
+	exclusions_Get()->m_units = new sint32[exclusions_Get()->m_numUnits];
+	exclusions_Get()->m_buildings = new sint32[exclusions_Get()->m_numBuildings];
+	exclusions_Get()->m_wonders = new sint32[exclusions_Get()->m_numWonders];
+	memset(exclusions_Get()->m_units, 0, sizeof(sint32) * exclusions_Get()->m_numUnits);
+	memset(exclusions_Get()->m_buildings, 0, sizeof(sint32) * exclusions_Get()->m_numBuildings);
+	memset(exclusions_Get()->m_wonders, 0, sizeof(sint32) * exclusions_Get()->m_numWonders);
 
 	sint32 i;
 	sint32 bitPos;
 	uint8 next;
 
-	for(i = 0; i < g_exclusions->m_numUnits; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numUnits; i += 8) {
 		PULLBYTE(next);
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numUnits); bitPos++) {
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numUnits); bitPos++) {
 			if(next & (1 << bitPos)) {
-				g_exclusions->ExcludeUnit(i + bitPos, TRUE);
+				exclusions_Get()->ExcludeUnit(i + bitPos, TRUE);
 			}
 		}
 	}
 
-	for(i = 0; i < g_exclusions->m_numBuildings; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numBuildings; i += 8) {
 		PULLBYTE(next);
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numBuildings); bitPos++) {
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numBuildings); bitPos++) {
 			if(next & (1 << bitPos)) {
-				g_exclusions->ExcludeBuilding(i + bitPos, TRUE);
+				exclusions_Get()->ExcludeBuilding(i + bitPos, TRUE);
 			}
 		}
 	}
 
-	for(i = 0; i < g_exclusions->m_numWonders; i += 8) {
+	for(i = 0; i < exclusions_Get()->m_numWonders; i += 8) {
 		PULLBYTE(next);
-		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < g_exclusions->m_numWonders); bitPos++) {
+		for(bitPos = 0; (bitPos < 8) && ((i + bitPos) < exclusions_Get()->m_numWonders); bitPos++) {
 			if(next & (1 << bitPos)) {
-				g_exclusions->ExcludeWonder(i + bitPos, TRUE);
+				exclusions_Get()->ExcludeWonder(i + bitPos, TRUE);
 			}
 		}
 	}

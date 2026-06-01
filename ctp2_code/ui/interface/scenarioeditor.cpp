@@ -857,7 +857,7 @@ void ScenarioEditor::PopulateUnitList(SCEN_UNIT_CAT cat)
 
 
 		sw = (ctp2_Switch *)curItemBox->GetChildByIndex((col * 2) + 1);
-		if( g_exclusions->IsUnitExcluded(ui) )
+		if( exclusions_Get()->IsUnitExcluded(ui) )
 		{
 			sw->SetState(1);
 		}
@@ -1264,8 +1264,8 @@ void ScenarioEditor::ExcludeSwitch(aui_Control *control, uint32 action, uint32 d
 {
 	if(( action != AUI_SWITCH_ACTION_ON) && (action != AUI_SWITCH_ACTION_OFF) )
 		return;
-	BOOL isExcluded = g_exclusions->IsUnitExcluded((intptr_t)cookie);
-	g_exclusions->ExcludeUnit((intptr_t)cookie, !isExcluded);
+	BOOL isExcluded = exclusions_Get()->IsUnitExcluded((intptr_t)cookie);
+	exclusions_Get()->ExcludeUnit((intptr_t)cookie, !isExcluded);
 }
 void ScenarioEditor::UnitSwitch(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {

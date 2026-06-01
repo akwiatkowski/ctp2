@@ -546,9 +546,9 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 
 	PROGRESS( 320 );
 
-	if (g_exclusions)
+	if (exclusions_Get())
 	{
-		g_exclusions->Serialize(archive);
+		exclusions_Get()->Serialize(archive);
 	}
 	else
 	{

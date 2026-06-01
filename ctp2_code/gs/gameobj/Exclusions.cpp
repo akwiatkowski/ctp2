@@ -35,7 +35,10 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "UnitRecord.h"
 
-Exclusions *g_exclusions = NULL;
+static Exclusions *g_exclusions = NULL;
+
+Exclusions * exclusions_Get(void)          { return g_exclusions; }
+void         exclusions_Set(Exclusions *p) { g_exclusions = p; }
 
 Exclusions::Exclusions()
 {

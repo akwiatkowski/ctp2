@@ -95,7 +95,6 @@
 #include "ui/aui_ctp2/textswitch.h"
 #include "ui/aui_ctp2/texttab.h"
 
-extern Exclusions *g_exclusions;
 extern Network g_network;
 extern aui_Radio *s_maleRadio;
 
@@ -5494,8 +5493,8 @@ void AllinoneWindow::UnitExclusionAction::Execute(
 		if(!sw) return;
 
 
-		if(g_exclusions)
-			g_exclusions->ExcludeUnit( m_index, sw->GetState() );
+		if(exclusions_Get())
+			exclusions_Get()->ExcludeUnit( m_index, sw->GetState() );
 
 		{
 			g_gamesetup.SetUnit( (char)sw->GetState(), m_index );
@@ -5521,7 +5520,7 @@ void AllinoneWindow::ImprovementExclusionAction::Execute(
 
 		aui_Switch *sw = (aui_Switch *)control;
 
-		g_exclusions->ExcludeBuilding( m_index, sw->GetState() );
+		exclusions_Get()->ExcludeBuilding( m_index, sw->GetState() );
 
 		{
 			g_gamesetup.SetImprovement( (char)sw->GetState(), m_index );
@@ -5547,7 +5546,7 @@ void AllinoneWindow::WonderExclusionAction::Execute(
 
 		aui_Switch *sw = (aui_Switch *)control;
 
-		g_exclusions->ExcludeWonder( m_index, sw->GetState() );
+		exclusions_Get()->ExcludeWonder( m_index, sw->GetState() );
 
 		{
 			g_gamesetup.SetWonder( (char)sw->GetState(), m_index );

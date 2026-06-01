@@ -3794,7 +3794,7 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 										  k_MASK_ENV_CITY_RADIUS |
 										  k_MASK_ENV_GOOD));
 	DynamicArray<Installation> instArray;
-	g_theInstallationTree->RemoveAt(tpos, instArray);
+	installation_tree_Get()->RemoveAt(tpos, instArray);
 	instArray.KillList();
 
 	switch(terrain) {

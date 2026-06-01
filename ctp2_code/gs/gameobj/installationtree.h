@@ -17,5 +17,11 @@ public:
 	}
 };
 
-extern InstallationQuadTree *g_theInstallationTree;
+// Lifecycle in gs/utility/gameinit.cpp (new during world setup,
+// Clear/delete on world reset); the variable is file-scope `static`
+// there.  External readers go through installation_tree_Get(); the
+// lifecycle code uses installation_tree_Set() for the new/clear
+// transitions.
+InstallationQuadTree * installation_tree_Get(void);
+void                   installation_tree_Set(InstallationQuadTree *p);
 #endif

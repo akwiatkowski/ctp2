@@ -450,7 +450,7 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 		if(g_theWorld->GetCell(pos)->GetEnv() & k_BIT_ENV_INSTALLATION)
 		{
 			DynamicArray<Installation> instArray;
-			g_theInstallationTree->GetAt(pos, instArray);
+			installation_tree_Get()->GetAt(pos, instArray);
 			instArray.KillList();
 		}
 		g_theWorld->GetCell(pos)->SetEnv(

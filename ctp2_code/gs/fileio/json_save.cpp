@@ -103,7 +103,7 @@
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/EventTracker.h"
-#include "gs/gameobj/installationtree.h"     // g_theInstallationTree (G-4)
+#include "gs/gameobj/installationtree.h"     // installation_tree_Get() (G-4)
 #include "gs/utility/QuadTree.h"              // unit_tree_Get() (G-4)
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
@@ -4787,7 +4787,7 @@ bool LoadJson(char const *path)
         // crashes (intermittent SIGSEGV in UnitData::GetPos via a
         // null-this dereference; ASAN-confirmed).
         if (unit_tree_Get())         unit_tree_Get()->Clear();
-        if (g_theInstallationTree) g_theInstallationTree->Clear();
+        if (installation_tree_Get()) installation_tree_Get()->Clear();
         if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
         if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();
         if (TradePool *tp = tradepool_Get()) tp->RecreateActors();

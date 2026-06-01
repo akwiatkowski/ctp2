@@ -136,7 +136,7 @@ void InstallationData::DoVision()
 	topleft.x -= static_cast<sint16>(maxVisionRange);
 	DynamicArray<Installation> instArray;
 
-	g_theInstallationTree->SearchRect(instArray, topleft,
+	installation_tree_Get()->SearchRect(instArray, topleft,
 									  static_cast<sint16>(maxVisionRange) * 2 + 1,
 									  static_cast<sint16>(maxVisionRange) * 2 + 1,
 									  m_owner >= 0 ? ~(1 << m_owner) : 0xffffffff);
@@ -213,7 +213,7 @@ void InstallationData::CheckVision(sint32 owner)
 	topleft.x -= static_cast<sint16>(maxVisionRange);
 	DynamicArray<Installation> instArray;
 
-	g_theInstallationTree->SearchRect(instArray, topleft,
+	installation_tree_Get()->SearchRect(instArray, topleft,
 									  static_cast<sint16>(maxVisionRange) * 2 + 1,
 									  static_cast<sint16>(maxVisionRange) * 2 + 1,
 									  1 << owner);
@@ -297,7 +297,7 @@ sint32 InstallationData::GetDistance(InstallationData* inst1,
 
 void InstallationData::RebuildQuadTree()
 {
-	g_theInstallationTree->Insert(Installation(m_id));
+	installation_tree_Get()->Insert(Installation(m_id));
 	if(m_lesser)
 		((InstallationData*)m_lesser)->RebuildQuadTree();
 

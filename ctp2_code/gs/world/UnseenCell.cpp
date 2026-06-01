@@ -168,7 +168,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 		}
 
 		DynamicArray<Installation> instArray;
-		g_theInstallationTree->GetAt(point, instArray);
+		installation_tree_Get()->GetAt(point, instArray);
 		for(i = 0; i < instArray.Num(); i++) {
 			m_installations->AddTail(new UnseenInstallationInfo(instArray[i].GetType(),
 														       instArray[i].GetVisibility()));

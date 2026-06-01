@@ -809,7 +809,7 @@ bool NeedsCanalTunnel(MapPoint const & center_point)
 //            : g_theUnitDB
 //            : g_gevManager
 //            : g_theBuildingDB
-//            : g_theInstallationTree
+//            : installation_tree_Get()
 //            : g_theWorld
 //            : g_tiledMap
 //            : g_theCivilisationPool
@@ -888,7 +888,7 @@ void CityData::Initialize(sint32 settlerType)
 	if(cell->GetEnv() & k_BIT_ENV_INSTALLATION)
 	{
 		DynamicArray<Installation> instArray;
-		if(g_theInstallationTree->GetAt(center_point, instArray))
+		if(installation_tree_Get()->GetAt(center_point, instArray))
 		{
 			for(sint32 i = instArray.Num() - 1; i >= 0; i--)
 			{

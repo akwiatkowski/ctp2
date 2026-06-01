@@ -124,11 +124,11 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 	}
 	unit_tree_Get()->Clear();
-	g_theInstallationTree->Clear();
+	installation_tree_Get()->Clear();
 	delete unit_tree_Get();
 	unit_tree_Set(NULL);
-	delete g_theInstallationTree;
-	g_theInstallationTree = NULL;
+	delete installation_tree_Get();
+	installation_tree_Set(NULL);
 
 	g_network.ClearDeadUnits();
 
@@ -171,9 +171,9 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	unit_tree_Set(new QuadTree<Unit>((sint16)g_theWorld->GetXWidth(),
 									   (sint16)g_theWorld->GetYHeight(),
 									   g_theWorld->IsYwrap()));
-	g_theInstallationTree = new InstallationQuadTree((sint16)g_theWorld->GetXWidth(),
+	installation_tree_Set(new InstallationQuadTree((sint16)g_theWorld->GetXWidth(),
 													 (sint16)g_theWorld->GetYHeight(),
-													 g_theWorld->IsYwrap());
+													 g_theWorld->IsYwrap()));
 
 	g_network.SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
 

@@ -81,14 +81,14 @@ void
 World::InsertInstallation(Installation &inst, MapPoint const & pnt)
 {
 	GetCell(pnt)->m_env |= k_BIT_ENV_INSTALLATION;
-	g_theInstallationTree->Insert(inst);
+	installation_tree_Get()->Insert(inst);
 }
 
 void
 World::RemoveInstallation(Installation &inst, MapPoint const & pnt)
 {
-	g_theInstallationTree->Remove(inst);
-	if(g_theInstallationTree->GetCount(pnt) <= 0) {
+	installation_tree_Get()->Remove(inst);
+	if(installation_tree_Get()->GetCount(pnt) <= 0) {
 		GetCell(pnt)->m_env &= ~(k_BIT_ENV_INSTALLATION);
 	}
 }
@@ -105,7 +105,7 @@ sint32 World::CountImprovements(const MapPoint & pos)
 	count++;
 
   DynamicArray<Installation> l_array;
-  g_theInstallationTree->GetAt(pos, l_array);
+  installation_tree_Get()->GetAt(pos, l_array);
 
   return count + l_array.Num();
 }

@@ -710,7 +710,7 @@ void World::ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner)
 		}
 
 		DynamicArray<Installation> instArray;
-		if(g_theInstallationTree->GetAt(point, instArray)) {
+		if(installation_tree_Get()->GetAt(point, instArray)) {
 			sint32 i;
 			MapPoint ipos;
 			for(i = 0; i < instArray.Num(); i++) {
@@ -747,7 +747,7 @@ void World::CutImprovements(const MapPoint &point)
 											k_MASK_ENV_CANAL_TUNNEL));
 
 	DynamicArray<Installation>	instArray;
-	if(g_theInstallationTree->GetAt(point, instArray))
+	if(installation_tree_Get()->GetAt(point, instArray))
 	{
 		for(sint32 i = instArray.Num() - 1; i >= 0; i--)
 		{

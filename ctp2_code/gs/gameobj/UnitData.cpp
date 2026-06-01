@@ -2785,7 +2785,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 	topleft = m_pos;
 	topleft.x -= sint16(maxVisionRange);
 
-	g_theInstallationTree->SearchRect(
+	installation_tree_Get()->SearchRect(
 		instArray, topleft,
 		static_cast<sint16>(maxVisionRange) * 2 + 1,
 		static_cast<sint16>(maxVisionRange) * 2 + 1);
@@ -2914,7 +2914,7 @@ void UnitData::UndoVision()
 	topleft = m_pos;
 	topleft.x -= sint16((GetVisionRange()));
 
-	g_theInstallationTree->SearchRect(
+	installation_tree_Get()->SearchRect(
 		instArray, topleft,
 		static_cast<sint16>(maxVisionRange) * 2 + 1,
 		static_cast<sint16>(maxVisionRange) * 2 + 1,

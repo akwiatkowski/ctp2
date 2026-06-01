@@ -211,7 +211,10 @@ TerrainImprovementPool * terrimprovepool_Get(void) { return g_theTerrainImprovem
 static InstallationPool     *g_theInstallationPool = NULL;
 
 InstallationPool * installationpool_Get(void) { return g_theInstallationPool; }
-InstallationQuadTree        *g_theInstallationTree = NULL;
+static InstallationQuadTree *g_theInstallationTree = NULL;
+
+InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
+void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
 TopTen                      *g_theTopTen = NULL;
 TurnCount                   *g_turn = NULL;
 ProfileDB                   *g_theProfileDB = NULL;

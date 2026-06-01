@@ -173,7 +173,7 @@ void World::FloodImprovements(sint32 x, sint32 y, Cell *c)
 		}
 
 		DynamicArray<Installation> instArray;
-		g_theInstallationTree->GetAt(pos, instArray);
+		installation_tree_Get()->GetAt(pos, instArray);
 		instArray.KillList();
 	}
 

@@ -44,7 +44,6 @@
 #include "net/general/net_info.h"
 #include "gs/gameobj/TerrImprove.h"
 
-extern InstallationQuadTree  *g_theInstallationTree;
 extern Player **g_player;
 
 bool World::HasCity(const MapPoint &pos) const

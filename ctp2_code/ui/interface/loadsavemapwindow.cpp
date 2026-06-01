@@ -68,17 +68,6 @@ extern ProfileDB					*g_theProfileDB;
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;
 
-extern sint32						g_is565Format;
-
-
-
-
-
-
-
-
-
-
 LoadSaveMapWindow::LoadSaveMapWindow(AUI_ERRCODE *retval, uint32 id,
 		MBCHAR *ldlBlock, sint32 bpp, AUI_WINDOW_TYPE type, bool bevel)
 		: c3_PopupWindow(retval,id,ldlBlock,bpp,type,bevel)
@@ -455,7 +444,7 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 		bufferDataPtr = buffer + i * (pitch/2);
 		memcpy(radarDataPtr, bufferDataPtr, width * sizeof(Pixel16));
 
-		if (!g_is565Format) {
+		if (!is_565_Get()) {
 			for (sint32 j=0; j<width; j++) {
 				radarDataPtr[j] = pixelutils_Convert555to565(radarDataPtr[j]);
 			}

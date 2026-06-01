@@ -132,7 +132,6 @@
 #include "gs/world/World.h"                      // g_theWorld
 
 extern C3UI             *g_c3ui;
-extern sint32           g_is565Format;
 extern Background       *g_background;
 extern RECT             g_backgroundViewport;
 extern ScreenManager    *g_screenManager;
@@ -4248,7 +4247,7 @@ Pixel16 TiledMap::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, Pixel1
 				r4, g4, b4;
 	short		r0, g0, b0;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
 		g1 = (pixel1 & 0x07E0) >> 5;
 		b1 = (pixel1 & 0x001F);

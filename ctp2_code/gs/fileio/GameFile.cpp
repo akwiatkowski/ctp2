@@ -124,7 +124,6 @@ extern  OzoneDatabase               *g_theUVDB;
 extern  Pollution                   *g_thePollution;
 extern  TopTen                      *g_theTopTen;
 extern  nf_GameSetup                g_gamesetup;
-extern sint32                       g_is565Format;
 extern sint32                       g_isGridOn;
 extern PointerList<Player> *        g_deadPlayer;
 
@@ -1122,7 +1121,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 			return false;
 		}
 
-		if (!g_is565Format) {
+		if (!is_565_Get()) {
 			for (sint32 i=0; i<info->radarMapWidth * info->radarMapHeight; i++) {
 				info->radarMapData[i] = pixelutils_Convert565to555(info->radarMapData[i]);
 			}
@@ -1154,7 +1153,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 			return false;
 		}
 
-		if (!g_is565Format)
+		if (!is_565_Get())
 		{
 			std::transform(info->powerGraphData,
 			               info->powerGraphData + (info->powerGraphWidth * info->powerGraphHeight),
@@ -1530,7 +1529,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	}
 	if (info->radarMapWidth > 0 && info->radarMapHeight > 0) {
 
-		if (!g_is565Format) {
+		if (!is_565_Get()) {
 			for (sint32 i=0; i<info->radarMapWidth * info->radarMapHeight; i++) {
 				Pixel16		pixel = info->radarMapData[i];
 				info->radarMapData[i] = ((pixel & 0x7FE0) << 1) | (pixel & 0x001F);
@@ -1560,7 +1559,7 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 	if (info->powerGraphHeight > 0 && info->powerGraphWidth > 0) {
 
-		if (!g_is565Format) {
+		if (!is_565_Get()) {
 			for (sint32 i=0; i<info->powerGraphWidth * info->powerGraphHeight; i++) {
 				Pixel16		pixel = info->powerGraphData[i];
 				info->powerGraphData[i] = ((pixel & 0x7FE0) << 1) | (pixel & 0x001F);

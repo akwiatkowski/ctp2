@@ -65,8 +65,6 @@
 #endif
 
 extern ProjectFile *    g_ImageMapPF;
-extern sint32		g_is565Format;
-
 namespace
 {
     uint8 const     DIRECTION_INVALID   = static_cast<uint8>(-1);   // 255
@@ -76,7 +74,7 @@ namespace
 
     char const *    TileSetFile(void)
     {
-        return (g_is565Format) ? TILESETFILE_565 : TILESETFILE_555;
+        return (is_565_Get()) ? TILESETFILE_565 : TILESETFILE_555;
     }
 }
 

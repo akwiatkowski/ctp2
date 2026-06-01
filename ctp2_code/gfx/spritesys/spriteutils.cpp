@@ -34,8 +34,6 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/spriteutils.h"
 
-extern sint32 g_is565Format;
-
 void spriteutils_EncodeShadowRun(Pixel32 **inBuf, sint32 *pos, sint32 width, Pixel16 **outBufPtr)
 {
 	Pixel16         pix16;
@@ -44,7 +42,7 @@ void spriteutils_EncodeShadowRun(Pixel32 **inBuf, sint32 *pos, sint32 width, Pix
 	Pixel16         footer=0;
 	Pixel16         shadowPixel;
 
-	if (g_is565Format) shadowPixel = k_SHADOW_PIXEL_565;
+	if (is_565_Get()) shadowPixel = k_SHADOW_PIXEL_565;
 	else shadowPixel = k_SHADOW_PIXEL_555;
 
 	RGB32Info(**inBuf, &pix16, &alpha);
@@ -76,7 +74,7 @@ void spriteutils_EncodeCopyRun(Pixel32 **inBuf, sint32 *pos, sint32 width, Pixel
 	Pixel16         *headerPtr;
 	Pixel16         shadowPixel;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		shadowPixel = k_SHADOW_PIXEL_565;
 	} else {
 		shadowPixel = k_SHADOW_PIXEL_555;
@@ -218,7 +216,7 @@ char spriteutils_EncodeScanline(Pixel32 *scanline, sint32 width, Pixel16 **outBu
 	BOOL            empty = FALSE;
 	Pixel16         shadowPixel;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		shadowPixel = k_SHADOW_PIXEL_565;
 	} else {
 		shadowPixel = k_SHADOW_PIXEL_555;
@@ -289,7 +287,7 @@ char spriteutils_EncodeScanlineWshadow(Pixel32 *scanline, sint32 width, Pixel16 
 	BOOL            empty = FALSE;
 	Pixel16         shadowPixel;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		shadowPixel = k_SHADOW_PIXEL_565;
 	} else {
 		shadowPixel = k_SHADOW_PIXEL_555;
@@ -713,7 +711,7 @@ void spriteutils_ConvertPixelFormat(Pixel16 *frame, sint32 width, sint32 height,
 
 void spriteutils_ConvertPixelFormatForFile(Pixel16 *frame, sint32 width, sint32 height, size_t bufferSize)
 {
-	if (g_is565Format) return;
+	if (is_565_Get()) return;
 
 	Pixel16     *table = frame+1;
 	Pixel16     *dataStart = table + height;

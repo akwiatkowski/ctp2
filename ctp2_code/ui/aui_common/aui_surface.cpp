@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gfx/gfx_utils/pixelutils.h"  // is_565_Get
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_uniqueid.h"
@@ -44,8 +45,6 @@ SDL_mutex *		aui_Surface::m_cs = 0;
 CRITICAL_SECTION	aui_Surface::m_cs;
 #endif
 uint32 aui_Surface::m_surfaceClassId = aui_UniqueId();
-
-extern sint32 g_is565Format;
 
 aui_Surface::aui_Surface(
 	AUI_ERRCODE *retval,
@@ -149,7 +148,7 @@ AUI_ERRCODE aui_Surface::InitCommon( sint32 width, sint32 height, sint32 bpp, BO
 
 
 	if ( bpp == 16 )
-		if (g_is565Format) {
+		if (is_565_Get()) {
 			m_pixelFormat = AUI_SURFACE_PIXELFORMAT_565;
 		} else {
 			m_pixelFormat = AUI_SURFACE_PIXELFORMAT_555;
@@ -302,7 +301,7 @@ AUI_ERRCODE aui_Surface::GetDC(HDC * hdc)
 	biv4h.bV4BitCount      = static_cast<WORD>(GetDeviceCaps(m_hdc, BITSPIXEL));
 	biv4h.bV4V4Compression = BI_RGB;
 
-	if(g_is565Format)
+	if(is_565_Get())
 	{
 
 		biv4h.bV4RedMask       = 0x0000F800u;
@@ -348,7 +347,7 @@ AUI_ERRCODE aui_Surface::ReleaseDC(HDC hdc)
 	biv4h.bV4BitCount      = static_cast<WORD>(GetDeviceCaps(m_hdc, BITSPIXEL));
 	biv4h.bV4V4Compression = BI_RGB;
 
-	if(g_is565Format)
+	if(is_565_Get())
 	{
 		// For some reason the 555 masks are still used
 		biv4h.bV4RedMask       = 0x0000F800u;

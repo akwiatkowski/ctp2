@@ -69,8 +69,6 @@
 #include "ui/interface/TurnYearStatus.h"
 
 extern C3UI							*g_c3ui;
-extern sint32						g_is565Format;
-
 #define k_LOADSAVE_AUTOSORT_COL		-2
 
 
@@ -605,7 +603,7 @@ void LoadSaveWindow::GetRadarMap(SaveInfo *info)
 		Pixel16 * bufferDataPtr = buffer + i * halfPitch;
 		memcpy(radarDataPtr, bufferDataPtr, width * sizeof(Pixel16));
 
-		if (!g_is565Format) {
+		if (!is_565_Get()) {
 			for (sint32 j=0; j<width; j++) {
 				radarDataPtr[j] = pixelutils_Convert555to565(radarDataPtr[j]);
 			}

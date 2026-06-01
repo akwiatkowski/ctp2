@@ -10,7 +10,12 @@
 short		gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 Pixel16		gRGBTable[RGB_VALUES];
 
-extern sint32 g_is565Format;
+// Owned here.  civ3_main probes the SDL surface PixelFormat() once at
+// startup and calls is_565_Set() before any rendering touches this flag.
+static sint32 s_is565Format = TRUE;
+
+bool is_565_Get(void)   { return s_is565Format != 0; }
+void is_565_Set(bool v) { s_is565Format = v ? TRUE : FALSE; }
 
 void pixelutils_Initialize(void)
 {
@@ -43,7 +48,7 @@ Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height)
 
 		a = (unsigned char) ((pix & 0xFF000000) >> 24);
 
-		if (g_is565Format)
+		if (is_565_Get())
 			*destPixel = (unsigned short int)(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3));
 		else
 			*destPixel = (Pixel16) (((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3));
@@ -82,7 +87,7 @@ void RGB32Info(Pixel32 pixel, Pixel16 *outPixel, unsigned char *alpha)
 
 	*alpha = (unsigned char) a;
 
-	if (g_is565Format)
+	if (is_565_Get())
 		*outPixel = (Pixel16) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3));
 	else
 		*outPixel = (Pixel16) (((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3));
@@ -105,7 +110,7 @@ void pixelutils_ComputeRGBTable(void)
 
 Pixel16 pixelutils_RGB(int r,int g,int b)
 {
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		Pixel16 temp = gRGBTable[(r<<10) | (g<<5) | b];
 		short rg = (temp & 0x7FE0) << 1;
@@ -127,12 +132,10 @@ Pixel32 ComponentsToRGB32(Pixel16 r, Pixel16 g, Pixel16 b, Pixel16 a)
 
 Pixel16 pixelutils_Desaturate(Pixel16 pixel)
 {
-	extern sint32		g_is565Format;
-
-	Pixel16		tempPix;
+		Pixel16		tempPix;
 	sint32		ave;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		ave = (((pixel & 0xF800)>>11) + ((pixel & 0x07E0) >> 6) + (pixel & 0x001F)+128)>>2;
 

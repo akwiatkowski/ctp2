@@ -35,8 +35,6 @@
 
 #include <algorithm>
 #include "gfx/gfx_utils/pixelutils.h"
-extern sint32		g_is565Format;
-
 #define BYTES_PER_PIXEL 2
 
 #define MAX_WIDTH 256
@@ -301,7 +299,7 @@ bool Load_TGA_File(char const *fname,
 				return false;
 			}
 
-			if (convertToNative && g_is565Format)
+			if (convertToNative && is_565_Get())
 			{
 				Pixel16 * pixelPtr = reinterpret_cast<Pixel16 *>(dataPtr);
 				std::transform(pixelPtr, pixelPtr + width, pixelPtr, pixelutils_Convert555to565);

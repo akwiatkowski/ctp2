@@ -38,7 +38,13 @@ void pixelutils_ComputeBlendTable(void);
 // inline functions below don't each carry their own function-scoped
 // extern declarations (9 + 3 of them, all referenced by the globals
 // ratchet — see test_player_view.cpp).
-extern sint32 g_is565Format;
+// Display pixel format is 5-6-5 (vs 5-5-5).  Definition + accessors
+// live in pixelutils.cpp; civ3_main probes the surface format at
+// startup and calls is_565_Set().  All readers (~60 sites across gfx/
+// and ui/) use is_565_Get().  Inline funcs in this header below
+// likewise dispatch through the accessor.
+bool is_565_Get(void);
+void is_565_Set(bool v);
 extern short  gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 
@@ -47,7 +53,7 @@ inline Pixel16 pixelutils_Blend(Pixel16 pixel1, Pixel16 pixel2, short blend)
 	short			r1, g1, b1, r2, g2, b2;
 	short			r0, g0, b0;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		r1 = (short)((pixel1 & 0xF800) >> 10) ;
 		g1 = (short)((pixel1 & 0x07E0) >> 5);
@@ -84,7 +90,7 @@ inline Pixel16 pixelutils_Additive(Pixel16 pixel1, Pixel16 pixel2)
 
 	Pixel16				r, g, b, sum = (short)(pixel2 & 0x1F) ;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		r = ((pixel1 & 0xF800) >> 11) + sum;
 		g = ((pixel1 & 0x07E0) >> 5)  + (sum << 1);
@@ -115,7 +121,7 @@ inline Pixel16 pixelutils_BlendFast(sint32 pixel1, sint32 pixel2, sint32 blend)
 	sint32 rb2, g2;
 	sint32 rb0, g0;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		rb2 = (pixel2 & 0xF81F);
 
@@ -146,7 +152,7 @@ inline Pixel16 pixelutils_BlendFast(sint32 pixel1, sint32 pixel2, sint32 blend)
 inline Pixel16 pixelutils_Shadow(Pixel16 pixel)
 {
 
-	if (g_is565Format)
+	if (is_565_Get())
       return static_cast<Pixel16>((pixel&0xF7DF)>>1);
 	else
 	{
@@ -166,7 +172,7 @@ inline Pixel16 pixelutils_Lightening(Pixel16 pixel)
 {
 	short		r, g, b;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		r = (pixel & 0xF800) >> 10;
 		if (r > 0x001F)
@@ -202,7 +208,7 @@ inline Pixel16 pixelutils_PercentDarken(Pixel16 pixel, sint32 percent)
 	sint16 r, g, b;
 	sint32 newPercent = k_MAX_PERCENT - percent;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		r32 = (pixel & 0xF800) >> 11;
 		g32 = (pixel & 0x07E0) >> 5;
@@ -240,7 +246,7 @@ inline Pixel16 pixelutils_PercentLighten(Pixel16 pixel, sint32 percent)
 	sint16 r, g, b;
 	sint32 newPercent = k_MAX_PERCENT + percent;
 
-	if (g_is565Format)
+	if (is_565_Get())
 	{
 		r32 = (pixel & 0xF800) >> 11;
 		g32 = (pixel & 0x07E0) >> 5;
@@ -290,7 +296,7 @@ inline Pixel16 pixelutils_PercentLighten(Pixel16 pixel, sint32 percent)
 inline Pixel16 pixelutils_Convert565to555(Pixel16 pixel)
 {
 
-	if (g_is565Format) return pixel;
+	if (is_565_Get()) return pixel;
 
 	return static_cast<Pixel16>(((pixel & 0xFFC0) >> 1) | (pixel & 0x001F));
 }
@@ -298,7 +304,7 @@ inline Pixel16 pixelutils_Convert565to555(Pixel16 pixel)
 inline Pixel16 pixelutils_Convert555to565(Pixel16 pixel)
 {
 
-	if (!g_is565Format) return pixel;
+	if (!is_565_Get()) return pixel;
 
 	return static_cast<Pixel16>(((pixel & 0x7FE0) << 1) | (pixel & 0x001F));
 }

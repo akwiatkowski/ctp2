@@ -6,7 +6,6 @@
 
 #include "gfx/tilesys/tiledmap.h"
 
-extern sint32		g_is565Format;
 extern TiledMap		*g_tiledMap;
 
 
@@ -1454,7 +1453,7 @@ inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, P
 				r4, g4, b4;
 	uint16		r0, g0, b0;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
 		g1 = (pixel1 & 0x07E0) >> 5;
 		b1 = (pixel1 & 0x001F);
@@ -1510,7 +1509,7 @@ inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2)
 				r2, g2, b2;
 	uint16		r0, g0, b0;
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
 		g1 = (pixel1 & 0x07E0) >> 5;
 		b1 = (pixel1 & 0x001F);

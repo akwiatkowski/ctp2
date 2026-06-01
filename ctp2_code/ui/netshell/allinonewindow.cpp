@@ -96,7 +96,6 @@
 #include "ui/aui_ctp2/texttab.h"
 
 extern Exclusions *g_exclusions;
-extern sint32 g_is565Format;
 extern Network g_network;
 extern aui_Radio *s_maleRadio;
 

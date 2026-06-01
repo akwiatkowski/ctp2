@@ -49,7 +49,6 @@
 #include "gfx/tilesys/tileset.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
-extern sint32		g_is565Format;
 extern C3UI			*g_c3ui;
 
 
@@ -280,7 +279,7 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 				f0 = f1 * f2;
 				f1 *= fracX;
 				f2 *= fracY;
-				if (g_is565Format)
+				if (is_565_Get())
 				{
 					double red = f0 * RED565(c0) + f1 * RED565(c1) + f2 * RED565(c2) + f3 * RED565(c3);
 					double green = f0 * GREEN565(c0) + f1 * GREEN565(c1) + f2 * GREEN565(c2) + f3 * GREEN565(c3);

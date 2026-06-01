@@ -57,8 +57,6 @@
 #include "gfx/gfx_utils/tiffutils.h"
 
 extern ProjectFile *    g_ImageMapPF;
-extern sint32           g_is565Format;
-
 AUI_ERRCODE TiffImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 {
 	uint16	width, height;
@@ -211,7 +209,7 @@ AUI_ERRCODE TargaImageFormat::LoadRIM(MBCHAR const * filename, aui_Image *image)
     }
 
     sint32 record_is_565 = ((rhead->flags & RFLAG_BIT_ENCODING) != 0);
-    if (g_is565Format != record_is_565) {
+    if (is_565_Get() != record_is_565) {
 		c3errors_ErrorDialog("Targa Load", "Invalid RIM file format '%s'", rname);
         return AUI_ERRCODE_LOADFAILED;
     }

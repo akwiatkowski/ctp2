@@ -235,7 +235,6 @@ BOOL                                g_smoothScroll = FALSE;
 
 
 RECT                                g_backgroundViewport = { 0, 0, 0, 0 };
-sint32                              g_is565Format = TRUE;
 sint32                              g_modalWindow = 0;
 
 BOOL                                g_helpMode = TRUE;
@@ -421,7 +420,7 @@ int ui_Initialize(void)
 		main_HideTaskBar();
 
 #ifndef __AUI_USE_SDL__
-	g_is565Format = AUI_SURFACE_PIXELFORMAT_565 == g_c3ui->PixelFormat();
+	is_565_Set(AUI_SURFACE_PIXELFORMAT_565 == g_c3ui->PixelFormat());
 #endif
 	// On SDL builds, g_is565Format keeps its default TRUE value.
 	// The primary window surface may be 32-bit, but game data is always 565.

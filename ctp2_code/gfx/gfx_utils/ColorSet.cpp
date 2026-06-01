@@ -47,8 +47,6 @@
 #include <stdexcept>    // std::exception, std::runtime_error
 #include "gs/fileio/Token.h"
 
-extern sint32 g_is565Format;
-
 namespace
 {
 
@@ -69,7 +67,7 @@ ColorSet     s_theUniqueColorSet;
 //
 // Parameters : c               : color in native format
 //
-// Globals    : g_is565Format   : native format is RGB565 (when false: RGB555)
+// Globals    : is_565_Get()   : native format is RGB565 (when false: RGB555)
 //
 //
 // Returns    : COLORREF        : color in RGB888 format
@@ -79,7 +77,7 @@ ColorSet     s_theUniqueColorSet;
 //----------------------------------------------------------------------------
 COLORREF ColorRef(Pixel16 const & c)
 {
-    if (g_is565Format) // 5-6-5 bit pixel format
+    if (is_565_Get()) // 5-6-5 bit pixel format
     {
         return static_cast<COLORREF>
             (((c & 0xF800) >> 8) | ((c & 0x07E0) << 5) | ((c & 0x001F) << 19));
@@ -186,7 +184,7 @@ void ColorSet::Initialize(uint32 fileNumber)
 //
 // Parameters : fileNumber      : the ## part of Colors##.txt
 //
-// Globals    : g_is565Format   : native format is RGB565 (when false: RGB555)
+// Globals    : is_565_Get()   : native format is RGB565 (when false: RGB555)
 //
 // Returns    : -
 //
@@ -258,7 +256,7 @@ void ColorSet::Import(uint32 fileNumber)
 			}
             else
             {
-                // When g_is565Format is true, pixeluitls_Conver565to555 is an
+                // When is_565_Get() is true, pixeluitls_Conver565to555 is an
                 // identity operation.
 		        m_colors[i] = pixelutils_Convert565to555(rgb565);
             }

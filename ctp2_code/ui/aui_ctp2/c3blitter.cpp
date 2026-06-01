@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "gfx/gfx_utils/pixelutils.h"  // is_565_Get
 #include <cstring>
 
 #include "ui/aui_common/aui.h"
@@ -40,7 +41,6 @@
 
 #include "ui/aui_ctp2/c3blitter.h"
 
-extern sint32	g_is565Format;
 extern BOOL		g_useDDBlit;
 
 C3Blitter::C3Blitter()

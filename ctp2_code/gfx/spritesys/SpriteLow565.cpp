@@ -37,7 +37,6 @@
 
 #include "gfx/tilesys/tiledmap.h"
 
-extern sint32		g_is565Format;
 extern TiledMap		*g_tiledMap;
 
 

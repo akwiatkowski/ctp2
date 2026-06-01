@@ -72,8 +72,6 @@ Pixel16		g_grayValueB = 0x0045;
 
 Pixel16	*   g_transitions[TERRAIN_MAX][TERRAIN_MAX][k_TRANSITIONS_PER_TILE];
 
-extern sint32		g_is565Format;
-
 Pixel32 *tileutils_LowPassFilter(Pixel32 *image, uint32 width, uint32 height)
 {
 	double LP1[]=
@@ -688,7 +686,7 @@ Pixel16 *tileutils_EncodeTile16(Pixel16 *buf, uint16 width, uint16 height, uint3
 		pitch = width*2;
 	} else {
 
-		if (g_is565Format)
+		if (is_565_Get())
 			sourceDataIs565 = TRUE;
 	}
 
@@ -2003,7 +2001,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 	printf("\nWriting Tileset: ");
 
-	if (g_is565Format) {
+	if (is_565_Get()) {
 		snprintf(fname, sizeof(fname), "output" FILE_SEP "gtset565.til");
 	} else {
 		snprintf(fname, sizeof(fname), "output" FILE_SEP "gtset555.til");

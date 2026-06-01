@@ -11424,7 +11424,7 @@ void ArmyData::BarbarianSpawning()
 				(barbhorde) <= (barbmax^2) // create some kind of max
 			){
 				if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
-					Barbarians::AddBarbarians(m_pos, meat, true);
+					Barbarians::AddBarbarians(m_pos, meat, true, g_turn->GetRound());
 				}
 			}
 		}

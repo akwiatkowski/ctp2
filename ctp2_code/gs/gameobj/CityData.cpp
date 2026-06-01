@@ -10742,7 +10742,7 @@ void CityData::InsurgentSpawn()
 
 			if(civrand().Next(10000) < static_cast<sint32>(barbchance * 10000.0)) {
 				// Add some Barbarians nearby cpos.
-				Barbarians::AddBarbarians(cpos, m_owner, false);
+				Barbarians::AddBarbarians(cpos, m_owner, false, g_turn->GetRound());
 				SlicObject *so = new SlicObject("999InsurgentSpawn");
 				so->AddRecipient(m_owner);
 				so->AddCity(m_home_city);

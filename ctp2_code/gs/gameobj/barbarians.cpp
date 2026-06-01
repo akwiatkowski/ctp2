@@ -57,7 +57,6 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/GameSettings.h"
-#include "gs/utility/TurnCnt.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/wonderutil.h"
@@ -65,7 +64,6 @@
 extern Player **g_player;
 extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
-extern TurnCount *g_turn;
 
 struct BestUnit
 {
@@ -168,7 +166,7 @@ sint32 Barbarians::ChooseUnitType()
 }
 
 bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
-                               bool fromGoodyHut)
+                               bool fromGoodyHut, sint32 currentRound)
 {
 	//add spontaneous barb bool?
 	//add bools for barbarian spawn?
@@ -176,7 +174,7 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
 		return false;
 
-	if(!InBarbarianPeriod())
+	if(!InBarbarianPeriod(currentRound))
 		return false;
 
 	sint32 unitIndex = Barbarians::ChooseUnitType();
@@ -328,12 +326,12 @@ sint32 Barbarians::ChooseSeaUnitType()
 
 //EMOD to add sea barbarians
 bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
-                            bool fromGoodyHut)
+                            bool fromGoodyHut, sint32 currentRound)
 {
 	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
 		return false;
 
-	if(!InBarbarianPeriod())
+	if(!InBarbarianPeriod(currentRound))
 		return false;
 
 	sint32 unitIndex = Barbarians::ChooseSeaUnitType();
@@ -472,13 +470,13 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 
 //EMOD to add special guerrilla barbarians; because guerrillas may go obsolete for normal players.  Eventually add this to insurgent code in citydata. but is it needed?
 bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
-							   BOOL fromGoodyHut)
+							   BOOL fromGoodyHut, sint32 currentRound)
 {
 	if(g_network.IsClient() && !g_network.IsLocalPlayer(meat))
 		return FALSE;
 
-	if(g_turn->GetRound() < g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianFirstTurn() ||
-	   g_turn->GetRound() >= g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianLastTurn()) {
+	if(currentRound < g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianFirstTurn() ||
+	   currentRound >= g_theRiskDB->Get(gamesettings_Get()->GetRisk())->GetBarbarianLastTurn()) {
 		return FALSE;
 	}
 
@@ -536,9 +534,9 @@ bool Barbarians::AddFreeTraders(const MapPoint &point, PLAYER_INDEX meat,
 
 //end EMOD*/
 
-void Barbarians::BeginYear()
+void Barbarians::BeginYear(sint32 currentRound)
 {
-	if(!InBarbarianPeriod())
+	if(!InBarbarianPeriod(currentRound))
 		return;
 
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
@@ -582,7 +580,7 @@ void Barbarians::BeginYear()
 		}
 		if(tries < k_MAX_BARBARIAN_TRIES)
 		{
-			AddBarbarians(point, p, false);  //AddBarbarians(point, -1, FALSE);
+			AddBarbarians(point, p, false, currentRound);  //AddBarbarians(point, -1, FALSE);
 		}
 //EMOD for Pirates
 
@@ -618,7 +616,7 @@ void Barbarians::BeginYear()
 		if(ptries < k_MAX_BARBARIAN_TRIES)
 		{
 			// is p selecting the the nearest player?
-			AddPirates(point, p, false); //AddPirates(point, -1, FALSE);
+			AddPirates(point, p, false, currentRound); //AddPirates(point, -1, FALSE);
 		}
 /*  EMOD Barbarian Special Forces code
 		sint32 sftries;
@@ -663,10 +661,10 @@ sint32 Barbarians::IsVisibleToAnyone(MapPoint point)
 	return PLAYER_UNASSIGNED;
 }
 
-bool Barbarians::InBarbarianPeriod()
+bool Barbarians::InBarbarianPeriod(sint32 currentRound)
 {
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 
-	return g_turn->GetRound() >= risk->GetBarbarianFirstTurn() // First turn is included.
-	    && g_turn->GetRound() <= risk->GetBarbarianLastTurn(); // Last turn is included, too.
+	return currentRound >= risk->GetBarbarianFirstTurn() // First turn is included.
+	    && currentRound <= risk->GetBarbarianLastTurn(); // Last turn is included, too.
 }

@@ -1952,7 +1952,7 @@ void Player::BeginTurnImprovements()  //this might only be for tileimps under co
 			const TerrainImprovementRecord *rec = inst.GetDBRec();
 //			Cell *instcell = g_theWorld->GetCell(inst.RetPos());
 			if (rec->GetSpawnsBarbarians()) {
-					Barbarians::AddBarbarians(inst.RetPos(), -1, FALSE);
+					Barbarians::AddBarbarians(inst.RetPos(), -1, FALSE, g_turn->GetRound());
 			}
 		}
 	}

@@ -333,7 +333,7 @@ void TurnCount::BeginNewRound()
     }
 #endif // _DEBUG
 
-	Barbarians::BeginYear();
+	Barbarians::BeginYear(m_round);
 
 	ChooseHappinessPlayer();
 

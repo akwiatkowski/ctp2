@@ -38,6 +38,7 @@
 #include "ctp/ctp2_utils/c3math.h"         // AsPercentage
 #include "gs/gameobj/Player.h"
 #include "gs/utility/RandGen.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Unit.h"
 #include "robot/aibackdoor/civarchive.h"
@@ -64,6 +65,7 @@
 extern Player **g_player;
 class TiledMap;
 extern TiledMap		*g_tiledMap;
+extern TurnCount *g_turn;
 
 namespace
 {
@@ -542,7 +544,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			break;
 		}
 		case GOODY_BARBARIANS:
-			if(Barbarians::AddBarbarians(point, owner, TRUE)) {
+			if(Barbarians::AddBarbarians(point, owner, TRUE, g_turn->GetRound())) {
 				so = new SlicObject("84BesetByVandals") ;
 				so->AddRecipient(owner);
 				g_slicEngine->Execute(so);

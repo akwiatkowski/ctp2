@@ -251,7 +251,7 @@ void NewTurnCount::StartNewYear()
 
 	g_theWorld->A_star_heuristic->Update();
 
-	Barbarians::BeginYear();
+	Barbarians::BeginYear(g_turn->GetRound());
 
 
 

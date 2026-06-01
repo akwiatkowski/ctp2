@@ -3252,7 +3252,7 @@ void UnitData::EndTurn()
 		&& cellowner != m_owner
 		){
 			render_observer::AddCenterMap(m_pos);
-			Barbarians::AddBarbarians(m_pos, cellowner, FALSE);
+			Barbarians::AddBarbarians(m_pos, cellowner, FALSE, g_turn->GetRound());
 			SlicObject *so = new SlicObject("999GuerrillaSpawn");
 			so->AddRecipient(m_owner);
 			so->AddUnitRecord(GetType());

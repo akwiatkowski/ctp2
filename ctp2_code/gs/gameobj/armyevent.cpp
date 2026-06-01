@@ -157,7 +157,7 @@ STDEHANDLER(ArmyMovePathOrderEvent)
 			if(army.AccessData()->IsOccupiedByForeigner(p)) {
 			if (g_theWorld->HasCity(p) || terrainutil_HasAirfield(p)) {  //add unit later?
 
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_FinishMove,
 							   GEA_Army, army,
 							   GEA_Direction, dir,
@@ -813,7 +813,7 @@ STDEHANDLER(ArmyMoveEvent)
 
 			if(!armyData->CheckWasEnemyVisible(newPos))
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 									   GEV_ContactMade,
 									   GEA_Player, owner,
 									   GEA_Player, defender->GetOwner(),
@@ -823,7 +823,7 @@ STDEHANDLER(ArmyMoveEvent)
 				   order == UNIT_ORDER_MOVE_TO)
 				{
 					DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx clear orders, was not visible\n", army.m_id));
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 										   GEV_ClearOrders,
 										   GEA_Army, army,
 										   GEA_End);
@@ -849,20 +849,20 @@ STDEHANDLER(ArmyMoveEvent)
 				}
 			}
 
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_FinishAttack,
 								   GEA_Army, army,
 								   GEA_MapPoint, newPos,
 								   GEA_End);
 
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_ClearOrders,
 								   GEA_Army, army,
 								   GEA_End);
 		}
 		else
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							       GEV_FinishMove,
 							       GEA_Army, army,
 							       GEA_Direction, dir,
@@ -873,7 +873,7 @@ STDEHANDLER(ArmyMoveEvent)
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_CantMoveYet,
 							   GEA_Army, army,
 							   GEA_Direction, dir,
@@ -956,7 +956,7 @@ STDEHANDLER(MoveIntoTransportEvent)
 	// @ToDo merge this with the above when also the settler escord can find the goal without a settler
 	else if(canMoveIntoTransport > 0)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_MoveIntoTransport,
 							   GEA_Army, a,
 							   GEA_MapPoint, pos,
@@ -1160,7 +1160,7 @@ STDEHANDLER(AftermathEvent)
 			army[i].SetFlag(k_UDF_FIRST_MOVE);
 		}
 //		g_director->IncrementPendingGameActions();
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_VictoryMoveOrder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_VictoryMoveOrder,
 							   GEA_Army, army,
 							   GEA_MapPoint, pos,
 							   GEA_End);
@@ -1238,7 +1238,7 @@ STDEHANDLER(MoveUnitsEvent)
 		}
 	}
 
-	g_gevManager->AddEvent
+	gevmanager_Get()->AddEvent
 	                      (
 	                       GEV_INSERT_AfterCurrent,
 	                       GEV_CheckOrders,
@@ -1276,7 +1276,7 @@ STDEHANDLER(MoveUnitsEvent)
 
 			if (is_threat)
 			{
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BorderIncursion,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BorderIncursion,
 					GEA_Player, new_cell_owner,
 					GEA_Player, army_owner,
 					GEA_End);
@@ -1319,7 +1319,7 @@ STDEHANDLER(MoveUnitsEvent)
 
 						if(civrand().Next(100) < g_theConstDB->Get(0)->GetCaptureKillPopChance() * 100)
 						{
-							g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
+							gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillPop,
 												   GEA_City, c.m_id,
 												   GEA_End);
 #if 0
@@ -1367,7 +1367,7 @@ STDEHANDLER(MoveUnitsEvent)
 							a[k].SetMovementPoints(0.0);
 						}
 
-						g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 											   GEV_CaptureCity,
 											   GEA_City, c,
 											   GEA_Player, a->GetOwner(),
@@ -1436,7 +1436,7 @@ STDEHANDLER(LawsuitEvent)
 				utype = u->GetType();
 
 			victim = u->GetOwner();
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 								   GEA_Unit, u->m_id,
 								   GEA_Int, CAUSE_REMOVE_ARMY_SUE,
 								   GEA_Player, a->GetOwner(),
@@ -1490,7 +1490,7 @@ STDEHANDLER(EnslaveSettlerEvent)
 	PLAYER_INDEX    settlerOwner    = settler.GetOwner();
 	PLAYER_INDEX    slaverOwner     = slaver.GetOwner();
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 						   GEA_Unit,    settler,
 						   GEA_Int,     CAUSE_REMOVE_ARMY_ENSLAVED,
 						   GEA_Player,  slaverOwner,
@@ -1499,7 +1499,7 @@ STDEHANDLER(EnslaveSettlerEvent)
 	Unit home_city;
 	if (g_player[slaverOwner]->GetSlaveCity(slaver.RetPos(), home_city))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 		                       GEA_City,    home_city.m_id,
 		                       GEA_Player,  settlerOwner,
 		                       GEA_End);
@@ -1552,85 +1552,85 @@ STDEHANDLER(ArmyBeginTurnExecuteEvent)
 
 void armyevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_MoveOrder, GEV_PRI_Primary, &s_ArmyMoveOrderEvent);
-	g_gevManager->AddCallback(GEV_MoveToOrder, GEV_PRI_Primary, &s_ArmyMoveToOrderEvent);
-	g_gevManager->AddCallback(GEV_MovePathOrder, GEV_PRI_Primary, &s_ArmyMovePathOrderEvent);
-	g_gevManager->AddCallback(GEV_VictoryMoveOrder, GEV_PRI_Primary, &s_ArmyVictoryMoveOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveOrder, GEV_PRI_Primary, &s_ArmyMoveOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveToOrder, GEV_PRI_Primary, &s_ArmyMoveToOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_MovePathOrder, GEV_PRI_Primary, &s_ArmyMovePathOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_VictoryMoveOrder, GEV_PRI_Primary, &s_ArmyVictoryMoveOrderEvent);
 
-	g_gevManager->AddCallback(GEV_UnloadOrder, GEV_PRI_Primary, &s_ArmyUnloadOrderEvent);
-	g_gevManager->AddCallback(GEV_SleepOrder, GEV_PRI_Primary, &s_ArmySleepOrderEvent);
-	g_gevManager->AddCallback(GEV_ExploreOrder, GEV_PRI_Primary, &s_ArmyExploreOrderEvent);
-	g_gevManager->AddCallback(GEV_MoveUnloadOrder, GEV_PRI_Primary, &s_ArmyMoveUnloadOrderEvent);
-	g_gevManager->AddCallback(GEV_EntrenchOrder, GEV_PRI_Primary, &s_ArmyEntrenchOrderEvent);
-	g_gevManager->AddCallback(GEV_DetrenchOrder, GEV_PRI_Primary, &s_ArmyDetrenchOrderEvent);
-	g_gevManager->AddCallback(GEV_DisbandArmyOrder, GEV_PRI_Primary, &s_ArmyDisbandArmyOrderEvent);
-	g_gevManager->AddCallback(GEV_GroupOrder, GEV_PRI_Primary, &s_ArmyGroupOrderEvent);
-	g_gevManager->AddCallback(GEV_GroupUnitOrder, GEV_PRI_Primary, &s_ArmyGroupUnitOrderEvent);
-	g_gevManager->AddCallback(GEV_UngroupOrder, GEV_PRI_Primary, &s_ArmyUngroupOrderEvent);
-	g_gevManager->AddCallback(GEV_InvestigateCityOrder, GEV_PRI_Primary, &s_ArmyInvestigateCityOrderEvent);
-	g_gevManager->AddCallback(GEV_NullifyWallsOrder, GEV_PRI_Primary, &s_ArmyNullifyWallsOrderEvent);
-	g_gevManager->AddCallback(GEV_StealTechnologyOrder, GEV_PRI_Primary, &s_ArmyStealTechnologyOrderEvent);
-	g_gevManager->AddCallback(GEV_InciteRevolutionOrder, GEV_PRI_Primary, &s_ArmyInciteRevolutionOrderEvent);
-	g_gevManager->AddCallback(GEV_AssassinateRulerOrder, GEV_PRI_Primary, &s_ArmyAssassinateRulerOrderEvent);
-	g_gevManager->AddCallback(GEV_InvestigateReadinessOrder, GEV_PRI_Primary, &s_ArmyInvestigateReadinessOrderEvent);
-	g_gevManager->AddCallback(GEV_BombardOrder, GEV_PRI_Primary, &s_ArmyBombardOrderEvent);
-	g_gevManager->AddCallback(GEV_FranchiseOrder, GEV_PRI_Primary, &s_ArmyFranchiseOrderEvent);
-	g_gevManager->AddCallback(GEV_SueOrder, GEV_PRI_Primary, &s_ArmySueOrderEvent);
-	g_gevManager->AddCallback(GEV_SueFranchiseOrder, GEV_PRI_Primary, &s_ArmySueFranchiseOrderEvent);
-	g_gevManager->AddCallback(GEV_ExpelOrder, GEV_PRI_Primary, &s_ArmyExpelOrderEvent);
-	g_gevManager->AddCallback(GEV_EstablishEmbassyOrder, GEV_PRI_Primary, &s_ArmyEstablishEmbassyOrderEvent);
-	g_gevManager->AddCallback(GEV_ThrowPartyOrder, GEV_PRI_Primary, &s_ArmyThrowPartyOrderEvent);
-	g_gevManager->AddCallback(GEV_AdvertiseOrder, GEV_PRI_Primary, &s_ArmyAdvertiseOrderEvent);
-	g_gevManager->AddCallback(GEV_PlantNukeOrder, GEV_PRI_Primary, &s_ArmyPlantNukeOrderEvent);
-	g_gevManager->AddCallback(GEV_SlaveRaidOrder, GEV_PRI_Primary, &s_ArmySlaveRaidOrderEvent);
-	g_gevManager->AddCallback(GEV_EnslaveSettlerOrder, GEV_PRI_Primary, &s_ArmyEnslaveSettlerOrderEvent);
-	g_gevManager->AddCallback(GEV_UndergroundRailwayOrder, GEV_PRI_Primary, &s_ArmyUndergroundRailwayOrderEvent);
-	g_gevManager->AddCallback(GEV_InciteUprisingOrder, GEV_PRI_Primary, &s_ArmyInciteUprisingOrderEvent);
-	g_gevManager->AddCallback(GEV_BioInfectOrder, GEV_PRI_Primary, &s_ArmyBioInfectOrderEvent);
-	g_gevManager->AddCallback(GEV_PlagueOrder, GEV_PRI_Primary, &s_ArmyPlagueOrderEvent);
-	g_gevManager->AddCallback(GEV_NanoInfectOrder, GEV_PRI_Primary, &s_ArmyNanoInfectOrderEvent);
-	g_gevManager->AddCallback(GEV_ConvertCityOrder, GEV_PRI_Primary, &s_ArmyConvertCityOrderEvent);
-	g_gevManager->AddCallback(GEV_ReformCityOrder, GEV_PRI_Primary, &s_ArmyReformCityOrderEvent);
-	g_gevManager->AddCallback(GEV_SellIndulgencesOrder, GEV_PRI_Primary, &s_ArmySellIndulgencesOrderEvent);
-	g_gevManager->AddCallback(GEV_SoothsayOrder, GEV_PRI_Primary, &s_ArmySoothsayOrderEvent);
-	g_gevManager->AddCallback(GEV_CreateParkOrder, GEV_PRI_Primary, &s_ArmyCreateParkOrderEvent);
-	g_gevManager->AddCallback(GEV_PillageOrder, GEV_PRI_Primary, &s_ArmyPillageOrderEvent);
-	g_gevManager->AddCallback(GEV_InjoinOrder, GEV_PRI_Primary, &s_ArmyInjoinOrderEvent);
-	g_gevManager->AddCallback(GEV_PirateOrder, GEV_PRI_Primary, &s_ArmyPirateOrderEvent);
-	g_gevManager->AddCallback(GEV_GetExpelledOrder, GEV_PRI_Primary, &s_ArmyGetExpelledOrderEvent);
-	g_gevManager->AddCallback(GEV_SettleOrder, GEV_PRI_Primary, &s_ArmySettleOrderEvent);
-	g_gevManager->AddCallback(GEV_SettleInCityOrder, GEV_PRI_Primary, &s_ArmySettleInCityOrderEvent);
-	g_gevManager->AddCallback(GEV_BoardTransportOrder, GEV_PRI_Primary, &s_BoardTransportOrderEvent);
-	g_gevManager->AddCallback(GEV_LaunchOrder, GEV_PRI_Primary, &s_LaunchOrderEvent);
-	g_gevManager->AddCallback(GEV_TargetOrder, GEV_PRI_Primary, &s_TargetOrderEvent);
-	g_gevManager->AddCallback(GEV_UpgradeOrder, GEV_PRI_Primary, &s_UpgradeOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_UnloadOrder, GEV_PRI_Primary, &s_ArmyUnloadOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SleepOrder, GEV_PRI_Primary, &s_ArmySleepOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_ExploreOrder, GEV_PRI_Primary, &s_ArmyExploreOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveUnloadOrder, GEV_PRI_Primary, &s_ArmyMoveUnloadOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_EntrenchOrder, GEV_PRI_Primary, &s_ArmyEntrenchOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_DetrenchOrder, GEV_PRI_Primary, &s_ArmyDetrenchOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_DisbandArmyOrder, GEV_PRI_Primary, &s_ArmyDisbandArmyOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_GroupOrder, GEV_PRI_Primary, &s_ArmyGroupOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_GroupUnitOrder, GEV_PRI_Primary, &s_ArmyGroupUnitOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_UngroupOrder, GEV_PRI_Primary, &s_ArmyUngroupOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_InvestigateCityOrder, GEV_PRI_Primary, &s_ArmyInvestigateCityOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_NullifyWallsOrder, GEV_PRI_Primary, &s_ArmyNullifyWallsOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_StealTechnologyOrder, GEV_PRI_Primary, &s_ArmyStealTechnologyOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_InciteRevolutionOrder, GEV_PRI_Primary, &s_ArmyInciteRevolutionOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_AssassinateRulerOrder, GEV_PRI_Primary, &s_ArmyAssassinateRulerOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_InvestigateReadinessOrder, GEV_PRI_Primary, &s_ArmyInvestigateReadinessOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_BombardOrder, GEV_PRI_Primary, &s_ArmyBombardOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_FranchiseOrder, GEV_PRI_Primary, &s_ArmyFranchiseOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SueOrder, GEV_PRI_Primary, &s_ArmySueOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SueFranchiseOrder, GEV_PRI_Primary, &s_ArmySueFranchiseOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_ExpelOrder, GEV_PRI_Primary, &s_ArmyExpelOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_EstablishEmbassyOrder, GEV_PRI_Primary, &s_ArmyEstablishEmbassyOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_ThrowPartyOrder, GEV_PRI_Primary, &s_ArmyThrowPartyOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_AdvertiseOrder, GEV_PRI_Primary, &s_ArmyAdvertiseOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_PlantNukeOrder, GEV_PRI_Primary, &s_ArmyPlantNukeOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SlaveRaidOrder, GEV_PRI_Primary, &s_ArmySlaveRaidOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_EnslaveSettlerOrder, GEV_PRI_Primary, &s_ArmyEnslaveSettlerOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_UndergroundRailwayOrder, GEV_PRI_Primary, &s_ArmyUndergroundRailwayOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_InciteUprisingOrder, GEV_PRI_Primary, &s_ArmyInciteUprisingOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_BioInfectOrder, GEV_PRI_Primary, &s_ArmyBioInfectOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_PlagueOrder, GEV_PRI_Primary, &s_ArmyPlagueOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_NanoInfectOrder, GEV_PRI_Primary, &s_ArmyNanoInfectOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_ConvertCityOrder, GEV_PRI_Primary, &s_ArmyConvertCityOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_ReformCityOrder, GEV_PRI_Primary, &s_ArmyReformCityOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SellIndulgencesOrder, GEV_PRI_Primary, &s_ArmySellIndulgencesOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SoothsayOrder, GEV_PRI_Primary, &s_ArmySoothsayOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateParkOrder, GEV_PRI_Primary, &s_ArmyCreateParkOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_PillageOrder, GEV_PRI_Primary, &s_ArmyPillageOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_InjoinOrder, GEV_PRI_Primary, &s_ArmyInjoinOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_PirateOrder, GEV_PRI_Primary, &s_ArmyPirateOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_GetExpelledOrder, GEV_PRI_Primary, &s_ArmyGetExpelledOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SettleOrder, GEV_PRI_Primary, &s_ArmySettleOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_SettleInCityOrder, GEV_PRI_Primary, &s_ArmySettleInCityOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_BoardTransportOrder, GEV_PRI_Primary, &s_BoardTransportOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_LaunchOrder, GEV_PRI_Primary, &s_LaunchOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_TargetOrder, GEV_PRI_Primary, &s_TargetOrderEvent);
+	gevmanager_Get()->AddCallback(GEV_UpgradeOrder, GEV_PRI_Primary, &s_UpgradeOrderEvent);
 
-	g_gevManager->AddCallback(GEV_MoveArmy, GEV_PRI_Primary, &s_ArmyMoveEvent);
-	g_gevManager->AddCallback(GEV_ClearOrders, GEV_PRI_Primary, &s_ClearOrdersEvent);
-	g_gevManager->AddCallback(GEV_FinishAttack, GEV_PRI_Primary, &s_FinishAttackEvent);
-	g_gevManager->AddCallback(GEV_FinishMove, GEV_PRI_Primary, &s_FinishMoveEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveArmy, GEV_PRI_Primary, &s_ArmyMoveEvent);
+	gevmanager_Get()->AddCallback(GEV_ClearOrders, GEV_PRI_Primary, &s_ClearOrdersEvent);
+	gevmanager_Get()->AddCallback(GEV_FinishAttack, GEV_PRI_Primary, &s_FinishAttackEvent);
+	gevmanager_Get()->AddCallback(GEV_FinishMove, GEV_PRI_Primary, &s_FinishMoveEvent);
 
-	g_gevManager->AddCallback(GEV_MoveUnits, GEV_PRI_Primary, &s_MoveUnitsEvent);
-	g_gevManager->AddCallback(GEV_CheckOrders, GEV_PRI_Primary, &s_CheckOrdersEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveUnits, GEV_PRI_Primary, &s_MoveUnitsEvent);
+	gevmanager_Get()->AddCallback(GEV_CheckOrders, GEV_PRI_Primary, &s_CheckOrdersEvent);
 
-	g_gevManager->AddCallback(GEV_MoveIntoTransport, GEV_PRI_Primary, &s_MoveIntoTransportEvent);
-	g_gevManager->AddCallback(GEV_Battle, GEV_PRI_Primary, &s_BattleEvent);
-	g_gevManager->AddCallback(GEV_BattleAftermath, GEV_PRI_Primary, &s_AftermathEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveIntoTransport, GEV_PRI_Primary, &s_MoveIntoTransportEvent);
+	gevmanager_Get()->AddCallback(GEV_Battle, GEV_PRI_Primary, &s_BattleEvent);
+	gevmanager_Get()->AddCallback(GEV_BattleAftermath, GEV_PRI_Primary, &s_AftermathEvent);
 
-	g_gevManager->AddCallback(GEV_BeginTurnArmy, GEV_PRI_Primary, &s_BeginTurnArmyEvent);
-	g_gevManager->AddCallback(GEV_FinishUnload, GEV_PRI_Primary, &s_ArmyFinishUnloadEvent);
+	gevmanager_Get()->AddCallback(GEV_BeginTurnArmy, GEV_PRI_Primary, &s_BeginTurnArmyEvent);
+	gevmanager_Get()->AddCallback(GEV_FinishUnload, GEV_PRI_Primary, &s_ArmyFinishUnloadEvent);
 
-	g_gevManager->AddCallback(GEV_Lawsuit, GEV_PRI_Primary, &s_LawsuitEvent);
-	g_gevManager->AddCallback(GEV_RemoveFranchise, GEV_PRI_Primary, &s_RemoveFranchiseEvent);
-	g_gevManager->AddCallback(GEV_ExpelUnits, GEV_PRI_Primary, &s_ExpelUnitsEvent);
-	g_gevManager->AddCallback(GEV_EnslaveSettler, GEV_PRI_Primary, &s_EnslaveSettlerEvent);
+	gevmanager_Get()->AddCallback(GEV_Lawsuit, GEV_PRI_Primary, &s_LawsuitEvent);
+	gevmanager_Get()->AddCallback(GEV_RemoveFranchise, GEV_PRI_Primary, &s_RemoveFranchiseEvent);
+	gevmanager_Get()->AddCallback(GEV_ExpelUnits, GEV_PRI_Primary, &s_ExpelUnitsEvent);
+	gevmanager_Get()->AddCallback(GEV_EnslaveSettler, GEV_PRI_Primary, &s_EnslaveSettlerEvent);
 
-	g_gevManager->AddCallback(GEV_Teleport, GEV_PRI_Primary, &s_TeleportEvent);
-	g_gevManager->AddCallback(GEV_Reentry, GEV_PRI_Primary, &s_ReentryEvent);
+	gevmanager_Get()->AddCallback(GEV_Teleport, GEV_PRI_Primary, &s_TeleportEvent);
+	gevmanager_Get()->AddCallback(GEV_Reentry, GEV_PRI_Primary, &s_ReentryEvent);
 
-	g_gevManager->AddCallback(GEV_SetUnloadMovement, GEV_PRI_Primary, &s_SetUnloadMovementEvent);
+	gevmanager_Get()->AddCallback(GEV_SetUnloadMovement, GEV_PRI_Primary, &s_SetUnloadMovementEvent);
 
-	g_gevManager->AddCallback(GEV_BeginTurnExecute, GEV_PRI_Primary, &s_ArmyBeginTurnExecuteEvent);
+	gevmanager_Get()->AddCallback(GEV_BeginTurnExecute, GEV_PRI_Primary, &s_ArmyBeginTurnExecuteEvent);
 }
 
 void armyevent_Cleanup()

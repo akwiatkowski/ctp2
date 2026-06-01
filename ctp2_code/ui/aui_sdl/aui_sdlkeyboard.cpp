@@ -17,13 +17,54 @@ extern CivApp	*g_civApp;
 // we extract events here.  This is because keyboard events are
 // handled in two places.  This queue is filled by the main
 // game loop in CivMain in civ3_main.cpp
-std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
+static std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
 // Then we need a mutex to allow us to thread-safely access the queue
 // (Actually I don't think we do, now I understand the main game loop
 // better, but I'll leave it in here to be on the safe side).
-// This is created in civ3_main.cpp just before the main loop, and
-// destroyed in AtExitProc() (also in civ3_main.cpp).
-SDL_mutex* g_secondaryKeyboardEventQueueMutex = NULL;
+// Lifecycle managed via aui_sdlkbd_InitQueueMutex / DestroyQueueMutex
+// from civ3_main.cpp.
+static SDL_mutex* g_secondaryKeyboardEventQueueMutex = NULL;
+
+void aui_sdlkbd_InitQueueMutex(void)
+{
+	g_secondaryKeyboardEventQueueMutex = SDL_CreateMutex();
+}
+
+void aui_sdlkbd_DestroyQueueMutex(void)
+{
+	SDL_DestroyMutex(g_secondaryKeyboardEventQueueMutex);
+	g_secondaryKeyboardEventQueueMutex = NULL;
+}
+
+void aui_sdlkbd_PushQueueEvent(SDL_Event const & event)
+{
+	if (!g_secondaryKeyboardEventQueueMutex) return;
+	if (-1 == SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+		fprintf(stderr, "[aui_sdlkbd_PushQueueEvent] SDL_LockMutex failed: %s\n",
+		        SDL_GetError());
+		return;
+	}
+	g_secondaryKeyboardEventQueue.push(event);
+	SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex);
+}
+
+bool aui_sdlkbd_TryPopQueueEvent(SDL_Event & event)
+{
+	if (!g_secondaryKeyboardEventQueueMutex) return false;
+	if (-1 == SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
+		fprintf(stderr, "[aui_sdlkbd_TryPopQueueEvent] SDL_LockMutex failed: %s\n",
+		        SDL_GetError());
+		return false;
+	}
+	bool gotEvent = false;
+	if (!g_secondaryKeyboardEventQueue.empty()) {
+		event = g_secondaryKeyboardEventQueue.front();
+		g_secondaryKeyboardEventQueue.pop();
+		gotEvent = true;
+	}
+	SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex);
+	return gotEvent;
+}
 
 aui_SDLKeyboard::aui_SDLKeyboard(
 	AUI_ERRCODE *retval )
@@ -49,27 +90,7 @@ AUI_ERRCODE aui_SDLKeyboard::createSDLKeyboard( void )
 AUI_ERRCODE aui_SDLKeyboard::GetInput( void )
 {
 	SDL_Event event;
-	BOOL gotEvent = FALSE;
-
-	if (g_secondaryKeyboardEventQueueMutex != NULL) {
-		if (-1==SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
-			fprintf(stderr, "[aui_SDLKeyboard::GetInput] SDL_LockMutex failed: %s\n", SDL_GetError());
-			return AUI_ERRCODE_NODIRECTINPUTDEVICE;
-		}
-
-		if (!g_secondaryKeyboardEventQueue.empty()) {
-			gotEvent = TRUE;
-			event = g_secondaryKeyboardEventQueue.front();
-			g_secondaryKeyboardEventQueue.pop();
-		}
-
-		if (-1==SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex)) {
-			fprintf(stderr, "[aui_SDLKeyboard::GetInput] SDL_UnlockMutex failed: %s\n", SDL_GetError());
-			return AUI_ERRCODE_NODIRECTINPUTDEVICE;
-		}
-	}
-
-	if (!gotEvent) {
+	if (!aui_sdlkbd_TryPopQueueEvent(event)) {
 		return AUI_ERRCODE_NOINPUT;
 	}
 

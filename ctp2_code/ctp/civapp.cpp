@@ -108,9 +108,7 @@
 
 #ifdef __AUI_USE_SDL__
 #include <SDL2/SDL.h>
-#include <queue>
-extern std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
-extern SDL_mutex* g_secondaryKeyboardEventQueueMutex;
+#include "ui/aui_sdl/aui_sdlkeyboard.h"
 #endif
 
 #include "AdvanceBranchRecord.h"
@@ -2693,12 +2691,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					SDL_PumpEvents();
 					SDL_Event sdlEvent;
 					while (SDL_PeepEvents(&sdlEvent, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP) > 0) {
-						if (g_secondaryKeyboardEventQueueMutex) {
-							if (-1 != SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
-								g_secondaryKeyboardEventQueue.push(sdlEvent);
-								SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex);
-							}
-						}
+						aui_sdlkbd_PushQueueEvent(sdlEvent);
 					}
 					#endif
 

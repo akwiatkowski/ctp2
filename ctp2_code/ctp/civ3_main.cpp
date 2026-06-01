@@ -1063,8 +1063,7 @@ void AtExitProc(void)
 
 	// Destroy the mutex used for the secondary keyboard event queue
 #ifdef __AUI_USE_SDL__
-	SDL_DestroyMutex(g_secondaryKeyboardEventQueueMutex);
-	g_secondaryKeyboardEventQueueMutex = NULL;
+	aui_sdlkbd_DestroyQueueMutex();
 #endif
 
     SDL_Quit();
@@ -1714,7 +1713,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	}
 
 #ifdef __AUI_USE_SDL__
-	g_secondaryKeyboardEventQueueMutex = SDL_CreateMutex();
+	aui_sdlkbd_InitQueueMutex();
 #endif
 #ifdef __AUI_USE_DIRECTX__
 	MSG			msg;
@@ -1748,16 +1747,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 			if (n <= 0) break;
 
 			// Re-enqueue for aui_sdlkeyboard
-			if (-1==SDL_LockMutex(g_secondaryKeyboardEventQueueMutex)) {
-				fprintf(stderr, "[CivMain] SDL_LockMutex failed: %s\n", SDL_GetError());
-				break;
-			}
-			g_secondaryKeyboardEventQueue.push(event);
-			if (-1==SDL_UnlockMutex(g_secondaryKeyboardEventQueueMutex)) {
-				fprintf(stderr, "[CivMain] SDL_UnlockMutex failed: %s\n", SDL_GetError());
-				break;
-			}
-
+			aui_sdlkbd_PushQueueEvent(event);
 			SDLMessageHandler(event);
 		}
 

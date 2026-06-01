@@ -1968,8 +1968,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					g_player[humanIndex]->m_starting_index = j;
 
 					// Add robots
-					Assert(g_useScenarioCivs <= safePositionCount);
-					for (i = 1; (i <= g_useScenarioCivs) && (i < safePositionCount); ++i)
+					Assert(scenario_civs_Get() <= safePositionCount);
+					for (i = 1; (i <= scenario_civs_Get()) && (i < safePositionCount); ++i)
 					{
 						if (i != humanIndex)
 						{
@@ -2025,11 +2025,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 // No difference between STARTINFOTYPE_CIVSFIXED and STARTINFOTYPE_POSITIONSFIXED
 				{
 					Assert(numPlayersLoaded == 0);
-					Assert(g_useScenarioCivs <= g_theWorld->GetNumStartingPositions());
+					Assert(scenario_civs_Get() <= g_theWorld->GetNumStartingPositions());
 
-					Assert(g_theProfileDB->GetPlayerIndex() <= g_useScenarioCivs);
-					if(g_theProfileDB->GetPlayerIndex() > g_useScenarioCivs){
-						g_theProfileDB->SetPlayerIndex(g_useScenarioCivs);
+					Assert(g_theProfileDB->GetPlayerIndex() <= scenario_civs_Get());
+					if(g_theProfileDB->GetPlayerIndex() > scenario_civs_Get()){
+						g_theProfileDB->SetPlayerIndex(scenario_civs_Get());
 					}
 
 					// Add the human player first, to prevent civ reassignment.
@@ -2037,7 +2037,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					sint32		civ			= gameinit_GetCivForSlot(humanIndex);
 					CreateInitialHuman(diff, humanIndex, civ);
 
-					for (i = 1; i <= g_useScenarioCivs; ++i)
+					for (i = 1; i <= scenario_civs_Get(); ++i)
 					{
 						if (i != humanIndex)
 						{

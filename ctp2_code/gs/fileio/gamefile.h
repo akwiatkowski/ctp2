@@ -244,7 +244,11 @@ public:
 extern sint32 g_saveFileVersion;
 extern sint32 g_startInfoType;
 extern sint32 g_isScenario;
-extern sint32 g_useScenarioCivs;
+// Number of scenario civs the player picked.  Definition in GameFile.cpp
+// as file-scope static; the UI (loadsavescreen, allinonewindow) and
+// gameinit's scenario-load path read/write through the accessors.
+sint32 scenario_civs_Get(void);
+void   scenario_civs_Set(sint32 v);
 extern MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 
 // Lifecycle: definition lives in gs/fileio/GameFile.cpp as file-scope

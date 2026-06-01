@@ -3903,7 +3903,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 	ns_ScenarioInfo *scenInfo = g_allinoneWindow->GetScenarioInfo();
 
 	if(scenInfo->isScenario) {
-		g_useScenarioCivs = numPlayers;
+		scenario_civs_Set(numPlayers);
 	}
 
 	if(scenInfo->isScenario) {

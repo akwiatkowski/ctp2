@@ -181,7 +181,11 @@ sint32 gamefile_CurrentVersion()
 sint32 g_saveFileVersion = -1;
 sint32 g_startInfoType = STARTINFOTYPE_NONE;
 sint32 g_isScenario = FALSE;
-sint32 g_useScenarioCivs = 2;
+static sint32 g_useScenarioCivs = 2;
+
+sint32 scenario_civs_Get(void) { return g_useScenarioCivs; }
+void   scenario_civs_Set(sint32 v) { g_useScenarioCivs = v; }
+
 static sint32 g_showUnitLabels = FALSE;
 
 bool show_unit_labels_Get(void)        { return g_showUnitLabels != FALSE; }

@@ -396,15 +396,15 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 
 	spnewgameplayersscreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 
-	g_useScenarioCivs = g_theProfileDB->GetNPlayers()-1;
+	scenario_civs_Set(g_theProfileDB->GetNPlayers()-1);
 
 	if (s_tempSaveInfo->startInfoType != STARTINFOTYPE_NOLOCS)
 	{
-		if (g_useScenarioCivs > s_tempSaveInfo->numPositions)
+		if (scenario_civs_Get() > s_tempSaveInfo->numPositions)
 		{
-			g_useScenarioCivs = s_tempSaveInfo->numPositions;
+			scenario_civs_Set(s_tempSaveInfo->numPositions);
 
-			g_theProfileDB->SetNPlayers(g_useScenarioCivs+1);
+			g_theProfileDB->SetNPlayers(scenario_civs_Get()+1);
 		}
 	}
 

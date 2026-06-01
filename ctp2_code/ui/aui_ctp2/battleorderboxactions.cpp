@@ -29,7 +29,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 
 extern SelectedItem	*g_selected_item;
-extern UnitPool		*g_theUnitPool;
 extern ControlPanelWindow	*g_controlPanel;
 extern World		*g_theWorld;
 extern ProfileDB    *g_theProfileDB;
@@ -47,7 +46,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 
 
 		if(!g_theProfileDB->IsAutoGroup()) {
-			if (g_theUnitPool->IsValid(m_unit)) {
+			if (unitpool_Get()->IsValid(m_unit)) {
 
 				Army army = m_army;
 
@@ -76,7 +75,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 			}
 		} else {
 
-			if ( g_theUnitPool->IsValid(m_unit) ) {
+			if ( unitpool_Get()->IsValid(m_unit) ) {
 				Army army = m_army;
 				m_unit.AccessData()->CreateOwnArmy();
 				g_selected_item->SetSelectUnit( m_unit, FALSE );
@@ -93,7 +92,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 
 		break;
 	case C3_COLORICONBUTTON_ACTION_RIGHTCLK:
-		if ( g_theUnitPool->IsValid(m_unit) ) {
+		if ( unitpool_Get()->IsValid(m_unit) ) {
 
 			m_bob->ToggleStackDisplay();
 
@@ -111,7 +110,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 		}
 		break;
 	case C3_COLORICONBUTTON_ACTION_DOUBLECLK:
-		if ( g_theUnitPool->IsValid(m_unit) ) {
+		if ( unitpool_Get()->IsValid(m_unit) ) {
 			Army army = m_army;
 			Unit unit = m_unit;
 

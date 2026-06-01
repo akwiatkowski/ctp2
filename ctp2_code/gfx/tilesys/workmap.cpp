@@ -20,7 +20,7 @@
 #include "gfx/tilesys/tileset.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/gameobj/Unit.h"
-#include "gs/gameobj/UnitPool.h"           // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "ui/aui_ctp2/c3_updateaction.h"
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/UnitActor.h"
@@ -254,8 +254,8 @@ sint32 WorkMap::DrawSurface(void)
 	MapPoint pos;
 	MapPoint newpos;
 
-	Assert( g_theUnitPool->IsValid(m_unit) );
-	if ( !g_theUnitPool->IsValid(m_unit) ) return -1;
+	Assert( unitpool_Get()->IsValid(m_unit) );
+	if ( !unitpool_Get()->IsValid(m_unit) ) return -1;
 
 	if (m_unit.m_id)
 		m_unit.GetData()->GetPos(pos);
@@ -831,7 +831,7 @@ BOOL WorkMap::DrawSprites(aui_Surface *pSurface, RECT *destRect)
 
 	if (!m_unit) return FALSE;
 
-	if(!g_theUnitPool->IsValid(m_unit)) return FALSE;
+	if(!unitpool_Get()->IsValid(m_unit)) return FALSE;
 
 	MapPoint pos;
 	sint32 i;

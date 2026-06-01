@@ -84,7 +84,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Player.h"  // g_player
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"  // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
 #include "AgeCityStyleRecord.h"
@@ -865,8 +865,8 @@ void UnitActor::AddAction(ActionPtr actionObj) {
 
   Assert(actionObj);
 
-  if (g_theUnitPool) {
-    if (g_theUnitPool->IsValid(GetUnitID())) {
+  if (unitpool_Get()) {
+    if (unitpool_Get()->IsValid(GetUnitID())) {
       m_playerNum = Unit(GetUnitID()).GetOwner();
     }
   }

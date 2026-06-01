@@ -135,7 +135,7 @@
 #include "IconRecord.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/utility/TurnCnt.h"
-#include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"

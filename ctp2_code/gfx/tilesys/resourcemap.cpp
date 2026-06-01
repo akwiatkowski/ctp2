@@ -47,7 +47,7 @@
 #include "gs/gameobj/Player.h"                     // g_player
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/citydata.h"
 #include "WonderRecord.h"
 #include "gs/slic/SlicEngine.h"
@@ -624,7 +624,7 @@ BOOL ResourceMap::DrawSprites(aui_Surface *pSurface, RECT *destRect)
 
 	if (!m_unit) return FALSE;
 
-	if(!g_theUnitPool->IsValid(m_unit)) return FALSE;
+	if(!unitpool_Get()->IsValid(m_unit)) return FALSE;
 
 	MapPoint pos;
 	m_unit.GetData()->GetPos(pos);

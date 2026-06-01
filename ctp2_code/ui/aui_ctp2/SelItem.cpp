@@ -410,7 +410,7 @@ void SelectedItem::ClipCurrentItem()
 			}
 			break;
 		case SELECT_TYPE_LOCAL_CITY:
-			if(!g_theUnitPool->IsValid(m_selected_city[player]))
+			if(!unitpool_Get()->IsValid(m_selected_city[player]))
 			{
 				m_select_state[player] = SELECT_TYPE_NONE;
 			}
@@ -1387,10 +1387,10 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 
 	if (GetTopUnitOrCity(army_pos, unit))
 	{
-		if (g_theUnitPool->IsValid(unit))
+		if (unitpool_Get()->IsValid(unit))
 			acknowledgeSoundID = unit.GetAcknowledgeSoundID();
 
-		if (g_theUnitPool->IsValid(unit))
+		if (unitpool_Get()->IsValid(unit))
 			cantMoveSoundID = unit.GetCantMoveSoundID();
 
 		unitX = unit.RetPos().x;
@@ -1489,7 +1489,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 
 void SelectedItem::PlaySelectedSound(Unit &unit)
 {
-	if (!g_theUnitPool->IsValid(unit)) return;
+	if (!unitpool_Get()->IsValid(unit)) return;
 
 	if (g_soundManager && unit.GetOwner() == GetVisiblePlayer())
 	{

@@ -90,7 +90,7 @@
 #include "ui/aui_ctp2/linegraph.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Strengths.h"
-#include "gs/gameobj/UnitPool.h"               // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"
 #include "ui/aui_ctp2/keypress.h"
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/EventTracker.h"
@@ -628,7 +628,7 @@ sint32 infowin_UpdateBigList( void )
 	for (sint32 i = 0 ; i < 5 ; i++ )
 	{
 		Unit unit = topten_Get()->GetBiggestCity(i);
-		if ( g_theUnitPool->IsValid(unit) )
+		if ( unitpool_Get()->IsValid(unit) )
 		{
 			c3_ListItem* bItem = new InfoBigListItem(&retval, &unit, i, ldlBlock);
 			s_infoBigList->AddItem(bItem);
@@ -1465,7 +1465,7 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	AUI_ERRCODE		retval;
 	MBCHAR			strbuf[256];
 
-	if (!g_theUnitPool->IsValid(*city)) return AUI_ERRCODE_OK;
+	if (!unitpool_Get()->IsValid(*city)) return AUI_ERRCODE_OK;
 
 	m_city = *city;
 

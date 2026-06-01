@@ -57,6 +57,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/EndGame.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/utility/newturncount.h"
 #include "gs/gameobj/Score.h"
 
@@ -181,7 +182,7 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 
 	if(safe_player(player)->GetGaiaController()->CanStartCountdown()) {
 		SlicSegment *       seg  = g_slicEngine->GetSegment("GCReadyToActivateUs");
-		if (seg && !seg->TestLastShown(player, 10000, NewTurnCount::GetCurrentRound()))
+		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetSessionRound()))
 		{
 			SlicObject *    so   = new SlicObject("GCReadyToActivateUs");
 			so->AddPlayer(player);
@@ -481,7 +482,7 @@ STDEHANDLER(CreateImprovementEvent)
 
 	if(g_player[player] && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
 		SlicSegment *	seg = g_slicEngine->GetSegment("GCMinObelisksReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000, NewTurnCount::GetCurrentRound()))
+		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetSessionRound()))
 		{
 			SlicObject *	so = new SlicObject("GCMinObelisksReachedUs");
 			so->AddRecipient(player);

@@ -1029,5 +1029,10 @@ QuadTree<T>::IncrementDegenerateCount()
 }
 
 class Unit;
-extern QuadTree<Unit> *g_theUnitTree;
+// Lifecycle (new during gameinit + Clear/delete on world reset) lives
+// in gs/utility/gameinit.cpp.  External readers use unit_tree_Get();
+// the lifecycle code in gameinit and net_gamesettings uses
+// unit_tree_Set() for the new/clear transitions.
+QuadTree<Unit> * unit_tree_Get(void);
+void             unit_tree_Set(QuadTree<Unit> *p);
 #endif

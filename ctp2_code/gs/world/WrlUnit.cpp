@@ -49,8 +49,6 @@
 
 #include "gs/gameobj/wonderutil.h"
 
-extern QuadTree<Unit> *g_theUnitTree;
-
 extern bool player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him);
 extern UnitPool *g_theUnitPool;
 
@@ -58,7 +56,7 @@ bool World::InsertUnit (const MapPoint &pos, Unit &id,
 						  UnitDynamicArray &revealedUnits)
 {
 	Assert(!id.IsCity());
-	g_theUnitTree->Insert(id);
+	unit_tree_Get()->Insert(id);
 	id.DoVision(revealedUnits);
 	if(id.IsCity()) {
 		GetCell(pos)->SetCity(id);
@@ -73,7 +71,7 @@ sint32 World::RemoveUnitReference (const MapPoint &pos, const Unit &id)
 	DPRINTF(k_DBG_GAMESTATE, ("World::RemoveUnitReference: id: 0x%lx\n",
 							  id.m_id));
 
-	g_theUnitTree->Remove(id);
+	unit_tree_Get()->Remove(id);
 
 	return GetCell(pos)->RemoveUnitReference(id);
 }

@@ -51,7 +51,6 @@
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/terrainutil.h"
 
-extern QuadTree<Unit> *g_theUnitTree;
 extern World *g_theWorld;
 extern Player **g_player;
 extern TurnCount *g_turn;
@@ -175,7 +174,7 @@ void InstallationData::DoVision()
 	topleft.x -= static_cast<sint16>(maxVisionRange);
 	DynamicArray<Unit> unitArray;
 
-	g_theUnitTree->SearchRect(unitArray, topleft,
+	unit_tree_Get()->SearchRect(unitArray, topleft,
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  ~(1 << m_owner));
@@ -245,7 +244,7 @@ void InstallationData::CheckVision(sint32 owner)
 		topleft = m_point;
 		topleft.x -= static_cast<sint16>(maxVisionRange);
 		DynamicArray<Unit> unitArray;
-		g_theUnitTree->SearchRect(unitArray, topleft,
+		unit_tree_Get()->SearchRect(unitArray, topleft,
 								  static_cast<sint16>(maxVisionRange) * 2 + 1,
 								  static_cast<sint16>(maxVisionRange) * 2 + 1,
 								  1 << owner);

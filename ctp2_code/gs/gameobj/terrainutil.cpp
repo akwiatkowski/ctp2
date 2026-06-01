@@ -93,7 +93,6 @@
 #include "gs/gameobj/WonderTracker.h"				// to check for gaia controller wonder
 #include "gs/gameobj/wonderutil.h"					// to check for gaia controller wonder
 
-extern QuadTree<Unit> *g_theUnitTree;
 #endif
 
 namespace
@@ -420,7 +419,7 @@ void terrainutil_DoVision(const MapPoint &point)
 	MapPoint topleft = MapPoint(point.x - maxVisionRange, point.y);
 	DynamicArray<Unit> unitArray;
 
-	g_theUnitTree->SearchRect(unitArray, topleft,
+	unit_tree_Get()->SearchRect(unitArray, topleft,
 	                          static_cast<sint16>(maxVisionRange) * 2 + 1,
 	                          static_cast<sint16>(maxVisionRange) * 2 + 1,
 	                          ~(1 << cellOwner)

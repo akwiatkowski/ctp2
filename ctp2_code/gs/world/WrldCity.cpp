@@ -44,7 +44,6 @@
 #include "net/general/net_info.h"
 #include "gs/gameobj/TerrImprove.h"
 
-extern QuadTree<Unit> *g_theUnitTree;
 extern InstallationQuadTree  *g_theInstallationTree;
 extern Player **g_player;
 
@@ -139,7 +138,7 @@ void World::CityRadiusFunc(const MapPoint &pos)
 
 bool World::InsertCity(const MapPoint &pos, Unit u)
 {
-	g_theUnitTree->Insert(u);
+	unit_tree_Get()->Insert(u);
 
 	UnitDynamicArray revealed;
 	u.DoVision(revealed);

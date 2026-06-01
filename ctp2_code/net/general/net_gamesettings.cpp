@@ -21,7 +21,6 @@
 
 #include "ui/interface/controlpanelwindow.h"
 
-extern QuadTree<Unit> *g_theUnitTree;
 extern World *g_theWorld;
 extern Player **g_player;
 extern TiledMap *g_tiledMap;
@@ -124,10 +123,10 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			g_player[p]->m_vision->Clear();
 		}
 	}
-	g_theUnitTree->Clear();
+	unit_tree_Get()->Clear();
 	g_theInstallationTree->Clear();
-	delete g_theUnitTree;
-	g_theUnitTree = NULL;
+	delete unit_tree_Get();
+	unit_tree_Set(NULL);
 	delete g_theInstallationTree;
 	g_theInstallationTree = NULL;
 
@@ -169,9 +168,9 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	delete g_selected_item;
 	g_selected_item = new SelectedItem(m_numPlayers);
 
-	g_theUnitTree = new QuadTree<Unit>((sint16)g_theWorld->GetXWidth(),
+	unit_tree_Set(new QuadTree<Unit>((sint16)g_theWorld->GetXWidth(),
 									   (sint16)g_theWorld->GetYHeight(),
-									   g_theWorld->IsYwrap());
+									   g_theWorld->IsYwrap()));
 	g_theInstallationTree = new InstallationQuadTree((sint16)g_theWorld->GetXWidth(),
 													 (sint16)g_theWorld->GetYHeight(),
 													 g_theWorld->IsYwrap());

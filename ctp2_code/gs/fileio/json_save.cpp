@@ -104,7 +104,7 @@
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/installationtree.h"     // g_theInstallationTree (G-4)
-#include "gs/utility/QuadTree.h"              // g_theUnitTree (G-4)
+#include "gs/utility/QuadTree.h"              // unit_tree_Get() (G-4)
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
@@ -4786,7 +4786,7 @@ bool LoadJson(char const *path)
         // InstallationData).  Walking the stale tree during Insert
         // crashes (intermittent SIGSEGV in UnitData::GetPos via a
         // null-this dereference; ASAN-confirmed).
-        if (g_theUnitTree)         g_theUnitTree->Clear();
+        if (unit_tree_Get())         unit_tree_Get()->Clear();
         if (g_theInstallationTree) g_theInstallationTree->Clear();
         if (g_theUnitPool)         g_theUnitPool->RebuildQuadTree();
         if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();

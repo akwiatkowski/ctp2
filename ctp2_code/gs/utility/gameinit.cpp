@@ -186,7 +186,10 @@ TradePool * tradepool_Get(void) { return g_theTradePool; }
 static TradeOfferPool       *g_theTradeOfferPool = NULL;
 
 TradeOfferPool * tradeofferpool_Get(void) { return g_theTradeOfferPool; }
-QuadTree<Unit>              *g_theUnitTree = NULL;
+static QuadTree<Unit>       *g_theUnitTree = NULL;
+
+QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
+void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
 Pollution                   *g_thePollution=NULL;
 static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
 

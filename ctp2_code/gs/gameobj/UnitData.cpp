@@ -151,8 +151,9 @@ class UnitActor;
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/MoveFlags.h"
-#include "gs/utility/QuadTree.h"                   // g_theUnitTree
+#include "gs/utility/QuadTree.h"                   // QuadTree<Unit>
 #include "gs/utility/RandGen.h"
+
 #include "gs/utility/TurnCnt.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
@@ -2669,7 +2670,7 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 
 	topleft.x -= (sint16)maxVisionRange;
 
-	g_theUnitTree->SearchRect(array, topleft,
+	unit_tree_Get()->SearchRect(array, topleft,
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  ~(1 << m_owner));
@@ -2852,7 +2853,7 @@ void UnitData::UndoVision()
 	MapPoint topleft = m_pos;
 	topleft.x -= sint16((GetVisionRange()));
 
-	g_theUnitTree->SearchRect(enemyArray, topleft,
+	unit_tree_Get()->SearchRect(enemyArray, topleft,
 							  static_cast<sint16>(GetVisionRange()) * 2 + 1,
 							  static_cast<sint16>(GetVisionRange()) * 2 + 1,
 							  ~(1 << m_owner));
@@ -2872,7 +2873,7 @@ void UnitData::UndoVision()
 		topleft = hostile->m_pos;
 		topleft.x -= sint16(maxVisionRange);
 
-		g_theUnitTree->SearchRect(friendArray, topleft,
+		unit_tree_Get()->SearchRect(friendArray, topleft,
 								  static_cast<sint16>(maxVisionRange) * 2 + 1,
 								  static_cast<sint16>(maxVisionRange) * 2 + 1,
 								  1 << m_owner);
@@ -3338,7 +3339,7 @@ void UnitData::RebuildQuadTree()
 	}
 	else
 	{
-		g_theUnitTree->Insert(Unit(m_id));
+		unit_tree_Get()->Insert(Unit(m_id));
 	}
 
 	if(m_lesser)

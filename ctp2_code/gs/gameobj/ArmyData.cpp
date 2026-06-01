@@ -205,7 +205,7 @@ class UnitActor;
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/utility/MoveFlags.h"
-#include "gs/utility/QuadTree.h"                   // g_theUnitTree
+#include "gs/utility/QuadTree.h"                   // unit_tree_Get()
 #include "gs/utility/RandGen.h"                    // g_rand
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/Cell.h"
@@ -1468,7 +1468,7 @@ void ArmyData::GetActiveDefenders(UnitDynamicArray &input,
 // Parameters : MapPoint &pos        :
 //              bool isCargoPodCheck : true if CargoPods are to be included in the check
 //
-//            : g_theUnitTree
+//            : unit_tree_Get()
 //
 // Returns    : true if pos contains units who can actively defend against this army
 //
@@ -1491,7 +1491,7 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
     UnitDynamicArray possibleDefenders;
     sint32 armyOwner = m_array[0].GetOwner();
     uint32 ownerMask = (armyOwner >= 0 && armyOwner < 32) ? (1u << armyOwner) : 0u;
-    g_theUnitTree->SearchRect(possibleDefenders, topleft,
+    unit_tree_Get()->SearchRect(possibleDefenders, topleft,
                               static_cast<sint16>(maxActiveDefenseRange * 2 + 1),
                               static_cast<sint16>(maxActiveDefenseRange * 2 + 1),
                               ~ownerMask);

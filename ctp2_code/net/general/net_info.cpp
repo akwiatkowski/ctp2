@@ -132,8 +132,6 @@ extern Background	*g_background;
 extern RadarMap     *g_radarMap;
 extern CivPaths     *g_civPaths;
 extern SoundManager	*g_soundManager;
-extern QuadTree<Unit> *g_theUnitTree;
-
 extern void player_ActivateSpaceButton(sint32 pl);
 extern void network_VerifyGameData();
 
@@ -460,7 +458,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					g_player[p]->m_vision->Clear();
 				}
 			}
-			g_theUnitTree->Clear();
+			unit_tree_Get()->Clear();
 			g_network.ClearDeadUnits();
 
 			CtpAi::Initialize();

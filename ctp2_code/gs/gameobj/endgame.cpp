@@ -54,8 +54,8 @@ void EndGame::Serialize(CivArchive &archive)
 {
 	if(archive.IsStoring()) {
 		archive.StoreChunk((uint8*)&m_owner, (uint8*)&m_currentStageBegan + sizeof(m_currentStageBegan));
-		archive.Store((uint8*)m_numBuilt, g_theEndGameDB->m_nRec * sizeof(sint32));
-		archive.Store((uint8*)m_savedNumBuilt, g_theEndGameDB->m_nRec * sizeof(sint32));
+		archive.Store((uint8*)m_numBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
+		archive.Store((uint8*)m_savedNumBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
 	} else {
 		archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_currentStageBegan + sizeof(m_currentStageBegan));
 
@@ -64,10 +64,10 @@ void EndGame::Serialize(CivArchive &archive)
 			delete [] m_numBuilt;
 		if (m_savedNumBuilt)
 			delete [] m_savedNumBuilt;
-		m_numBuilt = new sint32[g_theEndGameDB->m_nRec];
-		m_savedNumBuilt = new sint32[g_theEndGameDB->m_nRec];
-		archive.Load((uint8*)m_numBuilt, g_theEndGameDB->m_nRec * sizeof(sint32));
-		archive.Load((uint8*)m_savedNumBuilt, g_theEndGameDB->m_nRec * sizeof(sint32));
+		m_numBuilt = new sint32[endgamedb_Get()->m_nRec];
+		m_savedNumBuilt = new sint32[endgamedb_Get()->m_nRec];
+		archive.Load((uint8*)m_numBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
+		archive.Load((uint8*)m_savedNumBuilt, endgamedb_Get()->m_nRec * sizeof(sint32));
 	}
 }
 
@@ -76,11 +76,11 @@ void EndGame::Init()
 	m_currentStage = -1;
 	m_currentStageBegan = -1;
 
-	m_numBuilt = new sint32[g_theEndGameDB->m_nRec];
-	m_savedNumBuilt = new sint32[g_theEndGameDB->m_nRec];
+	m_numBuilt = new sint32[endgamedb_Get()->m_nRec];
+	m_savedNumBuilt = new sint32[endgamedb_Get()->m_nRec];
 
     sint32 i;
-    for (i=0; i < g_theEndGameDB->m_nRec; i++) {
+    for (i=0; i < endgamedb_Get()->m_nRec; i++) {
         m_numBuilt[i] = 0;
 		m_savedNumBuilt[i] = 0;
     }
@@ -88,7 +88,7 @@ void EndGame::Init()
 
 void EndGame::AddObject(sint32 type)
 {
-	const EndGameRecord *egrec = g_theEndGameDB->Get(type);
+	const EndGameRecord *egrec = endgamedb_Get()->Get(type);
 	if(egrec->NotifyLabBuilt()) {
 		SlicObject *so = new SlicObject("302EndGameOtherCivBuiltLab");
 		so->AddAllRecipientsBut(m_owner);
@@ -127,7 +127,7 @@ void EndGame::ClearAll()
 	m_currentStage = -1;
 	m_currentStageBegan = -1;
 
-	for(i = 0; i < g_theEndGameDB->m_nRec;  i++) {
+	for(i = 0; i < endgamedb_Get()->m_nRec;  i++) {
 		m_numBuilt[i] = 0;
 		m_savedNumBuilt[i] = 0;
 	}
@@ -136,9 +136,9 @@ void EndGame::ClearAll()
 BOOL EndGame::BeginSequence()
 {
 	sint32 i;
-	for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
+	for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
 
-		if(g_theEndGameDB->Get(i)->ExactlyOneRequired() &&
+		if(endgamedb_Get()->Get(i)->ExactlyOneRequired() &&
 		   m_numBuilt[i] < 1)
 			return FALSE;
 	}
@@ -167,7 +167,7 @@ void EndGame::BeginTurn()
 {
 	SlicObject *so;
 
-	if(m_currentStage < 0 || m_currentStage >= g_theEndGameDB->GetNumStages())
+	if(m_currentStage < 0 || m_currentStage >= endgamedb_Get()->GetNumStages())
 		return;
 
 	if(GetCataclysmChance() > 0) {
@@ -250,7 +250,7 @@ void EndGame::AdvanceStage()
 	bool openScreen = true;
 
 	m_currentStage++;
-	if(m_currentStage >= g_theEndGameDB->GetNumStages()) {
+	if(m_currentStage >= endgamedb_Get()->GetNumStages()) {
 
 		SlicObject *so = new SlicObject("309EndGameWon");
 		so->AddAllRecipientsBut(m_owner);
@@ -265,7 +265,7 @@ void EndGame::AdvanceStage()
 
 		g_player[m_owner]->m_score->SetWonByWonder();
 		g_player[m_owner]->GameOver(GAME_OVER_WON_WORMHOLE, -1);
-		m_currentStage = g_theEndGameDB->GetNumStages();
+		m_currentStage = endgamedb_Get()->GetNumStages();
 		openScreen = false;
 		gamesettings_Get()->SetAlienEndGameWon(m_owner);
 
@@ -318,8 +318,8 @@ sint32 EndGame::GetCataclysmChance()
 	sint32 i;
 	sint32 maxChance = 0;
 
-	for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-		const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+	for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+		const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 		if(egrec->GetCataclysmNum() > 0) {
 			sint32 chance = (egrec->GetCataclysmNum() - m_numBuilt[i]) * egrec->GetCataclysmPercent();
 			if(chance > maxChance)
@@ -334,8 +334,8 @@ sint32 EndGame::GetTurnsForNextStage()
 
 	sint32 i;
 	sint32 min = -1;
-	for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-		const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+	for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+		const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 		if(egrec->ControlsSpeed()) {
 			if(m_numBuilt[i] < 0) {
 
@@ -352,8 +352,8 @@ sint32 EndGame::GetTurnsForNextStage()
 BOOL EndGame::HaveEnoughECDs()
 {
     sint32 i;
-    for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-        const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+    for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+        const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "ET_COMMUNICATION_DEVICE"))
 			continue;
 
@@ -367,8 +367,8 @@ BOOL EndGame::HaveEnoughECDs()
 BOOL EndGame::HaveEnoughFields()
 {
     sint32 i;
-    for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-        const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+    for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+        const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "CONTAINMENT_FIELD"))
 			continue;
 
@@ -382,8 +382,8 @@ BOOL EndGame::HaveEnoughFields()
 BOOL EndGame::HaveMaxSplicers()
 {
     sint32 i;
-    for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-        const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+    for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+        const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 		if(strcmp(g_theStringDB->GetIdStr(egrec->m_name), "GENE_SEQUENCER"))
 			continue;
 
@@ -399,8 +399,8 @@ BOOL EndGame::HaveMaxSplicers()
 BOOL EndGame::HaveAllPrerequisites()
 {
     sint32 i;
-    for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-        const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+    for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+        const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 
         if(egrec->RequiredToAdvanceFromStage(m_currentStage) > m_numBuilt[i]) {
             return FALSE;
@@ -413,12 +413,12 @@ BOOL EndGame::MetRequirementsForNextStage()
 {
 
 
-	if(m_currentStage >= g_theEndGameDB->GetNumStages()) {
+	if(m_currentStage >= endgamedb_Get()->GetNumStages()) {
 
 		return TRUE;
 	}
 
-	if(m_currentStage >= g_theEndGameDB->GetNumStages() - 1) {
+	if(m_currentStage >= endgamedb_Get()->GetNumStages() - 1) {
 
 		if(!g_player[m_owner]->m_advances->HasAdvance(advanceutil_GetAlienLifeAdvance())) {
 			return FALSE;
@@ -510,7 +510,7 @@ void EndGame::UpdateDisplayState(void)
 
 	m_savedCurrentStage = m_currentStage;
 
-	for (i=0; i < g_theEndGameDB->m_nRec; i++) {
+	for (i=0; i < endgamedb_Get()->m_nRec; i++) {
 		m_savedNumBuilt[i] = m_numBuilt[i];
     }
 }
@@ -518,8 +518,8 @@ void EndGame::UpdateDisplayState(void)
 BOOL EndGame::HasLab()
 {
 	sint32 i;
-	for(i = 0; i < g_theEndGameDB->m_nRec; i++) {
-		if(g_theEndGameDB->Get(i)->NotifyLabBuilt()) {
+	for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
+		if(endgamedb_Get()->Get(i)->NotifyLabBuilt()) {
 			if(m_numBuilt[i] > 0) {
 				return TRUE;
 			}

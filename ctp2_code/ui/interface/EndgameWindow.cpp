@@ -755,9 +755,9 @@ void EndGameWindow::Update(EndGame *endGame)
 
 	static char textBuffer[256];
 
-	for(int i = 0; i < g_theEndGameDB->m_nRec; i++) {
+	for(int i = 0; i < endgamedb_Get()->m_nRec; i++) {
 
-		const EndGameRecord *egrec = g_theEndGameDB->Get(i);
+		const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 
 		const char *constName = g_theStringDB->GetIdStr(egrec->GetName());
 
@@ -775,27 +775,27 @@ void EndGameWindow::Update(EndGame *endGame)
 			SetContainmentFields(endGame->GetNumberBuilt(i), endGame->GetNumberShown(i), soundID);
 
 			sint32 numberRequired = ((endGame->GetStage() < 0) ||
-				(endGame->GetStage() >= g_theEndGameDB->GetNumStages())) ? 0 :
-				g_theEndGameDB->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
+				(endGame->GetStage() >= endgamedb_Get()->GetNumStages())) ? 0 :
+				endgamedb_Get()->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
 			snprintf(textBuffer, sizeof(textBuffer), "%d/%d/%d", endGame->GetNumberBuilt(i),
-				numberRequired, g_theEndGameDB->Get(i)->GetMaxAllowed());
+				numberRequired, endgamedb_Get()->Get(i)->GetMaxAllowed());
 			m_containmentFieldRatio->SetText(textBuffer);
 		}
 		if(!strcmp(m_ECDName, requirementName)) {
 			SetECDs(endGame->GetNumberBuilt(i), endGame->GetNumberShown(i), soundID);
 
 			sint32 numberRequired = ((endGame->GetStage() < 0) ||
-				(endGame->GetStage() >= g_theEndGameDB->GetNumStages())) ? 0 :
-				g_theEndGameDB->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
+				(endGame->GetStage() >= endgamedb_Get()->GetNumStages())) ? 0 :
+				endgamedb_Get()->Get(i)->RequiredToAdvanceFromStage(endGame->GetStage());
 			snprintf(textBuffer, sizeof(textBuffer), "%d/%d/%d", endGame->GetNumberBuilt(i),
-				numberRequired, g_theEndGameDB->Get(i)->GetMaxAllowed());
+				numberRequired, endgamedb_Get()->Get(i)->GetMaxAllowed());
 			m_ecdRatio->SetText(textBuffer);
 		}
 		if(!strcmp(m_splicerName, requirementName)) {
 			SetSplicers(endGame->GetNumberBuilt(i), endGame->GetNumberShown(i), soundID);
 
 			snprintf(textBuffer, sizeof(textBuffer), "%d/-/%d", endGame->GetNumberBuilt(i),
-				g_theEndGameDB->Get(i)->GetMaxAllowed());
+				endgamedb_Get()->Get(i)->GetMaxAllowed());
 			m_splicerRatio->SetText(textBuffer);
 		}
 	}
@@ -803,7 +803,7 @@ void EndGameWindow::Update(EndGame *endGame)
 	SetStage(endGame->GetStage(), endGame->GetDisplayedStage());
 
 	sint32 turnsForNextStage = 0;
-	if((endGame->GetStage() >= 0) && (endGame->GetStage() < g_theEndGameDB->GetNumStages()))
+	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
 	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan();
@@ -833,7 +833,7 @@ void EndGameWindow::UpdateTurn(EndGame *endGame)
 	static char textBuffer[256];
 
 	sint32 turnsForNextStage = 0;
-	if((endGame->GetStage() >= 0) && (endGame->GetStage() < g_theEndGameDB->GetNumStages()))
+	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
 	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan();

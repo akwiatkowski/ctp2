@@ -5501,7 +5501,7 @@ SFN_ERROR Slic_AddEndgameToBuildList::Call(SlicArgList *args)
 	if(!g_theUnitPool->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(type < 0 || type >= g_theEndGameDB->m_nRec)
+	if(type < 0 || type >= endgamedb_Get()->m_nRec)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	city.BuildEndGame(type);
@@ -5638,7 +5638,7 @@ SFN_ERROR Slic_KillEndgameFromBuildList::Call(SlicArgList *args)
 	if(!g_theUnitPool->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(type < 0 || type >= g_theEndGameDB->m_nRec)
+	if(type < 0 || type >= endgamedb_Get()->m_nRec)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	BuildQueue *bq = city.GetData()->GetCityData()->GetBuildQueue();

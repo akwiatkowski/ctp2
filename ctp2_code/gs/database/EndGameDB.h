@@ -28,6 +28,13 @@ public:
 
 };
 
-extern EndGameDatabase *g_theEndGameDB;
+// Definition is file-scope `static` in EndGameDB.cpp.  The pointer is
+// initialised to NULL and never assigned anywhere in the current
+// codebase — the EndGameDatabase feature was scaffolded but the
+// init/load path was never wired up.  Reads still happen (endgame.cpp,
+// EndgameWindow.cpp, etc.) but with the pointer NULL they fall through
+// to no-op stages.  The accessor preserves that behaviour.
+EndGameDatabase * endgamedb_Get(void);
+void              endgamedb_Set(EndGameDatabase *p);
 
 #endif

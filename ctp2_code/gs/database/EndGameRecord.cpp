@@ -124,7 +124,7 @@ BOOL EndGameRecord::ParseRecord(Token *token)
 	sint32 i;
 	MBCHAR str[_MAX_PATH];
 	s_abort_endgame_parse = FALSE;
-	m_numStages = g_theEndGameDB->GetNumStages();
+	m_numStages = endgamedb_Get()->GetNumStages();
 	m_requiredForStage = new sint32[m_numStages];
 	m_turnsPerStage = new sint32[m_numStages];
 	memset(m_requiredForStage, 0, sizeof(sint32) * m_numStages);

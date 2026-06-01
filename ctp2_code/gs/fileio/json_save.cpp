@@ -112,7 +112,7 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/TradeOffer.h"
 #include "robot/pathing/Path.h"
-#include "gs/database/EndGameDB.h"          // g_theEndGameDB->m_nRec
+#include "gs/database/EndGameDB.h"          // endgamedb_Get()->m_nRec
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/core/game_observer.h"          // NotifyUnitSpawned
 #include "gs/world/cellunitlist.h"          // CellUnitList (ArmyData base)
@@ -2165,12 +2165,12 @@ void from_json(nlohmann::json const &j, SlicRecord &r)
 // Phase F-2 — EndGame
 //
 // Mirrors EndGame::Serialize.  Scalars + two num-built arrays sized
-// by g_theEndGameDB->m_nRec.  (TopTen bridge is inline in TopTen.h
+// by endgamedb_Get()->m_nRec.  (TopTen bridge is inline in TopTen.h
 // since it has no DB dependency.)
 
 void to_json(nlohmann::json &j, EndGame const &g)
 {
-    sint32 const nRec = g_theEndGameDB ? g_theEndGameDB->m_nRec : 0;
+    sint32 const nRec = endgamedb_Get() ? endgamedb_Get()->m_nRec : 0;
     std::vector<sint32> num_built;
     std::vector<sint32> saved_num_built;
     if (g.m_numBuilt)

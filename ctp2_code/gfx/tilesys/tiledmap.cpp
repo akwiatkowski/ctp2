@@ -2402,7 +2402,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 		}
 		//end emod
 
-		if (g_show_ai_dbg || (g_isScenario && g_showUnitLabels) )
+		if (g_show_ai_dbg || (g_isScenario && show_unit_labels_Get()) )
 		{
 			MapPoint pos = actor->GetPos();
 

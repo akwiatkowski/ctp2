@@ -247,7 +247,12 @@ extern sint32 g_isScenario;
 extern sint32 g_useScenarioCivs;
 extern MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 
-extern sint32 g_showUnitLabels;
+// Lifecycle: definition lives in gs/fileio/GameFile.cpp as file-scope
+// `static`.  Read sites use show_unit_labels_Get(); the scenario editor
+// + GameFile load/save paths flip it via show_unit_labels_Set().
+bool show_unit_labels_Get(void);
+void show_unit_labels_Set(bool value);
+
 extern sint32 g_startingPlayer;
 
 sint32 gamefile_CurrentVersion();

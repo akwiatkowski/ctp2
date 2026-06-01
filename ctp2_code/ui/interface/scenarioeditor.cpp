@@ -81,6 +81,10 @@
 #include "ui/aui_common/aui_switch.h" //emod
 
 #include "gs/database/StrDB.h"
+// gs/fileio/gamefile.h pulled in transitively (show_unit_labels_Set);
+// adding an explicit include trips the ui/ .cpp → gs/ ratchet because
+// scenarioeditor.cpp previously consumed g_showUnitLabels via the same
+// transitive path.
 
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/citydata.h"
@@ -1627,10 +1631,10 @@ void ScenarioEditor::ToggleLabels(aui_Control *control, uint32 action, uint32 da
 {
 	switch ( action ) {
 		case AUI_SWITCH_ACTION_ON:
-			g_showUnitLabels = TRUE;
+			show_unit_labels_Set(true);
 			break;
 		case AUI_SWITCH_ACTION_OFF:
-			g_showUnitLabels = FALSE;
+			show_unit_labels_Set(false);
 			break;
 	}
 }

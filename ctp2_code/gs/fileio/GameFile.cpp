@@ -182,7 +182,11 @@ sint32 g_saveFileVersion = -1;
 sint32 g_startInfoType = STARTINFOTYPE_NONE;
 sint32 g_isScenario = FALSE;
 sint32 g_useScenarioCivs = 2;
-sint32 g_showUnitLabels = FALSE;
+static sint32 g_showUnitLabels = FALSE;
+
+bool show_unit_labels_Get(void)        { return g_showUnitLabels != FALSE; }
+void show_unit_labels_Set(bool value)  { g_showUnitLabels = value ? TRUE : FALSE; }
+
 sint32 g_startingPlayer = -1;
 
 MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];

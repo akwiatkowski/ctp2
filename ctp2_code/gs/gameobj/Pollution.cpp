@@ -54,7 +54,6 @@
 
 #include "gs/gameobj/installationtree.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"
 
 #include "gs/events/GameEventManager.h"
@@ -522,7 +521,7 @@ uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 ro
 	if (g_player[player] == NULL)
 		return 0;
 
-	sint32 current_round = NewTurnCount::GetCurrentRound();
+	sint32 current_round = g_turn->GetSessionRound();
 
 	if (current_round < round)
 		return 0;

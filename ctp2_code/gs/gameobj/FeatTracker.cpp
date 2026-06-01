@@ -35,7 +35,7 @@
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/safety.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "FeatRecord.h"
 #include "gs/gameobj/Player.h"
@@ -82,7 +82,7 @@ Feat::Feat(sint32 type, sint32 player, sint32 round)
 	m_player	(player)
 {
 	m_round = (USE_CURRENT_ROUND == round)
-	          ? NewTurnCount::GetCurrentRound()
+	          ? g_turn->GetSessionRound()
 	          : round;
 }
 
@@ -491,7 +491,7 @@ void FeatTracker::BeginTurn(sint32 player)
 		if(feat->GetPlayer() == player)
 		{
 			const FeatRecord *rec = g_theFeatDB->Get(feat->GetType());
-			if(rec->GetDuration() + feat->GetRound() <= NewTurnCount::GetCurrentRound())
+			if(rec->GetDuration() + feat->GetRound() <= g_turn->GetSessionRound())
 			{
 				walk.Remove();
 				RemoveFeatFromEffectLists(feat);

@@ -5,7 +5,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/events/GameEventArgList.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/UnitData.h"
 
 EventTracker::EventTracker()
@@ -106,7 +106,7 @@ STDEHANDLER(TrackCreateWonderEvent)
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 	if(!args->GetInt(0, wonder)) return GEV_HD_Continue;
 
-	eventtracker_Get()->AddEvent(EVENT_TYPE_WONDER,c->GetOwner(),NewTurnCount::GetCurrentRound(),wonder);
+	eventtracker_Get()->AddEvent(EVENT_TYPE_WONDER,c->GetOwner(),g_turn->GetSessionRound(),wonder);
 
 	return GEV_HD_Continue;
 }

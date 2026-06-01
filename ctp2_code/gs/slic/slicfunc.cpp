@@ -366,12 +366,12 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 	sint32 value;
 	MapPoint pos;
 
-	Assert(m_argValue.size() == g_gevManager->GetNumArgs(ev));
+	Assert(m_argValue.size() == gevmanager_Get()->GetNumArgs(ev));
 
 	for (size_t i = 0; i < Count(); ++i)
 	{
 		EVENTLOG(("%s ", g_gevManager->ArgCharToName(g_gevManager->ArgChar(ev, i))));
-		switch(g_gevManager->ArgChar(ev, i)) {
+		switch(gevmanager_Get()->ArgChar(ev, i)) {
 			case GEAC_ARMY:
 				if(GetArmy(i, a)) {
 					newArgs->Add(new GameEventArgument(GEA_Army, a));
@@ -528,10 +528,10 @@ SFN_ERROR Slic_Text::Call(SlicArgList *args)
 	DPRINTF(k_DBG_SLIC, ("Slic_Text: %s\n",
 						 g_theStringDB->GetNameStr(args->m_argValue[0].m_int)));
 
-	if(g_slicEngine->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	g_slicEngine->GetContext()->SetMessageText(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageText(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -563,14 +563,14 @@ SFN_ERROR Slic_AddMessage::Call(SlicArgList *args)
 						 args->m_argValue[1].m_segment->GetName()));
 
 	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
-									 g_slicEngine->GetContext());
+									 slicengine_Get()->GetContext());
 	obj->AddRecipient(recip);
 	obj->CopyFromBuiltins();
 	if (obj->GetNumPlayers() == 0)
 	{
 		obj->AddPlayer(recip);
 	}
-	g_slicEngine->Execute(obj);
+	slicengine_Get()->Execute(obj);
 
 	return SFN_ERROR_OK;
 }
@@ -603,14 +603,14 @@ SFN_ERROR Slic_Message::Call(SlicArgList *args)
 						 args->m_argValue[1].m_segment->GetName()));
 
 	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
-									 g_slicEngine->GetContext());
+									 slicengine_Get()->GetContext());
 	obj->AddRecipient(recip);
 	obj->CopyFromBuiltins();
 	if (obj->GetNumPlayers() == 0)
 	{
 		obj->AddPlayer(recip);
 	}
-	g_slicEngine->Execute(obj);
+	slicengine_Get()->Execute(obj);
 
 	return SFN_ERROR_OK;
 }
@@ -626,9 +626,9 @@ SFN_ERROR Slic_MessageAll::Call(SlicArgList *args)
 	DPRINTF(k_DBG_SLIC, ("Slic_MessageAll: %s\n",
 						 args->m_argValue[0].m_segment->GetName()));
 	SlicObject *obj = new SlicObject(args->m_argValue[0].m_segment,
-									 g_slicEngine->GetContext());
+									 slicengine_Get()->GetContext());
 	obj->AddAllRecipients();
-	g_slicEngine->Execute(obj);
+	slicengine_Get()->Execute(obj);
 	return SFN_ERROR_OK;
 }
 
@@ -650,9 +650,9 @@ SFN_ERROR Slic_MessageAllBut::Call(SlicArgList *args)
 						 args->m_argValue[1].m_segment->GetName()));
 
 	SlicObject *obj = new SlicObject(args->m_argValue[1].m_segment,
-									 g_slicEngine->GetContext());
+									 slicengine_Get()->GetContext());
 	obj->AddAllRecipientsBut(antiRecip);
-	g_slicEngine->Execute(obj);
+	slicengine_Get()->Execute(obj);
 	return SFN_ERROR_OK;
 }
 
@@ -718,7 +718,7 @@ SFN_ERROR Slic_EyePoint::Call(SlicArgList *args)
 		ep = new SlicEyePoint(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
 							  0, NULL);
 	}
-	g_slicEngine->GetContext()->AddEyePoint(ep);
+	slicengine_Get()->GetContext()->AddEyePoint(ep);
 
 	return SFN_ERROR_OK;
 }
@@ -915,7 +915,7 @@ SFN_ERROR Slic_AddCity::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_BUILTIN;
 	}
 
-	g_slicEngine->GetContext()->AddCity(city);
+	slicengine_Get()->GetContext()->AddCity(city);
 	return SFN_ERROR_OK;
 }
 
@@ -1247,12 +1247,12 @@ SFN_ERROR Slic_Kill::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
 
-	g_slicEngine->KillCurrentMessage();
+	slicengine_Get()->KillCurrentMessage();
 	return SFN_ERROR_OK;
 }
 
@@ -1262,12 +1262,12 @@ SFN_ERROR Slic_MinimizeAction::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
 
-	g_slicEngine->AddCurrentMessage();
+	slicengine_Get()->AddCurrentMessage();
 	return SFN_ERROR_OK;
 }
 
@@ -1276,7 +1276,7 @@ SFN_ERROR Slic_DeactivateTutorial::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	g_slicEngine->SetTutorialActive(FALSE);
+	slicengine_Get()->SetTutorialActive(FALSE);
 	return SFN_ERROR_OK;
 }
 
@@ -1460,7 +1460,7 @@ SFN_ERROR Slic_Accept::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
@@ -1480,7 +1480,7 @@ SFN_ERROR Slic_Reject::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
@@ -1512,7 +1512,7 @@ SFN_ERROR Slic_EyeDropdown::Call(SlicArgList *args)
 	startAt--;
 
 	SlicSymbolData *sym = args->m_argValue[1].m_symbol;
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 #endif
 
 	return SFN_ERROR_OK;
@@ -1624,7 +1624,7 @@ SFN_ERROR Slic_Research::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
@@ -1661,7 +1661,7 @@ SFN_ERROR Slic_MessageType::Call(SlicArgList *args)
 		msgTypeSelectedIndex= 1;
 	}
 
-	g_slicEngine->GetContext()->SetMessageType((MESSAGE_TYPE)msgTypeIndex,
+	slicengine_Get()->GetContext()->SetMessageType((MESSAGE_TYPE)msgTypeIndex,
 											   (MESSAGE_TYPE)msgTypeSelectedIndex);
 	return SFN_ERROR_OK;
 }
@@ -1674,10 +1674,10 @@ SFN_ERROR Slic_Caption::Call(SlicArgList *args)
 	if(args->m_argValue[0].m_type != SA_TYPE_STRING)
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(g_slicEngine->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	g_slicEngine->GetContext()->SetMessageCaption(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageCaption(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -1691,7 +1691,7 @@ SFN_ERROR Slic_Duration::Call(SlicArgList *args)
 	if(!args->GetInt(0, duration))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->GetContext()->SetMessageDuration(duration);
+	slicengine_Get()->GetContext()->SetMessageDuration(duration);
 
 	return SFN_ERROR_OK;
 }
@@ -1727,7 +1727,7 @@ SFN_ERROR Slic_AcceptTradeOffer::Call(SlicArgList *args)
 	if(!args->GetInt(0, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	TradeOffer offer = context->GetTradeOffer(index - 1);
 	if(tradeofferpool_Get()->IsValid(offer)) {
 
@@ -1751,7 +1751,7 @@ SFN_ERROR Slic_DontAcceptTradeOffer::Call(SlicArgList *args)
 	if(!args->GetInt(0, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	sint32 player = context->GetPlayer(0);
 
 
@@ -1770,7 +1770,7 @@ SFN_ERROR Slic_DontAcceptTradeOffer::Call(SlicArgList *args)
 	SlicObject *so = new SlicObject("91OfferRejected");
 	so->AddRecipient(player);
 	so->AddCivilisation(context->GetRecipient(0));
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 	return SFN_ERROR_OK;
 }
 
@@ -1784,7 +1784,7 @@ SFN_ERROR Slic_SetGovernment::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
@@ -1800,7 +1800,7 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	Unit u = context->GetUnit(0);
 	sint32 owner = u.GetOwner();
 
@@ -1841,9 +1841,9 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 
 	if(message == Message())
 		return SFN_ERROR_NOT_IN_BUTTON;
@@ -2002,7 +2002,7 @@ SFN_ERROR Slic_SendTradeBid::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	if(context->GetNumRecipients() < 1)
 		return SFN_ERROR_NOT_TRADE_BID;
 
@@ -2022,9 +2022,9 @@ SFN_ERROR Slic_SendTradeBid::Call(SlicArgList *args)
 								   context->GetCity(1),
 								   15);
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 	if(message != Message()) {
-		g_slicEngine->KillCurrentMessage();
+		slicengine_Get()->KillCurrentMessage();
 	}
 	return SFN_ERROR_OK;
 }
@@ -2034,7 +2034,7 @@ SFN_ERROR Slic_AcceptTradeBid::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	if(context->GetNumRecipients() < 1)
 		return SFN_ERROR_NOT_TRADE_BID;
 
@@ -2057,9 +2057,9 @@ SFN_ERROR Slic_AcceptTradeBid::Call(SlicArgList *args)
 									 context->GetCity(1),
 									 context->GetGold(0));
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 	if(message != Message()) {
-		g_slicEngine->KillCurrentMessage();
+		slicengine_Get()->KillCurrentMessage();
 	}
 	return SFN_ERROR_OK;
 }
@@ -2069,7 +2069,7 @@ SFN_ERROR Slic_RejectTradeBid::Call(SlicArgList *args)
 	if (args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	if(context->GetNumRecipients() < 1)
 		return SFN_ERROR_NOT_TRADE_BID;
 
@@ -2092,9 +2092,9 @@ SFN_ERROR Slic_RejectTradeBid::Call(SlicArgList *args)
 									 context->GetCity(1),
 									 context->GetGold(0));
 	Message message;
-	g_slicEngine->GetCurrentMessage(message);
+	slicengine_Get()->GetCurrentMessage(message);
 	if(message != Message()) {
-		g_slicEngine->KillCurrentMessage();
+		slicengine_Get()->KillCurrentMessage();
 	}
 
 	return SFN_ERROR_OK;
@@ -2105,7 +2105,7 @@ SFN_ERROR Slic_BreakAlliance::Call(SlicArgList *args)
 	if (args->Count() != 1)
 		return SFN_ERROR_NUM_ARGS;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 
 	if(context->GetNumRecipients() != 1)
 		return SFN_ERROR_NOT_SINGLE_RECIPIENT;
@@ -2155,8 +2155,8 @@ SFN_ERROR Slic_AddOrder::Call(SlicArgList *args)
 	}
 
 	UNIT_ORDER_TYPE order = UNIT_ORDER_NONE;
-	if(g_slicEngine->GetContext()->GetNumOrders() > 0) {
-		order = g_slicEngine->GetContext()->GetOrder(0);
+	if(slicengine_Get()->GetContext()->GetNumOrders() > 0) {
+		order = slicengine_Get()->GetContext()->GetOrder(0);
 	}
 	if(order == UNIT_ORDER_NONE)
 		order = UNIT_ORDER_MOVE_TO;
@@ -2212,7 +2212,7 @@ SFN_ERROR Slic_Abort::Call(SlicArgList *args)
 {
 	if(args->Count() > 0)
 		return SFN_ERROR_NUM_ARGS;
-	g_slicEngine->GetContext()->Abort();
+	slicengine_Get()->GetContext()->Abort();
 	return SFN_ERROR_OK;
 }
 
@@ -2220,7 +2220,7 @@ SFN_ERROR Slic_Show::Call(SlicArgList *args)
 {
 	if(args->Count() > 0)
 		return SFN_ERROR_NUM_ARGS;
-	g_slicEngine->GetContext()->SetInstant();
+	slicengine_Get()->GetContext()->SetInstant();
 	return SFN_ERROR_OK;
 }
 
@@ -2264,7 +2264,7 @@ SFN_ERROR Slic_DoPillageOwnLand::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit unit = g_slicEngine->GetContext()->GetUnit(0);
+	Unit unit = slicengine_Get()->GetContext()->GetUnit(0);
 
 	if(!unitpool_Get()->IsValid(unit)) {
 		return SFN_ERROR_OK;
@@ -2303,7 +2303,7 @@ SFN_ERROR Slic_DoFreeSlaves::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 
 	if(!unitpool_Get()->IsValid(city)) {
 		return SFN_ERROR_OK;
@@ -2636,7 +2636,7 @@ SFN_ERROR Slic_MessageClass::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	g_slicEngine->GetContext()->SetClass(type);
+	slicengine_Get()->GetContext()->SetClass(type);
 
 	return SFN_ERROR_OK;
 }
@@ -2711,10 +2711,10 @@ SFN_ERROR Slic_Title::Call(SlicArgList *args)
 	if(args->m_argValue[0].m_type != SA_TYPE_STRING)
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(g_slicEngine->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	g_slicEngine->GetContext()->SetMessageTitle(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageTitle(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -2779,7 +2779,7 @@ SFN_ERROR Slic_DontSave::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	g_slicEngine->GetContext()->SetDontSave();
+	slicengine_Get()->GetContext()->SetDontSave();
 	return SFN_ERROR_OK;
 }
 
@@ -3031,7 +3031,7 @@ SFN_ERROR Slic_DisableClose::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	g_slicEngine->GetContext()->DisableClose();
+	slicengine_Get()->GetContext()->DisableClose();
 
 	return SFN_ERROR_OK;
 }
@@ -3110,7 +3110,7 @@ SFN_ERROR Slic_AddGoods::Call(SlicArgList *args)
 	if(!res)
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	city.AddGoods(g_slicEngine->GetContext());
+	city.AddGoods(slicengine_Get()->GetContext());
 	return SFN_ERROR_OK;
 }
 
@@ -3162,7 +3162,7 @@ SFN_ERROR Slic_GoodCount::Call(SlicArgList *args)
 
 SFN_ERROR Slic_GoodVisibutik::Call(SlicArgList *args)
 {
-	return g_slicEngine->GetFunction("GoodCount")->Call(args);
+	return slicengine_Get()->GetFunction("GoodCount")->Call(args);
 }
 
 SFN_ERROR Slic_GoodCountTotal::Call(SlicArgList *args)
@@ -3194,7 +3194,7 @@ SFN_ERROR Slic_StartTimer::Call(SlicArgList *args)
 	if(!args->GetInt(1, duration))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->StartTimer(timer, duration);
+	slicengine_Get()->StartTimer(timer, duration);
 	return SFN_ERROR_OK;
 }
 
@@ -3207,7 +3207,7 @@ SFN_ERROR Slic_StopTimer::Call(SlicArgList *args)
 	if(!args->GetInt(0, timer))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->StopTimer(timer);
+	slicengine_Get()->StopTimer(timer);
 	return SFN_ERROR_OK;
 }
 
@@ -3220,7 +3220,7 @@ SFN_ERROR Slic_DisableMessageClass::Call(SlicArgList *args)
 	if(!args->GetInt(0, msgClass))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->DisableMessageClass(msgClass);
+	slicengine_Get()->DisableMessageClass(msgClass);
 	return SFN_ERROR_OK;
 }
 
@@ -3232,7 +3232,7 @@ SFN_ERROR Slic_EnableMessageClass::Call(SlicArgList *args)
 	sint32 msgClass;
 	if(!args->GetInt(0, msgClass))
 		return SFN_ERROR_TYPE_ARGS;
-	g_slicEngine->EnableMessageClass(msgClass);
+	slicengine_Get()->EnableMessageClass(msgClass);
 
 	return SFN_ERROR_OK;
 }
@@ -3356,7 +3356,7 @@ SFN_ERROR Slic_AddCityByIndex::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 	}
 
-	g_slicEngine->GetContext()->AddCity(g_player[owner]->m_all_cities->Access(index));
+	slicengine_Get()->GetContext()->AddCity(g_player[owner]->m_all_cities->Access(index));
 	return SFN_ERROR_OK;
 }
 
@@ -3454,7 +3454,7 @@ SFN_ERROR Slic_AddPops::Call(SlicArgList *args)
 	sint32 i;
 	if(count > 0) {
 		for (i=0; i<count; i++) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 								   GEA_City, city.m_id,
 								   GEA_End);
 
@@ -3950,7 +3950,7 @@ SFN_ERROR Slic_GetRandomNeighbor::Call(SlicArgList *args)
 //				args[1]				: the advance
 //				args[2] (optional)	: a reason why the advance is given
 //
-// Globals    : g_gevManager		: game event handler
+// Globals    : gevmanager_Get()	: game event handler
 //
 // Returns    : SFN_ERROR			: indication whether the command has been
 //									  passed to the game event handler
@@ -4008,7 +4008,7 @@ SFN_ERROR Slic_GrantAdvance::Call(SlicArgList *args)
 		}
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 						   GEV_GrantAdvance,
 						   GEA_Player,	player,
 						   GEA_Int,		adv,
@@ -4029,7 +4029,7 @@ SFN_ERROR Slic_AddUnit::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_BUILTIN;
 	}
 
-	g_slicEngine->GetContext()->AddUnit(u);
+	slicengine_Get()->GetContext()->AddUnit(u);
 	return SFN_ERROR_OK;
 }
 
@@ -4134,7 +4134,7 @@ SFN_ERROR Slic_SetPlayer::Call(SlicArgList *args)
 
 	index--;
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	context->SetPlayer(index, player);
 	return SFN_ERROR_OK;
 }
@@ -4274,7 +4274,7 @@ SFN_ERROR Slic_LoadGame::Call(SlicArgList *args)
 	char *string;
 	if(!args->GetString(0, string))
 		return SFN_ERROR_TYPE_ARGS;
-	g_slicEngine->SetLoadGame(string);
+	slicengine_Get()->SetLoadGame(string);
 
 	return SFN_ERROR_OK;
 }
@@ -4374,13 +4374,13 @@ SFN_ERROR Slic_IsInZOC::Call(SlicArgList *args)
 
 SFN_ERROR Slic_DisableChooseResearch::Call(SlicArgList *args)
 {
-	g_player[g_slicEngine->GetTutorialPlayer()]->m_disableChooseResearch = TRUE;
+	g_player[slicengine_Get()->GetTutorialPlayer()]->m_disableChooseResearch = TRUE;
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_EnableChooseResearch::Call(SlicArgList *args)
 {
-	g_player[g_slicEngine->GetTutorialPlayer()]->m_disableChooseResearch = FALSE;
+	g_player[slicengine_Get()->GetTutorialPlayer()]->m_disableChooseResearch = FALSE;
 	return SFN_ERROR_OK;
 }
 
@@ -4390,7 +4390,7 @@ SFN_ERROR Slic_SetTimerGranularity::Call(SlicArgList *args)
 	if(!args->GetInt(0, gran))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->SetTimerGranularity(gran);
+	slicengine_Get()->SetTimerGranularity(gran);
 	return SFN_ERROR_OK;
 }
 
@@ -4405,8 +4405,8 @@ SFN_ERROR Slic_KillEyepointMessage::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if(messagepool_Get()->IsValid(g_slicEngine->GetEyepointMessage())) {
-		g_slicEngine->GetEyepointMessage().Kill();
+	if(messagepool_Get()->IsValid(slicengine_Get()->GetEyepointMessage())) {
+		slicengine_Get()->GetEyepointMessage().Kill();
 	}
 	return SFN_ERROR_OK;
 }
@@ -4430,7 +4430,7 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	if(!g_player[context->GetPlayer(0)]) {
 		return SFN_ERROR_TYPE_ARGS;
 	}
@@ -4475,7 +4475,7 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	if(!g_player[context->GetPlayer(0)]) {
 		return SFN_ERROR_TYPE_ARGS;
 	}
@@ -4518,7 +4518,7 @@ SFN_ERROR Slic_UseDirector::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	g_slicEngine->GetContext()->SetUseDirector();
+	slicengine_Get()->GetContext()->SetUseDirector();
 	return SFN_ERROR_OK;
 }
 
@@ -4559,7 +4559,7 @@ SFN_ERROR Slic_SetUnit::Call(SlicArgList *args)
 
 	index--;
 
-	g_slicEngine->GetContext()->SetUnit(index, u);
+	slicengine_Get()->GetContext()->SetUnit(index, u);
 	return SFN_ERROR_OK;
 }
 
@@ -4595,7 +4595,7 @@ SFN_ERROR Slic_SetUnitByIndex::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	index--;
-	g_slicEngine->GetContext()->SetUnit(index, g_player[player]->m_all_units->Access(unitIndex));
+	slicengine_Get()->GetContext()->SetUnit(index, g_player[player]->m_all_units->Access(unitIndex));
 	return SFN_ERROR_OK;
 }
 
@@ -4619,7 +4619,7 @@ SFN_ERROR Slic_SetCity::Call(SlicArgList *args)
 
 	index--;
 
-	g_slicEngine->GetContext()->SetCity(index, c);
+	slicengine_Get()->GetContext()->SetCity(index, c);
 	return SFN_ERROR_OK;
 }
 
@@ -4655,7 +4655,7 @@ SFN_ERROR Slic_SetCityByIndex::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 
 	index--;
-	g_slicEngine->GetContext()->SetCity(index, g_player[player]->m_all_cities->Access(cityIndex));
+	slicengine_Get()->GetContext()->SetCity(index, g_player[player]->m_all_cities->Access(cityIndex));
 	return SFN_ERROR_OK;
 }
 
@@ -4672,7 +4672,7 @@ SFN_ERROR Slic_SetLocation::Call(SlicArgList *args)
 	if(!args->GetPos(1, point))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->GetContext()->SetLocation(index, point);
+	slicengine_Get()->GetContext()->SetLocation(index, point);
 	return SFN_ERROR_OK;
 }
 
@@ -4739,7 +4739,7 @@ SFN_ERROR Slic_SetOrder::Call(SlicArgList *args)
 
 	index--;
 
-	g_slicEngine->GetContext()->SetOrder(index, (UNIT_ORDER_TYPE)order);
+	slicengine_Get()->GetContext()->SetOrder(index, (UNIT_ORDER_TYPE)order);
 	return SFN_ERROR_OK;
 }
 
@@ -5114,9 +5114,9 @@ SFN_ERROR Slic_SetActionKey::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(keystring[0] != '^') {
-		g_slicEngine->SetTriggerKey(index - 1, keystring[0]);
+		slicengine_Get()->SetTriggerKey(index - 1, keystring[0]);
 	} else {
-		g_slicEngine->SetTriggerKey(index - 1, keystring[1] + 128);
+		slicengine_Get()->SetTriggerKey(index - 1, keystring[1] + 128);
 	}
 	return SFN_ERROR_OK;
 }
@@ -5718,7 +5718,7 @@ SFN_ERROR Slic_SetString::Call(SlicArgList *args)
 	if(!str)
 		return SFN_ERROR_INTERNAL;
 
-	g_slicEngine->GetContext()->SetAction(index, str);
+	slicengine_Get()->GetContext()->SetAction(index, str);
 	return SFN_ERROR_OK;
 }
 
@@ -5741,7 +5741,7 @@ SFN_ERROR Slic_SetStringByDBIndex::Call(SlicArgList *args)
 
 	index--;
 
-	g_slicEngine->GetContext()->SetAction(index, str);
+	slicengine_Get()->GetContext()->SetAction(index, str);
 	return SFN_ERROR_OK;
 }
 
@@ -5790,7 +5790,7 @@ SFN_ERROR Slic_BlankScreen::Call(SlicArgList *args)
 	if(!args->GetInt(0, blank))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_slicEngine->BlankScreen(blank != 0);
+	slicengine_Get()->BlankScreen(blank != 0);
 	if (!blank && g_gameObservers) {
 		// UI build re-selects the first unit/city, recenters the map,
 		// and reshows the radar + control panel.  Headless: no-op.
@@ -6190,7 +6190,7 @@ SFN_ERROR Slic_AddFeat::Call(SlicArgList *args)
 		return SFN_ERROR_OUT_OF_RANGE;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 						   GEA_Int, feat,
 						   GEA_Player, player,
 						   GEA_End);
@@ -6540,16 +6540,16 @@ SFN_ERROR Slic_FinishImprovements::Call(SlicArgList *args)
 
 	Cell *cell = world_Get()->GetCell(pos);
 
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 
 	for (sint32 i = 0; i < cell->GetNumImprovements(); i++)
     {
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_ImprovementComplete,
 							   GEA_Improvement, cell->AccessImprovement(i),
 							   GEA_End);
 	}
-	g_gevManager->Resume();
+	gevmanager_Get()->Resume();
 
 	return SFN_ERROR_OK;
 }
@@ -6640,9 +6640,9 @@ SFN_ERROR Slic_DestroyBuilding::Call(SlicArgList *args)
 	if(!args->GetInt(1, building))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 	city->GetCityData()->DestroyImprovement(building);
-	g_gevManager->Resume();
+	gevmanager_Get()->Resume();
 	return SFN_ERROR_OK;
 }
 
@@ -6859,7 +6859,7 @@ SFN_ERROR Slic_FreeAllSlaves::Call(SlicArgList *args)
 	if (args->Count() > 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 	if (!city.IsValid())
     {
 		return SFN_ERROR_OK;
@@ -7246,7 +7246,7 @@ SFN_ERROR Slic_AddSlaves::Call(SlicArgList *args)
 	sint32 i;
 	if(count > 0) {
 		for (i=0;  i<count; i++) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 						   GEA_City, city.m_id,
 						   GEA_Player, victim,
 						   GEA_End);
@@ -7271,7 +7271,7 @@ SFN_ERROR Slic_KillCity::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 	if (!city.IsValid())
     {
 		return SFN_ERROR_OK;
@@ -7300,7 +7300,7 @@ SFN_ERROR Slic_Pillage::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 
 	if (!city.IsValid())
     {
@@ -7365,7 +7365,7 @@ SFN_ERROR Slic_Plunder::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 	if (!city.IsValid())
     {
 		return SFN_ERROR_OK;
@@ -7429,7 +7429,7 @@ SFN_ERROR Slic_Liberate::Call(SlicArgList *args)
     if (args->Count() > 0)
         return SFN_ERROR_NUM_ARGS;
 
-	Unit city = g_slicEngine->GetContext()->GetCity(0);
+	Unit city = slicengine_Get()->GetContext()->GetCity(0);
 
 	if (!city.IsValid())
     {

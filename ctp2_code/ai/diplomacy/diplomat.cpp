@@ -80,7 +80,6 @@
 #include "AdvanceRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/utility/newturncount.h"
 #include "ai/diplomacy/ProposalAnalysis.h"
 #include "PersonalityRecord.h"
 #include "DiplomacyRecord.h"
@@ -973,7 +972,7 @@ void Diplomat::BeginTurn()
 			{
 				if (m_diplomcyVictoryCompleteTurn > 0)
 				{
-					if (m_diplomcyVictoryCompleteTurn <= NewTurnCount::GetCurrentRound())
+					if (m_diplomcyVictoryCompleteTurn <= g_turn->GetSessionRound())
 						g_player[m_playerId]->GameOver(GAME_OVER_WON_DIPLOMACY, -1);
 				}
 				else
@@ -982,7 +981,7 @@ void Diplomat::BeginTurn()
 					(void) rec->GetTurnsToActivate(turns_to_activate);
 
 					m_diplomcyVictoryCompleteTurn = static_cast<sint16>
-							(NewTurnCount::GetCurrentRound() + turns_to_activate);
+							(g_turn->GetSessionRound() + turns_to_activate);
 				}
 			}
 			else
@@ -1000,7 +999,7 @@ void Diplomat::LogRegardEvent( const PLAYER_INDEX & foreignerId,
 					 const sint16 duration) {
 
 	RegardEvent regardEvent(static_cast<ai::Regard>(regardDelta),
-							static_cast<sint16>(NewTurnCount::GetCurrentRound()+1), explain, duration);
+							static_cast<sint16>(g_turn->GetSessionRound()+1), explain, duration);
 	m_foreigners[foreignerId].LogRegardEvent(type, regardEvent);
 }
 
@@ -1027,7 +1026,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		break;
 
 	case PROPOSAL_REQUEST_STOP_PIRACY:
-		SetColdwarAttack(foreignerId, (sint16) NewTurnCount::GetCurrentRound());
+		SetColdwarAttack(foreignerId, (sint16) g_turn->GetSessionRound());
 
 		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_STOP_PIRACY", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
@@ -1074,7 +1073,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		LogViolationEvent(foreignerId, PROPOSAL_TREATY_RESEARCH_PACT);
 		LogViolationEvent(foreignerId, PROPOSAL_TREATY_POLLUTION_PACT);
 
-		SetHotwarAttack(foreignerId, (sint16) NewTurnCount::GetCurrentRound());
+		SetHotwarAttack(foreignerId, (sint16) g_turn->GetSessionRound());
 
 		trust_message = "TrustLossViolatedCeaseFire";
 		act_of_war = true;
@@ -1354,7 +1353,7 @@ void Diplomat::RecomputeRegard()
 
 			m_foreigners[foreigner].RecomputeRegard
                 (m_diplomacy[foreigner],
-				 NewTurnCount::GetCurrentRound(),
+				 g_turn->GetSessionRound(),
 				 baseRegard
                 );
 		}
@@ -1441,7 +1440,7 @@ sint32 Diplomat::AddAgreement(const PLAYER_INDEX & foreignerId)
 	negotiation_event.proposal = sender_proposal;
 	negotiation_event.response = receiver_response;
 	negotiation_event.agreement = agreement;
-	negotiation_event.round = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+	negotiation_event.round = static_cast<sint16>(g_turn->GetSessionRound());
 	AddNewNegotiationEvent(foreignerId, negotiation_event);
 
 	if (Execute_Agreement( agreement ))
@@ -1827,7 +1826,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 	ai::Agreement agreement;
 	agreement.senderId = m_playerId;
 	agreement.receiverId = foreignerId;
-	agreement.start = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+	agreement.start = static_cast<sint16>(g_turn->GetSessionRound());
 	agreement.end = -1;
 	agreement.proposal.first_type = PROPOSAL_TREATY_DECLARE_WAR;
 
@@ -1877,7 +1876,7 @@ void Diplomat::SetEmbargo(const PLAYER_INDEX foreignerId, const bool state)
 		threat.id = GetNextId();
 		threat.senderId = m_playerId;
 		threat.receiverId = foreignerId;
-		threat.start = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+		threat.start = static_cast<sint16>(g_turn->GetSessionRound());
 		threat.end = -1;
 
 		m_threats.push_back(threat);
@@ -1957,7 +1956,7 @@ void Diplomat::AddRejection(const PLAYER_INDEX & foreignerId)
 	NegotiationEvent negotiation_event;
 	negotiation_event.proposal = sender_proposal;
 	negotiation_event.response = receiver_response;
-	negotiation_event.round = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+	negotiation_event.round = static_cast<sint16>(g_turn->GetSessionRound());
 	AddNewNegotiationEvent(foreignerId, negotiation_event);
 }
 
@@ -2018,14 +2017,14 @@ sint32 Diplomat::AddThreat(const PLAYER_INDEX & foreignerId) {
 	threat.id = GetNextId();
 	threat.senderId = m_playerId;
 	threat.receiverId = foreignerId;
-	threat.start = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+	threat.start = static_cast<sint16>(g_turn->GetSessionRound());
 	threat.end = -1;
 
 	NegotiationEvent negotiation_event;
 	negotiation_event.proposal = sender_proposal;
 	negotiation_event.response = receiver_response;
 	negotiation_event.threat = threat;
-	negotiation_event.round = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+	negotiation_event.round = static_cast<sint16>(g_turn->GetSessionRound());
 	AddNewNegotiationEvent(foreignerId, negotiation_event);
 
 	if (!ExecuteThreat(threat))
@@ -2144,7 +2143,7 @@ bool Diplomat::HasThreat(const PLAYER_INDEX & foreignerId,
 			threat_iter->receiverId == foreignerId)
 		{
 			threat = *threat_iter;
-			if (threat.end >= NewTurnCount::GetCurrentRound())
+			if (threat.end >= g_turn->GetSessionRound())
 
 			return true;
 		}
@@ -4333,7 +4332,7 @@ bool Diplomat::TestPublicRegard(const PLAYER_INDEX & foreignerId, const ai::Rega
 
 bool Diplomat::TestEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai::Regard & test_regard) const
 {
-	const sint32 curRound = NewTurnCount::GetCurrentRound();
+	const sint32 curRound = g_turn->GetSessionRound();
 	static int s_regardList[7] =
 	{MIN_REGARD,HOTWAR_REGARD,COLDWAR_REGARD,NEUTRAL_REGARD,FRIEND_REGARD,ALLIED_REGARD,MAX_REGARD};
 
@@ -4448,19 +4447,19 @@ bool Diplomat::TestAlliedRegard(const PLAYER_INDEX & foreignerId) const
 
 bool Diplomat::GetBorderIncursionBy(const PLAYER_INDEX & foreignerId) const
 {
-	return (m_foreigners[foreignerId].GetLastIncursion() == NewTurnCount::GetCurrentRound());
+	return (m_foreigners[foreignerId].GetLastIncursion() == g_turn->GetSessionRound());
 }
 
 void Diplomat::SetBorderIncursionBy(const PLAYER_INDEX & foreignerId)
 {
 	m_foreigners[foreignerId].
-		SetLastIncursion(NewTurnCount::GetCurrentRound());
+		SetLastIncursion(g_turn->GetSessionRound());
 }
 
 void Diplomat::SetBorderPulloutBy(const PLAYER_INDEX & foreignerId)
 {
 	m_foreigners[foreignerId].
-		SetLastIncursion(NewTurnCount::GetCurrentRound()-1);
+		SetLastIncursion(g_turn->GetSessionRound()-1);
 }
 
 sint32 Diplomat::GetLastBorderIncursionBy(const PLAYER_INDEX & foreignerId) const
@@ -4585,7 +4584,7 @@ void Diplomat::UpdateAttributes()
 			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_PIRACY);
 
-			if ((NewTurnCount::GetCurrentRound() - agreement.start == 20) &&
+			if ((g_turn->GetSessionRound() - agreement.start == 20) &&
 				GetCurrentDiplomacy(foreignerId).GetFollowThroughTrustBonus(add_trust)
 			   )
 			{
@@ -4599,7 +4598,7 @@ void Diplomat::UpdateAttributes()
 			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_REDUCE_POLLUTION);
 
-			if ((NewTurnCount::GetCurrentRound() - agreement.start == 20) &&
+			if ((g_turn->GetSessionRound() - agreement.start == 20) &&
 				GetCurrentDiplomacy(foreignerId).GetFollowThroughTrustBonus(add_trust)
 			   )
 			{
@@ -4613,7 +4612,7 @@ void Diplomat::UpdateAttributes()
 			const ai::Agreement & agreement = AgreementMatrix::s_agreements.
 				GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_STOP_RESEARCH);
 
-			if ((NewTurnCount::GetCurrentRound() - agreement.start == 20) &&
+			if ((g_turn->GetSessionRound() - agreement.start == 20) &&
 				GetCurrentDiplomacy(foreigner).GetFollowThroughTrustBonus(add_trust)
 			   )
 			{
@@ -4622,7 +4621,7 @@ void Diplomat::UpdateAttributes()
 		}
 
 		sint32 last_incursion = GetLastBorderIncursionBy(foreignerId);
-		if(last_incursion >= 0 && last_incursion + 5 < NewTurnCount::GetCurrentRound())
+		if(last_incursion >= 0 && last_incursion + 5 < g_turn->GetSessionRound())
 		{
 			continue;
 		}
@@ -5352,7 +5351,7 @@ void Diplomat::ExecutePersistantAgreements()
 			agreements.GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_REDUCE_POLLUTION);
 
 		sint32 agreement_duration =
-			NewTurnCount::GetCurrentRound() - reduce_pollution.start;
+			g_turn->GetSessionRound() - reduce_pollution.start;
 
 		if (reduce_pollution.start != -1 && reduce_pollution.end == -1 &&
 			agreement_duration > 25)
@@ -5372,7 +5371,7 @@ void Diplomat::ExecutePersistantAgreements()
 			agreements.GetAgreement(m_playerId, foreignerId, PROPOSAL_REQUEST_HONOR_POLLUTION_AGREEMENT);
 
 		agreement_duration =
-			NewTurnCount::GetCurrentRound() - honor_pollution_pact.start;
+			g_turn->GetSessionRound() - honor_pollution_pact.start;
 
 		if (honor_pollution_pact.start != -1 && honor_pollution_pact.end == -1 &&
 			agreement_duration > 10)
@@ -5672,7 +5671,7 @@ void Diplomat::ThrowParty(const PLAYER_INDEX foreignerId)
 			REGARD_EVENT_DIPLOMACY,
 			strId,
 			10);
-		m_lastParty = static_cast<sint16>(NewTurnCount::GetCurrentRound());
+		m_lastParty = static_cast<sint16>(g_turn->GetSessionRound());
 	}
 }
 
@@ -5680,7 +5679,7 @@ bool Diplomat::ReadyToParty() const
 {
 	if (m_lastParty < 0)
 		return true;
-	if (m_lastParty + 10 < NewTurnCount::GetCurrentRound())
+	if (m_lastParty + 10 < g_turn->GetSessionRound())
 		return true;
 	return false;
 }

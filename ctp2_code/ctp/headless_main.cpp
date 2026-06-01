@@ -188,9 +188,9 @@ int main(int argc, char **argv)
             g_theProfileDB->SetNPlayers(numPlayers);
 
             // Wire --seed to the RNG.  gameinit_Initialize reads g_oldRandSeed
-            // and uses it as the seed for g_rand when non-zero; otherwise it
+            // and uses it as the seed for rand_ptr() when non-zero; otherwise it
             // falls back to GetTickCount().  Map generation, AI decisions, and
-            // combat all draw from g_rand, so this is the single knob that
+            // combat all draw from rand_ptr(), so this is the single knob that
             // makes two runs deterministic.  Seed 0 keeps the legacy "use
             // system time" semantic for users who want non-deterministic runs.
             if (seed != 0) {

@@ -179,7 +179,10 @@ static ArmyPool             *g_theArmyPool=NULL;
 ArmyPool * armypool_Get(void) { return g_theArmyPool; }
 Player                      **g_player=NULL;
 PointerList<Player>         *g_deadPlayer = NULL;
-RandomGenerator             *g_rand=NULL;
+static RandomGenerator      *g_rand=NULL;
+
+RandomGenerator * rand_ptr(void)                   { return g_rand; }
+void              rand_ptr_Set(RandomGenerator *p) { g_rand = p; }
 static TradePool            *g_theTradePool = NULL;
 
 TradePool * tradepool_Get(void) { return g_theTradePool; }

@@ -3,7 +3,7 @@
 // Tests for the ScopedRand fixture itself — proves the swap+restore
 // contract and that civrand() resolves to the fixture's generator inside
 // the scope. These tests are the foundation for migrating gs/ call sites
-// off the raw g_rand pointer onto civrand(), one file at a time, with
+// off the raw rand_ptr() pointer onto civrand(), one file at a time, with
 // real fixturable tests at each step.
 
 #include "doctest.h"
@@ -11,32 +11,32 @@
 #include "gs/utility/RandGen.h"
 #include "scoped_rand.h"
 
-// All tests in this file pivot on g_rand. Run them together so a stray
+// All tests in this file pivot on rand_ptr(). Run them together so a stray
 // pointer state from one test never leaks into another via doctest's
 // scheduler.
 TEST_SUITE_BEGIN("scoped_rand");
 
-TEST_CASE("ScopedRand swaps g_rand for the duration of the scope")
+TEST_CASE("ScopedRand swaps rand_ptr() for the duration of the scope")
 {
-    RandomGenerator * const before = g_rand;
+    RandomGenerator * const before = rand_ptr();
     {
         ScopedRand fixture(12345);
-        CHECK(g_rand == &fixture.get());
-        CHECK(g_rand != before);
+        CHECK(rand_ptr() == &fixture.get());
+        CHECK(rand_ptr() != before);
     }
-    CHECK(g_rand == before);
+    CHECK(rand_ptr() == before);
 }
 
-TEST_CASE("ScopedRand restores g_rand even when prior pointer was null")
+TEST_CASE("ScopedRand restores rand_ptr() even when prior pointer was null")
 {
-    RandomGenerator * const before = g_rand;
-    g_rand = nullptr;
+    RandomGenerator * const before = rand_ptr();
+    rand_ptr_Set(nullptr);
     {
         ScopedRand fixture(7);
-        CHECK(g_rand != nullptr);
+        CHECK(rand_ptr() != nullptr);
     }
-    CHECK(g_rand == nullptr);
-    g_rand = before;
+    CHECK(rand_ptr() == nullptr);
+    rand_ptr_Set(before);
 }
 
 TEST_CASE("civrand() resolves to the fixture's generator inside scope")
@@ -71,14 +71,14 @@ TEST_CASE("Same seed in ScopedRand produces identical sequences across runs")
 TEST_CASE("Nested ScopedRand restores the outer generator on exit")
 {
     ScopedRand outer(1);
-    RandomGenerator * const outer_ptr = g_rand;
+    RandomGenerator * const outer_ptr = rand_ptr();
 
     {
         ScopedRand inner(2);
-        CHECK(g_rand != outer_ptr);
+        CHECK(rand_ptr() != outer_ptr);
     }
 
-    CHECK(g_rand == outer_ptr);
+    CHECK(rand_ptr() == outer_ptr);
 }
 
 TEST_SUITE_END();

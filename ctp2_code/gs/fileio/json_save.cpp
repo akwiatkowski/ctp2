@@ -134,7 +134,7 @@ extern TurnCount             *g_turn;
 extern Pollution             *g_thePollution;
 extern TopTen                *g_theTopTen;
 extern PointerList<Player>   *g_deadPlayer;
-// g_rand declared in RandGen.h.  g_theWorld in World.h.
+// rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
 // g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
 // g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
@@ -4609,7 +4609,7 @@ bool SaveJson(char const *path)
 
     // --- Core singletons (mirror civrand / settings / world / turn
     // order in GameFile::Save:357-388) --------------------------------
-    if (g_rand)              doc["rng"]                       = *g_rand;
+    if (rand_ptr())              doc["rng"]                       = *rand_ptr();
     if (GameSettings *gs = gamesettings_Get()) doc["settings"] = *gs;
     if (g_theWorld)          doc["world"]                     = *g_theWorld;
     if (g_turn)              doc["turn"]                      = *g_turn;
@@ -4748,7 +4748,7 @@ bool LoadJson(char const *path)
     try
     {
         // Core singletons
-        if (doc.contains("rng")      && g_rand)             doc.at("rng")     .get_to(*g_rand);
+        if (doc.contains("rng")      && rand_ptr())             doc.at("rng")     .get_to(*rand_ptr());
         if (GameSettings *gs = gamesettings_Get(); doc.contains("settings") && gs) doc.at("settings").get_to(*gs);
         if (doc.contains("world")    && g_theWorld)         doc.at("world")   .get_to(*g_theWorld);
         if (doc.contains("turn")     && g_turn)             doc.at("turn")    .get_to(*g_turn);

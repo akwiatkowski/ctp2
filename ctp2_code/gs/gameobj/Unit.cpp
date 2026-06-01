@@ -91,7 +91,7 @@ class UnitActor;
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/Globals.h"
-#include "gs/utility/RandGen.h"            // g_rand
+#include "gs/utility/RandGen.h"            // rand_ptr()
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"              // g_theWorld

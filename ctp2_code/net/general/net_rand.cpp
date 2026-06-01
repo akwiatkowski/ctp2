@@ -3,8 +3,6 @@
 #include "net/io/net_util.h"
 #include "gs/utility/RandGen.h"
 
-extern RandomGenerator *g_rand;
-
 #define k_RAND_ARRAY_SIZE 56
 NetRand::NetRand()
 {
@@ -16,14 +14,14 @@ void NetRand::Packetize(uint8* buf, uint16 &size)
 	buf[1] = k_PACKET_RAND_ID & 0xff;
 
 	size = 2;
-	PUSHLONG(g_rand->m_start_seed);
+	PUSHLONG(rand_ptr()->m_start_seed);
 	for(sint32 i = 0; i < k_RAND_ARRAY_SIZE; i++) {
-		PUSHLONG(g_rand->m_buffer[i]);
+		PUSHLONG(rand_ptr()->m_buffer[i]);
 	}
-	PUSHLONG(g_rand->m_firstp - g_rand->m_buffer);
-	PUSHLONG(g_rand->m_secondp - g_rand->m_buffer);
-	PUSHLONG(g_rand->m_endp - g_rand->m_buffer);
-	PUSHLONG(g_rand->m_callCount);
+	PUSHLONG(rand_ptr()->m_firstp - rand_ptr()->m_buffer);
+	PUSHLONG(rand_ptr()->m_secondp - rand_ptr()->m_buffer);
+	PUSHLONG(rand_ptr()->m_endp - rand_ptr()->m_buffer);
+	PUSHLONG(rand_ptr()->m_callCount);
 }
 
 void NetRand::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -35,19 +33,19 @@ void NetRand::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	pos = 2;
 
-	PULLLONG(g_rand->m_start_seed);
+	PULLLONG(rand_ptr()->m_start_seed);
 
 	for(sint32 i = 0; i < k_RAND_ARRAY_SIZE; i++) {
-		PULLLONG(g_rand->m_buffer[i]);
+		PULLLONG(rand_ptr()->m_buffer[i]);
 	}
 
 	PULLLONG(firstpindex);
 	PULLLONG(secondpindex);
 	PULLLONG(endpindex);
 
-	g_rand->m_firstp = &g_rand->m_buffer[firstpindex];
-	g_rand->m_secondp = &g_rand->m_buffer[secondpindex];
-	g_rand->m_endp = &g_rand->m_buffer[endpindex];
+	rand_ptr()->m_firstp = &rand_ptr()->m_buffer[firstpindex];
+	rand_ptr()->m_secondp = &rand_ptr()->m_buffer[secondpindex];
+	rand_ptr()->m_endp = &rand_ptr()->m_buffer[endpindex];
 
-	PULLLONG(g_rand->m_callCount);
+	PULLLONG(rand_ptr()->m_callCount);
 }

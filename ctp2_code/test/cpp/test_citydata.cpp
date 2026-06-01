@@ -307,7 +307,7 @@ struct HeavyCityDataFixture
         // g_slicEngine->CallMod, and other sub-objects may query g_selected_item.
         g_selected_item = new SelectedItem(1);
         g_slicEngine = new SlicEngine();
-        g_rand = new RandomGenerator(12345);
+        rand_ptr_Set(new RandomGenerator(12345));
         g_turn = new TurnCount();
 
         player = new Player(0, 0, PLAYER_TYPE_HUMAN);
@@ -323,7 +323,7 @@ struct HeavyCityDataFixture
         g_selected_item = nullptr;
         g_slicEngine = nullptr;
         g_civApp = nullptr;
-        g_rand = nullptr;
+        rand_ptr_Set(nullptr);
         g_turn = nullptr;
     }
 };

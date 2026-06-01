@@ -4,8 +4,6 @@
 #include "gs/utility/RandGen.h"
 #include "civarchive.h"
 
-extern RandomGenerator *g_rand;
-
 STDMETHODIMP C3Rand::QueryInterface(REFIID riid, void **obj)
 {
 	*obj = nullptr;
@@ -30,9 +28,9 @@ C3Rand::C3Rand(BOOL ownGenerator)
 	m_refCount = 0;
 	m_ownGenerator = ownGenerator;
 	if (m_ownGenerator) {
-		m_rand = new RandomGenerator(*g_rand);
+		m_rand = new RandomGenerator(*rand_ptr());
 	} else {
-		m_rand = g_rand;
+		m_rand = rand_ptr();
 	}
 }
 
@@ -73,7 +71,7 @@ void C3Rand::Serialize(CivArchive &archive)
 				delete m_rand;
 			m_rand = new RandomGenerator(archive);
 		} else {
-			m_rand = g_rand;
+			m_rand = rand_ptr();
 		}
 	}
 }

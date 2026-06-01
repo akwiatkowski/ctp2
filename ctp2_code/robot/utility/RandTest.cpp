@@ -1,8 +1,6 @@
 #include "ctp/c3.h"
 
 #include "gs/utility/RandGen.h"
-extern RandomGenerator *g_rand;
-
 extern HWND gHwnd;
 
 sint32 g_is_rand_test=FALSE;
@@ -37,13 +35,13 @@ void ai_rand_test()
 
 
 
-   if (g_rand->Next(5) == 0) {
+   if (rand_ptr()->Next(5) == 0) {
    	    PostMessage(gHwnd, WM_CHAR, 'b', 0);
    }
 
-   if (g_rand->Next(20) == 0) {
+   if (rand_ptr()->Next(20) == 0) {
        	PostMessage(gHwnd, WM_CHAR, 's', 0);
    }
-   PostMessage(gHwnd, WM_CHAR, '1' + g_rand->Next(9), 0);
+   PostMessage(gHwnd, WM_CHAR, '1' + rand_ptr()->Next(9), 0);
 #endif
 }

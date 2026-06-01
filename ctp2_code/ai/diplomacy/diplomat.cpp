@@ -115,7 +115,7 @@
 #include "OrderRecord.h"
 
 #include "net/general/net_diplomacy.h"
-#include "gs/utility/RandGen.h"            // g_rand
+#include "gs/utility/RandGen.h"            // rand_ptr()
 
 
 namespace

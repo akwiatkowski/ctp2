@@ -50,8 +50,6 @@
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 
 extern World *g_theWorld;
-extern RandomGenerator *g_rand;
-
 sint32 g_search_count;
 
 AVLHeap g_astar_mem;

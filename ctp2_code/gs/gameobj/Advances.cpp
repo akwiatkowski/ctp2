@@ -65,7 +65,7 @@
 #include "gs/gameobj/Diffcly.h"
 #include "gs/database/profileDB.h"          // g_theProfileDB
 #include "ConstRecord.h"        // g_theConstDB
-#include "gs/utility/RandGen.h"            // g_rand
+#include "gs/utility/RandGen.h"            // rand_ptr()
 #include "gs/core/game_observer.h"
 #include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
 #include "gs/gameobj/GameSettings.h"

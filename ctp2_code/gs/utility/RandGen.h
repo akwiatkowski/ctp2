@@ -14,7 +14,14 @@ class CivArchive;
 #define k_RAND_FAC (1.0/double(k_RAND_MBIG))
 
 class RandomGenerator;
-extern RandomGenerator *g_rand;
+
+// Storage is file-scope `static` in gs/utility/gameinit.cpp.  Most
+// callers go through civrand() (defined below) which dereferences to a
+// reference.  Lifecycle code (gameinit, net_rand, c3rand, the JSON
+// save/load bridges) needs the raw pointer; rand_ptr() returns it and
+// rand_ptr_Set() lets gameinit reseat the pointer on new-game / load.
+RandomGenerator * rand_ptr(void);
+void              rand_ptr_Set(RandomGenerator *p);
 
 class RandomGenerator
 
@@ -85,7 +92,7 @@ public:
 // fixture's generator inside the scope.
 //
 // Not named rand() because that collides with libc's <cstdlib> rand().
-inline RandomGenerator & civrand() { return *g_rand; }
+inline RandomGenerator & civrand() { return *rand_ptr(); }
 
 #else
 

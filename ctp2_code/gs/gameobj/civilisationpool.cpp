@@ -49,8 +49,6 @@ extern	Player	**g_player ;
 
 extern	StringDB	*g_theStringDB ;
 
-extern RandomGenerator *g_rand;
-
 extern ProfileDB *g_theProfileDB;
 
 
@@ -162,7 +160,7 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 		}
 		else
 		{
-			civ = g_rand->Next(numCivs);
+			civ = rand_ptr()->Next(numCivs);
 		}
 	}
 
@@ -182,7 +180,7 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 	Civilisation newCivilisation(NewKey(k_BIT_GAME_OBJ_TYPE_CIVILISATION));
 
 	if (gender == GENDER_RANDOM) {
-		gender = (GENDER)(g_rand->Next() % 2);
+		gender = (GENDER)(rand_ptr()->Next() % 2);
 	}
 
 	CivilisationData *	newData = new CivilisationData(newCivilisation, owner, civ, gender);

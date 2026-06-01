@@ -256,7 +256,7 @@ void DataCheck::BeginTurn(void)
 	// should be replaced by:
 //	CHECK_DB(???, CRC_TYPE_GLOBAL);
 
-	CHECK_DB(g_rand, CRC_TYPE_RAND);
+	CHECK_DB(rand_ptr(), CRC_TYPE_RAND);
 
 	start = clock();
 	archive = new CivArchive();

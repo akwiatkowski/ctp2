@@ -233,7 +233,7 @@
 #include "ui/interface/progresswindow.h"
 #include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "ui/interface/radarwindow.h"
-#include "gs/utility/RandGen.h"                    // g_rand
+#include "gs/utility/RandGen.h"                    // rand_ptr()
 #include "ResourceRecord.h"
 #include "RiskRecord.h"
 #include "robot/utility/RoboInit.h"
@@ -3619,8 +3619,8 @@ sint32 CivApp::RestartGame(void)
 
 sint32 CivApp::RestartGameSameMap(void)
 {
-	Assert(g_rand);
-	g_oldRandSeed = g_rand ? civrand().GetSeed() : 0;
+	Assert(rand_ptr());
+	g_oldRandSeed = rand_ptr() ? civrand().GetSeed() : 0;
 
 	if (m_gameLoaded)
 	{

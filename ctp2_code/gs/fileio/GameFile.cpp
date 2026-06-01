@@ -82,7 +82,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/gameobj/Player.h"                 // g_player
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
-#include "gs/utility/RandGen.h"                // g_rand
+#include "gs/utility/RandGen.h"                // rand_ptr()
 #include "robot/utility/RoboInit.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/slic/SlicEngine.h"

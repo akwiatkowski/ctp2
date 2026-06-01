@@ -59,7 +59,7 @@
 #include "gs/gameobj/wonderutil.h"
 #include "gs/events/GameEventManager.h"
 #include "TerrainRecord.h"	    // TerrainRecord
-#include "gs/utility/RandGen.h"            // g_rand
+#include "gs/utility/RandGen.h"            // rand_ptr()
 
 // Visibility cheat flags
 extern sint32 g_god;

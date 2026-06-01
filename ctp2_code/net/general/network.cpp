@@ -3100,7 +3100,7 @@ void Network::TurnSync()
 		}
 
 		DPRINTF(k_DBG_NET, ("Adding finish begin turn for player %d.  Rand call count: %d\n",
-							g_selected_item->GetCurPlayer(), g_rand->CallCount()));
+							g_selected_item->GetCurPlayer(), rand_ptr()->CallCount()));
 		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_FinishBeginTurn,
 							   GEA_Player, g_selected_item->GetCurPlayer(),
 							   GEA_End);

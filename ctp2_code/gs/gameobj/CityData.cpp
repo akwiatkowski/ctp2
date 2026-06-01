@@ -264,7 +264,7 @@
 #include "gs/gameobj/pollution.h"
 #include "PopRecord.h"
 #include "gs/database/profileDB.h"                  // g_theProfileDB
-#include "gs/utility/RandGen.h"                    // g_rand
+#include "gs/utility/RandGen.h"                    // rand_ptr()
 #include "gs/gameobj/Readiness.h"
 #include "ResourceRecord.h"
 #include "RiskRecord.h"  //add for barb code

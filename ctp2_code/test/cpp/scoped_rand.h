@@ -1,21 +1,21 @@
 // test/cpp/scoped_rand.h
 //
 // RAII fixture that installs a local RandomGenerator as the process-wide
-// g_rand for the duration of a scope, then restores the previous pointer.
+// rand_ptr() for the duration of a scope, then restores the previous pointer.
 //
-// Why this exists: gs/ code uses g_rand directly (via civrand() or the raw
+// Why this exists: gs/ code uses rand_ptr() directly (via civrand() or the raw
 // pointer). Tests that exercise randomness need a known seed AND a way to
 // guarantee no other test contaminates global state. The previous pattern
-// was `g_rand = new RandomGenerator(seed);` with a manual nullptr on
+// was `rand_ptr_Set(new RandomGenerator(seed));` with a manual nullptr on
 // teardown — leaks one generator per fixture and silently breaks any test
-// that forgets to restore g_rand.
+// that forgets to restore rand_ptr().
 //
 // Usage:
 //
 //     TEST_CASE("foo behaves deterministically") {
-//         ScopedRand r(12345);          // g_rand now points at a seeded RNG
-//         // ... exercise code that calls civrand() or g_rand-> ...
-//     }                                  // g_rand restored to prior value
+//         ScopedRand r(12345);          // rand_ptr() now points at a seeded RNG
+//         // ... exercise code that calls civrand() or rand_ptr()-> ...
+//     }                                  // rand_ptr() restored to prior value
 //
 // Test-only. Lives in test/cpp/ and is never compiled into game binaries.
 
@@ -23,21 +23,21 @@
 #define CTP2_TEST_SCOPED_RAND_H
 
 #include "ctp/c3.h"                 // sint32
-#include "gs/utility/RandGen.h"     // RandomGenerator, g_rand
+#include "gs/utility/RandGen.h"     // RandomGenerator, rand_ptr()
 
 class ScopedRand
 {
 public:
     explicit ScopedRand(sint32 seed)
         : m_local(seed)
-        , m_saved(g_rand)
+        , m_saved(rand_ptr())
     {
-        g_rand = &m_local;
+        rand_ptr_Set(&m_local);
     }
 
     ~ScopedRand()
     {
-        g_rand = m_saved;
+        rand_ptr_Set(m_saved);
     }
 
     // Non-copyable, non-movable — the RNG state is positional and copying

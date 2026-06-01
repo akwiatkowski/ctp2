@@ -206,7 +206,7 @@ class UnitActor;
 #include "gs/slic/SlicSegment.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/utility/QuadTree.h"                   // unit_tree_Get()
-#include "gs/utility/RandGen.h"                    // g_rand
+#include "gs/utility/RandGen.h"                    // rand_ptr()
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"
@@ -2117,7 +2117,7 @@ bool ArmyData::CanFranchise(double &chance, sint32 &uindex) const
 // Globals    : g_theWorld
 //            : g_gevManager
 //            : g_slicEngine
-//            : g_rand
+//            : rand_ptr()
 //            : g_player                : player array
 //
 // Returns    : ORDER_RESULT            : Attempt success/failure indication
@@ -2994,7 +2994,7 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 //                                (which should contain a city).
 //
 // Globals    : g_slicEngine
-//            : g_rand
+//            : rand_ptr()
 //            : g_gevManager
 //            : g_player        : Player array [see Player::InitPlayer for
 //                                initialized player data]
@@ -4092,7 +4092,7 @@ bool ArmyData::CanConvertCity(const MapPoint &point) const
 //
 // Parameters : MapPoint point  : a point adjacent to this army's location.
 //
-// Globals    : g_rand
+// Globals    : rand_ptr()
 //            : g_gevManager
 //            : g_slicEngine
 //            : g_theWonderDB

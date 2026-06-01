@@ -254,6 +254,7 @@ game_core_sources = [
 	'gs/core/text_observer.cpp',
 	'gs/core/battle_observer.cpp',
 	'gs/core/diplomacy_observer.cpp',
+	'gs/core/game.cpp',
 	'gs/fileio/json_save.cpp',
 	'gs/gameobj/MovePath.cpp',
 	'ctp/ctp2_utils/appstrings.cpp',
@@ -1304,6 +1305,7 @@ cpp_test_sources = [
   'test/cpp/test_city_visibility.cpp',
   'test/cpp/test_installationdata.cpp',
   'test/cpp/test_wormhole.cpp',
+  'test/cpp/test_game.cpp',
   'ctp/civ3_main.cpp',
   'test/smoketest_server.cpp',
 ]

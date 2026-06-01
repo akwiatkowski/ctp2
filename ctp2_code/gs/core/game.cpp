@@ -1,7 +1,10 @@
+#include "ctp/c3.h"
 #include "gs/core/game.h"
 
 #include "gs/gameobj/ArmyPool.h"
-#include "gs/gameobj/CityPool.h"
+// CityPool: forward-declared in game.h as a future-tense placeholder; no
+// concrete class exists today (cities are owned per-player, not in a
+// dedicated pool). Drop the include until the class is introduced.
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/utility/RandGen.h"
@@ -20,11 +23,11 @@ Game::Game(Game&&) noexcept = default;
 Game& Game::operator=(Game&&) noexcept = default;
 
 void Game::NewGame() {
-    // TODO: move initialization from gameinit.cpp here
+    m_turn = std::make_unique<TurnCount>();
 }
 
-void Game::LoadGame(CivArchive& /*archive*/) {
-    // TODO: move load logic from gameinit.cpp here
+void Game::LoadGame(CivArchive& archive) {
+    m_turn = std::make_unique<TurnCount>(archive);
 }
 
 void Game::SaveGame(CivArchive& /*archive*/) {
@@ -34,7 +37,6 @@ void Game::SaveGame(CivArchive& /*archive*/) {
 void Game::Cleanup() {
     m_events.reset();
     m_slic.reset();
-    m_cityPool.reset();
     m_armyPool.reset();
     m_unitPool.reset();
     m_players.clear();

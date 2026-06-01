@@ -12,7 +12,6 @@ class RandomGenerator;
 class Player;
 class UnitPool;
 class ArmyPool;
-class CityPool;
 class SlicEngine;
 class GameEventManager;
 class CivArchive;
@@ -54,7 +53,8 @@ public:
 
     UnitPool& GetUnits() { return *m_unitPool; }
     ArmyPool& GetArmies() { return *m_armyPool; }
-    CityPool& GetCities() { return *m_cityPool; }
+    // CityPool: no such class exists today; cities are owned per-player.
+    // Re-add when a pool is introduced.
 
     SlicEngine& GetSlic() { return *m_slic; }
     GameEventManager& GetEvents() { return *m_events; }
@@ -68,7 +68,6 @@ private:
 
     std::unique_ptr<UnitPool> m_unitPool;
     std::unique_ptr<ArmyPool> m_armyPool;
-    std::unique_ptr<CityPool> m_cityPool;
 
     std::unique_ptr<SlicEngine> m_slic;
     std::unique_ptr<GameEventManager> m_events;

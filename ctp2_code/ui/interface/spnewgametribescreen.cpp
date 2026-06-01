@@ -190,7 +190,7 @@ sint32	spnewgametribescreen_displayMyWindow( void *cookie, BOOL edit )
 
 	keypress_RegisterHandler(g_spNewGameTribeScreen);
 
-	if ( edit && !(g_isScenario && g_startInfoType == STARTINFOTYPE_NOLOCS))
+	if ( edit && !(g_isScenario && start_info_type_Get() == STARTINFOTYPE_NOLOCS))
 		s_leaderNameTextField->Enable( TRUE );
 	else
 		s_leaderNameTextField->Enable( FALSE );
@@ -273,7 +273,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "malefemaleswitchgroup.femaleradio" );
 	s_femaleRadio = new aui_Radio(&errcode, aui_UniqueId(), controlBlock, spnewgametribescreen_femalePress );
 
-	if(g_isScenario && g_startInfoType == STARTINFOTYPE_NOLOCS)
+	if(g_isScenario && start_info_type_Get() == STARTINFOTYPE_NOLOCS)
 	{
 		s_leaderNameTextField->Enable(FALSE);
 		s_maleRadio->Enable(FALSE);

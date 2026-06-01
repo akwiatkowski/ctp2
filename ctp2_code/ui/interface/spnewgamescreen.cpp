@@ -409,7 +409,7 @@ void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, u
 		if (GameFile::FetchExtendedSaveInfo(tempPath, saveInfo)) {
 			MBCHAR scenPath[_MAX_PATH];
 			strcpy(scenPath, g_civPaths->GetCurScenarioPath());
-			g_startInfoType = saveInfo->startInfoType;
+			start_info_type_Set(saveInfo->startInfoType);
 			loadsavescreen_BeginLoadProcess(saveInfo, scenPath);
 		}
 

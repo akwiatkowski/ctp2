@@ -63,7 +63,6 @@
 
 extern StringDB                     *g_theStringDB;
 extern C3UI                         *g_c3ui;
-extern sint32                       g_startInfoType;
 extern CivApp                       *g_civApp;
 
 ScenarioWindow                      *s_ScenarioWindow = NULL;
@@ -534,20 +533,20 @@ void ScenarioWindow::SavePress(aui_Control *control, uint32 action, uint32 data,
 
 		switch(ScenarioEditor::GetStartLocMode()) {
 			case SCEN_START_LOC_MODE_NONE:
-				g_startInfoType = STARTINFOTYPE_NOLOCS;
+				start_info_type_Set(STARTINFOTYPE_NOLOCS);
 				break;
 			case SCEN_START_LOC_MODE_PLAYER_WITH_CIV:
-				g_startInfoType = STARTINFOTYPE_CIVSFIXED;
+				start_info_type_Set(STARTINFOTYPE_CIVSFIXED);
 				break;
 			case SCEN_START_LOC_MODE_PLAYER:
-				g_startInfoType = STARTINFOTYPE_POSITIONSFIXED;
+				start_info_type_Set(STARTINFOTYPE_POSITIONSFIXED);
 				break;
 			case SCEN_START_LOC_MODE_CIV:
-				g_startInfoType = STARTINFOTYPE_CIVS;
+				start_info_type_Set(STARTINFOTYPE_CIVS);
 				break;
 			default:
 				Assert(FALSE);
-				g_startInfoType = STARTINFOTYPE_NOLOCS;
+				start_info_type_Set(STARTINFOTYPE_NOLOCS);
 				break;
 		}
 

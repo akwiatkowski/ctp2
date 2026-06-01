@@ -1470,7 +1470,7 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 	}
 
 
-	switch(g_startInfoType) {
+	switch(start_info_type_Get()) {
 		case STARTINFOTYPE_NONE:
 		case STARTINFOTYPE_NOLOCS:
 		case STARTINFOTYPE_POSITIONSFIXED:
@@ -1568,16 +1568,16 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	SPLASH_STRING("Initializing the Map...");
 
 	bool loadEverything =
-        !g_isScenario || (g_startInfoType == STARTINFOTYPE_NOLOCS);
+        !g_isScenario || (start_info_type_Get() == STARTINFOTYPE_NOLOCS);
 	gameinit_log->debug("loadEverything={}, g_isScenario={}, g_startInfoType={}",
-	           loadEverything, (bool)g_isScenario, (int)g_startInfoType);
+	           loadEverything, (bool)g_isScenario, (int)start_info_type_Get());
 
 	if (archive) {
 		gameinit_log->debug("step: new World(archive)");
 		g_theWorld = new World(*archive) ;
 		if(
 
-			(g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS)) {
+			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
 			sint32 x, y;
 			for(x = 0; x < g_theWorld->GetXWidth(); x++) {
 				for(y = 0; y < g_theWorld->GetYHeight(); y++) {
@@ -1918,11 +1918,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			g_deadPlayer->AddTail(new Player(*archive));
 		}
 
-		if (g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS)
+		if (g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)
 		{
 			CreateBarbarians(diff);
 
-			switch (g_startInfoType)
+			switch (start_info_type_Get())
 			{
 			default:
 			// case STARTINFOTYPE_NONE:
@@ -2297,7 +2297,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 	}
-    else if (g_isScenario && (g_startInfoType != STARTINFOTYPE_NOLOCS))
+    else if (g_isScenario && (start_info_type_Get() != STARTINFOTYPE_NOLOCS))
     {
 		sint32 landSettler = -1;
 		sint32 seaSettler = -1;

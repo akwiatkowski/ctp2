@@ -181,7 +181,10 @@ static sint32 g_saveFileVersion = -1;
 
 sint32 save_file_version_Get(void) { return g_saveFileVersion; }
 void   save_file_version_Set(sint32 v) { g_saveFileVersion = v; }
-sint32 g_startInfoType = STARTINFOTYPE_NONE;
+static sint32 g_startInfoType = STARTINFOTYPE_NONE;
+
+sint32 start_info_type_Get(void)     { return g_startInfoType; }
+void   start_info_type_Set(sint32 v) { g_startInfoType = v; }
 sint32 g_isScenario = FALSE;
 static sint32 g_useScenarioCivs = 2;
 

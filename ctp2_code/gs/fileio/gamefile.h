@@ -248,7 +248,12 @@ public:
 // GameFile.cpp; external readers go through save_file_version_Get().
 sint32 save_file_version_Get(void);
 void   save_file_version_Set(sint32 v);
-extern sint32 g_startInfoType;
+// Scenario start-info type (NOLOCS / CIVSFIXED / POSITIONSFIXED / CIVS /
+// NONE).  Definition is file-scope `static` in GameFile.cpp; the
+// scenario editor + scenario window set it, the world-init plumbing
+// reads it.
+sint32 start_info_type_Get(void);
+void   start_info_type_Set(sint32 v);
 extern sint32 g_isScenario;
 // Number of scenario civs the player picked.  Definition in GameFile.cpp
 // as file-scope static; the UI (loadsavescreen, allinonewindow) and

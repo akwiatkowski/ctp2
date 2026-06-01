@@ -164,7 +164,6 @@ extern C3UI *               g_c3ui;
 extern sint32               g_fog_toggle;
 extern RadarMap *           g_radarMap;
 extern ControlPanelWindow * g_controlPanel;
-extern sint32               g_startInfoType;
 extern CivApp *             g_civApp;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 
@@ -227,17 +226,17 @@ void scenarioeditor_SetSaveOptionsFromMode(void)
 {
 	switch (s_scenarioEditor->GetStartLocMode()) {
 	case SCEN_START_LOC_MODE_NONE:
-		g_startInfoType = STARTINFOTYPE_NOLOCS;
+		start_info_type_Set(STARTINFOTYPE_NOLOCS);
 
 		break;
 	case SCEN_START_LOC_MODE_PLAYER_WITH_CIV:
-		g_startInfoType = STARTINFOTYPE_CIVSFIXED;
+		start_info_type_Set(STARTINFOTYPE_CIVSFIXED);
 		break;
 	case SCEN_START_LOC_MODE_PLAYER:
-		g_startInfoType = STARTINFOTYPE_POSITIONSFIXED;
+		start_info_type_Set(STARTINFOTYPE_POSITIONSFIXED);
 		break;
 	case SCEN_START_LOC_MODE_CIV:
-		g_startInfoType = STARTINFOTYPE_CIVS;
+		start_info_type_Set(STARTINFOTYPE_CIVS);
 
 		break;
 	}

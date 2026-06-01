@@ -1945,7 +1945,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 610 );
 
 	if(g_isScenario && (archive != NULL &&
-	   (g_startInfoType != STARTINFOTYPE_NONE ||
+	   (start_info_type_Get() != STARTINFOTYPE_NONE ||
 		save_file_version_Get() < gamefile_CurrentVersion()))) {
 
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
@@ -2046,7 +2046,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{
 		if ((archive == NULL) ||										// launch button
-			((g_startInfoType != STARTINFOTYPE_NONE) && g_isScenario)	// scenario start
+			((start_info_type_Get() != STARTINFOTYPE_NONE) && g_isScenario)	// scenario start
 		   )
 		{
 			g_gevManager->AddEvent(GEV_INSERT_Tail,
@@ -2067,7 +2067,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 
 
-			(g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS)))
+			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)))
         {
 			if (g_director)
 				g_director->AddCopyVision();
@@ -2308,7 +2308,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 720 );
 
 	if (    (archive != NULL)
-         && (g_startInfoType != STARTINFOTYPE_NONE ||
+         && (start_info_type_Get() != STARTINFOTYPE_NONE ||
 		     save_file_version_Get() < gamefile_CurrentVersion()
             )
        )
@@ -2360,7 +2360,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 
 
-			(g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS))) {
+			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS))) {
 
 
 

@@ -914,8 +914,8 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	MBCHAR		theGameName[_MAX_PATH];
 	if (gameName == NULL)
 	{
-		if (g_startInfoType == STARTINFOTYPE_CIVS ||
-			g_startInfoType == STARTINFOTYPE_POSITIONSFIXED) {
+		if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
+			start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
 			strcpy(theGameName, g_theProfileDB->GetGameName());
 		} else {
 			strcpy(theGameName, g_theProfileDB->GetLeaderName());
@@ -934,8 +934,8 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	}
 
 	MBCHAR		saveName[_MAX_PATH];
-	if (g_startInfoType == STARTINFOTYPE_CIVS ||
-		g_startInfoType == STARTINFOTYPE_POSITIONSFIXED) {
+	if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
+		start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
 		MBCHAR tempName[k_MAX_NAME_LEN];
 		strcpy(tempName, g_theProfileDB->GetLeaderName());
 #if !defined(_JAPANESE)

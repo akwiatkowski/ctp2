@@ -118,7 +118,7 @@
 #include "UnitRecord.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
-#include "gs/world/World.h"                          // g_theWorld
+#include "gs/world/World.h"                          // world_Get()
 #include "time.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Gold.h"
@@ -347,10 +347,10 @@ STDEHANDLER(CtpAi_KillCityEvent)
 
 		for (GOAL_TYPE goal_type = 0; goal_type < g_theGoalDB->NumRecords(); goal_type++)
 		{
-			if ( (!g_theWorld->IsWater(u.RetPos()) &&
+			if ( (!world_Get()->IsWater(u.RetPos()) &&
 			       g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand()
 			     ) ||
-			     (g_theWorld->IsWater(u.RetPos()) &&
+			     (world_Get()->IsWater(u.RetPos()) &&
 			      g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea()
 			     )
 			   )
@@ -403,9 +403,9 @@ STDEHANDLER(CtpAi_NukeCityUnit)
 			for (GOAL_TYPE goal_type = 0; goal_type < g_theGoalDB->NumRecords(); goal_type++)
 			{
 
-				if ( (g_theWorld->IsWater(city.RetPos()) == FALSE) &&
+				if ( (world_Get()->IsWater(city.RetPos()) == FALSE) &&
 					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand()) ||
-					(g_theWorld->IsWater(city.RetPos()) == TRUE) &&
+					(world_Get()->IsWater(city.RetPos()) == TRUE) &&
 					(g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea()))
 				{
 					Goal * goal_ptr = new Goal();
@@ -467,7 +467,7 @@ void CtpAi::GroupWithEscort(const Army & army)
 	const UnitRecord *unit_rec;
 
 	CellUnitList candidate_units;
-	g_theWorld->GetArmy(army->RetPos(), candidate_units);
+	world_Get()->GetArmy(army->RetPos(), candidate_units);
 	for (sint32 i = 0; i < candidate_units.Num(); i++)
 		{
 			// Do something here
@@ -1000,8 +1000,8 @@ void CtpAi::Initialize(bool initDiplomat)
 			Diplomat::GetDiplomat(player).Initialize();
 			Diplomat::GetDiplomat(player).InitStrategicState();
 		}
-		Governor::GetGovernor(player).Resize( (sint16) g_theWorld->GetWidth(),
-											  (sint16) g_theWorld->GetHeight(),
+		Governor::GetGovernor(player).Resize( (sint16) world_Get()->GetWidth(),
+											  (sint16) world_Get()->GetHeight(),
 											  1 );
 	}
 
@@ -1061,7 +1061,7 @@ void CtpAi::Load(CivArchive & archive)
 	Diplomat::LoadAll(archive);
 
 	SPLASH_STRING("Compute good values...");
-	g_theWorld->ComputeGoodsValues();
+	world_Get()->ComputeGoodsValues();
 
 	SPLASH_STRING("Assign goals...");
 	for (PLAYER_INDEX playerId = 0; playerId < s_maxPlayers; playerId++)
@@ -1224,7 +1224,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 
 			MapPoint pos = city->GetPos();
 
-			g_theWorld->GetCell(pos)->m_cityHasVisibleTileImprovement = player_ptr->IsExplored(pos) || city->GetCityData()->HasAnyTileImpInRadiusAndIsExploredBy(player);
+			world_Get()->GetCell(pos)->m_cityHasVisibleTileImprovement = player_ptr->IsExplored(pos) || city->GetCityData()->HasAnyTileImpInRadiusAndIsExploredBy(player);
 		}
 	}
 
@@ -1368,7 +1368,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 // Parameters : playerId	: index of - computer - player
 //
 // Globals    : g_player
-//              g_theWorld
+//              world_Get()
 //              g_gevManager
 //
 // Returns    : -
@@ -1389,7 +1389,7 @@ void CtpAi::MoveOutofCityTransportUnits(const PLAYER_INDEX playerId)
 		Assert(city.GetCityData());
 
 		MapPoint	pos(city.RetPos());
-		g_theWorld->GetArmy(pos, garrison);
+		world_Get()->GetArmy(pos, garrison);
 
 		Army		move_army;
 		sint32		min_size	= k_MAX_ARMY_SIZE;
@@ -1478,7 +1478,7 @@ void CtpAi::UnGroupGarrisonUnits(const PLAYER_INDEX playerId)
 		Assert(city.GetCityData());
 
 		MapPoint	pos(city.RetPos());
-		g_theWorld->GetArmy(pos, garrison);
+		world_Get()->GetArmy(pos, garrison);
 
 		for (sint32 j = 0; j < garrison.Num(); ++j)
 		{
@@ -1524,7 +1524,7 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 		Assert(city.IsValid() && city->GetCityData());
 
 		MapPoint    pos     = city.RetPos();
-		g_theWorld->GetArmy(pos, garrison);
+		world_Get()->GetArmy(pos, garrison);
 		if ((garrison.Num() >= k_MAX_ARMY_SIZE) &&
 			city.CD()->GetBuildQueue() &&
 			city.CD()->GetBuildQueue()->GetLen() > 0 &&
@@ -1729,8 +1729,8 @@ void CtpAi::Resize()
 
 	sint16 resolution = 10;
 	MapAnalysis::GetMapAnalysis().Resize( s_maxPlayers,
-										  (sint16) g_theWorld->GetWidth(),
-										  (sint16) g_theWorld->GetHeight(),
+										  (sint16) world_Get()->GetWidth(),
+										  (sint16) world_Get()->GetHeight(),
 										  resolution);
 
   Diplomat::ResizeAll(s_maxPlayers);
@@ -1770,9 +1770,9 @@ void CtpAi::AddExploreTargets(const PLAYER_INDEX playerId)
 			continue;
 
 		MapPoint pos;
-		for ( pos.x = 0; pos.x <  g_theWorld->GetWidth(); pos.x += explore_res)
+		for ( pos.x = 0; pos.x <  world_Get()->GetWidth(); pos.x += explore_res)
 		{
-			for (pos.y = 0; pos.y <  g_theWorld->GetHeight(); pos.y += explore_res)
+			for (pos.y = 0; pos.y <  world_Get()->GetHeight(); pos.y += explore_res)
 			{
 				if (player_ptr->IsExplored(pos))
 					continue;
@@ -1833,9 +1833,9 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 		{
 			SettleMap::SettleTarget settle_target = *iter;
 
-			if ( (!g_theWorld->IsWater(settle_target.m_pos)) &&
+			if ( (!world_Get()->IsWater(settle_target.m_pos)) &&
 				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleLand()) ||
-				 (g_theWorld->IsWater(settle_target.m_pos)) &&
+				 (world_Get()->IsWater(settle_target.m_pos)) &&
 				 (g_theGoalDB->Get(goal_type)->GetTargetTypeSettleSea()))
 			{
 				Goal_ptr goal_ptr = new Goal();
@@ -1885,11 +1885,11 @@ void CtpAi::AddMiscMapTargets(const PLAYER_INDEX playerId)
 			continue;
 
 		MapPoint pos;
-		for ( pos.x = 0; pos.x < g_theWorld->GetWidth(); pos.x++)
+		for ( pos.x = 0; pos.x < world_Get()->GetWidth(); pos.x++)
 		{
-			for (pos.y = 0; pos.y < g_theWorld->GetHeight(); pos.y++)
+			for (pos.y = 0; pos.y < world_Get()->GetHeight(); pos.y++)
 			{
-				Cell * cell = g_theWorld->GetCell(pos);
+				Cell * cell = world_Get()->GetCell(pos);
 				if (cell->GetIsChokePoint() &&
 					g_theGoalDB->Get(goal_type)->GetTargetTypeChokePoint())
 				{
@@ -1965,7 +1965,7 @@ void CtpAi::ComputeCityGarrisons(const PLAYER_INDEX playerId )
 			continue;
 
 		MapPoint pos = army->RetPos();
-		Unit city = g_theWorld->GetCity(pos);
+		Unit city = world_Get()->GetCity(pos);
 		if (city.m_id == 0)
 			continue;
 
@@ -2004,7 +2004,7 @@ bool CtpAi::GetNearestAircraftCarrier(const Army & army, MapPoint & carrier_pos,
 	Assert(player_ptr);
 
 	sint32 num_armies = player_ptr->m_all_armies->Num();
-	sint32 max_squared_dist = (g_theWorld->GetWidth() * g_theWorld->GetHeight());
+	sint32 max_squared_dist = (world_Get()->GetWidth() * world_Get()->GetHeight());
 	max_squared_dist *= max_squared_dist;
 	sint32 squared_distance = max_squared_dist;
 
@@ -2099,7 +2099,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 		return;
 
 	MapPoint start_pos = army->RetPos();
-	Unit city = g_theWorld->GetCity(start_pos);
+	Unit city = world_Get()->GetCity(start_pos);
 	if (city.IsValid())
 		return;
 
@@ -2117,7 +2117,7 @@ void CtpAi::RefuelAirplane(const Army & army)
 		start_pos,
 		refueling_pos,
 		true,
-		g_theWorld->GetContinent(refueling_pos),
+		world_Get()->GetContinent(refueling_pos),
 		trans_max_r,
 		new_path,
 		total_cost))
@@ -2380,7 +2380,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 		Assert( city->GetCityData() != NULL );
 
 		// Only decrease utility if the city has grown beyond the first ring.
-		if(g_theWorld->GetCell(city->GetPos())->GetNumUnits() <= 0)
+		if(world_Get()->GetCell(city->GetPos())->GetNumUnits() <= 0)
 		{
 			hasDefenselessCities = true;
 		}
@@ -2400,7 +2400,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 			if
 			  (
 			       citySize > unitutil_GetSmallCityMaxSize()
-			    && g_theWorld->GetCell(city->GetPos())->GetNumUnits() > 0
+			    && world_Get()->GetCell(city->GetPos())->GetNumUnits() > 0
 			  )
 			{
 				continue;
@@ -2410,7 +2410,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 		if
 		  (
 		       hasDefenselessCities
-		    && g_theWorld->GetCell(city->GetPos())->GetNumUnits() > 0
+		    && world_Get()->GetCell(city->GetPos())->GetNumUnits() > 0
 		  )
 		{
 			continue;
@@ -2591,10 +2591,10 @@ void CtpAi::ExpellAdjacentUnits(const Army & army)
 		if
 		  (
 		       pos.GetNeighborPosition((WORLD_DIRECTION)dir, adj)
-		    && g_theWorld->GetCell(adj)->GetNumUnits() > 0
+		    && world_Get()->GetCell(adj)->GetNumUnits() > 0
 		  )
 		{
-			CellUnitList* adj_army = g_theWorld->GetCell(adj)->UnitArmy();
+			CellUnitList* adj_army = world_Get()->GetCell(adj)->UnitArmy();
 
 			if( adj_army->GetOwner() != playerId
 			&&  adj_army->CanBeExpelled()

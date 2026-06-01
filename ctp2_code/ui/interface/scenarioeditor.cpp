@@ -278,10 +278,10 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	// MBCHAR m_scenarioName[k_SCENARIO_NAME_MAX];
 {
 	m_scenarioName[0] = 0;
-    if (g_theWorld)
+    if (world_Get())
     {
-	    m_xWrap = g_theWorld->IsXwrap();
-	    m_yWrap = g_theWorld->IsYwrap();
+	    m_xWrap = world_Get()->IsXwrap();
+	    m_yWrap = world_Get()->IsYwrap();
     }
 
 	m_window = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot(s_scenarioEditorBlock);
@@ -620,8 +620,8 @@ AUI_ERRCODE ScenarioEditor::Hide()
 	s_scenarioEditor->m_cityStyle               = CITY_STYLE_EDITOR;
 	s_scenarioEditor->m_mapMode                 = SCEN_MAP_NONE;
 
-	if(g_theWorld)
-		g_theWorld->NumberContinents();
+	if(world_Get())
+		world_Get()->NumberContinents();
 
 	if(s_scenarioEditor->IsShown())
 		ScenarioEditor::Reupdate();
@@ -2368,9 +2368,9 @@ bool ScenarioEditor::WorldHasPlayerOrCiv(sint32 playerOrCiv, sint32 &index)
 
 	if (s_scenarioEditor->m_startLocMode == SCEN_START_LOC_MODE_CIV)
     {
-		for (sint32 i = 0; i < g_theWorld->GetNumStartingPositions(); i++)
+		for (sint32 i = 0; i < world_Get()->GetNumStartingPositions(); i++)
         {
-			if (playerOrCiv == g_theWorld->GetStartingPointCiv(i))
+			if (playerOrCiv == world_Get()->GetStartingPointCiv(i))
             {
 				index = i;
 				return true;
@@ -2380,7 +2380,7 @@ bool ScenarioEditor::WorldHasPlayerOrCiv(sint32 playerOrCiv, sint32 &index)
     else
     {
 		index = playerOrCiv - 1;
-		return g_theWorld->GetNumStartingPositions() >= playerOrCiv;
+		return world_Get()->GetNumStartingPositions() >= playerOrCiv;
 	}
 
     return false;
@@ -2415,14 +2415,14 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 			}
 		}
 
-		g_theWorld->SetStartingPoint(index, pos, playerOrCiv);
+		world_Get()->SetStartingPoint(index, pos, playerOrCiv);
 	} else {
 
 
 		if (s_scenarioEditor->m_startLocMode == SCEN_START_LOC_MODE_PLAYER) {
 
-			if (playerOrCiv > g_theWorld->GetNumStartingPositions()) {
-				playerOrCiv = g_theWorld->GetNumStartingPositions()+1;
+			if (playerOrCiv > world_Get()->GetNumStartingPositions()) {
+				playerOrCiv = world_Get()->GetNumStartingPositions()+1;
 
 			}
 
@@ -2432,7 +2432,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 			}
 		}
 
-		g_theWorld->AddStartingPoint(pos, playerOrCiv);
+		world_Get()->AddStartingPoint(pos, playerOrCiv);
 	}
 }
 
@@ -2568,7 +2568,7 @@ void ScenarioEditor::Cut()
 			cur.Move(MapPointData((sint16) x, (sint16) y));
 			if (cur.IsValid())
 			{
-				g_theWorld->SmartSetTerrain(cur.GetRC(), TERRAIN_WATER_SHALLOW, 0);
+				world_Get()->SmartSetTerrain(cur.GetRC(), TERRAIN_WATER_SHALLOW, 0);
 			}
 		}
 	}
@@ -3001,7 +3001,7 @@ void ScenarioEditor::SetXWrap(aui_Control *control, uint32 action, uint32 data, 
 		return;
 
 	s_scenarioEditor->m_xWrap = !s_scenarioEditor->m_xWrap;
-	g_theWorld->SetXWrap(s_scenarioEditor->m_xWrap);
+	world_Get()->SetXWrap(s_scenarioEditor->m_xWrap);
 }
 
 void ScenarioEditor::SetYWrap(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -3010,7 +3010,7 @@ void ScenarioEditor::SetYWrap(aui_Control *control, uint32 action, uint32 data, 
 		return;
 
 	s_scenarioEditor->m_yWrap = !s_scenarioEditor->m_yWrap;
-	g_theWorld->SetYWrap(s_scenarioEditor->m_yWrap);
+	world_Get()->SetYWrap(s_scenarioEditor->m_yWrap);
 }
 
 void ScenarioEditor::SetPlayerNation(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -3154,9 +3154,9 @@ void ScenarioEditor::ClearWorld(aui_Control *control, uint32 action, uint32 data
 
 	sint32 x, y;
 
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-			Cell *cell = g_theWorld->GetCell(x, y);
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
+			Cell *cell = world_Get()->GetCell(x, y);
 			if(cell->UnitArmy())
 				cell->UnitArmy()->KillList(CAUSE_REMOVE_ARMY_CHEAT, -1);
 			if(cell->HasCity())
@@ -3168,9 +3168,9 @@ void ScenarioEditor::ClearWorld(aui_Control *control, uint32 action, uint32 data
 
 	Unit c;
 
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-			Cell *cell = g_theWorld->GetCell(x, y);
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
+			Cell *cell = world_Get()->GetCell(x, y);
 			cell->SetEnv(0);
 			cell->SetTerrain(TERRAIN_WATER_SHALLOW);
 			cell->SetOwner(-1);
@@ -3178,7 +3178,7 @@ void ScenarioEditor::ClearWorld(aui_Control *control, uint32 action, uint32 data
 		}
 	}
 
-	g_theWorld->NumberContinents();
+	world_Get()->NumberContinents();
 
 	g_tiledMap->PostProcessMap();
 
@@ -3286,9 +3286,9 @@ void ScenarioEditor::RemoveGoods(aui_Control *control, uint32 action, uint32 dat
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	for(sint32 x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(sint32 y = 0; y < g_theWorld->GetYHeight(); y++) {
-			g_theWorld->ClearGoods(x,y);
+	for(sint32 x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(sint32 y = 0; y < world_Get()->GetYHeight(); y++) {
+			world_Get()->ClearGoods(x,y);
 		}
 	}
 	MessageBoxDialog::Information("str_Goods_All_Gone", "GoodsAllGone");
@@ -3298,14 +3298,14 @@ void ScenarioEditor::GenerateGoods(aui_Control *control, uint32 action, uint32 d
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	g_theWorld->GenerateGoods();
+	world_Get()->GenerateGoods();
 
 	sint32 good;
-	for (sint32 x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for (sint32 y = 0; y < g_theWorld->GetYHeight(); y++) {
+	for (sint32 x = 0; x < world_Get()->GetXWidth(); x++) {
+		for (sint32 y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint pos(x,y);
-			if(g_theWorld->GetGood(pos, good)) {
-				g_tiledMap->PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			if(world_Get()->GetGood(pos, good)) {
+				g_tiledMap->PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 				g_tiledMap->TileChanged(pos);
 				g_tiledMap->RedrawTile(&pos);
 			}
@@ -3369,7 +3369,7 @@ void ScenarioEditor::FindPosNow(aui_Control *control, uint32 action, uint32 data
 	{
 		return;
 	}
-	else if (atoi(Xtext) < g_theWorld->GetXWidth() && atoi(Xtext) >= 0)
+	else if (atoi(Xtext) < world_Get()->GetXWidth() && atoi(Xtext) >= 0)
 	{
 		posX = atoi(Xtext);
 	}
@@ -3379,7 +3379,7 @@ void ScenarioEditor::FindPosNow(aui_Control *control, uint32 action, uint32 data
 	{
 		return;
 	}
-	else if (atoi(Ytext) < g_theWorld->GetYHeight() && atoi(Ytext) >= 0)
+	else if (atoi(Ytext) < world_Get()->GetYHeight() && atoi(Ytext) >= 0)
 	{
 		posY = atoi(Ytext);
 	}

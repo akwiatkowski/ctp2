@@ -269,7 +269,7 @@ sint32 terrainutil_GetTimeToBuild(const MapPoint &pos, sint32 fromType, sint32 t
 const TerrainImprovementRecord::Effect *terrainutil_GetTerrainEffect(const TerrainImprovementRecord *rec,
 																	 const MapPoint &pos)
 {
-	return terrainutil_GetTerrainEffect(rec, (sint32)g_theWorld->GetCell(pos)->GetTerrainType());
+	return terrainutil_GetTerrainEffect(rec, (sint32)world_Get()->GetCell(pos)->GetTerrainType());
 }
 
 const TerrainImprovementRecord::Effect *terrainutil_GetTerrainEffect(const TerrainImprovementRecord *rec,
@@ -319,7 +319,7 @@ sint32 terrainutil_GetProductionTime(sint32 impType, const MapPoint &pos, sint32
 		if(!rec->GetTerraformTerrainIndex(toterrain))
 			return -1;
 
-		const TerrainRecord::TransformData *tfrom = terrainutil_GetTransformData(g_theWorld->GetCell(pos)->GetTerrain(), false);
+		const TerrainRecord::TransformData *tfrom = terrainutil_GetTransformData(world_Get()->GetCell(pos)->GetTerrain(), false);
 		const TerrainRecord::TransformData *tto = terrainutil_GetTransformData(toterrain, true);
 
 		if(!tfrom || !tto)
@@ -349,7 +349,7 @@ sint32 terrainutil_GetProductionCost(sint32 impType, const MapPoint &pos, sint32
 		if(!rec->GetTerraformTerrainIndex(toterrain))
 			return -1;
 
-		const TerrainRecord::TransformData *tfrom = terrainutil_GetTransformData(g_theWorld->GetCell(pos)->GetTerrain(), false);
+		const TerrainRecord::TransformData *tfrom = terrainutil_GetTransformData(world_Get()->GetCell(pos)->GetTerrain(), false);
 		const TerrainRecord::TransformData *tto = terrainutil_GetTransformData(toterrain, true);
 
 		if(!tfrom || !tto)
@@ -385,7 +385,7 @@ sint32 terrainutil_GetBonusProductionExport(sint32 impType, const MapPoint &pos,
 
 void terrainutil_DoVision(const MapPoint &point)
 {
-	Cell *  cell            = g_theWorld->GetCell(point);
+	Cell *  cell            = world_Get()->GetCell(point);
 	sint32  maxVisionRange  = 0;
 	sint32  type            = -1;
 
@@ -655,7 +655,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 //               const TerrainImprovementRecord *rec
 //                                      : terrain improvement record in the
 //                                        terrain improvement database.
-// Globals    :   g_theWorld            : The game world properties
+// Globals    :   world_Get()           : The game world properties
 //                g_player              : The list of players
 //
 // Returns    :   bool                  : Returns true if an improvement
@@ -686,7 +686,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 	if(!g_player[pl])
 		return false;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	Assert(cell);
 	if(!cell)
 		return false;
@@ -724,7 +724,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 		}
 	}
 
-	if(g_theWorld->GetCity(pos).IsValid())
+	if(world_Get()->GetCity(pos).IsValid())
 		return false;
 
 	if(rec->GetClassTerraform() || rec->GetClassOceanform())
@@ -772,7 +772,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 		}
 		else {
 			sint32 good;
-			if (g_theWorld->GetGood(pos, good)) {
+			if (world_Get()->GetGood(pos, good)) {
 				bool hasCorrectGood = false;
 				for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
 					if(rec->GetIsRestrictedToGoodIndex(i) == good) {
@@ -788,7 +788,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 		// EMOD for river only like dams and mills 4.30.2007
 		if(eff->GetRiverOnly()) {
 			bool canbuild = false;
-			if(g_theWorld->IsRiver(pos)){
+			if(world_Get()->IsRiver(pos)){
 
 					canbuild = true;
 					//	break;
@@ -803,7 +803,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 			CityInfluenceIterator it(pos, 1);
 			bool canbuild = false;
 			for(it.Start(); !it.End(); it.Next()) {
-				if( (g_theWorld->HasCity(it.Pos())) || (terrainutil_HasUrban(it.Pos())) ){
+				if( (world_Get()->HasCity(it.Pos())) || (terrainutil_HasUrban(it.Pos())) ){
 					canbuild = true;
 						break;
 				}
@@ -818,7 +818,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 			CityInfluenceIterator it(pos, 1);
 			bool canbuild = false;
 			for(it.Start(); !it.End(); it.Next()) {
-				if( g_theWorld->HasCity(it.Pos()) ){
+				if( world_Get()->HasCity(it.Pos()) ){
 					canbuild = true;
 						break;
 				}
@@ -834,7 +834,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 			SquareIterator it(pos, 1);
 			bool canbuild = false;
 			for(it.Start(); !it.End(); it.Next()) {
-				if( g_theWorld->IsRiver(it.Pos()) || terrainutil_HasIrrigation(it.Pos()) ){
+				if( world_Get()->IsRiver(it.Pos()) || terrainutil_HasIrrigation(it.Pos()) ){
 					canbuild = true;
 						break;
 				}
@@ -903,7 +903,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 	if(!g_player[pl])
 		return false;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	Assert(cell);
 	if(!cell)
 		return false;
@@ -940,7 +940,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 		}
 	}
 
-	if(g_theWorld->GetCity(pos).IsValid())
+	if(world_Get()->GetCity(pos).IsValid())
 		return false;
 
 		if(rec->GetNumIsRestrictedToGood () == 0) {
@@ -952,7 +952,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 		}
 		else {
 			sint32 good;
-			if (g_theWorld->GetGood(pos, good)) {
+			if (world_Get()->GetGood(pos, good)) {
 				for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
 					if(rec->GetIsRestrictedToGoodIndex(i) == good) {
 						return true;
@@ -972,7 +972,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 
 void terrainutil_GetDefenseBonus(const MapPoint & pos, double & terrain_bonus, double & fort_bonus)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	fort_bonus = 0.0;
 	terrain_bonus = cell->GetTerrainDefenseBonus();
 	double bonus;
@@ -1001,7 +1001,7 @@ void terrainutil_GetDefenseBonus(const MapPoint & pos, double & terrain_bonus, d
 
 bool terrainutil_HasUpgrader(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1022,7 +1022,7 @@ bool terrainutil_HasUpgrader(const MapPoint & pos)
 
 bool terrainutil_CanBeCaptured(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1043,7 +1043,7 @@ bool terrainutil_CanBeCaptured(const MapPoint & pos)
 
 bool terrainutil_HasColony(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1064,7 +1064,7 @@ bool terrainutil_HasColony(const MapPoint & pos)
 
 bool terrainutil_HasMinefield(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1085,7 +1085,7 @@ bool terrainutil_HasMinefield(const MapPoint & pos)
 
 bool terrainutil_HasAirfield(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1106,7 +1106,7 @@ bool terrainutil_HasAirfield(const MapPoint & pos)
 
 bool terrainutil_HasListeningPost(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1127,7 +1127,7 @@ bool terrainutil_HasListeningPost(const MapPoint & pos)
 
 bool terrainutil_HasFort(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1148,7 +1148,7 @@ bool terrainutil_HasFort(const MapPoint & pos)
 
 bool terrainutil_HasRadar(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1169,7 +1169,7 @@ bool terrainutil_HasRadar(const MapPoint & pos)
 
 bool terrainutil_HasEndgame(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1346,7 +1346,7 @@ void terrainutil_RemoveBorders(const MapPoint &center, sint32 owner, sint32 intR
 	RadiusIterator it(center, intRad, sqRad);
 
 	for(it.Start(); !it.End(); it.Next()) {
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 		if(cell->GetOwner() != owner)
 			continue;
 
@@ -1525,7 +1525,7 @@ sint32 terrainutil_GetEndgameTileImpIndex()
 
 bool terrainutil_HasIrrigation(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1546,7 +1546,7 @@ bool terrainutil_HasIrrigation(const MapPoint & pos)
 
 bool terrainutil_HasUrban(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1567,7 +1567,7 @@ bool terrainutil_HasUrban(const MapPoint & pos)
 
 bool terrainutil_HasWonder(const MapPoint & pos)
 {
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 
@@ -1607,7 +1607,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 	if(!g_player[pl])
 		return false;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	Assert(cell);
 	if(!cell)
 		return false;
@@ -1633,7 +1633,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 		}
 	}
 
-	if(g_theWorld->GetCity(pos).IsValid())
+	if(world_Get()->GetCity(pos).IsValid())
 		return false;
 
 		if(rec->GetNumIsRestrictedToGood () == 0) {
@@ -1645,7 +1645,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 		}
 		else {
 			sint32 good;
-			if (g_theWorld->GetGood(pos, good)) {
+			if (world_Get()->GetGood(pos, good)) {
 				for(i = 0; i < rec->GetNumIsRestrictedToGood(); i++) {
 					if(rec->GetIsRestrictedToGoodIndex(i) == good) {
 						return true;
@@ -1685,13 +1685,13 @@ double terrainutil_GetHealRate( const MapPoint & pos )
 	double rate = 0.0, temp;
 	sint32 imp;
 	bool can_heal = false;
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	sint32 imp_num = cell->GetNumDBImprovements();
 	const TerrainImprovementRecord *rec;
 	const TerrainImprovementRecord::Effect *eff;
 
 	//Cities gets top priority
-	if( g_theWorld->HasCity(pos) )
+	if( world_Get()->HasCity(pos) )
 		return g_theConstDB->Get(0)->GetCityHealRate();
 	//TileImp Heal rates are added together
 	if( imp_num > 0 ) {

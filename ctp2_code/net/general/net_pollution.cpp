@@ -6,19 +6,17 @@
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/PollutionConst.h"
 
-extern Pollution *g_thePollution;
-
 void NetPollution::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 
 	PUSHID(k_PACKET_POLLUTION_ID);
 
-	PUSHLONG(g_thePollution->m_trend);
+	PUSHLONG(pollution_Get()->m_trend);
 	for(sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; i++) {
-		PUSHLONG(g_thePollution->m_history[i]);
+		PUSHLONG(pollution_Get()->m_history[i]);
 	}
-	PUSHLONG(g_thePollution->m_phase);
+	PUSHLONG(pollution_Get()->m_phase);
 
 }
 
@@ -31,11 +29,11 @@ void NetPollution::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(packid != k_PACKET_POLLUTION_ID)
 		return;
 
-	PULLLONG(g_thePollution->m_trend);
+	PULLLONG(pollution_Get()->m_trend);
 	for(sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; i++) {
-		PULLLONG(g_thePollution->m_history[i]);
+		PULLLONG(pollution_Get()->m_history[i]);
 	}
-	PULLLONG(g_thePollution->m_phase);
+	PULLLONG(pollution_Get()->m_phase);
 
 	Assert(pos == size);
 }

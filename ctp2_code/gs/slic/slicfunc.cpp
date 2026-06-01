@@ -172,8 +172,6 @@ bool g_forceTurnDisplay = false;
 
 extern CivApp		*g_civApp;
 extern FilenameDB	*g_theMessageIconFileDB;
-extern Pollution *		g_thePollution;
-
 #define k_MESSAGE_TYPE_HASH_SIZE 16
 
 char g_missingSegment[256];
@@ -6807,7 +6805,7 @@ SFN_ERROR Slic_ArmyIsValid::Call(SlicArgList *args)
 //
 // Parameters : -
 //
-// Globals    : g_thePollution	: pollution information
+// Globals    : pollution_Get	: pollution information
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -6821,8 +6819,8 @@ SFN_ERROR Slic_GetRoundsToNextDisaster::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = (g_thePollution)
-                     ? g_thePollution->GetRoundsToNextDisaster()
+	m_result.m_int = (pollution_Get())
+                     ? pollution_Get()->GetRoundsToNextDisaster()
                      : Pollution::ROUNDS_COUNT_IMMEASURABLE;
 
 	return SFN_ERROR_OK;
@@ -6836,7 +6834,7 @@ SFN_ERROR Slic_GetRoundsToNextDisaster::Call(SlicArgList *args)
 //
 // Parameters : -
 //
-// Globals    : g_thePollution	: pollution information
+// Globals    : pollution_Get	: pollution information
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -6850,7 +6848,7 @@ SFN_ERROR Slic_GetCurrentPollutionLevel::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
     m_result.m_int =
-        (g_thePollution) ? g_thePollution->GetGlobalPollutionLevel() : 0;
+        (pollution_Get()) ? pollution_Get()->GetGlobalPollutionLevel() : 0;
 
 	return SFN_ERROR_OK;
 }

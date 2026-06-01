@@ -100,6 +100,16 @@ public:
 	sint32 GetTurn() const { return m_turn; }
 	sint32 GetYear() const { return NewTurnCount::GetCurrentYear(); }
 
+	// Direct-field accessors that don't route through NewTurnCount /
+	// g_player.  Use these when you specifically want the session-level
+	// round/year tracked by this TurnCount instance, and when you want
+	// the read to be safe without global game state initialised (e.g.
+	// in unit tests).  The legacy GetRound/GetYear accessors above query
+	// the currently-viewing player's recorded round, which for most
+	// callers is the same value but reaches into g_player to find it.
+	sint32 GetSessionRound() const { return m_round; }
+	sint32 GetSessionYear()  const { return m_year;  }
+
 	void SkipToRound(sint32 round);
 
 	void SetSliceTo(sint32 player);

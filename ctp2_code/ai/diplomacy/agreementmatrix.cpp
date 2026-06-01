@@ -41,7 +41,7 @@
 
 #include "ai/diplomacy/diplomacyutil.h"
 #include "DiplomacyProposalRecord.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "ai/ctpai.h"
 #include "gs/utility/MoveFlags.h"
 #include "ai/diplomacy/Diplomat.h"
@@ -152,7 +152,7 @@ sint16 AgreementMatrix::GetAgreementDuration( const PLAYER_INDEX sender_player,
 	if (agreement.start == -1 || agreement.end != -1)
 		return -1;
 
-	return (NewTurnCount::GetCurrentRound() - agreement.start);
+	return (g_turn->GetSessionRound() - agreement.start);
 }
 
 void AgreementMatrix::SetAgreement( const ai::Agreement & agreement )
@@ -291,7 +291,7 @@ bool AgreementMatrix::HasAgreement(const PLAYER_INDEX & sender_player,
 	if (player_ptr == NULL)
 		return false;
 
-	sint32 round = NewTurnCount::GetCurrentRound();
+	sint32 round = g_turn->GetSessionRound();
 
 	const ai::Agreement & agreement = GetAgreement(sender_player, receiver_player, type);
 
@@ -322,14 +322,14 @@ void AgreementMatrix::CancelAgreement(const PLAYER_INDEX & sender_player,
 	ai::Agreement agreement =
 		GetAgreement(sender_player, receiver_player, type);
 
-	agreement.end = NewTurnCount::GetCurrentRound();
+	agreement.end = g_turn->GetSessionRound();
 
 	SetAgreement(agreement);
 
 	agreement =
 		GetAgreement(receiver_player, sender_player, type);
 
-	agreement.end = NewTurnCount::GetCurrentRound();
+	agreement.end = g_turn->GetSessionRound();
 
 	SetAgreement(agreement);
 }
@@ -382,7 +382,7 @@ sint32 AgreementMatrix::TurnsSinceLastWar(const PLAYER_INDEX & player,
 	if (last_war.start == -1)
 		return -1;
 
-	return (NewTurnCount::GetCurrentRound() - last_war.end);
+	return (g_turn->GetSessionRound() - last_war.end);
 }
 
 sint32 AgreementMatrix::TurnsAtWar(const PLAYER_INDEX & player,
@@ -407,7 +407,7 @@ sint32 AgreementMatrix::TurnsAtWar(const PLAYER_INDEX & player,
 
 	Assert(last_war.end == -1);
 
-	return (NewTurnCount::GetCurrentRound() - last_war.start);
+	return (g_turn->GetSessionRound() - last_war.start);
 }
 
 void AgreementMatrix::SetAgreementFast(size_t index, const ai::Agreement &agreement)

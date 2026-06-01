@@ -267,7 +267,11 @@ MBCHAR * scenario_name_buf(void);
 bool show_unit_labels_Get(void);
 void show_unit_labels_Set(bool value);
 
-extern sint32 g_startingPlayer;
+// Scenario starting-player slot (-1 = unset).  Definition is file-scope
+// `static` in GameFile.cpp; the scenario editor sets it via _Set, the
+// save/load info plumbing reads it via _Get.
+sint32 starting_player_Get(void);
+void   starting_player_Set(sint32 v);
 
 sint32 gamefile_CurrentVersion();
 

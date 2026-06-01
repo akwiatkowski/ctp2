@@ -1854,10 +1854,10 @@ void ScenarioEditor::LimitPlayerChoice(aui_Control *control, uint32 action, uint
 	if (index == 0)
 	{
 
-		g_startingPlayer = -1;
+		starting_player_Set(-1);
 	} else {
 
-		g_startingPlayer = index;
+		starting_player_Set(index);
 	}
 
 }

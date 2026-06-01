@@ -193,7 +193,10 @@ static sint32 g_showUnitLabels = FALSE;
 bool show_unit_labels_Get(void)        { return g_showUnitLabels != FALSE; }
 void show_unit_labels_Set(bool value)  { g_showUnitLabels = value ? TRUE : FALSE; }
 
-sint32 g_startingPlayer = -1;
+static sint32 g_startingPlayer = -1;
+
+sint32 starting_player_Get(void)     { return g_startingPlayer; }
+void   starting_player_Set(sint32 v) { g_startingPlayer = v; }
 
 static MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 

@@ -254,7 +254,11 @@ void   save_file_version_Set(sint32 v);
 // reads it.
 sint32 start_info_type_Get(void);
 void   start_info_type_Set(sint32 v);
-extern sint32 g_isScenario;
+// Scenario-mode flag.  Definition is file-scope `static` in GameFile.cpp;
+// scenario editor / window / loaders set it; gameplay code reads it to
+// gate scenario-only branches.
+sint32 is_scenario_Get(void);
+void   is_scenario_Set(sint32 v);
 // Number of scenario civs the player picked.  Definition in GameFile.cpp
 // as file-scope static; the UI (loadsavescreen, allinonewindow) and
 // gameinit's scenario-load path read/write through the accessors.

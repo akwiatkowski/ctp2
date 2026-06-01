@@ -1146,7 +1146,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 
 	if(m_isEmail) {
 
-		g_isScenario = FALSE;
+		is_scenario_Set(FALSE);
 
 		MBCHAR fullPath[_MAX_PATH], *c, *startc, *fc;
 		strncpy(fullPath, g_civPaths->GetDesktopPath(), sizeof(fullPath));

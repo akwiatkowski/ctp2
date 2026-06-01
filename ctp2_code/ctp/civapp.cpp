@@ -1944,7 +1944,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 610 );
 
-	if(g_isScenario && (archive != NULL &&
+	if(is_scenario_Get() && (archive != NULL &&
 	   (start_info_type_Get() != STARTINFOTYPE_NONE ||
 		save_file_version_Get() < gamefile_CurrentVersion()))) {
 
@@ -1975,7 +1975,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 620 );
 
-	if(g_isScenario && !g_oldRandSeed) {
+	if(is_scenario_Get() && !g_oldRandSeed) {
 
 
 
@@ -1987,7 +1987,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 630 );
 
-	if (g_isScenario)
+	if (is_scenario_Get())
 	{
 		for (size_t p = 0; p < k_MAX_PLAYERS; ++p)
 		{
@@ -2016,7 +2016,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 660 );
 
-	if (g_isScenario) {
+	if (is_scenario_Get()) {
 		g_tiledMap->PostProcessMap();
 	}
 
@@ -2046,7 +2046,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{
 		if ((archive == NULL) ||										// launch button
-			((start_info_type_Get() != STARTINFOTYPE_NONE) && g_isScenario)	// scenario start
+			((start_info_type_Get() != STARTINFOTYPE_NONE) && is_scenario_Get())	// scenario start
 		   )
 		{
 			g_gevManager->AddEvent(GEV_INSERT_Tail,
@@ -2067,7 +2067,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 
 
-			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)))
+			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)))
         {
 			if (g_director)
 				g_director->AddCopyVision();
@@ -2360,7 +2360,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 
 
-			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS))) {
+			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS))) {
 
 
 
@@ -3700,7 +3700,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 		strcat(fullpath, FILE_SEP);
 		strcat(fullpath, filename);
 
-		g_isScenario = FALSE;
+		is_scenario_Set(FALSE);
 		// Route through the public SaveGame dispatcher so the JSON
 		// default (g_useJsonSave) applies to autosave too.  The UTF-8
 		// cleanliness bug that previously kept this on the binary path

@@ -4262,7 +4262,7 @@ SFN_ERROR Slic_SaveGame::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 
-	g_isScenario = FALSE;
+	is_scenario_Set(FALSE);
 
 	GameFile::SaveGame(string, NULL);
 	return SFN_ERROR_OK;

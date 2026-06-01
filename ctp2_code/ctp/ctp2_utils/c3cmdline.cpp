@@ -5603,7 +5603,7 @@ void SaveCommand::Execute(sint32 argc, char **argv)
 
 
 
-	g_isScenario = FALSE;
+	is_scenario_Set(FALSE);
 
 	GameFile::SaveGame(argv[1], NULL);
 }

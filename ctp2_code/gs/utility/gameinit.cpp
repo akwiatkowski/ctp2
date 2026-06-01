@@ -1574,16 +1574,16 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	SPLASH_STRING("Initializing the Map...");
 
 	bool loadEverything =
-        !g_isScenario || (start_info_type_Get() == STARTINFOTYPE_NOLOCS);
-	gameinit_log->debug("loadEverything={}, g_isScenario={}, g_startInfoType={}",
-	           loadEverything, (bool)g_isScenario, (int)start_info_type_Get());
+        !is_scenario_Get() || (start_info_type_Get() == STARTINFOTYPE_NOLOCS);
+	gameinit_log->debug("loadEverything={}, is_scenario_Get()={}, g_startInfoType={}",
+	           loadEverything, (bool)is_scenario_Get(), (int)start_info_type_Get());
 
 	if (archive) {
 		gameinit_log->debug("step: new World(archive)");
 		g_theWorld = new World(*archive) ;
 		if(
 
-			(g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
+			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
 			sint32 x, y;
 			for(x = 0; x < g_theWorld->GetXWidth(); x++) {
 				for(y = 0; y < g_theWorld->GetYHeight(); y++) {
@@ -1924,7 +1924,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			g_deadPlayer->AddTail(new Player(*archive));
 		}
 
-		if (g_isScenario && start_info_type_Get() != STARTINFOTYPE_NOLOCS)
+		if (is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)
 		{
 			CreateBarbarians(diff);
 
@@ -2303,7 +2303,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 	}
-    else if (g_isScenario && (start_info_type_Get() != STARTINFOTYPE_NOLOCS))
+    else if (is_scenario_Get() && (start_info_type_Get() != STARTINFOTYPE_NOLOCS))
     {
 		sint32 landSettler = -1;
 		sint32 seaSettler = -1;
@@ -2473,7 +2473,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	if(g_isScenario && loadEverything && g_scenarioUsePlayerNumber > 0) {
+	if(is_scenario_Get() && loadEverything && g_scenarioUsePlayerNumber > 0) {
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
 			if(!g_player[i])
 				continue;
@@ -2494,7 +2494,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_scenarioUsePlayerNumber = 0;
 	}
 
-	if (!(archive) || g_isScenario)
+	if (!(archive) || is_scenario_Get())
 	{
 		if (gameinit_IsHotseatGame() || gameinit_IsEmailGame())
 		{
@@ -2552,7 +2552,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
     if (g_gameObservers) {
-        g_gameObservers->NotifySetGraphMinRound(g_isScenario ? g_turn->GetRound() : 0);
+        g_gameObservers->NotifySetGraphMinRound(is_scenario_Get() ? g_turn->GetRound() : 0);
     }
 
 	// Clean good old -> new good table

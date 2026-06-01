@@ -240,7 +240,7 @@ void optionwarningscreen_but2Press(aui_Control *control, uint32 action, uint32 d
 
 
 
-		g_isScenario = FALSE;
+		is_scenario_Set(FALSE);
 
 		loadsavescreen_displayMyWindow(LSS_SAVE_GAME);
 	}

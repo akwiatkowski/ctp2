@@ -185,7 +185,10 @@ static sint32 g_startInfoType = STARTINFOTYPE_NONE;
 
 sint32 start_info_type_Get(void)     { return g_startInfoType; }
 void   start_info_type_Set(sint32 v) { g_startInfoType = v; }
-sint32 g_isScenario = FALSE;
+static sint32 g_isScenario = FALSE;
+
+sint32 is_scenario_Get(void)     { return g_isScenario; }
+void   is_scenario_Set(sint32 v) { g_isScenario = v; }
 static sint32 g_useScenarioCivs = 2;
 
 sint32 scenario_civs_Get(void) { return g_useScenarioCivs; }

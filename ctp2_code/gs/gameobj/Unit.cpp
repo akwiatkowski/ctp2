@@ -1030,7 +1030,7 @@ bool Unit::Settle()
 
 char const * Unit::GetText() const
 {
-    return (g_isScenario) ? GetName() : GetData()->GetText();
+    return (is_scenario_Get()) ? GetName() : GetData()->GetText();
 }
 
 void Unit::SetText(char *str)

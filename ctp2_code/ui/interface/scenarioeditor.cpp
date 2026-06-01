@@ -2349,7 +2349,7 @@ void ScenarioEditor::NameTheScenarioCallback(MBCHAR *text, sint32 accepted, void
 		gamesettings_Get()->SetKeepScore( TRUE );
 
 		scenarioeditor_SetSaveOptionsFromMode();
-		g_isScenario = TRUE;
+		is_scenario_Set(TRUE);
 
 		loadsavescreen_displayMyWindow( LSS_SAVE_SCEN );
 	}

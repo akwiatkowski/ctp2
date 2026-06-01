@@ -755,12 +755,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(g_network.IsActive()) {
 			if(g_network.IsHost()) {
 
-				g_isScenario = FALSE;
+				is_scenario_Set(FALSE);
 				loadsavescreen_displayMyWindow(LSS_SAVE_MP);
 			}
 		} else {
 
-			g_isScenario = FALSE;
+			is_scenario_Set(FALSE);
 
 			loadsavescreen_displayMyWindow(LSS_SAVE_GAME);
 		}
@@ -1320,7 +1320,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		//games, hot seat games and email games.
 		if(!g_modalWindow
 		&& !g_theProfileDB->IsScenario()
-		&& !g_isScenario
+		&& !is_scenario_Get()
 		&& !g_network.IsActive()
 		&& !g_turn->IsHotSeat()
 		&& !g_turn->IsEmail()

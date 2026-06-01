@@ -121,7 +121,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 		from &&
 		!g_turn->IsHotSeat() && !g_turn->IsEmail())
 	{
-		if(!g_theProfileDB->IsScenario() && !g_isScenario) {
+		if(!g_theProfileDB->IsScenario() && !is_scenario_Get()) {
 			g_optionsWindow->RestartButton()->Enable( TRUE );
 		} else {
 			g_optionsWindow->RestartButton()->Enable(FALSE);
@@ -263,7 +263,7 @@ void optionsscreen_savegamePress(aui_Control *control, uint32 action, uint32 dat
 		type = LSS_SAVE_MP;
 
 
-	g_isScenario = FALSE;
+	is_scenario_Set(FALSE);
 
 	loadsavescreen_displayMyWindow( type );
 }
@@ -275,7 +275,7 @@ void optionsscreen_savescenarioPress(aui_Control *control, uint32 action, uint32
 	uint32 type = LSS_SAVE_SCEN;
 
 
-	g_isScenario = TRUE;
+	is_scenario_Set(TRUE);
 
 	loadsavescreen_displayMyWindow( type );
 }

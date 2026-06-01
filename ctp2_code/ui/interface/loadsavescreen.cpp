@@ -602,7 +602,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			g_civPaths->SetCurScenarioPath(directoryPath);
 			g_theProfileDB->SetIsScenario(TRUE);
 
-			g_isScenario = true;
+			is_scenario_Set(true);
 		}
 	} else {
 
@@ -701,7 +701,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	if (!g_loadsaveWindow->GetSaveName(saveInfo->fileName)) return;
 	if (!g_loadsaveWindow->GetNote(saveInfo->note)) return;
 
-	saveInfo->isScenario = g_isScenario;
+	saveInfo->isScenario = is_scenario_Get();
 
 	if (strlen(saveInfo->gameName) == 0) {
 
@@ -873,7 +873,7 @@ void loadsavescreen_SaveMPGame(void)
 	if (!g_loadsaveWindow->GetNote(saveInfo->note)) return;
 
 	// SAM050399
-	saveInfo->isScenario = g_isScenario;
+	saveInfo->isScenario = is_scenario_Get();
 
 	if (strlen(saveInfo->gameName) == 0) {
 		// Empty game name in the save info, copy it over from the game info

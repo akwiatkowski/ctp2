@@ -529,7 +529,7 @@ void ScenarioWindow::SavePress(aui_Control *control, uint32 action, uint32 data,
 
 		scenario_name_buf()[0] = 0;
 
-		g_isScenario = TRUE;
+		is_scenario_Set(TRUE);
 
 		switch(ScenarioEditor::GetStartLocMode()) {
 			case SCEN_START_LOC_MODE_NONE:

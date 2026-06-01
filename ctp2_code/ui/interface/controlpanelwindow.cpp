@@ -983,7 +983,7 @@ void OptionsMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 		    if (!g_network.IsClient())
             {
                 uint32 type = (g_network.IsActive()) ? LSS_SAVE_MP : LSS_SAVE_GAME;
-				g_isScenario = FALSE;
+				is_scenario_Set(FALSE);
 				loadsavescreen_displayMyWindow( type );
 			}
 			break;
@@ -1326,7 +1326,7 @@ void ControlPanelWindow::RebuildMenus()
 	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
-	if (!g_theProfileDB->IsScenario() && !g_isScenario)
+	if (!g_theProfileDB->IsScenario() && !is_scenario_Get())
 	{
 		mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);
@@ -1596,7 +1596,7 @@ ControlPanelWindow::BuildOptionsMenu()
 	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
-	if (!g_theProfileDB->IsScenario() && !g_isScenario)
+	if (!g_theProfileDB->IsScenario() && !is_scenario_Get())
 	{
 		m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);

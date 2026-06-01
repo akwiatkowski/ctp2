@@ -12,7 +12,10 @@ class Splash;
 #define	k_SPLASH_TEXT_INC		15
 
 #ifdef _DEBUG
-extern sint32           g_splash_old;
+// Reset the debug-only "previous splash tick" baseline.  Backing storage
+// is `static sint32 g_splash_old` in splash.cpp; only debug-build callers
+// (civapp.cpp, civ3_main.cpp) ever poke it.
+void splash_MarkOld(void);
 #endif
 
 // SPLASH_STRING / SPLASH_STRING_SIMPLE now live in gs/core/splash_progress.h

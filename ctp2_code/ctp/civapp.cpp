@@ -1760,7 +1760,7 @@ sint32 CivApp::InitializeGameUI(void)
 
 	SPLASH_STRING("Creating Main Windows...");
 #if defined(_DEBUG)
-	g_splash_old = Os::GetTicks();
+	splash_MarkOld();
 #endif
 
 	SPLASH_STRING("Creating Status Window...");
@@ -2170,7 +2170,7 @@ sint32 InitializeSpriteEditorUI(void)
 
 	SPLASH_STRING("Creating Main Windows...");
 #if defined(_DEBUG)
-	g_splash_old = Os::GetTicks();
+	splash_MarkOld();
 #endif
 
 	ProgressTo( 20 );

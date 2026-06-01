@@ -19,7 +19,11 @@ static Splash *        g_splash    = NULL;
 // SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals
 // live next to the Splash class that owns them.
 static sint32          g_splash_cur = 0;
-sint32          g_splash_old = 0;
+static sint32   g_splash_old = 0;
+
+#ifdef _DEBUG
+void splash_MarkOld(void) { g_splash_old = GetTickCount(); }
+#endif
 static MBCHAR          g_splash_buf[100] = {0};
 
 namespace {

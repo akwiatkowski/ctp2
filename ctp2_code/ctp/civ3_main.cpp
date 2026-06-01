@@ -1368,7 +1368,7 @@ void main_InitializeLogs(void)
 #endif
 
 #if defined(_DEBUG)
-    g_splash_old = GetTickCount();
+    splash_MarkOld();
 #endif
 
 	char		timebuf[100];

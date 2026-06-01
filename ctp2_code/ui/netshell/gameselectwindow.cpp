@@ -491,14 +491,14 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 		g_gamesetup.SetClosed( false );
 		g_gamesetup.SetSyncLaunch( true );
 
-		PlayerSelectWindow *psw = (PlayerSelectWindow *)g_netshell->
+		PlayerSelectWindow *psw = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		psw->GetPlayerSetup(g_netfunc->GetPlayer())->Reset();
 
 		playersetup_Get().SetReadyToLaunch(false);
 		if(g_netfunc->Create(&g_gamesetup) == NETFunc::OK) {
 			w->SetMode(mode);
-			g_netshell->GotoScreen( NetShell::SCREEN_ALLINONE );
+			netshell_Get()->GotoScreen( NetShell::SCREEN_ALLINONE );
 			w->Update();
 		}
 	}
@@ -512,7 +512,7 @@ void GameSelectWindow::CancelButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_STARTSELECTING );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_STARTSELECTING );
 }
 
 
@@ -804,7 +804,7 @@ void StartSelectingWindow::GameSetupButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_GAMESELECT );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_GAMESELECT );
 }
 
 
@@ -927,7 +927,7 @@ void StartSelectingWindow::CancelButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 }
 
 

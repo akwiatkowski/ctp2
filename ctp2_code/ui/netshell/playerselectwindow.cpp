@@ -322,14 +322,14 @@ void PlayerSelectWindow::NewButtonAction::Execute(
 	PlayerSelectWindow *w = (PlayerSelectWindow *)control->GetParentWindow();
 	ns_PlayerSetupListBox *listbox = (ns_PlayerSetupListBox *)(w->FindControl( PlayerSelectWindow ::CONTROL_PLAYERNAMELISTBOX ));
 	ns_PlayerSetupItem *item = (ns_PlayerSetupItem *)listbox->GetSelectedItem();
-	PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYEREDIT );
+	PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_PLAYEREDIT );
 
 	if(item)
 		listbox->DeselectItem(item);
 
 	p->SetPlayerSetup(NULL);
 	p->SetMode(p->EDIT);
-	g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+	netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 }
 
 void PlayerSelectWindow::EditButtonAction::Execute(
@@ -342,12 +342,12 @@ void PlayerSelectWindow::EditButtonAction::Execute(
 	ns_PlayerSetupListBox *listbox = (ns_PlayerSetupListBox *)(w->FindControl( PlayerSelectWindow ::CONTROL_PLAYERNAMELISTBOX ));
 	ns_PlayerSetupItem *item = (ns_PlayerSetupItem *)listbox->GetSelectedItem();
 
-	PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYEREDIT );
+	PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_PLAYEREDIT );
 
 	if(item) {
 		p->SetPlayerSetup(item->GetNetShellObject()->GetNETFuncObject());
 		p->SetMode(p->EDIT);
-		g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+		netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 	}
 }
 
@@ -414,7 +414,7 @@ void PlayerSelectWindow::OKButtonAction::Execute(
 			newbut->GetAction()->
 				Execute( newbut, AUI_BUTTON_ACTION_EXECUTE, 0 );
 
-			PlayerEditWindow *pew = (PlayerEditWindow *)g_netshell->
+			PlayerEditWindow *pew = (PlayerEditWindow *)netshell_Get()->
 				FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			((aui_TextField *)pew->
 			 FindControl( pew->CONTROL_PLAYERNAMETEXTFIELD ))
@@ -441,9 +441,9 @@ void PlayerSelectWindow::OKButtonAction::Execute(
 
 		g_netfunc->Connect();
 
-		LobbyWindow *lw = (LobbyWindow *)g_netshell->
+		LobbyWindow *lw = (LobbyWindow *)netshell_Get()->
 			FindWindow( NetShell::WINDOW_LOBBY );
-		g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 		lw->Update();
 	}
 }
@@ -469,7 +469,7 @@ void PlayerSelectWindow::CancelButtonAction::Execute(
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 	g_netfunc->Disconnect();
 	if(g_netfunc->GetTransport() && g_netfunc->GetTransport()->GetType() == NETFunc::Transport::INTERNET)
-		g_netshell->GotoScreen( NetShell::SCREEN_SERVERSELECT );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_SERVERSELECT );
 	else
-		g_netshell->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 }

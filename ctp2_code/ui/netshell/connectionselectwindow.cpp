@@ -277,7 +277,7 @@ AUI_ERRCODE ConnectionSelectWindow::Idle( void )
 
 	if (g_netfunc->GetStatus() == NETFunc::READY)
     {
-		g_netshell->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -355,8 +355,8 @@ void ConnectionSelectWindow::OKButtonAction::Execute(
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_NODIALUP );
 			} else if(t->GetType() == NETFunc::Transport::INTERNET) {
 
-				g_netshell->GotoScreen( NetShell::SCREEN_SERVERSELECT );
-				((ServerSelectWindow *)g_netshell->FindWindow( NetShell::WINDOW_SERVERSELECT ))->Update( true );
+				netshell_Get()->GotoScreen( NetShell::SCREEN_SERVERSELECT );
+				((ServerSelectWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_SERVERSELECT ))->Update( true );
 			}
 		}
 	}

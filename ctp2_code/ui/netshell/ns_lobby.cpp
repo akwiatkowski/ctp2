@@ -41,7 +41,7 @@ ns_Lobby::ns_Lobby(NETFunc::Lobby * lobby)
 
 void ns_Lobby::Update( NETFunc::Lobby *lobby ) {
 	SetMine(lobby->IsCurrentSession());
-	m_closed = lobby->IsClosed() ? g_netshell->GetTrueBmp() : 0;
+	m_closed = lobby->IsClosed() ? netshell_Get()->GetTrueBmp() : 0;
 	m_name = lobby->GetName();
 	m_players = lobby->GetPlayers();
 }

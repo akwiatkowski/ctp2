@@ -253,11 +253,11 @@ void LobbyChangeWindow::OKButtonAction::Execute(
 		ns_Lobby *lobby = item->GetNetShellObject();
 		if(!lobby->IsMine()) {
 			g_netfunc->Join(lobby->GetNETFuncObject());
-			LobbyWindow *w = (LobbyWindow *)(g_netshell->FindWindow(NetShell::WINDOW_LOBBY));
+			LobbyWindow *w = (LobbyWindow *)(netshell_Get()->FindWindow(NetShell::WINDOW_LOBBY));
 			w->Update();
 		}
 
-		g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 	}
 }
 
@@ -268,5 +268,5 @@ void LobbyChangeWindow::CancelButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 }

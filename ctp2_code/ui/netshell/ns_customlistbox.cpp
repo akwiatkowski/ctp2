@@ -720,10 +720,10 @@ void ns_GPlayerListBox::UpdateHPlayerItem(
 	nf_PlayerSetup playersetup( player );
 
 	item->GetHostItem()->
-		SetImage( player->IsHost() ? g_netshell->GetTrueBmp() : 0 );
+		SetImage( player->IsHost() ? netshell_Get()->GetTrueBmp() : 0 );
 
 	item->GetLaunchedItem()->
-		SetImage( player->IsReadyToLaunch() ? g_netshell->GetTrueBmp() : 0 );
+		SetImage( player->IsReadyToLaunch() ? netshell_Get()->GetTrueBmp() : 0 );
 
 	MBCHAR name[ dp_PNAMELEN + 1 ];
 	strncpy( name, player->GetName(), dp_PNAMELEN );
@@ -981,7 +981,7 @@ void ns_AIPlayerListBox::UpdateHPlayerItem(
 		SetImage( 0 );
 
 	item->GetLaunchedItem()->
-		SetImage( g_netshell->GetTrueBmp() );
+		SetImage( netshell_Get()->GetTrueBmp() );
 
 	MBCHAR name[ dp_PNAMELEN + 1 ];
 	strncpy( name, player->GetName(), dp_PNAMELEN );

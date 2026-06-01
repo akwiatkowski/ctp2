@@ -1886,7 +1886,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				break;
 			case NETFunc::Message::NETWORKERR:
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_CONNECTIONERR );
-				g_netshell->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
+				netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 				break;
 			case dp_SESSIONLOST_PACKET_ID:
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_CONNECTIONLOST );
@@ -1897,8 +1897,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 					DialogBoxWindow::PopDown( s_dbw );
 					s_dbw = NULL;
 				}
-				g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
-				((LobbyWindow *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
+				netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
+				((LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
 				break;
 
 			default:
@@ -2036,14 +2036,14 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				 if(item && !item->IsAI())
 				 {
 					 NETFunc::Player *player = item->GetPlayer();
-					 PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
+					 PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->
 						 FindWindow( NetShell::WINDOW_PLAYEREDIT );
 					 *(NETFunc::PlayerSetup *)&rplayersetup_Get() =
 						 NETFunc::PlayerSetup(player);
 					 rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 					 p->SetPlayerSetup(&rplayersetup_Get());
 					 p->SetMode(p->VIEW);
-					 g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+					 netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				 }
 			}
 			delete m;
@@ -2052,7 +2052,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 	}
 
 	if(joinedgame && g_netfunc->GetStatus() == NETFunc::OK) {
-		PlayerSelectWindow *w = (PlayerSelectWindow *)g_netshell->
+		PlayerSelectWindow *w = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		playersetup_Get() = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
 		g_netfunc->SetPlayerSetup(&playersetup_Get());
@@ -2200,7 +2200,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 		for ( sint32 child = g_ui->ChildList()->L(); child; child-- )
 			g_ui->RemoveChild( g_ui->ChildList()->GetHead()->Id() );
-		g_netshell->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
+		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 
 	if ( m_shouldUpdateGame )
@@ -2293,7 +2293,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			{
 			case NETFunc::Message::NETWORKERR:
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_CONNECTIONERR );
-				g_netshell->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
+				netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 				break;
 			case dp_SESSIONLOST_PACKET_ID:
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_CONNECTIONLOST );
@@ -2304,8 +2304,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 					DialogBoxWindow::PopDown( s_dbw );
 					s_dbw = NULL;
 				}
-				g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
-				((LobbyWindow *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
+				netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
+				((LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
 				break;
 			case NETFunc::Message::UNLAUNCH:
 				if(playersetup_Get().IsReadyToLaunch())
@@ -2495,14 +2495,14 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				if(item && !item->IsAI())
 				{
 					NETFunc::Player *player = item->GetPlayer();
-					PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
+					PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->
 						FindWindow( NetShell::WINDOW_PLAYEREDIT );
 					*(NETFunc::PlayerSetup *)&rplayersetup_Get() =
 						NETFunc::PlayerSetup(player);
 					rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 					p->SetPlayerSetup(&rplayersetup_Get());
 					p->SetMode(p->VIEW);
-					g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+					netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				}
 			}
 			delete m;
@@ -2516,9 +2516,9 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		if(g_netfunc->GetTransport()) {
 
 			g_netfunc->PushChatMessage(m_messageKicked->GetString());
-			LobbyWindow *w = (LobbyWindow *)g_netshell->
+			LobbyWindow *w = (LobbyWindow *)netshell_Get()->
 				FindWindow( NetShell::WINDOW_LOBBY );
-			g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+			netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 			w->Update();
 		} else {
 #ifdef WIN32
@@ -2553,7 +2553,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 	if(joinedgame && g_netfunc->GetStatus() == NETFunc::OK) {
 
-		PlayerSelectWindow *w = (PlayerSelectWindow *)g_netshell->
+		PlayerSelectWindow *w = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		playersetup_Get() = *(w->GetPlayerSetup(g_netfunc->GetPlayer()));
 		g_netfunc->SetPlayerSetup(&playersetup_Get());
@@ -2640,7 +2640,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		if ( newGS )
 		{
 			ns_GameSetupListBox *gslb = (ns_GameSetupListBox *)
-				((ns_Window *)g_netshell->
+				((ns_Window *)netshell_Get()->
 				 FindWindow( NetShell::WINDOW_GAMESELECT ))->
 				FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX );
 			gslb->InsertItem( newGS );
@@ -2701,7 +2701,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 
 		for ( sint32 child = g_ui->ChildList()->L(); child; child-- )
 			g_ui->RemoveChild( g_ui->ChildList()->GetHead()->Id() );
-		g_netshell->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
+		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 	}
 
@@ -3048,7 +3048,7 @@ void AllinoneWindow::ReallyUpdateGameSetup()
 
 	g_gamesetup.Update();
 
-	GameSelectWindow *gsw = (GameSelectWindow *)g_netshell->
+	GameSelectWindow *gsw = (GameSelectWindow *)netshell_Get()->
 		FindWindow( NetShell::WINDOW_GAMESELECT );
 	ns_GameSetupListBox *gl = (ns_GameSetupListBox *)gsw->
 		FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX );
@@ -3070,7 +3070,7 @@ void AllinoneWindow::UpdatePlayerSetup(void)
 	playersetup_Get().Update();
 
 	ns_PlayerSetupListBox *l = (ns_PlayerSetupListBox *)
-		((ns_Window *)g_netshell->
+		((ns_Window *)netshell_Get()->
 		 FindWindow( NetShell::WINDOW_PLAYERSELECT ))->
 		FindControl( PlayerSelectWindow::CONTROL_PLAYERNAMELISTBOX );
 
@@ -3555,11 +3555,11 @@ void AllinoneWindow::InfoButtonAction::Execute(
 
 		if ( w->IsMine( player ) )
 		{
-			PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->
+			PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->
 				FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			p->SetPlayerSetup(&playersetup_Get());
 			p->SetMode(p->EDIT_GAMESETUP);
-			g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+			netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 		}
 		else
 		{
@@ -4083,8 +4083,8 @@ void AllinoneWindow::CancelButtonAction::Execute(
 			w->UpdateGameSetup();
 		}
 		g_netfunc->Leave();
-		LobbyWindow *w = (LobbyWindow *)(g_netshell->FindWindow( NetShell::WINDOW_LOBBY ));
-		g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+		LobbyWindow *w = (LobbyWindow *)(netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ));
+		netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 		w->Update();
 	} else {
 #ifdef WIN32
@@ -4500,8 +4500,8 @@ void AllinoneWindow::DialogBoxPopDownAction::Execute(
 		DialogBoxWindow::PopDown( s_dbw );
 		s_dbw = NULL;
 	}
-	LobbyWindow *w = (LobbyWindow *)(g_netshell->FindWindow( NetShell::WINDOW_LOBBY ));
-	g_netshell->GotoScreen( NetShell::SCREEN_LOBBY );
+	LobbyWindow *w = (LobbyWindow *)(netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ));
+	netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 	w->Update();
 }
 

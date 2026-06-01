@@ -29,7 +29,10 @@ class ns_Tribes;
 #define k_NS_FLAGS_RETURN			0x00000020
 #define k_NS_FLAGS_MAINMENU			0x00000040
 
-extern NetShell	*g_netshell;
+// Lifecycle is internal to netshell.cpp (ctor sets, dtor clears).  All
+// external consumers across UI / net / lobby code read it through
+// netshell_Get().  No external writer.
+NetShell * netshell_Get(void);
 extern NETFunc	*g_netfunc;
 
 extern nf_GameSetup g_gamesetup;

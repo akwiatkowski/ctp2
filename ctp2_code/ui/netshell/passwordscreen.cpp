@@ -528,7 +528,7 @@ void PasswordScreenCallback(
 		}
 		else if(s_passwordScreen->GetChild(s_nolobbyStatic->Id()))
 		{
-			g_netshell->GotoScreen(NetShell::SCREEN_PLAYERSELECT);
+			netshell_Get()->GotoScreen(NetShell::SCREEN_PLAYERSELECT);
 		}
 		else
 		{

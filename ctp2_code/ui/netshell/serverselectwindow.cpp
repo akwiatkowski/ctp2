@@ -225,7 +225,7 @@ AUI_ERRCODE ServerSelectWindow::Idle( void )
 		}
 
 		if(g_netfunc->GetStatus() == NETFunc::START)
-			g_netshell->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
+			netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -280,7 +280,7 @@ void ServerSelectWindow::OKButtonAction::Execute(
 		g_netfunc->SetServer(server);
 		g_netfunc->Login( "", "" );
 
-		g_netshell->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}
 	else {
 
@@ -316,5 +316,5 @@ void ServerSelectWindow::DialogBoxPopDownAction::Execute(
 		s_dbw = NULL;
 	}
 
-	g_netshell->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 }

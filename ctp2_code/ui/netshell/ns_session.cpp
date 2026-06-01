@@ -42,8 +42,8 @@ ns_Session::ns_Session(NETFunc::Session * session)
 
 void ns_Session::Update( NETFunc::Session *session ) {
 	SetMine(session->IsCurrentSession());
-	m_locked = strlen(session->GetPassword()) ? g_netshell->GetTrueBmp() : 0;
-	m_closed = session->IsClosed() ? g_netshell->GetTrueBmp() : 0;
+	m_locked = strlen(session->GetPassword()) ? netshell_Get()->GetTrueBmp() : 0;
+	m_closed = session->IsClosed() ? netshell_Get()->GetTrueBmp() : 0;
 	m_name = session->GetName();
 	m_players = session->GetPlayers();
 }

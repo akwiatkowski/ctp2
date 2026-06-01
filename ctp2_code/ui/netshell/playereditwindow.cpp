@@ -426,7 +426,7 @@ void PlayerEditWindow::OKButtonAction::Execute(
 	uint32 data )
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-	PlayerSelectWindow *w = (PlayerSelectWindow *)g_netshell->
+	PlayerSelectWindow *w = (PlayerSelectWindow *)netshell_Get()->
 		FindWindow( NetShell::WINDOW_PLAYERSELECT );
 	PlayerEditWindow *p = (PlayerEditWindow *)(control->GetParentWindow());
 	ns_PlayerSetupListBox *l = (ns_PlayerSetupListBox *)w->
@@ -517,7 +517,7 @@ void PlayerEditWindow::OKButtonAction::Execute(
 		l->SelectItem(l->FindItem(p->GetPlayerSetup()));
 	}
 
-		g_netshell->GetCurrentScreen()->RemoveWindow(p->Id());
+		netshell_Get()->GetCurrentScreen()->RemoveWindow(p->Id());
 		w->Update();
 }
 
@@ -529,5 +529,5 @@ void PlayerEditWindow::CancelButtonAction::Execute(
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	PlayerEditWindow *p = (PlayerEditWindow *)(control->GetParentWindow());
-	g_netshell->GetCurrentScreen()->RemoveWindow(p->Id());
+	netshell_Get()->GetCurrentScreen()->RemoveWindow(p->Id());
 }

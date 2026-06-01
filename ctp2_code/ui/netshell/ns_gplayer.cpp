@@ -50,8 +50,8 @@ ns_GPlayer::ns_GPlayer(NETFunc::Player * player)
 
 void ns_GPlayer::Update( NETFunc::Player *player ) {
 	SetMine(player->IsMe());
-	m_launched = player->IsReadyToLaunch() ? g_netshell->GetTrueBmp() : 0;
-	m_host = player->IsHost() ? g_netshell->GetTrueBmp() : 0;
+	m_launched = player->IsReadyToLaunch() ? netshell_Get()->GetTrueBmp() : 0;
+	m_host = player->IsHost() ? netshell_Get()->GetTrueBmp() : 0;
 	m_name = player->GetName();
 	m_ping = player->GetLatency();
 

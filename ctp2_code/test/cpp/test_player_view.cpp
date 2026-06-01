@@ -975,7 +975,7 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_theCurrentBattle     (5 cross-layer consumers, 30 sites,
 //                             get+set accessor pattern for the
 //                             lifecycle-managed pointer)
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 24;
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 23;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

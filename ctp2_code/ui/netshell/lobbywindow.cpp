@@ -483,12 +483,12 @@ AUI_ERRCODE LobbyWindow::Idle( void )
 			    ns_PlayerItem *item = (ns_PlayerItem *)(l->GetSelectedItem());
 			    if(item) {
 				    NETFunc::Player *player = item->GetNetShellObject()->GetNETFuncObject();
-				    PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYEREDIT );
+				    PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_PLAYEREDIT );
 				    *(NETFunc::PlayerSetup *)&rplayersetup_Get() = NETFunc::PlayerSetup(player);
 				    rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 				    p->SetPlayerSetup(&rplayersetup_Get());
 				    p->SetMode(p->VIEW);
-				    g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+				    netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 			    }
             }
             break;
@@ -561,7 +561,7 @@ AUI_ERRCODE LobbyWindow::Idle( void )
 			s_dbw = NULL;
 			s_startedLeavingAt = 0;
 		}
-		g_netshell->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
+		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -587,7 +587,7 @@ void LobbyWindow::ChangeButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_LOBBYCHANGE );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBYCHANGE );
 }
 
 
@@ -680,7 +680,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 		if(!game->IsMine()) {
 			NETFunc::Game *g = game->GetNETFuncObject();
 
-			PlayerSelectWindow *psw = (PlayerSelectWindow *)g_netshell->
+			PlayerSelectWindow *psw = (PlayerSelectWindow *)netshell_Get()->
 				FindWindow(NetShell::WINDOW_PLAYERSELECT);
 			psw->GetPlayerSetup(g_netfunc->GetPlayer())->Reset();
 
@@ -700,7 +700,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 
 				g_gamesetup.SetSavedId( ((uint32 *)g->GetUserField())[ 1 ] );
 
-				AllinoneWindow *w = (AllinoneWindow *)g_netshell->
+				AllinoneWindow *w = (AllinoneWindow *)netshell_Get()->
 					FindWindow(NetShell::WINDOW_ALLINONE);
 
 
@@ -709,7 +709,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 				else
 					w->SetMode( w->JOIN );
 
-				g_netshell->GotoScreen( NetShell::SCREEN_ALLINONE );
+				netshell_Get()->GotoScreen( NetShell::SCREEN_ALLINONE );
 				w->Update();
 			}
 			else
@@ -728,7 +728,7 @@ void LobbyWindow::CreateButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netshell->GotoScreen( NetShell::SCREEN_STARTSELECTING );
+	netshell_Get()->GotoScreen( NetShell::SCREEN_STARTSELECTING );
 }
 
 
@@ -880,7 +880,7 @@ void LobbyWindow::MuteSwitchAction::Execute(
 	if ( action != (uint32)AUI_SWITCH_ACTION_ON
 	&&   action != (uint32)AUI_SWITCH_ACTION_OFF ) return;
 
-	LobbyWindow *w = (LobbyWindow *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY );
+	LobbyWindow *w = (LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY );
 	ns_ChatBox *chatbox = (ns_ChatBox *)(w->FindControl(LobbyWindow::CONTROL_CHATBOX));
 
 	NETFunc::Player *p = chatbox->GetPlayer();
@@ -918,16 +918,16 @@ void LobbyWindow::InfoButtonAction::Execute(
 	uint32 data )
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-	LobbyWindow *w = (LobbyWindow *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY );
+	LobbyWindow *w = (LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY );
 	ns_PlayerListBox *l = (ns_PlayerListBox *)(w->FindControl( LobbyWindow::CONTROL_PLAYERSLISTBOX ));
 
 	ns_PlayerItem *item = (ns_PlayerItem *)(l->GetSelectedItem());
 	if(item) {
 		if(item->GetNetShellObject()->IsMine()) {
-			PlayerEditWindow *p = (PlayerEditWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYEREDIT );
+			PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			p->SetPlayerSetup(&playersetup_Get());
 			p->SetMode(p->EDIT);
-			g_netshell->GetCurrentScreen()->AddWindow(p, TRUE);
+			netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 		} else {
 			NETFunc::Player *player = item->GetNetShellObject()->GetNETFuncObject();
 			g_netfunc->GetPlayerSetupPacket(player);
@@ -1046,7 +1046,7 @@ void LobbyWindow::BackButtonAction::Execute(
 
 
 
-		ns_Window *window = (ns_Window *)g_netshell->FindWindow( NetShell::WINDOW_LOBBY );
+		ns_Window *window = (ns_Window *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY );
 		((aui_Control *)((ns_ChatBox *)window->FindControl( CONTROL_CHATBOX ))->
 			GetInputField())->SetKeyboardFocus();
 	}

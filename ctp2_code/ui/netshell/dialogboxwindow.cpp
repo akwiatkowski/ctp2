@@ -333,7 +333,7 @@ DialogBoxWindow *DialogBoxWindow::PopUp(
 		dbw = NULL;
 	}
 
-	aui_Screen *screen = g_netshell->GetCurrentScreen();
+	aui_Screen *screen = netshell_Get()->GetCurrentScreen();
 	if ( screen )
 		screen->AddWindow( dbw, TRUE );
 
@@ -345,7 +345,7 @@ void DialogBoxWindow::PopDown( DialogBoxWindow *dbw, aui_Button *button )
 	Assert( dbw != NULL );
 	if ( !dbw ) return;
 
-	aui_Screen *screen = g_netshell->GetCurrentScreen();
+	aui_Screen *screen = netshell_Get()->GetCurrentScreen();
 	if ( screen )
 		screen->RemoveWindow( dbw->Id() );
 

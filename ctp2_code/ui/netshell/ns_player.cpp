@@ -40,7 +40,7 @@ ns_Player::ns_Player(NETFunc::Player * player)
 
 void ns_Player::Update( NETFunc::Player *player ) {
 	SetMine(player->IsMe());
-	m_mute = player->IsMuted() ? g_netshell->GetTrueBmp() : 0;
+	m_mute = player->IsMuted() ? netshell_Get()->GetTrueBmp() : 0;
 	m_name = player->GetName();
 	m_ping = player->GetLatency();
 }

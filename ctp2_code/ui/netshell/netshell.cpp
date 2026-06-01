@@ -55,7 +55,9 @@ extern void LeaveMainMenu(void);
 extern void LaunchGame(void);
 extern MBCHAR g_serverName[ 100 + 1 ];
 
-NetShell *          g_netshell          = NULL;
+static NetShell *   g_netshell          = NULL;
+
+NetShell * netshell_Get(void) { return g_netshell; }
 NETFunc *           g_netfunc           = NULL;
 nf_GameSetup        g_gamesetup;
 static nf_PlayerSetup g_playersetup;

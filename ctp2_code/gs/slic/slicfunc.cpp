@@ -1824,7 +1824,7 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 			g_player[owner]->m_gold->SubGold(oi->m_goldCost);
 		}
 
-		if(g_theUnitPool->IsValid(u)) {
+		if(unitpool_Get()->IsValid(u)) {
 			u.SetFlag(k_UDF_USED_SPECIAL_ACTION_THIS_TURN);
 			if(oi && oi->m_moveCost > 0) {
 				bool out_of_fuel;
@@ -1873,7 +1873,7 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 			g_player[owner]->m_gold->SubGold(oi->m_goldCost);
 		}
 
-		if(g_theUnitPool->IsValid(u)) {
+		if(unitpool_Get()->IsValid(u)) {
 			u.SetFlag(k_UDF_USED_SPECIAL_ACTION_THIS_TURN);
 			if(oi && oi->m_moveCost > 0) {
 				bool out_of_fuel;
@@ -2134,7 +2134,7 @@ SFN_ERROR Slic_AddOrder::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_BUILTIN;
 	}
 
-	if(!g_theUnitPool->IsValid(unit)) {
+	if(!unitpool_Get()->IsValid(unit)) {
 
 		return SFN_ERROR_OK;
 	}
@@ -2200,7 +2200,7 @@ SFN_ERROR Slic_FinishBuilding::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_BUILTIN;
 	}
 
-	if(!g_theUnitPool->IsValid(city)) {
+	if(!unitpool_Get()->IsValid(city)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2266,7 +2266,7 @@ SFN_ERROR Slic_DoPillageOwnLand::Call(SlicArgList *args)
 
 	Unit unit = g_slicEngine->GetContext()->GetUnit(0);
 
-	if(!g_theUnitPool->IsValid(unit)) {
+	if(!unitpool_Get()->IsValid(unit)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2305,7 +2305,7 @@ SFN_ERROR Slic_DoFreeSlaves::Call(SlicArgList *args)
 
 	Unit city = g_slicEngine->GetContext()->GetCity(0);
 
-	if(!g_theUnitPool->IsValid(city)) {
+	if(!unitpool_Get()->IsValid(city)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -2380,7 +2380,7 @@ SFN_ERROR Slic_LibraryUnit::Call(SlicArgList *args)
 	sint32 type;
 
 	if(args->GetUnit(0, unit)) {
-		if(!g_theUnitPool->IsValid(unit))
+		if(!unitpool_Get()->IsValid(unit))
 			return SFN_ERROR_OK;
 		type = unit.GetType();
 	} else {
@@ -2799,7 +2799,7 @@ SFN_ERROR Slic_IsUnitSelected::Call(SlicArgList *args)
 		if(!args->GetUnit(0, u)) {
 			return SFN_ERROR_TYPE_ARGS;
 		}
-		if (g_theUnitPool->IsValid(u)) {
+		if (unitpool_Get()->IsValid(u)) {
 			Army army(player_view::GetSelectedArmyId());
 			if (armypool_Get()->IsValid(army) && army.IsPresent(u)) {
 				m_result.m_int = 1;
@@ -2826,7 +2826,7 @@ SFN_ERROR Slic_IsCitySelected::Call(SlicArgList *args)
 		if(!args->GetCity(0, city)) {
 			return SFN_ERROR_TYPE_ARGS;
 		}
-		if (g_theUnitPool->IsValid(city)) {
+		if (unitpool_Get()->IsValid(city)) {
 			if (city.m_id == player_view::GetSelectedCityId()) {
 				m_result.m_int = 1;
 			}
@@ -4048,7 +4048,7 @@ SFN_ERROR Slic_AddExpelOrder::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	Army army = u.GetArmy();
@@ -4418,7 +4418,7 @@ SFN_ERROR Slic_ClearBuildQueue::Call(SlicArgList *args)
 	Unit city;
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_ARGS;
-	if(g_theUnitPool->IsValid(city)) {
+	if(unitpool_Get()->IsValid(city)) {
 		city.GetData()->GetCityData()->GetBuildQueue()->Clear();
 	}
 	return SFN_ERROR_OK;
@@ -4532,7 +4532,7 @@ SFN_ERROR Slic_ClearOrders::Call(SlicArgList *args)
 	if(!args->GetUnit(0, u))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(g_theUnitPool->IsValid(u) &&
+	if(unitpool_Get()->IsValid(u) &&
 		armypool_Get()->IsValid(u.GetArmy())) {
 		u.GetArmy().ClearOrders();
 	}
@@ -4863,7 +4863,7 @@ SFN_ERROR Slic_AddMovement::Call(SlicArgList *args)
 	if(!args->GetInt(1, amt))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	u.SetMovementPoints(u.GetMovementPoints() + amt);
@@ -4883,7 +4883,7 @@ SFN_ERROR Slic_ToggleVeteran::Call(SlicArgList *args)
 	if(!args->GetInt(1, on))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	if(on)
@@ -4903,7 +4903,7 @@ SFN_ERROR Slic_IsVeteran::Call(SlicArgList *args)
 	if(!args->GetUnit(0, u))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	if(!u.Flag(k_UDF_IS_VET))
@@ -4923,7 +4923,7 @@ SFN_ERROR Slic_IsCivilian::Call(SlicArgList *args)
 	if(!args->GetUnit(0, u))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	if(u.GetDBRec()->GetCanBeExpelled())
@@ -4947,7 +4947,7 @@ SFN_ERROR Slic_CantAttackUnit::Call(SlicArgList *args)
 	if(!args->GetInt(1, on))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	if(on)
@@ -4971,7 +4971,7 @@ SFN_ERROR Slic_CantAttackCity::Call(SlicArgList *args)
 	if(!args->GetInt(1, on))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_OK;
 
 	if(on)
@@ -4995,7 +4995,7 @@ SFN_ERROR Slic_CityCantRiotOrRevolt::Call(SlicArgList *args)
 	if(!args->GetInt(1, on))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_OK;
 
 	if(on)
@@ -5015,7 +5015,7 @@ SFN_ERROR Slic_SelectUnit::Call(SlicArgList *args)
 	if(!args->GetUnit(0, u))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	if(!armypool_Get()->IsValid(u.GetArmy()))
@@ -5035,7 +5035,7 @@ SFN_ERROR Slic_SelectCity::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_OK;
 
 	player_view::SetSelectCity(city);
@@ -5066,7 +5066,7 @@ SFN_ERROR Slic_Heal::Call(SlicArgList *args)
 	if(!args->GetUnit(0, u))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	u.SetHPToMax();
@@ -5196,7 +5196,7 @@ SFN_ERROR Slic_DamageUnit::Call(SlicArgList *args)
 	if(!args->GetInt(1, hp))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(u))
+	if(!unitpool_Get()->IsValid(u))
 		return SFN_ERROR_OK;
 
 	u.DeductHP((double)hp);
@@ -5219,7 +5219,7 @@ SFN_ERROR Slic_IsUnitInBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	PointerList<BuildNode>::Walker walk(city.AccessData()->GetCityData()->GetBuildQueue()->GetList());
@@ -5251,7 +5251,7 @@ SFN_ERROR Slic_IsBuildingInBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	PointerList<BuildNode>::Walker walk(city.AccessData()->GetCityData()->GetBuildQueue()->GetList());
@@ -5283,7 +5283,7 @@ SFN_ERROR Slic_IsWonderInBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	PointerList<BuildNode>::Walker walk(city.AccessData()->GetCityData()->GetBuildQueue()->GetList());
@@ -5318,7 +5318,7 @@ SFN_ERROR Slic_IsEndgameInBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, index))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	BuildNode *bn = city.AccessData()->GetCityData()->GetBuildQueue()->GetHead();
@@ -5344,7 +5344,7 @@ SFN_ERROR Slic_IsUnitAtHead::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(city.AccessData()->GetCityData()->GetBuildQueue()->GetHead()) {
@@ -5370,7 +5370,7 @@ SFN_ERROR Slic_IsBuildingAtHead::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(city.AccessData()->GetCityData()->GetBuildQueue()->GetHead()) {
@@ -5396,7 +5396,7 @@ SFN_ERROR Slic_IsWonderAtHead::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(city.AccessData()->GetCityData()->GetBuildQueue()->GetHead()) {
@@ -5424,7 +5424,7 @@ SFN_ERROR Slic_AddUnitToBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theUnitDB->NumRecords())
@@ -5447,7 +5447,7 @@ SFN_ERROR Slic_AddBuildingToBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theBuildingDB->NumRecords())
@@ -5470,7 +5470,7 @@ SFN_ERROR Slic_AddWonderToBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theWonderDB->NumRecords())
@@ -5496,7 +5496,7 @@ SFN_ERROR Slic_AddEndgameToBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= endgamedb_Get()->m_nRec)
@@ -5521,7 +5521,7 @@ SFN_ERROR Slic_KillUnitFromBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theUnitDB->NumRecords())
@@ -5558,7 +5558,7 @@ SFN_ERROR Slic_KillBuildingFromBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theBuildingDB->NumRecords())
@@ -5594,7 +5594,7 @@ SFN_ERROR Slic_KillWonderFromBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= g_theWonderDB->NumRecords())
@@ -5633,7 +5633,7 @@ SFN_ERROR Slic_KillEndgameFromBuildList::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 		return SFN_ERROR_TYPE_ARGS;
 
 	if(type < 0 || type >= endgamedb_Get()->m_nRec)
@@ -7509,7 +7509,7 @@ SFN_ERROR Slic_CreateBuilding::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city)) {
+	if(!unitpool_Get()->IsValid(city)) {
 		return SFN_ERROR_OK;
 	}
 
@@ -7551,7 +7551,7 @@ SFN_ERROR Slic_CreateWonder::Call(SlicArgList *args)
 	if(!args->GetInt(1, type))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(!g_theUnitPool->IsValid(city)) {
+	if(!unitpool_Get()->IsValid(city)) {
 		return SFN_ERROR_OK;
 	}
 

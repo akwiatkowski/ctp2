@@ -11,9 +11,11 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/AgreementDynArr.h"
 #include "gs/utility/Globals.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/fileio/gamefile.h"
 
 	extern	Player	**g_player ;
+	extern	TurnCount	*g_turn ;
 
 	extern Pollution *g_thePollution ;
 
@@ -95,7 +97,7 @@ Agreement AgreementPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGRE
 	AgreementData* newData;
 	Agreement newAgreement(NewKey(k_BIT_GAME_OBJ_TYPE_AGREEMENT));
 
-	newData = new AgreementData(newAgreement, owner, recipient, request) ;
+	newData = new AgreementData(newAgreement, owner, recipient, request, g_turn->GetRound()) ;
 	Insert(newData) ;
 
 	if(g_player[owner])

@@ -1612,7 +1612,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Agreement %lx violated by %d\n", m_data, m_data2));
 			Agreement ag(m_data);
 			if(agreementpool_Get()->IsValid(ag)) {
-				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE);
+				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE, g_turn->GetRound());
 			}
 			break;
 		}

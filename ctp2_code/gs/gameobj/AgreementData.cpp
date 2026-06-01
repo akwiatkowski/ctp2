@@ -40,7 +40,6 @@
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/AgreementData.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
 #include "AdvanceRecord.h"
@@ -61,7 +60,6 @@
 #include "gs/gameobj/AgreementPool.h"
 
 extern	Player	**g_player ;
-extern	TurnCount	*g_turn ;
 extern UnitPool *g_theUnitPool;
 extern World *g_theWorld;
 
@@ -101,14 +99,14 @@ AgreementData::AgreementData(const ID id) : GameObj(id.m_id)
 
 
 AgreementData::AgreementData(const ID id, const PLAYER_INDEX owner,
-   const PLAYER_INDEX recipient, const AGREEMENT_TYPE agreement) : GameObj(id.m_id)
+   const PLAYER_INDEX recipient, const AGREEMENT_TYPE agreement, sint32 currentRound) : GameObj(id.m_id)
 {
     Init();
 
     m_id = id;
 	m_agreement = agreement ;
 
-	m_round = g_turn->GetRound() ;
+	m_round = currentRound ;
 	m_expires = k_EXPIRATION_NEVER ;
 	m_owner = owner ;
 	m_recipient = recipient ;
@@ -227,13 +225,13 @@ void AgreementData::Serialize(CivArchive &archive)
 
 
 
-void AgreementData::MakeAgreement(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE agreement)
+void AgreementData::MakeAgreement(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE agreement, sint32 currentRound)
 	{
 	m_owner = owner ;
 	m_recipient = recipient ;
 	m_agreement = agreement ;
 
-	m_round = g_turn->GetRound() ;
+	m_round = currentRound ;
 	m_expires = k_EXPIRATION_NEVER ;
 
 
@@ -1100,12 +1098,12 @@ void AgreementData::EndTurn(void)
 	}
 
 
-void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
+void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sint32 currentRound)
 {
 
 	char objName[256];
 	BOOL sendMessage = FALSE;
-	sint32 now = g_turn->GetRound();
+	sint32 now = currentRound;
 	sint32 rounds = now - m_round;
 	BOOL tellAi = FALSE;
 	sint32 otherCiv = -1;
@@ -1209,12 +1207,12 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force)
 	}
 }
 
-void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer)
+void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound)
 {
 
 	char objName[256];
 	BOOL sendMessage = FALSE;
-	sint32 now = g_turn->GetRound();
+	sint32 now = currentRound;
 	sint32 rounds = now - m_round;
 	BOOL tellAi = FALSE;
 	sint32 otherCiv = -1;
@@ -1270,7 +1268,7 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer)
 	}
 }
 
-void AgreementData::BeginTurnOwner()
+void AgreementData::BeginTurnOwner(sint32 currentRound)
 {
 
 	if(!g_player[m_recipient] || safe_player(m_recipient)->m_isDead)
@@ -1283,7 +1281,7 @@ void AgreementData::BeginTurnOwner()
 
 				sint32 trade = safe_player(m_recipient)->GetTradeWith(m_thirdParty);
 				if(trade > 0) {
-					RecipientIsViolating(m_owner);
+					RecipientIsViolating(m_owner, FALSE, currentRound);
 				}
 			}
 			break;
@@ -1309,7 +1307,7 @@ void AgreementData::BeginTurnOwner()
 
 					armies->Access(i).GetPos(pos);
 					if(g_theWorld->GetCell(pos)->GetOwner() == m_owner) {
-						RecipientIsViolating(m_owner);
+						RecipientIsViolating(m_owner, FALSE, currentRound);
 						return;
 					}
 				}
@@ -1320,7 +1318,7 @@ void AgreementData::BeginTurnOwner()
 		{
 			if(g_player[m_recipient]) {
 				if(safe_player(m_recipient)->GetCurrentPollution() >= m_recipientPollution) {
-					RecipientIsViolating(m_owner);
+					RecipientIsViolating(m_owner, FALSE, currentRound);
 				}
 			}
 			break;
@@ -1342,12 +1340,12 @@ void AgreementData::BeginTurnOwner()
 		case AGREEMENT_TYPE_PACT_END_POLLUTION:
 		{
 			if(g_player[m_owner]) {
-				sint32 now = g_turn->GetRound();
+				sint32 now = currentRound;
 				sint32 rounds = now - m_round;
 				Agreement me(m_id);
 				if(safe_player(m_owner)->GetCurrentPollution() > m_ownerPollution &&
 				   safe_player(m_owner)->GetCurrentPollution() > uint32(g_theConstDB->Get(0)->GetMinEcoPactViolationLevel())) {
-					OwnerIsViolating(m_owner);
+					OwnerIsViolating(m_owner, currentRound);
 				}
 
 
@@ -1370,7 +1368,7 @@ void AgreementData::BeginTurnOwner()
 		{
 			if(g_player[m_recipient]) {
 				if(safe_player(m_recipient)->GetLastAttacked(m_thirdParty) < m_round) {
-					RecipientIsViolating(m_owner);
+					RecipientIsViolating(m_owner, FALSE, currentRound);
 				}
 			}
 			break;
@@ -1404,7 +1402,7 @@ void AgreementData::Break()
 
 }
 
-void AgreementData::BeginTurnRecipient()
+void AgreementData::BeginTurnRecipient(sint32 currentRound)
 {
 
 	return;
@@ -1420,7 +1418,7 @@ void AgreementData::BeginTurnRecipient()
 
 				sint32 trade = safe_player(m_recipient)->GetTradeWith(m_thirdParty);
 				if(trade > 0) {
-					RecipientIsViolating(m_recipient);
+					RecipientIsViolating(m_recipient, FALSE, currentRound);
 				}
 			}
 			break;
@@ -1446,7 +1444,7 @@ void AgreementData::BeginTurnRecipient()
 
 					armies->Access(i).GetPos(pos);
 					if(g_theWorld->GetCell(pos)->GetOwner() == m_owner) {
-						RecipientIsViolating(m_recipient);
+						RecipientIsViolating(m_recipient, FALSE, currentRound);
 						return;
 					}
 				}
@@ -1457,7 +1455,7 @@ void AgreementData::BeginTurnRecipient()
 		{
 			if(g_player[m_recipient]) {
 				if(safe_player(m_recipient)->GetCurrentPollution() >= m_recipientPollution) {
-					RecipientIsViolating(m_recipient);
+					RecipientIsViolating(m_recipient, FALSE, currentRound);
 				}
 			}
 			break;
@@ -1479,13 +1477,13 @@ void AgreementData::BeginTurnRecipient()
         case AGREEMENT_TYPE_PACT_END_POLLUTION:
 		{
 			if(g_player[m_recipient]) {
-				sint32 now = g_turn->GetRound();
+				sint32 now = currentRound;
 				sint32 rounds = now - m_round;
 				Agreement me(m_id);
 
 				if(safe_player(m_recipient)->GetCurrentPollution() > m_recipientPollution &&
 				   safe_player(m_recipient)->GetCurrentPollution() > uint32(g_theConstDB->MinEcoPactViolationLevel())) {
-					RecipientIsViolating(m_recipient);
+					RecipientIsViolating(m_recipient, FALSE, currentRound);
 				}
 
 
@@ -1508,7 +1506,7 @@ void AgreementData::BeginTurnRecipient()
 		{
 			if(g_player[m_recipient]) {
 				if(safe_player(m_recipient)->GetLastAttacked(m_thirdParty) < m_round) {
-					RecipientIsViolating(m_recipient);
+					RecipientIsViolating(m_recipient, FALSE, currentRound);
 				}
 			}
 			break;

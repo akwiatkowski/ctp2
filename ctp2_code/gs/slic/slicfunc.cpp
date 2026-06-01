@@ -4465,7 +4465,7 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 											  ag.m_id, unitOwner));
 			}
 
-			ag.AccessData()->RecipientIsViolating(unitOwner, TRUE);
+			ag.AccessData()->RecipientIsViolating(unitOwner, TRUE, g_turn->GetRound());
 		}
 	}
 	return SFN_ERROR_OK;
@@ -4508,7 +4508,7 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 												   ag.m_id));
 			}
 
-			ag.AccessData()->RecipientIsViolating(pirate, TRUE);
+			ag.AccessData()->RecipientIsViolating(pirate, TRUE, g_turn->GetRound());
 		}
 	}
 	return SFN_ERROR_OK;

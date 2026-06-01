@@ -8,11 +8,13 @@
 #include "gs/gameobj/AgreementData.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/AgreementPool.h"
+#include "gs/utility/TurnCnt.h"
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
 
 	extern	Player	**g_player ;
+	extern	TurnCount	*g_turn ;
 
 	#include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 
@@ -113,10 +115,10 @@ BOOL Agreement::IsBroken() const
 
 void Agreement::BeginTurnOwner()
 {
-	AccessData()->BeginTurnOwner();
+	AccessData()->BeginTurnOwner(g_turn->GetRound());
 }
 
 void Agreement::BeginTurnRecipient()
 {
-	AccessData()->BeginTurnRecipient();
+	AccessData()->BeginTurnRecipient(g_turn->GetRound());
 }

@@ -95,7 +95,8 @@ public:
 	AgreementData(const ID id,
 				  PLAYER_INDEX sender,
 				  PLAYER_INDEX recipient,
-				  AGREEMENT_TYPE agreement) ;
+				  AGREEMENT_TYPE agreement,
+				  sint32 currentRound) ;
 	AgreementData(CivArchive &archive);
 
 	void Init();
@@ -129,7 +130,8 @@ public:
 
 	void MakeAgreement(const PLAYER_INDEX owner,
 					   const PLAYER_INDEX recipient,
-					   const AGREEMENT_TYPE agreement) ;
+					   const AGREEMENT_TYPE agreement,
+					   sint32 currentRound) ;
 	void FulfillAgreement(void) ;
 	sint32 DecrementTurns(void) ;
 
@@ -143,10 +145,10 @@ public:
 	BOOL IsBroken() const { return m_isBroken; }
 	void Break();
 
-	void RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL forceBreak = FALSE);
-	void OwnerIsViolating(PLAYER_INDEX curPlayer);
-	void BeginTurnOwner();
-	void BeginTurnRecipient();
+	void RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL forceBreak, sint32 currentRound);
+	void OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound);
+	void BeginTurnOwner(sint32 currentRound);
+	void BeginTurnRecipient(sint32 currentRound);
 };
 
 #endif

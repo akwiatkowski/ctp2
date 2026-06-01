@@ -223,9 +223,11 @@ class UnitActor;
 #include "gs/core/game_observer.h"
 
 #include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
+#include "gs/utility/TurnCnt.h"
 extern Diplomacy_Log *  g_theDiplomacyLog;
 extern Pollution *      g_thePollution;
 extern UnitAstar *      g_theUnitAstar;
+extern TurnCount *      g_turn;
 
 BOOL    g_smokingCrack      = TRUE;
 BOOL    g_useOrderQueues    = TRUE;
@@ -9860,7 +9862,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 				}
 				else
 				{
-					ag.AccessData()->RecipientIsViolating(cell->GetOwner(), true);
+					ag.AccessData()->RecipientIsViolating(cell->GetOwner(), true, g_turn->GetRound());
 				}
 			}
 		}

@@ -121,7 +121,6 @@ extern int g_gameWatchID;
 
 extern  CivApp                      *g_civApp;
 extern  OzoneDatabase               *g_theUVDB;
-extern  TopTen                      *g_theTopTen;
 extern  nf_GameSetup                g_gamesetup;
 extern sint32                       g_isGridOn;
 extern PointerList<Player> *        g_deadPlayer;

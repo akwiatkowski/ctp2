@@ -131,7 +131,6 @@
 
 extern TurnCount             *g_turn;
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
-extern TopTen                *g_theTopTen;
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
 // g_theUnitPool / g_theArmyPool / g_theTradePool / g_slicEngine /
@@ -4640,7 +4639,7 @@ bool SaveJson(char const *path)
     // --- TopTen: not written by GameFile::Save (legacy-load-only in the
     // binary path); included in JSON so leaderboard state persists across
     // save/load.  See plan section "Open questions before coding".
-    if (g_theTopTen)         doc["top_ten"]                   = *g_theTopTen;
+    if (topten_Get())         doc["top_ten"]                  = *topten_Get();
 
     // --- Players (GameFile::Save:508-532) ----------------------------
     // Per-slot {alive, data}.  Dead slots emit alive:false with no data
@@ -4773,7 +4772,7 @@ bool LoadJson(char const *path)
         if (doc.contains("exclusions")     && exclusions_Get())       doc.at("exclusions")    .get_to(*exclusions_Get());
         if (FeatTracker *ft = feattracker_Get(); doc.contains("feat_tracker") && ft) doc.at("feat_tracker").get_to(*ft);
         if (EventTracker *et = eventtracker_Get(); doc.contains("event_tracker") && et) doc.at("event_tracker").get_to(*et);
-        if (doc.contains("top_ten")        && g_theTopTen)        doc.at("top_ten")       .get_to(*g_theTopTen);
+        if (doc.contains("top_ten")        && topten_Get())       doc.at("top_ten")       .get_to(*topten_Get());
 
         // Post-load fixups that mirror gameinit_Initialize's archive
         // branch (gameinit.cpp:1623-1639, 1677, 1761).  These rebuild

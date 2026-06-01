@@ -74,9 +74,9 @@ class DiplomaticRequestData : public GameObj
 		friend class NetAction;
 
 	public:
-		DiplomaticRequestData(const ID id) ;
+		DiplomaticRequestData(const ID id, sint32 currentRound) ;
 		DiplomaticRequestData(CivArchive &archive) : GameObj(0) { Serialize(archive) ; }
-		DiplomaticRequestData(const ID id, PLAYER_INDEX sender, PLAYER_INDEX recipient, REQUEST_TYPE request) ;
+		DiplomaticRequestData(const ID id, PLAYER_INDEX sender, PLAYER_INDEX recipient, REQUEST_TYPE request, sint32 currentRound) ;
 
 		void MakeRequest(const PLAYER_INDEX owner, const PLAYER_INDEX recipient, const REQUEST_TYPE request) ;
 		REQUEST_TYPE GetRequest(void) const { return (m_request) ; }

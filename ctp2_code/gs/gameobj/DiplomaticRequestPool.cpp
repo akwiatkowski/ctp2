@@ -117,7 +117,7 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
 
 	DiplomaticRequest newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST));
 
-	newData = new DiplomaticRequestData(newRequest, owner, recipient, request) ;
+	newData = new DiplomaticRequestData(newRequest, owner, recipient, request, g_turn ? g_turn->GetRound() : 0) ;
 	Insert(newData) ;
 
 	g_player[owner]->AddDiplomaticRequest(newRequest) ;
@@ -157,7 +157,7 @@ DiplomaticRequestData *DiplomaticRequestPool::CreateData()
 {
 	DiplomaticRequest newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_DIPLOMATIC_REQUEST));
 	DiplomaticRequestData *newData;
-	newData = new DiplomaticRequestData(newRequest);
+	newData = new DiplomaticRequestData(newRequest, g_turn ? g_turn->GetRound() : 0);
 	Insert(newData);
 	return newData;
 }

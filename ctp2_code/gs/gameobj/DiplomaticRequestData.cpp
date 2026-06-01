@@ -37,7 +37,6 @@
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/message.h"
 #include "gs/gameobj/DiplomaticRequest.h"
@@ -56,7 +55,6 @@
 
 	extern	StringDB	*g_theStringDB ;
 
-	extern	TurnCount	*g_turn ;
 
 	extern	Player	**g_player ;
 
@@ -75,10 +73,10 @@ extern Diplomacy_Log *g_theDiplomacyLog;
 
 
 
-DiplomaticRequestData::DiplomaticRequestData(const ID id)
+DiplomaticRequestData::DiplomaticRequestData(const ID id, sint32 currentRound)
 :
     GameObj             (id.m_id),
-	m_round             (g_turn ? g_turn->GetRound() : 0),
+	m_round             (currentRound),
     m_owner             (PLAYER_INDEX_INVALID),
 	m_recipient         (PLAYER_INDEX_INVALID),
 	m_thirdParty        (PLAYER_INDEX_INVALID),
@@ -92,10 +90,10 @@ DiplomaticRequestData::DiplomaticRequestData(const ID id)
 	m_amount            (0)
 { ; }
 
-DiplomaticRequestData::DiplomaticRequestData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX recipient, const REQUEST_TYPE request)
+DiplomaticRequestData::DiplomaticRequestData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX recipient, const REQUEST_TYPE request, sint32 currentRound)
 :
     GameObj             (id.m_id),
-	m_round             (g_turn ? g_turn->GetRound() : 0),
+	m_round             (currentRound),
     m_owner             (owner),
 	m_recipient         (recipient),
 	m_thirdParty        (PLAYER_INDEX_INVALID),

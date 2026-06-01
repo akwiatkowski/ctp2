@@ -287,7 +287,7 @@ STDEHANDLER(CtpAi_SettleEvent)
 	Player *            player_ptr  = g_player[owner];
 	Assert(player_ptr != NULL);
 
-	static sint32 last_settle = NewTurnCount::GetCurrentRound();
+	static sint32 last_settle = g_turn->GetSessionRound();
 	static sint32 last_player = PLAYER_UNASSIGNED;
 
 	if (!g_network.IsActive())
@@ -297,7 +297,7 @@ STDEHANDLER(CtpAi_SettleEvent)
 		&&  g_network.IsLocalPlayer(owner))
 		&&!(g_network.IsHost()
 		&&  owner == player_view::VisiblePlayer())
-		&&  last_settle == NewTurnCount::GetCurrentRound()
+		&&  last_settle == g_turn->GetSessionRound()
 		&& last_player == owner
 		  )
 		{
@@ -305,7 +305,7 @@ STDEHANDLER(CtpAi_SettleEvent)
 		}
 	}
 
-	last_settle = NewTurnCount::GetCurrentRound();
+	last_settle = g_turn->GetSessionRound();
 	last_player = owner;
 #endif
 	return GEV_HD_Continue;

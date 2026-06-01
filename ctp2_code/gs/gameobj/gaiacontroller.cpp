@@ -33,7 +33,7 @@
 #include "gs/utility/safety.h"
 
 #include "gs/gameobj/FeatTracker.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Player.h"
 #include "AdvanceRecord.h"
 #include "BuildingRecord.h"
@@ -888,7 +888,7 @@ bool GaiaController::StartCountdown()
 		if (m_completedTurn < 0)
 		{
 			m_completedTurn =
-				(sint16) (NewTurnCount::GetCurrentRound() + max_turns_to_activate);
+				(sint16) (g_turn->GetSessionRound() + max_turns_to_activate);
 		}
 
 		return true;
@@ -924,10 +924,10 @@ sint32 GaiaController::TotalCountdownTurns() const
 sint16 GaiaController::TurnsToComplete() const
 {
 	if (m_completedTurn >= 0)
-		if (m_completedTurn < NewTurnCount::GetCurrentRound())
+		if (m_completedTurn < g_turn->GetSessionRound())
 			return 0;
 		else
-			return (sint16) (m_completedTurn - NewTurnCount::GetCurrentRound());
+			return (sint16) (m_completedTurn - g_turn->GetSessionRound());
 	else
 		return -1;
 }

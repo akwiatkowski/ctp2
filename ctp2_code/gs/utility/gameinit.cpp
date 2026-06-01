@@ -195,6 +195,9 @@ static QuadTree<Unit>       *g_theUnitTree = NULL;
 QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
 Pollution                   *g_thePollution=NULL;
+
+Pollution * pollution_Get(void)               { return g_thePollution; }
+void        pollution_Set(Pollution *p)       { g_thePollution = p; }
 static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
 
 DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }

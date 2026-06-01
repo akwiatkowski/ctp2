@@ -131,4 +131,12 @@ private:
 
 };
 
+// Session-singleton accessor pair, mirroring rand_ptr_Get/Set in style.
+// Callers should use pollution_Get() instead of reaching for the legacy
+// g_thePollution global directly; pollution_Set() lets gameinit reseat
+// the pointer on new-game / load.  Once all callers are migrated the
+// underlying global will become file-static.
+Pollution * pollution_Get(void);
+void        pollution_Set(Pollution *p);
+
 #endif

@@ -2,7 +2,7 @@
 #include "gs/gameobj/EndGame.h"
 #include "civarchive.h"
 #include "gs/database/EndGameDB.h"
-#include "gs/utility/TurnCnt.h"
+
 #include "gs/gameobj/Player.h"
 
 #include "gs/slic/SlicObject.h"
@@ -26,7 +26,6 @@
 #include "gs/gameobj/advanceutil.h"
 #include "gs/utility/gstypes.h"
 
-extern TurnCount *g_turn;
 extern Player **g_player;
 
 extern StringDB *g_theStringDB;
@@ -133,7 +132,7 @@ void EndGame::ClearAll()
 	}
 }
 
-BOOL EndGame::BeginSequence()
+BOOL EndGame::BeginSequence(sint32 currentRound)
 {
 	sint32 i;
 	for(i = 0; i < endgamedb_Get()->m_nRec; i++) {
@@ -154,7 +153,7 @@ BOOL EndGame::BeginSequence()
 	}
 
 	m_currentStage = 0;
-	m_currentStageBegan = g_turn->GetRound();
+	m_currentStageBegan = currentRound;
 
 	if(m_owner == player_view::VisiblePlayer()) {
 		g_gameObservers->NotifyRequestEndGameShow(this);
@@ -163,7 +162,7 @@ BOOL EndGame::BeginSequence()
 	return TRUE;
 }
 
-void EndGame::BeginTurn()
+void EndGame::BeginTurn(sint32 currentRound)
 {
 	SlicObject *so;
 
@@ -182,9 +181,9 @@ void EndGame::BeginTurn()
 
 	sint32 turnsForNextStage = GetTurnsForNextStage();
     if ((turnsForNextStage >= 0) &&
-        (g_turn->GetRound() > m_currentStageBegan + turnsForNextStage)) {
+        (currentRound > m_currentStageBegan + turnsForNextStage)) {
         if (MetRequirementsForNextStage()) {
-            AdvanceStage();
+            AdvanceStage(currentRound);
         } else {
 			if (!HaveEnoughECDs() &&
 				(g_slicEngine->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5))) {
@@ -210,7 +209,7 @@ void EndGame::BeginTurn()
 	} else if(m_currentStage == 2 &&
 			  turnsForNextStage >= 0 &&
 			  (((m_currentStageBegan + turnsForNextStage) -
-				g_turn->GetRound()) < 5)) {
+				currentRound) < 5)) {
 		if(g_slicEngine->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5)) {
 			so = new SlicObject("053AlienAlmostDone");
 			so->AddRecipient(m_owner);
@@ -235,7 +234,7 @@ void EndGame::BeginTurn()
 	}
 }
 
-void EndGame::AdvanceStage()
+void EndGame::AdvanceStage(sint32 currentRound)
 {
 	SlicObject *so;
 /*
@@ -276,7 +275,7 @@ void EndGame::AdvanceStage()
 			}
 		}
 	}
-	m_currentStageBegan = g_turn->GetRound();
+	m_currentStageBegan = currentRound;
 
 	switch (m_currentStage) {
 	  case 1: {
@@ -476,9 +475,9 @@ void EndGame::XLabCaptured()
 	}
 }
 
-sint32 EndGame::GetTurnsSinceStageBegan()
+sint32 EndGame::GetTurnsSinceStageBegan(sint32 currentRound) const
 {
-	return(g_turn->GetRound() - m_currentStageBegan);
+	return(currentRound - m_currentStageBegan);
 }
 
 sint32 EndGame::GetStage()

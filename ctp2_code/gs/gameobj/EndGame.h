@@ -40,9 +40,9 @@ public:
 
 	void AddObject(sint32 type);
 	void ClearAll();
-	BOOL BeginSequence();
-	void BeginTurn();
-	void AdvanceStage();
+	BOOL BeginSequence(sint32 currentRound);
+	void BeginTurn(sint32 currentRound);
+	void AdvanceStage(sint32 currentRound);
 	sint32 GetCataclysmChance();
 	sint32 GetTurnsForNextStage();
 	BOOL MetRequirementsForNextStage();
@@ -54,7 +54,7 @@ public:
 	void XLabCaptured();
 	void Cataclysm();
 
-	sint32 GetTurnsSinceStageBegan();
+	sint32 GetTurnsSinceStageBegan(sint32 currentRound) const;
 
 	sint32 GetStage();
 	sint32 GetNumberBuilt(sint32 type);

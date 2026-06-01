@@ -27,6 +27,7 @@
 #include "SoundRecord.h"
 #include "gs/database/EndGameDB.h"
 #include "gs/gameobj/EndGame.h"
+#include "gs/utility/TurnCnt.h"                // g_turn
 
 #include "ui/aui_ctp2/keypress.h"
 
@@ -806,7 +807,7 @@ void EndGameWindow::Update(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
-	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan();
+	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(g_turn->GetRound());
 	if(turnsSinceStageBegan > turnsForNextStage) turnsSinceStageBegan = turnsForNextStage;
 
 	m_turnProgress->SetMaxValue(turnsForNextStage);
@@ -836,7 +837,7 @@ void EndGameWindow::UpdateTurn(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
-	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan();
+	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(g_turn->GetRound());
 	if(turnsSinceStageBegan > turnsForNextStage) turnsSinceStageBegan = turnsForNextStage;
 
 	m_turnProgress->SetMaxValue(turnsForNextStage);

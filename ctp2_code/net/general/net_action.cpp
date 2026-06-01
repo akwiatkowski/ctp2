@@ -1058,8 +1058,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_REJECT_MESSAGE:
 		{
 			Message message(m_data[0]);
-			Assert(g_theMessagePool->IsValid(message));
-			if(!g_theMessagePool->IsValid(message))
+			Assert(messagepool_Get()->IsValid(message));
+			if(!messagepool_Get()->IsValid(message))
 				return;
 			Assert(index == message.GetOwner());
 			if(index != message.GetOwner())
@@ -1073,8 +1073,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_ACCEPT_MESSAGE:
 		{
 			Message message(m_data[0]);
-			Assert(g_theMessagePool->IsValid(message));
-			if(!g_theMessagePool->IsValid(message))
+			Assert(messagepool_Get()->IsValid(message));
+			if(!messagepool_Get()->IsValid(message))
 				return;
 			Assert(index == message.GetOwner());
 			if(index != message.GetOwner())

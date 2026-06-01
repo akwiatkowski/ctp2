@@ -1468,7 +1468,7 @@ SFN_ERROR Slic_Accept::Call(SlicArgList *args)
 		return SFN_ERROR_NOT_IN_BUTTON;
 
 	message.Accept() ;
-	if(g_theMessagePool->IsValid(message)) {
+	if(messagepool_Get()->IsValid(message)) {
 
 		message.AccessData()->KillMessageWindow();
 	}
@@ -1488,7 +1488,7 @@ SFN_ERROR Slic_Reject::Call(SlicArgList *args)
 		return SFN_ERROR_NOT_IN_BUTTON;
 
 	message.Reject() ;
-	if(g_theMessagePool->IsValid(message)) {
+	if(messagepool_Get()->IsValid(message)) {
 
 		message.AccessData()->KillMessageWindow();
 	}
@@ -4407,7 +4407,7 @@ SFN_ERROR Slic_KillEyepointMessage::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if(g_theMessagePool->IsValid(g_slicEngine->GetEyepointMessage())) {
+	if(messagepool_Get()->IsValid(g_slicEngine->GetEyepointMessage())) {
 		g_slicEngine->GetEyepointMessage().Kill();
 	}
 	return SFN_ERROR_OK;

@@ -44,6 +44,11 @@ public:
 		void NotifySlicReload();
 	} ;
 
-extern MessagePool *	g_theMessagePool;
+// Lifecycle is split: gs/utility/gameinit.cpp handles fresh / archive
+// construction and Cleanup; ctp/civapp.cpp re-allocates on SlicEngine
+// reloads (delete-then-new).  Backing storage is file-scope `static`
+// in gameinit.cpp; cross-TU writers go through messagepool_Set.
+MessagePool * messagepool_Get(void);
+void          messagepool_Set(MessagePool *p);
 
 #endif

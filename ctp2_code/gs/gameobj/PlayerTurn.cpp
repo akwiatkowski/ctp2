@@ -85,7 +85,7 @@ void Player::BeginTurn()
 	sint32 i;
 	for(i = m_messages->Num() - 1; i >= 0; i--)
 	{
-		if(!g_theMessagePool->IsValid(m_messages->Access(i)))
+		if(!messagepool_Get()->IsValid(m_messages->Access(i)))
 		{
 			m_messages->DelIndex(i);
 			continue;

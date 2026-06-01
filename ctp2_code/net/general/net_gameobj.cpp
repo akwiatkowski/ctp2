@@ -296,7 +296,7 @@ void NetGameObj::KillObject(uint32 id)
 		case k_BIT_GAME_OBJ_TYPE_MESSAGE:
 		{
 			Message mid(id);
-			if(g_theMessagePool->IsValid(mid)) {
+			if(messagepool_Get()->IsValid(mid)) {
 				mid.Kill();
 			}
 			break;
@@ -340,7 +340,7 @@ void NetGameObj::FixKey(uint32 id)
 			diplomaticrequestpool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_MESSAGE:
-			g_theMessagePool->HackSetKey((id & k_ID_KEY_MASK) + 1);
+			messagepool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);
 			break;
 		case k_BIT_GAME_OBJ_TYPE_ARMY:
 			armypool_Get()->HackSetKey((id & k_ID_KEY_MASK) + 1);

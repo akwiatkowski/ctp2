@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made message window non-modal. - Oct 16th 2005 Martin Gühmann
+// - Made message window non-modal. - Oct 16th 2005 Martin Gï¿½hmann
 //
 //----------------------------------------------------------------------------
 
@@ -58,7 +58,6 @@ extern C3UI			*g_c3ui;
 extern StringDB		*g_theStringDB;
 
 MessageWindow		*g_currentMessageWindow = NULL;
-extern MessagePool *g_theMessagePool;
 
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
@@ -353,7 +352,7 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if ( g_theMessagePool->IsValid(m_message) &&
+	if ( messagepool_Get()->IsValid(m_message) &&
 		 m_message.AccessData()->GetGreatLibraryButton() ) {
 
 		snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "GreatLibraryButton" );
@@ -378,7 +377,7 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 
 AUI_ERRCODE MessageWindow::CreateEyePointBox( MBCHAR *ldlBlock )
 {
-	if(!g_theMessagePool->IsValid(m_message))
+	if(!messagepool_Get()->IsValid(m_message))
 		return AUI_ERRCODE_OK;
 
 	switch( m_message.AccessData()->GetEyePointStyle())
@@ -441,7 +440,7 @@ AUI_ERRCODE MessageWindow::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 
 AUI_ERRCODE MessageWindow::CreateResponses( MBCHAR *ldlBlock )
 {
-	if(!g_theMessagePool->IsValid(m_message))
+	if(!messagepool_Get()->IsValid(m_message))
 		return AUI_ERRCODE_OK;
 
 	switch( m_message.AccessData()->GetResponseStyle() )
@@ -578,7 +577,7 @@ MessageWindow::~MessageWindow ()
 		m_turnText = NULL;
 	}
 
-	if (g_theMessagePool->IsValid(m_message)) {
+	if (messagepool_Get()->IsValid(m_message)) {
 
 		m_message.AccessData()->SetMessageWindow(NULL);
 	}

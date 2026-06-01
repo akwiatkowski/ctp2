@@ -487,7 +487,7 @@ void controlpanelwindow_MessageListCallback(aui_Control *control, uint32 action,
 	{
 		Message theMessage(static_cast<uint32>((uintptr_t)item->GetCookie()));
 
-		if (g_theMessagePool->IsValid(theMessage))
+		if (messagepool_Get()->IsValid(theMessage))
 		{
 			if (action == AUI_LISTBOX_ACTION_SELECT)
 			{
@@ -2234,7 +2234,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 	if (!m_messageList)
 		return;
 
-	if (!g_theMessagePool->IsValid(message))
+	if (!messagepool_Get()->IsValid(message))
 		return;
 
 

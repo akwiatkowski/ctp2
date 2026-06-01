@@ -8,7 +8,6 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/slicif.h"
 
-extern MessagePool *g_theMessagePool;
 extern Player **g_player;
 
 SlicRecord::SlicRecord(sint32 owner, MBCHAR *title, MBCHAR *text,
@@ -111,9 +110,9 @@ void SlicRecord::Reconstitute()
 		}
 	}
 
-	Message msg = g_theMessagePool->Recreate(m_owner, m_text, m_title);
-	Assert(g_theMessagePool->IsValid(msg));
-	if(g_theMessagePool->IsValid(msg)) {
+	Message msg = messagepool_Get()->Recreate(m_owner, m_text, m_title);
+	Assert(messagepool_Get()->IsValid(msg));
+	if(messagepool_Get()->IsValid(msg)) {
 		msg.SetClass(k_HACK_RECONSTITUTED_CLASS);
 		msg.Show();
 	}

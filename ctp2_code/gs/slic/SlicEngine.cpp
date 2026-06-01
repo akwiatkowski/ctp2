@@ -334,9 +334,9 @@ SlicEngine::~SlicEngine()
 
 	slicif_cleanup();
 
-    if (g_theMessagePool)
+    if (MessagePool *mp = messagepool_Get())
     {
-		g_theMessagePool->NotifySlicReload();
+		mp->NotifySlicReload();
 	}
 }
 
@@ -1058,7 +1058,8 @@ void SlicEngine::GetCurrentMessage(Message &message) const
 
 void SlicEngine::KillCurrentMessage()
 {
-	if(!m_currentMessage || !g_theMessagePool || !g_theMessagePool->IsValid(*m_currentMessage))
+	MessagePool *mp = messagepool_Get();
+	if(!m_currentMessage || !mp || !mp->IsValid(*m_currentMessage))
 		return;
 	m_currentMessage->Kill();
 	*m_currentMessage = Message();
@@ -1066,7 +1067,7 @@ void SlicEngine::KillCurrentMessage()
 
 void SlicEngine::AddCurrentMessage()
 {
-	if(!g_theMessagePool->IsValid(*m_currentMessage))
+	if(!messagepool_Get()->IsValid(*m_currentMessage))
 		return;
 
 	m_currentMessage->Minimize();

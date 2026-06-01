@@ -1703,7 +1703,7 @@ void CivApp::CleanupApp(void)
 		messagewin_Cleanup();
 
 		allocated::clear(g_slicEngine);
-		allocated::clear(g_theMessagePool);
+		delete messagepool_Get(); messagepool_Set(NULL);
 
 		CivScenarios::Cleanup();
 		SoundManager::Cleanup();
@@ -1955,8 +1955,8 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			}
 		}
 
-        delete g_theMessagePool;
-        g_theMessagePool = new MessagePool();
+        delete messagepool_Get();
+        messagepool_Set(new MessagePool());
 
 		SlicEngine::Reload(g_slic_filename);
 
@@ -2585,8 +2585,8 @@ void CivApp::StartMessageSystem()
 		InitializeAppDB();
     }
 
-    delete g_theMessagePool;
-    g_theMessagePool = new MessagePool();
+    delete messagepool_Get();
+    messagepool_Set(new MessagePool());
     SlicEngine::Reload(g_slic_filename);
 }
 

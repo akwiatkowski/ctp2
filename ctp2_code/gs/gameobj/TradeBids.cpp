@@ -36,7 +36,6 @@
 #include "gs/fileio/gamefile.h"
 
 extern Player **g_player;
-extern MessagePool *g_theMessagePool;
 
 // g_theTradeBids is defined in gameinit.cpp (where the lifecycle lives);
 // this TU reaches it via tradebids_Get() declared in TradeBids.h.
@@ -152,7 +151,7 @@ void TradeBids::CancelBidsFrom(sint32 owner)
 {
 	while(m_table[owner]->GetHead()) {
 		Bid *bid = m_table[owner]->RemoveHead();
-		if(g_theMessagePool->IsValid(bid->m_message)) {
+		if(messagepool_Get()->IsValid(bid->m_message)) {
 			bid->m_message.Kill();
 		}
 		delete bid;
@@ -170,7 +169,7 @@ void TradeBids::CancelBidsWithCity(const Unit &city)
 		while(walk.IsValid()) {
 			if(walk.GetObj()->m_fromCity.m_id == city.m_id ||
 			   walk.GetObj()->m_toCity.m_id == city.m_id) {
-				if(g_theMessagePool->IsValid(walk.GetObj()->m_message)) {
+				if(messagepool_Get()->IsValid(walk.GetObj()->m_message)) {
 					walk.GetObj()->m_message.Kill();
 				}
 				delete walk.Remove();

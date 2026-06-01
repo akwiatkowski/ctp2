@@ -25,7 +25,7 @@
 //
 // - Option added to close a message box automatically on eyepoint clicking.
 // - Messages are closed if an open command is executed and there is already
-//   an open messages, enables left click close. (Oct 16th 2005 Martin Gühmann)
+//   an open messages, enables left click close. (Oct 16th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 dat
 	Message *   message = m_iconWindow->GetMessage();
 
 	if (!message) return;
-	if (!g_theMessagePool->IsValid(*message)) return;
+	if (!messagepool_Get()->IsValid(*message)) return;
 
 	if ( data ) {
 
@@ -131,7 +131,7 @@ void MessageMinimizeAction::Execute( aui_Control *control, uint32 action, uint32
 
 void MessageDismissUIAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
-	if(!g_theMessagePool->IsValid(*m_window->GetMessage()))
+	if(!messagepool_Get()->IsValid(*m_window->GetMessage()))
 		return;
 
 
@@ -159,7 +159,7 @@ void MessageLibraryAction::Execute( aui_Control *control, uint32 action, uint32 
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if(!g_theMessagePool->IsValid(*m_window->GetMessage()))
+	if(!messagepool_Get()->IsValid(*m_window->GetMessage()))
 		return;
 
 	m_window->GetMessage()->AccessData()->GreatLibraryCallback();
@@ -196,7 +196,7 @@ void MessageStandardEyePointAction::Execute( aui_Control *control, uint32 action
 	else
 		message = m_modal->GetMessage();
 
-	if(!g_theMessagePool->IsValid(*message))
+	if(!messagepool_Get()->IsValid(*message))
 		return;
 
 	message->AccessData()->EyePointCallback( 0 );
@@ -221,7 +221,7 @@ void MessageDropdownEyePointAction::Execute( aui_Control *control, uint32 action
 
 	sint32 index = ((aui_DropDown *)m_dropdown)->GetListBox()->GetSelectedItemIndex();
 
-	if(!g_theMessagePool->IsValid(*message))
+	if(!messagepool_Get()->IsValid(*message))
 		return;
 
 	if(index >= 0) {
@@ -248,7 +248,7 @@ void MessageDropdownAction::Execute( aui_Control *control, uint32 action, uint32
 	if ( index < 0 )
 		return;
 
-	if(!g_theMessagePool->IsValid(*message))
+	if(!messagepool_Get()->IsValid(*message))
 		return;
 
 	if(((aui_DropDown *)m_dropdown)->ExtractEndUserTriggeredEvent(data)) {
@@ -272,7 +272,7 @@ void MessageListboxEyePointAction::Execute( aui_Control *control, uint32 action,
 	if ( m_index > m_max ) m_index = m_min;
 	if ( m_index < m_min ) m_index = m_max;
 
-	if(!g_theMessagePool->IsValid(*message))
+	if(!messagepool_Get()->IsValid(*message))
 		return;
 
 	MapPoint pos;
@@ -291,7 +291,7 @@ void MessageResponseUIAction::Execute(aui_Control *control, uint32 action, uint3
 {
 	Message *   message = m_window->GetMessage();
 
-    if (message && g_theMessagePool->IsValid(*message))
+    if (message && messagepool_Get()->IsValid(*message))
     {
     	m_window->GetMessage()->AccessData()->GetButton( m_response )->Callback();
     }
@@ -310,7 +310,7 @@ void MessageModalResponseAction::Execute( aui_Control *control, uint32 action, u
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if(g_theMessagePool->IsValid(*m_message)) {
+	if(messagepool_Get()->IsValid(*m_message)) {
 
 		m_message->AccessData()->GetButton( m_response )->Callback();
 	}
@@ -333,7 +333,7 @@ void MessageResponseSubmitAction::Execute( aui_Control *control, uint32 action, 
 
 	Message *   message = m_window->GetMessage();
 
-	if (message && g_theMessagePool->IsValid(*message))
+	if (message && messagepool_Get()->IsValid(*message))
     {
     	sint32 index = ((aui_ListBox *) m_dropdown)->GetSelectedItemIndex();
 	    message->AccessData()->GetButton(index)->Callback();

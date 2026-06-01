@@ -19,7 +19,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 extern C3UI			*g_c3ui;
-extern	MessagePool					*g_theMessagePool;
 
 BOOL bInsult = FALSE;
 
@@ -62,7 +61,7 @@ void Button1Action::Execute( aui_Control *control, uint32 action, uint32 data )
 		}
 	}
 
- 	Message message = g_theMessagePool->Create( 1,
+ 	Message message = messagepool_Get()->Create( 1,
 									1,
 									MESSAGE_TYPE_EVENT,
 									string );
@@ -74,7 +73,7 @@ void Button2Action::Execute( aui_Control *control, uint32 action, uint32 data )
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
- 	Message message = g_theMessagePool->Create( 1,
+ 	Message message = messagepool_Get()->Create( 1,
 									1,
 									MESSAGE_TYPE_DIPLOMATIC,
 									"This is a temporary diplomatic message.  Don't look for me to change by opening up a bunch of my type of messages .. i'm not a cheesy 'event' type message." );

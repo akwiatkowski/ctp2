@@ -18,7 +18,6 @@
 
 extern	Player	**g_player ;
 
-extern	MessagePool	*g_theMessagePool ;
 
 
 
@@ -52,7 +51,7 @@ void Message::RemoveAllReferences()
 		g_player[GetOwner()]->RemoveMessageReferences(*this) ;
 
 	AccessData()->KillMessageWindow();
-	g_theMessagePool->Del(*this) ;
+	messagepool_Get()->Del(*this) ;
 	}
 
 
@@ -65,7 +64,7 @@ void Message::RemoveAllReferences()
 
 const MessageData* Message::GetData() const
 	{
-	return (g_theMessagePool->GetMessage(*this)) ;
+	return (messagepool_Get()->GetMessage(*this)) ;
 	}
 
 
@@ -78,7 +77,7 @@ const MessageData* Message::GetData() const
 
 MessageData* Message::AccessData()
 	{
-	return (g_theMessagePool->AccessMessage(*this)) ;
+	return (messagepool_Get()->AccessMessage(*this)) ;
 	}
 
 

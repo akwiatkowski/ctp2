@@ -494,7 +494,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 270 );
 
 	if(saveEverything)
-		g_theMessagePool->Serialize(archive);
+		messagepool_Get()->Serialize(archive);
 
 	PROGRESS( 280 );
 

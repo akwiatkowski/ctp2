@@ -5248,7 +5248,7 @@ void Player::NotifyModalMessageDestroyed()
 {
 	// Purge invalid messages (game state).
 	for (sint32 i = m_messages->Num() - 1; i >= 0; i--) {
-		if (!g_theMessagePool->IsValid(m_messages->Access(i))) {
+		if (!messagepool_Get()->IsValid(m_messages->Access(i))) {
 			m_messages->DelIndex(i);
 		}
 	}
@@ -8677,7 +8677,7 @@ void Player::RecreateMessageIcons()
 {
 	// Purge invalid messages (game state).
 	for (sint32 m = m_messages->Num() - 1; m >= 0; m--) {
-		if (!g_theMessagePool->IsValid(m_messages->Access(m))) {
+		if (!messagepool_Get()->IsValid(m_messages->Access(m))) {
 			m_messages->Del(m_messages->Access(m));
 		}
 	}

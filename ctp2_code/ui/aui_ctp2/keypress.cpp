@@ -196,7 +196,6 @@ extern StringDB		*g_theStringDB;
 #include "ui/aui_ctp2/keyboardhandler.h"
 
 extern MessageModal *g_modalMessage;
-extern MessagePool *g_theMessagePool;
 extern MessageWindow	*g_currentMessageWindow;
 
 extern sint32 g_modalWindow;
@@ -348,12 +347,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		} else if (g_civApp->IsGameLoaded()) {
 			if(g_currentMessageWindow &&
 			   g_currentMessageWindow->GetMessage() &&
-			   (g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage()))) {
+			   (messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage()))) {
 				g_currentMessageWindow->GetMessage()->Minimize();
 			} else if(g_modalMessage) {
 
 				Message *msg = g_modalMessage->GetMessage();
-				if(msg && g_theMessagePool->IsValid(*msg)) {
+				if(msg && messagepool_Get()->IsValid(*msg)) {
 					Assert(msg->IsAlertBox());
 					MessageData *data = msg->AccessData();
 					if(data->GetNumButtons() <= 2 && data->GetNumButtons() > 0) {
@@ -843,7 +842,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		if(g_modalMessage) {
 			Message *msg = g_modalMessage->GetMessage();
-			if(g_theMessagePool->IsValid(*msg)) {
+			if(messagepool_Get()->IsValid(*msg)) {
 				Assert(msg->IsAlertBox());
 				MessageData *data = msg->AccessData();
 				if(data->GetNumButtons() <= 2 && data->GetNumButtons() > 0) {
@@ -1126,12 +1125,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 	case KEY_FUNCTION_CLOSE:
 		if(g_currentMessageWindow) {
-			if(g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage())) {
+			if(messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage())) {
 				g_currentMessageWindow->GetMessage()->Kill();
 			}
 		} else if(g_modalMessage) {
 			Message *msg = g_modalMessage->GetMessage();
-			if(g_theMessagePool->IsValid(*msg)) {
+			if(messagepool_Get()->IsValid(*msg)) {
 				Assert(msg->IsAlertBox());
 				MessageData *data = msg->AccessData();
 				if(data->GetNumButtons() <= 2 && data->GetNumButtons() > 0) {
@@ -1145,7 +1144,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	{
 		if(g_modalMessage) {
 			Message *msg = g_modalMessage->GetMessage();
-			if(g_theMessagePool->IsValid(*msg)) {
+			if(messagepool_Get()->IsValid(*msg)) {
 				Assert(msg->IsAlertBox());
 				MessageData *data = msg->AccessData();
 				if(data->GetNumButtons() == 2) {
@@ -1162,7 +1161,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	{
 		if(g_modalMessage) {
 			Message *msg = g_modalMessage->GetMessage();
-			if(g_theMessagePool->IsValid(*msg)) {
+			if(messagepool_Get()->IsValid(*msg)) {
 				Assert(msg->IsAlertBox());
 				MessageData *data = msg->AccessData();
 				if(data->GetNumButtons() == 2) {
@@ -1222,7 +1221,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		{
 
 			if(g_currentMessageWindow) {
-				if(g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage())) {
+				if(messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage())) {
 					g_currentMessageWindow->GetMessage()->AccessData()->EyePointCallback(0);
 				}
 			}

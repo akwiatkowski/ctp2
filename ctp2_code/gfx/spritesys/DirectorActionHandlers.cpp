@@ -64,7 +64,6 @@
 
 extern Background* g_background;
 extern C3UI* g_c3ui;
-extern MessagePool* g_theMessagePool;
 extern SpriteGroupList* g_unitSpriteGroupList;
 
 void dh_move(DQAction* itemAction,
@@ -996,7 +995,7 @@ void dh_message(DQAction* itemAction,
   if (!action)
     return;
 
-  if (g_theMessagePool->IsValid(action->message)) {
+  if (messagepool_Get()->IsValid(action->message)) {
     if (action->message.IsAlertBox()) {
       if (!messagewin_IsModalMessageDisplayed()) {
         messagewin_CreateModalMessage(action->message);

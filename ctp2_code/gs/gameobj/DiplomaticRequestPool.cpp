@@ -190,7 +190,7 @@ void DiplomaticRequestPool::EndTurn(const PLAYER_INDEX sender)
 
 	for(i = msgExpired.Num() - 1; i >= 0; i--)
 		{
-		if(g_theMessagePool->IsValid(msgExpired[i]))
+		if(messagepool_Get()->IsValid(msgExpired[i]))
 			msgExpired[i].Kill();
 		}
 	}

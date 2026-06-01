@@ -119,7 +119,7 @@ extern  OzoneDatabase           *g_theUVDB ;
 #include "gs/gameobj/AgreementPool.h"     // agreementpool_Get()
 extern  CivilisationPool        *g_theCivilisationPool;
 #include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
-extern  MessagePool             *g_theMessagePool ;
+#include "gs/gameobj/MessagePool.h"       // messagepool_Get()
 #include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
 #include "gs/gameobj/TradePool.h"        // tradepool_Get()
 #include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
@@ -382,7 +382,7 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(agreementpool_Get(), CRC_TYPE_AGREEMENTPOOL);
 	CHECK_DB(g_theCivilisationPool, CRC_TYPE_CIVILISATIONPOOL);
 	CHECK_DB(diplomaticrequestpool_Get(), CRC_TYPE_DIPLOMATICREQUESTPOOL);
-	CHECK_DB(g_theMessagePool, CRC_TYPE_MESSAGEPOOL);
+	CHECK_DB(messagepool_Get(), CRC_TYPE_MESSAGEPOOL);
 	CHECK_DB(terrimprovepool_Get(), CRC_TYPE_TERRAIN_IMPROVEMENT_POOL);
 	CHECK_DB(tradepool_Get(), CRC_TYPE_TRADEPOOL);
 	CHECK_DB(tradeofferpool_Get(), CRC_TYPE_TRADEOFFERPOOL);

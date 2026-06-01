@@ -179,7 +179,10 @@ Pollution                   *g_thePollution=NULL;
 static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
 
 DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }
-MessagePool                 *g_theMessagePool=NULL;
+static MessagePool          *g_theMessagePool=NULL;
+
+MessagePool * messagepool_Get(void)              { return g_theMessagePool; }
+void          messagepool_Set(MessagePool *p)    { g_theMessagePool = p; }
 CivilisationPool            *g_theCivilisationPool=NULL;
 static AgreementPool        *g_theAgreementPool=NULL;
 

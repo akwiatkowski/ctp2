@@ -699,7 +699,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server says kill message %lx\n", m_data));
 			Message message(m_data);
 
-			if(!g_theMessagePool->IsValid(message))
+			if(!messagepool_Get()->IsValid(message))
 				return;
 
 			break;

@@ -77,12 +77,12 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONGTYPE(msg, Message);
 
 	if(g_network.IsHost()) {
-		realmsg = g_theMessagePool->ServerCreate();
+		realmsg = messagepool_Get()->ServerCreate();
 		m_data = realmsg.AccessData();
 	} else {
 		g_network.CheckReceivedObject((uint32)msg);
-		if(g_theMessagePool->IsValid(msg)) {
-			m_data = g_theMessagePool->AccessMessage(msg);
+		if(messagepool_Get()->IsValid(msg)) {
+			m_data = messagepool_Get()->AccessMessage(msg);
 		} else {
 			m_data = new MessageData(msg);
 		}
@@ -114,9 +114,9 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 		g_player[m_data->m_owner]->AddMessage(realmsg);
 		g_network.Enqueue(m_data);
-	} else if(!g_theMessagePool->IsValid(msg)) {
-		g_theMessagePool->HackSetKey(((uint32)msg & k_ID_KEY_MASK)+1);
-		g_theMessagePool->Insert(m_data);
+	} else if(!messagepool_Get()->IsValid(msg)) {
+		messagepool_Get()->HackSetKey(((uint32)msg & k_ID_KEY_MASK)+1);
+		messagepool_Get()->Insert(m_data);
 		g_player[m_data->m_owner]->AddMessage(msg);
 	}
 }

@@ -25,7 +25,7 @@ void NetKeys::Packetize(uint8 *buf, uint16 &size)
 	PUSHLONG(installationpool_Get()->HackGetKey());
 	PUSHLONG(g_theCivilisationPool->HackGetKey());
 	PUSHLONG(diplomaticrequestpool_Get()->HackGetKey());
-	PUSHLONG(g_theMessagePool->HackGetKey());
+	PUSHLONG(messagepool_Get()->HackGetKey());
 	PUSHLONG(armypool_Get()->HackGetKey());
 	PUSHLONG(agreementpool_Get()->HackGetKey());
 }
@@ -45,7 +45,7 @@ void NetKeys::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLLONG(key); installationpool_Get()->HackSetKey(key);
 	PULLLONG(key); g_theCivilisationPool->HackSetKey(key);
 	PULLLONG(key); diplomaticrequestpool_Get()->HackSetKey(key);
-	PULLLONG(key); g_theMessagePool->HackSetKey(key);
+	PULLLONG(key); messagepool_Get()->HackSetKey(key);
 	PULLLONG(key); armypool_Get()->HackSetKey(key);
 	PULLLONG(key); agreementpool_Get()->HackSetKey(key);
 

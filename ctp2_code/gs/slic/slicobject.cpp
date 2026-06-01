@@ -380,11 +380,11 @@ void SlicObject::Finish()
 				messageData->SetIsHelpBox();
 			}
 
-			Message newMessage(g_theMessagePool->NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
+			Message newMessage(messagepool_Get()->NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
 			MessageData * newData = new MessageData(newMessage, messageData);
 			newData->SetOwner(0);
 			newData->SetSlicSegment(m_segment);
-			g_theMessagePool->Insert(newData);
+			messagepool_Get()->Insert(newData);
 
 			if(newMessage.IsAlertBox()) {
 				g_gameObservers->NotifyRequestModalMessage(newMessage);
@@ -454,7 +454,7 @@ void SlicObject::Finish()
 														messageData->GetMsgText(),
 														m_segment);
 					}
-					Message realMessage = g_theMessagePool->
+					Message realMessage = messagepool_Get()->
 						Create(m_recipientList[i], m_frame->GetMessageData());
 
 					if(GetNumTradeBids() > 0) {

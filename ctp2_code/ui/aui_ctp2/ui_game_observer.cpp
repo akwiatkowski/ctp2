@@ -320,7 +320,7 @@ public:
         bool noActiveMsgWindow =
             !g_currentMessageWindow ||
             !g_currentMessageWindow->GetMessage() ||
-            !g_theMessagePool->IsValid(*g_currentMessageWindow->GetMessage());
+            !messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage());
 
         if (localMsg.UseDirector() && noActiveMsgWindow) {
             if (g_director) {

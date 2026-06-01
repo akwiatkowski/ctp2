@@ -37,7 +37,6 @@
 #include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/utility/UnitDynArr.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 #include "gs/database/profileDB.h"
@@ -50,7 +49,6 @@
 
 extern Player **g_player;
 extern PointerList<Player> *g_deadPlayer;
-extern TurnCount *g_turn;
 extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 extern StringDB *g_theStringDB;

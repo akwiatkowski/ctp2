@@ -238,7 +238,10 @@ AchievementTracker * achievementtracker_Get(void)
 {
 	return g_theAchievementTracker;
 }
-CriticalMessagesPrefs * g_theCriticalMessagesPrefs=NULL;
+static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
+
+CriticalMessagesPrefs * critical_messages_prefs_Get(void) { return g_theCriticalMessagesPrefs; }
+void critical_messages_prefs_Set(CriticalMessagesPrefs *p) { g_theCriticalMessagesPrefs = p; }
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];
 sint32 g_player_start_score[k_MAX_PLAYERS];

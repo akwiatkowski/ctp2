@@ -181,7 +181,7 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	m_identifier=NULL;
 	if(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment())
 	{
-		if(g_theCriticalMessagesPrefs->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
+		if(critical_messages_prefs_Get()->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
 		{
 			snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardDontShowButton");
 			m_dontShowButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
@@ -363,5 +363,5 @@ void MessageResponseStandard::DontShowButtonActionCallback(aui_Control *control,
 		static_cast<MessageResponseStandard*>(cookie);
 
 	dialog->m_dontShowButton->SetToggleState(!dialog->m_dontShowButton->GetToggleState());
-	g_theCriticalMessagesPrefs->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+	critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
 }

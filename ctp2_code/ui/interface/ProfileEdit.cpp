@@ -276,6 +276,6 @@ void ProfileEdit::CloseWindow(aui_Control *control, uint32 action, uint32 data, 
 void ProfileEdit::EnableMessages(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	if(action== AUI_BUTTON_ACTION_EXECUTE) {
-		g_theCriticalMessagesPrefs->EnableAll();
+		critical_messages_prefs_Get()->EnableAll();
 	}
 }

@@ -60,6 +60,11 @@ private:
 	PointerList<CriticalMessagesData> *m_messagesList;
 };
 
-extern CriticalMessagesPrefs *g_theCriticalMessagesPrefs;
+// Lifecycle (new in gameinit_InitializeGame + Cleanup) lives in
+// gs/utility/gameinit.cpp; the variable is file-scope `static` there.
+// UI MessageBoxDialog has lazy-init fallbacks that allocate via
+// critical_messages_prefs_Set() if Get() returns null.
+CriticalMessagesPrefs * critical_messages_prefs_Get(void);
+void critical_messages_prefs_Set(CriticalMessagesPrefs *p);
 
 #endif

@@ -27,12 +27,14 @@ void MessageBoxDialog::Information(const MBCHAR *message,
 								   const MBCHAR *okText,
 								   bool allowDontShow)
 {
-	if(!g_theCriticalMessagesPrefs)
+	CriticalMessagesPrefs *prefs = critical_messages_prefs_Get();
+	if(!prefs)
 	{
-		g_theCriticalMessagesPrefs=new CriticalMessagesPrefs;
+		prefs = new CriticalMessagesPrefs;
+		critical_messages_prefs_Set(prefs);
 	}
 
-	if(g_theCriticalMessagesPrefs->IsEnabled(id))
+	if(prefs->IsEnabled(id))
 	{
 		s_messageBoxDialog = new MessageBoxDialog(message, id, (void *)callback, userData, okText, NULL);
 		s_messageBoxDialog->m_leftButton->Hide();
@@ -55,11 +57,13 @@ void MessageBoxDialog::Query(const MBCHAR *message,
 							 const MBCHAR *okText,
 							 const MBCHAR *cancelText)
 {
-	if(!g_theCriticalMessagesPrefs)
+	CriticalMessagesPrefs *prefs = critical_messages_prefs_Get();
+	if(!prefs)
 	{
-		g_theCriticalMessagesPrefs=new CriticalMessagesPrefs;
+		prefs = new CriticalMessagesPrefs;
+		critical_messages_prefs_Set(prefs);
 	}
-	if(g_theCriticalMessagesPrefs->IsEnabled(id))
+	if(prefs->IsEnabled(id))
 	{
 		s_messageBoxDialog = new MessageBoxDialog(message, id, (void *)callback, userData, okText, cancelText);
 	}
@@ -238,7 +242,7 @@ void MessageBoxDialog::LeftButtonActionCallback(aui_Control *control,
 	}
 	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && dialog->m_identifier)
 	{
-		g_theCriticalMessagesPrefs->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
 	}
 }
 
@@ -276,7 +280,7 @@ void MessageBoxDialog::RightButtonActionCallback(aui_Control *control,
 
 	if(!dialog->m_isTextQuery && dialog->m_dontShowButton->GetToggleState() && dialog->m_identifier)
 	{
-		g_theCriticalMessagesPrefs->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
+		critical_messages_prefs_Get()->SetEnabled(dialog->m_identifier,!dialog->m_dontShowButton->GetToggleState());
 	}
 }
 

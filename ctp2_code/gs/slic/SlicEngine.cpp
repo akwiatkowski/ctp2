@@ -506,7 +506,7 @@ void SlicEngine::Execute(SlicObject *obj)
 
 	if (obj->IsValid()  &&
         ((obj->GetSegment()->GetFilenum() != k_TUTORIAL_FILE) || g_theProfileDB->IsTutorialAdvice()) &&
-		(!g_theCriticalMessagesPrefs || g_theCriticalMessagesPrefs->IsEnabled(obj->GetSegment()->GetName()))
+		(!critical_messages_prefs_Get() || critical_messages_prefs_Get()->IsEnabled(obj->GetSegment()->GetName()))
        )
     {
 		obj->Execute();

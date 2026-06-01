@@ -398,7 +398,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 	if (player_view::IsModalMessageActive() && !force)
 		return FALSE;
 
-	if(g_theCriticalMessagesPrefs->IsEnabled("16IAOutOfFuel")) {
+	if(critical_messages_prefs_Get()->IsEnabled("16IAOutOfFuel")) {
 		if (g_slicEngine->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1)) {
 			int i;
 			int n = player->GetAllUnitList()->Num();
@@ -421,7 +421,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if(g_theCriticalMessagesPrefs->IsEnabled("23IACityWillStarve")) {
+	if(critical_messages_prefs_Get()->IsEnabled("23IACityWillStarve")) {
 		if (g_slicEngine->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1)) {
 			int i;
 			int n = player->GetAllCitiesList()->Num();
@@ -446,7 +446,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if(g_theCriticalMessagesPrefs->IsEnabled("21IACannotAffordMaintenance")) {
+	if(critical_messages_prefs_Get()->IsEnabled("21IACannotAffordMaintenance")) {
 		if (g_slicEngine->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1)) {
 			if (player->m_gold->BankruptcyImminent() &&
 				(player->CalcTotalBuildingUpkeep() > 0)) {
@@ -459,7 +459,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if(g_theCriticalMessagesPrefs->IsEnabled("22IACannotAffordSupport")) {
+	if(critical_messages_prefs_Get()->IsEnabled("22IACannotAffordSupport")) {
 		if (g_slicEngine->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1)) {
 			int i;
 			int n = player->GetAllCitiesList()->Num();

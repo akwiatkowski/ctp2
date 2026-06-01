@@ -525,7 +525,7 @@ void SlicObject::SetMessageType(MESSAGE_TYPE type,
 
 void SlicObject::SetMessageDuration(sint32 duration)
 {
-	m_frame->GetMessageData()->SetDuration(duration);
+	m_frame->GetMessageData()->SetDuration(duration, g_turn ? g_turn->GetRound() : 0);
 }
 
 

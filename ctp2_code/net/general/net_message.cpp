@@ -84,7 +84,7 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		if(messagepool_Get()->IsValid(msg)) {
 			m_data = messagepool_Get()->AccessMessage(msg);
 		} else {
-			m_data = new MessageData(msg);
+			m_data = new MessageData(msg, 0);
 		}
 	}
 

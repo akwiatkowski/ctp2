@@ -8,6 +8,7 @@
 #include "net/general/network.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
+#include "gs/utility/TurnCnt.h"
 
 
 
@@ -100,7 +101,7 @@ Message MessagePool::Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYP
 
 	Message newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
 
-	newData = new MessageData(newRequest, owner, sender, type, msg) ;
+	newData = new MessageData(newRequest, owner, sender, type, msg, g_turn ? g_turn->GetYear() : 0) ;
 	Insert(newData) ;
 
 	g_player[owner]->AddMessage(newRequest) ;
@@ -126,7 +127,7 @@ Message MessagePool::Create(PLAYER_INDEX owner, MBCHAR *msg)
 
 	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
 
-	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg) ;
+	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, g_turn ? g_turn->GetYear() : 0) ;
 	Insert(newData) ;
 
 	g_player[owner]->AddMessage(newMessage) ;
@@ -142,7 +143,7 @@ Message MessagePool::Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title)
 
 	Message newMessage(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
 
-	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg) ;
+	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, g_turn ? g_turn->GetYear() : 0) ;
 	Insert(newData) ;
 
 	if(title)
@@ -184,7 +185,7 @@ Message MessagePool::ServerCreate()
 {
 	MessageData *newData;
 	Message newRequest(NewKey(k_BIT_GAME_OBJ_TYPE_MESSAGE));
-	newData = new MessageData(newRequest);
+	newData = new MessageData(newRequest, g_turn ? g_turn->GetYear() : 0);
 	Insert(newData);
 	return newRequest;
 }

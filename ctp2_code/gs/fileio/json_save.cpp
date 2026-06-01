@@ -4555,7 +4555,7 @@ void from_json(nlohmann::json const &j, MessagePool &p)
 
     for (auto const &entry : j.at("messages"))
     {
-        auto *data = new MessageData(ID(0));
+        auto *data = new MessageData(ID(0), 0);
         entry.get_to(*data);
         p.Insert(data);
     }

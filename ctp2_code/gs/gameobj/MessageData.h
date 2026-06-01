@@ -150,9 +150,9 @@ class MessageData : public GameObj
 
 
 	public:
-		MessageData(const ID id) ;
+		MessageData(const ID id, sint32 currentYear);
 		MessageData(CivArchive &archive);
-		MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s) ;
+		MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s, sint32 currentYear);
 		MessageData(const ID id, MessageData *copy);
 		~MessageData();
 
@@ -177,7 +177,7 @@ class MessageData : public GameObj
 		const MBCHAR *GetMsgCaption() const { return m_caption; }
 		void SetMsgCaption(const MBCHAR *caption);
 
-		void SetDuration(sint32 duration);
+		void SetDuration(sint32 duration, sint32 currentRound);
 		sint32 GetExpiration() const;
 
 		MESSAGE_RESPONSE_TYPE Reject(void) ;

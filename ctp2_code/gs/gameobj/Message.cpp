@@ -107,9 +107,9 @@ AdvanceType Message::GetSelectedAdvance() const
 	return GetData()->GetSelectedAdvance();
 }
 
-void Message::SetDuration(sint32 duration)
+void Message::SetDuration(sint32 duration, sint32 currentRound)
 {
-	AccessData()->SetDuration(duration);
+	AccessData()->SetDuration(duration, currentRound);
 }
 
 sint32 Message::GetExpiration() const

@@ -38,9 +38,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/message.h"
-#include "gs/utility/TurnCnt.h"
 #include "gs/utility/UnitDynArr.h"
-#include "gs/utility/TurnCnt.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"
 #include "gs/database/StrDB.h"
@@ -61,8 +59,6 @@
 extern FilenameDB *g_theMessageIconFileDB;
 
 #define AND_I_AM_STEVE
-
-	extern	TurnCount	*g_turn ;
 
 	extern	Player	**g_player ;
 
@@ -110,7 +106,7 @@ MessageData::MessageData(CivArchive &archive)
     Serialize(archive);
 }
 
-MessageData::MessageData(const ID id)
+MessageData::MessageData(const ID id, sint32 currentYear)
 :
     GameObj                 (id.m_id),
 	m_owner                 (PLAYER_INDEX_INVALID),
@@ -118,7 +114,7 @@ MessageData::MessageData(const ID id)
     m_isRead                (false),
 	m_msgType               (0),
 	m_msgSelectedType       (1),
-    m_timestamp             (0),
+    m_timestamp             (currentYear),
 	m_advance               (-1),
     m_advanceSet            (false),
 	m_expiration            (0x10000000),
@@ -140,11 +136,6 @@ MessageData::MessageData(const ID id)
     m_title                 (NULL)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
-
-	if (g_turn)
-    {
-		m_timestamp = g_turn->GetYear();
-    }
 }
 
 
@@ -152,7 +143,7 @@ MessageData::MessageData(const ID id)
 
 
 
-MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s)
+MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s, sint32 currentYear)
 :
     GameObj                 (id.m_id),
 	m_owner                 (owner),
@@ -160,7 +151,7 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
     m_isRead                (false),
 	m_msgType               (type),
 	m_msgSelectedType       (type),
-    m_timestamp             (0),
+    m_timestamp             (currentYear),
 	m_advance               (-1),
     m_advanceSet            (false),
 	m_expiration            (0x10000000),
@@ -189,11 +180,6 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
 	} else {
 		m_text = NULL;
 	}
-
-    if (g_turn)
-    {
-	    m_timestamp = g_turn->GetYear();
-    }
 }
 
 /// @todo Replace with standard copy constructor
@@ -1376,9 +1362,9 @@ void MessageData::SetMsgCaption(const MBCHAR *caption)
 	m_caption[k_MAX_MSG_LEN - 1] = '\0';
 }
 
-void MessageData::SetDuration(sint32 duration)
+void MessageData::SetDuration(sint32 duration, sint32 currentRound)
 {
-	m_expiration = g_turn->GetRound() + duration;
+	m_expiration = currentRound + duration;
 }
 
 sint32 MessageData::GetExpiration() const

@@ -45,7 +45,7 @@ public:
 		void SetSelectedAdvance(AdvanceType advance);
 		AdvanceType GetSelectedAdvance() const;
 
-		void SetDuration(sint32 duration);
+		void SetDuration(sint32 duration, sint32 currentRound);
 		sint32 GetExpiration() const;
 
 		void SetIsHelpBox() { AccessData()->SetIsHelpBox(); }

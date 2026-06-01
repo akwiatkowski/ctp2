@@ -3645,7 +3645,7 @@ TEST_CASE("json round-trip: SlicEyePoint keys are snake_case (no m_ leak)")
 
 TEST_CASE("json round-trip: MessageData default-constructed")
 {
-    MessageData orig(ID(0x1111));
+    MessageData orig(ID(0x1111), 0);
     orig.SetOwner(1);
     orig.SetMsgType(3);
     orig.SetSelectedMsgType(4);
@@ -3665,7 +3665,7 @@ TEST_CASE("json round-trip: MessageData default-constructed")
     CHECK(j["eye_points"].size() == 0);
     CHECK(j["city_list"].size() == 0);
 
-    MessageData round(ID(0));
+    MessageData round(ID(0), 0);
     j.get_to(round);
     CHECK(round.GetOwner() == 1);
     CHECK(round.GetMsgType() == 3);
@@ -3676,7 +3676,7 @@ TEST_CASE("json round-trip: MessageData default-constructed")
 
 TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
 {
-    MessageData orig(ID(0x2222));
+    MessageData orig(ID(0x2222), 0);
     orig.SetMsgText("Hello world");
     orig.SetTitle("My Title");
     orig.SetMsgCaption("My Caption");
@@ -3700,7 +3700,7 @@ TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
     CHECK(j["eye_points"][0]["name"] == "Eye1");
     CHECK(j["eye_points"][0]["unit"] == 0x7777u);
 
-    MessageData round(ID(0));
+    MessageData round(ID(0), 0);
     j.get_to(round);
     CHECK(std::string(round.GetMsgText()) == "Hello world");
     CHECK(std::string(round.GetTitle()) == "My Title");
@@ -3713,7 +3713,7 @@ TEST_CASE("json round-trip: MessageData with text + buttons + eye_points")
 
 TEST_CASE("json round-trip: MessageData keys are snake_case (no m_ leak)")
 {
-    MessageData m(ID(0));
+    MessageData m(ID(0), 0);
     nlohmann::json j = m;
     for (auto const &el : j.items())
         CHECK(el.key().substr(0, 2) != "m_");
@@ -3739,12 +3739,12 @@ TEST_CASE("json round-trip: MessagePool with messages")
 {
     MessagePool orig;
 
-    MessageData *msg1 = new MessageData(ID(0x1001));
+    MessageData *msg1 = new MessageData(ID(0x1001), 0);
     msg1->SetOwner(0);
     msg1->SetMsgText("First message");
     orig.Insert(msg1);
 
-    MessageData *msg2 = new MessageData(ID(0x1002));
+    MessageData *msg2 = new MessageData(ID(0x1002), 0);
     msg2->SetOwner(1);
     msg2->SetMsgText("Second message");
     orig.Insert(msg2);
@@ -3766,7 +3766,7 @@ TEST_CASE("json round-trip: MessagePool preserves next_key")
 {
     MessagePool orig;
 
-    MessageData *msg1 = new MessageData(ID(0x1001));
+    MessageData *msg1 = new MessageData(ID(0x1001), 0);
     orig.Insert(msg1);
 
     // Advance the next-key counter so HackGetKey != default.

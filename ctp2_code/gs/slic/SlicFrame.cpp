@@ -1465,7 +1465,7 @@ BOOL SlicFrame::RunAt(sint32 startOffset)
 void SlicFrame::ClearMessageData()
 {
 	if(!m_messageData) {
-		m_messageData = new MessageData(ID());
+		m_messageData = new MessageData(ID(), g_turn ? g_turn->GetYear() : 0);
 	}
 
 	m_messageData->m_owner = PLAYER_INDEX_INVALID;

@@ -868,7 +868,7 @@ Unit Player::CreateUnitNoPosition(const sint32 t,
                                   const MapPoint &actor_pos,
                                   sint32 oldOwner)
 {
-	Unit u = g_theUnitPool->Create (t, m_owner, actor_pos);
+	Unit u = unitpool_Get()->Create (t, m_owner, actor_pos);
 
 	u.SetFlag(k_UDF_TEMP_SLAVE_UNIT);
 
@@ -961,7 +961,7 @@ Unit Player::CreateUnit(const sint32 t,
 		}
 	}
 
-	Unit u = g_theUnitPool->Create (t, m_owner, pos, hc, NULL);
+	Unit u = unitpool_Get()->Create (t, m_owner, pos, hc, NULL);
 
 	if(g_network.IsHost() && IsNetwork() &&
 	   cause != CAUSE_NEW_ARMY_INITIAL && !g_network.SetupMode()) {
@@ -1391,7 +1391,7 @@ Unit Player::CreateCity(
 		}
 	}
 
-	Unit u = g_theUnitPool->Create(t, m_owner, pos, Unit(), actor);
+	Unit u = unitpool_Get()->Create(t, m_owner, pos, Unit(), actor);
 
 	if(g_network.IsClient() && g_network.IsLocalPlayer(m_owner))
 	{
@@ -2523,7 +2523,7 @@ void Player::EndTurn()
 	n = tmpUnits.Num();
 	for(i = 0; i < n; i++)
 	{
-		if(g_theUnitPool->IsValid(tmpUnits[i]))
+		if(unitpool_Get()->IsValid(tmpUnits[i]))
 		{
 			tmpUnits[i].EndTurn();
 		}
@@ -3034,10 +3034,10 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 									PLAYER_INDEX paying_for,
 									sint32 gold_in_return)
 {
-	if(!g_theUnitPool->IsValid(sourceCity))
+	if(!unitpool_Get()->IsValid(sourceCity))
 		return TradeRoute();
 
-	if(!g_theUnitPool->IsValid(destCity))
+	if(!unitpool_Get()->IsValid(destCity))
 		return TradeRoute();
 
 	Assert(sourceCity.GetOwner() == m_owner);
@@ -3211,7 +3211,7 @@ void Player::RemoveTradeRoute(TradeRoute route, CAUSE_KILL_TRADE_ROUTE cause)
 
 void Player::CancelTradeRoute(TradeRoute route)
 {
-	if(g_theUnitPool->IsValid(route.GetSource()) &&
+	if(unitpool_Get()->IsValid(route.GetSource()) &&
 		route.GetSource().GetOwner() == m_owner) {
 		route.KillRoute(CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED);
 	} else {
@@ -5148,7 +5148,7 @@ void Player::GiveCity(const PLAYER_INDEX player, const sint32 c)
 
 void Player::GiveCity(const PLAYER_INDEX recipient, Unit city)
 {
-	if(!g_theUnitPool->IsValid(city))
+	if(!unitpool_Get()->IsValid(city))
 	{
 		return;
 	}
@@ -6473,9 +6473,9 @@ bool Player::GetCapitolPos(MapPoint &pos) const
 		return false;
 	} else {
 		if(!g_network.IsActive() || g_network.ReadyToStart()) {
-			Assert(g_theUnitPool->IsValid(*m_capitol));
+			Assert(unitpool_Get()->IsValid(*m_capitol));
 		}
-        if(!g_theUnitPool->IsValid(*m_capitol)) {
+        if(!unitpool_Get()->IsValid(*m_capitol)) {
 			if(!g_network.IsActive() || g_network.ReadyToStart()) {
 				m_capitol->m_id = (0);
 			}
@@ -9442,7 +9442,7 @@ void Player::CreateLeader()
 		                      false,
 		                      CAUSE_NEW_ARMY_BUILT);
 
-		if(g_theUnitPool->IsValid(ldr))
+		if(unitpool_Get()->IsValid(ldr))
 		{
 			ldr.ClearFlag(k_UDF_FIRST_MOVE);
 			ldr.SetMovementPoints(0);

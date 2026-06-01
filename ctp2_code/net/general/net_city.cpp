@@ -170,9 +170,9 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	Unit uid(getlong(&buf[2]));
 	sint32 pos;
 
-	if(g_theUnitPool->IsValid(uid)) {
+	if(unitpool_Get()->IsValid(uid)) {
 		DPRINTF(k_DBG_NET, ("Net: received city %lx\n", (uint32)uid));
-		UnitData* unitData = g_theUnitPool->AccessUnit(uid);
+		UnitData* unitData = unitpool_Get()->AccessUnit(uid);
 		uint16 unitSize;
 		PLAYER_INDEX oldOwner = unitData->m_owner;
 
@@ -283,7 +283,7 @@ void NetCityName::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PULLLONGTYPE(home_city, Unit);
 	char name[k_MAX_NAME_LEN];
 	PULLSTRING(name);
-	if(g_theUnitPool->IsValid(home_city)) {
+	if(unitpool_Get()->IsValid(home_city)) {
 		if(!home_city->GetCityData()) {
 
 
@@ -400,7 +400,7 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Unit home_city;
 	PULLLONGTYPE(home_city, Unit);
 
-	if(!g_theUnitPool->IsValid(home_city))
+	if(!unitpool_Get()->IsValid(home_city))
 		return;
 	m_data = home_city.AccessData()->GetCityData();
 
@@ -535,8 +535,8 @@ void NetCityBuildQueue::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Unit city;
 	PULLLONGTYPE(city, Unit);
-	Assert(g_theUnitPool->IsValid(city));
-	if(!g_theUnitPool->IsValid(city))
+	Assert(unitpool_Get()->IsValid(city));
+	if(!unitpool_Get()->IsValid(city))
 		return;
 	m_cityData = city.AccessData()->GetCityData();
 
@@ -586,8 +586,8 @@ void NetCityResources::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Unit city;
 	PULLLONGTYPE(city, Unit);
-	Assert(g_theUnitPool->IsValid(city));
-	if(!g_theUnitPool->IsValid(city))
+	Assert(unitpool_Get()->IsValid(city));
+	if(!unitpool_Get()->IsValid(city))
 		return;
 
 	m_cityData = city.AccessData()->GetCityData();

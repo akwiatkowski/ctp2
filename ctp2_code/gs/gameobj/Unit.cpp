@@ -77,7 +77,7 @@ class UnitActor;
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"           // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"           // unitpool_Get()
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/unitutil.h"
@@ -293,7 +293,7 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		UpdateZOCForRemoval();
 	}
 
-	g_theUnitPool->Del(m_id);
+	unitpool_Get()->Del(m_id);
 
 	if(is_renumber_cont)
 	{
@@ -311,12 +311,12 @@ void Unit::FastKill()
 		Assert(false);
 	}
 
-	g_theUnitPool->Del(m_id);
+	unitpool_Get()->Del(m_id);
 }
 
 bool Unit::IsValid() const
 {
-	return g_theUnitPool->IsValid(*this);
+	return unitpool_Get()->IsValid(*this);
 }
 
 sint32 Unit::GetGoldHunger() const  //EMOD
@@ -341,12 +341,12 @@ const UnitRecord * Unit::GetDBRec(void) const
 
 const UnitData * Unit::GetData() const
 {
-	return g_theUnitPool->GetUnit(m_id);
+	return unitpool_Get()->GetUnit(m_id);
 }
 
 UnitData * Unit::AccessData() const
 {
-	return g_theUnitPool->AccessUnit(m_id);
+	return unitpool_Get()->AccessUnit(m_id);
 }
 
 const MBCHAR * Unit::GetName() const
@@ -956,7 +956,7 @@ sint32 Unit::GetSelect2SoundID(void)
 
 sint32 Unit::GetMoveSoundID(void)
 {
-	if(!g_theUnitPool->IsValid(m_id))
+	if(!unitpool_Get()->IsValid(m_id))
 		return 0;   // TODO: check whether this should be -1
 	return GetDBRec()->GetSoundMoveIndex();
 }

@@ -87,7 +87,7 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // count.  Baseline raised by 1 to reflect this.
 // Phase F-5: json_save.cpp adds #include "robot/pathing/Path.h" for
 // TradeRouteData's embedded Path bridge (+1).
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 121;
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 118;
 constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 27;
 
 // ai/ files include robot/ headers for pathing and backdoor access.
@@ -975,7 +975,7 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_theCurrentBattle     (5 cross-layer consumers, 30 sites,
 //                             get+set accessor pattern for the
 //                             lifecycle-managed pointer)
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 57;
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 54;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

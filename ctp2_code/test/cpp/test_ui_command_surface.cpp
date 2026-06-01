@@ -84,7 +84,7 @@ namespace {
 //     `Player::SetPlayerType` method.
 //   - chatbox.cpp (4 sites — IRC-style /human and /computer commands
 //     that flip player type at runtime).  Same disposition.
-constexpr std::size_t UI_GS_PLAYER_FIELD_WRITE_BASELINE = 8;
+constexpr std::size_t UI_GS_PLAYER_FIELD_WRITE_BASELINE = 0;
 
 // `xxx.AccessData()->m_...` or `xxx->AccessData()->m_...` field write —
 // UI reaching through the gs-handle accessor to bypass a method.  Should

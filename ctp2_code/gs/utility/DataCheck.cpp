@@ -123,8 +123,6 @@ extern  OzoneDatabase           *g_theUVDB ;
 #include "gs/gameobj/TerrImprovePool.h"  // terrimprovepool_Get()
 #include "gs/gameobj/TradePool.h"        // tradepool_Get()
 #include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
-extern  UnitPool                *g_theUnitPool;
-
 // Others
 extern  World                   *g_theWorld;
 extern  Player                  **g_player;
@@ -384,7 +382,7 @@ void DataCheck::BeginTurn(void)
 	CHECK_DB(terrimprovepool_Get(), CRC_TYPE_TERRAIN_IMPROVEMENT_POOL);
 	CHECK_DB(tradepool_Get(), CRC_TYPE_TRADEPOOL);
 	CHECK_DB(tradeofferpool_Get(), CRC_TYPE_TRADEOFFERPOOL);
-	CHECK_DB(g_theUnitPool, CRC_TYPE_UNITPOOL);
+	CHECK_DB(unitpool_Get(), CRC_TYPE_UNITPOOL);
 
 	CHECK_DB(pollution_Get(), CRC_TYPE_POLLUTION);
 	CHECK_DB(topten_Get(), CRC_TYPE_TOPTEN);

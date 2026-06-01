@@ -172,7 +172,7 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 
 	p->m_readiness->BeginTurn(p->m_government_type);
 
-	if(p->m_capitol && g_theUnitPool->IsValid(p->m_capitol->m_id)) {
+	if(p->m_capitol && unitpool_Get()->IsValid(p->m_capitol->m_id)) {
 		MapPoint pos;
 		p->m_capitol->GetPos(pos);
 		g_theWorld->FindCityDistances(p->m_owner, pos);

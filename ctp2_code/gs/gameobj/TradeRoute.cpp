@@ -19,8 +19,6 @@
 
 extern World* g_theWorld;
 extern Player** g_player;
-extern UnitPool *g_theUnitPool;
-
 bool TradeRoute::IsValid() const
 {
 	return tradepool_Get()->IsValid(m_id);
@@ -45,12 +43,12 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 	Unit source(data->GetSource()), dest(data->GetDestination());
 
 
-	if(g_theUnitPool->IsValid(source))
+	if(unitpool_Get()->IsValid(source))
 		source.DelTradeRoute(*this);
-	if(g_theUnitPool->IsValid(dest))
+	if(unitpool_Get()->IsValid(dest))
 		dest.DelTradeRoute(*this);
 
-	if(g_theUnitPool->IsValid(source) && g_theUnitPool->IsValid(dest)) {
+	if(unitpool_Get()->IsValid(source) && unitpool_Get()->IsValid(dest)) {
 		if(source.GetOwner() != dest.GetOwner()) {
 			if(cause == CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED) {
 				SlicObject *so = new SlicObject("360SenderKilledTradeRoute");

@@ -83,7 +83,7 @@ sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint
 		for (sint32 i = 0; i < num_cities; i++)
 		{
 			city = g_player[foreignerId]->m_all_cities->Access(i);
-			Assert( g_theUnitPool->IsValid(city) );
+			Assert( unitpool_Get()->IsValid(city) );
 			Assert( city->GetCityData() != NULL );
 
 			research_pact_science += city.CD()->GetScience();

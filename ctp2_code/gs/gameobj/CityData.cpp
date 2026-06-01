@@ -291,7 +291,7 @@
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/utility/TurnCnt.h"                    // g_turn
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/UnitPool.h"                   // g_theUnitPool
+#include "gs/gameobj/UnitPool.h"                   // unitpool_Get()
 #include "UnitRecord.h"
 #include "gs/gameobj/unitutil.h"
 #include "WonderRecord.h"
@@ -5506,7 +5506,7 @@ void CityData::CityToPark(sint32 agressor)
 
 	for (sint32 i = 0; i < tempKillList.Num(); i++)
     {
-		if(g_theUnitPool->IsValid(tempKillList[i])) {
+		if(unitpool_Get()->IsValid(tempKillList[i])) {
 			tempKillList[i].Kill(CAUSE_REMOVE_ARMY_PARKRANGER, agressor);
 		}
 	}
@@ -7878,7 +7878,7 @@ void CityData::Disband()
 		Unit s = g_player[m_owner]->CreateUnit(settler, pos,
 		                                       m_home_city, false,
 		                                       CAUSE_NEW_ARMY_DISBANDED_CITY);
-		if(g_theUnitPool->IsValid(s)) {
+		if(unitpool_Get()->IsValid(s)) {
 			s.ClearFlag(k_UDF_FIRST_MOVE);
 			s.SetMovementPoints(0);
 			//possible solution for bug #14

@@ -151,7 +151,7 @@ void Wormhole::BeginTurn(sint32 player)
 
 	PointerList<EntryRecord>::Walker walk(m_entries);
 	while(walk.IsValid()) {
-		if(!g_theUnitPool->IsValid(walk.GetObj()->m_unit)) {
+		if(!unitpool_Get()->IsValid(walk.GetObj()->m_unit)) {
 			delete walk.Remove();
 			continue;
 		}
@@ -159,7 +159,7 @@ void Wormhole::BeginTurn(sint32 player)
 			walk.Next();
 			continue;
 		}
-		if(g_theUnitPool->IsValid(walk.GetObj()->m_unit)) {
+		if(unitpool_Get()->IsValid(walk.GetObj()->m_unit)) {
 			walk.GetObj()->m_unit.Kill(CAUSE_REMOVE_ARMY_PROBE_RECOVERED, -1);
 		}
 

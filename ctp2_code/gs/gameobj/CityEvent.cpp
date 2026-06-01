@@ -513,7 +513,7 @@ STDEHANDLER(NukeCityEvent)
 			if(!u.GetDBRec()->HasNuclearAttack())
 				continue;
 
-			if(!g_theUnitPool->IsValid(u->GetTargetCity()))
+			if(!unitpool_Get()->IsValid(u->GetTargetCity()))
 				continue;
 
 			if(u->GetTargetCity().GetOwner() != nuker)

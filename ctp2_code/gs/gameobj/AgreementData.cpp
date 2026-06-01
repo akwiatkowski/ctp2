@@ -60,7 +60,6 @@
 #include "gs/gameobj/AgreementPool.h"
 
 extern	Player	**g_player ;
-extern UnitPool *g_theUnitPool;
 extern World *g_theWorld;
 
 #include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
@@ -1327,7 +1326,7 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 		case AGREEMENT_TYPE_PACT_CAPTURE_CITY:
 		{
 			if(g_player[m_recipient]) {
-				if(g_theUnitPool->IsValid(m_targetCity)) {
+				if(unitpool_Get()->IsValid(m_targetCity)) {
 					if(m_targetCity.GetOwner() == m_owner ||
 					   m_targetCity.GetOwner() == m_recipient) {
 
@@ -1464,7 +1463,7 @@ void AgreementData::BeginTurnRecipient(sint32 currentRound)
 		case AGREEMENT_TYPE_PACT_CAPTURE_CITY:
 		{
 			if(g_player[m_recipient]) {
-				if(g_theUnitPool->IsValid(m_targetCity)) {
+				if(unitpool_Get()->IsValid(m_targetCity)) {
 					if(m_targetCity.GetOwner() == m_owner ||
 					   m_targetCity.GetOwner() == m_recipient) {
 

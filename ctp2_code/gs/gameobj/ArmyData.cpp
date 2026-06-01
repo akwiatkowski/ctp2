@@ -962,7 +962,7 @@ bool ArmyData::CanSettle(const MapPoint &pos) const
 //
 // Parameters : -
 //
-// Globals    : g_theUnitPool : (instantiated) units in the game
+// Globals    : unitpool_Get() : (instantiated) units in the game
 //
 // Returns    : bool true if at least one member of the CellUnitList can
 //              settle anywhere.
@@ -1212,7 +1212,7 @@ void ArmyData::GroupArmy(Army &army)
 //
 // Parameters : -
 //
-// Globals    : g_theUnitPool       :
+// Globals    : unitpool_Get()       :
 //              g_network           : multiplayer manager
 //              g_theWorld          : the map
 //              g_gevManager        :
@@ -1274,7 +1274,7 @@ void ArmyData::GroupAllUnits()
 //
 // Parameters : -
 //
-// Globals    : g_theUnitPool   :
+// Globals    : unitpool_Get()   :
 //            : g_network       : multiplayer manager
 //            : g_player        : player array [see Player::InitPlayer for initialized player data]
 //
@@ -6255,7 +6255,7 @@ void ArmyData::ClearOrders()
 //
 // Parameters : bool propagate
 //
-// Globals    : g_theUnitPool
+// Globals    : unitpool_Get()
 //            : g_theArmyPool
 //            : g_theDiplomacyLog
 //            : g_player             : player array

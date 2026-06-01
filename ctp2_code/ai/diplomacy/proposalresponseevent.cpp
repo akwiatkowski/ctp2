@@ -49,7 +49,7 @@
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/pollution.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Sci.h"
 #include "gs/gameobj/Gold.h"
 
@@ -555,7 +555,7 @@ STDEHANDLER(AdvanceExchange_ProposalResponseEvent)
 
 	else if (agreement != Diplomat::s_badAgreement &&
 			 agreement.end == -1 &&
-			 agreement.start + 20 <= NewTurnCount::GetCurrentRound())
+			 agreement.start + 20 <= g_turn->GetSessionRound())
 	{
 		receiver_diplomat.ConsiderResponse(sender, RESPONSE_ACCEPT, accept_priority);
 	}
@@ -1364,7 +1364,7 @@ STDEHANDLER(HonorPollutionAgreement_ProposalResponseEvent)
 			if (arg.pollution <= 0)
 				return GEV_HD_Continue;
 
-			sint32 turns_since_start = NewTurnCount::GetCurrentRound() - sender_agreement.start;
+			sint32 turns_since_start = g_turn->GetSessionRound() - sender_agreement.start;
 
 			if (receiver_diplomat.GetPersonality()->GetDiscoveryEcotopian() &&
 				turns_since_start < 10)

@@ -56,7 +56,7 @@
 #include "gs/gameobj/Player.h"
 #include "ai/CityManagement/governor.h"
 #include "StrategyRecord.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/ctpai.h"
 
@@ -167,7 +167,7 @@ STDEHANDLER(FullAttack_NextSStateEvent)
 		{
 			if(AgreementMatrix::s_agreements.HasAgreement(playerId, i, PROPOSAL_TREATY_DECLARE_WAR))
 			{
-				if((NewTurnCount::GetCurrentRound() - diplomat.GetLastBorderIncursionBy(i)) < 15 /*|| diplomat.HasUnitsInOurTerritory(i)*/)
+				if((g_turn->GetSessionRound() - diplomat.GetLastBorderIncursionBy(i)) < 15 /*|| diplomat.HasUnitsInOurTerritory(i)*/)
 				{
 					invaded = true;
 					break;
@@ -341,7 +341,7 @@ STDEHANDLER(OpeningGambit_NextSStateEvent)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
-	if (NewTurnCount::GetCurrentRound() > diplomat.GetPersonality()->GetLastStartTurn())
+	if (g_turn->GetSessionRound() > diplomat.GetPersonality()->GetLastStartTurn())
 		return GEV_HD_Continue;
 
 	AiState state;
@@ -719,9 +719,9 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 	    && diplomat.GetPersonality()->HasDefenceLowStrategy()
 	    && diplomat.GetPersonality()->HasDefenceVeryLowStrategy()
 	    && diplomat.GetPersonality()->HasDefenceNoneStrategy()
-	  )
+	)
 	{
-		if(NewTurnCount::GetCurrentRound() < diplomat.GetPersonality()->GetLastStartTurn())
+		if(g_turn->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
 		{
 			if(max_threat > MEDIUM_DEFENSE_LEVEL)
 			{
@@ -770,7 +770,7 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 	}
 	else{
 		state.priority = 800;
-		if(NewTurnCount::GetCurrentRound() < diplomat.GetPersonality()->GetLastStartTurn())
+		if(g_turn->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
 		{
 			if(max_threat > MEDIUM_DEFENSE_LEVEL)
 			{

@@ -44,7 +44,7 @@
 #include "ai/mapanalysis/mapanalysis.h"
 #include "AdvanceRecord.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/utility/newturncount.h"
+#include "gs/utility/TurnCnt.h"
 #include "gs/core/player_view.h"
 #include "ai/ctpai.h"
 #include "ai/diplomacy/ProposalAnalysis.h"
@@ -394,7 +394,7 @@ STDEHANDLER(MakePeace_NewProposalEvent)
 	if (sender_diplomat.GetLastColdwarAttack(receiver) < 5)
 		return GEV_HD_Continue;
 
-	if (sender_diplomat.GetLastBorderIncursionBy(receiver) + 20 < NewTurnCount::GetCurrentRound())
+	if (sender_diplomat.GetLastBorderIncursionBy(receiver) + 20 < g_turn->GetSessionRound())
 		return GEV_HD_Continue;
 
 	if (sender_diplomat.GetTrust(receiver) < COLDWAR_REGARD)
@@ -657,7 +657,7 @@ STDEHANDLER(HonorPollutionAgreement_NewProposalEvent)
 	uint32 half_promised_pollution = promised_pollution / 2;
 	double pollution_ratio = (double) receiver_pollution / promised_pollution;
 
-	sint32 turns_since_start = NewTurnCount::GetCurrentRound() - agreement.start;
+	sint32 turns_since_start = g_turn->GetSessionRound() - agreement.start;
 
 	if (pollution_ratio <= 1.0)
 		return GEV_HD_Continue;

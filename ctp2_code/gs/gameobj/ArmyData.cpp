@@ -1041,7 +1041,7 @@ void ArmyData::Sleep()
 	{
 		if(!m_array[i]->IsAsleep())
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SleepUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SleepUnit,
 			                       GEA_Unit, m_array[i],
 			                       GEA_End);
 		}
@@ -1054,7 +1054,7 @@ void ArmyData::WakeUp()
 	for(sint32 i = 0; i < m_nElements; i++)
 	{
 		if(m_array[i]->IsAsleep()){
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeUnit,
 			                       GEA_Unit, m_array[i],
 			                       GEA_End);
 		}
@@ -1093,7 +1093,7 @@ void ArmyData::Entrench()
 {
     for(sint32 i = 0; i < m_nElements; i++)
     {
-        g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchUnit,
+        gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchUnit,
                                GEA_Unit, m_array[i],
                                GEA_End);
 
@@ -1105,7 +1105,7 @@ void ArmyData::Detrench()
 {
     for(sint32 i = 0; i < m_nElements; i++)
     {
-        g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_DetrenchUnit,
+        gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_DetrenchUnit,
                                GEA_Unit, m_array[i],
                                GEA_End);
 
@@ -1140,7 +1140,7 @@ void ArmyData::GetActors(Unit &excludeMe, std::vector<std::weak_ptr<UnitActor> >
 //
 // Parameters : Army &army      : the incoming army
 //
-// Globals    : g_gevManager    :
+// Globals    : gevmanager_Get()    :
 //              g_player        : player array
 //
 // Returns    : -
@@ -1180,7 +1180,7 @@ void ArmyData::GroupArmy(Army &army)
 
     for(i = army.Num() - 1; i >= 0; i--) {
         DPRINTF(k_DBG_GAMESTATE, ("Inserting unit 0x%lx\n", army[i]));
-        g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
+        gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
                                GEA_Unit, army[i],
                                GEA_Army, m_id,
                                GEA_End);
@@ -1195,7 +1195,7 @@ void ArmyData::GroupArmy(Army &army)
     //fixed, PFT 07 apr 05. If somebody is entrenched, then entrench everyone.
     for(i = 0; i < m_nElements; i++) {
         if(m_array[i].IsEntrenching() || m_array[i].IsEntrenched()) {
-            g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
+            gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
                                    GEA_Army, m_id,
                                    GEA_End);
 
@@ -1215,7 +1215,7 @@ void ArmyData::GroupArmy(Army &army)
 // Globals    : unitpool_Get()       :
 //              g_network           : multiplayer manager
 //              world_Get          : the map
-//              g_gevManager        :
+//              gevmanager_Get()        :
 //
 // Returns    : -
 //
@@ -1251,13 +1251,13 @@ void ArmyData::GroupAllUnits()
         }
     }
 
-    g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeArmy,
+    gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeArmy,
                            GEA_Army, m_id,
                            GEA_End);
     WakeUp();
     for(i = 0; i < m_nElements; i++) {
         if(m_array[i].IsEntrenching() || m_array[i].IsEntrenched()) {
-            g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
+            gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
                                    GEA_Army, m_id,
                                    GEA_End);
 
@@ -1345,7 +1345,7 @@ void ArmyData::GroupUnit(Unit unit)
         sint32 i;
         for(i = 0; i < m_nElements; i++) {
             if(m_array[i].IsEntrenching() || m_array[i].IsEntrenched()) {
-                g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
+                gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EntrenchOrder,
                     GEA_Army, m_id,
                     GEA_End);
 
@@ -1367,7 +1367,7 @@ void ArmyData::RemainNumUnits(sint32 remain)
 	for(sint32 i = m_nElements - 1; i > remain; i--)
 	{
 		Army newArmy = g_player[m_owner]->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING_ORDER);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
 		                       GEA_Unit, m_array[i],
 		                       GEA_Army, newArmy,
 		                       GEA_Int, CAUSE_NEW_ARMY_UNGROUPING_ORDER,
@@ -1615,7 +1615,7 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
 //              g_player:               List of players
 //              g_theConstDB:           The const database
 //              g_network
-//              g_gevManager
+//              gevmanager_Get()
 //
 // Returns    : -
 //
@@ -1696,7 +1696,7 @@ void ArmyData::BeginTurn()
                 g_network.Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
                 g_network.Unblock(m_owner);
             }
-            g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
+            gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
                                    GEA_Army, m_id,
                                    GEA_End);
         }
@@ -1916,7 +1916,7 @@ ORDER_RESULT ArmyData::StealTechnology(const MapPoint &point)
 //
 // Parameters : MapPoint
 //
-// Globals    : g_gevManager            :
+// Globals    : gevmanager_Get()            :
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
 //
@@ -1944,13 +1944,13 @@ ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point)
 			continue;
 
 		if(m_array[i].GetDBRec()->HasInciteRevolution()) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_InciteRevolutionUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_InciteRevolutionUnit,
 								   GEA_Unit, m_array[i].m_id,
 								   GEA_City, c.m_id,
 								   GEA_End);
 
 
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 								   GEA_Player, m_owner,
 								   GEA_Int, cost,
 								   GEA_End);
@@ -1973,7 +1973,7 @@ ORDER_RESULT ArmyData::InciteRevolution(const MapPoint &point)
 //
 // Parameters : MapPoint
 //
-// Globals    : g_gevManager
+// Globals    : gevmanager_Get()
 //            : g_slicEngine
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
@@ -1997,7 +1997,7 @@ ORDER_RESULT ArmyData::AssassinateRuler(const MapPoint &point)
 			AddSpecialActionUsed(m_array[i]);
 
 			//InformAI(UNIT_ORDER_ASSASSINATE, point); //does nothing here but could be implemented
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AssassinateRulerUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AssassinateRulerUnit,
 								   GEA_Unit, m_array[i].m_id,
 								   GEA_City, c.m_id,
 								   GEA_End);
@@ -2116,7 +2116,7 @@ bool ArmyData::CanFranchise(double &chance, sint32 &uindex) const
 // Parameters : MapPoint
 //
 // Globals    : world_Get
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_slicEngine
 //            : rand_ptr()
 //            : g_player                : player array
@@ -2157,7 +2157,7 @@ ORDER_RESULT ArmyData::Franchise(const MapPoint &point)
 
 	if(civrand().Next(100) < sint32(chance * 100.0)) {
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakeFranchise,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakeFranchise,
 							   GEA_Unit, u,
 							   GEA_City, city,
 							   GEA_Player, m_owner,
@@ -2265,7 +2265,7 @@ bool ArmyData::CanBeSued() const
 // Parameters : MapPoint
 //
 // Globals    : world_Get
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_slicEngine
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
@@ -2296,7 +2296,7 @@ ORDER_RESULT ArmyData::Sue(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Lawsuit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Lawsuit,
 						   GEA_Army, m_id,
 						   GEA_Unit, m_array[uindex].m_id,
 						   GEA_MapPoint, point,
@@ -2326,7 +2326,7 @@ ORDER_RESULT ArmyData::Sue(const MapPoint &point)
 // Parameters : MapPoint
 //
 // Globals    : world_Get
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_slicEngine
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
@@ -2363,7 +2363,7 @@ ORDER_RESULT ArmyData::SueFranchise(const MapPoint &point)
 
 	AddSpecialActionUsed(u);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_RemoveFranchise,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_RemoveFranchise,
 						   GEA_Army, m_id,
 						   GEA_Unit, u,
 						   GEA_City, cell->GetCity(),
@@ -2389,7 +2389,7 @@ ORDER_RESULT ArmyData::SueFranchise(const MapPoint &point)
 // Parameters : MapPoint
 //
 // Globals    : world_Get
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_player                : player array
 //
 // Returns    : ORDER_RESULT            : attempt success/failure indication
@@ -2462,7 +2462,7 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 					newArmy = expelled[i].GetArmy();
 				}
 
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_GetExpelledOrder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_GetExpelledOrder,
 									   GEA_Army, newArmy,
 									   GEA_MapPoint, cpos,
 									   GEA_Player, GetOwner(),
@@ -2470,7 +2470,7 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 
 				if(expelled[i].GetArmy().Num() > 1) {
 
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
 										   GEA_Unit, expelled[i],
 										   GEA_Army, newArmy,
 										   GEA_Int, CAUSE_NEW_ARMY_EXPELLED,
@@ -2482,7 +2482,7 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 			}
 		}
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ExpelUnits,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ExpelUnits,
 							   GEA_Army, m_id,
 							   GEA_MapPoint, point,
 							   GEA_End);
@@ -2737,7 +2737,7 @@ bool ArmyData::CanPlantNuke(double &chance, double &escape_chance) const
 // Parameters : MapPoint point  : a point adjacent to this army's location (which should contain a city).
 //
 // Globals    : g_slicEngine
-//            : g_gevManager
+//            : gevmanager_Get()
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
 //
@@ -2776,7 +2776,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 	if(civrand().Next(100) < sint32(chance * 100.0)) {
 		MapPoint pos;
 		MapPoint cpos;
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlantNukeUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlantNukeUnit,
 							   GEA_Unit, u,
 							   GEA_City, c,
 							   GEA_End);
@@ -2785,7 +2785,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 		if(civrand().Next(100) < sint32(escape_chance)) {
 
 			u.NearestFriendlyCity(cpos);
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Teleport,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Teleport,
 								   GEA_Army, m_id,
 								   GEA_MapPoint, cpos,
 								   GEA_End);
@@ -2796,7 +2796,7 @@ ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 
         g_slicEngine->Execute(new CityReport("178NukeCompleteVictim", c));
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCity,
 							   GEA_City,    c,
 							   GEA_Player,  m_owner,
 							   GEA_End);
@@ -2996,7 +2996,7 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 //
 // Globals    : g_slicEngine
 //            : rand_ptr()
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_player        : Player array [see Player::InitPlayer for
 //                                initialized player data]
 //
@@ -3059,12 +3059,12 @@ ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 
 		MapPoint cpos;
 		home_city.GetPos(cpos);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SlaveRaidCity,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SlaveRaidCity,
 							   GEA_Unit, m_array[uindex],
 							   GEA_City, target_city.m_id,
 							   GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 							   GEA_City, home_city,
 							   GEA_Player, target_city.GetOwner(),
 							   GEA_End);
@@ -3280,7 +3280,7 @@ bool ArmyData::CanEnslaveSettler(sint32 &uindex) const
 //
 // Globals    : g_player        : player array
 //            : world_Get
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_slicEngine
 //
 // Returns    : ORDER_RESULT    : attempt success/failure indication
@@ -3311,7 +3311,7 @@ ORDER_RESULT ArmyData::EnslaveSettler(const MapPoint &point, const sint32 uindex
 
 	ActionSuccessful(SPECATTACK_ENSLAVESETTLER, m_array[uindex], cell->AccessUnit(0));
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EnslaveSettler,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EnslaveSettler,
 						   GEA_Army, m_id,
 						   GEA_Unit, m_array[uindex],
 						   GEA_Unit, cell->AccessUnit(0).m_id,
@@ -3410,7 +3410,7 @@ ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 
 	if(civrand().Next(100) < sint32(success * 100.0))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_UndergroundRailwayUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_UndergroundRailwayUnit,
 							   GEA_Unit, m_array[uindex].m_id,
 							   GEA_City, c,
 							   GEA_End);
@@ -3505,12 +3505,12 @@ ORDER_RESULT ArmyData::InciteUprising(const MapPoint &point)
 	if(g_player[m_owner]->m_gold->GetLevel() < cost)
 		return ORDER_RESULT_FAILED;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 						   GEA_Player, m_owner,
 						   GEA_Int, cost,
 						   GEA_End);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_InciteUprisingUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_InciteUprisingUnit,
 						   GEA_Unit, m_array[uindex].m_id,
 						   GEA_City, c,
 						   GEA_End);
@@ -3588,7 +3588,7 @@ ORDER_RESULT ArmyData::EstablishEmbassy(const MapPoint &point)
 		return ORDER_RESULT_FAILED;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EstablishEmbassyUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EstablishEmbassyUnit,
 						   GEA_Unit, m_array[uindex].m_id,
 						   GEA_City, c,
 						   GEA_End);
@@ -3645,7 +3645,7 @@ ORDER_RESULT ArmyData::ThrowParty(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 	                       GEV_ThrowPartyUnit,
 	                       GEA_Unit, m_array[uindex].m_id,
 	                       GEA_City, c,
@@ -3737,7 +3737,7 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 
 	if(civrand().Next(100) < sint32(chance * 100.0))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCityUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
 							   GEA_City, c.m_id,
 							   GEA_End);
@@ -3836,7 +3836,7 @@ ORDER_RESULT ArmyData::Plague(const MapPoint &point)
 	c.SetWatchful();
 
 	if(civrand().Next(100) < sint32(chance * 100.0)) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCityUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
 							   GEA_City, c.m_id,
 							   GEA_End);
@@ -3938,7 +3938,7 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 	c.SetWatchful();
 
 	if(civrand().Next(100) < sint32(chance * 100.0)) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCityUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCityUnit,
 							   GEA_Unit, m_array[uindex],
 							   GEA_City, c,
 							   GEA_End);
@@ -4094,7 +4094,7 @@ bool ArmyData::CanConvertCity(const MapPoint &point) const
 // Parameters : MapPoint point  : a point adjacent to this army's location.
 //
 // Globals    : rand_ptr()
-//            : g_gevManager
+//            : gevmanager_Get()
 //            : g_slicEngine
 //            : g_theWonderDB
 //
@@ -4170,7 +4170,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 	city.SetWatchful();
 
 	if(civrand().Next(100) < sint32(chance * 100.0)) {
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCityUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ConvertCityUnit,
 							   GEA_Unit, u,
 							   GEA_City, city,
 							   GEA_End);
@@ -4190,7 +4190,7 @@ ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 
 					if(bi >= 0 && bi < g_theBuildingDB->NumRecords())
 					{
-						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
+						gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
 						                       GEA_City, city,
 						                       GEA_Int, bi,
 						                       GEA_End);
@@ -4272,7 +4272,7 @@ ORDER_RESULT ArmyData::ReformCity(const MapPoint &point)
 
 	if(civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetReformationChance() * 100.0))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ReformCityUnit,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ReformCityUnit,
 							   GEA_Unit, m_array[uindex].m_id,
 							   GEA_City, c.m_id,
 							   GEA_End);
@@ -4355,24 +4355,24 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_IndulgenceSaleMade,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_IndulgenceSaleMade,
 						   GEA_Unit, m_array[uindex],
 						   GEA_City, c,
 						   GEA_End);
 
 	if(c.IsConvertedTo() < 0) {
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 							   GEA_Player, c.GetOwner(),
 							   GEA_Int, g_theConstDB->Get(0)->GetUnconvertedIndulgenceGold(),
 							   GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 							   GEA_Player, m_owner,
 							   GEA_Int, g_theConstDB->Get(0)->GetUnconvertedIndulgenceGold(),
 							   GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
 							   GEA_City, c.m_id,
 							   GEA_Int, 1,
 							   GEA_Int, g_theConstDB->Get(0)->GetUnconvertedIndulgenceHappiness(),
@@ -4381,15 +4381,15 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 
 	} else if(c.IsConvertedTo() == m_array[uindex].GetOwner()) {
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 							   GEA_Player, c.GetOwner(),
 							   GEA_Int, g_theConstDB->Get(0)->GetConvertedIndulgenceGold(),
 							   GEA_End);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 							   GEA_Player, m_owner,
 							   GEA_Int, g_theConstDB->Get(0)->GetConvertedIndulgenceGold(),
 							   GEA_End);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
 							   GEA_City, c.m_id,
 							   GEA_Int, 1,
 							   GEA_Int, g_theConstDB->Get(0)->GetConvertedIndulgenceHappiness(),
@@ -4398,15 +4398,15 @@ ORDER_RESULT ArmyData::IndulgenceSale(const MapPoint &point)
 
 	} else {
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SubGold,
 							   GEA_Player, c.GetOwner(),
 							   GEA_Int, g_theConstDB->Get(0)->GetOtherFaithIndulgenceGold(),
 							   GEA_End);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddGold,
 							   GEA_Player, m_owner,
 							   GEA_Int, g_theConstDB->Get(0)->GetOtherFaithIndulgenceGold(),
 							   GEA_End);
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddHappyTimer,
 							   GEA_City, c.m_id,
 							   GEA_Int, 1,
 							   GEA_Int, g_theConstDB->Get(0)->GetOtherFaithIndulgenceHappiness(),
@@ -4534,7 +4534,7 @@ ORDER_RESULT ArmyData::Advertise(const MapPoint &point)
 				Assert(bi >= 0);
 				Assert(bi < g_theBuildingDB->NumRecords());
 				if(bi >= 0 && bi < g_theBuildingDB->NumRecords()) {
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateBuilding,
 			                       GEA_City, c,
 			                       GEA_Int, bi,
 			                       GEA_End);
@@ -4585,7 +4585,7 @@ ORDER_RESULT ArmyData::Launch(Order *order)
 		m_array[uindex]->CreateOwnArmy();
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_LaunchUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_LaunchUnit,
 						   GEA_Unit, m_array[uindex],
 						   GEA_MapPoint, order->m_point,
 						   GEA_End);
@@ -4627,7 +4627,7 @@ ORDER_RESULT ArmyData::Target(Order *order)
 	sint32 i;
 	for(i = 0; i < m_nElements; i++) {
 		if(m_array[i].GetDBRec()->HasNuclearAttack()) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SetTarget,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SetTarget,
 								   GEA_Unit, m_array[i],
 								   GEA_City, targetCity,
 								   GEA_End);
@@ -4643,7 +4643,7 @@ ORDER_RESULT ArmyData::ClearTarget()
 	sint32 i;
 	for(i = 0; i < m_nElements; i++) {
 		if(m_array[i].GetDBRec()->HasNuclearAttack()) {
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ClearTarget,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ClearTarget,
 								   GEA_Unit, m_array[i],
 								   GEA_End);
 		}
@@ -4672,7 +4672,7 @@ void ArmyData::Reenter()
 	{
 		for (i = 0; i < m_nElements; i++)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 								   GEA_Unit, m_array[i].m_id,
 								   GEA_Int, 0,
 								   GEA_Player, -1,
@@ -4920,7 +4920,7 @@ ORDER_RESULT ArmyData::CreatePark(const MapPoint &point)
 	so->AddCivilisation(c->GetOwner());
 	g_slicEngine->Execute(so);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateParkUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateParkUnit,
 						   GEA_Unit, m_array[uindex].m_id,
 						   GEA_City, c.m_id,
 						   GEA_End);
@@ -5067,11 +5067,11 @@ ORDER_RESULT ArmyData::Pillage(bool test_ownership)
 //		return ORDER_RESULT_ILLEGAL;
 //	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_PillageUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PillageUnit,
 						   GEA_Unit, m_array[uindex],
 						   GEA_End);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CutImprovements,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CutImprovements,
 						   GEA_MapPoint, pos,
 						   GEA_End);
 
@@ -5122,7 +5122,7 @@ ORDER_RESULT ArmyData::Injoin(const MapPoint &point)
 	//InformAI(UNIT_ORDER_INJOIN, point); //does nothing here but could be implemented
 
 	AddSpecialActionUsed(u);
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_InjoinUnit,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_InjoinUnit,
 						   GEA_Unit, u,
 						   GEA_City, c.m_id,
 						   GEA_End);
@@ -6137,7 +6137,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			attackOrder->m_eventType = Order::OrderToEvent(order);
 		}
 		Assert(attackOrder->m_eventType < GEV_MAX && attackOrder->m_eventType >= 0);
-		DPRINTF(k_DBG_GAMESTATE, ("Adding event order for army 0x%lx, event = %s, targetPos = (%i, %i)\n", m_id, g_gevManager->GetEventName(attackOrder->m_eventType), point.x, point.y));
+		DPRINTF(k_DBG_GAMESTATE, ("Adding event order for army 0x%lx, event = %s, targetPos = (%i, %i)\n", m_id, gevmanager_Get()->GetEventName(attackOrder->m_eventType), point.x, point.y));
 		attackOrder->m_gameEventArgs = args;
 
 		m_orders->AddTail(attackOrder);
@@ -6630,7 +6630,7 @@ bool ArmyData::ExecuteMoveOrder(Order *order)
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_MoveArmy,
 		                       GEA_Army, m_id,
 		                       GEA_Direction, d,
@@ -6857,7 +6857,7 @@ bool ArmyData::FinishMove(WORLD_DIRECTION d, MapPoint &newPos, UNIT_ORDER_TYPE o
 	{
 		Army army(m_id);
 
-		g_gevManager->AddEvent
+		gevmanager_Get()->AddEvent
 		                      (
 		                       GEV_INSERT_AfterCurrent,
 		                       GEV_MoveIntoTransport,
@@ -6891,7 +6891,7 @@ bool ArmyData::FinishMove(WORLD_DIRECTION d, MapPoint &newPos, UNIT_ORDER_TYPE o
 					{
 						if(world_Get()->GetCity(newPos).m_id == 0)
 						{
-							g_gevManager->AddEvent
+							gevmanager_Get()->AddEvent
 							                      (
 							                       GEV_INSERT_AfterCurrent,
 							                       GEV_KillUnit,
@@ -6990,7 +6990,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 						so->AddCity(city);
 						g_slicEngine->Execute(so);
 
-						g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 											   GEA_Unit, m_array[i],
 											   GEA_Int, CAUSE_REMOVE_ARMY_NUKE,
 											   GEA_Player, -1,
@@ -7012,7 +7012,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 						g_player[m_owner]->AdjustEventPollution(pollution);
 					}
 
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCityUnit,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeCityUnit,
 										   GEA_Unit, m_array[i],
 										   GEA_City, city.m_id,
 										   GEA_End);
@@ -7088,7 +7088,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 
 					pollution_Get()->AddNukePollution(pos);
 
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeLocationUnit,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NukeLocationUnit,
 										   GEA_Unit, m_array[i],
 										   GEA_MapPoint, pos,
 										   GEA_End);
@@ -7263,7 +7263,7 @@ void ArmyData::Battle(const MapPoint &pos, CellUnitList & defender)
 		Army me(m_id);
 		if(!allSingleUse)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_Battle,
 								   GEA_Army, me,
 								   GEA_MapPoint, pos,
@@ -7285,7 +7285,7 @@ void ArmyData::Battle(const MapPoint &pos, CellUnitList & defender)
 				{
 					if(defender[j].GetHP() < 0.5)
 					{
-						g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 											   GEV_KillUnit,
 											   GEA_Unit, defender[j].m_id,
 											   GEA_Int, CAUSE_REMOVE_ARMY_BOMBARD,
@@ -7294,7 +7294,7 @@ void ArmyData::Battle(const MapPoint &pos, CellUnitList & defender)
 					}
 				}
 
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 									   GEV_KillUnit,
 									   GEA_Unit, m_array[i].m_id,
 									   GEA_Int, CAUSE_REMOVE_ARMY_SINGLE_USE,
@@ -7527,7 +7527,7 @@ void ArmyData::RevealZOCUnits(const MapPoint &pos)
 // Globals    : g_player                : player array
 //              g_selectedItem          : selected unit or city
 //              world_Get              : the map
-//              g_gevManager
+//              gevmanager_Get()
 //
 // Returns    : bool
 //
@@ -7598,7 +7598,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 		{
 			if(CanAtLeastOneCargoUnloadAt(RetPos(), pos, false))
 			{
-				g_gevManager->AddEvent
+				gevmanager_Get()->AddEvent
 				                      (
 				                       GEV_INSERT_AfterCurrent,
 				                       GEV_UnloadOrder,
@@ -7609,7 +7609,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 			}
 		}
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ClearOrders,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ClearOrders,
 							   GEA_Army, m_id,
 							   GEA_End);
 		return false;
@@ -7620,7 +7620,7 @@ bool ArmyData::MoveIntoCell(const MapPoint &pos, UNIT_ORDER_TYPE order, WORLD_DI
 		UpdateZOCForMove(pos, d);
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MoveUnits,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MoveUnits,
 						   GEA_Army, m_id,
 						   GEA_MapPoint, m_pos,
 						   GEA_MapPoint, pos,
@@ -7725,7 +7725,7 @@ void ArmyData::MoveActors(const MapPoint &pos,
 //
 // Globals    : g_network               : multiplayer manager
 //              g_selectedItem          : selected unit or city
-//              g_gevManager            :
+//              gevmanager_Get()            :
 //              radar_map_Get()              :
 //              world_Get              : the map
 //              g_player	            : player array
@@ -7773,7 +7773,7 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 
 		if(world_Get()->GetCell(pos)->GetNumUnits() >= k_MAX_ARMY_SIZE)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillUnit,
 			                       GEA_Unit, m_array[i],
 			                       GEA_Int, CAUSE_REMOVE_ARMY_EXPELLED_NO_CITIES,
 			                       GEA_Player, -1,
@@ -7786,14 +7786,14 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 		{
 			if(m_array[i].IsEntrenching() || m_array[i].IsEntrenched())
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_DetrenchUnit,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_DetrenchUnit,
 				                       GEA_Unit, m_array[i],
 				                       GEA_End);
 			}
 
 			if(m_array[i].IsAsleep())
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeUnit,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_WakeUnit,
 				                       GEA_Unit, m_array[i],
 				                       GEA_End);
 			}
@@ -8199,7 +8199,7 @@ bool ArmyData::MoveIntoTransport(const MapPoint &pos, CellUnitList &transports)
 //----------------------------------------------------------------------------
 void ArmyData::DoBoardTransport(Order *order)
 {
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 						   GEV_MoveIntoTransport,
 						   GEA_Army, m_id,
 						   GEA_MapPoint, m_pos,
@@ -8322,7 +8322,7 @@ bool ArmyData::ExecuteUnloadOrder(Order *order)
 
 	if(debark.m_id != 0)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_FinishUnload,
 		                       GEA_Army, m_id,
 		                       GEA_Army, debark,
@@ -8430,7 +8430,7 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 					if(!debark[i]->Flag(k_UDF_BEACH_ASSAULT_LEGAL) &&
 					   !debark[i].GetMovementTypeAir())
 					{
-						g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_SetUnloadMovementUnit,
+						gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_SetUnloadMovementUnit,
 											   GEA_Unit, debark[i].m_id,
 											   GEA_End);
 					}
@@ -8742,7 +8742,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	if(defenderSucks) {
 		if(ta.IsValid()) {
 			render_observer::AddAttack(ta, td);
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_BattleAftermath,
 								   GEA_Army, m_id,
 								   GEA_MapPoint, pos,
@@ -8757,7 +8757,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 				if(defender[i].m_id == td.m_id) {
 					cause  = CAUSE_REMOVE_ARMY_DIED_IN_ATTACK_ON_TOP;
 				}
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 									   GEV_KillUnit,
 									   GEA_Unit, defender[i].m_id,
 									   GEA_Int, cause,
@@ -8768,7 +8768,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_RunCombat,
 							   GEA_Army, m_id,
 							   GEA_MapPoint, pos,
@@ -8776,7 +8776,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 							   GEA_Player, defense_owner,
 							   GEA_End);
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_StartCombat,
 							   GEA_Army, m_id,
 							   GEA_MapPoint, pos,
@@ -9587,7 +9587,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 	{
 		if(order_rec)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 			                       GEV_SubGold,
 			                       GEA_Player, m_owner,
 			                       GEA_Int, order_rec->GetGold(),
@@ -10056,7 +10056,7 @@ bool ArmyData::CanPerformSpecialAction() const
 // Parameters : -
 //
 // Globals    : g_network       : multiplayer manager
-//              g_gevManager
+//              gevmanager_Get()
 //
 // Returns    : -
 //
@@ -10072,7 +10072,7 @@ void ArmyData::CheckAddEventOrder()
 	Order *order = m_orders->GetHead();
 	if(order && order->m_order == UNIT_ORDER_ADD_EVENT && CanPerformSpecialAction()) {
 		m_orders->RemoveHead();
-		g_gevManager->ArglistAddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->ArglistAddEvent(GEV_INSERT_AfterCurrent,
 									  order->m_eventType,
 									  order->m_gameEventArgs);
 		order->m_gameEventArgs = NULL;
@@ -10603,7 +10603,7 @@ void ArmyData::PerformOrder(const OrderRecord * order_rec)
 // Parameters : OrderRecord * order_rec : the order's DB record
 //              Path * path             : a path starting from m_pos
 //
-// Globals    : g_gevManager
+// Globals    : gevmanager_Get()
 //
 // Returns    : -
 //
@@ -10677,7 +10677,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 			//else bombard now?
 			else
 			{
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 				                       static_cast<GAME_EVENT>(game_event),
 				                       GEA_Army, Army(m_id),
 				                       GEA_MapPoint, target_pos,
@@ -10694,13 +10694,13 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 			moves--;
 		}
 	}
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 	//insert order's game_event here
 	if (game_event > 0)
 	{
 		if (range > 0 || order_rec->GetIsTeleport() || order_rec->GetIsTarget())//event needs target pos
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 			                       static_cast<GAME_EVENT>(game_event),
 			                       GEA_Army, Army(m_id),
 			                       GEA_MapPoint, target_pos,
@@ -10709,7 +10709,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 		}
 		else
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 			                       static_cast<GAME_EVENT>(game_event),
 			                       GEA_Army, Army(m_id),
 			                       GEA_End
@@ -10731,7 +10731,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 			if(move_pos != m_pos)
 			{//then first move army to move_pos
 
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 				                       GEV_MoveOrder,
 				                       GEA_Army, Army(m_id),
 				                       GEA_Path, move_path,
@@ -10746,7 +10746,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 		}
 		else
 		{//not a bombard order
-			g_gevManager->AddEvent(priority,                     // Only for cargo movement
+			gevmanager_Get()->AddEvent(priority,                     // Only for cargo movement
 			                       GEV_MoveOrder,
 			                       GEA_Army, Army(m_id),
 			                       GEA_Path, tmp_path,
@@ -10761,13 +10761,13 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 		delete tmp_path;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 	                       GEV_ClearOrders,
 	                       GEA_Army, Army(m_id),
 	                       GEA_End
 	                      );
 
-	g_gevManager->Resume();
+	gevmanager_Get()->Resume();
 }
 
 //----------------------------------------------------------------------------
@@ -10778,7 +10778,7 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 //
 // Parameters : -
 //
-// Globals    : g_gevManager
+// Globals    : gevmanager_Get()
 //            : g_theOrderDB
 //
 // Returns    : -
@@ -10810,7 +10810,7 @@ void ArmyData::AssociateEventsWithOrdersDB()
 
 void ArmyData::Settle()
 {
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 	                       GEV_Settle,
 	                       GEA_Army, m_id,
 	                       GEA_End
@@ -10819,7 +10819,7 @@ void ArmyData::Settle()
 
 void ArmyData::SettleInCity()
 {
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 	                       GEV_SettleInCity,
 	                       GEA_Army, m_id,
 	                       GEA_End
@@ -10885,7 +10885,7 @@ void ArmyData::StopPirating()
 			TradeRoute route = cell->GetTradeRoute(i);
 			if (route->GetPiratingArmy().m_id == m_id)
 			{
-				g_gevManager->AddEvent
+				gevmanager_Get()->AddEvent
 				    (GEV_INSERT_AfterCurrent, GEV_SetPiratingArmy,
 				     GEA_TradeRoute, route,
 				     GEA_Army, 0,
@@ -11225,7 +11225,7 @@ bool ArmyData::Upgrade()
 	{
 		if(m_array[i]->CanUpgrade(type, costs))
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_UpgradeUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_UpgradeUnit,
 			                       GEA_Unit, m_array[i],
 			                       GEA_End);
 
@@ -11394,7 +11394,7 @@ void ArmyData::BarbarianSpawning()
 				&&!world_Get()->GetCity(m_pos)
 				&& m_owner == PLAYER_INDEX_VANDALS
 				){
-					g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateCity,
+					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateCity,
 						GEA_Player, PLAYER_INDEX_VANDALS,
 						GEA_MapPoint, m_pos,
 						GEA_Int, CAUSE_NEW_CITY_GOODY_HUT,

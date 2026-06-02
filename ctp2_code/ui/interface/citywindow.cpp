@@ -759,7 +759,7 @@ void CityWindow::Update()
 			m_growthDelta->SetText(buf);
 			m_growthDelta->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
 		} else {
-			m_growthDelta->SetText(g_theStringDB->GetNameStr("str_ldl_Starving"));
+			m_growthDelta->SetText(stringdb_Get()->GetNameStr("str_ldl_Starving"));
 			m_growthDelta->SetTextColor(colorset_Get()->GetColorRef(COLOR_RED));
 		}
 	}
@@ -1737,10 +1737,10 @@ void CityWindow::PopulateQueueList(CityData *cd, ctp2_ListBox *lb, char *itemBlo
 						label->SetText(g_theWonderDB->Get(bn->m_type)->GetNameText());
 						break;
 					case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-						label->SetText(g_theStringDB->GetNameStr("INFRASTRUCTURE"));
+						label->SetText(stringdb_Get()->GetNameStr("INFRASTRUCTURE"));
 						break;
 					case k_GAME_OBJ_TYPE_CAPITALIZATION:
-						label->SetText(g_theStringDB->GetNameStr("CAPITALIZATION"));
+						label->SetText(stringdb_Get()->GetNameStr("CAPITALIZATION"));
 						break;
 				}
 				sint32 turns = -1;
@@ -2010,7 +2010,7 @@ void CityWindow::UpdateAdviceText()
 	MBCHAR	strbuf[k_MAX_NAME_LEN];
 	SlicContext sc;
 
-	stringutils_Interpret(g_theStringDB->GetNameStr(adviceId),
+	stringutils_Interpret(stringdb_Get()->GetNameStr(adviceId),
 						  sc, strbuf);
 	advice->SetHyperText(strbuf);
 }
@@ -2137,7 +2137,7 @@ void CityWindow::SetItemDescription(const IconRecord *icon, SlicContext &sc, ctp
 		}
 
 		if(!allocatedText && !gltext) {
-			descString = g_theStringDB->GetNameStr(icon->GetStatText());
+			descString = stringdb_Get()->GetNameStr(icon->GetStatText());
 		}
 
 		Assert(descString || allocatedText || gltext);
@@ -2236,7 +2236,7 @@ void CityWindow::FillHappinessList()
 	ctp2_Static *happinessLabel = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.HappinessTotalLabel");
 	if (happinessLabel)
 	{
-		const char *    format = g_theStringDB->GetNameStr("str_code_CityWinTotalHappinessFormat");
+		const char *    format = stringdb_Get()->GetNameStr("str_code_CityWinTotalHappinessFormat");
 		if (!format)
 		{
 			format  = "%d";
@@ -2274,7 +2274,7 @@ void CityWindow::FillHappinessList()
 
 		ctp2_Static *   box         = (ctp2_Static *)item->GetChildByIndex(0);
 		ctp2_Static *   happyReason = (ctp2_Static *)box->GetChildByIndex(1);
-		happyReason->SetText(g_theStringDB->GetNameStr(happies[i].name));
+		happyReason->SetText(stringdb_Get()->GetNameStr(happies[i].name));
 
 		if (happies[i].amount > 0)
 		{
@@ -2402,7 +2402,7 @@ void CityWindow::FillPollutionList()
 	if(pollutionLabel2) {
 		sint32 pollution = m_cityData->GetPollution();
 		char buf[k_MAX_NAME_LEN];
-		const char *format2 = g_theStringDB->GetNameStr("str_code_TotalPollutionFormat");
+		const char *format2 = stringdb_Get()->GetNameStr("str_code_TotalPollutionFormat");
 		Assert(format2);
 		if(format2) {
 			snprintf(buf, sizeof(buf), format2,  m_cityData->GetPollution());
@@ -2432,7 +2432,7 @@ void CityWindow::FillPollutionList()
 		{
 			label = (ctp2_Static *)item->GetChildByIndex(0);
 			sublabel = (ctp2_Static *)label->GetChildByIndex(0);
-			sublabel->SetText(g_theStringDB->GetNameStr("str_ldl_PollutionList_Population"));
+			sublabel->SetText(stringdb_Get()->GetNameStr("str_ldl_PollutionList_Population"));
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
 			snprintf(interp, sizeof(interp),"%i",m_cityData->GetPopulationPollution());
 			sublabel->SetText(interp);
@@ -2448,7 +2448,7 @@ void CityWindow::FillPollutionList()
 		{
 			label = (ctp2_Static *)item->GetChildByIndex(0);
 			sublabel = (ctp2_Static *)label->GetChildByIndex(0);
-			sublabel->SetText(g_theStringDB->GetNameStr("str_ldl_PollutionList_Production"));
+			sublabel->SetText(stringdb_Get()->GetNameStr("str_ldl_PollutionList_Production"));
 			sublabel = (ctp2_Static *)label->GetChildByIndex(1);
 			snprintf(interp, sizeof(interp),"%i",m_cityData->GetProductionPollution());
 			sublabel->SetText(interp);
@@ -2526,7 +2526,7 @@ void CityWindow::FillStatsLists()
 	ctp2_Static *crimeBox2 = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.CrimePercentage");
 	if(crimeBox2) {
 		MBCHAR buf[k_MAX_NAME_LEN];
-		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_CityWinSpecTabCrimeFormat"), sint32(100.0 * m_cityData->GetHappyCrime()));
+		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_CityWinSpecTabCrimeFormat"), sint32(100.0 * m_cityData->GetHappyCrime()));
 		crimeBox2->SetText(buf);
 	}
 }
@@ -2673,7 +2673,7 @@ void CityWindow::DisbandUnitCallback(aui_Control *control, uint32 action, uint32
 				Unit u(s_cityWindow->m_unitId[b]);
 				Assert(u.IsValid());
 				if(u.IsValid()) {
-					MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_ldl_DisbandSelectedUnits"),
+					MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_ldl_DisbandSelectedUnits"),
 											"QueryDisbandCity",
 											DisbandQuery);
 					return;

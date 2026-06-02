@@ -354,7 +354,7 @@ void UnitManager::UpdateStatsList()
 
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_TYPE_COL);
 				if(child) {
-					child->SetText((MBCHAR *)g_theStringDB->GetNameStr(rec->GetCategory()));
+					child->SetText((MBCHAR *)stringdb_Get()->GetNameStr(rec->GetCategory()));
 				}
 
 				child = (ctp2_Static *)item->GetChildByIndex(k_STATS_SUPPORT_COL);
@@ -456,20 +456,20 @@ void UnitManager::UpdateTacticalList()
 		if(child) {
 			StringId str;
 			if(u->GetCurrentOrderString(str)) {
-				child->SetText(g_theStringDB->GetNameStr(str));
+				child->SetText(stringdb_Get()->GetNameStr(str));
 			} else {
-				child->SetText(g_theStringDB->GetNameStr("UNIT_ORDER_NONE"));
+				child->SetText(stringdb_Get()->GetNameStr("UNIT_ORDER_NONE"));
 			}
 		}
 
 		child = (ctp2_Static *)item->GetChildByIndex(k_TACTICAL_LOCATION_COL);
 		if(child) {
 			if(u.Flag(k_UDF_IN_SPACE)) {
-				child->SetText(g_theStringDB->GetNameStr("UNIT_LOCATION_IN_SPACE"));
+				child->SetText(stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_SPACE"));
 			} else if(world_Get()->GetCell(u.RetPos())->GetCity().IsValid()) {
 				child->SetText(world_Get()->GetCell(u.RetPos())->GetCity().GetName());
 			} else {
-				child->SetText(g_theStringDB->GetNameStr("UNIT_LOCATION_IN_FIELD"));
+				child->SetText(stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_FIELD"));
 			}
 		}
 
@@ -529,7 +529,7 @@ void UnitManager::UpdateAdvice()
 
 		ctp2_Static *child = (ctp2_Static *)item->GetChildByIndex(k_ADVICE_CATEGORY_COL);
 		if(child) {
-			child->SetText(g_theStringDB->GetNameStr(walk.GetObj()->stringId));
+			child->SetText(stringdb_Get()->GetNameStr(walk.GetObj()->stringId));
 		}
 
 		MBCHAR buf[20];
@@ -560,7 +560,7 @@ void UnitManager::UpdateAdvice()
 	else
 		p = (sint32(100.0 * (pl->m_readiness->GetCost() / totalProd)));
 
-	snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+	snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
 
 	ctp2_Button *upkeepButt = (ctp2_Button *)aui_Ldl::GetObject(s_unitManagerAdviceBlock, "UpkeepButton");
 	Assert(upkeepButt);
@@ -580,15 +580,15 @@ void UnitManager::UpdateReadiness()
 
 	switch(pl->GetReadinessLevel()) {
 		case READINESS_LEVEL_PEACE:
-			state->SetText(g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"));
+			state->SetText(stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"));
 			(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject("UnitManager","Slider")))->SetValue(0,0);
 			break;
 		case READINESS_LEVEL_ALERT:
-			state->SetText(g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"));
+			state->SetText(stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"));
 			(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject("UnitManager","Slider")))->SetValue(1,0);
 			break;
 		case READINESS_LEVEL_WAR:
-			state->SetText(g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_WAR"));
+			state->SetText(stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_WAR"));
 			(static_cast<ctp2_Spinner*>(aui_Ldl::GetObject("UnitManager","Slider")))->SetValue(2,0);
 			break;
 		default:
@@ -637,7 +637,7 @@ void UnitManager::UpdateAdviceText()
 
 	MBCHAR	strbuf[k_MAX_NAME_LEN];
 	stringutils_Interpret
-        (g_theStringDB->GetNameStr(adviceId), sc, strbuf, k_MAX_NAME_LEN);
+        (stringdb_Get()->GetNameStr(adviceId), sc, strbuf, k_MAX_NAME_LEN);
 	advice->SetHyperText(strbuf);
 }
 
@@ -672,8 +672,8 @@ sint32 UnitManager::CompareStatItems(ctp2_ListItem *item1, ctp2_ListItem *item2,
 		}
 
 		case k_STATS_TYPE_COL:
-			return stricmp(g_theStringDB->GetNameStr(rec1->GetCategory()),
-						   g_theStringDB->GetNameStr(rec2->GetCategory()));
+			return stricmp(stringdb_Get()->GetNameStr(rec1->GetCategory()),
+						   stringdb_Get()->GetNameStr(rec2->GetCategory()));
 
 		case k_STATS_SUPPORT_COL:
 			return rec1->GetShieldHunger() - rec2->GetShieldHunger();
@@ -717,20 +717,20 @@ sint32 UnitManager::CompareTacticalItems(ctp2_ListItem *item1, ctp2_ListItem *it
 		{
 			StringId o1;
 			if(!u1->GetCurrentOrderString(o1)) {
-				if(!g_theStringDB->GetStringID("UNIT_ORDER_NONE", o1)) {
+				if(!stringdb_Get()->GetStringID("UNIT_ORDER_NONE", o1)) {
 					return 0;
 				}
 			}
 
             StringId o2;
 			if(!u2->GetCurrentOrderString(o2)) {
-				if(!g_theStringDB->GetStringID("UNIT_ORDER_NONE", o2)) {
+				if(!stringdb_Get()->GetStringID("UNIT_ORDER_NONE", o2)) {
 					return 0;
 				}
 			}
 
-			return stricmp(g_theStringDB->GetNameStr(o1),
-						   g_theStringDB->GetNameStr(o2));
+			return stricmp(stringdb_Get()->GetNameStr(o1),
+						   stringdb_Get()->GetNameStr(o2));
 		}
 
 		case k_TACTICAL_LOCATION_COL:
@@ -740,19 +740,19 @@ sint32 UnitManager::CompareTacticalItems(ctp2_ListItem *item1, ctp2_ListItem *it
 
 			const MBCHAR *l1name, *l2name;
 			if(u1.Flag(k_UDF_IN_SPACE)) {
-				l1name = g_theStringDB->GetNameStr("UNIT_LOCATION_IN_SPACE");
+				l1name = stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_SPACE");
 			} else if(c1.IsValid()) {
 				l1name = c1.GetName();
 			} else {
-				l1name = g_theStringDB->GetNameStr("UNIT_LOCATION_IN_FIELD");
+				l1name = stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_FIELD");
 			}
 
 			if(u2.Flag(k_UDF_IN_SPACE)) {
-				l2name = g_theStringDB->GetNameStr("UNIT_LOCATION_IN_SPACE");
+				l2name = stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_SPACE");
 			} else if(c2.IsValid()) {
 				l2name = c2.GetName();
 			} else {
-				l2name = g_theStringDB->GetNameStr("UNIT_LOCATION_IN_FIELD");
+				l2name = stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_FIELD");
 			}
 
 			return stricmp(l1name, l2name);
@@ -779,8 +779,8 @@ sint32 UnitManager::CompareAdviceItems(ctp2_ListItem *item1, ctp2_ListItem *item
 
 	switch(column) {
 		case k_ADVICE_CATEGORY_COL:
-			return stricmp(g_theStringDB->GetNameStr(info1->stringId),
-						   g_theStringDB->GetNameStr(info2->stringId));
+			return stricmp(stringdb_Get()->GetNameStr(info1->stringId),
+						   stringdb_Get()->GetNameStr(info2->stringId));
 		case k_ADVICE_PERCENT_COL:
 		case k_ADVICE_TOTAL_COL:
 
@@ -864,7 +864,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 
 	if(strstr(butt->GetText(), "%")) {
 		pl->m_readiness->RecalcCost();
-		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepTotalFormat"), (sint32)pl->m_readiness->GetCost());
+		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepTotalFormat"), (sint32)pl->m_readiness->GetCost());
 	} else {
 
 		double totalProd = pl->m_total_production;
@@ -877,7 +877,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 		else
 			p = (sint32(100.0 * (readinessCost / totalProd)));
 
-		snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
+		snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_UpkeepPercentFormat"), p);
 	}
 	butt->SetText(buf);
 }

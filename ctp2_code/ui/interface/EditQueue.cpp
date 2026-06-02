@@ -476,9 +476,9 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
 				name1 = g_theBuildingDB->Get(info1->m_type)->GetNameText();
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE) {
-				name1 = g_theStringDB->GetNameStr("INFRASTRUCTURE");
+				name1 = stringdb_Get()->GetNameStr("INFRASTRUCTURE");
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION) {
-				name1 = g_theStringDB->GetNameStr("CAPITALIZATION");
+				name1 = stringdb_Get()->GetNameStr("CAPITALIZATION");
 			} else {
 				name1 = g_theUnitDB->Get(info1->m_type)->GetNameText();
 			}
@@ -488,9 +488,9 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 			} else if(info2->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
 				name2 = g_theBuildingDB->Get(info2->m_type)->GetNameText();
 			} else if(info2->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE) {
-				name2 = g_theStringDB->GetNameStr("INFRASTRUCTURE");
+				name2 = stringdb_Get()->GetNameStr("INFRASTRUCTURE");
 			} else if(info2->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION) {
-				name2 = g_theStringDB->GetNameStr("CAPITALIZATION");
+				name2 = stringdb_Get()->GetNameStr("CAPITALIZATION");
 			} else {
 				name2 = g_theUnitDB->Get(info2->m_type)->GetNameText();
 			}
@@ -695,7 +695,7 @@ void EditQueue::UpdateChoiceLists()
 			MBCHAR buf[k_MAX_NAME_LEN];
 #if 0
 			if(!rec->GetIsTrader()) {
-				snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_ldl_EditQueueUnitItemFormat"),
+				snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_ldl_EditQueueUnitItemFormat"),
 						rec->GetNameText(),
 						(sint32)rec->GetAttack(),
 						(sint32)rec->GetZBRangeAttack(),
@@ -785,7 +785,7 @@ void EditQueue::UpdateChoiceLists()
 
 		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_CAPITALIZATION, 0)) {
-				AddChoiceItem(g_theStringDB->GetNameStr("CAPITALIZATION"),
+				AddChoiceItem(stringdb_Get()->GetNameStr("CAPITALIZATION"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_CAPITALIZATION, 0),
 							  -1,
 							  m_buildingList);
@@ -794,7 +794,7 @@ void EditQueue::UpdateChoiceLists()
 
 		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0)) {
-				AddChoiceItem(g_theStringDB->GetNameStr("INFRASTRUCTURE"),
+				AddChoiceItem(stringdb_Get()->GetNameStr("INFRASTRUCTURE"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0),
 							  -1,
 							  m_buildingList);
@@ -940,10 +940,10 @@ void EditQueue::UpdateQueueList()
 							label->SetText(g_theWonderDB->Get(bn->m_type)->GetNameText());
 							break;
 						case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-							label->SetText(g_theStringDB->GetNameStr("INFRASTRUCTURE"));
+							label->SetText(stringdb_Get()->GetNameStr("INFRASTRUCTURE"));
 							break;
 						case k_GAME_OBJ_TYPE_CAPITALIZATION:
-							label->SetText(g_theStringDB->GetNameStr("CAPITALIZATION"));
+							label->SetText(stringdb_Get()->GetNameStr("CAPITALIZATION"));
 							break;
 					}
 
@@ -1158,8 +1158,8 @@ void EditQueue::SetMode(EDIT_QUEUE_MODE mode)
 			s_editQueue->m_suggestButton->Show();
 			s_editQueue->m_customModeButtons->Hide();
 			s_editQueue->m_normalModeButtons->Show();
-			s_editQueue->m_modeLabel->SetText(g_theStringDB->GetNameStr("str_ldl_EditQueueBuildableItems"));
-			s_editQueue->m_queueLabel->SetText(g_theStringDB->GetNameStr("str_ldl_CurrentQueue"));
+			s_editQueue->m_modeLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_EditQueueBuildableItems"));
+			s_editQueue->m_queueLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_CurrentQueue"));
 			s_editQueue->m_multiCityList->Hide();
 			s_editQueue->m_singleCityChooser->Show();
 			s_editQueue->m_multiButtonGroup->Hide();
@@ -1173,8 +1173,8 @@ void EditQueue::SetMode(EDIT_QUEUE_MODE mode)
 			s_editQueue->m_suggestButton->Hide();
 			s_editQueue->m_customModeButtons->Hide();
 			s_editQueue->m_normalModeButtons->Show();
-			s_editQueue->m_modeLabel->SetText(g_theStringDB->GetNameStr("str_ldl_EditQueueBuildableItems"));
-			s_editQueue->m_queueLabel->SetText(g_theStringDB->GetNameStr("str_ldl_CurrentQueue"));
+			s_editQueue->m_modeLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_EditQueueBuildableItems"));
+			s_editQueue->m_queueLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_CurrentQueue"));
 			s_editQueue->m_multiCityList->Show();
 			s_editQueue->m_singleCityChooser->Hide();
 			s_editQueue->m_multiButtonGroup->Show();
@@ -1187,8 +1187,8 @@ void EditQueue::SetMode(EDIT_QUEUE_MODE mode)
 			s_editQueue->m_suggestButton->Hide();
 			s_editQueue->m_customModeButtons->Show();
 			s_editQueue->m_normalModeButtons->Hide();
-			s_editQueue->m_modeLabel->SetText(g_theStringDB->GetNameStr("str_ldl_EditQueueAllItems"));
-			s_editQueue->m_queueLabel->SetText(g_theStringDB->GetNameStr("str_ldl_EditQueueCustomQueue"));
+			s_editQueue->m_modeLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_EditQueueAllItems"));
+			s_editQueue->m_queueLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_EditQueueCustomQueue"));
 			s_editQueue->m_multiCityList->Hide();
 			s_editQueue->m_singleCityChooser->Hide();
 			s_editQueue->m_gotoCityButton->Enable(FALSE);
@@ -1301,7 +1301,7 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 		static CapitolConfirmData data;
 		data.info = info;
 		data.insert = insert;
-		MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_code_QueryRebuildCapitol"),
+		MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_code_QueryRebuildCapitol"),
 								"QueryRebuildCapitol",
 								ConfirmRebuildCapitol, &data);
 		return;
@@ -1342,7 +1342,7 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 					MBCHAR buf[k_MAX_NAME_LEN];
 					sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-					snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+					snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 					MessageBoxDialog::Query(buf,
 											"QuerySwitchProduction",
@@ -1368,7 +1368,7 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 					MBCHAR buf[k_MAX_NAME_LEN];
 					sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-					snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+					snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 					MessageBoxDialog::Query(buf,
 											"QuerySwitchProduction",
@@ -1529,7 +1529,7 @@ void EditQueue::Remove(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -1598,7 +1598,7 @@ void EditQueue::Up(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -1675,7 +1675,7 @@ void EditQueue::Down(bool confirmedSwitch)
 					{
 						MBCHAR buf[k_MAX_NAME_LEN];
 						sint32 p = g_theConstDB->Get(0)->GetChangeCurrentlyBuildingItemPenalty();
-						snprintf(buf, sizeof(buf), g_theStringDB->GetNameStr("str_code_QuerySwitchProduction"), p);
+						snprintf(buf, sizeof(buf), stringdb_Get()->GetNameStr("str_code_QuerySwitchProduction"), p);
 
 						MessageBoxDialog::Query(buf,
 												"QuerySwitchProduction",
@@ -2064,7 +2064,7 @@ void EditQueue::ClearButton(aui_Control *control, uint32 action, uint32 data, vo
 	if(!s_editQueue) return;
 
 	if(s_editQueue->m_cityData) {
-		MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_ldl_ClearQueueQuery"),
+		MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_ldl_ClearQueueQuery"),
 								"QueryClearQueue",
 								EditQueue::ClearMessageCallback);
 	} else {
@@ -2091,7 +2091,7 @@ void EditQueue::MultiActionButton(aui_Control *control, uint32 action, uint32 da
 	Assert(s_editQueue->m_mode == EDIT_QUEUE_MODE_MULTI);
 
 	if(eqAction == EDIT_QUEUE_MULTI_ACTION_OVERWRITE) {
-		MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_ldl_EditQueueConfirmOverwrite"),
+		MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_ldl_EditQueueConfirmOverwrite"),
 								"QueryConfirmOverwrite",
 								EditQueue::ConfirmOverwrite);
 		return;
@@ -2189,7 +2189,7 @@ void EditQueue::SaveCallback(aui_Control *control, uint32 action, uint32 data, v
 	} else {
 		c3files_fclose(test);
 		MBCHAR buf[k_MAX_NAME_LEN];
-		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyOverwrite");
+		const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyOverwrite");
 		if(!fmt) fmt = "Overwrite queue %s?";
 		snprintf(buf, sizeof(buf), fmt, saveName);
 
@@ -2257,14 +2257,14 @@ void EditQueue::LoadCallback(aui_Control *control, uint32 action, uint32 data, v
 
 	if(s_editQueue->m_cityData) {
 		MBCHAR buf[k_MAX_NAME_LEN];
-		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyLoad");
+		const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyLoad");
 		if(!fmt) fmt = "Load queue %s, for city %s?";
 		snprintf(buf, sizeof(buf), fmt, loadName, s_editQueue->m_cityData->GetName());
 
 		MessageBoxDialog::Query(buf, "QueryLoadQueue", LoadQueryCallback, (void *)loadName);
 	} else if(s_editQueue->m_mode == EDIT_QUEUE_MODE_MULTI) {
 		MBCHAR buf[k_MAX_NAME_LEN];
-		const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyLoadMulti");
+		const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyLoadMulti");
 		if(!fmt) fmt = "Load Queue %s into all selected cities?";
 		snprintf(buf, sizeof(buf), fmt, loadName);
 
@@ -2459,7 +2459,7 @@ void EditQueue::DisplayQueueContents(const MBCHAR *queueName)
 			case 'C':
 				Assert(buf[1] == 'A' && buf[2] == 'P');
 				if(buf[1] == 'A' && buf[2] == 'P') {
-					name = g_theStringDB->GetNameStr("CAPITALIZATION");
+					name = stringdb_Get()->GetNameStr("CAPITALIZATION");
 				} else {
 					continue;
 				}
@@ -2467,7 +2467,7 @@ void EditQueue::DisplayQueueContents(const MBCHAR *queueName)
 			case 'I':
 				Assert(buf[1] == 'N' && buf[2] == 'F');
 				if(buf[1] == 'N' && buf[2] == 'F') {
-					name = g_theStringDB->GetNameStr("INFRASTRUCTURE");
+					name = stringdb_Get()->GetNameStr("INFRASTRUCTURE");
 				} else {
 					continue;
 				}
@@ -2502,7 +2502,7 @@ void EditQueue::DeleteCallback(aui_Control *control, uint32 action, uint32 data,
 	if(!queueName) return;
 
 	char buf[k_MAX_NAME_LEN];
-	const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyDelete");
+	const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyDelete");
 	if(!fmt) fmt = "Permanently delete Queue %s?";
 	snprintf(buf, sizeof(buf), fmt, queueName);
 
@@ -2660,7 +2660,7 @@ class ConfirmOverwriteQueueAction:public aui_Action
 void ConfirmOverwriteQueueAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
 	MBCHAR buf[k_MAX_NAME_LEN];
-	const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_EditQueueReallyOverwrite");
+	const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_EditQueueReallyOverwrite");
 	if(!fmt) fmt = "Overwrite queue %s?";
 	snprintf(buf, sizeof(buf), fmt, m_text);
 
@@ -2704,7 +2704,7 @@ void EditQueue::SaveButton(aui_Control *control, uint32 action, uint32 data, voi
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	MessageBoxDialog::TextQuery(g_theStringDB->GetNameStr("str_code_SaveQueueAsColon"),
+	MessageBoxDialog::TextQuery(stringdb_Get()->GetNameStr("str_code_SaveQueueAsColon"),
 								SaveNameResponse);
 }
 

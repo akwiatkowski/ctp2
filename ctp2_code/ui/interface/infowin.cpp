@@ -65,7 +65,7 @@
 #include "gs/world/World.h"                  // world_Get()
 #include "gfx/tilesys/workmap.h"
 
-#include "gs/database/StrDB.h"                  // g_theStringDB
+#include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/Advances.h"
@@ -1684,7 +1684,7 @@ void InfoWonderListItem::Update(void)
 	MBCHAR civName[256];
 
 	subItem = (c3_Static *)GetChildByIndex(0);
-	strcpy(strbuf,g_theStringDB->GetNameStr(g_theWonderDB->Get(m_index)->m_name));
+	strcpy(strbuf,stringdb_Get()->GetNameStr(g_theWonderDB->Get(m_index)->m_name));
 	subItem->SetText(strbuf);
 
 	Player *p = player_Get(m_player);

@@ -63,7 +63,7 @@
 #include "ui/interface/loadsavemapwindow.h"
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamemapsizescreen.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include "AgeRecord.h"					// g_theAgeDB
 #include "ui/interface/agesscreen.h"
 
@@ -318,7 +318,7 @@ void SPNewGameWindow::Update( void )
 			m_scenarioName->SetText(scenario_name_buf());
 			m_scenarioName->ShouldDraw(TRUE);
 		}
-		m_spScenario->SetText(g_theStringDB->GetNameStr("str_ldl_SP_STANDARD_GAME"));
+		m_spScenario->SetText(stringdb_Get()->GetNameStr("str_ldl_SP_STANDARD_GAME"));
 		m_spScenario->ShouldDraw(TRUE);
 		m_scenarioName->Show();
 		m_scenarioStaticText->Show();
@@ -335,12 +335,12 @@ void SPNewGameWindow::Update( void )
 	// No scenario loaded.
 	} else {
 
-		m_scenarioName->SetText(g_theStringDB->GetNameStr("str_ldl_SP_STANDARD_GAME"));
+		m_scenarioName->SetText(stringdb_Get()->GetNameStr("str_ldl_SP_STANDARD_GAME"));
 		m_scenarioName->Hide();
 		m_scenarioStaticText->Hide();
 		m_scenarioName->ShouldDraw(TRUE);
 
-		m_spScenario->SetText(g_theStringDB->GetNameStr("str_ldl_SP_SCENARIO_PICKER"));
+		m_spScenario->SetText(stringdb_Get()->GetNameStr("str_ldl_SP_SCENARIO_PICKER"));
 		m_spScenario->ShouldDraw(TRUE);
 
 		sint32 ages		= g_theAgeDB->NumRecords();
@@ -396,7 +396,7 @@ SPProfileBox::SPProfileBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) 
 
 		while(i<numClans) {
 			aui_Item	*item = NULL;
-			const MBCHAR *cName = g_theStringDB->GetNameStr(g_theCivilisationDB->Get(i)->GetPluralCivName());
+			const MBCHAR *cName = stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(i)->GetPluralCivName());
 			item = (aui_Item*)new SPDropDownListItem(retval, "SPDropDownListItem", "Clan", cName);
 			if (item)
 				m_spClan->AddItem(item );
@@ -441,7 +441,7 @@ void SPProfileBox::SetLeader(uint32 index)
 	if ((tribeIndex < 0) || (tribeIndex >= INDEX_TRIBE_INVALID))
 	{
 		const MBCHAR *name =
-			g_theStringDB->GetNameStr(
+			stringdb_Get()->GetNameStr(
 				g_theCivilisationDB->Get(index)->GetLeaderNameMale());
 
 		m_spName->SetFieldText(name);

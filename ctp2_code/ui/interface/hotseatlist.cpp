@@ -63,7 +63,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/citydata.h"
-#include "gs/database/StrDB.h"					// g_theStringDB
+#include "gs/database/StrDB.h"					// stringdb_Get()
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
 #include "TerrainRecord.h"
@@ -198,10 +198,10 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 	m_window->Title()->Move( (m_window->Width() - m_window->Title()->Width()) / 2, 17 );
 
 	if (gameinit_IsEmailGame()) {
-		m_window->TitleText()->SetText(g_theStringDB->GetNameStr("ldl_str_EMAIL_LIST_TITLE"));
+		m_window->TitleText()->SetText(stringdb_Get()->GetNameStr("ldl_str_EMAIL_LIST_TITLE"));
 	} else {
 		if (gameinit_IsHotseatGame()) {
-			m_window->TitleText()->SetText(g_theStringDB->GetNameStr("ldl_str_HOTSEAT_LIST_TITLE"));
+			m_window->TitleText()->SetText(stringdb_Get()->GetNameStr("ldl_str_HOTSEAT_LIST_TITLE"));
 		}
 	}
 
@@ -481,7 +481,7 @@ void HotseatListItem::Update(void)
 	C3TextField *subText;
 
 	subButton = (c3_Button *)GetChildByIndex(0);
-	subButton->SetText(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetSingularCivName()));
+	subButton->SetText(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(m_civ)->GetSingularCivName()));
 
 	if (hotseatlist_PlayerCivsLocked()) {
 		subButton->Enable(false);
@@ -491,7 +491,7 @@ void HotseatListItem::Update(void)
 
 	subButton = (c3_Button *)GetChildByIndex(1);
 	if(m_isHuman) {
-		subButton->SetText(g_theStringDB->GetNameStr("HOTSEAT_HUMAN"));
+		subButton->SetText(stringdb_Get()->GetNameStr("HOTSEAT_HUMAN"));
 
 		subText = (C3TextField *)GetChildByIndex(2);
 		subText->GetFieldText(m_name, 255);
@@ -504,7 +504,7 @@ void HotseatListItem::Update(void)
 		else
 			subText->Enable(false);
 	} else {
-		subButton->SetText(g_theStringDB->GetNameStr("HOTSEAT_AI"));
+		subButton->SetText(stringdb_Get()->GetNameStr("HOTSEAT_AI"));
 
 		subText = (C3TextField *)GetChildByIndex(2);
 		subText->Enable(false);

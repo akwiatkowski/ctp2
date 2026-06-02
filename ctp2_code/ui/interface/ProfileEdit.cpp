@@ -179,7 +179,7 @@ void ProfileEdit::FillList()
 
 			char localId[k_MAX_NAME_LEN];
 			snprintf(localId, sizeof(localId), "str_profile_%s", walk.GetObj()->m_name);
-			const char *localName = g_theStringDB->GetNameStr(localId);
+			const char *localName = stringdb_Get()->GetNameStr(localId);
 
 			if(localName) {
 				label->SetText(localName);

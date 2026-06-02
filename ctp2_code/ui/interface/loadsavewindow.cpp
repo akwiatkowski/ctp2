@@ -58,7 +58,7 @@
 #include "ui/aui_ctp2/c3textfield.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/gameobj/Player.h"                 // player_Get
-#include "gs/database/StrDB.h"                  // g_theStringDB
+#include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "ui/interface/spnewgamewindow.h"
@@ -120,7 +120,7 @@ LoadSaveWindow::LoadSaveWindow(AUI_ERRCODE *retval, uint32 id,
 	AddTitle(block);
 	AddCancel(loadsavescreen_backPress);
 	AddOk(loadsavescreen_executePress, NULL, "c3_PopupOk");
-	Ok()->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_OK"));
+	Ok()->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_OK"));
 
 	m_deleteButton = spNew_ctp2_Button(
 		retval,
@@ -1101,7 +1101,7 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 
 		m_itemText->SetText(name);
 
-		if (strstr(name, g_theStringDB->GetNameStr("AUTOSAVE_NAME")))
+		if (strstr(name, stringdb_Get()->GetNameStr("AUTOSAVE_NAME")))
         {
 			m_itemText->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
 		}

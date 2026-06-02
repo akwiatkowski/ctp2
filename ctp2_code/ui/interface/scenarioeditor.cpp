@@ -1533,7 +1533,7 @@ bool ScenarioEditor::UpdateAddList(SCEN_ADD addtype)
 
 			if(!haveCity) {
 				ctp2_Static *tb = (ctp2_Static *)aui_Ldl::GetObject(s_scenarioAddStuffBlock, "AddStuffTitle");
-				tb->SetText(g_theStringDB->GetNameStr("str_ldl_SelectCity"));
+				tb->SetText(stringdb_Get()->GetNameStr("str_ldl_SelectCity"));
 				return false;
 			}
 			Assert(city.IsValid());
@@ -1555,7 +1555,7 @@ bool ScenarioEditor::UpdateAddList(SCEN_ADD addtype)
 		case SCEN_ADD_WONDERS:
 			if(!haveCity){
 				ctp2_Static *tb = (ctp2_Static *)aui_Ldl::GetObject(s_scenarioAddStuffBlock, "AddStuffTitle");
-				tb->SetText(g_theStringDB->GetNameStr("str_ldl_SelectCity"));
+				tb->SetText(stringdb_Get()->GetNameStr("str_ldl_SelectCity"));
 				return false;
 			}
 			Assert(city.IsValid());
@@ -1823,7 +1823,7 @@ void ScenarioEditor::UpdatePlayerSelect()
 {
 	ctp2_DropDown *players = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Civ.PlayerSelect");
 	players->Clear();
-	const MBCHAR *plr_choice = g_theStringDB->GetNameStr("str_player_choice");
+	const MBCHAR *plr_choice = stringdb_Get()->GetNameStr("str_player_choice");
 	AddDropDownItem(players, "ScenNationItem", (MBCHAR *)plr_choice);
 
     char str[k_MAX_NAME_LEN];
@@ -1870,7 +1870,7 @@ void ScenarioEditor::SetupNations()
 
 	sint32 i;
 	for(i = 0; i < g_theCivilisationDB->NumRecords(); i++) {
-		const MBCHAR *name = g_theStringDB->GetNameStr(g_theCivilisationDB->Get(i)->GetCountryName());
+		const MBCHAR *name = stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(i)->GetCountryName());
 
 		AddDropDownItem(plgroup, "ScenNationItem", (MBCHAR *)name);
 
@@ -1896,7 +1896,7 @@ void ScenarioEditor::SetupNations()
 	ctp2_DropDown *govs = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Civ.SetGovernment");
 	for (i = 0; i < g_theGovernmentDB->NumRecords(); i++)
 	{
-		AddDropDownItem(govs, "ScenNationItem", (MBCHAR *)g_theStringDB->GetNameStr(g_theGovernmentDB->GetName(i)) );
+		AddDropDownItem(govs, "ScenNationItem", (MBCHAR *)stringdb_Get()->GetNameStr(g_theGovernmentDB->GetName(i)) );
 	}
 
 	if (p)
@@ -2450,7 +2450,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
 		mode == SCEN_START_LOC_MODE_PLAYER_WITH_CIV)
     {
 		snprintf(labelString, sizeof(labelString), "%s (%d/%d)",
-					g_theStringDB->GetNameStr("str_ldl_Player_Text"),
+					stringdb_Get()->GetNameStr("str_ldl_Player_Text"),
 					index,
 					profiledb_Get()->GetNPlayers()-1);
 	}
@@ -2458,7 +2458,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
     {
 		if(g_theCivilisationDB->Get(index)) {
 		sprintf(labelString, "%s (%d/%d)",
-					g_theStringDB->GetNameStr(g_theCivilisationDB->Get(index)->GetPluralCivName()),
+					stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(index)->GetPluralCivName()),
 					index,
 					g_theCivilisationDB->NumRecords()-1);
 		} else {

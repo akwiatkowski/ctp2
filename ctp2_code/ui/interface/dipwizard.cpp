@@ -188,7 +188,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 
 		MBCHAR toneId[k_MAX_NAME_LEN];
 		snprintf(toneId, sizeof(toneId), "str_ldl_DipTone%d", i);
-		label->SetText(g_theStringDB->GetNameStr(toneId));
+		label->SetText(stringdb_Get()->GetNameStr(toneId));
 
 	}
 
@@ -574,7 +574,7 @@ void DipWizard::FillProposalLists()
 				if(!text)
 					break;
 
-				text->SetText(g_theStringDB->GetNameStr(rec->GetTitle()));
+				text->SetText(stringdb_Get()->GetNameStr(rec->GetTitle()));
 				m_threatList->AddItem(item);
 			}
 		}
@@ -595,7 +595,7 @@ void DipWizard::FillRecipientLists()
 		Assert(item);
 		if(item) {
 			ctp2_Static *label = (ctp2_Static *)item->GetChildByIndex(0);
-			label->SetText((MBCHAR *)g_theStringDB->GetNameStr("str_ldl_DipWizNoNation"));
+			label->SetText((MBCHAR *)stringdb_Get()->GetNameStr("str_ldl_DipWizNoNation"));
 			item->SetUserData((void *)-1);
 			m_nations->AddItem(item);
 		}
@@ -630,7 +630,7 @@ void DipWizard::AddProposalItem(ctp2_ListBox *propList, const DiplomacyProposalR
 		if(propItem) {
 			ctp2_Static *label = (ctp2_Static *)propItem->GetChildByIndex(0);
 			if(label) {
-				label->SetText(g_theStringDB->GetNameStr(rec->GetTitle()));
+				label->SetText(stringdb_Get()->GetNameStr(rec->GetTitle()));
 			}
 			propItem->SetUserData((void *)rec->GetIndex());
 			propList->AddItem(propItem);
@@ -1018,28 +1018,28 @@ void DipWizard::UpdateViewProposalStage()
 			break;
 	}
 
-	stringutils_Interpret(g_theStringDB->GetNameStr(theString), so, text);
+	stringutils_Interpret(stringdb_Get()->GetNameStr(theString), so, text);
 	st->SetText(text);
 
 	if(!counterButtonText) {
 		m_counterOrThreatenButton->Hide();
 	} else {
 		m_counterOrThreatenButton->Show();
-		m_counterOrThreatenButton->SetText(g_theStringDB->GetNameStr(counterButtonText));
+		m_counterOrThreatenButton->SetText(stringdb_Get()->GetNameStr(counterButtonText));
 	}
 
 	if(!rejectButtonText) {
 		m_rejectButton->Hide();
 	} else {
 		m_rejectButton->Show();
-		m_rejectButton->SetText(g_theStringDB->GetNameStr(rejectButtonText));
+		m_rejectButton->SetText(stringdb_Get()->GetNameStr(rejectButtonText));
 	}
 
 	if(!acceptButtonText) {
 		m_acceptButton->Hide();
 	} else {
 		m_acceptButton->Show();
-		m_acceptButton->SetText(g_theStringDB->GetNameStr(acceptButtonText));
+		m_acceptButton->SetText(stringdb_Get()->GetNameStr(acceptButtonText));
 	}
 
 	st = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage3");
@@ -1142,7 +1142,7 @@ void DipWizard::UpdateExchangeStage()
 			strcat(labelStrName, "ForCounter");
 		}
 
-		const MBCHAR *labelText = g_theStringDB->GetNameStr(labelStrName);
+		const MBCHAR *labelText = stringdb_Get()->GetNameStr(labelStrName);
 		if(labelText)
 			label->SetText((MBCHAR *)labelText);
 	}
@@ -1264,7 +1264,7 @@ void DipWizard::UpdateDetails()
 	st = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Details.Year");
 	if(st) {
 		SlicObject so;
-		stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizYear"), so, text);
+		stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizYear"), so, text);
 		st->SetText(text);
 	}
 
@@ -1277,7 +1277,7 @@ void DipWizard::UpdateDetails()
 			if(m_recipient >= 0) {
 				SlicObject so;
 				so.AddPlayer(m_recipient);
-				stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizRecipient"), so, text);
+				stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizRecipient"), so, text);
 				st->SetText(text);
 			} else {
 				st->SetText("");
@@ -1287,7 +1287,7 @@ void DipWizard::UpdateDetails()
 			if(m_viewRecipient == selitem_Get()->GetVisiblePlayer()) {
 				SlicObject so;
 				so.AddPlayer(m_viewSender);
-				stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizSender"), so, text);
+				stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizSender"), so, text);
 				st->SetText(text);
 
 				//Modified by Martin G�hmann to display the emissary photo of recipient
@@ -1300,7 +1300,7 @@ void DipWizard::UpdateDetails()
 				DisplayParchment(m_viewRecipient);
 				SlicObject so;
 				so.AddPlayer(m_viewRecipient);
-				stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizSender"), so, text);
+				stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizSender"), so, text);
 				st->SetText(text);
 			} else if(m_viewSender == selitem_Get()->GetVisiblePlayer()) {
 				//Added by Martin G�hmann to display the emissary photo of recipient
@@ -1308,7 +1308,7 @@ void DipWizard::UpdateDetails()
 				DisplayParchment(selitem_Get()->GetVisiblePlayer());
 				SlicObject so;
 				so.AddPlayer(m_viewRecipient);
-				stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizRecipient"), so, text);
+				stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizRecipient"), so, text);
 				st->SetText(text);
 			} else {
 				//Added by Martin G�hmann to display the emissary photo of recipient
@@ -1389,7 +1389,7 @@ void DipWizard::UpdateDetails()
 						so.AddPlayer(m_viewSender);
 						so.AddPlayer(m_viewRecipient);
 						if(AddThreatData(so, threatDBIndex, m_threatArg)) {
-							stringutils_Interpret(g_theStringDB->GetNameStr(threatDetail), so, text);
+							stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 						} else {
 
 							strcpy(text, "");
@@ -1407,7 +1407,7 @@ void DipWizard::UpdateDetails()
 						so.AddPlayer(m_viewSender);
 						so.AddPlayer(m_viewRecipient);
 						if(AddThreatData(so, threatDBIndex, m_viewThreatArg)) {
-							stringutils_Interpret(g_theStringDB->GetNameStr(threatDetail), so, text);
+							stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 						} else {
 
 							strcpy(text, "");
@@ -1422,7 +1422,7 @@ void DipWizard::UpdateDetails()
 					{
 						SlicObject so;
 						so.AddPlayer(m_viewRecipient);
-						stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipWizCounterProposal"), so, text);
+						stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_DipWizCounterProposal"), so, text);
 						break;
 					}
 					case RESPONSE_THREATEN:
@@ -1436,18 +1436,18 @@ void DipWizard::UpdateDetails()
 							so.AddPlayer(m_viewSender);
 							so.AddPlayer(m_viewRecipient);
 							if(AddThreatData(so, threatDBIndex, m_viewThreatArg)) {
-								stringutils_Interpret(g_theStringDB->GetNameStr(threatDetail), so, text);
+								stringutils_Interpret(stringdb_Get()->GetNameStr(threatDetail), so, text);
 							} else {
-								strcpy(text, g_theStringDB->GetNameStr(threatDetail));
+								strcpy(text, stringdb_Get()->GetNameStr(threatDetail));
 							}
 						}
 						break;
 					}
 					case RESPONSE_ACCEPT:
-						strcpy(text, g_theStringDB->GetNameStr("str_dip_ResponseAccept"));
+						strcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseAccept"));
 						break;
 					case RESPONSE_REJECT:
-						strcpy(text, g_theStringDB->GetNameStr("str_dip_ResponseReject"));
+						strcpy(text, stringdb_Get()->GetNameStr("str_dip_ResponseReject"));
 						break;
 					default:
 
@@ -2084,37 +2084,37 @@ void DipWizard::AddAgreementItems(ctp2_Menu *menu, sint32 player)
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_PEACE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_PEACE);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_PEACE"), NULL, (void *)PROPOSAL_TREATY_PEACE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_PEACE"), NULL, (void *)PROPOSAL_TREATY_PEACE);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_TRADE_PACT"), NULL, (void *)PROPOSAL_TREATY_TRADE_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_TRADE_PACT"), NULL, (void *)PROPOSAL_TREATY_TRADE_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_RESEARCH_PACT"), NULL, (void *)PROPOSAL_TREATY_RESEARCH_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_RESEARCH_PACT"), NULL, (void *)PROPOSAL_TREATY_RESEARCH_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_MILITARY_PACT"), NULL, (void *)PROPOSAL_TREATY_MILITARY_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_MILITARY_PACT"), NULL, (void *)PROPOSAL_TREATY_MILITARY_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_POLLUTION_PACT"), NULL, (void *)PROPOSAL_TREATY_POLLUTION_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_POLLUTION_PACT"), NULL, (void *)PROPOSAL_TREATY_POLLUTION_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE);
-		menu->AddItem(g_theStringDB->GetNameStr("DIP_TREATY_ALLIANCE"), NULL, (void *)PROPOSAL_TREATY_ALLIANCE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_ALLIANCE"), NULL, (void *)PROPOSAL_TREATY_ALLIANCE);
 	}
 }
 
@@ -2635,7 +2635,7 @@ void DipWizard::DisplayDiplomat(sint32 player)
 			else{
 				strID = player_Get(player)->GetCivilisation()->GetDBRec()->GetEmissaryPhotoFemale();
 			}
-			fileName = g_theStringDB->GetNameStr(strID);
+			fileName = stringdb_Get()->GetNameStr(strID);
 		}
 
 		m_emissary_photo->ExchangeImage(0,0, fileName);

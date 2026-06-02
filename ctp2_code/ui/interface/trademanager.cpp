@@ -513,9 +513,9 @@ void TradeManager::UpdateAdviceWindow()
 	ctp2_Button *showButton = (ctp2_Button *)aui_Ldl::GetObject(s_tradeManagerBlock, "ShowAdviceButton");
 	if(showButton) {
 		if(c3ui_Get()->GetWindow(m_adviceWindow->Id())) {
-			showButton->SetText(g_theStringDB->GetNameStr("str_ldl_TradeHideAdvisor"));
+			showButton->SetText(stringdb_Get()->GetNameStr("str_ldl_TradeHideAdvisor"));
 		} else {
-			showButton->SetText(g_theStringDB->GetNameStr("str_ldl_TradeShowAdvisor"));
+			showButton->SetText(stringdb_Get()->GetNameStr("str_ldl_TradeShowAdvisor"));
 		}
 	}
 
@@ -584,7 +584,7 @@ void TradeManager::UpdateAdviceText()
 				MBCHAR interp[k_MAX_NAME_LEN];
 				interp[0] = 0;
 
-				stringutils_Interpret(g_theStringDB->GetNameStr("SELECTED_TRADE_ADVICE"),
+				stringutils_Interpret(stringdb_Get()->GetNameStr("SELECTED_TRADE_ADVICE"),
 									  sc, interp);
 
 				if(p) {
@@ -594,7 +594,7 @@ void TradeManager::UpdateAdviceText()
 
 						strcat(interp + strlen(interp), "  ");
 
-						stringutils_Interpret(g_theStringDB->GetNameStr("NEED_MORE_CARAVANS"),
+						stringutils_Interpret(stringdb_Get()->GetNameStr("NEED_MORE_CARAVANS"),
 											  sc2, interp + strlen(interp));
 					}
 				}
@@ -629,12 +629,12 @@ void TradeManager::UpdateAdviceText()
 						sc.AddCity(maxData->m_destination);
 						sc.AddGood(maxData->m_resource);
 
-						stringutils_Interpret(g_theStringDB->GetNameStr("CREATE_ROUTE_ADVICE"),
+						stringutils_Interpret(stringdb_Get()->GetNameStr("CREATE_ROUTE_ADVICE"),
 											  sc, interp);
 					} else if(m_createData.GetCount() > 0) {
-						strcpy(interp, g_theStringDB->GetNameStr("BUILD_MORE_CARAVANS"));
+						strcpy(interp, stringdb_Get()->GetNameStr("BUILD_MORE_CARAVANS"));
 					} else {
-						strcpy(interp, g_theStringDB->GetNameStr("MAXIMUM_TRADE_EFFICIENCY"));
+						strcpy(interp, stringdb_Get()->GetNameStr("MAXIMUM_TRADE_EFFICIENCY"));
 					}
 
 					advice->SetHyperText(interp);
@@ -710,7 +710,7 @@ void TradeManager::UpdateSummaryList()
 				}
                 else
                 {
-					good->SetText(g_theStringDB->GetNameStr("ROUTE_TYPE_FOOD"));
+					good->SetText(stringdb_Get()->GetNameStr("ROUTE_TYPE_FOOD"));
 				}
 			}
 
@@ -953,9 +953,9 @@ sint32 TradeManager::CompareSummaryItems(ctp2_ListItem *item1, ctp2_ListItem *it
 		case k_GOODICON_COL_SUM_INDEX:
 		{
 			const MBCHAR *str1 = rtype1 == ROUTE_TYPE_RESOURCE ? g_theResourceDB->Get(resource1)->GetNameText() :
-				g_theStringDB->GetNameStr("ROUTE_TYPE_FOOD");
+				stringdb_Get()->GetNameStr("ROUTE_TYPE_FOOD");
 			const MBCHAR *str2 = rtype2 == ROUTE_TYPE_RESOURCE ? g_theResourceDB->Get(resource2)->GetNameText() :
-				g_theStringDB->GetNameStr("ROUTE_TYPE_FOOD");
+				stringdb_Get()->GetNameStr("ROUTE_TYPE_FOOD");
 			return stricmp(str1, str2);
 		}
 		case k_TOCITY_COL_SUM_INDEX:

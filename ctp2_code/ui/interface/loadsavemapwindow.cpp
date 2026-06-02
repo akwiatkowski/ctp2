@@ -62,7 +62,7 @@
 
 #include "ui/aui_ctp2/radarmap.h"
 
-extern StringDB						*g_theStringDB;
+extern StringDB						*stringdb_Get();
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;
 

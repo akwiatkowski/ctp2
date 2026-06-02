@@ -358,7 +358,7 @@ void optionsscreen_mapeditorPress(aui_Control *control, uint32 action, uint32 da
 	if (!g_launchIntoCheatMode) {
 		optionsscreen_removeMyWindow(action);
 
-		MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_ldl_Scorewarn"),
+		MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_ldl_Scorewarn"),
 								"ScoreWarning", optionsscreen_ConfirmScoreWarning);
 
 	} else if (g_launchIntoCheatMode){

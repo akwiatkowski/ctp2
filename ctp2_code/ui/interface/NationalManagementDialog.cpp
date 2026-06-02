@@ -820,7 +820,7 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_STAT_MAYOR)) {
 		column->SetText(cityData->GetUseGovernor() ?
-			g_theStringDB->GetNameStr("str_ldl_ND_ON") : g_theStringDB->GetNameStr("str_ldl_ND_OFF"));
+			stringdb_Get()->GetNameStr("str_ldl_ND_ON") : stringdb_Get()->GetNameStr("str_ldl_ND_OFF"));
 
 	}
 
@@ -841,7 +841,7 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_STAT_BUILDING)) {
 		column->SetText(queue->GetLen() ?
-			CityControlPanel::GetBuildName(queue->GetHead()) : g_theStringDB->GetNameStr("str_ldl_ND_EMPTY"));
+			CityControlPanel::GetBuildName(queue->GetHead()) : stringdb_Get()->GetNameStr("str_ldl_ND_EMPTY"));
 	}
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_NMD_STAT_TIME)) {
@@ -858,7 +858,7 @@ void NationalManagementDialog::UpdateStatusItem(ctp2_ListItem *item,
 				snprintf(stringBuffer, sizeof(stringBuffer), "%d", turns);
 			column->SetText(stringBuffer);
 		} else
-			column->SetText(g_theStringDB->GetNameStr("str_ldl_ND_NA"));
+			column->SetText(stringdb_Get()->GetNameStr("str_ldl_ND_NA"));
 	}
 	delete cityData;
 }
@@ -1184,9 +1184,9 @@ sint32 NationalManagementDialog::CompareStatus(ctp2_ListItem *item1,
 		case k_NMD_STAT_BUILDING:
 			return(stricmp(
 				queue1->GetLen() ?
-				CityControlPanel::GetBuildName(queue1->GetHead()) : g_theStringDB->GetNameStr("str_ldl_ND_EMPTY"),
+				CityControlPanel::GetBuildName(queue1->GetHead()) : stringdb_Get()->GetNameStr("str_ldl_ND_EMPTY"),
 				queue2->GetLen() ?
-				CityControlPanel::GetBuildName(queue2->GetHead()) : g_theStringDB->GetNameStr("str_ldl_ND_EMPTY")));
+				CityControlPanel::GetBuildName(queue2->GetHead()) : stringdb_Get()->GetNameStr("str_ldl_ND_EMPTY")));
 		case k_NMD_STAT_TIME:
 			return((queue1->GetLen() ? cityData1->HowMuchLonger() : -1) -
 				(queue2->GetLen() ? cityData2->HowMuchLonger() : -1));

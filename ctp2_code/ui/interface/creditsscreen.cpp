@@ -52,7 +52,7 @@
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/interface/MessageBoxDialog.h"
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
-#include "gs/database/StrDB.h"					// g_theStringDB
+#include "gs/database/StrDB.h"					// stringdb_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 

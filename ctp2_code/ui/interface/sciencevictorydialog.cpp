@@ -265,7 +265,7 @@ void ScienceVictoryDialog::UpdateConstructionInformation(
 
 	snprintf(buffer, sizeof(buffer), "%d%s",
 		static_cast<sint32>(gaiaController->GetTowerCoverage() * 100.0f),
-		g_theStringDB->GetNameStr("str_ldl_percent"));
+		stringdb_Get()->GetNameStr("str_ldl_percent"));
 	m_coverage->SetText(buffer);
 
 	snprintf(buffer, sizeof(buffer), "%d", gaiaController->GetTowerRadius());
@@ -315,7 +315,7 @@ ctp2_ListItem *ScienceVictoryDialog::CreateMainframeItem(const Unit &city,
 
 	if(ctp2_Static *column = GetListItemColumn(item, 1)) {
 		if(timeRemaining < 0)
-			column->SetText(g_theStringDB->GetNameStr("str_ldl_SV_COMPLETE"));
+			column->SetText(stringdb_Get()->GetNameStr("str_ldl_SV_COMPLETE"));
 		else {
 
 			char buffer[32];
@@ -403,7 +403,7 @@ void ScienceVictoryDialog::UpdateStatus(const GaiaController *gaiaController)
 {
 
 	char buffer[256];
-	snprintf(buffer, sizeof(buffer), g_theStringDB->GetNameStr("str_ldl_SV_COUNTDOWN_SEQUENCE"),
+	snprintf(buffer, sizeof(buffer), stringdb_Get()->GetNameStr("str_ldl_SV_COUNTDOWN_SEQUENCE"),
 		gaiaController->TurnsToComplete());
 	m_statusText->SetText(buffer);
 

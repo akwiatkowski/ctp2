@@ -50,7 +50,7 @@
 #include "gs/utility/gstypes.h"            // k_MAX_ARMY_SIZE
 #include "IconRecord.h"
 #include "gs/slic/SlicObject.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "gs/utility/stringutils.h"
 #include "gs/gameobj/Unit.h"
 #include "UnitRecord.h"
@@ -84,7 +84,7 @@ namespace
 		{
 		    MBCHAR parsedText[k_MAX_NAME_LEN];
 		    parsedText[0] = 0;
-		    stringutils_Interpret(g_theStringDB->GetNameStr(a_Text),
+		    stringutils_Interpret(stringdb_Get()->GetNameStr(a_Text),
 		                          a_Context,
 		                          parsedText,
 		                          k_MAX_NAME_LEN

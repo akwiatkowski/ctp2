@@ -100,7 +100,7 @@
 
 extern SelectedItem			*selitem_Get();
 extern DebugWindow			*g_debugWindow;
-extern StringDB				*g_theStringDB;
+extern StringDB				*stringdb_Get();
 extern GreatLibraryWindow	*g_greatLibrary;
 extern ColorSet				*colorset_Get();
 

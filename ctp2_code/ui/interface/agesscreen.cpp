@@ -48,7 +48,7 @@
 #include "ui/netshell/ns_gamesetup.h"
 #include "ui/netshell/ns_item.h"
 #include "ui/interface/spnewgamewindow.h"
-#include "gs/database/StrDB.h"                  // g_theStringDB
+#include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
 

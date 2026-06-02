@@ -49,7 +49,7 @@
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/interface/optionswindow.h"
 
-extern StringDB						*g_theStringDB;
+extern StringDB						*stringdb_Get();
 extern Network						g_network;
 
 

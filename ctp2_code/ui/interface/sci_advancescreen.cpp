@@ -480,7 +480,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 // Globals    : player_Get()		: list of players
 //				selitem_Get()		: determines currently active player
 //				g_theAdvanceDB		: advance database
-//				g_theStringDB		: language dependent text to display
+//				stringdb_Get()		: language dependent text to display
 //				s_scienceGoalTree	: list of advances that lead to the goal
 //
 // Returns    : s_advanceList		: filled with the generated list
@@ -504,12 +504,12 @@ sint32 sci_advancescreen_loadList( void )
 	if(p->m_researchGoal >= 0)
 	{
 		sci_advancescreen_fillgoalarray(p->m_researchGoal);
-		snprintf(str, sizeof(str),"%s %s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"),
+		snprintf(str, sizeof(str),"%s %s",stringdb_Get()->GetNameStr("str_ldl_ResearchGoal"),
 			g_theAdvanceDB->Get(p->m_researchGoal)->GetNameText());
 	}
 	else
 	{
-		snprintf(str, sizeof(str),"%s",g_theStringDB->GetNameStr("str_ldl_ResearchGoal"));
+		snprintf(str, sizeof(str),"%s",stringdb_Get()->GetNameStr("str_ldl_ResearchGoal"));
 	}
 	s_goaltext->SetText(str);
 
@@ -533,11 +533,11 @@ sint32 sci_advancescreen_loadList( void )
 		if( advances[i] ) {
 			if(s_scienceGoalTree[i])
 			{
-				snprintf(str, sizeof(str), "%s*", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
+				snprintf(str, sizeof(str), "%s*", stringdb_Get()->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
 			}
 			else
 			{
-				snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
+				snprintf(str, sizeof(str), "%s", stringdb_Get()->GetNameStr(g_theAdvanceDB->Get(i)->m_name) );
 			}
 
 			item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("SciListItem");
@@ -669,7 +669,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 			if( !isAdvance )
 			{
-				snprintf(givesText, sizeof(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
+				snprintf(givesText, sizeof(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_UNITS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -693,7 +693,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 			if( !isAdvance )
 			{
 				sprintf(givesText + strlen(givesText), "%s\n",
-					g_theStringDB->GetNameStr("ADVANCE_GIVES_BUILDINGS"));
+					stringdb_Get()->GetNameStr("ADVANCE_GIVES_BUILDINGS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -718,7 +718,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 			if( !isAdvance )
 			{
 				sprintf(givesText + strlen(givesText), "%s\n",
-					g_theStringDB->GetNameStr("ADVANCE_GIVES_WONDERS"));
+					stringdb_Get()->GetNameStr("ADVANCE_GIVES_WONDERS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -737,7 +737,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 														  i)) {
 			if(!isTileImp) {
 				sprintf(givesText + strlen(givesText), "%s\n",
-						g_theStringDB->GetNameStr("ADVANCE_GIVES_TILE_IMPROVEMENTS"));
+						stringdb_Get()->GetNameStr("ADVANCE_GIVES_TILE_IMPROVEMENTS"));
 				isTileImp = true;
 				anyAdvance = true;
 			}
@@ -751,7 +751,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 		const GovernmentRecord *rec = g_theGovernmentDB->Get(i);
 		if(rec->GetEnableAdvanceIndex() == index) {
 			if(!isGov) {
-				sprintf(givesText + strlen(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_GOVS"));
+				sprintf(givesText + strlen(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_GOVS"));
 				isGov = true;
 				anyAdvance = true;
 			}
@@ -763,7 +763,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 	if( !anyAdvance )
 	{
-		snprintf(givesText, sizeof(givesText), "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
+		snprintf(givesText, sizeof(givesText), "%s", stringdb_Get()->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
 	}
 
 	s_glStats->SetHyperText(givesText);

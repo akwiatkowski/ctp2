@@ -55,7 +55,7 @@
 #include "ui/interface/infowin.h"            // InfoPlayerListItem should be moved to somewhere else so that infowin.h can be removed
 #include "ui/aui_ctp2/linegraph.h"
 #include "gs/gameobj/Player.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "gs/gameobj/Strengths.h"
 
 extern PointerList<Player>      *g_deadPlayer;
@@ -139,7 +139,7 @@ void RankingTab::Add_Dropdown_Category(char * category)
 	ctp2_Static *label = static_cast<ctp2_Static*>(
 		listItem->GetChildByIndex(0));
 
-	label->SetText(g_theStringDB->GetNameStr(category));
+	label->SetText(stringdb_Get()->GetNameStr(category));
 
 	m_rankingDropDown->AddItem(listItem);
 
@@ -157,7 +157,7 @@ void RankingTab::SetLineGraph( bool line_graph )
 
 		m_infoGraph->SetGraphType(GRAPH_TYPE_LINE);
 
-		m_lineOrZeroSumButton->SetText(g_theStringDB->GetNameStr("str_ldl_ZEROSUM_BUTTON"));
+		m_lineOrZeroSumButton->SetText(stringdb_Get()->GetNameStr("str_ldl_ZEROSUM_BUTTON"));
 
 	}
 	else
@@ -165,7 +165,7 @@ void RankingTab::SetLineGraph( bool line_graph )
 
 		m_infoGraph->SetGraphType(GRAPH_TYPE_ZEROSUM);
 
-		m_lineOrZeroSumButton->SetText(g_theStringDB->GetNameStr("str_ldl_LINE_BUTTON"));
+		m_lineOrZeroSumButton->SetText(stringdb_Get()->GetNameStr("str_ldl_LINE_BUTTON"));
 
 	}
 }

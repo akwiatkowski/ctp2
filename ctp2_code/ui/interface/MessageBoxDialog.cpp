@@ -122,7 +122,7 @@ m_userData(userData)
 	m_isTextQuery = false;
 
 
-	const MBCHAR *str = g_theStringDB->GetNameStr(message);
+	const MBCHAR *str = stringdb_Get()->GetNameStr(message);
 	if(str) {
 		m_messageDisplay->SetText(str);
 	} else {
@@ -132,15 +132,15 @@ m_userData(userData)
 	if(cancelText) {
 
 		Assert(okText);
-		m_leftButton->SetText(g_theStringDB->GetNameStr(okText));
+		m_leftButton->SetText(stringdb_Get()->GetNameStr(okText));
 
-		m_rightButton->SetText(g_theStringDB->GetNameStr(cancelText));
+		m_rightButton->SetText(stringdb_Get()->GetNameStr(cancelText));
 	} else {
 
 		m_leftButton->Hide();
 
 		Assert(okText);
-		m_rightButton->SetText(g_theStringDB->GetNameStr(okText));
+		m_rightButton->SetText(stringdb_Get()->GetNameStr(okText));
 	}
 
 	m_leftButton->SetActionFuncAndCookie(

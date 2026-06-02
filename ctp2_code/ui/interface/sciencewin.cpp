@@ -69,7 +69,7 @@
 #include "ui/aui_common/aui_listbox.h"
 #include "ui/aui_ctp2/c3_listbox.h"
 
-#include "gs/database/StrDB.h"                  // g_theStringDB
+#include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/Unit.h"
@@ -892,7 +892,7 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 		MBCHAR name[k_MAX_NAME_LEN];
 
-		snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
+		snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
 
 		ldl->Associate((aui_Control *)this, name);
 	}

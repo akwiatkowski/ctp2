@@ -839,25 +839,25 @@ void UnitControlPanel::UpdateOrderButtons()  //emod3 this is the method
 					  )
 					{
 						char buff[1024];
-						snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetStatusText()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
+						snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", stringdb_Get()->GetNameStr(orderRecord->GetStatusText()), numUpgrade, numUpgradeAll, army->Num(), stringdb_Get()->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
 
 						m_orderButton[orderButtonIndex]->SetStatusTextCopy(buff);
 
 						aui_TipWindow *tipwin = (aui_TipWindow *)m_orderButton[orderButtonIndex]->GetTipWindow();
 						if(tipwin)
 						{
-							snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", g_theStringDB->GetNameStr(orderRecord->GetLocalizedName()), numUpgrade, numUpgradeAll, army->Num(), g_theStringDB->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
+							snprintf(buff, sizeof(buff), "%s, %d/%d/%d, %s%d/%d", stringdb_Get()->GetNameStr(orderRecord->GetLocalizedName()), numUpgrade, numUpgradeAll, army->Num(), stringdb_Get()->GetNameStr("str_ldl_Gold_COLON_"), costs, fullCosts);
 							tipwin->SetTipText(buff);
 						}
 					}
 					else
 					{
-						m_orderButton[orderButtonIndex]->SetStatusText(g_theStringDB->GetNameStr(orderRecord->GetStatusText()));
+						m_orderButton[orderButtonIndex]->SetStatusText(stringdb_Get()->GetNameStr(orderRecord->GetStatusText()));
 
 						aui_TipWindow *tipwin = (aui_TipWindow *)m_orderButton[orderButtonIndex]->GetTipWindow();
 						if(tipwin)
 						{
-							tipwin->SetTipText((char *)g_theStringDB->GetNameStr(orderRecord->GetLocalizedName()));
+							tipwin->SetTipText((char *)stringdb_Get()->GetNameStr(orderRecord->GetLocalizedName()));
 						}
 					}
 

@@ -113,8 +113,8 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 
 		yearString << abs(currentYear) << " "
 			<< ((currentYear < 0) ?
-			g_theStringDB->GetNameStr("str_tbl_ldl_BC") :
-			g_theStringDB->GetNameStr("str_tbl_ldl_AD"))
+			stringdb_Get()->GetNameStr("str_tbl_ldl_BC") :
+			stringdb_Get()->GetNameStr("str_tbl_ldl_AD"))
 			<< std::ends;
 	}
 
@@ -128,13 +128,13 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 	sint32 round = player_Get(selitem_Get()->GetVisiblePlayer()) ?
 	                   player_Get(selitem_Get()->GetVisiblePlayer())->m_current_round :
 	                   turn_Get()->GetSessionRound();
-	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
+	snprintf(buf, sizeof(buf), "%d %s", round, stringdb_Get()->GetNameStr("str_ldl_Turns"));
 	return buf;
 #if 0
 
 	std::stringstream roundString;
 	roundString << turn_Get()->GetSessionRound() << " "
-		<< g_theStringDB->GetNameStr("str_ldl_Turns")
+		<< stringdb_Get()->GetNameStr("str_ldl_Turns")
 		<< std::ends;
 
 	return(roundString.str());

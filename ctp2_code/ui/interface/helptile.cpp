@@ -70,7 +70,7 @@
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
 
-extern StringDB					*g_theStringDB;
+extern StringDB					*stringdb_Get();
 
 c3_PopupWindow					*g_helpTileWindow = NULL;
 
@@ -228,7 +228,7 @@ void helptile_displayData(const MapPoint &p)
 	&& !player_Get(selitem_Get()->GetVisiblePlayer())->m_hasGlobalRadar)
 	&& tiledmap_Get()->GetLocalVision()->GetLastSeen(p, ucell)
 	){
-		strcpy(myname, g_theStringDB->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
+		strcpy(myname, stringdb_Get()->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
 		snprintf(mytext, sizeof(mytext), "%d\n", ucell.m_unseenCell->GetFoodProduced());
@@ -249,7 +249,7 @@ void helptile_displayData(const MapPoint &p)
 			myTile->GetGoodsIndex(goods);
 
 			goodStrID = world_Get()->GetTerrain(p)->GetResources(goods)->GetName();
-			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
+			snprintf(mytext, sizeof(mytext), "%s\n", stringdb_Get()->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}
 		else
@@ -285,7 +285,7 @@ void helptile_displayData(const MapPoint &p)
 			myTile->GetGoodsIndex(goods);
 
 			goodStrID = world_Get()->GetTerrain(p)->GetResources(goods)->GetName();
-			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
+			snprintf(mytext, sizeof(mytext), "%s\n", stringdb_Get()->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}
 		else

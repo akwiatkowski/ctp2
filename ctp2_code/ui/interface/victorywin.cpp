@@ -241,12 +241,12 @@ sint32 victorywin_SetLineGraph( BOOL lineGraph)
 	if (s_lineGraph)
 	{
 		s_graph->SetGraphType(GRAPH_TYPE_LINE);
-		s_lineOrZeroSumButton->SetText(g_theStringDB->GetNameStr("str_ldl_ZEROSUM_BUTTON"));
+		s_lineOrZeroSumButton->SetText(stringdb_Get()->GetNameStr("str_ldl_ZEROSUM_BUTTON"));
 	}
 	else
 	{
 		s_graph->SetGraphType(GRAPH_TYPE_ZEROSUM);
-		s_lineOrZeroSumButton->SetText(g_theStringDB->GetNameStr("str_ldl_LINE_BUTTON"));
+		s_lineOrZeroSumButton->SetText(stringdb_Get()->GetNameStr("str_ldl_LINE_BUTTON"));
 	}
 
 	return 0;

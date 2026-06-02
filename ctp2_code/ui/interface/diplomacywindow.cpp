@@ -659,12 +659,12 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 						if(textStatic) {
 							MBCHAR finalText[k_MAX_NAME_LEN];
 							if(toPlayer) {
-								strcpy(finalText, g_theStringDB->GetNameStr("str_ldl_From"));
+								strcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_From"));
 								strcat(finalText, " ");
 								player_Get(sender)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");
 							} else {
-								strcpy(finalText, g_theStringDB->GetNameStr("str_ldl_To"));
+								strcpy(finalText, stringdb_Get()->GetNameStr("str_ldl_To"));
 								strcat(finalText, " ");
 								player_Get(receiver)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");
@@ -716,7 +716,7 @@ void DiplomacyWindow::GetProposalDetails(const ProposalData &prop,
 	AddProposalData(so, dbIndex, prop.first_arg);
 
 	StringId origText = GetProposalText(dbIndex, prop.tone, false, isCounter);
-	stringutils_Interpret(g_theStringDB->GetNameStr(origText), so, finalText);
+	stringutils_Interpret(stringdb_Get()->GetNameStr(origText), so, finalText);
 
 	if(prop.second_type != PROPOSAL_NONE) {
 
@@ -734,7 +734,7 @@ void DiplomacyWindow::GetProposalDetails(const ProposalData &prop,
 			strcat(finalText, "  ");
 			exch = finalText + strlen(finalText);
 		}
-		stringutils_Interpret(g_theStringDB->GetNameStr(origText), eso, exch);
+		stringutils_Interpret(stringdb_Get()->GetNameStr(origText), eso, exch);
 	}
 
 	if(response) {
@@ -748,7 +748,7 @@ void DiplomacyWindow::GetProposalDetails(const ProposalData &prop,
 				AddThreatData(tso, threatDBIndex, response->threat.arg);
 				origText = g_theDiplomacyThreatDB->Get(threatDBIndex)->GetDetails();
 				strcat(finalText, "  ");
-				stringutils_Interpret(g_theStringDB->GetNameStr(origText), tso, finalText + strlen(finalText));
+				stringutils_Interpret(stringdb_Get()->GetNameStr(origText), tso, finalText + strlen(finalText));
 			}
 		}
 	}
@@ -769,7 +769,7 @@ void DiplomacyWindow::GetProposalSummary(const ProposalData &prop,
 	AddProposalData(so, dbIndex, prop.first_arg);
 
 	StringId origText = GetProposalSummaryText(dbIndex, prop.tone, false, isCounter);
-	stringutils_Interpret(g_theStringDB->GetNameStr(origText), so, finalText);
+	stringutils_Interpret(stringdb_Get()->GetNameStr(origText), so, finalText);
 
 	if(prop.second_type != PROPOSAL_NONE) {
 
@@ -781,7 +781,7 @@ void DiplomacyWindow::GetProposalSummary(const ProposalData &prop,
 		origText = GetProposalSummaryText(dbIndex, prop.tone, true, isCounter);
 
 		strcat(finalText, "  ");
-		stringutils_Interpret(g_theStringDB->GetNameStr(origText), eso, finalText + strlen(finalText));
+		stringutils_Interpret(stringdb_Get()->GetNameStr(origText), eso, finalText + strlen(finalText));
 	}
 
 	if(response) {
@@ -795,7 +795,7 @@ void DiplomacyWindow::GetProposalSummary(const ProposalData &prop,
 				AddThreatData(tso, threatDBIndex, response->threat.arg);
 				origText = g_theDiplomacyThreatDB->Get(threatDBIndex)->GetDetails();
 				strcat(finalText, "  ");
-				stringutils_Interpret(g_theStringDB->GetNameStr(origText), tso, finalText + strlen(finalText));
+				stringutils_Interpret(stringdb_Get()->GetNameStr(origText), tso, finalText + strlen(finalText));
 			}
 		}
 	}
@@ -3035,19 +3035,19 @@ void DiplomacyWindow::TabPanelActionCallback(aui_Control *control, uint32 action
 			s_dipWindow->m_create_mode = DW_CREATE_MODE_CIV;
 			s_dipWindow->EnableRequests(true);
 			if(sendButton) {
-				sendButton->SetText(g_theStringDB->GetNameStr("str_ldl_DipSendProposal"));
+				sendButton->SetText(stringdb_Get()->GetNameStr("str_ldl_DipSendProposal"));
 			}
 			if(panelTitle) {
-				panelTitle->SetText(g_theStringDB->GetNameStr("str_ldl_DipTitleCreateNewProposal"));
+				panelTitle->SetText(stringdb_Get()->GetNameStr("str_ldl_DipTitleCreateNewProposal"));
 			}
 		} else {
 			s_dipWindow->m_create_mode = DW_CREATE_MODE_TONE;
 			s_dipWindow->EnableRequests(false);
 			if(sendButton) {
-				sendButton->SetText(g_theStringDB->GetNameStr("str_ldl_DipSendCounterProposal"));
+				sendButton->SetText(stringdb_Get()->GetNameStr("str_ldl_DipSendCounterProposal"));
 			}
 			if(panelTitle) {
-				panelTitle->SetText(g_theStringDB->GetNameStr("str_ldl_DipTitleCreateCounterProposal"));
+				panelTitle->SetText(stringdb_Get()->GetNameStr("str_ldl_DipTitleCreateCounterProposal"));
 			}
 		}
 		s_dipWindow->Update();

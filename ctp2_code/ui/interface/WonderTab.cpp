@@ -53,7 +53,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"
 #include "ui/interface/rankingtab.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "gs/gameobj/Unit.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"

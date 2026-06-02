@@ -551,10 +551,10 @@ void CityControlPanel::UpdateBuildItem()
 void CityControlPanel::NoBuildItem()
 {
 	m_buildItemLabel->SetText(
-		g_theStringDB->GetNameStr("str_ldl_CP_BUILD_QUEUE_EMPTY"));
+		stringdb_Get()->GetNameStr("str_ldl_CP_BUILD_QUEUE_EMPTY"));
 	m_buildItemIconButton->ExchangeImage(4, 0, NULL);
 	m_buildItemIconButton->SetText(
-		g_theStringDB->GetNameStr("str_ldl_CP_EDIT_BUILD_QUEUE"));
+		stringdb_Get()->GetNameStr("str_ldl_CP_EDIT_BUILD_QUEUE"));
 	m_buildItemTurnButton->SetText("-");
 }
 
@@ -721,7 +721,7 @@ const MBCHAR *CityControlPanel::GetBuildName(const BuildNode *buildNode)
 
 	Assert(buildNode);
 
-	return g_theStringDB->GetNameStr(GetBuildStringId(buildNode));
+	return stringdb_Get()->GetNameStr(GetBuildStringId(buildNode));
 }
 
 StringId CityControlPanel::GetBuildStringId(const BuildNode *buildNode)
@@ -742,10 +742,10 @@ StringId CityControlPanel::GetBuildStringId(const BuildNode *buildNode)
 			return(g_theWonderDB->Get(buildNode->m_type)->GetName());
 			break;
 		case k_GAME_OBJ_TYPE_CAPITALIZATION:
-			g_theStringDB->GetStringID("CAPITALIZATION", id);
+			stringdb_Get()->GetStringID("CAPITALIZATION", id);
 			return id;
 		case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-			g_theStringDB->GetStringID("INFRASTRUCTURE", id);
+			stringdb_Get()->GetStringID("INFRASTRUCTURE", id);
 			return id;
 		default:
 			Assert(false);

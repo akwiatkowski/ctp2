@@ -81,7 +81,7 @@
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgameplayersscreen.h"
 #include "ui/interface/spnewgametribescreen.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include "ui/interface/TurnYearStatus.h"
 
 #ifndef WIN32
@@ -349,7 +349,7 @@ void loadsavescreen_TribeScreenActionCallback(aui_Control *control, uint32 actio
 				MBCHAR		*dbString;
 
 				civName = s_tempSaveInfo->civList[i];
-				dbString = (MBCHAR *)g_theStringDB->GetNameStr(g_theCivilisationDB->Get(tribeIndex)->GetPluralCivName());
+				dbString = (MBCHAR *)stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(tribeIndex)->GetPluralCivName());
 				if(strlen(civName) > 0)
 				{
 					if(!stricmp(dbString, civName))
@@ -508,7 +508,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 									for (sint32 j=0; j<g_theCivilisationDB->NumRecords(); j++)
 									{
 										MBCHAR const *  dbString =
-										    g_theStringDB->GetNameStr(g_theCivilisationDB->Get(j)->GetPluralCivName());
+										    stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(j)->GetPluralCivName());
 
 										if (!stricmp(dbString, civName))
 										{
@@ -590,7 +590,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				snprintf(tempStr, sizeof(tempStr), "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenario",NULL, NULL, "str_ldl_MB_OK", false);
 				return;
@@ -626,7 +626,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				snprintf(tempStr, sizeof(tempStr), "%s%s", g_theStringDB->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenarioData",NULL, NULL, "str_ldl_MB_OK", false);
 				return;
@@ -1178,7 +1178,7 @@ void loadsavescreen_deletePress(aui_Control *control, uint32 action, uint32 data
 
 	if (g_loadsaveWindow->GetGameInfo())
     {
-		MessageBoxDialog::Query(g_theStringDB->GetNameStr("DELETE_SAVE_CONFIRM"),
+		MessageBoxDialog::Query(stringdb_Get()->GetNameStr("DELETE_SAVE_CONFIRM"),
                                 "ConfirmLoadSaveDelete",
                                 loadsavescreen_deleteDialog
                                );
@@ -1372,7 +1372,7 @@ BOOL loadsavescreen_CheckOverwrite( void )
 			if ( !strcmp(info->fileName, saveInfo->fileName) )
             {
 				//c3_TextMessage( s, k_UTILITY_TEXTMESSAGE_YESNO, loadsavescreen_OverwriteCallback );
-				MessageBoxDialog::Query(g_theStringDB->GetNameStr("SAVE_OVERWRITE"),
+				MessageBoxDialog::Query(stringdb_Get()->GetNameStr("SAVE_OVERWRITE"),
                                         "ConfirmSaveOverwrite",
                                         loadsavescreen_OverwriteCallback
                                        );

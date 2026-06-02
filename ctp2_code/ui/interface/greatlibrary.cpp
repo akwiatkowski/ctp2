@@ -92,7 +92,7 @@
 #include "ui/interface/screenutils.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/slic/SlicObject.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "ui/interface/String_Search.h"
 #include "TerrainImprovementRecord.h"
 #include "TerrainRecord.h"
@@ -830,10 +830,10 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 	m_setGoalButton->SetActionFuncAndCookie(greatlibrary_SetGoalCallback, NULL);
 
 	m_categoryText = (ctp2_Static *)aui_Ldl::GetObject(windowBlock, "Category");
-	m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_UNITS"));
+	m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_UNITS"));
 
 	m_searchLabel = (ctp2_Static *)aui_Ldl::GetObject(windowBlock, "SearchLabel");
-	m_searchLabel->SetText(g_theStringDB->GetNameStr("str_ldl_SEARCH_WORD"));
+	m_searchLabel->SetText(stringdb_Get()->GetNameStr("str_ldl_SEARCH_WORD"));
 
 	m_techRequirementsText = (ctp2_HyperTextBox *)aui_Ldl::GetObject(windowBlock, "RequirementsText");
 	m_techRequirementsText->SetActionFuncAndCookie(greatlibrary_TechBoxActionCallback, NULL);
@@ -1230,19 +1230,19 @@ void GreatLibrary::HandleSetGoal( void )
 
 		if(tmp == 1)
 		{
-			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryGoalSetTo");
+			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryGoalSetTo");
 			if (!fmt) fmt = "Goal set to: %s";
 			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
 		else if(tmp == 0)
 		{
-			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryGoalKnown");
+			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryGoalKnown");
 			if (!fmt) fmt = "%s is already known. No goal was set.";
 			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
 		else
 		{
-			const MBCHAR *fmt = g_theStringDB->GetNameStr("str_ldl_GreatLibraryNoGoalPossible");
+			const MBCHAR *fmt = stringdb_Get()->GetNameStr("str_ldl_GreatLibraryNoGoalPossible");
 			if (!fmt) fmt = "%s cannot be researched.";
 			snprintf(goal_set_message, sizeof(goal_set_message), fmt, selection_name);
 		}
@@ -1261,7 +1261,7 @@ void GreatLibrary::HandleSetGoal( void )
 //              item            : *lexicographic* index of the item in the
 //                                database
 //
-// Globals    : g_theStringDB
+// Globals    : stringdb_Get()
 //              g_the<whatever>DB
 //              g_greatLibrary
 //
@@ -1281,7 +1281,7 @@ MBCHAR const * GreatLibrary::GetItemName(int database, int item) const
 		return NULL;
 
 	case DATABASE_UNITS:
-		return g_theStringDB->GetNameStr(g_theUnitDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theUnitDB->GetName(
 				g_theUnitDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_SEARCH:
@@ -1295,27 +1295,27 @@ MBCHAR const * GreatLibrary::GetItemName(int database, int item) const
         }
 
 	case DATABASE_ORDERS:
-		return g_theStringDB->GetNameStr(g_theOrderDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theOrderDB->GetName(
 				g_theOrderDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_RESOURCE:
-		return g_theStringDB->GetNameStr(g_theResourceDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theResourceDB->GetName(
 				g_theResourceDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_BUILDINGS:
-		return g_theStringDB->GetNameStr(g_theBuildingDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theBuildingDB->GetName(
 				g_theBuildingDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_WONDERS:
-		return g_theStringDB->GetNameStr(g_theWonderDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theWonderDB->GetName(
 				g_theWonderDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_ADVANCES:
-		return g_theStringDB->GetNameStr(g_theAdvanceDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theAdvanceDB->GetName(
 				g_theAdvanceDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_TERRAIN:
-		return g_theStringDB->GetNameStr(g_theTerrainDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theTerrainDB->GetName(
 				g_theTerrainDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_CONCEPTS:
@@ -1323,11 +1323,11 @@ MBCHAR const * GreatLibrary::GetItemName(int database, int item) const
 				g_theConceptDB->m_alphaToIndex[item]) ;
 
 	case DATABASE_GOVERNMENTS:
-		return g_theStringDB->GetNameStr(g_theGovernmentDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theGovernmentDB->GetName(
 				g_theGovernmentDB->m_alphaToIndex[item])) ;
 
 	case DATABASE_TILE_IMPROVEMENTS:
-		return g_theStringDB->GetNameStr(g_theTerrainImprovementDB->GetName(
+		return stringdb_Get()->GetNameStr(g_theTerrainImprovementDB->GetName(
 				g_theTerrainImprovementDB->m_alphaToIndex[item])) ;
 
 	} // switch
@@ -1342,7 +1342,7 @@ MBCHAR const * GreatLibrary::GetItemName(int database, int item) const
 // Parameters : database        : database
 //              item            : index of the item in the database
 //
-// Globals    : g_theStringDB
+// Globals    : stringdb_Get()
 //              g_the<whatever>DB
 //
 // Returns    : MBCHAR const *  : name of the database item
@@ -1424,7 +1424,7 @@ ctp2_Window *GreatLibrary::GetWindow(void) const
 // Parameters : the_database    : The database category to set
 //              item            : index of the item in the database
 //
-// Globals    : g_theStringDB
+// Globals    : stringdb_Get()
 //
 // Returns    : -
 //
@@ -1441,62 +1441,62 @@ void GreatLibrary::SetCategoryName
 	{
 	case DATABASE_UNITS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_UNITS"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_UNITS"));
 
 		break;
 	case DATABASE_BUILDINGS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_IMPROVE"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_IMPROVE"));
 
 		break;
 	case DATABASE_WONDERS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_WONDERS"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_WONDERS"));
 
 		break;
 	case DATABASE_ADVANCES:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_ADVANCES"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_ADVANCES"));
 
 		break;
 	case DATABASE_TERRAIN:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_TERRAIN"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_TERRAIN"));
 
 		break;
 	case DATABASE_CONCEPTS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CONCEPTS"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CONCEPTS"));
 
 		break;
 
 	case DATABASE_GOVERNMENTS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_GOVERN"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_GOVERN"));
 
 		break;
 
 	case DATABASE_TILE_IMPROVEMENTS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_TILE_IMP"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_TILE_IMP"));
 
 		break;
 
 	case DATABASE_ORDERS:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_ORDERS"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_ORDERS"));
 
 		break;
 
 	case DATABASE_RESOURCE:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_GOODS"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_GOODS"));
 
 		break;
 
 	case DATABASE_SEARCH:
 
-		m_categoryText->SetText(g_theStringDB->GetNameStr("str_ldl_CAPS_SEARCH"));
+		m_categoryText->SetText(stringdb_Get()->GetNameStr("str_ldl_CAPS_SEARCH"));
 
 		break;
 
@@ -1764,7 +1764,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 			if(HIDE(g_theUnitDB, index))
 				continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theUnitDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theUnitDB->GetName(
 						g_theUnitDB->m_alphaToIndex[index])), index);
 
 		}
@@ -1797,7 +1797,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theOrderDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theOrderDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theOrderDB->GetName(
 						g_theOrderDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1810,7 +1810,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theResourceDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theResourceDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theResourceDB->GetName(
 						g_theResourceDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1823,7 +1823,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theBuildingDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theBuildingDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theBuildingDB->GetName(
 						g_theBuildingDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1836,7 +1836,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theWonderDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theWonderDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theWonderDB->GetName(
 						g_theWonderDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1849,7 +1849,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theAdvanceDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theAdvanceDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theAdvanceDB->GetName(
 						g_theAdvanceDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1862,7 +1862,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theTerrainDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theTerrainDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theTerrainDB->GetName(
 						g_theTerrainDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1889,7 +1889,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theGovernmentDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theGovernmentDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theGovernmentDB->GetName(
 						g_theGovernmentDB->m_alphaToIndex[ index ])), index);
 
 		}
@@ -1902,7 +1902,7 @@ void GreatLibrary::UpdateList( DATABASE database )
 		{
 			if(HIDE(g_theTerrainImprovementDB, index)) continue;
 
-			Add_Item_To_Topics_List(g_theStringDB->GetNameStr(g_theTerrainImprovementDB->GetName(
+			Add_Item_To_Topics_List(stringdb_Get()->GetNameStr(g_theTerrainImprovementDB->GetName(
 						g_theTerrainImprovementDB->m_alphaToIndex[ index ])), index);
 
 		}

@@ -582,7 +582,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 			if( !isAdvance )
 			{
-				snprintf(givesText, sizeof(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_UNITS"));
+				snprintf(givesText, sizeof(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_UNITS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -606,7 +606,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 			if( !isAdvance )
 			{
 				sprintf(givesText + strlen(givesText), "%s\n",
-					g_theStringDB->GetNameStr("ADVANCE_GIVES_BUILDINGS"));
+					stringdb_Get()->GetNameStr("ADVANCE_GIVES_BUILDINGS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -631,7 +631,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 			if( !isAdvance )
 			{
 				sprintf(givesText + strlen(givesText), "%s\n",
-					g_theStringDB->GetNameStr("ADVANCE_GIVES_WONDERS"));
+					stringdb_Get()->GetNameStr("ADVANCE_GIVES_WONDERS"));
 				isAdvance = true;
 				anyAdvance = true;
 			}
@@ -648,7 +648,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 		if(terrainutil_AdvanceEnablesImprovement(index, i)) {
 			if(!isTileImp) {
 				sprintf(givesText + strlen(givesText), "%s\n",
-						g_theStringDB->GetNameStr("ADVANCE_GIVES_TILE_IMPROVEMENTS"));
+						stringdb_Get()->GetNameStr("ADVANCE_GIVES_TILE_IMPROVEMENTS"));
 				isTileImp = true;
 				anyAdvance = true;
 			}
@@ -663,7 +663,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 		const GovernmentRecord *rec = g_theGovernmentDB->Get(i);
 		if(rec->GetEnableAdvanceIndex() == index) {
 			if(!isGov) {
-				sprintf(givesText + strlen(givesText), "%s\n", g_theStringDB->GetNameStr("ADVANCE_GIVES_GOVS"));
+				sprintf(givesText + strlen(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_GOVS"));
 				isGov = true;
 				anyAdvance = true;
 			}
@@ -675,7 +675,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 	if( !anyAdvance )
 	{
-		snprintf(givesText, sizeof(givesText), "%s", g_theStringDB->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
+		snprintf(givesText, sizeof(givesText), "%s", stringdb_Get()->GetNameStr( "ADVANCE_NO_SPECIFIC_ADVANCES" ) );
 	}
 
 	pMe->m_scienceDescription->SetHyperText(givesText);

@@ -57,7 +57,7 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 
 extern KEYMAP       *theKeyMap;
-extern StringDB     *g_theStringDB;
+extern StringDB     *stringdb_Get();
 
 namespace
 {
@@ -625,7 +625,7 @@ AUI_ERRCODE KeyListItem::InitCommonLdl(sint32 index, uint32 keycode, MBCHAR *ldl
 //
 // Parameters : code            : the key code
 //
-// Globals    : g_theStringDB
+// Globals    : stringdb_Get()
 //
 // Returns    : MBCHAR const *  : the name
 //
@@ -638,13 +638,13 @@ AUI_ERRCODE KeyListItem::InitCommonLdl(sint32 index, uint32 keycode, MBCHAR *ldl
 MBCHAR const * km_GetKeyName(uint32 code)
 {
 	static MBCHAR str[_MAX_PATH];
-	const char *ctrl = g_theStringDB->GetNameStr("str_control_key");
+	const char *ctrl = stringdb_Get()->GetNameStr("str_control_key");
 
 	switch(code) {
-		case '\t' + 128: strcpy(str, g_theStringDB->GetNameStr("KEY_NAME_TAB")); break;
-		case '\r' + 128: strcpy(str, g_theStringDB->GetNameStr("KEY_NAME_ENTER"));  break;
-		case ' ': strcpy(str, g_theStringDB->GetNameStr("KEY_NAME_SPACE"));   break;
-		case 8 + 128:   strcpy(str, g_theStringDB->GetNameStr("KEY_NAME_BACKSPACE")); break;
+		case '\t' + 128: strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_TAB")); break;
+		case '\r' + 128: strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_ENTER"));  break;
+		case ' ': strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_SPACE"));   break;
+		case 8 + 128:   strcpy(str, stringdb_Get()->GetNameStr("KEY_NAME_BACKSPACE")); break;
 		case '0' + 128: strcpy(str, "F10"); break;
 		case '!' + 128: strcpy(str, "F11"); break;
 		case '@' + 128: strcpy(str, "F12"); break;

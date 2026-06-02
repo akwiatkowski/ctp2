@@ -54,7 +54,7 @@
 
 #include "ui/interface/TurnYearStatus.h"
 
-extern StringDB		*g_theStringDB;
+extern StringDB		*stringdb_Get();
 
 MessageWindow		*g_currentMessageWindow = NULL;
 

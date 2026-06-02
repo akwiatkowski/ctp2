@@ -603,8 +603,8 @@ void CauseAndEffectTab::UpdateFoodValues()
 
 	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_RATIONS_AMOUNT_%i",
 		(int) player->GetUnitlessRations()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION);
-	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
-		g_theStringDB->GetNameStr("EMPIRE_RATIONS_AMOUNT_UNIT"));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", stringdb_Get()->GetNameStr(formatBuffer),
+		stringdb_Get()->GetNameStr("EMPIRE_RATIONS_AMOUNT_UNIT"));
 	m_foodCurValue->SetText(stringBuffer);
 }
 
@@ -778,8 +778,8 @@ void CauseAndEffectTab::UpdateProductionValues()
 
 	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_WORKDAY_AMOUNT_%i",
 		(int) (4-(player->GetUnitlessWorkday()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION)));
-	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
-		g_theStringDB->GetNameStr("EMPIRE_WORKDAY_AMOUNT_UNIT"));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", stringdb_Get()->GetNameStr(formatBuffer),
+		stringdb_Get()->GetNameStr("EMPIRE_WORKDAY_AMOUNT_UNIT"));
 	m_productionCurValue->SetText(stringBuffer);
 }
 
@@ -1089,8 +1089,8 @@ void CauseAndEffectTab::UpdateCommerceValues()
 
 	snprintf(formatBuffer, sizeof(formatBuffer), "EMPIRE_COMMERCE_AMOUNT_%i",
 		(int) player->GetUnitlessWages()+k_ZERO_FOUR__NEG_TWO_TWO_CONVERSION);
-	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", g_theStringDB->GetNameStr(formatBuffer),
-		g_theStringDB->GetNameStr("EMPIRE_COMMERCE_AMOUNT_UNIT"));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s%s", stringdb_Get()->GetNameStr(formatBuffer),
+		stringdb_Get()->GetNameStr("EMPIRE_COMMERCE_AMOUNT_UNIT"));
 	m_commerceCurValue->SetText(stringBuffer);
 }
 

@@ -85,7 +85,7 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern StringDB*	g_theStringDB;
+extern StringDB*	stringdb_Get();
 extern SoundManager	*soundmgr_Get();
 
 static EndGameWindow *	g_endgameWindow = NULL;
@@ -759,7 +759,7 @@ void EndGameWindow::Update(EndGame *endGame)
 
 		const EndGameRecord *egrec = endgamedb_Get()->Get(i);
 
-		const char *constName = g_theStringDB->GetIdStr(egrec->GetName());
+		const char *constName = stringdb_Get()->GetIdStr(egrec->GetName());
 
 		sint32 soundID = egrec->GetSoundID();
 

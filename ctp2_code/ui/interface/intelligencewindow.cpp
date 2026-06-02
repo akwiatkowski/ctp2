@@ -221,27 +221,27 @@ void IntelligenceWindow::SetRegardTip(MBCHAR *buf, const sint32 player, const si
 
 	sint32 regard = Diplomat::GetDiplomat(player).GetPublicRegard(foreigner);
 	if (regard <= HOTWAR_REGARD)
-		regard_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_HOTWAR_BUTTON");
+		regard_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_HOTWAR_BUTTON");
 	else if (regard <= COLDWAR_REGARD)
-		regard_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_COLDWAR_BUTTON");
+		regard_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_COLDWAR_BUTTON");
 	else if (regard >= ALLIED_REGARD)
-		regard_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_ALLIED_BUTTON");
+		regard_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_ALLIED_BUTTON");
 	else if (regard >= FRIEND_REGARD)
-		regard_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_FRIEND_BUTTON");
+		regard_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_FRIEND_BUTTON");
 	else
-		regard_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_NEUTRAL_BUTTON");
+		regard_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_REG_NEUTRAL_BUTTON");
 
 	sint32 trust = Diplomat::GetDiplomat(player).GetTrust(foreigner);
 	if (trust <= HOTWAR_REGARD)
-		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_HOTWAR_BUTTON");
+		trust_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_HOTWAR_BUTTON");
 	else if (trust <= COLDWAR_REGARD)
-		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_COLDWAR_BUTTON");
+		trust_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_COLDWAR_BUTTON");
 	else if (trust >= ALLIED_REGARD)
-		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_ALLIED_BUTTON");
+		trust_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_ALLIED_BUTTON");
 	else if (trust >= FRIEND_REGARD)
-		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_FRIEND_BUTTON");
+		trust_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_FRIEND_BUTTON");
 	else
-		trust_str = g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_NEUTRAL_BUTTON");
+		trust_str = stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_TRUST_NEUTRAL_BUTTON");
 
 	snprintf(buf, sizeof(buf), "%s%s", regard_str, trust_str);
 }
@@ -297,19 +297,19 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 
 			if (relativeStrength < DIPLOMATIC_STRENGTH_WEAK)
 			{
-				strcpy(buf, g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_VWEK_BUTTON"));
+				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_VWEK_BUTTON"));
 			}
 			else if(relativeStrength < DIPLOMATIC_STRENGTH_AVERAGE)
 			{
-				strcpy(buf, g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_WEAK_BUTTON"));
+				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_WEAK_BUTTON"));
 			}
 			else if(relativeStrength < DIPLOMATIC_STRENGTH_STRONG)
 			{
-				strcpy(buf, g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_AVG_BUTTON"));
+				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_AVG_BUTTON"));
 			}
 			else
 			{
-				strcpy(buf, g_theStringDB->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_STRN_BUTTON"));
+				strcpy(buf, stringdb_Get()->GetNameStr("TOOLTIP_DIPMAN_INTEL_STR_STRN_BUTTON"));
 			}
 
 			((aui_TipWindow *)strength->GetTipWindow())->SetTipText(buf);
@@ -777,7 +777,7 @@ void IntelligenceWindow::DeclareWarOnSelected()
 	MBCHAR buf[k_MAX_NAME_LEN];
 	SlicContext so;
 	so.AddPlayer(player);
-	stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_IW_CONFIRM_WAR"), so, buf, k_MAX_NAME_LEN);
+	stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_IW_CONFIRM_WAR"), so, buf, k_MAX_NAME_LEN);
 
 	MessageBoxDialog::Query(buf, "QueryDeclareWar", intelligence_DeclareWarCallback, (void *)player);
 }
@@ -799,7 +799,7 @@ void IntelligenceWindow::DeclareEmbargoOnSelected()
 	MBCHAR buf[k_MAX_NAME_LEN];
 	SlicContext so;
 	so.AddPlayer(player);
-	stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_IW_CONFIRM_EMBARGO"), so, buf, k_MAX_NAME_LEN);
+	stringutils_Interpret(stringdb_Get()->GetNameStr("str_ldl_IW_CONFIRM_EMBARGO"), so, buf, k_MAX_NAME_LEN);
 
 	MessageBoxDialog::Query(buf, "QueryDeclareEmbargo", intelligence_DeclarEmbargoCallback, (void *)player);
 }
@@ -880,6 +880,6 @@ void IntelligenceWindow::UpdateAdviceText()
 	}
 
 	MBCHAR	strbuf[k_MAX_NAME_LEN];
-	stringutils_Interpret(g_theStringDB->GetNameStr(adviceId), sc, strbuf, k_MAX_NAME_LEN);
+	stringutils_Interpret(stringdb_Get()->GetNameStr(adviceId), sc, strbuf, k_MAX_NAME_LEN);
 	advice->SetHyperText(strbuf);
 }

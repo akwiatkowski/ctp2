@@ -81,7 +81,7 @@
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/spnewgamewindow.h"
-#include "gs/database/StrDB.h"                  // g_theStringDB
+#include "gs/database/StrDB.h"                  // stringdb_Get()
 #include "ui/aui_ctp2/textradio.h"
 #include <vector>                   // std::vector
 //end includes
@@ -142,7 +142,7 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 	StringId civString = g_theCivilisationDB->Get(index)->GetPluralCivName();
 
 	if (shouldSetProfileDB)
-		profiledb_Get()->SetCivName((MBCHAR *)g_theStringDB->GetNameStr(civString));
+		profiledb_Get()->SetCivName((MBCHAR *)stringdb_Get()->GetNameStr(civString));
 
 	s_gender = s_maleRadio->GetState() ? GENDER_MALE : GENDER_FEMALE;
 	if (shouldSetProfileDB)
@@ -169,13 +169,13 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 		else
 			nameString = g_theCivilisationDB->Get(index)->GetLeaderNameFemale();
 
-		s_leaderNameTextField->SetFieldText(g_theStringDB->GetNameStr(nameString) );
+		s_leaderNameTextField->SetFieldText(stringdb_Get()->GetNameStr(nameString) );
 
 		if (shouldSetProfileDB)
 			profiledb_Get()->
-				SetLeaderName((MBCHAR *)g_theStringDB->GetNameStr(nameString));
+				SetLeaderName((MBCHAR *)stringdb_Get()->GetNameStr(nameString));
 
-		spnewgamescreen_setPlayerName(g_theStringDB->GetNameStr(nameString));
+		spnewgamescreen_setPlayerName(stringdb_Get()->GetNameStr(nameString));
 	}
 }
 
@@ -379,7 +379,7 @@ void spnewgametribescreen_switchPress(aui_Control *control, uint32 action, uint3
 	else
 		nameString = g_theCivilisationDB->Get(civ)->GetLeaderNameFemale();
 
-	s_leaderNameTextField->SetFieldText( g_theStringDB->GetNameStr(nameString) );
+	s_leaderNameTextField->SetFieldText( stringdb_Get()->GetNameStr(nameString) );
 }
 
 void spnewgametribescreen_malePress(aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -394,7 +394,7 @@ void spnewgametribescreen_malePress(aui_Control *control, uint32 action, uint32 
 
 		StringId const  nameString  = g_theCivilisationDB->Get(civ)->GetLeaderNameMale();
 
-		s_leaderNameTextField->SetFieldText(g_theStringDB->GetNameStr(nameString));
+		s_leaderNameTextField->SetFieldText(stringdb_Get()->GetNameStr(nameString));
 	}
 }
 
@@ -410,7 +410,7 @@ void spnewgametribescreen_femalePress(aui_Control *control, uint32 action, uint3
 
 		StringId const  nameString  = g_theCivilisationDB->Get(civ)->GetLeaderNameFemale();
 
-		s_leaderNameTextField->SetFieldText(g_theStringDB->GetNameStr(nameString));
+		s_leaderNameTextField->SetFieldText(stringdb_Get()->GetNameStr(nameString));
 	}
 }
 
@@ -459,7 +459,7 @@ void spnewgametribescreen_addTribe(sint32 tribe)
 		if(!text)
 			return;
 
-		text->SetText(g_theStringDB->GetNameStr(g_theCivilisationDB->Get(tribe)->GetPluralCivName()));  //singular? // Maybe change to civ name and then we can change it to Roman Empire, instead of having the boring name Romans
+		text->SetText(stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(tribe)->GetPluralCivName()));  //singular? // Maybe change to civ name and then we can change it to Roman Empire, instead of having the boring name Romans
 		item->SetCompareCallback(spnewgametribescreen_CompareItems);
 		s_CivListBox->AddItem(item);
 	}

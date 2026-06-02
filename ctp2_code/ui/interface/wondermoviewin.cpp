@@ -92,7 +92,7 @@ void wondermoviewin_DisplayWonderMovie(sint32 id)
 
 	g_wonderMovieWindow->SetMovie((char *)filename);
 
-	MBCHAR *name = (MBCHAR *)g_theStringDB->GetNameStr(rec->GetName());
+	MBCHAR *name = (MBCHAR *)stringdb_Get()->GetNameStr(rec->GetName());
 	g_wonderMovieWindow->SetWonderName(name);
 
 	SlicObject so;

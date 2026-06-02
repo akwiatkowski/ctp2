@@ -435,7 +435,7 @@ void GovernmentTab::UpdateGovernmentInformation(
 	information[GII_MARTIAL_LAW]->SetText(stringBuffer);
 
 	snprintf(formatBuffer, sizeof(formatBuffer),"EMPIRE_VALUE_DESC_ANTI_POLLUTION_%i",government->GetPollutionRank());
-	snprintf(stringBuffer, sizeof(stringBuffer), "%s", g_theStringDB->GetNameStr(formatBuffer));
+	snprintf(stringBuffer, sizeof(stringBuffer), "%s", stringdb_Get()->GetNameStr(formatBuffer));
 	information[GII_ANTI_POLLUTION]->SetText(stringBuffer);
 }
 
@@ -525,7 +525,7 @@ void GovernmentTab::EnactGovernmentActionCallback(aui_Control *control,
 		}
 
 		if(!found) {
-			MessageBoxDialog::Query(g_theStringDB->GetNameStr("str_code_GovernmentChangeDisbandsUnits"),
+			MessageBoxDialog::Query(stringdb_Get()->GetNameStr("str_code_GovernmentChangeDisbandsUnits"),
 									"GovernmentChangeDisbandsUnits",
 									ConfirmGovernmentChange, (void *)tab);
 			return;

@@ -139,7 +139,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include "ui/interface/screenutils.h"
 #include "gs/gameobj/Advances.h"
 #include "AdvanceRecord.h"
@@ -1238,77 +1238,77 @@ void ControlPanelWindow::RebuildMenus()
 
 	mb->SetMenuCallback	(menu,CivMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_EmpireManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_EmpireManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_CIV_STATUS)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_TradeOpenMarket"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_TradeOpenMarket"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_TRADE_STATUS)), (void *)CP_MENU_ITEM_1);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_TradeSummary"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_TradeSummary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_TRADE_SUMMARY)), (void *)CP_MENU_ITEM_2);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ScienceManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ScienceManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_SCIENCE_STATUS)), (void *)CP_MENU_ITEM_3);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Gaia"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Gaia"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GAIA)), (void *)CP_MENU_ITEM_4);
 
 	menu = mb->GetMenu("MainMenu", "CityActivator");
 	menu->Clear();
 	mb->SetMenuCallback	(menu,CityMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_BuildQueue"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_BuildQueue"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_BUILD_QUEUE)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_CityManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_CityManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_CITY_MANAGEMENT)),(void *)CP_MENU_ITEM_1);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NatlManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NatlManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_CITY_STATUS)),(void *)CP_MENU_ITEM_2);
 
 	menu = mb->GetMenu("MainMenu", "UnitsActivator");
 	menu->Clear();
 	mb->SetMenuCallback	(menu,UnitMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_UnitManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_UnitManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_UNIT_STATUS)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ArmyManagement"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ArmyManagement"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_WORK_VIEW)),(void *)CP_MENU_ITEM_1);
 
 	menu = mb->GetMenu("MainMenu", "DiplomacyActivator");
 	menu->Clear();
 	mb->SetMenuCallback	(menu,DiplomacyMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_DiplomacyManager"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_DiplomacyManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_DIPLOMACY)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NewProposal"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NewProposal"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_NEW_PROPOSAL)),(void *)CP_MENU_ITEM_1);
 
 	menu = mb->GetMenu("MainMenu", "StatsActivator");
 	menu->Clear();
 	mb->SetMenuCallback	(menu,StatsMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_GreatLibrary"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_GreatLibrary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_GREAT_LIBRARY)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Ranking"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Ranking"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RANK)),(void *)CP_MENU_ITEM_1);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Score"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Score"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_INFO_SCREEN)),(void *)CP_MENU_ITEM_2);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_tbl_ldl_Open_Wonders"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_tbl_ldl_Open_Wonders"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_TIMELINE)),(void *)CP_MENU_ITEM_3);
 
 	menu = mb->GetMenu("MainMenu", "OptionsActivator");
 	menu->Clear();
 	mb->SetMenuCallback	(menu,OptionsMenuCallback);
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ZoomOut"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ZoomOut"),
 					KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ZOOM_OUT1)),
 					(void *)CP_MENU_ITEM_10);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ZoomIn"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ZoomIn"),
 					KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ZOOM_IN1)),
 					(void *)CP_MENU_ITEM_11);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Gameplay"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Gameplay"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GAMEPLAY_OPTIONS)),(void *)CP_MENU_ITEM_0);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Graphics"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Graphics"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GRAPHICS_OPTIONS)),(void *)CP_MENU_ITEM_1);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Sound"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Sound"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_SOUND_OPTIONS)),(void *)CP_MENU_ITEM_2);
 
-    MBCHAR const *  musicItemText   = g_theStringDB->GetNameStr("str_ldl_Music");
+    MBCHAR const *  musicItemText   = stringdb_Get()->GetNameStr("str_ldl_Music");
     if (musicItemText)
     {
     	mb->AddMenuItem(menu,
@@ -1320,23 +1320,23 @@ void ControlPanelWindow::RebuildMenus()
     }
     // else: No action: backwards compatibility for Mods.
 
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Advanced"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Advanced"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ADVANCED_OPTIONS)),(void *)CP_MENU_ITEM_3);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Cheat_Mode_Case"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Cheat_Mode_Case"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_SCENARIO_EDITOR)),(void *)CP_MENU_ITEM_4);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_SaveGame"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_SaveGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_SAVE_GAME)),(void *)CP_MENU_ITEM_5);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
 	if (!profiledb_Get()->IsScenario() && !is_scenario_Get())
 	{
-		mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
+		mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);
 	}
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NewGame"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NewGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_NEW_GAME)),(void *)CP_MENU_ITEM_8);
-	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Quit"),
+	mb->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Quit"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_QUIT)),(void *)CP_MENU_ITEM_9);
 }
 
@@ -1358,15 +1358,15 @@ ControlPanelWindow::BuildCivMenu()
 
 	m_mainMenuBar->SetMenuCallback	(menu,CivMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_EmpireManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_EmpireManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_CIV_STATUS)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_TradeOpenMarket"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_TradeOpenMarket"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_TRADE_STATUS)), (void *)CP_MENU_ITEM_1);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_TradeSummary"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_TradeSummary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_TRADE_SUMMARY)), (void *)CP_MENU_ITEM_2);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ScienceManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ScienceManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_SCIENCE_STATUS)), (void *)CP_MENU_ITEM_3);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Gaia"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Gaia"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GAIA)), (void *)CP_MENU_ITEM_4);
 }
 
@@ -1388,11 +1388,11 @@ ControlPanelWindow::BuildCityMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,CityMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_BuildQueue"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_BuildQueue"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_BUILD_QUEUE)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_CityManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_CityManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_CITY_MANAGEMENT)),(void *)CP_MENU_ITEM_1);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NatlManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NatlManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_CITY_STATUS)),(void *)CP_MENU_ITEM_2);
 }
 
@@ -1414,9 +1414,9 @@ ControlPanelWindow::BuildUnitMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,UnitMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_UnitManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_UnitManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_UNIT_STATUS)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ArmyManagement"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ArmyManagement"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_WORK_VIEW)),(void *)CP_MENU_ITEM_1);
 }
 
@@ -1438,9 +1438,9 @@ ControlPanelWindow::BuildDipMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,DiplomacyMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_DiplomacyManager"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_DiplomacyManager"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_DIPLOMACY)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NewProposal"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NewProposal"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_NEW_PROPOSAL)),(void *)CP_MENU_ITEM_1);
 }
 
@@ -1462,9 +1462,9 @@ ControlPanelWindow::BuildSciMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,SciMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ScienceScreen"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ScienceScreen"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_SCIENCE_STATUS)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_GreatLibrary"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_GreatLibrary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_GREAT_LIBRARY)),(void *)CP_MENU_ITEM_1);
 }
 
@@ -1486,7 +1486,7 @@ ControlPanelWindow::BuildTradeMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,TradeMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_TradeScreen"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_TradeScreen"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_TRADE_STATUS)),(void *)CP_MENU_ITEM_0);
 }
 
@@ -1508,7 +1508,7 @@ ControlPanelWindow::BuildGLMenu		()
 
 	m_mainMenuBar->SetMenuCallback	(menu,GLMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_GreatLibrary"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_GreatLibrary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_GREAT_LIBRARY)),(void *)CP_MENU_ITEM_0);
 }
 
@@ -1531,13 +1531,13 @@ ControlPanelWindow::BuildStatsMenu()
 
 	m_mainMenuBar->SetMenuCallback	(menu,StatsMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_GreatLibrary"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_GreatLibrary"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_GREAT_LIBRARY)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Ranking"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Ranking"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RANK)),(void *)CP_MENU_ITEM_1);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Score"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Score"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_INFO_SCREEN)),(void *)CP_MENU_ITEM_2);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_tbl_ldl_Open_Wonders"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_tbl_ldl_Open_Wonders"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_TIMELINE)),(void *)CP_MENU_ITEM_3);
 }
 
@@ -1560,22 +1560,22 @@ ControlPanelWindow::BuildOptionsMenu()
 	m_mainMenuBar->SetMenuCallback	(menu,OptionsMenuCallback);
 
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ZoomOut"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ZoomOut"),
 							   KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ZOOM_OUT1)),
 							   (void *)CP_MENU_ITEM_10);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_ZoomIn"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_ZoomIn"),
 							   KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ZOOM_IN1)),
 							   (void *)CP_MENU_ITEM_11);
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Gameplay"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Gameplay"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GAMEPLAY_OPTIONS)),(void *)CP_MENU_ITEM_0);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Graphics"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Graphics"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_GRAPHICS_OPTIONS)),(void *)CP_MENU_ITEM_1);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Sound"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Sound"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_SOUND_OPTIONS)),(void *)CP_MENU_ITEM_2);
 
     {
-        MBCHAR const *  musicItemText   = g_theStringDB->GetNameStr("str_ldl_Music");
+        MBCHAR const *  musicItemText   = stringdb_Get()->GetNameStr("str_ldl_Music");
 
         if (musicItemText)
         {
@@ -1590,23 +1590,23 @@ ControlPanelWindow::BuildOptionsMenu()
         // else: No action: backwards compatibility for Mods.
     }
 
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Advanced"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Advanced"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_ADVANCED_OPTIONS)),(void *)CP_MENU_ITEM_3);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Cheat_Mode_Case"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Cheat_Mode_Case"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_OPEN_SCENARIO_EDITOR)),(void *)CP_MENU_ITEM_4);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_SaveGame"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_SaveGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_SAVE_GAME)),(void *)CP_MENU_ITEM_5);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
 	if (!profiledb_Get()->IsScenario() && !is_scenario_Get())
 	{
-		m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
+		m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);
 	}
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_NewGame"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_NewGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_NEW_GAME)),(void *)CP_MENU_ITEM_8);
-	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Quit"),
+	m_mainMenuBar->AddMenuItem(menu, stringdb_Get()->GetNameStr("str_ldl_Quit"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_QUIT)),(void *)CP_MENU_ITEM_9);
 }
 
@@ -1628,8 +1628,8 @@ ControlPanelWindow::BuildEspionageMenu	()
 
 	m_mainMenuBar->SetMenuCallback	(menu,EspionageMenuCallback);
 
-	m_mainMenuBar->AddMenuItem(menu,(char*)g_theStringDB->GetNameStr("str_ldl_CityEspionage"),
-									(char*)g_theStringDB->GetNameStr("str_ldl_CityEspionageHotKey"),(void *)CP_MENU_ITEM_0);
+	m_mainMenuBar->AddMenuItem(menu,(char*)stringdb_Get()->GetNameStr("str_ldl_CityEspionage"),
+									(char*)stringdb_Get()->GetNameStr("str_ldl_CityEspionageHotKey"),(void *)CP_MENU_ITEM_0);
 }
 
 
@@ -2699,7 +2699,7 @@ ControlPanelWindow::CreateTileImpBanks()
 
 
 
-				a_button->SetStatusText(g_theStringDB->GetNameStr( timpRec->GetStatusbar() ));
+				a_button->SetStatusText(stringdb_Get()->GetNameStr( timpRec->GetStatusbar() ));
 				aui_TipWindow *tipwin = (aui_TipWindow *)a_button->GetTipWindow();
 				if(!tipwin) {
 					AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -2715,7 +2715,7 @@ ControlPanelWindow::CreateTileImpBanks()
 					}
 				}
 				if(tipwin)
-					tipwin->SetTipText((char *)g_theStringDB->GetNameStr( timpRec->GetTooltip() ));
+					tipwin->SetTipText((char *)stringdb_Get()->GetNameStr( timpRec->GetTooltip() ));
 
 
 			}
@@ -2894,9 +2894,9 @@ ControlPanelWindow::BuildUnitList ()
 
    	if (army.Num())
 	{
-		m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_ARMY_MANAGEMENT"), NULL, (void *)k_UNIT_CONTEXT_ARMY_MANAGER);
+		m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_ARMY_MANAGEMENT"), NULL, (void *)k_UNIT_CONTEXT_ARMY_MANAGER);
 		if(army->NumOrders() > 0) {
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CLEAR_ORDERS"), NULL, (void *)k_UNIT_CONTEXT_CLEAR_ORDERS);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CLEAR_ORDERS"), NULL, (void *)k_UNIT_CONTEXT_CLEAR_ORDERS);
 		}
 
 		ArmyData *  data = army.AccessData();
@@ -2904,7 +2904,7 @@ ControlPanelWindow::BuildUnitList ()
 		Cell *      cell = world_Get()->GetCell(data->RetPos());
 		if(cell->GetNumUnits() != data->Num()) {
 
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_GROUP_ALL"), NULL, (void *)k_UNIT_CONTEXT_GROUP_ALL);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_GROUP_ALL"), NULL, (void *)k_UNIT_CONTEXT_GROUP_ALL);
 		}
 
 		sint32 i;
@@ -2912,13 +2912,13 @@ ControlPanelWindow::BuildUnitList ()
 
 			if(cell->AccessUnit(i).GetArmy().Num() > 1) {
 
-				m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_UNGROUP_ALL"), NULL, (void *)k_UNIT_CONTEXT_UNGROUP_ALL);
+				m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_UNGROUP_ALL"), NULL, (void *)k_UNIT_CONTEXT_UNGROUP_ALL);
 				break;
 			}
 		}
 
 		if(data->HasCargo()) {
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_VIEW_CARGO"), NULL, (void *)k_UNIT_CONTEXT_TRANSPORT_VIEW);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_VIEW_CARGO"), NULL, (void *)k_UNIT_CONTEXT_TRANSPORT_VIEW);
 		}
 
    		for (i=0;i<g_theOrderDB->NumRecords();i++)
@@ -2939,7 +2939,7 @@ ControlPanelWindow::BuildUnitList ()
 
 				MBCHAR order[k_MAX_NAME_LEN];
 				strcpy(order, "  ");
-				strcat(order, g_theStringDB->GetNameStr(string_index));
+				strcat(order, stringdb_Get()->GetNameStr(string_index));
 
 				m_contextMenu->AddItem(order, NULL,(void *)i);
 			}
@@ -2984,7 +2984,7 @@ ControlPanelWindow::BuildUnitListBox ()
 			{
 				sint32 string_index=rec->GetLocalizedName();
 
-				const MBCHAR *string=g_theStringDB->GetNameStr(string_index);
+				const MBCHAR *string=stringdb_Get()->GetNameStr(string_index);
 
 				item = (ctp2_ListItem *) aui_Ldl::BuildHierarchyFromRoot("UnitInfoListItem");
 
@@ -3008,17 +3008,17 @@ ControlPanelWindow::BuildCityList (const MapPoint &pos)
 	if (m_contextMenu==NULL)
 		return;
 
-	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_VIEW"), NULL, (void *)k_CONTEXT_CITY_VIEW);
-	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_BUILD"), NULL, (void *)k_CONTEXT_CITY_BUILD);
-	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_RENAME"), NULL, (void *)k_CONTEXT_CITY_RENAME);
-	m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_DISBAND"), NULL, (void *)k_CONTEXT_CITY_DISBAND);
+	m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_VIEW"), NULL, (void *)k_CONTEXT_CITY_VIEW);
+	m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_BUILD"), NULL, (void *)k_CONTEXT_CITY_BUILD);
+	m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_RENAME"), NULL, (void *)k_CONTEXT_CITY_RENAME);
+	m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_DISBAND"), NULL, (void *)k_CONTEXT_CITY_DISBAND);
 
 	Cell *cell = world_Get()->GetCell(pos);
 	sint32 i;
 	for(i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).IsEntrenched() ||
 		   cell->AccessUnit(i).IsAsleep()) {
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_ACTIVATE"), NULL, (void *)k_CONTEXT_CITY_ACTIVATE_UNITS);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_ACTIVATE"), NULL, (void *)k_CONTEXT_CITY_ACTIVATE_UNITS);
 			break;
 		}
 	}
@@ -3027,9 +3027,9 @@ ControlPanelWindow::BuildCityList (const MapPoint &pos)
 	Assert(city.IsValid());
 	if(city.IsValid()) {
 		if(city.CD()->GetUseGovernor()) {
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_MAYOR_OFF"), NULL, (void *)k_CONTEXT_CITY_TOGGLE_GOVERNOR);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_MAYOR_OFF"), NULL, (void *)k_CONTEXT_CITY_TOGGLE_GOVERNOR);
 		} else {
-			m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_CITY_MAYOR_ON"), NULL, (void *)k_CONTEXT_CITY_TOGGLE_GOVERNOR);
+			m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_CITY_MAYOR_ON"), NULL, (void *)k_CONTEXT_CITY_TOGGLE_GOVERNOR);
 		}
 	}
 
@@ -3070,8 +3070,8 @@ ControlPanelWindow::BuildList (sint32 index)
 		}
 	}
 
-	if(g_theStringDB->GetNameStr("CONTEXT_TILE_INFO")) {
-		m_contextMenu->AddItem(g_theStringDB->GetNameStr("CONTEXT_TILE_INFO"), NULL, (void *)k_CONTEXT_MISC_TILE_INFO);
+	if(stringdb_Get()->GetNameStr("CONTEXT_TILE_INFO")) {
+		m_contextMenu->AddItem(stringdb_Get()->GetNameStr("CONTEXT_TILE_INFO"), NULL, (void *)k_CONTEXT_MISC_TILE_INFO);
 	}
 }
 
@@ -3495,7 +3495,7 @@ ControlPanelWindow::UnitPanelRedisplay()
 		StringId str_id;
 
 		if (unit.GetCurrentOrderString(str_id))
-			order =g_theStringDB->GetNameStr(str_id);
+			order =stringdb_Get()->GetNameStr(str_id);
 	}
 
 	BuildUnitListBox();
@@ -3585,7 +3585,7 @@ ControlPanelWindow::TileImpButtonRedisplay(uint32 player_id,uint32 button)
 		const IconRecord *irec = rec->GetIcon();
 		m_tileImpButtons[button]->ExchangeImage(4, 0, irec->GetIcon());
 		if(tipwin)
-			tipwin->SetTipText((char *)g_theStringDB->GetNameStr(rec->GetTooltip()));
+			tipwin->SetTipText((char *)stringdb_Get()->GetNameStr(rec->GetTooltip()));
 	}
 	else
 	{
@@ -3595,7 +3595,7 @@ ControlPanelWindow::TileImpButtonRedisplay(uint32 player_id,uint32 button)
 		snprintf(iconName, sizeof(iconName), "UPNI%02d.tga", g_theTerrainDB->Get(terrain)->GetTilesetIndex());
 		m_tileImpButtons[button]->ExchangeImage(4, 0, iconName);
 		if(tipwin)
-			tipwin->SetTipText((char *)g_theStringDB->GetNameStr(rec->GetTooltip()));
+			tipwin->SetTipText((char *)stringdb_Get()->GetNameStr(rec->GetTooltip()));
 	}
 
 	m_tileImpButtons[button]->Enable(!grey_button);
@@ -3630,7 +3630,7 @@ ControlPanelWindow::TerraformButtonRedisplay(uint32 player_id,uint32 button)
 #if 0
 		aui_TipWindow *tipwin = (aui_TipWindow *)m_terraFormButtons[button]->GetTipWindow();
 		if(tipwin) {
-			tipwin->SetTipText((char *)g_theStringDB->GetNameStr(irec->GetTooltip()));
+			tipwin->SetTipText((char *)stringdb_Get()->GetNameStr(irec->GetTooltip()));
 		}
 #endif
 	}
@@ -3732,7 +3732,7 @@ void cpw_NumberToCommas( uint64 number, MBCHAR *s )
 	temp -= (uint64)thousand * k_CPW_THOUSAND;
 
 	MBCHAR c[_MAX_PATH];
-	strncpy( c, g_theStringDB->GetNameStr("str_ldl_comma"), sizeof(c) - 1 );
+	strncpy( c, stringdb_Get()->GetNameStr("str_ldl_comma"), sizeof(c) - 1 );
 	c[sizeof(c) - 1] = '\0';
 
 	if ( trillion ) {
@@ -3861,7 +3861,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 		if(g_theProgressWindow) {
 			g_theProgressWindow->SetStronglyModal(false);
-			g_theProgressWindow->StartCountingTo(m_currentProgress, (char*)g_theStringDB->GetNameStr("str_COMPUTER_TURNS"));
+			g_theProgressWindow->StartCountingTo(m_currentProgress, (char*)stringdb_Get()->GetNameStr("str_COMPUTER_TURNS"));
 		}
 	} else {
 

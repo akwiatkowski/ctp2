@@ -79,7 +79,7 @@ AUI_ERRCODE aui_Win::InitCommon( void )
 		wcex.cbSize =			sizeof( wcex );
 		wcex.style =			CS_DBLCLKS | CS_OWNDC;
 		wcex.lpfnWndProc =		DefWindowProc;
-		wcex.hInstance =		g_ui->TheHINSTANCE();
+		wcex.hInstance =		aui_ui_Get()->TheHINSTANCE();
 		wcex.lpszClassName =	m_windowClass;
 
 		m_registered = RegisterClassEx( &wcex );
@@ -90,7 +90,7 @@ AUI_ERRCODE aui_Win::InitCommon( void )
 	}
 
 #ifdef __AUI_USE_DIRECTX__
-	HDC hdc = GetDC( g_ui->TheHWND() );
+	HDC hdc = GetDC( aui_ui_Get()->TheHWND() );
 
 	m_memdc = CreateCompatibleDC( hdc );
 	Assert( m_memdc != NULL );
@@ -100,7 +100,7 @@ AUI_ERRCODE aui_Win::InitCommon( void )
 	Assert( m_hbitmap != NULL );
 	if ( !m_hbitmap ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	ReleaseDC( g_ui->TheHWND(), hdc );
+	ReleaseDC( aui_ui_Get()->TheHWND(), hdc );
 
 	m_hbitmapOld = (HBITMAP)SelectObject( m_memdc, m_hbitmap );
 
@@ -108,13 +108,13 @@ AUI_ERRCODE aui_Win::InitCommon( void )
 	FillRect( m_memdc, &rect, GetSysColorBrush( COLOR_WINDOW ) );
 #endif // __AUI_USE_DIRECTX__
 
-	m_offscreen.x = g_ui->Width() + 1;
+	m_offscreen.x = aui_ui_Get()->Width() + 1;
 	m_offscreen.y = 0;
 
 	RECT playground;
 	if ( !m_winRefCount++ )
 	{
-		SetRect( &playground, 0, 0, g_ui->Width(), g_ui->Height() );
+		SetRect( &playground, 0, 0, aui_ui_Get()->Width(), aui_ui_Get()->Height() );
 
 		m_winList = new tech_WLList<aui_Win *>;
 		Assert( m_winList != NULL );
@@ -142,7 +142,7 @@ AUI_ERRCODE aui_Win::InitCommon( void )
 	Assert( clipped );
 
 	MoveWindow(
-		g_ui->TheHWND(),
+		aui_ui_Get()->TheHWND(),
 		playground.left, playground.top, playground.right, playground.bottom,
 		FALSE );
 #endif // __AUI_USE_DIRECTX__
@@ -167,7 +167,7 @@ aui_Win::~aui_Win()
 
 	if ( m_hwnd )
 	{
-		g_ui->RemoveWin( m_hwnd );
+		aui_ui_Get()->RemoveWin( m_hwnd );
 		DestroyWindow( m_hwnd );
 		m_hwnd = NULL;
 	}
@@ -186,7 +186,7 @@ aui_Win::~aui_Win()
 		ClipCursor( NULL );
 
 		if ( m_registered )
-			UnregisterClass( m_windowClass, g_ui->TheHINSTANCE() );
+			UnregisterClass( m_windowClass, aui_ui_Get()->TheHINSTANCE() );
 #endif // __AUI_USE_DIRECTX__
 
 		if ( m_winList )
@@ -481,7 +481,7 @@ void aui_Win::MouseLGrabInside( aui_MouseEvent *mouseData )
 		SendMessage(
 			m_hwnd,
 			WM_MOUSEACTIVATE,
-			(WPARAM)g_ui->TheHWND(),
+			(WPARAM)aui_ui_Get()->TheHWND(),
 			HTCLIENT + ( WM_LBUTTONDOWN << 16 ) );
 
 
@@ -668,7 +668,7 @@ void aui_Win::MouseLDoubleClickInside( aui_MouseEvent *mouseData )
 		SendMessage(
 			m_hwnd,
 			WM_MOUSEACTIVATE,
-			(WPARAM)g_ui->TheHWND(),
+			(WPARAM)aui_ui_Get()->TheHWND(),
 			HTCLIENT + ( WM_LBUTTONDOWN << 16 ) );
 
 
@@ -725,7 +725,7 @@ void aui_Win::MouseRDoubleClickInside( aui_MouseEvent *mouseData )
 		SendMessage(
 			m_hwnd,
 			WM_MOUSEACTIVATE,
-			(WPARAM)g_ui->TheHWND(),
+			(WPARAM)aui_ui_Get()->TheHWND(),
 			HTCLIENT + ( WM_LBUTTONDOWN << 16 ) );
 
 

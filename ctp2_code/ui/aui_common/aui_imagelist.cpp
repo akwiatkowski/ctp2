@@ -36,7 +36,7 @@ aui_ImageList::aui_ImageListInfo::~aui_ImageListInfo()
 {
 
 	if(m_image) {
-		g_ui->UnloadImage(m_image);
+		aui_ui_Get()->UnloadImage(m_image);
 		m_image = NULL;
 	}
 
@@ -54,7 +54,7 @@ void aui_ImageList::aui_ImageListInfo::Load()
 
 	if(m_imageName) {
 
-		m_image = g_ui->LoadImage(m_imageName);
+		m_image = aui_ui_Get()->LoadImage(m_imageName);
 		Assert(m_image);
 
 		if(m_image) {
@@ -64,7 +64,7 @@ void aui_ImageList::aui_ImageListInfo::Load()
 		}
 		else
 		{
-			g_ui->UnloadImage(m_imageName);
+			aui_ui_Get()->UnloadImage(m_imageName);
 		}
 	}
 }
@@ -146,7 +146,7 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 
 	if(!imageFileName) {
 		if(oldImage)
-			g_ui->UnloadImage(oldImage);
+			aui_ui_Get()->UnloadImage(oldImage);
 
 		return;
 	}
@@ -157,7 +157,7 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 		strcpy(info->m_imageName, imageFileName);
 	} else {
 
-		aui_Image *theImage = g_ui->LoadImage(const_cast<char*>(imageFileName));
+		aui_Image *theImage = aui_ui_Get()->LoadImage(const_cast<char*>(imageFileName));
 		if(theImage) {
 
 			if(info->m_rect.right < 0)
@@ -174,11 +174,11 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 		}
 		else
 		{
-			g_ui->UnloadImage(const_cast<MBCHAR *>(imageFileName));
+			aui_ui_Get()->UnloadImage(const_cast<MBCHAR *>(imageFileName));
 		}
 	}
 	if(oldImage)
-		g_ui->UnloadImage(oldImage);
+		aui_ui_Get()->UnloadImage(oldImage);
 }
 
 aui_Image *aui_ImageList::GetImage(sint32 state, sint32 imageIndex)
@@ -261,16 +261,16 @@ AUI_ERRCODE aui_ImageList::DrawImages(aui_Surface *destSurf, RECT *destRect)
 		switch(info->m_bltType) {
 			default:
 			case AUI_IMAGEBASE_BLTTYPE_COPY:
-				err = g_ui->TheBlitter()->Blt(destSurf, subDestRect.left,
+				err = aui_ui_Get()->TheBlitter()->Blt(destSurf, subDestRect.left,
 					subDestRect.top, srcSurf, &srcRect, flag);
 				break;
 
 			case AUI_IMAGEBASE_BLTTYPE_STRETCH:
-				err = g_ui->TheBlitter()->StretchBlt(destSurf, &subDestRect,
+				err = aui_ui_Get()->TheBlitter()->StretchBlt(destSurf, &subDestRect,
 					srcSurf, &srcRect, flag);
 				break;
 			case AUI_IMAGEBASE_BLTTYPE_TILE:
-				err = g_ui->TheBlitter()->TileBlt(destSurf, &subDestRect,
+				err = aui_ui_Get()->TheBlitter()->TileBlt(destSurf, &subDestRect,
 					srcSurf, &srcRect, 0, 0, flag );
 				break;
 		}

@@ -85,7 +85,7 @@ AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 
 	m_stencil = NULL;
 
-	m_bpp = bpp ? bpp : g_ui->BitsPerPixel();
+	m_bpp = bpp ? bpp : aui_ui_Get()->BitsPerPixel();
 	m_type = type;
 	m_surface = NULL;
 	m_isDragging = FALSE;
@@ -163,11 +163,11 @@ AUI_ERRCODE aui_Window::Move( sint32 x, sint32 y )
 
 	RECT consolidatedRect;
 	if ( Rectangle_SmartConsolidate( &consolidatedRect, &oldRect, &newRect ) )
-		g_ui->AddDirtyRect( &consolidatedRect );
+		aui_ui_Get()->AddDirtyRect( &consolidatedRect );
 	else
 	{
-		g_ui->AddDirtyRect( &oldRect );
-		g_ui->AddDirtyRect( &newRect );
+		aui_ui_Get()->AddDirtyRect( &oldRect );
+		aui_ui_Get()->AddDirtyRect( &newRect );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -190,11 +190,11 @@ AUI_ERRCODE aui_Window::Offset( sint32 dx, sint32 dy )
 
 	RECT consolidatedRect;
 	if ( Rectangle_SmartConsolidate( &consolidatedRect, &oldRect, &newRect ) )
-		g_ui->AddDirtyRect( &consolidatedRect );
+		aui_ui_Get()->AddDirtyRect( &consolidatedRect );
 	else
 	{
-		g_ui->AddDirtyRect( &oldRect );
-		g_ui->AddDirtyRect( &newRect );
+		aui_ui_Get()->AddDirtyRect( &oldRect );
+		aui_ui_Get()->AddDirtyRect( &newRect );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -226,11 +226,11 @@ AUI_ERRCODE aui_Window::Resize( sint32 width, sint32 height )
 
 	RECT consolidatedRect;
 	if ( Rectangle_SmartConsolidate( &consolidatedRect, &oldRect, &newRect ) )
-		g_ui->AddDirtyRect( &consolidatedRect );
+		aui_ui_Get()->AddDirtyRect( &consolidatedRect );
 	else
 	{
-		g_ui->AddDirtyRect( &oldRect );
-		g_ui->AddDirtyRect( &newRect );
+		aui_ui_Get()->AddDirtyRect( &oldRect );
+		aui_ui_Get()->AddDirtyRect( &newRect );
 	}
 
 	if ( reallocSurface ) MakeSureSurfaceIsValid();
@@ -293,7 +293,7 @@ AUI_ERRCODE aui_Window::ShowThis( void )
 
 	m_dirtyList->Flush();
 
-	g_ui->AddDirtyRect(
+	aui_ui_Get()->AddDirtyRect(
 		m_x,
 		m_y,
 		m_x + m_width,
@@ -309,8 +309,8 @@ AUI_ERRCODE aui_Window::HideThis( void )
 
 	m_dirtyList->Flush();
 
-	if ( g_ui->GetWindow( m_id ) )
-		g_ui->AddDirtyRect(
+	if ( aui_ui_Get()->GetWindow( m_id ) )
+		aui_ui_Get()->AddDirtyRect(
 			m_x,
 			m_y,
 			m_x + m_width,
@@ -345,7 +345,7 @@ AUI_ERRCODE aui_Window::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	g_ui->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
+	aui_ui_Get()->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
 
 	if ( surface == m_surface )
 		AddDirtyRect( &rect );
@@ -580,12 +580,12 @@ void aui_Window::MouseLDragAway( aui_MouseEvent *mouseData )
 			dx, dy,
 			m_width, m_height );
 
-		RECT screenRect = { 0, 0, g_ui->Width(), g_ui->Height() };
+		RECT screenRect = { 0, 0, aui_ui_Get()->Width(), aui_ui_Get()->Height() };
 		Rectangle_Clip( &rect1, &screenRect );
 		Rectangle_Clip( &rect2, &screenRect );
 
-		g_ui->AddDirtyRect( &rect1 );
-		g_ui->AddDirtyRect( &rect2 );
+		aui_ui_Get()->AddDirtyRect( &rect1 );
+		aui_ui_Get()->AddDirtyRect( &rect2 );
 
 		if ( !IsOpaque() ) Invalidate();
 
@@ -625,7 +625,7 @@ void aui_Window::MouseLGrabInside( aui_MouseEvent *mouseData )
 		SetWhichSeesMouse( this );
 
 		if ( m_type > AUI_WINDOW_TYPE_BACKGROUND )
-			g_ui->BringWindowToTop( this );
+			aui_ui_Get()->BringWindowToTop( this );
 
 		if ( IsDraggable() )
 		{
@@ -648,7 +648,7 @@ void aui_Window::MouseLGrabInside( aui_MouseEvent *mouseData )
 	}
 	else if ( IsDescendent( GetWhichSeesMouse() ) )
 		if ( m_type > AUI_WINDOW_TYPE_BACKGROUND )
-			g_ui->BringWindowToTop( this );
+			aui_ui_Get()->BringWindowToTop( this );
 }
 
 
@@ -658,7 +658,7 @@ void aui_Window::MouseLGrabOutside( aui_MouseEvent *mouseData )
 	if ( IsWeaklyModal() )
 	{
 
-		AUI_ERRCODE errcode = g_ui->RemoveWindow( m_id );
+		AUI_ERRCODE errcode = aui_ui_Get()->RemoveWindow( m_id );
 		if ( errcode == AUI_ERRCODE_OK && m_mouseCode == AUI_ERRCODE_UNHANDLED )
 
 			m_mouseCode = AUI_ERRCODE_HANDLED;
@@ -695,7 +695,7 @@ void aui_Window::SetStencilFromImage(const MBCHAR *imageFileName)
 		free(m_stencil);
 	}
 
-	aui_Image *image = g_ui->LoadImage((MBCHAR *)imageFileName);
+	aui_Image *image = aui_ui_Get()->LoadImage((MBCHAR *)imageFileName);
 	Assert(image);
 	if(!image)
 		return;
@@ -710,12 +710,12 @@ void aui_Window::SetStencilFromImage(const MBCHAR *imageFileName)
 		0, 0,
 		image->TheSurface()->Width(), image->TheSurface()->Height()
 	};
-	g_ui->TheBlitter()->Blt(&tempSurface, 0, 0,
+	aui_ui_Get()->TheBlitter()->Blt(&tempSurface, 0, 0,
 							image->TheSurface(),
 							&imageRect,
 							k_AUI_BLITTER_FLAG_COPY);
 
-	g_ui->UnloadImage(image);
+	aui_ui_Get()->UnloadImage(image);
 
 	m_stencil = aui_CreateStencil(&tempSurface);
 

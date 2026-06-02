@@ -180,7 +180,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 				MBCHAR *filename = block->GetString( temp );
 				if ( filename )
 				{
-					cursor = g_ui->LoadCursor( filename );
+					cursor = aui_ui_Get()->LoadCursor( filename );
 					Assert( cursor != NULL );
 					if ( !cursor ) return AUI_ERRCODE_LOADFAILED;
 
@@ -189,7 +189,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 					if ( cursor->TheSurface()->Width() > k_MOUSE_MAXSIZE
 					||   cursor->TheSurface()->Height() > k_MOUSE_MAXSIZE )
 					{
-						g_ui->UnloadCursor( cursor );
+						aui_ui_Get()->UnloadCursor( cursor );
 						return AUI_ERRCODE_INVALIDDIMENSION;
 					}
 
@@ -261,7 +261,7 @@ aui_Mouse::~aui_Mouse()
 	{
 		for ( sint32 i = 0; i < k_MOUSE_MAXNUMCURSORS; i++ )
 			if ( m_cursors[ i ] )
-				g_ui->UnloadCursor( m_cursors[ i ] );
+				aui_ui_Get()->UnloadCursor( m_cursors[ i ] );
 
 		memset( m_cursors, 0, sizeof( m_cursors ) );
 	}
@@ -292,8 +292,8 @@ void aui_Mouse::SetClip( sint32 left, sint32 top, sint32 right, sint32 bottom )
 {
 	if ( left < 0 ) left = 0;
 	if ( top < 0 ) top = 0;
-	if ( right > g_ui->Width() ) right = g_ui->Width();
-	if ( bottom > g_ui->Height() ) bottom = g_ui->Height();
+	if ( right > aui_ui_Get()->Width() ) right = aui_ui_Get()->Width();
+	if ( bottom > aui_ui_Get()->Height() ) bottom = aui_ui_Get()->Height();
 
 	SetRect( &m_clip, left, top, right, bottom );
 }
@@ -304,7 +304,7 @@ void aui_Mouse::SetClip( RECT *clip )
 	if ( clip )
 		SetClip( clip->left, clip->top, clip->right, clip->bottom );
 	else
-		SetClip( 0, 0, g_ui->Width(), g_ui->Height() );
+		SetClip( 0, 0, aui_ui_Get()->Width(), aui_ui_Get()->Height() );
 }
 
 
@@ -314,7 +314,7 @@ void aui_Mouse::SetCursor(sint32 index, MBCHAR * cursor)
 	if ( index < 0 || index >= k_MOUSE_MAXNUMCURSORS ) return;
 
 	aui_Cursor *    oldCursor   = m_cursors[index];
-    aui_Cursor *    c           = cursor ? g_ui->LoadCursor(cursor) : NULL;
+    aui_Cursor *    c           = cursor ? aui_ui_Get()->LoadCursor(cursor) : NULL;
 
 	if (cursor)
 	{
@@ -328,7 +328,7 @@ void aui_Mouse::SetCursor(sint32 index, MBCHAR * cursor)
 		         || c->TheSurface()->Height() > k_MOUSE_MAXSIZE
                )
 		    {
-			    g_ui->UnloadCursor(c);
+			    aui_ui_Get()->UnloadCursor(c);
                 c = NULL;
             }
 		}
@@ -336,7 +336,7 @@ void aui_Mouse::SetCursor(sint32 index, MBCHAR * cursor)
 
     m_cursors[index] = c;
 
-	if (oldCursor) g_ui->UnloadCursor(oldCursor);
+	if (oldCursor) aui_ui_Get()->UnloadCursor(oldCursor);
 }
 
 
@@ -778,11 +778,11 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		memset( &prevUnclippedMixRect, 0, sizeof( prevUnclippedMixRect ) );
 	}
 
-	AUI_ERRCODE errcode = g_ui->TheBlitter()->Blt(
+	AUI_ERRCODE errcode = aui_ui_Get()->TheBlitter()->Blt(
 		m_pickup,
 		rect.left,
 		rect.top,
-		g_ui->Secondary(),
+		aui_ui_Get()->Secondary(),
 		&mixRect,
 		k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -815,7 +815,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 			fixRect.bottom += dy;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_pickup,
 			fixX,
 			fixY,
@@ -825,7 +825,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 
-	errcode = g_ui->TheBlitter()->Blt(
+	errcode = aui_ui_Get()->TheBlitter()->Blt(
 		m_privateMix,
 		rect.left,
 		rect.top,
@@ -834,7 +834,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		k_AUI_BLITTER_FLAG_COPY );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	errcode = g_ui->TheBlitter()->Blt(
+	errcode = aui_ui_Get()->TheBlitter()->Blt(
 		m_privateMix,
 		rect.left,
 		rect.top,
@@ -843,7 +843,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		k_AUI_BLITTER_FLAG_CHROMAKEY );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	errcode = g_ui->BltToSecondary(
+	errcode = aui_ui_Get()->BltToSecondary(
 		mixRect.left,
 		mixRect.top,
 		m_privateMix,
@@ -869,7 +869,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		eraser1.right - prevUnclippedMixRect.left,
 		eraser1.bottom - prevUnclippedMixRect.top );
 
-	errcode = g_ui->BltToSecondary(
+	errcode = aui_ui_Get()->BltToSecondary(
 		eraser1.left,
 		eraser1.top,
 		m_prevPickup,
@@ -884,7 +884,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		eraser2.right - prevUnclippedMixRect.left,
 		eraser2.bottom - prevUnclippedMixRect.top );
 
-	errcode = g_ui->BltToSecondary(
+	errcode = aui_ui_Get()->BltToSecondary(
 		eraser2.left,
 		eraser2.top,
 		m_prevPickup,
@@ -892,7 +892,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 		k_AUI_BLITTER_FLAG_COPY );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	errcode = g_ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+	errcode = aui_ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 	Assert( errcode == AUI_ERRCODE_OK );
 
 	aui_Surface *tempSurf = m_prevPickup;
@@ -977,7 +977,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 		RECT windowMixRect = mixRect;
 		OffsetRect( &windowMixRect, -windowX, -windowY );
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_prevPickup,
 			rect.left,
 			rect.top,
@@ -991,7 +991,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			windowSurface,
 			windowMixRect.left,
 			windowMixRect.top,
@@ -1010,7 +1010,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 		static FILE *f = fopen( "__seisureblit__", "rb" );
 		if ( f )
 		{
-			g_ui->ColorBltToSecondary(
+			aui_ui_Get()->ColorBltToSecondary(
 				&screenDirtyRect,
 				RGB(255,255,255),
 				0 );
@@ -1024,7 +1024,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 		}
 #endif
 
-		errcode = g_ui->BltToSecondary(
+		errcode = aui_ui_Get()->BltToSecondary(
 			screenDirtyRect.left,
 			screenDirtyRect.top,
 			windowSurface,
@@ -1037,7 +1037,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			windowSurface,
 			windowMixRect.left,
 			windowMixRect.top,
@@ -1063,7 +1063,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 	if (civapp_Get()->IsInBackground()) return retcode;
 
 	tech_WLList<aui_UI::DirtyRectInfo *> *driList =
-		g_ui->GetDirtyRectInfoList();
+		aui_ui_Get()->GetDirtyRectInfoList();
 
 	uint32 blitFlags;
 	LPVOID primaryBuf = NULL;
@@ -1075,7 +1075,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 	else
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST;
-		errcode = g_ui->Secondary()->Lock( NULL, &primaryBuf, 0 );
+		errcode = aui_ui_Get()->Secondary()->Lock( NULL, &primaryBuf, 0 );
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 
@@ -1132,7 +1132,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		RECT windowMixRect = mixRect;
 		OffsetRect( &windowMixRect, -windowX, -windowY );
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_prevPickup,
 			rect.left,
 			rect.top,
@@ -1146,7 +1146,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			windowSurface,
 			windowMixRect.left,
 			windowMixRect.top,
@@ -1165,8 +1165,8 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 
 #ifdef SEIZUREBLIT
 		{
-			g_ui->TheBlitter()->ColorBlt(
-				g_ui->Secondary(),
+			aui_ui_Get()->TheBlitter()->ColorBlt(
+				aui_ui_Get()->Secondary(),
 				&screenDirtyRect,
 				RGB(255,255,255),
 				0 );
@@ -1181,7 +1181,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 
 		if (!civapp_Get()->IsInBackground()) // Actual Drawing
 		{
-			errcode = g_ui->BltToSecondary(
+			errcode = aui_ui_Get()->BltToSecondary(
 				screenDirtyRect.left,
 				screenDirtyRect.top,
 				windowSurface,
@@ -1195,7 +1195,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 			}
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			windowSurface,
 			windowMixRect.left,
 			windowMixRect.top,
@@ -1211,7 +1211,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		}
 	}
 
-	errcode = g_ui->BltSecondaryToPrimary(blitFlags);
+	errcode = aui_ui_Get()->BltSecondaryToPrimary(blitFlags);
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK )
 	{
@@ -1220,7 +1220,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 
 	if (!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter())
 	{
-		errcode = g_ui->Secondary()->Unlock( primaryBuf );
+		errcode = aui_ui_Get()->Secondary()->Unlock( primaryBuf );
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 
@@ -1262,7 +1262,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 		RECT clippedCursorRect = clippedScreenCursorRect;
 		OffsetRect( &clippedCursorRect, -cursorLocation.x, -cursorLocation.y );
 
-		errcode = g_ui->TheBlitter()->ColorBlt(
+		errcode = aui_ui_Get()->TheBlitter()->ColorBlt(
 			m_prevPickup,
 			&clippedCursorRect,
 			color,
@@ -1274,7 +1274,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->ColorBlt(
+		errcode = aui_ui_Get()->TheBlitter()->ColorBlt(
 			m_privateMix,
 			&clippedCursorRect,
 			color,
@@ -1286,7 +1286,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_privateMix,
 			clippedCursorRect.left,
 			clippedCursorRect.top,
@@ -1301,7 +1301,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 			break;
 		}
 
-		errcode = g_ui->BltToSecondary(
+		errcode = aui_ui_Get()->BltToSecondary(
 			clippedScreenCursorRect.left,
 			clippedScreenCursorRect.top,
 			m_privateMix,
@@ -1330,7 +1330,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 
 		for ( RECT *rectPtr = rects; numRects; numRects-- )
 		{
-			errcode = g_ui->ColorBltToSecondary(
+			errcode = aui_ui_Get()->ColorBltToSecondary(
 				rectPtr++,
 				color,
 				0 );
@@ -1387,7 +1387,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 		OffsetRect(
 			&clippedImageCursorRect, -imageRect->left, -imageRect->top );
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_prevPickup,
 			clippedCursorRect.left,
 			clippedCursorRect.top,
@@ -1401,7 +1401,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_privateMix,
 			clippedCursorRect.left,
 			clippedCursorRect.top,
@@ -1415,7 +1415,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 			break;
 		}
 
-		errcode = g_ui->TheBlitter()->Blt(
+		errcode = aui_ui_Get()->TheBlitter()->Blt(
 			m_privateMix,
 			clippedCursorRect.left,
 			clippedCursorRect.top,
@@ -1429,7 +1429,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 			break;
 		}
 
-		errcode = g_ui->BltToSecondary(
+		errcode = aui_ui_Get()->BltToSecondary(
 			clippedScreenCursorRect.left,
 			clippedScreenCursorRect.top,
 			m_privateMix,
@@ -1461,7 +1461,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 			RECT imageDirtyRect = *rectPtr;
 			OffsetRect( &imageDirtyRect, -imageRect->left, -imageRect->top );
 
-			errcode = g_ui->BltToSecondary(
+			errcode = aui_ui_Get()->BltToSecondary(
 				rectPtr->left,
 				rectPtr->top,
 				image->TheSurface(),
@@ -1504,7 +1504,7 @@ AUI_ERRCODE aui_Mouse::Erase( void )
 	RECT rect = mixRect;
 	OffsetRect( &rect, -image.x, -image.y );
 
-	errcode = g_ui->BltToSecondary(
+	errcode = aui_ui_Get()->BltToSecondary(
 		mixRect.left,
 		mixRect.top,
 		m_prevPickup,

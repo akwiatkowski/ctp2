@@ -196,7 +196,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR *ldlBlock )
 				&errcode,
 				aui_UniqueId(),
 				block,
-				g_ui->BitsPerPixel(), AUI_WINDOW_TYPE_POPUP );
+				aui_ui_Get()->BitsPerPixel(), AUI_WINDOW_TYPE_POPUP );
 
 
 			aui_Ldl::Remove( m_listBoxWindow );
@@ -223,7 +223,7 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR *ldlBlock )
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width + m_buttonSize, m_windowSize,
-			g_ui->BitsPerPixel(), AUI_WINDOW_TYPE_POPUP );
+			aui_ui_Get()->BitsPerPixel(), AUI_WINDOW_TYPE_POPUP );
 
 	Assert( AUI_NEWOK(m_listBoxWindow,errcode) );
 	if ( !AUI_NEWOK(m_listBoxWindow,errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
@@ -253,9 +253,9 @@ AUI_ERRCODE aui_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 aui_DropDown::~aui_DropDown()
 {
-	if (g_ui && m_listBoxWindow)
+	if (aui_ui_Get() && m_listBoxWindow)
 	{
-		g_ui->RemoveWindow( m_listBoxWindow->Id() );
+		aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 	}
 
 	delete m_listBoxWindow;
@@ -299,7 +299,7 @@ AUI_ERRCODE aui_DropDown::Resize( sint32 width, sint32 height )
 
 AUI_ERRCODE aui_DropDown::Hide( void )
 {
-	g_ui->RemoveWindow( m_listBoxWindow->Id() );
+	aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 
 	return aui_Control::Hide();
 }
@@ -391,19 +391,19 @@ AUI_ERRCODE aui_DropDown::ShowListBoxWindow( BOOL showIt )
 	{
 
 		if ( ( m_alwaysPopup || m_listBox->NumItems() > 1 )
-		&&   !g_ui->GetWindow( m_listBoxWindow->Id() ) )
+		&&   !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) )
 		{
 			RepositionListBoxWindow();
-			g_ui->AddWindow( m_listBoxWindow );
+			aui_ui_Get()->AddWindow( m_listBoxWindow );
 
 
 		}
 	}
 	else
 	{
-		if ( g_ui->GetWindow( m_listBoxWindow->Id() ) )
+		if ( aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) )
 		{
-			g_ui->RemoveWindow( m_listBoxWindow->Id() );
+			aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 		}
 	}
 
@@ -413,20 +413,20 @@ AUI_ERRCODE aui_DropDown::ShowListBoxWindow( BOOL showIt )
 
 AUI_ERRCODE aui_DropDown::ToggleListBoxWindow( void )
 {
-	if ( !g_ui->GetWindow( m_listBoxWindow->Id() ) )
+	if ( !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) )
 	{
 
 		if ( m_alwaysPopup || m_listBox->NumItems() > 1 )
 		{
 			RepositionListBoxWindow();
-			g_ui->AddWindow( m_listBoxWindow );
+			aui_ui_Get()->AddWindow( m_listBoxWindow );
 
 
 		}
 	}
 	else
 	{
-		g_ui->RemoveWindow( m_listBoxWindow->Id() );
+		aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 	}
 
 	return AUI_ERRCODE_OK;
@@ -562,7 +562,7 @@ void aui_DropDown::MouseLGrabOutside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) return;
 
-	if ( !g_ui->GetWindow( m_listBoxWindow->Id() ) ) return;
+	if ( !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) ) return;
 
 	if ( !m_button->IsInside(
 		mouseData->position.x - m_x,
@@ -587,7 +587,7 @@ void aui_DropDown::MouseLDropOutside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) return;
 
-	if ( !g_ui->GetWindow( m_listBoxWindow->Id() ) ) return;
+	if ( !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) ) return;
 
 	if ( !m_button->IsInside(
 		mouseData->position.x - m_x,

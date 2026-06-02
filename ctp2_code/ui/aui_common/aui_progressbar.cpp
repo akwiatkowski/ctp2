@@ -177,7 +177,7 @@ aui_ProgressBar::~aui_ProgressBar()
 {
 	if ( m_barImage )
 	{
-		g_ui->UnloadImage( m_barImage );
+		aui_ui_Get()->UnloadImage( m_barImage );
 		m_barImage = NULL;
 	}
 }
@@ -245,7 +245,7 @@ aui_Image *aui_ProgressBar::SetBarImage( MBCHAR *image )
 
 	if ( image )
 	{
-		m_barImage = g_ui->LoadImage( image );
+		m_barImage = aui_ui_Get()->LoadImage( image );
 		Assert( m_barImage != NULL );
 		if ( !m_barImage )
 		{
@@ -256,7 +256,7 @@ aui_Image *aui_ProgressBar::SetBarImage( MBCHAR *image )
 	else
 		m_barImage = NULL;
 
-	if ( prevImage ) g_ui->UnloadImage( prevImage );
+	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 
 	return prevImage;
 }
@@ -317,7 +317,7 @@ AUI_ERRCODE aui_ProgressBar::CalculateIntervals( double *start, double *stop )
 
 AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 {
-	if (!(g_ui && g_ui->TheBlitter()))
+	if (!(aui_ui_Get() && aui_ui_Get()->TheBlitter()))
 	{
 		return AUI_ERRCODE_BLTFAILED;
 	}
@@ -364,7 +364,7 @@ AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 			srcRect.left = sint32(start * (double)srcRect.right + 0.5);
 			srcRect.right = sint32(stop * (double)srcRect.right + 0.5);
 
-			errcode = g_ui->TheBlitter()->Blt(
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
 				surface,
 				destRect.left,
 				destRect.top,
@@ -373,7 +373,7 @@ AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 				k_AUI_BLITTER_FLAG_COPY );
 		}
 		else
-			errcode = g_ui->TheBlitter()->ColorBlt(
+			errcode = aui_ui_Get()->TheBlitter()->ColorBlt(
 				surface,
 				&destRect,
 				m_barColor,
@@ -402,7 +402,7 @@ AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 			srcRect.bottom = sint32(start * (double)srcRect.bottom + 0.5);
 			srcRect.top = sint32(stop * (double)srcRect.bottom + 0.5);
 
-			errcode = g_ui->TheBlitter()->Blt(
+			errcode = aui_ui_Get()->TheBlitter()->Blt(
 				surface,
 				destRect.left,
 				destRect.top,
@@ -411,7 +411,7 @@ AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 				k_AUI_BLITTER_FLAG_COPY );
 		}
 		else
-			errcode = g_ui->TheBlitter()->ColorBlt(
+			errcode = aui_ui_Get()->TheBlitter()->ColorBlt(
 				surface,
 				&destRect,
 				m_barColor,

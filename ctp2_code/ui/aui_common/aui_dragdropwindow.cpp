@@ -61,7 +61,7 @@ AUI_ERRCODE aui_DragDropWindow::DrawThis(
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	g_ui->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
+	aui_ui_Get()->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
 
 	if ( m_dragDropItem )
 	{

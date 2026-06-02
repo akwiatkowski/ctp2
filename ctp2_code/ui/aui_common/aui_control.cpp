@@ -460,7 +460,7 @@ BOOL aui_Control::ShowTipWindow( aui_MouseEvent *mouseData )
 
 		PlaySound( AUI_SOUNDBASE_SOUND_TIP );
 
-		m_showingTip = g_ui->AddWindow( m_tip ) == AUI_ERRCODE_OK;
+		m_showingTip = aui_ui_Get()->AddWindow( m_tip ) == AUI_ERRCODE_OK;
 
 		RECT rect = { mouseData->position.x, m_y, 0, 0 };
 		ToWindow( &rect );
@@ -471,8 +471,8 @@ BOOL aui_Control::ShowTipWindow( aui_MouseEvent *mouseData )
 
 		if ( m_tip->X() < 0 ) m_tip->Move( 0, m_tip->Y() );
 		if ( m_tip->Y() < 0 ) m_tip->Move( m_tip->X(), 0 );
-		sint32 adjustX = m_tip->X() + m_tip->Width() - g_ui->Width();
-		sint32 adjustY = m_tip->Y() + m_tip->Height() - g_ui->Height();
+		sint32 adjustX = m_tip->X() + m_tip->Width() - aui_ui_Get()->Width();
+		sint32 adjustY = m_tip->Y() + m_tip->Height() - aui_ui_Get()->Height();
 		if ( adjustX > 0 ) m_tip->Offset( -adjustX, 0 );
 		if ( adjustY > 0 ) m_tip->Offset( -adjustY, 0 );
 
@@ -501,7 +501,7 @@ BOOL aui_Control::HideTipWindow( void )
 	if ( m_tip && m_showingTip )
 	{
 
-		m_showingTip = !(g_ui->RemoveWindow( m_tip->Id() ) == AUI_ERRCODE_OK);
+		m_showingTip = !(aui_ui_Get()->RemoveWindow( m_tip->Id() ) == AUI_ERRCODE_OK);
 
 		return !m_showingTip;
 	}
@@ -583,10 +583,10 @@ AUI_ERRCODE aui_Control::ReleaseKeyboardFocus(void)
 	s_whichHasFocus = NULL;
     m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_KEYBOARDFOCUSCHANGE;
 
-    if (g_ui)
+    if (aui_ui_Get())
     {
 #ifdef WIN32
-	    SetFocus(g_ui->TheHWND());
+	    SetFocus(aui_ui_Get()->TheHWND());
 #endif
     }
 
@@ -994,7 +994,7 @@ AUI_ERRCODE	aui_Control::Resize(sint32 width, sint32 height)
 
 
 
-			InitializeImageLayers(g_ui->GetLdl()->GetLdl()->FindDataBlock(ldlBlock));
+			InitializeImageLayers(aui_ui_Get()->GetLdl()->GetLdl()->FindDataBlock(ldlBlock));
 		}
 	}
 

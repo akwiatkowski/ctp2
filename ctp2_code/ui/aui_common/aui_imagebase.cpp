@@ -245,7 +245,7 @@ aui_ImageBase::~aui_ImageBase()
 		for ( sint32 i = 0; i < m_numStateImageGroups; i++)
 		    for (sint32 j = 0; j < AUI_IMAGEBASE_SUBSTATE_LAST; j++)
 			    if (m_stateImageGroups[ i ][ j ])
-				    g_ui->UnloadImage( m_stateImageGroups[ i ][ j ] );
+				    aui_ui_Get()->UnloadImage( m_stateImageGroups[ i ][ j ] );
 
 		delete [] m_stateImageGroups;
 	}
@@ -273,7 +273,7 @@ aui_Image *aui_ImageBase::GetImage(
 
 		if(m_stateImageNames[index] && (!m_stateImageGroups[state][substate]))
 		{
-			m_stateImageGroups[ state ][ substate ] = g_ui->LoadImage(m_stateImageNames[index]);
+			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage(m_stateImageNames[index]);
 			Assert( m_stateImageGroups[ state ][ substate ] != NULL );
 
 			if ((m_chromaSpecified)&&(m_stateImageGroups[ state ][ substate ]!=NULL))
@@ -337,7 +337,7 @@ aui_Image *aui_ImageBase::SetImage
 		}
 		else
 		{
-			m_stateImageGroups[ state ][ substate ] = g_ui->LoadImage( image );
+			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage( image );
 			Assert( m_stateImageGroups[ state ][ substate ] != NULL );
 			if ( !m_stateImageGroups[ state ][ substate ] )
 			{
@@ -365,7 +365,7 @@ aui_Image *aui_ImageBase::SetImage
 		m_stateImageGroups[ state ][ substate ] = NULL;
 	}
 
-	if ( prevImage ) g_ui->UnloadImage( prevImage );
+	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 
 	return prevImage;
 }
@@ -422,7 +422,7 @@ AUI_ERRCODE aui_ImageBase::DrawImage(
 	{
 	default:
 	case AUI_IMAGEBASE_BLTTYPE_COPY:
-		return g_ui->TheBlitter()->Blt(
+		return aui_ui_Get()->TheBlitter()->Blt(
 			destSurf,
 			realDestRect.left,
 			realDestRect.top,
@@ -431,7 +431,7 @@ AUI_ERRCODE aui_ImageBase::DrawImage(
 			flag );
 
 	case AUI_IMAGEBASE_BLTTYPE_STRETCH:
-		return g_ui->TheBlitter()->StretchBlt(
+		return aui_ui_Get()->TheBlitter()->StretchBlt(
 			destSurf,
 			&realDestRect,
 			srcSurf,
@@ -439,7 +439,7 @@ AUI_ERRCODE aui_ImageBase::DrawImage(
 			flag );
 
 	case AUI_IMAGEBASE_BLTTYPE_TILE:
-		return g_ui->TheBlitter()->TileBlt(
+		return aui_ui_Get()->TheBlitter()->TileBlt(
 			destSurf,
 			&realDestRect,
 			srcSurf,

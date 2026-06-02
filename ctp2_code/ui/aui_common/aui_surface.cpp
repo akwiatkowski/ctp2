@@ -74,7 +74,7 @@ aui_Surface::aui_Surface(
 #ifndef __AUI_USE_SDL__
 
 		if(hdc == NULL)
-			hdc = ::GetDC( g_ui->TheHWND() );
+			hdc = ::GetDC( aui_ui_Get()->TheHWND() );
 
 		m_hdc = CreateCompatibleDC( hdc );
 		Assert( m_hdc != NULL );
@@ -84,7 +84,7 @@ aui_Surface::aui_Surface(
 		Assert( m_hbitmap != NULL );
 		if ( !m_hbitmap ) return;
 
-		::ReleaseDC( g_ui->TheHWND(), hdc );
+		::ReleaseDC( aui_ui_Get()->TheHWND(), hdc );
 
 		m_holdbitmap = (HBITMAP)SelectObject( m_hdc, m_hbitmap );
 

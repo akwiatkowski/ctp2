@@ -86,8 +86,8 @@ AUI_ERRCODE aui_Screen::Show( void )
 	for ( sint32 i = m_windowList->L(); i; i-- )
 	{
 		aui_Window *window = m_windowList->GetNext( position );
-		if ( !g_ui->GetWindow( window->Id() ) )
-			g_ui->AddWindow( window );
+		if ( !aui_ui_Get()->GetWindow( window->Id() ) )
+			aui_ui_Get()->AddWindow( window );
 	}
 
 	m_showing = TRUE;
@@ -103,13 +103,13 @@ AUI_ERRCODE aui_Screen::Hide( void )
 	for ( i = m_windowList->L(); i; i-- )
 	{
 		aui_Window *window = m_windowList->GetNext( position );
-		g_ui->RemoveWindow( window->Id() );
+		aui_ui_Get()->RemoveWindow( window->Id() );
 	}
 
 	for (sint32 j = m_tempWindowList->L(); j; --j)
 	{
 		aui_Window *window = m_tempWindowList->RemoveTail();
-		g_ui->RemoveWindow( window->Id() );
+		aui_ui_Get()->RemoveWindow( window->Id() );
 	}
 
 	m_showing = FALSE;
@@ -131,8 +131,8 @@ AUI_ERRCODE aui_Screen::AddWindow( aui_Window *window, BOOL temp )
 			m_windowList->AddTail( window );
 	}
 
-	if ( m_showing && !g_ui->GetWindow( window->Id() ) )
-		g_ui->AddWindow( window );
+	if ( m_showing && !aui_ui_Get()->GetWindow( window->Id() ) )
+		aui_ui_Get()->AddWindow( window );
 
 	return AUI_ERRCODE_OK;
 }
@@ -150,7 +150,7 @@ AUI_ERRCODE aui_Screen::RemoveWindow( uint32 windowId )
 		{
 
 			m_windowList->DeleteAt( prevPos );
-			g_ui->RemoveWindow( windowId );
+			aui_ui_Get()->RemoveWindow( windowId );
 			break;
 		}
 	}
@@ -164,7 +164,7 @@ AUI_ERRCODE aui_Screen::RemoveWindow( uint32 windowId )
 		{
 
 			m_tempWindowList->DeleteAt( prevPos );
-			g_ui->RemoveWindow( windowId );
+			aui_ui_Get()->RemoveWindow( windowId );
 			break;
 		}
 	}

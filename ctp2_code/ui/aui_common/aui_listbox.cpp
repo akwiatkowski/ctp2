@@ -391,7 +391,7 @@ AUI_ERRCODE aui_ListBox::Draw(
 				selectRect.top = rect.top +
 					( itemIndex - minVertical ) * m_maxItemHeight;
 				selectRect.bottom = selectRect.top + m_maxItemHeight;
-				g_ui->TheBlitter()->BevelBlt(
+				aui_ui_Get()->TheBlitter()->BevelBlt(
 					surface,
 					&selectRect,
 					&selectRect,
@@ -1135,7 +1135,7 @@ aui_DragDropWindow *aui_ListBox::CreateDragDropWindow( aui_Control *dragDropItem
 	Assert( AUI_NEWOK(ddw,errcode) );
 	if ( !AUI_NEWOK(ddw,errcode) ) return NULL;
 
-	g_ui->AddChild( ddw );
+	aui_ui_Get()->AddChild( ddw );
 
 	return ddw;
 }

@@ -6,13 +6,13 @@
 #include "ctp/civapp.h"
 
 extern BOOL			g_helpMode;
-extern aui_UI		*g_ui;
+extern aui_UI		*aui_ui_Get();
 
 BOOL HandleGameSpecificLeftClick( void *control )
 {
 	BOOL handled = FALSE;
 
-	aui_Ldl *ldl = g_ui->GetLdl();
+	aui_Ldl *ldl = aui_ui_Get()->GetLdl();
 	if ( ldl )
 	{
 
@@ -31,7 +31,7 @@ BOOL HandleGameSpecificRightClick( void *control )
 {
 	BOOL handled = FALSE;
 
-	aui_Ldl *ldl = g_ui->GetLdl();
+	aui_Ldl *ldl = aui_ui_Get()->GetLdl();
 	if ( ldl )
 	{
 		if (g_helpMode) {

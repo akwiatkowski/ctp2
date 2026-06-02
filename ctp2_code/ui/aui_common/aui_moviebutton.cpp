@@ -92,7 +92,7 @@ aui_MovieButton::~aui_MovieButton()
 {
 	if ( m_movie )
 	{
-		g_ui->UnloadMovie( m_movie );
+		aui_ui_Get()->UnloadMovie( m_movie );
 		m_movie = NULL;
 	}
 }
@@ -104,7 +104,7 @@ aui_Movie *aui_MovieButton::SetMovie( const MBCHAR *movie )
 
 	if ( movie )
 	{
-		m_movie = g_ui->LoadMovie(movie);
+		m_movie = aui_ui_Get()->LoadMovie(movie);
 		Assert( m_movie != NULL );
 		if ( !m_movie )
 		{
@@ -140,7 +140,7 @@ aui_Movie *aui_MovieButton::SetMovie( const MBCHAR *movie )
 	else
 		m_movie = NULL;
 
-	if ( prevMovie ) g_ui->UnloadMovie( prevMovie );
+	if ( prevMovie ) aui_ui_Get()->UnloadMovie( prevMovie );
 
 	return prevMovie;
 }

@@ -273,9 +273,9 @@ aui_TextBase::~aui_TextBase()
 {
 	delete [] m_text;
 
-	if (m_textfont && g_ui)
+	if (m_textfont && aui_ui_Get())
 	{
-		g_ui->UnloadBitmapFont(m_textfont);
+		aui_ui_Get()->UnloadBitmapFont(m_textfont);
 	}
 }
 
@@ -387,14 +387,14 @@ void aui_TextBase::TextReloadFont( void )
 	fprintf(stderr, "[FONT] Loading font: descriptor='%s' file='%s' size=%d bold=%d italic=%d\n",
 		descriptor, m_textttffile, m_textpointsize, m_textbold, m_textitalic);
 
-	m_textfont = g_ui->LoadBitmapFont( descriptor );
+	m_textfont = aui_ui_Get()->LoadBitmapFont( descriptor );
 	fprintf(stderr, "[FONT] LoadBitmapFont returned %p\n", (void*)m_textfont);
 
 	if (m_textfont)
 	{
 		if (oldFont)
 		{
-			g_ui->UnloadBitmapFont(oldFont);
+			aui_ui_Get()->UnloadBitmapFont(oldFont);
 		}
 		m_textreload = FALSE;
 	}

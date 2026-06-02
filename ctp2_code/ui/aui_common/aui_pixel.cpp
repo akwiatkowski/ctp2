@@ -24,7 +24,7 @@ double **aui_Pixel::m_edge = NULL;
 
 uint16 aui_Pixel::Get16BitRGB( uint8 red, uint8 green, uint8 blue )
 {
-	if ( g_ui->PixelFormat() == AUI_SURFACE_PIXELFORMAT_555 )
+	if ( aui_ui_Get()->PixelFormat() == AUI_SURFACE_PIXELFORMAT_555 )
     {
 		return ColorCode555(red, green, blue);
     }

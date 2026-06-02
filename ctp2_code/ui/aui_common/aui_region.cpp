@@ -205,7 +205,7 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 		}
 		else
 		{
-			parent = g_ui;
+			parent = aui_ui_Get();
 		}
 	}
 
@@ -776,7 +776,7 @@ BOOL aui_Region::IsDescendent( aui_Region *region )
 inline BOOL aui_Region::HasHeirarchyChanged( void ) const
 {
 	if ( m_childListChanged ) return TRUE;
-	if ( !m_parent ) return this != g_ui;
+	if ( !m_parent ) return this != aui_ui_Get();
 	return m_parent->HasHeirarchyChanged();
 }
 
@@ -836,7 +836,7 @@ AUI_ERRCODE aui_Region::HandleMouseEvent( aui_MouseEvent *input, BOOL handleIt )
 
 	if ( IsHidden() || IgnoringEvents() ) handleIt = FALSE;
 
-	if ( g_ui->GetEditMode() )
+	if ( aui_ui_Get()->GetEditMode() )
 		MouseDispatchEdit( input, handleIt );
 	else
 		MouseDispatch( input, handleIt );
@@ -873,7 +873,7 @@ aui_DragDropWindow *aui_Region::CreateDragDropWindow( aui_Control *dragDropItem 
 	Assert( AUI_NEWOK(ddw,errcode) );
 	if ( !AUI_NEWOK(ddw,errcode) ) return NULL;
 
-	g_ui->AddChild( ddw );
+	aui_ui_Get()->AddChild( ddw );
 
 	return ddw;
 }
@@ -885,7 +885,7 @@ void aui_Region::DestroyDragDropWindow( aui_DragDropWindow *ddw )
 
 	if ( ddw )
 	{
-		g_ui->RemoveChild( ddw->Id() );
+		aui_ui_Get()->RemoveChild( ddw->Id() );
 		delete ddw;
 	}
 }
@@ -1050,7 +1050,7 @@ AUI_ERRCODE aui_Region::AddUndo( void )
 	}
 
 	RECT rect = { X(), Y(), X() + Width(), Y() + Height() };
-	if ( m_parent != g_ui )
+	if ( m_parent != aui_ui_Get() )
 		(( aui_Control *)this)->ToScreen( &rect );
 
 	s_undoList->AddHead(new aui_Undo(this, rect));
@@ -1085,7 +1085,7 @@ AUI_ERRCODE aui_Region::UndoEdit( void )
 			region->Y() + region->Height() };
 		RECT rect = undo->GetUndoRect();
 
-		if ( region->GetParent() != g_ui )
+		if ( region->GetParent() != aui_ui_Get() )
 			(( aui_Control *)region)->ToScreen( &regionRect );
 
 		if ( rect.left != regionRect.left ) {
@@ -1106,7 +1106,7 @@ AUI_ERRCODE aui_Region::UndoEdit( void )
 			region->Resize( region->Width(), ( rect.bottom - rect.top ) );
 			region->GetDim()->SetVerticalSize( region->Height() );
 		}
-		g_ui->SetEditRegion( region );
+		aui_ui_Get()->SetEditRegion( region );
 
 		region->GetParent()->ShouldDraw();
 
@@ -1194,9 +1194,9 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 		} else if ( s_editChild ) {
 
 			POINT point = { mouseData->position.x, mouseData->position.y };
-			if ( m_parent != g_ui )
+			if ( m_parent != aui_ui_Get() )
 				(( aui_Control *)this)->ToScreen( &point );
-			if ( g_ui->TheEditRegion()->IsInside( point.x, point.y ) ) {
+			if ( aui_ui_Get()->TheEditRegion()->IsInside( point.x, point.y ) ) {
 				s_editChild->MouseRGrabInsideEdit( mouseData );
 				return;
 			} else {
@@ -1216,15 +1216,15 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 		if ( s_editSelectionCurrent < s_editSelectionCount ) {
 			s_editSelectionCurrent++;
 
-			if ( m_parent == g_ui ) {
+			if ( m_parent == aui_ui_Get() ) {
 				s_editModeStatus = AUI_EDIT_MODE_CHOOSE_REGION;
 				s_editSelectionCount = 0;
 				s_editSelectionCurrent = 0;
 
-				if ( g_ui->TheEditRegion() )
-					g_ui->TheEditRegion()->ShouldDraw( TRUE );
+				if ( aui_ui_Get()->TheEditRegion() )
+					aui_ui_Get()->TheEditRegion()->ShouldDraw( TRUE );
 
-				g_ui->SetEditRegion( NULL );
+				aui_ui_Get()->SetEditRegion( NULL );
 				if (s_editChild )
 					s_editChild->MouseRGrabInsideEdit( mouseData );
 
@@ -1247,17 +1247,17 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 
 		m_mouseCode = AUI_ERRCODE_HANDLEDEXCLUSIVE;
 
-		if ( g_ui->TheEditRegion() )
-			g_ui->TheEditRegion()->ShouldDraw( TRUE );
+		if ( aui_ui_Get()->TheEditRegion() )
+			aui_ui_Get()->TheEditRegion()->ShouldDraw( TRUE );
 
 		if ( s_editChild ) {
-			if ( s_editChild->m_parent == g_ui )
+			if ( s_editChild->m_parent == aui_ui_Get() )
 				m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 			else
 				( ( aui_Control * )s_editChild )->GetParentWindow()->ShouldDraw( TRUE );
 		}
 
-		g_ui->SetEditRegion( this );
+		aui_ui_Get()->SetEditRegion( this );
 
 		m_editGrabPointAttributes = k_REGION_GRAB_NONE;
 	}
@@ -1266,12 +1266,12 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 void aui_Region::MouseRGrabOutsideEdit( aui_MouseEvent *mouseData )
 {
 	if ( this == s_editChild ) {
-		if ( s_editChild->m_parent == g_ui )
+		if ( s_editChild->m_parent == aui_ui_Get() )
 			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 		else
 			( ( aui_Control * )s_editChild )->GetParentWindow()->ShouldDraw( TRUE );
 
-		g_ui->SetEditRegion( NULL );
+		aui_ui_Get()->SetEditRegion( NULL );
 		m_editGrabPointAttributes = k_REGION_GRAB_NONE;
 		s_editChild = NULL;
 		s_editModeStatus = AUI_EDIT_MODE_CHOOSE_REGION;
@@ -1294,14 +1294,14 @@ void aui_Region::MouseRDropOutsideEdit( aui_MouseEvent *mouseData )
 
 void aui_Region::MouseLGrabEditMode( aui_MouseEvent *mouseData )
 {
-	if ( this == g_ui->TheEditRegion() ) {
-		RECT grabRect = g_ui->TheEditRect();
+	if ( this == aui_ui_Get()->TheEditRegion() ) {
+		RECT grabRect = aui_ui_Get()->TheEditRect();
 
 		AddUndo();
 
 		m_editGrabPoint = mouseData->position;
 
-		if ( m_parent != g_ui )
+		if ( m_parent != aui_ui_Get() )
 			( ( aui_Control * )this)->ToScreen( &m_editGrabPoint );
 
 		m_editGrabPointAttributes = k_REGION_GRAB_NONE;
@@ -1335,13 +1335,13 @@ void aui_Region::MouseLDragEditMode( aui_MouseEvent *mouseData )
 {
 	if (s_editModeStatus == AUI_EDIT_MODE_MODIFY)
     {
-		if ( this == g_ui->TheEditRegion( ) ) {
+		if ( this == aui_ui_Get()->TheEditRegion( ) ) {
 
 			sint32 dx = m_editGrabPoint.x;
 			sint32 dy = m_editGrabPoint.y;
 			POINT point = mouseData->position;
 
-			if ( m_parent != g_ui )
+			if ( m_parent != aui_ui_Get() )
 				( ( aui_Control * )this)->ToScreen( &point );
 
 			dx = point.x - dx;
@@ -1375,10 +1375,10 @@ void aui_Region::MouseLDragEditMode( aui_MouseEvent *mouseData )
 
 			m_editGrabPoint = mouseData->position;
 
-			if ( m_parent != g_ui )
+			if ( m_parent != aui_ui_Get() )
 				( ( aui_Control * )this)->ToScreen( &m_editGrabPoint );
 
-			g_ui->SetEditRegion( this );
+			aui_ui_Get()->SetEditRegion( this );
 
 			m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 		}
@@ -1388,10 +1388,10 @@ void aui_Region::MouseLDragEditMode( aui_MouseEvent *mouseData )
 void aui_Region::MouseLDropEditMode( aui_MouseEvent *mouseData )
 {
 
-	if ( this == g_ui->TheEditRegion( ) ) {
+	if ( this == aui_ui_Get()->TheEditRegion( ) ) {
 		m_parent->ShouldDraw();
 
-		aui_Ldl *theLdl = g_ui->GetLdl();
+		aui_Ldl *theLdl = aui_ui_Get()->GetLdl();
 		if ( theLdl ) {
 			MBCHAR	*ldlBlock = theLdl->GetBlock( this );
 
@@ -1414,7 +1414,7 @@ void aui_Region::MouseLDropEditMode( aui_MouseEvent *mouseData )
 
 void aui_Region::EditModeModifyRegion( RECT rect )
 {
-	aui_Region *region = g_ui->TheEditRegion( );
+	aui_Region *region = aui_ui_Get()->TheEditRegion( );
 
 	if ( region ) {
 		aui_Dimension *dim = region->GetDim();
@@ -1434,11 +1434,11 @@ void aui_Region::EditModeModifyRegion( RECT rect )
 				dim->SetVerticalSize( region->Height() );
 			}
 
-			g_ui->SetEditRegion( region );
+			aui_ui_Get()->SetEditRegion( region );
 
 			region->GetParent()->ShouldDraw();
 
-			if ( aui_Ldl *theLdl = g_ui->GetLdl() ) {
+			if ( aui_Ldl *theLdl = aui_ui_Get()->GetLdl() ) {
 				if ( MBCHAR	*ldlBlock = theLdl->GetBlock( region ) ) {
 					theLdl->ModifyAttributes( ldlBlock, dim );
 				}

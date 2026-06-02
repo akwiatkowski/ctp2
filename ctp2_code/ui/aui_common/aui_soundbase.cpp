@@ -68,7 +68,7 @@ aui_SoundBase::~aui_SoundBase()
 	{
 		if ( m_sounds[ i ] )
 		{
-			g_ui->UnloadSound( m_sounds[ i ] );
+			aui_ui_Get()->UnloadSound( m_sounds[ i ] );
 			m_sounds[ i ] = NULL;
 		}
 	}
@@ -90,9 +90,9 @@ aui_Sound *aui_SoundBase::SetSound(
 {
 	aui_Sound *prevSound = GetSound( sound );
 
-	if ( soundName && g_ui->TheAudioManager()->UsingAudio() )
+	if ( soundName && aui_ui_Get()->TheAudioManager()->UsingAudio() )
 	{
-		m_sounds[ sound ] = g_ui->LoadSound( soundName );
+		m_sounds[ sound ] = aui_ui_Get()->LoadSound( soundName );
 		Assert( m_sounds[ sound ] != NULL );
 		if ( !m_sounds[ sound ] )
 		{
@@ -103,7 +103,7 @@ aui_Sound *aui_SoundBase::SetSound(
 	else
 		m_sounds[ sound ] = NULL;
 
-	if ( prevSound ) g_ui->UnloadSound( prevSound );
+	if ( prevSound ) aui_ui_Get()->UnloadSound( prevSound );
 
 	return prevSound;
 }

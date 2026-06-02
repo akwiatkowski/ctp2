@@ -172,14 +172,14 @@ AUI_ERRCODE aui_TextField::InitCommon(
 		m_offscreen.y,
 		m_width,
 		m_height,
-		g_ui->TheHWND(),
+		aui_ui_Get()->TheHWND(),
 		NULL,
-		g_ui->TheHINSTANCE(),
+		aui_ui_Get()->TheHINSTANCE(),
 		NULL );
 	Assert( m_hwnd != NULL );
 	if ( !m_hwnd ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	g_ui->AddWin( m_hwnd );
+	aui_ui_Get()->AddWin( m_hwnd );
 
 
 
@@ -229,7 +229,7 @@ AUI_ERRCODE aui_TextField::InitCommon(
 	// select nothing, move insertion point to end
 	m_selStart = m_selEnd = strlen(m_Text);
 
-	m_Font = g_ui->LoadBitmapFont(m_desiredFont);
+	m_Font = aui_ui_Get()->LoadBitmapFont(m_desiredFont);
 	Assert(m_Font);
 	// FIXME: HACK: I'm setting the font size here because it doesn't seem to be
 	// being set anywhere else, which was causing textboxes to display no text.
@@ -272,11 +272,11 @@ aui_TextField::~aui_TextField()
 	if ( m_winRefCount == 1 && m_windowProc )
 		SetWindowLong( m_hwnd, GWL_WNDPROC, (LONG)m_windowProc );
 
-	g_ui->RemoveWin(m_hwnd);
+	aui_ui_Get()->RemoveWin(m_hwnd);
 #else
 	if (m_Font )
 	{
-		g_ui->UnloadBitmapFont(m_Font);;
+		aui_ui_Get()->UnloadBitmapFont(m_Font);;
 		m_Font = NULL;
 	}
 

@@ -44,7 +44,7 @@ AUI_ERRCODE aui_Sound::SetFilename( MBCHAR const *filename)
 	strncpy ( m_filename, filename, MAX_PATH );
 
 	m_format = (aui_SoundFormat *)
-		g_ui->TheMemMap()->GetFileFormat ( m_filename );
+		aui_ui_Get()->TheMemMap()->GetFileFormat ( m_filename );
 	Assert(m_format);
 
     return m_format ? AUI_ERRCODE_OK : AUI_ERRCODE_MEMALLOCFAILED;
@@ -65,7 +65,7 @@ AUI_ERRCODE aui_Sound::Load( void )
 
 AUI_ERRCODE aui_Sound::Unload( void )
 {
-	g_ui->TheMemMap()->ReleaseFileFormat(m_format);
+	aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
 
 	return AUI_ERRCODE_OK;
 }
@@ -77,7 +77,7 @@ AUI_ERRCODE aui_WavSoundFormat::LoadSoundData
 	size_t *        size
 )
 {
-	m_data = (uint8 *)g_ui->TheMemMap()->GetFileBits( filename, size );
+	m_data = (uint8 *)aui_ui_Get()->TheMemMap()->GetFileBits( filename, size );
 	*wavdata = m_data;
 
 	Assert( *wavdata != NULL );
@@ -90,7 +90,7 @@ AUI_ERRCODE aui_WavSoundFormat::LoadSoundData
 
 void aui_SoundFormat::ReleaseSoundData() {
 	if(m_data)
-		g_ui->TheMemMap()->ReleaseFileBits(m_data);
+		aui_ui_Get()->TheMemMap()->ReleaseFileBits(m_data);
 }
 
 

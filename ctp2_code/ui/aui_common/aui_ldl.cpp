@@ -983,8 +983,8 @@ sint32 aui_Ldl::GetIntDependent(MBCHAR const * strPtr)
 	Assert( strPtr != NULL );
 	if ( !strPtr ) return AUI_ERRCODE_INVALIDPARAM;
 
-	sint32 width = g_ui->Width();
-	sint32 height = g_ui->Height();
+	sint32 width = aui_ui_Get()->Width();
+	sint32 height = aui_ui_Get()->Height();
 
 	for ( ; strPtr; ++strPtr)
 	{

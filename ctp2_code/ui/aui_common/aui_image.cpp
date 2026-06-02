@@ -82,10 +82,10 @@ AUI_ERRCODE aui_Image::SetFilename( MBCHAR const *filename )
 
 	strncpy( m_filename, filename, MAX_PATH );
 
-	if (g_ui && g_ui->TheMemMap())
+	if (aui_ui_Get() && aui_ui_Get()->TheMemMap())
 	{
 		m_format = static_cast<aui_ImageFormat *>
-						(g_ui->TheMemMap()->GetFileFormat(m_filename));
+						(aui_ui_Get()->TheMemMap()->GetFileFormat(m_filename));
 	}
 
 	Assert(m_format);
@@ -104,9 +104,9 @@ AUI_ERRCODE aui_Image::Load( void )
 
 AUI_ERRCODE aui_Image::Unload( void )
 {
-	if (g_ui && g_ui->TheMemMap())
+	if (aui_ui_Get() && aui_ui_Get()->TheMemMap())
 	{
-		g_ui->TheMemMap()->ReleaseFileFormat(m_format);
+		aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
 		m_format = NULL;
 	}
 
@@ -150,7 +150,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 
 #ifdef WIN32
-	uint8 *filebits = g_ui->TheMemMap()->GetFileBits( filename );
+	uint8 *filebits = aui_ui_Get()->TheMemMap()->GetFileBits( filename );
 	Assert( filebits != NULL );
 	if ( !filebits ) return AUI_ERRCODE_HACK;
 
@@ -159,7 +159,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	uint32 foffset = sizeof( bfh );
 
 	if ( LOBYTE(bfh.bfType) != 'B' || HIBYTE(bfh.bfType) != 'M' ) {
-		g_ui->TheMemMap()->ReleaseFileBits( filebits );
+		aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 		return AUI_ERRCODE_LOADFAILED;
 	}
 
@@ -168,7 +168,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	foffset += sizeof( bih );
 
 	if ( bih.biCompression != BI_RGB ) {
-		g_ui->TheMemMap()->ReleaseFileBits( filebits );
+		aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 		return AUI_ERRCODE_LOADFAILED;
 	}
 
@@ -179,7 +179,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 		rgbq = new RGBQUAD[256];
 		Assert( rgbq != NULL );
 		if ( !rgbq ) {
-			g_ui->TheMemMap()->ReleaseFileBits( filebits );
+			aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 			return AUI_ERRCODE_LOADFAILED;
 		}
 
@@ -193,13 +193,13 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	sint32 temp = width * bih.biBitCount / 8;
 	uint32 bmpPitch = temp + Mod(-temp,sizeof( LONG ));
 
-	uint32 bpp = g_ui->BitsPerPixel();
+	uint32 bpp = aui_ui_Get()->BitsPerPixel();
 
 	AUI_ERRCODE errcode = image->LoadEmpty( width, height, bpp );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) )
 	{
-		g_ui->TheMemMap()->ReleaseFileBits( filebits );
+		aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 		if ( rgbq ) delete rgbq;
 		return AUI_ERRCODE_LOADFAILED;
 	}
@@ -269,7 +269,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	}
 
 	if ( rgbq ) delete rgbq;
-	g_ui->TheMemMap()->ReleaseFileBits( filebits );
+	aui_ui_Get()->TheMemMap()->ReleaseFileBits( filebits );
 
 	if ( bih.biHeight > 0 )
 	{
@@ -318,8 +318,8 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 //#endif
 
         printf("%s L%d: image %s!\n", __FILE__, __LINE__, filename);
-        if (g_ui->Primary()->BitsPerPixel() != 16)
-            printf("%s L%d: bpp %d", __FILE__, __LINE__,  g_ui->Primary()->BitsPerPixel());
+        if (aui_ui_Get()->Primary()->BitsPerPixel() != 16)
+            printf("%s L%d: bpp %d", __FILE__, __LINE__,  aui_ui_Get()->Primary()->BitsPerPixel());
         if (bmp->format->Gmask >> bmp->format->Gshift == 0x3F)
             printf("%s L%d: 565 image!\n", __FILE__, __LINE__);
         if (bmp->format->Gmask >> bmp->format->Gshift == 0x1F)

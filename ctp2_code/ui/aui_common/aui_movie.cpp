@@ -122,7 +122,7 @@ AUI_ERRCODE aui_Movie::SetFilename( MBCHAR const *filename )
 	strncpy( m_filename, filename, MAX_PATH );
 
 	m_format = (aui_MovieFormat *)
-		g_ui->TheMemMap()->GetFileFormat( m_filename );
+		aui_ui_Get()->TheMemMap()->GetFileFormat( m_filename );
 	Assert( m_format != NULL );
 	if ( !m_format ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -143,7 +143,7 @@ AUI_ERRCODE aui_Movie::Unload( void )
 {
 	Close();
 
-	g_ui->TheMemMap()->ReleaseFileFormat(m_format);
+	aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
 	m_format = NULL;
 
 	return AUI_ERRCODE_OK;
@@ -282,7 +282,7 @@ AUI_ERRCODE aui_Movie::Open(
 		bih.biWidth = m_aviFileInfo.dwWidth;
 		bih.biHeight = m_aviFileInfo.dwHeight;
 		bih.biPlanes = 1;
-		bih.biBitCount = (uint16)g_ui->BitsPerPixel();
+		bih.biBitCount = (uint16)aui_ui_Get()->BitsPerPixel();
 		bih.biCompression = BI_RGB;
 
 		m_getFrame = AVIStreamGetFrameOpen(
@@ -375,7 +375,7 @@ AUI_ERRCODE aui_Movie::Play( void )
 
 AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
 {
-	aui_Mouse *mouse = g_ui->TheMouse();
+	aui_Mouse *mouse = aui_ui_Get()->TheMouse();
 	sint32 numEvents;
 	static aui_MouseEvent mouseEvents[ k_MOUSE_MAXINPUT ];
 	aui_MouseEvent *mouseState = NULL;
@@ -393,8 +393,8 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
 
 #ifdef __AUI_USE_DIRECTX__
 	MSG msg;
-	m_windowProc = (WNDPROC)GetWindowLong( g_ui->TheHWND(), GWL_WNDPROC );
-	SetWindowLong( g_ui->TheHWND(), GWL_WNDPROC, (LONG)OnScreenMovieWindowProc );
+	m_windowProc = (WNDPROC)GetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC );
+	SetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC, (LONG)OnScreenMovieWindowProc );
 #endif
 
 	m_onScreenMovie = this;
@@ -409,7 +409,7 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
 		Process();
 
 #ifdef __AUI_USE_DIRECTX__
-		if ( PeekMessage( &msg, g_ui->TheHWND(), 0, 0, PM_REMOVE ) )
+		if ( PeekMessage( &msg, aui_ui_Get()->TheHWND(), 0, 0, PM_REMOVE ) )
 		{
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
@@ -434,14 +434,14 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
 	m_onScreenMovie = NULL;
 
 #ifdef __AUI_USE_DIRECTX__
-	SetWindowLong( g_ui->TheHWND(), GWL_WNDPROC, (LONG)m_windowProc );
+	SetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC, (LONG)m_windowProc );
 	m_windowProc = NULL;
 #endif
 
 	if (mouse)
 		mouse->Show();
 
-	g_ui->AddDirtyRect( &m_rect );
+	aui_ui_Get()->AddDirtyRect( &m_rect );
 
 	return Stop();
 }
@@ -499,7 +499,7 @@ AUI_ERRCODE aui_Movie::Process( void )
 
 			aui_Surface *surface =
 				( m_flags & k_AUI_MOVIE_PLAYFLAG_ONSCREEN ) ?
-				g_ui->Secondary() :
+				aui_ui_Get()->Secondary() :
 				m_surface;
 #ifdef __AUI_USE_DIRECTX__
 			uint8 *frame = (uint8 *)AVIStreamGetFrame( m_getFrame, m_curFrame );
@@ -579,7 +579,7 @@ LRESULT CALLBACK OnScreenMovieWindowProc(
 {
 	if ( aui_Movie::m_onScreenMovie )
 	{
-		g_ui->HandleWindowsMessage( hwnd, message, wParam, lParam );
+		aui_ui_Get()->HandleWindowsMessage( hwnd, message, wParam, lParam );
 
 		switch ( message )
 		{
@@ -595,12 +595,12 @@ LRESULT CALLBACK OnScreenMovieWindowProc(
 			break;
 
 		case WM_CLOSE:
-			if ( hwnd != g_ui->TheHWND() ) break;
+			if ( hwnd != aui_ui_Get()->TheHWND() ) break;
 
 			aui_Movie::m_onScreenMovie->Close();
 
 #ifdef __AUI_USE_DIRECTX__
-			PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+			PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 
 			return 0;

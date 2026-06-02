@@ -192,7 +192,7 @@ AUI_ERRCODE aui_BitmapFont::InitCommon( MBCHAR const *descriptor )
 
 			strcat( fontdir, FILE_SEP "fonts" );
 
-			g_ui->GetBitmapFontResource()->AddSearchPath( fontdir );
+			aui_ui_Get()->GetBitmapFontResource()->AddSearchPath( fontdir );
 		}
 #endif // WIN32
 	}
@@ -235,7 +235,7 @@ AUI_ERRCODE aui_BitmapFont::Load( void )
 	Unload();
 
 	static MBCHAR fullPath[ MAX_PATH + 1 ];
-	if ( g_ui->GetBitmapFontResource()->FindFile( fullPath, m_ttffile ) )
+	if ( aui_ui_Get()->GetBitmapFontResource()->FindFile( fullPath, m_ttffile ) )
 		strncpy( m_ttffile, fullPath, MAX_PATH );
 
 	sint32 error = TT_Open_Face(s_ttEngine, m_ttffile, &m_ttFace);
@@ -767,7 +767,7 @@ AUI_ERRCODE aui_BitmapFont::DrawString(
 
 	if ( !string ) return AUI_ERRCODE_OK;
 
-	if ( !surface ) surface = g_ui->Secondary();
+	if ( !surface ) surface = aui_ui_Get()->Secondary();
 
 	RECT localRect = { 0, 0, surface->Width(), surface->Height() };
 	if ( !bound )
@@ -1219,7 +1219,7 @@ AUI_ERRCODE aui_BitmapFont::RenderGlyph(
 
 		if ( Rectangle_Clip( &underlineRect, clipRect ) )
 		{
-			AUI_ERRCODE errcode = g_ui->TheBlitter()->ColorBlt(
+			AUI_ERRCODE errcode = aui_ui_Get()->TheBlitter()->ColorBlt(
 				destSurf,
 				&underlineRect,
 				color,
@@ -1427,7 +1427,7 @@ bool aui_BitmapFont::TruncateString( MBCHAR *name, sint32 width )
 void aui_BitmapFont::DumpCachedSurfaces( aui_Surface *destSurf )
 {
 
-	if ( !destSurf ) destSurf = g_ui->Secondary();
+	if ( !destSurf ) destSurf = aui_ui_Get()->Secondary();
 
 	Assert( destSurf->BitsPerPixel() == 16 );
 	if ( destSurf->BitsPerPixel() != 16 ) return;

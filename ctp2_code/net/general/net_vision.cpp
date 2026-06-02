@@ -35,7 +35,7 @@
 #include "gs/utility/gstypes.h"        // TERRAIN_TYPES
 #include "net/io/net_util.h"
 #include "gs/gameobj/Vision.h"
-#include "gs/gameobj/Player.h"         // g_player
+#include "gs/gameobj/Player.h"
 #include "gfx/tilesys/tiledmap.h"       // g_tiledMap
 #include "ui/aui_ctp2/radarmap.h"       // radar_map_Get()
 #include "gs/world/UnseenCell.h"
@@ -96,7 +96,7 @@ void NetVision::Packetize(uint8 *buf, uint16 &size)
 
 	uint8 *ptr = NULL;
 	uint8 bitPos = 0;
-	Vision *vision = g_player[m_owner]->m_vision;
+	Vision *vision = player_Get(m_owner)->m_vision;
 	sint32 w = vision->m_width;
 	sint32 bottom = m_row + m_numRows;
 	if(bottom > vision->m_height)
@@ -158,7 +158,7 @@ void NetVision::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	uint8 *         ptr     = NULL;
 	uint8           bitPos  = 0;
-	Vision *        vision  = g_player[m_owner]->m_vision;
+	Vision *        vision  = player_Get(m_owner)->m_vision;
 	sint32          w       = vision->m_width;
 	sint32 const    bottom  =
 	    std::min<sint32>(m_row + m_numRows, vision->m_height);
@@ -407,7 +407,7 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		uint16 dbIndex;
 		PULLSHORT(dbIndex);
 
-		double		visionRange = g_theUnitDB->Get(dbIndex, g_player[m_owner]->GetGovernmentType())->GetVisionRange();
+		double		visionRange = g_theUnitDB->Get(dbIndex, player_Get(m_owner)->GetGovernmentType())->GetVisionRange();
 
 
 		m_ucell->m_actor.reset(
@@ -468,5 +468,5 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLBYTE(m_ucell->m_tileInfo->m_transitions[c]);
 	}
 
-	g_player[m_owner]->m_vision->AddUnseen(m_ucell);
+	player_Get(m_owner)->m_vision->AddUnseen(m_ucell);
 }

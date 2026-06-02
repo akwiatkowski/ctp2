@@ -54,7 +54,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/MainControlPanel.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
 #include "TerrainRecord.h"
 #include "ui/aui_ctp2/textbutton.h"
@@ -455,7 +455,7 @@ sint32 c3_UtilityCityListPopup::UpdateData( void )
 
 	AUI_ERRCODE		retval;
 
-	UnitDynamicArray *cityList = g_player[curPlayer]->GetAllCitiesList();
+	UnitDynamicArray *cityList = player_Get(curPlayer)->GetAllCitiesList();
 
 	strcpy(ldlBlock,"SingleListItem");
 	m_list->Clear();
@@ -580,7 +580,7 @@ sint32 c3_PiracyPopup::UpdateData( void )
 
 	AUI_ERRCODE		retval;
 
-	UnitDynamicArray *cityList = g_player[curPlayer]->GetAllCitiesList();
+	UnitDynamicArray *cityList = player_Get(curPlayer)->GetAllCitiesList();
 
 	strcpy(ldlBlock,"PiracyListItem");
 
@@ -1365,9 +1365,9 @@ sint32 c3_UtilityPlayerListPopup::UpdateData( void )
 
 	for (sint32 i = 1 ; i < k_MAX_PLAYERS ; ++i)
 	{
-		if (g_player[i])
+		if (player_arr_Get()[i])
         {
-			strcpy(strbuf, g_player[i]->GetLeaderName());
+			strcpy(strbuf, player_Get(i)->GetLeaderName());
             m_list->AddItem(new DoubleListItem
                                 (&retval,
                                  strbuf,

@@ -40,7 +40,6 @@
 
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
-extern Player **g_player;
 extern c3_UtilityPlayerListPopup *g_networkPlayersScreen;
 
 NetCivilization::NetCivilization(CivilisationData *data)
@@ -114,7 +113,7 @@ void NetCivilization::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!civilisationpool_Get()->IsValid(cid)) {
 		civilisationpool_Get()->HackSetKey(((uint32)cid + k_ID_KEY_MASK) + 1);
 		civilisationpool_Get()->Insert(m_data);
-		*g_player[m_data->m_owner]->m_civilisation = cid;
+		*player_Get(m_data->m_owner)->m_civilisation = cid;
 	}
 }
 
@@ -124,7 +123,7 @@ void NetSetLeaderName::Packetize(uint8 *buf, uint16 &size)
 	PUSHID(k_PACKET_SET_LEADER_NAME_ID);
 
 	PUSHBYTE(m_player);
-	PUSHSTRING(g_player[m_player]->m_civilisation->GetLeaderName());
+	PUSHSTRING(player_Get(m_player)->m_civilisation->GetLeaderName());
 }
 
 void NetSetLeaderName::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -137,8 +136,8 @@ void NetSetLeaderName::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	MBCHAR nbuf[1024];
 	PULLBYTE(m_player);
 	PULLSTRING(nbuf);
-	if(g_player[m_player]) {
-		g_player[m_player]->m_civilisation->AccessData()->SetLeaderName(nbuf);
+	if(player_arr_Get()[m_player]) {
+		player_Get(m_player)->m_civilisation->AccessData()->SetLeaderName(nbuf);
 
 		if(g_networkPlayersScreen) {
 			g_networkPlayersScreen->UpdateData();

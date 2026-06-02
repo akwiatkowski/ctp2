@@ -106,7 +106,7 @@ BOOL World::IsCellZoc(const PLAYER_INDEX &owner, const MapPoint &pos,
 	sint32 i;
 
     if (is_check_only_visible) {
-        if (g_player[owner]->IsVisible(pos) == FALSE) {
+        if (player_Get(owner)->IsVisible(pos) == FALSE) {
             return FALSE;
         }
     }
@@ -161,7 +161,7 @@ BOOL World::IsMoveZOC(PLAYER_INDEX owner, const MapPoint &start,
 	}
 
 	uint32 fromZoc = m_map[start.x][start.y]->m_zoc;
-	uint32 ownerMask = (~(1 << owner)) & (~(g_player[owner]->mask_alliance));
+	uint32 ownerMask = (~(1 << owner)) & (~(player_Get(owner)->mask_alliance));
 	if(!(fromZoc & ownerMask)) {
 
 		return FALSE;
@@ -173,7 +173,7 @@ BOOL World::IsMoveZOC(PLAYER_INDEX owner, const MapPoint &start,
 		return FALSE;
 	}
 
-	if((g_player[owner]->IsRobot() &&
+	if((player_Get(owner)->IsRobot() &&
 		!(g_network.IsClient() && g_network.IsLocalPlayer(owner))) ||
 	   !is_check_only_visible) {
 
@@ -433,10 +433,10 @@ bool World::GetTopRadarUnit(const MapPoint &pos, Unit &top) const
 	top.m_id = (0);
 	c = GetCell(pos);
 	bool hasGlobalRadar;
-	if(g_player[player_view::VisiblePlayer()])
+	if(player_arr_Get()[player_view::VisiblePlayer()])
 	{
 		hasGlobalRadar = wonderutil_GetGlobalRadar(
-			g_player[player_view::VisiblePlayer()]->m_builtWonders);
+			player_Get(player_view::VisiblePlayer())->m_builtWonders);
 	}
 	else
 	{

@@ -487,7 +487,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		+ ((m_numPreReq + m_numEitherPreReq) - 1) * heightBetweenButtons)) / 2;
 
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	uint8 *adv = g_player[curPlayer]->m_advances->CanResearch();
+	uint8 *adv = player_Get(curPlayer)->m_advances->CanResearch();
 
 	for ( i = 0; i < m_numPreReq; i++ )
 	{
@@ -508,7 +508,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Associate((aui_Control *)m_preReqButton[i], name);
 		}
 
-		if ( g_player[curPlayer]->HasAdvance(m_preReqIndex[i]) )
+		if ( player_Get(curPlayer)->HasAdvance(m_preReqIndex[i]) )
 		{
 			m_preReqColor[i] = COLOR_GREEN;
 		}
@@ -551,7 +551,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Associate((aui_Control *)m_eitherPreReqButton[i], name);
 		}
 
-		if ( g_player[curPlayer]->HasAdvance(m_eitherPreReqIndex[i]) )
+		if ( player_Get(curPlayer)->HasAdvance(m_eitherPreReqIndex[i]) )
 		{
 			m_eitherPreReqColor[i] = COLOR_GREEN;
 		}
@@ -592,7 +592,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		ldl->Associate((aui_Control *)m_centerButton, name);
 	}
 
-	if ( g_player[curPlayer]->HasAdvance(m_centerIndex) )
+	if ( player_Get(curPlayer)->HasAdvance(m_centerIndex) )
 	{
 		m_centerColor = COLOR_GREEN;
 	}
@@ -629,7 +629,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Associate((aui_Control *)m_leadsToButton[i], name);
 		}
 
-		if ( g_player[curPlayer]->HasAdvance(m_leadsToIndex[i]) )
+		if ( player_Get(curPlayer)->HasAdvance(m_leadsToIndex[i]) )
 		{
 			m_leadsToColor[i] = COLOR_GREEN;
 		}

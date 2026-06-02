@@ -248,7 +248,7 @@ STDEHANDLER(PayTribute_ProposalResponseEvent)
 		return GEV_HD_Continue;
 
 	double const	extort_gold_precise = 0.85 *
-		std::min<sint32>(3 * g_player[receiver]->m_gold->GetIncome(), g_player[receiver]->GetGold());
+		std::min<sint32>(3 * player_Get(receiver)->m_gold->GetIncome(), player_Get(receiver)->GetGold());
 
 	sint32 extort_gold = ProposalAnalysis::RoundGold(static_cast<sint32>(extort_gold_precise));
 	if (extort_gold <= 0)
@@ -683,7 +683,7 @@ STDEHANDLER(GiveMap_ProposalResponseEvent)
 			proposal_sender_result,
 			proposal_receiver_result );
 
-		Player * receiver_ptr = g_player[receiver];
+		Player * receiver_ptr = player_Get(receiver);
 		sint32 income = receiver_ptr->GetGold();
 		sint32 science_level = receiver_ptr->m_science->GetLevel();
 		if (proposal_receiver_result.gold > 3 * income ||
@@ -866,7 +866,7 @@ STDEHANDLER(CeasefireForGold_ProposalResponseEvent)
 		return GEV_HD_Continue;
 
 	sint32 extort_gold =
-	    std::min(3 * g_player[receiver]->m_gold->GetIncome(), static_cast<sint32>(g_player[receiver]->GetGold() * 0.85));
+	    std::min(3 * player_Get(receiver)->m_gold->GetIncome(), static_cast<sint32>(player_Get(receiver)->GetGold() * 0.85));
 
 	if (sender_proposal.detail.first_arg.gold > extort_gold)
 		return GEV_HD_Continue;
@@ -926,8 +926,8 @@ STDEHANDLER(StopResearch_ProposalResponseEvent)
 	if (sender_proposal.detail.first_type != PROPOSAL_REQUEST_STOP_RESEARCH)
 		return GEV_HD_Continue;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)
@@ -943,7 +943,7 @@ STDEHANDLER(StopResearch_ProposalResponseEvent)
 	Assert(stop_advance_type  >= 0 && stop_advance_type < g_theAdvanceDB->NumRecords());
 
 	DIPLOMATIC_STRENGTH sender_strength =
-		g_player[sender]->GetRelativeStrength(receiver);
+		player_Get(sender)->GetRelativeStrength(receiver);
 
 	bool personality_fails =
 		((receiver_diplomat.GetPersonality()->GetDiscoveryScientist() &&
@@ -1023,8 +1023,8 @@ STDEHANDLER(ReduceWeapons_ProposalResponseEvent)
 		sender_proposal.detail.first_type != PROPOSAL_REQUEST_REDUCE_NUCLEAR_WEAPONS)
 		return GEV_HD_Continue;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)
@@ -1039,8 +1039,8 @@ STDEHANDLER(ReduceWeapons_ProposalResponseEvent)
 	if (receiver_diplomat.GetTrust(sender) < NEUTRAL_REGARD)
 		return GEV_HD_Continue;
 
-	sint32 sender_city_count = g_player[sender]->GetNumCities();
-	sint32 receiver_city_count = g_player[receiver]->GetNumCities();
+	sint32 sender_city_count = player_Get(sender)->GetNumCities();
+	sint32 receiver_city_count = player_Get(receiver)->GetNumCities();
 
 	sint16 sender_nukes_count = MapAnalysis::GetMapAnalysis().GetNuclearWeaponsCount(sender);
 	sint16 sender_bio_count = MapAnalysis::GetMapAnalysis().GetBioWeaponsCount(sender);
@@ -1133,8 +1133,8 @@ STDEHANDLER(ReducePollution_ProposalResponseEvent)
 	if (sender_proposal.detail.first_type != PROPOSAL_REQUEST_REDUCE_POLLUTION)
 		return GEV_HD_Continue;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)
@@ -1146,8 +1146,8 @@ STDEHANDLER(ReducePollution_ProposalResponseEvent)
 	sint32 reject_priority =
 		receiver_diplomat.GetRejectPriority( sender, sender_proposal.detail.first_type);
 
-	uint32 sender_pollution = g_player[sender]->GetPollutionLevel();
-	uint32 receiver_pollution = g_player[receiver]->GetPollutionLevel();
+	uint32 sender_pollution = player_Get(sender)->GetPollutionLevel();
+	uint32 receiver_pollution = player_Get(receiver)->GetPollutionLevel();
 	double pollution_ratio = (double) sender_pollution / receiver_pollution;
 
 	if (pollution_ratio > 1.5)
@@ -1218,9 +1218,9 @@ STDEHANDLER(HonorMilitaryAgreement_ProposalResponseEvent)
 	Assert(sender_proposal.detail.first_arg.playerId != -1);
 	PLAYER_INDEX foreigner = sender_proposal.detail.first_arg.playerId;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
-	Player *foreigner_ptr = g_player[foreigner];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
+	Player *foreigner_ptr = player_Get(foreigner);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)
@@ -1247,8 +1247,8 @@ STDEHANDLER(HonorMilitaryAgreement_ProposalResponseEvent)
 	}
 
 	DIPLOMATIC_STRENGTH sender_strength =
-        std::max(g_player[sender]->GetRelativeStrength(foreigner),
-			     g_player[sender]->GetRelativeStrength(receiver)
+        std::max(player_Get(sender)->GetRelativeStrength(foreigner),
+			     player_Get(sender)->GetRelativeStrength(receiver)
                 );
 
 	if (sender_strength > DIPLOMATIC_STRENGTH_VERY_STRONG)
@@ -1301,8 +1301,8 @@ STDEHANDLER(HonorPollutionAgreement_ProposalResponseEvent)
 	if (sender_proposal.detail.first_type != PROPOSAL_REQUEST_HONOR_POLLUTION_AGREEMENT)
 		return GEV_HD_Continue;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)
@@ -1470,8 +1470,8 @@ STDEHANDLER(EndEmbargo_ProposalResponseEvent)
 	if (sender_proposal.detail.first_type != PROPOSAL_REQUEST_END_EMBARGO)
 		return GEV_HD_Continue;
 
-	Player *sender_ptr = g_player[sender];
-	Player *receiver_ptr = g_player[receiver];
+	Player *sender_ptr = player_Get(sender);
+	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
 	if (sender_ptr == NULL || receiver_ptr == NULL)

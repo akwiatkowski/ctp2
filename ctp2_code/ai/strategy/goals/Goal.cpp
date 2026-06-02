@@ -314,8 +314,8 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 	Assert(agent_ptr);
 
 	if(!agent_ptr->Get_Is_Dead()
-	&&  g_player[m_playerId]
-	&&  g_player[m_playerId]->IsRobot()
+	&&  player_Get(m_playerId)
+	&&  player_Get(m_playerId)->IsRobot()
 	){
 		agent_ptr->ClearOrders();
 	}
@@ -1422,7 +1422,7 @@ void Goal::Compute_Needed_Troop_Flow()
 Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 {
 #if defined(_DEBUG)
-	Player *player_ptr = g_player[ m_playerId ];
+	Player *player_ptr = player_Get( m_playerId );
 	Assert(player_ptr && agent_ptr);
 #endif
 
@@ -1716,7 +1716,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 #endif //_DEBUG
 
 		if (!Barbarians::InBarbarianPeriod(g_turn->GetRound())
-		||  (g_player[agent_ptr->Get_Army()->GetOwner()] && wonderutil_GetProtectFromBarbarians(g_player[agent_ptr->Get_Army()->GetOwner()]->m_builtWonders))
+		||  (player_Get(agent_ptr->Get_Army()->GetOwner()) && wonderutil_GetProtectFromBarbarians(player_Get(agent_ptr->Get_Army()->GetOwner())->m_builtWonders))
 		){
 			bonus += g_theGoalDB->Get(m_goal_type)->GetNoBarbarianBonus();
 		}
@@ -1733,7 +1733,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	{
 		if(!world_Get()->IsOnSameContinent(dest_pos, agent_ptr->Get_Pos()) // Same continent problem
 		&& !agent_ptr->Get_Army()->GetMovementTypeAir()
-		&& g_player[m_playerId]->GetCargoCapacity() <= 0
+		&& player_Get(m_playerId)->GetCargoCapacity() <= 0
 		&& m_current_attacking_strength.Get_Transport() <= 0
 		){
 			return Goal::BAD_UTILITY;
@@ -1814,7 +1814,7 @@ Utility Goal::Get_Initial_Priority() const
 
 Utility Goal::Compute_Raw_Priority()
 {
-	Player *    player_ptr = g_player[m_playerId];
+	Player *    player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
 
 	if (!player_ptr || Get_Totally_Complete())
@@ -2185,7 +2185,7 @@ Utility Goal::Compute_Raw_Priority()
 	    && cbRec->GetSmallTargetEmpireBonus() != 0
 	    && target_owner != m_playerId
 	    && target_owner > -1
-	    && g_player[target_owner] && g_player[target_owner]->GetNumCities() < cbRec->GetSmallTargetEmpireSize()
+	    && player_Get(target_owner) && player_Get(target_owner)->GetNumCities() < cbRec->GetSmallTargetEmpireSize()
 	  )
 	{
 		cell_value += cbRec->GetSmallTargetEmpireBonus();
@@ -2203,7 +2203,7 @@ Utility Goal::Compute_Raw_Priority()
 	    && cbRec->GetWeakestEnemyBonus() != 0
 	    && target_owner > -1
 	    && (
-	            g_player[m_playerId]->GetWeakestEnemy() == target_owner
+	            player_Get(m_playerId)->GetWeakestEnemy() == target_owner
 	         || target_owner == 0
 	       )
 	  )
@@ -2480,14 +2480,14 @@ bool Goal::Get_Totally_Complete() const
 	PLAYER_INDEX target_owner     = Get_Target_Owner();
 	MapPoint target_pos           = Get_Target_Pos();
 
-	Player *player_ptr = g_player[ m_playerId ];
+	Player *player_ptr = player_Get( m_playerId );
 	Assert(player_ptr != NULL);
 
 	// Don't attack as Barbarian a target that is protected by the Great Wall
 	if
 	  (
 	       m_playerId == PLAYER_INDEX_VANDALS
-	    && wonderutil_GetProtectFromBarbarians(g_player[target_owner]->m_builtWonders)
+	    && wonderutil_GetProtectFromBarbarians(player_Get(target_owner)->m_builtWonders)
 	  )
 	{
 		return true;
@@ -2498,8 +2498,8 @@ bool Goal::Get_Totally_Complete() const
 		const WonderRecord *wonder_rec = goal_record->GetTargetProtectionWonderPtr();
 
 		if ((AgreementMatrix::s_agreements.TurnsAtWar(m_playerId, target_owner) < 0) &&
-			g_player[target_owner] &&
-			(g_player[target_owner]->GetBuiltWonders() & ((uint64)1 << (uint64)(wonder_rec->GetIndex()))))
+			player_Get(target_owner) &&
+			(player_Get(target_owner)->GetBuiltWonders() & ((uint64)1 << (uint64)(wonder_rec->GetIndex()))))
 			return true;
 	}
 
@@ -2671,7 +2671,7 @@ bool Goal::Get_Totally_Complete() const
 			break;
 	}
 
-	if(g_player[m_playerId]->GetGold() < order_record->GetGold())
+	if(player_Get(m_playerId)->GetGold() < order_record->GetGold())
 	{
 		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, m_goal_type, 0,
 		    ("GOAL %x (%s): Not enough gold to perform goal.\n", this, g_theGoalDB->Get(m_goal_type)->GetNameText()));
@@ -2701,7 +2701,7 @@ bool Goal::Get_Totally_Complete() const
 
 	if(order_record->GetUnitPretest_CanPlantNuke())
 	{
-		if (!g_player[m_playerId]->HasAdvance(advanceutil_GetNukeAdvance()))
+		if (!player_Get(m_playerId)->HasAdvance(advanceutil_GetNukeAdvance()))
 			return true;
 	}
 
@@ -2739,7 +2739,7 @@ bool Goal::Get_Totally_Complete() const
 
 	if (order_record->GetUnitPretest_EstablishEmbassy())
 	{
-		if (g_player[m_playerId]->HasEmbassyWith(m_target_city->GetOwner()))
+		if (player_Get(m_playerId)->HasEmbassyWith(m_target_city->GetOwner()))
 			return true;
 	}
 
@@ -2780,7 +2780,7 @@ bool Goal::Get_Totally_Complete() const
 	{
 		sint32 cost;
 		if (ArmyData::GetInciteRevolutionCost(target_pos, cost) &&
-			( cost > g_player[m_playerId]->GetGold()))
+			( cost > player_Get(m_playerId)->GetGold()))
 			return true;
 	}
 
@@ -2795,7 +2795,7 @@ bool Goal::Get_Totally_Complete() const
 	if (order_record->GetUnitPretest_CanStealTechnology())
 	{
 		sint32 num = 0;
-		delete [] g_player[m_playerId]->m_advances->CanAskFor(g_player[target_owner]->m_advances, num);
+		delete [] player_Get(m_playerId)->m_advances->CanAskFor(player_Get(target_owner)->m_advances, num);
 
 		if(num <= 0)
 			return true;
@@ -2888,7 +2888,7 @@ bool Goal::Get_Invalid() const
 	}
 
 	if (goal_record->GetTargetTypeUnexplored() )
-		return(g_player[m_playerId]->IsExplored(Get_Target_Pos()));
+		return(player_Get(m_playerId)->IsExplored(Get_Target_Pos()));
 
 	if(goal_record->GetTargetTypeSettleLand()
 	|| goal_record->GetTargetTypeSettleSea()
@@ -3358,9 +3358,9 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 		MapPoint nearest_airfield;
 		double airfield_distance = 0.0;
 		double     city_distance = 0.0;
-		bool airfield_found = g_player[m_playerId]->
+		bool airfield_found = player_Get(m_playerId)->
 		                      GetNearestAirfield(start_pos, nearest_airfield, cargo_cont);
-		bool     city_found = g_player[m_playerId]->
+		bool     city_found = player_Get(m_playerId)->
 		                      GetNearestCity(start_pos, nearest_city, city_distance, false);
 		if (airfield_found)
 		{
@@ -3605,7 +3605,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 
 		Unit   nearest_city;
 		double city_distance = 0.0;
-		bool   city_found    = g_player[m_playerId]->
+		bool   city_found    = player_Get(m_playerId)->
 		                       GetNearestCity(goal_pos, nearest_city, city_distance, false, target_cont);
 
 		if (city_found)
@@ -4473,7 +4473,7 @@ bool Goal::LoadTransporters(Agent_ptr agent_ptr)
 		Set_Sub_Task(SUB_TASK_CARGO_TO_BOARD);
 		success = GotoTransportTaskSolution(agent_ptr, transport_ptr, pos);
 
-		g_player[m_playerId]->
+		player_Get(m_playerId)->
 			AddCargoCapacity(static_cast<sint16>(-1 * agent_ptr->Get_Army().Num()));
 	}
 	else

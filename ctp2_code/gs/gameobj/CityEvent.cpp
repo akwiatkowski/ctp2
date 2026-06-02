@@ -108,9 +108,9 @@ STDEHANDLER(CaptureCityEvent)
 
 	//EMOD capitol stuff is in army event shouldn't it go here?
 	if (city.CD()->IsCapitol()) {
-		sint32 sep = (g_player[originalOwner]->m_all_cities->Num()) / 2;
+		sint32 sep = (player_Get(originalOwner)->m_all_cities->Num()) / 2;
 		for (sint32 j = 0; j < sep; ++j) {
-			Unit revcity = g_player[originalOwner]->m_all_cities->Get(j) ;
+			Unit revcity = player_Get(originalOwner)->m_all_cities->Get(j) ;
 			CityData	*revcityData = revcity.AccessData()->GetCityData() ;
 			revcityData->GetHappy()->ForceRevolt() ;
 		}
@@ -130,7 +130,7 @@ STDEHANDLER(CaptureCityEvent)
 				for (sint32 imp = 0; imp < g_theTerrainImprovementDB->NumRecords(); imp++) {
 					const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 					if (rec->GetIsCityRuin()){
-						g_player[newOwner]->CreateSpecialImprovement(imp, pos, 0);
+						player_Get(newOwner)->CreateSpecialImprovement(imp, pos, 0);
 					}
 				}
 			}
@@ -158,15 +158,15 @@ STDEHANDLER(CaptureCityEvent)
 			g_slicEngine->Execute(so);
 
 			// The AI frees slaves if it has no slaves or any units that can catch slaves
-			if(g_player[newOwner]->IsRobot())
+			if(player_Get(newOwner)->IsRobot())
 			{
 				bool freeSlaves = true;
 
 				sint32 i;
 
-				for(i = 0; i < g_player[newOwner]->m_all_cities->Num(); i++)
+				for(i = 0; i < player_Get(newOwner)->m_all_cities->Num(); i++)
 				{
-					Unit newOwnerCity = g_player[newOwner]->GetCityFromIndex(i);
+					Unit newOwnerCity = player_Get(newOwner)->GetCityFromIndex(i);
 
 					if(newOwnerCity != city && newOwnerCity.AccessData()->CountSlaves() > 0)
 					{
@@ -177,9 +177,9 @@ STDEHANDLER(CaptureCityEvent)
 
 				if(freeSlaves)
 				{
-					for(i = 0; i < g_player[newOwner]->m_all_units->Num(); i++)
+					for(i = 0; i < player_Get(newOwner)->m_all_units->Num(); i++)
 					{
-						const UnitRecord *rec = g_player[newOwner]->m_all_units->Access(i).GetDBRec();
+						const UnitRecord *rec = player_Get(newOwner)->m_all_units->Access(i).GetDBRec();
 						if
 						  (
 						       rec->HasSlaveRaids()
@@ -230,8 +230,8 @@ STDEHANDLER(CaptureCityEvent)
 
 			//Check if there are any advances to steal:
 			sint32 num;
-			uint8 *canSteal = g_player[newOwner]->m_advances->CanAskFor(
-			                  g_player[originalOwner]->m_advances, num);
+			uint8 *canSteal = player_Get(newOwner)->m_advances->CanAskFor(
+			                  player_Get(originalOwner)->m_advances, num);
 			if(num > 0){
 				sint32 i;
 				sint32 count = 0;
@@ -240,7 +240,7 @@ STDEHANDLER(CaptureCityEvent)
 				for(i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
 					if(canSteal[i]) {
 						if(which == count) {
-							g_player[newOwner]->m_advances->GiveAdvance(i, CAUSE_SCI_COMBAT);
+							player_Get(newOwner)->m_advances->GiveAdvance(i, CAUSE_SCI_COMBAT);
 							SlicObject * so = new SlicObject("99AdvanceFromCapturingCity");
 							so->AddCivilisation(newOwner);
 							so->AddCivilisation(originalOwner);
@@ -267,8 +267,8 @@ STDEHANDLER(CaptureCityEvent)
 
 			delete[] canSteal;
 		}
-		Assert(g_player[newOwner]);
-		g_player[newOwner]->FulfillCaptureCityAgreement(city);
+		Assert(player_Get(newOwner));
+		player_Get(newOwner)->FulfillCaptureCityAgreement(city);
 		g_slicEngine->RunCityCapturedTriggers(newOwner, originalOwner,
 		                                      city);
 
@@ -288,7 +288,7 @@ STDEHANDLER(CityTurnPreProductionEvent)
 	if(!args->GetCity(0, city))
 		return GEV_HD_Continue;
 
-	city.CalcHappiness(g_player[city.GetOwner()]->m_virtualGoldSpent, TRUE);
+	city.CalcHappiness(player_Get(city.GetOwner())->m_virtualGoldSpent, TRUE);
 	city.CheckRiot();
 	return GEV_HD_Continue;
 }
@@ -503,12 +503,12 @@ STDEHANDLER(NukeCityEvent)
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 	if(!args->GetPlayer(0, nuker)) return GEV_HD_Continue;
 
-	if(g_player[c.GetOwner()]) {
+	if(player_Get(c.GetOwner())) {
 		sint32 i;
 
-		for(i = 0; i < g_player[c.GetOwner()]->m_all_units->Num(); i++) {
+		for(i = 0; i < player_Get(c.GetOwner())->m_all_units->Num(); i++) {
 
-			Unit u = g_player[c.GetOwner()]->m_all_units->Access(i);
+			Unit u = player_Get(c.GetOwner())->m_all_units->Access(i);
 
 			if(!u.GetDBRec()->HasNuclearAttack())
 				continue;
@@ -538,7 +538,7 @@ STDEHANDLER(NukeCityEvent)
 	sint32 j;
 	for(j = 0; j < killList.Num(); j++) {
 		if(killList[j].DeathEffectsHappy()) {
-			g_player[killList[j].GetOwner()]->RegisterLostUnits(1, c.RetPos(), DEATH_EFFECT_CALC);
+			player_Get(killList[j].GetOwner())->RegisterLostUnits(1, c.RetPos(), DEATH_EFFECT_CALC);
 		}
 	}
 
@@ -691,10 +691,10 @@ STDEHANDLER(CreateBuildingEvent)
 	c.CD()->GetBuildQueue()->FinishBuildFront(u);
 
 	player = c.GetOwner();
-	if(!g_player[player]) {
+	if(!player_Get(player)) {
 		return GEV_HD_Continue;
 	}
-	if(g_player[player]->GetGaiaController()->HasMaxSatsBuilt()) {
+	if(player_Get(player)->GetGaiaController()->HasMaxSatsBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMaxSatsReached");
 		if(seg && !seg->TestLastShown(player, 10000, g_turn->GetRound())) {
 			so = new SlicObject("GCMaxSatsReached");
@@ -704,7 +704,7 @@ STDEHANDLER(CreateBuildingEvent)
 		}
 	}
 
-	if(g_player[player]->GetGaiaController()->HasMinSatsBuilt()) {
+	if(player_Get(player)->GetGaiaController()->HasMinSatsBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMinSatsReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
@@ -720,7 +720,7 @@ STDEHANDLER(CreateBuildingEvent)
 		}
 	}
 
-	if(g_player[player]->GetGaiaController()->HasMinCoresBuilt()) {
+	if(player_Get(player)->GetGaiaController()->HasMinCoresBuilt()) {
 		seg = g_slicEngine->GetSegment("GCMinCoresReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
@@ -748,7 +748,7 @@ STDEHANDLER(CreateWonderEvent)
 
 	c.CD()->AddWonder(wonder);
 	wonderutil_AddBuilt(wonder);
-	g_player[c->GetOwner()]->AddWonder(wonder, c);
+	player_Get(c->GetOwner())->AddWonder(wonder, c);
 
 	if (c->GetOwner() == player_view::VisiblePlayer() &&
 		!Player::IsThisPlayerARobot(c->GetOwner())) {
@@ -781,7 +781,7 @@ STDEHANDLER(CreateWonderEvent)
 		// Starting at 1: the Barbarians do not have to be notified.
 		for (sint32 i = 1; i < k_MAX_PLAYERS; ++i)
 		{
-			if (g_player[i] && !g_player[i]->IsDead() && (i != c.GetOwner()))
+			if (player_Get(i) && !player_Get(i)->IsDead() && (i != c.GetOwner()))
 			{
 				SlicObject * so	= new SlicObject("GCMustDiscoverGaiaController");
 				so->AddRecipient(i);

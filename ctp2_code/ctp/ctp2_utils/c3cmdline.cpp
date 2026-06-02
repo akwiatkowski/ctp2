@@ -199,8 +199,6 @@ extern TurnCount *g_turn;
 static sint32 s_helpLines = 15;
 
 #define k_HELP_LINES s_helpLines
-
-extern Player**       g_player;
 extern StatusWindow*  g_statusWindow;
 extern sint32         g_debugOwner;
 extern SelectedItem   *g_selected_item;
@@ -1158,13 +1156,13 @@ void ShowVisCommand::Execute(sint32 argc, char **argv)
 {
 	sint32 p, u;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
-		if(!g_player[p])
+		if(!player_Get(p))
 			continue;
 
-		for(u = 0; u < g_player[p]->m_all_armies->Num(); u++) {
+		for(u = 0; u < player_Get(p)->m_all_armies->Num(); u++) {
 			char buf[40];
-			snprintf(buf, sizeof(buf), "VIS: %lx", g_player[p]->m_all_armies->Access(u).Access(0).GetVisibility());
-			g_graphicsOptions->AddTextToArmy(g_player[p]->m_all_armies->Access(u), buf, 255, -1);
+			snprintf(buf, sizeof(buf), "VIS: %lx", player_Get(p)->m_all_armies->Access(u).Access(0).GetVisibility());
+			g_graphicsOptions->AddTextToArmy(player_Get(p)->m_all_armies->Access(u), buf, 255, -1);
 		}
 	}
 }
@@ -1511,9 +1509,9 @@ void SetGovernorPwReserveCommand::Execute(sint32 argc, char **argv) {
 	}
 
 	if (num >= 0)
-		g_player[player]->SetGovernorPwReserve(num);
+		player_Get(player)->SetGovernorPwReserve(num);
 	else
-		g_player[player]->SetGovernorPwReserve(-1);
+		player_Get(player)->SetGovernorPwReserve(-1);
 }
 
 
@@ -1574,8 +1572,8 @@ void ImportMapCommand::Execute(sint32 argc, char **argv)
 
 void ResetVisionCommand::Execute(sint32 argc, char **argv)
 {
-	if(g_player[g_selected_item->GetVisiblePlayer()]) {
-		g_player[g_selected_item->GetVisiblePlayer()]->m_vision->SetTheWholeWorldUnexplored();
+	if(player_Get(g_selected_item->GetVisiblePlayer())) {
+		player_Get(g_selected_item->GetVisiblePlayer())->m_vision->SetTheWholeWorldUnexplored();
 	}
 }
 
@@ -2027,8 +2025,8 @@ void AttachCommand::Execute(sint32 argc, char **argv)
 			return;
 	}
 
-	if (g_player[player])
-		g_player[player]->m_playerType = PLAYER_TYPE_ROBOT;
+	if (player_Get(player))
+		player_Get(player)->m_playerType = PLAYER_TYPE_ROBOT;
 
 }
 
@@ -2048,12 +2046,12 @@ void DetachCommand::Execute(sint32 argc, char **argv)
 		if(!g_network.IsLocalPlayer(player))
 			return;
 		if(!g_network.IsHost())
-			g_player[player]->m_playerType = PLAYER_TYPE_NETWORK;
+			player_Get(player)->m_playerType = PLAYER_TYPE_NETWORK;
 		else
-			g_player[player]->m_playerType = PLAYER_TYPE_HUMAN;
+			player_Get(player)->m_playerType = PLAYER_TYPE_HUMAN;
 	} else {
-		if(g_player[player])
-			g_player[player]->m_playerType = PLAYER_TYPE_HUMAN;
+		if(player_Get(player))
+			player_Get(player)->m_playerType = PLAYER_TYPE_HUMAN;
 	}
 
 }
@@ -2116,7 +2114,7 @@ void SendSlaveCommand::Execute(sint32 argc, char **argv)
 void ScoreCommand::Execute(sint32 argc, char **argv)
 {
 	sint32 i;
-	Score *score = g_player[g_selected_item->GetVisiblePlayer()]->m_score;
+	Score *score = player_Get(g_selected_item->GetVisiblePlayer())->m_score;
 	for(i = 0; i < SCORE_CAT_MAX; i++) {
 		DPRINTF(k_DBG_GAMESTATE, ("%s: %d\n", score->GetScoreString((SCORE_CATEGORY)i),
 							 score->GetPartialScore((SCORE_CATEGORY)i)));
@@ -2150,7 +2148,7 @@ void ForceRevoltCommand::Execute(sint32 argc, char **argv)
 
 	Cell *cell = world_Get()->GetCell(point);
 	if(cell->GetCity() != Unit()) {
-		cell->GetCity().AccessData()->GetCityData()->Revolt(g_player[cell->GetCity().GetOwner()]->m_civRevoltingCitiesShouldJoin, TRUE);
+		cell->GetCity().AccessData()->GetCityData()->Revolt(player_Get(cell->GetCity().GetOwner())->m_civRevoltingCitiesShouldJoin, TRUE);
 	}
 }
 
@@ -2237,7 +2235,7 @@ void SellImprovementsCommand::Execute(sint32 argc, char **argv)
 	MapPoint point;
 	g_tiledMap->GetMouseTilePos(point);
 
-	g_player[g_selected_item->GetVisiblePlayer()]->TradeImprovementsForPoints(point);
+	player_Get(g_selected_item->GetVisiblePlayer())->TradeImprovementsForPoints(point);
 }
 
 void SellUnitsCommand::Execute(sint32 argc, char **argv)
@@ -2245,7 +2243,7 @@ void SellUnitsCommand::Execute(sint32 argc, char **argv)
 	MapPoint point;
 	g_tiledMap->GetMouseTilePos(point);
 
-	g_player[g_selected_item->GetVisiblePlayer()]->TradeUnitsForPoints(point);
+	player_Get(g_selected_item->GetVisiblePlayer())->TradeUnitsForPoints(point);
 }
 
 void ReadyCommand::Execute(sint32 argc, char **argv)
@@ -2263,8 +2261,8 @@ void SetupModeCommand::Execute(sint32 argc, char **argv)
 		g_network.EnterSetupMode();
 		if(!g_network.IsHost() && !g_network.IsClient()) {
 			g_powerPointsMode = TRUE;
-			g_player[g_selected_item->GetVisiblePlayer()]->m_doneSettingUp = FALSE;
-			g_player[g_selected_item->GetVisiblePlayer()]->SetPoints(g_theProfileDB->PowerPoints());
+			player_Get(g_selected_item->GetVisiblePlayer())->m_doneSettingUp = FALSE;
+			player_Get(g_selected_item->GetVisiblePlayer())->SetPoints(g_theProfileDB->PowerPoints());
 		}
 	}
 }
@@ -2494,7 +2492,7 @@ void GetAdvanceCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->SetResearching(atoi(argv[1]));
+	player_Get(g_selected_item->GetVisiblePlayer())->SetResearching(atoi(argv[1]));
 }
 
 void SlicCommand::Execute(sint32 argc, char **argv)
@@ -2543,7 +2541,7 @@ void TestMessageCommand::Execute(sint32 argc, char **argv)
 	if (argc!=1)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->SendTestMessage();
+	player_Get(g_selected_item->GetVisiblePlayer())->SendTestMessage();
 	}
 
 void HowLongCommand::Execute(sint32 argc, char **argv)
@@ -2581,7 +2579,7 @@ void PacCommand::Execute(sint32 argc, char **argv)
 	MapPoint pos;
 	g_tiledMap->GetMouseTilePos(pos);
 
-	Unit newu = g_player[player]->CreateUnit(g_theUnitDB->NumRecords() - 1,
+	Unit newu = player_Get(player)->CreateUnit(g_theUnitDB->NumRecords() - 1,
 											 pos, Unit(),
 											 FALSE, CAUSE_NEW_ARMY_INITIAL);
 	newu.AccessData()->SetPacMan();
@@ -2653,7 +2651,7 @@ void OvertimeCostCommand::Execute(sint32 argc, char **argv)
 void LearnWhatCommand::Execute(sint32 argc, char **argv)
 {
 	PLAYER_INDEX	player = g_selected_item->GetVisiblePlayer();
-	uint8 *advances = g_player[player]->m_advances->CanResearch();
+	uint8 *advances = player_Get(player)->m_advances->CanResearch();
 	sint32 i, n = g_theAdvanceDB->NumRecords();
 	DPRINTF(k_DBG_GAMESTATE, ("Can research:\n"));
 	for(i = 0; i < n; i++) {
@@ -2859,8 +2857,8 @@ void HearGossipCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->m_all_units->Access(0).AccessData()->HearGossip(
-		g_player[atoi(argv[1])]->m_all_units->Access(0));
+	player_Get(g_selected_item->GetVisiblePlayer())->m_all_units->Access(0).AccessData()->HearGossip(
+		player_Get(atoi(argv[1]))->m_all_units->Access(0));
 #endif
 }
 
@@ -2883,7 +2881,7 @@ void GrantAdvanceCommand::Execute(sint32 argc, char **argv)
 		                                 atoi(argv[1])));
 	}
 
-	g_player[g_selected_item->GetVisiblePlayer()]->m_advances->GiveAdvance(atoi(argv[1]), CAUSE_SCI_UNKNOWN);
+	player_Get(g_selected_item->GetVisiblePlayer())->m_advances->GiveAdvance(atoi(argv[1]), CAUSE_SCI_UNKNOWN);
 }
 
 void GrantAllCommand::Execute(sint32 argc, char **argv)
@@ -2895,7 +2893,7 @@ void GrantAllCommand::Execute(sint32 argc, char **argv)
 	}
 
 	for(sint32 i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
-		g_player[g_selected_item->GetVisiblePlayer()]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+		player_Get(g_selected_item->GetVisiblePlayer())->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 	}
 }
 
@@ -2909,7 +2907,7 @@ void GrantManyCommand::Execute(sint32 argc, char **argv)
 
 
 	for(sint32 i = 0; i < 64; i++) {
-		g_player[g_selected_item->GetVisiblePlayer()]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+		player_Get(g_selected_item->GetVisiblePlayer())->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 	}
 }
 
@@ -3023,7 +3021,7 @@ void SetGovernmentCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->SetGovernmentType(atoi(argv[1]));
+	player_Get(g_selected_item->GetVisiblePlayer())->SetGovernmentType(atoi(argv[1]));
 }
 
 void PopCommand::Execute(sint32 argc, char **argv)
@@ -3054,7 +3052,7 @@ void BuildWonderCommand::Execute(sint32 argc, char **argv)
 
 	g_selected_item->GetTopCurItem(player, item, state);
 	if(state == SELECT_TYPE_LOCAL_CITY) {
-		g_player[player]->BuildWonder(atoi(argv[1]),
+		player_Get(player)->BuildWonder(atoi(argv[1]),
 		                              Unit(item));
 	}
 }
@@ -3098,7 +3096,7 @@ void ReadinessCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->SetReadinessLevel(
+	player_Get(g_selected_item->GetVisiblePlayer())->SetReadinessLevel(
 		(READINESS_LEVEL)atoi(argv[1]));
 }
 
@@ -3116,7 +3114,7 @@ void TerrainImprovementCommand::Execute(sint32 argc, char **argv)
 	sint32 vplayer = g_selected_item->GetVisiblePlayer();
 
 	if(argc == 3) {
-		g_player[vplayer]->CreateImprovement(imp,
+		player_Get(vplayer)->CreateImprovement(imp,
 		                                     point,
 		                                     atoi(argv[2]));
 	} else {
@@ -3490,7 +3488,7 @@ void RegardCommand::Execute(sint32 argc, char **argv)
 
 	otherParty = (PLAYER_INDEX)(atoi(argv[1]));
 	regard = atoi(argv[2]);
-	g_player[g_selected_item->GetVisiblePlayer()]->GetRegard()->SetForPlayer(otherParty, (REGARD_TYPE)regard);
+	player_Get(g_selected_item->GetVisiblePlayer())->GetRegard()->SetForPlayer(otherParty, (REGARD_TYPE)regard);
 }
 
 
@@ -3519,8 +3517,8 @@ void AttitudeCommand::Execute(sint32 argc, char **argv)
 
 	otherParty = (PLAYER_INDEX)(atoi(argv[1]));
 	attitude = atoi(argv[2]);
-	DPRINTF(k_DBG_INFO, ("Current attitude for player %d is %d\n", otherParty, g_player[g_selected_item->GetVisiblePlayer()]->GetAttitude(otherParty)));
-	g_player[g_selected_item->GetVisiblePlayer()]->SetAttitude(otherParty, (ATTITUDE_TYPE)attitude);
+	DPRINTF(k_DBG_INFO, ("Current attitude for player %d is %d\n", otherParty, player_Get(g_selected_item->GetVisiblePlayer())->GetAttitude(otherParty)));
+	player_Get(g_selected_item->GetVisiblePlayer())->SetAttitude(otherParty, (ATTITUDE_TYPE)attitude);
 	DPRINTF(k_DBG_INFO, ("New attitude for player %d is %d\n", otherParty, attitude));
 }
 
@@ -3546,7 +3544,7 @@ void DumpFZRegardCommand::Execute(sint32 argc, char **argv)
 
 	for (i=0; i<k_MAX_PLAYERS; i++) {
 		if (i == p )continue;
-		if (!g_player[i]) continue;
+		if (!player_Get(i)) continue;
 
 
 
@@ -3575,7 +3573,7 @@ void TotalWarCommand::Execute(sint32 argc, char **argv)
 
 
         for (j=0; j<k_MAX_PLAYERS; j++) {
-            if ((i != j) && g_player[i] && g_player[j]) {
+            if ((i != j) && player_Get(i) && player_Get(j)) {
 
             }
         }
@@ -3730,8 +3728,8 @@ void PactCaptureCityCommand::Execute(sint32 argc, char **argv)
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	thirdParty = (PLAYER_INDEX)(atoi(argv[2]));
 	cityIndex = atoi(argv[3]);
-	targetCity = g_player[thirdParty]->CityIndexToUnit(cityIndex);
-	g_player[owner]->MakeCaptureCityPact(recipient, targetCity);
+	targetCity = player_Get(thirdParty)->CityIndexToUnit(cityIndex);
+	player_Get(owner)->MakeCaptureCityPact(recipient, targetCity);
 }
 
 
@@ -3753,7 +3751,7 @@ void PactEndPollutionCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	other_party = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[g_selected_item->GetVisiblePlayer()]->MakeEndPollutionPact(other_party);
+	player_Get(g_selected_item->GetVisiblePlayer())->MakeEndPollutionPact(other_party);
 }
 
 
@@ -3786,10 +3784,10 @@ void RevoltCommand::Execute(sint32 argc, char **argv)
 	if (state != SELECT_TYPE_LOCAL_CITY)
 		return;
 
-	if (!g_player[player]->GetCityIndex(item, index))
+	if (!player_Get(player)->GetCityIndex(item, index))
 		return;
 
-	g_player[player]->Revolt(index);
+	player_Get(player)->Revolt(index);
 
 	}
 
@@ -3813,7 +3811,7 @@ void IsViolatingBordersCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	player = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[g_selected_item->GetVisiblePlayer()]->IsViolatingBorders(player);
+	player_Get(g_selected_item->GetVisiblePlayer())->IsViolatingBorders(player);
 	}
 
 
@@ -3836,7 +3834,7 @@ void IsViolatingPeaceCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	player = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[g_selected_item->GetVisiblePlayer()]->IsViolatingPeace(player);
+	player_Get(g_selected_item->GetVisiblePlayer())->IsViolatingPeace(player);
 	}
 
 
@@ -3859,7 +3857,7 @@ void IsViolatingCeaseFireCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	player = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[g_selected_item->GetVisiblePlayer()]->WillViolateCeaseFire(player);
+	player_Get(g_selected_item->GetVisiblePlayer())->WillViolateCeaseFire(player);
 	}
 
 
@@ -3878,7 +3876,7 @@ void IsPollutionReducedCommand::Execute(sint32 argc, char **argv)
 	if (argc != 1)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->IsPollutionReduced();
+	player_Get(g_selected_item->GetVisiblePlayer())->IsPollutionReduced();
 	}
 
 
@@ -3904,7 +3902,7 @@ void MakeCeaseFireCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->MakeCeaseFire(recipient);
+	player_Get(owner)->MakeCeaseFire(recipient);
 	}
 
 
@@ -3930,7 +3928,7 @@ void BreakCeaseFireCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->BreakCeaseFire(recipient, TRUE);
+	player_Get(owner)->BreakCeaseFire(recipient, TRUE);
 	}
 
 
@@ -3954,7 +3952,7 @@ void RequestGreetingCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestGreeting(recipient);
+	player_Get(owner)->RequestGreeting(recipient);
 	}
 
 
@@ -3980,7 +3978,7 @@ void RequestDemandAdvanceCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	advance = (AdvanceType)(atoi(argv[2]));
-	g_player[owner]->RequestDemandAdvance(recipient, advance);
+	player_Get(owner)->RequestDemandAdvance(recipient, advance);
 	}
 
 
@@ -4008,8 +4006,8 @@ void RequestDemandCityCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	cityIndex = atoi(argv[2]);
-	city = g_player[recipient]->CityIndexToUnit(cityIndex);
-	g_player[owner]->RequestDemandCity(recipient, city);
+	city = player_Get(recipient)->CityIndexToUnit(cityIndex);
+	player_Get(owner)->RequestDemandCity(recipient, city);
 	}
 
 
@@ -4032,7 +4030,7 @@ void RequestDemandMapCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestDemandMap(recipient);
+	player_Get(owner)->RequestDemandMap(recipient);
 	}
 
 
@@ -4058,7 +4056,7 @@ void RequestDemandGoldCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	amount.SetLevel(atoi(argv[2]));
-	g_player[owner]->RequestDemandGold(recipient, amount);
+	player_Get(owner)->RequestDemandGold(recipient, amount);
 	}
 
 
@@ -4083,7 +4081,7 @@ void RequestDemandStopTradeCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	thirdParty = (PLAYER_INDEX)(atoi(argv[2]));
-	g_player[owner]->RequestDemandStopTrade(recipient, thirdParty);
+	player_Get(owner)->RequestDemandStopTrade(recipient, thirdParty);
 	}
 
 
@@ -4108,7 +4106,7 @@ void RequestDemandAttackEnemyCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	thirdParty = (PLAYER_INDEX)(atoi(argv[2]));
-	g_player[owner]->RequestDemandAttackEnemy(recipient, thirdParty);
+	player_Get(owner)->RequestDemandAttackEnemy(recipient, thirdParty);
 	}
 
 
@@ -4131,7 +4129,7 @@ void RequestDemandLeaveOurLandsCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestDemandLeaveOurLands(recipient);
+	player_Get(owner)->RequestDemandLeaveOurLands(recipient);
 	}
 
 
@@ -4154,7 +4152,7 @@ void RequestDemandReducePollutionCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestDemandReducePollution(recipient);
+	player_Get(owner)->RequestDemandReducePollution(recipient);
 	}
 
 
@@ -4180,7 +4178,7 @@ void RequestOfferAdvanceCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	advance = (AdvanceType)(atoi(argv[2]));
-	g_player[owner]->RequestOfferAdvance(recipient, advance);
+	player_Get(owner)->RequestOfferAdvance(recipient, advance);
 	}
 
 
@@ -4208,8 +4206,8 @@ void RequestOfferCityCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	cityIndex = atoi(argv[2]);
-	city = g_player[owner]->CityIndexToUnit(cityIndex);
-	g_player[owner]->RequestOfferCity(recipient, city);
+	city = player_Get(owner)->CityIndexToUnit(cityIndex);
+	player_Get(owner)->RequestOfferCity(recipient, city);
 	}
 
 
@@ -4232,7 +4230,7 @@ void RequestOfferMapCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestOfferMap(recipient);
+	player_Get(owner)->RequestOfferMap(recipient);
 	}
 
 
@@ -4258,7 +4256,7 @@ void RequestOfferGoldCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	amount.SetLevel(atoi(argv[2]));
-	g_player[owner]->RequestOfferGold(recipient, amount);
+	player_Get(owner)->RequestOfferGold(recipient, amount);
 }
 
 
@@ -4281,7 +4279,7 @@ void RequestOfferCeaseFireCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestOfferCeaseFire(recipient);
+	player_Get(owner)->RequestOfferCeaseFire(recipient);
 }
 
 
@@ -4304,7 +4302,7 @@ void RequestOfferPermanentAllianceCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestOfferPermanentAlliance(recipient);
+	player_Get(owner)->RequestOfferPermanentAlliance(recipient);
 	}
 
 
@@ -4334,8 +4332,8 @@ void RequestOfferPactCaptureCityCommand::Execute(sint32 argc, char **argv)
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	thirdParty = (PLAYER_INDEX)(atoi(argv[2]));
 	cityIndex = atoi(argv[3]);
-	city = g_player[thirdParty]->CityIndexToUnit(cityIndex);
-	g_player[owner]->RequestOfferPactCaptureCity(recipient, city);
+	city = player_Get(thirdParty)->CityIndexToUnit(cityIndex);
+	player_Get(owner)->RequestOfferPactCaptureCity(recipient, city);
 	}
 
 
@@ -4358,7 +4356,7 @@ void RequestOfferPactEndPollutionCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestOfferPactEndPollution(recipient);
+	player_Get(owner)->RequestOfferPactEndPollution(recipient);
 	}
 
 
@@ -4575,7 +4573,7 @@ void RequestExchangeAdvanceCommand::Execute(sint32 argc, char **argv)
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	advance = (AdvanceType)(atoi(argv[2]));
 	rewardAdvance = (AdvanceType)(atoi(argv[3]));
-	g_player[owner]->RequestExchangeAdvance(recipient, advance, rewardAdvance);
+	player_Get(owner)->RequestExchangeAdvance(recipient, advance, rewardAdvance);
 	}
 
 
@@ -4604,10 +4602,10 @@ void RequestExchangeCityCommand::Execute(sint32 argc, char **argv)
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	cityIndex = atoi(argv[2]);
-	cityA = g_player[recipient]->CityIndexToUnit(cityIndex);
+	cityA = player_Get(recipient)->CityIndexToUnit(cityIndex);
 	cityIndex = atoi(argv[3]);
-	cityB = g_player[owner]->CityIndexToUnit(cityIndex);
-	g_player[owner]->RequestExchangeCity(recipient, cityA, cityB);
+	cityB = player_Get(owner)->CityIndexToUnit(cityIndex);
+	player_Get(owner)->RequestExchangeCity(recipient, cityA, cityB);
 	}
 
 
@@ -4630,7 +4628,7 @@ void RequestExchangeMapCommand::Execute(sint32 argc, char **argv)
 
 	owner = g_selected_item->GetVisiblePlayer();
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
-	g_player[owner]->RequestExchangeMap(recipient);
+	player_Get(owner)->RequestExchangeMap(recipient);
 	}
 
 
@@ -4645,7 +4643,7 @@ void RequestExchangeMapCommand::Execute(sint32 argc, char **argv)
 
 void DumpAgreementsCommand::Execute(sint32 argc, char **argv)
 	{
-	g_player[g_selected_item->GetVisiblePlayer()]->DumpAgreements();
+	player_Get(g_selected_item->GetVisiblePlayer())->DumpAgreements();
 	}
 
 
@@ -4659,7 +4657,7 @@ void DumpAgreementsCommand::Execute(sint32 argc, char **argv)
 
 void DumpMessagesCommand::Execute(sint32 argc, char **argv)
 	{
-	g_player[g_selected_item->GetVisiblePlayer()]->DumpMessages();
+	player_Get(g_selected_item->GetVisiblePlayer())->DumpMessages();
 	}
 
 
@@ -4674,7 +4672,7 @@ void DumpMessagesCommand::Execute(sint32 argc, char **argv)
 
 void DumpDiplomaticRequestsCommand::Execute(sint32 argc, char **argv)
 	{
-	g_player[g_selected_item->GetVisiblePlayer()]->DumpRequests();
+	player_Get(g_selected_item->GetVisiblePlayer())->DumpRequests();
 	}
 
 
@@ -4699,7 +4697,7 @@ void GiveGoldCommand::Execute(sint32 argc, char **argv)
 
 	recipient = (PLAYER_INDEX)(atoi(argv[1]));
 	amount.SetLevel(atoi(argv[2]));
-	g_player[g_selected_item->GetVisiblePlayer()]->GiveGold(recipient, amount);
+	player_Get(g_selected_item->GetVisiblePlayer())->GiveGold(recipient, amount);
 	}
 
 
@@ -4727,7 +4725,7 @@ void BequeathGoldCommand::Execute(sint32 argc, char **argv)
 	}
 
 	amount.SetLevel(atoi(argv[1]));
-	g_player[g_selected_item->GetVisiblePlayer()]->BequeathGold(amount);
+	player_Get(g_selected_item->GetVisiblePlayer())->BequeathGold(amount);
 	}
 
 
@@ -4745,7 +4743,7 @@ void DumpAlliesCommand::Execute(sint32 argc, char **argv)
 	if (argc != 1)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->DumpAllies();
+	player_Get(g_selected_item->GetVisiblePlayer())->DumpAllies();
 	}
 
 
@@ -4764,7 +4762,7 @@ void FormAllianceCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->FormAlliance((PLAYER_INDEX)(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->FormAlliance((PLAYER_INDEX)(atoi(argv[1])));
 	}
 
 
@@ -4783,7 +4781,7 @@ void BreakAllianceCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->BreakAlliance((PLAYER_INDEX)(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->BreakAlliance((PLAYER_INDEX)(atoi(argv[1])));
 	}
 
 
@@ -4802,7 +4800,7 @@ void ExchangeMapCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->ExchangeMap((PLAYER_INDEX)(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->ExchangeMap((PLAYER_INDEX)(atoi(argv[1])));
 	}
 
 
@@ -4821,7 +4819,7 @@ void GiveMapCommand::Execute(sint32 argc, char **argv)
 	if (argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->GiveMap((PLAYER_INDEX)(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->GiveMap((PLAYER_INDEX)(atoi(argv[1])));
 	}
 
 
@@ -4840,7 +4838,7 @@ void StopTradingWithCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->StopTradingWith((PLAYER_INDEX)(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->StopTradingWith((PLAYER_INDEX)(atoi(argv[1])));
 	}
 
 
@@ -4867,7 +4865,7 @@ void GiveUnitCommand::Execute(sint32 argc, char **argv)
 	target_player = (PLAYER_INDEX)(atoi(argv[1]));
 	other_player = (PLAYER_INDEX)(atoi(argv[2]));
 	unit_idx = atoi(argv[3]);
-	g_player[target_player]->GiveUnit(other_player, unit_idx);
+	player_Get(target_player)->GiveUnit(other_player, unit_idx);
 	}
 
 
@@ -4891,7 +4889,7 @@ void GiveAdvanceCommand::Execute(sint32 argc, char **argv)
 	if (argc != 3)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->GiveAdvance((PLAYER_INDEX)(atoi(argv[1])), (AdvanceType)(atoi(argv[2])), CAUSE_SCI_UNKNOWN);
+	player_Get(g_selected_item->GetVisiblePlayer())->GiveAdvance((PLAYER_INDEX)(atoi(argv[1])), (AdvanceType)(atoi(argv[2])), CAUSE_SCI_UNKNOWN);
 }
 
 
@@ -4927,9 +4925,9 @@ void GiveCityCommand::Execute(sint32 argc, char **argv)
 	Unit u(item);
 
 	other_player = (PLAYER_INDEX)(atoi(argv[1]));
-	city_idx = g_player[player]->GetAllCitiesList()->Find(u);
+	city_idx = player_Get(player)->GetAllCitiesList()->Find(u);
 	if (city_idx != -1)
-		g_player[player]->GiveCity(other_player, city_idx);
+		player_Get(player)->GiveCity(other_player, city_idx);
 
 	}
 
@@ -4963,7 +4961,7 @@ void ExchangeCityCommand::Execute(sint32 argc, char **argv)
 	other_player = (PLAYER_INDEX)(atoi(argv[1]));
 	c1 = atoi(argv[2]);
 	c2 = atoi(argv[3]);
-	g_player[player]->ExchangeCity(other_player, c1, c2);
+	player_Get(player)->ExchangeCity(other_player, c1, c2);
 	}
 
 
@@ -5180,12 +5178,12 @@ WithdrawOfferCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	Assert(g_player[g_selected_item->GetVisiblePlayer()]->GetTradeOffersList()->Num() > atoi(argv[1]));
-	if(g_player[g_selected_item->GetVisiblePlayer()]->GetTradeOffersList()->Num() <= atoi(argv[1]))
+	Assert(player_Get(g_selected_item->GetVisiblePlayer())->GetTradeOffersList()->Num() > atoi(argv[1]));
+	if(player_Get(g_selected_item->GetVisiblePlayer())->GetTradeOffersList()->Num() <= atoi(argv[1]))
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->WithdrawTradeOffer(
-		g_player[g_selected_item->GetVisiblePlayer()]->GetTradeOffersList()->Get(atoi(argv[1])));
+	player_Get(g_selected_item->GetVisiblePlayer())->WithdrawTradeOffer(
+		player_Get(g_selected_item->GetVisiblePlayer())->GetTradeOffersList()->Get(atoi(argv[1])));
 }
 
 void
@@ -5195,11 +5193,11 @@ OfferCommand::Execute(sint32 argc, char **argv)
 	if(argc != 7)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->CreateTradeOffer(
-		g_player[g_selected_item->GetVisiblePlayer()]->GetAllCitiesList()->Get(atoi(argv[1])),
+	player_Get(g_selected_item->GetVisiblePlayer())->CreateTradeOffer(
+		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList()->Get(atoi(argv[1])),
 		(ROUTE_TYPE)atoi(argv[2]), atoi(argv[3]),
 		(ROUTE_TYPE)atoi(argv[4]), atoi(argv[5]),
-		g_player[g_selected_item->GetVisiblePlayer()]->GetAllCitiesList()->Get(atoi(argv[6])));
+		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList()->Get(atoi(argv[6])));
 }
 
 void
@@ -5210,14 +5208,14 @@ AcceptOfferCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	sint32 index = atoi(argv[2]);
-	DynamicArray<TradeOffer> *offers = g_player[atoi(argv[1])]->m_tradeOffers;
+	DynamicArray<TradeOffer> *offers = player_Get(atoi(argv[1]))->m_tradeOffers;
 	Assert(index >= 0);
 	Assert(index < offers->Num());
 	if(index < 0 || index >= offers->Num())
 		return;
 
 	TradeOffer offer = offers->Access(index);
-	UnitDynamicArray *cities = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities;
+	UnitDynamicArray *cities = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
 	sint32 city1index = atoi(argv[3]);
 	sint32 city2index = atoi(argv[4]);
 	Assert(city1index >= 0);
@@ -5232,7 +5230,7 @@ AcceptOfferCommand::Execute(sint32 argc, char **argv)
 
 	Unit city1 = cities->Access(city1index);
 	Unit city2 = cities->Access(city2index);
-	g_player[g_selected_item->GetVisiblePlayer()]->AcceptTradeOffer(offer, city1, city2);
+	player_Get(g_selected_item->GetVisiblePlayer())->AcceptTradeOffer(offer, city1, city2);
 }
 
 void ShowVictoryCommand::Execute(sint32 argc, char **argv)
@@ -5267,7 +5265,7 @@ UntradeRouteCommand::Execute(sint32 argc, char **argv)
 	if(argc != 2)
 		return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->CancelTradeRoute(
+	player_Get(g_selected_item->GetVisiblePlayer())->CancelTradeRoute(
 		tradepool_Get()->GetRouteIndex(atoi(argv[1])));
 }
 
@@ -5290,12 +5288,12 @@ TradeRouteCommand::Execute(sint32 argc, char** argv)
 	d_plr = atoi(argv[4]);
 	d_idx = atoi(argv[5]);
 
-	UnitDynamicArray *cities = g_player[d_plr]->GetAllCitiesList();
+	UnitDynamicArray *cities = player_Get(d_plr)->GetAllCitiesList();
 	Unit destCity = cities->Get(d_idx);
-	cities = g_player[s_plr]->GetAllCitiesList();
+	cities = player_Get(s_plr)->GetAllCitiesList();
 	Unit srcCity = cities->Get(s_idx);
 
-	g_player[s_plr]->CreateTradeRoute(srcCity, sourceType, sourceResource,
+	player_Get(s_plr)->CreateTradeRoute(srcCity, sourceType, sourceResource,
 									  destCity, s_plr, 0);
 }
 
@@ -5378,7 +5376,7 @@ void ToggleHeraldCommand::Execute(sint32 argc, char **argv)
 void ShowAdvancesCommand::Execute(sint32 argc, char **argv)
 {
 #ifdef _DEBUG
-	g_player[g_selected_item->GetVisiblePlayer()]->DisplayAdvances();
+	player_Get(g_selected_item->GetVisiblePlayer())->DisplayAdvances();
 #endif
 
 
@@ -5492,7 +5490,7 @@ void BuildCommand::Execute(sint32 argc, char** argv)
 	g_selected_item->GetTopCurItem(player, item, state);
 	if(state == SELECT_TYPE_LOCAL_CITY) {
 		sint32 type = atoi(argv[1]);
-		g_player[player]->BuildUnit(type, Unit(item));
+		player_Get(player)->BuildUnit(type, Unit(item));
 	}
 }
 
@@ -5506,7 +5504,7 @@ void UpgradeCity::Execute(sint32 argc, char** argv)
 		return;
 	sint32 upgLevel = atoi(argv[2]);
 	sint32 player = g_selected_item->GetVisiblePlayer();
-	Unit u = g_player[player]->GetCityFromIndex(city_idx);
+	Unit u = player_Get(player)->GetCityFromIndex(city_idx);
 
 	SpriteStatePtr newSS(new SpriteState(90+upgLevel));
 
@@ -5546,7 +5544,7 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 			return;
 	}
 
-	if(!g_player[player])
+	if(!player_Get(player))
 		return;
 
 	if (type < 0 || type >= g_theUnitDB->NumRecords())
@@ -5562,7 +5560,7 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 	        return;
         }
 
-        UnitDynamicArray* unitList = g_player[player]->GetAllCitiesList();
+        UnitDynamicArray* unitList = player_Get(player)->GetAllCitiesList();
         Unit city;
         if(unitList->Num() > 0) {
 	        city = unitList->Get(city_idx);
@@ -5570,7 +5568,7 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 	        city = Unit();
         }
 
-        Unit newu = g_player[player]->CreateUnit(type, pos, city,
+        Unit newu = player_Get(player)->CreateUnit(type, pos, city,
 										         FALSE, CAUSE_NEW_ARMY_INITIAL);
     }
 }
@@ -5589,7 +5587,7 @@ void TaxCommand::Execute(sint32 argc, char** argv)
 		return;
 	if(argc > 4)
 		player = (PLAYER_INDEX)atoi(argv[4]);
-	g_player[player]->SetTaxes(s);
+	player_Get(player)->SetTaxes(s);
 }
 
 void SaveCommand::Execute(sint32 argc, char **argv)
@@ -5704,14 +5702,14 @@ void ImproveCommand::Execute(sint32 argc, char** argv)
 
 	g_selected_item->GetTopCurItem(player, item, state);
 	if(state == SELECT_TYPE_LOCAL_CITY) {
-		g_player[player]->BuildImprovement(atoi(argv[1]), Unit(item));
+		player_Get(player)->BuildImprovement(atoi(argv[1]), Unit(item));
 	}
 }
 
 void SeeWWRCommand::Execute(sint32 argc, char**argv)
 {
 
-	g_player[g_selected_item->GetVisiblePlayer()]->DisplayWWR();
+	player_Get(g_selected_item->GetVisiblePlayer())->DisplayWWR();
 }
 
 void SetWorkdayCommand::Execute(sint32 argc, char**argv)
@@ -5720,7 +5718,7 @@ void SetWorkdayCommand::Execute(sint32 argc, char**argv)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    g_player[g_selected_item->GetVisiblePlayer()]->SetWorkdayLevel(val);
+    player_Get(g_selected_item->GetVisiblePlayer())->SetWorkdayLevel(val);
 }
 
 void SetWagesCommand::Execute(sint32 argc, char** argv)
@@ -5729,7 +5727,7 @@ void SetWagesCommand::Execute(sint32 argc, char** argv)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    g_player[g_selected_item->GetVisiblePlayer()]->SetWagesLevel(val);
+    player_Get(g_selected_item->GetVisiblePlayer())->SetWagesLevel(val);
 }
 
 void SetRationsCommand::Execute(sint32 argc, char** argv)
@@ -5738,7 +5736,7 @@ void SetRationsCommand::Execute(sint32 argc, char** argv)
         return;
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
-    g_player[g_selected_item->GetVisiblePlayer()]->SetRationsLevel(val);
+    player_Get(g_selected_item->GetVisiblePlayer())->SetRationsLevel(val);
 }
 
 void AddMaterialsCommand::Execute(sint32 argc, char **argv)
@@ -5753,7 +5751,7 @@ void AddMaterialsCommand::Execute(sint32 argc, char **argv)
 										 atoi(argv[1])));
 	}
 
-	g_player[g_selected_item->GetVisiblePlayer()]->m_materialPool->
+	player_Get(g_selected_item->GetVisiblePlayer())->m_materialPool->
 		AddMaterials(atoi(argv[1]));
 }
 
@@ -5764,7 +5762,7 @@ void SetMaterialsPercentCommand::Execute(sint32 argc, char** argv)
 
 	sint32 val = (PLAYER_INDEX)atoi(argv[1]);
     double d = double (val) * 0.01;
-    g_player[g_selected_item->GetVisiblePlayer()]->SetMaterialsTax(d);
+    player_Get(g_selected_item->GetVisiblePlayer())->SetMaterialsTax(d);
 }
 
 void ThroneRoomUpgradeCommand::Execute(sint32 argc, char** argv)
@@ -5800,7 +5798,7 @@ void SetReadinessCommand::Execute(sint32 argc, char** argv)
     default:
         return;
     }
-    g_player[g_selected_item->GetVisiblePlayer()]->SetReadinessLevel(r);
+    player_Get(g_selected_item->GetVisiblePlayer())->SetReadinessLevel(r);
 }
 
 void FrameCommand::Execute(sint32 argc, char **argv)
@@ -6264,7 +6262,7 @@ void DRayTestCode::Execute(sint32 argc, char **argv)
 	int turnStrength[200];
 	int i;
 	for(i=0; i<curRound; i++)
-		turnStrength[i] = g_player[g_selected_item->GetVisiblePlayer()]->m_strengths->GetTurnStrength(STRENGTH_CAT_WONDERS,i);
+		turnStrength[i] = player_Get(g_selected_item->GetVisiblePlayer())->m_strengths->GetTurnStrength(STRENGTH_CAT_WONDERS,i);
 
 	return;
 }
@@ -6331,8 +6329,8 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 						   0, 0);
 		l = 0;
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-			if(!g_player[i]) continue;
-			UnitDynamicArray* cityList = g_player[i]->GetAllCitiesList();
+			if(!player_Get(i)) continue;
+			UnitDynamicArray* cityList = player_Get(i)->GetAllCitiesList();
 			sint32 n = cityList->Num();
 			for(sint32 j = 0; j < n; j++) {
 				char buf[1024];
@@ -6364,8 +6362,8 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 		}
 	} else if(m_displayOffers) {
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-			if(!g_player[i]) continue;
-			DynamicArray<TradeOffer>* tradeOffers = g_player[i]->GetTradeOffersList();
+			if(!player_Get(i)) continue;
+			DynamicArray<TradeOffer>* tradeOffers = player_Get(i)->GetTradeOffersList();
 			for(sint32 j = 0; j < tradeOffers->Num(); j++) {
 				char buf[1024];
 				char buf2[1024];

@@ -56,7 +56,7 @@
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/primitives.h"
 #include "gfx/tilesys/tiledmap.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "gfx/spritesys/director.h"
 #include "ui/aui_utils/textutils.h"
 #include "gs/utility/MoveFlags.h"
@@ -289,7 +289,7 @@ void TiledMap::DrawLegalMove
 
 				if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 				{
-					Pixel16 const	pixelColor	= g_colorSet->GetColor(lineColor);
+					Pixel16 const	pixelColor	= colorset_Get()->GetColor(lineColor);
 
 					primitives_DrawAALine16(pSurface, x1, y1, x2, y2, pixelColor);
 
@@ -409,7 +409,7 @@ void TiledMap::DrawLegalMove
 
 		if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 		{
-			Pixel16 const	pixelColor	= g_colorSet->GetColor(k_TURN_COLOR_PROJECTILE);
+			Pixel16 const	pixelColor	= colorset_Get()->GetColor(k_TURN_COLOR_PROJECTILE);
 
 			primitives_DrawDashedAALine16(pSurface, x1, y1, x2, y2, pixelColor, k_DOT_LENGTH);
 		}
@@ -482,7 +482,7 @@ void TiledMap::DrawLegalMove
 
 			if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 			{
-				Pixel16 const	pixelColor	= g_colorSet->GetColor(lineColor);
+				Pixel16 const	pixelColor	= colorset_Get()->GetColor(lineColor);
 				if (num_tiles_to_half < line_segment_count)
 				{
 					primitives_DrawDashedAALine16(pSurface, x1, y1, x2, y2, pixelColor, k_DASH_LENGTH);
@@ -503,7 +503,7 @@ void TiledMap::DrawLegalMove
 
 						if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 						{
-							Pixel16 const	pixelColor	= g_colorSet->GetColor(k_TURN_COLOR_PROJECTILE);
+							Pixel16 const	pixelColor	= colorset_Get()->GetColor(k_TURN_COLOR_PROJECTILE);
 
 							primitives_DrawDashedAALine16(pSurface, x1, y1, x2, y2, pixelColor, k_DOT_LENGTH);
 
@@ -570,7 +570,7 @@ void TiledMap::DrawLegalMove
 
 		if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 		{
-			Pixel16 const	pixelColor	= g_colorSet->GetColor(actual_line_color);
+			Pixel16 const	pixelColor	= colorset_Get()->GetColor(actual_line_color);
 
 			if (num_tiles_to_half < line_segment_count)
 			{
@@ -640,7 +640,7 @@ void TiledMap::DrawLegalMove
 			if (INSURFACE(x1, y1) && INSURFACE(x2, y2))
 			{
 				primitives_DrawAALine16
-					(pSurface, x1, y1, x2, y2, g_colorSet->GetColor(actual_line_color));
+					(pSurface, x1, y1, x2, y2, colorset_Get()->GetColor(actual_line_color));
 			}
 
 			AddDirtyTileToMix(prevPos);
@@ -788,7 +788,7 @@ void TiledMap::DrawLegalMove
 
                     dist = drawPos.NormalizedDistance(target_pos);//pft
 					if(dist > max_rge){
-						primitives_PaintRect16(pSurface, &turnRect, g_colorSet->GetColor(actual_line_color));
+						primitives_PaintRect16(pSurface, &turnRect, colorset_Get()->GetColor(actual_line_color));
 						primitives_FrameRect16(pSurface, &turnRect, 0);
 
 						sint32 const	width	= textutils_GetWidth(pSurface, turnNumber);
@@ -840,7 +840,7 @@ void TiledMap::DrawLegalMove
 					actual_line_color	= k_TURN_COLOR_SPECIAL;
 					special_box_done	= true;
 
-					primitives_PaintRect16(pSurface, &turnRect, g_colorSet->GetColor(actual_line_color));
+					primitives_PaintRect16(pSurface, &turnRect, colorset_Get()->GetColor(actual_line_color));
 					primitives_FrameRect16(pSurface, &turnRect, 0);
 
 					sint32 const	width	= textutils_GetWidth(pSurface, turnNumber);
@@ -912,7 +912,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 	{
 		prevPos = currPos;
 		goodPath.Next(currPos);
-		uint16 lineColor = g_colorSet->GetColor(k_TURN_COLOR_UNFINISHED);
+		uint16 lineColor = colorset_Get()->GetColor(k_TURN_COLOR_UNFINISHED);
 		double old, cost;
 		line_segement_count++;
 
@@ -1010,7 +1010,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 
 		double const	cost	= GetEntryCost(sel_army, currPos);
 
-		uint16 turnColor = g_colorSet->GetColor(k_TURN_COLOR_UNFINISHED);
+		uint16 turnColor = colorset_Get()->GetColor(k_TURN_COLOR_UNFINISHED);
 		MapPoint drawPos = prevPos;
 
 		if (currMovementPoints > 0)
@@ -1030,7 +1030,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 		}
 
 		if (prevMovementPoints < 1.0)
-			turnColor = g_colorSet->GetColor(k_TURN_COLOR_UNFINISHED);
+			turnColor = colorset_Get()->GetColor(k_TURN_COLOR_UNFINISHED);
 		else if (currMovementPoints <1.0)
 			currMovementPoints = -1;
 
@@ -1091,13 +1091,13 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 				{
 					if (INSURFACE(turnRect.left, turnRect.top) && INSURFACE(turnRect.right, turnRect.bottom)) {
 						primitives_PaintRect16(pSurface,&turnRect,turnColor);
-						primitives_FrameRect16(pSurface,&turnRect,g_colorSet->GetColor(k_TURN_COLOR));
+						primitives_FrameRect16(pSurface,&turnRect,colorset_Get()->GetColor(k_TURN_COLOR));
 
 						MBCHAR turnNumber[80];
 
 						snprintf(turnNumber, sizeof(turnNumber),"%d",turn);
 
-						COLORREF color = g_colorSet->GetColorRef(k_TURN_COLOR);
+						COLORREF color = colorset_Get()->GetColorRef(k_TURN_COLOR);
 
 						sint32 width = textutils_GetWidth(pSurface, turnNumber);
 						sint32 height = textutils_GetHeight(pSurface, turnNumber);

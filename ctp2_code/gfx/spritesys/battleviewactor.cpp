@@ -349,7 +349,7 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	sint32		top, middle;
 
 	double		ratio = m_hitPoints / m_hitPointsMax;
-	Pixel16		color = g_colorSet->GetPlayerColor(m_playerNum);
+	Pixel16		color = colorset_Get()->GetPlayerColor(m_playerNum);
 	MAPICON		icon = MAPICON_HERALD;
 	TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 	sint32		surfWidth = surf->Width();
@@ -396,23 +396,23 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	if (iconRect.top < 0) return;
 	if (iconRect.bottom >= surfHeight) return;
 
-	primitives_FrameRect16(surf, &iconRect, g_colorSet->GetColor(COLOR_BLACK));
+	primitives_FrameRect16(surf, &iconRect, colorset_Get()->GetColor(COLOR_BLACK));
 
 	InflateRect(&iconRect, -1, -1);
 
 	leftRect = rightRect = iconRect;
 
-	color = g_colorSet->GetColor(COLOR_GREEN);
+	color = colorset_Get()->GetColor(COLOR_GREEN);
 	if (ratio < 1.0) {
 		leftRect.right = leftRect.left + (sint32)(ratio * (double)(iconRect.right-iconRect.left));
 		rightRect.left = leftRect.right;
 		if (ratio >= 0.3 && ratio < 0.7) {
-			color = g_colorSet->GetColor(COLOR_YELLOW);
+			color = colorset_Get()->GetColor(COLOR_YELLOW);
 		} else {
 			if (ratio < 0.3)
-				color = g_colorSet->GetColor(COLOR_RED);
+				color = colorset_Get()->GetColor(COLOR_RED);
 		}
-		primitives_PaintRect16(surf, &rightRect, g_colorSet->GetColor(COLOR_BLACK));
+		primitives_PaintRect16(surf, &rightRect, colorset_Get()->GetColor(COLOR_BLACK));
 	}
 
 	if(leftRect.left > leftRect.right)

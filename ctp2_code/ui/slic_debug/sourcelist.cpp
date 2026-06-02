@@ -66,7 +66,7 @@
 #include "gs/slic/SlicConditional.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 
 static SourceList *g_sourceList = NULL;
@@ -488,11 +488,11 @@ void SourceListItem::Update(void)
 		breakChars[1] = '>';
 		breakChars[2] = 0;
 		breakItem->SetText(breakChars);
-		codeItem->SetTextColor(g_colorSet->GetColorRef(COLOR_RED));
+		codeItem->SetTextColor(colorset_Get()->GetColorRef(COLOR_RED));
 	} else {
 		breakChars[1] = 0;
 		breakItem->SetText(breakChars);
-		codeItem->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
+		codeItem->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
 	}
 }
 

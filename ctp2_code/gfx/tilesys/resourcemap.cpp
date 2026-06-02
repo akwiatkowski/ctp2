@@ -29,7 +29,7 @@
 #include "ctp/c3.h"
 #include "gfx/tilesys/resourcemap.h"
 
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/GoodActor.h"
 #include "gfx/spritesys/UnitActor.h"
@@ -575,13 +575,13 @@ BOOL ResourceMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *c
 
 		if (cell->GetOwner() != c.GetOwner()) {
 			if ( !resourceMap->GetScale() ) {
-				tiledmap_Get()->DrawTileBorder(pSurface, x, y, g_colorSet->GetPlayerColor(cell->GetOwner()));
+				tiledmap_Get()->DrawTileBorder(pSurface, x, y, colorset_Get()->GetPlayerColor(cell->GetOwner()));
 			}
 			else {
 				tiledmap_Get()->DrawTileBorderScaled(pSurface, pos, x, y,
 						tiledmap_Get()->GetZoomTilePixelWidth(),
 						tiledmap_Get()->GetZoomTilePixelHeight(),
-						g_colorSet->GetPlayerColor(cell->GetOwner()));
+						colorset_Get()->GetPlayerColor(cell->GetOwner()));
 			}
 		}
 
@@ -764,7 +764,7 @@ void ResourceMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const U
 					 y,
 					 x + (popEdgeSize*2),
 					 y + (popEdgeSize*2)};
-	primitives_PaintRect16(surface,&popRect,g_colorSet->GetPlayerColor(unit.GetOwner()));
+	primitives_PaintRect16(surface,&popRect,colorset_Get()->GetPlayerColor(unit.GetOwner()));
 	primitives_FrameRect16(surface,&popRect,0x0000);
 
 	textutils_CenteredColoredDropString(

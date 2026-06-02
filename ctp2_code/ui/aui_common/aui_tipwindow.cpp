@@ -8,7 +8,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"   // colorset_Get()
 
 aui_TipWindow::aui_TipWindow(
 	AUI_ERRCODE *retval,
@@ -132,7 +132,7 @@ AUI_ERRCODE aui_TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	aui_ui_Get()->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
 
-	primitives_FrameRect16(surface, &rect, g_colorSet->GetColor(COLOR_GRAY));
+	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_GRAY));
 
 	if ( surface == m_surface )
 		AddDirtyRect( &rect );

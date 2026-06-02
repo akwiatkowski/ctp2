@@ -18,7 +18,7 @@
 #include "gfx/tilesys/BaseTile.h"
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitPool.h"
 #include "ui/aui_ctp2/c3_updateaction.h"
@@ -396,13 +396,13 @@ return 0;
 
 			if (cell->GetOwner() != m_unit.GetOwner()) {
 				if ( !m_scale ) {
-					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
+					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, colorset_Get()->GetPlayerColor(cell->GetOwner()));
 				}
 				else {
 					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
 							tiledmap_Get()->GetZoomTilePixelWidth(),
 							tiledmap_Get()->GetZoomTilePixelHeight(),
-							g_colorSet->GetPlayerColor(cell->GetOwner()));
+							colorset_Get()->GetPlayerColor(cell->GetOwner()));
 				}
 
 				drawBorder = TRUE;
@@ -448,13 +448,13 @@ return 0;
 
 			if (cell->GetOwner() != m_unit.GetOwner()) {
 				if ( !m_scale ) {
-					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
+					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, colorset_Get()->GetPlayerColor(cell->GetOwner()));
 				}
 				else {
 					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
 									tiledmap_Get()->GetZoomTilePixelWidth(),
 									tiledmap_Get()->GetZoomTilePixelHeight(),
-									g_colorSet->GetPlayerColor(cell->GetOwner()));
+									colorset_Get()->GetPlayerColor(cell->GetOwner()));
 				}
 				drawBorder = TRUE;
 			}
@@ -778,13 +778,13 @@ BOOL WorkMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *conte
 
 		if (cell->GetOwner() != c.GetOwner()) {
 			if ( !workMap->GetScale() ) {
-				tiledmap_Get()->DrawTileBorder(pSurface, x, y, g_colorSet->GetPlayerColor(cell->GetOwner()));
+				tiledmap_Get()->DrawTileBorder(pSurface, x, y, colorset_Get()->GetPlayerColor(cell->GetOwner()));
 			}
 			else {
 				tiledmap_Get()->DrawTileBorderScaled(pSurface, pos, x, y,
 						tiledmap_Get()->GetZoomTilePixelWidth(),
 						tiledmap_Get()->GetZoomTilePixelHeight(),
-						g_colorSet->GetPlayerColor(cell->GetOwner()));
+						colorset_Get()->GetPlayerColor(cell->GetOwner()));
 			}
 		}
 
@@ -1005,7 +1005,7 @@ void WorkMap::DrawCityName(aui_Surface *surface, sint32 x, sint32 y, const Unit 
 					 y,
 					 x + (popEdgeSize*2),
 					 y + (popEdgeSize*2)};
-	primitives_PaintRect16(surface,&popRect,g_colorSet->GetPlayerColor(unit.GetOwner()));
+	primitives_PaintRect16(surface,&popRect,colorset_Get()->GetPlayerColor(unit.GetOwner()));
 	primitives_FrameRect16(surface,&popRect,0x0000);
 
 	textutils_CenteredColoredDropString(
@@ -1041,7 +1041,7 @@ void WorkMap::DrawALabel( aui_Surface *surface, MBCHAR *label, sint32 x, sint32 
 	}
 
 	tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, label, 0,
-		g_colorSet->GetColorRef(COLOR_WHITE), 0);
+		colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 }
 
 void WorkMap::DrawLabels( aui_Surface *surface )
@@ -1098,7 +1098,7 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 		ToWindow( &rect );
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, tiStr, 0,
-			g_colorSet->GetColorRef(COLOR_WHITE), 0);
+			colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 	}
 }
@@ -1140,7 +1140,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	m_totalGold += gold;
 
 	POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_RESOURCE1);
-	Pixel16 color = g_colorSet->GetPlayerColor(m_unit.GetOwner());
+	Pixel16 color = colorset_Get()->GetPlayerColor(m_unit.GetOwner());
 
 	sint32	popEdgeSize = k_POP_BOX_SIZE;
 	iconRect.left = x + (popEdgeSize*2);
@@ -1170,12 +1170,12 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 		OffsetRect( &rect, xcenter, ycenter );
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_WHITE), 0);
+			colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_BLACK), 0);
+			colorset_Get()->GetColorRef(COLOR_BLACK), 0);
 	}
 
 	iconRect.left += iconDim.x;
@@ -1204,12 +1204,12 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 		OffsetRect( &rect, xcenter, ycenter );
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_WHITE), 0);
+			colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_BLACK), 0);
+			colorset_Get()->GetColorRef(COLOR_BLACK), 0);
 	}
 
 	iconDim = tileSet->GetMapIconDimensions(MAPICON_RESOURCE1);
@@ -1238,12 +1238,12 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 		OffsetRect( &rect, xcenter, ycenter );
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_WHITE), 0);
+			colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
 		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
-			g_colorSet->GetColorRef(COLOR_BLACK), 0);
+			colorset_Get()->GetColorRef(COLOR_BLACK), 0);
 	}
 }
 

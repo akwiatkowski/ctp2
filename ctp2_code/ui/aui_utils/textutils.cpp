@@ -32,7 +32,7 @@
 #include "ui/aui_common/aui_surface.h"
 
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/fileio/CivPaths.h"               // civpaths_Get()
 
 static HFONT		g_hFont;
@@ -463,7 +463,7 @@ void textutils_DeleteFont(
 void textutils_DropString(aui_Surface *surface, const MBCHAR *text, sint32 x, sint32 y, sint32 size, COLOR color, sint32 font)
 {
 	HFONT		tempFont;
-	COLORREF	colorRef = g_colorSet->GetColorRef(color);
+	COLORREF	colorRef = colorset_Get()->GetColorRef(color);
 
 	tempFont = textutils_CreateFont(surface, k_FONT_FACE_NAME, size * 10, 0, 0, TRUE);
 	Assert(tempFont);
@@ -480,8 +480,8 @@ void textutils_DropString(aui_Surface *surface, const MBCHAR *text, sint32 x, si
 void textutils_ColoredDropString(aui_Surface *surface, const MBCHAR *text, sint32 x, sint32 y, sint32 size, COLOR textColor, COLOR dropColor, sint32 font)
 {
 	HFONT		tempFont;
-	COLORREF	colorRefText = g_colorSet->GetColorRef(textColor);
-	COLORREF	colorRefDrop = g_colorSet->GetColorRef(dropColor);
+	COLORREF	colorRefText = colorset_Get()->GetColorRef(textColor);
+	COLORREF	colorRefDrop = colorset_Get()->GetColorRef(dropColor);
 
 	tempFont = textutils_CreateFont(surface, k_FONT_FACE_NAME, size * 10, 0, 0, TRUE);
 	Assert(tempFont);
@@ -498,7 +498,7 @@ void textutils_ColoredDropString(aui_Surface *surface, const MBCHAR *text, sint3
 void textutils_CenteredDropString(aui_Surface *surface, const MBCHAR *text, RECT *destRect, sint32 size, COLOR color, sint32 font)
 {
 	HFONT		tempFont;
-	COLORREF	colorRef = g_colorSet->GetColorRef(color);
+	COLORREF	colorRef = colorset_Get()->GetColorRef(color);
 
 	tempFont = textutils_CreateFont(surface, k_FONT_FACE_NAME, size * 10, 0, 0, TRUE);
 	Assert(tempFont);
@@ -520,8 +520,8 @@ void textutils_CenteredDropString(aui_Surface *surface, const MBCHAR *text, RECT
 void textutils_CenteredColoredDropString(aui_Surface *surface, const MBCHAR *text, RECT *destRect, sint32 size, COLOR textColor, COLOR dropColor,sint32 font)
 {
 	HFONT		tempFont;
-	COLORREF	colorRefText = g_colorSet->GetColorRef(textColor);
-	COLORREF	colorRefDrop = g_colorSet->GetColorRef(dropColor);
+	COLORREF	colorRefText = colorset_Get()->GetColorRef(textColor);
+	COLORREF	colorRefDrop = colorset_Get()->GetColorRef(dropColor);
 
 	tempFont = textutils_CreateFont(surface, k_FONT_FACE_NAME, size * 10, 0, 0, TRUE);
 	Assert(tempFont);
@@ -540,7 +540,7 @@ void textutils_CenteredColoredDropString(aui_Surface *surface, const MBCHAR *tex
 void textutils_SizedBoundedString(aui_Surface *surface, const MBCHAR *text, RECT *destRect, sint32 size, COLOR color, sint32 font)
 {
 	HFONT		tempFont;
-	COLORREF	colorRef = g_colorSet->GetColorRef(color);
+	COLORREF	colorRef = colorset_Get()->GetColorRef(color);
 
 	tempFont = textutils_CreateFont(surface, k_FONT_FACE_NAME, size * 10, 0, 0, TRUE);
 	Assert(tempFont);

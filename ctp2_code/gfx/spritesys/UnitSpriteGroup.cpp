@@ -54,7 +54,7 @@
 #include "gfx/spritesys/SpriteFile.h"
 #include "gfx/spritesys/Anim.h"
 
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "gs/fileio/Token.h"
 
@@ -318,8 +318,8 @@ void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, uns
 void UnitSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 {
 #ifndef __MAKESPR__
-	primitives_DrawText(screenmanager_Get()->GetSurface(), x+1, y+1, s, g_colorSet->GetColorRef(COLOR_BLACK), 1);
-	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, g_colorSet->GetColorRef(COLOR_WHITE), 1);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x+1, y+1, s, colorset_Get()->GetColorRef(COLOR_BLACK), 1);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, colorset_Get()->GetColorRef(COLOR_WHITE), 1);
 #endif
 }
 

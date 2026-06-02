@@ -47,7 +47,7 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/textutils.h"
 #include "gfx/tilesys/tileset.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 
 
@@ -1109,7 +1109,7 @@ PRIMITIVES_ERRCODE primitives_DrawBoundedText(
 	if (bg)
 		oldMode = SetBkMode(hdc,TRANSPARENT);
 
-	oldColor = SetTextColor(hdc, g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP));
+	oldColor = SetTextColor(hdc, colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP));
 
 	HFONT hOldFont = NULL;
 	if (hfont_Get())
@@ -1243,7 +1243,7 @@ PRIMITIVES_ERRCODE primitives_DropText(
 	if (hfont_Get())
 		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
-	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
+	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
 	SetTextColor(hdc, dropTextColor);
 	TextOut(hdc,x+1,y+1,pString,strlen(pString));
@@ -1367,7 +1367,7 @@ PRIMITIVES_ERRCODE primitives_DropTextCentered(
 	if (hfont_Get())
 		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
-	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
+	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
 	GetTextExtentPoint32(hdc, pString, strlen(pString),  &size);
 
@@ -1507,7 +1507,7 @@ PRIMITIVES_ERRCODE primitives_DropTextBatch(
 	if (hfont_Get())
 		hOldFont = (HFONT)SelectObject(hdc,hfont_Get());
 
-	COLORREF	dropTextColor = g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_DROP);
+	COLORREF	dropTextColor = colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_DROP);
 
 	SetTextColor(hdc, dropTextColor);
 

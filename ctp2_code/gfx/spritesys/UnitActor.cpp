@@ -1044,15 +1044,15 @@ void UnitActor::DrawFortifying(bool fogged) {
   if (clipRect.bottom >= screenmanager_Get()->GetSurfHeight())
     clipRect.bottom = screenmanager_Get()->GetSurfHeight() - 1;
 
-  COLORREF colorRef = g_colorSet->GetColorRef(COLOR_BLACK);
+  COLORREF colorRef = colorset_Get()->GetColorRef(COLOR_BLACK);
 
   font->DrawString(screenmanager_Get()->GetSurface(), &rect, &clipRect, fString, 0,
                    colorRef, 0);
 
   if (fogged) {
-    colorRef = g_colorSet->GetColorRef(COLOR_WHITE);
+    colorRef = colorset_Get()->GetColorRef(COLOR_WHITE);
   } else {
-    colorRef = g_colorSet->GetDarkColorRef(COLOR_WHITE);
+    colorRef = colorset_Get()->GetDarkColorRef(COLOR_WHITE);
   }
 
   OffsetRect(&rect, -1, -1);
@@ -1467,7 +1467,7 @@ void UnitActor::DrawHerald(void) {
     icon = (MAPICON)((sint32)MAPICON_HERALD10 + (army.Num() - 10));
   }
 
-  Pixel16 color = g_colorSet->GetPlayerColor(m_playerNum);
+  Pixel16 color = colorset_Get()->GetPlayerColor(m_playerNum);
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(icon);
   RECT rect = {0, 0, iconDim.x + 1, iconDim.y + 1};
@@ -1617,7 +1617,7 @@ void UnitActor::DrawHealthBar(void) {
 
   tiledmap_Get()->AddDirtyRectToMix(tempRect);
 
-  Pixel16 black = g_colorSet->GetColor(COLOR_BLACK);
+  Pixel16 black = colorset_Get()->GetColor(COLOR_BLACK);
   if (black == 0x0000)
     black = 0x0001;
 
@@ -1643,7 +1643,7 @@ void UnitActor::DrawHealthBar(void) {
     RECT leftRect = healthBar;
     RECT rightRect = healthBar;
 
-    Pixel16 color = g_colorSet->GetColor(COLOR_GREEN);
+    Pixel16 color = colorset_Get()->GetColor(COLOR_GREEN);
 
     if (ratio < 1.0) {
       leftRect.right =
@@ -1652,11 +1652,11 @@ void UnitActor::DrawHealthBar(void) {
       rightRect.left = leftRect.right;
 
       if (ratio < 0.25) {
-        color = g_colorSet->GetColor(COLOR_RED);
+        color = colorset_Get()->GetColor(COLOR_RED);
       } else if (ratio < 0.50) {
-        color = g_colorSet->GetColor(COLOR_ORANGE);
+        color = colorset_Get()->GetColor(COLOR_ORANGE);
       } else if (ratio < 0.75) {
-        color = g_colorSet->GetColor(COLOR_YELLOW);
+        color = colorset_Get()->GetColor(COLOR_YELLOW);
       }
 
       primitives_PaintRect16(screenmanager_Get()->GetSurface(), &rightRect, black);
@@ -1718,7 +1718,7 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
   sint32 y2 = y + iconDim.y;
   sint32 w = iconDim.x;
   sint32 h = iconDim.y;
-  Pixel16 displayedColor = g_colorSet->GetPlayerColor(displayedOwner);
+  Pixel16 displayedColor = colorset_Get()->GetPlayerColor(displayedOwner);
 
 // Remove the next line when the scaling and centering of the text has been
 // implemented properly - or you want to test its operation. Currently, the
@@ -1795,7 +1795,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
     displayedOwner = m_playerNum;
   }
 
-  Pixel16 displayedColor = g_colorSet->GetPlayerColor(displayedOwner);
+  Pixel16 displayedColor = colorset_Get()->GetPlayerColor(displayedOwner);
 
   sint32 x2 = x;
   sint32 y2 = y;
@@ -1895,7 +1895,7 @@ void UnitActor::DrawSpecialIndicators(
     displayedOwner = m_playerNum;
   }
 
-  Pixel16 displayedColor = g_colorSet->GetPlayerColor(displayedOwner);
+  Pixel16 displayedColor = colorset_Get()->GetPlayerColor(displayedOwner);
   sint32 x2 = x;
   sint32 y2 = y + iconDim.y;
   sint32 w = iconDim.x;
@@ -2000,7 +2000,7 @@ void UnitActor::DrawSelectionBrackets(void) {
       color = COLOR_RED;
     }
   }
-  Pixel16 pixelColor = g_colorSet->GetColor(color);
+  Pixel16 pixelColor = colorset_Get()->GetColor(color);
 
   tiledmap_Get()->DrawColorizedOverlayIntoMix(topLeft, rect.left, rect.top,
                                           pixelColor);

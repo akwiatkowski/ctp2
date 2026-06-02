@@ -90,7 +90,7 @@
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
 #include "gfx/tilesys/BaseTile.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/textutils.h"
 #include "gs/gameobj/citydata.h"
@@ -143,20 +143,20 @@ namespace
     // Simple shorthand functions
     Pixel16 GetColor(COLOR const & a_ColorName, bool a_IsFogged = false)
     {
-        return (a_IsFogged) ? g_colorSet->GetDarkColor(a_ColorName)
-                            : g_colorSet->GetColor(a_ColorName);
+        return (a_IsFogged) ? colorset_Get()->GetDarkColor(a_ColorName)
+                            : colorset_Get()->GetColor(a_ColorName);
     }
 
     COLORREF GetColorRef(COLOR const & a_ColorName, bool a_IsFogged = false)
     {
-        return (a_IsFogged) ? g_colorSet->GetDarkColorRef(a_ColorName)
-                            : g_colorSet->GetColorRef(a_ColorName);
+        return (a_IsFogged) ? colorset_Get()->GetDarkColorRef(a_ColorName)
+                            : colorset_Get()->GetColorRef(a_ColorName);
     }
 
     Pixel16 GetPlayerColor(sint32 a_Player, bool a_IsFogged = false)
     {
-        return (a_IsFogged) ? g_colorSet->GetDarkPlayerColor(a_Player)
-                            : g_colorSet->GetPlayerColor(a_Player);
+        return (a_IsFogged) ? colorset_Get()->GetDarkPlayerColor(a_Player)
+                            : colorset_Get()->GetPlayerColor(a_Player);
     }
 
     int     StartPixel(int a_Position)
@@ -4703,7 +4703,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		return;
 
 	uint32 myCityOwner = GetVisibleCityOwner(pos);
-	Pixel16 color = g_colorSet->GetPlayerColor(myOwner);
+	Pixel16 color = colorset_Get()->GetPlayerColor(myOwner);
 	Pixel16 white = GetColor(COLOR_WHITE);
 
 	Unit myCity(myCityOwner);
@@ -4945,7 +4945,7 @@ void TiledMap::DrawChatText()
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);
-					COLOR      color = g_colorSet->ComputePlayerColor(selitem_Get()->GetCurPlayer());
+					COLOR      color = colorset_Get()->ComputePlayerColor(selitem_Get()->GetCurPlayer());
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(color), 0);
 					timeRect.right++;
 					timeRect.bottom++;
@@ -4960,7 +4960,7 @@ void TiledMap::DrawChatText()
 				m_chatRect.right = std::max(m_chatRect.right, rect.right);
 				rect.top -= height;
 				m_chatRect.top -= height;
-				COLOR      color = g_colorSet->ComputePlayerColor(walk.GetObj()->m_sender);
+				COLOR      color = colorset_Get()->ComputePlayerColor(walk.GetObj()->m_sender);
 				m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text, 0, GetColorRef(COLOR_BLACK), 0);
 				OffsetRect(&rect, -1, -1);
 				m_font->DrawString(tempSurf, &rect, &rect, walk.GetObj()->m_text, 0, GetColorRef(color), 0);

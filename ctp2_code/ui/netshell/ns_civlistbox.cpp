@@ -36,7 +36,7 @@
 #include "ui/aui_ctp2/c3_ranger.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "ui/netshell/ns_header.h"
 
 #include "ui/ldl/ldl_data.hpp"
@@ -328,7 +328,7 @@ AUI_ERRCODE ns_CivListBox::Draw(
 				primitives_FrameRect16(
 					surf,
 					&selectRect,
-					g_colorSet->GetColor(COLOR_SELECT_0) );
+					colorset_Get()->GetColor(COLOR_SELECT_0) );
 				primitives_BevelRect16( surf, &selectRect, 1, 1, 10, 10 );
 			}
 		}
@@ -378,7 +378,7 @@ AUI_ERRCODE ns_CivListBox::DrawThis(
 			&bevelRect );
 
 		if ( m_bevelType == 2 ) {
-			primitives_FrameThickRect16( surface, &bevelRect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+			primitives_FrameThickRect16( surface, &bevelRect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 		}
 		else {
 			primitives_BevelRect16( surface, &bevelRect, m_bevelWidth, m_bevelType, 16, 16 );

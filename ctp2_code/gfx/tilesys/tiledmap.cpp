@@ -81,7 +81,7 @@
 #include "gs/gameobj/CityRadius.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/CivPaths.h"                   // civpaths_Get()
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/interface/controlpanelwindow.h"         // controlpanel_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -1613,7 +1613,7 @@ sint32 TiledMap::CalculateWrap
 		}
 
 		if (g_isGridOn)
-			DrawTileBorder(surface, x,y,(g_colorSet->GetColor(COLOR_BLACK)));
+			DrawTileBorder(surface, x,y,(colorset_Get()->GetColor(COLOR_BLACK)));
 
 
 		AddDirtyToMap(x, y, k_TILE_PIXEL_WIDTH, k_TILE_GRID_HEIGHT);
@@ -1652,7 +1652,7 @@ sint32 TiledMap::CalculateWrap
 		}
 
 		if (g_isGridOn)
-			DrawTileBorderScaled(surface, pos, x, y, GetZoomTilePixelWidth(), GetZoomTilePixelHeight(), g_colorSet->GetColor(COLOR_BLACK));
+			DrawTileBorderScaled(surface, pos, x, y, GetZoomTilePixelWidth(), GetZoomTilePixelHeight(), colorset_Get()->GetColor(COLOR_BLACK));
 
 
 
@@ -1824,7 +1824,7 @@ sint32 TiledMap::CalculateWrapClipped(
 		}
 
 		if (g_isGridOn)
-			DrawTileBorderScaled(surface, pos, drawx, drawy, GetZoomTilePixelWidth(), GetZoomTilePixelHeight(), g_colorSet->GetColor(COLOR_BLACK));
+			DrawTileBorderScaled(surface, pos, drawx, drawy, GetZoomTilePixelWidth(), GetZoomTilePixelHeight(), colorset_Get()->GetColor(COLOR_BLACK));
 
 		AddDirtyToMap(drawx, drawy, GetZoomTilePixelWidth(), GetZoomTileGridHeight());
 	}
@@ -2289,7 +2289,7 @@ void TiledMap::PaintArmyActors(MapPoint &pos)
 
 	if (icon) {
 		DrawColorizedOverlayIntoMix(icon, x, y+24,
-						g_colorSet->GetPlayerColor(theArmy.GetOwner()));
+						colorset_Get()->GetPlayerColor(theArmy.GetOwner()));
 	}
 
 	x += (k_ACTOR_CENTER_OFFSET_X * scale);
@@ -2393,7 +2393,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 				COLORREF	fgColor = RGB(r, g, b),
 							bgColor = RGB(0,0,0);
 
-				DrawSomeText(true, s, tx, ty+40, g_colorSet->GetColorRef(COLOR_BLACK), g_colorSet->GetColorRef(COLOR_WHITE));
+				DrawSomeText(true, s, tx, ty+40, colorset_Get()->GetColorRef(COLOR_BLACK), colorset_Get()->GetColorRef(COLOR_WHITE));
 			}
 		}
 		//end emod
@@ -2426,8 +2426,8 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 			text[sizeof(text) - 1] = '\0';
 
 				DrawSomeText(TRUE, text, tx, ty+10,
-								g_colorSet->GetColorRef(COLOR_YELLOW),
-								g_colorSet->GetColorRef(COLOR_PURPLE));
+								colorset_Get()->GetColorRef(COLOR_YELLOW),
+								colorset_Get()->GetColorRef(COLOR_PURPLE));
 			}
 
 			CellUnitList *al = c->UnitArmy();
@@ -2445,8 +2445,8 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 			text[sizeof(text) - 1] = '\0';
 
 				DrawSomeText(TRUE, text, tx, ty,
-					g_colorSet->GetColorRef(COLOR_BLACK),
-					g_colorSet->GetColorRef(COLOR_WHITE));
+					colorset_Get()->GetColorRef(COLOR_BLACK),
+					colorset_Get()->GetColorRef(COLOR_WHITE));
 			}
 
 		}
@@ -3035,13 +3035,13 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 			if (mode == SCEN_START_LOC_MODE_PLAYER ||
 				mode == SCEN_START_LOC_MODE_PLAYER_WITH_CIV) {
 
-				pixelColor = g_colorSet->GetPlayerColor(playerOrCiv);
-				colorRef = g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(playerOrCiv));
+				pixelColor = colorset_Get()->GetPlayerColor(playerOrCiv);
+				colorRef = colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(playerOrCiv));
 			} else
 			if (mode == SCEN_START_LOC_MODE_CIV) {
 
-				pixelColor = g_colorSet->GetColor(COLOR_WHITE);
-				colorRef = g_colorSet->GetColorRef(COLOR_WHITE);
+				pixelColor = colorset_Get()->GetColor(COLOR_WHITE);
+				colorRef = colorset_Get()->GetColorRef(COLOR_WHITE);
 			} else {
 				Assert(FALSE);
 				return;
@@ -3080,7 +3080,7 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 				if (clipRect.right >= surf->Width()) clipRect.right = surf->Width() - 1;
 				if (clipRect.bottom >= surf->Height()) clipRect.bottom = surf->Height() - 1;
 
-				primitives_PaintRect16(surf, &clipRect, g_colorSet->GetColor(COLOR_BLACK));
+				primitives_PaintRect16(surf, &clipRect, colorset_Get()->GetColor(COLOR_BLACK));
 
 				InflateRect(&boxRect, 1, 1);
 
@@ -3091,7 +3091,7 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 				if (clipRect.right >= surf->Width()) clipRect.right = surf->Width() - 1;
 				if (clipRect.bottom >= surf->Height()) clipRect.bottom = surf->Height() - 1;
 
-				primitives_FrameRect16(surf, &clipRect, g_colorSet->GetColor(COLOR_GREEN));
+				primitives_FrameRect16(surf, &clipRect, colorset_Get()->GetColor(COLOR_GREEN));
 
 				clipRect = rect;
 
@@ -3114,7 +3114,7 @@ sint32 TiledMap::DrawCityRadius(const MapPoint &cpos, COLOR color, sint32 pop)
 	{
 		return 0; // Following code not used
 #if 0
-	    Pixel16 pixelColor = g_colorSet->GetColor(color);
+	    Pixel16 pixelColor = colorset_Get()->GetColor(color);
 		CityInfluenceIterator it(cpos, world_Get()->GetCity(cpos).CD()->GetSizeIndex());
 
 		for(it.Start(); !it.End(); it.Next()) {
@@ -3222,7 +3222,7 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
 	sint32 startX, endX;
 
-	Pixel16		pixelColor = g_colorSet->GetColor(color);
+	Pixel16		pixelColor = colorset_Get()->GetColor(color);
 
 	for(sint32 j=0; j<k_TILE_PIXEL_HEIGHT; j++) {
 		if (j<=23) {

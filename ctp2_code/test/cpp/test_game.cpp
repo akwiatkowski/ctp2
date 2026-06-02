@@ -135,34 +135,11 @@ TEST_CASE("Ctp2::Game subsystems are fresh after each NewGame (sequential)") {
     CHECK(true);
 }
 
-TEST_CASE("Ctp2::Game adopts a pre-existing World and releases it on cleanup") {
-    // Production gameinit creates World before Game::NewGame runs; Game
-    // adopts it via the world_Get()/world_Set() accessor pair, similar
-    // to GameSettings and FeatTracker.  This test mirrors that flow:
-    // pre-allocate a tiny World, hand it to Game, verify Game took it,
-    // and verify the legacy global is nulled after cleanup.
-    REQUIRE(world_Get() == nullptr);  // start clean
-
-    MapPoint size(10, 10);
-    world_Set(new World(size, /*xwrap*/ 0, /*ywrap*/ 0));
-    World * legacyPtr = world_Get();
-    REQUIRE(legacyPtr != nullptr);
-
-    {
-        Ctp2::Game game;
-        game.NewGame(2, 0, /*randSeed*/ 42);
-        // Game adopted the legacy world: same pointer reachable through
-        // GetWorld().
-        CHECK(&game.GetWorld() == legacyPtr);
-        // Adoption transferred ownership: legacy global still points to
-        // the same instance (so existing world_Get() callers keep working).
-        CHECK(world_Get() == legacyPtr);
-    }  // game destructed → Cleanup() called
-
-    // After cleanup, the legacy pointer is nulled and the World instance
-    // has been destroyed (Game owned the unique_ptr).
-    CHECK(world_Get() == nullptr);
-}
+// World adoption test removed — World is now trampoline-routed through
+// civapp_Get()->GetGame(), so the legacy world_Set/world_Get pair
+// directly populates m_world.  Adoption is no longer a separate phase
+// to test.  The trampoline roundtrip is exercised by CityDataFixture in
+// test_citydata.cpp (which constructs a CivApp + calls world_Set).
 
 // Note: SlicEngine and GameEventManager used to have adoption tests
 // here, but the trampoline pattern made adoption obsolete — m_slic and

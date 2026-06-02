@@ -22,14 +22,17 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/CivilisationPool.h"
+#include "ctp/civapp.h"
 
-// Minimal fixture: CityData constructor dereferences world_Get(), player_arr_Get(),
-// g_theCitySizeDB and g_theResourceDB. We provide bare-bones stubs so the
-// constructor completes without crashing.
+// Minimal fixture: CityData ctor dereferences world_Get(), player_arr_Get(),
+// g_theCitySizeDB and g_theResourceDB.  After the trampoline migration,
+// world_Set/player_arr_Set route through civapp_Get()->GetGame(), so the
+// fixture constructs a lightweight CivApp; its eager-constructed Game
+// owns the world and tears it down on dtor.  The raw g_theX_DB pointers
+// are pre-trampoline storage and still work as direct assignments.
 struct CityDataFixture
 {
-    World *stubWorld = nullptr;
-    Player **stubPlayers = nullptr;
+    CivApp * app = nullptr;
     CTPDatabase<CitySizeRecord> *stubCitySizeDB = nullptr;
     CTPDatabase<ResourceRecord> *stubResourceDB = nullptr;
     CTPDatabase<ConstRecord> *stubConstDB = nullptr;
@@ -37,17 +40,20 @@ struct CityDataFixture
 
     CityDataFixture()
     {
-        // CityData ctor calls world_Get()->SetCapitolDistanceDirtyFlags()
-        stubWorld = new World(MapPoint(20, 20), false, false);
-        world_Set(stubWorld);
+        // CivApp's eager m_game container hosts the trampoline targets
+        // (world_Set / player_arr_Set / etc.).
+        app = new CivApp();
+        civapp_Set(app);
+
+        world_Set(new World(MapPoint(20, 20), false, false));
 
         // CityData ctor checks player_Get(owner) before dereferencing
-        stubPlayers = new Player *[k_MAX_PLAYERS];
+        Player ** players = new Player *[k_MAX_PLAYERS];
         for (int i = 0; i < k_MAX_PLAYERS; ++i)
         {
-            stubPlayers[i] = nullptr;
+            players[i] = nullptr;
         }
-        player_arr_Set(stubPlayers);
+        player_arr_Set(players);
 
         // CityData ctor allocates arrays sized by NumRecords() and calls
         // ResetStarvationTurns() which reads g_theConstDB and buildingutil_*
@@ -68,14 +74,14 @@ struct CityDataFixture
 
     ~CityDataFixture()
     {
-        world_Set(nullptr);
-        player_arr_Set(nullptr);
         g_theCitySizeDB = nullptr;
         g_theResourceDB = nullptr;
         g_theConstDB = nullptr;
         g_theBuildingDB = nullptr;
-        delete stubWorld;
-        delete[] stubPlayers;
+        // Game::Cleanup runs in ~CivApp via ~Game on m_game; it tears
+        // down m_world and m_playerArr (incl. inner Players) for us.
+        civapp_Set(nullptr);
+        delete app;
         delete stubCitySizeDB;
         delete stubResourceDB;
         delete stubConstDB;
@@ -291,6 +297,11 @@ struct HeavyCityDataFixture
             s_dbsLoaded = true;
         }
 
+        // civapp_Get() may have been nulled by a previous test's fixture
+        // destructor.  Restore it FIRST so the trampoline-routed
+        // foo_Set calls below find the live Game container.
+        civapp_Set(s_app);
+
         world = new World(MapPoint(64, 48), false, false);
         world_Set(world);
 
@@ -299,10 +310,6 @@ struct HeavyCityDataFixture
         {
             player_arr_Get()[i] = nullptr;
         }
-
-        // civapp_Get() may have been nulled by a previous test's fixture destructor.
-        // Always restore it since s_app is a process-wide singleton.
-        civapp_Set(s_app);
 
         // SelectedItem and SlicEngine must exist before Player construction.
         // Player::InitPlayer calls Advances::InitialAdvance which calls

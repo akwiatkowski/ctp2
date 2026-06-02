@@ -190,10 +190,7 @@ static ThroneDB             *g_theThroneDB = NULL;
 ThroneDB * thronedb_Get(void)        { return g_theThroneDB; }
 void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
-// World: file-static (test fixtures own externally via delete).
-static World *g_theWorld = NULL;
-World * world_Get(void)        { return g_theWorld; }
-void    world_Set(World *p)    { g_theWorld = p; }
+GAME_TRAMPOLINE(world_Get, world_Set, World, World)
 GAME_TRAMPOLINE(unitpool_Get, unitpool_Set, Units, UnitPool)
 
 ArmyPool * armypool_Get(void) {

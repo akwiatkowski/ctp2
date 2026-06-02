@@ -86,10 +86,9 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
     ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
 
-    // World: legacy file-static storage (CityDataFixture uses
-    // world_Set as a non-owning swap with manual delete).  Adopt the
-    // legacy pointer here.
-    if (world_Get() && !m_world) m_world.reset(world_Get());
+    // World is trampoline-routed; m_world is already populated by
+    // gameinit's world_Set or by tests' direct civapp_Get()->GetGame()
+    // SetWorldPtr.  Nothing to do here.
 
     // Players[]: gameinit allocates the Player** array and per-slot
     // Players (gameinit_InitializePlayers /
@@ -158,7 +157,6 @@ void Game::Cleanup() {
         m_playerArr = nullptr;
     }
 
-    world_Set(nullptr);
     m_world.reset();
 
     rand_ptr_Set(nullptr);

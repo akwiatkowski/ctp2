@@ -49,59 +49,30 @@ Game::Game(Game&&) noexcept = default;
 Game& Game::operator=(Game&&) noexcept = default;
 
 void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
-    // Adoption-or-create pattern: if gameinit has already allocated the
-    // legacy global, adopt that instance into our unique_ptr (single
-    // instance, Game owns the lifetime).  If no legacy global exists
-    // (e.g. unit-test path where gameinit didn't run), create a fresh
-    // instance and publish it back to the legacy pointer so any
-    // accessor-based callers still see the same object.
+    // All session subsystems trampoline through Ctp2::Game.  Production
+    // gameinit calls foo_Set(new X(...)) BEFORE NewGame runs, which
+    // populates the m_x unique_ptrs through the trampoline.  In
+    // unit-test context (no gameinit) we create defaults for the
+    // ones that have no-arg ctors; Turn and Rand still need explicit
+    // ctor args (numPlayers/initialYear, randSeed) so they create
+    // here if not pre-populated.
 
-    auto adoptOrCreateTurn = [&]() {
-        if (turn_Get()) {
-            m_turn.reset(turn_Get());
-        } else {
-            m_turn = std::make_unique<TurnCount>(numPlayers, initialYear);
-            turn_Set(m_turn.get());
-        }
-    };
-    auto adoptOrCreateRand = [&]() {
-        if (rand_ptr()) {
-            m_rand.reset(rand_ptr());
-        } else {
-            m_rand = std::make_unique<RandomGenerator>(randSeed);
-            rand_ptr_Set(m_rand.get());
-        }
-    };
-    auto ensurePollution = [&]() {
-        // pollution_Set() now trampolines into m_pollution, so by the
-        // time NewGame runs in production gameinit has already
-        // populated m_pollution.  In unit-test context (no gameinit)
-        // create a fresh instance so callers can rely on GetPollution.
-        if (!m_pollution) {
-            m_pollution = std::make_unique<Pollution>();
-        }
-    };
-    // These subsystems now trampoline through Game — gameinit's
-    // *_Set(new X()) calls populate m_x directly.  ensureX creates the
-    // instance for the unit-test path (no gameinit).
-    auto ensureTopTen   = [&]() { if (!m_topten)   m_topten   = std::make_unique<TopTen>();   };
-    auto ensureUnitPool = [&]() { if (!m_unitPool) m_unitPool = std::make_unique<UnitPool>(); };
-    auto ensureArmyPool = [&]() { if (!m_armyPool) m_armyPool = std::make_unique<ArmyPool>(); };
-
-    // Trampolined subsystems: gameinit's x_Set(new X()) already populated
-    // m_x via the trampoline; in unit-test context with no gameinit,
-    // create lazily.
     auto ensure = [](auto& member, auto factory) {
         if (!member) member = factory();
     };
 
-    adoptOrCreateTurn();
-    adoptOrCreateRand();
-    ensurePollution();
-    ensureTopTen();
-    ensureUnitPool();
-    ensureArmyPool();
-
+    ensure(m_turn,                   [&]{ return std::make_unique<TurnCount>(numPlayers, initialYear); });
+    // Rand: legacy file-static, adopt into m_rand (see comment below).
+    if (rand_ptr() && !m_rand) {
+        m_rand.reset(rand_ptr());
+    } else if (!m_rand) {
+        m_rand = std::make_unique<RandomGenerator>(randSeed);
+        rand_ptr_Set(m_rand.get());
+    }
+    ensure(m_pollution,              []{ return std::make_unique<Pollution>();              });
+    ensure(m_topten,                 []{ return std::make_unique<TopTen>();                 });
+    ensure(m_unitPool,               []{ return std::make_unique<UnitPool>();               });
+    ensure(m_armyPool,               []{ return std::make_unique<ArmyPool>();               });
     ensure(m_messagePool,            []{ return std::make_unique<MessagePool>();            });
     ensure(m_civilisationPool,       []{ return std::make_unique<CivilisationPool>();       });
     ensure(m_wonderTracker,          []{ return std::make_unique<WonderTracker>();          });
@@ -115,23 +86,15 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
     ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
 
-    // Subsystems whose ctors dereference app-lifetime globals (DBs,
-    // network) and so can't be created from scratch in unit-test
-    // context — adopt-only.  Production gameinit always allocates
-    // these before Game::NewGame runs, so the adoption branch fires.
-    //   GameSettings : reads profiledb_Get(), g_network in ctor.
-    //   FeatTracker  : reads g_theFeatDB, g_theBuildingDB in ctor.
-    //   World        : ctor needs map config (size + wrap flags) read
-    //                  from profiledb_Get(); adoption is the natural fit.
-    if (gamesettings_Get()) m_settings.reset(gamesettings_Get());
-    if (feattracker_Get())  m_featTracker.reset(feattracker_Get());
-    if (world_Get())        m_world.reset(world_Get());
+    // World, GameSettings, SlicEngine, GameEventManager: legacy
+    // file-static storage (preserved so test fixtures can use Set
+    // as a non-owning swap).  Adopt the legacy pointer here.
+    if (world_Get()      && !m_world)    m_world.reset(world_Get());
+    if (gamesettings_Get() && !m_settings) m_settings.reset(gamesettings_Get());
+    if (slicengine_Get() && !m_slic)     m_slic.reset(slicengine_Get());
+    if (gevmanager_Get() && !m_events)   m_events.reset(gevmanager_Get());
 
-    // SlicEngine and GameEventManager have non-trivial init (SLIC file
-    // loading, event-hook registration) that gameinit handles. Game
-    // adopts the already-initialised instances.
-    if (slicengine_Get())   m_slic.reset(slicengine_Get());
-    if (gevmanager_Get())   m_events.reset(gevmanager_Get());
+    // FeatTracker is trampoline-routed (no test uses it); ensure-only.
 
     // Players[]: gameinit allocates the Player** array and per-slot
     // Players (gameinit_InitializePlayers /
@@ -157,6 +120,8 @@ void Game::Cleanup() {
     // calls become no-ops (delete NULL is safe) and we avoid a
     // double-delete on the single shared instance.
 
+    // Adopt-only subsystems: null legacy first so gameinit_Cleanup's
+    // own allocated::clear sees null and skips deletion.
     gevmanager_Set(nullptr);
     m_events.reset();
     slicengine_Set(nullptr);
@@ -168,7 +133,7 @@ void Game::Cleanup() {
     m_tradeBids.reset();
     m_achievementTracker.reset();
     m_eventTracker.reset();
-    feattracker_Set(nullptr);           m_featTracker.reset();
+    m_featTracker.reset();
     m_diplomaticRequestPool.reset();
     m_installationPool.reset();
     m_terrainImprovementPool.reset();
@@ -179,7 +144,8 @@ void Game::Cleanup() {
     m_wonderTracker.reset();
     m_civilisationPool.reset();
     m_messagePool.reset();
-    gamesettings_Set(nullptr);          m_settings.reset();
+    gamesettings_Set(nullptr);
+    m_settings.reset();
 
     m_topten.reset();
 
@@ -208,7 +174,6 @@ void Game::Cleanup() {
     rand_ptr_Set(nullptr);
     m_rand.reset();
 
-    turn_Set(nullptr);
     m_turn.reset();
 }
 
@@ -234,6 +199,13 @@ GAME_PTR_ACCESSORS(DiplomaticRequests,   DiplomaticRequestPool,  m_diplomaticReq
 GAME_PTR_ACCESSORS(EventTracker,         EventTracker,           m_eventTracker)
 GAME_PTR_ACCESSORS(Achievements,         AchievementTracker,     m_achievementTracker)
 GAME_PTR_ACCESSORS(TradeBids,            TradeBids,              m_tradeBids)
+GAME_PTR_ACCESSORS(Turn,                 TurnCount,              m_turn)
+GAME_PTR_ACCESSORS(World,                World,                  m_world)
+GAME_PTR_ACCESSORS(Rand,                 RandomGenerator,        m_rand)
+GAME_PTR_ACCESSORS(Settings,             GameSettings,           m_settings)
+GAME_PTR_ACCESSORS(Feats,                FeatTracker,            m_featTracker)
+GAME_PTR_ACCESSORS(Slic,                 SlicEngine,             m_slic)
+GAME_PTR_ACCESSORS(Events,               GameEventManager,       m_events)
 
 #undef GAME_PTR_ACCESSORS
 

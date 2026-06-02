@@ -81,6 +81,8 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/fileio/CivPaths.h"				// g_civPaths
 #include "gs/core/game_observer.h"             // g_gameObservers
+#include "gs/core/game.h"                      // Ctp2::Game (trampoline target)
+#include "ctp/civapp.h"                        // civapp_Get → CivApp::GetGame
 #include "gs/core/player_view.h"               // player_view::VisiblePlayer
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Agreement.h"
@@ -149,8 +151,9 @@
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/database/profileDB.h"
 
+// SlicEngine: file-static (tests construct standalone instances).
+// Game::NewGame still adopts the legacy pointer into m_slic.
 static SlicEngine *g_slicEngine = NULL;
-
 SlicEngine * slicengine_Get(void)        { return g_slicEngine; }
 void         slicengine_Set(SlicEngine *p) { g_slicEngine = p; }
 

@@ -596,7 +596,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	SetYAxisName("Power");
 
 	double minRound = s_minRound;
-	double curRound = g_turn->GetRound();
+	double curRound = turn_Get()->GetRound();
 	double minPower = 0;
 	double maxPower = 10;
 

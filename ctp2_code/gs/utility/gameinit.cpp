@@ -177,8 +177,10 @@ extern sint32 g_cheat_age;
         if (game) game->Set##GAME_METHOD##Ptr(p); else delete p;        \
     }
 
-static GameSettings         *g_theGameSettings = NULL;
-
+// GameSettings: file-static storage; tests rely on Set-without-ownership
+// semantics that the trampoline would break.  Game::NewGame still
+// adopts the legacy pointer into m_settings.
+static GameSettings *g_theGameSettings = NULL;
 GameSettings * gamesettings_Get(void)             { return g_theGameSettings; }
 void           gamesettings_Set(GameSettings *p)  { g_theGameSettings = p; }
 
@@ -193,10 +195,10 @@ static ThroneDB             *g_theThroneDB = NULL;
 ThroneDB * thronedb_Get(void)        { return g_theThroneDB; }
 void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
-static World                *g_theWorld=NULL;
-
-World * world_Get(void)                       { return g_theWorld; }
-void    world_Set(World *p)                   { g_theWorld = p; }
+// World: file-static (test fixtures own externally via delete).
+static World *g_theWorld = NULL;
+World * world_Get(void)        { return g_theWorld; }
+void    world_Set(World *p)    { g_theWorld = p; }
 GAME_TRAMPOLINE(unitpool_Get, unitpool_Set, Units, UnitPool)
 
 ArmyPool * armypool_Get(void) {
@@ -220,8 +222,8 @@ Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : 
 Player ** player_arr_Get(void)                { return g_player; }
 void      player_arr_Set(Player **p)          { g_player = p; }
 PointerList<Player>         *g_deadPlayer = NULL;
-static RandomGenerator      *g_rand=NULL;
-
+// RandomGenerator: file-static (ScopedRand fixture swaps stack instances).
+static RandomGenerator *g_rand = NULL;
 RandomGenerator * rand_ptr(void)                   { return g_rand; }
 void              rand_ptr_Set(RandomGenerator *p) { g_rand = p; }
 GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
@@ -243,10 +245,7 @@ InstallationQuadTree * installation_tree_Get(void)              { return g_theIn
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
 GAME_TRAMPOLINE(topten_Get, topten_Set, TopTen, TopTen)
 
-TurnCount                   *g_turn = NULL;
-
-TurnCount * turn_Get(void)                    { return g_turn; }
-void        turn_Set(TurnCount *p)            { g_turn = p; }
+GAME_TRAMPOLINE(turn_Get, turn_Set, Turn, TurnCount)
 
 static ProfileDB            *g_theProfileDB = NULL;
 
@@ -260,13 +259,7 @@ Pool<UnseenCell>            *g_theUnseenPond = NULL;
 Diplomacy_Log               *g_theDiplomacyLog=NULL;
 GAME_TRAMPOLINE(wonder_tracker_Get, wonder_tracker_Set, Wonders,      WonderTracker)
 GAME_TRAMPOLINE(eventtracker_Get,   eventtracker_Set,   EventTracker, EventTracker)
-static FeatTracker          *g_featTracker = NULL;
-
-FeatTracker * feattracker_Get(void)
-{
-	return g_featTracker;
-}
-void          feattracker_Set(FeatTracker *p) { g_featTracker = p; }
+GAME_TRAMPOLINE(feattracker_Get, feattracker_Set, Feats, FeatTracker)
 GAME_TRAMPOLINE(tradebids_Get,          tradebids_Set,          TradeBids,    TradeBids)
 GAME_TRAMPOLINE(achievementtracker_Get, achievementtracker_Set, Achievements, AchievementTracker)
 static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
@@ -590,14 +583,14 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 
 				do {
 					pos.y++;
-					if (g_theWorld->GetYHeight()<= pos.y) {
+					if (world_Get()->GetYHeight()<= pos.y) {
 						pos.x++;
 						pos.y = 2;
 					}
-					if (g_theWorld->GetXWidth()<=pos.x) {
+					if (world_Get()->GetXWidth()<=pos.x) {
 						return;
 					}
-				}  while(!g_theWorld->CanEnter(pos, g_theUnitDB->Get(i)->GetMovementType()));
+				}  while(!world_Get()->CanEnter(pos, g_theUnitDB->Get(i)->GetMovementType()));
 
 				Unit id1 = g_player[player]->CreateUnit(i, pos, Unit(),
 				                                        FALSE, CAUSE_NEW_ARMY_INITIAL);
@@ -623,15 +616,15 @@ void gameinit_SpewUnits(sint32 player, MapPoint &pos)
 
 				do {
 					pos.y++;
-					if (g_theWorld->GetYHeight()<= pos.y) {
+					if (world_Get()->GetYHeight()<= pos.y) {
 						pos.x++;
 						pos.y = 2;
 					}
-					if (g_theWorld->GetXWidth()<=pos.x) {
+					if (world_Get()->GetXWidth()<=pos.x) {
 						delete [] uids;
 						return;
 					}
-				}  while(!g_theWorld->CanEnter(pos, g_theUnitDB->Get(uid)->GetMovementType()));
+				}  while(!world_Get()->CanEnter(pos, g_theUnitDB->Get(uid)->GetMovementType()));
 
 				Unit id1 = g_player[player]->CreateUnit(uid, pos, Unit(),
 				                                        FALSE, CAUSE_NEW_ARMY_INITIAL);
@@ -1169,7 +1162,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	uint32 seed = g_oldRandSeed ? g_oldRandSeed : GetTickCount();
 	srand(seed);
-	g_rand = new RandomGenerator(seed);
+	rand_ptr_Set(new RandomGenerator(seed));
 
 
 
@@ -1183,7 +1176,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	g_theGameSettings = new GameSettings();
+	gamesettings_Set(new GameSettings());
 
 	SPLASH_STRING("Initializing the Map...");
 
@@ -1195,11 +1188,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	MapPoint	mapSize;
 	constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
 
-	g_theWorld = new World(mapSize,
+	world_Set(new World(mapSize,
 	                       g_theProfileDB->IsXWrap(),
-	                       g_theProfileDB->IsYWrap());
+	                       g_theProfileDB->IsYWrap()));
 
-	g_theWorld->CreateTheWorld(g_player_start_list,
+	world_Get()->CreateTheWorld(g_player_start_list,
 	                           g_player_start_score);
 
 	sint32 i;
@@ -1212,10 +1205,10 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	g_theProfileDB->SetNPlayers(nPlayers);
 
-	Assert(g_theWorld);
+	Assert(world_Get());
 
-	g_turn = new TurnCount(g_theProfileDB->GetNPlayers(),
-		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0));
+	turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
+		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
 
 	player_view::Init(nPlayers);
 
@@ -1228,13 +1221,13 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Allocating Object Pools...");
 
-	g_theUnitTree = new QuadTree<Unit>(sint16(g_theWorld->GetXWidth()),
-	                                   sint16(g_theWorld->GetYHeight()),
-	                                   g_theWorld->IsYwrap());
+	g_theUnitTree = new QuadTree<Unit>(sint16(world_Get()->GetXWidth()),
+	                                   sint16(world_Get()->GetYHeight()),
+	                                   world_Get()->IsYwrap());
 
-	g_theInstallationTree = new InstallationQuadTree(sint16(g_theWorld->GetXWidth()),
-	                                                 sint16(g_theWorld->GetYHeight()),
-	                                                 g_theWorld->IsYwrap());
+	g_theInstallationTree = new InstallationQuadTree(sint16(world_Get()->GetXWidth()),
+	                                                 sint16(world_Get()->GetYHeight()),
+	                                                 world_Get()->IsYwrap());
 
 	unitpool_Set(new UnitPool());
 	Assert(unitpool_Get());
@@ -1415,9 +1408,9 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 		}
 	}
 
-	g_theWorld->A_star_heuristic->Update();
+	world_Get()->A_star_heuristic->Update();
 
-	g_theWorld->RecalculateZOC();
+	world_Get()->RecalculateZOC();
 
 
 
@@ -1434,8 +1427,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	g_turn->SetHotSeat(FALSE);
-	g_turn->SetEmail(FALSE);
+	turn_Get()->SetHotSeat(FALSE);
+	turn_Get()->SetEmail(FALSE);
 
 	gameinit_SetHotseatGame(FALSE);
 	gameinit_SetEmailGame(FALSE);
@@ -1505,10 +1498,10 @@ sint32 gameinit_GetCivForSlot(sint32 slot)
 			return CIV_INDEX_RANDOM;
 		case STARTINFOTYPE_CIVSFIXED:
 
-			if (slot-1 >= g_theWorld->GetNumStartingPositions()) {
+			if (slot-1 >= world_Get()->GetNumStartingPositions()) {
 				return CIV_INDEX_RANDOM;
 			} else {
-				return g_theWorld->GetStartingPointCiv(slot - 1);
+				return world_Get()->GetStartingPointCiv(slot - 1);
 			}
 		default:
 			return CIV_INDEX_RANDOM;
@@ -1548,7 +1541,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive) {
 		gameinit_log->debug("step: new RandomGenerator(archive)");
-		g_rand = new RandomGenerator(*archive);
+		rand_ptr_Set(new RandomGenerator(*archive));
 	} else {
 #ifdef _DEBUG
 	FILE * fin = fopen ("dbgseed.txt", "r");
@@ -1572,7 +1565,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	srand(seed);
 
-	g_rand = new RandomGenerator(seed);
+	rand_ptr_Set(new RandomGenerator(seed));
 	}
 
 
@@ -1588,9 +1581,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if(archive) {
 		gameinit_log->debug("step: new GameSettings(archive)");
-		g_theGameSettings = new GameSettings(*archive);
+		gamesettings_Set(new GameSettings(*archive));
 	} else {
-		g_theGameSettings = new GameSettings();
+		gamesettings_Set(new GameSettings());
 	}
 
 	SPLASH_STRING("Initializing the Map...");
@@ -1602,30 +1595,30 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive) {
 		gameinit_log->debug("step: new World(archive)");
-		g_theWorld = new World(*archive) ;
+		world_Set(new World(*archive)) ;
 		if(
 
 			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
 			sint32 x, y;
-			for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-				for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-					g_theWorld->GetCell(x,y)->ClearUnitsNStuff();
+			for(x = 0; x < world_Get()->GetXWidth(); x++) {
+				for(y = 0; y < world_Get()->GetYHeight(); y++) {
+					world_Get()->GetCell(x,y)->ClearUnitsNStuff();
 				}
 			}
 		}
 
-		g_theWorld->NumberContinents();
+		world_Get()->NumberContinents();
 	} else {
 		// (custommapscreen_setValues call dropped — same rationale as above.)
 
 		MapPoint	mapSize;
 		constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
 
-		g_theWorld = new World(mapSize,
+		world_Set(new World(mapSize,
 		                       g_theProfileDB->IsXWrap(),
-		                       g_theProfileDB->IsYWrap());
+		                       g_theProfileDB->IsYWrap()));
 
-		g_theWorld->CreateTheWorld(g_player_start_list,
+		world_Get()->CreateTheWorld(g_player_start_list,
 		                           g_player_start_score);
 
 #ifdef _DEBUG
@@ -1650,19 +1643,19 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	}
 
-	Assert(g_theWorld);
+	Assert(world_Get());
 
 	gameinit_log->debug("step: post-World, before TurnCount");
 	if (archive && loadEverything){
 		gameinit_log->debug("step: new TurnCount(archive)");
-		g_turn = new TurnCount(*archive);
+		turn_Set(new TurnCount(*archive));
 	} else {
-		g_turn = new TurnCount(g_theProfileDB->GetNPlayers(),
-			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0));
+		turn_Set(new TurnCount(g_theProfileDB->GetNPlayers(),
+			diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)));
 		if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
 			sint32 startAge = g_network.GetStartingAge();
 			if(startAge != 0) {
-				g_turn->SkipToRound(0 );
+				turn_Get()->SkipToRound(0 );
 			}
 		}
 	}
@@ -1689,13 +1682,13 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	SPLASH_STRING("Allocating Object Pools...");
 
-	g_theUnitTree = new QuadTree<Unit>(sint16(g_theWorld->GetXWidth()),
-	                                   sint16(g_theWorld->GetYHeight()),
-	                                   g_theWorld->IsYwrap());
+	g_theUnitTree = new QuadTree<Unit>(sint16(world_Get()->GetXWidth()),
+	                                   sint16(world_Get()->GetYHeight()),
+	                                   world_Get()->IsYwrap());
 
-	g_theInstallationTree = new InstallationQuadTree(sint16(g_theWorld->GetXWidth()),
-	                                                 sint16(g_theWorld->GetYHeight()),
-	                                                 g_theWorld->IsYwrap());
+	g_theInstallationTree = new InstallationQuadTree(sint16(world_Get()->GetXWidth()),
+	                                                 sint16(world_Get()->GetYHeight()),
+	                                                 world_Get()->IsYwrap());
 
 	if (archive && loadEverything) {
 		gameinit_log->debug("step: new UnitPool(archive)");
@@ -1891,9 +1884,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
 	if(archive && loadEverything) {
-		g_featTracker = new FeatTracker(*archive);
+		feattracker_Set(new FeatTracker(*archive));
 	} else {
-		g_featTracker = new FeatTracker;
+		feattracker_Set(new FeatTracker());
 	}
 
 	if(archive && loadEverything && (save_file_version_Get() < 55))
@@ -1921,7 +1914,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	g_deadPlayer = new PointerList<Player>;
 
 	sint32 playerAlive;
-	sint32 diff = g_theGameSettings->GetDifficulty();
+	sint32 diff = gamesettings_Get()->GetDifficulty();
 
 	sint32 numPlayersLoaded = 0;
 
@@ -1959,7 +1952,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			case STARTINFOTYPE_CIVS:
 				{
 					sint32 const	positionCount	=
-						g_theWorld->GetNumStartingPositions();
+						world_Get()->GetNumStartingPositions();
 
 					Assert(numPlayersLoaded == 0);
 
@@ -1985,7 +1978,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 					for (j = 0; j < safePositionCount; ++j)
 					{
-						if (g_theWorld->GetStartingPointCiv(j) == civ)
+						if (world_Get()->GetStartingPointCiv(j) == civ)
 						{
 							usedPositions[j] = 1;
 							usedCivs++;
@@ -1995,7 +1988,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 					Assert(j < safePositionCount);
 					if (j >= safePositionCount)
 					{
-						civ = g_theWorld->GetStartingPointCiv(0);
+						civ = world_Get()->GetStartingPointCiv(0);
 						usedPositions[0] = 1;
 						usedCivs++;
 						j = 0;
@@ -2018,7 +2011,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 								if (usedPositions[whichCiv])
 									continue;
 
-								if (g_theWorld->GetStartingPointCiv(whichCiv) == civ)
+								if (world_Get()->GetStartingPointCiv(whichCiv) == civ)
 									break;
 							}
 
@@ -2036,7 +2029,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 								// Prevent identical civ assignments
 								sint32 const	locationCiv	=
-									g_theWorld->GetStartingPointCiv(whichCiv);
+									world_Get()->GetStartingPointCiv(whichCiv);
 								civ	= (locationCiv < 0)
 									  ? CIV_INDEX_RANDOM
 									  : locationCiv;
@@ -2062,7 +2055,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 // No difference between STARTINFOTYPE_CIVSFIXED and STARTINFOTYPE_POSITIONSFIXED
 				{
 					Assert(numPlayersLoaded == 0);
-					Assert(scenario_civs_Get() <= g_theWorld->GetNumStartingPositions());
+					Assert(scenario_civs_Get() <= world_Get()->GetNumStartingPositions());
 
 					Assert(g_theProfileDB->GetPlayerIndex() <= scenario_civs_Get());
 					if(g_theProfileDB->GetPlayerIndex() > scenario_civs_Get()){
@@ -2242,8 +2235,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive && loadEverything)
 	{
-		g_theWorld->SetAllMoveCost();
-		g_theWorld->A_star_heuristic->Update();
+		world_Get()->SetAllMoveCost();
+		world_Get()->A_star_heuristic->Update();
 		SPLASH_STRING("Load AI data elements...");
 
 		CtpAi::Load(*archive);
@@ -2349,9 +2342,9 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 		for(i = 1; i < k_MAX_PLAYERS; i++) {
 			if(g_player[i]) {
-				MapPoint point = g_theWorld->GetStartingPoint(g_player[i]->m_starting_index);
+				MapPoint point = world_Get()->GetStartingPoint(g_player[i]->m_starting_index);
 				sint32 settler;
-				if(g_theWorld->IsWater(point) || g_theWorld->IsShallowWater(point)) {
+				if(world_Get()->IsWater(point) || world_Get()->IsShallowWater(point)) {
 					settler = seaSettler;
 				} else {
 					settler = landSettler;
@@ -2361,7 +2354,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 
-		g_turn->CountActivePlayers();
+		turn_Get()->CountActivePlayers();
 
 		render_observer::AddCopyVision();
 	}
@@ -2369,11 +2362,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	if(archive)
 	{
 		SPLASH_STRING("Set all move costs...");
-		g_theWorld->SetAllMoveCost();
+		world_Get()->SetAllMoveCost();
 
   #if defined(USE_TEST_MP_AS_SP)
 		if (g_network.IsActive() || g_network.IsNetworkLaunch() ||
-			g_turn->IsEmail()	 || g_turn->IsHotSeat()
+			turn_Get()->IsEmail()	 || turn_Get()->IsHotSeat()
 		   )
 		{
 			// No action: keep current setup.
@@ -2429,23 +2422,23 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	{
 		sint32 visible = player_view::VisiblePlayer();
-		if (visible >= 0 && g_player[visible] && !g_turn->IsHotSeat()) {
+		if (visible >= 0 && g_player[visible] && !turn_Get()->IsHotSeat()) {
 			player_view::Refresh();
 		}
 	}
 
 	SPLASH_STRING("Update World stats...");
 
-	g_theWorld->A_star_heuristic->Update();
-	g_theWorld->RecalculateZOC();
+	world_Get()->A_star_heuristic->Update();
+	world_Get()->RecalculateZOC();
 
 #ifdef _DEBUG
 
 	{
-		for (sint32 x = 0; x < g_theWorld->GetXWidth(); x++) {
-			for (sint32 y = 0; y < g_theWorld->GetYHeight(); y++)
+		for (sint32 x = 0; x < world_Get()->GetXWidth(); x++) {
+			for (sint32 y = 0; y < world_Get()->GetYHeight(); y++)
             {
-				Cell *cell = g_theWorld->GetCell(x, y);
+				Cell *cell = world_Get()->GetCell(x, y);
 				for (sint32 u = 0; u < cell->GetNumUnits(); u++)
                 {
 					Assert(cell->AccessUnit(u).IsValid());
@@ -2556,8 +2549,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			}
 		}
 
-        g_turn->SetHotSeat(gameinit_IsHotseatGame());
-        g_turn->SetEmail(gameinit_IsEmailGame());
+        turn_Get()->SetHotSeat(gameinit_IsHotseatGame());
+        turn_Get()->SetEmail(gameinit_IsEmailGame());
 	}
 
 	gameinit_SetHotseatGame(FALSE);
@@ -2574,7 +2567,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
     if (g_gameObservers) {
-        g_gameObservers->NotifySetGraphMinRound(is_scenario_Get() ? g_turn->GetRound() : 0);
+        g_gameObservers->NotifySetGraphMinRound(is_scenario_Get() ? turn_Get()->GetRound() : 0);
     }
 
 	// Clean good old -> new good table
@@ -2644,9 +2637,9 @@ void gameinit_Cleanup(void)
 	player_view::Cleanup();
 	{ auto * p = tradepool_Get(); allocated::clear(p); tradepool_Set(p); };
 	{ auto * p = tradeofferpool_Get(); allocated::clear(p); tradeofferpool_Set(p); };
-	allocated::clear(g_turn);
-	allocated::clear(g_theWorld);
-	allocated::clear(g_theGameSettings);
+	{ auto * p = turn_Get(); allocated::clear(p); turn_Set(p); };
+	{ auto * p = world_Get(); allocated::clear(p); world_Set(p); };
+	{ auto * p = gamesettings_Get(); allocated::clear(p); gamesettings_Set(p); };
 	{ ArmyPool * p = armypool_Get(); allocated::clear(p); armypool_Set(p); }
 	{ auto * p = wonder_tracker_Get(); allocated::clear(p); wonder_tracker_Set(p); };
 	{ auto * p = achievementtracker_Get(); allocated::clear(p); achievementtracker_Set(p); };
@@ -2661,7 +2654,7 @@ void gameinit_Cleanup(void)
 	allocated::clear(g_theOrderPond);
 	allocated::clear(g_theUnseenPond);
 
-	allocated::clear(g_featTracker);
+	{ auto * p = feattracker_Get(); allocated::clear(p); feattracker_Set(p); };
 
 
 #ifdef _DEBUG
@@ -2669,7 +2662,7 @@ void gameinit_Cleanup(void)
 #endif
 	Astar_Cleanup();
 
-	allocated::clear(g_rand);
+	{ auto * p = rand_ptr(); allocated::clear(p); rand_ptr_Set(p); };
 	roboinit_Cleanup();
 }
 
@@ -2709,7 +2702,7 @@ void gameinit_ResetMapSize()
 	// Engine-side reset: rebuild tiledmap_Get(), reset each player's vision,
 	// recompute continents.  UI build re-renders tileset, radar window,
 	// and background via the OnMapResized observer hook fired at the end.
-	MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
+	MapPoint mapsize(world_Get()->GetXWidth(), world_Get()->GetYHeight());
 	tiledmap_factory_recreate(mapsize.x, mapsize.y);
 
 	for (int i = 0; i < k_MAX_PLAYERS; i++)
@@ -2721,15 +2714,15 @@ void gameinit_ResetMapSize()
 		}
 	}
 
-	g_theWorld->NumberContinents();
+	world_Get()->NumberContinents();
 
     delete g_theUnitTree;
     g_theUnitTree =
-        new QuadTree<Unit>(mapsize.x, mapsize.y, g_theWorld->IsYwrap());
+        new QuadTree<Unit>(mapsize.x, mapsize.y, world_Get()->IsYwrap());
 
     delete g_theInstallationTree;
     g_theInstallationTree =
-        new InstallationQuadTree(mapsize.x, mapsize.y, g_theWorld->IsYwrap());
+        new InstallationQuadTree(mapsize.x, mapsize.y, world_Get()->IsYwrap());
 
     installationpool_Set(new InstallationPool());
 

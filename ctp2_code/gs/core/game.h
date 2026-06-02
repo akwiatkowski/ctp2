@@ -63,11 +63,17 @@ public:
     // Accessors
     TurnCount& GetTurn() { return *m_turn; }
     const TurnCount& GetTurn() const { return *m_turn; }
+    TurnCount * GetTurnPtr();
+    void        SetTurnPtr(TurnCount *p);
 
     World& GetWorld() { return *m_world; }
     const World& GetWorld() const { return *m_world; }
+    World * GetWorldPtr();
+    void    SetWorldPtr(World *p);
 
     RandomGenerator& GetRand() { return *m_rand; }
+    RandomGenerator * GetRandPtr();
+    void              SetRandPtr(RandomGenerator *p);
 
     // Bounds-checked slot access into the Player** array.  Returns null
     // when out of range or when no player occupies the slot.  Bodies live
@@ -105,6 +111,8 @@ public:
 
     GameSettings& GetSettings() { return *m_settings; }
     const GameSettings& GetSettings() const { return *m_settings; }
+    GameSettings * GetSettingsPtr();
+    void           SetSettingsPtr(GameSettings *p);
 
     MessagePool& GetMessages() { return *m_messagePool; }
     const MessagePool& GetMessages() const { return *m_messagePool; }
@@ -144,7 +152,13 @@ public:
     TradeBids *              GetTradeBidsPtr();             void SetTradeBidsPtr(TradeBids *p);
 
     SlicEngine& GetSlic() { return *m_slic; }
+    SlicEngine * GetSlicPtr();
+    void         SetSlicPtr(SlicEngine *p);
     GameEventManager& GetEvents() { return *m_events; }
+    GameEventManager * GetEventsPtr();
+    void               SetEventsPtr(GameEventManager *p);
+    FeatTracker * GetFeatsPtr();
+    void          SetFeatsPtr(FeatTracker *p);
 
 private:
     std::unique_ptr<TurnCount> m_turn;

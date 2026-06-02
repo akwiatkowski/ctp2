@@ -272,7 +272,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "ui/interface/trademanager.h"
-#include "gs/utility/TurnCnt.h"                    // g_turn
+#include "gs/utility/TurnCnt.h"                    // turn_Get()
 #include "ui/interface/tutorialwin.h"
 #include "gs/fileio/gamefile.h"
 #ifdef USE_SDL
@@ -2093,7 +2093,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 740 );
 
-	if(g_turn->IsEmail() && archive != NULL) {
+	if(turn_Get()->IsEmail() && archive != NULL) {
 		selitem_Get()->KeyboardSelectFirstUnit();
 		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
@@ -2107,7 +2107,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 750 );
 
-	if (!g_turn->IsHotSeat())
+	if (!turn_Get()->IsHotSeat())
 	{
 		MainControlPanel::UpdateCityList();
 	}
@@ -2116,10 +2116,10 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 760 );
 
-	if ((archive) && g_turn->IsHotSeat())
+	if ((archive) && turn_Get()->IsHotSeat())
     {
 	    // Indicate the resuming player when loading a saved hotseat game
-	    g_turn->SendNextPlayerMessage();
+	    turn_Get()->SendNextPlayerMessage();
     }
 	else if (selitem_Get())
     {
@@ -2136,7 +2136,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	g_oldRandSeed = FALSE;
 
-	if (!g_turn->IsHotSeat())
+	if (!turn_Get()->IsHotSeat())
 	{
 		MainControlPanel::UpdatePlayer(selitem_Get()->GetCurPlayer());
 	}
@@ -2146,7 +2146,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
         ScenarioEditor::Display();
     }
 
-	if (    g_turn->IsEmail()
+	if (    turn_Get()->IsEmail()
 	     && player_Get(selitem_Get()->GetCurPlayer())->IsTurnOver()
 	){
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
@@ -2369,7 +2369,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 790 );
 
-	g_turn->BeginNewTurn(FALSE);
+	turn_Get()->BeginNewTurn(FALSE);
 
 	if(!g_network.IsActive()) {
 		if (archive == NULL ||
@@ -2385,8 +2385,8 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 
 
-			if(g_scenarioUsePlayerNumber == 0 && !g_turn->IsHotSeat() &&
-				!g_turn->IsEmail()) {
+			if(g_scenarioUsePlayerNumber == 0 && !turn_Get()->IsHotSeat() &&
+				!turn_Get()->IsEmail()) {
 				selitem_Get()->SetPlayerOnScreen(1);
 			}
 			if (director_Get())
@@ -2396,7 +2396,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 800 );
 
-	if(g_turn->IsEmail() && archive != NULL) {
+	if(turn_Get()->IsEmail() && archive != NULL) {
 		selitem_Get()->KeyboardSelectFirstUnit();
 		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
@@ -2985,9 +2985,9 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				}
 			}
 			else if (strcmp(cmd, "turn_counter") == 0) {
-				if (m_gameLoaded && g_turn) {
+				if (m_gameLoaded && turn_Get()) {
 					char detail[64];
-					snprintf(detail, sizeof(detail), "round=%d", g_turn->GetRound());
+					snprintf(detail, sizeof(detail), "round=%d", turn_Get()->GetRound());
 					smoketest_send_response("ok", cmd, detail);
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
@@ -3593,7 +3593,7 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	ProgressTo( 1300 );
 
-	if (!g_turn->IsHotSeat())
+	if (!turn_Get()->IsHotSeat())
 	{
 		selitem_Get()->NextUnmovedUnit(TRUE, TRUE);
 	}

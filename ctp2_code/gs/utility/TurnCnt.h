@@ -146,7 +146,7 @@ public:
 	void SendNextPlayerMessageEvent();
 };
 
-extern TurnCount *g_turn;
+// g_turn storage now lives in Ctp2::Game; access via turn_Get / turn_Set.
 
 // Accessor pair, mirroring world_Get/world_Set and friends.  Used by
 // Ctp2::Game to adopt the legacy global into its unique_ptr.

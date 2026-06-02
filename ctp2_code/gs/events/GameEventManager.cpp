@@ -53,9 +53,11 @@
 #include "gs/gameobj/TradeRoute.h"
 
 #include "gs/core/render_observer.h"
+#include "gs/core/game.h"          // Ctp2::Game (trampoline target)
+#include "ctp/civapp.h"            // civapp_Get → CivApp::GetGame
 
+// GameEventManager: file-static (tests pre-allocate, Game adopts).
 static GameEventManager *g_gevManager = NULL;
-
 GameEventManager * gevmanager_Get(void)               { return g_gevManager; }
 void               gevmanager_Set(GameEventManager *p) { g_gevManager = p; }
 

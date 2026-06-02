@@ -646,7 +646,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 
 		return FALSE;
 
-	if (slicengine_Get()->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 		int i;
 		int n = player->GetAllUnitList()->Num();
 		for (i=0; i<n; i++) {
@@ -667,7 +667,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if (slicengine_Get()->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 		int i;
 		int n = player->GetAllCitiesList()->Num();
 		for (i=0; i<n; i++) {
@@ -691,7 +691,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 		if (player->m_gold->BankruptcyImminent() &&
 			(player->CalcTotalBuildingUpkeep() > 0)) {
 			SlicObject *so = new SlicObject("21IACannotAffordMaintenance");
@@ -702,7 +702,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 		}
 	}
 
-	if (slicengine_Get()->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 		int i;
 		int n = player->GetAllCitiesList()->Num();
 		double prod_total = 0.0;

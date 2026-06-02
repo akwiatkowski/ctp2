@@ -106,13 +106,13 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 
 
 	g_optionsWindow->SaveGameButton()->Enable(
-		!(g_netfunc && !g_network.IsHost()) &&
+		!(netfunc_Get() && !g_network.IsHost()) &&
 		from &&
 		!g_isCheatModeOn );
 
 
 	g_optionsWindow->LoadGameButton()->Enable(
-		!g_netfunc
+		!netfunc_Get()
 		&& from
 		);
 

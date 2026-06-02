@@ -9,7 +9,7 @@
 #include "ui/netshell/netfunc.h"
 #include "ui/netshell/netshell.h"
 
-extern NETFunc *g_netfunc;
+extern NETFunc *netfunc_Get();
 
 #define HOST_ID dppt_MAKE('H', 'I')
 #define ADDME_ID dppt_MAKE('A', 'M')
@@ -113,7 +113,7 @@ void ActivNetIO::SetDP(dp_t *dp)
 {
 	m_dp = dp;
 
-	m_isHost = g_netfunc->IsHost();
+	m_isHost = netfunc_Get()->IsHost();
 
 	if(m_isHost) {
 		m_hostId = m_pid;

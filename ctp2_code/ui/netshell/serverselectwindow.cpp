@@ -174,7 +174,7 @@ void ServerSelectWindow::Update( bool wait )
 		if ( !didThisAlready )
 		{
 			NETFunc::Server *server = item->GetNetShellObject()->GetNETFuncObject();
-			g_netfunc->SetServer( server );
+			netfunc_Get()->SetServer( server );
 			didThisAlready = true;
 
 			((aui_ListBox *)m_controls[ CONTROL_SELECTSERVERLISTBOX ])->
@@ -190,11 +190,11 @@ void ServerSelectWindow::Update( bool wait )
 
 AUI_ERRCODE ServerSelectWindow::Idle( void )
 {
-	if (g_netfunc)
+	if (netfunc_Get())
     {
-        while (NETFunc::Message * m = g_netfunc->GetMessage())
+        while (NETFunc::Message * m = netfunc_Get()->GetMessage())
         {
-			g_netfunc->HandleMessage(m);
+			netfunc_Get()->HandleMessage(m);
 
 			switch ( m->GetCode() )
 			{
@@ -224,7 +224,7 @@ AUI_ERRCODE ServerSelectWindow::Idle( void )
 			delete m;
 		}
 
-		if(g_netfunc->GetStatus() == NETFunc::START)
+		if(netfunc_Get()->GetStatus() == NETFunc::START)
 			netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 	}
 
@@ -277,8 +277,8 @@ void ServerSelectWindow::OKButtonAction::Execute(
 		strncpy( g_serverName, item->GetText(), 100 );
 
 		NETFunc::Server *server = item->GetNetShellObject()->GetNETFuncObject();
-		g_netfunc->SetServer(server);
-		g_netfunc->Login( "", "" );
+		netfunc_Get()->SetServer(server);
+		netfunc_Get()->Login( "", "" );
 
 		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}
@@ -297,7 +297,7 @@ void ServerSelectWindow::CancelButtonAction::Execute(
 
 	strncpy( g_serverName, "", 100 );
 
-	g_netfunc->Disconnect();
+	netfunc_Get()->Disconnect();
 }
 
 void ServerSelectWindow::DialogBoxPopDownAction::Execute(
@@ -307,7 +307,7 @@ void ServerSelectWindow::DialogBoxPopDownAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netfunc->Disconnect();
+	netfunc_Get()->Disconnect();
 
 
 	if ( s_dbw )

@@ -452,10 +452,10 @@ AUI_ERRCODE LobbyWindow::Idle( void )
 
 	bool                joinedLobby = false;
 	NETFunc::KeyStruct  lobbyKey;
-	NETFunc::Message *  m           = g_netfunc->GetMessage();
+	NETFunc::Message *  m           = netfunc_Get()->GetMessage();
     while (m)
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
 		switch (m->GetCode())
 		{
@@ -495,14 +495,14 @@ AUI_ERRCODE LobbyWindow::Idle( void )
 		}
 
 		delete m;
-        m = g_netfunc->GetMessage();
+        m = netfunc_Get()->GetMessage();
 	}
 
-	if(joinedLobby && g_netfunc->GetStatus() == NETFunc::OK) {
-		g_netfunc->PushChatMessage(m_messageLobbyEnter->GetString());
+	if(joinedLobby && netfunc_Get()->GetStatus() == NETFunc::OK) {
+		netfunc_Get()->PushChatMessage(m_messageLobbyEnter->GetString());
 
 		((aui_Static *)m_controls[CONTROL_CURRENTLOBBYTEXTFIELD])->
-			SetText(g_netfunc->GetSession()->GetName());
+			SetText(netfunc_Get()->GetSession()->GetName());
 		if ( strlen( NETFunc::servername ) )
 		{
 
@@ -553,7 +553,7 @@ AUI_ERRCODE LobbyWindow::Idle( void )
 				GetInputField())->SetKeyboardFocus();
 		}
 	}
-	if(g_netfunc->GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(0) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
+	if(netfunc_Get()->GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(0) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
 
 		if ( s_dbw )
 		{
@@ -682,7 +682,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 
 			PlayerSelectWindow *psw = (PlayerSelectWindow *)netshell_Get()->
 				FindWindow(NetShell::WINDOW_PLAYERSELECT);
-			psw->GetPlayerSetup(g_netfunc->GetPlayer())->Reset();
+			psw->GetPlayerSetup(netfunc_Get()->GetPlayer())->Reset();
 
 			MBCHAR temp[ dp_PASSWORDLEN + 1 ] = "";
 			if ( password )
@@ -695,7 +695,7 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 			}
 
 			playersetup_Get().SetReadyToLaunch(false);
-			if(g_netfunc->Join(g, temp) == NETFunc::OK) {
+			if(netfunc_Get()->Join(g, temp) == NETFunc::OK) {
 				g_gamesetup = nf_GameSetup(g);
 
 				g_gamesetup.SetSavedId( ((uint32 *)g->GetUserField())[ 1 ] );
@@ -893,7 +893,7 @@ void LobbyWindow::MuteSwitchAction::Execute(
 	case AUI_SWITCH_ACTION_ON:
         if (p && !p->IsMe())
         {
-            g_netfunc->Mute(p, true);
+            netfunc_Get()->Mute(p, true);
         }
         else
         {
@@ -905,7 +905,7 @@ void LobbyWindow::MuteSwitchAction::Execute(
 	case AUI_SWITCH_ACTION_OFF:
 		if (p)
         {
-			g_netfunc->Mute(p, false);
+			netfunc_Get()->Mute(p, false);
         }
 		break;
 	}
@@ -930,7 +930,7 @@ void LobbyWindow::InfoButtonAction::Execute(
 			netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 		} else {
 			NETFunc::Player *player = item->GetNetShellObject()->GetNETFuncObject();
-			g_netfunc->GetPlayerSetupPacket(player);
+			netfunc_Get()->GetPlayerSetupPacket(player);
 		}
 	}
 }
@@ -1018,7 +1018,7 @@ void LobbyWindow::SpitOutDetails( void )
 
 	}
 
-	g_netfunc->PushChatMessage( info );
+	netfunc_Get()->PushChatMessage( info );
 }
 
 
@@ -1029,7 +1029,7 @@ void LobbyWindow::BackButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netfunc->Disconnect();
+	netfunc_Get()->Disconnect();
 
 	if ( !s_dbw )
 	{
@@ -1059,7 +1059,7 @@ void LobbyWindow::DialogBoxPopDownAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_netfunc->Disconnect();
+	netfunc_Get()->Disconnect();
 
 
 	if ( s_dbw )

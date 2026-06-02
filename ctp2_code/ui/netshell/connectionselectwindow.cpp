@@ -262,9 +262,9 @@ void ConnectionSelectWindow::Update(void)
 
 AUI_ERRCODE ConnectionSelectWindow::Idle( void )
 {
-    while (NETFunc::Message * m = g_netfunc->GetMessage())
+    while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
         if (NETFunc::Message::NETWORKERR == m->GetCode())
 		{
@@ -274,7 +274,7 @@ AUI_ERRCODE ConnectionSelectWindow::Idle( void )
 		delete m;
 	}
 
-	if (g_netfunc->GetStatus() == NETFunc::READY)
+	if (netfunc_Get()->GetStatus() == NETFunc::READY)
     {
 		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}
@@ -348,7 +348,7 @@ void ConnectionSelectWindow::OKButtonAction::Execute(
 		}
 		else
 		{
-			NETFunc::STATUS status = g_netfunc->SetTransport(t);
+			NETFunc::STATUS status = netfunc_Get()->SetTransport(t);
 			if ( status != NETFunc::OK )
 			{
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_NODIALUP );

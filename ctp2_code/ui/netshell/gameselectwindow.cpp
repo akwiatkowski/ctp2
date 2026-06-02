@@ -275,9 +275,9 @@ void GameSelectWindow::Update(void)
 
 AUI_ERRCODE GameSelectWindow::Idle( void )
 {
-	while (NETFunc::Message * m = g_netfunc->GetMessage())
+	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
@@ -493,10 +493,10 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 
 		PlayerSelectWindow *psw = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
-		psw->GetPlayerSetup(g_netfunc->GetPlayer())->Reset();
+		psw->GetPlayerSetup(netfunc_Get()->GetPlayer())->Reset();
 
 		playersetup_Get().SetReadyToLaunch(false);
-		if(g_netfunc->Create(&g_gamesetup) == NETFunc::OK) {
+		if(netfunc_Get()->Create(&g_gamesetup) == NETFunc::OK) {
 			w->SetMode(mode);
 			netshell_Get()->GotoScreen( NetShell::SCREEN_ALLINONE );
 			w->Update();
@@ -682,9 +682,9 @@ StartSelectingWindow::~StartSelectingWindow()
 
 AUI_ERRCODE StartSelectingWindow::Idle( void )
 {
-	while (NETFunc::Message * m = g_netfunc->GetMessage())
+	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
@@ -817,7 +817,7 @@ void StartSelectingWindow::SavedButtonAction::Execute(
 
 	uint32 type = LSS_LOAD_MP;
 
-	NETFunc::TransportSetup *t = g_netfunc->GetTransport();
+	NETFunc::TransportSetup *t = netfunc_Get()->GetTransport();
 	if ( t->GetType() == NETFunc::Transport::UNKNOWN )
 	{
 		if ( ((FakeTransport *)t)->GetSubType() == FakeTransport::EMAIL )

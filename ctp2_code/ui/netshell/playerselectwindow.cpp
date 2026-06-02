@@ -257,9 +257,9 @@ void PlayerSelectWindow::Update(void)
 
 AUI_ERRCODE PlayerSelectWindow::Idle( void )
 {
-	while (NETFunc::Message * m = g_netfunc->GetMessage())
+	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
 		if (dp_SESSIONLOST_PACKET_ID == m->GetCode())
 		{
@@ -437,9 +437,9 @@ void PlayerSelectWindow::OKButtonAction::Execute(
 
 		playersetup_Get() = nf_PlayerSetup(*(item->GetNetShellObject()->
 										 GetNETFuncObject()));
-		g_netfunc->SetPlayerSetup(&playersetup_Get());
+		netfunc_Get()->SetPlayerSetup(&playersetup_Get());
 
-		g_netfunc->Connect();
+		netfunc_Get()->Connect();
 
 		LobbyWindow *lw = (LobbyWindow *)netshell_Get()->
 			FindWindow( NetShell::WINDOW_LOBBY );
@@ -467,8 +467,8 @@ void PlayerSelectWindow::CancelButtonAction::Execute(
 	uint32 data )
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-	g_netfunc->Disconnect();
-	if(g_netfunc->GetTransport() && g_netfunc->GetTransport()->GetType() == NETFunc::Transport::INTERNET)
+	netfunc_Get()->Disconnect();
+	if(netfunc_Get()->GetTransport() && netfunc_Get()->GetTransport()->GetType() == NETFunc::Transport::INTERNET)
 		netshell_Get()->GotoScreen( NetShell::SCREEN_SERVERSELECT );
 	else
 		netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );

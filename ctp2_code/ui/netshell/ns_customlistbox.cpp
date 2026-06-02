@@ -178,7 +178,7 @@ ns_TransportListBox::ns_TransportListBox (
 	retval, id, ldlBlock, ActionFunc, cookie )
 {
 
-	NETFunc::TransportList *l = &(g_netfunc->transportList);
+	NETFunc::TransportList *l = &(netfunc_Get()->transportList);
 	NETFunc::TransportList::iterator i;
 	for(i = l->begin(); i != l->end(); i++) {
 
@@ -630,7 +630,7 @@ void ns_GPlayerListBox::Delete( NETFunc::Player *player )
 
 	delete item;
 
-	if ( g_netfunc->IsHost() )
+	if ( netfunc_Get()->IsHost() )
 	{
 		BOOL success = allinonewindow_Get()->AssignTribe(
 			0,
@@ -852,7 +852,7 @@ void ns_AIPlayerListBox::Insert( nf_AIPlayer *player )
 
 	UpdateHPlayerItem( player );
 
-	if ( !g_netfunc->IsHost() )
+	if ( !netfunc_Get()->IsHost() )
 	{
 		item->GetTribeButton()->Enable( FALSE );
 
@@ -893,7 +893,7 @@ void ns_AIPlayerListBox::Delete( nf_AIPlayer *player )
 
 	delete item;
 
-	if ( g_netfunc->IsHost() )
+	if ( netfunc_Get()->IsHost() )
 	{
 		BOOL success = allinonewindow_Get()->AssignTribe(
 			0,
@@ -917,7 +917,7 @@ void ns_AIPlayerListBox::Change( nf_AIPlayer *player )
 	if ( !item ) return;
 
 	bool selfMotivated = true;
-	if ( !g_gamesetup.GetHandicapping() || !g_netfunc->IsHost() )
+	if ( !g_gamesetup.GetHandicapping() || !netfunc_Get()->IsHost() )
 	{
 		selfMotivated = false;
 	}

@@ -214,7 +214,7 @@ void optionwarningscreen_but1Press(aui_Control *control, uint32 action, uint32 d
 		optionsscreen_removeMyWindow(action);
 		if(optionwarningscreen_removeMyWindow(action))
 		{
-			if ( g_netfunc || g_network.IsActive() || g_network.IsNetworkLaunch() )
+			if ( netfunc_Get() || g_network.IsActive() || g_network.IsNetworkLaunch() )
 				civapp_Get()->PostQuitToLobbyAction();
 			else
 				civapp_Get()->PostQuitToSPShellAction();

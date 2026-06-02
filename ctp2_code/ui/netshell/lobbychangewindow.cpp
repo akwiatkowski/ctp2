@@ -181,9 +181,9 @@ void LobbyChangeWindow::Update(void)
 
 AUI_ERRCODE LobbyChangeWindow::Idle( void )
 {
-    while (NETFunc::Message * m = g_netfunc->GetMessage())
+    while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
-		g_netfunc->HandleMessage(m);
+		netfunc_Get()->HandleMessage(m);
 
 		switch ( m->GetCode() )
 		{
@@ -234,7 +234,7 @@ AUI_ERRCODE LobbyChangeWindow::SetParent( aui_Region *region )
 	if(region)
 
 	((aui_TextField *)m_controls[CONTROL_CURRENTLOBBYTEXTFIELD])->
-		SetFieldText(g_netfunc->GetSession()->GetName());
+		SetFieldText(netfunc_Get()->GetSession()->GetName());
 
 	return ns_Window::SetParent( region );
 }
@@ -252,7 +252,7 @@ void LobbyChangeWindow::OKButtonAction::Execute(
 	if(item) {
 		ns_Lobby *lobby = item->GetNetShellObject();
 		if(!lobby->IsMine()) {
-			g_netfunc->Join(lobby->GetNETFuncObject());
+			netfunc_Get()->Join(lobby->GetNETFuncObject());
 			LobbyWindow *w = (LobbyWindow *)(netshell_Get()->FindWindow(NetShell::WINDOW_LOBBY));
 			w->Update();
 		}

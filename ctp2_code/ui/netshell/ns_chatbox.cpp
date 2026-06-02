@@ -228,7 +228,7 @@ void ns_ChatBox::InputFieldAction::Execute(
 	if(chatbox->IsWhisper()) {
 		if(chatbox->GetPlayer())
 			chatbox->Send(chatbox->GetPlayer(), text);
-	} else if(!chatbox->IsGroup() || !g_netfunc->GetPlayer()->GetGroup())
+	} else if(!chatbox->IsGroup() || !netfunc_Get()->GetPlayer()->GetGroup())
 		chatbox->Send(NULL, text);
 	else
 		chatbox->SendGroup(text);

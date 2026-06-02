@@ -142,7 +142,7 @@ extern StringDB			*g_theStringDB;
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
 
-extern NETFunc			*g_netfunc;
+extern NETFunc			*netfunc_Get();
 
 #include "ui/aui_ctp2/SelItem.h"
 #include "ctp/ctp2_rsrc/resource.h"
@@ -455,14 +455,14 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 	m_launchFromNetFunc = TRUE;
 	m_fromSave = fromSave;
 	m_readyToStart = FALSE;
-	m_launchHost = g_netfunc->IsHost();
+	m_launchHost = netfunc_Get()->IsHost();
 
 
 	m_rememberExclusions = exclusions_Get();
 	exclusions_Set(NULL);
 
 	if(!m_noThread) {
-		((NetThread *)m_netIO)->SetDP(g_netfunc->GetDP());
+		((NetThread *)m_netIO)->SetDP(netfunc_Get()->GetDP());
 	}
 
 	m_newPlayerList->DeleteAll();
@@ -471,7 +471,7 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 void Network::InitFromNetFunc()
 {
 	m_initialized = TRUE;
-	m_iAmHost = g_netfunc->IsHost();
+	m_iAmHost = netfunc_Get()->IsHost();
 	m_iAmClient = !m_iAmHost;
 
 	Assert(player_arr_Get() && player_Get(0));
@@ -512,7 +512,7 @@ void Network::InitFromNetFunc()
 	}
 
 	if(m_noThread) {
-		((ActivNetIO *)m_netIO)->SetDP(g_netfunc->GetDP());
+		((ActivNetIO *)m_netIO)->SetDP(netfunc_Get()->GetDP());
 	} else {
 
 	}

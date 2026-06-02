@@ -194,8 +194,6 @@ extern sint32               g_robotMessages;
 
 #include "gs/events/GameEventManager.h"
 
-extern TurnCount *g_turn;
-
 static sint32 s_helpLines = 15;
 
 #define k_HELP_LINES s_helpLines
@@ -2124,14 +2122,14 @@ void ScoreCommand::Execute(sint32 argc, char **argv)
 
 void EmailCommand::Execute(sint32 argc, char **argv)
 {
-	g_turn->SetHotSeat(FALSE);
-	g_turn->SetEmail(!g_turn->IsEmail());
+	turn_Get()->SetHotSeat(FALSE);
+	turn_Get()->SetEmail(!turn_Get()->IsEmail());
 }
 
 void HotSeatCommand::Execute(sint32 argc, char **argv)
 {
-	g_turn->SetEmail(FALSE);
-	g_turn->SetHotSeat(!g_turn->IsHotSeat());
+	turn_Get()->SetEmail(FALSE);
+	turn_Get()->SetHotSeat(!turn_Get()->IsHotSeat());
 }
 
 extern BOOL g_toeMode;
@@ -2338,7 +2336,7 @@ void AutoCenterCommand::Execute(sint32 argc, char **argv)
 
 void SimultaneousCommand::Execute(sint32 argc, char **argv)
 {
-	g_turn->SetSimultaneousMode(!g_turn->SimultaneousMode());
+	turn_Get()->SetSimultaneousMode(!turn_Get()->SimultaneousMode());
 }
 
 void TutorialCommand::Execute(sint32 argc, char **argv)
@@ -5966,7 +5964,7 @@ void AutoSaveCommand::Execute(sint32 argc, char **argv)
 void HeapTotalsCommand::Execute(sint32 argc, char **argv)
 {
 #ifdef _DEBUG_MEMORY
-	DebugMemory_LeaksShow(g_turn->GetRound());
+	DebugMemory_LeaksShow(turn_Get()->GetRound());
 	Log_Close();
 	exit(1);
 #endif
@@ -5982,7 +5980,7 @@ void LeaksClearCommand::Execute(sint32 argc, char **argv)
 void LeaksShowCommand::Execute(sint32 argc, char **argv)
 {
 #ifdef _DEBUG_MEMORY
-	DebugMemory_LeaksShow(g_turn->GetRound());
+	DebugMemory_LeaksShow(turn_Get()->GetRound());
 #endif
 }
 
@@ -6258,7 +6256,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 
 void DRayTestCode::Execute(sint32 argc, char **argv)
 {
-	int const curRound	= std::min<sint32>(g_turn->GetSessionRound(), 200);
+	int const curRound	= std::min<sint32>(turn_Get()->GetSessionRound(), 200);
 	int turnStrength[200];
 	int i;
 	for(i=0; i<curRound; i++)

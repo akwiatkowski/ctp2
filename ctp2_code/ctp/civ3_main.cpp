@@ -150,7 +150,7 @@
 #include "TerrainRecord.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/gameobj/TradePool.h"
-#include "gs/utility/TurnCnt.h"                    // g_turn
+#include "gs/utility/TurnCnt.h"                    // turn_Get()
 #include "gs/gameobj/UnitPool.h"
 #include "gfx/spritesys/UnitSpriteGroup.h"
 #include "ui/interface/workwin.h"

@@ -141,7 +141,6 @@ const Utility Goal::MAX_UTILITY =  99999999;
 #include "ai/ctpaidebug.h"
 
 extern CityAstar g_city_astar;
-extern TurnCount *g_turn;
 
 Goal::Goal()
 :
@@ -1715,7 +1714,7 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 		report_InVisionRange  = bonus - report_Treaspassing;
 #endif //_DEBUG
 
-		if (!Barbarians::InBarbarianPeriod(g_turn->GetRound())
+		if (!Barbarians::InBarbarianPeriod(turn_Get()->GetRound())
 		||  (player_Get(agent_ptr->Get_Army()->GetOwner()) && wonderutil_GetProtectFromBarbarians(player_Get(agent_ptr->Get_Army()->GetOwner())->m_builtWonders))
 		){
 			bonus += g_theGoalDB->Get(m_goal_type)->GetNoBarbarianBonus();

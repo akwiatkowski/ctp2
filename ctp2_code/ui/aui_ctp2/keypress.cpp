@@ -139,9 +139,7 @@
 extern BOOL			gSuspended;
 extern ResourceMap		*g_resourceMap;
 extern Background	*g_background;
-extern WorkWindow	*g_workWindow;
 
-extern StatusWindow	*g_statusWindow;
 
 extern BOOL			g_helpMode;
 
@@ -363,7 +361,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	}
 
 	aui_Window *topWindow = c3ui_Get()->TopWindow();
-	if(topWindow && (!controlpanel_Get() || topWindow != controlpanel_Get()->GetWindow()) && topWindow != g_statusWindow) {
+	if(topWindow && (!controlpanel_Get() || topWindow != controlpanel_Get()->GetWindow()) && topWindow != statuswindow_Get()) {
 		if(topWindow->HandleKey(wParam))
 			return 0;
 	}

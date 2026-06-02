@@ -92,7 +92,6 @@ extern C3Window		*g_testWindow;
 extern C3Window		*g_standardWindow;
 extern C3Window		*g_floatingWindow;
 extern DebugWindow	*g_debugWindow;
-extern WorkWindow	*g_workWindow;
 
 extern SelectedItem				*selitem_Get();
 
@@ -552,7 +551,7 @@ HideControlPanel()
 	HideElement(g_standardWindow        );
 	HideElement(g_floatingWindow        );
 	HideElement(g_debugWindow           );
-	HideElement(g_workWindow            );
+	HideElement(workwindow_Get()            );
 
 	HideElement(radarwindow_Get()       );
 

@@ -87,7 +87,6 @@
 
 #include "ui/interface/sciencevictorydialog.h"
 
-extern WorkWindow           *g_workWindow;
 
 extern ScienceWin           *g_scienceWin;
 
@@ -107,7 +106,7 @@ sint32 open_WorkView( void )
 	Assert( !err );
 	if ( err ) return -1;
 
-	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(g_workWindow);
+	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(workwindow_Get());
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return -1;
 
@@ -116,9 +115,9 @@ sint32 open_WorkView( void )
 
 void close_WorkView(void)
 {
-	if (g_workWindow)
+	if (workwindow_Get())
     {
-		c3ui_Get()->RemoveWindow(g_workWindow->Id());
+		c3ui_Get()->RemoveWindow(workwindow_Get()->Id());
 	}
 }
 

@@ -96,8 +96,6 @@
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern StatusWindow				*g_statusWindow;
-extern WorkWindow			*g_workWindow;
 extern C3Window				*g_turnWindow;
 extern C3Window				*g_statsWindow;
 extern CivPaths				*g_civPaths;
@@ -1295,26 +1293,26 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 	if ( make )
 	{
-		if ( g_statusWindow ) return 0;
+		if ( statuswindow_Get() ) return 0;
 
 		sint32 windowWidth = g_ScreenWidth;
 		sint32 windowHeight = k_STATUS_WINDOW_HEIGHT;
 		sint32 windowX = 0;
 		sint32 windowY = 27;
 
-		g_statusWindow = new StatusWindow(
+		statuswindow_Set(new StatusWindow(
 			&errcode,
 			k_ID_WINDOW_STATUS,
 			windowX, windowY, windowWidth, windowHeight,
 			16,
-			k_PatternName );
-		Assert( g_statusWindow != NULL );
-		if ( !g_statusWindow ) return -1;
-		g_statusWindow->SetDraggable( TRUE );
+			k_PatternName ));
+		Assert( statuswindow_Get() != NULL );
+		if ( !statuswindow_Get() ) return -1;
+		statuswindow_Get()->SetDraggable( TRUE );
 
 		sint32 controlWidth = 60;
 		sint32 controlHeight = 20;
-		sint32 controlX = g_statusWindow->Width() / 2;
+		sint32 controlX = statuswindow_Get()->Width() / 2;
 		sint32 controlY = 5;
 
 		knowledgeButton = new TextButton(
@@ -1418,24 +1416,24 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 
 
-		errcode = g_statusWindow->AddControl( button );
+		errcode = statuswindow_Get()->AddControl( button );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = g_statusWindow->AddControl( debugButton );
+		errcode = statuswindow_Get()->AddControl( debugButton );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = g_statusWindow->AddControl( resourceButton );
+		errcode = statuswindow_Get()->AddControl( resourceButton );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = g_statusWindow->AddControl( cheatButton );
+		errcode = statuswindow_Get()->AddControl( cheatButton );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
 
 
-		errcode = g_statusWindow->AddControl( diplomacyButton );
+		errcode = statuswindow_Get()->AddControl( diplomacyButton );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
-		errcode = g_statusWindow->AddControl( knowledgeButton );
+		errcode = statuswindow_Get()->AddControl( knowledgeButton );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -15;
 
@@ -1472,9 +1470,9 @@ int c3windows_MakeStatusWindow( BOOL make )
 	}
 	else
 	{
-		if ( !g_statusWindow ) return 0;
+		if ( !statuswindow_Get() ) return 0;
 
-		c3ui_Get()->RemoveWindow( g_statusWindow->Id() );
+		c3ui_Get()->RemoveWindow( statuswindow_Get()->Id() );
 
 		delete button;
 		button = NULL;
@@ -1493,8 +1491,8 @@ int c3windows_MakeStatusWindow( BOOL make )
 		if (s_thumbWindow) delete s_thumbWindow;
 		if (s_thumbnail) delete s_thumbnail;
 
-		delete g_statusWindow;
-		g_statusWindow = NULL;
+		delete statuswindow_Get();
+		statuswindow_Set(NULL);
 	}
 
 	return 0;

@@ -143,7 +143,6 @@ void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
 #include "robot/pathing/CityAstar.h"
 #include "ai/strategy/agents/agent.h"
 
-extern WorkWindow               *g_workWindow;
 extern UnitAstar                *g_theUnitAstar;
 
 sint32                           g_tradeSelectedState = 0;

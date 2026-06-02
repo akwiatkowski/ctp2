@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -52,7 +52,11 @@
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 
-WorkWindow			*g_workWindow = NULL;
+static WorkWindow	*g_workWindow = NULL;
+
+WorkWindow * workwindow_Get(void)             { return g_workWindow; }
+void         workwindow_Set(WorkWindow *p)    { g_workWindow = p; }
+
 ResourceMap				*g_resourceMap = NULL;
 
 WorkMap *g_workMap = NULL;

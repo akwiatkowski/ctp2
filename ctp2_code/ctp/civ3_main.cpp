@@ -232,7 +232,11 @@ static C3UI                         *g_c3ui = NULL;
 C3UI * c3ui_Get(void)                 { return g_c3ui; }
 void   c3ui_Set(C3UI *p)              { g_c3ui = p; }
 
-StatusWindow                        *g_statusWindow = NULL;
+static StatusWindow                 *g_statusWindow = NULL;
+
+StatusWindow * statuswindow_Get(void)         { return g_statusWindow; }
+void           statuswindow_Set(StatusWindow *p) { g_statusWindow = p; }
+
 aui_Surface                         *g_sharedSurface = NULL;
 
 BOOL                                g_smoothScroll = FALSE;

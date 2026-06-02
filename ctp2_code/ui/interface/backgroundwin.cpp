@@ -40,7 +40,6 @@ void DumpSpanList(aui_DirtyList *list);
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern StatusWindow				*g_statusWindow;
 extern StatsWindow				*g_statsWindow;
 
 extern Network			g_network;

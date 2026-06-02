@@ -14,4 +14,8 @@ sint32 workwin_Cleanup( void );
 
 sint32 workwin_Update( void );
 
+class WorkWindow;
+WorkWindow * workwindow_Get(void);
+void         workwindow_Set(WorkWindow *p);
+
 #endif

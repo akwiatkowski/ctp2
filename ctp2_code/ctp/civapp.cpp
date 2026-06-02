@@ -306,7 +306,6 @@ extern FilenameDB               *g_theMessageIconFileDB;
 extern PlayListDB               *g_thePlayListDB;
 extern Background           *g_background;
 extern StatsWindow          *g_statsWindow;
-extern StatusWindow         *g_statusWindow;
 extern SpriteEditWindow     *g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
 extern sint32               g_modalWindow;
@@ -1770,7 +1769,7 @@ sint32 CivApp::InitializeGameUI(void)
 	sint32 errcode = c3windows_MakeStatusWindow(TRUE);
 	Assert(errcode == 0);
 	if (errcode != 0) return 7;
-	g_statusWindow->Hide(); // Maybe should be removed entirely
+	statuswindow_Get()->Hide(); // Maybe should be removed entirely
 
 	ProgressTo( 20 );
 
@@ -1820,7 +1819,7 @@ sint32 CivApp::InitializeGameUI(void)
 
 	ProgressTo( 100 );
 
-	auiErr = c3ui_Get()->AddWindow( g_statusWindow );
+	auiErr = c3ui_Get()->AddWindow( statuswindow_Get() );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2248,7 +2247,7 @@ sint32 InitializeSpriteEditorUI(void)
 	ProgressTo( 110 );
 
 	HideControlPanel();
-	g_statusWindow->Hide();
+	statuswindow_Get()->Hide();
 
 	ProgressTo( 120 );
 

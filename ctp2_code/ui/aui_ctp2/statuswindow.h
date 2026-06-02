@@ -34,4 +34,9 @@ public:
 #endif
 };
 
+// App-singleton accessor pair. g_statusWindow is file-static in
+// ctp/civ3_main.cpp; outside callers must use these accessors.
+StatusWindow * statuswindow_Get(void);
+void           statuswindow_Set(StatusWindow *p);
+
 #endif

@@ -195,7 +195,6 @@ extern sint32               g_robotMessages;
 static sint32 s_helpLines = 15;
 
 #define k_HELP_LINES s_helpLines
-extern StatusWindow*  g_statusWindow;
 extern sint32         g_debugOwner;
 
 
@@ -5812,8 +5811,8 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
 	if(g_doingFastRounds)
 		return;
 
-	if (g_statusWindow)
-		g_statusWindow->Hide();
+	if (statuswindow_Get())
+		statuswindow_Get()->Hide();
 
     sint32 i, n;
 
@@ -5893,8 +5892,8 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
     }
 	tiledmap_Get()->InvalidateMix();
 	g_doingFastRounds = FALSE;
-	if (g_statusWindow)
-		g_statusWindow->Show();
+	if (statuswindow_Get())
+		statuswindow_Get()->Show();
 
 }
 
@@ -6275,8 +6274,8 @@ CommandLine::CommandLine()
 void CommandLine::Draw()
 {
 	m_buf[m_len] = 0;
-	if (g_statusWindow)
-		g_statusWindow->DrawCommand(m_buf);
+	if (statuswindow_Get())
+		statuswindow_Get()->DrawCommand(m_buf);
 }
 
 #define k_LEFT_EDGE 100
@@ -6513,22 +6512,22 @@ CommandLine::AddKey(char c)
 		Clear();
 		Draw();
 		if (!m_persistent)
-			if (g_statusWindow)
-				g_statusWindow->Hide();
+			if (statuswindow_Get())
+				statuswindow_Get()->Hide();
 		m_addingKey = false;
 		return m_persistent;
 	case 8:
 		if(m_len > 0) {
 			m_len--;
 		}
-		if (g_statusWindow)
-			g_statusWindow->Draw();
+		if (statuswindow_Get())
+			statuswindow_Get()->Draw();
 		m_addingKey = false;
 		return TRUE;
 	case 27:
 		m_len = 0;
-		if (g_statusWindow)
-			g_statusWindow->Draw();
+		if (statuswindow_Get())
+			statuswindow_Get()->Draw();
 		m_addingKey = false;
 		return FALSE;
     default:
@@ -6553,8 +6552,8 @@ CommandLine::Clear()
 		delete [] m_argv[m_argc - 1];
 		m_argc--;
 	}
-	if (g_statusWindow)
-		g_statusWindow->Draw();
+	if (statuswindow_Get())
+		statuswindow_Get()->Draw();
 }
 
 sint32

@@ -77,7 +77,7 @@
 #include "gfx/spritesys/director.h"  // g_director
 #include "gfx/spritesys/screenmanager.h"
 #include "gfx/tilesys/maputils.h"
-#include "gfx/tilesys/tiledmap.h"   // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"   // tiledmap_Get()
 #include "gs/database/profileDB.h"  // g_theProfileDB
 #include "gs/fileio/gamefile.h"     // save_file_version_Get()
 #include "gs/gameobj/ArmyData.h"
@@ -500,7 +500,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
   ChangeImage(ss, type, id);
 
   if (updateVision) {
-    if (g_tiledMap->GetLocalVision() != NULL &&
+    if (tiledmap_Get()->GetLocalVision() != NULL &&
         m_playerNum == g_selected_item->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(
@@ -513,7 +513,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
   m_unitVisionRange = m_newUnitVisionRange;
 
   if (updateVision) {
-    if (g_tiledMap->GetLocalVision() != NULL &&
+    if (tiledmap_Get()->GetLocalVision() != NULL &&
         m_playerNum == g_selected_item->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(k_DBG_INFO,
@@ -981,53 +981,53 @@ Anim* UnitActor::MakeFaceoff(void) {
 
 void UnitActor::DrawFortified(bool fogged) {
   sint32 nudgeX =
-      (sint32)((k_ACTOR_CENTER_OFFSET_X - 48) * g_tiledMap->GetScale());
+      (sint32)((k_ACTOR_CENTER_OFFSET_X - 48) * tiledmap_Get()->GetScale());
   sint32 nudgeY =
-      (sint32)((k_ACTOR_CENTER_OFFSET_Y - 48) * g_tiledMap->GetScale());
+      (sint32)((k_ACTOR_CENTER_OFFSET_Y - 48) * tiledmap_Get()->GetScale());
   sint32 surfWidth = g_screenManager->GetSurfWidth();
   sint32 surfHeight = g_screenManager->GetSurfHeight();
 
-  if ((m_x + nudgeX) > (surfWidth - g_tiledMap->GetZoomTilePixelWidth()))
+  if ((m_x + nudgeX) > (surfWidth - tiledmap_Get()->GetZoomTilePixelWidth()))
     return;
 
-  if ((m_y + nudgeY) > (surfHeight - g_tiledMap->GetZoomTilePixelHeight()))
+  if ((m_y + nudgeY) > (surfHeight - tiledmap_Get()->GetZoomTilePixelHeight()))
     return;
 
-  Pixel16* fortifiedImage = g_tiledMap->GetTileSet()->GetImprovementData(34);
+  Pixel16* fortifiedImage = tiledmap_Get()->GetTileSet()->GetImprovementData(34);
 
-  if (g_tiledMap->GetZoomLevel() == k_ZOOM_LARGEST) {
+  if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
     if (fogged)
-      g_tiledMap->DrawBlendedOverlayIntoMix(fortifiedImage, m_x + nudgeX,
+      tiledmap_Get()->DrawBlendedOverlayIntoMix(fortifiedImage, m_x + nudgeX,
                                             m_y + nudgeY, k_FOW_COLOR,
                                             k_FOW_BLEND_VALUE);
     else
-      g_tiledMap->DrawColorizedOverlayIntoMix(fortifiedImage, m_x + nudgeX,
+      tiledmap_Get()->DrawColorizedOverlayIntoMix(fortifiedImage, m_x + nudgeX,
                                               m_y + nudgeY, 0x0000);
   } else {
     if (fogged)
-      g_tiledMap->DrawBlendedOverlayScaledIntoMix(
+      tiledmap_Get()->DrawBlendedOverlayScaledIntoMix(
           fortifiedImage, m_x + nudgeX, m_y + nudgeY,
-          g_tiledMap->GetZoomTilePixelWidth(),
-          g_tiledMap->GetZoomTileGridHeight(), k_FOW_COLOR, k_FOW_BLEND_VALUE);
+          tiledmap_Get()->GetZoomTilePixelWidth(),
+          tiledmap_Get()->GetZoomTileGridHeight(), k_FOW_COLOR, k_FOW_BLEND_VALUE);
     else
-      g_tiledMap->DrawScaledOverlayIntoMix(fortifiedImage, m_x + nudgeX,
+      tiledmap_Get()->DrawScaledOverlayIntoMix(fortifiedImage, m_x + nudgeX,
                                            m_y + nudgeY,
-                                           g_tiledMap->GetZoomTilePixelWidth(),
-                                           g_tiledMap->GetZoomTileGridHeight());
+                                           tiledmap_Get()->GetZoomTilePixelWidth(),
+                                           tiledmap_Get()->GetZoomTileGridHeight());
   }
 }
 
 void UnitActor::DrawFortifying(bool fogged) {
-  aui_BitmapFont* font = g_tiledMap->GetFont();
+  aui_BitmapFont* font = tiledmap_Get()->GetFont();
   if (!font)
     return;
 
   sint32 x = m_x +
-             (sint32)(double)(k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale()),
+             (sint32)(double)(k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale()),
          y = m_y +
-             (sint32)(double)(k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+             (sint32)(double)(k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
-  MBCHAR* fString = g_tiledMap->GetFortifyString();
+  MBCHAR* fString = tiledmap_Get()->GetFortifyString();
 
   sint32 width = font->GetStringWidth(fString);
   sint32 height = font->GetMaxHeight();
@@ -1071,7 +1071,7 @@ void UnitActor::DrawFortifying(bool fogged) {
 //
 // Parameters : fogged	: city is under fog of war
 //
-// Globals    : g_tiledMap
+// Globals    : tiledmap_Get()
 //				g_theCityStyleDB
 //				player_Get()
 //				g_theTerrainDB
@@ -1086,7 +1086,7 @@ void UnitActor::DrawFortifying(bool fogged) {
 void UnitActor::DrawCityWalls(
     bool fogged)  // TODO make a draw wonders and draw buildings method
 {
-  TileSet const* tileSet = g_tiledMap->GetTileSet();
+  TileSet const* tileSet = tiledmap_Get()->GetTileSet();
   Pixel16* cityImage = tileSet->GetImprovementData(38);  // default
   Unit unit(GetUnitID());
 
@@ -1131,29 +1131,29 @@ void UnitActor::DrawCityWalls(
   // else: keep default
 
   sint32 nudgeX = (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) *
-                           g_tiledMap->GetScale()),
+                           tiledmap_Get()->GetScale()),
          nudgeY = (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) *
-                           g_tiledMap->GetScale());
+                           tiledmap_Get()->GetScale());
 
-  if (g_tiledMap->GetZoomLevel() == k_ZOOM_LARGEST) {
+  if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
     if (fogged)
-      g_tiledMap->DrawBlendedOverlayIntoMix(cityImage, m_x + nudgeX,
+      tiledmap_Get()->DrawBlendedOverlayIntoMix(cityImage, m_x + nudgeX,
                                             m_y + nudgeY, k_FOW_COLOR,
                                             k_FOW_BLEND_VALUE);
     else
-      g_tiledMap->DrawColorizedOverlayIntoMix(cityImage, m_x + nudgeX,
+      tiledmap_Get()->DrawColorizedOverlayIntoMix(cityImage, m_x + nudgeX,
                                               m_y + nudgeY, 0x0000);
   } else {
     if (fogged)
-      g_tiledMap->DrawBlendedOverlayScaledIntoMix(
+      tiledmap_Get()->DrawBlendedOverlayScaledIntoMix(
           cityImage, m_x + nudgeX, m_y + nudgeY,
-          g_tiledMap->GetZoomTilePixelWidth(),
-          g_tiledMap->GetZoomTileGridHeight(), k_FOW_COLOR, k_FOW_BLEND_VALUE);
+          tiledmap_Get()->GetZoomTilePixelWidth(),
+          tiledmap_Get()->GetZoomTileGridHeight(), k_FOW_COLOR, k_FOW_BLEND_VALUE);
     else
-      g_tiledMap->DrawScaledOverlayIntoMix(cityImage, m_x + nudgeX,
+      tiledmap_Get()->DrawScaledOverlayIntoMix(cityImage, m_x + nudgeX,
                                            m_y + nudgeY,
-                                           g_tiledMap->GetZoomTilePixelWidth(),
-                                           g_tiledMap->GetZoomTileGridHeight());
+                                           tiledmap_Get()->GetZoomTilePixelWidth(),
+                                           tiledmap_Get()->GetZoomTileGridHeight());
   }
 }
 
@@ -1165,7 +1165,7 @@ void UnitActor::DrawCityWalls(
 //
 // Parameters : fogged	: city is under fog of war
 //
-// Globals    : g_tiledMap
+// Globals    : tiledmap_Get()
 //				g_theCityStyleDB
 //				player_Get()
 //				g_theTerrainDB
@@ -1179,9 +1179,9 @@ void UnitActor::DrawCityWalls(
 //----------------------------------------------------------------------------
 void UnitActor::DrawForceField(bool fogged) {
   sint32 const nudgeX =
-      (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) * g_tiledMap->GetScale());
+      (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) * tiledmap_Get()->GetScale());
   sint32 const nudgeY =
-      (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * g_tiledMap->GetScale());
+      (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * tiledmap_Get()->GetScale());
 
   // Default sprite index (fixed number from original code)
   sint32 which;
@@ -1236,17 +1236,17 @@ void UnitActor::DrawForceField(bool fogged) {
   // else: keep default
 
   Pixel16* cityImage =
-      g_tiledMap->GetTileSet()->GetImprovementData((uint16)which);
+      tiledmap_Get()->GetTileSet()->GetImprovementData((uint16)which);
 
-  if (g_tiledMap->GetZoomLevel() == k_ZOOM_LARGEST) {
-    g_tiledMap->DrawDitheredOverlayIntoMix(cityImage, m_x + nudgeX,
+  if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
+    tiledmap_Get()->DrawDitheredOverlayIntoMix(cityImage, m_x + nudgeX,
                                            m_y + nudgeY, fogged);
 
   } else {
-    g_tiledMap->DrawDitheredOverlayScaledIntoMix(
+    tiledmap_Get()->DrawDitheredOverlayScaledIntoMix(
         cityImage, m_x + nudgeX, m_y + nudgeY,
-        g_tiledMap->GetZoomTilePixelWidth(),
-        g_tiledMap->GetZoomTileGridHeight(), fogged);
+        tiledmap_Get()->GetZoomTilePixelWidth(),
+        tiledmap_Get()->GetZoomTileGridHeight(), fogged);
   }
 }
 
@@ -1257,8 +1257,8 @@ bool UnitActor::Draw(bool fogged) {
   if (m_hiddenUnderStack)
     return false;
 
-  sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-  sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+  sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+  sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
   uint16 flags = k_DRAWFLAGS_NORMAL;
   if (m_transparency < 15) {
@@ -1372,13 +1372,13 @@ bool UnitActor::Draw(bool fogged) {
     Pixel16 color = 0x0000;
     if (m_curAction == NULL) {
       m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x + xoffset,
-                              m_y + yoffset, m_facing, g_tiledMap->GetScale(),
+                              m_y + yoffset, m_facing, tiledmap_Get()->GetScale(),
                               m_transparency, color, flags, FALSE,
                               directionAttack);
     } else {
       m_unitSpriteGroup->Draw(
           m_curUnitAction, m_frame, m_x + xoffset, m_y + yoffset, m_facing,
-          g_tiledMap->GetScale(), m_transparency, color, flags,
+          tiledmap_Get()->GetScale(), m_transparency, color, flags,
           m_curAction->SpecialDelayProcess(), directionAttack);
     }
 
@@ -1469,7 +1469,7 @@ void UnitActor::DrawHerald(void) {
   }
 
   Pixel16 color = g_colorSet->GetPlayerColor(m_playerNum);
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(icon);
   RECT rect = {0, 0, iconDim.x + 1, iconDim.y + 1};
 
@@ -1489,9 +1489,9 @@ void UnitActor::DrawHerald(void) {
 
   OffsetRect(&rect, m_x + 0 - iconDim.x / 2, m_y + 0 - iconDim.y / 2);
 
-  g_tiledMap->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(icon),
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(icon),
                                           rect.left, rect.top, color);
-  g_tiledMap->AddDirtyRectToMix(rect);
+  tiledmap_Get()->AddDirtyRectToMix(rect);
 }
 
 void UnitActor::DrawHealthBar(void) {
@@ -1508,7 +1508,7 @@ void UnitActor::DrawHealthBar(void) {
     return;
   }
 
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   Cell* myCell = world_Get()->GetCell(GetPos());
 
   sint32 stackSize = 1;
@@ -1579,20 +1579,20 @@ void UnitActor::DrawHealthBar(void) {
     shieldPoint = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
     OffsetRect(
         &iconRect,
-        m_x + (sint32)((double)(shieldPoint->x) * g_tiledMap->GetScale()),
-        m_y + (sint32)((double)(shieldPoint->y) * g_tiledMap->GetScale()));
+        m_x + (sint32)((double)(shieldPoint->x) * tiledmap_Get()->GetScale()),
+        m_y + (sint32)((double)(shieldPoint->y) * tiledmap_Get()->GetScale()));
   } else {
     if (m_unitSpriteGroup &&
         m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != NULL) {
       shieldPoint = m_unitSpriteGroup->GetShieldPoints(unitAction);
       OffsetRect(
           &iconRect,
-          m_x + (sint32)((double)(shieldPoint->x) * g_tiledMap->GetScale()),
-          m_y + (sint32)((double)(shieldPoint->y) * g_tiledMap->GetScale()));
+          m_x + (sint32)((double)(shieldPoint->x) * tiledmap_Get()->GetScale()),
+          m_y + (sint32)((double)(shieldPoint->y) * tiledmap_Get()->GetScale()));
     } else {
       sint32 top = m_y;
       sint32 middle =
-          m_x + (sint32)((k_TILE_PIXEL_WIDTH)*g_tiledMap->GetScale()) / 2;
+          m_x + (sint32)((k_TILE_PIXEL_WIDTH)*tiledmap_Get()->GetScale()) / 2;
       OffsetRect(&iconRect, middle - iconDim.x / 2, top - iconDim.y);
     }
   }
@@ -1616,7 +1616,7 @@ void UnitActor::DrawHealthBar(void) {
   InflateRect(&tempRect, 2, 2);
   tempRect.top -= 8;
 
-  g_tiledMap->AddDirtyRectToMix(tempRect);
+  tiledmap_Get()->AddDirtyRectToMix(tempRect);
 
   Pixel16 black = g_colorSet->GetColor(COLOR_BLACK);
   if (black == 0x0000)
@@ -1698,7 +1698,7 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
   if (y < 0)
     return;
 
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
   if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
     return;
@@ -1737,10 +1737,10 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
     icon = (MAPICON)((sint32)MAPICON_HERALD10 + stack - 10);
   }
 
-  g_tiledMap->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(icon), x, y,
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(icon), x, y,
                                           displayedColor);
 #else
-  g_tiledMap->DrawColorizedOverlayIntoMix(
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(
       tileSet->GetMapIconData(MAPICON_HERALD), x, y, displayedColor);
 
   // Generate text
@@ -1757,7 +1757,7 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
   }
 #endif
 
-  g_tiledMap->AddDirtyToMix(x, y, w, h);
+  tiledmap_Get()->AddDirtyToMix(x, y, w, h);
 
   // @ToDo clean the code so that the following is superflous
   x = x2;
@@ -1778,7 +1778,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
   if (y < 0)
     return;
 
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
   if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
     return;
@@ -1806,7 +1806,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
   if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid()) {
     if (m_unitID->GetArmy()->Num() > 1) {
       if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
-        g_tiledMap->DrawColorizedOverlayIntoMix(
+        tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_ARMY), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_ARMY);
         y2 += iconDim.y;
@@ -1818,7 +1818,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
     if (m_unitID->GetArmy()->HasVeterans() &&
         !m_unitID->GetArmy()->HasElite()) {
       if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
-        g_tiledMap->DrawColorizedOverlayIntoMix(
+        tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_VETERAN), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_VETERAN);
         y2 += iconDim.y;
@@ -1827,7 +1827,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
       }
     } else if (m_unitID->GetArmy()->HasElite()) {
       if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
-        g_tiledMap->DrawColorizedOverlayIntoMix(
+        tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_ELITE), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_ELITE);
         y2 += iconDim.y;
@@ -1844,7 +1844,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
       // Draw it in all other cases.
       else {
         if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
-          g_tiledMap->DrawColorizedOverlayIntoMix(
+          tiledmap_Get()->DrawColorizedOverlayIntoMix(
               tileSet->GetMapIconData(MAPICON_CARGO), x2, y2, displayedColor);
           iconDim = tileSet->GetMapIconDimensions(MAPICON_CARGO);
           y2 += iconDim.y;
@@ -1855,7 +1855,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
     }
   }
 
-  g_tiledMap->AddDirtyToMix(x, y, w, h);
+  tiledmap_Get()->AddDirtyToMix(x, y, w, h);
 
   // @ToDo clean the code so that the following is superflous
   x = x2;
@@ -1878,7 +1878,7 @@ void UnitActor::DrawSpecialIndicators(
   if (y < 0)
     return;
 
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
   if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
     return;
@@ -1909,7 +1909,7 @@ void UnitActor::DrawSpecialIndicators(
   if (m_unitID.IsValid() &&
       m_unitID.GetDBRec()->GetHasReligionIconIndex(religionicon)) {
     sint32 xf = x;  // + iconDim.x;
-    g_tiledMap->DrawColorizedOverlayIntoMix(
+    tiledmap_Get()->DrawColorizedOverlayIntoMix(
         tileSet->GetMapIconData(religionicon), xf, y, displayedColor);
   } else if (g_theProfileDB->IsCivFlags()) {
     sint32 civ = -1;
@@ -1938,12 +1938,12 @@ void UnitActor::DrawSpecialIndicators(
     if (g_theCivilisationDB->Get(civ)->GetNationUnitFlagIndex(civicon) &&
         civ > -1) {
       sint32 xf = x;  // + iconDim.x;
-      g_tiledMap->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(civicon),
+      tiledmap_Get()->DrawColorizedOverlayIntoMix(tileSet->GetMapIconData(civicon),
                                               xf, y, displayedColor);
     }
   }
 
-  g_tiledMap->AddDirtyToMix(x, y, w, h);
+  tiledmap_Get()->AddDirtyToMix(x, y, w, h);
 
   // @ToDo clean the code so that the following is superflous
   x = x2;
@@ -1963,14 +1963,14 @@ void UnitActor::DrawSelectionBrackets(void) {
   SetRect(&rect, 0, 0, 1, 1);
 
   OffsetRect(&rect,
-             m_x + (sint32)(k_TILE_PIXEL_WIDTH * g_tiledMap->GetScale()) / 2,
-             m_y + (sint32)(k_TILE_GRID_HEIGHT * g_tiledMap->GetScale()) / 2);
+             m_x + (sint32)(k_TILE_PIXEL_WIDTH * tiledmap_Get()->GetScale()) / 2,
+             m_y + (sint32)(k_TILE_GRID_HEIGHT * tiledmap_Get()->GetScale()) / 2);
 
   InflateRect(&rect, 25, 25);
 
-  g_tiledMap->AddDirtyRectToMix(rect);
+  tiledmap_Get()->AddDirtyRectToMix(rect);
 
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_BRACKET1);
 
   rect.right -= (iconDim.x + 1);
@@ -2003,13 +2003,13 @@ void UnitActor::DrawSelectionBrackets(void) {
   }
   Pixel16 pixelColor = g_colorSet->GetColor(color);
 
-  g_tiledMap->DrawColorizedOverlayIntoMix(topLeft, rect.left, rect.top,
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(topLeft, rect.left, rect.top,
                                           pixelColor);
-  g_tiledMap->DrawColorizedOverlayIntoMix(topRight, rect.right, rect.top,
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(topRight, rect.right, rect.top,
                                           pixelColor);
-  g_tiledMap->DrawColorizedOverlayIntoMix(botRight, rect.right, rect.bottom,
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(botRight, rect.right, rect.bottom,
                                           pixelColor);
-  g_tiledMap->DrawColorizedOverlayIntoMix(botLeft, rect.left, rect.bottom,
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(botLeft, rect.left, rect.bottom,
                                           pixelColor);
 }
 
@@ -2068,7 +2068,7 @@ void UnitActor::GetBoundingRect(RECT* rect) const {
     return;
 
   POINT hotPoint = m_unitSpriteGroup->GetHotPoint(m_curUnitAction, m_facing);
-  double scale = g_tiledMap->GetScale();
+  double scale = tiledmap_Get()->GetScale();
 
   sint32 x = m_x;
   if (m_facing >= 5) {
@@ -2320,15 +2320,15 @@ void UnitActor::DumpFullLoad(void) {
 BOOL UnitActor::HitTest(POINT mousePt) {
   bool isDirectionAttack =
       m_directionalAttack && (m_curUnitAction == UNITACTION_ATTACK);
-  sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-  sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+  sint32 xoffset = (sint32)(k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+  sint32 yoffset = (sint32)(k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
   Pixel16 color = COLOR_WHITE;
   uint16 flags = 0;
   bool isSpecialDelay = m_curAction && m_curAction->SpecialDelayProcess();
 
   return m_unitSpriteGroup->HitTest(
       mousePt, m_curUnitAction, m_frame, m_x + xoffset, m_y + yoffset, m_facing,
-      g_tiledMap->GetScale(), m_transparency, color, flags, isSpecialDelay,
+      tiledmap_Get()->GetScale(), m_transparency, color, flags, isSpecialDelay,
       isDirectionAttack);
 }
 
@@ -2369,7 +2369,7 @@ void UnitActor::SetMoveActors(const UnitActorVec& moveActors) {
 //
 // Parameters : fogged  : city is under fog of war
 //
-// Globals    : g_tiledMap
+// Globals    : tiledmap_Get()
 //              g_theCityStyleDB
 //              player_Get()
 //              g_theTerrainDB
@@ -2383,12 +2383,12 @@ void UnitActor::SetMoveActors(const UnitActorVec& moveActors) {
 //              Looks a lot nicer
 //----------------------------------------------------------------------------
 void UnitActor::DrawCityImprovements(bool fogged) {
-  TileSet* tileSet = g_tiledMap->GetTileSet();
+  TileSet* tileSet = tiledmap_Get()->GetTileSet();
 
   sint32 nudgeX =
-      (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) * g_tiledMap->GetScale());
+      (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) * tiledmap_Get()->GetScale());
   sint32 nudgeY =
-      (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * g_tiledMap->GetScale());
+      (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * tiledmap_Get()->GetScale());
 
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
   if ((m_x + nudgeX) >= g_screenManager->GetSurfWidth() - iconDim.x)
@@ -2403,27 +2403,27 @@ void UnitActor::DrawCityImprovements(bool fogged) {
       if (buildingutil_Get(b, m_playerNum)
               ->GetShowCityIconBottomIndex(cityIcon)) {
         if (unit.CD()->GetImprovements() & ((uint64)1 << b)) {
-          if (g_tiledMap->GetZoomLevel() == k_ZOOM_LARGEST) {
+          if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
             if (fogged)
-              g_tiledMap->DrawBlendedOverlayIntoMix(
+              tiledmap_Get()->DrawBlendedOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
                   k_FOW_COLOR, k_FOW_BLEND_VALUE);
             else
-              g_tiledMap->DrawColorizedOverlayIntoMix(
+              tiledmap_Get()->DrawColorizedOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
                   0x0000);
           } else {
             if (fogged)
-              g_tiledMap->DrawBlendedOverlayScaledIntoMix(
+              tiledmap_Get()->DrawBlendedOverlayScaledIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
-                  g_tiledMap->GetZoomTilePixelWidth(),
-                  g_tiledMap->GetZoomTileGridHeight(), k_FOW_COLOR,
+                  tiledmap_Get()->GetZoomTilePixelWidth(),
+                  tiledmap_Get()->GetZoomTileGridHeight(), k_FOW_COLOR,
                   k_FOW_BLEND_VALUE);
             else
-              g_tiledMap->DrawScaledOverlayIntoMix(
+              tiledmap_Get()->DrawScaledOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
-                  g_tiledMap->GetZoomTilePixelWidth(),
-                  g_tiledMap->GetZoomTileGridHeight());
+                  tiledmap_Get()->GetZoomTilePixelWidth(),
+                  tiledmap_Get()->GetZoomTileGridHeight());
           }
           nudgeX += 5;
         }
@@ -2434,27 +2434,27 @@ void UnitActor::DrawCityImprovements(bool fogged) {
       if (wonderutil_Get(i, m_playerNum)
               ->GetShowCityIconBottomIndex(cityIcon)) {
         if (unit.CD()->GetBuiltWonders() & (uint64)1 << (uint64)i) {
-          if (g_tiledMap->GetZoomLevel() == k_ZOOM_LARGEST) {
+          if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {
             if (fogged)
-              g_tiledMap->DrawBlendedOverlayIntoMix(
+              tiledmap_Get()->DrawBlendedOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
                   k_FOW_COLOR, k_FOW_BLEND_VALUE);
             else
-              g_tiledMap->DrawColorizedOverlayIntoMix(
+              tiledmap_Get()->DrawColorizedOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
                   0x0000);
           } else {
             if (fogged)
-              g_tiledMap->DrawBlendedOverlayScaledIntoMix(
+              tiledmap_Get()->DrawBlendedOverlayScaledIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
-                  g_tiledMap->GetZoomTilePixelWidth(),
-                  g_tiledMap->GetZoomTileGridHeight(), k_FOW_COLOR,
+                  tiledmap_Get()->GetZoomTilePixelWidth(),
+                  tiledmap_Get()->GetZoomTileGridHeight(), k_FOW_COLOR,
                   k_FOW_BLEND_VALUE);
             else
-              g_tiledMap->DrawScaledOverlayIntoMix(
+              tiledmap_Get()->DrawScaledOverlayIntoMix(
                   tileSet->GetMapIconData(cityIcon), m_x + nudgeX, m_y + nudgeY,
-                  g_tiledMap->GetZoomTilePixelWidth(),
-                  g_tiledMap->GetZoomTileGridHeight());
+                  tiledmap_Get()->GetZoomTilePixelWidth(),
+                  tiledmap_Get()->GetZoomTileGridHeight());
           }
           nudgeX += 5;
         }

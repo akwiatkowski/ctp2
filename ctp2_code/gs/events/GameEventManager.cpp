@@ -54,7 +54,7 @@
 
 #include "gs/core/render_observer.h"
 
-GameEventManager *g_gevManager = NULL;
+static GameEventManager *g_gevManager = NULL;
 
 GameEventManager * gevmanager_Get(void)               { return g_gevManager; }
 void               gevmanager_Set(GameEventManager *p) { g_gevManager = p; }

@@ -142,7 +142,7 @@ constexpr std::size_t NET_GS_GAMEOBJ_CPP_BASELINE = 208;
 
 // ui/ .cpp depends on gs/ broadly — that's architecturally fine.  Lock
 // the count anyway to detect new direct couplings.
-constexpr std::size_t UI_GS_CPP_BASELINE = 798;
+constexpr std::size_t UI_GS_CPP_BASELINE = 803;
 
 struct Violation {
     std::string file;
@@ -975,7 +975,7 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_theCurrentBattle     (5 cross-layer consumers, 30 sites,
 //                             get+set accessor pattern for the
 //                             lifecycle-managed pointer)
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 21;
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 19;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

@@ -51,7 +51,7 @@
 class GameEventManager;
 
 #ifdef _DEBUG
-#define EVENTLOG(x) g_gevManager->Log x
+#define EVENTLOG(x) gevmanager_Get()->Log x
 #else
 #define EVENTLOG(x)
 #endif
@@ -77,11 +77,10 @@ class GameEventHook;
 void gameEventManager_Initialize();
 void gameEventManager_Cleanup();
 
-extern GameEventManager *   g_gevManager;
-
 // Session-singleton accessor pair, mirroring world_Get / unitpool_Get
-// / pollution_Get.  Callers should use gevmanager_Get() instead of
-// reaching for g_gevManager directly.
+// / pollution_Get.  The legacy g_gevManager pointer is now file-static
+// in GameEventManager.cpp; outside callers must go through these
+// accessors.
 GameEventManager * gevmanager_Get(void);
 void               gevmanager_Set(GameEventManager *p);
 

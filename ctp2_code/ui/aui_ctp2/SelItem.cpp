@@ -84,7 +84,7 @@
 // g_selected_item global — definition lives here next to its class.
 // gameinit.cpp used to own this; moved as part of the clean-architecture
 // effort to remove UI ownership from the simulation core.
-SelectedItem *g_selected_item = NULL;
+static SelectedItem *g_selected_item = NULL;
 
 SelectedItem * selitem_Get(void)              { return g_selected_item; }
 void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }

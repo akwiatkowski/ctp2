@@ -37,134 +37,134 @@ namespace {
 
 sint32 UIVisiblePlayer()
 {
-	return g_selected_item ? g_selected_item->GetVisiblePlayer() : -1;
+	return selitem_Get() ? selitem_Get()->GetVisiblePlayer() : -1;
 }
 
 sint32 UICurPlayer()
 {
-	return g_selected_item ? g_selected_item->GetCurPlayer() : 0;
+	return selitem_Get() ? selitem_Get()->GetCurPlayer() : 0;
 }
 
 sint32 UIPlayerAfter(sint32 p)
 {
-	return g_selected_item ? g_selected_item->GetPlayerAfterThis(p) : -1;
+	return selitem_Get() ? selitem_Get()->GetPlayerAfterThis(p) : -1;
 }
 
 void UIInit(sint32 nPlayers)
 {
-	g_selected_item = new SelectedItem(nPlayers);
+	selitem_Set(new SelectedItem(nPlayers));
 }
 
 void UIInitFromArchive(CivArchive *archive)
 {
-	g_selected_item = new SelectedItem(*archive);
+	selitem_Set(new SelectedItem(*archive));
 }
 
 void UICleanup()
 {
-	allocated::clear(g_selected_item);
+	delete selitem_Get(); selitem_Set(NULL);
 }
 
 void UISetCurrentPlayer(sint32 player)
 {
-	if (g_selected_item) {
-		g_selected_item->SetPlayerOnScreen(player);
-		g_selected_item->SetCurPlayer(player);
+	if (selitem_Get()) {
+		selitem_Get()->SetPlayerOnScreen(player);
+		selitem_Get()->SetCurPlayer(player);
 	}
 }
 
 void UISetVisiblePlayer(sint32 player)
 {
-	if (g_selected_item) {
-		g_selected_item->SetPlayerOnScreen(player);
+	if (selitem_Get()) {
+		selitem_Get()->SetPlayerOnScreen(player);
 	}
 }
 
 void UIRefresh()
 {
-	if (g_selected_item) {
-		g_selected_item->Refresh();
+	if (selitem_Get()) {
+		selitem_Get()->Refresh();
 	}
 }
 
 void UISetSelectUnit(const Unit &unit)
 {
-	if (g_selected_item) {
-		g_selected_item->SetSelectUnit(const_cast<Unit &>(unit));
+	if (selitem_Get()) {
+		selitem_Get()->SetSelectUnit(const_cast<Unit &>(unit));
 	}
 }
 
 void UISetSelectCity(const Unit &city)
 {
-	if (g_selected_item) {
-		g_selected_item->SetSelectCity(const_cast<Unit &>(city));
+	if (selitem_Get()) {
+		selitem_Get()->SetSelectCity(const_cast<Unit &>(city));
 	}
 }
 
 void UIEnterArmyMove(sint32 player, const MapPoint &pos)
 {
-	if (g_selected_item) {
-		g_selected_item->EnterArmyMove(player, pos);
+	if (selitem_Get()) {
+		selitem_Get()->EnterArmyMove(player, pos);
 	}
 }
 
 void UISetAutoUnload(bool on)
 {
-	if (g_selected_item) {
-		g_selected_item->SetAutoUnload(on);
+	if (selitem_Get()) {
+		selitem_Get()->SetAutoUnload(on);
 	}
 }
 
 void UIDeselect(sint32 player)
 {
-	if (g_selected_item) {
-		g_selected_item->Deselect(player);
+	if (selitem_Get()) {
+		selitem_Get()->Deselect(player);
 	}
 }
 
 bool UIIsArmySelected()
 {
-	if (!g_selected_item) return false;
+	if (!selitem_Get()) return false;
 	PLAYER_INDEX p;
 	ID item;
 	SELECT_TYPE state;
-	g_selected_item->GetTopCurItem(p, item, state);
+	selitem_Get()->GetTopCurItem(p, item, state);
 	return state == SELECT_TYPE_LOCAL_ARMY;
 }
 
 bool UIIsCitySelected()
 {
-	if (!g_selected_item) return false;
+	if (!selitem_Get()) return false;
 	PLAYER_INDEX p;
 	ID item;
 	SELECT_TYPE state;
-	g_selected_item->GetTopCurItem(p, item, state);
+	selitem_Get()->GetTopCurItem(p, item, state);
 	return state == SELECT_TYPE_LOCAL_CITY;
 }
 
 sint32 UIGetSelectedArmyId()
 {
-	if (!g_selected_item) return 0;
+	if (!selitem_Get()) return 0;
 	PLAYER_INDEX p;
 	ID item;
 	SELECT_TYPE state;
-	g_selected_item->GetTopCurItem(p, item, state);
+	selitem_Get()->GetTopCurItem(p, item, state);
 	return (state == SELECT_TYPE_LOCAL_ARMY) ? item.m_id : 0;
 }
 
 sint32 UIGetSelectedCityId()
 {
-	if (!g_selected_item) return 0;
+	if (!selitem_Get()) return 0;
 	PLAYER_INDEX p;
 	ID item;
 	SELECT_TYPE state;
-	g_selected_item->GetTopCurItem(p, item, state);
+	selitem_Get()->GetTopCurItem(p, item, state);
 	return (state == SELECT_TYPE_LOCAL_CITY) ? static_cast<sint32>(item.m_id) : 0;
 }
 
 void UIGetTopCurItem(sint32 &player, sint32 &item, sint32 &state)
 {
-	if (!g_selected_item) {
+	if (!selitem_Get()) {
 		player = 0;
 		item = 0;
 		state = 0;
@@ -173,7 +173,7 @@ void UIGetTopCurItem(sint32 &player, sint32 &item, sint32 &state)
 	PLAYER_INDEX p;
 	ID id;
 	SELECT_TYPE selState;
-	g_selected_item->GetTopCurItem(p, id, selState);
+	selitem_Get()->GetTopCurItem(p, id, selState);
 	player = p;
 	item = id;
 	state = selState;
@@ -186,55 +186,55 @@ bool UIIsModalMessageActive()
 
 void UINextPlayer()
 {
-	if (g_selected_item) g_selected_item->NextPlayer();
+	if (selitem_Get()) selitem_Get()->NextPlayer();
 }
 
 void UIAddPlayer(sint32 player)
 {
-	if (g_selected_item) g_selected_item->AddPlayer(player);
+	if (selitem_Get()) selitem_Get()->AddPlayer(player);
 }
 
 void UIRegisterRemovedArmy(sint32 player, const Army &army)
 {
-	if (g_selected_item) g_selected_item->RegisterRemovedArmy(player, army);
+	if (selitem_Get()) selitem_Get()->RegisterRemovedArmy(player, army);
 }
 
 void UIRegisterRemovedCity(sint32 player, const Unit &city)
 {
-	if (g_selected_item) g_selected_item->RegisterRemovedCity(player, city);
+	if (selitem_Get()) selitem_Get()->RegisterRemovedCity(player, city);
 }
 
 // --- Wave B (TODO(orchestrator) restoration) selection forwarders ---
 
 bool UIIsAutoCenterOn()
 {
-	return g_selected_item ? g_selected_item->IsAutoCenterOn() : false;
+	return selitem_Get() ? selitem_Get()->IsAutoCenterOn() : false;
 }
 
 sint32 UIGetPlayerOnScreen()
 {
-	return g_selected_item ? g_selected_item->GetPlayerOnScreen() : -1;
+	return selitem_Get() ? selitem_Get()->GetPlayerOnScreen() : -1;
 }
 
 void UIForceDirectorSelect(const Army &army)
 {
-	if (g_selected_item) g_selected_item->ForceDirectorSelect(army);
+	if (selitem_Get()) selitem_Get()->ForceDirectorSelect(army);
 }
 
 void UIEnterMovePath(sint32 owner, Army &army,
                      const MapPoint &src, const MapPoint &dest)
 {
-	if (g_selected_item) g_selected_item->EnterMovePath(owner, army, src, dest);
+	if (selitem_Get()) selitem_Get()->EnterMovePath(owner, army, src, dest);
 }
 
 void UINextRound()
 {
-	if (g_selected_item) g_selected_item->NextRound();
+	if (selitem_Get()) selitem_Get()->NextRound();
 }
 
 void UIRegisterManualEndTurn()
 {
-	if (g_selected_item) g_selected_item->RegisterManualEndTurn();
+	if (selitem_Get()) selitem_Get()->RegisterManualEndTurn();
 }
 
 // --- Wave C (2026-05-29) HUD-query forwarders ---
@@ -356,9 +356,9 @@ bool UIDeserializeSelectionVersion(CivArchive &archive)
 
 void UISerializeSelection(CivArchive &archive)
 {
-	if (g_selected_item)
+	if (selitem_Get())
 	{
-		g_selected_item->Serialize(archive);
+		selitem_Get()->Serialize(archive);
 	}
 }
 

@@ -345,11 +345,10 @@ bool CanAutoSelect(const Army &army);
 
 extern uint32 SelectedItem_GetVersion(void);
 
-extern SelectedItem *g_selected_item;
-
 // Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
-// / director_Get.  Callers should use selitem_Get() instead of
-// reaching for g_selected_item directly.
+// / director_Get.  The legacy g_selected_item pointer is now file-static
+// in ui/aui_ctp2/SelItem.cpp; outside callers must go through these
+// accessors.
 SelectedItem * selitem_Get(void);
 void           selitem_Set(SelectedItem *p);
 

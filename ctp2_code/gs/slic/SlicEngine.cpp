@@ -77,7 +77,7 @@
 #include "gs/slic/SlicFunc.h"
 #include "gs/slic/slicfuncai.h"
 #include "gs/slic/SlicSymTab.h"
-#include "gs/gameobj/Player.h"					// g_player
+#include "gs/gameobj/Player.h"					// player_arr_Get()
 #include "gs/gameobj/Unit.h"
 #include "gs/fileio/CivPaths.h"				// g_civPaths
 #include "gs/core/game_observer.h"             // g_gameObservers
@@ -1159,14 +1159,14 @@ void SlicEngine::SetTutorialActive(BOOL on)
 	if(!m_tutorialActive) {
 
 		EnableMessageClass(k_NON_TUTORIAL_MESSAGE_CLASS);
-		if(g_player && g_player[m_tutorialPlayer]) {
+		if(player_arr_Get() && player_Get(m_tutorialPlayer)) {
 			sint32 i;
-			DynamicArray<Message> *msgs = g_player[m_tutorialPlayer]->m_messages;
+			DynamicArray<Message> *msgs = player_Get(m_tutorialPlayer)->m_messages;
 			for(i = 0; i < msgs->Num(); i++) {
 				if(msgs->Access(i).AccessData()->GetSlicSegment() &&
 				   msgs->Access(i).AccessData()->GetSlicSegment()->GetFilenum() == k_TUTORIAL_FILE) {
-					g_player[m_tutorialPlayer]->m_messages->Access(i).AccessData()->DisableClose(FALSE);
-					g_player[m_tutorialPlayer]->m_messages->Access(i).Kill();
+					player_Get(m_tutorialPlayer)->m_messages->Access(i).AccessData()->DisableClose(FALSE);
+					player_Get(m_tutorialPlayer)->m_messages->Access(i).Kill();
 				}
 			}
 		}
@@ -1423,8 +1423,8 @@ void SlicEngine::RunContactTriggers(const Unit &unit1, const Unit &unit2)
 {
 	if (    unit1.IsValid()
          &&	unit2.IsValid()
-         && g_player[unit1.GetOwner()]
-         && g_player[unit2.GetOwner()]
+         && player_Get(unit1.GetOwner())
+         && player_Get(unit2.GetOwner())
        )
     {
 	    PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_CONTACT]);
@@ -1463,7 +1463,7 @@ void SlicEngine::RunTradeScreenTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_TRADE_SCREEN]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
 				obj->AddPlayer(player_view::VisiblePlayer());
 				Execute(obj);
@@ -1478,7 +1478,7 @@ void SlicEngine::RunSameGoodTriggers(const Unit &city1, const Unit &city2)
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_SAME_GOOD]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
 				obj->AddPlayer(player_view::VisiblePlayer());
 				obj->AddCity(city1);
@@ -1500,9 +1500,9 @@ void SlicEngine::RunSameGoodAsTradedTriggers(sint32 good, const Unit &city1)
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_SAME_GOOD_AS_TRADED]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				obj->AddCity(city1);
 				Execute(obj);
 			}
@@ -1516,9 +1516,9 @@ void SlicEngine::RunUnitQueueTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_UNIT_QUEUE]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1531,9 +1531,9 @@ void SlicEngine::RunProductionQueueTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_PRODUCTION_QUEUE]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1546,9 +1546,9 @@ void SlicEngine::RunDiplomaticScreenTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_DIPLOMATIC_SCREEN]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1561,9 +1561,9 @@ void SlicEngine::RunCreateStackTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_CREATE_STACK]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1576,9 +1576,9 @@ void SlicEngine::RunCreateMixedStackTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_CREATE_MIXED_STACK]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1591,9 +1591,9 @@ void SlicEngine::RunAutoArrangeOffTriggers()
 	PointerList<SlicSegment>::Walker walk(m_triggerLists[TRIGGER_LIST_AUTO_ARRANGE_OFF]);
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
-			if (g_player[player_view::VisiblePlayer()] != NULL) {
+			if (player_Get(player_view::VisiblePlayer()) != NULL) {
 				SlicObject *obj = new SlicObject(walk.GetObj());
-				obj->AddCivilisation(*g_player[player_view::VisiblePlayer()]->m_civilisation);
+				obj->AddCivilisation(*player_Get(player_view::VisiblePlayer())->m_civilisation);
 				Execute(obj);
 			}
 		}
@@ -1609,8 +1609,8 @@ void SlicEngine::RunBombardmentTriggers(const Unit &attacker,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[attacker.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[defender.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(attacker.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(defender.GetOwner())->m_civilisation);
 			obj->AddUnit(attacker);
 			obj->AddUnit(defender);
 
@@ -1628,8 +1628,8 @@ void SlicEngine::RunCounterBombardmentTriggers(const Unit &bombarder,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[bombarder.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[counterbombarder.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(bombarder.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(counterbombarder.GetOwner())->m_civilisation);
 			obj->AddUnit(bombarder);
 			obj->AddUnit(counterbombarder);
 
@@ -1646,8 +1646,8 @@ void SlicEngine::RunActiveDefenseTriggers(const Unit &defender, const Unit &aggr
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[defender.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[aggressor.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(defender.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(aggressor.GetOwner())->m_civilisation);
 			obj->AddUnit(defender);
 			obj->AddUnit(aggressor);
 			Execute(obj);
@@ -1663,8 +1663,8 @@ void SlicEngine::RunIndulgenceTriggers(const Unit &cleric, const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[cleric.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(cleric.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddUnit(cleric);
 			obj->AddCity(city);
 			Execute(obj);
@@ -1680,8 +1680,8 @@ void SlicEngine::RunTerrorismTriggers(const Unit &terrorist, const Unit &target)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[terrorist.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[target.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(terrorist.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(target.GetOwner())->m_civilisation);
 			obj->AddUnit(terrorist);
 			obj->AddCity(target);
 			Execute(obj);
@@ -1697,8 +1697,8 @@ void SlicEngine::RunConversionTriggers(const Unit &cleric, const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[cleric.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(cleric.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddUnit(cleric);
 			obj->AddUnit(city);
 			Execute(obj);
@@ -1714,7 +1714,7 @@ void SlicEngine::RunWonderStartedTriggers(const Unit &city, sint32 wondertype)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddCity(city);
 			obj->AddWonder(wondertype);
 			Execute(obj);
@@ -1730,7 +1730,7 @@ void SlicEngine::RunWonderFinishedTriggers(const Unit &city, sint32 wondertype)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddCity(city);
 			obj->AddWonder(wondertype);
 			Execute(obj);
@@ -1748,8 +1748,8 @@ void SlicEngine::RunUnitSightedTriggers(const Unit &sighted, const Unit &sighted
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[sighted.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[sightedby.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(sighted.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(sightedby.GetOwner())->m_civilisation);
 			obj->AddUnit(sighted);
 			obj->AddUnit(sightedby);
 			Execute(obj);
@@ -1766,8 +1766,8 @@ void SlicEngine::RunEnslavementTriggers(const Unit &slaver, const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[slaver.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(slaver.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddUnit(slaver);
 			obj->AddCity(city);
 			Execute(obj);
@@ -1784,8 +1784,8 @@ void SlicEngine::RunSettlerEnslavedTriggers(const Unit &slaver,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[slaver.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[settlerOwner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(slaver.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(settlerOwner)->m_civilisation);
 			obj->AddUnit(slaver);
 			Execute(obj);
 		}
@@ -1802,8 +1802,8 @@ void SlicEngine::RunVictoryEnslavementTriggers(const Unit &slaver,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[slaver.GetOwner()]->m_civilisation);
-			obj->AddCivilisation(*g_player[slavee]->m_civilisation);
+			obj->AddCivilisation(*player_Get(slaver.GetOwner())->m_civilisation);
+			obj->AddCivilisation(*player_Get(slavee)->m_civilisation);
 			obj->AddUnit(slaver);
 			obj->AddCity(hc);
 			Execute(obj);
@@ -1819,7 +1819,7 @@ void SlicEngine::RunUnitLaunchedTriggers(const Unit &launchee)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[launchee.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(launchee.GetOwner())->m_civilisation);
 			obj->AddUnit(launchee);
 			Execute(obj);
 		}
@@ -1834,12 +1834,12 @@ void SlicEngine::RunUnitBeginTurnTriggers(const Unit &unit)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			obj->AddUnit(unit);
 			Execute(obj);
 			if(!unit.IsValid())
 				return;
-			if(!g_player[unit.GetOwner()])
+			if(!player_Get(unit.GetOwner()))
 				return;
 		}
 		walk.Next();
@@ -1853,7 +1853,7 @@ void SlicEngine::RunPopMovedTriggers(const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddCity(city);
 			Execute(obj);
 		}
@@ -1869,7 +1869,7 @@ void SlicEngine::RunBuildFarmTriggers(sint32 owner, const MapPoint &point,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			obj->AddLocation(point);
 			Execute(obj);
 		}
@@ -1885,7 +1885,7 @@ void SlicEngine::RunBuildRoadTriggers(sint32 owner, const MapPoint &point,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			obj->AddLocation(point);
 			Execute(obj);
 		}
@@ -1901,7 +1901,7 @@ void SlicEngine::RunBuildMineTriggers(sint32 owner, const MapPoint &point,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			obj->AddLocation(point);
 			Execute(obj);
 		}
@@ -1917,7 +1917,7 @@ void SlicEngine::RunBuildInstallationTriggers(sint32 owner, const MapPoint &poin
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			obj->AddLocation(point);
 			Execute(obj);
 		}
@@ -1933,7 +1933,7 @@ void SlicEngine::RunBuildTransformTriggers(sint32 owner, const MapPoint &point,
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			obj->AddLocation(point);
 			Execute(obj);
 		}
@@ -1947,7 +1947,7 @@ void SlicEngine::RunScienceRateTriggers(sint32 owner)
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[owner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(owner)->m_civilisation);
 			Execute(obj);
 		}
 		walk.Next();
@@ -1960,8 +1960,8 @@ void SlicEngine::RunCityCapturedTriggers(sint32 newowner, sint32 oldowner, const
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[newowner]->m_civilisation);
-			obj->AddCivilisation(*g_player[oldowner]->m_civilisation);
+			obj->AddCivilisation(*player_Get(newowner)->m_civilisation);
+			obj->AddCivilisation(*player_Get(oldowner)->m_civilisation);
 			obj->AddCity(city);
 			Execute(obj);
 		}
@@ -1977,7 +1977,7 @@ void SlicEngine::RunTradeOfferTriggers(const TradeOffer &offer)
 			SlicObject *obj = new SlicObject(walk.GetObj());
 			obj->AddGood(offer.GetOfferResource());
 			obj->AddGold(offer.GetAskingResource());
-			obj->AddCivilisation(*g_player[offer.GetFromCity().GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(offer.GetFromCity().GetOwner())->m_civilisation);
 			Execute(obj);
 		}
 		walk.Next();
@@ -1990,8 +1990,8 @@ void SlicEngine::RunTreatyBrokenTriggers(sint32 pl1, sint32 pl2, const Agreement
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[pl1]->m_civilisation);
-			obj->AddCivilisation(*g_player[pl2]->m_civilisation);
+			obj->AddCivilisation(*player_Get(pl1)->m_civilisation);
+			obj->AddCivilisation(*player_Get(pl2)->m_civilisation);
 
 			Execute(obj);
 		}
@@ -2005,7 +2005,7 @@ void SlicEngine::RunUnitDeadTriggers(const Unit &unit, PLAYER_INDEX killedBy)
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			if(killedBy >= 0) {
 				obj->AddCivilisation(killedBy);
 			}
@@ -2022,7 +2022,7 @@ void SlicEngine::RunOutOfFuelTriggers(const Unit &unit)
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			obj->AddUnit(unit);
 			Execute(obj);
 		}
@@ -2035,7 +2035,7 @@ void SlicEngine::RunUnitCantBeSupportedTriggers(const Unit &unit)
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			obj->AddUnit(unit);
 			Execute(obj);
 		}
@@ -2048,7 +2048,7 @@ void SlicEngine::RunMiscUnitDeathTriggers(const Unit &unit)
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			obj->AddUnit(unit);
 			Execute(obj);
 		}
@@ -2062,8 +2062,8 @@ void SlicEngine::RunDiscoveryTradedTriggers(sint32 pl1, sint32 pl2, AdvanceType 
 	while(walk.IsValid()) {
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
-			obj->AddCivilisation(*g_player[pl1]->m_civilisation);
-			obj->AddCivilisation(*g_player[pl2]->m_civilisation);
+			obj->AddCivilisation(*player_Get(pl1)->m_civilisation);
+			obj->AddCivilisation(*player_Get(pl2)->m_civilisation);
 			obj->AddAdvance(adv);
 			Execute(obj);
 		}
@@ -2111,7 +2111,7 @@ void SlicEngine::RunPopMovedOffGoodTriggers(const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddCity(city);
 			Execute(obj);
 		}
@@ -2126,7 +2126,7 @@ void SlicEngine::RunWastingWorkTriggers(const Unit &city)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 
-			obj->AddCivilisation(*g_player[city.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(city.GetOwner())->m_civilisation);
 			obj->AddCity(city);
 			Execute(obj);
 		}
@@ -2225,7 +2225,7 @@ void SlicEngine::RunUnitDoneMovingTriggers(const Unit &unit)
 		if(walk.GetObj()->IsEnabled()) {
 			SlicObject *obj = new SlicObject(walk.GetObj());
 			obj->AddUnit(unit);
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			Execute(obj);
 		}
 		walk.Next();
@@ -2243,7 +2243,7 @@ void SlicEngine::RunPiracyTriggers(const TradeRoute &route, const Unit &unit)
 
 			obj->AddCivilisation(route.GetDestination().GetOwner());
 
-			obj->AddCivilisation(*g_player[unit.GetOwner()]->m_civilisation);
+			obj->AddCivilisation(*player_Get(unit.GetOwner())->m_civilisation);
 			obj->AddUnit(unit);
 
 			obj->AddCity(route.GetSource());
@@ -2443,7 +2443,7 @@ void SlicEngine::RunTrigger(TRIGGER_LIST tlist, ...)
 						break;
 					case ST_PLAYER:
 						player = va_arg(vl, sint32);
-						if(g_player[player]) {
+						if(player_Get(player)) {
 							obj->AddCivilisation(player);
 						} else {
 							abort = TRUE;
@@ -2558,8 +2558,8 @@ void SlicEngine::BlankScreen(bool blank)
 	}
 
 	sint32 visible = player_view::VisiblePlayer();
-	sint32 researching = (visible >= 0 && g_player[visible])
-		? g_player[visible]->m_advances->GetResearching()
+	sint32 researching = (visible >= 0 && player_Get(visible))
+		? player_Get(visible)->m_advances->GetResearching()
 		: -1;
 	if (g_gameObservers) {
 		g_gameObservers->NotifyBlankScreenChanged(blank, visible, researching);

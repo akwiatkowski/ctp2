@@ -1915,7 +1915,7 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 {
 	Assert(argc >= 2);
 	if(argc >= 2) {
-		SlicSymbolData *sym = g_slicEngine->GetSymbol(argv[1]);
+		SlicSymbolData *sym = slicengine_Get()->GetSymbol(argv[1]);
 		if(sym) {
 			if(g_debugWindow) {
 				Unit u;
@@ -2343,10 +2343,10 @@ void TutorialCommand::Execute(sint32 argc, char **argv)
 {
 
 	if(argc > 1) {
-		g_slicEngine->SetTutorialPlayer(atoi(argv[1]));
+		slicengine_Get()->SetTutorialPlayer(atoi(argv[1]));
 		g_theProfileDB->SetTutorialAdvice( TRUE );
 	} else {
-		g_theProfileDB->SetTutorialAdvice( !g_slicEngine->GetTutorialActive() );
+		g_theProfileDB->SetTutorialAdvice( !slicengine_Get()->GetTutorialActive() );
 	}
 
 }

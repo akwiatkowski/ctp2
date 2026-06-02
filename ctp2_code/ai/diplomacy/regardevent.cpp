@@ -120,7 +120,7 @@ STDEHANDLER(KillUnitRegardEvent)
 				so->AddRecipient(killer);
 				so->AddUnitRecord(u.GetType());
 				so->AddPlayer(u.GetOwner());
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 
 				Diplomat::ApplyGlobalTrustChange(killer, trust_cost, "Committed the war crime of killing a civilian unit.");
 			}

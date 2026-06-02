@@ -303,9 +303,9 @@ struct HeavyCityDataFixture
 
         // SelectedItem and SlicEngine must exist before Player construction.
         // Player::InitPlayer calls Advances::InitialAdvance which calls
-        // g_slicEngine->CallMod, and other sub-objects may query g_selected_item.
+        // slicengine_Get()->CallMod, and other sub-objects may query g_selected_item.
         g_selected_item = new SelectedItem(1);
-        g_slicEngine = new SlicEngine();
+        slicengine_Set(new SlicEngine());
         rand_ptr_Set(new RandomGenerator(12345));
         // Test fixture: no real game setup. Default to 0 players, year 0;
         // the test exercises CityData logic, not TurnCount semantics.
@@ -322,7 +322,7 @@ struct HeavyCityDataFixture
         world_Set(nullptr);
         player_arr_Set(nullptr);
         g_selected_item = nullptr;
-        g_slicEngine = nullptr;
+        slicengine_Set(nullptr);
         g_civApp = nullptr;
         rand_ptr_Set(nullptr);
         turn_Set(nullptr);

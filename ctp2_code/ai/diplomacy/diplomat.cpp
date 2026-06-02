@@ -1135,7 +1135,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 			so->AddCivilisation(foreignerId) ;
 			so->AddCivilisation(m_playerId) ;
 			so->AddRecipient(foreignerId);
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 		}
 
 		const DiplomacyProposalRecord * rec = g_theDiplomacyProposalDB->Get(s_proposalTypeToElemIndex[proposal_type]);
@@ -1746,7 +1746,7 @@ void Diplomat::Execute_Proposal( const PLAYER_INDEX & sender,
 			so->AddCivilisation(sender);
 			so->AddCivilisation(receiver);
 			so->AddAllRecipients();
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		break;
@@ -1803,13 +1803,13 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 			so->AddRecipient(foreignerId);
 			so->AddCivilisation(foreignerId) ;
 			so->AddCivilisation(m_playerId) ;
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject((MBCHAR *)"128CivStartedWar");
 			so->AddAllRecipientsBut(m_playerId, foreignerId);
 			so->AddCivilisation(m_playerId) ;
 			so->AddCivilisation(foreignerId) ;
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		else
@@ -1819,7 +1819,7 @@ void Diplomat::DeclareWar(const PLAYER_INDEX foreignerId)
 			so->AddAllRecipientsBut(m_playerId);
 			so->AddCivilisation(m_playerId) ;
 			so->AddCivilisation(foreignerId) ;
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -3817,7 +3817,7 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
                     SlicObject * so = new SlicObject("001TreatyToExpire");
 				    so->AddRecipient(m_playerId);
 				    so->AddCivilisation(foreignerId);
-			        g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			    }
             }
 	    }
@@ -5412,7 +5412,7 @@ void Diplomat::SendGreeting(const PLAYER_INDEX & foreignerId)
 	MBCHAR buf[k_MAX_NAME_LEN];
 	stringutils_Interpret(g_theStringDB->GetNameStr(greeting), *so, buf);
 	so->AddAction(buf);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 }
 
 bool Diplomat::DesireWarWith(const PLAYER_INDEX foreignerId) const

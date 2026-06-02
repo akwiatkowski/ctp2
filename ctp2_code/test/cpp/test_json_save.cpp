@@ -2624,7 +2624,7 @@ TEST_CASE("json round-trip: leaf bridges all use snake_case (no m_ leak)")
 // Phase F-9 — SlicSymbolData (the 14-case tagged-union heart of the
 // Slic data model).  Tests cover each persisted variant; FUNC / ID /
 // UFUNC / STRUCT_MEMBER / UNDEFINED with non-null payloads need a
-// live g_slicEngine and are exercised through F-10+ composite tests.
+// live slicengine_Get() and are exercised through F-10+ composite tests.
 
 TEST_CASE("json round-trip: SlicSymbolData IVAR")
 {
@@ -2728,7 +2728,7 @@ TEST_CASE("json round-trip: SlicSymbolData STRING null + non-null")
 
 TEST_CASE("json round-trip: SlicSymbolData FUNC with null function object")
 {
-    // Without g_slicEngine, function_name=='' round-trips to NULL.
+    // Without slicengine_Get(), function_name=='' round-trips to NULL.
     SlicSymbolData orig(SLIC_SYM_FUNC);
     // m_function_object stays nullptr (Init() zeroed m_val).
 
@@ -3043,7 +3043,7 @@ TEST_CASE("json round-trip: SlicSymbolData ARRAY composition (F-9 + F-11)")
 TEST_CASE("json round-trip: SlicStructInstance with empty description")
 {
     // Description with zero members — exercises the "no members" path
-    // without needing g_slicEngine.  Default CreateDataSymbol returns
+    // without needing slicengine_Get().  Default CreateDataSymbol returns
     // NULL (see SlicStruct.cpp:314), so m_dataSymbol stays nullptr
     // and data_symbol serialises to JSON null.
     SlicStructDescription desc("TestStruct", SLIC_BUILTIN_PLAYER);
@@ -3058,7 +3058,7 @@ TEST_CASE("json round-trip: SlicStructInstance with empty description")
 
     // Round-trip load: into an instance built with the same description
     // (mimics what the SlicSymbolData::from_json STRUCT case does via
-    // g_slicEngine when one is available).
+    // slicengine_Get() when one is available).
     SlicStructInstance round(&desc);
     j.get_to(round);
     nlohmann::json j2 = round;
@@ -3078,7 +3078,7 @@ TEST_CASE("json round-trip: SlicStructInstance keys are snake_case (no m_ leak)"
 TEST_CASE("json round-trip: SlicSymbolData STRUCT composition serialises")
 {
     // The F-9 SLIC_SYM_STRUCT case used to throw; verify it now emits
-    // a struct payload.  Load is skipped — without g_slicEngine the
+    // a struct payload.  Load is skipped — without slicengine_Get() the
     // from_json path can't resolve the description, and SlicStructInstance
     // requires one to construct.  Full load round-trip needs an engine
     // fixture (deferred to integration suite).
@@ -3094,7 +3094,7 @@ TEST_CASE("json round-trip: SlicSymbolData STRUCT composition serialises")
     // orig owns inst (destructor delete m_val.m_struct in SLIC_SYM_STRUCT
     // case).  desc is owned by inst's m_description... wait, no — desc
     // is borrowed.  Leak the desc to avoid double-delete (no global
-    // tracker in this test; in real use g_slicEngine owns descriptions).
+    // tracker in this test; in real use slicengine_Get() owns descriptions).
     (void)desc;  // intentionally leaked — engine-owned in production
 }
 
@@ -3369,7 +3369,7 @@ TEST_CASE("json round-trip: SlicObject default-constructed (mostly null)")
 TEST_CASE("json round-trip: SlicObject with recipients + flags + base context")
 {
     // Use default ctor — SlicObject(char const*) dereferences
-    // g_slicEngine which is null in unit tests.
+    // slicengine_Get() which is null in unit tests.
     SlicObject orig;
     orig.SetIdle(5);
     orig.AddRecipient(2);

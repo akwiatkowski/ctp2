@@ -59,8 +59,6 @@
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/AgreementPool.h"
 
-extern World *g_theWorld;
-
 #include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()
 
 #include "gs/gameobj/Diplomacy_Log.h"
@@ -1304,7 +1302,7 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 						continue;
 
 					armies->Access(i).GetPos(pos);
-					if(g_theWorld->GetCell(pos)->GetOwner() == m_owner) {
+					if(world_Get()->GetCell(pos)->GetOwner() == m_owner) {
 						RecipientIsViolating(m_owner, FALSE, currentRound);
 						return;
 					}
@@ -1441,7 +1439,7 @@ void AgreementData::BeginTurnRecipient(sint32 currentRound)
 						continue;
 
 					armies->Access(i).GetPos(pos);
-					if(g_theWorld->GetCell(pos)->GetOwner() == m_owner) {
+					if(world_Get()->GetCell(pos)->GetOwner() == m_owner) {
 						RecipientIsViolating(m_recipient, FALSE, currentRound);
 						return;
 					}

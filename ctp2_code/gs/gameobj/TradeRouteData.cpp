@@ -146,8 +146,8 @@ void TradeRouteData::RemoveFromCells()
 	sint32 const    num = m_path.Num();
 	for (sint32 i = 0; i < num; i++)
     {
-		if(g_theWorld)
-			g_theWorld->GetCell(m_path[i])->DelTradeRoute(route);
+		if(world_Get())
+			world_Get()->GetCell(m_path[i])->DelTradeRoute(route);
 		if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(m_path[i]);
 	}
 }
@@ -179,7 +179,7 @@ void TradeRouteData::SetRecip(TradeRoute route)
 
 void TradeRouteData::CheckSquareForCity(MapPoint const & pos)
 {
-	Unit city = g_theWorld->GetCell(pos)->GetCity();
+	Unit city = world_Get()->GetCell(pos)->GetCity();
 
 	if (city.IsValid())
     {
@@ -267,9 +267,9 @@ bool TradeRouteData::GeneratePath()
 		if (r)
         {
 			m_path.Insert(pnt);
-			g_theWorld->GetCell(pnt)->AddTradeRoute(m_id);
+			world_Get()->GetCell(pnt)->AddTradeRoute(m_id);
 			if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(pnt);
-			if (g_theWorld->IsWater(pnt))
+			if (world_Get()->IsWater(pnt))
             {
 				m_crossesWater = true;
 			}
@@ -356,7 +356,7 @@ void TradeRouteData::ReturnPath
 		Assert(r);
 		if(r) {
 			fullpath.Insert(pnt);
-			if(g_theWorld->IsWater(pnt)) {
+			if(world_Get()->IsWater(pnt)) {
 				m_crossesWater = TRUE;
 			}
 		}
@@ -562,14 +562,14 @@ void TradeRouteData::UpdateSelectedCellData(TradeRoute &route)
 {
 
 	for ( sint32 i = 0 ; i < m_selectedPath.Num() ; i++ )
-		g_theWorld->GetCell(m_selectedPath[i])->AddTradeRoute(route);
+		world_Get()->GetCell(m_selectedPath[i])->AddTradeRoute(route);
 }
 
 void TradeRouteData::ClearSelectedCellData(TradeRoute &route)
 {
 
 	for ( sint32 i = 0 ; i < m_selectedPath.Num() ; i++ )
-		g_theWorld->GetCell(m_selectedPath[i])->DelTradeRoute(route);
+		world_Get()->GetCell(m_selectedPath[i])->DelTradeRoute(route);
 }
 
 void TradeRouteData::SetSource(Unit source)
@@ -609,7 +609,7 @@ sint32 TradeRouteData::GetValue() const
 	if(m_sourceRouteType != ROUTE_TYPE_RESOURCE)
 		return 0;
 
-	double baseValue = g_theWorld->GetGoodValue(m_sourceResource);
+	double baseValue = world_Get()->GetGoodValue(m_sourceResource);
 	double distance = double(m_destinationCity->GetCityData()->GetDistanceToGood(m_sourceResource));
 	return sint32(baseValue * distance);
 }

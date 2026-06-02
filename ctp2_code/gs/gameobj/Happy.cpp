@@ -54,7 +54,7 @@
 #include "gs/world/MapPoint.h"
 
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "BuildingRecord.h"
 #include "gs/world/cellunitlist.h"
 #include "WonderRecord.h"
@@ -444,7 +444,7 @@ double Happy::CalcMartialLaw(CityData &cd, Player *p)
 
 		MapPoint pos;
 		cd.m_home_city.GetPos(pos);
-		CellUnitList *a = g_theWorld->GetArmyPtr(pos);
+		CellUnitList *a = world_Get()->GetArmyPtr(pos);
 
 
 		sint32 count = 0;

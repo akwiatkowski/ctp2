@@ -72,7 +72,7 @@ TerrainImprovementPool::TerrainImprovementPool(CivArchive &archive)
 // Globals    : g_theTerrainImprovementDB
 //				player_Get
 //				g_tiledMap
-//				g_theWorld
+//				world_Get()
 //				g_soundManager
 //				g_selectedItem
 //
@@ -124,7 +124,7 @@ TerrainImprovementPool::Create
 	}
 
 	Insert(newData);
-	g_theWorld->InsertImprovement(newImprovement, point);
+	world_Get()->InsertImprovement(newImprovement, point);
 	tiledmap_observer::RedrawTile(point);
 
 	// Plays a sound when a tile improvement is built

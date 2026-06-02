@@ -52,7 +52,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 
 STDEHANDLER(KillUnitEvent)
 {
@@ -587,7 +587,7 @@ STDEHANDLER(NukeLocationUnitEvent)
 
 	SquareIterator it(pos, 1);
 	for(it.Start(); !it.End(); it.Next()) {
-		Cell *cell = g_theWorld->GetCell(it.Pos());
+		Cell *cell = world_Get()->GetCell(it.Pos());
 		sint32 i;
 		for(i = 0; i < cell->GetNumUnits(); i++) {
 			if(cell->AccessUnit(i).m_id != u.m_id) {
@@ -652,7 +652,7 @@ STDEHANDLER(LaunchUnitEvent)
 		return GEV_HD_Continue;
 
 	if(spaceTurns > 0) {
-		g_theWorld->RemoveUnitReference(u.RetPos(), u);
+		world_Get()->RemoveUnitReference(u.RetPos(), u);
 		u->RemoveUnitVision();
 		u.SetFlag(k_UDF_HAS_LEFT_MAP);
 		u.SetFlag(k_UDF_IN_SPACE);
@@ -696,7 +696,7 @@ STDEHANDLER(ActivateAllUnitsEvent)
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
 	sint32 i;
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	for(i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).IsEntrenched()) {
 			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,

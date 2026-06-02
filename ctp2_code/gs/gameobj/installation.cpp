@@ -12,8 +12,6 @@
 #include "gs/core/render_observer.h"
 #include "gs/gameobj/terrainutil.h"
 
-extern World *g_theWorld;
-
 void
 Installation::KillInstallation()
 {
@@ -30,7 +28,7 @@ Installation::RemoveAllReferences()
 	if(GetOwner() >= 0 && player_Get(GetOwner())) {
 		player_Get(GetOwner())->RemoveInstallationReferences(*this);
 	}
-	g_theWorld->RemoveInstallation(*this, pos);
+	world_Get()->RemoveInstallation(*this, pos);
 	if(GetOwner() >= 0 && player_Get(GetOwner())) {
 
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());

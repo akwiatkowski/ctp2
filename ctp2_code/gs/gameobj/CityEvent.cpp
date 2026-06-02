@@ -830,14 +830,14 @@ STDEHANDLER(KillTileEvent)
 	MapPoint pos;
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetCanDie()) {
 		cell->Kill();
 
-		g_theWorld->CutImprovements(pos);
+		world_Get()->CutImprovements(pos);
 
 		cell->CalcTerrainMoveCost();
-		tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+		tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 		tiledmap_observer::TileChanged(pos);
 		MapPoint npos;
 		for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
@@ -845,7 +845,7 @@ STDEHANDLER(KillTileEvent)
 			if(pos.GetNeighborPosition(d, npos)) {
 				tiledmap_observer::PostProcessTile(
 					npos,
-					g_theWorld->GetTileInfo(npos));
+					world_Get()->GetTileInfo(npos));
 				tiledmap_observer::TileChanged(npos);
 			}
 		}

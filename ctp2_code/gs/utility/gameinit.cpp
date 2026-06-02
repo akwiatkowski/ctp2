@@ -184,6 +184,9 @@ Wormhole * wormhole_Get(void)    { return g_wormhole; }
 void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
 
 StringDB                    *g_theStringDB=NULL;
+
+StringDB * stringdb_Get(void)        { return g_theStringDB; }
+void       stringdb_Set(StringDB *p) { g_theStringDB = p; }
 OzoneDatabase               *g_theUVDB=NULL;
 static ThroneDB             *g_theThroneDB = NULL;
 

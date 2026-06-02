@@ -32,7 +32,7 @@
 //
 // - Reimplemented containers as vectors, to make it less error prone.
 // - Load default strings if they are missing in the database so that mods
-//   also have a full set of strings. (Jan 30th 2006 Martin Gühmann)
+//   also have a full set of strings. (Jan 30th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -55,7 +55,12 @@
 
 class	StringDB;
 
+// App-singleton accessor pair.  g_theStringDB is defined in
+// gs/utility/gameinit.cpp; the consolidating commit makes it file-static
+// and drops this extern once all consumers are routed.
 extern	StringDB *	g_theStringDB;
+StringDB * stringdb_Get(void);
+void       stringdb_Set(StringDB *p);
 
 //----------------------------------------------------------------------------
 // Project dependencies

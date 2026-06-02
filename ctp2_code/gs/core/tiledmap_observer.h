@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------
 //
 // Game-state code (`gs/`) and AI code (`ai/`) historically called
-// `g_tiledMap->X()` directly to invalidate dirty rects, request tile
+// `tiledmap_Get()->X()` directly to invalidate dirty rects, request tile
 // redraws, post-process tiles after terrain changes, and similar
 // map-render work.  TiledMap lives in `gfx/tilesys/` — that is the wrong
 // direction in the layered architecture, since gs/ should not depend on
@@ -17,18 +17,18 @@
 // functions that fan out to a registered `Impl` callback.  The UI build
 // registers a `TiledMapObserverAdapter` (in
 // `gfx/tilesys/tiledmap_observer_adapter.cpp`) that forwards to
-// `g_tiledMap`; the headless build leaves the observer unregistered and
+// `tiledmap_Get()`; the headless build leaves the observer unregistered and
 // every call becomes a no-op (with safe defaults for non-void returns).
 //
 // Migration pattern at the call site:
-//   before:  if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
+//   before:  if (tiledmap_Get()) tiledmap_Get()->RedrawTile(&pos);
 //   after:   tiledmap_observer::RedrawTile(pos);
 //
 // before (block):
-//   if (g_tiledMap) {
-//       g_tiledMap->InvalidateMix();
-//       g_tiledMap->InvalidateMap();
-//       g_tiledMap->Refresh();
+//   if (tiledmap_Get()) {
+//       tiledmap_Get()->InvalidateMix();
+//       tiledmap_Get()->InvalidateMap();
+//       tiledmap_Get()->Refresh();
 //   }
 // after:
 //   tiledmap_observer::InvalidateMix();
@@ -38,7 +38,7 @@
 // Mirrors `gs/core/audio_observer.h` and `gs/core/render_observer.h`.
 //
 // Out of scope for this observer:
-//   - Lifecycle of g_tiledMap itself (new/delete) — handled by the
+//   - Lifecycle of tiledmap_Get() itself (new/delete) — handled by the
 //     `tiledmap_factory` free function (see below), implemented UI-side.
 //
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ namespace tiledmap_observer {
 
 // --- The Impl interface ---
 // Concrete implementations live in:
-//   - gfx/tilesys/tiledmap_observer_adapter.cpp (UI build, forwards to g_tiledMap)
+//   - gfx/tilesys/tiledmap_observer_adapter.cpp (UI build, forwards to tiledmap_Get())
 //   - test fixtures (record-and-replay spies, no-op stubs)
 // Headless does not register an Impl; the free functions below short-circuit.
 class Impl
@@ -125,7 +125,7 @@ Vision const *GetLocalVision();
 } // namespace tiledmap_observer
 
 // --- TiledMap lifecycle factory ---
-// Replaces the inline `delete g_tiledMap; g_tiledMap = new TiledMap(size);`
+// Replaces the inline `delete tiledmap_Get(); tiledmap_Set(new TiledMap(size));`
 // idiom in gameinit.cpp.  Implemented UI-side in
 // `gfx/tilesys/tiledmap_observer_adapter.cpp` (or a sibling file); the
 // headless build links a no-op stub.  Two free functions intentionally —

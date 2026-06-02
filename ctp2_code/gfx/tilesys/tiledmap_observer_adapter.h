@@ -1,6 +1,6 @@
 // gfx/tilesys/tiledmap_observer_adapter.h
 // UI-build concrete impl of tiledmap_observer::Impl.
-// Forwards every call to g_tiledMap (null-checked).
+// Forwards every call to tiledmap_Get() (null-checked).
 
 #pragma once
 

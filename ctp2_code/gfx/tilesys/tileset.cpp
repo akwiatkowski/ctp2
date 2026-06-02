@@ -44,7 +44,7 @@
 #include "gfx/gfx_utils/tiffutils.h"
 #include "gfx/tilesys/BaseTile.h"
 
-#include "gfx/tilesys/tiledmap.h"   // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"   // tiledmap_Get
 
 #include "gs/fileio/CivPaths.h"   // g_civPaths
 #include "gfx/gfx_utils/rimutils.h"

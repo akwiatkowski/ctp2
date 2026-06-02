@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -43,7 +43,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/aui_common/aui_surface.h"
 
-extern TiledMap			*g_tiledMap;
 extern SelectedItem		*g_selected_item;
 
 #include "ui/aui_ctp2/background.h"
@@ -65,42 +64,42 @@ void DrawTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIRECTION dir
 	switch (dir) {
 	case NORTH :
 		x2 = x1;
-		y2 = y1 - g_tiledMap->GetZoomTilePixelHeight()/2;
+		y2 = y1 - tiledmap_Get()->GetZoomTilePixelHeight()/2;
 		break;
 	case NORTHEAST :
-		x2 = x1 + g_tiledMap->GetZoomTilePixelWidth()/4;
-		y2 = y1 - g_tiledMap->GetZoomTilePixelHeight()/4;
+		x2 = x1 + tiledmap_Get()->GetZoomTilePixelWidth()/4;
+		y2 = y1 - tiledmap_Get()->GetZoomTilePixelHeight()/4;
 		break;
 	case EAST :
-		x2 = x1 + g_tiledMap->GetZoomTilePixelWidth()/2;
+		x2 = x1 + tiledmap_Get()->GetZoomTilePixelWidth()/2;
 		y2 = y1;
 		break;
 	case NORTHWEST :
-		x2 = x1 - g_tiledMap->GetZoomTilePixelWidth()/4;
-		y2 = y1 - g_tiledMap->GetZoomTilePixelHeight()/4;
+		x2 = x1 - tiledmap_Get()->GetZoomTilePixelWidth()/4;
+		y2 = y1 - tiledmap_Get()->GetZoomTilePixelHeight()/4;
 		break;
 	case SOUTHEAST :
-		x2 = x1 + g_tiledMap->GetZoomTilePixelWidth()/4;
-		y2 = y1 + g_tiledMap->GetZoomTilePixelHeight()/4;
+		x2 = x1 + tiledmap_Get()->GetZoomTilePixelWidth()/4;
+		y2 = y1 + tiledmap_Get()->GetZoomTilePixelHeight()/4;
 		break;
 	case WEST :
-		x2 = x1 - g_tiledMap->GetZoomTilePixelWidth()/2;
+		x2 = x1 - tiledmap_Get()->GetZoomTilePixelWidth()/2;
 		y2 = y1;
 		break;
 	case SOUTHWEST :
-		x2 = x1 - g_tiledMap->GetZoomTilePixelWidth()/4;
-		y2 = y1 + g_tiledMap->GetZoomTilePixelHeight()/4;
+		x2 = x1 - tiledmap_Get()->GetZoomTilePixelWidth()/4;
+		y2 = y1 + tiledmap_Get()->GetZoomTilePixelHeight()/4;
 		break;
 	case SOUTH :
 		x2 = x1;
-		y2 = y1 + g_tiledMap->GetZoomTilePixelHeight()/2;
+		y2 = y1 + tiledmap_Get()->GetZoomTilePixelHeight()/2;
 		break;
 	}
 
-	x1 += g_tiledMap->GetZoomTilePixelWidth()/2;
-	y1 += g_tiledMap->GetZoomTilePixelHeight();
-	x2 += g_tiledMap->GetZoomTilePixelWidth()/2;
-	y2 += g_tiledMap->GetZoomTilePixelHeight();
+	x1 += tiledmap_Get()->GetZoomTilePixelWidth()/2;
+	y1 += tiledmap_Get()->GetZoomTilePixelHeight();
+	x2 += tiledmap_Get()->GetZoomTilePixelWidth()/2;
+	y2 += tiledmap_Get()->GetZoomTilePixelHeight();
 
 	sint32 top, left, right, bottom;
 
@@ -147,7 +146,7 @@ void DrawTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIRECTION dir
 		primitives_DrawDashedAALine16(surf,x1,y1,x2,y2,outline, k_TRADE_DASH_LEN);
 	}
 
-	g_tiledMap->AddDirtyRectToMix(tempRect);
+	tiledmap_Get()->AddDirtyRectToMix(tempRect);
 
 }
 
@@ -206,20 +205,20 @@ void DrawTradeRoute(
 
 
 
-		if (g_tiledMap->TileIsVisible(prev.x, prev.y))
+		if (tiledmap_Get()->TileIsVisible(prev.x, prev.y))
 
 		{
 
 			dir = prev.GetNeighborDirection(curr);
 
-			if (!g_tiledMap->GetLocalVision()->IsExplored(prev)) {
+			if (!tiledmap_Get()->GetLocalVision()->IsExplored(prev)) {
 				oldDir = dir;
 				continue;
 			}
 
 			uint16		routeColor = route;
 
-			if (!g_tiledMap->GetLocalVision()->IsVisible(prev)) {
+			if (!tiledmap_Get()->GetLocalVision()->IsVisible(prev)) {
 				routeColor = pixelutils_PercentDarken(routeColor, 64);
 			}
 
@@ -229,9 +228,9 @@ void DrawTradeRoute(
 
 			DrawTradeRouteSegment(pSurface, prev, dir, routeColor, outline);
 
-			if ((i == pRoute->Num()-1) && g_tiledMap->GetLocalVision()->IsExplored(curr)) {
+			if ((i == pRoute->Num()-1) && tiledmap_Get()->GetLocalVision()->IsExplored(curr)) {
 				routeColor = route;
-				if (!g_tiledMap->GetLocalVision()->IsVisible(curr)) {
+				if (!tiledmap_Get()->GetLocalVision()->IsVisible(curr)) {
 					routeColor = pixelutils_PercentDarken(routeColor, 64);
 				}
 				DrawReversedTradeRouteSegment(pSurface, curr, dir, routeColor, outline);

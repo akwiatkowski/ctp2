@@ -35,7 +35,6 @@
 #include "gs/world/World.h"
 
 extern ProfileDB	*g_theProfileDB;
-extern TiledMap		*g_tiledMap;
 extern sint32		g_scaled_pixel_width[9];
 extern sint32		g_scaled_pixel_height[9];
 
@@ -50,7 +49,7 @@ void maputils_WrapPoint(
 	)
 {
 	sint32 mapWidth, mapHeight;
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	*wrapX = x;
 	*wrapY = y;
@@ -91,7 +90,7 @@ void maputils_WrapPoint(
 BOOL maputils_TilePointInTileRect(sint32 x, sint32 y, RECT *tileRect)
 {
 	sint32 mapWidth, mapHeight;
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	RECT wrappedRect = *tileRect;
 
@@ -125,7 +124,7 @@ sint32 maputils_TileX2MapX(
 	)
 {
 
-    sint32 mapWidth = g_tiledMap->GetMapWidth();
+    sint32 mapWidth = tiledmap_Get()->GetMapWidth();
     tileX -= (tileY>>1);
 
 
@@ -159,7 +158,7 @@ void maputils_TileX2MapXAbs(
 {
 	sint32 mapWidth, mapHeight;
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	*mapX = (tileX - (tileY >> 1)) % mapWidth;
 
@@ -175,7 +174,7 @@ void maputils_MapX2TileX(
 	)
 {
 	sint32 mapWidth, mapHeight;
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 	*tileX = (mapX + mapY/2) % mapWidth;
 }
 
@@ -186,22 +185,22 @@ void maputils_MapXY2PixelXY(
 	sint32 *pixelY
 	)
 {
-	if (!g_tiledMap) return;
+	if (!tiledmap_Get()) return;
 
 	sint32		mapWidth, mapHeight;
 	sint32		nudge;
 	RECT		splitViewRectL, splitViewRectR, splitViewRectT, splitViewRectB;
 	POINT		tempPos;
 
-	RECT		*mapViewRect = g_tiledMap->GetMapViewRect();
+	RECT		*mapViewRect = tiledmap_Get()->GetMapViewRect();
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	splitViewRectB = splitViewRectT = splitViewRectR = splitViewRectL = *mapViewRect;
 
 	if (mapY & 0x01)
 
-		nudge = g_tiledMap->GetZoomTilePixelWidth()>>1;
+		nudge = tiledmap_Get()->GetZoomTilePixelWidth()>>1;
 	else
 		nudge = 0;
 
@@ -265,36 +264,36 @@ void maputils_MapXY2PixelXY(
 
 	if(PtInRect(&splitViewRectL, tempPos))
 	{
-		*pixelX = ((sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (splitViewRectL.left * (g_tiledMap->GetZoomTilePixelWidth()))));
+		*pixelX = ((sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (splitViewRectL.left * (tiledmap_Get()->GetZoomTilePixelWidth()))));
 	}
 	else if(PtInRect(&splitViewRectR, tempPos))
 	{
-		*pixelX = (sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (splitViewRectR.left * (g_tiledMap->GetZoomTilePixelWidth())));
+		*pixelX = (sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (splitViewRectR.left * (tiledmap_Get()->GetZoomTilePixelWidth())));
 	}
 	else
 	{
-		*pixelX = (sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (mapViewRect->left * (g_tiledMap->GetZoomTilePixelWidth())));
+		*pixelX = (sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (mapViewRect->left * (tiledmap_Get()->GetZoomTilePixelWidth())));
 	}
 
 	if(PtInRect(&splitViewRectT, tempPos))
 	{
-	 	*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (splitViewRectT.top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+	 	*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (splitViewRectT.top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 
 	}
 	else if(PtInRect(&splitViewRectB, tempPos))
 	{
-	 	*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (splitViewRectB.top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+	 	*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (splitViewRectB.top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 
 	}
 	else
 	{
-	  	*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (mapViewRect->top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+	  	*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (mapViewRect->top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 
 	}
 
 	sint32 xoff,yoff;
 
-	g_tiledMap->GetSmoothScrollOffsets(xoff,yoff);
+	tiledmap_Get()->GetSmoothScrollOffsets(xoff,yoff);
 
 	*pixelX -= xoff;
 	*pixelY -= yoff;
@@ -328,19 +327,19 @@ void maputils_MapXY2PixelXY(
 	POINT		tempPos;
 
 	sint32		tileWidth = k_TILE_PIXEL_WIDTH + 2;
-	double		scale = g_tiledMap->GetScale();
+	double		scale = tiledmap_Get()->GetScale();
 
 
 
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	splitViewRectB = splitViewRectT = splitViewRectR = splitViewRectL = *mapViewRect;
 
 	if (mapY & 0x01) {
 
 		nudge = (sint32)((tileWidth*scale)/2);
-		nudge = g_tiledMap->GetZoomTilePixelWidth() / 2;
+		nudge = tiledmap_Get()->GetZoomTilePixelWidth() / 2;
 	} else
 		nudge = 0;
 
@@ -404,27 +403,27 @@ void maputils_MapXY2PixelXY(
 
 	if(PtInRect(&splitViewRectL, tempPos))
 	{
-		*pixelX = ((sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (splitViewRectL.left * (g_tiledMap->GetZoomTilePixelWidth()))));
+		*pixelX = ((sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (splitViewRectL.left * (tiledmap_Get()->GetZoomTilePixelWidth()))));
 	}
 	else if(PtInRect(&splitViewRectR, tempPos))
 	{
-		*pixelX = (sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (splitViewRectR.left * (g_tiledMap->GetZoomTilePixelWidth())));
+		*pixelX = (sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (splitViewRectR.left * (tiledmap_Get()->GetZoomTilePixelWidth())));
 	}
 	else
 	{
-		*pixelX = (sint32)((realX * (g_tiledMap->GetZoomTilePixelWidth()) + nudge) - (mapViewRect->left * (g_tiledMap->GetZoomTilePixelWidth())));
+		*pixelX = (sint32)((realX * (tiledmap_Get()->GetZoomTilePixelWidth()) + nudge) - (mapViewRect->left * (tiledmap_Get()->GetZoomTilePixelWidth())));
 	}
 
 	if(PtInRect(&splitViewRectT, tempPos))
 	{
-		*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (splitViewRectT.top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+		*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (splitViewRectT.top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 	}
 	else if(PtInRect(&splitViewRectB, tempPos))
 	{
-		*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (splitViewRectB.top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+		*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (splitViewRectB.top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 	}
 	else
 	{
-		*pixelY = (sint32)((mapY * ((g_tiledMap->GetZoomTilePixelHeight())/2)) - (mapViewRect->top * ((g_tiledMap->GetZoomTilePixelHeight())/2)));
+		*pixelY = (sint32)((mapY * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)) - (mapViewRect->top * ((tiledmap_Get()->GetZoomTilePixelHeight())/2)));
 	}
 }

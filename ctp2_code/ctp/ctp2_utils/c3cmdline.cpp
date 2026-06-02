@@ -200,7 +200,6 @@ static sint32 s_helpLines = 15;
 extern StatusWindow*  g_statusWindow;
 extern sint32         g_debugOwner;
 extern SelectedItem   *g_selected_item;
-extern TiledMap       *g_tiledMap;
 
 extern sint32         g_fog_toggle;
 
@@ -1563,8 +1562,8 @@ void ImportMapCommand::Execute(sint32 argc, char **argv)
 
 	MapFile mf;
 	if(mf.Load(argv[1])) {
-		g_tiledMap->PostProcessMap(TRUE);
-		g_tiledMap->Refresh();
+		tiledmap_Get()->PostProcessMap(TRUE);
+		tiledmap_Get()->Refresh();
 	}
 }
 
@@ -1578,7 +1577,7 @@ void ResetVisionCommand::Execute(sint32 argc, char **argv)
 void SetGoodsCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
     sint32 type;
 	if (argc < 2)
@@ -1588,8 +1587,8 @@ void SetGoodsCommand::Execute(sint32 argc, char **argv)
 
 	world_Get()->SetGood(point.x, point.y, type);
 
-	g_tiledMap->PostProcessTile(point, world_Get()->GetTileInfo(point));
-	g_tiledMap->TileChanged(point);
+	tiledmap_Get()->PostProcessTile(point, world_Get()->GetTileInfo(point));
+	tiledmap_Get()->TileChanged(point);
 }
 
 #ifdef DUMP_ASTAR
@@ -1608,7 +1607,7 @@ void AiDebugCommand::Execute(sint32 argc, char **argv)
 	PLAYER_INDEX debug_player;
 	CellUnitList unit_list;
 	MapPoint pos;
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	if (argc > 2)
 	{
@@ -1962,8 +1961,8 @@ void CombatLogCommand::Execute(sint32 argc, char **argv)
 
 void RedrawMapCommand::Execute(sint32 argc, char **argv)
 {
-		g_tiledMap->Refresh();
-		g_tiledMap->InvalidateMap();
+		tiledmap_Get()->Refresh();
+		tiledmap_Get()->InvalidateMap();
 }
 
 
@@ -1978,7 +1977,7 @@ void RedrawMapCommand::Execute(sint32 argc, char **argv)
 
 void CopyVisionCommand::Execute(sint32 argc, char **argv)
 {
-	g_tiledMap->CopyVision();
+	tiledmap_Get()->CopyVision();
 }
 
 void AutoGroupCommand::Execute(sint32 argc, char **argv)
@@ -2094,7 +2093,7 @@ void SendSlaveCommand::Execute(sint32 argc, char **argv)
 			return;
 
 		MapPoint pos;
-		g_tiledMap->GetMouseTilePos(pos);
+		tiledmap_Get()->GetMouseTilePos(pos);
 		Cell *cell = world_Get()->GetCell(pos);
 		Unit toCity = cell->GetCity();
 		Assert(toCity != Unit());
@@ -2142,7 +2141,7 @@ void ToeCommand::Execute(sint32 argc, char **argv)
 void ForceRevoltCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	Cell *cell = world_Get()->GetCell(point);
 	if(cell->GetCity() != Unit()) {
@@ -2231,7 +2230,7 @@ void RobotMessagesCommand::Execute(sint32 argc, char **argv)
 void SellImprovementsCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	player_Get(g_selected_item->GetVisiblePlayer())->TradeImprovementsForPoints(point);
 }
@@ -2239,7 +2238,7 @@ void SellImprovementsCommand::Execute(sint32 argc, char **argv)
 void SellUnitsCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	player_Get(g_selected_item->GetVisiblePlayer())->TradeUnitsForPoints(point);
 }
@@ -2359,7 +2358,7 @@ void UseLadderCommand::Execute(sint32 argc, char **argv)
 void InjoinCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Injoin(point);
 }
@@ -2435,7 +2434,7 @@ void AddPopCommand::Execute(sint32 argc, char **argv)
 void YumCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	Cell *cell = world_Get()->GetCell(point);
 	sint32 good;
@@ -2575,7 +2574,7 @@ void PacCommand::Execute(sint32 argc, char **argv)
 	PLAYER_INDEX	player = g_selected_item->GetVisiblePlayer();
 
 	MapPoint pos;
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	Unit newu = player_Get(player)->CreateUnit(g_theUnitDB->NumRecords() - 1,
 											 pos, Unit(),
@@ -2678,7 +2677,7 @@ void BuildWhatCommand::Execute(sint32 argc, char **argv)
 void CreateRiftCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->CreateRift(point);
 }
@@ -2686,7 +2685,7 @@ void CreateRiftCommand::Execute(sint32 argc, char **argv)
 void CreateParkCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->CreatePark(point);
 }
@@ -2694,7 +2693,7 @@ void CreateParkCommand::Execute(sint32 argc, char **argv)
 void RustleCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Rustle(point);
 }
@@ -2720,7 +2719,7 @@ void CloakCommand::Execute(sint32 argc, char **argv)
 void SoothsayCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Soothsay(point);
 }
@@ -2728,7 +2727,7 @@ void SoothsayCommand::Execute(sint32 argc, char **argv)
 void IndulgenceCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->IndulgenceSale(point);
 }
@@ -2736,7 +2735,7 @@ void IndulgenceCommand::Execute(sint32 argc, char **argv)
 void ReformCityCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->ReformCity(point);
 }
@@ -2744,7 +2743,7 @@ void ReformCityCommand::Execute(sint32 argc, char **argv)
 void ConvertCityCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->ConvertCity(point);
 }
@@ -2752,7 +2751,7 @@ void ConvertCityCommand::Execute(sint32 argc, char **argv)
 void BioInfectCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->BioInfect(point);
 }
@@ -2760,7 +2759,7 @@ void BioInfectCommand::Execute(sint32 argc, char **argv)
 void NanoInfectCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->NanoInfect(point);
 }
@@ -2768,7 +2767,7 @@ void NanoInfectCommand::Execute(sint32 argc, char **argv)
 void InciteUprisingCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->InciteUprising(point);
 }
@@ -2776,7 +2775,7 @@ void InciteUprisingCommand::Execute(sint32 argc, char **argv)
 void UndergroundRailwayCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->UndergroundRailway(point);
 }
@@ -2784,7 +2783,7 @@ void UndergroundRailwayCommand::Execute(sint32 argc, char **argv)
 void EnslaveSettlerCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->EnslaveSettler(point);
 }
@@ -2792,7 +2791,7 @@ void EnslaveSettlerCommand::Execute(sint32 argc, char **argv)
 void SlaveRaidCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->SlaveRaid(point);
 }
@@ -2800,7 +2799,7 @@ void SlaveRaidCommand::Execute(sint32 argc, char **argv)
 void PlantNukeCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->PlantNuke(point);
 }
@@ -2816,7 +2815,7 @@ void CauseUnhappinessCommand::Execute(sint32 argc, char **argv)
 void ExpelCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Expel(point);
 }
@@ -2824,7 +2823,7 @@ void ExpelCommand::Execute(sint32 argc, char **argv)
 void SueCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Sue(point);
 }
@@ -2832,7 +2831,7 @@ void SueCommand::Execute(sint32 argc, char **argv)
 void SueFranchiseCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->SueFranchise(point);
 }
@@ -2840,7 +2839,7 @@ void SueFranchiseCommand::Execute(sint32 argc, char **argv)
 void FranchiseCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Franchise(point);
 }
@@ -2863,7 +2862,7 @@ void HearGossipCommand::Execute(sint32 argc, char **argv)
 void BombardCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->Bombard(point);
 }
@@ -2912,7 +2911,7 @@ void GrantManyCommand::Execute(sint32 argc, char **argv)
 void InvestigateCityCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->InvestigateCity(point);
 }
@@ -2920,7 +2919,7 @@ void InvestigateCityCommand::Execute(sint32 argc, char **argv)
 void NullifyWallsCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->NullifyWalls(point);
 }
@@ -2928,7 +2927,7 @@ void NullifyWallsCommand::Execute(sint32 argc, char **argv)
 void StealTechnologyCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->StealTechnology(point);
 }
@@ -2936,7 +2935,7 @@ void StealTechnologyCommand::Execute(sint32 argc, char **argv)
 void InciteRevolutionCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->InciteRevolution(point);
 }
@@ -2944,7 +2943,7 @@ void InciteRevolutionCommand::Execute(sint32 argc, char **argv)
 void AssassinateRulerCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->AssassinateRuler(point);
 }
@@ -2952,7 +2951,7 @@ void AssassinateRulerCommand::Execute(sint32 argc, char **argv)
 void InvestigateReadinessCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	g_selected_item->InvestigateReadiness(point);
 }
@@ -2985,7 +2984,7 @@ void CreateImprovementCommand::Execute(sint32 argc, char **argv)
 void SpewUnitsCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	gameinit_SpewUnits(g_selected_item->GetVisiblePlayer(),
 	                   point);
@@ -3105,7 +3104,7 @@ void TerrainImprovementCommand::Execute(sint32 argc, char **argv)
 		return;
 
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 	TERRAIN_IMPROVEMENT imp = (TERRAIN_IMPROVEMENT)atoi(argv[1]);
 
@@ -3132,7 +3131,7 @@ void TerrainImprovementCommand::Execute(sint32 argc, char **argv)
 void TerrainImprovementCompleteCommand::Execute(sint32 argc, char **argv)
 {
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 
 #if 0   // Unused
 	sint32 vplayer = g_selected_item->GetVisiblePlayer();
@@ -3166,12 +3165,12 @@ void KillTileCommand::Execute(sint32 argc, char **argv)
 	if (argc != 1)
 		return;
 
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 	c = world_Get()->GetCell(pos.x, pos.y);
 	c->Kill();
 
-	g_tiledMap->PostProcessMap();
-	g_tiledMap->Refresh();
+	tiledmap_Get()->PostProcessMap();
+	tiledmap_Get()->Refresh();
 }
 
 
@@ -3415,7 +3414,7 @@ void SetCityNameCommand::Execute(sint32 argc, char **argv)
 
 	Unit city(item);
 	city.GetPos(pos);
-	g_tiledMap->RedrawTile(&pos);
+	tiledmap_Get()->RedrawTile(&pos);
 	CityData *cityData = city.GetData()->GetCityData();
 	cityData->SetName(argv[1]);
 }
@@ -3442,7 +3441,7 @@ void SetCitySizeCommand::Execute(sint32 argc, char **argv)
 
 	Unit city(item);
 	city.GetPos(pos);
-	g_tiledMap->RedrawTile(&pos);
+	tiledmap_Get()->RedrawTile(&pos);
 	CityData *cityData = city.GetData()->GetCityData();
 	cityData->SetSize(size);
 }
@@ -5031,7 +5030,7 @@ void TileTypeCommand::Execute(sint32 argc, char** argv)
 	if(argc != 1 && argc != 4)
 		return;
 
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	if(argc == 4)
 		{
@@ -5516,7 +5515,7 @@ void CreateCommand::Execute(sint32 argc, char** argv)
 		return;
 
 	MapPoint pos;
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	sint32 city_idx = 0;
 	sint32 num_new_units = atoi(argv[1]);
@@ -5897,7 +5896,7 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
 	    DPRINTF(k_DBG_UI, ("%d turns in %d seconds, %d ms/turn\n",
 				    n, t/100, t/n));
     }
-	g_tiledMap->InvalidateMix();
+	tiledmap_Get()->InvalidateMix();
 	g_doingFastRounds = FALSE;
 	if (g_statusWindow)
 		g_statusWindow->Show();
@@ -6463,7 +6462,7 @@ void CommandLine::DisplayOutput(aui_Surface* surf)
 #endif
     }
 
-	g_tiledMap->InvalidateMix();
+	tiledmap_Get()->InvalidateMix();
 }
 
 void CommandLine::DisplayHelp(BOOL on)

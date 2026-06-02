@@ -312,7 +312,6 @@ extern StatusWindow         *g_statusWindow;
 extern ControlPanelWindow   *g_controlPanel;
 extern SpriteEditWindow     *g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
-extern TiledMap             *g_tiledMap;
 extern sint32               g_modalWindow;
 extern CivApp               *g_civApp;
 extern ChatBox              *g_chatBox;
@@ -2025,7 +2024,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 660 );
 
 	if (is_scenario_Get()) {
-		g_tiledMap->PostProcessMap();
+		tiledmap_Get()->PostProcessMap();
 	}
 
 	ProgressTo( 670 );
@@ -2649,7 +2648,7 @@ void CivApp::ProcessGraphicsCallback(void)
 
 	if (s_inCallback)   return;
 
-	if (!g_tiledMap)    return;
+	if (!tiledmap_Get())    return;
 	if (!g_background)  return;
 	if (!g_director)    return;
 	if (!g_background)  return;
@@ -2657,7 +2656,7 @@ void CivApp::ProcessGraphicsCallback(void)
 
 	s_inCallback = true;
 
-	g_tiledMap->RestoreMixFromMap(g_background->TheSurface());
+	tiledmap_Get()->RestoreMixFromMap(g_background->TheSurface());
 	g_background->Draw();
 	g_c3ui->Process();
 
@@ -2719,7 +2718,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					}
 					scroll_loop_last_tick = Os::GetTicks();
 
-					g_tiledMap->CopyMixDirtyRects(g_background->GetDirtyList());
+					tiledmap_Get()->CopyMixDirtyRects(g_background->GetDirtyList());
 
 					// Pump SDL keyboard events so KEYUP gets processed while
 					// we're in this loop. Without this, keyboard scroll state
@@ -2740,15 +2739,15 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					ProcessNet(target_milliseconds, used_milliseconds);
 				}
 
-				g_tiledMap->RetargetTileSurface(NULL);
-				g_tiledMap->Refresh();
-				g_tiledMap->InvalidateMap();
-				g_tiledMap->ValidateMix();
+				tiledmap_Get()->RetargetTileSurface(NULL);
+				tiledmap_Get()->Refresh();
+				tiledmap_Get()->InvalidateMap();
+				tiledmap_Get()->ValidateMix();
 			}
             else
             {
-				if(g_tiledMap) {
-					g_tiledMap->RestoreMixFromMap(g_background->TheSurface());
+				if(tiledmap_Get()) {
+					tiledmap_Get()->RestoreMixFromMap(g_background->TheSurface());
 				}
 				if(g_background)
 					g_background->Draw();
@@ -2763,7 +2762,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 		g_c3ui->Process();
 	}
 
-	if (m_gameLoaded && !g_modalWindow && g_tiledMap) {
+	if (m_gameLoaded && !g_modalWindow && tiledmap_Get()) {
 
 		if (g_director)
 			g_director->Process();
@@ -3496,11 +3495,11 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// and LoadTileset needs g_ImageMapPF which is initialized in
 	// InitializeImageMaps (UI-only).  Map data is sufficient for logic;
 	// tile graphics are not needed.
-	if (world_Get() && !g_tiledMap) {
+	if (world_Get() && !tiledmap_Get()) {
 		civapp_log->debug("creating headless TiledMap (world={}x{})",
 		           world_Get()->GetXWidth(), world_Get()->GetYHeight());
 		MapPoint mapsize(world_Get()->GetXWidth(), world_Get()->GetYHeight());
-		g_tiledMap = new TiledMap(mapsize);
+		tiledmap_Set(new TiledMap(mapsize));
 	}
 
 	// See comment at the matching site in InitializeGameHeadless.
@@ -3598,7 +3597,7 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 
 	ProgressTo( 1290 );
 
-	g_tiledMap->InvalidateMap();
+	tiledmap_Get()->InvalidateMap();
 
 	ProgressTo( 1300 );
 
@@ -3620,7 +3619,7 @@ sint32 CivApp::LoadSavedGameMap(MBCHAR const * name)
     {
     	fclose(fin);
 	    GameMapFile::RestoreGameMap(name);
-	    g_tiledMap->InvalidateMap();
+	    tiledmap_Get()->InvalidateMap();
 	    g_selected_item->NextUnmovedUnit(TRUE, FALSE);
     }
     else
@@ -3641,8 +3640,8 @@ sint32 CivApp::LoadScenarioGame(MBCHAR const * file)
 
 	GameFile::RestoreScenarioGame(file);
 
-	if (g_tiledMap)
-		g_tiledMap->InvalidateMap();
+	if (tiledmap_Get())
+		tiledmap_Get()->InvalidateMap();
 
 	g_selected_item->NextUnmovedUnit(TRUE, FALSE);
 

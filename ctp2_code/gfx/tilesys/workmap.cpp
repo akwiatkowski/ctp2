@@ -13,7 +13,7 @@
 #include "gs/gameobj/Player.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
-#include "gfx/spritesys/director.h"           // g_director
+#include "gfx/spritesys/director.h"           // director_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "gfx/tilesys/BaseTile.h"
 #include "gs/world/TileInfo.h"

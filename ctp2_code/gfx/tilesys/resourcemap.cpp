@@ -33,7 +33,7 @@
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/GoodActor.h"
 #include "gfx/spritesys/UnitActor.h"
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gfx/spritesys/director.h"                   // director_Get()
 #include "gfx/tilesys/BaseTile.h"
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/maputils.h"

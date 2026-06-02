@@ -212,7 +212,7 @@ STDEHANDLER(NetEndAIClientTurnEvent)
 
 	if(player_Get(p)->IsRobot()) {
 		DPRINTF(k_DBG_NET, ("NetEndAIClientTurnEvent, %d\n", p));
-		g_director->AddEndTurn();
+		director_Get()->AddEndTurn();
 
 	}
 	return GEV_HD_Continue;

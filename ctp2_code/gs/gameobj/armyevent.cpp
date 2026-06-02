@@ -124,7 +124,7 @@ STDEHANDLER(ArmyVictoryMoveOrderEvent)
 {
 	Army a;
 
-//	g_director->DecrementPendingGameActions();
+//	director_Get()->DecrementPendingGameActions();
 
 	MapPoint newPos;
 
@@ -1159,7 +1159,7 @@ STDEHANDLER(AftermathEvent)
 			army[i].ClearFlag(k_UDF_WAS_TOP_UNIT_BEFORE_BATTLE);
 			army[i].SetFlag(k_UDF_FIRST_MOVE);
 		}
-//		g_director->IncrementPendingGameActions();
+//		director_Get()->IncrementPendingGameActions();
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_VictoryMoveOrder,
 							   GEA_Army, army,
 							   GEA_MapPoint, pos,

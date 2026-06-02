@@ -42,7 +42,7 @@
 #include "gs/database/DB.h"
 #include "gs/newdb/UnitRec.h"
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
-#include "gfx/spritesys/director.h"           // g_director
+#include "gfx/spritesys/director.h"           // director_Get()
 #include "ui/aui_common/tech_wllist.h"
 
 #include "gs/world/Cell.h"
@@ -177,13 +177,13 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
           revealedActors[i] = revealed[i].GetActor();
         }
 
-				g_director->AddMove(
+				director_Get()->AddMove(
           uid,
-          pnt, 
-          m_unitData->m_pos, 
+          pnt,
+          m_unitData->m_pos,
           revealedActors,
-          Director::UnitActorVec(), 
-          false, 
+          Director::UnitActorVec(),
+          false,
           uid.GetMoveSoundID());
 			}
 		}
@@ -391,7 +391,7 @@ void NetUnit::UnpacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 
 
 	if (unitData->m_actor) {
-		g_director->AddSetVisibility(unitData->m_actor, unitData->GetVisibility());
+		director_Get()->AddSetVisibility(unitData->m_actor, unitData->GetVisibility());
 	}
 
 
@@ -466,7 +466,7 @@ void NetUnitMove::Unpacketize(uint16 id, uint8 *buf, uint16 size)
     revealedActors[i] = revealed[i].GetActor();
   }
 
-	g_director->AddMove(
+	director_Get()->AddMove(
     u,
     oldPos,
     ud->m_pos,

@@ -15,8 +15,6 @@
 
 #include "ui/interface/trademanager.h"
 
-extern Director *g_director;
-
 NetTradeRoute::NetTradeRoute(TradeRouteData* data, bool newRoute) :
 	m_routeData(data),
 	m_newRoute(newRoute)
@@ -155,7 +153,7 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		m_routeData->m_sourceCity.AddTradeRoute(route, !m_newRoute);
 		m_routeData->m_destinationCity.AddTradeRoute(route, !m_newRoute);
 		tradepool_Get()->m_all_routes->Insert(route);
-		g_director->TradeActorCreate(route);
+		director_Get()->TradeActorCreate(route);
 	}
 
 	TradeManager::Notify();

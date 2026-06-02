@@ -4852,7 +4852,7 @@ void CityData::CheckRiot()
 //		        if (soundID >= 0) {
 //					sint32 const spriteID = specRec->GetSpriteID()->GetValue();
 //		            if (spriteID >= 0) {
-//						g_director->AddSpecialAttack (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
+//						director_Get()->AddSpecialAttack (m_home_city.GetActor()->GetUnitID(), m_home_city, SPECATTACK_REVOLUTION);
 //					} else {
 //					sint32 const visiblePlayer = player_view::VisiblePlayer();
 //						if ((visiblePlayer == m_owner) || (m_home_city.GetVisibility() & (1 << visiblePlayer)) ){

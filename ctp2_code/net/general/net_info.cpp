@@ -472,7 +472,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			g_network.ClearDeadUnits();
 
-			g_director->NextPlayer();
+			director_Get()->NextPlayer();
 
 			radar_map_Get()->Update();
 
@@ -930,7 +930,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(m_data)) {
 				player_Get(m_data)->EndTurn();
 			}
-			g_director->NextPlayer();
+			director_Get()->NextPlayer();
 			break;
 		}
 		case NET_INFO_CODE_ACTUALLY_SET_GOVERNMENT:
@@ -1680,7 +1680,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server says ok to begin scheduler for player %d now\n", m_data));
 			if(m_data >= 0 && m_data < k_MAX_PLAYERS && player_Get(m_data) && g_network.IsLocalPlayer(m_data)) {
-				g_director->AddBeginScheduler(m_data);
+				director_Get()->AddBeginScheduler(m_data);
 			}
 			break;
 		}

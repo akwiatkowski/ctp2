@@ -362,7 +362,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 						battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
 					}
 
-					g_director->AddEndTurn();
+					director_Get()->AddEndTurn();
 
 
 

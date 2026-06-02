@@ -247,7 +247,7 @@
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/TradePool.h"
-#include "gs/utility/TurnCnt.h"                    // g_turn
+#include "gs/utility/TurnCnt.h"                    // turn_Get()
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "UnitRecord.h"
@@ -422,7 +422,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_is_turn_over = FALSE;
 	// Null-safe form: InitPlayer can run during gameinit before g_turn
 	// is allocated; route through the session field once available.
-	m_current_round = g_turn ? g_turn->GetSessionRound() : 0;
+	m_current_round = turn_Get() ? turn_Get()->GetSessionRound() : 0;
 	m_end_turn_soon = FALSE;
 
 	m_powerPoints = 0;
@@ -575,7 +575,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	m_tax_rate->InitTaxRates(g_theGovernmentDB->Get(m_government_type)->GetMaxScienceRate(),
 							 m_owner);
-	m_readiness->SetLevel(m_government_type, *m_all_armies, READINESS_LEVEL_WAR, g_turn->GetRound());
+	m_readiness->SetLevel(m_government_type, *m_all_armies, READINESS_LEVEL_WAR, turn_Get()->GetRound());
 
 	if(i >= g_theGovernmentDB->NumRecords())
 	{
@@ -1952,7 +1952,7 @@ void Player::BeginTurnImprovements()  //this might only be for tileimps under co
 			const TerrainImprovementRecord *rec = inst.GetDBRec();
 //			Cell *instcell = world_Get()->GetCell(inst.RetPos());
 			if (rec->GetSpawnsBarbarians()) {
-					Barbarians::AddBarbarians(inst.RetPos(), -1, FALSE, g_turn->GetRound());
+					Barbarians::AddBarbarians(inst.RetPos(), -1, FALSE, turn_Get()->GetRound());
 			}
 		}
 	}
@@ -2269,7 +2269,7 @@ void Player::BeginTurn()
 	}
 
 	m_is_turn_over = FALSE;
-	m_current_round = g_turn->GetSessionRound();
+	m_current_round = turn_Get()->GetSessionRound();
 	m_end_turn_soon = FALSE;
 
 	if(!g_network.IsActive() || g_network.IsHost() || (m_owner == g_network.GetPlayerIndex())) {
@@ -2473,7 +2473,7 @@ void Player::EndTurn()
 						              m_owner));
 	}
 
-	m_current_round = g_turn->GetSessionRound();
+	m_current_round = turn_Get()->GetSessionRound();
 
 	m_is_turn_over = TRUE;
 	m_end_turn_soon = FALSE;
@@ -2507,7 +2507,7 @@ void Player::EndTurn()
 	}
 
 	if ((m_gold->GetLevel() < 50) && (m_gold->DeltaThisTurn() < 0) &&
-	    (slicengine_Get()->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, g_turn->GetRound())))
+	    (slicengine_Get()->GetSegment("027NotEnoughGold")->TestLastShown(m_owner, 10, turn_Get()->GetRound())))
 	{
 		SlicObject *so = new SlicObject("027NotEnoughGold") ;
 		so->AddRecipient(m_owner) ;
@@ -3787,7 +3787,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 
 		stringutils_Interpret(messageStr, sc, text);
 
-		if((g_turn->IsHotSeat() || g_turn->IsEmail())
+		if((turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
 				// ... and replaced it with this, which makes much more sense,
 				// but doesn't work because BlankScreen() is called too late
 				//&& (slicengine_Get()->ShouldScreenBeBlank())
@@ -5641,7 +5641,7 @@ sint32 Player::GetReadinessCost() const
 
 void Player::SetReadinessLevel(READINESS_LEVEL level, bool immediate)
 {
-	m_readiness->SetLevel(m_government_type, *m_all_armies, level, g_turn->GetRound(), immediate);
+	m_readiness->SetLevel(m_government_type, *m_all_armies, level, turn_Get()->GetRound(), immediate);
 	if(g_network.IsClient()) {
 		g_network.SendAction(new NetAction(NET_ACTION_SET_READINESS, (sint32)level, (BOOL)immediate));
 	}
@@ -7206,7 +7206,7 @@ void Player::RemoveDeadPlayers()
 
 			player_arr_Get()[i] = NULL;
 			if (g_gameObservers) g_gameObservers->NotifyPlayerRemoved((PLAYER_INDEX)i);
-			g_turn->PlayerDead(i);
+			turn_Get()->PlayerDead(i);
 
 			CtpAi::RemovePlayer(i);
 		}
@@ -8995,7 +8995,7 @@ void Player::EnterNewAge(sint32 age)
 		m_all_cities->Access(i).CD()->UpdateSprite();
 	}
 	if(!g_network.IsNetworkLaunch()) {
-		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,g_turn->GetSessionRound(),age);
+		eventtracker_Get()->AddEvent(EVENT_TYPE_AGES,m_owner,turn_Get()->GetSessionRound(),age);
 	}
 }
 

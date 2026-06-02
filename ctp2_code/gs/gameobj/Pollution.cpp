@@ -131,7 +131,7 @@ void Pollution::WarnPlayers()
 	{
 		if(player_Get(i)				&&
 			!player_Get(i)->IsDead()	&&
-			!seg->TestLastShown(i, k_ROUNDS_BEFORE_DISASTER, g_turn->GetRound())
+			!seg->TestLastShown(i, k_ROUNDS_BEFORE_DISASTER, turn_Get()->GetRound())
 		  )
 		{
 			so->AddRecipient(i);
@@ -521,7 +521,7 @@ uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 ro
 	if (player_Get(player) == NULL)
 		return 0;
 
-	sint32 current_round = g_turn->GetSessionRound();
+	sint32 current_round = turn_Get()->GetSessionRound();
 
 	if (current_round < round)
 		return 0;

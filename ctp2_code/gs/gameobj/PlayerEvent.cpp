@@ -182,7 +182,7 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 
 	if(safe_player(player)->GetGaiaController()->CanStartCountdown()) {
 		SlicSegment *       seg  = g_slicEngine->GetSegment("GCReadyToActivateUs");
-		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetSessionRound()))
+		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
 			SlicObject *    so   = new SlicObject("GCReadyToActivateUs");
 			so->AddPlayer(player);
@@ -482,7 +482,7 @@ STDEHANDLER(CreateImprovementEvent)
 
 	if(player_Get(player) && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
 		SlicSegment *	seg = g_slicEngine->GetSegment("GCMinObelisksReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetSessionRound()))
+		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
 			SlicObject *	so = new SlicObject("GCMinObelisksReachedUs");
 			so->AddRecipient(player);

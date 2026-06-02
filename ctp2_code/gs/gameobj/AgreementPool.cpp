@@ -14,16 +14,6 @@
 #include "gs/utility/TurnCnt.h"
 #include "gs/fileio/gamefile.h"
 
-	extern	TurnCount	*g_turn ;
-
-
-
-
-
-
-
-
-
 AgreementPool::AgreementPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_AGREEMENT)
 	{
 	}
@@ -94,7 +84,7 @@ Agreement AgreementPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGRE
 	AgreementData* newData;
 	Agreement newAgreement(NewKey(k_BIT_GAME_OBJ_TYPE_AGREEMENT));
 
-	newData = new AgreementData(newAgreement, owner, recipient, request, g_turn->GetRound()) ;
+	newData = new AgreementData(newAgreement, owner, recipient, request, turn_Get()->GetRound()) ;
 	Insert(newData) ;
 
 	if(player_Get(owner))

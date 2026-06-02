@@ -65,8 +65,6 @@
 
 class TiledMap;
 extern TiledMap		*g_tiledMap;
-extern TurnCount *g_turn;
-
 namespace
 {
 //----------------------------------------------------------------------------
@@ -544,7 +542,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			break;
 		}
 		case GOODY_BARBARIANS:
-			if(Barbarians::AddBarbarians(point, owner, TRUE, g_turn->GetRound())) {
+			if(Barbarians::AddBarbarians(point, owner, TRUE, turn_Get()->GetRound())) {
 				so = new SlicObject("84BesetByVandals") ;
 				so->AddRecipient(owner);
 				g_slicEngine->Execute(so);

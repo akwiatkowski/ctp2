@@ -396,7 +396,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 		m_cost -= all_units[i].cost;
 
 		if (0 != m_owner) {
-			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, g_turn->GetSessionRound())) {
+			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
 				SlicObject *so = new SlicObject("120NoSupport");
 				so->AddRecipient(m_owner);
 				g_slicEngine->Execute(so);
@@ -432,7 +432,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 
 			m_cost -= prof_units[i].cost;
 
-			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, g_turn->GetSessionRound())) {
+			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
 				SlicObject *so = new SlicObject("120NoSupport");
 				so->AddRecipient(m_owner);
 				g_slicEngine->Execute(so);

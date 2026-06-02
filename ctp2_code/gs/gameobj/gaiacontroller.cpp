@@ -888,7 +888,7 @@ bool GaiaController::StartCountdown()
 		if (m_completedTurn < 0)
 		{
 			m_completedTurn =
-				(sint16) (g_turn->GetSessionRound() + max_turns_to_activate);
+				(sint16) (turn_Get()->GetSessionRound() + max_turns_to_activate);
 		}
 
 		return true;
@@ -924,10 +924,10 @@ sint32 GaiaController::TotalCountdownTurns() const
 sint16 GaiaController::TurnsToComplete() const
 {
 	if (m_completedTurn >= 0)
-		if (m_completedTurn < g_turn->GetSessionRound())
+		if (m_completedTurn < turn_Get()->GetSessionRound())
 			return 0;
 		else
-			return (sint16) (m_completedTurn - g_turn->GetSessionRound());
+			return (sint16) (m_completedTurn - turn_Get()->GetSessionRound());
 	else
 		return -1;
 }

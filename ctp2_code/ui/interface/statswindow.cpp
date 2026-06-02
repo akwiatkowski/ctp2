@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Start the great library with the current research project of the player.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
 #include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get
 #include "gs/utility/UnitDynArr.h"
 
 #include "ui/interface/screenutils.h"
@@ -653,10 +653,10 @@ AUI_ERRCODE StatsWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 BOOL StatsWindow::CheckCity( void )
 {
-	if(!g_player[g_selected_item->GetVisiblePlayer()])
+	if(!player_Get(g_selected_item->GetVisiblePlayer()))
 		return FALSE;
 
-	sint32 cities = g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities();
+	sint32 cities = player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities();
 
 	if ( cities ) {
 		return TRUE;
@@ -670,7 +670,7 @@ BOOL StatsWindow::CheckCity( void )
 
 BOOL StatsWindow::CheckUnit( void )
 {
-	sint32 units = g_player[g_selected_item->GetVisiblePlayer()]->m_all_units->Num();
+	sint32 units = player_Get(g_selected_item->GetVisiblePlayer())->m_all_units->Num();
 
 	if ( units ) {
 		return TRUE;
@@ -686,12 +686,12 @@ BOOL StatsWindow::CheckDiplomacy( void )
 {
 	sint32 player = g_selected_item->GetVisiblePlayer();
 
-	if(!g_player[player])
+	if(!player_Get(player))
 		return FALSE;
 
 	for ( sint32 i = 1;i < k_MAX_PLAYERS;i++ ) {
-		if ( g_player[i] && i != player && !g_player[i]->IsDead() ) {
-			if ( g_player[player]->HasContactWith(i) ) {
+		if ( player_Get(i) && i != player && !player_Get(i)->IsDead() ) {
+			if ( player_Get(player)->HasContactWith(i) ) {
 				return TRUE;
 			}
 		}

@@ -45,6 +45,7 @@
 #include "gs/database/profileDB.h"
 #include "ui/interface/citywindow.h"
 #include "gs/gameobj/ArmyData.h"
+#include "gs/gameobj/Player.h"
 #include "gfx/spritesys/director.h"
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/screenutils.h"
@@ -90,7 +91,7 @@ STDEHANDLER(InterfaceOpenInitialCityInterfaceEvent)
 		static Unit city;
 		if(!args->GetCity(0, city)) return GEV_HD_Continue;
 		if( city.GetOwner() == g_selected_item->GetVisiblePlayer()
-		&& !g_player[city.GetOwner()]->IsRobot()
+		&& !player_Get(city.GetOwner())->IsRobot()
 		){
 			EditQueue::Display(CityWindow::GetCityData(city));
 		}

@@ -58,7 +58,6 @@
 #include "ui/interface/tutorialwin.h"
 
 extern C3UI			*g_c3ui;
-extern Player		**g_player;
 extern SelectedItem	*g_selected_item;
 
 

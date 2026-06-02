@@ -26,11 +26,11 @@
 // Modifications from the original Activision code:
 //
 // - Repaired memory leak.
-// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin Gühmann)
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Standartized code (May 2006 Martin Gühmann)
-// - Moved graph functionality to LineGraph (30-Sep-2007 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Removed refferences to the civilisation database. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Standartized code (May 2006 Martin Gï¿½hmann)
+// - Moved graph functionality to LineGraph (30-Sep-2007 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_ctp2/c3textfield.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/utility/TurnCnt.h"                // g_turn
@@ -479,9 +479,9 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 			MBCHAR			s[_MAX_PATH];
 			PLAYER_INDEX	currentCiv = g_selected_item->GetVisiblePlayer();
 
-			if ((g_player[i]) && (!g_player[i]->IsDead()) && (i!=currentCiv)) {
-				if (g_player[currentCiv]->HasContactWith(i)) {
-					g_player[i]->GetSingularCivName(s) ;
+			if ((player_Get(i)) && (!player_Get(i)->IsDead()) && (i!=currentCiv)) {
+				if (player_Get(currentCiv)->HasContactWith(i)) {
+					player_Get(i)->GetSingularCivName(s) ;
 
 					strcpy(info->civList[numCivs], s);
 					numCivs++;
@@ -493,8 +493,8 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 		for (sint32 j = 0; j < k_MAX_PLAYERS; ++j)
 		{
 			info->playerCivIndexList[j] =
-				(g_player[j])
-				? g_player[j]->GetCivilisation()->GetCivilisation()
+				(player_Get(j))
+				? player_Get(j)->GetCivilisation()->GetCivilisation()
 				: 0;
 		}
 
@@ -903,7 +903,7 @@ void LoadSaveWindow::SetSaveInfo(SaveInfo *info)
 void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 {
 	MBCHAR		civName[k_MAX_NAME_LEN];
-	g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation->GetSingularCivName(civName);
+	player_Get(g_selected_item->GetVisiblePlayer())->m_civilisation->GetSingularCivName(civName);
 #if !defined(_JAPANESE)
 	civName[4] = 0;
 #endif

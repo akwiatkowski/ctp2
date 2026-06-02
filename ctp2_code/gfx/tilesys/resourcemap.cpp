@@ -63,7 +63,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_window.h"
-#include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "ui/aui_ctp2/c3_updateaction.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_utils/primitives.h"

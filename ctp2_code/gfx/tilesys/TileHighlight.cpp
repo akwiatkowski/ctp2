@@ -41,7 +41,7 @@
 
 #include "ui/aui_common/aui.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "ui/aui_ctp2/SelItem.h"        // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"        // selitem_Get()
 #include "gs/world/MapPoint.h"
 #include "robot/pathing/Path.h"
 #include "gs/world/World.h"          // world_Get()
@@ -184,7 +184,7 @@ bool IsKnownEntryCost
 //
 // Globals    : world_Get()      : world map information
 //            : g_controlPanel  :
-//            : g_selected_item :
+//            : selitem_Get() :
 //
 // Returns    : bool            :
 //
@@ -199,7 +199,7 @@ bool TiledMap::CanDrawSpecialMove(SELECT_TYPE sType, Army &sel_army, const MapPo
 			if(g_controlPanel->GetTargetingMode() == CP_TARGETING_MODE_ORDER_PENDING) {
 				const OrderRecord *rec = g_controlPanel->GetCurrentOrder();
 				if(rec->GetTargetPretestEnemyCity()) {
-					if(world_Get()->GetCell(dest_pos)->GetCity().GetOwner() != g_selected_item->GetVisiblePlayer()) {
+					if(world_Get()->GetCell(dest_pos)->GetCity().GetOwner() != selitem_Get()->GetVisiblePlayer()) {
 						return true;
 					}
 				}
@@ -223,7 +223,7 @@ bool TiledMap::CanDrawSpecialMove(SELECT_TYPE sType, Army &sel_army, const MapPo
 //
 // Parameters : pSurface        : screen to draw at
 //
-// Globals    : g_selected_item : item (army) to move
+// Globals    : selitem_Get() : item (army) to move
 //
 // Returns    : -
 //
@@ -235,7 +235,7 @@ void TiledMap::DrawLegalMove
 	aui_Surface *	pSurface
 )
 {
-	if (!(g_selected_item->GetIsPathing() &&	// path available?
+	if (!(selitem_Get()->GetIsPathing() &&	// path available?
 	      ReadyToDraw()
 	     )
 	   )
@@ -246,18 +246,18 @@ void TiledMap::DrawLegalMove
 	PLAYER_INDEX	pIndex;
 	ID				id;
 	SELECT_TYPE		sType;
-	g_selected_item->GetTopCurItem(pIndex, id, sType);
+	selitem_Get()->GetTopCurItem(pIndex, id, sType);
 
 	// Probably there is a more elegant way to do it for the city pathing
 	// but since it is a debug tool I leave it like this.
 	if(sType == SELECT_TYPE_LOCAL_CITY)
 	{
 		Unit c;
-		g_selected_item->GetSelectedCity(c);
+		selitem_Get()->GetSelectedCity(c);
 		MapPoint		prevPos;
 		c.GetPos(prevPos);
 
-		Path			goodPath(g_selected_item->GetGoodPath());
+		Path			goodPath(selitem_Get()->GetGoodPath());
 		MapPoint		currPos;
 		goodPath.Start(currPos);
 		sint32			line_segment_count	= 0;
@@ -342,7 +342,7 @@ void TiledMap::DrawLegalMove
 	sint32 const	xoffset				= (sint32) ((k_TILE_PIXEL_WIDTH * m_scale) / 2);
 	sint32 const	yoffset				= (sint32) (k_TILE_PIXEL_HEIGHT * m_scale);
 
-	Path			goodPath(g_selected_item->GetGoodPath());//this will be colored green/yellow
+	Path			goodPath(selitem_Get()->GetGoodPath());//this will be colored green/yellow
 	MapPoint		currPos;
 	goodPath.Start(currPos);
 
@@ -527,7 +527,7 @@ void TiledMap::DrawLegalMove
 	prevPos			= currPos;
 	old_line_color	= lineColor;
 
-	Path			badPath(g_selected_item->GetBadPath());
+	Path			badPath(selitem_Get()->GetBadPath());
 //	sint32			badPath_old_index	= badPath.GetNextIndex(); // ??? not used
 	badPath.Start(currPos);
 
@@ -545,7 +545,7 @@ void TiledMap::DrawLegalMove
 		x2 += xoffset;
 		y2 += yoffset;
 
-		if (player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(currPos))
+		if (player_Get(selitem_Get()->GetVisiblePlayer())->IsExplored(currPos))
 		{
 			if (((sType == SELECT_TYPE_LOCAL_ARMY) ||
 				 ((sType == SELECT_TYPE_LOCAL_ARMY_UNLOADING) && (line_segment_count == 0))
@@ -614,7 +614,7 @@ void TiledMap::DrawLegalMove
 			x2 += xoffset;
 			y2 += yoffset;
 
-		if (player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(currPos))
+		if (player_Get(selitem_Get()->GetVisiblePlayer())->IsExplored(currPos))
 			{
 				if (((sType == SELECT_TYPE_LOCAL_ARMY) ||
 					 ((sType == SELECT_TYPE_LOCAL_ARMY_UNLOADING) && (line_segment_count == 1))
@@ -651,7 +651,7 @@ void TiledMap::DrawLegalMove
 	// Restart to add the turn count boxes.
 
 	old_line_color			= actual_line_color;
-	goodPath				= *g_selected_item->GetGoodPath();
+	goodPath				= *selitem_Get()->GetGoodPath();
 	isFirstMove				= sel_army.GetFirstMoveThisTurn();
 	line_segment_count		= -1;
 
@@ -860,7 +860,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 	PLAYER_INDEX pIndex;
 	ID id;
 	SELECT_TYPE sType;
-	g_selected_item->GetTopCurItem(pIndex,id,sType);
+	selitem_Get()->GetTopCurItem(pIndex,id,sType);
 	if (sType != SELECT_TYPE_LOCAL_ARMY) {
 		return;
 	}

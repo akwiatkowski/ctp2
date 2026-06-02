@@ -3,7 +3,7 @@
 
 #include "ui/aui_common/aui.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/Unit.h"
 

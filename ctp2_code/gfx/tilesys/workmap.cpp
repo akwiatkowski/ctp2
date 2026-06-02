@@ -12,7 +12,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "gfx/spritesys/director.h"           // director_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "gfx/tilesys/BaseTile.h"
@@ -1447,9 +1447,9 @@ void WorkMap::HandlePop( MapPoint point )
 	ID	item ;
 	SELECT_TYPE	state ;
 
-	g_selected_item->GetTopCurItem(player, item, state);
-	Assert(player == g_selected_item->GetVisiblePlayer());
-	if(player != g_selected_item->GetVisiblePlayer())
+	selitem_Get()->GetTopCurItem(player, item, state);
+	Assert(player == selitem_Get()->GetVisiblePlayer());
+	if(player != selitem_Get()->GetVisiblePlayer())
 		return;
 
 	Assert(m_unit != Unit());

@@ -36,7 +36,7 @@
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/Unit.h"
 
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 
 #include "gfx/spritesys/FacedSprite.h"
 #include "gfx/spritesys/GoodSpriteGroup.h"
@@ -344,8 +344,8 @@ bool GoodActor::Draw(bool fogged) {
   m_goodSpriteGroup->Draw(m_curGoodAction, m_frame, m_x + xoffset, m_y + yoffset, m_facing,
     tiledmap_Get()->GetScale(), m_transparency, color, flags);
 
-  if (g_selected_item->GetState() == SELECT_TYPE_GOOD) {
-    if (m_pos == g_selected_item->GetCurSelectPos()) {
+  if (selitem_Get()->GetState() == SELECT_TYPE_GOOD) {
+    if (m_pos == selitem_Get()->GetCurSelectPos()) {
       DrawSelectionBrackets();
     }
   }

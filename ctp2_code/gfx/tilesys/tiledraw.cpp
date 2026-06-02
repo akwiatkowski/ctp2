@@ -79,7 +79,7 @@
 #include "ui/aui_ctp2/background.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gs/gameobj/Player.h"
 #include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
@@ -291,7 +291,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 
 	bool	    fog                     = !m_localVision->IsVisible(pos);
 	bool        visiblePlayerOwnsThis   =
-	    (g_selected_item->GetVisiblePlayer() == world_Get()->GetOwner(pos));
+	    (selitem_Get()->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;
 	Cell *      cell                    = NULL;
 	bool		isAirfield              = false;
@@ -3456,7 +3456,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 					wasHappinessAttacked = ucell.m_unseenCell->WasHappinessAttacked();
 					isRioting            = ucell.m_unseenCell->IsRioting();
 					hasAirport           = ucell.m_unseenCell->HasAirport();
-					if (owner == g_selected_item->GetVisiblePlayer())
+					if (owner == selitem_Get()->GetVisiblePlayer())
 						hasSleepingUnits = ucell.m_unseenCell->HasSleepingUnits();
 					else
 						hasSleepingUnits = FALSE;
@@ -3485,7 +3485,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 					// if there's a unit at pos
 					if (world_Get()->GetTopVisibleUnit(pos,unit)) {
 						//and it's a city visible to the current player
-						if (unit.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()) && unit.IsCity())
+						if (unit.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()) && unit.IsCity())
 						{
 							CityData *cityData   = unit.GetData()->GetCityData();
 
@@ -3561,14 +3561,14 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 							sint32 pollution     = cityData->GetPollution();
 							isPollutionRisk      = (pollution > g_theConstDB->Get(0)->GetLocalPollutionLevel());
 
-							if (owner == g_selected_item->GetVisiblePlayer())
+							if (owner == selitem_Get()->GetVisiblePlayer())
 								hasSleepingUnits = cityData->HasSleepingUnits();
 							else
 								hasSleepingUnits = FALSE;
 
 							drawCity = true;
 
-							if(owner == g_selected_item->GetVisiblePlayer())
+							if(owner == selitem_Get()->GetVisiblePlayer())
 							{
 								drawOurCity = true;
 								HasReligionIcon  = cityData->HasReligionIcon();
@@ -3734,7 +3734,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 							//original  y = popRect.bottom + 1;
 
 							// nextpop rect, PFT
-							if (owner == g_selected_item->GetVisiblePlayer())
+							if (owner == selitem_Get()->GetVisiblePlayer())
 							{
 								//put the number of turns until the city's nextpop in str
 								MBCHAR strn[80];
@@ -4633,7 +4633,7 @@ TiledMap::DrawAnImprovement(aui_Surface *surface, Pixel16 *data, sint32 x, sint3
 sint32 TiledMap::GetVisibleCellOwner(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
-	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
+	&& selitem_Get()->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4649,7 +4649,7 @@ uint32 TiledMap::GetVisibleCityOwner(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
+	&& selitem_Get()->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4665,7 +4665,7 @@ uint32 TiledMap::GetVisibleTerrainType(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
+	&& selitem_Get()->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4681,7 +4681,7 @@ bool TiledMap::HasVisibleCity(const MapPoint &pos) const
 {
 	if(!m_localVision->IsVisible(pos)
 	// Show the city influence radius from the last visit.
-	&& g_selected_item->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
+	&& selitem_Get()->GetVisiblePlayer() != world_Get()->GetCell(pos)->GetOwner()
 	){
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
@@ -4699,7 +4699,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 	if (myOwner < 0)
 		return;
 
-	Player *visP = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *visP = player_Get(selitem_Get()->GetVisiblePlayer());
 	if (visP == NULL)
 		return;
 
@@ -4931,7 +4931,7 @@ void TiledMap::DrawChatText()
 			RECT timeRect = { x, 100, x, 100 + height};
 			char timebuf[256];
 			if(g_network.IsActive()) {
-				if(g_network.IsSpeedStyle() && g_selected_item->GetCurPlayer() == g_selected_item->GetVisiblePlayer()) {
+				if(g_network.IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
 					time_t const timeleft = g_network.GetTurnEndsAt() - time(0);
 					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, g_theStringDB->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
@@ -4942,11 +4942,11 @@ void TiledMap::DrawChatText()
 					timeRect.bottom++;
 					AddDirtyRectToMix(timeRect);
 				} else {
-					snprintf(timebuf, sizeof(timebuf), "%s: %s", g_theStringDB->GetNameStr("NETWORK_CURRENT_PLAYER"), player_Get(g_selected_item->GetCurPlayer()) && player_Get(g_selected_item->GetCurPlayer())->m_civilisation->m_id != 0 ? player_Get(g_selected_item->GetCurPlayer())->m_civilisation->GetLeaderName() : "---");
+					snprintf(timebuf, sizeof(timebuf), "%s: %s", g_theStringDB->GetNameStr("NETWORK_CURRENT_PLAYER"), player_Get(selitem_Get()->GetCurPlayer()) && player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->m_id != 0 ? player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->GetLeaderName() : "---");
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);
-					COLOR      color = g_colorSet->ComputePlayerColor(g_selected_item->GetCurPlayer());
+					COLOR      color = g_colorSet->ComputePlayerColor(selitem_Get()->GetCurPlayer());
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(color), 0);
 					timeRect.right++;
 					timeRect.bottom++;

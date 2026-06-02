@@ -65,17 +65,17 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 	if(a.Num() <= 0) return GEV_HD_Continue;
 
 	if(a->IsStealth()
-		&& !a->IsVisible(g_selected_item->GetPlayerOnScreen())) return GEV_HD_Continue;
+		&& !a->IsVisible(selitem_Get()->GetPlayerOnScreen())) return GEV_HD_Continue;
 
 //	BOOL theTileIsVisible = tiledmap_Get()->TileIsCompletelyVisible(to.x, to.y);
 
-	if (g_selected_item->GetPlayerOnScreen() != -1 &&
-		g_selected_item->GetPlayerOnScreen() != g_selected_item->GetVisiblePlayer() &&
+	if (selitem_Get()->GetPlayerOnScreen() != -1 &&
+		selitem_Get()->GetPlayerOnScreen() != selitem_Get()->GetVisiblePlayer() &&
 		!g_network.IsActive())
 
 			return GEV_HD_Continue;
 
-	Unit top_src = a->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer());
+	Unit top_src = a->GetTopVisibleUnit(selitem_Get()->GetVisiblePlayer());
 	if (top_src.m_id == 0)
 		top_src = a[0];
 
@@ -99,11 +99,11 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 
 	MapPoint newPos = to;
 
-	if(g_selected_item->IsAutoCenterOn()
+	if(selitem_Get()->IsAutoCenterOn()
 	&& !director_Get()->TileWillBeCompletelyVisible(newPos.x, newPos.y)
-	&& (top_src.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+	&& (top_src.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 	&& (   g_theProfileDB->IsEnemyMoves()
-	    || top_src.GetOwner() == g_selected_item->GetVisiblePlayer()
+	    || top_src.GetOwner() == selitem_Get()->GetVisiblePlayer()
 	   )
 	){
 		director_Get()->AddCenterMap(newPos);
@@ -190,13 +190,13 @@ STDEHANDLER(DirectorActionSuccessful)
 		spriteID = rec->GetSpriteID()->GetValue();
 		if (spriteID != -1 && soundID != -1)
 		{
-			if(g_selected_item->IsAutoCenterOn())
+			if(selitem_Get()->IsAutoCenterOn())
 			{
-				if((((unit.GetOwner() == g_selected_item->GetVisiblePlayer()) ||
-					 (unit.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))) ||
+				if((((unit.GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
+					 (unit.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))) ||
 					unitpool_Get()->IsValid(c) &&
-					((c.GetOwner() == g_selected_item->GetVisiblePlayer()) ||
-					 (c.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))))) {
+					((c.GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
+					 (c.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))))) {
 
 					director_Get()->AddCenterMap(attackPos);
 				}
@@ -209,7 +209,7 @@ STDEHANDLER(DirectorActionSuccessful)
 
 		} else {
 			if (soundID != -1) {
-				sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+				sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
 				if ((visiblePlayer == unit.GetOwner()) ||
 					(unit.GetVisibility() & (1 << visiblePlayer))) {
 
@@ -220,11 +220,11 @@ STDEHANDLER(DirectorActionSuccessful)
 	}
 	else
 	{
-		if(player_Get(g_selected_item->GetVisiblePlayer())->m_vision->IsVisible(attackPos))
+		if(player_Get(selitem_Get()->GetVisiblePlayer())->m_vision->IsVisible(attackPos))
 		{
 			spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_SUCCESS"))->GetValue();
 			soundID  = g_theSoundDB->FindTypeIndex("SOUND_ID_GENERALSUCCEED");
-			if(g_selected_item->IsAutoCenterOn())
+			if(selitem_Get()->IsAutoCenterOn())
 			{
 				director_Get()->AddCenterMap(attackPos);
 			}

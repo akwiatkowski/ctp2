@@ -43,8 +43,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/aui_common/aui_surface.h"
 
-extern SelectedItem		*g_selected_item;
-
 #include "ui/aui_ctp2/background.h"
 extern Background		*g_background;
 

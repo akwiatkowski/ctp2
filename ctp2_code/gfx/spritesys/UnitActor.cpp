@@ -97,7 +97,7 @@
 #include "gs/world/cellunitlist.h"
 #include "sound/soundmanager.h"  // g_soundManager
 #include "ui/aui_common/aui_bitmapfont.h"
-#include "ui/aui_ctp2/SelItem.h"  // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"  // selitem_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/citywindow.h"  // s_cityWindow
 
@@ -501,7 +501,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
 
   if (updateVision) {
     if (tiledmap_Get()->GetLocalVision() != NULL &&
-        m_playerNum == g_selected_item->GetVisiblePlayer() &&
+        m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(
           k_DBG_INFO,
@@ -514,7 +514,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
 
   if (updateVision) {
     if (tiledmap_Get()->GetLocalVision() != NULL &&
-        m_playerNum == g_selected_item->GetVisiblePlayer() &&
+        m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(k_DBG_INFO,
               ("Adding vision for %lx, owner %d, range %lf, center: %d,%d\n",
@@ -621,14 +621,14 @@ void UnitActor::GetNextAction(bool isVisible) {
       }
 
       if (!m_isUnseenCellActor &&
-          m_playerNum == g_selected_item->GetVisiblePlayer()) {
+          m_playerNum == selitem_Get()->GetVisiblePlayer()) {
       }
     }
     // @TODO: whats is this?
     m_curAction->SetNumOActors(0 - j);
   }
 
-  if (m_playerNum == g_selected_item->GetVisiblePlayer() &&
+  if (m_playerNum == selitem_Get()->GetVisiblePlayer() &&
       m_curAction->GetActionType() == UNITACTION_MOVE) {
     if (!m_curAction->GetIsSpecialActionType()) {
       if (m_isTransported == k_TRANSPORTADDONLY) {
@@ -1288,7 +1288,7 @@ bool UnitActor::Draw(bool fogged) {
   SELECT_TYPE selectType;
   ID selectedID;
   PLAYER_INDEX selectedPlayer;
-  g_selected_item->GetTopCurItem(selectedPlayer, selectedID, selectType);
+  selitem_Get()->GetTopCurItem(selectedPlayer, selectedID, selectType);
 
   Unit selectedUnit;
   if (selectType == SELECT_TYPE_LOCAL_CITY) {
@@ -1531,7 +1531,7 @@ void UnitActor::DrawHealthBar(void) {
 
         Army a = Army(unitList->Access(i).GetArmy().m_id);
         if (a.IsValid()) {
-          top = a->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer());
+          top = a->GetTopVisibleUnit(selitem_Get()->GetVisiblePlayer());
         }
 
         if (!top.IsValid()) {
@@ -1623,7 +1623,7 @@ void UnitActor::DrawHealthBar(void) {
     black = 0x0001;
 
   if (g_theProfileDB->GetShowEnemyHealth() ||
-      m_playerNum == g_selected_item->GetVisiblePlayer()) {
+      m_playerNum == selitem_Get()->GetVisiblePlayer()) {
     iconRect.bottom += 4;
 
     tagRECT healthBar = iconRect;
@@ -1708,7 +1708,7 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
   sint32 displayedOwner;
   if (m_unitID.IsValid() && m_unitID.IsHiddenNationality() &&
       (m_playerNum !=
-       g_selected_item->GetVisiblePlayer())  // You want to spot your own units
+       selitem_Get()->GetVisiblePlayer())  // You want to spot your own units
   ) {
     // Display unit as barbarians
     displayedOwner = PLAYER_INDEX_VANDALS;
@@ -1788,7 +1788,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
   sint32 displayedOwner;
   if (m_unitID.IsValid() && m_unitID.IsHiddenNationality() &&
       (m_playerNum !=
-       g_selected_item->GetVisiblePlayer())  // You want to spot your own units
+       selitem_Get()->GetVisiblePlayer())  // You want to spot your own units
   ) {
     // Display unit as barbarians
     displayedOwner = PLAYER_INDEX_VANDALS;
@@ -1839,7 +1839,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
     if (m_unitID->GetArmy()->HasCargo()) {
       // Do not draw the cargo icon if enemy army is carrying only stealth.
       if (m_unitID->GetArmy()->HasCargoOnlyStealth() &&
-          m_playerNum != g_selected_item->GetVisiblePlayer()) {
+          m_playerNum != selitem_Get()->GetVisiblePlayer()) {
       }
       // Draw it in all other cases.
       else {
@@ -1888,7 +1888,7 @@ void UnitActor::DrawSpecialIndicators(
   sint32 displayedOwner;
   if (m_unitID.IsValid() && m_unitID.IsHiddenNationality() &&
       (m_playerNum !=
-       g_selected_item->GetVisiblePlayer())  // You want to spot your own units
+       selitem_Get()->GetVisiblePlayer())  // You want to spot your own units
   ) {
     // Display unit as barbarians
     displayedOwner = PLAYER_INDEX_VANDALS;
@@ -2209,7 +2209,7 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
   if (GetIsTransported() == k_TRANSPORTREMOVEONLY) {
     TerminateLoopingSound(SOUNDTYPE_SFX);
   } else {
-    sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
+    sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
     if ((visiblePlayer == GetPlayerNum()) ||
         (GetUnitVisibility() & (1 << visiblePlayer))) {
@@ -2244,7 +2244,7 @@ bool UnitActor::ActionAttack(ActionPtr actionObj, sint32 facing) {
 
   TerminateLoopingSound(SOUNDTYPE_SFX);
 
-  sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
+  sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
   if ((visiblePlayer == GetPlayerNum()) ||
       (GetUnitVisibility() & (1 << visiblePlayer)))
@@ -2278,7 +2278,7 @@ bool UnitActor::ActionSpecialAttack(ActionPtr actionObj, sint32 facing) {
 
   TerminateLoopingSound(SOUNDTYPE_SFX);
 
-  sint32 const visiblePlayer = g_selected_item->GetVisiblePlayer();
+  sint32 const visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
   if ((visiblePlayer == GetPlayerNum()) ||
       (GetUnitVisibility() & (1 << visiblePlayer)))

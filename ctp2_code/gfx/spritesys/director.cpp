@@ -80,7 +80,7 @@
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"  // g_soundManager
 #include "ui/aui_common/tech_wllist.h"
-#include "ui/aui_ctp2/SelItem.h"   // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"   // selitem_Get()
 #include "ui/aui_ctp2/radarmap.h"  // radar_map_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/interface/cursormanager.h"
@@ -641,7 +641,7 @@ void Director::HandleNextAction(void) {
 
     if (item->m_round < turn_Get()->GetRound() - 1 ||
         (!g_theProfileDB->IsEnemyMoves() && item->GetOwner() != -1 &&
-         item->GetOwner() != g_selected_item->GetVisiblePlayer()) ||
+         item->GetOwner() != selitem_Get()->GetVisiblePlayer()) ||
         (!g_theProfileDB->IsUnitAnim() && item->GetOwner() != -1 &&
          item->GetOwner() >= 0 && item->GetOwner() < k_MAX_PLAYERS &&
          player_Get(item->GetOwner()) != NULL &&
@@ -1090,7 +1090,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
 #ifdef _PLAYTEST
   if (!g_doingFastRounds &&
       (!g_network.IsActive() ||
-       player_Get(g_selected_item->GetVisiblePlayer())->IsRobot())) {
+       player_Get(selitem_Get()->GetVisiblePlayer())->IsRobot())) {
     return;
   }
 #else
@@ -1150,7 +1150,7 @@ void Director::DrawActiveUnits(RECT* paintRect, sint32 layer) {
 
     if (maputils_TilePointInTileRect(tileX, pos.y, paintRect)) {
       if (uActor->GetUnitVisibility() &
-          (1 << g_selected_item->GetVisiblePlayer())) {
+          (1 << selitem_Get()->GetVisiblePlayer())) {
         tiledmap_Get()->PaintUnitActor(uActor);
       }
     }
@@ -1251,8 +1251,8 @@ void Director::AddMove(Unit mover,
   Assert(actor->GetUnitID() == mover.m_id);
 
   if (g_theProfileDB->IsEnemyMoves() &&
-      mover.GetOwner() != g_selected_item->GetVisiblePlayer() &&
-      (mover.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer())) &&
+      mover.GetOwner() != selitem_Get()->GetVisiblePlayer() &&
+      (mover.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) &&
       !TileWillBeCompletelyVisible(newPos.x, newPos.y)) {
     AddCenterMap(newPos);
   }
@@ -1375,13 +1375,13 @@ void Director::AddSelectUnit(uint32 flags) {
 
 void Director::AddEndTurn(void) {
   DPRINTF(k_DBG_GAMESTATE, ("Director::AddEndTurn, curPlayer = %d\n",
-                            g_selected_item->GetCurPlayer()));
+                            selitem_Get()->GetCurPlayer()));
 
-  sint32 curPlayer = g_selected_item->GetCurPlayer();
+  sint32 curPlayer = selitem_Get()->GetCurPlayer();
   if (curPlayer < 0 || curPlayer >= k_MAX_PLAYERS || !player_Get(curPlayer))
     return;
 
-  if (curPlayer == g_selected_item->GetVisiblePlayer()) {
+  if (curPlayer == selitem_Get()->GetVisiblePlayer()) {
     static sint32 last_turn_processed = -1;
     if (last_turn_processed !=
         player_Get(curPlayer)->m_current_round) {
@@ -1416,7 +1416,7 @@ void Director::AddEndTurn(void) {
   static sint32 lastPlayer = -1;
   static sint32 lastRound = -1;
 
-  sint32 curPlayer2 = g_selected_item->GetCurPlayer();
+  sint32 curPlayer2 = selitem_Get()->GetCurPlayer();
   if (curPlayer2 >= 0 && curPlayer2 < k_MAX_PLAYERS &&
       curPlayer2 == lastPlayer && player_Get(lastPlayer) &&
       player_Get(lastPlayer)->m_current_round == lastRound) {
@@ -1429,7 +1429,7 @@ void Director::AddEndTurn(void) {
     }
   }
 
-  lastPlayer = g_selected_item->GetCurPlayer();
+  lastPlayer = selitem_Get()->GetCurPlayer();
   if (player_Get(lastPlayer)) {
     lastRound = player_Get(lastPlayer)->m_current_round;
   } else {
@@ -1490,7 +1490,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
 
   m_itemQueue.push_back(item);
 
-  Player* visiblePlayer = player_Get(g_selected_item->GetVisiblePlayer());
+  Player* visiblePlayer = player_Get(selitem_Get()->GetVisiblePlayer());
   if (visiblePlayer && visiblePlayer->IsVisible(attacker.RetPos())) {
     if (attacker.m_id != 0) {
       AddCombatFlash(attacker.RetPos());
@@ -1515,8 +1515,8 @@ void Director::AddAttackPos(Unit attacker, MapPoint const& pos) {
   item->SetOwner(attacker.GetOwner());
   m_itemQueue.push_back(item);
 
-  if (player_Get(g_selected_item->GetVisiblePlayer()) &&
-      player_Get(g_selected_item->GetVisiblePlayer())->IsVisible(pos)) {
+  if (player_Get(selitem_Get()->GetVisiblePlayer()) &&
+      player_Get(selitem_Get()->GetVisiblePlayer())->IsVisible(pos)) {
     AddCombatFlash(pos);
   }
 }
@@ -1549,8 +1549,8 @@ void Director::AddSpecialAttack(Unit attacker,
 
   m_itemQueue.push_back(item);
 
-  if (player_Get(g_selected_item->GetVisiblePlayer()) &&
-      player_Get(g_selected_item->GetVisiblePlayer())->IsVisible(
+  if (player_Get(selitem_Get()->GetVisiblePlayer()) &&
+      player_Get(selitem_Get()->GetVisiblePlayer())->IsVisible(
           attacked.RetPos())) {
     AddProjectileAttack(attacker, attacked, NULL,
                         SpriteStatePtr(new SpriteState(spriteID)), 0);
@@ -1800,7 +1800,7 @@ void Director::AddPlayVictoryMovie(GAME_OVER reason,
                                    BOOL previouslyWon,
                                    BOOL previouslyLost) {
   if (previouslyWon || previouslyLost) {
-    PLAYER_INDEX player = g_selected_item->GetVisiblePlayer();
+    PLAYER_INDEX player = selitem_Get()->GetVisiblePlayer();
 
     if (player_Get(player) && !player_Get(player)->m_isDead) {
       return;
@@ -1880,8 +1880,8 @@ void Director::AddInvokeResearchAdvance(MBCHAR* message) {
 }
 
 void Director::AddBeginScheduler(sint32 player) {
-  Assert(player == g_selected_item->GetCurPlayer());
-  if (player != g_selected_item->GetCurPlayer())
+  Assert(player == selitem_Get()->GetCurPlayer());
+  if (player != selitem_Get()->GetCurPlayer())
     return;
 
   DPRINTF(k_DBG_GAMESTATE, ("Director::AddBeginScheduler(%d)\n", player));
@@ -1920,13 +1920,13 @@ void Director::DecrementPendingGameActions() {
   if (m_pendingGameActions <= 0) {
     m_pendingGameActions = 0;
     if (m_endTurnRequested) {
-      Player* pl = player_Get(g_selected_item->GetCurPlayer());
+      Player* pl = player_Get(selitem_Get()->GetCurPlayer());
       if (pl && (!g_network.IsActive() ||
-                 (g_network.IsLocalPlayer(g_selected_item->GetCurPlayer())))) {
+                 (g_network.IsLocalPlayer(selitem_Get()->GetCurPlayer())))) {
         m_endTurnRequested = false;
         DPRINTF(k_DBG_GAMESTATE,
                 ("Adding from DecrementPendingGameActions, %d\n",
-                 g_selected_item->GetCurPlayer()));
+                 selitem_Get()->GetCurPlayer()));
         AddEndTurn();
       }
     }
@@ -1935,7 +1935,7 @@ void Director::DecrementPendingGameActions() {
 
 void Director::ReloadAllSprites() {
   sint32 p, i;
-  sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+  sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
   if (visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !player_Get(visiblePlayer))
     return;
 

@@ -40,6 +40,8 @@
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"  // tiledmap_Get()
 
+#include "ui/aui_ctp2/SelItem.h"
+
 #include "gs/database/profileDB.h"       // g_theProfileDB
 #include "gs/events/GameEventManager.h"  // gevmanager_Get()
 #include "gs/gameobj/MessagePool.h"
@@ -122,7 +124,7 @@ void dh_move(DQAction* itemAction,
     seq->SetAddedToActiveList(SEQ_ACTOR_PRIMARY, TRUE);
     director_Get()->ActiveUnitAdd(theActor);
 
-    if (g_selected_item->GetVisiblePlayer() != theActor->GetPlayerNum() &&
+    if (selitem_Get()->GetVisiblePlayer() != theActor->GetPlayerNum() &&
         !tiledmap_Get()->TileIsVisible(theActor->GetPos().x,
                                    theActor->GetPos().y)) {
       radar_map_Get()->CenterMap(theActor->GetPos());
@@ -243,8 +245,8 @@ void dh_attack(DQAction* itemAction,
       director_Get()->TileIsVisibleToPlayer(action->defender_Pos);
 
   bool playerInvolved =
-      (theDefender->GetPlayerNum() == g_selected_item->GetVisiblePlayer()) ||
-      (theAttacker->GetPlayerNum() == g_selected_item->GetVisiblePlayer());
+      (theDefender->GetPlayerNum() == selitem_Get()->GetVisiblePlayer()) ||
+      (theAttacker->GetPlayerNum() == selitem_Get()->GetVisiblePlayer());
 
   POINT AttackerPoints, DefenderPoints;
 
@@ -497,7 +499,7 @@ void dh_death(DQAction* itemAction,
                                             (uint32)theDead->GetUnitID());
 
     if (g_soundManager) {
-      sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+      sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
       if ((visiblePlayer == theDead->GetPlayerNum()) ||
           (theDead->GetUnitVisibility() & (1 << visiblePlayer))) {
         g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)theDead->GetUnitID(),
@@ -551,7 +553,7 @@ void dh_death(DQAction* itemAction,
         g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
                                               (uint32)theVictor->GetUnitID());
       if (g_soundManager) {
-        sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+        sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
         if ((visiblePlayer == theVictor->GetPlayerNum()) ||
             (theVictor->GetUnitVisibility() & (1 << visiblePlayer))) {
           g_soundManager->AddSound(
@@ -692,7 +694,7 @@ void dh_work(DQAction* itemAction,
   actor->AddAction(std::move(actionObj));
 
   if (g_soundManager) {
-    sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+    sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
     if ((visiblePlayer == actor->GetPlayerNum()) ||
         (actor->GetUnitVisibility() & (1 << visiblePlayer))) {
       g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
@@ -869,7 +871,7 @@ void dh_centerMap(DQAction* itemAction,
 
   DQActionCenterMap* action = (DQActionCenterMap*)itemAction;
 
-  if (!g_selected_item->GetIsPathing()) {
+  if (!selitem_Get()->GetIsPathing()) {
     radar_map_Get()->CenterMap(action->centerMap_pos);
 
     tiledmap_Get()->Refresh();
@@ -890,7 +892,7 @@ void dh_selectUnit(DQAction* itemAction,
 
   DQActionUnitSelection* action = (DQActionUnitSelection*)itemAction;
 
-  g_selected_item->DirectorUnitSelection(action->flags);
+  selitem_Get()->DirectorUnitSelection(action->flags);
 
   director_Get()->ActionFinished(seq);
 }
@@ -906,7 +908,7 @@ void dh_endTurn(DQAction* itemAction,
   director_Get()->ActionFinished(seq);
 
   gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_EndTurn, GEA_Player,
-                         g_selected_item->GetCurPlayer(), GEA_End);
+                         selitem_Get()->GetCurPlayer(), GEA_End);
 }
 
 void dh_battle(DQAction* itemAction,
@@ -1011,7 +1013,7 @@ void dh_message(DQAction* itemAction,
           // which would often mean that they show on the wrong players
           // turn.
           &&
-          g_selected_item->GetVisiblePlayer() == action->message.GetOwner()) {
+          selitem_Get()->GetVisiblePlayer() == action->message.GetOwner()) {
         action->message.Show();
       }
     }
@@ -1122,8 +1124,8 @@ void dh_faceoff(DQAction* itemAction,
     attackedVisible =
         director_Get()->TileIsVisibleToPlayer(action->faceoff_attacked_pos);
 
-    if (theAttacker->GetPlayerNum() == g_selected_item->GetVisiblePlayer() ||
-        theAttacked->GetPlayerNum() == g_selected_item->GetVisiblePlayer())
+    if (theAttacker->GetPlayerNum() == selitem_Get()->GetVisiblePlayer() ||
+        theAttacked->GetPlayerNum() == selitem_Get()->GetVisiblePlayer())
       attackedVisible = TRUE;
 
     if (attackedVisible && executeType == DHEXECUTE_NORMAL) {
@@ -1141,8 +1143,8 @@ void dh_faceoff(DQAction* itemAction,
   BOOL attackerVisible =
       director_Get()->TileIsVisibleToPlayer(action->faceoff_attacker_pos);
 
-  if (theAttacked->GetPlayerNum() == g_selected_item->GetVisiblePlayer() ||
-      theAttacker->GetPlayerNum() == g_selected_item->GetVisiblePlayer()) {
+  if (theAttacked->GetPlayerNum() == selitem_Get()->GetVisiblePlayer() ||
+      theAttacker->GetPlayerNum() == selitem_Get()->GetVisiblePlayer()) {
     attackerVisible = TRUE;
     attackedVisible = TRUE;
   }
@@ -1306,7 +1308,7 @@ void dh_attackpos(DQAction* itemAction,
                                           (uint32)theAttacker->GetUnitID());
 
   if (g_soundManager) {
-    sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+    sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
     if ((visiblePlayer == theAttacker->GetPlayerNum()) ||
         (theAttacker->GetUnitVisibility() & (1 << visiblePlayer))) {
       g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)theAttacker->GetUnitID(),
@@ -1379,7 +1381,7 @@ void dh_beginScheduler(DQAction* itemAction,
   static bool isCurrentPlayerOk =
       true;  // static, to report the error only once
   if (isCurrentPlayerOk) {
-    isCurrentPlayerOk = action->player == g_selected_item->GetCurPlayer();
+    isCurrentPlayerOk = action->player == selitem_Get()->GetCurPlayer();
     Assert(isCurrentPlayerOk);
   }
 #endif

@@ -1268,7 +1268,7 @@ void SelectedItem::MoveArmyClick(const MapPoint &pos, const aui_MouseEvent *data
 				so->AddLocation(pos);
 				so->AddCivilisation(player);
 				so->AddRecipient(player);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 				return;
 			}
 		}
@@ -1398,7 +1398,7 @@ void SelectedItem::ActionClick(const MapPoint &pos, const aui_MouseEvent *data, 
 					so->AddLocation(pos);
 					so->AddCivilisation(player);
 					so->AddRecipient(player);
-					g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 					return;
 				}
 			}

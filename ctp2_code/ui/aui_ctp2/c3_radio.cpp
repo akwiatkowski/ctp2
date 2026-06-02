@@ -12,7 +12,7 @@
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
-#include "gs/slic/SlicEngine.h"     // g_slicEngine
+#include "gs/slic/SlicEngine.h"
 
 #include "ui/ldl/ldl_data.hpp"
 

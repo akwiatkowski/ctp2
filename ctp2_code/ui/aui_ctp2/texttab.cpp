@@ -18,7 +18,7 @@
 
 #include "ui/aui_ctp2/texttab.h"
 
-#include "gs/slic/SlicEngine.h"         // g_slicEngine
+#include "gs/slic/SlicEngine.h"
 
 extern C3UI			*g_c3ui;
 

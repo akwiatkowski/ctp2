@@ -379,7 +379,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 	if (!theKeyMap) return 0;
 
-	if (g_slicEngine && g_slicEngine->RunKeyboardTrigger(static_cast<char>(wParam)))
+	if (slicengine_Get() && slicengine_Get()->RunKeyboardTrigger(static_cast<char>(wParam)))
 	{
 		return 0;
 	}

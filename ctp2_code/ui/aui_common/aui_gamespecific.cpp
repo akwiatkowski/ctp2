@@ -6,7 +6,6 @@
 #include "ctp/civapp.h"
 
 extern BOOL			g_helpMode;
-extern SlicEngine	*g_slicEngine;
 extern aui_UI		*g_ui;
 extern CivApp		*g_civApp;
 
@@ -22,7 +21,7 @@ BOOL HandleGameSpecificLeftClick( void *control )
 
 
 
-			g_slicEngine->RunUITriggers( ldl->GetBlock( control ) );
+			slicengine_Get()->RunUITriggers( ldl->GetBlock( control ) );
 
 	}
 
@@ -38,7 +37,7 @@ BOOL HandleGameSpecificRightClick( void *control )
 	{
 		if (g_helpMode) {
 
-				g_slicEngine->RunHelpTriggers(ldl->GetBlock(control));
+				slicengine_Get()->RunHelpTriggers(ldl->GetBlock(control));
 			handled = TRUE;
 		}
 

@@ -20,7 +20,6 @@
 #include "gs/slic/SlicEngine.h"
 
 extern C3UI			*g_c3ui;
-extern SlicEngine	*g_slicEngine;
 
 TextButton::TextButton(
 	AUI_ERRCODE *retval,

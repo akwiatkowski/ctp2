@@ -12,7 +12,7 @@
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_utils/textutils.h"
-#include "gs/slic/SlicEngine.h"     // g_slicEngine
+#include "gs/slic/SlicEngine.h"
 
 extern C3UI			*g_c3ui;
 

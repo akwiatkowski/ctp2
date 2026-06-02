@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
 
-#include "gs/slic/SlicEngine.h"     // g_slicEngine
+#include "gs/slic/SlicEngine.h"
 
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"

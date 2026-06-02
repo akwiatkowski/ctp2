@@ -273,8 +273,8 @@ public:
     {
         if (!g_selected_item || player != g_selected_item->GetVisiblePlayer())
             return;
-        if (g_slicEngine && g_slicEngine->GetTutorialActive() &&
-            g_slicEngine->GetTutorialPlayer() != player)
+        if (slicengine_Get() && slicengine_Get()->GetTutorialActive() &&
+            slicengine_Get()->GetTutorialPlayer() != player)
             return;
 
         close_AllScreens();

@@ -41,7 +41,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/outcom/AICause.h"
-#include "gs/world/World.h"             // g_theWorld
+#include "gs/world/World.h"             // world_Get()
 
 STDEHANDLER(CutImprovementsEvent)
 {
@@ -50,13 +50,13 @@ STDEHANDLER(CutImprovementsEvent)
 
 	MapPoint npos;
 
-	g_theWorld->CutImprovements(pos);
+	world_Get()->CutImprovements(pos);
 
 	for(WORLD_DIRECTION d = NORTH; d < NOWHERE; d = (WORLD_DIRECTION)((sint32)d + 1))
 	{
 		if(pos.GetNeighborPosition(d, npos))
 		{
-			tiledmap_observer::PostProcessTile(npos, g_theWorld->GetTileInfo(npos));
+			tiledmap_observer::PostProcessTile(npos, world_Get()->GetTileInfo(npos));
 			tiledmap_observer::TileChanged(npos);
 		}
 	}
@@ -65,13 +65,13 @@ STDEHANDLER(CutImprovementsEvent)
 
 	if(g_network.IsHost())
 	{
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		g_network.Enqueue(cell, pos.x, pos.y);
 	}
 
 	static CellUnitList units;
 	units.Clear();
-	g_theWorld->GetArmy(pos, units);
+	world_Get()->GetArmy(pos, units);
 
 	sint32 i;
 	sint32 unitsOwner = 0;
@@ -82,8 +82,8 @@ STDEHANDLER(CutImprovementsEvent)
 	for(i = units.Num() -1; i >= 0; i--)
 	{
 		sint32 num_killed = 0;
-		if(!g_theWorld->CanEnter(pos, units[i].GetMovementType())
-		&& !g_theWorld->HasCity(pos)
+		if(!world_Get()->CanEnter(pos, units[i].GetMovementType())
+		&& !world_Get()->HasCity(pos)
 		){
 
 			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
@@ -111,14 +111,14 @@ STDEHANDLER(GlobalWarmingEvent)
 	if(!args->GetInt(0, phase))
 		return GEV_HD_Continue;
 
-	g_theWorld->GlobalWarmingEvent(phase);
+	world_Get()->GlobalWarmingEvent(phase);
 
 	return GEV_HD_Continue;
 }
 
 STDEHANDLER(OzoneDepletionEvent)
 {
-	g_theWorld->OzoneDepletionEvent();
+	world_Get()->OzoneDepletionEvent();
 
 	return GEV_HD_Continue;
 }

@@ -50,7 +50,6 @@
 #include "gs/gameobj/unitutil.h"
 #include "gs/gameobj/terrainutil.h"
 
-extern World *g_theWorld;
 
 InstallationData::InstallationData(ID id,
 								   sint32 owner,
@@ -281,9 +280,9 @@ sint32 InstallationData::GetDistance(InstallationData* inst1,
 	dy = abs(dy);
 	if(dx > wrapRange) {
 		if(inst1->m_point.x > inst2->m_point.x) {
-			dx = (inst1->m_point.x - g_theWorld->GetXWidth()) - inst2->m_point.x;
+			dx = (inst1->m_point.x - world_Get()->GetXWidth()) - inst2->m_point.x;
 		} else {
-			dx = inst1->m_point.x - (inst2->m_point.x - g_theWorld->GetXWidth());
+			dx = inst1->m_point.x - (inst2->m_point.x - world_Get()->GetXWidth());
 		}
 		dx = abs(dx);
 	}

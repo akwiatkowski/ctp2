@@ -80,7 +80,7 @@ int Cell::PlayerLandArea(int player)
 #ifdef _DEBUG
 	int t1 = m_playerLandArea[player+1];
 	int arr[k_MAX_PLAYERS+1];
-	g_theWorld->WholePlayerLandArea(arr);
+	world_Get()->WholePlayerLandArea(arr);
 	int t2 = arr[player+1];
 	Assert(t1==t2);
 #endif
@@ -92,7 +92,7 @@ int Cell::PlayerLandArea(int player)
 
 void Cell::RecalcPlayerLandArea()
 {
-	g_theWorld->WholePlayerLandArea(m_playerLandArea);
+	world_Get()->WholePlayerLandArea(m_playerLandArea);
 }
 #endif
 
@@ -335,7 +335,7 @@ sint32 Cell::GetFoodFromTerrain(sint8 terrainType) const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(this, good)) {
+	if(world_Get()->GetGood(this, good)) {
 		const ResourceRecord *rec = g_theResourceDB->Get(good);
 		if (rec)
 			food += rec->GetFood();
@@ -435,7 +435,7 @@ sint32 Cell::GetShieldsFromTerrain(sint8 terrainType) const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(this, good)) {
+	if(world_Get()->GetGood(this, good)) {
 		shield += g_theResourceDB->Get(good)->GetProduction();
 	}
 
@@ -534,7 +534,7 @@ sint32 Cell::GetGoldFromTerrain(sint8 terrainType) const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(this, good)) {
+	if(world_Get()->GetGood(this, good)) {
 		gold += g_theResourceDB->Get(good)->GetGold();
 	}
 
@@ -1083,7 +1083,7 @@ void Cell::CalcTerrainMoveCost()
 	sint16 new_cost = static_cast<sint16>(tmp);
 	if (new_cost != m_move_cost)
 	{
-		g_theWorld->SetCapitolDistanceDirtyFlags(0xffffffff);
+		world_Get()->SetCapitolDistanceDirtyFlags(0xffffffff);
 		m_move_cost = new_cost;
 	}
 	Assert(m_move_cost > 0);
@@ -1345,7 +1345,7 @@ bool Cell::IsUnitUpgradePosition(sint32 unitOwner) const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(this, good))
+	if(world_Get()->GetGood(this, good))
 	{
 		canUpgrade |= g_theResourceDB->Get(good)->GetCanUpgrade();
 	}

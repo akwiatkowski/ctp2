@@ -144,7 +144,6 @@ extern Background	*g_background;
 extern WorkWindow	*g_workWindow;
 
 extern StatusWindow	*g_statusWindow;
-extern World        *g_theWorld;
 extern SelectedItem *g_selected_item;
 
 extern BOOL			g_helpMode;
@@ -898,7 +897,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 #ifdef _PLAYTEST
     case KEY_FUNCTION_GAMESTATE_DEBUG:
-        g_theWorld->GamestateDebug();
+        world_Get()->GamestateDebug();
         for (i=0; i<2; i++) {
             player_Get(i)->GamestateDebug();
         }
@@ -913,7 +912,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			if(g_network.IsClient())
             {
 				CellUnitList units;
-				Cell *cell = g_theWorld->GetCell(a->RetPos());
+				Cell *cell = world_Get()->GetCell(a->RetPos());
 				for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 					if(cell->AccessUnit(i).GetArmy().m_id != a.m_id) {
 						units.Insert(cell->AccessUnit(i));
@@ -1265,7 +1264,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(!g_modalWindow && player_Get(g_selected_item->GetVisiblePlayer())) {
 			Unit city;
 			if(g_selected_item->GetSelectedCity(city)) {
-				city = g_theWorld->GetCity(g_selected_item->GetCurSelectPos());
+				city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
 			} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
 				city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
 			}

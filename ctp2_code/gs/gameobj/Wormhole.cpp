@@ -61,12 +61,12 @@ Wormhole::Wormhole(sint32 discoverer, sint32 currentRound)
 {
 	m_discoverer = discoverer;
 
-	sint16 centerY = static_cast<sint16>(g_theWorld->GetYHeight() / 2);
-	sint32 orbitHeight = (g_theWorld->GetYHeight() * g_theConstDB->Get(0)->GetWormholeOrbitHeightPercentage()) / 100;
+	sint16 centerY = static_cast<sint16>(world_Get()->GetYHeight() / 2);
+	sint32 orbitHeight = (world_Get()->GetYHeight() * g_theConstDB->Get(0)->GetWormholeOrbitHeightPercentage()) / 100;
 	m_topY = centerY - orbitHeight / 2;
 	m_bottomY = centerY + orbitHeight / 2;
 	m_pos.y = centerY;
-	m_pos.x = sint16(civrand().Next(g_theWorld->GetXWidth()));
+	m_pos.x = sint16(civrand().Next(world_Get()->GetXWidth()));
 	m_curDir = NORTHEAST;
 
 	m_entries = new PointerList<EntryRecord>;
@@ -79,8 +79,8 @@ Wormhole::Wormhole(sint32 discoverer, sint32 currentRound)
 Wormhole::Wormhole(sint32 discoverer, MapPoint &startPos, sint32 currentRound)
 {
 	m_discoverer = discoverer;
-	sint16 centerY =  static_cast<sint16>(g_theWorld->GetYHeight() / 2);
-	sint32 orbitHeight = (g_theWorld->GetYHeight() * g_theConstDB->Get(0)->GetWormholeOrbitHeightPercentage()) / 100;
+	sint16 centerY =  static_cast<sint16>(world_Get()->GetYHeight() / 2);
+	sint32 orbitHeight = (world_Get()->GetYHeight() * g_theConstDB->Get(0)->GetWormholeOrbitHeightPercentage()) / 100;
 	m_topY = centerY - orbitHeight / 2;
 	m_bottomY = centerY + orbitHeight / 2;
 	m_pos.y = startPos.y;
@@ -194,7 +194,7 @@ void Wormhole::Move()
 	sint32 speed = g_theConstDB->Get(0)->GetWormholeSpeed();
 	for(i = 0; i < speed; i++) {
 		if((m_curDir == EAST || m_curDir == NORTHEAST) &&
-		   !g_theWorld->IsXwrap()) {
+		   !world_Get()->IsXwrap()) {
 			if(!m_pos.GetNeighborPosition(m_curDir, m_pos)) {
 				m_pos.x = 0;
 			}

@@ -87,7 +87,7 @@ BOOL TerrainImprovementData::Complete(void)
 {
 	TerrainImprovement imp(m_id);
 
-	Cell* theCell = g_theWorld->GetCell(m_point);
+	Cell* theCell = world_Get()->GetCell(m_point);
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 		if(!player_Get(p)) continue;
@@ -106,8 +106,8 @@ BOOL TerrainImprovementData::Complete(void)
 	{
 		sint32 terr;
 		if(rec->GetTerraformTerrainIndex(terr)) {
-			g_theWorld->ClearGoods(m_point.x, m_point.y);
-			g_theWorld->SmartSetTerrain(m_point, terr, 0);
+			world_Get()->ClearGoods(m_point.x, m_point.y);
+			world_Get()->SmartSetTerrain(m_point, terr, 0);
 		}
 	}
 	theCell->RemoveImprovement(imp);
@@ -115,7 +115,7 @@ BOOL TerrainImprovementData::Complete(void)
 	if(rec->GetClassTerraform() || rec->GetClassOceanform())
 	{
 		// Questionable, since we have the exclude classes anyway
-		g_theWorld->CutImprovements(m_point);
+		world_Get()->CutImprovements(m_point);
 	}
 
 	Assert(player_Get(m_owner));
@@ -138,7 +138,7 @@ BOOL TerrainImprovementData::Complete(void)
 		GenerateBorders(m_point, m_owner, intRad, sqRad);
 	}
 
-	tiledmap_observer::PostProcessTile(m_point, g_theWorld->GetTileInfo(m_point));
+	tiledmap_observer::PostProcessTile(m_point, world_Get()->GetTileInfo(m_point));
 	tiledmap_observer::TileChanged(m_point);
 
 	MapPoint pos;
@@ -147,7 +147,7 @@ BOOL TerrainImprovementData::Complete(void)
 	{
 		if(m_point.GetNeighborPosition(d, pos))
 		{
-			tiledmap_observer::PostProcessTile(pos, g_theWorld->GetTileInfo(pos));
+			tiledmap_observer::PostProcessTile(pos, world_Get()->GetTileInfo(pos));
 			tiledmap_observer::TileChanged(pos);
 			tiledmap_observer::RedrawTile(pos);
 		}
@@ -159,7 +159,7 @@ BOOL TerrainImprovementData::Complete(void)
 		g_network.Enqueue(theCell, m_point.x, m_point.y);
 	}
 
-	g_theWorld->GetCell(m_point)->SetColor(1000);
+	world_Get()->GetCell(m_point)->SetColor(1000);
 
 	// Restored the original Kill: the illegal access is prevented in
 	// Improvementevent.cpp, and the object has to be killed to enable

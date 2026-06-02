@@ -57,7 +57,7 @@
 #include "gs/gameobj/DiplomaticRequestPool.h"  // g_theDiplomaticRequestPool
 #include "gs/core/render_observer.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/events/GameEventManager.h"
+#include "gs/events/GameEventManager.h"   // gevmanager_Get()
 #include "gs/fileio/gamefile.h"
 #include "gs/gameobj/GameOver.h"
 #include "gs/gameobj/GameSettings.h"
@@ -455,7 +455,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 	}
 
 	if(player_Get(player_view::CurPlayer())->GetCurRound() != m_round) {
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_BeginTurn,
 							   GEA_Player, player_view::CurPlayer(),
 							   GEA_Int, m_round,
@@ -1126,7 +1126,7 @@ void TurnCount::NotifyBecameHost()
 
 void TurnCount::SendNextPlayerMessage()
 {
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendEmailAndHotSeatMessage,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SendEmailAndHotSeatMessage,
 	                       GEA_End);
 
 }

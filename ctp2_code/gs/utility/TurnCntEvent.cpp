@@ -37,6 +37,7 @@
 #include "gs/utility/TurnCntEvent.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 
 #include "gs/gameobj/Player.h"
 
@@ -73,7 +74,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	if(g_theProfileDB->IsAIOn() && (!g_network.IsClient()))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
 		                       GEA_Player,      player,
 		                       GEA_End
 		                      );
@@ -83,7 +84,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	if(g_theProfileDB->IsAIOn() && (!g_network.IsClient()))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
 		                       GEA_Player,      player,
 		                       GEA_End
 		                      );
@@ -91,7 +92,7 @@ STDEHANDLER(BeginTurnEvent)
 
 	player_Get(player)->BeginTurn();
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 	                       GEA_Player,      player,
 	                       GEA_End
 	                      );
@@ -122,9 +123,9 @@ STDEHANDLER(SendEmailAndHotSeatMessage)
 
 void turncountevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_BeginTurn, GEV_PRI_Primary, &s_BeginTurnEvent);
-	g_gevManager->AddCallback(GEV_ResumeEmailAndHotSeatDiplomacy, GEV_PRI_Primary, &s_ResumeEmailAndHotSeatDiplomacy);
-	g_gevManager->AddCallback(GEV_SendEmailAndHotSeatMessage, GEV_PRI_Primary, &s_SendEmailAndHotSeatMessage);
+	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Primary, &s_BeginTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_ResumeEmailAndHotSeatDiplomacy, GEV_PRI_Primary, &s_ResumeEmailAndHotSeatDiplomacy);
+	gevmanager_Get()->AddCallback(GEV_SendEmailAndHotSeatMessage, GEV_PRI_Primary, &s_SendEmailAndHotSeatMessage);
 }
 
 void turncountevent_Cleanup()

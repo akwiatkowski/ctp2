@@ -38,7 +38,7 @@
 #include "ctp/c3.h"
 
 #include "gs/utility/newturncount.h"
-#include "gs/events/GameEventManager.h"
+#include "gs/events/GameEventManager.h"   // gevmanager_Get()
 
 #include "ctp/ctp2_utils/c3errors.h"
 
@@ -219,7 +219,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if(!g_network.IsHost() || g_network.IsLocalPlayer(next_player))
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginTurn,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurn,
 		                       GEA_Player,      next_player,
 		                       GEA_Int,         next_round,
 		                       GEA_End);

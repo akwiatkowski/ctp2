@@ -57,7 +57,7 @@
 #include "UnitRecord.h"
 #include "gs/utility/MoveFlags.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/events/GameEventManager.h"
+#include "gs/events/GameEventManager.h"   // gevmanager_Get()
 #include "TerrainRecord.h"	    // TerrainRecord
 #include "gs/utility/RandGen.h"            // rand_ptr()
 
@@ -590,10 +590,10 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 					g_network.Block(hc.GetOwner());
 				}
 
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
-									   GEA_City, hc.m_id,
-									   GEA_Player, origOwner,
-									   GEA_End);
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+								   GEA_City, hc.m_id,
+								   GEA_Player, origOwner,
+								   GEA_End);
 
 				g_slicEngine->RunVictoryEnslavementTriggers(m_array[i],
 															origOwner, hc);

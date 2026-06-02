@@ -68,7 +68,7 @@
 
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/tradeutil.h"
-#include "gs/events/GameEventManager.h"           // g_gevManager
+#include "gs/events/GameEventManager.h"           // gevmanager_Get()
 #include "gs/core/game_observer.h"                // g_gameObservers
 
 extern  OzoneDatabase   *g_theUVDB ;
@@ -437,7 +437,7 @@ void World::GWPhase(const sint32 phase)
 
 void World::GlobalWarming(const sint32 phase)
 {
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GlobalWarming,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GlobalWarming,
 	                       GEA_Int, phase,
 	                       GEA_End);
 }
@@ -619,7 +619,7 @@ void World::FloodRivers(void)
 
 void World::OzoneDepletion(void)
 {
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_OzoneDepletion,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_OzoneDepletion,
 	                       GEA_End);
 }
 

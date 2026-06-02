@@ -24,9 +24,9 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 // - An event is not executed if its arguments became invalid during
-//   code execution. (7-Nov-2007 Martin Gühmann)
+//   code execution. (7-Nov-2007 Martin Gï¿½hmann)
 // - Corrected delete operator use in destructor.
 //
 //----------------------------------------------------------------------------
@@ -35,7 +35,7 @@
 #include "gs/events/GameEvent.h"
 
 #include "gs/events/GameEventArgList.h"
-#include "gs/events/GameEventManager.h"   // g_gevManager
+#include "gs/events/GameEventManager.h"   // gevmanager_Get()
 
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
@@ -76,10 +76,10 @@ GameEvent::GameEvent
 		strcpy(m_file       , file);
 		strcpy(m_contextName, name);
 	}
-	else if(g_gevManager->GetHeadEvent()
-	&&      g_gevManager->GetHeadEvent()->GetLine() >= 0
+	else if(gevmanager_Get()->GetHeadEvent()
+	&&      gevmanager_Get()->GetHeadEvent()->GetLine() >= 0
 	){
-		GameEvent * event = g_gevManager->GetHeadEvent();
+		GameEvent * event = gevmanager_Get()->GetHeadEvent();
 
 		m_line = event->GetLine();
 
@@ -108,7 +108,7 @@ GAME_EVENT_ERR GameEvent::Process()
 	// its ID may have become invalid when reaching the 'post' execution phase.
 	if(m_argList->TestArgs(m_type, this))
 	{
-		return g_gevManager->ActivateHook
+		return gevmanager_Get()->ActivateHook
 		            (m_type, m_argList, m_resumeIndex, m_resumeIndex);
 	}
 	else

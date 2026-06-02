@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@
 
 #include "gs/gameobj/ID.h"
 #include "gs/world/MapPoint.h"
-#include "gs/events/GameEventManager.h"    // g_gevManager
+#include "gs/events/GameEventManager.h"    // gevmanager_Get()
 
 class Unit;
 class MapPoint;

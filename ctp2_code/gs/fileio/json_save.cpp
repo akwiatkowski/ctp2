@@ -106,7 +106,7 @@
 #include "gs/gameobj/installationtree.h"     // installation_tree_Get() (G-4)
 #include "gs/utility/QuadTree.h"              // unit_tree_Get() (G-4)
 #include "ctp/ctp2_utils/pointerlist.h"
-#include "gs/events/GameEventManager.h"   // g_gevManager (for SlicSegment hook)
+#include "gs/events/GameEventManager.h"   // gevmanager_Get() (for SlicSegment hook)
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/Army.h"
@@ -4060,9 +4060,9 @@ void from_json(nlohmann::json const &j, SlicSegment &s)
         if (s.m_filename) std::memcpy(s.m_filename, fn.c_str(), fn.size() + 1);
     }
 
-    if (s.m_type == SLIC_OBJECT_HANDLEEVENT && g_gevManager)
+    if (s.m_type == SLIC_OBJECT_HANDLEEVENT && gevmanager_Get())
     {
-        g_gevManager->AddCallback(s.m_event, s.m_priority, &s);
+        gevmanager_Get()->AddCallback(s.m_event, s.m_priority, &s);
     }
 }
 
@@ -4223,7 +4223,7 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
     }
 
     // Segments: clear the segment hash and re-add each entry.  Each
-    // segment registers itself with g_gevManager on load (see F-14).
+    // segment registers itself with gevmanager_Get() on load (see F-14).
     //
     // Crucial: SlicSegmentHash owns a fixed-size m_segments[] array
     // sized at SetSize().  StringHash::Clear() drains the hash buckets

@@ -34,6 +34,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/utility/directions.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Events.h"
 #include "gs/core/tiledmap_observer.h"
 #include "net/general/network.h"
@@ -86,7 +87,7 @@ STDEHANDLER(CutImprovementsEvent)
 		&& !world_Get()->HasCity(pos)
 		){
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
 								   GEA_Unit, units[i],
 								   GEA_Int, CAUSE_REMOVE_ARMY_ILLEGAL_CELL,
 								   GEA_Player, -1,
@@ -125,9 +126,9 @@ STDEHANDLER(OzoneDepletionEvent)
 
 void worldevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_CutImprovements, GEV_PRI_Primary, &s_CutImprovementsEvent);
-	g_gevManager->AddCallback(GEV_GlobalWarming,   GEV_PRI_Primary, &s_GlobalWarmingEvent);
-	g_gevManager->AddCallback(GEV_OzoneDepletion,  GEV_PRI_Primary, &s_OzoneDepletionEvent);
+	gevmanager_Get()->AddCallback(GEV_CutImprovements, GEV_PRI_Primary, &s_CutImprovementsEvent);
+	gevmanager_Get()->AddCallback(GEV_GlobalWarming,   GEV_PRI_Primary, &s_GlobalWarmingEvent);
+	gevmanager_Get()->AddCallback(GEV_OzoneDepletion,  GEV_PRI_Primary, &s_OzoneDepletionEvent);
 }
 
 void worldevent_Cleanup()

@@ -206,7 +206,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 
 	if(!player_Get(selitem_Get()->GetVisiblePlayer()) ||
 		!player_Get(selitem_Get()->GetVisiblePlayer())->IsExplored(point)) {
-		Concat(g_theStringDB->GetNameStr("INFOBAR_UNEXPLORED"));
+		Concat(stringdb_Get()->GetNameStr("INFOBAR_UNEXPLORED"));
 
 #ifndef _DEBUG
 		if((graphicsoptions_Get()
@@ -243,11 +243,11 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		}
 
 		if(hasUnseen){
-			Concat(g_theStringDB->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
+			Concat(stringdb_Get()->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
 			Concat("     ");
 		}
 		else{
-			Concat(g_theStringDB->GetNameStr(g_theTerrainDB->Get(cell->GetTerrainType())->GetName()));
+			Concat(stringdb_Get()->GetNameStr(g_theTerrainDB->Get(cell->GetTerrainType())->GetName()));
 			Concat("     ");
 		}
 
@@ -257,8 +257,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		&&(city->GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 		){
 			if(hasUnseen){
-				if(g_theStringDB->GetNameStr("INFOBAR_CITY")) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_CITY"));
+				if(stringdb_Get()->GetNameStr("INFOBAR_CITY")) {
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_CITY"));
 				}
 				Assert(ucell.m_unseenCell->GetCityName());
 				if(ucell.m_unseenCell->GetCityName()){
@@ -278,30 +278,30 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 				}
 
 				if(ucell.m_unseenCell->IsBioInfected()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_BIO_INFECTION"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_BIO_INFECTION"));
 				}
 				if(ucell.m_unseenCell->IsNanoInfected()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_NANO_INFECTION"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_NANO_INFECTION"));
 				}
 				if(ucell.m_unseenCell->IsConverted()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_CONVERTED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_CONVERTED"));
 				}
 				if(ucell.m_unseenCell->IsFranchised()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_FRANCHISED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_FRANCHISED"));
 				}
 				if(ucell.m_unseenCell->IsInjoined()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_INJOINED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_INJOINED"));
 				}
 				if(ucell.m_unseenCell->IsRioting()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_RIOTING"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_RIOTING"));
 				}
 				if(ucell.m_unseenCell->IsWatchful()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_WATCHFUL"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_WATCHFUL"));
 				}
 			}
 			else{
-				if(g_theStringDB->GetNameStr("INFOBAR_CITY")) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_CITY"));
+				if(stringdb_Get()->GetNameStr("INFOBAR_CITY")) {
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_CITY"));
 				}
 				Concat(city.GetName());
 
@@ -312,31 +312,31 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 				Concat(")");
 
 				if(city.CD()->IsBioInfected()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_BIO_INFECTION"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_BIO_INFECTION"));
 				}
 
 				if(city.CD()->IsNanoInfected()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_NANO_INFECTION"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_NANO_INFECTION"));
 				}
 
 				if(city.CD()->IsConverted()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_CONVERTED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_CONVERTED"));
 				}
 
 				if(city.CD()->IsFranchised()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_FRANCHISED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_FRANCHISED"));
 				}
 
 				if(city.CD()->IsInjoined()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_INJOINED"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_INJOINED"));
 				}
 
 				if(city.CD()->GetIsRioting()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_RIOTING"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_RIOTING"));
 				}
 
 				if(city.CD()->IsWatchful()) {
-					Concat(g_theStringDB->GetNameStr("INFOBAR_WATCHFUL"));
+					Concat(stringdb_Get()->GetNameStr("INFOBAR_WATCHFUL"));
 				}
 			}
 			wroteOwner = true;
@@ -358,7 +358,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 						break;
 					}
 					Concat(" ");
-					Concat(g_theStringDB->GetNameStr(g_theTerrainImprovementDB->Get(type)->GetName()));
+					Concat(stringdb_Get()->GetNameStr(g_theTerrainImprovementDB->Get(type)->GetName()));
 					walker->Next();
 					if(walker->IsValid() || cell->HasRiver()){
 						Concat(",");
@@ -370,7 +370,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			else{
 				for(sint32 i = 0; i < cell->GetNumDBImprovements(); i++) {
 					Concat(" ");
-					Concat(g_theStringDB->GetNameStr(g_theTerrainImprovementDB->Get(cell->GetDBImprovement(i))->GetName()));
+					Concat(stringdb_Get()->GetNameStr(g_theTerrainImprovementDB->Get(cell->GetDBImprovement(i))->GetName()));
 					if(i < cell->GetNumDBImprovements() - 1 || cell->HasRiver()) {
 						Concat(",");
 					}
@@ -378,7 +378,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			}
 
 			if(cell->HasRiver()) {
-				Concat(g_theStringDB->GetNameStr("INFOBAR_RIVER"));
+				Concat(stringdb_Get()->GetNameStr("INFOBAR_RIVER"));
 			}
 
 			sint32 gold, food, prod;
@@ -407,26 +407,26 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			Concat("(");
 			char numBuf[20];
 			if(food > 0) {
-				Concat(g_theStringDB->GetNameStr("INFOBAR_FOOD_LABEL"));
+				Concat(stringdb_Get()->GetNameStr("INFOBAR_FOOD_LABEL"));
 				snprintf(numBuf, sizeof(numBuf), "%d", food);
 				Concat(numBuf);
 			}
 
 			if(prod > 0) {
-				Concat(g_theStringDB->GetNameStr("INFOBAR_PROD_LABEL"));
+				Concat(stringdb_Get()->GetNameStr("INFOBAR_PROD_LABEL"));
 				snprintf(numBuf, sizeof(numBuf), "%d", prod);
 				Concat(numBuf);
 			}
 
 			if(gold > 0) {
-				Concat(g_theStringDB->GetNameStr("INFOBAR_GOLD_LABEL"));
+				Concat(stringdb_Get()->GetNameStr("INFOBAR_GOLD_LABEL"));
 				snprintf(numBuf, sizeof(numBuf), "%d", gold);
 				Concat(numBuf);
 			}
 
 			if(goodStrID > 0){
 				Concat(", ");
-				Concat(g_theStringDB->GetNameStr(goodStrID));
+				Concat(stringdb_Get()->GetNameStr(goodStrID));
 			}
 			Concat(")");
 		}
@@ -459,8 +459,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 				}
 
 				if(anyVisible) {
-					if(g_theStringDB->GetNameStr("INFOBAR_UNITS")) {
-						Concat(g_theStringDB->GetNameStr("INFOBAR_UNITS"));
+					if(stringdb_Get()->GetNameStr("INFOBAR_UNITS")) {
+						Concat(stringdb_Get()->GetNameStr("INFOBAR_UNITS"));
 					}
 
 					if(!wroteOwner) {

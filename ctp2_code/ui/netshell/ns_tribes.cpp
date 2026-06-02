@@ -44,7 +44,7 @@ static ns_Tribes *g_nsTribes = NULL;
 
 ns_Tribes * nstribes_Get(void) { return g_nsTribes; }
 
-extern StringDB *g_theStringDB;
+
 
 
 ns_Tribes::ns_Tribes()
@@ -64,13 +64,13 @@ ns_Tribes::ns_Tribes()
 		if ( !AUI_NEWOK(m_stringtable,errcode) ) return;
 
 
-		m_stringtable->SetString( (char *)g_theStringDB->GetNameStr("str_tbl_ldl_None"), 0 );
+		m_stringtable->SetString( (char *)stringdb_Get()->GetNameStr("str_tbl_ldl_None"), 0 );
 
 		for ( sint32 i = 0; i < numCivs; i++ )
 		{
 			StringId stringNum =
 				g_theCivilisationDB->Get(i)->GetSingularCivName();
-			const MBCHAR *name = g_theStringDB->GetNameStr( stringNum );
+			const MBCHAR *name = stringdb_Get()->GetNameStr( stringNum );
 
 			m_stringtable->SetString( name, i + 1 );
 		}

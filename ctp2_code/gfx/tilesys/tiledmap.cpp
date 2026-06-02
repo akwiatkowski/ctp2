@@ -110,7 +110,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gfx/spritesys/Sprite.h"
 #include "ui/interface/spriteeditor.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include "TerrainImprovementRecord.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/terrainutil.h"

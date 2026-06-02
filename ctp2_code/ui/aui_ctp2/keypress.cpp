@@ -173,7 +173,6 @@ extern c3_UtilityTextMessagePopup		*g_utilityTextMessage;
 #include "ui/interface/chatbox.h"
 
 #include "gs/database/StrDB.h"
-extern StringDB		*g_theStringDB;
 
 #include "ui/aui_ctp2/keyboardhandler.h"
 

@@ -19,7 +19,7 @@
 #include "ui/aui_ctp2/c3_tradelistitem.h"
 #include "ui/aui_ctp2/pattern.h"
 
-extern StringDB			*g_theStringDB;
+
 
 c3_TradeListItem::c3_TradeListItem(AUI_ERRCODE *retval, TradeRoute *route, sint32 gold, sint32 resIndex, MBCHAR *ldlBlock)
 	:
@@ -83,10 +83,10 @@ void c3_TradeListItem::Update(void)
 		subItem->SetText(s);
 
 		subItem = (c3_Static *)GetChildByIndex(1);
-		subItem->SetText((char *)g_theStringDB->GetNameStr("str_ldl_Local"));
+		subItem->SetText((char *)stringdb_Get()->GetNameStr("str_ldl_Local"));
 
 		subItem = (c3_Static *)GetChildByIndex(2);
-		subItem->SetText((char *)g_theStringDB->GetNameStr("str_tbl_ldl_None"));
+		subItem->SetText((char *)stringdb_Get()->GetNameStr("str_tbl_ldl_None"));
 	}
 	else
 	{
@@ -94,7 +94,7 @@ void c3_TradeListItem::Update(void)
 		destCity = m_route->GetDestination().GetData()->GetCityData();
 
 		subItem = (c3_Static *)GetChildByIndex(0);
-		strcpy(s, g_theStringDB->GetNameStr(m_route->GetResourceName()));
+		strcpy(s, stringdb_Get()->GetNameStr(m_route->GetResourceName()));
 		subItem->SetText(s);
 
 		subItem = (c3_Static *)GetChildByIndex(1);

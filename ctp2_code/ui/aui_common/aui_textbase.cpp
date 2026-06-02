@@ -36,7 +36,7 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_common/aui_bitmapfont.h"
-#include "gs/database/StrDB.h"            // g_theStringDB
+#include "gs/database/StrDB.h"            // stringdb_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 
@@ -187,7 +187,7 @@ AUI_ERRCODE aui_TextBase::InitCommonLdl(MBCHAR const * ldlBlock, MBCHAR const * 
 	}
 	else {
 		InitCommon(
-			g_theStringDB->GetNameStr( block->GetString(k_AUI_TEXTBASE_LDL_TEXT) ),
+			stringdb_Get()->GetNameStr( block->GetString(k_AUI_TEXTBASE_LDL_TEXT) ),
 			block->GetInt( k_AUI_TEXTBASE_LDL_MAXLENGTH ),
 			fontname,
 			fontsize,

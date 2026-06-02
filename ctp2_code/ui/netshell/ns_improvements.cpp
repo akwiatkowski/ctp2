@@ -34,7 +34,7 @@
 #include <algorithm>
 #include "ui/aui_common/aui_stringtable.h"
 #include "BuildingRecord.h"     // g_theBuildingDB
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 
 static ns_Improvements *g_nsImprovements = NULL;
 
@@ -57,7 +57,7 @@ ns_Improvements::ns_Improvements()
 	for ( sint32 i = 0; i < numImprovements; i++ )
 	{
 		StringId stringNum = g_theBuildingDB->GetName(i);
-		m_stringtable->SetString(g_theStringDB->GetNameStr(stringNum), i);
+		m_stringtable->SetString(stringdb_Get()->GetNameStr(stringNum), i);
 	}
 }
 

@@ -38,7 +38,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/database/profileDB.h"          // profiledb_Get()
 #include "gs/gameobj/CityRadius.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "gs/gameobj/UnitData.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
@@ -1089,7 +1089,7 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 		DrawALabel( surface, goldStr, k_OFFSET_WIDTH, offsetHeight, goldWidth, goldHeight );
 
 		MBCHAR tiStr[_MAX_PATH];
-		strncpy( tiStr, g_theStringDB->GetNameStr("str_ldl_TILE_RESOURCES_Colon"), sizeof(tiStr) - 1 );
+		strncpy( tiStr, stringdb_Get()->GetNameStr("str_ldl_TILE_RESOURCES_Colon"), sizeof(tiStr) - 1 );
 		tiStr[sizeof(tiStr) - 1] = '\0';
 		sint32 tiLabelWidth = tiledmap_Get()->GetFont()->GetStringWidth(tiStr);
 		RECT rect = {0, 0, tiLabelWidth, tiledmap_Get()->GetFont()->GetMaxHeight()};

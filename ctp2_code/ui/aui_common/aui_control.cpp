@@ -49,7 +49,7 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_common/aui_stringtable.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "ui/interface/StatusBar.h"
 #include "ui/aui_common/aui_imagelist.h"
 #include "ui/aui_common/aui_static.h"
@@ -167,8 +167,8 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 		m_allocatedTip = TRUE;
 
 		StringId	id;
-		if (g_theStringDB->GetStringID(tip, id)) {
-			const MBCHAR *text = g_theStringDB->GetNameStr(id);
+		if (stringdb_Get()->GetStringID(tip, id)) {
+			const MBCHAR *text = stringdb_Get()->GetNameStr(id);
 			((aui_TipWindow*)m_tip)->SetTipText((MBCHAR *)text);
 		}
 
@@ -198,8 +198,8 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 
 	m_statusText = block->GetString(k_AUI_CONTROL_LDL_STATUS_TEXT);
 	StringId statusTextID = 0;
-	if(m_statusText && g_theStringDB->GetStringID(m_statusText, statusTextID)) {
-		m_statusText = g_theStringDB->GetNameStr(statusTextID);
+	if(m_statusText && stringdb_Get()->GetStringID(m_statusText, statusTextID)) {
+		m_statusText = stringdb_Get()->GetNameStr(statusTextID);
 	}
 
 	static MBCHAR stblock[ k_AUI_LDL_MAXBLOCK + 1 ];

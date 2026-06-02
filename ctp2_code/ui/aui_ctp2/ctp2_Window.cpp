@@ -173,8 +173,8 @@ AUI_ERRCODE ctp2_Window::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 				titleBar = (ctp2_Static *)aui_Ldl::GetObject((MBCHAR *)ldlBlock, "Background.TitleBar");
 			}
 			if(titleBar) {
-				if(g_theStringDB->GetNameStr(title)) {
-					titleBar->SetText((MBCHAR *)g_theStringDB->GetNameStr(title));
+				if(stringdb_Get()->GetNameStr(title)) {
+					titleBar->SetText((MBCHAR *)stringdb_Get()->GetNameStr(title));
 				}
 				SetDraggable(TRUE);
 				titleBar->Move(0, 0);

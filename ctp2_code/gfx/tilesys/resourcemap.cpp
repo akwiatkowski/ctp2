@@ -39,7 +39,7 @@
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"                   // tiledmap_Get
 #include "gfx/tilesys/tileset.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CityInfluenceIterator.h"

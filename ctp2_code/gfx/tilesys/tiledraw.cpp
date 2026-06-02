@@ -3522,18 +3522,18 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 											buildItemName = g_theWonderDB->Get(bn->m_type)->GetNameText();
 											break;
 										case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-											buildItemName = g_theStringDB->GetNameStr("INFRASTRUCTURE");
+											buildItemName = stringdb_Get()->GetNameStr("INFRASTRUCTURE");
 											buildItemTime = 1;
 											break;
 										case k_GAME_OBJ_TYPE_CAPITALIZATION:
-											buildItemName = g_theStringDB->GetNameStr("CAPITALIZATION");
+											buildItemName = stringdb_Get()->GetNameStr("CAPITALIZATION");
 											buildItemTime = 1;
 											break;
 									}
 								}
 								else
 								{
-									buildItemName = g_theStringDB->GetNameStr("BUILDINGNONE");
+									buildItemName = stringdb_Get()->GetNameStr("BUILDINGNONE");
 									buildItemTime = 0;
 								}
 							}
@@ -4932,7 +4932,7 @@ void TiledMap::DrawChatText()
 			if(g_network.IsActive()) {
 				if(g_network.IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
 					time_t const timeleft = g_network.GetTurnEndsAt() - time(0);
-					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, g_theStringDB->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
+					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, stringdb_Get()->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);
@@ -4941,7 +4941,7 @@ void TiledMap::DrawChatText()
 					timeRect.bottom++;
 					AddDirtyRectToMix(timeRect);
 				} else {
-					snprintf(timebuf, sizeof(timebuf), "%s: %s", g_theStringDB->GetNameStr("NETWORK_CURRENT_PLAYER"), player_Get(selitem_Get()->GetCurPlayer()) && player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->m_id != 0 ? player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->GetLeaderName() : "---");
+					snprintf(timebuf, sizeof(timebuf), "%s: %s", stringdb_Get()->GetNameStr("NETWORK_CURRENT_PLAYER"), player_Get(selitem_Get()->GetCurPlayer()) && player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->m_id != 0 ? player_Get(selitem_Get()->GetCurPlayer())->m_civilisation->GetLeaderName() : "---");
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);

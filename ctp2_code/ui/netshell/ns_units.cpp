@@ -33,7 +33,7 @@
 #include "ui/netshell/ns_units.h"
 
 #include "ui/aui_common/aui_stringtable.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "UnitRecord.h"         // g_theUnitDB
 
 static ns_Units *g_nsUnits = NULL;
@@ -59,7 +59,7 @@ ns_Units::ns_Units()
 	for (sint32 i = 0; i < numUnits; i++)
 	{
 		StringId stringNum = g_theUnitDB->GetName(i);
-		m_stringtable->SetString(g_theStringDB->GetNameStr(stringNum), i);
+		m_stringtable->SetString(stringdb_Get()->GetNameStr(stringNum), i);
 
 		m_noIndex[i] = g_theUnitDB->Get(i)->GetNoIndex();
 	}

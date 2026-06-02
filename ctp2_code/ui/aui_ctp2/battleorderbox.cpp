@@ -413,7 +413,7 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 
 
 	if ( theUnit.IsVeteran() ) {
-		m_unitVeteran->SetText( g_theStringDB->GetNameStr("str_ldl_V") );
+		m_unitVeteran->SetText( stringdb_Get()->GetNameStr("str_ldl_V") );
 		m_unitVeteran->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitVeteran );
 	}
@@ -422,17 +422,17 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 	}
 
 	if ( theUnit.IsEntrenched() ) {
-		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_ldl_F") );
+		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_ldl_F") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}
 	else if ( theUnit.IsAsleep() ) {
-		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_tbl_ldl_S") );
+		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_tbl_ldl_S") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}
 	else if ( theUnit.IsEntrenching() ) {
-		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_ldl_F") );
+		m_unitFortify->SetText( stringdb_Get()->GetNameStr("str_ldl_F") );
 		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_GRAY) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}

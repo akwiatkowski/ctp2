@@ -7,7 +7,7 @@
 
 #include "gs/database/StrDB.h"
 
-extern StringDB	*g_theStringDB;
+
 
 ns_String::ns_String( char *ldlBlock )
 :
@@ -24,7 +24,7 @@ ns_String::ns_String( char *ldlBlock )
 		string = block->GetString( "text" );
 	}
 	else {
-		string = g_theStringDB->GetNameStr( block->GetString("text") );
+		string = stringdb_Get()->GetNameStr( block->GetString("text") );
 	}
 
 	m_string = new char[strlen(string) + 1];

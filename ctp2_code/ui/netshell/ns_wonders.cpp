@@ -33,7 +33,7 @@
 
 #include <algorithm>
 #include "ui/aui_common/aui_stringtable.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 #include "WonderRecord.h"       // g_theWonderDB
 
 
@@ -58,7 +58,7 @@ ns_Wonders::ns_Wonders()
 	for ( sint32 i = 0; i < numWonders; i++ )
 	{
 		StringId stringNum = g_theWonderDB->Get(i)->m_name;
-		m_stringtable->SetString(g_theStringDB->GetNameStr(stringNum), i);
+		m_stringtable->SetString(stringdb_Get()->GetNameStr(stringNum), i);
 	}
 }
 

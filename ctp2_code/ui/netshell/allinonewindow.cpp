@@ -90,7 +90,7 @@
 #include "ui/interface/spnewgamemapshapescreen.h"
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/spnewgamewindow.h"
-#include "gs/database/StrDB.h"                         // g_theStringDB
+#include "gs/database/StrDB.h"                         // stringdb_Get()
 #include "ui/aui_ctp2/textradio.h"
 #include "ui/aui_ctp2/textswitch.h"
 #include "ui/aui_ctp2/texttab.h"
@@ -1621,7 +1621,7 @@ BOOL AllinoneWindow::AssignTribe(
 					g_theCivilisationDB->Get(civ)->GetLeaderNameFemale():
 					g_theCivilisationDB->Get(civ)->GetLeaderNameMale();
 				MBCHAR leader[ dp_PNAMELEN + 1 ];
-				strncpy( leader, g_theStringDB->GetNameStr( sid ), dp_PNAMELEN);
+				strncpy( leader, stringdb_Get()->GetNameStr( sid ), dp_PNAMELEN);
 
 
 				leader[dp_PNAMELEN] = 0;

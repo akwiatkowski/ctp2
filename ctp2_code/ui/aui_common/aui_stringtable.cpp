@@ -34,7 +34,7 @@
 #include <algorithm>
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_ui.h"
-#include "gs/database/StrDB.h"              // g_theStringDB
+#include "gs/database/StrDB.h"              // stringdb_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 
@@ -86,7 +86,7 @@ aui_StringTable::aui_StringTable
 		for (size_t i = 0; i < m_Strings.size(); ++i)
 		{
 			snprintf(temp, sizeof(temp), "%s%d", k_AUI_STRINGTABLE_LDL_STRING, i);
-			SetString(g_theStringDB->GetNameStr(block->GetString(temp)), i);
+			SetString(stringdb_Get()->GetNameStr(block->GetString(temp)), i);
 		}
 	}
 

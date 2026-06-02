@@ -446,10 +446,10 @@ sint32 Chart::SetTipInfo( ctp2_Button *button, sint32 index )
 
 	MBCHAR name[k_MAX_NAME_LEN];
 
-	snprintf(name, sizeof(name), "%s_HELP", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
+	snprintf(name, sizeof(name), "%s_HELP", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
 
 	MBCHAR str[_MAX_PATH];
-	snprintf(str, sizeof(str), "%s", g_theStringDB->GetNameStr(name) );
+	snprintf(str, sizeof(str), "%s", stringdb_Get()->GetNameStr(name) );
 	tipWindow->SetHyperTipText( str );
 
     return(1);
@@ -503,7 +503,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_preReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_preReqButton[i], name);
 		}
 
@@ -546,7 +546,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_eitherPreReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_eitherPreReqButton[i], name);
 		}
 
@@ -587,7 +587,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		ldl->Remove((void *)m_centerButton);
 
 		MBCHAR name[k_MAX_NAME_LEN];
-		snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
+		snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
 		ldl->Associate((aui_Control *)m_centerButton, name);
 	}
 
@@ -624,7 +624,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 			ldl->Remove((void *)m_leadsToButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
-			snprintf(name, sizeof(name), "%s", g_theStringDB->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
+			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
 			ldl->Associate((aui_Control *)m_leadsToButton[i], name);
 		}
 

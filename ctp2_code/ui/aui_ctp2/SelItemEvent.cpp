@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - A just founded city is only seleceted if the player is visible and not a robot. (23-Feb-2008 Martin Gühmann)
+// - A just founded city is only seleceted if the player is visible and not a robot. (23-Feb-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -117,13 +117,13 @@ STDEHANDLER(SelItemArmySelectedEvent)
 
 void selecteditemevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_SelItemArmyMovedEvent);
-	g_gevManager->AddCallback(GEV_Settle, GEV_PRI_Post, &s_SelItemSettleEvent);
-	g_gevManager->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_SelItemCreateCityEvent);
-	g_gevManager->AddCallback(GEV_EntrenchUnit, GEV_PRI_Post, &s_SelItemEntrenchUnitEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_SelItemArmyMovedEvent);
+	gevmanager_Get()->AddCallback(GEV_Settle, GEV_PRI_Post, &s_SelItemSettleEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_SelItemCreateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_EntrenchUnit, GEV_PRI_Post, &s_SelItemEntrenchUnitEvent);
 
-	g_gevManager->AddCallback(GEV_CantMoveYet, GEV_PRI_Post, &s_SelItemCantMoveYetEvent);
-	g_gevManager->AddCallback(GEV_ArmySelected, GEV_PRI_Primary, &s_SelItemArmySelectedEvent);
+	gevmanager_Get()->AddCallback(GEV_CantMoveYet, GEV_PRI_Post, &s_SelItemCantMoveYetEvent);
+	gevmanager_Get()->AddCallback(GEV_ArmySelected, GEV_PRI_Primary, &s_SelItemArmySelectedEvent);
 }
 
 void selecteditemevent_Cleanup()

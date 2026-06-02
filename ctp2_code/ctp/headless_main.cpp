@@ -27,7 +27,7 @@
 #include "gs/utility/UnitDynArr.h"            // UnitDynamicArray
 #include "gs/gameobj/Vision.h"                // Vision::IsVisible / IsExplored
 #include "gs/gameobj/Events.h"                // GEV_AiBeginTurn / GEV_AiBeginMapAnalysis
-#include "gs/events/GameEventManager.h"       // g_gevManager
+#include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 
 #include <stdio.h>
@@ -250,12 +250,12 @@ int main(int argc, char **argv)
                 player_Get(p)->m_current_round = t;
 
                 if (g_theProfileDB->IsAIOn()) {
-                    g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
+                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
                                            GEA_Player, p, GEA_End);
                 }
                 CtpAi::BeginDiplomacy(p, t);
                 if (g_theProfileDB->IsAIOn()) {
-                    g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
+                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
                                            GEA_Player, p, GEA_End);
                 }
 
@@ -268,21 +268,21 @@ int main(int argc, char **argv)
                 // after BeginTurn().  Headless has no director loop, so we add
                 // the scheduler event directly so the AI actually assigns orders
                 // to units (settlers settle, armies move, etc.).
-                if (g_gevManager) {
-                    g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
+                if (gevmanager_Get()) {
+                    gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
                                            GEA_Player, p, GEA_End);
                 }
 
                 // Drain queued AI events so the player's turn actually runs
                 // before we move on to the next player.
-                if (g_gevManager) g_gevManager->Process();
+                if (gevmanager_Get()) gevmanager_Get()->Process();
 
                 player_Get(p)->EndTurn();
                 if (g_gameObservers) g_gameObservers->NotifyTurnEnd(p);
             }
 
             // Process any cross-player pending events.
-            if (g_gevManager) g_gevManager->Process();
+            if (gevmanager_Get()) gevmanager_Get()->Process();
         }
 
         headless_log->info("Completed {} turns", maxTurns);

@@ -26,12 +26,12 @@
 //
 // - Bug fix: prevent easy invisible unit detection, by reporting the basic
 //   terrain info when (right-)clicking on an enemy object.
-// - Added selection of goods. (Oct 8th 2005 Martin Gühmann)
+// - Added selection of goods. (Oct 8th 2005 Martin Gï¿½hmann)
 // - Added option to open cities or the army manager if there are units
-//   on top of a city. (Oct 8th 2005 Martin Gühmann)
-// - Treat entrenching units like entrenched units. (Oct 16th 2005 Martin Gühmann)
-// - Standardized code (May 21st 2006 Martin Gühmann)
-// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gühmann)
+//   on top of a city. (Oct 8th 2005 Martin Gï¿½hmann)
+// - Treat entrenching units like entrenched units. (Oct 16th 2005 Martin Gï¿½hmann)
+// - Standardized code (May 21st 2006 Martin Gï¿½hmann)
+// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -968,7 +968,7 @@ void SelectedItem::SelectArmyClick(const MapPoint &pos, const aui_MouseEvent *da
 		ArmyManagerWindow::Display();
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ArmyClicked, GEA_Army, top.GetArmy(), GEA_End);
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ArmyClicked, GEA_Army, top.GetArmy(), GEA_End);
 }
 
 void SelectedItem::SelectArmyStartMoveClick(const MapPoint &pos, const aui_MouseEvent *data, bool doubleClick)
@@ -1003,7 +1003,7 @@ void SelectedItem::SelectCityClick(const MapPoint &pos, const aui_MouseEvent *da
 
 	Unit top;
 	GetTopUnitOrCity(pos, top);
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CityClicked, GEA_City, top, GEA_End);
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CityClicked, GEA_City, top, GEA_End);
 }
 
 void SelectedItem::SelectGoodClick(const MapPoint &pos, const aui_MouseEvent *data, bool doubleClick)
@@ -1018,7 +1018,7 @@ void SelectedItem::SelectEnemyArmyClick(const MapPoint &pos, const aui_MouseEven
 {
 	Unit top;
 	GetTopUnit(pos, top);
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ArmyClicked, GEA_Army, top->GetArmy(), GEA_End);
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ArmyClicked, GEA_Army, top->GetArmy(), GEA_End);
 	Deselect(GetVisiblePlayer());
 }
 
@@ -1026,7 +1026,7 @@ void SelectedItem::SelectEnemyCityClick(const MapPoint &pos, const aui_MouseEven
 {
 	Unit top;
 	GetTopUnitOrCity(pos, top);
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CityClicked, GEA_City, top, GEA_End);
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CityClicked, GEA_City, top, GEA_End);
 	Deselect(GetVisiblePlayer());
 }
 
@@ -1046,7 +1046,7 @@ void SelectedItem::UnloadClick(const MapPoint &pos, const aui_MouseEvent *data, 
 {
 	sint32 player = GetVisiblePlayer();
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UnloadOrder,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UnloadOrder,
 						   GEA_Army, m_selected_army[player],
 						   GEA_MapPoint, pos,
 						   GEA_End);
@@ -1205,7 +1205,7 @@ void SelectedItem::SendGoodClick(const MapPoint &pos, const aui_MouseEvent *data
 
 	if(!isForeignGood)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
 							   GEA_Int, resIndex,
 							   GEA_City, homeCity,
 							   GEA_City, destCity,
@@ -1214,7 +1214,7 @@ void SelectedItem::SendGoodClick(const MapPoint &pos, const aui_MouseEvent *data
 #if 0
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_TradeBid,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_TradeBid,
 							   GEA_Player, player,
 							   GEA_Int, resIndex,
 							   GEA_City, homeCity,

@@ -922,7 +922,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 					g_network.SendGroupRequest(units, a);
 				}
 			} else {
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
 									   GEA_Army, a.m_id,
 									   GEA_End);
 			}
@@ -938,7 +938,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			if(g_network.IsClient()) {
 				g_network.SendUngroupRequest(a, *a.AccessData());
 			} else {
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 									   GEA_Army, a.m_id,
 									   GEA_End);
 			}
@@ -949,7 +949,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	break;
 	case KEY_FUNCTION_PROCESS_UNIT_ORDERS:
 		if(isMyTurn) {
-			g_gevManager->Pause();
+			gevmanager_Get()->Pause();
 			for
             (
                 sint32 i = 0;
@@ -957,11 +957,11 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
                 i++
             )
             {
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
 									   GEA_Army, player_Get(g_selected_item->GetVisiblePlayer())->m_all_armies->Access(i),
 									   GEA_End);
 			}
-			g_gevManager->Resume();
+			gevmanager_Get()->Resume();
 
 		}
 		break;
@@ -1382,7 +1382,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 				MapPoint newpos;
 
 				if(pos.GetNeighborPosition(d, newpos)) {
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveToOrder,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveToOrder,
 										   GEA_Army, army.m_id,
 										   GEA_Direction, d,
 										   GEA_End);

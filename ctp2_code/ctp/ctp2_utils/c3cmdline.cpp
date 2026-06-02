@@ -1389,7 +1389,7 @@ void ExecuteResponseCommand::Execute(sint32 argc, char **argv) {
 	if (show_response)
 	{
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
 			GEA_Player, sender,
 			GEA_Player, receiver,
 			GEA_End);
@@ -2408,14 +2408,14 @@ void AddPopCommand::Execute(sint32 argc, char **argv)
         sint32 i;
         for (i=0; i<num; i++) {
             city.GetPos(pos);
-            g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MakePop,
 								   GEA_City, city,
 								   GEA_End);
 
         }
 
 		for (i=0; i > num; i--) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillPop,
 								   GEA_City, city,
 								   GEA_End);
 		}
@@ -2423,7 +2423,7 @@ void AddPopCommand::Execute(sint32 argc, char **argv)
 		sint32 total_pop;
 		city.CD()->GetPop(total_pop);
 		if ( total_pop + num <= 0) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillCity,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillCity,
 								   GEA_City, city,
 								   GEA_Int, 0,
 								   GEA_Player, -1,
@@ -3117,7 +3117,7 @@ void TerrainImprovementCommand::Execute(sint32 argc, char **argv)
 		                                     atoi(argv[2]));
 	} else {
 		Assert(argc == 2);
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_CreateImprovement,
 		                       GEA_Player, vplayer,
 		                       GEA_MapPoint, point,

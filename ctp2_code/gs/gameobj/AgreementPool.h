@@ -31,5 +31,6 @@ public:
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.  External
 // readers go through agreementpool_Get().
 AgreementPool * agreementpool_Get(void);
+void            agreementpool_Set(AgreementPool *p);
 
 #endif

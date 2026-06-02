@@ -13,6 +13,16 @@
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/gameobj/WonderTracker.h"
+#include "gs/gameobj/TradePool.h"
+#include "gs/gameobj/TradeOfferPool.h"
+#include "gs/gameobj/AgreementPool.h"
+#include "gs/gameobj/TerrImprovePool.h"
+#include "gs/gameobj/installationpool.h"
+#include "gs/gameobj/DiplomaticRequestPool.h"
+#include "gs/gameobj/FeatTracker.h"
+#include "gs/gameobj/EventTracker.h"
+#include "gs/gameobj/AchievementTracker.h"
+#include "gs/gameobj/TradeBids.h"
 #include "gs/utility/RandGen.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/World.h"
@@ -94,12 +104,49 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
         }
     };
 
+    // Reduce boilerplate for subsystems that follow the same pattern
+    // (no-arg ctor, standard Get/Set accessor pair).
+#define ADOPT_OR_CREATE(MEMBER, TYPE, GETTER, SETTER) \
+    do {                                              \
+        if (GETTER()) {                                \
+            MEMBER.reset(GETTER());                    \
+        } else {                                       \
+            MEMBER = std::make_unique<TYPE>();         \
+            SETTER(MEMBER.get());                      \
+        }                                              \
+    } while (0)
+
     adoptOrCreateTurn();
     adoptOrCreateRand();
     adoptOrCreatePollution();
     adoptOrCreateTopTen();
     adoptOrCreateUnitPool();
     adoptOrCreateArmyPool();
+
+    // Subsystems with clean ctors (no global reads): adopt-or-create.
+    ADOPT_OR_CREATE(m_messagePool,            MessagePool,            messagepool_Get,            messagepool_Set);
+    ADOPT_OR_CREATE(m_civilisationPool,       CivilisationPool,       civilisationpool_Get,       civilisationpool_Set);
+    ADOPT_OR_CREATE(m_wonderTracker,          WonderTracker,          wonder_tracker_Get,         wonder_tracker_Set);
+    ADOPT_OR_CREATE(m_tradePool,              TradePool,              tradepool_Get,              tradepool_Set);
+    ADOPT_OR_CREATE(m_tradeOfferPool,         TradeOfferPool,         tradeofferpool_Get,         tradeofferpool_Set);
+    ADOPT_OR_CREATE(m_agreementPool,          AgreementPool,          agreementpool_Get,          agreementpool_Set);
+    ADOPT_OR_CREATE(m_terrainImprovementPool, TerrainImprovementPool, terrimprovepool_Get,        terrimprovepool_Set);
+    ADOPT_OR_CREATE(m_installationPool,       InstallationPool,       installationpool_Get,       installationpool_Set);
+    ADOPT_OR_CREATE(m_diplomaticRequestPool,  DiplomaticRequestPool,  diplomaticrequestpool_Get,  diplomaticrequestpool_Set);
+    ADOPT_OR_CREATE(m_eventTracker,           EventTracker,           eventtracker_Get,           eventtracker_Set);
+    ADOPT_OR_CREATE(m_achievementTracker,     AchievementTracker,     achievementtracker_Get,     achievementtracker_Set);
+    ADOPT_OR_CREATE(m_tradeBids,              TradeBids,              tradebids_Get,              tradebids_Set);
+
+    // Subsystems whose ctors dereference app-lifetime globals (DBs,
+    // network) and so can't be created from scratch in unit-test
+    // context — adopt-only.  Production gameinit always allocates
+    // these before Game::NewGame runs, so the adoption branch fires.
+    //   GameSettings : reads g_theProfileDB, g_network in ctor.
+    //   FeatTracker  : reads g_theFeatDB, g_theBuildingDB in ctor.
+    if (gamesettings_Get()) m_settings.reset(gamesettings_Get());
+    if (feattracker_Get())  m_featTracker.reset(feattracker_Get());
+
+#undef ADOPT_OR_CREATE
 
     // SlicEngine and GameEventManager need more orchestration to spin up
     // (event registration, SLIC file loading) — they stay legacy-owned
@@ -124,6 +171,23 @@ void Game::Cleanup() {
 
     m_events.reset();
     m_slic.reset();
+
+    // Trackers and pools: null the legacy pointer first, then destroy.
+    tradebids_Set(nullptr);             m_tradeBids.reset();
+    achievementtracker_Set(nullptr);    m_achievementTracker.reset();
+    eventtracker_Set(nullptr);          m_eventTracker.reset();
+    feattracker_Set(nullptr);           m_featTracker.reset();
+    diplomaticrequestpool_Set(nullptr); m_diplomaticRequestPool.reset();
+    installationpool_Set(nullptr);      m_installationPool.reset();
+    terrimprovepool_Set(nullptr);       m_terrainImprovementPool.reset();
+    agreementpool_Set(nullptr);         m_agreementPool.reset();
+    tradeofferpool_Set(nullptr);        m_tradeOfferPool.reset();
+    tradepool_Set(nullptr);             m_tradePool.reset();
+
+    wonder_tracker_Set(nullptr);        m_wonderTracker.reset();
+    civilisationpool_Set(nullptr);      m_civilisationPool.reset();
+    messagepool_Set(nullptr);           m_messagePool.reset();
+    gamesettings_Set(nullptr);          m_settings.reset();
 
     topten_Set(nullptr);
     m_topten.reset();

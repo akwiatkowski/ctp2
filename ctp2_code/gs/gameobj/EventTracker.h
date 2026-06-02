@@ -96,5 +96,6 @@ inline void from_json(nlohmann::json const &j, EventTracker &t)
 // External callers go through eventtracker_Get() (returns NULL before
 // the game state is loaded).
 EventTracker * eventtracker_Get(void);
+void           eventtracker_Set(EventTracker *p);
 
 #endif

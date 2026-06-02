@@ -93,5 +93,6 @@ public:
 // the lifecycle lives).  External callers go through tradebids_Get()
 // (returns NULL before the game state is loaded).
 TradeBids * tradebids_Get(void);
+void        tradebids_Set(TradeBids *p);
 
 #endif

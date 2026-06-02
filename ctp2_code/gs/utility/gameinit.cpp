@@ -198,9 +198,11 @@ void              rand_ptr_Set(RandomGenerator *p) { g_rand = p; }
 static TradePool            *g_theTradePool = NULL;
 
 TradePool * tradepool_Get(void) { return g_theTradePool; }
+void        tradepool_Set(TradePool *p) { g_theTradePool = p; }
 static TradeOfferPool       *g_theTradeOfferPool = NULL;
 
 TradeOfferPool * tradeofferpool_Get(void) { return g_theTradeOfferPool; }
+void             tradeofferpool_Set(TradeOfferPool *p) { g_theTradeOfferPool = p; }
 static QuadTree<Unit>       *g_theUnitTree = NULL;
 
 QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
@@ -212,6 +214,7 @@ void        pollution_Set(Pollution *p)       { g_thePollution = p; }
 static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
 
 DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }
+void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p) { g_theDiplomaticRequestPool = p; }
 static MessagePool          *g_theMessagePool=NULL;
 
 MessagePool * messagepool_Get(void)              { return g_theMessagePool; }
@@ -223,12 +226,15 @@ void               civilisationpool_Set(CivilisationPool *p) { g_theCivilisation
 static AgreementPool        *g_theAgreementPool=NULL;
 
 AgreementPool * agreementpool_Get(void) { return g_theAgreementPool; }
+void            agreementpool_Set(AgreementPool *p) { g_theAgreementPool = p; }
 static TerrainImprovementPool *g_theTerrainImprovementPool = NULL;
 
 TerrainImprovementPool * terrimprovepool_Get(void) { return g_theTerrainImprovementPool; }
+void                     terrimprovepool_Set(TerrainImprovementPool *p) { g_theTerrainImprovementPool = p; }
 static InstallationPool     *g_theInstallationPool = NULL;
 
 InstallationPool * installationpool_Get(void) { return g_theInstallationPool; }
+void               installationpool_Set(InstallationPool *p) { g_theInstallationPool = p; }
 static InstallationQuadTree *g_theInstallationTree = NULL;
 
 InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
@@ -260,24 +266,28 @@ EventTracker * eventtracker_Get(void)
 {
 	return g_eventTracker;
 }
+void           eventtracker_Set(EventTracker *p) { g_eventTracker = p; }
 static FeatTracker          *g_featTracker = NULL;
 
 FeatTracker * feattracker_Get(void)
 {
 	return g_featTracker;
 }
+void          feattracker_Set(FeatTracker *p) { g_featTracker = p; }
 static TradeBids            *g_theTradeBids = NULL;
 
 TradeBids * tradebids_Get(void)
 {
 	return g_theTradeBids;
 }
+void        tradebids_Set(TradeBids *p) { g_theTradeBids = p; }
 static AchievementTracker   *g_theAchievementTracker = NULL;
 
 AchievementTracker * achievementtracker_Get(void)
 {
 	return g_theAchievementTracker;
 }
+void                 achievementtracker_Set(AchievementTracker *p) { g_theAchievementTracker = p; }
 static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
 
 CriticalMessagesPrefs * critical_messages_prefs_Get(void) { return g_theCriticalMessagesPrefs; }

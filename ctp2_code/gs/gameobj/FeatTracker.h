@@ -157,5 +157,6 @@ class FeatTracker {
 // lifecycle — new / archive-load / clear — lives).  External callers go
 // through feattracker_Get() (returns NULL before the game state is loaded).
 FeatTracker * feattracker_Get(void);
+void          feattracker_Set(FeatTracker *p);
 
 #endif

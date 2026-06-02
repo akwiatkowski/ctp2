@@ -54,4 +54,5 @@ public:
 // lives in gs/utility/gameinit.cpp; the variable is now file-scope
 // `static` there.  External readers go through terrimprovepool_Get().
 TerrainImprovementPool * terrimprovepool_Get(void);
+void                     terrimprovepool_Set(TerrainImprovementPool *p);
 #endif

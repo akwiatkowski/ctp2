@@ -56,9 +56,11 @@ class DiplomaticRequestPool : public ObjPool
 // gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through diplomaticrequestpool_Get().
 DiplomaticRequestPool * diplomaticrequestpool_Get(void);
+void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p);
 #else
 
 class DiplomaticRequestPool ;
 DiplomaticRequestPool * diplomaticrequestpool_Get(void);
+void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p);
 
 #endif

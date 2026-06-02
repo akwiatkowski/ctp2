@@ -52,4 +52,5 @@ public:
 // in gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through tradeofferpool_Get().
 TradeOfferPool * tradeofferpool_Get(void);
+void             tradeofferpool_Set(TradeOfferPool *p);
 #endif

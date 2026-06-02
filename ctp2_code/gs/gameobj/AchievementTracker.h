@@ -32,5 +32,6 @@ public:
 // (where the lifecycle lives).  External callers go through
 // achievementtracker_Get() (returns NULL before the game state is loaded).
 AchievementTracker * achievementtracker_Get(void);
+void                 achievementtracker_Set(AchievementTracker *p);
 
 #endif

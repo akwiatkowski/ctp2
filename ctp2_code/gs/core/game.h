@@ -18,6 +18,16 @@ class GameSettings;
 class MessagePool;
 class CivilisationPool;
 class WonderTracker;
+class TradePool;
+class TradeOfferPool;
+class AgreementPool;
+class TerrainImprovementPool;
+class InstallationPool;
+class DiplomaticRequestPool;
+class FeatTracker;
+class EventTracker;
+class AchievementTracker;
+class TradeBids;
 class SlicEngine;
 class GameEventManager;
 class CivArchive;
@@ -87,6 +97,17 @@ public:
     WonderTracker& GetWonders() { return *m_wonderTracker; }
     const WonderTracker& GetWonders() const { return *m_wonderTracker; }
 
+    TradePool&              GetTrades()                { return *m_tradePool; }
+    TradeOfferPool&         GetTradeOffers()           { return *m_tradeOfferPool; }
+    AgreementPool&          GetAgreements()            { return *m_agreementPool; }
+    TerrainImprovementPool& GetTerrainImprovements()   { return *m_terrainImprovementPool; }
+    InstallationPool&       GetInstallations()         { return *m_installationPool; }
+    DiplomaticRequestPool&  GetDiplomaticRequests()    { return *m_diplomaticRequestPool; }
+    FeatTracker&            GetFeats()                 { return *m_featTracker; }
+    EventTracker&           GetEventTracker()          { return *m_eventTracker; }
+    AchievementTracker&     GetAchievements()          { return *m_achievementTracker; }
+    TradeBids&              GetTradeBids()             { return *m_tradeBids; }
+
     SlicEngine& GetSlic() { return *m_slic; }
     GameEventManager& GetEvents() { return *m_events; }
 
@@ -106,6 +127,17 @@ private:
     std::unique_ptr<MessagePool>      m_messagePool;
     std::unique_ptr<CivilisationPool> m_civilisationPool;
     std::unique_ptr<WonderTracker>    m_wonderTracker;
+
+    std::unique_ptr<TradePool>              m_tradePool;
+    std::unique_ptr<TradeOfferPool>         m_tradeOfferPool;
+    std::unique_ptr<AgreementPool>          m_agreementPool;
+    std::unique_ptr<TerrainImprovementPool> m_terrainImprovementPool;
+    std::unique_ptr<InstallationPool>       m_installationPool;
+    std::unique_ptr<DiplomaticRequestPool>  m_diplomaticRequestPool;
+    std::unique_ptr<FeatTracker>            m_featTracker;
+    std::unique_ptr<EventTracker>           m_eventTracker;
+    std::unique_ptr<AchievementTracker>     m_achievementTracker;
+    std::unique_ptr<TradeBids>              m_tradeBids;
 
     std::unique_ptr<SlicEngine> m_slic;
     std::unique_ptr<GameEventManager> m_events;

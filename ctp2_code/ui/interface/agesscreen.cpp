@@ -25,10 +25,10 @@
 // Modifications from the original Activision code:
 //
 // - Starting and ending age selection screen now uses the age names from
-//   gl_str.txt, Martin Gühmann.
+//   gl_str.txt, Martin Gï¿½hmann.
 // - Compatibility restored.
 // - Memory leak repaired.
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 // - Added single-player start and end age. (11-Apr-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -50,8 +50,7 @@
 #include "ui/interface/spnewgamewindow.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/database/profileDB.h"              // profiledb_Get()
-
-extern nf_GameSetup g_gamesetup;
+#include "ui/netshell/netshell.h"               // gamesetup_Get()
 
 static DialogBoxWindow *s_agesScreen	= NULL;
 
@@ -89,7 +88,7 @@ void agesscreen_setStartAge( sint32 index )
 	s_startDropDown->SetSelectedItem( index );
 
 	s_startAge = index;
-	g_gamesetup.SetStartAge(static_cast<char>(index));
+	gamesetup_Get().SetStartAge(static_cast<char>(index));
 	profiledb_Get()->SetSPStartingAge(index);
 }
 
@@ -107,7 +106,7 @@ void agesscreen_setEndAge( sint32 index )
 	s_endDropDown->SetSelectedItem( index );
 
 	s_endAge = index;
-	g_gamesetup.SetEndAge(static_cast<char>(index));
+	gamesetup_Get().SetEndAge(static_cast<char>(index));
 	profiledb_Get()->SetSPEndingAge(index);
 }
 
@@ -202,7 +201,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	bool const		isLdlUsable = s_numAges == startagestrings.GetNumStrings();
 	for (sint32 i = 0; i < s_numAges; i++)
 	{
-//Added by Martin Gühmann so that no *.ldl needs to be edited
+//Added by Martin Gï¿½hmann so that no *.ldl needs to be edited
 //anymore when new ages are added.
 		MBCHAR const *	ageId	= g_theAgeDB->GetNameStr(i);
 		MBCHAR const *	name	= g_theAgeDB->Get(i)->GetNameText();

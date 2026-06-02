@@ -494,7 +494,7 @@ void Network::InitFromNetFunc()
 				ClosePlayer(i);
 			}
 		}
-		g_gamesetup.SetSize(static_cast<sint16>(numLegalSlots));
+		gamesetup_Get().SetSize(static_cast<sint16>(numLegalSlots));
 		SetMaxPlayers(numLegalSlots);
 		if(!exclusions_Get()) {
 

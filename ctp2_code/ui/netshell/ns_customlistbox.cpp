@@ -586,7 +586,7 @@ void ns_GPlayerListBox::Insert( NETFunc::Player *player )
 	else
 	{
 
-		if ( !g_gamesetup.GetHandicapping() )
+		if ( !gamesetup_Get().GetHandicapping() )
 		{
 			item->GetCivpointsButton()->Enable( FALSE );
 			item->GetPwpointsButton()->Enable( FALSE );
@@ -654,7 +654,7 @@ void ns_GPlayerListBox::Change( NETFunc::Player *player )
 	if ( !item ) return;
 
 	bool selfMotivated = true;
-	if ( !g_gamesetup.GetHandicapping() ||
+	if ( !gamesetup_Get().GetHandicapping() ||
 		 !FindItem(player)->GetNetShellObject()->IsMine() )
 	{
 		selfMotivated = false;
@@ -862,7 +862,7 @@ void ns_AIPlayerListBox::Insert( nf_AIPlayer *player )
 	else
 	{
 
-		if ( !g_gamesetup.GetHandicapping() )
+		if ( !gamesetup_Get().GetHandicapping() )
 		{
 			item->GetCivpointsButton()->Enable( FALSE );
 			item->GetPwpointsButton()->Enable( FALSE );
@@ -917,7 +917,7 @@ void ns_AIPlayerListBox::Change( nf_AIPlayer *player )
 	if ( !item ) return;
 
 	bool selfMotivated = true;
-	if ( !g_gamesetup.GetHandicapping() || !netfunc_Get()->IsHost() )
+	if ( !gamesetup_Get().GetHandicapping() || !netfunc_Get()->IsHost() )
 	{
 		selfMotivated = false;
 	}

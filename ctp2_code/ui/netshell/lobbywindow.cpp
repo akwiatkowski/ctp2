@@ -696,15 +696,15 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 
 			playersetup_Get().SetReadyToLaunch(false);
 			if(netfunc_Get()->Join(g, temp) == NETFunc::OK) {
-				g_gamesetup = nf_GameSetup(g);
+				gamesetup_Get() = nf_GameSetup(g);
 
-				g_gamesetup.SetSavedId( ((uint32 *)g->GetUserField())[ 1 ] );
+				gamesetup_Get().SetSavedId( ((uint32 *)g->GetUserField())[ 1 ] );
 
 				AllinoneWindow *w = (AllinoneWindow *)netshell_Get()->
 					FindWindow(NetShell::WINDOW_ALLINONE);
 
 
-				if ( g_gamesetup.GetSavedId() )
+				if ( gamesetup_Get().GetSavedId() )
 					w->SetMode( w->CONTINUE_JOIN );
 				else
 					w->SetMode( w->JOIN );

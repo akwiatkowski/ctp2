@@ -63,6 +63,7 @@
 #include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "gs/fileio/civscenarios.h"
+#include "ui/netshell/netshell.h"               // gamesetup_Get()
 #include "ai/ctpai.h"
 #include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"  // diplomaticrequestpool_Get()
@@ -120,7 +121,6 @@ extern int g_gameWatchID;
 #endif
 
 extern  OzoneDatabase               *g_theUVDB;
-extern  nf_GameSetup                g_gamesetup;
 extern sint32                       g_isGridOn;
 extern PointerList<Player> *        g_deadPlayer;
 
@@ -1732,16 +1732,16 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 		profiledb_Get()->SetSaveNote(info->note);
 	}
 
-	nf_GameSetup temp = g_gamesetup;
-	g_gamesetup = info->gameSetup;
+	nf_GameSetup temp = gamesetup_Get();
+	gamesetup_Get() = info->gameSetup;
 
 	memcpy(
-		g_gamesetup.GetTribeSlots(),
+		gamesetup_Get().GetTribeSlots(),
 		temp.GetTribeSlots(),
 		8  * sizeof( TribeSlot ) );
 
-	g_gamesetup.SetLaunched(true);
-	g_gamesetup.Pack();
+	gamesetup_Get().SetLaunched(true);
+	gamesetup_Get().Pack();
 
 	profiledb_Get()->SetTutorialAdvice(info->options.tutorialadvice);
 
@@ -1809,7 +1809,7 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 	strcpy(info->civName, profiledb_Get()->GetCivName());
 	strcpy(info->note, profiledb_Get()->GetSaveNote());
 
-	info->gameSetup = g_gamesetup;
+	info->gameSetup = gamesetup_Get();
 
 	memset(
 		info->gameSetup.GetTribeSlots(),

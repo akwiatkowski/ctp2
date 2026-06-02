@@ -397,9 +397,9 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 		{
 			loadsavescreen_removeMyWindow( AUI_BUTTON_ACTION_EXECUTE );
 
-			g_gamesetup = saveInfo->gameSetup;
+			gamesetup_Get() = saveInfo->gameSetup;
 
-			NETFunc::Session *s = (NETFunc::Session *)&g_gamesetup;
+			NETFunc::Session *s = (NETFunc::Session *)&gamesetup_Get();
 
 			dp_session_t *sess =
 				(dp_session_t *)((uint8*)s + sizeof(NETFunc::Key));
@@ -437,7 +437,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 			case LSS_LOAD_MP:
 				w->SetScenarioGame( FALSE );
 
-				g_gamesetup.SetSavedId( 1 );
+				gamesetup_Get().SetSavedId( 1 );
 				break;
 
 
@@ -467,10 +467,10 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 			((aui_ListBox *)listbox)->InsertItem( item, 0 );
 			listbox->SelectItem( (sint32)0 );
 
-			g_gamesetup = *item->GetNetShellObject()->GetNETFuncObject();
+			gamesetup_Get() = *item->GetNetShellObject()->GetNETFuncObject();
 
 			mode = w->CREATE;
-			g_gamesetup.SetSavedId( 0 );
+			gamesetup_Get().SetSavedId( 0 );
 		}
 	}
 
@@ -486,17 +486,17 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 			}
 		}
 
-		g_gamesetup.SetPassword( temp );
-		g_gamesetup.SetSize( k_NS_MAX_HUMANS );
-		g_gamesetup.SetClosed( false );
-		g_gamesetup.SetSyncLaunch( true );
+		gamesetup_Get().SetPassword( temp );
+		gamesetup_Get().SetSize( k_NS_MAX_HUMANS );
+		gamesetup_Get().SetClosed( false );
+		gamesetup_Get().SetSyncLaunch( true );
 
 		PlayerSelectWindow *psw = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		psw->GetPlayerSetup(netfunc_Get()->GetPlayer())->Reset();
 
 		playersetup_Get().SetReadyToLaunch(false);
-		if(netfunc_Get()->Create(&g_gamesetup) == NETFunc::OK) {
+		if(netfunc_Get()->Create(&gamesetup_Get()) == NETFunc::OK) {
 			w->SetMode(mode);
 			netshell_Get()->GotoScreen( NetShell::SCREEN_ALLINONE );
 			w->Update();

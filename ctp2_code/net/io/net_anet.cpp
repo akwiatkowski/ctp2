@@ -529,7 +529,7 @@ ActivNetIO::Idle()
 				NETFunc::player.Set(&pd);
 				NETFunc::Message msg(buf, size, idFrom, false);
 				if(m_isHost) {
-					g_gamesetup.Handle(m_dp, &msg);
+					gamesetup_Get().Handle(m_dp, &msg);
 				}
 				if(buf[0] == nf_PACKET_INITIALBYTE)
 					continue;

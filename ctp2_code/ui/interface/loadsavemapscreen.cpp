@@ -56,7 +56,8 @@
 #include <unistd.h>
 #endif
 
-extern nf_GameSetup			g_gamesetup;
+#include "ui/netshell/netshell.h"               // gamesetup_Get()
+
 extern SPNewGameWindow		*g_spNewGameWindow;
 
 LoadSaveMapWindow				*g_loadSaveMapWindow = NULL;

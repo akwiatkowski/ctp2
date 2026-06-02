@@ -73,7 +73,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/loadsavewindow.h"
 #include "ui/interface/MessageBoxDialog.h"
-#include "ui/netshell/netshell.h"                   // g_gamesetup
+#include "ui/netshell/netshell.h"                   // gamesetup_Get()
 #include "ui/netshell/ns_gamesetup.h"
 #include "ui/interface/optionswindow.h"
 #include "gs/gameobj/Player.h"                     // player_Get()
@@ -883,7 +883,7 @@ void loadsavescreen_SaveMPGame(void)
 		}
 	}
 
-	saveInfo->gameSetup = g_gamesetup;
+	saveInfo->gameSetup = gamesetup_Get();
 
 	memcpy(
 		saveInfo->gameSetup.GetSavedTribeSlots(),

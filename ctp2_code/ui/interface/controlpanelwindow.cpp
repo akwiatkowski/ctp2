@@ -115,7 +115,7 @@
 #include "ui/interface/debugwindow.h"
 
 #include "ctp/ctp2_utils/c3cmdline.h"
-#include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/gameobj/Player.h"                     // player_Get()
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -266,27 +266,27 @@ void TurnNextUnitButtonActionCallback( aui_Control *control, uint32 action, uint
 
 
 
-	g_selected_item->NextUnmovedUnit();
+	selitem_Get()->NextUnmovedUnit();
 }
 
 void TurnNextCityButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-	if ( g_selected_item->GetState() == SELECT_TYPE_LOCAL_CITY )
+	if ( selitem_Get()->GetState() == SELECT_TYPE_LOCAL_CITY )
 	{
-		g_selected_item->NextItem();
+		selitem_Get()->NextItem();
 	}
 	else
 	{
 
-		if (!player_Get(g_selected_item->GetVisiblePlayer()) ||
-			!player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities())
+		if (!player_Get(selitem_Get()->GetVisiblePlayer()) ||
+			!player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities())
 			return;
 
-		Unit city = player_Get(g_selected_item->GetVisiblePlayer())->GetCityFromIndex(0);
-		g_selected_item->SetSelectUnit(city);
-		if(g_selected_item->IsAutoCenterOn()) {
+		Unit city = player_Get(selitem_Get()->GetVisiblePlayer())->GetCityFromIndex(0);
+		selitem_Get()->SetSelectUnit(city);
+		if(selitem_Get()->IsAutoCenterOn()) {
 			MapPoint pos;
 			city.GetPos(pos);
 			if(!tiledmap_Get()->TileIsVisible(pos.x, pos.y))
@@ -309,11 +309,11 @@ void CityManagerButtonCallback(aui_Control *control, uint32 action, uint32 data,
 	Unit 		city;
 	Army		a;
 
-	if (g_selected_item->GetSelectedCity(city))
+	if (selitem_Get()->GetSelectedCity(city))
 	{
 		selection = city.CD();
 	}
-	else if (g_selected_item->GetSelectedArmy(a) &&
+	else if (selitem_Get()->GetSelectedArmy(a) &&
 		     world_Get()->HasCity(a->RetPos())
             )
 	{
@@ -467,7 +467,7 @@ void GotoCityUtilityDialogBoxCallback(Unit city, sint32 val2)
 	if (city.IsValid())
 	{
 	    MapPoint        destPos = city.RetPos();
-	    g_selected_item->Goto(destPos);
+	    selitem_Get()->Goto(destPos);
 	}
 }
 
@@ -596,15 +596,15 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 		return;
 
 	Unit city;
-	bool haveCity = g_selected_item->GetSelectedCity(city) != FALSE;
+	bool haveCity = selitem_Get()->GetSelectedCity(city) != FALSE;
 
 	if(!haveCity) {
-		city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
+		city = world_Get()->GetCity(selitem_Get()->GetCurSelectPos());
 		if(city.IsValid()) {
 			haveCity = true;
 
-		} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
-			city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
+		} else if(player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities()) {
+			city = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0);
 
 			if(city.IsValid())
 				haveCity = true;
@@ -652,17 +652,17 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 			if(haveCity) city.CD()->SetUseGovernor(!city.CD()->GetUseGovernor());
 			break;
 		case k_CONTEXT_MISC_TILE_INFO:
-			helptile_displayData(g_selected_item->GetCurSelectPos());
+			helptile_displayData(selitem_Get()->GetCurSelectPos());
 			break;
 		default:
 		{
 			Army a;
-			if(!g_selected_item->GetSelectedArmy(a)) {
-				MapPoint pos = g_selected_item->GetCurSelectPos();
+			if(!selitem_Get()->GetSelectedArmy(a)) {
+				MapPoint pos = selitem_Get()->GetCurSelectPos();
 				Cell *cell = world_Get()->GetCell(pos);
 				if(cell->UnitArmy()) {
-					g_selected_item->SetSelectUnit(cell->UnitArmy()->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer()));
-					g_selected_item->GetSelectedArmy(a);
+					selitem_Get()->SetSelectUnit(cell->UnitArmy()->GetTopVisibleUnit(selitem_Get()->GetVisiblePlayer()));
+					selitem_Get()->GetSelectedArmy(a);
 				}
 			}
 
@@ -773,16 +773,16 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 	close_AllScreens();
 
 	Unit city;
-	bool haveCity = g_selected_item->GetSelectedCity(city) != FALSE;
+	bool haveCity = selitem_Get()->GetSelectedCity(city) != FALSE;
 
 	if(!haveCity) {
-		city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
+		city = world_Get()->GetCity(selitem_Get()->GetCurSelectPos());
 		if(city.IsValid())
 			haveCity = true;
 
-	} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
-		city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
-		g_selected_item->SetSelectCity(city);
+	} else if(player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities()) {
+		city = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0);
+		selitem_Get()->SetSelectCity(city);
 			if(city.IsValid())
 				haveCity = true;
 	}
@@ -790,16 +790,16 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 	switch (itemIndex)
 	{
 		case CP_MENU_ITEM_0:
-			if(g_selected_item->GetSelectedCity(city)) {
+			if(selitem_Get()->GetSelectedCity(city)) {
 				if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
 
 				} else {
 					EditQueue::Display(CityWindow::GetCityData(city));
 				}
-			} else if(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0) {
+			} else if(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0) {
 				if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
 				} else {
-					EditQueue::Display(CityWindow::GetCityData(player_Get(g_selected_item->GetVisiblePlayer())->
+					EditQueue::Display(CityWindow::GetCityData(player_Get(selitem_Get()->GetVisiblePlayer())->
 															   m_all_cities->Access(0)));
 				}
 			}
@@ -807,7 +807,7 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 		case CP_MENU_ITEM_1:
 			CityWindow::Initialize();
 
-			if(g_selected_item->GetSelectedCity(city))
+			if(selitem_Get()->GetSelectedCity(city))
 				CityWindow::Display(city.CD());
 			else
 				CityWindow::Display(NULL);
@@ -1034,7 +1034,7 @@ void EspionageMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 item
 	case CP_MENU_ITEM_0:
         {
             Unit    city;
-            if (g_selected_item->GetSelectedCity(city))
+            if (selitem_Get()->GetSelectedCity(city))
             {
                 CityEspionage::Display(city);
             }
@@ -1050,7 +1050,7 @@ void EspionageMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 item
 void cpw_DisbandCallback( sint32 val )
 {
 	if ( val ) {
-		g_selected_item->Disband();
+		selitem_Get()->Disband();
 	}
 }
 
@@ -1711,7 +1711,7 @@ ControlPanelWindow::BeginOrderDelivery(OrderRecord *rec)
 	{
 		m_currentOrder = rec;
 		m_targetingMode= CP_TARGETING_MODE_ORDER_PENDING;
-		g_selected_item->SetDrawablePathDest(pos);
+		selitem_Get()->SetDrawablePathDest(pos);
 	}
 }
 
@@ -1739,10 +1739,10 @@ void
 ControlPanelWindow::BeginImprovementCycle(TerrainImprovementRecord *rec) //emod3 is this the check? i think it misses obsoletes here
 {
 
-	if ((rec==NULL)||(g_selected_item==NULL))
+	if ((rec==NULL)||(selitem_Get() == NULL))
 		return;
 
-	if (!terrainutil_CanPlayerBuild(rec,g_selected_item->GetVisiblePlayer(),false))
+	if (!terrainutil_CanPlayerBuild(rec,selitem_Get()->GetVisiblePlayer(),false))
 	{
 		ClearTargetingMode();
 		return;
@@ -1867,10 +1867,10 @@ void
 ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it look like sce
 {
 
-	if ((m_currentTerrainImpRec==NULL)||(g_selected_item==NULL))
+	if ((m_currentTerrainImpRec==NULL)||(selitem_Get() == NULL))
 		return;
 
-	sint32 player_id =g_selected_item->GetVisiblePlayer();
+	sint32 player_id =selitem_Get()->GetVisiblePlayer();
 
 	MapPoint pos;
 
@@ -1926,7 +1926,7 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 void
 ControlPanelWindow::TerraFormUpdate() //emod5
 {
-	if ((m_currentTerrainRec==NULL)||(g_selected_item==NULL))
+	if ((m_currentTerrainRec==NULL)||(selitem_Get() == NULL))
 		return;
 
 	ClearTargetingMode();
@@ -1967,7 +1967,7 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 
 	Army army;
 
-	if(!g_selected_item->GetSelectedArmy(army))
+	if(!selitem_Get()->GetSelectedArmy(army))
 	{
 		ClearTargetingMode();
 		return false;
@@ -1999,8 +1999,8 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 			g_soundManager->AddGameSound(GAMESOUNDS_ILLEGAL_SPECIAL);
 			handled = true;
 		}
-		else if (g_selected_item->GetGoodPath()->GetMovesRemaining() <= 0 &&
-				 g_selected_item->GetBadPath().GetMovesRemaining() > 0) {
+		else if (selitem_Get()->GetGoodPath()->GetMovesRemaining() <= 0 &&
+				 selitem_Get()->GetBadPath().GetMovesRemaining() > 0) {
 
 			if(m_currentOrder->GetUnitPretest_CanTransport()) {
 				static CellUnitList cargoToUnload;
@@ -2014,15 +2014,15 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 				}
 			}
 
-            Path    badPath = g_selected_item->GetBadPath();
+            Path    badPath = selitem_Get()->GetBadPath();
 			army->PerformOrderHere(m_currentOrder, &badPath);
 			handled = true;
 		}
-		else if (g_selected_item->GetGoodPath()->GetMovesRemaining() > 0 ) {
+		else if (selitem_Get()->GetGoodPath()->GetMovesRemaining() > 0 ) {
 
-			Path path(g_selected_item->GetGoodPath());
+			Path path(selitem_Get()->GetGoodPath());
 
-			path.Concat(g_selected_item->GetBadPath());
+			path.Concat(selitem_Get()->GetBadPath());
 			if(m_currentOrder->GetUnitPretest_CanTransport()) {
 				static CellUnitList cargoToUnload;
 				if(MainControlPanel::GetSelectedCargo(cargoToUnload)) {
@@ -2069,13 +2069,13 @@ bool
 ControlPanelWindow::TileImpClick(const MapPoint &pos) //emod7
 {
 
-	if ((m_currentTerrainImpRec==NULL)||(g_selected_item==NULL))
+	if ((m_currentTerrainImpRec==NULL)||(selitem_Get() == NULL))
 	{
 		ClearTargetingMode();
 		return true;
 	}
 
-	sint32 player=g_selected_item->GetVisiblePlayer();
+	sint32 player=selitem_Get()->GetVisiblePlayer();
 
 	if (!terrainutil_CanPlayerBuild(m_currentTerrainImpRec,player,true))
 		return true;
@@ -2100,7 +2100,7 @@ ControlPanelWindow::TileImpClick(const MapPoint &pos) //emod7
 bool
 ControlPanelWindow::TerraFormClick(const MapPoint &pos)
 {
-	if ((m_currentTerrainRec==NULL)||(g_selected_item==NULL))
+	if ((m_currentTerrainRec==NULL)||(selitem_Get() == NULL))
 	{
 		ClearTargetingMode();
 	}
@@ -2239,7 +2239,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 		return;
 
 
-	if (message.GetOwner() != g_selected_item->GetVisiblePlayer())
+	if (message.GetOwner() != selitem_Get()->GetVisiblePlayer())
 		return;
 
 	ctp2_ListItem *item;
@@ -2800,7 +2800,7 @@ ControlPanelWindow::ActivateTileImpBank(unsigned int group_id)
 	if (m_terraFormMode)
 	   group_id += CP_TERRAFORM_LAND;
 
-	if ((g_selected_item==NULL)||(group_id>=CP_TILEIMP_MAX))
+	if ((selitem_Get() == NULL)||(group_id>=CP_TILEIMP_MAX))
 		return;
 
 	if ( (m_activatorButtons[group_id]->GetToggleState() == 0) &&
@@ -2869,10 +2869,10 @@ ControlPanelWindow::BuildUnitList ()
 	Army army=UnitPanelGetCurrent();
 
 	if (!army.IsValid()) {
-		MapPoint pos = g_selected_item->GetCurSelectPos();
+		MapPoint pos = selitem_Get()->GetCurSelectPos();
 		Cell *cell = world_Get()->GetCell(pos);
-		if(cell->AccessUnit(0).GetOwner() == g_selected_item->GetVisiblePlayer()) {
-			Unit top = cell->UnitArmy()->GetTopVisibleUnit(g_selected_item->GetVisiblePlayer());
+		if(cell->AccessUnit(0).GetOwner() == selitem_Get()->GetVisiblePlayer()) {
+			Unit top = cell->UnitArmy()->GetTopVisibleUnit(selitem_Get()->GetVisiblePlayer());
 
 			if(!top.IsValid())
 				return;
@@ -3054,16 +3054,16 @@ ControlPanelWindow::BuildList (sint32 index)
 	if(index == SELECT_TYPE_NONE)
 		return;
 
-	MapPoint pos = g_selected_item->GetCurSelectPos();
+	MapPoint pos = selitem_Get()->GetCurSelectPos();
 	Cell *cell = world_Get()->GetCell(pos);
 	if(cell->GetNumUnits() > 0) {
-		if(cell->AccessUnit(0).GetOwner() == g_selected_item->GetVisiblePlayer()) {
+		if(cell->AccessUnit(0).GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 			BuildUnitList();
 		}
 	}
 
 	if(cell->HasCity()) {
-		if(cell->GetCity().GetOwner() == g_selected_item->GetVisiblePlayer()) {
+		if(cell->GetCity().GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 			BuildCityList(pos);
 		}
 	}
@@ -3222,10 +3222,10 @@ void
 ControlPanelWindow::PollCIVStatus()
 {
 
-	if ((g_selected_item==NULL)||(player_arr_Get()==NULL))
+	if ((selitem_Get() == NULL)||(player_arr_Get()==NULL))
 		return;
 
-	sint32 p_index = g_selected_item->GetVisiblePlayer();
+	sint32 p_index = selitem_Get()->GetVisiblePlayer();
 
 	Player *current=player_Get(p_index);
 
@@ -3257,10 +3257,10 @@ void
 ControlPanelWindow::PollTILEIMPStatus()
 {
 #if 0   /// @todo Find out what this code was supposed to do
-    if ((g_selected_item==NULL)||(player_arr_Get()==NULL))
+    if ((selitem_Get() == NULL)||(player_arr_Get()==NULL))
 		return;
 
-	sint32 p_index = g_selected_item->GetVisiblePlayer();
+	sint32 p_index = selitem_Get()->GetVisiblePlayer();
 
 	Player *current=player_Get(p_index);
 
@@ -3274,18 +3274,18 @@ ControlPanelWindow::PollTILEIMPStatus()
 void
 ControlPanelWindow::HappinessRedisplay(aui_Surface *surface,RECT &rect,void *cookie)
 {
-	if (g_selected_item==NULL)
+	if (selitem_Get() == NULL)
 		return;
 
 	sint32 hapvals[3];
 	float total;
 
-	player_Get(g_selected_item->GetVisiblePlayer())->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
+	player_Get(selitem_Get()->GetVisiblePlayer())->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
 
 	total = (float)(hapvals[0]+hapvals[1]+hapvals[2]);
 
 	if(total<=0.0f)
-		primitives_PaintRect16(surface, &rect, g_colorSet->GetPlayerColor(g_selected_item->GetCurPlayer()));
+		primitives_PaintRect16(surface, &rect, g_colorSet->GetPlayerColor(selitem_Get()->GetCurPlayer()));
 	else
 	{
 		RECT tmp=rect;
@@ -3315,7 +3315,7 @@ ControlPanelWindow::CityPanelGetCurrent()
 
     if (m_mainDropDown)
     {
-	    Player * current = player_Get(g_selected_item->GetVisiblePlayer());
+	    Player * current = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	    if (current && current->GetNumCities())
         {
@@ -3336,7 +3336,7 @@ ControlPanelWindow::CityPanelRebuild()
 
 	m_mainDropDown->Clear();
 
-	sint32 p_index = g_selected_item->GetVisiblePlayer();
+	sint32 p_index = selitem_Get()->GetVisiblePlayer();
 
 	Player *current=player_Get(p_index);
 
@@ -3360,7 +3360,7 @@ ControlPanelWindow::CityPanelRebuild()
 
 	for(sint32 i=0;i<num;i++)
 	{
-		city = player_Get(g_selected_item->GetVisiblePlayer())->GetCityFromIndex(i);
+		city = player_Get(selitem_Get()->GetVisiblePlayer())->GetCityFromIndex(i);
 
 		name=city.GetName();
 
@@ -3412,7 +3412,7 @@ ControlPanelWindow::CityPanelNextCity()
 	if (m_mainDropDown==NULL)
 		return;
 
-	sint32 p_index = g_selected_item->GetVisiblePlayer();
+	sint32 p_index = selitem_Get()->GetVisiblePlayer();
 
 	Player *current=player_Get(p_index);
 
@@ -3442,7 +3442,7 @@ ControlPanelWindow::UnitPanelGetCurrent()
 
 	Army army;
 
-	sint32 p_index = g_selected_item->GetVisiblePlayer();
+	sint32 p_index = selitem_Get()->GetVisiblePlayer();
 
 	Player *current=player_Get(p_index);
 
@@ -3453,7 +3453,7 @@ ControlPanelWindow::UnitPanelGetCurrent()
 	ID				id;
 	SELECT_TYPE		sType;
 
-	g_selected_item->GetTopCurItem(pIndex,id,sType);
+	selitem_Get()->GetTopCurItem(pIndex,id,sType);
 
   	if(sType==SELECT_TYPE_LOCAL_ARMY )
 	{
@@ -3651,7 +3651,7 @@ ControlPanelWindow::TileImpPanelRedisplay()
 	if(tileImpPanel->IsHidden())
 		return;
 
-	if ((g_selected_item==NULL)||(m_currentTerrainSelection>=CP_TILEIMP_MAX))
+	if ((selitem_Get() == NULL)||(m_currentTerrainSelection>=CP_TILEIMP_MAX))
 		return;
 
 	for(uint32 index=0;index<CP_TILEIMP_MAX;index++)
@@ -3679,7 +3679,7 @@ ControlPanelWindow::TileImpPanelRedisplay()
 
 	uint32	start=(m_currentTerrainSelection*CP_MAX_BUTTONS_PER_BANK);
 	uint32	end	=(start+CP_MAX_BUTTONS_PER_BANK);
-	sint32	p1	= g_selected_item->GetVisiblePlayer();
+	sint32	p1	= selitem_Get()->GetVisiblePlayer();
 	uint32	button;
 
 	for (button=start;button<end;button++)
@@ -3799,7 +3799,7 @@ void ControlPanelWindow::SetTab(CP_TAB tab)
 AUI_ERRCODE ControlPanelWindow::UpdatePlayerBeginProgress(sint32 currentPlayer)
 {
 
-	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+	sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
 
 	if(currentPlayer == visiblePlayer || g_network.IsActive()) {
@@ -3827,7 +3827,7 @@ static sint32 s_totalPlayers = 0;
 AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 {
 
-	sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+	sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
 
 
 	if(currentPlayer == visiblePlayer) {
@@ -3876,7 +3876,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 
 	if(0 && !g_network.IsActive()) {
-		if (g_selected_item->GetCurPlayer() == NewTurnCount::GetStopPlayer()) {
+		if (selitem_Get()->GetCurPlayer() == NewTurnCount::GetStopPlayer()) {
 			ProgressWindow::EndProgress( g_theProgressWindow );
 
 			if(g_theProgressWindow) {

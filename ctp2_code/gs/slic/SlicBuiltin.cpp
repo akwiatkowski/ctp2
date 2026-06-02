@@ -128,7 +128,7 @@ class GlobalSymbol_NumOfPlayers : public SlicStructMemberData {
 		value = 0;
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i])
+			if(player_Get(i))
 				value++;
 		}
 		return TRUE;
@@ -142,7 +142,7 @@ class GlobalSymbol_LastPlayer : public SlicStructMemberData {
 		player = 0;
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i])
+			if(player_Get(i))
 				player = i;
 		}
 		return TRUE;
@@ -563,7 +563,7 @@ class PlayerSymbol_Cities : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            value = g_player[pl] ? g_player[pl]->m_all_cities->Num() : 0;
+            value = player_Get(pl) ? player_Get(pl)->m_all_cities->Num() : 0;
 		}
         return res;
 	}
@@ -577,7 +577,7 @@ class PlayerSymbol_Units : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            value = g_player[pl] ? g_player[pl]->m_all_units->Num() : 0;
+            value = player_Get(pl) ? player_Get(pl)->m_all_units->Num() : 0;
 		}
 		return res;
 	}
@@ -591,7 +591,7 @@ class PlayerSymbol_Armies : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            value = g_player[pl] ? g_player[pl]->m_all_armies->Num() : 0;
+            value = player_Get(pl) ? player_Get(pl)->m_all_armies->Num() : 0;
 		}
         return res;
 	}
@@ -607,8 +607,8 @@ class PlayerSymbol_Government : public SlicStructMemberData {
 		Assert(res);
 		if (res)
 		{
-			value = (g_player[pl])
-			      ? g_player[pl]->m_government_type
+			value = (player_Get(pl))
+			      ? player_Get(pl)->m_government_type
 			      : CTPRecord::INDEX_INVALID;
 		}
 		return res;
@@ -624,11 +624,11 @@ class PlayerSymbol_MilitaryUnits : public SlicStructMemberData {
 		if (res)
         {
 			value = 0;
-            if (g_player[pl] && g_player[pl]->m_all_units)
+            if (player_Get(pl) && player_Get(pl)->m_all_units)
             {
-			    for (sint32 i = 0; i < g_player[pl]->m_all_units->Num(); i++)
+			    for (sint32 i = 0; i < player_Get(pl)->m_all_units->Num(); i++)
                 {
-				    if (g_player[pl]->m_all_units->Access(i).GetDBRec()->GetAttack() > 0.001)
+				    if (player_Get(pl)->m_all_units->Access(i).GetDBRec()->GetAttack() > 0.001)
                     {
 					    value++;
                     }
@@ -647,7 +647,7 @@ class PlayerSymbol_TotalPopulation : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            value = g_player[pl] ? g_player[pl]->GetTotalPopulation() : 0;
+            value = player_Get(pl) ? player_Get(pl)->GetTotalPopulation() : 0;
 		}
         return res;
 	}
@@ -661,7 +661,7 @@ class PlayerSymbol_TotalPollution : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            value = g_player[pl] ? g_player[pl]->GetCurrentPollution() : 0;
+            value = player_Get(pl) ? player_Get(pl)->GetCurrentPollution() : 0;
 		}
         return res;
 	}
@@ -690,9 +690,9 @@ class PlayerSymbol_Capital : public SlicStructMemberData {
 		Assert(res);
 		if (res)
 		{
-            if (g_player[pl] && g_player[pl]->m_capitol)
+            if (player_Get(pl) && player_Get(pl)->m_capitol)
             {
-			    city = Unit(g_player[pl]->m_capitol->m_id);
+			    city = Unit(player_Get(pl)->m_capitol->m_id);
             }
             else
             {
@@ -728,17 +728,17 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
 		Assert(res);
 		if (res)
         {
-            if (g_player[pl]                &&
-                g_player[pl]->m_all_cities  &&
-                (g_player[pl]->m_all_cities->Num() > 0)
+            if (player_Get(pl)                &&
+                player_Get(pl)->m_all_cities  &&
+                (player_Get(pl)->m_all_cities->Num() > 0)
                )
             {
-                sint32  lpop    = g_player[pl]->m_all_cities->Get(0)->PopCount();
+                sint32  lpop    = player_Get(pl)->m_all_cities->Get(0)->PopCount();
                 sint32  lndx    = 0;
 
-			    for (sint32 i = 1; i < g_player[pl]->m_all_cities->Num(); i++)
+			    for (sint32 i = 1; i < player_Get(pl)->m_all_cities->Num(); i++)
 			    {
-                    Unit const &    testCity = g_player[pl]->m_all_cities->Get(i);
+                    Unit const &    testCity = player_Get(pl)->m_all_cities->Get(i);
 				    if (testCity->PopCount() > lpop)
                     {
 					    lpop    = testCity->PopCount();
@@ -746,7 +746,7 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
                     }
 				}
 
-			    city = g_player[pl]->m_all_cities->Get(lndx);
+			    city = player_Get(pl)->m_all_cities->Get(lndx);
 			}
             else
             {
@@ -763,19 +763,19 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if (pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if (pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
-			strncpy(text, g_theAdvanceDB->Get(g_player[pl]->m_advances->GetResearching())->GetNameText(), maxLen);
+			strncpy(text, g_theAdvanceDB->Get(player_Get(pl)->m_advances->GetResearching())->GetNameText(), maxLen);
 			return TRUE;
 		}
 		return FALSE;
 	}
 	StringId GetStringId() const {
 		PLAYER_INDEX pl = PLAYER_UNASSIGNED;
-		if (m_parent->GetDataSymbol()->GetPlayer(pl) && g_player[pl])
+		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
 			return g_theAdvanceDB->Get
-                (g_player[pl]->m_advances->GetResearching())->GetName();
+                (player_Get(pl)->m_advances->GetResearching())->GetName();
 		}
 		return -1;
 	}
@@ -783,9 +783,9 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 	// of the current research project.
 	BOOL GetIntValue(sint32 &value) const {
 		PLAYER_INDEX pl = PLAYER_UNASSIGNED;
-		if (m_parent->GetDataSymbol()->GetPlayer(pl) && g_player[pl])
+		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
-			value = g_player[pl]->m_advances->GetResearching();
+			value = player_Get(pl)->m_advances->GetResearching();
 			return TRUE;
 		}
 		value = -1;
@@ -799,9 +799,9 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
-			switch(g_player[pl]->GetReadinessLevel())
+			switch(player_Get(pl)->GetReadinessLevel())
 			{
 				case READINESS_LEVEL_PEACE:
 					strncpy(text, g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"), maxLen);
@@ -824,10 +824,10 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
 			sint32 id = -1;
-			switch(g_player[pl]->GetReadinessLevel())
+			switch(player_Get(pl)->GetReadinessLevel())
 			{
 				case READINESS_LEVEL_PEACE:
 					g_theStringDB->GetStringID("str_ldl_READINESS_LEVEL_PEACE", id);
@@ -850,9 +850,9 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 	// the current military readiness level.
 	BOOL GetIntValue(sint32 &value) const {
 		PLAYER_INDEX    pl   = PLAYER_UNASSIGNED;
-		if (m_parent->GetDataSymbol()->GetPlayer(pl) && g_player[pl])
+		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
-			value = g_player[pl]->GetReadinessLevel();
+			value = player_Get(pl)->GetReadinessLevel();
 			return TRUE;
 		}
 		value = -1;
@@ -864,7 +864,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_LeaderPersonality);
 	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
 		PLAYER_INDEX    pl = PLAYER_UNASSIGNED;
-		if (m_parent->GetDataSymbol()->GetPlayer(pl) && g_player[pl])
+		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
 		{
 			StringId description = Diplomat::GetDiplomat(pl).GetPersonality()->GetDescription();
 			if (description != -1)
@@ -881,7 +881,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
 			value = Diplomat::GetDiplomat(pl).GetPersonality()->GetIndex();
 			return TRUE;
@@ -897,10 +897,10 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
 
-			strncpy(text, g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetNameText(), maxLen);
+			strncpy(text, g_theGovernmentDB->Get(player_Get(pl)->m_government_type)->GetNameText(), maxLen);
 			return TRUE;
 		}
 		return FALSE;
@@ -910,9 +910,9 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
-			return g_theGovernmentDB->Get(g_player[pl]->m_government_type)->GetName();
+			return g_theGovernmentDB->Get(player_Get(pl)->m_government_type)->GetName();
 		}
 		return -1;
 	}
@@ -922,9 +922,9 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && g_player[pl]!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
 		{
-			value = g_player[pl]->m_government_type;
+			value = player_Get(pl)->m_government_type;
 			return TRUE;
 		}
 		value = -1;
@@ -939,9 +939,9 @@ class PlayerSymbol_CivNamePlural : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			Assert(pl >= 0 && pl < k_MAX_PLAYERS && g_player[pl]);
-			if(pl >= 0 && pl < k_MAX_PLAYERS && g_player[pl]) {
-				g_player[pl]->m_civilisation->GetPluralCivName(text);
+			Assert(pl >= 0 && pl < k_MAX_PLAYERS && player_Get(pl));
+			if(pl >= 0 && pl < k_MAX_PLAYERS && player_Get(pl)) {
+				player_Get(pl)->m_civilisation->GetPluralCivName(text);
 				return TRUE;
 			} else {
 				return FALSE;
@@ -954,9 +954,9 @@ class PlayerSymbol_CivNamePlural : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			Assert(pl >= 0 && pl < k_MAX_PLAYERS && g_player[pl]);
-			if(pl >= 0 && pl < k_MAX_PLAYERS && g_player[pl]) {
-				return g_theCivilisationDB->Get((*(g_player[pl]->m_civilisation))->GetCivilisation())->GetPluralCivName();
+			Assert(pl >= 0 && pl < k_MAX_PLAYERS && player_Get(pl));
+			if(pl >= 0 && pl < k_MAX_PLAYERS && player_Get(pl)) {
+				return g_theCivilisationDB->Get((*(player_Get(pl)->m_civilisation))->GetCivilisation())->GetPluralCivName();
 			} else {
 				return -1;
 			}
@@ -971,8 +971,8 @@ class PlayerSymbol_CivNameSingular : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(res && g_player[pl]) {
-			g_player[pl]->m_civilisation->GetSingularCivName(text);
+		if(res && player_Get(pl)) {
+			player_Get(pl)->m_civilisation->GetSingularCivName(text);
 			return TRUE;
 		}
 		return FALSE;
@@ -981,8 +981,8 @@ class PlayerSymbol_CivNameSingular : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(res && g_player[pl]) {
-			return g_theCivilisationDB->Get((*(g_player[pl]->m_civilisation))->GetCivilisation())->GetSingularCivName();
+		if(res && player_Get(pl)) {
+			return g_theCivilisationDB->Get((*(player_Get(pl)->m_civilisation))->GetCivilisation())->GetSingularCivName();
 		}
 		return -1;
 	}
@@ -995,7 +995,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			strcpy(text, g_player[pl]->GetLeaderName());
+			strcpy(text, player_Get(pl)->GetLeaderName());
 			return TRUE;
 		}
 		return FALSE;
@@ -1008,13 +1008,13 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 		if(res) {
 			StringId id = -1;
 
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
-				id = g_theCivilisationDB->Get((*(g_player[pl]->m_civilisation))->GetCivilisation())->GetLeaderNameMale();
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
+				id = g_theCivilisationDB->Get((*(player_Get(pl)->m_civilisation))->GetCivilisation())->GetLeaderNameMale();
 			} else {
-				id = g_theCivilisationDB->Get((*(g_player[pl]->m_civilisation))->GetCivilisation())->GetLeaderNameFemale();
+				id = g_theCivilisationDB->Get((*(player_Get(pl)->m_civilisation))->GetCivilisation())->GetLeaderNameFemale();
 			}
 			if(id >= 0 &&
-			   strcmp(g_player[pl]->GetLeaderName(),
+			   strcmp(player_Get(pl)->GetLeaderName(),
 					  g_theStringDB->GetNameStr(id)) == 0) {
 				return id;
 			}
@@ -1030,7 +1030,7 @@ class PlayerSymbol_CountryName : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			g_player[pl]->m_civilisation->GetCountryName(text);
+			player_Get(pl)->m_civilisation->GetCountryName(text);
 			return TRUE;
 		}
 		return FALSE;
@@ -1040,7 +1040,7 @@ class PlayerSymbol_CountryName : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			return g_theCivilisationDB->Get((*(g_player[pl]->m_civilisation))->GetCivilisation())->GetCountryName();
+			return g_theCivilisationDB->Get((*(player_Get(pl)->m_civilisation))->GetCivilisation())->GetCountryName();
 		}
 		return -1;
 	}
@@ -1053,7 +1053,7 @@ class PlayerSymbol_He : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HE_MALE"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HE_FEMALE"));
@@ -1071,7 +1071,7 @@ class PlayerSymbol_Him : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIM_MALE"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIM_FEMALE"));
@@ -1089,7 +1089,7 @@ class PlayerSymbol_His : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIS_MALE"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIS_FEMALE"));
@@ -1107,7 +1107,7 @@ class PlayerSymbol_HeCap : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HE_MALE_CAP"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HE_FEMALE_CAP"));
@@ -1125,7 +1125,7 @@ class PlayerSymbol_HimCap : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIM_MALE_CAP"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"));
@@ -1143,7 +1143,7 @@ class PlayerSymbol_HisCap : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIS_MALE_CAP"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"));
@@ -1161,7 +1161,7 @@ class PlayerSymbol_Sir : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_MALE"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_FEMALE"));
@@ -1179,7 +1179,7 @@ class PlayerSymbol_SirCap : public SlicStructMemberData {
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
 		if(res) {
-			if(g_player[pl]->m_civilisation->GetGender() == GENDER_MALE) {
+			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
 				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_MALE_CAP"));
 			} else {
 				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"));
@@ -1198,7 +1198,7 @@ class PlayerSymbol_PublicWorksTax : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		value = (res) ? AsPercentage(g_player[pl]->m_materialsTax) : 0;
+		value = (res) ? AsPercentage(player_Get(pl)->m_materialsTax) : 0;
 		return res;
 	}
 };
@@ -1210,7 +1210,7 @@ class PlayerSymbol_PublicWorksLevel : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		value = (res) ? g_player[pl]->GetMaterialsStored() : 0;
+		value = (res) ? player_Get(pl)->GetMaterialsStored() : 0;
 		return res;
 	}
 };

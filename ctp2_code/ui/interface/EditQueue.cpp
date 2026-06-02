@@ -503,9 +503,9 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 			sint32 cost1, cost2;
 
 			if(info1->m_category == k_GAME_OBJ_TYPE_WONDER) {
-				cost1 = wonderutil_Get(info1->m_type, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				cost1 = wonderutil_Get(info1->m_type, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
-				cost1 = buildingutil_Get(info1->m_type, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				cost1 = buildingutil_Get(info1->m_type, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION ||
 					  info1->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE) {
 				cost1 = 0;
@@ -514,9 +514,9 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 			}
 
 			if(info2->m_category == k_GAME_OBJ_TYPE_WONDER) {
-				cost2 = wonderutil_Get(info2->m_type, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				cost2 = wonderutil_Get(info2->m_type, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 			} else if(info2->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
-				cost2 = buildingutil_Get(info2->m_type, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				cost2 = buildingutil_Get(info2->m_type, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 			} else if(info2->m_category == k_GAME_OBJ_TYPE_CAPITALIZATION ||
 					  info2->m_category == k_GAME_OBJ_TYPE_INFRASTRUCTURE) {
 				cost2 = 0;
@@ -776,7 +776,7 @@ void EditQueue::UpdateChoiceLists()
 				!m_cityData->GetBuildQueue()->IsItemInQueue(k_GAME_OBJ_TYPE_IMPROVEMENT, i))
 			{
 
-				prodRemaining = buildingutil_Get(i, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				prodRemaining = buildingutil_Get(i, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 				AddChoiceItem(g_theBuildingDB->Get(i)->GetNameText(),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_IMPROVEMENT, i),
 							  m_cityData->HowMuchLonger(prodRemaining),
@@ -784,7 +784,7 @@ void EditQueue::UpdateChoiceLists()
 			}
 		}
 
-		if(player_Get(g_selected_item->GetVisiblePlayer())->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
+		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_CAPITALIZATION, 0)) {
 				AddChoiceItem(g_theStringDB->GetNameStr("CAPITALIZATION"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_CAPITALIZATION, 0),
@@ -793,7 +793,7 @@ void EditQueue::UpdateChoiceLists()
 			}
 		}
 
-		if(player_Get(g_selected_item->GetVisiblePlayer())->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
+		if(player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0)) {
 				AddChoiceItem(g_theStringDB->GetNameStr("INFRASTRUCTURE"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0),
@@ -841,7 +841,7 @@ void EditQueue::UpdateChoiceLists()
 				}
 			} else if(m_cityData->CanBuildWonder(i) &&
 				!m_cityData->GetBuildQueue()->IsItemInQueue(k_GAME_OBJ_TYPE_WONDER, i)) {
-				prodRemaining = wonderutil_Get(i, g_selected_item->GetVisiblePlayer())->GetProductionCost();
+				prodRemaining = wonderutil_Get(i, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
 				AddChoiceItem(g_theWonderDB->Get(i)->GetNameText(),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_WONDER, i),
 							  m_cityData->HowMuchLonger(prodRemaining),
@@ -966,7 +966,7 @@ void EditQueue::UpdateCityLists()
 {
 
 	sint32 i;
-	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *pl = player_Get(selitem_Get()->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 
@@ -1088,9 +1088,9 @@ void EditQueue::UpdateButtons()
 				snprintf(buf, sizeof(buf), "%d", cost);
 				m_rushBuyCost->SetText(buf);
 
-				sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
+				sint32 const	visiblePlayer	= selitem_Get()->GetVisiblePlayer();
 				m_rushBuyButton->Enable
-					((visiblePlayer == g_selected_item->GetCurPlayer())	&&	// my turn
+					((visiblePlayer == selitem_Get()->GetCurPlayer())	&&	// my turn
 					 (player_Get(visiblePlayer)->GetGold() >= cost)			// enough money
 				   	);
 			}
@@ -1213,7 +1213,7 @@ void EditQueue::SetCity(CityData *city)
 	s_editQueue->Update();
 
 	if(city && city->GetHomeCity().IsValid()) {
-		g_selected_item->SetSelectCity(city->GetHomeCity());
+		selitem_Get()->SetSelectCity(city->GetHomeCity());
 	}
 
 }
@@ -1294,9 +1294,9 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 	if(!info) return;
 
 	if(!confirmed && info->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT &&
-	   buildingutil_Get(info->m_type, g_selected_item->GetVisiblePlayer())->GetCapitol() &&
-		player_Get(g_selected_item->GetVisiblePlayer())->m_capitol &&
-		player_Get(g_selected_item->GetVisiblePlayer())->m_capitol->IsValid() &&
+	   buildingutil_Get(info->m_type, selitem_Get()->GetVisiblePlayer())->GetCapitol() &&
+		player_Get(selitem_Get()->GetVisiblePlayer())->m_capitol &&
+		player_Get(selitem_Get()->GetVisiblePlayer())->m_capitol->IsValid() &&
 		m_cityData)
 	{
 		static CapitolConfirmData data;
@@ -1483,8 +1483,8 @@ void EditQueue::Suggest(bool insert)
 
 		sint32  cat         = 0;
 		sint32  type        = CTPRecord::INDEX_INVALID;
-		Governor::GetGovernor(g_selected_item->GetVisiblePlayer()).ComputeDesiredUnits();
-		Governor::GetGovernor(g_selected_item->GetVisiblePlayer()).ComputeNextBuildItem(m_cityData, cat, type);
+		Governor::GetGovernor(selitem_Get()->GetVisiblePlayer()).ComputeDesiredUnits();
+		Governor::GetGovernor(selitem_Get()->GetVisiblePlayer()).ComputeNextBuildItem(m_cityData, cat, type);
 
 		//EditItemInfo info(cat, type);
 		//InsertInQueue(&info, insert);
@@ -2136,11 +2136,11 @@ void EditQueue::MultiActionButton(aui_Control *control, uint32 action, uint32 da
 						continue;
 					break;
 				case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-					if(!player_Get(g_selected_item->GetVisiblePlayer())->CanBuildInfrastructure())
+					if(!player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildInfrastructure())
 						continue;
 					break;
 				case k_GAME_OBJ_TYPE_CAPITALIZATION:
-					if(!player_Get(g_selected_item->GetVisiblePlayer())->CanBuildCapitalization())
+					if(!player_Get(selitem_Get()->GetVisiblePlayer())->CanBuildCapitalization())
 						continue;
 					break;
 			}

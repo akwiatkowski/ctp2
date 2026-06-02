@@ -160,7 +160,7 @@ AUI_ERRCODE ArmyManagerWindow::Display()
 		return AUI_ERRCODE_HACK;
 	}
 
-	if(g_selected_item->GetSelectedArmy(s_armyWindow->m_army)) {
+	if(selitem_Get()->GetSelectedArmy(s_armyWindow->m_army)) {
 		s_armyWindow->m_army.GetPos(s_armyWindow->m_pos);
 	} else {
 
@@ -240,7 +240,7 @@ void ArmyManagerWindow::NotifySelection()
 		return;
 
 	Army a;
-	if (g_selected_item->GetSelectedArmy(a))
+	if (selitem_Get()->GetSelectedArmy(a))
     {
 		s_armyWindow->m_army        = a;
 		s_armyWindow->m_pos         = a->RetPos();
@@ -248,7 +248,7 @@ void ArmyManagerWindow::NotifySelection()
     else
     {
 		s_armyWindow->m_army.m_id   = 0;
-		s_armyWindow->m_pos         = g_selected_item->GetCurSelectPos();
+		s_armyWindow->m_pos         = selitem_Get()->GetCurSelectPos();
 	}
 
 	s_armyWindow->UpdateArmyName();
@@ -260,7 +260,7 @@ void ArmyManagerWindow::NotifyRemoteGroupComplete(const Army &army)
 {
 	if (army.IsValid() && army[0].IsValid())
     {
-		g_selected_item->SetSelectUnit(army[0]);
+		selitem_Get()->SetSelectUnit(army[0]);
 	}
 }
 
@@ -512,7 +512,7 @@ void ArmyManagerWindow::UpdateList()
 	Assert(armyList);
 
 	Army a;
-	g_selected_item->GetSelectedArmy(a);
+	selitem_Get()->GetSelectedArmy(a);
 
 	if(armyList) {
 		armyList->Clear();
@@ -594,7 +594,7 @@ void ArmyManagerWindow::Close(aui_Control *control, uint32 action, uint32 data, 
 		s_armyWindow->RenameArmy();
 		if(armypool_Get()->IsValid(s_armyWindow->m_army) &&
 			(s_armyWindow->m_army.Num() > 0)) {
-			g_selected_item->SetSelectUnit(s_armyWindow->m_army[0]);
+			selitem_Get()->SetSelectUnit(s_armyWindow->m_army[0]);
 		}
 	}
 
@@ -621,16 +621,16 @@ void ArmyManagerWindow::List(aui_Control *control, uint32 action, uint32 data, v
 		if(armypool_Get()->IsValid(node->m_army) &&
 		   node->m_army.Num() > 0) {
 			Army a;
-			if(g_selected_item->GetSelectedArmy(a)) {
+			if(selitem_Get()->GetSelectedArmy(a)) {
 				if(a.m_id != node->m_army.m_id) {
 
-					g_selected_item->SetSelectUnit(node->m_army[0]);
+					selitem_Get()->SetSelectUnit(node->m_army[0]);
 				} else {
 					s_armyWindow->Update();
 				}
 			} else {
 
-				g_selected_item->SetSelectUnit(node->m_army[0]);
+				selitem_Get()->SetSelectUnit(node->m_army[0]);
 			}
 		} else {
 			s_armyWindow->m_army.m_id = 0;
@@ -639,7 +639,7 @@ void ArmyManagerWindow::List(aui_Control *control, uint32 action, uint32 data, v
 		}
 	} else {
 		s_armyWindow->m_army.m_id = 0;
-		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
+		selitem_Get()->Deselect(selitem_Get()->GetVisiblePlayer());
 		s_armyWindow->Update();
 	}
 }
@@ -747,7 +747,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 	Army theArmy;
 	bool newArmy = false;
 	if(node->m_army.m_id == 0) {
-		theArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
+		theArmy = player_Get(selitem_Get()->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
 		node->m_army = theArmy;
 		m_army = theArmy;
 	} else {
@@ -756,7 +756,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 			theArmy = node->m_army;
 		} else {
 
-			theArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
+			theArmy = player_Get(selitem_Get()->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
 			node->m_army = theArmy;
 		}
 	}
@@ -771,13 +771,13 @@ void ArmyManagerWindow::AddSelectedUnits()
 	}
 
 	Army selArmy;
-	if(g_selected_item->GetSelectedArmy(selArmy)) {
+	if(selitem_Get()->GetSelectedArmy(selArmy)) {
 		if(selArmy.m_id != theArmy.m_id) {
-			g_selected_item->SetSelectUnit(theArmy[0]);
+			selitem_Get()->SetSelectUnit(theArmy[0]);
 		}
 	} else {
 		if(theArmy.Num() && theArmy[0].IsValid()) {
-			g_selected_item->SetSelectUnit(theArmy[0]);
+			selitem_Get()->SetSelectUnit(theArmy[0]);
 		}
 	}
 
@@ -847,7 +847,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 
 					units.Insert(m_inArmy[i]);
 				} else {
-					Army newArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
+					Army newArmy = player_Get(selitem_Get()->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
 					m_inArmy[i].ChangeArmy(newArmy, CAUSE_NEW_ARMY_UNGROUPING);
 
 					m_armies->AddTail(new ArmyListNode(newArmy));
@@ -864,7 +864,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 
 	if(!armypool_Get()->IsValid(theArmy) ||
 		theArmy.Num() <= 0)
-		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
+		selitem_Get()->Deselect(selitem_Get()->GetVisiblePlayer());
 
 	NotifySelection();
 
@@ -980,7 +980,7 @@ STDEHANDLER(ArmyManagerArmyMoved)
 	if(!args->GetArmy(0, a))
 		return GEV_HD_Continue;
 
-    if (a.GetOwner() == g_selected_item->GetVisiblePlayer())
+    if (a.GetOwner() == selitem_Get()->GetVisiblePlayer())
     {
         ArmyManagerWindow::NotifySelection();
     }

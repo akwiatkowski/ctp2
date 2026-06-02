@@ -253,7 +253,7 @@ void CityControlPanel::EditBuildQueueButtonActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -302,7 +302,7 @@ void CityControlPanel::ToggleGovernorButtonActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -336,9 +336,9 @@ void CityControlPanel::SelectGovernorActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_DROPDOWN_ACTION_SELECT))
 		return;
 
-	if(!g_selected_item)
+	if(!selitem_Get())
 		return;
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -393,14 +393,14 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 	CityData *cd = cityControlPanel->GetSelectedCity();
 
 	if(cd) {  // City data pointer is valid
-		if(g_selected_item) {
+		if(selitem_Get()) {
 			Unit oldCity;
-			if(g_selected_item->GetSelectedCity(oldCity) && (oldCity.m_id == cd->GetHomeCity().m_id)) {
+			if(selitem_Get()->GetSelectedCity(oldCity) && (oldCity.m_id == cd->GetHomeCity().m_id)) {
 			// same city selected as before, nothing to do
 
 			} else {
  				// City has changed, do the neccessary
-				g_selected_item->SetSelectCity(cd->GetHomeCity());
+				selitem_Get()->SetSelectCity(cd->GetHomeCity());
 
 				MapPoint pos = cd->GetHomeCity().RetPos(); // Not needed
 
@@ -424,7 +424,7 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 // Parameters : -
 //
 // Globals    : player_Get()    : player accessor
-//              g_selected_item : currently selected item
+//              selitem_Get() : currently selected item
 //
 // Returns    : -
 //
@@ -433,7 +433,7 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 //----------------------------------------------------------------------------
 void CityControlPanel::UpdateBuildItem()
 {
-	sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
+	sint32 const	visiblePlayer	= selitem_Get()->GetVisiblePlayer();
 	Player *		player			= player_Get(visiblePlayer);
 	if(!player || (player->GetNumCities() <= 0))
 	{
@@ -464,7 +464,7 @@ void CityControlPanel::UpdateBuildItem()
 	BuildQueue *	queue			= theCity ? theCity->GetBuildQueue() : NULL;
 	BuildNode *		head			= queue ? queue->GetHead() : NULL;
 	sint32 const	cost			= theCity ? theCity->GetOvertimeCost() : 0;
-	bool const		isMyTurn		= visiblePlayer == g_selected_item->GetCurPlayer();
+	bool const		isMyTurn		= visiblePlayer == selitem_Get()->GetCurPlayer();
 
 	// Do update the rush buy button, even when the production has not changed.
 	if ((cost <= 0)							||
@@ -576,7 +576,7 @@ void CityControlPanel::ClearBuildItem()
 void CityControlPanel::UpdateGovernor()
 {
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	sint32 numberOfItems =
 		m_cityListDropDown->GetListBox()->NumItems();
@@ -668,7 +668,7 @@ void CityControlPanel::UpdateCityList()
 	m_cityListDropDown->Clear();
 
 	// Set the player
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -808,7 +808,7 @@ const MBCHAR *CityControlPanel::GetBuildIcon(const BuildNode *buildNode)
 void CityControlPanel::SelectedCity()
 {
 	Unit newCity;
-	if(!g_selected_item->GetSelectedCity(newCity))
+	if(!selitem_Get()->GetSelectedCity(newCity))
 		return;
 
 	CityData *oldCityData = GetSelectedCity();
@@ -838,14 +838,14 @@ void CityControlPanel::SelectedCity()
 void CityControlPanel::Activated()
 {
 	Unit city;
-	if(g_selected_item->GetSelectedCity(city))
+	if(selitem_Get()->GetSelectedCity(city))
 		return;
 
 
-	if(!g_selected_item)
+	if(!selitem_Get())
 		return;
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if(!player)
 		return;
@@ -853,14 +853,14 @@ void CityControlPanel::Activated()
 	ID id;
 	PLAYER_INDEX playerIndex;
 	SELECT_TYPE selectionType;
-	g_selected_item->GetTopCurItem(playerIndex, id,
+	selitem_Get()->GetTopCurItem(playerIndex, id,
 		selectionType);
 
   	if(selectionType != SELECT_TYPE_NONE) {
 
-		Unit city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
+		Unit city = world_Get()->GetCity(selitem_Get()->GetCurSelectPos());
 		if(city.IsValid()) {
-			g_selected_item->SetSelectCity(city);
+			selitem_Get()->SetSelectCity(city);
 		}
 	}
 }

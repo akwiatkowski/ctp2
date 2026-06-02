@@ -64,18 +64,18 @@ AUI_ERRCODE domesticcontrolpanel_HappinessDrawCallback(ctp2_Static *control,
                                                        RECT &rect,
                                                        void *cookie)
 {
-	if (g_selected_item==NULL)
+	if (selitem_Get()==NULL)
 		return AUI_ERRCODE_OK;
 
 	sint32 hapvals[3];
 	float total;
 
-	if(!player_Get(g_selected_item->GetVisiblePlayer())) {
+	if(!player_Get(selitem_Get()->GetVisiblePlayer())) {
 
 		return AUI_ERRCODE_OK;
 	}
 
-	player_Get(g_selected_item->GetVisiblePlayer())->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
+	player_Get(selitem_Get()->GetVisiblePlayer())->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
 
 	total = (float)(hapvals[0]+hapvals[1]+hapvals[2]);
 
@@ -287,7 +287,7 @@ void DomesticControlPanel::EditResearchButtonActionCallback(aui_Control *control
 
 void DomesticControlPanel::UpdateScience()
 {
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player) {
 		ClearScience();
 		return;
@@ -352,7 +352,7 @@ void DomesticControlPanel::ClearScience()
 
 void DomesticControlPanel::UpdateStats()
 {
-	if(!player_Get(g_selected_item->GetVisiblePlayer())) {
+	if(!player_Get(selitem_Get()->GetVisiblePlayer())) {
 
 		return;
 	}
@@ -360,14 +360,14 @@ void DomesticControlPanel::UpdateStats()
 	sint32 cities, population, pw, government, science, pollution;
 	double scienceTax = 0.0;
 
-	cities = player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities();
-	population = player_Get(g_selected_item->GetVisiblePlayer())->GetTotalPopulation();
-	pw = static_cast<sint32>((player_Get(g_selected_item->GetVisiblePlayer())->m_materialsTax * 100.0) + 0.5);
-	government = player_Get(g_selected_item->GetVisiblePlayer())->GetGovernmentType();
+	cities = player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities();
+	population = player_Get(selitem_Get()->GetVisiblePlayer())->GetTotalPopulation();
+	pw = static_cast<sint32>((player_Get(selitem_Get()->GetVisiblePlayer())->m_materialsTax * 100.0) + 0.5);
+	government = player_Get(selitem_Get()->GetVisiblePlayer())->GetGovernmentType();
 
-	player_Get(g_selected_item->GetVisiblePlayer())->GetScienceTaxRate(scienceTax);
+	player_Get(selitem_Get()->GetVisiblePlayer())->GetScienceTaxRate(scienceTax);
 	science = AsPercentage(scienceTax);
-	pollution = player_Get(g_selected_item->GetVisiblePlayer())->GetPollutionLevel();
+	pollution = player_Get(selitem_Get()->GetVisiblePlayer())->GetPollutionLevel();
 
 	if(cities == m_currentCities && population == m_currentPopulation &&
 		pw == m_currentPW && government == m_currentGovernment &&
@@ -411,11 +411,11 @@ void DomesticControlPanel::UpdateStats()
 void DomesticControlPanel::UpdateGoldPW()
 {
 
-	if (player_Get(g_selected_item->GetVisiblePlayer()) == NULL)
+	if (player_Get(selitem_Get()->GetVisiblePlayer()) == NULL)
 		return;
 
-	sint32 gold = player_Get(g_selected_item->GetVisiblePlayer())->GetGold();
-	sint32 pw = player_Get(g_selected_item->GetVisiblePlayer())->GetMaterialsStored();
+	sint32 gold = player_Get(selitem_Get()->GetVisiblePlayer())->GetGold();
+	sint32 pw = player_Get(selitem_Get()->GetVisiblePlayer())->GetMaterialsStored();
 
 	if(gold == m_currentGold && pw == m_currentPW)
 		return;
@@ -443,13 +443,13 @@ AUI_ERRCODE DomesticControlPanel::DrawScienceBar(ctp2_Static *control,
                                                  RECT &rect,
                                                  void *cookie )
 {
-	if(!g_selected_item)
+	if(!selitem_Get())
 		return AUI_ERRCODE_OK;
 
-	if(g_selected_item->GetVisiblePlayer() < 0)
+	if(selitem_Get()->GetVisiblePlayer() < 0)
 		return AUI_ERRCODE_OK;
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!player)
 		return AUI_ERRCODE_OK;
 

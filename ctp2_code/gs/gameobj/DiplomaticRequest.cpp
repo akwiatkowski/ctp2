@@ -11,7 +11,6 @@
 #include "net/general/net_info.h"
 #include "gs/outcom/AICause.h"
 
-extern	Player	**g_player ;
 
 #include "gs/gameobj/DiplomaticRequestPool.h"   // diplomaticrequestpool_Get()
 

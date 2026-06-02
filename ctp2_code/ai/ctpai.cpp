@@ -1367,7 +1367,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 //
 // Parameters : playerId	: index of - computer - player
 //
-// Globals    : g_player
+// Globals    : player_Get()
 //              world_Get()
 //              gevmanager_Get()
 //

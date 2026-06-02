@@ -44,7 +44,7 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "gs/gameobj/CityRadius.h"
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"

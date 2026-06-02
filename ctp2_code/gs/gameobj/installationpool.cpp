@@ -25,7 +25,7 @@ Installation InstallationPool::Create(sint32 owner,
 	newData = new InstallationData(newInstallation, owner, pnt, type);
 
 	Insert(newData);
-	g_player[owner]->AddInstallation(newInstallation);
+	player_Get(owner)->AddInstallation(newInstallation);
 	g_theWorld->InsertInstallation(newInstallation, pnt);
 	newData->DoVision();
 	return newInstallation;

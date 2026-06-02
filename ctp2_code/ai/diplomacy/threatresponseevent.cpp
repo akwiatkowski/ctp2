@@ -39,7 +39,7 @@ STDEHANDLER(DefaultReject_ThreatResponseEvent)
 	if (proposal.detail.first_type == PROPOSAL_REQUEST_GIVE_CITY ||
 		proposal.detail.second_type == PROPOSAL_REQUEST_GIVE_CITY)
 	{
-		Player *receiver_ptr = g_player[receiver];
+		Player *receiver_ptr = player_Get(receiver);
 		if (receiver_ptr && receiver_ptr->GetNumCities() <= 2)
 		{
 

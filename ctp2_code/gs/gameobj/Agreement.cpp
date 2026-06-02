@@ -13,7 +13,6 @@
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
 
-	extern	Player	**g_player ;
 	extern	TurnCount	*g_turn ;
 
 	#include "gs/gameobj/AgreementPool.h"   // agreementpool_Get()

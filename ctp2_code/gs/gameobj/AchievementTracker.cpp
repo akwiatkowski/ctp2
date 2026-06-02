@@ -7,7 +7,6 @@
 #include "net/general/net_info.h"
 #include "gs/fileio/gamefile.h"
 
-extern Player **g_player;
 
 // g_theAchievementTracker is defined in gameinit.cpp (where the lifecycle
 // lives); reachable via achievementtracker_Get() declared in

@@ -20,7 +20,7 @@ public:
         // log file, not stderr.
         fprintf(stderr, "[HEADLESS] Turn start for player %d (round %d)\n",
                 player,
-                g_player[player] ? g_player[player]->GetCurRound() : -1);
+                player_Get(player) ? player_Get(player)->GetCurRound() : -1);
     }
 
     void OnTurnEnd(sint32 player) override

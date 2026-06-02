@@ -72,7 +72,7 @@ STDEHANDLER(ScoreEventTest)
 	GameEventArgument *arg = args->GetArg(GEA_Player, 0);
 	sint32 player;
 	if(arg->GetPlayer(player)) {
-		g_player[player]->m_score->AddYearAtPeace();
+		player_Get(player)->m_score->AddYearAtPeace();
 	}
 	return GEV_HD_Continue;
 }

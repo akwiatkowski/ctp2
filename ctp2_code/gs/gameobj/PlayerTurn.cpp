@@ -228,5 +228,5 @@ void Player::BeginTurn()
 
 	pollution_Get()->BeginTurn();
 
-	g_player[m_owner]->PreResourceCalculation();
+	player_Get(m_owner)->PreResourceCalculation();
 }

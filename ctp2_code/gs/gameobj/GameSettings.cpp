@@ -35,7 +35,6 @@
 #include "gs/gameobj/EndGame.h"
 
 extern ProfileDB *g_theProfileDB;
-extern Player **g_player;
 extern BOOL			g_setDifficultyUponLaunch;
 extern sint32		g_difficultyToSetUponLaunch;
 extern BOOL			g_setBarbarianRiskUponLaunch;

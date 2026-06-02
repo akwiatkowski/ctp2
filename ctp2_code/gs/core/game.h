@@ -14,6 +14,10 @@ class UnitPool;
 class ArmyPool;
 class Pollution;
 class TopTen;
+class GameSettings;
+class MessagePool;
+class CivilisationPool;
+class WonderTracker;
 class SlicEngine;
 class GameEventManager;
 class CivArchive;
@@ -71,6 +75,18 @@ public:
     TopTen& GetTopTen() { return *m_topten; }
     const TopTen& GetTopTen() const { return *m_topten; }
 
+    GameSettings& GetSettings() { return *m_settings; }
+    const GameSettings& GetSettings() const { return *m_settings; }
+
+    MessagePool& GetMessages() { return *m_messagePool; }
+    const MessagePool& GetMessages() const { return *m_messagePool; }
+
+    CivilisationPool& GetCivilisations() { return *m_civilisationPool; }
+    const CivilisationPool& GetCivilisations() const { return *m_civilisationPool; }
+
+    WonderTracker& GetWonders() { return *m_wonderTracker; }
+    const WonderTracker& GetWonders() const { return *m_wonderTracker; }
+
     SlicEngine& GetSlic() { return *m_slic; }
     GameEventManager& GetEvents() { return *m_events; }
 
@@ -84,8 +100,12 @@ private:
     std::unique_ptr<UnitPool> m_unitPool;
     std::unique_ptr<ArmyPool> m_armyPool;
 
-    std::unique_ptr<Pollution> m_pollution;
-    std::unique_ptr<TopTen>    m_topten;
+    std::unique_ptr<Pollution>        m_pollution;
+    std::unique_ptr<TopTen>           m_topten;
+    std::unique_ptr<GameSettings>     m_settings;
+    std::unique_ptr<MessagePool>      m_messagePool;
+    std::unique_ptr<CivilisationPool> m_civilisationPool;
+    std::unique_ptr<WonderTracker>    m_wonderTracker;
 
     std::unique_ptr<SlicEngine> m_slic;
     std::unique_ptr<GameEventManager> m_events;

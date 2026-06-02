@@ -251,7 +251,7 @@ double                              g_ave_frame_rate = 10.0;
 double                              g_ave_frame_time = 200.0;
 ScreenManager                       *g_screenManager = NULL;
 
-TiledMap                            *g_tiledMap = NULL;
+static TiledMap                     *g_tiledMap = NULL;
 
 TiledMap * tiledmap_Get(void)         { return g_tiledMap; }
 void       tiledmap_Set(TiledMap *p)  { g_tiledMap = p; }

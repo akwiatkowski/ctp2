@@ -74,11 +74,9 @@ struct  TILEHITMASK;
 #define k_ZOOM_SMALLEST             0
 #define k_ZOOM_LARGEST              5
 
-extern TiledMap *   g_tiledMap;
-
 // Session-singleton accessor pair, mirroring world_Get / gevmanager_Get
-// / slicengine_Get.  Callers should use tiledmap_Get() instead of
-// reaching for g_tiledMap directly.
+// / slicengine_Get.  The legacy g_tiledMap pointer is now file-static
+// in ctp/civ3_main.cpp; outside callers must go through these accessors.
 TiledMap * tiledmap_Get(void);
 void       tiledmap_Set(TiledMap *p);
 

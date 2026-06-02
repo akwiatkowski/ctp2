@@ -141,7 +141,6 @@ extern sint32           g_tradeSelectedState;
 extern sint32           g_fog_toggle;
 extern sint32           g_god;
 extern sint32           g_isCheatModeOn;
-extern TiledMap         *g_tiledMap;
 extern BOOL             g_show_ai_dbg;
 extern sint32           g_modalWindow;
 
@@ -246,7 +245,7 @@ TiledMap::TiledMap(MapPoint &size)
 	SetZoomLevel(k_ZOOM_NORMAL);
 	GenerateHitMask();  // fills m_tileHitMask[]
 
-	// Bridge g_tiledMap → tiledmap_observer interface so gs/ and ai/ code
+	// Bridge tiledmap_Get() → tiledmap_observer interface so gs/ and ai/ code
 	// can call tiledmap_observer::RedrawTile(...) etc. without depending
 	// on gfx/.  Headless never constructs a TiledMap → observer stays
 	// unregistered → all calls become no-ops.  Idempotent across the
@@ -2284,7 +2283,7 @@ void TiledMap::PaintArmyActors(MapPoint &pos)
 	}
 
 	sint32	x, y;
-	double	scale = g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST);
+	double	scale = tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST);
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
 
@@ -2502,8 +2501,8 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 		return 0;
 
 #ifdef _DEBUG
-	g_tiledMap->DrawRectMetrics();
-	g_tiledMap->RectMetricNewLoop();
+	tiledmap_Get()->DrawRectMetrics();
+	tiledmap_Get()->RectMetricNewLoop();
 #endif
 
 	for (sint32 i=paintRect->top; i<paintRect->bottom; i++) {
@@ -2978,7 +2977,7 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	if (g_spriteEditWindow)
 		g_spriteEditWindow->DrawSprite();
 
-	g_tiledMap->DrawTerrainOverlay(surf);
+	tiledmap_Get()->DrawTerrainOverlay(surf);
 
 	if (!scrolling)
 	{
@@ -2989,12 +2988,12 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 
 	if (g_theProfileDB->GetShowCityNames())
 	{
-		g_tiledMap->DrawCityNames(surf, 0);
+		tiledmap_Get()->DrawCityNames(surf, 0);
 	}
 
 	if (ScenarioEditor::ShowStartFlags())
 	{
-		g_tiledMap->DrawStartingLocations(surf, 0);
+		tiledmap_Get()->DrawStartingLocations(surf, 0);
 	}
 
 	return 0;

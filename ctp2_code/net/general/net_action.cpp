@@ -1495,13 +1495,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Army army(m_data[0]);
 
 			if(armypool_Get()->IsValid(army)) {
-				g_gevManager->Pause();
+				gevmanager_Get()->Pause();
 				BOOL res = army->ExecuteOrders();
 				Assert(res);
 				if(!res) {
 					g_network.Resync(index);
 				}
-				g_gevManager->Resume();
+				gevmanager_Get()->Resume();
 			} else {
 				DPRINTF(k_DBG_NET, ("Invalid army %lx\n", m_data[0]));
 			}
@@ -1664,7 +1664,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit city(m_data[0]);
 			Assert(unitpool_Get()->IsValid(city));
 			if(unitpool_Get()->IsValid(city)) {
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity,
 									   GEA_City, city.m_id,
 									   GEA_End);
 			}
@@ -1977,7 +1977,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_START_MOVE_PHASE:
 		{
 			DPRINTF(k_DBG_NET, ("Client %d ready for move phase\n", index));
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 								   GEV_StartMovePhase,
 								   GEA_Player, index,
 								   GEA_End);
@@ -2022,7 +2022,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				break;
 			}
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 								   GEA_Unit, m_data[0],
 								   GEA_End);
 			break;

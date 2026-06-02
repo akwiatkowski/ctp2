@@ -1235,7 +1235,7 @@ void Network::SessionLost()
 
 bool Network::ReadyForPackets()
 {
-	if(g_gevManager->EventsPending())
+	if(gevmanager_Get()->EventsPending())
 		return false;
 	else
 		return true;
@@ -3100,7 +3100,7 @@ void Network::TurnSync()
 
 		DPRINTF(k_DBG_NET, ("Adding finish begin turn for player %d.  Rand call count: %d\n",
 							g_selected_item->GetCurPlayer(), rand_ptr()->CallCount()));
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_FinishBeginTurn,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_FinishBeginTurn,
 							   GEA_Player, g_selected_item->GetCurPlayer(),
 							   GEA_End);
 		if(player_Get(g_selected_item->GetCurPlayer())->IsRobot())
@@ -3255,7 +3255,7 @@ void Network::AckBeginTurn(PLAYER_INDEX index)
 
 
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		GEV_BeginTurn,
 		GEA_Player, index,
 		GEA_Int, player_Get(index)->m_current_round + 1,
@@ -3708,7 +3708,7 @@ void Network::Resync(sint32 playerIndex)
 		   !m_playerData[playerIndex]->m_ackBeginTurn) {
 
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 				GEV_BeginTurn,
 				GEA_Player, playerIndex,
 				GEA_Int, player_Get(playerIndex)->m_current_round,
@@ -3776,8 +3776,8 @@ void Network::StartResync()
 	}
 	c3_AbortMessage(nonConstStr, k_UTILITY_PROGRESS_ABORT, network_AbortCallback );
 
-	if(g_gevManager)
-		g_gevManager->NotifyResync();
+	if(gevmanager_Get())
+		gevmanager_Get()->NotifyResync();
 
 	if(g_director)
 		g_director->NotifyResync();

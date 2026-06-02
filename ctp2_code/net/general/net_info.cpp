@@ -369,7 +369,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 					g_network.SetSensitiveUIBlocked(true);
 
-					g_gevManager->AddEvent(GEV_INSERT_Tail,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 										   GEV_BeginTurn,
 										   GEA_Player, m_data,
 										   GEA_Int, player_Get(m_data)->GetCurRound() + 1,
@@ -1001,11 +1001,11 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Army army(m_data);
 
 			if(armypool_Get()->IsValid(army)) {
-				g_gevManager->Pause();
+				gevmanager_Get()->Pause();
 				BOOL res = army->ExecuteOrders();
 
 				Assert(res);
-				g_gevManager->Resume();
+				gevmanager_Get()->Resume();
 			} else {
 				DPRINTF(k_DBG_NET, ("Server: Received EXECUTE_ORDERS for invalid army %lx\n", m_data));
 			}
@@ -1636,7 +1636,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-				g_gevManager->AddEvent(GEV_INSERT_Tail,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 									   GEV_AIFinishBeginTurn,
 									   GEA_Player, m_data,
 									   GEA_End);
@@ -1653,7 +1653,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				}
 				else
 				{
-					g_gevManager->AddEvent(GEV_INSERT_Tail,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 										   GEV_FinishBuildPhase, // GEV_StartMovePhase,
 										   GEA_Player, m_data,
 										   GEA_End
@@ -1733,7 +1733,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(!armypool_Get()->IsValid(m_data)) {
 				g_network.RequestResync(RESYNC_INVALID_ARMY_OTHER);
 			} else {
-				g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
+				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_Reentry,
 									   GEA_Army, m_data,
 									   GEA_End);
 			}
@@ -1759,7 +1759,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(!city.IsValid()) {
 				g_network.RequestResync(RESYNC_INVALID_UNIT);
 			} else {
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateWonder,
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateWonder,
 									   GEA_City, m_data,
 									   GEA_Int, m_data2,
 									   GEA_End);

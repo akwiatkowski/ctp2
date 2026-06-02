@@ -134,7 +134,7 @@ void NetDipProposal::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Diplomat::GetDiplomat(m_prop.senderId).SetMyLastNewProposal(m_prop.receiverId, m_prop);
 	if(execute) {
 		Diplomat::GetDiplomat(m_prop.senderId).ExecuteNewProposal(m_prop.receiverId);
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_NewProposalReady,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_NewProposalReady,
 							   GEA_Player, m_prop.senderId,
 							   GEA_Player, m_prop.receiverId,
 							   GEA_End);
@@ -210,9 +210,9 @@ void NetDipResponse::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Diplomat::GetDiplomat(m_executor).SetMyLastResponse(m_executor == m_resp.receiverId ? m_resp.senderId : m_resp.receiverId, m_resp);
 	if(execute) {
 		g_network.Block(m_executor);
-		g_gevManager->Pause();
+		gevmanager_Get()->Pause();
 		Diplomat::GetDiplomat(m_executor).ExecuteResponse(m_resp);
-		g_gevManager->Resume();
+		gevmanager_Get()->Resume();
 		g_network.Unblock(m_executor);
 
 

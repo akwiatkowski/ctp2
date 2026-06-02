@@ -51,6 +51,7 @@
 
 #include "net/general/net_city.h"
 #include "net/general/net_happy.h"
+#include "gs/events/GameEventManager.h"
 
 STDEHANDLER(NetBeginTurnEvent)
 {
@@ -239,17 +240,17 @@ STDEHANDLER(NetCreatedWonderEvent)
 
 void networkevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_BeginTurn, GEV_PRI_Pre, &s_NetBeginTurnEvent);
-	g_gevManager->AddCallback(GEV_NetworkTurnSync, GEV_PRI_Primary, &s_NetTurnSyncEvent);
+	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Pre, &s_NetBeginTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_NetworkTurnSync, GEV_PRI_Primary, &s_NetTurnSyncEvent);
 
-	g_gevManager->AddCallback(GEV_NewProposal, GEV_PRI_Primary, &s_NetNewProposalEvent);
-	g_gevManager->AddCallback(GEV_ResponseReady, GEV_PRI_Primary, &s_NetResponseEvent);
+	gevmanager_Get()->AddCallback(GEV_NewProposal, GEV_PRI_Primary, &s_NetNewProposalEvent);
+	gevmanager_Get()->AddCallback(GEV_ResponseReady, GEV_PRI_Primary, &s_NetResponseEvent);
 
-	g_gevManager->AddCallback(GEV_StartMovePhase, GEV_PRI_Pre, &s_NetStartMovePhaseEvent);
+	gevmanager_Get()->AddCallback(GEV_StartMovePhase, GEV_PRI_Pre, &s_NetStartMovePhaseEvent);
 
-	g_gevManager->AddCallback(GEV_AIFinishBeginTurn, GEV_PRI_Post, &s_NetAIFinishBeginTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_AIFinishBeginTurn, GEV_PRI_Post, &s_NetAIFinishBeginTurnEvent);
 
-	g_gevManager->AddCallback(GEV_EndAIClientTurn, GEV_PRI_Primary, &s_NetEndAIClientTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_EndAIClientTurn, GEV_PRI_Primary, &s_NetEndAIClientTurnEvent);
 
 }
 

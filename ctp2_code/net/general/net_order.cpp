@@ -203,11 +203,11 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 						pathstr));
 #endif
 
-	bool needInput = g_gevManager->NeedUserInput();
-	g_gevManager->SetNeedUserInput();
+	bool needInput = gevmanager_Get()->NeedUserInput();
+	gevmanager_Get()->SetNeedUserInput();
 	m_army->AddOrders(m_order, path, m_point, m_argument, m_event);
 	if(!needInput) {
-		g_gevManager->GotUserInput();
+		gevmanager_Get()->GotUserInput();
 	}
 
 

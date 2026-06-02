@@ -397,7 +397,7 @@ void WatchListItem::WatchCallback(SlicSymbolData *symbol, bool isAddCallback)
 	if(!isAddCallback) {
 		Update();
 		if(m_break) {
-			g_slicEngine->RequestBreak();
+			slicengine_Get()->RequestBreak();
 		}
 	} else {
 		m_watching->AddTail(symbol);

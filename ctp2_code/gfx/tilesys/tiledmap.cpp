@@ -5071,7 +5071,7 @@ void TiledMap::CopyVision()
 // Parameters : -
 //
 // Globals    : g_network       : multiplayer information
-//              g_slicEngine    : general game engine
+//              slicengine_Get(): general game engine
 //              g_selected_item : selected item on screen
 //              turn_Get()      : turn information
 //
@@ -5093,7 +5093,7 @@ bool TiledMap::ReadyToDraw() const
 		return false;
     }
 
-    return g_slicEngine     && !g_slicEngine->ShouldScreenBeBlank() &&
+    return slicengine_Get() && !slicengine_Get()->ShouldScreenBeBlank() &&
            g_selected_item  &&
            turn_Get()       &&
                 ((turn_Get()->GetRound() > 0) || (m_localVision->GetOwner() > 0));

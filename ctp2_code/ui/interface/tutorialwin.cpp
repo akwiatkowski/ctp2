@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -61,7 +61,6 @@ extern C3UI			*g_c3ui;
 extern Player		**g_player;
 extern SelectedItem	*g_selected_item;
 
-extern SlicEngine	*g_slicEngine;
 
 extern ProfileDB	*g_theProfileDB;
 
@@ -111,7 +110,7 @@ void tutorialwin_ListCallback( aui_Control *control, uint32 action, uint32 data,
 	sint32 i = 0;
 
 	sint32 player = g_selected_item->GetVisiblePlayer();
-	PointerList<SlicRecord> *recordList = g_slicEngine->GetRecords(player);
+	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return;
 
 	PointerList<SlicRecord>::Walker walk(recordList);
@@ -236,7 +235,7 @@ sint32 TutorialWin::UpdateData( void )
 	sint32 i = 0;
 
 	sint32 player = g_selected_item->GetVisiblePlayer();
-	PointerList<SlicRecord> *recordList = g_slicEngine->GetRecords(player);
+	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return -1;
 
 	m_list->Clear();
@@ -265,7 +264,7 @@ sint32 TutorialWin::AddToList( MBCHAR *text, sint32 index )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	sint32 player = g_selected_item->GetVisiblePlayer();
-	PointerList<SlicRecord> *recordList = g_slicEngine->GetRecords(player);
+	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return -1;
 
 	snprintf(ldlBlock, sizeof(ldlBlock), "TutorialListItem" );

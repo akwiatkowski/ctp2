@@ -394,15 +394,15 @@ void SourceList::Continue()
 		}
 	}
 
-	if(g_slicEngine->AtBreak()) {
-		g_slicEngine->Continue();
+	if(slicengine_Get()->AtBreak()) {
+		slicengine_Get()->Continue();
 	}
 }
 
 void SourceList::StepInto()
 {
 
-	g_slicEngine->RequestBreak();
+	slicengine_Get()->RequestBreak();
 	Continue();
 }
 
@@ -511,7 +511,7 @@ void SourceListItem::Continue()
 {
 	m_activeBreak = false;
 	Update();
-	g_slicEngine->Continue();
+		slicengine_Get()->Continue();
 }
 
 void SourceListItem::ToggleBreak()

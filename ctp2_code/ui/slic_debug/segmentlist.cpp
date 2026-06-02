@@ -231,7 +231,7 @@ sint32 SegmentList::UpdateData(void)
     {
 	m_list->Clear();
 
-	SlicSegmentHash *hash = g_slicEngine->GetSegmentHash();
+	SlicSegmentHash *hash = slicengine_Get()->GetSegmentHash();
 	    for (sint32 i = 0; i < hash->m_numSegments; ++i)
         {
             AUI_ERRCODE         retval = AUI_ERRCODE_OK;

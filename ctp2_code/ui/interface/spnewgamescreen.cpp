@@ -117,7 +117,7 @@ sint32 spnewgamescreen_displayMyWindow()
 		g_spNewGameWindow->m_useCustomMap=false;
 		g_civPaths->ClearCurScenarioPath();
 
-		if (g_slicEngine)
+		if (slicengine_Get())
 		{
 			SlicEngine::Reload(g_slic_filename);
 		}

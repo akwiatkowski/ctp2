@@ -14,7 +14,7 @@
 #include "robot/aibackdoor/dynarr.h"
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
 #include "gfx/spritesys/director.h"           // g_director
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "gfx/tilesys/BaseTile.h"
 #include "gs/world/TileInfo.h"
 #include "gfx/tilesys/tileset.h"
@@ -223,7 +223,7 @@ void WorkMap::MouseMoveInside(aui_MouseEvent *data)
 	SetHiliteMouseTile(m_current_mouse_tile);
 
 	m_drawHilite = TRUE;
-	g_tiledMap->DrawHilite( FALSE );
+	tiledmap_Get()->DrawHilite( FALSE );
 }
 
 void WorkMap::MouseMoveAway(aui_MouseEvent *data)
@@ -262,14 +262,14 @@ sint32 WorkMap::DrawSurface(void)
 	else
 		return 0;
 
-	double scale = g_tiledMap->GetScale();
-	sint32 zoomLevel = g_tiledMap->GetZoomLevel();
+	double scale = tiledmap_Get()->GetScale();
+	sint32 zoomLevel = tiledmap_Get()->GetZoomLevel();
 
 	if ( m_scale ) {
-		g_tiledMap->SetZoomLevel(k_ZOOM_SMALLEST );
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_SMALLEST );
 	}
 	else {
-		g_tiledMap->SetZoomLevel(k_ZOOM_NORMAL );
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_NORMAL );
 	}
 
 	sint32 i;
@@ -281,7 +281,7 @@ sint32 WorkMap::DrawSurface(void)
 				myPos2;
 	sint32		leftEdge, topEdge, temp;
 
-	g_tiledMap->RecalculateViewRect(m_normalizedViewRect);
+	tiledmap_Get()->RecalculateViewRect(m_normalizedViewRect);
 
 	if (myPos1.GetNeighborPosition(NORTHWEST, myPos2)) {
 		myPos2.GetNeighborPosition(WEST, myPos1);
@@ -290,7 +290,7 @@ sint32 WorkMap::DrawSurface(void)
 	} else {
 
 		maputils_MapXY2PixelXY(myPos1.x, myPos1.y, &leftEdge, &temp, &m_normalizedViewRect);
-		leftEdge -= (g_tiledMap->GetZoomTilePixelWidth() + g_tiledMap->GetZoomTilePixelWidth()/2);
+		leftEdge -= (tiledmap_Get()->GetZoomTilePixelWidth() + tiledmap_Get()->GetZoomTilePixelWidth()/2);
 		m_topLeftPos.x = myPos1.x;
 	}
 
@@ -302,13 +302,13 @@ sint32 WorkMap::DrawSurface(void)
 		} else {
 
 			maputils_MapXY2PixelXY(myPos2.x, myPos2.y, &temp, &topEdge, &m_normalizedViewRect);
-			topEdge -= g_tiledMap->GetZoomTilePixelHeight();
+			topEdge -= tiledmap_Get()->GetZoomTilePixelHeight();
 			m_topLeftPos.y = myPos2.y;
 		}
 	} else {
 
 		maputils_MapXY2PixelXY(myPos1.x, myPos1.y, &temp, &topEdge, &m_normalizedViewRect);
-		topEdge -= (g_tiledMap->GetZoomTilePixelHeight() + g_tiledMap->GetZoomTilePixelHeight()/2);
+		topEdge -= (tiledmap_Get()->GetZoomTilePixelHeight() + tiledmap_Get()->GetZoomTilePixelHeight()/2);
 		m_topLeftPos.y = myPos1.y;
 	}
 
@@ -323,16 +323,16 @@ sint32 WorkMap::DrawSurface(void)
 	}
 	m_numWorkers = 0;
 
-	g_tiledMap->LockThisSurface(m_surface);
+	tiledmap_Get()->LockThisSurface(m_surface);
 
 	DrawWorkMapThing(m_surface, DrawATile);
 
-	g_tiledMap->UnlockSurface();
+	tiledmap_Get()->UnlockSurface();
 
-	g_tiledMap->SetZoomLevel(zoomLevel);
-	g_tiledMap->SetScale( scale );
+	tiledmap_Get()->SetZoomLevel(zoomLevel);
+	tiledmap_Get()->SetScale( scale );
 
-	g_tiledMap->GetMapBounds( m_mapBounds );
+	tiledmap_Get()->GetMapBounds( m_mapBounds );
 
 	m_mapViewRect.left = 3;
 	m_mapViewRect.right = 7;
@@ -347,7 +347,7 @@ return 0;
 		pos = newpos;
 	}
 
-	g_tiledMap->GetMapBounds( m_mapBounds );
+	tiledmap_Get()->GetMapBounds( m_mapBounds );
 	sint32 tileX;
 	maputils_MapX2TileX(pos.x, pos.y, &tileX);
 
@@ -359,7 +359,7 @@ return 0;
 	sint32 nudge;
 	sint32 index = 0;
 
-	g_tiledMap->LockThisSurface(m_surface);
+	tiledmap_Get()->LockThisSurface(m_surface);
 
 	for (sint32 y = 0;y < 7;y++) {
 		if (y & 0x01) {
@@ -397,12 +397,12 @@ return 0;
 
 			if (cell->GetOwner() != m_unit.GetOwner()) {
 				if ( !m_scale ) {
-					g_tiledMap->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
+					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
 				}
 				else {
-					g_tiledMap->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
-							g_tiledMap->GetZoomTilePixelWidth(),
-							g_tiledMap->GetZoomTilePixelHeight(),
+					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
+							tiledmap_Get()->GetZoomTilePixelWidth(),
+							tiledmap_Get()->GetZoomTilePixelHeight(),
 							g_colorSet->GetPlayerColor(cell->GetOwner()));
 				}
 
@@ -449,12 +449,12 @@ return 0;
 
 			if (cell->GetOwner() != m_unit.GetOwner()) {
 				if ( !m_scale ) {
-					g_tiledMap->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
+					tiledmap_Get()->DrawTileBorder(m_surface, x*96+nudge, y*24, g_colorSet->GetPlayerColor(cell->GetOwner()));
 				}
 				else {
-					g_tiledMap->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
-									g_tiledMap->GetZoomTilePixelWidth(),
-									g_tiledMap->GetZoomTilePixelHeight(),
+					tiledmap_Get()->DrawTileBorderScaled(m_surface, pos, x*48+nudge, y*12,
+									tiledmap_Get()->GetZoomTilePixelWidth(),
+									tiledmap_Get()->GetZoomTilePixelHeight(),
 									g_colorSet->GetPlayerColor(cell->GetOwner()));
 				}
 				drawBorder = TRUE;
@@ -488,10 +488,10 @@ return 0;
 		pos = newpos;
 	}
 
-	g_tiledMap->UnlockSurface();
+	tiledmap_Get()->UnlockSurface();
 
-	g_tiledMap->SetZoomLevel(zoomLevel);
-	g_tiledMap->SetScale( scale );
+	tiledmap_Get()->SetZoomLevel(zoomLevel);
+	tiledmap_Get()->SetScale( scale );
 
 	return TRUE;
 #endif
@@ -507,14 +507,14 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 	else
 		return 0;
 
-	double scale = g_tiledMap->GetScale();
-	sint32 zoomLevel = g_tiledMap->GetZoomLevel();
+	double scale = tiledmap_Get()->GetScale();
+	sint32 zoomLevel = tiledmap_Get()->GetZoomLevel();
 
 	if ( m_scale ) {
-		g_tiledMap->SetZoomLevel(k_ZOOM_SMALLEST );
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_SMALLEST );
 	}
 	else {
-		g_tiledMap->SetZoomLevel(k_ZOOM_NORMAL );
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_NORMAL );
 	}
 
 	sint32 i;
@@ -524,7 +524,7 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 		pos = newpos;
 	}
 
-	g_tiledMap->GetMapBounds( m_mapBounds );
+	tiledmap_Get()->GetMapBounds( m_mapBounds );
 	sint32 tileX;
 	maputils_MapX2TileX(pos.x, pos.y, &tileX);
 	m_mapViewRect.left = 3;
@@ -535,7 +535,7 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 	sint32 nudge;
 	sint32 index = 0;
 
-	g_tiledMap->LockThisSurface(pSurface);
+	tiledmap_Get()->LockThisSurface(pSurface);
 
 	for (sint32 y = 0;y < 7;y++) {
 		if (y & 0x01) {
@@ -584,10 +584,10 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 		pos = newpos;
 	}
 
-	g_tiledMap->UnlockSurface();
+	tiledmap_Get()->UnlockSurface();
 
-	g_tiledMap->SetZoomLevel(zoomLevel);
-	g_tiledMap->SetScale( scale );
+	tiledmap_Get()->SetZoomLevel(zoomLevel);
+	tiledmap_Get()->SetScale( scale );
 
 	return TRUE;
 }
@@ -605,15 +605,15 @@ BOOL WorkMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *conte
   UnitActorPtr actor = city.GetActor();
 	if (!actor) return FALSE;
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, workMap->GetNormalizedViewRect());
 
 	x -= workMap->GetLeftEdge();
 	y -= workMap->GetTopEdge();
 
-	if (x < 0) x += (mapWidth * g_tiledMap->GetZoomTilePixelWidth());
-	if (y < 0) y += (mapHeight * g_tiledMap->GetZoomTilePixelHeight()/2);
+	if (x < 0) x += (mapWidth * tiledmap_Get()->GetZoomTilePixelWidth());
+	if (y < 0) y += (mapHeight * tiledmap_Get()->GetZoomTilePixelHeight()/2);
 
 	POINT p = {workMap->X(), workMap->Y()};
 	workMap->ToWindow(&p);
@@ -626,10 +626,10 @@ BOOL WorkMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *conte
 
 
 	if ( !workMap->GetScale() ) {
-		actor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_LARGEST));
+		actor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST));
 	}
 	else {
-		actor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST));
+		actor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST));
 	}
 
 	return TRUE;
@@ -648,15 +648,15 @@ BOOL WorkMap::DrawALandCity(aui_Surface *pSurface, MapPoint const & pos, void *c
   UnitActorPtr actor = city.GetActor();
 	if (!actor) return FALSE;
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, workMap->GetNormalizedViewRect());
 
 	x -= workMap->GetLeftEdge();
 	y -= workMap->GetTopEdge();
 
-	if (x < 0) x += (mapWidth * g_tiledMap->GetZoomTilePixelWidth());
-	if (y < 0) y += (mapHeight * g_tiledMap->GetZoomTilePixelHeight()/2);
+	if (x < 0) x += (mapWidth * tiledmap_Get()->GetZoomTilePixelWidth());
+	if (y < 0) y += (mapHeight * tiledmap_Get()->GetZoomTilePixelHeight()/2);
 
 	POINT p = {workMap->X(), workMap->Y()};
 	workMap->ToWindow(&p);
@@ -669,10 +669,10 @@ BOOL WorkMap::DrawALandCity(aui_Surface *pSurface, MapPoint const & pos, void *c
 
 
 	if ( !workMap->GetScale() ) {
-		actor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_LARGEST));
+		actor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST));
 	}
 	else {
-		actor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST));
+		actor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST));
 	}
 
 	return TRUE;
@@ -685,7 +685,7 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 	sint32		mapWidth, mapHeight;
 	sint32		x, y;
 
-	TileInfo *curTileInfo = g_tiledMap->GetTileInfo(pos);
+	TileInfo *curTileInfo = tiledmap_Get()->GetTileInfo(pos);
 	Assert(curTileInfo != NULL);
 	if(!curTileInfo || !curTileInfo->HasGoodActor()) return FALSE;
 
@@ -693,15 +693,15 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 
 	if (!goodActor) return FALSE;
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, workMap->GetNormalizedViewRect());
 
 	x -= workMap->GetLeftEdge();
 	y -= workMap->GetTopEdge();
 
-	if (x < 0) x += (mapWidth * g_tiledMap->GetZoomTilePixelWidth());
-	if (y < 0) y += (mapHeight * g_tiledMap->GetZoomTilePixelHeight()/2);
+	if (x < 0) x += (mapWidth * tiledmap_Get()->GetZoomTilePixelWidth());
+	if (y < 0) y += (mapHeight * tiledmap_Get()->GetZoomTilePixelHeight()/2);
 
 	POINT p = {workMap->X(), workMap->Y()};
 	workMap->ToWindow(&p);
@@ -713,10 +713,10 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 
 
 	if ( !workMap->GetScale() ) {
-		goodActor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_LARGEST));
+		goodActor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST));
 	}
 	else {
-		goodActor->DrawDirect(pSurface, x, y, g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST));
+		goodActor->DrawDirect(pSurface, x, y, tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST));
 	}
 
 	return TRUE;
@@ -728,15 +728,15 @@ BOOL WorkMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *conte
 	sint32		x, y;
 	sint32		mapWidth, mapHeight;
 
-	g_tiledMap->GetMapMetrics(&mapWidth,&mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, workMap->GetNormalizedViewRect());
 
 	x -= workMap->GetLeftEdge();
 	y -= workMap->GetTopEdge();
 
-	if (x < 0) x += (mapWidth * g_tiledMap->GetZoomTilePixelWidth());
-	if (y < 0) y += (mapHeight * g_tiledMap->GetZoomTilePixelHeight()/2);
+	if (x < 0) x += (mapWidth * tiledmap_Get()->GetZoomTilePixelWidth());
+	if (y < 0) y += (mapHeight * tiledmap_Get()->GetZoomTilePixelHeight()/2);
 
 
 
@@ -779,12 +779,12 @@ BOOL WorkMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *conte
 
 		if (cell->GetOwner() != c.GetOwner()) {
 			if ( !workMap->GetScale() ) {
-				g_tiledMap->DrawTileBorder(pSurface, x, y, g_colorSet->GetPlayerColor(cell->GetOwner()));
+				tiledmap_Get()->DrawTileBorder(pSurface, x, y, g_colorSet->GetPlayerColor(cell->GetOwner()));
 			}
 			else {
-				g_tiledMap->DrawTileBorderScaled(pSurface, pos, x, y,
-						g_tiledMap->GetZoomTilePixelWidth(),
-						g_tiledMap->GetZoomTilePixelHeight(),
+				tiledmap_Get()->DrawTileBorderScaled(pSurface, pos, x, y,
+						tiledmap_Get()->GetZoomTilePixelWidth(),
+						tiledmap_Get()->GetZoomTilePixelHeight(),
 						g_colorSet->GetPlayerColor(cell->GetOwner()));
 			}
 		}
@@ -802,10 +802,10 @@ BOOL WorkMap::DrawWorkMapThing(aui_Surface *pSurface, WorkMapDrawFunc *func)
 
 
 
-	sint32 zoomLevel = g_tiledMap->GetZoomLevel();
+	sint32 zoomLevel = tiledmap_Get()->GetZoomLevel();
 
-	if ( m_scale ) g_tiledMap->SetZoomLevel(k_ZOOM_SMALLEST );
-	else g_tiledMap->SetZoomLevel(k_ZOOM_NORMAL );
+	if ( m_scale ) tiledmap_Get()->SetZoomLevel(k_ZOOM_SMALLEST );
+	else tiledmap_Get()->SetZoomLevel(k_ZOOM_NORMAL );
 
 	SquareIterator it(pos, 1);
 	for(it.Start(); !it.End(); it.Next()) {
@@ -813,7 +813,7 @@ BOOL WorkMap::DrawWorkMapThing(aui_Surface *pSurface, WorkMapDrawFunc *func)
 	}
 
 
-	g_tiledMap->SetZoomLevel(zoomLevel);
+	tiledmap_Get()->SetZoomLevel(zoomLevel);
 
 	return TRUE;
 }
@@ -843,10 +843,10 @@ BOOL WorkMap::DrawSprites(aui_Surface *pSurface, RECT *destRect)
 			m_worker[i]->Process();
 
 			if ( !m_scale ) {
-				m_worker[i]->DrawDirect(pSurface, m_worker[i]->GetX()+destRect->left, m_worker[i]->GetY()+destRect->top, g_tiledMap->GetZoomScale(k_ZOOM_LARGEST));
+				m_worker[i]->DrawDirect(pSurface, m_worker[i]->GetX()+destRect->left, m_worker[i]->GetY()+destRect->top, tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST));
 			}
 			else {
-				m_worker[i]->DrawDirect(pSurface, m_worker[i]->GetX()+destRect->left, m_worker[i]->GetY()+destRect->top, g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST));
+				m_worker[i]->DrawDirect(pSurface, m_worker[i]->GetX()+destRect->left, m_worker[i]->GetY()+destRect->top, tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST));
 			}
 		}
 	}
@@ -910,42 +910,42 @@ sint32 WorkMap::CalculateWrap(
 
 	pos = tempPos;
 
-	TileInfo *tileInfo = g_tiledMap->GetTileInfo(pos);
+	TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos);
 	if (tileInfo == NULL) return -1;
 
 	river = tileInfo->GetRiverPiece();
 
-	BaseTile *baseTile = g_tiledMap->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
+	BaseTile *baseTile = tiledmap_Get()->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
 	if (baseTile == NULL) return -1;
 
 	if ( !m_scale ) {
 
-		g_tiledMap->DrawTransitionTile(NULL, pos, x, y);
+		tiledmap_Get()->DrawTransitionTile(NULL, pos, x, y);
 
 
-		g_tiledMap->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
+		tiledmap_Get()->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
 
 		if (river != -1)
 
-			g_tiledMap->DrawOverlay(NULL, g_tiledMap->GetTileSet()->GetRiverData(river), x, y);
+			tiledmap_Get()->DrawOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
 
-		g_tiledMap->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
 
 	}
 	else {
 
-		g_tiledMap->DrawTransitionTileScaled(NULL, pos, x, y, g_tiledMap->GetZoomTilePixelWidth(), g_tiledMap->GetZoomTilePixelHeight() );
+		tiledmap_Get()->DrawTransitionTileScaled(NULL, pos, x, y, tiledmap_Get()->GetZoomTilePixelWidth(), tiledmap_Get()->GetZoomTilePixelHeight() );
 
-		g_tiledMap->DrawScaledOverlay(NULL, baseTile->GetHatData(), x, y,
-										g_tiledMap->GetZoomTilePixelWidth(),
-										g_tiledMap->GetZoomTileGridHeight());
+		tiledmap_Get()->DrawScaledOverlay(NULL, baseTile->GetHatData(), x, y,
+										tiledmap_Get()->GetZoomTilePixelWidth(),
+										tiledmap_Get()->GetZoomTileGridHeight());
 
 		if ( river != -1 )
-			g_tiledMap->DrawScaledOverlay(NULL, g_tiledMap->GetTileSet()->GetRiverData(river), x, y,
-											g_tiledMap->GetZoomTilePixelWidth(),
-											g_tiledMap->GetZoomTileGridHeight());
+			tiledmap_Get()->DrawScaledOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y,
+											tiledmap_Get()->GetZoomTilePixelWidth(),
+											tiledmap_Get()->GetZoomTileGridHeight());
 
-		g_tiledMap->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
 	}
 
 	return 0;
@@ -961,7 +961,7 @@ sint32 WorkMap::DrawImprovements(
 {
 	maputils_WrapPoint(j, i, &j, &i);
 	MapPoint    pos(maputils_TileX2MapX(j, i), i);
-	g_tiledMap->DrawImprovementsLayer(NULL, pos, x, y);
+	tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
 
 	return 0;
 }
@@ -1041,7 +1041,7 @@ void WorkMap::DrawALabel( aui_Surface *surface, MBCHAR *label, sint32 x, sint32 
 		rect.bottom = surface->Height() - 1;
 	}
 
-	g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, label, 0,
+	tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, label, 0,
 		g_colorSet->GetColorRef(COLOR_WHITE), 0);
 }
 
@@ -1061,13 +1061,13 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 	snprintf(prodStr, sizeof(prodStr), "%s %d", m_string->GetString(WM_PROD), m_totalProd );
 	snprintf(goldStr, sizeof(goldStr), "%s %d", m_string->GetString(WM_GOLD), m_totalGold );
 
-	if (g_tiledMap && g_tiledMap->GetFont()) {
-		foodWidth = g_tiledMap->GetFont()->GetStringWidth(foodStr);
-		foodHeight = g_tiledMap->GetFont()->GetMaxHeight();
-		prodWidth = g_tiledMap->GetFont()->GetStringWidth(prodStr);
-		prodHeight = g_tiledMap->GetFont()->GetMaxHeight();
-		goldWidth = g_tiledMap->GetFont()->GetStringWidth(goldStr);
-		goldHeight = g_tiledMap->GetFont()->GetMaxHeight();
+	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
+		foodWidth = tiledmap_Get()->GetFont()->GetStringWidth(foodStr);
+		foodHeight = tiledmap_Get()->GetFont()->GetMaxHeight();
+		prodWidth = tiledmap_Get()->GetFont()->GetStringWidth(prodStr);
+		prodHeight = tiledmap_Get()->GetFont()->GetMaxHeight();
+		goldWidth = tiledmap_Get()->GetFont()->GetStringWidth(goldStr);
+		goldHeight = tiledmap_Get()->GetFont()->GetMaxHeight();
 
 		sint32 offsetWidth = foodWidth, offsetHeight;
 
@@ -1092,13 +1092,13 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 		MBCHAR tiStr[_MAX_PATH];
 		strncpy( tiStr, g_theStringDB->GetNameStr("str_ldl_TILE_RESOURCES_Colon"), sizeof(tiStr) - 1 );
 		tiStr[sizeof(tiStr) - 1] = '\0';
-		sint32 tiLabelWidth = g_tiledMap->GetFont()->GetStringWidth(tiStr);
-		RECT rect = {0, 0, tiLabelWidth, g_tiledMap->GetFont()->GetMaxHeight()};
+		sint32 tiLabelWidth = tiledmap_Get()->GetFont()->GetStringWidth(tiStr);
+		RECT rect = {0, 0, tiLabelWidth, tiledmap_Get()->GetFont()->GetMaxHeight()};
 
 		OffsetRect(&rect, X() + 2, Y() + 2 );
 		ToWindow( &rect );
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, tiStr, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, tiStr, 0,
 			g_colorSet->GetColorRef(COLOR_WHITE), 0);
 
 	}
@@ -1119,7 +1119,7 @@ void WorkMap::CenterNumber( RECT *rect, sint32 &x, sint32 &y, sint32 width, sint
 void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoint &pos)
 {
 	RECT		iconRect;
-	TileSet		*tileSet = g_tiledMap->GetTileSet();
+	TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 	MBCHAR		str[80];
 	sint32		width, height;
 
@@ -1157,25 +1157,25 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 
 	resourceIcon = tileSet->GetMapIconData(MAPICON_RESOURCE1);
 	Assert(resourceIcon); if (!resourceIcon) return;
-	g_tiledMap->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
+	tiledmap_Get()->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
 	snprintf(str, sizeof(str), "%ld", prod);
 
-	if (g_tiledMap && g_tiledMap->GetFont()) {
-		width = g_tiledMap->GetFont()->GetStringWidth(str);
-		height = g_tiledMap->GetFont()->GetMaxHeight();
+	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
+		width = tiledmap_Get()->GetFont()->GetStringWidth(str);
+		height = tiledmap_Get()->GetFont()->GetMaxHeight();
 
 		RECT		rect = {0, 0, width, height};
 
 		CenterNumber( &iconRect, xcenter, ycenter, width, height );
 		OffsetRect( &rect, xcenter, ycenter );
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_BLACK), 0);
 	}
 
@@ -1191,25 +1191,25 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 
 	resourceIcon = tileSet->GetMapIconData(MAPICON_RESOURCE2);
 	Assert(resourceIcon); if (!resourceIcon) return;
-	g_tiledMap->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
+	tiledmap_Get()->DrawColorizedOverlay(resourceIcon, surface, iconRect.left, iconRect.top, color);
 
 	snprintf(str, sizeof(str), "%ld", food);
 
-	if (g_tiledMap && g_tiledMap->GetFont()) {
-		width = g_tiledMap->GetFont()->GetStringWidth(str);
-		height = g_tiledMap->GetFont()->GetMaxHeight();
+	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
+		width = tiledmap_Get()->GetFont()->GetStringWidth(str);
+		height = tiledmap_Get()->GetFont()->GetMaxHeight();
 
 		RECT		rect = {0, 0, width, height};
 
 		CenterNumber( &iconRect, xcenter, ycenter, width, height );
 		OffsetRect( &rect, xcenter, ycenter );
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_BLACK), 0);
 	}
 
@@ -1225,25 +1225,25 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 
 	resourceIcon = tileSet->GetMapIconData( MAPICON_RESOURCE3 );
 	Assert( resourceIcon ); if ( !resourceIcon ) return;
-	g_tiledMap->DrawColorizedOverlay( resourceIcon, surface, iconRect.left, iconRect.top, color );
+	tiledmap_Get()->DrawColorizedOverlay( resourceIcon, surface, iconRect.left, iconRect.top, color );
 
 	snprintf(str, sizeof(str), "%d", gold );
 
-	if (g_tiledMap && g_tiledMap->GetFont()) {
-		width = g_tiledMap->GetFont()->GetStringWidth(str);
-		height = g_tiledMap->GetFont()->GetMaxHeight();
+	if (tiledmap_Get() && tiledmap_Get()->GetFont()) {
+		width = tiledmap_Get()->GetFont()->GetStringWidth(str);
+		height = tiledmap_Get()->GetFont()->GetMaxHeight();
 
 		RECT		rect = {0, 0, width, height};
 
 		CenterNumber( &iconRect, xcenter, ycenter, width, height );
 		OffsetRect( &rect, xcenter, ycenter );
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_WHITE), 0);
 
 		OffsetRect(&rect, -1, -1);
 
-		g_tiledMap->GetFont()->DrawString(surface, &rect, &rect, str, 0,
+		tiledmap_Get()->GetFont()->DrawString(surface, &rect, &rect, str, 0,
 			g_colorSet->GetColorRef(COLOR_BLACK), 0);
 	}
 }
@@ -1276,7 +1276,7 @@ void WorkMap::Click(aui_MouseEvent *data)
 
 BOOL WorkMap::PointInMask(POINT hitPt)
 {
-	TILEHITMASK *	thm			= g_tiledMap->GetTileHitMask();
+	TILEHITMASK *	thm			= tiledmap_Get()->GetTileHitMask();
 	double const	scale		= (m_scale) ? 0.5 : 1.0;
 	sint32 const	x			= (sint32)((double)hitPt.x / scale);
 	sint32 const 	y			= (sint32)(((double)hitPt.y / scale) + k_TILE_PIXEL_HEADROOM);
@@ -1397,20 +1397,20 @@ void WorkMap::SetHiliteMouseTile(MapPoint &pos)
 
 void WorkMap::DrawHiliteMouseTile(aui_Surface *destSurf, RECT *destRect)
 {
-	sint32 zoomLevel = g_tiledMap->GetZoomLevel();
-	double scale = g_tiledMap->GetScale();
+	sint32 zoomLevel = tiledmap_Get()->GetZoomLevel();
+	double scale = tiledmap_Get()->GetScale();
 
 	if ( m_scale ) {
-		g_tiledMap->SetZoomLevel(k_ZOOM_SMALLEST);
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_SMALLEST);
 	}
 	else {
-		g_tiledMap->SetZoomLevel(k_ZOOM_NORMAL );
+		tiledmap_Get()->SetZoomLevel(k_ZOOM_NORMAL );
 	}
 
-	g_tiledMap->DrawHitMask(destSurf, m_hiliteMouseTile, &m_mapViewRect, destRect);
+	tiledmap_Get()->DrawHitMask(destSurf, m_hiliteMouseTile, &m_mapViewRect, destRect);
 
-	g_tiledMap->SetZoomLevel(zoomLevel);
-	g_tiledMap->SetScale( scale );
+	tiledmap_Get()->SetZoomLevel(zoomLevel);
+	tiledmap_Get()->SetScale( scale );
 }
 
 void WorkMap::HandlePop( MapPoint point )

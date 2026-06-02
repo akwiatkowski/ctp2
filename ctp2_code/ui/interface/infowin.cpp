@@ -46,7 +46,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3windows.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
-#include "ui/interface/controlpanelwindow.h"     // g_controlPanel
+#include "ui/interface/controlpanelwindow.h"     // controlpanel_Get()
 #include "ui/aui_ctp2/controlsheet.h"
 #include "gs/utility/Globals.h"                // allocated::clear
 #include "ui/interface/infowindow.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * @brief Register the UI game observer (forwards events to c3ui_Get(), g_controlPanel, etc.)
+ * @brief Register the UI game observer (forwards events to c3ui_Get(), controlpanel_Get(), etc.)
  *
  * Call once during UI app initialization, after all UI globals are created.
  */

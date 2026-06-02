@@ -154,7 +154,6 @@ extern MBCHAR g_advance_list_db_filename[_MAX_PATH];
 extern Background           *g_background;
 extern ChatBox              *g_chatBox;
 extern StatsWindow          *g_statsWindow;
-extern ControlPanelWindow   *g_controlPanel;
 
 extern sint32               g_check_mem;
 extern sint32               g_robotMessages;
@@ -5835,7 +5834,7 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
 
 		director_Get()->NextPlayer();
 		do {
-			g_controlPanel->Idle();
+			controlpanel_Get()->Idle();
             if (civapp_Get())
     			civapp_Get()->Process();
 

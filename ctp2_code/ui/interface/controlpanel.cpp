@@ -101,7 +101,7 @@ extern ProductionTabControl		*g_cp_productionTab;
 extern CityTabControl			*g_cp_cityTab;
 extern UnitsTabControl			*g_cp_unitsTab;
 
-ControlPanelWindow	*g_controlPanel = NULL;
+ControlPanelWindow	*controlpanel_Get() = NULL;
 
 
 
@@ -237,7 +237,7 @@ sint32 controlpanelwindow_Initialize()
 	MBCHAR			controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1];
 
-	if (g_controlPanel) return 0;
+	if (controlpanel_Get()) return 0;
 
 	sint32 windowWidth = k_CONTROL_PANEL_WIDTH;
 	sint32 windowHeight = k_CONTROL_PANEL_HEIGHT;
@@ -249,16 +249,16 @@ sint32 controlpanelwindow_Initialize()
 
 	strcpy(windowBlock, "ControlPanelWindow");
 
-	g_controlPanel = new ControlPanelWindow(&errcode, k_ID_WINDOW_CONTROLPANEL, windowBlock, 16 );
-	Assert( AUI_NEWOK(g_controlPanel, errcode) );
-	if ( !AUI_NEWOK(g_controlPanel, errcode) ) return -1;
+	controlpanel_Get() = new ControlPanelWindow(&errcode, k_ID_WINDOW_CONTROLPANEL, windowBlock, 16 );
+	Assert( AUI_NEWOK(controlpanel_Get(), errcode) );
+	if ( !AUI_NEWOK(controlpanel_Get(), errcode) ) return -1;
 
 
 
 
 
-	g_controlPanel->Resize	(800, g_controlPanel->Height());
-	g_controlPanel->Move	(g_controlPanel->X(), g_ScreenHeight - g_controlPanel->Height());
+	controlpanel_Get()->Resize	(800, controlpanel_Get()->Height());
+	controlpanel_Get()->Move	(controlpanel_Get()->X(), g_ScreenHeight - controlpanel_Get()->Height());
 
 
 
@@ -458,7 +458,7 @@ sint32 controlpanelwindow_InitializeHats()
 sint32 controlpanelwindow_Cleanup( void )
 {
 
-	if (!g_controlPanel) return 0;
+	if (!controlpanel_Get()) return 0;
 
 
 
@@ -525,8 +525,8 @@ if (s_donkeys) {
 
 	CityWindow::Cleanup();
 
-	delete g_controlPanel;
-	g_controlPanel = NULL;
+	delete controlpanel_Get();
+	controlpanel_Get() = NULL;
 
 	return 0;
 }
@@ -557,7 +557,7 @@ HideControlPanel()
 	HideElement(radarwindow_Get()       );
 
 
-	HideElement((aui_Window*)g_controlPanel->GetWindow());
+	HideElement((aui_Window*)controlpanel_Get()->GetWindow());
 	HideElement(s_button                );
 	HideElement(s_debugButton           );
 	HideElement(s_resourceButton        );

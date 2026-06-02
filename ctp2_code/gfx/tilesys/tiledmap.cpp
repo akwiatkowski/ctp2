@@ -81,7 +81,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
-#include "ui/interface/controlpanelwindow.h"         // g_controlPanel
+#include "ui/interface/controlpanelwindow.h"         // controlpanel_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "gfx/spritesys/director.h"                   // director_Get()

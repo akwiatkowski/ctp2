@@ -96,7 +96,7 @@
 #include "gs/core/game_observer_registration.h"
 #include <clocale>
 #include "gfx/gfx_utils/colorset.h"
-#include "ui/interface/controlpanelwindow.h"         // g_controlPanel
+#include "ui/interface/controlpanelwindow.h"         // controlpanel_Get()
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/aui_ctp2/ctp2_menubar.h"
@@ -670,8 +670,8 @@ bool ui_CheckForScroll(void)
 	sint32		hscroll = g_tiledMap->GetZoomTilePixelWidth();
 	sint32		vscroll = g_tiledMap->GetZoomTilePixelHeight()/2;
 
-	if (g_controlPanel)
-		g_controlPanel->Idle();
+	if (controlpanel_Get())
+		controlpanel_Get()->Idle();
 
 	g_tiledMap->SetScrolling(false);
 
@@ -741,12 +741,12 @@ bool ui_CheckForScroll(void)
 		{
 			aui_Window *topWindow = g_c3ui ? g_c3ui->TopWindow() : NULL;
 
-			if (topWindow && g_controlPanel)
+			if (topWindow && controlpanel_Get())
             {
-				if (topWindow != g_controlPanel->GetWindow() &&
+				if (topWindow != controlpanel_Get()->GetWindow() &&
                     topWindow != g_statusWindow &&
                     topWindow != radarwindow_Get() &&
-                    topWindow != g_controlPanel->GetMenuBar()
+                    topWindow != controlpanel_Get()->GetMenuBar()
                    )
                 {
 					return false;

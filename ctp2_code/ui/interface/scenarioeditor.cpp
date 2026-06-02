@@ -161,7 +161,6 @@
 #include "gfx/gfx_utils/gfx_options.h"
 
 extern sint32               g_fog_toggle;
-extern ControlPanelWindow * g_controlPanel;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 
 extern void WhackScreen();
@@ -609,8 +608,8 @@ AUI_ERRCODE ScenarioEditor::Hide()
 		c3ui_Get()->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
 	}
 
-	if (g_controlPanel!=NULL)
-		g_controlPanel->TileImpPanelRedisplay();
+	if (controlpanel_Get()!=NULL)
+		controlpanel_Get()->TileImpPanelRedisplay();
 
 	s_scenarioEditor->m_paintTerrain            = -1;
 	s_scenarioEditor->m_paintTerrainImprovement = -1;

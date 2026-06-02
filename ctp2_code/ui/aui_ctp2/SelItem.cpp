@@ -143,7 +143,6 @@ void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
 #include "robot/pathing/CityAstar.h"
 #include "ai/strategy/agents/agent.h"
 
-extern ControlPanelWindow       *g_controlPanel;
 extern WorkWindow               *g_workWindow;
 extern UnitAstar                *g_theUnitAstar;
 
@@ -452,7 +451,7 @@ void SelectedItem::NextItem()
 						director_Get()->AddCenterMap(pos);
 					}
 				}
-				if ( g_controlPanel )
+				if ( controlpanel_Get() )
 				{
 					g_selected_item->SetSelectCity(m_selected_city[player]);
 				}
@@ -1005,7 +1004,7 @@ void SelectedItem::Refresh()
 	if ((m_player_on_screen != -1) &&
 		(m_current_player != m_player_on_screen)) return;
 
-	if(g_controlPanel)
+	if(controlpanel_Get())
 	{
 		PLAYER_INDEX s_player;
 		ID s_item;
@@ -1068,8 +1067,8 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 	m_waypoints.Clear();
 
-	if (g_controlPanel) {
-		g_controlPanel->SetStack(Army(), NULL); // empty function
+	if (controlpanel_Get()) {
+		controlpanel_Get()->SetStack(Army(), NULL); // empty function
 	}
 
 	if(!u.IsValid())
@@ -1094,7 +1093,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		m_select_pos[o] = pos;
 		world_Get()->GetCell(pos)->GetArmy(army);
 
-		g_controlPanel->SetStack(Army(), &army);
+		controlpanel_Get()->SetStack(Army(), &army);
 
 		didSelect = true;
 
@@ -1166,8 +1165,8 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			}
 		}
 
-		if (g_controlPanel) {
-			g_controlPanel->SetStack(m_selected_army[o], army);
+		if (controlpanel_Get()) {
+			controlpanel_Get()->SetStack(m_selected_army[o], army);
 		}
 
 		SetDrawablePathDest(m_cur_mouse_tile);
@@ -1177,7 +1176,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		didSelect = true;
 	}
 
-	if (g_controlPanel)
+	if (controlpanel_Get())
 	{
 		if (u.GetOwner() == o)
 		{
@@ -1205,7 +1204,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CitySelected, GEA_City, u, GEA_End);
 			if(profiledb_Get()->GetAutoSwitchTabs())
 			{
-				g_controlPanel->SetTab(CP_TAB_CITY);
+				controlpanel_Get()->SetTab(CP_TAB_CITY);
 			}
 		}
 		else
@@ -1216,7 +1215,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ArmySelected, GEA_Army, a, GEA_End);
 				if(profiledb_Get()->GetAutoSwitchTabs())
 				{
-					g_controlPanel->SetTab(CP_TAB_UNIT);
+					controlpanel_Get()->SetTab(CP_TAB_UNIT);
 				}
 			}
 		}
@@ -1249,7 +1248,7 @@ void SelectedItem::SetSelectGood(const MapPoint &pos)
 			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)goodIndex, goodSoundID);
 		}
 
-		if(g_controlPanel)
+		if(controlpanel_Get())
 		{
 
 		}
@@ -1281,7 +1280,7 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CityDeselected, GEA_City, c, GEA_End);
 
 	// #01 Standardization of city selection and focus handling
-	if (g_controlPanel)
+	if (controlpanel_Get())
 	{
 		m_ignoreCitySelect = true;
 		m_ignoreCitySelect = false;
@@ -1302,8 +1301,8 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 
 	m_is_pathing = false;
 
-	if (g_controlPanel!=NULL)
-		g_controlPanel->Deselect();
+	if (controlpanel_Get()!=NULL)
+		controlpanel_Get()->Deselect();
 }
 
 bool SelectedItem::GetTopUnitOrCity(const MapPoint &pos, Unit &top)
@@ -2763,7 +2762,7 @@ void SelectedItem::UpdateSelectedItem( void )
 	if ((m_player_on_screen != -1) &&
 		(m_current_player != m_player_on_screen)) return;
 
-	if(g_controlPanel)
+	if(controlpanel_Get())
 	{
 		PLAYER_INDEX s_player;
 		ID s_item;
@@ -2860,12 +2859,12 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 	}
 	if(!deselected)
 	{
-		if(g_controlPanel)
+		if(controlpanel_Get())
 		{
 			if(armypool_Get()->IsValid(m_selected_army[player]))
 			{
 				m_selected_army[player].GetPos(army_pos);
-				g_controlPanel->SetStack(m_selected_army[player],
+				controlpanel_Get()->SetStack(m_selected_army[player],
 										 world_Get()->GetCell(army_pos)->UnitArmy());
 			}
 		}
@@ -2891,11 +2890,11 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 
 bool SelectedItem::ShouldDrawPath()
 {
-	if (!g_controlPanel) {
+	if (!controlpanel_Get()) {
 		return false;
 	}
 	if(( profiledb_Get()->IsUseCTP2Mode()
-	&&   g_controlPanel->GetTargetingMode() != CP_TARGETING_MODE_ORDER_PENDING)
+	&&   controlpanel_Get()->GetTargetingMode() != CP_TARGETING_MODE_ORDER_PENDING)
 	&& (!IsLocalCity()
 	||  !profiledb_Get()->IsDebugCityAstar()))
 		return false;

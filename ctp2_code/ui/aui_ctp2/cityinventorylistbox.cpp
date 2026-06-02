@@ -63,7 +63,6 @@
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/buildingutil.h"
 
-extern	ControlPanelWindow	*g_controlPanel;
 extern	DebugWindow			*g_debugWindow;
 
 CityInventoryListBox::CityInventoryListBox(AUI_ERRCODE *retval,

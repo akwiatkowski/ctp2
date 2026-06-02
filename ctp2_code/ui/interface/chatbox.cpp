@@ -50,7 +50,7 @@
 #include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "ctp/civapp.h"
-#include "ui/interface/controlpanelwindow.h"     // g_controlPanel
+#include "ui/interface/controlpanelwindow.h"     // controlpanel_Get()
 #include "gfx/spritesys/director.h"               // director_Get()
 #include "ui/aui_ctp2/radarmap.h"               // radar_map_Get()
 #include "gs/gameobj/Civilisation.h"
@@ -299,7 +299,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			director_Get()->NextPlayer();
 			do
 			{
-				g_controlPanel->Idle();
+				controlpanel_Get()->Idle();
 				if (civapp_Get())
 					civapp_Get()->Process();
 
@@ -481,7 +481,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		for (i=0; i<(n) && !gDone; i++) {
 			turn_Get()->NextRound();
 			do {
-				g_controlPanel->Idle();
+				controlpanel_Get()->Idle();
 				if (civapp_Get())
 					civapp_Get()->Process();
 

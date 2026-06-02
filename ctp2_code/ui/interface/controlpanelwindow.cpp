@@ -231,7 +231,10 @@ extern sint32               g_ScreenHeight;
 extern KEYMAP               *theKeyMap;
 
 ctp2_MenuBar                *s_menubar=NULL;
-ControlPanelWindow          *g_controlPanel;
+static ControlPanelWindow   *g_controlPanel = NULL;
+
+ControlPanelWindow * controlpanel_Get(void)              { return g_controlPanel; }
+void                 controlpanel_Set(ControlPanelWindow *p) { g_controlPanel = p; }
 
 extern Network              g_network;
 

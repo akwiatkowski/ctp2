@@ -185,8 +185,8 @@ STDEHANDLER(InterfacePreBeginTurn)
 		// Prevent opening the city window during the production computations.
 		// It will be reenabled in InterfaceUpdateCityProjection.
 		++g_modalWindow;
-		if(g_controlPanel)
-			g_controlPanel->ClearTargetingMode();
+		if(controlpanel_Get())
+			controlpanel_Get()->ClearTargetingMode();
 
 		if(g_soundManager) {
 			g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_SFX);

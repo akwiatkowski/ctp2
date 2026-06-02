@@ -23,7 +23,6 @@ extern sint32 g_ScreenHeight;
 
 
 extern StatsWindow				*g_statsWindow;
-extern ControlPanelWindow	*g_controlPanel;
 
 
 
@@ -79,13 +78,13 @@ return 0;
 sint32 ancientwindows_GetControlPieceY( void )
 {
 
-	return g_controlPanel->Y();
+	return controlpanel_Get()->Y();
 }
 
 sint32 ancientwindows_GetControlPieceHeight( void )
 {
 
-	return g_controlPanel->Height();
+	return controlpanel_Get()->Height();
 }
 
 
@@ -109,8 +108,8 @@ return 0;
 
 	if ( g_ScreenWidth > 640 || g_ScreenHeight > 480 ) {
 
-		s_controlPiece->Resize(g_controlPanel->Width(), s_controlPiece->Height());
-		s_controlPiece->Move(s_controlPiece->X(), g_ScreenHeight - g_controlPanel->Height() - s_controlPiece->Height());
+		s_controlPiece->Resize(controlpanel_Get()->Width(), s_controlPiece->Height());
+		s_controlPiece->Move(s_controlPiece->X(), g_ScreenHeight - controlpanel_Get()->Height() - s_controlPiece->Height());
 	}
 
 	errcode = c3ui_Get()->AddWindow( s_controlPiece );
@@ -164,7 +163,7 @@ return 0;
 	if ( g_ScreenWidth > 640 || g_ScreenHeight > 480 ) {
 
 		s_angelRight->Move(s_angelRight->X(),
-			g_ScreenHeight - g_controlPanel->Height() - s_angelRight->Height() + downwardNudge);
+			g_ScreenHeight - controlpanel_Get()->Height() - s_angelRight->Height() + downwardNudge);
 	}
 
 	snprintf(imageBlock, sizeof(imageBlock), "%s.%s", windowBlock, "Image");

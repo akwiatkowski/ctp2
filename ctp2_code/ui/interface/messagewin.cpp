@@ -224,7 +224,7 @@ int messagewin_CreateMessage( Message data, BOOL bRecreate )
 		return 0;
 	}
 
-	g_controlPanel->AddMessage(data);
+	controlpanel_Get()->AddMessage(data);
 
 	MessageList *messagelist = messagewin_GetPlayerMessageList( data.GetOwner() );
 
@@ -350,7 +350,7 @@ int messagewin_CleanupMessage( MessageIconWindow *iconWindow,
 	if ( messagelist == NULL ) return -1;
 
 
-	g_controlPanel->RemoveMessage(*window->GetMessage());
+	controlpanel_Get()->RemoveMessage(*window->GetMessage());
 
 	messagelist->Remove( iconWindow, window );
 

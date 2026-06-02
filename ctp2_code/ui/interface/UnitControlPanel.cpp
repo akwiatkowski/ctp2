@@ -942,7 +942,7 @@ Army UnitControlPanel::GetSelectedArmy()
 void UnitControlPanel::GiveOrder(OrderRecord *order)  //emod4 this needs to work from selectinga list
 {
 
-	g_controlPanel->BeginOrderDelivery(order);
+	controlpanel_Get()->BeginOrderDelivery(order);
 
 #if 0
 
@@ -963,7 +963,7 @@ void UnitControlPanel::GiveOrder(OrderRecord *order)  //emod4 this needs to work
 	else {
 
 
-		g_controlPanel->BeginOrderDelivery(order);
+		controlpanel_Get()->BeginOrderDelivery(order);
 	}
 #endif
 }

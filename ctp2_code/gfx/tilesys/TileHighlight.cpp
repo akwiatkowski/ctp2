@@ -183,7 +183,7 @@ bool IsKnownEntryCost
 //              MapPoint &dest_pos  :
 //
 // Globals    : world_Get()      : world map information
-//            : g_controlPanel  :
+//            : controlpanel_Get()  :
 //            : selitem_Get() :
 //
 // Returns    : bool            :
@@ -196,8 +196,8 @@ bool TiledMap::CanDrawSpecialMove(SELECT_TYPE sType, Army &sel_army, const MapPo
 	switch (sType) {
 	case SELECT_TYPE_LOCAL_ARMY:
 		if (world_Get()->HasCity(dest_pos)) {
-			if(g_controlPanel->GetTargetingMode() == CP_TARGETING_MODE_ORDER_PENDING) {
-				const OrderRecord *rec = g_controlPanel->GetCurrentOrder();
+			if(controlpanel_Get()->GetTargetingMode() == CP_TARGETING_MODE_ORDER_PENDING) {
+				const OrderRecord *rec = controlpanel_Get()->GetCurrentOrder();
 				if(rec->GetTargetPretestEnemyCity()) {
 					if(world_Get()->GetCell(dest_pos)->GetCity().GetOwner() != selitem_Get()->GetVisiblePlayer()) {
 						return true;
@@ -359,7 +359,7 @@ void TiledMap::DrawLegalMove
 	MapPoint move_pos = prevPos;//move_pos will become a position to move to if trying to bombard out of range
 	MapPoint target_pos = goodPath.GetEnd();
 
-	const OrderRecord *rec = g_controlPanel->GetCurrentOrder();
+	const OrderRecord *rec = controlpanel_Get()->GetCurrentOrder();
 	sint32 min_rge, max_rge = 0, dist = 9999;
 
 	if (rec && rec->GetUnitPretest_CanBombard() ){//test if it's a bombard order

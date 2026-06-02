@@ -29,7 +29,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 
 extern SelectedItem	*selitem_Get();
-extern ControlPanelWindow	*g_controlPanel;
 
 BobButtonAction::BobButtonAction(BattleOrderBox *bob)
 {

@@ -159,7 +159,6 @@ extern NETFunc			*g_netfunc;
 
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/interface/MainControlPanel.h"
-extern ControlPanelWindow     *g_controlPanel;
 
 #include "gs/utility/RandGen.h"
 #include "gs/utility/stringutils.h"

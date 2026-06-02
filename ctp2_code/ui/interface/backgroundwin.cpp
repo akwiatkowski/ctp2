@@ -42,7 +42,6 @@ extern sint32 g_ScreenHeight;
 
 extern StatusWindow				*g_statusWindow;
 extern StatsWindow				*g_statsWindow;
-extern ControlPanelWindow		*g_controlPanel;
 
 extern Network			g_network;
 

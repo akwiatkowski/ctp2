@@ -97,7 +97,6 @@ extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
 extern StatusWindow				*g_statusWindow;
-extern ControlPanelWindow	*g_controlPanel;
 extern WorkWindow			*g_workWindow;
 extern C3Window				*g_turnWindow;
 extern C3Window				*g_statsWindow;

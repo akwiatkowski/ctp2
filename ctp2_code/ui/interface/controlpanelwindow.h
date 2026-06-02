@@ -27,7 +27,7 @@
 //
 // - Cleaned up structure
 // - Removed unused methods: FillBank, ClearButtons and AddButton.
-//   (Aug 16th 2005 Martin Gühmann)
+//   (Aug 16th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -429,6 +429,11 @@ sint32  controlpanelwindow_InitializeHats(void);
 void    controlpanelwindow_Cleanup(void);
 void    HideControlPanel(void);
 
-extern ControlPanelWindow *g_controlPanel;
+// App-singleton accessor pair, mirroring world_Get / c3ui_Get /
+// tiledmap_Get.  The legacy g_controlPanel pointer is now file-static
+// in ui/interface/controlpanelwindow.cpp; outside callers must go
+// through these accessors.
+ControlPanelWindow * controlpanel_Get(void);
+void                 controlpanel_Set(ControlPanelWindow *p);
 
 #endif

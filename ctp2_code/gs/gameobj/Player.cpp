@@ -2259,7 +2259,7 @@ void Player::BeginTurn()
 		DPRINTF(k_DBG_GAMESTATE, ("Tile Improvement Mode - OFF\n"));
 	}
 
-	if(g_controlPanel) g_controlPanel->UpdatePlayerBeginProgress(m_owner);
+	if(controlpanel_Get()) controlpanel_Get()->UpdatePlayerBeginProgress(m_owner);
 
 	for(sint32 i = m_messages->Num() - 1; i >= 0; i--) {
 		if(m_messages->Access(i).GetExpiration() <= GetCurRound()) {

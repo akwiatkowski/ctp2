@@ -874,8 +874,8 @@ void SelectedItem::NewRegisterClick(const MapPoint &pos, const aui_MouseEvent *d
 
 	bool do_targeting_mode = false;
 
-	if (g_controlPanel!=NULL)
-		do_targeting_mode = (g_controlPanel->GetTargetingMode()!=CP_TARGETING_MODE_OFF);
+	if (controlpanel_Get()!=NULL)
+		do_targeting_mode = (controlpanel_Get()->GetTargetingMode()!=CP_TARGETING_MODE_OFF);
 
 	if(profiledb_Get()->IsUseCTP2Mode())
 		mode = SELECT_MODE_CTP2;
@@ -1094,7 +1094,7 @@ void SelectedItem::ArmyContextClick(const MapPoint &pos, const aui_MouseEvent *d
 {
 	SelectArmyClick(pos, data, false);
 
-	g_controlPanel->ActivateSelectedInfo(SELECT_TYPE_LOCAL_ARMY);
+	controlpanel_Get()->ActivateSelectedInfo(SELECT_TYPE_LOCAL_ARMY);
 }
 
 //----------------------------------------------------------------------------
@@ -1116,7 +1116,7 @@ void SelectedItem::CityContextClick(const MapPoint &pos, const aui_MouseEvent *d
 {
 	SelectCityClick(pos, data, false);
 
-	g_controlPanel->ActivateSelectedInfo(SELECT_TYPE_LOCAL_CITY);
+	controlpanel_Get()->ActivateSelectedInfo(SELECT_TYPE_LOCAL_CITY);
 }
 
 //----------------------------------------------------------------------------
@@ -1296,7 +1296,7 @@ void SelectedItem::MoveDrag(const MapPoint &pos, const aui_MouseEvent *data, boo
 	if(pos != m_startDragPos)
 	{
 		m_isDragging = true;
-		g_controlPanel->BeginOrderDelivery(m_moveOrder);
+		controlpanel_Get()->BeginOrderDelivery(m_moveOrder);
 	}
 }
 
@@ -1312,7 +1312,7 @@ void SelectedItem::MoveDrop(const MapPoint &pos, const aui_MouseEvent *data, boo
 	if(pos != m_startDragPos)
 	{
 		m_isDragging = true;
-		g_controlPanel->BeginOrderDelivery(m_moveOrder);
+		controlpanel_Get()->BeginOrderDelivery(m_moveOrder);
 	}
 
 	if(m_isDragging)
@@ -1355,7 +1355,7 @@ void SelectedItem::ActionClick(const MapPoint &pos, const aui_MouseEvent *data, 
 {
 	m_startDragPos = pos;
 
-	if(g_controlPanel->ExecuteTargetingModeClick(pos))
+	if(controlpanel_Get()->ExecuteTargetingModeClick(pos))
 	{
 		m_is_pathing = false;
 		return;
@@ -1376,7 +1376,7 @@ void SelectedItem::ActionClick(const MapPoint &pos, const aui_MouseEvent *data, 
 		MapPoint army_pos;
 		sint32 player = GetVisiblePlayer();
 
-		g_controlPanel->ClearTargetingMode();
+		controlpanel_Get()->ClearTargetingMode();
 
 		m_selected_army[player].GetPos(army_pos);
 
@@ -1412,7 +1412,7 @@ void SelectedItem::CancelPathingClick(const MapPoint &pos, const aui_MouseEvent 
 {
 	m_is_pathing = false;
 	m_isDragging = false;
-	g_controlPanel->ClearTargetingMode();
+	controlpanel_Get()->ClearTargetingMode();
 }
 
 SELECT_TYPE SelectedItem::GetClickedThing(const MapPoint &pos, bool click)

@@ -162,7 +162,6 @@ extern sint32		g_debugOwner;
 
 
 extern sint32		g_isKMScreen;
-extern ControlPanelWindow *g_controlPanel;
 
 
 
@@ -364,7 +363,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	}
 
 	aui_Window *topWindow = c3ui_Get()->TopWindow();
-	if(topWindow && (!g_controlPanel || topWindow != g_controlPanel->GetWindow()) && topWindow != g_statusWindow) {
+	if(topWindow && (!controlpanel_Get() || topWindow != controlpanel_Get()->GetWindow()) && topWindow != g_statusWindow) {
 		if(topWindow->HandleKey(wParam))
 			return 0;
 	}
@@ -437,7 +436,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a))
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 	}
 	break;
 	case KEY_FUNCTION_SETTLE:
@@ -450,7 +449,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(isMyTurn) {
 			sint32 index;
 			if(g_theOrderDB->GetNamedItem("ORDER_SPACE_LAUNCH", index)) {
-				g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(index));
+				controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(index));
 			}
 
 			return TRUE;
@@ -467,7 +466,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanPillage()) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			selitem_Get()->Pillage();
 			return 0;
@@ -482,7 +481,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanBombard()) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -501,7 +500,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanExpel()) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -549,7 +548,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		Army a;
 		double chance, escape_chance;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanPlantNuke(chance, escape_chance)) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -565,7 +564,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		Army a;
 		double chance;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanBioInfect(chance)) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -581,7 +580,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		Army a;
 		double chance;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanNanoInfect(chance)) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -596,7 +595,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a) && a.AccessData()->CanCreatePark()) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -611,7 +610,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		if(selitem_Get()->GetSelectedArmy(a) && a.AccessData()->CanReformCity()) {
-			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
+			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
 		}
@@ -1046,34 +1045,34 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		break;
 	case KEY_FUNCTION_CIV_TAB:
-		if(g_controlPanel) {
-			g_controlPanel->SetTab(CP_TAB_CIV);
+		if(controlpanel_Get()) {
+			controlpanel_Get()->SetTab(CP_TAB_CIV);
 		}
 		break;
 	case KEY_FUNCTION_MSG_TAB:
-		if(g_controlPanel) {
-			g_controlPanel->SetTab(CP_TAB_MSGLOG);
+		if(controlpanel_Get()) {
+			controlpanel_Get()->SetTab(CP_TAB_MSGLOG);
 		}
 		break;
 	case KEY_FUNCTION_CITY_TAB:
-		if(g_controlPanel) {
-			g_controlPanel->SetTab(CP_TAB_CITY);
+		if(controlpanel_Get()) {
+			controlpanel_Get()->SetTab(CP_TAB_CITY);
 		}
 		break;
 	case KEY_FUNCTION_UNIT_TAB:
-		if(g_controlPanel) {
-			g_controlPanel->SetTab(CP_TAB_UNIT);
+		if(controlpanel_Get()) {
+			controlpanel_Get()->SetTab(CP_TAB_UNIT);
 		}
 		break;
 	case KEY_FUNCTION_TILE_TAB:
-		if(g_controlPanel) {
-			g_controlPanel->SetTab(CP_TAB_TILEIMP);
+		if(controlpanel_Get()) {
+			controlpanel_Get()->SetTab(CP_TAB_TILEIMP);
 		}
 		break;
 
 	case KEY_FUNCTION_CONTROL_NEXT:
 #if 0
-		if(g_controlPanel) {
+		if(controlpanel_Get()) {
 
 			if(g_cp_productionTab &&
 			   (g_cp_productionTab->GetMode() == PRODTAB_MODE_CHANGE ||
@@ -1093,7 +1092,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 	case KEY_FUNCTION_CONTROL_PREV:
 #if 0
-		if(g_controlPanel) {
+		if(controlpanel_Get()) {
 
 			if(g_cp_productionTab &&
 			   (g_cp_productionTab->GetMode() == PRODTAB_MODE_CHANGE ||
@@ -1163,7 +1162,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case KEY_FUNCTION_CLEAR_QUEUE:
-		if(g_controlPanel
+		if(controlpanel_Get()
 
 			) {
 			Unit city;
@@ -1216,7 +1215,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	case KEY_FUNCTION_MOVE_ORDER:
-		g_controlPanel->BeginOrderDelivery(selitem_Get()->GetMoveOrder());
+		controlpanel_Get()->BeginOrderDelivery(selitem_Get()->GetMoveOrder());
 		break;
 
 	case KEY_FUNCTION_TOGGLE_RADAR:
@@ -1224,15 +1223,15 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case KEY_FUNCTION_TOGGLE_CONTROL_PANEL:
-		g_controlPanel->Toggle();
+		controlpanel_Get()->Toggle();
 		break;
 
 	case KEY_FUNCTION_TOGGLE_ALL:
-		if(!c3ui_Get()->GetWindow(g_controlPanel->GetWindow()->Id())) {
-			c3ui_Get()->AddWindow(g_controlPanel->GetWindow());
+		if(!c3ui_Get()->GetWindow(controlpanel_Get()->GetWindow()->Id())) {
+			c3ui_Get()->AddWindow(controlpanel_Get()->GetWindow());
 			radarwindow_Show();
 		} else {
-			c3ui_Get()->RemoveWindow(g_controlPanel->GetWindow()->Id());
+			c3ui_Get()->RemoveWindow(controlpanel_Get()->GetWindow()->Id());
 			radarwindow_Hide();
 		}
 		break;

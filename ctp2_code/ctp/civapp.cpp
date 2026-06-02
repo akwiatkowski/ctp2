@@ -307,7 +307,6 @@ extern PlayListDB               *g_thePlayListDB;
 extern Background           *g_background;
 extern StatsWindow          *g_statsWindow;
 extern StatusWindow         *g_statusWindow;
-extern ControlPanelWindow   *g_controlPanel;
 extern SpriteEditWindow     *g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
 extern sint32               g_modalWindow;
@@ -1921,8 +1920,8 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 580 );
 
 	if (m_dbLoaded && profiledb_Get()->IsScenario()) {
-		if(g_controlPanel)
-			g_controlPanel->CreateTileImpBanks();
+		if(controlpanel_Get())
+			controlpanel_Get()->CreateTileImpBanks();
 	}
 
 	ProgressTo( 590 );

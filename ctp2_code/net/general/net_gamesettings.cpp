@@ -23,7 +23,6 @@
 
 extern Background			*g_background;
 
-extern ControlPanelWindow	*g_controlPanel;
 
 NetGameSettings::NetGameSettings(sint32 x, sint32 y,
 								 sint32 numPlayers,
@@ -102,7 +101,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	Assert(pos == size);
 
-	if(g_controlPanel) {
+	if(controlpanel_Get()) {
 
 	}
 

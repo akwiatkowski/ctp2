@@ -57,7 +57,6 @@
 #include "sound/gamesounds.h"
 #include "ui/aui_ctp2/ui_unit_actor_registry.h"
 
-extern ControlPanelWindow    *g_controlPanel;
 extern MessageWindow         *g_currentMessageWindow;
 extern MessageModal          *g_modalMessage;
 extern Background            *g_background;
@@ -68,15 +67,15 @@ public:
     // --- Turn lifecycle ---
     void OnTurnStart(sint32 player) override
     {
-        if (g_controlPanel) {
-            g_controlPanel->UpdatePlayerBeginProgress(player);
+        if (controlpanel_Get()) {
+            controlpanel_Get()->UpdatePlayerBeginProgress(player);
         }
     }
 
     void OnBuildPhaseComplete(sint32 player) override
     {
-        if (g_controlPanel && g_controlPanel->GetWindow()) {
-            g_controlPanel->GetWindow()->ShouldDraw(TRUE);
+        if (controlpanel_Get() && controlpanel_Get()->GetWindow()) {
+            controlpanel_Get()->GetWindow()->ShouldDraw(TRUE);
         }
     }
 
@@ -359,9 +358,9 @@ public:
             }
         }
 
-        if (g_controlPanel && selitem_Get() &&
+        if (controlpanel_Get() && selitem_Get() &&
             player == selitem_Get()->GetVisiblePlayer()) {
-            g_controlPanel->PopulateMessageList(player);
+            controlpanel_Get()->PopulateMessageList(player);
         }
     }
 
@@ -394,8 +393,8 @@ public:
 
     void OnMessageRead(const Message& msg) override
     {
-        if (g_controlPanel) {
-            g_controlPanel->SetMessageRead(const_cast<Message &>(msg));
+        if (controlpanel_Get()) {
+            controlpanel_Get()->SetMessageRead(const_cast<Message &>(msg));
         }
     }
 
@@ -436,19 +435,19 @@ public:
 
     void OnUpdateMainControlPanel(sint32 player) override
     {
-        if (g_controlPanel) MainControlPanel::Update();
+        if (controlpanel_Get()) MainControlPanel::Update();
     }
 
     void OnHideMainUI() override
     {
-        if (g_controlPanel) g_controlPanel->Hide();
+        if (controlpanel_Get()) controlpanel_Get()->Hide();
         radarwindow_Hide();
         close_AllScreens();
     }
 
     void OnUpdatePlayerEndProgress(sint32 player) override
     {
-        if (g_controlPanel) g_controlPanel->UpdatePlayerEndProgress(player);
+        if (controlpanel_Get()) controlpanel_Get()->UpdatePlayerEndProgress(player);
     }
 
     void OnAutoSelectFirstUnit(sint32 player) override
@@ -466,8 +465,8 @@ public:
 
     void OnControlPanelRedraw(sint32 player) override
     {
-        if (g_controlPanel && g_controlPanel->GetWindow()) {
-            g_controlPanel->GetWindow()->DrawChildren();
+        if (controlpanel_Get() && controlpanel_Get()->GetWindow()) {
+            controlpanel_Get()->GetWindow()->DrawChildren();
         }
     }
 
@@ -568,8 +567,8 @@ public:
             director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
         }
         radarwindow_Show();
-        if (g_controlPanel) {
-            g_controlPanel->Show();
+        if (controlpanel_Get()) {
+            controlpanel_Get()->Show();
         }
     }
 
@@ -583,12 +582,12 @@ public:
     {
         if (radar_map_Get()) radar_map_Get()->Update();
 
-        if (blank && g_controlPanel) {
+        if (blank && controlpanel_Get()) {
             MainControlPanel::Blank();
             if (GreatLibrary *gl = greatlibrary_Get()) {
                 gl->ClearHistory();
             }
-        } else if (g_controlPanel) {
+        } else if (controlpanel_Get()) {
             MainControlPanel::UpdatePlayer(visiblePlayer);
             MainControlPanel::UpdateCityList();
             MainControlPanel::Update();
@@ -662,29 +661,29 @@ public:
 
     void OnUpdateUnitPanel(sint32 player) override
     {
-        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
-            g_controlPanel->PopulateMessageList(player);
+        if (controlpanel_Get() && player == selitem_Get()->GetVisiblePlayer()) {
+            controlpanel_Get()->PopulateMessageList(player);
         }
     }
 
     void OnUpdateControlPanel(sint32 player) override
     {
-        if (g_controlPanel) {
-            g_controlPanel->UpdatePlayerBeginProgress(player);
+        if (controlpanel_Get()) {
+            controlpanel_Get()->UpdatePlayerBeginProgress(player);
         }
     }
 
     void OnSelectedCity(sint32 player) override
     {
-        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
+        if (controlpanel_Get() && player == selitem_Get()->GetVisiblePlayer()) {
             MainControlPanel::SelectedCity();
         }
     }
 
     void OnUpdateMessages(sint32 player) override
     {
-        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
-            g_controlPanel->TileImpPanelRedisplay();
+        if (controlpanel_Get() && player == selitem_Get()->GetVisiblePlayer()) {
+            controlpanel_Get()->TileImpPanelRedisplay();
         }
     }
 };

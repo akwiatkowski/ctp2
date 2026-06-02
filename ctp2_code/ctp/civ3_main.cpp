@@ -247,6 +247,10 @@ static uint32                       s_accelTickStart = 0;
 sint32                              g_terrainPollution;
 
 Director                            *g_director;
+
+Director * director_Get(void)         { return g_director; }
+void       director_Set(Director *p)  { g_director = p; }
+
 double                              g_ave_frame_rate = 10.0;
 double                              g_ave_frame_time = 200.0;
 ScreenManager                       *g_screenManager = NULL;

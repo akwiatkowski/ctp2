@@ -364,4 +364,10 @@ class Director {
 
 extern Director* g_director;
 
+// Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
+// / gevmanager_Get.  Callers should use director_Get() instead of
+// reaching for g_director directly.
+Director * director_Get(void);
+void       director_Set(Director *p);
+
 #endif

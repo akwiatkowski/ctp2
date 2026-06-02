@@ -129,7 +129,7 @@
 #include <iostream>
 #include <sstream>
 
-extern TurnCount             *g_turn;
+
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
@@ -4610,7 +4610,7 @@ bool SaveJson(char const *path)
     if (rand_ptr())              doc["rng"]                       = *rand_ptr();
     if (GameSettings *gs = gamesettings_Get()) doc["settings"] = *gs;
     if (g_theWorld)          doc["world"]                     = *g_theWorld;
-    if (g_turn)              doc["turn"]                      = *g_turn;
+    if (turn_Get())          doc["turn"]                      = *turn_Get();
 
     // Selection is currently a scalar projection of player_view state.
     // SelectedItem (the full per-player ui-side state) is too coupled
@@ -4749,7 +4749,7 @@ bool LoadJson(char const *path)
         if (doc.contains("rng")      && rand_ptr())             doc.at("rng")     .get_to(*rand_ptr());
         if (GameSettings *gs = gamesettings_Get(); doc.contains("settings") && gs) doc.at("settings").get_to(*gs);
         if (doc.contains("world")    && g_theWorld)         doc.at("world")   .get_to(*g_theWorld);
-        if (doc.contains("turn")     && g_turn)             doc.at("turn")    .get_to(*g_turn);
+        if (doc.contains("turn")     && turn_Get())         doc.at("turn")    .get_to(*turn_Get());
         // Selection is currently informational — no public setter for
         // SelectedItem::m_current_player.  Phase E will wire a bridge.
 

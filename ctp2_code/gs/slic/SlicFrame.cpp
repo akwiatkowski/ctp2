@@ -54,7 +54,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/gameobj/MessageData.h"
-#include "gs/utility/TurnCnt.h"            // g_turn
+#include "gs/utility/TurnCnt.h"            // turn_Get()
 #include "gs/utility/UnitDynArr.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicButton.h"
@@ -1465,7 +1465,7 @@ BOOL SlicFrame::RunAt(sint32 startOffset)
 void SlicFrame::ClearMessageData()
 {
 	if(!m_messageData) {
-		m_messageData = new MessageData(ID(), g_turn ? g_turn->GetYear() : 0);
+		m_messageData = new MessageData(ID(), turn_Get() ? turn_Get()->GetYear() : 0);
 	}
 
 	m_messageData->m_owner = PLAYER_INDEX_INVALID;
@@ -1475,7 +1475,7 @@ void SlicFrame::ClearMessageData()
 	delete [] m_messageData->m_text;
 	m_messageData->m_text = NULL;
 	m_messageData->m_request = ID();
-	m_messageData->m_timestamp = g_turn ? g_turn->GetYear() : 0;
+	m_messageData->m_timestamp = turn_Get() ? turn_Get()->GetYear() : 0;
 }
 
 void SlicFrame::DeleteMessageData()

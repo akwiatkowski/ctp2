@@ -93,7 +93,7 @@ class GlobalSymbol_Year : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_Year);
 
 	BOOL GetIntValue(sint32 &value) const {
-		value = g_turn->GetSessionRound();
+		value = turn_Get()->GetSessionRound();
 		return TRUE;
 	}
 };

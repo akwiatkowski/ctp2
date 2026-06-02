@@ -84,10 +84,10 @@ Feat::Feat(sint32 type, sint32 player, sint32 round)
 	// USE_CURRENT_ROUND is a sentinel that says "look up the round now."
 	// The previous implementation routed through NewTurnCount which was
 	// internally null-safe; preserve the same behaviour explicitly so
-	// constructing a Feat without a live g_turn (e.g. in json_save tests)
+	// constructing a Feat without a live turn_Get() (e.g. in json_save tests)
 	// doesn't crash.
 	m_round = (USE_CURRENT_ROUND == round)
-	          ? (g_turn ? g_turn->GetSessionRound() : 0)
+	          ? (turn_Get() ? turn_Get()->GetSessionRound() : 0)
 	          : round;
 }
 
@@ -496,7 +496,7 @@ void FeatTracker::BeginTurn(sint32 player)
 		if(feat->GetPlayer() == player)
 		{
 			const FeatRecord *rec = g_theFeatDB->Get(feat->GetType());
-			if(rec->GetDuration() + feat->GetRound() <= g_turn->GetSessionRound())
+			if(rec->GetDuration() + feat->GetRound() <= turn_Get()->GetSessionRound())
 			{
 				walk.Remove();
 				RemoveFeatFromEffectLists(feat);

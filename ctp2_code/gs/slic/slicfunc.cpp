@@ -4463,7 +4463,7 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 											  ag.m_id, unitOwner));
 			}
 
-			ag.AccessData()->RecipientIsViolating(unitOwner, TRUE, g_turn->GetRound());
+			ag.AccessData()->RecipientIsViolating(unitOwner, TRUE, turn_Get()->GetRound());
 		}
 	}
 	return SFN_ERROR_OK;
@@ -4506,7 +4506,7 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 												   ag.m_id));
 			}
 
-			ag.AccessData()->RecipientIsViolating(pirate, TRUE, g_turn->GetRound());
+			ag.AccessData()->RecipientIsViolating(pirate, TRUE, turn_Get()->GetRound());
 		}
 	}
 	return SFN_ERROR_OK;
@@ -6274,7 +6274,7 @@ SFN_ERROR Slic_GetCurrentRound::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = g_turn->GetSessionRound();
+	m_result.m_int = turn_Get()->GetSessionRound();
 	return SFN_ERROR_OK;
 }
 
@@ -6283,7 +6283,7 @@ SFN_ERROR Slic_GetCurrentYear::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	m_result.m_int = g_turn->GetSessionYear();
+	m_result.m_int = turn_Get()->GetSessionYear();
 	return SFN_ERROR_OK;
 }
 

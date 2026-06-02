@@ -51,7 +51,7 @@
 #include "gs/core/game_observer.h"          // g_gameObservers
 #include "gs/gameobj/TradeBids.h"
 #include "gs/utility/stringutils.h"
-#include "gs/utility/TurnCnt.h"            // g_turn
+#include "gs/utility/TurnCnt.h"            // turn_Get()
 #include "gs/utility/Globals.h"
 
 extern CivApp			*   g_civApp;
@@ -393,7 +393,7 @@ void SlicObject::Finish()
 			}
 		} else {
 			for(sint32 i = 0; i < m_numRecipients; i++) {
-				m_segment->SetLastShown(m_recipientList[i], g_turn->GetRound());
+				m_segment->SetLastShown(m_recipientList[i], turn_Get()->GetRound());
 
 				if(slicengine_Get()->IsMessageClassDisabled(m_class))
 					continue;
@@ -525,7 +525,7 @@ void SlicObject::SetMessageType(MESSAGE_TYPE type,
 
 void SlicObject::SetMessageDuration(sint32 duration)
 {
-	m_frame->GetMessageData()->SetDuration(duration, g_turn ? g_turn->GetRound() : 0);
+	m_frame->GetMessageData()->SetDuration(duration, turn_Get() ? turn_Get()->GetRound() : 0);
 }
 
 

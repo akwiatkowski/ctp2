@@ -115,7 +115,7 @@ STDEHANDLER(ResumeEmailAndHotSeatDiplomacy)
 STDEHANDLER(SendEmailAndHotSeatMessage)
 {
 	// So that the following code can be delayed until all events have been handled.
-	g_turn->SendNextPlayerMessageEvent();
+	turn_Get()->SendNextPlayerMessageEvent();
 
 	return GEV_HD_Continue;
 }

@@ -99,7 +99,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/TradePool.h"
-#include "gs/utility/TurnCnt.h"                // g_turn
+#include "gs/utility/TurnCnt.h"                // turn_Get()
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"               // UnitPool
 #include "gs/database/UVDB.h"
@@ -443,7 +443,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 130 );
 
 	if(saveEverything)
-		g_turn->Serialize(archive);
+		turn_Get()->Serialize(archive);
 
 	PROGRESS( 140 );
 

@@ -151,7 +151,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	PLAYER_INDEX next_player = player_view::CurPlayer();
 	sint32 next_round = player_Get(next_player)->GetCurRound() + 1;
 
-	if(g_turn->IsHotSeat() || g_turn->IsEmail())
+	if(turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
 	{
 		if(!player_Get(player_view::CurPlayer())->IsRobot())
 		{
@@ -165,7 +165,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		tiledmap_observer::InvalidateMap();
 		tiledmap_observer::Refresh();
 		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(current_player);
-		g_turn->InformMessages();
+		turn_Get()->InformMessages();
 
 		if (g_gameObservers) g_gameObservers->NotifyHideMainUI();
 	}
@@ -206,12 +206,12 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_TURN, next_player));
 	}
 
-	if((g_turn->IsHotSeat() || g_turn->IsEmail())
+	if((turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
 	&& !player_Get(player_view::CurPlayer())->IsRobot()
 	){
-		g_turn->SendNextPlayerMessage();
+		turn_Get()->SendNextPlayerMessage();
 
-		if(g_turn->IsEmail())
+		if(turn_Get()->IsEmail())
 		{
 			return;
 		}
@@ -247,7 +247,7 @@ void NewTurnCount::StartNewYear()
 
 	g_theWorld->A_star_heuristic->Update();
 
-	Barbarians::BeginYear(g_turn->GetRound());
+	Barbarians::BeginYear(turn_Get()->GetRound());
 
 
 
@@ -395,7 +395,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 		return FALSE;
 
 	if(critical_messages_prefs_Get()->IsEnabled("16IAOutOfFuel")) {
-		if (slicengine_Get()->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+		if (slicengine_Get()->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 			int i;
 			int n = player->GetAllUnitList()->Num();
 			for (i=0; i<n; i++) {
@@ -418,7 +418,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 	}
 
 	if(critical_messages_prefs_Get()->IsEnabled("23IACityWillStarve")) {
-		if (slicengine_Get()->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+		if (slicengine_Get()->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 			int i;
 			int n = player->GetAllCitiesList()->Num();
 			for (i=0; i<n; i++) {
@@ -443,7 +443,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 	}
 
 	if(critical_messages_prefs_Get()->IsEnabled("21IACannotAffordMaintenance")) {
-		if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+		if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 			if (player->m_gold->BankruptcyImminent() &&
 				(player->CalcTotalBuildingUpkeep() > 0)) {
 				SlicObject *so = new SlicObject("21IACannotAffordMaintenance") ;
@@ -456,7 +456,7 @@ BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 	}
 
 	if(critical_messages_prefs_Get()->IsEnabled("22IACannotAffordSupport")) {
-		if (slicengine_Get()->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+		if (slicengine_Get()->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, turn_Get()->GetRound())) {
 			int i;
 			int n = player->GetAllCitiesList()->Num();
 			double prod_total = 0.0;

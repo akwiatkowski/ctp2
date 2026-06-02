@@ -31,7 +31,7 @@
 // - Added some bombard code (PFT)
 // - Repaired crash when no order is active.
 // - Corrected turn box computation for ship paths through cities.
-// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gühmann)
+// - Added debug pathing for the city astar. (17-Jan-2008 Martin Gï¿½hmann)
 // - Added check if only movebonus units are in an army, and it returns the
 //	 highest movebonus value of the army for entry cost (17-Mar-2009 Maq).
 //
@@ -49,7 +49,7 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Order.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/gameobj/Player.h"         // g_player
+#include "gs/gameobj/Player.h"         // player_Get()
 #include "ui/interface/controlpanelwindow.h"
 #include "OrderRecord.h"
 #include "ui/aui_common/aui_surface.h"
@@ -146,7 +146,7 @@ double GetEntryCost
 // Parameters : a_Army          : army to enter with
 //              a_Place         : tile to enter
 //
-// Globals    : g_player        : player information
+// Globals    : player_Get()     : player information
 //
 // Returns    : double          : entry cost
 //
@@ -159,7 +159,7 @@ bool IsKnownEntryCost
 	MapPoint const &	a_Place
 )
 {
-	return g_player[a_Army.GetOwner()]->IsExplored(a_Place) ||
+	return player_Get(a_Army.GetOwner())->IsExplored(a_Place) ||
 		   a_Army.GetMovementTypeAir();
 }
 
@@ -545,7 +545,7 @@ void TiledMap::DrawLegalMove
 		x2 += xoffset;
 		y2 += yoffset;
 
-		if (g_player[g_selected_item->GetVisiblePlayer()]->IsExplored(currPos))
+		if (player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(currPos))
 		{
 			if (((sType == SELECT_TYPE_LOCAL_ARMY) ||
 				 ((sType == SELECT_TYPE_LOCAL_ARMY_UNLOADING) && (line_segment_count == 0))
@@ -614,7 +614,7 @@ void TiledMap::DrawLegalMove
 			x2 += xoffset;
 			y2 += yoffset;
 
-			if (g_player[g_selected_item->GetVisiblePlayer()]->IsExplored(currPos))
+		if (player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(currPos))
 			{
 				if (((sType == SELECT_TYPE_LOCAL_ARMY) ||
 					 ((sType == SELECT_TYPE_LOCAL_ARMY_UNLOADING) && (line_segment_count == 1))

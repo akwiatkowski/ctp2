@@ -220,7 +220,7 @@ STDEHANDLER(DirectorActionSuccessful)
 	}
 	else
 	{
-		if(g_player[g_selected_item->GetVisiblePlayer()]->m_vision->IsVisible(attackPos))
+		if(player_Get(g_selected_item->GetVisiblePlayer())->m_vision->IsVisible(attackPos))
 		{
 			spriteID = g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_GENERAL_SUCCESS"))->GetValue();
 			soundID  = g_theSoundDB->FindTypeIndex("SOUND_ID_GENERALSUCCEED");

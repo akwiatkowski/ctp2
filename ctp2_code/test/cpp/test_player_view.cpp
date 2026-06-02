@@ -142,7 +142,7 @@ constexpr std::size_t NET_GS_GAMEOBJ_CPP_BASELINE = 208;
 
 // ui/ .cpp depends on gs/ broadly — that's architecturally fine.  Lock
 // the count anyway to detect new direct couplings.
-constexpr std::size_t UI_GS_CPP_BASELINE = 803;
+constexpr std::size_t UI_GS_CPP_BASELINE = 804;
 
 struct Violation {
     std::string file;

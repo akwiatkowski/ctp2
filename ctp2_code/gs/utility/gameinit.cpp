@@ -1789,7 +1789,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
     {
         delete g_slicEngine;
         g_slicEngine = new SlicEngine(*archive);
-		g_slicEngine->PostSerialize();
+		slicengine_Get()->PostSerialize();
 	}
     else
     {
@@ -1800,14 +1800,14 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 		if (!g_network.IsActive() && !g_network.IsNetworkLaunch())
         {
-			g_slicEngine->SetTutorialActive(g_theProfileDB->IsTutorialAdvice());
-			g_slicEngine->SetTutorialPlayer(g_theProfileDB->GetPlayerIndex());
+			slicengine_Get()->SetTutorialActive(g_theProfileDB->IsTutorialAdvice());
+			slicengine_Get()->SetTutorialPlayer(g_theProfileDB->GetPlayerIndex());
 
 			if (g_theProfileDB->IsTutorialAdvice())
             {
-				if (g_slicEngine->Load(g_tutorial_filename, k_TUTORIAL_FILE))
+				if (slicengine_Get()->Load(g_tutorial_filename, k_TUTORIAL_FILE))
                 {
-					g_slicEngine->Link();
+					slicengine_Get()->Link();
 				}
 
 				g_theProfileDB->SetThroneRoom(FALSE);

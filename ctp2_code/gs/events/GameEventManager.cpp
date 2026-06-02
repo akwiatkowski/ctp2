@@ -148,7 +148,7 @@ GAME_EVENT_ERR GameEventManager::AddEvent(GAME_EVENT_INSERT insert,
 
 
 
-	if(g_slicEngine->AtBreak()) {
+	if(slicengine_Get()->AtBreak()) {
 		return GEV_ERR_AtBreak;
 	}
 
@@ -239,7 +239,7 @@ GAME_EVENT_ERR GameEventManager::Process()
 
     while ((GEV_ERR_OK == err)
             && m_eventList->GetHead()
-            && !g_slicEngine->AtBreak()
+            && !slicengine_Get()->AtBreak()
             && !m_needUserInput
             && !m_pauseCount
           )

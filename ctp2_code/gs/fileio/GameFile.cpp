@@ -486,7 +486,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 
 	PROGRESS( 220 );
 
-	g_slicEngine->Serialize(archive);
+	slicengine_Get()->Serialize(archive);
 
 	PROGRESS( 230 );
 

@@ -63,12 +63,12 @@ GameEvent::GameEvent
 	// Instead of accessing global variables (which may or may not exist),
 	// better pass the data as arguments.
 
-	if(g_slicEngine->GetContext())
+	if(slicengine_Get()->GetContext())
 	{
-		m_line = g_slicEngine->GetContext()->GetFrame()->GetCurrentLine();
+		m_line = slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine();
 
-		const char * file = g_slicEngine->GetContext()->GetFrame()->GetSlicSegment()->GetFilename();
-		const char * name = g_slicEngine->GetContext()->GetFrame()->GetSlicSegment()->GetName();
+		const char * file = slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetFilename();
+		const char * name = slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetName();
 
 		m_file        = new char[strlen(file) + 1];
 		m_contextName = new char[strlen(name) + 1];

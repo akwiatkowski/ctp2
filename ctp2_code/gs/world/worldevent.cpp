@@ -99,7 +99,7 @@ STDEHANDLER(CutImprovementsEvent)
 		{
 			SlicObject *so = new SlicObject("41IAPillageSuicide");
 			so->AddRecipient(unitsOwner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 

@@ -203,7 +203,7 @@ void World::FloodCity(Cell *c)
 		SlicObject *so = new SlicObject("04CitiesKilledByCalamity");
 		so->AddCity(u);
 		so->AddRecipient(u.GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		u.KillUnit(CAUSE_REMOVE_ARMY_POLLUTION, -1);
 	}

@@ -595,7 +595,7 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 								   GEA_Player, origOwner,
 								   GEA_End);
 
-				g_slicEngine->RunVictoryEnslavementTriggers(m_array[i],
+				slicengine_Get()->RunVictoryEnslavementTriggers(m_array[i],
 															origOwner, hc);
 				if(g_network.IsHost()) {
 					g_network.Unblock(hc.GetOwner());

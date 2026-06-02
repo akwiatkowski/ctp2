@@ -398,7 +398,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 
 			c3errors_ErrorDialog("Slic Event Error", buf);
 		}
-		else if(g_slicEngine->GetContext())
+		else if(slicengine_Get()->GetContext())
 		{
 			char buf[1024];
 			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid, the argument is invalid at event call.\nThe event was called during execution of event %s\nThe event was called from object %s at line %i in file:\n%s\nThe argument was already invalid at event call time.",
@@ -406,9 +406,9 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			             gevmanager_Get()->ArgToName(m_type),
 			             gevmanager_Get()->GetEventName(type),
 			             gevmanager_Get()->GetEventName(gevmanager_Get()->GetProcessingEvent()),
-			             g_slicEngine->GetContext()->GetFrame()->GetSlicSegment()->GetName(),
-			             g_slicEngine->GetContext()->GetFrame()->GetCurrentLine(),
-			             g_slicEngine->GetContext()->GetFrame()->GetSlicSegment()->GetFilename());
+			             slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetName(),
+			             slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine(),
+			             slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetFilename());
 
 			c3errors_ErrorDialog("Slic Event Error", buf);
 		}

@@ -214,7 +214,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 		sint32 newAge = 0;
 		if (newAge != m_age || forceUpdate) {
 			if(newAge != m_age) {
-				g_slicEngine->RunAgeChangeTriggers(m_owner);
+				slicengine_Get()->RunAgeChangeTriggers(m_owner);
 			}
 
 			m_age = newAge;
@@ -248,13 +248,13 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
                     so = new SlicObject("131NewAgeFirst") ;
                     so->AddAge(m_age);
                     so->AddRecipient(m_owner) ;
-                    g_slicEngine->Execute(so) ;
+                    slicengine_Get()->Execute(so) ;
 
                     so = new SlicObject("132NewAgeOthers") ;
                     so->AddCivilisation(m_owner) ;
                     so->AddAge(m_age);
                     so->AddAllRecipientsBut(m_owner) ;
-                    g_slicEngine->Execute(so) ;
+                    slicengine_Get()->Execute(so) ;
                 }
             }
 		}
@@ -265,7 +265,7 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 {
 	if (   !player_Get(m_owner)       // non-existing player
 	    || m_hasAdvance[advance]    // advance already known
-	    || !g_slicEngine->CallMod   // forbidden by game settings
+	    || !slicengine_Get()->CallMod   // forbidden by game settings
 	            (mod_CanPlayerHaveAdvance, TRUE, m_owner, advance)
 	   )
 	{
@@ -343,7 +343,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 			g_theAdvanceDB->GetNameStr(adv)));
 
 	if (    m_hasAdvance[adv]           // already known
-	     || !g_slicEngine->CallMod      // forbidden by game settings
+	     || !slicengine_Get()->CallMod      // forbidden by game settings
 	            (mod_CanPlayerHaveAdvance, TRUE, m_owner, adv)
 	   )
 	{
@@ -435,7 +435,7 @@ void Advances::InitialAdvance(AdvanceType adv)
 	DPRINTF(k_DBG_GAMESTATE, ("Advance: Player %d was given %s as an initial advance\n", m_owner,
 			g_theAdvanceDB->GetNameStr(adv)));
 
-	if(!g_slicEngine->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv))
+	if(!slicengine_Get()->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv))
 		return;
 
 	SetHasAdvance(adv, true);
@@ -484,7 +484,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 			{
 				canResearch = FALSE;
 			}
-			else if(!g_slicEngine->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, rec->GetIndex()))
+			else if(!slicengine_Get()->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, rec->GetIndex()))
 			{
 				canResearch = FALSE;
 			}
@@ -864,7 +864,7 @@ Advances::CanAskFor(Advances* otherCivAdvances, sint32 &num) const
 	num = 0;
 	for(sint32 adv = 0; adv < m_size; adv++) {
 		if(!m_hasAdvance[adv] && otherCivAdvances->m_hasAdvance[adv] &&
-		   g_slicEngine->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv)) {
+		   slicengine_Get()->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv)) {
 
 			num++;
 			askFor[adv] = TRUE;
@@ -886,7 +886,7 @@ Advances::CanOffer(Advances* otherCivAdvances, sint32 &num) const
 	num = 0;
 	for(sint32 adv = 0; adv < m_size; adv++) {
 		if(m_hasAdvance[adv] && !otherCivAdvances->m_hasAdvance[adv] &&
-		   g_slicEngine->CallMod(mod_CanPlayerHaveAdvance, TRUE, otherCivAdvances->m_owner, adv)) {
+		   slicengine_Get()->CallMod(mod_CanPlayerHaveAdvance, TRUE, otherCivAdvances->m_owner, adv)) {
 
 			num++;
 			offer[adv] = TRUE;
@@ -1370,12 +1370,12 @@ sint32 Advances::TurnsToNextAdvance(AdvanceType adv) const
 
 void Advances::SetResearching(AdvanceType adv)
 {
-	if(!g_slicEngine->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv))
+	if(!slicengine_Get()->CallMod(mod_CanPlayerHaveAdvance, TRUE, m_owner, adv))
 		return;
 
 	m_researching = adv;
 
-	g_slicEngine->RunTrigger(TRIGGER_LIST_PLAYER_RESEARCHING,
+	slicengine_Get()->RunTrigger(TRIGGER_LIST_PLAYER_RESEARCHING,
 							 ST_ADVANCE, adv,
 							 ST_PLAYER, m_owner,
 							 ST_END);

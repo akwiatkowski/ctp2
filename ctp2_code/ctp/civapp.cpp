@@ -316,7 +316,7 @@ extern TiledMap             *g_tiledMap;
 extern sint32               g_modalWindow;
 extern CivApp               *g_civApp;
 extern ChatBox              *g_chatBox;
-extern SlicEngine           *g_slicEngine;
+
 extern TutorialWin          *g_tutorialWin;
 extern SaveInfo *           g_savedGameRequest;
 
@@ -1708,7 +1708,8 @@ void CivApp::CleanupApp(void)
 		Splash::Cleanup();
 		messagewin_Cleanup();
 
-		allocated::clear(g_slicEngine);
+		delete slicengine_Get();
+		slicengine_Set(NULL);
 		delete messagepool_Get(); messagepool_Set(NULL);
 
 		CivScenarios::Cleanup();
@@ -2107,7 +2108,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 		}
 		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
 
-		g_slicEngine->CheckPendingResearch();
+		slicengine_Get()->CheckPendingResearch();
 	}
 
 	ProgressTo( 750 );
@@ -2333,7 +2334,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
     {
         SlicEngine::Reload(g_slic_filename);
 	}
-	g_slicEngine->RunTrigger(TRIGGER_LIST_GAME_LOADED, ST_END);
+	slicengine_Get()->RunTrigger(TRIGGER_LIST_GAME_LOADED, ST_END);
 
 	ProgressTo( 730 );
 
@@ -2411,7 +2412,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 		}
 		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
 
-		g_slicEngine->CheckPendingResearch();
+		slicengine_Get()->CheckPendingResearch();
 	}
 
 	ProgressTo( 810 );
@@ -3339,22 +3340,22 @@ sint32 CivApp::ProcessNet(const uint32 target_milliseconds, uint32 &used_millise
 
 sint32 CivApp::ProcessSLIC(void)
 {
-	if (!g_slicEngine)
+	if (!slicengine_Get())
 		return 0;
 
-	g_slicEngine->ProcessUITriggers();
+	slicengine_Get()->ProcessUITriggers();
 
 	static time_t   lastRanSlicTimers   = 0;
     time_t          now                 = time(0);
-	if (now > lastRanSlicTimers + g_slicEngine->GetTimerGranularity())
+	if (now > lastRanSlicTimers + slicengine_Get()->GetTimerGranularity())
     {
-		g_slicEngine->RunTimerTriggers();
+		slicengine_Get()->RunTimerTriggers();
         /// @todo Check lastRanSlicTimers = now;
 	}
 
-	if (g_slicEngine->WaitingForLoad())
+	if (slicengine_Get()->WaitingForLoad())
     {
-		main_RestoreGame(g_slicEngine->GetLoadName());
+		main_RestoreGame(slicengine_Get()->GetLoadName());
 	}
 
 	return 0;

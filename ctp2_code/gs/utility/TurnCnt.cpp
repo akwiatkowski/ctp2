@@ -349,7 +349,7 @@ void TurnCount::BeginNewRound()
 	render_observer::NextPlayer();
 	agreementpool_Get()->EndRound();
 	pollution_Get()->EndRound();
-	g_slicEngine->RunYearlyTriggers();
+	slicengine_Get()->RunYearlyTriggers();
 
 	if(m_simultaneousMode && g_network.IsHost()) {
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -646,7 +646,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 
 		return FALSE;
 
-	if (g_slicEngine->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("16IAOutOfFuel")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
 		int i;
 		int n = player->GetAllUnitList()->Num();
 		for (i=0; i<n; i++) {
@@ -661,13 +661,13 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 				SlicObject *so = new SlicObject("16IAOutOfFuel");
 				so->AddRecipient(player->m_owner);
 				so->AddCivilisation(player->m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 				return(FALSE);
 			}
 		}
 	}
 
-	if (g_slicEngine->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("23IACityWillStarve")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
 		int i;
 		int n = player->GetAllCitiesList()->Num();
 		for (i=0; i<n; i++) {
@@ -685,24 +685,24 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 				SlicObject *so = new SlicObject("23IACityWillStarve") ;
 				so->AddRecipient(player->m_owner) ;
 				so->AddCity(*unit) ;
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 				return(FALSE);
 			}
 		}
 	}
 
-	if (g_slicEngine->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("21IACannotAffordMaintenance")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
 		if (player->m_gold->BankruptcyImminent() &&
 			(player->CalcTotalBuildingUpkeep() > 0)) {
 			SlicObject *so = new SlicObject("21IACannotAffordMaintenance");
 			so->AddRecipient(player->m_owner);
 			so->AddCivilisation(player->m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			return(FALSE);
 		}
 	}
 
-	if (g_slicEngine->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
+	if (slicengine_Get()->GetSegment("22IACannotAffordSupport")->TestLastShown(player->m_owner, 1, g_turn->GetRound())) {
 		int i;
 		int n = player->GetAllCitiesList()->Num();
 		double prod_total = 0.0;
@@ -720,7 +720,7 @@ BOOL TurnCount::VerifyEndTurn(BOOL force)
 			SlicObject *so = new SlicObject("22IACannotAffordSupport");
 			so->AddRecipient(player->m_owner);
 			so->AddCivilisation(player->m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			return(FALSE);
 		}
 	}
@@ -851,7 +851,7 @@ void TurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 		}
 
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 	}
 
 void TurnCount::CountActivePlayers()
@@ -1183,6 +1183,6 @@ void TurnCount::SendNextPlayerMessageEvent()
 	if(m_isEmail)
 		so->AddAction(player_Get(player)->m_email);
 
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 }

@@ -75,7 +75,6 @@
 #include "UnitRecord.h"
 #include "gs/world/World.h"
 
-extern C3UI *g_c3ui;
 
 static UnitManager *s_unitManager = NULL;
 static MBCHAR *s_unitManagerBlock = "UnitManager";
@@ -237,7 +236,7 @@ AUI_ERRCODE UnitManager::Display()
 	Assert(s_unitManager->m_window);
 	if(s_unitManager->m_window) {
 		s_unitManager->Update();
-		err = g_c3ui->AddWindow(s_unitManager->m_window);
+		err = c3ui_Get()->AddWindow(s_unitManager->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 
 		err = s_unitManager->m_window->Show();
@@ -255,7 +254,7 @@ AUI_ERRCODE UnitManager::Display()
 
 		Assert(s_unitManager->m_adviceWindow);
 		if(s_unitManager->m_adviceWindow) {
-			g_c3ui->AddWindow(s_unitManager->m_adviceWindow);
+			c3ui_Get()->AddWindow(s_unitManager->m_adviceWindow);
 		}
 	}
 	return err;
@@ -273,10 +272,10 @@ AUI_ERRCODE UnitManager::Hide()
 	}
 
 	if(s_unitManager->m_adviceWindow) {
-		g_c3ui->RemoveWindow(s_unitManager->m_adviceWindow->Id());
+		c3ui_Get()->RemoveWindow(s_unitManager->m_adviceWindow->Id());
 	}
 
-	return g_c3ui->RemoveWindow(s_unitManager->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_unitManager->m_window->Id());
 }
 
 void UnitManager::TabGroupCallback(ctp2_TabGroup *group, ctp2_Tab *tab, void *cookie)
@@ -890,14 +889,14 @@ void UnitManager::Advice(aui_Control *control, uint32 action, uint32 data, void 
 	Assert(s_unitManager && s_unitManager->m_adviceWindow);
 	if (s_unitManager && s_unitManager->m_adviceWindow)
     {
-	    if (g_c3ui->GetWindow(s_unitManager->m_adviceWindow->Id()))
+	    if (c3ui_Get()->GetWindow(s_unitManager->m_adviceWindow->Id()))
         {
-		    g_c3ui->RemoveWindow(s_unitManager->m_adviceWindow->Id());
+		    c3ui_Get()->RemoveWindow(s_unitManager->m_adviceWindow->Id());
 	    }
         else
         {
 		    UnitManager::UpdateAdviceText();
-		    g_c3ui->AddWindow(s_unitManager->m_adviceWindow);
+		    c3ui_Get()->AddWindow(s_unitManager->m_adviceWindow);
         }
 	}
 }

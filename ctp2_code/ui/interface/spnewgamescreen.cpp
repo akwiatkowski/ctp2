@@ -78,7 +78,6 @@
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/TurnYearStatus.h"
 
-extern C3UI                 *g_c3ui;
 extern CivApp               *g_civApp;
 extern c3_PopupWindow       *g_spNewGameTribeScreen;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
@@ -123,7 +122,7 @@ sint32 spnewgamescreen_displayMyWindow()
 		}
 
 		g_spNewGameWindow->Update();
-		g_c3ui->AddWindow(g_spNewGameWindow);
+		c3ui_Get()->AddWindow(g_spNewGameWindow);
 	}
 
 	return retval;
@@ -133,7 +132,7 @@ sint32 spnewgamescreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( g_spNewGameWindow->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_spNewGameWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return 1;
@@ -172,7 +171,7 @@ AUI_ERRCODE spnewgamescreen_Initialize( void )
 // Parameters : -
 //
 // Globals    : g_spNewGameWindow
-//              g_c3ui
+//              c3ui_Get()
 //
 // Returns    : -
 //
@@ -197,7 +196,7 @@ void spnewgamescreen_Cleanup(void)
 	// Clean up main screen
 	if (g_spNewGameWindow)
 	{
-		g_c3ui->RemoveWindow(g_spNewGameWindow->Id());
+		c3ui_Get()->RemoveWindow(g_spNewGameWindow->Id());
 		allocated::clear(g_spNewGameWindow);
 	}
 }

@@ -88,7 +88,6 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
 
-extern C3UI       *g_c3ui;
 
 static DipWizard  *s_dipWizard;
 static MBCHAR     *s_dipWizardBlock = "DipWizard";
@@ -358,7 +357,7 @@ AUI_ERRCODE DipWizard::Display()
 
 	Assert(s_dipWizard->m_window);
 	if(s_dipWizard->m_window) {
-		err = g_c3ui->AddWindow(s_dipWizard->m_window);
+		err = c3ui_Get()->AddWindow(s_dipWizard->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_dipWizard->m_window->Show();
@@ -392,7 +391,7 @@ AUI_ERRCODE DipWizard::Hide()
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	s_dipWizard->m_window->Hide();
-	return g_c3ui->RemoveWindow(s_dipWizard->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_dipWizard->m_window->Id());
 }
 
 bool DipWizard::CanInitiateRightNow()
@@ -2242,7 +2241,7 @@ void DipWizard::PollutionOk(aui_Control *control, uint32 action, uint32 data, vo
 
 	Assert(m_pollutionRequestWindow);
 	if(m_pollutionRequestWindow) {
-		g_c3ui->RemoveWindow(m_pollutionRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_pollutionRequestWindow->Id());
 	}
 
 	if(GetStage() == DIP_WIZ_STAGE_PROPOSAL) {
@@ -2266,7 +2265,7 @@ void DipWizard::PercentOk(aui_Control *control, uint32 action, uint32 data, void
 
 	Assert(m_percentRequestWindow);
 	if(m_percentRequestWindow) {
-		g_c3ui->RemoveWindow(m_percentRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_percentRequestWindow->Id());
 	}
 
 	if(GetStage() == DIP_WIZ_STAGE_PROPOSAL) {
@@ -2290,7 +2289,7 @@ void DipWizard::GoldOk(aui_Control *control, uint32 action, uint32 data, void *c
 
 	Assert(m_goldRequestWindow);
 	if(m_goldRequestWindow) {
-		g_c3ui->RemoveWindow(m_goldRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_goldRequestWindow->Id());
 	}
 
 	if(GetStage() == DIP_WIZ_STAGE_PROPOSAL) {
@@ -2312,7 +2311,7 @@ void DipWizard::GoldCancel(aui_Control *control, uint32 action, uint32 data, voi
 
 	Assert(m_goldRequestWindow);
 	if(m_goldRequestWindow) {
-		g_c3ui->RemoveWindow(m_goldRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_goldRequestWindow->Id());
 	}
 
 
@@ -2326,7 +2325,7 @@ void DipWizard::PollutionCancel(aui_Control *control, uint32 action, uint32 data
 
 	Assert(m_pollutionRequestWindow);
 	if(m_pollutionRequestWindow) {
-		g_c3ui->RemoveWindow(m_pollutionRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_pollutionRequestWindow->Id());
 	}
 
 
@@ -2340,7 +2339,7 @@ void DipWizard::PercentCancel(aui_Control *control, uint32 action, uint32 data, 
 
 	Assert(m_percentRequestWindow);
 	if(m_percentRequestWindow) {
-		g_c3ui->RemoveWindow(m_percentRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(m_percentRequestWindow->Id());
 	}
 
 
@@ -2371,7 +2370,7 @@ void DipWizard::RequestGoldValue(sint32 player)
 		spinner->SetMaximum(~(1 << 31), 0);
 	}
 
-	g_c3ui->AddWindow(m_goldRequestWindow);
+	c3ui_Get()->AddWindow(m_goldRequestWindow);
 	m_proposalDataPending = true;
 }
 
@@ -2400,7 +2399,7 @@ void DipWizard::RequestPollutionValue(sint32 player)
 
 	spinner->SetIncrement(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.10), 0);
 
-	g_c3ui->AddWindow(m_pollutionRequestWindow);
+	c3ui_Get()->AddWindow(m_pollutionRequestWindow);
 	m_proposalDataPending = true;
 }
 
@@ -2429,7 +2428,7 @@ void DipWizard::RequestPercentValue()
 
 	spinner->SetIncrement(10, 0);
 
-	g_c3ui->AddWindow(m_percentRequestWindow);
+	c3ui_Get()->AddWindow(m_percentRequestWindow);
 	m_proposalDataPending = true;
 }
 

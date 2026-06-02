@@ -19,7 +19,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/SelItem.h"
 
-extern C3UI				*g_c3ui;
 extern ProfileDB		*g_theProfileDB;
 
 extern uint16 g_messageReadPositionX;
@@ -173,7 +172,7 @@ void MessageIconWindow::SetCurrentIconButton( MessageIconButton *iconButton )
 {
 
 	if ( m_currentIconWindow && m_currentIconWindow->GetWindow()) {
-		if (g_c3ui->GetWindow( m_currentIconWindow->GetWindow()->Id( ))) {
+		if (c3ui_Get()->GetWindow( m_currentIconWindow->GetWindow()->Id( ))) {
 			m_currentIconWindow->GetWindow()->ShowWindow( FALSE );
 		}
 	}

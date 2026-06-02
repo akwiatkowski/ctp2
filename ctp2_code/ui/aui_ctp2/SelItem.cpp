@@ -149,7 +149,6 @@ extern UnitAstar                *g_theUnitAstar;
 
 sint32                           g_tradeSelectedState = 0;
 extern GrabItem                 *g_grabbedItem;
-extern C3UI                     *g_c3ui;
 
 extern ResourceMap              *g_resourceMap;
 extern SoundManager             *g_soundManager;
@@ -739,7 +738,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 
 
 		if(endTurn
-		&& g_c3ui->TopWindowIsNonBackground()
+		&& c3ui_Get()->TopWindowIsNonBackground()
 		&& !g_theProfileDB->GetValueByName("RunInBackground")
 		){
 			endTurn = false;
@@ -1101,7 +1100,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 		slicengine_Get()->RunCitySelectedTriggers(u);
 
-		g_c3ui->AddAction( new WorkWinUpdateAction );
+		c3ui_Get()->AddAction( new WorkWinUpdateAction );
 
 		// Focus on city if option is activated
 		if(IsAutoCenterOn())

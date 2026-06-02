@@ -13,7 +13,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI			*g_c3ui;
 
 ctp2_Switch::ctp2_Switch(
 	AUI_ERRCODE *retval,

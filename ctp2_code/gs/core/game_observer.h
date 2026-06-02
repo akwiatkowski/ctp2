@@ -294,6 +294,6 @@ private:
  * @brief Global accessor for convenience.
  *
  * Game logic should call g_gameObservers->NotifyXxx() instead of
- * hard-coded UI globals like g_c3ui, g_controlPanel, director_Get().
+ * hard-coded UI globals like c3ui_Get(), g_controlPanel, director_Get().
  */
 extern GameObserverRegistry* g_gameObservers;

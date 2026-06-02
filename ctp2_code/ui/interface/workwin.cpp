@@ -51,7 +51,6 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern C3UI			*g_c3ui;
 
 WorkWindow			*g_workWindow = NULL;
 ResourceMap				*g_resourceMap = NULL;
@@ -77,7 +76,7 @@ void WorkWinUpdateAction::Execute(aui_Control *control,
 {
 	if (!g_workWindow) return;
 
-	if ( g_c3ui->GetWindow(g_workWindow->Id()) ) {
+	if ( c3ui_Get()->GetWindow(g_workWindow->Id()) ) {
 		Unit city;
 		if ( selitem_Get()->GetSelectedCity(city) ) {
 			if ( g_resourceMap ) {
@@ -96,12 +95,12 @@ void WorkExitButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( g_workWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( g_workWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
 	WorkWinCleanupAction *tempAction = new WorkWinCleanupAction;
-	g_c3ui->AddAction( tempAction );
+	c3ui_Get()->AddAction( tempAction );
 }
 
 sint32 workwin_Initialize( void )
@@ -181,7 +180,7 @@ sint32 workwin_Cleanup( void )
 {
 	if ( !g_workWindow ) return 0;
 
-	g_c3ui->RemoveWindow( g_workWindow->Id() );
+	c3ui_Get()->RemoveWindow( g_workWindow->Id() );
 
 	delete s_exitButton;
 	s_exitButton = NULL;
@@ -200,7 +199,7 @@ sint32 workwin_Cleanup( void )
 sint32 workwin_Update( void )
 {
 	if ( g_workWindow ) {
-		if ( g_c3ui->GetWindow(g_workWindow->Id()) ) {
+		if ( c3ui_Get()->GetWindow(g_workWindow->Id()) ) {
 			if ( g_resourceMap ) {
 				g_resourceMap->DrawSurface();
 			}

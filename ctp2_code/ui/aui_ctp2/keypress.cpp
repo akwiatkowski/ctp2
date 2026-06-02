@@ -136,7 +136,6 @@
 #include "ui/interface/MainControlPanel.h"
 #include "ui/interface/UnitControlPanel.h"
 
-extern C3UI			*g_c3ui;
 extern BOOL			gSuspended;
 extern ResourceMap		*g_resourceMap;
 extern Background	*g_background;
@@ -331,7 +330,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		extern OptionsWindow *g_optionsWindow;
 
-		if(g_c3ui->TopWindow() && g_c3ui->TopWindow() == DipWizard::GetWindow()) {
+		if(c3ui_Get()->TopWindow() && c3ui_Get()->TopWindow() == DipWizard::GetWindow()) {
 
 		} else if(g_keyboardHandlers.GetTail()) {
 			g_keyboardHandlers.GetTail()->kh_Close();
@@ -350,10 +349,10 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 						data->GetButton(0)->Callback();
 					}
 				}
-			} else if (g_optionsWindow && g_c3ui->GetWindow(g_optionsWindow->Id())) {
+			} else if (g_optionsWindow && c3ui_Get()->GetWindow(g_optionsWindow->Id())) {
 
 				optionsscreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
-			} else if(g_c3ui->TopWindow() && g_c3ui->TopWindow()->HandleKey(wParam)) {
+			} else if(c3ui_Get()->TopWindow() && c3ui_Get()->TopWindow()->HandleKey(wParam)) {
 
 			} else if(battleviewwindow_Get()) {
 				battleview_ExitButtonActionCallback( NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
@@ -366,7 +365,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		return TRUE;
 	}
 
-	aui_Window *topWindow = g_c3ui->TopWindow();
+	aui_Window *topWindow = c3ui_Get()->TopWindow();
 	if(topWindow && (!g_controlPanel || topWindow != g_controlPanel->GetWindow()) && topWindow != g_statusWindow) {
 		if(topWindow->HandleKey(wParam))
 			return 0;
@@ -1231,11 +1230,11 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case KEY_FUNCTION_TOGGLE_ALL:
-		if(!g_c3ui->GetWindow(g_controlPanel->GetWindow()->Id())) {
-			g_c3ui->AddWindow(g_controlPanel->GetWindow());
+		if(!c3ui_Get()->GetWindow(g_controlPanel->GetWindow()->Id())) {
+			c3ui_Get()->AddWindow(g_controlPanel->GetWindow());
 			radarwindow_Show();
 		} else {
-			g_c3ui->RemoveWindow(g_controlPanel->GetWindow()->Id());
+			c3ui_Get()->RemoveWindow(g_controlPanel->GetWindow()->Id());
 			radarwindow_Hide();
 		}
 		break;

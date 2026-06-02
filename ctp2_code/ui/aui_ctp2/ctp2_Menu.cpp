@@ -11,7 +11,6 @@
 #include "gs/database/StrDB.h"
 #include "ui/aui_ctp2/ctp2_MenuButton.h"
 
-extern  C3UI				*g_c3ui;
 
 #define k_STANDARD_EXTRA_WIDTH 60
 #define k_MINIMUM_TEXT_WIDTH 20
@@ -71,7 +70,7 @@ ctp2_Menu::~ctp2_Menu()
 
 	if(m_window) {
 
-		g_c3ui->AddAction(new CleanupMenuWindowAction(m_window));
+		c3ui_Get()->AddAction(new CleanupMenuWindowAction(m_window));
 	}
 
 	if(m_items) {
@@ -130,7 +129,7 @@ void ctp2_Menu::Init(const MBCHAR *block, bool atMouse, CTP2MenuCallback *callba
 	}
 
 	if (atMouse)
-		m_window->Move(g_c3ui->TheMouse()->X(), g_c3ui->TheMouse()->Y());
+		m_window->Move(c3ui_Get()->TheMouse()->X(), c3ui_Get()->TheMouse()->Y());
 
 	m_window->SetWeaklyModalCancelCallback(ctp2_Menu::WeaklyModalCancel, (void *)this);
 }
@@ -327,7 +326,7 @@ void ctp2_Menu::Open()
 {
 
 	if (m_atMouse)
-		m_window->Move(g_c3ui->TheMouse()->X(), g_c3ui->TheMouse()->Y());
+		m_window->Move(c3ui_Get()->TheMouse()->X(), c3ui_Get()->TheMouse()->Y());
 
 	Assert(m_window);
 
@@ -357,7 +356,7 @@ void ctp2_Menu::Open()
 		Move(m_window->X(), y);
 	}
 
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 	m_window->ResetCurrentMouseState();
 
 
@@ -372,7 +371,7 @@ void ctp2_Menu::Close()
 		return;
 	}
 
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void ctp2_Menu::Move(sint32 x, sint32 y)

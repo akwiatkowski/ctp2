@@ -107,7 +107,6 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern C3UI			*g_c3ui;
 extern sint32		g_modalWindow;
 
 static char const s_database_names[DATABASE_MAX][GL_MAX_DB_NAME_SIZE] =
@@ -870,7 +869,7 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 
 #ifdef __AUI_USE_DIRECTX__
 		m_techMovie = new DirectVideo();
-		m_techMovie->Initialize((aui_DirectUI *)g_c3ui, (aui_Window *)GetWindow(), FALSE);
+		m_techMovie->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)GetWindow(), FALSE);
 		m_techMovie->SetDestRect(&rect);
 #endif
 	}
@@ -980,7 +979,7 @@ GreatLibrary::~GreatLibrary( void )
 void GreatLibrary::Display( void )
 {
 	GetWindow()->SetType(AUI_WINDOW_TYPE_FLOATING);
-	AUI_ERRCODE errcode = g_c3ui->AddWindow( GetWindow() );
+	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( GetWindow() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 
@@ -997,7 +996,7 @@ void GreatLibrary::Display( void )
 
 void GreatLibrary::Remove(void)
 {
-	AUI_ERRCODE errcode = g_c3ui->RemoveWindow(GetWindow()->Id());
+	AUI_ERRCODE errcode = c3ui_Get()->RemoveWindow(GetWindow()->Id());
 	Assert(errcode == AUI_ERRCODE_OK);
 
     keypress_RemoveHandler(this);
@@ -1142,7 +1141,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 	if ( g_theProfileDB->IsLibraryAnim() ) {
 #ifdef __AUI_USE_DIRECTX__
 		m_techMovie = new DirectVideo();
-		m_techMovie->Initialize((aui_DirectUI *)g_c3ui, (aui_Window *)GetWindow(), FALSE);
+		m_techMovie->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)GetWindow(), FALSE);
 		m_techMovie->SetDestRect(&rect);
 #endif
 

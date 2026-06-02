@@ -57,7 +57,6 @@
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Strengths.h"
 
-extern C3UI                    *g_c3ui;
 extern PointerList<Player>     *g_deadPlayer;
 
 static sint32                   s_minRound = 0;
@@ -306,7 +305,7 @@ void LineGraph::UpdateGraph(aui_Surface * surface, sint32 x, sint32 y)
 {
 	RECT		rect = {0, 0, m_width, m_height};
 
-    g_c3ui->TheBlitter()->Blt(surface, x, y, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+    c3ui_Get()->TheBlitter()->Blt(surface, x, y, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
 }
 
 void LineGraph::LabelAxes(void)

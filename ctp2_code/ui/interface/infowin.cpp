@@ -98,7 +98,6 @@
 
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;
-extern C3UI                     *g_c3ui;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 extern WorkMap                  *g_workMap;
@@ -258,7 +257,7 @@ void InfoExitButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_c3ui->AddAction(new InfoCleanupAction());
+	c3ui_Get()->AddAction(new InfoCleanupAction());
 }
 
 void InfoBigListCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )

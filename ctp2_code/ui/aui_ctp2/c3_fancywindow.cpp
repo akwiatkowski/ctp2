@@ -10,7 +10,6 @@
 
 #include "ui/aui_ctp2/c3_fancywindow.h"
 
-extern C3UI						*g_c3ui;
 
 #define	k_ORIGINAL_UNIT_STATUS_WIDTH	538
 #define k_ORIGINAL_UNIT_STATUS_HEIGHT	479

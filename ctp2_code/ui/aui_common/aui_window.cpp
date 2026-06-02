@@ -41,7 +41,6 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"           // C3UI
 
-extern C3UI *   g_c3ui;
 
 uint32 aui_Window::m_windowClassId = aui_UniqueId();
 
@@ -139,9 +138,9 @@ AUI_ERRCODE aui_Window::CreateSurface( void )
 
 aui_Window::~aui_Window()
 {
-    if (g_c3ui)
+    if (c3ui_Get())
     {
-        g_c3ui->RemoveWindow(Id());
+        c3ui_Get()->RemoveWindow(Id());
     }
 
     delete m_surface;

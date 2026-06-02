@@ -9,7 +9,6 @@
 #include "ui/aui_ctp2/ctp2_Tab.h"
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 
-extern C3UI	*g_c3ui;
 
 static const MBCHAR *k_CTP2_BUTTON_LDL_LAYER_LEFT		= "layerleft";
 static const MBCHAR *k_CTP2_BUTTON_LDL_LAYER_RIGHT		= "layerright";

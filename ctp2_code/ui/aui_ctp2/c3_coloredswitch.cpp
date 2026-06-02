@@ -15,7 +15,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI			*g_c3ui;
 
 c3_ColoredSwitch::c3_ColoredSwitch(
 	AUI_ERRCODE *retval,

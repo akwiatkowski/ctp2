@@ -58,7 +58,6 @@
 #include "gfx/spritesys/director.h"
 #include "gs/database/profileDB.h"				// g_theProfileDB
 
-extern C3UI				*g_c3ui;
 
 void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 data )
 {
@@ -77,7 +76,7 @@ void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 dat
 		return;
 	}
 
-	if ( !g_c3ui->GetWindow( m_iconWindow->GetWindow()->Id( ))) {
+	if ( !c3ui_Get()->GetWindow( m_iconWindow->GetWindow()->Id( ))) {
 		m_iconWindow->SetCurrentIconButton( m_iconWindow->GetIconButton() );
 		m_iconWindow->GetWindow()->ShowWindow( TRUE );
 	}
@@ -150,7 +149,7 @@ void MessageDismissAction::Execute( aui_Control *control, uint32 action, uint32 
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_c3ui->AddAction(new MessageDismissUIAction(m_window));
+	c3ui_Get()->AddAction(new MessageDismissUIAction(m_window));
 }
 
 
@@ -301,7 +300,7 @@ void MessageResponseAction::Execute( aui_Control *control, uint32 action, uint32
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
 
-	g_c3ui->AddAction(new MessageResponseUIAction(m_window, m_response));
+	c3ui_Get()->AddAction(new MessageResponseUIAction(m_window, m_response));
 }
 
 
@@ -314,7 +313,7 @@ void MessageModalResponseAction::Execute( aui_Control *control, uint32 action, u
 		m_message->AccessData()->GetButton( m_response )->Callback();
 	}
 
-	g_c3ui->AddAction( new MessageModalDestroyAction( ) );
+	c3ui_Get()->AddAction( new MessageModalDestroyAction( ) );
 }
 
 
@@ -371,7 +370,7 @@ void MessageAdviceDismissAction::Execute( aui_Control *control, uint32 action, u
 {
 	if ( action != ( uint32 )AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_c3ui->AddAction( new MessageAdviceDestroyAction( ) );
+	c3ui_Get()->AddAction( new MessageAdviceDestroyAction( ) );
 
 }
 

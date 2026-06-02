@@ -174,7 +174,6 @@ extern ControlPanelWindow     *g_controlPanel;
 #include "gs/gameobj/CTP2Combat.h"
 #include "gs/gameobj/Strengths.h"
 
-extern C3UI *g_c3ui;
 
 #define k_CHUNK_HEAD '>'
 #define k_CHUNK_BODY 'C'
@@ -707,7 +706,7 @@ Network::Process()
 
 	static time_t battleEndedTime = -1;
 
-	if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && g_c3ui->GetWindow(bvw->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
+	if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && c3ui_Get()->GetWindow(bvw->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
 		if(battleEndedTime < 0) {
 			battleEndedTime = time(0);
 		} else if(battleEndedTime + 30 < time(0)) {
@@ -738,8 +737,8 @@ Network::Process()
 		}
 
 		BattleViewWindow *bvw = battleviewwindow_Get();
-		if(g_c3ui &&
-		   (bvw && g_c3ui->GetWindow(bvw->Id())) ||
+		if(c3ui_Get() &&
+		   (bvw && c3ui_Get()->GetWindow(bvw->Id())) ||
 		   (diplomacyShouldPause)) {
 			if(m_battleViewOpenedTime < 0) {
 				m_battleViewOpenedTime = timeNow;

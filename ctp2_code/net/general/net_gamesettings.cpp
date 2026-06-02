@@ -22,7 +22,6 @@
 #include "ui/interface/controlpanelwindow.h"
 
 extern Background			*g_background;
-extern C3UI					*g_c3ui;
 
 extern ControlPanelWindow	*g_controlPanel;
 

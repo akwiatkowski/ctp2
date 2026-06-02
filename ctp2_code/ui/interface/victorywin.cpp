@@ -123,7 +123,6 @@
 
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;
-extern C3UI                     *g_c3ui;
 extern CivApp                   *g_civApp;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
@@ -166,7 +165,7 @@ void VictoryWindowButtonActionCallback( aui_Control *control, uint32 action, uin
 	if ((ctp2_Button*)control == s_okButton)
 	{
 
-		auiErr = g_c3ui->RemoveWindow( g_victoryWindow->m_window->Id() );
+		auiErr = c3ui_Get()->RemoveWindow( g_victoryWindow->m_window->Id() );
 		Assert( auiErr == AUI_ERRCODE_OK );
 		if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -305,7 +304,7 @@ sint32 victorywin_DisplayWindow(sint32 type)
 {
 	AUI_ERRCODE		errcode;
 
-	errcode = g_c3ui->AddWindow( g_victoryWindow->m_window );
+	errcode = c3ui_Get()->AddWindow( g_victoryWindow->m_window );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return -1;
 
@@ -318,8 +317,8 @@ sint32 victorywin_DisplayWindow(sint32 type)
 
 sint32 victorywin_RemoveWindow( void )
 {
-	if ( g_c3ui->GetWindow(g_victoryWindow->m_window->Id()) ) {
-		g_c3ui->RemoveWindow( g_victoryWindow->m_window->Id() );
+	if ( c3ui_Get()->GetWindow(g_victoryWindow->m_window->Id()) ) {
+		c3ui_Get()->RemoveWindow( g_victoryWindow->m_window->Id() );
 		g_modalWindow--;
 	}
 
@@ -876,9 +875,9 @@ HighScoreWindowPopup::~HighScoreWindowPopup( void )
 
 void HighScoreWindowPopup::Cleanup( void )
 {
-    if (m_window && g_c3ui)
+    if (m_window && c3ui_Get())
     {
-	    g_c3ui->RemoveWindow(m_window->Id());
+	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
 #define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
@@ -901,7 +900,7 @@ void HighScoreWindowPopup::DisplayWindow( void )
 	UpdateData();
 
 	g_modalWindow++;
-	auiErr = g_c3ui->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -909,11 +908,11 @@ void HighScoreWindowPopup::RemoveWindow( void )
 {
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	g_modalWindow--;
-	g_c3ui->AddAction(new CloseVictoryWindowAction);
+	c3ui_Get()->AddAction(new CloseVictoryWindowAction);
 }
 
 sint32 HighScoreWindowPopup::UpdateData( void )
@@ -1241,6 +1240,6 @@ sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult )
 
 bool victorywin_IsOnScreen()
 {
-    return  (g_victoryWindow && g_c3ui->GetWindow(g_victoryWindow->m_window->Id())) ||
-            (s_highScoreWin  && g_c3ui->GetWindow(s_highScoreWin->GetWindow()->Id()));
+    return  (g_victoryWindow && c3ui_Get()->GetWindow(g_victoryWindow->m_window->Id())) ||
+            (s_highScoreWin  && c3ui_Get()->GetWindow(s_highScoreWin->GetWindow()->Id()));
 }

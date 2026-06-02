@@ -51,7 +51,6 @@
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "ui/aui_utils/primitives.h"
 
-extern C3UI				*g_c3ui;
 
 ThumbnailMap::ThumbnailMap(AUI_ERRCODE *retval,
 							sint32 id,
@@ -485,7 +484,7 @@ void ThumbnailMap::UpdateMap(aui_Surface *surf, sint32 x, sint32 y)
 
 
 
-	g_c3ui->TheBlitter()->Blt(surf, x, y, m_mapSurface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(surf, x, y, m_mapSurface, &rect, k_AUI_BLITTER_FLAG_COPY);
 
 
 
@@ -569,7 +568,7 @@ BOOL ThumbnailMap::ShowTipWindow( aui_MouseEvent *mouseData )
 	{
 		PlaySound( AUI_SOUNDBASE_SOUND_TIP );
 
-		m_showingTip = g_c3ui->AddWindow( m_tip ) == AUI_ERRCODE_OK;
+		m_showingTip = c3ui_Get()->AddWindow( m_tip ) == AUI_ERRCODE_OK;
 
 		RECT rect = { mouseData->position.x, mouseData->position.y, 0, 0 };
 		ToWindow( &rect );
@@ -580,8 +579,8 @@ BOOL ThumbnailMap::ShowTipWindow( aui_MouseEvent *mouseData )
 
 		if ( m_tip->X() < 0 ) m_tip->Move( 0, m_tip->Y() );
 		if ( m_tip->Y() < 0 ) m_tip->Move( m_tip->X(), 0 );
-		sint32 adjustX = m_tip->X() + m_tip->Width() - g_c3ui->Width();
-		sint32 adjustY = m_tip->Y() + m_tip->Height() - g_c3ui->Height();
+		sint32 adjustX = m_tip->X() + m_tip->Width() - c3ui_Get()->Width();
+		sint32 adjustY = m_tip->Y() + m_tip->Height() - c3ui_Get()->Height();
 		if ( adjustX > 0 ) m_tip->Offset( -adjustX, 0 );
 		if ( adjustY > 0 ) m_tip->Offset( -adjustY, 0 );
 

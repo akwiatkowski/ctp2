@@ -86,7 +86,6 @@
 #include <vector>                   // std::vector
 //end includes
 
-extern C3UI             *g_c3ui;
 extern ProfileDB        *g_theProfileDB;
 extern sint32               g_isCheatModeOn;
 
@@ -185,7 +184,7 @@ sint32	spnewgametribescreen_displayMyWindow( void *cookie, BOOL edit )
 {
 	sint32 retval = g_spNewGameTribeScreen ? 0 : spnewgametribescreen_Initialize();
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(g_spNewGameTribeScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(g_spNewGameTribeScreen);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(g_spNewGameTribeScreen);
@@ -212,7 +211,7 @@ sint32 spnewgametribescreen_removeMyWindow(uint32 action, MBCHAR *lname)
 
 	spnewgametribescreen_setTribeIndex( index, lname );
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(g_spNewGameTribeScreen->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(g_spNewGameTribeScreen->Id());
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RemoveHandler(g_spNewGameTribeScreen);
@@ -320,7 +319,7 @@ AUI_ERRCODE spnewgametribescreen_Cleanup()
 {
 	if (g_spNewGameTribeScreen)
 	{
-		g_c3ui->RemoveWindow(g_spNewGameTribeScreen->Id());
+		c3ui_Get()->RemoveWindow(g_spNewGameTribeScreen->Id());
 		keypress_RemoveHandler(g_spNewGameTribeScreen);
 
 		allocated::clear(s_CivListBox);

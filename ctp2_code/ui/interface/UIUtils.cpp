@@ -6,7 +6,6 @@
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/aui_ctp2/c3ui.h"
 
-extern C3UI			*g_c3ui;
 
 void BlockPush(MBCHAR *path, MBCHAR *addition)
 	{

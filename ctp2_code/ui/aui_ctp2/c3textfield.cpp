@@ -13,7 +13,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI			*g_c3ui;
 
 C3TextField::C3TextField(
 	AUI_ERRCODE *retval,

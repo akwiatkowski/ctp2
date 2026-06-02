@@ -17,7 +17,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI *g_c3ui;
 
 #define k_DOCK_SNAP_MARGIN 10
 
@@ -188,17 +187,17 @@ AUI_ERRCODE ctp2_Window::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 
 	if(block->GetBool("centeredwindow")) {
 		sint32 x, y;
-		x = g_c3ui->Width() / 2 - Width() / 2;
-		y = g_c3ui->Height() / 2 - Height() / 2;
+		x = c3ui_Get()->Width() / 2 - Width() / 2;
+		y = c3ui_Get()->Height() / 2 - Height() / 2;
 		if(x < k_STANDARD_MAIN_WINDOW_X) x = k_STANDARD_MAIN_WINDOW_X;
 		if(y < k_STANDARD_MAIN_WINDOW_Y) y = k_STANDARD_MAIN_WINDOW_Y;
 
-		if(x + Width() > g_c3ui->Width()) {
-			x = g_c3ui->Width() - Width();
+		if(x + Width() > c3ui_Get()->Width()) {
+			x = c3ui_Get()->Width() - Width();
 		}
 
-		if(y + Height() > g_c3ui->Height()) {
-			y = g_c3ui->Height() - Height();
+		if(y + Height() > c3ui_Get()->Height()) {
+			y = c3ui_Get()->Height() - Height();
 		}
 		Move(x, y);
 	}

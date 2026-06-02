@@ -54,7 +54,6 @@
 #include "gs/database/profileDB.h"                  // g_theProfileDB
 #include "ui/interface/spnewgamewindow.h"
 
-extern C3UI         *g_c3ui;
 
 namespace
 {
@@ -123,7 +122,7 @@ sint32 spnewgameplayersscreen_displayMyWindow()
 	sint32 retval=0;
 	if(!s_spNewGamePlayersScreen) { retval = spnewgameplayersscreen_Initialize(); }
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(s_spNewGamePlayersScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_spNewGamePlayersScreen);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(s_spNewGamePlayersScreen);
@@ -166,7 +165,7 @@ sint32 spnewgameplayersscreen_removeMyWindow(uint32 action)
 	}
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_spNewGamePlayersScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_spNewGamePlayersScreen->Id() );
 	keypress_RemoveHandler(s_spNewGamePlayersScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -314,9 +313,9 @@ void spnewgameplayersscreen_Cleanup()
 		CleanupControl(s_max_player);
 		CleanupControl(s_player);
 
-		if (g_c3ui)
+		if (c3ui_Get())
 		{
-			g_c3ui->RemoveWindow(s_spNewGamePlayersScreen->Id());
+			c3ui_Get()->RemoveWindow(s_spNewGamePlayersScreen->Id());
 		}
 		keypress_RemoveHandler(s_spNewGamePlayersScreen);
 

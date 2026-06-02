@@ -10,7 +10,6 @@
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/textbox.h"
 
-extern C3UI				*g_c3ui;
 
 
 DebugWindow::DebugWindow(

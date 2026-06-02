@@ -81,7 +81,6 @@ extern sint32		g_god;
 
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
-extern C3UI					*g_c3ui;
 
 static InfoBar *g_infoBar = NULL;
 
@@ -113,7 +112,7 @@ void InfoBar::Cleanup()
 {
 	if(g_infoBar) {
 		g_infoBar->Hide();
-		g_c3ui->RemoveWindow(g_infoBar->Id());
+		c3ui_Get()->RemoveWindow(g_infoBar->Id());
 		delete g_infoBar;
 		g_infoBar = NULL;
 	}

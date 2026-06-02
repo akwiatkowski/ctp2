@@ -39,7 +39,6 @@
 
 #include "ui/aui_directx/aui_directsurface.h"
 
-extern C3UI		*g_c3ui;
 
 uint32 aui_DirectSurface::m_directSurfaceClassId = aui_UniqueId();
 
@@ -272,7 +271,7 @@ BOOL aui_DirectSurface::IsOK( void ) const
 
 void aui_DirectSurface::Flip()
 {
-	if(g_c3ui->GetExclusiveMode())
+	if(c3ui_Get()->GetExclusiveMode())
 	{
 		HRESULT err = m_lpdds->Flip(m_back, DDFLIP_WAIT);
 		Assert(err == DD_OK);

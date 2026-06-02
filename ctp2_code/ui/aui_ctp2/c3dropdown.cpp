@@ -44,7 +44,6 @@
 
 #include "ui/aui_ctp2/c3dropdown.h"
 
-extern C3UI *g_c3ui;
 
 C3DropDown::C3DropDown(
 	AUI_ERRCODE *retval,

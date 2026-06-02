@@ -85,7 +85,6 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern C3UI*		g_c3ui;
 extern StringDB*	g_theStringDB;
 extern SoundManager	*g_soundManager;
 
@@ -190,13 +189,13 @@ void endgamewindow_ExitButtonActionCallback(aui_Control *control, uint32 action,
 
 	if(action == (uint32)AUI_BUTTON_ACTION_EXECUTE) {
 
-		AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(g_endgameWindow->Id());
+		AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(g_endgameWindow->Id());
 
 		Assert(auiErr == AUI_ERRCODE_OK);
 		if(auiErr != AUI_ERRCODE_OK) return;
 
 		RemoveEndGameAction	*actionObj = new RemoveEndGameAction;
-		g_c3ui->AddAction(actionObj);
+		c3ui_Get()->AddAction(actionObj);
 	}
 }
 
@@ -240,7 +239,7 @@ sint32 endgamewindow_Cleanup()
 
 	if(g_soundManager) g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow);
 
-	g_c3ui->RemoveWindow(g_endgameWindow->Id());
+	c3ui_Get()->RemoveWindow(g_endgameWindow->Id());
 
 	keypress_RemoveHandler(g_endgameWindow);
 
@@ -354,7 +353,7 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 	aui_Surface *backSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
 	Assert(AUI_NEWOK(backSurface, errcode));
 
-	g_c3ui->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
@@ -362,9 +361,9 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
 		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, m_blendVal);
 
@@ -385,7 +384,7 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 
 	RECT highlightRect = { 0, 0, highlightSurf->Width(), highlightSurf->Height() };
 
-	g_c3ui->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	sint32 highlightBlendVal = m_blendVal * 3;
@@ -404,9 +403,9 @@ AUI_ERRCODE c3_Blend::DrawBlendImage(aui_Surface *destSurf, RECT *destRect)
 			highlightRect.bottom);
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, highlightSurf,
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, highlightSurf,
 			&highlightRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
 		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, highlightBlendVal);
@@ -510,7 +509,7 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE errcode;
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 
-	aui_Ldl *theLdl = g_c3ui->GetLdl();
+	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = theLdl->IsValid( ldlBlock );
 	Assert(valid);
@@ -901,7 +900,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	MBCHAR ldlString[k_AUI_LDL_MAXBLOCK + 1];
 	int index;
 
-	aui_Ldl *theLdl = g_c3ui->GetLdl();
+	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = theLdl->IsValid( ldlBlock );
 	Assert(valid);

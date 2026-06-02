@@ -7,7 +7,6 @@
 #include "ui/aui_common/aui_movie.h"
 
 #include "ui/aui_ctp2/c3ui.h"
-extern C3UI			*g_c3ui;
 
 #include "gs/database/profileDB.h"
 extern ProfileDB	*g_theProfileDB;
@@ -168,7 +167,7 @@ AUI_ERRCODE aui_MovieButton::Idle( void )
 
 			ToScreen(&adjustedRect);
 
-			if (m_movie->Open(flags, g_c3ui->Secondary(), &adjustedRect) != AUI_ERRCODE_OK) {
+			if (m_movie->Open(flags, c3ui_Get()->Secondary(), &adjustedRect) != AUI_ERRCODE_OK) {
 
 				SetMovie(NULL);
 				if (GetActionFunc())

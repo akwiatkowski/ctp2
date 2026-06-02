@@ -11,7 +11,6 @@
 #include "net/general/network.h"
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 
-extern C3UI *g_c3ui;
 
 static DomesticManagementDialog * g_domesticManagementDialog = NULL;
 
@@ -72,7 +71,7 @@ void DomesticManagementDialog::Cleanup()
 {
 
 	if(g_domesticManagementDialog) {
-		if(g_c3ui->GetWindow(g_domesticManagementDialog->m_window->Id()) &&
+		if(c3ui_Get()->GetWindow(g_domesticManagementDialog->m_window->Id()) &&
 		   !g_domesticManagementDialog->m_window->IsHidden()) {
 			g_domesticManagementDialog->Hide();
 		}
@@ -88,14 +87,14 @@ void DomesticManagementDialog::Cleanup()
 
 void DomesticManagementDialog::Show()
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 	m_window->Show();
 }
 
 void DomesticManagementDialog::Hide()
 {
 	m_window->Hide();
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void DomesticManagementDialog::CloseButtonActionCallback(aui_Control *control,

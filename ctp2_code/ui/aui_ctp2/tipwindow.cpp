@@ -11,7 +11,6 @@
 
 #include "ui/aui_ctp2/tipwindow.h"
 
-extern C3UI *g_c3ui;
 
 TipWindow::TipWindow(
 		AUI_ERRCODE *retval,

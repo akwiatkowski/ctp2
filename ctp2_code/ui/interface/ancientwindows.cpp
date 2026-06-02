@@ -21,7 +21,6 @@
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern C3UI						*g_c3ui;
 
 extern StatsWindow				*g_statsWindow;
 extern ControlPanelWindow	*g_controlPanel;
@@ -114,7 +113,7 @@ return 0;
 		s_controlPiece->Move(s_controlPiece->X(), g_ScreenHeight - g_controlPanel->Height() - s_controlPiece->Height());
 	}
 
-	errcode = g_c3ui->AddWindow( s_controlPiece );
+	errcode = c3ui_Get()->AddWindow( s_controlPiece );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -146,7 +145,7 @@ return 0;
 	s_angelLeft->Enable( FALSE );
 	s_angelLeft->SetTransparent( TRUE );
 
-	errcode = g_c3ui->AddWindow( s_angelLeft );
+	errcode = c3ui_Get()->AddWindow( s_angelLeft );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -180,7 +179,7 @@ return 0;
 	s_angelRight->Enable( FALSE );
 	s_angelRight->SetTransparent( TRUE );
 
-	errcode = g_c3ui->AddWindow( s_angelRight );
+	errcode = c3ui_Get()->AddWindow( s_angelRight );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -197,7 +196,7 @@ return 0;
 	s_lowerRight->Enable( FALSE );
 	s_lowerRight->SetTransparent( TRUE );
 
-	errcode = g_c3ui->AddWindow( s_lowerRight );
+	errcode = c3ui_Get()->AddWindow( s_lowerRight );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -221,7 +220,7 @@ return 0;
 	s_radarBorderRight->Enable( FALSE );
 
 
-	errcode = g_c3ui->AddWindow( s_radarBorderRight );
+	errcode = c3ui_Get()->AddWindow( s_radarBorderRight );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -250,7 +249,7 @@ return 0;
 	s_controlLeft->Enable( FALSE );
 
 
-	errcode = g_c3ui->AddWindow( s_controlLeft );
+	errcode = c3ui_Get()->AddWindow( s_controlLeft );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -274,7 +273,7 @@ return 0;
 	s_controlRight->Enable( FALSE );
 
 
-	errcode = g_c3ui->AddWindow( s_controlRight );
+	errcode = c3ui_Get()->AddWindow( s_controlRight );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 
@@ -286,11 +285,11 @@ int AncientWindows_Cleanup( void )
 {
 
 	if (s_controlPanelLeftHat) {
-		g_c3ui->RemoveWindow(s_controlPanelLeftHat->Id());
+		c3ui_Get()->RemoveWindow(s_controlPanelLeftHat->Id());
 		delete s_controlPanelLeftHat;
 	}
 	if (s_controlPanelRightHat) {
-		g_c3ui->RemoveWindow(s_controlPanelRightHat->Id());
+		c3ui_Get()->RemoveWindow(s_controlPanelRightHat->Id());
 		delete s_controlPanelRightHat;
 	}
 
@@ -298,15 +297,15 @@ return 0;
 
 #if 0 // CTP1?
 
-	g_c3ui->RemoveWindow( s_lowerRight->Id() );
+	c3ui_Get()->RemoveWindow( s_lowerRight->Id() );
 
-	g_c3ui->RemoveWindow( s_angelLeft->Id() );
-	g_c3ui->RemoveWindow( s_angelRight->Id() );
-	if ( s_controlLeft ) g_c3ui->RemoveWindow( s_controlLeft->Id() );
-	if ( s_controlRight ) g_c3ui->RemoveWindow( s_controlRight->Id() );
-	g_c3ui->RemoveWindow( s_radarBorderRight->Id() );
+	c3ui_Get()->RemoveWindow( s_angelLeft->Id() );
+	c3ui_Get()->RemoveWindow( s_angelRight->Id() );
+	if ( s_controlLeft ) c3ui_Get()->RemoveWindow( s_controlLeft->Id() );
+	if ( s_controlRight ) c3ui_Get()->RemoveWindow( s_controlRight->Id() );
+	c3ui_Get()->RemoveWindow( s_radarBorderRight->Id() );
 
-	g_c3ui->RemoveWindow( s_controlPiece->Id() );
+	c3ui_Get()->RemoveWindow( s_controlPiece->Id() );
 
 
 

@@ -25,7 +25,6 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 
-extern C3UI			*g_c3ui;
 extern uint8 g_messageRespButtonSpacing;
 extern uint8 g_messageRespTextPadding;
 extern uint8 g_messageRespButtonWidth;

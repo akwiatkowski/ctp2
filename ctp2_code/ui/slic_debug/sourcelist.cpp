@@ -68,7 +68,6 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
-extern C3UI			*g_c3ui;
 
 static SourceList *g_sourceList = NULL;
 
@@ -156,9 +155,9 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 
 SourceList::~SourceList(void)
 {
-    if (g_c3ui && m_window)
+    if (c3ui_Get() && m_window)
     {
-	    g_c3ui->RemoveWindow(m_window->Id());
+	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
 	delete m_continue;
@@ -272,9 +271,9 @@ sint32 SourceList::Initialize(MBCHAR *windowBlock)
 
 void SourceList::Cleanup(void)
 {
-    if (g_c3ui && m_window)
+    if (c3ui_Get() && m_window)
     {
-        g_c3ui->RemoveWindow(m_window->Id());
+        c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
 #define mycleanup(mypointer) delete mypointer; mypointer = NULL;
@@ -293,7 +292,7 @@ void SourceList::DisplayWindow(SlicSegment *segment)
 	m_segment = segment;
 	UpdateData();
 
-	auiErr = g_c3ui->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(this);
@@ -303,7 +302,7 @@ void SourceList::RemoveWindow(void)
 {
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow(m_window->Id());
+	auiErr = c3ui_Get()->RemoveWindow(m_window->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RemoveHandler(this);
@@ -389,7 +388,7 @@ void SourceList::Continue()
 	for(i = 0; i < m_list->NumItems(); i++) {
 		SourceListItem *item = (SourceListItem *)m_list->GetItemByIndex(i);
 		if(item->m_activeBreak) {
-			g_c3ui->AddAction(new SourceListItemContinueAction(item));
+			c3ui_Get()->AddAction(new SourceListItemContinueAction(item));
 			return;
 		}
 	}
@@ -585,7 +584,7 @@ void SourceListItemConditionalCallback(MBCHAR const *text, sint32 val2, void *da
 	}
 	item->SetBreak();
 
-	g_c3ui->AddAction(new KillConditionalPopupAction);
+	c3ui_Get()->AddAction(new KillConditionalPopupAction);
 }
 
 void SourceListItem::EditConditional()

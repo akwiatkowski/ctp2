@@ -18,7 +18,6 @@
 #include "ui/aui_ctp2/texttable.h"
 #include "ui/aui_ctp2/c3windows.h"
 
-extern C3UI			*g_c3ui;
 
 TextTable::TextTable(
 	AUI_ERRCODE *retval,
@@ -120,7 +119,7 @@ AUI_ERRCODE TextTable::InitCommon( MBCHAR *ldlBlock, aui_Surface *surface )
 	uint32 columns = 0;
 	uint32 size = 0;
 
-	aui_Ldl *theLdl = g_c3ui->GetLdl();
+	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = theLdl->IsValid( ldlBlock );
 	Assert( valid );
@@ -169,7 +168,7 @@ AUI_ERRCODE TextTable::InitCommon( uint32 columns, aui_Surface *surface )
 	else
 	{
 
-		textHeight = textutils_GetHeight(g_c3ui->Secondary(), "Wj" );
+		textHeight = textutils_GetHeight(c3ui_Get()->Secondary(), "Wj" );
 	}
 
 	m_item_height = textHeight;

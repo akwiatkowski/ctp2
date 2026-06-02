@@ -144,7 +144,6 @@ extern ProjectFile                  *g_GreatLibPF;
 
 #include "ctp/debugtools/Timer.h"
 
-extern C3UI                         *g_c3ui;
 
 static CityWindow                   *s_cityWindow = NULL;
 static MBCHAR                       *s_cityWindowBlock = "CityWindow";
@@ -166,8 +165,8 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
     m_pollutionList         (NULL),
     m_rushBuyButton         (NULL),
     m_sellButton            (NULL),
-    m_happyIcon             (g_c3ui->LoadImage("upic10.tga")),
-    m_unhappyIcon           (g_c3ui->LoadImage("updi43.tga")),
+    m_happyIcon             (c3ui_Get()->LoadImage("upic10.tga")),
+    m_unhappyIcon           (c3ui_Get()->LoadImage("updi43.tga")),
     m_growthBar             (NULL),
     m_happinessBar          (NULL),
     m_growthDelta           (NULL),
@@ -425,8 +424,8 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
 //----------------------------------------------------------------------------
 CityWindow::~CityWindow()
 {
-	g_c3ui->UnloadImage(m_happyIcon);
-	g_c3ui->UnloadImage(m_unhappyIcon);
+	c3ui_Get()->UnloadImage(m_happyIcon);
+	c3ui_Get()->UnloadImage(m_unhappyIcon);
 
 	if (m_cities)			// container + created with new
 	{
@@ -514,7 +513,7 @@ AUI_ERRCODE CityWindow::Display(CityData *city)
 		s_cityWindow->SetCity(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0).CD());
 	}
 
-	AUI_ERRCODE err = g_c3ui->AddWindow(s_cityWindow->m_window);
+	AUI_ERRCODE err = c3ui_Get()->AddWindow(s_cityWindow->m_window);
 	Assert(err == AUI_ERRCODE_OK);
 	if(err != AUI_ERRCODE_OK)
 		return err;
@@ -522,7 +521,7 @@ AUI_ERRCODE CityWindow::Display(CityData *city)
 	err = s_cityWindow->m_window->Show();
 
 	if(err == AUI_ERRCODE_OK) {
-		g_c3ui->BringWindowToTop(s_cityWindow->m_window);
+		c3ui_Get()->BringWindowToTop(s_cityWindow->m_window);
 	}
 #if 0
 	ctp2_Static *resourceBox = (ctp2_Static *)aui_Ldl::GetObject("CityWindow.ResourceMapBox");
@@ -544,10 +543,10 @@ AUI_ERRCODE CityWindow::Hide()
 		return AUI_ERRCODE_OK;
 
 	if(s_cityWindow->m_statsWindow) {
-		g_c3ui->RemoveWindow(s_cityWindow->m_statsWindow->Id());
+		c3ui_Get()->RemoveWindow(s_cityWindow->m_statsWindow->Id());
 	}
 
-	return g_c3ui->RemoveWindow(s_cityWindow->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_cityWindow->m_window->Id());
 }
 
 CityData *CityWindow::GetCityData(const Unit &city)
@@ -560,7 +559,7 @@ CityData *CityWindow::GetCityData(const Unit &city)
 		s_cityWindow->m_cities = new PointerList<CityData>;
 	}
 
-	if(!g_c3ui->GetWindow(s_cityWindow->m_window->Id()))
+	if(!c3ui_Get()->GetWindow(s_cityWindow->m_window->Id()))
 		CopyCitiesBack();
 
 	PointerList<CityData>::Walker walk(s_cityWindow->m_cities);
@@ -1961,10 +1960,10 @@ void CityWindow::ShowStatistics(aui_Control *control, uint32 action, uint32 data
 
 	Assert(s_cityWindow->m_statsWindow);
 	if(s_cityWindow->m_statsWindow) {
-		if(g_c3ui->GetChild(s_cityWindow->m_statsWindow->Id())) {
-			g_c3ui->RemoveWindow(s_cityWindow->m_statsWindow->Id());
+		if(c3ui_Get()->GetChild(s_cityWindow->m_statsWindow->Id())) {
+			c3ui_Get()->RemoveWindow(s_cityWindow->m_statsWindow->Id());
 		} else {
-			g_c3ui->AddWindow(s_cityWindow->m_statsWindow);
+			c3ui_Get()->AddWindow(s_cityWindow->m_statsWindow);
 		}
 	}
 }
@@ -2335,7 +2334,7 @@ AUI_ERRCODE CityWindow::DrawUnhappyIcons(ctp2_Static *control,
 
 	sint32 i;
 	for(i = 0; i < numIcons; i++) {
-		g_c3ui->TheBlitter()->Blt(surface,
+		c3ui_Get()->TheBlitter()->Blt(surface,
 								  destRect.left, destRect.top,
 								  im->TheSurface(),
 								  &srcRect,
@@ -2374,7 +2373,7 @@ AUI_ERRCODE CityWindow::DrawHappyIcons(ctp2_Static *control,
 	RECT destRect = rect;
 	sint32 i;
 	for(i = 0; i < numIcons; i++) {
-		g_c3ui->TheBlitter()->Blt(surface,
+		c3ui_Get()->TheBlitter()->Blt(surface,
 								  destRect.left, destRect.top,
 								  im->TheSurface(),
 								  &srcRect,
@@ -2538,7 +2537,7 @@ void CityWindow::NotifyUnitChange()
 {
 
 	if(!s_cityWindow) return;
-	if(!g_c3ui->GetWindow(s_cityWindow->m_window->Id())) return;
+	if(!c3ui_Get()->GetWindow(s_cityWindow->m_window->Id())) return;
 
 	s_cityWindow->UpdateUnitButtons();
 }
@@ -2555,7 +2554,7 @@ void CityWindow::DoneEditingQueue(CityData *cd)
 {
 	if(!s_cityWindow) return;
 
-	if(g_c3ui->GetWindow(s_cityWindow->m_window->Id()) != NULL) return;
+	if(c3ui_Get()->GetWindow(s_cityWindow->m_window->Id()) != NULL) return;
 
 	CopyCitiesBack();
 }
@@ -2712,7 +2711,7 @@ void CityWindow::NotifyCityCaptured(const Unit &c)
 
 	if(needToClose) {
 		Close(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
-	} else if(update && g_c3ui->GetWindow(s_cityWindow->m_window->Id())) {
+	} else if(update && c3ui_Get()->GetWindow(s_cityWindow->m_window->Id())) {
 		s_cityWindow->Update();
 	}
 }

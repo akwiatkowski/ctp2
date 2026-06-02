@@ -39,7 +39,6 @@
 
 #include "ui/aui_ctp2/c3ui.h"   // C3UI
 
-extern C3UI *   g_c3ui;
 
 aui_Surface *
 aui_Factory::new_Surface(AUI_ERRCODE &retval,
@@ -54,12 +53,12 @@ aui_Factory::new_Surface(AUI_ERRCODE &retval,
 #if defined(__AUI_USE_SDL__)
 	aui_SDLSurface *surface = 0;
 
-	surface = new aui_SDLSurface(&retval, width, height, g_c3ui->BitsPerPixel(), g_c3ui->DD(),
+	surface = new aui_SDLSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), c3ui_Get()->DD(),
 	                             isPrimary, useVideoMemory, takeOwnership);
 #elif defined(__AUI_USE_DIRECTX__)
 	aui_DirectSurface *surface = 0;
 
-	surface = new aui_DirectSurface(&retval, width, height, g_c3ui->BitsPerPixel(), g_c3ui->DD(),
+	surface = new aui_DirectSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), c3ui_Get()->DD(),
 				  (LPDIRECTDRAWSURFACE) data,
 				  isPrimary, useVideoMemory);
 #endif

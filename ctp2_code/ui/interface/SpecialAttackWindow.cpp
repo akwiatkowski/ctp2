@@ -46,7 +46,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/world/World.h"
 
-extern C3UI             *g_c3ui;
 
 namespace
 {
@@ -123,7 +122,7 @@ sint32 specialAttackWindow_Initialize()
 // Globals    : selitem_Get():           The currently selected item
 //              g_theOrderDB:              The order database
 //              g_theSpecialAttackWindow:  The special attack window
-//              g_c3ui:                    The civilization 3 graphical user interface
+//              c3ui_Get():                    The civilization 3 graphical user interface
 //
 // Returns    : -
 //
@@ -140,7 +139,7 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 		return;
 
 	if(type < 0){
-		g_c3ui->RemoveWindow(g_theSpecialAttackWindow->Id());
+		c3ui_Get()->RemoveWindow(g_theSpecialAttackWindow->Id());
 		return;
 	}
 
@@ -175,11 +174,11 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 	}
 
 	if(costs > 0){
-		g_c3ui->AddWindow(g_theSpecialAttackWindow);
+		c3ui_Get()->AddWindow(g_theSpecialAttackWindow);
 		g_theSpecialAttackWindow->ShouldDraw();
 	}
 	else{
-		g_c3ui->RemoveWindow(g_theSpecialAttackWindow->Id());
+		c3ui_Get()->RemoveWindow(g_theSpecialAttackWindow->Id());
 	}
 }
 
@@ -193,7 +192,7 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 // Parameters : -
 //
 // Globals    : g_tileImpTrackerWindow:    The special attack window
-//              g_c3ui:                    The civilization 3 graphical user interface
+//              c3ui_Get():                    The civilization 3 graphical user interface
 //
 // Returns    : 1 if there is nothing to cleanup, otherwise 0.
 //
@@ -204,7 +203,7 @@ sint32 specialAttackWindow_Cleanup()
 {
 	if (!g_theSpecialAttackWindow) return 1;
 
-	g_c3ui->RemoveWindow(g_theSpecialAttackWindow->Id());
+	c3ui_Get()->RemoveWindow(g_theSpecialAttackWindow->Id());
 
 	delete s_saWindowCostN;
 	s_saWindowCostN = NULL;

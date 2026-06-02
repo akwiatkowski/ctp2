@@ -101,7 +101,7 @@ public:
 	bool		InitializeAppDB(void);
 	// archive == NULL means new game; non-null means restore from save.
 	// Used directly by headless_main for --new-game; also called from
-	// InitializeGame() when g_c3ui is null (i.e. headless save-load).
+	// InitializeGame() when c3ui_Get() is null (i.e. headless save-load).
 	sint32		InitializeGameHeadless(CivArchive *archive = NULL);
 	sint32		InitializeAppDB(CivArchive &archive);
 	sint32		InitializeGame(CivArchive *archive);

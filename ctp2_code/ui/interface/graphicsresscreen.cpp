@@ -52,7 +52,6 @@
 #include "ui/interface/graphicsscreen.h"
 #include "ui/interface/graphicsresscreen.h"
 
-extern C3UI				*g_c3ui;
 extern ProfileDB		*g_theProfileDB;
 
 static c3_PopupWindow	*s_graphicsResScreen= NULL;
@@ -76,7 +75,7 @@ sint32	graphicsresscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow(s_graphicsResScreen);
+	auiErr = c3ui_Get()->AddWindow(s_graphicsResScreen);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return retval;
@@ -87,7 +86,7 @@ sint32 graphicsresscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_graphicsResScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_graphicsResScreen->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return 1;
@@ -192,7 +191,7 @@ AUI_ERRCODE graphicsresscreen_Cleanup()
 
 	if ( !s_graphicsResScreen  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_graphicsResScreen->Id() );
+	c3ui_Get()->RemoveWindow( s_graphicsResScreen->Id() );
 
 	mycleanup(s_resList);
 	mycleanup(s_warning);

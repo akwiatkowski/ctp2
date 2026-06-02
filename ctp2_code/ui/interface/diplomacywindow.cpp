@@ -81,7 +81,6 @@
 #include "ui/interface/DiplomacyDetails.h"
 #include "ai/diplomacy/Diplomat.h"
 
-extern C3UI                   *g_c3ui;
 
 static MBCHAR                 *s_dipWindowBlock = "DiplomacyWindow";
 static DiplomacyWindow        *s_dipWindow;
@@ -276,7 +275,7 @@ AUI_ERRCODE DiplomacyWindow::Display()
 
 	Assert(s_dipWindow->m_window);
 	if(s_dipWindow->m_window) {
-		err = g_c3ui->AddWindow(s_dipWindow->m_window);
+		err = c3ui_Get()->AddWindow(s_dipWindow->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_dipWindow->m_window->Show();
@@ -319,7 +318,7 @@ AUI_ERRCODE DiplomacyWindow::Hide()
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	s_dipWindow->m_window->Hide();
-	return g_c3ui->RemoveWindow(s_dipWindow->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_dipWindow->m_window->Id());
 }
 
 void DiplomacyWindow::GotoTab(sint32 tabIndex)
@@ -349,9 +348,9 @@ bool DiplomacyWindow::IsShown()
 
 	if(!s_dipWindow->m_window) return false;
 
-	if(!g_c3ui) return false;
+	if(!c3ui_Get()) return false;
 
-	if(!g_c3ui->GetWindow(s_dipWindow->m_window->Id()))
+	if(!c3ui_Get()->GetWindow(s_dipWindow->m_window->Id()))
 		return false;
 
 	return true;
@@ -2331,7 +2330,7 @@ void DiplomacyWindow::RequestGoldValue(sint32 player)
 		spinner->SetMaximum(~(1 << 31), 0);
 	}
 
-	g_c3ui->AddWindow(m_goldRequestWindow);
+	c3ui_Get()->AddWindow(m_goldRequestWindow);
 
 }
 
@@ -2363,7 +2362,7 @@ void DiplomacyWindow::RequestPollutionValue(sint32 player)
 
 	spinner->SetIncrement(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.10), 0);
 
-	g_c3ui->AddWindow(m_pollutionRequestWindow);
+	c3ui_Get()->AddWindow(m_pollutionRequestWindow);
 }
 
 void DiplomacyWindow::RequestPercentValue()
@@ -2394,7 +2393,7 @@ void DiplomacyWindow::RequestPercentValue()
 
 	spinner->SetIncrement(10, 0);
 
-	g_c3ui->AddWindow(m_percentRequestWindow);
+	c3ui_Get()->AddWindow(m_percentRequestWindow);
 }
 
 bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
@@ -2611,7 +2610,7 @@ void DiplomacyWindow::GoldOk(aui_Control *control, uint32 action, uint32 data, v
 
 	Assert(s_dipWindow->m_goldRequestWindow);
 	if(s_dipWindow->m_goldRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_goldRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_goldRequestWindow->Id());
 	}
 
 	if(s_dipWindow->m_getRequest) {
@@ -2632,7 +2631,7 @@ void DiplomacyWindow::GoldCancel(aui_Control *control, uint32 action, uint32 dat
 
 	Assert(s_dipWindow->m_goldRequestWindow);
 	if(s_dipWindow->m_goldRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_goldRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_goldRequestWindow->Id());
 	}
 
 
@@ -2650,7 +2649,7 @@ void DiplomacyWindow::PollutionOk(aui_Control *control, uint32 action, uint32 da
 
 	Assert(s_dipWindow->m_pollutionRequestWindow);
 	if(s_dipWindow->m_pollutionRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_pollutionRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_pollutionRequestWindow->Id());
 	}
 
 	if(s_dipWindow->m_getRequest) {
@@ -2671,7 +2670,7 @@ void DiplomacyWindow::PollutionCancel(aui_Control *control, uint32 action, uint3
 
 	Assert(s_dipWindow->m_pollutionRequestWindow);
 	if(s_dipWindow->m_pollutionRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_pollutionRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_pollutionRequestWindow->Id());
 	}
 
 
@@ -2689,7 +2688,7 @@ void DiplomacyWindow::PercentOk(aui_Control *control, uint32 action, uint32 data
 
 	Assert(s_dipWindow->m_percentRequestWindow);
 	if(s_dipWindow->m_percentRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_percentRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_percentRequestWindow->Id());
 	}
 
 	if(s_dipWindow->m_getRequest) {
@@ -2710,7 +2709,7 @@ void DiplomacyWindow::PercentCancel(aui_Control *control, uint32 action, uint32 
 
 	Assert(s_dipWindow->m_percentRequestWindow);
 	if(s_dipWindow->m_percentRequestWindow) {
-		g_c3ui->RemoveWindow(s_dipWindow->m_percentRequestWindow->Id());
+		c3ui_Get()->RemoveWindow(s_dipWindow->m_percentRequestWindow->Id());
 	}
 
 

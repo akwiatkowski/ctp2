@@ -131,7 +131,6 @@
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"                      // world_Get()
 
-extern C3UI             *g_c3ui;
 extern Background       *g_background;
 extern RECT             g_backgroundViewport;
 extern ScreenManager    *g_screenManager;
@@ -261,7 +260,7 @@ TiledMap::TiledMap(MapPoint &size)
 		MBCHAR *    fontNameString  = stringTable->GetString(0);
 		MBCHAR *    fontSizeString  = stringTable->GetString(1);
 
-		m_font = g_c3ui->LoadBitmapFont(fontNameString);
+		m_font = c3ui_Get()->LoadBitmapFont(fontNameString);
 		Assert(m_font);
 		m_font->SetPointSize(atoi(fontSizeString));
 
@@ -276,9 +275,9 @@ TiledMap::~TiledMap()
 {
 	DeleteGrid();
 
-	if (g_c3ui && m_font)
+	if (c3ui_Get() && m_font)
 	{
-		g_c3ui->UnloadBitmapFont(m_font);
+		c3ui_Get()->UnloadBitmapFont(m_font);
 	}
 	delete m_mapSurface;
 	delete m_mixDirtyList;
@@ -646,7 +645,7 @@ void TiledMap::CopyMixDirtyRects(aui_DirtyList *dest)
 void TiledMap::RestoreMixFromMap(aui_Surface *destSurf)
 {
 #ifdef __USING_SPANS__
-	g_c3ui->TheBlitter()->SpanBlt(
+	c3ui_Get()->TheBlitter()->SpanBlt(
 		destSurf,
 		0,
 		0,
@@ -661,7 +660,7 @@ void TiledMap::RestoreMixFromMap(aui_Surface *destSurf)
 	for (sint32 i = m_oldMixDirtyList->L(); i > 0; --i)
 	{
 		RECT * rect = m_oldMixDirtyList->GetNext(position);
-		g_c3ui->TheBlitter()->Blt(destSurf, rect->left, rect->top, m_surface, rect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(destSurf, rect->left, rect->top, m_surface, rect, k_AUI_BLITTER_FLAG_COPY);
 	}
 #endif
 }
@@ -838,7 +837,7 @@ void TiledMap::UpdateMixFromMap(aui_Surface *mixSurf)
 		m_mixDirtyList->AddRect(rect);
 	}
 
-	g_c3ui->TheBlitter()->SpanBlt(
+	c3ui_Get()->TheBlitter()->SpanBlt(
 		mixSurf,
 		0,
 		0,
@@ -860,7 +859,7 @@ void TiledMap::UpdateMixFromMap(aui_Surface *mixSurf)
 	for (sint32 i = m_mapDirtyList->L(); i > 0; --i)
 	{
 		RECT * rect = m_mapDirtyList->GetNext(position);
-		g_c3ui->TheBlitter()->Blt(mixSurf, rect->left, rect->top, m_surface, rect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(mixSurf, rect->left, rect->top, m_surface, rect, k_AUI_BLITTER_FLAG_COPY);
 		m_mixDirtyList->AddRect(rect);
 	}
 
@@ -4110,9 +4109,9 @@ void TiledMap::BlackTile(aui_Surface *surface, const MapPoint *point)
 void TiledMap::Blt(aui_Surface *surf)
 {
 	RECT			rect = {0, 0, surf->Width(), surf->Height()};
-	extern C3UI		*g_c3ui;
+	extern C3UI		*c3ui_Get();
 
-	g_c3ui->TheBlitter()->Blt(surf, 0, 0, m_surface, &rect, 0);
+	c3ui_Get()->TheBlitter()->Blt(surf, 0, 0, m_surface, &rect, 0);
 }
 
 bool TiledMap::TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect)
@@ -5011,10 +5010,10 @@ void TiledMap::Idle(void)
 
 bool TiledMap::GetMousePos(POINT &pos) const
 {
-	Assert(g_c3ui && g_background);
-	if (!g_c3ui || !g_background) return false;
+	Assert(c3ui_Get() && g_background);
+	if (!c3ui_Get() || !g_background) return false;
 
-	aui_Mouse * mouse = g_c3ui->TheMouse();
+	aui_Mouse * mouse = c3ui_Get()->TheMouse();
 	if (mouse == NULL) return false;
 
 	pos.x = mouse->X() - g_background->X();

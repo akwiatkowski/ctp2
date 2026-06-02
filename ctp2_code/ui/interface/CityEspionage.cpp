@@ -57,7 +57,6 @@
 #include "WonderRecord.h"       // g_theWonderDB
 #include "gs/world/World.h"              // world_Get()
 
-extern C3UI *   g_c3ui;
 
 namespace
 {
@@ -160,7 +159,7 @@ void CityEspionage::Display(Unit a_City)
 	if (!s_CityEspionage)
 	{
 		s_CityEspionage = new CityEspionage();
-		g_c3ui->RegisterCleanup(&CityEspionage::Cleanup);
+		c3ui_Get()->RegisterCleanup(&CityEspionage::Cleanup);
 	}
 
 	s_CityEspionage->DisplayWindow(a_City);
@@ -172,7 +171,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 {
 	if (m_window)
 	{
-		AUI_ERRCODE err = g_c3ui->AddWindow(m_window);
+		AUI_ERRCODE err = c3ui_Get()->AddWindow(m_window);
 		Assert(err == AUI_ERRCODE_OK);
 
 		if (err == AUI_ERRCODE_OK)
@@ -292,9 +291,9 @@ void CityEspionage::HideWindow()
 	{
 		m_window->Hide();
 
-		if (g_c3ui)
+		if (c3ui_Get())
 		{
-			g_c3ui->RemoveWindow(m_window->Id());
+			c3ui_Get()->RemoveWindow(m_window->Id());
 		}
 	}
 }

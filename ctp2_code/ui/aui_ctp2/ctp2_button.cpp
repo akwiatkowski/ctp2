@@ -15,7 +15,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI	*g_c3ui;
 
 static const MBCHAR *k_CTP2_BUTTON_LDL_LAYER_UP			= "layerup";
 static const MBCHAR *k_CTP2_BUTTON_LDL_LAYER_DOWN		= "layerdown";

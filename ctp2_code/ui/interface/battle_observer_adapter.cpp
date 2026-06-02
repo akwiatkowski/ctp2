@@ -32,7 +32,6 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/cellunitlist.h"
-extern C3UI             *g_c3ui;
 
 // Forward declared in battle_view layer; used by combatevent.cpp's
 // "close previous view" path.
@@ -133,7 +132,7 @@ public:
     void CloseBattleView() override
     {
         if (BattleViewWindow *bvw = battleviewwindow_Get();
-            bvw && g_c3ui && g_c3ui->GetWindow(bvw->Id()))
+            bvw && c3ui_Get() && c3ui_Get()->GetWindow(bvw->Id()))
         {
             battleview_ExitButtonActionCallback(NULL,
                                                 AUI_BUTTON_ACTION_EXECUTE,

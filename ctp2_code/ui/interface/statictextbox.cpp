@@ -17,7 +17,6 @@
 
 #define k_STATICTEXTBOX_LDL_BEVEL "bevel"
 
-extern C3UI		*g_c3ui;
 
 StaticTextBox::StaticTextBox(
 	AUI_ERRCODE *retval,

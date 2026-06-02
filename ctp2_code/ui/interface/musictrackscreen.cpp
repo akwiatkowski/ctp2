@@ -50,7 +50,6 @@
 
 extern SoundManager		*g_soundManager;
 
-extern C3UI				*g_c3ui;
 extern ProfileDB		*g_theProfileDB;
 
 static c3_PopupWindow	*s_musicTrackScreen	= NULL;
@@ -71,7 +70,7 @@ sint32	musictrackscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow(s_musicTrackScreen);
+	auiErr = c3ui_Get()->AddWindow(s_musicTrackScreen);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	aui_Item *item = s_trackList->GetSelectedItem();
@@ -91,7 +90,7 @@ sint32 musictrackscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_musicTrackScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_musicTrackScreen->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return 1;
@@ -170,7 +169,7 @@ void musictrackscreen_Cleanup()
 {
 	if (s_musicTrackScreen)
 	{
-		g_c3ui->RemoveWindow(s_musicTrackScreen->Id());
+		c3ui_Get()->RemoveWindow(s_musicTrackScreen->Id());
 	}
     allocated::clear(s_trackNames);
     allocated::clear(s_trackList);

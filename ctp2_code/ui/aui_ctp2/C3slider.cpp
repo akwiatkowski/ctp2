@@ -50,7 +50,6 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern C3UI	*           g_c3ui;
 
 
 C3Slider::C3Slider(

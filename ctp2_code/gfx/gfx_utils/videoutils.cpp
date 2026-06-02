@@ -16,7 +16,6 @@
 
 C3Window				*g_videoWindow;
 extern CivPaths			*g_civPaths;
-extern C3UI				*g_c3ui;
 
 void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 data, void *cookie);
 
@@ -49,7 +48,7 @@ sint32 videoutils_PlayVideoInWindow(MBCHAR *name, MBCHAR *pattern)
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return -4;
 
-	errcode = g_c3ui->AddWindow(vidWin);
+	errcode = c3ui_Get()->AddWindow(vidWin);
 
 	return 0;
 }
@@ -57,7 +56,7 @@ sint32 videoutils_PlayVideoInWindow(MBCHAR *name, MBCHAR *pattern)
 void videoutils_Cleanup(void)
 {
 	if (g_videoWindow != NULL) {
-		g_c3ui->RemoveWindow(k_VIDEO_WINDOW_ID);
+		c3ui_Get()->RemoveWindow(k_VIDEO_WINDOW_ID);
 		delete g_videoWindow;
 	}
 	g_videoWindow = NULL;
@@ -67,7 +66,7 @@ void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 
 {
 	aui_Window *window = control->GetParentWindow();
 	if (window != NULL) {
-		g_c3ui->RemoveWindow(window->Id());
+		c3ui_Get()->RemoveWindow(window->Id());
 
 	}
 }

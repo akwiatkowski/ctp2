@@ -58,7 +58,6 @@
 #include "ui/aui_ctp2/ui_unit_actor_registry.h"
 
 extern ControlPanelWindow    *g_controlPanel;
-extern C3UI                  *g_c3ui;
 extern MessageWindow         *g_currentMessageWindow;
 extern MessageModal          *g_modalMessage;
 extern Background            *g_background;
@@ -234,9 +233,9 @@ public:
         if (!endgamewindow_Get())
         {
             endgamewindow_Initialize();
-            if (EndGameWindow *egw = endgamewindow_Get(); egw && g_c3ui)
+            if (EndGameWindow *egw = endgamewindow_Get(); egw && c3ui_Get())
             {
-                g_c3ui->AddWindow(egw);
+                c3ui_Get()->AddWindow(egw);
             }
         }
         if (EndGameWindow *egw = endgamewindow_Get())
@@ -374,8 +373,8 @@ public:
             !data->GetMessageWindow()->GetIconWindow()) {
             return;
         }
-        if (g_c3ui) {
-            g_c3ui->AddAction(new MessageOpenAction(
+        if (c3ui_Get()) {
+            c3ui_Get()->AddAction(new MessageOpenAction(
                 data->GetMessageWindow()->GetIconWindow()));
         }
     }
@@ -651,8 +650,8 @@ public:
     // --- UI refresh ---
     void OnUpdateScienceWindow(sint32 player) override
     {
-        if (g_c3ui && player == selitem_Get()->GetVisiblePlayer()) {
-            g_c3ui->AddAction(new SW_UpdateAction);
+        if (c3ui_Get() && player == selitem_Get()->GetVisiblePlayer()) {
+            c3ui_Get()->AddAction(new SW_UpdateAction);
         }
     }
 

@@ -57,7 +57,6 @@
 
 #include "ui/interface/tutorialwin.h"
 
-extern C3UI			*g_c3ui;
 extern SelectedItem	*selitem_Get();
 
 
@@ -212,7 +211,7 @@ TutorialWin::~TutorialWin( void )
 
 void TutorialWin::Display( void )
 {
-	AUI_ERRCODE errcode = g_c3ui->AddWindow( m_window );
+	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( m_window );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 
@@ -220,7 +219,7 @@ void TutorialWin::Display( void )
 
 void TutorialWin::Remove( void )
 {
-	AUI_ERRCODE errcode = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE errcode = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 

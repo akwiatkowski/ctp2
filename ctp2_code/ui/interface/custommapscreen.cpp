@@ -62,7 +62,6 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
-extern C3UI					*g_c3ui;
 
 extern ProfileDB			*g_theProfileDB;
 extern CivApp				*g_civApp;
@@ -140,7 +139,7 @@ sint32	custommapscreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 		s_customMapWindow->Ok()->SetText( s_closeButtonStrings->GetString( 0 ) );
 	}
 
-	auiErr = g_c3ui->AddWindow(s_customMapWindow);
+	auiErr = c3ui_Get()->AddWindow(s_customMapWindow);
 	keypress_RegisterHandler(s_customMapWindow);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -186,7 +185,7 @@ sint32 custommapscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_customMapWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_customMapWindow->Id() );
 	keypress_RemoveHandler(s_customMapWindow);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -274,7 +273,7 @@ AUI_ERRCODE custommapscreen_Cleanup()
 
 	if ( !s_customMapWindow  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_customMapWindow->Id() );
+	c3ui_Get()->RemoveWindow( s_customMapWindow->Id() );
 	keypress_RemoveHandler(s_customMapWindow);
 
 	mycleanup(s_closeButtonStrings);
@@ -326,7 +325,7 @@ void custommapscreen_backPress(aui_Control *control, uint32 action, uint32 data,
 
 			g_civApp->PostStartGameAction();
 
-			g_c3ui->AddAction( new SetupMapEditorAction );
+			c3ui_Get()->AddAction( new SetupMapEditorAction );
 		}
 	}
 }

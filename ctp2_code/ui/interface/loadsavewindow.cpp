@@ -68,7 +68,6 @@
 #include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "ui/interface/TurnYearStatus.h"
 
-extern C3UI							*g_c3ui;
 #define k_LOADSAVE_AUTOSORT_COL		-2
 
 
@@ -635,7 +634,7 @@ void LoadSaveWindow::SetPowerGraph(SaveInfo *info)
 	if ( !info )
 	{
 
-		g_c3ui->TheBlitter()->Blt(
+		c3ui_Get()->TheBlitter()->Blt(
 			m_powerTabImage->GetImage()->TheSurface(),
 			0, 0,
 			m_powerTabImageBackup->TheSurface(),
@@ -707,7 +706,7 @@ void LoadSaveWindow::SetRadarMap(SaveInfo *info)
 	if ( !info )
 	{
 
-		g_c3ui->TheBlitter()->Blt(
+		c3ui_Get()->TheBlitter()->Blt(
 			m_mapTabImage->GetImage()->TheSurface(),
 			0, 0,
 			m_mapTabImageBackup->TheSurface(),

@@ -16,7 +16,6 @@
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
 
-extern C3UI *g_c3ui;
 
 MessageBoxDialog *s_messageBoxDialog;
 
@@ -113,7 +112,7 @@ m_userData(userData)
 
 	m_window->SetType(AUI_WINDOW_TYPE_POPUP);
 
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 
 	Assert(m_messageDisplay);
 	Assert(m_leftButton);
@@ -177,7 +176,7 @@ MessageBoxDialog::~MessageBoxDialog()
 {
 
 	m_window->Hide();
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 	aui_Ldl::DeleteHierarchyFromRoot("MessageBoxDialog");
 	if(m_identifier)
 	{
@@ -228,7 +227,7 @@ void MessageBoxDialog::LeftButtonActionCallback(aui_Control *control,
 
 	static char text[256];
 
-	g_c3ui->AddDestructiveAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddDestructiveAction(new DismissMessageBoxAction(dialog));
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {
@@ -265,7 +264,7 @@ void MessageBoxDialog::RightButtonActionCallback(aui_Control *control,
 
 	static char text[256];
 
-	g_c3ui->AddAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddAction(new DismissMessageBoxAction(dialog));
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {
@@ -303,7 +302,7 @@ void MessageBoxDialog::TextFieldActionCallback(aui_Control *control,
 
 	char text[256];
 
-	g_c3ui->AddAction(new DismissMessageBoxAction(dialog));
+	c3ui_Get()->AddAction(new DismissMessageBoxAction(dialog));
 
 	if(dialog->m_callback) {
 		if(dialog->m_isTextQuery) {

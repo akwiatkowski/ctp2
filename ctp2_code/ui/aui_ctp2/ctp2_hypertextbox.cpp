@@ -59,7 +59,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI	*   g_c3ui;
 
 #define k_CTP2_HYPERTEXTBOX_BEVELWIDTH	2
 #define k_CTP2_HYPERTEXTBOX_INSETWIDTH	5

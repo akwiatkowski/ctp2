@@ -105,7 +105,6 @@ static MBCHAR               *s_DiplomacyDetailsBlock = "DiplomacyDetails";
 #define k_EQUAL_STRENGTH    0
 #define k_STRONG_STRENGTH  50
 
-extern C3UI                 *g_c3ui;
 
 ctp2_Button                 *DiplomacyDetails::m_cancelButton = NULL;
 ctp2_ListBox                *DiplomacyDetails::sm_list = NULL;
@@ -186,7 +185,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 	Assert(s_DiplomacyDetails->m_window);
 	if(s_DiplomacyDetails->m_window)
 	{
-		err = g_c3ui->AddWindow(s_DiplomacyDetails->m_window);
+		err = c3ui_Get()->AddWindow(s_DiplomacyDetails->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK)
 		{
@@ -623,7 +622,7 @@ AUI_ERRCODE DiplomacyDetails::Hide()
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	s_DiplomacyDetails->m_window->Hide();
-	return g_c3ui->RemoveWindow(s_DiplomacyDetails->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_DiplomacyDetails->m_window->Id());
 }
 
 void DiplomacyDetails::CancelCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -654,7 +653,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerColor(ctp2_Static *control,
 	drawRect.bottom -= 2;
 	drawRect.left += 2;
 
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
@@ -670,14 +669,14 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
 	rect.top += 2;
 	rect.right -= 2;
 	rect.bottom -= 2;
-	g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
+	c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
 
 	rect.left += 2;
 	rect.top += 8;
 	rect.right -= 2;
 	rect.bottom -= 8;
 
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
 }
 
 void DiplomacyDetails::SelectItem(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -723,7 +722,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerRegard(ctp2_Static *control,
 	}
 
 	if(imageName) {
-	    aui_Image * image = g_c3ui->LoadImage(imageName);
+	    aui_Image * image = c3ui_Get()->LoadImage(imageName);
 		if(image) {
 
 			rect.left += ((rect.right - rect.left) / 2) - (image->TheSurface()->Width() / 2);
@@ -737,7 +736,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerRegard(ctp2_Static *control,
 
 			image->SetChromakey(255,0,255);
 
-			g_c3ui->TheBlitter()->Blt(
+			c3ui_Get()->TheBlitter()->Blt(
 				surface,
 				rect.left,
 				rect.top,
@@ -745,7 +744,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerRegard(ctp2_Static *control,
 				&srcRect,
 				k_AUI_BLITTER_FLAG_CHROMAKEY
 				);
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 	return AUI_ERRCODE_OK;
@@ -787,7 +786,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerStrength(ctp2_Static *control,
 	else imageName = sm_strengthImages->GetString(3);
 
 	if(imageName) {
-	    aui_Image * image = g_c3ui->LoadImage(imageName);
+	    aui_Image * image = c3ui_Get()->LoadImage(imageName);
 		if(image) {
 
 			rect.left += ((rect.right - rect.left) / 2) - (image->TheSurface()->Width() / 2);
@@ -801,7 +800,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerStrength(ctp2_Static *control,
 
 			image->SetChromakey(255,0,255);
 
-			g_c3ui->TheBlitter()->Blt(
+			c3ui_Get()->TheBlitter()->Blt(
 				surface,
 				rect.left,
 				rect.top,
@@ -809,7 +808,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerStrength(ctp2_Static *control,
 				&srcRect,
 				k_AUI_BLITTER_FLAG_CHROMAKEY
 				);
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 
@@ -837,7 +836,7 @@ AUI_ERRCODE DiplomacyDetails::DrawEmbassy(ctp2_Static *control,
 	if(player_Get(detailPlayer)->HasEmbassyWith(p)) {
 	    MBCHAR const * imageName = sm_embassyImages->GetString(0);
 		if (imageName) {
-			aui_Image *image = g_c3ui->LoadImage(imageName);
+			aui_Image *image = c3ui_Get()->LoadImage(imageName);
 			if (image) {
 
 				rect.left += ((rect.right - rect.left) / 2) - (image->TheSurface()->Width() / 2);
@@ -851,7 +850,7 @@ AUI_ERRCODE DiplomacyDetails::DrawEmbassy(ctp2_Static *control,
 
 				image->SetChromakey(255,0,255);
 
-				g_c3ui->TheBlitter()->Blt(
+				c3ui_Get()->TheBlitter()->Blt(
 					surface,
 					rect.left,
 					rect.top,
@@ -859,7 +858,7 @@ AUI_ERRCODE DiplomacyDetails::DrawEmbassy(ctp2_Static *control,
 					&srcRect,
 					k_AUI_BLITTER_FLAG_CHROMAKEY
 					);
-				g_c3ui->UnloadImage(image);
+				c3ui_Get()->UnloadImage(image);
 			}
 		}
 	}
@@ -907,7 +906,7 @@ AUI_ERRCODE DiplomacyDetails::DrawTreaties(ctp2_Static *control,
 		}
 
 		if(AgreementMatrix::s_agreements.HasAgreement(detailPlayer, p, (PROPOSAL_TYPE)ag)) {
-			aui_Image *image = g_c3ui->LoadImage((char *)rec->GetImage());
+			aui_Image *image = c3ui_Get()->LoadImage((char *)rec->GetImage());
 			Assert(image);
 			if(!image)
 				continue;
@@ -921,13 +920,13 @@ AUI_ERRCODE DiplomacyDetails::DrawTreaties(ctp2_Static *control,
 
 			x = image->TheSurface()->Width() * slot;
 
-			g_c3ui->TheBlitter()->Blt(surface, rect.left + x,
+			c3ui_Get()->TheBlitter()->Blt(surface, rect.left + x,
 									  rect.top + (((rect.bottom - rect.top) - image->TheSurface()->Height()) / 2),
 									  image->TheSurface(),
 									  &srcRect,
 									  k_AUI_BLITTER_FLAG_CHROMAKEY);
 
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 	return AUI_ERRCODE_OK;

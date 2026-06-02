@@ -23,7 +23,7 @@ sint32  creditsscreen_Initialize(void);
 void    creditsscreen_Cleanup(void);
 
 // Accessor for the credits window pointer.  Used by screenutils.cpp to
-// register the window with g_c3ui after Initialize.  Returns NULL until
+// register the window with c3ui_Get() after Initialize.  Returns NULL until
 // Initialize has run.  Replaces the previous `extern CreditsWindow*
 // g_creditsWindow` — encapsulation step toward future synchronisation.
 class CreditsWindow;

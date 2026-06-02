@@ -20,7 +20,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI			*g_c3ui;
 extern CivPaths		*g_civPaths;
 
 c3_ColorIconButton::c3_ColorIconButton(

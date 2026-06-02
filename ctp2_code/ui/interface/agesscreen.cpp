@@ -52,7 +52,6 @@
 #include "gs/database/profileDB.h"              // g_theProfileDB
 
 extern nf_GameSetup g_gamesetup;
-extern C3UI	*       g_c3ui;
 
 static DialogBoxWindow *s_agesScreen	= NULL;
 
@@ -123,7 +122,7 @@ sint32	agesscreen_displayMyWindow(bool viewMode)
 	s_startDropDown->Enable( !viewMode );
 	s_endDropDown->Enable( !viewMode );
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(s_agesScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_agesScreen);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	return retval;
@@ -138,7 +137,7 @@ sint32 agesscreen_removeMyWindow(uint32 action)
 	g_theProfileDB->SetSPStartingAge( s_startDropDown->GetSelectedItem() );
 	g_theProfileDB->SetSPEndingAge( s_endDropDown->GetSelectedItem() );
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(s_agesScreen->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(s_agesScreen->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	return 1;
@@ -302,7 +301,7 @@ void agesscreen_Cleanup()
 
 	if (s_agesScreen)
 	{
-		g_c3ui->RemoveWindow(s_agesScreen->Id());
+		c3ui_Get()->RemoveWindow(s_agesScreen->Id());
 		allocated::clear(s_agesScreen);
 	}
 }

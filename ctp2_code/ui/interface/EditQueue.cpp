@@ -96,7 +96,6 @@ static EditQueue *s_editQueue = NULL;
 
 static MBCHAR *s_editQueueBlock = "BuildEditorWindow";
 
-extern C3UI *g_c3ui;
 
 EditQueue::EditQueue(AUI_ERRCODE *err)
 {
@@ -326,13 +325,13 @@ AUI_ERRCODE EditQueue::Display()
 	if(!s_editQueue)
 		return AUI_ERRCODE_NOCONTROL;
 
-	g_c3ui->AddWindow(s_editQueue->m_window);
+	c3ui_Get()->AddWindow(s_editQueue->m_window);
 
 	AUI_ERRCODE err;
 	err = s_editQueue->m_window->Show();
 
 	if(err == AUI_ERRCODE_OK) {
-		g_c3ui->BringWindowToTop(s_editQueue->m_window);
+		c3ui_Get()->BringWindowToTop(s_editQueue->m_window);
 	}
 
 	if(s_editQueue->m_loadBox)
@@ -371,7 +370,7 @@ AUI_ERRCODE EditQueue::Hide()
 		if(s_editQueue->m_attachedToWindow) {
 			s_editQueue->m_attachedToWindow->RemoveDockedWindow(s_editQueue->m_window);
 		}
-		return g_c3ui->RemoveWindow(s_editQueue->m_window->Id());
+		return c3ui_Get()->RemoveWindow(s_editQueue->m_window->Id());
 	} else
 		return AUI_ERRCODE_OK;
 }
@@ -396,7 +395,7 @@ bool EditQueue::IsShown()
 	if(!s_editQueue->m_window)
 		return false;
 
-	return g_c3ui->GetWindow(s_editQueue->m_window->Id()) != NULL;
+	return c3ui_Get()->GetWindow(s_editQueue->m_window->Id()) != NULL;
 }
 
 void EditQueue::AttachTo(ctp2_Window *attachToWindow)
@@ -2679,7 +2678,7 @@ void EditQueue::SaveNameResponse(bool response, const char *text, void *userData
 {
 	if(response) {
 		if(strlen(text) < 1) {
-			g_c3ui->AddAction(new MustEnterNameAction());
+			c3ui_Get()->AddAction(new MustEnterNameAction());
 			return;
 		}
 
@@ -2696,7 +2695,7 @@ void EditQueue::SaveNameResponse(bool response, const char *text, void *userData
 			}
 		} else {
 			c3files_fclose(test);
-			g_c3ui->AddAction(new ConfirmOverwriteQueueAction(saveFileName, text));
+			c3ui_Get()->AddAction(new ConfirmOverwriteQueueAction(saveFileName, text));
 		}
 	}
 }

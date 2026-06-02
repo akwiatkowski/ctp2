@@ -11,7 +11,6 @@
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"
 
-extern C3UI	*   g_c3ui;
 
 static Splash *        g_splash    = NULL;
 
@@ -63,9 +62,9 @@ Splash::Splash()
 
 void Splash::AddText(MBCHAR const * text)
 {
-	if (g_c3ui)
+	if (c3ui_Get())
 	{
-		primitives_DrawText(g_c3ui->Secondary(),
+		primitives_DrawText(c3ui_Get()->Secondary(),
 		                    m_textX, m_textY,
 		                    text,
 		                    g_colorSet->GetColorRef(COLOR_WHITE),
@@ -74,20 +73,20 @@ void Splash::AddText(MBCHAR const * text)
 
 		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 		}
 		else
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
 		}
 	}
 }
 
 void Splash::AddTextNL(MBCHAR const * text)
 {
-	if (g_c3ui)
+	if (c3ui_Get())
 	{
-		aui_Surface * surface = g_c3ui->Secondary();
+		aui_Surface * surface = c3ui_Get()->Secondary();
 		if (!surface) return;
 
 		primitives_DrawText(surface,
@@ -102,20 +101,20 @@ void Splash::AddTextNL(MBCHAR const * text)
 
 		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 		}
 		else
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
 		}
 	}
 }
 
 void Splash::AddHilitedTextNL(MBCHAR const *text)
 {
-	if (g_c3ui)
+	if (c3ui_Get())
 	{
-		aui_Surface * surface = g_c3ui->Secondary();
+		aui_Surface * surface = c3ui_Get()->Secondary();
 
 		if (!surface) return;
 
@@ -131,11 +130,11 @@ void Splash::AddHilitedTextNL(MBCHAR const *text)
 
 		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 	}
 		else
 		{
-			g_c3ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
+			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST);
 		}
 	}
 }

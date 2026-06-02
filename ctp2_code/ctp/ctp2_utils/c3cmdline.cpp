@@ -155,7 +155,6 @@ extern Background           *g_background;
 extern ChatBox              *g_chatBox;
 extern StatsWindow          *g_statsWindow;
 extern ControlPanelWindow   *g_controlPanel;
-extern C3UI                 *g_c3ui;
 
 extern sint32               g_check_mem;
 extern sint32               g_robotMessages;
@@ -214,7 +213,6 @@ extern BOOL           g_useDDBlit;
 
 extern CivApp         *g_civApp;
 
-extern C3UI           *g_c3ui;
 
 extern BOOL           g_powerPointsMode;
 

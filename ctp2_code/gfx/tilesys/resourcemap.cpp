@@ -89,7 +89,6 @@
 
 #define k_MAX_CITY_RADIUS       3
 
-extern C3UI				*g_c3ui;
 
 
 
@@ -802,7 +801,7 @@ sint32 ResourceMap::UpdateFromSurface(aui_Surface *destSurface, RECT *destRect)
 	}
 
 	RECT rect = {m_usedRect.left,m_usedRect.top,m_usedRect.right,m_usedRect.bottom};
-	g_c3ui->TheBlitter()->StretchBlt(destSurface, destRect, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->StretchBlt(destSurface, destRect, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
 
 	return 0;
 }

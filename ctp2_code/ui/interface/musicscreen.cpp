@@ -53,7 +53,6 @@
 #include "sound/soundmanager.h"       // g_soundManager
 #include "ui/interface/spnewgamewindow.h"
 
-extern C3UI *   g_c3ui;
 extern BOOL     g_musicTrackChosen;
 
 static c3_PopupWindow	*s_musicScreen	= NULL;
@@ -80,7 +79,7 @@ sint32	musicscreen_displayMyWindow()
 	s_randomOrder->SetState(s_useRandomOrder);
 	s_musicOn->SetState(s_useMusicOn);
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(s_musicScreen);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(s_musicScreen);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(s_musicScreen);
 
@@ -90,7 +89,7 @@ sint32 musicscreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(s_musicScreen->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(s_musicScreen->Id());
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(s_musicScreen);
 
@@ -150,7 +149,7 @@ void musicscreen_Cleanup()
 
 	if (s_musicScreen)
 	{
-		g_c3ui->RemoveWindow(s_musicScreen->Id());
+		c3ui_Get()->RemoveWindow(s_musicScreen->Id());
 		keypress_RemoveHandler(s_musicScreen);
 	}
 

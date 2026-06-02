@@ -16,7 +16,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI *   g_c3ui;
 
 
 C3Scroller::C3Scroller

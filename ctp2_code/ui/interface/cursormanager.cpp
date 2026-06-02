@@ -6,7 +6,6 @@
 
 #include "ui/interface/cursormanager.h"
 
-extern C3UI			*g_c3ui;
 
 static CursorManager		*g_cursorManager = NULL;
 
@@ -47,7 +46,7 @@ void CursorManager::SetCursor(CURSORINDEX cursor)
 	if (cursor >= 0 && cursor < CURSORINDEX_MAX) {
 
 		aui_Mouse		*theMouse;
-		theMouse = g_c3ui->TheMouse();
+		theMouse = c3ui_Get()->TheMouse();
 
 
 

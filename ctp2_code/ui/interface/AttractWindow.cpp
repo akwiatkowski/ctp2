@@ -15,7 +15,6 @@
 
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 
-extern C3UI			*g_c3ui;
 
 static AttractWindow	*g_attractWindow;
 
@@ -44,7 +43,7 @@ void AttractWindow::Cleanup(void)
 
 	if (g_attractWindow) {
 		g_attractWindow->Hide();
-		g_c3ui->RemoveWindow(g_attractWindow->Id());
+		c3ui_Get()->RemoveWindow(g_attractWindow->Id());
 		delete g_attractWindow;
 		g_attractWindow = NULL;
 	}
@@ -104,7 +103,7 @@ AUI_ERRCODE AttractWindow::Idle(void)
 			if (GetTickCount() > m_finishTime) {
 				m_attractStage = -1;
 				Hide();
-				g_c3ui->RemoveWindow(this->Id());
+				c3ui_Get()->RemoveWindow(this->Id());
 			} else {
 				m_attractStage = 0;
 			}
@@ -187,12 +186,12 @@ void AttractWindow::ClearWindow(void)
 
 void AttractWindow::HighlightControl(MBCHAR *ldlName)
 {
-	Assert(g_c3ui);
-	if (!g_c3ui) return;
-	Assert(g_c3ui->GetLdl());
-	if (!g_c3ui->GetLdl()) return;
+	Assert(c3ui_Get());
+	if (!c3ui_Get()) return;
+	Assert(c3ui_Get()->GetLdl());
+	if (!c3ui_Get()->GetLdl()) return;
 
-	aui_Region *region = (aui_Region *)g_c3ui->GetLdl()->GetObject(ldlName);
+	aui_Region *region = (aui_Region *)c3ui_Get()->GetLdl()->GetObject(ldlName);
 
 	Assert(region);
 	if (!region) {
@@ -209,7 +208,7 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 					region->X() + region->Width(),
 					region->Y() + region->Height() };
 
-	if ( region->GetParent() != g_c3ui )
+	if ( region->GetParent() != c3ui_Get() )
 		(( aui_Control *)region)->ToScreen( &rect );
 
 	m_screenAttractRect = rect;
@@ -228,11 +227,11 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 	if (x < 0) x = 0;
 
 	if (y < 0) y = 0;
-	if (x + Width() > g_c3ui->Width())
-		x = g_c3ui->Width() - Width();
+	if (x + Width() > c3ui_Get()->Width())
+		x = c3ui_Get()->Width() - Width();
 
-	if (y + Height() > g_c3ui->Height())
-		y = g_c3ui->Height() - Height();
+	if (y + Height() > c3ui_Get()->Height())
+		y = c3ui_Get()->Height() - Height();
 
 	Move(x, y);
 
@@ -245,14 +244,14 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 
 	Show();
 
-	g_c3ui->AddWindow(this);
+	c3ui_Get()->AddWindow(this);
 
 	m_finishTime = GetTickCount() + k_ATTRACT_DURATION;
 }
 
 void AttractWindow::RemoveControl(MBCHAR *ldlName)
 {
-	aui_Region *region = (aui_Region *)g_c3ui->GetLdl()->GetObject(ldlName);
+	aui_Region *region = (aui_Region *)c3ui_Get()->GetLdl()->GetObject(ldlName);
 	if(region) {
 		RemoveRegion(region);
 	}

@@ -4,7 +4,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
 
-extern C3UI		*g_c3ui;
 
 
 #define k_CTP2_TEXTBUFFER_FONT_FILE		"lucon.ttf"
@@ -29,7 +28,7 @@ ctp2_TextBuffer::ctp2_TextBuffer(aui_Surface *destSurface, RECT *destRect, sint3
 		FALSE,
 		FALSE );
 
-	m_font = g_c3ui->LoadBitmapFont( descriptor );
+	m_font = c3ui_Get()->LoadBitmapFont( descriptor );
 	Assert( m_font != NULL );
 	if ( !m_font ) return;
 
@@ -61,8 +60,8 @@ ctp2_TextBuffer::ctp2_TextBuffer(aui_Surface *destSurface, RECT *destRect, sint3
 
 ctp2_TextBuffer::~ctp2_TextBuffer()
 {
-	if (g_c3ui && m_font)
-		g_c3ui->UnloadBitmapFont(m_font);
+	if (c3ui_Get() && m_font)
+		c3ui_Get()->UnloadBitmapFont(m_font);
 
 	if (m_rowData) {
 		for (sint32 i=0; i<m_maxRows; i++) {

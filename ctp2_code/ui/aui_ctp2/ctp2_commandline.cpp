@@ -12,7 +12,6 @@
 #define k_CTP2_COMMANDLINE_FONT_SIZE	8
 #define k_CTP2_COMMANDLINE_WIDTH_CHAR	"W"
 
-extern C3UI			*g_c3ui;
 
 ctp2_CommandLine::ctp2_CommandLine(aui_Surface *surface, RECT *rect)
 {
@@ -32,7 +31,7 @@ ctp2_CommandLine::ctp2_CommandLine(aui_Surface *surface, RECT *rect)
 		FALSE,
 		FALSE );
 
-	m_font = g_c3ui->LoadBitmapFont( descriptor );
+	m_font = c3ui_Get()->LoadBitmapFont( descriptor );
 	Assert( m_font != NULL );
 	if ( !m_font ) return;
 
@@ -44,8 +43,8 @@ ctp2_CommandLine::ctp2_CommandLine(aui_Surface *surface, RECT *rect)
 
 ctp2_CommandLine::~ctp2_CommandLine()
 {
-	if (g_c3ui && m_font)
-		g_c3ui->UnloadBitmapFont(m_font);
+	if (c3ui_Get() && m_font)
+		c3ui_Get()->UnloadBitmapFont(m_font);
 }
 
 void ctp2_CommandLine::Draw(void)

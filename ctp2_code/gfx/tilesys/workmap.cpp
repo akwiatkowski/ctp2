@@ -62,7 +62,6 @@
 
 #define k_OFFSET_WIDTH			62
 
-extern C3UI				*g_c3ui;
 
 
 
@@ -1251,7 +1250,7 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 sint32 WorkMap::UpdateFromSurface(aui_Surface *destSurface, RECT *destRect)
 {
 	RECT rect = {0,0,m_surface->Width(),m_surface->Height()};
-	g_c3ui->TheBlitter()->Blt(destSurface, destRect->left, destRect->top, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(destSurface, destRect->left, destRect->top, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
 	return 0;
 }
 

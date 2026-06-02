@@ -96,7 +96,6 @@
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern C3UI						*g_c3ui;
 extern StatusWindow				*g_statusWindow;
 extern ControlPanelWindow	*g_controlPanel;
 extern WorkWindow			*g_workWindow;
@@ -137,7 +136,7 @@ void DebugExitButtonActionCallback( aui_Control *control, uint32 action, uint32 
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( g_debugWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( g_debugWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
@@ -172,15 +171,15 @@ void TestWindowButtonActionCallback( aui_Control *control, uint32 action, uint32
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( k_ID_WINDOW_TEST );
+	auiErr = c3ui_Get()->RemoveWindow( k_ID_WINDOW_TEST );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	auiErr = g_c3ui->RemoveWindow( k_ID_WINDOW_STANDARD );
+	auiErr = c3ui_Get()->RemoveWindow( k_ID_WINDOW_STANDARD );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
-	auiErr = g_c3ui->RemoveWindow( k_ID_WINDOW_FLOATING );
+	auiErr = c3ui_Get()->RemoveWindow( k_ID_WINDOW_FLOATING );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -680,7 +679,7 @@ int c3windows_MakeTestWindow( BOOL make )
 
 		if ( g_testWindow )
 		{
-			g_c3ui->RemoveWindow( g_testWindow->Id() );
+			c3ui_Get()->RemoveWindow( g_testWindow->Id() );
 			delete g_testWindow;
 			g_testWindow = NULL;
 		}
@@ -898,7 +897,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 		delete i6;
 		i6 = NULL;
 
-		g_c3ui->RemoveWindow( g_standardWindow->Id() );
+		c3ui_Get()->RemoveWindow( g_standardWindow->Id() );
 		delete g_standardWindow;
 		g_standardWindow = NULL;
 	}
@@ -1141,7 +1140,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 
 
 
-		g_c3ui->RemoveWindow( g_floatingWindow->Id() );
+		c3ui_Get()->RemoveWindow( g_floatingWindow->Id() );
 		delete g_floatingWindow;
 		g_floatingWindow = NULL;
 	}
@@ -1169,13 +1168,13 @@ void ControlWindowButtonActionCallback( aui_Control *control, uint32 action, uin
 	Assert( err == 0 );
 	if ( err != 0 ) return;
 
-	auiErr = g_c3ui->AddWindow( g_floatingWindow );
+	auiErr = c3ui_Get()->AddWindow( g_floatingWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
-	auiErr = g_c3ui->AddWindow( g_testWindow );
+	auiErr = c3ui_Get()->AddWindow( g_testWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
-	auiErr = g_c3ui->AddWindow( g_standardWindow );
+	auiErr = c3ui_Get()->AddWindow( g_standardWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
@@ -1196,7 +1195,7 @@ void DebugButtonActionCallback( aui_Control *control, uint32 action, uint32 data
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow( g_debugWindow );
+	auiErr = c3ui_Get()->AddWindow( g_debugWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
@@ -1279,7 +1278,7 @@ void CityViewButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 
 	CityViewWindow_Update();
 
-	auiErr = g_c3ui->AddWindow( g_cityViewWindow );
+	auiErr = c3ui_Get()->AddWindow( g_cityViewWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 #endif
@@ -1476,7 +1475,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 	{
 		if ( !g_statusWindow ) return 0;
 
-		g_c3ui->RemoveWindow( g_statusWindow->Id() );
+		c3ui_Get()->RemoveWindow( g_statusWindow->Id() );
 
 		delete button;
 		button = NULL;
@@ -1575,7 +1574,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 	{
 		if ( !g_debugWindow ) return 0;
 
-		g_c3ui->RemoveWindow( g_debugWindow->Id() );
+		c3ui_Get()->RemoveWindow( g_debugWindow->Id() );
 
 		delete textbox;
 		textbox = NULL;
@@ -1617,5 +1616,5 @@ void c3windows_Cleanup( void )
 		g_happyTab = NULL;
 	}
 
-	g_c3ui->UnloadIcon( k_IconName );
+	c3ui_Get()->UnloadIcon( k_IconName );
 }

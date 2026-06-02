@@ -14,7 +14,6 @@
 #include "ui/aui_utils/textutils.h"
 #include "gs/slic/SlicEngine.h"
 
-extern C3UI			*g_c3ui;
 
 TextSwitch::TextSwitch(
 	AUI_ERRCODE *retval,

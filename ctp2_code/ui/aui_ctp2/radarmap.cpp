@@ -75,7 +75,6 @@
 #include "gs/gameobj/terrainutil.h"
 #include "ai/strategy/scheduler/Scheduler.h"
 
-extern C3UI				*g_c3ui;
 extern PointerList<Player> *g_deadPlayer;
 
 extern sint32 g_fog_toggle;
@@ -1195,7 +1194,7 @@ void RadarMap::UpdateMap(aui_Surface *surf, sint32 x, sint32 y)
 	RECT		destRect = {x, y, x + Width(), y + Height() };
 	RECT		srcRect = {0, 0, Width(), Height()};
 
-	g_c3ui->TheBlitter()->StretchBlt(surf, &destRect, m_mapSurface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->StretchBlt(surf, &destRect, m_mapSurface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	if(IsInteractive())
 		RenderViewRect(surf, x, y);

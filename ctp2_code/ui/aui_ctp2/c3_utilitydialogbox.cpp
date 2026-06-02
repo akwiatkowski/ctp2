@@ -67,7 +67,6 @@
 #include "WonderRecord.h"
 #include "gs/world/World.h"
 
-extern C3UI	*       g_c3ui;
 extern sint32   	g_modalWindow;
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
@@ -437,13 +436,13 @@ void c3_UtilityCityListPopup::DisplayWindow( void )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
 void c3_UtilityCityListPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -562,13 +561,13 @@ void c3_PiracyPopup::DisplayWindow( void )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
 void c3_PiracyPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -678,13 +677,13 @@ void c3_ExpelPopup::Cleanup(void)
 
 void c3_ExpelPopup::DisplayWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
 void c3_ExpelPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
@@ -832,14 +831,14 @@ void c3_UtilityTextFieldPopup::DisplayWindow( void )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(m_window);
 }
 
 void c3_UtilityTextFieldPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(m_window);
 }
@@ -981,7 +980,7 @@ void c3_UtilityTextMessagePopup::DisplayWindow( MBCHAR const *text )
 {
 	UpdateData(text);
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(m_window);
@@ -989,7 +988,7 @@ void c3_UtilityTextMessagePopup::DisplayWindow( MBCHAR const *text )
 
 void c3_UtilityTextMessagePopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RemoveHandler(m_window);
@@ -1195,13 +1194,13 @@ void c3_UtilityAbortPopup::DisplayWindow( MBCHAR const *text, sint32 percentFill
 	}
 	keypress_RegisterHandler(this);
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
 void c3_UtilityAbortPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RemoveHandler(this);
@@ -1334,7 +1333,7 @@ void c3_UtilityPlayerListPopup::DisplayWindow( void )
 {
 	UpdateData();
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(this);
@@ -1342,7 +1341,7 @@ void c3_UtilityPlayerListPopup::DisplayWindow( void )
 
 void c3_UtilityPlayerListPopup::RemoveWindow( void )
 {
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(m_window->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(m_window->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RemoveHandler(this);

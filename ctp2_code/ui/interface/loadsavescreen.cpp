@@ -93,7 +93,6 @@
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
 
-extern C3UI					*g_c3ui;
 extern CivApp				*g_civApp;
 extern sint32				g_scenarioUsePlayerNumber;
 extern BOOL					g_setDifficultyUponLaunch;
@@ -135,7 +134,7 @@ sint32	loadsavescreen_displayMyWindow(uint32 type)
 	if (retval == AUI_ERRCODE_OK)
     {
 		g_loadsaveWindow->SetType(type);
-		g_c3ui->AddWindow(g_loadsaveWindow);
+		c3ui_Get()->AddWindow(g_loadsaveWindow);
 		keypress_RegisterHandler(g_loadsaveWindow);
 	}
 
@@ -146,7 +145,7 @@ sint32 loadsavescreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( g_loadsaveWindow->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_loadsaveWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(g_loadsaveWindow);
 
@@ -205,9 +204,9 @@ void loadsavescreen_Cleanup()
 {
 	if (g_loadsaveWindow)
     {
-        if (g_c3ui)
+        if (c3ui_Get())
         {
-	        g_c3ui->RemoveWindow(g_loadsaveWindow->Id());
+	        c3ui_Get()->RemoveWindow(g_loadsaveWindow->Id());
         }
 	    keypress_RemoveHandler(g_loadsaveWindow);
 
@@ -217,7 +216,7 @@ void loadsavescreen_Cleanup()
 
 void loadsavescreen_PostCleanupAction(void)
 {
-	g_c3ui->AddAction(new LSCleanupAction);
+	c3ui_Get()->AddAction(new LSCleanupAction);
 }
 
 void LSCleanupAction::Execute(aui_Control *control, uint32 action, uint32 data)

@@ -59,7 +59,6 @@
 #include "gs/gameobj/Unit.h"
 #include "ui/aui_ctp2/ctp2_Switch.h"
 
-extern C3UI *g_c3ui;
 
 UnitControlPanel::UnitControlPanel(MBCHAR *ldlBlock) :
 m_unitDisplayGroup(static_cast<ctp2_Static*>(
@@ -1034,7 +1033,7 @@ AUI_ERRCODE UnitControlPanel::HealthBarActionCallback(ctp2_Static *control,
 	Unit        unit        (static_cast<uint32>(reinterpret_cast<uintptr_t>(cookie)));
 
 	AUI_ERRCODE errorCode =
-		g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
+		c3ui_Get()->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
 
 	if(errorCode != AUI_ERRCODE_OK)
 		return(errorCode);
@@ -1061,7 +1060,7 @@ AUI_ERRCODE UnitControlPanel::HealthBarActionCallback(ctp2_Static *control,
 	if(healthRectangle.right <= healthRectangle.left)
 		return AUI_ERRCODE_OK;
 
-	AUI_ERRCODE err = (g_c3ui->TheBlitter()->ColorBlt(surface,
+	AUI_ERRCODE err = (c3ui_Get()->TheBlitter()->ColorBlt(surface,
 		&healthRectangle, color, 0));
 
 	return err;
@@ -1071,7 +1070,7 @@ AUI_ERRCODE UnitControlPanel::FuelBarDrawCallback(ctp2_Static *control,
  												  aui_Surface *surface, RECT &rect, void *cookie)
 {
 	Unit        u  (static_cast<uint32>(reinterpret_cast<uintptr_t>(cookie)));
-	AUI_ERRCODE errCode = g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
+	AUI_ERRCODE errCode = c3ui_Get()->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
 
 	if(errCode != AUI_ERRCODE_OK)
 		return errCode;
@@ -1106,7 +1105,7 @@ AUI_ERRCODE UnitControlPanel::FuelBarDrawCallback(ctp2_Static *control,
 		} else {
 			color = RGB(0,255,0);
 		}
-		errCode = g_c3ui->TheBlitter()->ColorBlt(surface, &fuelRect, color, 0);
+		errCode = c3ui_Get()->TheBlitter()->ColorBlt(surface, &fuelRect, color, 0);
 	}
 	return errCode;
 }
@@ -1215,7 +1214,7 @@ AUI_ERRCODE UnitControlPanel::DrawCargoCallback(ctp2_Static *control,
 		RECT tickRect = { box.left + i * tickspacewidth, box.top,
 						  box.left + i * tickspacewidth + tickwidth, box.bottom };
 		Pixel16 color = (i < numCarried) ? RGB(0,255,0) : RGB(0,0,0);
-		g_c3ui->TheBlitter()->ColorBlt(surface, &tickRect, color, 0);
+		c3ui_Get()->TheBlitter()->ColorBlt(surface, &tickRect, color, 0);
 	}
 	return AUI_ERRCODE_OK;
 }

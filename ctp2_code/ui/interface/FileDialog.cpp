@@ -15,7 +15,6 @@
 #endif
 
 static MBCHAR *s_block = "GenericFileDialog";
-extern C3UI *g_c3ui;
 
 FileDialog::FileDialog()
 {
@@ -58,7 +57,7 @@ void FileDialog::Open(FILE_DIALOG_MODE mode, FileDialogCallback *cb, void *cooki
 	Fill();
 
 	m_field->SetFieldText("");
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 	m_window->Show();
 
 	m_mode = mode;
@@ -82,7 +81,7 @@ void FileDialog::Close()
 	if(!m_window)
 		return;
 
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void FileDialog::AddFile(const MBCHAR *path, void *cookie)

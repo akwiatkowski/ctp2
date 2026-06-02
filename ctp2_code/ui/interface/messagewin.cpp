@@ -32,7 +32,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI	*           g_c3ui;
 extern MessageModal *   g_modalMessage;
 extern sint32           g_ScreenWidth;
 extern sint32           g_ScreenHeight;
@@ -288,7 +287,7 @@ int messagewin_PrepareDestroyWindow( MessageWindow *window )
 
 
 
-	g_c3ui->AddDestructiveAction( new MessageCleanupAction( window, window->GetPlayer() ) );
+	c3ui_Get()->AddDestructiveAction( new MessageCleanupAction( window, window->GetPlayer() ) );
 	return 1;
 }
 
@@ -463,14 +462,14 @@ return 1;
 
 		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
 		window->Move( g_messageMoreX, g_messageMoreY );
-		retval = g_c3ui->AddWindow( window );
+		retval = c3ui_Get()->AddWindow( window );
 		Assert( retval == AUI_ERRCODE_OK );
 		if ( retval != AUI_ERRCODE_OK ) return -1;
 
 	} else {
 		if ( window )
-			if ( g_c3ui->GetWindow( window->Id( )))
-				g_c3ui->RemoveWindow( window->Id( ));
+			if ( c3ui_Get()->GetWindow( window->Id( )))
+				c3ui_Get()->RemoveWindow( window->Id( ));
 
 		if ( destroy ) {
 			if ( button ) {
@@ -535,14 +534,14 @@ return 1;
 
 		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
 		window->Move( g_messageLessX, g_messageLessY );
-		retval = g_c3ui->AddWindow( window );
+		retval = c3ui_Get()->AddWindow( window );
 		Assert( retval == AUI_ERRCODE_OK );
 		if ( retval != AUI_ERRCODE_OK ) return -1;
 
 	} else {
 		if ( window )
-			if ( g_c3ui->GetWindow( window->Id( )))
-				g_c3ui->RemoveWindow( window->Id( ));
+			if ( c3ui_Get()->GetWindow( window->Id( )))
+				c3ui_Get()->RemoveWindow( window->Id( ));
 
 		if ( destroy ) {
 			if ( button ) {

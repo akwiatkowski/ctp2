@@ -45,7 +45,6 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern C3UI					*g_c3ui;
 extern ProfileDB			*g_theProfileDB;
 
 static c3_PopupWindow *s_soundWindow	= NULL;
@@ -74,7 +73,7 @@ sint32	soundscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow(s_soundWindow);
+	auiErr = c3ui_Get()->AddWindow(s_soundWindow);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(s_soundWindow);
 
@@ -94,7 +93,7 @@ sint32 soundscreen_removeMyWindow(uint32 action)
 	g_theProfileDB->SetVoiceVolume(voice);
 	g_theProfileDB->SetMusicVolume(music);
 
-	auiErr = g_c3ui->RemoveWindow( s_soundWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_soundWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(s_soundWindow);
 
@@ -163,7 +162,7 @@ AUI_ERRCODE soundscreen_Cleanup()
 
 	if ( !s_soundWindow  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_soundWindow->Id() );
+	c3ui_Get()->RemoveWindow( s_soundWindow->Id() );
 	keypress_RemoveHandler(s_soundWindow);
 
 

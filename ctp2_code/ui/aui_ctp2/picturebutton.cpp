@@ -9,7 +9,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI *g_c3ui;
 
 PictureButton::PictureButton(
 	AUI_ERRCODE *retval,

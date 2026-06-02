@@ -50,7 +50,6 @@
 #include "gs/database/StrDB.h"
 #include "ui/interface/UIUtils.h"
 
-extern C3UI	*       g_c3ui;
 extern BOOL         g_launchIntoCheatMode;
 
 c3_PopupWindow	*   g_scorewarn = NULL;
@@ -68,7 +67,7 @@ void scorewarn_OkButtonActionCallback( aui_Control *control, uint32 action, uint
 void scorewarn_AcceptWarningCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	if(optionsscreen_removeMyWindow(action)) {
-		AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( g_scorewarn->Id() );
+		AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
 		keypress_RemoveHandler(g_scorewarn);
 		Assert( auiErr == AUI_ERRCODE_OK );
 		if ( auiErr != AUI_ERRCODE_OK ) return;
@@ -87,7 +86,7 @@ void scorewarn_CancelButtonActionCallback( aui_Control *control, uint32 action, 
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( g_scorewarn->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
 	keypress_RemoveHandler(g_scorewarn);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
@@ -134,7 +133,7 @@ void scorewarn_Cleanup(void)
 {
 	if (g_scorewarn)
     {
-    	g_c3ui->RemoveWindow( g_scorewarn->Id() );
+    	c3ui_Get()->RemoveWindow( g_scorewarn->Id() );
 	    keypress_RemoveHandler(g_scorewarn);
         RemoveControl(s_message);
     	RemoveControl(g_scorewarn);
@@ -157,7 +156,7 @@ void disclaimer_AcceptButtonActionCallback(aui_Control *control, uint32 action, 
 {
 	if (action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	g_c3ui->AddAction(new DisclaimerCloseAction);
+	c3ui_Get()->AddAction(new DisclaimerCloseAction);
 
 	if (s_disclaimerCallback)
 		s_disclaimerCallback(control, action, data, cookie);
@@ -172,7 +171,7 @@ void disclaimer_DeclineButtonActionCallback(aui_Control *control, uint32 action,
 
 	g_launchIntoCheatMode = FALSE;
 
-	g_c3ui->AddAction(new DisclaimerCloseAction);
+	c3ui_Get()->AddAction(new DisclaimerCloseAction);
 }
 
 sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
@@ -180,7 +179,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	if (s_disclaimerWindow) {
-		errcode = g_c3ui->AddWindow( s_disclaimerWindow );
+		errcode = c3ui_Get()->AddWindow( s_disclaimerWindow );
 
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return -1;
@@ -280,7 +279,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 	s_disclaimerCallback = callback;
 
-	errcode = g_c3ui->AddWindow( s_disclaimerWindow );
+	errcode = c3ui_Get()->AddWindow( s_disclaimerWindow );
 
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode != AUI_ERRCODE_OK ) return -1;
@@ -297,7 +296,7 @@ void disclaimer_Cleanup(void)
 {
 	if (s_disclaimerWindow)
     {
-	    g_c3ui->RemoveWindow( s_disclaimerWindow->Id() );
+	    c3ui_Get()->RemoveWindow( s_disclaimerWindow->Id() );
 
 	    RemoveControl(s_disclaimerLabel);
 	    RemoveControl(s_disclaimerAcceptButton);

@@ -227,7 +227,7 @@ sint32                              g_ScreenWidth = 0;
 sint32                              g_ScreenHeight = 0;
 BOOL                                g_cmdlineResolutionSet = FALSE;
 
-C3UI                                *g_c3ui = NULL;
+static C3UI                         *g_c3ui = NULL;
 
 C3UI * c3ui_Get(void)                 { return g_c3ui; }
 void   c3ui_Set(C3UI *p)              { g_c3ui = p; }

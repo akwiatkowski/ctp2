@@ -54,7 +54,6 @@
 #include "gs/world/World.h"
 #include "ui/interface/citywindow.h"
 
-extern C3UI		*g_c3ui;
 
 static ScienceVictoryDialog *g_scienceVictoryDialog = NULL;
 
@@ -129,7 +128,7 @@ m_buildQueueButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 m_closeButton(static_cast<ctp2_Button*>(aui_Ldl::GetObject(
 	"ScienceVictoryDialog.CloseButton")))
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 
 	Assert(m_closeButton);
 
@@ -202,7 +201,7 @@ void ScienceVictoryDialog::Update()
 void ScienceVictoryDialog::Show()
 {
 	if(m_window) {
-		g_c3ui->AddWindow(m_window);
+		c3ui_Get()->AddWindow(m_window);
 		m_window->Show();
 	}
 }
@@ -211,7 +210,7 @@ void ScienceVictoryDialog::Hide()
 {
 	if(m_window) {
 		m_window->Hide();
-		g_c3ui->RemoveWindow(m_window->Id());
+		c3ui_Get()->RemoveWindow(m_window->Id());
 	}
 }
 
@@ -441,7 +440,7 @@ AUI_ERRCODE ScienceVictoryDialog::StatusBarActionCallback(ctp2_Static *control,
 		static_cast<double>(colorRect.right - colorRect.left) *
 		percentComplete);
 
-	return(g_c3ui->TheBlitter()->ColorBlt16(surface, &colorRect,
+	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
 		g_colorSet->GetColor(COLOR_GREEN), 0));
 }
 

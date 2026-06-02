@@ -64,7 +64,6 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"
 
-extern C3UI			*g_c3ui;
 static SegmentList *g_segmentList = NULL;
 
 void segmentlist_Callback(sint32 arg)
@@ -203,16 +202,16 @@ sint32 SegmentList::Initialize(MBCHAR *windowBlock)
 void SegmentList::DisplayWindow(void)
 {
 	UpdateData();
-	AUI_ERRCODE const auiErr = g_c3ui->AddWindow(m_window);
+	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert(auiErr == AUI_ERRCODE_OK);
 	keypress_RegisterHandler(this);
 }
 
 void SegmentList::RemoveWindow(void)
 {
-    if (g_c3ui && m_window)
+    if (c3ui_Get() && m_window)
     {
-	    g_c3ui->RemoveWindow(m_window->Id());
+	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 	keypress_RemoveHandler(this);
 }

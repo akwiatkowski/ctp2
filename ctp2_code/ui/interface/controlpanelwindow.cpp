@@ -228,7 +228,6 @@ extern ProgressWindow *g_theProgressWindow;
 
 extern sint32               g_ScreenWidth;
 extern sint32               g_ScreenHeight;
-extern C3UI                 *g_c3ui;
 extern KEYMAP               *theKeyMap;
 
 ctp2_MenuBar                *s_menubar=NULL;
@@ -1140,7 +1139,7 @@ m_terraFormMode(false)
 	m_mainWindow->SetTransparent(TRUE);
 	m_mainWindow->SetStencilFromImage("control_panel_stencil.tga");
 
-	g_c3ui->AddWindow(m_mainWindow);
+	c3ui_Get()->AddWindow(m_mainWindow);
 	if (gameinit_IsHotseatGame())
 	{
 		// Do not display control panel yet.
@@ -1171,7 +1170,7 @@ ControlPanelWindow::~ControlPanelWindow()
 
 	if (m_mainWindow) {
 
-		errcode = g_c3ui->RemoveWindow(m_mainWindow->Id());
+		errcode = c3ui_Get()->RemoveWindow(m_mainWindow->Id());
 		Assert(errcode == AUI_ERRCODE_OK);
 
 		errcode = aui_Ldl::DeleteHierarchyFromRoot("ControlPanelWindow");
@@ -1181,7 +1180,7 @@ ControlPanelWindow::~ControlPanelWindow()
 	}
 
 	if (m_mainMenuBar) {
-		errcode = g_c3ui->RemoveWindow(m_mainMenuBar->Id());
+		errcode = c3ui_Get()->RemoveWindow(m_mainMenuBar->Id());
 		Assert(errcode == AUI_ERRCODE_OK);
 
 		errcode = aui_Ldl::DeleteHierarchyFromRoot("MainMenu");
@@ -1219,7 +1218,7 @@ ControlPanelWindow::BuildMainMenu()
 
 	m_mainMenuBar->BuildNeighbors();
 
-	g_c3ui->AddWindow(m_mainMenuBar);
+	c3ui_Get()->AddWindow(m_mainMenuBar);
 }
 
 void ControlPanelWindow::RebuildMenus()
@@ -3896,8 +3895,8 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 BOOL ControlPanelWindow::CursorOverControlPanel()
 {
 
-	sint32 x = g_c3ui->TheMouse()->X();
-	sint32 y = g_c3ui->TheMouse()->Y();
+	sint32 x = c3ui_Get()->TheMouse()->X();
+	sint32 y = c3ui_Get()->TheMouse()->Y();
 
 	sint32 basex=g_ScreenWidth - Width();
 	sint32 basey=g_ScreenHeight - Height();
@@ -3911,10 +3910,10 @@ void ControlPanelWindow::Toggle()
 	if(!m_mainWindow)
 		return;
 
-	if(g_c3ui->GetWindow(m_mainWindow->Id())) {
-		g_c3ui->RemoveWindow(m_mainWindow->Id());
+	if(c3ui_Get()->GetWindow(m_mainWindow->Id())) {
+		c3ui_Get()->RemoveWindow(m_mainWindow->Id());
 	} else {
-		g_c3ui->AddWindow(m_mainWindow);
+		c3ui_Get()->AddWindow(m_mainWindow);
 		m_mainWindow->ShouldDraw(TRUE);
 	}
 }
@@ -3924,14 +3923,14 @@ void ControlPanelWindow::Hide()
 	if(!m_mainWindow)
 		return;
 
-	g_c3ui->RemoveWindow(m_mainWindow->Id());
+	c3ui_Get()->RemoveWindow(m_mainWindow->Id());
 }
 
 void ControlPanelWindow::Show()
 {
 	if(!m_mainWindow) return;
 
-	if(!g_c3ui->GetWindow(m_mainWindow->Id())) {
-		g_c3ui->AddWindow(m_mainWindow);
+	if(!c3ui_Get()->GetWindow(m_mainWindow->Id())) {
+		c3ui_Get()->AddWindow(m_mainWindow);
 	}
 }

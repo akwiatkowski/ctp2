@@ -52,7 +52,6 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_common/aui_ldl.h"
 
-extern C3UI				*g_c3ui;
 extern MessageWindow	*g_currentMessageWindow;
 
 enum SEV_TYPE {

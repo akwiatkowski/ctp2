@@ -38,7 +38,6 @@ const LONGLONG MILLISECONDS = (1000);            // 10 ^ 3
 const LONGLONG NANOSECONDS = (1000000000);       // 10 ^ 9
 const LONGLONG UNITS = (NANOSECONDS / 100);      // 10 ^ 7
 
-extern C3UI		*g_c3ui;
 
 aui_DirectMovie::aui_DirectMovie(
 	AUI_ERRCODE *retval,
@@ -314,15 +313,15 @@ AUI_ERRCODE aui_DirectMovie::Play( void )
 
 		if ( m_flags & k_AUI_MOVIE_PLAYFLAG_ONSCREEN ) {
 
-			sint32		savedWidth = g_c3ui->Width(),
-						savedHeight = g_c3ui->Height();
+			sint32		savedWidth = c3ui_Get()->Width(),
+						savedHeight = c3ui_Get()->Height();
 
-			g_c3ui->TearDownMouse();
+			c3ui_Get()->TearDownMouse();
 
-			g_c3ui->DestroyDirectScreen();
-			g_c3ui->SetWidth(640);
-			g_c3ui->SetHeight(480);
-			g_c3ui->CreateDirectScreen(g_c3ui->GetExclusiveMode());
+			c3ui_Get()->DestroyDirectScreen();
+			c3ui_Get()->SetWidth(640);
+			c3ui_Get()->SetHeight(480);
+			c3ui_Get()->CreateDirectScreen(c3ui_Get()->GetExclusiveMode());
 
 			HRESULT hr = m_mmStream->SetState( STREAMSTATE_RUN );
 			Assert( !FAILED(hr) );
@@ -347,12 +346,12 @@ AUI_ERRCODE aui_DirectMovie::Play( void )
 
 			PlayOnScreenMovie();
 
-			g_c3ui->DestroyDirectScreen();
-			g_c3ui->SetWidth(savedWidth);
-			g_c3ui->SetHeight(savedHeight);
-			g_c3ui->CreateDirectScreen(g_c3ui->GetExclusiveMode());
+			c3ui_Get()->DestroyDirectScreen();
+			c3ui_Get()->SetWidth(savedWidth);
+			c3ui_Get()->SetHeight(savedHeight);
+			c3ui_Get()->CreateDirectScreen(c3ui_Get()->GetExclusiveMode());
 
-			g_c3ui->RestoreMouse();
+			c3ui_Get()->RestoreMouse();
 		} else {
 
 			HRESULT hr = m_mmStream->SetState( STREAMSTATE_RUN );

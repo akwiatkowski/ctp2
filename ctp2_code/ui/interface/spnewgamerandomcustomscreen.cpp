@@ -46,7 +46,6 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern C3UI			*g_c3ui;
 extern SPNewGameWindow *g_spNewGameWindow;
 
 #define k_NUM_RANDOMCUSTOMBOXES	2
@@ -72,7 +71,7 @@ sint32	spnewgamerandomcustomscreen_displayMyWindow()
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow(s_spNewGameRandomCustomScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameRandomCustomScreen);
 	keypress_RegisterHandler(s_spNewGameRandomCustomScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -92,7 +91,7 @@ sint32 spnewgamerandomcustomscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
 	keypress_RemoveHandler(s_spNewGameRandomCustomScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -159,7 +158,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Cleanup()
 
 	if ( !s_spNewGameRandomCustomScreen  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
+	c3ui_Get()->RemoveWindow( s_spNewGameRandomCustomScreen->Id() );
 	keypress_RemoveHandler(s_spNewGameRandomCustomScreen);
 
 	for (sint32 i = 0;i < k_NUM_RANDOMCUSTOMBOXES;i++ ) {

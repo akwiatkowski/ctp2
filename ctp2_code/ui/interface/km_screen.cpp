@@ -56,7 +56,6 @@
 #include "ui/interface/controlpanelwindow.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 
-extern C3UI         *g_c3ui;
 extern KEYMAP       *theKeyMap;
 extern StringDB     *g_theStringDB;
 
@@ -453,11 +452,11 @@ sint32 km_screen_displayMyWindow()
 	sint32 const    retval  = s_km_screen ? 0 : km_screen_Initialize();
 	km_screen_loadKeyList();
 
-	if (g_c3ui)
+	if (c3ui_Get())
 	{
-		AUI_ERRCODE const   auiErr = g_c3ui->AddWindow(s_km_screen);
+		AUI_ERRCODE const   auiErr = c3ui_Get()->AddWindow(s_km_screen);
 		Assert(auiErr == AUI_ERRCODE_OK);
-		g_c3ui->RegisterCleanup(&km_screen_Cleanup);
+		c3ui_Get()->RegisterCleanup(&km_screen_Cleanup);
 	}
 
 	return retval;
@@ -469,9 +468,9 @@ sint32 km_screen_removeMyWindow(uint32 action)
 
 	if(!s_km_screen) return 0;
 
-	if (g_c3ui && s_km_screen)
+	if (c3ui_Get() && s_km_screen)
 	{
-		AUI_ERRCODE const auiErr = g_c3ui->RemoveWindow(s_km_screen->Id());
+		AUI_ERRCODE const auiErr = c3ui_Get()->RemoveWindow(s_km_screen->Id());
 		Assert( auiErr == AUI_ERRCODE_OK );
 	}
 
@@ -493,9 +492,9 @@ void km_screen_Cleanup()
 
 #define mycleanup(mypointer) { delete mypointer; mypointer = NULL; };
 
-	if (g_c3ui && s_km_screen)
+	if (c3ui_Get() && s_km_screen)
 	{
-		g_c3ui->RemoveWindow(s_km_screen->Id());
+		c3ui_Get()->RemoveWindow(s_km_screen->Id());
 	}
 
 	mycleanup( s_groupStatic );

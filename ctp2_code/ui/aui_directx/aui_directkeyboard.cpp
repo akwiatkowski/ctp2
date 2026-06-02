@@ -38,7 +38,6 @@
 #include "ui/aui_directx/aui_directkeyboard.h"
 
 #include "ui/aui_ctp2/c3ui.h"
-extern C3UI		*g_c3ui;
 
 #include "ctp/civapp.h"
 extern CivApp	*g_civApp;
@@ -139,46 +138,46 @@ AUI_ERRCODE aui_DirectKeyboard::GetInput( void )
 
 		switch (ptrOd->dwOfs) {
 		case DIK_LSHIFT :
-			if (g_c3ui->TheMouse()) {
+			if (c3ui_Get()->TheMouse()) {
 				if (uint8(ptrOd->dwData) & 0x80) {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LSHIFT);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LSHIFT);
 				} else {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LSHIFT);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LSHIFT);
 				}
 			}
 			return AUI_ERRCODE_OK;
 		case DIK_RSHIFT :
-			if (g_c3ui->TheMouse()) {
+			if (c3ui_Get()->TheMouse()) {
 				if (uint8(ptrOd->dwData) & 0x80) {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RSHIFT);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RSHIFT);
 				} else {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RSHIFT);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RSHIFT);
 				}
 			}
 			return AUI_ERRCODE_OK;
 		case DIK_LCONTROL :
-			if (g_c3ui->TheMouse()) {
+			if (c3ui_Get()->TheMouse()) {
 				if (uint8(ptrOd->dwData) & 0x80) {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LCONTROL);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_LCONTROL);
 				} else {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LCONTROL);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_LCONTROL);
 				}
 			}
 			return AUI_ERRCODE_OK;
 		case DIK_RCONTROL :
-			if (g_c3ui->TheMouse()) {
+			if (c3ui_Get()->TheMouse()) {
 				if (uint8(ptrOd->dwData) & 0x80) {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RCONTROL);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() | k_MOUSE_EVENT_FLAG_RCONTROL);
 				} else {
 
-					g_c3ui->TheMouse()->SetFlags(g_c3ui->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RCONTROL);
+					c3ui_Get()->TheMouse()->SetFlags(c3ui_Get()->TheMouse()->GetFlags() & ~k_MOUSE_EVENT_FLAG_RCONTROL);
 				}
 			}
 			return AUI_ERRCODE_OK;

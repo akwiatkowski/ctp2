@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------
 //
 // The original SPLASH_STRING macro (ui/interface/splash.h) wrote progress
-// text directly to g_splash and used g_c3ui — pulling the splash window
+// text directly to g_splash and used c3ui_Get() — pulling the splash window
 // into every translation unit that wanted to log "Loading Sprite DB..."
 // during startup.  Game-state init files (gameinit.cpp, ctpai.cpp) have no
 // business knowing about the splash window.

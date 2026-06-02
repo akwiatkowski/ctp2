@@ -8,7 +8,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern C3UI *g_c3ui;
 
 
 PatternBase::PatternBase( MBCHAR const * ldlBlock, MBCHAR const * pattern)
@@ -71,7 +70,7 @@ AUI_ERRCODE PatternBase::InitCommonLdl( MBCHAR const *ldlBlock, MBCHAR const *pa
 AUI_ERRCODE PatternBase::InitCommon( MBCHAR const *pattern )
 {
 	if (pattern != NULL) {
-		m_pattern = g_c3ui->LoadPattern( pattern );
+		m_pattern = c3ui_Get()->LoadPattern( pattern );
 		Assert( m_pattern != NULL );
 	} else {
 		m_pattern = NULL;
@@ -85,7 +84,7 @@ PatternBase::~PatternBase()
 {
 	if ( m_pattern )
 	{
-		g_c3ui->UnloadPattern( m_pattern );
+		c3ui_Get()->UnloadPattern( m_pattern );
 		m_pattern = NULL;
 	}
 }

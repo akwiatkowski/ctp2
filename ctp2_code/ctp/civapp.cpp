@@ -305,7 +305,6 @@ extern OzoneDatabase            *g_theUVDB;
 extern MovieDB                  *g_theVictoryMovieDB;
 extern FilenameDB               *g_theMessageIconFileDB;
 extern PlayListDB               *g_thePlayListDB;
-extern C3UI                 *g_c3ui;
 extern Background           *g_background;
 extern StatsWindow          *g_statsWindow;
 extern StatusWindow         *g_statusWindow;
@@ -1554,10 +1553,10 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	ProgressTo( 620 );
 
-	if (g_c3ui->TheMouse())
+	if (c3ui_Get()->TheMouse())
     {
 		double const sensitivity = 0.25 * (1 + g_theProfileDB->GetMouseSpeed());
-		g_c3ui->TheMouse()->Sensitivity() = sensitivity;
+		c3ui_Get()->TheMouse()->Sensitivity() = sensitivity;
 	}
 
 	SelectColorSet(); // Select the right color set.
@@ -1620,7 +1619,7 @@ void CivApp::CleanupAppUI(void)
 	graphicsresscreen_Cleanup();
 	km_screen_Cleanup();
 
-    allocated::clear(g_c3ui);
+    { C3UI * ui = c3ui_Get(); allocated::clear(ui); c3ui_Set(ui); }
 
 #if defined(_DEBUG) && !defined(__AUI_USE_SDL__)
 	sint32 const cleanBaseRefCount = aui_Base::GetBaseRefCount();
@@ -1818,13 +1817,13 @@ sint32 CivApp::InitializeGameUI(void)
 
 	ProgressTo( 90 );
 
-    AUI_ERRCODE auiErr = g_c3ui->AddWindow( g_background );
+    AUI_ERRCODE auiErr = c3ui_Get()->AddWindow( g_background );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
 	ProgressTo( 100 );
 
-	auiErr = g_c3ui->AddWindow( g_statusWindow );
+	auiErr = c3ui_Get()->AddWindow( g_statusWindow );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -1854,13 +1853,13 @@ sint32 CivApp::InitializeGameUI(void)
 
 sint32 CivApp::InitializeGame(CivArchive *archive)
 {
-	// Headless: g_c3ui is null and every helper below (c3windows_*,
+	// Headless: c3ui_Get() is null and every helper below (c3windows_*,
 	// ChatBox, GrabItem, MainControlPanel, director_Get()->*, scenario UI
 	// reload, etc.) crashes or no-ops on UI singletons.  Reroute to
 	// the headless path which does only the game-state restore +
 	// minimal subsystem init (AI, gevManager).  Both --new-game and
 	// --load-game share this entry point now.
-	if (!g_c3ui) return InitializeGameHeadless(archive);
+	if (!c3ui_Get()) return InitializeGameHeadless(archive);
 
 #ifndef _NO_GAME_WATCH
 	SPLASH_STRING("Initializing Game Watch...");
@@ -2237,7 +2236,7 @@ sint32 InitializeSpriteEditorUI(void)
 
 	ProgressTo( 90 );
 
-	AUI_ERRCODE	auiErr = g_c3ui->AddWindow(g_background);
+	AUI_ERRCODE	auiErr = c3ui_Get()->AddWindow(g_background);
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2257,7 +2256,7 @@ sint32 InitializeSpriteEditorUI(void)
 	ProgressTo( 120 );
 
 	errcode = SpriteEditWindow_Initialize();
-	auiErr = g_c3ui->AddWindow( g_spriteEditWindow );
+	auiErr = c3ui_Get()->AddWindow( g_spriteEditWindow );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2608,7 +2607,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 	g_god                   = FALSE;
 	g_isCheatModeOn         = FALSE;
 
-	g_c3ui->BlackScreen();
+	c3ui_Get()->BlackScreen();
 }
 
 void CivApp::StartMessageSystem()
@@ -2652,13 +2651,13 @@ void CivApp::ProcessGraphicsCallback(void)
 	if (!g_background)  return;
 	if (!director_Get())    return;
 	if (!g_background)  return;
-	if (!g_c3ui)        return;
+	if (!c3ui_Get())        return;
 
 	s_inCallback = true;
 
 	tiledmap_Get()->RestoreMixFromMap(g_background->TheSurface());
 	g_background->Draw();
-	g_c3ui->Process();
+	c3ui_Get()->Process();
 
 	if (!g_network.IsActive() || g_network.ReadyToStart())
     {
@@ -2679,8 +2678,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 	uint32          curTicks        = Os::GetTicks();
 	static uint32	lastTicks       = curTicks;
 
-	if (g_c3ui->TheMouse()) {
-		if (g_c3ui->TheMouse()->IsSuspended() )
+	if (c3ui_Get()->TheMouse()) {
+		if (c3ui_Get()->TheMouse()->IsSuspended() )
 		{
 			used_milliseconds = Os::GetTicks() - start_time_ms;
 
@@ -2731,7 +2730,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					}
 					#endif
 
-					g_c3ui->Process();
+					c3ui_Get()->Process();
 
 					uint32 target_milliseconds=30;
 					uint32 used_milliseconds;
@@ -2759,7 +2758,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 	}
 
 	if (m_appLoaded) {
-		g_c3ui->Process();
+		c3ui_Get()->Process();
 	}
 
 	if (m_gameLoaded && !g_modalWindow && tiledmap_Get()) {
@@ -3101,7 +3100,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					smoketest_send_response("error", cmd, "bad_args");
 				} else {
 #ifdef USE_SDL
-					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(g_c3ui->Primary());
+					aui_SDLSurface *sdlSurf = static_cast<aui_SDLSurface*>(c3ui_Get()->Primary());
 					if (sdlSurf && sdlSurf->DDS()) {
 						if (SDL_SaveBMP(sdlSurf->DDS(), path) == 0) {
 							smoke_log->info("Screenshot saved to {}", path);
@@ -3290,8 +3289,8 @@ sint32 CivApp::ProcessAI()
 	if(victorywin_IsOnScreen())
 		return 0;
 
-	if (g_c3ui->TheMouse()) {
-		if( g_c3ui->TheMouse()->IsSuspended()
+	if (c3ui_Get()->TheMouse()) {
+		if( c3ui_Get()->TheMouse()->IsSuspended()
 		&& !g_runInBackground
 		&& !g_theProfileDB->GetValueByName("RunInBackground")
 		){
@@ -3312,9 +3311,9 @@ sint32 CivApp::ProcessRobot(const uint32 target_milliseconds, uint32 &used_milli
 
 	uint32 const    start_time_ms = Os::GetTicks();
 
-	if (g_c3ui->TheMouse())
+	if (c3ui_Get()->TheMouse())
 	{
-		if (g_c3ui->TheMouse()->IsSuspended() && !g_runInBackground && !g_theProfileDB->GetValueByName("RunInBackground"))
+		if (c3ui_Get()->TheMouse()->IsSuspended() && !g_runInBackground && !g_theProfileDB->GetValueByName("RunInBackground"))
 		{
 			// Probably there was something here.
 		}
@@ -3759,23 +3758,23 @@ void CivApp::RestoreAutoSave(sint32 player)
 	MBCHAR		filename[_MAX_PATH];
 	snprintf(filename, sizeof(filename), "auto%d.sav", player);
 
-	g_c3ui->AddAction(new LoadSaveGameAction(filename));
+	c3ui_Get()->AddAction(new LoadSaveGameAction(filename));
 }
 
 
 void CivApp::PostStartGameAction(void)
 {
-	g_c3ui->AddAction(new StartGameAction());
+	c3ui_Get()->AddAction(new StartGameAction());
 }
 
 void CivApp::PostSpriteTestAction(void)
 {
-	g_c3ui->AddAction(new SpriteTestAction());
+	c3ui_Get()->AddAction(new SpriteTestAction());
 }
 
 void CivApp::PostLoadSaveGameAction(MBCHAR const * name)
 {
-	g_c3ui->AddAction(new LoadSaveGameAction(name));
+	c3ui_Get()->AddAction(new LoadSaveGameAction(name));
 }
 
 void CivApp::PostLoadQuickSaveAction(sint32 player)
@@ -3824,13 +3823,13 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 #if 0   // never used
 void CivApp::PostLoadSaveGameMapAction(MBCHAR const * name)
 {
-	g_c3ui->AddAction(new LoadSaveGameMapAction(name));
+	c3ui_Get()->AddAction(new LoadSaveGameMapAction(name));
 }
 #endif
 
 void CivApp::PostRestartGameAction(void)
 {
-	g_c3ui->AddAction(new RestartGameAction());
+	c3ui_Get()->AddAction(new RestartGameAction());
 }
 
 void CivApp::PostRestartGameSameMapAction(void)
@@ -3843,27 +3842,27 @@ void CivApp::PostRestartGameSameMapAction(void)
 		g_theProfileDB->SetCivIndex(p->GetCivilisation()->GetCivilisation());
 	}
 
-	g_c3ui->AddAction(new RestartGameSameMapAction());
+	c3ui_Get()->AddAction(new RestartGameSameMapAction());
 }
 
 void CivApp::PostQuitToSPShellAction(void)
 {
-	g_c3ui->AddAction(new QuitToSPShellAction());
+	c3ui_Get()->AddAction(new QuitToSPShellAction());
 }
 
 void CivApp::PostQuitToLobbyAction(void)
 {
-	g_c3ui->AddAction(new QuitToLobbyAction());
+	c3ui_Get()->AddAction(new QuitToLobbyAction());
 }
 
 void CivApp::PostEndGameAction(void)
 {
-	g_c3ui->AddAction(new EndGameAction());
+	c3ui_Get()->AddAction(new EndGameAction());
 }
 
 void CivApp::PostLoadScenarioGameAction(MBCHAR const * filename)
 {
-	g_c3ui->AddAction(new LoadScenarioGameAction(filename));
+	c3ui_Get()->AddAction(new LoadScenarioGameAction(filename));
 }
 
 void StartGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
@@ -3934,7 +3933,7 @@ void InitializeImageMaps()
     delete g_ImageMapPF;
     g_ImageMapPF = new ProjectFile();
 
-    if (g_c3ui->PixelFormat() == AUI_SURFACE_PIXELFORMAT_555)
+    if (c3ui_Get()->PixelFormat() == AUI_SURFACE_PIXELFORMAT_555)
     {
         AddSearchPacks(g_ImageMapPF, C3DIR_PATTERNS, "pat555.zfs");
         AddSearchPacks(g_ImageMapPF, C3DIR_PICTURES, "pic555.zfs");

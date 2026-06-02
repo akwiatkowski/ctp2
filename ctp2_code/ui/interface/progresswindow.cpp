@@ -37,7 +37,6 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3ui.h"
 
-extern C3UI *   g_c3ui;
 
 void ProgressWindow::BeginProgress(
 	ProgressWindow *&progwin,
@@ -69,14 +68,14 @@ void ProgressWindow::BeginProgress(
 
 
 
-		g_c3ui->SetBackgroundColor( RGB(0,0,0) );
+		c3ui_Get()->SetBackgroundColor( RGB(0,0,0) );
 
 
 
 
 
 
-		g_c3ui->AddWindow( progwin );
+		c3ui_Get()->AddWindow( progwin );
 	}
 	else
 	{
@@ -110,7 +109,7 @@ void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 	m_nextValList.GetTail() = val;
 
 	Draw();
-	g_c3ui->Draw();
+	c3ui_Get()->Draw();
 }
 
 void ProgressWindow::EndProgress( ProgressWindow *&progwin )
@@ -132,13 +131,13 @@ void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 
 		if ( progwin->m_baseList.IsEmpty() )
 		{
-			g_c3ui->RemoveWindow( progwin->Id() );
+			c3ui_Get()->RemoveWindow( progwin->Id() );
 
 			delete progwin;
 			progwin = NULL;
 
-			g_c3ui->Draw();
-			g_c3ui->SetBackgroundColor( k_AUI_UI_NOCOLOR );
+			c3ui_Get()->Draw();
+			c3ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );
 		}
 	}
 }

@@ -21,7 +21,6 @@
 #include "ui/interface/messagemodal.h"
 #include "ui/interface/messageeyepoint.h"
 
-extern C3UI			*g_c3ui;
 extern uint8		g_messageEyeDropWidth;
 extern uint8		g_messageEyeGreatPadding;
 

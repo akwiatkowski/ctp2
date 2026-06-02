@@ -9,7 +9,6 @@
 
 #include "ui/aui_ctp2/pattern.h"
 
-extern C3UI *g_c3ui;
 
 Pattern::Pattern(
 	AUI_ERRCODE *retval,
@@ -53,7 +52,7 @@ AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 	if (!m_surface) return AUI_ERRCODE_OK;
 
 	RECT rect = { 0, 0, m_surface->Width(), m_surface->Height() };
-	return g_c3ui->TheBlitter()->TileBlt(
+	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
 		m_surface,
@@ -67,7 +66,7 @@ AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect, RECT *pSrcRe
 {
 	if (!m_surface) return AUI_ERRCODE_OK;
 
-	return g_c3ui->TheBlitter()->TileBlt(
+	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
 		m_surface,
@@ -80,7 +79,7 @@ AUI_ERRCODE Pattern::Draw( aui_Surface *pDestSurf, RECT *pDestRect, RECT *pSrcRe
 AUI_ERRCODE Pattern::DrawDither( aui_Surface *pDestSurf, RECT *pDestRect, BOOL flag )
 {
 	RECT rect = { 0, 0, m_surface->Width(), m_surface->Height() };
-	return g_c3ui->TheBlitter()->TileBlt(
+	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
 		m_surface,
@@ -99,7 +98,7 @@ AUI_ERRCODE Pattern::DrawDither(
 	)
 {
 	RECT rect = { 0, 0, m_surface->Width(), m_surface->Height() };
-	return g_c3ui->TheBlitter()->TileBlt(
+	return c3ui_Get()->TheBlitter()->TileBlt(
 		pDestSurf,
 		pDestRect,
 		m_surface,

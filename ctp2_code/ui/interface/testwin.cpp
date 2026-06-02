@@ -17,7 +17,6 @@
 
 #include "ui/aui_ctp2/c3ui.h"
 
-extern C3UI			*g_c3ui;
 
 UITestWindow		*g_testWindow = NULL;
 
@@ -30,7 +29,7 @@ int uitest_Initialize( void )
 	Assert( AUI_NEWOK( g_testWindow, errcode ));
 	if ( !AUI_NEWOK( g_testWindow, errcode )) return -1;
 
-	errcode = g_c3ui->AddWindow( g_testWindow );
+	errcode = c3ui_Get()->AddWindow( g_testWindow );
 	Assert(errcode == AUI_ERRCODE_OK);
 	if ( errcode != AUI_ERRCODE_OK ) return 11;
 

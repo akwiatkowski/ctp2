@@ -11,7 +11,6 @@
 
 #include "ui/aui_ctp2/c3ui.h"
 
-extern C3UI			*g_c3ui;
 
 MessageIconButton *MessageIconButton::m_currentButton = NULL;
 

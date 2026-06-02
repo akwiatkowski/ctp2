@@ -49,7 +49,6 @@
 #include "gfx/tilesys/tileset.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
-extern C3UI			*g_c3ui;
 
 
 
@@ -2999,20 +2998,20 @@ PRIMITIVES_ERRCODE primitives_DrawFrame16(
 
 	sint32	x = pRect->left, y = pRect->top;
 
-	g_c3ui->TheBlitter()->Blt(pSurface, x, y, pImageUpperLeft->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(pSurface, x, y, pImageUpperLeft->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	x = pRect->right - imageWidth;
 
-	g_c3ui->TheBlitter()->Blt(pSurface, x, y, pImageUpperRight->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(pSurface, x, y, pImageUpperRight->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	x = pRect->left;
 	y = pRect->bottom - imageHeight;
 
-	g_c3ui->TheBlitter()->Blt(pSurface, x, y, pImageLowerLeft->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(pSurface, x, y, pImageLowerLeft->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	x = pRect->right - imageWidth;
 
-	g_c3ui->TheBlitter()->Blt(pSurface, x, y, pImageLowerRight->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(pSurface, x, y, pImageLowerRight->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
 	RECT rect;
 	rect.left = pRect->left + imageWidth;

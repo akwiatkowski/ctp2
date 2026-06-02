@@ -10,7 +10,6 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_ctp2/icon.h"
 
-extern C3UI		*g_c3ui;
 
 Icon::Icon(	AUI_ERRCODE *retval,
 			MBCHAR const * szFileName)

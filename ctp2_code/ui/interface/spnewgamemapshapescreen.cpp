@@ -54,7 +54,6 @@
 #include "ui/aui_ctp2/keypress.h"
 #include <vector>
 
-extern C3UI			*g_c3ui;
 extern ProfileDB	*g_theProfileDB;
 
 namespace
@@ -153,7 +152,7 @@ sint32 spnewgamemapshapescreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 
 	s_useMode = useMode;
 
-	AUI_ERRCODE const auiErr = g_c3ui->AddWindow(s_spNewGameMapShapeScreen);
+	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(s_spNewGameMapShapeScreen);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(s_spNewGameMapShapeScreen);
@@ -186,7 +185,7 @@ sint32 spnewgamemapshapescreen_removeMyWindow(uint32 action)
 	}
 
 	AUI_ERRCODE const auiErr =
-        g_c3ui->RemoveWindow( s_spNewGameMapShapeScreen->Id());
+        c3ui_Get()->RemoveWindow( s_spNewGameMapShapeScreen->Id());
 	keypress_RemoveHandler(s_spNewGameMapShapeScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -282,7 +281,7 @@ void spnewgamemapshapescreen_Cleanup()
 {
 	if (s_spNewGameMapShapeScreen)
 	{
-		g_c3ui->RemoveWindow(s_spNewGameMapShapeScreen->Id());
+		c3ui_Get()->RemoveWindow(s_spNewGameMapShapeScreen->Id());
 		keypress_RemoveHandler(s_spNewGameMapShapeScreen);
 
 		for

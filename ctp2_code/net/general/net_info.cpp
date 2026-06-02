@@ -79,7 +79,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/utility/TurnCnt.h"
 #include "ui/aui_ctp2/c3ui.h"
-extern C3UI					*g_c3ui;
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
@@ -402,7 +401,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_MAP_DONE:
 		{
 
-			g_c3ui->RemoveWindow(radarwindow_Get()->Id());
+			c3ui_Get()->RemoveWindow(radarwindow_Get()->Id());
 			radarwindow_Cleanup();
 
 			delete tiledmap_Get();

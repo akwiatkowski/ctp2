@@ -44,7 +44,6 @@
 #include "ui/interface/scoretab.h"
 #include "ui/interface/WonderTab.h"
 
-extern C3UI *       g_c3ui;
 
 static InfoWindow * s_InfoWindow = NULL;
 
@@ -110,7 +109,7 @@ void InfoWindow::Open(void)
 	if (s_InfoWindow==NULL)
 		s_InfoWindow = new InfoWindow();
 
-	g_c3ui->AddWindow(s_InfoWindow->m_window);
+	c3ui_Get()->AddWindow(s_InfoWindow->m_window);
 	s_InfoWindow->Show();
 }
 
@@ -149,7 +148,7 @@ void InfoWindow::Show()
 void InfoWindow::Hide()
 {
     m_window->Hide();
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void InfoWindow::CloseButtonActionCallback

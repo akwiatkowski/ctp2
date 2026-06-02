@@ -73,7 +73,6 @@
 
 extern MBCHAR       g_slic_filename[_MAX_PATH];
 extern BOOL         g_letUIProcess;
-extern C3UI			*g_c3ui;
 extern Background	*g_background;
 extern CivApp		*g_civApp;
 extern HWND			gHwnd;
@@ -109,7 +108,7 @@ ChatBox::~ChatBox()
 {
 	if (m_active && m_chatWindow)
 	{
-		g_c3ui->RemoveWindow(m_chatWindow->Id());
+		c3ui_Get()->RemoveWindow(m_chatWindow->Id());
 	}
 
 	delete m_chatWindow;
@@ -129,12 +128,12 @@ void ChatBox::SetActive(BOOL active)
 
 	if (active)
 	{
-		g_c3ui->AddWindow(m_chatWindow);
+		c3ui_Get()->AddWindow(m_chatWindow);
 		m_chatWindow->GetTextField()->SetKeyboardFocus();
 	}
 	else
 	{
-		g_c3ui->RemoveWindow(m_chatWindow->Id());
+		c3ui_Get()->RemoveWindow(m_chatWindow->Id());
 	}
 
 	m_active = active;
@@ -156,7 +155,7 @@ void ChatBox::AddLine(sint32 playerNum, MBCHAR *text)
 	aui_Ranger *ranger = m_chatWindow->GetTextBox()->GetRanger();
 	ranger->SetValue(ranger->GetValueX(), ranger->GetMaximumY());
 
-	if (g_c3ui->GetWindow(m_chatWindow->Id()) == NULL) {
+	if (c3ui_Get()->GetWindow(m_chatWindow->Id()) == NULL) {
 		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 									gamesounds_GetGameSoundID(GAMESOUNDS_CHAT_MESSAGE),
 									0,

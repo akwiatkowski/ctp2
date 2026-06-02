@@ -67,7 +67,6 @@
 #include "gs/database/StrDB.h"
 #include "gs/utility/stringutils.h"
 
-extern C3UI                 *g_c3ui;
 
 static IntelligenceWindow   *s_intelligenceWindow = NULL;
 static MBCHAR               *s_intelligenceBlock = "IntelligenceWindow";
@@ -151,8 +150,8 @@ AUI_ERRCODE IntelligenceWindow::Cleanup()
 	}
 
 	if(sm_showTreatyDetail) {
-		if(g_c3ui) {
-			g_c3ui->RemoveWindow(sm_showTreatyDetail->Id());
+		if(c3ui_Get()) {
+			c3ui_Get()->RemoveWindow(sm_showTreatyDetail->Id());
 		}
 
 		aui_Ldl::DeleteHierarchyFromRoot("IntelTreatyDetail");
@@ -178,14 +177,14 @@ AUI_ERRCODE IntelligenceWindow::Display()
 	AUI_ERRCODE err = AUI_ERRCODE_INVALIDPARAM;
 	Assert(s_intelligenceWindow->m_window);
 	if(s_intelligenceWindow->m_window) {
-		err = g_c3ui->AddWindow(s_intelligenceWindow->m_window);
+		err = c3ui_Get()->AddWindow(s_intelligenceWindow->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_intelligenceWindow->m_window->Show();
 		}
 
 		if(s_intelligenceWindow->m_adviceWindow) {
-			err = g_c3ui->AddWindow(s_intelligenceWindow->m_adviceWindow);
+			err = c3ui_Get()->AddWindow(s_intelligenceWindow->m_adviceWindow);
 			if(err == AUI_ERRCODE_OK) {
 				err = s_intelligenceWindow->m_adviceWindow->Show();
 			}
@@ -209,10 +208,10 @@ AUI_ERRCODE IntelligenceWindow::Hide()
 	}
 
 	if(s_intelligenceWindow->m_adviceWindow) {
-		g_c3ui->RemoveWindow(s_intelligenceWindow->m_adviceWindow->Id());
+		c3ui_Get()->RemoveWindow(s_intelligenceWindow->m_adviceWindow->Id());
 	}
 
-	return g_c3ui->RemoveWindow(s_intelligenceWindow->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_intelligenceWindow->m_window->Id());
 }
 
 void IntelligenceWindow::SetRegardTip(MBCHAR *buf, const sint32 player, const sint32 foreigner)
@@ -355,10 +354,10 @@ void IntelligenceWindow::Advice(aui_Control *control, uint32 action, uint32 data
 	if(!s_intelligenceWindow) return;
 
 	if(s_intelligenceWindow->m_adviceWindow) {
-		if(g_c3ui->GetWindow(s_intelligenceWindow->m_adviceWindow->Id())) {
-			g_c3ui->RemoveWindow(s_intelligenceWindow->m_adviceWindow->Id());
+		if(c3ui_Get()->GetWindow(s_intelligenceWindow->m_adviceWindow->Id())) {
+			c3ui_Get()->RemoveWindow(s_intelligenceWindow->m_adviceWindow->Id());
 		} else {
-			g_c3ui->AddWindow(s_intelligenceWindow->m_adviceWindow);
+			c3ui_Get()->AddWindow(s_intelligenceWindow->m_adviceWindow);
 		}
 	}
 
@@ -380,7 +379,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerColor(ctp2_Static *control,
 	drawRect.bottom -= 2;
 	drawRect.left += 2;
 
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE IntelligenceWindow::DrawPlayerFlag(ctp2_Static *control,
@@ -398,14 +397,14 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerFlag(ctp2_Static *control,
 	rect.top += 2;
 	rect.right -= 2;
 	rect.bottom -= 2;
-	g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
+	c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
 
 	rect.left += 2;
 	rect.top += 8;
 	rect.right -= 2;
 	rect.bottom -= 8;
 
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
 }
 
 sint32 IntelligenceWindow::GetRegardThreshold(sint32 ofPlayer, sint32 forPlayer)
@@ -450,7 +449,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerRegard(ctp2_Static *control,
 
 	if(imageName)
     {
-	    aui_Image * image = g_c3ui->LoadImage(imageName);
+	    aui_Image * image = c3ui_Get()->LoadImage(imageName);
 
 		if(image) {
 
@@ -465,7 +464,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerRegard(ctp2_Static *control,
 
 			image->SetChromakey(255,0,255);
 
-			g_c3ui->TheBlitter()->Blt(
+			c3ui_Get()->TheBlitter()->Blt(
 				surface,
 				rect.left,
 				rect.top,
@@ -473,7 +472,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerRegard(ctp2_Static *control,
 				&srcRect,
 				k_AUI_BLITTER_FLAG_CHROMAKEY
 				);
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 	return AUI_ERRCODE_OK;
@@ -512,7 +511,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 
 	if (imageName)
 	{
-		aui_Image * image = g_c3ui->LoadImage(imageName);
+		aui_Image * image = c3ui_Get()->LoadImage(imageName);
 
 		if(image) {
 
@@ -527,7 +526,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 
 			image->SetChromakey(255,0,255);
 
-			g_c3ui->TheBlitter()->Blt(
+			c3ui_Get()->TheBlitter()->Blt(
 				surface,
 				rect.left,
 				rect.top,
@@ -535,7 +534,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 				&srcRect,
 				k_AUI_BLITTER_FLAG_CHROMAKEY
 				);
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 
@@ -573,7 +572,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 
 	if(imageName != NULL)
 	{
-		aui_Image *image = g_c3ui->LoadImage(imageName);
+		aui_Image *image = c3ui_Get()->LoadImage(imageName);
 
 		if(image)
 		{
@@ -588,7 +587,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 
 			image->SetChromakey(255,0,255);
 
-			g_c3ui->TheBlitter()->Blt(
+			c3ui_Get()->TheBlitter()->Blt(
 				surface,
 				rect.left,
 				rect.top,
@@ -596,7 +595,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 				&srcRect,
 				k_AUI_BLITTER_FLAG_CHROMAKEY
 				);
-			g_c3ui->UnloadImage(image);
+			c3ui_Get()->UnloadImage(image);
 		}
 	}
 
@@ -628,7 +627,7 @@ AUI_ERRCODE IntelligenceWindow::DrawTreaties(ctp2_Static *control,
 		else if(!AgreementMatrix::s_agreements.HasAgreement(visP, p, (PROPOSAL_TYPE)ag))
 			continue;
 
-		aui_Image *image = g_c3ui->LoadImage((char *)rec->GetImage());
+		aui_Image *image = c3ui_Get()->LoadImage((char *)rec->GetImage());
 		Assert(image);
 		if(!image)
 			continue;
@@ -642,13 +641,13 @@ AUI_ERRCODE IntelligenceWindow::DrawTreaties(ctp2_Static *control,
 
 		sint32 x = image->TheSurface()->Width() * slot;
 
-		g_c3ui->TheBlitter()->Blt(surface, rect.left + x,
+		c3ui_Get()->TheBlitter()->Blt(surface, rect.left + x,
 			rect.top + (((rect.bottom - rect.top) - image->TheSurface()->Height()) / 2),
 			image->TheSurface(),
 			&srcRect,
 			k_AUI_BLITTER_FLAG_CHROMAKEY);
 
-		g_c3ui->UnloadImage(image);
+		c3ui_Get()->UnloadImage(image);
 	}
 
 	return AUI_ERRCODE_OK;

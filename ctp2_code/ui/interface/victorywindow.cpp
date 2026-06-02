@@ -14,7 +14,6 @@
 #include "ui/interface/victorywindow.h"
 #include "ui/interface/victorywin.h"
 
-extern C3UI *g_c3ui;
 
 static MBCHAR *s_VictoryWindowBlock = "VictoryWindow";
 

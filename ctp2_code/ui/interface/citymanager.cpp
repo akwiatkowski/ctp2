@@ -15,7 +15,6 @@
 
 #include "gs/database/StrDB.h"
 
-extern C3UI *g_c3ui;
 
 static CityManagerWindow *s_cityManagerWindow = NULL;
 
@@ -29,7 +28,7 @@ void CityManagerWindow::Open()
 													"CITY_MANAGER_WINDOW");
 		Assert(err == AUI_ERRCODE_OK);
 
-		g_c3ui->AddWindow(s_cityManagerWindow);
+		c3ui_Get()->AddWindow(s_cityManagerWindow);
 	}
 
 	s_cityManagerWindow->Show();
@@ -40,9 +39,9 @@ void CityManagerWindow::Cleanup()
 	if (s_cityManagerWindow)
     {
 		s_cityManagerWindow->Hide();
-        if (g_c3ui)
+        if (c3ui_Get())
         {
-		    g_c3ui->RemoveWindow(s_cityManagerWindow->Id());
+		    c3ui_Get()->RemoveWindow(s_cityManagerWindow->Id());
         }
 	}
 

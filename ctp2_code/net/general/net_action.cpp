@@ -84,7 +84,6 @@
 #include "ui/aui_common/aui_button.h"
 #include "gs/utility/gstypes.h"                    // TERRAIN_TYPES
 
-extern C3UI *g_c3ui;
 
 void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie );
 
@@ -358,7 +357,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					Assert(g_network.m_playerData[index]->m_createdArmies.Num() == 0);
 					Assert(g_network.m_playerData[index]->m_createdUnits.Num() == 0);
 
-					if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && g_c3ui->GetWindow(bvw->Id())) {
+					if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && c3ui_Get()->GetWindow(bvw->Id())) {
 						battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
 					}
 

@@ -64,7 +64,6 @@
 #include <dirent.h>
 #endif
 
-extern C3UI *       g_c3ui;
 
 namespace
 {
@@ -464,7 +463,7 @@ bool c3files_HasLegalCD()
 		{
 #ifdef _WIN32
 			int const rval = MessageBox
-                                (g_c3ui ? g_c3ui->TheHWND() : NULL,
+                                (c3ui_Get() ? c3ui_Get()->TheHWND() : NULL,
 			                     appstrings_GetString(APPSTR_INSERTCDROM),
 			                     appstrings_GetString(APPSTR_CDROM),
 			                     MB_RETRYCANCEL         |
@@ -487,9 +486,9 @@ bool c3files_HasLegalCD()
 			}
 #endif
 
-            if (g_c3ui)
+            if (c3ui_Get())
             {
-			    g_c3ui->AltTabIn();
+			    c3ui_Get()->AltTabIn();
             }
 		}
 	}

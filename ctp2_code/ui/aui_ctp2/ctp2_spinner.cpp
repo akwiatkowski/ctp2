@@ -48,7 +48,6 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include <string>
 
-extern C3UI *g_c3ui;
 
 
 ctp2_Spinner::ctp2_Spinner(

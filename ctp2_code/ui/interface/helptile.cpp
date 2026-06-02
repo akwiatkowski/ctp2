@@ -70,7 +70,6 @@
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
 
-extern C3UI						*g_c3ui;
 extern StringDB					*g_theStringDB;
 
 c3_PopupWindow					*g_helpTileWindow = NULL;
@@ -183,9 +182,9 @@ static void mycleanup(T * & mypointer)
 
 void helptile_Cleanup( void )
 {
-	if (g_helpTileWindow && g_c3ui)
+	if (g_helpTileWindow && c3ui_Get())
 	{
-		g_c3ui->RemoveWindow(g_helpTileWindow->Id());
+		c3ui_Get()->RemoveWindow(g_helpTileWindow->Id());
 	}
 
 	mycleanup(s_tileFood);
@@ -305,13 +304,13 @@ void helptile_displayData(const MapPoint &p)
 	if(s_tileImage)
 		s_tileImage->SetMouseTile(p);
 
-	if ( g_c3ui->GetWindow(g_helpTileWindow->Id()) )
+	if ( c3ui_Get()->GetWindow(g_helpTileWindow->Id()) )
 	{
 		g_helpTileWindow->ShouldDraw();
 	}
 	else
 	{
-		g_c3ui->AddWindow(g_helpTileWindow);
+		c3ui_Get()->AddWindow(g_helpTileWindow);
 	}
 }
 
@@ -340,7 +339,7 @@ sint32 removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 #if 1
-	auiErr = g_c3ui->RemoveWindow( g_helpTileWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( g_helpTileWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 #else
 	sint32 initialplayscreen_removeMyWindow(uint32);

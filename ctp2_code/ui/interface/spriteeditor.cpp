@@ -111,7 +111,6 @@ extern sint32 g_ScreenHeight;
 
 
 
-extern C3UI			*g_c3ui;
 
 
 
@@ -261,9 +260,9 @@ int SpriteEditWindow_Initialize( void )
 
 	g_spriteEditWindow->Show();
 
-    if (g_c3ui)
+    if (c3ui_Get())
     {
-        g_c3ui->RegisterCleanup(&SpriteEditWindow_Cleanup);
+        c3ui_Get()->RegisterCleanup(&SpriteEditWindow_Cleanup);
     }
 
 	return 0;
@@ -272,9 +271,9 @@ int SpriteEditWindow_Initialize( void )
 
 void SpriteEditWindow_Cleanup(void)
 {
-	if (g_c3ui && g_spriteEditWindow)
+	if (c3ui_Get() && g_spriteEditWindow)
     {
-	    g_c3ui->RemoveWindow(g_spriteEditWindow->Id());
+	    c3ui_Get()->RemoveWindow(g_spriteEditWindow->Id());
     }
 
 	delete g_compression_buff;
@@ -489,7 +488,7 @@ SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowBlock)
 
 	m_largeImage = new C3Window(errcode, aui_UniqueId(),"STLargeImage", 16 );
 
-	g_c3ui->AddWindow( m_largeImage );
+	c3ui_Get()->AddWindow( m_largeImage );
 
 	m_hotCoordsCurrent = new c3_Static(errcode, aui_UniqueId(),"SpriteEditor.CoordsHotSpot");
 	m_hotCoordsMouse   = new c3_Static(errcode, aui_UniqueId(),"SpriteEditor.CoordsCursor" );
@@ -845,7 +844,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 		POINT sav,pt;
 		static int cval=0;
 
-		g_c3ui->TheBlitter()->ColorBlt(m_spriteSurface,&m_spriteRect,RGB(64,64,64),k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->ColorBlt(m_spriteSurface,&m_spriteRect,RGB(64,64,64),k_AUI_BLITTER_FLAG_COPY);
 
 		pt.x = 0;
 		pt.y = 0;
@@ -858,7 +857,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 		m_currentSprite->DrawDirect(m_spriteSurface,(UNITACTION)m_animation,m_frame,0,0,m_facing,1.0,15,0,k_DRAWFLAGS_NORMAL,false,false);
 		m_currentSprite->SetHotPoint((UNITACTION)m_animation,m_facing,sav);
 
-		g_c3ui->TheBlitter()->StretchBlt(m_largeSurface,&m_largeRect,m_spriteSurface,&m_spriteRect,k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->StretchBlt(m_largeSurface,&m_largeRect,m_spriteSurface,&m_spriteRect,k_AUI_BLITTER_FLAG_COPY);
 
 		char tbuffer[256];
 
@@ -874,7 +873,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 		COLORREF color=RGB(cval,cval,cval);
 
-		g_c3ui->TheBlitter()->ColorBlt(m_largeSurface,&HotRect,color,k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->ColorBlt(m_largeSurface,&HotRect,color,k_AUI_BLITTER_FLAG_COPY);
 
 		POINT *hPoint = m_currentSprite->GetShieldPoints((UNITACTION)m_animation);
 		if(hPoint) {
@@ -893,7 +892,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 AUI_ERRCODE SpriteEditWindow::Idle( void )
 {
-	if ((g_c3ui->TheMouse()==NULL)||(tiledmap_Get()==NULL))
+	if ((c3ui_Get()->TheMouse()==NULL)||(tiledmap_Get()==NULL))
 		return AUI_ERRCODE_OK;
 
 	sint32 curTime = director_Get()->GetMasterCurTime();
@@ -908,7 +907,7 @@ AUI_ERRCODE SpriteEditWindow::Idle( void )
 
 	ReDrawLargeSprite();
 
-	aui_MouseEvent *me=g_c3ui->TheMouse()->GetLatestMouseEvent();
+	aui_MouseEvent *me=c3ui_Get()->TheMouse()->GetLatestMouseEvent();
 
 	char tbuffer[256];
 
@@ -938,7 +937,7 @@ AUI_ERRCODE SpriteEditWindow::Idle( void )
 	if (!me->lbutton)
 		return AUI_ERRCODE_OK;
 
-	if (g_c3ui->TheMouse()->Y()<m_mouseChangeY)
+	if (c3ui_Get()->TheMouse()->Y()<m_mouseChangeY)
 	{
 		MapPoint point;
 		tiledmap_Get()->GetMouseTilePos(point);

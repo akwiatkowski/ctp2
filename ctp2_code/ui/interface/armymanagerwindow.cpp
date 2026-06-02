@@ -78,7 +78,6 @@
 #include "gs/database/profileDB.h"          // g_theProfileDB
 #include "gs/gameobj/UnitData.h"
 
-extern C3UI *g_c3ui;
 
 static ArmyManagerWindow *s_armyWindow = NULL;
 static MBCHAR *s_armyWindowBlock = "ArmyManager";
@@ -175,7 +174,7 @@ AUI_ERRCODE ArmyManagerWindow::Display()
 	AUI_ERRCODE err = AUI_ERRCODE_INVALIDPARAM;
 	Assert(s_armyWindow->m_window);
 	if(s_armyWindow->m_window) {
-		err = g_c3ui->AddWindow(s_armyWindow->m_window);
+		err = c3ui_Get()->AddWindow(s_armyWindow->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_armyWindow->m_window->Show();
@@ -198,7 +197,7 @@ AUI_ERRCODE ArmyManagerWindow::Hide()
 
 	s_armyWindow->RenameArmy();
 
-	return g_c3ui->RemoveWindow(s_armyWindow->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_armyWindow->m_window->Id());
 }
 
 bool ArmyManagerWindow::IsShown()
@@ -209,7 +208,7 @@ bool ArmyManagerWindow::IsShown()
 	if(!s_armyWindow->m_window)
 		return false;
 
-	return g_c3ui->GetWindow(s_armyWindow->m_window->Id()) != NULL;
+	return c3ui_Get()->GetWindow(s_armyWindow->m_window->Id()) != NULL;
 }
 
 void ArmyManagerWindow::Toggle()

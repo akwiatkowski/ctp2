@@ -11,7 +11,6 @@
 
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
 
-extern C3UI			*g_c3ui;
 
 Thermometer::Thermometer(
 	AUI_ERRCODE *retval,

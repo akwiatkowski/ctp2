@@ -18,7 +18,6 @@
 extern DirectVideo		*g_video;
 #endif
 extern CivPaths			*g_civPaths;
-extern C3UI				*g_c3ui;
 
 
 VideoWindow::VideoWindow(
@@ -110,7 +109,7 @@ AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 	Assert( m_surface != NULL );
 	if ( !m_surface ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_video->Initialize((aui_DirectUI *)g_c3ui, (aui_Window *)this, m_modal);
+	m_video->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)this, m_modal);
 
 	OffsetRect(&rect, 10, 30);
 	if (m_modal) {

@@ -72,7 +72,6 @@
 
 extern sint32       g_ScreenWidth;
 extern sint32       g_ScreenHeight;
-extern C3UI			*g_c3ui;
 extern C3Window		*g_toolbar;
 extern C3Window		*g_turnWindow;
 
@@ -544,7 +543,7 @@ int StatsWindow_Cleanup( void )
 
 	if ( !g_statsWindow ) return 0;
 
-	g_c3ui->RemoveWindow( g_statsWindow->Id() );
+	c3ui_Get()->RemoveWindow( g_statsWindow->Id() );
 
 
 

@@ -114,7 +114,6 @@
 #include "ctp/ctp2_utils/c3math.h"		            // AsPercentage
 
 extern sint32			    g_modalWindow;
-extern C3UI					*g_c3ui;
 extern DebugWindow			*g_debugWindow;
 extern aui_Surface			*g_sharedSurface;
 
@@ -887,7 +886,7 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 
 
-	aui_Ldl		*ldl = g_c3ui->GetLdl();
+	aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 	if (ldl) {
 		ldl->Remove((void *)this);
 
@@ -1226,7 +1225,7 @@ ScienceWin::~ScienceWin( void )
 	sint32 i;
 
 	AUI_ERRCODE errcode;
-	errcode = g_c3ui->RemoveWindow( m_window->Id() );
+	errcode = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 	RemoveControl( m_closeButton );
@@ -1275,7 +1274,7 @@ void ScienceWin::Display( void )
 {
 	AUI_ERRCODE errcode;
 
-	errcode = g_c3ui->AddWindow( m_window );
+	errcode = c3ui_Get()->AddWindow( m_window );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(this);
@@ -1287,7 +1286,7 @@ void ScienceWin::Remove( void )
 {
 	AUI_ERRCODE errcode;
 
-	errcode = g_c3ui->RemoveWindow( m_window->Id() );
+	errcode = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( errcode == AUI_ERRCODE_OK );
 
 	keypress_RemoveHandler(this);
@@ -1441,7 +1440,7 @@ void ScienceWin::UpdateList(void)
 void SW_UpdateAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
 	if ( g_scienceWin ) {
-		if ( g_c3ui->GetWindow(g_scienceWin->m_window->Id()) ) {
+		if ( c3ui_Get()->GetWindow(g_scienceWin->m_window->Id()) ) {
 			if ( m_all ) {
 				g_scienceWin->UpdateData( SCI_UPDATE_ALL );
 			}

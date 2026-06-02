@@ -56,7 +56,6 @@
 #include <unistd.h>
 #endif
 
-extern C3UI					*g_c3ui;
 extern CivApp				*g_civApp;
 extern nf_GameSetup			g_gamesetup;
 extern SPNewGameWindow		*g_spNewGameWindow;
@@ -76,9 +75,9 @@ sint32	loadsavemapscreen_displayMyWindow(uint32 type)
 	    g_loadSaveMapWindow->CleanUpSaveMapInfo();
 		g_loadSaveMapWindow->SetType(type);
 
-        Assert(g_c3ui);
-		g_c3ui->AddWindow(g_loadSaveMapWindow);
-        g_c3ui->RegisterCleanup(&loadsavemapscreen_Cleanup);
+        Assert(c3ui_Get());
+		c3ui_Get()->AddWindow(g_loadSaveMapWindow);
+        c3ui_Get()->RegisterCleanup(&loadsavemapscreen_Cleanup);
 	}
 
 	return static_cast<sint32>(retval);
@@ -87,7 +86,7 @@ sint32 loadsavemapscreen_removeMyWindow(uint32 action)
 {
 	if (action != (uint32)AUI_BUTTON_ACTION_EXECUTE) return 0;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(g_loadSaveMapWindow->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(g_loadSaveMapWindow->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	return 1;
@@ -136,9 +135,9 @@ AUI_ERRCODE loadsavemapscreen_Initialize( aui_Control::ControlActionCallback *ca
 
 void loadsavemapscreen_Cleanup(void)
 {
-    if (g_c3ui && g_loadSaveMapWindow)
+    if (c3ui_Get() && g_loadSaveMapWindow)
     {
-        g_c3ui->RemoveWindow(g_loadSaveMapWindow->Id());
+        c3ui_Get()->RemoveWindow(g_loadSaveMapWindow->Id());
     }
 
     delete g_loadSaveMapWindow;

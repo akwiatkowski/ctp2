@@ -33,7 +33,6 @@
 
 #include "ui/aui_ctp2/c3_button.h"
 
-extern C3UI *g_c3ui;
 extern StringDB *g_theStringDB;
 
 static sint32			s_currentWonderDisplay;

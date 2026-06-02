@@ -41,7 +41,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3_button.h"
 
-extern C3UI						*g_c3ui;
 
 
 
@@ -97,7 +96,7 @@ C3FancyWindow::C3FancyWindow(
 		Assert( *retval == AUI_ERRCODE_OK );
 	}
 
-	g_c3ui->BringWindowToTop(this);
+	c3ui_Get()->BringWindowToTop(this);
 	BringBorderToTop();
 }
 
@@ -110,7 +109,7 @@ C3FancyWindow::~C3FancyWindow()
 
 	for(int i=0; i<k_NUM_BORDERS; i++) {
 		if(m_border[i]) {
-			g_c3ui->RemoveWindow(m_border[i]->Id());
+			c3ui_Get()->RemoveWindow(m_border[i]->Id());
 			delete m_border[i]; m_border[i]= NULL;
 		}
 	}
@@ -157,7 +156,7 @@ void C3FancyWindow::BringBorderToTop()
 {
 	for(int i=0; i< k_NUM_BORDERS; i++)
 		if(m_border[i])
-			g_c3ui->BringWindowToTop( m_border[i] );
+			c3ui_Get()->BringWindowToTop( m_border[i] );
 }
 
 AUI_ERRCODE C3FancyWindow::AddBordersToUI()
@@ -166,7 +165,7 @@ AUI_ERRCODE C3FancyWindow::AddBordersToUI()
 	for(int i=0; i< k_NUM_BORDERS; i++)
 	{
 		if(m_border[i])
-			errcode = g_c3ui->AddWindow(m_border[i]);
+			errcode = c3ui_Get()->AddWindow(m_border[i]);
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 	return errcode;
@@ -178,7 +177,7 @@ AUI_ERRCODE C3FancyWindow::RemoveBordersFromUI()
 	for(int i=0; i< k_NUM_BORDERS; i++)
 	{
 		if(m_border[i])
-			errcode = g_c3ui->RemoveWindow(m_border[i]->Id());
+			errcode = c3ui_Get()->RemoveWindow(m_border[i]->Id());
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 	return errcode;

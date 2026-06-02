@@ -87,7 +87,6 @@
 
 #include "ui/interface/sciencevictorydialog.h"
 
-extern C3UI                 *g_c3ui;
 extern WorkWindow           *g_workWindow;
 
 extern ScienceWin           *g_scienceWin;
@@ -109,7 +108,7 @@ sint32 open_WorkView( void )
 	Assert( !err );
 	if ( err ) return -1;
 
-	AUI_ERRCODE auiErr  = g_c3ui->AddWindow(g_workWindow);
+	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(g_workWindow);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return -1;
 
@@ -120,7 +119,7 @@ void close_WorkView(void)
 {
 	if (g_workWindow)
     {
-		g_c3ui->RemoveWindow(g_workWindow->Id());
+		c3ui_Get()->RemoveWindow(g_workWindow->Id());
 	}
 }
 
@@ -480,7 +479,7 @@ sint32 open_CreditsScreen()
 	Assert(!err);
 	if(err) return(-1);
 
-	AUI_ERRCODE auiErr = g_c3ui->AddWindow(creditsscreen_GetWindow());
+	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(creditsscreen_GetWindow());
 	Assert(auiErr == AUI_ERRCODE_OK);
     return (auiErr == AUI_ERRCODE_OK) ? 0 : -1;
 }

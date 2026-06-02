@@ -53,7 +53,6 @@
 
 #include "gs/utility/Globals.h"
 
-extern C3UI			*g_c3ui;
 extern ProfileDB	*g_theProfileDB;
 
 static c3_PopupWindow	*s_spNewGameMapSizeScreen	= NULL;
@@ -132,7 +131,7 @@ sint32	spnewgamemapsizescreen_displayMyWindow(BOOL viewMode, sint32 useMode)
 
 	s_useMode = useMode;
 
-	auiErr = g_c3ui->AddWindow(s_spNewGameMapSizeScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameMapSizeScreen);
 	keypress_RegisterHandler(s_spNewGameMapSizeScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -155,7 +154,7 @@ sint32 spnewgamemapsizescreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_spNewGameMapSizeScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_spNewGameMapSizeScreen->Id() );
 	keypress_RemoveHandler(s_spNewGameMapSizeScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -277,7 +276,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Cleanup()
 {
 	if (s_spNewGameMapSizeScreen)
 	{
-		g_c3ui->RemoveWindow(s_spNewGameMapSizeScreen->Id());
+		c3ui_Get()->RemoveWindow(s_spNewGameMapSizeScreen->Id());
 		keypress_RemoveHandler(s_spNewGameMapSizeScreen);
 
 		for (sint32 i = 0; i < k_NUM_MAPSIZEBOXES; ++i)

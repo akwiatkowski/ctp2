@@ -77,7 +77,6 @@
 #include "gs/fileio/civscenarios.h"			// g_civScenarios
 #include "gs/fileio/gamefile.h"
 
-extern C3UI *g_c3ui;
 
 static HotseatList * g_hotseatList = NULL;
 
@@ -220,7 +219,7 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 //
 // Parameters : -
 //
-// Globals    : g_c3ui			: main user interface
+// Globals    : c3ui_Get()			: main user interface
 //
 // Returns    : -
 //
@@ -230,9 +229,9 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 
 HotseatList::~HotseatList()
 {
-	if (g_c3ui && m_window)
+	if (c3ui_Get() && m_window)
 	{
-		g_c3ui->RemoveWindow(m_window->Id());
+		c3ui_Get()->RemoveWindow(m_window->Id());
 	}
 
 	if (m_list)
@@ -253,7 +252,7 @@ void HotseatList::DisplayWindow( void )
 
 	UpdateData();
 
-	auiErr = g_c3ui->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RegisterHandler(this);
@@ -263,7 +262,7 @@ void HotseatList::RemoveWindow( void )
 {
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( m_window->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	keypress_RemoveHandler(this);

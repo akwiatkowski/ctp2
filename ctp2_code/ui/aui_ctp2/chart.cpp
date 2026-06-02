@@ -32,7 +32,6 @@
 #include "gs/gameobj/advanceutil.h"
 #include "ui/ldl/ldl_file.hpp"
 
-extern C3UI			*g_c3ui;
 extern ProjectFile	*g_GreatLibPF;
 
 #define k_CHART_PATTERN	"chart.tga"
@@ -498,7 +497,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		m_preReqButton[i]->SetText( s );
 		m_preReqButton[i]->Show();
 
-		aui_Ldl		*ldl = g_c3ui->GetLdl();
+		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
 			ldl->Remove((void *)m_preReqButton[i]);
@@ -541,7 +540,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		m_eitherPreReqButton[i]->SetText( s );
 		m_eitherPreReqButton[i]->Show();
 
-		aui_Ldl		*ldl = g_c3ui->GetLdl();
+		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
 			ldl->Remove((void *)m_eitherPreReqButton[i]);
@@ -582,7 +581,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 	m_centerButton->Move( xpos, ypos );
 	m_centerButton->SetText( s );
 
-	aui_Ldl		*ldl = g_c3ui->GetLdl();
+	aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 	if (ldl)
 	{
 		ldl->Remove((void *)m_centerButton);
@@ -619,7 +618,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		m_leadsToButton[i]->SetText( s );
 		m_leadsToButton[i]->Show();
 
-		aui_Ldl		*ldl = g_c3ui->GetLdl();
+		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
 			ldl->Remove((void *)m_leadsToButton[i]);

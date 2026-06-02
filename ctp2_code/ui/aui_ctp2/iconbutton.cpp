@@ -16,7 +16,6 @@
 #include "ui/ldl/ldl_data.hpp"
 
 #include "ui/aui_ctp2/c3ui.h"
-extern C3UI			*g_c3ui;
 
 IconButton::IconButton(
 	AUI_ERRCODE *retval,
@@ -76,7 +75,7 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 	m_filename = new MBCHAR[_MAX_PATH];
 
 	if (g_civPaths->FindFile(C3DIR_ICONS, name, m_filename)) {
-		m_icon = g_c3ui->LoadIcon(m_filename);
+		m_icon = c3ui_Get()->LoadIcon(m_filename);
 	} else {
 		m_icon = NULL;
 	}

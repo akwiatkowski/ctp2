@@ -13,7 +13,6 @@
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/messageadvice.h"
 
-extern C3UI			*g_c3ui;
 
 MessageAdvice		*g_adviceMessageWindow = NULL;
 
@@ -31,7 +30,7 @@ int messageadvice_AddText( MBCHAR *text )
 		if ( !AUI_NEWOK( g_adviceMessageWindow, errcode )) return -1;
 		g_adviceMessageWindow->SetDraggable( TRUE );
 
-		g_c3ui->AddWindow( g_adviceMessageWindow );
+		c3ui_Get()->AddWindow( g_adviceMessageWindow );
 
 		g_adviceMessageWindow->AddBordersToUI();
 	}
@@ -45,8 +44,8 @@ int messageadvice_DestroyWindow( void )
 {
 	if ( g_adviceMessageWindow )
 	{
-		if ( g_c3ui->GetWindow( g_adviceMessageWindow->Id() ))
-			g_c3ui->RemoveWindow( g_adviceMessageWindow->Id() );
+		if ( c3ui_Get()->GetWindow( g_adviceMessageWindow->Id() ))
+			c3ui_Get()->RemoveWindow( g_adviceMessageWindow->Id() );
 
 		g_adviceMessageWindow->RemoveBordersFromUI();
 
@@ -275,10 +274,10 @@ void MessageAdvice::MouseLDragAway (aui_MouseEvent *mouseData)
 void MessageAdvice::BringBorderToTop()
 {
 	if ( m_topBar )
-		g_c3ui->BringWindowToTop( m_topBar );
+		c3ui_Get()->BringWindowToTop( m_topBar );
 
 	if ( m_bottomBar )
-		g_c3ui->BringWindowToTop( m_bottomBar );
+		c3ui_Get()->BringWindowToTop( m_bottomBar );
 }
 
 
@@ -288,14 +287,14 @@ AUI_ERRCODE MessageAdvice::AddBordersToUI()
 
 	if ( m_topBar )
 	{
-		errcode = g_c3ui->AddWindow( m_topBar );
+		errcode = c3ui_Get()->AddWindow( m_topBar );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 
 	if ( m_bottomBar )
 	{
-		errcode = g_c3ui->AddWindow( m_bottomBar );
+		errcode = c3ui_Get()->AddWindow( m_bottomBar );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
@@ -310,14 +309,14 @@ AUI_ERRCODE MessageAdvice::RemoveBordersFromUI()
 
 	if ( m_topBar )
 	{
-		errcode = g_c3ui->RemoveWindow( m_topBar->Id( ));
+		errcode = c3ui_Get()->RemoveWindow( m_topBar->Id( ));
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 
 	if ( m_bottomBar )
 	{
-		errcode = g_c3ui->RemoveWindow( m_bottomBar->Id( ));
+		errcode = c3ui_Get()->RemoveWindow( m_bottomBar->Id( ));
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return errcode;
 	}

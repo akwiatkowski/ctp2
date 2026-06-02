@@ -65,7 +65,6 @@
 #include "ui/interface/wondermoviewin.h"
 
 extern Background* g_background;
-extern C3UI* g_c3ui;
 extern SpriteGroupList* g_unitSpriteGroupList;
 
 void dh_move(DQAction* itemAction,
@@ -927,7 +926,7 @@ void dh_battle(DQAction* itemAction,
 
   if (BattleViewWindow *bvw = battleviewwindow_Get()) {
     bvw->SetupBattle(action->battle);
-    g_c3ui->AddWindow(bvw);
+    c3ui_Get()->AddWindow(bvw);
     cursormanager_Get()->SetCursor(CURSORINDEX_DEFAULT);
   }
 }

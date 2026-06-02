@@ -20,7 +20,7 @@ void splash_MarkOld(void);
 
 // SPLASH_STRING / SPLASH_STRING_SIMPLE now live in gs/core/splash_progress.h
 // — they call a UI-registered callback instead of touching g_splash and
-// g_c3ui directly, so non-UI callers (gameinit, ctpai) no longer drag
+// c3ui_Get() directly, so non-UI callers (gameinit, ctpai) no longer drag
 // splash.h into the simulation core.
 #include "gs/core/splash_progress.h"
 

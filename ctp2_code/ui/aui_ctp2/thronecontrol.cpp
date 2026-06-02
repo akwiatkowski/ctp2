@@ -54,7 +54,6 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern C3UI		*g_c3ui;
 extern CivPaths	*g_civPaths;
 
 static MBCHAR *s_throneImage[ k_THRONE_IMAGES + 1 ];
@@ -238,14 +237,14 @@ void ThroneControl::UpdateThrone(aui_Surface *surf, sint32 x, sint32 y)
 {
 	RECT		rect = {0, 0, m_throneSurface->Width(), m_throneSurface->Height()};
 
-	g_c3ui->TheBlitter()->Blt(surf, x, y, m_throneSurface, &rect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(surf, x, y, m_throneSurface, &rect, k_AUI_BLITTER_FLAG_COPY);
 }
 
 sint32 ThroneControl::RenderThrone( aui_Surface *surf )
 {
 	RECT	rect = { 0, 0, m_background->TheSurface()->Width(), m_background->TheSurface()->Height() };
 
-	g_c3ui->TheBlitter()->Blt( surf, 0, 0, m_background->TheSurface(), &rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
+	c3ui_Get()->TheBlitter()->Blt( surf, 0, 0, m_background->TheSurface(), &rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 
 	for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
 
@@ -254,7 +253,7 @@ sint32 ThroneControl::RenderThrone( aui_Surface *surf )
 		rect.right = m_upgradeRect[j].right - m_upgradeRect[j].left;
 		rect.bottom = m_upgradeRect[j].bottom - m_upgradeRect[j].top;
 
-		g_c3ui->TheBlitter()->Blt( surf, m_upgradeRect[j].left, m_upgradeRect[j].top, m_upgradeImage[j]->TheSurface(),
+		c3ui_Get()->TheBlitter()->Blt( surf, m_upgradeRect[j].left, m_upgradeRect[j].top, m_upgradeImage[j]->TheSurface(),
 
 			&rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 
@@ -339,7 +338,7 @@ void ThroneControl::CrossFadeImage( MBCHAR *filename )
 		m_oldCutout = aui_Factory::new_Surface(errcode, width, height);
 		Assert( AUI_NEWOK(m_oldCutout, errcode) );
 
-		g_c3ui->TheBlitter()->Blt( m_oldCutout, 0, 0, m_throneSurface, &m_upgradeRect[m_selectedImage],
+		c3ui_Get()->TheBlitter()->Blt( m_oldCutout, 0, 0, m_throneSurface, &m_upgradeRect[m_selectedImage],
 			k_AUI_BLITTER_FLAG_COPY );
 	}
 
@@ -351,7 +350,7 @@ void ThroneControl::CrossFadeImage( MBCHAR *filename )
 		m_newCutout = aui_Factory::new_Surface(errcode, width, height);
 		Assert( AUI_NEWOK(m_newCutout, errcode) );
 
-		g_c3ui->TheBlitter()->Blt( m_newCutout, 0, 0, tempBG, &m_upgradeRect[m_selectedImage],
+		c3ui_Get()->TheBlitter()->Blt( m_newCutout, 0, 0, tempBG, &m_upgradeRect[m_selectedImage],
 			k_AUI_BLITTER_FLAG_COPY );
 	}
 
@@ -405,13 +404,13 @@ void ThroneControl::HilightImage( sint32 index )
 		m_oldCutout = aui_Factory::new_Surface(errcode, width, height);
 		Assert( AUI_NEWOK(m_oldCutout, errcode) );
 
-		g_c3ui->TheBlitter()->Blt( m_oldCutout, 0, 0, m_upgradeImage[index]->TheSurface(),
+		c3ui_Get()->TheBlitter()->Blt( m_oldCutout, 0, 0, m_upgradeImage[index]->TheSurface(),
 		&rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 	}
 
 	primitives_LightenSurface( m_oldCutout, k_THRONE_HIGHLIGHT_IMAGE );
 
-	g_c3ui->TheBlitter()->Blt( m_throneSurface, m_upgradeRect[index].left, m_upgradeRect[index].top, m_oldCutout,
+	c3ui_Get()->TheBlitter()->Blt( m_throneSurface, m_upgradeRect[index].left, m_upgradeRect[index].top, m_oldCutout,
 		&rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 
 	delete m_oldCutout;
@@ -422,7 +421,7 @@ void ThroneControl::UnhilightImage( sint32 index )
 {
 	RECT rect = { 0, 0, m_upgradeRect[index].right - m_upgradeRect[index].left, m_upgradeRect[index].bottom - m_upgradeRect[index].top };
 
-	g_c3ui->TheBlitter()->Blt( m_throneSurface, m_upgradeRect[index].left, m_upgradeRect[index].top, m_upgradeImage[index]->TheSurface(),
+	c3ui_Get()->TheBlitter()->Blt( m_throneSurface, m_upgradeRect[index].left, m_upgradeRect[index].top, m_upgradeImage[index]->TheSurface(),
 		&rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 }
 

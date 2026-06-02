@@ -85,7 +85,6 @@
 #include "net/general/network.h"
 #include "gs/utility/Globals.h"
 
-extern C3UI *g_c3ui;
 
 class BuildQueueDropdownItem {
 public:
@@ -246,7 +245,7 @@ m_resourceTab(static_cast<ctp2_Tab*>(aui_Ldl::GetObject(
 m_specialistTab(static_cast<ctp2_Tab*>(aui_Ldl::GetObject(
 	"CityStatusWin.TabGroup.Tab3")))
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 
 	Assert(m_closeButton);
 	Assert(m_resourceList);
@@ -326,16 +325,16 @@ m_specialistTab(static_cast<ctp2_Tab*>(aui_Ldl::GetObject(
 //----------------------------------------------------------------------------
 void NationalManagementDialog::Show()
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 	if(m_window->Show() == AUI_ERRCODE_OK){
-		g_c3ui->BringWindowToTop(m_window);
+		c3ui_Get()->BringWindowToTop(m_window);
 	}
 }
 
 void NationalManagementDialog::Hide()
 {
 	m_window->Hide();
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void NationalManagementDialog::Update()

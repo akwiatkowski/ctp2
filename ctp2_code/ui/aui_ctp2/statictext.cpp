@@ -12,7 +12,6 @@
 
 #include "gfx/gfx_utils/colorset.h"
 
-extern C3UI		*g_c3ui;
 
 StaticText::StaticText(
 	AUI_ERRCODE *retval,
@@ -52,7 +51,7 @@ AUI_ERRCODE StaticText::InitCommon( MBCHAR *ldlBlock )
 {
 	uint32 size = 0;
 
-	aui_Ldl *theLdl = g_c3ui->GetLdl();
+	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
 	BOOL valid = theLdl->IsValid( ldlBlock );
 	Assert( valid );

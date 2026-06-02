@@ -20,7 +20,6 @@
 
 #include "ui/ldl/ldl_file.hpp"
 
-extern C3UI			*g_c3ui;
 
 TextBox::TextBox(
 	AUI_ERRCODE *retval,

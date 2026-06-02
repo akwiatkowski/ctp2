@@ -47,7 +47,6 @@
 
 #include "ui/interface/spnewgamewindow.h"
 
-extern C3UI			*g_c3ui;
 
 static ns_Window *s_passwordScreen	= NULL;
 
@@ -266,7 +265,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 		break;
 	}
 
-	auiErr = g_c3ui->AddWindow( s_passwordScreen );
+	auiErr = c3ui_Get()->AddWindow( s_passwordScreen );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return retval;
@@ -275,7 +274,7 @@ sint32 passwordscreen_removeMyWindow( void )
 {
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_passwordScreen->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_passwordScreen->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 	return 1;
@@ -437,7 +436,7 @@ AUI_ERRCODE passwordscreen_Cleanup()
 #define mycleanup(mypointer) if(mypointer) { delete mypointer; mypointer = NULL; };
 
 	if ( !s_passwordScreen  ) return AUI_ERRCODE_OK;
-	g_c3ui->RemoveWindow( s_passwordScreen->Id() );
+	c3ui_Get()->RemoveWindow( s_passwordScreen->Id() );
 
 	mycleanup( s_askStatic );
 	mycleanup( s_joinStatic );

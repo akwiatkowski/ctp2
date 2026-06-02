@@ -18,7 +18,6 @@
 
 #include "ui/aui_ctp2/iconbutton.h"
 
-extern C3UI				*g_c3ui;
 
 
 UITestWindow::UITestWindow(
@@ -107,7 +106,7 @@ AUI_ERRCODE UITestWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	RECT rectTitle = { 4, 4, (m_width - 4), 24 };
 	RECT rect = { 0, 0, m_width, m_height };
 
-	g_c3ui->TheBlitter()->ColorBlt(
+	c3ui_Get()->TheBlitter()->ColorBlt(
 		surface,
 		&rect,
 		RGB(191,191,191),
@@ -124,13 +123,13 @@ AUI_ERRCODE UITestWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 
 
-	g_c3ui->TheBlitter()->ColorBlt(
+	c3ui_Get()->TheBlitter()->ColorBlt(
 		surface,
 		&rectTitle,
 		RGB(0,0,142),
 		0 );
 
-	g_c3ui->TheBlitter()->ColorBlt(
+	c3ui_Get()->TheBlitter()->ColorBlt(
 		surface,
 		&rectInside,
 		RGB(255,255,255),

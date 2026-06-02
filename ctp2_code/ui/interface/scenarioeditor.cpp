@@ -160,7 +160,6 @@
 #include "ui/interface/AttractWindow.h"
 #include "gfx/gfx_utils/gfx_options.h"
 
-extern C3UI *               g_c3ui;
 extern sint32               g_fog_toggle;
 extern ControlPanelWindow * g_controlPanel;
 extern CivApp *             g_civApp;
@@ -538,11 +537,11 @@ AUI_ERRCODE ScenarioEditor::Cleanup()
 
 		// Only execute the necessary stuff from ScenarioEditor::Hide
 		if(s_scenarioEditor->m_addStuffWindow) {
-			g_c3ui->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
+			c3ui_Get()->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
 		}
 
 		if(s_scenarioEditor->m_window){
-			g_c3ui->RemoveWindow(s_scenarioEditor->m_window->Id());
+			c3ui_Get()->RemoveWindow(s_scenarioEditor->m_window->Id());
 		}
 
         allocated::clear(s_scenarioEditor);
@@ -573,7 +572,7 @@ AUI_ERRCODE ScenarioEditor::Display()
 	}
 
 	if(s_scenarioEditor->m_window) {
-		err = g_c3ui->AddWindow(s_scenarioEditor->m_window);
+		err = c3ui_Get()->AddWindow(s_scenarioEditor->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_scenarioEditor->m_window->Show();
@@ -608,7 +607,7 @@ AUI_ERRCODE ScenarioEditor::Hide()
 		return AUI_ERRCODE_OK;
 
 	if(s_scenarioEditor->m_addStuffWindow) {
-		g_c3ui->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
+		c3ui_Get()->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
 	}
 
 	if (g_controlPanel!=NULL)
@@ -626,13 +625,13 @@ AUI_ERRCODE ScenarioEditor::Hide()
 	if(s_scenarioEditor->IsShown())
 		ScenarioEditor::Reupdate();
 
-	return g_c3ui->RemoveWindow(s_scenarioEditor->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_scenarioEditor->m_window->Id());
 }
 
 bool ScenarioEditor::IsShown()
 {
 	if(!s_scenarioEditor) return false;
-	return g_c3ui->GetWindow(s_scenarioEditor->m_window->Id()) != NULL;
+	return c3ui_Get()->GetWindow(s_scenarioEditor->m_window->Id()) != NULL;
 }
 
 void ScenarioEditor::NotifySelection()
@@ -640,7 +639,7 @@ void ScenarioEditor::NotifySelection()
 	if(!s_scenarioEditor) return;
 
 	if(s_scenarioEditor->m_addStuffWindow) {
-		if(g_c3ui->GetChild(s_scenarioEditor->m_addStuffWindow->Id()) != NULL) {
+		if(c3ui_Get()->GetChild(s_scenarioEditor->m_addStuffWindow->Id()) != NULL) {
 			s_scenarioEditor->UpdateAddList(s_scenarioEditor->m_addMode);
 		}
 	}
@@ -1507,7 +1506,7 @@ void ScenarioEditor::ShowAddList(SCEN_ADD addtype)
 		return;
 
 	if(UpdateAddList(addtype)) {
-		g_c3ui->AddWindow(m_addStuffWindow);
+		c3ui_Get()->AddWindow(m_addStuffWindow);
 		m_addStuffWindow->Show();
 	}
 }
@@ -1619,7 +1618,7 @@ void ScenarioEditor::CloseAddStuff(aui_Control *control, uint32 action, uint32 d
 	if(!s_scenarioEditor->m_addStuffWindow)
 		return;
 
-	g_c3ui->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
+	c3ui_Get()->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
 }
 
 
@@ -2895,7 +2894,7 @@ AUI_ACTION_BASIC(PostReopenEditorActionAction);
 
 void PostReopenEditorActionAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_c3ui->AddAction(new ReopenEditorAction);
+	c3ui_Get()->AddAction(new ReopenEditorAction);
 }
 
 void ScenarioEditor::MapSize(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -2932,7 +2931,7 @@ void ScenarioEditor::ChangeMapSizeCallback(bool response, void *userData)
 
 	g_civApp->PostRestartGameAction();
 
-	g_c3ui->AddAction(new PostReopenEditorActionAction);
+	c3ui_Get()->AddAction(new PostReopenEditorActionAction);
 }
 
 void ScenarioEditor::Year(aui_Control *control, uint32 action, uint32 data, void *cookie)

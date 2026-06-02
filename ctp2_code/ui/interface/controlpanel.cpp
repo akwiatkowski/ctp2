@@ -87,7 +87,6 @@ extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 extern sint32		g_isCheatModeOn;
 
-extern C3UI			*g_c3ui;
 
 extern C3Window		*g_testWindow;
 extern C3Window		*g_standardWindow;

@@ -69,7 +69,6 @@
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
-extern C3UI			*g_c3ui;
 
 static WatchList *g_watchList = NULL;
 
@@ -130,9 +129,9 @@ WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
 
 WatchList::~WatchList(void)
 {
-    if (g_c3ui && m_window)
+    if (c3ui_Get() && m_window)
     {
-	    g_c3ui->RemoveWindow(m_window->Id());
+	    c3ui_Get()->RemoveWindow(m_window->Id());
     }
 
     if (m_list)
@@ -232,7 +231,7 @@ void WatchList::DisplayWindow()
 
 	UpdateData();
 
-	auiErr = g_c3ui->AddWindow(m_window);
+	auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RegisterHandler(this);
@@ -242,7 +241,7 @@ void WatchList::RemoveWindow(void)
 {
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow(m_window->Id());
+	auiErr = c3ui_Get()->RemoveWindow(m_window->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
 
 	keypress_RemoveHandler(this);

@@ -54,7 +54,6 @@
 
 #include "ui/interface/TurnYearStatus.h"
 
-extern C3UI			*g_c3ui;
 extern StringDB		*g_theStringDB;
 
 MessageWindow		*g_currentMessageWindow = NULL;
@@ -512,7 +511,7 @@ AUI_ERRCODE MessageWindow::ShowWindow( BOOL show )
 
 		Move(x, y);
 
-		errcode = g_c3ui->AddWindow( this );
+		errcode = c3ui_Get()->AddWindow( this );
 		Assert(errcode == AUI_ERRCODE_OK);
 
 		g_currentMessageWindow = this;
@@ -520,7 +519,7 @@ AUI_ERRCODE MessageWindow::ShowWindow( BOOL show )
 		AddBordersToUI();
 		Show();
 	} else {
-		errcode = g_c3ui->RemoveWindow( this->Id() );
+		errcode = c3ui_Get()->RemoveWindow( this->Id() );
 		if ( g_currentMessageWindow == this ) {
 			g_currentMessageWindow = NULL;
 		}
@@ -562,8 +561,8 @@ MessageOpenAction *MessageWindow::GetMessageOpenAction( void )
 
 MessageWindow::~MessageWindow ()
 {
-	if ( g_c3ui->GetWindow( this->Id() ))
-		g_c3ui->RemoveWindow( this->Id());
+	if ( c3ui_Get()->GetWindow( this->Id() ))
+		c3ui_Get()->RemoveWindow( this->Id());
 
 	RemoveBordersFromUI();
 

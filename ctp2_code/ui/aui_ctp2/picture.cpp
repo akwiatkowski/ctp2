@@ -9,7 +9,6 @@
 
 #include "ui/aui_ctp2/picture.h"
 
-extern C3UI		*g_c3ui;
 
 Picture::Picture(
 	AUI_ERRCODE *retval,
@@ -152,13 +151,13 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 
 	if (width == m_surface->Width() && height == m_surface->Height()) {
 		RECT srcRect = {0, 0, m_surface->Width(), m_surface->Height()};
-		g_c3ui->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_surface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_surface, &srcRect, k_AUI_BLITTER_FLAG_COPY);
 		return AUI_ERRCODE_OK;
 	}
 
 	if (width == m_mipmap->Width() && height == m_mipmap->Height()) {
 		RECT srcRect = {0, 0, m_mipmap->Width(), m_mipmap->Height()};
-		g_c3ui->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_mipmap, &srcRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(pDestSurf, pDestRect->left, pDestRect->top, m_mipmap, &srcRect, k_AUI_BLITTER_FLAG_COPY);
 		return AUI_ERRCODE_OK;
 	}
 

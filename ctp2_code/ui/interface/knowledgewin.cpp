@@ -98,7 +98,6 @@
 #include "knowledgewindow.h"
 #include "knowledgewin.h"
 
-extern C3UI					*g_c3ui;
 extern SelectedItem			*selitem_Get();
 extern DebugWindow			*g_debugWindow;
 extern StringDB				*g_theStringDB;
@@ -235,7 +234,7 @@ void knowledgewin_ReturnButtonActionCallback( aui_Control *control, uint32 actio
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( g_knowledgeWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( g_knowledgeWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -254,7 +253,7 @@ void knowledgewin_LibraryButtonActionCallback( aui_Control *control, uint32 acti
 
 	if (!g_greatLibrary) GreatLibraryWindow_Initialize( curIndex );
 
-	auiErr = g_c3ui->AddWindow( g_greatLibrary );
+	auiErr = c3ui_Get()->AddWindow( g_greatLibrary );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
@@ -1056,7 +1055,7 @@ sint32 knowledgewin_Cleanup( void )
 {
 	if ( !g_knowledgeWindow ) return 0;
 
-	g_c3ui->RemoveWindow( g_knowledgeWindow->Id() );
+	c3ui_Get()->RemoveWindow( g_knowledgeWindow->Id() );
 
 	delete s_returnButton;
 	s_returnButton = NULL;

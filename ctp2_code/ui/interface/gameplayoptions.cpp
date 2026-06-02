@@ -56,7 +56,6 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "gs/gameobj/GameSettings.h"
 
-extern C3UI					*g_c3ui;
 extern ProfileDB			*g_theProfileDB;
 extern Network				g_network;
 
@@ -166,7 +165,7 @@ sint32	gameplayoptions_displayMyWindow()
 	gameplayoptions_updateData();
 
 	AUI_ERRCODE auiErr;
-	auiErr = g_c3ui->AddWindow( s_gameplayoptionsWindow );
+	auiErr = c3ui_Get()->AddWindow( s_gameplayoptionsWindow );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(s_gameplayoptionsWindow);
 
@@ -178,7 +177,7 @@ sint32 gameplayoptions_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_gameplayoptionsWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_gameplayoptionsWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(s_gameplayoptionsWindow);
 
@@ -277,7 +276,7 @@ AUI_ERRCODE gameplayoptions_Cleanup()
 
 	if ( !s_gameplayoptionsWindow  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_gameplayoptionsWindow->Id() );
+	c3ui_Get()->RemoveWindow( s_gameplayoptionsWindow->Id() );
 	keypress_RemoveHandler(s_gameplayoptionsWindow);
 
 	mycleanup(s_tutorialadvice);
@@ -358,12 +357,12 @@ void gameplayoptions_mouseSlide(aui_Control *control, uint32 action, uint32 data
 
 	g_theProfileDB->SetMouseSpeed(s_mouseSpeed->GetValueX());
 
-	if (g_c3ui->TheMouse()) {
+	if (c3ui_Get()->TheMouse()) {
 		double sensitivity = 0.0;
 
 		sensitivity = 0.25 * (1 + g_theProfileDB->GetMouseSpeed());
 
-		g_c3ui->TheMouse()->Sensitivity() = sensitivity;
+		c3ui_Get()->TheMouse()->Sensitivity() = sensitivity;
 
 	}
 }

@@ -212,7 +212,7 @@
 #include "MapIconRecord.h"
 #include "MapRecord.h"
 #include "gs/gameobj/message.h"
-#include "gs/gameobj/MessagePool.h"                // messagepool_Get()
+#include "gs/gameobj/MessagePool.h"                // m_game->GetMessagesPtr()
 #include "ui/interface/messagewin.h"
 #include "gs/database/moviedb.h"
 #include "ui/interface/musicscreen.h"
@@ -1704,9 +1704,12 @@ void CivApp::CleanupApp(void)
 		Splash::Cleanup();
 		messagewin_Cleanup();
 
-		delete slicengine_Get();
+		// X_Set(nullptr) routes into m_x.reset(nullptr) which deletes
+		// via unique_ptr's deleter — no manual delete first.  The
+		// pre-trampoline pattern `delete X_Get(); X_Set(NULL);` would
+		// double-free here.
 		slicengine_Set(NULL);
-		delete messagepool_Get(); messagepool_Set(NULL);
+		m_game->SetMessagesPtr(NULL);
 
 		CivScenarios::Cleanup();
 		SoundManager::Cleanup();
@@ -1931,7 +1934,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	// Prevent the event handler corrupting the (diplomacy) data in the
 	// middle of a file restore operation.
-	gevmanager_Get()->Pause();
+	m_game->GetEventsPtr()->Pause();
 
 	events_Initialize();
 	ui_events_Initialize();
@@ -1942,7 +1945,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	g_god = FALSE;
 
 	if (!gameinit_Initialize(-1, -1, archive)) {
-		gevmanager_Get()->Resume();
+		m_game->GetEventsPtr()->Resume();
 		return FALSE;
 	}
 
@@ -1958,8 +1961,9 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			}
 		}
 
-        delete messagepool_Get();
-        messagepool_Set(new MessagePool());
+        // SetMessagesPtr(new) deletes the previous via reset() — no
+        // manual delete first, would double-free.
+        m_game->SetMessagesPtr(new MessagePool());
 
 		SlicEngine::Reload(g_slic_filename);
 
@@ -2008,7 +2012,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 640 );
 
 #ifdef _DEBUG
-	gevmanager_Get()->Dump();
+	m_game->GetEventsPtr()->Dump();
 #endif
 
 	ProgressTo( 650 );
@@ -2044,15 +2048,15 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	);
 
 	m_gameLoaded = TRUE;
-	//gevmanager_Get()->Resume();
-	//gevmanager_Get()->Process();
+	//m_game->GetEventsPtr()->Resume();
+	//m_game->GetEventsPtr()->Process();
 
 	ProgressTo( 700 );
 
 	director_Get()->CatchUp();
 
-  gevmanager_Get()->Resume();
-  gevmanager_Get()->Process();
+  m_game->GetEventsPtr()->Resume();
+  m_game->GetEventsPtr()->Process();
 
 	ProgressTo( 710 );
 
@@ -2062,7 +2066,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			((start_info_type_Get() != STARTINFOTYPE_NONE) && is_scenario_Get())	// scenario start
 		   )
 		{
-			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
+			m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
 				GEV_BeginTurn,
 				GEA_Player, selitem_Get()->GetCurPlayer(),
 				GEA_Int, player_Get(selitem_Get()->GetCurPlayer())->m_current_round,
@@ -2102,7 +2106,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 		}
 		director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
 
-		slicengine_Get()->CheckPendingResearch();
+		m_game->GetSlicPtr()->CheckPendingResearch();
 	}
 
 	ProgressTo( 750 );
@@ -2149,7 +2153,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	if (    turn_Get()->IsEmail()
 	     && player_Get(selitem_Get()->GetCurPlayer())->IsTurnOver()
 	){
-		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
+		m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurn,
 		                       GEA_Player, selitem_Get()->GetCurPlayer(),
 		                       GEA_Int,    player_Get(selitem_Get()->GetCurPlayer())->GetCurRound() + 1,
@@ -2328,12 +2332,12 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
     {
         SlicEngine::Reload(g_slic_filename);
 	}
-	slicengine_Get()->RunTrigger(TRIGGER_LIST_GAME_LOADED, ST_END);
+	m_game->GetSlicPtr()->RunTrigger(TRIGGER_LIST_GAME_LOADED, ST_END);
 
 	ProgressTo( 730 );
 
 #ifdef _DEBUG
-	gevmanager_Get()->Dump();
+	m_game->GetEventsPtr()->Dump();
 #endif
 
 	ProgressTo( 740 );
@@ -2405,7 +2409,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 		}
 		director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
 
-		slicengine_Get()->CheckPendingResearch();
+		m_game->GetSlicPtr()->CheckPendingResearch();
 	}
 
 	ProgressTo( 810 );
@@ -2611,8 +2615,8 @@ void CivApp::StartMessageSystem()
 		InitializeAppDB();
     }
 
-    delete messagepool_Get();
-    messagepool_Set(new MessagePool());
+    // SetMessagesPtr(new) deletes the previous via reset().
+    m_game->SetMessagesPtr(new MessagePool());
     SlicEngine::Reload(g_slic_filename);
 }
 
@@ -3197,7 +3201,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									if (u.IsValid() && !u.IsCity() && u.GetOwner() == human->GetOwner()) {
 										Army army = u.GetArmy();
 										if (army.IsValid()) {
-											gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
+											m_game->GetEventsPtr()->AddEvent(GEV_INSERT_Tail,
 											                       GEV_ExploreOrder,
 											                       GEA_Army, army,
 											                       GEA_End);
@@ -3332,22 +3336,22 @@ sint32 CivApp::ProcessNet(const uint32 target_milliseconds, uint32 &used_millise
 
 sint32 CivApp::ProcessSLIC(void)
 {
-	if (!slicengine_Get())
+	if (!m_game->GetSlicPtr())
 		return 0;
 
-	slicengine_Get()->ProcessUITriggers();
+	m_game->GetSlicPtr()->ProcessUITriggers();
 
 	static time_t   lastRanSlicTimers   = 0;
     time_t          now                 = time(0);
-	if (now > lastRanSlicTimers + slicengine_Get()->GetTimerGranularity())
+	if (now > lastRanSlicTimers + m_game->GetSlicPtr()->GetTimerGranularity())
     {
-		slicengine_Get()->RunTimerTriggers();
+		m_game->GetSlicPtr()->RunTimerTriggers();
         /// @todo Check lastRanSlicTimers = now;
 	}
 
-	if (slicengine_Get()->WaitingForLoad())
+	if (m_game->GetSlicPtr()->WaitingForLoad())
     {
-		main_RestoreGame(slicengine_Get()->GetLoadName());
+		main_RestoreGame(m_game->GetSlicPtr()->GetLoadName());
 	}
 
 	return 0;
@@ -3425,8 +3429,8 @@ sint32 CivApp::Process(void)
 	if (g_soundManager)
 		g_soundManager->Process(target_milliseconds, used_milliseconds);
 
-	if(gevmanager_Get())
-		gevmanager_Get()->Process();
+	if(m_game->GetEventsPtr())
+		m_game->GetEventsPtr()->Process();
 
 
 	if (m_gameLoaded && g_savedGameRequest && selitem_Get())
@@ -3469,15 +3473,15 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	civapp_log->debug("calling gameEventManager_Initialize()");
 	gameEventManager_Initialize();
 
-	civapp_log->debug("calling gevmanager_Get()->Pause()");
-	gevmanager_Get()->Pause();
+	civapp_log->debug("calling m_game->GetEventsPtr()->Pause()");
+	m_game->GetEventsPtr()->Pause();
 
 	civapp_log->debug("calling events_Initialize()");
 	events_Initialize();
 
 	civapp_log->debug("calling gameinit_Initialize(archive={})", (void*)archive);
 	if (!gameinit_Initialize(-1, -1, archive)) {
-		gevmanager_Get()->Resume();
+		m_game->GetEventsPtr()->Resume();
 		civapp_log->error("InitializeGameHeadless: gameinit_Initialize failed");
 		return FALSE;
 	}
@@ -3503,9 +3507,9 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 
 	m_gameLoaded = TRUE;
 
-	civapp_log->debug("calling gevmanager_Get()->Resume + Process");
-	gevmanager_Get()->Resume();
-	gevmanager_Get()->Process();
+	civapp_log->debug("calling m_game->GetEventsPtr()->Resume + Process");
+	m_game->GetEventsPtr()->Resume();
+	m_game->GetEventsPtr()->Process();
 
 	// Initialize AI subsystems (pathfinder, governors, scheduler, diplomat).
 	// The interactive game does this in InitializeGame() via roboinit_Initalize

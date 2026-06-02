@@ -99,7 +99,6 @@
 #include "knowledgewin.h"
 
 extern C3UI					*g_c3ui;
-extern Player				**g_player;
 extern SelectedItem			*g_selected_item;
 extern DebugWindow			*g_debugWindow;
 extern StringDB				*g_theStringDB;
@@ -251,7 +250,7 @@ void knowledgewin_LibraryButtonActionCallback( aui_Control *control, uint32 acti
 	AUI_ERRCODE auiErr;
 
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	sint32 curIndex = g_player[curPlayer]->m_advances->GetResearching();
+	sint32 curIndex = player_Get(curPlayer)->m_advances->GetResearching();
 
 	if (!g_greatLibrary) GreatLibraryWindow_Initialize( curIndex );
 
@@ -301,7 +300,7 @@ void knowledgewin_SciButtonActionCallback( aui_Control *control, uint32 action, 
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if ( (c3_Button *)control == s_plusButton ) {
 
@@ -416,7 +415,7 @@ sint32 knowledgewin_UpdateFromSwitch( void )
 		for ( sint32 k = 0;k < k_PLAYERS;k++ ) {
 
 			if ( s_playerText[k]->IsOn() ) {
-				if ( g_player[s_playerSwitch[k]]->HasAdvance(i) ) {
+				if ( player_Get(s_playerSwitch[k])->HasAdvance(i) ) {
 					AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
 					s_advanceList->AddItem( (c3_ListItem *)item );
 					break;
@@ -443,14 +442,14 @@ sint32 knowledgewin_UpdateList( void )
 
 	for ( sint32 i = 0;i < num;i++ ) {
 
-		if ( g_player[curPlayer]->HasAdvance(i) ) {
+		if ( player_Get(curPlayer)->HasAdvance(i) ) {
 			AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
 			s_advanceList->AddItem( (c3_ListItem *)item );
 		}
 		else {
 			for ( sint32 j = 0;j < k_MAX_PLAYERS;j++ ) {
-				if ( j != curPlayer && g_player[j]) {
-					if ( g_player[curPlayer]->HasEmbassyWith(j) && g_player[j]->HasAdvance(i) ) {
+				if ( j != curPlayer && player_Get(j)) {
+					if ( player_Get(curPlayer)->HasEmbassyWith(j) && player_Get(j)->HasAdvance(i) ) {
 						AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
 						s_advanceList->AddItem( (c3_ListItem *)item );
 						break;
@@ -527,9 +526,9 @@ sint32 knowledgewin_UpdateData( sint32 flag )
 	MBCHAR str[_MAX_PATH];
 
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
-	sint32 researching = g_player[curPlayer]->m_advances->GetResearching();
+	sint32 researching = player_Get(curPlayer)->m_advances->GetResearching();
 
 	snprintf(str, sizeof(str), "%s", g_theAdvanceDB->GetNameStr(researching) );
 	s_researchBox->SetText( str );
@@ -578,9 +577,9 @@ sint32 knowledgewin_UpdateData( sint32 flag )
 
 	sint32 x = 0;
 	for ( sint32 i = 0;i < k_MAX_PLAYERS;i++ ) {
-		if ( i != curPlayer && g_player[i]) {
-			if ( g_player[curPlayer]->HasEmbassyWith(i) ) {
-				g_player[i]->GetPluralCivName( str );
+		if ( i != curPlayer && player_Get(i)) {
+			if ( player_Get(curPlayer)->HasEmbassyWith(i) ) {
+				player_Get(i)->GetPluralCivName( str );
 				s_playerText[x]->SetText( str );
 				s_playerText[x]->Show();
 				s_playerFlag[x]->SetMapIcon( MAPICON_FLAG );
@@ -1338,7 +1337,7 @@ void EmbassyListItem::Update(void)
 
 	c3_Static *subItem;
 
-	g_player[m_index]->GetPluralCivName( name );
+	player_Get(m_index)->GetPluralCivName( name );
 
 	subItem = (c3_Static *)GetChildByIndex(0);
 	subItem->SetText( name );
@@ -1444,7 +1443,7 @@ void AdvanceListItem::Update(void)
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
-	if ( g_player[curPlayer]->HasAdvance(m_index) ) {
+	if ( player_Get(curPlayer)->HasAdvance(m_index) ) {
 		subIcon->SetColor( g_colorSet->ComputePlayerColor(curPlayer) );
 		subIcon->SetMapIcon( MAPICON_FLAG );
 	}
@@ -1462,14 +1461,14 @@ void AdvanceListItem::Update(void)
 	sint32 i,x = 0;
 
 	for ( i = 0;i < k_MAX_PLAYERS;i++ ) {
-		if ( i != curPlayer && g_player[i]) {
+		if ( i != curPlayer && player_Get(i)) {
 
-			if (g_player[i] != 0) {
-				if ( g_player[curPlayer]->HasEmbassyWith(i) ) {
+			if (player_Get(i) != 0) {
+				if ( player_Get(curPlayer)->HasEmbassyWith(i) ) {
 					subIcon = (c3_Icon *)GetChildByIndex(x+4);
 					x++;
 
-					if ( g_player[i]->HasAdvance(m_index) ) {
+					if ( player_Get(i)->HasAdvance(m_index) ) {
 						subIcon->SetColor( g_colorSet->ComputePlayerColor(i) );
 						subIcon->SetMapIcon( MAPICON_FLAG );
 					}

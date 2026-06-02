@@ -133,7 +133,7 @@ STDEHANDLER(PeaceMovementEvent)
 
 	Player *p = safe_player(player);
 
-	safe_player(player)->m_global_happiness->CalcPeaceMovement(g_player[player],
+	safe_player(player)->m_global_happiness->CalcPeaceMovement(player_Get(player),
 	                                                        *safe_player(player)->m_all_armies,
 	                                                        *safe_player(player)->m_all_cities);
 
@@ -306,7 +306,7 @@ STDEHANDLER(FinishBeginTurnEvent)
 
 	for(sint32 i = 1; i < k_MAX_PLAYERS; i++)
 	{
-		if(p->m_contactedPlayers & (1 << i) && g_player[i])
+		if(p->m_contactedPlayers & (1 << i) && player_Get(i))
 		{
 			if(p->m_diplomatic_state[i] == DIPLOMATIC_STATE_WAR)
 			{
@@ -381,11 +381,11 @@ STDEHANDLER(CreateUnitEvent)
 	if(!args->GetInt(1, cause)) return GEV_HD_Continue;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return GEV_HD_Continue;
 
-	Unit u = g_player[pl]->CreateUnit(utype, pos, homeCity, false, (CAUSE_NEW_ARMY)cause);
+	Unit u = player_Get(pl)->CreateUnit(utype, pos, homeCity, false, (CAUSE_NEW_ARMY)cause);
 	if(u.m_id == 0) {
 		return GEV_HD_Stop;
 	}
@@ -399,9 +399,9 @@ STDEHANDLER(SettleEvent)
 	Army a;
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 
-	if(g_player[a.GetOwner()])
+	if(player_Get(a.GetOwner()))
 	{
-		if(g_player[a.GetOwner()]->Settle(a))
+		if(player_Get(a.GetOwner())->Settle(a))
 		{
 			args->Add(new GameEventArgument(GEA_Int, 1));
 		}
@@ -415,9 +415,9 @@ STDEHANDLER(SettleInCityEvent)
 	Army a;
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 
-	if(g_player[a.GetOwner()])
+	if(player_Get(a.GetOwner()))
 	{
-		if(g_player[a.GetOwner()]->SettleInCity(a))
+		if(player_Get(a.GetOwner())->SettleInCity(a))
 		{
 			args->Add(new GameEventArgument(GEA_Int, 1));
 		}
@@ -438,7 +438,7 @@ STDEHANDLER(CreateCityEvent)
 	if(!args->GetInt(0, cause)) return GEV_HD_Continue;
 	if(!args->GetInt(1, unitType)) return GEV_HD_Continue;
 
-	if(g_player[player])
+	if(player_Get(player))
 	{
 		sint32 cityType = unitutil_GetCityTypeFor(pos);
 		Unit city = safe_player(player)->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, NULL, unitType);
@@ -480,7 +480,7 @@ STDEHANDLER(CreateImprovementEvent)
 
 	safe_player(player)->CreateImprovement(imptype, pos, 0);
 
-	if(g_player[player] && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
+	if(player_Get(player) && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
 		SlicSegment *	seg = g_slicEngine->GetSegment("GCMinObelisksReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetSessionRound()))
 		{
@@ -525,7 +525,7 @@ STDEHANDLER(SendGoodEvent)
 		g_network.SendAction(new NetAction(NET_ACTION_REQUEST_TRADE_ROUTE,
 		                                   resIndex, sourceCity.m_id, destCity.m_id));
 	} else {
-		g_player[sourceCity.GetOwner()]->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE,
+		player_Get(sourceCity.GetOwner())->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE,
 		                                                  resIndex, destCity,
 		                                                  sourceCity.GetOwner(), 0);
 	}
@@ -581,7 +581,7 @@ STDEHANDLER(EstablishEmbassyEvent)
 	if(!args->GetPlayer(0, owner)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, otherguy)) return GEV_HD_Continue;
 
-	g_player[owner]->EstablishEmbassy(otherguy);
+	player_Get(owner)->EstablishEmbassy(otherguy);
 	return GEV_HD_Continue;
 }
 
@@ -600,7 +600,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 	sint32 player;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 
-	if((g_player[player] && !Player::IsThisPlayerARobot(player))
+	if((player_Get(player) && !Player::IsThisPlayerARobot(player))
 	||  player_view::VisiblePlayer() == player
 	){
 		if (g_theProfileDB->IsAutoSave() &&
@@ -684,8 +684,8 @@ STDEHANDLER(GiveMapEvent)
 	if(!args->GetPlayer(1, to_player))
 		return GEV_HD_Continue;
 
-	Assert(g_player[from_player] != NULL);
-	g_player[from_player]->GiveMap(to_player);
+	Assert(player_Get(from_player) != NULL);
+	player_Get(from_player)->GiveMap(to_player);
 
 	return GEV_HD_Continue;
 }
@@ -699,8 +699,8 @@ STDEHANDLER(GiveCityEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetCity(0, giftCity)) return GEV_HD_Continue;
 
-	Assert(g_player[player] != NULL);
-	g_player[giftCity->GetOwner()]->GiveCity(player, giftCity);
+	Assert(player_Get(player) != NULL);
+	player_Get(giftCity->GetOwner())->GiveCity(player, giftCity);
 
 	return GEV_HD_Continue;
 }
@@ -713,7 +713,7 @@ STDEHANDLER(EnterAgeEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, age)) return GEV_HD_Continue;
 
-	Assert(g_player[player] != NULL);
+	Assert(player_Get(player) != NULL);
 	safe_player(player)->EnterNewAge(age);
 	return GEV_HD_Continue;
 }

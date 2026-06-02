@@ -114,7 +114,7 @@ void Pollution::Serialize(CivArchive &archive)
 // Parameters : -
 //
 // Globals    : g_slicEngine    : message display handler
-//              g_player        : list of players
+//              player_Get()    : player accessor
 //
 // Returns    : -
 //
@@ -129,8 +129,8 @@ void Pollution::WarnPlayers()
 	// Start at 1: skip the barbarians.
 	for(PLAYER_INDEX i = 1; i < k_MAX_PLAYERS; ++i)
 	{
-		if(g_player[i]				&&
-			!g_player[i]->IsDead()	&&
+		if(player_Get(i)				&&
+			!player_Get(i)->IsDead()	&&
 			!seg->TestLastShown(i, k_ROUNDS_BEFORE_DISASTER, g_turn->GetRound())
 		  )
 		{
@@ -156,10 +156,10 @@ sint32 Pollution::AtTriggerLevel(void)
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(!g_player[i])
+		if(!player_Get(i))
 			continue;
 
-		if(wonderutil_GetReduceWorldPollution(g_player[i]->GetBuiltWonders()))
+		if(wonderutil_GetReduceWorldPollution(player_Get(i)->GetBuiltWonders()))
 		{
 			return FALSE;
 		}
@@ -235,10 +235,10 @@ sint32 Pollution::GetGlobalPollutionLevel()
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(!g_player[i]) continue;
+		if(!player_Get(i)) continue;
 
-		pollution      += g_player[i]->GetPollutionLevel();
-		gaiaController += wonderutil_GetReduceWorldPollution(g_player[i]->GetBuiltWonders());
+		pollution      += player_Get(i)->GetPollutionLevel();
+		gaiaController += wonderutil_GetReduceWorldPollution(player_Get(i)->GetBuiltWonders());
 	}
 
 	pollution -= gaiaController;
@@ -253,10 +253,10 @@ void Pollution::SetGlobalPollutionLevel(sint32 requiredPollution)
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(g_player[i] != NULL)
+		if(player_Get(i) != NULL)
 		{
-			playerPollution += g_player[i]->GetPollutionLevel();
-			gaiaController  += wonderutil_GetReduceWorldPollution(g_player[i]->GetBuiltWonders());
+			playerPollution += player_Get(i)->GetPollutionLevel();
+			gaiaController  += wonderutil_GetReduceWorldPollution(player_Get(i)->GetBuiltWonders());
 		}
 	}
 
@@ -330,8 +330,8 @@ void Pollution::EndRound()
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(!g_player[i]) continue;
-		pollution += g_player[i]->GetPollutionLevel();
+		if(!player_Get(i)) continue;
+		pollution += player_Get(i)->GetPollutionLevel();
 	}
 
 	m_history[0] = pollution;
@@ -420,8 +420,8 @@ sint32 Pollution::GetRoundsToNextDisaster(void)
 	// Check for a pollution suppressing wonder built by some player.
 	for(int i = 0; i < k_MAX_PLAYERS; ++i)
 	{
-		if(g_player[i] &&
-			wonderutil_GetReduceWorldPollution(g_player[i]->GetBuiltWonders())
+		if(player_Get(i) &&
+			wonderutil_GetReduceWorldPollution(player_Get(i)->GetBuiltWonders())
 		  )
 		{
 			return ROUNDS_COUNT_IMMEASURABLE;
@@ -517,8 +517,8 @@ void Pollution::AddNukePollution(const MapPoint &cpos)
 
 uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 round)
 {
-	Assert(g_player[player] != NULL);
-	if (g_player[player] == NULL)
+	Assert(player_Get(player) != NULL);
+	if (player_Get(player) == NULL)
 		return 0;
 
 	sint32 current_round = g_turn->GetSessionRound();
@@ -529,5 +529,5 @@ uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 ro
 	if ((current_round - round) > k_MAX_POLLUTION_HISTORY)
 		return 0;
 
-	return g_player[player]->GetPollutionHistory()[current_round - round];
+	return player_Get(player)->GetPollutionHistory()[current_round - round];
 }

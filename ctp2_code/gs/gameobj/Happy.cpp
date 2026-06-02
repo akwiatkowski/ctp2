@@ -46,7 +46,7 @@
 #include "gs/gameobj/Happy.h"              // Own declarations: consistency check
 
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/citydata.h"
@@ -584,7 +584,7 @@ void Happy::CountAffectivePop(CityData &cd)
 //                                         called this turn.
 //
 // Globals    : g_slicEngine: The slic engine
-//              g_player:     The list of players
+//              player_Get:   The list of players
 //
 // Returns    : -
 //
@@ -595,7 +595,7 @@ void Happy::CalcHappiness(CityData &cd, bool projectedOnly,
                           sint32 &delta_martial_law,
                           bool isFirstPass)
 {
-	Player *p = g_player[cd.m_owner];
+	Player *p = player_Get(cd.m_owner);
 	if (!p) {
 		m_happiness = 0;
 		return;
@@ -697,7 +697,7 @@ void Happy::CalcHappiness(CityData &cd, bool projectedOnly,
 void Happy::ResetCrime(CityData *cd, double target_happiness)
 {
 	m_happiness = target_happiness;
-	CalcCrime(*cd, g_player[cd->m_owner]);
+	CalcCrime(*cd, player_Get(cd->m_owner));
 }
 
 
@@ -717,7 +717,7 @@ double Happy::GetGreedyPopHappiness(CityData &cd)
 
 	local_happiness += m_peace;
 
-	Player *p = g_player[cd.m_owner];
+	Player *p = player_Get(cd.m_owner);
 
 	CalcWorkday(cd, p);
 	CalcWages(cd, p);

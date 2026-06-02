@@ -9,7 +9,6 @@
 
 
 #include "gs/gameobj/Player.h"
-extern Player **g_player;
 
 #include "gs/gameobj/AgreementTypes.h"
 #include "gs/gameobj/DiplomaticTypes.h"
@@ -98,8 +97,8 @@ void Diplomacy_Log::BeginTurn(sint32 currentRound)
 
             for (i=0; i<k_MAX_PLAYERS; i++) {
                 if (i == player_idx )continue;
-                if (g_player[i] == NULL) continue;
-				if (g_player[i]->m_isDead) continue;
+                if (player_Get(i) == NULL) continue;
+				if (player_Get(i)->m_isDead) continue;
 
 
             }
@@ -128,8 +127,8 @@ void Diplomacy_Log::EndTurn(sint32 currentRound)
 
             for (i=0; i<k_MAX_PLAYERS; i++) {
                 if (i == player_idx )continue;
-                if (g_player[i] == NULL) continue;
-				if (g_player[i]->m_isDead) continue;
+                if (player_Get(i) == NULL) continue;
+				if (player_Get(i)->m_isDead) continue;
 
 
             }

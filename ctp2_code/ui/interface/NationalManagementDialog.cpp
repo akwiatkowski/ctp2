@@ -354,7 +354,7 @@ void NationalManagementDialog::UpdateResourceList()
 	m_resourceList->Clear();
 
 	UnitDynamicArray *cityList =
-		g_player[g_selected_item->GetVisiblePlayer()]->GetAllCitiesList();
+		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
 
 	for(sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++) {
 
@@ -374,7 +374,7 @@ void NationalManagementDialog::UpdateStatusList()
 	m_statusList->Clear();
 
 	UnitDynamicArray *cityList =
-		g_player[g_selected_item->GetVisiblePlayer()]->GetAllCitiesList();
+		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
 
 	for(sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++) {
 
@@ -409,7 +409,7 @@ void NationalManagementDialog::UpdateSpecialistList()
 		m_specialistList->Clear();
 
 		UnitDynamicArray * cityList =
-			g_player[g_selected_item->GetVisiblePlayer()]->GetAllCitiesList();
+		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
 
 		for (sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++)
 		{
@@ -612,7 +612,7 @@ void NationalManagementDialog::UpdateRushBuy()
 	sint32 const	player	= g_selected_item->GetVisiblePlayer();
 
 	m_rushBuyButton->Enable((rushBuyTotal > 0)								&&
-						    (rushBuyTotal <= g_player[player]->GetGold())	&&
+						(rushBuyTotal <= player_Get(player)->GetGold())	&&
 							(player == g_selected_item->GetCurPlayer())
 						   );
 

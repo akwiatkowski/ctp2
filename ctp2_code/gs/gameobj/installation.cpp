@@ -12,7 +12,6 @@
 #include "gs/core/render_observer.h"
 #include "gs/gameobj/terrainutil.h"
 
-extern Player **g_player;
 extern World *g_theWorld;
 
 void
@@ -28,15 +27,15 @@ Installation::RemoveAllReferences()
 	MapPoint pos;
 	GetPos(pos);
 
-	if(GetOwner() >= 0 && g_player[GetOwner()]) {
-		g_player[GetOwner()]->RemoveInstallationReferences(*this);
+	if(GetOwner() >= 0 && player_Get(GetOwner())) {
+		player_Get(GetOwner())->RemoveInstallationReferences(*this);
 	}
 	g_theWorld->RemoveInstallation(*this, pos);
-	if(GetOwner() >= 0 && g_player[GetOwner()]) {
+	if(GetOwner() >= 0 && player_Get(GetOwner())) {
 
 		double myVisionRange = terrainutil_GetVisionRange(GetType(), RetPos());
 		if(myVisionRange > 0) {
-			g_player[GetOwner()]->RemoveUnitVision(pos, myVisionRange);
+			player_Get(GetOwner())->RemoveUnitVision(pos, myVisionRange);
 			if(GetOwner() == player_view::VisiblePlayer()) {
 				render_observer::AddCopyVision();
 			}

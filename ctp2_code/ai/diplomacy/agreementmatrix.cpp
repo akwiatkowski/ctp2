@@ -60,7 +60,7 @@ AgreementMatrix::AgreementMatrix()
 void AgreementMatrix::Resize(const PLAYER_INDEX & newMaxPlayers)
 {
 	// Just make sure that we can rely on testing against m_maxPlayers to have
-	// a valid index in g_player.
+	// a valid index in player_Get.
 	Assert(newMaxPlayers <= k_MAX_PLAYERS);
 	m_maxPlayers = std::min<sint16>(static_cast<sint16>(newMaxPlayers), k_MAX_PLAYERS);
 
@@ -78,8 +78,8 @@ void AgreementMatrix::Resize(const PLAYER_INDEX & newMaxPlayers)
 
 			if (senderId >= 0 && senderId < m_maxPlayers &&
 				receiverId >= 0 && receiverId < m_maxPlayers &&
-				g_player[senderId] && !g_player[senderId]->IsDead() &&
-				g_player[receiverId] && !g_player[receiverId]->IsDead())
+				player_Get(senderId) && !player_Get(senderId)->IsDead() &&
+				player_Get(receiverId) && !player_Get(receiverId)->IsDead())
 			{
 
 				SetAgreement( old_agreements[index] );
@@ -258,7 +258,7 @@ void AgreementMatrix::SetAgreement( const ai::Agreement & agreement )
 //				receiver_player	: responder to the agreement
 //				type			: type of the agreement
 //
-// Globals    : g_player		: all players in the game
+// Globals    : player_Get		: all players in the game
 //
 // Returns    : -
 //
@@ -285,7 +285,7 @@ bool AgreementMatrix::HasAgreement(const PLAYER_INDEX & sender_player,
 		return false;
 	}
 
-	Player *player_ptr = g_player[sender_player];
+	Player *player_ptr = player_Get(sender_player);
 	Assert(player_ptr != NULL);
 
 	if (player_ptr == NULL)

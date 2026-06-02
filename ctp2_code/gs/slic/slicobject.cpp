@@ -44,7 +44,7 @@
 #include "gs/slic/SlicFrame.h"
 #include "gs/gameobj/MessageData.h"
 #include "gs/gameobj/MessagePool.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/slic/SlicButton.h"
 #include "net/general/network.h"
 #include "ctp/civapp.h"
@@ -287,7 +287,7 @@ void SlicObject::AddRecipient(const PLAYER_INDEX recip)
 void SlicObject::AddAllRecipients()
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i] && (!g_player[i]->m_isDead)) {
+		if(player_Get(i) && (!player_Get(i)->m_isDead)) {
 			m_recipientList = Expand(m_recipientList, m_numRecipients);
 			m_recipientList[m_numRecipients++] = i;
 		}
@@ -297,7 +297,7 @@ void SlicObject::AddAllRecipients()
 void SlicObject::AddAllRecipientsBut(PLAYER_INDEX loser1, PLAYER_INDEX loser2)
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i] && (!g_player[i]->m_isDead) &&
+		if(player_Get(i) && (!player_Get(i)->m_isDead) &&
            (i != loser1) && (i != loser2)) {
 			m_recipientList = Expand(m_recipientList, m_numRecipients);
 			m_recipientList[m_numRecipients++] = i;
@@ -405,10 +405,10 @@ void SlicObject::Finish()
 				   g_network.IsLocalPlayer(m_recipientList[i]) ||
 				   (m_request && m_request->m_id != 0)) {
 
-					if(!g_player[m_recipientList[i]])
+					if(!player_Get(m_recipientList[i]))
 						continue;
 
-					if(g_player[m_recipientList[i]]->IsRobot()
+					if(player_Get(m_recipientList[i])->IsRobot()
 					&& *m_request == ID()
 #ifdef _PLAYTEST
 					&& !g_robotMessages

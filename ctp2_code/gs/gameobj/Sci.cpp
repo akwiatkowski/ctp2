@@ -58,7 +58,7 @@ sint32 Science::ComputeScienceFromResearchPacts(const sint32 playerId)
 	sint32 total_pact_science = 0;
 	for (PLAYER_INDEX foreignerId = 1; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
 	{
-		if ((foreignerId != playerId) && g_player[foreignerId])
+		if ((foreignerId != playerId) && player_Get(foreignerId))
 		{
 			total_pact_science += ComputeScienceFromResearchPact(playerId, foreignerId);
 		}
@@ -68,8 +68,8 @@ sint32 Science::ComputeScienceFromResearchPacts(const sint32 playerId)
 
 sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint32 foreignerId)
 {
-	Assert(g_player[foreignerId] != NULL);
-	if (g_player[foreignerId] == NULL)
+	Assert(player_Get(foreignerId) != NULL);
+	if (player_Get(foreignerId) == NULL)
 		return 0;
 
 	ai::Agreement research_pact =
@@ -79,10 +79,10 @@ sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint
 	if (research_pact.start != -1 && research_pact.end == -1)
 	{
 		Unit city;
-		sint32 num_cities = g_player[foreignerId]->m_all_cities->Num();
+		sint32 num_cities = player_Get(foreignerId)->m_all_cities->Num();
 		for (sint32 i = 0; i < num_cities; i++)
 		{
-			city = g_player[foreignerId]->m_all_cities->Access(i);
+			city = player_Get(foreignerId)->m_all_cities->Access(i);
 			Assert( unitpool_Get()->IsValid(city) );
 			Assert( city->GetCityData() != NULL );
 

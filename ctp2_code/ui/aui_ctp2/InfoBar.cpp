@@ -205,8 +205,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 	m_curY = point.y;
 	m_textFromMap = true;
 
-	if(!g_player[g_selected_item->GetVisiblePlayer()] ||
-		!g_player[g_selected_item->GetVisiblePlayer()]->IsExplored(point)) {
+	if(!player_Get(g_selected_item->GetVisiblePlayer()) ||
+		!player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(point)) {
 		Concat(g_theStringDB->GetNameStr("INFOBAR_UNEXPLORED"));
 
 #ifndef _DEBUG
@@ -225,13 +225,13 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		sint32 owner = g_tiledMap->GetVisibleCellOwner(const_cast<MapPoint&>(point));
 
 		if(owner >= 0
-		&& g_player[owner]
-		&&(g_player[owner]->HasContactWith(g_selected_item->GetVisiblePlayer())
+		&& player_Get(owner)
+		&&(player_Get(owner)->HasContactWith(g_selected_item->GetVisiblePlayer())
 		|| g_fog_toggle)
 		){
 
 			MBCHAR buf[k_MAX_NAME_LEN];
-			g_player[owner]->m_civilisation->GetSingularCivName(buf);
+			player_Get(owner)->m_civilisation->GetSingularCivName(buf);
 			Concat(buf);
 			Concat(" - ");
 		}
@@ -270,9 +270,9 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 					Concat(city.GetName());
 				}
 
-				if(g_player[ucell.m_unseenCell->GetCityOwner()]){ // Check whether player is still alive.
+				if(player_Get(ucell.m_unseenCell->GetCityOwner())){ // Check whether player is still alive.
 					MBCHAR civName[k_MAX_INFOBAR_TEXT];
-					g_player[ucell.m_unseenCell->GetCityOwner()]->m_civilisation->GetSingularCivName(civName);
+					player_Get(ucell.m_unseenCell->GetCityOwner())->m_civilisation->GetSingularCivName(civName);
 					Concat("(");
 					Concat(civName);
 					Concat(")");
@@ -307,7 +307,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 				Concat(city.GetName());
 
 				MBCHAR civName[k_MAX_INFOBAR_TEXT];
-				g_player[cell->GetCity().GetOwner()]->m_civilisation->GetSingularCivName(civName);
+				player_Get(cell->GetCity().GetOwner())->m_civilisation->GetSingularCivName(civName);
 				Concat("(");
 				Concat(civName);
 				Concat(")");
@@ -469,12 +469,12 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 						MBCHAR civName[k_MAX_INFOBAR_TEXT];
 						//hidden nationality here?
 						//original
-						//g_player[cell->AccessUnit(0).GetOwner()]->m_civilisation->GetSingularCivName(civName);
+						//player_Get(cell->AccessUnit(0).GetOwner())->m_civilisation->GetSingularCivName(civName);
 						//emod
 						if ((cell->AccessUnit(0).IsHiddenNationality()) && (cell->AccessUnit(0).GetOwner() != g_selected_item->GetVisiblePlayer())) {
-							g_player[PLAYER_INDEX_VANDALS]->m_civilisation->GetSingularCivName(civName);
+							player_Get(PLAYER_INDEX_VANDALS)->m_civilisation->GetSingularCivName(civName);
 						} else {
-							g_player[cell->AccessUnit(0).GetOwner()]->m_civilisation->GetSingularCivName(civName);
+							player_Get(cell->AccessUnit(0).GetOwner())->m_civilisation->GetSingularCivName(civName);
 						}
 						//end emod 2-21-2007
 						Concat(civName);

@@ -507,11 +507,11 @@ AUI_ERRCODE CityWindow::Display(CityData *city)
 	if(city)
 		s_cityWindow->SetCity(city);
 	else {
-		if(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() < 1) {
+		if(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() < 1) {
 
 			return AUI_ERRCODE_OK;
 		}
-		s_cityWindow->SetCity(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).CD());
+		s_cityWindow->SetCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).CD());
 	}
 
 	AUI_ERRCODE err = g_c3ui->AddWindow(s_cityWindow->m_window);
@@ -612,7 +612,7 @@ void CityWindow::Update()
 
 	ctp2_DropDown *cityDD = (ctp2_DropDown *)aui_Ldl::GetObject("CityWindow.CityList.Pulldown");
 	if(cityDD) {
-		UnitDynamicArray *cityList = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities;
+		UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
 
 		cityDD->Clear();
 
@@ -673,7 +673,7 @@ void CityWindow::Update()
 
 	for(sint32 i = 0; i < CW_RES_MAX; i++) {
 
-		Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+		Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 		sint32 amt = 0;
 
 		if(m_resVal[i]) {
@@ -973,7 +973,7 @@ void CityWindow::UpdateBuildTabButtons()
 	sint32 const	cost			= m_cityData->GetOvertimeCost();
 
 	if ((cost <= 0)									||
-		(cost > g_player[visiblePlayer]->GetGold())	||
+		(cost > player_Get(visiblePlayer)->GetGold())	||
 		m_cityData->AlreadyBoughtFront()			||
 		m_cityData->IsBuildingCapitalization()		||
 		m_cityData->IsBuildingInfrastructure()		||
@@ -1178,7 +1178,7 @@ void CityWindow::NextCity(aui_Control *control, uint32 action, uint32 data, void
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -1212,7 +1212,7 @@ void CityWindow::PreviousCity(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -1249,7 +1249,7 @@ void CityWindow::SelectCity(aui_Control *control, uint32 action, uint32 data, vo
 
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
 	if(dd->GetSelectedItem() >= 0) {
-		Unit selectedCity = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(dd->GetSelectedItem());
+		Unit selectedCity = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(dd->GetSelectedItem());
 		if(selectedCity.m_id != s_cityWindow->m_cityData->GetHomeCity().m_id) {
 			s_cityWindow->SetCity(selectedCity.CD());
 		}
@@ -1461,10 +1461,10 @@ void CityWindow::OptimizeSpecialists(aui_Control *control, uint32 action, uint32
 	t.start();
 
 	DPRINTF(k_DBG_AI, ("\n"));
-	DPRINTF(k_DBG_AI, ("// ADJUST SPECIALIST SETTINGS -- Turn %d\n",   g_player[playerId]->GetCurRound()));
+	DPRINTF(k_DBG_AI, ("// ADJUST SPECIALIST SETTINGS -- Turn %d\n",   player_Get(playerId)->GetCurRound()));
 	DPRINTF(k_DBG_AI, ("//                               Player %d\n", playerId));
 
-	g_player[playerId]->PreResourceCalculation(s_cityWindow->m_cityData);
+	player_Get(playerId)->PreResourceCalculation(s_cityWindow->m_cityData);
 	governor.AssignPopulation(s_cityWindow->m_cityData);
 
 	DPRINTF(k_DBG_AI, ("//  elapsed time = %f ms\n", t.getElapsedTimeInMilliSec()));
@@ -2624,7 +2624,7 @@ void CityWindow::DisbandQuery(bool result, void *ud)
 	if(result) {
 
 		// Create a temporary army to collect the units from the selected boxes.
-		Player *	owner	= g_player[g_selected_item->GetVisiblePlayer()];
+		Player *	owner	= player_Get(g_selected_item->GetVisiblePlayer());
 		Army		temp(owner->GetNewArmy(CAUSE_NEW_ARMY_GROUPING));
 
 		for (sint32 b = 0; b < k_MAX_ARMY_SIZE; b++)

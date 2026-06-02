@@ -61,7 +61,7 @@
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/wonderutil.h"
 
-extern Player **g_player;
+
 extern ProfileDB *g_theProfileDB;
 
 struct BestUnit
@@ -74,7 +74,7 @@ bool SomeoneCanHave(const UnitRecord *rec)
 {
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 	{
-		if(g_player[p] && g_player[p]->m_advances->HasAdvance(rec->GetEnableAdvanceIndex()))
+		if(player_Get(p) && player_Get(p)->m_advances->HasAdvance(rec->GetEnableAdvanceIndex()))
 			return true;
 	}
 	return false;
@@ -87,7 +87,7 @@ bool SomeoneCanHave(const UnitRecord *rec)
 
 		sint32 feat;
 		if(!g_network.IsNetworkLaunch()
-		&& g_player[g_selected_item->GetCurPlayer()]
+		&& player_Get(g_selected_item->GetCurPlayer())
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
 			if(!g_network.IsActive() || g_network.ReadyToStart()) {
@@ -227,7 +227,7 @@ bool Barbarians::AddBarbarians(const MapPoint &point, PLAYER_INDEX meat,
 			{
 				count++;
 				DPRINTF(k_DBG_GAMESTATE, ("Barbarians: Add unit to map, from goody hut: %d\n", fromGoodyHut));
-				Unit u = g_player[PLAYER_INDEX_VANDALS]->CreateUnit(unitIndex,
+				Unit u = player_Get(PLAYER_INDEX_VANDALS)->CreateUnit(unitIndex,
 														   neighbor,
 														   Unit(),
 														   false,
@@ -380,7 +380,7 @@ bool Barbarians::AddPirates(const MapPoint &point, PLAYER_INDEX meat,
 			{
 				count++;
 				DPRINTF(k_DBG_GAMESTATE, ("Barbarians: Add unit to map, from goody hut: %d\n", fromGoodyHut));
-				Unit u = g_player[PLAYER_INDEX_VANDALS]->CreateUnit(unitIndex,
+				Unit u = player_Get(PLAYER_INDEX_VANDALS)->CreateUnit(unitIndex,
 														   neighbor,
 														   Unit(),
 														   false,
@@ -514,7 +514,7 @@ bool Barbarians::AddInsurgents(const MapPoint &point, PLAYER_INDEX meat,
 			if(world_Get()->IsLand(neighbor) &&
 			   !world_Get()->IsCity(neighbor)) {
 				count++;
-				Unit u = g_player[PLAYER_INDEX_VANDALS]->CreateUnit(unitIndex,
+				Unit u = player_Get(PLAYER_INDEX_VANDALS)->CreateUnit(unitIndex,
 														   neighbor,
 														   Unit(),
 														   FALSE,
@@ -561,8 +561,8 @@ void Barbarians::BeginYear(sint32 currentRound)
 
 			sint32 owner = world_Get()->GetCell(point)->GetOwner();
 			if(owner > 0
-			&& g_player[owner]
-			&& wonderutil_GetProtectFromBarbarians(g_player[owner]->m_builtWonders)
+			&& player_Get(owner)
+			&& wonderutil_GetProtectFromBarbarians(player_Get(owner)->m_builtWonders)
 			){
 				continue;
 			}
@@ -595,8 +595,8 @@ void Barbarians::BeginYear(sint32 currentRound)
 
 			sint32 owner = world_Get()->GetCell(point)->GetOwner();
 			if(owner > 0
-			&& g_player[owner]
-			&& wonderutil_GetProtectFromBarbarians(g_player[owner]->m_builtWonders)
+			&& player_Get(owner)
+			&& wonderutil_GetProtectFromBarbarians(player_Get(owner)->m_builtWonders)
 			){
 				continue;
 			}
@@ -630,7 +630,7 @@ void Barbarians::BeginYear(sint32 currentRound)
 			}
 
 			for(p = 1; p < k_MAX_PLAYERS; p++) {
-				if(g_player[p] && g_player[p]->IsVisible(point))
+				if(player_Get(p) && player_Get(p)->IsVisible(point))
 					break;
 			}
 			if(p >= k_MAX_PLAYERS) {
@@ -653,7 +653,7 @@ sint32 Barbarians::IsVisibleToAnyone(MapPoint point)
 {
 	for(sint32 p = 1; p < k_MAX_PLAYERS; p++)
 	{
-		if(g_player[p] && g_player[p]->IsVisible(point))
+		if(player_Get(p) && player_Get(p)->IsVisible(point))
 			return p;
 	}
 

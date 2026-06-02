@@ -1647,13 +1647,13 @@ GOAL_TYPE Scheduler::GetMaxEvalExec(const StrategyRecord::GoalElement *goal_elem
 
 	if ((goal_element_ptr->GetEvalPerCity() ||
 		goal_element_ptr->GetPerCity()) &&
-		g_player[m_playerId])
-		tmp_eval *= g_player[m_playerId]->GetNumCities();
+		player_Get(m_playerId))
+		tmp_eval *= player_Get(m_playerId)->GetNumCities();
 
 	if ((goal_element_ptr->GetExecPerCity() ||
 		goal_element_ptr->GetPerCity()) &&
-		g_player[m_playerId])
-		tmp_exec *= g_player[m_playerId]->GetNumCities();
+		player_Get(m_playerId))
+		tmp_exec *= player_Get(m_playerId)->GetNumCities();
 
 	max_eval = (sint16) floor(tmp_eval);
 	max_exec = (sint16) floor(tmp_exec);
@@ -1726,7 +1726,7 @@ void Scheduler::SetContactCache(sint32 player)
 	{
 		if(i==player) continue;
 
-		if(g_player[player] && g_player[player]->HasContactWith(i))
+		if(player_Get(player) && player_Get(player)->HasContactWith(i))
 		{
 			if (i >= 0 && i < 32)
 				m_contactCache |= (1u<<i);
@@ -1741,7 +1741,7 @@ bool Scheduler::CachedHasContactWithExceptSelf(sint32 player1, sint32 player2)
 
 #ifdef _DEBUG
 
-	//	int test1 = g_player[player1]->HasContactWith(player2) && (player1!=player2);
+	//	int test1 = player_Get(player1)->HasContactWith(player2) && (player1!=player2);
 	//	int test2 = ((m_contactCache>>player2) & 1) != 0;
 	//	Assert(test1==test2);
 #endif
@@ -1749,11 +1749,11 @@ bool Scheduler::CachedHasContactWithExceptSelf(sint32 player1, sint32 player2)
 		return ((m_contactCache>>player2)&1) != 0;
 	}
 
-	if (g_player[player1] == NULL)
+	if (player_Get(player1) == NULL)
 		return false;
 
 	if (player1==player2) return false;
-	return g_player[player1]->HasContactWith(player2);
+	return player_Get(player1)->HasContactWith(player2);
 }
 
 void Scheduler::SetIsNeutralRegardCache(sint32 player)
@@ -1903,9 +1903,9 @@ void Scheduler::ResetTransport()
 
 void Scheduler::Assign_Garrison()
 {
-	if(!g_player[m_playerId])
+	if(!player_Get(m_playerId))
 		return;
-	sint32 cityNum = g_player[m_playerId]->GetNumCities();
+	sint32 cityNum = player_Get(m_playerId)->GetNumCities();
 	Sorted_Agent_List_Vector garrisonAgents;
 
 	garrisonAgents.resize(cityNum);
@@ -1973,7 +1973,7 @@ void Scheduler::Assign_Garrison()
 			defense_strength += city.GetDefendersBonus() * static_cast<double>(defense_count);
 
 			sint32 idx = -1;
-			if(g_player[m_playerId]->GetCityIndex(city, idx))
+			if(player_Get(m_playerId)->GetCityIndex(city, idx))
 			{
 				garrisonAgents[idx].push_back(Sorted_Agent_ptr(defense_strength, agent));
 			}
@@ -1985,7 +1985,7 @@ void Scheduler::Assign_Garrison()
 
 	for(sint32 i = 0; i < cityNum; ++i)
 	{
-		Unit city = g_player[m_playerId]->GetCityFromIndex(i);
+		Unit city = player_Get(m_playerId)->GetCityFromIndex(i);
 
 		garrisonAgents[i].sort();
 

@@ -62,7 +62,7 @@
 #include "UnitRecord.h"
 #include "gs/events/GameEventManager.h"
 
-extern Player **g_player;
+
 class TiledMap;
 extern TiledMap		*g_tiledMap;
 extern TurnCount *g_turn;
@@ -271,7 +271,7 @@ GoodyHut::GoodyHut(CivArchive &archive)
 //
 // Globals    : gamesettings_Get()
 //              g_theRiskDB
-//              g_player
+//              player_arr_Get()
 //              g_theAdvanceDB
 //              g_theUnitDB
 //
@@ -279,7 +279,7 @@ GoodyHut::GoodyHut(CivArchive &archive)
 //
 // Remark(s)  : When no proper goody can be generated, GOODY_BOGUS is returned.
 //              The barbarian player gets this result always.
-//              Assumption: the owner is alive (g_player[owner] is non-NULL).
+//              Assumption: the owner is alive (player_Get(owner) is non-NULL).
 //
 //----------------------------------------------------------------------------
 GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
@@ -302,7 +302,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 
 		case GOODY_ADVANCE:
 		{
-			Advances const *    advances     = g_player[owner]->m_advances;
+			Advances const *    advances     = player_Get(owner)->m_advances;
 			AdvanceType *       possible     =
 			    new AdvanceType[g_theAdvanceDB->NumRecords()];
 			size_t              nextPossible = 0;
@@ -350,7 +350,7 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 		{
 			for (size_t i = 0; i < static_cast<size_t>(g_theUnitDB->NumRecords()); ++i)
 			{
-				if (g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType())->GetSettleLand())
+				if (g_theUnitDB->Get(i, player_Get(owner)->GetGovernmentType())->GetSettleLand())
 				{
 					m_value = i;
 					return GOODY_UNIT;
@@ -363,14 +363,14 @@ GOODY GoodyHut::ChooseType(PLAYER_INDEX const & owner)
 
 		case GOODY_UNIT:
 		{
-			Advances const *    advances     = g_player[owner]->m_advances;
+			Advances const *    advances     = player_Get(owner)->m_advances;
 			sint32 *            possible     = new sint32[g_theUnitDB->NumRecords()];
 			size_t              nextPossible = 0;
 			sint32 const        maxNovelty   = risk.GetMaxUnitAdvanceLeap();
 
 			for (sint32 i = 0; i < g_theUnitDB->NumRecords(); ++i)
 			{
-				UnitRecord const * rec = g_theUnitDB->Get(i, g_player[owner]->GetGovernmentType());
+				UnitRecord const * rec = g_theUnitDB->Get(i, player_Get(owner)->GetGovernmentType());
 
 				if (!rec->GetMovementTypeLand())
 					continue;   // would die immediately here
@@ -447,7 +447,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 								   GEA_Int, -1,
 								   GEA_End);
 #if 0
-			Unit city = g_player[owner]->CreateCity(0,
+			Unit city = player_Get(owner)->CreateCity(0,
 										point,
 										CAUSE_NEW_CITY_GOODY_HUT,
 										NULL);
@@ -483,7 +483,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so->AddGold(m_value) ;
 			g_slicEngine->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get %d gold!\n", m_value));
-			g_player[owner]->AddGold(m_value);
+			player_Get(owner)->AddGold(m_value);
 			if (owner == player_view::VisiblePlayer())
 			{
 				audio_observer::AddSound((sint32)SOUNDTYPE_SFX,
@@ -500,7 +500,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so = new SlicObject("79DiscoveredRemnantsOfAncientCivilisation") ;
 			DPRINTF(k_DBG_GAMESTATE, ("You find advance %d\n", m_value));
 
-            g_player[owner]->m_advances->GiveAdvance(m_value, CAUSE_SCI_GOODY);
+            player_Get(owner)->m_advances->GiveAdvance(m_value, CAUSE_SCI_GOODY);
 			so->AddRecipient(owner);
 			so->AddAdvance(m_value);
 			g_slicEngine->Execute(so);
@@ -514,7 +514,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			break;
 		case GOODY_UNIT:
 		{
-			if (g_theUnitDB->Get(m_value, g_player[owner]->GetGovernmentType())->GetSettle())
+			if (g_theUnitDB->Get(m_value, player_Get(owner)->GetGovernmentType())->GetSettle())
 				so = new SlicObject("81NomadsHaveJoinedYourCivilisation") ;
 			else
 				so = new SlicObject("82MercenariesHaveJoinedYourCivilisation") ;
@@ -522,7 +522,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so->AddRecipient(owner) ;
 			g_slicEngine->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get unit %d\n", m_value));
-			Unit u = g_player[owner]->CreateUnit(m_value,
+			Unit u = player_Get(owner)->CreateUnit(m_value,
 												 point,
 												 Unit(),
 												 FALSE,

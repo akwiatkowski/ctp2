@@ -190,8 +190,8 @@ STDEHANDLER(InvaderMovementRegardEvent)
 	sint32 invader_movement_cost;
 	StringId strId;
 
-	if (g_player[new_cell_owner] &&
-		!g_player[new_cell_owner]->HasContactWith(army_owner))
+	if (player_Get(new_cell_owner) &&
+		!player_Get(new_cell_owner)->HasContactWith(army_owner))
 		return GEV_HD_Continue;
 
 	if (AgreementMatrix::s_agreements.HasAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS))
@@ -276,8 +276,8 @@ STDEHANDLER(NeighborHatredRegardEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	Assert(g_player[playerId]);
-	if (g_player[playerId] == NULL)
+	Assert(player_Get(playerId));
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	for (foreignerId = 1; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
@@ -285,11 +285,11 @@ STDEHANDLER(NeighborHatredRegardEvent)
 		if (foreignerId == playerId)
 			continue;
 
-		if (g_player[foreignerId] == NULL ||
-			g_player[foreignerId]->HasContactWith(playerId) == FALSE)
+		if (player_Get(foreignerId) == NULL ||
+			player_Get(foreignerId)->HasContactWith(playerId) == FALSE)
 			continue;
 
-		if (g_player[playerId]->HasContactWith(foreignerId) == FALSE)
+		if (player_Get(playerId)->HasContactWith(foreignerId) == FALSE)
 			continue;
 
 		if (MapAnalysis::GetMapAnalysis().ShareContinent(playerId, foreignerId) == false)
@@ -595,8 +595,8 @@ STDEHANDLER(EmbargoRegardEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	Assert(g_player[playerId]);
-	if (g_player[playerId] == NULL)
+	Assert(player_Get(playerId));
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	for (foreignerId = 1; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
@@ -605,11 +605,11 @@ STDEHANDLER(EmbargoRegardEvent)
 		if (foreignerId == playerId)
 			continue;
 
-		if (g_player[foreignerId] == NULL ||
-			g_player[foreignerId]->HasContactWith(playerId) == FALSE)
+		if (player_Get(foreignerId) == NULL ||
+			player_Get(foreignerId)->HasContactWith(playerId) == FALSE)
 			continue;
 
-		if (g_player[playerId]->HasContactWith(foreignerId) == FALSE)
+		if (player_Get(playerId)->HasContactWith(foreignerId) == FALSE)
 			continue;
 
 		if (Diplomat::GetDiplomat(foreignerId).GetEmbargo(playerId) == false)

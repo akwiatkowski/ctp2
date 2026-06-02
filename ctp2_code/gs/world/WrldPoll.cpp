@@ -332,12 +332,12 @@ void world_AddUnseenForHumans(sint32 x, sint32 y)
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(!g_player[i]) continue;
+		if(!player_Get(i)) continue;
 
-		if(!g_player[i]->IsRobot() ||
+		if(!player_Get(i)->IsRobot() ||
 		   (g_network.IsClient() && g_network.IsLocalPlayer(i))) {
 			MapPoint pos(x, y);
-			g_player[i]->m_vision->AddUnseen(pos);
+			player_Get(i)->m_vision->AddUnseen(pos);
 		}
 	}
 }
@@ -461,9 +461,9 @@ void World::GlobalWarmingEvent(const sint32 phase)
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 	{
-		if (g_player[p])
+		if (player_Get(p))
 		{
-			g_player[p]->RemoveEmptyCities(CAUSE_REMOVE_ARMY_FLOOD);
+			player_Get(p)->RemoveEmptyCities(CAUSE_REMOVE_ARMY_FLOOD);
 		}
 	}
 
@@ -505,9 +505,9 @@ void World::GlobalWarmingEvent(const sint32 phase)
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if (g_player[i])
+		if (player_Get(i))
 		{
-			g_player[i]->m_vision->ClearUnseen();
+			player_Get(i)->m_vision->ClearUnseen();
 		}
 	}
 
@@ -534,9 +534,9 @@ void World::InformPlayersOfFloodingCatastrophe(void)
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if (g_player[i] && !g_player[i]->IsDead())
+		if (player_Get(i) && !player_Get(i)->IsDead())
 		{
-			g_player[i]->IndicateTerrainPolluted();
+			player_Get(i)->IndicateTerrainPolluted();
 		}
 	}
 }
@@ -636,8 +636,8 @@ void World::OzoneDepletionEvent(void)
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if (g_player[i])
-			g_player[i]->IndicateTerrainPolluted();
+		if (player_Get(i))
+			player_Get(i)->IndicateTerrainPolluted();
 	}
 
 	RemoveBeaches();

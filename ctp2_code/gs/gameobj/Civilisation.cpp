@@ -33,7 +33,7 @@
 #include "gs/gameobj/Civilisation.h"
 
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/gameobj/Player.h"			    // g_player
+#include "gs/gameobj/Player.h"			    // player_arr_Get()
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"	// g_theCivilisationPool
 #include "net/general/network.h"
@@ -104,12 +104,12 @@ PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)
 
 	sint32 count = 0;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i])
+		if(player_Get(i))
 			count++;
 	}
 	if(count < maxPlayers) {
 		for(i = 1; i < k_MAX_PLAYERS; i++) {
-			if(!g_player[i]) {
+			if(!player_Get(i)) {
 				pi = i;
 				break;
 			}
@@ -137,7 +137,7 @@ PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)
 // Parameters : pi          : player index
 //              old_owner   : player index of "parent" civilisation
 //
-// Globals    : g_player    : player data
+// Globals    : player_arr_Get()    : player data
 //              g_network   : Multiplayer data
 //
 // Returns    : -
@@ -149,25 +149,25 @@ PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)
 //----------------------------------------------------------------------------
 void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 {
-	g_player[pi] = new Player
+	player_arr_Get()[pi] = new Player
 	    (PLAYER_INDEX(pi), 0, PLAYER_TYPE_ROBOT, CIV_INDEX_RANDOM, GENDER_RANDOM);
 
 	if (g_network.IsActive())
 	{
 		g_network.AddCivilization
-		    (pi, PLAYER_TYPE_ROBOT, g_player[pi]->GetCivilisation()->GetCivilisation());
+		    (pi, PLAYER_TYPE_ROBOT, player_Get(pi)->GetCivilisation()->GetCivilisation());
 	}
 
 	player_view::AddPlayer(pi);
 
 	if (pi != PLAYER_INDEX_VANDALS && 			// Barbarians do not inherit
-	    (old_owner >= 0) && g_player[old_owner]
+	    (old_owner >= 0) && player_Get(old_owner)
 	   )
 	{
-	    delete g_player[pi]->m_advances;
-		g_player[pi]->m_advances = new Advances(*(g_player[old_owner]->m_advances));
-		g_player[pi]->m_advances->SetOwner(pi);
-		g_player[old_owner]->GiveMap(pi);
+	    delete player_Get(pi)->m_advances;
+		player_Get(pi)->m_advances = new Advances(*(player_Get(old_owner)->m_advances));
+		player_Get(pi)->m_advances->SetOwner(pi);
+		player_Get(old_owner)->GiveMap(pi);
 	}
 
 	CtpAi::AddPlayer(pi);
@@ -175,7 +175,7 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 	if (g_network.IsHost())
 	{
 		g_network.Block(old_owner);
-		g_network.QueuePacketToAll(new NetPlayer(g_player[pi]));
+		g_network.QueuePacketToAll(new NetPlayer(player_Get(pi)));
 
 		for (uint16 y = 0; y < g_theWorld->GetYHeight(); y += k_VISION_STEP)
 		{

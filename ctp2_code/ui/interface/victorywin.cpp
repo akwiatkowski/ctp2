@@ -202,7 +202,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 
 		if(g_turn->IsHotSeat() || g_turn->IsEmail())
 		{
-			Player* player = g_player[g_selected_item->GetVisiblePlayer()];
+			Player* player = player_Get(g_selected_item->GetVisiblePlayer());
 			if(!player
 			||  player->m_isDead
 			){
@@ -588,7 +588,7 @@ sint32 victorywin_UpdateData( sint32 type )
 	MBCHAR strbuf[256];
 
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	Player *pl = g_player[curPlayer];
+	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
@@ -610,16 +610,16 @@ sint32 victorywin_UpdateData( sint32 type )
 		for(sint32 i = 1; i < k_MAX_PLAYERS; i++)
 		{
 			if(i != curPlayer
-			&& g_player[i]
-			&& g_player[i]->IsHuman()
+			&& player_Get(i)
+			&& player_Get(i)->IsHuman()
 			){
 				disableContinue = false;
 			}
 		}
 	}
 	else if(disableContinue
-	     && g_player[curPlayer]
-	     &&!g_player[curPlayer]->m_isDead
+	     && player_Get(curPlayer)
+	     &&!player_Get(curPlayer)->m_isDead
 	     ){
 		disableContinue = false;
 	}
@@ -639,8 +639,8 @@ sint32 victorywin_UpdateData( sint32 type )
 	}
 	else
 	{
-		if((g_player[g_selected_item->GetVisiblePlayer()]
-		&& !g_player[g_selected_item->GetVisiblePlayer()]->m_isDead)
+		if((player_Get(g_selected_item->GetVisiblePlayer())
+		&& !player_Get(g_selected_item->GetVisiblePlayer())->m_isDead)
 		||  g_turn->IsEmail()
 		||  g_turn->IsHotSeat()
 		){
@@ -818,7 +818,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 
 	Initialize( windowBlock );
 
-	if (g_player[g_selected_item->GetVisiblePlayer()] == NULL) {
+	if (player_Get(g_selected_item->GetVisiblePlayer()) == NULL) {
 		m_continueButton->Enable(FALSE);
 	} else {
 		m_continueButton->Enable(TRUE);
@@ -997,14 +997,14 @@ sint32 victorywin_LoadGraphData( void )
 	for ( sint32 i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
 
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 
 			if (!myData)
 				color = (sint32)g_colorSet->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
-			p = g_player[i];
+			p = player_Get(i);
 			civ = p->GetCivilisation();
 			if(civilisationpool_Get()->IsValid(civ->m_id)) {
 				civ->GetSingularCivName(strbuf);
@@ -1153,7 +1153,7 @@ sint32 victorywin_LoadScoreData( void )
 	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
 	s_scoreList->AddItem((ctp2_ListItem *)item);
 
-	Player *pl = g_player[curPlayer];
+	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {

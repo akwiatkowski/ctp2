@@ -86,7 +86,7 @@
 #include "gs/gameobj/TerrImproveData.h"
 #include "gs/slic/SlicConst.h"
 #include "gs/slic/SlicRecord.h"
-#include "gs/slic/SlicEngine.h"       // g_slicEngine for segment lookup
+#include "gs/slic/SlicEngine.h"       // slicengine_Get() for segment lookup
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicNamedSymbol.h"
@@ -133,7 +133,7 @@ extern TurnCount             *g_turn;
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
-// g_theArmyPool / g_theTradePool / g_slicEngine /
+// g_theArmyPool / g_theTradePool / slicengine_Get() /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
 // g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
 // are extern'd by their respective headers (already included above).
@@ -2110,8 +2110,8 @@ void from_json(nlohmann::json const &j, SlicConst &c)
 // Phase F-8 — SlicRecord (per-player slic message journal entry).
 // Mirrors SlicRecord::Serialize at gs/slic/SlicRecord.cpp:53.  Persists
 // owner + title/text strings + the segment's name (resolved via
-// g_slicEngine->GetSegment on load — m_segment stays nullptr when
-// g_slicEngine isn't initialised or the segment name is empty).
+// slicengine_Get()->GetSegment on load — m_segment stays nullptr when
+// slicengine_Get() isn't initialised or the segment name is empty).
 //
 // JSON shape distinguishes "missing string" from "empty string":
 // null when the source pointer was NULL (binary path wrote l=-1),
@@ -2155,8 +2155,8 @@ void from_json(nlohmann::json const &j, SlicRecord &r)
     jsonToOptString(j.at("text"),  r.m_text);
 
     std::string seg_name = j.at("segment_name").get<std::string>();
-    r.m_segment = (g_slicEngine && !seg_name.empty())
-                      ? g_slicEngine->GetSegment(seg_name.c_str())
+    r.m_segment = (slicengine_Get() && !seg_name.empty())
+                      ? slicengine_Get()->GetSegment(seg_name.c_str())
                       : nullptr;
 }
 
@@ -3240,8 +3240,8 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
         {
             std::string name = j.at("function_name").get<std::string>();
             s.m_val.m_function_object =
-                (g_slicEngine && !name.empty())
-                    ? g_slicEngine->GetFunction(name.c_str())
+                (slicengine_Get() && !name.empty())
+                    ? slicengine_Get()->GetFunction(name.c_str())
                     : nullptr;
             break;
         }
@@ -3255,8 +3255,8 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
         case SLIC_SYM_ID:
         {
             std::string name = j.at("segment_name").get<std::string>();
-            s.m_val.m_segment = (g_slicEngine && !name.empty())
-                                    ? g_slicEngine->GetSegment(name.c_str())
+            s.m_val.m_segment = (slicengine_Get() && !name.empty())
+                                    ? slicengine_Get()->GetSegment(name.c_str())
                                     : nullptr;
             break;
         }
@@ -3275,17 +3275,17 @@ void from_json(nlohmann::json const &j, SlicSymbolData &s)
         case SLIC_SYM_STRUCT:
         {
             // SlicStructInstance has no default ctor — it needs a
-            // description.  Resolve via g_slicEngine using the
+            // description.  Resolve via slicengine_Get() using the
             // builtin-tag stored in the nested struct JSON.  Without
             // an engine (test-only path) the symbol falls back to
             // UNDEFINED rather than crashing — full struct round-
             // trips require a live SlicEngine fixture.
             nlohmann::json const &js = j.at("struct");
             SlicStructDescription *desc = nullptr;
-            if (g_slicEngine && js.contains("description")
+            if (slicengine_Get() && js.contains("description")
                 && !js.at("description").is_null())
             {
-                desc = g_slicEngine->GetStructDescription(
+                desc = slicengine_Get()->GetStructDescription(
                     static_cast<SLIC_BUILTIN>(js.at("description").get<int>()));
             }
             if (!desc)
@@ -3472,7 +3472,7 @@ void to_json(nlohmann::json &j, SlicArray const &a)
     if (a.m_varType == SLIC_SYM_STRUCT)
     {
         // Stored as the SLIC_BUILTIN enum integer to match the binary
-        // path; resolved on load via g_slicEngine->GetStructDescription.
+        // path; resolved on load via slicengine_Get()->GetStructDescription.
         j["struct_template"] = a.m_structTemplate
             ? static_cast<int>(a.m_structTemplate->GetType())
             : -1;
@@ -3512,8 +3512,8 @@ void from_json(nlohmann::json const &j, SlicArray &a)
     {
         SLIC_BUILTIN const which =
             static_cast<SLIC_BUILTIN>(j.value("struct_template", -1));
-        a.m_structTemplate = (g_slicEngine && static_cast<int>(which) >= 0)
-                                 ? g_slicEngine->GetStructDescription(which)
+        a.m_structTemplate = (slicengine_Get() && static_cast<int>(which) >= 0)
+                                 ? slicengine_Get()->GetStructDescription(which)
                                  : nullptr;
     }
     else
@@ -3551,9 +3551,9 @@ void from_json(nlohmann::json const &j, SlicArray &a)
 // SlicStruct.cpp:413.
 //
 // SlicStructDescription itself isn't persisted — it's compile-time
-// metadata reconstructed by g_slicEngine at startup (slicstruct_Init
+// metadata reconstructed by slicengine_Get() at startup (slicstruct_Init
 // equivalent).  The bridge stores the description's SLIC_BUILTIN tag
-// and re-resolves via g_slicEngine->GetStructDescription on load.
+// and re-resolves via slicengine_Get()->GetStructDescription on load.
 //
 // JSON shape:
 //   {
@@ -3594,7 +3594,7 @@ void from_json(nlohmann::json const &j, SlicStructInstance &s)
 {
     // Description was set by the constructor before we got here; the
     // caller (SlicSymbolData::from_json STRUCT case) is responsible
-    // for resolving it via g_slicEngine.  Reset member/data slots.
+    // for resolving it via slicengine_Get().  Reset member/data slots.
     for (size_t i = 0; i < s.m_validIndexCount; ++i)
     {
         delete s.m_members[i];
@@ -3868,8 +3868,8 @@ void from_json(nlohmann::json const &j, SlicObject &o)
         o.m_recipientList[i] = recipients[i];
 
     std::string segName = j.at("segment_name").get<std::string>();
-    o.m_segment = (g_slicEngine && !segName.empty())
-                      ? g_slicEngine->GetSegment(segName.c_str())
+    o.m_segment = (slicengine_Get() && !segName.empty())
+                      ? slicengine_Get()->GetSegment(segName.c_str())
                       : nullptr;
     // m_frame is recreated from m_segment by the binary path; do the
     // same here when possible.
@@ -4134,9 +4134,9 @@ void from_json(nlohmann::json const &j, SlicSymTab &t)
         }
         t.m_array[i] = named;
         t.StringHash<SlicNamedSymbol>::Add(named);
-        if (named->IsBuiltin() && g_slicEngine)
+        if (named->IsBuiltin() && slicengine_Get())
         {
-            g_slicEngine->AddBuiltinSymbol(static_cast<SlicBuiltinNamedSymbol *>(named));
+            slicengine_Get()->AddBuiltinSymbol(static_cast<SlicBuiltinNamedSymbol *>(named));
         }
     }
 }
@@ -4337,9 +4337,9 @@ void from_json(nlohmann::json const &j, SlicButton &b)
         b.m_segmentName = nullptr;
     }
     b.m_segment = nullptr;
-    if (!segName.empty() && g_slicEngine)
+    if (!segName.empty() && slicengine_Get())
     {
-        b.m_segment = g_slicEngine->GetSegment(segName.c_str());
+        b.m_segment = slicengine_Get()->GetSegment(segName.c_str());
     }
     if (!b.m_segment && !segName.empty())
     {
@@ -4380,8 +4380,8 @@ void from_json(nlohmann::json const &j, SlicEyePoint &e)
     j.at("recipient").get_to(e.m_recipient);
 
     std::string segName = j.at("segment_name").get<std::string>();
-    e.m_segment = (!segName.empty() && g_slicEngine)
-                      ? g_slicEngine->GetSegment(segName.c_str())
+    e.m_segment = (!segName.empty() && slicengine_Get())
+                      ? slicengine_Get()->GetSegment(segName.c_str())
                       : nullptr;
 
     e.m_type = static_cast<EYE_POINT_TYPE>(j.at("type").get<int>());
@@ -4624,7 +4624,7 @@ bool SaveJson(char const *path)
     if (ArmyPool *ap = armypool_Get()) doc["army_pool"] = *ap;
     if (TradePool *tp = tradepool_Get()) doc["trade_pool"] = *tp;
     if (Pollution *pol = pollution_Get()) doc["pollution"]             = *pol;
-    if (g_slicEngine)                doc["slic_engine"]                = *g_slicEngine;
+    if (slicengine_Get())                doc["slic_engine"]                = *slicengine_Get();
     if (TerrainImprovementPool *tip = terrimprovepool_Get()) doc["terrain_improvement_pool"] = *tip;
     if (CivilisationPool *cp = civilisationpool_Get()) doc["civilisation_pool"] = *cp;
     if (MessagePool *mp = messagepool_Get()) doc["message_pool"] = *mp;
@@ -4761,7 +4761,7 @@ bool LoadJson(char const *path)
         if (ArmyPool *ap = armypool_Get(); doc.contains("army_pool") && ap) doc.at("army_pool").get_to(*ap);
         if (TradePool *tp = tradepool_Get(); doc.contains("trade_pool") && tp) doc.at("trade_pool").get_to(*tp);
         if (Pollution *pol = pollution_Get(); doc.contains("pollution") && pol) doc.at("pollution").get_to(*pol);
-        if (doc.contains("slic_engine")        && g_slicEngine)                doc.at("slic_engine")             .get_to(*g_slicEngine);
+        if (doc.contains("slic_engine")        && slicengine_Get())                doc.at("slic_engine")             .get_to(*slicengine_Get());
         if (TerrainImprovementPool *tip = terrimprovepool_Get(); doc.contains("terrain_improvement_pool") && tip) doc.at("terrain_improvement_pool").get_to(*tip);
         if (CivilisationPool *cp = civilisationpool_Get(); doc.contains("civilisation_pool") && cp) doc.at("civilisation_pool").get_to(*cp);
         if (MessagePool *mp = messagepool_Get(); doc.contains("message_pool") && mp) doc.at("message_pool").get_to(*mp);
@@ -4789,7 +4789,7 @@ bool LoadJson(char const *path)
         if (unitpool_Get())         unitpool_Get()->RebuildQuadTree();
         if (InstallationPool *ip = installationpool_Get()) ip->RebuildQuadTree();
         if (TradePool *tp = tradepool_Get()) tp->RecreateActors();
-        if (g_slicEngine)          g_slicEngine->PostSerialize();
+        if (slicengine_Get())          slicengine_Get()->PostSerialize();
 
         // Players: per-slot in-place from_json (F-20).  Requires that
         // gameinit_Initialize already allocated a Player at each slot

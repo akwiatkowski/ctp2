@@ -418,7 +418,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 			so->AddCity(m_city);
 			so->AddRecipient(m_owner);
 			so->AddAction(g_theStringDB->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name));
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			return false;
 		}
 
@@ -529,7 +529,7 @@ bool BuildQueue::BuildFrontWonder()
 			so->AddWonder(m_list->GetHead()->m_type);
 			so->AddCivilisation(m_owner);
 			so->AddCity(m_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		return false;
 	}
@@ -763,7 +763,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 			if(u.IsValid())
 				so->AddUnit(u);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			m_city.AccessData()->GetCityData()->SetSentInefficientMessage();
 		}
 
@@ -982,7 +982,7 @@ void BuildQueue::SendMsgWonderCompleteOwner(CityData *cd, sint32 wonder)
 	so->AddWonder(wonder) ;
 	so->AddCity(cd->GetHomeCity()) ;
 	so->AddRecipient(m_owner) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void BuildQueue::SendMsgWonderCompleteEveryone(CityData *cd, sint32 wonder)
@@ -992,7 +992,7 @@ void BuildQueue::SendMsgWonderCompleteEveryone(CityData *cd, sint32 wonder)
 	so->AddWonder(wonder) ;
 	so->AddCity(cd->GetHomeCity()) ;
 	so->AddAllRecipientsBut(m_owner);
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void BuildQueue::SendMsgWonderStopped(sint32 type)
@@ -1008,7 +1008,7 @@ void BuildQueue::SendMsgWonderStopped(sint32 type)
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(type) ;
 	so->AddAllRecipientsBut(m_owner);
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void BuildQueue::SendMsgWonderAlmostComplete(void)
@@ -1017,7 +1017,7 @@ void BuildQueue::SendMsgWonderAlmostComplete(void)
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void BuildQueue::SendMsgWonderStarted(sint32 type)
@@ -1033,7 +1033,7 @@ void BuildQueue::SendMsgWonderStarted(sint32 type)
 	so->AddCivilisation(m_owner) ;
 	so->AddWonder(type) ;
 	so->AddAllRecipientsBut(m_owner);
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
@@ -1052,7 +1052,7 @@ void BuildQueue::SendMsgWormholeProbeStarted(void)
     so->AddCivilisation(m_owner) ;
 	so->AddUnit(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 }
 
 void BuildQueue::SendMsgWormholeProbeComplete(void)
@@ -1061,7 +1061,7 @@ void BuildQueue::SendMsgWormholeProbeComplete(void)
 	so->AddCivilisation(m_owner) ;
 	so->AddUnit(m_list->GetHead()->m_type) ;
 	so->AddAllRecipientsBut(m_owner);
-    g_slicEngine->Execute(so) ;
+    slicengine_Get()->Execute(so) ;
 }
 
 #endif // CTP1_HAS_RISEN_FROM_THE_GRAVE

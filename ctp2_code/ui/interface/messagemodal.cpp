@@ -20,7 +20,7 @@
 #include "ui/interface/messageactions.h"
 #include "ui/interface/messagewindow.h"
 #include "ui/interface/messageeyepoint.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_Get()
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
 
 extern C3UI			*g_c3ui;
@@ -77,8 +77,8 @@ void messagemodal_DestroyModalMessage( void )
 		g_modalMessage = NULL;
 
 
-		if(g_player && g_player[g_selected_item->GetVisiblePlayer()]) {
-			g_player[g_selected_item->GetVisiblePlayer()]->NotifyModalMessageDestroyed();
+		if(player_arr_Get() && player_Get(g_selected_item->GetVisiblePlayer())) {
+			player_Get(g_selected_item->GetVisiblePlayer())->NotifyModalMessageDestroyed();
 		}
 	}
 }

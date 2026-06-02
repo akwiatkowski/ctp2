@@ -29,7 +29,7 @@
 #include "net/general/net_packet.h"
 #include "net/general/net_info.h"
 #include "net/io/net_util.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_Get()
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/diplomacy/diplomacy_types.h"
@@ -238,12 +238,12 @@ void NetAgreementMatrix::Packetize(uint8 *buf, uint16 &size)
 
 	for (uint8 p1 = 0; p1 < k_MAX_PLAYERS; p1++)
 	{
-		if(!g_player[p1])
+		if(!player_Get(p1))
 			continue;
 
 		for (uint8 p2 = 0; p2 < k_MAX_PLAYERS; p2++)
 		{
-			if(!g_player[p2])
+			if(!player_Get(p2))
 				continue;
 			if(p2 == p1)
 				continue;

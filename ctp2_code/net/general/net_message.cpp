@@ -39,8 +39,6 @@
 #include "net/general/net_info.h"
 #include "gs/gameobj/Player.h"
 
-extern Player **g_player;
-
 void NetMessage::Packetize(uint8 *buf, uint16 &size)
 {
 	Assert(FALSE);
@@ -112,12 +110,12 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_NAK_OBJECT,
 												  (uint32)msg, (uint32)realmsg));
 		}
-		g_player[m_data->m_owner]->AddMessage(realmsg);
+		player_Get(m_data->m_owner)->AddMessage(realmsg);
 		g_network.Enqueue(m_data);
 	} else if(!messagepool_Get()->IsValid(msg)) {
 		messagepool_Get()->HackSetKey(((uint32)msg & k_ID_KEY_MASK)+1);
 		messagepool_Get()->Insert(m_data);
-		g_player[m_data->m_owner]->AddMessage(msg);
+		player_Get(m_data->m_owner)->AddMessage(msg);
 	}
 }
 

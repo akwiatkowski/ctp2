@@ -222,7 +222,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 																	TERRAIN_IMPROVEMENT(s_tileImprovementNum),
 																	extraData);
 
-	if(g_player[visPlayer]->IsExplored(p) && !alreadyHasIt) {
+	if(player_Get(visPlayer)->IsExplored(p) && !alreadyHasIt) {
 
 		maputils_MapXY2PixelXY(p.x,p.y,&x,&y);
 
@@ -309,11 +309,11 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 		ERR_BUILD_INST err;
 		bool const	checkMaterials	= !g_theProfileDB->GetValueByName("ShowExpensive");
 
-		if (g_player[visPlayer]->CanCreateImprovement
+		if (player_Get(visPlayer)->CanCreateImprovement
 				(TERRAIN_IMPROVEMENT(s_tileImprovementNum), p, extraData, checkMaterials, err)
 		   )
 		{
-			if (g_player[visPlayer]->CanCreateImprovement
+			if (player_Get(visPlayer)->CanCreateImprovement
 					(TERRAIN_IMPROVEMENT(s_tileImprovementNum), p, extraData, true, err)
 			   )
 			{

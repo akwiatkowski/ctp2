@@ -86,7 +86,7 @@ ScoreTab::~ScoreTab()
 void ScoreTab::Update(void)
 {
 	sint32      curPlayer   = g_selected_item->GetVisiblePlayer();
-	Player *    pl          = g_player[curPlayer];
+	Player *    pl          = player_Get(curPlayer);
 	if (!pl)
     {
 		pl = Player::GetDeadPlayer(curPlayer);
@@ -115,8 +115,8 @@ void ScoreTab::Update(void)
 	sint32 rank = 1;
 	for (int p = 1; p < k_MAX_PLAYERS; p++)
     {
-		if ((p != curPlayer) && g_player[p] &&
-            (g_player[p]->m_score->GetTotalScore() > score->GetTotalScore())
+		if ((p != curPlayer) && player_Get(p) &&
+            (player_Get(p)->m_score->GetTotalScore() > score->GetTotalScore())
            )
         {
 			rank++;

@@ -746,7 +746,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 	Army theArmy;
 	bool newArmy = false;
 	if(node->m_army.m_id == 0) {
-		theArmy = g_player[g_selected_item->GetVisiblePlayer()]->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
+		theArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
 		node->m_army = theArmy;
 		m_army = theArmy;
 	} else {
@@ -755,7 +755,7 @@ void ArmyManagerWindow::AddSelectedUnits()
 			theArmy = node->m_army;
 		} else {
 
-			theArmy = g_player[g_selected_item->GetVisiblePlayer()]->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
+			theArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_GROUPING);
 			node->m_army = theArmy;
 		}
 	}
@@ -846,7 +846,7 @@ void ArmyManagerWindow::RemoveSelectedUnits()
 
 					units.Insert(m_inArmy[i]);
 				} else {
-					Army newArmy = g_player[g_selected_item->GetVisiblePlayer()]->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
+					Army newArmy = player_Get(g_selected_item->GetVisiblePlayer())->GetNewArmy(CAUSE_NEW_ARMY_UNGROUPING);
 					m_inArmy[i].ChangeArmy(newArmy, CAUSE_NEW_ARMY_UNGROUPING);
 
 					m_armies->AddTail(new ArmyListNode(newArmy));

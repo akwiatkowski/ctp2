@@ -4,8 +4,6 @@
 #include "gs/gameobj/Player.h"
 #include "net/io/net_util.h"
 
-extern Player **g_player;
-
 NetReadiness::NetReadiness(MilitaryReadiness *data)
 {
 	m_data = data;
@@ -36,10 +34,10 @@ void NetReadiness::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint8 owner;
 	PULLBYTE(owner);
 
-	if(!g_player[owner])
+	if(!player_Get(owner))
 		return;
 
-	MilitaryReadiness *readiness = g_player[owner]->m_readiness;
+	MilitaryReadiness *readiness = player_Get(owner)->m_readiness;
 
 	uint8 level;
 	PULLBYTE(level);

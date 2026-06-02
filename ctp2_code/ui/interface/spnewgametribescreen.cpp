@@ -77,7 +77,7 @@
 #include "CivilisationRecord.h"
 #include "gs/fileio/gamefile.h"
 #include "ui/aui_ctp2/keypress.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get()
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/spnewgamewindow.h"
@@ -134,8 +134,8 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 	    g_selected_item ? g_selected_item->GetVisiblePlayer() : 1;
 	bool const      shouldSetProfileDB  =
 	    !g_isCheatModeOn ||
-	     (g_player[playerIndex] &&
-	      g_player[playerIndex]->IsHuman()
+	     (player_Get(playerIndex) &&
+	      player_Get(playerIndex)->IsHuman()
 	     );
 
 	if (shouldSetProfileDB)

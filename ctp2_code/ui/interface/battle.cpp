@@ -37,7 +37,7 @@
 #include "gs/world/World.h"                  // g_theWorld
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get()
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
 #include "ui/interface/battleevent.h"
@@ -127,8 +127,8 @@ void Battle::Initialize(Army const & attackers, CellUnitList const & defenders)
 	m_attackersColor = g_colorSet->ComputePlayerColor(attackers[0].GetOwner());
 	m_defendersColor = g_colorSet->ComputePlayerColor(defenders[0].GetOwner());
 
-	g_player[attackers[0].GetOwner()]->GetPluralCivName(m_attackersName);
-	g_player[defenders[0].GetOwner()]->GetPluralCivName(m_defendersName);
+	player_Get(attackers[0].GetOwner())->GetPluralCivName(m_attackersName);
+	player_Get(defenders[0].GetOwner())->GetPluralCivName(m_defendersName);
 
 }
 

@@ -100,19 +100,19 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 	MapPoint newPos = to;
 
 	if(g_selected_item->IsAutoCenterOn()
-	&& !g_director->TileWillBeCompletelyVisible(newPos.x, newPos.y)
+	&& !director_Get()->TileWillBeCompletelyVisible(newPos.x, newPos.y)
 	&& (top_src.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
 	&& (   g_theProfileDB->IsEnemyMoves()
 	    || top_src.GetOwner() == g_selected_item->GetVisiblePlayer()
 	   )
 	){
-		g_director->AddCenterMap(newPos);
+		director_Get()->AddCenterMap(newPos);
 	}
 
 	if (!to.IsNextTo(from)) {
-		g_director->AddTeleport(top_src, from, newPos, revealedActors, restOfStack);
+		director_Get()->AddTeleport(top_src, from, newPos, revealedActors, restOfStack);
 	} else {
-		g_director->AddMove(
+		director_Get()->AddMove(
       top_src,
       from,
       newPos,
@@ -124,7 +124,7 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 	}
 
 	if (top_src.GetData()->HasLeftMap())
-		g_director->AddHide(top_src);
+		director_Get()->AddHide(top_src);
 
 	return GEV_HD_Continue;
 }
@@ -198,14 +198,14 @@ STDEHANDLER(DirectorActionSuccessful)
 					((c.GetOwner() == g_selected_item->GetVisiblePlayer()) ||
 					 (c.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))))) {
 
-					g_director->AddCenterMap(attackPos);
+					director_Get()->AddCenterMap(attackPos);
 				}
 			}
 
 			if(c.IsValid())
-				g_director->AddSpecialAttack(unit, c, attack);
+				director_Get()->AddSpecialAttack(unit, c, attack);
 			else
-				g_director->AddSpecialEffect(attackPos, spriteID, soundID);
+				director_Get()->AddSpecialEffect(attackPos, spriteID, soundID);
 
 		} else {
 			if (soundID != -1) {
@@ -226,10 +226,10 @@ STDEHANDLER(DirectorActionSuccessful)
 			soundID  = g_theSoundDB->FindTypeIndex("SOUND_ID_GENERALSUCCEED");
 			if(g_selected_item->IsAutoCenterOn())
 			{
-				g_director->AddCenterMap(attackPos);
+				director_Get()->AddCenterMap(attackPos);
 			}
 
-			g_director->AddSpecialEffect(attackPos, spriteID, soundID);
+			director_Get()->AddSpecialEffect(attackPos, spriteID, soundID);
 		}
 	}
 	return GEV_HD_Continue;
@@ -237,9 +237,9 @@ STDEHANDLER(DirectorActionSuccessful)
 
 STDEHANDLER(DirectorReallyBeginScheduler)
 {
-	if (!g_director->m_holdSchedulerSequence.expired()) {
-		g_director->ActionFinished(g_director->m_holdSchedulerSequence);
-		g_director->m_holdSchedulerSequence.reset();
+	if (!director_Get()->m_holdSchedulerSequence.expired()) {
+		director_Get()->ActionFinished(director_Get()->m_holdSchedulerSequence);
+		director_Get()->m_holdSchedulerSequence.reset();
 	}
 	return GEV_HD_Continue;
 }

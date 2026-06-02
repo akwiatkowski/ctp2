@@ -84,7 +84,7 @@
 #include "ui/interface/controlpanelwindow.h"         // g_controlPanel
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gfx/spritesys/director.h"                   // director_Get()
 #include "gfx/spritesys/EffectActor.h"
 #include "gs/fileio/gamefile.h"
 #include "gfx/gfx_utils/gfx_options.h"
@@ -2945,9 +2945,9 @@ sint32 TiledMap::OffsetSprites(RECT *paintRect, sint32 deltaX, sint32 deltaY)
 {
 	OffsetLayerSprites(paintRect, deltaX, deltaY, 0);
 
-	g_director->OffsetActiveUnits(-deltaX, -deltaY);
-	g_director->OffsetActiveEffects(-deltaX, -deltaY);
-	g_director->OffsetTradeRouteAnimations(-deltaX, -deltaY);
+	director_Get()->OffsetActiveUnits(-deltaX, -deltaY);
+	director_Get()->OffsetActiveEffects(-deltaX, -deltaY);
+	director_Get()->OffsetTradeRouteAnimations(-deltaX, -deltaY);
 
 	return 0;
 }
@@ -2970,9 +2970,9 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	g_screenManager->LockSurface(surf);
 
 	RepaintLayerSprites(paintRect, 0);
-	g_director->DrawTradeRouteAnimations(paintRect, 0);
-	g_director->DrawActiveUnits(paintRect, 0);
-	g_director->DrawActiveEffects(paintRect, 0);
+	director_Get()->DrawTradeRouteAnimations(paintRect, 0);
+	director_Get()->DrawActiveUnits(paintRect, 0);
+	director_Get()->DrawActiveEffects(paintRect, 0);
 
 	if (g_spriteEditWindow)
 		g_spriteEditWindow->DrawSprite();
@@ -4473,7 +4473,7 @@ UnitActorPtr TiledMap::GetClickedUnit(aui_MouseEvent *data)
 		}
 	}
 
-	return g_director->GetClickedActiveUnit(data);
+	return director_Get()->GetClickedActiveUnit(data);
 }
 
 bool TiledMap::PointInMask(POINT hitPt) const

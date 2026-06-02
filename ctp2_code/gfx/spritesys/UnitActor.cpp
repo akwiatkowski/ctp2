@@ -74,7 +74,7 @@
 #include "gfx/gfx_utils/colorset.h"  // g_colorset
 #include "gfx/spritesys/SpriteGroupList.h"
 #include "gfx/spritesys/SpriteState.h"
-#include "gfx/spritesys/director.h"  // g_director
+#include "gfx/spritesys/director.h"  // director_Get()
 #include "gfx/spritesys/screenmanager.h"
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"   // tiledmap_Get()
@@ -706,7 +706,7 @@ void UnitActor::Process(void) {
 
     if (m_curAction->m_actionType != UNITACTION_IDLE &&
         m_curAction->m_actionType != UNITACTION_FACE_OFF)
-      g_director->ActionFinished(m_curAction->GetSequence());
+      director_Get()->ActionFinished(m_curAction->GetSequence());
 
     if ((m_curAction->m_actionType == UNITACTION_VICTORY && HasDeath()) ||
         m_curAction->m_actionType == UNITACTION_FAKE_DEATH) {
@@ -716,7 +716,7 @@ void UnitActor::Process(void) {
       GetNextAction();
     }
 
-    g_director->HandleNextAction();
+    director_Get()->HandleNextAction();
   } else {
     if (m_curAction->GetPath() != NULL) {
       POINT curPt = m_curAction->GetPosition();
@@ -815,7 +815,7 @@ void UnitActor::DumpAllActions(void) {
 
     if (m_curAction->m_actionType != UNITACTION_IDLE &&
         m_curAction->m_actionType != UNITACTION_FACE_OFF) {
-      g_director->ActionFinished(m_curAction->GetSequence());
+      director_Get()->ActionFinished(m_curAction->GetSequence());
     }
     m_curAction.reset();
   }
@@ -834,7 +834,7 @@ void UnitActor::DumpAllActions(void) {
 
       if (deadAction->m_actionType != UNITACTION_IDLE &&
           deadAction->m_actionType != UNITACTION_FACE_OFF) {
-        g_director->ActionFinished(deadAction->GetSequence());
+        director_Get()->ActionFinished(deadAction->GetSequence());
       }
 
       deadAction.reset();
@@ -912,7 +912,7 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
   if (anim->GetType() == ANIMTYPE_LOOPED) {
     anim->SetDelayEnd(m_holdingCurAnimDelayEnd[action]);
     anim->SetElapsed(m_holdingCurAnimElapsed[action]);
-    anim->SetLastFrameTime(g_director->GetMasterCurTime() -
+    anim->SetLastFrameTime(director_Get()->GetMasterCurTime() -
                            m_holdingCurAnimElapsed[action]);
 
     if (m_holdingCurAnimDelayEnd[action] != 0)
@@ -920,7 +920,7 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
   }
 
   if (action == UNITACTION_IDLE) {
-    srand(anim->GetDelay() + g_director->GetMasterCurTime());
+    srand(anim->GetDelay() + director_Get()->GetMasterCurTime());
     anim->AdjustDelay(rand() % 2000);
   }
 
@@ -2481,7 +2481,7 @@ void UnitActor::DumpActor(void) {
       DPRINTF(k_DBG_UI, ("  m_curAction.m_sequence->m_sequenceID     :%ld\n",
                          m_curAction->GetSequence().lock()->GetSequenceID()));
       DQItemPtr item = m_curAction->GetSequence().lock()->GetItem();
-      g_director->DumpItem(item.get());
+      director_Get()->DumpItem(item.get());
     }
   }
   DPRINTF(k_DBG_UI, (" ------------------\n"));
@@ -2500,7 +2500,7 @@ void UnitActor::DumpActor(void) {
         if (!action->GetSequence().expired()) {
           DPRINTF(k_DBG_UI, ("  action.m_sequence->m_sequenceID:%ld\n",
                              action->GetSequence().lock()->GetSequenceID()));
-          g_director->DumpItem(action->GetSequence().lock()->GetItem().get());
+          director_Get()->DumpItem(action->GetSequence().lock()->GetItem().get());
         }
       }
       ++i;

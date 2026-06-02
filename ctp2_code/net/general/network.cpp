@@ -758,7 +758,7 @@ Network::Process()
 					if(sci_advancescreen_isOnScreen()) {
 						sci_advancescreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 					}
-					g_director->AddEndTurn();
+					director_Get()->AddEndTurn();
 
 				}
 			}
@@ -1129,7 +1129,7 @@ void Network::RemovePlayer(uint16 id)
 		if(player_Get(index)) {
 			player_Get(index)->SetPlayerType(PLAYER_TYPE_ROBOT);
 			if(index == g_selected_item->GetCurPlayer()) {
-				g_director->AddEndTurn();
+				director_Get()->AddEndTurn();
 			}
 
 			SetRobotName(index);
@@ -1199,7 +1199,7 @@ void Network::SetToHost()
 		||  player_Get(g_selected_item->GetCurPlayer())->IsRobot()
 		){
 			DPRINTF(k_DBG_GAMESTATE, ("Set to host, cur player (%d) is robot, adding EndTurn\n", g_selected_item->GetCurPlayer()));
-			g_director->AddEndTurn();
+			director_Get()->AddEndTurn();
 		}
 	}
 }
@@ -1285,8 +1285,8 @@ void Network::SetReady(uint16 id)
 	if(player->m_id == m_pid) {
 		m_playerIndex = index;
 
-		if(g_director) {
-			g_director->NextPlayer();
+		if(director_Get()) {
+			director_Get()->NextPlayer();
 		}
 		if(tiledmap_Get()) {
 			tiledmap_Get()->NextPlayer();
@@ -2317,8 +2317,8 @@ Network::ProcessNewPlayer(uint16 id)
 			if(newslot == g_selected_item->GetCurPlayer()) {
 				SetMyTurn(TRUE);
 			}
-			if(g_director) {
-				g_director->NextPlayer();
+			if(director_Get()) {
+				director_Get()->NextPlayer();
 			}
 			if(tiledmap_Get()) {
 				tiledmap_Get()->NextPlayer();
@@ -3544,7 +3544,7 @@ void Network::SetReadyToStart(BOOL ready)
 {
 	m_readyToStart = ready;
 	if(ready) {
-		g_director->AddCopyVision();
+		director_Get()->AddCopyVision();
 		tiledmap_Get()->InvalidateMix();
 		tiledmap_Get()->InvalidateMap();
 		tiledmap_Get()->Refresh();
@@ -3554,7 +3554,7 @@ void Network::SetReadyToStart(BOOL ready)
 			MapPoint pos;
 			if(player_Get(m_playerIndex)->m_all_armies->Num() > 0) {
 				player_Get(m_playerIndex)->m_all_armies->Access(0).GetPos(pos);
-				g_director->AddCenterMap(pos);
+				director_Get()->AddCenterMap(pos);
 			}
 		}
 
@@ -3587,7 +3587,7 @@ void Network::SetReadyToStart(BOOL ready)
 				}
 				if(i == g_selected_item->GetCurPlayer() && player_Get(i)->IsRobot()) {
 
-					g_director->AddEndTurn();
+					director_Get()->AddEndTurn();
 				}
 				QueuePacketToAll(new NetSetPlayerGuid(i));
 			}
@@ -3730,8 +3730,8 @@ void Network::StartResync()
 
 	close_AllScreens();
 
-	if(g_director) {
-		g_director->CatchUp();
+	if(director_Get()) {
+		director_Get()->CatchUp();
 	}
 
 	if(tiledmap_Get()) {
@@ -3778,8 +3778,8 @@ void Network::StartResync()
 	if(gevmanager_Get())
 		gevmanager_Get()->NotifyResync();
 
-	if(g_director)
-		g_director->NotifyResync();
+	if(director_Get())
+		director_Get()->NotifyResync();
 
 	CtpAi::Initialize();
 }

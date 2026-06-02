@@ -9,7 +9,7 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CTP2Combat.h"
 #include "TerrainRecord.h"
-#include "gs/world/World.h"  // g_theWorld
+#include "gs/world/World.h"  // world_Get()
 #include "net/general/network.h"
 #include "sound/soundmanager.h"
 #include "ui/aui_common/aui_blitter.h"

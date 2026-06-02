@@ -375,8 +375,8 @@ void ScienceVictoryDialog::UpdateConstructionMap(
 
 
 
-	for(sint32 y = 0; y < g_theWorld->GetHeight(); y++) {
-		for(sint32 x = 0; x < g_theWorld->GetWidth(); x++) {
+	for(sint32 y = 0; y < world_Get()->GetHeight(); y++) {
+		for(sint32 x = 0; x < world_Get()->GetWidth(); x++) {
 			if(gaiaController->GetCoverage().Get(x, y))
 				m_map->SetMapOverlayCell(MapPoint(x, y), COLOR_YELLOW);
 		}

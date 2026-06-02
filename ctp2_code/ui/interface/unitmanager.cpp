@@ -467,8 +467,8 @@ void UnitManager::UpdateTacticalList()
 		if(child) {
 			if(u.Flag(k_UDF_IN_SPACE)) {
 				child->SetText(g_theStringDB->GetNameStr("UNIT_LOCATION_IN_SPACE"));
-			} else if(g_theWorld->GetCell(u.RetPos())->GetCity().IsValid()) {
-				child->SetText(g_theWorld->GetCell(u.RetPos())->GetCity().GetName());
+			} else if(world_Get()->GetCell(u.RetPos())->GetCity().IsValid()) {
+				child->SetText(world_Get()->GetCell(u.RetPos())->GetCity().GetName());
 			} else {
 				child->SetText(g_theStringDB->GetNameStr("UNIT_LOCATION_IN_FIELD"));
 			}
@@ -736,8 +736,8 @@ sint32 UnitManager::CompareTacticalItems(ctp2_ListItem *item1, ctp2_ListItem *it
 
 		case k_TACTICAL_LOCATION_COL:
 		{
-			Unit c1 = g_theWorld->GetCell(u1.RetPos())->GetCity();
-			Unit c2 = g_theWorld->GetCell(u2.RetPos())->GetCity();
+			Unit c1 = world_Get()->GetCell(u1.RetPos())->GetCity();
+			Unit c2 = world_Get()->GetCell(u2.RetPos())->GetCity();
 
 			const MBCHAR *l1name, *l2name;
 			if(u1.Flag(k_UDF_IN_SPACE)) {

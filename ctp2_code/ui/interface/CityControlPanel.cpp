@@ -858,7 +858,7 @@ void CityControlPanel::Activated()
 
   	if(selectionType != SELECT_TYPE_NONE) {
 
-		Unit city = g_theWorld->GetCity(g_selected_item->GetCurSelectPos());
+		Unit city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
 		if(city.IsValid()) {
 			g_selected_item->SetSelectCity(city);
 		}

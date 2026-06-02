@@ -279,7 +279,7 @@ void ArmyManagerWindow::Update()
 {
 	sint32 i;
 
-	Cell *cell = g_theWorld->GetCell(m_pos);
+	Cell *cell = world_Get()->GetCell(m_pos);
 	if(!cell)
 		return;
 
@@ -530,7 +530,7 @@ void ArmyManagerWindow::UpdateList()
 void ArmyManagerWindow::FillArmies()
 {
 	sint32 i, j;
-	Cell *cell = g_theWorld->GetCell(m_pos);
+	Cell *cell = world_Get()->GetCell(m_pos);
 	Assert(cell);
 	if(!cell)
 		return;

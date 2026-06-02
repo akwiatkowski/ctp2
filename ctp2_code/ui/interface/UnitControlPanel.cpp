@@ -541,7 +541,7 @@ void UnitControlPanel::UpdateMultipleSelectionDisplay()
 		return;
 
 	CellUnitList        newUnitList;
-    g_theWorld->GetCell(g_selected_item->GetCurSelectPos())->GetArmy(newUnitList);
+    world_Get()->GetCell(g_selected_item->GetCurSelectPos())->GetArmy(newUnitList);
 
     std::vector<Army>   newArmyList;
 	for (sint32 i = 0; i < newUnitList.Num(); ++i)
@@ -926,7 +926,7 @@ Army UnitControlPanel::GetSelectedArmy()
 
 	if(selectionType == SELECT_TYPE_LOCAL_CITY) {
 		Unit city(id);
-		Cell *cell = g_theWorld->GetCell(city.RetPos());
+		Cell *cell = world_Get()->GetCell(city.RetPos());
 		if(cell->UnitArmy()) {
 			Unit top = cell->UnitArmy()->GetTopVisibleUnit(player->m_owner);
 			if(top.IsValid()) {

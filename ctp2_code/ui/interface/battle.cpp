@@ -34,7 +34,7 @@
 #include "ui/interface/battle.h"
 
 #include "gs/gameobj/Army.h"
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Player.h"                 // player_Get()
@@ -119,10 +119,10 @@ void Battle::Initialize(Army const & attackers, CellUnitList const & defenders)
 	unitutil_GetCityInfo(defPos, m_cityName, m_cityImage);
 
 	MapPoint pos = defenders[0].RetPos();
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	m_terrainType = cell->GetTerrainType();
 
-	m_attackerTerrainType = g_theWorld->GetCell(attackers->RetPos())->GetTerrainType();
+	m_attackerTerrainType = world_Get()->GetCell(attackers->RetPos())->GetTerrainType();
 
 	m_attackersColor = g_colorSet->ComputePlayerColor(attackers[0].GetOwner());
 	m_defendersColor = g_colorSet->ComputePlayerColor(defenders[0].GetOwner());

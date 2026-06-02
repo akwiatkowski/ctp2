@@ -25,8 +25,8 @@ namespace Shortcuts {
 		if(g_selected_item->GetSelectedCity(city))
 			CityWindow::Display(city.CD());
 		else if(g_selected_item->GetSelectedArmy(a)) {
-			if(g_theWorld->HasCity(a->RetPos())) {
-				CityWindow::Display(g_theWorld->GetCity(a->RetPos()).CD());
+			if(world_Get()->HasCity(a->RetPos())) {
+				CityWindow::Display(world_Get()->GetCity(a->RetPos()).CD());
 			} else {
 				CityWindow::Display(NULL);
 			}

@@ -62,7 +62,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/newdb/UnitRec.h"
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 #include "gfx/tilesys/workmap.h"
 
 #include "gs/database/StrDB.h"                  // g_theStringDB

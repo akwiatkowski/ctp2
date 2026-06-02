@@ -179,7 +179,7 @@ sint32 tileimptracker_Initialize()
 //              sint32 type: The type of the tileimp in question.
 //
 // Globals    : g_selected_item:           The currently selected item
-//              g_theWorld:                The game world
+//              world_Get():                The game world
 //              g_theTerrainImprovementDB: The tile improvement database
 //              g_theTerrainDB:            The terrain database
 //              g_theProfileDB:            The player's profile
@@ -229,7 +229,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 		g_tileImpTrackerWindow->Move(x,y);
 
-//		TERRAIN_TYPES terr = g_theWorld->GetTerrainType(p);
+//		TERRAIN_TYPES terr = world_Get()->GetTerrainType(p);
 
 		sint32  mat, time,
 		        food, production,
@@ -241,7 +241,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 		mat = terrainutil_GetProductionCost(s_tileImprovementNum, p, 0);
 
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(s_tileImprovementNum);
-		Cell *cell = g_theWorld->GetCell(p);
+		Cell *cell = world_Get()->GetCell(p);
 
 		if(rec->GetClassTerraform() || rec->GetClassOceanform())
 		{

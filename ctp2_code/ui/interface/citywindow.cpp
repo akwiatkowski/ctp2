@@ -2028,7 +2028,7 @@ void CityWindow::UpdateUnitButtons()
 		return;
 
 	MapPoint pos = m_cityData->GetHomeCity().RetPos();
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	sint32 i;
 	sint32 button = 0;
 

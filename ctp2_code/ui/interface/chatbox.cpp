@@ -62,7 +62,7 @@
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"           // g_soundManager
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"                  // g_theWorld;
+#include "gs/world/World.h"                  // world_Get()
 #include "gfx/tilesys/tiledmap.h"               // g_tiledMap
 #include "gfx/gfx_utils/gfx_options.h"
 #include "gs/events/GameEventManager.h"
@@ -402,14 +402,14 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	// Exports the current map to a text file
 	else if (!strncmp(s, "/exportmap", 10))
 	{
-		g_theWorld->ExportMap(s + 11);
+		world_Get()->ExportMap(s + 11);
 		return TRUE;
 	}
 
 	// imports the current map from a text file
 	else if (!strncmp(s, "/importmap", 10))
 	{
-		if (g_theWorld->ImportMap(s + 11))
+		if (world_Get()->ImportMap(s + 11))
 		{
 			g_tiledMap->PostProcessMap();
 			g_tiledMap->Refresh();

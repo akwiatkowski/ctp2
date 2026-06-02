@@ -85,7 +85,7 @@ void MapCopyBuffer::Copy(MapPoint &pos, sint32 w, sint32 h)
 			cur.Move(MapPointData((sint16) x, (sint16) y));
 			if (cur.IsValid())
 			{
-				Cell * cell = g_theWorld->GetCell(cur.GetRC());
+				Cell * cell = world_Get()->GetCell(cur.GetRC());
 				m_cells[x][y].m_terrain = (uint8) cell->GetTerrain();
 				m_cells[x][y].m_env		= cell->GetEnv();
 			}
@@ -108,9 +108,9 @@ void MapCopyBuffer::Paste(MapPoint &pos)
 			if (cur.IsValid())
 			{
 				MapPoint	wrapped = cur.GetRC();
-				Cell * cell = g_theWorld->GetCell(wrapped);
+				Cell * cell = world_Get()->GetCell(wrapped);
 				cell->SetEnv(m_cells[x][y].m_env);
-				g_theWorld->SmartSetTerrain(wrapped, m_cells[x][y].m_terrain, 0);
+				world_Get()->SmartSetTerrain(wrapped, m_cells[x][y].m_terrain, 0);
 			}
 		}
 	}

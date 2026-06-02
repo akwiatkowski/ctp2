@@ -71,7 +71,6 @@ extern sint32		g_fog_toggle;
 extern sint32		g_god;
 
 extern C3UI						*g_c3ui;
-extern World					*g_theWorld;
 extern StringDB					*g_theStringDB;
 
 c3_PopupWindow					*g_helpTileWindow = NULL;
@@ -220,7 +219,7 @@ void helptile_displayData(const MapPoint &p)
 	char mytext[256];
 	sint32 goods=0;
 
-	const Cell *myTile = g_theWorld->GetCell(p);
+	const Cell *myTile = world_Get()->GetCell(p);
 
 	UnseenCellCarton ucell;
 	if(!g_tiledMap->GetLocalVision()->IsVisible(p)
@@ -244,13 +243,13 @@ void helptile_displayData(const MapPoint &p)
 
 		// Unfortunatly this kind of information is not stored in the
 		// UnseenCell object.
-		if(g_theWorld->IsGood(p))
+		if(world_Get()->IsGood(p))
 		{
 			StringId	goodStrID;
 
 			myTile->GetGoodsIndex(goods);
 
-			goodStrID = g_theWorld->GetTerrain(p)->GetResources(goods)->GetName();
+			goodStrID = world_Get()->GetTerrain(p)->GetResources(goods)->GetName();
 			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}
@@ -268,7 +267,7 @@ void helptile_displayData(const MapPoint &p)
 	}
 	else
 	{
-		strcpy(myname, g_theWorld->GetTerrainName(p));
+		strcpy(myname, world_Get()->GetTerrainName(p));
 		g_helpTileWindow->TitleText()->SetText( myname );
 
 		snprintf(mytext, sizeof(mytext), "%d\n", myTile->GetFoodProduced());
@@ -280,13 +279,13 @@ void helptile_displayData(const MapPoint &p)
 		snprintf(mytext, sizeof(mytext), "%d", myTile->GetGoldProduced());
 		s_tileGoldV->SetText(mytext);
 
-		if(g_theWorld->IsGood(p))
+		if(world_Get()->IsGood(p))
 		{
 			StringId	goodStrID;
 
 			myTile->GetGoodsIndex(goods);
 
-			goodStrID = g_theWorld->GetTerrain(p)->GetResources(goods)->GetName();
+			goodStrID = world_Get()->GetTerrain(p)->GetResources(goods)->GetName();
 			snprintf(mytext, sizeof(mytext), "%s\n", g_theStringDB->GetNameStr(goodStrID));
 			s_tileGoodV->SetText(mytext);
 		}

@@ -77,7 +77,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 #include "gfx/spritesys/director.h"
-extern C3UI			*g_c3ui;
 extern ProjectFile	*g_GreatLibPF;
 
 extern ScienceWin	*g_scienceWin;
@@ -240,7 +239,7 @@ sint32	sci_advancescreen_displayMyWindow( MBCHAR *messageText, sint32 from, Sequ
 	if(from != k_SCI_INCLUDE_CANCEL) {
 			g_soundManager->AddGameSound(GAMESOUNDS_ADVANCE);
 	}
-	auiErr = g_c3ui->AddWindow(s_sci_advanceScreen);
+	auiErr = c3ui_Get()->AddWindow(s_sci_advanceScreen);
 	Assert( auiErr == AUI_ERRCODE_OK );
 
 
@@ -256,7 +255,7 @@ sint32 sci_advancescreen_removeMyWindow(uint32 action)
 	if ( (action == (uint32)AUI_BUTTON_ACTION_EXECUTE ) || (action == (uint32)AUI_LISTBOX_ACTION_DOUBLECLICKSELECT) ) {
 		AUI_ERRCODE auiErr;
 
-		auiErr = g_c3ui->RemoveWindow( s_sci_advanceScreen->Id() );
+		auiErr = c3ui_Get()->RemoveWindow( s_sci_advanceScreen->Id() );
 		keypress_RemoveHandler(&s_keyboardHandler);
 
 		Assert( auiErr == AUI_ERRCODE_OK );
@@ -368,9 +367,9 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 
 void sci_advancescreen_Cleanup(void)
 {
-	if (s_sci_advanceScreen && g_c3ui)
+	if (s_sci_advanceScreen && c3ui_Get())
     {
-	    g_c3ui->RemoveWindow(s_sci_advanceScreen->Id());
+	    c3ui_Get()->RemoveWindow(s_sci_advanceScreen->Id());
     }
 
 	keypress_RemoveHandler(&s_keyboardHandler);
@@ -801,7 +800,7 @@ sint32 sci_advancescreen_isOnScreen()
 {
 	if(!s_sci_advanceScreen)
 		return 0;
-	if(!g_c3ui->GetWindow(s_sci_advanceScreen->Id()))
+	if(!c3ui_Get()->GetWindow(s_sci_advanceScreen->Id()))
 		return 0;
 	return 1;
 }

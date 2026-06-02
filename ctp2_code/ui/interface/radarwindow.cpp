@@ -50,7 +50,6 @@ ctp2_Window * radarwindow_Get(void)
 
 extern sint32		g_ScreenHeight;
 extern sint32       g_ScreenWidth;
-extern C3UI			*g_c3ui;
 void UnitsToggleButtonActionCallback
 (
 	aui_Control *control,
@@ -332,7 +331,7 @@ sint32 radarwindow_Initialize()
 	capitolsButton->SetActionFuncAndCookie(CapitolsToggleButtonActionCallback, NULL);
 	relationsButton->SetActionFuncAndCookie(RelationsToggleButtonActionCallback, NULL);
 
-	g_c3ui->AddWindow(g_radarWindow);
+	c3ui_Get()->AddWindow(g_radarWindow);
 
 	if (gameinit_IsHotseatGame())
 	{
@@ -357,7 +356,7 @@ sint32 radarwindow_Cleanup( void )
 {
 
 	if(g_radarWindow) {
-		g_c3ui->RemoveWindow(g_radarWindow->Id());
+		c3ui_Get()->RemoveWindow(g_radarWindow->Id());
 		aui_Ldl::DeleteHierarchyFromRoot("RadarWindow");
 	}
 

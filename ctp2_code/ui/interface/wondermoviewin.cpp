@@ -50,7 +50,6 @@
 #include "ui/interface/greatlibrary.h"
 #include "gs/slic/SlicObject.h"
 
-extern C3UI				*g_c3ui;
 extern SoundManager		*g_soundManager;
 
 WonderMovieWindow		*g_wonderMovieWindow = NULL;
@@ -104,7 +103,7 @@ void wondermoviewin_DisplayWonderMovie(sint32 id)
 
 	AUI_ERRCODE		errcode;
 
-	errcode = g_c3ui->AddWindow(g_wonderMovieWindow);
+	errcode = c3ui_Get()->AddWindow(g_wonderMovieWindow);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 }
@@ -117,7 +116,7 @@ void wondermoviewin_Cleanup()
   if (g_wonderMovieWindow) {
     seq = g_wonderMovieWindow->GetSequence();
 
-		g_c3ui->RemoveWindow(g_wonderMovieWindow->Id());
+		c3ui_Get()->RemoveWindow(g_wonderMovieWindow->Id());
 
 		delete g_wonderMovieWindow;
 		g_wonderMovieWindow = NULL;
@@ -131,7 +130,7 @@ void wondermoviewin_MovieButtonCallback(aui_Control *control, uint32 action, uin
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_c3ui->AddAction(new CloseMovieAction);
+	c3ui_Get()->AddAction(new CloseMovieAction);
 }
 
 

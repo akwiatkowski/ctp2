@@ -62,7 +62,6 @@
 #include "ctp/civapp.h"
 
 extern StringDB                     *g_theStringDB;
-extern C3UI                         *g_c3ui;
 extern CivApp                       *g_civApp;
 
 ScenarioWindow                      *s_ScenarioWindow = NULL;
@@ -329,7 +328,7 @@ void ScenarioWindow::Display(bool load)
 	if(s_ScenarioWindow) {
 		Assert(s_ScenarioWindow->m_window);
 		if(s_ScenarioWindow->m_window) {
-			g_c3ui->AddWindow(s_ScenarioWindow->m_window);
+			c3ui_Get()->AddWindow(s_ScenarioWindow->m_window);
 			s_ScenarioWindow->m_window->Show();
 
 			if(load) {
@@ -347,7 +346,7 @@ void ScenarioWindow::Hide()
 
 	Assert(s_ScenarioWindow->m_window);
 	if(s_ScenarioWindow->m_window) {
-		g_c3ui->RemoveWindow(s_ScenarioWindow->m_window->Id());
+		c3ui_Get()->RemoveWindow(s_ScenarioWindow->m_window->Id());
 	}
 }
 
@@ -442,7 +441,7 @@ void ScenarioWindow::ScenarioSelect(aui_Control *control, uint32 action, uint32 
 					if (s_ScenarioWindow->GetExitCallback()) {
 						s_ScenarioWindow->GetExitCallback()(control, action, data, cookie);
 					} else {
-						g_c3ui->AddAction(new CloseScenarioScreenAction);
+						c3ui_Get()->AddAction(new CloseScenarioScreenAction);
 					}
 
 				} else {
@@ -479,7 +478,7 @@ void ScenarioWindow::CancelPress(aui_Control *control, uint32 action, uint32 dat
 			g_civPaths->ClearCurScenarioPath();
 			g_civPaths->ClearCurScenarioPackPath();
 
-			g_c3ui->AddAction(new CloseScenarioScreenAction);
+			c3ui_Get()->AddAction(new CloseScenarioScreenAction);
 		}
 }
 
@@ -496,7 +495,7 @@ void ScenarioWindow::OkPress(aui_Control *control, uint32 action, uint32 data, v
 		if (s_ScenarioWindow->GetExitCallback()) {
 			s_ScenarioWindow->GetExitCallback()(control, action, data, cookie);
 		} else {
-			g_c3ui->AddAction(new CloseScenarioScreenAction);
+			c3ui_Get()->AddAction(new CloseScenarioScreenAction);
 		}
 	} else if (s_ScenarioWindow->GetMode() == SCENARIO_WINDOW_MODE_LOAD_PACK) {
 		if(s_ScenarioWindow->m_scenarioPack) {
@@ -569,12 +568,12 @@ void ScenarioWindow::NewPress(aui_Control *control, uint32 action, uint32 data, 
 	if(s_ScenarioWindow->GetMode() == SCENARIO_WINDOW_MODE_SAVE_PACK) {
 		Assert(s_ScenarioWindow->m_newPackWindow);
 		if(s_ScenarioWindow->m_newPackWindow) {
-			g_c3ui->AddWindow(s_ScenarioWindow->m_newPackWindow);
+			c3ui_Get()->AddWindow(s_ScenarioWindow->m_newPackWindow);
 		}
 	} else if(s_ScenarioWindow->GetMode() == SCENARIO_WINDOW_MODE_SAVE_SCEN) {
 		Assert(s_ScenarioWindow->m_newScenWindow);
 		if(s_ScenarioWindow->m_newScenWindow) {
-			g_c3ui->AddWindow(s_ScenarioWindow->m_newScenWindow);
+			c3ui_Get()->AddWindow(s_ScenarioWindow->m_newScenWindow);
 		}
 	}
 }
@@ -700,7 +699,7 @@ void ScenarioWindow::NewPackOk(aui_Control *control, uint32 action, uint32 data,
 		s_ScenarioWindow->SetMode(SCENARIO_WINDOW_MODE_SAVE_PACK);
 
 		if(s_ScenarioWindow->m_newPackWindow) {
-			g_c3ui->RemoveWindow(s_ScenarioWindow->m_newPackWindow->Id());
+			c3ui_Get()->RemoveWindow(s_ScenarioWindow->m_newPackWindow->Id());
 		}
 	}
 }
@@ -711,7 +710,7 @@ void ScenarioWindow::NewPackCancel(aui_Control *control, uint32 action, uint32 d
 
 	if(s_ScenarioWindow) {
 		if(s_ScenarioWindow->m_newPackWindow) {
-			g_c3ui->RemoveWindow(s_ScenarioWindow->m_newPackWindow->Id());
+			c3ui_Get()->RemoveWindow(s_ScenarioWindow->m_newPackWindow->Id());
 		}
 	}
 }
@@ -768,7 +767,7 @@ void ScenarioWindow::NewScenOk(aui_Control *control, uint32 action, uint32 data,
 		}
 
 		if(s_ScenarioWindow->m_newScenWindow) {
-			g_c3ui->RemoveWindow(s_ScenarioWindow->m_newScenWindow->Id());
+			c3ui_Get()->RemoveWindow(s_ScenarioWindow->m_newScenWindow->Id());
 		}
 	}
 }
@@ -779,7 +778,7 @@ void ScenarioWindow::NewScenCancel(aui_Control *control, uint32 action, uint32 d
 
 	if(s_ScenarioWindow) {
 		if(s_ScenarioWindow->m_newScenWindow) {
-			g_c3ui->RemoveWindow(s_ScenarioWindow->m_newScenWindow->Id());
+			c3ui_Get()->RemoveWindow(s_ScenarioWindow->m_newScenWindow->Id());
 		}
 	}
 }

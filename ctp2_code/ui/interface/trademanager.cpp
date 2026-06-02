@@ -35,7 +35,6 @@
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/c3ui.h"
-extern C3UI *g_c3ui;
 
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
@@ -208,15 +207,15 @@ AUI_ERRCODE TradeManager::Display()
 
 	AUI_ERRCODE err = AUI_ERRCODE_INVALIDPARAM;
 	Assert(s_tradeManager->m_window);
-	if(s_tradeManager->m_window && !g_c3ui->GetWindow(s_tradeManager->m_window->Id())) {
-		err = g_c3ui->AddWindow(s_tradeManager->m_window);
+	if(s_tradeManager->m_window && !c3ui_Get()->GetWindow(s_tradeManager->m_window->Id())) {
+		err = c3ui_Get()->AddWindow(s_tradeManager->m_window);
 		Assert(err == AUI_ERRCODE_OK);
 		if(err == AUI_ERRCODE_OK) {
 			err = s_tradeManager->m_window->Show();
 		}
 
 		if(s_tradeManager->m_adviceWindow) {
-			err = g_c3ui->AddWindow(s_tradeManager->m_adviceWindow);
+			err = c3ui_Get()->AddWindow(s_tradeManager->m_adviceWindow);
 			if(err == AUI_ERRCODE_OK) {
 				err = s_tradeManager->m_adviceWindow->Show();
 			}
@@ -245,10 +244,10 @@ AUI_ERRCODE TradeManager::Hide()
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	if(s_tradeManager->m_adviceWindow) {
-		g_c3ui->RemoveWindow(s_tradeManager->m_adviceWindow->Id());
+		c3ui_Get()->RemoveWindow(s_tradeManager->m_adviceWindow->Id());
 	}
 
-	return g_c3ui->RemoveWindow(s_tradeManager->m_window->Id());
+	return c3ui_Get()->RemoveWindow(s_tradeManager->m_window->Id());
 }
 
 void TradeManager::SetMode(TRADE_MANAGER_MODE mode)
@@ -298,7 +297,7 @@ void TradeManager::SetMode(TRADE_MANAGER_MODE mode)
 
 void TradeManager::Notify()
 {
-	if(s_tradeManager && g_c3ui->GetWindow(s_tradeManager->m_window->Id())) {
+	if(s_tradeManager && c3ui_Get()->GetWindow(s_tradeManager->m_window->Id())) {
 		s_tradeManager->Update();
 	}
 }
@@ -513,7 +512,7 @@ void TradeManager::UpdateAdviceWindow()
 
 	ctp2_Button *showButton = (ctp2_Button *)aui_Ldl::GetObject(s_tradeManagerBlock, "ShowAdviceButton");
 	if(showButton) {
-		if(g_c3ui->GetWindow(m_adviceWindow->Id())) {
+		if(c3ui_Get()->GetWindow(m_adviceWindow->Id())) {
 			showButton->SetText(g_theStringDB->GetNameStr("str_ldl_TradeHideAdvisor"));
 		} else {
 			showButton->SetText(g_theStringDB->GetNameStr("str_ldl_TradeShowAdvisor"));
@@ -837,10 +836,10 @@ void TradeManager::ShowAdvice(aui_Control *control, uint32 action, uint32 data, 
 
 	if(!s_tradeManager->m_adviceWindow) return;
 
-	if(g_c3ui->GetWindow(s_tradeManager->m_adviceWindow->Id())) {
-		g_c3ui->RemoveWindow(s_tradeManager->m_adviceWindow->Id());
+	if(c3ui_Get()->GetWindow(s_tradeManager->m_adviceWindow->Id())) {
+		c3ui_Get()->RemoveWindow(s_tradeManager->m_adviceWindow->Id());
 	} else {
-		g_c3ui->AddWindow(s_tradeManager->m_adviceWindow);
+		c3ui_Get()->AddWindow(s_tradeManager->m_adviceWindow);
 	}
 	s_tradeManager->UpdateAdviceWindow();
 }
@@ -1000,14 +999,14 @@ AUI_ERRCODE TradeManager::DrawNationColumn(ctp2_Static *control,
 	rect.top += 2;
 	rect.right -= 2;
 	rect.bottom -= 2;
-	g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
+	c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, 0, 0);
 
 	rect.left += 8;
 	rect.top += 2;
 	rect.right -= 8;
 	rect.bottom -= 2;
 
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE TradeManager::DrawPiracyColumn(ctp2_Static *control,
@@ -1028,7 +1027,7 @@ AUI_ERRCODE TradeManager::DrawPiracyColumn(ctp2_Static *control,
 	if(route->IsBeingPirated()) {
 		color = g_colorSet->GetPlayerColor(route->GetPiratingArmy().GetOwner());
 	}
-	return g_c3ui->TheBlitter()->ColorBlt16(surface, &rect, color, 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, color, 0);
 }
 
 void TradeManager::ListSelect(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -1130,7 +1129,7 @@ STDEHANDLER(TradeManagerKillRouteEvent)
 	   (route.GetDestination().IsValid() && route.GetDestination().GetOwner() == selitem_Get()->GetVisiblePlayer())) {
 
 
-		g_c3ui->AddAction(new UpdateTradeAction);
+		c3ui_Get()->AddAction(new UpdateTradeAction);
 	}
 	return GEV_HD_Continue;
 }

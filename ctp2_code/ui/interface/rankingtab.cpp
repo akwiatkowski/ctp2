@@ -58,7 +58,6 @@
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/gameobj/Strengths.h"
 
-extern C3UI *g_c3ui;
 extern PointerList<Player>      *g_deadPlayer;
 
 static sint32			s_minRound = 0;

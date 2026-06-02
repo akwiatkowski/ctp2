@@ -99,7 +99,7 @@ extern sint32						g_ScreenHeight;
 extern DebugWindow					*g_debugWindow;
 extern ProjectFile                  *g_GreatLibPF;
 extern SoundManager					*g_soundManager;
-extern  C3UI				*g_c3ui;
+extern  C3UI				*c3ui_Get();
 
 namespace
 {

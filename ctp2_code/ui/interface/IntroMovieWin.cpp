@@ -50,7 +50,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern MovieDB			*g_theVictoryMovieDB;
-extern C3UI				*g_c3ui;
 extern SoundManager		*g_soundManager;
 
 IntroMovieWindow		*g_introMovieWindow = NULL;
@@ -87,7 +86,7 @@ void intromoviewin_DisplayIntroMovie(void)
 
 	AUI_ERRCODE		errcode;
 
-	errcode = g_c3ui->AddWindow(g_introMovieWindow);
+	errcode = c3ui_Get()->AddWindow(g_introMovieWindow);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 }
@@ -97,7 +96,7 @@ void intromoviewin_Cleanup()
 {
 	if (g_introMovieWindow) {
 
-		g_c3ui->RemoveWindow(g_introMovieWindow->Id());
+		c3ui_Get()->RemoveWindow(g_introMovieWindow->Id());
 
 		delete g_introMovieWindow;
 		g_introMovieWindow = NULL;
@@ -109,7 +108,7 @@ void intromoviewin_MovieButtonCallback(aui_Control *control, uint32 action, uint
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_c3ui->AddAction(new CloseIntroMovieAction);
+	c3ui_Get()->AddAction(new CloseIntroMovieAction);
 }
 
 

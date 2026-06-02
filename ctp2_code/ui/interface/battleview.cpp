@@ -42,7 +42,6 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/CTP2Combat.h"
 
-extern C3UI					*g_c3ui;
 
 namespace
 {
@@ -100,13 +99,13 @@ BattleView::~BattleView()
 		delete m_walker->Remove();
 	}
 
-    if (g_c3ui)
+    if (c3ui_Get())
     {
         if (m_backgroundImage)
-		    g_c3ui->UnloadImage(m_backgroundImage);
+		    c3ui_Get()->UnloadImage(m_backgroundImage);
 
 	    if (m_cityImage)
-		    g_c3ui->UnloadImage(m_cityImage);
+		    c3ui_Get()->UnloadImage(m_cityImage);
     }
 
 	delete m_eventQueue;
@@ -406,7 +405,7 @@ void BattleView::UpdateDisplay(void)
 					m_backgroundImage->TheSurface()->Width(),
 					m_backgroundImage->TheSurface()->Height()};
 
-	g_c3ui->TheBlitter()->Blt(m_battleSurface, 0, 0, m_backgroundImage->TheSurface(),
+	c3ui_Get()->TheBlitter()->Blt(m_battleSurface, 0, 0, m_backgroundImage->TheSurface(),
 							&rect, k_AUI_BLITTER_FLAG_COPY);
 
 	if(m_cityImage) {
@@ -414,7 +413,7 @@ void BattleView::UpdateDisplay(void)
 				m_cityImage->TheSurface()->Width(),
 				m_cityImage->TheSurface()->Height() };
 
-		g_c3ui->TheBlitter()->Blt(m_battleSurface, m_battleSurface->Width() - cityrect.right, 0,
+		c3ui_Get()->TheBlitter()->Blt(m_battleSurface, m_battleSurface->Width() - cityrect.right, 0,
 								  m_cityImage->TheSurface(), &cityrect, k_AUI_BLITTER_FLAG_COPY);
 	}
 

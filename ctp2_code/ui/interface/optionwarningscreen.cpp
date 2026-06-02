@@ -64,7 +64,6 @@ public:
 WarningKeyboardHandler s_warningKeyboardHandler;
 
 extern CivApp				*g_civApp;
-extern C3UI					*g_c3ui;
 
 #include "net/general/network.h"
 extern Network				g_network;
@@ -91,7 +90,7 @@ sint32	optionwarningscreen_displayMyWindow(uint32 warning)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->AddWindow(s_optionwarningscreenWindow);
+	auiErr = c3ui_Get()->AddWindow(s_optionwarningscreenWindow);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(&s_warningKeyboardHandler);
 
@@ -103,7 +102,7 @@ sint32 optionwarningscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	auiErr = g_c3ui->RemoveWindow( s_optionwarningscreenWindow->Id() );
+	auiErr = c3ui_Get()->RemoveWindow( s_optionwarningscreenWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(&s_warningKeyboardHandler);
 
@@ -156,7 +155,7 @@ AUI_ERRCODE optionwarningscreen_Cleanup()
 
 	if ( !s_optionwarningscreenWindow  ) return AUI_ERRCODE_OK;
 
-	g_c3ui->RemoveWindow( s_optionwarningscreenWindow->Id() );
+	c3ui_Get()->RemoveWindow( s_optionwarningscreenWindow->Id() );
 	keypress_RemoveHandler(&s_warningKeyboardHandler);
 
 	mycleanup(s_but1);

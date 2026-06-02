@@ -26,7 +26,6 @@
 #include "ui/interface/messageactions.h"
 #include "ui/interface/messagewin.h"
 
-extern C3UI				*g_c3ui;
 extern uint16			g_messageReadPositionY;
 extern uint8			g_messageMaxVisible;
 extern uint8			g_messageIconHeight;
@@ -52,10 +51,10 @@ MessageList::~MessageList( )
 			window = iconWindow->GetWindow();
 
 			if (window) {
-				if ( g_c3ui->GetWindow( iconWindow->Id( )))
-					g_c3ui->RemoveWindow( iconWindow->Id( ));
+				if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
+					c3ui_Get()->RemoveWindow( iconWindow->Id( ));
 
-				if ( g_c3ui->GetWindow( window->Id( )))
+				if ( c3ui_Get()->GetWindow( window->Id( )))
 					window->ShowWindow( FALSE );
 
 				delete window;
@@ -121,11 +120,11 @@ void MessageList::HideVisibleWindows( void )
 
 			iconWindow->SetCurrentIconButton( NULL );
 
-			if ( g_c3ui->GetWindow( iconWindow->Id( )))
-				g_c3ui->RemoveWindow( iconWindow->Id( ));
+			if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
+				c3ui_Get()->RemoveWindow( iconWindow->Id( ));
 
 			if (window)
-				if ( g_c3ui->GetWindow( window->Id( )))
+				if ( c3ui_Get()->GetWindow( window->Id( )))
 					window->ShowWindow( FALSE );
 		}
 	}
@@ -156,9 +155,9 @@ return;
 		iconWindow = m_iconList->GetNext( position );
 
 		if (( count < maxCount ) && ( count >= minCount )) {
-			if ( !g_c3ui->GetWindow( iconWindow->Id( )))
+			if ( !c3ui_Get()->GetWindow( iconWindow->Id( )))
 				if ( iconWindow->CheckShowWindow() ) {
-					g_c3ui->AddWindow( iconWindow );
+					c3ui_Get()->AddWindow( iconWindow );
 					if ( !BOUNCE_IT )
 
 						iconWindow->Move( iconWindow->X(), ( g_messageReadPositionY -
@@ -167,8 +166,8 @@ return;
 
 				}
 		} else {
-			if ( g_c3ui->GetWindow( iconWindow->Id( )))
-				g_c3ui->RemoveWindow( iconWindow->Id( ));
+			if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
+				c3ui_Get()->RemoveWindow( iconWindow->Id( ));
 		}
 		count++;
 	}
@@ -233,8 +232,8 @@ void MessageList::ChangeOffset( sint32 offset, int flag )
 		if (iconWindow) {
 			if ( count >= minCount ) {
 				if ( count <= maxCount ) {
-					if ( !g_c3ui->GetWindow( iconWindow->Id( )))
-						g_c3ui->AddWindow( iconWindow );
+					if ( !c3ui_Get()->GetWindow( iconWindow->Id( )))
+						c3ui_Get()->AddWindow( iconWindow );
 
 					if ( iconWindow->Animating( ))
 						iconWindow->SetupAnimation( count - minCount );
@@ -246,8 +245,8 @@ void MessageList::ChangeOffset( sint32 offset, int flag )
 					iconWindow->SetupAnimation( count - minCount );
 				}
 			} else {
-				if ( g_c3ui->GetWindow( iconWindow->Id( ))) {
-					g_c3ui->RemoveWindow( iconWindow->Id( ));
+				if ( c3ui_Get()->GetWindow( iconWindow->Id( ))) {
+					c3ui_Get()->RemoveWindow( iconWindow->Id( ));
 					iconWindow->StopAnimation();
 				}
 			}
@@ -262,9 +261,9 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 						  MessageWindow *window )
 {
 
-	if ( g_c3ui->GetWindow( iconWindow->Id( )))
-		g_c3ui->RemoveWindow( iconWindow->Id( ));
-	if ( g_c3ui->GetWindow( window->Id( )))
+	if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
+		c3ui_Get()->RemoveWindow( iconWindow->Id( ));
+	if ( c3ui_Get()->GetWindow( window->Id( )))
 		window->ShowWindow(FALSE);
 
 	ListPos position = m_iconList->Find( iconWindow );

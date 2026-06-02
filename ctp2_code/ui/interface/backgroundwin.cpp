@@ -41,7 +41,6 @@ void DumpSpanList(aui_DirtyList *list);
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern C3UI						*g_c3ui;
 extern StatusWindow				*g_statusWindow;
 extern StatsWindow				*g_statsWindow;
 extern ControlPanelWindow		*g_controlPanel;
@@ -138,9 +137,9 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 
 void backgroundWin_Cleanup(void)
 {
-	if (g_c3ui && g_background)
+	if (c3ui_Get() && g_background)
     {
-    	g_c3ui->RemoveWindow(g_background->Id());
+    	c3ui_Get()->RemoveWindow(g_background->Id());
     }
 
 	delete g_background;
@@ -155,7 +154,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 {
 	Background  *   back    = reinterpret_cast<Background *>(bg);
 	aui_Surface	*   surface = (back)    ? back->TheSurface() : NULL;
-	aui_Mouse *     mouse   = (g_c3ui)  ? g_c3ui->TheMouse() : NULL;
+	aui_Mouse *     mouse   = (c3ui_Get())  ? c3ui_Get()->TheMouse() : NULL;
 
     if (!mouse || !tiledmap_Get())
     {

@@ -19,7 +19,6 @@
 #include "ctp/civapp.h"
 #include "gfx/spritesys/SpriteGroupList.h"
 
-extern C3UI					*g_c3ui;
 extern sint32				g_isGridOn;
 extern CivApp				*g_civApp;
 extern SpriteGroupList		*g_unitSpriteGroupList;
@@ -124,7 +123,7 @@ sint32	graphicsscreen_displayMyWindow()
 	sint32 retval=0;
 	if (!s_graphicsWindow) { retval = graphicsscreen_Initialize(); }
 
-	AUI_ERRCODE auiErr  = g_c3ui->AddWindow(s_graphicsWindow);
+	AUI_ERRCODE auiErr  = c3ui_Get()->AddWindow(s_graphicsWindow);
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RegisterHandler(s_graphicsWindow);
 
@@ -137,7 +136,7 @@ sint32 graphicsscreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( s_graphicsWindow->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( s_graphicsWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(s_graphicsWindow);
 
@@ -224,9 +223,9 @@ AUI_ERRCODE graphicsscreen_Initialize( void )
 
 void graphicsscreen_Cleanup()
 {
-	if (g_c3ui && s_graphicsWindow)
+	if (c3ui_Get() && s_graphicsWindow)
     {
-    	g_c3ui->RemoveWindow(s_graphicsWindow->Id());
+    	c3ui_Get()->RemoveWindow(s_graphicsWindow->Id());
 	    keypress_RemoveHandler(s_graphicsWindow);
     }
 

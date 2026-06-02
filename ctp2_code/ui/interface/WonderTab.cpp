@@ -59,7 +59,6 @@
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/wonderutil.h"
 
-extern C3UI                     *g_c3ui;
 
 static sint32                   s_currentWonderDisplay;
 static c3_Button                *s_eventsInfoButton[17];

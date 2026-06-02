@@ -75,7 +75,6 @@
 #include "ui/aui_common/aui_blitter.h"
 #include "gs/utility/Globals.h"                        // k_GAME_OBJ_TYPE_...
 
-extern C3UI *g_c3ui;
 
 namespace
 {
@@ -872,7 +871,7 @@ AUI_ERRCODE CityControlPanel::ProgressDrawCallback(ctp2_Static *control,
 {
 	Unit city; city.m_id = (uintptr_t)cookie;
 
-	g_c3ui->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
+	c3ui_Get()->TheBlitter()->ColorBlt(surface, &rect, RGB(0,0,0), 0);
 
 	if(!city.IsValid() || !city.CD()->GetBuildQueue()->GetHead()) {
 		return AUI_ERRCODE_OK;
@@ -915,6 +914,6 @@ AUI_ERRCODE CityControlPanel::ProgressDrawCallback(ctp2_Static *control,
 	    destRect.left +
 	    static_cast<LONG>(percentComplete * (destRect.right - destRect.left));
 
-	g_c3ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
+	c3ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
 	return AUI_ERRCODE_OK;
 }

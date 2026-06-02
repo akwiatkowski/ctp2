@@ -66,7 +66,6 @@
 #include "gs/gameobj/wonderutil.h"
 #include "gs/gameobj/buildingutil.h"
 
-extern C3UI			*g_c3ui;
 extern ProjectFile	*g_GreatLibPF;
 
 static const sint32 k_SMD_CIVILIZATION_COLUMNS	= 8;
@@ -102,7 +101,7 @@ void ScienceManagementDialog::Close()
 void ScienceManagementDialog::Cleanup()
 {
 	if(g_scienceManagementDialog &&
-	   g_c3ui->GetWindow(g_scienceManagementDialog->m_window->Id()) &&
+	   c3ui_Get()->GetWindow(g_scienceManagementDialog->m_window->Id()) &&
 	   !g_scienceManagementDialog->m_window->IsHidden())
 		g_scienceManagementDialog->Hide();
 
@@ -138,7 +137,7 @@ m_scienceDescription(static_cast<ctp2_HyperTextBox*>(aui_Ldl::GetObject(
 m_advanceList(static_cast<ctp2_ListBox*>(aui_Ldl::GetObject(
 	"ScienceManagementDialog.AdvanceList")))
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 
 	Assert(m_closeButton);
 	Assert(m_scienceLabel);
@@ -186,14 +185,14 @@ ScienceManagementDialog::~ScienceManagementDialog()
 
 void ScienceManagementDialog::Show()
 {
-	g_c3ui->AddWindow(m_window);
+	c3ui_Get()->AddWindow(m_window);
 	m_window->Show();
 }
 
 void ScienceManagementDialog::Hide()
 {
 	m_window->Hide();
-	g_c3ui->RemoveWindow(m_window->Id());
+	c3ui_Get()->RemoveWindow(m_window->Id());
 }
 
 void ScienceManagementDialog::Update()
@@ -481,7 +480,7 @@ AUI_ERRCODE ScienceManagementDialog::ColorBoxActionCallback(ctp2_Static *control
 	colorRect.right		-= 1;
 	colorRect.bottom	-= 1;
 
-	return(g_c3ui->TheBlitter()->ColorBlt16(surface, &colorRect,
+	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
 		g_colorSet->GetPlayerColor(reinterpret_cast<intptr_t>(cookie)), 0));
 }
 
@@ -506,7 +505,7 @@ AUI_ERRCODE ScienceManagementDialog::ColorHeaderActionCallback(aui_Switch *contr
 		!player->HasContactWith(index)))
 		return(AUI_ERRCODE_OK);
 
-	return(g_c3ui->TheBlitter()->ColorBlt16(surface, &colorRect,
+	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
 		g_colorSet->GetPlayerColor(index), 0));
 }
 

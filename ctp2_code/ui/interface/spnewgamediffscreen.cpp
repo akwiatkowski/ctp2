@@ -56,7 +56,6 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern C3UI             *g_c3ui;
 extern ProfileDB        *g_theProfileDB;
 
 static c3_PopupWindow   *s_spNewGameDiffScreen  = NULL;
@@ -128,7 +127,7 @@ sint32	spnewgamediffscreen_displayMyWindow(BOOL viewMode,BOOL reinit)
 	for(i = 0; i < s_riskListBox->NumItems(); i++)
 		s_riskListBox->GetItemByIndex(i)->Enable(!viewMode);
 
-	auiErr = g_c3ui->AddWindow(s_spNewGameDiffScreen);
+	auiErr = c3ui_Get()->AddWindow(s_spNewGameDiffScreen);
 	keypress_RegisterHandler(s_spNewGameDiffScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -143,7 +142,7 @@ sint32 spnewgamediffscreen_removeMyWindow(uint32 action)
 	spnewgamediffscreen_setDifficulty1(s_diffListBox->GetSelectedItemIndex());
 	spnewgamediffscreen_setDifficulty2(s_riskListBox->GetSelectedItemIndex());
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow( s_spNewGameDiffScreen->Id() );
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( s_spNewGameDiffScreen->Id() );
 	keypress_RemoveHandler(s_spNewGameDiffScreen);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -280,7 +279,7 @@ AUI_ERRCODE spnewgamediffscreen_Cleanup()
 {
 	if (s_spNewGameDiffScreen)
 	{
-		g_c3ui->RemoveWindow(s_spNewGameDiffScreen->Id());
+		c3ui_Get()->RemoveWindow(s_spNewGameDiffScreen->Id());
 		keypress_RemoveHandler(s_spNewGameDiffScreen);
 
 #define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }

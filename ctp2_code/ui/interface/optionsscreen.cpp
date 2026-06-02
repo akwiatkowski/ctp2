@@ -76,7 +76,6 @@
 #include "gs/database/StrDB.h"
 #include "gs/database/profileDB.h"
 
-extern C3UI					*g_c3ui;
 extern c3_PopupWindow		*g_scorewarn;
 
 extern Network				g_network;
@@ -98,7 +97,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 
 	s_return = from;
 
-	g_c3ui->AddWindow(g_optionsWindow);
+	c3ui_Get()->AddWindow(g_optionsWindow);
 
 	if ( !from )
 		g_optionsWindow->DisableButtons();
@@ -156,11 +155,11 @@ sint32 optionsscreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	if(!g_optionsWindow || !g_c3ui->GetWindow(g_optionsWindow->Id())) return 0;
+	if(!g_optionsWindow || !c3ui_Get()->GetWindow(g_optionsWindow->Id())) return 0;
 	AUI_ERRCODE auiErr;
 
 	if ( g_optionsWindow ) {
-		auiErr = g_c3ui->RemoveWindow( g_optionsWindow->Id() );
+		auiErr = c3ui_Get()->RemoveWindow( g_optionsWindow->Id() );
 		Assert( auiErr == AUI_ERRCODE_OK );
 	}
 
@@ -221,7 +220,7 @@ void optionsscreen_Cleanup()
 
 	if (g_optionsWindow)
 	{
-		g_c3ui->RemoveWindow( g_optionsWindow->Id() );
+		c3ui_Get()->RemoveWindow( g_optionsWindow->Id() );
 	//	g_optionsWindow->SetSurface(NULL); // Surface is created for the g_optionsWindow only
 		allocated::clear(g_optionsWindow);
 	}

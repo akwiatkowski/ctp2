@@ -61,7 +61,7 @@
 #include <string>               // std::basic_string
 #include "ui/interface/UIUtils.h"
 
-extern  C3UI				*g_c3ui;
+extern  C3UI				*c3ui_Get();
 extern  CivApp				*g_civApp;
 
 namespace Os
@@ -81,7 +81,7 @@ sint32	initialplayscreen_displayMyWindow()
 		s_initplayWindow ? s_initplayWindow->Width() : 0,
 		s_initplayWindow ? s_initplayWindow->Height() : 0);
 
-	g_c3ui->AddWindow(s_initplayWindow);
+	c3ui_Get()->AddWindow(s_initplayWindow);
 
 	return retval;
 }
@@ -89,9 +89,9 @@ sint32 initialplayscreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-    if (g_c3ui && s_initplayWindow)
+    if (c3ui_Get() && s_initplayWindow)
     {
-	    (void) g_c3ui->RemoveWindow(s_initplayWindow->Id());
+	    (void) c3ui_Get()->RemoveWindow(s_initplayWindow->Id());
     }
 
 	return 1;
@@ -176,9 +176,9 @@ void initialplayscreen_Cleanup(void)
 {
 	if (s_initplayWindow)
     {
-        if (g_c3ui)
+        if (c3ui_Get())
         {
-	        g_c3ui->RemoveWindow(s_initplayWindow->Id());
+	        c3ui_Get()->RemoveWindow(s_initplayWindow->Id());
         }
 
 	    AUI_ERRCODE errcode =

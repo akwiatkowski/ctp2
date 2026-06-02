@@ -58,7 +58,6 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern C3UI*		g_c3ui;
 
 #define k_C3_ANIMATION_MODIFIER				20
 #define k_C3_ANIMATION_SPEED				"animationSpeed"
@@ -111,11 +110,11 @@ void creditsscreen_ExitButtonActionCallback(aui_Control *control, uint32 action,
 {
 	if (action == (uint32)AUI_BUTTON_ACTION_EXECUTE)
     {
-		AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(g_creditsWindow->Id());
+		AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(g_creditsWindow->Id());
 		Assert(auiErr == AUI_ERRCODE_OK);
 		if (auiErr == AUI_ERRCODE_OK)
         {
-    		g_c3ui->AddAction(new RemoveCreditsAction());
+    		c3ui_Get()->AddAction(new RemoveCreditsAction());
         }
 	}
 }
@@ -165,9 +164,9 @@ void creditsscreen_Cleanup()
 {
 	if (g_creditsWindow)
     {
-        if (g_c3ui)
+        if (c3ui_Get())
         {
-            g_c3ui->RemoveWindow(g_creditsWindow->Id());
+            c3ui_Get()->RemoveWindow(g_creditsWindow->Id());
         }
 
         allocated::clear(g_creditsWindow);
@@ -404,7 +403,7 @@ AUI_ERRCODE c3_TriggeredAnimation::DrawBlendImage(aui_Surface *destSurf, RECT *d
 	aui_Surface *backSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
 	Assert(AUI_NEWOK(backSurface, errcode));
 
-	g_c3ui->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
@@ -412,9 +411,9 @@ AUI_ERRCODE c3_TriggeredAnimation::DrawBlendImage(aui_Surface *destSurf, RECT *d
 		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, lastRect.right, lastRect.bottom);
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, lastSurf, &lastRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, lastSurf, &lastRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
 
 		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect,
@@ -427,7 +426,7 @@ AUI_ERRCODE c3_TriggeredAnimation::DrawBlendImage(aui_Surface *destSurf, RECT *d
 			k_C3_ANIMATION_MAXBLEND - m_blendVal);
 	}
 
-	g_c3ui->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+	c3ui_Get()->TheBlitter()->Blt(backSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
 
 	if(m_imagebltflag == AUI_IMAGEBASE_BLTFLAG_CHROMAKEY) {
@@ -435,9 +434,9 @@ AUI_ERRCODE c3_TriggeredAnimation::DrawBlendImage(aui_Surface *destSurf, RECT *d
 		aui_Surface *frontSurface = aui_Factory::new_Surface(errcode, srcRect.right, srcRect.bottom);
 		Assert(AUI_NEWOK(frontSurface, errcode));
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, destSurf, destRect, k_AUI_BLITTER_FLAG_COPY);
 
-		g_c3ui->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
+		c3ui_Get()->TheBlitter()->Blt(frontSurface, 0, 0, srcSurf, &srcRect, k_AUI_BLITTER_FLAG_CHROMAKEY);
 
 		primitives_BlendSurfaces(frontSurface, backSurface, destSurf, destRect, m_blendVal);
 
@@ -652,7 +651,7 @@ public:
 		for (int i = 0; i < kCreditsTextNumFonts; i++)
 		{
 			if (m_fonts[i])
-				g_c3ui->UnloadBitmapFont(m_fonts[i]);
+				c3ui_Get()->UnloadBitmapFont(m_fonts[i]);
 		}
 
 	};
@@ -1357,7 +1356,7 @@ bool c3_CreditsText::ParseFontDef(MBCHAR *pToken)
 		return FALSE;
 	}
 
-	m_fonts[m_currFontNumber] = g_c3ui->LoadBitmapFont(pToken, m_currFontSize);
+	m_fonts[m_currFontNumber] = c3ui_Get()->LoadBitmapFont(pToken, m_currFontSize);
 	Assert(m_fonts);
 
 	m_fonts[m_currFontNumber]->SetPointSize(m_currFontSize);

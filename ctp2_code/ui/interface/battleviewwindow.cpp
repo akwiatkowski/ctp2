@@ -29,7 +29,6 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern C3UI		*g_c3ui;
 extern sint32	g_modalWindow;
 
 static BattleViewWindow		*g_battleViewWindow = NULL;
@@ -45,7 +44,7 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	AUI_ERRCODE auiErr = g_c3ui->RemoveWindow(g_battleViewWindow->Id());
+	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(g_battleViewWindow->Id());
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 
@@ -56,7 +55,7 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 	Battle *currentBattle = BattleObserverAdapter_GetCurrentBattle();
 	RemoveBattleViewAction	*actionObj = new RemoveBattleViewAction(combat_Get() && g_battleViewWindow && g_battleViewWindow->GetBattleView() && currentBattle &&
 																	g_battleViewWindow->GetBattleView()->IsCurrentBattle(currentBattle));
-	g_c3ui->AddAction(actionObj);
+	c3ui_Get()->AddAction(actionObj);
 
 }
 
@@ -121,7 +120,7 @@ void BattleViewWindow::Cleanup(void)
 	if (g_battleViewWindow) {
 		seq = g_battleViewWindow->GetSequence();
 
-		g_c3ui->RemoveWindow(g_battleViewWindow->Id());
+		c3ui_Get()->RemoveWindow(g_battleViewWindow->Id());
 
 		delete g_battleViewWindow;
 		g_battleViewWindow = NULL;
@@ -421,7 +420,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 		imageName = table->GetString(terrainType);
 	}
 
-	aui_Image *image = g_c3ui->LoadImage(imageName);
+	aui_Image *image = c3ui_Get()->LoadImage(imageName);
 	Assert(image);
 	if(image)
 		m_battleView->SetBackgroundImage(image);
@@ -443,7 +442,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 
 
 
-		aui_Image *cityImage = g_c3ui->LoadImage(useSplit ? "UPBO006.tga" : cityTable->GetString(terrainType));
+		aui_Image *cityImage = c3ui_Get()->LoadImage(useSplit ? "UPBO006.tga" : cityTable->GetString(terrainType));
 		m_battleView->SetCityImage(cityImage);
 		delete cityTable;
 
@@ -535,7 +534,7 @@ AUI_ERRCODE BattleViewWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 	OffsetRect(&rect, -rect.left, -rect.top);
 
 	if (m_battleView && m_battleView->GetBattleSurface())
-		g_c3ui->TheBlitter()->Blt(surface, m_battleViewRect.left, m_battleViewRect.top,
+		c3ui_Get()->TheBlitter()->Blt(surface, m_battleViewRect.left, m_battleViewRect.top,
 			m_battleView->GetBattleSurface(), &rect, k_AUI_BLITTER_FLAG_COPY);
 
 	m_dirtyList->AddRect( &rect );

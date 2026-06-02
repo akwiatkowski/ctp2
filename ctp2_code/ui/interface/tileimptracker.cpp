@@ -53,7 +53,6 @@
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainRecord.h"
 
-extern C3UI             *g_c3ui;
 
 namespace
 {
@@ -184,7 +183,7 @@ sint32 tileimptracker_Initialize()
 //              g_theTerrainDB:            The terrain database
 //              g_theProfileDB:            The player's profile
 //              g_tileImpTrackerWindow:    The tile improvement tracker window
-//              g_c3ui:                    The civilization 3 graphical user interface
+//              c3ui_Get():                    The civilization 3 graphical user interface
 //
 // Returns    : -
 //
@@ -206,7 +205,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 	s_tileImprovementNum = type;
 	if (s_tileImprovementNum < 0) {
-		g_c3ui->RemoveWindow(g_tileImpTrackerWindow->Id());
+		c3ui_Get()->RemoveWindow(g_tileImpTrackerWindow->Id());
 		return;
 	}
 
@@ -323,11 +322,11 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 			{
 				s_trackerBorderColor = COLOR_RED;
 			}
-			g_c3ui->AddWindow(g_tileImpTrackerWindow);
+			c3ui_Get()->AddWindow(g_tileImpTrackerWindow);
 		}
 		else
 		{
-			g_c3ui->RemoveWindow(g_tileImpTrackerWindow->Id());
+			c3ui_Get()->RemoveWindow(g_tileImpTrackerWindow->Id());
 		}
 		g_tileImpTrackerWindow->ShouldDraw();
 
@@ -348,7 +347,7 @@ static void mycleanup(c3_Static * & mypointer)
 // Parameters : -
 //
 // Globals    : g_tileImpTrackerWindow:    The tile improvement tracker window
-//              g_c3ui:                    The civilization 3 graphical user interface
+//              c3ui_Get():                    The civilization 3 graphical user interface
 //
 // Returns    : 1 if there is nothing to cleanup, otherwise 0.
 //
@@ -357,9 +356,9 @@ static void mycleanup(c3_Static * & mypointer)
 //----------------------------------------------------------------------------
 void tileimptracker_Cleanup()
 {
-	if (g_tileImpTrackerWindow && g_c3ui)
+	if (g_tileImpTrackerWindow && c3ui_Get())
     {
-    	g_c3ui->RemoveWindow(g_tileImpTrackerWindow->Id());
+    	c3ui_Get()->RemoveWindow(g_tileImpTrackerWindow->Id());
     }
 
 	mycleanup(s_trackerBackground);

@@ -62,7 +62,6 @@
 
 #include "ui/aui_ctp2/radarmap.h"
 
-extern C3UI							*g_c3ui;
 extern StringDB						*g_theStringDB;
 extern ProfileDB					*g_theProfileDB;
 
@@ -478,7 +477,7 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 	if ( !info )
 	{
 
-		g_c3ui->TheBlitter()->Blt(
+		c3ui_Get()->TheBlitter()->Blt(
 			m_mapTabImage->GetImage()->TheSurface(),
 			0, 0,
 			m_mapTabImageBackup->TheSurface(),

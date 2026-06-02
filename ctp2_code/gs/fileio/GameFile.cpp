@@ -105,7 +105,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/database/UVDB.h"
 #include "WonderRecord.h"
 #include "gs/gameobj/WonderTracker.h"
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 #include "gs/gameobj/Wormhole.h"
 #include <zlib.h>
 
@@ -429,16 +429,16 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
         !g_isScenario || (g_startInfoType == STARTINFOTYPE_NOLOCS);
 
 #if 0
-	g_theWorld->ClearStartingPoints();
+	world_Get()->ClearStartingPoints();
 	for(i = 1; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i) && player_Get(i)->m_all_units->Num() > 0) {
-			g_theWorld->AddStartingPoint(player_Get(i)->m_all_units->Access(0).RetPos(),
+			world_Get()->AddStartingPoint(player_Get(i)->m_all_units->Access(0).RetPos(),
 										 player_Get(i)->m_civilisation->GetCivilisation());
 		}
 	}
 #endif
 
-	g_theWorld->Serialize(archive);
+	world_Get()->Serialize(archive);
 
 	PROGRESS( 130 );
 
@@ -1861,12 +1861,12 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 
 	memset(info->positions, 0, sizeof(info->positions));
 
-	if(g_theWorld) {
-		info->numPositions = g_theWorld->GetNumStartingPositions();
+	if(world_Get()) {
+		info->numPositions = world_Get()->GetNumStartingPositions();
 		sint32 i;
 		for(i = 0; i < info->numPositions; i++) {
-			info->positions[i].point = g_theWorld->GetStartingPoint(i);
-			info->positions[i].civIndex = g_theWorld->GetStartingPointCiv(i);
+			info->positions[i].point = world_Get()->GetStartingPoint(i);
+			info->positions[i].civIndex = world_Get()->GetStartingPointCiv(i);
 		}
 	}
 
@@ -2277,7 +2277,7 @@ uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 
 
 
-	g_theWorld->SerializeJustMap(archive);
+	world_Get()->SerializeJustMap(archive);
 
 	FILE * fpSave = c3files_fopen(C3DIR_DIRECT, filepath, "wb");
 	if (fpSave == NULL)
@@ -2411,8 +2411,8 @@ uint32 GameMapFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	delete g_theWorld;
-	g_theWorld = new World(archive, true);
+	delete world_Get();
+	world_Set(new World(archive, true));
 
 	DPRINTF(k_DBG_FILE,
 	        ("Time to load gamemap data = %4.2f seconds\n", (double)(clock() - start) / CLOCKS_PER_SEC)

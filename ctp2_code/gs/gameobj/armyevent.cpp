@@ -155,7 +155,7 @@ STDEHANDLER(ArmyMovePathOrderEvent)
 
 	if (rebase) {  ///fix
 			if(army.AccessData()->IsOccupiedByForeigner(p)) {
-			if (g_theWorld->HasCity(p) || terrainutil_HasAirfield(p)) {  //add unit later?
+			if (world_Get()->HasCity(p) || terrainutil_HasAirfield(p)) {  //add unit later?
 
 					gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_FinishMove,
@@ -596,7 +596,7 @@ STDEHANDLER(ArmySellIndulgencesOrderEvent)
 	a->AddOrders(UNIT_ORDER_INDULGENCE , pos);
 
 	Unit c;
-	c.m_id = g_theWorld->GetCity(pos).m_id;
+	c.m_id = world_Get()->GetCity(pos).m_id;
 
 	return GEV_HD_Continue;
 }
@@ -784,7 +784,7 @@ STDEHANDLER(ArmyMoveEvent)
 		for (sint32 i = m_nElements - 1; i>= 0; i--) {   //for(i = 0; i < m_nElements; i++) {
 			if(!m_array[i].GetDBRec()->GetCanRebase()){
 				if (!IsOccupiedByForeigner(order->m_point)){
-					if (g_theWorld->HasCity(order->m_point) || terrainutil_HasAirfield(order->m_point)) {  //add unit later?
+					if (world_Get()->HasCity(order->m_point) || terrainutil_HasAirfield(order->m_point)) {  //add unit later?
 						m_array[i].SetPosition(order->m_point, revealedUnits);
 						return true;
 					}
@@ -796,7 +796,7 @@ STDEHANDLER(ArmyMoveEvent)
 */		//end EMOD
 		if (armyData->IsOccupiedByForeigner(newPos))
 		{
-			CellUnitList * defender = g_theWorld->GetCell(newPos)->UnitArmy();
+			CellUnitList * defender = world_Get()->GetCell(newPos)->UnitArmy();
 
 			for (sint32 d = 0; d < defender->Num(); ++d)
 			{
@@ -984,7 +984,7 @@ STDEHANDLER(BattleEvent)
 		return GEV_HD_Continue;
 
 	CellUnitList defender;
-	g_theWorld->GetArmy(pos, defender);
+	world_Get()->GetArmy(pos, defender);
 
 	bool const  i_died = !army.AccessData()->Fight(defender);
 	if (!i_died)
@@ -1031,9 +1031,9 @@ STDEHANDLER(AftermathEvent)
 	if(!args->GetPlayer(1, defense_owner))
 		return GEV_HD_Continue;
 
-	Unit            c = g_theWorld->GetCell(pos)->GetCity();
+	Unit            c = world_Get()->GetCell(pos)->GetCity();
 	CellUnitList    defender;
-	g_theWorld->GetArmy(pos, defender);
+	world_Get()->GetArmy(pos, defender);
 
 	if(c.IsValid())
 	{
@@ -1250,8 +1250,8 @@ STDEHANDLER(MoveUnitsEvent)
 
 	a->MoveUnits(to);
 
-//	sint32 old_cell_owner = g_theWorld->GetCell(from)->GetOwner();
-	sint32 new_cell_owner = g_theWorld->GetCell(to)->GetOwner();
+//	sint32 old_cell_owner = world_Get()->GetCell(from)->GetOwner();
+	sint32 new_cell_owner = world_Get()->GetCell(to)->GetOwner();
 	sint32 army_owner = a->GetOwner();
 
 	/* Guard the player array access: new_cell_owner can be -1 (unowned / barbarian
@@ -1284,9 +1284,9 @@ STDEHANDLER(MoveUnitsEvent)
 		}
 	}
 
-	if(g_theWorld->HasCity(to))
+	if(world_Get()->HasCity(to))
 	{
-		Unit c = g_theWorld->GetCity(to);
+		Unit c = world_Get()->GetCity(to);
 		PLAYER_INDEX city_owner = c.GetOwner();
 		if(city_owner != a->GetOwner())
 		{
@@ -1419,7 +1419,7 @@ STDEHANDLER(LawsuitEvent)
 	if(!args->GetPos(0, point)) return GEV_HD_Continue;
 	if(!args->GetUnit(0, lawyer)) return GEV_HD_Continue;
 
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 
 	a->InformAI(UNIT_ORDER_SUE, point);
 

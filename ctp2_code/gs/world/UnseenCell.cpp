@@ -61,7 +61,7 @@
 #include "TerrainRecord.h"
 #include "gs/utility/QuadTree.h"
 #include "gs/world/Cell.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/core/player_view.h"
@@ -96,7 +96,7 @@ namespace
 //
 // Parameters : point			: The point (RC coordinate)
 //
-// Globals    : g_theWorld		: World information
+// Globals    : world_Get()		: World information
 //
 // Returns    : -
 //
@@ -131,12 +131,12 @@ UnseenCell::UnseenCell(const MapPoint & point)
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
-	if (g_theWorld->GetTileInfo(point))
+	if (world_Get()->GetTileInfo(point))
 	{
-		m_tileInfo = new TileInfo(g_theWorld->GetTileInfo(point));
+		m_tileInfo = new TileInfo(world_Get()->GetTileInfo(point));
 	}
 
-	Cell * cell = g_theWorld->GetCell(point);
+	Cell * cell = world_Get()->GetCell(point);
 	if (cell)
 	{
 		m_env = cell->GetEnv();
@@ -264,7 +264,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 		} // city.IsValid
 	} // cell
 
-	SetHasHut(NULL != g_theWorld->GetGoodyHut(point));
+	SetHasHut(NULL != world_Get()->GetGoodyHut(point));
 }
 
 //----------------------------------------------------------------------------
@@ -594,7 +594,7 @@ sint32 UnseenCell::GetFoodFromTerrain() const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(m_point, good)){
+	if(world_Get()->GetGood(m_point, good)){
 		food += g_theResourceDB->Get(good)->GetFood();
 	}
 
@@ -681,7 +681,7 @@ sint32 UnseenCell::GetShieldsFromTerrain() const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(m_point, good)){
+	if(world_Get()->GetGood(m_point, good)){
 		shield += g_theResourceDB->Get(good)->GetProduction();
 	}
 
@@ -767,7 +767,7 @@ sint32 UnseenCell::GetGoldFromTerrain() const
 	}
 
 	sint32 good;
-	if(g_theWorld->GetGood(m_point, good)){
+	if(world_Get()->GetGood(m_point, good)){
 		gold += g_theResourceDB->Get(good)->GetGold();
 	}
 
@@ -921,7 +921,7 @@ void UnseenCell::Serialize(CivArchive &archive)
 			}
 		}
 		// Backwards compartibility: If this UnseenCell didn't have an m_visibleCityOwner
-		if(vCityOwnerNotSet) m_visibleCityOwner = g_theWorld->GetCell(m_point)->GetCityOwner().m_id;
+		if(vCityOwnerNotSet) m_visibleCityOwner = world_Get()->GetCell(m_point)->GetCityOwner().m_id;
 
 		if (m_improvements)
 		{
@@ -965,7 +965,7 @@ void UnseenCell::Serialize(CivArchive &archive)
 		}
 
 		delete m_tileInfo;
-		m_tileInfo = new TileInfo(g_theWorld->GetTileInfo(m_point));
+		m_tileInfo = new TileInfo(world_Get()->GetTileInfo(m_point));
 		Assert(m_tileInfo);
 		m_tileInfo->Serialize(archive);
 	}

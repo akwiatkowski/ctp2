@@ -187,7 +187,7 @@ sint32 unitutil_GetSeaCity()
 
 sint32 unitutil_GetCityTypeFor(const MapPoint &pos)
 {
-	if(g_theWorld->IsLand(pos))
+	if(world_Get()->IsLand(pos))
 		return unitutil_GetLandCity();
 	else
 		return unitutil_GetSeaCity();
@@ -214,7 +214,7 @@ void unitutil_GetAverageDefenseBonus(const MapPoint &pos, const Army &attackers,
 	const UnitRecord *rec;
 	sint32 i;
 
-	const Cell *    cell = g_theWorld->GetCell(pos);
+	const Cell *    cell = world_Get()->GetCell(pos);
 	if (cell->GetCity().IsValid())
     {
 		cityData = cell->GetCity().GetData()->GetCityData();
@@ -252,7 +252,7 @@ void unitutil_GetCityLandAttackBonus(const MapPoint &pos, double & city_landatk_
 	const CityData *cityData;
 	city_landatk_bonus = 0.0;
 
-	const Cell *    cell = g_theWorld->GetCell(pos);
+	const Cell *    cell = world_Get()->GetCell(pos);
 	if (cell->GetCity().IsValid())
     {
 		cityData = cell->GetCity().GetData()->GetCityData();
@@ -266,7 +266,7 @@ void unitutil_GetCityAirAttackBonus(const MapPoint &pos, double & city_airatk_bo
 	const CityData *cityData;
 	city_airatk_bonus = 0.0;
 
-	const Cell *    cell = g_theWorld->GetCell(pos);
+	const Cell *    cell = world_Get()->GetCell(pos);
 	if (cell->GetCity().IsValid())
     {
 		cityData = cell->GetCity().GetData()->GetCityData();
@@ -280,7 +280,7 @@ void unitutil_GetCitySeaAttackBonus(const MapPoint &pos, double & city_seaatk_bo
 	const CityData *cityData;
 	city_seaatk_bonus = 0.0;
 
-	const Cell *    cell = g_theWorld->GetCell(pos);
+	const Cell *    cell = world_Get()->GetCell(pos);
 	if (cell->GetCity().IsValid())
     {
 		cityData = cell->GetCity().GetData()->GetCityData();
@@ -294,7 +294,7 @@ bool unitutil_GetCityInfo(MapPoint &pos, char * city_name, sint32 & image_index)
 	const CityData *cityData;
 	image_index = -1;
 
-	const Cell *    cell = g_theWorld->GetCell(pos);
+	const Cell *    cell = world_Get()->GetCell(pos);
 
 	if(cell->GetCity().m_id != (0)) {
 		cityData = cell->GetCity().GetData()->GetCityData();
@@ -406,14 +406,14 @@ bool unitutil_IsUnitBetterThan(sint32 type1, sint32 type2, sint32 gov)
 
 double unitutil_GetPositionDefense(const UnitRecord * rec, const bool isEntrenched, const MapPoint pos, const Unit &attacker)
 {
-	if (g_theWorld->IsWater(pos) &&
+	if (world_Get()->IsWater(pos) &&
 	    !(rec->GetMovementTypeSea() || rec->GetMovementTypeShallowWater())
 	   )
 	{
 		return 1.0;
 	}
 
-	Cell *          cell    = g_theWorld->GetCell(pos);
+	Cell *          cell    = world_Get()->GetCell(pos);
 	double const    basedef = rec->GetDefense();
 	double          def     = basedef;
 
@@ -452,10 +452,10 @@ double unitutil_GetPositionDefense(const UnitRecord * rec, const bool isEntrench
 	def += (basedef * fort_bonus);
 
 	if(terrain_bonus > 0 &&
-		(rec->GetMovementTypeLand() && g_theWorld->IsLand(pos)) ||
-		(rec->GetMovementTypeMountain() && g_theWorld->IsMountain(pos)) ||
-		(rec->GetMovementTypeSea() && g_theWorld->IsWater(pos)) ||
-		(rec->GetMovementTypeSpace() && g_theWorld->IsSpace(pos)))
+		(rec->GetMovementTypeLand() && world_Get()->IsLand(pos)) ||
+		(rec->GetMovementTypeMountain() && world_Get()->IsMountain(pos)) ||
+		(rec->GetMovementTypeSea() && world_Get()->IsWater(pos)) ||
+		(rec->GetMovementTypeSpace() && world_Get()->IsSpace(pos)))
 	{
 		def += basedef * terrain_bonus;
 	}

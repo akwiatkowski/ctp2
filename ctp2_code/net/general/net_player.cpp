@@ -195,7 +195,7 @@ void NetPlayer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		PULLLONG(p->m_event_pollution[i]);
 	}
 
-	if(g_selected_item && g_controlPanel && g_selected_item->GetCurPlayer() == p->m_owner) {
+	if(selitem_Get() && g_controlPanel && selitem_Get()->GetCurPlayer() == p->m_owner) {
 		MainControlPanel::UpdatePlayer(p->m_owner);
 	}
 

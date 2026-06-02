@@ -21,7 +21,6 @@
 
 #include "ui/interface/controlpanelwindow.h"
 
-extern SelectedItem *g_selected_item;
 extern Background			*g_background;
 extern C3UI					*g_c3ui;
 
@@ -161,8 +160,8 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 	}
 
-	delete g_selected_item;
-	g_selected_item = new SelectedItem(m_numPlayers);
+	delete selitem_Get();
+	selitem_Set(new SelectedItem(m_numPlayers));
 
 	unit_tree_Set(new QuadTree<Unit>((sint16)world_Get()->GetXWidth(),
 									   (sint16)world_Get()->GetYHeight(),

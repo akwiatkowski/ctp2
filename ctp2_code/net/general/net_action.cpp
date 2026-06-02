@@ -43,7 +43,7 @@
 #include "net/general/net_unit.h"
 #include "gs/world/World.h"                      // world_Get()
 #include "gs/gameobj/Player.h"                     // player_arr_Get()
-#include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/installation.h"
@@ -345,7 +345,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			int curPlayerIndex = g_network.IdToIndex(id);
 
-			if(curPlayerIndex != g_selected_item->GetCurPlayer()) {
+			if(curPlayerIndex != selitem_Get()->GetCurPlayer()) {
 				if(turn_Get()->SimultaneousMode()) {
 					if(player_Get(curPlayerIndex))
 						player_Get(curPlayerIndex)->EndTurnSoon();
@@ -386,7 +386,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				break;
 			}
 
-			if(g_selected_item->GetCurPlayer() == index) {
+			if(selitem_Get()->GetCurPlayer() == index) {
 				g_network.Bookmark(id);
 				unit.Settle();
 
@@ -801,8 +801,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_INVESTIGATE_CITY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -811,8 +811,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_NULLIFY_WALLS:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -820,8 +820,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_STEAL_TECHNOLOGY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -862,8 +862,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_INCITE_REVOLUTION:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -871,8 +871,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_ASSASSINATE_RULER:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -881,8 +881,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_INVESTIGATE_READINESS:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -916,8 +916,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_PLANT_NUKE:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -926,8 +926,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_SLAVE_RAID:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -940,8 +940,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_UNDERGROUND_RAILWAY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -964,8 +964,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_CONVERT_CITY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -973,8 +973,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_REFORM_CITY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -982,8 +982,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_SOOTHSAY:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -991,8 +991,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_DEFUSE_MINES:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1000,8 +1000,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_FRANCHISE:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1010,8 +1010,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_ACTION_INDULGENCE_SALE:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1029,8 +1029,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_RUSTLE:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1038,8 +1038,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_CREATE_PARK:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1047,8 +1047,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_CREATE_RIFT:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index != g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index != selitem_Get()->GetCurPlayer()) {
 
 				return;
 			}
@@ -1234,8 +1234,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			int curPlayerIndex = g_network.IdToIndex(id);
 
-			Assert(curPlayerIndex == g_selected_item->GetCurPlayer());
-			if(curPlayerIndex != g_selected_item->GetCurPlayer())
+			Assert(curPlayerIndex == selitem_Get()->GetCurPlayer());
+			if(curPlayerIndex != selitem_Get()->GetCurPlayer())
 				break;
 
 			turn_Get()->EndThisSliceBeginNewSlice();
@@ -1272,7 +1272,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.Resync(index);
 				break;
 			}
-			req.Enact(g_selected_item->GetCurPlayer() == index &&
+			req.Enact(selitem_Get()->GetCurPlayer() == index &&
 					  g_network.CurrentPlayerAckedBeginTurn());
 
 			break;
@@ -1410,8 +1410,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_ACK_BEGIN_TURN:
 		{
-			Assert(index == g_selected_item->GetCurPlayer());
-			if(index == g_selected_item->GetCurPlayer()) {
+			Assert(index == selitem_Get()->GetCurPlayer());
+			if(index == selitem_Get()->GetCurPlayer()) {
 				g_network.AckBeginTurn(index);
 			}
 			break;
@@ -1612,8 +1612,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_NAK_BEGIN_TURN:
 		{
 			DPRINTF(k_DBG_NET, ("Client %d NAK'ed begin turn, trying again\n", index));
-			Assert(g_selected_item->GetCurPlayer() == index);
-			if(g_selected_item->GetCurPlayer() == index) {
+			Assert(selitem_Get()->GetCurPlayer() == index);
+			if(selitem_Get()->GetCurPlayer() == index) {
 				g_network.QueuePacket(id, new NetInfo(NET_INFO_CODE_BEGIN_TURN,
 													  index));
 			}

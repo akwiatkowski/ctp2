@@ -344,14 +344,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			g_network.SetLoop(FALSE);
 			DPRINTF(k_DBG_NET, ("Starting turn for player %d\n", m_data));
-			g_selected_item->SetCurPlayer(PLAYER_INDEX(m_data));
+			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
 			if(m_data == 0) {
 				NewTurnCount::ClientStartNewYear();
 			}
 
 			MainControlPanel::UpdatePlayer(m_data);
 
-			if(g_selected_item->GetCurPlayer() == g_network.GetPlayerIndex()) {
+			if(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex()) {
 				if(g_network.ShouldAckBeginTurn()) {
 
 
@@ -380,7 +380,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 												 gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
 												 0,
 												 0);
-					g_selected_item->Refresh();
+					selitem_Get()->Refresh();
 				} else {
 
 					g_network.SendAction(new NetAction(NET_ACTION_NAK_BEGIN_TURN));
@@ -392,7 +392,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_SET_TURN:
 			g_network.SetLoop(FALSE);
 			DPRINTF(k_DBG_NET, ("It's already player %d's turn\n", m_data));
-			g_selected_item->SetCurPlayer(PLAYER_INDEX(m_data));
+			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
 			if(m_data == (uint32)g_network.GetPlayerIndex()) {
 				g_network.SetMyTurn(TRUE);
 			} else {
@@ -660,7 +660,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			} else {
 				player_arr_Get()[m_data] = new Player(PLAYER_INDEX(m_data), 0, PLAYER_TYPE(m_data2));
-				g_selected_item->AddPlayer(PLAYER_INDEX(m_data));
+				selitem_Get()->AddPlayer(PLAYER_INDEX(m_data));
 
 
 
@@ -799,8 +799,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_BEGIN_SLICE:
 
 			DPRINTF(k_DBG_NET, ("Starting slice for player %d\n", m_data));
-			g_selected_item->SetCurPlayer(PLAYER_INDEX(m_data));
-			if(g_selected_item->GetCurPlayer() == g_network.GetPlayerIndex()) {
+			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
+			if(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex()) {
 				if (g_soundManager && !g_network.IsMyTurn())
 					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
@@ -821,7 +821,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			break;
 		case NET_INFO_CODE_REQUEST_SLICE:
-			Assert(g_selected_item->GetCurPlayer() == g_network.GetPlayerIndex());
+			Assert(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex());
 			g_network.SetMyTurn(FALSE);
 			g_network.SendAction(new NetAction(NET_ACTION_END_SLICE));
 			break;
@@ -1702,7 +1702,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit unit(m_data2);
 			army->GroupUnit(unit);
 
-			if(army.GetOwner() == g_selected_item->GetVisiblePlayer()) {
+			if(army.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 
 				ArmyManagerWindow::NotifyRemoteGroupComplete(army);
 			}
@@ -1713,7 +1713,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server says ungrouping of Army %lx done (owner=%d)\n", m_data, m_data2));
 
-			if (static_cast<PLAYER_INDEX>(m_data2) == g_selected_item->GetVisiblePlayer())
+			if (static_cast<PLAYER_INDEX>(m_data2) == selitem_Get()->GetVisiblePlayer())
             {
 			    Army army(m_data);
 				if (army.IsValid())

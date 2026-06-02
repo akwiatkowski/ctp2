@@ -727,7 +727,7 @@ Network::Process()
 
 			sint32 p;
 			for(p = 0; p < k_MAX_PLAYERS; p++) {
-				if(!player_Get(p) || p == g_selected_item->GetVisiblePlayer())
+				if(!player_Get(p) || p == selitem_Get()->GetVisiblePlayer())
 					continue;
 				if(Diplomat::GetDiplomat(GetPlayerIndex()).GetReceiverHasInitiative(p)) {
 
@@ -750,9 +750,9 @@ Network::Process()
 			m_battleViewOpenedTime = -1;
 		}
 
-		if(g_selected_item) {
-			if(g_selected_item->GetCurPlayer() ==
-			   g_selected_item->GetVisiblePlayer() &&
+		if(selitem_Get()) {
+			if(selitem_Get()->GetCurPlayer() ==
+			   selitem_Get()->GetVisiblePlayer() &&
 			   IsMyTurn() && (!m_iAmHost || m_readyToStart)) {
 				if(timeNow >= m_turnEndsAt) {
 					if(sci_advancescreen_isOnScreen()) {
@@ -769,7 +769,7 @@ Network::Process()
 		if (IsMyTurn() &&
 		    (m_totalTimeUsed + static_cast<sint32>(time(0) - m_turnStartedAt) > m_totalStartTime)) {
 
-			player_Get(g_selected_item->GetCurPlayer())->
+			player_Get(selitem_Get()->GetCurPlayer())->
 				GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
 		}
 	}
@@ -1120,7 +1120,7 @@ void Network::RemovePlayer(uint16 id)
 
 	}
 
-	if(index == g_selected_item->GetCurPlayer()) {
+	if(index == selitem_Get()->GetCurPlayer()) {
 		m_enactedDiplomaticRequests->Clear();
 	}
 
@@ -1128,7 +1128,7 @@ void Network::RemovePlayer(uint16 id)
 
 		if(player_Get(index)) {
 			player_Get(index)->SetPlayerType(PLAYER_TYPE_ROBOT);
-			if(index == g_selected_item->GetCurPlayer()) {
+			if(index == selitem_Get()->GetCurPlayer()) {
 				director_Get()->AddEndTurn();
 			}
 
@@ -1165,7 +1165,7 @@ void Network::SetToHost()
 	if(!m_deleting) {
 		if(player_Get(m_playerIndex)) {
 			player_Get(m_playerIndex)->SetPlayerType(PLAYER_TYPE_HUMAN);
-			if(player_Get(g_selected_item->GetCurPlayer())->IsHuman()) {
+			if(player_Get(selitem_Get()->GetCurPlayer())->IsHuman()) {
 				SetMyTurn(TRUE);
 			}
 		}
@@ -1195,10 +1195,10 @@ void Network::SetToHost()
 						   m_playerIndex);
 		SetMaxPlayers(CountOpenSlots() + CountTakenSlots());
 
-		if(!player_Get(g_selected_item->GetCurPlayer())
-		||  player_Get(g_selected_item->GetCurPlayer())->IsRobot()
+		if(!player_Get(selitem_Get()->GetCurPlayer())
+		||  player_Get(selitem_Get()->GetCurPlayer())->IsRobot()
 		){
-			DPRINTF(k_DBG_GAMESTATE, ("Set to host, cur player (%d) is robot, adding EndTurn\n", g_selected_item->GetCurPlayer()));
+			DPRINTF(k_DBG_GAMESTATE, ("Set to host, cur player (%d) is robot, adding EndTurn\n", selitem_Get()->GetCurPlayer()));
 			director_Get()->AddEndTurn();
 		}
 	}
@@ -1558,9 +1558,9 @@ void Network::SetReady(uint16 id)
 						     m_playerIndex));
 
 	QueuePacket(player->m_id, new NetInfo(NET_INFO_CODE_SET_TURN,
-					      g_selected_item->GetCurPlayer()));
+					      selitem_Get()->GetCurPlayer()));
 
-	if(index == g_selected_item->GetCurPlayer()) {
+	if(index == selitem_Get()->GetCurPlayer()) {
 		player->m_ackBeginTurn = TRUE;
 	}
 
@@ -2307,14 +2307,14 @@ Network::ProcessNewPlayer(uint16 id)
 		Assert(!player_Get(newslot)->IsNetwork());
 
 
-//		sint32 oldVisPlayer = g_selected_item->GetVisiblePlayer();
+//		sint32 oldVisPlayer = selitem_Get()->GetVisiblePlayer();
 		if(player->m_id != m_pid) {
 			player_Get(newslot)->SetPlayerType(PLAYER_TYPE_NETWORK);
 		} else {
 			m_playerIndex = newslot;
 			player_Get(m_playerIndex)->m_networkId = m_pid;
 
-			if(newslot == g_selected_item->GetCurPlayer()) {
+			if(newslot == selitem_Get()->GetCurPlayer()) {
 				SetMyTurn(TRUE);
 			}
 			if(director_Get()) {
@@ -2499,7 +2499,7 @@ void Network::SendChatText(MBCHAR *str, sint32 len)
 	}
 
 
-	AddChatText(str, len, static_cast<uint8>(g_selected_item->GetVisiblePlayer()), FALSE);
+	AddChatText(str, len, static_cast<uint8>(selitem_Get()->GetVisiblePlayer()), FALSE);
 
 	NetChat *chatPacket = new NetChat(m_chatMask, str, (sint16)len);
 	chatPacket->AddRef();
@@ -2553,8 +2553,8 @@ void Network::KillPlayer(sint32 p, GAME_OVER reason, sint32 data)
 void Network::GetSliceFor(sint32 player)
 {
 	if(turn_Get()->SimultaneousMode() && IsHost()) {
-		if(g_selected_item->GetCurPlayer() != player) {
-			if(!player_Get(g_selected_item->GetCurPlayer())->IsNetwork()) {
+		if(selitem_Get()->GetCurPlayer() != player) {
+			if(!player_Get(selitem_Get()->GetCurPlayer())->IsNetwork()) {
 				turn_Get()->SetSliceTo(player);
 			} else {
 				turn_Get()->QueueSliceFor(player);
@@ -3089,7 +3089,7 @@ BOOL Network::IsLocalPlayer(sint32 index)
 
 void Network::TurnSync()
 {
-	if(IsLocalPlayer(g_selected_item->GetCurPlayer())) {
+	if(IsLocalPlayer(selitem_Get()->GetCurPlayer())) {
 		SetMyTurn(TRUE);
 
 		m_turnStartedAt = time(0);
@@ -3098,14 +3098,14 @@ void Network::TurnSync()
 		}
 
 		DPRINTF(k_DBG_NET, ("Adding finish begin turn for player %d.  Rand call count: %d\n",
-							g_selected_item->GetCurPlayer(), rand_ptr()->CallCount()));
+							selitem_Get()->GetCurPlayer(), rand_ptr()->CallCount()));
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_FinishBeginTurn,
-							   GEA_Player, g_selected_item->GetCurPlayer(),
+							   GEA_Player, selitem_Get()->GetCurPlayer(),
 							   GEA_End);
-		if(player_Get(g_selected_item->GetCurPlayer())->IsRobot())
+		if(player_Get(selitem_Get()->GetCurPlayer())->IsRobot())
 		{
-			CtpAi::BeginMapAnalysis(g_selected_item->GetCurPlayer());
-			CtpAi::BeginTurn(g_selected_item->GetCurPlayer());
+			CtpAi::BeginMapAnalysis(selitem_Get()->GetCurPlayer());
+			CtpAi::BeginTurn(selitem_Get()->GetCurPlayer());
 		}
 	}
 }
@@ -3230,11 +3230,11 @@ BOOL Network::CanStillSetup(PLAYER_INDEX index)
 
 BOOL Network::CurrentPlayerAckedBeginTurn()
 {
-	Assert(m_playerData[g_selected_item->GetCurPlayer()]);
-	if(!m_playerData[g_selected_item->GetCurPlayer()])
+	Assert(m_playerData[selitem_Get()->GetCurPlayer()]);
+	if(!m_playerData[selitem_Get()->GetCurPlayer()])
 		return FALSE;
 
-	return m_playerData[g_selected_item->GetCurPlayer()]->m_ackBeginTurn;
+	return m_playerData[selitem_Get()->GetCurPlayer()]->m_ackBeginTurn;
 }
 
 void Network::BeginTurn(PLAYER_INDEX index)
@@ -3397,7 +3397,7 @@ void Network::RemoveEnact(DiplomaticRequest &req)
 				m_enactedDiplomaticRequests->Access(0).Enact(TRUE);
 				m_enactedDiplomaticRequests->DelIndex(0);
 			}
-			Resync(g_selected_item->GetCurPlayer());
+			Resync(selitem_Get()->GetCurPlayer());
 			return;
 		}
 		if(diplomaticrequestpool_Get()->IsValid(req)) {
@@ -3585,7 +3585,7 @@ void Network::SetReadyToStart(BOOL ready)
 						ClosePlayer(i);
 					}
 				}
-				if(i == g_selected_item->GetCurPlayer() && player_Get(i)->IsRobot()) {
+				if(i == selitem_Get()->GetCurPlayer() && player_Get(i)->IsRobot()) {
 
 					director_Get()->AddEndTurn();
 				}
@@ -3598,7 +3598,7 @@ void Network::SetReadyToStart(BOOL ready)
 			QueuePacketToAll(new NetInfo(NET_INFO_CODE_ALL_PLAYERS_READY));
 		}
 
-		MainControlPanel::UpdatePlayer(g_selected_item->GetCurPlayer());
+		MainControlPanel::UpdatePlayer(selitem_Get()->GetCurPlayer());
 	}
 }
 
@@ -3703,7 +3703,7 @@ void Network::Resync(sint32 playerIndex)
 		m_playerData[playerIndex]->m_createdCities->Clear();
 
 
-		if(g_selected_item->GetCurPlayer() == playerIndex &&
+		if(selitem_Get()->GetCurPlayer() == playerIndex &&
 		   !m_playerData[playerIndex]->m_ackBeginTurn) {
 
 

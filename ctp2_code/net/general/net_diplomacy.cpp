@@ -30,7 +30,7 @@
 #include "net/general/net_info.h"
 #include "net/io/net_util.h"
 #include "gs/gameobj/Player.h"             // player_Get()
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/diplomacy/diplomacy_types.h"
 #include "gs/events/GameEventManager.h"

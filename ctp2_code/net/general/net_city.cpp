@@ -305,7 +305,7 @@ void NetCityName::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_network.Unblock(home_city.GetOwner());
 			}
 
-			if(home_city.GetOwner() == g_selected_item->GetVisiblePlayer()) {
+			if(home_city.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 				MainControlPanel::UpdateCityList();
 			}
 		}

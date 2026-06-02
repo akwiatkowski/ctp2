@@ -41,7 +41,7 @@
 
 #include "gs/database/DB.h"
 #include "gs/newdb/UnitRec.h"
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "gfx/spritesys/director.h"           // director_Get()
 #include "ui/aui_common/tech_wllist.h"
 
@@ -170,7 +170,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			world_Get()->InsertUnit(m_unitData->m_pos, uid, revealed);
 
-			if(m_unitData->m_visibility & (1 << g_selected_item->GetVisiblePlayer())) {
+			if(m_unitData->m_visibility & (1 << selitem_Get()->GetVisiblePlayer())) {
 				sint32 numRevealed = revealed.Num();
         Director::UnitActorVec revealedActors(numRevealed);
         for (sint32 i = 0; i < numRevealed; ++i) {

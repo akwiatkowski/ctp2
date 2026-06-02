@@ -213,7 +213,7 @@ STDEHANDLER(DirectorActionSuccessful)
 				if ((visiblePlayer == unit.GetOwner()) ||
 					(unit.GetVisibility() & (1 << visiblePlayer))) {
 
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, attackPos.x, attackPos.y);
+					soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0, 	soundID, attackPos.x, attackPos.y);
 				}
 			}
 		}

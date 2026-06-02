@@ -82,10 +82,10 @@ public:
     void OnCityFounded(sint32 player, const Unit& city,
                        const MapPoint& pos, sint32 cause) override
     {
-        if (g_soundManager) {
+        if (soundmgr_Get()) {
             sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
             if (visiblePlayer == player) {
-                g_soundManager->AddSound(
+                soundmgr_Get()->AddSound(
                     SOUNDTYPE_SFX, (uint32)0,
                     gamesounds_GetGameSoundID(GAMESOUNDS_GOODY_CITY),
                     pos.x, pos.y);
@@ -162,24 +162,24 @@ public:
     void OnCombatEnd(const Army& attacker, const Army& defender,
                      bool attackerWon) override
     {
-        if (!g_soundManager) return;
+        if (!soundmgr_Get()) return;
 
         sint32 attack_owner = attacker.GetOwner();
         sint32 defense_owner = defender.GetOwner();
 
         if (attackerWon) {
             if (selitem_Get()->IsPlayerVisible(defense_owner)) {
-                g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
+                soundmgr_Get()->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
             }
             if (selitem_Get()->IsPlayerVisible(attack_owner)) {
-                g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
+                soundmgr_Get()->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
             }
         } else {
             if (selitem_Get()->IsPlayerVisible(attack_owner)) {
-                g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
+                soundmgr_Get()->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
             }
             if (selitem_Get()->IsPlayerVisible(defense_owner)) {
-                g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
+                soundmgr_Get()->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
             }
         }
     }

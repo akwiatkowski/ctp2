@@ -1,5 +1,5 @@
 // sound/sound_manager_audio_observer.h
-// Adapter bridging `audio_observer::Impl` (gs/core) to `g_soundManager`
+// Adapter bridging `audio_observer::Impl` (gs/core) to `soundmgr_Get()`
 // (sound/soundmanager.h).  Lives in sound/ — depends on both layers.
 
 #pragma once

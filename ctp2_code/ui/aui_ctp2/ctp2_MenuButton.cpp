@@ -7,8 +7,6 @@
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*g_soundManager;
-
 uint32 ctp2_MenuButton::m_menuButtonClassId = aui_UniqueId();
 
 ctp2_MenuButton::ctp2_MenuButton(AUI_ERRCODE *retval,

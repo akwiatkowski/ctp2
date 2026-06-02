@@ -49,7 +49,7 @@
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 
-#include "sound/soundmanager.h"  // g_soundManager
+#include "sound/soundmanager.h"  // soundmgr_Get()
 
 #include "ui/aui_ctp2/background.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -345,7 +345,7 @@ void dh_specialAttack(DQAction* itemAction,
   sint32 deltay = DefenderPoints.y - AttackerPoints.y;
 
   if (action->attacker_ID >= 0) {
-    g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, action->attacker_ID, 0,
+    soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0, action->attacker_ID, 0,
                              0);
   }
 
@@ -492,15 +492,15 @@ void dh_death(DQAction* itemAction,
     deadActionObj->SetUnitsVisibility(theDead->GetUnitVisibility());
     deadActionObj->SetFacing(theDead->GetFacing());
 
-    if (g_soundManager)
-      g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+    if (soundmgr_Get())
+      soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                             (uint32)theDead->GetUnitID());
 
-    if (g_soundManager) {
+    if (soundmgr_Get()) {
       sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
       if ((visiblePlayer == theDead->GetPlayerNum()) ||
           (theDead->GetUnitVisibility() & (1 << visiblePlayer))) {
-        g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)theDead->GetUnitID(),
+        soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)theDead->GetUnitID(),
                                  action->dead_soundID, theDead->GetPos().x,
                                  theDead->GetPos().y);
       }
@@ -547,14 +547,14 @@ void dh_death(DQAction* itemAction,
       victorActionObj->SetUnitVisionRange(theVictor->GetUnitVisionRange());
       victorActionObj->SetUnitsVisibility(theVictor->GetUnitVisibility());
 
-      if (g_soundManager)
-        g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+      if (soundmgr_Get())
+        soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                               (uint32)theVictor->GetUnitID());
-      if (g_soundManager) {
+      if (soundmgr_Get()) {
         sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
         if ((visiblePlayer == theVictor->GetPlayerNum()) ||
             (theVictor->GetUnitVisibility() & (1 << visiblePlayer))) {
-          g_soundManager->AddSound(
+          soundmgr_Get()->AddSound(
               SOUNDTYPE_SFX, (uint32)theVictor->GetUnitID(),
               action->victor_soundID, theVictor->GetPos().x,
               theVictor->GetPos().y);
@@ -691,11 +691,11 @@ void dh_work(DQAction* itemAction,
 
   actor->AddAction(std::move(actionObj));
 
-  if (g_soundManager) {
+  if (soundmgr_Get()) {
     sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
     if ((visiblePlayer == actor->GetPlayerNum()) ||
         (actor->GetUnitVisibility() & (1 << visiblePlayer))) {
-      g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
+      soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
                                action->working_soundID, actor->GetPos().x,
                                actor->GetPos().y);
     }
@@ -938,10 +938,10 @@ void dh_playSound(DQAction* itemAction,
 
   DQActionPlaySound* action = (DQActionPlaySound*)itemAction;
 
-  if (!g_soundManager)
+  if (!soundmgr_Get())
     return;
 
-  g_soundManager->AddSound(SOUNDTYPE_SFX, 0, action->playsound_soundID,
+  soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0, action->playsound_soundID,
                            action->playsound_pos.x, action->playsound_pos.y);
 
   director_Get()->ActionFinished(seq);
@@ -1196,8 +1196,8 @@ void dh_terminateSound(DQAction* itemAction,
   if (!action)
     return;
 
-  if (g_soundManager)
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+  if (soundmgr_Get())
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                           action->terminate_sound_unit.m_id);
 
   director_Get()->ActionFinished(seq);
@@ -1237,8 +1237,8 @@ void dh_speceffect(DQAction* itemAction,
     effectActor->AddAction(std::move(actionObj));
     director_Get()->ActiveEffectAdd(effectActor);
 
-    if (g_soundManager) {
-      g_soundManager->AddSound(SOUNDTYPE_SFX, 0, soundID, pos.x, pos.y);
+    if (soundmgr_Get()) {
+      soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0, soundID, pos.x, pos.y);
     }
   }
 
@@ -1301,15 +1301,15 @@ void dh_attackpos(DQAction* itemAction,
   AttackerActionObj->SetUnitVisionRange(theAttacker->GetUnitVisionRange());
   AttackerActionObj->SetUnitsVisibility(theAttacker->GetUnitVisibility());
 
-  if (g_soundManager)
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+  if (soundmgr_Get())
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                           (uint32)theAttacker->GetUnitID());
 
-  if (g_soundManager) {
+  if (soundmgr_Get()) {
     sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
     if ((visiblePlayer == theAttacker->GetPlayerNum()) ||
         (theAttacker->GetUnitVisibility() & (1 << visiblePlayer))) {
-      g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)theAttacker->GetUnitID(),
+      soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)theAttacker->GetUnitID(),
                                action->attackpos_soundID,
                                theAttacker->GetPos().x,
                                theAttacker->GetPos().y);

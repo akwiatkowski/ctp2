@@ -37,8 +37,6 @@
 #include "sound/gamesounds.h"
 #include "SoundRecord.h"
 
-extern SoundManager	*g_soundManager;
-
 GameSoundData g_gameSounds[] = {
 	{GAMESOUNDS_SPACE_LAUNCH,		"SOUND_ID_SPACE_LAUNCH"},
 
@@ -142,16 +140,16 @@ sint32 gamesounds_GetGameSoundID(sint32 gamesound)
 
 void gamesounds_WindowOpened(void)
 {
-	if (g_soundManager) {
-		g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+	if (soundmgr_Get()) {
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 				gamesounds_GetGameSoundID(GAMESOUNDS_MAXWINDOW), 0, 0);
 	}
 }
 
 void gamesounds_WindowClosed(void)
 {
-	if (g_soundManager) {
-		g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+	if (soundmgr_Get()) {
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 				gamesounds_GetGameSoundID(GAMESOUNDS_MINWINDOW), 0, 0);
 	}
 }

@@ -128,7 +128,6 @@
 #include "ui/interface/trademanager.h"
 
 extern CivPaths     *civpaths_Get();
-extern SoundManager	*g_soundManager;
 extern void player_ActivateSpaceButton(sint32 pl);
 extern void network_VerifyGameData();
 
@@ -374,8 +373,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 										   GEA_Int, player_Get(m_data)->GetCurRound() + 1,
 										   GEA_End);
 
-					if (g_soundManager)
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+					if (soundmgr_Get())
+						soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												 gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
 												 0,
 												 0);
@@ -800,8 +799,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Starting slice for player %d\n", m_data));
 			selitem_Get()->SetCurPlayer(PLAYER_INDEX(m_data));
 			if(selitem_Get()->GetCurPlayer() == g_network.GetPlayerIndex()) {
-				if (g_soundManager && !g_network.IsMyTurn())
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+				if (soundmgr_Get() && !g_network.IsMyTurn())
+					soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 												gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
 												0,
 												0);

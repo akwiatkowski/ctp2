@@ -37,7 +37,7 @@
 #include "gfx/gfx_utils/colorset.h"
 #include "gfx/spritesys/director.h"           // director_Get()
 #include "ui/aui_utils/primitives.h"
-#include "sound/soundmanager.h"       // g_soundManager
+#include "sound/soundmanager.h"       // soundmgr_Get()
 #include "gfx/spritesys/SpriteGroupList.h"
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
@@ -112,8 +112,8 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 	m_curAction->SetAnim(anim);
 	m_curUnitAction = UNITACTION_IDLE;
 
-	if (g_soundManager)
-		g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
+	if (soundmgr_Get())
+		soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
 }
 
 void BattleViewActor::Process(void)

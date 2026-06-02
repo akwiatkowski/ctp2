@@ -249,7 +249,7 @@
 #include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"                // SlicSegment::Cleanup
-#include "sound/soundmanager.h"               // g_soundManager
+#include "sound/soundmanager.h"               // soundmgr_Get()
 #include "SoundRecord.h"
 #include "ui/interface/soundscreen.h"
 #include "SpecialAttackInfoRecord.h"
@@ -665,11 +665,11 @@ void CivApp::InitializeAppUI(void)
 		)
 	{
 		civapp_log->info("InitializeAppUI: main menu branch");
-		if (g_soundManager)
+		if (soundmgr_Get())
 		{
-			g_soundManager->EnableMusic();
-			g_soundManager->PickNextTrack();
-			g_soundManager->StartMusic();
+			soundmgr_Get()->EnableMusic();
+			soundmgr_Get()->PickNextTrack();
+			soundmgr_Get()->StartMusic();
 		}
 
 		AUI_ERRCODE errcode = initialplayscreen_Initialize();
@@ -2549,8 +2549,8 @@ void CivApp::CleanupGame(bool keepScenInfo)
 
 	sprite_Cleanup();
 
-	if (g_soundManager)
-		g_soundManager->DumpAllSounds();
+	if (soundmgr_Get())
+		soundmgr_Get()->DumpAllSounds();
 
 
 
@@ -3371,8 +3371,8 @@ sint32 CivApp::ProcessProfile(void)
 
 	ProcessRobot(target_milliseconds, used_milliseconds);
 
-	if (g_soundManager)
-		g_soundManager->Process(target_milliseconds, used_milliseconds);
+	if (soundmgr_Get())
+		soundmgr_Get()->Process(target_milliseconds, used_milliseconds);
 
     return 0;
 }
@@ -3426,8 +3426,8 @@ sint32 CivApp::Process(void)
 
 	ProcessRobot(target_milliseconds, used_milliseconds);
 
-	if (g_soundManager)
-		g_soundManager->Process(target_milliseconds, used_milliseconds);
+	if (soundmgr_Get())
+		soundmgr_Get()->Process(target_milliseconds, used_milliseconds);
 
 	if(m_game->GetEventsPtr())
 		m_game->GetEventsPtr()->Process();

@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------
 //
 // Game-state code (`gs/`) and AI code (`ai/`) historically called
-// `g_soundManager->X()` directly to play sound effects, switch music
+// `soundmgr_Get()->X()` directly to play sound effects, switch music
 // tracks, and read music settings.  SoundManager lives in `sound/` — that
 // is the wrong direction in the layered architecture, since gs/ should
 // not depend on sound/.
@@ -15,11 +15,11 @@
 // This header exposes the same surface as a set of free functions that
 // fan out to a registered `Impl` callback.  The UI build registers a
 // `SoundManagerAudioObserver` (in `sound/sound_manager_audio_observer.cpp`)
-// that forwards to `g_soundManager`; the headless build leaves the
+// that forwards to `soundmgr_Get()`; the headless build leaves the
 // observer unregistered and every call becomes a no-op.
 //
 // Migration pattern at the call site:
-//   before:  if (g_soundManager) g_soundManager->AddSound(SOUNDTYPE_SFX, ...);
+//   before:  if (soundmgr_Get()) soundmgr_Get()->AddSound(SOUNDTYPE_SFX, ...);
 //   after:   audio_observer::AddSound((sint32)SOUNDTYPE_SFX, ...);
 //
 // Mirrors `gs/core/render_observer.h`.
@@ -34,7 +34,7 @@ namespace audio_observer {
 
 // --- The Impl interface ---
 // Concrete implementations live in:
-//   - sound/sound_manager_audio_observer.cpp (UI build, forwards to g_soundManager)
+//   - sound/sound_manager_audio_observer.cpp (UI build, forwards to soundmgr_Get())
 //   - test fixtures (record-and-replay spies, no-op stubs)
 // Headless does not register an Impl; the free functions below short-circuit.
 class Impl

@@ -73,7 +73,7 @@ TerrainImprovementPool::TerrainImprovementPool(CivArchive &archive)
 //				player_Get
 //				tiledmap_Get()
 //				world_Get()
-//				g_soundManager
+//				soundmgr_Get()
 //				g_selectedItem
 //
 // Returns    : TerrainImprovement	: the newly created improvement

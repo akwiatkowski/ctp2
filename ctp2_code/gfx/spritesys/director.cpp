@@ -78,7 +78,7 @@
 #include "net/general/network.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "sound/gamesounds.h"
-#include "sound/soundmanager.h"  // g_soundManager
+#include "sound/soundmanager.h"  // soundmgr_Get()
 #include "ui/aui_common/tech_wllist.h"
 #include "ui/aui_ctp2/SelItem.h"   // selitem_Get()
 #include "ui/aui_ctp2/radarmap.h"  // radar_map_Get()
@@ -730,7 +730,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->move_actor.expired()) {
           ActiveUnitRemove(action->move_actor.lock());
           if (!action->move_actor.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(
+            soundmgr_Get()->TerminateLoopingSound(
                 SOUNDTYPE_SFX, action->move_actor.lock()->GetUnitID());
         }
     } break;
@@ -740,7 +740,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->attackpos_attacker.expired()) {
           ActiveUnitRemove(action->attackpos_attacker.lock());
           if (!action->attackpos_attacker.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(
+            soundmgr_Get()->TerminateLoopingSound(
                 SOUNDTYPE_SFX, action->attackpos_attacker.lock()->GetUnitID());
         }
     } break;
@@ -750,7 +750,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->attacker.expired()) {
           ActiveUnitRemove(action->attacker.lock());
           if (!action->attacker.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(
+            soundmgr_Get()->TerminateLoopingSound(
                 SOUNDTYPE_SFX, action->attacker.lock()->GetUnitID());
         }
       }
@@ -758,7 +758,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->defender.expired()) {
           ActiveUnitRemove(action->defender.lock());
           if (!action->defender.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(
+            soundmgr_Get()->TerminateLoopingSound(
                 SOUNDTYPE_SFX, action->defender.lock()->GetUnitID());
         }
       }
@@ -769,7 +769,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && action->death_dead) {
           ActiveUnitRemove(action->death_dead);
           if (!action->death_dead->IsActive())
-            g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+            soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                                   action->dead_id);
         }
       }
@@ -777,7 +777,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->death_victor.expired()) {
           ActiveUnitRemove(action->death_victor.lock());
           if (!action->death_victor.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX,
+            soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX,
                                                   action->victor_id);
         }
       }
@@ -788,7 +788,7 @@ void Director::HandleFinishedItem(DQItemPtr item) {
         if (action && !action->working_actor.expired()) {
           ActiveUnitRemove(action->working_actor.lock());
           if (!action->working_actor.lock()->IsActive())
-            g_soundManager->TerminateLoopingSound(
+            soundmgr_Get()->TerminateLoopingSound(
                 SOUNDTYPE_SFX, action->working_actor.lock()->GetUnitID());
         }
     } break;
@@ -877,8 +877,8 @@ void Director::CatchUp(void) {
 
   if (!g_network.IsActive()) {
     KillAllActiveEffects();
-    if (g_soundManager)
-      g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
+    if (soundmgr_Get())
+      soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
   }
 }
 
@@ -1134,8 +1134,8 @@ void Director::NextPlayer(BOOL forcedUpdate) {
 
     KillAllActiveEffects();
 
-    if (g_soundManager)
-      g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
+    if (soundmgr_Get())
+      soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
   }
 }
 

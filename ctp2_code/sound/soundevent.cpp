@@ -45,9 +45,9 @@ STDEHANDLER(SoundCreateCityEvent)
 	Unit city;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
-	if(g_soundManager) {
+	if(soundmgr_Get()) {
 		if(player_view::VisiblePlayer() == city.GetOwner()) {
-			g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+			soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 									 gamesounds_GetGameSoundID(GAMESOUNDS_SETTLE_CITY),
 									 city.RetPos().x,
 									 city.RetPos().y);

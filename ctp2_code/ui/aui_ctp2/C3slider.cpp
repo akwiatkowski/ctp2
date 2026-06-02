@@ -44,7 +44,7 @@
 #include "sound/gamesounds.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "sound/soundmanager.h"   // g_soundManager
+#include "sound/soundmanager.h"   // soundmgr_Get()
 #include "ui/aui_ctp2/textbutton.h"
 
 #include "ui/ldl/ldl_data.hpp"
@@ -343,8 +343,8 @@ void C3SliderThumbActionCallback( aui_Control *control, uint32 action, uint32 da
 	}
 
 	if (sound != -1)
-		if (g_soundManager) {
-			g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+		if (soundmgr_Get()) {
+			soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 					gamesounds_GetGameSoundID(sound), 0, 0);
 		}
 }
@@ -375,8 +375,8 @@ void C3SliderButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 	}
 
 	if (sound != -1)
-	if (g_soundManager) {
-		g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+	if (soundmgr_Get()) {
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 				gamesounds_GetGameSoundID(sound), 0, 0);
 	}
 }

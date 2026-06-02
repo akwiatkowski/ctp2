@@ -95,7 +95,7 @@
 #include "WonderRecord.h"
 #include "gs/world/World.h"      // world_Get()
 #include "gs/world/cellunitlist.h"
-#include "sound/soundmanager.h"  // g_soundManager
+#include "sound/soundmanager.h"  // soundmgr_Get()
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/aui_ctp2/SelItem.h"  // selitem_Get()
 #include "ui/aui_utils/primitives.h"
@@ -489,8 +489,8 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  if (g_soundManager) {
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
+  if (soundmgr_Get()) {
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
   }
 
   m_spriteState = ss;
@@ -555,8 +555,8 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
 
   AddAction(std::move(idleAction));
 
-  if (g_soundManager)
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
+  if (soundmgr_Get())
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
 }
 
 void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
@@ -851,8 +851,8 @@ void UnitActor::EndTurnProcess(void) {
 
   DumpAllActions();
 
-  if (g_soundManager)
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
+  if (soundmgr_Get())
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
 }
 
 void UnitActor::AddAction(ActionPtr actionObj) {
@@ -2332,20 +2332,20 @@ BOOL UnitActor::HitTest(POINT mousePt) {
 }
 
 void UnitActor::AddLoopingSound(uint32 sound_type, sint32 sound_id) {
-  if ((g_soundManager) && (sound_id >= 0))
-    g_soundManager->AddLoopingSound((SOUNDTYPE)sound_type, (uint32)GetUnitID(),
+  if ((soundmgr_Get()) && (sound_id >= 0))
+    soundmgr_Get()->AddLoopingSound((SOUNDTYPE)sound_type, (uint32)GetUnitID(),
                                     sound_id, GetPos().x, GetPos().y);
 }
 
 void UnitActor::AddSound(uint32 sound_type, sint32 sound_id) {
-  if ((g_soundManager) && (sound_id >= 0))
-    g_soundManager->AddSound((SOUNDTYPE)sound_type, (uint32)GetUnitID(),
+  if ((soundmgr_Get()) && (sound_id >= 0))
+    soundmgr_Get()->AddSound((SOUNDTYPE)sound_type, (uint32)GetUnitID(),
                              sound_id, GetPos().x, GetPos().y);
 }
 
 void UnitActor::TerminateLoopingSound(uint32 sound_type) {
-  if (g_soundManager)
-    g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
+  if (soundmgr_Get())
+    soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
 }
 
 void UnitActor::SetRevealedActors(const UnitActorVec& revealedActors) {

@@ -32,7 +32,7 @@
 
 #include "gs/fileio/CivPaths.h"			// civpaths_Get()
 //#include "RefTime.h"			// UNITS, MILLISECONDS
-#include "sound/soundmanager.h"		// g_soundManager
+#include "sound/soundmanager.h"		// soundmgr_Get()
 
 const LONGLONG MILLISECONDS = (1000);            // 10 ^ 3
 const LONGLONG NANOSECONDS = (1000000000);       // 10 ^ 9
@@ -86,7 +86,7 @@ AUI_ERRCODE aui_DirectMovie::Open(
 	{
 		m_flags = flags;
 
-		g_soundManager->ReleaseSoundDriver();
+		soundmgr_Get()->ReleaseSoundDriver();
 
 		if ( surface )
 			SetDestSurface( surface );
@@ -433,7 +433,7 @@ AUI_ERRCODE aui_DirectMovie::Stop( void )
 
 	}
 
-	g_soundManager->ReacquireSoundDriver();
+	soundmgr_Get()->ReacquireSoundDriver();
 
 	return AUI_ERRCODE_OK;
 }

@@ -148,7 +148,6 @@ extern UnitAstar                *g_theUnitAstar;
 sint32                           g_tradeSelectedState = 0;
 extern GrabItem                 *g_grabbedItem;
 
-extern SoundManager             *g_soundManager;
 extern CityAstar                 g_city_astar;
 
 #define k_UNIT_SELECT_IS_FIRST  0x00000001
@@ -639,7 +638,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 		attractwindow_Get()->HighlightControl("ControlPanelWindow.ControlPanel.TurnButton");
 		if(profiledb_Get()->GetEndTurnSound())
 		{
-			g_soundManager->AddGameSound(GAMESOUNDS_ENDTURN);
+			soundmgr_Get()->AddGameSound(GAMESOUNDS_ENDTURN);
 		}
 	}
 
@@ -1241,9 +1240,9 @@ void SelectedItem::SetSelectGood(const MapPoint &pos)
 	if (world_Get()->GetGood(pos, goodIndex))
 	{
 		sint32 goodSoundID = g_theResourceDB->Get(goodIndex)->GetSoundIndex();
-		if (g_soundManager)
+		if (soundmgr_Get())
 		{
-			g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)goodIndex, goodSoundID);
+			soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)goodIndex, goodSoundID);
 		}
 
 		if(controlpanel_Get())
@@ -1476,12 +1475,12 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 	{
 		if (moved)
 		{
-			g_soundManager->AddSound(SOUNDTYPE_VOICE, 0, acknowledgeSoundID,
+			soundmgr_Get()->AddSound(SOUNDTYPE_VOICE, 0, acknowledgeSoundID,
 											unitX, unitY);
 		}
 		else
 		{
-			g_soundManager->AddSound(SOUNDTYPE_VOICE, 0, cantMoveSoundID,
+			soundmgr_Get()->AddSound(SOUNDTYPE_VOICE, 0, cantMoveSoundID,
 											unitX, unitY);
 		}
 	}
@@ -1491,7 +1490,7 @@ void SelectedItem::PlaySelectedSound(Unit &unit)
 {
 	if (!unitpool_Get()->IsValid(unit)) return;
 
-	if (g_soundManager && unit.GetOwner() == GetVisiblePlayer())
+	if (soundmgr_Get() && unit.GetOwner() == GetVisiblePlayer())
 	{
 		if (!(rand() % 3))
 		{
@@ -1516,7 +1515,7 @@ void SelectedItem::PlaySelectedSound(Unit &unit)
 				id = unit.GetCantMoveSoundID();
 			}
 
-			g_soundManager->AddSound(SOUNDTYPE_VOICE, (uint32)unit, id);
+			soundmgr_Get()->AddSound(SOUNDTYPE_VOICE, (uint32)unit, id);
 		}
 	}
 }

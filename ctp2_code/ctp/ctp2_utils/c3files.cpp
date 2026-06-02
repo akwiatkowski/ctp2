@@ -445,9 +445,9 @@ bool c3files_HasLegalCD()
 
 	bool success = false;
 
-	if (g_soundManager)
+	if (soundmgr_Get())
     {
-		g_soundManager->CleanupRedbook();
+		soundmgr_Get()->CleanupRedbook();
 	}
 
 	while (!success)
@@ -493,9 +493,9 @@ bool c3files_HasLegalCD()
 		}
 	}
 
-	if (g_soundManager)
+	if (soundmgr_Get())
     {
-		g_soundManager->InitRedbook();
+		soundmgr_Get()->InitRedbook();
 	}
 
 	return success;

@@ -174,8 +174,8 @@ void LineDance::DoRangedAttackerAttacks()
 				m_attackers[i].FightOneLineDanceRangedAttack(m_defenders[0]);
 				if(m_defenders[0].GetHP() < 1) {
 
-					if (g_battleViewWindow) {
-						g_battleViewWindow->RegisterAttackerRangedCombat(0, i);
+					if (battleviewwindow_Get()) {
+						battleviewwindow_Get()->RegisterAttackerRangedCombat(0, i);
 					}
 					RemoveDeadDefender(0);
 					if(m_numDefenders <= 0)
@@ -202,8 +202,8 @@ void LineDance::DoRangedAttackerAttacks()
 				m_attackers[i].FightOneLineDanceRangedAttack(m_defenders[0]);
 				if(m_defenders[0].GetHP() < 1) {
 
-					if (g_battleViewWindow) {
-						g_battleViewWindow->RegisterAttackerRangedCombat(0, i);
+					if (battleviewwindow_Get()) {
+						battleviewwindow_Get()->RegisterAttackerRangedCombat(0, i);
 					}
 					RemoveDeadDefender(0);
 					if(m_numDefenders <= 0)
@@ -232,8 +232,8 @@ void LineDance::DoRangedDefenderAttacks()
 				m_defenders[i].FightOneLineDanceRangedAttack(m_attackers[0]);
 				if(m_attackers[0].GetHP() < 1) {
 
-					if (g_battleViewWindow) {
-						g_battleViewWindow->RegisterDefenderRangedCombat(0, i);
+					if (battleviewwindow_Get()) {
+						battleviewwindow_Get()->RegisterDefenderRangedCombat(0, i);
 					}
 					RemoveDeadAttacker(0);
 
@@ -262,8 +262,8 @@ void LineDance::DoRangedDefenderAttacks()
 				m_defenders[i].FightOneLineDanceRangedAttack(m_attackers[0]);
 				if(m_attackers[0].GetHP() < 1) {
 
-					if (g_battleViewWindow) {
-						g_battleViewWindow->RegisterDefenderRangedCombat(0, i);
+					if (battleviewwindow_Get()) {
+						battleviewwindow_Get()->RegisterDefenderRangedCombat(0, i);
 					}
 
 					RemoveDeadAttacker(0);
@@ -327,8 +327,8 @@ void LineDance::DoAssaults()
 
 					if(m_attackers[i].GetHP() < 1) {
 
-						if (g_battleViewWindow) {
-							g_battleViewWindow->RegisterDefenderAssaultCombat(i, j);
+						if (battleviewwindow_Get()) {
+							battleviewwindow_Get()->RegisterDefenderAssaultCombat(i, j);
 						}
 
 						m_attackerIsDead[i] = TRUE;
@@ -339,8 +339,8 @@ void LineDance::DoAssaults()
 
 					if(m_defenders[j].GetHP() < 1) {
 
-						if (g_battleViewWindow) {
-							g_battleViewWindow->RegisterAttackerAssaultCombat(j, i);
+						if (battleviewwindow_Get()) {
+							battleviewwindow_Get()->RegisterAttackerAssaultCombat(j, i);
 						}
 
 						m_defenderIsDead[j] = TRUE;
@@ -415,14 +415,14 @@ BOOL LineDance::Resolve(CellUnitList &dead_attackers,
 		DoRangedDefenderAttacks();
 
 
-		if (g_battleViewWindow) {
-			g_battleViewWindow->RegisterRoundEnd();
+		if (battleviewwindow_Get()) {
+			battleviewwindow_Get()->RegisterRoundEnd();
 		}
 
 		DoAssaults();
 
-		if (g_battleViewWindow) {
-			g_battleViewWindow->RegisterRoundEnd();
+		if (battleviewwindow_Get()) {
+			battleviewwindow_Get()->RegisterRoundEnd();
 		}
 	}
 	return TRUE;

@@ -81,7 +81,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get();
 #include "gs/fileio/CivPaths.h"               // g_civPaths
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gs/gameobj/BldQue.h"
 #include "gs/gameobj/ObjPool.h"
 #include "gs/world/Cell.h"
@@ -265,7 +265,7 @@ void InfoBigListCallback( aui_Control *control, uint32 action, uint32 data, void
 {
 
 	if ( action != (uint32)AUI_LISTBOX_ACTION_SELECT ) return;
-	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 
 	InfoBigListItem *item = (InfoBigListItem *) s_infoBigList->GetSelectedItem();
 	if (!item)
@@ -561,7 +561,7 @@ sint32 infowin_UpdateCivData( void )
 {
 	MBCHAR strbuf[256];
 
-	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 
 	s_foundedBox->SetText("");
 	s_turnsBox->SetText("");
@@ -644,12 +644,12 @@ sint32 infowin_UpdateScoreList( void )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR strbuf[256];
 
-	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
-			if(walk.GetObj()->m_owner == g_selected_item->GetVisiblePlayer()) {
+			if(walk.GetObj()->m_owner == selitem_Get()->GetVisiblePlayer()) {
 				pl = walk.GetObj();
 				break;
 			}
@@ -1368,12 +1368,12 @@ sint32 infowin_LabReady()
 {
 #if 0   // Old CTP1 functionality, does nothing worthwhile
 
-	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
-			if(walk.GetObj()->m_owner == g_selected_item->GetVisiblePlayer()) {
+			if(walk.GetObj()->m_owner == selitem_Get()->GetVisiblePlayer()) {
 				pl = walk.GetObj();
 				break;
 			}

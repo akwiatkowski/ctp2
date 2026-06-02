@@ -202,7 +202,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 
 		if(turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
 		{
-			Player* player = player_Get(g_selected_item->GetVisiblePlayer());
+			Player* player = player_Get(selitem_Get()->GetVisiblePlayer());
 			if(!player
 			||  player->m_isDead
 			){
@@ -212,7 +212,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 				}
 				else
 				{
-					g_selected_item->SetPlayerOnScreen(g_selected_item->GetCurPlayer());
+					selitem_Get()->SetPlayerOnScreen(selitem_Get()->GetCurPlayer());
 				}
 			}
 		}
@@ -587,12 +587,12 @@ sint32 victorywin_UpdateData( sint32 type )
 {
 	MBCHAR strbuf[256];
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
-			if(walk.GetObj()->m_owner == g_selected_item->GetVisiblePlayer()) {
+			if(walk.GetObj()->m_owner == selitem_Get()->GetVisiblePlayer()) {
 				pl = walk.GetObj();
 				break;
 			}
@@ -639,8 +639,8 @@ sint32 victorywin_UpdateData( sint32 type )
 	}
 	else
 	{
-		if((player_Get(g_selected_item->GetVisiblePlayer())
-		&& !player_Get(g_selected_item->GetVisiblePlayer())->m_isDead)
+		if((player_Get(selitem_Get()->GetVisiblePlayer())
+		&& !player_Get(selitem_Get()->GetVisiblePlayer())->m_isDead)
 		||  turn_Get()->IsEmail()
 		||  turn_Get()->IsHotSeat()
 		){
@@ -818,7 +818,7 @@ HighScoreWindowPopup::HighScoreWindowPopup( sint32 type )
 
 	Initialize( windowBlock );
 
-	if (player_Get(g_selected_item->GetVisiblePlayer()) == NULL) {
+	if (player_Get(selitem_Get()->GetVisiblePlayer()) == NULL) {
 		m_continueButton->Enable(FALSE);
 	} else {
 		m_continueButton->Enable(TRUE);
@@ -1056,7 +1056,7 @@ sint32 victorywin_LoadScoreData( void )
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	MBCHAR strbuf[256];
 
-	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer =  selitem_Get()->GetVisiblePlayer();
 
 	s_scoreList->Clear();
 	strcpy(ldlBlock,"VictoryScoreListItem");
@@ -1157,7 +1157,7 @@ sint32 victorywin_LoadScoreData( void )
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
-			if(walk.GetObj()->m_owner == g_selected_item->GetVisiblePlayer()) {
+			if(walk.GetObj()->m_owner == selitem_Get()->GetVisiblePlayer()) {
 				pl = walk.GetObj();
 				break;
 			}
@@ -1187,7 +1187,7 @@ sint32 victorywin_LoadWonderData( void )
 
 	Assert(g_theWonderDB->NumRecords() <= (k_VICWIN_WONDER_COL_MAX * k_VICWIN_WONDER_ROW_MAX));
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	for ( sint32 i = 0; i < g_theWonderDB->NumRecords() ; i++ )
 	{

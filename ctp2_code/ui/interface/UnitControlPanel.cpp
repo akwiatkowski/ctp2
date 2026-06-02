@@ -364,7 +364,7 @@ void UnitControlPanel::SelectedUnit()
 {
 
 	Army a;
-	if(g_selected_item->GetSelectedArmy(a) && (!a.IsValid() || (a.Num() < 2))) {
+	if(selitem_Get()->GetSelectedArmy(a) && (!a.IsValid() || (a.Num() < 2))) {
 		SetSelectionMode(SINGLE_SELECTION);
 	} else {
 		SetSelectionMode(MULTIPLE_SELECTION);
@@ -415,7 +415,7 @@ void UnitControlPanel::SetSelectionMode(UnitSelectionMode mode)
 		break;
 	}
 
-	if(g_selected_item)
+	if(selitem_Get())
 		Update();
 }
 
@@ -537,11 +537,11 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 
 void UnitControlPanel::UpdateMultipleSelectionDisplay()
 {
-	if (!g_selected_item)
+	if (!selitem_Get())
 		return;
 
 	CellUnitList        newUnitList;
-    world_Get()->GetCell(g_selected_item->GetCurSelectPos())->GetArmy(newUnitList);
+    world_Get()->GetCell(selitem_Get()->GetCurSelectPos())->GetArmy(newUnitList);
 
     std::vector<Army>   newArmyList;
 	for (sint32 i = 0; i < newUnitList.Num(); ++i)
@@ -905,10 +905,10 @@ void UnitControlPanel::UpdateOrderButtons()  //emod3 this is the method
 Army UnitControlPanel::GetSelectedArmy()
 {
 
-	if(!g_selected_item)
+	if(!selitem_Get())
 		return(Army());
 
-	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if(!player)
 		return(Army());
@@ -916,7 +916,7 @@ Army UnitControlPanel::GetSelectedArmy()
 	ID id;
 	PLAYER_INDEX playerIndex;
 	SELECT_TYPE selectionType;
-	g_selected_item->GetTopCurItem(playerIndex, id,
+	selitem_Get()->GetTopCurItem(playerIndex, id,
 		selectionType);
 
   	if(selectionType == SELECT_TYPE_LOCAL_ARMY) {
@@ -1000,7 +1000,7 @@ void UnitControlPanel::PrevUnitButtonActionCallback(aui_Control *control,
 		case MULTIPLE_SELECTION:
 		default:
 
-			g_selected_item->NextUnmovedUnit();
+			selitem_Get()->NextUnmovedUnit();
 			break;
 	}
 }
@@ -1023,7 +1023,7 @@ void UnitControlPanel::NextUnitButtonActionCallback(aui_Control *control,
 		case MULTIPLE_SELECTION:
 		default:
 
-			g_selected_item->NextUnmovedUnit();
+			selitem_Get()->NextUnmovedUnit();
 			break;
 	}
 }
@@ -1129,7 +1129,7 @@ void UnitControlPanel::MultiButtonActionCallback(aui_Control *control,
     	Unit unit = army[0];
 	    if (unit.IsValid())
         {
-        	g_selected_item->SetSelectUnit(unit);
+        	selitem_Get()->SetSelectUnit(unit);
         	multiPair->first->SetSelectionMode(ARMY_SELECTION);
         }
     }
@@ -1177,12 +1177,12 @@ void UnitControlPanel::Activated()
 	m_lastSelectedArmy.m_id = 0;
 
 	Army a;
-	if(g_selected_item->GetSelectedArmy(a))
+	if(selitem_Get()->GetSelectedArmy(a))
 		return;
 
 	a = GetSelectedArmy();
 	if(a.IsValid()) {
-		g_selected_item->SetSelectUnit(a[0]);
+		selitem_Get()->SetSelectUnit(a[0]);
 	}
 }
 

@@ -354,7 +354,7 @@ void NationalManagementDialog::UpdateResourceList()
 	m_resourceList->Clear();
 
 	UnitDynamicArray *cityList =
-		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
+		player_Get(selitem_Get()->GetVisiblePlayer())->GetAllCitiesList();
 
 	for(sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++) {
 
@@ -374,7 +374,7 @@ void NationalManagementDialog::UpdateStatusList()
 	m_statusList->Clear();
 
 	UnitDynamicArray *cityList =
-		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
+		player_Get(selitem_Get()->GetVisiblePlayer())->GetAllCitiesList();
 
 	for(sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++) {
 
@@ -409,7 +409,7 @@ void NationalManagementDialog::UpdateSpecialistList()
 		m_specialistList->Clear();
 
 		UnitDynamicArray * cityList =
-		player_Get(g_selected_item->GetVisiblePlayer())->GetAllCitiesList();
+		player_Get(selitem_Get()->GetVisiblePlayer())->GetAllCitiesList();
 
 		for (sint32 cityIndex = 0; cityIndex < cityList->Num(); cityIndex++)
 		{
@@ -609,11 +609,11 @@ void NationalManagementDialog::UpdateRushBuy()
 	}
 
 	// Extra conditions to prevent buying out of turn.
-	sint32 const	player	= g_selected_item->GetVisiblePlayer();
+	sint32 const	player	= selitem_Get()->GetVisiblePlayer();
 
 	m_rushBuyButton->Enable((rushBuyTotal > 0)								&&
 						(rushBuyTotal <= player_Get(player)->GetGold())	&&
-							(player == g_selected_item->GetCurPlayer())
+							(player == selitem_Get()->GetCurPlayer())
 						   );
 
 	if (rushBuyTotal <= 0)
@@ -1570,7 +1570,7 @@ void NationalManagementDialog::RushBuyButtonActionCallback(aui_Control *control,
 		// JJB removed the following:
 		// and replaced it with the following:
 		if (!city.GetCityData()->AlreadyBoughtFront()
-		  && city.GetOwner() == g_selected_item->GetCurPlayer()) {
+		  && city.GetOwner() == selitem_Get()->GetCurPlayer()) {
 			city.GetCityData()->AddBuyFront();
 		}
 		// in the hope of fixing the rush buy bug.
@@ -1816,7 +1816,7 @@ void NationalManagementDialog::GotoSelectedCity()
 {
 	Unit city = GetSelectedCity();
 	if(city.IsValid()) {
-		g_selected_item->SetSelectCity(city);
+		selitem_Get()->SetSelectCity(city);
 		if(!director_Get()->TileWillBeCompletelyVisible(city.RetPos().x, city.RetPos().y)) {
 			director_Get()->AddCenterMap(city.RetPos());
 		}

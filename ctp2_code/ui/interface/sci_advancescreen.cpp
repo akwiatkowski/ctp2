@@ -180,7 +180,7 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 			ctp2_ListItem *item = (ctp2_ListItem *)lb->GetSelectedItem();
 			if(!item) return;
 
-			player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
+			player_Get(selitem_Get()->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
 			if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 				smd->Update();
 			}
@@ -209,7 +209,7 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 
 sint32	sci_advancescreen_displayMyWindow( MBCHAR *messageText, sint32 from, SequenceWeakPtr seq )
 {
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 	s_oldResearching = p->m_advances->GetResearching();
 
 	s_screenSequence = seq;
@@ -419,7 +419,7 @@ void sci_advancescreen_backPress(aui_Control *control, uint32 action, uint32 dat
 			return;
 		}
 
-		player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
+		player_Get(selitem_Get()->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
 		if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 			smd->Update();
 		}
@@ -449,7 +449,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( s_oldResearching );
+	player_Get(selitem_Get()->GetVisiblePlayer())->SetResearching( s_oldResearching );
 
 	if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 		smd->Update();
@@ -479,7 +479,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 // Parameters : -
 //
 // Globals    : player_Get()		: list of players
-//				g_selected_item		: determines currently active player
+//				selitem_Get()		: determines currently active player
 //				g_theAdvanceDB		: advance database
 //				g_theStringDB		: language dependent text to display
 //				s_scienceGoalTree	: list of advances that lead to the goal
@@ -495,7 +495,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 sint32 sci_advancescreen_loadList( void )
 {
 
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 	MBCHAR str[_MAX_PATH];
 	if(!s_scienceGoalTree)
 	{
@@ -582,7 +582,7 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 	MBCHAR str[_MAX_PATH];
 	sint32 advanceTurns;
 
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if ( messageText ) {
 		s_message->SetHyperText( messageText );
@@ -604,7 +604,7 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 		return 0;
 	}
 
-	sci_advancescreen_setStatsInfo( (long)item->GetUserData(), g_selected_item->GetVisiblePlayer());
+	sci_advancescreen_setStatsInfo( (long)item->GetUserData(), selitem_Get()->GetVisiblePlayer());
 
 
 
@@ -733,7 +733,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 	for(i = 0; i < g_theTerrainImprovementDB->NumRecords(); i++) {
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(i);
 
-		if(terrainutil_AdvanceEnablesImprovementForPlayer(g_selected_item->GetVisiblePlayer(),
+		if(terrainutil_AdvanceEnablesImprovementForPlayer(selitem_Get()->GetVisiblePlayer(),
 														  index,
 														  i)) {
 			if(!isTileImp) {

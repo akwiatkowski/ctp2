@@ -46,7 +46,7 @@
 #include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "ui/interface/chatbox.h"
 #include "net/general/network.h"                // g_network
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gs/utility/newturncount.h"
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "ctp/civapp.h"
@@ -325,8 +325,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			}
 			while
 			     (
-			          g_selected_item != NULL
-			      &&  g_selected_item->GetCurPlayer() != g_selected_item->GetVisiblePlayer()
+			          selitem_Get() != NULL
+			      &&  selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer()
 			      && !gDone
 			     );
 		}
@@ -337,7 +337,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 #if 0
 	else if (!strcmp(s, "/A") && !g_network.IsActive())
 	{
-		if (g_selected_item->GetCurPlayer() != g_selected_item->GetVisiblePlayer())
+		if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
 			return TRUE;
 
 		if(g_network.IsActive())
@@ -346,9 +346,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		}
 		else
 		{
-			g_selected_item->Deselect(g_selected_item->GetCurPlayer());
+			selitem_Get()->Deselect(selitem_Get()->GetCurPlayer());
  			turn_Get()->EndThisTurnBeginNewTurn();
-			g_selected_item->SetPlayerOnScreen(g_selected_item->GetCurPlayer());
+			selitem_Get()->SetPlayerOnScreen(selitem_Get()->GetCurPlayer());
 
 			NewTurnCount::StartNextPlayer(true);
 
@@ -501,8 +501,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 					DispatchMessage(&msg);
 				}
 
-			} while (g_selected_item && !gDone &&
-					 (g_selected_item->GetCurPlayer() != g_selected_item->GetVisiblePlayer()));
+			} while (selitem_Get() && !gDone &&
+					 (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer()));
 
 		}
 		return TRUE;

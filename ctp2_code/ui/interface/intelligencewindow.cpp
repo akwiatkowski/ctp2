@@ -249,7 +249,7 @@ void IntelligenceWindow::SetRegardTip(MBCHAR *buf, const sint32 player, const si
 
 void IntelligenceWindow::Update(ctp2_ListBox *theList)
 {
-    PLAYER_INDEX    visPl   = g_selected_item->GetVisiblePlayer();
+    PLAYER_INDEX    visPl   = selitem_Get()->GetVisiblePlayer();
 	Assert(player_Get(visPl));
 	if(!player_Get(visPl)) return;
 
@@ -437,7 +437,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerRegard(ctp2_Static *control,
 
 
 
-	switch(GetRegardThreshold(p, g_selected_item->GetVisiblePlayer())) {
+	switch(GetRegardThreshold(p, selitem_Get()->GetVisiblePlayer())) {
 		case HOTWAR_REGARD: imageName = toneIcons[DIPLOMATIC_TONE_ANGRY]; break;
 		case COLDWAR_REGARD: imageName = toneIcons[DIPLOMATIC_TONE_INDIGNANT]; break;
 		case NEUTRAL_REGARD: imageName = toneIcons[DIPLOMATIC_TONE_MEEK]; break;
@@ -487,7 +487,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 	sint32 p = (intptr_t)cookie;
 
 	if(!player_Get(p)) return AUI_ERRCODE_OK;
-	if(!player_Get(g_selected_item->GetVisiblePlayer())) return AUI_ERRCODE_OK;
+	if(!player_Get(selitem_Get()->GetVisiblePlayer())) return AUI_ERRCODE_OK;
 
 
 
@@ -496,7 +496,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 
 
 
-	DIPLOMATIC_STRENGTH relativeStrength = player_Get(p)->GetRelativeStrength(g_selected_item->GetVisiblePlayer());
+	DIPLOMATIC_STRENGTH relativeStrength = player_Get(p)->GetRelativeStrength(selitem_Get()->GetVisiblePlayer());
 
 	if(!sm_strengthImages) {
 		InitImageTables();
@@ -557,13 +557,13 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 	MBCHAR *imageName = NULL;
 
 #if defined(_DEBUG)
-	if(sm_embassyImages->GetNumStrings() > 1 && Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).DesireWarWith(p))
+	if(sm_embassyImages->GetNumStrings() > 1 && Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).DesireWarWith(p))
 	{
 		imageName = sm_embassyImages->GetString(1);
 	}
 	else
 #endif
-	if (player_Get(g_selected_item->GetVisiblePlayer())->HasEmbassyWith(p))
+	if (player_Get(selitem_Get()->GetVisiblePlayer())->HasEmbassyWith(p))
 	{
 		imageName = sm_embassyImages->GetString(0);
 	}
@@ -609,7 +609,7 @@ AUI_ERRCODE IntelligenceWindow::DrawTreaties(ctp2_Static *control,
 											 void *cookie)
 {
 	sint32 p    = (intptr_t) cookie;
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 	sint32 slot;
 
 	for (sint32 ag = 1; ag < PROPOSAL_MAX; ++ag)
@@ -748,7 +748,7 @@ void intelligence_DeclareWarCallback(bool response, void *cookie)
 		if(g_network.IsClient()) {
 			g_network.SendAction(new NetAction(NET_ACTION_DECLARE_WAR, (intptr_t)cookie));
 		}
-		Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).DeclareWar((intptr_t)cookie);
+		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).DeclareWar((intptr_t)cookie);
 		DiplomacyWindow::EnableButtons(TRUE, reinterpret_cast<intptr_t>(cookie));
 	}
 }
@@ -756,7 +756,7 @@ void intelligence_DeclareWarCallback(bool response, void *cookie)
 void intelligence_DeclarEmbargoCallback(bool response, void *cookie)
 {
 	if(response) {
-		Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).SetEmbargo((intptr_t)cookie, 1);
+		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).SetEmbargo((intptr_t)cookie, 1);
 		DiplomacyWindow::EnableButtons(TRUE, reinterpret_cast<intptr_t>(cookie));
 	}
 }
@@ -769,7 +769,7 @@ void IntelligenceWindow::DeclareWarOnSelected()
 
 	if(!item) return;
 
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 
 	if(!player_Get(visP)) return;
 
@@ -791,7 +791,7 @@ void IntelligenceWindow::DeclareEmbargoOnSelected()
 
 	if(!item) return;
 
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 
 	if(!player_Get(visP)) return;
 
@@ -813,7 +813,7 @@ void IntelligenceWindow::SendMessageToSelected()
 
 	if(!item) return;
 
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 
 	if(!player_Get(visP)) return;
 
@@ -836,7 +836,7 @@ void IntelligenceWindow::DisplayDetailsOfSelected()
 
 	if(!item) return;
 
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 
 	if(!player_Get(visP)) return;
 
@@ -857,7 +857,7 @@ void IntelligenceWindow::UpdateAdviceText()
 	if (advice == NULL)
 		return;
 
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 	if(!player_Get(visP)) return;
 
 	ctp2_ListItem *item = (ctp2_ListItem *)sm_list->GetSelectedItem();

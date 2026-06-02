@@ -305,7 +305,7 @@ void TradeManager::Notify()
 
 void TradeManager::Update()
 {
-	UpdateCreateList(g_selected_item->GetVisiblePlayer());
+	UpdateCreateList(selitem_Get()->GetVisiblePlayer());
 	UpdateSummaryList();
 	UpdateAdviceWindow();
 
@@ -364,15 +364,15 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 				for(op = 1; op < k_MAX_PLAYERS; op++) {
 					if(!player_Get(op)) continue;
 					if(player_id != op && !p->HasContactWith(op)) continue;
-					if(m_showCities == TRADE_CITIES_OWN && op != g_selected_item->GetVisiblePlayer()) continue;
+					if(m_showCities == TRADE_CITIES_OWN && op != selitem_Get()->GetVisiblePlayer()) continue;
 					if ((m_showCities == TRADE_CITIES_ALL)			&&
-						(op != g_selected_item->GetVisiblePlayer()) &&
+						(op != selitem_Get()->GetVisiblePlayer()) &&
 						(AgreementMatrix::s_agreements.TurnsAtWar(player_id, op) >= 0)
 					   )
 						continue;
 
 					if ((m_showCities == TRADE_CITIES_FRIENDLY)		&&
-						(op != g_selected_item->GetVisiblePlayer()) &&
+						(op != selitem_Get()->GetVisiblePlayer()) &&
 						(!AgreementMatrix::s_agreements.HasAgreement
 							(player_id, op, PROPOSAL_TREATY_PEACE)
 						)
@@ -521,7 +521,7 @@ void TradeManager::UpdateAdviceWindow()
 	}
 
 	MBCHAR buf[20];
-	sint32 pl = g_selected_item->GetVisiblePlayer();
+	sint32 pl = selitem_Get()->GetVisiblePlayer();
 	if(!player_Get(pl)) return;
 
 	ctp2_Static *child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "Available");
@@ -570,7 +570,7 @@ void TradeManager::UpdateAdviceText()
 
 		SlicContext sc;
 
-		Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+		Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 		if(m_createList) {
 			ctp2_ListItem *selItem = (ctp2_ListItem *)m_createList->GetSelectedItem();
@@ -647,7 +647,7 @@ void TradeManager::UpdateAdviceText()
 
 void TradeManager::UpdateSummaryList()
 {
-	sint32 pl = g_selected_item->GetVisiblePlayer();
+	sint32 pl = selitem_Get()->GetVisiblePlayer();
 	Assert(pl >= 0 && pl < k_MAX_PLAYERS);
 	if(pl < 0 || pl >= k_MAX_PLAYERS) return;
 
@@ -1052,7 +1052,7 @@ void TradeManager::ListSelect(aui_Control *control, uint32 action, uint32 data, 
 		CreateListData *data = (CreateListData *)item->GetUserData();
 		Assert(data);
 		if(data) {
-			Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
+			Player *pl = player_Get(selitem_Get()->GetVisiblePlayer());
 			Assert(pl);
 			if(pl && (data->m_caravans <= pl->m_tradeTransportPoints - pl->m_usedTradeTransportPoints)) {
 				canCreate = true;
@@ -1102,8 +1102,8 @@ STDEHANDLER(TradeManagerSendGoodEvent)
 	if(!args->GetCity(0, source)) return GEV_HD_Continue;
 	if(!args->GetCity(1, destination)) return GEV_HD_Continue;
 
-	if(source.GetOwner() == g_selected_item->GetVisiblePlayer() ||
-	   destination.GetOwner() == g_selected_item->GetVisiblePlayer()) {
+	if(source.GetOwner() == selitem_Get()->GetVisiblePlayer() ||
+	   destination.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 		s_tradeManager->Update();
 	}
 	return GEV_HD_Continue;
@@ -1126,8 +1126,8 @@ STDEHANDLER(TradeManagerKillRouteEvent)
 	TradeRoute route;
 	if(!args->GetTradeRoute(0, route)) return GEV_HD_Continue;
 
-	if((route.GetSource().IsValid() && route.GetSource().GetOwner() == g_selected_item->GetVisiblePlayer()) ||
-	   (route.GetDestination().IsValid() && route.GetDestination().GetOwner() == g_selected_item->GetVisiblePlayer())) {
+	if((route.GetSource().IsValid() && route.GetSource().GetOwner() == selitem_Get()->GetVisiblePlayer()) ||
+	   (route.GetDestination().IsValid() && route.GetDestination().GetOwner() == selitem_Get()->GetVisiblePlayer())) {
 
 
 		g_c3ui->AddAction(new UpdateTradeAction);
@@ -1167,7 +1167,7 @@ void TradeManager::FilterButtonActivated(aui_Control *control)
 		Assert(FALSE);
 	}
 
-	UpdateCreateList(g_selected_item->GetVisiblePlayer());
+	UpdateCreateList(selitem_Get()->GetVisiblePlayer());
 }
 
 void TradeManager::CityFilterButton(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -1196,7 +1196,7 @@ void TradeManager::NumCitiesSlider(aui_Control *control, uint32 action, uint32 d
 			s_tradeManager->SetNumCities(s_tradeManager->m_citiesSlider->GetValueX() + 1);
 			break;
 		case AUI_RANGER_ACTION_RELEASE:
-			s_tradeManager->UpdateCreateList(g_selected_item->GetVisiblePlayer());
+			s_tradeManager->UpdateCreateList(selitem_Get()->GetVisiblePlayer());
 			break;
 	}
 }

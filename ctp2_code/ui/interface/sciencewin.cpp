@@ -89,7 +89,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/Player.h"                 // player_Get()
 #include "gs/gameobj/PlayHap.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gs/gameobj/Sci.h"
 
 #include "ui/aui_ctp2/chart.h"
@@ -208,7 +208,7 @@ void sciencewin_SciButtonCallback( aui_Control *control, uint32 action, uint32 d
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if ( (c3_Button *)control == g_scienceWin->PlusButton() ) {
 
@@ -909,7 +909,7 @@ void AdvanceListItem::Update(void)
 	c3_Icon	*subIcon;
 	c3_Static *branchItem;
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
 	if ( player_Get(curPlayer) && player_Get(curPlayer)->HasAdvance(m_index) ) {
@@ -1299,8 +1299,8 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 {
 	MBCHAR str[_MAX_PATH];
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	sint32 researching = player_Get(curPlayer)->m_advances->GetResearching();
 
@@ -1411,7 +1411,7 @@ void ScienceWin::UpdateList(void)
 	AUI_ERRCODE errcode;
 	MBCHAR		ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sint32		curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32		curPlayer = selitem_Get()->GetVisiblePlayer();
 	sint32		num = g_theAdvanceDB->NumRecords();
 
 	m_advanceList->Clear();

@@ -507,11 +507,11 @@ AUI_ERRCODE CityWindow::Display(CityData *city)
 	if(city)
 		s_cityWindow->SetCity(city);
 	else {
-		if(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() < 1) {
+		if(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() < 1) {
 
 			return AUI_ERRCODE_OK;
 		}
-		s_cityWindow->SetCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).CD());
+		s_cityWindow->SetCity(player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0).CD());
 	}
 
 	AUI_ERRCODE err = g_c3ui->AddWindow(s_cityWindow->m_window);
@@ -586,7 +586,7 @@ void CityWindow::SetCity(CityData *city)
 
 	if(s_cityWindow->m_cityData && s_cityWindow->m_cityData->GetHomeCity().IsValid()) {
 		CityData *cd = s_cityWindow->m_cityData;
-		g_selected_item->SetSelectCity(cd->GetHomeCity());
+		selitem_Get()->SetSelectCity(cd->GetHomeCity());
 	}
 }
 
@@ -612,7 +612,7 @@ void CityWindow::Update()
 
 	ctp2_DropDown *cityDD = (ctp2_DropDown *)aui_Ldl::GetObject("CityWindow.CityList.Pulldown");
 	if(cityDD) {
-		UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
+		UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
 
 		cityDD->Clear();
 
@@ -673,7 +673,7 @@ void CityWindow::Update()
 
 	for(sint32 i = 0; i < CW_RES_MAX; i++) {
 
-		Player *player = player_Get(g_selected_item->GetVisiblePlayer());
+		Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 		sint32 amt = 0;
 
 		if(m_resVal[i]) {
@@ -969,7 +969,7 @@ void CityWindow::UpdateBuildTabs()
 //----------------------------------------------------------------------------
 void CityWindow::UpdateBuildTabButtons()
 {
-	sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
+	sint32 const	visiblePlayer	= selitem_Get()->GetVisiblePlayer();
 	sint32 const	cost			= m_cityData->GetOvertimeCost();
 
 	if ((cost <= 0)									||
@@ -1178,7 +1178,7 @@ void CityWindow::NextCity(aui_Control *control, uint32 action, uint32 data, void
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -1212,7 +1212,7 @@ void CityWindow::PreviousCity(aui_Control *control, uint32 action, uint32 data, 
 	if(!s_cityWindow)
 		return;
 
-	UnitDynamicArray *cityList = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities;
+	UnitDynamicArray *cityList = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities;
 
 	if(!s_cityWindow->m_cityData) {
 		s_cityWindow->SetCity(cityList->Access(0).CD());
@@ -1249,7 +1249,7 @@ void CityWindow::SelectCity(aui_Control *control, uint32 action, uint32 data, vo
 
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
 	if(dd->GetSelectedItem() >= 0) {
-		Unit selectedCity = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(dd->GetSelectedItem());
+		Unit selectedCity = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(dd->GetSelectedItem());
 		if(selectedCity.m_id != s_cityWindow->m_cityData->GetHomeCity().m_id) {
 			s_cityWindow->SetCity(selectedCity.CD());
 		}
@@ -1454,7 +1454,7 @@ void CityWindow::OptimizeSpecialists(aui_Control *control, uint32 action, uint32
 	if(!s_cityWindow)
 		return;
 
-	PLAYER_INDEX playerId = g_selected_item->GetVisiblePlayer();
+	PLAYER_INDEX playerId = selitem_Get()->GetVisiblePlayer();
 	Governor & governor = Governor::GetGovernor(playerId);
 
 	Timer t;
@@ -1997,7 +1997,7 @@ void CityWindow::UpdateAdviceText()
 			return;
 		}
 
-	PLAYER_INDEX playerId = g_selected_item->GetVisiblePlayer();
+	PLAYER_INDEX playerId = selitem_Get()->GetVisiblePlayer();
 	const Governor & governor = Governor::GetGovernor(playerId);
 
 	StringId adviceId =
@@ -2624,7 +2624,7 @@ void CityWindow::DisbandQuery(bool result, void *ud)
 	if(result) {
 
 		// Create a temporary army to collect the units from the selected boxes.
-		Player *	owner	= player_Get(g_selected_item->GetVisiblePlayer());
+		Player *	owner	= player_Get(selitem_Get()->GetVisiblePlayer());
 		Army		temp(owner->GetNewArmy(CAUSE_NEW_ARMY_GROUPING));
 
 		for (sint32 b = 0; b < k_MAX_ARMY_SIZE; b++)

@@ -99,7 +99,7 @@
 #include "knowledgewin.h"
 
 extern C3UI					*g_c3ui;
-extern SelectedItem			*g_selected_item;
+extern SelectedItem			*selitem_Get();
 extern DebugWindow			*g_debugWindow;
 extern StringDB				*g_theStringDB;
 extern GreatLibraryWindow	*g_greatLibrary;
@@ -249,7 +249,7 @@ void knowledgewin_LibraryButtonActionCallback( aui_Control *control, uint32 acti
 
 	AUI_ERRCODE auiErr;
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 	sint32 curIndex = player_Get(curPlayer)->m_advances->GetResearching();
 
 	if (!g_greatLibrary) GreatLibraryWindow_Initialize( curIndex );
@@ -300,7 +300,7 @@ void knowledgewin_SciButtonActionCallback( aui_Control *control, uint32 action, 
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if ( (c3_Button *)control == s_plusButton ) {
 
@@ -404,7 +404,7 @@ sint32 knowledgewin_UpdateFromSwitch( void )
 	AUI_ERRCODE errcode;
 	MBCHAR		ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sint32		curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32		curPlayer = selitem_Get()->GetVisiblePlayer();
 	sint32		num = g_theAdvanceDB->NumRecords();
 
 	s_advanceList->Clear();
@@ -432,7 +432,7 @@ sint32 knowledgewin_UpdateList( void )
 	AUI_ERRCODE errcode;
 	MBCHAR		ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sint32		curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32		curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	sint32		num = g_theAdvanceDB->NumRecords();
 
@@ -525,8 +525,8 @@ sint32 knowledgewin_UpdateData( sint32 flag )
 {
 	MBCHAR str[_MAX_PATH];
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
+	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	sint32 researching = player_Get(curPlayer)->m_advances->GetResearching();
 
@@ -1440,7 +1440,7 @@ void AdvanceListItem::Update(void)
 	c3_Static *subItem;
 	c3_Icon	*subIcon;
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
 	if ( player_Get(curPlayer)->HasAdvance(m_index) ) {

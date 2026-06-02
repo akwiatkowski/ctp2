@@ -52,8 +52,8 @@ const MBCHAR *TurnYearStatus::GetCurrentYear()
 {
 	sint32 currentYear = turn_Get()->GetSessionYear();
 
-	sint32 round       = player_Get(g_selected_item->GetVisiblePlayer()) ?
-	                     player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
+	sint32 round       = player_Get(selitem_Get()->GetVisiblePlayer()) ?
+	                     player_Get(selitem_Get()->GetVisiblePlayer())->m_current_round :
 	                     turn_Get()->GetSessionRound();
 
 	return TurnYearStatus::GetYearString(currentYear, round);
@@ -125,8 +125,8 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 const MBCHAR *TurnYearStatus::GetCurrentRound()
 {
 	static MBCHAR buf[1024];
-	sint32 round = player_Get(g_selected_item->GetVisiblePlayer()) ?
-	                   player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
+	sint32 round = player_Get(selitem_Get()->GetVisiblePlayer()) ?
+	                   player_Get(selitem_Get()->GetVisiblePlayer())->m_current_round :
 	                   turn_Get()->GetSessionRound();
 	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
 	return buf;
@@ -271,7 +271,7 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 											  void *cookie)
 {
 
-	if(g_selected_item == NULL)
+	if(selitem_Get() == NULL)
 		return AUI_ERRCODE_OK;
 
 	if (NULL == player_arr_Get())
@@ -279,25 +279,25 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 		return AUI_ERRCODE_OK;
 	}
 
-	if(!player_Get(g_selected_item->GetVisiblePlayer())) {
+	if(!player_Get(selitem_Get()->GetVisiblePlayer())) {
 		return AUI_ERRCODE_OK;
 	}
 
 	primitives_PaintRect16(surface, &rect, g_colorSet->GetColor(COLOR_BLACK));
-	if(g_selected_item->GetVisiblePlayer() != g_selected_item->GetCurPlayer()) {
+	if(selitem_Get()->GetVisiblePlayer() != selitem_Get()->GetCurPlayer()) {
 		sint32 p;
 
 		sint32 alive = 0;
 		sint32 progress = 0;
 
-		sint32 startp = g_selected_item->GetVisiblePlayer() + 1;
+		sint32 startp = selitem_Get()->GetVisiblePlayer() + 1;
 		if(startp >= k_MAX_PLAYERS)
 			startp = 0;
-		for(p = startp; p != g_selected_item->GetVisiblePlayer(); p++) {
+		for(p = startp; p != selitem_Get()->GetVisiblePlayer(); p++) {
 			if(player_Get(p)) {
 				alive++;
 			}
-			if(p == g_selected_item->GetCurPlayer()) {
+			if(p == selitem_Get()->GetCurPlayer()) {
 				progress = alive;
 			}
 			if(p == k_MAX_PLAYERS - 1) {
@@ -314,7 +314,7 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 				displayWidth = width;
 			}
 			tmp.right = tmp.left + displayWidth;
-			primitives_PaintRect16(surface, &tmp, g_colorSet->GetPlayerColor(g_selected_item->GetCurPlayer()));
+			primitives_PaintRect16(surface, &tmp, g_colorSet->GetPlayerColor(selitem_Get()->GetCurPlayer()));
 		}
 	}
 	return AUI_ERRCODE_OK;

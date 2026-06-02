@@ -224,7 +224,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			st->SetText(interp);
 
 			interp[0] = 0;
-			StringId dip_adviceId = Diplomat::GetDiplomat(detailPlayer).ExplainRegard(g_selected_item->GetVisiblePlayer());
+			StringId dip_adviceId = Diplomat::GetDiplomat(detailPlayer).ExplainRegard(selitem_Get()->GetVisiblePlayer());
 			if (dip_adviceId != -1)
 			{
 				stringutils_Interpret(g_theStringDB->GetNameStr(dip_adviceId), so, interp);
@@ -232,7 +232,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			else
 			{
 
-				dip_adviceId = Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).GetDiplomacyAdvice(so, detailPlayer);
+				dip_adviceId = Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).GetDiplomacyAdvice(so, detailPlayer);
 				if (dip_adviceId != -1)
 				{
 					stringutils_Interpret(g_theStringDB->GetNameStr(dip_adviceId), so, interp);
@@ -348,7 +348,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 			st = (ctp2_Static *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "TabGroup.Tab2.TabPanel.CapitalLabel");
 			st->SetText(interp);
 
-			if(player_Get(g_selected_item->GetVisiblePlayer())->HasEmbassyWith(detailPlayer))
+			if(player_Get(selitem_Get()->GetVisiblePlayer())->HasEmbassyWith(detailPlayer))
 			{
 				interp[0] = 0;
 				stringutils_Interpret(g_theStringDB->GetNameStr("str_ldl_DipDetails_EmpireSize"), so, interp);
@@ -415,7 +415,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 					sm_list->Clear();
 					sm_list->SetAbsorbancy(FALSE);
 					for(int a = 0; a < g_theAdvanceDB->NumRecords(); a++) {
-						if(player_Get(g_selected_item->GetVisiblePlayer())->HasAdvance(a))
+						if(player_Get(selitem_Get()->GetVisiblePlayer())->HasAdvance(a))
 						{
 							continue;
 						}
@@ -442,7 +442,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 					sm_list->SetAbsorbancy(FALSE);
 					for(int a = 0; a < g_theAdvanceDB->NumRecords(); a++)
 					{
-						if(!player_Get(g_selected_item->GetVisiblePlayer())->HasAdvance(a))
+						if(!player_Get(selitem_Get()->GetVisiblePlayer())->HasAdvance(a))
 						{
 							continue;
 						}
@@ -486,7 +486,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 				Unit *capitol = player_Get(detailPlayer)->m_capitol;
 				if( capitol && capitol->m_id
 				&& (    capitol->GetCityData()->GetBuiltWonders()
-				    || (capitol->GetVisibility() & (1 << g_selected_item->GetVisiblePlayer())) != 0
+				    || (capitol->GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) != 0
 				   )
 				){
 					interp[0] = 0;
@@ -549,7 +549,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 					{
 						Unit city = player_Get(detailPlayer)->m_all_cities->Get(a);
 						if(!city->GetCityData()->GetBuiltWonders()
-						&& (city.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer())) == 0
+						&& (city.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) == 0
 						){
 							continue;
 						}
@@ -873,7 +873,7 @@ AUI_ERRCODE DiplomacyDetails::DrawTreaties(ctp2_Static *control,
 											 void *cookie)
 {
 	sint32 p = (intptr_t)cookie;
-	sint32 visP = g_selected_item->GetVisiblePlayer();
+	sint32 visP = selitem_Get()->GetVisiblePlayer();
 
 	sint32 x = 0;
 

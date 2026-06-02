@@ -60,7 +60,7 @@ STDEHANDLER(InterfaceCreateCityEvent)
 	Unit city;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
-	if(city.GetOwner() == g_selected_item->GetVisiblePlayer()) {
+	if(city.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
 		if(g_theProfileDB->GetAutoRenameCities()) {
 			c3_utilitydialogbox_NameCity(city);
 		}
@@ -75,7 +75,7 @@ STDEHANDLER(InterfaceMakePopEvent)
 	if(g_theProfileDB->GetAutoOpenCityWindow()) {
 		static Unit city;
 		if(!args->GetCity(0, city)) return GEV_HD_Continue;
-		if(city.GetOwner() == g_selected_item->GetVisiblePlayer() &&
+		if(city.GetOwner() == selitem_Get()->GetVisiblePlayer() &&
 		   city.CD()->PopCount() == 1) {
 
 			EditQueue::Display(CityWindow::GetCityData(city));
@@ -90,7 +90,7 @@ STDEHANDLER(InterfaceOpenInitialCityInterfaceEvent)
 	if(g_theProfileDB->GetAutoOpenCityWindow()) {
 		static Unit city;
 		if(!args->GetCity(0, city)) return GEV_HD_Continue;
-		if( city.GetOwner() == g_selected_item->GetVisiblePlayer()
+		if( city.GetOwner() == selitem_Get()->GetVisiblePlayer()
 		&& !player_Get(city.GetOwner())->IsRobot()
 		){
 			EditQueue::Display(CityWindow::GetCityData(city));
@@ -104,7 +104,7 @@ STDEHANDLER(InterfaceUpdateCityEvent)
 	static Unit city, selCity;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
-	if(g_selected_item->GetSelectedCity(selCity) && city.m_id == selCity.m_id) {
+	if(selitem_Get()->GetSelectedCity(selCity) && city.m_id == selCity.m_id) {
 		controlpanelwindow_Update(&city);
 	}
 	return GEV_HD_Continue;
@@ -114,9 +114,9 @@ STDEHANDLER(InterfaceStartMovePhaseEvent)
 {
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
-	if(pl == g_selected_item->GetVisiblePlayer()) {
+	if(pl == selitem_Get()->GetVisiblePlayer()) {
 		static Unit selCity;
-		if(g_selected_item->GetSelectedCity(selCity)) {
+		if(selitem_Get()->GetSelectedCity(selCity)) {
 			controlpanelwindow_Update(&selCity);
 		}
 	}
@@ -134,7 +134,7 @@ STDEHANDLER(InterfaceUpdateCityProjection)
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 
-	if(pl == g_selected_item->GetVisiblePlayer()) {
+	if(pl == selitem_Get()->GetVisiblePlayer()) {
 		MainControlPanel::SelectedCity();
 		// Reenable opening the city window - see InterfacePreBeginTurnEvent.
 		if (g_modalWindow > 0)
@@ -151,21 +151,21 @@ STDEHANDLER(InterfaceBeginTurnRecenter)
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 
-	if(pl == g_selected_item->GetVisiblePlayer())
+	if(pl == selitem_Get()->GetVisiblePlayer())
 	{
 		Army a;
 		Unit c;
 		MapPoint pos(-1,-1);
-		if(g_selected_item->GetSelectedArmy(a))
+		if(selitem_Get()->GetSelectedArmy(a))
 		{
 			pos = a->RetPos();
 		}
-		else if(g_selected_item->GetSelectedCity(c))
+		else if(selitem_Get()->GetSelectedCity(c))
 		{
 			pos = c.RetPos();
 		}
 
-		if(g_selected_item->IsAutoCenterOn()
+		if(selitem_Get()->IsAutoCenterOn()
 		&& pos.x >= 0
 		&& !director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y)
 		){
@@ -180,7 +180,7 @@ STDEHANDLER(InterfacePreBeginTurn)
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 
-	if(pl == g_selected_item->GetVisiblePlayer()) {
+	if(pl == selitem_Get()->GetVisiblePlayer()) {
 		close_AllScreensAndUpdateInfoScreen();
 		// Prevent opening the city window during the production computations.
 		// It will be reenabled in InterfaceUpdateCityProjection.

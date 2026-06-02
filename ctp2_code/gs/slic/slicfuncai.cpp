@@ -38,10 +38,10 @@
 //   - INT GetProjectedScience(player) / INT GetProjectedScience(city)
 //   - INT GetStopResearchingAdvance(player,foreigner)
 //   - INT GetMostAtRiskCity(player, foreigner, &cityvar)
-//   These functions compile but still need to be tested. (April 22nd 2006 Martin Gühmann)
+//   These functions compile but still need to be tested. (April 22nd 2006 Martin Gï¿½hmann)
 // - Provided a default tone to ParseNewProposalSlicArgs
-//   if no tone is provided. (11-Oct-2007 Martin Gühmann)
-// - Fixed GetPersonalityType and made it compatibe with Diplomod. (22-Oct-2007 Martin Gühmann)
+//   if no tone is provided. (11-Oct-2007 Martin Gï¿½hmann)
+// - Fixed GetPersonalityType and made it compatibe with Diplomod. (22-Oct-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -1223,7 +1223,7 @@ SFN_ERROR Slic_AtWarWith::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
     m_result.m_int =    (player != foreigner)
-                     && g_player[player]->HasWarWith(foreigner);
+                     && player_Get(player)->HasWarWith(foreigner);
 
 	return SFN_ERROR_OK;
 }
@@ -1765,7 +1765,7 @@ SFN_ERROR Slic_GetRelativeStrength::Call(SlicArgList *args)
 	if(!args->GetPlayer(argNum++, foreigner))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = g_player[player]->GetRelativeStrength(foreigner);
+	m_result.m_int = player_Get(player)->GetRelativeStrength(foreigner);
 
     DPRINTF(k_DBG_SLIC, ("Slic_GetRelativeStrength:player %d, foreigner %d, returns %d\n",player,foreigner, m_result.m_int));
 

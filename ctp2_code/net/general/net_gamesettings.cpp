@@ -22,7 +22,6 @@
 #include "ui/interface/controlpanelwindow.h"
 
 extern World *g_theWorld;
-extern Player **g_player;
 extern TiledMap *g_tiledMap;
 extern SelectedItem *g_selected_item;
 extern Background			*g_background;
@@ -63,7 +62,7 @@ void NetGameSettings::Packetize(uint8 *buf, uint16 &size)
 	PUSHLONG(m_cityTime);
 	uint32 playerMask = 0;
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i])
+		if(player_Get(i))
 			playerMask |= (1 << i);
 	}
 	PUSHLONG(playerMask);
@@ -114,12 +113,12 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	g_tiledMap->CopyVision();
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-		if(g_player[p]) {
-			g_player[p]->m_all_armies->FastKillList();
-			g_player[p]->GetAllUnitList()->FastKillList();
-			g_player[p]->GetAllCitiesList()->FastKillList();
-			g_player[p]->GetTradersList()->FastKillList();
-			g_player[p]->m_vision->Clear();
+		if(player_Get(p)) {
+			player_Get(p)->m_all_armies->FastKillList();
+			player_Get(p)->GetAllUnitList()->FastKillList();
+			player_Get(p)->GetAllCitiesList()->FastKillList();
+			player_Get(p)->GetTradersList()->FastKillList();
+			player_Get(p)->m_vision->Clear();
 		}
 	}
 	unit_tree_Get()->Clear();
@@ -147,20 +146,20 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i]) {
-			delete g_player[i];
+		if(player_Get(i)) {
+			delete player_Get(i);
 		}
 	}
-	delete [] g_player;
+	delete [] player_arr_Get();
 
-	g_player = new Player *[k_MAX_PLAYERS];
+	player_arr_Set(new Player *[k_MAX_PLAYERS]);
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		g_player[i] = NULL;
+		player_arr_Get()[i] = NULL;
 	}
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(playerMask & (1 << i)) {
-			g_player[i] = new Player(i, 0, PLAYER_TYPE_HUMAN);
+			player_arr_Get()[i] = new Player(i, 0, PLAYER_TYPE_HUMAN);
 		}
 	}
 

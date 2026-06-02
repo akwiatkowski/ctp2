@@ -197,7 +197,7 @@ GaiaController::~GaiaController()
 
 void GaiaController::RecomputeCoverage()
 {
-	Player *player_ptr = g_player[m_playerId];
+	Player *player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
 	if (player_ptr == NULL)
 		return;
@@ -262,8 +262,8 @@ STDEHANDLER(GaiaController_CaptureCity)
 
 	originalOwner = city.GetOwner();
 
-	Player *owner_player = g_player[newOwner];
-	Player *original_player = g_player[originalOwner];
+	Player *owner_player = player_Get(newOwner);
+	Player *original_player = player_Get(originalOwner);
 
 	CityData *city_data = city->GetCityData();
 	Assert(city_data);
@@ -337,12 +337,12 @@ STDEHANDLER(GaiaController_CutImprovements)
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
-	//g_player[-1] may give you everything.
+	//player_Get(-1) may give you everything.
 	//It is not very probably that you get 0.
 	if (owner == -1)
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[owner];
+	Player *owner_player = player_Get(owner);
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -382,12 +382,12 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 	//the game from accessing an invalid
 	//area of memory, plain arrays don't
 	//have out of bounds array, so accessing
-	//g_player[-1] may give you everything.
+	//player_Get(-1) may give you everything.
 	//It is not very probably that you get 0.
 	if (owner == -1)
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[owner];
+	Player *owner_player = player_Get(owner);
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -413,7 +413,7 @@ STDEHANDLER(GaiaController_SellBuilding)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[city.GetOwner()];
+	Player *owner_player = player_Get(city.GetOwner());
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -440,7 +440,7 @@ STDEHANDLER(GaiaController_CreateBuilding)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[city.GetOwner()];
+	Player *owner_player = player_Get(city.GetOwner());
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -469,7 +469,7 @@ STDEHANDLER(GaiaController_DisbandCity)
 
 	owner = city.GetOwner();
 
-	Player *owner_player = g_player[owner];
+	Player *owner_player = player_Get(owner);
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -517,7 +517,7 @@ STDEHANDLER(GaiaController_CreateWonder)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[city.GetOwner()];
+	Player *owner_player = player_Get(city.GetOwner());
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -542,7 +542,7 @@ STDEHANDLER(GaiaController_BuildingRemoved)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[city.GetOwner()];
+	Player *owner_player = player_Get(city.GetOwner());
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -568,7 +568,7 @@ STDEHANDLER(GaiaController_WonderRemoved)
 	if(!args->GetInt(0, type))
 		return GEV_HD_Continue;
 
-	Player *owner_player = g_player[city.GetOwner()];
+	Player *owner_player = player_Get(city.GetOwner());
 	if (owner_player == NULL ||
 		owner_player->GetGaiaController() == NULL)
 		return GEV_HD_Continue;
@@ -1028,7 +1028,7 @@ void GaiaController::ComputeTowerPositions()
 	Scored_MapPoint_List candidates;
 	MapPoint pos;
 
-	Player *player_ptr = g_player[m_playerId];
+	Player *player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
 	if (player_ptr == NULL)
 		return;

@@ -9,7 +9,6 @@ extern AVLHeap g_astar_mem;
 #include "gs/world/MapPoint.h"
 
 #include "gs/gameobj/Player.h"
-extern Player **g_player;
 
 #include "gs/world/Cell.h"
 #include "gs/gameobj/XY_Coordinates.h"
@@ -38,12 +37,12 @@ sint32  BestFirstSearch::FindNumCitiesAtHeight(const sint32 player_idx, const si
     sint32 count=0;
     MapPoint city_pos;
     MapPoint capitol_pos;
-    g_player[player_idx]->GetCapitolPos(capitol_pos);
+    player_Get(player_idx)->GetCapitolPos(capitol_pos);
 
     sint32 city_idx;
-    sint32 city_num=g_player[player_idx]->m_all_cities->Num();
+    sint32 city_num=player_Get(player_idx)->m_all_cities->Num();
     for (city_idx=0; city_idx<city_num; city_idx++) {
-        g_player[player_idx]->m_all_cities->Access(city_idx).GetPos(city_pos);
+        player_Get(player_idx)->m_all_cities->Access(city_idx).GetPos(city_pos);
         if (z_height != city_pos.z) continue;
 
         if ((capitol_pos.x == city_pos.x) &&
@@ -125,7 +124,7 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
     MapPoint start_pos;
     MapPoint neighbor_pos;
     double start_cost;
-	g_player[player_idx]->GetCapitolPos(start_pos);
+	player_Get(player_idx)->GetCapitolPos(start_pos);
     start_cost = -g_theWorld->GetCell(start_pos)->GetMoveCost() + ((start_pos.z != z_height) ? 1000.0 : 0) ;
     start_pos.z = z_height;
     Cell *neighbor_cell = g_theWorld->GetCell(start_pos);
@@ -204,21 +203,21 @@ for (pos.x=0; pos.x<size->x; pos.x++) {
 
     Assert(0 <= player_idx);
     Assert(player_idx < k_MAX_PLAYERS);
-    Assert(g_player[player_idx]);
-    if (!g_player[player_idx]) return;
+    Assert(player_Get(player_idx));
+    if (!player_Get(player_idx)) return;
 
 
-    double raw_max_cost = g_player[player_idx]->GetMaxEmpireDistance();
-    double raw_min_cost = g_theGovernmentDB->Get(g_player[player_idx]->GetGovernmentType())->GetMinEmpireDistance();
+    double raw_max_cost = player_Get(player_idx)->GetMaxEmpireDistance();
+    double raw_min_cost = g_theGovernmentDB->Get(player_Get(player_idx)->GetGovernmentType())->GetMinEmpireDistance();
     double dist_cost = max(0.0, raw_max_cost - raw_min_cost);
 
     sint32 city_idx;
     sint32 city_num;
-    city_num = g_player[player_idx]->m_all_cities->Num();
+    city_num = player_Get(player_idx)->m_all_cities->Num();
 
     BOOL searching;
     MapPoint start;
-    if (g_player[player_idx]->GetCapitolPos(start)) {
+    if (player_Get(player_idx)->GetCapitolPos(start)) {
         searching = TRUE;
     } else {
         searching = FALSE;
@@ -230,11 +229,11 @@ for (pos.x=0; pos.x<size->x; pos.x++) {
     MapPoint city_pos;
     for (city_idx=0; city_idx<city_num; city_idx++) {
 
-        g_player[player_idx]->m_all_cities->Access(city_idx).GetPos(city_pos);
+        player_Get(player_idx)->m_all_cities->Access(city_idx).GetPos(city_pos);
         if ((city_pos.x == start.x) && (city_pos.y == start.y) && (city_pos.z == start.z)) {
-            g_player[player_idx]->m_all_cities->Access(city_idx).AccessData()->GetCityData()->GetHappy()->SetDistToCapitol(0);
+            player_Get(player_idx)->m_all_cities->Access(city_idx).AccessData()->GetCityData()->GetHappy()->SetDistToCapitol(0);
         } else {
-            g_player[player_idx]->m_all_cities->Access(city_idx).AccessData()->GetCityData()->GetHappy()->SetDistToCapitol(dist_cost);
+            player_Get(player_idx)->m_all_cities->Access(city_idx).AccessData()->GetCityData()->GetHappy()->SetDistToCapitol(dist_cost);
         }
     }
 

@@ -93,34 +93,34 @@ void Strengths::Calculate()
 		switch(i)
 		{
 			case STRENGTH_CAT_KNOWLEDGE:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetKnowledgeStrength());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetKnowledgeStrength());
 				break;
 			case STRENGTH_CAT_MILITARY:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetMilitaryStrength());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetMilitaryStrength());
 				break;
 			case STRENGTH_CAT_POLLUTION:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetCurrentPollution()) ;
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetCurrentPollution()) ;
 				break;
 			case STRENGTH_CAT_TRADE:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetTradeStrength());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetTradeStrength());
 				break;
 			case STRENGTH_CAT_GOLD:
-				m_strengthRecords[i].Insert(g_player[m_owner]->m_gold->GetIncome());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->m_gold->GetIncome());
 				break;
 			case STRENGTH_CAT_POPULATION:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetTotalPopulation());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetTotalPopulation());
 				break;
 			case STRENGTH_CAT_CITIES:
-				m_strengthRecords[i].Insert(g_player[m_owner]->m_all_cities->Num());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->m_all_cities->Num());
 				break;
 			case STRENGTH_CAT_GEOGRAPHICAL:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetLandArea());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetLandArea());
 				break;
 			case STRENGTH_CAT_SPACE:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetSpaceStrength());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetSpaceStrength());
 				break;
 			case STRENGTH_CAT_UNDERSEA:
-				m_strengthRecords[i].Insert(g_player[m_owner]->GetUnderseaStrength());
+				m_strengthRecords[i].Insert(player_Get(m_owner)->GetUnderseaStrength());
 				break;
 
 			case STRENGTH_CAT_UNITS:
@@ -165,7 +165,7 @@ sint32 Strengths::GetTotalUnitCost() const
 {
 	sint32 i;
 	sint32 c = 0;
-	UnitDynamicArray *units = g_player[m_owner]->m_all_units;
+	UnitDynamicArray *units = player_Get(m_owner)->m_all_units;
 	for(i = units->Num() - 1; i >= 0; i--) {
 		c += units->Access(i).GetDBRec()->GetShieldCost();
 	}
@@ -176,7 +176,7 @@ sint32 Strengths::GetTotalBuildingCost() const
 {
 	sint32 i, j;
 	sint32 c = 0;
-	UnitDynamicArray *cities = g_player[m_owner]->m_all_cities;
+	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
 	for(i = cities->Num() - 1; i >= 0; i--) {
 		uint64 builtImprovements = cities->Access(i).GetImprovements();
 		for(j = g_theBuildingDB->NumRecords() - 1; j >= 0; j--) {
@@ -193,7 +193,7 @@ sint32 Strengths::GetTotalWonderCost() const
 	sint32 i;
 	sint32 c = 0;
 	for(i = g_theWonderDB->NumRecords() - 1; i >= 0; i--) {
-		if(g_player[m_owner]->m_builtWonders & (uint64(1) << uint64(i))) {
+		if(player_Get(m_owner)->m_builtWonders & (uint64(1) << uint64(i))) {
 			c += wonderutil_Get(i, m_owner)->GetProductionCost();
 		}
 	}
@@ -204,7 +204,7 @@ sint32 Strengths::GetTotalProduction() const
 {
 	sint32 i;
 	sint32 c = 0;
-	UnitDynamicArray *cities = g_player[m_owner]->m_all_cities;
+	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
 	for(i = cities->Num() - 1; i >= 0; i--) {
 		c += cities->Access(i).GetData()->GetCityData()->GetNetCityProduction();
 	}

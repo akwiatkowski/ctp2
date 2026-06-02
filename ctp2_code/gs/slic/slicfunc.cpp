@@ -170,7 +170,6 @@ bool g_forceTurnDisplay = false;
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/CTP2Combat.h"
 
-extern CivApp		*g_civApp;
 extern FilenameDB	*g_theMessageIconFileDB;
 #define k_MESSAGE_TYPE_HASH_SIZE 16
 
@@ -1990,9 +1989,9 @@ SFN_ERROR Slic_OpenCityTab::Call(SlicArgList *args)
 SFN_ERROR Slic_ExitToShell::Call(SlicArgList *args)
 {
 	if (g_network.IsActive() || g_network.IsNetworkLaunch()) {
-		g_civApp->PostQuitToLobbyAction();
+		civapp_Get()->PostQuitToLobbyAction();
 	} else {
-		g_civApp->PostEndGameAction();
+		civapp_Get()->PostEndGameAction();
 	}
 	return SFN_ERROR_OK;
 }
@@ -4396,7 +4395,7 @@ SFN_ERROR Slic_SetTimerGranularity::Call(SlicArgList *args)
 
 SFN_ERROR Slic_QuitToLobby::Call(SlicArgList *args)
 {
-	g_civApp->PostQuitToLobbyAction();
+	civapp_Get()->PostQuitToLobbyAction();
 	return SFN_ERROR_OK;
 }
 

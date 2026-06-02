@@ -23,7 +23,6 @@
 #include "gs/fileio/civscenarios.h"
 
 extern CivPaths				*g_civPaths;
-extern CivApp				*g_civApp;
 
 extern SPNewGameWindow		*g_spNewGameWindow;
 

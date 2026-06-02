@@ -211,7 +211,6 @@ extern bool           g_showHeralds;
 
 extern BOOL           g_useDDBlit;
 
-extern CivApp         *g_civApp;
 
 
 extern BOOL           g_powerPointsMode;
@@ -5837,8 +5836,8 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
 		director_Get()->NextPlayer();
 		do {
 			g_controlPanel->Idle();
-            if (g_civApp)
-    			g_civApp->Process();
+            if (civapp_Get())
+    			civapp_Get()->Process();
 
 #if __AUI_USE_SDL__
 			while (1) {
@@ -5913,7 +5912,7 @@ void FastMoveCommand::Execute(sint32 argc, char **argv)
 
 void MainMenuCommand::Execute(sint32 argc, char **argv)
 {
-	g_civApp->PostEndGameAction();
+	civapp_Get()->PostEndGameAction();
 }
 
 void UseDDBlitCommand::Execute(sint32 argc, char **argv)

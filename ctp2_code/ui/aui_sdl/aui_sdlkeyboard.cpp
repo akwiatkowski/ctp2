@@ -10,7 +10,6 @@
 
 
 #include "ctp/civapp.h"
-extern CivApp	*g_civApp;
 
 // We have to have a secondary keyboard event queue from which
 // we extract events here.  This is because keyboard events are
@@ -146,9 +145,9 @@ AUI_ERRCODE aui_SDLKeyboard::GetInput( void )
 				case SDLK_LEFT:
 				case SDLK_RIGHT:
 					if (event.key.state & SDL_PRESSED) {
-						g_civApp->BeginKeyboardScrolling(convertSDLKey(event.key.keysym));
+						civapp_Get()->BeginKeyboardScrolling(convertSDLKey(event.key.keysym));
 					} else {
-						g_civApp->StopKeyboardScrolling(convertSDLKey(event.key.keysym));
+						civapp_Get()->StopKeyboardScrolling(convertSDLKey(event.key.keysym));
 					}
 					break;
 			}

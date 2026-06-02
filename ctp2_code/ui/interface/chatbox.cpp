@@ -74,7 +74,6 @@
 extern MBCHAR       g_slic_filename[_MAX_PATH];
 extern BOOL         g_letUIProcess;
 extern Background	*g_background;
-extern CivApp		*g_civApp;
 extern HWND			gHwnd;
 
 ChatBox				*g_chatBox = NULL;
@@ -301,8 +300,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			do
 			{
 				g_controlPanel->Idle();
-				if (g_civApp)
-					g_civApp->Process();
+				if (civapp_Get())
+					civapp_Get()->Process();
 
 				while (PeekMessage(&msg, gHwnd, 0, 0, PM_REMOVE) && !g_letUIProcess)
 				{
@@ -483,8 +482,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			turn_Get()->NextRound();
 			do {
 				g_controlPanel->Idle();
-				if (g_civApp)
-					g_civApp->Process();
+				if (civapp_Get())
+					civapp_Get()->Process();
 
 				while (PeekMessage(&msg, gHwnd, 0, 0, PM_REMOVE) ) {
 					if (msg.message == WM_QUIT)

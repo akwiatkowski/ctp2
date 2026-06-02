@@ -40,7 +40,6 @@
 #include "ui/aui_ctp2/c3_button.h"
 
 #include "ctp/civapp.h"
-extern CivApp *g_civApp;
 
 #include "ui/netshell/netshell.h"
 #include "ui/netshell/ns_customlistbox.h"
@@ -335,7 +334,7 @@ void ConnectionSelectWindow::OKButtonAction::Execute(
 			{
 
 				NetShell::Leave( k_NS_FLAGS_DESTROY, TRUE );
-				g_civApp->PostStartGameAction();
+				civapp_Get()->PostStartGameAction();
 
 			}
 			else if ( ((FakeTransport *)t)->GetSubType() ==
@@ -343,7 +342,7 @@ void ConnectionSelectWindow::OKButtonAction::Execute(
 			{
 
 				NetShell::Leave( k_NS_FLAGS_DESTROY, TRUE );
-				g_civApp->PostStartGameAction();
+				civapp_Get()->PostStartGameAction();
 
 			}
 		}

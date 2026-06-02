@@ -49,7 +49,6 @@
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 
 #include "ctp/civapp.h"
-extern CivApp *g_civApp;
 
 #include "gfx/spritesys/SpriteGroupList.h"
 extern SpriteGroupList		*g_unitSpriteGroupList;

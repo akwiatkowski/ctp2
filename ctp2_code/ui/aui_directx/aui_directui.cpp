@@ -49,7 +49,6 @@
 extern BOOL			g_exclusiveMode;
 
 #include "ctp/civapp.h"
-extern CivApp		*g_civApp;
 
 #include "ctp/display.h"
 
@@ -331,9 +330,9 @@ AUI_ERRCODE aui_DirectUI::AltTabOut( void )
 			::ShowWindow( m_hwnd, SW_MINIMIZE );
 	}
 
-	if (g_civApp)
+	if (civapp_Get())
 	{
-		g_civApp->SetInBackground(TRUE);
+		civapp_Get()->SetInBackground(TRUE);
 	}
 
 	return AUI_ERRCODE_OK;
@@ -379,9 +378,9 @@ AUI_ERRCODE aui_DirectUI::AltTabIn( void )
 	if ( m_joystick ) m_joystick->Acquire();
 	if (m_keyboard) m_keyboard->Acquire();
 
-	if (g_civApp)
+	if (civapp_Get())
 	{
-		g_civApp->SetInBackground(FALSE);
+		civapp_Get()->SetInBackground(FALSE);
 	}
 
 	return FlushDirtyList();

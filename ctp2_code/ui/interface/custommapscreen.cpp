@@ -63,7 +63,6 @@
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
 
-extern CivApp				*g_civApp;
 
 extern sint32				g_god;
 
@@ -322,7 +321,7 @@ void custommapscreen_backPress(aui_Control *control, uint32 action, uint32 data,
 
 			profiledb_Get()->SetSaveNote("");
 
-			g_civApp->PostStartGameAction();
+			civapp_Get()->PostStartGameAction();
 
 			c3ui_Get()->AddAction( new SetupMapEditorAction );
 		}

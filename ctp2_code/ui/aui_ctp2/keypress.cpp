@@ -160,7 +160,6 @@ KEYMAP *theKeyMap = NULL;
 extern DataCheck	*g_DataCheck;
 extern sint32		g_debugOwner;
 
-extern CivApp		*g_civApp;
 
 extern sint32		g_isKMScreen;
 extern ControlPanelWindow *g_controlPanel;
@@ -333,7 +332,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		} else if(g_keyboardHandlers.GetTail()) {
 			g_keyboardHandlers.GetTail()->kh_Close();
-		} else if (g_civApp->IsGameLoaded()) {
+		} else if (civapp_Get()->IsGameLoaded()) {
 			if(g_currentMessageWindow &&
 			   g_currentMessageWindow->GetMessage() &&
 			   (messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage()))) {
@@ -378,7 +377,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 
-	if (!g_civApp->IsGameLoaded()) {
+	if (!civapp_Get()->IsGameLoaded()) {
 		return TRUE;
 	}
 
@@ -857,8 +856,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
         break;
 
     case KEY_FUNCTION_SAVE_WORLD :
-		if (g_civApp->IsGameLoaded() && !g_network.IsClient()) {
-			g_civApp->AutoSave(selitem_Get()->GetVisiblePlayer(), true);
+		if (civapp_Get()->IsGameLoaded() && !g_network.IsClient()) {
+			civapp_Get()->AutoSave(selitem_Get()->GetVisiblePlayer(), true);
 
 
 
@@ -870,9 +869,9 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break ;
 
     case KEY_FUNCTION_LOAD_WORLD :
-		if (g_civApp->IsGameLoaded() && !g_network.IsActive()) {
+		if (civapp_Get()->IsGameLoaded() && !g_network.IsActive()) {
 			{
-				g_civApp->PostLoadQuickSaveAction(selitem_Get()->GetVisiblePlayer());
+				civapp_Get()->PostLoadQuickSaveAction(selitem_Get()->GetVisiblePlayer());
 
 
 

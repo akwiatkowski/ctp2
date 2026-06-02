@@ -286,4 +286,10 @@ private:
 	MBCHAR m_filename[_MAX_PATH];
 };
 
+// App-singleton accessor pair, mirroring world_Get / c3ui_Get /
+// tiledmap_Get.  The legacy g_civApp pointer is now file-static
+// in ctp/civ3_main.cpp; outside callers must go through these accessors.
+CivApp * civapp_Get(void);
+void     civapp_Set(CivApp *p);
+
 #endif

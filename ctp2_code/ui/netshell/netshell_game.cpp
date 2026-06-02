@@ -16,7 +16,6 @@
 #include "ui/netshell/netshell_game.h"
 #include "gs/fileio/civscenarios.h"
 
-extern CivApp *g_civApp;
 
 
 void EnterMainMenu( void )
@@ -69,17 +68,17 @@ void LaunchGame( void )
 					snprintf(path, sizeof(path), "%s\\%s",
 							scen->m_path,
 							k_SCENARIO_DEFAULT_SAVED_GAME_NAME);
-					g_civApp->PostLoadSaveGameAction(path);
+					civapp_Get()->PostLoadSaveGameAction(path);
 					break;
 				}
 			}
 		}
-		g_civApp->PostStartGameAction();
+		civapp_Get()->PostStartGameAction();
 		break;
 
 	case AllinoneWindow::JOIN:
 		g_network.SetLaunchFromNetFunc(FALSE);
-		g_civApp->PostStartGameAction();
+		civapp_Get()->PostStartGameAction();
 		break;
 
 	default:

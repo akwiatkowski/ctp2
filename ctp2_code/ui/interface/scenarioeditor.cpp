@@ -162,7 +162,6 @@
 
 extern sint32               g_fog_toggle;
 extern ControlPanelWindow * g_controlPanel;
-extern CivApp *             g_civApp;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 
 extern void WhackScreen();
@@ -2929,7 +2928,7 @@ void ScenarioEditor::ChangeMapSizeCallback(bool response, void *userData)
 
 	profiledb_Get()->SetMapSize((MAPSIZE)(intptr_t)userData);
 
-	g_civApp->PostRestartGameAction();
+	civapp_Get()->PostRestartGameAction();
 
 	c3ui_Get()->AddAction(new PostReopenEditorActionAction);
 }

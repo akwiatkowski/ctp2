@@ -7,7 +7,6 @@
 
 extern BOOL			g_helpMode;
 extern aui_UI		*g_ui;
-extern CivApp		*g_civApp;
 
 BOOL HandleGameSpecificLeftClick( void *control )
 {

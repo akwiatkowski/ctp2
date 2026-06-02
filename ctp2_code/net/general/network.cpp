@@ -143,7 +143,6 @@ extern StringDB			*g_theStringDB;
 extern ProgressWindow		*g_theProgressWindow;
 
 extern NETFunc			*g_netfunc;
-extern CivApp			*g_civApp;
 
 #include "ui/aui_ctp2/SelItem.h"
 #include "ctp/ctp2_rsrc/resource.h"
@@ -187,7 +186,7 @@ void network_AbortCallback( sint32 type )
 {
 
 
-	g_civApp->PostQuitToLobbyAction();
+	civapp_Get()->PostQuitToLobbyAction();
 
 }
 
@@ -524,7 +523,7 @@ void Network::InitFromNetFunc()
 		if(m_iAmHost) {
 			if(!m_launchHost) {
 
-				g_civApp->PostQuitToLobbyAction();
+				civapp_Get()->PostQuitToLobbyAction();
 				m_readyToStart = TRUE;
 				return;
 			}
@@ -1153,7 +1152,7 @@ void Network::RemovePlayer(uint16 id)
 void Network::SetToHost()
 {
 	if(!m_readyToStart) {
-		g_civApp->PostQuitToLobbyAction();
+		civapp_Get()->PostQuitToLobbyAction();
 		m_readyToStart = TRUE;
 		return;
 	}
@@ -1226,7 +1225,7 @@ void Network::SessionLost()
 		so->AddRecipient(m_playerIndex);
 		slicengine_Get()->Execute(so);
 	} else {
-		g_civApp->PostQuitToLobbyAction();
+		civapp_Get()->PostQuitToLobbyAction();
 	}
 }
 
@@ -3534,7 +3533,7 @@ void Network::SetProgress(sint32 progress)
 	} else {
 		c3_AbortUpdateData(NULL, progress);
 
-		g_civApp->ProcessGraphicsCallback();
+		civapp_Get()->ProcessGraphicsCallback();
 	}
 }
 

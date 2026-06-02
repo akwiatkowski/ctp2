@@ -62,7 +62,6 @@
 #include "ctp/civapp.h"
 
 extern StringDB                     *g_theStringDB;
-extern CivApp                       *g_civApp;
 
 ScenarioWindow                      *s_ScenarioWindow = NULL;
 
@@ -616,8 +615,8 @@ void ScenarioWindow::SetProfileFromScenario( void )
 
 			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
 
-			g_civApp->CleanupAppDB();
-			g_civApp->InitializeAppDB((*(CivArchive *)(NULL)));
+			civapp_Get()->CleanupAppDB();
+			civapp_Get()->InitializeAppDB((*(CivArchive *)(NULL)));
 
 
 

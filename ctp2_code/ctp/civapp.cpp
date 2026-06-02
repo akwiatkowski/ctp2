@@ -311,7 +311,6 @@ extern ControlPanelWindow   *g_controlPanel;
 extern SpriteEditWindow     *g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
 extern sint32               g_modalWindow;
-extern CivApp               *g_civApp;
 extern ChatBox              *g_chatBox;
 
 extern TutorialWin          *g_tutorialWin;
@@ -3866,48 +3865,48 @@ void CivApp::PostLoadScenarioGameAction(MBCHAR const * filename)
 
 void StartGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->StartGame();
+	civapp_Get()->StartGame();
 }
 
 void SpriteTestAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->StartSpriteEditor();
+	civapp_Get()->StartSpriteEditor();
 }
 
 void LoadSaveGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->LoadSavedGame(m_filename);
+	civapp_Get()->LoadSavedGame(m_filename);
 }
 
 #if 0   // never used
 void LoadSaveGameMapAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->LoadSavedGameMap(m_filename);
+	civapp_Get()->LoadSavedGameMap(m_filename);
 }
 #endif
 void RestartGameAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->RestartGame();
+	civapp_Get()->RestartGame();
 }
 void RestartGameSameMapAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->RestartGameSameMap();
+	civapp_Get()->RestartGameSameMap();
 }
 void QuitToSPShellAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->QuitToSPShell();
+	civapp_Get()->QuitToSPShell();
 }
 void QuitToLobbyAction::Execute(aui_Control *control, uint32 action, uint32 data )
 {
-	g_civApp->QuitToLobby();
+	civapp_Get()->QuitToLobby();
 }
 void EndGameAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
-	g_civApp->EndGame();
+	civapp_Get()->EndGame();
 }
 void LoadScenarioGameAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
-	g_civApp->LoadScenarioGame(m_filename);
+	civapp_Get()->LoadScenarioGame(m_filename);
 }
 
 

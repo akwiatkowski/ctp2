@@ -78,7 +78,6 @@
 #include "ui/interface/spnewgametribescreen.h"
 #include "ui/interface/TurnYearStatus.h"
 
-extern CivApp               *g_civApp;
 extern c3_PopupWindow       *g_spNewGameTribeScreen;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern MBCHAR               g_civilisation_filename[_MAX_PATH];
@@ -267,7 +266,7 @@ spnewgamescreen_startPress(aui_Control *control, uint32 action, uint32 data, voi
 
 				profiledb_Get()->SetSaveNote("");
 				profiledb_Get()->SetTutorialAdvice(FALSE);
-				g_civApp->PostStartGameAction();
+				civapp_Get()->PostStartGameAction();
 			}
 		}
 	}
@@ -810,7 +809,7 @@ void spnewgamescreen_HotseatCallback(sint32 launch, sint32 player,
 
 		profiledb_Get()->SetTutorialAdvice(FALSE);
 
-		g_civApp->PostStartGameAction();
+		civapp_Get()->PostStartGameAction();
 	} else {
 
 		hs_player_setup_buf()[player].civ = civ;

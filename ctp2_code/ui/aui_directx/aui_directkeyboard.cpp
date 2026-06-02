@@ -40,7 +40,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "ctp/civapp.h"
-extern CivApp	*g_civApp;
 
 aui_DirectKeyboard::aui_DirectKeyboard(AUI_ERRCODE *retval)
 :
@@ -196,10 +195,10 @@ AUI_ERRCODE aui_DirectKeyboard::GetInput( void )
 		case DIK_DOWNARROW:
 				if (uint8(ptrOd->dwData) & 0x80) {
 
-					g_civApp->BeginKeyboardScrolling(ptrOd->dwOfs);
+					civapp_Get()->BeginKeyboardScrolling(ptrOd->dwOfs);
 				} else {
 
-					g_civApp->StopKeyboardScrolling(ptrOd->dwOfs);
+					civapp_Get()->StopKeyboardScrolling(ptrOd->dwOfs);
 				}
 			break;
 		}

@@ -20,7 +20,6 @@
 #include "gfx/spritesys/SpriteGroupList.h"
 
 extern sint32				g_isGridOn;
-extern CivApp				*g_civApp;
 extern SpriteGroupList		*g_unitSpriteGroupList;
 extern SpriteGroupList		*g_goodSpriteGroupList;
 
@@ -264,7 +263,7 @@ void graphicsscreen_exitPress(aui_Control *control, uint32 action, uint32 data, 
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if (g_civApp->IsGameLoaded()) {
+	if (civapp_Get()->IsGameLoaded()) {
 		if (s_gridToggled) {
 			if (tiledmap_Get()) {
 				tiledmap_Get()->Refresh();
@@ -278,14 +277,14 @@ void graphicsscreen_exitPress(aui_Control *control, uint32 action, uint32 data, 
 			}
 		}
 		if (s_unitAnimToggled) {
-			if (g_civApp->IsGameLoaded()) {
+			if (civapp_Get()->IsGameLoaded()) {
 				g_unitSpriteGroupList->RefreshBasicLoads(GROUPTYPE_UNIT);
 			}
 		}
 		// @todo fix updating good anims option mid-game.
 		// This doesn't work for goods, unlike units above.
 		if (s_goodAnimToggled) {
-			if (g_civApp->IsGameLoaded()) {
+			if (civapp_Get()->IsGameLoaded()) {
 				g_goodSpriteGroupList->RefreshBasicLoads(GROUPTYPE_GOOD);
 			}
 		}

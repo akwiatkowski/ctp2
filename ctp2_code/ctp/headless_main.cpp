@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern CivApp *g_civApp;
 extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()
 extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed override
@@ -135,10 +134,10 @@ int main(int argc, char **argv)
     set_headless(true);
     g_runInBackground = true;
 
-    g_civApp = new CivApp();
+    civapp_Get() = new CivApp();
 
     headless_log->info("Initializing engine...");
-    sint32 err = g_civApp->InitializeEngine();
+    sint32 err = civapp_Get()->InitializeEngine();
     if (err != 0) {
         headless_log->error("Engine initialization failed: {}", err);
         return 1;
@@ -152,7 +151,7 @@ int main(int argc, char **argv)
     }
 
     headless_log->info("Loading databases...");
-    if (!g_civApp->InitializeAppDB()) {
+    if (!civapp_Get()->InitializeAppDB()) {
         headless_log->error("InitializeAppDB failed");
         return 1;
     }
@@ -202,7 +201,7 @@ int main(int argc, char **argv)
             profiledb_Get()->SetAI(TRUE);
 
             // Use the headless game init path (no UI windows)
-            err = g_civApp->InitializeGameHeadless();
+            err = civapp_Get()->InitializeGameHeadless();
             if (err != 0) {
                 headless_log->error("Game initialization failed: {}", err);
                 return 1;

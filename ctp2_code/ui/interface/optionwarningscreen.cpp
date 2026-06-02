@@ -63,7 +63,6 @@ public:
 };
 WarningKeyboardHandler s_warningKeyboardHandler;
 
-extern CivApp				*g_civApp;
 
 #include "net/general/network.h"
 extern Network				g_network;
@@ -195,14 +194,14 @@ void optionwarningscreen_but1Press(aui_Control *control, uint32 action, uint32 d
 
 		optionsscreen_removeMyWindow(action);
 		if(optionwarningscreen_removeMyWindow(action))
-			g_civApp->PostRestartGameAction();
+			civapp_Get()->PostRestartGameAction();
 		break;
 
 	case OWS_RESTART:
 
 		optionsscreen_removeMyWindow(action);
 		if(optionwarningscreen_removeMyWindow(action)) {
-			g_civApp->PostRestartGameSameMapAction();
+			civapp_Get()->PostRestartGameSameMapAction();
 		}
 		break;
 
@@ -216,9 +215,9 @@ void optionwarningscreen_but1Press(aui_Control *control, uint32 action, uint32 d
 		if(optionwarningscreen_removeMyWindow(action))
 		{
 			if ( g_netfunc || g_network.IsActive() || g_network.IsNetworkLaunch() )
-				g_civApp->PostQuitToLobbyAction();
+				civapp_Get()->PostQuitToLobbyAction();
 			else
-				g_civApp->PostQuitToSPShellAction();
+				civapp_Get()->PostQuitToSPShellAction();
 		}
 		break;
 

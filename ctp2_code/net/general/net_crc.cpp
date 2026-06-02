@@ -95,7 +95,6 @@ extern StringDB                *g_theStringDB;
 
 extern OzoneDatabase           *g_theUVDB;
 
-extern CivApp                  *g_civApp;
 
 //----------------------------------------------------------------------------
 //
@@ -362,7 +361,7 @@ void NetCRC::Error(char *buf)
 		nonConstStr[sizeof(nonConstStr) - 1] = '\0';
 	}
 	c3_RemoveAbortMessage();
-	g_civApp->ProcessGraphicsCallback();
+	civapp_Get()->ProcessGraphicsCallback();
 	c3_AbortMessage(nonConstStr, k_UTILITY_ABORT, network_AbortCallback );
 	g_network.SetCRCError();
 }

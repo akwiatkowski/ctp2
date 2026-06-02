@@ -119,7 +119,6 @@ extern int g_gameWatchID;
 #include <dirent.h>
 #endif
 
-extern  CivApp                      *g_civApp;
 extern  OzoneDatabase               *g_theUVDB;
 extern  nf_GameSetup                g_gamesetup;
 extern sint32                       g_isGridOn;
@@ -225,7 +224,7 @@ static uint32 DispatchRestore(GameFile *gf, MBCHAR const *filepath)
 		c3files_fclose(fpProbe);
 		if (ch == '{')
 		{
-			g_civApp->InitializeGame(NULL);
+			civapp_Get()->InitializeGame(NULL);
 			bool const ok = json_save::LoadJson(filepath);
 			return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 		}
@@ -393,7 +392,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 		progress_observer::StartCountingTo(100, g_theStringDB->GetNameStr("SAVING"));
 	}
 
-    if (g_civApp->SaveDBInGameFile())
+    if (civapp_Get()->SaveDBInGameFile())
 		SaveDB(archive);
 
 	archive<<World_World_GetVersion();
@@ -1050,7 +1049,7 @@ uint32 GameFile::RestoreLegacyBinary(const MBCHAR *filepath)
 
 	progress_observer::StartCountingTo(1080);
 
-	g_civApp->InitializeGame(&archive);
+	civapp_Get()->InitializeGame(&archive);
 
 	progress_observer::StartCountingTo(1090);
 

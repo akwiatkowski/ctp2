@@ -123,7 +123,6 @@
 
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;
-extern CivApp                   *g_civApp;
 extern PointerList<Player>      *g_deadPlayer;
 extern sint32                   g_modalWindow;
 
@@ -226,11 +225,11 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 		if(g_network.IsActive()
 		|| g_network.IsNetworkLaunch()
 		){
-			g_civApp->PostQuitToLobbyAction();
+			civapp_Get()->PostQuitToLobbyAction();
 		}
 		else
 		{
-			g_civApp->PostEndGameAction();
+			civapp_Get()->PostEndGameAction();
 		}
 	}
 }

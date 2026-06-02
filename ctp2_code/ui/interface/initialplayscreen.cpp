@@ -62,7 +62,6 @@
 #include "ui/interface/UIUtils.h"
 
 extern  C3UI				*c3ui_Get();
-extern  CivApp				*g_civApp;
 
 namespace Os
 {
@@ -215,7 +214,7 @@ spritetest_spPress(aui_Control *control, uint32 action, uint32 data, void *cooki
 
 			profiledb_Get()->SetFogOfWar(false);
 
-			g_civApp->PostSpriteTestAction();
+			civapp_Get()->PostSpriteTestAction();
 	}
 }
 
@@ -267,7 +266,7 @@ initialplayscreen_instantPress(aui_Control *control, uint32 action, uint32 data,
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	initialplayscreen_removeMyWindow(action);
-	g_civApp->PostStartGameAction();
+	civapp_Get()->PostStartGameAction();
 }
 void
 initialplayscreen_mapeditorPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -314,7 +313,7 @@ void initialplayscreen_tutorialPress(aui_Control *control, uint32 action, uint32
 	if (c3files_HasLegalCD()) {
 		if(initialplayscreen_removeMyWindow(action)) {
 			profiledb_Get()->SetTutorialAdvice(TRUE);
-			g_civApp->PostStartGameAction();
+			civapp_Get()->PostStartGameAction();
 		}
 	}
 }

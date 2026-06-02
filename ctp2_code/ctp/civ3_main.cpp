@@ -272,7 +272,10 @@ static RadarMap                     *g_radarMap = NULL;
 RadarMap * radar_map_Get(void)        { return g_radarMap; }
 void       radar_map_Set(RadarMap *p) { g_radarMap = p; }
 
-CivApp                              *g_civApp = NULL;
+static CivApp                       *g_civApp = NULL;
+
+CivApp * civapp_Get(void)             { return g_civApp; }
+void     civapp_Set(CivApp *p)        { g_civApp = p; }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 

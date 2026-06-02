@@ -261,7 +261,6 @@
 #include "ai/CityManagement/governor.h"
 
 extern PointerList<Player>     *g_deadPlayer;
-extern CivApp                  *g_civApp;
 extern sint32                   g_numGoods; // To fix games with altered ressource database
 extern sint32                  *g_newGoods;
 extern BOOL                     g_powerPointsMode;
@@ -6548,7 +6547,7 @@ bool Player::ActuallySetGovernment(sint32 type)
 	}
 
 	SlicObject *so;
-    if (g_civApp->IsGameLoaded() && (type != 0) && !g_civApp->IsScenarioEditorShown()) {
+    if (civapp_Get()->IsGameLoaded() && (type != 0) && !civapp_Get()->IsScenarioEditorShown()) {
         if (GetCurRound() > 50) {
             so = new SlicObject("012CivNewGov") ;
             so->AddAllRecipientsBut(m_owner);
@@ -7055,7 +7054,7 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 
 bool Player::CheckPlayerDead()
 {
-	if(g_isCheatModeOn || g_civApp->IsScenarioEditorShown())
+	if(g_isCheatModeOn || civapp_Get()->IsScenarioEditorShown())
 		return false;
 
 	if(m_all_cities->Num() <= 0 && (!m_first_city || m_all_units->Num () < 1)) {
@@ -8133,7 +8132,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 
 	const AdvanceRecord *advRec = g_theAdvanceDB->Get(advance);
 
-	if(im_the_first && !g_civApp->IsScenarioEditorGivingAdvances())
+	if(im_the_first && !civapp_Get()->IsScenarioEditorGivingAdvances())
 	{
 		CheckWonderObsoletions(advance);
 
@@ -8173,7 +8172,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		}
 	}
 
-	if(g_civApp->IsGameLoaded() && !g_civApp->IsScenarioEditorGivingAdvances())
+	if(civapp_Get()->IsGameLoaded() && !civapp_Get()->IsScenarioEditorGivingAdvances())
 	{
 		if (GetCurRound() > 1 && !init)
 		{

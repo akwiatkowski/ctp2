@@ -248,7 +248,6 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 #include "gs/utility/RandGen.h"
 #include "gs/utility/TurnCnt.h"
 
-extern CivApp *g_civApp;
 
 struct HeavyCityDataFixture
 {
@@ -297,9 +296,9 @@ struct HeavyCityDataFixture
             player_arr_Get()[i] = nullptr;
         }
 
-        // g_civApp may have been nulled by a previous test's fixture destructor.
+        // civapp_Get() may have been nulled by a previous test's fixture destructor.
         // Always restore it since s_app is a process-wide singleton.
-        g_civApp = s_app;
+        civapp_Get() = s_app;
 
         // SelectedItem and SlicEngine must exist before Player construction.
         // Player::InitPlayer calls Advances::InitialAdvance which calls
@@ -323,7 +322,7 @@ struct HeavyCityDataFixture
         player_arr_Set(nullptr);
         selitem_Set(nullptr);
         slicengine_Set(nullptr);
-        g_civApp = nullptr;
+        civapp_Get() = nullptr;
         rand_ptr_Set(nullptr);
         turn_Set(nullptr);
     }

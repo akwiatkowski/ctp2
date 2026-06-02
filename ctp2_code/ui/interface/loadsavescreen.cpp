@@ -93,7 +93,6 @@
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
 
-extern CivApp				*g_civApp;
 extern sint32				g_scenarioUsePlayerNumber;
 extern BOOL					g_setDifficultyUponLaunch;
 extern sint32				g_difficultyToSetUponLaunch;
@@ -239,7 +238,7 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 									 MBCHAR *name, MBCHAR *email)
 {
 	if(launch) {
-		g_civApp->PostLoadSaveGameAction(s_tempPath);
+		civapp_Get()->PostLoadSaveGameAction(s_tempPath);
 
 
 
@@ -303,7 +302,7 @@ void loadsavescreen_DifficultyScreenActionCallback(aui_Control *control, uint32 
 		g_setBarbarianRiskUponLaunch = TRUE;
 		g_barbarianRiskUponLaunch = risk;
 
-		g_civApp->PostLoadSaveGameAction(s_tempPath);
+		civapp_Get()->PostLoadSaveGameAction(s_tempPath);
 	}
 }
 
@@ -633,8 +632,8 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				return;
 			}
 
-			g_civApp->CleanupAppDB();
-			g_civApp->InitializeAppDB((*(CivArchive *)(NULL)));
+			civapp_Get()->CleanupAppDB();
+			civapp_Get()->InitializeAppDB((*(CivArchive *)(NULL)));
 		}
 	}
 
@@ -665,7 +664,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 		}
 	} else {
 
-		g_civApp->PostLoadSaveGameAction(path);
+		civapp_Get()->PostLoadSaveGameAction(path);
 	}
 }
 
@@ -844,7 +843,7 @@ void loadsavescreen_LoadMPGame(void)
 	// 'Cause in single player mode, somebody might've already created
 	// a ligitimate *single*player gameInfo that's still lying around.
 	if (!gameInfo || (g_netfunc && !g_netfunc->IsHost())) {
-		g_civApp->PostStartGameAction();
+		civapp_Get()->PostStartGameAction();
 		return;
 	}
 
@@ -855,7 +854,7 @@ void loadsavescreen_LoadMPGame(void)
 	MBCHAR		path[_MAX_PATH];
 
 	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
-	g_civApp->PostLoadSaveGameAction(path);
+	civapp_Get()->PostLoadSaveGameAction(path);
 }
 
 /////////////////////////////////////////////////////////////
@@ -945,13 +944,13 @@ void loadsavescreen_LoadSCENGame(void)
 	MBCHAR		path[_MAX_PATH];
 
 	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
-//	g_civApp->PostLoadSaveGameAction(path);
+//	civapp_Get()->PostLoadSaveGameAction(path);
 
 	g_civPaths->SetCurScenarioPath(gameInfo->path);
 
 	profiledb_Get()->SetIsScenario(TRUE);
 
-	g_civApp->PostLoadScenarioGameAction(saveInfo->fileName);
+	civapp_Get()->PostLoadScenarioGameAction(saveInfo->fileName);
 }
 
 /////////////////////////////////////////////////////////////

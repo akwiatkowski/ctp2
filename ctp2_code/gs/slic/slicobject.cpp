@@ -54,7 +54,6 @@
 #include "gs/utility/TurnCnt.h"            // turn_Get()
 #include "gs/utility/Globals.h"
 
-extern CivApp			*   g_civApp;
 
 namespace
 {
@@ -372,7 +371,7 @@ void SlicObject::Finish()
 {
 	if(m_segment->GetType() == SLIC_OBJECT_MESSAGEBOX) {
 
-		if (m_numRecipients == 0 && !g_civApp->IsGameLoaded()) {
+		if (m_numRecipients == 0 && !civapp_Get()->IsGameLoaded()) {
 
 			MessageData *messageData = m_frame->GetMessageData();
 

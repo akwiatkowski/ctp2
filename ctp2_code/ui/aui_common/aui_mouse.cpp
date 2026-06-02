@@ -69,7 +69,6 @@ SDL_mutex *aui_Mouse::m_lpcs = NULL;
 #define k_AUI_MOUSE_THREAD_SLEEP_TIME	2
 
 #include "ctp/civapp.h"
-extern CivApp		*g_civApp;
 
 aui_Mouse::aui_Mouse
 (
@@ -1061,7 +1060,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	AUI_ERRCODE errcode;
 
-	if (g_civApp->IsInBackground()) return retcode;
+	if (civapp_Get()->IsInBackground()) return retcode;
 
 	tech_WLList<aui_UI::DirtyRectInfo *> *driList =
 		g_ui->GetDirtyRectInfoList();
@@ -1097,7 +1096,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 
 		if ( !windowSurface ) continue;
 
-		if (g_civApp->IsInBackground()) continue;
+		if (civapp_Get()->IsInBackground()) continue;
 
 		RECT *windowDirtyRect = &dri->rect;
 
@@ -1180,7 +1179,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		}
 #endif
 
-		if (!g_civApp->IsInBackground()) // Actual Drawing
+		if (!civapp_Get()->IsInBackground()) // Actual Drawing
 		{
 			errcode = g_ui->BltToSecondary(
 				screenDirtyRect.left,
@@ -1235,7 +1234,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundColorToPrimary(
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	AUI_ERRCODE errcode;
 
-	if (g_civApp->IsInBackground()) return retcode;
+	if (civapp_Get()->IsInBackground()) return retcode;
 
 	POINT hotspot;
 	(*m_curCursor)->GetHotspot(hotspot);
@@ -1355,7 +1354,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	AUI_ERRCODE errcode;
 
-	if (g_civApp->IsInBackground()) return retcode;
+	if (civapp_Get()->IsInBackground()) return retcode;
 
 	POINT hotspot;
 	(*m_curCursor)->GetHotspot(hotspot);

@@ -56,7 +56,6 @@
 #include <unistd.h>
 #endif
 
-extern CivApp				*g_civApp;
 extern nf_GameSetup			g_gamesetup;
 extern SPNewGameWindow		*g_spNewGameWindow;
 

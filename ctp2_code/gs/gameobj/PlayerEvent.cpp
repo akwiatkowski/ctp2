@@ -84,7 +84,6 @@
 // Propagate PW each turn update
 #include "gs/gameobj/MaterialPool.h"
 
-extern CivApp *g_civApp;
 
 extern sint32 g_noai_stop_player;
 
@@ -607,7 +606,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 			(!g_network.IsActive() || g_network.IsHost())
 		   )
 		{
-			g_civApp->AutoSave(player);
+			civapp_Get()->AutoSave(player);
 		}
 
 		// Not sure whether this is needed, but it seems logical to update the

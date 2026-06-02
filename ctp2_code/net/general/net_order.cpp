@@ -12,8 +12,6 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/ArmyData.h"
 
-extern Player **g_player;
-
 extern SelectedItem *g_selected_item;
 
 NetOrder::NetOrder(sint32 owner, const Army &army,

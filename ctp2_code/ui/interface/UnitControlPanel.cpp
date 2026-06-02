@@ -908,7 +908,7 @@ Army UnitControlPanel::GetSelectedArmy()
 	if(!g_selected_item)
 		return(Army());
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if(!player)
 		return(Army());

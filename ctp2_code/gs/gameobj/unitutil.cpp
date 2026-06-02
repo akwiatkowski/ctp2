@@ -346,7 +346,7 @@ void unitutil_ExecuteMadLaunch(Unit & unit)
 		if (unit.IsBeingTransported())
 		{
 			Unit transport = unit.GetTransport();
-			Army debark = g_player[unit.GetOwner()]->GetNewArmy(CAUSE_NEW_ARMY_TRANSPORTED);
+			Army debark = player_Get(unit.GetOwner())->GetNewArmy(CAUSE_NEW_ARMY_TRANSPORTED);
 			transport.UnloadCargo(transport.RetPos(), debark, TRUE, unit);
 		} else {
 			unit->CreateOwnArmy();

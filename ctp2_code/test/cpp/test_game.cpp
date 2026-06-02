@@ -44,7 +44,7 @@ TEST_CASE("Ctp2::Game::NewGame creates a TurnCount with the given setup") {
     game.NewGame(4, -4000);
 
     // Session-level accessors read m_round/m_year directly; safe without
-    // g_player or the static NewTurnCount accessors.
+    // player_Get or the static NewTurnCount accessors.
     CHECK(game.GetTurn().GetSessionRound() == 0);
     CHECK(game.GetTurn().GetSessionYear() == -4000);
     CHECK(game.GetTurn().GetTurn()         == 0);

@@ -265,7 +265,7 @@ void RankingTab::UpdatePlayerList( void )
 	sint32 lineIndex = 0;
 	for (sint32 i = 1 ; i < k_MAX_PLAYERS ; i++)
 	{
-		Player * p = g_player[i];
+		Player * p = player_Get(i);
 
 		if (p)
 		{

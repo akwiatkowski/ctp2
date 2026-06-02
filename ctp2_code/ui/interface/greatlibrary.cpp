@@ -1227,7 +1227,7 @@ void GreatLibrary::HandleSetGoal( void )
 	if (selection_name)
 	{
 		MBCHAR goal_set_message[500];
-		int tmp = g_player[g_selected_item->GetVisiblePlayer()]->SetResearchGoal(m_database, m_window->GetTechMode());
+		int tmp = player_Get(g_selected_item->GetVisiblePlayer())->SetResearchGoal(m_database, m_window->GetTechMode());
 
 		if(tmp == 1)
 		{

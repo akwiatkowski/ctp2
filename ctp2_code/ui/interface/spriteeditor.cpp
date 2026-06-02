@@ -119,7 +119,6 @@ extern TiledMap 	*g_tiledMap;
 
 extern C3Window			*g_toolbar;
 extern SelectedItem		*g_selected_item;
-extern Player			**g_player;
 extern ProfileDB		*g_theProfileDB;
 
 extern unsigned char *g_compression_buff;

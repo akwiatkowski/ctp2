@@ -39,7 +39,8 @@
 
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // world_Get()
+#include "gs/world/World.h"			 // world_Get()
+#include "gs/gameobj/Player.h"
 #include "gs/utility/directions.h"
 #include "ctp/ctp2_utils/c3math.h"
 
@@ -195,7 +196,7 @@ bool MapPoint::HasUnexploredNeighbor(sint32 player) const
 		MapPoint n;
 		if(GetNeighborPosition((WORLD_DIRECTION)d, n))
 		{
-			if(!g_player[player]->IsExplored(n))
+			if(!player_Get(player)->IsExplored(n))
 			{
 				return true;
 			}

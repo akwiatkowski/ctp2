@@ -1660,11 +1660,11 @@ sint32 TiledMap::CalculateWrap
 		AddDirtyToMap(x, y, GetZoomTilePixelWidth(), GetZoomTileGridHeight());
 	}
 
-	if (g_graphicsOptions)
+	if (graphicsoptions_Get())
 	{
-		if (g_graphicsOptions->IsCellTextOn())
+		if (graphicsoptions_Get()->IsCellTextOn())
 		{
-			CellText *cellText = g_graphicsOptions->GetCellText(pos);
+			CellText *cellText = graphicsoptions_Get()->GetCellText(pos);
 			if (cellText != NULL)
 			{
 				sint32 r,g,b;
@@ -2344,7 +2344,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 		}
 
 		if (
-		   (g_graphicsOptions && g_graphicsOptions->IsArmyTextOn())
+		   (graphicsoptions_Get() && graphicsoptions_Get()->IsArmyTextOn())
 		|| (profiledb_Get()->GetDebugAI()) //emod
 		){
 				Unit	u = actor->GetUnitID();

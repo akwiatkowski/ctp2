@@ -69,7 +69,7 @@
 #include "gs/gameobj/Events.h"
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
-#include "gfx/gfx_utils/gfx_options.h"        // g_graphicsOptions
+#include "gfx/gfx_utils/gfx_options.h"        // graphicsoptions_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()->ColorMagnitudeToRGB()
 
 #include "net/general/network.h"
@@ -377,8 +377,8 @@ void ArmyManagerWindow::Update()
 
 	ctp2_Static *armyTextlabel = (ctp2_Static *)aui_Ldl::GetObject(s_armyWindowBlock, "ArmyTextLabel");
 	if(armyTextlabel){
-		if((g_graphicsOptions
-		&&  g_graphicsOptions->IsArmyTextOn()
+		if((graphicsoptions_Get()
+		&&  graphicsoptions_Get()->IsArmyTextOn()
 		||  profiledb_Get()->GetDebugAI())
 		&& m_army.IsValid()
 		&& m_army->GetDebugString()

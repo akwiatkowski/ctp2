@@ -526,39 +526,39 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	// Displays the army names on the map
 	else if(!strncmp(s, "/ArmyName", 8)  && !g_network.IsActive())
 	{
-		if(g_graphicsOptions->IsArmyNameOn())
+		if(graphicsoptions_Get()->IsArmyNameOn())
 		{
-			g_graphicsOptions->ArmyNameOff();
+			graphicsoptions_Get()->ArmyNameOff();
 		}
 		else
 		{
-			g_graphicsOptions->ArmyNameOn();
+			graphicsoptions_Get()->ArmyNameOn();
 		}
 	}
 
 	// Displays the army goals on the map
 	else if(!strncmp(s, "/debugai", 8)  && !g_network.IsActive())
 	{
-		if(g_graphicsOptions->IsArmyTextOn())
+		if(graphicsoptions_Get()->IsArmyTextOn())
 		{
-			g_graphicsOptions->ArmyTextOff();
+			graphicsoptions_Get()->ArmyTextOff();
 		}
 		else
 		{
-			g_graphicsOptions->ArmyTextOn();
+			graphicsoptions_Get()->ArmyTextOn();
 		}
 	}
 
 	// Displays the AI settle value of a cell on the map
 	else if(!strncmp(s, "/debugcells", 11)  && !g_network.IsActive())
 	{
-		if(g_graphicsOptions->IsCellTextOn())
+		if(graphicsoptions_Get()->IsCellTextOn())
 		{
-			g_graphicsOptions->CellTextOff();
+			graphicsoptions_Get()->CellTextOff();
 		}
 		else
 		{
-			g_graphicsOptions->CellTextOn();
+			graphicsoptions_Get()->CellTextOn();
 		}
 	}
 

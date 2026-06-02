@@ -979,7 +979,14 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   extern dropped from player.h.  Remaining real callers (safety.h,
 //   inline Player::IsThisPlayerARobot) routed through player_Get().
 //   Game now adopts the legacy Player** array.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 12;
+// 2026-06-03: dropped 12 → 10 implicitly during Track A trampoline work —
+//   g_turn extern dropped from TurnCnt.h (storage moved into
+//   Ctp2::Game::m_turn); another extern eliminated through related
+//   header cleanup during the trampoline migration.
+// 2026-06-03: dropped 10 → 9 — g_graphicsOptions file-static in
+//   gfx_options.cpp, extern dropped from gfx_options.h.  ~15 callers
+//   across ui/, gfx/, gs/, ai/, ctp/ migrated to graphicsoptions_Get().
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 9;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

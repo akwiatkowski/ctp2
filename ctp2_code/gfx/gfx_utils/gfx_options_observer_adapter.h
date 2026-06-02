@@ -1,6 +1,6 @@
 // gfx/gfx_utils/gfx_options_observer_adapter.h
 // UI-build concrete impl of gfx_options_observer::Impl.
-// Forwards every call to g_graphicsOptions (null-checked).
+// Forwards every call to graphicsoptions_Get() (null-checked).
 
 #pragma once
 

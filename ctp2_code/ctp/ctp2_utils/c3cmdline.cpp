@@ -1151,7 +1151,7 @@ void ShowVisCommand::Execute(sint32 argc, char **argv)
 		for(u = 0; u < player_Get(p)->m_all_armies->Num(); u++) {
 			char buf[40];
 			snprintf(buf, sizeof(buf), "VIS: %lx", player_Get(p)->m_all_armies->Access(u).Access(0).GetVisibility());
-			g_graphicsOptions->AddTextToArmy(player_Get(p)->m_all_armies->Access(u), buf, 255, -1);
+			graphicsoptions_Get()->AddTextToArmy(player_Get(p)->m_all_armies->Access(u), buf, 255, -1);
 		}
 	}
 }
@@ -1506,28 +1506,28 @@ void SetGovernorPwReserveCommand::Execute(sint32 argc, char **argv) {
 
 void ToggleCellText::Execute(sint32 argc, char **argv)
 {
-	if (g_graphicsOptions->IsCellTextOn()) {
-		g_graphicsOptions->CellTextOff();
+	if (graphicsoptions_Get()->IsCellTextOn()) {
+		graphicsoptions_Get()->CellTextOff();
 	} else {
-		g_graphicsOptions->CellTextOn();
+		graphicsoptions_Get()->CellTextOn();
 	}
 }
 
 void ToggleArmyText::Execute(sint32 argc, char **argv)
 {
-	if (g_graphicsOptions->IsArmyTextOn()) {
-		g_graphicsOptions->ArmyTextOff();
+	if (graphicsoptions_Get()->IsArmyTextOn()) {
+		graphicsoptions_Get()->ArmyTextOff();
 	} else {
-		g_graphicsOptions->ArmyTextOn();
+		graphicsoptions_Get()->ArmyTextOn();
 	}
 }
 
 void ToggleArmyName::Execute(sint32 argc, char **argv)
 {
-	if (g_graphicsOptions->IsArmyNameOn()) {
-		g_graphicsOptions->ArmyNameOff();
+	if (graphicsoptions_Get()->IsArmyNameOn()) {
+		graphicsoptions_Get()->ArmyNameOff();
 	} else {
-		g_graphicsOptions->ArmyNameOn();
+		graphicsoptions_Get()->ArmyNameOn();
 	}
 }
 

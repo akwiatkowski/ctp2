@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - The army text now appears in the debug log. (13-Aug-2008 Martin Gühmann)
+// - The army text now appears in the debug log. (13-Aug-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -86,6 +86,8 @@ private:
 	AvlTree<CellText *> *     m_cellAVL;
 };
 
-extern GraphicsOptions *      g_graphicsOptions;
+// g_graphicsOptions is file-static in gfx_options.cpp; access via accessors.
+GraphicsOptions * graphicsoptions_Get(void);
+void              graphicsoptions_Set(GraphicsOptions *p);
 
 #endif

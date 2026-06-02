@@ -39,7 +39,10 @@
 #include "ai/ctpaidebug.h"
 #include "gfx/gfx_utils/gfx_options_observer_adapter.h"  // RegisterGraphicsOptionsObserverAdapter
 
-GraphicsOptions * g_graphicsOptions = NULL;
+static GraphicsOptions * g_graphicsOptions = NULL;
+
+GraphicsOptions * graphicsoptions_Get(void)             { return g_graphicsOptions; }
+void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions = p; }
 
 namespace
 {

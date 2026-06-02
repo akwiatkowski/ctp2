@@ -6,7 +6,7 @@
 //
 //----------------------------------------------------------------------------
 //
-// `ai/` and `gs/` code historically called `g_graphicsOptions->X()` to
+// `ai/` and `gs/` code historically called `graphicsoptions_Get()->X()` to
 // drop debug overlay text on the map (army labels, cell annotations).
 // GraphicsOptions lives in `gfx/gfx_utils/` — gs/ and ai/ should not
 // depend on gfx/.
@@ -15,13 +15,13 @@
 // out to a registered `Impl`.  The UI build registers a
 // `GraphicsOptionsObserverAdapter` (in
 // `gfx/gfx_utils/gfx_options_observer_adapter.cpp`) that forwards to
-// `g_graphicsOptions`; the headless build leaves the observer
+// `graphicsoptions_Get()`; the headless build leaves the observer
 // unregistered and every call becomes a no-op (with safe defaults for
 // non-void returns).
 //
 // Migration pattern at the call site:
-//   before:  if (g_graphicsOptions && g_graphicsOptions->IsCellTextOn())
-//                g_graphicsOptions->AddTextToCell(pos, "hi", 255);
+//   before:  if (graphicsoptions_Get() && graphicsoptions_Get()->IsCellTextOn())
+//                graphicsoptions_Get()->AddTextToCell(pos, "hi", 255);
 //   after:   if (gfx_options_observer::IsCellTextOn())
 //                gfx_options_observer::AddTextToCell(pos, "hi", 255);
 //
@@ -42,7 +42,7 @@ namespace gfx_options_observer {
 // --- The Impl interface ---
 // Concrete implementations live in:
 //   - gfx/gfx_utils/gfx_options_observer_adapter.cpp (UI build, forwards
-//     to g_graphicsOptions)
+//     to graphicsoptions_Get())
 //   - test fixtures (record-and-replay spies, no-op stubs)
 // Headless does not register an Impl; the free functions below short-circuit.
 class Impl

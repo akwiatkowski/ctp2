@@ -3443,8 +3443,8 @@ void ScenarioEditor::DebugAI(aui_Control *control, uint32 action, uint32 data, v
 	ctp2_Switch *sw = (ctp2_Switch *)control;
 
 	if(sw->GetState() != 0) {
-		g_graphicsOptions->ArmyTextOn();
+		graphicsoptions_Get()->ArmyTextOn();
 	} else {
-		g_graphicsOptions->ArmyTextOff();
+		graphicsoptions_Get()->ArmyTextOff();
 	}
 }

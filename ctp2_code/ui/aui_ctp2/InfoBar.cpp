@@ -73,7 +73,7 @@
 #include "ResourceRecord.h"     // Access g_theResourceDB for goods info, PFT 05 Mar 05
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/UnseenCell.h"         // Unseen cell info is needed
-#include "gfx/gfx_utils/gfx_options.h"        // g_graphicsOptions
+#include "gfx/gfx_utils/gfx_options.h"        // graphicsoptions_Get()
 #include "gs/database/profileDB.h"          // profiledb_Get()
 
 extern sint32		g_fog_toggle;
@@ -209,8 +209,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		Concat(g_theStringDB->GetNameStr("INFOBAR_UNEXPLORED"));
 
 #ifndef _DEBUG
-		if((g_graphicsOptions
-		&&  g_graphicsOptions->IsArmyTextOn()
+		if((graphicsoptions_Get()
+		&&  graphicsoptions_Get()->IsArmyTextOn()
 		||  profiledb_Get()->GetDebugAI()))
 #endif // _DEBUG
 		{
@@ -432,8 +432,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		}
 
 #ifndef _DEBUG
-		if((g_graphicsOptions
-		&&  g_graphicsOptions->IsArmyTextOn()
+		if((graphicsoptions_Get()
+		&&  graphicsoptions_Get()->IsArmyTextOn()
 		||  profiledb_Get()->GetDebugAI()))
 #endif // _DEBUG
 		{

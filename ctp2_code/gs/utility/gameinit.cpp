@@ -185,7 +185,7 @@ static ArmyPool             *g_theArmyPool=NULL;
 
 ArmyPool * armypool_Get(void) { return g_theArmyPool; }
 ArmyPool * armypool_Set(ArmyPool *p) { ArmyPool *prev = g_theArmyPool; g_theArmyPool = p; return prev; }
-Player                      **g_player=NULL;
+static Player               **g_player=NULL;
 
 Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
 Player ** player_arr_Get(void)                { return g_player; }

@@ -166,11 +166,10 @@ inline T& safe_array_access(T* array, size_t size, sint32 idx)
 // Example    : if (Player* p = safe_player(owner)) { p->DoSomething(); }
 //
 //----------------------------------------------------------------------------
-// g_player is declared in Player.h as: extern Player** g_player;
-// We forward-declare it here to avoid including the full Player.h.
-// Must match the actual declaration exactly.
+// Forward-declare the player_Get accessor to avoid pulling in full Player.h.
+// Must match the actual declaration in Player.h.
 class Player;
-extern Player** g_player;
+Player * player_Get(sint32 i);
 
 inline Player* safe_player(sint32 idx)
 {
@@ -178,7 +177,7 @@ inline Player* safe_player(sint32 idx)
 		Assert(idx >= 0 && idx < k_MAX_PLAYERS);
 		return NULL;
 	}
-	return g_player[idx];
+	return player_Get(idx);
 }
 
 //----------------------------------------------------------------------------

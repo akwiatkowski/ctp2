@@ -13,6 +13,7 @@
 #include "gs/world/MapPoint.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/events/GameEventManager.h"
+#include "gs/gameobj/Player.h"
 
 TEST_CASE("Ctp2::Game can be default-constructed and destroyed") {
     Ctp2::Game game;
@@ -195,6 +196,34 @@ TEST_CASE("Ctp2::Game adopts a pre-existing GameEventManager and releases it on 
     }
 
     CHECK(gevmanager_Get() == nullptr);
+}
+
+TEST_CASE("Ctp2::Game adopts a pre-existing Player[] array and releases it on cleanup") {
+    // Production gameinit allocates `g_player = new Player*[k_MAX_PLAYERS]`
+    // and fills slots with `new Player(...)`.  Game adopts the raw array
+    // pointer via player_arr_Get(); Cleanup tears down inner Players +
+    // the array.  Here we mirror gameinit's allocation shape with empty
+    // slots — no Player ctors required (they need full DBs).
+    REQUIRE(player_arr_Get() == nullptr);
+
+    Player ** legacyArr = new Player*[k_MAX_PLAYERS];
+    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) legacyArr[i] = nullptr;
+    player_arr_Set(legacyArr);
+
+    {
+        Ctp2::Game game;
+        game.NewGame(2, 0, /*randSeed*/ 42);
+        // Game adopted the legacy array — both reachable through the
+        // game's accessor and the legacy global return the same pointer.
+        CHECK(game.GetPlayerArray() == legacyArr);
+        CHECK(player_arr_Get() == legacyArr);
+        // Per-slot read goes through the same array.
+        CHECK(game.GetPlayer(0) == nullptr);  // slot is empty
+    }  // game destructed → Cleanup() called
+
+    // After cleanup, the legacy pointer is nulled and the array storage
+    // has been freed (Game owned the array).
+    CHECK(player_arr_Get() == nullptr);
 }
 
 #if 0  // Concurrent-Game tests — re-enable once legacy globals are deleted.

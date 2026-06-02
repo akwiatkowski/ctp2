@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     set_headless(true);
     g_runInBackground = true;
 
-    civapp_Get() = new CivApp();
+    civapp_Set(new CivApp());
 
     headless_log->info("Initializing engine...");
     sint32 err = civapp_Get()->InitializeEngine();

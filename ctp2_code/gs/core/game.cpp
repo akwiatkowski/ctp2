@@ -1,6 +1,7 @@
 #include "ctp/c3.h"
 #include "gs/core/game.h"
 
+#include "gs/gameobj/Player.h"  // player_arr_Get / player_arr_Set, k_MAX_PLAYERS via c3.h
 #include "gs/gameobj/ArmyPool.h"
 // CityPool: forward-declared in game.h as a future-tense placeholder; no
 // concrete class exists today (cities are owned per-player, not in a
@@ -155,6 +156,13 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     if (slicengine_Get())   m_slic.reset(slicengine_Get());
     if (gevmanager_Get())   m_events.reset(gevmanager_Get());
 
+    // Players[]: gameinit allocates the Player** array and per-slot
+    // Players (gameinit_InitializePlayers /
+    // gameinit_InitializeScenarioPlayers).  Game adopts the raw array
+    // pointer matching the legacy g_player shape; Cleanup tears down
+    // inner Players + array.  Adopt-only — no fresh-create branch.
+    if (player_arr_Get()) m_playerArr = player_arr_Get();
+
 #undef ADOPT_OR_CREATE
 
     // SlicEngine and GameEventManager need more orchestration to spin up
@@ -212,7 +220,18 @@ void Game::Cleanup() {
     unitpool_Set(nullptr);
     m_unitPool.reset();
 
-    m_players.clear();
+    // Players[]: null the legacy global first so gameinit_Cleanup's
+    // own `delete g_player[i]; delete[] g_player` block becomes a no-op
+    // (it guards on `if (g_player)`).  Then free the adopted storage.
+    if (m_playerArr) {
+        player_arr_Set(nullptr);
+        for (sint32 i = 0; i < k_MAX_PLAYERS; ++i) {
+            delete m_playerArr[i];
+        }
+        delete[] m_playerArr;
+        m_playerArr = nullptr;
+    }
+
     world_Set(nullptr);
     m_world.reset();
 
@@ -221,6 +240,16 @@ void Game::Cleanup() {
 
     turn_Set(nullptr);
     m_turn.reset();
+}
+
+Player* Game::GetPlayer(sint32 idx) {
+    if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;
+    return m_playerArr[idx];
+}
+
+const Player* Game::GetPlayer(sint32 idx) const {
+    if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;
+    return m_playerArr[idx];
 }
 
 } // namespace Ctp2

@@ -975,7 +975,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   - g_theCurrentBattle     (5 cross-layer consumers, 30 sites,
 //                             get+set accessor pattern for the
 //                             lifecycle-managed pointer)
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 13;
+// 2026-06-02: dropped 13 → 12 — g_player file-static in gameinit.cpp,
+//   extern dropped from player.h.  Remaining real callers (safety.h,
+//   inline Player::IsThisPlayerARobot) routed through player_Get().
+//   Game now adopts the legacy Player** array.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 12;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

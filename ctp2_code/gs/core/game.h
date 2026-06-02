@@ -69,10 +69,16 @@ public:
 
     RandomGenerator& GetRand() { return *m_rand; }
 
-    Player* GetPlayer(sint32 idx) { return (idx >= 0 && idx < static_cast<sint32>(m_players.size())) ? m_players[idx].get() : nullptr; }
-    const Player* GetPlayer(sint32 idx) const { return (idx >= 0 && idx < static_cast<sint32>(m_players.size())) ? m_players[idx].get() : nullptr; }
+    // Bounds-checked slot access into the Player** array.  Returns null
+    // when out of range or when no player occupies the slot.  Bodies live
+    // in game.cpp so this header doesn't need k_MAX_PLAYERS.
+    Player*       GetPlayer(sint32 idx);
+    const Player* GetPlayer(sint32 idx) const;
 
-    size_t GetNumPlayers() const { return m_players.size(); }
+    // Raw access to the adopted Player** array (matches legacy g_player
+    // shape).  Returns nullptr before NewGame.
+    Player **       GetPlayerArray()       { return m_playerArr; }
+    Player * const* GetPlayerArray() const { return m_playerArr; }
 
     UnitPool& GetUnits() { return *m_unitPool; }
     ArmyPool& GetArmies() { return *m_armyPool; }
@@ -116,7 +122,11 @@ private:
     std::unique_ptr<World> m_world;
     std::unique_ptr<RandomGenerator> m_rand;
 
-    std::vector<std::unique_ptr<::Player>> m_players;
+    // The per-session player roster.  Shape matches legacy g_player:
+    // a heap-allocated array of k_MAX_PLAYERS slots, each holding a raw
+    // Player* (null when the slot is empty).  Game adopts the legacy
+    // pointer in NewGame and tears down inner Players + array in Cleanup.
+    ::Player ** m_playerArr = nullptr;
 
     std::unique_ptr<UnitPool> m_unitPool;
     std::unique_ptr<ArmyPool> m_armyPool;

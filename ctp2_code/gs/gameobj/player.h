@@ -185,7 +185,12 @@ bool    player_isAlly(PLAYER_INDEX me, PLAYER_INDEX him);
 bool    player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him);
 uint32  Player_Player_GetVersion(void);
 
-extern Player **    g_player;
+// g_player is file-static in gameinit.cpp; access via player_Get / player_arr_Get.
+// Forward-declare here so inline members of Player (below) can call it.
+class Player;
+Player *  player_Get    (sint32 i);
+Player ** player_arr_Get(void);
+void      player_arr_Set(Player **p);
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -735,9 +740,9 @@ public:
 	{
 		Assert(0 <= p);
 		Assert(p < k_MAX_PLAYERS);
-		Assert(g_player);
-		Assert(g_player[p]);
-		return (g_player[p]->IsRobot());
+		Player * pp = player_Get(p);
+		Assert(pp);
+		return (pp->IsRobot());
 	}
 
 	void BeginTurnWonders();
@@ -1075,16 +1080,7 @@ private:
 	typedef std::vector<CityDist> CityDistQueue;
 };
 
-// Session-singleton accessors for the per-player array.
-// Mirror the pattern of world_Get / gevmanager_Get / slicengine_Get.
-//   player_Get(i)     — returns g_player[i] (null-safe; returns NULL if
-//                       the array hasn't been allocated yet).
-//   player_arr_Get()  — returns the raw array pointer (for non-indexed
-//                       reads like `if (player_arr_Get())`).
-//   player_arr_Set(p) — reseats the array pointer (used by gameinit /
-//                       Game::NewGame).
-Player *  player_Get(sint32 i);
-Player ** player_arr_Get(void);
-void      player_arr_Set(Player **p);
+// player_Get / player_arr_Get / player_arr_Set are forward-declared near the
+// top of this header so the Player class's inline members can call them.
 
 #endif

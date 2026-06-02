@@ -174,7 +174,7 @@ void victorymoviewin_Cleanup()
 		g_victoryMovieWindow = NULL;
 	}
 
-	g_director->ActionFinished(seq);
+	director_Get()->ActionFinished(seq);
 }
 
 

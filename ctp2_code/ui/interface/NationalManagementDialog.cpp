@@ -1817,8 +1817,8 @@ void NationalManagementDialog::GotoSelectedCity()
 	Unit city = GetSelectedCity();
 	if(city.IsValid()) {
 		g_selected_item->SetSelectCity(city);
-		if(!g_director->TileWillBeCompletelyVisible(city.RetPos().x, city.RetPos().y)) {
-			g_director->AddCenterMap(city.RetPos());
+		if(!director_Get()->TileWillBeCompletelyVisible(city.RetPos().x, city.RetPos().y)) {
+			director_Get()->AddCenterMap(city.RetPos());
 		}
 	}
 }

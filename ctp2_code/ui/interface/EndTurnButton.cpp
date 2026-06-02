@@ -53,5 +53,5 @@ void EndTurnButton::EndTurnButtonActionCallback(aui_Control *control, uint32 act
 	}
 
 	g_selected_item->RegisterManualEndTurn();
-	g_director->AddEndTurn();
+	director_Get()->AddEndTurn();
 }

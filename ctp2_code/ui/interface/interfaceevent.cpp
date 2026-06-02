@@ -167,9 +167,9 @@ STDEHANDLER(InterfaceBeginTurnRecenter)
 
 		if(g_selected_item->IsAutoCenterOn()
 		&& pos.x >= 0
-		&& !g_director->TileWillBeCompletelyVisible(pos.x, pos.y)
+		&& !director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y)
 		){
-			g_director->AddCenterMap(pos);
+			director_Get()->AddCenterMap(pos);
 		}
 	}
 	return GEV_HD_Continue;

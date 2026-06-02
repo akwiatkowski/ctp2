@@ -31,9 +31,6 @@
 
 #include "gfx/spritesys/screenmanager.h"
 extern ScreenManager	*g_screenManager;
-
-extern Director			*g_director;
-
 Background				*g_background = NULL;
 
 void DumpSpanList(aui_DirtyList *list);
@@ -185,9 +182,9 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	tradepool_Get()->Draw(surface);
 	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
 
-	if (g_director)
+	if (director_Get())
     {
-		g_director->GarbageCollectItems();
+		director_Get()->GarbageCollectItems();
 	}
 
 	tiledmap_Get()->DrawUnfinishedMove(surface);

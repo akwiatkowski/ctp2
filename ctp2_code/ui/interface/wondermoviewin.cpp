@@ -123,7 +123,7 @@ void wondermoviewin_Cleanup()
 		g_wonderMovieWindow = NULL;
 	}
 
-	g_director->ActionFinished(seq);
+	director_Get()->ActionFinished(seq);
 }
 
 

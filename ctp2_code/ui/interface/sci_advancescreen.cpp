@@ -77,8 +77,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 #include "gfx/spritesys/director.h"
-extern Director		*g_director;
-
 extern C3UI			*g_c3ui;
 extern ProjectFile	*g_GreatLibPF;
 
@@ -273,7 +271,7 @@ sint32 sci_advancescreen_removeMyWindow(uint32 action)
 
 
 		if (!s_screenSequence.expired()) {
-			g_director->ActionFinished(s_screenSequence);
+			director_Get()->ActionFinished(s_screenSequence);
 			s_screenSequence.reset();
 		}
 	}

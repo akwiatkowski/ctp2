@@ -32,8 +32,6 @@
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/world/cellunitlist.h"
-
-extern Director         *g_director;
 extern C3UI             *g_c3ui;
 
 // Forward declared in battle_view layer; used by combatevent.cpp's
@@ -65,7 +63,7 @@ public:
         // calls and committed by CommitPlacement.
         m_pendingPlacement = new BattleEvent(BATTLE_EVENT_TYPE_PLACEMENT);
 
-        if (g_director) g_director->AddBattle(m_battle);
+        if (director_Get()) director_Get()->AddBattle(m_battle);
         return true;
     }
 

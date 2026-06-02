@@ -113,7 +113,7 @@ void MessageMinimizeAction::Execute( aui_Control *control, uint32 action, uint32
 		for(m = 0; m < player_Get(p)->m_messages->Num(); m++) {
 			Message msg = player_Get(p)->m_messages->Access(m);
 			if(!msg.IsRead() && msg.IsInstantMessage()) {
-				g_director->AddMessage(msg);
+				director_Get()->AddMessage(msg);
 				break;
 			}
 		}

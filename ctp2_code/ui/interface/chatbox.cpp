@@ -51,7 +51,7 @@
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "ctp/civapp.h"
 #include "ui/interface/controlpanelwindow.h"     // g_controlPanel
-#include "gfx/spritesys/director.h"               // g_director
+#include "gfx/spritesys/director.h"               // director_Get()
 #include "ui/aui_ctp2/radarmap.h"               // radar_map_Get()
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/Player.h"                 // player_Get
@@ -298,7 +298,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		{
 			NewTurnCount::StartNextPlayer(false);
 
-			g_director->NextPlayer();
+			director_Get()->NextPlayer();
 			do
 			{
 				g_controlPanel->Idle();
@@ -352,7 +352,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 
 			NewTurnCount::StartNextPlayer(true);
 
-			g_director->AddCopyVision();
+			director_Get()->AddCopyVision();
 
 			tiledmap_Get()->InvalidateMix();
 			tiledmap_Get()->InvalidateMap();
@@ -375,7 +375,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 				player_Get(i)->m_vision->SetTheWholeWorldUnexplored();
 			}
 		}
-		g_director->AddCopyVision();
+		director_Get()->AddCopyVision();
 	}
 #if 0
 	else if(!strcmp(s, "/goodmode") && !g_network.IsActive())

@@ -948,7 +948,7 @@ void UnitManager::TacticalList(aui_Control *control, uint32 action, uint32 data,
 		}
 	}
 	g_selected_item->SetSelectUnit(u);
-	g_director->AddCenterMap(u.RetPos());
+	director_Get()->AddCenterMap(u.RetPos());
 }
 
 void UnitManager::DisbandButton(aui_Control *control, uint32 action, uint32 data, void *cookie)

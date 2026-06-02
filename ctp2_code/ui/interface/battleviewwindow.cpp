@@ -3,7 +3,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/spritesys/battleviewactor.h"
-#include "gfx/spritesys/director.h"  // g_director
+#include "gfx/spritesys/director.h"  // director_Get()
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/tilesys/tileset.h"
 #include "gs/events/GameEventManager.h"
@@ -129,7 +129,7 @@ void BattleViewWindow::Cleanup(void)
 
 	g_modalWindow--;
 
-	g_director->ActionFinished(seq);
+	director_Get()->ActionFinished(seq);
 }
 
 
@@ -559,7 +559,7 @@ AUI_ERRCODE BattleViewWindow::Idle(void)
 		return AUI_ERRCODE_OK;
 	}
 
-	g_director->UpdateTimingClock();
+	director_Get()->UpdateTimingClock();
 
 	Refresh();
 

@@ -38,7 +38,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/spritesys/director.h"           // g_director
+#include "gfx/spritesys/director.h"           // director_Get()
 
 
 #include "gfx/tilesys/maputils.h"
@@ -896,7 +896,7 @@ AUI_ERRCODE SpriteEditWindow::Idle( void )
 	if ((g_c3ui->TheMouse()==NULL)||(tiledmap_Get()==NULL))
 		return AUI_ERRCODE_OK;
 
-	sint32 curTime = g_director->GetMasterCurTime();
+	sint32 curTime = director_Get()->GetMasterCurTime();
 
 	if ((curTime-m_lastTime)>100)
 	{

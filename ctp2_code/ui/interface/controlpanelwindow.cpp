@@ -148,7 +148,7 @@
 #include "gs/world/cellunitlist.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"                      // world_Get()
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gfx/spritesys/director.h"                   // director_Get()
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
@@ -290,7 +290,7 @@ void TurnNextCityButtonActionCallback( aui_Control *control, uint32 action, uint
 			MapPoint pos;
 			city.GetPos(pos);
 			if(!tiledmap_Get()->TileIsVisible(pos.x, pos.y))
-				g_director->AddCenterMap(pos);
+				director_Get()->AddCenterMap(pos);
 		}
 
 	}

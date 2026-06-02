@@ -1718,7 +1718,7 @@ void ScenarioEditor::CivAddRemovePlayer(aui_Control *control, uint32 action, uin
 			civilisation_CreateNewPlayer(pl, -1);
 			g_selected_item->SetPlayerOnScreen(pl);
 			g_selected_item->SetCurPlayer(pl);
-			g_director->AddCopyVision();
+			director_Get()->AddCopyVision();
 
 			tiledmap_Get()->InvalidateMix();
 			tiledmap_Get()->InvalidateMap();
@@ -2235,7 +2235,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 		tf->SetFieldText(player_Get(newPlayer)->m_civilisation->GetLeaderName());
 		g_selected_item->SetPlayerOnScreen(newPlayer);
 		g_selected_item->SetCurPlayer(newPlayer);
-		g_director->AddCopyVision();
+		director_Get()->AddCopyVision();
 
 		tiledmap_Get()->InvalidateMix();
 		tiledmap_Get()->InvalidateMap();
@@ -3196,7 +3196,7 @@ void ScenarioEditor::ExploreButton(aui_Control *control, uint32 action, uint32 d
 		player_Get(player)->m_vision->SetTheWholeWorldExplored();
 	}
 
-	g_director->AddCopyVision();
+	director_Get()->AddCopyVision();
 	WhackScreen();
 
 }
@@ -3210,7 +3210,7 @@ void ScenarioEditor::UnexploreButton(aui_Control *control, uint32 action, uint32
 		player_Get(player)->m_vision->SetTheWholeWorldUnexplored();
 	}
 
-	g_director->AddCopyVision();
+	director_Get()->AddCopyVision();
 	WhackScreen();
 
 }
@@ -3394,7 +3394,7 @@ void ScenarioEditor::FindPosNow(aui_Control *control, uint32 action, uint32 data
 		}
 		tiledmap_Get()->SetHiliteMouseTile(pos);
 		tiledmap_Get()->DrawHilite(TRUE);
-		g_director->AddCenterMap(pos);
+		director_Get()->AddCenterMap(pos);
 	}
 	else
 	{

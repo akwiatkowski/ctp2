@@ -1,5 +1,5 @@
 // gfx/spritesys/director_render_observer.h
-// Adapter that bridges `render_observer::Impl` (gs/core) to `g_director`
+// Adapter that bridges `render_observer::Impl` (gs/core) to `director_Get()`
 // (gfx/spritesys/director.h).  Lives in gfx/ — it is allowed to depend
 // on both layers.
 
@@ -64,5 +64,5 @@ public:
 };
 
 // Convenience: instantiate the singleton adapter and register it.  Called
-// once by civapp.cpp during InitializeApp, after g_director is alive.
+// once by civapp.cpp during InitializeApp, after the Director is alive.
 void RegisterDirectorRenderObserver();

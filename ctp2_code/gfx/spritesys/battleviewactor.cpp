@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Prevented NULL-dereferencing crash.
-// - Removed unnecessary include files. (Aug 28th 2005 Martin Gühmann)
+// - Removed unnecessary include files. (Aug 28th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@
 #include <algorithm>
 #include "ui/aui_common/aui_surface.h"
 #include "gfx/gfx_utils/colorset.h"
-#include "gfx/spritesys/director.h"           // g_director
+#include "gfx/spritesys/director.h"           // director_Get()
 #include "ui/aui_utils/primitives.h"
 #include "sound/soundmanager.h"       // g_soundManager
 #include "gfx/spritesys/SpriteGroupList.h"
@@ -233,7 +233,7 @@ Anim *BattleViewActor::CreateAnim(UNITACTION action)
 
 	if (action == UNITACTION_IDLE)
 	{
-		srand(anim->GetDelay() + g_director->GetMasterCurTime());
+		srand(anim->GetDelay() + director_Get()->GetMasterCurTime());
 		anim->AdjustDelay(rand() % 2000);
 	}
 

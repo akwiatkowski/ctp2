@@ -8,7 +8,7 @@
 //
 // CTP2Combat used to hold a `Battle *m_battle` member (Battle is defined in
 // ui/interface/battle.h).  gs/ created and populated the Battle object
-// directly with BattleEvent allocations, then handed it off to g_director
+// directly with BattleEvent allocations, then handed it off to the Director
 // and g_battleViewWindow.  That direction of include — gs/ knowing about
 // gfx/UI types — is the wrong layering.
 //
@@ -17,7 +17,7 @@
 // a BattleObserverAdapter (in ui/interface/battle_observer_adapter.cpp)
 // that owns its own `Battle *` and translates the bridge calls into
 // new Battle(), Initialize, AddUnitAttack/Death/Explosion, AddEvent,
-// g_director->AddBattle, g_battleViewWindow->UpdateBattle/EndBattle.
+// director_Get()->AddBattle, g_battleViewWindow->UpdateBattle/EndBattle.
 // The headless build leaves the adapter unregistered and every call
 // short-circuits.
 //
@@ -46,7 +46,7 @@ public:
     // Create a new battle animation queue and seed it with a placement
     // event.  Implementation calls `new Battle()`, Initialize(attackers,
     // defenders), creates a BattleEvent(PLACEMENT), and registers the
-    // battle with g_director via AddBattle.
+    // battle with the Director via AddBattle.
     //
     // Returns true if a battle was successfully started — gs/ should
     // mirror this into its `m_battleActive` flag so subsequent AddAttack /

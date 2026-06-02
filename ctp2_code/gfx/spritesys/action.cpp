@@ -40,7 +40,7 @@
 #if 0
 #include "gfx/spritesys/Actor.h"
 #include "ctp/debugtools/debugmemory.h"
-#include "gfx/spritesys/director.h"       // g_director
+#include "gfx/spritesys/director.h"
 #include "gfx/spritesys/EffectActor.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gs/database/profileDB.h"      // g_theProfileDB

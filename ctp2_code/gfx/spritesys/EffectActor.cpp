@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Removed some unused local variables. (Sep 9th 2005 Martin Gühmann)
+// - Removed some unused local variables. (Sep 9th 2005 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -50,7 +50,6 @@
 #define k_doInvisible FALSE
 
 extern SpriteGroupList	*g_effectSpriteGroupList;
-extern Director			*g_director;
 
 EffectActor::EffectActor(SpriteStatePtr ss, const MapPoint & pos):
     Actor                       (ss),

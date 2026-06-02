@@ -17,7 +17,7 @@
 
 #include "gfx/spritesys/ActorPath.h"
 #include "gfx/spritesys/Action.h"
-#include "gfx/spritesys/director.h"               // g_director
+#include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
 
 extern SpriteGroupList	*g_unitSpriteGroupList;

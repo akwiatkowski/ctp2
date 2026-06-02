@@ -7,7 +7,7 @@
 //----------------------------------------------------------------------------
 //
 // Game-state code (`gs/`) and AI code (`ai/`) historically called
-// `g_director->X()` directly to schedule animations, camera moves, sprite
+// `director_Get()->X()` directly to schedule animations, camera moves, sprite
 // lifecycle events, and similar rendering work.  The Director lives in
 // `gfx/spritesys/` — that is the wrong direction in the layered
 // architecture, since gs/ should not depend on gfx/.
@@ -15,11 +15,11 @@
 // This header exposes the same surface as a set of free functions that
 // fan out to a registered `Impl` callback.  The UI build registers a
 // `DirectorRenderObserver` (in `gfx/spritesys/director_render_observer.cpp`)
-// that forwards to `g_director`; the headless build leaves the observer
+// that forwards to `director_Get()`; the headless build leaves the observer
 // unregistered and every call becomes a no-op.
 //
 // Migration pattern at the call site:
-//   before:  if (g_director) g_director->AddMove(...);
+//   before:  if (director_Get()) director_Get()->AddMove(...);
 //   after:   render_observer::AddMove(...);   // internal null-check
 //
 // The free functions in this namespace MUST stay in sync with `Impl`.
@@ -56,7 +56,7 @@ using UnitActorVec = std::vector<std::weak_ptr<UnitActor> >;
 // --- The Impl interface ---
 // 30 virtuals, one per call site found in the scout (gs/ + ai/).  All are
 // pure — concrete implementations live in:
-//   - gfx/spritesys/director_render_observer.cpp (UI build, forwards to g_director)
+//   - gfx/spritesys/director_render_observer.cpp (UI build, forwards to director_Get())
 //   - test fixtures (record-and-replay spies, no-op stubs)
 // Headless does not register an Impl; the free functions below short-circuit.
 class Impl

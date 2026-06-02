@@ -30,7 +30,7 @@
 #include "gfx/spritesys/Anim.h"
 
 #include <algorithm>    // std::copy
-#include "gfx/spritesys/director.h"   // g_director
+#include "gfx/spritesys/director.h"   // director_Get()
 
 Anim::Anim()
 :
@@ -146,7 +146,7 @@ uint16 Anim::GetPlaybackTime(void)
 
 sint32 Anim::GetNextPosition(sint32 animPos)
 {
-	uint32		curTime = g_director->GetMasterCurTime();
+	uint32		curTime = director_Get()->GetMasterCurTime();
 
 	if (m_finished) {
 		m_loopFinished = TRUE;

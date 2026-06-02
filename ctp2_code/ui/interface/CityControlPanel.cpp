@@ -253,7 +253,7 @@ void CityControlPanel::EditBuildQueueButtonActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -302,7 +302,7 @@ void CityControlPanel::ToggleGovernorButtonActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -338,7 +338,7 @@ void CityControlPanel::SelectGovernorActionCallback(aui_Control *control,
 
 	if(!g_selected_item)
 		return;
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -423,7 +423,7 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 //
 // Parameters : -
 //
-// Globals    : g_player        : list of players
+// Globals    : player_Get()    : player accessor
 //              g_selected_item : currently selected item
 //
 // Returns    : -
@@ -434,7 +434,7 @@ void CityControlPanel::CitySelectActionCallback(aui_Control *control,
 void CityControlPanel::UpdateBuildItem()
 {
 	sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
-	Player *		player			= g_player[visiblePlayer];
+	Player *		player			= player_Get(visiblePlayer);
 	if(!player || (player->GetNumCities() <= 0))
 	{
 		ClearBuildItem();
@@ -576,7 +576,7 @@ void CityControlPanel::ClearBuildItem()
 void CityControlPanel::UpdateGovernor()
 {
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	sint32 numberOfItems =
 		m_cityListDropDown->GetListBox()->NumItems();
@@ -655,7 +655,7 @@ void CityControlPanel::UpdateGovernor()
 //
 // Parameters : -
 //
-// Globals    : g_player		: list of players
+// Globals    : player_Get()		: player accessor
 //
 // Returns    : -
 //
@@ -668,7 +668,7 @@ void CityControlPanel::UpdateCityList()
 	m_cityListDropDown->Clear();
 
 	// Set the player
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player)
 		return;
 
@@ -845,7 +845,7 @@ void CityControlPanel::Activated()
 	if(!g_selected_item)
 		return;
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if(!player)
 		return;

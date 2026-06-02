@@ -47,7 +47,6 @@
 #include "gs/fileio/gamefile.h"
 #include "gs/gameobj/FeatTracker.h"
 
-extern Player **g_player;
 extern PointerList<Player> *g_deadPlayer;
 extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
@@ -130,7 +129,7 @@ void Score::AddFeat()
 
 sint32 Score::GetTotalScore()
 {
-	if(!g_player[m_owner]) {
+	if(!player_Get(m_owner)) {
 		return m_finalScore;
 	}
 
@@ -158,7 +157,7 @@ sint32 Score::GetPlayerStrength(Player *pl)
 
 sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 {
-	Player *pl = g_player[m_owner];
+	Player *pl = player_Get(m_owner);
 	if(!pl)
 		pl = Player::GetDeadPlayer(m_owner);
 	if(!pl)
@@ -177,8 +176,8 @@ sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 			sint32 total = 0;
 			for (i=1; i<k_MAX_PLAYERS; i++)
 			{
-				if (g_player[i])
-					total += GetPlayerStrength(g_player[i]);
+				if (player_Get(i))
+					total += GetPlayerStrength(player_Get(i));
 			}
 			PointerList<Player>::Walker walk(g_deadPlayer);
 			while (walk.IsValid())
@@ -230,9 +229,9 @@ sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 
 			for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 			{
-				if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+				if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 				{
-					totalPop += g_player[i]->GetTotalPopulation();
+					totalPop += player_Get(i)->GetTotalPopulation();
 				}
 			}
 			count = totalPop > 0 ? (pl->GetTotalPopulation() * 100) / totalPop : 0;
@@ -315,7 +314,7 @@ sint32 Score::GetPartialScore(SCORE_CATEGORY cat)
 double Score::GetPartialScoreValue(SCORE_CATEGORY cat)
 {
 
-	Player *pl = g_player[m_owner];
+	Player *pl = player_Get(m_owner);
 	if(!pl)
 		pl = Player::GetDeadPlayer(m_owner);
 	if(!pl)
@@ -422,7 +421,7 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 	const MBCHAR *formatNormal = "%s x %s";
 	const MBCHAR *formatPercent = "%s%% x %s";
 
-	Player *pl = g_player[m_owner];
+	Player *pl = player_Get(m_owner);
 	if(!pl)
 		pl = Player::GetDeadPlayer(m_owner);
 	if(!pl)

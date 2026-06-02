@@ -96,7 +96,7 @@
 #include "gs/utility/MoveFlags.h"
 #include "net/general/network.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get()
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_utils/primitives.h"
 #include "gs/database/profileDB.h"                  // g_theProfileDB
@@ -320,7 +320,7 @@ sint32 TiledMap::Initialize(RECT *viewRect)
 
 	CalculateMetrics();
 
-	m_localVision = g_player[g_selected_item->GetVisiblePlayer()]->m_vision;
+	m_localVision = player_Get(g_selected_item->GetVisiblePlayer())->m_vision;
 
 	Assert(m_localVision);
 
@@ -2379,7 +2379,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 			// Shouldn't this be the visible player?
 			if(u.IsValid()
 			&& u.GetArmy().m_id != 0
-			&& g_player[u.GetOwner()]->IsHuman()
+			&& player_Get(u.GetOwner())->IsHuman()
 			){
 				Army		a = u.GetArmy();
 
@@ -2608,8 +2608,8 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 				if(!( actor->GetUnitVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
 				&& !g_fog_toggle
 				&& !g_god
-				&& (g_player[g_selected_item->GetVisiblePlayer()]
-				&& !g_player[g_selected_item->GetVisiblePlayer()]->m_hasGlobalRadar))
+				&& (player_Get(g_selected_item->GetVisiblePlayer())
+				&& !player_Get(g_selected_item->GetVisiblePlayer())->m_hasGlobalRadar))
 					continue;
 
 				if (top.GetOwner() == g_selected_item->GetVisiblePlayer()
@@ -4640,7 +4640,7 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 	if ( ScenarioEditor::PaintTerrainImprovementMode() )
 	{
-		Player * p = g_player[g_selected_item->GetVisiblePlayer()];
+		Player * p = player_Get(g_selected_item->GetVisiblePlayer());
 		if (!p) return;
 		TerrainImprovement theImprovement =
             terrimprovepool_Get()->Create
@@ -4766,7 +4766,7 @@ void TiledMap::HandleCheat(MapPoint &pos)
 
 		sint32 unitNum = ScenarioEditor::PlaceUnitsMode() ? ScenarioEditor::UnitIndex() : g_unitNum;
 
-		Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+		Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 		if (!p) return;
 		sint32 govType = p->GetGovernmentType();
 
@@ -5050,10 +5050,10 @@ void TiledMap::NextPlayer(void)
 void TiledMap::CopyVision()
 {
 	sint32  newPlayer   = g_selected_item->GetVisiblePlayer();
-	if (g_player[newPlayer])
+	if (player_Get(newPlayer))
 	{
 		m_localVision->SetAmOnScreen(false);
-		m_localVision = g_player[newPlayer]->m_vision;
+		m_localVision = player_Get(newPlayer)->m_vision;
 		m_oldPlayer   = newPlayer;
 		m_localVision->SetAmOnScreen(true);
 	}

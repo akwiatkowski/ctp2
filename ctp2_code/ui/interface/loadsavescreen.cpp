@@ -76,7 +76,7 @@
 #include "ui/netshell/netshell.h"                   // g_gamesetup
 #include "ui/netshell/ns_gamesetup.h"
 #include "ui/interface/optionswindow.h"
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get()
 #include "gs/database/profileDB.h"                  // g_theProfileDB
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgameplayersscreen.h"
@@ -719,22 +719,22 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	uint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if ( g_player[ i ] )
+		if ( player_Get(i) )
 		{
 			TribeSlot ts;
 
 			ts.key = 0;
 
 #if you_want_ai_civs_from_singleplayer_saved_game_showing_up_in_netshell
-			ts.isAI = g_player[ i ]->IsRobot();
+			ts.isAI = player_Get(i)->IsRobot();
 #else
 			ts.isAI = 0;
 #endif
 
 
-			ts.tribe = g_player[ i ]->m_civilisation->GetCivilisation() + 1;
+			ts.tribe = player_Get(i)->m_civilisation->GetCivilisation() + 1;
 
-			ts.isFemale = (g_player[i]->m_civilisation->GetGender() == GENDER_FEMALE);
+			ts.isFemale = (player_Get(i)->m_civilisation->GetGender() == GENDER_FEMALE);
 
 
 			if ( 1 < ts.tribe )
@@ -985,7 +985,7 @@ void loadsavescreen_SaveSCENGame(void)
 	sint32 j = 0;
 	for ( sint32 i = 0; i < k_NS_MAX_PLAYERS; i++ )
 	{
-		if ( g_player[ i ] )
+		if ( player_Get(i) )
 		{
 			TribeSlot ts;
 
@@ -995,9 +995,9 @@ void loadsavescreen_SaveSCENGame(void)
 
 			// This is the only important field.
 			// +1 because netshell treats zero as "none" w/ barbarians == 1.
-			ts.tribe = g_player[ i ]->m_civilisation->GetCivilisation() + 1;
+			ts.tribe = player_Get(i)->m_civilisation->GetCivilisation() + 1;
 
-			ts.isFemale = g_player[i]->m_civilisation->GetGender() == GENDER_FEMALE;
+			ts.isFemale = player_Get(i)->m_civilisation->GetGender() == GENDER_FEMALE;
 
 			// We don't want to store the barbarians.  The netshell skips them.
 			if ( 1 < ts.tribe )

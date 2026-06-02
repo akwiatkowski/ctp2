@@ -6,7 +6,7 @@
 // Phase 0 step 4 of the master plan ("Clean Architecture — Event/Logic/UI
 // Separation") establishes that UI code mutates game state EXCLUSIVELY
 // through approved command-shaped methods on Player / CityData / ArmyData
-// / Diplomat / etc. (e.g. `g_player[X]->SetResearching(tech)`,
+// / Diplomat / etc. (e.g. `player_Get(X)->SetResearching(tech)`,
 // `cityData->AddBuyFront()`).  These wrappers exist because they handle
 // the cross-cutting concerns commands must own: eligibility checks,
 // network synchronization (currently dormant — see below), and the local
@@ -15,7 +15,7 @@
 // What this test catches
 // ----------------------
 // Field-level writes that bypass the command surface — e.g. UI code
-// directly setting `g_player[X]->m_playerType = PLAYER_TYPE_ROBOT` instead
+// directly setting `player_Get(X)->m_playerType = PLAYER_TYPE_ROBOT` instead
 // of going through a method.  Such bypasses skip whatever guards the
 // approved methods enforce.  The ratchet counts all such patterns across
 // ui/aui_ctp2/ and ui/interface/, fails if the count exceeds the
@@ -76,7 +76,7 @@ namespace {
 
 // Ratchet baselines.
 //
-// `g_player[...]->m_...` field write — UI bypassing Player methods to
+// `player_Get(...)->m_...` field write — UI bypassing Player methods to
 // poke fields directly.  Current 8 are in:
 //   - scenarioeditor.cpp (4 sites — admin mode, sets m_playerType /
 //     m_current_round directly).  Acceptable for now because scenario
@@ -182,26 +182,26 @@ void print_violations(const std::vector<Violation>& vs)
 
 }  // namespace
 
-TEST_CASE("UI command-surface ratchet: g_player[]->m_ field writes")
+TEST_CASE("UI command-surface ratchet: player_Get()->m_ field writes")
 {
-    // `g_player[<anything>]->m_<word>` followed by `=` (but NOT `==`).
+    // `player_Get(<anything>)->m_<word>` followed by `=` (but NOT `==`).
     // Negative lookahead `(?!=)` excludes equality comparisons while
     // still allowing compound assignment (`+=`, `|=`, etc.) and bare
     // `=` at end-of-line (multi-line assignment continuation).
-    std::regex pattern(R"(g_player\[[^\]]+\]->m_\w+\s*[+\-*/|&^]?=(?!=))");
+    std::regex pattern(R"(player_Get\([^)]+\)->m_\w+\s*[+\-*/|&^]?=(?!=))");
     auto violations = scan_for_pattern(pattern);
 
     if (violations.size() > UI_GS_PLAYER_FIELD_WRITE_BASELINE) {
-        MESSAGE("g_player[]->m_ field-write ratchet BROKEN: found "
+        MESSAGE("player_Get()->m_ field-write ratchet BROKEN: found "
                 << violations.size() << " violations, baseline "
                 << UI_GS_PLAYER_FIELD_WRITE_BASELINE
-                << ". A new direct field-write on g_player[X]->m_<field> "
+                << ". A new direct field-write on player_Get(X)->m_<field> "
                    "has been introduced in UI code — refactor to go "
                    "through an approved Player::* method, or raise the "
                    "baseline (with comment) if the bypass is necessary.");
         print_violations(violations);
     } else if (violations.size() < UI_GS_PLAYER_FIELD_WRITE_BASELINE) {
-        MESSAGE("g_player[]->m_ field-write count "
+        MESSAGE("player_Get()->m_ field-write count "
                 << violations.size() << " < baseline "
                 << UI_GS_PLAYER_FIELD_WRITE_BASELINE
                 << " — lower UI_GS_PLAYER_FIELD_WRITE_BASELINE to lock "

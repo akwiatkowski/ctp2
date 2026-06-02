@@ -249,7 +249,6 @@ TEST_CASE_FIXTURE(CityDataFixture, "CityData science and crime defaults")
 #include "gs/utility/TurnCnt.h"
 
 extern CivApp *g_civApp;
-extern TurnCount *g_turn;
 
 struct HeavyCityDataFixture
 {
@@ -310,7 +309,7 @@ struct HeavyCityDataFixture
         rand_ptr_Set(new RandomGenerator(12345));
         // Test fixture: no real game setup. Default to 0 players, year 0;
         // the test exercises CityData logic, not TurnCount semantics.
-        g_turn = new TurnCount(0, 0);
+        turn_Set(new TurnCount(0, 0));
 
         player = new Player(0, 0, PLAYER_TYPE_HUMAN);
     }
@@ -326,7 +325,7 @@ struct HeavyCityDataFixture
         g_slicEngine = nullptr;
         g_civApp = nullptr;
         rand_ptr_Set(nullptr);
-        g_turn = nullptr;
+        turn_Set(nullptr);
     }
 };
 

@@ -123,7 +123,7 @@
 #include "gfx/tilesys/tileutils.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/gameobj/TradeRouteData.h"
-#include "gs/utility/TurnCnt.h"                    // g_turn
+#include "gs/utility/TurnCnt.h"                    // turn_Get()
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/gameobj/UnitData.h"
 #include "UnitRecord.h"
@@ -5073,7 +5073,7 @@ void TiledMap::CopyVision()
 // Globals    : g_network       : multiplayer information
 //              g_slicEngine    : general game engine
 //              g_selected_item : selected item on screen
-//              g_turn          : turn information
+//              turn_Get()      : turn information
 //
 // Returns    : bool            : tiles may be drawn
 //
@@ -5095,8 +5095,8 @@ bool TiledMap::ReadyToDraw() const
 
     return g_slicEngine     && !g_slicEngine->ShouldScreenBeBlank() &&
            g_selected_item  &&
-           g_turn           &&
-                ((g_turn->GetRound() > 0) || (m_localVision->GetOwner() > 0));
+           turn_Get()       &&
+                ((turn_Get()->GetRound() > 0) || (m_localVision->GetOwner() > 0));
 }
 
 sint32

@@ -70,7 +70,7 @@
 #include "SpriteRecord.h"
 #include "UnitRecord.h"
 #include "gs/utility/Globals.h"
-#include "gs/utility/TurnCnt.h"  // g_turn
+#include "gs/utility/TurnCnt.h"  // turn_Get()
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"  // g_theWorld
@@ -96,8 +96,8 @@ DQItem::DQItem(DQITEM_TYPE type, DQAction* action, DQHandler* handler)
       m_round(0),
       m_action(action),
       m_handler(handler) {
-  if (g_turn) {
-    m_round = static_cast<uint16>(g_turn->GetRound());
+  if (turn_Get()) {
+    m_round = static_cast<uint16>(turn_Get()->GetRound());
   }
 }
 
@@ -639,7 +639,7 @@ void Director::HandleNextAction(void) {
     m_dispatchedItems.push_back(item);
     DHEXECUTE executeType = DHEXECUTE_NORMAL;
 
-    if (item->m_round < g_turn->GetRound() - 1 ||
+    if (item->m_round < turn_Get()->GetRound() - 1 ||
         (!g_theProfileDB->IsEnemyMoves() && item->GetOwner() != -1 &&
          item->GetOwner() != g_selected_item->GetVisiblePlayer()) ||
         (!g_theProfileDB->IsUnitAnim() && item->GetOwner() != -1 &&

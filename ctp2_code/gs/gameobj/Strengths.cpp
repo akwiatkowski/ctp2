@@ -50,7 +50,7 @@ Strengths::Strengths(sint32 owner)
 {
 	m_owner = owner;
  
-	sint32 const curRound = g_turn ? g_turn->GetSessionRound() : 0;
+	sint32 const curRound = turn_Get() ? turn_Get()->GetSessionRound() : 0;
  
 	if (curRound <= 0)
 		return;

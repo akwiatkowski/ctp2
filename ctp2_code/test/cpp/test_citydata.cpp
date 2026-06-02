@@ -23,7 +23,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/CivilisationPool.h"
 
-// Minimal fixture: CityData constructor dereferences g_theWorld, g_player,
+// Minimal fixture: CityData constructor dereferences g_theWorld, player_arr_Get(),
 // g_theCitySizeDB and g_theResourceDB. We provide bare-bones stubs so the
 // constructor completes without crashing.
 struct CityDataFixture
@@ -41,13 +41,13 @@ struct CityDataFixture
         stubWorld = new World(MapPoint(20, 20), false, false);
         g_theWorld = stubWorld;
 
-        // CityData ctor checks g_player[owner] before dereferencing
+        // CityData ctor checks player_Get(owner) before dereferencing
         stubPlayers = new Player *[k_MAX_PLAYERS];
         for (int i = 0; i < k_MAX_PLAYERS; ++i)
         {
             stubPlayers[i] = nullptr;
         }
-        g_player = stubPlayers;
+        player_arr_Set(stubPlayers);
 
         // CityData ctor allocates arrays sized by NumRecords() and calls
         // ResetStarvationTurns() which reads g_theConstDB and buildingutil_*
@@ -69,7 +69,7 @@ struct CityDataFixture
     ~CityDataFixture()
     {
         g_theWorld = nullptr;
-        g_player = nullptr;
+        player_arr_Set(nullptr);
         g_theCitySizeDB = nullptr;
         g_theResourceDB = nullptr;
         g_theConstDB = nullptr;
@@ -292,10 +292,10 @@ struct HeavyCityDataFixture
         world = new World(MapPoint(64, 48), false, false);
         g_theWorld = world;
 
-        g_player = new Player *[k_MAX_PLAYERS];
+        player_arr_Set(new Player *[k_MAX_PLAYERS]);
         for (int i = 0; i < k_MAX_PLAYERS; ++i)
         {
-            g_player[i] = nullptr;
+            player_arr_Get()[i] = nullptr;
         }
 
         // g_civApp may have been nulled by a previous test's fixture destructor.
@@ -317,11 +317,11 @@ struct HeavyCityDataFixture
 
     ~HeavyCityDataFixture()
     {
-        // Intentionally leak player, world, g_player array, selected_item,
+        // Intentionally leak player, world, player array, selected_item,
         // and slic_engine. Their destructors access globals in ways not set
         // up in the test harness.
         g_theWorld = nullptr;
-        g_player = nullptr;
+        player_arr_Set(nullptr);
         g_selected_item = nullptr;
         g_slicEngine = nullptr;
         g_civApp = nullptr;

@@ -784,7 +784,7 @@ void EditQueue::UpdateChoiceLists()
 			}
 		}
 
-		if(g_player[g_selected_item->GetVisiblePlayer()]->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
+		if(player_Get(g_selected_item->GetVisiblePlayer())->CanBuildCapitalization() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_CAPITALIZATION, 0)) {
 				AddChoiceItem(g_theStringDB->GetNameStr("CAPITALIZATION"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_CAPITALIZATION, 0),
@@ -793,7 +793,7 @@ void EditQueue::UpdateChoiceLists()
 			}
 		}
 
-		if(g_player[g_selected_item->GetVisiblePlayer()]->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
+		if(player_Get(g_selected_item->GetVisiblePlayer())->CanBuildInfrastructure() || (!m_cityData && m_mode == EDIT_QUEUE_MODE_CUSTOM)) {
 			if(m_cityData || m_mode == EDIT_QUEUE_MODE_MULTI || !IsItemInQueueList(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0)) {
 				AddChoiceItem(g_theStringDB->GetNameStr("INFRASTRUCTURE"),
 							  new EditItemInfo(k_GAME_OBJ_TYPE_INFRASTRUCTURE, 0),
@@ -966,7 +966,7 @@ void EditQueue::UpdateCityLists()
 {
 
 	sint32 i;
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 
@@ -1091,7 +1091,7 @@ void EditQueue::UpdateButtons()
 				sint32 const	visiblePlayer	= g_selected_item->GetVisiblePlayer();
 				m_rushBuyButton->Enable
 					((visiblePlayer == g_selected_item->GetCurPlayer())	&&	// my turn
-					 (g_player[visiblePlayer]->GetGold() >= cost)			// enough money
+					 (player_Get(visiblePlayer)->GetGold() >= cost)			// enough money
 				   	);
 			}
 		} else {
@@ -1295,8 +1295,8 @@ void EditQueue::InsertInQueue(EditItemInfo *info, bool insert, bool confirmed, b
 
 	if(!confirmed && info->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT &&
 	   buildingutil_Get(info->m_type, g_selected_item->GetVisiblePlayer())->GetCapitol() &&
-		g_player[g_selected_item->GetVisiblePlayer()]->m_capitol &&
-		g_player[g_selected_item->GetVisiblePlayer()]->m_capitol->IsValid() &&
+		player_Get(g_selected_item->GetVisiblePlayer())->m_capitol &&
+		player_Get(g_selected_item->GetVisiblePlayer())->m_capitol->IsValid() &&
 		m_cityData)
 	{
 		static CapitolConfirmData data;
@@ -2136,11 +2136,11 @@ void EditQueue::MultiActionButton(aui_Control *control, uint32 action, uint32 da
 						continue;
 					break;
 				case k_GAME_OBJ_TYPE_INFRASTRUCTURE:
-					if(!g_player[g_selected_item->GetVisiblePlayer()]->CanBuildInfrastructure())
+					if(!player_Get(g_selected_item->GetVisiblePlayer())->CanBuildInfrastructure())
 						continue;
 					break;
 				case k_GAME_OBJ_TYPE_CAPITALIZATION:
-					if(!g_player[g_selected_item->GetVisiblePlayer()]->CanBuildCapitalization())
+					if(!player_Get(g_selected_item->GetVisiblePlayer())->CanBuildCapitalization())
 						continue;
 					break;
 			}

@@ -90,9 +90,9 @@ BOOL TerrainImprovementData::Complete(void)
 	Cell* theCell = g_theWorld->GetCell(m_point);
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-		if(!g_player[p]) continue;
+		if(!player_Get(p)) continue;
 		if(p == m_owner) continue;
-		g_player[p]->m_vision->AddUnseen(m_point);
+		player_Get(p)->m_vision->AddUnseen(m_point);
 	}
 	DPRINTF(k_DBG_GAMESTATE, ("Completed improvement %d at (%d,%d)\n",
 							  m_type, m_point.x, m_point.y));
@@ -118,13 +118,13 @@ BOOL TerrainImprovementData::Complete(void)
 		g_theWorld->CutImprovements(m_point);
 	}
 
-	Assert(g_player[m_owner]);
-	if(!g_player[m_owner])
+	Assert(player_Get(m_owner));
+	if(!player_Get(m_owner))
 		return TRUE;
 
 	if (terrainutil_IsInstallation(m_type))
 	{
-		g_player[m_owner]->CreateInstallation( m_type, m_point );
+		player_Get(m_owner)->CreateInstallation( m_type, m_point );
 	}
 
 	theCell->CalcTerrainMoveCost();
@@ -267,12 +267,12 @@ sint32 TerrainImprovementData::PercentComplete() const
 
 void TerrainImprovementData::StartBuilding()
 {
-	if(!g_player[m_owner])
+	if(!player_Get(m_owner))
 		return;
 
-	if(g_player[m_owner]->m_materialPool->GetMaterials() < m_materialCost)
+	if(player_Get(m_owner)->m_materialPool->GetMaterials() < m_materialCost)
 		return;
 
-	g_player[m_owner]->m_materialPool->SubtractMaterials(m_materialCost);
+	player_Get(m_owner)->m_materialPool->SubtractMaterials(m_materialCost);
 	m_isBuilding = true;
 }

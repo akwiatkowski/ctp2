@@ -11,8 +11,6 @@
 #include "ai/ctpai.h"
 #include "net/general/net_info.h"
 
-extern Player **g_player;
-
 NetNewArmy::NetNewArmy(PLAYER_INDEX player, const ArmyList &army,
 					   sint32 armyIndex, CAUSE_NEW_ARMY cause)
 {
@@ -71,8 +69,8 @@ void NetNewArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			return;
 	}
 
-	Assert(g_player[m_player]->m_all_armies->Num() == m_index);
-	if(g_player[m_player]->m_all_armies->Num() != m_index)
+	Assert(player_Get(m_player)->m_all_armies->Num() == m_index);
+	if(player_Get(m_player)->m_all_armies->Num() != m_index)
 		return;
 
 	static ArmyList al;
@@ -82,7 +80,7 @@ void NetNewArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		Assert(unitpool_Get()->IsValid(unit));
 		al.Insert(unit);
 	}
-	g_player[m_player]->CopyArmyIntoPlayer(al, m_cause,
+	player_Get(m_player)->CopyArmyIntoPlayer(al, m_cause,
 										   TRUE);
 #endif
 }
@@ -152,14 +150,14 @@ void NetRemoveArmy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		al.Insert(unit);
 	}
 
-	ArmyList *realAl = g_player[m_player]->GetArmy(m_index);
+	ArmyList *realAl = player_Get(m_player)->GetArmy(m_index);
 	Assert(m_numUnits == realAl->Num());
 	for(i = 0; i < m_numUnits; i++) {
 		Assert(al[i] == realAl->Access(i));
 	}
 #endif
 
-	g_player[m_player]->RemoveArmyFromPlayer(m_index, m_cause,
+	player_Get(m_player)->RemoveArmyFromPlayer(m_index, m_cause,
 											 TRUE, -1);
 #endif
 }
@@ -272,7 +270,7 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 		theArmy.m_id = m_armyId;
 	} else {
-		theArmy = g_player[pl]->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_GROUPING);
+		theArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_GROUPING);
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id));
 	}
 
@@ -329,7 +327,7 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint8 n, i;
 	PULLBYTE(n);
 	for(i = 0; i < n; i++) {
-		Army newArmy = g_player[pl]->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
+		Army newArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_UNGROUPING);
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_UNGROUPING, newArmy.m_id));
 
 		uint32 unitId;

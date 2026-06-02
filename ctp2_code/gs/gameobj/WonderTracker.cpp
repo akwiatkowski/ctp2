@@ -99,8 +99,8 @@ sint32 WonderTracker::WhoOwnsWonder(sint32 which)
 
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i]) {
-			if(g_player[i]->m_builtWonders & safe_shift_left_u64(which)) {
+		if(player_Get(i)) {
+			if(player_Get(i)->m_builtWonders & safe_shift_left_u64(which)) {
 				return i;
 			}
 		}
@@ -127,13 +127,13 @@ bool WonderTracker::GetCityWithWonder(sint32 which, Unit &city)
 {
 	sint32 p;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
-		if(!g_player[p])
+		if(!player_Get(p))
 			continue;
 		sint32 c;
-		for(c = g_player[p]->m_all_cities->Num() - 1; c >= 0; c--) {
-			if(g_player[p]->m_all_cities->Access(c).GetData()->GetCityData()->GetBuiltWonders() & safe_shift_left_u64(which)) {
+		for(c = player_Get(p)->m_all_cities->Num() - 1; c >= 0; c--) {
+			if(player_Get(p)->m_all_cities->Access(c).GetData()->GetCityData()->GetBuiltWonders() & safe_shift_left_u64(which)) {
 
-				city = g_player[p]->m_all_cities->Access(c);
+				city = player_Get(p)->m_all_cities->Access(c);
 				return true;
 			}
 		}
@@ -164,10 +164,10 @@ void WonderTracker::RecomputeIsBuilding(const PLAYER_INDEX who)
 
 	Unit city;
 	sint32 category;
-	sint32 num_cities = g_player[who]->m_all_cities->Num();
+	sint32 num_cities = player_Get(who)->m_all_cities->Num();
 	for (sint32 i = 0; i < num_cities; i++)
 	{
-		city = g_player[who]->m_all_cities->Access(i);
+		city = player_Get(who)->m_all_cities->Access(i);
 		Assert( unitpool_Get()->IsValid(city) );
 		Assert( city->GetCityData() != NULL );
 

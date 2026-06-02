@@ -364,10 +364,10 @@ private:
 	friend void from_json(nlohmann::json const &j, SlicEngine &e);
 };
 
-extern SlicEngine * g_slicEngine;
-
 // Session-singleton accessor pair, mirroring world_Get / gevmanager_Get
-// / unitpool_Get / pollution_Get.
+// / unitpool_Get / pollution_Get.  The legacy g_slicEngine pointer is
+// now file-static in SlicEngine.cpp; outside callers must go through
+// these accessors.
 SlicEngine * slicengine_Get(void);
 void         slicengine_Set(SlicEngine *p);
 

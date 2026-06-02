@@ -1787,8 +1787,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive)
     {
-        delete g_slicEngine;
-        g_slicEngine = new SlicEngine(*archive);
+        delete slicengine_Get();
+        slicengine_Set(new SlicEngine(*archive));
 		slicengine_Get()->PostSerialize();
 	}
     else
@@ -2651,7 +2651,8 @@ void gameinit_Cleanup(void)
 	allocated::clear(g_theCivilisationPool);
 	allocated::clear(g_theDiplomaticRequestPool);
 	allocated::clear(g_theTerrainImprovementPool);
-	allocated::clear(g_slicEngine);
+	delete slicengine_Get();
+	slicengine_Set(NULL);
 	allocated::clear(g_theTopTen);
 	allocated::clear(g_thePollution);
 	allocated::clear(g_theTradePool);

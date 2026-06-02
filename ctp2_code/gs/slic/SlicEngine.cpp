@@ -149,7 +149,7 @@
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/database/profileDB.h"
 
-SlicEngine *g_slicEngine = NULL;
+static SlicEngine *g_slicEngine = NULL;
 
 SlicEngine * slicengine_Get(void)        { return g_slicEngine; }
 void         slicengine_Set(SlicEngine *p) { g_slicEngine = p; }

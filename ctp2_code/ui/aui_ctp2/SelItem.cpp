@@ -178,15 +178,15 @@ SelectedItem::SelectedItem(sint32 nPlayers)
 
 	m_current_player = 1;
 
-	if(g_player)
+	if(player_arr_Get())
 	{
 		for(i = 0; i < k_MAX_PLAYERS; i++)
 		{
-			if(g_player[i])
+			if(player_Get(i))
 			{
 				for(j = i + 1; j < k_MAX_PLAYERS; j++)
 				{
-					if(g_player[j]) {
+					if(player_Get(j)) {
 						m_next_player[i] = j;
 						break;
 					}
@@ -431,13 +431,13 @@ void SelectedItem::NextItem()
 			NextUnmovedUnit();
 			break;
 		case SELECT_TYPE_LOCAL_CITY:
-			curIndex = g_player[player]->FindCityIndex(m_selected_city[player]);
+			curIndex = player_Get(player)->FindCityIndex(m_selected_city[player]);
 			if(curIndex >= 0)
 			{
 				curIndex++;
-				if(curIndex >= g_player[player]->m_all_cities->Num())
+				if(curIndex >= player_Get(player)->m_all_cities->Num())
 					curIndex = 0;
-				m_selected_city[player] = g_player[player]->m_all_cities->Access(curIndex);
+				m_selected_city[player] = player_Get(player)->m_all_cities->Access(curIndex);
 
 				MapPoint pos;
 				m_selected_city[player].GetPos( pos );
@@ -471,7 +471,7 @@ void SelectedItem::NextItem()
 void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 {
 	PLAYER_INDEX player = GetVisiblePlayer();
-	Player *p = g_player[player];
+	Player *p = player_Get(player);
 	if(!p)
 		return;
 
@@ -605,7 +605,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 					selectArmy.GetPos(pos);
 
 					if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y) ||
-					   g_player[GetVisiblePlayer()]->m_first_city)
+					   player_Get(GetVisiblePlayer())->m_first_city)
 					{
 						g_director->AddCenterMap(pos);
 					}
@@ -652,24 +652,24 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 {
 	sint32 player = GetVisiblePlayer();
-	Player *p = g_player[player];
+	Player *p = player_Get(player);
 
 	if(!g_network.IsActive())
 	{
-		if(!g_player[GetCurPlayer()]->IsHuman())
+		if(!player_Get(GetCurPlayer())->IsHuman())
 			return;
 	}
 	else
 	{
 		if(!g_network.IsLocalPlayer(GetCurPlayer())
 		|| !g_network.ReadyToStart()
-		||  g_player[GetCurPlayer()]->IsRobot()
+		||  player_Get(GetCurPlayer())->IsRobot()
 		){
 			return;
 		}
 	}
 
-	if(g_player[player]->m_endingTurn)
+	if(player_Get(player)->m_endingTurn)
 		return;
 
 	if(player != m_current_player)
@@ -724,7 +724,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 					// But apart from that this code doesn't seem to do the
 					// desired effect on the auto end turn code, either.
 					if(!g_theProfileDB->GetValueByName("EndTurnWithEmptyBuildQueues")
-					&& g_player[GetCurPlayer()]->IsHuman()
+					&& player_Get(GetCurPlayer())->IsHuman()
 					){
 						return;
 					}
@@ -745,14 +745,14 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 		{
 			for(sint32 o = 0; o < k_MAX_PLAYERS && endTurn; o++)
 			{
-				if(!g_player[o] || o == player)
+				if(!player_Get(o) || o == player)
 					continue;
-				for(sint32 u = 0; u < g_player[o]->m_all_units->Num() && endTurn; u++)
+				for(sint32 u = 0; u < player_Get(o)->m_all_units->Num() && endTurn; u++)
 				{
-					if(g_player[o]->m_all_units->Access(u).GetVisibility() & (1 << p->m_owner))
+					if(player_Get(o)->m_all_units->Access(u).GetVisibility() & (1 << p->m_owner))
 					{
 						MapPoint pos;
-						g_player[o]->m_all_units->Access(u).GetPos(pos);
+						player_Get(o)->m_all_units->Access(u).GetPos(pos);
 						if(world_Get()->IsCity(pos)) {
 
 							continue;
@@ -803,7 +803,7 @@ PLAYER_INDEX SelectedItem::GetNextHumanPlayer()
 	PLAYER_INDEX chk = m_current_player;
 	do {
 		chk = m_next_player[chk];
-		if(g_player[chk]->IsHuman())
+		if(player_Get(chk)->IsHuman())
 			return chk;
 	} while(chk != m_current_player);
 	return m_current_player;
@@ -832,7 +832,7 @@ void SelectedItem::SetCurPlayer(PLAYER_INDEX p)
 	{
 		if(g_network.GetPlayerIndex() == p
 		||(g_network.IsHost()
-		&& !g_player[p]->IsNetwork())
+		&& !player_Get(p)->IsNetwork())
 		){
 			// Do nothing for whatever reason
 		}
@@ -936,7 +936,7 @@ void SelectedItem::AddPlayer(PLAYER_INDEX p)
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if (g_player[i] && m_next_player[i] == p)
+		if (player_Get(i) && m_next_player[i] == p)
 			c3errors_FatalDialogFromDB("CIV_ERROR", "CIV_FAILED_TO_ADD_PLAYER");
 	}
 
@@ -962,27 +962,27 @@ void SelectedItem::SelectFirstUnit(bool setSelect)
 	sint32 curIndex = 0;
 	sint32 tried = 1;
 
-	if(g_player[player]->m_all_armies->Num() > 0)
+	if(player_Get(player)->m_all_armies->Num() > 0)
 	{
-		m_selected_army[player] = g_player[player]->m_all_armies->Access(0);
+		m_selected_army[player] = player_Get(player)->m_all_armies->Access(0);
 
-		while(tried <= g_player[player]->m_all_armies->Num() &&
-			  (!CanAutoSelect(g_player[player]->m_all_armies->Access(curIndex))))
+		while(tried <= player_Get(player)->m_all_armies->Num() &&
+			  (!CanAutoSelect(player_Get(player)->m_all_armies->Access(curIndex))))
 		{
 			curIndex++;
-			if(curIndex >= g_player[player]->m_all_armies->Num())
+			if(curIndex >= player_Get(player)->m_all_armies->Num())
 				curIndex = 0;
 			tried++;
-			m_selected_army[player] = g_player[player]->m_all_armies->Access(curIndex);
+			m_selected_army[player] = player_Get(player)->m_all_armies->Access(curIndex);
 		}
 	}
 
-	if(tried > g_player[player]->m_all_armies->Num())
+	if(tried > player_Get(player)->m_all_armies->Num())
 	{
-		if(g_player[player]->m_all_cities->Num() > 0 && setSelect)
+		if(player_Get(player)->m_all_cities->Num() > 0 && setSelect)
 		{
 			m_select_state[player] = SELECT_TYPE_LOCAL_CITY;
-			SetSelectUnit(g_player[player]->m_all_cities->Access(0));
+			SetSelectUnit(player_Get(player)->m_all_cities->Access(0));
 		}
 		else
 		{
@@ -1057,7 +1057,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 	PLAYER_INDEX o = GetVisiblePlayer();
 
-	if (g_player[o] == NULL) return;
+	if (player_Get(o) == NULL) return;
 
 	bool didSelect = false;
 
@@ -1135,7 +1135,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		m_select_pos[o] = pos;
 		army = world_Get()->GetCell(pos)->UnitArmy();
 
-		if ( all && g_player[o]->IsHuman() &&
+		if ( all && player_Get(o)->IsHuman() &&
 			 (g_theProfileDB->IsAutoGroup() || isDoubleClick))
 		{
 			sint32 i;
@@ -1634,14 +1634,14 @@ sint32 SelectedItem::GetVisiblePlayer() const
 		else
 		{
 			if(0 // Never used
-			&& g_player[m_current_player]
-			&& g_player[m_current_player]->IsHuman()
+			&& player_Get(m_current_player)
+			&& player_Get(m_current_player)->IsHuman()
 			){
 				return m_current_player;
 			}
 			else
 			{
-				if(!g_player[g_network.GetPlayerIndex()])
+				if(!player_Get(g_network.GetPlayerIndex()))
 				{
 					return m_current_player;
 				}
@@ -1699,7 +1699,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 
 		float total_cost;
 		Assert(g_theUnitAstar);
-		if(g_player[player]->IsHuman())
+		if(player_Get(player)->IsHuman())
 		{
 			m_is_pathing = g_theUnitAstar->FindPath(a, start,
 												player, m_cur_mouse_tile,
@@ -1868,7 +1868,7 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 void SelectedItem::ProcessUnitOrders()
 {
 	if(m_current_player == GetVisiblePlayer()) {
-		g_player[m_current_player]->ProcessUnitOrders();
+		player_Get(m_current_player)->ProcessUnitOrders();
 	}
 }
 
@@ -2871,9 +2871,9 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 	if(slicengine_Get()->GetTutorialActive())
 	{
 		bool allMoved = true;
-		for(sint32 i = g_player[player]->m_all_armies->Num() - 1; i >= 0; i--)
+		for(sint32 i = player_Get(player)->m_all_armies->Num() - 1; i >= 0; i--)
 		{
-			if(CanAutoSelect(g_player[player]->m_all_armies->Access(i)))
+			if(CanAutoSelect(player_Get(player)->m_all_armies->Access(i)))
 			{
 				allMoved = false;
 				break;

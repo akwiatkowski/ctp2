@@ -241,7 +241,7 @@ const TerrainImprovementRecord *terrainutil_GetBestRoad(sint32 player, const Map
 		const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
 		if(!effect) continue;
 
-		if(!g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
+		if(!player_Get(player)->HasAdvance(effect->GetEnableAdvanceIndex())) continue;
 
 		sint32 moveCost;
 		if(!effect->GetMoveCost(moveCost))
@@ -411,9 +411,9 @@ void terrainutil_DoVision(const MapPoint &point)
 	}
 
 	sint32  cellOwner           = cell->GetOwner();
-	if (cellOwner >= 0 && cellOwner < k_MAX_PLAYERS && g_player[cellOwner])
+	if (cellOwner >= 0 && cellOwner < k_MAX_PLAYERS && player_Get(cellOwner))
 	{
-		g_player[cellOwner]->AddUnitVision(point, maxVisionRange);
+		player_Get(cellOwner)->AddUnitVision(point, maxVisionRange);
 	}
 
 	MapPoint topleft = MapPoint(point.x - maxVisionRange, point.y);
@@ -461,8 +461,8 @@ bool terrainutil_PlayerHasAdvancesForTerrain(const TerrainImprovementRecord *rec
 	if(pl < 0 || pl >= k_MAX_PLAYERS)
 		return false;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return false;
 
 	if(rec->GetClassTerraform() || rec->GetClassOceanform())
@@ -473,8 +473,8 @@ bool terrainutil_PlayerHasAdvancesForTerrain(const TerrainImprovementRecord *rec
 			const TerrainRecord *terrToRec   = g_theTerrainDB->Get(t);
 			const TerrainRecord *terrFromRec = g_theTerrainDB->Get(terr);
 
-			if(!g_player[pl]->HasAdvance(terrToRec->GetAddAdvanceIndex()) ||
-			   !g_player[pl]->HasAdvance(terrFromRec->GetRemoveAdvanceIndex()))
+			if(!player_Get(pl)->HasAdvance(terrToRec->GetAddAdvanceIndex()) ||
+			   !player_Get(pl)->HasAdvance(terrFromRec->GetRemoveAdvanceIndex()))
 				return false;
 
 			return true;
@@ -487,12 +487,12 @@ bool terrainutil_PlayerHasAdvancesForTerrain(const TerrainImprovementRecord *rec
 		eff = terrainutil_GetTerrainEffect(rec, terr);
 		if(eff)
 		{
-			if(g_player[pl]->HasAdvance(eff->GetEnableAdvanceIndex()))
+			if(player_Get(pl)->HasAdvance(eff->GetEnableAdvanceIndex()))
 			{
 				bool haveObsolete = false;
 				for(sint32 a = 0; a < eff->GetNumObsoleteAdvance(); a++)
 				{
-					if(g_player[pl]->HasAdvance(eff->GetObsoleteAdvanceIndex(a)))
+					if(player_Get(pl)->HasAdvance(eff->GetObsoleteAdvanceIndex(a)))
 					{
 						haveObsolete = true;  //emod is this source of defect
 					}
@@ -532,7 +532,7 @@ bool terrainutil_PlayerHasAdvancesFor(const TerrainImprovementRecord *rec, sint3
 //                                 for whether the terrain improvement
 //                                 in question can be built
 //
-// Globals    : g_player:      The list of players
+// Globals    : player_arr_Get():      The list of players
 //
 // Returns    : Whether the imp is available for a player to build.
 //
@@ -552,8 +552,8 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 	if(pl < 0 || pl >= k_MAX_PLAYERS)
 		return false;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return false;
 
 	// Added by Maq - fix so science victory tile imp needs gaia controller race to be started first,
@@ -570,7 +570,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 		bool found = false;
 		for(sint32 i = 0; i < rec->GetNumGovernmentType(); i++)
 		{
-			if(rec->GetGovernmentTypeIndex(i) == g_player[pl]->GetGovernmentType())
+			if(rec->GetGovernmentTypeIndex(i) == player_Get(pl)->GetGovernmentType())
 			{
 				found = true;
 				break;
@@ -586,7 +586,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 		bool found = false;
 		for(sint32 s = 0; s < rec->GetNumCultureOnly(); s++)
 		{
-			if(rec->GetCultureOnlyIndex(s) == g_player[pl]->GetCivilisation()->GetCityStyle())
+			if(rec->GetCultureOnlyIndex(s) == player_Get(pl)->GetCivilisation()->GetCityStyle())
 			{
 				found = true;
 				break;
@@ -618,7 +618,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 					const TerrainRecord::TransformData *tfrom = terrainutil_GetTransformData(toterrain, true);
 					const TerrainRecord::TransformData *tto = terrainutil_GetTransformData(toterrain, false);
 
-					if(g_player[pl]->m_materialPool->GetMaterials() >= tfrom->GetMaterials() + tto->GetMaterials()) {
+					if(player_Get(pl)->m_materialPool->GetMaterials() >= tfrom->GetMaterials() + tto->GetMaterials()) {
 						return true;
 					}
 				}
@@ -628,7 +628,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 					eff = terrainutil_GetTerrainEffect(rec, i);
 					if(eff)
 					{
-						if(g_player[pl]->m_materialPool->GetMaterials() >= eff->GetProductionCost())
+						if(player_Get(pl)->m_materialPool->GetMaterials() >= eff->GetProductionCost())
 						{
 							return true;
 						}
@@ -656,7 +656,7 @@ bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, 
 //                                      : terrain improvement record in the
 //                                        terrain improvement database.
 // Globals    :   world_Get()           : The game world properties
-//                g_player              : The list of players
+//                player_arr_Get()              : The list of players
 //
 // Returns    :   bool                  : Returns true if an improvement
 //                                        can be built on a tile
@@ -682,8 +682,8 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 	if(pl < 0 || pl >= k_MAX_PLAYERS)
 		return false;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return false;
 
 	Cell *cell = world_Get()->GetCell(pos);
@@ -693,12 +693,12 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 
 	if(cell->GetOwner() == -1) {
 		if(rec->HasIntBorderRadius()) {  //Add has unit IsWorker?
-			if(!g_player[pl]->IsVisible(pos)) {
+			if(!player_Get(pl)->IsVisible(pos)) {
 
 				return false;
 			}
 		} else if(rec->GetCanBuildWasteland()) {  //Allows palyer to connect cities
-			if(!g_player[pl]->IsVisible(pos)) {
+			if(!player_Get(pl)->IsVisible(pos)) {
 				return false;
 			}
 		} else {
@@ -712,7 +712,7 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||               //Why only build roads in allied territory?
-				(g_player[pl]->GetGaiaController() && g_player[pl]->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))
+				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))
 				|| rec->GetCanBuildAlly()	//added for other ally improving
 				){
 
@@ -741,8 +741,8 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 		if(tfrom->GetRemoveAdvanceIndex() < 0 || tto->GetAddAdvanceIndex() < 0)
 			return false;
 
-		if(!g_player[pl]->HasAdvance(tfrom->GetRemoveAdvanceIndex()) ||
-			!g_player[pl]->HasAdvance(tto->GetAddAdvanceIndex())) {
+		if(!player_Get(pl)->HasAdvance(tfrom->GetRemoveAdvanceIndex()) ||
+			!player_Get(pl)->HasAdvance(tto->GetAddAdvanceIndex())) {
 			return false;
 		}
 	} else {
@@ -752,12 +752,12 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 		if(!eff)
 			return false;
 
-		if(!g_player[pl]->HasAdvance(eff->GetEnableAdvanceIndex()))
+		if(!player_Get(pl)->HasAdvance(eff->GetEnableAdvanceIndex()))
 			return false;
 
 		sint32 a;
 		for(a = 0; a < eff->GetNumObsoleteAdvance(); a++) {
-			if(g_player[pl]->HasAdvance(eff->GetObsoleteAdvanceIndex(a))) {
+			if(player_Get(pl)->HasAdvance(eff->GetObsoleteAdvanceIndex(a))) {
 				return false;
 			}
 		}
@@ -899,8 +899,8 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 	if(pl < 0 || pl >= k_MAX_PLAYERS)
 		return false;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return false;
 
 	Cell *cell = world_Get()->GetCell(pos);
@@ -915,7 +915,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 
 //	if(cell->GetOwner() == -1) {
 //		if(rec->GetIntBorderRadius()) {
-//			if(!g_player[pl]->IsVisible(pos)) {
+//			if(!player_Get(pl)->IsVisible(pos)) {
 
 //				return false;
 //			}
@@ -930,7 +930,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||
-				(g_player[pl]->GetGaiaController() && g_player[pl]->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {
+				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {
 
 			} else {
 				return false;
@@ -1270,7 +1270,7 @@ bool terrainutil_AdvanceEnablesImprovementForPlayer(sint32 player, sint32 advanc
 {
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 	if(!rec) return false;
-	if(player < 0 || player >= k_MAX_PLAYERS || !g_player[player]) return false;
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player)) return false;
 
 	if(advance < 0 || advance >= g_theAdvanceDB->NumRecords()) return false;
 
@@ -1279,7 +1279,7 @@ bool terrainutil_AdvanceEnablesImprovementForPlayer(sint32 player, sint32 advanc
 		const TerrainImprovementRecord::Effect *effect = rec->GetTerrainEffect(i);
 		Assert(effect);
 		if(effect) {
-			if(g_player[player]->HasAdvance(effect->GetEnableAdvanceIndex())) {
+			if(player_Get(player)->HasAdvance(effect->GetEnableAdvanceIndex())) {
 
 				return false;
 			} else if(advance == effect->GetEnableAdvanceIndex()) {
@@ -1315,8 +1315,8 @@ bool terrainutil_GetSomethingOwnsCell(MapPoint const & pos, sint32 owner, Unit i
 {
 
 	sint32 i;
-	for(i = 0; i < g_player[owner]->m_all_cities->Num(); i++) {
-		Unit city = g_player[owner]->m_all_cities->Access(i);
+	for(i = 0; i < player_Get(owner)->m_all_cities->Num(); i++) {
+		Unit city = player_Get(owner)->m_all_cities->Access(i);
 		if(ignoreCity.m_id != 0 && city.m_id == ignoreCity.m_id) continue;
 
 		if(MapPoint::GetSquaredDistance(pos, city.RetPos()) <= g_theConstDB->Get(0)->GetBorderSquaredRadius()) {
@@ -1324,8 +1324,8 @@ bool terrainutil_GetSomethingOwnsCell(MapPoint const & pos, sint32 owner, Unit i
 		}
 	}
 
-	for(i = 0; i < g_player[owner]->m_allInstallations->Num(); i++) {
-		Installation inst = g_player[owner]->m_allInstallations->Access(i);
+	for(i = 0; i < player_Get(owner)->m_allInstallations->Num(); i++) {
+		Installation inst = player_Get(owner)->m_allInstallations->Access(i);
 		const TerrainImprovementRecord *rec = inst.GetDBRec();
 		sint32 sqRad;
 		if(!rec->GetSquaredBorderRadius(sqRad))
@@ -1341,7 +1341,7 @@ bool terrainutil_GetSomethingOwnsCell(MapPoint const & pos, sint32 owner, Unit i
 
 void terrainutil_RemoveBorders(const MapPoint &center, sint32 owner, sint32 intRad, sint32 sqRad, Unit ignoreCity)
 {
-	if(!g_player[owner]) return;
+	if(!player_Get(owner)) return;
 
 	RadiusIterator it(center, intRad, sqRad);
 
@@ -1603,8 +1603,8 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 	if(pl < 0 || pl >= k_MAX_PLAYERS)
 		return false;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl])
+	Assert(player_Get(pl));
+	if(!player_Get(pl))
 		return false;
 
 	Cell *cell = world_Get()->GetCell(pos);
@@ -1623,7 +1623,7 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 			AgreementMatrix::s_agreements.HasAgreement(pl, cell->GetOwner(), PROPOSAL_TREATY_ALLIANCE);
 		if(cell->GetOwner() > 0 && haveAlliance) {
 			if(rec->GetClassRoad() ||
-				(g_player[pl]->GetGaiaController() && g_player[pl]->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {
+				(player_Get(pl)->GetGaiaController() && player_Get(pl)->GetGaiaController()->GaiaControllerTileImp(rec->GetIndex()))) {
 
 			} else {
 				return false;

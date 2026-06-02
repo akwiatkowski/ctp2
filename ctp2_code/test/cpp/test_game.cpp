@@ -11,6 +11,8 @@
 #include "gs/utility/TurnCnt.h"
 #include "gs/world/World.h"
 #include "gs/world/MapPoint.h"
+#include "gs/slic/SlicEngine.h"
+#include "gs/events/GameEventManager.h"
 
 TEST_CASE("Ctp2::Game can be default-constructed and destroyed") {
     Ctp2::Game game;
@@ -159,6 +161,40 @@ TEST_CASE("Ctp2::Game adopts a pre-existing World and releases it on cleanup") {
     // After cleanup, the legacy pointer is nulled and the World instance
     // has been destroyed (Game owned the unique_ptr).
     CHECK(world_Get() == nullptr);
+}
+
+TEST_CASE("Ctp2::Game adopts a pre-existing SlicEngine and releases it on cleanup") {
+    REQUIRE(slicengine_Get() == nullptr);
+
+    slicengine_Set(new SlicEngine());
+    SlicEngine * legacyPtr = slicengine_Get();
+    REQUIRE(legacyPtr != nullptr);
+
+    {
+        Ctp2::Game game;
+        game.NewGame(2, 0, /*randSeed*/ 42);
+        CHECK(&game.GetSlic() == legacyPtr);
+        CHECK(slicengine_Get() == legacyPtr);
+    }
+
+    CHECK(slicengine_Get() == nullptr);
+}
+
+TEST_CASE("Ctp2::Game adopts a pre-existing GameEventManager and releases it on cleanup") {
+    REQUIRE(gevmanager_Get() == nullptr);
+
+    gameEventManager_Initialize();  // production helper that allocates + Set
+    GameEventManager * legacyPtr = gevmanager_Get();
+    REQUIRE(legacyPtr != nullptr);
+
+    {
+        Ctp2::Game game;
+        game.NewGame(2, 0, /*randSeed*/ 42);
+        CHECK(&game.GetEvents() == legacyPtr);
+        CHECK(gevmanager_Get() == legacyPtr);
+    }
+
+    CHECK(gevmanager_Get() == nullptr);
 }
 
 #if 0  // Concurrent-Game tests — re-enable once legacy globals are deleted.

@@ -149,6 +149,12 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     if (feattracker_Get())  m_featTracker.reset(feattracker_Get());
     if (world_Get())        m_world.reset(world_Get());
 
+    // SlicEngine and GameEventManager have non-trivial init (SLIC file
+    // loading, event-hook registration) that gameinit handles. Game
+    // adopts the already-initialised instances.
+    if (slicengine_Get())   m_slic.reset(slicengine_Get());
+    if (gevmanager_Get())   m_events.reset(gevmanager_Get());
+
 #undef ADOPT_OR_CREATE
 
     // SlicEngine and GameEventManager need more orchestration to spin up
@@ -172,7 +178,9 @@ void Game::Cleanup() {
     // calls become no-ops (delete NULL is safe) and we avoid a
     // double-delete on the single shared instance.
 
+    gevmanager_Set(nullptr);
     m_events.reset();
+    slicengine_Set(nullptr);
     m_slic.reset();
 
     // Trackers and pools: null the legacy pointer first, then destroy.

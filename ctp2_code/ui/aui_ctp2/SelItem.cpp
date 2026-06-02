@@ -163,7 +163,7 @@ bool CanAutoSelect(const Army &army)
 	   !army.IsEntrenching() &&
 	   !army.HasLeftMap() &&
 	   ((army.NumOrders() < 1) ||
-		(army.GetOrder(0)->m_round != g_turn->GetRound() &&
+		(army.GetOrder(0)->m_round != turn_Get()->GetRound() &&
 		 !army.ExecutedThisTurn())) &&
 	   army.CanMove() &&
 	   !army.TurnOver()) {
@@ -845,7 +845,7 @@ void SelectedItem::SetCurPlayer(PLAYER_INDEX p)
 
 	if(visPlayer != GetVisiblePlayer())
 	{
-		g_turn->InformMessages();
+		turn_Get()->InformMessages();
 	}
 	else if(GetVisiblePlayer() == m_current_player)
 	{
@@ -942,7 +942,7 @@ void SelectedItem::AddPlayer(PLAYER_INDEX p)
 
 	m_next_player[p] = m_next_player[m_current_player];
 	m_next_player[m_current_player] = p;
-	g_turn->RegisterNewPlayer(p);
+	turn_Get()->RegisterNewPlayer(p);
 }
 
 uint32 SelectedItem_GetVersion(void)

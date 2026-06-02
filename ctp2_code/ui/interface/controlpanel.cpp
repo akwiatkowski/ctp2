@@ -227,8 +227,8 @@ void TurnButtonCallback(aui_Control *control, uint32 action, uint32 data, void *
 {
 	if(action != (uint32)AUI_BUTTON_ACTION_EXECUTE) return;
 
-	if(g_turn) {
-		g_turn->NextRound();
+	if(turn_Get()) {
+		turn_Get()->NextRound();
 	}
 }
 

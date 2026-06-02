@@ -342,12 +342,12 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 
 		if(g_network.IsActive())
 		{
-			g_turn->NetworkEndTurn();
+			turn_Get()->NetworkEndTurn();
 		}
 		else
 		{
 			g_selected_item->Deselect(g_selected_item->GetCurPlayer());
- 			g_turn->EndThisTurnBeginNewTurn();
+ 			turn_Get()->EndThisTurnBeginNewTurn();
 			g_selected_item->SetPlayerOnScreen(g_selected_item->GetCurPlayer());
 
 			NewTurnCount::StartNextPlayer(true);
@@ -358,7 +358,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
 			radar_map_Get()->Update();
-			g_turn->InformMessages();
+			turn_Get()->InformMessages();
 		}
 
 		return TRUE;
@@ -481,7 +481,7 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 		n = atoi(temp);
 
 		for (i=0; i<(n) && !gDone; i++) {
-			g_turn->NextRound();
+			turn_Get()->NextRound();
 			do {
 				g_controlPanel->Idle();
 				if (g_civApp)

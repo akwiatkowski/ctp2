@@ -154,7 +154,7 @@ extern HWND gHwnd;
 
 extern sint32		g_is_rand_test;
 extern SelectedItem *g_selected_item;
-extern TurnCount	*g_turn;
+
 
 #ifdef _PLAYTEST
 #endif
@@ -694,7 +694,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 	case KEY_FUNCTION_OPEN_SCENARIO_EDITOR:
 		if(!g_modalWindow
-		&& !g_turn->IsEmail()
+		&& !turn_Get()->IsEmail()
 		){
 			close_AllScreens();
 			optionsscreen_mapeditorPress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
@@ -788,10 +788,10 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			if(g_network.IsMyTurn() ||
 			   (g_network.IsHost() &&
 				player_Get(g_selected_item->GetCurPlayer())->IsRobot())) {
-				g_turn->EndThisSliceBeginNewSlice();
+				turn_Get()->EndThisSliceBeginNewSlice();
 			}
 		} else {
-			g_turn->EndThisSliceBeginNewSlice();
+			turn_Get()->EndThisSliceBeginNewSlice();
 		}
 		move = FALSE;
 		break;
@@ -802,7 +802,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
            break;
 
 		if(g_network.IsActive()) {
-			g_turn->NetworkEndTurn();
+			turn_Get()->NetworkEndTurn();
 		} else {
             g_selected_item->Deselect(g_selected_item->GetCurPlayer());
 
@@ -826,7 +826,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
 			radar_map_Get()->Update();
-			g_turn->InformMessages();
+			turn_Get()->InformMessages();
 		}
 		move = FALSE;
         break;
@@ -1318,8 +1318,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		&& !g_theProfileDB->IsScenario()
 		&& !is_scenario_Get()
 		&& !g_network.IsActive()
-		&& !g_turn->IsHotSeat()
-		&& !g_turn->IsEmail()
+		&& !turn_Get()->IsHotSeat()
+		&& !turn_Get()->IsEmail()
 		) {
 			optionwarningscreen_displayMyWindow(OWS_RESTART) ;
 		}

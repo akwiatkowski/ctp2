@@ -200,7 +200,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 
 		popup->RemoveWindow();
 
-		if(g_turn->IsHotSeat() || g_turn->IsEmail())
+		if(turn_Get()->IsHotSeat() || turn_Get()->IsEmail())
 		{
 			Player* player = player_Get(g_selected_item->GetVisiblePlayer());
 			if(!player
@@ -208,7 +208,7 @@ void HighScoreWinButtonActionCallback( aui_Control *control, uint32 action, uint
 			){
 				if(player->IsRobot())
 				{
-					g_turn->EndThisTurnBeginNewTurn(FALSE);
+					turn_Get()->EndThisTurnBeginNewTurn(FALSE);
 				}
 				else
 				{
@@ -604,8 +604,8 @@ sint32 victorywin_UpdateData( sint32 type )
 
 	bool disableContinue = (type == k_VICWIN_DEFEAT);
 	if(disableContinue
-	&&(g_turn->IsHotSeat()
-	|| g_turn->IsEmail())
+	&&(turn_Get()->IsHotSeat()
+	|| turn_Get()->IsEmail())
 	){
 		for(sint32 i = 1; i < k_MAX_PLAYERS; i++)
 		{
@@ -641,8 +641,8 @@ sint32 victorywin_UpdateData( sint32 type )
 	{
 		if((player_Get(g_selected_item->GetVisiblePlayer())
 		&& !player_Get(g_selected_item->GetVisiblePlayer())->m_isDead)
-		||  g_turn->IsEmail()
-		||  g_turn->IsHotSeat()
+		||  turn_Get()->IsEmail()
+		||  turn_Get()->IsHotSeat()
 		){
 			s_highScoreWin->m_continueButton->Enable(TRUE);
 		}

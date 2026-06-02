@@ -598,7 +598,7 @@ sint32 infowin_UpdateCivData( void )
 #endif
 		s_foundedBox->SetText(yearStr);
 
-		sint32 turnsOld = g_turn->GetSessionRound() - turnFounded;
+		sint32 turnsOld = turn_Get()->GetSessionRound() - turnFounded;
 		snprintf(strbuf, sizeof(strbuf),"%d",turnsOld);
 		s_turnsBox->SetText(strbuf);
 
@@ -845,7 +845,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 	infoGraph->SetYAxisName("Power");
 
 	double minRound = s_minRound;
-	double curRound = g_turn->GetSessionRound();
+	double curRound = turn_Get()->GetSessionRound();
 	double minPower = 0.0;
 	double maxPower = 10.0;
 
@@ -962,7 +962,7 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 	infoGraph->SetXAxisName(s_stringTable->GetString(6));
 	infoGraph->SetYAxisName("Pollution");
 
-	double curRound = g_turn->GetSessionRound();
+	double curRound = turn_Get()->GetSessionRound();
     double minRound = std::max(0.0, curRound - 20.0);
 	double minPower = 0.0;
 	double maxPower = 10.0;

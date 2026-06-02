@@ -83,7 +83,7 @@ extern Network				g_network;
 
 extern sint32				g_isCheatModeOn;
 extern sint32				g_modalWindow;
-extern TurnCount           *g_turn;
+
 extern BOOL g_launchIntoCheatMode;
 
 OptionsWindow				*g_optionsWindow		= NULL;
@@ -119,7 +119,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 
 	if ( !g_network.IsActive() &&
 		from &&
-		!g_turn->IsHotSeat() && !g_turn->IsEmail())
+		!turn_Get()->IsHotSeat() && !turn_Get()->IsEmail())
 	{
 		if(!g_theProfileDB->IsScenario() && !is_scenario_Get()) {
 			g_optionsWindow->RestartButton()->Enable( TRUE );

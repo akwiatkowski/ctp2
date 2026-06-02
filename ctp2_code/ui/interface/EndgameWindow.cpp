@@ -807,7 +807,7 @@ void EndGameWindow::Update(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
-	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(g_turn->GetRound());
+	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(turn_Get()->GetRound());
 	if(turnsSinceStageBegan > turnsForNextStage) turnsSinceStageBegan = turnsForNextStage;
 
 	m_turnProgress->SetMaxValue(turnsForNextStage);
@@ -837,7 +837,7 @@ void EndGameWindow::UpdateTurn(EndGame *endGame)
 	if((endGame->GetStage() >= 0) && (endGame->GetStage() < endgamedb_Get()->GetNumStages()))
 		turnsForNextStage = endGame->GetTurnsForNextStage();
 	sint32 turnsSinceStageBegan = 0;
-	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(g_turn->GetRound());
+	if(endGame->GetStage() >= 0) turnsSinceStageBegan = endGame->GetTurnsSinceStageBegan(turn_Get()->GetRound());
 	if(turnsSinceStageBegan > turnsForNextStage) turnsSinceStageBegan = turnsForNextStage;
 
 	m_turnProgress->SetMaxValue(turnsForNextStage);

@@ -1724,7 +1724,7 @@ void ScenarioEditor::CivAddRemovePlayer(aui_Control *control, uint32 action, uin
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->Refresh();
 			radar_map_Get()->Update();
-			g_turn->InformMessages();
+			turn_Get()->InformMessages();
 
 		}
 		s_scenarioEditor->UpdatePlayerCount();
@@ -2241,7 +2241,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 		g_tiledMap->InvalidateMap();
 		g_tiledMap->Refresh();
 		radar_map_Get()->Update();
-		g_turn->InformMessages();
+		turn_Get()->InformMessages();
 		MainControlPanel::UpdateCityList();
 	}
 	inCallback = false;

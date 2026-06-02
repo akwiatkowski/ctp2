@@ -50,11 +50,11 @@ bool                 TurnYearStatus::s_useCustomYear          = false;
 
 const MBCHAR *TurnYearStatus::GetCurrentYear()
 {
-	sint32 currentYear = g_turn->GetSessionYear();
+	sint32 currentYear = turn_Get()->GetSessionYear();
 
 	sint32 round       = player_Get(g_selected_item->GetVisiblePlayer()) ?
 	                     player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
-	                     g_turn->GetSessionRound();
+	                     turn_Get()->GetSessionRound();
 
 	return TurnYearStatus::GetYearString(currentYear, round);
 }
@@ -100,7 +100,7 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 
 	if (s_useCustomYear && g_pTurnLengthOverride)
 	{
-		uint32 round = g_turn->GetSessionRound();
+		uint32 round = turn_Get()->GetSessionRound();
 		if (round > s_turnLengthOverrideSize)
 		{
 			round = s_turnLengthOverrideSize;
@@ -127,13 +127,13 @@ const MBCHAR *TurnYearStatus::GetCurrentRound()
 	static MBCHAR buf[1024];
 	sint32 round = player_Get(g_selected_item->GetVisiblePlayer()) ?
 	                   player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
-	                   g_turn->GetSessionRound();
+	                   turn_Get()->GetSessionRound();
 	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
 	return buf;
 #if 0
 
 	std::stringstream roundString;
-	roundString << g_turn->GetSessionRound() << " "
+	roundString << turn_Get()->GetSessionRound() << " "
 		<< g_theStringDB->GetNameStr("str_ldl_Turns")
 		<< std::ends;
 
@@ -225,7 +225,7 @@ void TurnYearStatus::Update()
 		case DISPLAY_YEAR:
 			if (s_useCustomYear && s_pTurnLengthOverride)
 			{
-				uint32 round = g_turn->GetSessionRound();
+				uint32 round = turn_Get()->GetSessionRound();
 				if (round > s_turnLengthOverrideSize)
 				{
 					round = s_turnLengthOverrideSize;

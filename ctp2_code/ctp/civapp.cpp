@@ -170,7 +170,7 @@
 #include "ai/diplomacy/diplomacyutil.h"
 #include "ui/interface/diplomacywindow.h"
 #include "ui/interface/dipwizard.h"
-#include "gfx/spritesys/director.h"                   // g_director
+#include "gfx/spritesys/director.h"                   // director_Get()
 #include "ctp/display.h"
 #include "ui/interface/DomesticManagementDialog.h"
 #include "ui/interface/EditQueue.h"
@@ -1855,7 +1855,7 @@ sint32 CivApp::InitializeGameUI(void)
 sint32 CivApp::InitializeGame(CivArchive *archive)
 {
 	// Headless: g_c3ui is null and every helper below (c3windows_*,
-	// ChatBox, GrabItem, MainControlPanel, g_director->*, scenario UI
+	// ChatBox, GrabItem, MainControlPanel, director_Get()->*, scenario UI
 	// reload, etc.) crashes or no-ops on UI singletons.  Reroute to
 	// the headless path which does only the game-state restore +
 	// minimal subsystem init (AI, gevManager).  Both --new-game and
@@ -2054,7 +2054,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 700 );
 
-	g_director->CatchUp();
+	director_Get()->CatchUp();
 
   gevmanager_Get()->Resume();
   gevmanager_Get()->Process();
@@ -2087,14 +2087,14 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)))
         {
-			if (g_director)
-				g_director->AddCopyVision();
+			if (director_Get())
+				director_Get()->AddCopyVision();
 		}
 	}
 
 	ProgressTo( 730 );
 
-	g_director->ReloadAllSprites();
+	director_Get()->ReloadAllSprites();
 
 	ProgressTo( 740 );
 
@@ -2103,9 +2103,9 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
 			g_selected_item->SetSelectCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0));
-			g_director->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
+			director_Get()->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
 		}
-		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+		director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
 
 		slicengine_Get()->CheckPendingResearch();
 	}
@@ -2133,8 +2133,8 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
             g_selected_item->Refresh();
         }
 
-		if (g_director)
-			g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+		if (director_Get())
+			director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
 	}
 
 	ProgressTo( 770 );
@@ -2371,7 +2371,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	m_gameLoaded = TRUE;
 
-	g_director->CatchUp();
+	director_Get()->CatchUp();
 
 	ProgressTo( 790 );
 
@@ -2395,8 +2395,8 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 				!g_turn->IsEmail()) {
 				g_selected_item->SetPlayerOnScreen(1);
 			}
-			if (g_director)
-				g_director->AddCopyVision();
+			if (director_Get())
+				director_Get()->AddCopyVision();
 		}
     }
 
@@ -2407,9 +2407,9 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
 			g_selected_item->SetSelectCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0));
-			g_director->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
+			director_Get()->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
 		}
-		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+		director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
 
 		slicengine_Get()->CheckPendingResearch();
 	}
@@ -2420,8 +2420,8 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	if(g_selected_item) {
 		g_selected_item->Refresh();
-		if(g_director)
-			g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+		if(director_Get())
+			director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
 	}
 
 	g_oldRandSeed = FALSE;
@@ -2650,7 +2650,7 @@ void CivApp::ProcessGraphicsCallback(void)
 
 	if (!tiledmap_Get())    return;
 	if (!g_background)  return;
-	if (!g_director)    return;
+	if (!director_Get())    return;
 	if (!g_background)  return;
 	if (!g_c3ui)        return;
 
@@ -2662,7 +2662,7 @@ void CivApp::ProcessGraphicsCallback(void)
 
 	if (!g_network.IsActive() || g_network.ReadyToStart())
     {
-		g_director->Process();
+		director_Get()->Process();
     }
 
 	s_inCallback = false;
@@ -2689,10 +2689,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			){
 				if (m_gameLoaded)
 				{
-					if (g_director)
+					if (director_Get())
 					{
-						g_director->GarbageCollectItems();
-						g_director->Process();
+						director_Get()->GarbageCollectItems();
+						director_Get()->Process();
 					}
 				}
 			}
@@ -2764,8 +2764,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 	if (m_gameLoaded && !g_modalWindow && tiledmap_Get()) {
 
-		if (g_director)
-			g_director->Process();
+		if (director_Get())
+			director_Get()->Process();
 	}
 
 	// Smoke test command dispatch
@@ -2792,7 +2792,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			}
 			else if (strcmp(cmd, "end_turn") == 0) {
 				if (m_gameLoaded) {
-					g_director->AddEndTurn();
+					director_Get()->AddEndTurn();
 					smoketest_send_response("ok", cmd, NULL);
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
@@ -3442,8 +3442,8 @@ sint32 CivApp::Process(void)
 		if(p && !p->IsRobot()
 		|| g_selected_item->GetVisiblePlayer() == g_selected_item->GetCurPlayer())
         {
-			if (g_director)
-				g_director->CatchUp();
+			if (director_Get())
+				director_Get()->CatchUp();
 
 			if (g_launchIntoCheatMode)
 				gamesettings_Get()->SetKeepScore(TRUE);

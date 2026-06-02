@@ -118,7 +118,7 @@ template <typename T> T ParseNextNumber(Token & tokenStream)
 
 } // local namespace
 
-ColorSet *	g_colorSet  = &s_theUniqueColorSet;
+static ColorSet *	g_colorSet  = &s_theUniqueColorSet;
 
 ColorSet * colorset_Get(void)         { return g_colorSet; }
 void       colorset_Set(ColorSet *p)  { g_colorSet = p; }

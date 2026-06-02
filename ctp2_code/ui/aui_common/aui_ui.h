@@ -51,8 +51,6 @@
 
 class			aui_UI;
 
-extern class aui_UI *	g_ui;
-
 #define			k_AUI_UI_NOCOLOR	0xff000000
 
 //----------------------------------------------------------------------------
@@ -473,10 +471,9 @@ protected:
 	sint32			m_savedMouseAnimDelay;
 };
 
-// App-singleton accessor pair for the legacy g_ui pointer.  Until the
-// consolidating commit makes g_ui file-static, consumers that haven't
-// migrated still rely on local `extern aui_UI *g_ui;` declarations in
-// their own .cpp files.
+// App-singleton accessor pair for the legacy g_ui pointer.  g_ui is
+// file-static in aui_ui.cpp; external consumers go through these
+// accessors.
 aui_UI * aui_ui_Get(void);
 void     aui_ui_Set(aui_UI *p);
 

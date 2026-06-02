@@ -994,7 +994,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   g_netfunc, g_gamesetup all file-static in their defining TUs;
 //   externs dropped from soundmanager.h and netshell.h.  ~80 consumer
 //   files routed through soundmgr_Get(), netfunc_Get(), gamesetup_Get().
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 4;
+// 2026-06-03: dropped 4 → 2 — globals-finale Wave B.  g_colorSet and
+//   g_ui file-static in their defining TUs; externs dropped from
+//   colorset.h and aui_ui.h.  ~140 consumer files routed through
+//   colorset_Get() and aui_ui_Get().
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 2;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

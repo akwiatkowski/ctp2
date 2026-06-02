@@ -152,7 +152,7 @@ void SlicEyePoint::Serialize(CivArchive &archive)
 		if(l > 0 && l < 1024) {
 			char segname[1024];
 			archive.Load((uint8*)segname, l);
-			m_segment = g_slicEngine->GetSegment(segname);
+			m_segment = slicengine_Get()->GetSegment(segname);
 		} else {
 			m_segment = NULL;
 		}
@@ -224,10 +224,10 @@ void SlicEyePoint::Callback()
 	}
 
 	if(obj) {
-		Message oldMsg = g_slicEngine->GetEyepointMessage();
-		g_slicEngine->SetEyepointMessage(*m_message);
-		g_slicEngine->Execute(obj);
+		Message oldMsg = slicengine_Get()->GetEyepointMessage();
+		slicengine_Get()->SetEyepointMessage(*m_message);
+		slicengine_Get()->Execute(obj);
 
-		g_slicEngine->SetEyepointMessage(oldMsg);
+		slicengine_Get()->SetEyepointMessage(oldMsg);
 	}
 }

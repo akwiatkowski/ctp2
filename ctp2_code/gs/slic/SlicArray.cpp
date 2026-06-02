@@ -147,7 +147,7 @@ void SlicArray::Serialize(CivArchive &archive)
 
 		if(m_varType == SLIC_SYM_STRUCT) {
 			SLIC_BUILTIN structType = (SLIC_BUILTIN)archive.GetUINT8();
-			m_structTemplate = g_slicEngine->GetStructDescription(structType);
+			m_structTemplate = slicengine_Get()->GetStructDescription(structType);
 		} else {
 			m_structTemplate = NULL;
 		}
@@ -175,12 +175,12 @@ BOOL SlicArray::Lookup(sint32 index, SS_TYPE &type, SlicStackValue &value)
 	type = m_type;
 
 	if(index < 0 || index >= m_arraySize) {
-		if(g_slicEngine->GetContext() && g_slicEngine->GetContext()->GetSegment() &&
-			g_slicEngine->GetContext()->GetFrame()) {
+		if(slicengine_Get()->GetContext() && slicengine_Get()->GetContext()->GetSegment() &&
+			slicengine_Get()->GetContext()->GetFrame()) {
 			if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
 				c3errors_ErrorDialog("SLIC", "%s:%d: Array index %d out of bounds",
-									 g_slicEngine->GetContext()->GetSegment()->GetFilename(),
-									 g_slicEngine->GetContext()->GetFrame()->GetCurrentLine(),
+									 slicengine_Get()->GetContext()->GetSegment()->GetFilename(),
+									 slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine(),
 									 index);
 			}
 		} else {
@@ -219,7 +219,7 @@ BOOL SlicArray::Insert(sint32 untestedIndex, SS_TYPE type, SlicStackValue value)
 
 			SlicSymbolData *sym;
 			if(type == SS_TYPE_VAR)
-				sym = g_slicEngine->GetSymbol(value.m_int);
+				sym = slicengine_Get()->GetSymbol(value.m_int);
 			else
 				sym = value.m_sym;
 

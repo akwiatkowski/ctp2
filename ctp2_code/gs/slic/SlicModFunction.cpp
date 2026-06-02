@@ -7,7 +7,7 @@ SlicModFunc::SlicModFunc(const MBCHAR *name, ...)
 {
 	m_numArgs = 0;
 
-	m_segment = g_slicEngine->GetSegment(name);
+	m_segment = slicengine_Get()->GetSegment(name);
 	if(!m_segment) return;
 
 	va_list vl;

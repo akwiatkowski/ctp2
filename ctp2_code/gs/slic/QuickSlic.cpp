@@ -10,12 +10,12 @@
 
 void QuickSlic(char const * id, sint32 recipient)
 {
-    if (g_slicEngine->GetSegment(id) &&
-        !g_slicEngine->GetSegment(id)->HasBeenShown(recipient)
+    if (slicengine_Get()->GetSegment(id) &&
+        !slicengine_Get()->GetSegment(id)->HasBeenShown(recipient)
        )
     {
         SlicObject * so = new SlicObject(id);
         so->AddRecipient(recipient);
-        g_slicEngine->Execute(so);
+        slicengine_Get()->Execute(so);
     }
 }

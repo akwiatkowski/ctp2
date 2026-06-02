@@ -83,7 +83,7 @@ sint32 SlicStack::Pop(SS_TYPE &type, SlicStackValue &value)
 SlicSymbolData *SlicStack::GetSymbol(SS_TYPE symType, SlicStackValue symVal)
 {
 	if(symType == SS_TYPE_VAR) {
-		return g_slicEngine->GetSymbol(symVal.m_int);
+		return slicengine_Get()->GetSymbol(symVal.m_int);
 	} else if(symType == SS_TYPE_SYM) {
 		return symVal.m_sym;
 	} else {
@@ -114,8 +114,8 @@ sint32 SlicStack::Eval(SS_TYPE type, SlicStackValue value)
 		){
 			c3errors_ErrorDialog("Slic", "%s: is not an integer.\nLine: %i\nFile: %s",
 				                 sym->GetName(),
-								 g_slicEngine->GetCurrentLine(),
-								 g_slicEngine->GetFileName());
+								 slicengine_Get()->GetCurrentLine(),
+								 slicengine_Get()->GetFileName());
 		}
 	}
 

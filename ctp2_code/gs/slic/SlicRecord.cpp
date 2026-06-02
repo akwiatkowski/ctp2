@@ -94,7 +94,7 @@ void SlicRecord::Serialize(CivArchive &archive)
 		archive >> l;
 		char segmentName[k_MAX_SLIC_STRING];
 		archive.Load((uint8*)segmentName, l);
-		m_segment = g_slicEngine->GetSegment(segmentName);
+		m_segment = slicengine_Get()->GetSegment(segmentName);
 	}
 }
 

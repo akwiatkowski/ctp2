@@ -14,7 +14,7 @@ void slicconst_Initialize()
 {
 	sint32 i;
 	for(i = 0; i < SLIC_CONST_MAX; i++) {
-		g_slicEngine->AddConst(slic_const_test_names[i], i);
+		slicengine_Get()->AddConst(slic_const_test_names[i], i);
 	}
 
 	DiplomatTypes::InitializeSlicConsts();

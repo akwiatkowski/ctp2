@@ -60,7 +60,7 @@ void SlicSymTab::Serialize(CivArchive &archive)
 				StringHash<SlicNamedSymbol>::Add(m_array[i]);
 
 				if(m_array[i]->IsBuiltin()) {
-					g_slicEngine->AddBuiltinSymbol((SlicBuiltinNamedSymbol *)m_array[i]);
+					slicengine_Get()->AddBuiltinSymbol((SlicBuiltinNamedSymbol *)m_array[i]);
 				}
 			} else {
 				m_array[i] = NULL;
@@ -132,7 +132,7 @@ void SlicSymTab::Add(sint32 index)
 
 	switch(newSym->GetType()) {
 		case SLIC_SYM_FUNC:
-			newSym->SetFunction(g_slicEngine->GetFunction(newSym->GetName()));
+			newSym->SetFunction(slicengine_Get()->GetFunction(newSym->GetName()));
 			newSym->DelName();
 			break;
 		case SLIC_SYM_IVAR:

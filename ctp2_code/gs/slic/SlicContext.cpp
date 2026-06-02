@@ -119,7 +119,7 @@ namespace
 // Parameters : builtin     : the builtin type
 //              new_size    : the size to prune to
 //
-// Globals    : g_slicEngine
+// Globals    : slicengine_Get()
 //
 // Returns    : SlicArray   : the array for the builtin, after pruning
 //
@@ -129,7 +129,7 @@ namespace
     SlicArray * ResizedArray(SLIC_BUILTIN builtin, sint32 new_size)
     {
         SlicArray * array   =
-            g_slicEngine->GetBuiltinSymbol(builtin)->GetArray();
+            slicengine_Get()->GetBuiltinSymbol(builtin)->GetArray();
         array->Prune(new_size);
         return array;
     }
@@ -1609,7 +1609,7 @@ void SlicContext::CopyFromBuiltins()
 {
 	sint32 i, b;
 	for(b = 0; b < SLIC_BUILTIN_MAX; b++) {
-		SlicSymbolData const * sym = g_slicEngine->GetBuiltinSymbol((SLIC_BUILTIN)b);
+		SlicSymbolData const * sym = slicengine_Get()->GetBuiltinSymbol((SLIC_BUILTIN)b);
 		if(!sym) continue;
 
 		if(sym->GetType() != SLIC_SYM_ARRAY) continue;

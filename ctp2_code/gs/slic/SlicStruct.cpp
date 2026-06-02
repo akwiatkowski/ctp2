@@ -438,7 +438,7 @@ void SlicStructInstance::Serialize(CivArchive &archive)
 		}
 		archive << m_dataSymbolIndex;
 	} else {
-		m_description = g_slicEngine->GetStructDescription((SLIC_BUILTIN)archive.GetUINT8());
+		m_description = slicengine_Get()->GetStructDescription((SLIC_BUILTIN)archive.GetUINT8());
 		m_validIndexCount	=
 			m_description->GetNumMembers() + m_description->GetNumAccessors();
 		m_members			= new SlicStructMemberData *[m_validIndexCount];
@@ -552,7 +552,7 @@ SlicSymbolData *SlicStructInstance::GetDataSymbol()
 {
 	if (!m_dataSymbol && (m_dataSymbolIndex >= 0))
     {
-		m_dataSymbol        = g_slicEngine->GetSymbol(m_dataSymbolIndex);
+		m_dataSymbol        = slicengine_Get()->GetSymbol(m_dataSymbolIndex);
 		m_dataSymbolIndex   = INDEX_INVALID;
 	}
 

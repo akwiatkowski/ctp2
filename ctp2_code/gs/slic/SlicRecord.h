@@ -33,7 +33,7 @@ public:
 
 	// JSON bridge — mirrors SlicRecord::Serialize.  Persists owner +
 	// title + text strings + the segment's name (resolved via
-	// g_slicEngine on load).  Implementation in json_save.cpp.
+	// slicengine_Get() on load).  Implementation in json_save.cpp.
 	friend void to_json(nlohmann::json &j, SlicRecord const &r);
 	friend void from_json(nlohmann::json const &j, SlicRecord &r);
 };

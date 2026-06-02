@@ -535,7 +535,7 @@ void sliccmd_add_watch(SlicSymbolWatchCallback *watch)
 
 SlicSymbolData *sliccmd_get_symbol(char *name)
 {
-	SlicSymbolData *sym = g_slicEngine->GetSymbol(name);
+	SlicSymbolData *sym = slicengine_Get()->GetSymbol(name);
 	if(sym) {
 		sliccmd_add_symbol_used(sym);
 	}

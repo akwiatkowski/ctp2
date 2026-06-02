@@ -43,7 +43,7 @@
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/SpriteGroupList.h"
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/spritesys/Anim.h"
 
 #include "gfx/spritesys/ActorPath.h"
@@ -273,18 +273,18 @@ Anim *GoodActor::CreateAnim(GOODACTION action) {
 
 void GoodActor::DrawSelectionBrackets(void) {
 
-  TileSet		*tileSet = g_tiledMap->GetTileSet();
+  TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 
   RECT		rect;
   SetRect(&rect, 0, 0, 1, 1);
 
 
-  OffsetRect(&rect, m_x + (sint32)(k_TILE_PIXEL_WIDTH * g_tiledMap->GetScale()) / 2,
-    m_y + (sint32)(k_TILE_GRID_HEIGHT * g_tiledMap->GetScale()) / 2);
+  OffsetRect(&rect, m_x + (sint32)(k_TILE_PIXEL_WIDTH * tiledmap_Get()->GetScale()) / 2,
+    m_y + (sint32)(k_TILE_GRID_HEIGHT * tiledmap_Get()->GetScale()) / 2);
 
   InflateRect(&rect, 25, 25);
 
-  g_tiledMap->AddDirtyRectToMix(rect);
+  tiledmap_Get()->AddDirtyRectToMix(rect);
 
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_BRACKET1);
 
@@ -300,17 +300,17 @@ void GoodActor::DrawSelectionBrackets(void) {
   Pixel16 * botLeft = tileSet->GetMapIconData(MAPICON_BRACKET4);
   Assert(botLeft); if (!botLeft) return;
 
-  g_tiledMap->DrawColorizedOverlayIntoMix(topLeft, rect.left, rect.top);
-  g_tiledMap->DrawColorizedOverlayIntoMix(topRight, rect.right, rect.top);
-  g_tiledMap->DrawColorizedOverlayIntoMix(botRight, rect.right, rect.bottom);
-  g_tiledMap->DrawColorizedOverlayIntoMix(botLeft, rect.left, rect.bottom);
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(topLeft, rect.left, rect.top);
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(topRight, rect.right, rect.top);
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(botRight, rect.right, rect.bottom);
+  tiledmap_Get()->DrawColorizedOverlayIntoMix(botLeft, rect.left, rect.bottom);
 }
 
 bool GoodActor::Draw(bool fogged) {
   uint16			flags = k_DRAWFLAGS_NORMAL;
   Pixel16			color = 0x0000;
-  sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-  sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+  sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+  sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
 
 
@@ -342,7 +342,7 @@ bool GoodActor::Draw(bool fogged) {
     flags |= k_BIT_DRAWFLAGS_FOGGED;
 
   m_goodSpriteGroup->Draw(m_curGoodAction, m_frame, m_x + xoffset, m_y + yoffset, m_facing,
-    g_tiledMap->GetScale(), m_transparency, color, flags);
+    tiledmap_Get()->GetScale(), m_transparency, color, flags);
 
   if (g_selected_item->GetState() == SELECT_TYPE_GOOD) {
     if (m_pos == g_selected_item->GetCurSelectPos()) {
@@ -402,7 +402,7 @@ void GoodActor::GetBoundingRect(RECT *rect) const {
   if (!m_goodSpriteGroup || !rect) return;
 
   POINT	hotPoint = m_goodSpriteGroup->GetHotPoint(m_curGoodAction);
-  double	scale = g_tiledMap->GetScale();
+  double	scale = tiledmap_Get()->GetScale();
   sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
     yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 

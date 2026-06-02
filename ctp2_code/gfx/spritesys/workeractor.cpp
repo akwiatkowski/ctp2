@@ -12,7 +12,7 @@
 #include "gfx/spritesys/SpriteState.h"
 #include "gfx/spritesys/Actor.h"
 #include "gfx/spritesys/SpriteGroupList.h"
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/spritesys/Anim.h"
 
 #include "gfx/spritesys/ActorPath.h"

@@ -46,7 +46,6 @@
 #include "gs/fileio/Token.h"
 
 extern ScreenManager *g_screenManager;
-extern TiledMap		*g_tiledMap;
 
 
 FacedSprite::FacedSprite()
@@ -181,7 +180,7 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 //              outlineColor    :
 //              flags
 //
-// Globals    : g_tiledMap
+// Globals    : tiledmap_Get()
 //
 // Returns    : -
 //
@@ -195,7 +194,7 @@ void FacedSprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, 
 
     bool const      isReversed  = facing >= k_NUM_FACINGS;
     size_t          facingIndex = isReversed ? k_MAX_FACINGS - facing : facing;
-    Pixel16 *       frame       = (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST))
+    Pixel16 *       frame       = (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST))
                                   ? m_miniframes[facingIndex][m_currentFrame]
                                   : m_frames[facingIndex][m_currentFrame];
 
@@ -215,7 +214,7 @@ void FacedSprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, 
 	    drawY -= (sint32)((double)m_hotPoints[facingIndex].y * scale);
 	}
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST))
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST))
     {
 		if (isReversed)
         {
@@ -226,7 +225,7 @@ void FacedSprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, 
 			(this->*_DrawLow)(frame, drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
         }
 	}
-    else if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST))
+    else if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST))
     {
 		if (isReversed)
         {
@@ -260,13 +259,13 @@ BOOL FacedSprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 faci
 	}
 
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			return HitTestLow(mousePt, (Pixel16 *)m_frames[facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		} else
 			return HitTestLowReversed(mousePt, (Pixel16 *)m_frames[k_MAX_FACINGS - facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5)
 				return HitTestLow(mousePt, (Pixel16 *)m_miniframes[facing][m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			else
@@ -393,7 +392,7 @@ void FacedSprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint
 		return;
 	}
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST))
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST))
 	{
 		if (facing < 5) {
 			(this->*_DrawLow)((Pixel16 *)m_frames[facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
@@ -402,7 +401,7 @@ void FacedSprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint
 			(this->*_DrawLowReversed)((Pixel16 *)m_frames[k_MAX_FACINGS - facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				(this->*_DrawLow)((Pixel16 *)m_miniframes[facing][m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);
 			} else {
@@ -448,7 +447,7 @@ void FacedSprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
 	if (drawX > g_screenManager->GetSurfWidth() - (m_width*scale) || drawX < 0) return;
 	if (drawY > g_screenManager->GetSurfHeight() - (m_height*scale) || drawY < 0) return;
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 4 && facing > 0)
 		{
 			(this->*_DrawLow)((Pixel16 *)m_frames[facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
@@ -463,7 +462,7 @@ void FacedSprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
 			(this->*_DrawLowReversed)((Pixel16 *)m_frames[k_MAX_FACINGS - facing][m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 4 && facing > 0)
 			{
 				(this->*_DrawLow)((Pixel16 *)m_miniframes[facing][m_currentFrame], drawX, drawY, m_width>>1, m_height>>1, transparency, outlineColor, flags);

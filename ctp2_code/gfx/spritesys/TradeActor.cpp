@@ -266,7 +266,7 @@ void TradeActor::Draw(const Vision *tileLocalVision)
 	if(tileLocalVision->IsExplored(m_currentPos))
 	{
 		POINT	hotPoint = m_goodSpriteGroup->GetHotPoint(m_curGoodAction);
-		double	scale = g_tiledMap->GetScale();
+		double	scale = tiledmap_Get()->GetScale();
 		sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
 				yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 
@@ -274,7 +274,7 @@ void TradeActor::Draw(const Vision *tileLocalVision)
 		yoff = k_ACTOR_CENTER_OFFSET_Y;
 
 		m_goodSpriteGroup->Draw(m_curGoodAction, m_frame, m_x+xoff, m_y+yoff, m_facing,
-									g_tiledMap->GetScale(), m_transparency, color, flags);
+									tiledmap_Get()->GetScale(), m_transparency, color, flags);
 	}
 }
 
@@ -325,7 +325,7 @@ void TradeActor::GetBoundingRect(RECT *rect)
 	if (rect == NULL) return;
 
 	POINT	hotPoint = m_goodSpriteGroup->GetHotPoint(m_curGoodAction);
-	double	scale = g_tiledMap->GetScale();
+	double	scale = tiledmap_Get()->GetScale();
 	sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
 			yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 

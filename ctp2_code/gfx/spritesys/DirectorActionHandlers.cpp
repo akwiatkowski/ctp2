@@ -38,7 +38,7 @@
 #include "gfx/spritesys/UnitActor.h"
 #include "gfx/spritesys/spriteutils.h"
 #include "gfx/tilesys/maputils.h"
-#include "gfx/tilesys/tiledmap.h"  // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"  // tiledmap_Get()
 
 #include "gs/database/profileDB.h"       // g_theProfileDB
 #include "gs/events/GameEventManager.h"  // gevmanager_Get()
@@ -123,12 +123,12 @@ void dh_move(DQAction* itemAction,
     g_director->ActiveUnitAdd(theActor);
 
     if (g_selected_item->GetVisiblePlayer() != theActor->GetPlayerNum() &&
-        !g_tiledMap->TileIsVisible(theActor->GetPos().x,
+        !tiledmap_Get()->TileIsVisible(theActor->GetPos().x,
                                    theActor->GetPos().y)) {
       radar_map_Get()->CenterMap(theActor->GetPos());
-      g_tiledMap->Refresh();
-      g_tiledMap->InvalidateMap();
-      g_tiledMap->InvalidateMix();
+      tiledmap_Get()->Refresh();
+      tiledmap_Get()->InvalidateMap();
+      tiledmap_Get()->InvalidateMix();
       background_draw_handler(g_background);
     }
   } else {
@@ -744,8 +744,8 @@ void dh_removeVision(DQAction* itemAction,
   if (!action)
     return;
 
-  if (g_tiledMap)
-    g_tiledMap->RemoveVisible(action->vision_pos, action->vision_range);
+  if (tiledmap_Get())
+    tiledmap_Get()->RemoveVisible(action->vision_pos, action->vision_range);
 
   g_director->ActionFinished(seq);
 }
@@ -762,7 +762,7 @@ void dh_addVision(DQAction* itemAction,
   if (!action)
     return;
 
-  g_tiledMap->AddVisible(action->vision_pos, action->vision_range);
+  tiledmap_Get()->AddVisible(action->vision_pos, action->vision_range);
 
   g_director->ActionFinished(seq);
 }
@@ -856,7 +856,7 @@ void dh_copyVision(DQAction* itemAction,
 
   //	DQActionCopyVision	*action = (DQActionCopyVision *)itemAction;
 
-  g_tiledMap->CopyVision();
+  tiledmap_Get()->CopyVision();
   radar_map_Get()->Update();
   g_director->ActionFinished(seq);
 }
@@ -872,9 +872,9 @@ void dh_centerMap(DQAction* itemAction,
   if (!g_selected_item->GetIsPathing()) {
     radar_map_Get()->CenterMap(action->centerMap_pos);
 
-    g_tiledMap->Refresh();
-    g_tiledMap->InvalidateMap();
-    g_tiledMap->InvalidateMix();
+    tiledmap_Get()->Refresh();
+    tiledmap_Get()->InvalidateMap();
+    tiledmap_Get()->InvalidateMix();
 
     background_draw_handler(g_background);
   }
@@ -1221,7 +1221,7 @@ void dh_speceffect(DQAction* itemAction,
   sint32 soundID = action->speceffect_soundID;
   sint32 spriteID = action->speceffect_spriteID;
 
-  if (!g_tiledMap->GetLocalVision()->IsVisible(pos)) {
+  if (!tiledmap_Get()->GetLocalVision()->IsVisible(pos)) {
     g_director->ActionFinished(seq);
     return;
   }

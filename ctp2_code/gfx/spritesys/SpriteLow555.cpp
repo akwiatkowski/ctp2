@@ -38,7 +38,6 @@
 #include "gfx/tilesys/tiledmap.h"
 
 extern sint32		g_is565Format;
-extern TiledMap		*g_tiledMap;
 
 
 void Sprite::DrawLowClipped555(Pixel16 *frame, sint32 drawX, sint32 drawY, sint32 width, sint32 height,

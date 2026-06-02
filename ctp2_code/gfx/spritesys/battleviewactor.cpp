@@ -40,7 +40,7 @@
 #include "sound/soundmanager.h"       // g_soundManager
 #include "gfx/spritesys/SpriteGroupList.h"
 #include "gfx/spritesys/SpriteState.h"
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 
 extern SpriteGroupList *        g_unitSpriteGroupList;
 
@@ -287,12 +287,12 @@ void BattleViewActor::Draw(BOOL fogged)
 	{
 
 		m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x+k_ACTOR_CENTER_OFFSET_X, m_y+k_ACTOR_CENTER_OFFSET_Y, m_facing,
-			g_tiledMap->GetScale(), m_transparency, color, flags, FALSE, directionAttack);
+			tiledmap_Get()->GetScale(), m_transparency, color, flags, FALSE, directionAttack);
 	}
 	else
 	{
 		m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x+k_ACTOR_CENTER_OFFSET_X, m_y+k_ACTOR_CENTER_OFFSET_Y, m_facing,
-			g_tiledMap->GetScale(), m_transparency, color, flags, m_curAction->SpecialDelayProcess(), directionAttack);
+			tiledmap_Get()->GetScale(), m_transparency, color, flags, m_curAction->SpecialDelayProcess(), directionAttack);
 	}
 }
 
@@ -307,8 +307,8 @@ void BattleViewActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y)
 	}
 
 	if (m_isFortified) {
-		Pixel16			*fortifiedImage = g_tiledMap->GetTileSet()->GetImprovementData(34);
-		g_tiledMap->DrawOverlay(surf, fortifiedImage, x + k_ACTOR_CENTER_OFFSET_X-48,  y+k_ACTOR_CENTER_OFFSET_Y-48);
+		Pixel16			*fortifiedImage = tiledmap_Get()->GetTileSet()->GetImprovementData(34);
+		tiledmap_Get()->DrawOverlay(surf, fortifiedImage, x + k_ACTOR_CENTER_OFFSET_X-48,  y+k_ACTOR_CENTER_OFFSET_Y-48);
 	}
 
 	m_unitSpriteGroup->DrawDirect(surf, m_curUnitAction, m_frame, x+k_ACTOR_CENTER_OFFSET_X, y+k_ACTOR_CENTER_OFFSET_Y, m_facing,
@@ -351,7 +351,7 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	double		ratio = m_hitPoints / m_hitPointsMax;
 	Pixel16		color = g_colorSet->GetPlayerColor(m_playerNum);
 	MAPICON		icon = MAPICON_HERALD;
-	TileSet		*tileSet = g_tiledMap->GetTileSet();
+	TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 	sint32		surfWidth = surf->Width();
 	sint32		surfHeight = surf->Height();
 
@@ -376,7 +376,7 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 		} else {
 
 			top = m_y;
-			middle = m_x + (sint32)((k_TILE_PIXEL_WIDTH) * g_tiledMap->GetScale())/2;
+			middle = m_x + (sint32)((k_TILE_PIXEL_WIDTH) * tiledmap_Get()->GetScale())/2;
 			OffsetRect(&iconRect, middle - iconDim.x / 2, top - iconDim.y);
 		}
 	}
@@ -386,7 +386,7 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	if (iconRect.top < 0) return;
 	if (iconRect.bottom >= surfHeight) return;
 
-	g_tiledMap->DrawColorizedOverlay(tileSet->GetMapIconData(icon), surf, iconRect.left, iconRect.top, color);
+	tiledmap_Get()->DrawColorizedOverlay(tileSet->GetMapIconData(icon), surf, iconRect.left, iconRect.top, color);
 
 	iconRect.bottom = iconRect.top;
 	iconRect.top = iconRect.bottom - 4;
@@ -480,7 +480,7 @@ void BattleViewActor::GetBoundingRect(RECT *rect) const
 	if (rect == NULL) return;
 
 	POINT	hotPoint = m_unitSpriteGroup->GetHotPoint(m_curUnitAction, m_facing);
-	double	scale = g_tiledMap->GetScale();
+	double	scale = tiledmap_Get()->GetScale();
 
 	sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
 			yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);

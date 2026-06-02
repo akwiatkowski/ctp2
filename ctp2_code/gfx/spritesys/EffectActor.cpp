@@ -50,7 +50,6 @@
 #define k_doInvisible FALSE
 
 extern SpriteGroupList	*g_effectSpriteGroupList;
-extern TiledMap			*g_tiledMap;
 extern Director			*g_director;
 
 EffectActor::EffectActor(SpriteStatePtr ss, const MapPoint & pos):
@@ -292,12 +291,12 @@ void EffectActor::Draw(void)
 {
 	uint16			flags   = k_DRAWFLAGS_NORMAL;;
 	Pixel16			color   = 0x0000;
-	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
 	m_effectSpriteGroup->Draw(m_curEffectAction, m_frame, m_x+xoffset, m_y+yoffset,
 								m_shX+xoffset, m_shY+yoffset, m_facing,
-								g_tiledMap->GetScale(), m_transparency, color, flags,
+								tiledmap_Get()->GetScale(), m_transparency, color, flags,
 								m_curAction->SpecialDelayProcess());
 }
 
@@ -305,8 +304,8 @@ void EffectActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y)
 {
 	uint16			flags   = k_DRAWFLAGS_NORMAL;
 	Pixel16			color   = 0;
-	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
 	if (m_transparency < 15) {
 		flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
@@ -319,14 +318,14 @@ void EffectActor::DrawDirect(aui_Surface *surf, sint32 x, sint32 y)
 
 	m_effectSpriteGroup->DrawDirect(surf, m_curEffectAction, m_frame, m_x+xoffset, m_y+yoffset,
 								m_shX+xoffset, m_shY+yoffset, m_facing,
-								g_tiledMap->GetScale(), m_transparency, color, flags, specialDelayProcess);
+								tiledmap_Get()->GetScale(), m_transparency, color, flags, specialDelayProcess);
 }
 
 void EffectActor::DrawDirectWithFlags(aui_Surface *surf, sint32 x, sint32 y, uint16 flags)
 {
 	Pixel16			color=0;
-	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * g_tiledMap->GetScale());
-	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * g_tiledMap->GetScale());
+	sint32			xoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+	sint32			yoffset = (sint32)((double)k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
 	if (m_transparency < 15) {
 		flags |= k_BIT_DRAWFLAGS_TRANSPARENCY;
@@ -339,7 +338,7 @@ void EffectActor::DrawDirectWithFlags(aui_Surface *surf, sint32 x, sint32 y, uin
 
 	m_effectSpriteGroup->DrawDirect(surf, m_curEffectAction, m_frame, m_x+xoffset, m_y+yoffset,
 								m_shX+xoffset, m_shY+yoffset, m_facing,
-								g_tiledMap->GetScale(), m_transparency, color, flags, specialDelayProcess);
+								tiledmap_Get()->GetScale(), m_transparency, color, flags, specialDelayProcess);
 }
 
 void EffectActor::DrawText(sint32 x, sint32 y, MBCHAR *effectText)
@@ -383,7 +382,7 @@ void EffectActor::GetBoundingRect(RECT *rect) const
 	if (!rect) return;
 
 	POINT	hotPoint = m_effectSpriteGroup->GetHotPoint(m_curEffectAction, m_facing);
-	double	scale = g_tiledMap->GetScale();
+	double	scale = tiledmap_Get()->GetScale();
 	sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
 			yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 

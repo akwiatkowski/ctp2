@@ -67,7 +67,7 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 	if(a->IsStealth()
 		&& !a->IsVisible(g_selected_item->GetPlayerOnScreen())) return GEV_HD_Continue;
 
-//	BOOL theTileIsVisible = g_tiledMap->TileIsCompletelyVisible(to.x, to.y);
+//	BOOL theTileIsVisible = tiledmap_Get()->TileIsCompletelyVisible(to.x, to.y);
 
 	if (g_selected_item->GetPlayerOnScreen() != -1 &&
 		g_selected_item->GetPlayerOnScreen() != g_selected_item->GetVisiblePlayer() &&

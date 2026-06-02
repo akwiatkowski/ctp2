@@ -51,7 +51,6 @@
 #include "gs/fileio/Token.h"
 
 extern ScreenManager *g_screenManager;
-extern TiledMap		*g_tiledMap;
 
 
 Sprite::Sprite()
@@ -427,7 +426,7 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 
 	drawY -= (sint32)((double)m_hotPoint.y * scale);
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
 				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
@@ -442,7 +441,7 @@ void Sprite::Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint1
 			}
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
 					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
@@ -524,14 +523,14 @@ BOOL Sprite::HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, d
 
 	drawY -= (sint32)((double)m_hotPoint.y * scale);
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			return HitTestLow(mousePt, m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
 		} else {
 			return HitTestLowReversed(mousePt, m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				return HitTestLow(mousePt, m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
 			} else {
@@ -586,7 +585,7 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 		return;
 	}
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 5) {
 			if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
 				(this->*_DrawFlashLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
@@ -601,7 +600,7 @@ void Sprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 fa
 			}
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 5) {
 				if (flags & k_BIT_DRAWFLAGS_ADDITIVE) {
 					(this->*_DrawFlashLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);
@@ -665,7 +664,7 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 	if (drawX > m_surfWidth - (m_width*scale) || drawX < 0) return;
 	if (drawY > m_surfHeight - (m_height*scale) || drawY < 0) return;
 
-	if (scale == g_tiledMap->GetZoomScale(k_ZOOM_LARGEST)) {
+	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 4 && facing > 0)
 		{
 			(this->*_DrawLow)(m_frames[m_currentFrame], drawX, drawY,  m_width, m_height,transparency, outlineColor, flags);
@@ -679,7 +678,7 @@ void Sprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing, double s
 			(this->*_DrawLowReversed)(m_frames[m_currentFrame], drawX, drawY, m_width, m_height, transparency, outlineColor, flags);
 		}
 	} else {
-		if (scale == g_tiledMap->GetZoomScale(k_ZOOM_SMALLEST)) {
+		if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_SMALLEST)) {
 			if (facing < 4 && facing > 0)
 			{
 				(this->*_DrawLow)(m_miniframes[m_currentFrame], drawX, drawY,  m_width>>1, m_height>>1,transparency, outlineColor, flags);

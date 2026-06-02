@@ -58,7 +58,7 @@
 #include "gfx/spritesys/TradeActor.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gfx/tilesys/maputils.h"
-#include "gfx/tilesys/tiledmap.h"  // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"  // tiledmap_Get()
 #include "gfx/tilesys/tileutils.h"
 #include "gs/database/profileDB.h"  // g_theProfileDB
 #include "gs/events/GameEventManager.h"
@@ -239,8 +239,8 @@ void Director::Process(void) {
     ProcessActiveEffects();
 
     ProcessTradeRouteAnimations();
-    if (g_tiledMap)
-      g_tiledMap->ProcessLayerSprites(g_tiledMap->GetMapViewRect(), 0);
+    if (tiledmap_Get())
+      tiledmap_Get()->ProcessLayerSprites(tiledmap_Get()->GetMapViewRect(), 0);
 
     nextTime = GetTickCount() + 75;
   }
@@ -892,7 +892,7 @@ bool Director::TileIsVisibleToPlayer(MapPoint& pos) {
     return false;
 #endif
 
-  return g_tiledMap && g_tiledMap->GetLocalVision()->IsVisible(pos);
+  return tiledmap_Get() && tiledmap_Get()->GetLocalVision()->IsVisible(pos);
 }
 
 void Director::ActiveUnitAdd(UnitActorPtr unitActor) {
@@ -1129,8 +1129,8 @@ void Director::NextPlayer(BOOL forcedUpdate) {
   }
 
   if (!g_network.IsActive()) {
-    if (g_tiledMap)
-      g_tiledMap->NextPlayer();
+    if (tiledmap_Get())
+      tiledmap_Get()->NextPlayer();
 
     KillAllActiveEffects();
 
@@ -1151,7 +1151,7 @@ void Director::DrawActiveUnits(RECT* paintRect, sint32 layer) {
     if (maputils_TilePointInTileRect(tileX, pos.y, paintRect)) {
       if (uActor->GetUnitVisibility() &
           (1 << g_selected_item->GetVisiblePlayer())) {
-        g_tiledMap->PaintUnitActor(uActor);
+        tiledmap_Get()->PaintUnitActor(uActor);
       }
     }
   }
@@ -1180,7 +1180,7 @@ void Director::DrawActiveEffects(RECT* paintRect, sint32 layer) {
       continue;
 
     if (actor->GetCurAction())
-      g_tiledMap->PaintEffectActor(actor);
+      tiledmap_Get()->PaintEffectActor(actor);
   }
 }
 
@@ -1197,11 +1197,11 @@ void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
     if (!maputils_TilePointInTileRect(tileX, pos.y, paintRect))
       continue;
 
-    tActor->Draw(g_tiledMap->GetLocalVision());
+    tActor->Draw(tiledmap_Get()->GetLocalVision());
 
     RECT tempRect;
     tActor->GetBoundingRect(&tempRect);
-    g_tiledMap->AddDirtyRectToMix(tempRect);
+    tiledmap_Get()->AddDirtyRectToMix(tempRect);
   }
 }
 
@@ -1211,7 +1211,7 @@ UnitActorPtr Director::GetClickedActiveUnit(aui_MouseEvent* data) {
   for (UnitActorPtr& actor : m_activeUnitList) {
     actor->Process();
     MapPoint pos = actor->GetPos();
-    if (g_tiledMap->TileIsVisible(pos.x, pos.y)) {
+    if (tiledmap_Get()->TileIsVisible(pos.x, pos.y)) {
       RECT actorRect;
 
       SetRect(&actorRect, actor->GetX(), actor->GetY(),
@@ -1894,7 +1894,7 @@ void Director::AddBeginScheduler(sint32 player) {
 }
 
 BOOL Director::TileWillBeCompletelyVisible(sint32 x, sint32 y) {
-  RECT tempViewRect = *g_tiledMap->GetMapViewRect();
+  RECT tempViewRect = *tiledmap_Get()->GetMapViewRect();
 
   for (DQItemPtr item : m_itemQueue) {
     if (item->m_type == DQITEM_CENTERMAP) {
@@ -1906,7 +1906,7 @@ BOOL Director::TileWillBeCompletelyVisible(sint32 x, sint32 y) {
     }
   }
 
-  return g_tiledMap->TileIsCompletelyVisible(x, y, &tempViewRect);
+  return tiledmap_Get()->TileIsCompletelyVisible(x, y, &tempViewRect);
 }
 
 void Director::IncrementPendingGameActions() {

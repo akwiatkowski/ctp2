@@ -1277,7 +1277,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				so->AddCity(src);
 				so->AddCity(dest);
 				so->AddGood(m_data3);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			break;
 		}
@@ -1401,7 +1401,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				so->AddCivilisation(m_data);
 				so->AddWonder(m_data2);
 				so->AddRecipient(g_network.GetPlayerIndex());
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			break;
 		}
@@ -1413,7 +1413,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			so->AddRecipient(g_network.GetPlayerIndex());
 			so->AddAdvance(m_data);
 			so->AddWonder(m_data2);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_BEGIN_TURN_ENEMY_UNITS:
@@ -1435,7 +1435,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				so->AddWonder(m_data2);
 				so->AddCivilisation(m_data);
 				so->AddCity(Unit(m_data3));
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			break;
 		}
@@ -1446,7 +1446,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			so->AddCivilisation(m_data);
 			so->AddWonder(m_data2);
 			so->AddAllRecipientsBut(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_ALL_PLAYERS_READY:
@@ -1473,7 +1473,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				so->AddCivilisation(m_data);
 				so->AddCivilisation(m_data2);
 				so->AddCity(city);
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 
 				if (m_data4) {
 					so = new SlicObject("011CityJoinedYourCiv");
@@ -1481,7 +1481,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					so->AddCivilisation(m_data);
 					so->AddCivilisation(m_data2);
 					so->AddCity(city);
-					g_slicEngine->Execute(so) ;
+					slicengine_Get()->Execute(so) ;
 				}
 			}
 			break;
@@ -1502,7 +1502,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				SlicObject *so = new SlicObject("91OfferRejected");
 				so->AddRecipient(m_data);
 				so->AddCivilisation(m_data2);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			break;
 		}
@@ -1513,7 +1513,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("309EndGameWon");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			if(player_Get(m_data)) {
 				player_Get(m_data)->GameOver(GAME_OVER_WON_SCIENCE, -1);
@@ -1542,7 +1542,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("302EndGameOtherCivBuiltLab");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG:
@@ -1550,7 +1550,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("303EndGameOtherCivStartedSequence");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG:
@@ -1558,7 +1558,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("054AlienAlmostDoneOthers");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_ALIEN_SCRAPPED_OWNER:
@@ -1566,7 +1566,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("058AlienScrappedOwner");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_CATACLYSM_OTHER:
@@ -1574,7 +1574,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			SlicObject *so = new SlicObject("301EndGameCataclysmOtherCiv");
 			so->AddAllRecipientsBut(m_data);
 			so->AddCivilisation(m_data);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			break;
 		}
 		case NET_INFO_CODE_GAME_OVER_OUT_OF_TIME:

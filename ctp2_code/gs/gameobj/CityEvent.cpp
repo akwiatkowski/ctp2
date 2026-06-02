@@ -155,7 +155,7 @@ STDEHANDLER(CaptureCityEvent)
 			SlicObject *	so = new SlicObject("20IAFreeSlaves");
 			so->AddRecipient(newOwner);
 			so->AddCity(city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			// The AI frees slaves if it has no slaves or any units that can catch slaves
 			if(player_Get(newOwner)->IsRobot())
@@ -210,7 +210,7 @@ STDEHANDLER(CaptureCityEvent)
 		    SlicObject *	so = new SlicObject("999CITYCAPTUREOPTIONS");
 		    so->AddRecipient(newOwner);
 		    so->AddCity(city);
-		    g_slicEngine->Execute(so);
+		    slicengine_Get()->Execute(so);
 //END EMOD
         }
         else
@@ -220,7 +220,7 @@ STDEHANDLER(CaptureCityEvent)
             so->AddPlayer(originalOwner);
             so->AddPlayer(newOwner);
             so->AddCity(city);
-            g_slicEngine->Execute(so);
+            slicengine_Get()->Execute(so);
         }
 
 		if(civrand().Next(100) <
@@ -247,7 +247,7 @@ STDEHANDLER(CaptureCityEvent)
 							so->AddRecipient(newOwner);
 							so->AddCity(city);
 							so->AddAdvance(i);
-							g_slicEngine->Execute(so);
+							slicengine_Get()->Execute(so);
 
 							so = new SlicObject("99aAdvanceFromCapturingCityVictim");
 							so->AddCivilisation(originalOwner);
@@ -255,7 +255,7 @@ STDEHANDLER(CaptureCityEvent)
 							so->AddRecipient(originalOwner);
 							so->AddCity(city);
 							so->AddAdvance(i);
-							g_slicEngine->Execute(so);
+							slicengine_Get()->Execute(so);
 
 							break;
 						}
@@ -269,7 +269,7 @@ STDEHANDLER(CaptureCityEvent)
 		}
 		Assert(player_Get(newOwner));
 		player_Get(newOwner)->FulfillCaptureCityAgreement(city);
-		g_slicEngine->RunCityCapturedTriggers(newOwner, originalOwner,
+		slicengine_Get()->RunCityCapturedTriggers(newOwner, originalOwner,
 		                                      city);
 
 		if(city.GetVisibility() & (1 << player_view::VisiblePlayer()))
@@ -334,7 +334,7 @@ STDEHANDLER(CityBuildFrontEvent)
 		so->AddCity(city);
 		so->AddUnitRecord(city.CD()->GetBuildQueue()->GetHead()->m_type);
 		so->AddRecipient(city.GetOwner());
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 	// End EMOD
 
@@ -344,7 +344,7 @@ STDEHANDLER(CityBuildFrontEvent)
 			so->AddCity(city);
 			so->AddUnitRecord(city.CD()->GetBuildQueue()->GetHead()->m_type);
 			so->AddRecipient(city.GetOwner());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -695,44 +695,44 @@ STDEHANDLER(CreateBuildingEvent)
 		return GEV_HD_Continue;
 	}
 	if(player_Get(player)->GetGaiaController()->HasMaxSatsBuilt()) {
-		seg = g_slicEngine->GetSegment("GCMaxSatsReached");
+		seg = slicengine_Get()->GetSegment("GCMaxSatsReached");
 		if(seg && !seg->TestLastShown(player, 10000, g_turn->GetRound())) {
 			so = new SlicObject("GCMaxSatsReached");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
 	if(player_Get(player)->GetGaiaController()->HasMinSatsBuilt()) {
-		seg = g_slicEngine->GetSegment("GCMinSatsReachedUs");
+		seg = slicengine_Get()->GetSegment("GCMinSatsReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
 			so = new SlicObject("GCMinSatsReachedUs");
 			so->AddPlayer(player);
 			so->AddRecipient(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so	= new SlicObject("GCMinSatsReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
 	if(player_Get(player)->GetGaiaController()->HasMinCoresBuilt()) {
-		seg = g_slicEngine->GetSegment("GCMinCoresReachedUs");
+		seg = slicengine_Get()->GetSegment("GCMinCoresReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
 		{
 			so = new SlicObject("GCMinCoresReachedUs");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("GCMinCoresReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -773,7 +773,7 @@ STDEHANDLER(CreateWonderEvent)
 		so = new SlicObject("911ForbiddenCityPeace");
 		so->AddRecipient(c.GetOwner());
 		so->AddCity(c);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if(wonder == wonderutil_GetGaiaIndex()) {
@@ -787,7 +787,7 @@ STDEHANDLER(CreateWonderEvent)
 				so->AddRecipient(i);
 				so->AddPlayer(i);
 				so->AddPlayer(c.GetOwner());
-				g_slicEngine->Execute(so);	// will delete so after handling
+				slicengine_Get()->Execute(so);	// will delete so after handling
 			}
 		}
 	}

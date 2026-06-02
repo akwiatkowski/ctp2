@@ -46,7 +46,7 @@
 #include "net/general/network.h"                    // g_network
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/Player.h"
-#include "gs/slic/SlicEngine.h"                 // g_slicEngine
+#include "gs/slic/SlicEngine.h"                 // slicengine_Get()
 #include "gs/slic/SlicObject.h"
 #include "gs/core/tiledmap_observer.h"
 #include "gs/gameobj/Unit.h"
@@ -286,13 +286,13 @@ STDEHANDLER(UndergroundRailwayUnitEvent)
 	so = new SlicObject("163FreeslaveCompleteVictim") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	so = new SlicObject("165FreeslaveCompleteAgressor") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCity(c);
 	so->AddCity(hc) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	return GEV_HD_Continue;
 }
@@ -322,14 +322,14 @@ STDEHANDLER(EstablishEmbassyUnitEvent)
         so->AddCivilisation(u.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
 
         so = new SlicObject("144EmbassyAttacker");
         so->AddRecipient(u.GetOwner()) ;
         so->AddCivilisation(c.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
     }
 	return GEV_HD_Continue;
 }
@@ -349,14 +349,14 @@ STDEHANDLER(ThrowPartyUnitEvent)
         so->AddPlayer(u.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
 
         so = new SlicObject("150PartyCompleteAttacker");
         so->AddRecipient(u.GetOwner()) ;
         so->AddPlayer(c.GetOwner());
 		so->AddUnitRecord(u.GetType());
 		so->AddCity(c) ;
-        g_slicEngine->Execute(so) ;
+        slicengine_Get()->Execute(so) ;
     }
 	return GEV_HD_Continue;
 }
@@ -372,7 +372,7 @@ STDEHANDLER(BioInfectCityUnitEvent)
 	so = new SlicObject("33CrisisCityInfected") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	DPRINTF(k_DBG_GAMESTATE, ("Bio infection succeeded\n"));
 
@@ -380,13 +380,13 @@ STDEHANDLER(BioInfectCityUnitEvent)
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	so = new SlicObject("11iBioInfectComplete") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCivilisation(c.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_BioInfectCity,
 						   GEA_City, c.m_id,
@@ -408,7 +408,7 @@ STDEHANDLER(PlagueCityUnitEvent)
 	so = new SlicObject("33CrisisCityInfected") ;
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	DPRINTF(k_DBG_GAMESTATE, ("Bio infection succeeded\n"));
 
@@ -416,13 +416,13 @@ STDEHANDLER(PlagueCityUnitEvent)
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(c.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	so = new SlicObject("11jPlagueComplete") ;
 	so->AddRecipient(u.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_PlagueCity,
 						   GEA_City, c.m_id,
@@ -447,7 +447,7 @@ STDEHANDLER(NanoInfectCityUnitEvent)
 	so->AddRecipient(c.GetOwner()) ;
 	so->AddCivilisation(u.GetOwner()) ;
 	so->AddCity(c) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_NanoInfectCity,
 						   GEA_City, c.m_id,
@@ -486,7 +486,7 @@ STDEHANDLER(ConvertCityUnitEvent)
 		so->AddRecipient(c.GetOwner()) ;
 		so->AddCity(c) ;
 		so->AddUnitRecord(u.GetType());
-		g_slicEngine->Execute(so) ;
+		slicengine_Get()->Execute(so) ;
 	}
 
 	u.GetArmy()->ActionSuccessful(SPECATTACK_CONVERTCITY, u, c);
@@ -515,7 +515,7 @@ STDEHANDLER(ReformCityUnitEvent)
 	SlicObject *so = new SlicObject("135ReformCity") ;
 	so->AddCity(c);
 	so->AddRecipient(c.GetOwner()) ;
-	g_slicEngine->Execute(so) ;
+	slicengine_Get()->Execute(so) ;
 	return GEV_HD_Continue;
 }
 

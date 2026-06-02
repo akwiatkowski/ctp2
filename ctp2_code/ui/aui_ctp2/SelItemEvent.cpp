@@ -71,7 +71,7 @@ STDEHANDLER(SelItemCreateCityEvent)
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
 	if( pl == g_selected_item->GetVisiblePlayer()
-	&& !g_player[pl]->IsRobot()
+	&& !player_Get(pl)->IsRobot()
 	){
 		g_selected_item->SetSelectUnit(city);
 	}

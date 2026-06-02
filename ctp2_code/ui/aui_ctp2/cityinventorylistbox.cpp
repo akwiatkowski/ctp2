@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - Made government modified for units work here even if the class is not
-//   used. (July 29th 2006 Martin Gühmann)
+//   used. (July 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -64,7 +64,6 @@
 #include "gs/gameobj/buildingutil.h"
 
 extern	ControlPanelWindow	*g_controlPanel;
-extern	Player				**g_player;
 extern	DebugWindow			*g_debugWindow;
 
 CityInventoryListBox::CityInventoryListBox(AUI_ERRCODE *retval,
@@ -204,7 +203,7 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 {
 	sint32 i, n;
-	Player *p = g_player[unit.GetOwner()];
+	Player *p = player_Get(unit.GetOwner());
 	sint32 enable;
 	MBCHAR str[80];
 	StaticTextItem *item;
@@ -360,7 +359,7 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 
 	else if (bn) {
 
-		sint32 govType   = g_player[unit.GetOwner()]->GetGovernmentType();
+		sint32 govType   = player_Get(unit.GetOwner())->GetGovernmentType();
 		sint32 completed = bq->GetPercentCompleted(unit.GetData()->GetCityData()->GetStoredCityProduction());
 
 		if (bn->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {

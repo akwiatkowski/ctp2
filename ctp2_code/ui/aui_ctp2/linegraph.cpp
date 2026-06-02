@@ -27,8 +27,8 @@
 // - Repaired memory leaks.
 // - Resolved ambigious calls of std::max.
 // - Removed all warnings on .NET
-// - Initialized local variables. (Sep 9th 2005 Martin Gühmann)
-// - Moved graph functionality from other places (30-Sep-2007 Martin Gühmann)
+// - Initialized local variables. (Sep 9th 2005 Martin Gï¿½hmann)
+// - Moved graph functionality from other places (30-Sep-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -607,7 +607,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	sint32 i;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			infoYCount++;
 		}
@@ -619,7 +619,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			color[infoYCount++] = g_colorSet->ComputePlayerColor(i);
 		}
@@ -657,11 +657,11 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	sint32 playerCount = 0;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			for (sint32 round = 0 ; round < infoXCount ; ++round)
 			{
-				sint32 strValue = GetCombinedStrength(*g_player[i]->m_strengths, round, category);
+				sint32 strValue = GetCombinedStrength(*player_Get(i)->m_strengths, round, category);
 				(*infoGraphData)[playerCount][round] = strValue;
 
 				while (strValue > maxPower)

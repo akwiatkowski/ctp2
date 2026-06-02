@@ -1069,7 +1069,7 @@ void SelectedItem::UnloadClick(const MapPoint &pos, const aui_MouseEvent *data, 
 //----------------------------------------------------------------------------
 void SelectedItem::TerrainContextClick(const MapPoint &pos, const aui_MouseEvent *data, bool doubleClick)
 {
-	if(g_player[GetVisiblePlayer()] && g_player[GetVisiblePlayer()]->IsExplored(pos))
+	if(player_Get(GetVisiblePlayer()) && player_Get(GetVisiblePlayer())->IsExplored(pos))
 	{
 		helptile_displayData(pos);
 	}
@@ -1169,7 +1169,7 @@ void SelectedItem::TradeRouteContextClick(const MapPoint &pos, const aui_MouseEv
 
 void SelectedItem::GoodContextClick(const MapPoint &pos, const aui_MouseEvent *data, bool doubleClick)
 {
-	if(g_player[GetVisiblePlayer()] && g_player[GetVisiblePlayer()]->IsExplored(pos))
+	if(player_Get(GetVisiblePlayer()) && player_Get(GetVisiblePlayer())->IsExplored(pos))
 	{
 		helptile_displayData(pos);
 	}

@@ -394,7 +394,7 @@ STDEHANDLER(MakePeace_NewProposalEvent)
 	if (sender_diplomat.GetLastColdwarAttack(receiver) < 5)
 		return GEV_HD_Continue;
 
-	if (sender_diplomat.GetLastBorderIncursionBy(receiver) + 20 < g_turn->GetSessionRound())
+	if (sender_diplomat.GetLastBorderIncursionBy(receiver) + 20 < turn_Get()->GetSessionRound())
 		return GEV_HD_Continue;
 
 	if (sender_diplomat.GetTrust(receiver) < COLDWAR_REGARD)
@@ -657,7 +657,7 @@ STDEHANDLER(HonorPollutionAgreement_NewProposalEvent)
 	uint32 half_promised_pollution = promised_pollution / 2;
 	double pollution_ratio = (double) receiver_pollution / promised_pollution;
 
-	sint32 turns_since_start = g_turn->GetSessionRound() - agreement.start;
+	sint32 turns_since_start = turn_Get()->GetSessionRound() - agreement.start;
 
 	if (pollution_ratio <= 1.0)
 		return GEV_HD_Continue;

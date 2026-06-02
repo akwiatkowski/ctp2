@@ -167,7 +167,7 @@ STDEHANDLER(FullAttack_NextSStateEvent)
 		{
 			if(AgreementMatrix::s_agreements.HasAgreement(playerId, i, PROPOSAL_TREATY_DECLARE_WAR))
 			{
-				if((g_turn->GetSessionRound() - diplomat.GetLastBorderIncursionBy(i)) < 15 /*|| diplomat.HasUnitsInOurTerritory(i)*/)
+				if((turn_Get()->GetSessionRound() - diplomat.GetLastBorderIncursionBy(i)) < 15 /*|| diplomat.HasUnitsInOurTerritory(i)*/)
 				{
 					invaded = true;
 					break;
@@ -341,7 +341,7 @@ STDEHANDLER(OpeningGambit_NextSStateEvent)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
-	if (g_turn->GetSessionRound() > diplomat.GetPersonality()->GetLastStartTurn())
+	if (turn_Get()->GetSessionRound() > diplomat.GetPersonality()->GetLastStartTurn())
 		return GEV_HD_Continue;
 
 	AiState state;
@@ -721,7 +721,7 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 	    && diplomat.GetPersonality()->HasDefenceNoneStrategy()
 	)
 	{
-		if(g_turn->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
+		if(turn_Get()->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
 		{
 			if(max_threat > MEDIUM_DEFENSE_LEVEL)
 			{
@@ -770,7 +770,7 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 	}
 	else{
 		state.priority = 800;
-		if(g_turn->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
+		if(turn_Get()->GetSessionRound() < diplomat.GetPersonality()->GetLastStartTurn())
 		{
 			if(max_threat > MEDIUM_DEFENSE_LEVEL)
 			{

@@ -198,7 +198,7 @@ STDEHANDLER(InvaderMovementRegardEvent)
 	{
 		ai::Agreement agreement =
 			AgreementMatrix::s_agreements.GetAgreement(new_cell_owner, army_owner, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
-		if (agreement.start + 5 > g_turn->GetSessionRound())
+		if (agreement.start + 5 > turn_Get()->GetSessionRound())
 			return GEV_HD_Continue;
 	}
 
@@ -390,7 +390,7 @@ STDEHANDLER(InciteRevolution_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetInciteRevolutionRegardCost(cost);
@@ -425,7 +425,7 @@ STDEHANDLER(AssassinateRulerUnit_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetAssassinateRulerRegardCost(cost);
@@ -460,7 +460,7 @@ STDEHANDLER(MakeFranchise_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetFranchiseCityRegardCost(cost);
@@ -654,7 +654,7 @@ STDEHANDLER(Lawsuit_RegardEvent)
 
 	Diplomat & victim_diplomat = Diplomat::GetDiplomat(victim);
 
-	victim_diplomat.SetColdwarAttack(victim, (sint16) g_turn->GetSessionRound());
+	victim_diplomat.SetColdwarAttack(victim, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	victim_diplomat.GetCurrentDiplomacy(attack_owner).GetLawsuitRegardCost(cost);
@@ -773,7 +773,7 @@ STDEHANDLER(NukeLocationUnit_RegardEvent)
 
 	Diplomat & pos_diplomat = Diplomat::GetDiplomat(pos_owner);
 
-	pos_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	pos_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	pos_diplomat.GetCurrentDiplomacy(attack_owner).GetNukeCityRegardCost(cost);
@@ -906,7 +906,7 @@ STDEHANDLER(PlagueCityUnit_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetPlagueCityRegardCost(cost);
@@ -939,7 +939,7 @@ STDEHANDLER(NanoInfectCityUnit_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetNanoInfectCityRegardCost(cost);
@@ -972,7 +972,7 @@ STDEHANDLER(ConvertCityUnit_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetConvertCityRegardCost(cost);
@@ -1008,7 +1008,7 @@ STDEHANDLER(IndulgenceSaleMade_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetConvertCityRegardCost(cost);
@@ -1128,7 +1128,7 @@ STDEHANDLER(InjoinUnit_RegardEvent)
 
 	Diplomat & city_diplomat = Diplomat::GetDiplomat(city_owner);
 
-	city_diplomat.SetColdwarAttack(attack_owner, (sint16) g_turn->GetSessionRound());
+	city_diplomat.SetColdwarAttack(attack_owner, (sint16) turn_Get()->GetSessionRound());
 
 	sint32 cost;
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetInjoinCityRegardCost(cost);

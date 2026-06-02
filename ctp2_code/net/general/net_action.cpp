@@ -41,7 +41,7 @@
 #include "net/general/net_terrain.h"
 #include "net/general/net_traderoute.h"
 #include "net/general/net_unit.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 #include "gs/gameobj/Player.h"                     // player_arr_Get()
 #include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
 #include "gs/gameobj/TradeOffer.h"

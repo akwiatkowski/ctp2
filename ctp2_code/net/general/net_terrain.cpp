@@ -36,7 +36,7 @@
 #include "net/io/net_util.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "gs/gameobj/Player.h"
 #include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 
@@ -140,14 +140,14 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!terrimprovepool_Get()->IsValid(imp)) {
 		terrimprovepool_Get()->HackSetKey(((uint32)imp & k_ID_KEY_MASK) + 1);
 		terrimprovepool_Get()->Insert(m_data);
-		g_theWorld->InsertImprovement(imp, m_data->m_point);
+		world_Get()->InsertImprovement(imp, m_data->m_point);
 		g_tiledMap->RedrawTile(&m_data->m_point);
 		player_Get(m_data->m_owner)->AddImprovement(imp);
 	} else {
 		if(oldpoint != m_data->m_point) {
 
-			g_theWorld->RemoveImprovement(imp, oldpoint);
-			g_theWorld->InsertImprovement(imp, m_data->m_point);
+			world_Get()->RemoveImprovement(imp, oldpoint);
+		world_Get()->InsertImprovement(imp, m_data->m_point);
 
 			g_tiledMap->RedrawTile(&oldpoint);
 			g_tiledMap->RedrawTile(&m_data->m_point);

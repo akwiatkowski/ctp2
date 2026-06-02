@@ -16,7 +16,6 @@
 #include "ui/interface/trademanager.h"
 
 extern Director *g_director;
-extern World *g_theWorld;
 
 NetTradeRoute::NetTradeRoute(TradeRouteData* data, bool newRoute) :
 	m_routeData(data),
@@ -147,7 +146,7 @@ void NetTradeRoute::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		m_routeData->m_path.Insert(pnt);
         owner = m_routeData->m_sourceCity.GetOwner();
 
-		g_theWorld->GetCell(pnt)->AddTradeRoute(route);
+		world_Get()->GetCell(pnt)->AddTradeRoute(route);
 	}
 
 	if(!tradepool_Get()->IsValid(route)) {

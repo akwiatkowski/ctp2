@@ -408,8 +408,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			delete g_tiledMap;
 			g_tiledMap = NULL;
 
-			MapPoint mapsize(g_theWorld->GetXWidth(),
-							 g_theWorld->GetYHeight());
+			MapPoint mapsize(world_Get()->GetXWidth(),
+							 world_Get()->GetYHeight());
 			g_tiledMap = new TiledMap(mapsize);
 			g_tiledMap->LoadTileset();
 
@@ -432,7 +432,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			g_tiledMap->PostProcessMap();
 			g_tiledMap->Refresh();
 
-			g_theWorld->NumberContinents();
+			world_Get()->NumberContinents();
 
 
 
@@ -736,7 +736,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server removed a goody hut at %d,%d\n",
 								m_data, m_data2));
-			Cell *cell = g_theWorld->GetCell(m_data, m_data2);
+			Cell *cell = world_Get()->GetCell(m_data, m_data2);
 			cell->DeleteGoodyHut();
 			break;
 		}
@@ -744,14 +744,14 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server said global warming %d happened\n",
 								m_data));
-			g_theWorld->GlobalWarming(m_data);
+			world_Get()->GlobalWarming(m_data);
 			break;
 		}
 		case NET_INFO_CODE_OZONE_DEPLETION:
 		{
 			DPRINTF(k_DBG_NET, ("Server said ozone depletion %d occurred\n",
 								m_data));
-			g_theWorld->OzoneDepletion();
+			world_Get()->OzoneDepletion();
 			break;
 		}
 
@@ -1327,7 +1327,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			g_network.UnpackedPos(m_data, pos);
 			DPRINTF(k_DBG_NET, ("Cell (%d,%d)'s new owner is %d\n",
 								pos.x, pos.y, m_data2));
-			g_theWorld->GetCell(pos)->SetOwner(m_data2);
+			world_Get()->GetCell(pos)->SetOwner(m_data2);
 			break;
 		}
 		case NET_INFO_CODE_NAK_ENACT:
@@ -1367,7 +1367,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				static UnitDynamicArray revealedUnits;
 				revealedUnits.Clear();
 
-				g_theWorld->InsertUnit(pos, unit, revealedUnits);
+				world_Get()->InsertUnit(pos, unit, revealedUnits);
 				player_Get(unit.GetOwner())->InsertUnitReference(unit,
 															   CAUSE_NEW_ARMY_UPRISING,
 															   Unit());

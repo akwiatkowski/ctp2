@@ -7,8 +7,6 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 
-extern World *g_theWorld;
-
 NetInstallation::NetInstallation(InstallationData *data)
 {
 	m_data = data;
@@ -55,7 +53,7 @@ void NetInstallation::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		installationpool_Get()->HackSetKey(((uint32)inst & k_ID_KEY_MASK) + 1);
 		installationpool_Get()->Insert(m_data);
 		player_Get(m_data->m_owner)->AddInstallation(inst);
-		g_theWorld->InsertInstallation(inst, m_data->m_point);
+		world_Get()->InsertInstallation(inst, m_data->m_point);
 		m_data->DoVision();
 	}
 }

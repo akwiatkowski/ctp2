@@ -1256,7 +1256,7 @@ void Network::SetReady(uint16 id)
 	PlayerData *player = m_playerData[index];
 	m_playerData[index]->m_ready = TRUE;
 
-	MapPoint* size = g_theWorld->GetSize();
+	MapPoint* size = world_Get()->GetSize();
 
 	QueuePacket(player->m_id, new NetCRC());
 
@@ -1473,7 +1473,7 @@ void Network::SetReady(uint16 id)
 
 
 		sint32 y;
-		for(y = 0; y < g_theWorld->GetYHeight(); y += k_VISION_STEP) {
+		for(y = 0; y < world_Get()->GetYHeight(); y += k_VISION_STEP) {
 			chunkPackets.AddTail(new NetVision(p, static_cast<sint16>(y), k_VISION_STEP));
 		}
 		static DynamicArray<UnseenCellCarton> array;
@@ -1511,9 +1511,9 @@ void Network::SetReady(uint16 id)
 
 	PROGRESS(90);
 
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-			if(g_theWorld->GetCell(x, y)->GetNumUnits() >= 2) {
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
+			if(world_Get()->GetCell(x, y)->GetNumUnits() >= 2) {
 				chunkPackets.AddTail(new NetCellUnitOrder(x, y));
 			}
 		}
@@ -4056,9 +4056,9 @@ void network_VerifyGameData()
 	}
 
 	sint32 x, y;
-	for(x = 0; x < g_theWorld->GetXWidth(); x++) {
-		for(y = 0; y < g_theWorld->GetYHeight(); y++) {
-			Cell *cell = g_theWorld->GetCell(x, y);
+	for(x = 0; x < world_Get()->GetXWidth(); x++) {
+		for(y = 0; y < world_Get()->GetYHeight(); y++) {
+			Cell *cell = world_Get()->GetCell(x, y);
 			for(u = 0; u < cell->GetNumUnits(); u++) {
 				if(!cell->AccessUnit(u).IsValid()) {
 					g_network.RequestResync(RESYNC_INVALID_UNIT);

@@ -17,8 +17,6 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
 
-extern World *g_theWorld;
-
 const uint32 NetCheat::m_args[NET_CHEAT_MAX] = {
 	5,
 	2,
@@ -110,11 +108,11 @@ NetCheat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			break;
 		case NET_CHEAT_GLOBAL_WARMING:
 			DPRINTF(k_DBG_NET, ("Player %d has caused global warming!\n", index));
-			g_theWorld->GlobalWarming(m_data[0]);
+			world_Get()->GlobalWarming(m_data[0]);
 			break;
 		case NET_CHEAT_OZONE_DEPLETION:
 			DPRINTF(k_DBG_NET, ("Player %d is a major source of ozone depletion.\n", index));
-			g_theWorld->OzoneDepletion();
+			world_Get()->OzoneDepletion();
 			break;
 		case NET_CHEAT_ADD_GOLD:
 		{

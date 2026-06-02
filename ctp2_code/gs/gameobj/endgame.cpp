@@ -90,7 +90,7 @@ void EndGame::AddObject(sint32 type)
 		SlicObject *so = new SlicObject("302EndGameOtherCivBuiltLab");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		if(g_network.IsHost()) {
 			g_network.Block(m_owner);
@@ -101,7 +101,7 @@ void EndGame::AddObject(sint32 type)
 
 		so = new SlicObject("308EndGameFinishedXLab");
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	m_numBuilt[type]++;
@@ -143,7 +143,7 @@ BOOL EndGame::BeginSequence(sint32 currentRound)
 	SlicObject *so = new SlicObject("303EndGameOtherCivStartedSequence");
 	so->AddAllRecipientsBut(m_owner);
 	so->AddCivilisation(m_owner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_OTHER_CIV_SEQUENCE_MSG,
@@ -184,39 +184,39 @@ void EndGame::BeginTurn(sint32 currentRound)
             AdvanceStage(currentRound);
         } else {
 			if (!HaveEnoughECDs() &&
-				(g_slicEngine->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5, currentRound))) {
+				(slicengine_Get()->GetSegment("061NeedEcd")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("061NeedEcd");
 				so->AddRecipient(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 
 			if(!HaveEnoughFields() &&
-			   (g_slicEngine->GetSegment("062NeedField")->TestLastShown(m_owner, 5, currentRound))) {
+			   (slicengine_Get()->GetSegment("062NeedField")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("062NeedField");
 				so->AddRecipient(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 
 			if(!HaveMaxSplicers() &&
-			   (g_slicEngine->GetSegment("063ShouldBuildSplicer")->TestLastShown(m_owner, 5, currentRound))) {
+			   (slicengine_Get()->GetSegment("063ShouldBuildSplicer")->TestLastShown(m_owner, 5, currentRound))) {
 				so = new SlicObject("063ShouldBuildSplicer");
 				so->AddRecipient(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 		}
 	} else if(m_currentStage == 2 &&
 			  turnsForNextStage >= 0 &&
 			  (((m_currentStageBegan + turnsForNextStage) -
 				currentRound) < 5)) {
-		if(g_slicEngine->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5, currentRound)) {
+		if(slicengine_Get()->GetSegment("053AlienAlmostDone")->TestLastShown(m_owner, 5, currentRound)) {
 			so = new SlicObject("053AlienAlmostDone");
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("054AlienAlmostDoneOthers");
 			so->AddAllRecipientsBut(m_owner);
 			so->AddCivilisation(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			if(g_network.IsHost()) {
 				g_network.Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_ALMOST_DONE_OTHERS_MSG,
@@ -252,7 +252,7 @@ void EndGame::AdvanceStage(sint32 currentRound)
 		SlicObject *so = new SlicObject("309EndGameWon");
 		so->AddAllRecipientsBut(m_owner);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 		if(g_network.IsHost()) {
 			g_network.Block(m_owner);
 			g_network.Enqueue(new NetInfo(NET_INFO_CODE_WON_END_GAME,
@@ -279,7 +279,7 @@ void EndGame::AdvanceStage(sint32 currentRound)
 	  case 1: {
 		  so = new SlicObject("059EmbryoStage2");
 		  so->AddRecipient(m_owner);
-		  g_slicEngine->Execute(so);
+		  slicengine_Get()->Execute(so);
 
 
 
@@ -287,7 +287,7 @@ void EndGame::AdvanceStage(sint32 currentRound)
 		  so = new SlicObject("058AlienScrappedOwner");
 		  so->AddAllRecipientsBut(m_owner);
 		  so->AddCivilisation(m_owner);
-		  g_slicEngine->Execute(so);
+		  slicengine_Get()->Execute(so);
 
 		  if(g_network.IsHost()) {
 			  g_network.Enqueue(new NetInfo(NET_INFO_CODE_ALIEN_SCRAPPED_OWNER,
@@ -298,7 +298,7 @@ void EndGame::AdvanceStage(sint32 currentRound)
 	  case 2: {
 		  so = new SlicObject("060EmbryoStage3");
 		  so->AddRecipient(m_owner);
-		  g_slicEngine->Execute(so);
+		  slicengine_Get()->Execute(so);
 		  break;
 	  }
 	}
@@ -434,12 +434,12 @@ void EndGame::Cataclysm()
 
 	SlicObject *so = new SlicObject("300EndGameCataclysm");
 	so->AddRecipient(m_owner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	so = new SlicObject("301EndGameCataclysmOtherCiv");
 	so->AddAllRecipientsBut(m_owner);
 	so->AddCivilisation(m_owner);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_CATACLYSM_OTHER,

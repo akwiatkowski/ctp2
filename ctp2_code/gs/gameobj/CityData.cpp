@@ -1269,7 +1269,6 @@ void CityData::AddShields(sint32 s)
 // Parameters : inciteBonus     : extra revolt risk over the normal happiness
 //                                (e.g. from neighbouring revolting cities)
 //
-// Globals    : g_slicEngine
 //
 // Returns    : bool true if the city should revolt, i.e.,
 //              m_happiness < g_theConstDB->GetRevolutionLevel()+incite_bonus
@@ -1285,8 +1284,8 @@ bool CityData::ShouldRevolt(const sint32 inciteBonus)
 {
 	if
 	  (
-	       g_slicEngine->GetTutorialActive()
-	    && m_owner == g_slicEngine->GetTutorialPlayer()
+	       slicengine_Get()->GetTutorialActive()
+	    && m_owner == slicengine_Get()->GetTutorialPlayer()
 	  )
 	{
 		return false;
@@ -1425,7 +1424,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 			so->AddCivilisation(orgowner);
 			so->AddCivilisation(newowner);
 			so->AddCity(m_home_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		else
 		{
@@ -1434,7 +1433,7 @@ void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 			so->AddCivilisation(orgowner);
 			so->AddCivilisation(newowner);
 			so->AddCity(m_home_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -1764,19 +1763,19 @@ void CityData::DoLocalPollution()
 	double chance = diff * g_theConstDB->Get(0)->GetLocalPollutionChance();
 
 	if ((chance > 0.10) &&
-		(g_slicEngine->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, g_turn->GetRound()))) {
+		(slicengine_Get()->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, g_turn->GetRound()))) {
 		SlicObject *so = new SlicObject("080CityPollutionWarning");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
 		so->AddCivilisation(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if(civrand().Next(1000) < chance * 1000) {
 		SlicObject *so = new SlicObject("040GrossPolluter");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		sint32 totalTiles=0;
 		MapPoint cpos;
@@ -3815,7 +3814,7 @@ bool CityData::GrowOrStarve()
 					so->AddRecipient(GetOwner()) ;
 					so->AddCity(m_home_city) ;
 					so->AddPlayer(m_owner);
-					g_slicEngine->Execute(so) ;
+					slicengine_Get()->Execute(so) ;
 				}
 				else if (m_starvation_turns == (sint32)(GetStarvationProtection()/2))
 				{
@@ -3823,7 +3822,7 @@ bool CityData::GrowOrStarve()
 					so->AddRecipient(GetOwner()) ;
 					so->AddCity(m_home_city) ;
 					so->AddPlayer(m_owner);
-					g_slicEngine->Execute(so) ;
+					slicengine_Get()->Execute(so) ;
 				}
 
 				m_starvation_turns--;
@@ -4165,7 +4164,7 @@ sint32 CityData::SupportBuildings(bool projectedOnly)
 				so->AddRecipient(GetOwner());
 				so->AddCity(m_home_city);
 				so->AddBuilding(cheapBuilding);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 
 			if(IsBankrupting())
@@ -4691,7 +4690,7 @@ bool CityData::BeginTurn()
 			SlicObject *so = new SlicObject("265CityDestroyedByStarving");
 			so->AddRecipient(GetOwner());
 			so->AddCity(m_home_city);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			return false;
 		}
@@ -4705,7 +4704,7 @@ bool CityData::BeginTurn()
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
 			so->AddPlayer(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			m_lastCelebrationMsg = sint16(g_turn->GetRound());
 		}
 
@@ -4721,8 +4720,8 @@ bool CityData::BeginTurn()
 		so->AddCity(m_home_city);
 		so->AddCivilisation(m_owner);
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
-		g_slicEngine->RunWastingWorkTriggers(m_home_city);
+		slicengine_Get()->Execute(so);
+		slicengine_Get()->RunWastingWorkTriggers(m_home_city);
 	}
 	m_sentInefficientMessageAlready = false;
 
@@ -4831,8 +4830,8 @@ void CityData::CheckRiot()
 	if(m_home_city.Flag(k_UDF_CANT_RIOT_OR_REVOLT))
 		return;
 
-	if(g_slicEngine->GetTutorialActive() &&
-	   m_owner == g_slicEngine->GetTutorialPlayer())
+	if(slicengine_Get()->GetTutorialActive() &&
+	   m_owner == slicengine_Get()->GetTutorialPlayer())
 		return;
 
 	if(m_happy->GetHappiness() < g_theConstDB->Get(0)->GetRiotLevel()) {
@@ -4843,7 +4842,7 @@ void CityData::CheckRiot()
 			SlicObject *so = new SlicObject("100CityRioting");
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			player_Get(m_owner)->m_score->AddRiot();
 
 // EMOD to add graphics to rioting cities //need to change and add sprite and where to put effect sprite
@@ -5149,7 +5148,7 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 			so->AddCity(*(player_Get(m_owner)->m_capitol));
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 		if(CanBuildBuilding(item_type)) {
@@ -5718,8 +5717,8 @@ void CityData::DoUprising(UPRISING_CAUSE cause)
 	if(SlaveCount() < 1)
 		return;
 
-	if(g_slicEngine->GetTutorialActive() &&
-	   m_owner == g_slicEngine->GetTutorialPlayer()) {
+	if(slicengine_Get()->GetTutorialActive() &&
+	   m_owner == slicengine_Get()->GetTutorialPlayer()) {
 		return;
 	}
 
@@ -5809,7 +5808,7 @@ void CityData::FinishUprising(Army &sa, UPRISING_CAUSE cause)
 		SlicObject *so = new SlicObject("206CrisisSlaveRevolt");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if (startedBattle)
@@ -5945,7 +5944,7 @@ void CityData::SpreadBioTerror()
 			SlicObject *so = new SlicObject("047InfectedViaTrade");
 			so->AddCity(c);
 			so->AddRecipient(c.GetOwner());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 }
@@ -5967,7 +5966,7 @@ void CityData::SpreadNanoTerror()
 			SlicObject *so = new SlicObject("047InfectedViaTrade");
 			so->AddCity(c);
 			so->AddRecipient(c.GetOwner());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 }
@@ -6615,7 +6614,6 @@ sint32 CityData::GetCombatUnits() const
 //
 // Globals    : player_arr_Get():     The list of players
 //              g_theUnitDB:  The unit database
-//              g_slicEngine: The slic engine
 //              world_Get():   The world properties
 //
 // Returns    : Whether the city can build the unit specified by type.
@@ -6760,7 +6758,7 @@ bool CityData::CanBuildUnit(sint32 type) const
 			return false;
 	}
 
-	if(!g_slicEngine->CallMod(mod_CanCityBuildUnit, true, m_home_city.m_id, rec->GetIndex()))
+	if(!slicengine_Get()->CallMod(mod_CanCityBuildUnit, true, m_home_city.m_id, rec->GetIndex()))
 		return false;
 
 	if(!rec->GetMovementTypeLand() && !rec->GetMovementTypeTrade() && !rec->GetIsTrader())
@@ -6805,7 +6803,6 @@ bool CityData::CanBuildUnit(sint32 type) const
 //
 // Globals    : player_arr_Get():        The list of players
 //              g_theBuildingDB: The building database
-//              g_slicEngine:    The slic engine
 //              world_Get():      The world properties
 //
 // Returns    : Whether the city can build the building specified by type.
@@ -7149,7 +7146,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 	//}
 
 	///END CONDITIONS
-	return g_slicEngine->CallMod(mod_CanCityBuildBuilding, TRUE, m_home_city.m_id, rec->GetIndex()) != FALSE;
+	return slicengine_Get()->CallMod(mod_CanCityBuildBuilding, TRUE, m_home_city.m_id, rec->GetIndex()) != FALSE;
 }
 
 //----------------------------------------------------------------------------
@@ -7164,7 +7161,6 @@ bool CityData::CanBuildBuilding(sint32 type) const
 //
 // Globals    : player_arr_Get():        The list of players
 //              g_theWonderDB:   The building database
-//              g_slicEngine:    The slic engine
 //              world_Get():      The world properties
 //
 // Returns    : Whether the city can build the wonder specified by type.
@@ -7430,7 +7426,7 @@ bool CityData::CanBuildWonder(sint32 type) const
 		return false;
 	}
 
-	return g_slicEngine->CallMod(mod_CanCityBuildWonder, TRUE, m_home_city.m_id, type) != FALSE;
+	return slicengine_Get()->CallMod(mod_CanCityBuildWonder, TRUE, m_home_city.m_id, type) != FALSE;
 }
 
 void CityData::Injoin(sint32 player)
@@ -10745,7 +10741,7 @@ void CityData::InsurgentSpawn()
 				SlicObject *so = new SlicObject("999InsurgentSpawn");
 				so->AddRecipient(m_owner);
 				so->AddCity(m_home_city);
-				g_slicEngine->Execute(so);  //forgot this?
+				slicengine_Get()->Execute(so);  //forgot this?
 			}
 		}
 }
@@ -10774,7 +10770,7 @@ void CityData::RiotCasualties()
 			so->AddRecipient(m_owner);
 			so->AddCity(m_home_city);
 			so->AddGold(casualties);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 

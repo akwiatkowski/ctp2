@@ -163,6 +163,12 @@ private:
 	BOOL					m_stopRedbookTemporarily;
 };
 
+// App-singleton accessor pair, mirroring profiledb_Get / c3ui_Get / world_Get.
+// The g_soundManager pointer is still file-scope-extern during the workers'
+// sweep; the consolidating commit makes it file-static once all consumers
+// are routed through these accessors.
 extern SoundManager *g_soundManager;
+SoundManager * soundmgr_Get(void);
+void           soundmgr_Set(SoundManager *p);
 
 #endif

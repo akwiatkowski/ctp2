@@ -60,6 +60,10 @@ static NetShell *   g_netshell          = NULL;
 NetShell * netshell_Get(void) { return g_netshell; }
 NETFunc *           g_netfunc           = NULL;
 nf_GameSetup        g_gamesetup;
+
+NETFunc *      netfunc_Get(void)         { return g_netfunc; }
+void           netfunc_Set(NETFunc *p)   { g_netfunc = p; }
+nf_GameSetup & gamesetup_Get(void)       { return g_gamesetup; }
 static nf_PlayerSetup g_playersetup;
 
 nf_PlayerSetup & playersetup_Get(void) { return g_playersetup; }

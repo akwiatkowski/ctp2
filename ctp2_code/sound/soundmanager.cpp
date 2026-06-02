@@ -58,6 +58,9 @@ extern PlayListDB	*g_thePlayListDB;
 
 SoundManager		*g_soundManager     = NULL;
 
+SoundManager * soundmgr_Get(void)         { return g_soundManager; }
+void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }
+
 namespace
 {
     uint32 const    k_CHECK_CD_PERIOD	= 4000;     // [ms]

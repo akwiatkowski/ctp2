@@ -802,7 +802,7 @@ void TradeManager::CreateRoute(aui_Control *control, uint32 action, uint32 uidat
 		Assert(player_Get(data->m_source.GetOwner()));
 		if(!player_Get(data->m_source.GetOwner())) return;
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
 							   GEA_Int, data->m_resource,
 							   GEA_City, data->m_source,
 							   GEA_City, data->m_destination,
@@ -819,7 +819,7 @@ void TradeManager::CreateRoute(aui_Control *control, uint32 action, uint32 uidat
 		Assert(route.IsValid());
 		if(!route.IsValid()) return;
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
 							   GEA_TradeRoute, route.m_id,
 							   GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 							   GEA_End);
@@ -1137,8 +1137,8 @@ STDEHANDLER(TradeManagerKillRouteEvent)
 
 void TradeManager::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_SendGood, GEV_PRI_Post, &s_TradeManagerSendGoodEvent);
-	g_gevManager->AddCallback(GEV_KillTradeRoute, GEV_PRI_Pre, &s_TradeManagerKillRouteEvent);
+	gevmanager_Get()->AddCallback(GEV_SendGood, GEV_PRI_Post, &s_TradeManagerSendGoodEvent);
+	gevmanager_Get()->AddCallback(GEV_KillTradeRoute, GEV_PRI_Pre, &s_TradeManagerKillRouteEvent);
 }
 
 void TradeManager::CleanupEvents()

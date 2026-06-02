@@ -26,15 +26,16 @@
 //
 // - Prevent production errors when pressing F3 after end of turn.
 // - The information window is no more closed on the begin of a new turn.
-//   (Aug 7th 2005 Martin Gühmann)
+//   (Aug 7th 2005 Martin Gï¿½hmann)
 // - The initial city interface is no more displayed if the visible player
-//   is a robot. (26-Jan-2008 Martin Gühmann)
+//   is a robot. (26-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
 #include "ui/interface/interfaceevent.h"
 #include "gs/gameobj/Events.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Unit.h"
 #include "ui/aui_ctp2/SelItem.h"
@@ -209,27 +210,27 @@ void interfaceevent_Initialize()
 
 	MainControlPanel::InitializeEvents();
 
-	g_gevManager->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_InterfaceCreateCityEvent);
-	g_gevManager->AddCallback(GEV_MakePop, GEV_PRI_Post, &s_InterfaceMakePopEvent);
-	g_gevManager->AddCallback(GEV_OpenInitialCityInterface, GEV_PRI_Post, &s_InterfaceOpenInitialCityInterfaceEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_InterfaceCreateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_MakePop, GEV_PRI_Post, &s_InterfaceMakePopEvent);
+	gevmanager_Get()->AddCallback(GEV_OpenInitialCityInterface, GEV_PRI_Post, &s_InterfaceOpenInitialCityInterfaceEvent);
 
 
-	g_gevManager->AddCallback(GEV_BuildUnit, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_BuildBuilding, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_BuildWonder, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_BuildFront, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_CityBeginTurn, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_ZeroProduction, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
-	g_gevManager->AddCallback(GEV_RollOverProduction, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildUnit, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildBuilding, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildWonder, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_BuildFront, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_CityBeginTurn, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_ZeroProduction, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_RollOverProduction, GEV_PRI_Post, &s_InterfaceUpdateCityEvent);
 
-	g_gevManager->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceStartMovePhaseEvent);
+	gevmanager_Get()->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceStartMovePhaseEvent);
 
-	g_gevManager->AddCallback(GEV_DisbandUnit, GEV_PRI_Post, &s_InterfaceCityWindowUnitNotification);
+	gevmanager_Get()->AddCallback(GEV_DisbandUnit, GEV_PRI_Post, &s_InterfaceCityWindowUnitNotification);
 
-	g_gevManager->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceUpdateCityProjection);
-	g_gevManager->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceBeginTurnRecenter);
+	gevmanager_Get()->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceUpdateCityProjection);
+	gevmanager_Get()->AddCallback(GEV_StartMovePhase, GEV_PRI_Post, &s_InterfaceBeginTurnRecenter);
 
-	g_gevManager->AddCallback(GEV_BeginTurn, GEV_PRI_Pre, &s_InterfacePreBeginTurn);
+	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Pre, &s_InterfacePreBeginTurn);
 }
 
 void interfaceevent_Cleanup()

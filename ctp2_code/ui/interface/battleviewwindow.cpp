@@ -87,7 +87,7 @@ void RemoveBattleViewAction::Execute(aui_Control *control, uint32 action, uint32
 	}
 
 
-	g_gevManager->GotUserInput();
+	gevmanager_Get()->GotUserInput();
 
 
 

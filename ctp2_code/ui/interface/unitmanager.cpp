@@ -1005,7 +1005,7 @@ void UnitManager::DisbandSelected()
 
 	if(selList->L() <= 0) return;
 
-	g_gevManager->Pause();
+	gevmanager_Get()->Pause();
 	ListPos position = selList->GetHeadPosition();
 	sint32 i;
 	for(i = selList->L(); i > 0; i--) {
@@ -1021,7 +1021,7 @@ void UnitManager::DisbandSelected()
 			if(g_network.IsClient()) {
 				g_network.SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
 			}
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 								   GEA_Unit, u.m_id,
 								   GEA_End);
 		} else if(theList == m_statsList) {
@@ -1040,14 +1040,14 @@ void UnitManager::DisbandSelected()
 					if(g_network.IsClient()) {
 						g_network.SendAction(new NetAction(NET_ACTION_DISBAND_UNIT, u.m_id));
 					}
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandUnit,
 										   GEA_Unit, u.m_id,
 										   GEA_End);
 				}
 			}
 		}
 	}
-	g_gevManager->Resume();
+	gevmanager_Get()->Resume();
 }
 
 /// Handle disbanding of armies
@@ -1089,9 +1089,9 @@ STDEHANDLER(UnitManagerUnitDisbanded)
 
 void UnitManager::InitializeEvents()
 {
-	g_gevManager->AddCallback
+	gevmanager_Get()->AddCallback
         (GEV_DisbandUnit, GEV_PRI_Post, &s_UnitManagerUnitDisbanded);
-	g_gevManager->AddCallback
+	gevmanager_Get()->AddCallback
         (GEV_DisbandArmyOrder, GEV_PRI_Post, &s_UnitManagerArmyDisbanded);
 }
 

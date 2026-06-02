@@ -74,6 +74,7 @@
 #include "gs/gameobj/Civilisation.h"
 #include "gs/utility/UnitDynArr.h"
 
+#include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Events.h"
 
@@ -1697,7 +1698,7 @@ void DipWizard::SendCallback(aui_Control *control, uint32 action, uint32 data, v
 		Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).ExecuteResponse(resp);
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 						   GEA_Player,		g_selected_item->GetCurPlayer(),
 						   GEA_End
 						  );
@@ -1764,7 +1765,7 @@ void DipWizard::AcceptCallback(aui_Control *control, uint32 action, uint32 data,
 
 		Hide();
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 							   GEA_Player,		g_selected_item->GetCurPlayer(),
 							   GEA_End
 							  );
@@ -1792,7 +1793,7 @@ void DipWizard::AcceptCallback(aui_Control *control, uint32 action, uint32 data,
 		Diplomat::GetDiplomat(m_viewRecipient).ExecuteResponse(response);
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 						   GEA_Player,		g_selected_item->GetCurPlayer(),
 						   GEA_End
 						  );
@@ -1814,7 +1815,7 @@ void DipWizard::RejectCallback(aui_Control *control, uint32 action, uint32 data,
 	Hide();
 	Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer()).ExecuteResponse(response);
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 						   GEA_Player,		g_selected_item->GetCurPlayer(),
 						   GEA_End
 						  );
@@ -2600,8 +2601,8 @@ STDEHANDLER(DipWizContinueDiplomacyEvent)
 
 void DipWizard::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_ResponseReady, GEV_PRI_Post, &s_DipWizResponseReady);
-	g_gevManager->AddCallback(GEV_NewProposal, GEV_PRI_Post, &s_DipWizNewProposalEvent);
+	gevmanager_Get()->AddCallback(GEV_ResponseReady, GEV_PRI_Post, &s_DipWizResponseReady);
+	gevmanager_Get()->AddCallback(GEV_NewProposal, GEV_PRI_Post, &s_DipWizNewProposalEvent);
 }
 
 void DipWizard::NotifyResponse(const Response &resp, sint32 responder, sint32 other_player)

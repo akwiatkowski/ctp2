@@ -39,6 +39,7 @@
 #include "ui/interface/DomesticControlPanel.h"
 #include "ui/interface/EndTurnButton.h"
 #include "gs/gameobj/Events.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
 #include "ui/interface/MessageControlPanel.h"
 #include "ui/interface/ShortcutPad.h"
@@ -70,7 +71,7 @@ STDEHANDLER(MainControlPanel_BeginTurn)
 
 void MainControlPanel::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_BeginTurn, GEV_PRI_Post, &s_MainControlPanel_BeginTurn);
+	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Post, &s_MainControlPanel_BeginTurn);
 }
 
 void MainControlPanel::Initialize(MBCHAR *ldlBlock)

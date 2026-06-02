@@ -517,7 +517,7 @@ void BattleView::Process(void)
 
 				if (!IsProcessing() && (!combat_Get() || !combat_Get()->IsDone()))
                 {
-					g_gevManager->GotUserInput();
+					gevmanager_Get()->GotUserInput();
                 }
 			}
             else

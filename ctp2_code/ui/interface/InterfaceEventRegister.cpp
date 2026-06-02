@@ -16,7 +16,7 @@ bool InterfaceEventRegister::AddCallback(GAME_EVENT type,
 
 	if(m_isInitialized()) {
 
-		g_gevManager->AddCallback(type, priority, callback);
+		gevmanager_Get()->AddCallback(type, priority, callback);
 	} else {
 
 		m_interfaceCallbackList().push(EventInfo(type, priority, callback));
@@ -31,7 +31,7 @@ void InterfaceEventRegister::Initialize()
 	while(!m_interfaceCallbackList().empty()) {
 
 		const EventInfo &eventInfo = m_interfaceCallbackList().front();
-		g_gevManager->AddCallback(eventInfo.m_type, eventInfo.m_priority,
+		gevmanager_Get()->AddCallback(eventInfo.m_type, eventInfo.m_priority,
 			eventInfo.m_callback);
 
 		m_interfaceCallbackList().pop();

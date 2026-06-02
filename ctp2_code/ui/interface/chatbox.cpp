@@ -582,11 +582,11 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 			if (player >= 0 && player < k_MAX_PLAYERS && player_Get(player))
 			{
 				player_Get(player)->m_playerType = PLAYER_TYPE_ROBOT;
-				g_gevManager->Pause();
-				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
+				gevmanager_Get()->Pause();
+				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
 				                       GEA_Player, player,
 				                       GEA_End);
-				g_gevManager->Resume();
+				gevmanager_Get()->Resume();
 			}
 		}
 	}

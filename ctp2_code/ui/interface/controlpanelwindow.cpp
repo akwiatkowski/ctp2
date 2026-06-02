@@ -150,6 +150,7 @@
 #include "gs/world/World.h"                      // world_Get()
 #include "gfx/spritesys/director.h"                   // g_director
 #include "gs/gameobj/Events.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
 #include "TerrainRecord.h"
 
@@ -583,7 +584,7 @@ void controlpanelwindow_DisbandCity(bool response, void *userData)
 	if(response) {
 		Unit city(static_cast<uint32>(reinterpret_cast<uintptr_t>(userData)));
 		if(city.IsValid()) {
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity, GEA_City, city, GEA_End);
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity, GEA_City, city, GEA_End);
 		}
 	}
 }
@@ -643,7 +644,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 				break;
 			}
 		case k_CONTEXT_CITY_ACTIVATE_UNITS:
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ActivateAllUnits,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ActivateAllUnits,
 								   GEA_MapPoint, city.RetPos(),
 								   GEA_End);
 			break;
@@ -677,7 +678,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 					case k_UNIT_CONTEXT_CLEAR_ORDERS:
 					{
 						if(a.IsValid()) {
-							g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ClearOrders,
+							gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ClearOrders,
 												   GEA_Army, a.m_id,
 												   GEA_End);
 						}
@@ -699,7 +700,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 									g_network.SendGroupRequest(units, a);
 								}
 							} else {
-								g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
+								gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_GroupOrder,
 													   GEA_Army, a.m_id,
 													   GEA_End);
 							}
@@ -712,7 +713,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 							if(g_network.IsClient()) {
 								g_network.SendUngroupRequest(a, *a.AccessData());
 							} else {
-								g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
+								gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_UngroupOrder,
 													   GEA_Army, a.m_id,
 													   GEA_End);
 							}
@@ -2044,9 +2045,9 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 				Assert(path.GetEnd() == pos);
 
 
-				g_gevManager->Pause();
+				gevmanager_Get()->Pause();
 				army->PerformOrderHere(m_currentOrder, &path);
-				g_gevManager->Resume();
+				gevmanager_Get()->Resume();
 			}
 			handled = true;
 		}
@@ -2082,7 +2083,7 @@ ControlPanelWindow::TileImpClick(const MapPoint &pos) //emod7
 	if (!terrainutil_CanPlayerBuildAt(m_currentTerrainImpRec,player,pos))
 		return true;
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateImprovement,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateImprovement,
 						   GEA_Player,player,
 						   GEA_MapPoint, pos,
 						   GEA_Int,m_currentTerrainImpRec->GetIndex(),

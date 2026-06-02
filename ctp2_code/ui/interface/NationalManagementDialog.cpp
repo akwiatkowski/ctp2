@@ -1417,7 +1417,7 @@ void NationalManagementDialog::DisbandCallback(bool response, void *userData)
 			Unit city;
 			city.m_id = reinterpret_cast<uintptr_t>(item->GetUserData());
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity, GEA_City, city, GEA_End);
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisbandCity, GEA_City, city, GEA_End);
 		}
 
 		dialog->UpdateResourceList();

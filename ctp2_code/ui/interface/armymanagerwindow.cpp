@@ -64,6 +64,7 @@
 
 #include "gs/database/StrDB.h"
 
+#include "gs/events/GameEventManager.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Events.h"
 #include "ui/aui_utils/primitives.h"
@@ -989,7 +990,7 @@ STDEHANDLER(ArmyManagerArmyMoved)
 
 void ArmyManagerWindow::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_ArmyManagerArmyMoved);
+	gevmanager_Get()->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_ArmyManagerArmyMoved);
 }
 
 void ArmyManagerWindow::CleanupEvents()

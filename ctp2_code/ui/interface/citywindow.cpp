@@ -2592,7 +2592,7 @@ void CityWindow::ActivateUnitCallback(aui_Control *control, uint32 action, uint3
 				Assert(u.IsValid());
 				u->CreateOwnArmy();
 				if(u.IsValid()) {
-					g_gevManager->AddEvent(GEV_INSERT_Tail,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 										   GEV_DetrenchOrder,
 										   GEA_Army, u.GetArmy().m_id,
 										   GEA_End);
@@ -2647,7 +2647,7 @@ void CityWindow::DisbandQuery(bool result, void *ud)
 		} // for
 
 		// Perform the actual disbanding.
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_DisbandArmyOrder,
 							   GEA_Army,
 							   temp.m_id,

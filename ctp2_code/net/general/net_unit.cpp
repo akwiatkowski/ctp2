@@ -136,7 +136,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	uint16 unitSize;
 	if (uid.IsValid())
 	{
-		m_unitData = g_theUnitPool->AccessUnit((const Unit)getlong(&buf[2]));
+		m_unitData = unitpool_Get()->AccessUnit((const Unit)getlong(&buf[2]));
 		MapPoint pnt = m_unitData->m_pos;
 		PLAYER_INDEX oldowner = m_unitData->m_owner;
 		uint32 oldFlags = m_unitData->m_flags;
@@ -222,7 +222,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 						 (sint32)getshort(&buf[18]));
 		uint32 flags = getlong(&buf[20]);
 
-		g_theUnitPool->HackSetKey(((uint32)uid & k_ID_KEY_MASK) + 1);
+		unitpool_Get()->HackSetKey(((uint32)uid & k_ID_KEY_MASK) + 1);
 
 		sint32 trans_t = 0;
         (void) g_theUnitDB->Get(unitType, g_player[unitOwner]->GetGovernmentType())->GetTransType(trans_t);
@@ -250,7 +250,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		UnpacketizeUnit(&buf[pos], unitSize, m_unitData);
 		pos += unitSize;
 
-		g_theUnitPool->Insert(m_unitData);
+		unitpool_Get()->Insert(m_unitData);
 
 #if 0
 		if(m_unitData->m_vision_range != oldVisionRange) {

@@ -76,11 +76,8 @@ public:
 	friend void from_json(nlohmann::json const &j, UnitPool &p);
 };
 
-extern UnitPool *g_theUnitPool;
-
-// Session-singleton accessor pair, mirroring pollution_Get / topten_Get.
-// Callers should use unitpool_Get() instead of reaching for the legacy
-// g_theUnitPool global directly.
+// g_theUnitPool is now file-static in gameinit.cpp; external access goes
+// through the accessor pair below.
 UnitPool * unitpool_Get(void);
 void       unitpool_Set(UnitPool *p);
 

@@ -58,7 +58,6 @@
 #include "ctp/ctp2_utils/c3math.h"             // AsPercentage
 #include "ui/aui_ctp2/c3ui.h"
 
-extern Pollution            *g_thePollution;
 
 AUI_ERRCODE domesticcontrolpanel_HappinessDrawCallback(ctp2_Static *control,
                                                        aui_Surface *surface,
@@ -119,8 +118,8 @@ AUI_ERRCODE domesticcontrolpanel_PollutionDrawCallback(ctp2_Static *control,
                                                        void *cookie)
 {
 
-	double total = double(g_thePollution->GetGlobalPollutionLevel());
-	double nextEvent = double(g_thePollution->GetNextTrigger());
+	double total = double(pollution_Get()->GetGlobalPollutionLevel());
+	double nextEvent = double(pollution_Get()->GetNextTrigger());
 
 	RECT tmp=rect;
 

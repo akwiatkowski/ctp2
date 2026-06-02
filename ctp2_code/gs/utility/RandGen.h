@@ -56,7 +56,7 @@ public:
 			return 0;
 
 #ifdef LOG_RAND
-		if(this == g_rand) {
+		if(this == rand_ptr()) {
 			sint32 res = Next() % r;
 			DPRINTF(k_DBG_GAMESTATE, ("RandomGenerator::Next(%d) = %d\n",
 									  r, res));

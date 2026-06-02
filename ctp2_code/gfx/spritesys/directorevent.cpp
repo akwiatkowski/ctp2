@@ -193,7 +193,7 @@ STDEHANDLER(DirectorActionSuccessful)
 			{
 				if((((unit.GetOwner() == g_selected_item->GetVisiblePlayer()) ||
 					 (unit.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))) ||
-					g_theUnitPool->IsValid(c) &&
+					unitpool_Get()->IsValid(c) &&
 					((c.GetOwner() == g_selected_item->GetVisiblePlayer()) ||
 					 (c.GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))))) {
 

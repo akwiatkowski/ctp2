@@ -635,7 +635,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 			for (i=0; i<count; i++) {
 				unit = fullArmy->Access(i);
 
-				if (!g_theUnitPool->IsValid(unit)) {
+				if (!unitpool_Get()->IsValid(unit)) {
 					Assert(FALSE);
 					continue;
 				}

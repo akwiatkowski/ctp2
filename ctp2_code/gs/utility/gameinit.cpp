@@ -177,7 +177,7 @@ World                       *g_theWorld=NULL;
 
 World * world_Get(void)                       { return g_theWorld; }
 void    world_Set(World *p)                   { g_theWorld = p; }
-UnitPool                    *g_theUnitPool=NULL;
+static UnitPool             *g_theUnitPool=NULL;
 
 UnitPool * unitpool_Get(void)               { return g_theUnitPool; }
 void       unitpool_Set(UnitPool *p)        { g_theUnitPool = p; }
@@ -205,7 +205,7 @@ static QuadTree<Unit>       *g_theUnitTree = NULL;
 
 QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
-Pollution                   *g_thePollution=NULL;
+static Pollution            *g_thePollution=NULL;
 
 Pollution * pollution_Get(void)               { return g_thePollution; }
 void        pollution_Set(Pollution *p)       { g_thePollution = p; }
@@ -233,7 +233,7 @@ static InstallationQuadTree *g_theInstallationTree = NULL;
 
 InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
-TopTen                      *g_theTopTen = NULL;
+static TopTen               *g_theTopTen = NULL;
 
 TopTen * topten_Get(void)                     { return g_theTopTen; }
 void     topten_Set(TopTen *p)                { g_theTopTen = p; }

@@ -62,7 +62,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 
-extern ProfileDB *g_theProfileDB;
 
 struct BestUnit
 {

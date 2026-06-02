@@ -121,25 +121,25 @@ public:
 	{ m_isInteractive = status; ShouldDraw(); }
 
 	void DisplayUnits(bool status = true)
-		{ m_displayUnits = status; Update(); g_theProfileDB->SetDisplayUnits(status);}
+		{ m_displayUnits = status; Update(); profiledb_Get()->SetDisplayUnits(status);}
 	void DisplayCities(bool status = true)
-		{ m_displayCities = status; Update(); g_theProfileDB->SetDisplayCities(status);}
+		{ m_displayCities = status; Update(); profiledb_Get()->SetDisplayCities(status);}
 	void DisplayBorders(bool status = true)
-		{ m_displayBorders = status; Update(); g_theProfileDB->SetDisplayBorders(status);}
+		{ m_displayBorders = status; Update(); profiledb_Get()->SetDisplayBorders(status);}
 	void DisplayOverlay(bool status = true)
 		{ m_displayOverlay = status; Update(); }
 	void Filter(bool status = true)
-		{ m_filter = status; Update(); g_theProfileDB->SetDisplayFilter(status);}
+		{ m_filter = status; Update(); profiledb_Get()->SetDisplayFilter(status);}
 	void DisplayTrade(bool status = true)
-		{ m_displayTrade = status; Update(); g_theProfileDB->SetDisplayTrade(status);}
+		{ m_displayTrade = status; Update(); profiledb_Get()->SetDisplayTrade(status);}
 	void DisplayTerrain(bool status = true)
-		{ m_displayTerrain = status; Update(); g_theProfileDB->SetDisplayTerrain(status);}
+		{ m_displayTerrain = status; Update(); profiledb_Get()->SetDisplayTerrain(status);}
 	void DisplayPolitical(bool status = true)
-		{ m_displayPolitical = status; Update(); g_theProfileDB->SetDisplayPolitical(status);}
+		{ m_displayPolitical = status; Update(); profiledb_Get()->SetDisplayPolitical(status);}
 	void DisplayCapitols(bool status = true)
-		{ m_displayCapitols = status; Update(); g_theProfileDB->SetDisplayCapitols(status);}
+		{ m_displayCapitols = status; Update(); profiledb_Get()->SetDisplayCapitols(status);}
 	void DisplayRelations(bool status = true)
-		{ m_displayRelations = status; Update(); g_theProfileDB->SetDisplayRelations(status);}
+		{ m_displayRelations = status; Update(); profiledb_Get()->SetDisplayRelations(status);}
 
 	bool IsDisplayUnits() { return(m_displayUnits); }
 	bool IsDisplayCities() { return(m_displayCities); }

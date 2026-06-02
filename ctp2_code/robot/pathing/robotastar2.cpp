@@ -51,7 +51,7 @@
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/Cell.h"
 #include "ai/diplomacy/Diplomat.h"
-#include "gs/database/profileDB.h"      // g_theProfileDB
+#include "gs/database/profileDB.h"      // profiledb_Get()
 #include "ai/ctpaidebug.h"
 
 uint32 const    INCURSION_PERMISSION_ALL    = 0xffffffffu;

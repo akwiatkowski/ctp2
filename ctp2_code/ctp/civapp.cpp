@@ -230,7 +230,7 @@
 #include "PollutionRecord.h"
 #include "PopRecord.h"
 #include "gs/fileio/prjfile.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/interface/ProfileEdit.h"
 #include "ui/interface/progresswindow.h"
 #include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
@@ -514,7 +514,7 @@ void AddSearchPacks
 //
 // Parameters : -
 //
-// Globals    : g_theProfileDB:   user preferences (read)
+// Globals    : profiledb_Get():   user preferences (read)
 //              g_civPaths:       (updated)
 //
 // Returns    : -
@@ -526,7 +526,7 @@ void AddSearchPacks
 void InitDataIncludePath(void)
 {
 	MBCHAR                  ruleSets[MAX_PATH];
-	strncpy(ruleSets, g_theProfileDB->GetRuleSets(), MAX_PATH - 1);
+	strncpy(ruleSets, profiledb_Get()->GetRuleSets(), MAX_PATH - 1);
 	ruleSets[MAX_PATH - 1] = '\0';
 
 	std::vector<MBCHAR *>   pathStarts;
@@ -568,7 +568,7 @@ void InitDataIncludePath(void)
 //
 // Parameters : -
 //
-// Globals    : g_theProfileDB  : user preferences (read)
+// Globals    : profiledb_Get()  : user preferences (read)
 //
 // Returns    : -
 //
@@ -578,8 +578,8 @@ void InitDataIncludePath(void)
 //----------------------------------------------------------------------------
 void SelectColorSet(void)
 {
-	Assert(g_theProfileDB);
-	ColorSet::Initialize(g_theProfileDB->GetValueByName("ColorSet"));
+	Assert(profiledb_Get());
+	ColorSet::Initialize(profiledb_Get()->GetValueByName("ColorSet"));
 }
 
 } // namespace
@@ -1029,8 +1029,8 @@ bool CivApp::InitializeAppDB(void)
 	}
 
 	// Fix the player index if it is out of range:
-	if(g_theProfileDB->GetCivIndex() >= g_theCivilisationDB->NumRecords())
-		g_theProfileDB->SetCivIndex(1); // Set to first non-Barbarian civ
+	if(profiledb_Get()->GetCivIndex() >= g_theCivilisationDB->NumRecords())
+		profiledb_Get()->SetCivIndex(1); // Set to first non-Barbarian civ
 
 	ProgressTo( 270 );
 
@@ -1400,13 +1400,13 @@ sint32 CivApp::InitializeEngine(void)
 
 	CivPaths_InitCivPaths();
 
-	g_theProfileDB = new ProfileDB;
-	if (!g_theProfileDB->Init(FALSE)) {
+	profiledb_Set(new ProfileDB);
+	if (!profiledb_Get()->Init(FALSE)) {
 		c3errors_FatalDialog("CivApp", "Unable to init the ProfileDB.");
 		return -1;
 	}
 
-	g_logCrashes = g_theProfileDB->GetEnableLogs();
+	g_logCrashes = profiledb_Get()->GetEnableLogs();
 
 	InitDataIncludePath();
 	c3files_InitializeCD();
@@ -1414,7 +1414,7 @@ sint32 CivApp::InitializeEngine(void)
 	GreatLibrary::Initialize_Great_Library_Data();
 
 #ifndef _NO_GAME_WATCH
-	gameWatch.DeliverySystem("gwfile", g_theProfileDB->GetGameWatchDirectory());
+	gameWatch.DeliverySystem("gwfile", profiledb_Get()->GetGameWatchDirectory());
 	gameWatch.RecordingSystem("gwciv");
 #endif
 
@@ -1468,7 +1468,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
         return -1;
     }
 
-    SPLASH_STRING(g_theProfileDB->IsAIOn() ? "AI is ON" : "AI is OFF");
+    SPLASH_STRING(profiledb_Get()->IsAIOn() ? "AI is ON" : "AI is OFF");
 
 	ProgressTo( 20 );
 
@@ -1505,7 +1505,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 		// Maintain consistency between the CivIndex and CivName entries.
 		// When inconsistent, the CivIndex is leading.
 
-		sint32 const userCivIndex = g_theProfileDB->GetCivIndex();
+		sint32 const userCivIndex = profiledb_Get()->GetCivIndex();
 
 		if (static_cast<int>(userCivIndex) < g_theCivilisationDB->NumRecords())
 		{
@@ -1513,21 +1513,21 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 			    g_theStringDB->GetNameStr
 			        (g_theCivilisationDB->Get(userCivIndex)->GetPluralCivName());
 
-			if (0 == strcmp(dbCivName, g_theProfileDB->GetCivName()))
+			if (0 == strcmp(dbCivName, profiledb_Get()->GetCivName()))
 			{
 				// No action: keep the leader name of the user.
 			}
 			else
 			{
 				// Restore civilisation default country and leader names.
-				g_theProfileDB->DefaultSettings();
+				profiledb_Get()->DefaultSettings();
 			}
 		}
 		else
 		{
 			// Possible after using a mod with less civilisations
-			g_theProfileDB->SetCivIndex(1);
-			g_theProfileDB->DefaultSettings();
+			profiledb_Get()->SetCivIndex(1);
+			profiledb_Get()->DefaultSettings();
 		}
 	}
 
@@ -1544,7 +1544,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	ProgressTo( 610 );
 
-	if (g_theProfileDB->IsUseFingerprinting())
+	if (profiledb_Get()->IsUseFingerprinting())
 		if (!ctpfinger_Check()) {
 
 			c3errors_FatalDialog(appstrings_GetString(APPSTR_INITIALIZE),
@@ -1555,7 +1555,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 
 	if (c3ui_Get()->TheMouse())
     {
-		double const sensitivity = 0.25 * (1 + g_theProfileDB->GetMouseSpeed());
+		double const sensitivity = 0.25 * (1 + profiledb_Get()->GetMouseSpeed());
 		c3ui_Get()->TheMouse()->Sensitivity() = sensitivity;
 	}
 
@@ -1713,7 +1713,7 @@ void CivApp::CleanupApp(void)
 		CivScenarios::Cleanup();
 		SoundManager::Cleanup();
 
-		allocated::clear(g_theProfileDB);
+		{ ProfileDB * db = profiledb_Get(); allocated::clear(db); profiledb_Set(db); }
 
 		gameinit_Cleanup();
 		ui_events_Cleanup();
@@ -1884,7 +1884,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 540 );
 
-    if (m_dbLoaded && g_theProfileDB->IsScenario())
+    if (m_dbLoaded && profiledb_Get()->IsScenario())
     {
         CleanupAppDB();
         InitializeAppDB();
@@ -1922,7 +1922,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 580 );
 
-	if (m_dbLoaded && g_theProfileDB->IsScenario()) {
+	if (m_dbLoaded && profiledb_Get()->IsScenario()) {
 		if(g_controlPanel)
 			g_controlPanel->CreateTileImpBanks();
 	}
@@ -1967,14 +1967,14 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 		if(g_scenarioUsePlayerNumber > 0 && player_Get(g_scenarioUsePlayerNumber) &&
 		   player_Get(g_scenarioUsePlayerNumber)->m_civilisation &&
-		   g_theCivilisationDB && g_theProfileDB) {
+		   g_theCivilisationDB && profiledb_Get()) {
 			Player *        p       = player_Get(g_scenarioUsePlayerNumber);
 			StringId        id      =
                 (p->m_civilisation->GetDBRec())->GetLeaderNameMale();
 			const MBCHAR *name = g_theStringDB->GetNameStr(id);
 			if(name) {
 				p->m_civilisation->AccessData()->SetLeaderName(name);
-				g_theProfileDB->SetLeaderName(name);
+				profiledb_Get()->SetLeaderName(name);
 			}
 		}
 	}
@@ -2043,7 +2043,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	// they coexist; callers will migrate to game.GetTurn() incrementally.
 	m_game = std::make_unique<Ctp2::Game>();
 	m_game->NewGame(
-		g_theProfileDB->GetNPlayers(),
+		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
 	);
 
@@ -2302,7 +2302,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 680 );
 
-	if (m_dbLoaded && g_theProfileDB->IsScenario())
+	if (m_dbLoaded && profiledb_Get()->IsScenario())
 	{
 		CleanupAppDB();
 		InitializeAppDB();
@@ -2364,7 +2364,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	// See comment at the matching site in InitializeGameHeadless.
 	m_game = std::make_unique<Ctp2::Game>();
 	m_game->NewGame(
-		g_theProfileDB->GetNPlayers(),
+		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
 	);
 
@@ -2563,7 +2563,7 @@ void CivApp::CleanupGame(bool keepScenInfo)
 
 	if(!keepScenInfo) {
 
-		g_theProfileDB->SetIsScenario(FALSE);
+		profiledb_Get()->SetIsScenario(FALSE);
 		g_civPaths->ClearCurScenarioPath();
 		g_civPaths->ClearCurScenarioPackPath();
 		memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
@@ -2684,7 +2684,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			used_milliseconds = Os::GetTicks() - start_time_ms;
 
 			if(g_runInBackground
-			|| g_theProfileDB->GetValueByName("RunInBackground")
+			|| profiledb_Get()->GetValueByName("RunInBackground")
 			){
 				if (m_gameLoaded)
 				{
@@ -3292,7 +3292,7 @@ sint32 CivApp::ProcessAI()
 	if (c3ui_Get()->TheMouse()) {
 		if( c3ui_Get()->TheMouse()->IsSuspended()
 		&& !g_runInBackground
-		&& !g_theProfileDB->GetValueByName("RunInBackground")
+		&& !profiledb_Get()->GetValueByName("RunInBackground")
 		){
 			return 0;
 		}
@@ -3313,7 +3313,7 @@ sint32 CivApp::ProcessRobot(const uint32 target_milliseconds, uint32 &used_milli
 
 	if (c3ui_Get()->TheMouse())
 	{
-		if (c3ui_Get()->TheMouse()->IsSuspended() && !g_runInBackground && !g_theProfileDB->GetValueByName("RunInBackground"))
+		if (c3ui_Get()->TheMouse()->IsSuspended() && !g_runInBackground && !profiledb_Get()->GetValueByName("RunInBackground"))
 		{
 			// Probably there was something here.
 		}
@@ -3504,7 +3504,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// See comment at the matching site in InitializeGameHeadless.
 	m_game = std::make_unique<Ctp2::Game>();
 	m_game->NewGame(
-		g_theProfileDB->GetNPlayers(),
+		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
 	);
 
@@ -3668,7 +3668,7 @@ sint32 CivApp::RestartGameSameMap(void)
 		StartMessageSystem();
 	}
 
-	if (g_theProfileDB->IsScenario())
+	if (profiledb_Get()->IsScenario())
 	{
 		spnewgamescreen_scenarioExitCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
 		return 0;
@@ -3720,7 +3720,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	MBCHAR const *  autosaveName    = g_theStringDB->GetNameStr(autosaveItem);
 
 	MBCHAR			leaderName[k_MAX_NAME_LEN];
-	strncpy(leaderName, g_theProfileDB->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
+	strncpy(leaderName, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
 	leaderName[SAVE_LEADER_NAME_SIZE] = '\0';
 	c3files_StripSpaces(leaderName);
 
@@ -3787,7 +3787,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	}
 
 	MBCHAR			leaderName[SAVE_LEADER_NAME_SIZE + 1];
-	strncpy(leaderName, g_theProfileDB->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
+	strncpy(leaderName, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
 	leaderName[SAVE_LEADER_NAME_SIZE] = '\0';
 	c3files_StripSpaces(leaderName);
 
@@ -3836,10 +3836,10 @@ void CivApp::PostRestartGameSameMapAction(void)
 {
 	Player * p = player_Get(selitem_Get()->GetVisiblePlayer());
 
-	if (p && g_theProfileDB)
+	if (p && profiledb_Get())
 	{
-		g_theProfileDB->SetLeaderName(p->GetLeaderName());
-		g_theProfileDB->SetCivIndex(p->GetCivilisation()->GetCivilisation());
+		profiledb_Get()->SetLeaderName(p->GetLeaderName());
+		profiledb_Get()->SetCivIndex(p->GetCivilisation()->GetCivilisation());
 	}
 
 	c3ui_Get()->AddAction(new RestartGameSameMapAction());

@@ -53,7 +53,7 @@ public:
     // subsystems need: number of active players, calendar's starting
     // year (computed by the caller from the difficulty record), and
     // an RNG seed.  We pass them explicitly rather than reaching for
-    // g_theProfileDB/gamesettings_Get from inside the subsystems, so
+    // profiledb_Get()/gamesettings_Get from inside the subsystems, so
     // the class is constructible in isolation (e.g. from unit tests).
     void NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed = 0);
     void LoadGame(CivArchive& archive);

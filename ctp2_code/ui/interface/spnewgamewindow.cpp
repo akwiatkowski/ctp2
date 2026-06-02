@@ -56,7 +56,7 @@
 #include "ui/aui_ctp2/c3_dropdown.h"
 #include "gs/fileio/civscenarios.h"
 #include "gs/utility/Globals.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ui/aui_ctp2/c3textfield.h"
@@ -176,9 +176,9 @@ SPNewGameWindow::SPNewGameWindow(AUI_ERRCODE *retval, uint32 id,
 	m_string			= spNewStringTable(retval,"SPNewGameStrings");
 
 	// Reset failsafe start/end ages here, so they're correct before agesscreen is initialized.
-	g_theProfileDB->SetSPStartingAge(0);
-	g_theProfileDB->SetSPEndingAge(g_theAgeDB->NumRecords() - 1);
-	g_theProfileDB->Save();
+	profiledb_Get()->SetSPStartingAge(0);
+	profiledb_Get()->SetSPEndingAge(g_theAgeDB->NumRecords() - 1);
+	profiledb_Get()->Save();
 
     Update();
 }
@@ -240,7 +240,7 @@ void SPNewGameWindow::Update( void )
 	MBCHAR s[_MAX_PATH];
 	sint32 index;
 
-	m_spTribe->SetText( g_theProfileDB->GetCivName() );
+	m_spTribe->SetText( profiledb_Get()->GetCivName() );
 
 	if ( m_useCustomMap && g_loadSaveMapWindow && g_loadSaveMapWindow->GetSaveMapInfo() )
 	{
@@ -255,7 +255,7 @@ void SPNewGameWindow::Update( void )
 
 	}
 
-	index = g_theProfileDB->GetDifficulty();
+	index = profiledb_Get()->GetDifficulty();
 //Added by Martin Gühmann
 //Makes sure that the game doesn't crash if the according map size string is invalid.
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_CHIEFTAIN + index) );
@@ -263,7 +263,7 @@ void SPNewGameWindow::Update( void )
 
 
 	MAPSIZE size;
-	size = g_theProfileDB->GetMapSize();
+	size = profiledb_Get()->GetMapSize();
 
 	switch (size) {
 	case MAPSIZE_SMALL:
@@ -297,14 +297,14 @@ void SPNewGameWindow::Update( void )
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_SMALL + index) );
 	m_spMapSize->SetText( s );
 
-	sint32 shape = g_theProfileDB->GetWorldShape();
+	sint32 shape = profiledb_Get()->GetWorldShape();
 //Added by Martin Gühmann
 //Makes sure that the game doesn't crash if the according world shape string is invalid.
 	snprintf(s, sizeof(s), "%s", m_string->GetString(SP_NEWGAME_STR_EARTH + shape) );
 	m_worldShapeButton->SetText( s );
 
 
-	sint32 numPlayers = g_theProfileDB->GetNPlayers() - 1;
+	sint32 numPlayers = profiledb_Get()->GetNPlayers() - 1;
 
 	// Removed the alteration to the value when it was below 3 - JJB
 	snprintf(s, sizeof(s), "%d", numPlayers);
@@ -326,8 +326,8 @@ void SPNewGameWindow::Update( void )
 		sint32 ages		= g_theAgeDB->NumRecords();
 
 		// Reset failsafe start/end age.
-		g_theProfileDB->SetSPStartingAge(0);
-		g_theProfileDB->SetSPEndingAge(ages - 1);
+		profiledb_Get()->SetSPStartingAge(0);
+		profiledb_Get()->SetSPEndingAge(ages - 1);
 		agesscreen_Initialize();
 		agesscreen_setStartAge(0);
 		agesscreen_setEndAge(ages - 1);
@@ -344,15 +344,15 @@ void SPNewGameWindow::Update( void )
 		m_spScenario->ShouldDraw(TRUE);
 
 		sint32 ages		= g_theAgeDB->NumRecords();
-		sint32 startAge	= g_theProfileDB->GetSPStartingAge();
-		sint32 endAge	= g_theProfileDB->GetSPEndingAge();
+		sint32 startAge	= profiledb_Get()->GetSPStartingAge();
+		sint32 endAge	= profiledb_Get()->GetSPEndingAge();
 
 		// Check ages are still within range.
 		// Do not reset failsafe ages here, or they can never be set.
 		if (startAge != 0) {
 			if (startAge > endAge
 			 || startAge < 0) {
-				g_theProfileDB->SetSPStartingAge(0);
+				profiledb_Get()->SetSPStartingAge(0);
 				agesscreen_setStartAge(0);
 			}
 		}
@@ -360,13 +360,13 @@ void SPNewGameWindow::Update( void )
 		if (endAge != (ages - 1)) {
 			if (endAge < startAge
 			 || endAge > (ages - 1)) {
-				g_theProfileDB->SetSPEndingAge(ages - 1);
+				profiledb_Get()->SetSPEndingAge(ages - 1);
 				agesscreen_setEndAge(ages - 1);
 			}
 		}
 	}
 	// Make sure changes are saved for a new game.
-	g_theProfileDB->Save();
+	profiledb_Get()->Save();
 }
 
 
@@ -497,7 +497,7 @@ SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
 		spFillDropDown(retval,m_difficulty,mydiffs,"SPDropDownListItem","Difficulty");
 		delete mydiffs;
 
-		m_difficulty->SetSelectedItem(g_theProfileDB->GetDifficulty());
+		m_difficulty->SetSelectedItem(profiledb_Get()->GetDifficulty());
 	}
 	m_riskLevel		= spNew_c3_DropDown(retval,ldlBlock,"RiskLevel",spnewgamescreen_riskLevelSelect);
 	{
@@ -505,7 +505,7 @@ SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
 		spFillDropDown(retval,m_riskLevel,myrisks,"SPDropDownListItem","RiskLevel");
 		delete myrisks;
 
-		m_riskLevel->SetSelectedItem(g_theProfileDB->GetRiskLevel());
+		m_riskLevel->SetSelectedItem(profiledb_Get()->GetRiskLevel());
 	}
 	m_opponent		= spNew_c3_DropDown(retval,ldlBlock,"Opponent",spnewgamescreen_opponentSelect);
 	{
@@ -516,7 +516,7 @@ SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
 			if(myitem) m_opponent->AddItem(myitem);
 		}
 
-		uint32 numPlayers = g_theProfileDB->GetNPlayers();
+		uint32 numPlayers = profiledb_Get()->GetNPlayers();
 		Assert((numPlayers>2) && (numPlayers<17));
 		m_opponent->SetSelectedItem(numPlayers-3);
 	}
@@ -569,10 +569,10 @@ SPRulesBox::SPRulesBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
 	m_spCombat		= spNew_c3_CheckBox(retval,ldlBlock,"CombatButton",0,spnewgamescreen_combatPress);
 	m_spPollution	= spNew_c3_CheckBox(retval,ldlBlock,"PollutionButton",0,spnewgamescreen_pollutionPress);
 
-	m_spGenocide->SetState(g_theProfileDB->IsGenocideRule());
-	m_spTrade->SetState(g_theProfileDB->IsTradeRule());
-	m_spCombat->SetState(g_theProfileDB->IsSimpleCombatRule());
-	m_spPollution->SetState(g_theProfileDB->IsPollutionRule());
+	m_spGenocide->SetState(profiledb_Get()->IsGenocideRule());
+	m_spTrade->SetState(profiledb_Get()->IsTradeRule());
+	m_spCombat->SetState(profiledb_Get()->IsSimpleCombatRule());
+	m_spPollution->SetState(profiledb_Get()->IsPollutionRule());
 
 	m_RTOP			= spNew_c3_Static(retval,ldlBlock, "RTOP");
 	m_RHEADER		= spNew_c3_Static(retval,ldlBlock, "RHEADER");

@@ -47,7 +47,6 @@
 
 extern	StringDB                *g_theStringDB ;
 
-extern	ProfileDB               *g_theProfileDB;
 
 #include "gs/gameobj/CivilisationPool.h"	// CIV_INDEX_INVALID
 #include "CityStyleRecord.h"	// g_theCityStyleDB
@@ -350,7 +349,7 @@ sint32 CivilisationData::GetUseCount(const sint32 name) const
 
 MBCHAR const * CivilisationData::GetLeaderName(void) const
 {
-    return (m_leader_name[0]) ? m_leader_name : g_theProfileDB->GetLeaderName();
+    return (m_leader_name[0]) ? m_leader_name : profiledb_Get()->GetLeaderName();
 }
 
 void CivilisationData::SetLeaderName(const MBCHAR *s)

@@ -35,7 +35,7 @@
 #include <algorithm>        // std::fill
 #include "robot/aibackdoor/civarchive.h"
 #include "gfx/spritesys/GoodActor.h"
-#include "gs/database/profileDB.h"      // g_theProfileDB
+#include "gs/database/profileDB.h"      // profiledb_Get()
 
 TileInfo::TileInfo()
 :
@@ -111,7 +111,7 @@ void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)
     delete m_goodActor;
 	m_goodActor = new GoodActor(index, pos);
 
-	if (g_theProfileDB->IsGoodAnim())
+	if (profiledb_Get()->IsGoodAnim())
 	{
 		m_goodActor->FullLoad();
 	}

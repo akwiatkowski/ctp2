@@ -263,7 +263,7 @@
 #include "gs/gameobj/Player.h"                     // player_arr_Get()
 #include "gs/gameobj/pollution.h"
 #include "PopRecord.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "gs/utility/RandGen.h"                    // rand_ptr()
 #include "gs/gameobj/Readiness.h"
 #include "ResourceRecord.h"
@@ -992,7 +992,7 @@ void CityData::Initialize(sint32 settlerType)
 	}
 	else
 	{
-		if (g_theProfileDB->GetSPStartingAge() > 0)
+		if (profiledb_Get()->GetSPStartingAge() > 0)
 		{
 			for(sint32 i = 0; i < g_theBuildingDB->NumRecords() && i < 64; i++)
 			{
@@ -1003,7 +1003,7 @@ void CityData::Initialize(sint32 settlerType)
 					continue;
 
 				sint32 enable = buildingutil_Get(i, m_owner)->GetEnableAdvanceIndex();
-				if(g_theAdvanceDB->Get(enable, player_Get(m_owner)->GetGovernmentType())->GetAgeIndex() < g_theProfileDB->GetSPStartingAge())
+				if(g_theAdvanceDB->Get(enable, player_Get(m_owner)->GetGovernmentType())->GetAgeIndex() < profiledb_Get()->GetSPStartingAge())
 				{
 					m_built_improvements |= safe_shift_left_u64(i);
 				}
@@ -3216,7 +3216,7 @@ void CityData::CalculateCoeffProd()
 	}
 
 	//emod for energy impacts
-	if(g_theProfileDB->IsNRG())
+	if(profiledb_Get()->IsNRG())
 	{
 		double energysupply = player_Get(m_owner)->GetEnergySupply();
 		if ((energysupply < 1.0) && (energysupply > 0.0))
@@ -3372,7 +3372,7 @@ void CityData::CalculateCoeffGold()
 	}
 
 	//emod for energy impacts
-	if(g_theProfileDB->IsNRG())
+	if(profiledb_Get()->IsNRG())
 	{
 		double energysupply = player_Get(m_owner)->GetEnergySupply();
 		if(energysupply > 0.0)
@@ -4219,7 +4219,7 @@ sint32 CityData::GetSupportCityCost() const
 		return goldPerCity * PopCount();
 	}
 
-	if(g_theProfileDB->IsGoldPerCity())
+	if(profiledb_Get()->IsGoldPerCity())
 	{
 		return PopCount();
 	}
@@ -5260,7 +5260,7 @@ double CityData::GetDefendersBonus() const
 {
 	// EMOD add population as a contributor to defense for AI, to make larger cities even tougher. It takes total population * defense coefficient * percentage of people that are happy (and most likely to resist)
 	if((g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAICityDefenderBonus()
-	||  g_theProfileDB->IsAICityDefenderBonus())
+	||  profiledb_Get()->IsAICityDefenderBonus())
 	&& player_Get(m_owner)->IsRobot()
 	){
 		return m_defensiveBonus * g_theGovernmentDB->Get(player_Get(m_owner)->m_government_type)->GetDefenseCoef() + (PopCount() * g_theGovernmentDB->Get(player_Get(m_owner)->m_government_type)->GetDefenseCoef()) * (m_happy->GetHappiness() * .01);
@@ -10395,7 +10395,7 @@ sint32 CityData::SectarianHappiness() const
 {
 	if(
 	  (g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetSectarianHappiness())
-	||(g_theProfileDB->IsSectarianHappiness())
+	||(profiledb_Get()->IsSectarianHappiness())
 	) {
 		ProcessSectarianHappiness(m_secthappy, m_owner, m_cityStyle);
 	}
@@ -10714,7 +10714,7 @@ void CityData::InsurgentSpawn()
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 
 	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetRevoltInsurgents()
-	|| g_theProfileDB->IsRevoltInsurgents()
+	|| profiledb_Get()->IsRevoltInsurgents()
 	){
 		double barbchance   = risk->GetBarbarianChance();
 		double notFounder   = 0.0;
@@ -10755,7 +10755,7 @@ void CityData::RiotCasualties()
 	//EMOD to cut population after a revolt (adds realism and minimizes repeat revolts/ feral cities)
 	if(
 	   (      g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetRevoltCasualties()
-	      ||  g_theProfileDB->IsRevoltCasualties()
+	      ||  profiledb_Get()->IsRevoltCasualties()
 	   )
 	   &&     PopCount() >= 10
 	  )
@@ -10842,7 +10842,7 @@ void CityData::Militia()
 
 		// If DiffDB AI gets a free unit when city ungarrisoned then give cheapest unit
 		if((g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAIMilitiaUnit()
-		|| 	g_theProfileDB->IsAIMilitiaUnit())
+		|| 	profiledb_Get()->IsAIMilitiaUnit())
 		&& player_Get(m_owner)->IsRobot()
 		){
 			player_Get(m_owner)->CreateUnit(cheapUnit, cpos, m_home_city, false, CAUSE_NEW_ARMY_CHEAT);

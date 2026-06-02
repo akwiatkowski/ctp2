@@ -870,14 +870,14 @@ void SelectedItem::NewRegisterClick(const MapPoint &pos, const aui_MouseEvent *d
 	bool			     left = data->lbutton != 0;
 	bool		        right = data->rbutton != 0;
 	SELECT_BUTTON button = SELECT_BUTTON_MAX;
-	SELECT_MODE mode = g_theProfileDB->IsUseLeftClick() ? SELECT_MODE_LEFT : SELECT_MODE_RIGHT;
+	SELECT_MODE mode = profiledb_Get()->IsUseLeftClick() ? SELECT_MODE_LEFT : SELECT_MODE_RIGHT;
 
 	bool do_targeting_mode = false;
 
 	if (g_controlPanel!=NULL)
 		do_targeting_mode = (g_controlPanel->GetTargetingMode()!=CP_TARGETING_MODE_OFF);
 
-	if(g_theProfileDB->IsUseCTP2Mode())
+	if(profiledb_Get()->IsUseCTP2Mode())
 		mode = SELECT_MODE_CTP2;
 
 	if(left)
@@ -985,7 +985,7 @@ void SelectedItem::SelectCityClick(const MapPoint &pos, const aui_MouseEvent *da
 {
 	if( !GetIsPathing()
 	|| ( IsLocalCity()
-	&&   g_theProfileDB->IsDebugCityAstar()
+	&&   profiledb_Get()->IsDebugCityAstar()
 	   )
 	  )
 	{
@@ -1519,7 +1519,7 @@ SELECT_TYPE SelectedItem::GetClickedThing(const MapPoint &pos, bool click)
 		{
 			if(top.GetOwner() == visiblePlayer)
 			{
-				if(!g_theProfileDB->GetValueByName("CityClick")
+				if(!profiledb_Get()->GetValueByName("CityClick")
 				&& world_Get()->GetCell(pos)->GetNumUnits() > 0
 				){
 					for(sint32 i = 0; i < world_Get()->GetCell(pos)->GetNumUnits(); i++)

@@ -249,7 +249,11 @@ TurnCount                   *g_turn = NULL;
 TurnCount * turn_Get(void)                    { return g_turn; }
 void        turn_Set(TurnCount *p)            { g_turn = p; }
 
-ProfileDB                   *g_theProfileDB = NULL;
+static ProfileDB            *g_theProfileDB = NULL;
+
+ProfileDB * profiledb_Get(void)                 { return g_theProfileDB; }
+void        profiledb_Set(ProfileDB *p)         { g_theProfileDB = p; }
+
 MovieDB                     *g_theVictoryMovieDB = NULL;
 FilenameDB                  *g_theMessageIconFileDB = NULL;
 Pool<Order>                 *g_theOrderPond = NULL;

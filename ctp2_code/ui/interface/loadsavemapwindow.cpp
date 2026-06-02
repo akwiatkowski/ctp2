@@ -63,7 +63,6 @@
 #include "ui/aui_ctp2/radarmap.h"
 
 extern StringDB						*g_theStringDB;
-extern ProfileDB					*g_theProfileDB;
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;
 
@@ -639,7 +638,7 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	MBCHAR		theGameMapName[_MAX_PATH];
 
 	if (gameMapName == NULL) {
-		strcpy(theGameMapName, g_theProfileDB->GetLeaderName());
+		strcpy(theGameMapName, profiledb_Get()->GetLeaderName());
 	} else {
 		strcpy(theGameMapName, gameMapName);
 	}

@@ -84,7 +84,7 @@
 #include "ui/netshell/playereditwindow.h"
 #include "ui/netshell/playerselectwindow.h"
 #include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"                     // g_theProfileDB
+#include "gs/database/profileDB.h"                     // profiledb_Get()
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgamemapsizescreen.h"
 #include "ui/interface/spnewgamemapshapescreen.h"
@@ -3606,7 +3606,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 	((aui_TextField *)g_allinoneWindow->FindControl(
 		AllinoneWindow::CONTROL_GAMENAMETEXTFIELD ))->
 			GetFieldText(name, dp_SNAMELEN);
-	g_theProfileDB->SetGameName( name );
+	profiledb_Get()->SetGameName( name );
 
 
 
@@ -3622,7 +3622,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	g_theProfileDB->SetCivName( playersetup_Get().GetName() );
+	profiledb_Get()->SetCivName( playersetup_Get().GetName() );
 
 
 	if ( g_netfunc->IsHost() )
@@ -3640,8 +3640,8 @@ void AllinoneWindow::OKButtonAction::Execute(
 		case 1:
 			g_network.SetSpeedStyle( TRUE, playStyleValue, FALSE, 0 );
 
-			g_theProfileDB->SetZoomedCombatAlways( FALSE );
-			g_theProfileDB->SetThroneRoom( FALSE );
+			profiledb_Get()->SetZoomedCombatAlways( FALSE );
+			profiledb_Get()->SetThroneRoom( FALSE );
 
 			break;
 		case 2:
@@ -3737,7 +3737,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	g_theProfileDB->SetGenocideRule(
+	profiledb_Get()->SetGenocideRule(
 		((aui_Switch *)g_allinoneWindow->FindControl(
 			AllinoneWindow::CONTROL_BLOODLUSTSWITCH ))->GetState() );
 
@@ -3765,7 +3765,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	g_theProfileDB->SetPollutionRule(
+	profiledb_Get()->SetPollutionRule(
 		((aui_Switch *)g_allinoneWindow->FindControl(
 			AllinoneWindow::CONTROL_POLLUTIONSWITCH ))->GetState() );
 
@@ -3775,7 +3775,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	g_theProfileDB->SetPowerPoints(
+	profiledb_Get()->SetPowerPoints(
 		((c3_EditButton *)g_allinoneWindow->FindControl(
 			AllinoneWindow::CONTROL_CIVPOINTSBUTTON ))->GetValue() );
 
@@ -3835,7 +3835,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 	sint32 numPlayers = ((aui_ListBox *)g_allinoneWindow->FindControl(
 		AllinoneWindow::CONTROL_HPLAYERSLISTBOX))->NumItems();
 
-	g_theProfileDB->SetNPlayers(numPlayers + 1);
+	profiledb_Get()->SetNPlayers(numPlayers + 1);
 
 	aui_ListBox *HPlayersList = (aui_ListBox *)g_allinoneWindow->FindControl(AllinoneWindow::CONTROL_HPLAYERSLISTBOX);
 	sint32 i;
@@ -3893,7 +3893,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 		}
 	}
 
-	g_theProfileDB->SetAI(g_netfunc->IsHost());
+	profiledb_Get()->SetAI(g_netfunc->IsHost());
 
 	g_network.SetStartingAge(agesscreen_getStartAge());
 	g_network.SetEndingAge(agesscreen_getEndAge());
@@ -3905,7 +3905,7 @@ void AllinoneWindow_SetupGameForLaunch( void )
 	}
 
 	if(scenInfo->isScenario) {
-		g_theProfileDB->SetIsScenario(TRUE);
+		profiledb_Get()->SetIsScenario(TRUE);
 
 
 
@@ -3928,12 +3928,12 @@ void AllinoneWindow_SetupGameForLaunch( void )
 			if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 											&pack, &scen)) {
 
-				g_theProfileDB->SetIsScenario(TRUE);
+				profiledb_Get()->SetIsScenario(TRUE);
 				g_civPaths->SetCurScenarioPath(scen->m_path);
 				g_civPaths->SetCurScenarioPackPath(pack->m_path);
 			}
 		} else {
-			g_theProfileDB->SetIsScenario(FALSE);
+			profiledb_Get()->SetIsScenario(FALSE);
 			g_civPaths->ClearCurScenarioPath();
 		}
 	}

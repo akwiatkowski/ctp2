@@ -27,8 +27,8 @@ struct HappyFixture
             CivPaths_InitCivPaths();
             gameinit_InitializeGameFiles();
 
-            g_theProfileDB = new ProfileDB();
-            g_theProfileDB->Init(FALSE);
+            profiledb_Set(new ProfileDB());
+            profiledb_Get()->Init(FALSE);
 
             s_app = new CivApp();
             s_app->InitializeAppDB();

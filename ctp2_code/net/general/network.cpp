@@ -142,7 +142,6 @@ extern StringDB			*g_theStringDB;
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
 
-extern ProfileDB		*g_theProfileDB;
 extern NETFunc			*g_netfunc;
 extern CivApp			*g_civApp;
 
@@ -867,7 +866,7 @@ void Network::Init()
 		}
 
 		if(err == NET_ERR_OK) {
-			if(!g_theProfileDB->UseIPX()) {
+			if(!profiledb_Get()->UseIPX()) {
 
 				err = m_netIO->SetLobby("california12.activision.com");
 			}
@@ -900,7 +899,7 @@ Network::EnumTransport(NET_ERR result,
 {
 	DPRINTF(k_DBG_NET, ("Transport %d: %s\n", index, transname));
 
-	if(g_theProfileDB->UseIPX()) {
+	if(profiledb_Get()->UseIPX()) {
 		if(strstr(transname, "wipx2d.dll")) {
 			m_transport = index;
 		}
@@ -1259,7 +1258,7 @@ void Network::SetReady(uint16 id)
 	QueuePacket(player->m_id, new NetCRC());
 
 	QueuePacket(player->m_id, new NetGameSettings(size->x, size->y,
-						      g_theProfileDB->GetNPlayers(),
+						      profiledb_Get()->GetNPlayers(),
 						      m_gameStyle,
 						      m_unitMovesPerSlice,
 						      m_totalStartTime,
@@ -2199,7 +2198,7 @@ sint32 Network::FindEmptySlot(PlayerData *player, uint16 id)
 
 
 
-			if(g_theProfileDB->NoHumanPlayersOnHost() && player->m_id == m_pid &&
+			if(profiledb_Get()->NoHumanPlayersOnHost() && player->m_id == m_pid &&
 			   newslot >= 0 && player_Get(newslot)->IsRobot()) {
 				break;
 			}
@@ -3127,9 +3126,9 @@ void Network::EnterSetupMode()
 					if(player_Get(i)->m_all_armies->Num() > 0) {
 						MapPoint pos;
 						player_Get(i)->m_all_armies->Access(0).GetPos(pos);
-						SetSetupArea(i, pos, g_theProfileDB->SetupRadius());
+						SetSetupArea(i, pos, profiledb_Get()->SetupRadius());
 					}
-					SetPowerPoints(i, g_theProfileDB->PowerPoints());
+					SetPowerPoints(i, profiledb_Get()->PowerPoints());
 				}
 			}
 		}
@@ -3333,7 +3332,7 @@ uint32 Network::GetHumanMask()
 	uint32 mask = 0;
 	sint32 i;
 	sint32 n = m_nsPlayerInfo->GetCount();
-	if(g_theProfileDB->NoHumanPlayersOnHost())
+	if(profiledb_Get()->NoHumanPlayersOnHost())
 		n--;
 
 	for(i = 1; i < k_MAX_PLAYERS; i++) {

@@ -1425,7 +1425,7 @@ double UnitData::GetAttack(const UnitRecord *rec, const Unit defender) const
 	}
 	base += (base * bonuses);
 	// finally add city attack buildings, so they're not subject to bonuses.
-	if (!g_theProfileDB->IsNewCombat()) {
+	if (!profiledb_Get()->IsNewCombat()) {
 		Unit	city	= world_Get()->GetCity(m_pos);
 		if(city.IsValid()) {
 			base += city.CD()->GetOffenseBonus(defender);
@@ -1912,7 +1912,7 @@ bool UnitData::Settle()
 		DPRINTF(k_DBG_GAMESTATE, ("No movement (%lf < %lf), FirstMove: %d\n", m_movement_points, g_theConstDB->Get(0)->GetSpecialActionMoveCost(),
 								  Flag(k_UDF_FIRST_MOVE)));
 
-		if(!g_theProfileDB->AllowAISettleMoveCheat()) {
+		if(!profiledb_Get()->AllowAISettleMoveCheat()) {
 			slicengine_Get()->RunCantSettleMovementTriggers(Unit(m_id));
 			return false;
 		}
@@ -3382,7 +3382,7 @@ double UnitData::GetPositionDefense(const Unit &attacker) const
 //				g_theConstDB
 //				g_theCivilisationDB
 //				player_Get()
-//				g_theProfileDB
+//				profiledb_Get()
 //
 // Returns    : Returns the unit's attack points.
 //
@@ -3551,7 +3551,7 @@ double UnitData::GetOffense(const Unit &defender) const
 
 	// finally add city attack buildings, so they're not subject to bonuses.
 	// Note: This are only used with old combat.
-	if (!g_theProfileDB->IsNewCombat())
+	if (!profiledb_Get()->IsNewCombat())
 	{
 		Unit	city	= world_Get()->GetCity(m_pos);
 		if(city.IsValid())
@@ -3573,7 +3573,7 @@ double UnitData::GetOffense(const Unit &defender) const
 //
 // Globals    : world_Get()
 //				g_theConstDB
-//				g_theProfileDB
+//				profiledb_Get()
 //				g_theGovernmentDB
 //				player_Get()
 //				feattracker_Get()
@@ -3598,7 +3598,7 @@ double UnitData::GetDefense(const Unit &attacker) const
 	if(modDef != intDef)
 		base = modDef;
 
-	if (g_theProfileDB->IsNewCombat())
+	if (profiledb_Get()->IsNewCombat())
 	{// these were not in original combat for defence
 		if (IsVeteran())
 		{

@@ -41,7 +41,7 @@
 #include "gs/gameobj/TradeRoute.h"
 #include "AdvanceRecord.h"       // g_theAdvanceDB
 #include "WonderRecord.h"        // g_theWonderDB
-#include "gs/database/profileDB.h"           // g_theProfileDB
+#include "gs/database/profileDB.h"           // profiledb_Get()
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"
@@ -381,7 +381,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 {
 	DPRINTF(k_DBG_GAMESTATE, ("Missing object id %lx\n", (uint32)m_data.m_id));
 
-	if(g_theProfileDB && g_theProfileDB->IsDebugSlicEvents())
+	if(profiledb_Get() && profiledb_Get()->IsDebugSlicEvents())
 	{
 		if(event != NULL
 		&& event->GetContextName() != NULL)

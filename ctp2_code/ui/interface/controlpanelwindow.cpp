@@ -1326,7 +1326,7 @@ void ControlPanelWindow::RebuildMenus()
 	mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
-	if (!g_theProfileDB->IsScenario() && !is_scenario_Get())
+	if (!profiledb_Get()->IsScenario() && !is_scenario_Get())
 	{
 		mb->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);
@@ -1596,7 +1596,7 @@ ControlPanelWindow::BuildOptionsMenu()
 	m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_LoadGame"),
 		KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_LOAD_GAME)),(void *)CP_MENU_ITEM_6);
 
-	if (!g_theProfileDB->IsScenario() && !is_scenario_Get())
+	if (!profiledb_Get()->IsScenario() && !is_scenario_Get())
 	{
 		m_mainMenuBar->AddMenuItem(menu, g_theStringDB->GetNameStr("str_ldl_Restart"),
 			KeyListItem::GetKeyFromKMScreen(theKeyMap->get_keycode(KEY_FUNCTION_RESTART)),(void *)CP_MENU_ITEM_7);
@@ -1875,7 +1875,7 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 
 	tiledmap_Get()->GetMouseTilePos(pos);
 
-	bool const 	hideExpensive	= !g_theProfileDB->GetValueByName("ShowExpensive");
+	bool const 	hideExpensive	= !profiledb_Get()->GetValueByName("ShowExpensive");
 
 	if (!terrainutil_CanPlayerBuild(m_currentTerrainImpRec,player_id, hideExpensive))
 	{
@@ -2307,7 +2307,7 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 
 
 
-	bool const 	isAddBottom	= !g_theProfileDB->GetValueByName("RecentAtTop");
+	bool const 	isAddBottom	= !profiledb_Get()->GetValueByName("RecentAtTop");
 	m_messageList->InsertItem(item, isAddBottom ? m_messageList->NumItems() : 0);
 
 	if (initializing)
@@ -2404,7 +2404,7 @@ void ControlPanelWindow::PopulateMessageList(PLAYER_INDEX player)
 
 	m_messageList->BuildListStart();
 
-	bool const 		isAddBottom	= !g_theProfileDB->GetValueByName("RecentAtTop");
+	bool const 		isAddBottom	= !profiledb_Get()->GetValueByName("RecentAtTop");
 	sint32 const	copyCount	= playerMessages->Num();
 
 	if (isAddBottom)
@@ -3564,7 +3564,7 @@ ControlPanelWindow::TileImpButtonRedisplay(uint32 player_id,uint32 button)
 		return;
 	}
 
-	bool const	hideExpensive	= !g_theProfileDB->GetValueByName("ShowExpensive");
+	bool const	hideExpensive	= !profiledb_Get()->GetValueByName("ShowExpensive");
 
 	grey_button = !terrainutil_CanPlayerBuild(rec,player_id, hideExpensive);
 	show_button = terrainutil_PlayerHasAdvancesFor(rec, player_id);  //emod this needs to see obsolete tileimps

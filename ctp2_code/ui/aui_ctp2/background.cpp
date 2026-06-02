@@ -342,11 +342,11 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 	&& m_current_mouse_tile   != old
 	){
 		if((   m_lbutton_isdown == FALSE
-		    || g_theProfileDB->IsUseCTP2Mode()
+		    || profiledb_Get()->IsUseCTP2Mode()
 		   )
 		&& (   selitem_Get()->IsLocalArmy()
 		    || selitem_Get()->GetState() == SELECT_TYPE_LOCAL_ARMY_UNLOADING
-		    ||(selitem_Get()->IsLocalCity() && g_theProfileDB->IsDebugCityAstar())
+		    ||(selitem_Get()->IsLocalCity() && profiledb_Get()->IsDebugCityAstar())
 		   )
 		){
 			selitem_Get()->SetDrawablePathDest(m_current_mouse_tile);

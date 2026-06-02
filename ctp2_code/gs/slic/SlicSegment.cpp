@@ -627,7 +627,7 @@ GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEv
 		switch(disp)
 		{
 		default:
-			if (g_theProfileDB && g_theProfileDB->IsDebugSlic())
+			if (profiledb_Get() && profiledb_Get()->IsDebugSlic())
 			{
 				c3errors_ErrorDialog("Slic", "Bad return from event handler");
 			}

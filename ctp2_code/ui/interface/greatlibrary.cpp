@@ -86,7 +86,7 @@
 #include "OrderRecord.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gs/gameobj/Player.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "ResourceRecord.h"
 #include "ui/interface/sci_advancescreen.h"
 #include "ui/interface/screenutils.h"
@@ -792,7 +792,7 @@ GreatLibrary::GreatLibrary(sint32 theMode)
 	m_window->LoadVariablesText( so );
 
 
-	if ( g_theProfileDB->IsLibraryAnim() ) {
+	if ( profiledb_Get()->IsLibraryAnim() ) {
 		m_techStillShot->Hide();
 #ifdef __AUI_USE_DIRECTX__
 		if (m_techMovie) {
@@ -858,7 +858,7 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 
 
 
-	if ( g_theProfileDB->IsLibraryAnim() ) {
+	if ( profiledb_Get()->IsLibraryAnim() ) {
 		RECT rect = {
 			k_VIDEO_X,
 			k_VIDEO_Y,
@@ -1138,7 +1138,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 		k_VIDEO_X + k_VIDEO_WIDTH,
 		k_VIDEO_Y + k_VIDEO_HEIGHT};
 
-	if ( g_theProfileDB->IsLibraryAnim() ) {
+	if ( profiledb_Get()->IsLibraryAnim() ) {
 #ifdef __AUI_USE_DIRECTX__
 		m_techMovie = new DirectVideo();
 		m_techMovie->Initialize((aui_DirectUI *)c3ui_Get(), (aui_Window *)GetWindow(), FALSE);
@@ -1164,7 +1164,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 	m_window->LoadRequirementsText(so);
 	m_window->LoadVariablesText(so);
 
-	if ( g_theProfileDB->IsLibraryAnim() ) {
+	if ( profiledb_Get()->IsLibraryAnim() ) {
 #ifdef __AUI_USE_DIRECTX__
 		if (m_techMovie) {
 			if (m_techMovie->Open())

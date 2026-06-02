@@ -64,7 +64,7 @@
 #include "gs/gameobj/Player.h"
 #include "PopRecord.h"					// g_thePopDB
 #include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"					// g_theProfileDB
+#include "gs/database/profileDB.h"					// profiledb_Get()
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
 #include "gs/gameobj/UnitData.h"
@@ -977,7 +977,7 @@ void CauseAndEffectTab::UpdateCommerceValues()
 	totalCommerceSavings += totalWonderGold;
 
 	// Total unit gold support - deducted from savings.
-	if (g_theProfileDB->IsGoldPerUnitSupport()) {
+	if (profiledb_Get()->IsGoldPerUnitSupport()) {
 		totalUnitWages += player->CalcUnitSupportGold();
 		// Recalculate savings after unit gold support.
 		totalCommerceSavings -= totalUnitWages;

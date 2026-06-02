@@ -948,7 +948,7 @@ CTP2Combat::CTP2Combat
 	m_attackers.StartRound();
 	m_defenders.StartRound();
 
-	if(!g_theProfileDB->IsShowZoomedCombat())
+	if(!profiledb_Get()->IsShowZoomedCombat())
 		return;
 
 	if(m_attacker == player_view::VisiblePlayer()
@@ -1177,7 +1177,7 @@ void CTP2Combat::DoRangedAttacks()
 
 void CTP2Combat::DoRangedCounterAttacks()
 {
-	if (g_theProfileDB->IsNewCombat()) {
+	if (profiledb_Get()->IsNewCombat()) {
 		DoRangedCounterAttacksNC(&m_defenders, &m_attackers);
 	} else {
 		DoRangedAttacks(&m_defenders, &m_attackers);
@@ -1345,7 +1345,7 @@ void CTP2Combat::DoAttacks()
 
 void CTP2Combat::DoCounterAttacks()
 {
-	if (g_theProfileDB->IsNewCombat())
+	if (profiledb_Get()->IsNewCombat())
 	{
 		DoCounterAttacksNC(&m_defenders, &m_attackers);
 	} else {
@@ -1410,7 +1410,7 @@ bool CTP2Combat::ResolveOneRound()
 
 	bool playAnimations = true;
 	if (m_battleActive && (m_round > 1)) {
-		if (IsDone() || s_somethingDied || ++m_roundsSinceUpdate >= g_theProfileDB->GetBattleSpeed()) {
+		if (IsDone() || s_somethingDied || ++m_roundsSinceUpdate >= profiledb_Get()->GetBattleSpeed()) {
 			battle_observer::UpdateBattle();
 			m_roundsSinceUpdate = 0;
 			m_attackers.StartRound();

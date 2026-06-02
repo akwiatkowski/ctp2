@@ -111,7 +111,6 @@
 
 
 // The Databases
-extern  ProfileDB               *g_theProfileDB;
 extern  StringDB                *g_theStringDB ;
 extern  OzoneDatabase           *g_theUVDB ;
 
@@ -310,7 +309,7 @@ void DataCheck::BeginTurn(void)
 	archive = new CivArchive();
 	archive->SetStore();
 	check = new CheckSum();
-//	g_theProfileDB->Serialize(*archive);
+//	profiledb_Get()->Serialize(*archive);
 	check->AddData(archive->GetStream(), archive->StreamLen());
 	check->Done(m_crc[CRC_TYPE_PROFILE_DB][CRC_ARRAY_0], m_crc[CRC_TYPE_PROFILE_DB][CRC_ARRAY_1], m_crc[CRC_TYPE_PROFILE_DB][CRC_ARRAY_2], m_crc[CRC_TYPE_PROFILE_DB][CRC_ARRAY_3]);
 	delete archive;

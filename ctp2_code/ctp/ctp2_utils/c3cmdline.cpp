@@ -1948,12 +1948,12 @@ void SlicVariableCommand::Execute(sint32 argc, char **argv)
 
 void MultiCycleCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetAutoEndMultiple(!g_theProfileDB->IsAutoEndMulitpleTurns());
+	profiledb_Get()->SetAutoEndMultiple(!profiledb_Get()->IsAutoEndMulitpleTurns());
 }
 
 void CombatLogCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetCombatLog(!g_theProfileDB->IsCombatLog());
+	profiledb_Get()->SetCombatLog(!profiledb_Get()->IsCombatLog());
 }
 
 void RedrawMapCommand::Execute(sint32 argc, char **argv)
@@ -1979,7 +1979,7 @@ void CopyVisionCommand::Execute(sint32 argc, char **argv)
 
 void AutoGroupCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetAutoGroup(!g_theProfileDB->IsAutoGroup());
+	profiledb_Get()->SetAutoGroup(!profiledb_Get()->IsAutoGroup());
 }
 
 void BoardCommand::Execute(sint32 argc, char **argv)
@@ -2256,7 +2256,7 @@ void SetupModeCommand::Execute(sint32 argc, char **argv)
 		if(!g_network.IsHost() && !g_network.IsClient()) {
 			g_powerPointsMode = TRUE;
 			player_Get(selitem_Get()->GetVisiblePlayer())->m_doneSettingUp = FALSE;
-			player_Get(selitem_Get()->GetVisiblePlayer())->SetPoints(g_theProfileDB->PowerPoints());
+			player_Get(selitem_Get()->GetVisiblePlayer())->SetPoints(profiledb_Get()->PowerPoints());
 		}
 	}
 }
@@ -2340,9 +2340,9 @@ void TutorialCommand::Execute(sint32 argc, char **argv)
 
 	if(argc > 1) {
 		slicengine_Get()->SetTutorialPlayer(atoi(argv[1]));
-		g_theProfileDB->SetTutorialAdvice( TRUE );
+		profiledb_Get()->SetTutorialAdvice( TRUE );
 	} else {
-		g_theProfileDB->SetTutorialAdvice( !slicengine_Get()->GetTutorialActive() );
+		profiledb_Get()->SetTutorialAdvice( !slicengine_Get()->GetTutorialActive() );
 	}
 
 }
@@ -5386,7 +5386,7 @@ void ToggleWaterCommand::Execute(sint32 argc, char **argv)
 
 void EndTurnSoundCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetEndTurnSound(!g_theProfileDB->GetEndTurnSound());
+	profiledb_Get()->SetEndTurnSound(!profiledb_Get()->GetEndTurnSound());
 }
 
 extern sint32 g_is_rand_test;
@@ -5907,7 +5907,7 @@ void AiDumpCommand::Execute(sint32 argc, char **argv)
 
 void FastMoveCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetUnitAnim(!g_theProfileDB->IsUnitAnim());
+	profiledb_Get()->SetUnitAnim(!profiledb_Get()->IsUnitAnim());
 
 }
 
@@ -5954,7 +5954,7 @@ void UseDDBlitCommand::Execute(sint32 argc, char **argv)
 
 void AutoSaveCommand::Execute(sint32 argc, char **argv)
 {
-	g_theProfileDB->SetAutoSave(!g_theProfileDB->IsAutoSave());
+	profiledb_Get()->SetAutoSave(!profiledb_Get()->IsAutoSave());
 }
 
 void HeapTotalsCommand::Execute(sint32 argc, char **argv)

@@ -52,7 +52,7 @@
 #include "gs/core/audio_types.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Barbarians.h"
-#include "gs/database/profileDB.h"      // g_theProfileDB
+#include "gs/database/profileDB.h"      // profiledb_Get()
 #include "RiskRecord.h"
 #include "AdvanceRecord.h"
 #include "gs/core/game_observer.h"

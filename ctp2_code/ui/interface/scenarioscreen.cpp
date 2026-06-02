@@ -22,7 +22,6 @@
 #include "gs/fileio/CivPaths.h"
 #include "gs/fileio/civscenarios.h"
 
-extern ProfileDB			*g_theProfileDB;
 extern CivPaths				*g_civPaths;
 extern CivApp				*g_civApp;
 

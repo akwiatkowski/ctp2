@@ -72,7 +72,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "CivilisationRecord.h"
 #include "gs/utility/gameinit.h"
-#include "gs/database/profileDB.h"				// g_theProfileDB
+#include "gs/database/profileDB.h"				// profiledb_Get()
 #include "gs/gameobj/CivilisationPool.h"
 #include "gs/fileio/civscenarios.h"			// g_civScenarios
 #include "gs/fileio/gamefile.h"
@@ -117,7 +117,7 @@ void HotseatListButtonActionCallback( aui_Control *control, uint32 action, uint3
 		sint32 i;
 
 		sint32 numHumans = 0;
-		for(i = 0; i < g_theProfileDB->GetNPlayers() - 1; i++) {
+		for(i = 0; i < profiledb_Get()->GetNPlayers() - 1; i++) {
 			HotseatListItem *item = (HotseatListItem*)g_hotseatList->m_list->GetItemByIndex(i);
 			item->Update();
 			if(item->IsHuman()) {
@@ -132,7 +132,7 @@ void HotseatListButtonActionCallback( aui_Control *control, uint32 action, uint3
 		if(numHumans < 1)
 			return;
 
-		for(i = 0; i < g_theProfileDB->GetNPlayers() - 1; i++) {
+		for(i = 0; i < profiledb_Get()->GetNPlayers() - 1; i++) {
 			HotseatListItem *item = (HotseatListItem*)g_hotseatList->m_list->GetItemByIndex(i);
 			item->Update();
 			g_hotseatList->m_callback(0, i + 1,
@@ -284,8 +284,8 @@ sint32 HotseatList::UpdateData( void )
 
 	m_list->Clear();
 
-	if(g_theProfileDB->GetNPlayers() > k_MAX_HOTSEAT_PLAYERS + 1)
-		g_theProfileDB->SetNPlayers(k_MAX_HOTSEAT_PLAYERS + 1);
+	if(profiledb_Get()->GetNPlayers() > k_MAX_HOTSEAT_PLAYERS + 1)
+		profiledb_Get()->SetNPlayers(k_MAX_HOTSEAT_PLAYERS + 1);
 
 	Scenario *scen;
 	ScenarioPack *pack;
@@ -296,14 +296,14 @@ sint32 HotseatList::UpdateData( void )
 		info = cs->LoadSaveInfo(scen);
 	}
 
-	for ( sint32 i = 0 ; i < g_theProfileDB->GetNPlayers() - 1; i++ )
+	for ( sint32 i = 0 ; i < profiledb_Get()->GetNPlayers() - 1; i++ )
 	{
 		sint32 civ = i + 1;
 		if(info && info->startInfoType == STARTINFOTYPE_NOLOCS) {
 			civ = info->playerCivIndexList[i + 1];
 		} else if(i == 0) {
-			civ = g_theProfileDB->GetCivIndex();
-		} else if(civ == g_theProfileDB->GetCivIndex()) {
+			civ = profiledb_Get()->GetCivIndex();
+		} else if(civ == profiledb_Get()->GetCivIndex()) {
 			civ = 1;
 		}
 		item = new HotseatListItem(&retval, i, civ, i == 0, "", ldlBlock);
@@ -351,12 +351,12 @@ sint32 HotseatList::ChooseNextOpenCiv(HotseatListItem *curItem, sint32 curCiv)
 			continue;
 		}
 
-		for(i = 0; i < g_theProfileDB->GetNPlayers() - 1; i++) {
+		for(i = 0; i < profiledb_Get()->GetNPlayers() - 1; i++) {
 			HotseatListItem *item = (HotseatListItem *)m_list->GetItemByIndex(i);
 			if(item->GetCiv() == realCiv) {
 				used = true;
 
-				if (numEnabledCivs == g_theProfileDB->GetNPlayers()) {
+				if (numEnabledCivs == profiledb_Get()->GetNPlayers()) {
 
 					item->SetCiv(curItem->GetCiv());
 					item->Update();
@@ -459,7 +459,7 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 	subText = new C3TextField(&retval, aui_UniqueId(), block,
 							  HotseatNameCallback,  this);
 	if(m_index == 0) {
-		subText->SetFieldText(g_theProfileDB->GetLeaderName());
+		subText->SetFieldText(profiledb_Get()->GetLeaderName());
 	}
 
 	AddChild(subText);

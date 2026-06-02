@@ -74,7 +74,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/UnseenCell.h"         // Unseen cell info is needed
 #include "gfx/gfx_utils/gfx_options.h"        // g_graphicsOptions
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
@@ -211,7 +211,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 #ifndef _DEBUG
 		if((g_graphicsOptions
 		&&  g_graphicsOptions->IsArmyTextOn()
-		||  g_theProfileDB->GetDebugAI()))
+		||  profiledb_Get()->GetDebugAI()))
 #endif // _DEBUG
 		{
 			MBCHAR buf[k_MAX_NAME_LEN];
@@ -434,7 +434,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 #ifndef _DEBUG
 		if((g_graphicsOptions
 		&&  g_graphicsOptions->IsArmyTextOn()
-		||  g_theProfileDB->GetDebugAI()))
+		||  profiledb_Get()->GetDebugAI()))
 #endif // _DEBUG
 		{
 			MBCHAR buf[k_MAX_NAME_LEN];

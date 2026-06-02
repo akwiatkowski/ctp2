@@ -49,7 +49,7 @@
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainRecord.h"
 
@@ -181,7 +181,7 @@ sint32 tileimptracker_Initialize()
 //              world_Get():                The game world
 //              g_theTerrainImprovementDB: The tile improvement database
 //              g_theTerrainDB:            The terrain database
-//              g_theProfileDB:            The player's profile
+//              profiledb_Get():            The player's profile
 //              g_tileImpTrackerWindow:    The tile improvement tracker window
 //              c3ui_Get():                    The civilization 3 graphical user interface
 //
@@ -306,7 +306,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 		s_trackerGoldV->SetText(mytext);
 
 		ERR_BUILD_INST err;
-		bool const	checkMaterials	= !g_theProfileDB->GetValueByName("ShowExpensive");
+		bool const	checkMaterials	= !profiledb_Get()->GetValueByName("ShowExpensive");
 
 		if (player_Get(visPlayer)->CanCreateImprovement
 				(TERRAIN_IMPROVEMENT(s_tileImprovementNum), p, extraData, checkMaterials, err)

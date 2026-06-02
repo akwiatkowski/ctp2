@@ -454,7 +454,7 @@ bool c3files_HasLegalCD()
     {
 		success = c3files_FindCDByName(k_CTP_CD_VOLUME_NAME);
 
-		if (success && g_theProfileDB->IsProtected())
+		if (success && profiledb_Get()->IsProtected())
         {
 			success = (_TRACKLEN_OK == tracklen_CheckTrackLengths());
 		}
@@ -672,7 +672,7 @@ MBCHAR const * c3files_GetVolumeName(DriveIdType id)
 //
 // Parameters : name            : the name of the disk to look for
 //
-// Globals    : g_theProfileDB  : CD is required
+// Globals    : profiledb_Get()  : CD is required
 //              g_hasCD         : updated
 //              WhichCD         : updated
 //
@@ -712,7 +712,7 @@ bool c3files_FindCDByName(MBCHAR const * name)
 #endif
     }
 
-    return g_hasCD || !g_theProfileDB->IsRequireCD();
+    return g_hasCD || !profiledb_Get()->IsRequireCD();
 }
 
 } // local namespace

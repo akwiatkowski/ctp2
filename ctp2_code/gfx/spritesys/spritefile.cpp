@@ -51,7 +51,7 @@
 #include "gfx/spritesys/EffectSpriteGroup.h"
 #include "gfx/spritesys/Anim.h"
 #include "gs/fileio/CivPaths.h"               // g_civPaths
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 
 #ifdef __MAKESPR__
 unsigned char g_compression_buff[COM_BUFF_SIZE];
@@ -1518,7 +1518,7 @@ SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
 				s->SetGroupAnim((GAME_ACTION)i, anim);
 			} else
 			if (i==UNITACTION_IDLE) {
-				if (g_theProfileDB && g_theProfileDB->IsUnitAnim()) {
+				if (profiledb_Get() && profiledb_Get()->IsUnitAnim()) {
 
 					sprite = s->GetGroupSprite((GAME_ACTION)i);
 					ReadSpriteDataGeneralFull(&sprite);
@@ -1636,7 +1636,7 @@ SpriteFile::ReadBasic_v20(UnitSpriteGroup *s)
 	   ReadSpriteDataGeneralBasic(&sprite);
 	   ReadAnimDataBasic(anim);
 #else
-		if (g_theProfileDB && g_theProfileDB->IsUnitAnim())
+		if (profiledb_Get() && profiledb_Get()->IsUnitAnim())
 		{
 			ReadSpriteDataGeneralFull(&sprite);
 			ReadAnimDataFull(anim);

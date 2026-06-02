@@ -49,7 +49,7 @@
 #include "ui/netshell/ns_item.h"
 #include "ui/interface/spnewgamewindow.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 
 extern nf_GameSetup g_gamesetup;
 
@@ -90,7 +90,7 @@ void agesscreen_setStartAge( sint32 index )
 
 	s_startAge = index;
 	g_gamesetup.SetStartAge(static_cast<char>(index));
-	g_theProfileDB->SetSPStartingAge(index);
+	profiledb_Get()->SetSPStartingAge(index);
 }
 
 
@@ -108,7 +108,7 @@ void agesscreen_setEndAge( sint32 index )
 
 	s_endAge = index;
 	g_gamesetup.SetEndAge(static_cast<char>(index));
-	g_theProfileDB->SetSPEndingAge(index);
+	profiledb_Get()->SetSPEndingAge(index);
 }
 
 
@@ -134,8 +134,8 @@ sint32 agesscreen_removeMyWindow(uint32 action)
 
 	agesscreen_setStartAge( s_startDropDown->GetSelectedItem() );
 	agesscreen_setEndAge( s_endDropDown->GetSelectedItem() );
-	g_theProfileDB->SetSPStartingAge( s_startDropDown->GetSelectedItem() );
-	g_theProfileDB->SetSPEndingAge( s_endDropDown->GetSelectedItem() );
+	profiledb_Get()->SetSPStartingAge( s_startDropDown->GetSelectedItem() );
+	profiledb_Get()->SetSPEndingAge( s_endDropDown->GetSelectedItem() );
 
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(s_agesScreen->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);

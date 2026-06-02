@@ -84,7 +84,6 @@
 
 extern World                    *g_world;
 
-extern ProfileDB                *g_theProfileDB;
 
 sint32 NewTurnCount::sm_the_stop_player = 1;
 

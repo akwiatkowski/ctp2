@@ -39,7 +39,6 @@
 #include "ui/aui_directx/aui_directmouse.h"
 
 #include "gs/database/profileDB.h"
-extern ProfileDB *g_theProfileDB;
 
 
 aui_DirectMouse::aui_DirectMouse(
@@ -169,7 +168,7 @@ AUI_ERRCODE aui_DirectMouse::GetInput( void )
 
 		case DIMOFS_BUTTON0:
 
-			if (g_theProfileDB && g_theProfileDB->GetLeftHandedMouse()) {
+			if (profiledb_Get() && profiledb_Get()->GetLeftHandedMouse()) {
 
 				m_data.rbutton = uint8(ptrOd->dwData) & 0x80;
 				m_data.flags = m_flags;
@@ -181,7 +180,7 @@ AUI_ERRCODE aui_DirectMouse::GetInput( void )
 
 		case DIMOFS_BUTTON1:
 
-			if (g_theProfileDB && g_theProfileDB->GetLeftHandedMouse()) {
+			if (profiledb_Get() && profiledb_Get()->GetLeftHandedMouse()) {
 
 				m_data.lbutton = uint8(ptrOd->dwData) & 0x80;
 				m_data.flags = m_flags;

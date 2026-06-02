@@ -603,7 +603,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 	if((player_Get(player) && !Player::IsThisPlayerARobot(player))
 	||  player_view::VisiblePlayer() == player
 	){
-		if (g_theProfileDB->IsAutoSave() &&
+		if (profiledb_Get()->IsAutoSave() &&
 			(!g_network.IsActive() || g_network.IsHost())
 		   )
 		{

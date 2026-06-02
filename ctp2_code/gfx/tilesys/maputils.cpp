@@ -34,7 +34,6 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 
-extern ProfileDB	*g_theProfileDB;
 extern sint32		g_scaled_pixel_width[9];
 extern sint32		g_scaled_pixel_height[9];
 

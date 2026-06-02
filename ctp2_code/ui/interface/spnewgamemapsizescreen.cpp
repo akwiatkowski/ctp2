@@ -53,7 +53,6 @@
 
 #include "gs/utility/Globals.h"
 
-extern ProfileDB	*g_theProfileDB;
 
 static c3_PopupWindow	*s_spNewGameMapSizeScreen	= NULL;
 
@@ -93,19 +92,19 @@ void spnewgamemapsizescreen_setMapSizeIndex( sint32 index )
 
 	switch ( s_mapSizeIndex = index ) {
 	case 0:
-		g_theProfileDB->SetMapSize(MAPSIZE_SMALL);
+		profiledb_Get()->SetMapSize(MAPSIZE_SMALL);
 
 		break;
 	case 1:
-		g_theProfileDB->SetMapSize(MAPSIZE_MEDIUM);
+		profiledb_Get()->SetMapSize(MAPSIZE_MEDIUM);
 
 		break;
 	case 2:
-		g_theProfileDB->SetMapSize(MAPSIZE_LARGE);
+		profiledb_Get()->SetMapSize(MAPSIZE_LARGE);
 
 		break;
 	case 3:
-		g_theProfileDB->SetMapSize(MAPSIZE_GIGANTIC);
+		profiledb_Get()->SetMapSize(MAPSIZE_GIGANTIC);
 
 		break;
 	default:
@@ -216,7 +215,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallbac
 
 	MAPSIZE		size;
 
-	size = g_theProfileDB->GetMapSize();
+	size = profiledb_Get()->GetMapSize();
 
 	switch (size) {
 	case MAPSIZE_SMALL:

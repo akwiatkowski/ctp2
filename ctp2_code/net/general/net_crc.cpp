@@ -92,7 +92,6 @@
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
 extern StringDB                *g_theStringDB;
-extern ProfileDB               *g_theProfileDB;
 
 extern OzoneDatabase           *g_theUVDB;
 

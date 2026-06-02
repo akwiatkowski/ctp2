@@ -69,7 +69,7 @@
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/utility/PQueue.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/RandGen.h"                // civrand()
 #include "ResourceRecord.h"
 #include "gs/fileio/StartingPosition.h"
@@ -184,17 +184,17 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 		if(numFound < 3 ||
 		   (g_network.IsNetworkLaunch() && g_network.IsLaunchHost() &&
 			numFound < g_network.GetNumHumanPlayers())) {
-			if(g_theProfileDB->IsTutorialAdvice() && !ignoreTutorialRules) {
+			if(profiledb_Get()->IsTutorialAdvice() && !ignoreTutorialRules) {
 				Reset(m_size.x, m_size.y, m_isYwrap, m_isXwrap);
 				ignoreTutorialRules = true;
 				worldIsGood = false;
 			} else {
-				Assert(g_theProfileDB->PercentLand() < 1.0);
-				if (g_theProfileDB->PercentLand() < 1.0)
+				Assert(profiledb_Get()->PercentLand() < 1.0);
+				if (profiledb_Get()->PercentLand() < 1.0)
                 {
-					g_theProfileDB->SetPercentLand
+					profiledb_Get()->SetPercentLand
                         (std::min<double>(1.0,
-                                          g_theProfileDB->PercentLand() + 0.1
+                                          profiledb_Get()->PercentLand() + 0.1
                                          )
                         );
 
@@ -408,7 +408,7 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 
 	sint32 numSettings;
 	const MapRecord *mapRec     = worldutils_FindBestMapSizeMatch(m_size.x, m_size.y);
-	sint32          whichSet    = static_cast<sint32>(g_theProfileDB->PercentContinent() * 10);
+	sint32          whichSet    = static_cast<sint32>(profiledb_Get()->PercentContinent() * 10);
 	double *        settings    = worldutils_CreateSettings(mapRec, whichSet, numSettings);
 
 	GetHeightMap(firstPass, map, settings, numSettings);
@@ -434,7 +434,7 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 #endif
 	}
 	GetHistogram(map, histogram);
-	sint32 landPercent = sint32(g_theProfileDB->PercentLand() * 100);
+	sint32 landPercent = sint32(profiledb_Get()->PercentLand() * 100);
 	sint32 waterPercent = 100 - landPercent;
 	sint32 mountainPercent = sint32(g_theConstDB->Get(0)->GetPercentMountain());
 	sint32 hillPercent = sint32(g_theConstDB->Get(0)->GetPercentHills());
@@ -509,7 +509,7 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	sint32 wethistogramarray[256];
 	sint32 *wethistogram = &wethistogramarray[128];
 
-	double homogeneity = 0.9 * g_theProfileDB->PercentHomogenous() + 0.05;
+	double homogeneity = 0.9 * profiledb_Get()->PercentHomogenous() + 0.05;
 	GetMapAndHistogram(secondPass, wetmap, wethistogram,
 					   &homogeneity, 1);
 
@@ -534,10 +534,10 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	}
 
 
-	sint32 forestPercent = g_theProfileDB->PercentForest();
-	sint32 grassPercent  = g_theProfileDB->PercentGrass();
-	sint32 plainsPercent = g_theProfileDB->PercentPlains();
-	sint32 desertPercent = g_theProfileDB->PercentDesert();
+	sint32 forestPercent = profiledb_Get()->PercentForest();
+	sint32 grassPercent  = profiledb_Get()->PercentGrass();
+	sint32 plainsPercent = profiledb_Get()->PercentPlains();
+	sint32 desertPercent = profiledb_Get()->PercentDesert();
 
 #define k_INVALID_LEVEL -1000
 	sint32 forestLevel = k_INVALID_LEVEL,
@@ -630,8 +630,8 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	MapDump ("logs" FILE_SEP "TempMap.bmp", temperatureMap, m_size.x, m_size.y);
 #endif
 
-	sint32 whitePercent = g_theProfileDB->PercentWhite();
-	sint32 brownPercent = g_theProfileDB->PercentBrown();
+	sint32 whitePercent = profiledb_Get()->PercentWhite();
+	sint32 brownPercent = profiledb_Get()->PercentBrown();
 	sint32 whiteLevel = k_INVALID_LEVEL;
 	sint32 brownLevel = k_INVALID_LEVEL;
 
@@ -782,25 +782,25 @@ void World::GenerateGoods()
 	}
 
 	sint32 b, a;
-	if (90 < g_theProfileDB->PercentRichness()) {
+	if (90 < profiledb_Get()->PercentRichness()) {
 		b = 1;
 		a = 2;
-	} else if (80 < g_theProfileDB->PercentRichness()) {
+	} else if (80 < profiledb_Get()->PercentRichness()) {
 		b = 2;
 		a = 3;
-	} else if (65 < g_theProfileDB->PercentRichness()) {
+	} else if (65 < profiledb_Get()->PercentRichness()) {
 		b = 2;
 		a = 4;
-	} else if (45 < g_theProfileDB->PercentRichness()) {
+	} else if (45 < profiledb_Get()->PercentRichness()) {
 		b = 2;
 		a = 5;
-	} else if (35 < g_theProfileDB->PercentRichness()) {
+	} else if (35 < profiledb_Get()->PercentRichness()) {
 		b = 3;
 		a = 6;
-	} else if (20 < g_theProfileDB->PercentRichness()) {
+	} else if (20 < profiledb_Get()->PercentRichness()) {
 		b = 3;
 		a = 7;
-	} else if (2 < g_theProfileDB->PercentRichness()){
+	} else if (2 < profiledb_Get()->PercentRichness()){
 		b = 4;
 		a = 8;
 	} else {
@@ -1659,7 +1659,7 @@ BOOL World::FindMaxCumScore(sint32 d, float **cum_score, sint32 &maxx, sint32 &m
 			BOOL dontUse = FALSE;
 			sint32 minrel = maxDist;
 
-			if(g_theProfileDB->IsTutorialAdvice() && !ignoreTutorialRules && index != 0) {
+			if(profiledb_Get()->IsTutorialAdvice() && !ignoreTutorialRules && index != 0) {
 				sint16 cont;
 				bool is_land;
 				GetContinent(chk, cont, is_land);
@@ -1803,7 +1803,7 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
     sint32 maxSize = std::max(m_size.x, m_size.y);
 	double const someNumber =
 		sqrt(static_cast<double>(maxSize * maxSize) /
-			 (2 * g_theProfileDB->GetNPlayers())
+			 (2 * profiledb_Get()->GetNPlayers())
 			);
 	sint32 minDistance = sint32(g_theConstDB->Get(0)->GetMinStartDistanceCoefficient() * someNumber);
 	sint32 maxDistance = sint32(g_theConstDB->Get(0)->GetMaxStartDistanceCoefficient() * someNumber);
@@ -1818,17 +1818,17 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
     }
 
 
-    if (15 < g_theProfileDB->GetNPlayers()) {
+    if (15 < profiledb_Get()->GetNPlayers()) {
         if (8 < minDistance)  {
             minDistance = 8;
         }
-    } else if (9 < g_theProfileDB->GetNPlayers()) {
+    } else if (9 < profiledb_Get()->GetNPlayers()) {
         if (12 < minDistance)  {
             minDistance = 12;
         }
     }
 
-    d = g_theProfileDB->SetupRadius() * 2 - 1;
+    d = profiledb_Get()->SetupRadius() * 2 - 1;
 	numStartsFound = 0;
     for (i=0; i<k_MAX_PLAYERS; i++) {
         if(!FindMaxCumScore(d, cum_score, maxx, maxy,
@@ -2490,12 +2490,12 @@ TileInfo *World::GetTileInfoStoragePtr(const MapPoint &pos)
 
 void World::GenerateGoodyHuts()
 {
-	if(g_theProfileDB->IsTutorialAdvice()) {
+	if(profiledb_Get()->IsTutorialAdvice()) {
 
 		return;
 	}
 
-	if (g_theProfileDB->IsNoGoodyHuts()) {
+	if (profiledb_Get()->IsNoGoodyHuts()) {
 
 		return;
 	}
@@ -2560,7 +2560,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 #else
 	lt_dlhandle plugin;
 #endif
-	const char *name = g_theProfileDB->MapPluginName(pass);
+	const char *name = profiledb_Get()->MapPluginName(pass);
 	if(stricmp(name, "none") == 0)
 		return NULL;
 
@@ -2902,10 +2902,10 @@ void TemperatureFilter(sint8 *map, sint32 *histogram)
 
 
 	MapPoint	mapSize;
-	constutil_GetMapSizeMapPoint(g_theProfileDB->GetMapSize(), mapSize);
+	constutil_GetMapSizeMapPoint(profiledb_Get()->GetMapSize(), mapSize);
 
 
-	sint32 range = g_theProfileDB->TemperatureRangeAdjust();
+	sint32 range = profiledb_Get()->TemperatureRangeAdjust();
 	sint32 val;
 	sint32 dist;
 	sint32 quart = mapSize.y / 4;

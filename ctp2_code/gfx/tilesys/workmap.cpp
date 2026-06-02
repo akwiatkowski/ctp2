@@ -36,7 +36,7 @@
 #include "ui/aui_utils/textutils.h"
 #include "gfx/tilesys/maputils.h"
 #include "gs/slic/SlicEngine.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "gs/gameobj/CityRadius.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/gameobj/UnitData.h"

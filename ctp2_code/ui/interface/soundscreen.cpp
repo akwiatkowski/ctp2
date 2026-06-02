@@ -45,7 +45,6 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern ProfileDB			*g_theProfileDB;
 
 static c3_PopupWindow *s_soundWindow	= NULL;
 static C3Slider		*s_sfx				= NULL,
@@ -89,9 +88,9 @@ sint32 soundscreen_removeMyWindow(uint32 action)
 
 	soundscreen_getValues(sfx, music, voice);
 
-	g_theProfileDB->SetSFXVolume(sfx);
-	g_theProfileDB->SetVoiceVolume(voice);
-	g_theProfileDB->SetMusicVolume(music);
+	profiledb_Get()->SetSFXVolume(sfx);
+	profiledb_Get()->SetVoiceVolume(voice);
+	profiledb_Get()->SetMusicVolume(music);
 
 	auiErr = c3ui_Get()->RemoveWindow( s_soundWindow->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -135,9 +134,9 @@ AUI_ERRCODE soundscreen_Initialize( void )
 	s_voicemin			= spNew_c3_Static(&errcode,windowBlock,"VoiceMin");
 	s_voicemax			= spNew_c3_Static(&errcode,windowBlock,"VoiceMax");
 
-	s_sfx->SetValue(g_theProfileDB->GetSFXVolume(), 0);
-	s_voice->SetValue(g_theProfileDB->GetVoiceVolume(), 0);
-	s_music->SetValue(g_theProfileDB->GetMusicVolume(), 0);
+	s_sfx->SetValue(profiledb_Get()->GetSFXVolume(), 0);
+	s_voice->SetValue(profiledb_Get()->GetVoiceVolume(), 0);
+	s_music->SetValue(profiledb_Get()->GetMusicVolume(), 0);
 
 
 
@@ -193,7 +192,7 @@ AUI_ERRCODE soundscreen_Cleanup()
 
 void soundscreen_exitPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
-	g_theProfileDB->Save();
+	profiledb_Get()->Save();
 
 	soundscreen_removeMyWindow(action);
 }
@@ -209,19 +208,19 @@ void soundscreen_exitPress(aui_Control *control, uint32 action, uint32 data, voi
 void soundscreen_sfxSlide(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	if ( action != AUI_RANGER_ACTION_VALUECHANGE ) return;
-	g_theProfileDB->SetSFXVolume(s_sfx->GetValueX());
+	profiledb_Get()->SetSFXVolume(s_sfx->GetValueX());
 
 }
 void soundscreen_musicSlide(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	if ( action != AUI_RANGER_ACTION_VALUECHANGE ) return;
-	g_theProfileDB->SetMusicVolume(s_music->GetValueX());
+	profiledb_Get()->SetMusicVolume(s_music->GetValueX());
 
 }
 void soundscreen_voiceSlide(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	if ( action != AUI_RANGER_ACTION_VALUECHANGE ) return;
-	g_theProfileDB->SetVoiceVolume(s_voice->GetValueX());
+	profiledb_Get()->SetVoiceVolume(s_voice->GetValueX());
 
 }
 

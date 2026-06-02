@@ -59,7 +59,6 @@ extern void DisplayFrame (aui_Surface *surf);
 extern sint32			g_modalWindow;
 extern ChatBox			*g_chatBox;
 
-extern ProfileDB		*g_theProfileDB;
 
 sint32 backgroundWin_Initialize(bool fullscreen)
 {
@@ -173,7 +172,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 
 	tiledmap_Get()->UpdateMixFromMap(surface);
 
-	if (g_theProfileDB->IsWaterAnim())
+	if (profiledb_Get()->IsWaterAnim())
     {
         tiledmap_Get()->DrawWater();
     }

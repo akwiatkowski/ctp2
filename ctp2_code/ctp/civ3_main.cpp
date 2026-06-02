@@ -129,7 +129,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/pollution.h"
 #include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/interface/radarwindow.h"
 #include "robot/utility/RoboInit.h"
@@ -805,7 +805,7 @@ bool ui_CheckForScroll(void)
 				scroll_start = GetTickCount();
 			}
 
-			if(GetTickCount() < scroll_start + g_theProfileDB->GetScrollDelay() * 100) {
+			if(GetTickCount() < scroll_start + profiledb_Get()->GetScrollDelay() * 100) {
 				scrolled_last_time = scrolled;
 				return false;
 			} else if(!scrolled_last_time) {
@@ -1680,7 +1680,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			g_civPaths->SetCurScenarioPackPath(pack->m_path);
 
-			g_theProfileDB->SetIsScenario(TRUE);
+			profiledb_Get()->SetIsScenario(TRUE);
 
 			if (cs->ScenarioHasSavedGame(scen)) {
 
@@ -1706,7 +1706,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			g_civPaths->SetCurScenarioPackPath(pack->m_path);
 
-			g_theProfileDB->SetIsScenario(TRUE);
+			profiledb_Get()->SetIsScenario(TRUE);
 
 			if (cs2->ScenarioHasSavedGame(scen)) {
 

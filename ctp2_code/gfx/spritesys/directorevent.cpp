@@ -102,7 +102,7 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 	if(selitem_Get()->IsAutoCenterOn()
 	&& !director_Get()->TileWillBeCompletelyVisible(newPos.x, newPos.y)
 	&& (top_src.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
-	&& (   g_theProfileDB->IsEnemyMoves()
+	&& (   profiledb_Get()->IsEnemyMoves()
 	    || top_src.GetOwner() == selitem_Get()->GetVisiblePlayer()
 	   )
 	){

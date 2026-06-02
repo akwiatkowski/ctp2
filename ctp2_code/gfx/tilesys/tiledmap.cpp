@@ -99,7 +99,7 @@
 #include "gs/gameobj/Player.h"                     // player_Get()
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "ui/interface/radarwindow.h"
 #include "ResourceRecord.h"
@@ -1393,7 +1393,7 @@ void TiledMap::ReloadGoodActors(void)
 	Assert (world_Get());
 	if (world_Get() == NULL) return;
 
-	LOADTYPE const	loadType = (g_theProfileDB->IsGoodAnim()) ? LOADTYPE_FULL : LOADTYPE_BASIC;
+	LOADTYPE const	loadType = (profiledb_Get()->IsGoodAnim()) ? LOADTYPE_FULL : LOADTYPE_BASIC;
 
 	for (sint16 i = 0; i < m_mapBounds.bottom; ++i)
 	{
@@ -2346,7 +2346,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 		if (
 		   (g_graphicsOptions && g_graphicsOptions->IsArmyTextOn())
-		|| (g_theProfileDB->GetDebugAI()) //emod
+		|| (profiledb_Get()->GetDebugAI()) //emod
 		){
 				Unit	u = actor->GetUnitID();
 
@@ -2370,7 +2370,7 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 		}
 
 		//EMOD to allow option for army names
-		if (g_theProfileDB->GetShowArmyNames())
+		if (profiledb_Get()->GetShowArmyNames())
 		{
 			Unit	u = actor->GetUnitID();
 
@@ -2985,7 +2985,7 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 
 	g_screenManager->UnlockSurface();
 
-	if (g_theProfileDB->GetShowCityNames())
+	if (profiledb_Get()->GetShowCityNames())
 	{
 		tiledmap_Get()->DrawCityNames(surf, 0);
 	}

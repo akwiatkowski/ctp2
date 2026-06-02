@@ -71,7 +71,7 @@ void Splash::AddText(MBCHAR const * text)
 		                    true
 		                   );
 
-		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
+		if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 		{
 			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 		}
@@ -99,7 +99,7 @@ void Splash::AddTextNL(MBCHAR const * text)
 		m_textY += k_SPLASH_TEXT_INC;
 		if (m_textY >= surface->Height()) m_textY = k_SPLASH_FIRST_Y;
 
-		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
+		if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 		{
 			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 		}
@@ -128,7 +128,7 @@ void Splash::AddHilitedTextNL(MBCHAR const *text)
 		m_textY += k_SPLASH_TEXT_INC;
 		if (m_textY >= surface->Height()) m_textY = k_SPLASH_FIRST_Y;
 
-		if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
+		if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 		{
 			c3ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 	}

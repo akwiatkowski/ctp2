@@ -307,7 +307,7 @@ void *sliccmd_array_lookup_reference(char *arrayName, int index, char *memberNam
 void sliccmd_error(char *s)
 {
 	if(sliccmd_use_dialogs) {
-		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+		if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 			c3errors_ErrorDialog("SLIC Command", s);
 		}
 	} else {

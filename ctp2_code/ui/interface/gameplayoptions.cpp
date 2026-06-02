@@ -56,7 +56,6 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "gs/gameobj/GameSettings.h"
 
-extern ProfileDB			*g_theProfileDB;
 extern Network				g_network;
 
 static c3_PopupWindow		*s_gameplayoptionsWindow	= NULL;
@@ -119,35 +118,35 @@ static uint32 check[] =
 
 sint32 gameplayoptions_updateData()
 {
-	if ( !g_theProfileDB ) return -1;
+	if ( !profiledb_Get() ) return -1;
 
 	GameSettings *gs = gamesettings_Get();
-	sint32 diff = gs ? gs->GetDifficulty() : g_theProfileDB->GetDifficulty();
+	sint32 diff = gs ? gs->GetDifficulty() : profiledb_Get()->GetDifficulty();
 
 	if(diff >= 2 || g_network.IsActive()) {
 		s_tutorialadvice->SetState(0);
 		s_tutorialadvice->Enable(FALSE);
 	} else {
-		s_tutorialadvice->SetState( g_theProfileDB->IsTutorialAdvice() );
+		s_tutorialadvice->SetState( profiledb_Get()->IsTutorialAdvice() );
 	}
 
 
 
 
-	s_autocycleturn->SetState( g_theProfileDB->IsAutoTurnCycle() );
+	s_autocycleturn->SetState( profiledb_Get()->IsAutoTurnCycle() );
 
-	s_autocycleunits->SetState( g_theProfileDB->IsAutoSelectNext() );
+	s_autocycleunits->SetState( profiledb_Get()->IsAutoSelectNext() );
 
-	s_battleview->SetState( g_theProfileDB->IsShowZoomedCombat() );
+	s_battleview->SetState( profiledb_Get()->IsShowZoomedCombat() );
 
-	s_battleViewAlways->SetState(g_theProfileDB->IsZoomedCombatAlways());
-	s_autoSave->SetState(g_theProfileDB->IsAutoSave());
-	s_mouseSpeed->SetValue(g_theProfileDB->GetMouseSpeed(), 0);
+	s_battleViewAlways->SetState(profiledb_Get()->IsZoomedCombatAlways());
+	s_autoSave->SetState(profiledb_Get()->IsAutoSave());
+	s_mouseSpeed->SetValue(profiledb_Get()->GetMouseSpeed(), 0);
 
-	s_enemyMoves->SetState(g_theProfileDB->IsEnemyMoves());
-	s_autoCenter->SetState(g_theProfileDB->IsAutoCenter());
-	s_autoTabSelect->SetState( g_theProfileDB->GetAutoSwitchTabs() );
-	s_EnemyHealth->SetState( g_theProfileDB->GetShowEnemyHealth() ); //emod4
+	s_enemyMoves->SetState(profiledb_Get()->IsEnemyMoves());
+	s_autoCenter->SetState(profiledb_Get()->IsAutoCenter());
+	s_autoTabSelect->SetState( profiledb_Get()->GetAutoSwitchTabs() );
+	s_EnemyHealth->SetState( profiledb_Get()->GetShowEnemyHealth() ); //emod4
 
 	return 1;
 }
@@ -155,7 +154,7 @@ sint32 gameplayoptions_updateData()
 
 sint32	gameplayoptions_displayMyWindow()
 {
-	s_leftHandedMouseFlag = g_theProfileDB->GetLeftHandedMouse();
+	s_leftHandedMouseFlag = profiledb_Get()->GetLeftHandedMouse();
 
 	sint32 retval=0;
 	if(!s_gameplayoptionsWindow) { retval = gameplayoptions_Initialize(); }
@@ -318,9 +317,9 @@ void gameplayoptions_checkPress(aui_Control *control, uint32 action, uint32 data
 	case GP_AUTOCYCLETURN:	func = &ProfileDB::SetAutoTurnCycle; break;
 	case GP_AUTOCYCLEUNITS:
 		state = !state;
-		g_theProfileDB->SetAutoSelectFirstUnit(state);
-		g_theProfileDB->SetAutoSelectNext(state);
-		g_theProfileDB->SetAutoDeselect(state);
+		profiledb_Get()->SetAutoSelectFirstUnit(state);
+		profiledb_Get()->SetAutoSelectNext(state);
+		profiledb_Get()->SetAutoDeselect(state);
 		break;
 	case GP_BATTLEVIEW:		func = &ProfileDB::SetShowZoomedCombat; break;
 	case GP_ENEMYMOVES:		func = &ProfileDB::SetEnemyMoves; break;
@@ -340,13 +339,13 @@ void gameplayoptions_checkPress(aui_Control *control, uint32 action, uint32 data
 	};
 
 	if(func)
-		(g_theProfileDB->*func)(state ? FALSE : TRUE);
+		(profiledb_Get()->*func)(state ? FALSE : TRUE);
 }
 void gameplayoptions_exitPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
-	g_theProfileDB->SetLeftHandedMouse(s_leftHandedMouseFlag);
+	profiledb_Get()->SetLeftHandedMouse(s_leftHandedMouseFlag);
 
-	g_theProfileDB->Save();
+	profiledb_Get()->Save();
 
 	gameplayoptions_removeMyWindow(action);
 }
@@ -355,12 +354,12 @@ void gameplayoptions_mouseSlide(aui_Control *control, uint32 action, uint32 data
 {
 	if ( action != AUI_RANGER_ACTION_VALUECHANGE ) return;
 
-	g_theProfileDB->SetMouseSpeed(s_mouseSpeed->GetValueX());
+	profiledb_Get()->SetMouseSpeed(s_mouseSpeed->GetValueX());
 
 	if (c3ui_Get()->TheMouse()) {
 		double sensitivity = 0.0;
 
-		sensitivity = 0.25 * (1 + g_theProfileDB->GetMouseSpeed());
+		sensitivity = 0.25 * (1 + profiledb_Get()->GetMouseSpeed());
 
 		c3ui_Get()->TheMouse()->Sensitivity() = sensitivity;
 

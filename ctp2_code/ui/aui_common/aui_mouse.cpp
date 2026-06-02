@@ -93,9 +93,9 @@ AUI_ERRCODE aui_Mouse::InitCommon( void )
 	m_animDelay = k_MOUSE_DEFAULTANIMDELAY;
 	m_time = 0;
 
-	if(g_theProfileDB) {
+	if(profiledb_Get()) {
 
-		m_sensitivity = 0.25 * (1 + g_theProfileDB->GetMouseSpeed());
+		m_sensitivity = 0.25 * (1 + profiledb_Get()->GetMouseSpeed());
 	} else {
 		m_sensitivity = 1.0;
 	}
@@ -1069,7 +1069,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 	uint32 blitFlags;
 	LPVOID primaryBuf = NULL;
 
-	if (g_theProfileDB && g_theProfileDB->IsUseDirectXBlitter())
+	if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY;
 	}
@@ -1219,7 +1219,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
 		retcode = AUI_ERRCODE_BLTFAILED;
 	}
 
-	if (!g_theProfileDB || !g_theProfileDB->IsUseDirectXBlitter())
+	if (!profiledb_Get() || !profiledb_Get()->IsUseDirectXBlitter())
 	{
 		errcode = g_ui->Secondary()->Unlock( primaryBuf );
 		Assert( errcode == AUI_ERRCODE_OK );

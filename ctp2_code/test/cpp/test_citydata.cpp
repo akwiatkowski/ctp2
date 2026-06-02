@@ -272,8 +272,8 @@ struct HeavyCityDataFixture
                 fprintf(stderr, "[HeavyFixture] WARNING: gameinit_InitializeGameFiles failed\n");
             }
 
-            g_theProfileDB = new ProfileDB();
-            g_theProfileDB->Init(FALSE);
+            profiledb_Set(new ProfileDB());
+            profiledb_Get()->Init(FALSE);
 
             gamesettings_Set(new GameSettings());
             civilisationpool_Set(new CivilisationPool());

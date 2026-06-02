@@ -61,7 +61,7 @@ STDEHANDLER(InterfaceCreateCityEvent)
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
 	if(city.GetOwner() == selitem_Get()->GetVisiblePlayer()) {
-		if(g_theProfileDB->GetAutoRenameCities()) {
+		if(profiledb_Get()->GetAutoRenameCities()) {
 			c3_utilitydialogbox_NameCity(city);
 		}
 	}
@@ -72,7 +72,7 @@ STDEHANDLER(InterfaceCreateCityEvent)
 STDEHANDLER(InterfaceMakePopEvent)
 {
 #if 0
-	if(g_theProfileDB->GetAutoOpenCityWindow()) {
+	if(profiledb_Get()->GetAutoOpenCityWindow()) {
 		static Unit city;
 		if(!args->GetCity(0, city)) return GEV_HD_Continue;
 		if(city.GetOwner() == selitem_Get()->GetVisiblePlayer() &&
@@ -87,7 +87,7 @@ STDEHANDLER(InterfaceMakePopEvent)
 
 STDEHANDLER(InterfaceOpenInitialCityInterfaceEvent)
 {
-	if(g_theProfileDB->GetAutoOpenCityWindow()) {
+	if(profiledb_Get()->GetAutoOpenCityWindow()) {
 		static Unit city;
 		if(!args->GetCity(0, city)) return GEV_HD_Continue;
 		if( city.GetOwner() == selitem_Get()->GetVisiblePlayer()

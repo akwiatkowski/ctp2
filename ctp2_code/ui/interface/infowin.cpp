@@ -74,7 +74,7 @@
 #include "gs/gameobj/Score.h"
 #include "DifficultyRecord.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/EndGame.h"
 #include "gs/gameobj/WonderTracker.h"
@@ -582,7 +582,7 @@ sint32 infowin_UpdateCivData( void )
 		const char *yearStr = diffutil_GetYearStringFromTurn(gamesettings_Get()->GetDifficulty(), turnFounded);
 
 #if 0
-		sint32 yearFounded = diffutil_GetYearFromTurn(g_theProfileDB->GetDifficulty(), turnFounded);
+		sint32 yearFounded = diffutil_GetYearFromTurn(profiledb_Get()->GetDifficulty(), turnFounded);
 
 		if (yearFounded > 0)
 		{

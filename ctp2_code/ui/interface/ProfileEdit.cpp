@@ -146,7 +146,7 @@ AUI_ERRCODE ProfileEdit::Cleanup()
 
 void ProfileEdit::FillList()
 {
-	PointerList<ProfileVar>::Walker walk(g_theProfileDB->GetVars());
+	PointerList<ProfileVar>::Walker walk(profiledb_Get()->GetVars());
 	m_list->Clear();
 	m_list->BuildListStart();
 	for(; walk.IsValid(); walk.Next()) {
@@ -239,8 +239,8 @@ void ProfileEdit::ToggleBoolVar(aui_Control *control, uint32 action, uint32 data
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
 	ProfileVar *var = (ProfileVar *)cookie;
-	Assert(g_theProfileDB);
-	if(g_theProfileDB) {
+	Assert(profiledb_Get());
+	if(profiledb_Get()) {
 		*var->m_numValue = !*var->m_numValue;
 		ctp2_Button *button = (ctp2_Button *)control;
 		if(*var->m_numValue) {
@@ -266,7 +266,7 @@ void ProfileEdit::CloseWindow(aui_Control *control, uint32 action, uint32 data, 
 {
 	if(action == AUI_BUTTON_ACTION_EXECUTE) {
 
-		g_theProfileDB->Save();
+		profiledb_Get()->Save();
 
 		ProfileEdit::Hide();
 	}

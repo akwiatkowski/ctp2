@@ -473,7 +473,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	if(g_network.IsActive() || g_network.IsNetworkLaunch()) {
 		startAge = g_network.GetStartingAge();
 	} else {
-		startAge = g_theProfileDB->GetSPStartingAge();
+		startAge = profiledb_Get()->GetSPStartingAge();
 	}
 
 	sint32 someAdvanceIHave = -1;
@@ -1506,7 +1506,7 @@ bool Player::AddCityReferenceToPlayer(Unit u,  CAUSE_NEW_CITY cause)
 		m_first_city = FALSE;
 	}
 
-	if (g_theProfileDB->IsAIOn())
+	if (profiledb_Get()->IsAIOn())
 	{
 	}
 
@@ -1602,7 +1602,7 @@ bool Player::RegisterCityAttack(const Unit &c, const PLAYER_INDEX &his_owner,
 {
 #if 0   // Useless code
 	sint32 ai_city_index = FindCityIndex(c);
-	if (g_theProfileDB->IsAIOn())
+	if (profiledb_Get()->IsAIOn())
 	{
 
 
@@ -2217,7 +2217,7 @@ sint32 Player::CalcUnitSupportGold()
 	}
 
 	// user profile entry, cannot define exact support.
-	if (g_theProfileDB->IsGoldPerUnitSupport())
+	if (profiledb_Get()->IsGoldPerUnitSupport())
 	{
 		if (IsHuman())
 		{
@@ -2440,7 +2440,7 @@ void Player::BeginTurn()
 	if((IsHuman() ||
 		IsNetwork() && g_network.IsLocalPlayer(m_owner)) &&
 	   m_owner == player_view::VisiblePlayer() &&
-	   g_theProfileDB->IsAutoSelectFirstUnit()) {
+	   profiledb_Get()->IsAutoSelectFirstUnit()) {
 		if(selitem_Get()->GetState() == SELECT_TYPE_NONE) {
 			selitem_Get()->NextUnmovedUnit(TRUE);
 		} else if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY) {
@@ -2534,7 +2534,7 @@ void Player::EndTurn()
 		g_network.Unblock(m_owner);
 	}
 
-	if (!g_theProfileDB->DontKillMessages())
+	if (!profiledb_Get()->DontKillMessages())
 	{
 		sint32 numMessages = m_messages->Num();
 
@@ -5305,9 +5305,9 @@ const MBCHAR *Player::GetLeaderName(void)
 {
 	if(!g_network.IsActive()
 	&& !slicengine_Get()->GetTutorialActive()
-	&& g_theProfileDB->GetPlayerIndex() == m_owner
+	&& profiledb_Get()->GetPlayerIndex() == m_owner
 	){
-		return g_theProfileDB->GetLeaderName();
+		return profiledb_Get()->GetLeaderName();
 	}
 	else
 	{
@@ -7107,7 +7107,7 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 	m_isDead = TRUE;
     g_aPlayerIsDead = TRUE;
 
-    if (g_theProfileDB->IsAIOn()) {
+    if (profiledb_Get()->IsAIOn()) {
 
         if (m_owner == NewTurnCount::GetStopPlayer()) {
             NewTurnCount::SetStopPlayer(player_view::PlayerAfter(m_owner));
@@ -8574,7 +8574,7 @@ bool Player::CanBuildUnit(const sint32 type) const
 	|| rec->GetSettleWater()
 	){  //so far it makes all units unavailable? And Why don't you check for the settling attributes like beeing able to build cities?
 		if(IsHuman()
-		&& g_theProfileDB->IsOneCityChallenge()
+		&& profiledb_Get()->IsOneCityChallenge()
 		){
 			return false;
 		}
@@ -9643,7 +9643,7 @@ bool Player::CanBuildLeader(const sint32 type) const
 	|| rec->GetSettleWater()
 	){
 		if(IsHuman()
-		&& g_theProfileDB->IsOneCityChallenge()
+		&& profiledb_Get()->IsOneCityChallenge()
 		){
 			return false;
 		}

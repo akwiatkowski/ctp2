@@ -50,7 +50,6 @@
 
 extern SoundManager		*g_soundManager;
 
-extern ProfileDB		*g_theProfileDB;
 
 static c3_PopupWindow	*s_musicTrackScreen	= NULL;
 static c3_Button		*s_accept			= NULL;

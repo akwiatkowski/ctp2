@@ -75,7 +75,7 @@
 #include "net/general/network.h"
 
 #include "gs/gameobj/UnitPool.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "gs/gameobj/UnitData.h"
 
 
@@ -379,7 +379,7 @@ void ArmyManagerWindow::Update()
 	if(armyTextlabel){
 		if((g_graphicsOptions
 		&&  g_graphicsOptions->IsArmyTextOn()
-		||  g_theProfileDB->GetDebugAI())
+		||  profiledb_Get()->GetDebugAI())
 		&& m_army.IsValid()
 		&& m_army->GetDebugString()
 		){

@@ -1978,7 +1978,7 @@ void slicif_register_line(int line, int offset)
 
 
 
-	if(s_inSegment && g_theProfileDB->IsDebugSlic()) {
+	if(s_inSegment && profiledb_Get()->IsDebugSlic()) {
 		slicif_add_op(SOP_LINE, line, offset);
 	}
 }

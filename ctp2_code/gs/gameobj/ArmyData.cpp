@@ -1648,7 +1648,7 @@ void ArmyData::BeginTurn()
 	//Upgrade AI
 	if(player_Get(m_owner)->IsRobot()) // Added so human units don't automatically upgrade 3-27-2007
 	{
-		if(g_theProfileDB->GetValueByName("Upgrade"))
+		if(profiledb_Get()->GetValueByName("Upgrade"))
 		{
 			Upgrade();
 		}
@@ -8660,7 +8660,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 
 	if( (turn_Get()->IsHotSeat()
 	||   turn_Get()->IsEmail()
-	||   g_theProfileDB->GetUseAttackMessages()
+	||   profiledb_Get()->GetUseAttackMessages()
 	    )
 	&&   safe_player(defender.GetOwner())->IsHuman()
 	){
@@ -11412,7 +11412,7 @@ void ArmyData::BarbarianSpawning()
 
 		if(
 			(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetBarbarianSpawnsBarbarian())
-		||  (g_theProfileDB->IsBarbarianSpawnsBarbarian())
+		||  (profiledb_Get()->IsBarbarianSpawnsBarbarian())
 		){
 
 			if ( (barbhorde) >= (barbmax^2) ) {

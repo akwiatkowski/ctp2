@@ -51,7 +51,7 @@
 #include "ui/aui_ctp2/ctp2_spinner.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/keypress.h"
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/interface/spnewgamewindow.h"
 
 
@@ -155,13 +155,13 @@ sint32 spnewgameplayersscreen_removeMyWindow(uint32 action)
 	if (!s_spNewGamePlayersScreen) return 1;
 
 	if(s_num_player_spinner){
-		g_theProfileDB->SetNPlayers(s_num_player_spinner->GetValueX()+1);
+		profiledb_Get()->SetNPlayers(s_num_player_spinner->GetValueX()+1);
 	}
 	if(s_max_player_spinner){
-		g_theProfileDB->SetMaxPlayers(s_max_player_spinner->GetValueX()+1);
+		profiledb_Get()->SetMaxPlayers(s_max_player_spinner->GetValueX()+1);
 	}
 	if(s_player_spinner){
-		g_theProfileDB->SetPlayerIndex(s_player_spinner->GetValueX());
+		profiledb_Get()->SetPlayerIndex(s_player_spinner->GetValueX());
 	}
 	AUI_ERRCODE auiErr;
 
@@ -234,7 +234,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	{
 		s_num_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
 		s_num_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_NumPlayerSpinner, NULL);
-		s_num_player_spinner->SetValue(g_theProfileDB->GetNPlayers() - 1, 0);
+		s_num_player_spinner->SetValue(profiledb_Get()->GetNPlayers() - 1, 0);
 		if(s_num_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_num_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
 		}
@@ -250,7 +250,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	{
 		s_max_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
 		s_max_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_MaxPlayerSpinner, NULL);
-		s_max_player_spinner->SetValue(g_theProfileDB->GetMaxPlayers() - 1, 0);
+		s_max_player_spinner->SetValue(profiledb_Get()->GetMaxPlayers() - 1, 0);
 		if(s_max_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_max_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
 		}
@@ -266,13 +266,13 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	{
 		s_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock);
 		s_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_PlayerSpinner, NULL);
-		s_player_spinner->SetValue(g_theProfileDB->GetPlayerIndex(), 0);
-		s_player_spinner->SetMaximum(g_theProfileDB->GetNPlayers() - 1, 0);
+		s_player_spinner->SetValue(profiledb_Get()->GetPlayerIndex(), 0);
+		s_player_spinner->SetMaximum(profiledb_Get()->GetNPlayers() - 1, 0);
 		s_spNewGamePlayersScreen->AddControl(s_player_spinner);
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerText");
 		s_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
-		s_player->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(g_theProfileDB->GetPlayerIndex())));
+		s_player->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(profiledb_Get()->GetPlayerIndex())));
 	//	s_player->SetTextShadow(true);
 	//	s_player->SetTextShadowColor(RGB(0,0,0));
 		s_spNewGamePlayersScreen->AddControl(s_player);

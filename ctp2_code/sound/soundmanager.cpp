@@ -53,7 +53,6 @@
 #include <cctype>
 
 extern HWND			gHwnd;
-extern ProfileDB	*g_theProfileDB;
 extern CivPaths		*g_civPaths;
 extern PlayListDB	*g_thePlayListDB;
 
@@ -115,11 +114,11 @@ SoundManager::SoundManager()
     m_autoRepeat                (true),
     m_stopRedbookTemporarily    (false)
 {
-    if (g_theProfileDB)
+    if (profiledb_Get())
     {
-		m_sfxVolume     = static_cast<uint32>(g_theProfileDB->GetSFXVolume());
-		m_voiceVolume   = static_cast<uint32>(g_theProfileDB->GetVoiceVolume());
-		m_musicVolume   = static_cast<uint32>(g_theProfileDB->GetMusicVolume());
+		m_sfxVolume     = static_cast<uint32>(profiledb_Get()->GetSFXVolume());
+		m_voiceVolume   = static_cast<uint32>(profiledb_Get()->GetVoiceVolume());
+		m_musicVolume   = static_cast<uint32>(profiledb_Get()->GetMusicVolume());
     }
 
 #if defined(USE_SDL) && defined(_DEBUG)
@@ -281,7 +280,7 @@ void SoundManager::CleanupRedbook()
 
 void SoundManager::ProcessRedbook()
 {
-	if (!g_theProfileDB->IsUseRedbookAudio()) return;
+	if (!profiledb_Get()->IsUseRedbookAudio()) return;
 
 	if (!m_musicEnabled) return;
 
@@ -886,7 +885,7 @@ void SoundManager::StartMusic(const sint32 &InTrackNum)
 {
 	m_stopRedbookTemporarily = FALSE;
 
-	if (!g_theProfileDB->IsUseRedbookAudio() || !c3files_HasCD()) return;
+	if (!profiledb_Get()->IsUseRedbookAudio() || !c3files_HasCD()) return;
 
 	if (m_noSound) return;
 
@@ -950,7 +949,7 @@ void SoundManager::StartMusic(const sint32 &InTrackNum)
 
 void SoundManager::TerminateMusic(void)
 {
-	if (!g_theProfileDB->IsUseRedbookAudio() || !c3files_HasCD()) return;
+	if (!profiledb_Get()->IsUseRedbookAudio() || !c3files_HasCD()) return;
 
 	if (m_noSound) return;
 

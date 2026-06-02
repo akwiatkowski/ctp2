@@ -612,7 +612,7 @@ void ScenarioWindow::SetProfileFromScenario( void )
 
 			g_civPaths->SetCurScenarioPackPath(s_ScenarioWindow->GetScenarioPack()->m_path);
 
-			g_theProfileDB->SetIsScenario(TRUE);
+			profiledb_Get()->SetIsScenario(TRUE);
 
 			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
 

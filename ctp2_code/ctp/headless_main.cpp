@@ -184,7 +184,7 @@ int main(int argc, char **argv)
             headless_log->info("Starting new game (players={}, seed={})...", numPlayers, seed);
 
             // Set player count and seed in ProfileDB
-            g_theProfileDB->SetNPlayers(numPlayers);
+            profiledb_Get()->SetNPlayers(numPlayers);
 
             // Wire --seed to the RNG.  gameinit_Initialize reads g_oldRandSeed
             // and uses it as the seed for rand_ptr() when non-zero; otherwise it
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
             // Enable AI for non-human players — otherwise the turn pipeline
             // ticks but no decisions are dispatched (settlers never settle,
             // builders never build, score stays flat).
-            g_theProfileDB->SetAI(TRUE);
+            profiledb_Get()->SetAI(TRUE);
 
             // Use the headless game init path (no UI windows)
             err = g_civApp->InitializeGameHeadless();
@@ -249,12 +249,12 @@ int main(int argc, char **argv)
                 s_headlessCurPlayer = p;
                 player_Get(p)->m_current_round = t;
 
-                if (g_theProfileDB->IsAIOn()) {
+                if (profiledb_Get()->IsAIOn()) {
                     gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
                                            GEA_Player, p, GEA_End);
                 }
                 CtpAi::BeginDiplomacy(p, t);
-                if (g_theProfileDB->IsAIOn()) {
+                if (profiledb_Get()->IsAIOn()) {
                     gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AiBeginTurn,
                                            GEA_Player, p, GEA_End);
                 }

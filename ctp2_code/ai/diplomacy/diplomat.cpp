@@ -2579,7 +2579,7 @@ void Diplomat::ExecuteResponse( const PLAYER_INDEX sender,
 #ifndef _BFR_
 	gslog_dipprint("Player %d responds:\n", m_playerId);
 
-	if(g_theProfileDB->GetEnableLogs())
+	if(profiledb_Get()->GetEnableLogs())
 	{
 		ProposalAnalysis::LogDebugResult(response);
 	}
@@ -3777,7 +3777,7 @@ void Diplomat::NextDiplomaticState( const PLAYER_INDEX & foreignerId )
 
     /// @todo Make this a game setting. It is not really a user profile setting.
     sint32 const        baseExpiryTurn =
-        g_theProfileDB->GetValueByName("AutoExpireTreatyBase");
+        profiledb_Get()->GetValueByName("AutoExpireTreatyBase");
 
     if (k_EXPIRATION_NEVER == baseExpiryTurn)
     {

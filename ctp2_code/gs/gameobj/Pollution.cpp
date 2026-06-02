@@ -165,7 +165,7 @@ sint32 Pollution::AtTriggerLevel(void)
 		}
 	}
 
-	const PollutionRecord::Phase* pprec = g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetPhase(m_phase);
+	const PollutionRecord::Phase* pprec = g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetPhase(m_phase);
 	sint32 trigger = pprec->GetPollutionTrigger();
 
 	sint32 pollution = GetGlobalPollutionLevel();
@@ -179,7 +179,7 @@ sint32 Pollution::AtTriggerLevel(void)
 
 		if(pprec->GetFloodDisaster())
 		{
-			if (m_phase < (g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetNumPhase()) / 2)
+			if (m_phase < (g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetNumPhase()) / 2)
 			{
 				// Missing stuff
 			}
@@ -199,7 +199,7 @@ sint32 Pollution::AtTriggerLevel(void)
 
 	if (m_history[0] <= m_history[1])
 	{
-		if(pollution > g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetPhase(0)->GetPollutionTrigger()) {
+		if(pollution > g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetPhase(0)->GetPollutionTrigger()) {
 			// Missing stuff
 		}
 	}
@@ -225,7 +225,7 @@ sint32 Pollution::AtTriggerLevel(void)
 
 sint32 Pollution::GetNextTrigger()
 {
-	return g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetPhase(m_phase)->GetPollutionTrigger();
+	return g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetPhase(m_phase)->GetPollutionTrigger();
 }
 
 sint32 Pollution::GetGlobalPollutionLevel()
@@ -281,9 +281,9 @@ void Pollution::BeginTurn(void)
 
 	if(AtTriggerLevel())
 	{
-		if(m_phase < g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetNumPhase())
+		if(m_phase < g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetNumPhase())
 		{
-			const PollutionRecord::Phase* pprec = g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetPhase(m_phase);
+			const PollutionRecord::Phase* pprec = g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetPhase(m_phase);
 
 			if(pprec->GetOzoneDisaster())
 			{
@@ -312,7 +312,7 @@ void Pollution::BeginTurn(void)
 
 void Pollution::GotoNextLevel(void)
 {
-	if(m_phase < (g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetNumPhase() - 1))
+	if(m_phase < (g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetNumPhase() - 1))
 		m_phase++;
 }
 
@@ -431,7 +431,7 @@ sint32 Pollution::GetRoundsToNextDisaster(void)
 	// Estimate the number of turns until the next disaster.
 	sint32 const pollutionDeltaPerTurn	= m_history[0] - m_history[1];
 	sint32 const pollutionUntilTrigger	=
-		g_thePollutionDB->Get(g_theProfileDB->GetMapSize())->GetPhase(m_phase)->GetPollutionTrigger() - m_history[0];
+		g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetPhase(m_phase)->GetPollutionTrigger() - m_history[0];
 	return pollutionUntilTrigger / pollutionDeltaPerTurn;
 }
 

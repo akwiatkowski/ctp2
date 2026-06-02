@@ -768,26 +768,26 @@ void StartSelectingWindow::NewButtonAction::Execute(
 
 		s->SetName( name );
 		//Special rules
-		s->SetBloodlust(!g_theProfileDB->IsAlienEndGameOn());
-		s->SetPollution(static_cast<char>(g_theProfileDB->IsPollutionRule()));
+		s->SetBloodlust(!profiledb_Get()->IsAlienEndGameOn());
+		s->SetPollution(static_cast<char>(profiledb_Get()->IsPollutionRule()));
 
 		//Ages
 		s->SetStartAge(0);
 		s->SetEndAge(static_cast<char>(g_theAgeDB->NumRecords() - 1));
 		//World size and shape
-		s->SetMapSize(static_cast<char>(g_theProfileDB->GetMapSize()));
-		s->SetWorldShape(static_cast<char>(g_theProfileDB->GetWorldShape()));
+		s->SetMapSize(static_cast<char>(profiledb_Get()->GetMapSize()));
+		s->SetWorldShape(static_cast<char>(profiledb_Get()->GetWorldShape()));
 		//World types
-		s->SetWorldType1(static_cast<char>(g_theProfileDB->GetWetDry()));
-		s->SetWorldType2(static_cast<char>(g_theProfileDB->GetWarmCold()));
-		s->SetWorldType3(static_cast<char>(g_theProfileDB->GetOceanLand()));
-		s->SetWorldType4(static_cast<char>(g_theProfileDB->GetIslandContinent()));
-		s->SetWorldType5(static_cast<char>(g_theProfileDB->GetHomoDiverse()));
-		s->SetWorldType6(static_cast<char>(g_theProfileDB->GetGoodCount()));
+		s->SetWorldType1(static_cast<char>(profiledb_Get()->GetWetDry()));
+		s->SetWorldType2(static_cast<char>(profiledb_Get()->GetWarmCold()));
+		s->SetWorldType3(static_cast<char>(profiledb_Get()->GetOceanLand()));
+		s->SetWorldType4(static_cast<char>(profiledb_Get()->GetIslandContinent()));
+		s->SetWorldType5(static_cast<char>(profiledb_Get()->GetHomoDiverse()));
+		s->SetWorldType6(static_cast<char>(profiledb_Get()->GetGoodCount()));
 
 		//Level of difficuilties
-		s->SetDifficulty1(static_cast<char>(g_theProfileDB->GetDifficulty()));
-		s->SetDifficulty2(static_cast<char>(g_theProfileDB->GetRiskLevel()));
+		s->SetDifficulty1(static_cast<char>(profiledb_Get()->GetDifficulty()));
+		s->SetDifficulty2(static_cast<char>(profiledb_Get()->GetRiskLevel()));
 		listbox->InsertItem( s );
 		listbox->SelectItem(listbox->FindItem(s));
 

@@ -34,7 +34,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/EndGame.h"
 
-extern ProfileDB *g_theProfileDB;
 extern BOOL			g_setDifficultyUponLaunch;
 extern sint32		g_difficultyToSetUponLaunch;
 extern BOOL			g_setBarbarianRiskUponLaunch;
@@ -51,7 +50,7 @@ GameSettings::GameSettings()
 	}
 	else
 	{
-		m_difficulty	= g_theProfileDB->GetDifficulty();
+		m_difficulty	= profiledb_Get()->GetDifficulty();
 	}
 
 	if (g_setBarbarianRiskUponLaunch)
@@ -60,10 +59,10 @@ GameSettings::GameSettings()
 	}
 	else
 	{
-		m_risk			= g_theProfileDB->GetRiskLevel();
+		m_risk			= profiledb_Get()->GetRiskLevel();
 	}
-	m_alienEndGame = g_theProfileDB->IsAlienEndGameOn();
-	m_pollution = g_theProfileDB->IsPollutionRule();
+	m_alienEndGame = profiledb_Get()->IsAlienEndGameOn();
+	m_pollution = profiledb_Get()->IsPollutionRule();
 	m_keepScore = TRUE;
 
 	m_startingAge = g_network.GetStartingAge();

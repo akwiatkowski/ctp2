@@ -56,7 +56,7 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Player.h"
 #include "gfx/spritesys/director.h"
-#include "gs/database/profileDB.h"				// g_theProfileDB
+#include "gs/database/profileDB.h"				// profiledb_Get()
 
 
 void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 data )
@@ -175,7 +175,7 @@ void MessageLibraryAction::Execute( aui_Control *control, uint32 action, uint32 
 //              action				: type of click
 //				data				: not used
 //
-// Globals    : g_theProfileDB		: user preferences
+// Globals    : profiledb_Get()		: user preferences
 //				messagepool_Get()	: currently active messages
 //
 //
@@ -199,7 +199,7 @@ void MessageStandardEyePointAction::Execute( aui_Control *control, uint32 action
 
 	message->AccessData()->EyePointCallback( 0 );
 
-	if (g_theProfileDB->GetValueByName("CloseOnEyepoint"))
+	if (profiledb_Get()->GetValueByName("CloseOnEyepoint"))
 	{
 		message->Minimize();
 	}

@@ -19,7 +19,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/SelItem.h"
 
-extern ProfileDB		*g_theProfileDB;
 
 extern uint16 g_messageReadPositionX;
 extern uint16 g_messageReadPositionY;

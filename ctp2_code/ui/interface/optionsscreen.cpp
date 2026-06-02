@@ -120,7 +120,7 @@ sint32	optionsscreen_displayMyWindow( sint32 from )
 		from &&
 		!turn_Get()->IsHotSeat() && !turn_Get()->IsEmail())
 	{
-		if(!g_theProfileDB->IsScenario() && !is_scenario_Get()) {
+		if(!profiledb_Get()->IsScenario() && !is_scenario_Get()) {
 			g_optionsWindow->RestartButton()->Enable( TRUE );
 		} else {
 			g_optionsWindow->RestartButton()->Enable(FALSE);

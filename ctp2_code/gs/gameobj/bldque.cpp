@@ -673,8 +673,8 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 			switch(m_list->GetHead()->m_category) {
 				case k_GAME_OBJ_TYPE_UNIT:
-					if(g_theProfileDB->IsAllUnitCompleteMessages() ||
-					   (g_theProfileDB->IsNonContinuousUnitCompleteMessages() &&
+					if(profiledb_Get()->IsAllUnitCompleteMessages() ||
+					   (profiledb_Get()->IsNonContinuousUnitCompleteMessages() &&
 						u.GetDBRec()->GetOnlyBuildOne()) || isEmpty) {
 						if(isEmpty) {
 							so = new SlicObject("38UnitCompletedQueueEmpty");
@@ -715,8 +715,8 @@ void BuildQueue::FinishBuildFront(Unit &u)
 			}
 		} else {
 
-			if(g_theProfileDB->IsAllUnitCompleteMessages() ||
-			   (g_theProfileDB->IsNonContinuousUnitCompleteMessages() &&
+			if(profiledb_Get()->IsAllUnitCompleteMessages() ||
+			   (profiledb_Get()->IsNonContinuousUnitCompleteMessages() &&
 				g_theUnitDB->Get(m_list->GetHead()->m_type)->GetOnlyBuildOne())) {
 				so = new SlicObject("38UnitCompleted");
 
@@ -1705,7 +1705,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 		|| (  g_network.IsClient()
 		&&    g_network.IsLocalPlayer(m_owner)
 		||  (!g_network.IsActive()
-		&&   !g_theProfileDB->AIPopCheat()
+		&&   !profiledb_Get()->AIPopCheat()
 		    )
 		   )
 		  )

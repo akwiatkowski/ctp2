@@ -126,7 +126,7 @@ STDEHANDLER(CaptureCityEvent)
 			GEA_Player, newOwner,
 			GEA_End);
 	//added cities leaving ruin options requires a tileimp with the flag IsCityRuin to be placed
-			if (g_theProfileDB->GetCityLeavesRuins()){
+			if (profiledb_Get()->GetCityLeavesRuins()){
 				for (sint32 imp = 0; imp < g_theTerrainImprovementDB->NumRecords(); imp++) {
 					const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(imp);
 					if (rec->GetIsCityRuin()){
@@ -200,8 +200,8 @@ STDEHANDLER(CaptureCityEvent)
 		}
 
 		if (
-			(g_theProfileDB->IsCityCaptureOptions())
-			//(g_theProfileDB->GetValueByName("CityCaptureOptions"))
+			(profiledb_Get()->IsCityCaptureOptions())
+			//(profiledb_Get()->GetValueByName("CityCaptureOptions"))
 		&& (city.GetData()->GetCityData()->PopCount() > 0)
 		){
 //EMOD Capture city options
@@ -753,7 +753,7 @@ STDEHANDLER(CreateWonderEvent)
 	if (c->GetOwner() == player_view::VisiblePlayer() &&
 		!Player::IsThisPlayerARobot(c->GetOwner())) {
 
-		if ( g_theProfileDB->IsWonderMovies() ) {
+		if ( profiledb_Get()->IsWonderMovies() ) {
 			render_observer::AddPlayWonderMovie(c.CD()->GetBuildQueue()->GetHead()->m_type);
 		}
 

@@ -640,7 +640,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 	if(!found)
 	{
 		attractwindow_Get()->HighlightControl("ControlPanelWindow.ControlPanel.TurnButton");
-		if(g_theProfileDB->GetEndTurnSound())
+		if(profiledb_Get()->GetEndTurnSound())
 		{
 			g_soundManager->AddGameSound(GAMESOUNDS_ENDTURN);
 		}
@@ -680,7 +680,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 		return;
 	}
 
-	if(g_theProfileDB->IsAutoTurnCycle() && !g_network.IsActive())
+	if(profiledb_Get()->IsAutoTurnCycle() && !g_network.IsActive())
 	{
 		bool endTurn = true;
 
@@ -726,7 +726,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 					// Hint MaybeAutoEndTurn, well that's obvious, but for now ...
 					// But apart from that this code doesn't seem to do the
 					// desired effect on the auto end turn code, either.
-					if(!g_theProfileDB->GetValueByName("EndTurnWithEmptyBuildQueues")
+					if(!profiledb_Get()->GetValueByName("EndTurnWithEmptyBuildQueues")
 					&& player_Get(GetCurPlayer())->IsHuman()
 					){
 						return;
@@ -739,7 +739,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 
 		if(endTurn
 		&& c3ui_Get()->TopWindowIsNonBackground()
-		&& !g_theProfileDB->GetValueByName("RunInBackground")
+		&& !profiledb_Get()->GetValueByName("RunInBackground")
 		){
 			endTurn = false;
 		}
@@ -768,7 +768,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 
 		if(endTurn)
 		{
-			if(!isFirst || (g_theProfileDB->IsAutoEndMulitpleTurns() && !m_gotClickSinceLastAutoEnd))
+			if(!isFirst || (profiledb_Get()->IsAutoEndMulitpleTurns() && !m_gotClickSinceLastAutoEnd))
 			{
 				m_gotClickSinceLastAutoEnd = false;
 				Refresh();
@@ -814,12 +814,12 @@ PLAYER_INDEX SelectedItem::GetNextHumanPlayer()
 
 bool SelectedItem::IsAutoCenterOn() const
 {
-	return g_theProfileDB->IsAutoCenter() != 0;
+	return profiledb_Get()->IsAutoCenter() != 0;
 }
 
 void SelectedItem::SetAutoCenter(const bool on)
 {
-	g_theProfileDB->SetAutoCenter(on);
+	profiledb_Get()->SetAutoCenter(on);
 }
 
 void SelectedItem::SetCurPlayer(PLAYER_INDEX p)
@@ -1111,7 +1111,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			}
 		}
 
-		if(g_theProfileDB->IsDebugCityAstar())
+		if(profiledb_Get()->IsDebugCityAstar())
 		{
 			SetDrawablePathDest(m_cur_mouse_tile);
 		}
@@ -1139,7 +1139,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		army = world_Get()->GetCell(pos)->UnitArmy();
 
 		if ( all && player_Get(o)->IsHuman() &&
-			 (g_theProfileDB->IsAutoGroup() || isDoubleClick))
+			 (profiledb_Get()->IsAutoGroup() || isDoubleClick))
 		{
 			sint32 i;
 			bool selectedCombatUnits = false;
@@ -1203,7 +1203,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		if(u.IsCity())
 		{
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CitySelected, GEA_City, u, GEA_End);
-			if(g_theProfileDB->GetAutoSwitchTabs())
+			if(profiledb_Get()->GetAutoSwitchTabs())
 			{
 				g_controlPanel->SetTab(CP_TAB_CITY);
 			}
@@ -1214,7 +1214,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 			if(GetSelectedArmy(a))
 			{
 				gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ArmySelected, GEA_Army, a, GEA_End);
-				if(g_theProfileDB->GetAutoSwitchTabs())
+				if(profiledb_Get()->GetAutoSwitchTabs())
 				{
 					g_controlPanel->SetTab(CP_TAB_UNIT);
 				}
@@ -1310,7 +1310,7 @@ bool SelectedItem::GetTopUnitOrCity(const MapPoint &pos, Unit &top)
 {
 	bool	unitIsThere = false;
 
-	if(g_theProfileDB->GetValueByName("CityClick")
+	if(profiledb_Get()->GetValueByName("CityClick")
 	&& world_Get()->IsCity(pos)
 	){
 		top = world_Get()->GetCity(pos);
@@ -1906,7 +1906,7 @@ void SelectedItem::Entrench()
 								   GEA_End);
 
 			Deselect(player);
-			if(g_theProfileDB->IsAutoSelectNext())
+			if(profiledb_Get()->IsAutoSelectNext())
 			{
 				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
@@ -1946,7 +1946,7 @@ void SelectedItem::Sleep()
 								   GEA_End);
 
 			Deselect(player);
-			if(g_theProfileDB->IsAutoSelectNext())
+			if(profiledb_Get()->IsAutoSelectNext())
 			{
 				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
@@ -2664,7 +2664,7 @@ void SelectedItem::DidKeyboardMove()
 		   !m_selected_army[player].CanMove())
 		{
 			Deselect(player);
-			if(g_theProfileDB->IsAutoSelectNext())
+			if(profiledb_Get()->IsAutoSelectNext())
 			{
 				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
@@ -2685,7 +2685,7 @@ void SelectedItem::DidKeyboardMove()
 	}
 	else
 	{
-		if(g_theProfileDB->IsAutoSelectNext())
+		if(profiledb_Get()->IsAutoSelectNext())
 		{
 			director_Get()->AddSelectUnit(0);
 			m_selected_something_since_director_select = false;
@@ -2700,7 +2700,7 @@ void SelectedItem::EndUnitTurn()
 	{
 		m_selected_army[player].SetTurnOver();
 		Deselect(player);
-		if(g_theProfileDB->IsAutoSelectNext())
+		if(profiledb_Get()->IsAutoSelectNext())
 		{
 			director_Get()->AddSelectUnit(0);
 			m_selected_something_since_director_select = false;
@@ -2751,7 +2751,7 @@ sint32 SelectedItem::GetIsPathing() const
 	return m_is_pathing
 	    && ( m_select_state[GetVisiblePlayer()] == SELECT_TYPE_LOCAL_ARMY
 	    ||   m_select_state[GetVisiblePlayer()] == SELECT_TYPE_LOCAL_ARMY_UNLOADING
-	    ||  (g_theProfileDB->IsDebugCityAstar()
+	    ||  (profiledb_Get()->IsDebugCityAstar()
 	    &&   m_select_state[GetVisiblePlayer()] == SELECT_TYPE_LOCAL_CITY)
 	       );
 }
@@ -2837,7 +2837,7 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 
 	bool deselected = false;
 	MapPoint army_pos;
-	if(g_theProfileDB->IsAutoDeselect())
+	if(profiledb_Get()->IsAutoDeselect())
 	{
 		if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
 		{
@@ -2846,7 +2846,7 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 			{
 				Deselect(player);
 				deselected = true;
-				if(g_theProfileDB->IsAutoSelectNext())
+				if(profiledb_Get()->IsAutoSelectNext())
 				{
 					director_Get()->AddSelectUnit(0);
 					m_selected_something_since_director_select = false;
@@ -2894,10 +2894,10 @@ bool SelectedItem::ShouldDrawPath()
 	if (!g_controlPanel) {
 		return false;
 	}
-	if(( g_theProfileDB->IsUseCTP2Mode()
+	if(( profiledb_Get()->IsUseCTP2Mode()
 	&&   g_controlPanel->GetTargetingMode() != CP_TARGETING_MODE_ORDER_PENDING)
 	&& (!IsLocalCity()
-	||  !g_theProfileDB->IsDebugCityAstar()))
+	||  !profiledb_Get()->IsDebugCityAstar()))
 		return false;
 	else
 		return true;

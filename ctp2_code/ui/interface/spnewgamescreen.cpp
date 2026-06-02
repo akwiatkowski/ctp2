@@ -65,7 +65,7 @@
 #include "ui/interface/initialplaywindow.h"
 #include "ui/interface/loadsavewindow.h"
 #include "ui/interface/MessageBoxDialog.h"
-#include "gs/database/profileDB.h"                      // g_theProfileDB
+#include "gs/database/profileDB.h"                      // profiledb_Get()
 #include "ui/interface/scenariowindow.h"
 #include "ui/interface/scorewarn.h"
 #include "gs/slic/SlicEngine.h"
@@ -101,7 +101,7 @@ sint32 spnewgamescreen_displayMyWindow()
 	sint32 const    tribeIndex = spnewgametribescreen_getTribeIndex();
 	if ((tribeIndex < 0) || (tribeIndex >= INDEX_TRIBE_INVALID))
 	{
-		spnewgamescreen_setPlayerName(g_theProfileDB->GetLeaderName());
+		spnewgamescreen_setPlayerName(profiledb_Get()->GetLeaderName());
 	}
 	else
 	{
@@ -112,7 +112,7 @@ sint32 spnewgamescreen_displayMyWindow()
 
 	if (g_spNewGameWindow)
 	{
-		g_theProfileDB->DefaultSettings();
+		profiledb_Get()->DefaultSettings();
 		g_spNewGameWindow->m_useCustomMap=false;
 		g_civPaths->ClearCurScenarioPath();
 
@@ -255,7 +255,7 @@ spnewgamescreen_startPress(aui_Control *control, uint32 action, uint32 data, voi
 		{
 			MBCHAR fieldText[k_MAX_NAME_LEN];
 			g_spNewGameWindow->m_spName->GetFieldText(fieldText, k_MAX_NAME_LEN);
-			g_theProfileDB->SetLeaderName(fieldText);
+			profiledb_Get()->SetLeaderName(fieldText);
 
 			if (gameinit_IsEmailGame() || gameinit_IsHotseatGame())
 			{
@@ -265,8 +265,8 @@ spnewgamescreen_startPress(aui_Control *control, uint32 action, uint32 data, voi
 			{
 				spnewgamescreen_removeMyWindow(action);
 
-				g_theProfileDB->SetSaveNote("");
-				g_theProfileDB->SetTutorialAdvice(FALSE);
+				profiledb_Get()->SetSaveNote("");
+				profiledb_Get()->SetTutorialAdvice(FALSE);
 				g_civApp->PostStartGameAction();
 			}
 		}
@@ -318,7 +318,7 @@ void spnewgamescreen_tribePress( aui_Control *control, uint32 action, uint32 dat
 
 	spnewgametribescreen_displayMyWindow( NULL, TRUE );
 
-	sint32 index = (sint32)g_theProfileDB->GetCivIndex();
+	sint32 index = (sint32)profiledb_Get()->GetCivIndex();
 
 	const sint32 size = k_MAX_NAME_LEN;
 	MBCHAR lname[ size + 1 ];
@@ -495,19 +495,19 @@ void spnewgamescreen_mapSizeSelect(aui_Control *control, uint32 action, uint32 d
 
 		switch(((c3_ListBox*)control)->GetSelectedItemIndex()) {
 		case 0:
-			g_theProfileDB->SetMapSize( MAPSIZE_SMALL);
+			profiledb_Get()->SetMapSize( MAPSIZE_SMALL);
 
 			break;
 		case 1:
-			g_theProfileDB->SetMapSize( MAPSIZE_MEDIUM);
+			profiledb_Get()->SetMapSize( MAPSIZE_MEDIUM);
 
 			break;
 		case 2:
-			g_theProfileDB->SetMapSize( MAPSIZE_LARGE);
+			profiledb_Get()->SetMapSize( MAPSIZE_LARGE);
 
 			break;
 		case 3:
-			g_theProfileDB->SetMapSize( MAPSIZE_GIGANTIC);
+			profiledb_Get()->SetMapSize( MAPSIZE_GIGANTIC);
 
 			break;
 		default: Assert(0);
@@ -533,7 +533,7 @@ void spnewgamescreen_difficultySelect(aui_Control *control, uint32 action, uint3
 	if(g_spNewGameWindow) {
 		callbackSetSelected(control,cookie);
 
-		g_theProfileDB->SetDifficulty( ((c3_ListBox*)control)->GetSelectedItemIndex());
+		profiledb_Get()->SetDifficulty( ((c3_ListBox*)control)->GetSelectedItemIndex());
 	}
 }
 void spnewgamescreen_riskLevelSelect(aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -543,7 +543,7 @@ void spnewgamescreen_riskLevelSelect(aui_Control *control, uint32 action, uint32
 	if(g_spNewGameWindow) {
 		callbackSetSelected(control,cookie);
 
-		g_theProfileDB->SetRiskLevel( ((c3_ListBox*)control)->GetSelectedItemIndex() );
+		profiledb_Get()->SetRiskLevel( ((c3_ListBox*)control)->GetSelectedItemIndex() );
 	}
 }
 void
@@ -554,7 +554,7 @@ spnewgamescreen_opponentSelect(aui_Control *control, uint32 action, uint32 data,
 	if(g_spNewGameWindow) {
 		callbackSetSelected(control,cookie);
 
-		g_theProfileDB->SetNPlayers( ((c3_ListBox*)control)->GetSelectedItemIndex()+3 );
+		profiledb_Get()->SetNPlayers( ((c3_ListBox*)control)->GetSelectedItemIndex()+3 );
 	}
 }
 void
@@ -572,7 +572,7 @@ spnewgamescreen_genocidePress(aui_Control *control, uint32 action, uint32 data, 
 		uint32 state = data;
 //		c3_CheckBox *mycheckbox = (c3_CheckBox*)control;
 
-		g_theProfileDB->SetGenocideRule( state ? FALSE : TRUE );
+		profiledb_Get()->SetGenocideRule( state ? FALSE : TRUE );
 	}
 }
 void
@@ -582,7 +582,7 @@ spnewgamescreen_tradePress(aui_Control *control, uint32 action, uint32 data, voi
 		uint32 state = data;
 //		c3_CheckBox *mycheckbox = (c3_CheckBox*)control;
 
-		g_theProfileDB->SetTradeRule( state ? FALSE : TRUE );
+		profiledb_Get()->SetTradeRule( state ? FALSE : TRUE );
 	}
 }
 void
@@ -592,7 +592,7 @@ spnewgamescreen_combatPress(aui_Control *control, uint32 action, uint32 data, vo
 		uint32 state = data;
 //		c3_CheckBox *mycheckbox = (c3_CheckBox*)control;
 
-		g_theProfileDB->SetSimpleCombatRule( state ? FALSE : TRUE );
+		profiledb_Get()->SetSimpleCombatRule( state ? FALSE : TRUE );
 	}
 }
 void
@@ -602,7 +602,7 @@ spnewgamescreen_pollutionPress(aui_Control *control, uint32 action, uint32 data,
 		uint32 state = data;
 //		c3_CheckBox *mycheckbox = (c3_CheckBox*)control;
 
-		g_theProfileDB->SetPollutionRule( state ? FALSE : TRUE );
+		profiledb_Get()->SetPollutionRule( state ? FALSE : TRUE );
 	}
 }
 
@@ -799,16 +799,16 @@ void spnewgamescreen_HotseatCallback(sint32 launch, sint32 player,
 		MBCHAR fieldText[k_MAX_NAME_LEN];
 
 		g_spNewGameWindow->m_spName->GetFieldText(fieldText, k_MAX_NAME_LEN);
-		g_theProfileDB->SetLeaderName(fieldText);
+		profiledb_Get()->SetLeaderName(fieldText);
 
 
 
 
 
-		g_theProfileDB->SetSaveNote("");
+		profiledb_Get()->SetSaveNote("");
 
 
-		g_theProfileDB->SetTutorialAdvice(FALSE);
+		profiledb_Get()->SetTutorialAdvice(FALSE);
 
 		g_civApp->PostStartGameAction();
 	} else {

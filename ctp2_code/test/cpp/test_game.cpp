@@ -3,7 +3,7 @@
 //
 // Now that TurnCount's ctor takes its inputs explicitly (numPlayers,
 // initialYear), Game::NewGame can run end-to-end in unit-test context
-// without reaching into g_theProfileDB or gamesettings_Get.
+// without reaching into profiledb_Get() or gamesettings_Get.
 
 #include "ctp/c3.h"
 #include "doctest.h"

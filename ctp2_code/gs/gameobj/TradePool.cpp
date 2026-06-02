@@ -83,7 +83,7 @@ TradeRoute TradePool::GetRouteIndex(sint32 index)
 
 void TradePool::Draw(aui_Surface* surface)
 {
-	if(!g_theProfileDB->GetShowTradeRoutes())
+	if(!profiledb_Get()->GetShowTradeRoutes())
 		return;
 
 	sint32 num = m_all_routes->Num();

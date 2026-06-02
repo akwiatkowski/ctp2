@@ -63,7 +63,6 @@
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 
 
-extern ProfileDB			*g_theProfileDB;
 extern CivApp				*g_civApp;
 
 extern sint32				g_god;
@@ -109,9 +108,9 @@ RandomGenerator             *custommapscreenRand=NULL;
 
 sint32 custommapscreen_updateData()
 {
-	if(!g_theProfileDB) return -1;
+	if(!profiledb_Get()) return -1;
 
-	s_RandomCustomMap->SetState(g_theProfileDB->IsRandomCustomMap());
+	s_RandomCustomMap->SetState(profiledb_Get()->IsRandomCustomMap());
 
 	return 1;
 }
@@ -150,7 +149,7 @@ sint32 custommapscreen_removeMyWindow(uint32 action)
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return 0;
 
-	if (g_theProfileDB->IsRandomCustomMap())
+	if (profiledb_Get()->IsRandomCustomMap())
 	{
 		sint32 ranWetDry,
 			ranWarmCold,
@@ -246,12 +245,12 @@ AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *call
 
 	custommapscreen_updateData();
 
-	s_wetdry->SetValue(g_theProfileDB->GetWetDry(), 0);
-	s_warmcold->SetValue(g_theProfileDB->GetWarmCold(), 0);
-	s_oceanland->SetValue(g_theProfileDB->GetOceanLand(), 0);
-	s_islandcontinent->SetValue(g_theProfileDB->GetIslandContinent(), 0);
-	s_homodiverse->SetValue(g_theProfileDB->GetHomoDiverse(), 0);
-	s_goodcount->SetValue(g_theProfileDB->GetGoodCount(), 0);
+	s_wetdry->SetValue(profiledb_Get()->GetWetDry(), 0);
+	s_warmcold->SetValue(profiledb_Get()->GetWarmCold(), 0);
+	s_oceanland->SetValue(profiledb_Get()->GetOceanLand(), 0);
+	s_islandcontinent->SetValue(profiledb_Get()->GetIslandContinent(), 0);
+	s_homodiverse->SetValue(profiledb_Get()->GetHomoDiverse(), 0);
+	s_goodcount->SetValue(profiledb_Get()->GetGoodCount(), 0);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "Name" );
 	s_customMapWindow->AddTitle( controlBlock );
@@ -321,7 +320,7 @@ void custommapscreen_backPress(aui_Control *control, uint32 action, uint32 data,
 
 		if ( s_useMode == 1 ) {// This is not used.
 
-			g_theProfileDB->SetSaveNote("");
+			profiledb_Get()->SetSaveNote("");
 
 			g_civApp->PostStartGameAction();
 
@@ -334,12 +333,12 @@ void custommapscreen_backPress(aui_Control *control, uint32 action, uint32 data,
 void custommapscreen_cancelPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
 	if ( action == (sint32)AUI_BUTTON_ACTION_EXECUTE ) {
-		s_wetdry->SetValue(g_theProfileDB->GetWetDry(), 0);
-		s_warmcold->SetValue(g_theProfileDB->GetWarmCold(), 0);
-		s_oceanland->SetValue(g_theProfileDB->GetOceanLand(), 0);
-		s_islandcontinent->SetValue(g_theProfileDB->GetIslandContinent(), 0);
-		s_homodiverse->SetValue(g_theProfileDB->GetHomoDiverse(), 0);
-		s_goodcount->SetValue(g_theProfileDB->GetGoodCount(), 0);
+		s_wetdry->SetValue(profiledb_Get()->GetWetDry(), 0);
+		s_warmcold->SetValue(profiledb_Get()->GetWarmCold(), 0);
+		s_oceanland->SetValue(profiledb_Get()->GetOceanLand(), 0);
+		s_islandcontinent->SetValue(profiledb_Get()->GetIslandContinent(), 0);
+		s_homodiverse->SetValue(profiledb_Get()->GetHomoDiverse(), 0);
+		s_goodcount->SetValue(profiledb_Get()->GetGoodCount(), 0);
 	}
 
 	custommapscreen_removeMyWindow(action);
@@ -428,12 +427,12 @@ void custommapscreen_setValues(
 	if(s_goodcount)
 		s_goodcount->SetValue( goodcount, 0 );
 
-	g_theProfileDB->SetWetDry(wetdry);
-	g_theProfileDB->SetWarmCold(warmcold);
-	g_theProfileDB->SetOceanLand(oceanland);
-	g_theProfileDB->SetIslandContinent(islandcontinent);
-	g_theProfileDB->SetHomoDiverse(homodiverse);
-	g_theProfileDB->SetGoodCount(goodcount);
+	profiledb_Get()->SetWetDry(wetdry);
+	profiledb_Get()->SetWarmCold(warmcold);
+	profiledb_Get()->SetOceanLand(oceanland);
+	profiledb_Get()->SetIslandContinent(islandcontinent);
+	profiledb_Get()->SetHomoDiverse(homodiverse);
+	profiledb_Get()->SetGoodCount(goodcount);
 
 
 
@@ -456,10 +455,10 @@ void custommapscreen_setValues(
 		(sint32)g_theConstDB->Get(0)->GetDesertDry() * wetdry +
 		(sint32)g_theConstDB->Get(0)->GetDesertWet() * ( 10 - wetdry );
 
-	g_theProfileDB->SetPercentForest( sint32(forest / 10) );
-	g_theProfileDB->SetPercentGrass( sint32(grass / 10) );
-	g_theProfileDB->SetPercentPlains( sint32(plains / 10) );
-	g_theProfileDB->SetPercentDesert( sint32(desert / 10) );
+	profiledb_Get()->SetPercentForest( sint32(forest / 10) );
+	profiledb_Get()->SetPercentGrass( sint32(grass / 10) );
+	profiledb_Get()->SetPercentPlains( sint32(plains / 10) );
+	profiledb_Get()->SetPercentDesert( sint32(desert / 10) );
 
 
 
@@ -474,27 +473,27 @@ void custommapscreen_setValues(
 		(sint32)g_theConstDB->Get(0)->GetTemperatureRangeAdjustCold() * warmcold +
 		(sint32)g_theConstDB->Get(0)->GetTemperatureRangeAdjustWarm() * ( 10 - warmcold );
 
-	g_theProfileDB->SetPercentWhite( sint32(white / 10) );
-	g_theProfileDB->SetPercentBrown( sint32(brown / 10) );
-	g_theProfileDB->SetTemperatureRangeAdjust(sint32(temperatureRangeAdjust/10));
+	profiledb_Get()->SetPercentWhite( sint32(white / 10) );
+	profiledb_Get()->SetPercentBrown( sint32(brown / 10) );
+	profiledb_Get()->SetTemperatureRangeAdjust(sint32(temperatureRangeAdjust/10));
 
 
 
 
 
-	g_theProfileDB->SetPercentLand( ((double)(0.9 * oceanland) / 10.0) + 0.1 );
+	profiledb_Get()->SetPercentLand( ((double)(0.9 * oceanland) / 10.0) + 0.1 );
 
 
 
 
 
-	g_theProfileDB->SetPercentContinent( (double)islandcontinent / 10.0 );
+	profiledb_Get()->SetPercentContinent( (double)islandcontinent / 10.0 );
 
 
 
 
 
-	g_theProfileDB->SetHomogenous( 10 * homodiverse );
+	profiledb_Get()->SetHomogenous( 10 * homodiverse );
 
 
 
@@ -510,7 +509,7 @@ void custommapscreen_setValues(
 		(sint32)g_theConstDB->Get(0)->GetRiverCellHeightManyGoods() * goodcount +
 		(sint32)g_theConstDB->Get(0)->GetRiverCellHeightFewGoods() * ( 10 - goodcount );
 #endif
-	g_theProfileDB->SetPercentRichness( sint32(richness / 10) );
+	profiledb_Get()->SetPercentRichness( sint32(richness / 10) );
 }
 
 void custommapscreen_checkPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -529,14 +528,14 @@ void custommapscreen_checkPress(aui_Control *control, uint32 action, uint32 data
 	};
 
 	if(func)
-		(g_theProfileDB->*func)(state ? FALSE : TRUE);
+		(profiledb_Get()->*func)(state ? FALSE : TRUE);
 
 	custommapscreen_updateWindow();
 }
 
 void custommapscreen_updateWindow()
 {
-	if (g_theProfileDB->IsRandomCustomMap())
+	if (profiledb_Get()->IsRandomCustomMap())
 	{
 		s_wet->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
 		s_dry->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));

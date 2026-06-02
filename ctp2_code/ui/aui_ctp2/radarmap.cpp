@@ -70,7 +70,7 @@
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/primitives.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/gameobj/terrainutil.h"
 #include "ai/strategy/scheduler/Scheduler.h"
@@ -171,16 +171,16 @@ void RadarMap::InitCommon(void)
 	m_tilePixelWidth = 0.0;
 	m_tilePixelHeight = 0.0;
 
-	m_displayUnits = g_theProfileDB->GetDisplayUnits() != FALSE;
-	m_displayCities = g_theProfileDB->GetDisplayCities() != FALSE;
-	m_displayBorders = g_theProfileDB->GetDisplayBorders() != FALSE;
+	m_displayUnits = profiledb_Get()->GetDisplayUnits() != FALSE;
+	m_displayCities = profiledb_Get()->GetDisplayCities() != FALSE;
+	m_displayBorders = profiledb_Get()->GetDisplayBorders() != FALSE;
 	m_displayOverlay = true;
-	m_filter = g_theProfileDB->GetDisplayFilter() != FALSE;
-	m_displayTrade = g_theProfileDB->GetDisplayTrade() != FALSE;
-	m_displayTerrain = g_theProfileDB->GetDisplayTerrain() != FALSE;
-	m_displayPolitical = g_theProfileDB->GetDisplayPolitical() != FALSE;
-	m_displayCapitols = g_theProfileDB->GetDisplayCapitols() != FALSE;
-	m_displayRelations = g_theProfileDB->GetDisplayRelations() != FALSE;
+	m_filter = profiledb_Get()->GetDisplayFilter() != FALSE;
+	m_displayTrade = profiledb_Get()->GetDisplayTrade() != FALSE;
+	m_displayTerrain = profiledb_Get()->GetDisplayTerrain() != FALSE;
+	m_displayPolitical = profiledb_Get()->GetDisplayPolitical() != FALSE;
+	m_displayCapitols = profiledb_Get()->GetDisplayCapitols() != FALSE;
+	m_displayRelations = profiledb_Get()->GetDisplayRelations() != FALSE;
 
 	m_mapOverlay = NULL;
 

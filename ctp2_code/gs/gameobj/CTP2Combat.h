@@ -269,7 +269,7 @@ private:
 	void DoAttacks(CombatField *attacker, CombatField *defender);
 	void DoAttacks();
 	void DoCounterAttacks();
-	// below are used only when g_theProfileDB->IsNewCombat
+	// below are used only when profiledb_Get()->IsNewCombat
 	void ExecuteRangedCounterAttackNC(CombatField *attacker, sint32 attX, sint32 attY,
 							 CombatField *defender, sint32 defX, sint32 defY);
 	void DoRangedCounterAttacksNC(CombatField *attacker, CombatField *defender);

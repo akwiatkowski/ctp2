@@ -55,7 +55,7 @@
 #include "ui/interface/loadsavewindow.h"
 #include "ui/netshell/netshell.h"
 #include "ui/interface/optionswindow.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "ui/interface/scenariowindow.h"
 #include "ui/interface/screenutils.h"
 #include <string>               // std::basic_string
@@ -206,14 +206,14 @@ spritetest_spPress(aui_Control *control, uint32 action, uint32 data, void *cooki
 			snprintf(fieldText, sizeof(fieldText),"Jerry");
 
 
-  			g_theProfileDB->SetLeaderName(fieldText);
+  			profiledb_Get()->SetLeaderName(fieldText);
 
-			g_theProfileDB->SetSaveNote("");
+			profiledb_Get()->SetSaveNote("");
 
 
-			g_theProfileDB->SetTutorialAdvice(FALSE);
+			profiledb_Get()->SetTutorialAdvice(FALSE);
 
-			g_theProfileDB->SetFogOfWar(false);
+			profiledb_Get()->SetFogOfWar(false);
 
 			g_civApp->PostSpriteTestAction();
 	}
@@ -313,7 +313,7 @@ void initialplayscreen_tutorialPress(aui_Control *control, uint32 action, uint32
 
 	if (c3files_HasLegalCD()) {
 		if(initialplayscreen_removeMyWindow(action)) {
-			g_theProfileDB->SetTutorialAdvice(TRUE);
+			profiledb_Get()->SetTutorialAdvice(TRUE);
 			g_civApp->PostStartGameAction();
 		}
 	}

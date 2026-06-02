@@ -56,7 +56,6 @@
 
 #include "ui/aui_ctp2/keypress.h"
 
-extern ProfileDB        *g_theProfileDB;
 
 static c3_PopupWindow   *s_spNewGameDiffScreen  = NULL;
 static ctp2_ListBox     *s_diffListBox          = NULL;
@@ -91,7 +90,7 @@ void spnewgamediffscreen_setDifficulty1( sint32 d )
 	Assert( d >= 0 && d < g_theDifficultyDB->NumRecords() );
 	s_diffListBox->SelectItem(d);
 
-	g_theProfileDB->SetDifficulty( s_difficulty1 = d );
+	profiledb_Get()->SetDifficulty( s_difficulty1 = d );
 }
 
 void spnewgamediffscreen_setDifficulty2( sint32 d )
@@ -106,7 +105,7 @@ void spnewgamediffscreen_setDifficulty2( sint32 d )
 
 	s_riskListBox->SelectItem(d);
 
-	g_theProfileDB->SetRiskLevel( s_difficulty2 = d );
+	profiledb_Get()->SetRiskLevel( s_difficulty2 = d );
 }
 
 sint32	spnewgamediffscreen_displayMyWindow(BOOL viewMode,BOOL reinit)
@@ -212,15 +211,15 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 		s_diffListBox->AddItem(item);
 	}
 
-	Assert( g_theProfileDB->GetDifficulty() >= 0 );
-	if(g_theProfileDB->GetDifficulty() < 0)
-		g_theProfileDB->SetDifficulty(0);
+	Assert( profiledb_Get()->GetDifficulty() >= 0 );
+	if(profiledb_Get()->GetDifficulty() < 0)
+		profiledb_Get()->SetDifficulty(0);
 
 	// In the case of a mod change and the mods have different number of difficulties:
-	if(g_theProfileDB->GetDifficulty() >= g_theDifficultyDB->NumRecords())
-		g_theProfileDB->SetDifficulty(g_theDifficultyDB->NumRecords() - 1);
+	if(profiledb_Get()->GetDifficulty() >= g_theDifficultyDB->NumRecords())
+		profiledb_Get()->SetDifficulty(g_theDifficultyDB->NumRecords() - 1);
 
-	s_diffListBox->SelectItem(g_theProfileDB->GetDifficulty());
+	s_diffListBox->SelectItem(profiledb_Get()->GetDifficulty());
 
 	for(i = 0; i < g_theRiskDB->NumRecords(); ++i){
 		ctp2_ListItem *item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("DiffRiskItem");
@@ -239,15 +238,15 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 		s_riskListBox->AddItem(item);
 	}
 
-	Assert( g_theProfileDB->GetRiskLevel() >= 0 );
-	if(g_theProfileDB->GetRiskLevel() < 0)
-		g_theProfileDB->SetRiskLevel(0);
+	Assert( profiledb_Get()->GetRiskLevel() >= 0 );
+	if(profiledb_Get()->GetRiskLevel() < 0)
+		profiledb_Get()->SetRiskLevel(0);
 
 	// In the case of a mod change and the mods have different number of difficulties:
-	if(g_theProfileDB->GetRiskLevel() >= g_theRiskDB->NumRecords())
-		g_theProfileDB->SetRiskLevel(g_theRiskDB->NumRecords() - 1);
+	if(profiledb_Get()->GetRiskLevel() >= g_theRiskDB->NumRecords())
+		profiledb_Get()->SetRiskLevel(g_theRiskDB->NumRecords() - 1);
 
-	s_riskListBox->SelectItem(g_theProfileDB->GetRiskLevel());
+	s_riskListBox->SelectItem(profiledb_Get()->GetRiskLevel());
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );

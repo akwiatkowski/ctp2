@@ -508,7 +508,7 @@ void SlicEngine::Execute(SlicObject *obj)
 	PushContext(obj);
 
 	if (obj->IsValid()  &&
-        ((obj->GetSegment()->GetFilenum() != k_TUTORIAL_FILE) || g_theProfileDB->IsTutorialAdvice()) &&
+        ((obj->GetSegment()->GetFilenum() != k_TUTORIAL_FILE) || profiledb_Get()->IsTutorialAdvice()) &&
 		(!critical_messages_prefs_Get() || critical_messages_prefs_Get()->IsEnabled(obj->GetSegment()->GetName()))
        )
     {

@@ -9,7 +9,6 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "gs/database/profileDB.h"
-extern ProfileDB	*g_theProfileDB;
 
 #include "ui/ldl/ldl_data.hpp"
 

@@ -51,7 +51,7 @@ static int	s_populationHack[k_MAX_PLAYERS];
 void gslog_print(char *fmt, ...)
 {
 #ifndef _BFR_
-	if(!g_theProfileDB->GetEnableLogs())
+	if(!profiledb_Get()->GetEnableLogs())
 		return;
 
     FILE * f = fopen("logs" FILE_SEP "gslog.txt", (s_initialized) ? "a" : "w");
@@ -80,7 +80,7 @@ void gslog_print(char *fmt, ...)
 void gslog_dipprint(char *fmt, ...)
 {
 #ifndef _BFR_
-	if (!g_theProfileDB->GetEnableLogs())
+	if (!profiledb_Get()->GetEnableLogs())
 		return;
 
 	FILE * f = fopen("logs" FILE_SEP "diplog.txt", (s_dip_initialized) ? "a" : "w");
@@ -103,7 +103,7 @@ void gslog_dipprint(char *fmt, ...)
 void gslog_LogPlayerStats(sint32 player)
 {
 #ifndef _BFR_
-	if(!g_theProfileDB->GetEnableLogs())
+	if(!profiledb_Get()->GetEnableLogs())
 		return;
 
 	Player *pl = player_Get(player);

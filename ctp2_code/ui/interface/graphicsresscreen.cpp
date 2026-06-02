@@ -52,7 +52,6 @@
 #include "ui/interface/graphicsscreen.h"
 #include "ui/interface/graphicsresscreen.h"
 
-extern ProfileDB		*g_theProfileDB;
 
 static c3_PopupWindow	*s_graphicsResScreen= NULL;
 static c3_Button		*s_accept			= NULL;
@@ -213,10 +212,10 @@ void graphicsresscreen_acceptPress(aui_Control *control, uint32 action, uint32 d
 		if (s_selectedDisplayMode) {
 			if (s_selectedDisplayMode->width != g_ScreenWidth ||
 				s_selectedDisplayMode->height != g_ScreenHeight) {
-				g_theProfileDB->SetScreenResWidth(s_selectedDisplayMode->width);
-				g_theProfileDB->SetScreenResHeight(s_selectedDisplayMode->height);
-				g_theProfileDB->SetTryWindowsResolution(FALSE);
-				g_theProfileDB->Save();
+				profiledb_Get()->SetScreenResWidth(s_selectedDisplayMode->width);
+				profiledb_Get()->SetScreenResHeight(s_selectedDisplayMode->height);
+				profiledb_Get()->SetTryWindowsResolution(FALSE);
+				profiledb_Get()->Save();
 			}
 		}
 

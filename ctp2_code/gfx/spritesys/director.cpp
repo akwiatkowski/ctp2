@@ -60,7 +60,7 @@
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"  // tiledmap_Get()
 #include "gfx/tilesys/tileutils.h"
-#include "gs/database/profileDB.h"  // g_theProfileDB
+#include "gs/database/profileDB.h"  // profiledb_Get()
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Player.h"
@@ -640,9 +640,9 @@ void Director::HandleNextAction(void) {
     DHEXECUTE executeType = DHEXECUTE_NORMAL;
 
     if (item->m_round < turn_Get()->GetRound() - 1 ||
-        (!g_theProfileDB->IsEnemyMoves() && item->GetOwner() != -1 &&
+        (!profiledb_Get()->IsEnemyMoves() && item->GetOwner() != -1 &&
          item->GetOwner() != selitem_Get()->GetVisiblePlayer()) ||
-        (!g_theProfileDB->IsUnitAnim() && item->GetOwner() != -1 &&
+        (!profiledb_Get()->IsUnitAnim() && item->GetOwner() != -1 &&
          item->GetOwner() >= 0 && item->GetOwner() < k_MAX_PLAYERS &&
          player_Get(item->GetOwner()) != NULL &&
          player_Get(item->GetOwner())->IsRobot())) {
@@ -1048,7 +1048,7 @@ uint32 Director::ProcessActiveEffects(void) {
 }
 
 void Director::ProcessTradeRouteAnimations(void) {
-  if (!g_theProfileDB->IsTradeAnim())
+  if (!profiledb_Get()->IsTradeAnim())
     return;
 
   for (TradeActor* tActor : m_tradeActorList) {
@@ -1185,7 +1185,7 @@ void Director::DrawActiveEffects(RECT* paintRect, sint32 layer) {
 }
 
 void Director::DrawTradeRouteAnimations(RECT* paintRect, sint32 layer) {
-  if (!g_theProfileDB->IsTradeAnim())
+  if (!profiledb_Get()->IsTradeAnim())
     return;
 
   for (TradeActor* tActor : m_tradeActorList) {
@@ -1250,7 +1250,7 @@ void Director::AddMove(Unit mover,
 
   Assert(actor->GetUnitID() == mover.m_id);
 
-  if (g_theProfileDB->IsEnemyMoves() &&
+  if (profiledb_Get()->IsEnemyMoves() &&
       mover.GetOwner() != selitem_Get()->GetVisiblePlayer() &&
       (mover.GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) &&
       !TileWillBeCompletelyVisible(newPos.x, newPos.y)) {

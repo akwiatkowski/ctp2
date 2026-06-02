@@ -2,7 +2,7 @@
 #include "ui/interface/messagelist.h"
 
 #include "ui/aui_ctp2/SelItem.h"        // selitem_Get()
-#include "gs/database/profileDB.h"      // g_theProfileDB
+#include "gs/database/profileDB.h"      // profiledb_Get()
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"

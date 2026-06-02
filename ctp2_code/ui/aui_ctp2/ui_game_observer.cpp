@@ -15,7 +15,7 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Army.h"
 #include "gs/utility/UnitDynArr.h"   // for Player::m_all_cities access
-#include "gs/database/profileDB.h"   // g_theProfileDB
+#include "gs/database/profileDB.h"   // profiledb_Get()
 #include "gs/gameobj/Message.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/gameobj/GameOver.h"
@@ -455,7 +455,7 @@ public:
     {
         if (!selitem_Get()) return;
         if (player != selitem_Get()->GetVisiblePlayer()) return;
-        if (!g_theProfileDB || !g_theProfileDB->IsAutoSelectFirstUnit()) return;
+        if (!profiledb_Get() || !profiledb_Get()->IsAutoSelectFirstUnit()) return;
 
         if (selitem_Get()->GetState() == SELECT_TYPE_NONE) {
             selitem_Get()->NextUnmovedUnit(TRUE);

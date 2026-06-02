@@ -77,7 +77,7 @@
 #include "ui/netshell/ns_gamesetup.h"
 #include "ui/interface/optionswindow.h"
 #include "gs/gameobj/Player.h"                     // player_Get()
-#include "gs/database/profileDB.h"                  // g_theProfileDB
+#include "gs/database/profileDB.h"                  // profiledb_Get()
 #include "ui/interface/spnewgamediffscreen.h"
 #include "ui/interface/spnewgameplayersscreen.h"
 #include "ui/interface/spnewgametribescreen.h"
@@ -325,7 +325,7 @@ void loadsavescreen_TribeScreenActionCallback(aui_Control *control, uint32 actio
 		tribeIndex = 1;
 	}
 
-	g_theProfileDB->SetCivIndex(tribeIndex);
+	profiledb_Get()->SetCivIndex(tribeIndex);
 
 	if(s_tempSaveInfo
 	&& s_tempSaveInfo->startInfoType == STARTINFOTYPE_NOLOCS
@@ -395,7 +395,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 
 	spnewgameplayersscreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 
-	scenario_civs_Set(g_theProfileDB->GetNPlayers()-1);
+	scenario_civs_Set(profiledb_Get()->GetNPlayers()-1);
 
 	if (s_tempSaveInfo->startInfoType != STARTINFOTYPE_NOLOCS)
 	{
@@ -403,7 +403,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 		{
 			scenario_civs_Set(s_tempSaveInfo->numPositions);
 
-			g_theProfileDB->SetNPlayers(scenario_civs_Get()+1);
+			profiledb_Get()->SetNPlayers(scenario_civs_Get()+1);
 		}
 	}
 
@@ -412,7 +412,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 		if (gameinit_IsEmailGame() || gameinit_IsHotseatGame())
 		{
 			hotseatlist_ClearOptions();
-			for (sint32 i=0; i<g_theProfileDB->GetNPlayers(); i++)
+			for (sint32 i=0; i<profiledb_Get()->GetNPlayers(); i++)
 			{
 				sint32 civIndex = s_tempSaveInfo->playerCivIndexList[i];
 				hotseatlist_SetPlayerCiv(i, civIndex);
@@ -585,7 +585,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 				g_civPaths->SetCurScenarioPath(scen->m_path);
 				g_civPaths->SetCurScenarioPackPath(pack->m_path);
-				g_theProfileDB->SetIsScenario(TRUE);
+				profiledb_Get()->SetIsScenario(TRUE);
 
 				strcpy(scenario_name_buf(), saveInfo->scenarioName);
 			} else {
@@ -599,7 +599,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 		} else {
 
 			g_civPaths->SetCurScenarioPath(directoryPath);
-			g_theProfileDB->SetIsScenario(TRUE);
+			profiledb_Get()->SetIsScenario(TRUE);
 
 			is_scenario_Set(true);
 		}
@@ -615,7 +615,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 
 		g_civPaths->ClearCurScenarioPath();
-		g_theProfileDB->SetIsScenario(FALSE);
+		profiledb_Get()->SetIsScenario(FALSE);
 
 		if (wasScenario) {
 
@@ -949,7 +949,7 @@ void loadsavescreen_LoadSCENGame(void)
 
 	g_civPaths->SetCurScenarioPath(gameInfo->path);
 
-	g_theProfileDB->SetIsScenario(TRUE);
+	profiledb_Get()->SetIsScenario(TRUE);
 
 	g_civApp->PostLoadScenarioGameAction(saveInfo->fileName);
 }

@@ -73,7 +73,7 @@
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"                 // player_Get, player_arr_Get
 #include "gs/gameobj/pollution.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/Score.h"
 #include "gs/utility/SimpleDynArr.h"
@@ -374,7 +374,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 	sint32 age;
 	sint32 player_idx;
 
-	if ((0 == m_round) && (g_theProfileDB->GetCheatAge(age))) {
+	if ((0 == m_round) && (profiledb_Get()->GetCheatAge(age))) {
 		switch(age) {
 		case 1:
 			m_round = 124;
@@ -469,7 +469,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 
 #ifdef _DEBUG
 
-	if (g_theProfileDB->LogPlayerStats()) {
+	if (profiledb_Get()->LogPlayerStats()) {
 		LogPlayerStats();
 	}
 #endif
@@ -915,7 +915,7 @@ void TurnCount::NextRound(BOOL fromDirector, BOOL force)
 		player_view::RegisterManualEndTurn();
 	}
 
-	if (g_theProfileDB->IsAIOn()) {
+	if (profiledb_Get()->IsAIOn()) {
 
 		TurnCount::SetStopPlayer(player_view::CurPlayer());
 	} else {
@@ -948,7 +948,7 @@ sint32 finite_count=0;
 			return;
 
 		player_view::SetVisiblePlayer(player_view::VisiblePlayer());
-		if (g_theProfileDB->IsAIOn())
+		if (profiledb_Get()->IsAIOn())
 		{
 			TurnCount::SetStopPlayer(player_view::CurPlayer());
 		}

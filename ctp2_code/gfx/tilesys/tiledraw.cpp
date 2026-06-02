@@ -99,7 +99,7 @@
 #include "gfx/spritesys/screenmanager.h"
 #include "gfx/spritesys/UnitActor.h"
 #include "gs/world/UnseenCell.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "net/general/network.h"
 #include "net/general/chatlist.h"
 #include "ctp/ctp2_utils/pointerlist.h"
@@ -3385,7 +3385,7 @@ void TiledMap::DrawWater(void)
 void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 {
 	sint32 yoffset = (sint32)(k_TILE_PIXEL_HEADROOM*m_scale)/2;
-	sint32 showCityProd = g_theProfileDB->IsShowCityProduction();
+	sint32 showCityProd = profiledb_Get()->IsShowCityProduction();
 
 	bool		fog;
 	uint32		slaveBits = 0;
@@ -4746,9 +4746,9 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		&&(visP->HasSeen(myOwner)
 		|| g_fog_toggle // The sense of fog of and god mode is to see something.
 		|| g_god)
-		&& g_theProfileDB->GetShowPoliticalBorders()
+		&& profiledb_Get()->GetShowPoliticalBorders()
 		){
-			if(!g_theProfileDB->IsSmoothBorders())
+			if(!profiledb_Get()->IsSmoothBorders())
 			{
 				DrawColoredBorderEdge(surface, pos, color, NORTHWEST, k_BORDER_SOLID); //EMOD- k_BORDER_SOLID defined in tiledmap.h as 0 and dashed as 1 its a bool?
 			}
@@ -4784,7 +4784,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		if(neighborCityOwner != myCityOwner) {
 			if(myCityData &&
 			   myCityData->GetVisibility() & (1 << visP->m_owner) &&
-			   g_theProfileDB->IsShowCityInfluence()) {
+			   profiledb_Get()->IsShowCityInfluence()) {
 				DrawColoredBorderEdge(surface, pos, white, NORTHWEST, k_BORDER_DASHED);
 				//if ((PlayerHasGreatWall) && (IsLand(pos)) {
 					//iconRect.top    = y + 20;  //y
@@ -4804,9 +4804,9 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		&&(visP->HasSeen(myOwner)
 		|| g_fog_toggle
 		|| g_god)
-		&& g_theProfileDB->GetShowPoliticalBorders()
+		&& profiledb_Get()->GetShowPoliticalBorders()
 		){
-			if(!g_theProfileDB->IsSmoothBorders())
+			if(!profiledb_Get()->IsSmoothBorders())
 			{
 				DrawColoredBorderEdge(surface, pos, color, SOUTHWEST, k_BORDER_SOLID); //EMOD- k_BORDER_SOLID defined in tiledmap.h as 0 and dashed as 1 its a bool?
 			}
@@ -4826,7 +4826,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		if(neighborCityOwner != myCityOwner) {
 			if(myCityData &&
 			   myCityData->GetVisibility() & (1 << visP->m_owner) &&
-			   g_theProfileDB->IsShowCityInfluence()) {
+			   profiledb_Get()->IsShowCityInfluence()) {
 				DrawColoredBorderEdge(surface, pos, white, SOUTHWEST, k_BORDER_DASHED);
 			}
 		}
@@ -4838,10 +4838,10 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		&&(visP->HasSeen(myOwner)
 		|| g_fog_toggle
 		|| g_god)
-		&& g_theProfileDB->GetShowPoliticalBorders()
+		&& profiledb_Get()->GetShowPoliticalBorders()
 		){
 
-			if(!g_theProfileDB->IsSmoothBorders())
+			if(!profiledb_Get()->IsSmoothBorders())
 			{
 				DrawColoredBorderEdge(surface, pos, color, NORTHEAST, k_BORDER_SOLID);  //original
 			}
@@ -4863,7 +4863,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		if(neighborCityOwner != myCityOwner) {
 			if(myCityData &&
 			   myCityData->GetVisibility() & (1 << visP->m_owner) &&
-			   g_theProfileDB->IsShowCityInfluence()) {
+			   profiledb_Get()->IsShowCityInfluence()) {
 				DrawColoredBorderEdge(surface, pos, white, NORTHEAST, k_BORDER_DASHED);
 			}
 		}
@@ -4875,10 +4875,10 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		&&(visP->HasSeen(myOwner)
 		|| g_fog_toggle
 		|| g_god)
-		&& g_theProfileDB->GetShowPoliticalBorders()
+		&& profiledb_Get()->GetShowPoliticalBorders()
 		){
 
-			if(!g_theProfileDB->IsSmoothBorders())
+			if(!profiledb_Get()->IsSmoothBorders())
 			{
 				DrawColoredBorderEdge(surface, pos, color, SOUTHEAST, k_BORDER_SOLID); //original
 			}
@@ -4900,7 +4900,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		if(neighborCityOwner != myCityOwner) {
 			if(myCityData &&
 			   myCityData->GetVisibility() & (1 << visP->m_owner) &&
-			   g_theProfileDB->IsShowCityInfluence()) {
+			   profiledb_Get()->IsShowCityInfluence()) {
 				DrawColoredBorderEdge(surface, pos, white, SOUTHEAST, k_BORDER_DASHED);
 			}
 		}

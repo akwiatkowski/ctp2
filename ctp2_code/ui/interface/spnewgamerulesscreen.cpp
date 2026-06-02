@@ -77,7 +77,6 @@
 #include "ui/interface/screenutils.h"
 #include "net/general/network.h"
 
-extern ProfileDB	*g_theProfileDB;
 extern Network				g_network;
 static c3_PopupWindow	*s_spNewGameRulesScreen	= NULL;
 static aui_Switch		*s_genocide			= NULL,
@@ -140,22 +139,22 @@ static uint32 check[] =
 
 sint32 spnewgamerulesscreen_updateData()
 {
-	if(!g_theProfileDB) return -1;
+	if(!profiledb_Get()) return -1;
 
-	s_genocide       ->SetState( g_theProfileDB->IsGenocideRule            () );
-	s_pollution      ->SetState( g_theProfileDB->IsPollutionRule           () );
-	s_citycapture    ->SetState( g_theProfileDB->IsCityCaptureOptions      () );
-	s_onecity        ->SetState( g_theProfileDB->IsOneCityChallenge        () );
-	s_revoltinsurgent->SetState( g_theProfileDB->IsRevoltInsurgents        () );
-	s_revoltcasualty ->SetState( g_theProfileDB->IsRevoltCasualties        () );
-	s_barbspawn      ->SetState( g_theProfileDB->IsBarbarianSpawnsBarbarian() );
-	s_NonRandomCivs  ->SetState( g_theProfileDB->IsNonRandomCivs           () );
-	s_Upgrade        ->SetState( g_theProfileDB->IsUpgrade                 () );
-	s_NewCombat      ->SetState( g_theProfileDB->IsNewCombat               () );
-	s_NoGoodyHuts    ->SetState( g_theProfileDB->IsNoGoodyHuts             () );
-	s_UNITGOLD       ->SetState( g_theProfileDB->IsGoldPerUnitSupport      () );
-	s_CITYGOLD       ->SetState( g_theProfileDB->IsGoldPerCity             () );
-	s_NOCITYLIMIT    ->SetState( g_theProfileDB->IsNoCityLimit             () );
+	s_genocide       ->SetState( profiledb_Get()->IsGenocideRule            () );
+	s_pollution      ->SetState( profiledb_Get()->IsPollutionRule           () );
+	s_citycapture    ->SetState( profiledb_Get()->IsCityCaptureOptions      () );
+	s_onecity        ->SetState( profiledb_Get()->IsOneCityChallenge        () );
+	s_revoltinsurgent->SetState( profiledb_Get()->IsRevoltInsurgents        () );
+	s_revoltcasualty ->SetState( profiledb_Get()->IsRevoltCasualties        () );
+	s_barbspawn      ->SetState( profiledb_Get()->IsBarbarianSpawnsBarbarian() );
+	s_NonRandomCivs  ->SetState( profiledb_Get()->IsNonRandomCivs           () );
+	s_Upgrade        ->SetState( profiledb_Get()->IsUpgrade                 () );
+	s_NewCombat      ->SetState( profiledb_Get()->IsNewCombat               () );
+	s_NoGoodyHuts    ->SetState( profiledb_Get()->IsNoGoodyHuts             () );
+	s_UNITGOLD       ->SetState( profiledb_Get()->IsGoldPerUnitSupport      () );
+	s_CITYGOLD       ->SetState( profiledb_Get()->IsGoldPerCity             () );
+	s_NOCITYLIMIT    ->SetState( profiledb_Get()->IsNoCityLimit             () );
 
 	return 1;
 }
@@ -371,12 +370,12 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 	};
 
 	if(func)
-		(g_theProfileDB->*func)(state ? FALSE : TRUE);
+		(profiledb_Get()->*func)(state ? FALSE : TRUE);
 }
 
 void spnewgamerulesscreen_exitPress(aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
-	g_theProfileDB->Save();
+	profiledb_Get()->Save();
 
 	spnewgamerulesscreen_removeMyWindow(action);
 }

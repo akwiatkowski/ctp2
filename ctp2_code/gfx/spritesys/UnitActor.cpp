@@ -78,7 +78,7 @@
 #include "gfx/spritesys/screenmanager.h"
 #include "gfx/tilesys/maputils.h"
 #include "gfx/tilesys/tiledmap.h"   // tiledmap_Get()
-#include "gs/database/profileDB.h"  // g_theProfileDB
+#include "gs/database/profileDB.h"  // profiledb_Get()
 #include "gs/fileio/gamefile.h"     // save_file_version_Get()
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Civilisation.h"
@@ -1622,7 +1622,7 @@ void UnitActor::DrawHealthBar(void) {
   if (black == 0x0000)
     black = 0x0001;
 
-  if (g_theProfileDB->GetShowEnemyHealth() ||
+  if (profiledb_Get()->GetShowEnemyHealth() ||
       m_playerNum == selitem_Get()->GetVisiblePlayer()) {
     iconRect.bottom += 4;
 
@@ -1911,7 +1911,7 @@ void UnitActor::DrawSpecialIndicators(
     sint32 xf = x;  // + iconDim.x;
     tiledmap_Get()->DrawColorizedOverlayIntoMix(
         tileSet->GetMapIconData(religionicon), xf, y, displayedColor);
-  } else if (g_theProfileDB->IsCivFlags()) {
+  } else if (profiledb_Get()->IsCivFlags()) {
     sint32 civ = -1;
     // Add civilization flags here - moved flags here and edited the
     // heralds to put numbers on national flags emod 2-21-2007
@@ -2151,7 +2151,7 @@ LOADTYPE UnitActor::GetLoadType(void) const {
 }
 
 void UnitActor::FullLoad(UNITACTION action) {
-  if (!g_theProfileDB->IsUnitAnim())
+  if (!profiledb_Get()->IsUnitAnim())
     return;
 
   if (!m_unitSpriteGroup)
@@ -2201,7 +2201,7 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
   actionObj->SetUnitsVisibility(GetUnitVisibility());
   actionObj->SetUnitVisionRange(GetUnitVisionRange());
   actionObj->SetMaxActionCounter(k_MAX_UNIT_MOVEMENT_ITERATIONS -
-                                 g_theProfileDB->GetUnitSpeed());
+                                 profiledb_Get()->GetUnitSpeed());
   actionObj->SetCurActionCounter(0);
 
   AddAction(actionObj);

@@ -4829,7 +4829,7 @@ SFN_ERROR Slic_Preference::Call(SlicArgList *args)
 	if(!args->GetString(0, prefname))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = g_theProfileDB->GetValueByName(prefname);
+	m_result.m_int = profiledb_Get()->GetValueByName(prefname);
 	return SFN_ERROR_OK;
 }
 
@@ -4846,7 +4846,7 @@ SFN_ERROR Slic_SetPreference::Call(SlicArgList *args)
 	if(!args->GetInt(1, val))
 		return SFN_ERROR_TYPE_ARGS;
 
-	g_theProfileDB->SetValueByName(prefname, val);
+	profiledb_Get()->SetValueByName(prefname, val);
 	return SFN_ERROR_OK;
 }
 

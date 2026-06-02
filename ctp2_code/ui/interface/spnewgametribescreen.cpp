@@ -78,7 +78,7 @@
 #include "gs/fileio/gamefile.h"
 #include "ui/aui_ctp2/keypress.h"
 #include "gs/gameobj/Player.h"                 // player_Get()
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ui/aui_ctp2/SelItem.h"
 #include "ui/interface/spnewgamewindow.h"
 #include "gs/database/StrDB.h"                  // g_theStringDB
@@ -86,7 +86,6 @@
 #include <vector>                   // std::vector
 //end includes
 
-extern ProfileDB        *g_theProfileDB;
 extern sint32               g_isCheatModeOn;
 
 c3_PopupWindow              *g_spNewGameTribeScreen  = NULL; //added
@@ -138,17 +137,17 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 	     );
 
 	if (shouldSetProfileDB)
-		g_theProfileDB->SetCivIndex(index);
+		profiledb_Get()->SetCivIndex(index);
 
 	StringId civString = g_theCivilisationDB->Get(index)->GetPluralCivName();
 
 	if (shouldSetProfileDB)
-		g_theProfileDB->SetCivName((MBCHAR *)g_theStringDB->GetNameStr(civString));
+		profiledb_Get()->SetCivName((MBCHAR *)g_theStringDB->GetNameStr(civString));
 
 	s_gender = s_maleRadio->GetState() ? GENDER_MALE : GENDER_FEMALE;
 	if (shouldSetProfileDB)
 	{
-		g_theProfileDB->SetGender(s_gender);
+		profiledb_Get()->SetGender(s_gender);
 	}
 
 	if ( lname )
@@ -156,7 +155,7 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 		s_leaderNameTextField->SetFieldText( lname );
 
 		if (shouldSetProfileDB)
-			g_theProfileDB->SetLeaderName( lname );
+			profiledb_Get()->SetLeaderName( lname );
 
 		spnewgamescreen_setPlayerName( lname );
 	}
@@ -173,7 +172,7 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 		s_leaderNameTextField->SetFieldText(g_theStringDB->GetNameStr(nameString) );
 
 		if (shouldSetProfileDB)
-			g_theProfileDB->
+			profiledb_Get()->
 				SetLeaderName((MBCHAR *)g_theStringDB->GetNameStr(nameString));
 
 		spnewgamescreen_setPlayerName(g_theStringDB->GetNameStr(nameString));

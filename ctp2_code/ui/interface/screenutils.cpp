@@ -95,7 +95,6 @@ extern DebugWindow          *g_debugWindow;
 
 extern TutorialWin          *g_tutorialWin;
 extern SelectedItem         *selitem_Get();
-extern ProfileDB            *g_theProfileDB;
 
 extern Network              g_network;
 extern sint32               g_modalWindow;

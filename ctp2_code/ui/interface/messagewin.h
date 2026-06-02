@@ -15,7 +15,7 @@ class MessageList;
 class MessageWindow;
 class MessageIconWindow;
 
-#define BOUNCE_IT		g_theProfileDB->IsBounceMessage()
+#define BOUNCE_IT		profiledb_Get()->IsBounceMessage()
 
 
 AUI_ERRCODE messagewin_InitializeMessages( void );

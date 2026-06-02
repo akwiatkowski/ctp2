@@ -2524,7 +2524,7 @@ bool Unit::UnitValidForOrder(const OrderRecord * order_rec) const
 //		order_valid = unit_rec->GetParatrooperTransport();
 	else if(order_rec->GetUnitPretest_CanUpgrade())
 	{
-		if(g_theProfileDB->IsUpgrade())
+		if(profiledb_Get()->IsUpgrade())
 		{
 			order_valid = (GetData()->GetBestUpgradeUnitType() >= 0);
 		}

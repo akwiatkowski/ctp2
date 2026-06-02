@@ -39,7 +39,7 @@
 #include "net/general/network.h"
 #include "gs/core/player_view.h"
 #include "gs/outcom/AICause.h"
-#include "gs/database/profileDB.h"			// g_theProfileDB
+#include "gs/database/profileDB.h"			// profiledb_Get()
 #include "net/general/net_player.h"
 #include "AdvanceRecord.h"
 #include "gs/world/World.h"			    // world_Get()
@@ -97,9 +97,9 @@ PLAYER_INDEX civilisation_NewCivilisationOrVandals(PLAYER_INDEX old_owner)
 {
 	PLAYER_INDEX pi = PLAYER_INDEX_INVALID;
 	sint32 i;
-	sint32 maxPlayers = g_theProfileDB->GetMaxPlayers();
+	sint32 maxPlayers = profiledb_Get()->GetMaxPlayers();
 	if(maxPlayers <= 0) {
-		maxPlayers = g_theProfileDB->GetNPlayers();
+		maxPlayers = profiledb_Get()->GetNPlayers();
 	}
 
 	sint32 count = 0;

@@ -48,7 +48,6 @@
 #include "gs/gameobj/FeatTracker.h"
 
 extern PointerList<Player> *g_deadPlayer;
-extern ProfileDB *g_theProfileDB;
 extern StringDB *g_theStringDB;
 
 Score::Score(PLAYER_INDEX owner)

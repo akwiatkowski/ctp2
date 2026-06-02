@@ -117,7 +117,6 @@ extern sint32 g_ScreenHeight;
 
 extern C3Window			*g_toolbar;
 extern SelectedItem		*selitem_Get();
-extern ProfileDB		*g_theProfileDB;
 
 extern unsigned char *g_compression_buff;
 
@@ -719,7 +718,7 @@ SpriteEditWindow::BeginAnimation()
 	if (m_currentAnim==NULL)
 		return;
 
-//	sint32	  speed				= g_theProfileDB->GetUnitSpeed();
+//	sint32	  speed				= profiledb_Get()->GetUnitSpeed();
 
 	m_frame = 0;
 

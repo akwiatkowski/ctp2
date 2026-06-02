@@ -54,7 +54,6 @@
 #include "ui/aui_ctp2/keypress.h"
 #include <vector>
 
-extern ProfileDB	*g_theProfileDB;
 
 namespace
 {
@@ -114,7 +113,7 @@ size_t spnewgamemapshapescreen_getMapShapeIndex( void )
 void spnewgamemapshapescreen_setMapShapeIndex(size_t index)
 {
     SelectShape(index);
-	g_theProfileDB->SetWorldShape(static_cast<WORLD_SHAPE>(index));
+	profiledb_Get()->SetWorldShape(static_cast<WORLD_SHAPE>(index));
 }
 
 //----------------------------------------------------------------------------
@@ -242,7 +241,7 @@ AUI_ERRCODE spnewgamemapshapescreen_Initialize( aui_Control::ControlActionCallba
 		s_checkBox.push_back(shape);
         s_group->AddSwitch(shape);
 	}
-	SelectShape(static_cast<size_t>(g_theProfileDB->GetWorldShape()));
+	SelectShape(static_cast<size_t>(profiledb_Get()->GetWorldShape()));
 
 	s_ewLabel = spNew_c3_Static( &errcode, windowBlock, "EWLabel" );
 	s_dwLabel = spNew_c3_Static( &errcode, windowBlock, "DWLabel" );

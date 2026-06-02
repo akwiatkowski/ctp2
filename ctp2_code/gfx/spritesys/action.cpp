@@ -43,7 +43,7 @@
 #include "gfx/spritesys/director.h"
 #include "gfx/spritesys/EffectActor.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/database/profileDB.h"      // g_theProfileDB
+#include "gs/database/profileDB.h"      // profiledb_Get()
 #include "gfx/spritesys/spriteutils.h"
 #include "ui/aui_common/tech_wllist.h"
 #include "gs/gameobj/Unit.h"

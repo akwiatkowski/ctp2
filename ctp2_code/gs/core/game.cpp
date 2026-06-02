@@ -141,7 +141,7 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // network) and so can't be created from scratch in unit-test
     // context — adopt-only.  Production gameinit always allocates
     // these before Game::NewGame runs, so the adoption branch fires.
-    //   GameSettings : reads g_theProfileDB, g_network in ctor.
+    //   GameSettings : reads profiledb_Get(), g_network in ctor.
     //   FeatTracker  : reads g_theFeatDB, g_theBuildingDB in ctor.
     if (gamesettings_Get()) m_settings.reset(gamesettings_Get());
     if (feattracker_Get())  m_featTracker.reset(feattracker_Get());

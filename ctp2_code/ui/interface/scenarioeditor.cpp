@@ -346,7 +346,7 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	//aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Unit.ShowEnemyHealth", ShowEnemyHealth, NULL); //emod
 	//s_ShowEnemyHealth		= spNew_aui_Switch(err, s_scenarioEditorBlock, "TabGroup.Unit.ShowEnemyHealth", ShowEnemyHealth, NULL); //emod5
 	//ctp2_Switch *s_ShowEnemyHealth = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Unit.ShowEnemyHealth");
-    //s_ShowEnemyHealth->SetState(g_theProfileDB->GetShowEnemyHealth());
+    //s_ShowEnemyHealth->SetState(profiledb_Get()->GetShowEnemyHealth());
 
 	m_debugAI = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Unit.DebugAI");
 	m_debugAI->SetActionFuncAndCookie(DebugAI, NULL);
@@ -2454,7 +2454,7 @@ void ScenarioEditor::GetLabel(MBCHAR *labelString, sint32 playerOrCiv)
 		snprintf(labelString, sizeof(labelString), "%s (%d/%d)",
 					g_theStringDB->GetNameStr("str_ldl_Player_Text"),
 					index,
-					g_theProfileDB->GetNPlayers()-1);
+					profiledb_Get()->GetNPlayers()-1);
 	}
     else if (mode == SCEN_START_LOC_MODE_CIV)
     {
@@ -2690,8 +2690,8 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 
 				p->m_civilisation->AccessData()->SetLeaderName(leaderName);
 
-				if(selitem_Get()->GetVisiblePlayer() == g_theProfileDB->GetPlayerIndex()) {
-					g_theProfileDB->SetLeaderName(leaderName);
+				if(selitem_Get()->GetVisiblePlayer() == profiledb_Get()->GetPlayerIndex()) {
+					profiledb_Get()->SetLeaderName(leaderName);
 				}
 
 				ctp2_TextField *tf = (ctp2_TextField *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivExtraControls.LeaderField");
@@ -2752,7 +2752,7 @@ void ScenarioEditor::SetupGlobalControls()
 		for (sint32 i = MAPSIZE_SMALL; i <= MAPSIZE_GIGANTIC; i++)
 		{
 			AddDropDownItem(dd, "ScenMapSizeItem", table->GetString(i));
-			dd->SetSelectedItem(g_theProfileDB->GetMapSize());
+			dd->SetSelectedItem(profiledb_Get()->GetMapSize());
 		}
 	}
 
@@ -2767,7 +2767,7 @@ void ScenarioEditor::SetupGlobalControls()
 		{
 			AddDropDownItem(dd, "ScenBarbarianItem", g_theRiskDB->Get(i)->GetNameText());
 		}
-		dd->SetSelectedItem(g_theProfileDB->GetRiskLevel());
+		dd->SetSelectedItem(profiledb_Get()->GetRiskLevel());
 	}
 
 	dd = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.Difficulty");
@@ -2779,14 +2779,14 @@ void ScenarioEditor::SetupGlobalControls()
 		{
 			AddDropDownItem(dd, "ScenDifficultyItem", g_theDifficultyDB->Get(i)->GetNameText());
 		}
-		dd->SetSelectedItem(g_theProfileDB->GetDifficulty());
+		dd->SetSelectedItem(profiledb_Get()->GetDifficulty());
 	}
 
 	ctp2_Switch *pollSwitch = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.World.Pollution");
 	Assert(pollSwitch);
 	if(pollSwitch)
 	{
-		pollSwitch->SetState(g_theProfileDB->IsPollutionRule() ? 1 : 0);
+		pollSwitch->SetState(profiledb_Get()->IsPollutionRule() ? 1 : 0);
 	}
 
 
@@ -2880,7 +2880,7 @@ void ScenarioEditor::Pollution(aui_Control *control, uint32 action, uint32 data,
 	sw->SetToggleState(!sw->GetToggleState());
 	//This makes sure that also on the first press on that button the
 	//whole think work.
-	g_theProfileDB->SetPollutionRule(!g_theProfileDB->IsPollutionRule());
+	profiledb_Get()->SetPollutionRule(!profiledb_Get()->IsPollutionRule());
 }
 
 AUI_ACTION_BASIC(ReopenEditorAction);
@@ -2907,7 +2907,7 @@ void ScenarioEditor::MapSize(aui_Control *control, uint32 action, uint32 data, v
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
 	sint32 mapSize = dd->GetSelectedItem();
 
-	if(mapSize == g_theProfileDB->GetMapSize())
+	if(mapSize == profiledb_Get()->GetMapSize())
 		return;
 
 	MessageBoxDialog::Query( "str_ldl_Confirm_Restart", "ConfirmMapSizeRestart",
@@ -2927,7 +2927,7 @@ void ScenarioEditor::ChangeMapSizeCallback(bool response, void *userData)
 	if(!response)
 		return;
 
-	g_theProfileDB->SetMapSize((MAPSIZE)(intptr_t)userData);
+	profiledb_Get()->SetMapSize((MAPSIZE)(intptr_t)userData);
 
 	g_civApp->PostRestartGameAction();
 
@@ -2969,7 +2969,7 @@ void ScenarioEditor::Barbarians(aui_Control *control, uint32 action, uint32 data
 		return;
 
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
-	g_theProfileDB->SetRiskLevel(dd->GetSelectedItem());
+	profiledb_Get()->SetRiskLevel(dd->GetSelectedItem());
 
 }
 void ScenarioEditor::SetGovernment(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -2991,7 +2991,7 @@ void ScenarioEditor::Difficulty(aui_Control *control, uint32 action, uint32 data
 		return;
 
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
-	g_theProfileDB->SetDifficulty(dd->GetSelectedItem());
+	profiledb_Get()->SetDifficulty(dd->GetSelectedItem());
 }
 
 void ScenarioEditor::SetXWrap(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -3084,9 +3084,9 @@ void ScenarioEditor::LeaderName(aui_Control *control, uint32 action, uint32 data
 	&& newName[0] != 0
 	){
 		player_Get(selitem_Get()->GetVisiblePlayer())->m_civilisation->AccessData()->SetLeaderName(newName);
-		if(selitem_Get()->GetVisiblePlayer() == g_theProfileDB->GetPlayerIndex())
+		if(selitem_Get()->GetVisiblePlayer() == profiledb_Get()->GetPlayerIndex())
 		{
-			g_theProfileDB->SetLeaderName(newName);
+			profiledb_Get()->SetLeaderName(newName);
 		}
 	}
 }
@@ -3428,7 +3428,7 @@ void ScenarioEditor::ShowEnemyHealth(aui_Control *control, uint32 action, uint32
 	func = &ProfileDB::SetEnemyHealth;  //emod
 
 	if(func)
-		(g_theProfileDB->*func)(state ? FALSE : TRUE);
+		(profiledb_Get()->*func)(state ? FALSE : TRUE);
 }
 */
 

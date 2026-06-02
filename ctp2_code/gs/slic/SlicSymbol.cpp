@@ -408,8 +408,8 @@ BOOL SlicSymbolData::GetPlayer(PLAYER_INDEX &player) const
 		player = m_val.m_int_value;
 		if(player < 0 || player >= k_MAX_PLAYERS)
 		{
-			if(g_theProfileDB
-			&& g_theProfileDB->IsDebugSlic()
+			if(profiledb_Get()
+			&& profiledb_Get()->IsDebugSlic()
 			){
 				c3errors_ErrorDialog("Slic", "%i is not a valid player index.\nError occured in object: %s\nLine: %i\nFile: %s",
 					                 player,

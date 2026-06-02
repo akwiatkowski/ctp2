@@ -60,7 +60,6 @@
 extern SelectedItem	*selitem_Get();
 
 
-extern ProfileDB	*g_theProfileDB;
 
 TutorialWin		*g_tutorialWin = NULL;
 
@@ -68,7 +67,7 @@ TutorialWin		*g_tutorialWin = NULL;
 void tutorialwin_DialogCallback( sint32 val )
 {
 	if ( val ) {
-		g_theProfileDB->SetTutorialAdvice( FALSE );
+		profiledb_Get()->SetTutorialAdvice( FALSE );
 
 		close_TutorialWin();
 

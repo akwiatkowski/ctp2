@@ -801,7 +801,7 @@ void UnitControlPanel::UpdateOrderButtons()  //emod3 this is the method
 		if(armyData)
 		{
 			bool const 	isShowOrderIntersection	=
-				!g_theProfileDB->GetValueByName("ShowOrderUnion");
+				!profiledb_Get()->GetValueByName("ShowOrderUnion");
 
 			for(sint32 index = 0; index < g_theOrderDB->NumRecords(); index++)
 			{

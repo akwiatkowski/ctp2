@@ -31,7 +31,6 @@ extern BOOL					g_exclusiveMode;
 extern BOOL					g_createDirectDrawOnSecondary;
 
 #include "gs/database/profileDB.h"
-extern ProfileDB			*g_theProfileDB;
 
 #ifdef WIN32
 BOOL CALLBACK display_FindDeviceCallbackEx(GUID* lpGUID, LPSTR szName,
@@ -351,16 +350,16 @@ int display_Initialize(HINSTANCE hInstance, int iCmdShow)
 	if (g_cmdlineResolutionSet) {
 		// Command-line resolution always takes precedence
 		foundRes = display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight);
-	} else if (g_theProfileDB->IsTryWindowsResolution()) {
+	} else if (profiledb_Get()->IsTryWindowsResolution()) {
 		if (display_IsLegalResolution(g_ScreenWidth, g_ScreenHeight))
 			foundRes = TRUE;
 	}
 
 	if (!foundRes) {
-		if (display_IsLegalResolution(g_theProfileDB->GetScreenResWidth(),
-									g_theProfileDB->GetScreenResHeight())) {
-			g_ScreenWidth = g_theProfileDB->GetScreenResWidth();
-			g_ScreenHeight = g_theProfileDB->GetScreenResHeight();
+		if (display_IsLegalResolution(profiledb_Get()->GetScreenResWidth(),
+									profiledb_Get()->GetScreenResHeight())) {
+			g_ScreenWidth = profiledb_Get()->GetScreenResWidth();
+			g_ScreenHeight = profiledb_Get()->GetScreenResHeight();
 		} else {
 
 			CTPDisplayMode *mode = g_displayModes->GetHead();

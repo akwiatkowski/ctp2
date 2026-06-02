@@ -59,7 +59,7 @@
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 #include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/database/StrDB.h"                  // g_theStringDB
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/TurnCnt.h"                // g_turn
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/aui_ctp2/linegraph.h"
@@ -915,9 +915,9 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	{
 		if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
 			start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
-			strcpy(theGameName, g_theProfileDB->GetGameName());
+			strcpy(theGameName, profiledb_Get()->GetGameName());
 		} else {
-			strcpy(theGameName, g_theProfileDB->GetLeaderName());
+			strcpy(theGameName, profiledb_Get()->GetLeaderName());
 		}
 	} else {
 		strcpy(theGameName, gameName);
@@ -936,7 +936,7 @@ void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 	if (start_info_type_Get() == STARTINFOTYPE_CIVS ||
 		start_info_type_Get() == STARTINFOTYPE_POSITIONSFIXED) {
 		MBCHAR tempName[k_MAX_NAME_LEN];
-		strcpy(tempName, g_theProfileDB->GetLeaderName());
+		strcpy(tempName, profiledb_Get()->GetLeaderName());
 #if !defined(_JAPANESE)
 		tempName[SAVE_LEADER_NAME_SIZE] = '\0';
 		c3files_StripSpaces(tempName);

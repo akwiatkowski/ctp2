@@ -81,7 +81,7 @@
 Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils/pixelutils.h
 #include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/gameobj/pollution.h"
-#include "gs/database/profileDB.h"              // g_theProfileDB
+#include "gs/database/profileDB.h"              // profiledb_Get()
 #include "gs/utility/RandGen.h"                // rand_ptr()
 #include "robot/utility/RoboInit.h"
 #include "gs/gameobj/Sci.h"
@@ -1709,28 +1709,28 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 
 void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 {
-	Assert(info && g_theProfileDB);
-	if (!info || !g_theProfileDB) return;
+	Assert(info && profiledb_Get());
+	if (!info || !profiledb_Get()) return;
 
 	if (g_isScenario)
     {
 		MBCHAR	name[SAVE_LEADER_NAME_SIZE + 1];
-		strncpy(name, g_theProfileDB->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
+		strncpy(name, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
 		name[SAVE_LEADER_NAME_SIZE] = 0;
 		// TODO: check if this is OK for japanese.
-		g_theProfileDB->SetGameName(name);
+		profiledb_Get()->SetGameName(name);
 	}
     else
     {
-		g_theProfileDB->SetGameName(info->gameName);
+		profiledb_Get()->SetGameName(info->gameName);
 	}
 
 
 	if (info->startInfoType != STARTINFOTYPE_CIVS &&
 		info->startInfoType != STARTINFOTYPE_POSITIONSFIXED) {
-		g_theProfileDB->SetLeaderName(info->leaderName);
-		g_theProfileDB->SetCivName(info->civName);
-		g_theProfileDB->SetSaveNote(info->note);
+		profiledb_Get()->SetLeaderName(info->leaderName);
+		profiledb_Get()->SetCivName(info->civName);
+		profiledb_Get()->SetSaveNote(info->note);
 	}
 
 	nf_GameSetup temp = g_gamesetup;
@@ -1744,7 +1744,7 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 	g_gamesetup.SetLaunched(true);
 	g_gamesetup.Pack();
 
-	g_theProfileDB->SetTutorialAdvice(info->options.tutorialadvice);
+	profiledb_Get()->SetTutorialAdvice(info->options.tutorialadvice);
 
 
 
@@ -1802,13 +1802,13 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 
 void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 {
-	Assert(info && g_theProfileDB);
-	if (!info || !g_theProfileDB) return;
+	Assert(info && profiledb_Get());
+	if (!info || !profiledb_Get()) return;
 
-	strcpy(info->gameName, g_theProfileDB->GetGameName());
-	strcpy(info->leaderName, g_theProfileDB->GetLeaderName());
-	strcpy(info->civName, g_theProfileDB->GetCivName());
-	strcpy(info->note, g_theProfileDB->GetSaveNote());
+	strcpy(info->gameName, profiledb_Get()->GetGameName());
+	strcpy(info->leaderName, profiledb_Get()->GetLeaderName());
+	strcpy(info->civName, profiledb_Get()->GetCivName());
+	strcpy(info->note, profiledb_Get()->GetSaveNote());
 
 	info->gameSetup = g_gamesetup;
 
@@ -1823,29 +1823,29 @@ void GameFile::GetExtendedInfoFromProfile(SaveInfo *info)
 			   8 * sizeof(TribeSlot));
 	}
 
-	info->options.tutorialadvice = g_theProfileDB->IsTutorialAdvice();
-	info->options.leftrightclickmove = g_theProfileDB->IsUseLeftClick();
-	info->options.autocycleturn = g_theProfileDB->IsAutoTurnCycle();
-	info->options.autocycleunits = g_theProfileDB->IsAutoSelectFirstUnit();
-	info->options.battleview = g_theProfileDB->IsZoomedCombatAlways();
-	info->options.monument = g_theProfileDB->IsThroneRoom();
+	info->options.tutorialadvice = profiledb_Get()->IsTutorialAdvice();
+	info->options.leftrightclickmove = profiledb_Get()->IsUseLeftClick();
+	info->options.autocycleturn = profiledb_Get()->IsAutoTurnCycle();
+	info->options.autocycleunits = profiledb_Get()->IsAutoSelectFirstUnit();
+	info->options.battleview = profiledb_Get()->IsZoomedCombatAlways();
+	info->options.monument = profiledb_Get()->IsThroneRoom();
 
 
-	info->options.walk = g_theProfileDB->IsUnitAnim();
-	info->options.goods = g_theProfileDB->IsGoodAnim();
+	info->options.walk = profiledb_Get()->IsUnitAnim();
+	info->options.goods = profiledb_Get()->IsGoodAnim();
 
-	info->options.trade = g_theProfileDB->IsTradeAnim();
-	info->options.wonder = g_theProfileDB->IsWonderMovies();
-	info->options.library = g_theProfileDB->IsLibraryAnim();
-	info->options.message = g_theProfileDB->IsBounceMessage();
+	info->options.trade = profiledb_Get()->IsTradeAnim();
+	info->options.wonder = profiledb_Get()->IsWonderMovies();
+	info->options.library = profiledb_Get()->IsLibraryAnim();
+	info->options.message = profiledb_Get()->IsBounceMessage();
 
-	info->options.movie = g_theProfileDB->IsFullScreenMovies();
+	info->options.movie = profiledb_Get()->IsFullScreenMovies();
 
 	info->options.grid = g_isGridOn;
 
-	info->options.sfxVolume = g_theProfileDB->GetSFXVolume();
-	info->options.musicVolume = g_theProfileDB->GetMusicVolume();
-	info->options.voiceVolume = g_theProfileDB->GetVoiceVolume();
+	info->options.sfxVolume = profiledb_Get()->GetSFXVolume();
+	info->options.musicVolume = profiledb_Get()->GetMusicVolume();
+	info->options.voiceVolume = profiledb_Get()->GetVoiceVolume();
 
 	info->options.autoRepeat = audio_observer::IsAutoRepeat();
 	info->options.randomOrder = audio_observer::GetMusicStyle() == (sint32)MUSICSTYLE_RANDOM;
@@ -2506,12 +2506,12 @@ void GameMapFile::SaveExtendedGameMapInfo(FILE *saveFile, SaveMapInfo *info)
 
 void GameMapFile::SetProfileFromExtendedInfo(SaveMapInfo *info)
 {
-	Assert(info && g_theProfileDB);
+	Assert(info && profiledb_Get());
 }
 
 void GameMapFile::GetExtendedInfoFromProfile(SaveMapInfo *info)
 {
-	Assert(info && g_theProfileDB);
+	Assert(info && profiledb_Get());
 }
 
 

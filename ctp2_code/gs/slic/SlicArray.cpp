@@ -177,14 +177,14 @@ BOOL SlicArray::Lookup(sint32 index, SS_TYPE &type, SlicStackValue &value)
 	if(index < 0 || index >= m_arraySize) {
 		if(slicengine_Get()->GetContext() && slicengine_Get()->GetContext()->GetSegment() &&
 			slicengine_Get()->GetContext()->GetFrame()) {
-			if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+			if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 				c3errors_ErrorDialog("SLIC", "%s:%d: Array index %d out of bounds",
 									 slicengine_Get()->GetContext()->GetSegment()->GetFilename(),
 									 slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine(),
 									 index);
 			}
 		} else {
-			if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+			if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 				c3errors_ErrorDialog("SLIC", "Array index %d out of bounds",
 									 index);
 			}

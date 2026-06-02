@@ -30,7 +30,6 @@
 
 extern SelectedItem	*selitem_Get();
 extern ControlPanelWindow	*g_controlPanel;
-extern ProfileDB    *g_theProfileDB;
 
 BobButtonAction::BobButtonAction(BattleOrderBox *bob)
 {
@@ -44,7 +43,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 	case AUI_BUTTON_ACTION_EXECUTE:
 
 
-		if(!g_theProfileDB->IsAutoGroup()) {
+		if(!profiledb_Get()->IsAutoGroup()) {
 			if (unitpool_Get()->IsValid(m_unit)) {
 
 				Army army = m_army;

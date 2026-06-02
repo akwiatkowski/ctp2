@@ -49,7 +49,7 @@
 #include "gs/utility/Globals.h"            // allocated::clear
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/musictrackscreen.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "sound/soundmanager.h"       // g_soundManager
 #include "ui/interface/spnewgamewindow.h"
 
@@ -134,7 +134,7 @@ AUI_ERRCODE musicscreen_Initialize( void )
 
 	s_useAutoRepeat		= g_soundManager->IsAutoRepeat();
 	s_useRandomOrder	= (MUSICSTYLE_RANDOM == g_soundManager->GetMusicStyle());
-	s_useMusicOn		= g_theProfileDB->IsUseRedbookAudio();
+	s_useMusicOn		= profiledb_Get()->IsUseRedbookAudio();
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
 	Assert( AUI_SUCCESS(errcode) );
@@ -226,7 +226,7 @@ void musicscreen_acceptPress(aui_Control *control, uint32 action, uint32 data, v
 			g_soundManager->CleanupRedbook();
 		}
 
-		g_theProfileDB->SetUseRedbookAudio(s_useMusicOn);
+		profiledb_Get()->SetUseRedbookAudio(s_useMusicOn);
 
 		g_soundManager->PickNextTrack();
 		g_soundManager->StartMusic();

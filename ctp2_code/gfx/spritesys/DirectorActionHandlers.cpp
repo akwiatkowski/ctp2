@@ -42,7 +42,7 @@
 
 #include "ui/aui_ctp2/SelItem.h"
 
-#include "gs/database/profileDB.h"       // g_theProfileDB
+#include "gs/database/profileDB.h"       // profiledb_Get()
 #include "gs/events/GameEventManager.h"  // gevmanager_Get()
 #include "gs/gameobj/MessagePool.h"
 
@@ -83,7 +83,7 @@ void dh_move(DQAction* itemAction,
   UnitActorPtr theActor = action->move_actor.lock();
 
   uint32 maxActionCounter = 1;
-  sint32 speed = g_theProfileDB->GetUnitSpeed();
+  sint32 speed = profiledb_Get()->GetUnitSpeed();
   BOOL visible = FALSE;
 
   ActionPtr actionObj(new Action());
@@ -101,7 +101,7 @@ void dh_move(DQAction* itemAction,
 
   theActor->PositionActor(oldP);
 
-  if (g_theProfileDB->IsUnitAnim())
+  if (profiledb_Get()->IsUnitAnim())
     maxActionCounter = k_MAX_UNIT_MOVEMENT_ITERATIONS - speed;
 
   actionObj->SetMaxActionCounter(maxActionCounter);

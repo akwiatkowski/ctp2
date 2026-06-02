@@ -63,7 +63,7 @@
 #include "gs/gameobj/Gold.h"
 #include "DifficultyRecord.h"   // g_theDifficultyDB
 #include "gs/gameobj/Diffcly.h"
-#include "gs/database/profileDB.h"          // g_theProfileDB
+#include "gs/database/profileDB.h"          // profiledb_Get()
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/utility/RandGen.h"            // rand_ptr()
 #include "gs/core/game_observer.h"
@@ -479,8 +479,8 @@ void Advances::ResetCanResearch(sint32 justGot)
 			BOOL  justEnabled = FALSE;
 
 			if((g_network.IsActive() && rec->GetAgeIndex() > gamesettings_Get()->GetEndingAge())
-				|| (!g_network.IsActive() && g_theProfileDB->GetSPEndingAge() >= 0
-			    && rec->GetAgeIndex() > g_theProfileDB->GetSPEndingAge()))
+				|| (!g_network.IsActive() && profiledb_Get()->GetSPEndingAge() >= 0
+			    && rec->GetAgeIndex() > profiledb_Get()->GetSPEndingAge()))
 			{
 				canResearch = FALSE;
 			}

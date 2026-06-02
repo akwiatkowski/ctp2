@@ -811,7 +811,7 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 
 	bool yWrapOk = (h % w == 0);
 
-	world_Get()->Reset(w, h, yWrapOk ? g_theProfileDB->IsYWrap() : FALSE, g_theProfileDB->IsXWrap());
+	world_Get()->Reset(w, h, yWrapOk ? profiledb_Get()->IsYWrap() : FALSE, profiledb_Get()->IsXWrap());
 
 	if(size != (sint32)((w * h) + (sizeof(sint16) * 2)))
 	{
@@ -1239,8 +1239,8 @@ bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
 			{
 				player_Get(i)->m_civilisation->AccessData()->SetLeaderName(name);
 
-				if(i == g_theProfileDB->GetPlayerIndex()) {
-					g_theProfileDB->SetLeaderName(name);
+				if(i == profiledb_Get()->GetPlayerIndex()) {
+					profiledb_Get()->SetLeaderName(name);
 				}
 			}
 

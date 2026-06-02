@@ -64,7 +64,7 @@
 #include "gs/gameobj/wonderutil.h"
 #include "DifficultyRecord.h"   //EMOD
 #include "gs/gameobj/GameSettings.h"
-#include "gs/database/profileDB.h"			// g_theProfileDB
+#include "gs/database/profileDB.h"			// profiledb_Get()
 
 //----------------------------------------------------------------------------
 //
@@ -887,7 +887,7 @@ STDEHANDLER(DefenseLevel_NextSStateEvent)
 STDEHANDLER(CheckCityLimit_NextSStateEvent)
 {
 	if(g_theDifficultyDB->Get(gamesettings_Get()->GetDifficulty())->GetAINoCityLimit()
-		|| g_theProfileDB->IsNoCityLimit())
+		|| profiledb_Get()->IsNoCityLimit())
 		return GEV_HD_Continue;
 
 	PLAYER_INDEX playerId;

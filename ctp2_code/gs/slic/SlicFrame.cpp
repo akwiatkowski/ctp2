@@ -257,7 +257,7 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 			if(!sym->SetValueFrom(getsym)) {
 				char buf[1024];
 				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
-				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", buf);
 				}
 			}
@@ -267,7 +267,7 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 			if(!sym->SetValueFrom(getsym)) {
 				char buf[1024];
 				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
-				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", buf);
 				}
 			}
@@ -594,7 +594,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				//Added by Martin G�hmann
 				//It is a problem of slic code and not of the ctp2.exe,
 				//the slicer has to solve the problem.
-				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", "In object %s: Division by 0.", m_segment->GetName());
 				}
 				sval3.m_int = 0;
@@ -615,7 +615,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
                 if (0 == divisor)
                 {
                     // Handle error as for SOP_DIV.
-                    if (g_theProfileDB && g_theProfileDB->IsDebugSlic())
+                    if (profiledb_Get() && profiledb_Get()->IsDebugSlic())
                     {
                         c3errors_ErrorDialog("Slic", "In object %s: modulo 0.",
                                              m_segment->GetName()
@@ -787,7 +787,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				SlicSegment *segment = slicengine_Get()->GetSegment(symval->GetName());
 				if(!segment || segment->GetType() != SLIC_OBJECT_FUNCTION) {
 					DPRINTF(k_DBG_SLIC, ("Undefined function %s\n", symval->GetName()));
-					if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+					if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 						c3errors_ErrorDialog("Slic", "%s is not a known function", symval->GetName());
 					}
 					return FALSE;
@@ -969,7 +969,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			}
 
 			if(symval->GetType() != SLIC_SYM_ARRAY) {
-				if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					c3errors_ErrorDialog("Slic", "Symbol '%s' used in array assignment is not an array", symval->GetName());
 				}
 				stopped = TRUE;
@@ -1198,7 +1198,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 	                m_stack->Push(SS_TYPE_INT, sval3);
                 }
                 else{
-	                if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+	                if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 		                c3errors_ErrorDialog("Slic", "In object %s no entry found with index %i in %s.", m_segment->GetName(), sval3.m_int, conduit->GetName());
 	                }
 	                sval3.m_int = 0;
@@ -1242,7 +1242,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				    m_stack->Push(SS_TYPE_INT, sval3);
 			    }
 			    else{
-				    if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				    if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					    c3errors_ErrorDialog("Slic", "In object %s no entry found with index %i in %s.", m_segment->GetName(), sval3.m_int, conduit->GetName());
 				    }
 				    sval3.m_int = 0;
@@ -1283,7 +1283,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				    m_stack->Push(SS_TYPE_INT, sval3);
 			    }
 			    else{
-				    if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				    if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					    c3errors_ErrorDialog("Slic", "In object %s no entry found with index %i in %s.", m_segment->GetName(), sval3.m_int, conduit->GetName());
 				    }
 				    sval3.m_int = 0;
@@ -1349,7 +1349,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				    m_stack->Push(SS_TYPE_INT, sval3);
 			    }
 			    else{
-				    if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				    if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					    c3errors_ErrorDialog("Slic", "In object %s no entry found with index %i in %s.", m_segment->GetName(), sval2.m_int, conduit->GetName());
 				    }
 				    sval2.m_int = 0;
@@ -1393,7 +1393,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				    m_stack->Push(SS_TYPE_INT, sval3);
 			    }
 			    else{
-				    if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+				    if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 					    c3errors_ErrorDialog("Slic", "In object %s no entry found with index %i in %s.", m_segment->GetName(), sval2.m_int, conduit->GetName());
 				    }
 				    sval2.m_int = 0;
@@ -1566,7 +1566,7 @@ void SlicFrame::ReportSFError(SFN_ERROR err, SlicSymbolData *sym)
 			strcat(buf, "Unknown error");
 			break;
 	}
-	if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
+	if(profiledb_Get() && profiledb_Get()->IsDebugSlic()) {
 		c3errors_ErrorDialog("Slic", buf);
 	}
 }

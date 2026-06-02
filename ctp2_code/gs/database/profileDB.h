@@ -856,6 +856,11 @@ public:
 
 };
 
-extern ProfileDB *g_theProfileDB;
+// App-singleton accessor pair, mirroring world_Get / tiledmap_Get
+// / c3ui_Get.  The legacy g_theProfileDB pointer is now file-static
+// in gs/utility/gameinit.cpp; outside callers must go through these
+// accessors.
+ProfileDB * profiledb_Get(void);
+void        profiledb_Set(ProfileDB *p);
 
 #endif // __PROFILE_DB_H__

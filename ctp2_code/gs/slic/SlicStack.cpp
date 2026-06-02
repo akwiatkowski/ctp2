@@ -109,8 +109,8 @@ sint32 SlicStack::Eval(SS_TYPE type, SlicStackValue value)
 			return retValue;
 		}
 
-		if(g_theProfileDB
-		&& g_theProfileDB->IsDebugSlic()
+		if(profiledb_Get()
+		&& profiledb_Get()->IsDebugSlic()
 		){
 			c3errors_ErrorDialog("Slic", "%s: is not an integer.\nLine: %i\nFile: %s",
 				                 sym->GetName(),

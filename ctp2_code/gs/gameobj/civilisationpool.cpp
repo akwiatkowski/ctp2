@@ -47,7 +47,6 @@
 
 extern	StringDB	*g_theStringDB ;
 
-extern ProfileDB *g_theProfileDB;
 
 
 
@@ -152,7 +151,7 @@ Civilisation CivilisationPool::Create(const PLAYER_INDEX owner, sint32 requiredC
 
 	if (CIV_INDEX_RANDOM == civ)
 	{
-		if (g_theProfileDB->IsNonRandomCivs())
+		if (profiledb_Get()->IsNonRandomCivs())
 		{
 			civ = owner;
 		}

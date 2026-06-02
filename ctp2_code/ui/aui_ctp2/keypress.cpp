@@ -169,7 +169,6 @@ extern ControlPanelWindow *g_controlPanel;
 
 
 #include "gs/database/profileDB.h"
-extern ProfileDB *g_theProfileDB;
 
 #include "gfx/spritesys/director.h"
 
@@ -989,15 +988,15 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 #endif
 
 	case KEY_FUNCTION_TOGGLE_CITY_NAMES:
-		g_theProfileDB->SetShowCityNames(!g_theProfileDB->GetShowCityNames());
+		profiledb_Get()->SetShowCityNames(!profiledb_Get()->GetShowCityNames());
 		break;
 
 	case KEY_FUNCTION_TOGGLE_TRADE_ROUTES:
-		g_theProfileDB->SetShowTradeRoutes(!g_theProfileDB->GetShowTradeRoutes());
+		profiledb_Get()->SetShowTradeRoutes(!profiledb_Get()->GetShowTradeRoutes());
 		break;
 //#if 0
 //	case KEY_FUNCTION_TOGGLE_ARMY_NAMES: //emod
-//		g_theProfileDB->SetShowArmyNames(!g_theProfileDB->GetShowArmyNames());
+//		profiledb_Get()->SetShowArmyNames(!profiledb_Get()->GetShowArmyNames());
 //		break;
 //#endif
 
@@ -1310,7 +1309,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		//Added by Martin G�hmann to disable also the restart key in network
 		//games, hot seat games and email games.
 		if(!g_modalWindow
-		&& !g_theProfileDB->IsScenario()
+		&& !profiledb_Get()->IsScenario()
 		&& !is_scenario_Get()
 		&& !g_network.IsActive()
 		&& !turn_Get()->IsHotSeat()

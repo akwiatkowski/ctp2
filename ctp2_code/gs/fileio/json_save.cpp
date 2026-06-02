@@ -136,7 +136,7 @@ extern PointerList<Player>   *g_deadPlayer;
 // g_theArmyPool / g_theTradePool / g_slicEngine /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
 // g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
-// g_player are extern'd by their respective headers (already included above).
+// are extern'd by their respective headers (already included above).
 
 // CTP2_BUILD_SHA is injected by meson into config.h (run_command git
 // rev-parse --short).  Fall back to "unknown" if config.h hasn't been
@@ -4646,16 +4646,16 @@ bool SaveJson(char const *path)
     // — keeps array indices stable so a future scenario-load can address
     // slot N directly.  Mirrors the playerAlive sentinel byte the binary
     // path writes.
-    if (g_player)
+    if (player_arr_Get())
     {
         nlohmann::json players = nlohmann::json::array();
         for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
         {
             nlohmann::json slot;
-            if (g_player[i])
+            if (player_Get(i))
             {
                 slot["alive"] = true;
-                slot["data"]  = *g_player[i];
+                slot["data"]  = *player_Get(i);
             }
             else
             {
@@ -4796,7 +4796,7 @@ bool LoadJson(char const *path)
         // that's marked alive in the save.  Slots dead in the save
         // but alive in-memory (or vice versa) are left untouched —
         // proper construction/teardown lands in a follow-up.
-        if (doc.contains("players") && g_player)
+        if (doc.contains("players") && player_arr_Get())
         {
             auto const &players = doc.at("players");
             sint32 const n = std::min(static_cast<sint32>(players.size()),
@@ -4805,9 +4805,9 @@ bool LoadJson(char const *path)
             {
                 auto const &slot = players[i];
                 bool const alive = slot.value("alive", false);
-                if (alive && g_player[i] && slot.contains("data"))
+                if (alive && player_Get(i) && slot.contains("data"))
                 {
-                    slot.at("data").get_to(*g_player[i]);
+                    slot.at("data").get_to(*player_Get(i));
                 }
             }
         }

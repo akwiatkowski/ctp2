@@ -35,8 +35,6 @@
 #include "gs/gameobj/MessagePool.h"
 #include "gs/fileio/gamefile.h"
 
-extern Player **g_player;
-
 // g_theTradeBids is defined in gameinit.cpp (where the lifecycle lives);
 // this TU reaches it via tradebids_Get() declared in TradeBids.h.
 
@@ -115,12 +113,12 @@ void TradeBids::Reject(uint32 id)
 		}
 	}
 	sint32 rejecter = bid->m_fromCity.GetOwner();
-	Assert(g_player[rejecter]);
-	if(g_player[rejecter]) {
-		g_player[rejecter]->RejectTradeBid(bid->m_fromCity,
-										   bid->m_resource,
-										   bid->m_toCity,
-										   bid->m_price);
+	Assert(player_Get(rejecter));
+	if(player_Get(rejecter)) {
+		player_Get(rejecter)->RejectTradeBid(bid->m_fromCity,
+									   bid->m_resource,
+									   bid->m_toCity,
+									   bid->m_price);
 	}
 	delete bid;
 }
@@ -137,12 +135,12 @@ void TradeBids::Accept(uint32 id)
 		}
 	}
 	sint32 accepter = bid->m_fromCity.GetOwner();
-	Assert(g_player[accepter]);
-	if(g_player[accepter]) {
-		g_player[accepter]->AcceptTradeBid(bid->m_fromCity,
-										   bid->m_resource,
-										   bid->m_toCity,
-										   bid->m_price);
+	Assert(player_Get(accepter));
+	if(player_Get(accepter)) {
+		player_Get(accepter)->AcceptTradeBid(bid->m_fromCity,
+									   bid->m_resource,
+									   bid->m_toCity,
+									   bid->m_price);
 	}
 	delete bid;
 }

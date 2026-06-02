@@ -70,7 +70,7 @@ for(sint32 wndr=0;forEachBuilt>0;wndr++,forEachBuilt>>=1) \
 
 const WonderRecord *wonderutil_Get(const sint32 wonder, const sint32 playerId)
 {
-	if(Player * player = g_player[playerId])
+	if(Player * player = player_Get(playerId))
 	{
 		return g_theWonderDB->Get(wonder, player->GetGovernmentType());
 	}
@@ -341,7 +341,7 @@ bool wonderutil_IsAvailable(sint32 wonder, sint32 player)
 	const WonderRecord *rec = g_theWonderDB->Get(wonder);
 
 	if(rec->GetEnableAdvanceIndex() >= 0 &&
-	   !g_player[player]->HasAdvance(rec->GetEnableAdvanceIndex()))
+	   !player_Get(player)->HasAdvance(rec->GetEnableAdvanceIndex()))
 		return false;
 
 	if(wonderutil_IsObsolete(wonder))
@@ -399,10 +399,10 @@ bool wonderutil_IsObsolete(sint32 wonder)
 		return false;
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-		if(!g_player[p]) continue;
+		if(!player_Get(p)) continue;
 
 		for(sint32 o = 0; o < nObsolete; o++) {
-			if(g_player[p]->HasAdvance(rec->GetObsoleteAdvanceIndex(o)))
+			if(player_Get(p)->HasAdvance(rec->GetObsoleteAdvanceIndex(o)))
 				return true;
 		}
 	}
@@ -411,7 +411,7 @@ bool wonderutil_IsObsolete(sint32 wonder)
 	// EMOD if you change from the govt that allows for
 	// the wonder to be built you make it obsolete
 	for(i = 0; i < rec->GetNumGovernmentType(); i++) {
-		if(rec->GetGovernmentTypeIndex(i) != g_player[m_owner]->GetGovernmentType()) {
+		if(rec->GetGovernmentTypeIndex(i) != player_Get(m_owner)->GetGovernmentType()) {
 			return true;
 		}
 	}
@@ -419,7 +419,7 @@ bool wonderutil_IsObsolete(sint32 wonder)
 	// EMOD if you switch to this govt it will obsolete
 	// the wonder 9ie communism for religious wonders)
 	for(i = 0; i < rec->GetNumObsoleteGovernmentType(); i++) {
-		if(rec->GetObsoleteGovernmentTypeIndex(i) != g_player[m_owner]->GetGovernmentType()) {
+		if(rec->GetObsoleteGovernmentTypeIndex(i) != player_Get(m_owner)->GetGovernmentType()) {
 			return true;
 		}
 	}

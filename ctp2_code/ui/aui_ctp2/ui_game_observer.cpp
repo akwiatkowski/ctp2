@@ -345,7 +345,7 @@ public:
     {
         // Player::RecreateMessageIcons collaborator: walk this player's
         // pending messages and re-render their icons + control-panel list.
-        Player* pl = g_player[player];
+        Player* pl = player_Get(player);
         if (!pl || !pl->m_messages) return;
 
         DynamicArray<Message> messages = *pl->m_messages;
@@ -415,7 +415,7 @@ public:
     {
         // Player::NotifyModalMessageDestroyed collaborator: find the next
         // pending alert-box message for this player and pop the modal.
-        Player* pl = g_player[player];
+        Player* pl = player_Get(player);
         if (!pl || !pl->m_messages) return;
         for (sint32 i = 0; i < pl->m_messages->Num(); i++) {
             if (pl->m_messages->Access(i).IsAlertBox()) {
@@ -558,11 +558,11 @@ public:
         g_selected_item->KeyboardSelectFirstUnit();
         sint32 visible = g_selected_item->GetVisiblePlayer();
         if (g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-            visible >= 0 && g_player[visible] &&
-            g_player[visible]->m_all_cities->Num() > 0) {
-            g_selected_item->SetSelectCity(g_player[visible]->m_all_cities->Access(0));
+            visible >= 0 && player_Get(visible) &&
+            player_Get(visible)->m_all_cities->Num() > 0) {
+            g_selected_item->SetSelectCity(player_Get(visible)->m_all_cities->Access(0));
             if (g_director) {
-                g_director->AddCenterMap(g_player[visible]->m_all_cities->Access(0).RetPos());
+                g_director->AddCenterMap(player_Get(visible)->m_all_cities->Access(0).RetPos());
             }
         }
         if (g_director) {

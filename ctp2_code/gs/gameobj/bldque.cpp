@@ -426,7 +426,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		&& cd->PopCount() < 2
 		&&!forceFinish
 		){
-			if(!g_player[m_owner]->IsRobot()
+			if(!player_Get(m_owner)->IsRobot()
 			|| (g_network.IsClient()
 			&&  g_network.IsLocalPlayer(m_owner))
 			){
@@ -441,7 +441,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 		&& cd->PopCount() <= unitpop
 		&&!forceFinish
 		){
-			if(!g_player[m_owner]->IsRobot()
+			if(!player_Get(m_owner)->IsRobot()
 			|| (g_network.IsClient()
 			&&  g_network.IsLocalPlayer(m_owner))
 			){
@@ -543,7 +543,7 @@ bool BuildQueue::BuildFrontEndgame()
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
 		DPRINTF(k_DBG_GAMESTATE, ("City %lx built endgame object type %d\n",
 								  m_city, m_list->GetHead()->m_type));
-		g_player[m_owner]->AddEndGameObject(m_city, m_list->GetHead()->m_type);
+		player_Get(m_owner)->AddEndGameObject(m_city, m_list->GetHead()->m_type);
 		return true;
 	} else {
 		return false;
@@ -1110,18 +1110,18 @@ void BuildQueue::RawInsertTail(sint32 cat, sint32 t, sint32 cost)
 
 
 
-			default:
-				Assert(FALSE);
-				return;
-		}
-		sint32 o = m_city.GetOwner();
-		if(g_player[o]->IsRobot() &&
-			!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
-			sint32 age = 0;
-			cost = static_cast<sint32>(static_cast<double>(cost) *
-				diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
-		}
+		default:
+			Assert(FALSE);
+			return;
 	}
+	sint32 o = m_city.GetOwner();
+	if(player_Get(o)->IsRobot() &&
+		!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
+		sint32 age = 0;
+		cost = static_cast<sint32>(static_cast<double>(cost) *
+			diffutil_GetAiProductionCostAdjustment(gamesettings_Get()->GetDifficulty(), o, age));
+	}
+}
 
     BuildNode *newNode = new BuildNode;
     newNode->m_category = cat;
@@ -1143,7 +1143,7 @@ void BuildQueue::ReplaceHead(sint32 cat, sint32 t, sint32 cost)
 		oldHead->m_type     = t;
 
 		sint32 o = m_city.GetOwner();
-		if(g_player[o]->IsRobot() &&
+		if(player_Get(o)->IsRobot() &&
 			!(g_network.IsClient() && g_network.IsLocalPlayer(o))) {
 			sint32 age = 0;
 			cost = static_cast<sint32>(static_cast<double>(cost) *
@@ -1295,7 +1295,7 @@ double BuildQueue::GetTypeCoeff() const
 		return 1.0;
 	}
 
-	const GovernmentRecord *grec = g_theGovernmentDB->Get(g_player[m_owner]->m_government_type);
+	const GovernmentRecord *grec = g_theGovernmentDB->Get(player_Get(m_owner)->m_government_type);
 	switch(m_list->GetHead()->m_category) {
 		case k_GAME_OBJ_TYPE_UNIT: return grec->GetUnitRushModifier();
 		case k_GAME_OBJ_TYPE_IMPROVEMENT: return grec->GetBuildingRushModifier();
@@ -1701,7 +1701,7 @@ void BuildQueue::FinishCreatingUnit(Unit &u)
 		CityData *cd = m_city.CD();
 		const UnitRecord *rec = u.GetDBRec();
 
-		if(  !g_player[m_owner]->IsRobot()
+		if(  !player_Get(m_owner)->IsRobot()
 		|| (  g_network.IsClient()
 		&&    g_network.IsLocalPlayer(m_owner)
 		||  (!g_network.IsActive()

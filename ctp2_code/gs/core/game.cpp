@@ -88,17 +88,12 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     auto ensureUnitPool = [&]() { if (!m_unitPool) m_unitPool = std::make_unique<UnitPool>(); };
     auto ensureArmyPool = [&]() { if (!m_armyPool) m_armyPool = std::make_unique<ArmyPool>(); };
 
-    // Reduce boilerplate for subsystems that follow the same pattern
-    // (no-arg ctor, standard Get/Set accessor pair).
-#define ADOPT_OR_CREATE(MEMBER, TYPE, GETTER, SETTER) \
-    do {                                              \
-        if (GETTER()) {                                \
-            MEMBER.reset(GETTER());                    \
-        } else {                                       \
-            MEMBER = std::make_unique<TYPE>();         \
-            SETTER(MEMBER.get());                      \
-        }                                              \
-    } while (0)
+    // Trampolined subsystems: gameinit's x_Set(new X()) already populated
+    // m_x via the trampoline; in unit-test context with no gameinit,
+    // create lazily.
+    auto ensure = [](auto& member, auto factory) {
+        if (!member) member = factory();
+    };
 
     adoptOrCreateTurn();
     adoptOrCreateRand();
@@ -107,19 +102,18 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensureUnitPool();
     ensureArmyPool();
 
-    // Subsystems with clean ctors (no global reads): adopt-or-create.
-    ADOPT_OR_CREATE(m_messagePool,            MessagePool,            messagepool_Get,            messagepool_Set);
-    ADOPT_OR_CREATE(m_civilisationPool,       CivilisationPool,       civilisationpool_Get,       civilisationpool_Set);
-    ADOPT_OR_CREATE(m_wonderTracker,          WonderTracker,          wonder_tracker_Get,         wonder_tracker_Set);
-    ADOPT_OR_CREATE(m_tradePool,              TradePool,              tradepool_Get,              tradepool_Set);
-    ADOPT_OR_CREATE(m_tradeOfferPool,         TradeOfferPool,         tradeofferpool_Get,         tradeofferpool_Set);
-    ADOPT_OR_CREATE(m_agreementPool,          AgreementPool,          agreementpool_Get,          agreementpool_Set);
-    ADOPT_OR_CREATE(m_terrainImprovementPool, TerrainImprovementPool, terrimprovepool_Get,        terrimprovepool_Set);
-    ADOPT_OR_CREATE(m_installationPool,       InstallationPool,       installationpool_Get,       installationpool_Set);
-    ADOPT_OR_CREATE(m_diplomaticRequestPool,  DiplomaticRequestPool,  diplomaticrequestpool_Get,  diplomaticrequestpool_Set);
-    ADOPT_OR_CREATE(m_eventTracker,           EventTracker,           eventtracker_Get,           eventtracker_Set);
-    ADOPT_OR_CREATE(m_achievementTracker,     AchievementTracker,     achievementtracker_Get,     achievementtracker_Set);
-    ADOPT_OR_CREATE(m_tradeBids,              TradeBids,              tradebids_Get,              tradebids_Set);
+    ensure(m_messagePool,            []{ return std::make_unique<MessagePool>();            });
+    ensure(m_civilisationPool,       []{ return std::make_unique<CivilisationPool>();       });
+    ensure(m_wonderTracker,          []{ return std::make_unique<WonderTracker>();          });
+    ensure(m_tradePool,              []{ return std::make_unique<TradePool>();              });
+    ensure(m_tradeOfferPool,         []{ return std::make_unique<TradeOfferPool>();         });
+    ensure(m_agreementPool,          []{ return std::make_unique<AgreementPool>();          });
+    ensure(m_terrainImprovementPool, []{ return std::make_unique<TerrainImprovementPool>(); });
+    ensure(m_installationPool,       []{ return std::make_unique<InstallationPool>();       });
+    ensure(m_diplomaticRequestPool,  []{ return std::make_unique<DiplomaticRequestPool>();  });
+    ensure(m_eventTracker,           []{ return std::make_unique<EventTracker>();           });
+    ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
+    ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
 
     // Subsystems whose ctors dereference app-lifetime globals (DBs,
     // network) and so can't be created from scratch in unit-test
@@ -145,12 +139,6 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // pointer matching the legacy g_player shape; Cleanup tears down
     // inner Players + array.  Adopt-only — no fresh-create branch.
     if (player_arr_Get()) m_playerArr = player_arr_Get();
-
-#undef ADOPT_OR_CREATE
-
-    // SlicEngine and GameEventManager need more orchestration to spin up
-    // (event registration, SLIC file loading) — they stay legacy-owned
-    // for now and migrate in a later step.
 }
 
 void Game::LoadGame(CivArchive& archive) {
@@ -175,20 +163,22 @@ void Game::Cleanup() {
     m_slic.reset();
 
     // Trackers and pools: null the legacy pointer first, then destroy.
-    tradebids_Set(nullptr);             m_tradeBids.reset();
-    achievementtracker_Set(nullptr);    m_achievementTracker.reset();
-    eventtracker_Set(nullptr);          m_eventTracker.reset();
+    // Trampolined subsystems: m_x.reset() also nulls the routed legacy
+    // accessor.  Order matters: dependents before their dependencies.
+    m_tradeBids.reset();
+    m_achievementTracker.reset();
+    m_eventTracker.reset();
     feattracker_Set(nullptr);           m_featTracker.reset();
-    diplomaticrequestpool_Set(nullptr); m_diplomaticRequestPool.reset();
-    installationpool_Set(nullptr);      m_installationPool.reset();
-    terrimprovepool_Set(nullptr);       m_terrainImprovementPool.reset();
-    agreementpool_Set(nullptr);         m_agreementPool.reset();
-    tradeofferpool_Set(nullptr);        m_tradeOfferPool.reset();
-    tradepool_Set(nullptr);             m_tradePool.reset();
+    m_diplomaticRequestPool.reset();
+    m_installationPool.reset();
+    m_terrainImprovementPool.reset();
+    m_agreementPool.reset();
+    m_tradeOfferPool.reset();
+    m_tradePool.reset();
 
-    wonder_tracker_Set(nullptr);        m_wonderTracker.reset();
-    civilisationpool_Set(nullptr);      m_civilisationPool.reset();
-    messagepool_Set(nullptr);           m_messagePool.reset();
+    m_wonderTracker.reset();
+    m_civilisationPool.reset();
+    m_messagePool.reset();
     gamesettings_Set(nullptr);          m_settings.reset();
 
     m_topten.reset();
@@ -222,15 +212,30 @@ void Game::Cleanup() {
     m_turn.reset();
 }
 
-Pollution * Game::GetPollutionPtr()             { return m_pollution.get(); }
-void        Game::SetPollutionPtr(Pollution *p) { m_pollution.reset(p);     }
+// Trampoline accessor bodies — out-of-line because m_x.reset(p) needs
+// the complete type for unique_ptr's deleter.
+#define GAME_PTR_ACCESSORS(METHOD, TYPE, MEMBER)                    \
+    TYPE * Game::Get##METHOD##Ptr()           { return MEMBER.get(); } \
+    void   Game::Set##METHOD##Ptr(TYPE *p)    { MEMBER.reset(p);     }
 
-TopTen *   Game::GetTopTenPtr()           { return m_topten.get();   }
-void       Game::SetTopTenPtr(TopTen *p)  { m_topten.reset(p);       }
-UnitPool * Game::GetUnitsPtr()            { return m_unitPool.get(); }
-void       Game::SetUnitsPtr(UnitPool *p) { m_unitPool.reset(p);     }
-ArmyPool * Game::GetArmiesPtr()           { return m_armyPool.get(); }
-void       Game::SetArmiesPtr(ArmyPool *p){ m_armyPool.reset(p);     }
+GAME_PTR_ACCESSORS(Pollution,            Pollution,              m_pollution)
+GAME_PTR_ACCESSORS(TopTen,               TopTen,                 m_topten)
+GAME_PTR_ACCESSORS(Units,                UnitPool,               m_unitPool)
+GAME_PTR_ACCESSORS(Armies,               ArmyPool,               m_armyPool)
+GAME_PTR_ACCESSORS(Messages,             MessagePool,            m_messagePool)
+GAME_PTR_ACCESSORS(Civilisations,        CivilisationPool,       m_civilisationPool)
+GAME_PTR_ACCESSORS(Wonders,              WonderTracker,          m_wonderTracker)
+GAME_PTR_ACCESSORS(Trades,               TradePool,              m_tradePool)
+GAME_PTR_ACCESSORS(TradeOffers,          TradeOfferPool,         m_tradeOfferPool)
+GAME_PTR_ACCESSORS(Agreements,           AgreementPool,          m_agreementPool)
+GAME_PTR_ACCESSORS(TerrainImprovements,  TerrainImprovementPool, m_terrainImprovementPool)
+GAME_PTR_ACCESSORS(Installations,        InstallationPool,       m_installationPool)
+GAME_PTR_ACCESSORS(DiplomaticRequests,   DiplomaticRequestPool,  m_diplomaticRequestPool)
+GAME_PTR_ACCESSORS(EventTracker,         EventTracker,           m_eventTracker)
+GAME_PTR_ACCESSORS(Achievements,         AchievementTracker,     m_achievementTracker)
+GAME_PTR_ACCESSORS(TradeBids,            TradeBids,              m_tradeBids)
+
+#undef GAME_PTR_ACCESSORS
 
 Player* Game::GetPlayer(sint32 idx) {
     if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;

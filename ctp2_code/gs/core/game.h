@@ -108,12 +108,18 @@ public:
 
     MessagePool& GetMessages() { return *m_messagePool; }
     const MessagePool& GetMessages() const { return *m_messagePool; }
+    MessagePool * GetMessagesPtr();
+    void          SetMessagesPtr(MessagePool *p);
 
     CivilisationPool& GetCivilisations() { return *m_civilisationPool; }
     const CivilisationPool& GetCivilisations() const { return *m_civilisationPool; }
+    CivilisationPool * GetCivilisationsPtr();
+    void               SetCivilisationsPtr(CivilisationPool *p);
 
     WonderTracker& GetWonders() { return *m_wonderTracker; }
     const WonderTracker& GetWonders() const { return *m_wonderTracker; }
+    WonderTracker * GetWondersPtr();
+    void            SetWondersPtr(WonderTracker *p);
 
     TradePool&              GetTrades()                { return *m_tradePool; }
     TradeOfferPool&         GetTradeOffers()           { return *m_tradeOfferPool; }
@@ -125,6 +131,17 @@ public:
     EventTracker&           GetEventTracker()          { return *m_eventTracker; }
     AchievementTracker&     GetAchievements()          { return *m_achievementTracker; }
     TradeBids&              GetTradeBids()             { return *m_tradeBids; }
+
+    // Trampoline pointer accessors for the remaining pool/tracker subsystems.
+    TradePool *              GetTradesPtr();                void SetTradesPtr(TradePool *p);
+    TradeOfferPool *         GetTradeOffersPtr();           void SetTradeOffersPtr(TradeOfferPool *p);
+    AgreementPool *          GetAgreementsPtr();            void SetAgreementsPtr(AgreementPool *p);
+    TerrainImprovementPool * GetTerrainImprovementsPtr();   void SetTerrainImprovementsPtr(TerrainImprovementPool *p);
+    InstallationPool *       GetInstallationsPtr();         void SetInstallationsPtr(InstallationPool *p);
+    DiplomaticRequestPool *  GetDiplomaticRequestsPtr();    void SetDiplomaticRequestsPtr(DiplomaticRequestPool *p);
+    EventTracker *           GetEventTrackerPtr();          void SetEventTrackerPtr(EventTracker *p);
+    AchievementTracker *     GetAchievementsPtr();          void SetAchievementsPtr(AchievementTracker *p);
+    TradeBids *              GetTradeBidsPtr();             void SetTradeBidsPtr(TradeBids *p);
 
     SlicEngine& GetSlic() { return *m_slic; }
     GameEventManager& GetEvents() { return *m_events; }

@@ -159,6 +159,24 @@ extern sint32 g_abort_parse;
 extern sint32 g_oldRandSeed;
 extern sint32 g_cheat_age;
 
+// Most session-state subsystems live in Ctp2::Game; the legacy
+// foo_Get/foo_Set accessors trampoline through civapp_Get()->GetGame()
+// so callers that haven't migrated to game.GetX() still work.  When no
+// live Game is reachable (pre-CivApp / post-dtor), Set drops the
+// allocation on the floor to match the pre-trampoline behaviour where
+// the static pointer was simply overwritten.
+#define GAME_TRAMPOLINE(GETTER, SETTER, GAME_METHOD, TYPE)              \
+    TYPE * GETTER(void) {                                               \
+        CivApp * app = civapp_Get();                                    \
+        Ctp2::Game * game = app ? app->GetGame() : nullptr;             \
+        return game ? game->Get##GAME_METHOD##Ptr() : nullptr;          \
+    }                                                                   \
+    void SETTER(TYPE *p) {                                              \
+        CivApp * app = civapp_Get();                                    \
+        Ctp2::Game * game = app ? app->GetGame() : nullptr;             \
+        if (game) game->Set##GAME_METHOD##Ptr(p); else delete p;        \
+    }
+
 static GameSettings         *g_theGameSettings = NULL;
 
 GameSettings * gamesettings_Get(void)             { return g_theGameSettings; }
@@ -179,26 +197,16 @@ static World                *g_theWorld=NULL;
 
 World * world_Get(void)                       { return g_theWorld; }
 void    world_Set(World *p)                   { g_theWorld = p; }
-// UnitPool / ArmyPool storage lives in Ctp2::Game; accessors trampoline.
-UnitPool * unitpool_Get(void) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    return game ? game->GetUnitsPtr() : nullptr;
-}
-void unitpool_Set(UnitPool *p) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    if (game) game->SetUnitsPtr(p);
-    else      delete p;
-}
+GAME_TRAMPOLINE(unitpool_Get, unitpool_Set, Units, UnitPool)
+
 ArmyPool * armypool_Get(void) {
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
     return game ? game->GetArmiesPtr() : nullptr;
 }
 ArmyPool * armypool_Set(ArmyPool *p) {
-    // Legacy signature returns the previous pointer (no live callers
-    // use the return value, but preserve the shape for now).
+    // Non-standard legacy signature returns the previous pointer; no
+    // live caller uses the return value, but preserve the shape.
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
     if (!game) { delete p; return nullptr; }
@@ -216,80 +224,24 @@ static RandomGenerator      *g_rand=NULL;
 
 RandomGenerator * rand_ptr(void)                   { return g_rand; }
 void              rand_ptr_Set(RandomGenerator *p) { g_rand = p; }
-static TradePool            *g_theTradePool = NULL;
-
-TradePool * tradepool_Get(void) { return g_theTradePool; }
-void        tradepool_Set(TradePool *p) { g_theTradePool = p; }
-static TradeOfferPool       *g_theTradeOfferPool = NULL;
-
-TradeOfferPool * tradeofferpool_Get(void) { return g_theTradeOfferPool; }
-void             tradeofferpool_Set(TradeOfferPool *p) { g_theTradeOfferPool = p; }
+GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
+GAME_TRAMPOLINE(tradeofferpool_Get, tradeofferpool_Set, TradeOffers, TradeOfferPool)
 static QuadTree<Unit>       *g_theUnitTree = NULL;
 
 QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
-// Pollution storage lives in Ctp2::Game::m_pollution; the accessors below
-// trampoline through civapp_Get()->GetGame() so the legacy names continue
-// to work for callers that haven't migrated to game.GetPollution() yet.
-
-Pollution * pollution_Get(void) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    return game ? game->GetPollutionPtr() : nullptr;
-}
-void pollution_Set(Pollution *p) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    if (game) {
-        game->SetPollutionPtr(p);
-    } else {
-        // No live Game container — caller fired pre-CivApp or post-dtor.
-        // Drop the pointer on the floor (matches the previous legacy
-        // behaviour of leaving g_thePollution = nullptr); the caller's
-        // `new Pollution()` would leak, which is no worse than before.
-        delete p;
-    }
-}
-static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
-
-DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }
-void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p) { g_theDiplomaticRequestPool = p; }
-static MessagePool          *g_theMessagePool=NULL;
-
-MessagePool * messagepool_Get(void)              { return g_theMessagePool; }
-void          messagepool_Set(MessagePool *p)    { g_theMessagePool = p; }
-static CivilisationPool     *g_theCivilisationPool=NULL;
-
-CivilisationPool * civilisationpool_Get(void)                { return g_theCivilisationPool; }
-void               civilisationpool_Set(CivilisationPool *p) { g_theCivilisationPool = p; }
-static AgreementPool        *g_theAgreementPool=NULL;
-
-AgreementPool * agreementpool_Get(void) { return g_theAgreementPool; }
-void            agreementpool_Set(AgreementPool *p) { g_theAgreementPool = p; }
-static TerrainImprovementPool *g_theTerrainImprovementPool = NULL;
-
-TerrainImprovementPool * terrimprovepool_Get(void) { return g_theTerrainImprovementPool; }
-void                     terrimprovepool_Set(TerrainImprovementPool *p) { g_theTerrainImprovementPool = p; }
-static InstallationPool     *g_theInstallationPool = NULL;
-
-InstallationPool * installationpool_Get(void) { return g_theInstallationPool; }
-void               installationpool_Set(InstallationPool *p) { g_theInstallationPool = p; }
+GAME_TRAMPOLINE(pollution_Get, pollution_Set, Pollution, Pollution)
+GAME_TRAMPOLINE(diplomaticrequestpool_Get, diplomaticrequestpool_Set, DiplomaticRequests,  DiplomaticRequestPool)
+GAME_TRAMPOLINE(messagepool_Get,           messagepool_Set,           Messages,            MessagePool)
+GAME_TRAMPOLINE(civilisationpool_Get,      civilisationpool_Set,      Civilisations,       CivilisationPool)
+GAME_TRAMPOLINE(agreementpool_Get,         agreementpool_Set,         Agreements,          AgreementPool)
+GAME_TRAMPOLINE(terrimprovepool_Get,       terrimprovepool_Set,       TerrainImprovements, TerrainImprovementPool)
+GAME_TRAMPOLINE(installationpool_Get,      installationpool_Set,      Installations,       InstallationPool)
 static InstallationQuadTree *g_theInstallationTree = NULL;
 
 InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
-// TopTen storage lives in Ctp2::Game; accessors trampoline.
-TopTen * topten_Get(void) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    return game ? game->GetTopTenPtr() : nullptr;
-}
-void topten_Set(TopTen *p) {
-    CivApp * app = civapp_Get();
-    Ctp2::Game * game = app ? app->GetGame() : nullptr;
-    if (game) game->SetTopTenPtr(p);
-    else      delete p;
-}
+GAME_TRAMPOLINE(topten_Get, topten_Set, TopTen, TopTen)
 
 TurnCount                   *g_turn = NULL;
 
@@ -306,18 +258,8 @@ FilenameDB                  *g_theMessageIconFileDB = NULL;
 Pool<Order>                 *g_theOrderPond = NULL;
 Pool<UnseenCell>            *g_theUnseenPond = NULL;
 Diplomacy_Log               *g_theDiplomacyLog=NULL;
-static WonderTracker        *g_theWonderTracker = NULL;
-
-WonderTracker * wonder_tracker_Get(void)             { return g_theWonderTracker; }
-void            wonder_tracker_Set(WonderTracker *p) { g_theWonderTracker = p; }
-
-static EventTracker         *g_eventTracker = NULL;
-
-EventTracker * eventtracker_Get(void)
-{
-	return g_eventTracker;
-}
-void           eventtracker_Set(EventTracker *p) { g_eventTracker = p; }
+GAME_TRAMPOLINE(wonder_tracker_Get, wonder_tracker_Set, Wonders,      WonderTracker)
+GAME_TRAMPOLINE(eventtracker_Get,   eventtracker_Set,   EventTracker, EventTracker)
 static FeatTracker          *g_featTracker = NULL;
 
 FeatTracker * feattracker_Get(void)
@@ -325,20 +267,8 @@ FeatTracker * feattracker_Get(void)
 	return g_featTracker;
 }
 void          feattracker_Set(FeatTracker *p) { g_featTracker = p; }
-static TradeBids            *g_theTradeBids = NULL;
-
-TradeBids * tradebids_Get(void)
-{
-	return g_theTradeBids;
-}
-void        tradebids_Set(TradeBids *p) { g_theTradeBids = p; }
-static AchievementTracker   *g_theAchievementTracker = NULL;
-
-AchievementTracker * achievementtracker_Get(void)
-{
-	return g_theAchievementTracker;
-}
-void                 achievementtracker_Set(AchievementTracker *p) { g_theAchievementTracker = p; }
+GAME_TRAMPOLINE(tradebids_Get,          tradebids_Set,          TradeBids,    TradeBids)
+GAME_TRAMPOLINE(achievementtracker_Get, achievementtracker_Set, Achievements, AchievementTracker)
 static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
 
 CriticalMessagesPrefs * critical_messages_prefs_Get(void) { return g_theCriticalMessagesPrefs; }
@@ -1312,10 +1242,10 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	armypool_Set(new ArmyPool());
 	Assert(armypool_Get());
 
-	g_theTradePool = new TradePool();
+	tradepool_Set(new TradePool());
 
-	g_theTradeOfferPool = new TradeOfferPool();
-	Assert(g_theTradeOfferPool);
+	tradeofferpool_Set(new TradeOfferPool());
+	Assert(tradeofferpool_Get());
 
 	pollution_Set(new Pollution());
 	Assert(pollution_Get());
@@ -1346,38 +1276,37 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	SPLASH_STRING("Initializing Object Pools...");
 
-	g_theTerrainImprovementPool = new TerrainImprovementPool();
-	Assert(g_theTerrainImprovementPool) ;
+	terrimprovepool_Set(new TerrainImprovementPool());
+	Assert(terrimprovepool_Get()) ;
 
-	g_theDiplomaticRequestPool = new DiplomaticRequestPool() ;
-	Assert(g_theDiplomaticRequestPool) ;
+	diplomaticrequestpool_Set(new DiplomaticRequestPool()) ;
+	Assert(diplomaticrequestpool_Get()) ;
 
-	g_theCivilisationPool = new CivilisationPool() ;
-	Assert(g_theCivilisationPool) ;
+	civilisationpool_Set(new CivilisationPool()) ;
+	Assert(civilisationpool_Get()) ;
 
-	g_theAgreementPool = new AgreementPool() ;
-	Assert(g_theAgreementPool) ;
+	agreementpool_Set(new AgreementPool()) ;
+	Assert(agreementpool_Get()) ;
 
-	delete g_theMessagePool;
-	g_theMessagePool = new MessagePool() ;
-	Assert(g_theMessagePool) ;
+	messagepool_Set(new MessagePool()) ;
+	Assert(messagepool_Get()) ;
 
 	delete g_theCriticalMessagesPrefs;
 	g_theCriticalMessagesPrefs = new CriticalMessagesPrefs();
 	Assert(g_theCriticalMessagesPrefs) ;
 
-	g_theInstallationPool = new InstallationPool();
-	Assert(g_theInstallationPool) ;
+	installationpool_Set(new InstallationPool());
+	Assert(installationpool_Get()) ;
 
-	g_theInstallationPool->RebuildQuadTree();
+	installationpool_Get()->RebuildQuadTree();
 
 	g_wormhole = NULL;
 
-	g_theWonderTracker = new WonderTracker();
+	wonder_tracker_Set(new WonderTracker());
 
-	g_theAchievementTracker = new AchievementTracker();
+	achievementtracker_Set(new AchievementTracker());
 
-	g_theTradeBids = new TradeBids;
+	tradebids_Set(new TradeBids());
 
 
 
@@ -1468,7 +1397,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 				g_player[i]->m_playerType = PLAYER_TYPE_HUMAN;
 	}
 
-	g_theTradeOfferPool->ReRegisterOffers();
+	tradeofferpool_Get()->ReRegisterOffers();
 
 
 
@@ -1790,33 +1719,33 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
 	if(archive && loadEverything) {
-		g_theTradePool = new TradePool(*archive);
+		tradepool_Set(new TradePool(*archive));
 
 		if(g_numGoods != g_theResourceDB->NumRecords()){
 			sint32 i;
 			sint32 resource;
 			ROUTE_TYPE routeType;
-			for(i = 0; i < g_theTradePool->Num(); ++i){
-				g_theTradePool->GetRouteIndex(i)->GetSourceResource(routeType, resource);
-				g_theTradePool->GetRouteIndex(i)->SetSourceResource(g_newGoods[resource]);
+			for(i = 0; i < tradepool_Get()->Num(); ++i){
+				tradepool_Get()->GetRouteIndex(i)->GetSourceResource(routeType, resource);
+				tradepool_Get()->GetRouteIndex(i)->SetSourceResource(g_newGoods[resource]);
 			}
 		}
 
-		g_theTradePool->RecreateActors();
+		tradepool_Get()->RecreateActors();
 	}
 	else
-		g_theTradePool = new TradePool();
+		tradepool_Set(new TradePool());
 
     // 55 is probably the last save game version for CTP1
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theTradeOfferPool = new TradeOfferPool(*archive);
+		tradeofferpool_Set(new TradeOfferPool(*archive));
 	}
     else
     {
-		g_theTradeOfferPool = new TradeOfferPool();
+		tradeofferpool_Set(new TradeOfferPool());
     }
-	Assert(g_theTradeOfferPool);
+	Assert(tradeofferpool_Get());
 
 	if (archive && loadEverything)
 		pollution_Set(new Pollution(*archive));
@@ -1876,55 +1805,54 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	SPLASH_STRING("Initializing Object Pools...");
 
 	if(archive && loadEverything)
-		g_theTerrainImprovementPool = new TerrainImprovementPool(*archive);
+		terrimprovepool_Set(new TerrainImprovementPool(*archive));
 	else
-		g_theTerrainImprovementPool = new TerrainImprovementPool();
-	Assert(g_theTerrainImprovementPool) ;
+		terrimprovepool_Set(new TerrainImprovementPool());
+	Assert(terrimprovepool_Get()) ;
 
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theDiplomaticRequestPool = new DiplomaticRequestPool(*archive) ;
+		diplomaticrequestpool_Set(new DiplomaticRequestPool(*archive)) ;
 	}
     else
     {
-		g_theDiplomaticRequestPool = new DiplomaticRequestPool() ;
+		diplomaticrequestpool_Set(new DiplomaticRequestPool()) ;
 	}
-	Assert(g_theDiplomaticRequestPool) ;
+	Assert(diplomaticrequestpool_Get()) ;
 
 	if (archive && loadEverything)
-		g_theCivilisationPool = new CivilisationPool(*archive) ;
+		civilisationpool_Set(new CivilisationPool(*archive)) ;
 	else
-		g_theCivilisationPool = new CivilisationPool() ;
-	Assert(g_theCivilisationPool) ;
+		civilisationpool_Set(new CivilisationPool()) ;
+	Assert(civilisationpool_Get()) ;
 
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theAgreementPool = new AgreementPool(*archive) ;
+		agreementpool_Set(new AgreementPool(*archive)) ;
 	}
     else
     {
-		g_theAgreementPool = new AgreementPool() ;
+		agreementpool_Set(new AgreementPool()) ;
     }
-	Assert(g_theAgreementPool) ;
+	Assert(agreementpool_Get()) ;
 
-	delete g_theMessagePool;
 	if (archive && loadEverything)
-		g_theMessagePool = new MessagePool(*archive) ;
+		messagepool_Set(new MessagePool(*archive)) ;
 	else
-		g_theMessagePool = new MessagePool() ;
-	Assert(g_theMessagePool) ;
+		messagepool_Set(new MessagePool()) ;
+	Assert(messagepool_Get()) ;
 
 	delete g_theCriticalMessagesPrefs;
 	g_theCriticalMessagesPrefs = new CriticalMessagesPrefs() ;
 	Assert(g_theCriticalMessagesPrefs) ;
 
 	if(archive && loadEverything)
-		g_theInstallationPool = new InstallationPool(*archive);
+		installationpool_Set(new InstallationPool(*archive));
 	else
-		g_theInstallationPool = new InstallationPool();
-	Assert(g_theInstallationPool) ;
+		installationpool_Set(new InstallationPool());
+	Assert(installationpool_Get()) ;
 
-	g_theInstallationPool->RebuildQuadTree();
+	installationpool_Get()->RebuildQuadTree();
 
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
@@ -1938,18 +1866,18 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	}
 
 	if(archive && loadEverything) {
-		g_theWonderTracker = new WonderTracker(*archive);
+		wonder_tracker_Set(new WonderTracker(*archive));
 	} else {
-		g_theWonderTracker = new WonderTracker();
+		wonder_tracker_Set(new WonderTracker());
 	}
 
 	if(archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theAchievementTracker = new AchievementTracker(*archive);
+		achievementtracker_Set(new AchievementTracker(*archive));
 	}
     else
     {
-		g_theAchievementTracker = new AchievementTracker();
+		achievementtracker_Set(new AchievementTracker());
 	}
 
 	if (archive)
@@ -1970,20 +1898,20 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if(archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theTradeBids = new TradeBids(*archive);
+		tradebids_Set(new TradeBids(*archive));
 	}
     else
     {
-		g_theTradeBids = new TradeBids;
+		tradebids_Set(new TradeBids());
 	}
 
 	if(archive && loadEverything)
 	{
-		g_eventTracker = new EventTracker(*archive);
+		eventtracker_Set(new EventTracker(*archive));
 	}
 	else
 	{
-		g_eventTracker = new EventTracker;
+		eventtracker_Set(new EventTracker());
 	}
 
 	SPLASH_STRING("Setting Up Players...");
@@ -2369,7 +2297,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		}
 	}
 
-	g_theTradeOfferPool->ReRegisterOffers();
+	tradeofferpool_Get()->ReRegisterOffers();
 
 	if (!(archive))
 	{
@@ -2677,8 +2605,8 @@ void gameinit_Cleanup(void)
 	// This must come before g_theArmyPool, since this is needed
 	CtpAi::Cleanup();
 
-	allocated::clear(g_theInstallationPool);
-	allocated::clear(g_theMessagePool);
+	{ auto * p = installationpool_Get(); allocated::clear(p); installationpool_Set(p); };
+	{ auto * p = messagepool_Get(); allocated::clear(p); messagepool_Set(p); };
 	allocated::clear(g_theCriticalMessagesPrefs);
 
 	if (g_player)
@@ -2698,10 +2626,10 @@ void gameinit_Cleanup(void)
 		}
 	}
 
-	allocated::clear(g_theAgreementPool);
-	allocated::clear(g_theCivilisationPool);
-	allocated::clear(g_theDiplomaticRequestPool);
-	allocated::clear(g_theTerrainImprovementPool);
+	{ auto * p = agreementpool_Get(); allocated::clear(p); agreementpool_Set(p); };
+	{ auto * p = civilisationpool_Get(); allocated::clear(p); civilisationpool_Set(p); };
+	{ auto * p = diplomaticrequestpool_Get(); allocated::clear(p); diplomaticrequestpool_Set(p); };
+	{ auto * p = terrimprovepool_Get(); allocated::clear(p); terrimprovepool_Set(p); };
 	delete slicengine_Get();
 	slicengine_Set(NULL);
 	// TopTen / UnitPool / ArmyPool / Pollution are owned by Ctp2::Game;
@@ -2709,25 +2637,25 @@ void gameinit_Cleanup(void)
 	// the trampoline-routed Get returns null and these become no-ops.
 	{ TopTen   * p = topten_Get();   allocated::clear(p); topten_Set(p);   }
 	{ Pollution * p = pollution_Get(); allocated::clear(p); pollution_Set(p); }
-	allocated::clear(g_theTradePool);
+	{ auto * p = tradepool_Get(); allocated::clear(p); tradepool_Set(p); };
 	{ UnitPool * p = unitpool_Get(); allocated::clear(p); unitpool_Set(p); }
 	allocated::clear(g_theInstallationTree);
 	allocated::clear(g_theUnitTree);
 	player_view::Cleanup();
-	allocated::clear(g_theTradePool);
-	allocated::clear(g_theTradeOfferPool);
+	{ auto * p = tradepool_Get(); allocated::clear(p); tradepool_Set(p); };
+	{ auto * p = tradeofferpool_Get(); allocated::clear(p); tradeofferpool_Set(p); };
 	allocated::clear(g_turn);
 	allocated::clear(g_theWorld);
 	allocated::clear(g_theGameSettings);
 	{ ArmyPool * p = armypool_Get(); allocated::clear(p); armypool_Set(p); }
-	allocated::clear(g_theWonderTracker);
-	allocated::clear(g_theAchievementTracker);
+	{ auto * p = wonder_tracker_Get(); allocated::clear(p); wonder_tracker_Set(p); };
+	{ auto * p = achievementtracker_Get(); allocated::clear(p); achievementtracker_Set(p); };
 
 
 
 
-	allocated::clear(g_theTradeBids);
-	allocated::clear(g_eventTracker);
+	{ auto * p = tradebids_Get(); allocated::clear(p); tradebids_Set(p); };
+	{ auto * p = eventtracker_Get(); allocated::clear(p); eventtracker_Set(p); };
 	allocated::clear(g_wormhole);
 
 	allocated::clear(g_theOrderPond);
@@ -2747,31 +2675,23 @@ void gameinit_Cleanup(void)
 
 sint32 gameinit_ResetForNetwork()
 {
-	delete g_theInstallationPool;
-	g_theInstallationPool = new InstallationPool;
+	installationpool_Set(new InstallationPool());
 
-	delete g_theAgreementPool;
-	g_theAgreementPool = new AgreementPool;
+	agreementpool_Set(new AgreementPool());
 
-	delete g_theCivilisationPool;
-	g_theCivilisationPool = new CivilisationPool;
+	civilisationpool_Set(new CivilisationPool());
 
-	delete g_theDiplomaticRequestPool;
-	g_theDiplomaticRequestPool = new DiplomaticRequestPool;
+	diplomaticrequestpool_Set(new DiplomaticRequestPool());
 
-	delete g_theTerrainImprovementPool;
-	g_theTerrainImprovementPool = new TerrainImprovementPool;
+	terrimprovepool_Set(new TerrainImprovementPool());
 
-	delete g_theTradePool;
-	g_theTradePool = new TradePool;
+	tradepool_Set(new TradePool());
 
 	unitpool_Set(new UnitPool);  // Set() deletes the previous instance
 
-	delete g_theTradePool;
-	g_theTradePool = new TradePool;
+	tradepool_Set(new TradePool());
 
-	delete g_theTradeOfferPool;
-	g_theTradeOfferPool = new TradeOfferPool;
+	tradeofferpool_Set(new TradeOfferPool());
 
 	armypool_Set(new ArmyPool);
 
@@ -2811,25 +2731,19 @@ void gameinit_ResetMapSize()
     g_theInstallationTree =
         new InstallationQuadTree(mapsize.x, mapsize.y, g_theWorld->IsYwrap());
 
-    delete g_theInstallationPool;
-    g_theInstallationPool = new InstallationPool;
+    installationpool_Set(new InstallationPool());
 
-    delete g_theAgreementPool;
-    g_theAgreementPool = new AgreementPool;
+    agreementpool_Set(new AgreementPool());
 
-    delete g_theDiplomaticRequestPool;
-    g_theDiplomaticRequestPool = new DiplomaticRequestPool;
+    diplomaticrequestpool_Set(new DiplomaticRequestPool());
 
-    delete g_theTerrainImprovementPool;
-    g_theTerrainImprovementPool = new TerrainImprovementPool;
+    terrimprovepool_Set(new TerrainImprovementPool());
 
-    delete g_theTradePool;
-    g_theTradePool = new TradePool;
+    tradepool_Set(new TradePool());
 
     unitpool_Set(new UnitPool);
 
-    delete g_theTradePool;
-    g_theTradePool = new TradePool;
+    tradepool_Set(new TradePool());
 
     armypool_Set(new ArmyPool);
 

@@ -49,7 +49,6 @@
 #include "robot/aibackdoor/priorityqueue.h"
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
 
-extern World *g_theWorld;
 sint32 g_search_count;
 
 AVLHeap g_astar_mem;
@@ -99,7 +98,7 @@ float Astar::EstimateFutureCost(const MapPoint &pos, const MapPoint &dest)
 
 	sint32 dist = pos.NormalizedDistance(dest);
 	{
-		best_heuristic = (float)g_theWorld->A_star_heuristic->Get_Minimum_Nearby_Movement_Cost(
+		best_heuristic = (float)world_Get()->A_star_heuristic->Get_Minimum_Nearby_Movement_Cost(
 				MapPointData(pos));
 
 		Assert(best_heuristic > 0);
@@ -109,13 +108,13 @@ float Astar::EstimateFutureCost(const MapPoint &pos, const MapPoint &dest)
 
 		sint32 idist;
 
-		idist = g_theWorld->XY_Coords.Get_RC_Travel_Distance(pos, dest);
+		idist = world_Get()->XY_Coords.Get_RC_Travel_Distance(pos, dest);
 
 #ifdef SUPER_DEBUG_HEURISTIC
 		if (dist == idist)
-			g_theWorld->SetColor(pos,  dist);
+			world_Get()->SetColor(pos,  dist);
 		else
-			g_theWorld->SetColor(pos,  dist*100 + idist);
+			world_Get()->SetColor(pos,  dist*100 + idist);
 #endif
 #endif
 
@@ -133,7 +132,7 @@ float Astar::EstimateFutureCost(const MapPoint &pos, const MapPoint &dest)
 			 float ground_dist =  0.7f * best_heuristic * dist;
 
 #ifdef SUPER_DEBUG_HEURISTIC
-			g_theWorld->SetColor(pos, sint32(ground_dist));
+			world_Get()->SetColor(pos, sint32(ground_dist));
 #endif
 			return ground_dist;
 		} else
@@ -196,7 +195,7 @@ bool Astar::InitPoint(AstarPoint *parent, AstarPoint *point,
             + d->m_future_cost;
 
 #ifdef PRINT_COSTS
-			g_theWorld->SetColor(pos,  d->m_total_cost);
+			world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
 
        return true;
@@ -212,7 +211,7 @@ bool Astar::InitPoint(AstarPoint *parent, AstarPoint *point,
             + d->m_future_cost;
 
 #ifdef PRINT_COSTS
-			g_theWorld->SetColor(pos,  d->m_total_cost);
+			world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
 
         return true;
@@ -232,7 +231,7 @@ bool Astar::InitPoint(AstarPoint *parent, AstarPoint *point,
         d->m_total_cost = d->m_past_cost + d->m_entry_cost
             + d->m_future_cost;
  #ifdef PRINT_COSTS
-			g_theWorld->SetColor(pos,  d->m_total_cost);
+			world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
        return false;
     }
@@ -371,7 +370,7 @@ void Astar::PropagatePathCost(AstarPoint *node, AstarPoint *parent,
 			for (d=0; d<GetMaxDir(node->m_pos); d++) {
 				if (!node->m_pos.GetNeighborPosition(WORLD_DIRECTION(d), next_pos))  continue;
 
-				c = g_theWorld->GetCell(next_pos);
+				c = world_Get()->GetCell(next_pos);
 
 				if (c->m_point != NULL)  {
 					if ((c->m_search_count == g_search_count) &&
@@ -417,12 +416,12 @@ bool Astar::FindPath
 
 #ifdef SUPER_DEBUG_HEURISTIC
 	MapPoint    tmp;
-	MapPoint *  size    = g_theWorld->GetSize();
+	MapPoint *  size    = world_Get()->GetSize();
 	for (tmp.x = 0; tmp.x < size->x; tmp.x++)
 	{
 		for (tmp.y = 0; tmp.y < size->y; tmp.y++)
 		{
-			g_theWorld->SetColor(tmp, 0);
+			world_Get()->SetColor(tmp, 0);
 		}
 	}
 #endif
@@ -438,7 +437,7 @@ bool Astar::FindPath
 		return Cleanup(dest, a_path, total_cost, isunit, best, cost_tree);
 	}
 
-	Cell *          c           = g_theWorld->GetCell(start);
+	Cell *          c           = world_Get()->GetCell(start);
 	Assert(c);
 	if (!c)
 		return false;
@@ -481,7 +480,7 @@ bool Astar::FindPath
 
 			if(m_maxSquaredDistance > -1 && MapPoint::GetSquaredDistance(start, next_pos) > m_maxSquaredDistance) continue;
 
-			c = g_theWorld->GetCell(next_pos);
+			c = world_Get()->GetCell(next_pos);
 
 			if (c->m_point && (c->m_search_count == g_search_count))
 			{

@@ -711,11 +711,9 @@ private:
     void AddToWaterSearch(MapPointNode *& search_list, MapPoint const & pos);
 };
 
-extern World *g_theWorld;
-
 // Session-singleton accessor pair, mirroring pollution_Get / topten_Get
-// / unitpool_Get.  Callers should use world_Get() instead of reaching
-// for g_theWorld directly.
+// / unitpool_Get.  The legacy g_theWorld pointer is now file-static in
+// gameinit.cpp; outside callers must go through these accessors.
 World * world_Get(void);
 void    world_Set(World *p);
 

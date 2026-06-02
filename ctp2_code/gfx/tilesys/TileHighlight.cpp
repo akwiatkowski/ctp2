@@ -44,7 +44,7 @@
 #include "ui/aui_ctp2/SelItem.h"        // g_selected_item
 #include "gs/world/MapPoint.h"
 #include "robot/pathing/Path.h"
-#include "gs/world/World.h"          // g_theWorld
+#include "gs/world/World.h"          // world_Get()
 #include "gs/gameobj/ID.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/Order.h"
@@ -93,7 +93,7 @@ namespace // unnamed = static
 // Parameters : a_Army          : army to enter with
 //              a_Place         : tile to enter
 //
-// Globals    : g_theWorld      : world map information
+// Globals    : world_Get()      : world map information
 //
 // Returns    : double          : entry cost
 //
@@ -109,7 +109,7 @@ double GetEntryCost
 {
 	double	cost	= a_Army.GetMovementTypeAir()
 					  ? k_MOVE_AIR_COST
-					  : g_theWorld->GetMoveCost(a_Place);
+					  : world_Get()->GetMoveCost(a_Place);
 
 	if ((a_Army.IsAtLeastOneMoveShallowWater() ||
 		 a_Army.IsAtLeastOneMoveWater()
@@ -119,9 +119,9 @@ double GetEntryCost
 	{
 		// Army without land units: do not use roads/tunnels etc.
 		TerrainRecord::Modifiers const * bareTerrainProperties  =
-		    (g_theWorld->HasCity(a_Place))
-		    ? g_theWorld->GetTerrain(a_Place)->GetEnvCityPtr()
-		    : g_theWorld->GetTerrain(a_Place)->GetEnvBase();
+		    (world_Get()->HasCity(a_Place))
+		    ? world_Get()->GetTerrain(a_Place)->GetEnvCityPtr()
+		    : world_Get()->GetTerrain(a_Place)->GetEnvBase();
 
 		sint32	icost;
 		if (bareTerrainProperties->GetMovement(icost))
@@ -182,7 +182,7 @@ bool IsKnownEntryCost
 //              MapPoint &old_pos   : ?
 //              MapPoint &dest_pos  :
 //
-// Globals    : g_theWorld      : world map information
+// Globals    : world_Get()      : world map information
 //            : g_controlPanel  :
 //            : g_selected_item :
 //
@@ -195,11 +195,11 @@ bool TiledMap::CanDrawSpecialMove(SELECT_TYPE sType, Army &sel_army, const MapPo
 {
 	switch (sType) {
 	case SELECT_TYPE_LOCAL_ARMY:
-		if (g_theWorld->HasCity(dest_pos)) {
+		if (world_Get()->HasCity(dest_pos)) {
 			if(g_controlPanel->GetTargetingMode() == CP_TARGETING_MODE_ORDER_PENDING) {
 				const OrderRecord *rec = g_controlPanel->GetCurrentOrder();
 				if(rec->GetTargetPretestEnemyCity()) {
-					if(g_theWorld->GetCell(dest_pos)->GetCity().GetOwner() != g_selected_item->GetVisiblePlayer()) {
+					if(world_Get()->GetCell(dest_pos)->GetCity().GetOwner() != g_selected_item->GetVisiblePlayer()) {
 						return true;
 					}
 				}

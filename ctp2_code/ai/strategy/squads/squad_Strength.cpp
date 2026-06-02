@@ -225,7 +225,7 @@ void Squad_Strength::Set_Cargo_Strength(const Army & army)
 
 void Squad_Strength::Set_Pos_Strength(const MapPoint & pos)
 {
-	CellUnitList *army = g_theWorld->GetArmyPtr(pos);
+	CellUnitList *army = world_Get()->GetArmyPtr(pos);
 
 	if (army == NULL)
 	{

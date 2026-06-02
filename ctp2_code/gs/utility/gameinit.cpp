@@ -173,7 +173,7 @@ static ThroneDB             *g_theThroneDB = NULL;
 ThroneDB * thronedb_Get(void)        { return g_theThroneDB; }
 void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
-World                       *g_theWorld=NULL;
+static World                *g_theWorld=NULL;
 
 World * world_Get(void)                       { return g_theWorld; }
 void    world_Set(World *p)                   { g_theWorld = p; }

@@ -58,7 +58,7 @@
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/Player.h"                 // g_player
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/gameobj/citydata.h"
@@ -202,7 +202,7 @@ void RadarMap::InitCommon(void)
 		m_pattern->Draw( m_mapSurface, &rect );
 	}
 
-	if ( g_theWorld ) {
+	if ( world_Get() ) {
 
 		CalculateMetrics();
 
@@ -277,13 +277,13 @@ AUI_ERRCODE	RadarMap::Resize( sint32 width, sint32 height )
 //---------------------------------------------------------------------------
 void RadarMap::CalculateMetrics(void)
 {
-	if (!g_theWorld) return;
+	if (!world_Get()) return;
 
 	delete m_tempSurface;
 	if (m_tempBuffer)
 		free(m_tempBuffer);
 
-	m_mapSize = g_theWorld->GetSize();
+	m_mapSize = world_Get()->GetSize();
 
 	m_tilePixelWidth = ((double )m_width) / m_mapSize->x;
 	m_tilePixelHeight = ((double )m_height) / m_mapSize->y;
@@ -345,7 +345,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 
 
 	if(!g_tiledMap || !g_tiledMap->ReadyToDraw() ||
-		!g_theWorld || !g_selected_item || !m_mapSize)
+		!world_Get() || !g_selected_item || !m_mapSize)
 		return(NULL);
 
 
@@ -378,9 +378,9 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 
 	if(player->IsExplored(worldpos))
 	{
-		sint32 owner = g_theWorld->GetOwner(worldpos);
+		sint32 owner = world_Get()->GetOwner(worldpos);
 
-		if(m_displayTrade && g_theWorld->GetCell(worldpos)->GetNumTradeRoutes() > 0)
+		if(m_displayTrade && world_Get()->GetCell(worldpos)->GetNumTradeRoutes() > 0)
 		{
 			flags = 1;
 		}
@@ -397,7 +397,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			return(g_colorSet->GetColor(COLOR_WHITE));
 		}
 
-		if(m_displayUnits && (g_theWorld->GetTopVisibleUnit(worldpos, unit) || g_theWorld->GetTopRadarUnit(worldpos, unit)))
+		if(m_displayUnits && (world_Get()->GetTopVisibleUnit(worldpos, unit) || world_Get()->GetTopRadarUnit(worldpos, unit)))
 		{
 			if(m_displayRelations)
 			{
@@ -415,7 +415,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			}
 		}
 
-		if(m_displayPolitical && owner >= 0 && !g_theWorld->IsWater(worldpos) )
+		if(m_displayPolitical && owner >= 0 && !world_Get()->IsWater(worldpos) )
 		{
 			if(m_displayRelations)
 				return RadarTileRelationsColor(worldpos, player);
@@ -429,7 +429,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 		}
 		else
 		{
-			if(g_theWorld->IsLand(worldpos) || g_theWorld->IsMountain(worldpos))
+			if(world_Get()->IsLand(worldpos) || world_Get()->IsMountain(worldpos))
 			{
 				return g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 +
 														   TERRAIN_GRASSLAND));
@@ -442,7 +442,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 		}
 	}
 
-	if(g_theWorld->GetTopRadarUnit(worldpos, unit))
+	if(world_Get()->GetTopRadarUnit(worldpos, unit))
 		return(g_colorSet->GetPlayerColor(unit.GetOwner()));
 
 	return(g_colorSet->GetColor(COLOR_BLACK));
@@ -621,8 +621,8 @@ void RadarMap::RenderCapitol(aui_Surface *surface, const MapPoint &position, con
 
 	Unit unit;
 
-	if(!g_theWorld->GetTopVisibleUnit(worldpos, unit))
-		if(!g_theWorld->GetTopRadarUnit(worldpos, unit))
+	if(!world_Get()->GetTopVisibleUnit(worldpos, unit))
+		if(!world_Get()->GetTopRadarUnit(worldpos, unit))
 			return;
 
 	if(!unit.IsValid() || !unit.IsCity() || !unit.IsCapitol())
@@ -925,7 +925,7 @@ void RadarMap::RenderTrade(aui_Surface *surface, const MapPoint &position, const
 
 	MapPoint screenPosition(((worldpos.y / 2) + position.x) % (m_mapSize->x), position.y);
 
-	if(!g_theWorld->GetCell(worldpos)->GetNumTradeRoutes() ||
+	if(!world_Get()->GetCell(worldpos)->GetNumTradeRoutes() ||
 	   !player->m_vision->IsExplored(worldpos)) {
 		return;
 	}
@@ -1060,7 +1060,7 @@ void RadarMap::RenderViewRect
 		sint32 mapHeight = m_mapSize->y;
 
 		// Set the X coordinate points
-		if (!g_theWorld->IsXwrap() && (offsetRect.left < 0 || offsetRect.right > mapWidth))
+		if (!world_Get()->IsXwrap() && (offsetRect.left < 0 || offsetRect.right > mapWidth))
 		{
 			x1 = x3 = offsetRect.left;
 			x2 = x4 = offsetRect.right;
@@ -1119,7 +1119,7 @@ void RadarMap::RenderViewRect
 		x4 = (sint32) (x4 * m_tilePixelWidth) + x - 1;
 
 		// Set the Y points
-		if ( !g_theWorld->IsYwrap() && ( offsetRect.top < 0 || offsetRect.bottom >= mapHeight))
+		if ( !world_Get()->IsYwrap() && ( offsetRect.top < 0 || offsetRect.bottom >= mapHeight))
 		{
             y1 = y3 = std::max<sint32>(0, offsetRect.top);
             y2 = y4 = std::min<sint32>(mapHeight, offsetRect.bottom);
@@ -1331,7 +1331,7 @@ void RadarMap::Setup(void)
 void RadarMap::Update( void )
 {
 
-	m_mapSize = g_theWorld->GetSize();
+	m_mapSize = world_Get()->GetSize();
 
 	RenderMap(m_mapSurface);
 }
@@ -1537,14 +1537,14 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 	// compute the offsets after the MouseRClick to center the map with the
 	// desired point
 
-	if (g_theWorld->IsXwrap()) {
+	if (world_Get()->IsXwrap()) {
 		m_displayOffset[nrplayer].x  =
 			(m_mapSize->x - ( m_mapSize->x * data->position.x / m_width) + (m_mapSize->x / 2)
 			  + m_mapSize->x + m_displayOffset[nrplayer].x) % m_mapSize->x;
 	} else {
 		m_displayOffset[nrplayer].x = 0;
 	}
-	if (g_theWorld->IsYwrap()) {
+	if (world_Get()->IsYwrap()) {
 		m_displayOffset[nrplayer].y  =
 			(m_mapSize->y - ((( m_mapSize->y * data->position.y / m_height) >>1)<<1)
 			  + (m_mapSize->y / 2) + m_mapSize->y + m_displayOffset[nrplayer].y) % m_mapSize->y;

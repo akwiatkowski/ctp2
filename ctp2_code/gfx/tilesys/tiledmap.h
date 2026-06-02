@@ -199,13 +199,13 @@ public:
 
 	void            GetMapMetrics(sint32 *width,sint32 *height) const
 	{
-		*width = g_theWorld->GetWidth();
-		*height = g_theWorld->GetHeight();
+		*width = world_Get()->GetWidth();
+		*height = world_Get()->GetHeight();
 	}
 
 	sint32          GetMapWidth() const
 	{
-		return g_theWorld->GetWidth();
+		return world_Get()->GetWidth();
 	}
 
 	sint32			CalculateWrap(aui_Surface *surface, sint32 i, sint32 j);

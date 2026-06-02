@@ -58,7 +58,7 @@
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 
 CityAstar g_city_astar;
 
@@ -98,7 +98,7 @@ bool CityAstar::EntryCost
 
 		const StrategyRecord & strategy = Diplomat::GetDiplomat(m_owner).GetCurrentStrategy();
 
-		Cell *  entryCell   = g_theWorld->GetCell(pos);
+		Cell *  entryCell   = world_Get()->GetCell(pos);
 		bool useBaseMovement = strategy.GetUseBaseMoveCostsForRoads() != 0;
 
 		if(useBaseMovement)
@@ -145,7 +145,7 @@ bool CityAstar::EntryCost
 	else
 	{
 		///ToDo: Cleanup this mess
-		if(m_pathLand && g_theWorld->IsWater(pos))
+		if(m_pathLand && world_Get()->IsWater(pos))
 		{
 			cost = k_ASTAR_BIG;
 			entry = ASTAR_BLOCKED;
@@ -154,12 +154,12 @@ bool CityAstar::EntryCost
 
 		if(m_pathPenalizeCantEnter != 0)
 		{
-			Cell *  entryCell   = g_theWorld->GetCell(pos);
+			Cell *  entryCell   = world_Get()->GetCell(pos);
 
 			cost  = static_cast<float>(entryCell->GetMoveCost());
 			entry = ASTAR_CAN_ENTER;
 
-			if(g_theWorld->CanEnter(pos, m_pathPenalizeCantEnter))
+			if(world_Get()->CanEnter(pos, m_pathPenalizeCantEnter))
 			{
 				return true;
 			}
@@ -178,7 +178,7 @@ bool CityAstar::EntryCost
 			return true;
 		}
 
-		Cell *  entryCell   = g_theWorld->GetCell(pos);
+		Cell *  entryCell   = world_Get()->GetCell(pos);
 
 		cost  = static_cast<float>(entryCell->GetMoveCost());
 		entry = ASTAR_CAN_ENTER;

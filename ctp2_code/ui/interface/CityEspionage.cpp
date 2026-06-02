@@ -55,7 +55,7 @@
 #include "gs/gameobj/Unit.h"
 #include "UnitRecord.h"
 #include "WonderRecord.h"       // g_theWonderDB
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 
 extern C3UI *   g_c3ui;
 
@@ -244,7 +244,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 
 			MapPoint pos;
 			a_City.GetPos(pos);
-			Cell * cell = g_theWorld->GetCell(pos);
+			Cell * cell = world_Get()->GetCell(pos);
 
 			CellUnitList cellUnitList;
 			cell->GetArmy(cellUnitList);

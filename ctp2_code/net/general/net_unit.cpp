@@ -36,7 +36,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"           // g_theUnitPool
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "gs/gameobj/Player.h"             // g_player
 
 #include "gs/database/DB.h"
@@ -154,7 +154,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			bool addVision = false;
 			if(!(oldFlags & k_UDF_TEMP_SLAVE_UNIT))
 			{
-				g_theWorld->RemoveUnitReference(pnt, m_unitData->m_id);
+				world_Get()->RemoveUnitReference(pnt, m_unitData->m_id);
 				addVision = (m_unitData->m_flags & k_UDF_VISION_ADDED) != 0;
 				m_unitData->RemoveUnitVision();
 			}
@@ -168,7 +168,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				m_unitData->ClearFlag(k_UDF_VISION_ADDED);
 				m_unitData->AddUnitVision();
 			}
-			g_theWorld->InsertUnit(m_unitData->m_pos, uid, revealed);
+			world_Get()->InsertUnit(m_unitData->m_pos, uid, revealed);
 
 			if(m_unitData->m_visibility & (1 << g_selected_item->GetVisiblePlayer())) {
 				sint32 numRevealed = revealed.Num();
@@ -267,7 +267,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			g_player[m_unitData->m_owner]->AddCityReferenceToPlayer(
 				uid, CAUSE_NEW_CITY_UNKNOWN);
-			g_theWorld->InsertCity(m_unitData->m_pos, uid);
+			world_Get()->InsertCity(m_unitData->m_pos, uid);
 
 			for(sint32 p = 0; p < CtpAi::s_maxPlayers; p++) {
 				if(p == uid.GetOwner()) continue;
@@ -283,7 +283,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(m_unitData->IsBeingTransported()) {
 
 			} else if(!m_unitData->Flag(k_UDF_TEMP_SLAVE_UNIT)) {
-				g_theWorld->InsertUnit(m_unitData->m_pos, uid, revealed);
+				world_Get()->InsertUnit(m_unitData->m_pos, uid, revealed);
 			}
 			if (!m_unitData->Flag(k_UDF_TEMP_SLAVE_UNIT))
             {
@@ -454,11 +454,11 @@ void NetUnitMove::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	UnitDynamicArray revealed;
 	MapPoint oldPos = ud->m_pos;
-	g_theWorld->RemoveUnitReference(ud->m_pos, u);
+	world_Get()->RemoveUnitReference(ud->m_pos, u);
 	g_player[ud->GetOwner()]->RemoveUnitVision(ud->m_pos, ud->GetVisionRange());
 	ud->m_pos = m_point;
 	g_player[ud->GetOwner()]->AddUnitVision(ud->m_pos, ud->GetVisionRange());
-	g_theWorld->InsertUnit(ud->m_pos, u, revealed);
+	world_Get()->InsertUnit(ud->m_pos, u, revealed);
 
 	sint32 numRevealed = revealed.Num();
 	Director::UnitActorVec revealedActors(numRevealed);

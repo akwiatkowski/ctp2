@@ -1181,7 +1181,7 @@ void SelectedItem::SendGoodClick(const MapPoint &pos, const aui_MouseEvent *data
 
 	bool isForeignGood = false;
 
-	Unit homeCity = g_theWorld->GetCell(m_select_pos[player])->GetCityOwner();
+	Unit homeCity = world_Get()->GetCell(m_select_pos[player])->GetCityOwner();
 	if(homeCity.m_id != 0)
 	{
 		if(homeCity.GetOwner() != player)
@@ -1201,7 +1201,7 @@ void SelectedItem::SendGoodClick(const MapPoint &pos, const aui_MouseEvent *data
 	if (!destCity.IsCity()) return;
 
 	sint32		resIndex;
-	if (!g_theWorld->GetGood(m_select_pos[player], resIndex)) return;
+	if (!world_Get()->GetGood(m_select_pos[player], resIndex)) return;
 
 	if(!isForeignGood)
 	{
@@ -1251,7 +1251,7 @@ void SelectedItem::MoveArmyClick(const MapPoint &pos, const aui_MouseEvent *data
 
 			if (unit.GetDBRec()->GetCargoPod() &&
 				unit.GetData()->CargoHasLandUnits() &&
-				g_theWorld->IsWater(pos)
+				world_Get()->IsWater(pos)
 			   )
 			{
 				// Dropping land units in a sea square could be lethal
@@ -1260,7 +1260,7 @@ void SelectedItem::MoveArmyClick(const MapPoint &pos, const aui_MouseEvent *data
 			}
 
 			if ((unit.GetMovementTypeSea() || unit.GetMovementTypeShallowWater()) &&
-				g_theWorld->IsLand(pos)
+				world_Get()->IsLand(pos)
 			   )
 			{
 				// Reaching a shore: unload units?
@@ -1391,7 +1391,7 @@ void SelectedItem::ActionClick(const MapPoint &pos, const aui_MouseEvent *data, 
 			   )
 			{
 				if ((unit.GetMovementTypeSea() || unit.GetMovementTypeShallowWater()) &&
-					(g_theWorld->IsLand(pos))
+					(world_Get()->IsLand(pos))
 				   )
 				{
 					SlicObject *so = new SlicObject("14IAAutoUnload");
@@ -1420,7 +1420,7 @@ SELECT_TYPE SelectedItem::GetClickedThing(const MapPoint &pos, bool click)
 	Unit		top;
 	sint32		visiblePlayer = GetVisiblePlayer();
 	bool hasUnitOrCity = GetTopUnitOrCity(pos, top);
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 
 	if(m_select_state[visiblePlayer] != SELECT_TYPE_NONE &&
 	   m_select_pos[visiblePlayer] == pos)
@@ -1520,12 +1520,12 @@ SELECT_TYPE SelectedItem::GetClickedThing(const MapPoint &pos, bool click)
 			if(top.GetOwner() == visiblePlayer)
 			{
 				if(!g_theProfileDB->GetValueByName("CityClick")
-				&& g_theWorld->GetCell(pos)->GetNumUnits() > 0
+				&& world_Get()->GetCell(pos)->GetNumUnits() > 0
 				){
-					for(sint32 i = 0; i < g_theWorld->GetCell(pos)->GetNumUnits(); i++)
+					for(sint32 i = 0; i < world_Get()->GetCell(pos)->GetNumUnits(); i++)
 					{
-						if(!g_theWorld->GetCell(pos)->AccessUnit(i).IsEntrenched()
-						&& !g_theWorld->GetCell(pos)->AccessUnit(i).IsEntrenching()
+						if(!world_Get()->GetCell(pos)->AccessUnit(i).IsEntrenched()
+						&& !world_Get()->GetCell(pos)->AccessUnit(i).IsEntrenching()
 						){
 							return SELECT_TYPE_LOCAL_ARMY;
 						}
@@ -1550,7 +1550,7 @@ SELECT_TYPE SelectedItem::GetClickedThing(const MapPoint &pos, bool click)
 			}
 		}
 	}
-	else if(g_theWorld->IsGood(pos))
+	else if(world_Get()->IsGood(pos))
 	{
 		return SELECT_TYPE_GOOD;
 	}

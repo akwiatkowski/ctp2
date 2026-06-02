@@ -46,7 +46,6 @@
 
 #include "gs/utility/directions.h"
 
-extern World *g_theWorld;
 
 void TiledMap::DrawARoadPiece
 (
@@ -104,9 +103,9 @@ void TiledMap::DrawRoads
 	{
 		if(pos.GetNeighborPosition(d, newPos))
 		{
-			if(g_theWorld->IsAnyRoad(newPos)
-			|| g_theWorld->IsTunnel(newPos)
-			|| g_theWorld->IsCity(newPos)
+			if(world_Get()->IsAnyRoad(newPos)
+			|| world_Get()->IsTunnel(newPos)
+			|| world_Get()->IsCity(newPos)
 			){
 				neighborFlag |= (1 << d);
 

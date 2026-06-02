@@ -57,7 +57,7 @@ sint32 tradeutil_GetTradeValue(const sint32 owner, Unit const & destination, sin
 	if(resource < 0 || resource >= g_theResourceDB->NumRecords())
 		return 0;
 
-	double baseValue = g_theWorld->GetGoodValue(resource);
+	double baseValue = world_Get()->GetGoodValue(resource);
 	double distance = static_cast<double>(destination.GetCityData()->GetDistanceToGood(resource));
 	sint32 totalValue = sint32(baseValue * distance);
 
@@ -91,7 +91,7 @@ sint32 tradeutil_GetAccurateTradeDistance(Unit &source, Unit &destination)
 
 sint32 tradeutil_GetTradeDistance(Unit &source, Unit &destination)
 {
-	double cost = g_theWorld->CalcTerrainFreightCost(source.RetPos()) *
+	double cost = world_Get()->CalcTerrainFreightCost(source.RetPos()) *
 	              static_cast<double>
 	                (source.RetPos().NormalizedDistance(destination.RetPos()));
 
@@ -104,7 +104,7 @@ void constutil_y2meridian(const sint32 y, sint32 &k)
 {
 	k = 0;
 
-	sint32 relMapHeight = (y * 100) / g_theWorld->GetHeight();
+	sint32 relMapHeight = (y * 100) / world_Get()->GetHeight();
 
 	if     (relMapHeight < g_theConstDB->Get(0)->GetMeridianA())
 	{

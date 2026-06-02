@@ -56,7 +56,6 @@
 
 extern C3UI			*g_c3ui;
 extern ProfileDB	*g_theProfileDB;
-extern World		*g_theWorld;
 
 namespace
 {

@@ -61,7 +61,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // g_theWorld, GROUND_Z, SPACE_Z
+#include "gs/world/World.h"              // world_Get(), GROUND_Z, SPACE_Z
 #include "gs/world/Cell.h"
 
 #include "robot/aibackdoor/dynarr.h"
@@ -163,7 +163,7 @@ bool UnitAstar::StraightLine
 float UnitAstar::ComputeValidMovCost(const MapPoint &pos, Cell *the_pos_cell)
 {
 	bool const	is_tunnel_and_boat	=
-		g_theWorld->IsTunnel(pos) &&
+		world_Get()->IsTunnel(pos) &&
 		((m_move_intersection & k_Unit_MovementType_Sea_Bit) ||
 		 (m_move_intersection & k_Unit_MovementType_ShallowWater_Bit)
 		);
@@ -171,7 +171,7 @@ float UnitAstar::ComputeValidMovCost(const MapPoint &pos, Cell *the_pos_cell)
 	if (is_tunnel_and_boat)
 	{
 		sint32 icost_without_tunnel;
-		(void) g_theWorld->GetTerrain(pos)->GetEnvBase()->
+		(void) world_Get()->GetTerrain(pos)->GetEnvBase()->
 			GetMovement(icost_without_tunnel);
 		return std::min(m_army_minmax_move,
 						static_cast<float>(icost_without_tunnel)
@@ -502,7 +502,7 @@ bool UnitAstar::CheckMoveUnion(const MapPoint &prev, const MapPoint &pos, Cell *
 			}
 		}
 
-		if (can_be_zoc && g_theWorld->IsMoveZOC (m_owner, prev, pos, true) &&
+		if (can_be_zoc && world_Get()->IsMoveZOC (m_owner, prev, pos, true) &&
 		    !IsBeachLanding(prev,pos,m_move_intersection)
 		   )
 		{
@@ -533,7 +533,7 @@ bool UnitAstar::CheckMoveIntersection(const MapPoint &prev, const MapPoint &pos,
 	}
 	else if (the_pos_cell->CanEnter(m_move_intersection))
 	{
-		if (can_be_zoc && g_theWorld->IsMoveZOC (m_owner, prev, pos, TRUE) &&
+		if (can_be_zoc && world_Get()->IsMoveZOC (m_owner, prev, pos, TRUE) &&
 			!IsBeachLanding(prev,pos,m_move_intersection))
 		{
 			is_zoc = true;
@@ -570,8 +570,8 @@ bool UnitAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 		is_zoc = false;
 	}
 
-	if(!g_theWorld->IsXwrap()) {
-		sint16 w = (sint16)g_theWorld->GetXWidth();
+	if(!world_Get()->IsXwrap()) {
+		sint16 w = (sint16)world_Get()->GetXWidth();
 
 		sint32 adjX1 = (prev.x + (prev.y / 2)) % w;
 		sint32 adjX2 = (pos.x  + (pos.y  / 2)) % w;
@@ -594,9 +594,9 @@ bool UnitAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 
 	is_zoc = false;
 	bool can_enter = false;
-	Cell *the_prev_cell = g_theWorld->AccessCell(prev);
+	Cell *the_prev_cell = world_Get()->AccessCell(prev);
 	Assert(the_prev_cell);
-	Cell *the_pos_cell = g_theWorld->AccessCell(pos);
+	Cell *the_pos_cell = world_Get()->AccessCell(pos);
 	Assert(the_pos_cell);
 
 	uint32 origEnv = the_pos_cell->GetEnv();
@@ -685,7 +685,7 @@ bool UnitAstar::InitPoint(AstarPoint *parent, AstarPoint *point,
        d->m_total_cost = d->m_past_cost + d->m_entry_cost
             + d->m_future_cost;
 #ifdef PRINT_COSTS
-			g_theWorld->SetColor(pos,  d->m_total_cost);
+			world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
        return true;
 
@@ -727,7 +727,7 @@ if (entry == ASTAR_RETRY_DIRECTION) {
             + d->m_future_cost;
 
 #ifdef PRINT_COSTS
-		g_theWorld->SetColor(pos,  d->m_total_cost);
+		world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
 
 
@@ -752,7 +752,7 @@ if (entry == ASTAR_RETRY_DIRECTION) {
         d->m_total_cost = d->m_past_cost + d->m_entry_cost
             + d->m_future_cost;
 #ifdef PRINT_COSTS
-			g_theWorld->SetColor(pos,  d->m_total_cost);
+			world_Get()->SetColor(pos,  d->m_total_cost);
 #endif
         return false;
     }
@@ -766,7 +766,7 @@ float UnitAstar::EstimateFutureCost(const MapPoint &pos, const MapPoint &dest)
 		float air_dist = 90.0f * pos.NormalizedDistance(dest);
 
 #ifdef SUPER_DEBUG_HEURISTIC
-			g_theWorld->SetColor(pos, sint32(air_dist));
+			world_Get()->SetColor(pos, sint32(air_dist));
 #endif
 
 		return air_dist;
@@ -789,8 +789,8 @@ void UnitAstar::RecalcEntryCost(AstarPoint *parent, AstarPoint *node, float &new
 
     bool can_be_zoc = true;
     bool can_enter;
-    Cell *the_prev_cell = g_theWorld->AccessCell(parent->m_pos);
-    Cell *the_pos_cell = g_theWorld->AccessCell(node->m_pos);
+    Cell *the_prev_cell = world_Get()->AccessCell(parent->m_pos);
+    Cell *the_pos_cell = world_Get()->AccessCell(node->m_pos);
     if (CheckMoveIntersection(parent->m_pos, node->m_pos,
         the_prev_cell, the_pos_cell, new_entry_cost, new_is_zoc,
           can_be_zoc, new_entry, can_enter)) return;
@@ -947,7 +947,7 @@ bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
     CellUnitList *a = NULL;
     for ( ; !a_path.IsEnd(); a_path.Next(pos)) {
         if (g_player[m_owner]->IsExplored(pos)) {
-            a = g_theWorld->GetArmyPtr(pos);
+            a = world_Get()->GetArmyPtr(pos);
 
             if (a && (0 < a->Num())) {
       			if(a->IsVisible(m_owner)) {
@@ -965,7 +965,7 @@ bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
     }
     if (old != pos) {
         if (g_player[m_owner]->IsExplored(pos)) {
-            a = g_theWorld->GetArmyPtr(pos);
+            a = world_Get()->GetArmyPtr(pos);
 
             if (a && (0 < a->Num())) {
       			if(a->IsVisible(m_owner)) {
@@ -1054,7 +1054,7 @@ bool UnitAstar::FindStraightPath(const MapPoint &start, const MapPoint &dest,
     static MapPoint  tmp_point;
 
     if (g_player[m_owner]->IsExplored(dest) &&
-        g_theWorld->CanEnter(dest, m_move_intersection))
+        world_Get()->CanEnter(dest, m_move_intersection))
     {
        if ((start.x == no_enter_pos.x) && (no_enter_pos.y == start.y)) {
 
@@ -1175,8 +1175,8 @@ bool UnitAstar::FindStraightPath(const MapPoint &start, const MapPoint &dest,
 bool UnitAstar::PretestDest_Enterable(const MapPoint &start, const MapPoint &dest)
 {
 	if (m_move_intersection) {
-         if(m_check_dest && !g_theWorld->HasCity(dest)) {
-            if(!g_theWorld->CanEnter(dest, m_move_intersection)) {
+         if(m_check_dest && !world_Get()->HasCity(dest)) {
+            if(!world_Get()->CanEnter(dest, m_move_intersection)) {
                 if (m_army.m_id == (0)) {
                     return false;
                 } else {
@@ -1192,17 +1192,17 @@ bool UnitAstar::PretestDest_Enterable(const MapPoint &start, const MapPoint &des
 
 bool UnitAstar::PretestDest_HasRoom(const MapPoint &start, const MapPoint &dest)
 {
-    CellUnitList *dest_army = g_theWorld->GetArmyPtr(dest);
+    CellUnitList *dest_army = world_Get()->GetArmyPtr(dest);
 
     if (dest_army && m_check_dest) {
 		if (m_owner ==  dest_army ->GetOwner()) {
-			if (k_MAX_ARMY_SIZE < (m_nUnits + g_theWorld->GetArmyPtr(dest)->Num())) {
+			if (k_MAX_ARMY_SIZE < (m_nUnits + world_Get()->GetArmyPtr(dest)->Num())) {
                 if (!CanMoveIntoTransports(dest)) {
                     return false;
 			    }
 			}
         } else if (m_is_zero_attack &&
-            !g_theWorld->HasCity(dest) &&
+            !world_Get()->HasCity(dest) &&
             dest_army->IsVisible(m_owner)) {
             return false;
         }
@@ -1227,11 +1227,11 @@ bool UnitAstar::PretestDest_SameLandContinent(const MapPoint &start, const MapPo
     {
         sint16  start_cont_number;
         bool    start_is_land;
-        g_theWorld->GetContinent(start, start_cont_number, start_is_land);
+        world_Get()->GetContinent(start, start_cont_number, start_is_land);
 
         sint16  dest_cont_number;
         bool    dest_is_land;
-        g_theWorld->GetContinent(dest, dest_cont_number, dest_is_land);
+        world_Get()->GetContinent(dest, dest_cont_number, dest_is_land);
 
         /// @todo More logical to return FALSE when any of the 2 is not land?
         ///       How about cities?
@@ -1267,8 +1267,8 @@ bool UnitAstar::PretestDest_SameWaterContinent(const MapPoint &start, const MapP
 		sint16 start_cont_number;
 		sint16  dest_cont_number;
 
-		g_theWorld->GetContinent(start, start_cont_number, start_is_land);
-		g_theWorld->GetContinent(dest, dest_cont_number, dest_is_land);
+		world_Get()->GetContinent(start, start_cont_number, start_is_land);
+		world_Get()->GetContinent(dest, dest_cont_number, dest_is_land);
 
 		/// @todo More logical to return FALSE when any of the 2 is not water?
 		///       How about cities?
@@ -1299,7 +1299,7 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 
 		if (!PretestDest_Enterable(start, neighbor)) continue;
 
-		CellUnitList * the_army = g_theWorld->GetArmyPtr(neighbor);
+		CellUnitList * the_army = world_Get()->GetArmyPtr(neighbor);
 
 		if (the_army)
 		{
@@ -1334,9 +1334,9 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 			}
 		}
 
-		if(g_theWorld->HasCity(neighbor))
+		if(world_Get()->HasCity(neighbor))
 		{
-			if (g_theWorld->GetCity(neighbor).GetOwner() == m_owner)
+			if (world_Get()->GetCity(neighbor).GetOwner() == m_owner)
 			{
 				return true;
 			}
@@ -1347,8 +1347,8 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 				       m_is_robot
 				    &&
 				       (
-				            g_player[m_owner]->HasWarWith(g_theWorld->GetCity(neighbor).GetOwner())
-				         || Diplomat::GetDiplomat(m_owner).DesireWarWith(g_theWorld->GetCity(neighbor).GetOwner())
+				            g_player[m_owner]->HasWarWith(world_Get()->GetCity(neighbor).GetOwner())
+				         || Diplomat::GetDiplomat(m_owner).DesireWarWith(world_Get()->GetCity(neighbor).GetOwner())
 				       )
 				    && m_army_strength.HasEnough(Squad_Strength(dest), true)
 				  )
@@ -1362,7 +1362,7 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 			}
 		}
 
-		if (!g_theWorld->IsMoveZOC (m_owner, neighbor, dest, true))
+		if (!world_Get()->IsMoveZOC (m_owner, neighbor, dest, true))
 		{
 			return true;
 		}
@@ -1512,8 +1512,8 @@ bool UnitAstar::FindPath(Army army,
 
 
             if (!m_check_dest ||
-				(g_theWorld->CanEnter(dest, m_move_intersection) ||
-				 (g_theWorld->HasCity(dest)
+				(world_Get()->CanEnter(dest, m_move_intersection) ||
+				 (world_Get()->HasCity(dest)
 
 
                  ) )) {
@@ -1547,7 +1547,7 @@ bool UnitAstar::FindPath(Army army,
 
     if (!m_check_dest ||
 		(
-            (g_theWorld->CanEnter(dest, m_move_intersection)) ||
+            (world_Get()->CanEnter(dest, m_move_intersection)) ||
 		    CanMoveIntoTransports(pos)
         )
        ) {
@@ -1585,8 +1585,8 @@ bool UnitAstar::IsBeachLanding(const MapPoint &prev,
 		(m_move_intersection & k_Unit_MovementType_Land_Bit ||
 		 m_move_intersection & k_Unit_MovementType_Mountain_Bit))
 	{
-		uint32  prev_move   = g_theWorld->GetMovementType(prev);
-		uint32  pos_move    = g_theWorld->GetMovementType(pos);
+		uint32  prev_move   = world_Get()->GetMovementType(prev);
+		uint32  pos_move    = world_Get()->GetMovementType(pos);
 
 		if ((prev_move & k_Unit_MovementType_Sea_Bit ||
 			 prev_move & k_Unit_MovementType_ShallowWater_Bit) &&
@@ -1659,8 +1659,8 @@ bool UnitAstar::CheckIsDangerForPos(const MapPoint & pos)
 		}
 
 		//Check for hostile army
-		CellUnitList *  the_army = g_theWorld->GetArmyPtr(neighbor);
-		Unit            the_city = g_theWorld->GetCity(neighbor);
+		CellUnitList *  the_army = world_Get()->GetArmyPtr(neighbor);
+		Unit            the_city = world_Get()->GetCity(neighbor);
 
 		if (the_army && !the_army->IsCivilian())
 		{

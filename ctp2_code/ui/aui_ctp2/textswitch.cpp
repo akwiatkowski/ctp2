@@ -9,7 +9,7 @@
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_utils/textutils.h"
 #include "gs/slic/SlicEngine.h"
@@ -68,7 +68,7 @@ AUI_ERRCODE TextSwitch::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	if ( m_pattern )
 		m_pattern->Draw( surface, &rect );
 
-	primitives_FrameRect16(surface, &rect, g_colorSet->GetColor(COLOR_BLACK));
+	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_BLACK));
 
 
 

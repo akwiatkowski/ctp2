@@ -5,7 +5,7 @@
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ldl.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/c3_coloriconbutton.h"
@@ -227,7 +227,7 @@ sint32 UnitTabButton::UpdateData( Unit *unit )
 
 		if ( unit->IsVeteran() ) {
 			m_button->AddSubControl( m_veteran );
-			m_fortify->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else {
 			m_button->RemoveSubControl( m_veteran->Id() );
@@ -236,17 +236,17 @@ sint32 UnitTabButton::UpdateData( Unit *unit )
 		if ( unit->IsEntrenched() ) {
 			m_button->AddSubControl( m_fortify );
 
-			m_fortify->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else if ( unit->IsAsleep() ) {
 			m_button->AddSubControl( m_fortify );
 
-			m_fortify->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		}
 		else if ( unit->IsEntrenching() ) {
 			m_button->AddSubControl( m_fortify );
 
-			m_fortify->SetTextColor( g_colorSet->GetColorRef(COLOR_GRAY) );
+			m_fortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_GRAY) );
 		}
 		else {
 			m_button->RemoveSubControl( m_fortify->Id() );

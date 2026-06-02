@@ -51,7 +51,7 @@
 
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 #include "ui/aui_ctp2/ctp2_MenuButton.h"
 #include "ui/aui_common/aui_dragdropwindow.h"
@@ -475,7 +475,7 @@ AUI_ERRCODE ctp2_ListBox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			DrawThisStateImage(0, surface, &bevelRect);
 
 		if ( m_bevelType == 2 ) {
-			primitives_FrameThickRect16( surface, &bevelRect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+			primitives_FrameThickRect16( surface, &bevelRect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 		}
 		else {
 			primitives_BevelRect16( surface, &bevelRect, m_bevelWidth, m_bevelType, 16, 16 );
@@ -504,7 +504,7 @@ AUI_ERRCODE ctp2_ListBox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			DrawThisStateImage(0, surface, &rect);
 
 		if(m_window->GetFocusControl() == this) {
-			primitives_FrameThickRect16(surface, &rect, g_colorSet->GetColor(COLOR_UI_BOX), 3);
+			primitives_FrameThickRect16(surface, &rect, colorset_Get()->GetColor(COLOR_UI_BOX), 3);
 		}
 		m_window->AddDirtyRect(&rect);
 	}

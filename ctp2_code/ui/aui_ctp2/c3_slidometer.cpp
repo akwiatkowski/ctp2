@@ -47,7 +47,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 
 #include "gs/slic/SlicEngine.h"
 
@@ -291,7 +291,7 @@ AUI_ERRCODE c3_Slidometer::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			}
 
 	if (rect.right > rect.left)
-		primitives_PaintRect16( surface, &rect, g_colorSet->GetColor(color) );
+		primitives_PaintRect16( surface, &rect, colorset_Get()->GetColor(color) );
 
 	if ( surface == m_window->TheSurface() )
 		m_window->AddDirtyRect( &dirtyRect );

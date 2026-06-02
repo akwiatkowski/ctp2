@@ -3,7 +3,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_utils/primitives.h"
 
 #include "ui/aui_ctp2/ctp2_commandline.h"
@@ -50,7 +50,7 @@ ctp2_CommandLine::~ctp2_CommandLine()
 void ctp2_CommandLine::Draw(void)
 {
 
-	primitives_PaintRect16(m_surface, &m_rect, g_colorSet->GetColor(COLOR_BLACK));
+	primitives_PaintRect16(m_surface, &m_rect, colorset_Get()->GetColor(COLOR_BLACK));
 
 	m_font->DrawString(m_surface, &m_rect, &m_rect, m_string);
 }

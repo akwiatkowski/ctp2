@@ -10,7 +10,7 @@
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 
@@ -121,9 +121,9 @@ AUI_ERRCODE c3_CheckBox::DrawThis(
 	if(GetState()) {
 		uint32 off = 5;
 		primitives_DrawAALine16(surface, checkrect.left+off,checkrect.top+off,
-										 checkrect.right-off,checkrect.bottom-off,g_colorSet->GetColor(COLOR_RED));
+										 checkrect.right-off,checkrect.bottom-off,colorset_Get()->GetColor(COLOR_RED));
 		primitives_DrawAALine16(surface, checkrect.left+off,checkrect.bottom-off,
-										 checkrect.right-off,checkrect.top+off, g_colorSet->GetColor(COLOR_RED));
+										 checkrect.right-off,checkrect.top+off, colorset_Get()->GetColor(COLOR_RED));
 	}
 
 	RECT textrect = { m_height+bordWidth,0, m_width-bordWidth-m_height, m_height };

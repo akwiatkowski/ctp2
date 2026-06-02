@@ -9,7 +9,7 @@
 #include "ui/aui_ctp2/c3_ranger.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_utils/primitives.h"
 
 
@@ -176,7 +176,7 @@ AUI_ERRCODE C3ListBox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			{
 				selectRect.top = rect.top + headerHeight + 2 + ( itemIndex - minVertical ) * m_maxItemHeight;
 				selectRect.bottom = selectRect.top + m_maxItemHeight - 4;
-				primitives_FrameRect16( surface, &selectRect, g_colorSet->GetColor(COLOR_SELECT_0));
+				primitives_FrameRect16( surface, &selectRect, colorset_Get()->GetColor(COLOR_SELECT_0));
 				primitives_BevelRect16( surface, &selectRect, 1, 1, 10, 10 );
 
 			}

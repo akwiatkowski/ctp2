@@ -9,7 +9,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 
 
 Thermometer::Thermometer(
@@ -115,7 +115,7 @@ AUI_ERRCODE Thermometer::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			}
 
 	if (rect.right > rect.left)
-		primitives_PaintRect16( surface, &rect, g_colorSet->GetColor(color) );
+		primitives_PaintRect16( surface, &rect, colorset_Get()->GetColor(color) );
 
 	DrawThisText(
 		surface,

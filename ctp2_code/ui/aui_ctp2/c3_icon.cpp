@@ -8,7 +8,7 @@
 #include "gfx/tilesys/tileset.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "ui/aui_ctp2/c3_icon.h"
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_ctp2/pattern.h"
@@ -117,7 +117,7 @@ AUI_ERRCODE c3_Icon::DrawThis(
 			Assert(icon);
 			if (!icon) return AUI_ERRCODE_OK;
 
-			tiledmap_Get()->DrawColorizedOverlay( icon, surface, where.x, where.y, g_colorSet->GetColor(m_color) );
+			tiledmap_Get()->DrawColorizedOverlay( icon, surface, where.x, where.y, colorset_Get()->GetColor(m_color) );
 		}
 	}
 

@@ -10,7 +10,7 @@
 
 #include "ui/interface/AttractWindow.h"
 
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_utils/primitives.h"
 
 #include "ui/ldl/ldl_data.hpp"
@@ -131,7 +131,7 @@ AUI_ERRCODE ctp2_Button::DrawThis(aui_Surface *surface,
 		m_window->AddDirtyRect(&rect);
 
 	if(m_window->GetFocusControl() == this) {
-		primitives_FrameThickRect16(surface, &rect, g_colorSet->GetColor(COLOR_UI_BOX), 3);
+		primitives_FrameThickRect16(surface, &rect, colorset_Get()->GetColor(COLOR_UI_BOX), 3);
 	}
 
 	return AUI_ERRCODE_OK;

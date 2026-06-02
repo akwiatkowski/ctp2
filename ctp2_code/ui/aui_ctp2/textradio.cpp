@@ -6,7 +6,7 @@
 #include "ui/aui_common/aui_window.h"
 
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "ui/aui_ctp2/textradio.h"
 
@@ -103,10 +103,10 @@ AUI_ERRCODE TextRadio::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	}
 
 	if ( IsActive() )
-		SetTextColor(g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_HILITE));
+		SetTextColor(colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_HILITE));
 
 	else
-		SetTextColor(g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
+		SetTextColor(colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
 
 
 	DrawThisText(surface, &rect);

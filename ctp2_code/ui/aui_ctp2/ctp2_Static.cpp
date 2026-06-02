@@ -10,7 +10,7 @@
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 
@@ -339,9 +339,9 @@ AUI_ERRCODE ctp2_Static::DrawThis(
 				rect.right + 2,
 				rect.bottom + 2
 			};
-			primitives_FrameThickRect16( surface, &oobRect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+			primitives_FrameThickRect16( surface, &oobRect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 		} else if(m_bevelType == 2) {
-			primitives_FrameThickRect16( surface, &rect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+			primitives_FrameThickRect16( surface, &rect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 		} else
 			primitives_BevelRect16( surface, &rect, m_bevelWidth, m_bevelType, 16, 16 );
 	}

@@ -47,7 +47,7 @@
 #include "gfx/spritesys/SpriteState.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/c3_coloredstatic.h"
 #include "ui/aui_ctp2/controlsheet.h"
 #include "ui/aui_ctp2/textbutton.h"
@@ -376,7 +376,7 @@ AUI_ERRCODE BattleOrderBox::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 					InflateRect( &tempRect, 2, 2);
 					OffsetRect(&tempRect, bounds.left, bounds.top);
 
-					primitives_FrameThickRect16(surface, &tempRect, g_colorSet->GetColor(m_unitRectColors[i]),k_UNIT_FRAME_THICKNESS);
+					primitives_FrameThickRect16(surface, &tempRect, colorset_Get()->GetColor(m_unitRectColors[i]),k_UNIT_FRAME_THICKNESS);
 					m_window->AddDirtyRect( &m_unitRect[i] );
 				}
 				else {
@@ -384,7 +384,7 @@ AUI_ERRCODE BattleOrderBox::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 					InflateRect( &tempRect, 1, 1);
 					OffsetRect(&tempRect, bounds.left, bounds.top);
 
-					primitives_FrameRect16(surface, &tempRect, g_colorSet->GetColor(m_unitRectColors[i]));
+					primitives_FrameRect16(surface, &tempRect, colorset_Get()->GetColor(m_unitRectColors[i]));
 					m_window->AddDirtyRect( &m_unitRect[i] );
 				}
 			}
@@ -414,7 +414,7 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 
 	if ( theUnit.IsVeteran() ) {
 		m_unitVeteran->SetText( g_theStringDB->GetNameStr("str_ldl_V") );
-		m_unitVeteran->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+		m_unitVeteran->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitVeteran );
 	}
 	else {
@@ -423,17 +423,17 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 
 	if ( theUnit.IsEntrenched() ) {
 		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_ldl_F") );
-		m_unitFortify->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}
 	else if ( theUnit.IsAsleep() ) {
 		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_tbl_ldl_S") );
-		m_unitFortify->SetTextColor( g_colorSet->GetColorRef(COLOR_WHITE) );
+		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_WHITE) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}
 	else if ( theUnit.IsEntrenching() ) {
 		m_unitFortify->SetText( g_theStringDB->GetNameStr("str_ldl_F") );
-		m_unitFortify->SetTextColor( g_colorSet->GetColorRef(COLOR_GRAY) );
+		m_unitFortify->SetTextColor( colorset_Get()->GetColorRef(COLOR_GRAY) );
 		m_unitImage->AddSubControl( m_unitFortify );
 	}
 	else {

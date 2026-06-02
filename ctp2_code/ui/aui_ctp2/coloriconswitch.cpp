@@ -9,7 +9,7 @@
 #include "ui/aui_common/aui_ldl.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -223,7 +223,7 @@ AUI_ERRCODE ColorIconSwitch::DrawThis( aui_Surface *surface, sint32 x, sint32 y 
 		primitives_BevelRect16( surface, &rect, BevelWidth(), 1, 16, 16 );
 		RECT temp = rect;
 		InflateRect( &temp, -1, -1 );
-		primitives_FrameRect16( surface, &temp, g_colorSet->GetColor(COLOR_RED) );
+		primitives_FrameRect16( surface, &temp, colorset_Get()->GetColor(COLOR_RED) );
 	}
 	else
 	{

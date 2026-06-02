@@ -40,7 +40,7 @@
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_ctp2/c3textfield.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_ctp2/patternbase.h"
 #include "ui/aui_utils/primitives.h"
@@ -156,7 +156,7 @@ AUI_ERRCODE c3_Button::DrawThis(
 	if (m_bevelWidth > 0) {
 		if ( m_bevelType == 2 ) {
 			if ( IsDown() ) {
-				primitives_FrameThickRect16( surface, &rect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+				primitives_FrameThickRect16( surface, &rect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 			}
 		}
 		else {

@@ -2,7 +2,7 @@
 #include "ui/aui_ctp2/ctp2_textbuffer.h"
 
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 
 
 
@@ -78,7 +78,7 @@ void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 	MBCHAR							*s;
 	MBCHAR							ch;
 	RECT							destRect;
-	COLORREF						colorRef = g_colorSet->GetColorRef(color);
+	COLORREF						colorRef = colorset_Get()->GetColorRef(color);
 	sint32							col;
 	sint32							top;
 

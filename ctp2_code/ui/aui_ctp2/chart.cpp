@@ -13,7 +13,7 @@
 #include "ui/aui_ctp2/c3_hypertipwindow.h"
 #include "ui/aui_common/aui_hypertextbox.h"
 
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/c3windows.h"
 
 #include "ui/aui_ctp2/ctp2_button.h"
@@ -327,7 +327,7 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 		tempRect.bottom = tempRect.top + m_preReqButton[i]->Height();
 		InflateRect( &tempRect, 1, 1 );
 		OffsetRect( &tempRect, rect.left, rect.top );
-		primitives_FrameRect16( surface, &tempRect, g_colorSet->GetColor((COLOR)m_preReqColor[i]) );
+		primitives_FrameRect16( surface, &tempRect, colorset_Get()->GetColor((COLOR)m_preReqColor[i]) );
 	}
 
 	for ( i = 0; i < m_numEitherPreReq; i++ )
@@ -338,7 +338,7 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 		tempRect.bottom = tempRect.top + m_eitherPreReqButton[i]->Height();
 		InflateRect( &tempRect, 1, 1 );
 		OffsetRect( &tempRect, rect.left, rect.top );
-		primitives_FrameRect16( surface, &tempRect, g_colorSet->GetColor((COLOR)m_eitherPreReqColor[i]) );
+		primitives_FrameRect16( surface, &tempRect, colorset_Get()->GetColor((COLOR)m_eitherPreReqColor[i]) );
 	}
 
 	for ( i = 0; i < m_numLeadsTo; i++ )
@@ -349,7 +349,7 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 		tempRect.bottom = tempRect.top + m_leadsToButton[i]->Height();
 		InflateRect( &tempRect, 1, 1 );
 		OffsetRect( &tempRect, rect.left, rect.top );
-		primitives_FrameRect16( surface, &tempRect, g_colorSet->GetColor((COLOR)m_leadsToColor[i]) );
+		primitives_FrameRect16( surface, &tempRect, colorset_Get()->GetColor((COLOR)m_leadsToColor[i]) );
 	}
 
 	tempRect.left = m_centerButton->X();
@@ -358,7 +358,7 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 	tempRect.bottom = tempRect.top + m_centerButton->Height();
 	InflateRect( &tempRect, 1, 1 );
 	OffsetRect( &tempRect, rect.left, rect.top );
-	primitives_FrameRect16( surface, &tempRect, g_colorSet->GetColor((COLOR)m_centerColor) );
+	primitives_FrameRect16( surface, &tempRect, colorset_Get()->GetColor((COLOR)m_centerColor) );
 
 	POINT center, leftCenter, rightCenter;
 	center.x = rect.left + m_centerButton->X();
@@ -375,7 +375,7 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 
 	if ( m_numEitherPreReq )
 	{
-		primitives_DrawLine16( surface, leftCenter.x, leftCenter.y, center.x, center.y, g_colorSet->GetColor(COLOR_BLUE) );
+		primitives_DrawLine16( surface, leftCenter.x, leftCenter.y, center.x, center.y, colorset_Get()->GetColor(COLOR_BLUE) );
 	}
 
 	if ( m_numLeadsTo )
@@ -401,8 +401,8 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 		l.y = rect.top + m_eitherPreReqButton[i]->Y() + m_eitherPreReqButton[i]->Height() / 2;
 		r.x = l.x + 5;
 		r.y = l.y;
-		primitives_DrawLine16( surface, l.x, l.y, r.x, r.y, g_colorSet->GetColor(COLOR_BLUE) );
-		primitives_DrawLine16( surface, r.x, r.y, leftCenter.x, leftCenter.y, g_colorSet->GetColor(COLOR_BLUE) );
+		primitives_DrawLine16( surface, l.x, l.y, r.x, r.y, colorset_Get()->GetColor(COLOR_BLUE) );
+		primitives_DrawLine16( surface, r.x, r.y, leftCenter.x, leftCenter.y, colorset_Get()->GetColor(COLOR_BLUE) );
 	}
 
 	for ( i = 0;i < m_numLeadsTo;i++ )
@@ -417,8 +417,8 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 		// (rather than black) from center to leadto advance.
 		if(advanceutil_AdvanceHasEitherPrereq(GetLeadsToIndex(i), m_centerIndex))
 		{
-			primitives_DrawLine16( surface, l.x, l.y, r.x, r.y, g_colorSet->GetColor(COLOR_BLUE) );
-			primitives_DrawLine16( surface, rightCenter.x, rightCenter.y, l.x, l.y, g_colorSet->GetColor(COLOR_BLUE) );
+			primitives_DrawLine16( surface, l.x, l.y, r.x, r.y, colorset_Get()->GetColor(COLOR_BLUE) );
+			primitives_DrawLine16( surface, rightCenter.x, rightCenter.y, l.x, l.y, colorset_Get()->GetColor(COLOR_BLUE) );
 		}
 		else
 		{

@@ -46,7 +46,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "ui/aui_utils/primitives.h"
@@ -319,7 +319,7 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
 				}
                 else if (m_displayUnits && world_Get()->GetTopRadarUnit(pos, top))
                 {
-					color = g_colorSet->GetPlayerColor(top.GetOwner());
+					color = colorset_Get()->GetPlayerColor(top.GetOwner());
 				}
                 else
                 {
@@ -328,13 +328,13 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
                                           ? cellCarton.m_unseenCell->GetTerrainType()
                                           : theLandCell->GetTerrainType();
 
-					color = g_colorSet->GetColor((COLOR)(COLOR_TERRAIN_0 + terrainType));
+					color = colorset_Get()->GetColor((COLOR)(COLOR_TERRAIN_0 + terrainType));
 
 					if (m_displayLandOwnership)
                     {
 						PLAYER_INDEX	owner = theLandCell->GetOwner();
 						if (owner != -1)
-							color = g_colorSet->GetPlayerColor(owner);
+							color = colorset_Get()->GetPlayerColor(owner);
 					}
 				}
 			}
@@ -362,13 +362,13 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
 
 void ThumbnailMap::RenderTradeRoute(aui_Surface *surf, TradeRoute *route)
 {
-	Pixel16		blackColor = g_colorSet->GetColor(COLOR_BLACK);
+	Pixel16		blackColor = colorset_Get()->GetColor(COLOR_BLACK);
 
 	const DynamicArray<MapPoint> *path = route->GetPath();
 
 	Pixel16		color;
 	if (route == m_selectedRoute)
-		color = g_colorSet->GetColor(COLOR_SELECT_1);
+		color = colorset_Get()->GetColor(COLOR_SELECT_1);
 	else
 		color = (Pixel16)route->GetColor();
 
@@ -449,17 +449,17 @@ void ThumbnailMap::UpdateCities(aui_Surface *surf, sint32 x, sint32 y)
 		rect = info.cityRect;
 		OffsetRect(&rect, x, y);
 
-		primitives_FrameRect16(surf, &rect, g_colorSet->GetColor(COLOR_BLACK));
+		primitives_FrameRect16(surf, &rect, colorset_Get()->GetColor(COLOR_BLACK));
 		InflateRect(&rect, -1, -1);
 		if (info.cityBlink && GetTickCount() > info.cityBlinkTime) {
 			info.cityBlinkTime = GetTickCount() + k_THUMBNAIL_CITY_BLINK_RATE;
 			(*m_cityList)[i] = info;
-			color = g_colorSet->GetColor(info.cityBlinkColor);
+			color = colorset_Get()->GetColor(info.cityBlinkColor);
 		} else {
 			if (info.city == m_selectedCity) {
-				color = g_colorSet->GetColor(COLOR_SELECT_1);
+				color = colorset_Get()->GetColor(COLOR_SELECT_1);
 			} else {
-				color = g_colorSet->GetPlayerColor(info.city.GetOwner());
+				color = colorset_Get()->GetPlayerColor(info.city.GetOwner());
 			}
 		}
 		primitives_PaintRect16(surf, &rect, color);

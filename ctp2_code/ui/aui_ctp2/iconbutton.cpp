@@ -9,7 +9,7 @@
 #include "ui/aui_common/aui_ldl.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "ui/aui_utils/primitives.h"
 
@@ -117,13 +117,13 @@ AUI_ERRCODE IconButton::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	if ( IsActive() )
 	{
-		m_icon->Draw( surface, &offsetRect, g_colorSet->GetColor(COLOR_BUTTON_TEXT_DROP));
-		m_icon->Draw( surface, &rect, g_colorSet->GetColor(COLOR_BUTTON_TEXT_HILITE));
+		m_icon->Draw( surface, &offsetRect, colorset_Get()->GetColor(COLOR_BUTTON_TEXT_DROP));
+		m_icon->Draw( surface, &rect, colorset_Get()->GetColor(COLOR_BUTTON_TEXT_HILITE));
 	}
 	else
 	{
-		m_icon->Draw( surface, &offsetRect, g_colorSet->GetColor(COLOR_BUTTON_TEXT_DROP));
-		m_icon->Draw( surface, &rect, g_colorSet->GetColor(COLOR_BUTTON_TEXT_PLAIN));
+		m_icon->Draw( surface, &offsetRect, colorset_Get()->GetColor(COLOR_BUTTON_TEXT_DROP));
+		m_icon->Draw( surface, &rect, colorset_Get()->GetColor(COLOR_BUTTON_TEXT_PLAIN));
 	}
 
 	if ( surface == m_window->TheSurface() )

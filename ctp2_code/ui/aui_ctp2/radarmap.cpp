@@ -45,7 +45,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/radarmap.h"
 
 #include <algorithm>
@@ -388,12 +388,12 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 		{
 			COLOR color = m_mapOverlay[worldpos.y * m_mapSize->x + worldpos.x];
 			if(color != COLOR_MAX)
-				return(g_colorSet->GetColor(color));
+				return(colorset_Get()->GetColor(color));
 		}
 
 		if(m_displayCities && tiledmap_Get()->HasVisibleCity(worldpos))
 		{
-			return(g_colorSet->GetColor(COLOR_WHITE));
+			return(colorset_Get()->GetColor(COLOR_WHITE));
 		}
 
 		if(m_displayUnits && (world_Get()->GetTopVisibleUnit(worldpos, unit) || world_Get()->GetTopRadarUnit(worldpos, unit)))
@@ -408,9 +408,9 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			else
 			{
 				if(m_displayPolitical && unit.GetOwner() == owner)
-					return g_colorSet->GetDarkPlayerColor(unit.GetOwner());
+					return colorset_Get()->GetDarkPlayerColor(unit.GetOwner());
 				else
-					return g_colorSet->GetPlayerColor(unit.GetOwner());
+					return colorset_Get()->GetPlayerColor(unit.GetOwner());
 			}
 		}
 
@@ -419,32 +419,32 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			if(m_displayRelations)
 				return RadarTileRelationsColor(worldpos, player);
 			else
-				return g_colorSet->GetPlayerColor(tiledmap_Get()->GetVisibleCellOwner(worldpos));
+				return colorset_Get()->GetPlayerColor(tiledmap_Get()->GetVisibleCellOwner(worldpos));
 		}
 
 		if(m_displayTerrain)
 		{
-			return(g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 + tiledmap_Get()->GetVisibleTerrainType(worldpos))));
+			return(colorset_Get()->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 + tiledmap_Get()->GetVisibleTerrainType(worldpos))));
 		}
 		else
 		{
 			if(world_Get()->IsLand(worldpos) || world_Get()->IsMountain(worldpos))
 			{
-				return g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 +
+				return colorset_Get()->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 +
 														   TERRAIN_GRASSLAND));
 			}
 			else
 			{
-				return g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 +
+				return colorset_Get()->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 +
 														   TERRAIN_WATER_DEEP));
 			}
 		}
 	}
 
 	if(world_Get()->GetTopRadarUnit(worldpos, unit))
-		return(g_colorSet->GetPlayerColor(unit.GetOwner()));
+		return(colorset_Get()->GetPlayerColor(unit.GetOwner()));
 
-	return(g_colorSet->GetColor(COLOR_BLACK));
+	return(colorset_Get()->GetColor(COLOR_BLACK));
 }
 
 //---------------------------------------------------------------------------
@@ -459,12 +459,12 @@ Pixel16 RadarMap::RadarTileBorderColor(const MapPoint &position, const Player *p
 {
 	sint32 owner = tiledmap_Get()->GetVisibleCellOwner(position);
 	if(owner < 0)
-		return(g_colorSet->GetColor(COLOR_BLACK));
+		return(colorset_Get()->GetColor(COLOR_BLACK));
 
 	if(m_displayRelations)
 		return RadarTileRelationsColor(position, player);
 	else
-		return(g_colorSet->GetPlayerColor(owner));
+		return(colorset_Get()->GetPlayerColor(owner));
 }
 
 //---------------------------------------------------------------------------
@@ -481,17 +481,17 @@ Pixel16 RadarMap::RadarTileRelationsColor(const MapPoint &position, const Player
 
 	sint32 owner = unitOwner < 0 ? tiledmap_Get()->GetVisibleCellOwner(position) : unitOwner;
 	if(owner < 0)
-		return(g_colorSet->GetColor(COLOR_WHITE));
+		return(colorset_Get()->GetColor(COLOR_WHITE));
 	else if(player->m_owner == owner || player->HasAllianceWith(owner))
-		return(g_colorSet->GetColor(COLOR_BLUE));
+		return(colorset_Get()->GetColor(COLOR_BLUE));
 	else if(player->HasWarWith(owner))
-		return(g_colorSet->GetColor(COLOR_RED));
+		return(colorset_Get()->GetColor(COLOR_RED));
 	else if(player->HasPeaceTreatyWith(owner) || player->HasAnyPactWith(owner))
-		return(g_colorSet->GetColor(COLOR_GREEN));
+		return(colorset_Get()->GetColor(COLOR_GREEN));
 	else if(!player->HasContactWith(owner))
-		return(g_colorSet->GetColor(COLOR_WHITE));
+		return(colorset_Get()->GetColor(COLOR_WHITE));
 	else
-		return(g_colorSet->GetColor(COLOR_YELLOW));
+		return(colorset_Get()->GetColor(COLOR_YELLOW));
 }
 
 //---------------------------------------------------------------------------
@@ -508,17 +508,17 @@ Pixel16 RadarMap::RadarTileRelationsDarkColor(const MapPoint &position, const Pl
 
 	sint32 owner = unitOwner < 0 ? tiledmap_Get()->GetVisibleCellOwner(position) : unitOwner;
 	if(owner < 0)
-		return(g_colorSet->GetDarkColor(COLOR_WHITE));
+		return(colorset_Get()->GetDarkColor(COLOR_WHITE));
 	else if(player->m_owner == owner || player->HasAllianceWith(owner))
-		return(g_colorSet->GetDarkColor(COLOR_BLUE));
+		return(colorset_Get()->GetDarkColor(COLOR_BLUE));
 	else if(player->HasWarWith(owner))
-		return(g_colorSet->GetDarkColor(COLOR_RED));
+		return(colorset_Get()->GetDarkColor(COLOR_RED));
 	else if(player->HasPeaceTreatyWith(owner) || player->HasAnyPactWith(owner))
-		return(g_colorSet->GetDarkColor(COLOR_GREEN));
+		return(colorset_Get()->GetDarkColor(COLOR_GREEN));
 	else if(!player->HasContactWith(owner))
-		return(g_colorSet->GetDarkColor(COLOR_WHITE));
+		return(colorset_Get()->GetDarkColor(COLOR_WHITE));
 	else
-		return(g_colorSet->GetDarkColor(COLOR_YELLOW));
+		return(colorset_Get()->GetDarkColor(COLOR_YELLOW));
 }
 
 //---------------------------------------------------------------------------
@@ -599,7 +599,7 @@ void RadarMap::RenderTradeRoute(aui_Surface *surface,
 		tileRectangle.top + (tileHeight / 2) + 1
 	};
 
-	primitives_PaintRect16(surface, &tradeRect, g_colorSet->GetColor(COLOR_YELLOW));
+	primitives_PaintRect16(surface, &tradeRect, colorset_Get()->GetColor(COLOR_YELLOW));
 }
 
 //---------------------------------------------------------------------------
@@ -650,8 +650,8 @@ void RadarMap::RenderCapitol(aui_Surface *surface, const MapPoint &position, con
 		static_cast<sint32>(ceil(yPosition + 2*m_tilePixelHeight))
 	};
 
-	primitives_PaintRect16(surface, &vertical, g_colorSet->GetColor(COLOR_ORANGE));
-	primitives_PaintRect16(surface, &horizontal, g_colorSet->GetColor(COLOR_ORANGE));
+	primitives_PaintRect16(surface, &vertical, colorset_Get()->GetColor(COLOR_ORANGE));
+	primitives_PaintRect16(surface, &horizontal, colorset_Get()->GetColor(COLOR_ORANGE));
 
 }
 
@@ -961,7 +961,7 @@ void RadarMap::RenderMap(aui_Surface *surface)
 	if(!player) {
 
 		RECT destRect = { 0, 0, surface->Width(), surface->Height() };
-		primitives_PaintRect16(surface, &destRect, g_colorSet->GetColor(COLOR_BLACK));
+		primitives_PaintRect16(surface, &destRect, colorset_Get()->GetColor(COLOR_BLACK));
 		return;
 	}
 

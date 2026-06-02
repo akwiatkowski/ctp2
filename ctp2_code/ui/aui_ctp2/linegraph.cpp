@@ -47,7 +47,7 @@
 #include "ui/aui_ctp2/c3blitter.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/utility/gstypes.h"                // PLAYER_INDEX_VANDALS
 #include "gs/gameobj/Player.h"                 // k_MAX_PLAYERS
 #include "ui/aui_utils/primitives.h"
@@ -318,20 +318,20 @@ void LineGraph::LabelAxes(void)
 		else snprintf(s, sizeof(s), "%d", (sint32)m_xmin);
 
 		primitives_DrawText(m_surface, m_graphRect.left, m_graphRect.bottom + (m_events?20:0),
-								s, g_colorSet->GetColorRef(COLOR_WHITE), TRUE);
+								s, colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 
 		if (m_enablePrecision) snprintf(s, sizeof(s), "%#.3f", m_xmax);
 		else snprintf(s, sizeof(s), "%d", (sint32)m_xmax);
 
         primitives_DrawText(m_surface, std::max(0L, m_graphRect.right-35L), m_graphRect.bottom + (m_events?20:0),
-								s, g_colorSet->GetColorRef(COLOR_WHITE), TRUE);
+								s, colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 	}
 
 	if (m_enableXLabel)
 	{
 		sint32 len = textutils_GetWidth(m_surface, m_xAxisName);
 		sint32 xpos = m_graphRect.left + (m_graphRect.right - m_graphRect.left) / 2 - len / 2;
-		primitives_DrawText(m_surface, xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName,	g_colorSet->GetColorRef(COLOR_WHITE), TRUE);
+		primitives_DrawText(m_surface, xpos, m_graphRect.bottom + 2 + (m_events?20:0), m_xAxisName,	colorset_Get()->GetColorRef(COLOR_WHITE), TRUE);
 	}
 
 	if (m_enableYNumber)
@@ -343,7 +343,7 @@ void LineGraph::LabelAxes(void)
                             std::max(0L, m_graphRect.left-45L),
                             std::max(0L, m_graphRect.bottom-15L),
 							s,
-                            g_colorSet->GetColorRef(COLOR_WHITE),
+                            colorset_Get()->GetColorRef(COLOR_WHITE),
                             TRUE
                            );
 
@@ -354,7 +354,7 @@ void LineGraph::LabelAxes(void)
                             std::max(0L, m_graphRect.left-45L),
                             m_graphRect.top,
 							s,
-                            g_colorSet->GetColorRef(COLOR_WHITE),
+                            colorset_Get()->GetColorRef(COLOR_WHITE),
                             TRUE
                            );
 	}
@@ -370,11 +370,11 @@ void LineGraph::DrawIndicator(void)
 
 	primitives_DrawLine16(m_surface, xpos, m_graphRect.top + 1,
 							xpos, m_graphRect.bottom - 1,
-							g_colorSet->GetColor(COLOR_YELLOW));
+							colorset_Get()->GetColor(COLOR_YELLOW));
 
 	snprintf(s, sizeof(s), "%#.3f", m_indicatorValue);
 	sint32 len = textutils_GetWidth(m_surface, s);
-	primitives_DrawText(m_surface, xpos - (len/2), m_graphRect.top+15, s, g_colorSet->GetColorRef(COLOR_YELLOW), TRUE);
+	primitives_DrawText(m_surface, xpos - (len/2), m_graphRect.top+15, s, colorset_Get()->GetColorRef(COLOR_YELLOW), TRUE);
 }
 
 void LineGraph::DrawLines(int eventsOfset)
@@ -404,12 +404,12 @@ void LineGraph::DrawLines(int eventsOfset)
 
                 if (first)
                 {
-					primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos, g_colorSet->GetColor((COLOR) l_Color));
+					primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
 					first = false;
 				}
                 else
                 {
-					primitives_DrawLine16(m_surface, oldxpos, oldypos, xpos, ypos, g_colorSet->GetColor((COLOR) l_Color));
+					primitives_DrawLine16(m_surface, oldxpos, oldypos, xpos, ypos, colorset_Get()->GetColor((COLOR) l_Color));
 				}
 
                 oldxpos = xpos;
@@ -441,7 +441,7 @@ void LineGraph::DrawLines(int eventsOfset)
 				ypos = (sint32)(m_graphRect.top + top * height);
 				ypos2 = (sint32)(m_graphRect.top + bottom * height);
 
-				primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos2, g_colorSet->GetColor((COLOR)m_data[i].color));
+				primitives_DrawLine16(m_surface, xpos, ypos, xpos, ypos2, colorset_Get()->GetColor((COLOR)m_data[i].color));
 			}
 
 			color++;
@@ -461,11 +461,11 @@ void LineGraph::DrawLines(int eventsOfset)
 				ypos=((sint32)((m_data[curData->m_playerNum-1].bottomArray[curData->m_turn-1] +
 					m_data[curData->m_playerNum-1].topArray[curData->m_turn-1])/2.0)*height)+
 					m_graphRect.top;
-				primitives_DrawLine16(m_surface, xpos-1, ypos-1, xpos+1, ypos+1, g_colorSet->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
-				primitives_DrawLine16(m_surface, xpos+1, ypos-1, xpos-1, ypos+1, g_colorSet->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
+				primitives_DrawLine16(m_surface, xpos-1, ypos-1, xpos+1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
+				primitives_DrawLine16(m_surface, xpos+1, ypos-1, xpos-1, ypos+1, colorset_Get()->GetColor((COLOR)(m_data[curData->m_playerNum].color+1)));
 				if((currentEventNum-eventsOfset)>=0 && (currentEventNum-eventsOfset)<=17)
 				{
-					primitives_DrawLine16(m_surface, xpos, ypos, m_graphRect.left+18+(currentEventNum-eventsOfset)*20, m_graphRect.bottom, g_colorSet->GetColor(COLOR_GRAY));
+					primitives_DrawLine16(m_surface, xpos, ypos, m_graphRect.left+18+(currentEventNum-eventsOfset)*20, m_graphRect.bottom, colorset_Get()->GetColor(COLOR_GRAY));
 				}
 				currentEventNum++;
 			}
@@ -479,9 +479,9 @@ void LineGraph::DrawLines(int eventsOfset)
 
 void LineGraph::RenderGraph(int eventsOfset)
 {
-	primitives_PaintRect16(m_surface, &m_surfaceRect, g_colorSet->GetColor(COLOR_BLACK));
-	primitives_FrameRect16(m_surface, &m_surfaceRect, g_colorSet->GetColor(COLOR_WHITE));
-	primitives_FrameRect16(m_surface, &m_graphRect, g_colorSet->GetColor(COLOR_WHITE));
+	primitives_PaintRect16(m_surface, &m_surfaceRect, colorset_Get()->GetColor(COLOR_BLACK));
+	primitives_FrameRect16(m_surface, &m_surfaceRect, colorset_Get()->GetColor(COLOR_WHITE));
+	primitives_FrameRect16(m_surface, &m_graphRect, colorset_Get()->GetColor(COLOR_WHITE));
 
 	DrawThisStateImage(
 		0,
@@ -620,7 +620,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	{
 		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
-			color[infoYCount++] = g_colorSet->ComputePlayerColor(i);
+			color[infoYCount++] = colorset_Get()->ComputePlayerColor(i);
 		}
 	}
 
@@ -631,7 +631,7 @@ void LineGraph::GenrateGraph(sint32     &infoXCount,
 	    walk.Next()
 	)
 	{
-		color[infoYCount++] = g_colorSet->ComputePlayerColor(walk.GetObj()->GetOwner());
+		color[infoYCount++] = colorset_Get()->ComputePlayerColor(walk.GetObj()->GetOwner());
 	}
 
 	infoXCount = static_cast<sint32>(curRound) - static_cast<sint32>(minRound);

@@ -57,7 +57,7 @@
 
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
@@ -406,7 +406,7 @@ AUI_ERRCODE c3_ListBox::Draw(aui_Surface *surf, sint32 x, sint32 y)
 				selectRect.top = rect.top + headerHeight + 2 + ( itemIndex - minVertical ) * m_maxItemHeight;
 				selectRect.bottom = selectRect.top + m_maxItemHeight - 4;
 
-				primitives_FrameRect16( surf, &selectRect, g_colorSet->GetColor(COLOR_SELECT_0));
+				primitives_FrameRect16( surf, &selectRect, colorset_Get()->GetColor(COLOR_SELECT_0));
 				primitives_BevelRect16( surf, &selectRect, 1, 1, 10, 10 );
 			}
 		}
@@ -452,7 +452,7 @@ AUI_ERRCODE c3_ListBox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 			&bevelRect );
 
 		if ( m_bevelType == 2 ) {
-			primitives_FrameThickRect16( surface, &bevelRect, g_colorSet->GetColor( COLOR_UI_BOX ), m_bevelWidth );
+			primitives_FrameThickRect16( surface, &bevelRect, colorset_Get()->GetColor( COLOR_UI_BOX ), m_bevelWidth );
 		}
 		else {
 			primitives_BevelRect16( surface, &bevelRect, m_bevelWidth, m_bevelType, 16, 16 );

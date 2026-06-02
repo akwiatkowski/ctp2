@@ -103,7 +103,7 @@ AUI_ERRCODE aui_DirectSound::CreateDSBuffer()
 	LPDIRECTSOUND	dsHandle;
 
 	aui_DirectAudioManager *audioManager =
-		(aui_DirectAudioManager *)(void *)g_ui->TheAudioManager();
+		(aui_DirectAudioManager *)(void *)aui_ui_Get()->TheAudioManager();
 
   memset(&pcmwf, 0, sizeof(PCMWAVEFORMAT));
   pcmwf.wf.wFormatTag = WAVE_FORMAT_PCM;

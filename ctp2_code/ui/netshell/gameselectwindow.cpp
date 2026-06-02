@@ -388,7 +388,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 
 	TellEricAboutThisBug( loadsavewindow_Get() );
 
-	if ( loadsavewindow_Get() && g_ui->GetChild( loadsavewindow_Get()->Id() ) )
+	if ( loadsavewindow_Get() && aui_ui_Get()->GetChild( loadsavewindow_Get()->Id() ) )
 	{
 
 		SaveInfo *saveInfo = loadsavewindow_Get()->GetSaveInfo();

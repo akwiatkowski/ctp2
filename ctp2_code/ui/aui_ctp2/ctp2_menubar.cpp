@@ -48,7 +48,6 @@
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
 
-extern aui_UI *g_ui;
 
 void DefaultCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex, void *cookie)
 {
@@ -95,7 +94,7 @@ static void ButtonCallback	(aui_Control *control, uint32 action, uint32 data, vo
 
 	}
 
-	g_ui->AddAction(new OpenMenuAction(menu));
+	aui_ui_Get()->AddAction(new OpenMenuAction(menu));
 }
 
 

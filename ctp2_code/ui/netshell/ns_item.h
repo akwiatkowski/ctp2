@@ -267,7 +267,7 @@ ns_Item<T,NetShellT>::~ns_Item()
 
 	if ( m_icon )
 	{
-		g_ui->UnloadImage( m_icon );
+		aui_ui_Get()->UnloadImage( m_icon );
 		m_icon = NULL;
 	}
 }
@@ -280,7 +280,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::SetIcon( MBCHAR *icon )
 
 	if ( icon )
 	{
-		m_icon = g_ui->LoadImage( icon );
+		m_icon = aui_ui_Get()->LoadImage( icon );
 		Assert( m_icon != NULL );
 		if ( !m_icon )
 		{
@@ -291,7 +291,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::SetIcon( MBCHAR *icon )
 	else
 		m_icon = NULL;
 
-	if ( prevImage ) g_ui->UnloadImage( prevImage );
+	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 
 	return AUI_ERRCODE_OK;
 }
@@ -352,7 +352,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::DrawThis(
 
 		if ( destRect.left < destRect.right
 		&&   destRect.top < destRect.bottom )
-			g_ui->TheBlitter()->Blt(
+			aui_ui_Get()->TheBlitter()->Blt(
 				surface,
 				destRect.left,
 				destRect.top,

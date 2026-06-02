@@ -75,7 +75,7 @@ AUI_ERRCODE aui_DirectMouse::CreateDirectMouse( void )
 	if ( m_exclusiveMode )
 		coopFlags = DISCL_EXCLUSIVE | DISCL_FOREGROUND;
 
-	hr = m_lpdid->SetCooperativeLevel( g_ui->TheHWND(), coopFlags );
+	hr = m_lpdid->SetCooperativeLevel( aui_ui_Get()->TheHWND(), coopFlags );
 	if ( hr != DI_OK ) return AUI_ERRCODE_SETCOOPLEVELFAILED;
 
 	hr = m_lpdid->SetEventNotification( m_inputEvent );
@@ -148,8 +148,8 @@ AUI_ERRCODE aui_DirectMouse::GetInput( void )
 
 		case DIMOFS_X:
 			m_data.position.x += sint32(m_sensitivity * sint32(ptrOd->dwData));
-			if ( m_data.position.x >= g_ui->SecondaryWidth() )
-				m_data.position.x = g_ui->SecondaryWidth() - 1;
+			if ( m_data.position.x >= aui_ui_Get()->SecondaryWidth() )
+				m_data.position.x = aui_ui_Get()->SecondaryWidth() - 1;
 			else if ( m_data.position.x < 0 )
 				m_data.position.x = 0;
 			m_data.flags = m_flags;
@@ -158,8 +158,8 @@ AUI_ERRCODE aui_DirectMouse::GetInput( void )
 
 		case DIMOFS_Y:
 			m_data.position.y += sint32(m_sensitivity * sint32(ptrOd->dwData));
-			if ( m_data.position.y >= g_ui->SecondaryHeight() )
-				m_data.position.y = g_ui->SecondaryHeight() - 1;
+			if ( m_data.position.y >= aui_ui_Get()->SecondaryHeight() )
+				m_data.position.y = aui_ui_Get()->SecondaryHeight() - 1;
 			else if ( m_data.position.y < 0 )
 				m_data.position.y = 0;
 			m_data.flags = m_flags;

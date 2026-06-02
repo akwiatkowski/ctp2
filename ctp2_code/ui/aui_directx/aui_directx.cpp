@@ -44,8 +44,8 @@ AUI_ERRCODE aui_DirectX::InitCommon( BOOL useExclusiveMode )
 {
 	m_exclusiveMode = useExclusiveMode;
 
-	Assert( g_ui->DXVer() != 0 );
-	if ( !g_ui->DXVer() ) return AUI_ERRCODE_HACK;
+	Assert( aui_ui_Get()->DXVer() != 0 );
+	if ( !aui_ui_Get()->DXVer() ) return AUI_ERRCODE_HACK;
 
 	if ( !m_lpdd )
 	{
@@ -63,8 +63,8 @@ AUI_ERRCODE aui_DirectX::InitCommon( BOOL useExclusiveMode )
 	if ( !m_lpdi )
 	{
 		HRESULT hr = DirectInput8Create(
-			g_ui->TheHINSTANCE(),
-			g_ui->DXVer() < 0x500 ? 0x0300 : DIRECTINPUT_VERSION,
+			aui_ui_Get()->TheHINSTANCE(),
+			aui_ui_Get()->DXVer() < 0x500 ? 0x0300 : DIRECTINPUT_VERSION,
       IID_IDirectInput8,
       (void**)&m_lpdi,
 			NULL );

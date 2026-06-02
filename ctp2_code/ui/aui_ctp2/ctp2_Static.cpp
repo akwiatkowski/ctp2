@@ -3,7 +3,7 @@
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
-#include "ui/aui_common/aui_ui.h"             // g_ui
+#include "ui/aui_common/aui_ui.h"             // aui_ui_Get()
 #include "ui/aui_common/aui_window.h"
 #include "ui/aui_common/aui_gamespecific.h"
 

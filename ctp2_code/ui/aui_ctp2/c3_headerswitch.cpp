@@ -15,7 +15,6 @@
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
 
-extern aui_UI *g_ui;
 
 
 c3_HeaderSwitch::c3_HeaderSwitch(

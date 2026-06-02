@@ -14,7 +14,6 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern aui_UI		*g_ui;
 
 c3_Static::c3_Static
 (

@@ -195,7 +195,7 @@ BOOL CALLBACK enumMyJoystickCallback( LPDIDEVICEINSTANCE lpDeviceInst, LPVOID da
 		return( DIENUM_CONTINUE );
 	}
 
-	if( DI_OK != lpTempJoystick->SetCooperativeLevel( g_ui->TheHWND(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE ) )
+	if( DI_OK != lpTempJoystick->SetCooperativeLevel( aui_ui_Get()->TheHWND(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE ) )
 	{
 		lpTempJoystick->Release();
 		return( DIENUM_CONTINUE );

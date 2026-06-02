@@ -49,7 +49,6 @@
 
 #include "ui/ldl/ldl_file.hpp"
 
-extern aui_UI		*g_ui;
 
 
 c3_Ranger::c3_Ranger(

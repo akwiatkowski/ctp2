@@ -2159,7 +2159,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 													 0 );
 					} else {
 #ifdef WIN32
-						PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+						PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 				    }
 				}
@@ -2198,8 +2198,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&netfunc_Get()->gameSetup;
 		AllinoneWindow_SetupGameForLaunch();
 
-		for ( sint32 child = g_ui->ChildList()->L(); child; child-- )
-			g_ui->RemoveChild( g_ui->ChildList()->GetHead()->Id() );
+		for ( sint32 child = aui_ui_Get()->ChildList()->L(); child; child-- )
+			aui_ui_Get()->RemoveChild( aui_ui_Get()->ChildList()->GetHead()->Id() );
 		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 
@@ -2522,7 +2522,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 			w->Update();
 		} else {
 #ifdef WIN32
-			PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+			PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 		}
 
@@ -2546,7 +2546,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 				0 );
 		} else {
 #ifdef WIN32
-			PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+			PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 	}
 	}
@@ -2699,8 +2699,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&netfunc_Get()->gameSetup;
 		AllinoneWindow_SetupGameForLaunch();
 
-		for ( sint32 child = g_ui->ChildList()->L(); child; child-- )
-			g_ui->RemoveChild( g_ui->ChildList()->GetHead()->Id() );
+		for ( sint32 child = aui_ui_Get()->ChildList()->L(); child; child-- )
+			aui_ui_Get()->RemoveChild( aui_ui_Get()->ChildList()->GetHead()->Id() );
 		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 	}
@@ -3971,7 +3971,7 @@ void AllinoneWindow::RulesButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_ui->AddWindow( g_rulesWindow );
+	aui_ui_Get()->AddWindow( g_rulesWindow );
 }
 
 
@@ -3982,7 +3982,7 @@ void AllinoneWindow::ExclusionsButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_ui->AddWindow( g_exclusionsWindow );
+	aui_ui_Get()->AddWindow( g_exclusionsWindow );
 }
 
 
@@ -4021,7 +4021,7 @@ void AllinoneWindow::RulesOKButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_ui->RemoveWindow( g_rulesWindow->Id() );
+	aui_ui_Get()->RemoveWindow( g_rulesWindow->Id() );
 }
 
 
@@ -4032,7 +4032,7 @@ void AllinoneWindow::ExclusionsOKButtonAction::Execute(
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_ui->RemoveWindow( g_exclusionsWindow->Id() );
+	aui_ui_Get()->RemoveWindow( g_exclusionsWindow->Id() );
 }
 
 
@@ -4088,7 +4088,7 @@ void AllinoneWindow::CancelButtonAction::Execute(
 		w->Update();
 	} else {
 #ifdef WIN32
-		PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+		PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 }
 }

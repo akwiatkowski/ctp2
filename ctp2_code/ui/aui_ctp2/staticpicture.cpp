@@ -15,7 +15,6 @@
 #include "ui/ldl/ldl_data.hpp"
 
 extern CivPaths		*civpaths_Get();
-extern aui_UI		*g_ui;
 
 StaticPicture::StaticPicture(
 	AUI_ERRCODE *retval,

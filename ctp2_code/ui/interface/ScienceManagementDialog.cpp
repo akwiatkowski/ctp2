@@ -448,7 +448,7 @@ AUI_ERRCODE ScienceManagementDialog::DrawScienceBar(ctp2_Static *control,
 
 	RECT destRect = rect;
 
-	g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	destRect.top += 1;
 	destRect.bottom -= 1;
@@ -467,7 +467,7 @@ AUI_ERRCODE ScienceManagementDialog::DrawScienceBar(ctp2_Static *control,
 		destRect.right = destRect.left + sint32(double(width) * percentComplete);
 	}
 
-	return g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(255,0,0), 0);
+	return aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(255,0,0), 0);
 }
 
 AUI_ERRCODE ScienceManagementDialog::ColorBoxActionCallback(ctp2_Static *control,

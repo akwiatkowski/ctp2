@@ -12,7 +12,6 @@
 
 #include "ui/aui_utils/primitives.h"
 
-extern aui_UI		*g_ui;
 
 c3_ColoredStatic::c3_ColoredStatic(
 	AUI_ERRCODE *retval,

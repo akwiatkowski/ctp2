@@ -75,7 +75,7 @@ aui_SDLUI::aui_SDLUI
 	if ( !AUI_SUCCESS(*retval) ) return;
 
 	Assert( aui_Base::GetBaseRefCount() == 2 );
-	g_ui = aui_Base::GetBaseRefCount() == 2 ? this : NULL;
+	aui_ui_Set(aui_Base::GetBaseRefCount() == 2 ? this : NULL);
 
 	*retval = aui_UI::InitCommon( hinst, hwnd, bpp, ldlFilename );
 	Assert( AUI_SUCCESS(*retval) );

@@ -38,7 +38,6 @@
 
 #include "ui/aui_ctp2/c3_header.h"
 
-extern aui_UI *g_ui;
 
 
 c3_Header::c3_Header(

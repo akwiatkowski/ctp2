@@ -1995,7 +1995,7 @@ AUI_ERRCODE DiplomacyWindow::DrawCivColor(ctp2_Static *control, aui_Surface *sur
 	rect.right -= 2;
 	rect.bottom -= 2;
 
-	return g_ui->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
+	return aui_ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 void DiplomacyWindow::Tone(aui_Control *control, uint32 action, uint32 data, void *cookie)

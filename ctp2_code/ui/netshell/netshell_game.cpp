@@ -28,7 +28,7 @@ void EnterMainMenu( void )
 void LeaveMainMenu( void )
 {
 
-	g_ui->AddAction( new DestroyInitialPlayScreenAction );
+	aui_ui_Get()->AddAction( new DestroyInitialPlayScreenAction );
 }
 
 

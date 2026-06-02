@@ -355,7 +355,7 @@ void DialogBoxWindow::PopDown( DialogBoxWindow *dbw, aui_Button *button )
 			AUI_BUTTON_ACTION_EXECUTE,
 			0 );
 
-	g_ui->AddAction( new SafeDeleteAction( dbw ) );
+	aui_ui_Get()->AddAction( new SafeDeleteAction( dbw ) );
 }
 
 void DialogBoxWindow::SafeDeleteAction::Execute(

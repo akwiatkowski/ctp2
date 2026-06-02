@@ -102,7 +102,7 @@ ns_HeaderSwitch::~ns_HeaderSwitch()
 {
 	if ( m_icon )
 	{
-		g_ui->UnloadImage( m_icon );
+		aui_ui_Get()->UnloadImage( m_icon );
 		m_icon = NULL;
 	}
 }
@@ -115,11 +115,11 @@ AUI_ERRCODE ns_HeaderSwitch::SetIcon( MBCHAR *icon )
 
 	aui_Image *prevImage = m_icon;
 
-	m_icon = g_ui->LoadImage( icon );
+	m_icon = aui_ui_Get()->LoadImage( icon );
 	Assert( m_icon != NULL );
 	if ( !m_icon ) return AUI_ERRCODE_LOADFAILED;
 
-	if ( prevImage ) g_ui->UnloadImage( prevImage );
+	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 
 	return AUI_ERRCODE_OK;
 }
@@ -160,7 +160,7 @@ AUI_ERRCODE ns_HeaderSwitch::DrawThis(
 			m_icon->TheSurface()->Height()
 		};
 
-		g_ui->TheBlitter()->Blt(
+		aui_ui_Get()->TheBlitter()->Blt(
 			surface,
 			( rect.right + rect.left - srcRect.right ) / 2,
 			( rect.bottom + rect.top - srcRect.bottom ) / 2,

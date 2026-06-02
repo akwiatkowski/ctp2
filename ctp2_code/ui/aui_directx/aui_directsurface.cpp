@@ -291,7 +291,7 @@ AUI_ERRCODE aui_DirectSurface::Lock( RECT *rect, LPVOID *buffer, DWORD flags )
 	memset( &ddsd, 0, sizeof( ddsd ) );
 	ddsd.dwSize = sizeof( ddsd );
 
-	if ( g_ui->DXVer() >= 0x500 && !m_isPrimary ) flags |= DDLOCK_NOSYSLOCK;
+	if ( aui_ui_Get()->DXVer() >= 0x500 && !m_isPrimary ) flags |= DDLOCK_NOSYSLOCK;
 
 	HRESULT hr;
 

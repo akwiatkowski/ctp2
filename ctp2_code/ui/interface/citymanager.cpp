@@ -78,7 +78,7 @@ CityManagerWindow::~CityManagerWindow()
 	}
 
 	if(m_bg) {
-		g_ui->UnloadImage(m_bg);
+		aui_ui_Get()->UnloadImage(m_bg);
 		m_bg = NULL;
 	}
 }
@@ -121,7 +121,7 @@ AUI_ERRCODE CityManagerWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AddControl(m_cancel);
 
 
-	m_bg = g_ui->LoadImage("CM.tga");
+	m_bg = aui_ui_Get()->LoadImage("CM.tga");
 
 	Assert(m_bg);
 	if(m_bg) {
@@ -146,7 +146,7 @@ AUI_ERRCODE CityManagerWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y
 		RECT srcRect = {0, 0, srcSurf->Width(), srcSurf->Height()};
 
 		err =
-			g_ui->TheBlitter()->Blt(surface,
+			aui_ui_Get()->TheBlitter()->Blt(surface,
 									0, 0,
 									srcSurf,
 									&srcRect,

@@ -98,7 +98,7 @@ ns_Window::~ns_Window()
 {
 	if ( m_tile )
 	{
-		g_ui->UnloadImage( m_tile );
+		aui_ui_Get()->UnloadImage( m_tile );
 		m_tile = NULL;
 	}
 
@@ -140,7 +140,7 @@ aui_Image *ns_Window::SetTile( MBCHAR *tile )
 
 	if ( tile )
 	{
-		m_tile = g_ui->LoadImage( tile );
+		m_tile = aui_ui_Get()->LoadImage( tile );
 		Assert( m_tile != NULL );
 		if ( !m_tile )
 		{
@@ -152,7 +152,7 @@ aui_Image *ns_Window::SetTile( MBCHAR *tile )
 		m_tile = NULL;
 
 	if ( prevTile )
-		g_ui->UnloadImage( prevTile );
+		aui_ui_Get()->UnloadImage( prevTile );
 
 	return prevTile;
 }

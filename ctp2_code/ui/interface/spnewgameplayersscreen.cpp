@@ -188,11 +188,11 @@ sint32 spnewgameplayersscreen_removeMyWindow(uint32 action)
 //              s_max_player_spinner
 //              s_player_spinner
 //              s_maxPlayers
-//              g_ui
+//              aui_ui_Get()
 //
 // Returns    : AUI_ERRCODE
 //
-// Remark(s)  : Assumption: g_ui and g_ui->TheLdl() are non-NULL.
+// Remark(s)  : Assumption: aui_ui_Get() and aui_ui_Get()->TheLdl() are non-NULL.
 //
 //----------------------------------------------------------------------------
 AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallback *callback )

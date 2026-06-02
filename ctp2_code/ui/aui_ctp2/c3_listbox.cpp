@@ -62,7 +62,6 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern aui_UI		*g_ui;
 
 
 c3_ListBox::c3_ListBox(

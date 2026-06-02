@@ -217,7 +217,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 
 	char *image = block->GetString( "selectimage" );
 	if(image)
-		m_itemsSelectImage = g_ui->LoadImage( image );
+		m_itemsSelectImage = aui_ui_Get()->LoadImage( image );
 
 	return AUI_ERRCODE_OK;
 }
@@ -260,7 +260,7 @@ ns_ListBox<T,NetShellT>::~ns_ListBox()
 
 	if ( m_itemsSelectImage )
 	{
-		g_ui->UnloadImage(m_itemsSelectImage);
+		aui_ui_Get()->UnloadImage(m_itemsSelectImage);
 		m_itemsSelectImage = NULL;
 	}
 }

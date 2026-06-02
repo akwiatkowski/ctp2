@@ -801,7 +801,7 @@ AUI_ERRCODE UnitManager::DrawHealthBar(ctp2_Static *control, aui_Surface *surfac
 		rect.bottom - 2
 	};
 
-	AUI_ERRCODE err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	AUI_ERRCODE err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	if(err != AUI_ERRCODE_OK)
 		return err;
@@ -846,7 +846,7 @@ AUI_ERRCODE UnitManager::DrawHealthBar(ctp2_Static *control, aui_Surface *surfac
 		color = RGB(255,0,0);
 	}
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &barRect, color, 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &barRect, color, 0);
 
 	return err;
 }

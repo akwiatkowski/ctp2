@@ -83,7 +83,7 @@ aui_DirectInput::~aui_DirectInput()
 
 AUI_ERRCODE aui_DirectInput::Acquire( void )
 {
-    if (!g_ui)  return AUI_ERRCODE_ACQUIREFAILED;
+    if (!aui_ui_Get())  return AUI_ERRCODE_ACQUIREFAILED;
 
 #if defined(_DEBUG)
 	uint32 const coopFlags = DISCL_NONEXCLUSIVE | DISCL_BACKGROUND;
@@ -91,7 +91,7 @@ AUI_ERRCODE aui_DirectInput::Acquire( void )
 	uint32 const coopFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
 #endif
 
-	HRESULT hr  = m_lpdid->SetCooperativeLevel(g_ui->TheHWND(), coopFlags);
+	HRESULT hr  = m_lpdid->SetCooperativeLevel(aui_ui_Get()->TheHWND(), coopFlags);
 	if ( hr != DI_OK ) return AUI_ERRCODE_SETCOOPLEVELFAILED;
 
 	hr = m_lpdid->Acquire();
@@ -121,7 +121,7 @@ AUI_ERRCODE aui_DirectInput::Unacquire( void )
 		if ( m_exclusiveMode )
 			coopFlags = DISCL_EXCLUSIVE | DISCL_FOREGROUND;
 
-		hr = m_lpdid->SetCooperativeLevel( g_ui->TheHWND(), coopFlags );
+		hr = m_lpdid->SetCooperativeLevel( aui_ui_Get()->TheHWND(), coopFlags );
 		if ( hr != DI_OK ) return AUI_ERRCODE_SETCOOPLEVELFAILED;
 
 	return AUI_ERRCODE_OK;

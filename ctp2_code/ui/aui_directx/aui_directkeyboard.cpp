@@ -69,7 +69,7 @@ AUI_ERRCODE aui_DirectKeyboard::CreateDirectKeyboard( void )
 
 	uint32 coopFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND;
 
-	hr = m_lpdid->SetCooperativeLevel( g_ui->TheHWND(), coopFlags );
+	hr = m_lpdid->SetCooperativeLevel( aui_ui_Get()->TheHWND(), coopFlags );
 	if ( hr != DI_OK ) return AUI_ERRCODE_SETCOOPLEVELFAILED;
 
 	hr = m_lpdid->SetEventNotification( m_inputEvent );

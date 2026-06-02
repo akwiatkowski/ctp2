@@ -121,9 +121,9 @@ public:
 		uint32			data
 	)
     {
-        if (g_ui && m_window)
+        if (aui_ui_Get() && m_window)
         {
-	        g_ui->RemoveWindow(m_window->Id());
+	        aui_ui_Get()->RemoveWindow(m_window->Id());
         }
     }
 
@@ -138,7 +138,7 @@ void ctp2_Window::MouseLGrabOutside( aui_MouseEvent *mouseData )
 	{
 
 
-		g_ui->AddAction(new WeaklyModalCloseAction(this));
+		aui_ui_Get()->AddAction(new WeaklyModalCloseAction(this));
 
 		bool passEventOn = false;
 		if(m_weaklyModalCancelCallback) {
@@ -153,7 +153,7 @@ void ctp2_Window::MouseLGrabOutside( aui_MouseEvent *mouseData )
 
 void    ctp2_Window::ResetCurrentMouseState()
 {
-	m_mouseState = *g_ui->TheMouse()->GetLatestMouseEvent();
+	m_mouseState = *aui_ui_Get()->TheMouse()->GetLatestMouseEvent();
 }
 
 

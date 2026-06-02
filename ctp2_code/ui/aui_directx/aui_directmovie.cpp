@@ -122,7 +122,7 @@ AUI_ERRCODE aui_DirectMovie::Open(
 		}
 
 		hr = temp->AddMediaStream(
-			((aui_DirectUI *)g_ui)->DD(),
+			((aui_DirectUI *)aui_ui_Get())->DD(),
 			&MSPID_PrimaryVideo,
 			0,
 			NULL );
@@ -507,12 +507,12 @@ AUI_ERRCODE aui_DirectMovie::Process( void )
 
 		if (m_flags & k_AUI_MOVIE_PLAYFLAG_ONSCREEN)
 		{
-			if (!g_ui) return AUI_ERRCODE_UNHANDLED;
+			if (!aui_ui_Get()) return AUI_ERRCODE_UNHANDLED;
 
 			LPDIRECTDRAWSURFACE lpdds =
-					((aui_DirectSurface *)g_ui->Secondary())->BUFFER();
+					((aui_DirectSurface *)aui_ui_Get()->Secondary())->BUFFER();
 
-			RECT surfRect = {0, 0, g_ui->SecondaryWidth(), g_ui->SecondaryHeight() };
+			RECT surfRect = {0, 0, aui_ui_Get()->SecondaryWidth(), aui_ui_Get()->SecondaryHeight() };
 			RECT destRect = {0, 0, m_streamRect.right * 2, m_streamRect.bottom * 2};
 
 			OffsetRect(&destRect,
@@ -530,7 +530,7 @@ AUI_ERRCODE aui_DirectMovie::Process( void )
 				DDBLT_WAIT,
 				NULL );
 
-			g_ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+			aui_ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 
 			if(FAILED(hr))
 			{
@@ -551,7 +551,7 @@ AUI_ERRCODE aui_DirectMovie::Process( void )
 				NULL );
 			Assert( !FAILED(hr) );
 
-			g_ui->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
+			aui_ui_Get()->BltSecondaryToPrimary(k_AUI_BLITTER_FLAG_COPY);
 		}
 
 		m_lastFrameTime = GetTickCount();

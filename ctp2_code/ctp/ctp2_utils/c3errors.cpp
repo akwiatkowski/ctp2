@@ -40,7 +40,6 @@
 #include "ui/aui_common/aui_ui.h"
 #include "gs/database/StrDB.h"      // g_theStringDB
 
-extern aui_UI *g_ui;
 
 void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 {
@@ -192,8 +191,8 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 
 #ifndef _DEBUG
 	extern bool g_autoAltTab;
-	if(g_autoAltTab && g_ui) {
-		g_ui->AltTabIn();
+	if(g_autoAltTab && aui_ui_Get()) {
+		aui_ui_Get()->AltTabIn();
 	}
 #endif
 

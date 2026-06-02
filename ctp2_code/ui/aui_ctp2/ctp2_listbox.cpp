@@ -34,7 +34,7 @@
 
 #include "ui/aui_common/aui.h"
 
-#include "ui/aui_common/aui_ui.h"                 // g_ui
+#include "ui/aui_common/aui_ui.h"                 // aui_ui_Get()
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_common/aui_ranger.h"
@@ -421,7 +421,7 @@ AUI_ERRCODE ctp2_ListBox::Draw(aui_Surface *surf, sint32 x, sint32 y)
 					+ ( itemIndex - minVertical ) * m_maxItemHeight;
 				selectRect.bottom = selectRect.top + m_maxItemHeight;
 
-				g_ui->TheBlitter()->ColorBlt(surf, &selectRect,
+				aui_ui_Get()->TheBlitter()->ColorBlt(surf, &selectRect,
 											 RGB(255,179,69), 0);
 				GetItemByIndex(itemIndex)->Draw(surf);
 

@@ -135,7 +135,7 @@ AUI_ERRCODE c3_HyperTipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	g_ui->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
+	aui_ui_Get()->TheBlitter()->ColorBlt( surface, &rect, RGB(0,0,0), 0 );
 
 	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_GREEN));
 

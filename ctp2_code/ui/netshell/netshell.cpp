@@ -89,23 +89,23 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 
 	LeaveMainMenu();
 
-	g_ui->SetBackgroundColor( RGB(0,0,0) );
+	aui_ui_Get()->SetBackgroundColor( RGB(0,0,0) );
 
 	if (aui_Control * bg = g_netshell->m_bg)
 	{
-		aui_Image * image    = g_ui->LoadImage(bg->GetImage()->GetFilename());
-		aui_Image *	oldImage = g_ui->SetBackgroundImage
+		aui_Image * image    = aui_ui_Get()->LoadImage(bg->GetImage()->GetFilename());
+		aui_Image *	oldImage = aui_ui_Get()->SetBackgroundImage
 			(image,
-			 (g_ui->Width() - image->TheSurface()->Width()) / 2,
-		     (g_ui->Height() - image->TheSurface()->Height()) / 2
+			 (aui_ui_Get()->Width() - image->TheSurface()->Width()) / 2,
+		     (aui_ui_Get()->Height() - image->TheSurface()->Height()) / 2
 			);
 		if (oldImage)
 		{
-			g_ui->UnloadImage(oldImage);
+			aui_ui_Get()->UnloadImage(oldImage);
 		}
 	}
 
-	g_ui->Invalidate();
+	aui_ui_Get()->Invalidate();
 
 
 
@@ -132,7 +132,7 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 			w->Update();
 		} else {
 #ifdef WIN32
-			PostMessage( g_ui->TheHWND(), WM_CLOSE, 0, 0 );
+			PostMessage( aui_ui_Get()->TheHWND(), WM_CLOSE, 0, 0 );
 #endif
 		}
 	}
@@ -163,10 +163,10 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 	if ( g_netshell )
 	{
 
-		g_ui->Draw();
-		g_ui->SetBackgroundColor( k_AUI_UI_NOCOLOR );
-		aui_Image *prev = g_ui->SetBackgroundImage( NULL );
-		g_ui->UnloadImage(prev);
+		aui_ui_Get()->Draw();
+		aui_ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );
+		aui_Image *prev = aui_ui_Get()->SetBackgroundImage( NULL );
+		aui_ui_Get()->UnloadImage(prev);
 
 
 		g_netshell->LeaveCurrentScreen();
@@ -174,7 +174,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 
 	if ( flags & k_NS_FLAGS_MAINMENU ) {
 		if(safe) {
-			g_ui->AddAction(new EnterMainMenuAction);
+			aui_ui_Get()->AddAction(new EnterMainMenuAction);
 		} else {
 			EnterMainMenu();
 		}
@@ -187,7 +187,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 	{
 		if ( safe )
 		{
-			g_ui->AddAction(new DestroyAction);
+			aui_ui_Get()->AddAction(new DestroyAction);
 		}
 		else
 		{
@@ -376,8 +376,8 @@ NetShell::~NetShell()
 
 	if ( m_bg )
 	{
-		aui_Image *	mpBackgroundImage = g_ui->SetBackgroundImage(NULL);
-		g_ui->UnloadImage(mpBackgroundImage);
+		aui_Image *	mpBackgroundImage = aui_ui_Get()->SetBackgroundImage(NULL);
+		aui_ui_Get()->UnloadImage(mpBackgroundImage);
 		delete m_bg;
 	}
 

@@ -1789,7 +1789,7 @@ AUI_ERRCODE CityWindow::DrawGrowthBar(ctp2_Static *control,
 	RECT destRect = rect;
 	AUI_ERRCODE err;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	destRect.top += 2;
 	destRect.bottom -= 2;
@@ -1810,7 +1810,7 @@ AUI_ERRCODE CityWindow::DrawGrowthBar(ctp2_Static *control,
 	if(destRect.right > rect.right)
 		destRect.right = rect.right;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(255,0,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(255,0,0), 0);
 
 	if((cd->GetGrowthRate() > 0) && ((destRect.right - destRect.left) < width)) {
 		destRect.left = destRect.right;
@@ -1828,7 +1828,7 @@ AUI_ERRCODE CityWindow::DrawGrowthBar(ctp2_Static *control,
 		destRect.right = destRect.left + sint32(double(width) * growthRatio);
 		if(destRect.right > rect.right)
 			destRect.right = rect.right;
-		err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
+		err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
 	}
 	return err;
 }
@@ -1847,7 +1847,7 @@ AUI_ERRCODE CityWindow::DrawHappinessBar(ctp2_Static *control,
 	RECT destRect = rect;
 	AUI_ERRCODE err;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	destRect.top += 2;
 	destRect.bottom -= 2;
@@ -1870,7 +1870,7 @@ AUI_ERRCODE CityWindow::DrawHappinessBar(ctp2_Static *control,
 	} else {
 		color = RGB(255,255,0);
 	}
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, color, 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, color, 0);
 	return err;
 }
 
@@ -1888,7 +1888,7 @@ AUI_ERRCODE CityWindow::DrawEfficiencyBar(ctp2_Static *control,
 	RECT destRect = rect;
 	AUI_ERRCODE err;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	destRect.top += 2;
 	destRect.bottom -= 2;
@@ -1903,7 +1903,7 @@ AUI_ERRCODE CityWindow::DrawEfficiencyBar(ctp2_Static *control,
 
 	destRect.right = destRect.left + efficientWidth;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
 	return err;
 }
 
@@ -1921,7 +1921,7 @@ AUI_ERRCODE CityWindow::DrawBuildBar(ctp2_Static *control,
 	RECT destRect = rect;
 	AUI_ERRCODE err;
 
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,0,0), 0);
 
 	destRect.top += 1;
 	destRect.bottom -= 1;
@@ -1943,7 +1943,7 @@ AUI_ERRCODE CityWindow::DrawBuildBar(ctp2_Static *control,
 	} else {
 		destRect.right = destRect.left + sint32(double(width) * percentComplete);
 	}
-	err = g_ui->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
+	err = aui_ui_Get()->TheBlitter()->ColorBlt(surface, &destRect, RGB(0,255,0), 0);
 
 	return err;
 }

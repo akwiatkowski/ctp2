@@ -46,7 +46,7 @@ AUI_ERRCODE aui_DirectAudioManager::InitCommon( sint32 maxNumOfActiveSounds )
 	Assert( m_inactiveSoundResource != NULL );
 	if ( !m_inactiveSoundResource ) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	if ( InitDS( g_ui->TheHWND() ) )
+	if ( InitDS( aui_ui_Get()->TheHWND() ) )
 	{
 		m_useAudio = FALSE;
 		return AUI_ERRCODE_NODSAUDIO;

@@ -15,7 +15,6 @@
 
 #include "ui/aui_utils/primitives.h"
 
-extern aui_UI		*g_ui;
 extern TileSet		*g_tileSet;
 
 c3_Icon::c3_Icon(

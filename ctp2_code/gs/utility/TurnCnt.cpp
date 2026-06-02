@@ -71,7 +71,7 @@
 #include "net/general/net_rand.h"
 #include "net/general/net_ready.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get, player_arr_Get
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/gameobj/Readiness.h"
@@ -196,27 +196,27 @@ void TurnCount::InformNetwork()
 
 		m_lastBeginTurn = player_view::CurPlayer();
 
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 		                                          new NetRand());
 		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 		                                          new NetInfo(NET_INFO_CODE_GOLD,
 		                                          player_view::CurPlayer(),
-		                                          g_player[player_view::CurPlayer()]->m_gold->GetLevel()));
+		                                          player_Get(player_view::CurPlayer())->m_gold->GetLevel()));
 		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
-		                                          new NetReadiness(g_player[player_view::CurPlayer()]->m_readiness));
+		                                          new NetReadiness(player_Get(player_view::CurPlayer())->m_readiness));
 			// propagate PW each turn update
 		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 		                                          new NetInfo(NET_INFO_CODE_MATERIALS,
 		                                          player_view::CurPlayer(),
-		                                          g_player[player_view::CurPlayer()]->m_materialPool->GetMaterials()));
+		                                          player_Get(player_view::CurPlayer())->m_materialPool->GetMaterials()));
 		}
 		g_network.BeginTurn(player_view::CurPlayer());
 		NetInfo* netInfo = new NetInfo(NET_INFO_CODE_BEGIN_TURN,
 		                               player_view::CurPlayer());
 		g_network.QueuePacketToAll(netInfo);
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			g_network.SetMyTurn(FALSE);
 		}
@@ -235,14 +235,14 @@ void TurnCount::InformMessages()
 void TurnCount::SliceInformNetwork()
 {
 	if(g_network.IsHost()) {
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 													  new NetRand());
 		}
 		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
 											   player_view::CurPlayer()));
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			g_network.SetMyTurn(FALSE);
 		}
@@ -264,9 +264,9 @@ void TurnCount::ChooseNextActivePlayer()
 		player_view::NextPlayer();
 		render_observer::NextPlayer();
 		count++;
-	} while(g_player[player_view::CurPlayer()] == NULL ||
-			(g_player[player_view::CurPlayer()]->IsTurnOver() &&
-			g_player[player_view::CurPlayer()]->GetCurRound() == m_round &&
+	} while(player_Get(player_view::CurPlayer()) == NULL ||
+			(player_Get(player_view::CurPlayer())->IsTurnOver() &&
+			player_Get(player_view::CurPlayer())->GetCurRound() == m_round &&
 			count <= k_MAX_PLAYERS));
 
 	Assert(count <= k_MAX_PLAYERS);
@@ -281,8 +281,8 @@ void TurnCount::EndThisTurn()
 	if (g_theDiplomacyLog) g_theDiplomacyLog->EndTurn(GetRound());
 #endif
 
-	if(!g_player[curPlayer]->IsTurnOver()) {
-		g_player[curPlayer]->EndTurn();
+	if(!player_Get(curPlayer)->IsTurnOver()) {
+		player_Get(curPlayer)->EndTurn();
 		m_activePlayers--;
 	}
 
@@ -297,19 +297,19 @@ void TurnCount::EndThisTurn()
 	}
 
 	while((m_activePlayers > 0) &&
-		  (g_player[player_view::CurPlayer()]->IsTurnOver() &&
-		   g_player[player_view::CurPlayer()]->GetCurRound() == m_round)) {
+		  (player_Get(player_view::CurPlayer())->IsTurnOver() &&
+		   player_Get(player_view::CurPlayer())->GetCurRound() == m_round)) {
 
 		ChooseNextActivePlayer();
 
 		curPlayer = player_view::CurPlayer();
 
 		if(m_simultaneousMode &&
-		   g_player[curPlayer]->m_end_turn_soon) {
-			if(g_player[curPlayer]->GetCurRound() != m_round) {
-				g_player[curPlayer]->BeginTurn();
+		   player_Get(curPlayer)->m_end_turn_soon) {
+			if(player_Get(curPlayer)->GetCurRound() != m_round) {
+				player_Get(curPlayer)->BeginTurn();
 			}
-			g_player[curPlayer]->EndTurn();
+			player_Get(curPlayer)->EndTurn();
 			m_activePlayers--;
 		}
 	}
@@ -342,7 +342,7 @@ void TurnCount::BeginNewRound()
 		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_YEAR, m_round, m_year));
 	}
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i])
+		if(player_Get(i))
 			m_activePlayers++;
 	}
 	player_view::NextRound();
@@ -353,7 +353,7 @@ void TurnCount::BeginNewRound()
 
 	if(m_simultaneousMode && g_network.IsHost()) {
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i]) {
+			if(player_Get(i)) {
 				player_view::SetCurrentPlayer(i);
 				BeginNewTurn(FALSE);
 			}
@@ -379,11 +379,11 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		case 1:
 			m_round = 124;
 			for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-				 if (g_player[player_idx]) {
+				 if (player_Get(player_idx)) {
 					for(sint32 i = 0; i < 20; i++) {
-						g_player[player_idx]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+						player_Get(player_idx)->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 					}
-					g_player[player_idx]->m_advances->GiveAdvance(30, CAUSE_SCI_UNKNOWN);
+					player_Get(player_idx)->m_advances->GiveAdvance(30, CAUSE_SCI_UNKNOWN);
 
 				}
 			}
@@ -391,9 +391,9 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		case 2:
 			m_round = 249;
 			for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-				 if (g_player[player_idx]) {
+				 if (player_Get(player_idx)) {
 					for(sint32 i = 0; i < 40; i++) {
-						g_player[player_idx]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+						player_Get(player_idx)->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 					}
 				}
 			}
@@ -401,12 +401,12 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		case 3:
 			m_round = 374;
 			for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-				 if (g_player[player_idx]) {
+				 if (player_Get(player_idx)) {
 					for(sint32 i = 0; i < 60; i++) {
-						g_player[player_idx]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+						player_Get(player_idx)->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 					}
-					g_player[player_idx]->m_advances->GiveAdvance(60, CAUSE_SCI_UNKNOWN);
-					g_player[player_idx]->m_advances->GiveAdvance(64, CAUSE_SCI_UNKNOWN);
+					player_Get(player_idx)->m_advances->GiveAdvance(60, CAUSE_SCI_UNKNOWN);
+					player_Get(player_idx)->m_advances->GiveAdvance(64, CAUSE_SCI_UNKNOWN);
 				}
 			}
 
@@ -414,9 +414,9 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		case 4:
 			m_round = 449;
 			for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-				 if (g_player[player_idx]) {
+				 if (player_Get(player_idx)) {
 					for(sint32 i = 0; i < 80; i++) {
-						g_player[player_idx]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+						player_Get(player_idx)->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 					}
 				}
 			}
@@ -424,9 +424,9 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		case 5:
 			m_round = 524;
 			for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-				 if (g_player[player_idx]) {
+				 if (player_Get(player_idx)) {
 					for(sint32 i = 0; i < 100; i++) {
-						g_player[player_idx]->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
+						player_Get(player_idx)->m_advances->GiveAdvance(i, CAUSE_SCI_UNKNOWN);
 					}
 				}
 			}
@@ -445,7 +445,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		if(!clientVerification) {
 			InformNetwork();
 		}
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			if(!clientVerification)
 				return;
@@ -454,7 +454,7 @@ void TurnCount::BeginNewTurn(BOOL clientVerification)
 		}
 	}
 
-	if(g_player[player_view::CurPlayer()]->GetCurRound() != m_round) {
+	if(player_Get(player_view::CurPlayer())->GetCurRound() != m_round) {
 		g_gevManager->AddEvent(GEV_INSERT_Tail,
 							   GEV_BeginTurn,
 							   GEA_Player, player_view::CurPlayer(),
@@ -527,7 +527,7 @@ BOOL TurnCount::BeginNewSlice()
 {
 	PLAYER_INDEX curPlayer = player_view::CurPlayer();
 
-	if(g_player[curPlayer]->GetCurRound() != m_round) {
+	if(player_Get(curPlayer)->GetCurRound() != m_round) {
 		BeginNewTurn(FALSE);
 	} else if(g_network.IsHost() &&
 						  player_view::CurPlayer() == player_view::VisiblePlayer()) {
@@ -542,26 +542,26 @@ BOOL TurnCount::BeginNewSlice()
 									0);
 	}
 
-	if(g_player[curPlayer]->m_end_turn_soon) {
+	if(player_Get(curPlayer)->m_end_turn_soon) {
 		return FALSE;
 	}
 
 	if(m_simultaneousMode) {
-		if((g_network.IsHost() && !g_player[curPlayer]->IsNetwork()) ||
+		if((g_network.IsHost() && !player_Get(curPlayer)->IsNetwork()) ||
 		   g_network.GetPlayerIndex() == curPlayer) {
-			g_player[curPlayer]->ProcessUnitOrders(TRUE);
+			player_Get(curPlayer)->ProcessUnitOrders(TRUE);
 		}
 	}
 
 	if(g_network.IsHost()) {
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 		g_network.QueuePacket(g_network.IndexToId(player_view::CurPlayer()),
 												  new NetRand());
 		}
 		g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_BEGIN_SLICE,
 											   player_view::CurPlayer()));
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			g_network.SetMyTurn(FALSE);
 		}
@@ -601,9 +601,9 @@ void TurnCount::EndThisSliceBeginNewSlice()
 
 void TurnCount::SetSliceTo(sint32 player)
 {
-	if(!g_player[player] ||
-	   (g_player[player]->IsTurnOver() &&
-		g_player[player]->GetCurRound() == m_round)) {
+	if(!player_Get(player) ||
+	   (player_Get(player)->IsTurnOver() &&
+		player_Get(player)->GetCurRound() == m_round)) {
 		return;
 	}
 
@@ -635,7 +635,7 @@ void TurnCount::SetSimultaneousMode(BOOL on)
 
 BOOL TurnCount::VerifyEndTurn(BOOL force)
 {
-	Player *player = g_player[player_view::CurPlayer()];
+	Player *player = player_Get(player_view::CurPlayer());
 
 	if (!player->IsHuman())
 	{
@@ -750,12 +750,12 @@ void TurnCount::NetworkEndTurn(BOOL force)
 	return;
 #if 0 // Unreachable
 	{
-		if(g_player[player_view::CurPlayer()]->IsNetwork())
+		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{
 			for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-				if(g_player[i] && !g_player[i]->IsNetwork()) {
-					if(!g_player[i]->IsTurnOver() && g_player[i]->GetCurRound() == m_round) {
-						g_player[i]->EndTurnSoon();
+				if(player_Get(i) && !player_Get(i)->IsNetwork()) {
+					if(!player_Get(i)->IsTurnOver() && player_Get(i)->GetCurRound() == m_round) {
+						player_Get(i)->EndTurnSoon();
 					}
 				}
 			}
@@ -803,9 +803,9 @@ void TurnCount::RunNewYearMessages(void)
 			sint32 highPlayer = 1;
 
 			for(i = 1; i < k_MAX_PLAYERS; i++) {
-				if(g_player[i]) {
-					if(g_player[i]->m_score->GetTotalScore() > highScore) {
-						highScore = g_player[i]->m_score->GetTotalScore();
+				if(player_Get(i)) {
+					if(player_Get(i)->m_score->GetTotalScore() > highScore) {
+						highScore = player_Get(i)->m_score->GetTotalScore();
 						highPlayer = i;
 					}
 				}
@@ -816,11 +816,11 @@ void TurnCount::RunNewYearMessages(void)
 			}
 
 			for(i = 0; i < k_MAX_PLAYERS; i++) {
-				if(g_player[i]) {
+				if(player_Get(i)) {
 					if(i == highPlayer) {
-						g_player[i]->GameOver(GAME_OVER_WON_OUT_OF_TIME, -1);
+						player_Get(i)->GameOver(GAME_OVER_WON_OUT_OF_TIME, -1);
 					} else {
-						g_player[i]->GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
+						player_Get(i)->GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
 					}
 				}
 			}
@@ -846,7 +846,7 @@ void TurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 	for(i=0; i<k_MAX_PLAYERS; i++)
 		{
-		if ((g_player[i]) && (!g_player[i]->IsDead()))
+		if ((player_Get(i)) && (!player_Get(i)->IsDead()))
 			so->AddRecipient(i) ;
 
 		}
@@ -859,9 +859,9 @@ void TurnCount::CountActivePlayers()
 	sint32 i;
 	m_activePlayers = 0;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i] &&
-		   ((!g_player[i]->IsTurnOver()) ||
-			g_player[i]->GetCurRound() != m_round)) {
+		if(player_Get(i) &&
+		   ((!player_Get(i)->IsTurnOver()) ||
+			player_Get(i)->GetCurRound() != m_round)) {
 			m_activePlayers++;
 		}
 	}
@@ -931,11 +931,11 @@ sint32 finite_count=0;
 		Assert(finite_count++ < 100);
 
 		sint32 curPlayer = player_view::CurPlayer();
-		if((g_player[curPlayer]->IsHuman() ||
-			(g_player[curPlayer]->IsNetwork() &&
+		if((player_Get(curPlayer)->IsHuman() ||
+			(player_Get(curPlayer)->IsNetwork() &&
 			 g_network.IsLocalPlayer(curPlayer))) &&
 		   player_view::CurPlayer() == player_view::VisiblePlayer()) {
-			g_player[player_view::CurPlayer()]->ProcessUnitOrders();
+			player_Get(player_view::CurPlayer())->ProcessUnitOrders();
 		}
 
 		if(g_network.IsActive())
@@ -957,14 +957,14 @@ sint32 finite_count=0;
 
 		if(m_isHotSeat || m_isEmail)
 		{
-			if(!g_player[player_view::CurPlayer()]->IsRobot())
+			if(!player_Get(player_view::CurPlayer())->IsRobot())
 			{
 				player_view::SetVisiblePlayer(player_view::CurPlayer());
 
 				TurnCount::SetStopPlayer(player_view::CurPlayer());
 			}
 
-			if(!g_player[player_view::CurPlayer()]->IsRobot())
+			if(!player_Get(player_view::CurPlayer())->IsRobot())
 			{
 				SendNextPlayerMessage();
 			}
@@ -983,7 +983,7 @@ sint32 finite_count=0;
 
 void TurnCount::ChooseHappinessPlayer()
 {
-	if(!g_player) {
+	if(!player_arr_Get()) {
 		m_happinessPlayer = 0;
 		return;
 	}
@@ -994,9 +994,9 @@ void TurnCount::ChooseHappinessPlayer()
 		if(m_happinessPlayer >= k_MAX_PLAYERS)
 			m_happinessPlayer = 0;
 
-		if(!g_player[m_happinessPlayer])
+		if(!player_Get(m_happinessPlayer))
 			continue;
-		if(!g_player[m_happinessPlayer]->IsRobot())
+		if(!player_Get(m_happinessPlayer)->IsRobot())
 			continue;
 		break;
 	}
@@ -1049,7 +1049,7 @@ void TurnCount::LogPlayerStats(void)
 		        "AIP File");
 	}
 
-	UnitDynamicArray *  cityList    = g_player[playerNum]->GetAllCitiesList();
+	UnitDynamicArray *  cityList    = player_Get(playerNum)->GetAllCitiesList();
 	sint32              citySize,
 	                    maxCitySize = -1;
 	sint32              numCitiesRioting = 0;
@@ -1082,33 +1082,33 @@ void TurnCount::LogPlayerStats(void)
 	}
 
 	fprintf(logfile, "%d\t", m_round);
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetNumCities());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetNumCities());
 	fprintf(logfile, "%d\t", totalProduction);
 	fprintf(logfile, "%d\t", totalFood);
 	fprintf(logfile, "%d\t", totalGold);
-	fprintf(logfile, "%d\t", g_player[playerNum]->m_gold->GetScience());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->m_gold->GetScience());
 	fprintf(logfile, "%d\t", numCitiesRioting);
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetNumRevolted());
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetGovernmentType());
-	fprintf(logfile, "%#.3f\t", g_player[playerNum]->GetWorkdayPerPerson());
-	fprintf(logfile, "%#.3f\t", g_player[playerNum]->GetWagesPerPerson());
-	fprintf(logfile, "%#.3f\t", g_player[playerNum]->GetRationsPerPerson());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetNumRevolted());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetGovernmentType());
+	fprintf(logfile, "%#.3f\t", player_Get(playerNum)->GetWorkdayPerPerson());
+	fprintf(logfile, "%#.3f\t", player_Get(playerNum)->GetWagesPerPerson());
+	fprintf(logfile, "%#.3f\t", player_Get(playerNum)->GetRationsPerPerson());
 
 	double taxRate;
-	g_player[playerNum]->GetScienceTaxRate(taxRate);
+	player_Get(playerNum)->GetScienceTaxRate(taxRate);
 	fprintf(logfile, "%#.2f\t", taxRate);
 
-	fprintf(logfile, "%#.2f\t", g_player[playerNum]->m_materialsTax);
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetAllUnitList()->Num());
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetReadinessCost());
+	fprintf(logfile, "%#.2f\t", player_Get(playerNum)->m_materialsTax);
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetAllUnitList()->Num());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetReadinessCost());
 	fprintf(logfile, "%d\t", totalPop);
 	fprintf(logfile, "%d\t", maxCitySize);
-	fprintf(logfile, "%d\t", g_player[playerNum]->GetCurrentPollution());
-	fprintf(logfile, "%#.3f\t", g_player[playerNum]->GetIncomePercent());
+	fprintf(logfile, "%d\t", player_Get(playerNum)->GetCurrentPollution());
+	fprintf(logfile, "%#.3f\t", player_Get(playerNum)->GetIncomePercent());
 
 	sint32 numAdvances = 0;
-	for (sint32 adv=0; adv<g_player[playerNum]->NumAdvances(); adv++)
-		if (g_player[playerNum]->HasAdvance(adv)) {
+	for (sint32 adv=0; adv<player_Get(playerNum)->NumAdvances(); adv++)
+		if (player_Get(playerNum)->HasAdvance(adv)) {
 			numAdvances++;
 		}
 	fprintf(logfile, "%d\t", numAdvances);
@@ -1139,7 +1139,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 
 	sint32 player = player_view::CurPlayer();
 
-	if(!g_player[player])
+	if(!player_Get(player))
 		return;
 
 	if(m_isEmail) {
@@ -1152,7 +1152,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
 		strncat(fullPath, "\\CTP2 Email To ", sizeof(fullPath) - strlen(fullPath) - 1);
 
-		startc = g_player[player]->m_email;
+		startc = player_Get(player)->m_email;
 		c = startc;
 		fc = &fullPath[strlen(fullPath)];
 		while(*c && (fc - fullPath) < (sint32)(sizeof(fullPath) - 50)) {
@@ -1181,7 +1181,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 	so->AddRecipient(player);
 	so->AddCivilisation(player);
 	if(m_isEmail)
-		so->AddAction(g_player[player]->m_email);
+		so->AddAction(player_Get(player)->m_email);
 
 	g_slicEngine->Execute(so);
 

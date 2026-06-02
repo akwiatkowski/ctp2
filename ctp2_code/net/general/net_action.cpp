@@ -346,7 +346,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			int curPlayerIndex = g_network.IdToIndex(id);
 
 			if(curPlayerIndex != g_selected_item->GetCurPlayer()) {
-				if(g_turn->SimultaneousMode()) {
+				if(turn_Get()->SimultaneousMode()) {
 					if(player_Get(curPlayerIndex))
 						player_Get(curPlayerIndex)->EndTurnSoon();
 				}
@@ -1238,7 +1238,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(curPlayerIndex != g_selected_item->GetCurPlayer())
 				break;
 
-			g_turn->EndThisSliceBeginNewSlice();
+			turn_Get()->EndThisSliceBeginNewSlice();
 			break;
 		}
 		case NET_ACTION_DO_FRONT_ORDER:
@@ -1843,7 +1843,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(agreementpool_Get()->IsValid(ag)) {
 				Assert(ag.GetRecipient() == index);
 				if(ag.GetRecipient() == index) {
-					ag.AccessData()->RecipientIsViolating(ag.GetOwner(), TRUE, g_turn->GetRound());
+					ag.AccessData()->RecipientIsViolating(ag.GetOwner(), TRUE, turn_Get()->GetRound());
 				} else {
 					g_network.Resync(index);
 				}

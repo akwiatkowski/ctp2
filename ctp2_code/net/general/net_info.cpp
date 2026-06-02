@@ -79,7 +79,6 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/utility/TurnCnt.h"
 #include "ui/aui_ctp2/c3ui.h"
-extern TurnCount *g_turn;
 extern C3UI					*g_c3ui;
 
 #include "gfx/gfx_utils/pixelutils.h"
@@ -793,8 +792,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_YEAR:
 			DPRINTF(k_DBG_NET, ("Server set year: %d (round %d)\n", m_data2, m_data));
-			g_turn->m_year = m_data2;
-			g_turn->m_round = m_data;
+			turn_Get()->m_year = m_data2;
+			turn_Get()->m_round = m_data;
 			break;
 
 		case NET_INFO_CODE_BEGIN_SLICE:
@@ -809,7 +808,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 												0);
 				g_network.SetMyTurn(TRUE);
 				g_network.UnitsMoved(-g_network.GetUnitMovesUsed());
-				g_turn->BeginNewSlice();
+				turn_Get()->BeginNewSlice();
 
 
 
@@ -1602,8 +1601,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_INFO_CODE_TIMES_ALMOST_UP:
 		{
 			DPRINTF(k_DBG_NET, ("Time's almost up!\n"));
-			if(g_turn) {
-				g_turn->SendMsgEndOfGameEarlyWarning();
+			if(turn_Get()) {
+				turn_Get()->SendMsgEndOfGameEarlyWarning();
 			}
 			break;
 		}
@@ -1612,7 +1611,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Agreement %lx violated by %d\n", m_data, m_data2));
 			Agreement ag(m_data);
 			if(agreementpool_Get()->IsValid(ag)) {
-				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE, g_turn->GetRound());
+				ag.AccessData()->RecipientIsViolating((PLAYER_INDEX)m_data2, TRUE, turn_Get()->GetRound());
 			}
 			break;
 		}

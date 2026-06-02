@@ -142,7 +142,6 @@ extern StringDB			*g_theStringDB;
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
 
-extern TurnCount		*g_turn;
 extern TiledMap			*g_tiledMap;
 extern ProfileDB		*g_theProfileDB;
 extern NETFunc			*g_netfunc;
@@ -1172,7 +1171,7 @@ void Network::SetToHost()
 			}
 		}
 
-		g_turn->NotifyBecameHost();
+		turn_Get()->NotifyBecameHost();
 
 		sint32 p;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
@@ -1532,8 +1531,8 @@ void Network::SetReady(uint16 id)
 
 	chunkPackets.AddTail(new NetKeys());
 	chunkPackets.AddTail(new NetInfo(NET_INFO_CODE_YEAR,
-	                                 g_turn->GetRound(),
-	                                 g_turn->GetYear()));
+                                         turn_Get()->GetRound(),
+                                         turn_Get()->GetYear()));
 
 	ChunkList(player->m_id, &chunkPackets);
 	Assert(!chunkPackets.GetHead());
@@ -2554,12 +2553,12 @@ void Network::KillPlayer(sint32 p, GAME_OVER reason, sint32 data)
 
 void Network::GetSliceFor(sint32 player)
 {
-	if(g_turn->SimultaneousMode() && IsHost()) {
+	if(turn_Get()->SimultaneousMode() && IsHost()) {
 		if(g_selected_item->GetCurPlayer() != player) {
 			if(!player_Get(g_selected_item->GetCurPlayer())->IsNetwork()) {
-				g_turn->SetSliceTo(player);
+				turn_Get()->SetSliceTo(player);
 			} else {
-				g_turn->QueueSliceFor(player);
+				turn_Get()->QueueSliceFor(player);
 			}
 		}
 	}
@@ -3031,7 +3030,7 @@ void Network::UnitsMoved(sint32 count)
 
 	m_unitMovesUsed += count;
 	if(m_unitMovesUsed >= m_unitMovesPerSlice && IsMyTurn()) {
-		g_turn->EndThisSliceBeginNewSlice();
+		turn_Get()->EndThisSliceBeginNewSlice();
 	}
 }
 
@@ -3114,8 +3113,8 @@ void Network::TurnSync()
 
 void Network::EnterSetupMode()
 {
-	Assert(g_turn->GetRound() == 0);
-	if(g_turn->GetRound() != 0)
+	Assert(turn_Get()->GetRound() == 0);
+	if(turn_Get()->GetRound() != 0)
 		return;
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
@@ -3410,7 +3409,7 @@ void Network::RemoveEnact(DiplomaticRequest &req)
 
 		if(m_enactedDiplomaticRequests->Num() < 1 &&
 		   m_endTurnWhenClear) {
-			g_turn->EndThisTurnBeginNewTurn(TRUE);
+			turn_Get()->EndThisTurnBeginNewTurn(TRUE);
 		}
 	}
 }

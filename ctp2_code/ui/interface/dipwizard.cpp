@@ -347,8 +347,8 @@ AUI_ERRCODE DipWizard::Display()
 		return AUI_ERRCODE_HACK;
 	}
 
-	if(g_network.IsActive() && g_player[g_selected_item->GetVisiblePlayer()] &&
-	   g_player[g_selected_item->GetVisiblePlayer()]->IsRobot()) {
+	if(g_network.IsActive() && player_Get(g_selected_item->GetVisiblePlayer()) &&
+	   player_Get(g_selected_item->GetVisiblePlayer())->IsRobot()) {
 
 		return AUI_ERRCODE_OK;
 	}
@@ -413,7 +413,7 @@ bool DipWizard::CanInitiateRightNow()
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
 		if(p == g_selected_item->GetVisiblePlayer())
 			continue;
-		if(!g_player[p])
+		if(!player_Get(p))
 			continue;
 
 		if(diplomat.GetMyLastNewProposal(p) != Diplomat::s_badNewProposal)
@@ -449,11 +449,11 @@ void DipWizard::FillProposalLists()
 			continue;
 
 
-		if(rec->GetArg1HisCity() && m_recipient >= 0 && m_recipient < k_MAX_PLAYERS && g_player[m_recipient]) {
+		if(rec->GetArg1HisCity() && m_recipient >= 0 && m_recipient < k_MAX_PLAYERS && player_Get(m_recipient)) {
 			sint32 c;
 			bool seenOne = false;
-			for(c = 0; c < g_player[m_recipient]->m_all_cities->Num(); c++) {
-				if(g_player[m_recipient]->m_all_cities->Access(c)->GetEverVisible() & (1 << g_selected_item->GetVisiblePlayer())) {
+			for(c = 0; c < player_Get(m_recipient)->m_all_cities->Num(); c++) {
+				if(player_Get(m_recipient)->m_all_cities->Access(c)->GetEverVisible() & (1 << g_selected_item->GetVisiblePlayer())) {
 					seenOne = true;
 					break;
 				}
@@ -501,14 +501,14 @@ void DipWizard::FillProposalLists()
 				case k_DiplomacyThreat_Arg1_HisCity_Bit:
 				case k_DiplomacyThreat_Arg1_SpecialAttack_Bit:
 					{
-						if(m_recipient < 0 || m_recipient >= k_MAX_PLAYERS || !g_player[threatenee])
+						if(m_recipient < 0 || m_recipient >= k_MAX_PLAYERS || !player_Get(threatenee))
 							continue;
 
 						bool foundCity = false;
 
 						sint32 c;
-						for(c = 0; c < g_player[threatenee]->m_all_cities->Num(); c++) {
-							if(g_player[threatenee]->m_all_cities->Access(c).GetEverVisible() & (1 << g_selected_item->GetVisiblePlayer())) {
+						for(c = 0; c < player_Get(threatenee)->m_all_cities->Num(); c++) {
+							if(player_Get(threatenee)->m_all_cities->Access(c).GetEverVisible() & (1 << g_selected_item->GetVisiblePlayer())) {
 								foundCity = true;
 								break;
 							}
@@ -523,7 +523,7 @@ void DipWizard::FillProposalLists()
 						bool foundThirdParty = false;
 
 						for(p = 1; p < k_MAX_PLAYERS; p++) {
-							if(!g_player[p]) continue;
+							if(!player_Get(p)) continue;
 
 							if(p == g_selected_item->GetVisiblePlayer())
 								continue;
@@ -531,7 +531,7 @@ void DipWizard::FillProposalLists()
 							if(p == threatenee)
 								continue;
 
-							if(!g_player[g_selected_item->GetVisiblePlayer()]->HasContactWith(p))
+							if(!player_Get(g_selected_item->GetVisiblePlayer())->HasContactWith(p))
 								continue;
 
 							foundThirdParty = true;
@@ -545,7 +545,7 @@ void DipWizard::FillProposalLists()
 
 				case k_DiplomacyThreat_Arg1_AgreementId_Bit:
 					{
-						if(m_recipient < 0 || m_recipient >= k_MAX_PLAYERS || !g_player[threatenee])
+						if(m_recipient < 0 || m_recipient >= k_MAX_PLAYERS || !player_Get(threatenee))
 							continue;
 
 						const Diplomat & diplomat = Diplomat::GetDiplomat(g_selected_item->GetVisiblePlayer());
@@ -584,7 +584,7 @@ void DipWizard::FillProposalLists()
 void DipWizard::FillRecipientLists()
 {
 	ctp2_ListItem *item = NULL;
-	Player *visPlayer = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *visPlayer = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!visPlayer) return;
 
 
@@ -602,8 +602,8 @@ void DipWizard::FillRecipientLists()
 
 		sint32 pl;
 		for(pl = 1; pl < k_MAX_PLAYERS; pl++) {
-			if(g_player[pl] == visPlayer) continue;
-			if(!g_player[pl]) continue;
+			if(player_Get(pl) == visPlayer) continue;
+			if(!player_Get(pl)) continue;
 			if(!visPlayer->HasContactWith(pl)) continue;
 
 			item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("DipWizNationItem");
@@ -612,7 +612,7 @@ void DipWizard::FillRecipientLists()
 
 				ctp2_Static *label = (ctp2_Static *)item->GetChildByIndex(0);
 				MBCHAR buf[k_MAX_NAME_LEN];
-				g_player[pl]->m_civilisation->GetCountryName(buf);
+				player_Get(pl)->m_civilisation->GetCountryName(buf);
 				label->SetText(buf);
 
 				item->SetUserData((void *)pl);
@@ -1683,12 +1683,12 @@ void DipWizard::SendCallback(aui_Control *control, uint32 action, uint32 data, v
 			SetStage(DIP_WIZ_STAGE_RECIPIENT);
 		}
 
-		if(g_player[resp.senderId]->IsHuman()
+		if(player_Get(resp.senderId)->IsHuman()
 		&& g_selected_item->GetVisiblePlayer() != resp.senderId
 		){
 			Hide();
 		}
-		else if(g_player[resp.receiverId]->IsHuman()
+		else if(player_Get(resp.receiverId)->IsHuman()
 		&&      g_selected_item->GetVisiblePlayer() != resp.receiverId
 		){
 			Hide();
@@ -2050,13 +2050,13 @@ void DipWizard::AddCityItems(ctp2_Menu *menu, sint32 player)
 	if((player < 0) || (player >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[player]);
-	if(!g_player[player])
+	Assert(player_Get(player));
+	if(!player_Get(player))
 		return;
 
 	sint32 i;
-	for(i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
-		Unit city = g_player[player]->m_all_cities->Access(i);
+	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
+		Unit city = player_Get(player)->m_all_cities->Access(i);
 		if(player != g_selected_item->GetVisiblePlayer()) {
 
 			if(!(city.GetEverVisible() & (1 << g_selected_item->GetVisiblePlayer())))
@@ -2073,8 +2073,8 @@ void DipWizard::AddAgreementItems(ctp2_Menu *menu, sint32 player)
 	if((player < 0) || (player >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[player]);
-	if(!g_player[player])
+	Assert(player_Get(player));
+	if(!player_Get(player))
 		return;
 
 	sint32 visplayer = g_selected_item->GetVisiblePlayer();
@@ -2130,22 +2130,22 @@ void DipWizard::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 receiver)
 	if((receiver < 0) || (receiver >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[sender]);
-	if(!g_player[sender])
+	Assert(player_Get(sender));
+	if(!player_Get(sender))
 		return;
 
-	Assert(g_player[receiver]);
-	if(!g_player[receiver])
+	Assert(player_Get(receiver));
+	if(!player_Get(receiver))
 		return;
 
 	sint32 a;
 	for(a = 0; a < g_theAdvanceDB->NumRecords(); a++) {
-		if(!g_player[sender]->HasAdvance(a)) {
+		if(!player_Get(sender)->HasAdvance(a)) {
 
 			continue;
 		}
 
-		if(g_player[receiver]->HasAdvance(a)) {
+		if(player_Get(receiver)->HasAdvance(a)) {
 
 			continue;
 		}
@@ -2161,13 +2161,13 @@ void DipWizard::AddStopResearchItems(ctp2_Menu *menu, sint32 playerId)
 	if((playerId < 0) || (playerId >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[playerId] && g_player[playerId]->m_advances);
-	if(!g_player[playerId] || !g_player[playerId]->m_advances)
+	Assert(player_Get(playerId) && player_Get(playerId)->m_advances);
+	if(!player_Get(playerId) || !player_Get(playerId)->m_advances)
 		return;
 
 	sint32 a;
 	for(a = 0; a < g_theAdvanceDB->NumRecords(); a++) {
-		if(!g_player[playerId]->m_advances->CanResearch(a)) {
+		if(!player_Get(playerId)->m_advances->CanResearch(a)) {
 
 			continue;
 		}
@@ -2183,11 +2183,11 @@ void DipWizard::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 receiv
 		if((p == sender) || (p == receiver))
 			continue;
 
-		if(!g_player[p])
+		if(!player_Get(p))
 			continue;
 
 		MBCHAR civName[k_MAX_NAME_LEN];
-		g_player[p]->GetCivilisation()->GetPluralCivName(civName);
+		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
 		menu->AddItem(civName, NULL, (void *)p);
 	}
 }
@@ -2364,7 +2364,7 @@ void DipWizard::RequestGoldValue(sint32 player)
 	}
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipGoldRequest.Spinner");
 	if(player == g_selected_item->GetVisiblePlayer()) {
-		spinner->SetMaximum(g_player[player]->m_gold->GetLevel(), 0);
+		spinner->SetMaximum(player_Get(player)->m_gold->GetLevel(), 0);
 	} else {
 
 		spinner->SetMaximum(~(1 << 31), 0);
@@ -2391,13 +2391,13 @@ void DipWizard::RequestPollutionValue(sint32 player)
 	}
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPollutionRequest.Spinner");
 
-	spinner->SetMaximum(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.95), 0);
+	spinner->SetMaximum(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.95), 0);
 
-	spinner->SetMinimum(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.25), 0);
+	spinner->SetMinimum(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.25), 0);
 
-	spinner->SetPage(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.20), 0);
+	spinner->SetPage(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.20), 0);
 
-	spinner->SetIncrement(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.10), 0);
+	spinner->SetIncrement(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.10), 0);
 
 	g_c3ui->AddWindow(m_pollutionRequestWindow);
 	m_proposalDataPending = true;
@@ -2626,14 +2626,14 @@ void DipWizard::DisplayDiplomat(sint32 player)
 	if (m_emissary_photo)
 	{
 		MBCHAR const *	fileName	= NULL;
-		if ((player >= 0) && (player < k_MAX_PLAYERS) && g_player[player])
+		if ((player >= 0) && (player < k_MAX_PLAYERS) && player_Get(player))
 		{
 			StringId strID;
-			if(g_player[player]->GetCivilisation()->GetGender() == GENDER_MALE){
-				strID = g_player[player]->GetCivilisation()->GetDBRec()->GetEmissaryPhotoMale();
+			if(player_Get(player)->GetCivilisation()->GetGender() == GENDER_MALE){
+				strID = player_Get(player)->GetCivilisation()->GetDBRec()->GetEmissaryPhotoMale();
 			}
 			else{
-				strID = g_player[player]->GetCivilisation()->GetDBRec()->GetEmissaryPhotoFemale();
+				strID = player_Get(player)->GetCivilisation()->GetDBRec()->GetEmissaryPhotoFemale();
 			}
 			fileName = g_theStringDB->GetNameStr(strID);
 		}
@@ -2667,7 +2667,7 @@ void DipWizard::DisplayParchment(sint32 player)
 	Assert(m_parchment);
 	if(m_parchment) {
 		char buf[50];
-		snprintf(buf, sizeof(buf), "UPDG%02d.tga", g_player[player]->m_civilisation->GetDBRec()->GetParchment());
+		snprintf(buf, sizeof(buf), "UPDG%02d.tga", player_Get(player)->m_civilisation->GetDBRec()->GetParchment());
 		m_parchment->ExchangeImage(0,0, buf);
 	}
 }
@@ -2690,7 +2690,7 @@ void DipWizard::CheckIntelligence(aui_Control *control, uint32 action, uint32 da
 			break;
 	}
 
-	if(pl < 0 || pl >k_MAX_PLAYERS || !g_player[pl])
+	if(pl < 0 || pl >k_MAX_PLAYERS || !player_Get(pl))
 		return;
 
 	DiplomacyDetails::SetNation(pl);

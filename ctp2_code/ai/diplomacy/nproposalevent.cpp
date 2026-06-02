@@ -97,12 +97,12 @@ STDEHANDLER(General_NewProposalEvent)
 			if(g_network.IsActive() && !g_network.IsLocalPlayer(sender)) {
 				execute = false;
 			} else if(g_network.IsActive()) {
-				execute = g_player[sender]->IsRobot() && g_network.IsLocalPlayer(sender);
+				execute = player_Get(sender)->IsRobot() && g_network.IsLocalPlayer(sender);
 			} else {
 				execute = true;
 			}
 		}
-		if(!execute && g_player[sender]->IsRobot()) {
+		if(!execute && player_Get(sender)->IsRobot()) {
 			if(!g_network.IsActive() || g_network.IsLocalPlayer(sender)) {
 				execute = true;
 			}
@@ -299,7 +299,7 @@ STDEHANDLER(ExchangeMaps_NewProposalEvent) {
 	if (sender_diplomat.GetTrust(receiver) < NEUTRAL_REGARD)
 		return GEV_HD_Continue;
 
-	Player *player_ptr = g_player[sender];
+	Player *player_ptr = player_Get(sender);
 	Assert(player_ptr != NULL);
 
 
@@ -460,7 +460,7 @@ STDEHANDLER(CeaseFire_NewProposalEvent)
 		return GEV_HD_Continue;
 
 	DIPLOMATIC_STRENGTH sender_strength =
-		g_player[sender]->GetRelativeStrength(receiver);
+		player_Get(sender)->GetRelativeStrength(receiver);
 
 	if (sender_strength > DIPLOMATIC_STRENGTH_AVERAGE )
 		return GEV_HD_Continue;
@@ -492,7 +492,7 @@ STDEHANDLER(CeaseFire_NewProposalEvent)
 		new_proposal.detail.tone = DIPLOMATIC_TONE_MEEK;
 
 		sint32 max_can_pay_gold =
-            std::min(g_player[receiver]->m_gold->GetIncome() * 2, g_player[sender]->GetGold());
+            std::min(player_Get(receiver)->m_gold->GetIncome() * 2, player_Get(sender)->GetGold());
 
 		max_can_pay_gold = ProposalAnalysis::RoundGold(max_can_pay_gold);
 		sint32 next_advance = receiver_diplomat.GetNextAdvance();
@@ -565,8 +565,8 @@ STDEHANDLER(ReducePollution_NewProposalEvent)
 	if (priority <= 0)
 		return GEV_HD_Continue;
 
-	uint32 sender_pollution = g_player[sender]->GetPollutionLevel();
-	uint32 receiver_pollution = g_player[receiver]->GetPollutionLevel();
+	uint32 sender_pollution = player_Get(sender)->GetPollutionLevel();
+	uint32 receiver_pollution = player_Get(receiver)->GetPollutionLevel();
 	double pollution_ratio = (double) sender_pollution / receiver_pollution;
 
 	if (pollution_ratio > 1.5)
@@ -651,7 +651,7 @@ STDEHANDLER(HonorPollutionAgreement_NewProposalEvent)
 	if (agreement == AgreementMatrix::s_badAgreement)
 		return GEV_HD_Continue;
 
-	uint32 receiver_pollution = g_player[receiver]->GetPollutionLevel();
+	uint32 receiver_pollution = player_Get(receiver)->GetPollutionLevel();
 	uint32 promised_pollution =
         static_cast<uint32>(std::max<sint32>(0, agreement.proposal.first_arg.pollution));
 	uint32 half_promised_pollution = promised_pollution / 2;
@@ -985,8 +985,8 @@ STDEHANDLER(PollutionPact_NewProposalEvent)
 	if (sender_diplomat.GetTrust(receiver) < NEUTRAL_REGARD)
 		return GEV_HD_Continue;
 
-	uint32 sender_pollution = g_player[sender]->GetPollutionLevel();
-	uint32 receiver_pollution = g_player[receiver]->GetPollutionLevel();
+	uint32 sender_pollution = player_Get(sender)->GetPollutionLevel();
+	uint32 receiver_pollution = player_Get(receiver)->GetPollutionLevel();
 	double pollution_ratio = (double) sender_pollution / receiver_pollution;
 
 	if (pollution_ratio > 1.5)
@@ -1128,8 +1128,8 @@ STDEHANDLER(RequestAdvance_NewProposalEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
-	sint32 sender_science_rank = g_player[sender]->GetRank(STRENGTH_CAT_KNOWLEDGE);
-	sint32 receiver_science_rank = g_player[receiver]->GetRank(STRENGTH_CAT_KNOWLEDGE);
+	sint32 sender_science_rank = player_Get(sender)->GetRank(STRENGTH_CAT_KNOWLEDGE);
+	sint32 receiver_science_rank = player_Get(receiver)->GetRank(STRENGTH_CAT_KNOWLEDGE);
 
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 
@@ -1285,7 +1285,7 @@ STDEHANDLER(BegForGold_NewProposalEvent)
 		return GEV_HD_Continue;
 
 	DIPLOMATIC_STRENGTH receiver_strength =
-		g_player[receiver]->GetRelativeStrength(sender);
+		player_Get(receiver)->GetRelativeStrength(sender);
 
 	if (receiver_strength < DIPLOMATIC_STRENGTH_STRONG )
 		return GEV_HD_Continue;
@@ -1293,7 +1293,7 @@ STDEHANDLER(BegForGold_NewProposalEvent)
 	if (MapAnalysis::GetMapAnalysis().AtRiskCitiesValue(sender) < 60)
 		return GEV_HD_Continue;
 
-	sint32 gold = ProposalAnalysis::RoundGold(5 * g_player[sender]->m_gold->GetIncome());
+	sint32 gold = ProposalAnalysis::RoundGold(5 * player_Get(sender)->m_gold->GetIncome());
 
 	if (gold <= 0)
 		return GEV_HD_Continue;
@@ -1348,11 +1348,11 @@ STDEHANDLER(BlackmailGold_NewProposalEvent)
 	if (!sender_diplomat.TestEffectiveRegard(receiver, COLDWAR_REGARD))
 		return GEV_HD_Continue;
 
-	Assert(g_player[sender]);
-	Assert(g_player[receiver]);
+	Assert(player_Get(sender));
+	Assert(player_Get(receiver));
 
 	DIPLOMATIC_STRENGTH sender_strength =
-		g_player[sender]->GetRelativeStrength(receiver);
+		player_Get(sender)->GetRelativeStrength(receiver);
 
 	if (sender_strength < DIPLOMATIC_STRENGTH_STRONG )
 		return GEV_HD_Continue;
@@ -1364,7 +1364,7 @@ STDEHANDLER(BlackmailGold_NewProposalEvent)
 	if (at_risk_value_percent < 30)
 		return GEV_HD_Continue;
 
-	sint32 gold = ProposalAnalysis::RoundGold(2 * g_player[sender]->m_gold->GetIncome());
+	sint32 gold = ProposalAnalysis::RoundGold(2 * player_Get(sender)->m_gold->GetIncome());
 
 
 	sint32 priority =
@@ -1429,7 +1429,7 @@ STDEHANDLER(BreakAgreementWithEnemy_NewProposalEvent)
 	PLAYER_INDEX cold_war_enemy;
 	for (cold_war_enemy = 1; cold_war_enemy < CtpAi::s_maxPlayers; cold_war_enemy++)
 	{
-		if (g_player[cold_war_enemy] == NULL)
+		if (player_Get(cold_war_enemy) == NULL)
 			continue;
 
 		if (receiver_diplomat.GetPublicRegard(cold_war_enemy) < FRIEND_REGARD)
@@ -1513,8 +1513,8 @@ STDEHANDLER(StopResearch_NewProposalEvent)
 	if (sender_diplomat.TestEffectiveRegard(receiver, COLDWAR_REGARD) == false)
 		return GEV_HD_Continue;
 
-	Assert(g_player[sender])
-	if (g_player[sender]->HasEmbassyWith(receiver) == FALSE)
+	Assert(player_Get(sender))
+	if (player_Get(sender)->HasEmbassyWith(receiver) == FALSE)
 		return GEV_HD_Continue;
 
 	AdvanceType adv_type = sender_diplomat.GetStopResearchingAdvance(receiver);
@@ -1582,10 +1582,10 @@ STDEHANDLER(ReduceWeapons_NewProposalEvent)
 	if (sender_diplomat.TestEffectiveRegard(receiver, COLDWAR_REGARD) == false)
 		return GEV_HD_Continue;
 
-	Assert(g_player[sender]);
-	sint32 sender_city_count = g_player[sender]->GetNumCities();
-	Assert(g_player[receiver]);
-	sint32 receiver_city_count = g_player[receiver]->GetNumCities();
+	Assert(player_Get(sender));
+	sint32 sender_city_count = player_Get(sender)->GetNumCities();
+	Assert(player_Get(receiver));
+	sint32 receiver_city_count = player_Get(receiver)->GetNumCities();
 
 	sint16 sender_nukes_count = MapAnalysis::GetMapAnalysis().GetNanoWeaponsCount(sender);
 	sint16 sender_bio_count = MapAnalysis::GetMapAnalysis().GetBioWeaponsCount(sender);
@@ -1694,14 +1694,14 @@ STDEHANDLER(RequestTribute_NewProposalEvent)
 	sint32 gold = 0;
 	PROPOSAL_TYPE type = PROPOSAL_REQUEST_GIVE_GOLD;
 
-	Assert(g_player[sender]);
-	Assert(g_player[receiver]);
-	sint32 sender_income = g_player[sender]->m_gold->GetIncome();
-	sint32 receiver_income = g_player[receiver]->m_gold->GetIncome();
-	sint32 sender_savings = g_player[receiver]->m_gold->GetLevel();
+	Assert(player_Get(sender));
+	Assert(player_Get(receiver));
+	sint32 sender_income = player_Get(sender)->m_gold->GetIncome();
+	sint32 receiver_income = player_Get(receiver)->m_gold->GetIncome();
+	sint32 sender_savings = player_Get(receiver)->m_gold->GetLevel();
 
 	DIPLOMATIC_STRENGTH sender_strength =
-		g_player[sender]->GetRelativeStrength(receiver);
+		player_Get(sender)->GetRelativeStrength(receiver);
 
 	if ((MOTIVATION_TYPE) motivation_type == MOTIVATION_DESIRE_GOLD )
 	{
@@ -1908,7 +1908,7 @@ STDEHANDLER(RequestHonorMilitaryAgeement_NewProposalEvent)
 	PLAYER_INDEX hot_war_enemy;
 	for (hot_war_enemy = 1; hot_war_enemy < CtpAi::s_maxPlayers; hot_war_enemy++)
 	{
-		if (g_player[hot_war_enemy] == NULL)
+		if (player_Get(hot_war_enemy) == NULL)
 			continue;
 
 		if (AgreementMatrix::s_agreements.TurnsAtWar(sender, hot_war_enemy) < 10)
@@ -1917,7 +1917,7 @@ STDEHANDLER(RequestHonorMilitaryAgeement_NewProposalEvent)
 		if (AgreementMatrix::s_agreements.HasAgreement(receiver, hot_war_enemy, PROPOSAL_TREATY_DECLARE_WAR))
 			continue;
 
-		if (!g_player[receiver]->HasContactWith(hot_war_enemy))
+		if (!player_Get(receiver)->HasContactWith(hot_war_enemy))
 			continue;
 
 		break;

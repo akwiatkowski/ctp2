@@ -116,7 +116,7 @@
 
 #include "ctp/ctp2_utils/c3cmdline.h"
 #include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get()
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "ui/aui_ctp2/ctp2_Menu.h"
@@ -279,11 +279,11 @@ void TurnNextCityButtonActionCallback( aui_Control *control, uint32 action, uint
 	else
 	{
 
-		if (!g_player[g_selected_item->GetVisiblePlayer()] ||
-			!g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities())
+		if (!player_Get(g_selected_item->GetVisiblePlayer()) ||
+			!player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities())
 			return;
 
-		Unit city = g_player[g_selected_item->GetVisiblePlayer()]->GetCityFromIndex(0);
+		Unit city = player_Get(g_selected_item->GetVisiblePlayer())->GetCityFromIndex(0);
 		g_selected_item->SetSelectUnit(city);
 		if(g_selected_item->IsAutoCenterOn()) {
 			MapPoint pos;
@@ -602,8 +602,8 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 		if(city.IsValid()) {
 			haveCity = true;
 
-		} else if(g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities()) {
-			city = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0);
+		} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
+			city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
 
 			if(city.IsValid())
 				haveCity = true;
@@ -631,7 +631,7 @@ void ContextMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 
 					MessageBoxDialog::Information("str_ldl_CantDisbandCitySize", "InfoCantDisCitySz");
 				}
-				else if(g_player[city->GetOwner()]->m_all_cities->Num() < 2)
+				else if(player_Get(city->GetOwner())->m_all_cities->Num() < 2)
 				{
 
 					MessageBoxDialog::Information("str_ldl_CantDisbandLastCity", "InfoCantDisLastCity");
@@ -779,8 +779,8 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 		if(city.IsValid())
 			haveCity = true;
 
-	} else if(g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities()) {
-		city = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0);
+	} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
+		city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
 		g_selected_item->SetSelectCity(city);
 			if(city.IsValid())
 				haveCity = true;
@@ -795,10 +795,10 @@ void CityMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIndex
 				} else {
 					EditQueue::Display(CityWindow::GetCityData(city));
 				}
-			} else if(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0) {
+			} else if(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0) {
 				if(g_network.IsClient() && g_network.GetSensitiveUIBlocked()) {
 				} else {
-					EditQueue::Display(CityWindow::GetCityData(g_player[g_selected_item->GetVisiblePlayer()]->
+					EditQueue::Display(CityWindow::GetCityData(player_Get(g_selected_item->GetVisiblePlayer())->
 															   m_all_cities->Access(0)));
 				}
 			}
@@ -1883,8 +1883,8 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 		return;
 	}
 
-	Assert(g_player[player_id]);
-	Player *player = g_player[player_id];
+	Assert(player_Get(player_id));
+	Player *player = player_Get(player_id);
 
 	if (player==NULL)
 	{
@@ -1911,7 +1911,7 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 			cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
 			color = g_colorSet->GetColor(COLOR_RED);
 		}
-		if(g_player[player_id]->IsExplored(pos)) {
+		if(player_Get(player_id)->IsExplored(pos)) {
 
 			g_tiledMap->SetTerrainOverlay(m_currentTerrainImpRec,pos,color);
 			tileimptracker_DisplayData(pos, m_currentTerrainImpRec->GetIndex());
@@ -2386,8 +2386,8 @@ void ControlPanelWindow::PopulateMessageList(PLAYER_INDEX player)
 	if (!m_messageList)
 		return;
 
-	Assert(g_player[player]);
-	if (!g_player[player])
+	Assert(player_Get(player));
+	if (!player_Get(player))
 		return;
 
 
@@ -2395,7 +2395,7 @@ void ControlPanelWindow::PopulateMessageList(PLAYER_INDEX player)
 
 	if (player == oldIndex) return;
 
-	DynamicArray<Message>	*playerMessages = g_player[player]->GetMessages();
+	DynamicArray<Message>	*playerMessages = player_Get(player)->GetMessages();
 	Assert(playerMessages);
 	if (!playerMessages)
 		return;
@@ -3221,12 +3221,12 @@ void
 ControlPanelWindow::PollCIVStatus()
 {
 
-	if ((g_selected_item==NULL)||(g_player==NULL))
+	if ((g_selected_item==NULL)||(player_arr_Get()==NULL))
 		return;
 
 	sint32 p_index = g_selected_item->GetVisiblePlayer();
 
-	Player *current=g_player[p_index];
+	Player *current=player_Get(p_index);
 
 	if (current==NULL)
 		return;
@@ -3256,12 +3256,12 @@ void
 ControlPanelWindow::PollTILEIMPStatus()
 {
 #if 0   /// @todo Find out what this code was supposed to do
-    if ((g_selected_item==NULL)||(g_player==NULL))
+    if ((g_selected_item==NULL)||(player_arr_Get()==NULL))
 		return;
 
 	sint32 p_index = g_selected_item->GetVisiblePlayer();
 
-	Player *current=g_player[p_index];
+	Player *current=player_Get(p_index);
 
 	if (current==NULL)
 		return;
@@ -3279,7 +3279,7 @@ ControlPanelWindow::HappinessRedisplay(aui_Surface *surface,RECT &rect,void *coo
 	sint32 hapvals[3];
 	float total;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
+	player_Get(g_selected_item->GetVisiblePlayer())->CountCityHappiness(hapvals[0],hapvals[1],hapvals[2]);
 
 	total = (float)(hapvals[0]+hapvals[1]+hapvals[2]);
 
@@ -3314,7 +3314,7 @@ ControlPanelWindow::CityPanelGetCurrent()
 
     if (m_mainDropDown)
     {
-	    Player * current = g_player[g_selected_item->GetVisiblePlayer()];
+	    Player * current = player_Get(g_selected_item->GetVisiblePlayer());
 
 	    if (current && current->GetNumCities())
         {
@@ -3337,7 +3337,7 @@ ControlPanelWindow::CityPanelRebuild()
 
 	sint32 p_index = g_selected_item->GetVisiblePlayer();
 
-	Player *current=g_player[p_index];
+	Player *current=player_Get(p_index);
 
 	if (current==NULL)
 		return;
@@ -3359,7 +3359,7 @@ ControlPanelWindow::CityPanelRebuild()
 
 	for(sint32 i=0;i<num;i++)
 	{
-		city = g_player[g_selected_item->GetVisiblePlayer()]->GetCityFromIndex(i);
+		city = player_Get(g_selected_item->GetVisiblePlayer())->GetCityFromIndex(i);
 
 		name=city.GetName();
 
@@ -3413,7 +3413,7 @@ ControlPanelWindow::CityPanelNextCity()
 
 	sint32 p_index = g_selected_item->GetVisiblePlayer();
 
-	Player *current=g_player[p_index];
+	Player *current=player_Get(p_index);
 
 	if (current==NULL)
 		return;
@@ -3443,7 +3443,7 @@ ControlPanelWindow::UnitPanelGetCurrent()
 
 	sint32 p_index = g_selected_item->GetVisiblePlayer();
 
-	Player *current=g_player[p_index];
+	Player *current=player_Get(p_index);
 
 	if (current==NULL)
 		return army;
@@ -3836,7 +3836,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 		s_totalPlayers = 0;
 		for(int i = 0; i < k_MAX_PLAYERS; i++)
-			if(g_player[i]) s_totalPlayers++;
+			if(player_Get(i)) s_totalPlayers++;
 
 		if(0 && !g_network.IsActive()) {
 

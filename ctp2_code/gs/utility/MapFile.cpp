@@ -48,7 +48,7 @@
 #include "gs/database/dbtypes.h"                    // k_MAX_NAME_LEN
 #include "gs/core/render_observer.h"
 #include "net/io/net_util.h"                   // PULL/PUSH macros
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get()
 #include "gs/database/profileDB.h"
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/TerrImprove.h"
@@ -476,7 +476,7 @@ bool MapFile::SaveVision(FILE *outfile)
 	m_chunk.m_id = k_VISION_HEADER;
 	for (uint8 p = 0; p < k_MAX_PLAYERS; p++)
     {
-		if(!g_player[p]) continue;
+		if(!player_Get(p)) continue;
 
 		if(!m_chunk.Save(outfile))
 		{
@@ -512,7 +512,7 @@ bool MapFile::SaveVision(FILE *outfile)
         {
 			for(int y = 0; y < h; y++)
             {
-				if(fwrite(&g_player[p]->m_vision->m_array[x][y], 1, sizeof(uint16), outfile) != sizeof(uint16))
+				if(fwrite(&player_Get(p)->m_vision->m_array[x][y], 1, sizeof(uint16), outfile) != sizeof(uint16))
 				{
 
 					DPRINTF(k_DBG_GAMESTATE, ("Error saving vision.\n"));
@@ -539,7 +539,7 @@ bool MapFile::SaveAdvances(FILE *outfile)
 
     for (uint8 p = 0; p < k_MAX_PLAYERS; p++)
     {
-		if (!g_player[p]) continue;
+		if (!player_Get(p)) continue;
 
 		if (!m_chunk.Save(outfile))
 		{
@@ -561,7 +561,7 @@ bool MapFile::SaveAdvances(FILE *outfile)
 
             for (sint32 a = 0; a < static_cast<sint32>(na); a++)
             {
-			uint8 hasAdv = g_player[p]->HasAdvance(a);
+			uint8 hasAdv = player_Get(p)->HasAdvance(a);
 			if (fwrite(&hasAdv, sizeof(uint8), 1, outfile) != 1)
 			{
 				DPRINTF(k_DBG_GAMESTATE, ("Error saving advances.\n"));
@@ -638,9 +638,9 @@ bool MapFile::SaveCivilizations(FILE *outfile)
 	{
 		uint32 * longPtr = (uint32 *)ptr;
 
-		if (g_player[i])
+		if (player_Get(i))
 		{
-			*longPtr = g_player[i]->m_civilisation->GetCivilisation();
+			*longPtr = player_Get(i)->m_civilisation->GetCivilisation();
 		}
 		else
 		{
@@ -650,9 +650,9 @@ bool MapFile::SaveCivilizations(FILE *outfile)
 		ptr += sizeof(uint32);
 
 		size_t length;
-		if (g_player[i])
+		if (player_Get(i))
 		{
-			MBCHAR const * pName = g_player[i]->GetLeaderName();
+			MBCHAR const * pName = player_Get(i)->GetLeaderName();
 			length = strlen(pName);
 			for (size_t j = 0; j < length; j++)
 			{
@@ -796,8 +796,8 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i]) {
-			g_player[i]->m_vision->SetTheWholeWorldUnexplored();
+		if(player_Get(i)) {
+			player_Get(i)->m_vision->SetTheWholeWorldUnexplored();
 		}
 
 	}
@@ -886,12 +886,12 @@ bool MapFile::LoadUnits(uint8 *buf, sint32 size)
 			sint32 type;
 			PULLBYTE(owner);
 			PULLLONG(type);
-			if(!g_player[owner]) {
+			if(!player_Get(owner)) {
 				DPRINTF(k_DBG_GAMESTATE, ("WARNING: Player %d does not exist, can't create unit"));
 			} else {
 				if(m_unitTypeMap[type] >= 0) {
 					MapPoint pos(x,y);
-					g_player[owner]->CreateUnit(m_unitTypeMap[type], pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
+					player_Get(owner)->CreateUnit(m_unitTypeMap[type], pos, Unit(), FALSE, CAUSE_NEW_ARMY_CHEAT);
 				}
 			}
 		}
@@ -963,18 +963,18 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 			citytype = unitutil_GetSeaCity();
 		}
 
-		if(!g_player[owner])
+		if(!player_Get(owner))
 			continue;
 
 		MapPoint pos(x,y);
-		Unit city = g_player[owner]->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
+		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
 		city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
 		city.CD()->SetImprovements(improvements);
 		city.CD()->SetWonders(wonders);
 
 		city.CD()->SetName(name);
 
-		g_player[owner]->m_builtWonders |= wonders;
+		player_Get(owner)->m_builtWonders |= wonders;
 
 	}
 
@@ -1016,11 +1016,11 @@ bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 			citytype = unitutil_GetSeaCity();
 		}
 
-		if(!g_player[owner])
+		if(!player_Get(owner))
 			continue;
 
 		MapPoint pos(x,y);
-		Unit city = g_player[owner]->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
+		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
 		Assert(city.IsValid());
 		if(city.IsValid()) {
 			city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
@@ -1028,7 +1028,7 @@ bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 			city.CD()->SetWonders(wonders);
 		}
 
-		g_player[owner]->m_builtWonders |= wonders;
+		player_Get(owner)->m_builtWonders |= wonders;
 
 	}
 
@@ -1098,14 +1098,14 @@ bool MapFile::LoadVision(uint8 *buf, sint32 size)
 	Assert(w == world_Get()->GetXWidth());
 	Assert(h == world_Get()->GetYHeight());
 
-	if(!g_player[p])
+	if(!player_Get(p))
 		return true;
 
 	sint32 x, y;
 	for(x = 0; x < w; x++) {
 		for(y = 0; y < h; y++) {
-			PULLSHORT(g_player[p]->m_vision->m_array[x][y]);
-			g_player[p]->m_vision->m_array[x][y] &= 0x8000;
+			PULLSHORT(player_Get(p)->m_vision->m_array[x][y]);
+			player_Get(p)->m_vision->m_array[x][y] &= 0x8000;
 		}
 	}
 
@@ -1155,12 +1155,12 @@ bool MapFile::LoadAdvances(uint8 * buf, sint32 a_Size)
     uint8 p;
     PULLBYTE(p);
 
-    Assert(g_player[p]);
-    if (!g_player[p])
+    Assert(player_Get(p));
+    if (!player_Get(p))
         return true;
 
-    Assert(!g_player[p]->m_disableChooseResearch);
-    g_player[p]->m_disableChooseResearch = TRUE;
+    Assert(!player_Get(p)->m_disableChooseResearch);
+    player_Get(p)->m_disableChooseResearch = TRUE;
 
     uint16 na;
     PULLSHORT(na);
@@ -1170,11 +1170,11 @@ bool MapFile::LoadAdvances(uint8 * buf, sint32 a_Size)
         PULLBYTE(hasAdv);
         if (hasAdv && (m_advanceTypeMap[i] >= 0))
         {
-            g_player[p]->m_advances->SetHasAdvance(m_advanceTypeMap[i]);
+            player_Get(p)->m_advances->SetHasAdvance(m_advanceTypeMap[i]);
         }
     }
 
-    g_player[p]->m_disableChooseResearch = FALSE;
+    player_Get(p)->m_disableChooseResearch = FALSE;
 
     Assert(pos <= a_Size);
     return true;
@@ -1225,9 +1225,9 @@ bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
 	{
 
 		PULLLONG(currNation);
-		if (g_player[i])
+		if (player_Get(i))
 		{
-			g_player[i]->m_civilisation->ResetCiv(currNation, g_player[i]->m_civilisation->GetGender());
+			player_Get(i)->m_civilisation->ResetCiv(currNation, player_Get(i)->m_civilisation->GetGender());
 			MBCHAR name[k_MAPFILE_NAME_LEN];
 			for (int j = 0; j < k_MAPFILE_NAME_LEN; j++)
 			{
@@ -1237,7 +1237,7 @@ bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
 
 			if (name[0])
 			{
-				g_player[i]->m_civilisation->AccessData()->SetLeaderName(name);
+				player_Get(i)->m_civilisation->AccessData()->SetLeaderName(name);
 
 				if(i == g_theProfileDB->GetPlayerIndex()) {
 					g_theProfileDB->SetLeaderName(name);

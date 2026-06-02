@@ -246,10 +246,10 @@ double Happy::CalcTooManyCities(Player *p)
 	{
 		res = -s * (num_cities - t);
 
-		if (g_slicEngine->GetSegment("28IAMaxCitiesReached")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
+		if (slicengine_Get()->GetSegment("28IAMaxCitiesReached")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
 			SlicObject *so = new SlicObject("28IAMaxCitiesReached");
 			so->AddRecipient(p->m_owner);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 	m_tracker->SetHappiness(HAPPY_REASON_NUM_CITIES, res);
@@ -335,11 +335,11 @@ double Happy::CalcPeaceMovement(CityData &cd, Player *p)
 
 
 	if (((m_peace <= -1.0) && (prev_peace > -1.0)) || (m_peace <= -2.0)) {
-		if (g_slicEngine->GetSegment("27IAWarDiscontentRising")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
+		if (slicengine_Get()->GetSegment("27IAWarDiscontentRising")->TestLastShown(p->m_owner, 10, turn_Get()->GetRound())) {
 			SlicObject *so = new SlicObject("27IAWarDiscontentRising") ;
 			so->AddRecipient(p->m_owner) ;
 			so->AddCivilisation(p->m_owner) ;
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 		}
 	}
 
@@ -583,7 +583,7 @@ void Happy::CountAffectivePop(CityData &cd)
 //              BOOL isFirstPass:          Whether the method was already
 //                                         called this turn.
 //
-// Globals    : g_slicEngine: The slic engine
+// Globals    : slicengine_Get(): The slic engine accessor
 //              player_Get:   The list of players
 //
 // Returns    : -
@@ -689,7 +689,7 @@ void Happy::CalcHappiness(CityData &cd, bool projectedOnly,
 	CalcCrime(cd, p);
 
 	sint32 intHap = (sint32)m_happiness;
-	sint32 newHappiness = g_slicEngine->CallMod(mod_CityHappiness, intHap, cd.GetHomeCity(), intHap);
+	sint32 newHappiness = slicengine_Get()->CallMod(mod_CityHappiness, intHap, cd.GetHomeCity(), intHap);
 	if(intHap != newHappiness)
 		m_happiness = newHappiness;
 }

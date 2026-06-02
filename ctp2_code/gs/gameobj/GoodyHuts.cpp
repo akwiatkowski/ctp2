@@ -424,7 +424,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 		{
 			so = new SlicObject("93BesetByNothing");
 			so->AddRecipient(owner) ;
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 			if (player_view::VisiblePlayer() == owner) {
@@ -452,13 +452,13 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			if(city.m_id == 0) {
 				so = new SlicObject("93BesetByNothing");
 				so->AddRecipient(owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 				break;
 			}
 			so = new SlicObject("80RuinBecomesCity") ;
 			so->AddRecipient(owner) ;
 			so->AddCity(city);
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
 
 
@@ -479,7 +479,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			so = new SlicObject("83DiscoveredAncientTreasure") ;
 			so->AddRecipient(owner) ;
 			so->AddGold(m_value) ;
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get %d gold!\n", m_value));
 			player_Get(owner)->AddGold(m_value);
 			if (owner == player_view::VisiblePlayer())
@@ -501,7 +501,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
             player_Get(owner)->m_advances->GiveAdvance(m_value, CAUSE_SCI_GOODY);
 			so->AddRecipient(owner);
 			so->AddAdvance(m_value);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			if (player_view::VisiblePlayer() == owner) {
 				audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
@@ -518,7 +518,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 				so = new SlicObject("82MercenariesHaveJoinedYourCivilisation") ;
 
 			so->AddRecipient(owner) ;
-			g_slicEngine->Execute(so) ;
+			slicengine_Get()->Execute(so) ;
 			DPRINTF(k_DBG_GAMESTATE, ("You get unit %d\n", m_value));
 			Unit u = player_Get(owner)->CreateUnit(m_value,
 												 point,
@@ -545,7 +545,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			if(Barbarians::AddBarbarians(point, owner, TRUE, turn_Get()->GetRound())) {
 				so = new SlicObject("84BesetByVandals") ;
 				so->AddRecipient(owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 
 				if (player_view::VisiblePlayer() == owner) {
 					audio_observer::AddSound((sint32)SOUNDTYPE_SFX, (uint32)0,
@@ -556,7 +556,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 			} else {
 				so = new SlicObject("93BesetByNothing");
 				so->AddRecipient(owner) ;
-				g_slicEngine->Execute(so) ;
+				slicengine_Get()->Execute(so) ;
 				DPRINTF(k_DBG_GAMESTATE, ("No soup for you!\n"));
 
 				if (player_view::VisiblePlayer() == owner) {

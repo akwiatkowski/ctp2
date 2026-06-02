@@ -181,18 +181,18 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 	safe_player(player)->m_virtualGoldSpent = 0;
 
 	if(safe_player(player)->GetGaiaController()->CanStartCountdown()) {
-		SlicSegment *       seg  = g_slicEngine->GetSegment("GCReadyToActivateUs");
+		SlicSegment *       seg  = slicengine_Get()->GetSegment("GCReadyToActivateUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
 			SlicObject *    so   = new SlicObject("GCReadyToActivateUs");
 			so->AddPlayer(player);
 			so->AddRecipient(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("GCReadyToActivateThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 
@@ -289,7 +289,7 @@ STDEHANDLER(BeginTurnGovernmentEvent)
 		p->m_changed_government_this_turn = FALSE;
 	}
 
-	g_slicEngine->RunPlayerTriggers(player);
+	slicengine_Get()->RunPlayerTriggers(player);
 
 	return GEV_HD_Continue;
 }
@@ -451,7 +451,7 @@ STDEHANDLER(CreateCityEvent)
 				SlicObject *so = new SlicObject("80RuinBecomesCity");
 				so->AddRecipient(player);
 				so->AddCity(city);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 				DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
 
 				g_gameObservers->NotifyCityFounded(player, city, pos, cause);
@@ -461,7 +461,7 @@ STDEHANDLER(CreateCityEvent)
 		{
 			SlicObject *so = new SlicObject("93BesetByNothing");
 			so->AddRecipient(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 
 	}
@@ -481,17 +481,17 @@ STDEHANDLER(CreateImprovementEvent)
 	safe_player(player)->CreateImprovement(imptype, pos, 0);
 
 	if(player_Get(player) && safe_player(player)->GetGaiaController()->HasMinTowersBuilt()) {
-		SlicSegment *	seg = g_slicEngine->GetSegment("GCMinObelisksReachedUs");
+		SlicSegment *	seg = slicengine_Get()->GetSegment("GCMinObelisksReachedUs");
 		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetSessionRound()))
 		{
 			SlicObject *	so = new SlicObject("GCMinObelisksReachedUs");
 			so->AddRecipient(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 
 			so = new SlicObject("GCMinObelisksReachedThem");
 			so->AddPlayer(player);
 			so->AddAllRecipientsBut(player);
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 	}
 

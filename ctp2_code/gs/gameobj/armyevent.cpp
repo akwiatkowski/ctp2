@@ -670,7 +670,7 @@ STDEHANDLER(ArmyGetExpelledOrderEvent)
 	SlicObject *so = new SlicObject("42UnitExpelled");
 	so->AddCivilisation(player);
 	so->AddRecipient(victim);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	return GEV_HD_Continue;
 }
@@ -1307,7 +1307,7 @@ STDEHANDLER(MoveUnitsEvent)
 				so->AddCivilisation(city_owner);
 				so->AddUnit(a[0]);
 				so->AddLocation(to);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			else
 			{
@@ -1342,13 +1342,13 @@ STDEHANDLER(MoveUnitsEvent)
 							SlicObject *so = new SlicObject("127CapitalCityCapturedVictim");
 							so->AddRecipient(originalOwner);
 							so->AddCity(c);
-							g_slicEngine->Execute(so);
+							slicengine_Get()->Execute(so);
 
 							so = new SlicObject("126CapitalCityCapturedAttacker");
 							so->AddRecipient(a->GetOwner());
 							so->AddCivilisation(originalOwner);
 							so->AddCity(c);
-							g_slicEngine->Execute(so);
+							slicengine_Get()->Execute(so);
 						}
 						else if (c.GetData()->GetCityData()->PopCount() >= 1)
 						{
@@ -1356,7 +1356,7 @@ STDEHANDLER(MoveUnitsEvent)
 						//	SlicObject *so = new SlicObject("123CitiesCapturedVictim");
 						//	so->AddRecipient(originalOwner);
 						//	so->AddCity(c);
-						//	g_slicEngine->Execute(so);
+						//	slicengine_Get()->Execute(so);
 						}
 
 						if(c.GetOwner() == player_view::VisiblePlayer())
@@ -1452,7 +1452,7 @@ STDEHANDLER(LawsuitEvent)
 		so->AddRecipient(victim);
 		so->AddLocation(a->RetPos());
 		so->AddUnitRecord(utype);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	return GEV_HD_Continue;

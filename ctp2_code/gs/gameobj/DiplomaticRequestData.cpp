@@ -408,7 +408,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_DEMAND_ADVANCE :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_DEMAND_ADVANCE) ;
 			player_Get(m_recipient)->GiveAdvance(m_owner, m_advance, CAUSE_SCI_DIPLOMACY) ;
-			g_slicEngine->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_advance);
+			slicengine_Get()->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_advance);
 
 			so = new SlicObject("01dipAcceptDemandAdvance");
 			so->AddRecipient(m_owner) ;
@@ -505,7 +505,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 		case REQUEST_TYPE_OFFER_ADVANCE :
 			player_Get(m_owner)->MakeShortCeaseFire(m_recipient, AGREEMENT_TYPE_OFFER_ADVANCE) ;
 			player_Get(m_owner)->GiveAdvance(m_recipient, m_advance, CAUSE_SCI_DIPLOMACY) ;
-			g_slicEngine->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
+			slicengine_Get()->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
 
 			so = new SlicObject("01dipAcceptOfferAdvance");
 			so->AddRecipient(m_owner) ;
@@ -587,7 +587,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			so2->AddCivilisation(m_recipient) ;
 			so2->AddCivilisation(m_owner) ;
 			so2->AddAttitude(ATTITUDE_TYPE_NEUTRAL);
-			g_slicEngine->Execute(so2) ;
+			slicengine_Get()->Execute(so2) ;
 			break ;
 		}
 
@@ -596,8 +596,8 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 			player_Get(m_owner)->GiveAdvance(m_recipient, m_advance, CAUSE_SCI_DIPLOMACY) ;
 			player_Get(m_recipient)->GiveAdvance(m_owner, m_reciprocalAdvance, CAUSE_SCI_DIPLOMACY) ;
 
-			g_slicEngine->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
-			g_slicEngine->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_reciprocalAdvance);
+			slicengine_Get()->RunDiscoveryTradedTriggers(m_owner, m_recipient, m_advance);
+			slicengine_Get()->RunDiscoveryTradedTriggers(m_recipient, m_owner, m_reciprocalAdvance);
 
 			so = new SlicObject("01dipAcceptExchangeAdvance");
 			so->AddRecipient(m_owner) ;
@@ -650,7 +650,7 @@ void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 
 	    if(so) {
 			so->SetIsDiplomaticResponse();
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 		}
 		player_Get(m_owner)->RegisterDiplomaticResponse(DiplomaticRequest(m_id));
 
@@ -914,7 +914,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 
 	if(so) {
 		so->SetIsDiplomaticResponse();
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	player_Get(m_owner)->RegisterDiplomaticResponse(DiplomaticRequest(m_id));

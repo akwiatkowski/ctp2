@@ -44,7 +44,7 @@
 #include "gs/world/cellunitlist.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
-#include "gs/gameobj/Player.h"                   // g_player
+#include "gs/gameobj/Player.h"                   // player_Get, player_arr_Get
 #include "net/general/net_info.h"
 #include "net/general/network.h"
 #include "gs/core/tiledmap_observer.h"
@@ -65,7 +65,7 @@ namespace
     {
         return g_god
             || g_fog_toggle
-            || (g_player[a_Index] && g_player[a_Index]->m_hasGlobalRadar);
+            || (player_Get(a_Index) && player_Get(a_Index)->m_hasGlobalRadar);
     }
 }
 
@@ -218,7 +218,7 @@ bool Vision::GetLastSeen(const MapPoint &pos, UnseenCellCarton &ucell) const
 	/// @todo Check why g_fog_toggle is not tested here
 	if(g_god) return false;
 
-	if(g_player[m_owner] && g_player[m_owner]->m_hasGlobalRadar)
+	if(player_Get(m_owner) && player_Get(m_owner)->m_hasGlobalRadar)
 		return false;
 
 	return m_unseenCells->GetAt(pos, ucell);

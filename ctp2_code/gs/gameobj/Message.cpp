@@ -16,7 +16,6 @@
 #include "gs/slic/SlicButton.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
 
-extern	Player	**g_player ;
 
 
 
@@ -47,8 +46,8 @@ void Message::RemoveAllReferences()
 		closeEvent->Callback();
 	}
 
-	if (g_player && g_player[GetOwner()])
-		g_player[GetOwner()]->RemoveMessageReferences(*this) ;
+	if (player_arr_Get() && player_Get(GetOwner()))
+		player_Get(GetOwner())->RemoveMessageReferences(*this) ;
 
 	AccessData()->KillMessageWindow();
 	messagepool_Get()->Del(*this) ;

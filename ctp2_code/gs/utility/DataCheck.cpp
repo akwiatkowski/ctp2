@@ -125,7 +125,6 @@ extern  OzoneDatabase           *g_theUVDB ;
 #include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
 // Others
 extern  World                   *g_theWorld;
-extern  Player                  **g_player;
 
 static DataCheck                *g_dataCheck = NULL;
 
@@ -393,8 +392,8 @@ void DataCheck::BeginTurn(void)
 	archive->SetStore();
 	check = new CheckSum();
 	for (i=0; i<k_MAX_PLAYERS; i++) {
-		if(!g_player[i]) continue;
-		g_player[i]->Serialize(*archive);
+		if(!player_Get(i)) continue;
+		player_Get(i)->Serialize(*archive);
 	}
 
 	check->AddData(archive->GetStream(), archive->StreamLen());

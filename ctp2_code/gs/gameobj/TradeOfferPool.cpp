@@ -6,8 +6,6 @@
 #include "gs/utility/Globals.h"
 #include "gs/fileio/gamefile.h"
 
-extern Player **g_player;
-
 TradeOfferPool::TradeOfferPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_OFFER)
 {
 	m_all_offers = new DynamicArray<TradeOffer>;
@@ -42,7 +40,7 @@ TradeOffer TradeOfferPool::Create(Unit fromCity,
 								 askingType, askingResource,
 								 toCity);
 	Insert(newData);
-	g_player[fromCity.GetOwner()]->AddTradeOffer(newOffer);
+	player_Get(fromCity.GetOwner())->AddTradeOffer(newOffer);
 	m_all_offers->Insert(newOffer);
 
 
@@ -131,6 +129,6 @@ void TradeOfferPool::RemoveTradeOffersFromCity(Unit &city)
 
 void TradeOfferPool::AddFromNetwork(const TradeOffer &offer)
 {
-	g_player[offer.GetFromCity().GetOwner()]->AddTradeOffer(offer);
+	player_Get(offer.GetFromCity().GetOwner())->AddTradeOffer(offer);
 	m_all_offers->Insert(offer);
 }

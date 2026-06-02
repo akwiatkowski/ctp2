@@ -10,7 +10,6 @@ extern	StringDB	*g_theStringDB ;
 
 
 #include "gs/gameobj/Player.h"
-extern Player **g_player;
 
 #include "net/general/network.h"
 
@@ -76,9 +75,9 @@ REGARD_TYPE Regard::GetUpdatedRegard(const PLAYER_INDEX me,
 
 
 
-        if (!g_player[me])
+        if (!player_Get(me))
             return REGARD_TYPE_NEUTRAL;
-        switch (g_player[me]->GetDiplomaticState(him)) {
+        switch (player_Get(me)->GetDiplomaticState(him)) {
         case DIPLOMATIC_STATE_WAR:
             return REGARD_TYPE_HOTWAR;
         case DIPLOMATIC_STATE_CEASEFIRE:

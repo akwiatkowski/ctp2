@@ -60,8 +60,6 @@ extern FilenameDB *g_theMessageIconFileDB;
 
 #define AND_I_AM_STEVE
 
-	extern	Player	**g_player ;
-
 	extern	StringDB	*g_theStringDB ;
 
 
@@ -304,9 +302,9 @@ MessageData::~MessageData()
 		KillMessageWindow();
 	}
 
-	if (m_advanceSet && m_owner >= 0 && m_owner < k_MAX_PLAYERS && g_player[m_owner])
+	if (m_advanceSet && m_owner >= 0 && m_owner < k_MAX_PLAYERS && player_Get(m_owner))
     {
-		g_player[m_owner]->StartResearching(m_advance);
+		player_Get(m_owner)->StartResearching(m_advance);
     }
 
 	delete [] m_text;

@@ -70,7 +70,7 @@ TerrainImprovementPool::TerrainImprovementPool(CivArchive &archive)
 //				extraData			: ?
 //
 // Globals    : g_theTerrainImprovementDB
-//				g_player
+//				player_Get
 //				g_tiledMap
 //				g_theWorld
 //				g_soundManager
@@ -107,9 +107,9 @@ TerrainImprovementPool::Create
 	// Obscure the improvement for all but the owner
 	for (sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if (g_player[i] && (i != owner))
+		if (player_Get(i) && (i != owner))
 		{
-			g_player[i]->m_vision->AddUnseen(point);
+			player_Get(i)->m_vision->AddUnseen(point);
 		}
 	}
 

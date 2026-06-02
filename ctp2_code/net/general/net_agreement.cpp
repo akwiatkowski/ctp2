@@ -10,8 +10,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/utility/AgreementDynArr.h"
 
-extern Player **g_player;
-
 NetAgreement::NetAgreement(AgreementData *data)
 {
 	m_data = data;
@@ -87,8 +85,8 @@ void NetAgreement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!agreementpool_Get()->IsValid(ag)) {
 		agreementpool_Get()->Insert(m_data);
 
-		g_player[m_data->m_owner]->m_agreed->Insert(ag);
-		g_player[m_data->m_recipient]->m_agreed->Insert(ag);
+		player_Get(m_data->m_owner)->m_agreed->Insert(ag);
+		player_Get(m_data->m_recipient)->m_agreed->Insert(ag);
 	}
 }
 

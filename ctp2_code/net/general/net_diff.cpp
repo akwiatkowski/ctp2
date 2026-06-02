@@ -5,8 +5,6 @@
 #include "gs/gameobj/Diffcly.h"
 #include "gs/gameobj/Player.h"
 
-extern Player** g_player;
-
 NetDifficulty::NetDifficulty(Difficulty* diff)
 {
 	m_difficulty = diff;
@@ -30,7 +28,7 @@ NetDifficulty::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PLAYER_INDEX pidx = (PLAYER_INDEX)getshort(&buf[2]);
 
 	Assert(pidx < k_MAX_PLAYERS);
-	Assert(g_player[pidx] != NULL);
+	Assert(player_Get(pidx) != NULL);
 
-	*g_player[pidx]->m_difficulty = *(Difficulty*)&buf[4];
+	*player_Get(pidx)->m_difficulty = *(Difficulty*)&buf[4];
 }

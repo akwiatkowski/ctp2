@@ -9,9 +9,6 @@
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
 
-extern Player **g_player;
-
-
 
 
 
@@ -55,8 +52,8 @@ void TaxRate::SetTaxRates(double s, sint32 owner)
 	Assert(0.0 <= s);
     Assert(s <= 1.0);
 
-	if(s > g_theGovernmentDB->Get(g_player[owner]->m_government_type)->GetMaxScienceRate())
-		s = g_theGovernmentDB->Get(g_player[owner]->m_government_type)->GetMaxScienceRate();
+	if(s > g_theGovernmentDB->Get(player_Get(owner)->m_government_type)->GetMaxScienceRate())
+		s = g_theGovernmentDB->Get(player_Get(owner)->m_government_type)->GetMaxScienceRate();
 
 	double oldscience = m_science;
 	m_science = s;

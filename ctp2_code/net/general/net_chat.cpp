@@ -34,8 +34,6 @@
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"
 
-extern Player **g_player;
-
 NetChat::NetChat(uint32 destmask, MBCHAR const * str, size_t len)
 {
 	m_destmask = destmask;
@@ -88,11 +86,11 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	if(g_network.IsHost()) {
 		for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-			if(!g_player[p]) continue;
+			if(!player_Get(p)) continue;
 
 			if(m_destmask & (1 << p) && p != g_network.GetPlayerIndex() &&
 			   p != g_network.IdToIndex(id) &&
-			   g_player[p]->IsNetwork()) {
+			   player_Get(p)->IsNetwork()) {
 				g_network.QueuePacket(g_network.IndexToId(p), this);
 			}
 		}

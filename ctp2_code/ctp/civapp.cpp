@@ -225,7 +225,7 @@
 #include "ui/interface/optionwarningscreen.h"
 #include "OrderRecord.h"
 #include "PersonalityRecord.h"
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_Get
 #include "gs/database/PlayListDB.h"
 #include "PollutionRecord.h"
 #include "PopRecord.h"
@@ -1956,8 +1956,8 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 		save_file_version_Get() < gamefile_CurrentVersion()))) {
 
 		for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i]) {
-				g_player[i]->m_messages->Clear();
+			if(player_Get(i)) {
+				player_Get(i)->m_messages->Clear();
 			}
 		}
 
@@ -1966,10 +1966,10 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 		SlicEngine::Reload(g_slic_filename);
 
-		if(g_scenarioUsePlayerNumber > 0 && g_player[g_scenarioUsePlayerNumber] &&
-		   g_player[g_scenarioUsePlayerNumber]->m_civilisation &&
+		if(g_scenarioUsePlayerNumber > 0 && player_Get(g_scenarioUsePlayerNumber) &&
+		   player_Get(g_scenarioUsePlayerNumber)->m_civilisation &&
 		   g_theCivilisationDB && g_theProfileDB) {
-			Player *        p       = g_player[g_scenarioUsePlayerNumber];
+			Player *        p       = player_Get(g_scenarioUsePlayerNumber);
 			StringId        id      =
                 (p->m_civilisation->GetDBRec())->GetLeaderNameMale();
 			const MBCHAR *name = g_theStringDB->GetNameStr(id);
@@ -1998,11 +1998,11 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	{
 		for (size_t p = 0; p < k_MAX_PLAYERS; ++p)
 		{
-			if (g_player[p])
+			if (player_Get(p))
 			{
-				g_player[p]->m_civilisation->ResetCiv
-					(g_player[p]->m_civilisation->GetCivilisation(),
-					 g_player[p]->m_civilisation->GetGender()
+				player_Get(p)->m_civilisation->ResetCiv
+					(player_Get(p)->m_civilisation->GetCivilisation(),
+					 player_Get(p)->m_civilisation->GetGender()
 					);
 			}
 		}
@@ -2070,7 +2070,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 				GEV_BeginTurn,
 				GEA_Player, g_selected_item->GetCurPlayer(),
-				GEA_Int, g_player[g_selected_item->GetCurPlayer()]->m_current_round,
+				GEA_Int, player_Get(g_selected_item->GetCurPlayer())->m_current_round,
 				GEA_End);
 		}
 	}
@@ -2101,9 +2101,9 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	if(g_turn->IsEmail() && archive != NULL) {
 		g_selected_item->KeyboardSelectFirstUnit();
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
-			g_selected_item->SetSelectCity(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0));
-			g_director->AddCenterMap(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).RetPos());
+		   (player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
+			g_selected_item->SetSelectCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0));
+			g_director->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
 		}
 		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
 
@@ -2152,12 +2152,12 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
     }
 
 	if (    g_turn->IsEmail()
-	     && g_player[g_selected_item->GetCurPlayer()]->IsTurnOver()
+	     && player_Get(g_selected_item->GetCurPlayer())->IsTurnOver()
 	){
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_BeginTurn,
 		                       GEA_Player, g_selected_item->GetCurPlayer(),
-		                       GEA_Int,    g_player[g_selected_item->GetCurPlayer()]->GetCurRound() + 1,
+		                       GEA_Int,    player_Get(g_selected_item->GetCurPlayer())->GetCurRound() + 1,
 		                       GEA_End);
 	}
 
@@ -2405,9 +2405,9 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	if(g_turn->IsEmail() && archive != NULL) {
 		g_selected_item->KeyboardSelectFirstUnit();
 		if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
-		   (g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Num() > 0)) {
-			g_selected_item->SetSelectCity(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0));
-			g_director->AddCenterMap(g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0).RetPos());
+		   (player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
+			g_selected_item->SetSelectCity(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0));
+			g_director->AddCenterMap(player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0).RetPos());
 		}
 		g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
 
@@ -2802,8 +2802,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				if (m_gameLoaded) {
 					Player *human = NULL;
 					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-						if (g_player[p] && g_player[p]->IsHuman()) {
-							human = g_player[p];
+						if (player_Get(p) && player_Get(p)->IsHuman()) {
+							human = player_Get(p);
 							break;
 						}
 					}
@@ -2838,8 +2838,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				if (m_gameLoaded) {
 					sint32 flipped = 0;
 					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-						if (g_player[p]) {
-							g_player[p]->m_playerType = PLAYER_TYPE_ROBOT;
+						if (player_Get(p)) {
+							player_Get(p)->m_playerType = PLAYER_TYPE_ROBOT;
 							flipped++;
 						}
 					}
@@ -2859,8 +2859,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					} else {
 						Player *human = NULL;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (g_player[p] && g_player[p]->IsHuman()) {
-								human = g_player[p];
+							if (player_Get(p) && player_Get(p)->IsHuman()) {
+								human = player_Get(p);
 								break;
 							}
 						}
@@ -2950,8 +2950,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						} else {
 							Player *human = NULL;
 							for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-								if (g_player[p] && g_player[p]->IsHuman()) {
-									human = g_player[p];
+								if (player_Get(p) && player_Get(p)->IsHuman()) {
+									human = player_Get(p);
 									break;
 								}
 							}
@@ -3008,8 +3008,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					} else {
 						Player *human = NULL;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (g_player[p] && g_player[p]->IsHuman()) {
-								human = g_player[p];
+							if (player_Get(p) && player_Get(p)->IsHuman()) {
+								human = player_Get(p);
 								break;
 							}
 						}
@@ -3044,14 +3044,14 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					} else {
 						Player *human = NULL;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (g_player[p] && g_player[p]->IsHuman()) {
-								human = g_player[p];
+							if (player_Get(p) && player_Get(p)->IsHuman()) {
+								human = player_Get(p);
 								break;
 							}
 						}
 						if (!human) {
 							smoketest_send_response("error", cmd, "no_human_player");
-						} else if (!g_player[target_player]) {
+						} else if (!player_Get(target_player)) {
 							smoketest_send_response("error", cmd, "player_not_active");
 						} else {
 							DIPLOMATIC_STATE state = human->GetDiplomaticState(target_player);
@@ -3125,8 +3125,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					} else {
 						Player *human = NULL;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (g_player[p] && g_player[p]->IsHuman()) {
-								human = g_player[p];
+							if (player_Get(p) && player_Get(p)->IsHuman()) {
+								human = player_Get(p);
 								break;
 							}
 						}
@@ -3183,8 +3183,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					} else {
 						Player *human = NULL;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-							if (g_player[p] && g_player[p]->IsHuman()) {
-								human = g_player[p];
+							if (player_Get(p) && player_Get(p)->IsHuman()) {
+								human = player_Get(p);
 								break;
 							}
 						}
@@ -3228,8 +3228,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				if (m_gameLoaded) {
 					Player *human = NULL;
 					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-						if (g_player[p] && g_player[p]->IsHuman()) {
-							human = g_player[p];
+						if (player_Get(p) && player_Get(p)->IsHuman()) {
+							human = player_Get(p);
 							break;
 						}
 					}
@@ -3241,9 +3241,9 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						detail[0] = '\0';
 						int count = 0;
 						for (sint32 p = 0; p < k_MAX_PLAYERS && count < 10; p++) {
-							if (!g_player[p]) continue;
-							for (sint32 i = 0; i < g_player[p]->m_all_units->Num() && count < 10; i++) {
-								Unit u = g_player[p]->m_all_units->Access(i);
+							if (!player_Get(p)) continue;
+							for (sint32 i = 0; i < player_Get(p)->m_all_units->Num() && count < 10; i++) {
+								Unit u = player_Get(p)->m_all_units->Access(i);
 								if (u.IsValid() && (u.GetVisibility() & (1 << vis_player))) {
 									MapPoint pos;
 									u.GetPos(pos);
@@ -3438,7 +3438,7 @@ sint32 CivApp::Process(void)
 
 	if (m_gameLoaded && g_savedGameRequest && g_selected_item)
     {
-        Player *    p = g_player[g_selected_item->GetCurPlayer()];
+        Player *    p = player_Get(g_selected_item->GetCurPlayer());
 		if(p && !p->IsRobot()
 		|| g_selected_item->GetVisiblePlayer() == g_selected_item->GetCurPlayer())
         {
@@ -3835,7 +3835,7 @@ void CivApp::PostRestartGameAction(void)
 
 void CivApp::PostRestartGameSameMapAction(void)
 {
-	Player * p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player * p = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if (p && g_theProfileDB)
 	{

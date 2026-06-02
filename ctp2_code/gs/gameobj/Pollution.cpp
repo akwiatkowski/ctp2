@@ -113,7 +113,7 @@ void Pollution::Serialize(CivArchive &archive)
 //
 // Parameters : -
 //
-// Globals    : g_slicEngine    : message display handler
+// Globals    : slicengine_Get()    : message display handler
 //              player_Get()    : player accessor
 //
 // Returns    : -
@@ -124,7 +124,7 @@ void Pollution::Serialize(CivArchive &archive)
 void Pollution::WarnPlayers()
 {
 	SlicObject *	so	= new SlicObject("911ImminentFlood");
-	SlicSegment *	seg	= g_slicEngine->GetSegment("911ImminentFlood");
+	SlicSegment *	seg	= slicengine_Get()->GetSegment("911ImminentFlood");
 
 	// Start at 1: skip the barbarians.
 	for(PLAYER_INDEX i = 1; i < k_MAX_PLAYERS; ++i)
@@ -140,7 +140,7 @@ void Pollution::WarnPlayers()
 
 	if (so->GetNumRecipients())
 	{
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 	else
 	{

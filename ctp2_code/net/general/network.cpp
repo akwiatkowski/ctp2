@@ -1224,10 +1224,10 @@ void Network::ChangeHost(uint16 id)
 
 void Network::SessionLost()
 {
-	if(g_slicEngine && m_readyToStart) {
+	if(slicengine_Get() && m_readyToStart) {
 		SlicObject *so = new SlicObject("355SessionLost");
 		so->AddRecipient(m_playerIndex);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	} else {
 		g_civApp->PostQuitToLobbyAction();
 	}
@@ -3605,7 +3605,7 @@ void Network::SetReadyToStart(BOOL ready)
 
 void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 {
-	if(g_slicEngine && player != m_playerIndex && name) {
+	if(slicengine_Get() && player != m_playerIndex && name) {
 		SlicObject *so = new SlicObject("351NetworkPlayerJoined");
 		so->AddAction(name);
 		so->AddCivilisation(player);
@@ -3615,7 +3615,7 @@ void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_PLAYER_JOINED"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 	}
 
@@ -3627,18 +3627,18 @@ void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 
 void Network::SendWrongPlayerJoinedMessage(MBCHAR *name, sint32 player)
 {
-	if(g_slicEngine) {
+	if(slicengine_Get()) {
 		SlicObject *so = new SlicObject("352DifferentPlayerJoined");
 		so->AddAction(name);
 		so->AddCivilisation(player);
 		so->AddRecipient(m_playerIndex);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 }
 
 void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 {
-	if(g_slicEngine) {
+	if(slicengine_Get()) {
 		SlicObject *so;
 		so = new SlicObject("350NetworkPlayerLeft");
 		so->AddAction(name);
@@ -3649,7 +3649,7 @@ void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_PLAYER_LEFT"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if(m_iAmHost) {
@@ -3660,7 +3660,7 @@ void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 
 void Network::SendNewHostMessage(MBCHAR *name, sint32 player)
 {
-	if(g_slicEngine) {
+	if(slicengine_Get()) {
 		SlicObject *so;
 		if(m_iAmHost) {
 			so = new SlicObject("353YouAreNowHost");
@@ -3674,7 +3674,7 @@ void Network::SendNewHostMessage(MBCHAR *name, sint32 player)
 		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_YOU_ARE_NOW_HOST"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 	}
 
 	if(m_iAmHost) {

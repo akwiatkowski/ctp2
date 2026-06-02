@@ -92,7 +92,7 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 	so->AddCity(m_fromCity);
 	so->AddCity(destCity);
 	so->AddGood(m_offerResource);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if(g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_SEND_OFFER_ACCEPT_MESSAGE,

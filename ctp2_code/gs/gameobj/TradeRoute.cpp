@@ -58,7 +58,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 				so->AddCity(dest);
 				so->AddCivilisation(source.GetOwner());
 				so->AddRecipient(dest.GetOwner());
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 		}
 	}

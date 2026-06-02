@@ -1188,9 +1188,9 @@ void AgreementData::RecipientIsViolating(PLAYER_INDEX curPlayer, BOOL force, sin
 			so1->AddCity(m_targetCity);
 			so2->AddCity(m_targetCity);
 		}
-		g_slicEngine->Execute(so1);
-		if(g_slicEngine->GetSegment(objName)) {
-			g_slicEngine->Execute(so2);
+		slicengine_Get()->Execute(so1);
+		if(slicengine_Get()->GetSegment(objName)) {
+			slicengine_Get()->Execute(so2);
 		} else {
 			delete so2;
 		}
@@ -1253,8 +1253,8 @@ void AgreementData::OwnerIsViolating(PLAYER_INDEX curPlayer, sint32 currentRound
 			so1->AddCity(m_targetCity);
 			so2->AddCity(m_targetCity);
 		}
-		g_slicEngine->Execute(so1);
-		g_slicEngine->Execute(so2);
+		slicengine_Get()->Execute(so1);
+		slicengine_Get()->Execute(so2);
 
 
 		Agreement me(m_id);

@@ -268,7 +268,7 @@ void MilitaryReadiness::SetLevel(sint32 gov, DynamicArray<Army> &all_armies,
 	m_delta = safe_divide_double((GetReadyHP(gov, m_readinessLevel) - GetReadyHP(gov, oldLevel)), static_cast<double>(turns));
 	RecalcCost();
 
-	g_slicEngine->RunTrigger(TRIGGER_LIST_READINESS,
+	slicengine_Get()->RunTrigger(TRIGGER_LIST_READINESS,
 							 ST_PLAYER, m_owner,
 							 ST_END);
 }
@@ -396,10 +396,10 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 		m_cost -= all_units[i].cost;
 
 		if (0 != m_owner) {
-			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
+			if (slicengine_Get()->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
 				SlicObject *so = new SlicObject("120NoSupport");
 				so->AddRecipient(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
@@ -432,10 +432,10 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 
 			m_cost -= prof_units[i].cost;
 
-			if (g_slicEngine->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
+			if (slicengine_Get()->GetSegment("120NoSupport")->TestLastShown(m_owner, 1, turn_Get()->GetSessionRound())) {
 				SlicObject *so = new SlicObject("120NoSupport");
 				so->AddRecipient(m_owner);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 
 			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,

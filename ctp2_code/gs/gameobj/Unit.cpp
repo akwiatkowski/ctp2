@@ -152,17 +152,17 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		case CAUSE_REMOVE_ARMY_BOMBARD:
 			Assert(killedBy >= 0);
 			if(killedBy >= 0) {
-				g_slicEngine->RunUnitDeadTriggers(*this, killedBy);
+				slicengine_Get()->RunUnitDeadTriggers(*this, killedBy);
 			}
 			break;
 		case CAUSE_REMOVE_ARMY_OUTOFFUEL:
-			g_slicEngine->RunOutOfFuelTriggers(*this);
+			slicengine_Get()->RunOutOfFuelTriggers(*this);
 			break;
 		case CAUSE_REMOVE_ARMY_NO_MAT_SUPPORT:
-			g_slicEngine->RunUnitCantBeSupportedTriggers(*this);
+			slicengine_Get()->RunUnitCantBeSupportedTriggers(*this);
 			break;
 		default:
-			g_slicEngine->RunMiscUnitDeathTriggers(*this);
+			slicengine_Get()->RunMiscUnitDeathTriggers(*this);
 			break;
 	}
 
@@ -2555,7 +2555,7 @@ bool Unit::Sink(sint32 chance)
 			SlicObject *so = new SlicObject("999LostAtSea");
 			so->AddRecipient(GetOwner());
 			so->AddUnitRecord(GetType());
-			g_slicEngine->Execute(so);
+			slicengine_Get()->Execute(so);
 			KillUnit(CAUSE_REMOVE_ARMY_DISBANDED, -1);
 
 			return true;

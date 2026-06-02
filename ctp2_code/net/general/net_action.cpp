@@ -1862,7 +1862,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				SlicObject *so = new SlicObject("91OfferRejected");
 				so->AddRecipient(m_data[0]);
 				so->AddCivilisation(m_data[1]);
-				g_slicEngine->Execute(so);
+				slicengine_Get()->Execute(so);
 			}
 			break;
 		}

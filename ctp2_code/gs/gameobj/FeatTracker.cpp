@@ -359,7 +359,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	const MBCHAR *slicFunc;
 	if(rec->GetExcludeFunction(slicFunc))
 	{
-		if(g_slicEngine->CallExcludeFunc(slicFunc, type, player))
+		if(slicengine_Get()->CallExcludeFunc(slicFunc, type, player))
 			return;
 	}
 
@@ -384,7 +384,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 	so->AddPlayer(player);
 	so->AddRecipient(player);
 	so->AddInt(type);
-	g_slicEngine->Execute(so);
+	slicengine_Get()->Execute(so);
 
 	if (Player* p = safe_player(player)) {
 		p->m_score->AddFeat();

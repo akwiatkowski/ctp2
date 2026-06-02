@@ -58,7 +58,7 @@ void TaxRate::SetTaxRates(double s, sint32 owner)
 	double oldscience = m_science;
 	m_science = s;
 	if(oldscience != m_science) {
-		g_slicEngine->RunScienceRateTriggers(owner);
+		slicengine_Get()->RunScienceRateTriggers(owner);
 	}
 
 	if(g_network.IsClient() && g_network.IsLocalPlayer(owner)) {

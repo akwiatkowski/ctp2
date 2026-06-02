@@ -143,8 +143,11 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     // these before Game::NewGame runs, so the adoption branch fires.
     //   GameSettings : reads profiledb_Get(), g_network in ctor.
     //   FeatTracker  : reads g_theFeatDB, g_theBuildingDB in ctor.
+    //   World        : ctor needs map config (size + wrap flags) read
+    //                  from profiledb_Get(); adoption is the natural fit.
     if (gamesettings_Get()) m_settings.reset(gamesettings_Get());
     if (feattracker_Get())  m_featTracker.reset(feattracker_Get());
+    if (world_Get())        m_world.reset(world_Get());
 
 #undef ADOPT_OR_CREATE
 
@@ -202,6 +205,7 @@ void Game::Cleanup() {
     m_unitPool.reset();
 
     m_players.clear();
+    world_Set(nullptr);
     m_world.reset();
 
     rand_ptr_Set(nullptr);

@@ -298,7 +298,7 @@ struct HeavyCityDataFixture
 
         // civapp_Get() may have been nulled by a previous test's fixture destructor.
         // Always restore it since s_app is a process-wide singleton.
-        civapp_Get() = s_app;
+        civapp_Set(s_app);
 
         // SelectedItem and SlicEngine must exist before Player construction.
         // Player::InitPlayer calls Advances::InitialAdvance which calls
@@ -322,7 +322,7 @@ struct HeavyCityDataFixture
         player_arr_Set(nullptr);
         selitem_Set(nullptr);
         slicengine_Set(nullptr);
-        civapp_Get() = nullptr;
+        civapp_Set(nullptr);
         rand_ptr_Set(nullptr);
         turn_Set(nullptr);
     }

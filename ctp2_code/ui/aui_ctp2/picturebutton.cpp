@@ -74,7 +74,7 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BO
 	AUI_ERRCODE retval = AUI_ERRCODE_OK;
 
 	delete m_upPicture;
-	if (g_civPaths->FindFile(C3DIR_PICTURES, upName, path)) {
+	if (civpaths_Get()->FindFile(C3DIR_PICTURES, upName, path)) {
 		m_upPicture = new Picture(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {
@@ -82,7 +82,7 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BO
 	}
 
 	delete m_downPicture;
-	if (g_civPaths->FindFile(C3DIR_PICTURES, downName, path)) {
+	if (civpaths_Get()->FindFile(C3DIR_PICTURES, downName, path)) {
 		m_downPicture = new Picture(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {

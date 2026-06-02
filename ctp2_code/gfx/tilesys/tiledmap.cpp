@@ -80,7 +80,7 @@
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "gs/gameobj/CityRadius.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/fileio/CivPaths.h"                   // g_civPaths
+#include "gs/fileio/CivPaths.h"                   // civpaths_Get()
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
 #include "ui/interface/controlpanelwindow.h"         // controlpanel_Get()
 #include "ui/aui_ctp2/ctp2_button.h"

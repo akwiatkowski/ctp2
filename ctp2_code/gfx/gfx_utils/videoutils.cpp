@@ -15,7 +15,7 @@
 #define k_ID_VIDEOWINDOW_CLOSE_BOX	20001
 
 C3Window				*g_videoWindow;
-extern CivPaths			*g_civPaths;
+extern CivPaths			*civpaths_Get();
 
 void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 data, void *cookie);
 

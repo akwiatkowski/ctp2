@@ -79,8 +79,8 @@
 #include "gs/slic/SlicSymTab.h"
 #include "gs/gameobj/Player.h"					// player_arr_Get()
 #include "gs/gameobj/Unit.h"
-#include "gs/fileio/CivPaths.h"				// g_civPaths
-#include "gs/core/game_observer.h"             // g_gameObservers
+#include "gs/fileio/CivPaths.h"				// civpaths_Get()
+#include "gs/core/game_observer.h"             // gameobservers_Get()
 #include "gs/core/game.h"                      // Ctp2::Game (trampoline target)
 #include "ctp/civapp.h"                        // civapp_Get → CivApp::GetGame
 #include "gs/core/player_view.h"               // player_view::VisiblePlayer
@@ -1117,8 +1117,8 @@ void SlicEngine::AddTutorialRecord(sint32 player, MBCHAR *title, MBCHAR *text,
 
     m_records[player]->AddTail(new SlicRecord(player, title, text, segment));
 
-    if (title && g_gameObservers) {
-        g_gameObservers->NotifyTutorialAddRecord(
+    if (title && gameobservers_Get()) {
+        gameobservers_Get()->NotifyTutorialAddRecord(
             title, m_records[player]->GetCount() - 1);
     }
 }
@@ -2504,13 +2504,13 @@ void SlicEngine::RunTrigger(TRIGGER_LIST tlist, ...)
 
 void SlicEngine::RecreateTutorialRecord()
 {
-	if (!g_gameObservers) return;
+	if (!gameobservers_Get()) return;
 
 	if (m_tutorialActive && m_records[m_tutorialPlayer]) {
 		sint32 c = 0;
 		PointerList<SlicRecord>::Walker walk(m_records[m_tutorialPlayer]);
 		while (walk.IsValid()) {
-			g_gameObservers->NotifyTutorialAddRecord(
+			gameobservers_Get()->NotifyTutorialAddRecord(
 				walk.GetObj()->AccessTitle(), c++);
 			walk.Next();
 		}
@@ -2573,8 +2573,8 @@ void SlicEngine::BlankScreen(bool blank)
 	sint32 researching = (visible >= 0 && player_Get(visible))
 		? player_Get(visible)->m_advances->GetResearching()
 		: -1;
-	if (g_gameObservers) {
-		g_gameObservers->NotifyBlankScreenChanged(blank, visible, researching);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyBlankScreenChanged(blank, visible, researching);
 	}
 }
 
@@ -2582,8 +2582,8 @@ void SlicEngine::CheckPendingResearch()
 {
 	if(m_doResearchOnUnblank) {
 		m_doResearchOnUnblank = FALSE;
-		if (m_researchOwner == player_view::VisiblePlayer() && g_gameObservers) {
-			g_gameObservers->NotifyResearchAdvanceDialog(
+		if (m_researchOwner == player_view::VisiblePlayer() && gameobservers_Get()) {
+			gameobservers_Get()->NotifyResearchAdvanceDialog(
 				m_researchOwner, -1, m_researchText);
 		}
 	}

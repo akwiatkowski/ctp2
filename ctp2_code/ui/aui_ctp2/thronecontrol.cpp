@@ -54,7 +54,7 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern CivPaths	*g_civPaths;
+extern CivPaths	*civpaths_Get();
 
 static MBCHAR *s_throneImage[ k_THRONE_IMAGES + 1 ];
 
@@ -188,7 +188,7 @@ void ThroneControl::InitCommon(void)
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR s[_MAX_PATH];
 
-	if (!g_civPaths->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
+	if (!civpaths_Get()->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
 	strcat( s, "\\" );
 	strcat( s, s_throneImage[0] );
 
@@ -199,7 +199,7 @@ void ThroneControl::InitCommon(void)
 	m_background->Load();
 
 	for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
-		if (!g_civPaths->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
+		if (!civpaths_Get()->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) return;
 		strcat( s, "\\" );
 		strcat( s, s_throneImage[i+1] );
 
@@ -305,7 +305,7 @@ aui_Surface *ThroneControl::InitializeNewBG( MBCHAR *filename )
 	}
 
 	MBCHAR s[_MAX_PATH];
-	if (!g_civPaths->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) {
+	if (!civpaths_Get()->GetSpecificPath(C3DIR_PICTURES, s, FALSE)) {
 		delete tempBG;
 		return NULL;
 	}

@@ -242,7 +242,7 @@ void AgreementMatrix::SetAgreement( const ai::Agreement & agreement )
 #endif
 
 	}
-	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(0);
 }
 
 

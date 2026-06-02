@@ -113,7 +113,7 @@ sint32 spnewgamescreen_displayMyWindow()
 	{
 		profiledb_Get()->DefaultSettings();
 		g_spNewGameWindow->m_useCustomMap=false;
-		g_civPaths->ClearCurScenarioPath();
+		civpaths_Get()->ClearCurScenarioPath();
 
 		if (slicengine_Get())
 		{
@@ -285,8 +285,8 @@ spnewgamescreen_returnPress(aui_Control *control, uint32 action, uint32 data, vo
 	gameinit_SetEmailGame(FALSE);
 	is_scenario_Set(FALSE);
 	memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
-	g_civPaths->ClearCurScenarioPath();
-	g_civPaths->ClearCurScenarioPackPath();
+	civpaths_Get()->ClearCurScenarioPath();
+	civpaths_Get()->ClearCurScenarioPackPath();
 
 	if (spnewgamescreen_removeMyWindow(action))
 	{
@@ -389,7 +389,7 @@ void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, u
 {
 	MBCHAR	tempPath[_MAX_PATH];
 	snprintf(tempPath, sizeof(tempPath), "%s%s%s",
-	        g_civPaths->GetCurScenarioPath(),
+	        civpaths_Get()->GetCurScenarioPath(),
 	        FILE_SEP,
 	        k_SCENARIO_DEFAULT_SAVED_GAME_NAME
 	       );
@@ -406,7 +406,7 @@ void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, u
 
 		if (GameFile::FetchExtendedSaveInfo(tempPath, saveInfo)) {
 			MBCHAR scenPath[_MAX_PATH];
-			strcpy(scenPath, g_civPaths->GetCurScenarioPath());
+			strcpy(scenPath, civpaths_Get()->GetCurScenarioPath());
 			start_info_type_Set(saveInfo->startInfoType);
 			loadsavescreen_BeginLoadProcess(saveInfo, scenPath);
 		}
@@ -427,9 +427,9 @@ void spnewgamescreen_scenarioPress(aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if (g_civPaths->GetCurScenarioPath())
+	if (civpaths_Get()->GetCurScenarioPath())
 	{
-		g_civPaths->ClearCurScenarioPath();
+		civpaths_Get()->ClearCurScenarioPath();
 		g_spNewGameWindow->Update();
 	}
 	else

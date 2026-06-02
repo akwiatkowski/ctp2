@@ -986,7 +986,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 // 2026-06-03: dropped 10 → 9 — g_graphicsOptions file-static in
 //   gfx_options.cpp, extern dropped from gfx_options.h.  ~15 callers
 //   across ui/, gfx/, gs/, ai/, ctp/ migrated to graphicsoptions_Get().
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 9;
+// 2026-06-03: dropped 9 → 7 — g_civPaths + g_gameObservers file-static
+//   in their defining TUs, externs dropped from CivPaths.h and
+//   game_observer.h.  ~50 cross-TU callers migrated to civpaths_Get()
+//   and gameobservers_Get() respectively.
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 7;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

@@ -171,9 +171,9 @@
 #include "ctp/civapp.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"           // civilisationpool_Get()
-#include "gs/fileio/CivPaths.h"                   // g_civPaths
+#include "gs/fileio/CivPaths.h"                   // civpaths_Get()
 #include "ConstRecord.h"                // g_theConstDB
-#include "gs/core/game_observer.h"      // g_gameObservers
+#include "gs/core/game_observer.h"      // gameobservers_Get()
 #include "gs/core/player_view.h"        // player_view::VisiblePlayer/CurPlayer/PlayerAfter
 #include "gs/gameobj/MovePath.h"        // army_QueueMovePath
 #include "gs/gameobj/CreateUnit.h"
@@ -1209,7 +1209,7 @@ void Player::AddArmy(const Army &army,
 void Player::RemoveArmy(const Army &army, CAUSE_REMOVE_ARMY cause,
 						PLAYER_INDEX killedBy, bool fromNetwork)
 {
-	if (g_gameObservers) g_gameObservers->NotifyArmyRemoved(m_owner, army);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyArmyRemoved(m_owner, army);
 
 	sint32 dead = FindArmyIndex(army);
 
@@ -1509,8 +1509,8 @@ bool Player::AddCityReferenceToPlayer(Unit u,  CAUSE_NEW_CITY cause)
 	{
 	}
 
-	if (!IsRobot() && g_gameObservers) {
-		g_gameObservers->NotifyUpdateCityList();
+	if (!IsRobot() && gameobservers_Get()) {
+		gameobservers_Get()->NotifyUpdateCityList();
 	}
 
 	m_maxCityCount = std::max(m_maxCityCount, m_all_cities->Num());
@@ -1590,7 +1590,7 @@ bool Player::RemoveCityReferenceFromPlayer(const Unit &killme,  CAUSE_REMOVE_CIT
 		}
 	}
 
-	if (g_gameObservers) g_gameObservers->NotifyUpdateCityList();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUpdateCityList();
 
 	return true;
 }
@@ -2416,13 +2416,13 @@ void Player::BeginTurn()
 	{
 		if ( m_can_use_space_button )
 		{
-			if (g_gameObservers) g_gameObservers->NotifyShowSpaceButton(m_owner);
+			if (gameobservers_Get()) gameobservers_Get()->NotifyShowSpaceButton(m_owner);
 		}
 
-		if (g_gameObservers) {
-			g_gameObservers->NotifyUpdateScienceWindow(m_owner);
-			g_gameObservers->NotifyUpdateUnitSelectionWindow(m_owner);
-			g_gameObservers->NotifyUpdateCityStatusWindow(m_owner);
+		if (gameobservers_Get()) {
+			gameobservers_Get()->NotifyUpdateScienceWindow(m_owner);
+			gameobservers_Get()->NotifyUpdateUnitSelectionWindow(m_owner);
+			gameobservers_Get()->NotifyUpdateCityStatusWindow(m_owner);
 		}
 	}
 
@@ -2477,7 +2477,7 @@ void Player::EndTurn()
 	m_is_turn_over = TRUE;
 	m_end_turn_soon = FALSE;
 
-	if (g_gameObservers) g_gameObservers->NotifyControlPanelRedraw(m_owner);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyControlPanelRedraw(m_owner);
 
 	if (m_isDead)
 		return;
@@ -3139,7 +3139,7 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 void Player::AddTransportPoints(sint32 delta)
 {
 	m_tradeTransportPoints += delta;
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 void Player::RemoveTransportPoints(sint32 delta)
@@ -3159,7 +3159,7 @@ void Player::RemoveTransportPoints(sint32 delta)
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
 
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 void Player::AddUsedTransportPoints(sint32 delta)
@@ -3169,7 +3169,7 @@ void Player::AddUsedTransportPoints(sint32 delta)
 	   !wonderutil_GetFreeTradeRoutes(m_builtWonders)) {
 		tradebids_Get()->CancelBidsFrom(m_owner);
 	}
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 void Player::RemoveUsedTransportPoints(sint32 delta)
@@ -3179,7 +3179,7 @@ void Player::RemoveUsedTransportPoints(sint32 delta)
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_PLAYER_TRADE_DATA,
 									  m_owner, m_usedTradeTransportPoints, m_tradeTransportPoints));
 	}
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 void Player::RemoveTradeRoute(TradeRoute route, CAUSE_KILL_TRADE_ROUTE cause)
@@ -3394,8 +3394,8 @@ void Player::CreateTradeBid(Unit &fromCity, sint32 resource, Unit &toCity)
 		return;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyForeignTradeBid(m_owner, fromCity, toCity, resource);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyForeignTradeBid(m_owner, fromCity, toCity, resource);
 	}
 }
 
@@ -3799,11 +3799,11 @@ void Player::BuildResearchDialog(AdvanceType advance)
 				// (FIXME)
 				) {
 			slicengine_Get()->AddResearchOnUnblank(m_owner, text);
-		} else if (g_gameObservers) {
-			g_gameObservers->NotifyResearchAdvanceDialog(m_owner, advance, text);
+		} else if (gameobservers_Get()) {
+			gameobservers_Get()->NotifyResearchAdvanceDialog(m_owner, advance, text);
 		}
-	} else if (g_gameObservers) {
-		g_gameObservers->NotifyResearchAdvanceDialog(m_owner, advance, NULL);
+	} else if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyResearchAdvanceDialog(m_owner, advance, NULL);
 	}
 }
 
@@ -3856,9 +3856,9 @@ void Player::AddUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->AddVisible(pnt, range);
 	}
-	else if (g_gameObservers)
+	else if (gameobservers_Get())
 	{
-		g_gameObservers->NotifyVisionAdded(m_owner, pnt, range);
+		gameobservers_Get()->NotifyVisionAdded(m_owner, pnt, range);
 	}
 }
 
@@ -3868,9 +3868,9 @@ void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 	{
 		m_vision->RemoveVisible(pnt, range);
 	}
-	else if (g_gameObservers)
+	else if (gameobservers_Get())
 	{
-		g_gameObservers->NotifyVisionRemoved(m_owner, pnt, range);
+		gameobservers_Get()->NotifyVisionRemoved(m_owner, pnt, range);
 	}
 }
 
@@ -4187,8 +4187,8 @@ void Player::GiveMap(PLAYER_INDEX recipient)
 	if (!player_Get(recipient))
 		return;
 	player_Get(recipient)->m_vision->MergeMap(m_vision);
-	if (g_gameObservers) {
-		g_gameObservers->NotifyVisionCopied(m_owner, recipient);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyVisionCopied(m_owner, recipient);
 	}
 }
 
@@ -5236,8 +5236,8 @@ void Player::AddMessage(Message &msg)
 		   || g_robotMessages
 #endif
 		){
-			if (g_gameObservers) {
-				g_gameObservers->NotifyMessageReceived(msg, m_owner);
+			if (gameobservers_Get()) {
+				gameobservers_Get()->NotifyMessageReceived(msg, m_owner);
 			}
 		}
 	}
@@ -5252,8 +5252,8 @@ void Player::NotifyModalMessageDestroyed()
 		}
 	}
 	// Ask the UI observer (if any) to pop the next pending modal alert.
-	if (g_gameObservers) {
-		g_gameObservers->NotifyModalMessageDismissed(m_owner);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyModalMessageDismissed(m_owner);
 	}
 }
 
@@ -5861,8 +5861,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 		m_vision->SetTheWholeWorldExplored();
 		m_vision->ClearUnseen();
 
-		if (g_gameObservers) {
-			g_gameObservers->NotifyVisionCopied(m_owner, m_owner);
+		if (gameobservers_Get()) {
+			gameobservers_Get()->NotifyVisionCopied(m_owner, m_owner);
 		}
 	}
 
@@ -6560,8 +6560,8 @@ bool Player::ActuallySetGovernment(sint32 type)
         so->AddRecipient(m_owner);
         so->AddGovernment(type);
         slicengine_Get()->Execute(so) ;
-		if (g_gameObservers) {
-			g_gameObservers->NotifyGovernmentChanged(m_owner, type);
+		if (gameobservers_Get()) {
+			gameobservers_Get()->NotifyGovernmentChanged(m_owner, type);
 		}
     }
 
@@ -7046,8 +7046,8 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 	// tutorial gating, close-all-screens, victory-screen vs. movie split —
 	// all owned by the UI observer.  Headless build registers a stub that
 	// just logs the game-over.
-	if (!IsRobot() && g_gameObservers) {
-		g_gameObservers->NotifyGameOver(m_owner, reason,
+	if (!IsRobot() && gameobservers_Get()) {
+		gameobservers_Get()->NotifyGameOver(m_owner, reason,
 		                                previouslyWon, previouslyLost);
 	}
 }
@@ -7204,7 +7204,7 @@ void Player::RemoveDeadPlayers()
 			player_Get(i)->m_vision = NULL;
 
 			player_arr_Get()[i] = NULL;
-			if (g_gameObservers) g_gameObservers->NotifyPlayerRemoved((PLAYER_INDEX)i);
+			if (gameobservers_Get()) gameobservers_Get()->NotifyPlayerRemoved((PLAYER_INDEX)i);
 			turn_Get()->PlayerDead(i);
 
 			CtpAi::RemovePlayer(i);
@@ -7952,7 +7952,7 @@ void Player::ContactMade(PLAYER_INDEX with)
 			}
 		}
 
-		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(m_owner);
+		if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(m_owner);
 	}
 }
 
@@ -8061,8 +8061,8 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 			player_Get(wowner)->m_hasGlobalRadar = FALSE;
 			wonder_tracker_Get()->SetGlobeSatFlags(wonder_tracker_Get()->GlobeSatFlags() & ~(1 << m_owner));
 			m_vision->ClearUnseen();
-			if (g_gameObservers) {
-				g_gameObservers->NotifyVisionCopied(wowner, wowner);
+			if (gameobservers_Get()) {
+				gameobservers_Get()->NotifyVisionCopied(wowner, wowner);
 			}
 		}
 
@@ -8156,7 +8156,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 		m_all_cities->Access(i).NotifyAdvance(advance);
 	}
 
-	if (g_gameObservers) g_gameObservers->NotifyUpdateMessages(m_owner);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUpdateMessages(m_owner);
 
 	sint32 player_idx;
 	sint32 city_idx, city_num;
@@ -8225,7 +8225,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 			m_advances->ResetCanResearch(advance);
 		}
 
-		if (g_gameObservers) g_gameObservers->NotifyAdvanceListReload(m_owner);
+		if (gameobservers_Get()) gameobservers_Get()->NotifyAdvanceListReload(m_owner);
 	}
 
 	if(advRec->GetAgeIndex() > m_age)
@@ -8682,8 +8682,8 @@ void Player::RecreateMessageIcons()
 	}
 
 	// Re-render this player's message icons + control-panel list (UI work).
-	if (!IsRobot() && g_gameObservers) {
-		g_gameObservers->NotifyMessagesRedisplay(m_owner);
+	if (!IsRobot() && gameobservers_Get()) {
+		gameobservers_Get()->NotifyMessagesRedisplay(m_owner);
 	}
 }
 

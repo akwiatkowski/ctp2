@@ -46,7 +46,7 @@
 
 #include "gfx/tilesys/tiledmap.h"   // tiledmap_Get
 
-#include "gs/fileio/CivPaths.h"   // g_civPaths
+#include "gs/fileio/CivPaths.h"   // civpaths_Get()
 #include "gfx/gfx_utils/rimutils.h"
 #include "MapIconRecord.h"
 
@@ -462,7 +462,7 @@ void TileSet::LoadMapIcons(void)
 		strncpy(name, g_theMapIconDB->Get(i)->GetValue(), sizeof(name) - 1);
 		name[sizeof(name) - 1] = '\0';
 
-		if (g_civPaths->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
+		if (civpaths_Get()->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
 
 			snprintf(path, sizeof(path), "%s", name);
 			char * lastDot = strrchr(path, '.');
@@ -532,7 +532,7 @@ Pixel16 TileSet::ConvertMapIcons(const MBCHAR *name)  //EMOD
     //{
 	//	snprintf(name, sizeof(name), "UPC%.3d.TGA", i+1);
 
-		if (g_civPaths->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
+		if (civpaths_Get()->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
 			//snprintf(path, sizeof(path), "upc%.3d.rim", i+1);
             size_t  testlen = 0;
 			uint8 * buf = reinterpret_cast<uint8 *>(g_ImageMapPF->getData(path, testlen));
@@ -811,7 +811,7 @@ Error:
 void TileSet::QuickLoadMapped(void)
 {
 	MBCHAR  path[_MAX_PATH];
-	g_civPaths->FindFile(C3DIR_TILES, TileSetFile(), path);
+	civpaths_Get()->FindFile(C3DIR_TILES, TileSetFile(), path);
 
 #ifdef WIN32
 	m_fileHandle = CreateFile(path,

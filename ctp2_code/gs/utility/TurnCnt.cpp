@@ -46,7 +46,7 @@
 #include "gs/world/Cell.h"
 #include "gs/gameobj/citydata.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "ConstRecord.h"            // g_theConstDB
 #include "gs/database/DB.h"
 #include "ctp/debugtools/debugmemory.h"
@@ -229,7 +229,7 @@ void TurnCount::InformNetwork()
 
 void TurnCount::InformMessages()
 {
-	g_gameObservers->NotifyBeginTurnMessage(player_view::VisiblePlayer());
+	gameobservers_Get()->NotifyBeginTurnMessage(player_view::VisiblePlayer());
 }
 
 void TurnCount::SliceInformNetwork()
@@ -773,13 +773,13 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		tiledmap_observer::InvalidateMix();
 		tiledmap_observer::InvalidateMap();
 		tiledmap_observer::Refresh();
-		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
+		if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 	}
 #else
 	tiledmap_observer::InvalidateMix();
 	tiledmap_observer::InvalidateMap();
 	tiledmap_observer::Refresh();
-	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 #endif
 
 #endif // Unreachable
@@ -975,7 +975,7 @@ sint32 finite_count=0;
 			tiledmap_observer::InvalidateMix();
 			tiledmap_observer::InvalidateMap();
 			tiledmap_observer::Refresh();
-			if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(player_view::VisiblePlayer());
+			if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 			InformMessages();
 		}
 	} while (0);
@@ -1147,7 +1147,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 		is_scenario_Set(FALSE);
 
 		MBCHAR fullPath[_MAX_PATH], *c, *startc, *fc;
-		strncpy(fullPath, g_civPaths->GetDesktopPath(), sizeof(fullPath));
+		strncpy(fullPath, civpaths_Get()->GetDesktopPath(), sizeof(fullPath));
 		fullPath[sizeof(fullPath) - 1] = '\0';
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games
 		strncat(fullPath, "\\CTP2 Email To ", sizeof(fullPath) - strlen(fullPath) - 1);

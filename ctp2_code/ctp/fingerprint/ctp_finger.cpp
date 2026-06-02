@@ -4,7 +4,7 @@
 #include "ctp/fingerprint/verify.h"
 #include "ctp/fingerprint/ctp_finger.h"
 
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 
 BOOL ctpfinger_Check(void)
 {
@@ -12,10 +12,10 @@ BOOL ctpfinger_Check(void)
 	MBCHAR	fingerprintPath[_MAX_PATH];
 	MBCHAR	userListPath[_MAX_PATH];
 
-	if (!g_civPaths->FindFile(k_FINGERPRINT_ASSET_DIR, k_FINGERPRINT_ASSET, fingerprintPath))
+	if (!civpaths_Get()->FindFile(k_FINGERPRINT_ASSET_DIR, k_FINGERPRINT_ASSET, fingerprintPath))
 		return FALSE;
 
-	if (!g_civPaths->FindFile(k_USER_LIST_ASSET_DIR, k_USER_LIST_ASSET, userListPath))
+	if (!civpaths_Get()->FindFile(k_USER_LIST_ASSET_DIR, k_USER_LIST_ASSET, userListPath))
 		return FALSE;
 
 	if (GetInfoFromFingerprint(fingerprintPath) && IsValidUser(userListPath))

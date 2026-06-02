@@ -61,7 +61,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get()
 #include "CivilisationRecord.h"
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "gs/fileio/civscenarios.h"
 #include "ai/ctpai.h"
 #include "gs/gameobj/Diffcly.h"
@@ -1966,7 +1966,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 
 	MBCHAR  dirPath[_MAX_PATH];
 	MBCHAR  path[_MAX_PATH];
-	if (!g_civPaths->GetSavePath(dir, dirPath)) return list;
+	if (!civpaths_Get()->GetSavePath(dir, dirPath)) return list;
 
 #ifdef WIN32
 	snprintf(path, sizeof(path), "%s%s*.*", dirPath, FILE_SEP);
@@ -2547,7 +2547,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 	PointerList<GameMapInfo> * list = new PointerList<GameMapInfo>;
 	MBCHAR dirPath[_MAX_PATH];
 	MBCHAR path[_MAX_PATH];
-	if (!g_civPaths->GetSavePath(dir, dirPath)) return list;
+	if (!civpaths_Get()->GetSavePath(dir, dirPath)) return list;
 
 #ifdef WIN32
 	snprintf(path, sizeof(path), "%s%s*.*", dirPath, FILE_SEP);

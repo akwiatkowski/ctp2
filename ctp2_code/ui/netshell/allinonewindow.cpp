@@ -58,7 +58,7 @@
 #include "ui/aui_ctp2/c3textfield.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "CivilisationRecord.h"
-#include "gs/fileio/CivPaths.h"                      // g_civPaths
+#include "gs/fileio/CivPaths.h"                      // civpaths_Get()
 #include "gs/fileio/civscenarios.h"
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include "ui/aui_ctp2/ctp2_spinner.h"
@@ -2400,8 +2400,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
 
-							g_civPaths->SetCurScenarioPath(scen->m_path);
-							g_civPaths->SetCurScenarioPackPath(pack->m_path);
+							civpaths_Get()->SetCurScenarioPath(scen->m_path);
+							civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 						} else {
 							dontHaveScenario = true;
 						}
@@ -2421,8 +2421,8 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 						Scenario *scen;
 						if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 														&pack, &scen)) {
-							g_civPaths->SetCurScenarioPath(scen->m_path);
-							g_civPaths->SetCurScenarioPackPath(pack->m_path);
+							civpaths_Get()->SetCurScenarioPath(scen->m_path);
+							civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 						} else {
 							dontHaveScenario = true;
 						}
@@ -3917,8 +3917,8 @@ void AllinoneWindow_SetupGameForLaunch( void )
 		if(civscenarios_Get()->FindScenario(scenario_name_buf(),
 										&pack, &scen)) {
 
-			g_civPaths->SetCurScenarioPath(scen->m_path);
-			g_civPaths->SetCurScenarioPackPath(pack->m_path);
+			civpaths_Get()->SetCurScenarioPath(scen->m_path);
+			civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 		}
 	} else {
 		if(scenInfo->m_scenarioName[0] != 0) {
@@ -3929,12 +3929,12 @@ void AllinoneWindow_SetupGameForLaunch( void )
 											&pack, &scen)) {
 
 				profiledb_Get()->SetIsScenario(TRUE);
-				g_civPaths->SetCurScenarioPath(scen->m_path);
-				g_civPaths->SetCurScenarioPackPath(pack->m_path);
+				civpaths_Get()->SetCurScenarioPath(scen->m_path);
+				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 			}
 		} else {
 			profiledb_Get()->SetIsScenario(FALSE);
-			g_civPaths->ClearCurScenarioPath();
+			civpaths_Get()->ClearCurScenarioPath();
 		}
 	}
 }

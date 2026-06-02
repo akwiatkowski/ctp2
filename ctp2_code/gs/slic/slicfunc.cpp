@@ -96,7 +96,7 @@
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Civilisation.h"
 #include "ctp/civapp.h"
-#include "gs/core/game_observer.h"      // g_gameObservers
+#include "gs/core/game_observer.h"      // gameobservers_Get()
 #include "gs/core/great_library_db.h"   // GL_DB_* constants
 #include "gs/core/player_view.h"        // player_view::*
 #include "gs/core/slic_screen.h"        // SLIC_SCREEN_* constants
@@ -1910,49 +1910,49 @@ SFN_ERROR Slic_EnableScreensButton::Call(SlicArgList *args)
 
 SFN_ERROR Slic_OpenCiv::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_CIV);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_CIV);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenCity::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_CITY);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_CITY);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenUnit::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_UNIT);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_UNIT);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenScience::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_SCIENCE);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_SCIENCE);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenDiplomacy::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_DIPLOMACY);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_DIPLOMACY);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenTrade::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_TRADE);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_TRADE);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenInfo::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_INFO);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_INFO);
 	return SFN_ERROR_OK;
 }
 
 SFN_ERROR Slic_OpenOptions::Call(SlicArgList *args)
 {
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScreen(SLIC_SCREEN_OPTIONS);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScreen(SLIC_SCREEN_OPTIONS);
 	return SFN_ERROR_OK;
 }
 
@@ -2389,8 +2389,8 @@ SFN_ERROR Slic_LibraryUnit::Call(SlicArgList *args)
 		}
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_UNITS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_UNITS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2409,8 +2409,8 @@ SFN_ERROR Slic_LibraryBuilding::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_BUILDINGS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_BUILDINGS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2429,8 +2429,8 @@ SFN_ERROR Slic_LibraryWonder::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_WONDERS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_WONDERS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2449,8 +2449,8 @@ SFN_ERROR Slic_LibraryAdvance::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_ADVANCES);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_ADVANCES);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2469,8 +2469,8 @@ SFN_ERROR Slic_LibraryTerrain::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_TERRAIN);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_TERRAIN);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2489,8 +2489,8 @@ SFN_ERROR Slic_LibraryConcept::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_CONCEPTS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_CONCEPTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2509,8 +2509,8 @@ SFN_ERROR Slic_LibraryGovernment::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_GOVERNMENTS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_GOVERNMENTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2529,8 +2529,8 @@ SFN_ERROR Slic_LibraryTileImprovement::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestOpenGreatLibrary(type, GL_DB_TILE_IMPROVEMENTS);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestOpenGreatLibrary(type, GL_DB_TILE_IMPROVEMENTS);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2752,8 +2752,8 @@ SFN_ERROR Slic_Attract::Call(SlicArgList *args)
 	if(!args->GetString(0, string))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestAttract(string);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestAttract(string);
 	}
 	return SFN_ERROR_OK;
 }
@@ -2767,8 +2767,8 @@ SFN_ERROR Slic_StopAttract::Call(SlicArgList *args)
 	if(!args->GetString(0, string))
 		return SFN_ERROR_TYPE_ARGS;
 
-	if (g_gameObservers) {
-		g_gameObservers->NotifyRequestStopAttract(string);
+	if (gameobservers_Get()) {
+		gameobservers_Get()->NotifyRequestStopAttract(string);
 	}
 	return SFN_ERROR_OK;
 }
@@ -5790,10 +5790,10 @@ SFN_ERROR Slic_BlankScreen::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	slicengine_Get()->BlankScreen(blank != 0);
-	if (!blank && g_gameObservers) {
+	if (!blank && gameobservers_Get()) {
 		// UI build re-selects the first unit/city, recenters the map,
 		// and reshows the radar + control panel.  Headless: no-op.
-		g_gameObservers->NotifyRequestUnblankScreen();
+		gameobservers_Get()->NotifyRequestUnblankScreen();
 	}
 
 	return SFN_ERROR_OK;
@@ -6620,7 +6620,7 @@ SFN_ERROR Slic_OpenScenarioEditor::Call(SlicArgList *args)
 	if(args->Count() != 0)
 		return SFN_ERROR_NUM_ARGS;
 
-	if (g_gameObservers) g_gameObservers->NotifyRequestOpenScenarioEditor();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestOpenScenarioEditor();
 	return SFN_ERROR_OK;
 }
 
@@ -6655,7 +6655,7 @@ SFN_ERROR Slic_OpenBuildQueue::Call(SlicArgList *args)
 	if(!args->GetCity(0, city))
 		return SFN_ERROR_TYPE_BUILTIN;
 
-	if (g_gameObservers) g_gameObservers->NotifyRequestEditQueue(city->GetCityData());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRequestEditQueue(city->GetCityData());
 	return SFN_ERROR_OK;
 }
 

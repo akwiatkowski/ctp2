@@ -38,7 +38,7 @@
 #include <dirent.h>
 #endif
 
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 
 static CivScenarios	*g_civScenarios = NULL;
 
@@ -227,7 +227,7 @@ void CivScenarios::LoadData(void)
 	 sint32			i;
 
 
-	g_civPaths->GetScenarioRootPath(rootPath);
+	civpaths_Get()->GetScenarioRootPath(rootPath);
 
 #ifdef WIN32
 	snprintf(path, sizeof(path), "%s%s*.*", rootPath, FILE_SEP);
@@ -463,7 +463,7 @@ CIV_SCEN_ERR CivScenarios::MakeNewPack(MBCHAR *dirName, MBCHAR *packName, MBCHAR
 	struct stat		tmpstat;
 #endif
 
-	g_civPaths->GetScenarioRootPath(rootPath);
+	civpaths_Get()->GetScenarioRootPath(rootPath);
 
 	snprintf(path, sizeof(path), "%s%s%s", rootPath, FILE_SEP, dirName);
 #ifdef WIN32

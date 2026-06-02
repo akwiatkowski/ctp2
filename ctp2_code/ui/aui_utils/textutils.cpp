@@ -33,7 +33,7 @@
 
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 
 static HFONT		g_hFont;
 
@@ -57,7 +57,7 @@ void textutils_Initialize(void)
 {
 	MBCHAR		path[_MAX_PATH];
 
-	g_civPaths->FindFile(C3DIR_FONTS, k_FONT_FILE_NAME, path);
+	civpaths_Get()->FindFile(C3DIR_FONTS, k_FONT_FILE_NAME, path);
 	textutils_AddFont(path);
 }
 

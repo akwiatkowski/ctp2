@@ -2178,7 +2178,7 @@ void EditQueue::SaveCallback(aui_Control *control, uint32 action, uint32 data, v
 		return;
 	}
 
-	g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, saveFileName);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, saveFileName);
 	strcat(saveFileName, FILE_SEP);
 	strcat(saveFileName, saveName);
 
@@ -2284,7 +2284,7 @@ void EditQueue::LoadQueryCallback(bool response, void *data)
 	const MBCHAR *loadName = (const MBCHAR *)data;
 
 	char loadFileName[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
 	strcat(loadFileName, FILE_SEP);
 	strcat(loadFileName, loadName);
 
@@ -2305,7 +2305,7 @@ void EditQueue::LoadQueryCallback(bool response, void *data)
 void  EditQueue::LoadCustom(const MBCHAR *loadName)
 {
 	char loadFileName[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
 	strcat(loadFileName, FILE_SEP);
 	strcat(loadFileName, loadName);
 
@@ -2409,7 +2409,7 @@ void EditQueue::QueueFileList(aui_Control *control, uint32 action, uint32 data, 
 void EditQueue::DisplayQueueContents(const MBCHAR *queueName)
 {
 	char loadFileName[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, loadFileName);
 	strcat(loadFileName, FILE_SEP);
 	strcat(loadFileName, queueName);
 
@@ -2517,7 +2517,7 @@ void EditQueue::DeleteQueryCallback(bool response, void *data)
 	const MBCHAR *queueName = (const MBCHAR *)data;
 
 	char delFileName[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, delFileName);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, delFileName);
 	strcat(delFileName, "\\");
 	strcat(delFileName, queueName);
 
@@ -2683,7 +2683,7 @@ void EditQueue::SaveNameResponse(bool response, const char *text, void *userData
 		}
 
 		static MBCHAR saveFileName[_MAX_PATH];
-		g_civPaths->GetSavePath(C3SAVEDIR_QUEUES, saveFileName);
+		civpaths_Get()->GetSavePath(C3SAVEDIR_QUEUES, saveFileName);
 		strcat(saveFileName, FILE_SEP);
 		strcat(saveFileName, text);
 

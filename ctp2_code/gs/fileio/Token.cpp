@@ -567,8 +567,8 @@ sint32 Token::Next()
 	if(GetType() == TOKEN_DO_NOT_IMPORT_DEFAULTS
 	|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS
 	){
-		if(g_civPaths->GetCurScenarioPath()     == NULL        // Load only defaults if this isn't a scenario
-		&& g_civPaths->GetCurScenarioPackPath() == NULL
+		if(civpaths_Get()->GetCurScenarioPath()     == NULL        // Load only defaults if this isn't a scenario
+		&& civpaths_Get()->GetCurScenarioPackPath() == NULL
 		|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS  // But not if you have this token
 		){
 			g_load_defaults = false;

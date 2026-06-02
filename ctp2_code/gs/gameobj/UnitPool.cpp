@@ -99,7 +99,7 @@ Unit UnitPool::Create (
 	Insert(ptr);
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion so
 	// observers' `Unit::GetActor()` / pool lookups succeed.
-	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(id, ptr->GetState());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptr->GetState());
 	return id;
 }
 
@@ -122,7 +122,7 @@ Unit UnitPool::Create (
 
 	Insert(ptr);
 	// Phase 3 slice 7a: fire spawn event AFTER pool insertion (see above).
-	if (g_gameObservers) g_gameObservers->NotifyUnitSpawned(id, ptr->GetState());
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitSpawned(id, ptr->GetState());
 	return id;
 }
 
@@ -168,8 +168,8 @@ void UnitPool::Serialize(CivArchive &archive)
 			Insert(unitData);
 			// Phase 3 slice 7a: fire spawn event AFTER pool insertion so
 			// observers can look up the freshly-loaded unit.
-			if (g_gameObservers)
-				g_gameObservers->NotifyUnitSpawned(Unit(unitData->m_id), unitData->GetState());
+			if (gameobservers_Get())
+				gameobservers_Get()->NotifyUnitSpawned(Unit(unitData->m_id), unitData->GetState());
 		}
 		unitpool_log->debug("UnitPool::Serialize: loaded all {} units", count);
 	}

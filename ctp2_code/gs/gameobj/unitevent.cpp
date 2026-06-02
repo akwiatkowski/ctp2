@@ -220,7 +220,7 @@ STDEHANDLER(InvestigationEvent)
 
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
-	if (g_gameObservers) g_gameObservers->NotifyCityEspionageDisplay(c);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyCityEspionageDisplay(c);
 	return GEV_HD_Continue;
 }
 

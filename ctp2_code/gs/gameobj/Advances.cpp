@@ -1292,7 +1292,7 @@ sint32 Advances::GetProjectedScience() const
 
 	if(m_owner == player_view::VisiblePlayer() && !g_network.IsClient())
 	{
-		if (g_gameObservers) g_gameObservers->NotifySelectedCity(m_owner);
+		if (gameobservers_Get()) gameobservers_Get()->NotifySelectedCity(m_owner);
 	}
 
 	return s;

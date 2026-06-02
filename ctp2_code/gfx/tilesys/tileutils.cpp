@@ -48,7 +48,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainRecord.h"
 
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 
 BOOL		g_isForSpace;
 

@@ -329,7 +329,7 @@ STDEHANDLER(FinishBeginTurnEvent)
 	DPRINTF(k_DBG_GAMESTATE, ("Gold: %d\n", p->m_gold->GetLevel()));
 	DPRINTF(k_DBG_GAMESTATE, ("Public Works: %d\n", p->m_materialPool->GetMaterials()));
 
-	g_gameObservers->NotifyUpdateScienceWindow(p->m_owner);
+	gameobservers_Get()->NotifyUpdateScienceWindow(p->m_owner);
 
 	if(g_network.IsHost())
 	{
@@ -345,9 +345,9 @@ STDEHANDLER(FinishBeginTurnEvent)
 	// Auto-select first unit — only meaningful when UI is present.
 	if ((p->IsHuman() ||
 	     (p->IsNetwork() && g_network.IsLocalPlayer(p->m_owner))) &&
-	    g_gameObservers)
+	    gameobservers_Get())
 	{
-		g_gameObservers->NotifyAutoSelectFirstUnit(p->m_owner);
+		gameobservers_Get()->NotifyAutoSelectFirstUnit(p->m_owner);
 	}
 
 	if(g_network.IsHost())
@@ -453,7 +453,7 @@ STDEHANDLER(CreateCityEvent)
 				slicengine_Get()->Execute(so);
 				DPRINTF(k_DBG_GAMESTATE, ("You get a city!\n"));
 
-				g_gameObservers->NotifyCityFounded(player, city, pos, cause);
+				gameobservers_Get()->NotifyCityFounded(player, city, pos, cause);
 			}
 		}
 		else if(cause == CAUSE_NEW_CITY_GOODY_HUT)
@@ -611,7 +611,7 @@ STDEHANDLER(FinishBuildPhaseEvent)
 
 		// Not sure whether this is needed, but it seems logical to update the
 		// control panel data after the build phase.
-		g_gameObservers->NotifyBuildPhaseComplete(player);
+		gameobservers_Get()->NotifyBuildPhaseComplete(player);
 	}
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_StartMovePhase,

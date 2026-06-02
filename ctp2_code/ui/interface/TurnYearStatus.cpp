@@ -42,7 +42,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gs/fileio/gamefile.h"           // is_scenario_Get()
-#include "gs/fileio/CivPaths.h"           // g_civPaths
+#include "gs/fileio/CivPaths.h"           // civpaths_Get()
 
 sTurnLengthOverride *TurnYearStatus::s_pTurnLengthOverride    = NULL;
 uint32               TurnYearStatus::s_turnLengthOverrideSize = 0;
@@ -146,7 +146,7 @@ void TurnYearStatus::BuildTurnLengthOverride()
 	if (is_scenario_Get() || (scenario_name_buf() && *scenario_name_buf()))
 	{
 		MBCHAR overridePath[_MAX_PATH];
-		snprintf(overridePath, sizeof(overridePath), "%s%s%s", g_civPaths->GetCurScenarioPath(), FILE_SEP, "turnlength.txt");
+		snprintf(overridePath, sizeof(overridePath), "%s%s%s", civpaths_Get()->GetCurScenarioPath(), FILE_SEP, "turnlength.txt");
 
 		s_useCustomYear = false;
 

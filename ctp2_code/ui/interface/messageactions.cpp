@@ -90,7 +90,7 @@ void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 dat
 	if (wavName)
     {
 		MBCHAR filename[_MAX_PATH];
-		g_civPaths->FindFile(C3DIR_SOUNDS, wavName, filename);
+		civpaths_Get()->FindFile(C3DIR_SOUNDS, wavName, filename);
 #if defined(WIN32)
 		PlaySound(filename, NULL, SND_ASYNC | SND_FILENAME);
 #endif

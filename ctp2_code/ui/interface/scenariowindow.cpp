@@ -474,8 +474,8 @@ void ScenarioWindow::CancelPress(aui_Control *control, uint32 action, uint32 dat
 
 			memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
 
-			g_civPaths->ClearCurScenarioPath();
-			g_civPaths->ClearCurScenarioPackPath();
+			civpaths_Get()->ClearCurScenarioPath();
+			civpaths_Get()->ClearCurScenarioPackPath();
 
 			c3ui_Get()->AddAction(new CloseScenarioScreenAction);
 		}
@@ -606,10 +606,10 @@ void ScenarioWindow::SetProfileFromScenario( void )
 	if (s_ScenarioWindow) {
 		if (s_ScenarioWindow->GetScenario() != NULL) {
 
-			g_civPaths->SetCurScenarioPath(s_ScenarioWindow->GetScenario()->m_path);
+			civpaths_Get()->SetCurScenarioPath(s_ScenarioWindow->GetScenario()->m_path);
 
 
-			g_civPaths->SetCurScenarioPackPath(s_ScenarioWindow->GetScenarioPack()->m_path);
+			civpaths_Get()->SetCurScenarioPackPath(s_ScenarioWindow->GetScenarioPack()->m_path);
 
 			profiledb_Get()->SetIsScenario(TRUE);
 

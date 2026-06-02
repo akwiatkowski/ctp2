@@ -14,7 +14,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 extern aui_UI		*g_ui;
 
 StaticPicture::StaticPicture(
@@ -82,7 +82,7 @@ AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *picture )
 {
 	MBCHAR filename[_MAX_PATH];
 
-	if (g_civPaths->FindFile(C3DIR_PICTURES, picture, filename))
+	if (civpaths_Get()->FindFile(C3DIR_PICTURES, picture, filename))
     {
 	    AUI_ERRCODE errcode;
 		m_picture = new Picture(&errcode, filename);
@@ -131,7 +131,7 @@ void StaticPicture::SetPicture(MBCHAR *picture)
 	MBCHAR filename[_MAX_PATH];
 
     delete m_picture;
-	if (g_civPaths->FindFile(C3DIR_PICTURES, picture, filename))
+	if (civpaths_Get()->FindFile(C3DIR_PICTURES, picture, filename))
     {
 	    AUI_ERRCODE errcode;
 		m_picture = new Picture(&errcode, filename);

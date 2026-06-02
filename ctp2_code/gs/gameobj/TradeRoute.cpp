@@ -90,7 +90,7 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 
 	tradepool_Get()->Remove(*this);
 
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 Unit TradeRoute::GetSource() const

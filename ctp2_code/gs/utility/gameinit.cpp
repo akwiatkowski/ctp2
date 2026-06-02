@@ -74,7 +74,7 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "gs/gameobj/CivilisationPool.h"
 #include "ConstRecord.h"
 #include "gs/gameobj/Diffcly.h"   // diffutil_GetYearFromTurn
-#include "gs/core/game_observer.h"     // g_gameObservers
+#include "gs/core/game_observer.h"     // gameobservers_Get()
 #include "gs/core/game.h"              // Ctp2::Game (trampoline target for pollution_Get/Set)
 #include "ctp/civapp.h"                // civapp_Get → CivApp::GetGame
 #include "gs/gameobj/CriticalMessagesPrefs.h"
@@ -1455,7 +1455,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 
 
-	if (g_gameObservers) g_gameObservers->NotifySetGraphMinRound(0);
+	if (gameobservers_Get()) gameobservers_Get()->NotifySetGraphMinRound(0);
 
 	return 1;
 }
@@ -2555,8 +2555,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		g_setBarbarianRiskUponLaunch = FALSE;
 	}
 
-    if (g_gameObservers) {
-        g_gameObservers->NotifySetGraphMinRound(is_scenario_Get() ? turn_Get()->GetRound() : 0);
+    if (gameobservers_Get()) {
+        gameobservers_Get()->NotifySetGraphMinRound(is_scenario_Get() ? turn_Get()->GetRound() : 0);
     }
 
 	// Clean good old -> new good table
@@ -2738,5 +2738,5 @@ void gameinit_ResetMapSize()
     CtpAi::Initialize();
 
     // Let the UI (if any) re-render tileset, radar window, background, etc.
-    if (g_gameObservers) g_gameObservers->NotifyMapResized();
+    if (gameobservers_Get()) gameobservers_Get()->NotifyMapResized();
 }

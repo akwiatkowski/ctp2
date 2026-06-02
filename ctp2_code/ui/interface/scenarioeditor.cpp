@@ -2300,7 +2300,7 @@ void ScenarioEditor::LoadMap(aui_Control *control, uint32 action, uint32 data, v
 	}
 
 	MBCHAR path[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_MAP, path);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path);
 	s_scenarioEditor->m_fileDialog->Open(FILE_DIALOG_LOAD, FileAction, (void *)k_SCEN_FILE_LOAD_MAP, path);
 
 	WhackScreen();
@@ -2317,7 +2317,7 @@ void ScenarioEditor::SaveMap(aui_Control *control, uint32 action, uint32 data, v
 		s_scenarioEditor->m_fileDialog = new FileDialog();
 	}
 	MBCHAR path[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_MAP, path);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path);
 	s_scenarioEditor->m_fileDialog->Open(FILE_DIALOG_SAVE, FileAction, (void *)k_SCEN_FILE_SAVE_MAP, path);
 }
 
@@ -2638,7 +2638,7 @@ void ScenarioEditor::SaveClip(aui_Control *control, uint32 action, uint32 data, 
 	}
 
 	MBCHAR path[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_CLIPS, path);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_CLIPS, path);
 	s_scenarioEditor->m_fileDialog->Open(FILE_DIALOG_SAVE, FileAction, (void *)k_SCEN_FILE_SAVE_CLIP, path);
 }
 
@@ -2653,7 +2653,7 @@ void ScenarioEditor::LoadClip(aui_Control *control, uint32 action, uint32 data, 
 	}
 
 	MBCHAR path[_MAX_PATH];
-	g_civPaths->GetSavePath(C3SAVEDIR_CLIPS, path);
+	civpaths_Get()->GetSavePath(C3SAVEDIR_CLIPS, path);
 	s_scenarioEditor->m_fileDialog->Open(FILE_DIALOG_LOAD, FileAction, (void *)k_SCEN_FILE_LOAD_CLIP, path);
 }
 

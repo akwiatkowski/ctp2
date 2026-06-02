@@ -148,7 +148,7 @@ void TradeRouteData::RemoveFromCells()
     {
 		if(world_Get())
 			world_Get()->GetCell(m_path[i])->DelTradeRoute(route);
-		if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(m_path[i]);
+		if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapRedrawTile(m_path[i]);
 	}
 }
 
@@ -268,7 +268,7 @@ bool TradeRouteData::GeneratePath()
         {
 			m_path.Insert(pnt);
 			world_Get()->GetCell(pnt)->AddTradeRoute(m_id);
-			if (g_gameObservers) g_gameObservers->NotifyRadarMapRedrawTile(pnt);
+			if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapRedrawTile(pnt);
 			if (world_Get()->IsWater(pnt))
             {
 				m_crossesWater = true;

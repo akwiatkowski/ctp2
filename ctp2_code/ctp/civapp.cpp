@@ -102,7 +102,7 @@
 #include "gs/core/game.h"     // Ctp2::Game (owned by CivApp)
 #include "gs/gameobj/Diffcly.h"  // diffutil_GetYearFromTurn
 #include "ctp/ctp2_utils/civlog.h"
-#include "gs/core/game_observer.h"     // g_gameObservers init in InitializeEngine
+#include "gs/core/game_observer.h"     // gameobservers_Get() init in InitializeEngine
 #include "gs/core/game_observer_registration.h"  // RegisterUIGameObserver + RegisterUIPlayerView
 #include "robot/utility/RoboInit.h"             // roboinit_Initalize
 #include "ai/ctpai.h"                           // CtpAi::Initialize
@@ -458,7 +458,7 @@ void AddSearchDirectories
 {
     MBCHAR          path[_MAX_PATH];
 
-    for (int i = 0; g_civPaths->FindPath(a_Type, i++, path); )
+    for (int i = 0; civpaths_Get()->FindPath(a_Type, i++, path); )
     {
         if (path[0])
         {
@@ -487,7 +487,7 @@ void AddSearchPacks
 {
     MBCHAR          path[_MAX_PATH];
 
-    for (int i = 0; g_civPaths->FindPath(a_Type, i++, path); )
+    for (int i = 0; civpaths_Get()->FindPath(a_Type, i++, path); )
     {
         if (path[0])
         {
@@ -508,7 +508,7 @@ void AddSearchPacks
 // Parameters : -
 //
 // Globals    : profiledb_Get():   user preferences (read)
-//              g_civPaths:       (updated)
+//              civpaths_Get():       (updated)
 //
 // Returns    : -
 //
@@ -549,7 +549,7 @@ void InitDataIncludePath(void)
 	    ++p
 	)
 	{
-		g_civPaths->InsertExtraDataPath(*p);
+		civpaths_Get()->InsertExtraDataPath(*p);
 	}
 }
 
@@ -1392,7 +1392,7 @@ sint32 CivApp::InitializeEngine(void)
 	// Wire the game-observer registry global before anything else that might
 	// fire Notify*().  See game_observer.cpp for why this is deferred from
 	// static-init time.
-	g_gameObservers = &GameObserverRegistry::Instance();
+	gameobservers_Set(&GameObserverRegistry::Instance());
 
 	Splash::Initialize();
 
@@ -1408,7 +1408,7 @@ sint32 CivApp::InitializeEngine(void)
 
 	InitDataIncludePath();
 	c3files_InitializeCD();
-	g_civPaths->InitCDPath();
+	civpaths_Get()->InitCDPath();
 	GreatLibrary::Initialize_Great_Library_Data();
 
 #ifndef _NO_GAME_WATCH
@@ -2558,8 +2558,8 @@ void CivApp::CleanupGame(bool keepScenInfo)
 	if(!keepScenInfo) {
 
 		profiledb_Get()->SetIsScenario(FALSE);
-		g_civPaths->ClearCurScenarioPath();
-		g_civPaths->ClearCurScenarioPackPath();
+		civpaths_Get()->ClearCurScenarioPath();
+		civpaths_Get()->ClearCurScenarioPackPath();
 		memset(scenario_name_buf(), '\0', k_SCENARIO_NAME_MAX);
 		CleanupAppDB();
 		InitializeAppDB();
@@ -3723,7 +3723,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 
 	MBCHAR			path[_MAX_PATH];
-	g_civPaths->GetSavePath(dir, path);
+	civpaths_Get()->GetSavePath(dir, path);
 
 	MBCHAR			fullpath[_MAX_PATH];
 	snprintf(fullpath, sizeof(fullpath), "%s%s%s", path, FILE_SEP, leaderName);
@@ -3790,7 +3790,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 
 	MBCHAR			path[_MAX_PATH];
-	g_civPaths->GetSavePath(dir, path);
+	civpaths_Get()->GetSavePath(dir, path);
 
 	MBCHAR			fullpath[_MAX_PATH];
 	snprintf(fullpath, sizeof(fullpath), "%s%s%s", path, FILE_SEP, leaderName);

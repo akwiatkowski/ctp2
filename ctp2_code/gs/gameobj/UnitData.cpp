@@ -165,7 +165,7 @@ class UnitActor;
 #include "net/general/network.h"
 #include "gs/core/audio_observer.h"
 #include "gs/core/audio_types.h"               // SOUNDTYPE / GAMESOUNDS enums
-#include "gs/core/game_observer.h"            // g_gameObservers
+#include "gs/core/game_observer.h"            // gameobservers_Get()
 #include "gs/core/player_view.h"              // player_view::*
 
 extern bool UnitCanCarry(sint32 dest, sint32 src, sint32 government);
@@ -423,7 +423,7 @@ UnitData::~UnitData()
 	// Phase 2 of the UnitActor split: fire BEFORE any member destruction
 	// so subscribers can drop their references to m_state while it's
 	// still valid.
-	if (g_gameObservers) g_gameObservers->NotifyUnitDestroyed(Unit(m_id));
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUnitDestroyed(Unit(m_id));
 
 	// Phase 3 slice 4: if the actor outlives us (still on the Director
 	// queue for death animation), it would be left with a dangling
@@ -2018,7 +2018,7 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	DPRINTF(k_DBG_GAMESTATE, ("ResetCityOwner: %lx, new: %d, old: %d, conq: %d, cause: %d\n",
 							  me.m_id, newo, me.IsValid() ? me.GetOwner() : -1, is_conquest, cause));
 
-	if (g_gameObservers) g_gameObservers->NotifyCityOwnerReset(me);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyCityOwnerReset(me);
 
 	Unit u = me;
 	tradeofferpool_Get()->RemoveTradeOffersFromCity(u);

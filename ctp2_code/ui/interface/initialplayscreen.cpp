@@ -46,7 +46,7 @@
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3_dropdown.h"
 #include "ui/aui_ctp2/c3_listitem.h"
-#include "gs/fileio/CivPaths.h"           // g_civPaths
+#include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "ui/aui_ctp2/ctp2_listitem.h"
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"

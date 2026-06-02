@@ -2297,8 +2297,8 @@ void from_json(nlohmann::json const &j, UnitPool &p)
     {
         UnitData *data = new UnitData(entry);
         p.Insert(data);
-        if (g_gameObservers)
-            g_gameObservers->NotifyUnitSpawned(Unit(data->m_id), data->GetState());
+        if (gameobservers_Get())
+            gameobservers_Get()->NotifyUnitSpawned(Unit(data->m_id), data->GetState());
     }
 }
 

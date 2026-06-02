@@ -16,7 +16,7 @@
 #include "gs/world/World.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/events/GameEventManager.h"
-#include "gs/core/game_observer.h"            // g_gameObservers
+#include "gs/core/game_observer.h"            // gameobservers_Get()
 #include "gs/core/game_observer_registration.h"
 #include "gs/core/player_view.h"              // player_view::RegisterCurPlayer
 #include "gs/fileio/gamefile.h"               // GameFile::SaveGame / RestoreGame
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
                 if (gevmanager_Get()) gevmanager_Get()->Process();
 
                 player_Get(p)->EndTurn();
-                if (g_gameObservers) g_gameObservers->NotifyTurnEnd(p);
+                if (gameobservers_Get()) gameobservers_Get()->NotifyTurnEnd(p);
             }
 
             // Process any cross-player pending events.

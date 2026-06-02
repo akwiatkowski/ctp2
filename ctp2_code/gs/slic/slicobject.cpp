@@ -48,7 +48,7 @@
 #include "gs/slic/SlicButton.h"
 #include "net/general/network.h"
 #include "ctp/civapp.h"
-#include "gs/core/game_observer.h"          // g_gameObservers
+#include "gs/core/game_observer.h"          // gameobservers_Get()
 #include "gs/gameobj/TradeBids.h"
 #include "gs/utility/stringutils.h"
 #include "gs/utility/TurnCnt.h"            // turn_Get()
@@ -386,9 +386,9 @@ void SlicObject::Finish()
 			messagepool_Get()->Insert(newData);
 
 			if(newMessage.IsAlertBox()) {
-				g_gameObservers->NotifyRequestModalMessage(newMessage);
+				gameobservers_Get()->NotifyRequestModalMessage(newMessage);
 			} else {
-				if (g_gameObservers) g_gameObservers->NotifyMessageShow(newMessage);
+				if (gameobservers_Get()) gameobservers_Get()->NotifyMessageShow(newMessage);
 			}
 		} else {
 			for(sint32 i = 0; i < m_numRecipients; i++) {

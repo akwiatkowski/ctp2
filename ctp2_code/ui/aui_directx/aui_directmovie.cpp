@@ -30,7 +30,7 @@
 
 #include "ui/aui_directx/aui_directmovie.h"
 
-#include "gs/fileio/CivPaths.h"			// g_civPaths
+#include "gs/fileio/CivPaths.h"			// civpaths_Get()
 //#include "RefTime.h"			// UNITS, MILLISECONDS
 #include "sound/soundmanager.h"		// g_soundManager
 

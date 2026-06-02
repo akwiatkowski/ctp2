@@ -691,5 +691,5 @@ static UIGameObserver s_uiGameObserver;
 
 void RegisterUIGameObserver()
 {
-    g_gameObservers->Register(&s_uiGameObserver);
+    gameobservers_Get()->Register(&s_uiGameObserver);
 }

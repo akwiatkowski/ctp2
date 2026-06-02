@@ -582,8 +582,8 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 			if (civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
 
-				g_civPaths->SetCurScenarioPath(scen->m_path);
-				g_civPaths->SetCurScenarioPackPath(pack->m_path);
+				civpaths_Get()->SetCurScenarioPath(scen->m_path);
+				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 				profiledb_Get()->SetIsScenario(TRUE);
 
 				strcpy(scenario_name_buf(), saveInfo->scenarioName);
@@ -597,7 +597,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			}
 		} else {
 
-			g_civPaths->SetCurScenarioPath(directoryPath);
+			civpaths_Get()->SetCurScenarioPath(directoryPath);
 			profiledb_Get()->SetIsScenario(TRUE);
 
 			is_scenario_Set(true);
@@ -613,7 +613,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 
 
-		g_civPaths->ClearCurScenarioPath();
+		civpaths_Get()->ClearCurScenarioPath();
 		profiledb_Get()->SetIsScenario(FALSE);
 
 		if (wasScenario) {
@@ -621,8 +621,8 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 			Scenario *scen;
 			ScenarioPack *pack;
 			if(civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
-				g_civPaths->SetCurScenarioPath(scen->m_path);
-				g_civPaths->SetCurScenarioPackPath(pack->m_path);
+				civpaths_Get()->SetCurScenarioPath(scen->m_path);
+				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
@@ -752,7 +752,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 	if(usePath) {
 		strcpy(path, usePath);
 	} else {
-		if (!g_civPaths->GetSavePath(C3SAVEDIR_GAME, path)) return;
+		if (!civpaths_Get()->GetSavePath(C3SAVEDIR_GAME, path)) return;
 	}
 
 	if(!useName) {
@@ -895,7 +895,7 @@ void loadsavescreen_SaveMPGame(void)
 		k_NS_MAX_PLAYERS * sizeof( TribeSlot ) );
 
 	MBCHAR	path[_MAX_PATH];
-	if (!g_civPaths->GetSavePath(C3SAVEDIR_MP, path)) return;
+	if (!civpaths_Get()->GetSavePath(C3SAVEDIR_MP, path)) return;
 
 	MBCHAR	fullPath[_MAX_PATH];
 	snprintf(fullPath, sizeof(fullPath), "%s%s%s", path, FILE_SEP, saveInfo->gameName);
@@ -946,7 +946,7 @@ void loadsavescreen_LoadSCENGame(void)
 	snprintf(path, sizeof(path), "%s%s%s", gameInfo->path, FILE_SEP, saveInfo->fileName);
 //	civapp_Get()->PostLoadSaveGameAction(path);
 
-	g_civPaths->SetCurScenarioPath(gameInfo->path);
+	civpaths_Get()->SetCurScenarioPath(gameInfo->path);
 
 	profiledb_Get()->SetIsScenario(TRUE);
 
@@ -1007,7 +1007,7 @@ void loadsavescreen_SaveSCENGame(void)
 
 	MBCHAR	path[_MAX_PATH];
 
-	if (!g_civPaths->GetSavePath(C3SAVEDIR_SCEN, path)) return;
+	if (!civpaths_Get()->GetSavePath(C3SAVEDIR_SCEN, path)) return;
 
 	MBCHAR	fullPath[_MAX_PATH];
 	snprintf(fullPath, sizeof(fullPath), "%s%s%s", path, FILE_SEP, saveInfo->gameName);

@@ -21,7 +21,7 @@
 #endif
 #endif // !WIN32
 
-#include "gs/fileio/CivPaths.h"       // g_civPaths
+#include "gs/fileio/CivPaths.h"       // civpaths_Get()
 
 #define MAX_ENTRIES_PER_TABLE 100
 #define ZFSFLAG_DELETED 0x0001
@@ -229,7 +229,7 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
 {
     char tempstr[256];
 
-	if ((dir == C3DIR_DIRECT) || !g_civPaths->FindFile(dir, entry->rname, tempstr))
+	if ((dir == C3DIR_DIRECT) || !civpaths_Get()->FindFile(dir, entry->rname, tempstr))
     {
 		snprintf(tempstr, sizeof(tempstr), "%s%s%s", m_paths[entry->path].dos_path, FILE_SEP, entry->rname);
 	}

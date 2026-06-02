@@ -180,7 +180,7 @@ void loadsavemapscreen_SaveGameMap(void)
 	MBCHAR	path[_MAX_PATH];
 	MBCHAR	fullPath[_MAX_PATH];
 
-	if (!g_civPaths->GetSavePath(C3SAVEDIR_MAP, path)) return;
+	if (!civpaths_Get()->GetSavePath(C3SAVEDIR_MAP, path)) return;
 
 	snprintf(fullPath, sizeof(fullPath), "%s\\%s", path, saveMapInfo->gameMapName);
 

@@ -21,7 +21,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 
 ColorIconButton::ColorIconButton(
 	AUI_ERRCODE *retval,

@@ -92,5 +92,5 @@ static HeadlessGameObserver s_headlessGameObserver;
 
 void RegisterHeadlessGameObserver()
 {
-    g_gameObservers->Register(&s_headlessGameObserver);
+    gameobservers_Get()->Register(&s_headlessGameObserver);
 }

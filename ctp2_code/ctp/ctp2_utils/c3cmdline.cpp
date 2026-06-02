@@ -6238,7 +6238,7 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	DPRINTF(k_DBG_INFO, ("Database '%s' successfully loaded.\n", argv[1]));
 
 	MBCHAR filename[_MAX_PATH];
-	g_civPaths->FindFile(C3DIR_SOUNDS, "pct.wav", filename);
+	civpaths_Get()->FindFile(C3DIR_SOUNDS, "pct.wav", filename);
 #ifdef WIN32
     PlaySound (filename, NULL, SND_ASYNC | SND_FILENAME);
 #endif

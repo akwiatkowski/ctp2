@@ -98,7 +98,7 @@ extern sint32 g_ScreenHeight;
 
 extern C3Window				*g_turnWindow;
 extern C3Window				*g_statsWindow;
-extern CivPaths				*g_civPaths;
+extern CivPaths				*civpaths_Get();
 
 extern sint32				g_god;
 

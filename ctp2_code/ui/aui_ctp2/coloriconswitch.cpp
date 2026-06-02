@@ -10,7 +10,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
-#include "gs/fileio/CivPaths.h"       // g_civPaths
+#include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/c3ui.h"
 

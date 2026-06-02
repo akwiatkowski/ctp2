@@ -163,10 +163,10 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		tiledmap_observer::InvalidateMix();
 		tiledmap_observer::InvalidateMap();
 		tiledmap_observer::Refresh();
-		if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(current_player);
+		if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(current_player);
 		turn_Get()->InformMessages();
 
-		if (g_gameObservers) g_gameObservers->NotifyHideMainUI();
+		if (gameobservers_Get()) gameobservers_Get()->NotifyHideMainUI();
 	}
 
 	if (stop ||
@@ -185,7 +185,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		}
 	}
 
-	if (g_gameObservers) g_gameObservers->NotifyUpdatePlayerEndProgress(current_player);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyUpdatePlayerEndProgress(current_player);
 
 	sint32 oldVis = player_view::VisiblePlayer();
 	player_view::SetVisiblePlayer(NewTurnCount::GetStopPlayer());

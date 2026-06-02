@@ -93,7 +93,7 @@
 
 const int GreatLibraryWindow::GREAT_LIBRARY_PANEL_BLANK = 999;
 
-extern CivPaths						*g_civPaths;
+extern CivPaths						*civpaths_Get();
 extern sint32						g_ScreenWidth;
 extern sint32						g_ScreenHeight;
 extern DebugWindow					*g_debugWindow;
@@ -237,7 +237,7 @@ sint32 GreatLibraryWindow::LoadTechMovie ( void )
 	if (!strcmp(m_movie_file,"null")) return 0;
 
 	MBCHAR fullPath[_MAX_PATH];
-	if (g_civPaths->FindFile(C3DIR_VIDEOS, m_movie_file, fullPath, TRUE)) {
+	if (civpaths_Get()->FindFile(C3DIR_VIDEOS, m_movie_file, fullPath, TRUE)) {
 
 		g_soundManager->ReleaseSoundDriver();
 
@@ -260,7 +260,7 @@ sint32 GreatLibraryWindow::LoadTechStill( void )
 	if ( !strcmp(m_still_file, "null") ) return 0;
 
 	MBCHAR fullPath[_MAX_PATH];
-	if ( g_civPaths->FindFile(C3DIR_PICTURES, m_still_file, fullPath, TRUE) )
+	if ( civpaths_Get()->FindFile(C3DIR_PICTURES, m_still_file, fullPath, TRUE) )
     {
 		m_techStillShot->SetImage( m_still_file );
 	}

@@ -70,7 +70,7 @@
 #include "gs/gameobj/AgreementData.h"      // k_EXPIRATION_NEVER
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/fileio/CivPaths.h"           // g_civPaths
+#include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"   // g_theDifficultyDB
 #include "gs/gameobj/Diplomacy_Log.h"
@@ -491,16 +491,16 @@ BOOL ProfileDB::Init(BOOL forTutorial)
 	if (forTutorial)
 	{
 		m_loadedFromTutorial = TRUE;
-		profileTxtFile = g_civPaths->FindFile(C3DIR_GAMEDATA,
+		profileTxtFile = civpaths_Get()->FindFile(C3DIR_GAMEDATA,
 		                                      "tut_profile.txt", profileName);
 	}
 	else
 	{
-		profileTxtFile = g_civPaths->FindFile(C3DIR_DIRECT, "userprofile.txt",
+		profileTxtFile = civpaths_Get()->FindFile(C3DIR_DIRECT, "userprofile.txt",
 		                                      profileName);
 		if (!profileTxtFile || !c3files_PathIsValid(profileTxtFile))
 		{
-			profileTxtFile = g_civPaths->FindFile(C3DIR_GAMEDATA,
+			profileTxtFile = civpaths_Get()->FindFile(C3DIR_GAMEDATA,
 			                                      "profile.txt", profileName);
 		}
 	}

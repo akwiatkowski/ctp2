@@ -99,7 +99,7 @@ FILE* c3files_fopen(C3DIR dirID, MBCHAR const * s1, MBCHAR const * s2, bool chec
 {
 	MBCHAR  s[_MAX_PATH];
 
-	return g_civPaths->FindFile(dirID, s1, s, false, true, checkScenario) ? fopen(s, s2) : NULL;
+	return civpaths_Get()->FindFile(dirID, s1, s, false, true, checkScenario) ? fopen(s, s2) : NULL;
 }
 
 FILE* c3files_freopen(const MBCHAR *s1, const MBCHAR *s2, FILE *file)
@@ -343,7 +343,7 @@ bool c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *list
 #endif
 	MBCHAR path[_MAX_PATH];
 
-	g_civPaths->GetSavePath(dirID, path);
+	civpaths_Get()->GetSavePath(dirID, path);
 
 #ifdef _WIN32
 	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
@@ -404,7 +404,7 @@ bool c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND
 	MBCHAR strbuf[256];
 	MBCHAR path[_MAX_PATH];
 
-	g_civPaths->GetSavePath(dirID, path);
+	civpaths_Get()->GetSavePath(dirID, path);
 
 	if (ext) snprintf(strbuf, sizeof(strbuf), "*.%s", ext);
 	else { strncpy(strbuf, "*.*", sizeof(strbuf) - 1); strbuf[sizeof(strbuf) - 1] = '\0'; }

@@ -588,7 +588,7 @@ SpriteEditWindow::FileExists(char *name)
 
 	MBCHAR spritePath[_MAX_PATH];
 	MBCHAR fullPath[_MAX_PATH];
-	g_civPaths->GetSpecificPath(C3DIR_SPRITES, spritePath, FALSE);
+	civpaths_Get()->GetSpecificPath(C3DIR_SPRITES, spritePath, FALSE);
 	snprintf(fullPath, sizeof(fullPath), "%s%s%s", spritePath, FILE_SEP, name);
 
 	return c3files_PathIsValid(fullPath);

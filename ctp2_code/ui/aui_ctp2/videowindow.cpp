@@ -17,7 +17,7 @@
 #ifdef __AUI_USE_DIRECTX__
 extern DirectVideo		*g_video;
 #endif
-extern CivPaths			*g_civPaths;
+extern CivPaths			*civpaths_Get();
 
 
 VideoWindow::VideoWindow(
@@ -87,7 +87,7 @@ AUI_ERRCODE VideoWindow::CreateVideoSurface(MBCHAR *name, BOOL modal)
 	MBCHAR	fname[_MAX_PATH];
 	strcpy(m_filename, name);
 
-	g_civPaths->FindFile(C3DIR_VIDEOS, name, fname);
+	civpaths_Get()->FindFile(C3DIR_VIDEOS, name, fname);
 	hr = m_video->OpenStream(fname);
 	Assert(!hr);
 	if (hr != 0) {

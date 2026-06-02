@@ -47,7 +47,7 @@
 #include "gfx/spritesys/Anim.h"
 #include "gs/fileio/Token.h"
 
-extern CivPaths *g_civPaths;
+extern CivPaths *civpaths_Get();
 
 void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags)

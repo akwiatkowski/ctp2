@@ -293,7 +293,9 @@ private:
 /**
  * @brief Global accessor for convenience.
  *
- * Game logic should call g_gameObservers->NotifyXxx() instead of
+ * Game logic should call gameobservers_Get()->NotifyXxx() instead of
  * hard-coded UI globals like c3ui_Get(), controlpanel_Get(), director_Get().
  */
-extern GameObserverRegistry* g_gameObservers;
+// g_gameObservers is file-static in game_observer.cpp; access via accessors.
+GameObserverRegistry * gameobservers_Get(void);
+void                   gameobservers_Set(GameObserverRegistry *p);

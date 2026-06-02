@@ -113,7 +113,7 @@ void EndGame::AddObject(sint32 type)
 	}
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		g_gameObservers->NotifyRequestEndGameShow(this);
+		gameobservers_Get()->NotifyRequestEndGameShow(this);
 	}
 }
 
@@ -154,7 +154,7 @@ BOOL EndGame::BeginSequence(sint32 currentRound)
 	m_currentStageBegan = currentRound;
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		g_gameObservers->NotifyRequestEndGameShow(this);
+		gameobservers_Get()->NotifyRequestEndGameShow(this);
 	}
 
 	return TRUE;
@@ -304,7 +304,7 @@ void EndGame::AdvanceStage(sint32 currentRound)
 	}
 
 	if(openScreen && m_owner == player_view::VisiblePlayer()) {
-		g_gameObservers->NotifyRequestEndGameShow(this);
+		gameobservers_Get()->NotifyRequestEndGameShow(this);
 	}
 }
 
@@ -455,7 +455,7 @@ void EndGame::Cataclysm()
 
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		g_gameObservers->NotifyRequestEndGameClose();
+		gameobservers_Get()->NotifyRequestEndGameClose();
 	}
 }
 
@@ -469,7 +469,7 @@ void EndGame::XLabCaptured()
 
 
 	if(m_owner == player_view::VisiblePlayer()) {
-		g_gameObservers->NotifyRequestEndGameClose();
+		gameobservers_Get()->NotifyRequestEndGameClose();
 	}
 }
 

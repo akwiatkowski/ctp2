@@ -54,7 +54,7 @@
 #include "TerrainRecord.h"
 #include "gs/database/filenamedb.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
-#include "gs/core/game_observer.h"   // g_gameObservers
+#include "gs/core/game_observer.h"   // gameobservers_Get()
 
 extern FilenameDB *g_theMessageIconFileDB;
 
@@ -1297,14 +1297,14 @@ void MessageData::EyeDropdownCallback(sint32 index)
 
 void MessageData::KillMessageWindow( void )
 {
-	if (g_gameObservers) g_gameObservers->NotifyMessageWindowDestroy(Message(m_id));
+	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
 	m_window = NULL;
 }
 
 void MessageData::IgnoreMessage( void )
 {
-	if (m_window && g_gameObservers) {
-		g_gameObservers->NotifyMessageWindowDestroy(Message(m_id));
+	if (m_window && gameobservers_Get()) {
+		gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
 	}
 	m_window = NULL;
 }
@@ -1415,5 +1415,5 @@ void MessageData::NotifySlicReload()
 void MessageData::SetRead()
 {
 	m_isRead = TRUE;
-	if (g_gameObservers) g_gameObservers->NotifyMessageRead(Message(m_id));
+	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageRead(Message(m_id));
 }

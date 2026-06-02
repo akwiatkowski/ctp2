@@ -53,7 +53,7 @@
 #include <cctype>
 
 extern HWND			gHwnd;
-extern CivPaths		*g_civPaths;
+extern CivPaths		*civpaths_Get();
 extern PlayListDB	*g_thePlayListDB;
 
 SoundManager		*g_soundManager     = NULL;
@@ -1030,7 +1030,7 @@ void SoundManager::StupidPlaySound(const sint32 &soundID)
 		MBCHAR		fullPath[_MAX_PATH];
 		fullPath[0] = 0;
 
-		g_civPaths->FindFile(C3DIR_SOUNDS, soundValue, fullPath);
+		civpaths_Get()->FindFile(C3DIR_SOUNDS, soundValue, fullPath);
 #ifndef USE_SDL
 		PlaySound(fullPath, NULL, (SND_ASYNC | SND_FILENAME | SND_NOWAIT));
 #else

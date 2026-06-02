@@ -33,7 +33,7 @@
 
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ctp/ctp2_utils/c3files.h"
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "gfx/spritesys/EffectSpriteGroup.h"
 #include "gs/utility/Globals.h"                // allocated::clear, allocated::reassign
 #include "gfx/spritesys/GoodSpriteGroup.h"
@@ -100,7 +100,7 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
         snprintf(inFile, sizeof(inFile), "GU%.3d.SPR", index);
 
         MBCHAR fullPath[_MAX_PATH];
-        if (!g_civPaths->FindFile(C3DIR_SPRITES, inFile, fullPath, TRUE, FALSE))
+        if (!civpaths_Get()->FindFile(C3DIR_SPRITES, inFile, fullPath, TRUE, FALSE))
         {
             // No 3 digit version found: try the 2 digit version.
             snprintf(inFile, sizeof(inFile), "GU%.2d.SPR", index);

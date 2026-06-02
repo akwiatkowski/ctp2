@@ -38,7 +38,9 @@
 #include <shlobj.h>
 #endif
 
-CivPaths *g_civPaths;
+static CivPaths *g_civPaths = nullptr;
+CivPaths * civpaths_Get(void)        { return g_civPaths; }
+void       civpaths_Set(CivPaths *p) { g_civPaths = p; }
 
 #include "gs/fileio/prjfile.h"
 extern ProjectFile *g_ImageMapPF;

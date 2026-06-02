@@ -48,7 +48,7 @@
 #include "gfx/spritesys/Sprite.h"
 #include "gfx/spritesys/screenmanager.h"
 
-#include "gs/fileio/CivPaths.h"           // g_civPaths
+#include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "ctp/ctp2_utils/c3files.h"
 
 #include "gfx/spritesys/SpriteFile.h"

@@ -43,7 +43,7 @@
 #include "gs/gameobj/Unit.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Advances.h"
-#include "gs/fileio/CivPaths.h"       // g_civPaths
+#include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/utility/UnitDynArr.h"
@@ -490,7 +490,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 										 point.y
 										);
 
-				if (g_gameObservers) g_gameObservers->NotifyUpdateMainControlPanel(owner);
+				if (gameobservers_Get()) gameobservers_Get()->NotifyUpdateMainControlPanel(owner);
 			}
 			break;
 		case GOODY_ADVANCE:

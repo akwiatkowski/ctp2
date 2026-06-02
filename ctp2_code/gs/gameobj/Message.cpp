@@ -11,7 +11,7 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 
-#include "gs/core/game_observer.h"   // g_gameObservers
+#include "gs/core/game_observer.h"   // gameobservers_Get()
 
 #include "gs/slic/SlicButton.h"
 #include "gs/gameobj/DiplomaticRequestPool.h"
@@ -92,7 +92,7 @@ MessageData* Message::AccessData()
 void Message::Show()
 {
 	if (!AccessData()) return;
-	if (g_gameObservers) g_gameObservers->NotifyMessageShow(*this);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageShow(*this);
 	SetRead();
 }
 
@@ -118,5 +118,5 @@ sint32 Message::GetExpiration() const
 
 void Message::MinimizeMessage()
 {
-	if (g_gameObservers) g_gameObservers->NotifyMessageMinimize(*this);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageMinimize(*this);
 }

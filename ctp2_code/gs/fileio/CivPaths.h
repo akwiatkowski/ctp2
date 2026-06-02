@@ -26,7 +26,7 @@
 // Modifications from the original Activision code:
 //
 // - Added option to use multiple data directories.
-// - FindFile can ignore files in scenario paths. (9-Apr-2007 Martin Gühmann)
+// - FindFile can ignore files in scenario paths. (9-Apr-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -164,6 +164,8 @@ void CivPaths_CleanupCivPaths();
 
 
 
-extern CivPaths *g_civPaths;
+// civpaths_Get() is file-static in CivPaths.cpp; access via accessors.
+CivPaths * civpaths_Get(void);
+void       civpaths_Set(CivPaths *p);
 
 #endif

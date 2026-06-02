@@ -37,7 +37,7 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ui/interface/controlpanelwindow.h"
 
-extern CivPaths *g_civPaths;
+extern CivPaths *civpaths_Get();
 
 static FUNC_TABLE func2key[] = {
 

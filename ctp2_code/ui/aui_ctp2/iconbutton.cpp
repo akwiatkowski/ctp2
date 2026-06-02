@@ -10,7 +10,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"       // g_colorSet
-#include "gs/fileio/CivPaths.h"       // g_civPaths
+#include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "ui/aui_utils/primitives.h"
 
 #include "ui/ldl/ldl_data.hpp"
@@ -74,7 +74,7 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 	m_filename = new MBCHAR[_MAX_PATH];
 
-	if (g_civPaths->FindFile(C3DIR_ICONS, name, m_filename)) {
+	if (civpaths_Get()->FindFile(C3DIR_ICONS, name, m_filename)) {
 		m_icon = c3ui_Get()->LoadIcon(m_filename);
 	} else {
 		m_icon = NULL;

@@ -640,13 +640,13 @@ bool StringDB::Parse(MBCHAR * filename)
 }
 
 #include "gs/fileio/CivPaths.h"
-extern CivPaths *g_civPaths;
+extern CivPaths *civpaths_Get();
 
 void StringDB::Export(MBCHAR * file)
 {
 	char buff[_MAX_PATH];
 	MBCHAR *path = new MBCHAR[_MAX_PATH];
-	g_civPaths->GetSpecificPath(C3DIR_GAMEDATA, path, TRUE);
+	civpaths_Get()->GetSpecificPath(C3DIR_GAMEDATA, path, TRUE);
 	snprintf(buff, sizeof(buff), "%s%s%s", path, FILE_SEP, file);
 
 	FILE* fout = fopen(buff, "w");

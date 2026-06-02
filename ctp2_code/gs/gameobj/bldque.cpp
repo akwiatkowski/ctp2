@@ -65,7 +65,7 @@
 #include "BuildingRecord.h"
 #include "gs/outcom/AICause.h"
 #include "gs/utility/Checksum.h"
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "WonderRecord.h"
 #include "gs/database/StrDB.h"
 #include "net/general/network.h"

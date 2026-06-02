@@ -127,7 +127,7 @@
 #include "ui/interface/armymanagerwindow.h"
 #include "ui/interface/trademanager.h"
 
-extern CivPaths     *g_civPaths;
+extern CivPaths     *civpaths_Get();
 extern SoundManager	*g_soundManager;
 extern void player_ActivateSpaceButton(sint32 pl);
 extern void network_VerifyGameData();

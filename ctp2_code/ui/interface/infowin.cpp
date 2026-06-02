@@ -80,7 +80,7 @@
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get();
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gs/gameobj/BldQue.h"
 #include "gs/gameobj/ObjPool.h"

@@ -91,7 +91,7 @@
 #include "ui/aui_ctp2/c3window.h"
 #include "ui/aui_ctp2/c3windows.h"
 #include "ctp/civapp.h"
-#include "gs/fileio/CivPaths.h"                   // g_civPaths
+#include "gs/fileio/CivPaths.h"                   // civpaths_Get()
 #include "gs/fileio/civscenarios.h"               // g_civScenarios
 #include "gs/core/game_observer_registration.h"
 #include <clocale>
@@ -422,7 +422,7 @@ int ui_Initialize(void)
 	pixelutils_Initialize();
 
 	MBCHAR ldlfile[_MAX_PATH];
-	g_civPaths->FindFile(C3DIR_LAYOUT, k_LDLName, ldlfile);
+	civpaths_Get()->FindFile(C3DIR_LAYOUT, k_LDLName, ldlfile);
 
 	g_c3ui = new C3UI(
 		&auiErr,
@@ -461,7 +461,7 @@ int ui_Initialize(void)
     int     i;
 	char s[_MAX_PATH+1];
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_PATTERNS, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_PATTERNS, i, s); ++i)
     {
         if (s[0])
         {
@@ -470,7 +470,7 @@ int ui_Initialize(void)
         }
     }
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_ICONS, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_ICONS, i, s); ++i)
     {
         if (s[0])
         {
@@ -479,7 +479,7 @@ int ui_Initialize(void)
         }
     }
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_PICTURES, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_PICTURES, i, s); ++i)
     {
         if (s[0])
         {
@@ -489,7 +489,7 @@ int ui_Initialize(void)
         }
     }
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_CURSORS, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_CURSORS, i, s); ++i)
     {
         if (s[0])
         {
@@ -498,7 +498,7 @@ int ui_Initialize(void)
         }
     }
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_FONTS, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_FONTS, i, s); ++i)
     {
         if (s[0])
         {
@@ -563,7 +563,7 @@ int ui_Initialize(void)
 	} // end of else (display != NULL)
 #endif
 
-    for (i = 0; g_civPaths->FindPath(C3DIR_VIDEOS, i, s); ++i)
+    for (i = 0; civpaths_Get()->FindPath(C3DIR_VIDEOS, i, s); ++i)
     {
         if (s[0])
         {
@@ -1685,9 +1685,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		CivScenarios *cs = civscenarios_Get();
 		if (cs->FindScenarioFromSaveFile(g_cmdline_load_filename, &pack, &scen)) {
 
-			g_civPaths->SetCurScenarioPath(scen->m_path);
+			civpaths_Get()->SetCurScenarioPath(scen->m_path);
 
-			g_civPaths->SetCurScenarioPackPath(pack->m_path);
+			civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 
 			profiledb_Get()->SetIsScenario(TRUE);
 
@@ -1711,9 +1711,9 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		CivScenarios *cs2 = civscenarios_Get();
 		if (cs2->FindScenario(scenario_name_buf(), &pack, &scen)) {
 
-			g_civPaths->SetCurScenarioPath(scen->m_path);
+			civpaths_Get()->SetCurScenarioPath(scen->m_path);
 
-			g_civPaths->SetCurScenarioPackPath(pack->m_path);
+			civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 
 			profiledb_Get()->SetIsScenario(TRUE);
 

@@ -71,7 +71,7 @@
 #include "ui/aui_ctp2/c3_popupwindow.h"
 #include "ui/interface/screenutils.h"
 
-#include "gs/fileio/CivPaths.h"           // g_civPaths
+#include "gs/fileio/CivPaths.h"           // civpaths_Get()
 #include "gs/gameobj/ObjPool.h"
 #include "gs/world/Cell.h"
 #include "gs/world/MapPoint.h"
@@ -954,7 +954,7 @@ sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
 
 	strcpy(filename,g_theWonderDB->Get(index)->GetDefaultIcon()->GetIcon());
 
-	if (g_civPaths->FindFile(C3DIR_PICTURES, filename, strbuf))
+	if (civpaths_Get()->FindFile(C3DIR_PICTURES, filename, strbuf))
 	{
 		strcpy(name, filename);
 		return TRUE;

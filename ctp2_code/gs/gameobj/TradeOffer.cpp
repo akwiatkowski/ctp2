@@ -42,7 +42,7 @@ void TradeOffer::RemoveAllReferences()
 		}
 	}
 
-	if (g_gameObservers) g_gameObservers->NotifyTradeChanged();
+	if (gameobservers_Get()) gameobservers_Get()->NotifyTradeChanged();
 }
 
 const TradeOfferData* TradeOffer::GetData() const

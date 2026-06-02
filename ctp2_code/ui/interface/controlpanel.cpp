@@ -216,7 +216,7 @@ void DonkeyCallback(aui_Control *control, uint32 action, uint32 data, void *cook
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	MBCHAR filename[_MAX_PATH];
-    g_civPaths->FindFile(C3DIR_SOUNDS, "donkey.wav", filename);
+    civpaths_Get()->FindFile(C3DIR_SOUNDS, "donkey.wav", filename);
     PlaySound (filename, NULL, SND_ASYNC | SND_FILENAME);
 }
 

@@ -59,7 +59,7 @@ template <class T> struct	aui_ResourceElement;
 #include "ctp/ctp2_utils/c3debug.h"		// Assert
 #include "ctp/ctp2_utils/c3files.h"		// C3DIR...
 #include "ctp/c3types.h"		// MBCHAR, sint32, uint32
-#include "gs/fileio/CivPaths.h"		// g_civPaths
+#include "gs/fileio/CivPaths.h"		// civpaths_Get()
 #include "ui/aui_common/tech_wllist.h"	// ListPos, tech_WLList
 
 //----------------------------------------------------------------------------
@@ -321,15 +321,15 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 	if (dir != C3DIR_DIRECT) {
 
 		MBCHAR path[_MAX_PATH];
-		if (g_civPaths->FindFile(dir, name, path, TRUE)) {
+		if (civpaths_Get()->FindFile(dir, name, path, TRUE)) {
 			strcpy(fullPath, path);
 		} else {
 			if (dir == C3DIR_PICTURES) {
 
-				if (g_civPaths->FindFile(C3DIR_PATTERNS, name, path, TRUE)) {
+				if (civpaths_Get()->FindFile(C3DIR_PATTERNS, name, path, TRUE)) {
 					strcpy(fullPath, path);
 				} else {
-					if (g_civPaths->FindFile(C3DIR_ICONS, name, path, TRUE)) {
+					if (civpaths_Get()->FindFile(C3DIR_ICONS, name, path, TRUE)) {
 						strcpy(fullPath, path);
 					} else {
 						FindFile( fullPath, name );

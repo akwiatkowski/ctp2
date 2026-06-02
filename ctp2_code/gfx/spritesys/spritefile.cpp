@@ -50,7 +50,7 @@
 
 #include "gfx/spritesys/EffectSpriteGroup.h"
 #include "gfx/spritesys/Anim.h"
-#include "gs/fileio/CivPaths.h"               // g_civPaths
+#include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "gs/database/profileDB.h"              // profiledb_Get()
 
 #ifdef __MAKESPR__
@@ -1006,7 +1006,7 @@ SPRITEFILEERR SpriteFile::Create(SPRITEFILETYPE type,unsigned version,unsigned c
 	path[sizeof(path) - 1] = '\0';
 #else
 	MBCHAR fullPath[_MAX_PATH];
-	g_civPaths->GetSpecificPath(C3DIR_SPRITES, fullPath, FALSE);
+	civpaths_Get()->GetSpecificPath(C3DIR_SPRITES, fullPath, FALSE);
 	snprintf(path, sizeof(path), "%s%s%s", fullPath, FILE_SEP, m_filename);
 #endif
 

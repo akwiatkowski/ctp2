@@ -69,7 +69,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "gs/gameobj/tradeutil.h"
 #include "gs/events/GameEventManager.h"           // gevmanager_Get()
-#include "gs/core/game_observer.h"                // g_gameObservers
+#include "gs/core/game_observer.h"                // gameobservers_Get()
 
 extern  OzoneDatabase   *g_theUVDB ;
 
@@ -501,7 +501,7 @@ void World::GlobalWarmingEvent(const sint32 phase)
 
 	tiledmap_observer::PostProcessMap();
 	tiledmap_observer::Refresh();
-	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(0);
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
@@ -671,7 +671,7 @@ void World::OzoneDepletionEvent(void)
 	SetAllMoveCost();
 	tiledmap_observer::PostProcessMap();
 	tiledmap_observer::Refresh();
-	if (g_gameObservers) g_gameObservers->NotifyRadarMapUpdate(0);
+	if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(0);
 }
 
 void World::RegenerateRivers()

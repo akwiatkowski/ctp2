@@ -77,8 +77,8 @@ void Player::BeginTurn()
 
 	}
 
-	g_gameObservers->NotifyTurnStart(m_owner);
-	g_gameObservers->NotifyUpdateControlPanel(m_owner);
+	gameobservers_Get()->NotifyTurnStart(m_owner);
+	gameobservers_Get()->NotifyUpdateControlPanel(m_owner);
 
 	sint32 i;
 	for(i = m_messages->Num() - 1; i >= 0; i--)
@@ -90,7 +90,7 @@ void Player::BeginTurn()
 		}
 	}
 
-	g_gameObservers->NotifyUpdateMessages(m_owner);
+	gameobservers_Get()->NotifyUpdateMessages(m_owner);
 
 	m_is_turn_over = FALSE;
 

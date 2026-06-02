@@ -35,6 +35,7 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Score.h"
@@ -93,7 +94,7 @@ void events_Initialize()
 
 	trackerevent_Initialize();
 
-	g_gevManager->AddCallback(GEV_CalcScores, GEV_PRI_Primary, &s_ScoreEventTest);
+	gevmanager_Get()->AddCallback(GEV_CalcScores, GEV_PRI_Primary, &s_ScoreEventTest);
 
 	Order::AssociateEventsWithOrders();
 

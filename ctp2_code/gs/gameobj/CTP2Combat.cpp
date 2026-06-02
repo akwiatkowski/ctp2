@@ -43,6 +43,7 @@
 
 #include "gs/core/player_view.h"
 #include "gs/core/battle_observer.h"
+#include "gs/events/GameEventManager.h"
 
 #include "gs/gameobj/Player.h"
 #include "gs/database/profileDB.h"
@@ -1453,7 +1454,7 @@ void CTP2Combat::KillUnits(GAME_EVENT_INSERT priority)
 			attacker = GetAttacker();
 		}
 
-		g_gevManager->AddEvent(priority,
+		gevmanager_Get()->AddEvent(priority,
 							   GEV_KillUnit,
 							   GEA_Unit, u,
 							   GEA_Int, CAUSE_REMOVE_ARMY_ATTACKED,

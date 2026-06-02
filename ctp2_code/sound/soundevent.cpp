@@ -36,6 +36,7 @@
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/core/player_view.h"
 
@@ -57,7 +58,7 @@ STDEHANDLER(SoundCreateCityEvent)
 
 void soundevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_SoundCreateCityEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateCity, GEV_PRI_Post, &s_SoundCreateCityEvent);
 }
 
 void soundevent_Cleanup()

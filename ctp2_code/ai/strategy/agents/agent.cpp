@@ -56,6 +56,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Order.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/newdb/CTPDatabase.h"
 #include "OrderRecord.h"    // g_theOrderDB
 #include "GoalRecord.h"
@@ -571,7 +572,7 @@ void Agent::Follow_Path(const Path & found_path, const sint32 & order_type)
 		range--;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 	                       GEV_MoveOrder,
 	                       GEA_Army, m_army,
 	                       GEA_Path, tmpPath,
@@ -614,7 +615,7 @@ void Agent::Execute_Order(const sint32 & order_type, const MapPoint & target_pos
 
 	if (range > 0)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       static_cast<GAME_EVENT>(game_event),
 		                       GEA_Army, m_army,
 		                       GEA_MapPoint, target_pos,
@@ -625,7 +626,7 @@ void Agent::Execute_Order(const sint32 & order_type, const MapPoint & target_pos
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       static_cast<GAME_EVENT>(game_event),
 		                       GEA_Army, m_army,
 		                       GEA_End
@@ -644,7 +645,7 @@ void Agent::Group_Order()
 {
 	Assert(Get_Can_Be_Executed());
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 	                       GEV_GroupOrder,
 	                       GEA_Army, m_army,
 	                       GEA_End
@@ -666,7 +667,7 @@ void Agent::Group_With( Agent_ptr second_army )
 	{
 		const Unit & unit = army.Access(unit_num);
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 		                       GEV_GroupUnitOrder,
 		                       GEA_Army, m_army,
 		                       GEA_Unit, unit,
@@ -710,7 +711,7 @@ void Agent::Ungroup_Order()
 {
 	Assert(Get_Can_Be_Executed());
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 	                       GEV_UngroupOrder,
 	                       GEA_Army, m_army,
 	                       GEA_End
@@ -731,7 +732,7 @@ void Agent::MoveIntoTransport()
 {
 	Assert(Get_Can_Be_Executed());
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 	                       GEV_BoardTransportOrder,
 	                       GEA_Army, m_army,
 	                       GEA_End
@@ -773,7 +774,7 @@ void Agent::UnloadCargo()
 		}
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 	                       GEV_UnloadOrder,
 	                       GEA_Army, m_army,
 	                       GEA_MapPoint, pos,

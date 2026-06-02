@@ -27,6 +27,7 @@
 
 #include "ctp/c3.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/Events.h"
 
@@ -65,8 +66,8 @@ STDEHANDLER(ImprovementCompleteEvent)
 
 void improvementevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_ImprovementAddTurn, GEV_PRI_Primary, &s_ImprovementAddTurnEvent);
-	g_gevManager->AddCallback(GEV_ImprovementComplete, GEV_PRI_Primary, &s_ImprovementCompleteEvent);
+	gevmanager_Get()->AddCallback(GEV_ImprovementAddTurn, GEV_PRI_Primary, &s_ImprovementAddTurnEvent);
+	gevmanager_Get()->AddCallback(GEV_ImprovementComplete, GEV_PRI_Primary, &s_ImprovementCompleteEvent);
 }
 
 void improvementevent_Cleanup()

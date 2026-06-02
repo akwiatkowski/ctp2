@@ -113,7 +113,7 @@ STDEHANDLER(TrackCreateWonderEvent)
 
 void trackerevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_CreateWonder, GEV_PRI_Post, &s_TrackCreateWonderEvent);
+	gevmanager_Get()->AddCallback(GEV_CreateWonder, GEV_PRI_Post, &s_TrackCreateWonderEvent);
 }
 
 void trackerevent_Cleanup()

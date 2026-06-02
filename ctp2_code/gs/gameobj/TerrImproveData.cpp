@@ -189,7 +189,7 @@ BOOL TerrainImprovementData::AddTurn(sint32 turns)
 	}
 	else{
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 							   GEV_ImprovementComplete,
 							   GEA_Improvement, TerrainImprovement(m_id),
 							   GEA_End);

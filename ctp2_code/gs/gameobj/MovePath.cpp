@@ -39,7 +39,7 @@ bool army_QueueMovePath(sint32 owner, Army &army,
 	army.ClearOrders();
 	good_path->JustSetStart(army->RetPos());
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_MoveOrder,
 	                       GEA_Army, army,
 	                       GEA_Path, good_path,
 	                       GEA_MapPoint, src,

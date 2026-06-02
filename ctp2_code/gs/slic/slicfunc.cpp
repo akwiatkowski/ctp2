@@ -370,7 +370,7 @@ GameEventArgList *SlicArgList::CreateGameEventArgs(GAME_EVENT ev)
 
 	for (size_t i = 0; i < Count(); ++i)
 	{
-		EVENTLOG(("%s ", g_gevManager->ArgCharToName(g_gevManager->ArgChar(ev, i))));
+		EVENTLOG(("%s ", gevmanager_Get()->ArgCharToName(gevmanager_Get()->ArgChar(ev, i))));
 		switch(gevmanager_Get()->ArgChar(ev, i)) {
 			case GEAC_ARMY:
 				if(GetArmy(i, a)) {

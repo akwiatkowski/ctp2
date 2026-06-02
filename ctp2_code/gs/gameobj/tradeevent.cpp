@@ -3,6 +3,7 @@
 
 #include "gs/gameobj/TradeRoute.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/TradeRouteData.h"
@@ -34,8 +35,8 @@ STDEHANDLER(SetPiratingArmyEvent)
 
 void tradeevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_KillTradeRoute, GEV_PRI_Primary, &s_KillTradeRouteEvent);
-	g_gevManager->AddCallback(GEV_SetPiratingArmy, GEV_PRI_Primary, &s_SetPiratingArmyEvent);
+	gevmanager_Get()->AddCallback(GEV_KillTradeRoute, GEV_PRI_Primary, &s_KillTradeRouteEvent);
+	gevmanager_Get()->AddCallback(GEV_SetPiratingArmy, GEV_PRI_Primary, &s_SetPiratingArmyEvent);
 }
 
 void tradeevent_Cleanup()

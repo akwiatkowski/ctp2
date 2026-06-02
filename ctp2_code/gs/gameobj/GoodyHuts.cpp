@@ -438,7 +438,7 @@ void GoodyHut::OpenGoody(PLAYER_INDEX const & owner, MapPoint const & point)
 		}
 		case GOODY_CITY:
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateCity,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateCity,
 								   GEA_Player, owner,
 								   GEA_MapPoint, point,
 								   GEA_Int, CAUSE_NEW_CITY_GOODY_HUT,

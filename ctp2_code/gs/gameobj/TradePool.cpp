@@ -12,6 +12,7 @@ void DrawTradeRoute(aui_Surface *pSurface, DynamicArray<MapPoint> *pRoute, uint1
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 
 class aui_Surface;
 
@@ -200,12 +201,12 @@ void TradePool::BreakOffTrade(PLAYER_INDEX attack_owner,
 		   (route.GetDestination().GetOwner() == attack_owner &&
 			route.GetSource().GetOwner() == defense_owner)) {
 
-			g_gevManager->Pause();
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillTradeRoute,
+			gevmanager_Get()->Pause();
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_KillTradeRoute,
 				GEA_TradeRoute, route.m_id,
 				GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 				GEA_End);
-			g_gevManager->Resume();
+			gevmanager_Get()->Resume();
 		}
 	}
 }

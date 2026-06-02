@@ -2363,7 +2363,7 @@ void SlicEngine::RunTimerTriggers()
 		if (IsTimerExpired(i))
 		{
 			m_timer[i] = NOT_IN_USE;
-            g_gevManager->AddEvent(GEV_INSERT_Tail,GEV_TimerExpired,GEA_Int,i, GEA_End);
+            gevmanager_Get()->AddEvent(GEV_INSERT_Tail,GEV_TimerExpired,GEA_Int,i, GEA_End);
 		}
 	}
 }

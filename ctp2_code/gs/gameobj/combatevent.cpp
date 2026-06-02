@@ -34,6 +34,7 @@
 #include "gs/gameobj/CTP2Combat.h"
 #include "gs/core/battle_observer.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Army.h"
 #include "gs/world/MapPoint.h"
 #include "gs/world/World.h"
@@ -69,7 +70,7 @@ STDEHANDLER(RunCombatEvent)
 	}
 	else if (combat_Get()->IsDone())
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_BattleAftermath,
 		                       GEA_Army,     army,
 		                       GEA_MapPoint, pos,
@@ -84,7 +85,7 @@ STDEHANDLER(RunCombatEvent)
 	}
 	else
 	{
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 		                       GEV_RunCombat,
 		                       GEA_Army,     army,
 		                       GEA_MapPoint, pos,
@@ -132,8 +133,8 @@ STDEHANDLER(StartCombatEvent)
 
 void combatevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_RunCombat, GEV_PRI_Primary, &s_RunCombatEvent);
-	g_gevManager->AddCallback(GEV_StartCombat, GEV_PRI_Primary, &s_StartCombatEvent);
+	gevmanager_Get()->AddCallback(GEV_RunCombat, GEV_PRI_Primary, &s_RunCombatEvent);
+	gevmanager_Get()->AddCallback(GEV_StartCombat, GEV_PRI_Primary, &s_StartCombatEvent);
 }
 
 void combatevent_Cleanup()

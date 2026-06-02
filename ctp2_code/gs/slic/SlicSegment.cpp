@@ -114,7 +114,7 @@ SlicSegment::SlicSegment()
 //
 // Globals    : slic_object_array_Get()   : stored objects
 //              g_slicEngine        : game engine
-//              g_gevManager        : game event manager
+//              gevmanager_Get()        : game event manager
 //
 // Returns    : -
 //
@@ -190,10 +190,10 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 				break;
 		}
 
-		if (g_gevManager)
+		if (gevmanager_Get())
 		{
 			m_event = GameEventManager::GetEventIndex(pobj->m_event_name);
-			g_gevManager->AddCallback(m_event, m_priority, this);
+			gevmanager_Get()->AddCallback(m_event, m_priority, this);
 		}
 	}
 
@@ -376,10 +376,10 @@ void SlicSegment::operator delete(void *ptr)
 	{
 		if ((SLIC_OBJECT_HANDLEEVENT == seg->m_type) &&
 		    (GEV_MAX != seg->m_event) &&
-		    g_gevManager
+		    gevmanager_Get()
 		   )
 		{
-			g_gevManager->RemoveCallback(seg->m_event, seg);
+			gevmanager_Get()->RemoveCallback(seg->m_event, seg);
 		}
 
 		int const poolIndex = seg->GetPoolIndex();
@@ -479,7 +479,7 @@ void SlicSegment::Serialize(CivArchive &archive)
 		}
 
 		if(m_type == SLIC_OBJECT_HANDLEEVENT) {
-			g_gevManager->AddCallback(m_event, m_priority, this);
+			gevmanager_Get()->AddCallback(m_event, m_priority, this);
 		}
 		m_parameter_symbols = NULL;
 	}

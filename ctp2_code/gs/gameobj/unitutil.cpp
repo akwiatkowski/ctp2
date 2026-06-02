@@ -49,6 +49,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "ConstRecord.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Player.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/FeatTracker.h"
@@ -354,7 +355,7 @@ void unitutil_ExecuteMadLaunch(Unit & unit)
 
 		unit.SetFlag(k_UDF_MAD_LAUNCHED);
 		unit.SetMovementPoints(unit.GetDBRec()->GetMaxMovePoints());
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_MADLaunch,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MADLaunch,
 			GEA_Unit, unit.m_id,
 			GEA_End);
 	}

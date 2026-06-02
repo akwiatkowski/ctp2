@@ -146,6 +146,7 @@
 #include "gs/gameobj/Events.h"
 #include "gs/gameobj/gaiacontroller.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/utility/Globals.h"
 #include "GoalRecord.h"
 #include "GovernmentRecord.h"
@@ -1666,7 +1667,7 @@ void Governor::PlaceTileImprovements()
 		       terrainutil_GetProductionCost(iter->type, iter->pos, 0);
 		if (needed_pw <= avail_pw)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail,
 			                       GEV_CreateImprovement,
 			                       GEA_Player,      m_playerId,
 			                       GEA_MapPoint,    iter->pos,
@@ -5171,7 +5172,7 @@ void Governor::ManageGoodsTradeRoutes()
 				{
 					unused_freight += curDestRoute->GetCost();
 
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillTradeRoute,
 						GEA_TradeRoute, curDestRoute.m_id,
 						GEA_Int, CAUSE_KILL_TRADE_ROUTE_SENDER_KILLED,
 						GEA_End);
@@ -5210,7 +5211,7 @@ void Governor::ManageGoodsTradeRoutes()
 	{
 		if(route_iter->m_cost <= unused_freight)
 		{
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
 			                       GEA_Int,         route_iter->m_resource,
 			                       GEA_City,        route_iter->m_sourceCity,
 			                       GEA_City,        route_iter->m_destinationCity,

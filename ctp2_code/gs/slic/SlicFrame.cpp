@@ -858,16 +858,16 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		{
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			if(g_gevManager->IsProcessing()) {
+			if(gevmanager_Get()->IsProcessing()) {
 				EVENTLOG(("    "));
 			}
 
-			EVENTLOG(("Event:%s(", g_gevManager->GetEventName((GAME_EVENT)ival)));
+			EVENTLOG(("Event:%s(", gevmanager_Get()->GetEventName((GAME_EVENT)ival)));
 
 			GameEventArgList *args = m_argList->CreateGameEventArgs((GAME_EVENT)ival);
-			EVENTLOG((") : Serial %d\n", g_gevManager->GetNextSerial()));
+			EVENTLOG((") : Serial %d\n", gevmanager_Get()->GetNextSerial()));
 
-			g_gevManager->ArglistAddEvent(GEV_INSERT_Tail,
+			gevmanager_Get()->ArglistAddEvent(GEV_INSERT_Tail,
 										  (GAME_EVENT)ival,
 										  args);
 

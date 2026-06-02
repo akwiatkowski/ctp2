@@ -495,7 +495,7 @@ void Pollution::AddNukePollution(const MapPoint &cpos)
 	if(!world_Get()->GetCell(cpos)->HasCity())
 	{
 		MapPoint stupidNonConstMapPoint = cpos;
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_KillTile,
 							   GEA_MapPoint, stupidNonConstMapPoint,
 							   GEA_End);
@@ -506,7 +506,7 @@ void Pollution::AddNukePollution(const MapPoint &cpos)
 	{
 		if(cpos.GetNeighborPosition((WORLD_DIRECTION)civrand().Next(sint32(NOWHERE)), pos))
 		{
-			g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+			gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 								   GEV_KillTile,
 								   GEA_MapPoint, pos,
 								   GEA_End);

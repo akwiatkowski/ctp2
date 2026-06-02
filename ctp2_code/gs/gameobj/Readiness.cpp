@@ -59,7 +59,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/database/profileDB.h"
 
-#include "gs/events/GameEventManager.h"   // g_gevManager
+#include "gs/events/GameEventManager.h"   // gevmanager_Get()
 
 MilitaryReadiness::MilitaryReadiness(sint32 a_Owner)
 :
@@ -402,7 +402,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 				g_slicEngine->Execute(so);
 			}
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
 			                       GEA_Unit,        all_units[i].u,
 			                       GEA_Int,         CAUSE_REMOVE_ARMY_NO_MAT_SUPPORT,
 			                       GEA_Player,      -1,
@@ -438,7 +438,7 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 				g_slicEngine->Execute(so);
 			}
 
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
 			                       GEA_Unit,        prof_units[i].u,
 			                       GEA_Int,         CAUSE_REMOVE_ARMY_NO_MAT_SUPPORT,
 			                       GEA_Player,      -1,

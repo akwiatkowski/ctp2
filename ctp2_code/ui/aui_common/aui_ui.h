@@ -28,7 +28,7 @@
 // - Moved CalculateHash() to aui_Base
 // - Prevented processing of uninitialised input
 // - Added graphics DirectX built in double buffering and extended it
-//   to manual tripple buffering. (1-Jan-2010 Martin Gühmann)
+//   to manual tripple buffering. (1-Jan-2010 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -472,5 +472,12 @@ protected:
 	sint32			m_savedMouseAnimCurIndex;
 	sint32			m_savedMouseAnimDelay;
 };
+
+// App-singleton accessor pair for the legacy g_ui pointer.  Until the
+// consolidating commit makes g_ui file-static, consumers that haven't
+// migrated still rely on local `extern aui_UI *g_ui;` declarations in
+// their own .cpp files.
+aui_UI * aui_ui_Get(void);
+void     aui_ui_Set(aui_UI *p);
 
 #endif

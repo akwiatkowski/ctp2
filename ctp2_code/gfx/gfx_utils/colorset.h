@@ -52,7 +52,12 @@ class ColorSet;
 // include it without depending on gfx/.
 #include "gs/core/color_types.h"
 
+// App-singleton accessor pair. g_colorSet remains extern during the
+// worker sweep; the consolidating commit makes it file-static once all
+// consumers are routed through these accessors.
 extern ColorSet *	g_colorSet;
+ColorSet * colorset_Get(void);
+void       colorset_Set(ColorSet *p);
 
 //----------------------------------------------------------------------------
 // Project dependencies

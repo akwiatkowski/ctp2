@@ -67,6 +67,9 @@ extern BOOL g_exclusiveMode;
 
 aui_UI *g_ui = NULL;
 
+aui_UI * aui_ui_Get(void)         { return g_ui; }
+void     aui_ui_Set(aui_UI *p)    { g_ui = p; }
+
 aui_UI::aui_UI
 (
 	AUI_ERRCODE *   retval,

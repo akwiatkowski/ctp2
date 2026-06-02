@@ -232,7 +232,6 @@ extern void WhackScreen();
 extern Diplomacy_Log *g_theDiplomacyLog;
 
 #include "gfx/spritesys/director.h"
-extern Director *g_director;
 
 extern BOOL	g_drawArmyClumps;
 
@@ -1166,7 +1165,7 @@ void ShowVisCommand::Execute(sint32 argc, char **argv)
 
 void ReloadSpritesCommand::Execute(sint32 argc, char **argv)
 {
-	g_director->ReloadAllSprites();
+	director_Get()->ReloadAllSprites();
 }
 
 void InitializeDiplomacyCommand::Execute(sint32 argc, char **argv) {
@@ -1905,8 +1904,8 @@ void ResyncCommand::Execute(sint32 argc, char **argv)
 void DirectorDumpCommand::Execute(sint32 argc, char **argv)
 {
 #ifdef _DEBUG
-	if (g_director)
-		g_director->DumpInfo();
+	if (director_Get())
+		director_Get()->DumpInfo();
 #endif
 }
 
@@ -5837,7 +5836,7 @@ void FastRoundCommand::Execute(sint32 argc, char **argv)
 
 		NewTurnCount::StartNextPlayer(false);
 
-		g_director->NextPlayer();
+		director_Get()->NextPlayer();
 		do {
 			g_controlPanel->Idle();
             if (g_civApp)

@@ -327,7 +327,7 @@ TEST_CASE("GameObserverRegistry NotifyVisionAdded fires once per observer (fog r
     // The fog-of-war first-city bug was caused by a duplicate observer in
     // the registry: the deferred director-queue path
     // (Player::AddUnitVision → NotifyVisionAdded → ui_game_observer::
-    // OnVisionAdded → g_director->AddAddVision) doubled, while the
+    // OnVisionAdded → director_Get()->AddAddVision) doubled, while the
     // game-start direct-path adds (tiledmap_Get() not yet up) ran once.
     // Net result: m_vision ref count drifted negative once any unit
     // moved, fogging the player's first city.

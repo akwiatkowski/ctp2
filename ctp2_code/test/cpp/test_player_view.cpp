@@ -44,7 +44,7 @@ constexpr std::size_t AI_UI_CPP_BASELINE    = 0;
 constexpr std::size_t AI_UI_HEADER_BASELINE = 0;
 
 // Ratchet baselines — total `#include "gfx/..."` lines, summed across files.
-// Phase 2 migrated all g_director call sites onto render_observer, but many
+// Phase 2 migrated all director_Get() call sites onto render_observer, but many
 // gs/ files still include gfx/ headers for type references (UnitActor*,
 // SpriteState*, etc.).  These baselines lock the current count so they can
 // only shrink as those type refs get pushed behind interfaces or pImpl'd.

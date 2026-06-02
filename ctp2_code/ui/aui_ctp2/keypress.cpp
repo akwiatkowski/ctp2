@@ -175,7 +175,6 @@ extern ControlPanelWindow *g_controlPanel;
 extern ProfileDB *g_theProfileDB;
 
 #include "gfx/spritesys/director.h"
-extern Director *g_director;
 
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 c3_UtilityPlayerListPopup *g_networkPlayersScreen = NULL;
@@ -851,7 +850,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			if(g_selected_item->GetVisiblePlayer() == g_selected_item->GetCurPlayer()) {
 				DPRINTF(k_DBG_GAMESTATE, ("Keypress end turn, %d\n", g_selected_item->GetCurPlayer()));
 				g_selected_item->RegisterManualEndTurn();
-				g_director->AddEndTurn();
+				director_Get()->AddEndTurn();
 			}
 			else
 			{

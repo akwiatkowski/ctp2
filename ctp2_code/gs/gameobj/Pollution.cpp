@@ -287,11 +287,11 @@ void Pollution::BeginTurn(void)
 
 			if(pprec->GetOzoneDisaster())
 			{
-				g_theWorld->OzoneDepletion();
+				world_Get()->OzoneDepletion();
 			}
 			if(pprec->GetFloodDisaster())
 			{
-				g_theWorld->GlobalWarming(m_gwPhase);
+				world_Get()->GlobalWarming(m_gwPhase);
 				m_gwPhase++;
 			}
 
@@ -445,30 +445,30 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 	{
 		cell->Kill();
 
-		g_theWorld->CutImprovements(pos);
+		world_Get()->CutImprovements(pos);
 
-		if(g_theWorld->GetCell(pos)->GetEnv() & k_BIT_ENV_INSTALLATION)
+		if(world_Get()->GetCell(pos)->GetEnv() & k_BIT_ENV_INSTALLATION)
 		{
 			DynamicArray<Installation> instArray;
 			installation_tree_Get()->GetAt(pos, instArray);
 			instArray.KillList();
 		}
-		g_theWorld->GetCell(pos)->SetEnv(
-						 g_theWorld->GetCell(pos)->GetEnv() & ~(k_MASK_ENV_ROAD |
+		world_Get()->GetCell(pos)->SetEnv(
+						 world_Get()->GetCell(pos)->GetEnv() & ~(k_MASK_ENV_ROAD |
 																k_MASK_ENV_IRRIGATION |
 																k_MASK_ENV_MINE |
 																k_MASK_ENV_INSTALLATION |
 																k_MASK_ENV_CANAL_TUNNEL));
 		if(g_network.IsHost())
 		{
-			g_network.Enqueue(g_theWorld->GetCell(pos), pos.x, pos.y);
+			g_network.Enqueue(world_Get()->GetCell(pos), pos.x, pos.y);
 		}
 
 		cell->CalcTerrainMoveCost();
 		MapPoint nonConstPos = pos;
 
 		if (g_tiledMap) {
-			g_tiledMap->PostProcessTile(nonConstPos, g_theWorld->GetTileInfo(nonConstPos));
+			g_tiledMap->PostProcessTile(nonConstPos, world_Get()->GetTileInfo(nonConstPos));
 			g_tiledMap->TileChanged(nonConstPos);
 		}
 		MapPoint npos;
@@ -480,7 +480,7 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 				if (g_tiledMap) {
 					g_tiledMap->PostProcessTile(
 												npos,
-												g_theWorld->GetTileInfo(npos));
+												world_Get()->GetTileInfo(npos));
 					g_tiledMap->TileChanged(npos);
 				}
 			}
@@ -492,7 +492,7 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 
 void Pollution::AddNukePollution(const MapPoint &cpos)
 {
-	if(!g_theWorld->GetCell(cpos)->HasCity())
+	if(!world_Get()->GetCell(cpos)->HasCity())
 	{
 		MapPoint stupidNonConstMapPoint = cpos;
 		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,

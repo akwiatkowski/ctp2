@@ -21,7 +21,6 @@
 
 #include "ui/interface/controlpanelwindow.h"
 
-extern World *g_theWorld;
 extern TiledMap *g_tiledMap;
 extern SelectedItem *g_selected_item;
 extern Background			*g_background;
@@ -72,8 +71,8 @@ void NetGameSettings::Packetize(uint8 *buf, uint16 &size)
 	PUSHLONG(gamesettings_Get()->m_alienEndGame);
 	PUSHLONG(gamesettings_Get()->m_pollution);
 
-	PUSHLONG(g_theWorld->m_isYwrap);
-	PUSHLONG(g_theWorld->m_isXwrap);
+	PUSHLONG(world_Get()->m_isYwrap);
+	PUSHLONG(world_Get()->m_isXwrap);
 }
 
 void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
@@ -142,7 +141,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 
 
-	g_theWorld->Reset(sint16(m_x), sint16(m_y), isYwrap, isXwrap);
+	world_Get()->Reset(sint16(m_x), sint16(m_y), isYwrap, isXwrap);
 
 	sint32 i;
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -166,12 +165,12 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	delete g_selected_item;
 	g_selected_item = new SelectedItem(m_numPlayers);
 
-	unit_tree_Set(new QuadTree<Unit>((sint16)g_theWorld->GetXWidth(),
-									   (sint16)g_theWorld->GetYHeight(),
-									   g_theWorld->IsYwrap()));
-	installation_tree_Set(new InstallationQuadTree((sint16)g_theWorld->GetXWidth(),
-													 (sint16)g_theWorld->GetYHeight(),
-													 g_theWorld->IsYwrap()));
+	unit_tree_Set(new QuadTree<Unit>((sint16)world_Get()->GetXWidth(),
+									   (sint16)world_Get()->GetYHeight(),
+									   world_Get()->IsYwrap()));
+	installation_tree_Set(new InstallationQuadTree((sint16)world_Get()->GetXWidth(),
+													 (sint16)world_Get()->GetYHeight(),
+													 world_Get()->IsYwrap()));
 
 	g_network.SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
 

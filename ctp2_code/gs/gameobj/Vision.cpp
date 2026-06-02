@@ -49,7 +49,7 @@
 #include "net/general/network.h"
 #include "gs/core/tiledmap_observer.h"
 #include "gs/world/UnseenCellQuadTree.h"
-#include "gs/world/World.h"                    // g_theWorld
+#include "gs/world/World.h"                    // world_Get
 
 extern sint32 g_god;
 
@@ -81,12 +81,12 @@ Vision::Vision(sint32 owner, bool amOnScreen)
     m_unseenCells           (NULL),
     m_mergeFrom             (NULL)
 {
-	Assert(g_theWorld);
-	MapPoint * size = g_theWorld->GetSize();
+	Assert(world_Get());
+	MapPoint * size = world_Get()->GetSize();
 	m_width = size->x;
 	m_height = size->y;
 	m_xyConversion = (m_height - (2 * m_width)) / 2;
-	m_isYwrap = g_theWorld->IsYwrap();
+	m_isYwrap = world_Get()->IsYwrap();
 
 	m_array = new uint16*[m_width];
 	for (int x = 0; x < m_width; x++)
@@ -253,14 +253,14 @@ void Vision::MergeMap(Vision *src)
 				if
 				  (
 				    (*hisVersion & k_VISIBLE_REFERENCE_MASK) > 0
-				    || g_theWorld->GetOwner(point) == src->GetOwner()
+				    || world_Get()->GetOwner(point) == src->GetOwner()
 				  ) // He sees this tile but we don't or he owns it
 				{
 					if(m_unseenCells->RemoveAt(point, ucell))
 					{
 						delete ucell.m_unseenCell;
 					}
-					Cell* cell = g_theWorld->GetCell(point);
+					Cell* cell = world_Get()->GetCell(point);
 					sint32 n = cell->GetNumUnits();
 					for(sint32 i = 0; i < n; i++)
 					{
@@ -290,7 +290,7 @@ void Vision::MergeMap(Vision *src)
 				MapPoint point(x, y);
 				Unconvert(point);
 
-				Cell* cell = g_theWorld->GetCell(point);
+				Cell* cell = world_Get()->GetCell(point);
 				sint32 n = cell->GetNumUnits();
 				for(sint32 i = 0; i < n; i++)
 				{
@@ -432,7 +432,7 @@ bool Vision::MergePoint(sint32 x, sint32 y)
 //              radius          : the radius of the circle
 //              op              : the operation to perform
 //
-// Globals    : g_theWorld      : world information
+// Globals    : world_Get()     : world information
 //
 // Returns    : removeadd       : filled with changed points
 //
@@ -525,7 +525,7 @@ void Vision::FillCircle
 // Parameters : posRC           : the point (RC coordinate)
 //              op              : the operation
 //
-// Globals    : g_theWorld      : world information
+// Globals    : world_Get()     : world information
 //
 // Returns    : removeadd       : filled with changed points
 //
@@ -602,7 +602,7 @@ void Vision::DoFillCircleOp(const MapPoint &posRC, CIRCLE_OP op,
 		case CIRCLE_OP_ADD_RADAR:
 		{
 			CellUnitList army;
-			g_theWorld->GetArmy(iso, army);
+			world_Get()->GetArmy(iso, army);
 			sint32 n = army.Num();
 			for(sint32 i = 0; i < n; i++)
 			{

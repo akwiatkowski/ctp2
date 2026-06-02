@@ -183,8 +183,8 @@ void GaiaController::Initialize()
 	m_percentCoverage = 0.0;
 	m_completedTurn = -1;
 
-	sint32 x_size = g_theWorld->GetXWidth();
-	sint32 y_size = g_theWorld->GetYHeight();
+	sint32 x_size = world_Get()->GetXWidth();
+	sint32 y_size = world_Get()->GetYHeight();
 
 	m_coveredCells.Resize( x_size, y_size, 0 );
 }
@@ -238,7 +238,7 @@ void GaiaController::RecomputeCoverage()
 					}
 			}
 	}
-	sint32 area = g_theWorld->GetXWidth() * g_theWorld->GetYHeight();
+	sint32 area = world_Get()->GetXWidth() * world_Get()->GetYHeight();
 	m_percentCoverage = (area > 0) ? ((float) covered_cells / area) : 0.0f;
 
 }
@@ -330,7 +330,7 @@ STDEHANDLER(GaiaController_CutImprovements)
 		return GEV_HD_Continue;
 
 	TerrainImprovement ti;
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	owner = cell->GetOwner();
 
 	//Added by Martin G�hmann to prevent
@@ -808,7 +808,7 @@ float GaiaController::NewCoverageFrom(const MapPoint & pos, const sint16 radius)
 			if (m_coveredCells.Get(cell_pos.x, cell_pos.y) != FALSE)
 				covered_cells++;
 		}
-	sint32 area = g_theWorld->GetXWidth() * g_theWorld->GetYHeight();
+	sint32 area = world_Get()->GetXWidth() * world_Get()->GetYHeight();
 	return (area > 0) ? ((float) covered_cells / area) : 0.0f;
 }
 
@@ -997,8 +997,8 @@ sint32 GaiaController::ScoreTowerPosition(MapPoint & pos, const MapPoint empire_
 		}
 	}
 
-	sint32 max_distance = (g_theWorld->GetHeight() * g_theWorld->GetWidth()) *
-		(g_theWorld->GetHeight() * g_theWorld->GetWidth());
+	sint32 max_distance = (world_Get()->GetHeight() * world_Get()->GetWidth()) *
+		(world_Get()->GetHeight() * world_Get()->GetWidth());
 	min_score += static_cast<sint32>
 		((optimal_distance/10) * (1.0 - ((float) empire_distance / (float) max_distance)));
 
@@ -1011,8 +1011,8 @@ void GaiaController::ComputeTowerCandidates(Scored_MapPoint_List & candidates) c
 	const TerrainImprovementRecord *rec =
 		g_theTerrainImprovementDB->Get(sm_towerTileImpIndex);
 
-	for (pos.x = 0; pos.x < g_theWorld->GetWidth(); pos.x++)
-		for (pos.y = 0; pos.y < g_theWorld->GetHeight(); pos.y++)
+	for (pos.x = 0; pos.x < world_Get()->GetWidth(); pos.x++)
+		for (pos.y = 0; pos.y < world_Get()->GetHeight(); pos.y++)
 		{
 			if (terrainutil_CanPlayerBuildAt(rec, m_playerId, pos))
 			{
@@ -1040,7 +1040,7 @@ void GaiaController::ComputeTowerPositions()
 	ComputeTowerCandidates(candidates);
 
 	m_maxPercentCoverage = static_cast<float>(candidates.size());
-	m_maxPercentCoverage /= (g_theWorld->GetWidth() * g_theWorld->GetHeight());
+	m_maxPercentCoverage /= (world_Get()->GetWidth() * world_Get()->GetHeight());
 	m_maxPercentCoverage *= (float) 1.2;
 
 	const DynamicArray<Installation> *tile_imps =

@@ -65,7 +65,7 @@
 #include "ui/aui_ctp2/linegraph.h"
 #include "ui/aui_ctp2/radarmap.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "ui/interface/TurnYearStatus.h"
 
 extern C3UI							*g_c3ui;
@@ -477,7 +477,7 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 		for (i=1; i<k_MAX_PLAYERS; i++) {
 
 			MBCHAR			s[_MAX_PATH];
-			PLAYER_INDEX	currentCiv = g_selected_item->GetVisiblePlayer();
+			PLAYER_INDEX	currentCiv = selitem_Get()->GetVisiblePlayer();
 
 			if ((player_Get(i)) && (!player_Get(i)->IsDead()) && (i!=currentCiv)) {
 				if (player_Get(currentCiv)->HasContactWith(i)) {
@@ -903,7 +903,7 @@ void LoadSaveWindow::SetSaveInfo(SaveInfo *info)
 void LoadSaveWindow::BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name)
 {
 	MBCHAR		civName[k_MAX_NAME_LEN];
-	player_Get(g_selected_item->GetVisiblePlayer())->m_civilisation->GetSingularCivName(civName);
+	player_Get(selitem_Get()->GetVisiblePlayer())->m_civilisation->GetSingularCivName(civName);
 #if !defined(_JAPANESE)
 	civName[4] = 0;
 #endif

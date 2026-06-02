@@ -107,7 +107,7 @@ void MessageMinimizeAction::Execute( aui_Control *control, uint32 action, uint32
 
 	m_window->GetIconWindow()->SetCurrentIconButton( NULL );
 
-	sint32 p = g_selected_item->GetVisiblePlayer();
+	sint32 p = selitem_Get()->GetVisiblePlayer();
 	if(player_Get(p)) {
 		sint32 m;
 		for(m = 0; m < player_Get(p)->m_messages->Num(); m++) {

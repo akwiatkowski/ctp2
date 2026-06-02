@@ -60,7 +60,7 @@ extern C3UI				*g_c3ui;
 extern SoundManager		*g_soundManager;
 
 #include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem		*g_selected_item;
+extern SelectedItem		*selitem_Get();
 
 #include "gs/gameobj/Player.h"
 
@@ -225,7 +225,7 @@ void CloseVictoryMovieAction::Execute(aui_Control *control, uint32 action, uint3
 	if (s_result == GAME_OVER_WON_SCIENCE) {
 		EndGame *endGame = NULL;
 
-		sint32 p = g_selected_item->GetVisiblePlayer();
+		sint32 p = selitem_Get()->GetVisiblePlayer();
 		if (player_Get(p) != NULL)
 			endGame = player_Get(p)->m_endGame;
 

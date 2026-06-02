@@ -2441,10 +2441,10 @@ void Player::BeginTurn()
 		IsNetwork() && g_network.IsLocalPlayer(m_owner)) &&
 	   m_owner == player_view::VisiblePlayer() &&
 	   g_theProfileDB->IsAutoSelectFirstUnit()) {
-		if(g_selected_item->GetState() == SELECT_TYPE_NONE) {
-			g_selected_item->NextUnmovedUnit(TRUE);
-		} else if(g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY) {
-			g_selected_item->MaybeAutoEndTurn(TRUE);
+		if(selitem_Get()->GetState() == SELECT_TYPE_NONE) {
+			selitem_Get()->NextUnmovedUnit(TRUE);
+		} else if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY) {
+			selitem_Get()->MaybeAutoEndTurn(TRUE);
 		}
 	}
 

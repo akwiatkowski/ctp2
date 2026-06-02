@@ -28,7 +28,7 @@
 
 #include "ui/aui_ctp2/SelItem.h"
 
-extern SelectedItem	*g_selected_item;
+extern SelectedItem	*selitem_Get();
 extern ControlPanelWindow	*g_controlPanel;
 extern ProfileDB    *g_theProfileDB;
 
@@ -56,7 +56,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 
 				if ( m_army.IsPresent(m_unit) ) {
 					if(m_army.Num() == 1) {
-						g_selected_item->Deselect(m_army.GetOwner());
+						selitem_Get()->Deselect(m_army.GetOwner());
 						break;
 					} else {
 						m_unit.AccessData()->CreateOwnArmy();
@@ -77,7 +77,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 			if ( unitpool_Get()->IsValid(m_unit) ) {
 				Army army = m_army;
 				m_unit.AccessData()->CreateOwnArmy();
-				g_selected_item->SetSelectUnit( m_unit, FALSE );
+				selitem_Get()->SetSelectUnit( m_unit, FALSE );
 
 				CellUnitList	*cellArmy;
 				MapPoint	pos;
@@ -114,7 +114,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 			Unit unit = m_unit;
 
 			unit.AccessData()->CreateOwnArmy();
-			g_selected_item->SetSelectUnit( unit, TRUE, TRUE);
+			selitem_Get()->SetSelectUnit( unit, TRUE, TRUE);
 
 			CellUnitList	*cellArmy;
 			MapPoint	pos;

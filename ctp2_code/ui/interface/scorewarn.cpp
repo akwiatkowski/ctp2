@@ -73,8 +73,8 @@ void scorewarn_AcceptWarningCallback( aui_Control *control, uint32 action, uint3
 		Assert( auiErr == AUI_ERRCODE_OK );
 		if ( auiErr != AUI_ERRCODE_OK ) return;
 
-		if ( g_selected_item ) {
-			g_selected_item->Deselect( g_selected_item->GetVisiblePlayer() );
+		if ( selitem_Get() ) {
+			selitem_Get()->Deselect( selitem_Get()->GetVisiblePlayer() );
 		}
 
 		ScenarioEditor::Display();

@@ -19,7 +19,7 @@ void RegisterHeadlessGameObserver();
  *
  * Bind player_view::VisiblePlayer / CurPlayer / PlayerAfter to the
  * SelectedItem instance.  Call once during UI app initialization, after
- * g_selected_item is created.  Headless build leaves these unregistered.
+ * selitem_Get() is created.  Headless build leaves these unregistered.
  */
 void RegisterUIPlayerView();
 

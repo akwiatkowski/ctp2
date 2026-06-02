@@ -41,7 +41,7 @@ extern sint32  g_oldRandSeed;        // gameinit.cpp reads this as the RNG seed 
 
 // Headless mode needs a CurPlayer callback because CtpAi::BeginTurn and
 // BeginMapAnalysis assert(player == player_view::CurPlayer()).  In the
-// interactive game CurPlayer is backed by g_selected_item; headless has
+// interactive game CurPlayer is backed by selitem_Get(); headless has
 // no selected item, so we track the currently processing player manually.
 static sint32 s_headlessCurPlayer = 0;
 static sint32 HeadlessCurPlayer() { return s_headlessCurPlayer; }
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 
     RegisterHeadlessGameObserver();
     // Headless still links SelItem.cpp (it's in game_core_sources) and many
-    // non-UI files — notably newturncount.cpp — dereference g_selected_item
+    // non-UI files — notably newturncount.cpp — dereference selitem_Get()
     // directly.  Until those callers are migrated to player_view::CurPlayer
     // etc., the headless build needs to allocate a SelectedItem instance.
     // Reuse the same SelectedItem-backed callbacks the UI build uses.

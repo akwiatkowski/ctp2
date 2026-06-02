@@ -47,7 +47,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
-#include "ui/aui_ctp2/SelItem.h"            // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"            // selitem_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "ui/aui_utils/primitives.h"
 
@@ -307,7 +307,7 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
             double      xPos    = (sint32)(k * m_tilePixelWidth);
 			double      yPos    = (sint32)(i * m_tilePixelHeight);
 			MapPoint	pos(j, i);
-			Vision *    vision  = player_Get(g_selected_item->GetVisiblePlayer())->m_vision;
+			Vision *    vision  = player_Get(selitem_Get()->GetVisiblePlayer())->m_vision;
 
             UnseenCellCarton	cellCarton;
 			Unit				top;
@@ -411,7 +411,7 @@ void ThumbnailMap::RenderTradeRoute(aui_Surface *surf, TradeRoute *route)
 
 void ThumbnailMap::RenderTradeRoutes(aui_Surface *surf)
 {
-	Player	*player = player_Get(g_selected_item->GetVisiblePlayer());
+	Player	*player = player_Get(selitem_Get()->GetVisiblePlayer());
 	Assert(player != NULL);
 	if (player == NULL) return;
 

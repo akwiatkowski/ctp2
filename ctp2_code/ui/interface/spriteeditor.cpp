@@ -117,7 +117,7 @@ extern C3UI			*g_c3ui;
 
 
 extern C3Window			*g_toolbar;
-extern SelectedItem		*g_selected_item;
+extern SelectedItem		*selitem_Get();
 extern ProfileDB		*g_theProfileDB;
 
 extern unsigned char *g_compression_buff;

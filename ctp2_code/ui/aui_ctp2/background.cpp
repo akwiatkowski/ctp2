@@ -192,7 +192,7 @@ void Background::MouseLDropOutside(aui_MouseEvent *data)
 
 }
 
-extern SelectedItem *g_selected_item;
+extern SelectedItem *selitem_Get();
 
 void Background::MouseMoveInside(aui_MouseEvent *data)
 
@@ -338,23 +338,23 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 	Assert(data);
 	MapPoint cur, old;
 
-	g_selected_item->GetOldMouseTilePos(old);
+	selitem_Get()->GetOldMouseTilePos(old);
 	if(m_current_mouse_tile.x != -1
 	&& m_current_mouse_tile   != old
 	){
 		if((   m_lbutton_isdown == FALSE
 		    || g_theProfileDB->IsUseCTP2Mode()
 		   )
-		&& (   g_selected_item->IsLocalArmy()
-		    || g_selected_item->GetState() == SELECT_TYPE_LOCAL_ARMY_UNLOADING
-		    ||(g_selected_item->IsLocalCity() && g_theProfileDB->IsDebugCityAstar())
+		&& (   selitem_Get()->IsLocalArmy()
+		    || selitem_Get()->GetState() == SELECT_TYPE_LOCAL_ARMY_UNLOADING
+		    ||(selitem_Get()->IsLocalCity() && g_theProfileDB->IsDebugCityAstar())
 		   )
 		){
-			g_selected_item->SetDrawablePathDest(m_current_mouse_tile);
+			selitem_Get()->SetDrawablePathDest(m_current_mouse_tile);
 		}
 		else
 		{
-			g_selected_item->SetCurMouseTile(m_current_mouse_tile);
+			selitem_Get()->SetCurMouseTile(m_current_mouse_tile);
 		}
 
 		InfoBar *ib = infobar_Get();

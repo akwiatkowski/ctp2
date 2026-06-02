@@ -344,7 +344,7 @@ bool CellUnitList::CanBeExpelled()
 //              moveType			: a bit set of movement types
 //				isResyncReported	: invalid units do not have to be reported
 //
-// Globals    : g_selected_item		: currently selected item on screen
+// Globals    : selitem_Get()		: currently selected item on screen
 //				player_Get()			: players
 //				world_Get()			: map information
 //				g_network			: network handler (for multiplayer)

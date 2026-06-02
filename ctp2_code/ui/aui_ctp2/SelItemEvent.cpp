@@ -42,7 +42,7 @@ STDEHANDLER(SelItemArmyMovedEvent)
 	if(!args->GetArmy(0, a))
 		return GEV_HD_Continue;
 
-	g_selected_item->ArmyMovedCallback(a);
+	selitem_Get()->ArmyMovedCallback(a);
 
 	return GEV_HD_Continue;
 }
@@ -52,13 +52,13 @@ STDEHANDLER(SelItemSettleEvent)
 	sint32 res;
 	sint32 pl;
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
-	if(pl != g_selected_item->GetVisiblePlayer())
+	if(pl != selitem_Get()->GetVisiblePlayer())
 		return GEV_HD_Continue;
 
 	if(!args->GetInt(0, res)) return GEV_HD_Continue;
 
 	if(res) {
-		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
+		selitem_Get()->Deselect(selitem_Get()->GetVisiblePlayer());
 	}
 	return GEV_HD_Continue;
 }
@@ -70,10 +70,10 @@ STDEHANDLER(SelItemCreateCityEvent)
 	if(!args->GetPlayer(0, pl)) return GEV_HD_Continue;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
-	if( pl == g_selected_item->GetVisiblePlayer()
+	if( pl == selitem_Get()->GetVisiblePlayer()
 	&& !player_Get(pl)->IsRobot()
 	){
-		g_selected_item->SetSelectUnit(city);
+		selitem_Get()->SetSelectUnit(city);
 	}
 
 	return GEV_HD_Continue;
@@ -85,9 +85,9 @@ STDEHANDLER(SelItemEntrenchUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 
 	Army selArmy;
-	if(g_selected_item->GetSelectedArmy(selArmy)) {
+	if(selitem_Get()->GetSelectedArmy(selArmy)) {
 		if(selArmy.m_id == u.GetArmy().m_id && !CanAutoSelect(selArmy)) {
-			g_selected_item->NextItem();
+			selitem_Get()->NextItem();
 		}
 	}
 	return GEV_HD_Continue;
@@ -99,9 +99,9 @@ STDEHANDLER(SelItemCantMoveYetEvent)
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 
 	Army selArmy;
-	if(g_selected_item->GetSelectedArmy(selArmy)) {
+	if(selitem_Get()->GetSelectedArmy(selArmy)) {
 		if(selArmy.m_id == a.m_id && !CanAutoSelect(selArmy)) {
-			g_selected_item->NextItem();
+			selitem_Get()->NextItem();
 		}
 	}
 	return GEV_HD_Continue;

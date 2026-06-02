@@ -382,7 +382,7 @@ sint32                    g_difficultyToSetUponLaunch = 0;
 BOOL                      g_setBarbarianRiskUponLaunch = FALSE;
 sint32                    g_barbarianRiskUponLaunch = 0;
 
-// g_selected_item definition moved to ui/aui_ctp2/SelItem.cpp — the global
+// selitem_Get() definition moved to ui/aui_ctp2/SelItem.cpp — the global
 // belongs next to its class, not in game-state init.
 
 static BOOL g_startEmailGame   = FALSE;
@@ -454,7 +454,7 @@ void CreateBarbarians(sint32 const diff)
 //
 // Globals    : g_theProfileDB  : player settings
 //              g_player        : updated
-//              g_selected_item : updated
+//              selitem_Get() : updated
 //              NewTurnCount    : updated
 //
 // Returns    : -

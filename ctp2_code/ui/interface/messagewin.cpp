@@ -2,7 +2,7 @@
 #include "ui/interface/messagewin.h"
 
 #include "gs/utility/Globals.h"        // allocated::...
-#include "ui/aui_ctp2/SelItem.h"        // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"        // selitem_Get()
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_ctp2/c3ui.h"
@@ -449,7 +449,7 @@ return 1;
 			if ( !AUI_NEWOK( button, retval )) return -1;
 
 			action = new ChangeOffsetMessageIconButtonAction( 1,
-							messagewin_GetPlayerMessageList( g_selected_item->GetVisiblePlayer( )),
+							messagewin_GetPlayerMessageList( selitem_Get()->GetVisiblePlayer( )),
 							SHOW_MESSAGE_OFFSET_RELATIVE );
 			Assert( action != NULL );
 			if ( action == NULL ) return -1;
@@ -461,7 +461,7 @@ return 1;
 			if ( retval != AUI_ERRCODE_OK ) return -1;
 		}
 
-		action->SetList(messagewin_GetPlayerMessageList(g_selected_item->GetVisiblePlayer()));
+		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
 		window->Move( g_messageMoreX, g_messageMoreY );
 		retval = g_c3ui->AddWindow( window );
 		Assert( retval == AUI_ERRCODE_OK );
@@ -521,7 +521,7 @@ return 1;
 			if ( !AUI_NEWOK( button, retval )) return -1;
 
 			action = new ChangeOffsetMessageIconButtonAction( -1,
-							messagewin_GetPlayerMessageList( g_selected_item->GetVisiblePlayer( )),
+							messagewin_GetPlayerMessageList( selitem_Get()->GetVisiblePlayer( )),
 							SHOW_MESSAGE_OFFSET_RELATIVE );
 			Assert( action != NULL );
 			if ( action == NULL ) return -1;
@@ -533,7 +533,7 @@ return 1;
 			if ( retval != AUI_ERRCODE_OK ) return -1;
 		}
 
-		action->SetList(messagewin_GetPlayerMessageList(g_selected_item->GetVisiblePlayer()));
+		action->SetList(messagewin_GetPlayerMessageList(selitem_Get()->GetVisiblePlayer()));
 		window->Move( g_messageLessX, g_messageLessY );
 		retval = g_c3ui->AddWindow( window );
 		Assert( retval == AUI_ERRCODE_OK );

@@ -131,7 +131,7 @@ void spnewgametribescreen_setTribeIndex( sint32 index, MBCHAR *lname )
 	s_tribeIndex = index;
 
 	sint32 const    playerIndex         =
-	    g_selected_item ? g_selected_item->GetVisiblePlayer() : 1;
+	    selitem_Get() ? selitem_Get()->GetVisiblePlayer() : 1;
 	bool const      shouldSetProfileDB  =
 	    !g_isCheatModeOn ||
 	     (player_Get(playerIndex) &&

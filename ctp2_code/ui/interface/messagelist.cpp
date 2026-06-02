@@ -1,7 +1,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/messagelist.h"
 
-#include "ui/aui_ctp2/SelItem.h"        // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"        // selitem_Get()
 #include "gs/database/profileDB.h"      // g_theProfileDB
 
 #include "ui/aui_common/aui.h"
@@ -145,7 +145,7 @@ return;
 	uint32 count = 0;
 	MessageIconWindow *iconWindow;
 
-	if ( !g_selected_item || m_player != g_selected_item->GetVisiblePlayer( )) {
+	if ( !selitem_Get() || m_player != selitem_Get()->GetVisiblePlayer( )) {
 		HideVisibleWindows();
 		return;
 	}

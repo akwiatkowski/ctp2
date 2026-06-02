@@ -88,12 +88,12 @@ TILEINDEX TileInfo::GetTileNum(void)
 		return m_tileNum;
 	}
 
-	if (!player_Get(g_selected_item->GetVisiblePlayer())) return m_tileNum;
+	if (!player_Get(selitem_Get()->GetVisiblePlayer())) return m_tileNum;
 
-	if(player_Get(g_selected_item->GetVisiblePlayer())->m_hasGlobalRadar) {
+	if(player_Get(selitem_Get()->GetVisiblePlayer())->m_hasGlobalRadar) {
 		return m_tileNum;
-	} else if (player_Get(g_selected_item->GetVisiblePlayer()) &&
-		player_Get(g_selected_item->GetVisiblePlayer())->GetDeepOceanVisible()) {
+	} else if (player_Get(selitem_Get()->GetVisiblePlayer()) &&
+		player_Get(selitem_Get()->GetVisiblePlayer())->GetDeepOceanVisible()) {
 		return m_tileNum;
 	} else {
 		if(g_theTerrainDB->Get(m_terrainType)->GetMovementTypeSea() &&

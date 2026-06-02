@@ -25,7 +25,7 @@ m_endTurn(static_cast<ctp2_Button*>(aui_Ldl::GetObject(ldlBlock, "TurnButton")))
 void EndTurnButton::UpdatePlayer(PLAYER_INDEX player)
 {
 
-	if(g_selected_item->GetVisiblePlayer() == player)
+	if(selitem_Get()->GetVisiblePlayer() == player)
 		m_endTurn->Enable(true);
 	else
 		m_endTurn->Enable(false);
@@ -46,12 +46,12 @@ void EndTurnButton::EndTurnButtonActionCallback(aui_Control *control, uint32 act
 
 
 
-	DPRINTF(k_DBG_GAMESTATE, ("Button end turn, %d\n", g_selected_item->GetCurPlayer()));
-	if((g_selected_item->GetCurPlayer() != g_selected_item->GetVisiblePlayer())) {
+	DPRINTF(k_DBG_GAMESTATE, ("Button end turn, %d\n", selitem_Get()->GetCurPlayer()));
+	if((selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())) {
 		DPRINTF(k_DBG_GAMESTATE, ("But not my turn!\n"));
 		return;
 	}
 
-	g_selected_item->RegisterManualEndTurn();
+	selitem_Get()->RegisterManualEndTurn();
 	director_Get()->AddEndTurn();
 }

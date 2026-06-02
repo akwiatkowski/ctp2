@@ -109,7 +109,7 @@ extern sint32				g_god;
 extern RECT g_backgroundViewport;
 
 DebugWindow					*g_debugWindow;
-extern SelectedItem	*g_selected_item;
+extern SelectedItem	*selitem_Get();
 
 
 
@@ -1269,7 +1269,7 @@ void CityViewButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 
 	MapPoint pos;
 
-	g_selected_item->GetTopCurItem(player, item, state) ;
+	selitem_Get()->GetTopCurItem(player, item, state) ;
 	if (state != SELECT_TYPE_LOCAL_CITY)
 		return ;
 

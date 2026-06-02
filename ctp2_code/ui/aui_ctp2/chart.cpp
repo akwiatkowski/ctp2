@@ -486,7 +486,7 @@ AUI_ERRCODE Chart::Update( sint32 index )
 	sint32 ypos = (Height() - ((m_numPreReq + m_numEitherPreReq) * buttonHeight
 		+ ((m_numPreReq + m_numEitherPreReq) - 1) * heightBetweenButtons)) / 2;
 
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 	uint8 *adv = player_Get(curPlayer)->m_advances->CanResearch();
 
 	for ( i = 0; i < m_numPreReq; i++ )

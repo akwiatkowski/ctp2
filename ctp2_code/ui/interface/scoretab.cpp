@@ -85,7 +85,7 @@ ScoreTab::~ScoreTab()
 
 void ScoreTab::Update(void)
 {
-	sint32      curPlayer   = g_selected_item->GetVisiblePlayer();
+	sint32      curPlayer   = selitem_Get()->GetVisiblePlayer();
 	Player *    pl          = player_Get(curPlayer);
 	if (!pl)
     {

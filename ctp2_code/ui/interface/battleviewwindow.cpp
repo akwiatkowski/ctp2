@@ -383,7 +383,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 		return;
 
 	if (combat_Get()->GetAttacker() ==
-		    g_selected_item->GetVisiblePlayer()
+		    selitem_Get()->GetVisiblePlayer()
 	    && !g_network.IsActive()
        )
     {

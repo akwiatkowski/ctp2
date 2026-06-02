@@ -21,7 +21,7 @@ UnitAstar *g_theTestPather;
 sint32 n;
 sint8 *dir_list;
 
-extern SelectedItem *g_selected_item;
+extern SelectedItem *selitem_Get();
 extern void WhackScreen();
 
 Path good_path, bad_path;
@@ -79,7 +79,7 @@ void testloop(aui_Surface *surf)
     SELECT_TYPE s_state;
     sint32 s_index;
 
-   g_selected_item->GetTopCurItem(s_player, s_item,
+   selitem_Get()->GetTopCurItem(s_player, s_item,
                              s_state,  s_index);
 
 double dis;

@@ -303,8 +303,8 @@ struct HeavyCityDataFixture
 
         // SelectedItem and SlicEngine must exist before Player construction.
         // Player::InitPlayer calls Advances::InitialAdvance which calls
-        // slicengine_Get()->CallMod, and other sub-objects may query g_selected_item.
-        g_selected_item = new SelectedItem(1);
+        // slicengine_Get()->CallMod, and other sub-objects may query selitem_Get().
+        selitem_Set(new SelectedItem(1));
         slicengine_Set(new SlicEngine());
         rand_ptr_Set(new RandomGenerator(12345));
         // Test fixture: no real game setup. Default to 0 players, year 0;
@@ -321,7 +321,7 @@ struct HeavyCityDataFixture
         // up in the test harness.
         world_Set(nullptr);
         player_arr_Set(nullptr);
-        g_selected_item = nullptr;
+        selitem_Set(nullptr);
         slicengine_Set(nullptr);
         g_civApp = nullptr;
         rand_ptr_Set(nullptr);

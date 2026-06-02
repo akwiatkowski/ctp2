@@ -61,7 +61,7 @@ WorkMap *g_workMap = NULL;
 static c3_Button			*s_exitButton;
 
 
-extern SelectedItem			*g_selected_item;
+extern SelectedItem			*selitem_Get();
 
 void WorkWinCleanupAction::Execute(aui_Control *control,
 									uint32 action,
@@ -79,7 +79,7 @@ void WorkWinUpdateAction::Execute(aui_Control *control,
 
 	if ( g_c3ui->GetWindow(g_workWindow->Id()) ) {
 		Unit city;
-		if ( g_selected_item->GetSelectedCity(city) ) {
+		if ( selitem_Get()->GetSelectedCity(city) ) {
 			if ( g_resourceMap ) {
 				g_resourceMap->SetUnit( city );
 				g_resourceMap->DrawSurface();

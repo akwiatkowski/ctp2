@@ -178,7 +178,7 @@ sint32 tileimptracker_Initialize()
 //              contructed.
 //              sint32 type: The type of the tileimp in question.
 //
-// Globals    : g_selected_item:           The currently selected item
+// Globals    : selitem_Get():           The currently selected item
 //              world_Get():                The game world
 //              g_theTerrainImprovementDB: The tile improvement database
 //              g_theTerrainDB:            The terrain database
@@ -202,7 +202,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 	MBCHAR		mytext[256];
 	sint32		x, y;
-	sint32		visPlayer = g_selected_item->GetVisiblePlayer();
+	sint32		visPlayer = selitem_Get()->GetVisiblePlayer();
 
 	s_tileImprovementNum = type;
 	if (s_tileImprovementNum < 0) {

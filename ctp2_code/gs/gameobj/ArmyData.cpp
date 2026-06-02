@@ -6084,7 +6084,7 @@ void ArmyData::AutoAddOrdersWrongTurn(UNIT_ORDER_TYPE order, Path *path,
 //              GAME_EVENT passedEvent  :
 //
 // Globals    : g_network               :
-//            : g_selected_item         :
+//            : selitem_Get()         :
 //            : player array                : player array [see Player::InitPlayer for initialized player data]
 //
 // Returns    : -
@@ -6259,7 +6259,7 @@ void ArmyData::ClearOrders()
 //            : g_theArmyPool
 //            : g_theDiplomacyLog
 //            : player array             : player array
-//            : g_selected_item
+//            : selitem_Get()
 //            : g_network
 //
 // Returns    : bool

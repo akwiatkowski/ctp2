@@ -65,7 +65,7 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
@@ -345,7 +345,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 
 
 	if(!tiledmap_Get() || !tiledmap_Get()->ReadyToDraw() ||
-		!world_Get() || !g_selected_item || !m_mapSize)
+		!world_Get() || !selitem_Get() || !m_mapSize)
 		return(NULL);
 
 
@@ -357,7 +357,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 	if(m_mapSize->x <= 0 || m_mapSize->y <= 0)
 		return(NULL);
 
-	return(player_Get(g_selected_item->GetVisiblePlayer()));
+	return(player_Get(selitem_Get()->GetVisiblePlayer()));
 }
 
 //---------------------------------------------------------------------------
@@ -1026,7 +1026,7 @@ void RadarMap::RenderViewRect
 		if(!tiledmap_Get()->ReadyToDraw())
 			return;
 
-	    sint32  nrplayer    = g_selected_item->GetVisiblePlayer();
+	    sint32  nrplayer    = selitem_Get()->GetVisiblePlayer();
 
 		offsetRect.bottom = m_mapViewRect.bottom;
 		offsetRect.top = m_mapViewRect.top;
@@ -1489,9 +1489,9 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
     double  nudge   = (tileY & 1) ? m_tilePixelWidth / 2.0 : 0.0;
     sint32  tileX   = (sint32) ( ceil(((double)(data->position.x - nudge) / m_tilePixelWidth)) );
 
-	tileX = (sint32) ((tileX - m_displayOffset[g_selected_item->GetVisiblePlayer()].x
+	tileX = (sint32) ((tileX - m_displayOffset[selitem_Get()->GetVisiblePlayer()].x
 									+ m_mapSize->x) % m_mapSize->x);
-	tileY = (sint32) ((tileY - m_displayOffset[g_selected_item->GetVisiblePlayer()].y
+	tileY = (sint32) ((tileY - m_displayOffset[selitem_Get()->GetVisiblePlayer()].y
 									+ m_mapSize->y) % m_mapSize->y);
 
 	sint32 width = m_mapViewRect.right - m_mapViewRect.left;
@@ -1532,7 +1532,7 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 	data->position.x -= X();
 	data->position.y -= Y();
 
-	sint32 nrplayer = g_selected_item->GetVisiblePlayer();
+	sint32 nrplayer = selitem_Get()->GetVisiblePlayer();
 
 	// compute the offsets after the MouseRClick to center the map with the
 	// desired point
@@ -1590,10 +1590,10 @@ MapPoint RadarMap::MapOffset(MapPoint oldPoint)
 	MapPoint newPoint;
 
 	newPoint.x =
-		(oldPoint.x + m_displayOffset[g_selected_item->GetVisiblePlayer()].x) % m_mapSize->x;
+		(oldPoint.x + m_displayOffset[selitem_Get()->GetVisiblePlayer()].x) % m_mapSize->x;
 
 	newPoint.y =
-		(oldPoint.y + m_displayOffset[g_selected_item->GetVisiblePlayer()].y) % m_mapSize->y;
+		(oldPoint.y + m_displayOffset[selitem_Get()->GetVisiblePlayer()].y) % m_mapSize->y;
 
 	return newPoint;
 }
@@ -1609,7 +1609,7 @@ MapPoint RadarMap::MapOffset(MapPoint oldPoint)
 //---------------------------------------------------------------------------
 MapPoint RadarMap::PosWorldToPosRadar(MapPoint worldpos)
 {
-	sint32 nrplayer = g_selected_item->GetVisiblePlayer();
+	sint32 nrplayer = selitem_Get()->GetVisiblePlayer();
 
 	MapPoint posRadar;
 	posRadar.x = (worldpos.x - m_displayOffset[nrplayer].y/2 + m_mapSize->x

@@ -205,8 +205,8 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 	m_curY = point.y;
 	m_textFromMap = true;
 
-	if(!player_Get(g_selected_item->GetVisiblePlayer()) ||
-		!player_Get(g_selected_item->GetVisiblePlayer())->IsExplored(point)) {
+	if(!player_Get(selitem_Get()->GetVisiblePlayer()) ||
+		!player_Get(selitem_Get()->GetVisiblePlayer())->IsExplored(point)) {
 		Concat(g_theStringDB->GetNameStr("INFOBAR_UNEXPLORED"));
 
 #ifndef _DEBUG
@@ -226,7 +226,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 
 		if(owner >= 0
 		&& player_Get(owner)
-		&&(player_Get(owner)->HasContactWith(g_selected_item->GetVisiblePlayer())
+		&&(player_Get(owner)->HasContactWith(selitem_Get()->GetVisiblePlayer())
 		|| g_fog_toggle)
 		){
 
@@ -255,7 +255,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 // To hide the city name if the city is hidden
 		Unit city = cell->GetCity();
 		if(city.m_id
-		&&(city->GetVisibility() & (1 << g_selected_item->GetVisiblePlayer()))
+		&&(city->GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer()))
 		){
 			if(hasUnseen){
 				if(g_theStringDB->GetNameStr("INFOBAR_CITY")) {
@@ -444,7 +444,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 		}
 
 		if(cell->GetNumUnits() > 0) {
-			if(cell->AccessUnit(0).GetOwner() == g_selected_item->GetVisiblePlayer() ||
+			if(cell->AccessUnit(0).GetOwner() == selitem_Get()->GetVisiblePlayer() ||
 			   !cell->HasCity()) {
 				sint32 i;
 				bool anyVisible = false;
@@ -453,7 +453,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 					if(!cell->AccessUnit(i).IsValid())
 						break;
 
-					if(cell->AccessUnit(i).GetVisibility() & (1 << g_selected_item->GetVisiblePlayer())) {
+					if(cell->AccessUnit(i).GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) {
 						anyVisible = true;
 						break;
 					}
@@ -471,7 +471,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 						//original
 						//player_Get(cell->AccessUnit(0).GetOwner())->m_civilisation->GetSingularCivName(civName);
 						//emod
-						if ((cell->AccessUnit(0).IsHiddenNationality()) && (cell->AccessUnit(0).GetOwner() != g_selected_item->GetVisiblePlayer())) {
+						if ((cell->AccessUnit(0).IsHiddenNationality()) && (cell->AccessUnit(0).GetOwner() != selitem_Get()->GetVisiblePlayer())) {
 							player_Get(PLAYER_INDEX_VANDALS)->m_civilisation->GetSingularCivName(civName);
 						} else {
 							player_Get(cell->AccessUnit(0).GetOwner())->m_civilisation->GetSingularCivName(civName);
@@ -483,7 +483,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 					}
 					//hidden nationality?
 					for(i = 0; i < cell->GetNumUnits(); i++) {
-						if(cell->AccessUnit(i).GetVisibility() & (1 << g_selected_item->GetVisiblePlayer())) {
+						if(cell->AccessUnit(i).GetVisibility() & (1 << selitem_Get()->GetVisiblePlayer())) {
 							Concat(cell->AccessUnit(i).GetName());
 							if(i < cell->GetNumUnits() - 1)
 								Concat(", ");

@@ -53,7 +53,7 @@ sint32 CurPlayer();
 sint32 PlayerAfter(sint32 player);
 
 // --- Lifecycle of the UI-side selection state ---
-// The UI build owns g_selected_item; the engine just asks it to be
+// The UI build owns selitem_Get(); the engine just asks it to be
 // created/destroyed at the right points in game init/cleanup.  Headless
 // leaves these unregistered (no-op).
 using InitFn            = void (*)(sint32 nPlayers);

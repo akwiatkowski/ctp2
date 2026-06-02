@@ -22,9 +22,9 @@ namespace Shortcuts {
 
 		Unit city;
 		Army a;
-		if(g_selected_item->GetSelectedCity(city))
+		if(selitem_Get()->GetSelectedCity(city))
 			CityWindow::Display(city.CD());
-		else if(g_selected_item->GetSelectedArmy(a)) {
+		else if(selitem_Get()->GetSelectedArmy(a)) {
 			if(world_Get()->HasCity(a->RetPos())) {
 				CityWindow::Display(world_Get()->GetCity(a->RetPos()).CD());
 			} else {

@@ -55,7 +55,7 @@
 #include "ui/interface/MainControlPanel.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"
-#include "ui/aui_ctp2/SelItem.h"                // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
 #include "TerrainRecord.h"
 #include "ui/aui_ctp2/textbutton.h"
 #include "ui/aui_ctp2/thermometer.h"
@@ -451,7 +451,7 @@ sint32 c3_UtilityCityListPopup::UpdateData( void )
 {
 	MBCHAR strbuf[256];
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	AUI_ERRCODE		retval;
 
@@ -576,7 +576,7 @@ sint32 c3_PiracyPopup::UpdateData( void )
 {
 	MBCHAR strbuf[256];
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
+	sint32 curPlayer = selitem_Get()->GetVisiblePlayer();
 
 	AUI_ERRCODE		retval;
 
@@ -1527,7 +1527,7 @@ void NameTheCityDialogBoxCallback(MBCHAR const * text, sint32 val2, void *data)
 
 	if (s_unit.IsValid())
     {
-		if (s_unit.GetOwner() == g_selected_item->GetVisiblePlayer())
+		if (s_unit.GetOwner() == selitem_Get()->GetVisiblePlayer())
         {
 			s_unit.GetData()->GetCityData()->SetName(text);
 			maincontrolpanel_Get()->UpdateCityList();

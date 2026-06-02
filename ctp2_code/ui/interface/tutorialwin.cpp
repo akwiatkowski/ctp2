@@ -58,7 +58,7 @@
 #include "ui/interface/tutorialwin.h"
 
 extern C3UI			*g_c3ui;
-extern SelectedItem	*g_selected_item;
+extern SelectedItem	*selitem_Get();
 
 
 extern ProfileDB	*g_theProfileDB;
@@ -108,7 +108,7 @@ void tutorialwin_ListCallback( aui_Control *control, uint32 action, uint32 data,
 
 	sint32 i = 0;
 
-	sint32 player = g_selected_item->GetVisiblePlayer();
+	sint32 player = selitem_Get()->GetVisiblePlayer();
 	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return;
 
@@ -233,7 +233,7 @@ sint32 TutorialWin::UpdateData( void )
 	MBCHAR title[_MAX_PATH];
 	sint32 i = 0;
 
-	sint32 player = g_selected_item->GetVisiblePlayer();
+	sint32 player = selitem_Get()->GetVisiblePlayer();
 	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return -1;
 
@@ -262,7 +262,7 @@ sint32 TutorialWin::AddToList( MBCHAR *text, sint32 index )
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	sint32 player = g_selected_item->GetVisiblePlayer();
+	sint32 player = selitem_Get()->GetVisiblePlayer();
 	PointerList<SlicRecord> *recordList = slicengine_Get()->GetRecords(player);
 	if ( !recordList ) return -1;
 

@@ -95,7 +95,7 @@ extern ScienceWin           *g_scienceWin;
 extern DebugWindow          *g_debugWindow;
 
 extern TutorialWin          *g_tutorialWin;
-extern SelectedItem         *g_selected_item;
+extern SelectedItem         *selitem_Get();
 extern ProfileDB            *g_theProfileDB;
 
 extern Network              g_network;
@@ -339,7 +339,7 @@ bool open_GreatLibrary(sint32 index, bool sci)
 //
 // Parameters : -
 //
-// Globals    : g_selected_item     : object selected at screen
+// Globals    : selitem_Get()     : object selected at screen
 //              player_arr_Get()    : list of players
 //
 // Returns    : sint32              : opening succeeded
@@ -350,7 +350,7 @@ bool open_GreatLibrary(sint32 index, bool sci)
 //----------------------------------------------------------------------------
 bool open_GreatLibrary( void )
 {
-	sint32 const		player	= g_selected_item->GetVisiblePlayer();
+	sint32 const		player	= selitem_Get()->GetVisiblePlayer();
 	AdvanceType const	advance	= player_Get(player)->m_advances->GetResearching();
 
 	return open_GreatLibrary(advance);

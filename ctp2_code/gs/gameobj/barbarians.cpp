@@ -87,7 +87,7 @@ bool SomeoneCanHave(const UnitRecord *rec)
 
 		sint32 feat;
 		if(!g_network.IsNetworkLaunch()
-		&& player_Get(g_selected_item->GetCurPlayer())
+		&& player_Get(selitem_Get()->GetCurPlayer())
 		&& advRec->GetTriggerFeatIndex(feat)
 		){
 			if(!g_network.IsActive() || g_network.ReadyToStart()) {

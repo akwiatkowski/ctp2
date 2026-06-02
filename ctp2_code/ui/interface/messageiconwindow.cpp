@@ -28,7 +28,7 @@ extern uint8 g_messageMaxVisible;
 extern uint8 g_messageIconHeight;
 extern uint8 g_messageIconSpacing;
 extern FilenameDB *g_theMessageIconFileDB;
-extern SelectedItem *g_selected_item;
+extern SelectedItem *selitem_Get();
 
 MessageIconWindow *MessageIconWindow::m_currentIconWindow = NULL;
 
@@ -134,7 +134,7 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	uint32 pos = messagelist->GetList()->L();
 
 	if ( pos > ( g_messageMaxVisible + messagelist->GetOffset() )) {
-		if(data->GetOwner() == g_selected_item->GetVisiblePlayer())
+		if(data->GetOwner() == selitem_Get()->GetVisiblePlayer())
 			messagewin_MoreMessagesIcon( TRUE );
 	} else {
 		SetupAnimation( pos - messagelist->GetOffset( ));

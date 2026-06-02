@@ -95,7 +95,7 @@ extern C3Window		*g_floatingWindow;
 extern DebugWindow	*g_debugWindow;
 extern WorkWindow	*g_workWindow;
 
-extern SelectedItem				*g_selected_item;
+extern SelectedItem				*selitem_Get();
 
 
 extern ProductionTabControl		*g_cp_productionTab;
@@ -181,7 +181,7 @@ void CityManagerButtonCallback(aui_Control *control, uint32 action, uint32 data,
 	CityWindow::Initialize();
 
 	Unit city;
-	if(g_selected_item->GetSelectedCity(city))
+	if(selitem_Get()->GetSelectedCity(city))
 		CityWindow::Display(city.CD());
 	else
 		CityWindow::Display(NULL);

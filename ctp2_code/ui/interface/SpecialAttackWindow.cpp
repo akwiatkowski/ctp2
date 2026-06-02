@@ -120,7 +120,7 @@ sint32 specialAttackWindow_Initialize()
 //              executed.
 //              sint32 type: The type of the order in question.
 //
-// Globals    : g_selected_item:           The currently selected item
+// Globals    : selitem_Get():           The currently selected item
 //              g_theOrderDB:              The order database
 //              g_theSpecialAttackWindow:  The special attack window
 //              g_c3ui:                    The civilization 3 graphical user interface
@@ -166,7 +166,7 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 	maputils_MapXY2PixelXY(p.x,p.y,&x,&y);
 	g_theSpecialAttackWindow->Move(x,y);
 
-	sint32		visPlayer = g_selected_item->GetVisiblePlayer();
+	sint32		visPlayer = selitem_Get()->GetVisiblePlayer();
 	if(costs <= player_Get(visPlayer)->GetGold()){
 		s_saWindowBorderColor = COLOR_GREEN;
 	}

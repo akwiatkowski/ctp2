@@ -54,7 +54,7 @@
 
 #include "gfx/tilesys/tiledmap.h"                   // tiledmap_Get()
 #include "gfx/gfx_utils/colorset.h"                   // g_colorSet
-#include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
+#include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/gameobj/Player.h"                     // player_Get
 #include "gs/utility/UnitDynArr.h"
 
@@ -653,10 +653,10 @@ AUI_ERRCODE StatsWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 BOOL StatsWindow::CheckCity( void )
 {
-	if(!player_Get(g_selected_item->GetVisiblePlayer()))
+	if(!player_Get(selitem_Get()->GetVisiblePlayer()))
 		return FALSE;
 
-	sint32 cities = player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities();
+	sint32 cities = player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities();
 
 	if ( cities ) {
 		return TRUE;
@@ -670,7 +670,7 @@ BOOL StatsWindow::CheckCity( void )
 
 BOOL StatsWindow::CheckUnit( void )
 {
-	sint32 units = player_Get(g_selected_item->GetVisiblePlayer())->m_all_units->Num();
+	sint32 units = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_units->Num();
 
 	if ( units ) {
 		return TRUE;
@@ -684,7 +684,7 @@ BOOL StatsWindow::CheckUnit( void )
 
 BOOL StatsWindow::CheckDiplomacy( void )
 {
-	sint32 player = g_selected_item->GetVisiblePlayer();
+	sint32 player = selitem_Get()->GetVisiblePlayer();
 
 	if(!player_Get(player))
 		return FALSE;

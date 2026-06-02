@@ -83,7 +83,6 @@
 #include "gs/gameobj/Gold.h"
 
 extern World                    *g_world;
-extern Player                   **g_player;
 
 extern ProfileDB                *g_theProfileDB;
 
@@ -128,18 +127,18 @@ void NewTurnCount::StartNextPlayer(bool stop)
 		return;
 	}
 
-	g_player[current_player]->EndTurn();
+	player_Get(current_player)->EndTurn();
 
 #if 0
 
-	if((g_player[current_player]->IsHuman()
-	|| (g_player[current_player]->IsNetwork()
+	if((player_Get(current_player)->IsHuman()
+	|| (player_Get(current_player)->IsNetwork()
 	&&  g_network.IsLocalPlayer(current_player)))
 	&&  player_view::CurPlayer() == player_view::VisiblePlayer()
 	){
-		g_player[current_player]->m_endingTurn = TRUE;
-		g_player[current_player]->ProcessUnitOrders();
-		g_player[current_player]->m_endingTurn = FALSE;
+		player_Get(current_player)->m_endingTurn = TRUE;
+		player_Get(current_player)->ProcessUnitOrders();
+		player_Get(current_player)->m_endingTurn = FALSE;
 	}
 #endif
 
@@ -150,11 +149,11 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	NewTurnCount::ChooseNextActivePlayer();
 	PLAYER_INDEX next_player = player_view::CurPlayer();
-	sint32 next_round = g_player[next_player]->GetCurRound() + 1;
+	sint32 next_round = player_Get(next_player)->GetCurRound() + 1;
 
 	if(g_turn->IsHotSeat() || g_turn->IsEmail())
 	{
-		if(!g_player[player_view::CurPlayer()]->IsRobot())
+		if(!player_Get(player_view::CurPlayer())->IsRobot())
 		{
 			stop = true;
 		}
@@ -173,7 +172,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if (stop ||
 		(g_network.IsActive() &&
-		 (g_network.IsClient() || !g_player[next_player]->IsRobot())))
+		 (g_network.IsClient() || !player_Get(next_player)->IsRobot())))
 	{
 		NewTurnCount::SetStopPlayer(next_player);
 		render_observer::NextPlayer();
@@ -181,7 +180,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 
 	if(g_network.IsHost() && GetStopPlayer() == next_player)
 	{
-		if(g_player[next_player]->IsRobot())
+		if(player_Get(next_player)->IsRobot())
 		{
 			SetStopPlayer(player_view::VisiblePlayer());
 		}
@@ -208,7 +207,7 @@ void NewTurnCount::StartNextPlayer(bool stop)
 	}
 
 	if((g_turn->IsHotSeat() || g_turn->IsEmail())
-	&& !g_player[player_view::CurPlayer()]->IsRobot()
+	&& !player_Get(player_view::CurPlayer())->IsRobot()
 	){
 		g_turn->SendNextPlayerMessage();
 
@@ -240,7 +239,7 @@ void NewTurnCount::ChooseNextActivePlayer()
 		player_view::NextPlayer();
 		render_observer::NextPlayer();
 		count++;
-	} while( g_player[player_view::CurPlayer()] == NULL );
+	} while( player_Get(player_view::CurPlayer()) == NULL );
 }
 
 void NewTurnCount::StartNewYear()
@@ -275,11 +274,11 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 	if(player >= 0 && player < k_MAX_PLAYERS)
 		current_player = player;
 
-	Assert(g_player != NULL);
-	Assert(g_player[current_player] != NULL);
-	if(!g_player || !g_player[current_player]) return 0;
+	Assert(player_arr_Get() != NULL);
+	Assert(player_Get(current_player) != NULL);
+	if(!player_arr_Get() || !player_Get(current_player)) return 0;
 
-	sint32 round = g_player[current_player]->GetCurRound();
+	sint32 round = player_Get(current_player)->GetCurRound();
 
 	return diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), round);
 }
@@ -287,10 +286,10 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 sint32 NewTurnCount::GetCurrentRound()
 {
 	PLAYER_INDEX current_player = player_view::CurPlayer();
-	Assert(g_player != NULL);
-	if(!g_player || !g_player[current_player]) return 0;
+	Assert(player_arr_Get() != NULL);
+	if(!player_arr_Get() || !player_Get(current_player)) return 0;
 
-	return g_player[current_player]->GetCurRound();
+	return player_Get(current_player)->GetCurRound();
 }
 
 void NewTurnCount::RunNewYearMessages(void)
@@ -316,11 +315,11 @@ void NewTurnCount::RunNewYearMessages(void)
 
 			for(i = 1; i < k_MAX_PLAYERS; i++)
 			{
-				if(g_player[i])
+				if(player_Get(i))
 				{
-					if(g_player[i]->m_score->GetTotalScore() > highScore)
+					if(player_Get(i)->m_score->GetTotalScore() > highScore)
 					{
-						highScore = g_player[i]->m_score->GetTotalScore();
+						highScore = player_Get(i)->m_score->GetTotalScore();
 						highPlayer = i;
 					}
 				}
@@ -333,15 +332,15 @@ void NewTurnCount::RunNewYearMessages(void)
 
 			for(i = 0; i < k_MAX_PLAYERS; i++)
 			{
-				if(g_player[i])
+				if(player_Get(i))
 				{
 					if(i == highPlayer)
 					{
-						g_player[i]->GameOver(GAME_OVER_WON_OUT_OF_TIME, -1);
+						player_Get(i)->GameOver(GAME_OVER_WON_OUT_OF_TIME, -1);
 					}
 					else
 					{
-						g_player[i]->GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
+						player_Get(i)->GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
 					}
 				}
 			}
@@ -371,7 +370,7 @@ void NewTurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 	for(i=0; i<k_MAX_PLAYERS; i++)
 	{
-		if ((g_player[i]) && (!g_player[i]->IsDead()))
+		if ((player_Get(i)) && (!player_Get(i)->IsDead()))
 			so->AddRecipient(i) ;
 
 	}
@@ -381,7 +380,7 @@ void NewTurnCount::SendMsgToAllPlayers(MBCHAR *s)
 
 BOOL NewTurnCount::VerifyEndTurn(BOOL force)
 {
-	Player *player = g_player[player_view::CurPlayer()];
+	Player *player = player_Get(player_view::CurPlayer());
 
 	if (!player->IsHuman())
 	{

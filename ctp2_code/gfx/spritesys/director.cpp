@@ -63,7 +63,7 @@
 #include "gs/database/profileDB.h"  // g_theProfileDB
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Army.h"
-#include "gs/gameobj/Player.h"  // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/citydata.h"
@@ -644,8 +644,8 @@ void Director::HandleNextAction(void) {
          item->GetOwner() != g_selected_item->GetVisiblePlayer()) ||
         (!g_theProfileDB->IsUnitAnim() && item->GetOwner() != -1 &&
          item->GetOwner() >= 0 && item->GetOwner() < k_MAX_PLAYERS &&
-         g_player[item->GetOwner()] != NULL &&
-         g_player[item->GetOwner()]->IsRobot())) {
+         player_Get(item->GetOwner()) != NULL &&
+         player_Get(item->GetOwner())->IsRobot())) {
       executeType = DHEXECUTE_IMMEDIATE;
     }
 
@@ -1090,7 +1090,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
 #ifdef _PLAYTEST
   if (!g_doingFastRounds &&
       (!g_network.IsActive() ||
-       g_player[g_selected_item->GetVisiblePlayer()]->IsRobot())) {
+       player_Get(g_selected_item->GetVisiblePlayer())->IsRobot())) {
     return;
   }
 #else
@@ -1378,19 +1378,19 @@ void Director::AddEndTurn(void) {
                             g_selected_item->GetCurPlayer()));
 
   sint32 curPlayer = g_selected_item->GetCurPlayer();
-  if (curPlayer < 0 || curPlayer >= k_MAX_PLAYERS || !g_player[curPlayer])
+  if (curPlayer < 0 || curPlayer >= k_MAX_PLAYERS || !player_Get(curPlayer))
     return;
 
   if (curPlayer == g_selected_item->GetVisiblePlayer()) {
     static sint32 last_turn_processed = -1;
     if (last_turn_processed !=
-        g_player[curPlayer]->m_current_round) {
+        player_Get(curPlayer)->m_current_round) {
       last_turn_processed =
-          g_player[curPlayer]->m_current_round;
+          player_Get(curPlayer)->m_current_round;
 
       g_gevManager->Pause();
 
-      Player* p = g_player[curPlayer];
+      Player* p = player_Get(curPlayer);
       p->m_endingTurn = TRUE;
 
       for (sint32 i = 0; i < p->m_all_armies->Num(); i++) {
@@ -1399,7 +1399,7 @@ void Director::AddEndTurn(void) {
                                p->m_all_armies->Access(i).m_id, GEA_End);
       }
 
-      g_player[curPlayer]->m_endingTurn = FALSE;
+      player_Get(curPlayer)->m_endingTurn = FALSE;
       g_gevManager->Resume();
     }
   }
@@ -1418,8 +1418,8 @@ void Director::AddEndTurn(void) {
 
   sint32 curPlayer2 = g_selected_item->GetCurPlayer();
   if (curPlayer2 >= 0 && curPlayer2 < k_MAX_PLAYERS &&
-      curPlayer2 == lastPlayer && g_player[lastPlayer] &&
-      g_player[lastPlayer]->m_current_round == lastRound) {
+      curPlayer2 == lastPlayer && player_Get(lastPlayer) &&
+      player_Get(lastPlayer)->m_current_round == lastRound) {
     for (DQItemPtr& item : m_itemQueue) {
       if (item->m_type == DQITEM_ENDTURN) {
         DPRINTF(k_DBG_GAMESTATE, ("Skipping duplicate end turn for %d,%d\n",
@@ -1430,8 +1430,8 @@ void Director::AddEndTurn(void) {
   }
 
   lastPlayer = g_selected_item->GetCurPlayer();
-  if (g_player[lastPlayer]) {
-    lastRound = g_player[lastPlayer]->m_current_round;
+  if (player_Get(lastPlayer)) {
+    lastRound = player_Get(lastPlayer)->m_current_round;
   } else {
     lastRound = -1;
   }
@@ -1490,7 +1490,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
 
   m_itemQueue.push_back(item);
 
-  Player* visiblePlayer = g_player[g_selected_item->GetVisiblePlayer()];
+  Player* visiblePlayer = player_Get(g_selected_item->GetVisiblePlayer());
   if (visiblePlayer && visiblePlayer->IsVisible(attacker.RetPos())) {
     if (attacker.m_id != 0) {
       AddCombatFlash(attacker.RetPos());
@@ -1515,8 +1515,8 @@ void Director::AddAttackPos(Unit attacker, MapPoint const& pos) {
   item->SetOwner(attacker.GetOwner());
   m_itemQueue.push_back(item);
 
-  if (g_player[g_selected_item->GetVisiblePlayer()] &&
-      g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(pos)) {
+  if (player_Get(g_selected_item->GetVisiblePlayer()) &&
+      player_Get(g_selected_item->GetVisiblePlayer())->IsVisible(pos)) {
     AddCombatFlash(pos);
   }
 }
@@ -1549,8 +1549,8 @@ void Director::AddSpecialAttack(Unit attacker,
 
   m_itemQueue.push_back(item);
 
-  if (g_player[g_selected_item->GetVisiblePlayer()] &&
-      g_player[g_selected_item->GetVisiblePlayer()]->IsVisible(
+  if (player_Get(g_selected_item->GetVisiblePlayer()) &&
+      player_Get(g_selected_item->GetVisiblePlayer())->IsVisible(
           attacked.RetPos())) {
     AddProjectileAttack(attacker, attacked, NULL,
                         SpriteStatePtr(new SpriteState(spriteID)), 0);
@@ -1802,7 +1802,7 @@ void Director::AddPlayVictoryMovie(GAME_OVER reason,
   if (previouslyWon || previouslyLost) {
     PLAYER_INDEX player = g_selected_item->GetVisiblePlayer();
 
-    if (g_player[player] && !g_player[player]->m_isDead) {
+    if (player_Get(player) && !player_Get(player)->m_isDead) {
       return;
     }
   }
@@ -1920,7 +1920,7 @@ void Director::DecrementPendingGameActions() {
   if (m_pendingGameActions <= 0) {
     m_pendingGameActions = 0;
     if (m_endTurnRequested) {
-      Player* pl = g_player[g_selected_item->GetCurPlayer()];
+      Player* pl = player_Get(g_selected_item->GetCurPlayer());
       if (pl && (!g_network.IsActive() ||
                  (g_network.IsLocalPlayer(g_selected_item->GetCurPlayer())))) {
         m_endTurnRequested = false;
@@ -1936,17 +1936,17 @@ void Director::DecrementPendingGameActions() {
 void Director::ReloadAllSprites() {
   sint32 p, i;
   sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
-  if (visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !g_player[visiblePlayer])
+  if (visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !player_Get(visiblePlayer))
     return;
 
   for (p = 0; p < k_MAX_PLAYERS; p++) {
-    if (!g_player[p])
+    if (!player_Get(p))
       continue;
     // PFT  29 mar 05
     // cycle through human players' cities
-    if (g_player[visiblePlayer]->IsHuman()) {
-      for (i = 0; i < g_player[p]->m_all_cities->Num(); i++) {
-        Unit u = g_player[p]->m_all_cities->Access(i);
+    if (player_Get(visiblePlayer)->IsHuman()) {
+      for (i = 0; i < player_Get(p)->m_all_cities->Num(); i++) {
+        Unit u = player_Get(p)->m_all_cities->Access(i);
 
         // recover the number of turns until the city next produces a pop from
         // it's current state  CityData *cityData = u.GetData()->GetCityData();
@@ -1958,8 +1958,8 @@ void Director::ReloadAllSprites() {
         actor->ChangeImage(u.GetSpriteState(), u.GetType(), u);
       }
     }
-    for (i = 0; i < g_player[p]->m_all_units->Num(); i++) {
-      Unit u = g_player[p]->m_all_units->Access(i);
+    for (i = 0; i < player_Get(p)->m_all_units->Num(); i++) {
+      Unit u = player_Get(p)->m_all_units->Access(i);
       UnitActorPtr actor = u.GetActor();
       u.GetSpriteState()->SetIndex(
           u.GetDBRec()->GetDefaultSprite()->GetValue());

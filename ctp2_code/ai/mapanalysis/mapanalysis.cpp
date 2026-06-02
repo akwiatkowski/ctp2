@@ -156,7 +156,7 @@ const sint16 route_value)
 
 void MapAnalysis::RecalcCityRanks(sint32 player)
 {
-	Player* player_ptr = g_player[player];
+	Player* player_ptr = player_Get(player);
 	Assert(player_ptr != NULL);
 
 	if(player_ptr == NULL)
@@ -238,7 +238,7 @@ void MapAnalysis::BeginTurn()
         m_landArea         [player] = 0;
         m_totalTrade       [player] = 0;
 
-        Player * player_ptr = g_player[player];
+        Player * player_ptr = player_Get(player);
         if (player_ptr == NULL)
             continue;
 
@@ -438,7 +438,7 @@ void MapAnalysis::BeginTurn()
 
     for (player = 0; player < m_threatGrid.size(); player++)
     {
-        Player * player_ptr = g_player[player];
+        Player * player_ptr = player_Get(player);
         if (player_ptr == NULL)
             continue;
 
@@ -744,7 +744,7 @@ double MapAnalysis::GetPowerRank(const CityData * city) const
 void MapAnalysis::CalcEmpireCenter(const PLAYER_INDEX playerId)
 {
 	// For now disabled
-//	m_empireCenter[playerId] = g_player[playerId]->CalcEmpireCenter();
+//	m_empireCenter[playerId] = player_Get(playerId)->CalcEmpireCenter();
 
 	DPRINTF(k_DBG_SCHEDULER, ("Empire Center for player %d :  rc(%3d,%3d)   \n",
 	        playerId,
@@ -866,11 +866,11 @@ double MapAnalysis::CityAtRiskRatio(const Unit city, const PLAYER_INDEX opponent
     Assert(city.IsValid());
     PLAYER_INDEX playerId = city.GetOwner();
 
-    Player * player_ptr = g_player[playerId];
+    Player * player_ptr = player_Get(playerId);
     if (player_ptr == NULL)
         return 0.0;
 
-    if (opponentId != PLAYER_UNASSIGNED && g_player[opponentId] == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
         return 0.0;
 
     MapPoint pos;
@@ -909,11 +909,11 @@ sint32 MapAnalysis::MostAtRiskCity
     const PLAYER_INDEX &    opponentId
 ) const
 {
-    Player * player_ptr = g_player[playerId];
+    Player * player_ptr = player_Get(playerId);
     if (player_ptr == NULL)
         return 0;
 
-    if (opponentId != PLAYER_UNASSIGNED && g_player[opponentId] == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
         return 0;
 
     double most_at_risk_value = 0.0;
@@ -943,11 +943,11 @@ sint32 MapAnalysis::AtRiskCitiesValue
     const PLAYER_INDEX & opponentId
 ) const
 {
-    Player * player_ptr = g_player[playerId];
+    Player * player_ptr = player_Get(playerId);
     if (player_ptr == NULL)
         return 0;
 
-    if (opponentId != PLAYER_UNASSIGNED && g_player[opponentId] == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
         return 0;
 
     double at_risk_value = 0.0;
@@ -1102,7 +1102,7 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
         ++foreignerId
     )
     {
-        if (g_player[foreignerId] == NULL)
+        if (player_Get(foreignerId) == NULL)
             continue;
 
         if (foreignerId == playerId ||
@@ -1112,7 +1112,7 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
             alliance_land += m_landArea[foreignerId];
             allies++;
 
-            if(!g_player[foreignerId]->IsRobot()
+            if(!player_Get(foreignerId)->IsRobot()
             &&  m_totalPopulation[foreignerId] > max_population
             ){
                 max_population = m_totalPopulation[foreignerId];
@@ -1144,16 +1144,16 @@ void MapAnalysis::ComputeHandicapRatios()
     size_t player;
     for (player = 0; player < m_threatGrid.size(); player++)
     {
-        if (g_player[player] == NULL)
+        if (player_Get(player) == NULL)
             continue;
 
-        if (g_player[player]->IsRobot())
+        if (player_Get(player)->IsRobot())
             continue;
 
-        sint32 strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_MILITARY);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_BUILDINGS);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_WONDERS);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_PRODUCTION);
+        sint32 strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_MILITARY);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_BUILDINGS);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_WONDERS);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_PRODUCTION);
 
         if (strValue < min_production_strength || min_production_strength == -1)
             min_production_strength = strValue;
@@ -1161,7 +1161,7 @@ void MapAnalysis::ComputeHandicapRatios()
         if (strValue > max_production_strength || max_production_strength == -1)
             max_production_strength = strValue;
 
-        strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_KNOWLEDGE);
+        strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_KNOWLEDGE);
 
         if (strValue < min_science_strength || min_science_strength == -1)
             min_science_strength = strValue;
@@ -1169,7 +1169,7 @@ void MapAnalysis::ComputeHandicapRatios()
         if (strValue > max_science_strength || max_science_strength == -1)
             max_science_strength = strValue;
 
-        strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_GOLD);
+        strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_GOLD);
 
         if (strValue < min_gold_strength || min_gold_strength == -1)
             min_gold_strength = strValue;
@@ -1184,16 +1184,16 @@ void MapAnalysis::ComputeHandicapRatios()
         m_goldHandicapRatio[player] = 1.0;
         m_scienceHandicapRatio[player] = 1.0;
 
-        if (g_player[player] == NULL)
+        if (player_Get(player) == NULL)
             continue;
 
-        if (!g_player[player]->IsRobot())
+        if (!player_Get(player)->IsRobot())
             continue;
 
-        sint32 strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_MILITARY);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_BUILDINGS);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_WONDERS);
-        strValue += g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_PRODUCTION);
+        sint32 strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_MILITARY);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_BUILDINGS);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_WONDERS);
+        strValue += player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_PRODUCTION);
 
 		if (strValue < min_production_strength && min_production_strength > 0)
 		{
@@ -1208,7 +1208,7 @@ void MapAnalysis::ComputeHandicapRatios()
 			m_productionHandicapRatio[player] = 1.0;
 		}
 
-		strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_GOLD);
+		strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_GOLD);
 
 		if (strValue < min_gold_strength && min_gold_strength > 0)
 		{
@@ -1223,7 +1223,7 @@ void MapAnalysis::ComputeHandicapRatios()
 			m_goldHandicapRatio[player] = 1.0;
 		}
 
-		strValue = g_player[player]->m_strengths->GetStrength(STRENGTH_CAT_KNOWLEDGE);
+		strValue = player_Get(player)->m_strengths->GetStrength(STRENGTH_CAT_KNOWLEDGE);
 
 		if (strValue < min_science_strength && min_science_strength > 0)
 		{

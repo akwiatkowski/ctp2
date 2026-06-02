@@ -84,7 +84,7 @@
 #include "gs/core/player_view.h"               // player_view::VisiblePlayer
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Agreement.h"
-#include "gs/gameobj/MessagePool.h"			// g_theMessagePool
+#include "gs/gameobj/MessagePool.h"			// messagepool_Get()
 #include "gs/gameobj/BldQue.h"
 #include "gs/slic/SlicRecord.h"
 #include "ctp/ctp2_utils/pointerlist.h"

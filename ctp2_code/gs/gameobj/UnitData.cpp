@@ -3576,7 +3576,7 @@ double UnitData::GetOffense(const Unit &defender) const
 //				g_theProfileDB
 //				g_theGovernmentDB
 //				player_Get()
-//				g_featTracker
+//				feattracker_Get()
 //
 // Returns    : Returns the unit's defense points.
 //

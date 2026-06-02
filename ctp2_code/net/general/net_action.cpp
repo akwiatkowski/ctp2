@@ -68,9 +68,9 @@
 #include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
 #include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "gs/gameobj/ArmyData.h"
-#include "gs/gameobj/TradeOfferPool.h"             // g_theTradeOfferPool
+#include "gs/gameobj/TradeOfferPool.h"             // tradeofferpool_Get()
 #include "gs/gameobj/Agreement.h"
-#include "gs/gameobj/AgreementPool.h"              // g_theAgreementPool
+#include "gs/gameobj/AgreementPool.h"              // agreementpool_Get()
 #include "AdvanceRecord.h"
 #include "gs/gameobj/TradePool.h"
 #include "gs/slic/SlicEngine.h"

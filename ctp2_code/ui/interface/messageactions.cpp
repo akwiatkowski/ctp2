@@ -177,7 +177,7 @@ void MessageLibraryAction::Execute( aui_Control *control, uint32 action, uint32 
 //				data				: not used
 //
 // Globals    : g_theProfileDB		: user preferences
-//				g_theMessagePool	: currently active messages
+//				messagepool_Get()	: currently active messages
 //
 //
 // Returns    : -

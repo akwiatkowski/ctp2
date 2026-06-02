@@ -67,7 +67,7 @@
 #include "ConstRecord.h"        // g_theConstDB
 #include "gs/utility/RandGen.h"            // rand_ptr()
 #include "gs/core/game_observer.h"
-#include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"   // civilisationpool_Get()
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
 #include "BuildingRecord.h"
@@ -76,7 +76,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"   // civilisationpool_Get()
 #include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include <stdexcept>            // overflow_error
 

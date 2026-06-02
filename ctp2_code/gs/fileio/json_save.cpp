@@ -133,9 +133,9 @@
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern PointerList<Player>   *g_deadPlayer;
 // rand_ptr() declared in RandGen.h.  world_Get() in World.h.
-// g_theArmyPool / g_theTradePool / slicengine_Get() /
-// g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
-// g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
+// g_theArmyPool / tradepool_Get() / slicengine_Get() /
+// terrimprovepool_Get() / civilisationpool_Get() / messagepool_Get() /
+// installationpool_Get() / wonder_tracker_Get() / exclusions_Get() / feattracker_Get() /
 // are extern'd by their respective headers (already included above).
 
 // CTP2_BUILD_SHA is injected by meson into config.h (run_command git

@@ -86,7 +86,7 @@
 #include "gs/gameobj/citydata.h"  //for wonder tileimps located in city radius
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"
-#include "gs/gameobj/installationtree.h"           // g_theInstallationTree
+#include "gs/gameobj/installationtree.h"           // installation_tree_Get()
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "UnitRecord.h"

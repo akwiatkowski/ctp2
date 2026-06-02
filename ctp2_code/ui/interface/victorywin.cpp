@@ -119,7 +119,7 @@
 #include "net/general/network.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/wonderutil.h"
-#include "gs/gameobj/CivilisationPool.h"   // g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"   // civilisationpool_Get()
 
 extern sint32                   g_ScreenWidth;
 extern sint32                   g_ScreenHeight;

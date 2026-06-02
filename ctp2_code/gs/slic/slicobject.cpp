@@ -360,7 +360,7 @@ void SlicObject::Execute()
 //
 // Remark(s)  : This gets the MessageData object from m_frame, finishes
 //              initializing its fields and uses it to construct a
-//              Message object which is then added to g_theMessagePool.
+//              Message object which is then added to messagepool_Get().
 //
 //              It appears to do this once for each recipient, and it seems
 //              to use the same MessageData object every time, so a great

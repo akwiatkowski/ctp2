@@ -35,7 +35,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"			    // player_arr_Get()
 #include "CivilisationRecord.h"
-#include "gs/gameobj/CivilisationPool.h"	// g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"	// civilisationpool_Get()
 #include "net/general/network.h"
 #include "gs/core/player_view.h"
 #include "gs/outcom/AICause.h"

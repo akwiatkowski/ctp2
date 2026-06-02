@@ -212,7 +212,7 @@
 #include "MapIconRecord.h"
 #include "MapRecord.h"
 #include "gs/gameobj/message.h"
-#include "gs/gameobj/MessagePool.h"                // g_theMessagePool
+#include "gs/gameobj/MessagePool.h"                // messagepool_Get()
 #include "ui/interface/messagewin.h"
 #include "gs/database/moviedb.h"
 #include "ui/interface/musicscreen.h"
@@ -2040,7 +2040,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	// Allocate per-session Ctp2::Game container.  gameinit_Initialize
 	// has already created the legacy globals (g_turn, g_thePollution,
-	// g_theTopTen, etc.); the container's own NewGame() instantiates
+	// topten_Get(), etc.); the container's own NewGame() instantiates
 	// its TurnCount alongside.  During the long-running globals refactor
 	// they coexist; callers will migrate to game.GetTurn() incrementally.
 	m_game = std::make_unique<Ctp2::Game>();

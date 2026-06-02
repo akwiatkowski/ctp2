@@ -79,7 +79,7 @@
 #include "gs/gameobj/EndGame.h"
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/CivilisationPool.h"       // g_theCivilisationPool;
+#include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get();
 #include "gs/fileio/CivPaths.h"               // g_civPaths
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
 #include "gs/gameobj/BldQue.h"

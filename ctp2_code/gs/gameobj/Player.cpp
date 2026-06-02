@@ -151,7 +151,7 @@
 #include "gs/gameobj/AgreementData.h"
 #include "gs/utility/AgreementDynArr.h"
 #include "ai/diplomacy/AgreementMatrix.h"
-#include "gs/gameobj/AgreementPool.h"              // g_theAgreementPool
+#include "gs/gameobj/AgreementPool.h"              // agreementpool_Get()
 #include "gs/outcom/AICause.h"
 #include <algorithm>                    // std::max
 #include "gs/gameobj/Army.h"
@@ -170,7 +170,7 @@
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "ctp/civapp.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/gameobj/CivilisationPool.h"           // g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"           // civilisationpool_Get()
 #include "gs/fileio/CivPaths.h"                   // g_civPaths
 #include "ConstRecord.h"                // g_theConstDB
 #include "gs/core/game_observer.h"      // g_gameObservers
@@ -184,7 +184,7 @@
 #include "ai/diplomacy/Diplomat.h"
 #include "gs/gameobj/DiplomaticRequest.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
-#include "gs/gameobj/DiplomaticRequestPool.h"      // g_theDiplomaticRequestPool
+#include "gs/gameobj/DiplomaticRequestPool.h"      // diplomaticrequestpool_Get()
 #include "gs/gameobj/EndGame.h"
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Exclusions.h"
@@ -203,7 +203,7 @@
 #include "gs/gameobj/HappyTracker.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/installationpool.h"
-#include "gs/gameobj/installationtree.h"           // g_theInstallationTree
+#include "gs/gameobj/installationtree.h"           // installation_tree_Get()
 #include "limits"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "gs/gameobj/MaterialPool.h"

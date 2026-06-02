@@ -55,7 +55,7 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/ctp2_Tab.h"
 #include "ui/interface/DomesticManagementDialog.h"
-#include "gs/gameobj/FeatTracker.h"				// g_featTracker
+#include "gs/gameobj/FeatTracker.h"				// feattracker_Get()
 #include "ai/CityManagement/governor.h"                   // To allow automatic slider optimization
 #include "GovernmentRecord.h"
 #include "gs/gameobj/Happy.h"

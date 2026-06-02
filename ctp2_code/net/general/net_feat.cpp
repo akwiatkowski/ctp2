@@ -31,7 +31,7 @@
 #include "ctp/c3.h"             // general settings
 #include "net/general/net_feat.h"       // own declarations: consistency check
 
-#include "gs/gameobj/FeatTracker.h"    // g_featTracker
+#include "gs/gameobj/FeatTracker.h"    // feattracker_Get()
 #include "net/general/net_packet.h"     // k_PACKET_FEAT_TRACKER_ID
 #include "net/io/net_util.h"       // PULL..., PUSH...
 

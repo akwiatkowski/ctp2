@@ -47,7 +47,7 @@
 #include "AdvanceRecord.h"
 #include "gs/gameobj/Advances.h"
 #include "AgeRecord.h"
-#include "gs/gameobj/AgreementPool.h"         // g_theAgreementPool
+#include "gs/gameobj/AgreementPool.h"         // agreementpool_Get()
 #include <algorithm>
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/BldQue.h"
@@ -59,13 +59,13 @@
 #include "ctp/civ3_main.h"
 #include "ctp/civapp.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/gameobj/CivilisationPool.h"       // g_theCivilisationPool
+#include "gs/gameobj/CivilisationPool.h"       // civilisationpool_Get()
 #include "CivilisationRecord.h"
 #include "gs/fileio/CivPaths.h"               // g_civPaths
 #include "gs/fileio/civscenarios.h"
 #include "ai/ctpai.h"
 #include "gs/gameobj/Diffcly.h"
-#include "gs/gameobj/DiplomaticRequestPool.h"  // g_theDiplomaticRequestPool
+#include "gs/gameobj/DiplomaticRequestPool.h"  // diplomaticrequestpool_Get()
 #include "gs/gameobj/EventTracker.h"
 #include "gs/gameobj/Exclusions.h"
 #include "gs/gameobj/FeatTracker.h"
@@ -76,8 +76,8 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/installation.h"
-#include "gs/gameobj/installationpool.h"       // g_theInstallationPool
-#include "gs/gameobj/MessagePool.h"            // g_theMessagePool
+#include "gs/gameobj/installationpool.h"       // installationpool_Get()
+#include "gs/gameobj/MessagePool.h"            // messagepool_Get()
 Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils/pixelutils.h
 #include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/gameobj/pollution.h"
@@ -93,7 +93,7 @@ Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/gameobj/TaxRate.h"
 #include "TerrainRecord.h"
-#include "gs/gameobj/TerrImprovePool.h"        // g_theTerrainImprovementPool
+#include "gs/gameobj/TerrImprovePool.h"        // terrimprovepool_Get()
 #include "gs/database/thronedb.h"               // g_theThroneDB
 #include "gs/gameobj/TopTen.h"
 #include "gs/gameobj/TradeBids.h"

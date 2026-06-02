@@ -38,7 +38,7 @@
 #include "gs/utility/TurnCnt.h"
 
 #include "robot/pathing/A_Star_Heuristic_Cost.h"
-#include "gs/gameobj/AgreementPool.h"          // g_theAgreementPool
+#include "gs/gameobj/AgreementPool.h"          // agreementpool_Get()
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Barbarians.h"
 #include "BuildingRecord.h"
@@ -54,7 +54,7 @@
 #include "DifficultyRecord.h"
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/DiplomaticRequestData.h"
-#include "gs/gameobj/DiplomaticRequestPool.h"  // g_theDiplomaticRequestPool
+#include "gs/gameobj/DiplomaticRequestPool.h"  // diplomaticrequestpool_Get()
 #include "gs/core/render_observer.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/events/GameEventManager.h"   // gevmanager_Get()

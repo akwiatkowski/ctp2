@@ -35,9 +35,9 @@
 //   If no alternate path found, go on the first founded path. The method
 //   considers a danger if the owner is less than neutral - Calvitix
 // - Disabled Calvitix check for danger. If an army encounter something on
-//   its way the goal should be reconsidered. - Feb. 21st 2005 Martin Gühmann
+//   its way the goal should be reconsidered. - Feb. 21st 2005 Martin Gï¿½hmann
 // - Updated for wrap correction.
-// - Made Government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Made Government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -216,8 +216,8 @@ bool UnitAstar::CheckUnexplored(const MapPoint &prev, const MapPoint &pos,
         return false;
 
      if (!m_is_robot) {
-        if(!g_player[m_owner]->IsExplored(prev)
-        && !g_player[m_owner]->IsExplored(pos)
+        if(!player_Get(m_owner)->IsExplored(prev)
+        && !player_Get(m_owner)->IsExplored(pos)
         ){
             cost = 100;
             can_enter = true;
@@ -272,7 +272,7 @@ bool UnitAstar::CheckUnits
 					{
 						return false;
 					}
-					else if(m_is_robot && (g_player[m_owner]->HasWarWith(dest_owner) || Diplomat::GetDiplomat(m_owner).DesireWarWith(dest_owner)) && m_army_strength.HasEnough(Squad_Strength(pos), true))
+					else if(m_is_robot && (player_Get(m_owner)->HasWarWith(dest_owner) || Diplomat::GetDiplomat(m_owner).DesireWarWith(dest_owner)) && m_army_strength.HasEnough(Squad_Strength(pos), true))
 					{
 						can_enter = true;
 						can_be_zoc = false;
@@ -606,7 +606,7 @@ bool UnitAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 	bool restore = false;
 	if(!m_is_robot)
 	{
-		if(g_player[m_owner]->GetLastSeen(pos, ucell))
+		if(player_Get(m_owner)->GetLastSeen(pos, ucell))
 		{
 			// Ugly
 			the_pos_cell->SetEnvFast(ucell.m_unseenCell->m_env);
@@ -863,12 +863,12 @@ void UnitAstar::InitArmy(const Army &army, sint32 &nUnits,
             move_union |= army[i].GetMovementType();
         }
 		if((move_union & k_Unit_MovementType_ShallowWater_Bit) &&
-		   wonderutil_GetAllBoatsDeepWater(g_player[army.GetOwner()]->m_builtWonders)) {
+		   wonderutil_GetAllBoatsDeepWater(player_Get(army.GetOwner())->m_builtWonders)) {
 			move_union |= k_Unit_MovementType_Sea_Bit;
 		}
     } else {
 		if((move_intersection & k_Unit_MovementType_ShallowWater_Bit) &&
-		   wonderutil_GetAllBoatsDeepWater(g_player[army.GetOwner()]->m_builtWonders)) {
+		   wonderutil_GetAllBoatsDeepWater(player_Get(army.GetOwner())->m_builtWonders)) {
 			move_intersection |= k_Unit_MovementType_Sea_Bit;
 		}
 	}
@@ -898,7 +898,7 @@ void UnitAstar::InitSearch(const MapPoint &start, const PLAYER_INDEX owner,
     m_dest = dest;
     m_start = start;
 
-    m_mask_alliance = g_player[owner]->GetMaskAlliance();
+    m_mask_alliance = player_Get(owner)->GetMaskAlliance();
 
     m_max_dir = NOWHERE;
 
@@ -946,13 +946,13 @@ bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
     sint32 ao;
     CellUnitList *a = NULL;
     for ( ; !a_path.IsEnd(); a_path.Next(pos)) {
-        if (g_player[m_owner]->IsExplored(pos)) {
+        if (player_Get(m_owner)->IsExplored(pos)) {
             a = world_Get()->GetArmyPtr(pos);
 
             if (a && (0 < a->Num())) {
       			if(a->IsVisible(m_owner)) {
-	    			ao = a->GetOwner();
-		    		if (ao != m_owner) {
+    					ao = a->GetOwner();
+		    			if (ao != m_owner) {
                         continue;
                     }
                 }
@@ -964,7 +964,7 @@ bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
         }
     }
     if (old != pos) {
-        if (g_player[m_owner]->IsExplored(pos)) {
+        if (player_Get(m_owner)->IsExplored(pos)) {
             a = world_Get()->GetArmyPtr(pos);
 
             if (a && (0 < a->Num())) {
@@ -1053,7 +1053,7 @@ bool UnitAstar::FindStraightPath(const MapPoint &start, const MapPoint &dest,
     bool r;
     static MapPoint  tmp_point;
 
-    if (g_player[m_owner]->IsExplored(dest) &&
+    if (player_Get(m_owner)->IsExplored(dest) &&
         world_Get()->CanEnter(dest, m_move_intersection))
     {
        if ((start.x == no_enter_pos.x) && (no_enter_pos.y == start.y)) {
@@ -1310,7 +1310,7 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 				       m_is_robot
 				    &&
 				       (
-				            g_player[m_owner]->HasWarWith(the_army->GetOwner())
+				            player_Get(m_owner)->HasWarWith(the_army->GetOwner())
 				         || Diplomat::GetDiplomat(m_owner).DesireWarWith(the_army->GetOwner())
 				       )
 				    && m_army_strength.HasEnough(Squad_Strength(dest), true)
@@ -1347,7 +1347,7 @@ bool UnitAstar::PretestDest_ZocEnterable(const MapPoint &start, const MapPoint &
 				       m_is_robot
 				    &&
 				       (
-				            g_player[m_owner]->HasWarWith(world_Get()->GetCity(neighbor).GetOwner())
+				            player_Get(m_owner)->HasWarWith(world_Get()->GetCity(neighbor).GetOwner())
 				         || Diplomat::GetDiplomat(m_owner).DesireWarWith(world_Get()->GetCity(neighbor).GetOwner())
 				       )
 				    && m_army_strength.HasEnough(Squad_Strength(dest), true)
@@ -1375,7 +1375,7 @@ bool UnitAstar::PretestDest(const MapPoint &start, const MapPoint &dest)
 {
     if (!m_is_robot)
     {
-        if (!g_player[m_owner]->IsExplored(dest))
+        if (!player_Get(m_owner)->IsExplored(dest))
         {
             return false;
         }

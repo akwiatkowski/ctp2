@@ -207,15 +207,15 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 void RejectResponseEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_Reject,
+	gevmanager_Get()->AddCallback(GEV_Reject,
 							  GEV_PRI_Pre,
 							  &s_NoThreat_RejectResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Reject,
+	gevmanager_Get()->AddCallback(GEV_Reject,
 							  GEV_PRI_Pre,
 							  &s_ThreatenAlliedInvasion_RejectResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Reject,
+	gevmanager_Get()->AddCallback(GEV_Reject,
 							  GEV_PRI_Pre,
 							  &s_ThreatenAttackCity_RejectResponseEvent);
 

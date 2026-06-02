@@ -230,23 +230,23 @@ STDEHANDLER(MakeFriend_NextDStateEvent)
 
 void DiplomaticStateEventCallbacks::AddCallbacks()
 {
-	g_gevManager->AddCallback(GEV_InitDiplomaticState,
+	gevmanager_Get()->AddCallback(GEV_InitDiplomaticState,
 							  GEV_PRI_Primary,
 							  &s_InitDStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextDiplomaticState,
+	gevmanager_Get()->AddCallback(GEV_NextDiplomaticState,
 							  GEV_PRI_Primary,
 							  &s_NextDStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextDiplomaticState,
+	gevmanager_Get()->AddCallback(GEV_NextDiplomaticState,
 							  GEV_PRI_Pre,
 							  &s_Default_NextDStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextDiplomaticState,
+	gevmanager_Get()->AddCallback(GEV_NextDiplomaticState,
 							  GEV_PRI_Pre,
 							  &s_ProvokeWar_NextDStateEvent);
 
-	g_gevManager->AddCallback(GEV_NextDiplomaticState,
+	gevmanager_Get()->AddCallback(GEV_NextDiplomaticState,
 							  GEV_PRI_Pre,
 							  &s_MakeFriend_NextDStateEvent);
 }

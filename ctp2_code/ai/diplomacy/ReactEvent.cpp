@@ -114,19 +114,19 @@ STDEHANDLER(ToggleInitiative)
 void ReactEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_ResponseReady,
+	gevmanager_Get()->AddCallback(GEV_ResponseReady,
 							  GEV_PRI_Primary,
 							  &s_ReactEvent);
 
-	g_gevManager->AddCallback(GEV_NewProposalReady,
+	gevmanager_Get()->AddCallback(GEV_NewProposalReady,
 							  GEV_PRI_Primary,
 							  &s_ReactEvent);
 
-	g_gevManager->AddCallback(GEV_ContinueDiplomacy,
+	gevmanager_Get()->AddCallback(GEV_ContinueDiplomacy,
 							  GEV_PRI_Primary,
 							  &s_ContinueDiplomacy);
 
-	g_gevManager->AddCallback(GEV_ToggleInitiative,
+	gevmanager_Get()->AddCallback(GEV_ToggleInitiative,
 							  GEV_PRI_Primary,
 							  &s_ToggleInitiative);
 }

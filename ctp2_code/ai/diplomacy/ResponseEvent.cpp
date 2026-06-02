@@ -104,7 +104,7 @@ STDEHANDLER(ResponseEvent)
 
 	if (show_response)
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ResponseReady,
 							   GEA_Player, sender,
 							   GEA_Player, receiver,
 							   GEA_End);
@@ -156,23 +156,23 @@ STDEHANDLER(ResponseEvent)
 void ResponseEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_NewProposal,
+	gevmanager_Get()->AddCallback(GEV_NewProposal,
 							  GEV_PRI_Primary,
 							  &s_NewProposalEvent);
 
-	g_gevManager->AddCallback(GEV_ProposalResponse,
+	gevmanager_Get()->AddCallback(GEV_ProposalResponse,
 							  GEV_PRI_Primary,
 							  &s_ResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Reject,
+	gevmanager_Get()->AddCallback(GEV_Reject,
 							  GEV_PRI_Primary,
 							  &s_ResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Primary,
 							  &s_ResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Threaten,
+	gevmanager_Get()->AddCallback(GEV_Threaten,
 							  GEV_PRI_Primary,
 							  &s_ResponseEvent);
 }

@@ -249,19 +249,19 @@ STDEHANDLER(DeclareWarAccept_ThreatResponseEvent)
 void ThreatResponseEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_Threaten,
+	gevmanager_Get()->AddCallback(GEV_Threaten,
 							  GEV_PRI_Pre,
 							  &s_DefaultReject_ThreatResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Threaten,
+	gevmanager_Get()->AddCallback(GEV_Threaten,
 							  GEV_PRI_Pre,
 							  &s_DestroyCityAccept_ThreatResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Threaten,
+	gevmanager_Get()->AddCallback(GEV_Threaten,
 							  GEV_PRI_Pre,
 							  &s_TradeEmbargoAccept_ThreatResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Threaten,
+	gevmanager_Get()->AddCallback(GEV_Threaten,
 							  GEV_PRI_Pre,
 							  &s_DeclareWarAccept_ThreatResponseEvent);
 

@@ -683,35 +683,35 @@ STDEHANDLER(Default_CounterResponseEvent)
 void CounterResponseEventCallbacks::AddCallbacks()
 {
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_ThreatenAttackCity_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_PayForCeasefire_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_PayForGiveCity_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_PayForAdvance_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_AdvanceForGold_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_ActionForValue_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_ReciprocateAction_CounterResponseEvent);
 
-	g_gevManager->AddCallback(GEV_Counter,
+	gevmanager_Get()->AddCallback(GEV_Counter,
 							  GEV_PRI_Pre,
 							  &s_Default_CounterResponseEvent);
 

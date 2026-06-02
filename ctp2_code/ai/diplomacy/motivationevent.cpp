@@ -65,7 +65,7 @@ STDEHANDLER(MotivationEvent)
 
 	diplomat.SortMotivations();
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_StartNegotiations,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_StartNegotiations,
 						   GEA_Player, playerId,
 						   GEA_End);
 
@@ -419,39 +419,39 @@ STDEHANDLER(FearPollution_MotivationEvent)
 
 void MotivationEventCallbacks::AddCallbacks()
 {
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Primary,
 							  &s_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_ThreatenedCity_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_DesireGold_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_DesireMakeFriend_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_StopPiracy_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_EnlistFriends_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_PressAdvantage_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_FearRank_MotivationEvent);
 
-	g_gevManager->AddCallback(GEV_ComputeMotivations,
+	gevmanager_Get()->AddCallback(GEV_ComputeMotivations,
 							  GEV_PRI_Pre,
 							  &s_FearPollution_MotivationEvent);
 }

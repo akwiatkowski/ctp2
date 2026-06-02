@@ -15,6 +15,10 @@
 #include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Player.h"
 #include "gs/utility/RandGen.h"
+#include "gs/gameobj/UnitPool.h"
+#include "gs/gameobj/ArmyPool.h"
+#include "gs/gameobj/ObjPool.h"  // k_BIT_GAME_OBJ_TYPE_UNIT etc.
+#include "gs/gameobj/pollution.h"
 
 TEST_CASE("Ctp2::Game can be default-constructed and destroyed") {
     Ctp2::Game game;
@@ -229,4 +233,53 @@ TEST_CASE("Ctp2::Game session state is independent across instances") {
     // The only invariant we can check without knowing the seed: the
     // generators didn't alias.  Pointer-distinct + readable suffices.
     CHECK(true);
+}
+
+TEST_CASE("Ctp2::Game ObjPool counters tick independently across instances") {
+    // ObjPool::NewKey increments m_nObjs (exposed via HackGetKey) and
+    // touches no globals — clean probe for "mutating Game a's UnitPool
+    // doesn't leak into Game b's UnitPool".
+    Ctp2::Game a;
+    Ctp2::Game b;
+    a.NewGame(2, 0, 1);
+    b.NewGame(2, 0, 2);
+
+    REQUIRE(a.GetUnits().HackGetKey() == 0);
+    REQUIRE(b.GetUnits().HackGetKey() == 0);
+
+    a.GetUnits().NewKey(k_BIT_GAME_OBJ_TYPE_UNIT);
+    a.GetUnits().NewKey(k_BIT_GAME_OBJ_TYPE_UNIT);
+    a.GetUnits().NewKey(k_BIT_GAME_OBJ_TYPE_UNIT);
+    b.GetUnits().NewKey(k_BIT_GAME_OBJ_TYPE_UNIT);
+
+    CHECK(a.GetUnits().HackGetKey() == 3);
+    CHECK(b.GetUnits().HackGetKey() == 1);
+
+    // Same for armies.
+    a.GetArmies().NewKey(k_BIT_GAME_OBJ_TYPE_ARMY);
+    b.GetArmies().NewKey(k_BIT_GAME_OBJ_TYPE_ARMY);
+    b.GetArmies().NewKey(k_BIT_GAME_OBJ_TYPE_ARMY);
+
+    CHECK(a.GetArmies().HackGetKey() == 1);
+    CHECK(b.GetArmies().HackGetKey() == 2);
+}
+
+TEST_CASE("Ctp2::Game Pollution state ticks independently across instances") {
+    // Pollution::m_trend is a public field we can write directly,
+    // bypassing GetGlobalPollutionLevel which reaches for player_Get().
+    Ctp2::Game a;
+    Ctp2::Game b;
+    a.NewGame(2, 0, 1);
+    b.NewGame(2, 0, 2);
+
+    a.GetPollution().m_trend = 100;
+    b.GetPollution().m_trend = 250;
+
+    CHECK(a.GetPollution().m_trend == 100);
+    CHECK(b.GetPollution().m_trend == 250);
+
+    // Mutating one doesn't disturb the other.
+    a.GetPollution().m_trend = 999;
+    CHECK(a.GetPollution().m_trend == 999);
+    CHECK(b.GetPollution().m_trend == 250);
 }

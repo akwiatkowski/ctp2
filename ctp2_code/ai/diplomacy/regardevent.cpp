@@ -107,7 +107,7 @@ STDEHANDLER(KillUnitRegardEvent)
 		&& diplomat.GetCurrentDiplomacy(killer).GetAttackCivilianRegardCost(cost)
 		&& world_Get()->GetCell(u.RetPos())->GetCity().m_id == 0x0
 		){
-			g_theStringDB->GetStringID("REGARD_EVENT_ATTACKED_CIVILIANS", strId);
+			stringdb_Get()->GetStringID("REGARD_EVENT_ATTACKED_CIVILIANS", strId);
 			diplomat.LogRegardEvent( killer,
 				cost,
 				REGARD_EVENT_MILITARY_SAFETY,
@@ -152,7 +152,7 @@ STDEHANDLER(BorderIncursionRegardEvent)
 	{
 
 		owner_diplomat.GetCurrentDiplomacy(army_owner).GetIncursionRegardCost(cost);
-		g_theStringDB->GetStringID("REGARD_EVENT_PEACETIME_BORDER_INCURSION", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_PEACETIME_BORDER_INCURSION", strId);
 		owner_diplomat.LogRegardEvent( army_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -208,7 +208,7 @@ STDEHANDLER(InvaderMovementRegardEvent)
 	Diplomat & owner_diplomat = Diplomat::GetDiplomat(new_cell_owner);
 	owner_diplomat.GetCurrentDiplomacy(army_owner).GetInvaderMovementRegardCost(invader_movement_cost);
 
-	g_theStringDB->GetStringID("REGARD_EVENT_INVADER_MOVEMENT", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_INVADER_MOVEMENT", strId);
 	owner_diplomat.LogRegardEvent( army_owner,
 			invader_movement_cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -327,7 +327,7 @@ STDEHANDLER(NeighborHatredRegardEvent)
 		}
 
 		StringId strId;
-		g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_SHARES_CONTINENT", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_SHARES_CONTINENT", strId);
 		diplomat.LogRegardEvent( foreignerId,
 			cost,
 			REGARD_EVENT_MILITARY_POWER,
@@ -365,7 +365,7 @@ STDEHANDLER(CaptureCityRegardEvent)
 	StringId strId;
 	sint32 cost;
 
-	g_theStringDB->GetStringID("REGARD_EVENT_CAPTURED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_CAPTURED_CITY", strId);
 	city_diplomat.GetCurrentDiplomacy(newOwner).GetTakeCityRegardCost(cost);
 	city_diplomat.LogRegardEvent( newOwner, cost, REGARD_EVENT_MILITARY_POWER, strId);
 
@@ -396,7 +396,7 @@ STDEHANDLER(InciteRevolution_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetInciteRevolutionRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_INCITED_REVOLUTION", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_INCITED_REVOLUTION", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -431,7 +431,7 @@ STDEHANDLER(AssassinateRulerUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetAssassinateRulerRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_ASSASSINATED_RULER", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_ASSASSINATED_RULER", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -466,7 +466,7 @@ STDEHANDLER(MakeFranchise_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetFranchiseCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_FRANCHISED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_FRANCHISED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_GOLD,
@@ -498,7 +498,7 @@ STDEHANDLER(PlantNukeUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetPlantNukeRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_PLANTED_NUKE", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_PLANTED_NUKE", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -539,7 +539,7 @@ STDEHANDLER(EnslaveSettler_RegardEvent)
 	settler_diplomat.GetCurrentDiplomacy(attack_owner).GetEnslaveSettlerRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_ENSLAVED_SETTLER", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_ENSLAVED_SETTLER", strId);
 	settler_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -571,7 +571,7 @@ STDEHANDLER(SlaveRaidCity_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetSlaveRaidRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_SLAVE_RAIDED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_SLAVE_RAIDED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -620,7 +620,7 @@ STDEHANDLER(EmbargoRegardEvent)
 		if (diplomat.GetCurrentDiplomacy(foreignerId).GetEmbargoTradeRegardCost(regard_cost))
 		{
 			StringId strId;
-			g_theStringDB->GetStringID("REGARD_EVENT_EMBARGO_TRADE", strId);
+			stringdb_Get()->GetStringID("REGARD_EVENT_EMBARGO_TRADE", strId);
 			diplomat.LogRegardEvent(foreignerId,
 				regard_cost,
 				REGARD_EVENT_GOLD,
@@ -660,7 +660,7 @@ STDEHANDLER(Lawsuit_RegardEvent)
 	victim_diplomat.GetCurrentDiplomacy(attack_owner).GetLawsuitRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_LAWSUIT", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_LAWSUIT", strId);
 	victim_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_PRODUCTION,
@@ -698,7 +698,7 @@ STDEHANDLER(ExpelUnits_RegardEvent)
 	victim_diplomat.GetCurrentDiplomacy(attack_owner).GetExpelUnitsRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_EXPELLED_UNITS", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_EXPELLED_UNITS", strId);
 	victim_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_POWER,
@@ -730,7 +730,7 @@ STDEHANDLER(NukeCityUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetNukeCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_NUKED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_NUKED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -779,7 +779,7 @@ STDEHANDLER(NukeLocationUnit_RegardEvent)
 	pos_diplomat.GetCurrentDiplomacy(attack_owner).GetNukeCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_NUKED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_NUKED_CITY", strId);
 	pos_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -817,7 +817,7 @@ STDEHANDLER(UndergroundRailwayUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetUndergroundRailwayRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_FREED_SLAVES", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_FREED_SLAVES", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -848,7 +848,7 @@ STDEHANDLER(InciteUprisingUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetInciteUprisingRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_INCITED_UPRISING", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_INCITED_UPRISING", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -879,7 +879,7 @@ STDEHANDLER(BioInfectCityUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetBioInfectedCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_BIO_INFECTED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_BIO_INFECTED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -912,7 +912,7 @@ STDEHANDLER(PlagueCityUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetPlagueCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_PLAGUED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_PLAGUED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -945,7 +945,7 @@ STDEHANDLER(NanoInfectCityUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetNanoInfectCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_NANO_INFECTED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_NANO_INFECTED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -978,7 +978,7 @@ STDEHANDLER(ConvertCityUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetConvertCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_CONVERTED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_CONVERTED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -1014,7 +1014,7 @@ STDEHANDLER(IndulgenceSaleMade_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetConvertCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_CONVERTED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_CONVERTED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -1050,7 +1050,7 @@ STDEHANDLER(CreateParkUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetCreateParkRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_CREATED_PARK", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_CREATED_PARK", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -1090,7 +1090,7 @@ STDEHANDLER(PillageUnit_RegardEvent)
 	victim_diplomat.GetCurrentDiplomacy(attack_owner).GetPillageRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_PILLAGED", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_PILLAGED", strId);
 	victim_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_MILITARY_SAFETY,
@@ -1134,7 +1134,7 @@ STDEHANDLER(InjoinUnit_RegardEvent)
 	city_diplomat.GetCurrentDiplomacy(attack_owner).GetInjoinCityRegardCost(cost);
 
 	StringId strId;
-	g_theStringDB->GetStringID("REGARD_EVENT_ENEMY_INJOINED_CITY", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_ENEMY_INJOINED_CITY", strId);
 	city_diplomat.LogRegardEvent( attack_owner,
 			cost,
 			REGARD_EVENT_PRODUCTION,

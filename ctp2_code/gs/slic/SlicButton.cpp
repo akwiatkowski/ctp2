@@ -39,7 +39,7 @@
 #include "gs/slic/SlicFrame.h"
 #include "gs/gameobj/message.h"
 
-extern StringDB *g_theStringDB;
+extern StringDB *stringdb_Get();
 
 #ifdef _BAD_BUTTON
 PointerList<SlicButton> s_deletedButtons;
@@ -188,7 +188,7 @@ void SlicButton::Callback()
 
 const MBCHAR *SlicButton::GetName() const
 {
-	return g_theStringDB->GetNameStr(m_name);
+	return stringdb_Get()->GetNameStr(m_name);
 }
 
 void SlicButton::SetMessage(const Message &message)

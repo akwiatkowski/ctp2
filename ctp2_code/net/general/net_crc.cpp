@@ -91,7 +91,7 @@
 #include "ctp/civapp.h"
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
-extern StringDB                *g_theStringDB;
+extern StringDB                *stringdb_Get();
 
 extern OzoneDatabase           *g_theUVDB;
 
@@ -351,7 +351,7 @@ void NetCRC::Error(char *buf)
 	extern void network_AbortCallback( sint32 type );
 
 	DPRINTF(k_DBG_NET, ("NetCRC: %s\n", buf));
-	const char *str = g_theStringDB->GetNameStr("str_ldl_mp_dbase_out_of_synch");
+	const char *str = stringdb_Get()->GetNameStr("str_ldl_mp_dbase_out_of_synch");
 	char nonConstStr[1024];
 	if (str) {
 		strncpy(nonConstStr, str, sizeof(nonConstStr) - 1);

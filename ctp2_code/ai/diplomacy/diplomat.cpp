@@ -767,7 +767,7 @@ void Diplomat::DebugStatus(const PLAYER_INDEX & foreignerId) const
 		if (foreigner.GetBestRegardExplain() >= 0)
 		{
 			DPRINTF(k_DBG_DIPLOMACY, ("  Explaination = %s\n",
-				g_theStringDB->GetNameStr(foreigner.GetBestRegardExplain()) ));
+				stringdb_Get()->GetNameStr(foreigner.GetBestRegardExplain()) ));
 		}
 		else
 			DPRINTF(k_DBG_DIPLOMACY, ("  Explaination = <NO EXPLAINATION>\n"));
@@ -829,7 +829,7 @@ void Diplomat::LogDebugStatus(const PLAYER_INDEX & foreignerId) const
 			if (explainStrId >= 0)
 			{
 				gslog_dipprint("    Best Regard Explaination = [%s]\n",
-					g_theStringDB->GetNameStr(explainStrId));
+					stringdb_Get()->GetNameStr(explainStrId));
 			}
 			else
 			{
@@ -1020,7 +1020,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 	{
 
 	case PROPOSAL_REQUEST_WITHDRAW_TROOPS:
-		g_theStringDB->GetStringID("REGARD_EVENT_WITHDRAW_TROOPS_VIOLATION", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_WITHDRAW_TROOPS_VIOLATION", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 		trust_message = "TrustLossFailToWithdraw";
 		break;
@@ -1028,7 +1028,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 	case PROPOSAL_REQUEST_STOP_PIRACY:
 		SetColdwarAttack(foreignerId, (sint16) turn_Get()->GetSessionRound());
 
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_STOP_PIRACY", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATED_STOP_PIRACY", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 		trust_message = "TrustLossFailToStopPiracy";
 
@@ -1038,28 +1038,28 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		break;
 
 	case PROPOSAL_REQUEST_STOP_RESEARCH:
-		g_theStringDB->GetStringID("REGARD_EVENT_STOP_RESEARCH_VIOLATION", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_STOP_RESEARCH_VIOLATION", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 		trust_message = "TrustLossViolatedResearchPact";
 
 		break;
 
 	case PROPOSAL_REQUEST_REDUCE_POLLUTION:
-		g_theStringDB->GetStringID("REGARD_EVENT_PROPOSAL_REDUCE_POLLUTION", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_PROPOSAL_REDUCE_POLLUTION", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		trust_message = "TrustLossViolatedPollutionPact";
 		break;
 
 	case PROPOSAL_TREATY_PEACE:
-		g_theStringDB->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
 		regard_event_type = REGARD_EVENT_MILITARY_SAFETY;
 
 		trust_message = "TrustLossViolatedPeaceTreaty";
 		break;
 
 	case PROPOSAL_TREATY_CEASEFIRE:
-		g_theStringDB->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
 		regard_event_type = REGARD_EVENT_MILITARY_SAFETY;
 
 		LogViolationEvent(foreignerId, PROPOSAL_REQUEST_WITHDRAW_TROOPS);
@@ -1080,7 +1080,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		break;
 
 	case PROPOSAL_TREATY_TRADE_PACT:
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATE_TRADE_PACT", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATE_TRADE_PACT", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		LogViolationEvent(foreignerId, PROPOSAL_TREATY_ALLIANCE);
@@ -1089,28 +1089,28 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		break;
 
 	case PROPOSAL_TREATY_MILITARY_PACT:
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_MILITARY_PACT", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATED_MILITARY_PACT", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		trust_message = "TrustLossViolatedMilitaryPact";
 		break;
 
 	case PROPOSAL_TREATY_POLLUTION_PACT:
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_POLLUTION_PACT", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATED_POLLUTION_PACT", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		trust_message = "TrustLossViolatedPollutionPact";
 		break;
 
 	case PROPOSAL_TREATY_ALLIANCE:
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_ALLIANCE", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATED_ALLIANCE", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		trust_message = "TrustLossViolatedAlliance";
 		break;
 
 	case PROPOSAL_TREATY_RESEARCH_PACT:
-		g_theStringDB->GetStringID("REGARD_EVENT_VIOLATED_RESEACH_PACT", strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_VIOLATED_RESEACH_PACT", strId);
 		regard_event_type = REGARD_EVENT_DIPLOMACY;
 
 		trust_message = "TrustLossViolatedResearchPact";
@@ -1139,7 +1139,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 		}
 
 		const DiplomacyProposalRecord * rec = g_theDiplomacyProposalDB->Get(s_proposalTypeToElemIndex[proposal_type]);
-		const MBCHAR * reason = g_theStringDB->GetNameStr(strId);
+		const MBCHAR * reason = stringdb_Get()->GetNameStr(strId);
 		if (rec->GetTrustViolationGlobal())
 		{
 			Diplomat::ApplyGlobalTrustChange(foreignerId, static_cast<ai::Regard>(trust_cost), reason);
@@ -1172,7 +1172,7 @@ void Diplomat::LogViolationEvent(const PLAYER_INDEX foreignerId, const PROPOSAL_
 			sint32 regard_cost;
 			if (GetCurrentDiplomacy(foreignerId).GetPreemptiveAttackRegardCost(regard_cost))
 			{
-				g_theStringDB->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
+				stringdb_Get()->GetStringID("REGARD_EVENT_UNPROVOKED_ATTACK",strId);
 				LogRegardEvent( foreignerId,
 					regard_cost,
 					REGARD_EVENT_MILITARY_SAFETY,
@@ -1340,7 +1340,7 @@ void Diplomat::RecomputeRegard()
 			if (wonder_regard != 0)
 			{
 				StringId strId;
-				g_theStringDB->GetStringID("REGARD_EVENT_WONDER",strId);
+				stringdb_Get()->GetStringID("REGARD_EVENT_WONDER",strId);
 				Diplomat::GetDiplomat(foreignerId).
 					LogRegardEvent(m_playerId,
 					wonder_regard,
@@ -1538,26 +1538,26 @@ bool Diplomat::Execute_Agreement( const ai::Agreement & agreement )
 
 	if (receiverResult.regard < 0)
 	{
-		g_theStringDB->GetStringID("REGARD_EVENT_NEGATIVE_RECEIVER_DIPLOMACY_RESULT",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_NEGATIVE_RECEIVER_DIPLOMACY_RESULT",strId);
 		Diplomat::GetDiplomat(agreement.receiverId).LogRegardEvent( agreement.senderId,
 			receiverResult.regard, REGARD_EVENT_DIPLOMACY, strId);
 	}
 	else if (receiverResult.regard > 0)
 	{
-		g_theStringDB->GetStringID("REGARD_EVENT_POSITIVE_RECEIVER_DIPLOMACY_RESULT",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_POSITIVE_RECEIVER_DIPLOMACY_RESULT",strId);
 		Diplomat::GetDiplomat(agreement.receiverId).LogRegardEvent( agreement.senderId,
 			receiverResult.regard, REGARD_EVENT_DIPLOMACY, strId);
 	}
 
 	if (senderResult.regard < 0)
 	{
-		g_theStringDB->GetStringID("REGARD_EVENT_NEGATIVE_SENDER_DIPLOMACY_RESULT",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_NEGATIVE_SENDER_DIPLOMACY_RESULT",strId);
 		Diplomat::GetDiplomat(agreement.senderId).LogRegardEvent( agreement.receiverId,
 			senderResult.regard, REGARD_EVENT_DIPLOMACY, strId);
 	}
 	else if (senderResult.regard > 0)
 	{
-		g_theStringDB->GetStringID("REGARD_EVENT_POSITIVE_SENDER_DIPLOMACY_RESULT",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_POSITIVE_SENDER_DIPLOMACY_RESULT",strId);
 		Diplomat::GetDiplomat(agreement.senderId).LogRegardEvent( agreement.receiverId,
 			senderResult.regard, REGARD_EVENT_DIPLOMACY, strId);
 	}
@@ -1887,7 +1887,7 @@ void Diplomat::SetEmbargo(const PLAYER_INDEX foreignerId, const bool state)
 		if (foreigner.GetCurrentDiplomacy(m_playerId).GetEmbargoTradeRegardCost(regard_cost))
 		{
 			StringId strId;
-			g_theStringDB->GetStringID("REGARD_EVENT_EMBARGO_TRADE", strId);
+			stringdb_Get()->GetStringID("REGARD_EVENT_EMBARGO_TRADE", strId);
 			foreigner.LogRegardEvent(m_playerId,
 				regard_cost,
 				REGARD_EVENT_GOLD,
@@ -1949,7 +1949,7 @@ void Diplomat::AddRejection(const PLAYER_INDEX & foreignerId)
 	if (regard_cost <= 0)
 	{
 		StringId strId;
-		g_theStringDB->GetStringID("REGARD_EVENT_NEGATIVE_SENDER_DIPLOMACY_RESULT",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_NEGATIVE_SENDER_DIPLOMACY_RESULT",strId);
 		LogRegardEvent( foreignerId, regard_cost, REGARD_EVENT_DIPLOMACY, strId);
 	}
 
@@ -2117,7 +2117,7 @@ bool Diplomat::ExecuteThreat(const Threat & threat)
 		break;
 	}
 
-	g_theStringDB->GetStringID("REGARD_EVENT_NEGATIVE_RECEIVER_DIPLOMACY_RESULT", strId);
+	stringdb_Get()->GetStringID("REGARD_EVENT_NEGATIVE_RECEIVER_DIPLOMACY_RESULT", strId);
 
 	Diplomat::GetDiplomat(threat.receiverId).
 		LogRegardEvent(threat.senderId,
@@ -4718,7 +4718,7 @@ void Diplomat::ComputeTradeRoutePiracyRisk()
 	Unit city;
 	PiracyHistory piracy;
 	StringId piracy_str_id;
-	g_theStringDB->GetStringID("REGARD_EVENT_PER_ROUTE_PIRACY", piracy_str_id);
+	stringdb_Get()->GetStringID("REGARD_EVENT_PER_ROUTE_PIRACY", piracy_str_id);
 	sint32 piracy_regard_cost;
 
 	for (sint32 i = 0; i < num_cities; i++)
@@ -5410,7 +5410,7 @@ void Diplomat::SendGreeting(const PLAYER_INDEX & foreignerId)
 	so->AddRecipient(foreignerId);
 	so->AddCivilisation(m_playerId);
 	MBCHAR buf[k_MAX_NAME_LEN];
-	stringutils_Interpret(g_theStringDB->GetNameStr(greeting), *so, buf);
+	stringutils_Interpret(stringdb_Get()->GetNameStr(greeting), *so, buf);
 	so->AddAction(buf);
 	slicengine_Get()->Execute(so);
 }
@@ -5665,7 +5665,7 @@ void Diplomat::ThrowParty(const PLAYER_INDEX foreignerId)
 //Add random regard bonus generator for throw party
 		GetCurrentDiplomacy(foreignerId).GetHoldReceptionRegardBonus(regard_bonus);
 
-		g_theStringDB->GetStringID("REGARD_EVENT_HOLD_RECEPTION",strId);
+		stringdb_Get()->GetStringID("REGARD_EVENT_HOLD_RECEPTION",strId);
 		LogRegardEvent(foreignerId,
 			regard_bonus,
 			REGARD_EVENT_DIPLOMACY,

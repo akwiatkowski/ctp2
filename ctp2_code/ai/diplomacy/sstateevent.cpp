@@ -188,9 +188,9 @@ STDEHANDLER(FullAttack_NextSStateEvent)
 				g_theStrategyDB->GetNamedItem("STRATEGY_ATTACK", state.dbIndex);
 			}
 
-			g_theStringDB->GetStringID(   "SPY_FULL_ATTACK_SS", state.spyStrId);
-			g_theStringDB->GetStringID("ADVICE_FULL_ATTACK_SS", state.adviceStrId);
-			g_theStringDB->GetStringID(  "NEWS_FULL_ATTACK_SS", state.newsStrId);
+			stringdb_Get()->GetStringID(   "SPY_FULL_ATTACK_SS", state.spyStrId);
+			stringdb_Get()->GetStringID("ADVICE_FULL_ATTACK_SS", state.adviceStrId);
+			stringdb_Get()->GetStringID(  "NEWS_FULL_ATTACK_SS", state.newsStrId);
 
 			diplomat.ConsiderStrategicState(state);
 		}
@@ -249,9 +249,9 @@ STDEHANDLER(BuildupStrength_NextSStateEvent)
 		g_theStrategyDB->GetNamedItem("STRATEGY_DEFEND", state.dbIndex);
 	}
 
-	g_theStringDB->GetStringID(   "SPY_REGROUP_SS", state.spyStrId);
-	g_theStringDB->GetStringID("ADVICE_REGROUP_SS", state.adviceStrId);
-	g_theStringDB->GetStringID(  "NEWS_REGROUP_SS", state.newsStrId);
+	stringdb_Get()->GetStringID(   "SPY_REGROUP_SS", state.spyStrId);
+	stringdb_Get()->GetStringID("ADVICE_REGROUP_SS", state.adviceStrId);
+	stringdb_Get()->GetStringID(  "NEWS_REGROUP_SS", state.newsStrId);
 
 	diplomat.ConsiderStrategicState(state);
 
@@ -307,9 +307,9 @@ STDEHANDLER(SeigeCities_NextSStateEvent)
 			g_theStrategyDB->GetNamedItem("STRATEGY_SEIGE", state.dbIndex);
 		}
 
-		g_theStringDB->GetStringID(   "SPY_REGROUP_SS", state.spyStrId);
-		g_theStringDB->GetStringID("ADVICE_REGROUP_SS", state.adviceStrId);
-		g_theStringDB->GetStringID(  "NEWS_REGROUP_SS", state.newsStrId);
+		stringdb_Get()->GetStringID(   "SPY_REGROUP_SS", state.spyStrId);
+		stringdb_Get()->GetStringID("ADVICE_REGROUP_SS", state.adviceStrId);
+		stringdb_Get()->GetStringID(  "NEWS_REGROUP_SS", state.newsStrId);
 
 		diplomat.ConsiderStrategicState(state);
 	}

@@ -701,36 +701,36 @@ void print_dip_details(FILE *dipFile, const DiplomacyProposalRecord::StrengthStr
 		if(rec2->GetDetailsEx0(strings2)) {
 			if(strings2->GetDetailsEven(str2)) {
 				fprintf(dipFile, "%s %s (%s/%s)\n\n",
-						g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-						g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+						stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+						stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 			}
 		}
 		if(rec2->GetDetailsEx1(strings2)) {
 			if(strings2->GetDetailsEven(str2)) {
 				fprintf(dipFile, "%s %s (%s/%s)\n\n",
-						g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-						g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+						stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+						stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 			}
 		}
 		if(rec2->GetDetailsEx2(strings2)) {
 			if(strings2->GetDetailsEven(str2)) {
 				fprintf(dipFile, "%s %s (%s/%s)\n\n",
-						g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-						g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+						stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+						stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 			}
 		}
 		if(rec2->GetDetailsEx3(strings2)) {
 			if(strings2->GetDetailsEven(str2)) {
 				fprintf(dipFile, "%s %s (%s/%s)\n\n",
-						g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-						g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+						stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+						stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 			}
 		}
 		if(rec2->GetDetailsEx4(strings2)) {
 			if(strings2->GetDetailsEven(str2)) {
 				fprintf(dipFile, "%s %s (%s/%s)\n\n",
-						g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-						g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+						stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+						stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 			}
 		}
 	}
@@ -789,7 +789,7 @@ bool CivApp::InitializeAppDB(void)
 	g_theSpecialEffectDB        = new CTPDatabase<SpecialEffectRecord>;
 	g_theSpriteDB               = new CTPDatabase<SpriteRecord>;
 	g_theStrategyDB             = new CTPDatabase<StrategyRecord>;
-	g_theStringDB               = new StringDB();
+	stringdb_Set(new StringDB());
 	g_theTerrainDB              = new CTPDatabase<TerrainRecord>;
 	g_theTerrainImprovementDB   = new CTPDatabase<TerrainImprovementRecord>;
 	thronedb_Set(new ThroneDB());
@@ -803,13 +803,13 @@ bool CivApp::InitializeAppDB(void)
 
     // Firstly get the string database up and running - so we can display texts
 	civapp_log->info("InitializeAppDB: Parsing StringDB");
-    if (!g_theStringDB->Parse(g_stringdb_filename))
+    if (!stringdb_Get()->Parse(g_stringdb_filename))
     {
         return false;
     }
 
 	// Has to be done after the initialization of the string database
-	ProgressTo(10, g_theStringDB->GetNameStr("LOADING"));
+	ProgressTo(10, stringdb_Get()->GetNameStr("LOADING"));
 
     // Fill the databases from file
 
@@ -1306,8 +1306,8 @@ bool CivApp::InitializeAppDB(void)
 						if(rec2->GetDetailsEx0(strings2)) {
 							if(strings2->GetDetailsEven(str2)) {
 								fprintf(dipFile, "%s %s (%s/%s)\n\n",
-										g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-										g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+										stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+										stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 							}
 						}
 					}
@@ -1317,8 +1317,8 @@ bool CivApp::InitializeAppDB(void)
 						if(rec2->GetDetailsEx1(strings2)) {
 							if(strings2->GetDetailsEven(str2)) {
 								fprintf(dipFile, "%s %s (%s/%s)\n\n",
-										g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-										g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+										stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+										stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 							}
 						}
 					}
@@ -1328,8 +1328,8 @@ bool CivApp::InitializeAppDB(void)
 						if(rec2->GetDetailsEx2(strings2)) {
 							if(strings2->GetDetailsEven(str2)) {
 								fprintf(dipFile, "%s %s (%s/%s)\n\n",
-										g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-										g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+										stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+										stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 							}
 						}
 					}
@@ -1339,8 +1339,8 @@ bool CivApp::InitializeAppDB(void)
 						if(rec2->GetDetailsEx3(strings2)) {
 							if(strings2->GetDetailsEven(str2)) {
 								fprintf(dipFile, "%s %s (%s/%s)\n\n",
-										g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-										g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+										stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+										stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 							}
 						}
 					}
@@ -1350,8 +1350,8 @@ bool CivApp::InitializeAppDB(void)
 						if(rec2->GetDetailsEx4(strings2)) {
 							if(strings2->GetDetailsEven(str2)) {
 								fprintf(dipFile, "%s %s (%s/%s)\n\n",
-										g_theStringDB->GetNameStr(str1), g_theStringDB->GetNameStr(str2),
-										g_theStringDB->GetIdStr(str1), g_theStringDB->GetIdStr(str2));
+										stringdb_Get()->GetNameStr(str1), stringdb_Get()->GetNameStr(str2),
+										stringdb_Get()->GetIdStr(str1), stringdb_Get()->GetIdStr(str2));
 							}
 						}
 					}
@@ -1508,7 +1508,7 @@ sint32 CivApp::InitializeApp(HINSTANCE hInstance, int iCmdShow)
 		if (static_cast<int>(userCivIndex) < g_theCivilisationDB->NumRecords())
 		{
 			MBCHAR const * const    dbCivName =
-			    g_theStringDB->GetNameStr
+			    stringdb_Get()->GetNameStr
 			        (g_theCivilisationDB->Get(userCivIndex)->GetPluralCivName());
 
 			if (0 == strcmp(dbCivName, profiledb_Get()->GetCivName()))
@@ -1666,7 +1666,7 @@ void CivApp::CleanupAppDB(void)
     allocated::clear(g_theWonderMovieDB);
     allocated::clear(g_theIconDB);
     allocated::clear(g_theSoundDB);
-    allocated::clear(g_theStringDB);
+    { auto * p = stringdb_Get(); allocated::clear(p); stringdb_Set(p); }
     allocated::clear(g_theTerrainImprovementDB);
     allocated::clear(g_theOrderDB);
     allocated::clear(g_theCitySizeDB);
@@ -1763,7 +1763,7 @@ sint32 CivApp::InitializeGameUI(void)
 		"InitProgressWindow",
 		130 );
 
-	ProgressTo(10, g_theStringDB->GetNameStr("LOADING"));
+	ProgressTo(10, stringdb_Get()->GetNameStr("LOADING"));
 
 	SPLASH_STRING("Creating Main Windows...");
 #if defined(_DEBUG)
@@ -1873,7 +1873,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 		770 );
 
 	ProgressTo
-	    (10, g_theStringDB->GetNameStr("LOADING"));
+	    (10, stringdb_Get()->GetNameStr("LOADING"));
 
 	init_keymap();
 
@@ -1973,7 +1973,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 			Player *        p       = player_Get(g_scenarioUsePlayerNumber);
 			StringId        id      =
                 (p->m_civilisation->GetDBRec())->GetLeaderNameMale();
-			const MBCHAR *name = g_theStringDB->GetNameStr(id);
+			const MBCHAR *name = stringdb_Get()->GetNameStr(id);
 			if(name) {
 				p->m_civilisation->AccessData()->SetLeaderName(name);
 				profiledb_Get()->SetLeaderName(name);
@@ -2183,7 +2183,7 @@ sint32 InitializeSpriteEditorUI(void)
 		"InitProgressWindow",
 		120 );
 
-	ProgressTo(10, g_theStringDB->GetNameStr("LOADING"));
+	ProgressTo(10, stringdb_Get()->GetNameStr("LOADING"));
 
 	SPLASH_STRING("Creating Main Windows...");
 #if defined(_DEBUG)
@@ -2276,7 +2276,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 		"InitProgressWindow",
 		860 );
 
-	ProgressTo(10, g_theStringDB->GetNameStr("LOADING"));
+	ProgressTo(10, stringdb_Get()->GetNameStr("LOADING"));
 
 	g_fog_toggle = TRUE;
 
@@ -3014,7 +3014,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							smoketest_send_response("error", cmd, "no_human_player");
 						} else {
 							StringId str_id;
-							if (!g_theStringDB->GetStringID(adv_name, str_id)) {
+							if (!stringdb_Get()->GetStringID(adv_name, str_id)) {
 								smoketest_send_response("error", cmd, "advance_name_not_found");
 							} else {
 								sint32 adv_idx = -1;
@@ -3555,7 +3555,7 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 		"InitProgressWindow",
 		1300 );
 
-	ProgressTo( 10, g_theStringDB->GetNameStr("LOADING") );
+	ProgressTo( 10, stringdb_Get()->GetNameStr("LOADING") );
 
 	FILE * fin = fopen(name, "r");
 	if (fin == NULL) {
@@ -3714,7 +3714,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 		return;
 
 	MBCHAR const *  autosaveItem    = (isQuickSave) ? "QUICKSAVE_NAME" : "AUTOSAVE_NAME";
-	MBCHAR const *  autosaveName    = g_theStringDB->GetNameStr(autosaveItem);
+	MBCHAR const *  autosaveName    = stringdb_Get()->GetNameStr(autosaveItem);
 
 	MBCHAR			leaderName[k_MAX_NAME_LEN];
 	strncpy(leaderName, profiledb_Get()->GetLeaderName(), SAVE_LEADER_NAME_SIZE);
@@ -3789,7 +3789,7 @@ void CivApp::PostLoadQuickSaveAction(sint32 player)
 	c3files_StripSpaces(leaderName);
 
 	MBCHAR			filename[_MAX_PATH];
-	snprintf(filename, sizeof(filename), "%s-%s", g_theStringDB->GetNameStr("QUICKSAVE_NAME"), leaderName);
+	snprintf(filename, sizeof(filename), "%s-%s", stringdb_Get()->GetNameStr("QUICKSAVE_NAME"), leaderName);
 
 	C3SAVEDIR       dir = (g_network.IsActive()) ? C3SAVEDIR_MP : C3SAVEDIR_GAME;
 

@@ -2583,26 +2583,26 @@ void GivesWhatCommand::Execute(sint32 argc, char **argv)
 	const AdvanceRecord *rec = g_theAdvanceDB->Get(adv);
 
 	DPRINTF(k_DBG_GAMESTATE, ("Advance %d(%s) gives:\n", adv,
-							  g_theStringDB->GetNameStr(rec->m_name)));
+							  stringdb_Get()->GetNameStr(rec->m_name)));
 
 	sint32 i, n = g_theUnitDB->NumRecords();
 	for(i = 0; i < n; i++) {
 		if(g_theUnitDB->Get(i)->GetEnableAdvanceIndex() == adv) {
-			DPRINTF(k_DBG_GAMESTATE, ("Unit: %d(%s)\n", i, g_theStringDB->GetNameStr(g_theUnitDB->Get(i)->m_name)));
+			DPRINTF(k_DBG_GAMESTATE, ("Unit: %d(%s)\n", i, stringdb_Get()->GetNameStr(g_theUnitDB->Get(i)->m_name)));
 		}
 	}
 
 	n = g_theBuildingDB->NumRecords();
 	for(i = 0; i < n; i++) {
 		if(g_theBuildingDB->Get(i)->GetEnableAdvanceIndex() == adv) {
-			DPRINTF(k_DBG_GAMESTATE, ("Improvement: %d(%d)\n", i, g_theStringDB->GetNameStr(g_theBuildingDB->Get(i)->m_name)));
+			DPRINTF(k_DBG_GAMESTATE, ("Improvement: %d(%d)\n", i, stringdb_Get()->GetNameStr(g_theBuildingDB->Get(i)->m_name)));
 		}
 	}
 
 	n = g_theWonderDB->NumRecords();
 	for(i = 0; i < n; i++) {
 		if(g_theWonderDB->Get(i)->GetEnableAdvanceIndex() == adv) {
-			DPRINTF(k_DBG_GAMESTATE, ("Wonder: %d(%s)\n", i, g_theStringDB->GetNameStr(g_theWonderDB->Get(i)->m_name)));
+			DPRINTF(k_DBG_GAMESTATE, ("Wonder: %d(%s)\n", i, stringdb_Get()->GetNameStr(g_theWonderDB->Get(i)->m_name)));
 		}
 	}
 }
@@ -2646,7 +2646,7 @@ void LearnWhatCommand::Execute(sint32 argc, char **argv)
 	for(i = 0; i < n; i++) {
 		if(advances[i]) {
 			DPRINTF(k_DBG_GAMESTATE, ("  %d(%s)", i,
-									  g_theStringDB->GetNameStr(g_theAdvanceDB->Get(i)->GetName())));
+									  stringdb_Get()->GetNameStr(g_theAdvanceDB->Get(i)->GetName())));
 		}
 	}
 }
@@ -5999,11 +5999,11 @@ void LoadDBCommand::Execute(sint32 argc, char **argv)
 	DBLexer *lex;
 	if (!strcmp(argv[1], "string")) {
 
-		delete g_theStringDB;
-		g_theStringDB = new StringDB();
-		Assert(g_theStringDB);
-		if (g_theStringDB) {
-			if(!g_theStringDB->Parse(g_stringdb_filename)) {
+		delete stringdb_Get();
+		stringdb_Set(new StringDB());
+		Assert(stringdb_Get());
+		if (stringdb_Get()) {
+			if(!stringdb_Get()->Parse(g_stringdb_filename)) {
 				Assert(FALSE);
 				return;
 			}

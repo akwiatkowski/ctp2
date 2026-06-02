@@ -167,9 +167,9 @@ STDEHANDLER(Accept_ProposalResponseEvent)
 		response.senderId = sender;
 		response.receiverId = receiver;
 
-		g_theStringDB->GetStringID("EXPLAIN_GENERIC_ACCEPT",response.explainStrId); // Which of them is used?
-		g_theStringDB->GetStringID("ADVICE_GENERIC_ACCEPT",response.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_GENERIC_ACCEPT",response.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_GENERIC_ACCEPT",response.explainStrId); // Which of them is used?
+		stringdb_Get()->GetStringID("ADVICE_GENERIC_ACCEPT",response.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_GENERIC_ACCEPT",response.newsStrId);
 
 		receiver_diplomat.ConsiderResponse(sender, response);
 	}

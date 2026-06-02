@@ -506,10 +506,10 @@ SFN_ERROR Slic_PrintText::Call(SlicArgList *args)
 	sint32 ival;
 	if (args->m_argValue[0].m_type == SA_TYPE_STRING) {
 		DPRINTF(k_DBG_SLIC, ("Slic_PrintText: %s\n",
-							 g_theStringDB->GetNameStr(args->m_argValue[0].m_int)));
+							 stringdb_Get()->GetNameStr(args->m_argValue[0].m_int)));
 	} else if(args->GetInt(0, ival)) {
 		DPRINTF(k_DBG_SLIC, ("Slic_PrintText: %s\n",
-							 g_theStringDB->GetNameStr(ival)));
+							 stringdb_Get()->GetNameStr(ival)));
 	} else
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -525,12 +525,12 @@ SFN_ERROR Slic_Text::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 
 	DPRINTF(k_DBG_SLIC, ("Slic_Text: %s\n",
-						 g_theStringDB->GetNameStr(args->m_argValue[0].m_int)));
+						 stringdb_Get()->GetNameStr(args->m_argValue[0].m_int)));
 
 	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	slicengine_Get()->GetContext()->SetMessageText(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageText(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -1676,7 +1676,7 @@ SFN_ERROR Slic_Caption::Call(SlicArgList *args)
 	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	slicengine_Get()->GetContext()->SetMessageCaption(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageCaption(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -2573,7 +2573,7 @@ SFN_ERROR Slic_UnitType::Call(SlicArgList *args)
 
 	const char *name = args->m_argValue[0].m_symbol->GetName();
 	StringId sname;
-	if(!g_theStringDB->GetStringID(name, sname)) {
+	if(!stringdb_Get()->GetStringID(name, sname)) {
 		return SFN_ERROR_UNKNOWN_UNIT_TYPE;
 	}
 
@@ -2685,7 +2685,7 @@ SFN_ERROR Slic_CityHasBuilding::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	const char *name = args->m_argValue[1].m_symbol->GetName();
 	StringId sname;
-	if(!g_theStringDB->GetStringID(name, sname)) {
+	if(!stringdb_Get()->GetStringID(name, sname)) {
 		return SFN_ERROR_UNKNOWN_BUILDING;
 	}
 
@@ -2713,7 +2713,7 @@ SFN_ERROR Slic_Title::Call(SlicArgList *args)
 	if(slicengine_Get()->GetContext() == NULL)
 		return SFN_ERROR_INTERNAL;
 
-	slicengine_Get()->GetContext()->SetMessageTitle(g_theStringDB->GetNameStr(args->m_argValue[0].m_int));
+	slicengine_Get()->GetContext()->SetMessageTitle(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
 	return SFN_ERROR_OK;
 }
 
@@ -2844,7 +2844,7 @@ SFN_ERROR Slic_BuildingType::Call(SlicArgList *args)
 
 	const char *name = args->m_argValue[0].m_symbol->GetName();
 	StringId sname;
-	if(!g_theStringDB->GetStringID(name, sname)) {
+	if(!stringdb_Get()->GetStringID(name, sname)) {
 		return SFN_ERROR_UNKNOWN_UNIT_TYPE;
 	}
 
@@ -3123,7 +3123,7 @@ SFN_ERROR Slic_GoodType::Call(SlicArgList *args)
 
 	const char *name = args->m_argValue[0].m_symbol->GetName();
 	StringId sname;
-	if(!g_theStringDB->GetStringID(name, sname)) {
+	if(!stringdb_Get()->GetStringID(name, sname)) {
 		return SFN_ERROR_UNKNOWN_UNIT_TYPE;
 	}
 
@@ -5713,7 +5713,7 @@ SFN_ERROR Slic_SetString::Call(SlicArgList *args)
 	if(args->m_argValue[1].m_type != SA_TYPE_STRING)
 		return SFN_ERROR_TYPE_ARGS;
 
-	const MBCHAR *str = g_theStringDB->GetNameStr(args->m_argValue[1].m_int);
+	const MBCHAR *str = stringdb_Get()->GetNameStr(args->m_argValue[1].m_int);
 	if(!str)
 		return SFN_ERROR_INTERNAL;
 
@@ -5734,7 +5734,7 @@ SFN_ERROR Slic_SetStringByDBIndex::Call(SlicArgList *args)
 	if(!args->GetInt(1, stringId))
 		return SFN_ERROR_TYPE_ARGS;
 
-	const MBCHAR *str = g_theStringDB->GetNameStr(stringId);
+	const MBCHAR *str = stringdb_Get()->GetNameStr(stringId);
 	if(!str)
 		return SFN_ERROR_OUT_OF_RANGE;
 
@@ -6363,10 +6363,10 @@ SFN_ERROR Slic_StringCompare::Call(SlicArgList *args)
 
 	if(!args->GetString(0, string1)){
 		if(args->GetStringId(0, stringId1)){
-			cstring1 = g_theStringDB->GetNameStr(stringId1);
+			cstring1 = stringdb_Get()->GetNameStr(stringId1);
 		}
 		else if(args->m_argValue[0].m_type == SA_TYPE_INT_VAR){
-			cstring1 = g_theStringDB->GetNameStr(args->m_argValue[0].m_symbol->GetStringId());
+			cstring1 = stringdb_Get()->GetNameStr(args->m_argValue[0].m_symbol->GetStringId());
 		}
 		else{
 			return SFN_ERROR_TYPE_ARGS;
@@ -6376,10 +6376,10 @@ SFN_ERROR Slic_StringCompare::Call(SlicArgList *args)
 
 	if(!args->GetString(1, string2)){
 		if(args->GetStringId(1, stringId2)){
-			cstring2 = g_theStringDB->GetNameStr(stringId2);
+			cstring2 = stringdb_Get()->GetNameStr(stringId2);
 		}
 		else if(args->m_argValue[1].m_type == SA_TYPE_INT_VAR){
-			cstring2 = g_theStringDB->GetNameStr(args->m_argValue[1].m_symbol->GetStringId());
+			cstring2 = stringdb_Get()->GetNameStr(args->m_argValue[1].m_symbol->GetStringId());
 		}
 		else{
 			return SFN_ERROR_TYPE_ARGS;
@@ -6411,7 +6411,7 @@ SFN_ERROR Slic_CityNameCompare::Call(SlicArgList *args)
 	if(!args->GetStringId(1, stringId))
 		return SFN_ERROR_TYPE_ARGS;
 
-	const MBCHAR *str = g_theStringDB->GetNameStr(stringId);
+	const MBCHAR *str = stringdb_Get()->GetNameStr(stringId);
 	if(!str)
 		return SFN_ERROR_OUT_OF_RANGE;
 
@@ -6502,7 +6502,7 @@ SFN_ERROR Slic_SetCityVisible::Call(SlicArgList *args)
 	if(!args->GetStringId(1, stringId))
 		return SFN_ERROR_TYPE_ARGS;
 
-	const MBCHAR *str = g_theStringDB->GetNameStr(stringId);
+	const MBCHAR *str = stringdb_Get()->GetNameStr(stringId);
 	if(!str)
 		return SFN_ERROR_OUT_OF_RANGE;
 

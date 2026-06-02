@@ -145,7 +145,7 @@
 #include <sstream>                      // std::basic_stringstream
 #include "ui/interface/statswindow.h"
 #include "ui/aui_ctp2/statuswindow.h"
-#include "gs/database/StrDB.h"                      // g_theStringDB
+#include "gs/database/StrDB.h"                      // stringdb_Get()
 #include <string>                       // std::basic_string
 #include "TerrainRecord.h"
 #include "gfx/tilesys/tiledmap.h"

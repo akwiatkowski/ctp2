@@ -38,7 +38,7 @@
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "ui/aui_common/aui_ui.h"
-#include "gs/database/StrDB.h"      // g_theStringDB
+#include "gs/database/StrDB.h"      // stringdb_Get()
 
 
 void c3errors_FatalDialog(const char* module, const char* fmt, ...)
@@ -72,11 +72,11 @@ void c3errors_FatalDialog(const char* module, const char* fmt, ...)
 void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 {
 	MBCHAR *    dbTitle;
-	if (!g_theStringDB->GetText(module, &dbTitle))
+	if (!stringdb_Get()->GetText(module, &dbTitle))
 		c3errors_FatalDialog("string db", "%s missing from string db", module);
 
 	MBCHAR *    dbError;
-	if (!g_theStringDB->GetText(err, &dbError))
+	if (!stringdb_Get()->GetText(err, &dbError))
 		c3errors_FatalDialog("string db", "%s missing from string db", err) ;
 
 	va_list		list;
@@ -113,11 +113,11 @@ void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 {
     MBCHAR *    dbTitle;
-	if (!g_theStringDB->GetText(module, &dbTitle))
+	if (!stringdb_Get()->GetText(module, &dbTitle))
 		c3errors_FatalDialog("string db", "%s missing from string db", module) ;
 
     MBCHAR *    dbError;
-	if (!g_theStringDB->GetText(err, &dbError))
+	if (!stringdb_Get()->GetText(err, &dbError))
 		c3errors_FatalDialog("string db", "%s missing from string db", err) ;
 
 	va_list		list;

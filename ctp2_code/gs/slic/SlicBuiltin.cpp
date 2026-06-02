@@ -447,7 +447,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 			}
 			else
 			{
-				strncpy(text, g_theStringDB->GetNameStr("str_ldl_Building_Nothing_Label"),maxLen);
+				strncpy(text, stringdb_Get()->GetNameStr("str_ldl_Building_Nothing_Label"),maxLen);
 			}
 			return TRUE;
 		}
@@ -468,7 +468,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 			{
 				sint32 id;
 
-				if(g_theStringDB->GetStringID("str_ldl_Building_Nothing_Label", id))
+				if(stringdb_Get()->GetStringID("str_ldl_Building_Nothing_Label", id))
 					return id;
 				return -1;
 			}
@@ -804,13 +804,13 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 			switch(player_Get(pl)->GetReadinessLevel())
 			{
 				case READINESS_LEVEL_PEACE:
-					strncpy(text, g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"), maxLen);
+					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_PEACE"), maxLen);
 					break;
 				case READINESS_LEVEL_ALERT:
-					strncpy(text, g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"), maxLen);
+					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_ALERT"), maxLen);
 					break;
 				case READINESS_LEVEL_WAR:
-					strncpy(text, g_theStringDB->GetNameStr("str_ldl_READINESS_LEVEL_WAR"), maxLen);
+					strncpy(text, stringdb_Get()->GetNameStr("str_ldl_READINESS_LEVEL_WAR"), maxLen);
 					break;
 				default:
 					Assert(false);
@@ -830,13 +830,13 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 			switch(player_Get(pl)->GetReadinessLevel())
 			{
 				case READINESS_LEVEL_PEACE:
-					g_theStringDB->GetStringID("str_ldl_READINESS_LEVEL_PEACE", id);
+					stringdb_Get()->GetStringID("str_ldl_READINESS_LEVEL_PEACE", id);
 					break;
 				case READINESS_LEVEL_ALERT:
-					g_theStringDB->GetStringID("str_ldl_READINESS_LEVEL_ALERT", id);
+					stringdb_Get()->GetStringID("str_ldl_READINESS_LEVEL_ALERT", id);
 					break;
 				case READINESS_LEVEL_WAR:
-					g_theStringDB->GetStringID("str_ldl_READINESS_LEVEL_WAR", id);
+					stringdb_Get()->GetStringID("str_ldl_READINESS_LEVEL_WAR", id);
 					break;
 				default:
 					Assert(false);
@@ -868,7 +868,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 		{
 			StringId description = Diplomat::GetDiplomat(pl).GetPersonality()->GetDescription();
 			if (description != -1)
-				strncpy(text, g_theStringDB->GetNameStr(description) , maxLen);
+				strncpy(text, stringdb_Get()->GetNameStr(description) , maxLen);
 			else
 				strncpy(text, Diplomat::GetDiplomat(pl).GetPersonalityName().c_str(), maxLen);
 			return TRUE;
@@ -1015,7 +1015,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 			}
 			if(id >= 0 &&
 			   strcmp(player_Get(pl)->GetLeaderName(),
-					  g_theStringDB->GetNameStr(id)) == 0) {
+					  stringdb_Get()->GetNameStr(id)) == 0) {
 				return id;
 			}
 		}
@@ -1054,9 +1054,9 @@ class PlayerSymbol_He : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HE_MALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HE_FEMALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE"));
 			}
 			return TRUE;
 		}
@@ -1072,9 +1072,9 @@ class PlayerSymbol_Him : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIM_MALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIM_FEMALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE"));
 			}
 			return TRUE;
 		}
@@ -1090,9 +1090,9 @@ class PlayerSymbol_His : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIS_MALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIS_FEMALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE"));
 			}
 			return TRUE;
 		}
@@ -1108,9 +1108,9 @@ class PlayerSymbol_HeCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HE_MALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HE_MALE_CAP"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HE_FEMALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HE_FEMALE_CAP"));
 			}
 			return TRUE;
 		}
@@ -1126,9 +1126,9 @@ class PlayerSymbol_HimCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIM_MALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIM_MALE_CAP"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIM_FEMALE_CAP"));
 			}
 			return TRUE;
 		}
@@ -1144,9 +1144,9 @@ class PlayerSymbol_HisCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("PRONOUN_HIS_MALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PRONOUN_HIS_MALE_CAP"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("PROUNOUN_HIS_FEMALE_CAP"));
 			}
 			return TRUE;
 		}
@@ -1162,9 +1162,9 @@ class PlayerSymbol_Sir : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_MALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_FEMALE"));
+				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE"));
 			}
 			return TRUE;
 		}
@@ -1180,9 +1180,9 @@ class PlayerSymbol_SirCap : public SlicStructMemberData {
 		Assert(res);
 		if(res) {
 			if(player_Get(pl)->m_civilisation->GetGender() == GENDER_MALE) {
-				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_MALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_MALE_CAP"));
 			} else {
-				strcpy(text, g_theStringDB->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"));
+				strcpy(text, stringdb_Get()->GetNameStr("LEADER_ADDRESS_FEMALE_CAP"));
 			}
 			return TRUE;
 		}
@@ -1493,7 +1493,7 @@ class BuildingSymbol_Name : public SlicStructMemberData {
 			type = 0;
 		}
 
-		strncpy(text, g_theStringDB->GetNameStr(g_theBuildingDB->Get(type)->GetName()), maxLen);
+		strncpy(text, stringdb_Get()->GetNameStr(g_theBuildingDB->Get(type)->GetName()), maxLen);
 		return TRUE;
 	}
 
@@ -1537,7 +1537,7 @@ class WonderSymbol_Name : public SlicStructMemberData {
 			type = 0;
 		}
 
-		strncpy(text, g_theStringDB->GetNameStr(g_theWonderDB->Get(type)->GetName()), maxLen);
+		strncpy(text, stringdb_Get()->GetNameStr(g_theWonderDB->Get(type)->GetName()), maxLen);
 		return TRUE;
 	}
 

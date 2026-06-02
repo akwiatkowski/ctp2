@@ -624,8 +624,8 @@ BOOL SlicSymbolData::GetText(MBCHAR *text, sint32 maxLen) const
 			strcpy(text, m_val.m_hard_string);
 			break;
 		case SLIC_SYM_SVAR:
-			if(g_theStringDB->GetNameStr(m_val.m_string_value)) {
-				strcpy(text, g_theStringDB->GetNameStr(m_val.m_string_value));
+			if(stringdb_Get()->GetNameStr(m_val.m_string_value)) {
+				strcpy(text, stringdb_Get()->GetNameStr(m_val.m_string_value));
 			} else {
 				snprintf(text, maxLen, "<Bad String ID %d>", m_val.m_string_value);
 			}
@@ -665,8 +665,8 @@ void SlicSymbolData::GetDebugText(MBCHAR *text, sint32 len) const
 			break;
 		case SLIC_SYM_STRING:
 			snprintf(text, len, "<%d> ID_%s: \"%s\"", m_val.m_string_value,
-					g_theStringDB->GetIdStr(m_val.m_string_value),
-					g_theStringDB->GetNameStr(m_val.m_string_value));
+					stringdb_Get()->GetIdStr(m_val.m_string_value),
+					stringdb_Get()->GetNameStr(m_val.m_string_value));
 			break;
 		case SLIC_SYM_CITY:
 			if(GetCity(city)) {
@@ -805,7 +805,7 @@ void SlicSymbolData::SetType(SLIC_SYM type)
 			m_val.m_function_object = slicengine_Get()->GetFunction(GetName());
 			break;
 		case SLIC_SYM_SVAR:
-			res = g_theStringDB->GetStringID(GetName(), m_val.m_string_value);
+			res = stringdb_Get()->GetStringID(GetName(), m_val.m_string_value);
 			Assert(res);
 			break;
 	}

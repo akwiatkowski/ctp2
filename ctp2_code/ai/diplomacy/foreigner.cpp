@@ -134,7 +134,7 @@ void Foreigner::Load(CivArchive & archive)
 				{
 					Assert(buf_size < 256);
 					archive.Load((uint8 *) &name_str[0], buf_size);
-					g_theStringDB->GetStringID((char*)name_str, event.explainStrId);
+					stringdb_Get()->GetStringID((char*)name_str, event.explainStrId);
 				}
 				else
 				{
@@ -207,7 +207,7 @@ void Foreigner::Save(CivArchive & archive) const
 			archive << (sint16) event_iter->duration;
 			if (event_iter->explainStrId != -1)
 			{
-				name_str = g_theStringDB->GetIdStr(event_iter->explainStrId);
+				name_str = stringdb_Get()->GetIdStr(event_iter->explainStrId);
 				archive << (sint16) (strlen(name_str)+1);
 				archive.Store((uint8*)name_str, strlen(name_str)+1);
 			}
@@ -627,7 +627,7 @@ void Foreigner::DebugStatus() const
 		{
 			DPRINTF(k_DBG_DIPLOMACY, (" delta = %d [%s]\n",
 				event_iter->regard,
-				g_theStringDB->GetNameStr(event_iter->explainStrId) ));
+				stringdb_Get()->GetNameStr(event_iter->explainStrId) ));
 		}
 	}
 }
@@ -688,7 +688,7 @@ void Foreigner::LogDebugStatus(const DiplomacyRecord & diplomacy) const
 				gslog_dipprint("    %5d   :    %2.2f    : [%s] (%s)\n",
 					event_iter->regard,
 					decay,
-					event_iter->explainStrId<0?"":g_theStringDB->GetNameStr(event_iter->explainStrId),
+					event_iter->explainStrId<0?"":stringdb_Get()->GetNameStr(event_iter->explainStrId),
 					s_regardEventNames[type].c_str());
 			}
 			else
@@ -699,7 +699,7 @@ void Foreigner::LogDebugStatus(const DiplomacyRecord & diplomacy) const
 				gslog_dipprint("    %5d   :   %5d    : [%s] (%s)\n",
 					event_iter->regard,
 					round,
-					event_iter->explainStrId<0?"":g_theStringDB->GetNameStr(event_iter->explainStrId),
+					event_iter->explainStrId<0?"":stringdb_Get()->GetNameStr(event_iter->explainStrId),
 					s_regardEventNames[type].c_str());
 			}
 		}

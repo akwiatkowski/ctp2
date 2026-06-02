@@ -177,9 +177,9 @@ STDEHANDLER(Scenario_NewProposalEvent) {
 	new_proposal.senderId = receiver;
 
 
-	g_theStringDB->GetStringID("EXPLAIN_SCENARIO_FORCE_PEACE",new_proposal.explainStrId);
-	g_theStringDB->GetStringID("ADVICE_SCENARIO_FORCE_PEACE",new_proposal.adviceStrId);
-	g_theStringDB->GetStringID("NEWS_SCENARIO_FORCE_PEACE",new_proposal.newsStrId);
+	stringdb_Get()->GetStringID("EXPLAIN_SCENARIO_FORCE_PEACE",new_proposal.explainStrId);
+	stringdb_Get()->GetStringID("ADVICE_SCENARIO_FORCE_PEACE",new_proposal.adviceStrId);
+	stringdb_Get()->GetStringID("NEWS_SCENARIO_FORCE_PEACE",new_proposal.newsStrId);
 
 	if (sender_diplomat.GetNewProposalTimeout( new_proposal, 25 ) )
 	{
@@ -339,9 +339,9 @@ STDEHANDLER(ExchangeMaps_NewProposalEvent) {
 		new_proposal.senderId = sender;
 
 
-		g_theStringDB->GetStringID("EXPLAIN_EXCHANGE_MAPS_0001",new_proposal.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_EXCHANGE_MAPS_0001",new_proposal.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_EXCHANGE_MAPS_0001",new_proposal.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_EXCHANGE_MAPS_0001",new_proposal.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_EXCHANGE_MAPS_0001",new_proposal.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_EXCHANGE_MAPS_0001",new_proposal.newsStrId);
 
 		if (!sender_diplomat.GetNewProposalTimeout
 				(new_proposal, static_cast<sint16>(want_map_turns))
@@ -411,9 +411,9 @@ STDEHANDLER(MakePeace_NewProposalEvent)
 	new_proposal.detail.first_type = PROPOSAL_TREATY_PEACE;
 	new_proposal.detail.tone = DIPLOMATIC_TONE_KIND;
 
-	g_theStringDB->GetStringID("EXPLAIN_PEACE_TREATY",new_proposal.explainStrId);
-	g_theStringDB->GetStringID("ADVICE_PEACE_TREATY",new_proposal.adviceStrId);
-	g_theStringDB->GetStringID("NEWS_PEACE_TREATY",new_proposal.newsStrId);
+	stringdb_Get()->GetStringID("EXPLAIN_PEACE_TREATY",new_proposal.explainStrId);
+	stringdb_Get()->GetStringID("ADVICE_PEACE_TREATY",new_proposal.adviceStrId);
+	stringdb_Get()->GetStringID("NEWS_PEACE_TREATY",new_proposal.newsStrId);
 
 	if (sender_diplomat.GetNewProposalTimeout( new_proposal, 25 ) )
 	{
@@ -1176,9 +1176,9 @@ STDEHANDLER(RequestAdvance_NewProposalEvent)
 
 		new_proposal.detail.tone = DIPLOMATIC_TONE_EQUAL;
 
-		g_theStringDB->GetStringID("EXPLAIN_REQUEST_ADVANCE",new_proposal.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_REQUEST_ADVANCE",new_proposal.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_REQUEST_ADVANCE",new_proposal.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_REQUEST_ADVANCE",new_proposal.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_REQUEST_ADVANCE",new_proposal.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_REQUEST_ADVANCE",new_proposal.newsStrId);
 
 		if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
 			{
@@ -1236,9 +1236,9 @@ STDEHANDLER(StopPiracy_NewProposalEvent)
 		new_proposal.detail.first_type = PROPOSAL_REQUEST_STOP_PIRACY;
 		new_proposal.detail.tone = DIPLOMATIC_TONE_EQUAL;
 
-		g_theStringDB->GetStringID("EXPLAIN_PEACE_TREATY",new_proposal.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_PEACE_TREATY",new_proposal.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_PEACE_TREATY",new_proposal.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_PEACE_TREATY",new_proposal.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_PEACE_TREATY",new_proposal.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_PEACE_TREATY",new_proposal.newsStrId);
 
 		if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
 			{
@@ -1470,9 +1470,9 @@ STDEHANDLER(BreakAgreementWithEnemy_NewProposalEvent)
 		new_proposal.senderId = sender;
 
 
-		g_theStringDB->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
 
 		if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
 			{
@@ -1540,9 +1540,9 @@ STDEHANDLER(StopResearch_NewProposalEvent)
 	new_proposal.senderId = sender;
 
 
-	g_theStringDB->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
-	g_theStringDB->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
-	g_theStringDB->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
+	stringdb_Get()->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
+	stringdb_Get()->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
+	stringdb_Get()->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
 
 	if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
 	{
@@ -1655,9 +1655,9 @@ STDEHANDLER(ReduceWeapons_NewProposalEvent)
 	new_proposal.senderId = sender;
 
 
-	g_theStringDB->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
-	g_theStringDB->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
-	g_theStringDB->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
+	stringdb_Get()->GetStringID("EXPLAIN_WITHDRAW_TROOPS_0001",new_proposal.explainStrId);
+	stringdb_Get()->GetStringID("ADVICE_WITHDRAW_TROOPS_0001",new_proposal.adviceStrId);
+	stringdb_Get()->GetStringID("NEWS_WITHDRAW_TROOPS_0001",new_proposal.newsStrId);
 
 	if (sender_diplomat.GetNewProposalTimeout( new_proposal, 20 ) )
 	{

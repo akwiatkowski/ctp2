@@ -5,7 +5,7 @@
 #include "gs/database/StrDB.h"
 
 extern CivPaths *civpaths_Get();
-extern StringDB *g_theStringDB;
+extern StringDB *stringdb_Get();
 
 int slicif_find_file(char *filename, char *fullpath)
 {
@@ -21,5 +21,5 @@ void slicif_report_error(char *s)
 
 int slicif_is_valid_string(char *s)
 {
-	return g_theStringDB->GetNameStr(s) != NULL;
+	return stringdb_Get()->GetNameStr(s) != NULL;
 }

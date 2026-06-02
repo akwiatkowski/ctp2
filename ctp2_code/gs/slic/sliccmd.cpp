@@ -441,9 +441,9 @@ void sliccmd_parse_done(struct sliccmdExpValue *v, int action)
 			StringId id = sym->GetStringId();
 			if(id >= 0) {
 				char buf[k_MAX_MSG_LEN];
-				snprintf(buf, sizeof(buf), "%s_%s", g_theStringDB->GetIdStr(id), sliccmd_cat_string);
+				snprintf(buf, sizeof(buf), "%s_%s", stringdb_Get()->GetIdStr(id), sliccmd_cat_string);
 				MBCHAR *rval;
-				if(g_theStringDB->GetText(buf, &rval)) {
+				if(stringdb_Get()->GetText(buf, &rval)) {
 					strcpy(sliccmd_output, rval);
 					expanded = true;
 				}

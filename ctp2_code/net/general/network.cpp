@@ -129,7 +129,7 @@ extern sint32 g_debugOwner;
 #include "ui/netshell/netshell.h"
 #include "ctp/civapp.h"
 #include "gs/database/StrDB.h"
-extern StringDB			*g_theStringDB;
+extern StringDB			*stringdb_Get();
 
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
@@ -527,7 +527,7 @@ void Network::InitFromNetFunc()
 			}
 
 
-			const char *str = g_theStringDB->GetNameStr("NETWORK_WAITING_ON_PLAYERS");
+			const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_ON_PLAYERS");
 
 			char nonConstStr[1024];
 			if(str) {
@@ -539,7 +539,7 @@ void Network::InitFromNetFunc()
 			}
 			c3_AbortMessage(nonConstStr, k_UTILITY_ABORT, network_AbortCallback);
 		} else if(!m_crcError) {
-			const char *str = g_theStringDB->GetNameStr("NETWORK_WAITING_FOR_DATA");
+			const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_FOR_DATA");
 			char nonConstStr[1024];
 			if(str) {
 				strcpy(nonConstStr, str);
@@ -1206,7 +1206,7 @@ void Network::ChangeHost(uint16 id)
 		m_readyToStart = FALSE;
 	}
 	m_hostId = id;
-	const char *str = g_theStringDB->GetNameStr("NETWORK_WAITING_FOR_DATA");
+	const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_FOR_DATA");
 	char nonConstStr[1024];
 	if(str) {
 		strcpy(nonConstStr, str);
@@ -2369,11 +2369,11 @@ void Network::AddChatText(MBCHAR *str, sint32 len, uint8 from, BOOL priv)
 
 	if(!priv)
 		snprintf(m_chatStr, sizeof(m_chatStr), "[%s] ",
-				((from == 0) ? g_theStringDB->GetNameStr("NETWORK_SENDER_SYSTEM") :
+				((from == 0) ? stringdb_Get()->GetNameStr("NETWORK_SENDER_SYSTEM") :
 				 (player_Get(from) ? (player_Get(from)->m_civilisation->GetLeaderName()) : ".")));
 	else
 		snprintf(m_chatStr, sizeof(m_chatStr), "[P] (%s) ", ((from == 0) ?
-										 (g_theStringDB->GetNameStr("NETWORK_SENDER_SYSTEM")) :
+										 (stringdb_Get()->GetNameStr("NETWORK_SENDER_SYSTEM")) :
 										 (player_Get(from) ?
 										  (player_Get(from)->m_civilisation->GetLeaderName()) :
 										  ("."))));
@@ -3519,7 +3519,7 @@ void Network::SetProgress(sint32 progress)
 	m_progress = progress;
 	c3_AbortUpdateData(NULL, (progress > 100 ? 100 : progress) );
 	if(m_progress >= 100) {
-		const char *str = g_theStringDB->GetNameStr("NETWORK_WAITING_ON_PLAYERS");
+		const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_ON_PLAYERS");
 
 		char nonConstStr[1024];
 		if(str) {
@@ -3606,7 +3606,7 @@ void Network::SendJoinedMessage(MBCHAR *name, sint32 player)
 		so->AddRecipient(m_playerIndex);
 
 		MBCHAR interp[k_MAX_NAME_LEN];
-		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_PLAYER_JOINED"), *so, interp);
+		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_PLAYER_JOINED"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
 		slicengine_Get()->Execute(so);
@@ -3640,7 +3640,7 @@ void Network::SendLeftMessage(const MBCHAR *name, sint32 player)
 		so->AddRecipient(m_playerIndex);
 
 		MBCHAR interp[k_MAX_NAME_LEN];
-		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_PLAYER_LEFT"), *so, interp);
+		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_PLAYER_LEFT"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
 		slicengine_Get()->Execute(so);
@@ -3665,7 +3665,7 @@ void Network::SendNewHostMessage(MBCHAR *name, sint32 player)
 		so->AddRecipient(m_playerIndex);
 
 		MBCHAR interp[k_MAX_NAME_LEN];
-		stringutils_Interpret(g_theStringDB->GetNameStr("NETWORK_YOU_ARE_NOW_HOST"), *so, interp);
+		stringutils_Interpret(stringdb_Get()->GetNameStr("NETWORK_YOU_ARE_NOW_HOST"), *so, interp);
 		AddChatText(interp, strlen(interp), 0, FALSE);
 
 		slicengine_Get()->Execute(so);
@@ -3761,7 +3761,7 @@ void Network::StartResync()
 	DPRINTF(k_DBG_NET, ("Acknowledging resync\n"));
 	QueuePacket(m_hostId, new NetReport(NET_REPORT_ACK_RESYNC));
 
-	const char *str = g_theStringDB->GetNameStr("NETWORK_RESYNCING");
+	const char *str = stringdb_Get()->GetNameStr("NETWORK_RESYNCING");
 	char nonConstStr[1024];
 	if(str) {
 		strcpy(nonConstStr, str);
@@ -3801,7 +3801,7 @@ void Network::RequestResync(RESYNC_REASON reason)
 #endif
 
 	m_readyToStart = FALSE;
-	const char *str = g_theStringDB->GetNameStr("NETWORK_RESYNCING");
+	const char *str = stringdb_Get()->GetNameStr("NETWORK_RESYNCING");
 	char nonConstStr[1024];
 	if(str) {
 		strcpy(nonConstStr, str);
@@ -3871,14 +3871,14 @@ MBCHAR *Network::GetStatusString(sint32 player)
 	if(!player_arr_Get() || !player_Get(player))
 		return NULL;
 	if(player_Get(player)->IsHuman()) {
-		strcpy(strbuf, g_theStringDB->GetNameStr("NETWORK_PLAYER_STATUS_HUMAN"));
+		strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_HUMAN"));
 	} else if(player_Get(player)->IsNetwork()) {
-		strcpy(strbuf, g_theStringDB->GetNameStr("NETWORK_PLAYER_STATUS_CONNECTED"));
+		strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_CONNECTED"));
 	} else {
 		if(player_Get(player)->m_openForNetwork) {
-			strcpy(strbuf, g_theStringDB->GetNameStr("NETWORK_PLAYER_STATUS_AI_OPEN"));
+			strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_OPEN"));
 		} else {
-			strcpy(strbuf, g_theStringDB->GetNameStr("NETWORK_PLAYER_STATUS_AI_CLOSED"));
+			strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_AI_CLOSED"));
 		}
 	}
 	return strbuf;
@@ -3975,7 +3975,7 @@ void Network::SetRobotName(sint32 player)
 	} else {
 		strId = g_theCivilisationDB->Get(civ->GetCivilisation())->GetLeaderNameFemale();
 	}
-	civ->AccessData()->SetLeaderName(g_theStringDB->GetNameStr(strId));
+	civ->AccessData()->SetLeaderName(stringdb_Get()->GetNameStr(strId));
 
 	QueuePacketToAll(new NetSetLeaderName(player));
 	if(g_networkPlayersScreen) {

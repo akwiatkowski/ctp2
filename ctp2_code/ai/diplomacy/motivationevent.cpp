@@ -124,7 +124,7 @@ STDEHANDLER(DesireGold_MotivationEvent)
 	{
 		char motivation_name[] = "MOTIVATION_DESIRE_GOLD_ADVICE";
 		BOOL found =
-			g_theStringDB->GetStringID(motivation_name, adviceId);
+			stringdb_Get()->GetStringID(motivation_name, adviceId);
 		Assert(found);
 	}
 

@@ -156,9 +156,9 @@ STDEHANDLER(ProvokeWar_NextDStateEvent)
 	state.priority = 75;
 	g_theDiplomacyDB->GetNamedItem("DIPLOMACY_PROVOKE_WAR",state.dbIndex);
 
-	g_theStringDB->GetStringID("SPY_PROVOKE_WAR_DS",state.spyStrId);
-	g_theStringDB->GetStringID("ADVICE_PROVOKE_WAR_DS",state.adviceStrId );
-	g_theStringDB->GetStringID("NEWS_PROVOKE_WAR_DS",state.newsStrId);
+	stringdb_Get()->GetStringID("SPY_PROVOKE_WAR_DS",state.spyStrId);
+	stringdb_Get()->GetStringID("ADVICE_PROVOKE_WAR_DS",state.adviceStrId );
+	stringdb_Get()->GetStringID("NEWS_PROVOKE_WAR_DS",state.newsStrId);
 
 	diplomat.ConsiderDiplomaticState(foreignerId, state);
 
@@ -219,9 +219,9 @@ STDEHANDLER(MakeFriend_NextDStateEvent)
 	state.priority = 80;
 	g_theDiplomacyDB->GetNamedItem("DIPLOMACY_MAKE_FRIEND",state.dbIndex);
 
-	g_theStringDB->GetStringID("SPY_PROVOKE_WAR_DS",state.spyStrId);
-	g_theStringDB->GetStringID("ADVICE_PROVOKE_WAR_DS",state.adviceStrId );
-	g_theStringDB->GetStringID("NEWS_PROVOKE_WAR_DS",state.newsStrId);
+	stringdb_Get()->GetStringID("SPY_PROVOKE_WAR_DS",state.spyStrId);
+	stringdb_Get()->GetStringID("ADVICE_PROVOKE_WAR_DS",state.adviceStrId );
+	stringdb_Get()->GetStringID("NEWS_PROVOKE_WAR_DS",state.newsStrId);
 
 	diplomat.ConsiderDiplomaticState(foreignerId, state);
 

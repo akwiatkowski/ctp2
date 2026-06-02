@@ -40,9 +40,9 @@ STDEHANDLER(NoThreat_RejectResponseEvent)
 		response.receiverId = receiver;
 		response.senderId = sender;
 
-		g_theStringDB->GetStringID("EXPLAIN_NO_THREAT",response.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_NO_THREAT",response.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_NO_THREAT",response.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_NO_THREAT",response.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_NO_THREAT",response.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_NO_THREAT",response.newsStrId);
 
 		sender_diplomat.ConsiderResponse(receiver, response);
 	}
@@ -95,9 +95,9 @@ STDEHANDLER(ThreatenAlliedInvasion_RejectResponseEvent)
 
 		response.threat.type = THREAT_DECLARE_WAR;
 
-		g_theStringDB->GetStringID("EXPLAIN_NO_THREAT",response.explainStrId);
-		g_theStringDB->GetStringID("ADVICE_NO_THREAT",response.adviceStrId);
-		g_theStringDB->GetStringID("NEWS_NO_THREAT",response.newsStrId);
+		stringdb_Get()->GetStringID("EXPLAIN_NO_THREAT",response.explainStrId);
+		stringdb_Get()->GetStringID("ADVICE_NO_THREAT",response.adviceStrId);
+		stringdb_Get()->GetStringID("NEWS_NO_THREAT",response.newsStrId);
 
 		sender_diplomat.ConsiderResponse(receiver, response);
 	}
@@ -164,9 +164,9 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 				threat_response.threat.arg.cityId = 0;
 			}
 
-			g_theStringDB->GetStringID("EXPLAIN_THREATEN_ATTACK_CITY",threat_response.explainStrId);
-			g_theStringDB->GetStringID("ADVICE_THREATEN_ATTACK_CITY",threat_response.adviceStrId);
-			g_theStringDB->GetStringID("NEWS_THREATEN_ATTACK_CITY",threat_response.newsStrId);
+			stringdb_Get()->GetStringID("EXPLAIN_THREATEN_ATTACK_CITY",threat_response.explainStrId);
+			stringdb_Get()->GetStringID("ADVICE_THREATEN_ATTACK_CITY",threat_response.adviceStrId);
+			stringdb_Get()->GetStringID("NEWS_THREATEN_ATTACK_CITY",threat_response.newsStrId);
 
 			diplomat.ConsiderResponse(receiver, threat_response);
 		}
@@ -193,9 +193,9 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 				response.threat.arg.cityId = 0;
 			}
 
-			g_theStringDB->GetStringID("EXPLAIN_THREATEN_ATTACK_CITY2",response.explainStrId);
-			g_theStringDB->GetStringID("ADVICE_THREATEN_ATTACK_CITY2",response.adviceStrId);
-			g_theStringDB->GetStringID("NEWS_THREATEN_ATTACK_CITY2",response.newsStrId);
+			stringdb_Get()->GetStringID("EXPLAIN_THREATEN_ATTACK_CITY2",response.explainStrId);
+			stringdb_Get()->GetStringID("ADVICE_THREATEN_ATTACK_CITY2",response.adviceStrId);
+			stringdb_Get()->GetStringID("NEWS_THREATEN_ATTACK_CITY2",response.newsStrId);
 
 			diplomat.ConsiderResponse(receiver, response);
 		}

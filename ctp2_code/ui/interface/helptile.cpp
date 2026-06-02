@@ -222,12 +222,12 @@ void helptile_displayData(const MapPoint &p)
 	const Cell *myTile = world_Get()->GetCell(p);
 
 	UnseenCellCarton ucell;
-	if(!g_tiledMap->GetLocalVision()->IsVisible(p)
+	if(!tiledmap_Get()->GetLocalVision()->IsVisible(p)
 	&& !g_fog_toggle
 	&& !g_god
 	&& (player_Get(g_selected_item->GetVisiblePlayer())
 	&& !player_Get(g_selected_item->GetVisiblePlayer())->m_hasGlobalRadar)
-	&& g_tiledMap->GetLocalVision()->GetLastSeen(p, ucell)
+	&& tiledmap_Get()->GetLocalVision()->GetLastSeen(p, ucell)
 	){
 		strcpy(myname, g_theStringDB->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));
 		g_helpTileWindow->TitleText()->SetText( myname );

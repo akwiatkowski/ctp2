@@ -554,7 +554,7 @@ AUI_ERRCODE BattleViewWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 
 AUI_ERRCODE BattleViewWindow::Idle(void)
 {
-	if(!g_tiledMap) {
+	if(!tiledmap_Get()) {
 
 		return AUI_ERRCODE_OK;
 	}

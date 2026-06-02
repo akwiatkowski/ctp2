@@ -15,7 +15,7 @@
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/interface/graphicsscreen.h"
 #include "ui/aui_ctp2/keypress.h"
-#include "gfx/tilesys/tiledmap.h"       // g_tiledMap;
+#include "gfx/tilesys/tiledmap.h"       // tiledmap_Get();
 #include "ctp/civapp.h"
 #include "gfx/spritesys/SpriteGroupList.h"
 
@@ -267,15 +267,15 @@ void graphicsscreen_exitPress(aui_Control *control, uint32 action, uint32 data, 
 
 	if (g_civApp->IsGameLoaded()) {
 		if (s_gridToggled) {
-			if (g_tiledMap) {
-				g_tiledMap->Refresh();
-				g_tiledMap->InvalidateMap();
+			if (tiledmap_Get()) {
+				tiledmap_Get()->Refresh();
+				tiledmap_Get()->InvalidateMap();
 			}
 		}
 		if (s_cityInfluenceToggled || s_politicalBordersToggled) {
-			if (g_tiledMap) {
-				g_tiledMap->Refresh();
-				g_tiledMap->InvalidateMap();
+			if (tiledmap_Get()) {
+				tiledmap_Get()->Refresh();
+				tiledmap_Get()->InvalidateMap();
 			}
 		}
 		if (s_unitAnimToggled) {

@@ -49,7 +49,6 @@ extern StatusWindow				*g_statusWindow;
 extern StatsWindow				*g_statsWindow;
 extern ControlPanelWindow		*g_controlPanel;
 
-extern TiledMap 		*g_tiledMap;
 extern Network			g_network;
 
 extern RECT				g_backgroundViewport;
@@ -161,7 +160,7 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	aui_Surface	*   surface = (back)    ? back->TheSurface() : NULL;
 	aui_Mouse *     mouse   = (g_c3ui)  ? g_c3ui->TheMouse() : NULL;
 
-    if (!mouse || !g_tiledMap)
+    if (!mouse || !tiledmap_Get())
     {
         // Busy initialising: postpone drawing until ready.
         return AUI_ERRCODE_INVALIDPARAM;
@@ -170,35 +169,35 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	if (g_modalWindow > 0)
     {
 		g_screenManager->LockSurface(surface);
-		g_tiledMap->DrawChatText();
+		tiledmap_Get()->DrawChatText();
 		g_screenManager->UnlockSurface();
 
 		return AUI_ERRCODE_OK;
 	}
 
-	g_tiledMap->UpdateMixFromMap(surface);
+	tiledmap_Get()->UpdateMixFromMap(surface);
 
 	if (g_theProfileDB->IsWaterAnim())
     {
-        g_tiledMap->DrawWater();
+        tiledmap_Get()->DrawWater();
     }
 
 	tradepool_Get()->Draw(surface);
-	g_tiledMap->RepaintSprites(surface, g_tiledMap->GetMapViewRect(), false);
+	tiledmap_Get()->RepaintSprites(surface, tiledmap_Get()->GetMapViewRect(), false);
 
 	if (g_director)
     {
 		g_director->GarbageCollectItems();
 	}
 
-	g_tiledMap->DrawUnfinishedMove(surface);
+	tiledmap_Get()->DrawUnfinishedMove(surface);
 
 	POINT pos;
 	pos.y = mouse->Y() - back->Y();
 	if (pos.y < back->Height())
 	{
-		g_tiledMap->DrawHiliteMouseTile(surface);
-		g_tiledMap->DrawLegalMove(surface);
+		tiledmap_Get()->DrawHiliteMouseTile(surface);
+		tiledmap_Get()->DrawLegalMove(surface);
 	}
 
 #ifdef _PLAYTEST
@@ -208,17 +207,17 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	case k_DEBUG_OWNER_CRC:
 		if(DataCheck *dc = datacheck_Get()) {
 			dc->DisplayCRC(surface);
-			g_tiledMap->InvalidateMix();
+			tiledmap_Get()->InvalidateMix();
 		}
 		break;
 	case k_DEBUG_OWNER_NETWORK_CHAT:
 		g_network.DisplayChat(surface);
-		g_tiledMap->InvalidateMix();
+		tiledmap_Get()->InvalidateMix();
 		break;
 #endif
 	case k_DEBUG_OWNER_COMMANDLINE:
 		command_line_Get().DisplayOutput(surface);
-		g_tiledMap->InvalidateMix();
+		tiledmap_Get()->InvalidateMix();
 		break;
     case k_DEBUG_OWNER_FRAME_RATE:
         DisplayFrame (surface);
@@ -228,8 +227,8 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 	}
 #endif // _PLAYTEST
 
-	g_tiledMap->CopyMixDirtyRects(back->GetDirtyList());
-	g_tiledMap->ClearMixDirtyRects();
+	tiledmap_Get()->CopyMixDirtyRects(back->GetDirtyList());
+	tiledmap_Get()->ClearMixDirtyRects();
 
 	return AUI_ERRCODE_OK;
 }

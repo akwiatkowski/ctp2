@@ -10,7 +10,6 @@
 
 #include "ui/interface/workwindow.h"
 
-extern TiledMap *g_tiledMap;
 
 
 WorkWindow::WorkWindow(
@@ -80,7 +79,7 @@ void WorkWindow::MouseMoveInside(aui_MouseEvent *data)
 
     Assert(data);
 
-	g_tiledMap->DrawHilite( FALSE );
+	tiledmap_Get()->DrawHilite( FALSE );
 
 }
 

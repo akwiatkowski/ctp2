@@ -112,7 +112,6 @@ extern sint32 g_ScreenHeight;
 
 
 extern C3UI			*g_c3ui;
-extern TiledMap 	*g_tiledMap;
 
 
 
@@ -795,7 +794,7 @@ void
 SpriteEditWindow::DrawSprite( )
 {
 
-	if ((m_currentSprite!=NULL)&&(g_tiledMap!=NULL))
+	if ((m_currentSprite!=NULL)&&(tiledmap_Get()!=NULL))
 	{
 		RECT rect;
 
@@ -828,9 +827,9 @@ SpriteEditWindow::DrawSprite( )
 
 		Pixel16 blue = pixelutils_RGB(0,0,255);
 
-		g_tiledMap->DrawColorizedOverlayIntoMix(g_tiledMap->GetTileSet()->GetMapIconData(icon), flag.x, flag.y, blue);
+		tiledmap_Get()->DrawColorizedOverlayIntoMix(tiledmap_Get()->GetTileSet()->GetMapIconData(icon), flag.x, flag.y, blue);
 
-		g_tiledMap->AddDirtyRectToMix(rect);
+		tiledmap_Get()->AddDirtyRectToMix(rect);
 	}
 }
 
@@ -841,7 +840,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 	if (m_largeSurface==NULL)
 		return;
 
-	if ((m_currentSprite!=NULL)&&(g_tiledMap!=NULL))
+	if ((m_currentSprite!=NULL)&&(tiledmap_Get()!=NULL))
 	{
 		POINT sav,pt;
 		static int cval=0;
@@ -894,7 +893,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 AUI_ERRCODE SpriteEditWindow::Idle( void )
 {
-	if ((g_c3ui->TheMouse()==NULL)||(g_tiledMap==NULL))
+	if ((g_c3ui->TheMouse()==NULL)||(tiledmap_Get()==NULL))
 		return AUI_ERRCODE_OK;
 
 	sint32 curTime = g_director->GetMasterCurTime();
@@ -942,7 +941,7 @@ AUI_ERRCODE SpriteEditWindow::Idle( void )
 	if (g_c3ui->TheMouse()->Y()<m_mouseChangeY)
 	{
 		MapPoint point;
-		g_tiledMap->GetMouseTilePos(point);
+		tiledmap_Get()->GetMouseTilePos(point);
 		maputils_MapXY2PixelXY(point.x, point.y, &m_drawX, &m_drawY);
 		m_drawX += k_ACTOR_CENTER_OFFSET_X;
 		m_drawY += k_ACTOR_CENTER_OFFSET_Y;

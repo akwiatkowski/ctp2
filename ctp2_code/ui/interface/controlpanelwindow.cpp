@@ -289,7 +289,7 @@ void TurnNextCityButtonActionCallback( aui_Control *control, uint32 action, uint
 		if(g_selected_item->IsAutoCenterOn()) {
 			MapPoint pos;
 			city.GetPos(pos);
-			if(!g_tiledMap->TileIsVisible(pos.x, pos.y))
+			if(!tiledmap_Get()->TileIsVisible(pos.x, pos.y))
 				g_director->AddCenterMap(pos);
 		}
 
@@ -1006,13 +1006,13 @@ void OptionsMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 itemIn
 			break;
 
 	case CP_MENU_ITEM_10:
-		if(g_tiledMap) {
-			g_tiledMap->ZoomOut();
+		if(tiledmap_Get()) {
+			tiledmap_Get()->ZoomOut();
 		}
 		break;
 	case CP_MENU_ITEM_11:
-		if(g_tiledMap) {
-			g_tiledMap->ZoomIn();
+		if(tiledmap_Get()) {
+			tiledmap_Get()->ZoomIn();
 		}
 		break;
 	case	CP_MENU_ITEM_12:
@@ -1678,7 +1678,7 @@ ControlPanelWindow::BeginOrderDelivery(OrderRecord *rec)
 
 	MapPoint pos;
 
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	Army army = UnitPanelGetCurrent();
 
@@ -1793,7 +1793,7 @@ ControlPanelWindow::OrderDeliveryUpdate()
 
 	MapPoint pos;
 
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	if(m_currentOrder==NULL)
 		ClearTargetingMode();
@@ -1874,7 +1874,7 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 
 	MapPoint pos;
 
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 
 	bool const 	hideExpensive	= !g_theProfileDB->GetValueByName("ShowExpensive");
 
@@ -1914,7 +1914,7 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 		}
 		if(player_Get(player_id)->IsExplored(pos)) {
 
-			g_tiledMap->SetTerrainOverlay(m_currentTerrainImpRec,pos,color);
+			tiledmap_Get()->SetTerrainOverlay(m_currentTerrainImpRec,pos,color);
 			tileimptracker_DisplayData(pos, m_currentTerrainImpRec->GetIndex());
 		} else {
 			tileimptracker_DisplayData(pos, -1);
@@ -2120,10 +2120,10 @@ void ControlPanelWindow::ClearTargetingMode()
 	if (CursorManager *cm = cursormanager_Get())
 		cm->SetCursor(CURSORINDEX_DEFAULT);
 
-	if(!g_tiledMap) return;
+	if(!tiledmap_Get()) return;
 
 	MapPoint pos;
-	g_tiledMap->GetMouseTilePos(pos);
+	tiledmap_Get()->GetMouseTilePos(pos);
 	tileimptracker_DisplayData(pos, -1);
 	specialAttackWindow_DisplayData(pos, -1);
 }
@@ -3143,7 +3143,7 @@ void
 ControlPanelWindow::Idle()
 {
 
-	if(g_tiledMap && !g_tiledMap->ReadyToDraw())
+	if(tiledmap_Get() && !tiledmap_Get()->ReadyToDraw())
 		return;
 
 
@@ -3158,9 +3158,9 @@ ControlPanelWindow::Idle()
 	if (m_mainWindow!=NULL)
 		m_mainWindow-> Idle();
 
-	if ((g_tiledMap!=NULL)&&(m_contextMenu!=NULL))
+	if ((tiledmap_Get()!=NULL)&&(m_contextMenu!=NULL))
 	{
-		if (g_tiledMap->IsScrolling())
+		if (tiledmap_Get()->IsScrolling())
 			m_contextMenu->Close();
 	}
 

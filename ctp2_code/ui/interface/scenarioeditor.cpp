@@ -1720,9 +1720,9 @@ void ScenarioEditor::CivAddRemovePlayer(aui_Control *control, uint32 action, uin
 			g_selected_item->SetCurPlayer(pl);
 			g_director->AddCopyVision();
 
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
+			tiledmap_Get()->InvalidateMix();
+			tiledmap_Get()->InvalidateMap();
+			tiledmap_Get()->Refresh();
 			radar_map_Get()->Update();
 			turn_Get()->InformMessages();
 
@@ -2211,7 +2211,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 	if(action != AUI_RANGER_ACTION_VALUECHANGE)
 		return;
 
-	if(!g_tiledMap)
+	if(!tiledmap_Get())
 		return;
 
 	static bool inCallback = false;
@@ -2237,9 +2237,9 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 		g_selected_item->SetCurPlayer(newPlayer);
 		g_director->AddCopyVision();
 
-		g_tiledMap->InvalidateMix();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
+		tiledmap_Get()->InvalidateMix();
+		tiledmap_Get()->InvalidateMap();
+		tiledmap_Get()->Refresh();
 		radar_map_Get()->Update();
 		turn_Get()->InformMessages();
 		MainControlPanel::UpdateCityList();
@@ -2675,8 +2675,8 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 		{
 			MapFile mf;
 			if(mf.Load(filePath)) {
-				g_tiledMap->PostProcessMap(TRUE);
-				g_tiledMap->Refresh();
+				tiledmap_Get()->PostProcessMap(TRUE);
+				tiledmap_Get()->Refresh();
 
 
 				ctp2_DropDown *plgroup = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivControls.Nation");
@@ -3180,7 +3180,7 @@ void ScenarioEditor::ClearWorld(aui_Control *control, uint32 action, uint32 data
 
 	world_Get()->NumberContinents();
 
-	g_tiledMap->PostProcessMap();
+	tiledmap_Get()->PostProcessMap();
 
 	WhackScreen();
 }
@@ -3305,9 +3305,9 @@ void ScenarioEditor::GenerateGoods(aui_Control *control, uint32 action, uint32 d
 		for (sint32 y = 0; y < world_Get()->GetYHeight(); y++) {
 			MapPoint pos(x,y);
 			if(world_Get()->GetGood(pos, good)) {
-				g_tiledMap->PostProcessTile(pos, world_Get()->GetTileInfo(pos));
-				g_tiledMap->TileChanged(pos);
-				g_tiledMap->RedrawTile(&pos);
+				tiledmap_Get()->PostProcessTile(pos, world_Get()->GetTileInfo(pos));
+				tiledmap_Get()->TileChanged(pos);
+				tiledmap_Get()->RedrawTile(&pos);
 			}
 		}
 	}
@@ -3392,8 +3392,8 @@ void ScenarioEditor::FindPosNow(aui_Control *control, uint32 action, uint32 data
 			g_fog_toggle = !g_fog_toggle;
 			WhackScreen();
 		}
-		g_tiledMap->SetHiliteMouseTile(pos);
-		g_tiledMap->DrawHilite(TRUE);
+		tiledmap_Get()->SetHiliteMouseTile(pos);
+		tiledmap_Get()->DrawHilite(TRUE);
 		g_director->AddCenterMap(pos);
 	}
 	else

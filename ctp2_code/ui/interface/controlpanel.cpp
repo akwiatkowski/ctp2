@@ -96,7 +96,6 @@ extern DebugWindow	*g_debugWindow;
 extern WorkWindow	*g_workWindow;
 
 extern SelectedItem				*g_selected_item;
-extern TiledMap					*g_tiledMap;
 
 
 extern ProductionTabControl		*g_cp_productionTab;
@@ -199,8 +198,8 @@ void ZoomPlusButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 {
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-    if (g_tiledMap) {
-		g_tiledMap->ZoomIn();
+    if (tiledmap_Get()) {
+		tiledmap_Get()->ZoomIn();
 	}
 }
 
@@ -208,8 +207,8 @@ void ZoomMinusButtonActionCallback( aui_Control *control, uint32 action, uint32 
 {
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
-	if (g_tiledMap) {
-		g_tiledMap->ZoomOut();
+	if (tiledmap_Get()) {
+		tiledmap_Get()->ZoomOut();
 	}
 }
 

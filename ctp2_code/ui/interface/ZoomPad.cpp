@@ -24,10 +24,10 @@ m_zoomOut(static_cast<ctp2_Button*>(aui_Ldl::GetObject(ldlBlock, "ZoomPad.ZoomOu
 void ZoomPad::Update()
 {
 
-	if(g_tiledMap) {
+	if(tiledmap_Get()) {
 
-		m_zoomIn->Enable(g_tiledMap->CanZoomIn());
-		m_zoomOut->Enable(g_tiledMap->CanZoomOut());
+		m_zoomIn->Enable(tiledmap_Get()->CanZoomIn());
+		m_zoomOut->Enable(tiledmap_Get()->CanZoomOut());
 	}
 }
 
@@ -38,9 +38,9 @@ void ZoomPad::ZoomInButtonActionCallback(aui_Control *control, uint32 action,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	if(g_tiledMap) {
+	if(tiledmap_Get()) {
 
-		g_tiledMap->ZoomIn();
+		tiledmap_Get()->ZoomIn();
 	}
 }
 
@@ -51,8 +51,8 @@ void ZoomPad::ZoomOutButtonActionCallback(aui_Control *control, uint32 action,
 	if(action != static_cast<uint32>(AUI_BUTTON_ACTION_EXECUTE))
 		return;
 
-	if(g_tiledMap) {
+	if(tiledmap_Get()) {
 
-		g_tiledMap->ZoomOut();
+		tiledmap_Get()->ZoomOut();
 	}
 }

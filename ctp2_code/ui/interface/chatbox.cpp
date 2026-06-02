@@ -43,7 +43,7 @@
 #include "ui/aui_ctp2/background.h"
 #include "ui/aui_ctp2/c3_hypertextbox.h"
 #include "ui/aui_ctp2/c3textfield.h"
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "ui/interface/chatbox.h"
 #include "net/general/network.h"                // g_network
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
@@ -63,7 +63,7 @@
 #include "sound/soundmanager.h"           // g_soundManager
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"                  // world_Get()
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/gfx_utils/gfx_options.h"
 #include "gs/events/GameEventManager.h"
 
@@ -354,9 +354,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 
 			g_director->AddCopyVision();
 
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
+			tiledmap_Get()->InvalidateMix();
+			tiledmap_Get()->InvalidateMap();
+			tiledmap_Get()->Refresh();
 			radar_map_Get()->Update();
 			turn_Get()->InformMessages();
 		}
@@ -411,8 +411,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	{
 		if (world_Get()->ImportMap(s + 11))
 		{
-			g_tiledMap->PostProcessMap();
-			g_tiledMap->Refresh();
+			tiledmap_Get()->PostProcessMap();
+			tiledmap_Get()->Refresh();
 		}
 		return TRUE;
 	}

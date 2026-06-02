@@ -70,7 +70,7 @@
 #include "ui/aui_utils/primitives.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "gfx/gfx_utils/gfx_options.h"        // g_graphicsOptions
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap->ColorMagnitudeToRGB()
+#include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()->ColorMagnitudeToRGB()
 
 #include "net/general/network.h"
 
@@ -389,7 +389,7 @@ void ArmyManagerWindow::Update()
 			sint32		r,g,b;
 			uint8		col = m_army.GetData()->GetDebugStringColor();
 
-			g_tiledMap->ColorMagnitudeToRGB(col, &r, &g, &b);
+			tiledmap_Get()->ColorMagnitudeToRGB(col, &r, &g, &b);
 
 			COLORREF	fgColor = RGB(r, g, b);
 			// not used COLORREF	bgColor = RGB(0,0,0);

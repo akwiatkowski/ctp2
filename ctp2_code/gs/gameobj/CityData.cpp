@@ -430,7 +430,7 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_buildCapitalization               (false),
 	m_paidForBuyFront                   (false),
 	m_doUprising                        (UPRISING_CAUSE_NONE),
-	m_turnFounded                       (g_turn ? g_turn->GetRound() : 0),
+	m_turnFounded                       (turn_Get() ? turn_Get()->GetRound() : 0),
 	m_productionLostToFranchise         (0),
 	m_probeRecoveredHere                (false),
 	m_lastCelebrationMsg                (-1),
@@ -1763,7 +1763,7 @@ void CityData::DoLocalPollution()
 	double chance = diff * g_theConstDB->Get(0)->GetLocalPollutionChance();
 
 	if ((chance > 0.10) &&
-		(slicengine_Get()->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, g_turn->GetRound()))) {
+		(slicengine_Get()->GetSegment("080CityPollutionWarning")->TestLastShown(m_owner, 10, turn_Get()->GetRound()))) {
 		SlicObject *so = new SlicObject("080CityPollutionWarning");
 		so->AddCity(m_home_city);
 		so->AddRecipient(m_owner);
@@ -4698,14 +4698,14 @@ bool CityData::BeginTurn()
 
 	if (IsCelebratingHappiness())
 	{
-		if(m_lastCelebrationMsg < 0 || (m_lastCelebrationMsg + 10 < g_turn->GetRound()))
+		if(m_lastCelebrationMsg < 0 || (m_lastCelebrationMsg + 10 < turn_Get()->GetRound()))
 		{
 			SlicObject *so = new SlicObject("40CityIsCelebratingHappiness") ;
 			so->AddCity(m_home_city);
 			so->AddRecipient(m_owner);
 			so->AddPlayer(m_owner);
 			slicengine_Get()->Execute(so);
-			m_lastCelebrationMsg = sint16(g_turn->GetRound());
+			m_lastCelebrationMsg = sint16(turn_Get()->GetRound());
 		}
 
 		player_Get(m_owner)->m_score->AddCelebration(); // Could use something more interesting here
@@ -5572,7 +5572,7 @@ bool CityData::HasForceField() const
 
 void CityData::UseAirport()
 {
-	m_airportLastUsed = g_turn->GetRound();
+	m_airportLastUsed = turn_Get()->GetRound();
 }
 
 sint32 CityData::AirportLastUsed() const
@@ -10737,7 +10737,7 @@ void CityData::InsurgentSpawn()
 
 			if(civrand().Next(10000) < static_cast<sint32>(barbchance * 10000.0)) {
 				// Add some Barbarians nearby cpos.
-				Barbarians::AddBarbarians(cpos, m_owner, false, g_turn->GetRound());
+				Barbarians::AddBarbarians(cpos, m_owner, false, turn_Get()->GetRound());
 				SlicObject *so = new SlicObject("999InsurgentSpawn");
 				so->AddRecipient(m_owner);
 				so->AddCity(m_home_city);

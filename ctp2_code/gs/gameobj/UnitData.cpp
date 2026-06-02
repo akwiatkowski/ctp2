@@ -479,7 +479,7 @@ void UnitData::SetPos(const MapPoint &p, bool &left_map)
 		feattracker_Get()->AddFeat("FEAT_SAILED_AROUND_WORLD", m_owner);
 	}
 
-	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id), g_turn->GetRound())) {
+	if(Wormhole *wh = wormhole_Get(); wh && wh->CheckEnter(Unit(m_id), turn_Get()->GetRound())) {
 		left_map = true;
 		SetFlag(k_UDF_HAS_LEFT_MAP);
 		SetFlag(k_UDF_IN_WORMHOLE);
@@ -1730,19 +1730,19 @@ void BringCityIntoAge(sint32 age, Unit c)
 	switch (age)
 	{
 		case 5:
-			if (545 < g_turn->GetRound()) return;
+			if (545 < turn_Get()->GetRound()) return;
 			break;
 		case 4:
-			if (470 < g_turn->GetRound()) return;
+			if (470 < turn_Get()->GetRound()) return;
 			break;
 		case 3:
-			if (400 < g_turn->GetRound()) return;
+			if (400 < turn_Get()->GetRound()) return;
 			break;
 		case 2:
-			if (270 < g_turn->GetRound()) return;
+			if (270 < turn_Get()->GetRound()) return;
 			break;
 		case 1:
-			if (145 < g_turn->GetRound()) return;
+			if (145 < turn_Get()->GetRound()) return;
 			break;
 		default:
 			break;
@@ -3250,7 +3250,7 @@ void UnitData::EndTurn()
 		&& cellowner != m_owner
 		){
 			render_observer::AddCenterMap(m_pos);
-			Barbarians::AddBarbarians(m_pos, cellowner, FALSE, g_turn->GetRound());
+			Barbarians::AddBarbarians(m_pos, cellowner, FALSE, turn_Get()->GetRound());
 			SlicObject *so = new SlicObject("999GuerrillaSpawn");
 			so->AddRecipient(m_owner);
 			so->AddUnitRecord(GetType());

@@ -696,7 +696,7 @@ STDEHANDLER(CreateBuildingEvent)
 	}
 	if(player_Get(player)->GetGaiaController()->HasMaxSatsBuilt()) {
 		seg = slicengine_Get()->GetSegment("GCMaxSatsReached");
-		if(seg && !seg->TestLastShown(player, 10000, g_turn->GetRound())) {
+		if(seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound())) {
 			so = new SlicObject("GCMaxSatsReached");
 			so->AddRecipient(player);
 			so->AddPlayer(player);
@@ -706,7 +706,7 @@ STDEHANDLER(CreateBuildingEvent)
 
 	if(player_Get(player)->GetGaiaController()->HasMinSatsBuilt()) {
 		seg = slicengine_Get()->GetSegment("GCMinSatsReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
+		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound()))
 		{
 			so = new SlicObject("GCMinSatsReachedUs");
 			so->AddPlayer(player);
@@ -722,7 +722,7 @@ STDEHANDLER(CreateBuildingEvent)
 
 	if(player_Get(player)->GetGaiaController()->HasMinCoresBuilt()) {
 		seg = slicengine_Get()->GetSegment("GCMinCoresReachedUs");
-		if (seg && !seg->TestLastShown(player, 10000, g_turn->GetRound()))
+		if (seg && !seg->TestLastShown(player, 10000, turn_Get()->GetRound()))
 		{
 			so = new SlicObject("GCMinCoresReachedUs");
 			so->AddRecipient(player);

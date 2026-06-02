@@ -226,7 +226,7 @@ class UnitActor;
 #include "gs/utility/TurnCnt.h"
 extern Diplomacy_Log *  g_theDiplomacyLog;
 extern UnitAstar *      g_theUnitAstar;
-extern TurnCount *      g_turn;
+
 
 BOOL    g_smokingCrack      = TRUE;
 BOOL    g_useOrderQueues    = TRUE;
@@ -1690,7 +1690,7 @@ void ArmyData::BeginTurn()
     }
 
     if(m_flags & k_CULF_IN_SPACE) {
-        if(g_turn->GetSessionRound() >= m_reentryTurn) {
+        if(turn_Get()->GetSessionRound() >= m_reentryTurn) {
             if(g_network.IsHost()) {
                 g_network.Block(m_owner);
                 g_network.Enqueue(new NetInfo(NET_INFO_CODE_REENTER, m_id));
@@ -4653,7 +4653,7 @@ ORDER_RESULT ArmyData::ClearTarget()
 
 void ArmyData::SetReentry(sint32 turns, MapPoint &pos)
 {
-	m_reentryTurn = g_turn->GetSessionRound() + turns;
+	m_reentryTurn = turn_Get()->GetSessionRound() + turns;
 	m_reentryPos = pos;
 	m_flags |= k_CULF_IN_SPACE;
 }
@@ -6031,7 +6031,7 @@ void ArmyData::AutoAddOrders(UNIT_ORDER_TYPE order, Path *path,
 		ClearOrders();
 	}
 
-	m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
+	m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && player_Get(m_owner)) {
@@ -6063,7 +6063,7 @@ void ArmyData::AutoAddOrdersWrongTurn(UNIT_ORDER_TYPE order, Path *path,
 {
 	ClearOrders();
 
-	m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
+	m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
 	StopPirating();
 
 	if(m_owner >= 0 && m_owner < k_MAX_PLAYERS && player_Get(m_owner)) {
@@ -6124,7 +6124,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	    (point.IsNextTo(curOrder->m_path->GetEnd())) ||
 		(point == curOrder->m_path->GetEnd()))) {
 
-		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, NULL, point, argument, g_turn ? g_turn->GetRound() : 0);
+		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, NULL, point, argument, turn_Get() ? turn_Get()->GetRound() : 0);
 		GameEventArgList *args = new GameEventArgList();
 
 		args->Add(new GameEventArgument(GEA_Army, m_id));
@@ -6153,7 +6153,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 			ClearOrders();
 		}
 
-		m_orders->AddTail(new Order(order, path, point, argument, g_turn ? g_turn->GetRound() : 0));
+		m_orders->AddTail(new Order(order, path, point, argument, turn_Get() ? turn_Get()->GetRound() : 0));
 		if(order == UNIT_ORDER_ADD_EVENT) {
 			Order *o = m_orders->GetTail();
 			o->m_eventType = passedEvent;
@@ -6999,7 +6999,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 						return true;
 					}
 
-					if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
+					if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, turn_Get()->GetRound())) {
 						so = new SlicObject("49WorldPollutionNuclearWar") ;
 						so->AddCity(city);
 						so->AddAllRecipients();
@@ -7074,7 +7074,7 @@ bool ArmyData::CheckSpecialUnitMove(const MapPoint &pos)
 
 
 
-                    if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, g_turn->GetRound())) {
+                    if (slicengine_Get()->GetSegment("49WorldPollutionNuclearWar")->TestLastShown(m_owner, 10, turn_Get()->GetRound())) {
                         so = new SlicObject("49WorldPollutionNuclearWar") ;
                         so->AddAllRecipients() ;
                         slicengine_Get()->Execute(so) ;
@@ -8658,8 +8658,8 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 
 	Unit c = world_Get()->GetCity(pos);
 
-	if( (g_turn->IsHotSeat()
-	||   g_turn->IsEmail()
+	if( (turn_Get()->IsHotSeat()
+	||   turn_Get()->IsEmail()
 	||   g_theProfileDB->GetUseAttackMessages()
 	    )
 	&&   safe_player(defender.GetOwner())->IsHuman()
@@ -9861,7 +9861,7 @@ bool ArmyData::DoLeaveOurLandsCheck(const MapPoint &newPos,
 				}
 				else
 				{
-					ag.AccessData()->RecipientIsViolating(cell->GetOwner(), true, g_turn->GetRound());
+					ag.AccessData()->RecipientIsViolating(cell->GetOwner(), true, turn_Get()->GetRound());
 				}
 			}
 		}
@@ -11423,7 +11423,7 @@ void ArmyData::BarbarianSpawning()
 				(barbhorde) <= (barbmax^2) // create some kind of max
 			){
 				if(civrand().Next(10000) < risk->GetBarbarianChance() * 10000) {
-					Barbarians::AddBarbarians(m_pos, meat, true, g_turn->GetRound());
+					Barbarians::AddBarbarians(m_pos, meat, true, turn_Get()->GetRound());
 				}
 			}
 		}

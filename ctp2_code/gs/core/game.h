@@ -85,18 +85,23 @@ public:
     // CityPool: no such class exists today; cities are owned per-player.
     // Re-add when a pool is introduced.
 
+    // Trampoline accessors — bodies in game.cpp.  These let the legacy
+    // foo_Get/foo_Set free functions forward into Game's owned storage
+    // so callers that haven't migrated to game.Get*() still work.
+    UnitPool * GetUnitsPtr();
+    void       SetUnitsPtr(UnitPool *p);
+    ArmyPool * GetArmiesPtr();
+    void       SetArmiesPtr(ArmyPool *p);
+
     Pollution& GetPollution() { return *m_pollution; }
     const Pollution& GetPollution() const { return *m_pollution; }
-    // Null-safe raw pointer accessors — used by the pollution_Get /
-    // pollution_Set trampoline so the legacy accessor names continue to
-    // work for callers that haven't migrated to game.GetPollution() yet.
-    // Bodies live in game.cpp since SetPollutionPtr's m_pollution.reset()
-    // needs the complete Pollution type for unique_ptr's deleter.
     Pollution * GetPollutionPtr();
     void        SetPollutionPtr(Pollution *p);
 
     TopTen& GetTopTen() { return *m_topten; }
     const TopTen& GetTopTen() const { return *m_topten; }
+    TopTen * GetTopTenPtr();
+    void     SetTopTenPtr(TopTen *p);
 
     GameSettings& GetSettings() { return *m_settings; }
     const GameSettings& GetSettings() const { return *m_settings; }

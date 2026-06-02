@@ -81,30 +81,12 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
             m_pollution = std::make_unique<Pollution>();
         }
     };
-    auto adoptOrCreateTopTen = [&]() {
-        if (topten_Get()) {
-            m_topten.reset(topten_Get());
-        } else {
-            m_topten = std::make_unique<TopTen>();
-            topten_Set(m_topten.get());
-        }
-    };
-    auto adoptOrCreateUnitPool = [&]() {
-        if (unitpool_Get()) {
-            m_unitPool.reset(unitpool_Get());
-        } else {
-            m_unitPool = std::make_unique<UnitPool>();
-            unitpool_Set(m_unitPool.get());
-        }
-    };
-    auto adoptOrCreateArmyPool = [&]() {
-        if (armypool_Get()) {
-            m_armyPool.reset(armypool_Get());
-        } else {
-            m_armyPool = std::make_unique<ArmyPool>();
-            armypool_Set(m_armyPool.get());
-        }
-    };
+    // These subsystems now trampoline through Game — gameinit's
+    // *_Set(new X()) calls populate m_x directly.  ensureX creates the
+    // instance for the unit-test path (no gameinit).
+    auto ensureTopTen   = [&]() { if (!m_topten)   m_topten   = std::make_unique<TopTen>();   };
+    auto ensureUnitPool = [&]() { if (!m_unitPool) m_unitPool = std::make_unique<UnitPool>(); };
+    auto ensureArmyPool = [&]() { if (!m_armyPool) m_armyPool = std::make_unique<ArmyPool>(); };
 
     // Reduce boilerplate for subsystems that follow the same pattern
     // (no-arg ctor, standard Get/Set accessor pair).
@@ -121,9 +103,9 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     adoptOrCreateTurn();
     adoptOrCreateRand();
     ensurePollution();
-    adoptOrCreateTopTen();
-    adoptOrCreateUnitPool();
-    adoptOrCreateArmyPool();
+    ensureTopTen();
+    ensureUnitPool();
+    ensureArmyPool();
 
     // Subsystems with clean ctors (no global reads): adopt-or-create.
     ADOPT_OR_CREATE(m_messagePool,            MessagePool,            messagepool_Get,            messagepool_Set);
@@ -209,17 +191,13 @@ void Game::Cleanup() {
     messagepool_Set(nullptr);           m_messagePool.reset();
     gamesettings_Set(nullptr);          m_settings.reset();
 
-    topten_Set(nullptr);
     m_topten.reset();
 
     // pollution storage now lives entirely in m_pollution; resetting
     // the unique_ptr also nulls the trampoline-routed legacy accessor.
     m_pollution.reset();
 
-    armypool_Set(nullptr);
     m_armyPool.reset();
-
-    unitpool_Set(nullptr);
     m_unitPool.reset();
 
     // Players[]: null the legacy global first so gameinit_Cleanup's
@@ -244,13 +222,15 @@ void Game::Cleanup() {
     m_turn.reset();
 }
 
-Pollution * Game::GetPollutionPtr() {
-    return m_pollution.get();
-}
+Pollution * Game::GetPollutionPtr()             { return m_pollution.get(); }
+void        Game::SetPollutionPtr(Pollution *p) { m_pollution.reset(p);     }
 
-void Game::SetPollutionPtr(Pollution *p) {
-    m_pollution.reset(p);
-}
+TopTen *   Game::GetTopTenPtr()           { return m_topten.get();   }
+void       Game::SetTopTenPtr(TopTen *p)  { m_topten.reset(p);       }
+UnitPool * Game::GetUnitsPtr()            { return m_unitPool.get(); }
+void       Game::SetUnitsPtr(UnitPool *p) { m_unitPool.reset(p);     }
+ArmyPool * Game::GetArmiesPtr()           { return m_armyPool.get(); }
+void       Game::SetArmiesPtr(ArmyPool *p){ m_armyPool.reset(p);     }
 
 Player* Game::GetPlayer(sint32 idx) {
     if (!m_playerArr || idx < 0 || idx >= k_MAX_PLAYERS) return nullptr;

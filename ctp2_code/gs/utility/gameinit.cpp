@@ -179,14 +179,33 @@ static World                *g_theWorld=NULL;
 
 World * world_Get(void)                       { return g_theWorld; }
 void    world_Set(World *p)                   { g_theWorld = p; }
-static UnitPool             *g_theUnitPool=NULL;
-
-UnitPool * unitpool_Get(void)               { return g_theUnitPool; }
-void       unitpool_Set(UnitPool *p)        { g_theUnitPool = p; }
-static ArmyPool             *g_theArmyPool=NULL;
-
-ArmyPool * armypool_Get(void) { return g_theArmyPool; }
-ArmyPool * armypool_Set(ArmyPool *p) { ArmyPool *prev = g_theArmyPool; g_theArmyPool = p; return prev; }
+// UnitPool / ArmyPool storage lives in Ctp2::Game; accessors trampoline.
+UnitPool * unitpool_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetUnitsPtr() : nullptr;
+}
+void unitpool_Set(UnitPool *p) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (game) game->SetUnitsPtr(p);
+    else      delete p;
+}
+ArmyPool * armypool_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetArmiesPtr() : nullptr;
+}
+ArmyPool * armypool_Set(ArmyPool *p) {
+    // Legacy signature returns the previous pointer (no live callers
+    // use the return value, but preserve the shape for now).
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (!game) { delete p; return nullptr; }
+    ArmyPool * prev = game->GetArmiesPtr();
+    game->SetArmiesPtr(p);
+    return prev;
+}
 static Player               **g_player=NULL;
 
 Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
@@ -259,10 +278,18 @@ static InstallationQuadTree *g_theInstallationTree = NULL;
 
 InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
-static TopTen               *g_theTopTen = NULL;
-
-TopTen * topten_Get(void)                     { return g_theTopTen; }
-void     topten_Set(TopTen *p)                { g_theTopTen = p; }
+// TopTen storage lives in Ctp2::Game; accessors trampoline.
+TopTen * topten_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetTopTenPtr() : nullptr;
+}
+void topten_Set(TopTen *p) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (game) game->SetTopTenPtr(p);
+    else      delete p;
+}
 
 TurnCount                   *g_turn = NULL;
 
@@ -1279,11 +1306,11 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	                                                 sint16(g_theWorld->GetYHeight()),
 	                                                 g_theWorld->IsYwrap());
 
-	g_theUnitPool = new UnitPool();
-	Assert(g_theUnitPool);
+	unitpool_Set(new UnitPool());
+	Assert(unitpool_Get());
 
-	g_theArmyPool = new ArmyPool();
-	Assert(g_theArmyPool);
+	armypool_Set(new ArmyPool());
+	Assert(armypool_Get());
 
 	g_theTradePool = new TradePool();
 
@@ -1293,8 +1320,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	pollution_Set(new Pollution());
 	Assert(pollution_Get());
 
-	g_theTopTen = new TopTen();
-	Assert(g_theTopTen);
+	topten_Set(new TopTen());
+	Assert(topten_Get());
 
 
 
@@ -1743,23 +1770,23 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive && loadEverything) {
 		gameinit_log->debug("step: new UnitPool(archive)");
-		g_theUnitPool = new UnitPool(*archive);
+		unitpool_Set(new UnitPool(*archive));
 	} else {
-		g_theUnitPool = new UnitPool();
+		unitpool_Set(new UnitPool());
 	}
-	Assert(g_theUnitPool);
+	Assert(unitpool_Get());
 
 	if(archive && loadEverything) {
 		gameinit_log->debug("step: new ArmyPool(archive)");
-		g_theArmyPool = new ArmyPool(*archive);
+		armypool_Set(new ArmyPool(*archive));
 	} else {
-		g_theArmyPool = new ArmyPool();
+		armypool_Set(new ArmyPool());
 	}
-	Assert(g_theArmyPool);
+	Assert(armypool_Get());
 
 	if(archive && loadEverything) {
 		gameinit_log->debug("step: RebuildQuadTree");
-		g_theUnitPool->RebuildQuadTree();
+		unitpool_Get()->RebuildQuadTree();
 	}
 
 	if(archive && loadEverything) {
@@ -1799,13 +1826,13 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
-		g_theTopTen = new TopTen(*archive);
+		topten_Set(new TopTen(*archive));
 	}
     else
     {
-		g_theTopTen = new TopTen();
+		topten_Set(new TopTen());
     }
-	Assert(g_theTopTen);
+	Assert(topten_Get());
 
 	SPLASH_STRING("Initializing SLIC Engine...");
 
@@ -2677,17 +2704,13 @@ void gameinit_Cleanup(void)
 	allocated::clear(g_theTerrainImprovementPool);
 	delete slicengine_Get();
 	slicengine_Set(NULL);
-	allocated::clear(g_theTopTen);
-	{
-		// Pollution is owned by Ctp2::Game; CivApp::CleanupGame already
-		// reset m_pollution above, so this allocated::clear pattern is
-		// a no-op safety net (pollution_Get returns null → delete null).
-		Pollution * p = pollution_Get();
-		allocated::clear(p);
-		pollution_Set(p);
-	}
+	// TopTen / UnitPool / ArmyPool / Pollution are owned by Ctp2::Game;
+	// CivApp::CleanupGame has already reset m_topten/m_unitPool/etc., so
+	// the trampoline-routed Get returns null and these become no-ops.
+	{ TopTen   * p = topten_Get();   allocated::clear(p); topten_Set(p);   }
+	{ Pollution * p = pollution_Get(); allocated::clear(p); pollution_Set(p); }
 	allocated::clear(g_theTradePool);
-	allocated::clear(g_theUnitPool);
+	{ UnitPool * p = unitpool_Get(); allocated::clear(p); unitpool_Set(p); }
 	allocated::clear(g_theInstallationTree);
 	allocated::clear(g_theUnitTree);
 	player_view::Cleanup();
@@ -2696,7 +2719,7 @@ void gameinit_Cleanup(void)
 	allocated::clear(g_turn);
 	allocated::clear(g_theWorld);
 	allocated::clear(g_theGameSettings);
-	allocated::clear(g_theArmyPool);
+	{ ArmyPool * p = armypool_Get(); allocated::clear(p); armypool_Set(p); }
 	allocated::clear(g_theWonderTracker);
 	allocated::clear(g_theAchievementTracker);
 
@@ -2742,8 +2765,7 @@ sint32 gameinit_ResetForNetwork()
 	delete g_theTradePool;
 	g_theTradePool = new TradePool;
 
-	delete g_theUnitPool;
-	g_theUnitPool = new UnitPool;
+	unitpool_Set(new UnitPool);  // Set() deletes the previous instance
 
 	delete g_theTradePool;
 	g_theTradePool = new TradePool;
@@ -2751,8 +2773,7 @@ sint32 gameinit_ResetForNetwork()
 	delete g_theTradeOfferPool;
 	g_theTradeOfferPool = new TradeOfferPool;
 
-	delete g_theArmyPool;
-	g_theArmyPool = new ArmyPool;
+	armypool_Set(new ArmyPool);
 
     delete g_theOrderPond;
 	g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);
@@ -2805,14 +2826,12 @@ void gameinit_ResetMapSize()
     delete g_theTradePool;
     g_theTradePool = new TradePool;
 
-    delete g_theUnitPool;
-    g_theUnitPool = new UnitPool;
+    unitpool_Set(new UnitPool);
 
     delete g_theTradePool;
     g_theTradePool = new TradePool;
 
-    delete g_theArmyPool;
-    g_theArmyPool = new ArmyPool;
+    armypool_Set(new ArmyPool);
 
     delete g_theOrderPond;
     g_theOrderPond = new Pool<Order>(INITIAL_CHUNK_LIST_SIZE);

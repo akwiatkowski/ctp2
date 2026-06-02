@@ -62,13 +62,7 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     };
 
     ensure(m_turn,                   [&]{ return std::make_unique<TurnCount>(numPlayers, initialYear); });
-    // Rand: legacy file-static, adopt into m_rand (see comment below).
-    if (rand_ptr() && !m_rand) {
-        m_rand.reset(rand_ptr());
-    } else if (!m_rand) {
-        m_rand = std::make_unique<RandomGenerator>(randSeed);
-        rand_ptr_Set(m_rand.get());
-    }
+    ensure(m_rand,                   [&]{ return std::make_unique<RandomGenerator>(randSeed); });
     ensure(m_pollution,              []{ return std::make_unique<Pollution>();              });
     ensure(m_topten,                 []{ return std::make_unique<TopTen>();                 });
     ensure(m_unitPool,               []{ return std::make_unique<UnitPool>();               });
@@ -159,7 +153,6 @@ void Game::Cleanup() {
 
     m_world.reset();
 
-    rand_ptr_Set(nullptr);
     m_rand.reset();
 
     m_turn.reset();

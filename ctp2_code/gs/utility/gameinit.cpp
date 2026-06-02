@@ -214,10 +214,7 @@ Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : 
 Player ** player_arr_Get(void)                { return g_player; }
 void      player_arr_Set(Player **p)          { g_player = p; }
 PointerList<Player>         *g_deadPlayer = NULL;
-// RandomGenerator: file-static (ScopedRand fixture swaps stack instances).
-static RandomGenerator *g_rand = NULL;
-RandomGenerator * rand_ptr(void)                   { return g_rand; }
-void              rand_ptr_Set(RandomGenerator *p) { g_rand = p; }
+GAME_TRAMPOLINE(rand_ptr, rand_ptr_Set, Rand, RandomGenerator)
 GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
 GAME_TRAMPOLINE(tradeofferpool_Get, tradeofferpool_Set, TradeOffers, TradeOfferPool)
 static QuadTree<Unit>       *g_theUnitTree = NULL;

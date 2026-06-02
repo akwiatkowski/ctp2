@@ -24,34 +24,43 @@
 
 #include "ctp/c3.h"                 // sint32
 #include "gs/utility/RandGen.h"     // RandomGenerator, rand_ptr()
+#include "ctp/civapp.h"             // CivApp (trampoline host)
 
+// After the rand_ptr trampoline migration, rand_ptr_Set adopts ownership
+// into the active Game's m_rand.  ScopedRand can no longer stack-allocate
+// the RNG and Set its address — that would let the trampoline's
+// unique_ptr::reset try to delete a stack object.
+//
+// Instead, ScopedRand owns a process-local CivApp on the stack; its
+// eager-constructed Game container hosts the seed RNG via the
+// trampoline.  civapp_Get() is swapped to point at this local app for
+// the scope's duration so rand_ptr() routes correctly.
 class ScopedRand
 {
 public:
     explicit ScopedRand(sint32 seed)
-        : m_local(seed)
-        , m_saved(rand_ptr())
+        : m_savedApp(civapp_Get())
     {
-        rand_ptr_Set(&m_local);
+        civapp_Set(&m_app);
+        rand_ptr_Set(new RandomGenerator(seed));  // Game adopts ownership
     }
 
     ~ScopedRand()
     {
-        rand_ptr_Set(m_saved);
+        rand_ptr_Set(nullptr);   // Game::m_rand.reset(null) deletes the seed RNG
+        civapp_Set(m_savedApp);
     }
 
-    // Non-copyable, non-movable — the RNG state is positional and copying
-    // would silently double-install the same buffer.
     ScopedRand(ScopedRand const &)             = delete;
     ScopedRand & operator=(ScopedRand const &) = delete;
     ScopedRand(ScopedRand &&)                  = delete;
     ScopedRand & operator=(ScopedRand &&)      = delete;
 
-    RandomGenerator & get() { return m_local; }
+    RandomGenerator & get() { return *rand_ptr(); }
 
 private:
-    RandomGenerator   m_local;
-    RandomGenerator * m_saved;
+    CivApp     m_app;        // local trampoline host
+    CivApp *   m_savedApp;
 };
 
 #endif  // CTP2_TEST_SCOPED_RAND_H

@@ -82,7 +82,7 @@
 #include "gs/fileio/gamefile.h"     // save_file_version_Get()
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"  // g_player
+#include "gs/gameobj/Player.h"  // player_Get()
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/gameobj/buildingutil.h"
@@ -332,7 +332,7 @@ void UnitActor::AddVision(void) {
   STOMPCHECK();
 #endif
   if (!m_isUnseenCellActor) {
-    g_player[m_playerNum]->m_vision->AddVisible(GetPos(), m_unitVisionRange);
+    player_Get(m_playerNum)->m_vision->AddVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -342,7 +342,7 @@ void UnitActor::RemoveVision(void) {
 #endif
 
   if (!m_isUnseenCellActor) {
-    g_player[m_playerNum]->m_vision->RemoveVisible(GetPos(), m_unitVisionRange);
+    player_Get(m_playerNum)->m_vision->RemoveVisible(GetPos(), m_unitVisionRange);
   }
 }
 
@@ -368,7 +368,7 @@ void UnitActor::GetIDAndType(sint32 owner,
                              sint32* spriteID,
                              GROUPTYPE* groupType,
                              sint32 citySprite) const {
-  bool isCity = g_theUnitDB->Get(unitType, g_player[owner]->GetGovernmentType())
+  bool isCity = g_theUnitDB->Get(unitType, player_Get(owner)->GetGovernmentType())
                     ->GetHasPopAndCanBuild();
 
   if (isCity) {
@@ -1072,7 +1072,7 @@ void UnitActor::DrawFortifying(bool fogged) {
 //
 // Globals    : g_tiledMap
 //				g_theCityStyleDB
-//				g_player
+//				player_Get()
 //				g_theTerrainDB
 //				g_theWorld
 //
@@ -1095,7 +1095,7 @@ void UnitActor::DrawCityWalls(
 
   if (styleRec) {
     AgeCityStyleRecord const* ageStyleRec =
-        styleRec->GetAgeStyle(g_player[unit->GetOwner()]->m_age);
+        styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
 
     if (ageStyleRec) {
       bool const isWater = g_theWorld->IsWater(GetPos());
@@ -1166,7 +1166,7 @@ void UnitActor::DrawCityWalls(
 //
 // Globals    : g_tiledMap
 //				g_theCityStyleDB
-//				g_player
+//				player_Get()
 //				g_theTerrainDB
 //				g_theWorld
 //
@@ -1201,7 +1201,7 @@ void UnitActor::DrawForceField(bool fogged) {
 
   if (styleRec) {
     AgeCityStyleRecord const* ageStyleRec =
-        styleRec->GetAgeStyle(g_player[unit->GetOwner()]->m_age);
+        styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
 
     if (ageStyleRec) {
       bool const isWater = g_theWorld->IsWater(GetPos());
@@ -1386,9 +1386,9 @@ bool UnitActor::Draw(bool fogged) {
 
     bool forcefieldsEverywhere = false;
 
-    if (g_player[m_playerNum]) {
+    if (player_Get(m_playerNum)) {
       if (wonderutil_GetForcefieldEverywhere(
-              g_player[m_playerNum]->m_builtWonders)) {
+              player_Get(m_playerNum)->m_builtWonders)) {
         forcefieldsEverywhere = m_unitID.IsValid() && m_unitID.IsCity();
       }
     }
@@ -1914,8 +1914,8 @@ void UnitActor::DrawSpecialIndicators(
     sint32 civ = -1;
     // Add civilization flags here - moved flags here and edited the
     // heralds to put numbers on national flags emod 2-21-2007
-    if (g_player[displayedOwner] != NULL) {
-      civ = g_player[displayedOwner]->GetCivilisation()->GetCivilisation();
+    if (player_Get(displayedOwner) != NULL) {
+      civ = player_Get(displayedOwner)->GetCivilisation()->GetCivilisation();
     } else {
       for (PointerList<Player>::Walker walk(g_deadPlayer); walk.IsValid();
            walk.Next()) {
@@ -2370,7 +2370,7 @@ void UnitActor::SetMoveActors(const UnitActorVec& moveActors) {
 //
 // Globals    : g_tiledMap
 //              g_theCityStyleDB
-//              g_player
+//              player_Get()
 //              g_theTerrainDB
 //              g_theWorld
 //

@@ -5,8 +5,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Score.h"
 
-extern Player **g_player;
-
 NetStrengths::NetStrengths(sint32 player)
 {
 	m_player = player;
@@ -16,10 +14,10 @@ void NetStrengths::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_STRENGTH_ID);
-	Strengths *str = g_player[m_player]->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths;
 
 	PUSHLONG(m_player);
-	PUSHLONG(g_player[m_player]->m_current_round);
+	PUSHLONG(player_Get(m_player)->m_current_round);
 
 	sint32 i;
 	for(i = sint32(STRENGTH_CAT_NONE) + 1; i < sint32(STRENGTH_CAT_MAX); i++) {
@@ -35,14 +33,14 @@ void NetStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_STRENGTH_ID);
 
 	PULLLONG(m_player);
-	Assert(g_player[m_player]);
-	if(!g_player[m_player])
+	Assert(player_Get(m_player));
+	if(!player_Get(m_player))
 		return;
 
 	sint32 round;
 	PULLLONG(round);
 
-	Strengths *str = g_player[m_player]->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths;
 
 	sint32 i;
 	for(i = sint32(STRENGTH_CAT_NONE) + 1; i < sint32(STRENGTH_CAT_MAX); i++) {
@@ -62,7 +60,7 @@ void NetFullStrengths::Packetize(uint8 *buf, uint16 &size)
 {
 	size = 0;
 	PUSHID(k_PACKET_FULL_STRENGTHS_ID);
-	Strengths *str = g_player[m_player]->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths;
 	PUSHLONG(m_player);
 	PUSHLONG(m_startRound);
 	PUSHLONG(m_endRound);
@@ -85,14 +83,14 @@ void NetFullStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_FULL_STRENGTHS_ID);
 
 	PULLLONG(m_player);
-	Assert(g_player[m_player]);
-	if(!g_player[m_player])
+	Assert(player_Get(m_player));
+	if(!player_Get(m_player))
 		return;
 
 	PULLLONG(m_startRound);
 	PULLLONG(m_endRound);
 
-	Strengths *str = g_player[m_player]->m_strengths;
+	Strengths *str = player_Get(m_player)->m_strengths;
 
 	sint32 n;
 	PULLLONG(n);
@@ -117,7 +115,7 @@ void NetScores::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 	PUSHID(k_PACKET_SCORES_ID);
 
-	Score *sc = g_player[m_player]->m_score;
+	Score *sc = player_Get(m_player)->m_score;
 	Assert(sc);
 
 	PUSHLONG(m_player);
@@ -141,10 +139,10 @@ void NetScores::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(m_player < 0 || m_player >= k_MAX_PLAYERS)
 		return;
 
-	if(!g_player[m_player])
+	if(!player_Get(m_player))
 		return;
 
-	Score *sc = g_player[m_player]->m_score;
+	Score *sc = player_Get(m_player)->m_score;
 	Assert(sc);
 
 	PULLLONG(sc->m_cities_recaptured);

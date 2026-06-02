@@ -106,7 +106,7 @@ void gslog_LogPlayerStats(sint32 player)
 	if(!g_theProfileDB->GetEnableLogs())
 		return;
 
-	Player *pl = g_player[player];
+	Player *pl = player_Get(player);
 
 	if (!pl) return;
 
@@ -222,7 +222,7 @@ void gslog_LogPlayerStats(sint32 player)
 	gslog_print("  Total accumulated science: %d\n", pl->m_science->GetLevel());
 
 	sint32 riot, content, happy;
-	sint32 totalCities = g_player[player]->CountCityHappiness(riot, content, happy);
+	sint32 totalCities = player_Get(player)->CountCityHappiness(riot, content, happy);
 	gslog_print("  Total cities: %d\n", totalCities);
 	gslog_print("    Rioting: %d\n", riot);
 	gslog_print("    Content: %d\n", content);
@@ -231,21 +231,21 @@ void gslog_LogPlayerStats(sint32 player)
 	sint32 pop = 0;
 	sint32 partialPop = 0;
 	sint32 i;
-	for(i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
-		pop += g_player[player]->m_all_cities->Access(i).PopCount();
-		partialPop += g_player[player]->m_all_cities->Access(i).CD()->GetPartialPopulation();
+	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
+		pop += player_Get(player)->m_all_cities->Access(i).PopCount();
+		partialPop += player_Get(player)->m_all_cities->Access(i).CD()->GetPartialPopulation();
 	}
 
 	sint32 totalPartialPop = (pop * k_PEOPLE_PER_POPULATION) + partialPop;
 	gslog_print("  Total population: %d/%d, +%d\n", pop, totalPartialPop, totalPartialPop - s_populationHack[player]);
 	s_populationHack[player] = totalPartialPop;
 
-	sint32 totalUnits = g_player[player]->m_all_units->Num();
+	sint32 totalUnits = player_Get(player)->m_all_units->Num();
 	sint32 totalMilUnits = 0;
 	sint32 totalOffense = 0;
 
 	for(i = 0; i < totalUnits; i++) {
-		const UnitRecord *rec = g_player[player]->m_all_units->Access(i).GetDBRec();
+		const UnitRecord *rec = player_Get(player)->m_all_units->Access(i).GetDBRec();
 		if(rec->GetAttack() > 0.001) {
 			totalMilUnits++;
 			totalOffense += (sint32)rec->GetAttack();
@@ -256,15 +256,15 @@ void gslog_LogPlayerStats(sint32 player)
 	gslog_print("  Total Attack Strength: %d\n", totalOffense);
 
 	double s;
-	g_player[player]->m_tax_rate->GetScienceTaxRate(s);
+	player_Get(player)->m_tax_rate->GetScienceTaxRate(s);
 	gslog_print("  Settings:\n");
 	gslog_print("     Science Tax: %d\n", AsPercentage(s));
-	gslog_print("              PW: %d\n", sint32(g_player[player]->m_materialsTax * 100));
-	gslog_print("         Workday: %d\n", g_player[player]->m_global_happiness->GetUnitlessWorkday());
-	gslog_print("           Wages: %d\n", g_player[player]->m_global_happiness->GetUnitlessWages());
-	gslog_print("         Rations: %d\n", g_player[player]->m_global_happiness->GetUnitlessRations());
+	gslog_print("              PW: %d\n", sint32(player_Get(player)->m_materialsTax * 100));
+	gslog_print("         Workday: %d\n", player_Get(player)->m_global_happiness->GetUnitlessWorkday());
+	gslog_print("           Wages: %d\n", player_Get(player)->m_global_happiness->GetUnitlessWages());
+	gslog_print("         Rations: %d\n", player_Get(player)->m_global_happiness->GetUnitlessRations());
 
-	gslog_print("  Current research: %s\n", g_theAdvanceDB->Get(g_player[player]->m_advances->GetResearching())->GetNameText());
+	gslog_print("  Current research: %s\n", g_theAdvanceDB->Get(player_Get(player)->m_advances->GetResearching())->GetNameText());
 
 #endif
 }

@@ -134,12 +134,12 @@ STDEHANDLER(DesireGold_MotivationEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	if(!g_player[playerId])
+	if(!player_Get(playerId))
 		return GEV_HD_Continue;
 
-	sint32 rank = g_player[playerId]->GetRank(STRENGTH_CAT_GOLD);
-	sint32 needed_reserves = g_player[playerId]->m_gold->GetIncome() * 2;
-	bool low_reserves = (needed_reserves < g_player[playerId]->GetGold());
+	sint32 rank = player_Get(playerId)->GetRank(STRENGTH_CAT_GOLD);
+	sint32 needed_reserves = player_Get(playerId)->m_gold->GetIncome() * 2;
+	bool low_reserves = (needed_reserves < player_Get(playerId)->GetGold());
 	bool capitalist_personality = (diplomat.GetPersonality()->GetDiscoveryEconomic());
 
 	if ( rank < 75 || low_reserves || capitalist_personality)
@@ -168,7 +168,7 @@ STDEHANDLER(DesireMakeFriend_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -206,14 +206,14 @@ STDEHANDLER(StopPiracy_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 	const MapAnalysis & map = MapAnalysis::GetMapAnalysis();
 	Motivation motivation;
 
-	Player *player_ptr = g_player[playerId];
+	Player *player_ptr = player_Get(playerId);
 	Assert(player_ptr != NULL);
 
 	sint32 piracy_loss = map.TotalPiracyLoss(playerId);
@@ -243,7 +243,7 @@ STDEHANDLER(EnlistFriends_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -276,7 +276,7 @@ STDEHANDLER(PressAdvantage_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -325,7 +325,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -333,7 +333,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 	sint32 enemies = diplomat.GetEnemyCount();
 	sint32 at_war_count = diplomat.AtWarCount();
 
-	sint32 rank = g_player[playerId]->GetRank(STRENGTH_CAT_KNOWLEDGE);
+	sint32 rank = player_Get(playerId)->GetRank(STRENGTH_CAT_KNOWLEDGE);
 	sint32 priority;
 	Motivation motivation;
 
@@ -347,7 +347,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 		diplomat.ConsiderMotivation(motivation);
 	}
 
-	rank = g_player[playerId]->GetRank(STRENGTH_CAT_MILITARY);
+	rank = player_Get(playerId)->GetRank(STRENGTH_CAT_MILITARY);
 	if ( at_war_count > 0 || rank < 75 ||
 		 (rank < 50 && diplomat.GetPersonality()->GetDiscoveryMilitary()) )
 	{
@@ -358,7 +358,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 		diplomat.ConsiderMotivation(motivation);
 	}
 
-	rank = g_player[playerId]->GetRank(STRENGTH_CAT_TRADE);
+	rank = player_Get(playerId)->GetRank(STRENGTH_CAT_TRADE);
 
 	if ( rank < 75 ||
 		 (rank < 50 && diplomat.GetPersonality()->GetDiscoveryEconomic()) )
@@ -383,7 +383,7 @@ STDEHANDLER(FearPollution_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (g_player[playerId] == NULL)
+	if (player_Get(playerId) == NULL)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);

@@ -49,7 +49,7 @@
 #include "gs/utility/ErrMsg.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "GovernmentRecord.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_Get()
 #include "gs/database/StrDB.h"              // g_theStringDB
 #include "gs/gameobj/Unit.h"
 #include "WonderRecord.h"
@@ -96,11 +96,11 @@ sint32 buildingutil_GetTotalUpkeep(const uint64 built_improvements,
 				// This doesn't compile E and just adding some parentheses doesn't work either
 				// so E do your work. ;)
 				// And make the code more readable.
-		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnitWagesReadiness * g_player[owner]->GetNumUnits() * g_player[owner]->m_readiness->GetSupportModifier(g_player[owner]->GetGovernmentType()) * g_player[owner]->GetWagesPerPerson();
-		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerCity * g_player[owner]->GetNumCities() * g_theGovernmentDB->Get(g_player[owner]->GetGovernmentType())->GetTooManyCitiesThreshold();
-		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerCitySq * g_player[owner]->GetNumCities() *  g_player[owner]->GetNumCities();
-		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnit * g_player[owner]->GetNumUnits();
-		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnitSupport * g_player[owner]->m_readiness->TotalUnitGoldSupport() * g_player[owner]->GetWagesPerPerson() * g_player[owner]->m_readiness->GetSupportModifier(g_player[owner]->GetGovernmentType());
+		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnitWagesReadiness * player_Get(owner)->GetNumUnits() * player_Get(owner)->m_readiness->GetSupportModifier(player_Get(owner)->GetGovernmentType()) * player_Get(owner)->GetWagesPerPerson();
+		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerCity * player_Get(owner)->GetNumCities() * g_theGovernmentDB->Get(player_Get(owner)->GetGovernmentType())->GetTooManyCitiesThreshold();
+		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerCitySq * player_Get(owner)->GetNumCities() *  player_Get(owner)->GetNumCities();
+		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnit * player_Get(owner)->GetNumUnits();
+		//		upkeep += buildingutil_Get(i, owner)->GetUpkeepPerUnitSupport * player_Get(owner)->m_readiness->TotalUnitGoldSupport() * player_Get(owner)->GetWagesPerPerson() * player_Get(owner)->m_readiness->GetSupportModifier(player_Get(owner)->GetGovernmentType());
 				// End EMOD
 			}
 		}
@@ -160,10 +160,10 @@ void buildingutil_GetHappinessIncrement(const uint64 built_improvements,
      sint32 &bonus, const sint32 owner)
 {
 	double wonderCathedralIncrease = 0.0;
-	if(g_player[owner])
+	if(player_Get(owner))
 	{
 		wonderCathedralIncrease = double(wonderutil_GetIncreaseCathedrals(
-			g_player[owner]->m_builtWonders)) / 100.0;
+			player_Get(owner)->m_builtWonders)) / 100.0;
 	}
 
 	bonus = 0;
@@ -551,10 +551,10 @@ bool buildingutil_GetCommercePercent(const uint64 built_improvements,
                                      double &percent, const sint32 owner)
 {
 	double wonderBrokerageIncrease = 0;
-	if(g_player[owner])
+	if(player_Get(owner))
 	{
 		wonderBrokerageIncrease = double(wonderutil_GetIncreaseBrokerages(
-			g_player[owner]->m_builtWonders)) / 100.0;
+			player_Get(owner)->m_builtWonders)) / 100.0;
 	}
 
 	percent = 0;
@@ -692,11 +692,11 @@ bool buildingutil_IsObsolete(sint32 building_type, const sint32 owner)
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 	{
-		if(!g_player[p]) continue;
+		if(!player_Get(p)) continue;
 
 		for(sint32 o = 0; o < nObsolete; o++)
 		{
-			if(g_player[p]->HasAdvance(rec->GetObsoleteAdvanceIndex(o)))
+			if(player_Get(p)->HasAdvance(rec->GetObsoleteAdvanceIndex(o)))
 				return true;
 		}
 	}
@@ -822,7 +822,7 @@ bool buildingutil_GetShowCityIconTop(const uint64 built_improvements, const sint
 
 const BuildingRecord * buildingutil_Get(const sint32 type, const sint32 playerId)
 {
-	if(Player * player = g_player[playerId])
+	if(Player * player = player_Get(playerId))
 	{
 		return g_theBuildingDB->Get(type, player->GetGovernmentType());
 	}

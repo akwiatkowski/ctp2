@@ -118,7 +118,7 @@ bool CellUnitList::CanEnter(const MapPoint &point) const
 		if((m_moveIntersection & k_BIT_MOVEMENT_TYPE_SHALLOW_WATER) &&
 		   !(m_moveIntersection & k_BIT_MOVEMENT_TYPE_WATER) &&
 		   (env & k_BIT_MOVEMENT_TYPE_WATER) &&
-		   wonderutil_GetAllBoatsDeepWater(g_player[m_array[0].GetOwner()]->m_builtWonders)) {
+		   wonderutil_GetAllBoatsDeepWater(player_Get(m_array[0].GetOwner())->m_builtWonders)) {
 			return true;
 		}
 
@@ -131,14 +131,14 @@ bool CellUnitList::CanEnter(const MapPoint &point) const
 			if((env & (moveType << k_SHIFT_ENV_MOVEMENT_TYPE)) ||
 			   ((moveType & k_BIT_MOVEMENT_TYPE_AIR)) ||
 			   ((moveType & k_BIT_MOVEMENT_TYPE_LAND) && (env & k_MASK_ENV_ROAD))) {
-				// wonderutil_GetAllBoatsDeepWater(g_player[GetOwner()]->m_builtWonders)) { //add allunits beach or land wonder option?
+				// wonderutil_GetAllBoatsDeepWater(player_Get(GetOwner())->m_builtWonders)) { //add allunits beach or land wonder option?
 
 				continue;
 			} else {
 				if((moveType & k_BIT_MOVEMENT_TYPE_SHALLOW_WATER) &&
 				   !(moveType & k_BIT_MOVEMENT_TYPE_WATER) &&
 				   (env & k_BIT_MOVEMENT_TYPE_WATER) &&
-				   wonderutil_GetAllBoatsDeepWater(g_player[GetOwner()]->m_builtWonders)) {
+				   wonderutil_GetAllBoatsDeepWater(player_Get(GetOwner())->m_builtWonders)) {
 					continue;
 				}
 				return false;
@@ -278,12 +278,12 @@ bool CellUnitList::IsEnemy(PLAYER_INDEX owner) const
 {
 	sint32 myOwner = GetOwner();
 	if(g_network.IsActive() && g_network.TeamsEnabled() &&
-	   g_player[myOwner] && g_player[owner] &&
-	   g_player[myOwner]->m_networkGroup == g_player[owner]->m_networkGroup) {
+	   player_Get(myOwner) && player_Get(owner) &&
+	   player_Get(myOwner)->m_networkGroup == player_Get(owner)->m_networkGroup) {
 		return false;
 	}
 
-	uint32 a = ~(g_player[m_array[0].GetOwner()]->GetMaskAlliance());
+	uint32 a = ~(player_Get(m_array[0].GetOwner())->GetMaskAlliance());
 	uint32 b = (owner >= 0 && owner < 32) ? (1u << owner) : 0u;
 
 	return (a & b) != 0;
@@ -345,7 +345,7 @@ bool CellUnitList::CanBeExpelled()
 //				isResyncReported	: invalid units do not have to be reported
 //
 // Globals    : g_selected_item		: currently selected item on screen
-//				g_player			: players
+//				player_Get()			: players
 //				g_theWorld			: map information
 //				g_network			: network handler (for multiplayer)
 //				g_god				: when set, everything is visible
@@ -388,7 +388,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 			if (u.IsSameMovementType(moveTypes)	&&	// move types match
 				// cell visible
 				((u.GetVisibility() & (0x01 << looker))						||
-				 (g_player[looker] && g_player[looker]->m_hasGlobalRadar)	||
+				 (player_Get(looker) && player_Get(looker)->m_hasGlobalRadar)	||
 				 g_god || g_fog_toggle
 			    )									&&
 			    // selected, awake, or out in the open
@@ -579,7 +579,7 @@ void CellUnitList::DoVictoryEnslavement(sint32 origOwner)
 				GetPos(slpos);
 
 				Unit hc;
-				sint32 r = g_player[m_array[0].GetOwner()]->
+				sint32 r = player_Get(m_array[0].GetOwner())->
 					GetSlaveCity(slpos, hc);
 
 				Assert(r && hc.IsValid());
@@ -687,13 +687,13 @@ bool CellUnitList::CanMoveIntoCell(const MapPoint &pos,
 			if(m_flags & k_CULF_CANT_CAPTURE_CITY)
 				return false;
 
-			if(myOwner == PLAYER_INDEX_VANDALS && wonderutil_GetProtectFromBarbarians(g_player[cityOwner]->m_builtWonders)) {
+			if(myOwner == PLAYER_INDEX_VANDALS && wonderutil_GetProtectFromBarbarians(player_Get(cityOwner)->m_builtWonders)) {
 				return false;
 			}
 
 			if (!IsEnemy(cityOwner) ||
-			   g_player[myOwner]->WillViolateCeaseFire(cityOwner) ||
-			   g_player[myOwner]->WillViolatePact(cityOwner)) {
+			   player_Get(myOwner)->WillViolateCeaseFire(cityOwner) ||
+			   player_Get(myOwner)->WillViolatePact(cityOwner)) {
 				alliedCity = true;
 				return false;
 			}
@@ -780,7 +780,7 @@ bool CellUnitList::CanBeCargoPodded() const
 {
 	sint32 i;
 	sint32 cargoPodType = -1;
-	sint32 gov = g_player[GetOwner()]->GetGovernmentType();
+	sint32 gov = player_Get(GetOwner())->GetGovernmentType();
 	for(i = 0; i < g_theUnitDB->NumRecords(); i++) {
 		if(g_theUnitDB->Get(i, gov)->GetCargoPod()) {
 			cargoPodType = i;

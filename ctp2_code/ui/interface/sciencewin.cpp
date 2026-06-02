@@ -87,7 +87,7 @@
 #include "ui/interface/debugwindow.h"
 
 #include "gs/gameobj/UnitData.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get()
 #include "gs/gameobj/PlayHap.h"
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
 #include "gs/gameobj/Sci.h"
@@ -208,7 +208,7 @@ void sciencewin_SciButtonCallback( aui_Control *control, uint32 action, uint32 d
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if ( (c3_Button *)control == g_scienceWin->PlusButton() ) {
 
@@ -766,7 +766,7 @@ void EmbassyListItem::Update(void)
 
 	c3_Static *subItem;
 
-	g_player[m_index]->GetPluralCivName( name );
+	player_Get(m_index)->GetPluralCivName( name );
 
 	subItem = (c3_Static *)GetChildByIndex(0);
 	subItem->SetText( name );
@@ -912,7 +912,7 @@ void AdvanceListItem::Update(void)
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
-	if ( g_player[curPlayer] && g_player[curPlayer]->HasAdvance(m_index) ) {
+	if ( player_Get(curPlayer) && player_Get(curPlayer)->HasAdvance(m_index) ) {
 		subIcon->SetColor( g_colorSet->ComputePlayerColor(curPlayer) );
 		subIcon->SetMapIcon( MAPICON_FLAG );
 	}
@@ -934,12 +934,12 @@ void AdvanceListItem::Update(void)
 	for ( i = 0;i < k_MAX_PLAYERS;i++ ) {
 		if ( i != curPlayer ) {
 
-			if ( g_player[i] && g_player[curPlayer]->HasEmbassyWith(i) ) {
+			if ( player_Get(i) && player_Get(curPlayer)->HasEmbassyWith(i) ) {
 				subIcon = (c3_Icon *)GetChildByIndex(x+++3);
 
 				if (subIcon) {
 
-					if ( g_player[i]->HasAdvance(m_index) ) {
+					if ( player_Get(i)->HasAdvance(m_index) ) {
 						subIcon->SetColor( g_colorSet->ComputePlayerColor(i) );
 						subIcon->SetMapIcon( MAPICON_FLAG );
 					}
@@ -1300,9 +1300,9 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	MBCHAR str[_MAX_PATH];
 
 	sint32 curPlayer = g_selected_item->GetVisiblePlayer();
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
-	sint32 researching = g_player[curPlayer]->m_advances->GetResearching();
+	sint32 researching = player_Get(curPlayer)->m_advances->GetResearching();
 
 	BOOL alreadyHas = p->HasAdvance(p->m_advances->GetResearching());
 
@@ -1376,7 +1376,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 
 	UpdateList();
 
-	g_player[curPlayer]->GetPluralCivName( str );
+	player_Get(curPlayer)->GetPluralCivName( str );
 	m_playerLabel[0]->SetText( str );
 	m_playerLabel[0]->Show();
 	m_playerFlag[0]->SetMapIcon( MAPICON_FLAG );
@@ -1385,8 +1385,8 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	sint32 x = 1;
 	for ( sint32 i = 0;i < k_MAX_PLAYERS;i++ ) {
 		if ( i != curPlayer ) {
-			if ( g_player[i] && g_player[curPlayer]->HasEmbassyWith(i) && x < k_EXTRA_PLAYERS) {
-				g_player[i]->GetPluralCivName( str );
+			if ( player_Get(i) && player_Get(curPlayer)->HasEmbassyWith(i) && x < k_EXTRA_PLAYERS) {
+				player_Get(i)->GetPluralCivName( str );
 				m_playerLabel[x]->SetText( str );
 				m_playerLabel[x]->Show();
 				m_playerFlag[x]->SetMapIcon( MAPICON_FLAG );
@@ -1420,14 +1420,14 @@ void ScienceWin::UpdateList(void)
 
 	for ( sint32 i = 0;i < num;i++ ) {
 
-		if ( g_player[curPlayer]->HasAdvance(i) ) {
+		if ( player_Get(curPlayer)->HasAdvance(i) ) {
 			AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
 			m_advanceList->AddItem( (c3_ListItem *)item );
 		}
 		else {
 			for ( sint32 j = 0;j < k_MAX_PLAYERS;j++ ) {
 				if ( j != curPlayer ) {
-					if ( g_player[j] && g_player[curPlayer]->HasEmbassyWith(j) && g_player[j]->HasAdvance(i) ) {
+					if ( player_Get(j) && player_Get(curPlayer)->HasEmbassyWith(j) && player_Get(j)->HasAdvance(i) ) {
 						AdvanceListItem *item = new AdvanceListItem( &errcode, i, ldlBlock );
 						m_advanceList->AddItem( (c3_ListItem *)item );
 						break;

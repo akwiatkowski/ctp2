@@ -626,8 +626,13 @@ CivApp::CivApp()
     m_inBackground          (false),
     m_isKeyboardScrolling   (false),
     m_keyboardScrollingKey  (0),
-    m_game                  (nullptr)
+    m_game                  (std::make_unique<Ctp2::Game>())
 {
+    // Game container is constructed eagerly so accessor trampolines
+    // (e.g. pollution_Get → m_game->GetPollutionPtr()) work for the
+    // entire CivApp lifetime, including the gameinit_Initialize window
+    // that runs before NewGame.  The Game starts empty (all subsystems
+    // null); NewGame populates them.
 }
 
 // Out-of-line dtor — Ctp2::Game is forward-declared in civapp.h, so
@@ -2029,12 +2034,10 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 690 );
 
-	// Allocate per-session Ctp2::Game container.  gameinit_Initialize
-	// has already created the legacy globals (g_turn, g_thePollution,
-	// topten_Get(), etc.); the container's own NewGame() instantiates
-	// its TurnCount alongside.  During the long-running globals refactor
-	// they coexist; callers will migrate to game.GetTurn() incrementally.
-	m_game = std::make_unique<Ctp2::Game>();
+	// m_game was constructed eagerly in CivApp's ctor; NewGame just
+	// populates its subsystems for this session.  After CleanupGame()
+	// runs we keep the empty container alive so the next session can
+	// reuse it.
 	m_game->NewGame(
 		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
@@ -2355,7 +2358,6 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 780 );
 
 	// See comment at the matching site in InitializeGameHeadless.
-	m_game = std::make_unique<Ctp2::Game>();
 	m_game->NewGame(
 		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)
@@ -2506,13 +2508,12 @@ void CivApp::CleanupGameUI(void)
 
 void CivApp::CleanupGame(bool keepScenInfo)
 {
-	// Reset the Ctp2::Game container before the legacy gameinit cleanup
-	// runs.  Game::Cleanup() resets only the subsystems Game owns
-	// (TurnCount today); the legacy globals are torn down by
-	// gameinit_Cleanup() below.
+	// Clear per-session subsystems before legacy gameinit_Cleanup() runs.
+	// The Game container itself is owned by CivApp for its full lifetime
+	// (constructed eagerly in CivApp's ctor) — Cleanup() just empties it
+	// so the next NewGame can repopulate.
 	if (m_game) {
 		m_game->Cleanup();
-		m_game.reset();
 	}
 
 	gameinit_CleanupMessages();
@@ -3495,7 +3496,6 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	}
 
 	// See comment at the matching site in InitializeGameHeadless.
-	m_game = std::make_unique<Ctp2::Game>();
 	m_game->NewGame(
 		profiledb_Get()->GetNPlayers(),
 		diffutil_GetYearFromTurn(gamesettings_Get()->GetDifficulty(), 0)

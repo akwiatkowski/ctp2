@@ -75,6 +75,8 @@ auto gameinit_log = civlog::Get("gameinit");
 #include "ConstRecord.h"
 #include "gs/gameobj/Diffcly.h"   // diffutil_GetYearFromTurn
 #include "gs/core/game_observer.h"     // g_gameObservers
+#include "gs/core/game.h"              // Ctp2::Game (trampoline target for pollution_Get/Set)
+#include "ctp/civapp.h"                // civapp_Get → CivApp::GetGame
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "ai/ctpai.h"
 #include "gs/database/DB.h"
@@ -207,10 +209,28 @@ static QuadTree<Unit>       *g_theUnitTree = NULL;
 
 QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
-static Pollution            *g_thePollution=NULL;
+// Pollution storage lives in Ctp2::Game::m_pollution; the accessors below
+// trampoline through civapp_Get()->GetGame() so the legacy names continue
+// to work for callers that haven't migrated to game.GetPollution() yet.
 
-Pollution * pollution_Get(void)               { return g_thePollution; }
-void        pollution_Set(Pollution *p)       { g_thePollution = p; }
+Pollution * pollution_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetPollutionPtr() : nullptr;
+}
+void pollution_Set(Pollution *p) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (game) {
+        game->SetPollutionPtr(p);
+    } else {
+        // No live Game container — caller fired pre-CivApp or post-dtor.
+        // Drop the pointer on the floor (matches the previous legacy
+        // behaviour of leaving g_thePollution = nullptr); the caller's
+        // `new Pollution()` would leak, which is no worse than before.
+        delete p;
+    }
+}
 static DiplomaticRequestPool *g_theDiplomaticRequestPool=NULL;
 
 DiplomaticRequestPool * diplomaticrequestpool_Get(void) { return g_theDiplomaticRequestPool; }
@@ -1270,8 +1290,8 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	g_theTradeOfferPool = new TradeOfferPool();
 	Assert(g_theTradeOfferPool);
 
-	g_thePollution = new Pollution() ;
-	Assert(g_thePollution);
+	pollution_Set(new Pollution());
+	Assert(pollution_Get());
 
 	g_theTopTen = new TopTen();
 	Assert(g_theTopTen);
@@ -1772,10 +1792,10 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	Assert(g_theTradeOfferPool);
 
 	if (archive && loadEverything)
-		g_thePollution = new Pollution(*archive);
+		pollution_Set(new Pollution(*archive));
 	else
-		g_thePollution = new Pollution();
-	Assert(g_thePollution);
+		pollution_Set(new Pollution());
+	Assert(pollution_Get());
 
 	if (archive && loadEverything && (save_file_version_Get() < 55))
     {
@@ -2658,7 +2678,14 @@ void gameinit_Cleanup(void)
 	delete slicengine_Get();
 	slicengine_Set(NULL);
 	allocated::clear(g_theTopTen);
-	allocated::clear(g_thePollution);
+	{
+		// Pollution is owned by Ctp2::Game; CivApp::CleanupGame already
+		// reset m_pollution above, so this allocated::clear pattern is
+		// a no-op safety net (pollution_Get returns null → delete null).
+		Pollution * p = pollution_Get();
+		allocated::clear(p);
+		pollution_Set(p);
+	}
 	allocated::clear(g_theTradePool);
 	allocated::clear(g_theUnitPool);
 	allocated::clear(g_theInstallationTree);

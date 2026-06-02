@@ -72,12 +72,13 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
             rand_ptr_Set(m_rand.get());
         }
     };
-    auto adoptOrCreatePollution = [&]() {
-        if (pollution_Get()) {
-            m_pollution.reset(pollution_Get());
-        } else {
+    auto ensurePollution = [&]() {
+        // pollution_Set() now trampolines into m_pollution, so by the
+        // time NewGame runs in production gameinit has already
+        // populated m_pollution.  In unit-test context (no gameinit)
+        // create a fresh instance so callers can rely on GetPollution.
+        if (!m_pollution) {
             m_pollution = std::make_unique<Pollution>();
-            pollution_Set(m_pollution.get());
         }
     };
     auto adoptOrCreateTopTen = [&]() {
@@ -119,7 +120,7 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
 
     adoptOrCreateTurn();
     adoptOrCreateRand();
-    adoptOrCreatePollution();
+    ensurePollution();
     adoptOrCreateTopTen();
     adoptOrCreateUnitPool();
     adoptOrCreateArmyPool();
@@ -211,7 +212,8 @@ void Game::Cleanup() {
     topten_Set(nullptr);
     m_topten.reset();
 
-    pollution_Set(nullptr);
+    // pollution storage now lives entirely in m_pollution; resetting
+    // the unique_ptr also nulls the trampoline-routed legacy accessor.
     m_pollution.reset();
 
     armypool_Set(nullptr);
@@ -240,6 +242,14 @@ void Game::Cleanup() {
 
     turn_Set(nullptr);
     m_turn.reset();
+}
+
+Pollution * Game::GetPollutionPtr() {
+    return m_pollution.get();
+}
+
+void Game::SetPollutionPtr(Pollution *p) {
+    m_pollution.reset(p);
 }
 
 Player* Game::GetPlayer(sint32 idx) {

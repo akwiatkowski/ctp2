@@ -1075,4 +1075,16 @@ private:
 	typedef std::vector<CityDist> CityDistQueue;
 };
 
+// Session-singleton accessors for the per-player array.
+// Mirror the pattern of world_Get / gevmanager_Get / slicengine_Get.
+//   player_Get(i)     — returns g_player[i] (null-safe; returns NULL if
+//                       the array hasn't been allocated yet).
+//   player_arr_Get()  — returns the raw array pointer (for non-indexed
+//                       reads like `if (player_arr_Get())`).
+//   player_arr_Set(p) — reseats the array pointer (used by gameinit /
+//                       Game::NewGame).
+Player *  player_Get(sint32 i);
+Player ** player_arr_Get(void);
+void      player_arr_Set(Player **p);
+
 #endif

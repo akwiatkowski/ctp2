@@ -185,6 +185,10 @@ static ArmyPool             *g_theArmyPool=NULL;
 
 ArmyPool * armypool_Get(void) { return g_theArmyPool; }
 Player                      **g_player=NULL;
+
+Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
+Player ** player_arr_Get(void)                { return g_player; }
+void      player_arr_Set(Player **p)          { g_player = p; }
 PointerList<Player>         *g_deadPlayer = NULL;
 static RandomGenerator      *g_rand=NULL;
 

@@ -104,7 +104,7 @@ Message MessagePool::Create(PLAYER_INDEX owner, PLAYER_INDEX sender, MESSAGE_TYP
 	newData = new MessageData(newRequest, owner, sender, type, msg, g_turn ? g_turn->GetYear() : 0) ;
 	Insert(newData) ;
 
-	g_player[owner]->AddMessage(newRequest) ;
+	player_Get(owner)->AddMessage(newRequest) ;
 	DoNetwork(newData);
 
 	return (newRequest) ;
@@ -130,7 +130,7 @@ Message MessagePool::Create(PLAYER_INDEX owner, MBCHAR *msg)
 	newData = new MessageData(newMessage, owner, PLAYER_INDEX_INVALID, 0, msg, g_turn ? g_turn->GetYear() : 0) ;
 	Insert(newData) ;
 
-	g_player[owner]->AddMessage(newMessage) ;
+	player_Get(owner)->AddMessage(newMessage) ;
 
 	DoNetwork(newData);
 
@@ -149,7 +149,7 @@ Message MessagePool::Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title)
 	if(title)
 		newData->SetTitle(title);
 
-	g_player[owner]->AddMessage(newMessage) ;
+	player_Get(owner)->AddMessage(newMessage) ;
 
 	DoNetwork(newData);
 
@@ -163,7 +163,7 @@ Message MessagePool::Create(PLAYER_INDEX owner, MessageData *copy)
 	newData = new MessageData(newMessage, copy);
 	newData->SetOwner(owner);
 	Insert(newData);
-	g_player[owner]->AddMessage(newMessage);
+	player_Get(owner)->AddMessage(newMessage);
 
 
 

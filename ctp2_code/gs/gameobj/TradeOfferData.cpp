@@ -39,8 +39,6 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 
-extern Player **g_player;
-
 void TradeOfferData::Serialize(CivArchive &archive)
 {
 	uint8 haveChild;
@@ -114,7 +112,7 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 		if(m_fromCity.SendSlaveTo(destCity)) {
 			Gold giveAmount;
 			giveAmount.SetLevel(m_askingResource);
-			g_player[player]->GiveGold(m_fromCity.GetOwner(), giveAmount);
+			player_Get(player)->GiveGold(m_fromCity.GetOwner(), giveAmount);
 			return TRUE;
 		}
 		return FALSE;
@@ -127,13 +125,13 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 	}
 
 	TradeRoute fromRoute, toRoute;
-	fromRoute = g_player[m_fromCity.GetOwner()]->CreateTradeRoute(
+	fromRoute = player_Get(m_fromCity.GetOwner())->CreateTradeRoute(
 		m_fromCity, m_offerType, m_offerResource, destCity, destCity.GetOwner(), m_askingResource);
 
 	if (fromRoute.IsValid())
     {
 #ifdef RECIPROCAL_ROUTES
-	    toRoute = g_player[player]->CreateTradeRoute(sourceCity,
+	    toRoute = player_Get(player)->CreateTradeRoute(sourceCity,
 												     m_askingType,
 												     m_askingResource,
 												     m_toCity,

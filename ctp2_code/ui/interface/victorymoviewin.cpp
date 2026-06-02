@@ -63,7 +63,6 @@ extern SoundManager		*g_soundManager;
 extern SelectedItem		*g_selected_item;
 
 #include "gs/gameobj/Player.h"
-extern Player			**g_player;
 
 VictoryMovieWindow		*g_victoryMovieWindow = NULL;
 
@@ -227,8 +226,8 @@ void CloseVictoryMovieAction::Execute(aui_Control *control, uint32 action, uint3
 		EndGame *endGame = NULL;
 
 		sint32 p = g_selected_item->GetVisiblePlayer();
-		if (g_player[p] != NULL)
-			endGame = g_player[p]->m_endGame;
+		if (player_Get(p) != NULL)
+			endGame = player_Get(p)->m_endGame;
 
 
 	}

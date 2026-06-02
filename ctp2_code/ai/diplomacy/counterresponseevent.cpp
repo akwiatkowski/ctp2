@@ -59,7 +59,7 @@ STDEHANDLER(ThreatenAttackCity_CounterResponseEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
-	if (!g_player[sender] || !g_player[receiver])
+	if (!player_Get(sender) || !player_Get(receiver))
 		return GEV_HD_Continue;
 
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
@@ -152,7 +152,7 @@ STDEHANDLER(PayForCeasefire_CounterResponseEvent)
 
 	if ( response.counter.second_type == PROPOSAL_OFFER_GIVE_GOLD &&
 		 receiver_result.gold < at_risk_value * 1.6 &&
-		 receiver_result.gold < g_player[sender]->GetGold())
+		 receiver_result.gold < player_Get(sender)->GetGold())
 	{
 		sender_diplomat.ConsiderResponse(receiver, RESPONSE_ACCEPT, accept_priority);
 		return GEV_HD_Continue;
@@ -541,7 +541,7 @@ STDEHANDLER(ReciprocateAction_CounterResponseEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
-	if (!g_player[sender] || !g_player[receiver])
+	if (!player_Get(sender) || !player_Get(receiver))
 		return GEV_HD_Continue;
 
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
@@ -586,7 +586,7 @@ STDEHANDLER(ReciprocateAction_CounterResponseEvent)
 	sint32 sender_piracy = map_analysis.GetPiracyIncomeByPlayer(sender, receiver);
 
 	DIPLOMATIC_STRENGTH sender_strength =
-		g_player[sender]->GetRelativeStrength(receiver);
+		player_Get(sender)->GetRelativeStrength(receiver);
 
 	if (receiver_response.counter.first_type == PROPOSAL_REQUEST_WITHDRAW_TROOPS)
 	{

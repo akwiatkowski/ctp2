@@ -107,8 +107,8 @@ STDEHANDLER(ProvokeWar_NextDStateEvent)
 	if (!args->GetPlayer(1, foreignerId))
 		return GEV_HD_Continue;
 
-	Player * foreigner_ptr = g_player[foreignerId];
-	Player * player_ptr = g_player[playerId];
+	Player * foreigner_ptr = player_Get(foreignerId);
+	Player * player_ptr = player_Get(playerId);
 
 	if (foreigner_ptr == NULL || player_ptr == NULL)
 		return GEV_HD_Continue;
@@ -177,8 +177,8 @@ STDEHANDLER(MakeFriend_NextDStateEvent)
 	if (!args->GetPlayer(1, foreignerId))
 		return GEV_HD_Continue;
 
-	Player * foreigner_ptr = g_player[foreignerId];
-	Player * player_ptr = g_player[playerId];
+	Player * foreigner_ptr = player_Get(foreignerId);
+	Player * player_ptr = player_Get(playerId);
 
 	if (foreigner_ptr == NULL || player_ptr == NULL)
 		return GEV_HD_Continue;

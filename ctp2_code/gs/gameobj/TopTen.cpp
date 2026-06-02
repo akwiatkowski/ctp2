@@ -5,7 +5,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"         // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/gameobj/UnitData.h"
 #include "gs/world/World.h"
 
@@ -145,12 +145,12 @@ void TopTen::CalculateBiggestCities(void)
 
 	for (sint32 plyr = 0; plyr < k_MAX_PLAYERS; plyr++)
 	{
-		if (g_player[plyr] && !g_player[plyr]->IsDead())
+		if (player_Get(plyr) && !player_Get(plyr)->IsDead())
 		{
-			sint32 numCities = g_player[plyr]->GetAllCitiesList()->Num();
+			sint32 numCities = player_Get(plyr)->GetAllCitiesList()->Num();
 			for (sint32 city=0; city<numCities; city++)
 			{
-				InsertCity(g_player[plyr]->GetAllCitiesList()->Get(city));
+				InsertCity(player_Get(plyr)->GetAllCitiesList()->Get(city));
 			}
 		}
 	}

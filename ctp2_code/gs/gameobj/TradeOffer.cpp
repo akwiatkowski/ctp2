@@ -11,8 +11,6 @@
 #include "gs/gameobj/MessageData.h"
 #include "gs/core/game_observer.h"
 
-extern Player **g_player;
-
 void TradeOffer::KillOffer()
 {
 	TradeOffer tmp(*this);
@@ -21,7 +19,7 @@ void TradeOffer::KillOffer()
 
 void TradeOffer::RemoveAllReferences()
 {
-	g_player[GetOwner()]->RemoveTradeOffer(*this);
+	player_Get(GetOwner())->RemoveTradeOffer(*this);
 
 	if(g_network.IsHost()) {
 		g_network.Block(GetOwner());
@@ -37,9 +35,9 @@ void TradeOffer::RemoveAllReferences()
 
 	sint32 p;
 	for(p = 0; p < k_MAX_PLAYERS; p++) {
-		if(g_player[p]) {
+		if(player_Get(p)) {
 			sint32 i;
-			for(i = g_player[p]->m_messages->Num() - 1; i >= 0; i--) {
+			for(i = player_Get(p)->m_messages->Num() - 1; i >= 0; i--) {
 			}
 		}
 	}

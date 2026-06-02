@@ -16,7 +16,6 @@
 
 extern	StringDB	*g_theStringDB ;
 
-extern	Player	**g_player ;
 extern TurnCount *g_turn;
 
 #include "gs/gameobj/Diplomacy_Log.h"
@@ -120,10 +119,10 @@ DiplomaticRequest DiplomaticRequestPool::Create(PLAYER_INDEX owner, PLAYER_INDEX
 	newData = new DiplomaticRequestData(newRequest, owner, recipient, request, g_turn ? g_turn->GetRound() : 0) ;
 	Insert(newData) ;
 
-	g_player[owner]->AddDiplomaticRequest(newRequest) ;
-	g_player[owner]->IncrementSentRequests(recipient);
+	player_Get(owner)->AddDiplomaticRequest(newRequest) ;
+	player_Get(owner)->IncrementSentRequests(recipient);
 
-	g_player[recipient]->AddDiplomaticRequest(newRequest) ;
+	player_Get(recipient)->AddDiplomaticRequest(newRequest) ;
 
 #ifdef _DEBUG
     if (g_theDiplomacyLog) {

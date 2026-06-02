@@ -158,8 +158,8 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 			threat_response.threat.type = THREAT_DESTROY_CITY;
 			threat_response.receiverId = receiver;
 			threat_response.senderId = sender;
-			if(g_player[receiver] && g_player[receiver]->m_all_cities->Num() > 0) {
-				threat_response.threat.arg.cityId = g_player[receiver]->m_all_cities->Access(0).m_id;
+			if(player_Get(receiver) && player_Get(receiver)->m_all_cities->Num() > 0) {
+				threat_response.threat.arg.cityId = player_Get(receiver)->m_all_cities->Access(0).m_id;
 			} else {
 				threat_response.threat.arg.cityId = 0;
 			}
@@ -187,8 +187,8 @@ STDEHANDLER(ThreatenAttackCity_RejectResponseEvent)
 			response.threat.type = THREAT_DESTROY_CITY;
 			response.receiverId = receiver;
 			response.senderId = sender;
-			if(g_player[receiver] && g_player[receiver]->m_all_cities->Num() > 0) {
-				response.threat.arg.cityId = g_player[receiver]->m_all_cities->Access(0).m_id;
+			if(player_Get(receiver) && player_Get(receiver)->m_all_cities->Num() > 0) {
+				response.threat.arg.cityId = player_Get(receiver)->m_all_cities->Access(0).m_id;
 			} else {
 				response.threat.arg.cityId = 0;
 			}

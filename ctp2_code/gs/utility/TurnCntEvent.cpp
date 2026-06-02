@@ -62,12 +62,12 @@ STDEHANDLER(BeginTurnEvent)
 		return GEV_HD_Continue;
 	}
 
-	Assert(g_player[player] != NULL);
-	if (!g_player[player])
+	Assert(player_Get(player) != NULL);
+	if (!player_Get(player))
 		return GEV_HD_Continue;
 	fprintf(stderr, "[TURN] BeginTurnEvent player=%d round=%d\n", player, round);
 
-	g_player[player]->m_current_round = round;
+	player_Get(player)->m_current_round = round;
 
 	render_observer::NextPlayer();
 
@@ -89,7 +89,7 @@ STDEHANDLER(BeginTurnEvent)
 		                      );
 	}
 
-	g_player[player]->BeginTurn();
+	player_Get(player)->BeginTurn();
 
 	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_ResumeEmailAndHotSeatDiplomacy,
 	                       GEA_Player,      player,

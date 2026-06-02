@@ -8,8 +8,6 @@
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/slicif.h"
 
-extern Player **g_player;
-
 SlicRecord::SlicRecord(sint32 owner, MBCHAR *title, MBCHAR *text,
 					   SlicSegment *segment)
 {
@@ -103,10 +101,10 @@ void SlicRecord::Serialize(CivArchive &archive)
 void SlicRecord::Reconstitute()
 {
 	sint32 i;
-	for(i = g_player[m_owner]->m_messages->Num() - 1; i >= 0; i--) {
-		if(g_player[m_owner]->m_messages->Access(i).GetClass() ==
+	for(i = player_Get(m_owner)->m_messages->Num() - 1; i >= 0; i--) {
+		if(player_Get(m_owner)->m_messages->Access(i).GetClass() ==
 		   k_HACK_RECONSTITUTED_CLASS) {
-			g_player[m_owner]->m_messages->Access(i).Kill();
+			player_Get(m_owner)->m_messages->Access(i).Kill();
 		}
 	}
 

@@ -45,7 +45,7 @@
 #include "net/general/net_info.h"
 #include "net/general/network.h"                    // g_network
 #include "gs/gameobj/Order.h"
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/slic/SlicEngine.h"                 // g_slicEngine
 #include "gs/slic/SlicObject.h"
 #include "gs/core/tiledmap_observer.h"
@@ -137,7 +137,7 @@ STDEHANDLER(BeginTurnUnitEvent)
 		if (cur == ud->ExploreTarget()) needRetarget = true;
 
 		if (needRetarget) {
-			Player * owner = g_player[u.GetOwner()];
+			Player * owner = player_Get(u.GetOwner());
 			MapPoint target;
 			if (owner && owner->FindNearestUnexplored(cur, target)) {
 				ud->SetExploreTarget(target);
@@ -260,7 +260,7 @@ STDEHANDLER(UndergroundRailwayUnitEvent)
 
 	Unit hc;
 	double distance;
-	sint32 r = g_player[u.GetOwner()]->GetNearestCity(u.RetPos(),
+	sint32 r = player_Get(u.GetOwner())->GetNearestCity(u.RetPos(),
 													  hc,
 													  distance);
 	Assert(r);
@@ -645,7 +645,7 @@ STDEHANDLER(LaunchUnitEvent)
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetPos(0, pos)) return GEV_HD_Continue;
 
-	if(!g_player[u.GetOwner()]) return GEV_HD_Continue;
+	if(!player_Get(u.GetOwner())) return GEV_HD_Continue;
 
 	sint32 spaceTurns;
 	if(!u.GetDBRec()->GetSpaceLaunch(spaceTurns))

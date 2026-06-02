@@ -37,7 +37,7 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"              // g_theWorld
 #include "gs/world/Cell.h"
@@ -148,7 +148,7 @@ void ThumbnailMap::BuildCityList(void)
 
 	for (size_t p = 0; p < k_MAX_PLAYERS; p++)
     {
-		Player	*player = g_player[p];
+		Player	*player = player_Get(p);
 		if (player == NULL) continue;
 
 		UnitDynamicArray *cities = player->GetAllCitiesList();
@@ -307,7 +307,7 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
             double      xPos    = (sint32)(k * m_tilePixelWidth);
 			double      yPos    = (sint32)(i * m_tilePixelHeight);
 			MapPoint	pos(j, i);
-			Vision *    vision  = g_player[g_selected_item->GetVisiblePlayer()]->m_vision;
+			Vision *    vision  = player_Get(g_selected_item->GetVisiblePlayer())->m_vision;
 
             UnseenCellCarton	cellCarton;
 			Unit				top;
@@ -411,7 +411,7 @@ void ThumbnailMap::RenderTradeRoute(aui_Surface *surf, TradeRoute *route)
 
 void ThumbnailMap::RenderTradeRoutes(aui_Surface *surf)
 {
-	Player	*player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player	*player = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(player != NULL);
 	if (player == NULL) return;
 

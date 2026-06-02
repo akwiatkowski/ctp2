@@ -18,7 +18,6 @@
 #include "gs/core/game_observer.h"
 
 extern World* g_theWorld;
-extern Player** g_player;
 bool TradeRoute::IsValid() const
 {
 	return tradepool_Get()->IsValid(m_id);
@@ -65,9 +64,9 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 		}
 	}
 
-    if ((NULL != g_player)  &&
-        (NULL != g_player[GetPayingFor()])) {
-    	g_player[GetPayingFor()]->RemoveTradeRoute(*this, cause);
+    if ((NULL != player_arr_Get())  &&
+        (NULL != player_Get(GetPayingFor()))) {
+    	player_Get(GetPayingFor())->RemoveTradeRoute(*this, cause);
     }
 
 	data->RemoveFromCells();

@@ -80,7 +80,7 @@ Unit UnitPool::Create (
 	Assert(owner < PLAYER_INDEX_INVALID);
 
 	sint32 trans_t = 0;
-	g_theUnitDB->Get(t, g_player[owner]->GetGovernmentType())->GetTransType(trans_t);
+	g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetTransType(trans_t);
 	ptr = new UnitData(t, trans_t, id, owner, pos, hc, actor);
 
 	Assert(ptr);
@@ -89,7 +89,7 @@ Unit UnitPool::Create (
 
 	static char unitName[256];
 	strcpy(unitName, g_theStringDB->GetNameStr(g_theUnitDB->Get(t)->GetName()));
-	sint32 unitCost = g_theUnitDB->Get(t, g_player[owner]->GetGovernmentType())->GetShieldCost();
+	sint32 unitCost = g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetShieldCost();
 
 	char *aipName = NULL;
 
@@ -115,7 +115,7 @@ Unit UnitPool::Create (
 	Assert(owner < PLAYER_INDEX_INVALID);
 
 	sint32 trans_t = 0;
-	g_theUnitDB->Get(t, g_player[owner]->GetGovernmentType())->GetTransType(trans_t);
+	g_theUnitDB->Get(t, player_Get(owner)->GetGovernmentType())->GetTransType(trans_t);
 	ptr = new UnitData(t, trans_t, id, owner, actor_pos);
 
 	Assert(ptr);
@@ -194,7 +194,7 @@ uint32 UnitPool_UnitPool_GetVersion(void)
 
 const UnitRecord *UnitPool::GetDBRec(const Unit id) const
 {
-	Player *    player  = g_player[id.GetOwner()];
+	Player *    player  = player_Get(id.GetOwner());
 
 	if(player)
 	{

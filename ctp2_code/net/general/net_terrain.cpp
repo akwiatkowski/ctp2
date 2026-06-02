@@ -37,7 +37,7 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/world/World.h"              // g_theWorld
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 #include "gfx/tilesys/tiledmap.h"           // g_tiledMap
 
 //----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		terrimprovepool_Get()->Insert(m_data);
 		g_theWorld->InsertImprovement(imp, m_data->m_point);
 		g_tiledMap->RedrawTile(&m_data->m_point);
-		g_player[m_data->m_owner]->AddImprovement(imp);
+		player_Get(m_data->m_owner)->AddImprovement(imp);
 	} else {
 		if(oldpoint != m_data->m_point) {
 
@@ -155,8 +155,8 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 		if(oldOwner != m_data->m_owner) {
 
-			g_player[oldOwner]->RemoveImprovementReferences(imp);
-			g_player[m_data->m_owner]->AddImprovement(imp);
+			player_Get(oldOwner)->RemoveImprovementReferences(imp);
+		player_Get(m_data->m_owner)->AddImprovement(imp);
 		}
 	}
 }

@@ -4,8 +4,6 @@
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"
 
-extern Player **g_player;
-
 NetGuid::NetGuid(const GUID *guid)
 {
 	m_guid = guid;
@@ -42,7 +40,7 @@ void NetSetPlayerGuid::Packetize(uint8 *buf, uint16 &size)
 	size = 0;
 	PUSHID(k_PACKET_SET_PLAYER_GUID_ID);
 	PUSHBYTE(m_player);
-	memcpy(&buf[size], (uint8*)&g_player[m_player]->m_networkGuid, sizeof(GUID));
+	memcpy(&buf[size], (uint8*)&player_Get(m_player)->m_networkGuid, sizeof(GUID));
 	size += sizeof(GUID);
 }
 
@@ -58,8 +56,8 @@ void NetSetPlayerGuid::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	GUID guid;
 	memcpy((uint8*)&guid, &buf[pos], sizeof(GUID));
 	pos += sizeof(GUID);
-	if(g_player[m_player]) {
-		g_player[m_player]->m_networkGuid = guid;
+	if(player_Get(m_player)) {
+		player_Get(m_player)->m_networkGuid = guid;
 	}
 	Assert(pos == size);
 }

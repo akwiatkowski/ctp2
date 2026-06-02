@@ -4,8 +4,6 @@
 #include "gs/gameobj/Advances.h"
 #include "gs/gameobj/Player.h"
 
-extern Player **g_player;
-
 NetResearch::NetResearch(Advances *adv)
 {
 	m_adv = adv;
@@ -37,11 +35,11 @@ void NetResearch::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_RESEARCH_ID);
 	sint32 owner;
 	PULLLONG(owner);
-	Assert(g_player[owner]);
-	if(!g_player[owner])
+	Assert(player_Get(owner));
+	if(!player_Get(owner))
 		return;
 
-	m_adv = g_player[owner]->m_advances;
+	m_adv = player_Get(owner)->m_advances;
 	sint32 i, d;
 	for(i = 0; i < m_adv->m_size; i += 8) {
 		for(d = 0; d < 8 && i+d < m_adv->m_size; d++) {

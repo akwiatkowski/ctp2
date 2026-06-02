@@ -595,7 +595,7 @@ TEST_CASE("json round-trip: Regard load rejects wrong array size")
 
 TEST_CASE("json round-trip: TaxRate preserves both doubles")
 {
-    // SetTaxRates dereferences g_player[owner]->m_government_type
+    // SetTaxRates dereferences player_Get(owner)->m_government_type
     // — null in unit-tier tests.  Drive state through a synthetic
     // JSON and verify the round-trip back.
     nlohmann::json j{
@@ -1389,7 +1389,7 @@ TEST_CASE("json round-trip: Diplomat preserves persisted subset + nested lists")
 {
     Diplomat orig;
     // Drive non-default via JSON since most public setters touch
-    // g_player[] / database globals.
+    // player_Get() / database globals.
     nlohmann::json j{
         {"player_id",                        2},
         {"personality_name",                 "Strategic"},
@@ -3651,8 +3651,8 @@ TEST_CASE("json round-trip: MessageData default-constructed")
     orig.SetSelectedMsgType(4);
     orig.SetClass(6);
     // Deliberately avoid SetSelectedAdvance — MessageData::~MessageData
-    // dereferences g_player[m_owner] when m_advanceSet is true, and
-    // g_player is null in the unit-test harness.
+    // dereferences player_Get(m_owner) when m_advanceSet is true, and
+    // player_arr_Get() is null in the unit-test harness.
 
     nlohmann::json j = orig;
     CHECK(j["id"] == 0x1111u);

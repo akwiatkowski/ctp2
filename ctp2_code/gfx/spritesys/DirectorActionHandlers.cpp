@@ -41,7 +41,7 @@
 #include "gfx/tilesys/tiledmap.h"  // g_tiledMap
 
 #include "gs/database/profileDB.h"       // g_theProfileDB
-#include "gs/events/GameEventManager.h"  // g_gevManager
+#include "gs/events/GameEventManager.h"  // gevmanager_Get()
 #include "gs/gameobj/MessagePool.h"
 
 #include "net/general/net_info.h"
@@ -905,7 +905,7 @@ void dh_endTurn(DQAction* itemAction,
 
   g_director->ActionFinished(seq);
 
-  g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_EndTurn, GEA_Player,
+  gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_EndTurn, GEA_Player,
                          g_selected_item->GetCurPlayer(), GEA_End);
 }
 
@@ -1396,10 +1396,10 @@ void dh_beginScheduler(DQAction* itemAction,
     g_director->SetHoldSchedulerSequence(SequenceWeakPtr());
   }
 
-  g_gevManager->Pause();
-  g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler, GEA_Player,
+  gevmanager_Get()->Pause();
+  gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler, GEA_Player,
                          action->player, GEA_End);
-  g_gevManager->Resume();
+  gevmanager_Get()->Resume();
 
   if (g_director->m_holdSchedulerSequence.expired()) {
     g_director->ActionFinished(seq);

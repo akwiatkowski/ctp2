@@ -1388,19 +1388,19 @@ void Director::AddEndTurn(void) {
       last_turn_processed =
           player_Get(curPlayer)->m_current_round;
 
-      g_gevManager->Pause();
+      gevmanager_Get()->Pause();
 
       Player* p = player_Get(curPlayer);
       p->m_endingTurn = TRUE;
 
       for (sint32 i = 0; i < p->m_all_armies->Num(); i++) {
         //				IncrementPendingGameActions();
-        g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute, GEA_Army,
+        gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute, GEA_Army,
                                p->m_all_armies->Access(i).m_id, GEA_End);
       }
 
       player_Get(curPlayer)->m_endingTurn = FALSE;
-      g_gevManager->Resume();
+      gevmanager_Get()->Resume();
     }
   }
 

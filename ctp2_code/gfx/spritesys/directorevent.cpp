@@ -25,7 +25,7 @@
 // Modifications from the original Activision code:
 //
 // - Special attack centers only if the auto center option on units and
-//   cities is set. (23-Feb-2008 Martin Gühmann)
+//   cities is set. (23-Feb-2008 Martin Gï¿½hmann)
 // - Stopped centering map on stealth units that you can't see. (12-Apr-2009 Maq)
 //
 //----------------------------------------------------------------------------
@@ -38,6 +38,7 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "gs/database/profileDB.h"
 #include "gs/events/GameEventUser.h"
+#include "gs/events/GameEventManager.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/Events.h"
@@ -245,33 +246,33 @@ STDEHANDLER(DirectorReallyBeginScheduler)
 
 void directorevent_Initialize()
 {
-	g_gevManager->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_DirectorMoveUnitsEvent);
+	gevmanager_Get()->AddCallback(GEV_MoveUnits, GEV_PRI_Post, &s_DirectorMoveUnitsEvent);
 
-	g_gevManager->AddCallback(GEV_InciteRevolutionUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_AssassinateRulerUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_MakeFranchise, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_PlantNukeUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_SlaveRaidCity, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_NukeCity, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_EnslaveSettler, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_InciteUprisingUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_EstablishEmbassyUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_BioInfectCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_NanoInfectCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_ConvertCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_ReformCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_IndulgenceSaleMade, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_CreateParkUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_PillageUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_InjoinUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_Lawsuit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_RemoveFranchise, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_ExpelUnits, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_UndergroundRailwayUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_NukeCityUnit, GEV_PRI_Pre, &s_DirectorActionSuccessful);
-	g_gevManager->AddCallback(GEV_NukeLocationUnit, GEV_PRI_Pre, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_InciteRevolutionUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_AssassinateRulerUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_MakeFranchise, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_PlantNukeUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_SlaveRaidCity, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_NukeCity, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_EnslaveSettler, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_InciteUprisingUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_EstablishEmbassyUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_BioInfectCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_NanoInfectCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_ConvertCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_ReformCityUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_IndulgenceSaleMade, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_CreateParkUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_PillageUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_InjoinUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_Lawsuit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_RemoveFranchise, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_ExpelUnits, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_UndergroundRailwayUnit, GEV_PRI_Post, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_NukeCityUnit, GEV_PRI_Pre, &s_DirectorActionSuccessful);
+	gevmanager_Get()->AddCallback(GEV_NukeLocationUnit, GEV_PRI_Pre, &s_DirectorActionSuccessful);
 
-	g_gevManager->AddCallback(GEV_BeginScheduler, GEV_PRI_Post, &s_DirectorReallyBeginScheduler);
+	gevmanager_Get()->AddCallback(GEV_BeginScheduler, GEV_PRI_Post, &s_DirectorReallyBeginScheduler);
 }
 
 void directorevent_Cleanup()

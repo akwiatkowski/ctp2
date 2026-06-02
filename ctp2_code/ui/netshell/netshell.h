@@ -33,15 +33,13 @@ class ns_Tribes;
 // external consumers across UI / net / lobby code read it through
 // netshell_Get().  No external writer.
 NetShell * netshell_Get(void);
-extern NETFunc	*g_netfunc;
-// App-singleton accessor pair for g_netfunc. After the consumer sweep
-// lands, the pointer becomes file-static in netshell.cpp.
+// App-singleton accessor pair for g_netfunc.  g_netfunc is file-static
+// in netshell.cpp; external consumers go through netfunc_Get / netfunc_Set.
 NETFunc * netfunc_Get(void);
 void      netfunc_Set(NETFunc *p);
 
-extern nf_GameSetup g_gamesetup;
-// Reference accessor for g_gamesetup (value-type struct). After the
-// consumer sweep lands, the struct becomes file-static in netshell.cpp.
+// Reference accessor for g_gamesetup (value-type struct).  The struct is
+// file-static in netshell.cpp.
 nf_GameSetup & gamesetup_Get(void);
 // Local player setup buffer (sibling to g_rplayersetup which is the
 // remote one).  Storage is file-scope `static` in netshell.cpp; callers

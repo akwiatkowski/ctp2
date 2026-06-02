@@ -58,8 +58,8 @@ extern MBCHAR g_serverName[ 100 + 1 ];
 static NetShell *   g_netshell          = NULL;
 
 NetShell * netshell_Get(void) { return g_netshell; }
-NETFunc *           g_netfunc           = NULL;
-nf_GameSetup        g_gamesetup;
+static NETFunc *      g_netfunc          = NULL;
+static nf_GameSetup   g_gamesetup;
 
 NETFunc *      netfunc_Get(void)         { return g_netfunc; }
 void           netfunc_Set(NETFunc *p)   { g_netfunc = p; }

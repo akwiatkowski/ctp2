@@ -990,7 +990,11 @@ TEST_CASE("ui/ .cpp ratchet: gs/ includes must not grow above baseline")
 //   in their defining TUs, externs dropped from CivPaths.h and
 //   game_observer.h.  ~50 cross-TU callers migrated to civpaths_Get()
 //   and gameobservers_Get() respectively.
-constexpr std::size_t PROJECT_GLOBALS_BASELINE = 7;
+// 2026-06-03: dropped 7 → 4 — globals-finale Wave A.  g_soundManager,
+//   g_netfunc, g_gamesetup all file-static in their defining TUs;
+//   externs dropped from soundmanager.h and netshell.h.  ~80 consumer
+//   files routed through soundmgr_Get(), netfunc_Get(), gamesetup_Get().
+constexpr std::size_t PROJECT_GLOBALS_BASELINE = 4;
 
 std::vector<Violation> scan_extern_globals(const std::string& root)
 {

@@ -56,7 +56,7 @@ extern HWND			gHwnd;
 extern CivPaths		*civpaths_Get();
 extern PlayListDB	*g_thePlayListDB;
 
-SoundManager		*g_soundManager     = NULL;
+static SoundManager *g_soundManager = NULL;
 
 SoundManager * soundmgr_Get(void)         { return g_soundManager; }
 void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }

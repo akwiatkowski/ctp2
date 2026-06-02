@@ -32,4 +32,10 @@ private:
 	BOOL			m_isLocked;
 };
 
+// App-singleton accessor pair, mirroring world_Get / c3ui_Get /
+// tiledmap_Get.  The legacy g_screenManager pointer is now file-static
+// in ctp/civ3_main.cpp; outside callers must go through these accessors.
+ScreenManager * screenmanager_Get(void);
+void            screenmanager_Set(ScreenManager *p);
+
 #endif

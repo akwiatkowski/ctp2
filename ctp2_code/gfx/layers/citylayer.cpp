@@ -47,7 +47,6 @@
 extern Background		*g_background;
 
 #include "gfx/spritesys/screenmanager.h"
-extern ScreenManager	*g_screenManager;
 
 #define k_TRADE_DASH_LEN 10
 

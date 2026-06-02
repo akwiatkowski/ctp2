@@ -58,7 +58,6 @@
 
 #include "gs/fileio/Token.h"
 
-extern ScreenManager	*g_screenManager;
 
 UnitSpriteGroup::UnitSpriteGroup(GROUPTYPE type)
 :
@@ -319,8 +318,8 @@ void UnitSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, uns
 void UnitSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 {
 #ifndef __MAKESPR__
-	primitives_DrawText(g_screenManager->GetSurface(), x+1, y+1, s, g_colorSet->GetColorRef(COLOR_BLACK), 1);
-	primitives_DrawText(g_screenManager->GetSurface(), x, y, s, g_colorSet->GetColorRef(COLOR_WHITE), 1);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x+1, y+1, s, g_colorSet->GetColorRef(COLOR_BLACK), 1);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, g_colorSet->GetColorRef(COLOR_WHITE), 1);
 #endif
 }
 

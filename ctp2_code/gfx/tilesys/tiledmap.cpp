@@ -133,7 +133,6 @@
 
 extern Background       *g_background;
 extern RECT             g_backgroundViewport;
-extern ScreenManager    *g_screenManager;
 extern SpriteEditWindow *g_spriteEditWindow;
 extern GrabItem         *g_grabbedItem;
 extern sint32           g_tradeSelectedState;
@@ -2211,9 +2210,9 @@ void TiledMap::DrawSomeText
 
 	aui_Surface		*surface;
 	if (mixingPort) {
-		if (!g_screenManager) return;
+		if (!screenmanager_Get()) return;
 
-		surface = g_screenManager->GetSurface();
+		surface = screenmanager_Get()->GetSurface();
 		if (!surface) return;
 	} else {
 		surface = m_mapSurface;
@@ -2229,7 +2228,7 @@ void TiledMap::DrawSomeText
 	OffsetRect(&tempRect, tx, ty);
 
 	if (mixingPort) {
-		g_screenManager->UnlockSurface();
+		screenmanager_Get()->UnlockSurface();
 	}
 
     m_font->DrawString(surface, &tempRect, &tempRect, text, 0, bgColorRef, 0);
@@ -2240,7 +2239,7 @@ void TiledMap::DrawSomeText
 	tempRect.bottom++;
 
 	if (mixingPort) {
-		g_screenManager->LockSurface(surface);
+		screenmanager_Get()->LockSurface(surface);
 		AddDirtyRectToMix(tempRect);
 	} else {
 		AddDirtyRectToMap(tempRect);
@@ -2966,7 +2965,7 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 		m_nextPlayer = FALSE;
 	}
 
-	g_screenManager->LockSurface(surf);
+	screenmanager_Get()->LockSurface(surf);
 
 	RepaintLayerSprites(paintRect, 0);
 	director_Get()->DrawTradeRouteAnimations(paintRect, 0);
@@ -2983,7 +2982,7 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 		DrawChatText();
 	}
 
-	g_screenManager->UnlockSurface();
+	screenmanager_Get()->UnlockSurface();
 
 	if (profiledb_Get()->GetShowCityNames())
 	{
@@ -3125,28 +3124,28 @@ sint32 TiledMap::DrawCityRadius(const MapPoint &cpos, COLOR color, sint32 pop)
 			if(it.Pos().GetNeighborPosition(NORTHWEST, neighbor)) {
 				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, NORTHWEST);
+					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, NORTHWEST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(SOUTHWEST, neighbor)) {
 				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, SOUTHWEST);
+					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, SOUTHWEST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(NORTHEAST, neighbor)) {
 				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, NORTHEAST);
+					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, NORTHEAST);
 				}
 			}
 
 			if(it.Pos().GetNeighborPosition(SOUTHEAST, neighbor)) {
 				if(world_Get()->GetCell(neighbor)->GetCityOwner().m_id !=
 				   cell->GetCityOwner().m_id) {
-					DrawColoredHitMaskEdge(g_screenManager->GetSurface(), it.Pos(), pixelColor, SOUTHEAST);
+					DrawColoredHitMaskEdge(screenmanager_Get()->GetSurface(), it.Pos(), pixelColor, SOUTHEAST);
 				}
 			}
 
@@ -3170,7 +3169,7 @@ sint32 TiledMap::DrawCityRadius(const MapPoint &cpos, COLOR color, sint32 pop)
 // Parameters : cpos    : city location on the map
 //              color   : color to use when drawing
 //
-// Globals    : g_screenManager
+// Globals    : screenmanager_Get()
 //
 // Returns    : sint32  : useless value, always 0
 //
@@ -3189,7 +3188,7 @@ sint32 TiledMap::DrawCityRadius1(const MapPoint &cpos, COLOR color)
 		if (neighbour.IsValid())
 		{
 			DrawColoredHitMask
-				(g_screenManager->GetSurface(), neighbour.GetRC(), color);
+				(screenmanager_Get()->GetSurface(), neighbour.GetRC(), color);
 		}
 	}
 
@@ -3205,12 +3204,12 @@ sint32 TiledMap::PaintColoredTile(sint32 x, sint32 y, COLOR color)
 	sint32			surfPitch;
 	aui_Surface		*surface;
 
-	surface = g_screenManager->GetSurface();
+	surface = screenmanager_Get()->GetSurface();
 
-	surfBase = g_screenManager->GetSurfBase();
-	surfWidth = g_screenManager->GetSurfWidth();
-	surfHeight = g_screenManager->GetSurfHeight();
-	surfPitch = g_screenManager->GetSurfPitch();
+	surfBase = screenmanager_Get()->GetSurfBase();
+	surfWidth = screenmanager_Get()->GetSurfWidth();
+	surfHeight = screenmanager_Get()->GetSurfHeight();
+	surfPitch = screenmanager_Get()->GetSurfPitch();
 
 	unsigned short	*destPixel;
 

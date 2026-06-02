@@ -257,7 +257,10 @@ void       director_Set(Director *p)  { g_director = p; }
 
 double                              g_ave_frame_rate = 10.0;
 double                              g_ave_frame_time = 200.0;
-ScreenManager                       *g_screenManager = NULL;
+static ScreenManager                *g_screenManager = NULL;
+
+ScreenManager * screenmanager_Get(void)        { return g_screenManager; }
+void            screenmanager_Set(ScreenManager *p) { g_screenManager = p; }
 
 static TiledMap                     *g_tiledMap = NULL;
 

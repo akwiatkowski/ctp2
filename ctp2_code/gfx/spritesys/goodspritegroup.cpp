@@ -48,7 +48,6 @@
 #include "gs/fileio/Token.h"
 
 extern CivPaths *g_civPaths;
-extern ScreenManager *g_screenManager;
 
 void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags)
@@ -147,7 +146,7 @@ void GoodSpriteGroup::DeallocateFullLoadAnims(void)
 
 void GoodSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 {
-	primitives_DrawText(g_screenManager->GetSurface(), x, y, s, 0, 0);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, 0, 0);
 }
 
 sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)

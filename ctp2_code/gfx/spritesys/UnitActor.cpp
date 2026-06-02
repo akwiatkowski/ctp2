@@ -103,7 +103,6 @@
 
 extern SpriteGroupList* g_unitSpriteGroupList;
 extern SpriteGroupList* g_citySpriteGroupList;
-extern ScreenManager* g_screenManager;
 extern PointerList<Player>* g_deadPlayer;
 
 #define k_SHIELD_ON_TIME 650
@@ -984,8 +983,8 @@ void UnitActor::DrawFortified(bool fogged) {
       (sint32)((k_ACTOR_CENTER_OFFSET_X - 48) * tiledmap_Get()->GetScale());
   sint32 nudgeY =
       (sint32)((k_ACTOR_CENTER_OFFSET_Y - 48) * tiledmap_Get()->GetScale());
-  sint32 surfWidth = g_screenManager->GetSurfWidth();
-  sint32 surfHeight = g_screenManager->GetSurfHeight();
+  sint32 surfWidth = screenmanager_Get()->GetSurfWidth();
+  sint32 surfHeight = screenmanager_Get()->GetSurfHeight();
 
   if ((m_x + nudgeX) > (surfWidth - tiledmap_Get()->GetZoomTilePixelWidth()))
     return;
@@ -1040,14 +1039,14 @@ void UnitActor::DrawFortifying(bool fogged) {
     clipRect.left = 0;
   if (clipRect.top < 0)
     clipRect.top = 0;
-  if (clipRect.right >= g_screenManager->GetSurfWidth())
-    clipRect.right = g_screenManager->GetSurfWidth() - 1;
-  if (clipRect.bottom >= g_screenManager->GetSurfHeight())
-    clipRect.bottom = g_screenManager->GetSurfHeight() - 1;
+  if (clipRect.right >= screenmanager_Get()->GetSurfWidth())
+    clipRect.right = screenmanager_Get()->GetSurfWidth() - 1;
+  if (clipRect.bottom >= screenmanager_Get()->GetSurfHeight())
+    clipRect.bottom = screenmanager_Get()->GetSurfHeight() - 1;
 
   COLORREF colorRef = g_colorSet->GetColorRef(COLOR_BLACK);
 
-  font->DrawString(g_screenManager->GetSurface(), &rect, &clipRect, fString, 0,
+  font->DrawString(screenmanager_Get()->GetSurface(), &rect, &clipRect, fString, 0,
                    colorRef, 0);
 
   if (fogged) {
@@ -1059,7 +1058,7 @@ void UnitActor::DrawFortifying(bool fogged) {
   OffsetRect(&rect, -1, -1);
   OffsetRect(&clipRect, -1, -1);
 
-  font->DrawString(g_screenManager->GetSurface(), &rect, &clipRect, fString, 0,
+  font->DrawString(screenmanager_Get()->GetSurface(), &rect, &clipRect, fString, 0,
                    colorRef, 0);
 }
 
@@ -1473,9 +1472,9 @@ void UnitActor::DrawHerald(void) {
   POINT iconDim = tileSet->GetMapIconDimensions(icon);
   RECT rect = {0, 0, iconDim.x + 1, iconDim.y + 1};
 
-  if (m_x < 0 || m_x > g_screenManager->GetSurfWidth() - rect.right)
+  if (m_x < 0 || m_x > screenmanager_Get()->GetSurfWidth() - rect.right)
     return;
-  if (m_y < 0 || m_y > g_screenManager->GetSurfHeight() - rect.bottom)
+  if (m_y < 0 || m_y > screenmanager_Get()->GetSurfHeight() - rect.bottom)
     return;
 
 #if 0  // Unused
@@ -1599,11 +1598,11 @@ void UnitActor::DrawHealthBar(void) {
 
   if (iconRect.left < 0)
     return;
-  if (iconRect.right >= g_screenManager->GetSurfWidth())
+  if (iconRect.right >= screenmanager_Get()->GetSurfWidth())
     return;
   if (iconRect.top < 0)
     return;
-  if (iconRect.bottom >= g_screenManager->GetSurfHeight())
+  if (iconRect.bottom >= screenmanager_Get()->GetSurfHeight())
     return;
 
   // @ToDo: Cleanup this type mess
@@ -1630,14 +1629,14 @@ void UnitActor::DrawHealthBar(void) {
 
     if (healthBar.left < 0)
       return;
-    if (healthBar.right >= g_screenManager->GetSurfWidth())
+    if (healthBar.right >= screenmanager_Get()->GetSurfWidth())
       return;
     if (healthBar.top < 0)
       return;
-    if (healthBar.bottom >= g_screenManager->GetSurfHeight())
+    if (healthBar.bottom >= screenmanager_Get()->GetSurfHeight())
       return;
 
-    primitives_FrameRect16(g_screenManager->GetSurface(), &healthBar, black);
+    primitives_FrameRect16(screenmanager_Get()->GetSurface(), &healthBar, black);
 
     InflateRect(&healthBar, -1, -1);
 
@@ -1660,7 +1659,7 @@ void UnitActor::DrawHealthBar(void) {
         color = g_colorSet->GetColor(COLOR_YELLOW);
       }
 
-      primitives_PaintRect16(g_screenManager->GetSurface(), &rightRect, black);
+      primitives_PaintRect16(screenmanager_Get()->GetSurface(), &rightRect, black);
     }
 
     if (leftRect.left > leftRect.right) {
@@ -1669,7 +1668,7 @@ void UnitActor::DrawHealthBar(void) {
       leftRect.right = temprect.left;
     }
 
-    primitives_PaintRect16(g_screenManager->GetSurface(), &leftRect, color);
+    primitives_PaintRect16(screenmanager_Get()->GetSurface(), &leftRect, color);
 
     iconRect.top = iconRect.bottom;
   }
@@ -1700,9 +1699,9 @@ void UnitActor::DrawStackingIndicator(sint32& x, sint32& y, sint32 stack) {
 
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
-  if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
+  if (x >= screenmanager_Get()->GetSurfWidth() - iconDim.x)
     return;
-  if (y >= g_screenManager->GetSurfHeight() - iconDim.y)
+  if (y >= screenmanager_Get()->GetSurfHeight() - iconDim.y)
     return;
 
   sint32 displayedOwner;
@@ -1780,9 +1779,9 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
 
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
-  if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
+  if (x >= screenmanager_Get()->GetSurfWidth() - iconDim.x)
     return;
-  if (y >= g_screenManager->GetSurfHeight() - iconDim.y)
+  if (y >= screenmanager_Get()->GetSurfHeight() - iconDim.y)
     return;
 
   sint32 displayedOwner;
@@ -1805,7 +1804,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
 
   if (m_unitID.IsValid() && m_unitID->GetArmy().IsValid()) {
     if (m_unitID->GetArmy()->Num() > 1) {
-      if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
+      if (y2 < screenmanager_Get()->GetSurfHeight() - iconDim.y) {
         tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_ARMY), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_ARMY);
@@ -1817,7 +1816,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
     // Replace veteran icon with elite icon if an elite unit exists in army.
     if (m_unitID->GetArmy()->HasVeterans() &&
         !m_unitID->GetArmy()->HasElite()) {
-      if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
+      if (y2 < screenmanager_Get()->GetSurfHeight() - iconDim.y) {
         tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_VETERAN), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_VETERAN);
@@ -1826,7 +1825,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
         w = std::max<sint32>(w, iconDim.x);
       }
     } else if (m_unitID->GetArmy()->HasElite()) {
-      if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
+      if (y2 < screenmanager_Get()->GetSurfHeight() - iconDim.y) {
         tiledmap_Get()->DrawColorizedOverlayIntoMix(
             tileSet->GetMapIconData(MAPICON_ELITE), x2, y2, displayedColor);
         iconDim = tileSet->GetMapIconDimensions(MAPICON_ELITE);
@@ -1843,7 +1842,7 @@ void UnitActor::DrawIndicators(sint32& x, sint32& y, sint32 stack) {
       }
       // Draw it in all other cases.
       else {
-        if (y2 < g_screenManager->GetSurfHeight() - iconDim.y) {
+        if (y2 < screenmanager_Get()->GetSurfHeight() - iconDim.y) {
           tiledmap_Get()->DrawColorizedOverlayIntoMix(
               tileSet->GetMapIconData(MAPICON_CARGO), x2, y2, displayedColor);
           iconDim = tileSet->GetMapIconDimensions(MAPICON_CARGO);
@@ -1880,9 +1879,9 @@ void UnitActor::DrawSpecialIndicators(
 
   TileSet* tileSet = tiledmap_Get()->GetTileSet();
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
-  if (x >= g_screenManager->GetSurfWidth() - iconDim.x)
+  if (x >= screenmanager_Get()->GetSurfWidth() - iconDim.x)
     return;
-  if (y >= g_screenManager->GetSurfHeight() - iconDim.y)
+  if (y >= screenmanager_Get()->GetSurfHeight() - iconDim.y)
     return;
 
   sint32 displayedOwner;
@@ -2391,9 +2390,9 @@ void UnitActor::DrawCityImprovements(bool fogged) {
       (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) * tiledmap_Get()->GetScale());
 
   POINT iconDim = tileSet->GetMapIconDimensions(MAPICON_HERALD);
-  if ((m_x + nudgeX) >= g_screenManager->GetSurfWidth() - iconDim.x)
+  if ((m_x + nudgeX) >= screenmanager_Get()->GetSurfWidth() - iconDim.x)
     return;
-  if ((m_y + nudgeY) >= g_screenManager->GetSurfHeight() - iconDim.y)
+  if ((m_y + nudgeY) >= screenmanager_Get()->GetSurfHeight() - iconDim.y)
     return;
 
   Unit unit(m_unitID);

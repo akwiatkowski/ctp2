@@ -50,7 +50,6 @@
 
 #include "gs/fileio/Token.h"
 
-extern ScreenManager *g_screenManager;
 
 
 Sprite::Sprite()
@@ -373,11 +372,11 @@ void Sprite::UnlockSurface(void)
 
 void Sprite::SetSurface(void)
 {
-	m_surface = g_screenManager->GetSurface();
-	m_surfBase = g_screenManager->GetSurfBase();
-	m_surfWidth = g_screenManager->GetSurfWidth();
-	m_surfHeight = g_screenManager->GetSurfHeight();
-	m_surfPitch = g_screenManager->GetSurfPitch();
+	m_surface = screenmanager_Get()->GetSurface();
+	m_surfBase = screenmanager_Get()->GetSurfBase();
+	m_surfWidth = screenmanager_Get()->GetSurfWidth();
+	m_surfHeight = screenmanager_Get()->GetSurfHeight();
+	m_surfPitch = screenmanager_Get()->GetSurfPitch();
 }
 
 

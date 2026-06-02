@@ -30,7 +30,6 @@
 #include "gfx/spritesys/director.h"
 
 #include "gfx/spritesys/screenmanager.h"
-extern ScreenManager	*g_screenManager;
 Background				*g_background = NULL;
 
 void DumpSpanList(aui_DirtyList *list);
@@ -163,9 +162,9 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 
 	if (g_modalWindow > 0)
     {
-		g_screenManager->LockSurface(surface);
+		screenmanager_Get()->LockSurface(surface);
 		tiledmap_Get()->DrawChatText();
-		g_screenManager->UnlockSurface();
+		screenmanager_Get()->UnlockSurface();
 
 		return AUI_ERRCODE_OK;
 	}

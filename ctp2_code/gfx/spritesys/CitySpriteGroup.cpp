@@ -32,7 +32,6 @@
 #include "gfx/spritesys/screenmanager.h"
 #include "gfx/spritesys/Sprite.h"
 
-extern ScreenManager *  g_screenManager;
 
 CitySpriteGroup::CitySpriteGroup(GROUPTYPE type)
 :
@@ -56,5 +55,5 @@ void CitySpriteGroup::Import(uint16 id)
 
 void CitySpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 {
-	primitives_DrawText(g_screenManager->GetSurface(), x, y, s, 0, 0);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, 0, 0);
 }

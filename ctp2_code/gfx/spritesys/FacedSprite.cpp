@@ -45,7 +45,6 @@
 
 #include "gs/fileio/Token.h"
 
-extern ScreenManager *g_screenManager;
 
 
 FacedSprite::FacedSprite()
@@ -444,8 +443,8 @@ void FacedSprite::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
 	}
 
 
-	if (drawX > g_screenManager->GetSurfWidth() - (m_width*scale) || drawX < 0) return;
-	if (drawY > g_screenManager->GetSurfHeight() - (m_height*scale) || drawY < 0) return;
+	if (drawX > screenmanager_Get()->GetSurfWidth() - (m_width*scale) || drawX < 0) return;
+	if (drawY > screenmanager_Get()->GetSurfHeight() - (m_height*scale) || drawY < 0) return;
 
 	if (scale == tiledmap_Get()->GetZoomScale(k_ZOOM_LARGEST)) {
 		if (facing < 4 && facing > 0)

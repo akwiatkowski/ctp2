@@ -116,7 +116,6 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern Background	*g_background;
-extern ScreenManager *g_screenManager;
 
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
@@ -231,7 +230,7 @@ void  TiledMap::DrawRectMetrics()
 
 	snprintf(text, sizeof(text),"%4.2f",ratio);
 
-	if (g_screenManager && g_screenManager->GetSurface())
+	if (screenmanager_Get() && screenmanager_Get()->GetSurface())
 	{
 		if (m_font)
 		{
@@ -241,8 +240,8 @@ void  TiledMap::DrawRectMetrics()
 			RECT		tempRect = {0, 0, width, height};
 			OffsetRect(&tempRect, 200, 200);
 
-			aui_Surface *tempSurf = g_screenManager->GetSurface();
-			g_screenManager->UnlockSurface();
+			aui_Surface *tempSurf = screenmanager_Get()->GetSurface();
+			screenmanager_Get()->UnlockSurface();
 
 			m_font->DrawString(tempSurf, &tempRect, &tempRect, text, 0, GetColorRef(COLOR_YELLOW), 0);
 			OffsetRect(&tempRect, -1, -1);
@@ -251,7 +250,7 @@ void  TiledMap::DrawRectMetrics()
 			tempRect.right++;
 			tempRect.bottom++;
 
-			g_screenManager->LockSurface(tempSurf);
+			screenmanager_Get()->LockSurface(tempSurf);
 
 			AddDirtyRectToMix(tempRect);
 		}
@@ -641,8 +640,8 @@ void TiledMap::DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR 
 
 	AddDirtyToMix(x, y, width, height);
 
-	uint8 * surfBase    = g_screenManager->GetSurfBase();
-	sint32	surfPitch   = g_screenManager->GetSurfPitch();
+	uint8 * surfBase    = screenmanager_Get()->GetSurfBase();
+	sint32	surfPitch   = screenmanager_Get()->GetSurfPitch();
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -753,8 +752,8 @@ void TiledMap::DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pi
 
 	AddDirtyToMix(x, y, width, height);
 
-	uint8	* surfBase = g_screenManager->GetSurfBase();
-	sint32  surfPitch = g_screenManager->GetSurfPitch();
+	uint8	* surfBase = screenmanager_Get()->GetSurfBase();
+	sint32  surfPitch = screenmanager_Get()->GetSurfPitch();
 
 	sint32 num = k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM;
 	sint32 den = height;
@@ -1591,14 +1590,14 @@ sint32 TiledMap::DrawBlendedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, Pi
 {
 	if (!data || (x < 0) || (y < 0)) return 0;
 
-	sint32      surfWidth   = g_screenManager->GetSurfWidth();
-	sint32      surfHeight  = g_screenManager->GetSurfHeight();
+	sint32      surfWidth   = screenmanager_Get()->GetSurfWidth();
+	sint32      surfHeight  = screenmanager_Get()->GetSurfHeight();
 
 	if (x >= surfWidth - k_TILE_GRID_WIDTH) return 0;
 	if (y >= surfHeight - k_TILE_GRID_HEIGHT) return 0;
 
-	sint32      surfPitch   = g_screenManager->GetSurfPitch();
-	uint8 *     surfBase    = g_screenManager->GetSurfBase();
+	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase();
 	uint16		start       = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1651,14 +1650,14 @@ void TiledMap::DrawBlendedOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 y
 {
 	if (!data || (x < 0) || (y < 0)) return;
 
-	sint32      surfWidth   = g_screenManager->GetSurfWidth();
-	sint32      surfHeight  = g_screenManager->GetSurfHeight();
+	sint32      surfWidth   = screenmanager_Get()->GetSurfWidth();
+	sint32      surfHeight  = screenmanager_Get()->GetSurfHeight();
 
 	if (x >= surfWidth - destWidth) return;
 	if (y >= surfHeight - destHeight) return;
 
-	sint32      surfPitch   = g_screenManager->GetSurfPitch();
-	uint8 *     surfBase    = g_screenManager->GetSurfBase() + (surfPitch * y + x * 2);
+	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * 2);
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1736,14 +1735,14 @@ sint32 TiledMap::DrawDitheredOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, B
 {
 	if (!data || (x < 0) || (y < 0)) return 0;
 
-	sint32      surfWidth   = g_screenManager->GetSurfWidth();
-	sint32      surfHeight  = g_screenManager->GetSurfHeight();
+	sint32      surfWidth   = screenmanager_Get()->GetSurfWidth();
+	sint32      surfHeight  = screenmanager_Get()->GetSurfHeight();
 
 	if (x >= surfWidth - k_TILE_GRID_WIDTH) return 0;
 	if (y >= surfHeight - k_TILE_GRID_HEIGHT) return 0;
 
-	sint32      surfPitch   = g_screenManager->GetSurfPitch();
-	uint8 *     surfBase    = g_screenManager->GetSurfBase();
+	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase();
 	uint16		start       = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -1810,14 +1809,14 @@ void TiledMap::DrawDitheredOverlayScaledIntoMix(Pixel16 *data, sint32 x, sint32 
 {
 	if (!data || (x < 0) || (y < 0)) return;
 
-    sint32      surfWidth   = g_screenManager->GetSurfWidth();
-	sint32      surfHeight  = g_screenManager->GetSurfHeight();
+    sint32      surfWidth   = screenmanager_Get()->GetSurfWidth();
+	sint32      surfHeight  = screenmanager_Get()->GetSurfHeight();
 
 	if (x >= surfWidth - destWidth) return;
 	if (y >= surfHeight - destHeight) return;
 
-	sint32      surfPitch   = g_screenManager->GetSurfPitch();
-	uint8 *     surfBase    = g_screenManager->GetSurfBase() + (surfPitch * y + x * 2);
+	sint32      surfPitch   = screenmanager_Get()->GetSurfPitch();
+	uint8 *     surfBase    = screenmanager_Get()->GetSurfBase() + (surfPitch * y + x * 2);
 	uint16		vstart      = (uint16)*data++;
 	uint16		end         = (uint16)*data++;
 	Pixel16	*   table       = data;
@@ -2699,12 +2698,12 @@ sint32 TiledMap::DrawColorizedOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y, 
 {
 	if (!data || (x < 0) || (y < 0)) return 0;
 
-	uint8 * surfBase    = g_screenManager->GetSurfBase();
+	uint8 * surfBase    = screenmanager_Get()->GetSurfBase();
 	if (!surfBase) return 0;
 
-	sint32 surfWidth  = g_screenManager->GetSurfWidth();
-	sint32 surfHeight = g_screenManager->GetSurfHeight();
-	sint32 surfPitch = g_screenManager->GetSurfPitch();
+	sint32 surfWidth  = screenmanager_Get()->GetSurfWidth();
+	sint32 surfHeight = screenmanager_Get()->GetSurfHeight();
+	sint32 surfPitch = screenmanager_Get()->GetSurfPitch();
 
 	uint16		start = (uint16)*data++;
 	uint16		end = (uint16)*data++;
@@ -2911,20 +2910,20 @@ void TiledMap::DrawScaledOverlayIntoMix(Pixel16 *data, sint32 x, sint32 y,
 {
 	if (!data || (x < 0) || (y < 0)) return;
 
-	sint32  surfWidth   = g_screenManager->GetSurfWidth();
-	sint32  surfHeight  = g_screenManager->GetSurfHeight();
+	sint32  surfWidth   = screenmanager_Get()->GetSurfWidth();
+	sint32  surfHeight  = screenmanager_Get()->GetSurfHeight();
 
 	if ((x >= surfWidth - destWidth) || (y >= surfHeight - destHeight))
 	{
 		return;
 	}
 
-	sint32  surfPitch   = g_screenManager->GetSurfPitch();
+	sint32  surfPitch   = screenmanager_Get()->GetSurfPitch();
 
 	Pixel16		emptyRow[2];
 	emptyRow[0] = (k_TILE_SKIP_RUN_ID << 8) | k_TILE_GRID_WIDTH;
 
-	uint8 * surfBase    = g_screenManager->GetSurfBase() + (y * surfPitch + x * 2);
+	uint8 * surfBase    = screenmanager_Get()->GetSurfBase() + (y * surfPitch + x * 2);
 
 	uint16			vstart = (uint16)*data++;
 	uint16			end = (uint16)*data++;
@@ -4911,7 +4910,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 
 void TiledMap::DrawChatText()
 {
-	if(g_screenManager && g_screenManager->GetSurface())
+	if(screenmanager_Get() && screenmanager_Get()->GetSurface())
 	{
 		if(m_font)
 		{
@@ -4925,8 +4924,8 @@ void TiledMap::DrawChatText()
 			m_chatRect.bottom = rect.bottom = y + height;
 			sint32 c = 0;
 
-			aui_Surface *tempSurf = g_screenManager->GetSurface();
-			g_screenManager->UnlockSurface();
+			aui_Surface *tempSurf = screenmanager_Get()->GetSurface();
+			screenmanager_Get()->UnlockSurface();
 
 			RECT timeRect = { x, 100, x, 100 + height};
 			char timebuf[256];
@@ -4968,7 +4967,7 @@ void TiledMap::DrawChatText()
 				OffsetRect(&rect, 1, 1);
 				rect.bottom -= height;
 			}
-			g_screenManager->LockSurface(tempSurf);
+			screenmanager_Get()->LockSurface(tempSurf);
 
 			if(c > 0) {
 				m_chatRect.right++;

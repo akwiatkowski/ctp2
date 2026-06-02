@@ -300,7 +300,6 @@
 #include <thread>
 #include <chrono>
 
-extern ScreenManager *          g_screenManager;
 extern OzoneDatabase            *g_theUVDB;
 extern MovieDB                  *g_theVictoryMovieDB;
 extern FilenameDB               *g_theMessageIconFileDB;

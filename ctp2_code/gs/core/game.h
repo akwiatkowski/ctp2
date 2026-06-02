@@ -12,6 +12,8 @@ class RandomGenerator;
 class Player;
 class UnitPool;
 class ArmyPool;
+class Pollution;
+class TopTen;
 class SlicEngine;
 class GameEventManager;
 class CivArchive;
@@ -33,13 +35,13 @@ public:
 
     // Lifecycle.
     //
-    // NewGame's parameters are the session-state inputs TurnCount needs:
-    // the number of active players and the calendar's starting year
-    // (computed by the caller from the difficulty record).  We pass them
-    // explicitly rather than reaching for g_theProfileDB/gamesettings_Get
-    // from inside TurnCount, so the class is constructible in isolation
-    // (e.g. from unit tests).
-    void NewGame(sint32 numPlayers, sint32 initialYear);
+    // NewGame's parameters are the session-state inputs the owned
+    // subsystems need: number of active players, calendar's starting
+    // year (computed by the caller from the difficulty record), and
+    // an RNG seed.  We pass them explicitly rather than reaching for
+    // g_theProfileDB/gamesettings_Get from inside the subsystems, so
+    // the class is constructible in isolation (e.g. from unit tests).
+    void NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed = 0);
     void LoadGame(CivArchive& archive);
     void SaveGame(CivArchive& archive);
     void Cleanup();
@@ -63,6 +65,12 @@ public:
     // CityPool: no such class exists today; cities are owned per-player.
     // Re-add when a pool is introduced.
 
+    Pollution& GetPollution() { return *m_pollution; }
+    const Pollution& GetPollution() const { return *m_pollution; }
+
+    TopTen& GetTopTen() { return *m_topten; }
+    const TopTen& GetTopTen() const { return *m_topten; }
+
     SlicEngine& GetSlic() { return *m_slic; }
     GameEventManager& GetEvents() { return *m_events; }
 
@@ -75,6 +83,9 @@ private:
 
     std::unique_ptr<UnitPool> m_unitPool;
     std::unique_ptr<ArmyPool> m_armyPool;
+
+    std::unique_ptr<Pollution> m_pollution;
+    std::unique_ptr<TopTen>    m_topten;
 
     std::unique_ptr<SlicEngine> m_slic;
     std::unique_ptr<GameEventManager> m_events;

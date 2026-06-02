@@ -307,8 +307,8 @@ void UnitManager::UpdateStatsList()
 
 	sint32 i;
 	sint32 visP = g_selected_item->GetVisiblePlayer();
-	if(!g_player[visP]) return;
-	Player *pl = g_player[visP];
+	if(!player_Get(visP)) return;
+	Player *pl = player_Get(visP);
 
 	sint32 *unitcount = new sint32[g_theUnitDB->NumRecords()];
 	memset(unitcount, 0, g_theUnitDB->NumRecords() * sizeof(sint32));
@@ -404,7 +404,7 @@ void UnitManager::UpdateStatsList()
 
 void UnitManager::UpdateTacticalList()
 {
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 
@@ -486,7 +486,7 @@ void UnitManager::UpdateTacticalList()
 
 void UnitManager::UpdateAdvice()
 {
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl)
 		return;
@@ -572,7 +572,7 @@ void UnitManager::UpdateAdvice()
 
 void UnitManager::UpdateReadiness()
 {
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!pl) return;
 
 	ctp2_Static *state = (ctp2_Static *)aui_Ldl::GetObject(s_unitManagerBlock, "State");
@@ -604,7 +604,7 @@ void  UnitManager::UpdateNumUnits()
 	Assert(counter);
 	if(!counter) return;
 
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 
@@ -655,7 +655,7 @@ sint32 UnitManager::CompareStatItems(ctp2_ListItem *item1, ctp2_ListItem *item2,
 			return stricmp(rec1->GetNameText(), rec2->GetNameText());
 		case k_STATS_COUNT_COL:
 		{
-			Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+			Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 			if(!pl)
 				return 0;
 
@@ -856,7 +856,7 @@ void UnitManager::UpkeepButton(aui_Control *control, uint32 action, uint32 data,
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 
@@ -1028,7 +1028,7 @@ void UnitManager::DisbandSelected()
 
 			sint32 unitType = (intptr_t)item->GetUserData();
 			sint32 i;
-			Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+			Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 			Assert(pl);
 			if(!pl) break;
 
@@ -1106,7 +1106,7 @@ void UnitManager::ReadinessActionCallback(aui_Control *control,
 	if(action != static_cast<uint32>(AUI_RANGER_ACTION_VALUECHANGE))
 		return;
 
-	Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 	Assert(pl);
 	if(!pl) return;
 

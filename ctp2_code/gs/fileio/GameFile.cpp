@@ -79,7 +79,7 @@
 #include "gs/gameobj/installationpool.h"       // g_theInstallationPool
 #include "gs/gameobj/MessagePool.h"            // g_theMessagePool
 Pixel16 pixelutils_Convert565to555(Pixel16);  // forward decl, was gfx/gfx_utils/pixelutils.h
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/gameobj/pollution.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/utility/RandGen.h"                // rand_ptr()
@@ -431,9 +431,9 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 #if 0
 	g_theWorld->ClearStartingPoints();
 	for(i = 1; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i] && g_player[i]->m_all_units->Num() > 0) {
-			g_theWorld->AddStartingPoint(g_player[i]->m_all_units->Access(0).RetPos(),
-										 g_player[i]->m_civilisation->GetCivilisation());
+		if(player_Get(i) && player_Get(i)->m_all_units->Num() > 0) {
+			g_theWorld->AddStartingPoint(player_Get(i)->m_all_units->Access(0).RetPos(),
+										 player_Get(i)->m_civilisation->GetCivilisation());
 		}
 	}
 #endif
@@ -569,7 +569,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 
 
 	for (sint32 i=0; i<k_MAX_PLAYERS; i++) {
-		sint32 playerAlive = g_player[i] != NULL;
+		sint32 playerAlive = player_Get(i) != NULL;
 
 		if (g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS) {
 
@@ -577,7 +577,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 		}
 		archive << playerAlive;
 		if(playerAlive)
-			g_player[i]->Serialize(archive);
+			player_Get(i)->Serialize(archive);
 	}
 
 	if (g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS) {
@@ -1602,19 +1602,19 @@ void GameFile::SaveExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	    sint32 has_player;
 		GUID guid;
 		sint32 civindex;
-		if (g_player[i]) {
+		if (player_Get(i)) {
             has_player = 1;
             c3files_fwrite(&has_player, sizeof(uint8), sizeof(sint32), saveFile);
 
-		    g_player[i]->GetPluralCivName(civName);
+		    player_Get(i)->GetPluralCivName(civName);
 
 		    n = c3files_fwrite(civName, sizeof(MBCHAR), k_MAX_NAME_LEN, saveFile);
 		    if (n != k_MAX_NAME_LEN) {
 			    c3errors_FatalDialog(functionName, errorString);
 			    return;
 		    }
-			guid = g_player[i]->m_networkGuid;
-			civindex = g_player[i]->m_civilisation->GetCivilisation();
+			guid = player_Get(i)->m_networkGuid;
+			civindex = player_Get(i)->m_civilisation->GetCivilisation();
         } else {
             has_player = 0;
             c3files_fwrite(&has_player, sizeof(uint8), sizeof(sint32), saveFile);

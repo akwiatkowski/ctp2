@@ -185,7 +185,7 @@ STDEHANDLER(ArmyUnloadOrderEvent)
 	if (a.GetOwner() == player_view::VisiblePlayer())
 	{
 		CellUnitList cargoToUnload;
-		if (player_view::GetSelectedCargo(cargoToUnload) && !g_player[a.GetOwner()]->IsRobot())
+		if (player_view::GetSelectedCargo(cargoToUnload) && !player_Get(a.GetOwner())->IsRobot())
 		{
 		    ord = UNIT_ORDER_UNLOAD_SELECTED_STACK;
 		}
@@ -219,7 +219,7 @@ STDEHANDLER(ArmyExploreOrderEvent)
 	ArmyData * ad = a.AccessData();
 	if (!ad) return GEV_HD_Continue;
 
-	Player * owner = g_player[ad->GetOwner()];
+	Player * owner = player_Get(ad->GetOwner());
 	if (!owner) return GEV_HD_Continue;
 
 	MapPoint const start = ad->RetPos();
@@ -806,7 +806,7 @@ STDEHANDLER(ArmyMoveEvent)
 
 			PLAYER_INDEX owner = army.GetOwner();
 			if ((owner == PLAYER_INDEX_VANDALS) &&
-				wonderutil_GetProtectFromBarbarians(g_player[defender->GetOwner()]->m_builtWonders))
+				wonderutil_GetProtectFromBarbarians(player_Get(defender->GetOwner())->m_builtWonders))
 			{
 				return GEV_HD_Continue;
 			}
@@ -1137,7 +1137,7 @@ STDEHANDLER(AftermathEvent)
 			&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 			&&  (army[i].IsElite()) //IsElite
 			){
-				g_player[attack_owner]->CreateLeader(); //Great Leader Code - Emod 6-5-2007
+				player_Get(attack_owner)->CreateLeader(); //Great Leader Code - Emod 6-5-2007
 			}
 
 			if( (army[i].GetAttack() > 0)
@@ -1184,7 +1184,7 @@ STDEHANDLER(AftermathEvent)
 		&&  (civrand().Next(100) < sint32(g_theConstDB->Get(0)->GetCombatLeaderChance() * 100.0))
 		&&  (defender[i].IsElite())
 		){
-			g_player[defense_owner]->CreateLeader();
+			player_Get(defense_owner)->CreateLeader();
 		}
 
 		//copy and make for elite units
@@ -1254,11 +1254,11 @@ STDEHANDLER(MoveUnitsEvent)
 	sint32 new_cell_owner = g_theWorld->GetCell(to)->GetOwner();
 	sint32 army_owner = a->GetOwner();
 
-	/* Guard the g_player array access: new_cell_owner can be -1 (unowned / barbarian
-	   territory) or an out-of-range value from corrupt map data.  g_player is
+	/* Guard the player array access: new_cell_owner can be -1 (unowned / barbarian
+	   territory) or an out-of-range value from corrupt map data.  The array is
 	   allocated with k_MAX_PLAYERS (32) entries. */
 	Player *player_ptr = (new_cell_owner >= 0 && new_cell_owner < k_MAX_PLAYERS)
-		? g_player[new_cell_owner]
+		? player_Get(new_cell_owner)
 		: nullptr;
 	if ( new_cell_owner != -1 &&
 		 new_cell_owner != army_owner &&
@@ -1295,7 +1295,7 @@ STDEHANDLER(MoveUnitsEvent)
 				SlicObject *so;
 				if(g_network.IsActive()
 				&& g_network.TeamsEnabled()
-				&& g_player[a->GetOwner()]->m_networkGroup == g_player[city_owner]->m_networkGroup
+				&& player_Get(a->GetOwner())->m_networkGroup == player_Get(city_owner)->m_networkGroup
 				){
 					so = new SlicObject("110aCantAttackTeammates");
 				}
@@ -1497,7 +1497,7 @@ STDEHANDLER(EnslaveSettlerEvent)
 						   GEA_End);
 
 	Unit home_city;
-	if (g_player[slaverOwner]->GetSlaveCity(slaver.RetPos(), home_city))
+	if (player_Get(slaverOwner)->GetSlaveCity(slaver.RetPos(), home_city))
 	{
 		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_MakePop,
 		                       GEA_City,    home_city.m_id,

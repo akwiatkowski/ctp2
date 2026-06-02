@@ -26,8 +26,6 @@
 #include "gs/gameobj/advanceutil.h"
 #include "gs/utility/gstypes.h"
 
-extern Player **g_player;
-
 extern StringDB *g_theStringDB;
 
 EndGame::EndGame(PLAYER_INDEX owner)
@@ -262,16 +260,16 @@ void EndGame::AdvanceStage(sint32 currentRound)
 			g_network.Unblock(m_owner);
 		}
 
-		g_player[m_owner]->m_score->SetWonByWonder();
-		g_player[m_owner]->GameOver(GAME_OVER_WON_WORMHOLE, -1);
+		player_Get(m_owner)->m_score->SetWonByWonder();
+		player_Get(m_owner)->GameOver(GAME_OVER_WON_WORMHOLE, -1);
 		m_currentStage = endgamedb_Get()->GetNumStages();
 		openScreen = false;
 		gamesettings_Get()->SetAlienEndGameWon(m_owner);
 
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i] && i != m_owner) {
-				g_player[i]->GameOver(GAME_OVER_LOST_OVERRUN_BY_SMURFS, m_owner);
+			if(player_Get(i) && i != m_owner) {
+				player_Get(i)->GameOver(GAME_OVER_LOST_OVERRUN_BY_SMURFS, m_owner);
 			}
 		}
 	}
@@ -419,7 +417,7 @@ BOOL EndGame::MetRequirementsForNextStage()
 
 	if(m_currentStage >= endgamedb_Get()->GetNumStages() - 1) {
 
-		if(!g_player[m_owner]->m_advances->HasAdvance(advanceutil_GetAlienLifeAdvance())) {
+		if(!player_Get(m_owner)->m_advances->HasAdvance(advanceutil_GetAlienLifeAdvance())) {
 			return FALSE;
 		}
 	}
@@ -451,8 +449,8 @@ void EndGame::Cataclysm()
 	Init();
 
 	sint32 i;
-	for(i = 0; i < g_player[m_owner]->m_all_cities->Num(); i++) {
-		g_player[m_owner]->m_all_cities->Access(i).AccessData()->GetCityData()->RemoveEndGameObjects();
+	for(i = 0; i < player_Get(m_owner)->m_all_cities->Num(); i++) {
+		player_Get(m_owner)->m_all_cities->Access(i).AccessData()->GetCityData()->RemoveEndGameObjects();
 	}
 
 
@@ -465,8 +463,8 @@ void EndGame::XLabCaptured()
 {
 	Init();
 	sint32 i;
-	for(i = 0; i < g_player[m_owner]->m_all_cities->Num(); i++) {
-		g_player[m_owner]->m_all_cities->Access(i).AccessData()->GetCityData()->RemoveEndGameObjects();
+	for(i = 0; i < player_Get(m_owner)->m_all_cities->Num(); i++) {
+		player_Get(m_owner)->m_all_cities->Access(i).AccessData()->GetCityData()->RemoveEndGameObjects();
 	}
 
 

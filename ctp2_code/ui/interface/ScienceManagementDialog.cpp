@@ -204,7 +204,7 @@ void ScienceManagementDialog::Update()
 
 void ScienceManagementDialog::UpdateScience()
 {
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player) {
 		ClearScience();
 		return;
@@ -289,7 +289,7 @@ void ScienceManagementDialog::ClearScience()
 
 void ScienceManagementDialog::UpdateAdvanceList()
 {
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	for(int index = 1; index <= k_SMD_CIVILIZATION_COLUMNS; index++) {
 
@@ -359,7 +359,7 @@ BOOL ScienceManagementDialog::UpdateAdvanceItem(ctp2_ListItem *item,
 {
 	BOOL discovered = FALSE;
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if(ctp2_Static *column = GetListItemColumn(item, k_SCI_COL_ADVANCE)) {
 		column->SetText(advance->GetNameText());
@@ -369,7 +369,7 @@ BOOL ScienceManagementDialog::UpdateAdvanceItem(ctp2_ListItem *item,
 
 		if(ctp2_Static *column = GetListItemColumn(item, k_SCI_COL_ADVANCE + index)) {
 
-			if(g_player[index] && g_player[index]->HasAdvance(advance->GetIndex()) &&
+			if(player_Get(index) && player_Get(index)->HasAdvance(advance->GetIndex()) &&
 				((index == g_selected_item->GetVisiblePlayer()) ||
 				player->HasEmbassyWith(index))) {
 
@@ -443,7 +443,7 @@ AUI_ERRCODE ScienceManagementDialog::DrawScienceBar(ctp2_Static *control,
 	if(g_selected_item->GetVisiblePlayer() < 0)
 		return AUI_ERRCODE_OK;
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 	if(!player)
 		return AUI_ERRCODE_OK;
 
@@ -497,7 +497,7 @@ AUI_ERRCODE ScienceManagementDialog::ColorHeaderActionCallback(aui_Switch *contr
 
 	sint32 index = reinterpret_cast<intptr_t>(cookie);
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 
 
@@ -515,7 +515,7 @@ sint32 ScienceManagementDialog::CompareAdvance(ctp2_ListItem *item1,
 											   sint32 column)
 {
 
-	Player *player = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *player = player_Get(g_selected_item->GetVisiblePlayer());
 
 	const AdvanceRecord *advance1 = g_theAdvanceDB->Get(
 		reinterpret_cast<intptr_t>(item1->GetUserData()));
@@ -529,9 +529,9 @@ sint32 ScienceManagementDialog::CompareAdvance(ctp2_ListItem *item1,
 		return(advance1->GetCost() - advance2->GetCost());
 	}
 
-	sint32 result = (g_player[column] && g_player[column]->HasAdvance(advance1->GetIndex())) ?
-		((g_player[column] && g_player[column]->HasAdvance(advance2->GetIndex())) ? 0 : -1) :
-		((g_player[column] && g_player[column]->HasAdvance(advance2->GetIndex())) ? 1 : 0);
+	sint32 result = (player_Get(column) && player_Get(column)->HasAdvance(advance1->GetIndex())) ?
+		((player_Get(column) && player_Get(column)->HasAdvance(advance2->GetIndex())) ? 0 : -1) :
+		((player_Get(column) && player_Get(column)->HasAdvance(advance2->GetIndex())) ? 1 : 0);
 
 	if(!result) {
 

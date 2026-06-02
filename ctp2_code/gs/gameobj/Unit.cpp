@@ -72,7 +72,7 @@ class UnitActor;
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/HappyTracker.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_Get
 #include "gs/gameobj/Readiness.h"
 #include "gs/gameobj/TradeBids.h"
 #include "gs/gameobj/TradeOfferPool.h"
@@ -113,15 +113,15 @@ void Unit::KillUnit(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy)
 {
 	sint32  pollution;
 	PLAYER_INDEX owner = GetOwner();
-	if(owner >= 0 && owner < k_MAX_PLAYERS && g_player[owner]) {
+	if(owner >= 0 && owner < k_MAX_PLAYERS && player_Get(owner)) {
 		if(GetDBRec()->GetDeathPollution(pollution))
 		{
-			g_player[owner]->AdjustEventPollution(pollution);
+			player_Get(owner)->AdjustEventPollution(pollution);
 		}
 
 		if(GetDBRec()->GetLaunchPollution(pollution))
 		{
-			g_player[owner]->AdjustEventPollution(pollution);
+			player_Get(owner)->AdjustEventPollution(pollution);
 		}
 	}
 
@@ -227,9 +227,9 @@ void Unit::RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX kille
 		}
 	}
 
-	if(!IsTempSlaveUnit() && owner >= 0 && owner < k_MAX_PLAYERS && g_player[owner])
+	if(!IsTempSlaveUnit() && owner >= 0 && owner < k_MAX_PLAYERS && player_Get(owner))
 	{
-		r = g_player[owner]->RemoveUnitReference(*this, cause, killedBy);
+		r = player_Get(owner)->RemoveUnitReference(*this, cause, killedBy);
 		Assert(r);
 	}
 
@@ -367,7 +367,7 @@ const MBCHAR * Unit::GetName() const
 // Parameters : -
 //
 // Globals    : g_theStringDB   : string database
-//              g_player        : player information
+//              player_Get      : player information
 //
 // Returns    : std::string     : text to display as name
 //
@@ -389,7 +389,7 @@ std::string Unit::GetDisplayName(void) const
 	{
 		std::string	unitName(g_theStringDB->GetNameStr(info->m_name));
 		return info->GetLeader()
-			   ? unitName + " " + g_player[GetOwner()]->GetLeaderName()
+			   ? unitName + " " + player_Get(GetOwner())->GetLeaderName()
 			   : unitName;
 	}
 }
@@ -416,7 +416,7 @@ MapPoint Unit::RetPos() const
 
 double Unit::GetHPModifier() const
 {
-	return g_player[GetOwner()]->GetHPModifier();
+	return player_Get(GetOwner())->GetHPModifier();
 }
 
 double Unit::GetHP() const
@@ -452,7 +452,7 @@ bool Unit::NearestUnexplored(sint32 searchRadius, MapPoint &pos) const
 	CircleIterator it(center, searchRadius, static_cast<sint32>(GetVisionRange()));
 	for (it.Start(); !it.End(); it.Next())
 	{
-		if (    !g_player[GetOwner()]->IsExplored(it.Pos())
+		if (    !player_Get(GetOwner())->IsExplored(it.Pos())
 		     && GetArmy()->CanEnter(it.Pos())
 		     && world_Get()->IsOnSameContinent(it.Pos(), center)
 		   )
@@ -479,11 +479,11 @@ bool Unit::NearestFriendlyCity(MapPoint &p) const
 	p = unit_pos;
 
 	MapPoint    city_pos;
-	int const   n = g_player[GetOwner()]->m_all_cities->Num();
+	int const   n = player_Get(GetOwner())->m_all_cities->Num();
 
 	for (int i = 0; i < n; i++)
 	{
-		g_player[GetOwner()]->m_all_cities->Get(i).GetPos(city_pos);
+		player_Get(GetOwner())->m_all_cities->Get(i).GetPos(city_pos);
 
 		size_t d = std::max(abs(city_pos.x - unit_pos.x),
 		                    abs(city_pos.y - unit_pos.y)
@@ -508,14 +508,14 @@ bool Unit::NearestFriendlyCityWithRoom(MapPoint &p, sint32 needRoom,
 	p = unit_pos;
 
 	MapPoint    city_pos;
-	int const   n = g_player[GetOwner()]->m_all_cities->Num();
+	int const   n = player_Get(GetOwner())->m_all_cities->Num();
 	bool const  testWaterMove   =
 	    army.IsValid() &&
 	   (army->IsAtLeastOneMoveWater() || army->IsAtLeastOneMoveShallowWater());
 
 	for (int i = 0; i < n; i++)
 	{
-		g_player[GetOwner()]->m_all_cities->Get(i).GetPos(city_pos);
+		player_Get(GetOwner())->m_all_cities->Get(i).GetPos(city_pos);
 
 		if (world_Get()->GetCell(city_pos)->GetNumUnits() + needRoom > k_MAX_ARMY_SIZE)
 			continue;
@@ -559,10 +559,10 @@ bool Unit::NearestFriendlyCity(Unit &c) const
 	GetPos(unit_pos);
 
     MapPoint    city_pos;
-	int const   n = g_player[GetOwner()]->m_all_cities->Num();
+	int const   n = player_Get(GetOwner())->m_all_cities->Num();
 	for (int i = 0; i < n; i++)
 	{
-		g_player[GetOwner()]->m_all_cities->Get(i).GetPos(city_pos);
+		player_Get(GetOwner())->m_all_cities->Get(i).GetPos(city_pos);
 
         size_t	d = std::max(abs(city_pos.x - unit_pos.x),
                              abs(city_pos.y - unit_pos.y)
@@ -571,7 +571,7 @@ bool Unit::NearestFriendlyCity(Unit &c) const
 		if (d < closest_distance)
 		{
 			closest_distance = d;
-			c = g_player[GetOwner()]->m_all_cities->Get(i).m_id;
+			c = player_Get(GetOwner())->m_all_cities->Get(i).m_id;
 		}
 
 	}
@@ -584,7 +584,7 @@ void Unit::Launch()
     sint32 pollution;
     if (GetDBRec()->GetLaunchPollution(pollution))
     {
-		g_player[GetOwner()]->AdjustEventPollution(pollution);
+		player_Get(GetOwner())->AdjustEventPollution(pollution);
     }
 }
 
@@ -1357,7 +1357,7 @@ void Unit::SetMilitaryContribution(bool on)
 void Unit::SetIsProfessional(bool on)
 {
 	if (GetIsProfessional() != on) {
-		g_player[GetOwner()]->RegisterProfessionalChange(on, *this);
+		player_Get(GetOwner())->RegisterProfessionalChange(on, *this);
 		AccessData()->SetIsProfessional(on);
 	}
 }
@@ -1985,7 +1985,7 @@ UNIT_ORDER_TYPE Unit::GetOrders() const
 
 double Unit::GetSupportCost() const
 {
-	return g_player[GetOwner()]->m_readiness->GetSupportCost(*this);
+	return player_Get(GetOwner())->m_readiness->GetSupportCost(*this);
 }
 
 double Unit::GetOverseasDistress() const

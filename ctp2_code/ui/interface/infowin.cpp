@@ -51,7 +51,7 @@
 #include "gs/utility/Globals.h"                // allocated::clear
 #include "ui/interface/infowindow.h"
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get
 #include "ui/aui_ctp2/radarmap.h"
 #include "ui/interface/screenutils.h"
 #include "ui/aui_ctp2/staticpicture.h"
@@ -566,7 +566,7 @@ sint32 infowin_UpdateCivData( void )
 	s_foundedBox->SetText("");
 	s_turnsBox->SetText("");
 
-	Player *p = g_player[curPlayer];
+	Player *p = player_Get(curPlayer);
 
 	if (!p) return 0;
 
@@ -645,7 +645,7 @@ sint32 infowin_UpdateScoreList( void )
 	MBCHAR strbuf[256];
 
 	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
-	Player *pl = g_player[curPlayer];
+	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
@@ -749,8 +749,8 @@ sint32 infowin_UpdateScoreList( void )
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 
 	Score *score = NULL;
-	if(g_player[curPlayer]) {
-		score = g_player[curPlayer]->m_score;
+	if(player_Get(curPlayer)) {
+		score = player_Get(curPlayer)->m_score;
 	} else {
 		Player *deadPlayer = Player::GetDeadPlayer(curPlayer);
 		Assert(deadPlayer);
@@ -854,7 +854,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			color[infoYCount] = g_colorSet->ComputePlayerColor(i);
 			infoYCount++;
@@ -896,11 +896,11 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 	sint32 playerCount = 0;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			for (sint32 round = 0 ; round < infoXCount ; ++round)
 			{
-                sint32 strValue = GetCombinedStrength(*g_player[i]->m_strengths, round);
+                sint32 strValue = GetCombinedStrength(*player_Get(i)->m_strengths, round);
 				(*infoGraphData)[playerCount][round] = strValue;
 
 				while (strValue > maxPower)
@@ -975,7 +975,7 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 	sint32 i;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			color[infoYCount] = g_colorSet->ComputePlayerColor(i);
 			infoYCount++;
@@ -1001,12 +1001,12 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 	sint32 playerCount = 0;
 	for ( i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 			for (sint32 j = 0 ; j < infoXCount ; j++ )
 			{
 				sint32 pollutionValue =
-                    g_player[i]->m_pollution_history[(infoXCount - 1) - j];
+                    player_Get(i)->m_pollution_history[(infoXCount - 1) - j];
 				(*infoGraphData)[playerCount][j] = pollutionValue;
 
                 while (pollutionValue > maxPower)
@@ -1046,14 +1046,14 @@ sint32 infowin_UpdatePlayerList( void )
 	for ( sint32 i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
 
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 
 			if (!myData)
 				color = (sint32)g_colorSet->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
-			civ = g_player[i]->GetCivilisation();
+			civ = player_Get(i)->GetCivilisation();
 			if (civ != NULL && civilisationpool_Get()->IsValid(*civ)) {
 				civ->GetSingularCivName(strbuf);
 
@@ -1116,14 +1116,14 @@ sint32 infowin_UpdatePollutionData( void )
 	for ( sint32 i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
 
-		if (g_player[i] && (i != PLAYER_INDEX_VANDALS))
+		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
 
 			if (!myData)
 				color = (sint32)g_colorSet->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
-			Civilisation * civ = g_player[i]->GetCivilisation();
+			Civilisation * civ = player_Get(i)->GetCivilisation();
 			civ->GetSingularCivName(strbuf);
 
 			s_pollutionList->AddItem
@@ -1339,7 +1339,7 @@ sint32 infowin_ChangeDataSetting( sint32 type )
 
 sint32 infowin_GetCivScore( sint32 player )
 {
-	Player *pl = g_player[player];
+	Player *pl = player_Get(player);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
@@ -1369,7 +1369,7 @@ sint32 infowin_LabReady()
 #if 0   // Old CTP1 functionality, does nothing worthwhile
 
 	sint32 curPlayer =  g_selected_item->GetVisiblePlayer();
-	Player *pl = g_player[curPlayer];
+	Player *pl = player_Get(curPlayer);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {
@@ -1383,7 +1383,7 @@ sint32 infowin_LabReady()
 	if(!pl)
 		return 0;
 
-	Player *p = g_player[curPlayer];
+	Player *p = player_Get(curPlayer);
 	if(!p) {
 		p = Player::GetDeadPlayer(curPlayer);
 		Assert(p);
@@ -1476,7 +1476,7 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 
 	m_size = cd->PopCount();
 
-	Player *p = g_player[cd->GetOwner()];
+	Player *p = player_Get(cd->GetOwner());
 	Civilisation *civ = p->GetCivilisation();
 
 	civ->GetSingularCivName(strbuf);
@@ -1688,7 +1688,7 @@ void InfoWonderListItem::Update(void)
 	strcpy(strbuf,g_theStringDB->GetNameStr(g_theWonderDB->Get(m_index)->m_name));
 	subItem->SetText(strbuf);
 
-	Player *p = g_player[m_player];
+	Player *p = player_Get(m_player);
 	Civilisation *civ = p->GetCivilisation();
 
 	civ->GetSingularCivName(strbuf);
@@ -1776,7 +1776,7 @@ void InfoScoreListItem::Update(void)
 	if (m_player < 0) return;
 
 	MBCHAR strbuf[256];
-	Player *pl = g_player[m_player];
+	Player *pl = player_Get(m_player);
 	if(!pl) {
 		PointerList<Player>::Walker walk(g_deadPlayer);
 		while(walk.IsValid()) {

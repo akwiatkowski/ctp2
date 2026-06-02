@@ -565,7 +565,7 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 		propList->Clear();
 
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
-			if(g_player[i] && player != i) {
+			if(player_Get(i) && player != i) {
 				const NewProposal *prop;
 				ProposalData propData;
 				sint32 sender, receiver;
@@ -662,12 +662,12 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 							if(toPlayer) {
 								strcpy(finalText, g_theStringDB->GetNameStr("str_ldl_From"));
 								strcat(finalText, " ");
-								g_player[sender]->m_civilisation->GetCountryName(finalText + strlen(finalText));
+								player_Get(sender)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");
 							} else {
 								strcpy(finalText, g_theStringDB->GetNameStr("str_ldl_To"));
 								strcat(finalText, " ");
-								g_player[receiver]->m_civilisation->GetCountryName(finalText + strlen(finalText));
+								player_Get(receiver)->m_civilisation->GetCountryName(finalText + strlen(finalText));
 								strcat(finalText, ": ");
 							}
 
@@ -2242,13 +2242,13 @@ void DiplomacyWindow::AddCityItems(ctp2_Menu *menu, sint32 player)
 	if((player < 0) || (player >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[player]);
-	if(!g_player[player])
+	Assert(player_Get(player));
+	if(!player_Get(player))
 		return;
 
 	sint32 i;
-	for(i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
-		Unit city = g_player[player]->m_all_cities->Access(i);
+	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
+		Unit city = player_Get(player)->m_all_cities->Access(i);
 		menu->AddItem(city.GetName(), NULL, (void *)city.m_id);
 	}
 }
@@ -2265,22 +2265,22 @@ void DiplomacyWindow::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 rec
 	if((receiver < 0) || (receiver >= k_MAX_PLAYERS))
 		return;
 
-	Assert(g_player[sender]);
-	if(!g_player[sender])
+	Assert(player_Get(sender));
+	if(!player_Get(sender))
 		return;
 
-	Assert(g_player[receiver]);
-	if(!g_player[receiver])
+	Assert(player_Get(receiver));
+	if(!player_Get(receiver))
 		return;
 
 	sint32 a;
 	for(a = 0; a < g_theAdvanceDB->NumRecords(); a++) {
-		if(!g_player[sender]->HasAdvance(a)) {
+		if(!player_Get(sender)->HasAdvance(a)) {
 
 			continue;
 		}
 
-		if(g_player[receiver]->HasAdvance(a)) {
+		if(player_Get(receiver)->HasAdvance(a)) {
 
 			continue;
 		}
@@ -2296,11 +2296,11 @@ void DiplomacyWindow::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 
 		if((p == sender) || (p == receiver))
 			continue;
 
-		if(!g_player[p])
+		if(!player_Get(p))
 			continue;
 
 		MBCHAR civName[k_MAX_NAME_LEN];
-		g_player[p]->GetCivilisation()->GetPluralCivName(civName);
+		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
 		menu->AddItem(civName, NULL, (void *)p);
 	}
 }
@@ -2325,7 +2325,7 @@ void DiplomacyWindow::RequestGoldValue(sint32 player)
 
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipGoldRequest.Spinner");
 	if(player == g_selected_item->GetVisiblePlayer()) {
-		spinner->SetMaximum(g_player[player]->m_gold->GetLevel(), 0);
+		spinner->SetMaximum(player_Get(player)->m_gold->GetLevel(), 0);
 	} else {
 
 		spinner->SetMaximum(~(1 << 31), 0);
@@ -2355,13 +2355,13 @@ void DiplomacyWindow::RequestPollutionValue(sint32 player)
 
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPollutionRequest.Spinner");
 
-	spinner->SetMaximum(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.95), 0);
+	spinner->SetMaximum(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.95), 0);
 
-	spinner->SetMinimum(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.25), 0);
+	spinner->SetMinimum(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.25), 0);
 
-	spinner->SetPage(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.20), 0);
+	spinner->SetPage(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.20), 0);
 
-	spinner->SetIncrement(static_cast<sint32>(g_player[player]->GetPollutionLevel() * 0.10), 0);
+	spinner->SetIncrement(static_cast<sint32>(player_Get(player)->GetPollutionLevel() * 0.10), 0);
 
 	g_c3ui->AddWindow(m_pollutionRequestWindow);
 }
@@ -3173,7 +3173,7 @@ void DiplomacyWindow::EnableButtons(BOOL enable, sint32 player)
 	sm_messageButton->Enable(enable);
 
 	if(enable
-	&& g_player[g_selected_item->GetVisiblePlayer()]->HasWarWith(player)
+	&& player_Get(g_selected_item->GetVisiblePlayer())->HasWarWith(player)
 	){
 		sm_warButton->Enable(FALSE);
 	}

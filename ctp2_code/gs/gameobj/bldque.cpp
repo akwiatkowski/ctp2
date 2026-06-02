@@ -412,7 +412,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 	if (m_list->GetHead()->m_cost <= m_city.CD()->GetStoredCityProduction()) {
 		MapPoint cpos;
 		m_city.GetPos(cpos);
-		if(g_theWorld->GetCell(cpos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
+		if(world_Get()->GetCell(cpos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
 		   !g_theUnitDB->Get(m_list->GetHead()->m_type)->GetIsTrader()) {
 			SlicObject *so = new SlicObject("106CantBuildUnitCellIsFull");
 			so->AddCity(m_city);

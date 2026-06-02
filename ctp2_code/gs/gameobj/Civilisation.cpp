@@ -42,7 +42,7 @@
 #include "gs/database/profileDB.h"			// g_theProfileDB
 #include "net/general/net_player.h"
 #include "AdvanceRecord.h"
-#include "gs/world/World.h"			    // g_theWorld
+#include "gs/world/World.h"			    // world_Get()
 #include "net/general/net_vision.h"
 #include "ai/ctpai.h"
 
@@ -177,7 +177,7 @@ void civilisation_CreateNewPlayer(sint32 pi, sint32 old_owner)
 		g_network.Block(old_owner);
 		g_network.QueuePacketToAll(new NetPlayer(player_Get(pi)));
 
-		for (uint16 y = 0; y < g_theWorld->GetYHeight(); y += k_VISION_STEP)
+		for (uint16 y = 0; y < world_Get()->GetYHeight(); y += k_VISION_STEP)
 		{
 			g_network.QueuePacketToAll(new NetVision(pi, y, k_VISION_STEP));
 		}

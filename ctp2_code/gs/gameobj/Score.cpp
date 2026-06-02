@@ -48,7 +48,6 @@
 #include "gs/gameobj/FeatTracker.h"
 
 extern PointerList<Player> *g_deadPlayer;
-extern World *g_theWorld;
 extern ProfileDB *g_theProfileDB;
 extern StringDB *g_theStringDB;
 

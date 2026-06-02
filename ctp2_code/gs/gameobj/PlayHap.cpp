@@ -131,7 +131,7 @@ void PlayerHappiness::CalcPeaceMovement(Player *p,
 	for(i = 0; i < n; i++) {
 		MapPoint pos;
 		all_armies[i].GetPos(pos);
-		Cell *cell = g_theWorld->GetCell(pos);
+		Cell *cell = world_Get()->GetCell(pos);
 		if(cell->GetCity().m_id != (0))
 			continue;
 		if (terrainutil_HasFort(pos) && cell->GetOwner() == p->m_owner)

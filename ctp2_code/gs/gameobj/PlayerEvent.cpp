@@ -175,7 +175,7 @@ STDEHANDLER(BeginTurnAllCitiesEvent)
 	if(p->m_capitol && unitpool_Get()->IsValid(p->m_capitol->m_id)) {
 		MapPoint pos;
 		p->m_capitol->GetPos(pos);
-		g_theWorld->FindCityDistances(p->m_owner, pos);
+		world_Get()->FindCityDistances(p->m_owner, pos);
 	}
 
 	safe_player(player)->m_virtualGoldSpent = 0;

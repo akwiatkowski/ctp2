@@ -17,7 +17,6 @@
 #include "net/general/net_info.h"
 #include "gs/core/game_observer.h"
 
-extern World* g_theWorld;
 bool TradeRoute::IsValid() const
 {
 	return tradepool_Get()->IsValid(m_id);

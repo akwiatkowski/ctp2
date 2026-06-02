@@ -74,7 +74,7 @@ STDEHANDLER(RunCombatEvent)
 		                       GEA_Army,     army,
 		                       GEA_MapPoint, pos,
 		                       GEA_Unit,     army[0],
-		                       GEA_Unit,     g_theWorld->GetCell(pos)->AccessUnit(0),
+		                       GEA_Unit,     world_Get()->GetCell(pos)->AccessUnit(0),
 		                       GEA_Player,   attacker,
 		                       GEA_Player,   defender,
 		                       GEA_Int,      1,
@@ -116,7 +116,7 @@ STDEHANDLER(StartCombatEvent)
 	}
 
 	CellUnitList defender;
-	g_theWorld->GetCell(p)->GetArmy(defender);
+	world_Get()->GetCell(p)->GetArmy(defender);
 
 	Assert(a.Num() > 0);
 	Assert(defender.Num() > 0);

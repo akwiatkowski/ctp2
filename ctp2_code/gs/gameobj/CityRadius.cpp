@@ -34,7 +34,6 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 
-extern World *g_theWorld;
 extern MapPoint g_mp_size;
 
 #include "gs/utility/directions.h"	// NOWHERE

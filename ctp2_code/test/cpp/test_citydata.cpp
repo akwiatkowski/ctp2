@@ -274,10 +274,9 @@ struct HeavyCityDataFixture
             profiledb_Set(new ProfileDB());
             profiledb_Get()->Init(FALSE);
 
-            gamesettings_Set(new GameSettings());
-
             // CivApp must exist before trampoline-routed _Set calls
-            // (civilisationpool_Set writes into civapp_Get()->GetGame()).
+            // (gamesettings_Set / civilisationpool_Set write into
+            // civapp_Get()->GetGame()).
             s_app = new CivApp();
             civapp_Set(s_app);
             if (!s_app->InitializeAppDB())
@@ -285,6 +284,7 @@ struct HeavyCityDataFixture
                 fprintf(stderr, "[HeavyFixture] WARNING: InitializeAppDB failed\n");
             }
 
+            gamesettings_Set(new GameSettings());
             civilisationpool_Set(new CivilisationPool());
 
             fprintf(stderr, "[HeavyFixture] Databases loaded.\n");

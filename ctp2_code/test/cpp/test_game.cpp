@@ -164,39 +164,12 @@ TEST_CASE("Ctp2::Game adopts a pre-existing World and releases it on cleanup") {
     CHECK(world_Get() == nullptr);
 }
 
-TEST_CASE("Ctp2::Game adopts a pre-existing SlicEngine and releases it on cleanup") {
-    REQUIRE(slicengine_Get() == nullptr);
-
-    slicengine_Set(new SlicEngine());
-    SlicEngine * legacyPtr = slicengine_Get();
-    REQUIRE(legacyPtr != nullptr);
-
-    {
-        Ctp2::Game game;
-        game.NewGame(2, 0, /*randSeed*/ 42);
-        CHECK(&game.GetSlic() == legacyPtr);
-        CHECK(slicengine_Get() == legacyPtr);
-    }
-
-    CHECK(slicengine_Get() == nullptr);
-}
-
-TEST_CASE("Ctp2::Game adopts a pre-existing GameEventManager and releases it on cleanup") {
-    REQUIRE(gevmanager_Get() == nullptr);
-
-    gameEventManager_Initialize();  // production helper that allocates + Set
-    GameEventManager * legacyPtr = gevmanager_Get();
-    REQUIRE(legacyPtr != nullptr);
-
-    {
-        Ctp2::Game game;
-        game.NewGame(2, 0, /*randSeed*/ 42);
-        CHECK(&game.GetEvents() == legacyPtr);
-        CHECK(gevmanager_Get() == legacyPtr);
-    }
-
-    CHECK(gevmanager_Get() == nullptr);
-}
+// Note: SlicEngine and GameEventManager used to have adoption tests
+// here, but the trampoline pattern made adoption obsolete — m_slic and
+// m_events are populated directly via slicengine_Set / gevmanager_Set
+// routing through civapp_Get()->GetGame()->Set*Ptr.  The trampoline
+// roundtrip is exercised through CivApp-based fixtures (HeavyCityData)
+// and the integration smoke tests.
 
 TEST_CASE("Ctp2::Game adopts a pre-existing Player[] array and releases it on cleanup") {
     // Production gameinit allocates `g_player = new Player*[k_MAX_PLAYERS]`

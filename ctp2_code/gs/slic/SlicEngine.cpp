@@ -151,11 +151,17 @@
 #include "gs/gameobj/CriticalMessagesPrefs.h"
 #include "gs/database/profileDB.h"
 
-// SlicEngine: file-static (tests construct standalone instances).
-// Game::NewGame still adopts the legacy pointer into m_slic.
-static SlicEngine *g_slicEngine = NULL;
-SlicEngine * slicengine_Get(void)        { return g_slicEngine; }
-void         slicengine_Set(SlicEngine *p) { g_slicEngine = p; }
+// SlicEngine storage lives in Ctp2::Game; accessors trampoline through CivApp.
+SlicEngine * slicengine_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetSlicPtr() : nullptr;
+}
+void slicengine_Set(SlicEngine *p) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (game) game->SetSlicPtr(p); else delete p;
+}
 
 char g_slic_filename[_MAX_PATH];
 char g_tutorial_filename[_MAX_PATH];
@@ -351,13 +357,13 @@ SlicEngine::~SlicEngine()
 /// \result File loaded and parsed successfully
 bool SlicEngine::Reload(std::basic_string<MBCHAR> const & a_File)
 {
-    delete g_slicEngine;
-    g_slicEngine = new SlicEngine();
+    slicengine_Set(new SlicEngine());  // Set() deletes the previous instance
 
-    bool isParsedOk = g_slicEngine->Load(a_File, k_NORMAL_FILE);
+    SlicEngine * eng = slicengine_Get();
+    bool isParsedOk = eng->Load(a_File, k_NORMAL_FILE);
     if (isParsedOk)
     {
-        g_slicEngine->Link();
+        eng->Link();
     }
     return isParsedOk;
 }
@@ -369,8 +375,11 @@ void SlicEngine::Serialize(CivArchive &archive)
 
     if (!archive.IsStoring())
     {
-        // Ugly hack to prevent crashes in m_segmentHash->Serialize
-        g_slicEngine = this;
+        // Ugly hack to prevent crashes in m_segmentHash->Serialize.
+        // Guard against self-reset on Game's unique_ptr (UB).
+        if (slicengine_Get() != this) {
+            slicengine_Set(this);
+        }
     }
 
 	m_segmentHash->Serialize(archive);

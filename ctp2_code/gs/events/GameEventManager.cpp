@@ -56,10 +56,17 @@
 #include "gs/core/game.h"          // Ctp2::Game (trampoline target)
 #include "ctp/civapp.h"            // civapp_Get → CivApp::GetGame
 
-// GameEventManager: file-static (tests pre-allocate, Game adopts).
-static GameEventManager *g_gevManager = NULL;
-GameEventManager * gevmanager_Get(void)               { return g_gevManager; }
-void               gevmanager_Set(GameEventManager *p) { g_gevManager = p; }
+// GameEventManager storage lives in Ctp2::Game; trampoline through CivApp.
+GameEventManager * gevmanager_Get(void) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    return game ? game->GetEventsPtr() : nullptr;
+}
+void gevmanager_Set(GameEventManager *p) {
+    CivApp * app = civapp_Get();
+    Ctp2::Game * game = app ? app->GetGame() : nullptr;
+    if (game) game->SetEventsPtr(p); else delete p;
+}
 
 extern BOOL g_eventLog;
 
@@ -69,14 +76,12 @@ extern BOOL g_eventLog;
 
 void gameEventManager_Initialize()
 {
-    delete g_gevManager;
-	g_gevManager = new GameEventManager();
+	gevmanager_Set(new GameEventManager());  // Set() deletes the previous
 }
 
 void gameEventManager_Cleanup()
 {
-	delete g_gevManager;
-	g_gevManager = NULL;
+	gevmanager_Set(nullptr);
 }
 
 GameEventManager::GameEventManager()

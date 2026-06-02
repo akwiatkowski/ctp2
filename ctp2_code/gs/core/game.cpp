@@ -86,15 +86,10 @@ void Game::NewGame(sint32 numPlayers, sint32 initialYear, sint32 randSeed) {
     ensure(m_achievementTracker,     []{ return std::make_unique<AchievementTracker>();     });
     ensure(m_tradeBids,              []{ return std::make_unique<TradeBids>();              });
 
-    // World, GameSettings, SlicEngine, GameEventManager: legacy
-    // file-static storage (preserved so test fixtures can use Set
-    // as a non-owning swap).  Adopt the legacy pointer here.
-    if (world_Get()      && !m_world)    m_world.reset(world_Get());
-    if (gamesettings_Get() && !m_settings) m_settings.reset(gamesettings_Get());
-    if (slicengine_Get() && !m_slic)     m_slic.reset(slicengine_Get());
-    if (gevmanager_Get() && !m_events)   m_events.reset(gevmanager_Get());
-
-    // FeatTracker is trampoline-routed (no test uses it); ensure-only.
+    // World: legacy file-static storage (CityDataFixture uses
+    // world_Set as a non-owning swap with manual delete).  Adopt the
+    // legacy pointer here.
+    if (world_Get() && !m_world) m_world.reset(world_Get());
 
     // Players[]: gameinit allocates the Player** array and per-slot
     // Players (gameinit_InitializePlayers /
@@ -120,11 +115,7 @@ void Game::Cleanup() {
     // calls become no-ops (delete NULL is safe) and we avoid a
     // double-delete on the single shared instance.
 
-    // Adopt-only subsystems: null legacy first so gameinit_Cleanup's
-    // own allocated::clear sees null and skips deletion.
-    gevmanager_Set(nullptr);
     m_events.reset();
-    slicengine_Set(nullptr);
     m_slic.reset();
 
     // Trackers and pools: null the legacy pointer first, then destroy.
@@ -144,7 +135,6 @@ void Game::Cleanup() {
     m_wonderTracker.reset();
     m_civilisationPool.reset();
     m_messagePool.reset();
-    gamesettings_Set(nullptr);
     m_settings.reset();
 
     m_topten.reset();

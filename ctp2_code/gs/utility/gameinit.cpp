@@ -177,12 +177,7 @@ extern sint32 g_cheat_age;
         if (game) game->Set##GAME_METHOD##Ptr(p); else delete p;        \
     }
 
-// GameSettings: file-static storage; tests rely on Set-without-ownership
-// semantics that the trampoline would break.  Game::NewGame still
-// adopts the legacy pointer into m_settings.
-static GameSettings *g_theGameSettings = NULL;
-GameSettings * gamesettings_Get(void)             { return g_theGameSettings; }
-void           gamesettings_Set(GameSettings *p)  { g_theGameSettings = p; }
+GAME_TRAMPOLINE(gamesettings_Get, gamesettings_Set, Settings, GameSettings)
 
 static Wormhole             *g_wormhole=NULL;
 Wormhole * wormhole_Get(void)    { return g_wormhole; }

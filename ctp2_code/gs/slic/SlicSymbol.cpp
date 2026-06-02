@@ -413,9 +413,9 @@ BOOL SlicSymbolData::GetPlayer(PLAYER_INDEX &player) const
 			){
 				c3errors_ErrorDialog("Slic", "%i is not a valid player index.\nError occured in object: %s\nLine: %i\nFile: %s",
 					                 player,
-									 g_slicEngine->GetSegmentName(),
-									 g_slicEngine->GetCurrentLine(),
-									 g_slicEngine->GetFileName());
+									 slicengine_Get()->GetSegmentName(),
+									 slicengine_Get()->GetCurrentLine(),
+									 slicengine_Get()->GetFileName());
 			}
 
 			return FALSE;
@@ -802,7 +802,7 @@ void SlicSymbolData::SetType(SLIC_SYM type)
 			m_val.m_array = new SlicArray(SS_TYPE_SYM, SLIC_SYM_UNDEFINED);
 			break;
 		case SLIC_SYM_FUNC:
-			m_val.m_function_object = g_slicEngine->GetFunction(GetName());
+			m_val.m_function_object = slicengine_Get()->GetFunction(GetName());
 			break;
 		case SLIC_SYM_SVAR:
 			res = g_theStringDB->GetStringID(GetName(), m_val.m_string_value);
@@ -1061,7 +1061,7 @@ void SlicSymbolData::Serialize(CivArchive &archive)
 					archive.Load((uint8*)buf, len);
 				}
 				buf[len] = 0;
-				m_val.m_function_object = g_slicEngine->GetFunction(buf);
+				m_val.m_function_object = slicengine_Get()->GetFunction(buf);
 				Assert(m_val.m_function_object);
 				break;
 			case SLIC_SYM_REGION:
@@ -1096,7 +1096,7 @@ void SlicSymbolData::Serialize(CivArchive &archive)
 				if(len > 0) {
 					archive.Load((uint8*)buf, len);
 					buf[len] = 0;
-					m_val.m_segment = g_slicEngine->GetSegment(buf);
+					m_val.m_segment = slicengine_Get()->GetSegment(buf);
 				} else {
 					m_val.m_segment = NULL;
 				}

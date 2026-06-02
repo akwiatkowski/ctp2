@@ -113,7 +113,7 @@ SlicSegment::SlicSegment()
 // Parameters : slicifIndex         : index of stored object
 //
 // Globals    : slic_object_array_Get()   : stored objects
-//              g_slicEngine        : game engine
+//              slicengine_Get()        : game engine
 //              gevmanager_Get()        : game event manager
 //
 // Returns    : -
@@ -201,9 +201,9 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 
 	m_enabled = TRUE;
 
-	if (g_slicEngine)
+	if (slicengine_Get())
 	{
-		SlicSymbolData *sym = g_slicEngine->GetSymbol(m_id);
+		SlicSymbolData *sym = slicengine_Get()->GetSymbol(m_id);
 
 		if (sym)
 		{
@@ -526,7 +526,7 @@ void SlicSegment::LinkTriggerSymbols()
 
 	m_trigger_symbols = new SlicSymbol *[m_num_trigger_symbols];
 	for(sint32 i = 0; i < m_num_trigger_symbols; i++) {
-		m_trigger_symbols[i] = g_slicEngine->GetSymbol(m_trigger_symbols_indices[i]);
+		m_trigger_symbols[i] = slicengine_Get()->GetSymbol(m_trigger_symbols_indices[i]);
 		Assert(m_trigger_symbols[i]);
 		if(m_trigger_symbols[i]) {
 			m_trigger_symbols[i]->AddTrigger(this);
@@ -543,7 +543,7 @@ void SlicSegment::LinkParameterSymbols()
 	delete [] m_parameter_symbols;
 	m_parameter_symbols = (m_num_parameters > 0) ? new SlicSymbolData *[m_num_parameters] : NULL;
 	for(sint32 i = 0; i < m_num_parameters; i++) {
-		m_parameter_symbols[i] = g_slicEngine->GetSymbol(m_parameter_indices[i]);
+		m_parameter_symbols[i] = slicengine_Get()->GetSymbol(m_parameter_indices[i]);
 		Assert(m_parameter_symbols[i]);
 	}
 }
@@ -592,7 +592,7 @@ SFN_ERROR SlicSegment::Call(SlicArgList *args, SlicObject *&obj)
 	obj->AddRef();
 	obj->CopyFromBuiltins();
 
-	g_slicEngine->Execute(obj);
+	slicengine_Get()->Execute(obj);
 
 	return SFN_ERROR_OK;
 }
@@ -615,13 +615,13 @@ GAME_EVENT_HOOK_DISPOSITION SlicSegment::GEVHookCallback(GAME_EVENT type, GameEv
 		so->AddRef();
 		so->Snarf(args);
 		so->SetResult((sint32)GEV_HD_Continue);
-		g_slicEngine->Execute(so);
+		slicengine_Get()->Execute(so);
 
 		GAME_EVENT_HOOK_DISPOSITION disp = (GAME_EVENT_HOOK_DISPOSITION) so->GetResult();
 		so->Release();
 
 		Assert(disp >= GEV_HD_Continue && disp < GEV_HD_MAX);
-		if (g_slicEngine->AtBreak())
+		if (slicengine_Get()->AtBreak())
 			return GEV_HD_NeedUserInput;
 
 		switch(disp)

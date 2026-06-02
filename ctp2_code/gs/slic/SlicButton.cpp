@@ -150,7 +150,7 @@ void SlicButton::Serialize(CivArchive &archive)
 void SlicButton::Callback()
 {
 	if(m_segmentName && !m_segment) {
-		m_segment = g_slicEngine->GetSegment(m_segmentName);
+		m_segment = slicengine_Get()->GetSegment(m_segmentName);
 		delete [] m_segmentName;
 		m_segmentName = NULL;
 	}
@@ -167,10 +167,10 @@ void SlicButton::Callback()
 
 	Message oldmessage;
 
-	g_slicEngine->GetCurrentMessage(oldmessage);
+	slicengine_Get()->GetCurrentMessage(oldmessage);
 
-	g_slicEngine->PushContext(m_context);
-	g_slicEngine->SetCurrentMessage(*m_message);
+	slicengine_Get()->PushContext(m_context);
+	slicengine_Get()->SetCurrentMessage(*m_message);
 
 	if(m_context->GetFrame()){
 		m_context->GetFrame()->RunAt(m_codeOffset);
@@ -182,8 +182,8 @@ void SlicButton::Callback()
 		delete frame;
 	}
 
-	g_slicEngine->SetCurrentMessage(oldmessage);
-	g_slicEngine->PopContext();
+	slicengine_Get()->SetCurrentMessage(oldmessage);
+	slicengine_Get()->PopContext();
 }
 
 const MBCHAR *SlicButton::GetName() const

@@ -131,7 +131,7 @@ void SlicParameterSymbol::Serialize(CivArchive &archive)
 
 BOOL SlicParameterSymbol::GetIntValue(sint32 &value) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -144,7 +144,7 @@ BOOL SlicParameterSymbol::GetIntValue(sint32 &value) const
 
 BOOL SlicParameterSymbol::GetPlayer(sint32 &value) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -157,7 +157,7 @@ BOOL SlicParameterSymbol::GetPlayer(sint32 &value) const
 
 BOOL SlicParameterSymbol::GetPos(MapPoint &pos) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -170,7 +170,7 @@ BOOL SlicParameterSymbol::GetPos(MapPoint &pos) const
 
 BOOL SlicParameterSymbol::GetUnit(Unit &u) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -183,7 +183,7 @@ BOOL SlicParameterSymbol::GetUnit(Unit &u) const
 
 BOOL SlicParameterSymbol::GetArmy(Army &a) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -196,7 +196,7 @@ BOOL SlicParameterSymbol::GetArmy(Army &a) const
 
 BOOL SlicParameterSymbol::GetCity(Unit &c) const
 {
-	SlicObject *context = g_slicEngine->GetContext();
+	SlicObject *context = slicengine_Get()->GetContext();
 	SlicArgList *argList = context->GetArgList();
 	if(!argList) {
 		if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -221,6 +221,6 @@ void SlicBuiltinNamedSymbol::Serialize(CivArchive &archive)
 	SlicNamedSymbol::Serialize(archive);
 
 	if(!archive.IsStoring()) {
-		g_slicEngine->AddBuiltinSymbol(this);
+		slicengine_Get()->AddBuiltinSymbol(this);
 	}
 }

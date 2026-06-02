@@ -52,8 +52,8 @@ const MBCHAR *TurnYearStatus::GetCurrentYear()
 {
 	sint32 currentYear = g_turn->GetSessionYear();
 
-	sint32 round       = g_player[g_selected_item->GetVisiblePlayer()] ?
-	                     g_player[g_selected_item->GetVisiblePlayer()]->m_current_round :
+	sint32 round       = player_Get(g_selected_item->GetVisiblePlayer()) ?
+	                     player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
 	                     g_turn->GetSessionRound();
 
 	return TurnYearStatus::GetYearString(currentYear, round);
@@ -125,8 +125,8 @@ const MBCHAR *TurnYearStatus::GetYearString(sint32 currentYear, sint32 round)
 const MBCHAR *TurnYearStatus::GetCurrentRound()
 {
 	static MBCHAR buf[1024];
-	sint32 round = g_player[g_selected_item->GetVisiblePlayer()] ?
-	                   g_player[g_selected_item->GetVisiblePlayer()]->m_current_round :
+	sint32 round = player_Get(g_selected_item->GetVisiblePlayer()) ?
+	                   player_Get(g_selected_item->GetVisiblePlayer())->m_current_round :
 	                   g_turn->GetSessionRound();
 	snprintf(buf, sizeof(buf), "%d %s", round, g_theStringDB->GetNameStr("str_ldl_Turns"));
 	return buf;
@@ -274,12 +274,12 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 	if(g_selected_item == NULL)
 		return AUI_ERRCODE_OK;
 
-	if (NULL == g_player)
+	if (NULL == player_arr_Get())
 	{
 		return AUI_ERRCODE_OK;
 	}
 
-	if(!g_player[g_selected_item->GetVisiblePlayer()]) {
+	if(!player_Get(g_selected_item->GetVisiblePlayer())) {
 		return AUI_ERRCODE_OK;
 	}
 
@@ -294,7 +294,7 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 		if(startp >= k_MAX_PLAYERS)
 			startp = 0;
 		for(p = startp; p != g_selected_item->GetVisiblePlayer(); p++) {
-			if(g_player[p]) {
+			if(player_Get(p)) {
 				alive++;
 			}
 			if(p == g_selected_item->GetCurPlayer()) {

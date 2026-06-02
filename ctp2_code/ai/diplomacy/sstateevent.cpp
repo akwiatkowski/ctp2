@@ -147,7 +147,7 @@ STDEHANDLER(FullAttack_NextSStateEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	Player *player = g_player[playerId];
+	Player *player = player_Get(playerId);
 	Assert(player);
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -224,7 +224,7 @@ STDEHANDLER(BuildupStrength_NextSStateEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	Player *player = g_player[playerId];
+	Player *player = player_Get(playerId);
 	Assert(player);
 
 	if(diplomat.AtWarCount() <= 0)
@@ -283,7 +283,7 @@ STDEHANDLER(SeigeCities_NextSStateEvent)
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
-	Player *player = g_player[playerId];
+	Player *player = player_Get(playerId);
 	Assert(player);
 
 	if
@@ -443,7 +443,7 @@ STDEHANDLER(NuclearReadiness_NextSStateEvent)
 
 		for(sint32 id = 1; id < CtpAi::s_maxPlayers; id++)
 		{
-			if((id != playerId) && (g_player[id] != NULL))
+			if((id != playerId) && (player_Get(id) != NULL))
 			{
 				sint32 nukes = MapAnalysis::GetMapAnalysis().GetNuclearWeaponsCount(id);
 
@@ -897,15 +897,15 @@ STDEHANDLER(CheckCityLimit_NextSStateEvent)
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 	AiState state;
 
-	if(!g_player[playerId])
+	if(!player_Get(playerId))
 		return GEV_HD_Continue;
 
 	const GovernmentRecord *government =
-	      g_theGovernmentDB->Get(g_player[playerId]->GetGovernmentType());
+	      g_theGovernmentDB->Get(player_Get(playerId)->GetGovernmentType());
 
 	sint32 acceptedCityMaximum = diplomat.GetPersonality()->GetCitiesOverLimit() + government->GetTooManyCitiesThreshold();
 
-	if(g_player[playerId]->GetNumCities() > acceptedCityMaximum)
+	if(player_Get(playerId)->GetNumCities() > acceptedCityMaximum)
 	{
 		if(diplomat.GetPersonality()->HasOverCityLimitStrategy())
 		{
@@ -915,7 +915,7 @@ STDEHANDLER(CheckCityLimit_NextSStateEvent)
 
 			if
 			  (
-			       wonderutil_GetRevoltingCitiesJoinPlayer(g_player[playerId]->m_builtWonders)
+			       wonderutil_GetRevoltingCitiesJoinPlayer(player_Get(playerId)->m_builtWonders)
 			    && diplomat.GetPersonality()->HasNoRevolutionStrategy()
 			  )
 			{

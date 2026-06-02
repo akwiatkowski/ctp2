@@ -110,26 +110,26 @@ STDEHANDLER(NetStartMovePhaseEvent)
 		sint32 p;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
 
-			if(!g_player[p])
+			if(!player_Get(p))
 				continue;
 
 			if(p == g_network.GetPlayerIndex())
 				continue;
 
-			if(!g_player[p]->IsNetwork())
+			if(!player_Get(p)->IsNetwork())
 				continue;
 
 			uint16 id = g_network.IndexToId(p);
 			if(id != 0xffff) {
 
 				sint32 i;
-				for(i = 0; i < g_player[pl]->m_all_cities->Num(); i++) {
-					UnitData *ud = g_player[pl]->m_all_cities->Access(i).AccessData();
+				for(i = 0; i < player_Get(pl)->m_all_cities->Num(); i++) {
+					UnitData *ud = player_Get(pl)->m_all_cities->Access(i).AccessData();
 					CityData *cd = ud->GetCityData();
 
 					cityPackets.AddTail(new NetCity(ud, FALSE));
 					cityPackets.AddTail(new NetCity2(cd, FALSE));
-					cityPackets.AddTail(new NetHappy(g_player[pl]->m_all_cities->Access(i), cd->GetHappy(), FALSE));
+					cityPackets.AddTail(new NetHappy(player_Get(pl)->m_all_cities->Access(i), cd->GetHappy(), FALSE));
 
 					buildQueuePackets.AddTail(new NetCityBuildQueue(cd));
 
@@ -160,7 +160,7 @@ STDEHANDLER(NetAIFinishBeginTurnEvent)
 
 	if(g_network.IsHost() && !g_network.IsLocalPlayer(pl)) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_FINISH_AI_TURN, pl));
-	} else if(g_network.IsClient() && g_network.IsLocalPlayer(pl) && g_player[pl]->IsRobot()) {
+	} else if(g_network.IsClient() && g_network.IsLocalPlayer(pl) && player_Get(pl)->IsRobot()) {
 
 	}
 
@@ -209,7 +209,7 @@ STDEHANDLER(NetEndAIClientTurnEvent)
 	if(!g_network.IsLocalPlayer(p))
 		return GEV_HD_Continue;
 
-	if(g_player[p]->IsRobot()) {
+	if(player_Get(p)->IsRobot()) {
 		DPRINTF(k_DBG_NET, ("NetEndAIClientTurnEvent, %d\n", p));
 		g_director->AddEndTurn();
 

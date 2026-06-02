@@ -182,7 +182,7 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 			ctp2_ListItem *item = (ctp2_ListItem *)lb->GetSelectedItem();
 			if(!item) return;
 
-			g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( (long)item->GetUserData() );
+			player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
 			if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 				smd->Update();
 			}
@@ -211,7 +211,7 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 
 sint32	sci_advancescreen_displayMyWindow( MBCHAR *messageText, sint32 from, SequenceWeakPtr seq )
 {
-	Player *p = g_player[ g_selected_item->GetVisiblePlayer() ];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 	s_oldResearching = p->m_advances->GetResearching();
 
 	s_screenSequence = seq;
@@ -421,7 +421,7 @@ void sci_advancescreen_backPress(aui_Control *control, uint32 action, uint32 dat
 			return;
 		}
 
-		g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( (long)item->GetUserData() );
+		player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( (long)item->GetUserData() );
 		if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 			smd->Update();
 		}
@@ -451,7 +451,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	g_player[g_selected_item->GetVisiblePlayer()]->SetResearching( s_oldResearching );
+	player_Get(g_selected_item->GetVisiblePlayer())->SetResearching( s_oldResearching );
 
 	if (ScienceManagementDialog *smd = sciencemanagementdialog_Get()) {
 		smd->Update();
@@ -480,7 +480,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 //
 // Parameters : -
 //
-// Globals    : g_player			: list of players
+// Globals    : player_Get()		: list of players
 //				g_selected_item		: determines currently active player
 //				g_theAdvanceDB		: advance database
 //				g_theStringDB		: language dependent text to display
@@ -497,7 +497,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 sint32 sci_advancescreen_loadList( void )
 {
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 	MBCHAR str[_MAX_PATH];
 	if(!s_scienceGoalTree)
 	{
@@ -584,7 +584,7 @@ sint32 sci_advancescreen_updateData( MBCHAR *messageText, BOOL defaultMessage )
 	MBCHAR str[_MAX_PATH];
 	sint32 advanceTurns;
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 	if ( messageText ) {
 		s_message->SetHyperText( messageText );

@@ -810,7 +810,7 @@ bool NeedsCanalTunnel(MapPoint const & center_point)
 //            : g_theBuildingDB
 //            : installation_tree_Get()
 //            : world_Get()
-//            : g_tiledMap
+//            : tiledmap_Get()
 //            : civilisationpool_Get()
 //            : g_theAdvanceDB
 //            : g_theConstDB

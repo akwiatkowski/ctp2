@@ -71,7 +71,7 @@ TerrainImprovementPool::TerrainImprovementPool(CivArchive &archive)
 //
 // Globals    : g_theTerrainImprovementDB
 //				player_Get
-//				g_tiledMap
+//				tiledmap_Get()
 //				world_Get()
 //				g_soundManager
 //				g_selectedItem

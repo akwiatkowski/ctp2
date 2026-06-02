@@ -117,24 +117,24 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 	}
 
-	if (g_tiledMap)
+	if (tiledmap_Get())
 	{
-		g_tiledMap->PostProcessTile(mp, world_Get()->GetTileInfo(mp));
-		g_tiledMap->TileChanged(mp);
+		tiledmap_Get()->PostProcessTile(mp, world_Get()->GetTileInfo(mp));
+		tiledmap_Get()->TileChanged(mp);
 
 		MapPoint npos;
 		for (int d = 0; d < NOWHERE; ++d)
 		{
 			if (mp.GetNeighborPosition(static_cast<WORLD_DIRECTION>(d), npos))
 			{
-				g_tiledMap->PostProcessTile
+				tiledmap_Get()->PostProcessTile
 					(npos, world_Get()->GetTileInfo(npos));
-				g_tiledMap->TileChanged(npos);
-				g_tiledMap->RedrawTile(&npos);
+				tiledmap_Get()->TileChanged(npos);
+				tiledmap_Get()->RedrawTile(&npos);
 			}
 		}
 
-		g_tiledMap->RedrawTile(&mp);
+		tiledmap_Get()->RedrawTile(&mp);
 	}
 }
 

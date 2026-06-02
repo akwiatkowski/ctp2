@@ -36,7 +36,7 @@
 #include "net/io/net_util.h"
 #include "gs/gameobj/Vision.h"
 #include "gs/gameobj/Player.h"
-#include "gfx/tilesys/tiledmap.h"       // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"       // tiledmap_Get()
 #include "ui/aui_ctp2/radarmap.h"       // radar_map_Get()
 #include "gs/world/UnseenCell.h"
 #include "gs/world/TileInfo.h"

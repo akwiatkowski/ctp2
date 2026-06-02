@@ -64,7 +64,6 @@
 
 
 class TiledMap;
-extern TiledMap		*g_tiledMap;
 namespace
 {
 //----------------------------------------------------------------------------

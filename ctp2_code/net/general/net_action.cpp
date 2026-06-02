@@ -65,7 +65,7 @@
 #include "gs/gameobj/UnitPool.h"                   // unitpool_Get()
 #include "gs/gameobj/Order.h"
 #include "gs/gameobj/ArmyPool.h"
-#include "gfx/tilesys/tiledmap.h"                   // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"                   // tiledmap_Get()
 #include "ui/aui_ctp2/radarmap.h"                   // radar_map_Get()
 #include "gs/gameobj/ArmyData.h"
 #include "gs/gameobj/TradeOfferPool.h"             // tradeofferpool_Get()

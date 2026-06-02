@@ -7884,7 +7884,7 @@ void ArmyData::MoveUnits(const MapPoint &pos)
 // Parameters : -
 //
 // Globals    : g_network               : multiplayer manager
-//              g_tiledMap              :
+//              tiledmap_Get()              :
 //              world_Get              : the map
 //
 // Returns    : -

@@ -405,13 +405,13 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			g_c3ui->RemoveWindow(radarwindow_Get()->Id());
 			radarwindow_Cleanup();
 
-			delete g_tiledMap;
-			g_tiledMap = NULL;
+			delete tiledmap_Get();
+			tiledmap_Set(NULL);
 
 			MapPoint mapsize(world_Get()->GetXWidth(),
 							 world_Get()->GetYHeight());
-			g_tiledMap = new TiledMap(mapsize);
-			g_tiledMap->LoadTileset();
+			tiledmap_Set(new TiledMap(mapsize));
+			tiledmap_Get()->LoadTileset();
 
 			RECT rect =
 			{
@@ -421,16 +421,16 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				g_background->Y() + g_background->Height()
 			};
 
-			g_tiledMap->Initialize(&rect);
-			g_tiledMap->Refresh();
+			tiledmap_Get()->Initialize(&rect);
+			tiledmap_Get()->Refresh();
 
 			radarwindow_Initialize();
 
 			radarwindow_Display();
 
 
-			g_tiledMap->PostProcessMap();
-			g_tiledMap->Refresh();
+			tiledmap_Get()->PostProcessMap();
+			tiledmap_Get()->Refresh();
 
 			world_Get()->NumberContinents();
 
@@ -445,7 +445,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_INFO_CODE_START_UNITS:
 		{
-			g_tiledMap->CopyVision();
+			tiledmap_Get()->CopyVision();
 
 			for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 				if(player_Get(p)) {

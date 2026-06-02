@@ -21,7 +21,6 @@
 
 #include "ui/interface/controlpanelwindow.h"
 
-extern TiledMap *g_tiledMap;
 extern SelectedItem *g_selected_item;
 extern Background			*g_background;
 extern C3UI					*g_c3ui;
@@ -109,7 +108,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	}
 
-	g_tiledMap->CopyVision();
+	tiledmap_Get()->CopyVision();
 
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 		if(player_Get(p)) {
@@ -174,7 +173,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	g_network.SetStyleFromServer(m_gameStyle, m_movesPerSlice, m_totalTime, m_turnTime, m_cityTime);
 
-	g_tiledMap->CopyVision();
+	tiledmap_Get()->CopyVision();
 
 	gameinit_ResetForNetwork();
 

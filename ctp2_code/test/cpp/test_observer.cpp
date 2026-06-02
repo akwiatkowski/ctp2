@@ -303,7 +303,7 @@ TEST_CASE("GameObserverRegistry deduplicates double registration") {
     // on default-launch, which doubled every observer notify.  For
     // OnVisionAdded/OnVisionRemoved that meant every director-queue
     // AddVision/RemoveVision was queued twice — combined with game-start
-    // direct-path vision adds (which ran before g_tiledMap was up and so
+    // direct-path vision adds (which ran before tiledmap_Get() was up and so
     // were not doubled), this drifted m_vision's ref count negative once
     // any unit moved, fogging the player's own first founded city.
     // The fix made Register() idempotent.  This test pins the contract.
@@ -328,7 +328,7 @@ TEST_CASE("GameObserverRegistry NotifyVisionAdded fires once per observer (fog r
     // the registry: the deferred director-queue path
     // (Player::AddUnitVision → NotifyVisionAdded → ui_game_observer::
     // OnVisionAdded → g_director->AddAddVision) doubled, while the
-    // game-start direct-path adds (g_tiledMap not yet up) ran once.
+    // game-start direct-path adds (tiledmap_Get() not yet up) ran once.
     // Net result: m_vision ref count drifted negative once any unit
     // moved, fogging the player's first city.
     // This test verifies a single registered observer fires exactly

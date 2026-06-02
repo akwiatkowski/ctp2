@@ -6888,7 +6888,7 @@ SFN_ERROR Slic_FreeAllSlaves::Call(SlicArgList *args)
 //              SlicArg 1: int
 //
 // Globals    : world_Get()	: World gamestate functionality
-//                   g_tiledMap  : UI update functionality
+//                   tiledmap_Get()  : UI update functionality
 //
 // Returns    : SFN_ERROR		: execution result
 //
@@ -6931,7 +6931,7 @@ SFN_ERROR Slic_PlantSpecificGood::Call(SlicArgList *args)
 // Parameters : SlicArg 0: location
 //
 // Globals    : world_Get()	: World gamestate functionality
-//				g_tiledMap  : UI update functionality
+//				tiledmap_Get()  : UI update functionality
 //
 // Returns    : SFN_ERROR		: execution result
 //

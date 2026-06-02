@@ -2734,7 +2734,7 @@ sint32 gameinit_ResetForNetwork()
 
 void gameinit_ResetMapSize()
 {
-	// Engine-side reset: rebuild g_tiledMap, reset each player's vision,
+	// Engine-side reset: rebuild tiledmap_Get(), reset each player's vision,
 	// recompute continents.  UI build re-renders tileset, radar window,
 	// and background via the OnMapResized observer hook fired at the end.
 	MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());

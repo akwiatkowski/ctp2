@@ -17,7 +17,6 @@
 
 UnitAstar *g_theTestPather;
 
-extern TiledMap *g_tiledMap;
 
 sint32 n;
 sint8 *dir_list;
@@ -47,7 +46,7 @@ void testloop(aui_Surface *surf)
 
 
     MapPoint start, dest, pos;
-    if (!g_tiledMap->GetMouseTilePos(dest))
+    if (!tiledmap_Get()->GetMouseTilePos(dest))
          return;
 
     if (dest.x < 0)

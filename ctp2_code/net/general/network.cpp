@@ -142,7 +142,6 @@ extern StringDB			*g_theStringDB;
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
 
-extern TiledMap			*g_tiledMap;
 extern ProfileDB		*g_theProfileDB;
 extern NETFunc			*g_netfunc;
 extern CivApp			*g_civApp;
@@ -1289,12 +1288,12 @@ void Network::SetReady(uint16 id)
 		if(g_director) {
 			g_director->NextPlayer();
 		}
-		if(g_tiledMap) {
-			g_tiledMap->NextPlayer();
-			g_tiledMap->CopyVision();
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
+		if(tiledmap_Get()) {
+			tiledmap_Get()->NextPlayer();
+			tiledmap_Get()->CopyVision();
+			tiledmap_Get()->InvalidateMix();
+			tiledmap_Get()->InvalidateMap();
+			tiledmap_Get()->Refresh();
 		}
 		if(radar_map_Get()) {
 			radar_map_Get()->Update();
@@ -2321,12 +2320,12 @@ Network::ProcessNewPlayer(uint16 id)
 			if(g_director) {
 				g_director->NextPlayer();
 			}
-			if(g_tiledMap) {
-				g_tiledMap->NextPlayer();
-				g_tiledMap->CopyVision();
-				g_tiledMap->InvalidateMix();
-				g_tiledMap->InvalidateMap();
-				g_tiledMap->Refresh();
+			if(tiledmap_Get()) {
+				tiledmap_Get()->NextPlayer();
+				tiledmap_Get()->CopyVision();
+				tiledmap_Get()->InvalidateMix();
+				tiledmap_Get()->InvalidateMap();
+				tiledmap_Get()->Refresh();
 			}
 			if(radar_map_Get()) {
 				radar_map_Get()->Update();
@@ -3507,8 +3506,8 @@ void Network::ResetTurnEndsAt()
 void Network::SetAllPlayersReady()
 {
 	if(!m_readyToStart && !m_crcError) {
-		if(g_tiledMap) {
-			g_tiledMap->CopyVision();
+		if(tiledmap_Get()) {
+			tiledmap_Get()->CopyVision();
 		}
 		NewTurnCount::ClientStartNewYear();
 
@@ -3546,9 +3545,9 @@ void Network::SetReadyToStart(BOOL ready)
 	m_readyToStart = ready;
 	if(ready) {
 		g_director->AddCopyVision();
-		g_tiledMap->InvalidateMix();
-		g_tiledMap->InvalidateMap();
-		g_tiledMap->Refresh();
+		tiledmap_Get()->InvalidateMix();
+		tiledmap_Get()->InvalidateMap();
+		tiledmap_Get()->Refresh();
 		radar_map_Get()->Update();
 
 		if(player_Get(m_playerIndex)->m_first_city) {
@@ -3735,8 +3734,8 @@ void Network::StartResync()
 		g_director->CatchUp();
 	}
 
-	if(g_tiledMap) {
-		g_tiledMap->QuickBlackBackGround(NULL);
+	if(tiledmap_Get()) {
+		tiledmap_Get()->QuickBlackBackGround(NULL);
 	}
 
 	if(sci_advancescreen_isOnScreen()) {

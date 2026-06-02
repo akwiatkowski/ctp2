@@ -272,7 +272,7 @@ bool CityInfluenceIterator::IsIncluded()
 //              size                : size of city
 //
 // Globals    : world_Get()
-//              g_tiledMap
+//              tiledmap_Get()
 //              g_theCitySizeDB
 //
 // Returns    : -

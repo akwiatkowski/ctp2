@@ -467,9 +467,9 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 		cell->CalcTerrainMoveCost();
 		MapPoint nonConstPos = pos;
 
-		if (g_tiledMap) {
-			g_tiledMap->PostProcessTile(nonConstPos, world_Get()->GetTileInfo(nonConstPos));
-			g_tiledMap->TileChanged(nonConstPos);
+		if (tiledmap_Get()) {
+			tiledmap_Get()->PostProcessTile(nonConstPos, world_Get()->GetTileInfo(nonConstPos));
+			tiledmap_Get()->TileChanged(nonConstPos);
 		}
 		MapPoint npos;
 		for(WORLD_DIRECTION d = NORTH; d < NOWHERE;
@@ -477,15 +477,15 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 		{
 			if(pos.GetNeighborPosition(d, npos))
 			{
-				if (g_tiledMap) {
-					g_tiledMap->PostProcessTile(
+				if (tiledmap_Get()) {
+					tiledmap_Get()->PostProcessTile(
 												npos,
 												world_Get()->GetTileInfo(npos));
-					g_tiledMap->TileChanged(npos);
+					tiledmap_Get()->TileChanged(npos);
 				}
 			}
 		}
-		if (g_tiledMap) g_tiledMap->RedrawTile(&pos);
+		if (tiledmap_Get()) tiledmap_Get()->RedrawTile(&pos);
 	}
 #endif
 }

@@ -38,7 +38,7 @@
 #include "gs/gameobj/TerrImprovePool.h"
 #include "gs/world/World.h"              // world_Get()
 #include "gs/gameobj/Player.h"
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 
 //----------------------------------------------------------------------------
 //
@@ -141,7 +141,7 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		terrimprovepool_Get()->HackSetKey(((uint32)imp & k_ID_KEY_MASK) + 1);
 		terrimprovepool_Get()->Insert(m_data);
 		world_Get()->InsertImprovement(imp, m_data->m_point);
-		g_tiledMap->RedrawTile(&m_data->m_point);
+		tiledmap_Get()->RedrawTile(&m_data->m_point);
 		player_Get(m_data->m_owner)->AddImprovement(imp);
 	} else {
 		if(oldpoint != m_data->m_point) {
@@ -149,8 +149,8 @@ void NetTerrainImprovement::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			world_Get()->RemoveImprovement(imp, oldpoint);
 		world_Get()->InsertImprovement(imp, m_data->m_point);
 
-			g_tiledMap->RedrawTile(&oldpoint);
-			g_tiledMap->RedrawTile(&m_data->m_point);
+			tiledmap_Get()->RedrawTile(&oldpoint);
+			tiledmap_Get()->RedrawTile(&m_data->m_point);
 		}
 
 		if(oldOwner != m_data->m_owner) {

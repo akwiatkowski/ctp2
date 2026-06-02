@@ -38,7 +38,6 @@ extern ProfileDB	*g_theProfileDB;
 extern TiledMap		*g_tiledMap;
 extern sint32		g_scaled_pixel_width[9];
 extern sint32		g_scaled_pixel_height[9];
-extern World		*g_theWorld;
 
 
 
@@ -56,7 +55,7 @@ void maputils_WrapPoint(
 	*wrapX = x;
 	*wrapY = y;
 
-	if (g_theWorld->IsXwrap())
+	if (world_Get()->IsXwrap())
 	{
 		while(*wrapX < 0)
 			*wrapX = *wrapX + mapWidth;
@@ -76,7 +75,7 @@ void maputils_WrapPoint(
 		// else: no action: *wrapX OK
 	}
 
-	if (g_theWorld->IsYwrap()) {
+	if (world_Get()->IsYwrap()) {
 
 		while(*wrapY<0)
 			*wrapY = *wrapY + mapHeight;
@@ -253,7 +252,7 @@ void maputils_MapXY2PixelXY(
 		splitViewRectT.left = 0;
 		splitViewRectT.right = mapWidth;
 	}
-	else if((mapViewRect->top < 0 && g_theWorld->IsYwrap()) && mapViewRect->bottom >= 0) {
+	else if((mapViewRect->top < 0 && world_Get()->IsYwrap()) && mapViewRect->bottom >= 0) {
 		splitViewRectB.top = mapViewRect->top + mapHeight;
 		splitViewRectB.bottom = mapHeight;
 		splitViewRectB.left = 0;

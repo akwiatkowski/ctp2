@@ -68,7 +68,7 @@ public:
     virtual void RedrawTile(MapPoint const &pos) = 0;
 
     // Post-process a tile after a terrain / improvement / city change.
-    // TileInfo* is g_theWorld->GetTileInfo(pos) at the call site; the
+    // TileInfo* is world_Get()->GetTileInfo(pos) at the call site; the
     // observer just forwards it.  Position is passed by non-const ref to
     // match the underlying TiledMap::PostProcessTile signature.
     virtual void PostProcessTile(MapPoint &pos, TileInfo *info) = 0;

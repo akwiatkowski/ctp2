@@ -30,7 +30,6 @@
 
 extern SelectedItem	*g_selected_item;
 extern ControlPanelWindow	*g_controlPanel;
-extern World		*g_theWorld;
 extern ProfileDB    *g_theProfileDB;
 
 BobButtonAction::BobButtonAction(BattleOrderBox *bob)
@@ -69,7 +68,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 				}
 
 				CellUnitList	*cellArmy;
-				cellArmy = g_theWorld->GetCell(pos)->UnitArmy();
+				cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 			}
@@ -84,7 +83,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 				MapPoint	pos;
 
 				m_unit.GetPos(pos);
-				cellArmy = g_theWorld->GetCell(pos)->UnitArmy();
+				cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 			}
@@ -104,7 +103,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 			MapPoint	pos;
 
 			m_unit.GetPos(pos);
-			cellArmy = g_theWorld->GetCell(pos)->UnitArmy();
+			cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 		}
@@ -121,7 +120,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 			MapPoint	pos;
 
 			unit.GetPos(pos);
-			cellArmy = g_theWorld->GetCell(pos)->UnitArmy();
+			cellArmy = world_Get()->GetCell(pos)->UnitArmy();
 
 
 		}

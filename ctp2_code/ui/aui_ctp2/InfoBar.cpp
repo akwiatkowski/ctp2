@@ -192,7 +192,7 @@ void InfoBar::Concat(const char *s)
 
 void InfoBar::SetTextFromMap(const MapPoint &point)
 {
-	Cell *cell = g_theWorld->GetCell(point);
+	Cell *cell = world_Get()->GetCell(point);
 	Clear();
 	bool wroteOwner = false;
 
@@ -399,11 +399,11 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			//include good values if present. PFT 05 Mar 05
 			StringId	goodStrID = 0;
 
-			if(g_theWorld->IsGood(point)) {
+			if(world_Get()->IsGood(point)) {
 				sint32 goods;
 				cell->GetGoodsIndex(goods);
 
-				goodStrID = g_theWorld->GetTerrain(point)->GetResources(goods)->GetName();
+				goodStrID = world_Get()->GetTerrain(point)->GetResources(goods)->GetName();
 			}
 			Concat("(");
 			char numBuf[20];

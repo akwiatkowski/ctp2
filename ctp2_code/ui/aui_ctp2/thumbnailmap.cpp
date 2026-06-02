@@ -39,7 +39,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"              // g_theWorld
+#include "gs/world/World.h"              // world_Get()
 #include "gs/world/Cell.h"
 #include "gs/world/UnseenCell.h"
 #include "gs/gameobj/citydata.h"
@@ -249,8 +249,8 @@ AUI_ERRCODE	ThumbnailMap::Resize( sint32 width, sint32 height )
 
 void ThumbnailMap::CalculateMetrics(void)
 {
-    Assert(g_theWorld);
-	m_mapSize = g_theWorld->GetSize();
+    Assert(world_Get());
+	m_mapSize = world_Get()->GetSize();
 
     Assert(0 < m_mapSize->x);
     Assert(0 < m_mapSize->y);
@@ -293,7 +293,7 @@ POINT ThumbnailMap::MapToPixel(MapPoint *pos)
 void ThumbnailMap::RenderMap(aui_Surface *surf)
 {
 	if (!g_tiledMap) return;
-	if (!g_theWorld) return;
+	if (!world_Get()) return;
 	if (m_mapSize->x <= 0 || m_mapSize->y <= 0) return;
 
 	Pixel16			color;
@@ -318,13 +318,13 @@ void ThumbnailMap::RenderMap(aui_Surface *surf)
                 {
 					color = static_cast<Pixel16>(m_mapOverlay[i*m_mapSize->x + j]);
 				}
-                else if (m_displayUnits && g_theWorld->GetTopRadarUnit(pos, top))
+                else if (m_displayUnits && world_Get()->GetTopRadarUnit(pos, top))
                 {
 					color = g_colorSet->GetPlayerColor(top.GetOwner());
 				}
                 else
                 {
-					Cell *  theLandCell = g_theWorld->GetCell(j, i);
+					Cell *  theLandCell = world_Get()->GetCell(j, i);
 					sint32  terrainType = (vision->GetLastSeen(pos, cellCarton))
                                           ? cellCarton.m_unseenCell->GetTerrainType()
                                           : theLandCell->GetTerrainType();
@@ -652,7 +652,7 @@ AUI_ERRCODE ThumbnailMap::Idle( void )
 void ThumbnailMap::UpdateAll( void )
 {
 
-	m_mapSize = g_theWorld->GetSize();
+	m_mapSize = world_Get()->GetSize();
 
 	BuildCityList();
 	if (m_mapSurface) RenderAll(m_mapSurface);

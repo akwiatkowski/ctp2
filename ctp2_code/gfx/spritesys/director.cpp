@@ -73,7 +73,7 @@
 #include "gs/utility/TurnCnt.h"  // turn_Get()
 #include "gs/utility/UnitDynArr.h"
 #include "gs/world/Cell.h"
-#include "gs/world/World.h"  // g_theWorld
+#include "gs/world/World.h"  // world_Get()
 #include "gs/world/cellunitlist.h"
 #include "net/general/network.h"
 #include "robot/aibackdoor/dynarr.h"
@@ -1481,7 +1481,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
     defenderActor->SetHealthPercent(defenderTotalHP > 0 ? defender.GetHP() / defenderTotalHP : 0);
 
     CellUnitList* unitList;
-    unitList = g_theWorld->GetCell(defender.RetPos())->UnitArmy();
+    unitList = world_Get()->GetCell(defender.RetPos())->UnitArmy();
     sint32 num = 1;
     if (unitList != NULL)
       num = unitList->Num();

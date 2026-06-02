@@ -93,6 +93,7 @@
 #include "CityStyleRecord.h"
 #include "UnitRecord.h"
 #include "WonderRecord.h"
+#include "gs/world/World.h"      // world_Get()
 #include "gs/world/cellunitlist.h"
 #include "sound/soundmanager.h"  // g_soundManager
 #include "ui/aui_common/aui_bitmapfont.h"
@@ -1074,7 +1075,7 @@ void UnitActor::DrawFortifying(bool fogged) {
 //				g_theCityStyleDB
 //				player_Get()
 //				g_theTerrainDB
-//				g_theWorld
+//				world_Get()
 //
 // Returns    : -
 //
@@ -1098,7 +1099,7 @@ void UnitActor::DrawCityWalls(
         styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
 
     if (ageStyleRec) {
-      bool const isWater = g_theWorld->IsWater(GetPos());
+      bool const isWater = world_Get()->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
       AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
 
@@ -1168,7 +1169,7 @@ void UnitActor::DrawCityWalls(
 //				g_theCityStyleDB
 //				player_Get()
 //				g_theTerrainDB
-//				g_theWorld
+//				world_Get()
 //
 // Returns    : -
 //
@@ -1185,9 +1186,9 @@ void UnitActor::DrawForceField(bool fogged) {
   // Default sprite index (fixed number from original code)
   sint32 which;
   MapPoint const here = GetPos();
-  if (g_theWorld->IsLand(here)) {
+  if (world_Get()->IsLand(here)) {
     which = 154;
-  } else if (g_theWorld->IsWater(here)) {
+  } else if (world_Get()->IsWater(here)) {
     which = 155;
   } else {
     which = 156;  // space?
@@ -1204,7 +1205,7 @@ void UnitActor::DrawForceField(bool fogged) {
         styleRec->GetAgeStyle(player_Get(unit->GetOwner())->m_age);
 
     if (ageStyleRec) {
-      bool const isWater = g_theWorld->IsWater(GetPos());
+      bool const isWater = world_Get()->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
       AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
 
@@ -1458,7 +1459,7 @@ void UnitActor::DrawHerald(void) {
     return;
 
   CellUnitList army;
-  g_theWorld->GetArmy(m_unitID.RetPos(), army);
+  world_Get()->GetArmy(m_unitID.RetPos(), army);
 
   MAPICON icon = MAPICON_HERALD;
   if (army.Num() > 1 && army.Num() < 10) {
@@ -1508,7 +1509,7 @@ void UnitActor::DrawHealthBar(void) {
   }
 
   TileSet* tileSet = g_tiledMap->GetTileSet();
-  Cell* myCell = g_theWorld->GetCell(GetPos());
+  Cell* myCell = world_Get()->GetCell(GetPos());
 
   sint32 stackSize = 1;
   if (m_tempStackSize != 0) {
@@ -2372,7 +2373,7 @@ void UnitActor::SetMoveActors(const UnitActorVec& moveActors) {
 //              g_theCityStyleDB
 //              player_Get()
 //              g_theTerrainDB
-//              g_theWorld
+//              world_Get()
 //
 // Returns    : -
 //

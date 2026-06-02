@@ -260,6 +260,12 @@ slicdbg.txt
 ubsan-suppressions.txt
 usercritmsgs.txt
 userprofile.txt
+
+# Netshell runtime cache/config (written to CWD by ui/netshell)
+netf.def
+nsgame.cfg
+nsplayer.cfg
+nstrnsprt.cfg
 # macOS temp files
 .!*
 logs\\oldseed.txt

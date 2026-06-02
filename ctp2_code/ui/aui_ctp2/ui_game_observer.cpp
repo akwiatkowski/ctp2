@@ -99,8 +99,8 @@ public:
     void OnCityCaptured(const Unit& city, sint32 newOwner,
                         const MapPoint& pos) override
     {
-        if (g_director) {
-            g_director->AddCenterMap(pos);
+        if (director_Get()) {
+            director_Get()->AddCenterMap(pos);
         }
     }
 
@@ -113,8 +113,8 @@ public:
 
     void OnWonderBuilt(const Unit& city, sint32 wonder) override
     {
-        if (g_director) {
-            g_director->AddPlayWonderMovie(wonder);
+        if (director_Get()) {
+            director_Get()->AddPlayWonderMovie(wonder);
         }
     }
 
@@ -137,8 +137,8 @@ public:
     void OnArmyMove(const Army& army,
                     const MapPoint& from, const MapPoint& to) override
     {
-        if (g_director) {
-            g_director->AddCenterMap(to);
+        if (director_Get()) {
+            director_Get()->AddCenterMap(to);
         }
     }
 
@@ -193,39 +193,39 @@ public:
     void OnResearchAdvanceDialog(sint32 player, sint32 advance,
                                  const MBCHAR* text) override
     {
-        if (g_director) {
-            g_director->AddInvokeResearchAdvance(const_cast<MBCHAR*>(text));
+        if (director_Get()) {
+            director_Get()->AddInvokeResearchAdvance(const_cast<MBCHAR*>(text));
         }
     }
 
     // --- Vision ---
     void OnVisionAdded(sint32 player, const MapPoint& pos, double range) override
     {
-        if (g_director) {
-            g_director->AddAddVision(pos, range);
+        if (director_Get()) {
+            director_Get()->AddAddVision(pos, range);
         }
     }
 
     void OnVisionRemoved(sint32 player, const MapPoint& pos, double range) override
     {
-        if (g_director) {
-            g_director->AddRemoveVision(pos, range);
+        if (director_Get()) {
+            director_Get()->AddRemoveVision(pos, range);
         }
     }
 
     void OnVisionCopied(sint32 fromPlayer, sint32 toPlayer) override
     {
-        if (!g_director || !g_selected_item) return;
+        if (!director_Get() || !g_selected_item) return;
         if (toPlayer != g_selected_item->GetVisiblePlayer()) return;
-        g_director->AddCopyVision();
+        director_Get()->AddCopyVision();
     }
 
     // --- Government ---
     void OnGovernmentChanged(sint32 player, sint32 type) override
     {
-        if (!g_director || !g_selected_item || type == 0) return;
+        if (!director_Get() || !g_selected_item || type == 0) return;
         if (player != g_selected_item->GetVisiblePlayer()) return;
-        g_director->AddGameSound(GAMESOUNDS_CHANGE_GOV);
+        director_Get()->AddGameSound(GAMESOUNDS_CHANGE_GOV);
     }
 
     // --- Wave C: endgame-statistics window ---
@@ -284,9 +284,9 @@ public:
             infowin_Initialize();
             victorywin_Initialize(k_VICWIN_DEFEAT);
             victorywin_DisplayWindow(k_VICWIN_DEFEAT);
-        } else if (g_director) {
-            g_director->CatchUp();
-            g_director->AddPlayVictoryMovie(static_cast<GAME_OVER>(reason),
+        } else if (director_Get()) {
+            director_Get()->CatchUp();
+            director_Get()->AddPlayVictoryMovie(static_cast<GAME_OVER>(reason),
                                             previouslyWon, previouslyLost);
         }
     }
@@ -323,8 +323,8 @@ public:
             !messagepool_Get()->IsValid(*g_currentMessageWindow->GetMessage());
 
         if (localMsg.UseDirector() && noActiveMsgWindow) {
-            if (g_director) {
-                g_director->AddMessage(localMsg);
+            if (director_Get()) {
+                director_Get()->AddMessage(localMsg);
             }
         } else if (localMsg.IsAlertBox()) {
             if (!messagewin_IsModalMessageDisplayed()) {
@@ -561,12 +561,12 @@ public:
             visible >= 0 && player_Get(visible) &&
             player_Get(visible)->m_all_cities->Num() > 0) {
             g_selected_item->SetSelectCity(player_Get(visible)->m_all_cities->Access(0));
-            if (g_director) {
-                g_director->AddCenterMap(player_Get(visible)->m_all_cities->Access(0).RetPos());
+            if (director_Get()) {
+                director_Get()->AddCenterMap(player_Get(visible)->m_all_cities->Access(0).RetPos());
             }
         }
-        if (g_director) {
-            g_director->AddCenterMap(g_selected_item->GetCurSelectPos());
+        if (director_Get()) {
+            director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
         }
         radarwindow_Show();
         if (g_controlPanel) {

@@ -444,9 +444,9 @@ void SelectedItem::NextItem()
 				m_select_pos[player] = pos;
 				if(IsAutoCenterOn())
 				{
-					if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+					if(!director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 					{
-						g_director->AddCenterMap(pos);
+						director_Get()->AddCenterMap(pos);
 					}
 				}
 				if ( g_controlPanel )
@@ -505,7 +505,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 					selectArmy = p->m_all_armies->Access(i);
 
 					p->m_all_armies->Access(i).GetPos(pos);
-					if(g_director->TileWillBeCompletelyVisible(pos.x, pos.y)) {
+					if(director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y)) {
 						break;
 					}
 				}
@@ -513,11 +513,11 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 				{
 					if(foundUnmovedSelected)
 					{
-						if(!g_director->TileWillBeCompletelyVisible(unmovedSelectedPos.x,
+						if(!director_Get()->TileWillBeCompletelyVisible(unmovedSelectedPos.x,
 													  unmovedSelectedPos.y))
 						{
 							p->m_all_armies->Access(i).GetPos(pos);
-							if(g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+							if(director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 							{
 								unmovedSelectedArmy = p->m_all_armies->Access(i);
 								unmovedSelectedPos = pos;
@@ -556,7 +556,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 						found = true;
 						selectArmy = p->m_all_armies->Access(i);
 						p->m_all_armies->Access(i).GetPos(pos);
-						if(g_director->TileWillBeCompletelyVisible(pos.x, pos.y)) {
+						if(director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y)) {
 							break;
 						}
 					}
@@ -564,11 +564,11 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 					{
 						if(foundMovedSelected)
 						{
-							if(!g_director->TileWillBeCompletelyVisible(movedSelectedPos.x,
+							if(!director_Get()->TileWillBeCompletelyVisible(movedSelectedPos.x,
 														  movedSelectedPos.y))
 							{
 								p->m_all_armies->Access(i).GetPos(pos);
-								if(g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+								if(director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 								{
 									movedSelectedArmy = p->m_all_armies->Access(i);
 									movedSelectedPos = pos;
@@ -604,15 +604,15 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 				{
 					selectArmy.GetPos(pos);
 
-					if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y) ||
+					if(!director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y) ||
 					   player_Get(GetVisiblePlayer())->m_first_city)
 					{
-						g_director->AddCenterMap(pos);
+						director_Get()->AddCenterMap(pos);
 					}
 				}
 				if(selectArmy.NumOrders() > 0)
 				{
-//					g_director->IncrementPendingGameActions();
+//					director_Get()->IncrementPendingGameActions();
 					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
 										   GEA_Army, selectArmy,
 										   GEA_End);
@@ -622,7 +622,7 @@ void SelectedItem::NextUnmovedUnit(bool isFirst, bool manualNextUnit)
 					   || selectArmy.NumOrders() > 0)
 					{
 						Deselect(player);
-						g_director->AddSelectUnit(isFirst ? k_UNIT_SELECT_IS_FIRST : 0);
+						director_Get()->AddSelectUnit(isFirst ? k_UNIT_SELECT_IS_FIRST : 0);
 						m_selected_something_since_director_select = false;
 					}
 				}
@@ -712,9 +712,9 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 					{
 						MapPoint pos;
 						p->m_all_cities->Access(i).GetPos(pos);
-						if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+						if(!director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 						{
-							g_director->AddCenterMap(pos);
+							director_Get()->AddCenterMap(pos);
 						}
 					}
 
@@ -770,7 +770,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 				m_gotClickSinceLastAutoEnd = false;
 				Refresh();
 				DPRINTF(k_DBG_GAMESTATE, ("MaybeAutoEndTurn is adding an EndTurn, %d\n", m_current_player));
-				g_director->AddEndTurn();
+				director_Get()->AddEndTurn();
 			}
 		}
 	}
@@ -1102,9 +1102,9 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 		// Focus on city if option is activated
 		if(IsAutoCenterOn())
 		{
-			if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+			if(!director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 			{
-				g_director->AddCenterMap(pos);
+				director_Get()->AddCenterMap(pos);
 			}
 		}
 
@@ -1905,7 +1905,7 @@ void SelectedItem::Entrench()
 			Deselect(player);
 			if(g_theProfileDB->IsAutoSelectNext())
 			{
-				g_director->AddSelectUnit(0);
+				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
 			}
 			break;
@@ -1945,7 +1945,7 @@ void SelectedItem::Sleep()
 			Deselect(player);
 			if(g_theProfileDB->IsAutoSelectNext())
 			{
-				g_director->AddSelectUnit(0);
+				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
 			}
 			break;
@@ -2663,7 +2663,7 @@ void SelectedItem::DidKeyboardMove()
 			Deselect(player);
 			if(g_theProfileDB->IsAutoSelectNext())
 			{
-				g_director->AddSelectUnit(0);
+				director_Get()->AddSelectUnit(0);
 				m_selected_something_since_director_select = false;
 			}
 		}
@@ -2673,9 +2673,9 @@ void SelectedItem::DidKeyboardMove()
 			{
 				MapPoint pos;
 				m_selected_army[player].GetPos(pos);
-				if(!g_director->TileWillBeCompletelyVisible(pos.x, pos.y))
+				if(!director_Get()->TileWillBeCompletelyVisible(pos.x, pos.y))
 				{
-					g_director->AddCenterMap(pos);
+					director_Get()->AddCenterMap(pos);
 				}
 			}
 		}
@@ -2684,7 +2684,7 @@ void SelectedItem::DidKeyboardMove()
 	{
 		if(g_theProfileDB->IsAutoSelectNext())
 		{
-			g_director->AddSelectUnit(0);
+			director_Get()->AddSelectUnit(0);
 			m_selected_something_since_director_select = false;
 		}
 	}
@@ -2699,7 +2699,7 @@ void SelectedItem::EndUnitTurn()
 		Deselect(player);
 		if(g_theProfileDB->IsAutoSelectNext())
 		{
-			g_director->AddSelectUnit(0);
+			director_Get()->AddSelectUnit(0);
 			m_selected_something_since_director_select = false;
 		}
 	}
@@ -2845,7 +2845,7 @@ void SelectedItem::ArmyMovedCallback(Army &a)
 				deselected = true;
 				if(g_theProfileDB->IsAutoSelectNext())
 				{
-					g_director->AddSelectUnit(0);
+					director_Get()->AddSelectUnit(0);
 					m_selected_something_since_director_select = false;
 				}
 			}

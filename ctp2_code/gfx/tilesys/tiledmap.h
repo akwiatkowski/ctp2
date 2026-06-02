@@ -76,6 +76,12 @@ struct  TILEHITMASK;
 
 extern TiledMap *   g_tiledMap;
 
+// Session-singleton accessor pair, mirroring world_Get / gevmanager_Get
+// / slicengine_Get.  Callers should use tiledmap_Get() instead of
+// reaching for g_tiledMap directly.
+TiledMap * tiledmap_Get(void);
+void       tiledmap_Set(TiledMap *p);
+
 //----------------------------------------------------------------------------
 // Project dependencies
 //----------------------------------------------------------------------------
@@ -303,7 +309,7 @@ public:
 	void			DrawPartiallyConstructedImprovement(aui_Surface *surface, uint32 env,
 													sint32 type, sint32 x, sint32 y,
 													uint16 index, bool fog, sint32 percentComplete);
-													//Added by Martin Gühmann sint32 percentComplete by Martin Gühmann
+													//Added by Martin Gï¿½hmann sint32 percentComplete by Martin Gï¿½hmann
 
 	void            DrawAnImprovement(aui_Surface *surface, Pixel16 *data, sint32 x, sint32 y,bool fog,bool clip=false);
 

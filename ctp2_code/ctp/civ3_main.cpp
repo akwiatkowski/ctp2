@@ -253,6 +253,9 @@ ScreenManager                       *g_screenManager = NULL;
 
 TiledMap                            *g_tiledMap = NULL;
 
+TiledMap * tiledmap_Get(void)         { return g_tiledMap; }
+void       tiledmap_Set(TiledMap *p)  { g_tiledMap = p; }
+
 static RadarMap                     *g_radarMap = NULL;
 
 RadarMap * radar_map_Get(void)        { return g_radarMap; }

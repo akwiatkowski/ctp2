@@ -184,6 +184,7 @@ void       unitpool_Set(UnitPool *p)        { g_theUnitPool = p; }
 static ArmyPool             *g_theArmyPool=NULL;
 
 ArmyPool * armypool_Get(void) { return g_theArmyPool; }
+ArmyPool * armypool_Set(ArmyPool *p) { ArmyPool *prev = g_theArmyPool; g_theArmyPool = p; return prev; }
 Player                      **g_player=NULL;
 
 Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
@@ -238,6 +239,10 @@ TopTen * topten_Get(void)                     { return g_theTopTen; }
 void     topten_Set(TopTen *p)                { g_theTopTen = p; }
 
 TurnCount                   *g_turn = NULL;
+
+TurnCount * turn_Get(void)                    { return g_turn; }
+void        turn_Set(TurnCount *p)            { g_turn = p; }
+
 ProfileDB                   *g_theProfileDB = NULL;
 MovieDB                     *g_theVictoryMovieDB = NULL;
 FilenameDB                  *g_theMessageIconFileDB = NULL;

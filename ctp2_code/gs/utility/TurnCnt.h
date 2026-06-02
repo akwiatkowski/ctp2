@@ -147,4 +147,10 @@ public:
 };
 
 extern TurnCount *g_turn;
+
+// Accessor pair, mirroring world_Get/world_Set and friends.  Used by
+// Ctp2::Game to adopt the legacy global into its unique_ptr.
+TurnCount * turn_Get(void);
+void        turn_Set(TurnCount *p);
+
 #endif

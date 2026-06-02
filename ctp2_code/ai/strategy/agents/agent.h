@@ -58,7 +58,7 @@ class Agent;
 #include "ctp/ctp2_utils/c3debugstl.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
-#include "gs/world/World.h"          // g_theWorld
+#include "gs/world/World.h"          // world_Get()
 
 class Agent
 {
@@ -117,9 +117,9 @@ public:
 
 	MapPoint Get_Pos() const { return m_army.IsValid() ? m_army->RetPos() : MapPoint(); };
 
-	sint32 GetUnitsAtPos() const { return g_theWorld->GetCell(Get_Pos())->GetNumUnits(); };
-	bool IsArmyPosFilled() const { return g_theWorld->GetCell(Get_Pos())->GetNumUnits() >= k_MAX_ARMY_SIZE; };
-	bool IsOneArmyAtPos () const { return g_theWorld->GetCell(Get_Pos())->GetNumUnits() == Get_Army()->Num(); };
+	sint32 GetUnitsAtPos() const { return world_Get()->GetCell(Get_Pos())->GetNumUnits(); };
+	bool IsArmyPosFilled() const { return world_Get()->GetCell(Get_Pos())->GetNumUnits() >= k_MAX_ARMY_SIZE; };
+	bool IsOneArmyAtPos () const { return world_Get()->GetCell(Get_Pos())->GetNumUnits() == Get_Army()->Num(); };
 
 	bool CanMove() const { return m_army.IsValid() && m_army->CanMove(); };
 

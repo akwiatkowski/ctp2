@@ -166,7 +166,7 @@ void World::FloodImprovements(sint32 x, sint32 y, Cell *c)
 
 	if (cell->GetNumDBImprovements() > 0 || cell->GetNumImprovements() > 0)
 	{
-		g_theWorld->CutImprovements(pos);
+		world_Get()->CutImprovements(pos);
 		if(g_network.IsHost())
 		{
 			g_network.Enqueue(c, pos.x, pos.y);

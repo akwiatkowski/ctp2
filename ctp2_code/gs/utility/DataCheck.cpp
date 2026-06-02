@@ -124,7 +124,6 @@ extern  OzoneDatabase           *g_theUVDB ;
 #include "gs/gameobj/TradePool.h"        // tradepool_Get()
 #include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
 // Others
-extern  World                   *g_theWorld;
 
 static DataCheck                *g_dataCheck = NULL;
 
@@ -385,7 +384,7 @@ void DataCheck::BeginTurn(void)
 
 	CHECK_DB(pollution_Get(), CRC_TYPE_POLLUTION);
 	CHECK_DB(topten_Get(), CRC_TYPE_TOPTEN);
-	CHECK_DB(g_theWorld, CRC_TYPE_WORLD);
+	CHECK_DB(world_Get(), CRC_TYPE_WORLD);
 
 	start = clock();
 	archive = new CivArchive();

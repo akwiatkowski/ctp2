@@ -132,7 +132,7 @@
 
 #include "gs/gameobj/GameSettings.h"   // gamesettings_Get()
 extern PointerList<Player>   *g_deadPlayer;
-// rand_ptr() declared in RandGen.h.  g_theWorld in World.h.
+// rand_ptr() declared in RandGen.h.  world_Get() in World.h.
 // g_theArmyPool / g_theTradePool / slicengine_Get() /
 // g_theTerrainImprovementPool / g_theCivilisationPool / g_theMessagePool /
 // g_theInstallationPool / wonder_tracker_Get() / exclusions_Get() / g_featTracker /
@@ -4609,7 +4609,7 @@ bool SaveJson(char const *path)
     // order in GameFile::Save:357-388) --------------------------------
     if (rand_ptr())              doc["rng"]                       = *rand_ptr();
     if (GameSettings *gs = gamesettings_Get()) doc["settings"] = *gs;
-    if (g_theWorld)          doc["world"]                     = *g_theWorld;
+    if (world_Get())          doc["world"]                     = *world_Get();
     if (turn_Get())          doc["turn"]                      = *turn_Get();
 
     // Selection is currently a scalar projection of player_view state.
@@ -4748,7 +4748,7 @@ bool LoadJson(char const *path)
         // Core singletons
         if (doc.contains("rng")      && rand_ptr())             doc.at("rng")     .get_to(*rand_ptr());
         if (GameSettings *gs = gamesettings_Get(); doc.contains("settings") && gs) doc.at("settings").get_to(*gs);
-        if (doc.contains("world")    && g_theWorld)         doc.at("world")   .get_to(*g_theWorld);
+        if (doc.contains("world")    && world_Get())         doc.at("world")   .get_to(*world_Get());
         if (doc.contains("turn")     && turn_Get())         doc.at("turn")    .get_to(*turn_Get());
         // Selection is currently informational — no public setter for
         // SelectedItem::m_current_player.  Phase E will wire a bridge.

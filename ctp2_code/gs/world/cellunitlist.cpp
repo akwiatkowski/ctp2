@@ -91,7 +91,7 @@ bool CellUnitList::CanEnter(const MapPoint &point) const
 
 	if(!point.IsValid()) return false;
 
-	Cell * cell = g_theWorld->GetCell(point);
+	Cell * cell = world_Get()->GetCell(point);
 	if (!cell) return false;
 
 	if (cell->GetCity().IsValid() &&
@@ -346,7 +346,7 @@ bool CellUnitList::CanBeExpelled()
 //
 // Globals    : g_selected_item		: currently selected item on screen
 //				player_Get()			: players
-//				g_theWorld			: map information
+//				world_Get()			: map information
 //				g_network			: network handler (for multiplayer)
 //				g_god				: when set, everything is visible
 //				g_fog_toggle		: when set, everything is visible
@@ -394,7 +394,7 @@ bool CellUnitList::GetTopVisibleUnitOfMoveType
 			    // selected, awake, or out in the open
 			    ((u.GetArmy().m_id == selectedArmyId)					||
 			     !(u.IsAsleep() || u.IsEntrenched() || u.IsEntrenching())	||
-				 !g_theWorld->HasCity(u.RetPos())
+			     !world_Get()->HasCity(u.RetPos())
 			    )
 			   )
 			{
@@ -655,7 +655,7 @@ bool CellUnitList::CanMoveIntoCell(const MapPoint &pos,
 								   bool ignoreZoc,
 								   bool &alliedCity)
 {
-	Cell *         cell = g_theWorld->GetCell(pos);
+	Cell *         cell = world_Get()->GetCell(pos);
 	CellUnitList * ul   = cell ? cell->UnitArmy() : NULL;
 
 	zocViolation = false;
@@ -673,7 +673,7 @@ bool CellUnitList::CanMoveIntoCell(const MapPoint &pos,
 
 	sint32 myOwner = GetOwner();
 	if ((!(m_flags & k_CULF_IGNORES_ZOC)) && !ignoreZoc) {
-		if (g_theWorld->IsMoveZOC(myOwner, myPos, pos, false)) {
+		if (world_Get()->IsMoveZOC(myOwner, myPos, pos, false)) {
 			zocViolation = true;
 			return false;
 		}
@@ -733,12 +733,12 @@ bool CellUnitList::IsMovePointsEnough(const MapPoint &pos) const
     if (GetMovementTypeAir()) {
         cost = k_MOVE_AIR_COST;
 	// Prevent ships from diving under and using tunnels.
-	} else if (g_theWorld->IsTunnel(pos) && !GetMovementTypeLand()) {
+	} else if (world_Get()->IsTunnel(pos) && !GetMovementTypeLand()) {
 		sint32 icost;
-		(void) g_theWorld->GetTerrain(pos)->GetEnvBase()->GetMovement(icost);
+		(void) world_Get()->GetTerrain(pos)->GetEnvBase()->GetMovement(icost);
 		cost = icost;
     } else {
-        cost = g_theWorld->GetMoveCost(pos);
+        cost = world_Get()->GetMoveCost(pos);
     }
 	sint32 value;
 	if (HighestMoveBonusUnit(value)) { cost = value; }

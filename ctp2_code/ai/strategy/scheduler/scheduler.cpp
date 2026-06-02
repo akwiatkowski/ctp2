@@ -662,7 +662,7 @@ void Scheduler::Match_Resources(const bool move_armies)
 		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, goal_ptr->Get_Goal_Type(), -1, ("\n"));
 		AI_DPRINTF(k_DBG_SCHEDULER, m_playerId, goal_ptr->Get_Goal_Type(), -1,
 				("[%d] Starting to match resources to %s: %x (x=%d,y=%d), match %d, %s\n",
-					count, g_theGoalDB->Get(goal_ptr->Get_Goal_Type())->GetNameText(), goal_ptr, pos.x, pos.y, oldMatchValue, (g_theWorld->HasCity(pos) ? g_theWorld->GetCity(pos).GetName() : "field")));
+					count, g_theGoalDB->Get(goal_ptr->Get_Goal_Type())->GetNameText(), goal_ptr, pos.x, pos.y, oldMatchValue, (world_Get()->HasCity(pos) ? world_Get()->GetCity(pos).GetName() : "field")));
 		count++;
 #endif
 
@@ -1936,7 +1936,7 @@ void Scheduler::Assign_Garrison()
 		}
 
 		MapPoint pos = army->RetPos();
-		Unit city = g_theWorld->GetCity(pos);
+		Unit city = world_Get()->GetCity(pos);
 		if(city.m_id == 0)
 			continue;
 

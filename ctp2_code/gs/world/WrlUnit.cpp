@@ -595,7 +595,7 @@ BOOL World::AdjacentToZOCUnit(const MapPoint &cpos, sint32 player, const Army &n
 			}
 			else if (city != notThisCity &&
 			         city.GetOwner() == player &&
-			         g_theWorld->CanEnter(cpos, city.GetMovementType())
+			         world_Get()->CanEnter(cpos, city.GetMovementType())
 					)
 			{
 				return TRUE;

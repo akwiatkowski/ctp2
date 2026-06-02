@@ -88,7 +88,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/XY_Coordinates.h"
-#include "gs/world/World.h"                  // g_theWorld
+#include "gs/world/World.h"                  // world_Get()
 
 extern Diplomacy_Log *  g_theDiplomacyLog;
 extern Network          g_network;
@@ -323,7 +323,7 @@ void TurnCount::BeginNewRound()
 
 	m_round++;
 
-	g_theWorld->A_star_heuristic->Update();
+	world_Get()->A_star_heuristic->Update();
 
 #ifdef _DEBUG
     if (g_theDiplomacyLog) {

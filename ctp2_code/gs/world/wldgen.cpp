@@ -46,7 +46,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"                     // pre-compiled
-#include "gs/world/World.h"                  // own declarations, g_theWorld
+#include "gs/world/World.h"                  // own declarations, world_Get()
 #include "gs/world/worldutils.h"
 
 #include "robot/pathing/A_Star_Heuristic_Cost.h"

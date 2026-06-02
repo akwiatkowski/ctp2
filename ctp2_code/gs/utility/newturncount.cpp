@@ -245,7 +245,7 @@ void NewTurnCount::ChooseNextActivePlayer()
 void NewTurnCount::StartNewYear()
 {
 
-	g_theWorld->A_star_heuristic->Update();
+	world_Get()->A_star_heuristic->Update();
 
 	Barbarians::BeginYear(turn_Get()->GetRound());
 
@@ -263,7 +263,7 @@ void NewTurnCount::StartNewYear()
 void NewTurnCount::ClientStartNewYear()
 {
 
-	g_theWorld->A_star_heuristic->Update();
+	world_Get()->A_star_heuristic->Update();
 
 	RunNewYearMessages();
 }

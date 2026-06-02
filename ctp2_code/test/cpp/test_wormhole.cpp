@@ -2,7 +2,7 @@
 // Fast unit test for the Wormhole helper types that carry an
 // explicit round through the API (post-g_turn migration).
 //
-// The Wormhole ctor itself is too entangled with g_theWorld,
+// The Wormhole ctor itself is too entangled with world_Get(),
 // g_theConstDB and the goodactor factory to exercise here; we
 // validate the round-passing data type (EntryRecord) plus the
 // public read-back accessors that don't reach into globals.

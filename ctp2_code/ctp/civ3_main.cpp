@@ -155,7 +155,7 @@
 #include "gfx/spritesys/UnitSpriteGroup.h"
 #include "ui/interface/workwin.h"
 #include "ui/interface/workwindow.h"
-#include "gs/world/World.h"                      // g_theWorld
+#include "gs/world/World.h"                      // world_Get()
 
 #if !defined(__GNUC__) // TODO: replacement needed (wine doesnt have these headers...)
 #include "ui/aui_ctp2/directvideo.h"
@@ -967,7 +967,7 @@ void ZoomPad_ZoomCallback()
 
 int tile_Initialize(BOOL isRestoring)
 {
-	g_tiledMap = new TiledMap(*g_theWorld->GetSize());
+	g_tiledMap = new TiledMap(*world_Get()->GetSize());
 
 	ZoomPad_ZoomCallback();
 	g_tiledMap->SetZoomCallback(ZoomPad_ZoomCallback);

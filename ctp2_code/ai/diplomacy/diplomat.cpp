@@ -5865,7 +5865,7 @@ bool Diplomat::HasUnitsInOurTerritory(sint32 foreignerId) const
 		if(army.IsValid())
 		{
 			army->GetPos(pos);
-			sint32 cell_owner = g_theWorld->GetCell(pos)->GetOwner();
+			sint32 cell_owner = world_Get()->GetCell(pos)->GetOwner();
 			bool is_threat = army->HasCargo();
 
 			if(!is_threat)

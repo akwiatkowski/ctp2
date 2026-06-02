@@ -23,7 +23,7 @@
 #include "gs/gameobj/GameSettings.h"
 #include "gs/gameobj/CivilisationPool.h"
 
-// Minimal fixture: CityData constructor dereferences g_theWorld, player_arr_Get(),
+// Minimal fixture: CityData constructor dereferences world_Get(), player_arr_Get(),
 // g_theCitySizeDB and g_theResourceDB. We provide bare-bones stubs so the
 // constructor completes without crashing.
 struct CityDataFixture
@@ -37,9 +37,9 @@ struct CityDataFixture
 
     CityDataFixture()
     {
-        // CityData ctor calls g_theWorld->SetCapitolDistanceDirtyFlags()
+        // CityData ctor calls world_Get()->SetCapitolDistanceDirtyFlags()
         stubWorld = new World(MapPoint(20, 20), false, false);
-        g_theWorld = stubWorld;
+        world_Set(stubWorld);
 
         // CityData ctor checks player_Get(owner) before dereferencing
         stubPlayers = new Player *[k_MAX_PLAYERS];
@@ -68,7 +68,7 @@ struct CityDataFixture
 
     ~CityDataFixture()
     {
-        g_theWorld = nullptr;
+        world_Set(nullptr);
         player_arr_Set(nullptr);
         g_theCitySizeDB = nullptr;
         g_theResourceDB = nullptr;
@@ -85,7 +85,7 @@ struct CityDataFixture
 
 TEST_CASE_FIXTURE(CityDataFixture, "Stub world is allocated")
 {
-    CHECK(g_theWorld != nullptr);
+    CHECK(world_Get() != nullptr);
 }
 
 TEST_CASE_FIXTURE(CityDataFixture, "CityData constructor initializes owner and home city")
@@ -289,7 +289,7 @@ struct HeavyCityDataFixture
         }
 
         world = new World(MapPoint(64, 48), false, false);
-        g_theWorld = world;
+        world_Set(world);
 
         player_arr_Set(new Player *[k_MAX_PLAYERS]);
         for (int i = 0; i < k_MAX_PLAYERS; ++i)
@@ -319,7 +319,7 @@ struct HeavyCityDataFixture
         // Intentionally leak player, world, player array, selected_item,
         // and slic_engine. Their destructors access globals in ways not set
         // up in the test harness.
-        g_theWorld = nullptr;
+        world_Set(nullptr);
         player_arr_Set(nullptr);
         g_selected_item = nullptr;
         g_slicEngine = nullptr;

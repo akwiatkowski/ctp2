@@ -3144,8 +3144,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								city.GetPos(city_pos);
 								MapPoint dest(city_pos.x + dx, city_pos.y + dy);
 
-								Cell *cell = g_theWorld->GetCell(city_pos);
-								bool moved = false;
+								Cell *cell = world_Get()->GetCell(city_pos);
+									bool moved = false;
 								if (cell) {
 									for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 										Unit u = cell->AccessUnit(i);
@@ -3197,8 +3197,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 							Unit city = human->GetAllCitiesList()->Access(city_idx);
 							MapPoint city_pos;
 							city.GetPos(city_pos);
-							Cell *cell = g_theWorld->GetCell(city_pos);
-							bool issued = false;
+							Cell *cell = world_Get()->GetCell(city_pos);
+								bool issued = false;
 							if (cell) {
 								for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 									Unit u = cell->AccessUnit(i);
@@ -3496,10 +3496,10 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// and LoadTileset needs g_ImageMapPF which is initialized in
 	// InitializeImageMaps (UI-only).  Map data is sufficient for logic;
 	// tile graphics are not needed.
-	if (g_theWorld && !g_tiledMap) {
+	if (world_Get() && !g_tiledMap) {
 		civapp_log->debug("creating headless TiledMap (world={}x{})",
-		           g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
-		MapPoint mapsize(g_theWorld->GetXWidth(), g_theWorld->GetYHeight());
+		           world_Get()->GetXWidth(), world_Get()->GetYHeight());
+		MapPoint mapsize(world_Get()->GetXWidth(), world_Get()->GetYHeight());
 		g_tiledMap = new TiledMap(mapsize);
 	}
 

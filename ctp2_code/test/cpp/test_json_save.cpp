@@ -395,7 +395,7 @@ TEST_CASE("json round-trip: TileInfo load rejects wrong transitions size")
 
 TEST_CASE("json round-trip: UnseenCell preserves scalar fields + position")
 {
-    // Use the default ctor — the MapPoint ctor needs g_theWorld, which
+    // Use the default ctor — the MapPoint ctor needs world_Get(), which
     // is null in unit-tier tests.  Default ctor gives position (0,0)
     // and an empty fog-of-war cell; we mutate the public scalar fields
     // and pull position-roundtrip from the deserialised JSON below.
@@ -1563,7 +1563,7 @@ TEST_CASE("json round-trip: Foreigner omits NegotiationEvents + derived fields")
 // --- CityData + Player composite schema ratchets ---
 //
 // CityData and Player can't easily be constructed in unit tier (need
-// g_theWorld + game init globals).  These tests document the expected
+// world_Get() + game init globals).  These tests document the expected
 // key surface as compile-time-checked sentinel arrays.  Future scope
 // creep that drops fields or adds unintended ones surfaces in code
 // review against the lists below + the corresponding to_json
@@ -2685,7 +2685,7 @@ TEST_CASE("json round-trip: SlicSymbolData LOCATION")
     CHECK(j["x"]    == 7);
     CHECK(j["y"]    == 11);
 
-    // GetPos() requires MapPoint::IsValid which needs g_theWorld; skip
+    // GetPos() requires MapPoint::IsValid which needs world_Get(); skip
     // it here and verify round-trip by re-serialising.
     SlicSymbolData round;
     j.get_to(round);

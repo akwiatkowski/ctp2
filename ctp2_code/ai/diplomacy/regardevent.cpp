@@ -95,7 +95,7 @@ STDEHANDLER(KillUnitRegardEvent)
 	DPRINTF(k_DBG_AI, ("//	Kill Unit regard event\n"));  //EMOD added
 
 	CellUnitList army;
-	g_theWorld->GetArmy(u.RetPos(), army);
+	world_Get()->GetArmy(u.RetPos(), army);
 	bool not_at_war = (AgreementMatrix::s_agreements.TurnsAtWar(killer, u.GetOwner()) < 1);
 
 	if (u.GetDBRec()->GetCivilian())
@@ -105,7 +105,7 @@ STDEHANDLER(KillUnitRegardEvent)
 		if (not_at_war
 		&& army.Num() == 1
 		&& diplomat.GetCurrentDiplomacy(killer).GetAttackCivilianRegardCost(cost)
-		&& g_theWorld->GetCell(u.RetPos())->GetCity().m_id == 0x0
+		&& world_Get()->GetCell(u.RetPos())->GetCity().m_id == 0x0
 		){
 			g_theStringDB->GetStringID("REGARD_EVENT_ATTACKED_CIVILIANS", strId);
 			diplomat.LogRegardEvent( killer,
@@ -175,8 +175,8 @@ STDEHANDLER(InvaderMovementRegardEvent)
 	if(!args->GetPos(0, from)) return GEV_HD_Continue;
 	if(!args->GetPos(1, to)) return GEV_HD_Continue;
 
-	sint32 old_cell_owner = g_theWorld->GetCell(from)->GetOwner();
-	sint32 new_cell_owner = g_theWorld->GetCell(to)->GetOwner();
+	sint32 old_cell_owner = world_Get()->GetCell(from)->GetOwner();
+	sint32 new_cell_owner = world_Get()->GetCell(to)->GetOwner();
 	sint32 army_owner = a->GetOwner();
 
 	if (old_cell_owner == -1 ||
@@ -649,7 +649,7 @@ STDEHANDLER(Lawsuit_RegardEvent)
 
 	PLAYER_INDEX attack_owner = unit.GetOwner();
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	PLAYER_INDEX victim = cell->AccessUnit(0)->GetOwner();
 
 	Diplomat & victim_diplomat = Diplomat::GetDiplomat(victim);
@@ -683,7 +683,7 @@ STDEHANDLER(ExpelUnits_RegardEvent)
 
 	PLAYER_INDEX attack_owner = army.GetOwner();
 
-	Cell *cell = g_theWorld->GetCell(pos);
+	Cell *cell = world_Get()->GetCell(pos);
 	if(!cell->UnitArmy())
 		return GEV_HD_Continue;
 
@@ -762,11 +762,11 @@ STDEHANDLER(NukeLocationUnit_RegardEvent)
 	Diplomat::GetDiplomat(attack_owner).SetHasLaunchedNukes(true);
 
 	CellUnitList army;
-	g_theWorld->GetArmy(pos, army);
+	world_Get()->GetArmy(pos, army);
 	if (army.Num() > 0)
 		pos_owner = army.GetOwner();
 	else
-		pos_owner = g_theWorld->GetOwner(pos);
+		pos_owner = world_Get()->GetOwner(pos);
 
 	if (pos_owner == -1)
 		return GEV_HD_Continue;
@@ -1076,7 +1076,7 @@ STDEHANDLER(PillageUnit_RegardEvent)
 		return GEV_HD_Continue;
 
 	PLAYER_INDEX attack_owner = unit.GetOwner();
-	PLAYER_INDEX victim = g_theWorld->GetOwner(unit.RetPos());
+	PLAYER_INDEX victim = world_Get()->GetOwner(unit.RetPos());
 
 	if (victim == -1)
 		return GEV_HD_Continue;

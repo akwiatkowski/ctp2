@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Made government modified for units work here. (July 29th 2006 Martin Gühmann)
+// - Made government modified for units work here. (July 29th 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@
 #include "gs/gameobj/UnitPool.h"           // g_theUnitPool
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"              // world_Get()
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 
 #include "gs/database/DB.h"
 #include "gs/newdb/UnitRec.h"
@@ -189,8 +189,8 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 #if 0
 		else if(oldVisionRange != m_unitData->m_vision_range) {
-			g_player[m_unitData->GetOwner()]->RemoveUnitVision(m_unitData->m_pos, oldVisionRange);
-			g_player[m_unitData->GetOwner()]->AddUnitVision(m_unitData->m_pos, m_unitData->m_vision_range);
+			player_Get(m_unitData->GetOwner())->RemoveUnitVision(m_unitData->m_pos, oldVisionRange);
+			player_Get(m_unitData->GetOwner())->AddUnitVision(m_unitData->m_pos, m_unitData->m_vision_range);
 		}
 #endif
 
@@ -203,8 +203,8 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				BOOL ahaSoItDoesHappen = FALSE;
 				Assert(ahaSoItDoesHappen);
 			} else {
-				g_player[oldowner]->RemoveUnitReference(uid, CAUSE_REMOVE_ARMY_UNKNOWN, m_unitData->m_owner);
-				g_player[m_unitData->m_owner]->InsertUnitReference(uid, CAUSE_NEW_ARMY_UNKNOWN, Unit());
+				player_Get(oldowner)->RemoveUnitReference(uid, CAUSE_REMOVE_ARMY_UNKNOWN, m_unitData->m_owner);
+				player_Get(m_unitData->m_owner)->InsertUnitReference(uid, CAUSE_NEW_ARMY_UNKNOWN, Unit());
 			}
 		}
 
@@ -225,7 +225,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		unitpool_Get()->HackSetKey(((uint32)uid & k_ID_KEY_MASK) + 1);
 
 		sint32 trans_t = 0;
-        (void) g_theUnitDB->Get(unitType, g_player[unitOwner]->GetGovernmentType())->GetTransType(trans_t);
+        (void) g_theUnitDB->Get(unitType, player_Get(unitOwner)->GetGovernmentType())->GetTransType(trans_t);
 		if (m_actorId.m_id != 0)
         {
 			m_unitData = new UnitData(unitType, trans_t, uid, unitOwner,
@@ -238,12 +238,12 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(flags & k_UDF_TEMP_SLAVE_UNIT)
             {
 				m_unitData = new UnitData(unitType, trans_t,
-										  uid, unitOwner, unitPos);
+									  uid, unitOwner, unitPos);
             }
             else
             {
 				m_unitData = new UnitData(unitType, trans_t,
-										  uid, unitOwner, unitPos, Unit());
+									  uid, unitOwner, unitPos, Unit());
 			}
 		}
 
@@ -265,7 +265,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		if(m_unitData->GetDBRec()->GetHasPopAndCanBuild()) {
 			m_unitData->GetCityData()->NetworkInitialize();
 
-			g_player[m_unitData->m_owner]->AddCityReferenceToPlayer(
+			player_Get(m_unitData->m_owner)->AddCityReferenceToPlayer(
 				uid, CAUSE_NEW_CITY_UNKNOWN);
 			world_Get()->InsertCity(m_unitData->m_pos, uid);
 
@@ -277,7 +277,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			CtpAi::AddOwnerGoalsForCity(uid, uid.GetOwner());
 
 		} else if(m_unitData->GetDBRec()->GetIsTrader()) {
-			g_player[m_unitData->m_owner]->AddTrader(uid);
+			player_Get(m_unitData->m_owner)->AddTrader(uid);
 		} else {
 			UnitDynamicArray revealed;
 			if(m_unitData->IsBeingTransported()) {
@@ -287,7 +287,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			if (!m_unitData->Flag(k_UDF_TEMP_SLAVE_UNIT))
             {
-				g_player[m_unitData->m_owner]->InsertUnitReference
+				player_Get(m_unitData->m_owner)->InsertUnitReference
                     (uid, CAUSE_NEW_ARMY_NETWORK, Unit());
 			}
 		}
@@ -317,7 +317,7 @@ void NetUnit::PacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	sint32 i;
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i]) {
+		if(player_Get(i)) {
 			mask |= (1 << i);
 		}
 	}
@@ -325,7 +325,7 @@ void NetUnit::PacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	putlong(ptr, mask); ptr += 4;
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		if(!g_player[i]) continue;
+		if(!player_Get(i)) continue;
 		putbyte(ptr, unitData->m_temp_visibility_array.m_array_index[i]);
 		ptr++;
 	}
@@ -376,7 +376,7 @@ void NetUnit::UnpacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 	uint32 mask = getlong(ptr); ptr += 4;
 
 	for (sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(!g_player[i]) continue;
+		if(!player_Get(i)) continue;
 		if(!(mask & (1 << i))) continue;
 		unitData->m_temp_visibility_array.m_array_index[i] = getbyte(ptr); ptr++;
 	}
@@ -455,9 +455,9 @@ void NetUnitMove::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	UnitDynamicArray revealed;
 	MapPoint oldPos = ud->m_pos;
 	world_Get()->RemoveUnitReference(ud->m_pos, u);
-	g_player[ud->GetOwner()]->RemoveUnitVision(ud->m_pos, ud->GetVisionRange());
+	player_Get(ud->GetOwner())->RemoveUnitVision(ud->m_pos, ud->GetVisionRange());
 	ud->m_pos = m_point;
-	g_player[ud->GetOwner()]->AddUnitVision(ud->m_pos, ud->GetVisionRange());
+	player_Get(ud->GetOwner())->AddUnitVision(ud->m_pos, ud->GetVisionRange());
 	world_Get()->InsertUnit(ud->m_pos, u, revealed);
 
 	sint32 numRevealed = revealed.Num();

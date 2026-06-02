@@ -85,6 +85,10 @@
 // gameinit.cpp used to own this; moved as part of the clean-architecture
 // effort to remove UI ownership from the simulation core.
 SelectedItem *g_selected_item = NULL;
+
+SelectedItem * selitem_Get(void)              { return g_selected_item; }
+void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
+
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/Order.h"
 #include "ui/aui_ctp2/battleorderbox.h"

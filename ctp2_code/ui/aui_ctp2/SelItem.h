@@ -347,4 +347,10 @@ extern uint32 SelectedItem_GetVersion(void);
 
 extern SelectedItem *g_selected_item;
 
+// Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
+// / director_Get.  Callers should use selitem_Get() instead of
+// reaching for g_selected_item directly.
+SelectedItem * selitem_Get(void);
+void           selitem_Set(SelectedItem *p);
+
 #endif

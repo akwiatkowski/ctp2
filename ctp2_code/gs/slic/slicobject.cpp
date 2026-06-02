@@ -119,7 +119,7 @@ SlicObject::SlicObject(char const * id)
 {
 	if (m_id) strcpy(m_id, id);
 
-	m_segment   = g_slicEngine->GetSegment(m_id);
+	m_segment   = slicengine_Get()->GetSegment(m_id);
 	m_frame     = new SlicFrame(m_segment);
 
     if (m_segment && !m_segment->IsHelp())
@@ -212,7 +212,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_argList               (NULL)
 {
 	if (m_id && id) strcpy(m_id, id);
-	m_segment   = g_slicEngine->GetSegment(m_id);
+	m_segment   = slicengine_Get()->GetSegment(m_id);
 	m_frame     = new SlicFrame(m_segment);
 	if (m_segment && !m_segment->IsHelp())
     {
@@ -316,8 +316,8 @@ sint32 SlicObject::GetRecipient(const PLAYER_INDEX recip) const
 
 void SlicObject::Execute()
 {
-	Assert(!g_slicEngine->AtBreak());
-	if(g_slicEngine->AtBreak())
+	Assert(!slicengine_Get()->AtBreak());
+	if(slicengine_Get()->AtBreak())
 		return;
 
 	if(!m_frame) {
@@ -337,7 +337,7 @@ void SlicObject::Execute()
 
 	m_frame->Run();
 
-	if (!g_slicEngine->AtBreak())
+	if (!slicengine_Get()->AtBreak())
     {
 	    Finish();
 	}
@@ -395,7 +395,7 @@ void SlicObject::Finish()
 			for(sint32 i = 0; i < m_numRecipients; i++) {
 				m_segment->SetLastShown(m_recipientList[i], g_turn->GetRound());
 
-				if(g_slicEngine->IsMessageClassDisabled(m_class))
+				if(slicengine_Get()->IsMessageClassDisabled(m_class))
 					continue;
 
 				if(m_aborted)
@@ -449,7 +449,7 @@ void SlicObject::Finish()
 
 					if(m_segment->GetFilenum() == k_TUTORIAL_FILE &&
 					   !m_dontSave) {
-						g_slicEngine->AddTutorialRecord(m_recipientList[i],
+						slicengine_Get()->AddTutorialRecord(m_recipientList[i],
 														messageData->GetTitle(),
 														messageData->GetMsgText(),
 														m_segment);
@@ -598,7 +598,7 @@ void SlicObject::Serialize(CivArchive &archive)
 		if(l > 0) {
 			MBCHAR	*tmpID =  new MBCHAR[l] ;
 			archive.Load((uint8 *)tmpID, l) ;
-			m_segment = g_slicEngine->GetSegment(tmpID) ;
+			m_segment = slicengine_Get()->GetSegment(tmpID) ;
 			delete [] tmpID;
 			m_frame = new SlicFrame(m_segment);
 		} else {
@@ -663,7 +663,7 @@ void SlicObject::Continue()
 {
 	m_frame->Run();
 
-	if (!g_slicEngine->AtBreak())
+	if (!slicengine_Get()->AtBreak())
     {
     	Finish();
     }

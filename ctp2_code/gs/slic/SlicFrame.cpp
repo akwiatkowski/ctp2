@@ -77,7 +77,7 @@ namespace
     SlicDBInterface * GetDatabase(unsigned char * & instructionPointer)
     {
         SlicDBInterface *   namedDatabase =
-            g_slicEngine->GetDBConduit(reinterpret_cast<char *>(instructionPointer));
+            slicengine_Get()->GetDBConduit(reinterpret_cast<char *>(instructionPointer));
 
         if (namedDatabase)
         {
@@ -99,7 +99,7 @@ namespace
             switch (dbIndex)
             {
             default:    return NULL;
-            case 0:     return g_slicEngine->GetDBConduit("UnitDB");
+            case 0:     return slicengine_Get()->GetDBConduit("UnitDB");
             // Probably 1, etc. are other databases. TODO: confirm and add here.
             }
         }
@@ -201,13 +201,13 @@ sint32 SlicFrame::IsEqual(SS_TYPE type1, SlicStackValue value1,
 			if(type1 == SS_TYPE_SYM) {
 				sym1 = value1.m_sym;
 			} else {
-				sym1 = g_slicEngine->GetSymbol(value1.m_int);
+				sym1 = slicengine_Get()->GetSymbol(value1.m_int);
 			}
 
 			if(type2 == SS_TYPE_SYM) {
 				sym2 = value2.m_sym;
 			} else if(type2 == SS_TYPE_VAR) {
-				sym2 = g_slicEngine->GetSymbol(value2.m_int);
+				sym2 = slicengine_Get()->GetSymbol(value2.m_int);
 			} else {
 				Assert(FALSE);
 				return 0;
@@ -253,7 +253,7 @@ void SlicFrame::SetValue(SlicSymbolData *sym, SS_TYPE type, SlicStackValue value
 			sym->SetIntValue(Eval(type, value));
 			break;
 		case SS_TYPE_VAR:
-			getsym = g_slicEngine->GetSymbol(value.m_int);
+			getsym = slicengine_Get()->GetSymbol(value.m_int);
 			if(!sym->SetValueFrom(getsym)) {
 				char buf[1024];
 				snprintf(buf, sizeof(buf), "In object %s, variables '%s' and '%s' are of different types", m_segment->GetName(), sym->GetName(), getsym->GetName());
@@ -301,7 +301,7 @@ void SlicFrame::AddArg(SS_TYPE type, SlicStackValue value)
 			m_argList->AddArg(SA_TYPE_INT, value.m_int);
 			break;
 		case SS_TYPE_VAR:
-			sym = g_slicEngine->GetSymbol(value.m_int);
+			sym = slicengine_Get()->GetSymbol(value.m_int);
 			if(sym->GetType() == SLIC_SYM_REGION) {
 				m_argList->AddArg(SA_TYPE_REGION, sym);
 			} else if(sym->GetType() == SLIC_SYM_COMPLEX_REGION) {
@@ -391,7 +391,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_PUSHV:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(int);
-			sval1.m_sym = g_slicEngine->GetSymbol(ival);
+			sval1.m_sym = slicengine_Get()->GetSymbol(ival);
 			if (sval1.m_sym)
             {
                 m_stack->Push(SS_TYPE_SYM, sval1);
@@ -407,7 +407,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		{
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL struct symbol %d\n", ival));
 				stopped = TRUE;
@@ -436,7 +436,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL struct symbol %d\n", ival));
 				stopped = TRUE;
@@ -489,7 +489,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_PUSHA:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(int);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL symbol %d\n", ival));
 				stopped = TRUE;
@@ -731,7 +731,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_ARGID:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, NULL symbol %d\n", ival));
 				return FALSE;
@@ -746,7 +746,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_ARGS:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(symval->GetType() != SLIC_SYM_SVAR) {
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, string arg doesn't have string type\n"));
 				return FALSE;
@@ -756,7 +756,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_ARGST:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(symval->GetType() != SLIC_SYM_STRING) {
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, hard string doesn't have hard string type\n"));
 				return FALSE;
@@ -769,7 +769,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, NULL symbol %d\n", ival));
 				return FALSE;
@@ -784,7 +784,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			if(!funcObj) {
 
-				SlicSegment *segment = g_slicEngine->GetSegment(symval->GetName());
+				SlicSegment *segment = slicengine_Get()->GetSegment(symval->GetName());
 				if(!segment || segment->GetType() != SLIC_OBJECT_FUNCTION) {
 					DPRINTF(k_DBG_SLIC, ("Undefined function %s\n", symval->GetName()));
 					if(g_theProfileDB && g_theProfileDB->IsDebugSlic()) {
@@ -799,7 +799,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
                 {
                     if (op == SOP_CALLR)
                     {
-					    if (g_slicEngine->AtBreak())
+					    if (slicengine_Get()->AtBreak())
                         {
                             Assert(!m_resultObject); // need stack when failing?
                             if (m_resultObject)
@@ -849,7 +849,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				m_argList = NULL;
 			}
 
-			if(g_slicEngine->AtBreak())
+			if(slicengine_Get()->AtBreak())
 				stopped = TRUE;
 
 			break;
@@ -879,7 +879,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 				m_argList = NULL;
 			}
 
-			if(g_slicEngine->AtBreak())
+			if(slicengine_Get()->AtBreak())
 				stopped = TRUE;
 
 			break;
@@ -916,22 +916,22 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
 
-			symval = g_slicEngine->GetSymbol(ival2);
+			symval = slicengine_Get()->GetSymbol(ival2);
 			if(symval->GetType() != SLIC_SYM_SVAR) {
 				DPRINTF(k_DBG_SLIC, ("Bad Mojo, button string arg doesn't have string type\n"));
 				return FALSE;
 			}
-			g_slicEngine->GetContext()->AddButton(new SlicButton(
+			slicengine_Get()->GetContext()->AddButton(new SlicButton(
 				(StringId)symval->GetStringId(), m_segment,
-				ival, g_slicEngine->GetContext()));
+				ival, slicengine_Get()->GetContext()));
 			break;
 		case SOP_OCLS:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 
-			g_slicEngine->GetContext()->AddButton(new SlicButton(
+			slicengine_Get()->GetContext()->AddButton(new SlicButton(
 					 		 -1, m_segment, ival,
-							 g_slicEngine->GetContext()));
+							 slicengine_Get()->GetContext()));
 			break;
 		case SOP_STOP:
 			stopped = TRUE;
@@ -946,7 +946,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
 
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL symbol %d\n", ival));
 				stopped = TRUE;
@@ -961,7 +961,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL symbol %d in array assignment", ival));
 				stopped = TRUE;
@@ -988,7 +988,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		{
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			if(!symval) {
 				DPRINTF(k_DBG_SLIC, ("Bad mojo, NULL struct symbol %d\n", ival));
 				stopped = TRUE;
@@ -1020,7 +1020,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			SlicSymbolData *arraySym = g_slicEngine->GetSymbol(ival);
+			SlicSymbolData *arraySym = slicengine_Get()->GetSymbol(ival);
 
 			slicif_read_sint32(codePtr, &ival2);
 			codePtr += sizeof(sint32);
@@ -1090,7 +1090,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 
 			sp = m_stack->Pop(type1, sval1);
 			Assert(sp >= 0);
-			g_slicEngine->GetContext()->SetResult(Eval(type1, sval1));
+			slicengine_Get()->GetContext()->SetResult(Eval(type1, sval1));
 			stopped = TRUE;
 			break;
 		case SOP_LINE:
@@ -1116,11 +1116,11 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			memcpy(&cond, codePtr, sizeof(SlicConditional *));
 			codePtr += sizeof(SlicConditional *);
 
-			if(op == SOP_LBRK || g_slicEngine->BreakRequested()) {
+			if(op == SOP_LBRK || slicengine_Get()->BreakRequested()) {
 				if(!cond || (cond->Eval() != 0)) {
 
-					g_slicEngine->Break(m_segment, codePtr - m_segment->m_code,
-										g_slicEngine->GetContext(), m_stack,
+					slicengine_Get()->Break(m_segment, codePtr - m_segment->m_code,
+										slicengine_Get()->GetContext(), m_stack,
 										m_messageData);
 					stopped = TRUE;
 				}
@@ -1131,7 +1131,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 		case SOP_ASIZE:
 			slicif_read_sint32(codePtr, &ival);
 			codePtr += sizeof(sint32);
-			symval = g_slicEngine->GetSymbol(ival);
+			symval = slicengine_Get()->GetSymbol(ival);
 			Assert(symval);
 			if(symval) {
 				sval1.m_int = symval->GetArray()->GetSize();
@@ -1148,7 +1148,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			conduit     = GetDatabase(codePtr);
 			slicif_read_sint32(codePtr, &ival);
 			codePtr    += sizeof(sint32);
-			symval      = g_slicEngine->GetSymbol(ival);
+			symval      = slicengine_Get()->GetSymbol(ival);
 
 			if (conduit && symval)
             {
@@ -1178,7 +1178,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			conduit     = GetDatabase(codePtr);
 			slicif_read_sint32(codePtr, &ival);
 			codePtr    += sizeof(sint32);
-			symval      = g_slicEngine->GetSymbol(ival);
+			symval      = slicengine_Get()->GetSymbol(ival);
 
 			if (conduit && symval)
             {
@@ -1217,7 +1217,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			conduit     = GetDatabase(codePtr);
 			slicif_read_int(codePtr, &ival);
 			codePtr    += sizeof(int);
-			symval      = g_slicEngine->GetSymbol(ival);
+			symval      = slicengine_Get()->GetSymbol(ival);
 
 			if (conduit && symval)
             {

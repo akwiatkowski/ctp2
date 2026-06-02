@@ -369,7 +369,7 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 		spin->SetMaximum(g_theCityStyleDB->NumRecords()-1, 0);
 		spin->SetDispalyValue(false);
 
-		sint32 style = g_player[g_selected_item->GetPlayerOnScreen()]->GetCivilisation()->GetCityStyle();
+		sint32 style = player_Get(g_selected_item->GetPlayerOnScreen())->GetCivilisation()->GetCityStyle();
 		style = (style >= 0 && style < g_theCityStyleDB->NumRecords()) ? style : 0;
 
 		spin->SetValue(style, 0);
@@ -661,9 +661,9 @@ void ScenarioEditor::Update()
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(g_player[i])
+		if(player_Get(i))
 		{
-			g_player[i]->m_playerType = PLAYER_TYPE_HUMAN;
+			player_Get(i)->m_playerType = PLAYER_TYPE_HUMAN;
 		}
 	}
 }
@@ -674,14 +674,14 @@ void ScenarioEditor::Reupdate()
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(g_player[i])
+		if(player_Get(i))
 		{
-			g_player[i]->m_playerType = PLAYER_TYPE_ROBOT;
+			player_Get(i)->m_playerType = PLAYER_TYPE_ROBOT;
 		}
 	}
 
-	if(g_player[g_selected_item->GetVisiblePlayer()]) {
-		g_player[g_selected_item->GetVisiblePlayer()]->m_playerType = PLAYER_TYPE_HUMAN;
+	if(player_Get(g_selected_item->GetVisiblePlayer())) {
+		player_Get(g_selected_item->GetVisiblePlayer())->m_playerType = PLAYER_TYPE_HUMAN;
 		NewTurnCount::SetStopPlayer(g_selected_item->GetVisiblePlayer());
 	}
 
@@ -1585,17 +1585,17 @@ bool ScenarioEditor::UpdateAddList(SCEN_ADD addtype)
 			if(player < 0 || player >= k_MAX_PLAYERS)
 				return false;
 
-			if(!g_player[player])
+			if(!player_Get(player))
 				return false;
 
 			for(i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
-				if(g_player[player]->HasAdvance(i)) {
+				if(player_Get(player)->HasAdvance(i)) {
 					AddAddItem(rightList, g_theAdvanceDB->Get(i)->GetNameText(), i);
 				} else {
 					AddAddItem(leftList, g_theAdvanceDB->Get(i)->GetNameText(), i);
 				}
 			}
-			Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+			Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 			if(p) {
 				ctp2_Static *tb = (ctp2_Static *)aui_Ldl::GetObject(s_scenarioAddStuffBlock, "AddStuffTitle");
 				tb->SetText(p->m_civilisation->GetLeaderName());
@@ -1683,7 +1683,7 @@ void ScenarioEditor::CivCityStyleSpinner(aui_Control *control, uint32 action, ui
 	const CityStyleRecord* rec = g_theCityStyleDB->Get(spinner->GetValueX());
 
 	if(rec){
-		g_player[g_selected_item->GetVisiblePlayer()]->GetCivilisation()->AccessData()->SetCityStyle(spinner->GetValueX());
+		player_Get(g_selected_item->GetVisiblePlayer())->GetCivilisation()->AccessData()->SetCityStyle(spinner->GetValueX());
 		spinner->SetText(rec->GetNameText());
 
 		aui_TipWindow* tipWindow = (aui_TipWindow *)spinner->GetTipWindow();
@@ -1710,8 +1710,8 @@ void ScenarioEditor::CivAddRemovePlayer(aui_Control *control, uint32 action, uin
 		if(pl >= k_MAX_PLAYERS)
 			return;
 
-		if(g_player[pl]) {
-			g_player[pl]->GameOver(GAME_OVER_LOST_INEPT, -1);
+		if(player_Get(pl)) {
+			player_Get(pl)->GameOver(GAME_OVER_LOST_INEPT, -1);
 			Player::RemoveDeadPlayers();
 
 		} else {
@@ -1832,9 +1832,9 @@ void ScenarioEditor::UpdatePlayerSelect()
     char str[k_MAX_NAME_LEN];
 	for (sint32 i = 1; i < k_MAX_PLAYERS; i++)
 	{
-		if(g_player[i])
+		if(player_Get(i))
 		{
-			g_player[i]->GetCivilisation()->GetCountryName(str);
+			player_Get(i)->GetCivilisation()->GetCountryName(str);
 			AddDropDownItem(players, "ScenNationItem", str);
 		}
 	}
@@ -1880,7 +1880,7 @@ void ScenarioEditor::SetupNations()
 
 	}
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 	if(p) {
 
 		plgroup->SetSelectedItem(p->m_civilisation->GetCivilisation());
@@ -2021,7 +2021,7 @@ void ScenarioEditor::AddAddButton(aui_Control *control, uint32 action, uint32 da
 			}
 			city.CD()->SetWonders(city.CD()->GetBuiltWonders() | ((uint64)1 << (uint64)dbindex));
 			wonderutil_AddBuilt(dbindex);
-			g_player[city->GetOwner()]->AddWonder(dbindex, city);
+			player_Get(city->GetOwner())->AddWonder(dbindex, city);
 
 			leftList->RemoveItem(selItem->Id());
 			AddAddItem(rightList, g_theWonderDB->Get(dbindex)->GetNameText(), dbindex);
@@ -2039,20 +2039,20 @@ void ScenarioEditor::AddAddButton(aui_Control *control, uint32 action, uint32 da
 			if(player < 0 || player >= k_MAX_PLAYERS)
 				return;
 
-			if(g_player[player]->HasAdvance(dbindex))
+			if(player_Get(player)->HasAdvance(dbindex))
 				return;
 			s_scenarioEditor->m_isGivingAdvances = true;
-			g_player[player]->m_advances->GiveAdvancePlusPrerequisites(dbindex);
+			player_Get(player)->m_advances->GiveAdvancePlusPrerequisites(dbindex);
 			s_scenarioEditor->m_isGivingAdvances = false;
 
 
-			g_player[player]->m_advances->ResetCanResearch(dbindex);
+			player_Get(player)->m_advances->ResetCanResearch(dbindex);
 
 			leftList->Clear();
 			rightList->Clear();
 
 			for(i = 0; i < g_theAdvanceDB->NumRecords(); i++) {
-				if(g_player[player]->HasAdvance(i)) {
+				if(player_Get(player)->HasAdvance(i)) {
 					AddAddItem(rightList, g_theAdvanceDB->Get(i)->GetNameText(), i);
 				} else {
 					AddAddItem(leftList, g_theAdvanceDB->Get(i)->GetNameText(), i);
@@ -2144,10 +2144,10 @@ void ScenarioEditor::AddRemoveButton(aui_Control *control, uint32 action, uint32
 			if(player < 0 || player >= k_MAX_PLAYERS)
 				return;
 
-			if(!g_player[player]->HasAdvance(dbindex))
+			if(!player_Get(player)->HasAdvance(dbindex))
 				return;
 
-			g_player[player]->m_advances->TakeAdvance(dbindex);
+			player_Get(player)->m_advances->TakeAdvance(dbindex);
 			rightList->RemoveItem(selItem->Id());
 			AddAddItem(leftList, g_theAdvanceDB->Get(dbindex)->GetNameText(), dbindex);
 			break;
@@ -2173,11 +2173,11 @@ void ScenarioEditor::NotifyPlayerChange()
 		}
 	}
 
-	if(g_player[player]) {
+	if(player_Get(player)) {
 		if(s_scenarioEditor->m_startLocMode != SCEN_START_LOC_MODE_CIV) {
 			ctp2_DropDown *plgroup = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivControls.Nation");
 
-			sint32 nation = g_player[player]->m_civilisation->GetCivilisation();
+			sint32 nation = player_Get(player)->m_civilisation->GetCivilisation();
 
 			bool wasInitializing = s_scenarioEditor->m_initializing;
 			s_scenarioEditor->m_initializing = true;
@@ -2192,17 +2192,17 @@ void ScenarioEditor::NotifyPlayerChange()
 		ctp2_TextField *tf = (ctp2_TextField *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivExtraControls.LeaderField");
 		Assert(tf);
 		if(tf) {
-			tf->SetFieldText(g_player[player]->m_civilisation->GetLeaderName());
+			tf->SetFieldText(player_Get(player)->m_civilisation->GetLeaderName());
 		}
 
 		ctp2_Spinner* spin = (ctp2_Spinner *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivControls.CityStyleSpinner");
 		if(spin)
 		{
-			spin->SetValue(g_player[player]->GetCivilisation()->GetCityStyle(), 0);
+			spin->SetValue(player_Get(player)->GetCivilisation()->GetCityStyle(), 0);
 		}
 
 		ctp2_DropDown *govs = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Civ.SetGovernment");
-		govs->SetSelectedItem(g_player[g_selected_item->GetVisiblePlayer()]->GetGovernmentType());
+		govs->SetSelectedItem(player_Get(g_selected_item->GetVisiblePlayer())->GetGovernmentType());
 	}
 }
 
@@ -2224,7 +2224,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 	ctp2_TextField *tf = (ctp2_TextField *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivExtraControls.LeaderField");
 		tf->SetFieldText("");
 
-	if(g_player[newPlayer]) {
+	if(player_Get(newPlayer)) {
 
 		// Added by Martin G�hmann to prevent a crash if you use the
 		// Scenario Editor to select a city, change the player without deselecting
@@ -2232,7 +2232,7 @@ void ScenarioEditor::PlayerSpinner(aui_Control *control, uint32 action, uint32 d
 		// to that player.
 		g_selected_item->Deselect(g_selected_item->GetVisiblePlayer());
 
-		tf->SetFieldText(g_player[newPlayer]->m_civilisation->GetLeaderName());
+		tf->SetFieldText(player_Get(newPlayer)->m_civilisation->GetLeaderName());
 		g_selected_item->SetPlayerOnScreen(newPlayer);
 		g_selected_item->SetCurPlayer(newPlayer);
 		g_director->AddCopyVision();
@@ -2409,7 +2409,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 
 		if (s_scenarioEditor->m_startLocMode == SCEN_START_LOC_MODE_PLAYER) {
 			Player *p = NULL;
-			p = g_player[g_selected_item->GetVisiblePlayer()];
+			p = player_Get(g_selected_item->GetVisiblePlayer());
 			if (p) {
 				playerOrCiv = p->GetCivilisation()->GetCivilisation();
 			}
@@ -2426,7 +2426,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 
 			}
 
-			Player * p = g_player[playerOrCiv];
+			Player * p = player_Get(playerOrCiv);
 			if (p) {
 				playerOrCiv = p->GetCivilisation()->GetCivilisation();
 			}
@@ -2681,7 +2681,7 @@ void ScenarioEditor::FileAction(FileDialog *dialog, uint32 action, const MBCHAR 
 
 				ctp2_DropDown *plgroup = (ctp2_DropDown *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivControls.Nation");
 
-				Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+				Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 				MBCHAR leaderName[k_MAX_NAME_LEN];
 				strcpy(leaderName, p->GetLeaderName());
@@ -2944,16 +2944,16 @@ void ScenarioEditor::Year(aui_Control *control, uint32 action, uint32 data, void
 	if(!spinner) return;
 
 	PLAYER_INDEX current_player = g_selected_item->GetCurPlayer();
-	Assert(g_player && g_player[current_player]);
-	if(!g_player || !g_player[current_player]) return;
+	Assert(player_arr_Get() && player_Get(current_player));
+	if(!player_arr_Get() || !player_Get(current_player)) return;
 
 	sint32 newRound = spinner->GetValueX();
 
 	for(int i=0; i<k_MAX_PLAYERS; i++)
 	{
-		if(g_player[i])
+		if(player_Get(i))
 		{
-			g_player[i]->m_current_round = newRound;
+			player_Get(i)->m_current_round = newRound;
 		}
 	}
 
@@ -2980,7 +2980,7 @@ void ScenarioEditor::SetGovernment(aui_Control *control, uint32 action, uint32 d
 		return;
 
 	ctp2_DropDown *dd = (ctp2_DropDown *)control;
-	g_player[g_selected_item->GetVisiblePlayer()]->ActuallySetGovernment
+	player_Get(g_selected_item->GetVisiblePlayer())->ActuallySetGovernment
 	    (dd->GetSelectedItem());
 }
 
@@ -3024,7 +3024,7 @@ void ScenarioEditor::SetPlayerNation(aui_Control *control, uint32 action, uint32
 
 	sint32 nation = dd->GetSelectedItem();
 
-	Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 	switch(s_scenarioEditor->m_startLocMode) {
 		case SCEN_START_LOC_MODE_NONE:
@@ -3081,10 +3081,10 @@ void ScenarioEditor::LeaderName(aui_Control *control, uint32 action, uint32 data
 	MBCHAR newName[_MAX_PATH];
 	tf->GetFieldText(newName, _MAX_PATH);
 
-	if(g_player[g_selected_item->GetVisiblePlayer()]
+	if(player_Get(g_selected_item->GetVisiblePlayer())
 	&& newName[0] != 0
 	){
-		g_player[g_selected_item->GetVisiblePlayer()]->m_civilisation->AccessData()->SetLeaderName(newName);
+		player_Get(g_selected_item->GetVisiblePlayer())->m_civilisation->AccessData()->SetLeaderName(newName);
 		if(g_selected_item->GetVisiblePlayer() == g_theProfileDB->GetPlayerIndex())
 		{
 			g_theProfileDB->SetLeaderName(newName);
@@ -3191,9 +3191,9 @@ void ScenarioEditor::ExploreButton(aui_Control *control, uint32 action, uint32 d
 
 	sint32 player = g_selected_item->GetVisiblePlayer();
 
-	if ((player > 0) && g_player[player])
+	if ((player > 0) && player_Get(player))
     {
-		g_player[player]->m_vision->SetTheWholeWorldExplored();
+		player_Get(player)->m_vision->SetTheWholeWorldExplored();
 	}
 
 	g_director->AddCopyVision();
@@ -3207,7 +3207,7 @@ void ScenarioEditor::UnexploreButton(aui_Control *control, uint32 action, uint32
 	sint32 player = g_selected_item->GetVisiblePlayer();
 
 	if(player > 0) {
-		g_player[player]->m_vision->SetTheWholeWorldUnexplored();
+		player_Get(player)->m_vision->SetTheWholeWorldUnexplored();
 	}
 
 	g_director->AddCopyVision();
@@ -3238,7 +3238,7 @@ sint32 ScenarioEditor::GetNumPlayers()
 {
 	sint32 players = 0;
 	for (sint32 i = 1; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i])
+		if(player_Get(i))
 			players++;
 	}
 	return players;
@@ -3249,7 +3249,7 @@ sint32 ScenarioEditor::GetLastPlayer()
 {
 	sint32 players = 0;
 	for (sint32 i = 1; i < k_MAX_PLAYERS; i++) {
-		if(g_player[i])
+		if(player_Get(i))
 			players = i;
 	}
 	return players;
@@ -3267,8 +3267,8 @@ void ScenarioEditor::ReloadSlic(aui_Control *control, uint32 action, uint32 data
 		return;
 
 	for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
-		if(g_player[p]) {
-			g_player[p]->m_messages->KillList();
+		if(player_Get(p)) {
+			player_Get(p)->m_messages->KillList();
 		}
 	}
 
@@ -3326,7 +3326,7 @@ void ScenarioEditor::AddPW(aui_Control *control, uint32 action, uint32 data, voi
 	sint32 player = g_selected_item->GetVisiblePlayer();
 
 	if(abs(lemurPoo) <= k_MAX_ADD_GOLD_OR_PW) {
-		g_player[player]->m_materialPool->AddMaterials(lemurPoo);
+		player_Get(player)->m_materialPool->AddMaterials(lemurPoo);
 	} else {
 		tf->SetFieldText("");
 		MainControlPanel::UpdatePlayer(g_selected_item->GetVisiblePlayer());
@@ -3346,7 +3346,7 @@ void ScenarioEditor::AddGold(aui_Control *control, uint32 action, uint32 data, v
 	sint32 furd = atoi(text);
 
 	if(abs(furd) <= k_MAX_ADD_GOLD_OR_PW) {
-		g_player[player]->m_gold->AddGold(furd);
+		player_Get(player)->m_gold->AddGold(furd);
 	} else {
 		tf->SetFieldText("");
 		MainControlPanel::UpdatePlayer(g_selected_item->GetVisiblePlayer());

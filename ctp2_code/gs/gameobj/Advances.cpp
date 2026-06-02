@@ -43,7 +43,7 @@
 
 #include "AdvanceRecord.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_arr_Get()
 #include "WonderRecord.h"
 #include "AgeRecord.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
@@ -210,7 +210,7 @@ Advances::HasAdvance(sint32 index) const
 void Advances::UpdateCitySprites(BOOL forceUpdate)
 {
 
-	if (g_player[m_owner] != NULL) {
+	if (player_Get(m_owner) != NULL) {
 		sint32 newAge = 0;
 		if (newAge != m_age || forceUpdate) {
 			if(newAge != m_age) {
@@ -219,7 +219,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
 			m_age = newAge;
 
-			UnitDynamicArray	*allCities =  g_player[m_owner]->GetAllCitiesList();
+			UnitDynamicArray	*allCities =  player_Get(m_owner)->GetAllCitiesList();
 
 			for (sint32 i=0; i<allCities->Num(); i++) {
 				Unit		city = allCities->Access(i);
@@ -232,13 +232,13 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
 
 
-            if (!forceUpdate && g_player[m_owner] && civilisationpool_Get()->IsValid(*g_player[m_owner]->m_civilisation)) {
+            if (!forceUpdate && player_Get(m_owner) && civilisationpool_Get()->IsValid(*player_Get(m_owner)->m_civilisation)) {
                 sint32 i;
                 SlicObject *so;
 
                 for(i = 1; i < k_MAX_PLAYERS; i++) {
-                    if (g_player[i] && (i != m_owner) &&
-                        (!g_player[i]->m_isDead)) {
+                    if (player_Get(i) && (i != m_owner) &&
+                        (!player_Get(i)->m_isDead)) {
                         if (0 >= m_age)
                             break;
                     }
@@ -263,7 +263,7 @@ void Advances::UpdateCitySprites(BOOL forceUpdate)
 
 void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 {
-	if (   !g_player[m_owner]       // non-existing player
+	if (   !player_Get(m_owner)       // non-existing player
 	    || m_hasAdvance[advance]    // advance already known
 	    || !g_slicEngine->CallMod   // forbidden by game settings
 	            (mod_CanPlayerHaveAdvance, TRUE, m_owner, advance)
@@ -279,7 +279,7 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 
 	if (rec->GetDeepOcean())
 	{
-		g_player[m_owner]->SetDeepOceanVisible(true);
+		player_Get(m_owner)->SetDeepOceanVisible(true);
 
 		tiledmap_observer::Refresh();
 		tiledmap_observer::InvalidateMix();
@@ -287,17 +287,17 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 
 	if (rec->GetCapitalization())
 	{
-		g_player[m_owner]->m_can_build_capitalization = TRUE;
+		player_Get(m_owner)->m_can_build_capitalization = TRUE;
 	}
 
 	if (rec->GetInfrastructure())
 	{
-		g_player[m_owner]->m_can_build_infrastructure = TRUE;
+		player_Get(m_owner)->m_can_build_infrastructure = TRUE;
 	}
 
 	if (rec->GetTransform())
 	{
-		g_player[m_owner]->m_can_use_terra_tab = TRUE;
+		player_Get(m_owner)->m_can_use_terra_tab = TRUE;
 	}
 
 	if (strcmp(g_theStringDB->GetIdStr(g_theAdvanceDB->Get(advance)->m_name),
@@ -308,7 +308,7 @@ void Advances::SetHasAdvance(AdvanceType advance, const bool init)
 
 	UpdateCitySprites(FALSE);
 
-	g_player[m_owner]->SetHasAdvance(advance, init);
+	player_Get(m_owner)->SetHasAdvance(advance, init);
 }
 
 
@@ -329,12 +329,12 @@ Advances::GrantAdvance()
 	if(g_network.IsActive() && g_network.IsHost()) {
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
 									  m_owner, m_researching, m_discovered,
-									  g_player[m_owner]->m_science->GetLevel()));
+									  player_Get(m_owner)->m_science->GetLevel()));
 	}
 
 	SetHasAdvance(m_researching);
 
-	g_player[m_owner]->SetCityRoads();
+	player_Get(m_owner)->SetCityRoads();
 }
 
 void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
@@ -356,7 +356,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 
 		sint32 const pointCost = g_theAdvanceDB->Get(adv)->GetPowerPoints();
 
-		if (g_player[m_owner]->GetPoints() < pointCost)
+		if (player_Get(m_owner)->GetPoints() < pointCost)
 			return; // Too expensive
 
 		if (g_network.IsClient() && m_owner != player_view::VisiblePlayer())
@@ -368,7 +368,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 				return; // Not for me
 		}
 
-		g_player[m_owner]->DeductPoints(pointCost);
+		player_Get(m_owner)->DeductPoints(pointCost);
 
 		if (g_network.IsClient())
 		{
@@ -385,7 +385,7 @@ void Advances::GiveAdvance(AdvanceType adv, CAUSE_SCI cause, BOOL fromClient)
 	{
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADVANCE,
 		                              m_owner, adv, m_discovered,
-		                              g_player[m_owner]->m_science->GetLevel()
+		                              player_Get(m_owner)->m_science->GetLevel()
 		                             )
 		                 );
 	}
@@ -416,7 +416,7 @@ void Advances::TakeAdvance(AdvanceType adv)
 	if(g_network.IsActive() && g_network.SetupMode())
 	{
 		sint32 pointCost = g_theAdvanceDB->Get(adv)->GetPowerPoints();
-		g_player[m_owner]->AddPoints(pointCost);
+		player_Get(m_owner)->AddPoints(pointCost);
 		if(g_network.IsClient()) {
 			g_network.SendAction(new NetAction(NET_ACTION_TAKE_ADVANCE_CHEAT,
 											   adv));
@@ -427,7 +427,7 @@ void Advances::TakeAdvance(AdvanceType adv)
 
 	m_discovered--;
 
-	g_player[m_owner]->SetCityRoads();
+	player_Get(m_owner)->SetCityRoads();
 }
 
 void Advances::InitialAdvance(AdvanceType adv)
@@ -546,7 +546,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 
 					for(g = 0; g < rec->GetNumGovernmentType(); g++)
 					{
-						if(rec->GetGovernmentTypeIndex(g) == g_player[m_owner]->GetGovernmentType())
+						if(rec->GetGovernmentTypeIndex(g) == player_Get(m_owner)->GetGovernmentType())
 						{
 							found = TRUE; //fixed to found
 							break;
@@ -569,7 +569,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 
 					for(s = 0; s < rec->GetNumCultureOnly(); s++)
 					{
-						if(rec->GetCultureOnlyIndex(s) == g_player[m_owner]->GetCivilisation()->GetCityStyle())
+						if(rec->GetCultureOnlyIndex(s) == player_Get(m_owner)->GetCivilisation()->GetCityStyle())
 						{
 							found = TRUE; //fixed to found
 							break;
@@ -587,14 +587,14 @@ void Advances::ResetCanResearch(sint32 justGot)
 				if(rec->GetNumNeedsCityGoodAnyCity())
 				{
 					sint32 i, g;
-					sint32 n = g_player[m_owner]->m_all_cities->Num();
+					sint32 n = player_Get(m_owner)->m_all_cities->Num();
 					bool goodavail = false;
 
 					for(i = 0; i < n; i++)
 					{
 						for(g = 0; g < rec->GetNumNeedsCityGoodAnyCity(); g++)
 						{
-							if(g_player[m_owner]->m_all_cities->Access(i).AccessData()->
+							if(player_Get(m_owner)->m_all_cities->Access(i).AccessData()->
 								GetCityData()->HasNeededGood(rec->GetNeedsCityGoodAnyCityIndex(g)))
 							{
 								goodavail = true;
@@ -755,7 +755,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 			if(!m_hasAdvance[i] && !m_canResearch[i]) {
 
 				if(g_theAdvanceDB->RequiresProbeRecovery(i) &&
-				   !g_player[m_owner]->m_hasRecoveredProbe) {
+				   !player_Get(m_owner)->m_hasRecoveredProbe) {
 					continue;
 				}
 
@@ -951,10 +951,10 @@ Advances::GetCost() const
 
 sint32 Advances::GetCost(const AdvanceType adv) const
 {
-	if(!g_player[m_owner])
+	if(!player_Get(m_owner))
 		return 0x7fffffff;
 
-	sint32 cost = g_player[m_owner]->GetScienceHandicap() * m_discovered +
+	sint32 cost = player_Get(m_owner)->GetScienceHandicap() * m_discovered +
 		g_theAdvanceDB->Get(adv)->GetCost();
 
 	//////////////////////////////////////////
@@ -972,11 +972,11 @@ sint32 Advances::GetCost(const AdvanceType adv) const
 		// guarantee meeting them.
 		for(sint32 i = 1; i < k_MAX_PLAYERS; ++i)
 		{
-			if(g_player[i] && !g_player[i]->IsDead())
+			if(player_Get(i) && !player_Get(i)->IsDead())
 			{
-				if(g_player[m_owner]->HasContactWith(i))
+				if(player_Get(m_owner)->HasContactWith(i))
 				{
-					if(g_player[i]->HasAdvance(adv))
+					if(player_Get(i)->HasAdvance(adv))
 					{
 						knownToCivs++;
 					}
@@ -1004,7 +1004,7 @@ sint32 Advances::GetCost(const AdvanceType adv) const
 	// End Calculate tech dissemination deduction
 	///////////////////////////////////////////////
 
-	if(g_player[m_owner]->IsRobot() &&
+	if(player_Get(m_owner)->IsRobot() &&
 	   !(g_network.IsClient() && g_network.IsLocalPlayer(m_owner)))
 	{
 		sint32 age = 0;
@@ -1282,8 +1282,8 @@ sint32 Advances::GetMinPrerequisites(sint32 adv) const
 
 sint32 Advances::GetProjectedScience() const
 {
-	if (!g_player[m_owner]) return 0;
-	UnitDynamicArray *  cities  = g_player[m_owner]->m_all_cities;
+	if (!player_Get(m_owner)) return 0;
+	UnitDynamicArray *  cities  = player_Get(m_owner)->m_all_cities;
 	sint32 s = 0, i;
 	for(i = 0; i < cities->Num(); i++)
 	{
@@ -1303,9 +1303,9 @@ sint32 Advances::GetProjectedScience() const
 
 
 	sint32 wages = 0;
-	UnitDynamicArray *cities = g_player[m_owner]->m_all_cities;
+	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
 	for(i = 0; i < cities->Num(); i++) {
-		wages += cities->Access(i).AccessData()->GetCityData()->CalcWages((sint32)g_player[m_owner]->GetWagesPerPerson());
+		wages += cities->Access(i).AccessData()->GetCityData()->CalcWages((sint32)player_Get(m_owner)->GetWagesPerPerson());
 	}
 
 	sint32 totalTrade = 0;
@@ -1314,11 +1314,11 @@ sint32 Advances::GetProjectedScience() const
 	sint32 projScience, projPopScience, projGrossGold, projNetGold;
 	sint32 projTradeBeforeCrime, projWages;
 	sint32 totalUpkeep = 0;
-	sint32 wonderLevel = wonderutil_GetDecreaseMaintenance(g_player[m_owner]->m_builtWonders);
-	//sint32 owner = g_player[m_owner]; //EMOD for modified GetTotalUpkeep
+	sint32 wonderLevel = wonderutil_GetDecreaseMaintenance(player_Get(m_owner)->m_builtWonders);
+	//sint32 owner = player_Get(m_owner); //EMOD for modified GetTotalUpkeep
 
-	for(i = g_player[m_owner]->m_all_cities->Num() - 1; i >= 0; i--) {
-		Unit city = g_player[m_owner]->m_all_cities->Access(i);
+	for(i = player_Get(m_owner)->m_all_cities->Num() - 1; i >= 0; i--) {
+		Unit city = player_Get(m_owner)->m_all_cities->Access(i);
 		city.AccessData()->GetCityData()->
 			GetDetailedProjectedTradeScience(projGrossGold, projNetGold, projScience,
 											 projPopScience, projTradeBeforeCrime,
@@ -1330,20 +1330,20 @@ sint32 Advances::GetProjectedScience() const
 		totalPopScience += projPopScience;
 	}
 
-	totalTrade += g_player[m_owner]->CalcWonderGold();
+	totalTrade += player_Get(m_owner)->CalcWonderGold();
 
 	if(totalTrade - wages - totalUpkeep > 0) {
-		g_player[m_owner]->m_gold->SetConsiderForScience(double(totalTrade - wages - totalUpkeep) / double(totalGrossGold));
+		player_Get(m_owner)->m_gold->SetConsiderForScience(double(totalTrade - wages - totalUpkeep) / double(totalGrossGold));
 
-		for(i = g_player[m_owner]->m_all_cities->Num() - 1; i >= 0; i--) {
-			g_player[m_owner]->m_all_cities->Access(i).AccessData()->GetCityData()->
+		for(i = player_Get(m_owner)->m_all_cities->Num() - 1; i >= 0; i--) {
+			player_Get(m_owner)->m_all_cities->Access(i).AccessData()->GetCityData()->
 				GetDetailedProjectedTradeScience(projGrossGold, projNetGold, projScience,
 												 projPopScience, projTradeBeforeCrime,
 												 projWages);
 			totalTradeScience += projScience;
 		}
-		totalTradeScience = sint32(double(totalTradeScience) *  g_player[m_owner]->GetKnowledgeCoef());
-		double w = 0.01 * double(wonderutil_GetIncreaseKnowledgePercentage(g_player[m_owner]->GetBuiltWonders()));
+		totalTradeScience = sint32(double(totalTradeScience) *  player_Get(m_owner)->GetKnowledgeCoef());
+		double w = 0.01 * double(wonderutil_GetIncreaseKnowledgePercentage(player_Get(m_owner)->GetBuiltWonders()));
 		totalTradeScience += sint32(totalTradeScience * w);
 	} else {
 		totalTradeScience = 0;
@@ -1364,7 +1364,7 @@ sint32 Advances::TurnsToNextAdvance(AdvanceType adv) const
         return -1;
     }
 
-	sint32 scienceNeeded = GetCost(adv) - g_player[m_owner]->m_science->GetLevel();
+	sint32 scienceNeeded = GetCost(adv) - player_Get(m_owner)->m_science->GetLevel();
     return scienceNeeded / totalScience;
 }
 
@@ -1386,7 +1386,7 @@ double Advances::FractionComplete(AdvanceType adv) const
 	if(adv < 0)
 		adv = m_researching;
 
-	return static_cast<double>(g_player[m_owner]->m_science->GetLevel()) / static_cast<double>(GetCost(adv));
+	return static_cast<double>(player_Get(m_owner)->m_science->GetLevel()) / static_cast<double>(GetCost(adv));
 }
 
 double Advances::FractionComplete() const

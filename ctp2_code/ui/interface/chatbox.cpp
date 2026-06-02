@@ -54,7 +54,7 @@
 #include "gfx/spritesys/director.h"               // g_director
 #include "ui/aui_ctp2/radarmap.h"               // radar_map_Get()
 #include "gs/gameobj/Civilisation.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/slic/SlicEngine.h"
 #include "ui/interface/radarwindow.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
@@ -370,9 +370,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	{
 		for (sint32 i = 0; i < k_MAX_PLAYERS; i++)
 		{
-			if (g_player[i])
+			if (player_Get(i))
 			{
-				g_player[i]->m_vision->SetTheWholeWorldUnexplored();
+				player_Get(i)->m_vision->SetTheWholeWorldUnexplored();
 			}
 		}
 		g_director->AddCopyVision();
@@ -390,9 +390,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	{
 		for (sint32 p = 0; p < k_MAX_PLAYERS; p++)
 		{
-			if (g_player[p])
+			if (player_Get(p))
 			{
-				g_player[p]->m_messages->KillList();
+				player_Get(p)->m_messages->KillList();
 			}
 		}
 
@@ -436,8 +436,8 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 					return FALSE;
 			}
 
-			if (player >= 0 && player < k_MAX_PLAYERS && g_player[player])
-				g_player[player]->m_playerType = PLAYER_TYPE_ROBOT;
+			if (player >= 0 && player < k_MAX_PLAYERS && player_Get(player))
+				player_Get(player)->m_playerType = PLAYER_TYPE_ROBOT;
 		}
 	}
 
@@ -457,13 +457,13 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 				if(!g_network.IsLocalPlayer(player))
 					return FALSE;
 
-				g_player[player]->m_playerType =
+				player_Get(player)->m_playerType =
 				    g_network.IsHost() ? PLAYER_TYPE_HUMAN : PLAYER_TYPE_NETWORK;
 			}
 			else
 			{
-				if(player >= 0 && player < k_MAX_PLAYERS && g_player[player])
-					g_player[player]->m_playerType = PLAYER_TYPE_HUMAN;
+				if(player >= 0 && player < k_MAX_PLAYERS && player_Get(player))
+					player_Get(player)->m_playerType = PLAYER_TYPE_HUMAN;
 			}
 		}
 	}
@@ -515,9 +515,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 	{
 		for (sint32 i = 0; i < k_MAX_PLAYERS; i++)
 		{
-			if (g_player[i])
+			if (player_Get(i))
 			{
-				g_player[i]->m_civilisation->AccessData()->ResetStrings();
+				player_Get(i)->m_civilisation->AccessData()->ResetStrings();
 			}
 		}
 	}
@@ -579,9 +579,9 @@ BOOL ChatWindow::CheckForEasterEggs(MBCHAR *s)
 					return FALSE;
 			}
 
-			if (player >= 0 && player < k_MAX_PLAYERS && g_player[player])
+			if (player >= 0 && player < k_MAX_PLAYERS && player_Get(player))
 			{
-				g_player[player]->m_playerType = PLAYER_TYPE_ROBOT;
+				player_Get(player)->m_playerType = PLAYER_TYPE_ROBOT;
 				g_gevManager->Pause();
 				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginScheduler,
 				                       GEA_Player, player,

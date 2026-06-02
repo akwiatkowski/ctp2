@@ -250,8 +250,8 @@ void IntelligenceWindow::SetRegardTip(MBCHAR *buf, const sint32 player, const si
 void IntelligenceWindow::Update(ctp2_ListBox *theList)
 {
     PLAYER_INDEX    visPl   = g_selected_item->GetVisiblePlayer();
-	Assert(g_player[visPl]);
-	if(!g_player[visPl]) return;
+	Assert(player_Get(visPl));
+	if(!player_Get(visPl)) return;
 
 	theList->Clear();
 	theList->SetAbsorbancy(FALSE);
@@ -260,7 +260,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 	for (sint32 p = 1; p < k_MAX_PLAYERS; p++)
     {
 		if (p == visPl) continue;
-		if (!g_player[visPl]->HasContactWith(p)) continue;
+		if (!player_Get(visPl)->HasContactWith(p)) continue;
 
 	    ctp2_ListItem * item =
             (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("IntelligenceListItem");
@@ -276,7 +276,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
 		if (ctp2_Static * nation = (ctp2_Static *)item->GetChildByIndex(k_INT_NATION_COL))
         {
 		    MBCHAR buf[k_MAX_NAME_LEN];
-            g_player[p]->GetCivilisation()->GetCountryName(buf);
+            player_Get(p)->GetCivilisation()->GetCountryName(buf);
 			nation->SetText(buf);
 			nation->SetActionFuncAndCookie(SelectItem, item);
 		}
@@ -294,7 +294,7 @@ void IntelligenceWindow::Update(ctp2_ListBox *theList)
         {
 			strength->SetDrawCallbackAndCookie(DrawPlayerStrength, (void *)p, true);
 			MBCHAR buf[k_MAX_NAME_LEN];
-			DIPLOMATIC_STRENGTH relativeStrength = g_player[p]->GetRelativeStrength(visPl);
+			DIPLOMATIC_STRENGTH relativeStrength = player_Get(p)->GetRelativeStrength(visPl);
 
 			if (relativeStrength < DIPLOMATIC_STRENGTH_WEAK)
 			{
@@ -486,8 +486,8 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 {
 	sint32 p = (intptr_t)cookie;
 
-	if(!g_player[p]) return AUI_ERRCODE_OK;
-	if(!g_player[g_selected_item->GetVisiblePlayer()]) return AUI_ERRCODE_OK;
+	if(!player_Get(p)) return AUI_ERRCODE_OK;
+	if(!player_Get(g_selected_item->GetVisiblePlayer())) return AUI_ERRCODE_OK;
 
 
 
@@ -496,7 +496,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 
 
 
-	DIPLOMATIC_STRENGTH relativeStrength = g_player[p]->GetRelativeStrength(g_selected_item->GetVisiblePlayer());
+	DIPLOMATIC_STRENGTH relativeStrength = player_Get(p)->GetRelativeStrength(g_selected_item->GetVisiblePlayer());
 
 	if(!sm_strengthImages) {
 		InitImageTables();
@@ -563,7 +563,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 	}
 	else
 #endif
-	if (g_player[g_selected_item->GetVisiblePlayer()]->HasEmbassyWith(p))
+	if (player_Get(g_selected_item->GetVisiblePlayer())->HasEmbassyWith(p))
 	{
 		imageName = sm_embassyImages->GetString(0);
 	}
@@ -771,7 +771,7 @@ void IntelligenceWindow::DeclareWarOnSelected()
 
 	sint32 visP = g_selected_item->GetVisiblePlayer();
 
-	if(!g_player[visP]) return;
+	if(!player_Get(visP)) return;
 
 	sint32 player = (intptr_t)item->GetUserData();
 
@@ -793,7 +793,7 @@ void IntelligenceWindow::DeclareEmbargoOnSelected()
 
 	sint32 visP = g_selected_item->GetVisiblePlayer();
 
-	if(!g_player[visP]) return;
+	if(!player_Get(visP)) return;
 
 	sint32 player = (intptr_t)item->GetUserData();
 
@@ -815,7 +815,7 @@ void IntelligenceWindow::SendMessageToSelected()
 
 	sint32 visP = g_selected_item->GetVisiblePlayer();
 
-	if(!g_player[visP]) return;
+	if(!player_Get(visP)) return;
 
 	sint32 player = (intptr_t)item->GetUserData();
 
@@ -838,7 +838,7 @@ void IntelligenceWindow::DisplayDetailsOfSelected()
 
 	sint32 visP = g_selected_item->GetVisiblePlayer();
 
-	if(!g_player[visP]) return;
+	if(!player_Get(visP)) return;
 
 	sint32 player = (intptr_t)item->GetUserData();
 
@@ -858,7 +858,7 @@ void IntelligenceWindow::UpdateAdviceText()
 		return;
 
 	sint32 visP = g_selected_item->GetVisiblePlayer();
-	if(!g_player[visP]) return;
+	if(!player_Get(visP)) return;
 
 	ctp2_ListItem *item = (ctp2_ListItem *)sm_list->GetSelectedItem();
 

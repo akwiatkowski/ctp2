@@ -144,7 +144,6 @@ extern Background	*g_background;
 extern WorkWindow	*g_workWindow;
 
 extern StatusWindow	*g_statusWindow;
-extern Player		**g_player;
 extern World        *g_theWorld;
 extern SelectedItem *g_selected_item;
 
@@ -789,7 +788,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(g_network.IsActive()) {
 			if(g_network.IsMyTurn() ||
 			   (g_network.IsHost() &&
-				g_player[g_selected_item->GetCurPlayer()]->IsRobot())) {
+				player_Get(g_selected_item->GetCurPlayer())->IsRobot())) {
 				g_turn->EndThisSliceBeginNewSlice();
 			}
 		} else {
@@ -901,7 +900,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
     case KEY_FUNCTION_GAMESTATE_DEBUG:
         g_theWorld->GamestateDebug();
         for (i=0; i<2; i++) {
-            g_player[i]->GamestateDebug();
+            player_Get(i)->GamestateDebug();
         }
         return TRUE;
 		break;
@@ -955,12 +954,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			for
             (
                 sint32 i = 0;
-                i < g_player[g_selected_item->GetVisiblePlayer()]->m_all_armies->Num();
+                i < player_Get(g_selected_item->GetVisiblePlayer())->m_all_armies->Num();
                 i++
             )
             {
 				g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
-									   GEA_Army, g_player[g_selected_item->GetVisiblePlayer()]->m_all_armies->Access(i),
+									   GEA_Army, player_Get(g_selected_item->GetVisiblePlayer())->m_all_armies->Access(i),
 									   GEA_End);
 			}
 			g_gevManager->Resume();
@@ -1201,11 +1200,11 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 				} else if(g_selected_item) {
 					sint32 visPlayer = g_selected_item->GetVisiblePlayer();
 
-					if(g_player[visPlayer] && g_player[visPlayer]->m_messages->Num() > 0) {
+					if(player_Get(visPlayer) && player_Get(visPlayer)->m_messages->Num() > 0) {
 						sint32 m;
-						for(m = 0; m < g_player[visPlayer]->m_messages->Num(); m++) {
-							if(!g_player[visPlayer]->m_messages->Access(m).IsRead()) {
-								g_player[visPlayer]->m_messages->Access(m).Show();
+						for(m = 0; m < player_Get(visPlayer)->m_messages->Num(); m++) {
+							if(!player_Get(visPlayer)->m_messages->Access(m).IsRead()) {
+								player_Get(visPlayer)->m_messages->Access(m).Show();
 								break;
 							}
 						}
@@ -1263,12 +1262,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 	case KEY_FUNCTION_BUILD_QUEUE:
 	{
-		if(!g_modalWindow && g_player[g_selected_item->GetVisiblePlayer()]) {
+		if(!g_modalWindow && player_Get(g_selected_item->GetVisiblePlayer())) {
 			Unit city;
 			if(g_selected_item->GetSelectedCity(city)) {
 				city = g_theWorld->GetCity(g_selected_item->GetCurSelectPos());
-			} else if(g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities()) {
-				city = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0);
+			} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
+				city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
 			}
 				if(city.IsValid()) {
 					close_AllScreens();
@@ -1278,13 +1277,13 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case KEY_FUNCTION_CITY_MANAGEMENT:
-		if(!g_modalWindow && g_player[g_selected_item->GetVisiblePlayer()]) {
+		if(!g_modalWindow && player_Get(g_selected_item->GetVisiblePlayer())) {
 			close_AllScreens();
 			Unit city;
 			if(g_selected_item->GetSelectedCity(city)) {
 				CityWindow::Display(city.GetData()->GetCityData());
-			} else if(g_player[g_selected_item->GetVisiblePlayer()]->GetNumCities()) {
-				city = g_player[g_selected_item->GetVisiblePlayer()]->m_all_cities->Access(0);
+			} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
+				city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
 				g_selected_item->SetSelectCity(city);
 				CityWindow::Display(city.GetData()->GetCityData());
 			}

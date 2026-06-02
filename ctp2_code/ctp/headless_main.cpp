@@ -214,7 +214,7 @@ int main(int argc, char **argv)
             // settler forever and never found a city.  In headless there
             // is no human, so promote everyone to ROBOT.
             for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                if (g_player[p]) g_player[p]->SetPlayerType(PLAYER_TYPE_ROBOT);
+                if (player_Get(p)) player_Get(p)->SetPlayerType(PLAYER_TYPE_ROBOT);
             }
 
             headless_log->info("Game initialized OK — running {} turns", maxTurns);
@@ -244,10 +244,10 @@ int main(int argc, char **argv)
             // dispatch the AI: settlers never settle, no cities are
             // founded, and score stays flat across thousands of turns.
             for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                if (!g_player[p] || g_player[p]->IsDead()) continue;
+                if (!player_Get(p) || player_Get(p)->IsDead()) continue;
 
                 s_headlessCurPlayer = p;
-                g_player[p]->m_current_round = t;
+                player_Get(p)->m_current_round = t;
 
                 if (g_theProfileDB->IsAIOn()) {
                     g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AiBeginMapAnalysis,
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
                 // BeginTurn() already calls NotifyTurnStart internally; only
                 // NotifyTurnEnd needs an explicit call because EndTurn() does
                 // not notify observers.
-                g_player[p]->BeginTurn();
+                player_Get(p)->BeginTurn();
 
                 // In the interactive game the director queues GEV_BeginScheduler
                 // after BeginTurn().  Headless has no director loop, so we add
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
                 // before we move on to the next player.
                 if (g_gevManager) g_gevManager->Process();
 
-                g_player[p]->EndTurn();
+                player_Get(p)->EndTurn();
                 if (g_gameObservers) g_gameObservers->NotifyTurnEnd(p);
             }
 
@@ -323,16 +323,16 @@ int main(int argc, char **argv)
                 std::fprintf(fp, "player_idx,leader_name,is_dead,total_score,"
                                  "gold,num_cities\n");
                 for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                    if (!g_player[p]) continue;
-                    const char *name = g_player[p]->GetLeaderName();
+                    if (!player_Get(p)) continue;
+                    const char *name = player_Get(p)->GetLeaderName();
                     if (!name) name = "";
-                    sint32 score = g_player[p]->m_score
-                                 ? g_player[p]->m_score->GetTotalScore() : 0;
-                    sint32 gold     = g_player[p]->GetGold();
-                    sint32 nCities  = g_player[p]->GetNumCities();
+                    sint32 score = player_Get(p)->m_score
+                                 ? player_Get(p)->m_score->GetTotalScore() : 0;
+                    sint32 gold     = player_Get(p)->GetGold();
+                    sint32 nCities  = player_Get(p)->GetNumCities();
                     std::fprintf(fp, "%d,%s,%s,%d,%d,%d\n",
                                  (int)p, name,
-                                 g_player[p]->IsDead() ? "yes" : "no",
+                                 player_Get(p)->IsDead() ? "yes" : "no",
                                  (int)score, (int)gold, (int)nCities);
                 }
 
@@ -346,8 +346,8 @@ int main(int argc, char **argv)
                 std::fprintf(fp, "player_idx,city_name,pos_x,pos_y,population,"
                                  "visible_owner,explored_owner\n");
                 for (sint32 p = 0; p < k_MAX_PLAYERS; ++p) {
-                    if (!g_player[p]) continue;
-                    UnitDynamicArray *cities = g_player[p]->GetAllCitiesList();
+                    if (!player_Get(p)) continue;
+                    UnitDynamicArray *cities = player_Get(p)->GetAllCitiesList();
                     if (!cities) continue;
                     for (sint32 ci = 0; ci < cities->Num(); ++ci) {
                         Unit u = cities->Access(ci);
@@ -357,10 +357,10 @@ int main(int argc, char **argv)
                         u.GetPos(pos);
                         CityData *cd = u.GetCityData();
                         sint32 pop = cd ? cd->PopCount() : 0;
-                        bool visible  = g_player[p]->m_vision &&
-                                        g_player[p]->m_vision->IsVisible(pos);
-                        bool explored = g_player[p]->m_vision &&
-                                        g_player[p]->m_vision->IsExplored(pos);
+                        bool visible  = player_Get(p)->m_vision &&
+                                        player_Get(p)->m_vision->IsVisible(pos);
+                        bool explored = player_Get(p)->m_vision &&
+                                        player_Get(p)->m_vision->IsExplored(pos);
                         std::fprintf(fp, "%d,%s,%d,%d,%d,%s,%s\n",
                                      (int)p, cname,
                                      (int)pos.x, (int)pos.y, (int)pop,

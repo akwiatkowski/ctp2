@@ -316,7 +316,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 	Assert(player_id >= 0 && player_id < k_MAX_PLAYERS);
 	if(player_id < 0 || player_id >= k_MAX_PLAYERS) return;
 
-	Player *    p = g_player[player_id];
+	Player *    p = player_Get(player_id);
 	Assert(p);
 	if (!p) return;
 
@@ -362,7 +362,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 				}
 
 				for(op = 1; op < k_MAX_PLAYERS; op++) {
-					if(!g_player[op]) continue;
+					if(!player_Get(op)) continue;
 					if(player_id != op && !p->HasContactWith(op)) continue;
 					if(m_showCities == TRADE_CITIES_OWN && op != g_selected_item->GetVisiblePlayer()) continue;
 					if ((m_showCities == TRADE_CITIES_ALL)			&&
@@ -382,8 +382,8 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 					if(Diplomat::GetDiplomat(op).GetEmbargo(player_id))
 						continue;
 
-					for(d = 0; d < g_player[op]->m_all_cities->Num(); d++) {
-						Unit destCity = g_player[op]->m_all_cities->Access(d);
+					for(d = 0; d < player_Get(op)->m_all_cities->Num(); d++) {
+						Unit destCity = player_Get(op)->m_all_cities->Access(d);
 						if(!(destCity.IsValid())) continue;
 						if(!(destCity.GetVisibility() & (1 << player_id))) continue;
 						if(destCity.m_id == city.m_id) continue;
@@ -522,23 +522,23 @@ void TradeManager::UpdateAdviceWindow()
 
 	MBCHAR buf[20];
 	sint32 pl = g_selected_item->GetVisiblePlayer();
-	if(!g_player[pl]) return;
+	if(!player_Get(pl)) return;
 
 	ctp2_Static *child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "Available");
 	if(child) {
-		snprintf(buf, sizeof(buf), "%d", g_player[pl]->m_tradeTransportPoints - g_player[pl]->m_usedTradeTransportPoints);
+		snprintf(buf, sizeof(buf), "%d", player_Get(pl)->m_tradeTransportPoints - player_Get(pl)->m_usedTradeTransportPoints);
 		child->SetText(buf);
 	}
 
 	child = (ctp2_Static *)aui_Ldl::GetObject(s_tradeAdviceBlock, "InUse");
 	if(child) {
-		snprintf(buf, sizeof(buf), "%d", g_player[pl]->m_usedTradeTransportPoints);
+		snprintf(buf, sizeof(buf), "%d", player_Get(pl)->m_usedTradeTransportPoints);
 		child->SetText(buf);
 	}
 
 	sint32 i, totalProfit = 0, totalRoutes = 0;
-	for(i = 0; i < g_player[pl]->m_all_cities->Num(); i++) {
-		Unit city = g_player[pl]->m_all_cities->Access(i);
+	for(i = 0; i < player_Get(pl)->m_all_cities->Num(); i++) {
+		Unit city = player_Get(pl)->m_all_cities->Access(i);
 		totalRoutes += city.CD()->GetTradeSourceList()->Num();
 		sint32 r;
 		for(r = 0; r < city.CD()->GetTradeSourceList()->Num(); r++) {
@@ -570,7 +570,7 @@ void TradeManager::UpdateAdviceText()
 
 		SlicContext sc;
 
-		Player *p = g_player[g_selected_item->GetVisiblePlayer()];
+		Player *p = player_Get(g_selected_item->GetVisiblePlayer());
 
 		if(m_createList) {
 			ctp2_ListItem *selItem = (ctp2_ListItem *)m_createList->GetSelectedItem();
@@ -651,10 +651,10 @@ void TradeManager::UpdateSummaryList()
 	Assert(pl >= 0 && pl < k_MAX_PLAYERS);
 	if(pl < 0 || pl >= k_MAX_PLAYERS) return;
 
-	Assert(g_player[pl]);
-	if(!g_player[pl]) return;
+	Assert(player_Get(pl));
+	if(!player_Get(pl)) return;
 
-	Player *p = g_player[pl];
+	Player *p = player_Get(pl);
 	Unit maxCity;
 
 	m_summaryList->Clear();
@@ -799,8 +799,8 @@ void TradeManager::CreateRoute(aui_Control *control, uint32 action, uint32 uidat
 		Assert(data->m_destination.IsValid());
 		if(!data->m_destination.IsValid()) return;
 
-		Assert(g_player[data->m_source.GetOwner()]);
-		if(!g_player[data->m_source.GetOwner()]) return;
+		Assert(player_Get(data->m_source.GetOwner()));
+		if(!player_Get(data->m_source.GetOwner())) return;
 
 		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_SendGood,
 							   GEA_Int, data->m_resource,
@@ -1052,7 +1052,7 @@ void TradeManager::ListSelect(aui_Control *control, uint32 action, uint32 data, 
 		CreateListData *data = (CreateListData *)item->GetUserData();
 		Assert(data);
 		if(data) {
-			Player *pl = g_player[g_selected_item->GetVisiblePlayer()];
+			Player *pl = player_Get(g_selected_item->GetVisiblePlayer());
 			Assert(pl);
 			if(pl && (data->m_caravans <= pl->m_tradeTransportPoints - pl->m_usedTradeTransportPoints)) {
 				canCreate = true;

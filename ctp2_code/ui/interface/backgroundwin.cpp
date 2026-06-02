@@ -30,7 +30,11 @@
 #include "gfx/spritesys/director.h"
 
 #include "gfx/spritesys/screenmanager.h"
-Background				*g_background = NULL;
+static Background		*g_background = NULL;
+
+Background * background_Get(void)             { return g_background; }
+void         background_Set(Background *p)    { g_background = p; }
+
 
 void DumpSpanList(aui_DirtyList *list);
 
@@ -54,7 +58,6 @@ extern int sprite_Update(aui_Surface *surf);
 extern void DisplayFrame (aui_Surface *surf);
 
 extern sint32			g_modalWindow;
-extern ChatBox			*g_chatBox;
 
 
 sint32 backgroundWin_Initialize(bool fullscreen)

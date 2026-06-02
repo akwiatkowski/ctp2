@@ -34,6 +34,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "ui/interface/backgroundwin.h"
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/world/Cell.h"
 
@@ -126,7 +127,6 @@
 #include "ui/interface/armymanagerwindow.h"
 #include "ui/interface/trademanager.h"
 
-extern Background	*g_background;
 extern CivPaths     *g_civPaths;
 extern SoundManager	*g_soundManager;
 extern void player_ActivateSpaceButton(sint32 pl);
@@ -414,10 +414,10 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			RECT rect =
 			{
-				g_background->X(),
-				g_background->Y(),
-				g_background->X() + g_background->Width(),
-				g_background->Y() + g_background->Height()
+				background_Get()->X(),
+				background_Get()->Y(),
+				background_Get()->X() + background_Get()->Width(),
+				background_Get()->Y() + background_Get()->Height()
 			};
 
 			tiledmap_Get()->Initialize(&rect);
@@ -437,7 +437,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 
 
-			g_background->Draw();
+			background_Get()->Draw();
 
 			g_network.SetLoop(FALSE);
 			break;

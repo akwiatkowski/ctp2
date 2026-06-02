@@ -55,6 +55,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "ui/interface/backgroundwin.h"
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/tilesys/tiledmap_observer_adapter.h"  // RegisterTiledMapObserverAdapter
 
@@ -131,7 +132,6 @@
 #include "gs/world/UnseenCell.h"
 #include "gs/world/World.h"                      // world_Get()
 
-extern Background       *g_background;
 extern RECT             g_backgroundViewport;
 extern SpriteEditWindow *g_spriteEditWindow;
 extern GrabItem         *g_grabbedItem;
@@ -3434,7 +3434,7 @@ bool TiledMap::ScrollMap(sint32 deltaX, sint32 deltaY)
 
 
 
-	RetargetTileSurface(g_background->TheSurface());
+	RetargetTileSurface(background_Get()->TheSurface());
 
 	sint32		mapWidth = world_Get()->GetWidth();
 	sint32		mapHeight = world_Get()->GetHeight();
@@ -3619,7 +3619,7 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 	OffsetMixDirtyRects(deltaX,deltaY);
 
 
-	RetargetTileSurface(g_background->TheSurface());
+	RetargetTileSurface(background_Get()->TheSurface());
 
 	ScrollPixels((sint32)(pdeltaX), (sint32)(pdeltaY), m_surface);
 
@@ -3661,7 +3661,7 @@ bool TiledMap::ScrollMapSmooth(sint32 pdeltaX, sint32 pdeltaY)
 	sint32 signX  = (!pdeltaX ? 0 :(pdeltaX<0? -1:1));
 	sint32 signY  = (!pdeltaY ? 0 :(pdeltaY<0? -1:1));
 
-	RetargetTileSurface(g_background->TheSurface());
+	RetargetTileSurface(background_Get()->TheSurface());
 
 	sint32	mapWidth	= world_Get()->GetWidth();
 	sint32	mapHeight	= world_Get()->GetHeight();
@@ -5009,14 +5009,14 @@ void TiledMap::Idle(void)
 
 bool TiledMap::GetMousePos(POINT &pos) const
 {
-	Assert(c3ui_Get() && g_background);
-	if (!c3ui_Get() || !g_background) return false;
+	Assert(c3ui_Get() && background_Get());
+	if (!c3ui_Get() || !background_Get()) return false;
 
 	aui_Mouse * mouse = c3ui_Get()->TheMouse();
 	if (mouse == NULL) return false;
 
-	pos.x = mouse->X() - g_background->X();
-	pos.y = mouse->Y() - g_background->Y();
+	pos.x = mouse->X() - background_Get()->X();
+	pos.y = mouse->Y() - background_Get()->Y();
 	return true;
 }
 

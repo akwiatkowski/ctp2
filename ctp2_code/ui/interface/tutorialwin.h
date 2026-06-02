@@ -51,4 +51,7 @@ public:
 sint32 tutorialwin_Initialize( void );
 sint32 tutorialwin_Cleanup( void );
 
+TutorialWin * tutorialwin_Get(void);
+void          tutorialwin_Set(TutorialWin *p);
+
 #endif

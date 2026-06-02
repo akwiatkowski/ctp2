@@ -92,7 +92,6 @@ extern ScienceWin           *g_scienceWin;
 
 extern DebugWindow          *g_debugWindow;
 
-extern TutorialWin          *g_tutorialWin;
 extern SelectedItem         *selitem_Get();
 
 extern Network              g_network;
@@ -453,7 +452,7 @@ sint32 open_TutorialWin( void )
 	Assert( !err );
 	if ( err ) return -1;
 
-	g_tutorialWin->Display();
+	tutorialwin_Get()->Display();
 
 #ifdef _DEBUG
 	GET_ELAPSED_TIME( "Tutorial Win" );
@@ -464,9 +463,9 @@ sint32 open_TutorialWin( void )
 
 void close_TutorialWin(void)
 {
-	if (g_tutorialWin)
+	if (tutorialwin_Get())
     {
-    	g_tutorialWin->Remove();
+    	tutorialwin_Get()->Remove();
     }
 }
 

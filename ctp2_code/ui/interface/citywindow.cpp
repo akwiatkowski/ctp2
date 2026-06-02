@@ -114,7 +114,6 @@
 #include "ui/interface/greatlibrary.h"
 
 #include "gfx/tilesys/resourcemap.h"
-extern ResourceMap                  *g_resourceMap;
 
 #include "ui/interface/workwin.h"
 
@@ -1970,9 +1969,9 @@ void CityWindow::ShowStatistics(aui_Control *control, uint32 action, uint32 data
 
 void CityWindow::UpdateResourceMap()
 {
-	if(g_resourceMap) {
-		g_resourceMap->SetUnit(m_cityData->GetHomeCity());
-		g_resourceMap->DrawSurface();
+	if(resourcemap_Get()) {
+		resourcemap_Get()->SetUnit(m_cityData->GetHomeCity());
+		resourcemap_Get()->DrawSurface();
 	}
 
 	ctp2_Static *mapStatic = (ctp2_Static *)aui_Ldl::GetObject(s_cityStatsBlock, "Map");
@@ -2080,13 +2079,13 @@ AUI_ERRCODE CityWindow::DrawResourceMap(ctp2_Static *control,
 										RECT &rect,
 										void *cookie)
 {
-	if(!g_resourceMap) {
+	if(!resourcemap_Get()) {
 		workwin_Initialize();
 	}
 
-	Assert(g_resourceMap);
-	if(g_resourceMap) {
-		g_resourceMap->UpdateFromSurface(surface, &rect);
+	Assert(resourcemap_Get());
+	if(resourcemap_Get()) {
+		resourcemap_Get()->UpdateFromSurface(surface, &rect);
 	}
 	return AUI_ERRCODE_OK;
 }

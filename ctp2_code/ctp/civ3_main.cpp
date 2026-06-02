@@ -188,7 +188,6 @@
 
 #include "gs/slic/SlicSegment.h"    // SlicSegment::Cleanup
 
-extern Background *     g_background;
 
 namespace Os
 {
@@ -820,7 +819,7 @@ bool ui_CheckForScroll(void)
 				return false;
 			} else if(!scrolled_last_time) {
 				g_tiledMap->AddChatDirtyRectToMap();
-				g_tiledMap->UpdateMixFromMap(g_background->TheSurface());
+				g_tiledMap->UpdateMixFromMap(background_Get()->TheSurface());
 				scrolled_last_time = scrolled;
 			}
 		}
@@ -899,7 +898,7 @@ int ui_Process(void)
     {
 		do
         {
-			g_tiledMap->CopyMixDirtyRects(g_background->GetDirtyList());
+			g_tiledMap->CopyMixDirtyRects(background_Get()->GetDirtyList());
 			g_c3ui->Draw();
 		}
         while (ui_CheckForScroll());
@@ -912,8 +911,8 @@ int ui_Process(void)
 	}
     else if (curTicks > lastTicks + k_TICKS_PER_GENERIC_FRAME)
     {
-		g_tiledMap->RestoreMixFromMap(g_background->TheSurface());
-		g_background->Draw();
+		g_tiledMap->RestoreMixFromMap(background_Get()->TheSurface());
+		background_Get()->Draw();
 
 		lastTicks = curTicks;
 	}
@@ -1000,10 +999,10 @@ int tile_Initialize(BOOL isRestoring)
 
 	RECT rect =
 	{
-		g_background->X(),
-		g_background->Y(),
-		g_background->X() + g_background->Width(),
-		g_background->Y() + g_background->Height()
+		background_Get()->X(),
+		background_Get()->Y(),
+		background_Get()->X() + background_Get()->Width(),
+		background_Get()->Y() + background_Get()->Height()
 	};
 
 	g_tiledMap->Initialize(&rect);

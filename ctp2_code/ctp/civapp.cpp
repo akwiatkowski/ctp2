@@ -304,14 +304,11 @@ extern OzoneDatabase            *g_theUVDB;
 extern MovieDB                  *g_theVictoryMovieDB;
 extern FilenameDB               *g_theMessageIconFileDB;
 extern PlayListDB               *g_thePlayListDB;
-extern Background           *g_background;
 extern StatsWindow          *g_statsWindow;
 extern SpriteEditWindow     *g_spriteEditWindow;
 extern aui_Surface          *g_sharedSurface;
 extern sint32               g_modalWindow;
-extern ChatBox              *g_chatBox;
 
-extern TutorialWin          *g_tutorialWin;
 extern SaveInfo *           g_savedGameRequest;
 
 // User options
@@ -1813,7 +1810,7 @@ sint32 CivApp::InitializeGameUI(void)
 
 	ProgressTo( 90 );
 
-    AUI_ERRCODE auiErr = c3ui_Get()->AddWindow( g_background );
+    AUI_ERRCODE auiErr = c3ui_Get()->AddWindow( background_Get() );
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2232,7 +2229,7 @@ sint32 InitializeSpriteEditorUI(void)
 
 	ProgressTo( 90 );
 
-	AUI_ERRCODE	auiErr = c3ui_Get()->AddWindow(g_background);
+	AUI_ERRCODE	auiErr = c3ui_Get()->AddWindow(background_Get());
 	Assert(auiErr == AUI_ERRCODE_OK);
 	if ( auiErr != AUI_ERRCODE_OK ) return 11;
 
@@ -2644,15 +2641,15 @@ void CivApp::ProcessGraphicsCallback(void)
 	if (s_inCallback)   return;
 
 	if (!tiledmap_Get())    return;
-	if (!g_background)  return;
+	if (!background_Get())  return;
 	if (!director_Get())    return;
-	if (!g_background)  return;
+	if (!background_Get())  return;
 	if (!c3ui_Get())        return;
 
 	s_inCallback = true;
 
-	tiledmap_Get()->RestoreMixFromMap(g_background->TheSurface());
-	g_background->Draw();
+	tiledmap_Get()->RestoreMixFromMap(background_Get()->TheSurface());
+	background_Get()->Draw();
 	c3ui_Get()->Process();
 
 	if (!g_network.IsActive() || g_network.ReadyToStart())
@@ -2713,7 +2710,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					}
 					scroll_loop_last_tick = Os::GetTicks();
 
-					tiledmap_Get()->CopyMixDirtyRects(g_background->GetDirtyList());
+					tiledmap_Get()->CopyMixDirtyRects(background_Get()->GetDirtyList());
 
 					// Pump SDL keyboard events so KEYUP gets processed while
 					// we're in this loop. Without this, keyboard scroll state
@@ -2742,10 +2739,10 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
             else
             {
 				if(tiledmap_Get()) {
-					tiledmap_Get()->RestoreMixFromMap(g_background->TheSurface());
+					tiledmap_Get()->RestoreMixFromMap(background_Get()->TheSurface());
 				}
-				if(g_background)
-					g_background->Draw();
+				if(background_Get())
+					background_Get()->Draw();
 
 			}
 

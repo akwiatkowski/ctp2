@@ -73,10 +73,13 @@
 
 extern MBCHAR       g_slic_filename[_MAX_PATH];
 extern BOOL         g_letUIProcess;
-extern Background	*g_background;
 extern HWND			gHwnd;
 
-ChatBox				*g_chatBox = NULL;
+static ChatBox		*g_chatBox = NULL;
+
+ChatBox * chatbox_Get(void)                   { return g_chatBox; }
+void      chatbox_Set(ChatBox *p)             { g_chatBox = p; }
+
 
 void ChatBox::Initialize(void)
 {

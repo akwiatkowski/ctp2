@@ -137,8 +137,6 @@
 #include "ui/interface/UnitControlPanel.h"
 
 extern BOOL			gSuspended;
-extern ResourceMap		*g_resourceMap;
-extern Background	*g_background;
 
 
 extern BOOL			g_helpMode;
@@ -173,7 +171,6 @@ c3_UtilityPlayerListPopup *g_networkPlayersScreen = NULL;
 extern c3_UtilityTextMessagePopup		*g_utilityTextMessage;
 
 #include "ui/interface/chatbox.h"
-extern ChatBox		*g_chatBox;
 
 #include "gs/database/StrDB.h"
 extern StringDB		*g_theStringDB;
@@ -1016,9 +1013,9 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case KEY_FUNCTION_CHAT_KEY:
-		if (g_chatBox)
+		if (chatbox_Get())
         {
-			g_chatBox->SetActive(!g_chatBox->IsActive());
+			chatbox_Get()->SetActive(!chatbox_Get()->IsActive());
 		}
 		break;
 

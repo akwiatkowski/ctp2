@@ -11,6 +11,7 @@
  */
 
 #include "ctp/c3.h"
+#include "ui/interface/backgroundwin.h"
 #include "gs/core/game_observer.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Army.h"
@@ -59,8 +60,6 @@
 
 extern MessageWindow         *g_currentMessageWindow;
 extern MessageModal          *g_modalMessage;
-extern Background            *g_background;
-extern TutorialWin           *g_tutorialWin;
 
 class UIGameObserver : public IGameObserver {
 public:
@@ -599,8 +598,8 @@ public:
 
     void OnTutorialAddRecord(const char *title, sint32 index) override
     {
-        if (g_tutorialWin && title) {
-            g_tutorialWin->AddToList(const_cast<char *>(title), index);
+        if (tutorialwin_Get() && title) {
+            tutorialwin_Get()->AddToList(const_cast<char *>(title), index);
         }
     }
 
@@ -622,12 +621,12 @@ public:
             tiledmap_Get()->LoadTileset();
         }
 
-        if (tiledmap_Get() && g_background) {
+        if (tiledmap_Get() && background_Get()) {
             RECT rect = {
-                g_background->X(),
-                g_background->Y(),
-                g_background->X() + g_background->Width(),
-                g_background->Y() + g_background->Height()
+                background_Get()->X(),
+                background_Get()->Y(),
+                background_Get()->X() + background_Get()->Width(),
+                background_Get()->Y() + background_Get()->Height()
             };
             tiledmap_Get()->Initialize(&rect);
             tiledmap_Get()->Refresh();
@@ -641,8 +640,8 @@ public:
             tiledmap_Get()->Refresh();
         }
 
-        if (g_background) {
-            g_background->Draw();
+        if (background_Get()) {
+            background_Get()->Draw();
         }
     }
 

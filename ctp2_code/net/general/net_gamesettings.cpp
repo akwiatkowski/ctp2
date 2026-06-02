@@ -21,7 +21,6 @@
 
 #include "ui/interface/controlpanelwindow.h"
 
-extern Background			*g_background;
 
 
 NetGameSettings::NetGameSettings(sint32 x, sint32 y,

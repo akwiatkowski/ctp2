@@ -166,4 +166,7 @@ protected:
 	virtual void	MouseMoveAway(aui_MouseEvent * mouseData);
 };
 
+ResourceMap * resourcemap_Get(void);
+void          resourcemap_Set(ResourceMap *p);
+
 #endif

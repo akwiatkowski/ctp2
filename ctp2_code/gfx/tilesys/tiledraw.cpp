@@ -66,6 +66,7 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+#include "ui/interface/backgroundwin.h"
 #include "gfx/tilesys/tiledmap.h"               // tiledraw.h does not exist
 
 #include <inttypes.h>
@@ -115,7 +116,6 @@
 #include "gs/gameobj/buildingutil.h"
 #include "gs/gameobj/wonderutil.h"
 
-extern Background	*g_background;
 
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
@@ -916,7 +916,7 @@ void TiledMap::DrawPath(Path *path)
 
 		RECT rect = {x-2, y-2, x+2, y+2};
 
-		primitives_PaintRect16(g_background->TheSurface(), &rect, 0xFFFF);
+		primitives_PaintRect16(background_Get()->TheSurface(), &rect, 0xFFFF);
 
 		AddDirtyRectToMix(rect);
 	}

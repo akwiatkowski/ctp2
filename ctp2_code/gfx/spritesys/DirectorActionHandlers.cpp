@@ -64,7 +64,6 @@
 #include "ui/interface/victorymoviewin.h"
 #include "ui/interface/wondermoviewin.h"
 
-extern Background* g_background;
 extern SpriteGroupList* g_unitSpriteGroupList;
 
 void dh_move(DQAction* itemAction,
@@ -130,7 +129,7 @@ void dh_move(DQAction* itemAction,
       tiledmap_Get()->Refresh();
       tiledmap_Get()->InvalidateMap();
       tiledmap_Get()->InvalidateMix();
-      background_draw_handler(g_background);
+      background_draw_handler(background_Get());
     }
   } else {
     if (theActor->WillDie())
@@ -877,7 +876,7 @@ void dh_centerMap(DQAction* itemAction,
     tiledmap_Get()->InvalidateMap();
     tiledmap_Get()->InvalidateMix();
 
-    background_draw_handler(g_background);
+    background_draw_handler(background_Get());
   }
 
   director_Get()->ActionFinished(seq);

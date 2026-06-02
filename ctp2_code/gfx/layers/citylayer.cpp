@@ -44,7 +44,6 @@
 #include "ui/aui_common/aui_surface.h"
 
 #include "ui/aui_ctp2/background.h"
-extern Background		*g_background;
 
 #include "gfx/spritesys/screenmanager.h"
 

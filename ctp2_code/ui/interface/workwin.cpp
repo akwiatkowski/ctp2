@@ -57,7 +57,11 @@ static WorkWindow	*g_workWindow = NULL;
 WorkWindow * workwindow_Get(void)             { return g_workWindow; }
 void         workwindow_Set(WorkWindow *p)    { g_workWindow = p; }
 
-ResourceMap				*g_resourceMap = NULL;
+static ResourceMap		*g_resourceMap = NULL;
+
+ResourceMap * resourcemap_Get(void)           { return g_resourceMap; }
+void          resourcemap_Set(ResourceMap *p) { g_resourceMap = p; }
+
 
 WorkMap *g_workMap = NULL;
 

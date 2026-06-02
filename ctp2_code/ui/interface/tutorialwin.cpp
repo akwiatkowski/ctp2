@@ -61,7 +61,11 @@ extern SelectedItem	*selitem_Get();
 
 
 
-TutorialWin		*g_tutorialWin = NULL;
+static TutorialWin	*g_tutorialWin = NULL;
+
+TutorialWin * tutorialwin_Get(void)           { return g_tutorialWin; }
+void          tutorialwin_Set(TutorialWin *p) { g_tutorialWin = p; }
+
 
 
 void tutorialwin_DialogCallback( sint32 val )

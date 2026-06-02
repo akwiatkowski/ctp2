@@ -92,4 +92,7 @@ private:
 	BOOL				m_active;
 };
 
+ChatBox * chatbox_Get(void);
+void      chatbox_Set(ChatBox *p);
+
 #endif

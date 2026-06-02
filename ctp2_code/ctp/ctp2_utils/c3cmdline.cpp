@@ -151,8 +151,6 @@ extern MBCHAR g_improvement_list_db_filename[_MAX_PATH];
 extern MBCHAR g_diplomacy_db_filename[_MAX_PATH];
 extern MBCHAR g_advance_list_db_filename[_MAX_PATH];
 
-extern Background           *g_background;
-extern ChatBox              *g_chatBox;
 extern StatsWindow          *g_statsWindow;
 
 extern sint32               g_check_mem;
@@ -3531,7 +3529,7 @@ void DumpFZRegardCommand::Execute(sint32 argc, char **argv)
 	char out_str[80];
 	sint32 i;
 	snprintf(out_str, sizeof(out_str), "Player %d regards", p);
-	g_chatBox->AddLine(selitem_Get()->GetCurPlayer(), out_str);
+	chatbox_Get()->AddLine(selitem_Get()->GetCurPlayer(), out_str);
 
 	for (i=0; i<k_MAX_PLAYERS; i++) {
 		if (i == p )continue;

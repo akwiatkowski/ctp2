@@ -148,7 +148,6 @@ extern UnitAstar                *g_theUnitAstar;
 sint32                           g_tradeSelectedState = 0;
 extern GrabItem                 *g_grabbedItem;
 
-extern ResourceMap              *g_resourceMap;
 extern SoundManager             *g_soundManager;
 extern CityAstar                 g_city_astar;
 

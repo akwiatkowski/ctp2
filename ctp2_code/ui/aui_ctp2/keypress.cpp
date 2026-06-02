@@ -143,7 +143,6 @@ extern Background	*g_background;
 extern WorkWindow	*g_workWindow;
 
 extern StatusWindow	*g_statusWindow;
-extern SelectedItem *g_selected_item;
 
 extern BOOL			g_helpMode;
 
@@ -152,7 +151,6 @@ extern Network g_network;
 extern HWND gHwnd;
 
 extern sint32		g_is_rand_test;
-extern SelectedItem *g_selected_item;
 
 
 #ifdef _PLAYTEST
@@ -389,7 +387,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	KEY_FUNCTION	kf = theKeyMap->get_function(wParam);
 	if (kf != KEY_FUNCTION_NOOP)
 	{
-		g_selected_item->RegisterUIClick();
+		selitem_Get()->RegisterUIClick();
 	}
 
 	if (topWindow->IsStronglyModal() /*&& keypress_IsGameFunction(kf)*/) // I should not be able to open other windows if I have have open strongly modal windows like the DipWizzard
@@ -423,7 +421,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
     case KEY_FUNCTION_MOVE_SOUTHEAST: d = SOUTHEAST; move = TRUE; break;
 
 	case KEY_FUNCTION_ENTRENCH:
-		if(isMyTurn) g_selected_item->Entrench();
+		if(isMyTurn) selitem_Get()->Entrench();
 		break;
 
 
@@ -441,13 +439,13 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a))
+		if(selitem_Get()->GetSelectedArmy(a))
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 	}
 	break;
 	case KEY_FUNCTION_SETTLE:
 	{
-		g_selected_item->Settle();
+		selitem_Get()->Settle();
 		move = FALSE;
 		break;
 	}
@@ -462,7 +460,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case KEY_FUNCTION_DESCEND:
-		g_selected_item->Descend();
+		selitem_Get()->Descend();
 		break;
 	case KEY_FUNCTION_PILLAGE:
 	{
@@ -471,10 +469,10 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanPillage()) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanPillage()) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
-			g_selected_item->Pillage();
+			selitem_Get()->Pillage();
 			return 0;
 		}
 	}
@@ -486,7 +484,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanBombard()) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanBombard()) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -505,7 +503,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanExpel()) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanExpel()) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -520,11 +518,11 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(isMyTurn) {
 			move = FALSE;
 
-			g_selected_item->Sleep();
+			selitem_Get()->Sleep();
 		}
 		break;
     case KEY_FUNCTION_NEXT_ITEM:
-        g_selected_item->NextItem();
+        selitem_Get()->NextItem();
 		move = FALSE;
         break;
 
@@ -532,7 +530,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(isMyTurn) {
 			MapPoint point;
 			tiledmap_Get()->GetMouseTilePos(point);
-			g_selected_item->Paradrop(point);
+			selitem_Get()->Paradrop(point);
 			return TRUE;
 		}
 		break;
@@ -541,7 +539,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
         {
             MapPoint    point;
             tiledmap_Get()->GetMouseTilePos(point);
-		    g_selected_item->InvestigateCity(point);
+		    selitem_Get()->InvestigateCity(point);
         }
 		break;
 
@@ -553,7 +551,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		double chance, escape_chance;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanPlantNuke(chance, escape_chance)) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanPlantNuke(chance, escape_chance)) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -569,7 +567,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		double chance;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanBioInfect(chance)) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanBioInfect(chance)) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -585,7 +583,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 		Army a;
 		double chance;
-		if(g_selected_item->GetSelectedArmy(a) && a.CanNanoInfect(chance)) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.CanNanoInfect(chance)) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -600,7 +598,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a) && a.AccessData()->CanCreatePark()) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.AccessData()->CanCreatePark()) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -615,7 +613,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a) && a.AccessData()->CanReformCity()) {
+		if(selitem_Get()->GetSelectedArmy(a) && a.AccessData()->CanReformCity()) {
 			g_controlPanel->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
 			return 0;
@@ -718,7 +716,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		PLAYER_INDEX s_player;
 		ID s_item;
 		SELECT_TYPE s_state;
-		g_selected_item->GetTopCurItem(s_player, s_item, s_state);
+		selitem_Get()->GetTopCurItem(s_player, s_item, s_state);
 
         MapPoint pos;
 		switch(s_state) {
@@ -769,7 +767,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
     case KEY_FUNCTION_KEYBOARD_SELECT_UNIT:
-         g_selected_item->KeyboardSelectFirstUnit();
+         selitem_Get()->KeyboardSelectFirstUnit();
 		 move = FALSE;
 		 break;
 
@@ -785,7 +783,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		if(g_network.IsActive()) {
 			if(g_network.IsMyTurn() ||
 			   (g_network.IsHost() &&
-				player_Get(g_selected_item->GetCurPlayer())->IsRobot())) {
+				player_Get(selitem_Get()->GetCurPlayer())->IsRobot())) {
 				turn_Get()->EndThisSliceBeginNewSlice();
 			}
 		} else {
@@ -796,13 +794,13 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 #endif
     case KEY_FUNCTION_ENDTURN:
 #ifdef _PLAYTEST
-        if (g_selected_item->GetCurPlayer() != g_selected_item->GetVisiblePlayer())
+        if (selitem_Get()->GetCurPlayer() != selitem_Get()->GetVisiblePlayer())
            break;
 
 		if(g_network.IsActive()) {
 			turn_Get()->NetworkEndTurn();
 		} else {
-            g_selected_item->Deselect(g_selected_item->GetCurPlayer());
+            selitem_Get()->Deselect(selitem_Get()->GetCurPlayer());
 
 
 
@@ -847,9 +845,9 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			g_utilityTextMessage->RemoveWindow();
 		} else {
 
-			if(g_selected_item->GetVisiblePlayer() == g_selected_item->GetCurPlayer()) {
-				DPRINTF(k_DBG_GAMESTATE, ("Keypress end turn, %d\n", g_selected_item->GetCurPlayer()));
-				g_selected_item->RegisterManualEndTurn();
+			if(selitem_Get()->GetVisiblePlayer() == selitem_Get()->GetCurPlayer()) {
+				DPRINTF(k_DBG_GAMESTATE, ("Keypress end turn, %d\n", selitem_Get()->GetCurPlayer()));
+				selitem_Get()->RegisterManualEndTurn();
 				director_Get()->AddEndTurn();
 			}
 			else
@@ -862,7 +860,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
     case KEY_FUNCTION_SAVE_WORLD :
 		if (g_civApp->IsGameLoaded() && !g_network.IsClient()) {
-			g_civApp->AutoSave(g_selected_item->GetVisiblePlayer(), true);
+			g_civApp->AutoSave(selitem_Get()->GetVisiblePlayer(), true);
 
 
 
@@ -876,7 +874,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
     case KEY_FUNCTION_LOAD_WORLD :
 		if (g_civApp->IsGameLoaded() && !g_network.IsActive()) {
 			{
-				g_civApp->PostLoadQuickSaveAction(g_selected_item->GetVisiblePlayer());
+				g_civApp->PostLoadQuickSaveAction(selitem_Get()->GetVisiblePlayer());
 
 
 
@@ -906,7 +904,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
     case KEY_FUNCTION_GROUP_ARMY:
 	{
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a)) {
+		if(selitem_Get()->GetSelectedArmy(a)) {
 			if(g_network.IsClient())
             {
 				CellUnitList units;
@@ -932,7 +930,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	case KEY_FUNCTION_UNGROUP_ARMY:
 	{
 		Army a;
-		if(g_selected_item->GetSelectedArmy(a)) {
+		if(selitem_Get()->GetSelectedArmy(a)) {
 			if(g_network.IsClient()) {
 				g_network.SendUngroupRequest(a, *a.AccessData());
 			} else {
@@ -951,12 +949,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			for
             (
                 sint32 i = 0;
-                i < player_Get(g_selected_item->GetVisiblePlayer())->m_all_armies->Num();
+                i < player_Get(selitem_Get()->GetVisiblePlayer())->m_all_armies->Num();
                 i++
             )
             {
 				gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_BeginTurnExecute,
-									   GEA_Army, player_Get(g_selected_item->GetVisiblePlayer())->m_all_armies->Access(i),
+									   GEA_Army, player_Get(selitem_Get()->GetVisiblePlayer())->m_all_armies->Access(i),
 									   GEA_End);
 			}
 			gevmanager_Get()->Resume();
@@ -969,7 +967,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			PLAYER_INDEX s_player;
 			ID s_item;
 			SELECT_TYPE s_state;
-			g_selected_item->GetTopCurItem(s_player, s_item, s_state);
+			selitem_Get()->GetTopCurItem(s_player, s_item, s_state);
 			Army army(s_item);
 			if (s_state == SELECT_TYPE_LOCAL_ARMY && army.IsValid())
             {
@@ -1031,10 +1029,10 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case KEY_FUNCTION_UNIT_CITY_TOGGLE:
-		g_selected_item->UnitCityToggle();
+		selitem_Get()->UnitCityToggle();
 		break;
 	case KEY_FUNCTION_END_UNIT_TURN:
-		g_selected_item->EndUnitTurn();
+		selitem_Get()->EndUnitTurn();
 		break;
 
 	case KEY_FUNCTION_NETWORK_PLAYERS_SCREEN:
@@ -1172,7 +1170,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 			) {
 			Unit city;
-			if(g_selected_item->GetSelectedCity(city)) {
+			if(selitem_Get()->GetSelectedCity(city)) {
 				city.GetData()->GetCityData()->GetBuildQueue()->Clear();
 #if 0
 				if(g_cp_productionTab) {
@@ -1194,8 +1192,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 																		   AUI_BUTTON_ACTION_EXECUTE,
 																		   0);
 					}
-				} else if(g_selected_item) {
-					sint32 visPlayer = g_selected_item->GetVisiblePlayer();
+				} else if(selitem_Get()) {
+					sint32 visPlayer = selitem_Get()->GetVisiblePlayer();
 
 					if(player_Get(visPlayer) && player_Get(visPlayer)->m_messages->Num() > 0) {
 						sint32 m;
@@ -1221,7 +1219,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			break;
 		}
 	case KEY_FUNCTION_MOVE_ORDER:
-		g_controlPanel->BeginOrderDelivery(g_selected_item->GetMoveOrder());
+		g_controlPanel->BeginOrderDelivery(selitem_Get()->GetMoveOrder());
 		break;
 
 	case KEY_FUNCTION_TOGGLE_RADAR:
@@ -1259,12 +1257,12 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 	case KEY_FUNCTION_BUILD_QUEUE:
 	{
-		if(!g_modalWindow && player_Get(g_selected_item->GetVisiblePlayer())) {
+		if(!g_modalWindow && player_Get(selitem_Get()->GetVisiblePlayer())) {
 			Unit city;
-			if(g_selected_item->GetSelectedCity(city)) {
-				city = world_Get()->GetCity(g_selected_item->GetCurSelectPos());
-			} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
-				city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
+			if(selitem_Get()->GetSelectedCity(city)) {
+				city = world_Get()->GetCity(selitem_Get()->GetCurSelectPos());
+			} else if(player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities()) {
+				city = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0);
 			}
 				if(city.IsValid()) {
 					close_AllScreens();
@@ -1274,14 +1272,14 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case KEY_FUNCTION_CITY_MANAGEMENT:
-		if(!g_modalWindow && player_Get(g_selected_item->GetVisiblePlayer())) {
+		if(!g_modalWindow && player_Get(selitem_Get()->GetVisiblePlayer())) {
 			close_AllScreens();
 			Unit city;
-			if(g_selected_item->GetSelectedCity(city)) {
+			if(selitem_Get()->GetSelectedCity(city)) {
 				CityWindow::Display(city.GetData()->GetCityData());
-			} else if(player_Get(g_selected_item->GetVisiblePlayer())->GetNumCities()) {
-				city = player_Get(g_selected_item->GetVisiblePlayer())->m_all_cities->Access(0);
-				g_selected_item->SetSelectCity(city);
+			} else if(player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities()) {
+				city = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Access(0);
+				selitem_Get()->SetSelectCity(city);
 				CityWindow::Display(city.GetData()->GetCityData());
 			}
 		}
@@ -1369,7 +1367,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		ID s_item;
 		SELECT_TYPE s_state;
 
-		g_selected_item->GetTopCurItem(s_player, s_item, s_state);
+		selitem_Get()->GetTopCurItem(s_player, s_item, s_state);
 
 		switch(s_state) {
 			case SELECT_TYPE_LOCAL_ARMY:
@@ -1385,7 +1383,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 										   GEA_Direction, d,
 										   GEA_End);
 
-					g_selected_item->DidKeyboardMove();
+					selitem_Get()->DidKeyboardMove();
 				}
 				break;
 			}

@@ -4,7 +4,7 @@
 
 #include "ui/aui_ctp2/SelItem.h"
 
-extern SelectedItem		*g_selected_item;
+extern SelectedItem		*selitem_Get();
 
 
 
@@ -175,8 +175,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 						{
 							if ( m_mouseState.rbutton )
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 
 								MouseLDragInside( input );
 								MouseRDragInside( input );
@@ -184,8 +184,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 							}
 							else
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 
 								MouseLDragInside( input );
 								if (m_doubleClickingInside && input->time - m_doubleRClickStartWaitTime < m_doubleClickTimeOut )
@@ -205,8 +205,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 						{
 							if ( m_mouseState.rbutton )
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 
 								MouseLDragInside( input );
 								MouseRDragInside( input );
@@ -215,8 +215,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 							}
 							else
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 
 								MouseLDragInside( input );
 								MouseLDropInside( input );
@@ -392,16 +392,16 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 						{
 							if ( m_mouseState.rbutton )
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 								MouseLDragOver( input );
 								MouseRDragOver( input );
 								MouseLDropInside( input );
 							}
 							else
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 								MouseLDragOver( input );
 								if (m_doubleClickingInside && input->time - m_doubleRClickStartWaitTime < m_doubleClickTimeOut )
 								{
@@ -420,8 +420,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 						{
 							if ( m_mouseState.rbutton )
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 								MouseLDragOver( input );
 								MouseRDragOver( input );
 								MouseLDropInside( input );
@@ -429,8 +429,8 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 							}
 							else
 							{
-								if (g_selected_item)
-									g_selected_item->RegisterUIClick();
+								if (selitem_Get())
+									selitem_Get()->RegisterUIClick();
 								MouseLDragOver( input );
 								MouseLDropInside( input );
 							}
@@ -1021,14 +1021,14 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 					{
 						if ( m_mouseState.rbutton )
 						{
-							if (g_selected_item)
-								g_selected_item->RegisterUIClick();
+							if (selitem_Get())
+								selitem_Get()->RegisterUIClick();
 							MouseLDropInside( input );
 						}
 						else
 						{
-							if (g_selected_item)
-								g_selected_item->RegisterUIClick();
+							if (selitem_Get())
+								selitem_Get()->RegisterUIClick();
 							if (m_doubleClickingInside && input->time - m_doubleRClickStartWaitTime < m_doubleClickTimeOut )
 							{
 								MouseRDoubleClickInside( input );
@@ -1046,15 +1046,15 @@ void aui_Region::MouseDispatch( aui_MouseEvent *input, BOOL handleIt )
 					{
 						if ( m_mouseState.rbutton )
 						{
-							if (g_selected_item)
-								g_selected_item->RegisterUIClick();
+							if (selitem_Get())
+								selitem_Get()->RegisterUIClick();
 							MouseLDropInside( input );
 							MouseRDropInside( input );
 						}
 						else
 						{
-							if (g_selected_item)
-								g_selected_item->RegisterUIClick();
+							if (selitem_Get())
+								selitem_Get()->RegisterUIClick();
 							MouseLDropInside( input );
 						}
 					}

@@ -86,7 +86,7 @@ public:
                        const MapPoint& pos, sint32 cause) override
     {
         if (g_soundManager) {
-            sint32 visiblePlayer = g_selected_item->GetVisiblePlayer();
+            sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
             if (visiblePlayer == player) {
                 g_soundManager->AddSound(
                     SOUNDTYPE_SFX, (uint32)0,
@@ -144,15 +144,15 @@ public:
 
     void OnArmyRemoved(sint32 player, const Army& army) override
     {
-        if (g_selected_item) {
-            g_selected_item->RegisterRemovedArmy(player, army);
+        if (selitem_Get()) {
+            selitem_Get()->RegisterRemovedArmy(player, army);
         }
     }
 
     void OnPlayerRemoved(sint32 player) override
     {
-        if (g_selected_item) {
-            g_selected_item->RemovePlayer(static_cast<PLAYER_INDEX>(player));
+        if (selitem_Get()) {
+            selitem_Get()->RemovePlayer(static_cast<PLAYER_INDEX>(player));
         }
     }
 
@@ -171,17 +171,17 @@ public:
         sint32 defense_owner = defender.GetOwner();
 
         if (attackerWon) {
-            if (g_selected_item->IsPlayerVisible(defense_owner)) {
+            if (selitem_Get()->IsPlayerVisible(defense_owner)) {
                 g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
             }
-            if (g_selected_item->IsPlayerVisible(attack_owner)) {
+            if (selitem_Get()->IsPlayerVisible(attack_owner)) {
                 g_soundManager->AddGameSound(GAMESOUNDS_VICTORY_FANFARE);
             }
         } else {
-            if (g_selected_item->IsPlayerVisible(attack_owner)) {
+            if (selitem_Get()->IsPlayerVisible(attack_owner)) {
                 g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
             }
-            if (g_selected_item->IsPlayerVisible(defense_owner)) {
+            if (selitem_Get()->IsPlayerVisible(defense_owner)) {
                 g_soundManager->AddGameSound(GAMESOUNDS_LOSE_PLAYER_BATTLE);
             }
         }
@@ -215,16 +215,16 @@ public:
 
     void OnVisionCopied(sint32 fromPlayer, sint32 toPlayer) override
     {
-        if (!director_Get() || !g_selected_item) return;
-        if (toPlayer != g_selected_item->GetVisiblePlayer()) return;
+        if (!director_Get() || !selitem_Get()) return;
+        if (toPlayer != selitem_Get()->GetVisiblePlayer()) return;
         director_Get()->AddCopyVision();
     }
 
     // --- Government ---
     void OnGovernmentChanged(sint32 player, sint32 type) override
     {
-        if (!director_Get() || !g_selected_item || type == 0) return;
-        if (player != g_selected_item->GetVisiblePlayer()) return;
+        if (!director_Get() || !selitem_Get() || type == 0) return;
+        if (player != selitem_Get()->GetVisiblePlayer()) return;
         director_Get()->AddGameSound(GAMESOUNDS_CHANGE_GOV);
     }
 
@@ -271,7 +271,7 @@ public:
     void OnGameOver(sint32 player, sint32 reason,
                     sint32 previouslyWon, sint32 previouslyLost) override
     {
-        if (!g_selected_item || player != g_selected_item->GetVisiblePlayer())
+        if (!selitem_Get() || player != selitem_Get()->GetVisiblePlayer())
             return;
         if (slicengine_Get() && slicengine_Get()->GetTutorialActive() &&
             slicengine_Get()->GetTutorialPlayer() != player)
@@ -333,8 +333,8 @@ public:
         } else {
             messagewin_CreateMessage(localMsg);
             if (localMsg.IsInstantMessage() &&
-                g_selected_item &&
-                g_selected_item->GetVisiblePlayer() == player &&
+                selitem_Get() &&
+                selitem_Get()->GetVisiblePlayer() == player &&
                 noActiveMsgWindow) {
                 localMsg.Show();
             }
@@ -360,8 +360,8 @@ public:
             }
         }
 
-        if (g_controlPanel && g_selected_item &&
-            player == g_selected_item->GetVisiblePlayer()) {
+        if (g_controlPanel && selitem_Get() &&
+            player == selitem_Get()->GetVisiblePlayer()) {
             g_controlPanel->PopulateMessageList(player);
         }
     }
@@ -454,14 +454,14 @@ public:
 
     void OnAutoSelectFirstUnit(sint32 player) override
     {
-        if (!g_selected_item) return;
-        if (player != g_selected_item->GetVisiblePlayer()) return;
+        if (!selitem_Get()) return;
+        if (player != selitem_Get()->GetVisiblePlayer()) return;
         if (!g_theProfileDB || !g_theProfileDB->IsAutoSelectFirstUnit()) return;
 
-        if (g_selected_item->GetState() == SELECT_TYPE_NONE) {
-            g_selected_item->NextUnmovedUnit(TRUE);
-        } else if (g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY) {
-            g_selected_item->MaybeAutoEndTurn(TRUE);
+        if (selitem_Get()->GetState() == SELECT_TYPE_NONE) {
+            selitem_Get()->NextUnmovedUnit(TRUE);
+        } else if (selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY) {
+            selitem_Get()->MaybeAutoEndTurn(TRUE);
         }
     }
 
@@ -474,8 +474,8 @@ public:
 
     void OnRadarMapUpdate(sint32 player) override
     {
-        if (!radar_map_Get() || !g_selected_item) return;
-        if (player != g_selected_item->GetVisiblePlayer()) return;
+        if (!radar_map_Get() || !selitem_Get()) return;
+        if (player != selitem_Get()->GetVisiblePlayer()) return;
         radar_map_Get()->Update();
     }
 
@@ -486,7 +486,7 @@ public:
 
     void OnAdvanceListReload(sint32 player) override
     {
-        if (!g_selected_item || player != g_selected_item->GetVisiblePlayer())
+        if (!selitem_Get() || player != selitem_Get()->GetVisiblePlayer())
             return;
         if (sci_advancescreen_isOnScreen()) {
             sci_advancescreen_loadList();
@@ -554,19 +554,19 @@ public:
 
     void OnRequestUnblankScreen() override
     {
-        if (!g_selected_item) return;
-        g_selected_item->KeyboardSelectFirstUnit();
-        sint32 visible = g_selected_item->GetVisiblePlayer();
-        if (g_selected_item->GetState() != SELECT_TYPE_LOCAL_ARMY &&
+        if (!selitem_Get()) return;
+        selitem_Get()->KeyboardSelectFirstUnit();
+        sint32 visible = selitem_Get()->GetVisiblePlayer();
+        if (selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
             visible >= 0 && player_Get(visible) &&
             player_Get(visible)->m_all_cities->Num() > 0) {
-            g_selected_item->SetSelectCity(player_Get(visible)->m_all_cities->Access(0));
+            selitem_Get()->SetSelectCity(player_Get(visible)->m_all_cities->Access(0));
             if (director_Get()) {
                 director_Get()->AddCenterMap(player_Get(visible)->m_all_cities->Access(0).RetPos());
             }
         }
         if (director_Get()) {
-            director_Get()->AddCenterMap(g_selected_item->GetCurSelectPos());
+            director_Get()->AddCenterMap(selitem_Get()->GetCurSelectPos());
         }
         radarwindow_Show();
         if (g_controlPanel) {
@@ -651,7 +651,7 @@ public:
     // --- UI refresh ---
     void OnUpdateScienceWindow(sint32 player) override
     {
-        if (g_c3ui && player == g_selected_item->GetVisiblePlayer()) {
+        if (g_c3ui && player == selitem_Get()->GetVisiblePlayer()) {
             g_c3ui->AddAction(new SW_UpdateAction);
         }
     }
@@ -663,7 +663,7 @@ public:
 
     void OnUpdateUnitPanel(sint32 player) override
     {
-        if (g_controlPanel && player == g_selected_item->GetVisiblePlayer()) {
+        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
             g_controlPanel->PopulateMessageList(player);
         }
     }
@@ -677,14 +677,14 @@ public:
 
     void OnSelectedCity(sint32 player) override
     {
-        if (g_controlPanel && player == g_selected_item->GetVisiblePlayer()) {
+        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
             MainControlPanel::SelectedCity();
         }
     }
 
     void OnUpdateMessages(sint32 player) override
     {
-        if (g_controlPanel && player == g_selected_item->GetVisiblePlayer()) {
+        if (g_controlPanel && player == selitem_Get()->GetVisiblePlayer()) {
             g_controlPanel->TileImpPanelRedisplay();
         }
     }

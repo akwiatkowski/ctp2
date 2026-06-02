@@ -42,7 +42,7 @@
 #include "net/general/net_traderoute.h"
 #include "net/general/net_unit.h"
 #include "gs/world/World.h"                      // g_theWorld
-#include "gs/gameobj/Player.h"                     // g_player
+#include "gs/gameobj/Player.h"                     // player_arr_Get()
 #include "ui/aui_ctp2/SelItem.h"                    // g_selected_item
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/gameobj/Readiness.h"
@@ -337,7 +337,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("NetAction: Player %d moving army %d(%d units), dir: %d\n",
 								index, m_data[0],
-								g_player[index]->GetAllArmiesList()->Access(m_data[0]).Num(),
+								player_Get(index)->GetAllArmiesList()->Access(m_data[0]).Num(),
 								m_data[1]));
 			break;
 		}
@@ -347,8 +347,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			if(curPlayerIndex != g_selected_item->GetCurPlayer()) {
 				if(g_turn->SimultaneousMode()) {
-					if(g_player[curPlayerIndex])
-						g_player[curPlayerIndex]->EndTurnSoon();
+					if(player_Get(curPlayerIndex))
+						player_Get(curPlayerIndex)->EndTurnSoon();
 				}
 				break;
 			} else {
@@ -408,9 +408,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_BUILD:
 			DPRINTF(k_DBG_NET, ("Server: Building unit type %d at city %d\n", m_data[0], m_data[1]));
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				Unit unit = Unit(m_data[1]);
-				g_player[index]->BuildUnit(m_data[0], unit);
+				player_Get(index)->BuildUnit(m_data[0], unit);
 			}
 			break;
 		case NET_ACTION_TAX_RATES:
@@ -422,16 +422,16 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("Server: Setting tax rates for player %d to %lf, %lf, %lf\n",
 								index, s, g, l));
-			if(g_player[index])
-				g_player[index]->SetTaxes(s);
+			if(player_Get(index))
+				player_Get(index)->SetTaxes(s);
 			break;
 		}
 		case NET_ACTION_BUILD_IMP:
 			DPRINTF(k_DBG_NET, ("Server: Building improvement %d at city %d\n",
 								m_data[0], m_data[1]));
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				Unit unit(m_data[1]);
-				g_player[index]->BuildImprovement(m_data[0], unit);
+				player_Get(index)->BuildImprovement(m_data[0], unit);
 			}
 			break;
 		case NET_ACTION_CREATE_TRADE_ROUTE:
@@ -441,10 +441,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								m_data[0], m_data[1], m_data[2], m_data[3]));
 
 			TradeRoute route;
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				g_network.Block(index);
 				route =
-					g_player[index]->CreateTradeRoute(
+					player_Get(index)->CreateTradeRoute(
 					    Unit(m_data[0]),
 						ROUTE_TYPE(m_data[1]),
 						m_data[2],
@@ -480,8 +480,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			Assert((route.GetSource().GetOwner() == index) ||
 				   (route.GetDestination().GetOwner() == index));
-			if(g_player[index])
-				g_player[index]->CancelTradeRoute(route);
+			if(player_Get(index))
+				player_Get(index)->CancelTradeRoute(route);
 			break;
 		}
 
@@ -491,9 +491,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index,
 								m_data[0], m_data[1], m_data[2],
 								m_data[3], m_data[4]));
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				g_network.Bookmark(id);
-				TradeOffer offer = g_player[index]->CreateTradeOffer(
+				TradeOffer offer = player_Get(index)->CreateTradeOffer(
 				    Unit(m_data[0]),
 					ROUTE_TYPE(m_data[1]),
 					m_data[2],
@@ -516,9 +516,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Withdrawing trade offer %d\n",
 								m_data[0]));
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				if(tradeofferpool_Get()->IsValid(TradeOffer(m_data[0])))
-				   g_player[index]->WithdrawTradeOffer(TradeOffer(m_data[0]));
+				   player_Get(index)->WithdrawTradeOffer(TradeOffer(m_data[0]));
 			}
 			break;
 		}
@@ -557,8 +557,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Player %d setting readiness to %d\n",
 								index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->SetReadinessLevel((READINESS_LEVEL)m_data[0], m_data[1] != 0);
+			if(player_Get(index)) {
+				player_Get(index)->SetReadinessLevel((READINESS_LEVEL)m_data[0], m_data[1] != 0);
 			}
 
 			break;
@@ -568,9 +568,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d creating terrain improvement\n", index));
 			MapPoint pnt(m_data[1], m_data[2]);
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				g_network.Block(index);
-				TerrainImprovement imp = g_player[index]->CreateImprovement(
+				TerrainImprovement imp = player_Get(index)->CreateImprovement(
 				    (TERRAIN_IMPROVEMENT)m_data[0],
 					pnt, (TERRAIN_TYPES)m_data[3]);
 				g_network.Unblock(index);
@@ -626,32 +626,32 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d entrenching unit %lx\n", index, m_data[0]));
-			if(g_player[index])
-				g_player[index]->Entrench(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->Entrench(m_data[0]);
 			break;
 		}
 		case NET_ACTION_DETRENCH:
 		{
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d detrenching unit %lx\n", index, m_data[0]));
-			if(g_player[index])
-				g_player[index]->Detrench(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->Detrench(m_data[0]);
 			break;
 		}
 		case NET_ACTION_SLEEP:
 		{
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d sleeping unit %lx\n", index, m_data[0]));
-			if(g_player[index])
-				g_player[index]->Sleep(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->Sleep(m_data[0]);
 			break;
 		}
 		case NET_ACTION_WAKEUP:
 		{
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d waking unit %lx\n", index, m_data[0]));
-			if(g_player[index])
-				g_player[index]->WakeUp(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->WakeUp(m_data[0]);
 			break;
 		}
 		case NET_ACTION_SET_MATERIALS_TAX:
@@ -659,8 +659,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Server: Player %d setting materials tax to %d\n", index, m_data[0]));
 			double tax = (double)(((double)m_data[0] + 0.0001)/100.0);
 			if(tax > 1) tax = 1;
-			if(g_player[index])
-				g_player[index]->SetMaterialsTax(tax);
+			if(player_Get(index))
+				player_Get(index)->SetMaterialsTax(tax);
 			break;
 		}
 		case NET_ACTION_FOLLOW_PATH:
@@ -707,14 +707,14 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 			DPRINTF(k_DBG_NET, ("Server: Player %d intercepting trade with army %d\n",
 								index, m_data[0]));
-			if(g_player[index])
-				g_player[index]->InterceptTrade(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->InterceptTrade(m_data[0]);
 			break;
 		}
 		case NET_ACTION_WORKDAY_LEVEL:
 			DPRINTF(k_DBG_NET, ("Player %d set workday to %d\n", index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->SetWorkdayLevel(m_data[0]);
+			if(player_Get(index)) {
+				player_Get(index)->SetWorkdayLevel(m_data[0]);
 				g_network.Block(index);
 				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WORKDAY_LEVEL,
 													   index, m_data[0]));
@@ -723,8 +723,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		case NET_ACTION_WAGES_LEVEL:
 			DPRINTF(k_DBG_NET, ("Player %d set wages to %d\n", index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->SetWagesLevel(m_data[0]);
+			if(player_Get(index)) {
+				player_Get(index)->SetWagesLevel(m_data[0]);
 				g_network.Block(index);
 				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_WAGES_LEVEL,
 													   index, m_data[0]));
@@ -733,8 +733,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		case NET_ACTION_RATIONS_LEVEL:
 			DPRINTF(k_DBG_NET, ("Player %d set rations to %d\n", index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->SetRationsLevel(m_data[0]);
+			if(player_Get(index)) {
+				player_Get(index)->SetRationsLevel(m_data[0]);
 				g_network.Block(index);
 				g_network.QueuePacketToAll(new NetInfo(NET_INFO_CODE_RATIONS_LEVEL,
 													   index, m_data[0]));
@@ -742,12 +742,12 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			break;
 		case NET_ACTION_CREATED_CIV:
-			Assert(g_player[m_data[0]] != NULL);
-			if(g_player[m_data[0]] != NULL)
+			Assert(player_Get(m_data[0]) != NULL);
+			if(player_Get(m_data[0]) != NULL)
 				break;
 
-			if(g_player[m_data[0]]) {
-				Assert(g_player[m_data[0]]->IsRobot());
+			if(player_Get(m_data[0])) {
+				Assert(player_Get(m_data[0])->IsRobot());
 			}
 			break;
 		case NET_ACTION_CREATE_DIP_REQUEST:
@@ -846,7 +846,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				}
 
 				if(oi && oi->m_goldCost > 0) {
-					g_player[index]->m_gold->SubGold(oi->m_goldCost);
+					player_Get(index)->m_gold->SubGold(oi->m_goldCost);
 				}
 
 				if(unitpool_Get()->IsValid(u)) {
@@ -1200,16 +1200,16 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_RESEARCH:
 		{
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				g_network.Block(index);
-				g_player[index]->SetResearching(m_data[0]);
+				player_Get(index)->SetResearching(m_data[0]);
 				g_network.Unblock(index);
 			}
 			break;
 		}
 		case NET_ACTION_KILLED_PLAYER:
 		{
-			Assert(g_player[m_data[0]] == NULL || g_player[m_data[0]]->m_isDead);
+			Assert(player_Get(m_data[0]) == NULL || player_Get(m_data[0])->m_isDead);
 			break;
 		}
 		case NET_ACTION_INJOIN:
@@ -1219,9 +1219,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_CHANGE_BUILD:
 		{
-			if(g_player[index]) {
+			if(player_Get(index)) {
 				Unit unit(m_data[0]);
-				g_player[index]->ChangeCurrentlyBuildingItem(unit, m_data[1], m_data[2]);
+				player_Get(index)->ChangeCurrentlyBuildingItem(unit, m_data[1], m_data[2]);
 			}
 			break;
 		}
@@ -1254,8 +1254,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_ACTION_SET_GOVERNMENT:
 			DPRINTF(k_DBG_NET, ("Client %d set government to %d\n", index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->SetGovernmentType(m_data[0]);
+			if(player_Get(index)) {
+				player_Get(index)->SetGovernmentType(m_data[0]);
 			}
 			break;
 		case NET_ACTION_ENACT_REQUEST:
@@ -1299,8 +1299,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 #ifdef _DEBUG
 			MapPoint pnt(m_data[1], m_data[2]);
-			if(g_player[index]) {
-				g_player[index]->CreateUnit(m_data[0], pnt, Unit(m_data[3]),
+			if(player_Get(index)) {
+				player_Get(index)->CreateUnit(m_data[0], pnt, Unit(m_data[3]),
 											FALSE, CAUSE_NEW_ARMY_CHEAT);
 			}
 #endif
@@ -1310,8 +1310,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 #ifdef _DEBUG
 			MapPoint pnt(m_data[1], m_data[2]);
-			if(g_player[index]) {
-				g_player[index]->CreateCity(m_data[0], pnt,
+			if(player_Get(index)) {
+				player_Get(index)->CreateCity(m_data[0], pnt,
 											CAUSE_NEW_CITY_CHEAT,
 											NULL, -1);
 			}
@@ -1324,27 +1324,27 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 		case NET_ACTION_ADVANCE_CHEAT:
 #ifdef _DEBUG
-			if(g_player[index])
-				g_player[index]->m_advances->GiveAdvance(m_data[0], CAUSE_SCI_CHEAT, TRUE);
+			if(player_Get(index))
+				player_Get(index)->m_advances->GiveAdvance(m_data[0], CAUSE_SCI_CHEAT, TRUE);
 #endif
 			break;
 
 		case NET_ACTION_TAKE_ADVANCE_CHEAT:
 #ifdef _DEBUG
-			if(g_player[index])
-				g_player[index]->m_advances->TakeAdvance(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->m_advances->TakeAdvance(m_data[0]);
 #endif
 			break;
 		case NET_ACTION_CHEAT_ADD_MATERIALS:
 #ifdef _DEBUG
-			if(g_player[index])
-				g_player[index]->m_materialPool->CheatAddMaterials(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->m_materialPool->CheatAddMaterials(m_data[0]);
 #endif
 			break;
 		case NET_ACTION_CHEAT_SUB_MATERIALS:
 #ifdef _DEBUG
-			if(g_player[index])
-				g_player[index]->m_materialPool->CheatSubtractMaterials(m_data[0]);
+			if(player_Get(index))
+				player_Get(index)->m_materialPool->CheatSubtractMaterials(m_data[0]);
 #endif
 			break;
 		case NET_ACTION_CHEAT_CREATE_TERRAIN_IMPROVEMENT:
@@ -1354,8 +1354,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(g_network.CanStillSetup(index));
 			if(!g_network.CanStillSetup(index))
 				return;
-			if(g_player[index])
-				g_player[index]->CreateImprovement((TERRAIN_IMPROVEMENT)m_data[0], pnt,
+			if(player_Get(index))
+				player_Get(index)->CreateImprovement((TERRAIN_IMPROVEMENT)m_data[0], pnt,
 												   m_data[3]);
 #endif
 			break;
@@ -1366,8 +1366,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(g_network.CanStillSetup(index));
 			if(!g_network.CanStillSetup(index))
 				return;
-			if(g_player[index])
-				g_player[index]->TradeUnitsForPoints(pnt);
+			if(player_Get(index))
+				player_Get(index)->TradeUnitsForPoints(pnt);
 			break;
 		}
 
@@ -1377,8 +1377,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(g_network.CanStillSetup(index));
 			if(!g_network.CanStillSetup(index))
 				return;
-			if(g_player[index])
-				g_player[index]->TradeUnitForPoints(unit);
+			if(player_Get(index))
+				player_Get(index)->TradeUnitForPoints(unit);
 			break;
 		}
 
@@ -1388,8 +1388,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Assert(g_network.CanStillSetup(index));
 			if(!g_network.CanStillSetup(index))
 				return;
-			if(g_player[index])
-				g_player[index]->TradeImprovementsForPoints(pnt);
+			if(player_Get(index))
+				player_Get(index)->TradeImprovementsForPoints(pnt);
 			break;
 		}
 		case NET_ACTION_AIRLIFT:
@@ -1457,8 +1457,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		case NET_ACTION_ACTUALLY_SET_GOVERNMENT:
 		{
 			DPRINTF(k_DBG_NET, ("Server: Client %d actually set government to %d\n", index, m_data[0]));
-			if(g_player[index]) {
-				g_player[index]->ActuallySetGovernment(m_data[0]);
+			if(player_Get(index)) {
+				player_Get(index)->ActuallySetGovernment(m_data[0]);
 			}
 			break;
 		}
@@ -1521,7 +1521,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 
 			if(cause == CAUSE_NEW_ARMY_UNGROUPING || cause == CAUSE_NEW_ARMY_GROUPING) {
-				g_player[index]->GetNewArmy(cause);
+				player_Get(index)->GetNewArmy(cause);
 			}
 
 			if(pd->m_createdArmies[0] == Army(m_data[0])) {
@@ -1542,13 +1542,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Trade Bid: from: %d, fc: %lx, res: %d, tc: %lx, price: %d",
 								m_data[0], m_data[1], m_data[2], m_data[3], m_data[4]));
-			Assert(g_player[m_data[0]]);
-			if(g_player[m_data[0]]) {
+			Assert(player_Get(m_data[0]));
+			if(player_Get(m_data[0])) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
 				if(unitpool_Get()->IsValid(fromCity) &&
 				   unitpool_Get()->IsValid(toCity))
-					g_player[m_data[0]]->SendTradeBid(fromCity, m_data[2],
+					player_Get(m_data[0])->SendTradeBid(fromCity, m_data[2],
 													  toCity, m_data[4]);
 			}
 			break;
@@ -1558,13 +1558,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Accept Trade Bid: from: %d, fc: %lx, res: %d, tc: %lx, price: %d",
 								m_data[0], m_data[1], m_data[2], m_data[3], m_data[4]));
-			Assert(g_player[m_data[0]]);
-			if(g_player[m_data[0]]) {
+			Assert(player_Get(m_data[0]));
+			if(player_Get(m_data[0])) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
 				if(unitpool_Get()->IsValid(fromCity) &&
 				   unitpool_Get()->IsValid(toCity))
-					g_player[m_data[0]]->AcceptTradeBid(fromCity, m_data[2],
+					player_Get(m_data[0])->AcceptTradeBid(fromCity, m_data[2],
 														toCity, m_data[4]);
 			}
 			break;
@@ -1573,13 +1573,13 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Server: Reject Trade Bid: from: %d, fc: %lx, res: %d, tc: %lx, price: %d",
 								m_data[0], m_data[1], m_data[2], m_data[3], m_data[4]));
-			Assert(g_player[m_data[0]]);
-			if(g_player[m_data[0]]) {
+			Assert(player_Get(m_data[0]));
+			if(player_Get(m_data[0])) {
 				Unit fromCity(m_data[1]);
 				Unit toCity(m_data[3]);
 				if(unitpool_Get()->IsValid(fromCity) &&
 				   unitpool_Get()->IsValid(toCity))
-					g_player[m_data[0]]->RejectTradeBid(fromCity, m_data[2],
+					player_Get(m_data[0])->RejectTradeBid(fromCity, m_data[2],
 														toCity, m_data[4]);
 			}
 			break;
@@ -1675,10 +1675,10 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			DPRINTF(k_DBG_NET, ("Client %d takes trade offer %lx\n", index, m_data[0]));
 			TradeOffer offer(m_data[0]);
 			if(tradeofferpool_Get()->IsValid(offer)) {
-				if(g_player[index]) {
+				if(player_Get(index)) {
 					Unit unit1(m_data[1]);
 					Unit unit2(m_data[2]);
-					g_player[index]->AcceptTradeOffer(offer, unit1, unit2);
+					player_Get(index)->AcceptTradeOffer(offer, unit1, unit2);
 				}
 			}
 			break;
@@ -1689,7 +1689,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[0]));
 			TradeOffer offer(m_data[0]);
 			if(tradeofferpool_Get()->IsValid(offer)) {
-				if(g_player[index]) {
+				if(player_Get(index)) {
 					if(offer.Accept(m_data[1],
 									Unit(m_data[2]),
 									Unit(m_data[3]))) {
@@ -1716,8 +1716,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[1]));
 			Assert(index == (sint32)m_data[0]);
 			if(index == (sint32)m_data[0]) {
-				if(g_player[index]) {
-					g_player[index]->BreakAlliance(m_data[1]);
+				if(player_Get(index)) {
+					player_Get(index)->BreakAlliance(m_data[1]);
 				}
 			}
 			break;
@@ -1726,8 +1726,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 								index, m_data[1], m_data[2]));
 			Assert(index == (sint32)m_data[0]);
 			if(index == (sint32)m_data[0]) {
-				if(g_player[index]) {
-					g_player[index]->BreakCeaseFire(m_data[1], m_data[2] != 0);
+				if(player_Get(index)) {
+					player_Get(index)->BreakCeaseFire(m_data[1], m_data[2] != 0);
 				}
 			}
 			break;
@@ -1782,8 +1782,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Player %d's dip state for %d is now %d\n",
 								index, m_data[0], m_data[1]));
-			if(g_player[index]) {
-				g_player[index]->SetDiplomaticState(m_data[0],
+			if(player_Get(index)) {
+				player_Get(index)->SetDiplomaticState(m_data[0],
 													(DIPLOMATIC_STATE)m_data[1]);
 			}
 			break;
@@ -1857,8 +1857,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			g_network.QueuePacket(g_network.IndexToId(m_data[0]),
 								  new NetInfo(NET_INFO_CODE_OFFER_REJECTED_MESSAGE,
 											  m_data[0], m_data[1]));
-			if(g_player[m_data[0]] &&
-			   g_player[m_data[1]]) {
+			if(player_Get(m_data[0]) &&
+			   player_Get(m_data[1])) {
 				SlicObject *so = new SlicObject("91OfferRejected");
 				so->AddRecipient(m_data[0]);
 				so->AddCivilisation(m_data[1]);
@@ -1945,7 +1945,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 				route.Kill(CAUSE_KILL_TRADE_ROUTE_RESET);
 
-				g_player[sourceOwner]->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE, resIndex, destCity, destOwner, resValue);
+				player_Get(sourceOwner)->CreateTradeRoute(sourceCity, ROUTE_TYPE_RESOURCE, resIndex, destCity, destOwner, resValue);
 			}
 			break;
 		}
@@ -1995,7 +1995,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			Unit dest(m_data[2]);
 			DPRINTF(k_DBG_NET, ("Client %d wants a trade route from %lx(%d) to %lx(%d) carrying %d\n",
 								index, m_data[1], src.IsValid(), m_data[2], dest.IsValid(), m_data[0]));
-			if(!g_player[index]) {
+			if(!player_Get(index)) {
 				g_network.Resync(index);
 				break;
 			}
@@ -2005,7 +2005,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 				break;
 			}
 
-			g_player[index]->CreateTradeRoute(src, ROUTE_TYPE_RESOURCE,
+			player_Get(index)->CreateTradeRoute(src, ROUTE_TYPE_RESOURCE,
 											  m_data[0], dest, index, 0);
 			break;
 		}

@@ -48,7 +48,7 @@
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/colorset.h"           // g_colorSet
 #include "ui/aui_ctp2/SelItem.h"            // g_selected_item
-#include "gfx/tilesys/tiledmap.h"           // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()
 #include "ui/aui_utils/primitives.h"
 
 extern C3UI				*g_c3ui;
@@ -292,7 +292,7 @@ POINT ThumbnailMap::MapToPixel(MapPoint *pos)
 
 void ThumbnailMap::RenderMap(aui_Surface *surf)
 {
-	if (!g_tiledMap) return;
+	if (!tiledmap_Get()) return;
 	if (!world_Get()) return;
 	if (m_mapSize->x <= 0 || m_mapSize->y <= 0) return;
 
@@ -523,8 +523,8 @@ void ThumbnailMap::MouseLGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -555,8 +555,8 @@ void ThumbnailMap::MouseRGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();

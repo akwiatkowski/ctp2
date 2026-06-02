@@ -40,7 +40,6 @@
 #include "ui/aui_ctp2/tilecontrol.h"
 #include "gfx/spritesys/GoodActor.h"
 
-extern TiledMap			*g_tiledMap;
 
 // Added by Martin Gühmann
 extern sint32			g_isFastCpu; // Actual permernent set to 1
@@ -127,48 +126,48 @@ sint32 TileControl::DrawTile(
 
 	pos = tempPos;
 
-	TileInfo *tileInfo = g_tiledMap->GetTileInfo(pos);
+	TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos);
 	if (tileInfo == NULL) return -1;
 
 	river = tileInfo->GetRiverPiece();
 
-	BaseTile *baseTile = g_tiledMap->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
+	BaseTile *baseTile = tiledmap_Get()->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
 	if (baseTile == NULL) return -1;
 
 
 
 
-	g_tiledMap->LockThisSurface(surface);
+	tiledmap_Get()->LockThisSurface(surface);
 
 // Added by Martin Gühmann
-	bool fog =((   g_tiledMap->GetLocalVision()
-	            && g_tiledMap->GetLocalVision()->IsExplored(pos)
-	            &&!g_tiledMap->GetLocalVision()->IsVisible(pos)));
+	bool fog =((   tiledmap_Get()->GetLocalVision()
+	            && tiledmap_Get()->GetLocalVision()->IsExplored(pos)
+	            &&!tiledmap_Get()->GetLocalVision()->IsVisible(pos)));
 
 	if (!fog) {
-		g_tiledMap->DrawTransitionTile(NULL, pos, x, y);
-		g_tiledMap->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
+		tiledmap_Get()->DrawTransitionTile(NULL, pos, x, y);
+		tiledmap_Get()->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
 		if (river != -1)
-			g_tiledMap->DrawOverlay(NULL, g_tiledMap->GetTileSet()->GetRiverData(river), x, y);
+			tiledmap_Get()->DrawOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
 	}
 	else {
 		if (g_isFastCpu) {
-			g_tiledMap->DrawBlendedTile(NULL, pos,x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
-			g_tiledMap->DrawBlendedOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+			tiledmap_Get()->DrawBlendedTile(NULL, pos,x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+			tiledmap_Get()->DrawBlendedOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
 			if (river != -1)
-				g_tiledMap->DrawBlendedOverlay(NULL, g_tiledMap->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+				tiledmap_Get()->DrawBlendedOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
 		}
 		else {
-			g_tiledMap->DrawDitheredTile(NULL, x,y,k_FOW_COLOR);
-			g_tiledMap->DrawDitheredOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR);
+			tiledmap_Get()->DrawDitheredTile(NULL, x,y,k_FOW_COLOR);
+			tiledmap_Get()->DrawDitheredOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR);
 			if (river != -1)
-				g_tiledMap->DrawDitheredOverlay(NULL, g_tiledMap->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR);
+				tiledmap_Get()->DrawDitheredOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR);
 		}
 	}
 
-	g_tiledMap->DrawImprovementsLayer(NULL, pos, x, y);
+	tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
 
-	g_tiledMap->UnlockSurface();
+	tiledmap_Get()->UnlockSurface();
 
 	GoodActor *good = tileInfo->GetGoodActor();
 	if (good) {

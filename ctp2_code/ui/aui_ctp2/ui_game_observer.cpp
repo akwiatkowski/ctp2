@@ -614,33 +614,33 @@ public:
 
     void OnMapResized() override
     {
-        // gameinit_ResetMapSize has already rebuilt g_tiledMap and the
+        // gameinit_ResetMapSize has already rebuilt tiledmap_Get() and the
         // world pools.  Load the tileset graphics, recreate the radar
         // window, and redraw the background — all UI work that the engine
         // build skips.
         radarwindow_Cleanup();
 
-        if (g_tiledMap) {
-            g_tiledMap->LoadTileset();
+        if (tiledmap_Get()) {
+            tiledmap_Get()->LoadTileset();
         }
 
-        if (g_tiledMap && g_background) {
+        if (tiledmap_Get() && g_background) {
             RECT rect = {
                 g_background->X(),
                 g_background->Y(),
                 g_background->X() + g_background->Width(),
                 g_background->Y() + g_background->Height()
             };
-            g_tiledMap->Initialize(&rect);
-            g_tiledMap->Refresh();
+            tiledmap_Get()->Initialize(&rect);
+            tiledmap_Get()->Refresh();
         }
 
         radarwindow_Initialize();
         radarwindow_Display();
 
-        if (g_tiledMap) {
-            g_tiledMap->PostProcessMap();
-            g_tiledMap->Refresh();
+        if (tiledmap_Get()) {
+            tiledmap_Get()->PostProcessMap();
+            tiledmap_Get()->Refresh();
         }
 
         if (g_background) {

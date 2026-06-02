@@ -3105,7 +3105,6 @@ void primitives_HackTileDraw(aui_Surface *pSurface)
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/tilesys/tileset.h"
 
-extern TiledMap *g_tiledMap;
 
 void primitives_HackStencilDraw(aui_Surface *pSurface)
 {
@@ -3116,7 +3115,7 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 
 
-	if (g_tiledMap == NULL) return;
+	if (tiledmap_Get() == NULL) return;
 
 	static uint16 from=4, to=14;
 
@@ -3125,7 +3124,7 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 	Pixel16 *image = NULL;
 
-	TileSet *tileSet = g_tiledMap->GetTileSet();
+	TileSet *tileSet = tiledmap_Get()->GetTileSet();
 
 	if (tileSet)
 		image = tileSet->GetTransitionData(from, to, 0);

@@ -66,7 +66,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_ctp2/SelItem.h"                // g_selected_item
-#include "gfx/tilesys/tiledmap.h"               // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
 #include "ui/aui_utils/primitives.h"
@@ -344,7 +344,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 {
 
 
-	if(!g_tiledMap || !g_tiledMap->ReadyToDraw() ||
+	if(!tiledmap_Get() || !tiledmap_Get()->ReadyToDraw() ||
 		!world_Get() || !g_selected_item || !m_mapSize)
 		return(NULL);
 
@@ -392,7 +392,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 				return(g_colorSet->GetColor(color));
 		}
 
-		if(m_displayCities && g_tiledMap->HasVisibleCity(worldpos))
+		if(m_displayCities && tiledmap_Get()->HasVisibleCity(worldpos))
 		{
 			return(g_colorSet->GetColor(COLOR_WHITE));
 		}
@@ -420,12 +420,12 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 			if(m_displayRelations)
 				return RadarTileRelationsColor(worldpos, player);
 			else
-				return g_colorSet->GetPlayerColor(g_tiledMap->GetVisibleCellOwner(worldpos));
+				return g_colorSet->GetPlayerColor(tiledmap_Get()->GetVisibleCellOwner(worldpos));
 		}
 
 		if(m_displayTerrain)
 		{
-			return(g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 + g_tiledMap->GetVisibleTerrainType(worldpos))));
+			return(g_colorSet->GetColor(static_cast<COLOR>(COLOR_TERRAIN_0 + tiledmap_Get()->GetVisibleTerrainType(worldpos))));
 		}
 		else
 		{
@@ -458,7 +458,7 @@ Pixel16 RadarMap::RadarTileColor(const Player *player, const MapPoint &position,
 //---------------------------------------------------------------------------
 Pixel16 RadarMap::RadarTileBorderColor(const MapPoint &position, const Player *player)
 {
-	sint32 owner = g_tiledMap->GetVisibleCellOwner(position);
+	sint32 owner = tiledmap_Get()->GetVisibleCellOwner(position);
 	if(owner < 0)
 		return(g_colorSet->GetColor(COLOR_BLACK));
 
@@ -480,7 +480,7 @@ Pixel16 RadarMap::RadarTileRelationsColor(const MapPoint &position, const Player
 {
 	Assert(m_displayRelations);
 
-	sint32 owner = unitOwner < 0 ? g_tiledMap->GetVisibleCellOwner(position) : unitOwner;
+	sint32 owner = unitOwner < 0 ? tiledmap_Get()->GetVisibleCellOwner(position) : unitOwner;
 	if(owner < 0)
 		return(g_colorSet->GetColor(COLOR_WHITE));
 	else if(player->m_owner == owner || player->HasAllianceWith(owner))
@@ -507,7 +507,7 @@ Pixel16 RadarMap::RadarTileRelationsDarkColor(const MapPoint &position, const Pl
 {
 	Assert(m_displayRelations);
 
-	sint32 owner = unitOwner < 0 ? g_tiledMap->GetVisibleCellOwner(position) : unitOwner;
+	sint32 owner = unitOwner < 0 ? tiledmap_Get()->GetVisibleCellOwner(position) : unitOwner;
 	if(owner < 0)
 		return(g_colorSet->GetDarkColor(COLOR_WHITE));
 	else if(player->m_owner == owner || player->HasAllianceWith(owner))
@@ -542,7 +542,7 @@ uint8 RadarMap::RadarTileBorder(const Player *player, const MapPoint &position)
 		return(borderFlags);
 
 // Added by Martin G�hmann
-	sint32 owner = g_tiledMap->GetVisibleCellOwner(const_cast<MapPoint&>(position));
+	sint32 owner = tiledmap_Get()->GetVisibleCellOwner(const_cast<MapPoint&>(position));
 
 	if(owner < 0)
 		return(borderFlags);
@@ -558,22 +558,22 @@ uint8 RadarMap::RadarTileBorder(const Player *player, const MapPoint &position)
 	MapPoint neighborPosition;
 
 	if(position.GetNeighborPosition(EAST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_EAST_BORDER_FLAG;
 	if(position.GetNeighborPosition(WEST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_WEST_BORDER_FLAG;
 	if(position.GetNeighborPosition(NORTHEAST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_NORTH_EAST_BORDER_FLAG;
 	if(position.GetNeighborPosition(NORTHWEST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_NORTH_WEST_BORDER_FLAG;
 	if(position.GetNeighborPosition(SOUTHEAST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_SOUTH_EAST_BORDER_FLAG;
 	if(position.GetNeighborPosition(SOUTHWEST, neighborPosition) &&
-		(g_tiledMap->GetVisibleCellOwner(neighborPosition) != owner))
+		(tiledmap_Get()->GetVisibleCellOwner(neighborPosition) != owner))
 		borderFlags |= k_SOUTH_WEST_BORDER_FLAG;
 
 	return(borderFlags);
@@ -1017,13 +1017,13 @@ void RadarMap::RenderViewRect
 {
     RECT offsetRect = {0, 0, 0, 0};
 
-	if (g_tiledMap)
+	if (tiledmap_Get())
     {
-		RECT *  temp        = g_tiledMap->GetMapViewRect();
+		RECT *  temp        = tiledmap_Get()->GetMapViewRect();
 
         m_mapViewRect = *temp;
 
-		if(!g_tiledMap->ReadyToDraw())
+		if(!tiledmap_Get()->ReadyToDraw())
 			return;
 
 	    sint32  nrplayer    = g_selected_item->GetVisiblePlayer();
@@ -1239,7 +1239,7 @@ MapPoint RadarMap::CenterMap(MapPoint const & pos)
 
 	m_lastCenteredPoint = pos;
 
-	RECT *mapViewRect = g_tiledMap->GetMapViewRect();
+	RECT *mapViewRect = tiledmap_Get()->GetMapViewRect();
 
 	ComputeCenteredMap(pos, mapViewRect);
 	m_mapViewRect = *mapViewRect;
@@ -1259,7 +1259,7 @@ MapPoint RadarMap::CenterMap(MapPoint const & pos)
 //---------------------------------------------------------------------------
 BOOL RadarMap::IncludePointInView(MapPoint &pos, sint32 radius)
 {
-	RECT		*mapViewRect = g_tiledMap->GetMapViewRect();
+	RECT		*mapViewRect = tiledmap_Get()->GetMapViewRect();
 	RECT		adjustedRect = *mapViewRect;
 
 	sint32		tileX;
@@ -1317,9 +1317,9 @@ void RadarMap::Setup(void)
 
 	RenderMap(m_mapSurface);
 
-	if (g_tiledMap)
+	if (tiledmap_Get())
     {
-		m_mapViewRect = *g_tiledMap->GetMapViewRect();
+		m_mapViewRect = *tiledmap_Get()->GetMapViewRect();
 	}
 }
 
@@ -1471,8 +1471,8 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -1480,10 +1480,10 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 	RECT mapRect = {0, 0, Width(), Height()};
 	if ( !PtInRect(&mapRect, data->position) ) return;
 
-	g_tiledMap->SetSmoothScrollOffsets(0,0);
+	tiledmap_Get()->SetSmoothScrollOffsets(0,0);
 
 	sint32		mapWidth, mapHeight;
-	g_tiledMap->GetMapMetrics(&mapWidth, &mapHeight);
+	tiledmap_Get()->GetMapMetrics(&mapWidth, &mapHeight);
 
 	sint32  tileY   = (sint32) (data->position.y / m_tilePixelHeight);
     double  nudge   = (tileY & 1) ? m_tilePixelWidth / 2.0 : 0.0;
@@ -1502,11 +1502,11 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 	m_mapViewRect.top = (tileY - (height / 2)) & ~0x01;
 	m_mapViewRect.bottom = m_mapViewRect.top + height;
 
-	RECT *  realMapViewRect = g_tiledMap->GetMapViewRect();
+	RECT *  realMapViewRect = tiledmap_Get()->GetMapViewRect();
 	*realMapViewRect = m_mapViewRect;
 
-	g_tiledMap->Refresh();
-	g_tiledMap->InvalidateMap();
+	tiledmap_Get()->Refresh();
+	tiledmap_Get()->InvalidateMap();
 }
 
 //---------------------------------------------------------------------------
@@ -1526,8 +1526,8 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();

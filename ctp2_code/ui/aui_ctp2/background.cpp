@@ -95,8 +95,8 @@ void Background::MouseLGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -130,8 +130,8 @@ void Background::MouseRGrabInside(aui_MouseEvent *data)
 	SetWhichSeesMouse(this);
 
 
-	Assert(g_tiledMap != NULL);
-	if(g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if(tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -206,7 +206,7 @@ void Background::MouseMoveInside(aui_MouseEvent *data)
 
     MapPoint tmp;
 
-    if (g_tiledMap && g_tiledMap->GetMouseTilePos(tmp)){
+    if (tiledmap_Get() && tiledmap_Get()->GetMouseTilePos(tmp)){
         m_current_mouse_tile = tmp;
     }
 
@@ -214,9 +214,9 @@ void Background::MouseMoveInside(aui_MouseEvent *data)
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	if (g_tiledMap != NULL) {
-		g_tiledMap->SetHiliteMouseTile(m_current_mouse_tile);
-		g_tiledMap->DrawHilite( TRUE );
+	if (tiledmap_Get() != NULL) {
+		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
+		tiledmap_Get()->DrawHilite( TRUE );
 	}
 }
 
@@ -231,7 +231,7 @@ void Background::MouseLDragInside( aui_MouseEvent *data )
 	data->position.x -= X();
 	data->position.y -= Y();
 
-    if (g_tiledMap && g_tiledMap->GetMouseTilePos(tmp)){
+    if (tiledmap_Get() && tiledmap_Get()->GetMouseTilePos(tmp)){
 		if (m_current_mouse_tile != tmp) {
 			SavedMouseEvent *ev = new SavedMouseEvent;
 			memcpy(&ev->event, data, sizeof(aui_MouseEvent));
@@ -247,9 +247,9 @@ void Background::MouseLDragInside( aui_MouseEvent *data )
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	if (g_tiledMap != NULL) {
-		g_tiledMap->SetHiliteMouseTile(m_current_mouse_tile);
-		g_tiledMap->DrawHilite( TRUE );
+	if (tiledmap_Get() != NULL) {
+		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
+		tiledmap_Get()->DrawHilite( TRUE );
 	}
 
 
@@ -265,7 +265,7 @@ void Background::MouseMoveOver(aui_MouseEvent *data)
     Assert(data);
 
     MapPoint tmp;
-	if (g_tiledMap && g_tiledMap->GetMouseTilePos(tmp))
+	if (tiledmap_Get() && tiledmap_Get()->GetMouseTilePos(tmp))
 	{
         m_current_mouse_tile = tmp;
     }
@@ -378,8 +378,8 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 
 AUI_ERRCODE Background::Idle(void)
 {
-	if(g_tiledMap) {
-		g_tiledMap->Idle();
+	if(tiledmap_Get()) {
+		tiledmap_Get()->Idle();
 	}
 
 	while(s_savedEvents.GetCount() > 0) {
@@ -389,23 +389,23 @@ AUI_ERRCODE Background::Idle(void)
 			{
 				uint32 curTicks = GetTickCount();
 				if (curTicks > (ev->event.time + doubleClickTimeout)) {
-					g_tiledMap->Click(&ev->event, FALSE);
+					tiledmap_Get()->Click(&ev->event, FALSE);
 				} else {
 					return AUI_ERRCODE_OK;
 				}
 				break;
 			}
 			case SEV_RGRAB:
-				g_tiledMap->Click(&ev->event, FALSE);
+				tiledmap_Get()->Click(&ev->event, FALSE);
 				break;
 			case SEV_LDROP:
-				g_tiledMap->Drop(&ev->event);
+				tiledmap_Get()->Drop(&ev->event);
 				break;
 			case SEV_LDRAG:
-				g_tiledMap->MouseDrag(&ev->event);
+				tiledmap_Get()->MouseDrag(&ev->event);
 				break;
 			case SEV_LDOUBLE:
-				g_tiledMap->Click(&ev->event, TRUE);
+				tiledmap_Get()->Click(&ev->event, TRUE);
 				break;
 		}
 		delete s_savedEvents.RemoveHead();
@@ -415,7 +415,7 @@ AUI_ERRCODE Background::Idle(void)
 	if (hasSavedEvent) {
 		uint32 curTicks = GetTickCount();
 		if (curTicks > (savedEvent.time + doubleClickTimeout)) {
-			g_tiledMap->Click(&savedEvent, FALSE);
+			tiledmap_Get()->Click(&savedEvent, FALSE);
 			hasSavedEvent = FALSE;
 		}
 	}
@@ -430,8 +430,8 @@ void Background::MouseLDoubleClickInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -448,7 +448,7 @@ void Background::MouseLDoubleClickInside(aui_MouseEvent *data)
 			s_savedEvents.AddTail(ev);
 		}
 	} else {
-		g_tiledMap->Click(data, TRUE);
+		tiledmap_Get()->Click(data, TRUE);
 	}
 
     m_lbutton_isdown = TRUE;
@@ -462,13 +462,13 @@ void Background::MouseRDoubleClickInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(g_tiledMap != NULL);
-	if (g_tiledMap == NULL) return;
+	Assert(tiledmap_Get() != NULL);
+	if (tiledmap_Get() == NULL) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
 
-	g_tiledMap->Click(data, TRUE);
+	tiledmap_Get()->Click(data, TRUE);
 
     m_lbutton_isdown = TRUE;
 

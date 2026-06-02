@@ -199,7 +199,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 	if(m_textFromMap && m_curX == point.x && m_curY == point.y)
 		return;
 
-	if(!g_tiledMap->ReadyToDraw()) return;
+	if(!tiledmap_Get()->ReadyToDraw()) return;
 
 	m_curX = point.x;
 	m_curY = point.y;
@@ -222,7 +222,7 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 
 	} else {
 		// Use the information from the last visit of that cell
-		sint32 owner = g_tiledMap->GetVisibleCellOwner(const_cast<MapPoint&>(point));
+		sint32 owner = tiledmap_Get()->GetVisibleCellOwner(const_cast<MapPoint&>(point));
 
 		if(owner >= 0
 		&& player_Get(owner)
@@ -238,9 +238,9 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 
 		UnseenCellCarton ucell;
 		BOOL hasUnseen = FALSE;
-		if(!g_tiledMap->GetLocalVision()->IsVisible(point)
+		if(!tiledmap_Get()->GetLocalVision()->IsVisible(point)
 		){
-			hasUnseen = g_tiledMap->GetLocalVision()->GetLastSeen(point, ucell);
+			hasUnseen = tiledmap_Get()->GetLocalVision()->GetLastSeen(point, ucell);
 		}
 
 		if(hasUnseen){
@@ -494,9 +494,9 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 			}
 		}
 
-		if(g_tiledMap) {
+		if(tiledmap_Get()) {
 
-			g_tiledMap->GetFont()->TruncateString(m_str, m_width);
+			tiledmap_Get()->GetFont()->TruncateString(m_str, m_width);
 		}
 	}
 

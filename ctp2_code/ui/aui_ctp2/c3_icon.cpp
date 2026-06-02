@@ -4,7 +4,7 @@
 #include "ui/aui_common/aui_ui.h"
 #include "ui/aui_common/aui_window.h"
 
-#include "gfx/tilesys/tiledmap.h"       // g_tiledMap
+#include "gfx/tilesys/tiledmap.h"       // tiledmap_Get()
 #include "gfx/tilesys/tileset.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
@@ -100,7 +100,7 @@ AUI_ERRCODE c3_Icon::DrawThis(
 	if (m_mapIcon != MAPICON_MAX) {
 		if (m_color != COLOR_MAX) {
 			POINT where;
-			TileSet		*tileSet = g_tiledMap->GetTileSet();
+			TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 			POINT iconDim = tileSet->GetMapIconDimensions( m_mapIcon );
 
 			where.x = ( m_width - iconDim.x ) / 2;
@@ -117,7 +117,7 @@ AUI_ERRCODE c3_Icon::DrawThis(
 			Assert(icon);
 			if (!icon) return AUI_ERRCODE_OK;
 
-			g_tiledMap->DrawColorizedOverlay( icon, surface, where.x, where.y, g_colorSet->GetColor(m_color) );
+			tiledmap_Get()->DrawColorizedOverlay( icon, surface, where.x, where.y, g_colorSet->GetColor(m_color) );
 		}
 	}
 

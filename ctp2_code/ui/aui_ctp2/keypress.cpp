@@ -138,7 +138,6 @@
 
 extern C3UI			*g_c3ui;
 extern BOOL			gSuspended;
-extern TiledMap 	*g_tiledMap;
 extern ResourceMap		*g_resourceMap;
 extern Background	*g_background;
 extern WorkWindow	*g_workWindow;
@@ -401,7 +400,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 #if 0
 	MapPoint point;
-	g_tiledMap->GetMouseTilePos(point);
+	tiledmap_Get()->GetMouseTilePos(point);
 #endif
 
 	switch (kf) {
@@ -533,7 +532,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	case KEY_FUNCTION_PARADROP:
 		if(isMyTurn) {
 			MapPoint point;
-			g_tiledMap->GetMouseTilePos(point);
+			tiledmap_Get()->GetMouseTilePos(point);
 			g_selected_item->Paradrop(point);
 			return TRUE;
 		}
@@ -542,7 +541,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	case KEY_FUNCTION_INVESTIGATE_CITY:
         {
             MapPoint    point;
-            g_tiledMap->GetMouseTilePos(point);
+            tiledmap_Get()->GetMouseTilePos(point);
 		    g_selected_item->InvestigateCity(point);
         }
 		break;
@@ -703,14 +702,14 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 
     case KEY_FUNCTION_ZOOM_IN1:
-        if (g_tiledMap) {
-			g_tiledMap->ZoomIn();
+        if (tiledmap_Get()) {
+			tiledmap_Get()->ZoomIn();
 		}
 		break;
 
     case KEY_FUNCTION_ZOOM_OUT1:
-        if (g_tiledMap) {
-			g_tiledMap->ZoomOut();
+        if (tiledmap_Get()) {
+			tiledmap_Get()->ZoomOut();
         }
 
 		break;
@@ -729,8 +728,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 				Army army(s_item);
 				army.GetPos(pos);
 				radar_map_Get()->CenterMap(pos);
-				g_tiledMap->Refresh();
-				g_tiledMap->InvalidateMap();
+				tiledmap_Get()->Refresh();
+				tiledmap_Get()->InvalidateMap();
 				break;
 			}
 			case SELECT_TYPE_LOCAL_CITY:
@@ -738,8 +737,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 				Unit unit(s_item);
 				unit.GetPos(pos);
 				radar_map_Get()->CenterMap(pos);
-				g_tiledMap->Refresh();
-				g_tiledMap->InvalidateMap();
+				tiledmap_Get()->Refresh();
+				tiledmap_Get()->InvalidateMap();
 
 				break;
 			}
@@ -822,9 +821,9 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 
 
-			g_tiledMap->InvalidateMix();
-			g_tiledMap->InvalidateMap();
-			g_tiledMap->Refresh();
+			tiledmap_Get()->InvalidateMix();
+			tiledmap_Get()->InvalidateMap();
+			tiledmap_Get()->Refresh();
 			radar_map_Get()->Update();
 			turn_Get()->InformMessages();
 		}
@@ -1402,8 +1401,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 
 void WhackScreen()
 {
-	g_tiledMap->Refresh();
-	g_tiledMap->InvalidateMap();
+	tiledmap_Get()->Refresh();
+	tiledmap_Get()->InvalidateMap();
 	radar_map_Get()->Update();
 }
 

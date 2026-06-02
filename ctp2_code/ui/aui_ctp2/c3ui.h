@@ -143,4 +143,10 @@ private:
     std::list<UiCleanupCallback>    m_cleanupActions;
 };
 
+// App-singleton accessor pair, mirroring world_Get / tiledmap_Get
+// / director_Get.  Callers should use c3ui_Get() instead of
+// reaching for g_c3ui directly.
+C3UI * c3ui_Get(void);
+void   c3ui_Set(C3UI *p);
+
 #endif

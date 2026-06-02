@@ -13,7 +13,6 @@ extern AVLHeap g_astar_mem;
 #include "gs/world/Cell.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
-extern World *g_theWorld;
 
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"
@@ -60,7 +59,7 @@ BOOL BestFirstSearch::InitPoint(const sint32 player_idx, AstarPoint *parent, Ast
     MapPoint &pos, const double past_cost, const double max_cost)
 {
 
-    Cell *the_cell = g_theWorld->GetCell(pos);
+    Cell *the_cell = world_Get()->GetCell(pos);
     double entry_cost = the_cell->GetMoveCost();
 
 
@@ -125,9 +124,9 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
     MapPoint neighbor_pos;
     double start_cost;
 	player_Get(player_idx)->GetCapitolPos(start_pos);
-    start_cost = -g_theWorld->GetCell(start_pos)->GetMoveCost() + ((start_pos.z != z_height) ? 1000.0 : 0) ;
+    start_cost = -world_Get()->GetCell(start_pos)->GetMoveCost() + ((start_pos.z != z_height) ? 1000.0 : 0) ;
     start_pos.z = z_height;
-    Cell *neighbor_cell = g_theWorld->GetCell(start_pos);
+    Cell *neighbor_cell = world_Get()->GetCell(start_pos);
     neighbor_cell->m_search_count = g_search_count;
     InitPoint(player_idx, NULL, neighbor_cell->m_point, start_pos, start_cost, max_cost);
     sint32 nodes_opened = 1;
@@ -148,14 +147,14 @@ void BestFirstSearch::FindMoveCostToCitiesZ(const sint32 player_idx, const sint3
         for (i=0; i <= 7; i++) {
 
             if (!best->m_pos.GetNeighborPosition(WORLD_DIRECTION(i), neighbor_pos)) continue;
-            neighbor_cell = g_theWorld->GetCell(neighbor_pos);
+            neighbor_cell = world_Get()->GetCell(neighbor_pos);
 
             if (neighbor_cell->m_search_count == g_search_count)
                 continue;
 
             if (InitPoint(player_idx, best, neighbor_cell->m_point, neighbor_pos, past_cost, max_cost)) {
 
-g_theWorld->SetColor(neighbor_pos, int(past_cost));
+world_Get()->SetColor(neighbor_pos, int(past_cost));
                 nodes_opened++;
                 neighbor_cell->m_search_count = g_search_count;
                 a_city = neighbor_cell->GetCity();
@@ -194,10 +193,10 @@ MapPoint pos;
 MapPoint *size;
 
 pos.z=0;
-size = g_theWorld->GetSize();
+size = world_Get()->GetSize();
 for (pos.x=0; pos.x<size->x; pos.x++) {
     for (pos.y=0; pos.y<size->y; pos.y++) {
-        g_theWorld->SetColor(pos, 0);
+        world_Get()->SetColor(pos, 0);
     }
 }
 

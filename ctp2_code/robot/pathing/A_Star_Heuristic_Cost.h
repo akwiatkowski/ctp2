@@ -45,7 +45,7 @@ struct MapPointData;
 #define HEURISTIC_TILES_PER_GRID 4
 
 
-// g_theWorld extern lives in gs/world/World.h (already included above).
+// world_Get() accessor declared in gs/world/World.h (already included above).
 
 
 
@@ -142,7 +142,7 @@ public:
 		MapPointData const & the_tile
 	)
 	{
-		g_theWorld->XY_Coords.RC_to_XY(the_tile, xy_pos);
+		world_Get()->XY_Coords.RC_to_XY(the_tile, xy_pos);
 		relaxed_min_cost = Get_Relaxed_Cost_Grid_Pointer(xy_pos);
 
 		return *relaxed_min_cost;

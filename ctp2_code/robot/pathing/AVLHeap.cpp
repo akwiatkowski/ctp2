@@ -36,7 +36,7 @@
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"
 
-extern World *g_theWorld;
+
 
 AVLHeap::AVLHeap()
 {
@@ -106,7 +106,7 @@ void AVLHeap::MassDelete(const bool isunit)
     if (isunit) {
         AstarPoint *tmp=NULL;
         for (tmp = m_used_head; tmp; tmp = tmp->m_next) {
-            g_theWorld->SetColor(tmp->m_pos, c);
+            world_Get()->SetColor(tmp->m_pos, c);
         }
     }
 #endif

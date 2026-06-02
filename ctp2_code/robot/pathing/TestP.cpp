@@ -18,7 +18,7 @@
 UnitAstar *g_theTestPather;
 
 extern TiledMap *g_tiledMap;
-extern World *g_theWorld;
+
 sint32 n;
 sint8 *dir_list;
 
@@ -59,19 +59,19 @@ void testloop(aui_Surface *surf)
     for (i=0; i<50; i++) {
         for (j=0; j<100; j++) {
             pos.Set(i, j, 0);
-            g_theWorld->SetColor(pos, 0);
+            world_Get()->SetColor(pos, 0);
         }
     }
     sint32 c = 0;
     if (0 < good_path.Num()) {
      for (good_path.Start(pos); !good_path.IsEnd(); good_path.Next(pos)) {
-        g_theWorld->SetColor(pos, c);
+        world_Get()->SetColor(pos, c);
      }
    }
 
     if (0 < bad_path.Num()) {
      for (bad_path.Start(pos); !bad_path.IsEnd(); bad_path.Next(pos)) {
-        g_theWorld->SetColor(pos, c);
+        world_Get()->SetColor(pos, c);
      }
     }
 
@@ -113,12 +113,12 @@ g_theTestPather->FindPath(*(player_Get(s_player)->GetArmy(s_index)),
 
      c = pixelutils_RGB(0,30, 0);
      for (good_path.Start(pos); !good_path.IsEnd(); good_path.Next(pos)) {
-         g_theWorld->SetColor(pos, c);
+         world_Get()->SetColor(pos, c);
      }
 
      c = pixelutils_RGB(1,1,1);
     for (bad_path.Start(pos); !bad_path.IsEnd(); bad_path.Next(pos)) {
-       g_theWorld->SetColor(pos, c);
+       world_Get()->SetColor(pos, c);
     }
 
     WhackScreen();

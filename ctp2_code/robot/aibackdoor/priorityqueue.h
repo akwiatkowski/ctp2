@@ -105,7 +105,7 @@ template <class T> void DAPriorityQueue<T>::LookForDups(const sint32 g)
     MapPoint pos;
     for (i=1; i<n; i++) {
         m_queue[i]->GetPos(pos);
-        Assert(g == sint32(g_theWorld->GetCell(pos)->m_search_count));
+        Assert(g == sint32(world_Get()->GetCell(pos)->m_search_count));
     }
 }
 #endif

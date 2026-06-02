@@ -36,7 +36,7 @@
 #include "gs/gameobj/Player.h"
 
 
-extern World *g_theWorld;
+
 
 TradeAstar g_theTradeAstar;
 
@@ -53,9 +53,9 @@ bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 		return false;
 	}
 
-	if(!g_theWorld->IsXwrap())
+	if(!world_Get()->IsXwrap())
 	{
-		sint16 w = (sint16)g_theWorld->GetXWidth();
+		sint16 w = (sint16)world_Get()->GetXWidth();
 
 		sint32 adjX1 = (prev.x + (prev.y / 2)) % w;
 		sint32 adjX2 = (pos.x  + (pos.y  / 2)) % w;
@@ -68,7 +68,7 @@ bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 		}
 	}
 
-	cost = float(ceil(g_theWorld->CalcTerrainFreightCost(pos)));
+	cost = float(ceil(world_Get()->CalcTerrainFreightCost(pos)));
 	return true;
 }
 

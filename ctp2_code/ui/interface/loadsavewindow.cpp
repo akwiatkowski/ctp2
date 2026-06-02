@@ -56,7 +56,7 @@
 #include "ui/aui_ctp2/texttab.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "ui/aui_ctp2/c3textfield.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/database/StrDB.h"                  // g_theStringDB
 #include "gs/database/profileDB.h"              // profiledb_Get()
@@ -1103,15 +1103,15 @@ LSSavesListItem::LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo
 
 		if (strstr(name, g_theStringDB->GetNameStr("AUTOSAVE_NAME")))
         {
-			m_itemText->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
+			m_itemText->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
 		}
 		else if (info->isScenario)
         {
-			m_itemText->SetTextColor(g_colorSet->GetColorRef(COLOR_DARK_GREEN));
+			m_itemText->SetTextColor(colorset_Get()->GetColorRef(COLOR_DARK_GREEN));
 		}
         else if (info->startInfoType != STARTINFOTYPE_NONE)
         {
-			m_itemText->SetTextColor(g_colorSet->GetColorRef(COLOR_BLUE));
+			m_itemText->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLUE));
 		}
         // else No action: Keep default color
 

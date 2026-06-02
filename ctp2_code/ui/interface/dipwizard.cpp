@@ -86,7 +86,7 @@
 #include "gs/gameobj/UnitData.h"
 
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 
 
 static DipWizard  *s_dipWizard;
@@ -2648,7 +2648,7 @@ AUI_ERRCODE DrawDiplomatColor(ctp2_Static *control,
 							  void *cookie)
 {
 	sint32 pl = (intptr_t)cookie;
-	primitives_PaintRect16(surface, &rect, g_colorSet->GetPlayerColor(pl));
+	primitives_PaintRect16(surface, &rect, colorset_Get()->GetPlayerColor(pl));
 	return AUI_ERRCODE_OK;
 }
 

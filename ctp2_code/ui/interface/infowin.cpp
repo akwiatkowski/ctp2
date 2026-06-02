@@ -45,7 +45,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/c3windows.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/interface/controlpanelwindow.h"     // controlpanel_Get()
 #include "ui/aui_ctp2/controlsheet.h"
 #include "gs/utility/Globals.h"                // allocated::clear
@@ -855,7 +855,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 	{
 		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
-			color[infoYCount] = g_colorSet->ComputePlayerColor(i);
+			color[infoYCount] = colorset_Get()->ComputePlayerColor(i);
 			infoYCount++;
 		}
 	}
@@ -867,7 +867,7 @@ sint32 infowin_UpdateGraph( LineGraph *infoGraph,
         walk.Next()
     )
     {
-		color[infoYCount] = g_colorSet->ComputePlayerColor(walk.GetObj()->GetOwner());
+		color[infoYCount] = colorset_Get()->ComputePlayerColor(walk.GetObj()->GetOwner());
 		infoYCount++;
 	}
 
@@ -976,7 +976,7 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 	{
 		if (player_Get(i) && (i != PLAYER_INDEX_VANDALS))
 		{
-			color[infoYCount] = g_colorSet->ComputePlayerColor(i);
+			color[infoYCount] = colorset_Get()->ComputePlayerColor(i);
 			infoYCount++;
 		}
 	}
@@ -1049,7 +1049,7 @@ sint32 infowin_UpdatePlayerList( void )
 		{
 
 			if (!myData)
-				color = (sint32)g_colorSet->ComputePlayerColor(i);
+				color = (sint32)colorset_Get()->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
 			civ = player_Get(i)->GetCivilisation();
@@ -1079,7 +1079,7 @@ sint32 infowin_UpdatePlayerList( void )
             }
 			else
             {
-                color = (sint32)g_colorSet->ComputePlayerColor(p->GetOwner());
+                color = (sint32)colorset_Get()->ComputePlayerColor(p->GetOwner());
             }
 
 			civ = p->GetCivilisation();
@@ -1119,7 +1119,7 @@ sint32 infowin_UpdatePollutionData( void )
 		{
 
 			if (!myData)
-				color = (sint32)g_colorSet->ComputePlayerColor(i);
+				color = (sint32)colorset_Get()->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
 			Civilisation * civ = player_Get(i)->GetCivilisation();
@@ -1914,7 +1914,7 @@ void InfoPlayerListItem::Update(void)
 	subItem = (c3_Static *)GetChildByIndex(0);
 
 	subItem->SetText(m_name);
-	subItem->SetTextColor(g_colorSet->GetColorRef((COLOR)m_index));
+	subItem->SetTextColor(colorset_Get()->GetColorRef((COLOR)m_index));
 }
 
 sint32 InfoPlayerListItem::Compare(c3_ListItem *item2, uint32 column)

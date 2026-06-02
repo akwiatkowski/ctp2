@@ -51,7 +51,7 @@
 
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_ctp2/c3_switch.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gfx/tilesys/tileset.h"
 #include "ui/aui_ctp2/c3_icon.h"
 
@@ -912,7 +912,7 @@ void AdvanceListItem::Update(void)
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
 	if ( player_Get(curPlayer) && player_Get(curPlayer)->HasAdvance(m_index) ) {
-		subIcon->SetColor( g_colorSet->ComputePlayerColor(curPlayer) );
+		subIcon->SetColor( colorset_Get()->ComputePlayerColor(curPlayer) );
 		subIcon->SetMapIcon( MAPICON_FLAG );
 	}
 	else {
@@ -939,7 +939,7 @@ void AdvanceListItem::Update(void)
 				if (subIcon) {
 
 					if ( player_Get(i)->HasAdvance(m_index) ) {
-						subIcon->SetColor( g_colorSet->ComputePlayerColor(i) );
+						subIcon->SetColor( colorset_Get()->ComputePlayerColor(i) );
 						subIcon->SetMapIcon( MAPICON_FLAG );
 					}
 
@@ -1379,7 +1379,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	m_playerLabel[0]->SetText( str );
 	m_playerLabel[0]->Show();
 	m_playerFlag[0]->SetMapIcon( MAPICON_FLAG );
-	m_playerFlag[0]->SetColor( g_colorSet->ComputePlayerColor(curPlayer) );
+	m_playerFlag[0]->SetColor( colorset_Get()->ComputePlayerColor(curPlayer) );
 
 	sint32 x = 1;
 	for ( sint32 i = 0;i < k_MAX_PLAYERS;i++ ) {
@@ -1389,7 +1389,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 				m_playerLabel[x]->SetText( str );
 				m_playerLabel[x]->Show();
 				m_playerFlag[x]->SetMapIcon( MAPICON_FLAG );
-				m_playerFlag[x]->SetColor( g_colorSet->ComputePlayerColor(i) );
+				m_playerFlag[x]->SetColor( colorset_Get()->ComputePlayerColor(i) );
 				x++;
 			}
 		}

@@ -79,7 +79,7 @@
 #include "ui/interface/EditQueue.h"
 #include "ui/interface/citywindow.h"
 
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ConstRecord.h"                // g_theConstDB
 #include "gfx/spritesys/director.h"
 #include "net/general/network.h"
@@ -655,8 +655,8 @@ ctp2_ListItem *NationalManagementDialog::CreateResourceItem(const Unit &city)
 void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 												  const Unit &city)
 {
-	const COLORREF colorNorm = g_colorSet->GetColorRef(COLOR_BLACK);
-	const COLORREF colorCritical = g_colorSet->GetColorRef(COLOR_RED);
+	const COLORREF colorNorm = colorset_Get()->GetColorRef(COLOR_BLACK);
+	const COLORREF colorCritical = colorset_Get()->GetColorRef(COLOR_RED);
 
 	static MBCHAR stringBuffer[32];
 
@@ -743,8 +743,8 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 		snprintf(stringBuffer, sizeof(stringBuffer), "%d", convertedGold);
 		column->SetText(stringBuffer);
 		if (convertedGold > 0 && cityData->GetConvertedTo() > -1) {
-			COLOR color = g_colorSet->ComputePlayerColor(cityData->GetConvertedTo());
-			column->SetTextColor(g_colorSet->GetColorRef(color));
+			COLOR color = colorset_Get()->ComputePlayerColor(cityData->GetConvertedTo());
+			column->SetTextColor(colorset_Get()->GetColorRef(color));
 		} else
 			column->SetTextColor(colorNorm);
 	}
@@ -754,8 +754,8 @@ void NationalManagementDialog::UpdateResourceItem(ctp2_ListItem *item,
 		snprintf(stringBuffer, sizeof(stringBuffer), "%d", franchise);
 		column->SetText(stringBuffer);
 		if (franchise > 0 && cityData->GetFranchiseOwner() > -1) {
-			COLOR color = g_colorSet->ComputePlayerColor(cityData->GetFranchiseOwner());
-			column->SetTextColor(g_colorSet->GetColorRef(color));
+			COLOR color = colorset_Get()->ComputePlayerColor(cityData->GetFranchiseOwner());
+			column->SetTextColor(colorset_Get()->GetColorRef(color));
 		} else
 			column->SetTextColor(colorNorm);
 	}
@@ -918,8 +918,8 @@ ctp2_ListItem *NationalManagementDialog::CreateSpecialistItem(const Unit &city)
 void NationalManagementDialog::UpdateSpecialistItem(ctp2_ListItem *item,
 												  const Unit &city)
 {
-	const COLORREF colorNorm = g_colorSet->GetColorRef(COLOR_BLACK);
-	const COLORREF colorCritical = g_colorSet->GetColorRef(COLOR_RED);
+	const COLORREF colorNorm = colorset_Get()->GetColorRef(COLOR_BLACK);
+	const COLORREF colorCritical = colorset_Get()->GetColorRef(COLOR_RED);
 
 	static MBCHAR stringBuffer[32];
 

@@ -40,7 +40,7 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/gameobj/Player.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gs/fileio/gamefile.h"           // is_scenario_Get()
 #include "gs/fileio/CivPaths.h"           // civpaths_Get()
 
@@ -283,7 +283,7 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 		return AUI_ERRCODE_OK;
 	}
 
-	primitives_PaintRect16(surface, &rect, g_colorSet->GetColor(COLOR_BLACK));
+	primitives_PaintRect16(surface, &rect, colorset_Get()->GetColor(COLOR_BLACK));
 	if(selitem_Get()->GetVisiblePlayer() != selitem_Get()->GetCurPlayer()) {
 		sint32 p;
 
@@ -314,7 +314,7 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 				displayWidth = width;
 			}
 			tmp.right = tmp.left + displayWidth;
-			primitives_PaintRect16(surface, &tmp, g_colorSet->GetPlayerColor(selitem_Get()->GetCurPlayer()));
+			primitives_PaintRect16(surface, &tmp, colorset_Get()->GetPlayerColor(selitem_Get()->GetCurPlayer()));
 		}
 	}
 	return AUI_ERRCODE_OK;

@@ -43,7 +43,7 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/CivilisationPool.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_dropdown.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
@@ -274,7 +274,7 @@ void RankingTab::UpdatePlayerList( void )
 			}
 			else
 			{
-				color = (sint32)g_colorSet->ComputePlayerColor(i);
+				color = (sint32)colorset_Get()->ComputePlayerColor(i);
 			}
 
 			Civilisation * civ = p->GetCivilisation();
@@ -303,7 +303,7 @@ void RankingTab::UpdatePlayerList( void )
 			}
 			else
 			{
-				color = (sint32) g_colorSet->ComputePlayerColor(p->GetOwner());
+				color = (sint32) colorset_Get()->ComputePlayerColor(p->GetOwner());
 			}
 
 			Civilisation * civ = p->GetCivilisation();

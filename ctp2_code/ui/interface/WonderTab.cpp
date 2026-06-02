@@ -36,7 +36,7 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/c3_button.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "ui/aui_ctp2/ctp2_button.h"
@@ -146,7 +146,7 @@ void WonderTab::AddWonderItem(sint32 wonder, sint32 player, sint32 turn)
 			if(st) {
 				if(curCity.IsValid()) {
 					st->SetText(curCity.CD()->GetName());
-					st->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(curCity.GetOwner())));
+					st->SetTextColor(colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(curCity.GetOwner())));
 				} else {
 					st->SetText("---");
 				}

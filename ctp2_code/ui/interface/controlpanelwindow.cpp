@@ -155,7 +155,7 @@
 #include "TerrainRecord.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/aui_utils/primitives.h"
 
 #include "ui/interface/trademanager.h"
@@ -498,7 +498,7 @@ void controlpanelwindow_MessageListCallback(aui_Control *control, uint32 action,
 
 				ctp2_Static *staticContainer = (ctp2_Static *)item->GetChildByIndex(0);
 				ctp2_Static *staticThing = (ctp2_Static *)staticContainer->GetChildByIndex(1);
-				staticThing->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
+				staticThing->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
 			}
 			else // action == AUI_LISTBOX_ACTION_RMOUSESELECT
 			{
@@ -508,7 +508,7 @@ void controlpanelwindow_MessageListCallback(aui_Control *control, uint32 action,
 			ctp2_Static *   tabLabel = reinterpret_cast<ctp2_Static *>
 				(aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.MessageTab.TabButton.Label"));
 
-			tabLabel->SetTextColor(g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
+			tabLabel->SetTextColor(colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
 			tabLabel->ShouldDraw(TRUE);
 		}
 
@@ -1907,12 +1907,12 @@ ControlPanelWindow::TileImpUpdate()  //emod4 defientely need this but schould it
 		if (player->CanCreateImprovement(m_currentTerrainImpRec->GetIndex(),pos,0,true,err))
 		{
 			cursormanager_Get()->SetCursor(CURSORINDEX_MOVE);
-			color = g_colorSet->GetColor(COLOR_GREEN);
+			color = colorset_Get()->GetColor(COLOR_GREEN);
 		}
 		else
 		{
 			cursormanager_Get()->SetCursor(CURSORINDEX_NOMOVE);
-			color = g_colorSet->GetColor(COLOR_RED);
+			color = colorset_Get()->GetColor(COLOR_RED);
 		}
 		if(player_Get(player_id)->IsExplored(pos)) {
 
@@ -2293,14 +2293,14 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 
 	staticThing->GetTextFont()->TruncateString(tempStr, staticThing->Width());
 	staticThing->SetText(tempStr);
-	staticThing->SetTextColor(message.IsRead()?g_colorSet->GetColorRef(COLOR_GRAY):g_colorSet->GetColorRef(COLOR_BLACK));
+	staticThing->SetTextColor(message.IsRead()?colorset_Get()->GetColorRef(COLOR_GRAY):colorset_Get()->GetColorRef(COLOR_BLACK));
 
 	ctp2_Static *tabLabel;
 	tabLabel = (static_cast<ctp2_Static*>(aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.MessageTab.TabButton.Label")));
 
 	if(!initializing && !message.IsRead())
 	{
-		tabLabel->SetTextColor(g_colorSet->GetColorRef(COLOR_RED));
+		tabLabel->SetTextColor(colorset_Get()->GetColorRef(COLOR_RED));
 	}
 	tabLabel->ShouldDraw(TRUE);
 
@@ -2348,7 +2348,7 @@ void ControlPanelWindow::SetMessageRead(Message const & msg)
 			ctp2_Static *staticThing = (ctp2_Static *)staticContainer->GetChildByIndex(1);
 			if(!staticThing)
 				break;
-			staticThing->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
+			staticThing->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
 			staticThing->ShouldDraw(TRUE);
 		}
 	}
@@ -3287,7 +3287,7 @@ ControlPanelWindow::HappinessRedisplay(aui_Surface *surface,RECT &rect,void *coo
 	total = (float)(hapvals[0]+hapvals[1]+hapvals[2]);
 
 	if(total<=0.0f)
-		primitives_PaintRect16(surface, &rect, g_colorSet->GetPlayerColor(selitem_Get()->GetCurPlayer()));
+		primitives_PaintRect16(surface, &rect, colorset_Get()->GetPlayerColor(selitem_Get()->GetCurPlayer()));
 	else
 	{
 		RECT tmp=rect;
@@ -3295,9 +3295,9 @@ ControlPanelWindow::HappinessRedisplay(aui_Surface *surface,RECT &rect,void *coo
 		float width = (float)(rect.right-rect.left);
 
 		Pixel16 colors[3]={
-							g_colorSet->GetColor(COLOR_RED),
-							g_colorSet->GetColor(COLOR_YELLOW),
-							g_colorSet->GetColor(COLOR_GREEN)
+							colorset_Get()->GetColor(COLOR_RED),
+							colorset_Get()->GetColor(COLOR_YELLOW),
+							colorset_Get()->GetColor(COLOR_GREEN)
 						  };
 
 		for (uint32 i=0;i<3;i++)
@@ -3772,7 +3772,7 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 			case CP_TAB_MSGLOG:
 				ctp2_Static *tabLabel;
 				tabLabel = (static_cast<ctp2_Static*>(aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.MessageTab.TabButton.Label")));
-				tabLabel->SetTextColor(g_colorSet->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
+				tabLabel->SetTextColor(colorset_Get()->GetColorRef(COLOR_BUTTON_TEXT_PLAIN));
 				tabLabel->ShouldDraw(TRUE);
 				break;
 		}
@@ -3813,7 +3813,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerBeginProgress(sint32 currentPlayer)
 
 		Assert(1 || g_theProgressWindow);
 		if (g_theProgressWindow)
-			g_theProgressWindow->SetBarColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(currentPlayer)));
+			g_theProgressWindow->SetBarColor(colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(currentPlayer)));
 	}
 
 

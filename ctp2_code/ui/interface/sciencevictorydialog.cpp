@@ -36,7 +36,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/citydata.h"
 #include "robot/aibackdoor/civarchive.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
 #include "ui/aui_ctp2/ctp2_listitem.h"
@@ -441,7 +441,7 @@ AUI_ERRCODE ScienceVictoryDialog::StatusBarActionCallback(ctp2_Static *control,
 		percentComplete);
 
 	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
-		g_colorSet->GetColor(COLOR_GREEN), 0));
+		colorset_Get()->GetColor(COLOR_GREEN), 0));
 }
 
 

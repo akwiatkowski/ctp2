@@ -11,7 +11,7 @@
 #include "gs/gameobj/Player.h"
 #include "ui/aui_ctp2/SelItem.h"
 #include "gs/database/StrDB.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
@@ -44,10 +44,10 @@ template <class type> COLORREF ComparisonColor(type left, type right)
 	static const sint32 GREATER_THAN_CHARACTER = 2;
 
 	if(left < right)
-		return(g_colorSet->GetColorRef(COLOR_RED));
+		return(colorset_Get()->GetColorRef(COLOR_RED));
 	if(right < left)
-		return(g_colorSet->GetColorRef(COLOR_DARK_GREEN));
-	return(g_colorSet->GetColorRef(COLOR_BLACK));
+		return(colorset_Get()->GetColorRef(COLOR_DARK_GREEN));
+	return(colorset_Get()->GetColorRef(COLOR_BLACK));
 }
 
 template <class type> COLORREF ComparisonColorOpposite(type left, type right)
@@ -58,10 +58,10 @@ template <class type> COLORREF ComparisonColorOpposite(type left, type right)
 	static const sint32 GREATER_THAN_CHARACTER = 2;
 
 	if(left > right)
-		return(g_colorSet->GetColorRef(COLOR_RED));
+		return(colorset_Get()->GetColorRef(COLOR_RED));
 	if(right > left)
-		return(g_colorSet->GetColorRef(COLOR_DARK_GREEN));
-	return(g_colorSet->GetColorRef(COLOR_BLACK));
+		return(colorset_Get()->GetColorRef(COLOR_DARK_GREEN));
+	return(colorset_Get()->GetColorRef(COLOR_BLACK));
 }
 
 GovernmentTab::GovernmentTab(MBCHAR *ldlBlock) :

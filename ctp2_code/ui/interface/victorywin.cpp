@@ -112,7 +112,7 @@
 #include "ctp/civapp.h"
 #include "gs/gameobj/Civilisation.h"
 #include "gs/gameobj/CivilisationData.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "IconRecord.h"
 #include "ctp/ctp2_rsrc/resource.h"
 #include "ui/aui_ctp2/thumbnailmap.h"
@@ -999,7 +999,7 @@ sint32 victorywin_LoadGraphData( void )
 		{
 
 			if (!myData)
-				color = (sint32)g_colorSet->ComputePlayerColor(i);
+				color = (sint32)colorset_Get()->ComputePlayerColor(i);
 			else color = myData[lineIndex++].color;
 
 			p = player_Get(i);
@@ -1020,7 +1020,7 @@ sint32 victorywin_LoadGraphData( void )
 	while(walk.IsValid()) {
 
 		if (!myData)
-			color = (sint32)g_colorSet->ComputePlayerColor(walk.GetObj()->GetOwner());
+			color = (sint32)colorset_Get()->ComputePlayerColor(walk.GetObj()->GetOwner());
 		else color = myData[lineIndex++].color;
 
 		p = walk.GetObj();

@@ -40,7 +40,7 @@
 #include "ui/aui_common/aui_switch.h"
 #include "BuildingRecord.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"
@@ -481,7 +481,7 @@ AUI_ERRCODE ScienceManagementDialog::ColorBoxActionCallback(ctp2_Static *control
 	colorRect.bottom	-= 1;
 
 	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
-		g_colorSet->GetPlayerColor(reinterpret_cast<intptr_t>(cookie)), 0));
+		colorset_Get()->GetPlayerColor(reinterpret_cast<intptr_t>(cookie)), 0));
 }
 
 AUI_ERRCODE ScienceManagementDialog::ColorHeaderActionCallback(aui_Switch *control,
@@ -506,7 +506,7 @@ AUI_ERRCODE ScienceManagementDialog::ColorHeaderActionCallback(aui_Switch *contr
 		return(AUI_ERRCODE_OK);
 
 	return(c3ui_Get()->TheBlitter()->ColorBlt16(surface, &colorRect,
-		g_colorSet->GetPlayerColor(index), 0));
+		colorset_Get()->GetPlayerColor(index), 0));
 }
 
 sint32 ScienceManagementDialog::CompareAdvance(ctp2_ListItem *item1,

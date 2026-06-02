@@ -5,7 +5,7 @@
 #include "ui/aui_common/aui_control.h"
 #include "ctp/ctp2_utils/c3cmdline.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"       // g_colorSet
+#include "gfx/gfx_utils/colorset.h"       // colorset_Get()
 #include "ui/aui_ctp2/pattern.h"
 #include "ui/aui_utils/primitives.h"
 #include "ui/aui_ctp2/textbox.h"
@@ -88,7 +88,7 @@ void DebugWindow::AddText(MBCHAR *text)
 
 
 	if (m_textBox)
-		m_textBox->AppendText( text , g_colorSet->GetColorRef(COLOR_BLACK),
+		m_textBox->AppendText( text , colorset_Get()->GetColorRef(COLOR_BLACK),
             FALSE, FALSE);
 }
 
@@ -104,7 +104,7 @@ void DebugWindow::AddText(const uint32 m, MBCHAR *text)
     if (m & m_debug_mask) {
 
     	if (m_textBox)
-	    	m_textBox->AppendText( text, g_colorSet->GetColorRef(COLOR_BLACK),
+	    	m_textBox->AppendText( text, colorset_Get()->GetColorRef(COLOR_BLACK),
             FALSE, FALSE);
     }
 }
@@ -134,7 +134,7 @@ void DebugWindow::AddText(const char *err, ...)
 	    va_end(list) ;
 
        	if (m_textBox) {
-	    	m_textBox->AppendText(str, g_colorSet->GetColorRef(COLOR_BLACK),
+	    	m_textBox->AppendText(str, colorset_Get()->GetColorRef(COLOR_BLACK),
             FALSE, FALSE);
         }
     }

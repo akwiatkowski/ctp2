@@ -53,7 +53,7 @@
 #include "ui/aui_ctp2/c3windows.h"
 
 #include "gfx/tilesys/tiledmap.h"                   // tiledmap_Get()
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/aui_ctp2/SelItem.h"                    // selitem_Get()
 #include "gs/gameobj/Player.h"                     // player_Get
 #include "gs/utility/UnitDynArr.h"

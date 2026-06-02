@@ -68,7 +68,7 @@
 #include "gs/events/GameEventUser.h"
 #include "gs/gameobj/Events.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gfx/gfx_utils/gfx_options.h"        // graphicsoptions_Get()
 #include "gfx/tilesys/tiledmap.h"           // tiledmap_Get()->ColorMagnitudeToRGB()
 
@@ -943,9 +943,9 @@ AUI_ERRCODE ArmyManagerWindow::DrawHealthCallbackInArmy(ctp2_Static *control, au
 		sint32 const curhp		= static_cast<sint32>(s_armyWindow->m_inArmy[(intptr_t)cookie].GetHP());
 		sint32 const width		= rect.right - rect.left;
 		sint32 const hpwidth	= width * curhp / maxhp;
-		Pixel16 drawColor=(	hpwidth > (width/2)?g_colorSet->GetColor(COLOR_GREEN):
-							hpwidth > (width/4)?g_colorSet->GetColor(COLOR_YELLOW):
-							g_colorSet->GetColor(COLOR_RED));
+		Pixel16 drawColor=(	hpwidth > (width/2)?colorset_Get()->GetColor(COLOR_GREEN):
+							hpwidth > (width/4)?colorset_Get()->GetColor(COLOR_YELLOW):
+							colorset_Get()->GetColor(COLOR_RED));
 
 		primitives_DrawLine16(surface, rect.left, rect.top, rect.left+hpwidth, rect.top, drawColor);
 		primitives_DrawLine16(surface, rect.left, rect.bottom, rect.left+hpwidth, rect.bottom, drawColor);
@@ -962,9 +962,9 @@ AUI_ERRCODE ArmyManagerWindow::DrawHealthCallbackOutOfArmy(ctp2_Static *control,
 		sint32 const curhp		= static_cast<sint32>(s_armyWindow->m_outOfArmy[(intptr_t)cookie].GetHP());
 		sint32 const width		= rect.right - rect.left;
 		sint32 const hpwidth	= width * curhp / maxhp;
-		Pixel16 drawColor=(	hpwidth > (width/2)?g_colorSet->GetColor(COLOR_GREEN):
-							hpwidth > (width/4)?g_colorSet->GetColor(COLOR_YELLOW):
-							g_colorSet->GetColor(COLOR_RED));
+		Pixel16 drawColor=(	hpwidth > (width/2)?colorset_Get()->GetColor(COLOR_GREEN):
+							hpwidth > (width/4)?colorset_Get()->GetColor(COLOR_YELLOW):
+							colorset_Get()->GetColor(COLOR_RED));
 
 		primitives_DrawLine16(surface, rect.left, rect.top, rect.left+hpwidth, rect.top, drawColor);
 		primitives_DrawLine16(surface, rect.left, rect.bottom, rect.left+hpwidth, rect.bottom, drawColor);

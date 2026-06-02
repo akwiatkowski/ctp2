@@ -55,7 +55,7 @@
 #include "ui/aui_ctp2/SelItem.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_common/aui_blitter.h"
 
 #include "gs/events/GameEventManager.h"
@@ -454,7 +454,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 							good->SetText(g_theResourceDB->Get(g)->GetNameText());
 							if (curDestCity.m_id != 0)
                             {
-								good->SetTextColor(g_colorSet->GetColorRef(COLOR_RED));
+								good->SetTextColor(colorset_Get()->GetColorRef(COLOR_RED));
 							}
 						}
 
@@ -992,8 +992,8 @@ AUI_ERRCODE TradeManager::DrawNationColumn(ctp2_Static *control,
 										   void *cookie)
 {
 	sint32 player = (intptr_t)cookie;
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 	rect.left += 2;
 	rect.top += 2;
@@ -1006,7 +1006,7 @@ AUI_ERRCODE TradeManager::DrawNationColumn(ctp2_Static *control,
 	rect.right -= 8;
 	rect.bottom -= 2;
 
-	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE TradeManager::DrawPiracyColumn(ctp2_Static *control,
@@ -1025,7 +1025,7 @@ AUI_ERRCODE TradeManager::DrawPiracyColumn(ctp2_Static *control,
 	rect.bottom -= 2;
 
 	if(route->IsBeingPirated()) {
-		color = g_colorSet->GetPlayerColor(route->GetPiratingArmy().GetOwner());
+		color = colorset_Get()->GetPlayerColor(route->GetPiratingArmy().GetOwner());
 	}
 	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, color, 0);
 }

@@ -99,7 +99,7 @@
 
 #include "gs/database/StrDB.h"
 #include "ConstRecord.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 #include "gs/gameobj/BldQue.h"
 #include "gs/gameobj/Gold.h"
@@ -757,10 +757,10 @@ void CityWindow::Update()
 		if (m_cityData->GetGrowthRate() >= 0) {
 			snprintf(buf, sizeof(buf), "+%d", m_cityData->GetGrowthRate());
 			m_growthDelta->SetText(buf);
-			m_growthDelta->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
+			m_growthDelta->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
 		} else {
 			m_growthDelta->SetText(g_theStringDB->GetNameStr("str_ldl_Starving"));
-			m_growthDelta->SetTextColor(g_colorSet->GetColorRef(COLOR_RED));
+			m_growthDelta->SetTextColor(colorset_Get()->GetColorRef(COLOR_RED));
 		}
 	}
 
@@ -780,8 +780,8 @@ void CityWindow::Update()
 		snprintf(buf, sizeof(buf), "%d", convertedGold);
 		m_conversionLossValue->SetText(buf);
 		if (convertedGold > 0 && m_cityData->GetConvertedTo() > -1) {
-			COLOR color = g_colorSet->ComputePlayerColor(m_cityData->GetConvertedTo());
-			m_conversionLossValue->SetTextColor(g_colorSet->GetColorRef(color));
+			COLOR color = colorset_Get()->ComputePlayerColor(m_cityData->GetConvertedTo());
+			m_conversionLossValue->SetTextColor(colorset_Get()->GetColorRef(color));
 		} else
 			m_conversionLossValue->SetTextColor(colorNorm);
 	}
@@ -791,8 +791,8 @@ void CityWindow::Update()
 		snprintf(buf, sizeof(buf), "%d", franchise);
 		m_franchiseLossValue->SetText(buf);
 		if (franchise > 0 && m_cityData->GetFranchiseOwner() > -1) {
-			COLOR color = g_colorSet->ComputePlayerColor(m_cityData->GetFranchiseOwner());
-			m_franchiseLossValue->SetTextColor(g_colorSet->GetColorRef(color));
+			COLOR color = colorset_Get()->ComputePlayerColor(m_cityData->GetFranchiseOwner());
+			m_franchiseLossValue->SetTextColor(colorset_Get()->GetColorRef(color));
 		} else
 			m_franchiseLossValue->SetTextColor(colorNorm);
 	}
@@ -2396,7 +2396,7 @@ void CityWindow::FillPollutionList()
 	if(!m_pollutionList) return;
 
 	const COLORREF colorNorm = RGB(50,50,50);
-	const COLORREF colorCritical = g_colorSet->GetColorRef(COLOR_RED);
+	const COLORREF colorCritical = colorset_Get()->GetColorRef(COLOR_RED);
 
 	ctp2_Static *pollutionLabel2 = (ctp2_Static *)aui_Ldl::GetObject(s_cityWindowBlock, "StatisticsSection.PollutionTotal");
 	if(pollutionLabel2) {

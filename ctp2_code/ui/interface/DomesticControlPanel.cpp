@@ -51,7 +51,7 @@
 #include "ui/aui_ctp2/SelItem.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gs/gameobj/pollution.h"
 #include "GovernmentRecord.h"
 #include "ui/aui_common/aui_bitmapfont.h"
@@ -90,15 +90,15 @@ AUI_ERRCODE domesticcontrolpanel_HappinessDrawCallback(ctp2_Static *control,
 	tmp.bottom -= 5;
 
 	if(total<=0.0f)
-		primitives_PaintRect16(surface, &tmp, g_colorSet->GetColor(COLOR_YELLOW));
+		primitives_PaintRect16(surface, &tmp, colorset_Get()->GetColor(COLOR_YELLOW));
 	else
 	{
 		float width = (float)(tmp.right-tmp.left);
 
 		Pixel16 colors[3]={
-		                    g_colorSet->GetColor(COLOR_RED),
-		                    g_colorSet->GetColor(COLOR_YELLOW),
-		                    g_colorSet->GetColor(COLOR_GREEN)
+		                    colorset_Get()->GetColor(COLOR_RED),
+		                    colorset_Get()->GetColor(COLOR_YELLOW),
+		                    colorset_Get()->GetColor(COLOR_GREEN)
 		                  };
 
 		for (uint32 i=0;i<3;i++)
@@ -132,14 +132,14 @@ AUI_ERRCODE domesticcontrolpanel_PollutionDrawCallback(ctp2_Static *control,
 	tmp.bottom -= 5;
 
 	sint32 width = static_cast<sint32>((total * (tmp.right - tmp.left)) / nextEvent);
-	primitives_PaintRect16(surface, &tmp, g_colorSet->GetColor(COLOR_BLACK));
+	primitives_PaintRect16(surface, &tmp, colorset_Get()->GetColor(COLOR_BLACK));
 
 	if(width > 0) {
 		tmp.right = tmp.left + width;
 		if(tmp.right > rect.right)
 			tmp.right = rect.right;
 
-		primitives_PaintRect16(surface, &tmp, g_colorSet->GetColor(COLOR_RED));
+		primitives_PaintRect16(surface, &tmp, colorset_Get()->GetColor(COLOR_RED));
 	}
 
 	return AUI_ERRCODE_OK;

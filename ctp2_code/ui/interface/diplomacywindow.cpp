@@ -57,7 +57,7 @@
 #include "gs/gameobj/Events.h"
 
 #include "gfx/gfx_utils/pixelutils.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 
 #include "DiplomacyProposalRecord.h"
 #include "DiplomacyThreatRecord.h"
@@ -1986,8 +1986,8 @@ void DiplomacyWindow::Civ(aui_Control *control, uint32 action, uint32 data, void
 AUI_ERRCODE DiplomacyWindow::DrawCivColor(ctp2_Static *control, aui_Surface *surface, RECT &rect, void *cookie )
 {
 	sint32 player = (intptr_t)cookie;
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	rect.left += 2;
@@ -1995,7 +1995,7 @@ AUI_ERRCODE DiplomacyWindow::DrawCivColor(ctp2_Static *control, aui_Surface *sur
 	rect.right -= 2;
 	rect.bottom -= 2;
 
-	return g_ui->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return g_ui->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 void DiplomacyWindow::Tone(aui_Control *control, uint32 action, uint32 data, void *cookie)

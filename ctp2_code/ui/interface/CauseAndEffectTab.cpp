@@ -49,7 +49,7 @@
 #include "gs/gameobj/buildingutil.h"
 #include "ctp/ctp2_utils/c3math.h"                     // AsPercentage
 #include "ui/aui_ctp2/c3slider.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_spinner.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
@@ -1151,15 +1151,15 @@ AUI_ERRCODE CauseAndEffectTab::HappinessBarActionCallback(ctp2_Static *control,
 	barRect.bottom -= 2;
 
 	if(total <= 0.0f)
-		primitives_PaintRect16(surface, &barRect, g_colorSet->GetColor(COLOR_YELLOW));
+		primitives_PaintRect16(surface, &barRect, colorset_Get()->GetColor(COLOR_YELLOW));
 	else {
 
 		float width = static_cast<float>(barRect.right - barRect.left);
 
 		Pixel16 colors[3] = {
-			g_colorSet->GetColor(COLOR_RED),
-			g_colorSet->GetColor(COLOR_YELLOW),
-			g_colorSet->GetColor(COLOR_GREEN)
+			colorset_Get()->GetColor(COLOR_RED),
+			colorset_Get()->GetColor(COLOR_YELLOW),
+			colorset_Get()->GetColor(COLOR_GREEN)
 		};
 
 

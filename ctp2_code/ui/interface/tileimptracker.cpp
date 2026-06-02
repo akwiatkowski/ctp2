@@ -48,7 +48,7 @@
 #include "gfx/tilesys/maputils.h"
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "gs/database/profileDB.h"          // profiledb_Get()
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainRecord.h"
@@ -387,7 +387,7 @@ void tileimptracker_Cleanup()
 //              sint32 x:             The x coordinate
 //              sint32 y:             The y coordinate
 //
-// Globals    : g_colorSet: The color set
+// Globals    : colorset_Get(): The color set
 //
 // Returns    : Returns always AUI_ERRCODE_OK.
 //
@@ -404,7 +404,7 @@ AUI_ERRCODE TileimpTrackerWindow::DrawThis(aui_Surface *surface, sint32 x, sint3
 
 	C3Window::DrawThis(surface,x,y);
 
-	primitives_FrameRect16(surface, &rect, g_colorSet->GetColor(s_trackerBorderColor));
+	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(s_trackerBorderColor));
 
 	return AUI_ERRCODE_OK;
 }

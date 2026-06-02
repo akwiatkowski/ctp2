@@ -60,7 +60,7 @@
 #include "ui/interface/custommapscreen.h"
 
 #include "ui/aui_ctp2/keypress.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 
 
@@ -536,18 +536,18 @@ void custommapscreen_updateWindow()
 {
 	if (profiledb_Get()->IsRandomCustomMap())
 	{
-		s_wet->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_dry->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_warm->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_cold->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_ocean->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_land->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_island->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_continent->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_homo->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_diverse->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_poor->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
-		s_rich->SetTextColor(g_colorSet->GetColorRef(COLOR_GRAY));
+		s_wet->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_dry->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_warm->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_cold->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_ocean->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_land->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_island->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_continent->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_homo->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_diverse->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_poor->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
+		s_rich->SetTextColor(colorset_Get()->GetColorRef(COLOR_GRAY));
 
 		s_wetdry->HideChildren();
 		s_warmcold->HideChildren();
@@ -585,18 +585,18 @@ void custommapscreen_updateWindow()
 	}
 	else
 	{
-		s_wet->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_dry->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_warm->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_cold->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_ocean->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_land->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_island->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_continent->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_homo->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_diverse->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_poor->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
-		s_rich->SetTextColor(g_colorSet->GetColorRef(COLOR_BLACK));
+		s_wet->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_dry->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_warm->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_cold->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_ocean->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_land->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_island->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_continent->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_homo->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_diverse->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_poor->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
+		s_rich->SetTextColor(colorset_Get()->GetColorRef(COLOR_BLACK));
 
 		s_wetdry->ShowChildren();
 		s_warmcold->ShowChildren();

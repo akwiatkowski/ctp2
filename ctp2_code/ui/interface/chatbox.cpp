@@ -58,7 +58,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "ui/interface/radarwindow.h"
 #include "ui/aui_ctp2/ctp2_Window.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"           // soundmgr_Get()
 #include "gs/gameobj/XY_Coordinates.h"
@@ -143,8 +143,8 @@ void ChatBox::SetActive(BOOL active)
 
 void ChatBox::AddLine(sint32 playerNum, MBCHAR *text)
 {
-	COLOR		color = g_colorSet->ComputePlayerColor(playerNum);
-	COLORREF	colorRef = g_colorSet->GetColorRef(color);
+	COLOR		color = colorset_Get()->ComputePlayerColor(playerNum);
+	COLORREF	colorRef = colorset_Get()->GetColorRef(color);
 
 	MBCHAR			coloredText[_MAX_PATH];
 
@@ -624,7 +624,7 @@ AUI_ERRCODE ChatWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 	if (m_pattern)
 		m_pattern->Draw(surface, &rect);
 
-	primitives_FrameRect16(surface, &rect, g_colorSet->GetColor(COLOR_GREEN));
+	primitives_FrameRect16(surface, &rect, colorset_Get()->GetColor(COLOR_GREEN));
 
 	m_dirtyList->AddRect( &rect );
 

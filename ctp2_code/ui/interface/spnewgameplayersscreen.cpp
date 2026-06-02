@@ -47,7 +47,7 @@
 #include "ui/aui_ctp2/c3_static.h"
 #include "ui/aui_ctp2/c3slider.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"                   // g_colorSet
+#include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/aui_ctp2/ctp2_spinner.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 #include "ui/aui_ctp2/keypress.h"
@@ -272,7 +272,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 
 		snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerText");
 		s_player = new c3_Static(&errcode, aui_UniqueId(), controlBlock);
-		s_player->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(profiledb_Get()->GetPlayerIndex())));
+		s_player->SetTextColor(colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(profiledb_Get()->GetPlayerIndex())));
 	//	s_player->SetTextShadow(true);
 	//	s_player->SetTextShadowColor(RGB(0,0,0));
 		s_spNewGamePlayersScreen->AddControl(s_player);
@@ -451,6 +451,6 @@ void spnewgameplayersscreen_PlayerSpinner(aui_Control *control, uint32 action, u
 
 	if(!s_player_spinner) return;
 	if(!s_player) return;
-	s_player->SetTextColor(g_colorSet->GetColorRef(g_colorSet->ComputePlayerColor(s_player_spinner->GetValueX())));
+	s_player->SetTextColor(colorset_Get()->GetColorRef(colorset_Get()->ComputePlayerColor(s_player_spinner->GetValueX())));
 	s_player->ShouldDraw();
 }

@@ -5,7 +5,7 @@
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_surface.h"
 #include "ui/aui_ctp2/c3ui.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/utility/Globals.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_utils/primitives.h"
@@ -67,7 +67,7 @@ void Splash::AddText(MBCHAR const * text)
 		primitives_DrawText(c3ui_Get()->Secondary(),
 		                    m_textX, m_textY,
 		                    text,
-		                    g_colorSet->GetColorRef(COLOR_WHITE),
+		                    colorset_Get()->GetColorRef(COLOR_WHITE),
 		                    true
 		                   );
 
@@ -92,7 +92,7 @@ void Splash::AddTextNL(MBCHAR const * text)
 		primitives_DrawText(surface,
 		                    m_textX + 325, m_textY,
 		                    text,
-		                    g_colorSet->GetColorRef(COLOR_WHITE),
+		                    colorset_Get()->GetColorRef(COLOR_WHITE),
 		                    true
 		                   );
 
@@ -121,7 +121,7 @@ void Splash::AddHilitedTextNL(MBCHAR const *text)
 		primitives_DrawText(surface,
 		                    m_textX, m_textY,
 		                    text,
-		                    g_colorSet->GetColorRef(COLOR_YELLOW),
+		                    colorset_Get()->GetColorRef(COLOR_YELLOW),
 		                    true
 		                   );
 

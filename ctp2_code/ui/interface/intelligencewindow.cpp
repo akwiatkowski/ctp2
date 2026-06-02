@@ -41,7 +41,7 @@
 #include "ui/aui_common/aui_tipwindow.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/Civilisation.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_hypertextbox.h"
 #include "ui/aui_ctp2/ctp2_listitem.h"
@@ -369,8 +369,8 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerColor(ctp2_Static *control,
 												 RECT &rect,
 												 void *cookie)
 {
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	sint32 player = (intptr_t)cookie;
@@ -379,7 +379,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerColor(ctp2_Static *control,
 	drawRect.bottom -= 2;
 	drawRect.left += 2;
 
-	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE IntelligenceWindow::DrawPlayerFlag(ctp2_Static *control,
@@ -387,8 +387,8 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerFlag(ctp2_Static *control,
 												 RECT &rect,
 												 void *cookie)
 {
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	sint32 player = (intptr_t)cookie;
@@ -404,7 +404,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerFlag(ctp2_Static *control,
 	rect.right -= 2;
 	rect.bottom -= 8;
 
-	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 sint32 IntelligenceWindow::GetRegardThreshold(sint32 ofPlayer, sint32 forPlayer)

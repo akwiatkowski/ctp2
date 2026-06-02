@@ -84,7 +84,7 @@
 
 #include "ai/mapanalysis/mapanalysis.h"
 #include "ui/interface/intelligencewindow.h"
-#include "gfx/gfx_utils/colorset.h"           // g_colorSet
+#include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_common/aui_blitter.h"
 #include "ui/aui_common/aui_stringtable.h"
 #include "ai/diplomacy/AgreementMatrix.h"
@@ -644,8 +644,8 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerColor(ctp2_Static *control,
 {
 
 	sint32 player = (intptr_t)cookie;
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	RECT drawRect = rect;
@@ -653,7 +653,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerColor(ctp2_Static *control,
 	drawRect.bottom -= 2;
 	drawRect.left += 2;
 
-	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &drawRect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
@@ -662,8 +662,8 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
 											 void *cookie)
 {
 	sint32 player = (intptr_t)cookie;
-	Assert(g_colorSet);
-	if(!g_colorSet)
+	Assert(colorset_Get());
+	if(!colorset_Get())
 		return AUI_ERRCODE_INVALIDPARAM;
 	rect.left += 2;
 	rect.top += 2;
@@ -676,7 +676,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerFlag(ctp2_Static *control,
 	rect.right -= 2;
 	rect.bottom -= 8;
 
-	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, g_colorSet->GetPlayerColor(player), 0);
+	return c3ui_Get()->TheBlitter()->ColorBlt16(surface, &rect, colorset_Get()->GetPlayerColor(player), 0);
 }
 
 void DiplomacyDetails::SelectItem(aui_Control *control, uint32 action, uint32 data, void *cookie)

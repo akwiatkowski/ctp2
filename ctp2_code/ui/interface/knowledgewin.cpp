@@ -102,7 +102,7 @@ extern SelectedItem			*selitem_Get();
 extern DebugWindow			*g_debugWindow;
 extern StringDB				*g_theStringDB;
 extern GreatLibraryWindow	*g_greatLibrary;
-extern ColorSet				*g_colorSet;
+extern ColorSet				*colorset_Get();
 
 extern aui_Surface			*g_sharedSurface;
 
@@ -582,7 +582,7 @@ sint32 knowledgewin_UpdateData( sint32 flag )
 				s_playerText[x]->SetText( str );
 				s_playerText[x]->Show();
 				s_playerFlag[x]->SetMapIcon( MAPICON_FLAG );
-				s_playerFlag[x]->SetColor( g_colorSet->ComputePlayerColor(i) );
+				s_playerFlag[x]->SetColor( colorset_Get()->ComputePlayerColor(i) );
 				s_playerSwitch[x] = i;
 				x++;
 			}
@@ -1443,7 +1443,7 @@ void AdvanceListItem::Update(void)
 
 	subIcon = (c3_Icon*)GetChildByIndex(0);
 	if ( player_Get(curPlayer)->HasAdvance(m_index) ) {
-		subIcon->SetColor( g_colorSet->ComputePlayerColor(curPlayer) );
+		subIcon->SetColor( colorset_Get()->ComputePlayerColor(curPlayer) );
 		subIcon->SetMapIcon( MAPICON_FLAG );
 	}
 	else {
@@ -1468,7 +1468,7 @@ void AdvanceListItem::Update(void)
 					x++;
 
 					if ( player_Get(i)->HasAdvance(m_index) ) {
-						subIcon->SetColor( g_colorSet->ComputePlayerColor(i) );
+						subIcon->SetColor( colorset_Get()->ComputePlayerColor(i) );
 						subIcon->SetMapIcon( MAPICON_FLAG );
 					}
 

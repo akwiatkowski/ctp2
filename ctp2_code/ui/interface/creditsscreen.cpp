@@ -51,7 +51,7 @@
 #include "sound/soundmanager.h"           // soundmgr_Get()
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/interface/MessageBoxDialog.h"
-#include "gfx/gfx_utils/colorset.h"               // g_colorSet
+#include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 #include "gs/database/StrDB.h"					// g_theStringDB
 
 #include "ui/ldl/ldl_data.hpp"
@@ -1055,7 +1055,7 @@ AUI_ERRCODE c3_CreditsText::DrawThis(aui_Surface *pSurface, sint32 x, sint32 y)
 			SetRect(&rect, x, initialY+currY, x+width, initialY+currY+pCurrFont->GetMaxHeight());
 
 			pCurrFont->DrawString(pSurface, &rect, &rect, pText, 0,
-								  g_colorSet->GetColorRef(COLOR_WHITE), 0);
+								  colorset_Get()->GetColorRef(COLOR_WHITE), 0);
 
 			currY += height + (height / 8);
 			pCurrLine = pCurrLine->m_pNext;

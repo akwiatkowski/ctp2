@@ -936,12 +936,12 @@ CTP2Combat::CTP2Combat
 		combat_print(k_COMBAT_DEBUG_VERBOSE, "defender[%d]: %lx @ %lfHP, army=%lx\n", i, defenders[i].m_id, defenders[i].GetHP(), defenders[i].GetArmy().m_id);
 	}
 
-	Assert(g_player[m_attacker]);
-	Assert(g_player[m_defender]);
-	if (g_player[m_attacker] &&
-		g_player[m_defender] &&
-		g_player[m_attacker]->IsRobot() &&
-		g_player[m_defender]->IsRobot())
+	Assert(player_Get(m_attacker));
+	Assert(player_Get(m_defender));
+	if (player_Get(m_attacker) &&
+		player_Get(m_defender) &&
+		player_Get(m_attacker)->IsRobot() &&
+		player_Get(m_defender)->IsRobot())
 		return;
 
 	m_attackers.StartRound();

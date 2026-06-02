@@ -76,7 +76,7 @@
 #include "gs/gameobj/Diplomacy_Log.h"
 #include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"             // player_Get()
 #include "gs/core/audio_types.h"
 #include "gs/core/audio_observer.h"
 #include "gs/database/StrDB.h"              // g_theStringDB
@@ -688,17 +688,17 @@ void ProfileDB::SetDifficulty(uint32 x)
 	if(x >= 0 && x < 7)
 	{
 		m_difficulty = x;
-		if (g_player)
+		if (player_arr_Get())
 		{
 			for (sint32 p = 0; p < k_MAX_PLAYERS; p++)
 			{
-				if (g_player[p])
+				if (player_Get(p))
 				{
-					delete g_player[p]->m_difficulty;
-					g_player[p]->m_difficulty =
+					delete player_Get(p)->m_difficulty;
+					player_Get(p)->m_difficulty =
 					    new Difficulty(x,
 					                   p,
-					                   !g_player[p]->IsRobot()
+					                   !player_Get(p)->IsRobot()
 					                  );
 				}
 			}

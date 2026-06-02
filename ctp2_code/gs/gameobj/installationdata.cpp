@@ -51,7 +51,6 @@
 #include "gs/gameobj/terrainutil.h"
 
 extern World *g_theWorld;
-extern Player **g_player;
 
 InstallationData::InstallationData(ID id,
 								   sint32 owner,
@@ -320,22 +319,22 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 									  m_id, m_owner, toOwner));
 	}
 
-	if(m_owner >= 0 && g_player[m_owner] != NULL)
+	if(m_owner >= 0 && player_Get(m_owner) != NULL)
 	{
-		g_player[m_owner]->RemoveInstallationReferences(Installation(m_id));
+		player_Get(m_owner)->RemoveInstallationReferences(Installation(m_id));
 
 		double visionRange = terrainutil_GetVisionRange(m_type, m_point);
-		g_player[m_owner]->m_vision->RemoveVisible(m_point, visionRange);
+		player_Get(m_owner)->m_vision->RemoveVisible(m_point, visionRange);
 
 		if(visionRange > 0)
 		{
-			g_player[m_owner]->RemoveUnitVision(m_point, visionRange);
+			player_Get(m_owner)->RemoveUnitVision(m_point, visionRange);
 		}
 	}
 
 	if(toOwner >= 0)
 	{
-		g_player[toOwner]->AddInstallation(Installation(m_id));
+		player_Get(toOwner)->AddInstallation(Installation(m_id));
 	}
 
 	m_owner = toOwner;

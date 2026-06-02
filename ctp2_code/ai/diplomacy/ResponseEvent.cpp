@@ -79,7 +79,7 @@ STDEHANDLER(ResponseEvent)
 	if (!args->GetPlayer(1, receiver))
 		return GEV_HD_Continue;
 
-	if (!g_player[sender] || !g_player[receiver])
+	if (!player_Get(sender) || !player_Get(receiver))
 		return GEV_HD_Continue;
 
 	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
@@ -113,7 +113,7 @@ STDEHANDLER(ResponseEvent)
 	// If AI or network are involved
 	if(
 	   (
-	    (           g_player[sender]->IsRobot()
+	    (           player_Get(sender)->IsRobot()
 	       && (    !g_network.IsActive()
 	            ||  g_network.IsLocalPlayer(sender)
 	          )
@@ -133,7 +133,7 @@ STDEHANDLER(ResponseEvent)
 	// If AI is involved
 	if(
 	   (
-	    (           g_player[receiver]->IsRobot()
+	    (           player_Get(receiver)->IsRobot()
 	       && (    !g_network.IsActive()
 	            ||  g_network.IsLocalPlayer(receiver)
 	          )

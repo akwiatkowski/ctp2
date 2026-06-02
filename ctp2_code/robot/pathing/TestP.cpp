@@ -23,7 +23,6 @@ sint32 n;
 sint8 *dir_list;
 
 extern SelectedItem *g_selected_item;
-extern Player **g_player;
 extern void WhackScreen();
 
 Path good_path, bad_path;
@@ -96,7 +95,7 @@ sint32 is_broken_path;
 
    if (s_state == SELECT_TYPE_LOCAL_ARMY) {
 
-g_theTestPather->FindPath(*(g_player[s_player]->GetArmy(s_index)),
+g_theTestPather->FindPath(*(player_Get(s_player)->GetArmy(s_index)),
                           dest, good_path, is_broken_path, bad_path,
                           total_cost);
 

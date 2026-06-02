@@ -39,7 +39,6 @@
 extern World *g_theWorld;
 
 TradeAstar g_theTradeAstar;
-extern Player **g_player;
 
 bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
      float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry)
@@ -47,7 +46,7 @@ bool TradeAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
 	is_zoc = false;
 	entry = ASTAR_CAN_ENTER;
 
-	if (!g_player[m_owner]->IsExplored(pos))
+	if (!player_Get(m_owner)->IsExplored(pos))
 	{
 		cost = k_ASTAR_BIG;
 		entry = ASTAR_BLOCKED;

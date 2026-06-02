@@ -39,7 +39,6 @@
 #include "gs/gameobj/TerrImprove.h"
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/TradeRoute.h"
-#include "gs/gameobj/Player.h"              // g_player
 #include "AdvanceRecord.h"       // g_theAdvanceDB
 #include "WonderRecord.h"        // g_theWonderDB
 #include "gs/database/profileDB.h"           // g_theProfileDB
@@ -258,7 +257,7 @@ bool GameEventArgument::GetPlayer(sint32 &player) const
 	if(player < 0 || player >= k_MAX_PLAYERS)
 		return false;
 
-	if(!g_player[player])
+	if(!player_Get(player))
 		return false;
 
 	return true;
@@ -344,7 +343,7 @@ bool GameEventArgument::IsValid() const
 		case GEA_Player:
 		{
 			sint32 player = m_data.m_value;
-			return player == -1 || (player >= 0 && player < k_MAX_PLAYERS && g_player[player]);
+			return player == -1 || (player >= 0 && player < k_MAX_PLAYERS && player_Get(player));
 		}
 		case GEA_Direction:
 		{

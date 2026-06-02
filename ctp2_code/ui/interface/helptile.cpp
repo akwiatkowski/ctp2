@@ -226,8 +226,8 @@ void helptile_displayData(const MapPoint &p)
 	if(!g_tiledMap->GetLocalVision()->IsVisible(p)
 	&& !g_fog_toggle
 	&& !g_god
-	&& (g_player[g_selected_item->GetVisiblePlayer()]
-	&& !g_player[g_selected_item->GetVisiblePlayer()]->m_hasGlobalRadar)
+	&& (player_Get(g_selected_item->GetVisiblePlayer())
+	&& !player_Get(g_selected_item->GetVisiblePlayer())->m_hasGlobalRadar)
 	&& g_tiledMap->GetLocalVision()->GetLastSeen(p, ucell)
 	){
 		strcpy(myname, g_theStringDB->GetNameStr(g_theTerrainDB->Get(ucell.m_unseenCell->GetTerrainType())->GetName()));

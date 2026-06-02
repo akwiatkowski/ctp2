@@ -5,7 +5,6 @@
 
 #include "gs/gameobj/Player.h"
 
-extern Player **g_player;
 
 
 
@@ -24,7 +23,7 @@ void c3dialogs_PostForeignTradeBidDialog(sint32 player, Unit &fromCity, Unit &to
 								sint32 resource)
 {
 	ForeignTradeBidInfo			*info = new ForeignTradeBidInfo(player, fromCity,
-									toCity, resource);
+															toCity, resource);
 
 
 
@@ -49,8 +48,8 @@ void c3dialogs_ForeignTradeBidDialogCallback(MBCHAR const *text, sint32 accepted
 
 	if (accepted) {
 		sint32 price = atoi(text);
-		g_player[info->m_player]->SendTradeBid(info->m_fromCity, info->m_resource,
-													info->m_toCity, price);
+		player_Get(info->m_player)->SendTradeBid(info->m_fromCity, info->m_resource,
+												info->m_toCity, price);
 	}
 
 	delete info;

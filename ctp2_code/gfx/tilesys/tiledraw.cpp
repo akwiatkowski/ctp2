@@ -4699,7 +4699,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 	if (myOwner < 0)
 		return;
 
-	Player *visP = g_player[g_selected_item->GetVisiblePlayer()];
+	Player *visP = player_Get(g_selected_item->GetVisiblePlayer());
 	if (visP == NULL)
 		return;
 
@@ -4732,7 +4732,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 	//add city wall icons?
 	//bool HasCityWall = myCity.hasCityWall
 	//add Great Wall Icon?
-	// bool PlayerHasGreatWall = g_player->GethasGreatWall future function
+	// bool PlayerHasGreatWall = player_arr_Get()->GethasGreatWall future function
 
 	//end emod
 
@@ -4942,7 +4942,7 @@ void TiledMap::DrawChatText()
 					timeRect.bottom++;
 					AddDirtyRectToMix(timeRect);
 				} else {
-					snprintf(timebuf, sizeof(timebuf), "%s: %s", g_theStringDB->GetNameStr("NETWORK_CURRENT_PLAYER"), g_player[g_selected_item->GetCurPlayer()] && g_player[g_selected_item->GetCurPlayer()]->m_civilisation->m_id != 0 ? g_player[g_selected_item->GetCurPlayer()]->m_civilisation->GetLeaderName() : "---");
+					snprintf(timebuf, sizeof(timebuf), "%s: %s", g_theStringDB->GetNameStr("NETWORK_CURRENT_PLAYER"), player_Get(g_selected_item->GetCurPlayer()) && player_Get(g_selected_item->GetCurPlayer())->m_civilisation->m_id != 0 ? player_Get(g_selected_item->GetCurPlayer())->m_civilisation->GetLeaderName() : "---");
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);
 					OffsetRect(&timeRect, -1, -1);

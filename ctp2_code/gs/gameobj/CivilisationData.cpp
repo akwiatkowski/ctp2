@@ -186,14 +186,14 @@ bool cityNameIsUsedByPlayer(const char *strName, sint32 player)
 {
 
 
-	if(player < 0 || player >= k_MAX_PLAYERS || !g_player[player]) {
+	if(player < 0 || player >= k_MAX_PLAYERS || !player_Get(player)) {
 		Assert(false);
 		return false;
 	}
 
 	sint32 i;
-	for(i = 0; i < g_player[player]->m_all_cities->Num(); i++) {
-		if(stricmp(g_player[player]->m_all_cities->Access(i).CD()->GetName(), strName) == 0)
+	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
+		if(stricmp(player_Get(player)->m_all_cities->Access(i).CD()->GetName(), strName) == 0)
 			return true;
 	}
 	return false;

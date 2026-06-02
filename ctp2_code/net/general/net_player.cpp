@@ -15,8 +15,6 @@
 #include "ui/interface/MainControlPanel.h"
 #include "ui/interface/controlpanelwindow.h"
 
-extern Player** g_player;
-
 NetPlayer::NetPlayer(Player* player)
 {
 	m_player = player;
@@ -112,7 +110,7 @@ void NetPlayer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PULLLONG(pidx);
 
 	Assert(pidx < k_MAX_PLAYERS);
-	p = g_player[pidx];
+	p = player_Get(pidx);
 	Assert(p != NULL);
 	Assert(p->m_owner == pidx);
 

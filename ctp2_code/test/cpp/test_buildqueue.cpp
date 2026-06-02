@@ -47,13 +47,13 @@ struct BuildQueueFixture
         {
             stubPlayers[i] = nullptr;
         }
-        g_player = stubPlayers;
+        player_arr_Set(stubPlayers);
     }
 
     ~BuildQueueFixture()
     {
         delete[] stubPlayers;
-        g_player = nullptr;
+        player_arr_Set(nullptr);
     }
 };
 

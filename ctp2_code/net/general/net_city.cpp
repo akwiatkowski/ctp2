@@ -185,8 +185,8 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		NetUnit::UnpacketizeUnit(&buf[6], unitSize, unitData);
 
 		if(oldOwner != unitData->m_owner) {
-			g_player[oldOwner]->RemoveCityReferenceFromPlayer(uid, CAUSE_REMOVE_CITY_UNKNOWN, unitData->m_owner);
-			g_player[unitData->m_owner]->AddCityReferenceToPlayer(uid, CAUSE_NEW_CITY_UNKNOWN);
+			player_Get(oldOwner)->RemoveCityReferenceFromPlayer(uid, CAUSE_REMOVE_CITY_UNKNOWN, unitData->m_owner);
+			player_Get(unitData->m_owner)->AddCityReferenceToPlayer(uid, CAUSE_NEW_CITY_UNKNOWN);
 		}
 		unitData->m_city_data->m_owner = unitData->m_owner;
 

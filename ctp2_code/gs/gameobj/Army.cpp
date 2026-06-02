@@ -39,7 +39,7 @@
 #include "gs/gameobj/ArmyPool.h"       // g_theArmyPool
 #include "gs/gameobj/ArmyData.h"
 #include "gs/utility/Globals.h"
-#include "gs/gameobj/Player.h"         // g_player
+#include "gs/gameobj/Player.h"         // player_Get
 #include "gs/core/player_view.h"
 
 bool Army::IsValid() const
@@ -68,7 +68,7 @@ void Army::RemoveAllReferences()
 	Assert(Num() < 1);
 
 	if(GetOwner() >= 0 && GetData()->HasBeenAdded()) {
-		g_player[GetOwner()]->RemoveArmy(*this, GetRemoveCause(),
+		player_Get(GetOwner())->RemoveArmy(*this, GetRemoveCause(),
 										 GetKiller());
 	}
 	player_view::ArmyRemoved(GetOwner(), *this);

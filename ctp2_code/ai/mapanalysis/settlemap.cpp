@@ -270,7 +270,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 	sint32 settle_threshold = 0;
 	(void) Diplomat::GetDiplomat(playerId).GetCurrentStrategy().GetMinSettleScore(settle_threshold);
 
-	Player *player_ptr = g_player[playerId];
+	Player *player_ptr = player_Get(playerId);
 	Assert(player_ptr);
 	if(!player_ptr)
 		return;
@@ -499,7 +499,7 @@ void SettleMap::GetSettleTargets(const PLAYER_INDEX &playerId,
 	sint32 settle_threshold = 0;
 	(void) Diplomat::GetDiplomat(playerId).GetCurrentStrategy().GetMinSettleScore(settle_threshold);
 
-	Player *player_ptr = g_player[playerId];
+	Player *player_ptr = player_Get(playerId);
 	Assert(player_ptr);
 	if(!player_ptr)
 		return;

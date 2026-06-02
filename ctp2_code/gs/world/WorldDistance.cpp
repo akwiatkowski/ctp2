@@ -41,7 +41,6 @@
 #include "gs/gameobj/Happy.h"
 #include "gs/utility/directions.h"
 
-extern Player **g_player;
 
 void World::FindCityDistances(sint32 player, const MapPoint &start)
 {
@@ -64,7 +63,7 @@ void World::FindCityDistances(sint32 player, const MapPoint &start)
 
 	m_map[start.x][start.y]->m_search_count = 1;
 
-	sint32 numCities = g_player[player]->m_all_cities->Num();
+	sint32 numCities = player_Get(player)->m_all_cities->Num();
 	CDMove(0, start.x, start.y, player, numCities);
 
 	while(numCities > 0) {

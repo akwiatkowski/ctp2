@@ -43,7 +43,6 @@ extern TurnCount *g_turn;
 
 #include "ctp/ctp2_utils/pointerlist.h"
 
-extern Player **g_player;
 
 //----------------------------------------------------------------------------
 //
@@ -112,7 +111,7 @@ void NetEndGame::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	Assert(packid == k_PACKET_ENDGAME_ID);
 
 	PULLBYTE(m_owner);
-	if(!g_player[m_owner])
+	if(!player_Get(m_owner))
 		return;
 
 

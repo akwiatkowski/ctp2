@@ -38,7 +38,7 @@
 #include "gs/gameobj/Happy.h"
 #include "gs/gameobj/UnitPool.h"       // UnitPool
 #include "gs/gameobj/PlayHap.h"
-#include "gs/gameobj/Player.h"         // g_player
+#include "gs/gameobj/Player.h"         // player_Get
 
 NetHappy::NetHappy(Unit city, Happy *data, BOOL isInitial)
 {
@@ -281,7 +281,7 @@ NetPlayerHappy::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	sint32 pos = 2;
 	PULLBYTE(m_owner);
-	m_playerHappiness = g_player[m_owner]->m_global_happiness;
+	m_playerHappiness = player_Get(m_owner)->m_global_happiness;
 	PULLBYTE(m_isInitialPacket);
 
 #define PDCHK2(x) {double tmp = x; PULLDOUBLE(x); if((m_owner == g_network.GetPlayerIndex()) && !m_isInitialPacket) { Assert(tmp == x); }}

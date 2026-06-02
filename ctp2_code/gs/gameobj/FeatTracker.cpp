@@ -330,7 +330,7 @@ void FeatTracker::AddFeat(sint32 type, sint32 player, sint32 round)
 		{
 			for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
 			{
-				if(g_player[p] && safe_player(p)->HasAdvance(rec->GetExcludeAdvanceIndex(a)))
+				if(player_Get(p) && safe_player(p)->HasAdvance(rec->GetExcludeAdvanceIndex(a)))
 				{
 					return;
 				}
@@ -664,7 +664,7 @@ STDEHANDLER(AccomplishFeat)
 	if (g_network.IsHost())
 	{
 		// Propagate the information to the clients.
-		// Remark: g_player[player] has been verified in GetPlayer.
+		// Remark: player_Get(player) has been verified in GetPlayer.
 		g_network.Block(player);
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ACCOMPLISHED_FEAT,
 									  featIndex,

@@ -67,7 +67,7 @@
 #include "gs/gameobj/GoodyHuts.h"
 #include "gs/utility/MoveFlags.h"
 #include "net/general/network.h"
-#include "gs/gameobj/Player.h"                 // g_player
+#include "gs/gameobj/Player.h"                 // player_Get
 #include "gs/utility/PQueue.h"
 #include "gs/database/profileDB.h"              // g_theProfileDB
 #include "gs/utility/RandGen.h"                // civrand()
@@ -1977,7 +1977,7 @@ void World::Dump(FILE *fout)
    fprintf (fout, "? - error unknown tile\n");
    fprintf (fout, "+ - resources");
    fprintf (fout, "* - river");
-   fprintf (fout, "XX - g_player start point\n");
+   fprintf (fout, "XX - player start point\n");
 
    sint32 found, u;
    for (i=0; i<m_size.y; i++){

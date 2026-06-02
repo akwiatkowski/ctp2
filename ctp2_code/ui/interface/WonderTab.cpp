@@ -156,7 +156,7 @@ void WonderTab::AddWonderItem(sint32 wonder, sint32 player, sint32 turn)
 			st = (ctp2_Static *)box->GetChildByIndex(4);
 			Assert(st);
 			if(st) {
-				Player *p = g_player[player];
+				Player *p = player_Get(player);
 				if(!p) {
 					PointerList<Player>::Walker walk(g_deadPlayer);
 					for(; walk.IsValid(); walk.Next()) {

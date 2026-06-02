@@ -3,7 +3,7 @@
 
 #include "net/general/net_info.h"             // NetInfo
 #include "net/general/network.h"              // g_network
-#include "gs/gameobj/Player.h"               // g_player
+#include "gs/gameobj/Player.h"               // player_Get
 #include "gs/core/player_view.h"
 #include "gs/gameobj/TerrImprovePool.h"      // g_theTerrainImprovementPool
 #include "gs/world/World.h"                // g_theWorld
@@ -16,7 +16,7 @@ void TerrainImprovement::KillImprovement()
 
 void TerrainImprovement::RemoveAllReferences()
 {
-	g_player[GetOwner()]->RemoveImprovementReferences(*this);
+	player_Get(GetOwner())->RemoveImprovementReferences(*this);
 	g_theWorld->RemoveImprovement(*this, GetLocation());
 	if(g_network.IsHost()) {
 		if(player_view::CurPlayer() == GetOwner())

@@ -836,8 +836,8 @@ sint32 Agent::DisbandObsoleteUnits()
 
 		// Get nearest own city
 		/// @ToDo move this into its own method
-		Assert(g_player[m_playerId]);
-		UnitDynamicArray *city_list = g_player[m_playerId]->GetAllCitiesList();
+		Assert(player_Get(m_playerId));
+		UnitDynamicArray *city_list = player_Get(m_playerId)->GetAllCitiesList();
 		for (sint16 i = 0; i < city_list->Num(); i++)
 		{
 			city_unit = city_list->Access(i);

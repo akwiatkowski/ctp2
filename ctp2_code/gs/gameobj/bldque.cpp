@@ -455,7 +455,7 @@ bool BuildQueue::BuildFrontUnit(bool forceFinish)
 								  (uint32)cd->GetHomeCity(),
 								  g_theStringDB->GetNameStr(g_theUnitDB->Get(m_list->GetHead()->m_type)->m_name)));
 
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 							   GEV_CreateUnit,
 							   GEA_Player, m_owner,
 							   GEA_MapPoint, cpos,
@@ -478,7 +478,7 @@ bool BuildQueue::BuildFrontBuilding()
 				  g_theStringDB->GetNameStr(g_theBuildingDB->Get(m_list->GetHead()->m_type)->m_name)));
 
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateBuilding,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateBuilding,
 							   GEA_City, m_city.m_id,
 							   GEA_Int, m_list->GetHead()->m_type,
 							   GEA_End);
@@ -503,7 +503,7 @@ bool BuildQueue::BuildFrontWonder()
 								  g_theStringDB->GetNameStr(g_theWonderDB->Get(m_list->GetHead()->m_type)->GetName())));
 
 		m_list->GetHead()->m_flags |= k_BUILD_NODE_FLAG_ALREADY_BUILT;
-		g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateWonder,
+		gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_CreateWonder,
 							   GEA_City, m_city.m_id,
 							   GEA_Int, m_list->GetHead()->m_type,
 							   GEA_End);
@@ -790,12 +790,12 @@ void BuildQueue::FinishBuildFront(Unit &u)
 	}
 
 	//DPRINTF(k_DBG_GAMESTATE, ("Setting shieldstore to 0 for %lx\n", m_city.m_id));
-	//g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ZeroProduction,
+	//gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ZeroProduction,
 	//					   GEA_City, m_city,
 	//					   GEA_End);
 
 	DPRINTF(k_DBG_GAMESTATE, ("Setting rollover shieldstore to %d for %lx\n", rollOverShields, m_city.m_id));
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_RollOverProduction,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_RollOverProduction,
 						   GEA_City, m_city,
 						   GEA_Int, rollOverShields,
 						   GEA_End);
@@ -1681,7 +1681,7 @@ bool BuildQueue::InsertBefore(BuildNode *old,
 void BuildQueue::FinishCreatingUnit(Unit &u)
 {
 	if(u.m_id != (0)) {
-		//g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ZeroProduction,
+		//gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ZeroProduction,
 		//					   GEA_City, m_city,
 		//					   GEA_End);
 

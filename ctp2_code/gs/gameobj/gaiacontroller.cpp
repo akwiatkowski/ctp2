@@ -585,39 +585,39 @@ STDEHANDLER(GaiaController_WonderRemoved)
 
 void GaiaController::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_CaptureCity,
+	gevmanager_Get()->AddCallback(GEV_CaptureCity,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_CaptureCity);
 
-	g_gevManager->AddCallback(GEV_CutImprovements,
+	gevmanager_Get()->AddCallback(GEV_CutImprovements,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_CutImprovements);
 
-	g_gevManager->AddCallback(GEV_ImprovementComplete,
+	gevmanager_Get()->AddCallback(GEV_ImprovementComplete,
 							  GEV_PRI_Post,
 							  &s_GaiaController_ImprovementComplete);
 
-	g_gevManager->AddCallback(GEV_SellBuilding,
+	gevmanager_Get()->AddCallback(GEV_SellBuilding,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_SellBuilding);
 
-	g_gevManager->AddCallback(GEV_CreateBuilding,
+	gevmanager_Get()->AddCallback(GEV_CreateBuilding,
 							  GEV_PRI_Post,
 							  &s_GaiaController_CreateBuilding);
 
-	g_gevManager->AddCallback(GEV_DisbandCity,
+	gevmanager_Get()->AddCallback(GEV_DisbandCity,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_DisbandCity);
 
-	g_gevManager->AddCallback(GEV_CreateWonder,
+	gevmanager_Get()->AddCallback(GEV_CreateWonder,
 							  GEV_PRI_Post,
 							  &s_GaiaController_CreateWonder);
 
-	g_gevManager->AddCallback(GEV_BuildingRemoved,
+	gevmanager_Get()->AddCallback(GEV_BuildingRemoved,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_BuildingRemoved);
 
-	g_gevManager->AddCallback(GEV_WonderRemoved,
+	gevmanager_Get()->AddCallback(GEV_WonderRemoved,
 							  GEV_PRI_Pre,
 							  &s_GaiaController_WonderRemoved);
 }
@@ -1125,7 +1125,7 @@ void GaiaController::BuildProcessingTowers()
 	while (found)
 	{
 
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_CreateImprovement,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_CreateImprovement,
 			GEA_Player, m_playerId,
 			GEA_MapPoint, pos,
 			GEA_Int, GetTowerTileImpIndex(),

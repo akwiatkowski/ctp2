@@ -414,7 +414,7 @@ void FeatTracker::AddFeat(const MBCHAR *name, sint32 player)
 		return;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 						   GEA_Int, featIndex,
 						   GEA_Player, player,
 						   GEA_End);
@@ -551,7 +551,7 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 				{
 					if(numCities >= num)
 					{
-						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+						gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 											   GEA_Int, f,
 											   GEA_Player, city.GetOwner(),
 											   GEA_End);
@@ -565,7 +565,7 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 					sint32 havePercent = safe_divide((numCities * 100), totalCities);
 					if(havePercent >= percent)
 					{
-						g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+						gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 											   GEA_Int, f,
 											   GEA_Player, city.GetOwner(),
 											   GEA_End);
@@ -587,7 +587,7 @@ void FeatTracker::CheckConquerFeat(sint32 defeated, sint32 defeatedByWhom)
 			if (Player* dp = safe_player(defeated)) {
 				if (dp->GetMaxCityCount() >= minCityCount)
 				{
-					g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
+					gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_AccomplishFeat,
 										   GEA_Int, featIndex,
 										   GEA_Player, defeatedByWhom,
 										   GEA_End);
@@ -701,10 +701,10 @@ STDEHANDLER(FeatBuildingBuilt)
 
 void FeatTracker::InitializeEvents()
 {
-	g_gevManager->AddCallback(GEV_AccomplishFeat, GEV_PRI_Primary, &s_AccomplishFeat);
+	gevmanager_Get()->AddCallback(GEV_AccomplishFeat, GEV_PRI_Primary, &s_AccomplishFeat);
 
-	g_gevManager->AddCallback(GEV_BeginTurn, GEV_PRI_Post, &s_FeatBeginTurn);
-	g_gevManager->AddCallback(GEV_CreateBuilding, GEV_PRI_Post, &s_FeatBuildingBuilt);
+	gevmanager_Get()->AddCallback(GEV_BeginTurn, GEV_PRI_Post, &s_FeatBeginTurn);
+	gevmanager_Get()->AddCallback(GEV_CreateBuilding, GEV_PRI_Post, &s_FeatBuildingBuilt);
 }
 
 void FeatTracker::CleanupEvents()

@@ -1937,14 +1937,14 @@ bool UnitData::Settle()
 		return false;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 						   GEV_KillUnit,
 						   GEA_Unit, m_id,
 						   GEA_Int, CAUSE_REMOVE_ARMY_SETTLE,
 						   GEA_Player, -1,
 						   GEA_End);
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent,
 						   GEV_CreateCity,
 						   GEA_Player, m_owner,
 						   GEA_MapPoint, m_pos,
@@ -2115,13 +2115,13 @@ void UnitData::ResetCityOwner(const Unit &me, const PLAYER_INDEX newo,
 	Cell *cell = world_Get()->GetCell(m_pos);
 	for (sint32 i = 0; i < cell->GetNumUnits(); i++) {
 		if(cell->AccessUnit(i).GetOwner() != m_owner) {
-			g_gevManager->Pause();
-			g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
+			gevmanager_Get()->Pause();
+			gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_KillUnit,
 								   GEA_Unit, cell->AccessUnit(i),
 								   GEA_Int, CAUSE_REMOVE_ARMY_DIPLOMACY,
 								   GEA_Player, m_owner,
 								   GEA_End);
-			g_gevManager->Resume();
+			gevmanager_Get()->Resume();
 		}
 	}
 #endif
@@ -2557,7 +2557,7 @@ ORDER_RESULT UnitData::InterceptTrade()
 		if ( source_owner == m_owner )
 			continue;
 
-		g_gevManager->AddEvent
+		gevmanager_Get()->AddEvent
 		    (GEV_INSERT_AfterCurrent,   GEV_SetPiratingArmy,
 			 GEA_TradeRoute,            route,
 			 GEA_Army,                  m_army,
@@ -4318,7 +4318,7 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 
 	if(m_owner == player_view::VisiblePlayer())
 	{
-		g_gevManager->AddEvent(GEV_INSERT_Tail, GEV_DisplayInvestigationWindow,
+		gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_DisplayInvestigationWindow,
 							   GEA_Unit, m_id,
 							   GEA_City, c.m_id,
 							   GEA_End);
@@ -4654,7 +4654,7 @@ ORDER_RESULT UnitData::EstablishEmbassy(Unit c)
 		return ORDER_RESULT_FAILED;
 	}
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_EstablishEmbassy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_EstablishEmbassy,
 						   GEA_Player, m_owner,
 						   GEA_Player, c.GetOwner(),
 						   GEA_End);
@@ -4669,7 +4669,7 @@ ORDER_RESULT UnitData::ThrowParty(Unit c, sint32 gold)
 	if(!GetDBRec()->GetThrowParty())
 		return ORDER_RESULT_ILLEGAL;
 
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_ThrowParty,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_ThrowParty,
 						   GEA_Player, m_owner,
 						   GEA_Player, c.GetOwner(),
 						   GEA_End);
@@ -4839,7 +4839,7 @@ void UnitData::MakeCitizen(PopDBIndex pi, const MapPoint &point, sint32 origOwne
 	if(!m_city_data)
 		return;
 
-	Assert(g_gevManager->IsProcessing());
+	Assert(gevmanager_Get()->IsProcessing());
 
 	m_city_data->MakeCitizen(pi, point, origOwner);
 }
@@ -5768,7 +5768,7 @@ sint32 UnitData::CreateOwnArmy()
 		g_network.Enqueue(armypool_Get()->AccessArmy(newArmy));
 		g_network.Unblock(m_owner);
 	}
-	g_gevManager->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
+	gevmanager_Get()->AddEvent(GEV_INSERT_AfterCurrent, GEV_AddUnitToArmy,
 						   GEA_Unit, m_id,
 						   GEA_Army, newArmy,
 						   GEA_Int, CAUSE_NEW_ARMY_UNKNOWN,

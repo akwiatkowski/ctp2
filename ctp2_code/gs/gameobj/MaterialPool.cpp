@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Replaced old const database by new one. (5-Aug-2007 Martin Gühmann)
+// - Replaced old const database by new one. (5-Aug-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -36,8 +36,6 @@
 #include "net/general/net_info.h"
 #include "gs/gameobj/Player.h"
 #include "ConstRecord.h"
-
-extern Player **g_player;
 
 extern BOOL g_powerPointsMode;
 
@@ -70,13 +68,13 @@ void MaterialPool::CheatAddMaterials(sint32 amt)
 {
 	if((g_network.IsActive() && g_network.SetupMode()) || g_powerPointsMode) {
 		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
-		if(g_player[m_owner]->GetPoints() < pointCost)
+		if(player_Get(m_owner)->GetPoints() < pointCost)
 			return;
-		g_player[m_owner]->DeductPoints(pointCost);
+		player_Get(m_owner)->DeductPoints(pointCost);
 
 		if(g_network.IsHost()) {
 			g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-										  m_owner, g_player[m_owner]->GetPoints()));
+										  m_owner, player_Get(m_owner)->GetPoints()));
 		}
 	}
 	if(g_network.IsClient()) {
@@ -90,11 +88,11 @@ sint32 MaterialPool::CheatSubtractMaterials(sint32 amt)
 {
 	if((g_network.IsActive() && g_network.SetupMode()) | g_powerPointsMode) {
 		sint32 pointCost = sint32(double(amt) * g_theConstDB->Get(0)->GetPowerPointsToMaterials());
-		g_player[m_owner]->AddPoints(pointCost);
+		player_Get(m_owner)->AddPoints(pointCost);
 
 		if(g_network.IsHost()) {
 			g_network.Enqueue(new NetInfo(NET_INFO_CODE_POWER_POINTS,
-										  m_owner, g_player[m_owner]->GetPoints()));
+										  m_owner, player_Get(m_owner)->GetPoints()));
 		}
 	}
 	if(g_network.IsClient()) {

@@ -26,8 +26,8 @@
 //
 // - Prevent assigning the same civilisation index twice.
 // - Recycle civilisation indices to prevent a game crash.
-// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gühmann)
-// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gühmann)
+// - Replaced old civilisation database by new one. (Aug 20th 2005 Martin Gï¿½hmann)
+// - Replaced CIV_INDEX by sint32. (2-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -44,8 +44,6 @@
 #include "gs/database/profileDB.h"
 #include "net/general/network.h"
 #include "gs/utility/Globals.h"
-
-extern	Player	**g_player ;
 
 extern	StringDB	*g_theStringDB ;
 

@@ -1038,7 +1038,7 @@ public:
 	void PreResourceCalculation();
 
 	double  GetBonusFoodCoeff() const { return m_bonusFoodCoeff; };
-	double  GetBonusProdCoeff() const { return m_bonusProdCoeff + g_player[m_owner]->GetWorkdayPerPerson(); };
+		double  GetBonusProdCoeff() const { return m_bonusProdCoeff + player_Get(m_owner)->GetWorkdayPerPerson(); };
 	double  GetBonusGoldCoeff() const { return m_bonusGoldCoeff; };
 	double  GetBonusScieCoeff() const { return m_bonusScieCoeff; };
 

@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Modified EntryCost by Martin Gühmann to allow:
+// - Modified EntryCost by Martin Gï¿½hmann to allow:
 //   - Bypassing of tiles without road improvement, e.g. polluted tiles
 //   - Bypassing of unowend tiles and foreign tiles
 //   - Bypassing of unexplored tiles
@@ -32,14 +32,14 @@
 //   - Building of undersea tunnels
 // - Added owner argument to to FindRoadPath function so that m_owner
 //   can be set in that function. The result is that the path finding
-//   routine takes unexplored tiles into consideration, by Martin Gühmann.
+//   routine takes unexplored tiles into consideration, by Martin Gï¿½hmann.
 // - Road path generation is no more dependent on tile move costs for units,
 //   but on pw costs per tile.
 // - Road path may go through foreign territory but is even more expensive
-//   in comparision to unexplored territory. - Oct. 6th 2004 Martin Gühmann
+//   in comparision to unexplored territory. - Oct. 6th 2004 Martin Gï¿½hmann
 // - Road costs are now based on all the tile improvements a tile has,
-//   including those that are under construction. (17-Jan-2008 Martin Gühmann)
-// - A strategy option can also use to the base move costs of a tile. (17-Jan-2008 Martin Gühmann)
+//   including those that are under construction. (17-Jan-2008 Martin Gï¿½hmann)
+// - A strategy option can also use to the base move costs of a tile. (17-Jan-2008 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -53,7 +53,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/utility/MoveFlags.h"
 #include "robot/pathing/Path.h"
-#include "gs/gameobj/Player.h"             // g_player
+#include "gs/gameobj/Player.h"
 #include "StrategyRecord.h"     // For accessing the strategy database
 #include "TerrainImprovementRecord.h"
 #include "gs/gameobj/terrainutil.h"
@@ -79,7 +79,7 @@ bool CityAstar::EntryCost
 	if(m_pathRoad)
 	{
 		const TerrainImprovementRecord *rec = terrainutil_GetBestRoad(m_owner, pos);
-		if (!rec || !g_player[m_owner]->IsExplored(pos))
+		if (!rec || !player_Get(m_owner)->IsExplored(pos))
 		{
 			cost = k_ASTAR_BIG;
 			entry = ASTAR_BLOCKED;
@@ -183,7 +183,7 @@ bool CityAstar::EntryCost
 		cost  = static_cast<float>(entryCell->GetMoveCost());
 		entry = ASTAR_CAN_ENTER;
 
-		if(!g_player[m_owner]->IsExplored(pos))
+		if(!player_Get(m_owner)->IsExplored(pos))
 		{
 			cost *= 4.0F;
 		}
@@ -224,7 +224,7 @@ bool CityAstar::IsConnected
 	m_start                 = start;
 	m_dest                  = dest;
 	m_pathPenalizeCantEnter = 0x0;
-	m_alliance_mask         = g_player[m_owner]->GetMaskAlliance();
+	m_alliance_mask         = player_Get(m_owner)->GetMaskAlliance();
 
 	Path    tmp_path;
 	sint32  nodes_opened    = 0;
@@ -251,14 +251,14 @@ void CityAstar::FindCityDist
 	m_start                 = start;
 	m_dest                  = dest;
 	m_pathPenalizeCantEnter = 0x0;
-	m_alliance_mask         = g_player[m_owner]->GetMaskAlliance();
+	m_alliance_mask         = player_Get(m_owner)->GetMaskAlliance();
 
 	Path    tmp_path;
 	sint32  nodes_opened    = 0;
 
 	if (!FindPath(start, dest, tmp_path, cost, false, NODE_VISIT_COUNT_LIMIT, nodes_opened))
 	{
-		cost     = static_cast<float>(g_player[m_owner]->GetMaxEmpireDistance());
+		cost     = static_cast<float>(player_Get(m_owner)->GetMaxEmpireDistance());
 		distance = 0x7fffffff;
 	}
 	else
@@ -285,14 +285,14 @@ void CityAstar::FindCantEnterPenaltyDistance
 	m_start                 = start;
 	m_dest                  = dest;
 	m_pathPenalizeCantEnter = pathPenalizeCantEnter;
-	m_alliance_mask         = g_player[m_owner]->GetMaskAlliance();
+	m_alliance_mask         = player_Get(m_owner)->GetMaskAlliance();
 
 	Path    tmp_path;
 	sint32  nodes_opened    = 0;
 
 	if (!FindPath(start, dest, tmp_path, cost, false, NODE_VISIT_COUNT_LIMIT, nodes_opened))
 	{
-		cost     = static_cast<float>(g_player[m_owner]->GetMaxEmpireDistance());
+		cost     = static_cast<float>(player_Get(m_owner)->GetMaxEmpireDistance());
 		distance = 0x7fffffff;
 	}
 	else

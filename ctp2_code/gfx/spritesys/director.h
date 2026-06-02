@@ -362,11 +362,9 @@ class Director {
   bool m_endTurnRequested;
 };
 
-extern Director* g_director;
-
 // Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
-// / gevmanager_Get.  Callers should use director_Get() instead of
-// reaching for g_director directly.
+// / gevmanager_Get.  The legacy g_director pointer is now file-static
+// in ctp/civ3_main.cpp; outside callers must go through these accessors.
 Director * director_Get(void);
 void       director_Set(Director *p);
 

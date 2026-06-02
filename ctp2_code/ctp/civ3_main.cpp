@@ -246,7 +246,7 @@ static uint32                       s_accelTickStart = 0;
 
 sint32                              g_terrainPollution;
 
-Director                            *g_director;
+static Director                     *g_director = NULL;
 
 Director * director_Get(void)         { return g_director; }
 void       director_Set(Director *p)  { g_director = p; }

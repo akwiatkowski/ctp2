@@ -106,8 +106,8 @@ DQItemPtr DQItem::CreatePtr(DQITEM_TYPE type,
                             DQHandler* handler) {
   DQItemPtr item(new DQItem(type, action, handler));
 
-  if (g_director) {
-    item->m_sequence = g_director->NewSequence();
+  if (director_Get()) {
+    item->m_sequence = director_Get()->NewSequence();
     item->m_sequence->SetItem(item);
   }
 

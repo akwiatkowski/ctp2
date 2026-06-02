@@ -48,7 +48,7 @@
 #include "gs/utility/Globals.h"                // allocated::clear
 #include "ui/interface/UIUtils.h"
 #include "ui/aui_utils/primitives.h"
-#include "sound/soundmanager.h"           // g_soundManager
+#include "sound/soundmanager.h"           // soundmgr_Get()
 #include "ui/aui_common/aui_bitmapfont.h"
 #include "ui/interface/MessageBoxDialog.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet

@@ -40,7 +40,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_syswm.h>
-#include "sound/soundmanager.h"		// g_soundManager
+#include "sound/soundmanager.h"		// soundmgr_Get()
 #include "ui/aui_sdl/aui_sdlsurface.h"
 
 Mix_Chunk achunk;

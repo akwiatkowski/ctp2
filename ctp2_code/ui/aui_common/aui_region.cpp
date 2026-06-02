@@ -49,7 +49,7 @@
 #include "ui/interface/StatusBar.h"
 #include "ui/ldl/ldl_data.hpp"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 static MBCHAR *k_AUI_REGION_LDL_BLINDNESS	=	"mouseblind";
 

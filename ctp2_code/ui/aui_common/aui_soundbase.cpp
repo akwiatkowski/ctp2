@@ -10,7 +10,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 MBCHAR *aui_SoundBase::m_soundLdlKeywords[ AUI_SOUNDBASE_SOUND_LAST ] =
 {
@@ -121,7 +121,7 @@ AUI_ERRCODE aui_SoundBase::PlaySound( AUI_SOUNDBASE_SOUND sound )
 
 
 	case AUI_SOUNDBASE_SOUND_EXECUTE:
-		g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 				gamesounds_GetGameSoundID(GAMESOUNDS_BUTTONCLICK), 0, 0);
 		break;
 	case AUI_SOUNDBASE_SOUND_ENGAGE:

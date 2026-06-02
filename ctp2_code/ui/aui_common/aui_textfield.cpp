@@ -711,7 +711,7 @@ LRESULT CALLBACK TextFieldWindowProc( HWND hwnd, UINT message, WPARAM wParam, LP
 		break;
 
 	case WM_KEYUP:
-		g_soundManager->AddGameSound(GAMESOUNDS_EDIT_TEXT);
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_EDIT_TEXT);
 		break;
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:

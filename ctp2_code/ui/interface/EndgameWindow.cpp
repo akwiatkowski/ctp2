@@ -86,7 +86,7 @@
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 extern StringDB*	g_theStringDB;
-extern SoundManager	*g_soundManager;
+extern SoundManager	*soundmgr_Get();
 
 static EndGameWindow *	g_endgameWindow = NULL;
 
@@ -218,7 +218,7 @@ sint32 endgamewindow_Initialize()
 	keypress_RegisterHandler(g_endgameWindow);
 
 	sint32 snd_id = g_theSoundDB->FindTypeIndex(k_ENDGAME_AMBIENT_SOUND);
-	if(g_soundManager) g_soundManager->AddLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow, snd_id);
+	if(soundmgr_Get()) soundmgr_Get()->AddLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow, snd_id);
 
 	Assert(AUI_SUCCESS(errcode));
 	if(!AUI_SUCCESS(errcode)) return(-1);
@@ -237,7 +237,7 @@ sint32 endgamewindow_Cleanup()
 
 	if(!g_endgameWindow) return(0);
 
-	if(g_soundManager) g_soundManager->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow);
+	if(soundmgr_Get()) soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, (uintptr_t)g_endgameWindow);
 
 	c3ui_Get()->RemoveWindow(g_endgameWindow->Id());
 
@@ -1156,7 +1156,7 @@ void EndGameWindow::UpdateBlend(sint32 deltaTime, c3_Blend *blendControl)
 
 
 		if((blendControl->GetBlend() == 0) && (blendControl->m_soundID != -1)) {
-			if(g_soundManager) g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, blendControl->m_soundID);
+			if(soundmgr_Get()) soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0, blendControl->m_soundID);
 		}
 
 		sint32 newBlendVal = blendControl->GetBlend() + deltaTime;

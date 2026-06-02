@@ -490,7 +490,7 @@ void GovernmentTab::ConfirmGovernmentChange(bool result, void *data)
 
 		tab->Update();
 		tab->m_tabPanel->ShouldDraw();
-		g_soundManager->AddGameSound(GAMESOUNDS_ADVANCE);
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_ADVANCE);
 
 		domesticmanagementdialog_Get()->Update();
 	}
@@ -538,7 +538,7 @@ void GovernmentTab::EnactGovernmentActionCallback(aui_Control *control,
 
 	tab->Update();
 	tab->m_tabPanel->ShouldDraw(TRUE);
-	g_soundManager->AddGameSound(GAMESOUNDS_ADVANCE);
+	soundmgr_Get()->AddGameSound(GAMESOUNDS_ADVANCE);
 
 	domesticmanagementdialog_Get()->Update();
 }

@@ -85,7 +85,7 @@ extern ScienceWin	*g_scienceWin;
 
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
-extern SoundManager	*g_soundManager;
+extern SoundManager	*soundmgr_Get();
 
 static C3Window		*s_sci_advanceScreen	= NULL;
 
@@ -233,11 +233,11 @@ sint32	sci_advancescreen_displayMyWindow( MBCHAR *messageText, sint32 from, Sequ
 
 
 		sint32 soundID = gamesounds_GetGameSoundID(GAMESOUNDS_CHEER_CASTLE);
-		g_soundManager->AddSound(SOUNDTYPE_SFX, 0, soundID);
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0, soundID);
 	}
 
 	if(from != k_SCI_INCLUDE_CANCEL) {
-			g_soundManager->AddGameSound(GAMESOUNDS_ADVANCE);
+			soundmgr_Get()->AddGameSound(GAMESOUNDS_ADVANCE);
 	}
 	auiErr = c3ui_Get()->AddWindow(s_sci_advanceScreen);
 	Assert( auiErr == AUI_ERRCODE_OK );

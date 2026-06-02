@@ -277,7 +277,7 @@ void aui_Switch::MouseLDragAway( aui_MouseEvent *mouseData )
 void aui_Switch::MouseLGrabInside( aui_MouseEvent *mouseData )
 {
 	if ( IsDisabled() ) {
-		g_soundManager->AddGameSound(GAMESOUNDS_DISABLED);
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_DISABLED);
 		return;
 	}
 	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this )

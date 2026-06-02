@@ -188,15 +188,15 @@ STDEHANDLER(InterfacePreBeginTurn)
 		if(controlpanel_Get())
 			controlpanel_Get()->ClearTargetingMode();
 
-		if(g_soundManager) {
-			g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
-			g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_VOICE);
+		if(soundmgr_Get()) {
+			soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
+			soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_VOICE);
 		}
 
 		if(g_network.IsHost() && g_network.GetPlayerIndex() == pl) {
 
-			if (g_soundManager) {
-				g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+			if (soundmgr_Get()) {
+				soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 				                         gamesounds_GetGameSoundID(GAMESOUNDS_NET_YOUR_TURN),
 				                         0,
 				                         0);

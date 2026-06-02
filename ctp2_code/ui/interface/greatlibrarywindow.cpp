@@ -98,7 +98,7 @@ extern sint32						g_ScreenWidth;
 extern sint32						g_ScreenHeight;
 extern DebugWindow					*g_debugWindow;
 extern ProjectFile                  *g_GreatLibPF;
-extern SoundManager					*g_soundManager;
+extern SoundManager					*soundmgr_Get();
 extern  C3UI				*c3ui_Get();
 
 namespace
@@ -239,11 +239,11 @@ sint32 GreatLibraryWindow::LoadTechMovie ( void )
 	MBCHAR fullPath[_MAX_PATH];
 	if (civpaths_Get()->FindFile(C3DIR_VIDEOS, m_movie_file, fullPath, TRUE)) {
 
-		g_soundManager->ReleaseSoundDriver();
+		soundmgr_Get()->ReleaseSoundDriver();
 
 		m_techMovie->OpenStream(fullPath);
 
-		g_soundManager->ReacquireSoundDriver();
+		soundmgr_Get()->ReacquireSoundDriver();
 	} else {
 		return 0;
 	}

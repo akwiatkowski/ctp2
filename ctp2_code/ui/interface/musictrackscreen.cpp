@@ -48,7 +48,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 
 static c3_PopupWindow	*s_musicTrackScreen	= NULL;
@@ -182,10 +182,10 @@ void musictrackscreen_acceptPress(aui_Control *control, uint32 action, uint32 da
 {
 	if ( musictrackscreen_removeMyWindow(action) ) {
 
-		if (g_soundManager) {
+		if (soundmgr_Get()) {
 			if (s_trackNum != -1) {
-				g_soundManager->SetMusicStyle(MUSICSTYLE_USER);
-				g_soundManager->SetUserTrack(s_trackNum);
+				soundmgr_Get()->SetMusicStyle(MUSICSTYLE_USER);
+				soundmgr_Get()->SetUserTrack(s_trackNum);
 				g_musicTrackChosen = TRUE;
 			}
 		}

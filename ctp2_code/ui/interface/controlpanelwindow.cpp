@@ -1998,7 +1998,7 @@ ControlPanelWindow::OrderDeliveryClick(const MapPoint &pos)
 		}
 		else if(test == ORDER_TEST_INVALID_TARGET) {
 
-			g_soundManager->AddGameSound(GAMESOUNDS_ILLEGAL_SPECIAL);
+			soundmgr_Get()->AddGameSound(GAMESOUNDS_ILLEGAL_SPECIAL);
 			handled = true;
 		}
 		else if (selitem_Get()->GetGoodPath()->GetMovesRemaining() <= 0 &&

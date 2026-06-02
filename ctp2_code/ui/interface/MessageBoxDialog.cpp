@@ -155,7 +155,7 @@ m_userData(userData)
 	m_window->SetStronglyModal(true);
 
 	m_window->Show();
-	g_soundManager->AddGameSound(GAMESOUNDS_POPUP);
+	soundmgr_Get()->AddGameSound(GAMESOUNDS_POPUP);
 
 	m_textField->Hide();
 

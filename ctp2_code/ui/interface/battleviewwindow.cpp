@@ -488,9 +488,9 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	battle->GetDefendersName(name);
 	m_defendersName->SetText(name);
 
-	if(g_soundManager) {
-		g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
-		g_soundManager->TerminateAllLoopingSounds(SOUNDTYPE_VOICE);
+	if(soundmgr_Get()) {
+		soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_SFX);
+		soundmgr_Get()->TerminateAllLoopingSounds(SOUNDTYPE_VOICE);
 	}
 }
 

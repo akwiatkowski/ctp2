@@ -50,7 +50,7 @@
 #include "ui/interface/greatlibrary.h"
 #include "gs/slic/SlicObject.h"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 WonderMovieWindow		*g_wonderMovieWindow = NULL;
 
@@ -70,9 +70,9 @@ void wondermoviewin_Initialize(SequenceWeakPtr seq)
 
 void wondermoviewin_DisplayWonderMovie(sint32 id)
 {
-	if (g_soundManager) {
-		g_soundManager->TerminateAllSounds();
-		g_soundManager->TerminateMusic();
+	if (soundmgr_Get()) {
+		soundmgr_Get()->TerminateAllSounds();
+		soundmgr_Get()->TerminateMusic();
 	}
 
 	Assert(g_wonderMovieWindow != NULL);
@@ -140,7 +140,7 @@ void CloseMovieAction::Execute(aui_Control *control, uint32 action, uint32 data)
 
 	wondermoviewin_Cleanup();
 
-	if (g_soundManager) {
-		g_soundManager->StartMusic();
+	if (soundmgr_Get()) {
+		soundmgr_Get()->StartMusic();
 	}
 }

@@ -50,7 +50,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "ui/interface/musictrackscreen.h"
 #include "gs/database/profileDB.h"          // profiledb_Get()
-#include "sound/soundmanager.h"       // g_soundManager
+#include "sound/soundmanager.h"       // soundmgr_Get()
 #include "ui/interface/spnewgamewindow.h"
 
 extern BOOL     g_musicTrackChosen;
@@ -132,8 +132,8 @@ AUI_ERRCODE musicscreen_Initialize( void )
 	s_randomOrder->SetText( s_musicString->GetString(MS_STRING_RANDOM_OFF) );
 	s_musicOn		= spNew_c3_Switch(&errcode,windowBlock,"MusicOnSwitch",musicscreen_checkPress );
 
-	s_useAutoRepeat		= g_soundManager->IsAutoRepeat();
-	s_useRandomOrder	= (MUSICSTYLE_RANDOM == g_soundManager->GetMusicStyle());
+	s_useAutoRepeat		= soundmgr_Get()->IsAutoRepeat();
+	s_useRandomOrder	= (MUSICSTYLE_RANDOM == soundmgr_Get()->GetMusicStyle());
 	s_useMusicOn		= profiledb_Get()->IsUseRedbookAudio();
 
 	errcode = aui_Ldl::SetupHeirarchyFromRoot( windowBlock );
@@ -205,31 +205,31 @@ void musicscreen_acceptPress(aui_Control *control, uint32 action, uint32 data, v
 {
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	if (g_soundManager) {
-		g_soundManager->SetAutoRepeat(s_useAutoRepeat);
+	if (soundmgr_Get()) {
+		soundmgr_Get()->SetAutoRepeat(s_useAutoRepeat);
 
 		if (g_musicTrackChosen) {
-			g_soundManager->SetMusicStyle(MUSICSTYLE_USER);
-			g_soundManager->SetLastTrack(0);
+			soundmgr_Get()->SetMusicStyle(MUSICSTYLE_USER);
+			soundmgr_Get()->SetLastTrack(0);
 		} else {
 			if (s_useRandomOrder)
-				g_soundManager->SetMusicStyle(MUSICSTYLE_RANDOM);
+				soundmgr_Get()->SetMusicStyle(MUSICSTYLE_RANDOM);
 			else
-				g_soundManager->SetMusicStyle(MUSICSTYLE_PLAYLIST);
+				soundmgr_Get()->SetMusicStyle(MUSICSTYLE_PLAYLIST);
 		}
 
 		if ( s_useMusicOn ) {
-			g_soundManager->EnableMusic();
-			g_soundManager->InitRedbook();
+			soundmgr_Get()->EnableMusic();
+			soundmgr_Get()->InitRedbook();
 		} else {
-			g_soundManager->DisableMusic();
-			g_soundManager->CleanupRedbook();
+			soundmgr_Get()->DisableMusic();
+			soundmgr_Get()->CleanupRedbook();
 		}
 
 		profiledb_Get()->SetUseRedbookAudio(s_useMusicOn);
 
-		g_soundManager->PickNextTrack();
-		g_soundManager->StartMusic();
+		soundmgr_Get()->PickNextTrack();
+		soundmgr_Get()->StartMusic();
 	}
 
 	musicscreen_removeMyWindow(action);

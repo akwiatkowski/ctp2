@@ -50,7 +50,7 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern MovieDB			*g_theVictoryMovieDB;
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 IntroMovieWindow		*g_introMovieWindow = NULL;
 
@@ -119,10 +119,10 @@ void CloseIntroMovieAction::Execute(aui_Control *control, uint32 action, uint32 
 
 	AUI_ERRCODE errcode;
 
-	if (g_soundManager) {
-		g_soundManager->EnableMusic();
-		g_soundManager->PickNextTrack();
-		g_soundManager->StartMusic();
+	if (soundmgr_Get()) {
+		soundmgr_Get()->EnableMusic();
+		soundmgr_Get()->PickNextTrack();
+		soundmgr_Get()->StartMusic();
 	}
 
 	errcode = initialplayscreen_Initialize();

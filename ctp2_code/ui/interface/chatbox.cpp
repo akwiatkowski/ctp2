@@ -60,7 +60,7 @@
 #include "ui/aui_ctp2/ctp2_Window.h"
 #include "gfx/gfx_utils/colorset.h"               // g_colorSet
 #include "sound/gamesounds.h"
-#include "sound/soundmanager.h"           // g_soundManager
+#include "sound/soundmanager.h"           // soundmgr_Get()
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"                  // world_Get()
 #include "gfx/tilesys/tiledmap.h"               // tiledmap_Get()
@@ -158,7 +158,7 @@ void ChatBox::AddLine(sint32 playerNum, MBCHAR *text)
 	ranger->SetValue(ranger->GetValueX(), ranger->GetMaximumY());
 
 	if (c3ui_Get()->GetWindow(m_chatWindow->Id()) == NULL) {
-		g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0,
+		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 									gamesounds_GetGameSoundID(GAMESOUNDS_CHAT_MESSAGE),
 									0,
 									0);

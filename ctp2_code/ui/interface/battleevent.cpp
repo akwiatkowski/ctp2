@@ -38,7 +38,7 @@
 #include "ui/interface/battleviewwindow.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 
 BattleEvent::BattleEvent(BATTLE_EVENT_TYPE type)
@@ -230,8 +230,8 @@ void BattleEvent::ProcessAttack(void)
 						finished = TRUE;
 					}
 
-					if (g_soundManager && data->attackSoundID >= 0)
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
+					if (soundmgr_Get() && data->attackSoundID >= 0)
+						soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
 												data->attackSoundID);
 
 					nowAnimating = TRUE;
@@ -308,8 +308,8 @@ void BattleEvent::ProcessExplode(void)
 					}
 				}
 
-				if (g_soundManager)
-					g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)0, data->explodeSoundID);
+				if (soundmgr_Get())
+					soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0, data->explodeSoundID);
 
 				nowAnimating = TRUE;
 			} else {
@@ -387,8 +387,8 @@ void BattleEvent::ProcessDeath(void)
 					action->SetAnim(anim);
 					actor->AddAction(std::move(action));
 
-					if (g_soundManager)
-						g_soundManager->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
+					if (soundmgr_Get())
+						soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)actor->GetUnitID(),
 												 data->deathSoundID);
 
 					actor->Process();

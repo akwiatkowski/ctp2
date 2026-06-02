@@ -56,7 +56,7 @@
 extern MovieDB			*g_theVictoryMovieDB;
 
 #include "sound/soundmanager.h"
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 #include "ui/aui_ctp2/SelItem.h"
 extern SelectedItem		*selitem_Get();
@@ -141,9 +141,9 @@ void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason)
         }
 	}
 
-	if (g_soundManager) {
-		g_soundManager->TerminateAllSounds();
-		g_soundManager->TerminateMusic();
+	if (soundmgr_Get()) {
+		soundmgr_Get()->TerminateAllSounds();
+		soundmgr_Get()->TerminateMusic();
 	}
 
 	sint32 index = g_theVictoryMovieDB->FindTypeIndex(whichMovie);

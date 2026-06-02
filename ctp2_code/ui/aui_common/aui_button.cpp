@@ -8,7 +8,7 @@
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*g_soundManager;
+extern SoundManager		*soundmgr_Get();
 
 aui_Button::aui_Button(
 	AUI_ERRCODE *retval,
@@ -254,8 +254,8 @@ void aui_Button::MouseLDragAway( aui_MouseEvent *mouseData )
 void aui_Button::MouseLGrabInside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) {
-		if (g_soundManager) {
-			g_soundManager->AddSound(SOUNDTYPE_SFX, 0,
+		if (soundmgr_Get()) {
+			soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
 					gamesounds_GetGameSoundID(GAMESOUNDS_GENERALFAIL), 0, 0);
 		}
 		return;
@@ -294,7 +294,7 @@ void aui_Button::MouseLGrabInside( aui_MouseEvent *mouseData )
 void aui_Button::MouseLDropInside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) {
-		g_soundManager->AddGameSound(GAMESOUNDS_DISABLED);
+		soundmgr_Get()->AddGameSound(GAMESOUNDS_DISABLED);
 		return;
 	}
 	if ( !GetWhichSeesMouse() || GetWhichSeesMouse() == this )

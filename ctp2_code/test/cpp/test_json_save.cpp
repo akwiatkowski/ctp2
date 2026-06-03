@@ -2467,8 +2467,11 @@ TEST_CASE("json round-trip: SlicRecord preserves null title + text")
     char tmp[] = "garbage";
     SlicRecord round(/*owner*/ 0, tmp, tmp, nullptr);
     j.get_to(round);
-    CHECK(round.GetTitle() == nullptr);
-    CHECK(round.GetText()  == nullptr);
+    // Post-Phase-1.3: m_title/m_text are std::string. A null JSON
+    // value loads as the empty string (not nullptr). GetTitle()/
+    // GetText() return .c_str() which is "" (non-null) for empty.
+    CHECK(std::string(round.GetTitle()) == "");
+    CHECK(std::string(round.GetText())  == "");
 }
 
 TEST_CASE("json round-trip: SlicRecord keys are snake_case (no m_ leak)")

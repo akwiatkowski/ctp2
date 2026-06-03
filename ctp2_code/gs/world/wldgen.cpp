@@ -402,7 +402,8 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 		return;
 	}
 
-	sint8 *map = new sint8[m_size.y * m_size.x];
+	std::vector<sint8> map(m_size.y * m_size.x);
+	sint8 *map_ptr = map.data();
 	sint32 histogramarray[256];
 	sint32 *histogram = &histogramarray[128];
 
@@ -411,29 +412,29 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	sint32          whichSet    = static_cast<sint32>(profiledb_Get()->PercentContinent() * 10);
 	double *        settings    = worldutils_CreateSettings(mapRec, whichSet, numSettings);
 
-	GetHeightMap(firstPass, map, settings, numSettings);
+	GetHeightMap(firstPass, map_ptr, settings, numSettings);
 	firstPass->Release();
 	FreeMapPlugin();
 	worldutils_DeleteSettings(settings);
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
-	MapDump ("logs" FILE_SEP "HeightMap.bmp", map, m_size.x, m_size.y);
+	MapDump ("logs" FILE_SEP "HeightMap.bmp", map.data(), m_size.x, m_size.y);
 #endif
 
 	IMapGenerator *filterPass = LoadMapPlugin(1);
 	if(filterPass) {
 
 		double pass1Settings[2] = {100.0, 5.0};
-		filterPass->Generate(map, m_size.x, m_size.y, s_randomGenerator,
+		filterPass->Generate(map.data(), m_size.x, m_size.y, s_randomGenerator,
 							 &pass1Settings[0], 2);
 		filterPass->Release();
 		FreeMapPlugin();
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
-		MapDump ("logs" FILE_SEP "FilterMap.bmp", map, m_size.x, m_size.y);
+		MapDump ("logs" FILE_SEP "FilterMap.bmp", map.data(), m_size.x, m_size.y);
 #endif
 	}
-	GetHistogram(map, histogram);
+	GetHistogram(map_ptr, histogram);
 	sint32 landPercent = sint32(profiledb_Get()->PercentLand() * 100);
 	sint32 waterPercent = 100 - landPercent;
 	sint32 mountainPercent = sint32(g_theConstDB->Get(0)->GetPercentMountain());
@@ -469,7 +470,7 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	}
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
-	TerrainDump ("logs" FILE_SEP "TerrainMap.bmp", map, m_size.x, m_size.y, waterLevel, mountainLevel, hillLevel);
+	TerrainDump ("logs" FILE_SEP "TerrainMap.bmp", map.data(), m_size.x, m_size.y, waterLevel, mountainLevel, hillLevel);
 #endif
 
 	sint32 x, y;
@@ -499,22 +500,22 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 
 	IMapGenerator *secondPass = LoadMapPlugin(2);
 	if(!secondPass) {
-		delete [] map;
 		m_mapGenerator = MAP_GENERATOR_ORIGINAL;
 		GenerateRandMap(player_start_list);
 		return;
 	}
 
-	sint8 *wetmap = new sint8[m_size.y * m_size.x];
+	std::vector<sint8> wetmap(m_size.y * m_size.x);
+	sint8 *wetmap_ptr = wetmap.data();
 	sint32 wethistogramarray[256];
 	sint32 *wethistogram = &wethistogramarray[128];
 
 	double homogeneity = 0.9 * profiledb_Get()->PercentHomogenous() + 0.05;
-	GetMapAndHistogram(secondPass, wetmap, wethistogram,
+	GetMapAndHistogram(secondPass, wetmap_ptr, wethistogram,
 					   &homogeneity, 1);
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
-	MapDump ("logs" FILE_SEP "WetMap.bmp", wetmap, m_size.x, m_size.y);
+	MapDump ("logs" FILE_SEP "WetMap.bmp", wetmap.data(), m_size.x, m_size.y);
 #endif
 
 	sint32 totalLandCells = 0;
@@ -610,24 +611,23 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 
 	IMapGenerator *thirdPass = LoadMapPlugin(3);
 	if(!thirdPass) {
-		delete [] map;
-		delete [] wetmap;
 		m_mapGenerator = MAP_GENERATOR_ORIGINAL;
 		GenerateRandMap(player_start_list);
 		return;
 	}
 
-	sint8* temperatureMap = new sint8[m_size.y * m_size.x];
+	std::vector<sint8> temperatureMap(m_size.y * m_size.x);
+	sint8 *temperatureMap_ptr = temperatureMap.data();
 	sint32 temperatureHistArray[256];
 	sint32 *temperatureHist = &temperatureHistArray[128];
 
 	double pass3Settings[1] = { 0.5 };
-	GetMapAndHistogram(thirdPass, temperatureMap, temperatureHist,
+	GetMapAndHistogram(thirdPass, temperatureMap_ptr, temperatureHist,
 					   &pass3Settings[0], 1);
-	TemperatureFilter(temperatureMap, temperatureHist);
+	TemperatureFilter(temperatureMap.data(), temperatureHist);
 
 #ifdef DUMP_TERRAIN_HEIGHT_MAPS
-	MapDump ("logs" FILE_SEP "TempMap.bmp", temperatureMap, m_size.x, m_size.y);
+	MapDump ("logs" FILE_SEP "TempMap.bmp", temperatureMap.data(), m_size.x, m_size.y);
 #endif
 
 	sint32 whitePercent = profiledb_Get()->PercentWhite();
@@ -741,17 +741,13 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 		}
 	}
 
-	NewGenerateRivers(map, wetmap);
+	NewGenerateRivers(map.data(), wetmap.data());
 	GenerateDeepWater();
 	GenerateVolcano();
 	GenerateTrenches();
 
 	thirdPass->Release();
 	FreeMapPlugin();
-
-	delete [] map;
-	delete [] wetmap;
-	delete [] temperatureMap;
 
 	GenerateGoodyHuts();
 	GenerateGoods();

@@ -34,6 +34,8 @@
 #include "ctp/c3.h"
 #include "gs/world/World.h"
 
+#include <vector>
+
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/Cell.h"
@@ -676,8 +678,8 @@ void World::OzoneDepletionEvent(void)
 
 void World::RegenerateRivers()
 {
-	sint8 *map = new sint8[m_size.y * m_size.x];
-	sint8 *wetmap = new sint8[m_size.y * m_size.x];
+	std::vector<sint8> map(m_size.y * m_size.x);
+	std::vector<sint8> wetmap(m_size.y * m_size.x);
 
 #define k_BASE_GROUND_HEIGHT 0
 #define k_BASE_HILL_HEIGHT 50
@@ -785,9 +787,7 @@ void World::RegenerateRivers()
 		}
 	}
 
-	NewGenerateRivers(map, wetmap);
-	delete [] map;
-	delete [] wetmap;
+	NewGenerateRivers(map.data(), wetmap.data());
 }
 
 const GlobalWarmingRecord* World::GetGlobalWarmingDBRec() const

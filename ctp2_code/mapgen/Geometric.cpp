@@ -13,6 +13,7 @@
 #endif
 
 #include <algorithm>
+#include <vector>
 #include "mapgen/Geometric.h"
 #include "mapgen/FaultGen.h"
 #include <stdlib.h>
@@ -158,8 +159,8 @@ void Geometric::RaiseCircle(sint32 sx, sint32 sy,
 
 void Geometric::FixSeaFloor(sint8 *outmap, sint32 outwidth, sint32 outheight)
 {
-	sint8 *landmap = new sint8[outwidth * outheight];
-	memcpy(landmap, outmap, outwidth * outheight);
+	std::vector<sint8> landmap(outwidth * outheight);
+	memcpy(landmap.data(), outmap, outwidth * outheight);
 
 	sint8 minContinentHeight = 127;
 	sint8 maxContinentHeight = -127;
@@ -250,7 +251,6 @@ void Geometric::FixSeaFloor(sint8 *outmap, sint32 outwidth, sint32 outheight)
 		}
 	}
 
-	delete [] landmap;
 }
 
 #if !defined(USE_COM_REPLACEMENT)

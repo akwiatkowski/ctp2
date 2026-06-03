@@ -959,6 +959,35 @@ glue_sources_in_core = [
 	'ctp/civapp.cpp',
 ]
 
+# Network code is currently disabled and scheduled for a full rewrite on
+# a new protocol; chasing UI-leak migrations in net/general/* would be
+# throwaway work. Excluded from the engine_only probe so we focus on the
+# code that will survive.
+disabled_net_sources = [
+	'net/general/net_achievement.cpp', 'net/general/net_action.cpp',
+	'net/general/net_agreement.cpp', 'net/general/net_army.cpp',
+	'net/general/net_cell.cpp', 'net/general/net_chat.cpp',
+	'net/general/net_cheat.cpp', 'net/general/net_city.cpp',
+	'net/general/net_civ.cpp', 'net/general/net_crc.cpp',
+	'net/general/net_diff.cpp', 'net/general/net_diplomacy.cpp',
+	'net/general/net_endgame.cpp', 'net/general/net_exclusions.cpp',
+	'net/general/net_feat.cpp', 'net/general/net_gameobj.cpp',
+	'net/general/net_gamesettings.cpp', 'net/general/net_guid.cpp',
+	'net/general/net_happy.cpp', 'net/general/net_info.cpp',
+	'net/general/net_installation.cpp', 'net/general/net_keys.cpp',
+	'net/general/net_message.cpp', 'net/general/net_order.cpp',
+	'net/general/net_player.cpp', 'net/general/net_pollution.cpp',
+	'net/general/net_rand.cpp', 'net/general/net_ready.cpp',
+	'net/general/net_report.cpp', 'net/general/net_research.cpp',
+	'net/general/net_strengths.cpp', 'net/general/net_terrain.cpp',
+	'net/general/net_tradeoffer.cpp', 'net/general/net_traderoute.cpp',
+	'net/general/net_unit.cpp', 'net/general/net_vision.cpp',
+	'net/general/net_wonder.cpp', 'net/general/net_world.cpp',
+	'net/general/network.cpp', 'net/general/networkevent.cpp',
+	'net/io/net_anet.cpp', 'net/io/net_debug.cpp',
+	'net/io/net_io.cpp', 'net/io/net_thread.cpp',
+]
+
 ui_sources_in_core = [
 	# All ui/aui_common/, ui/aui_directx/, ui/aui_sdl/, ui/aui_ctp2/,
 	# ui/aui_utils/, ui/interface/, ui/ldl/ (non-generated),
@@ -1168,7 +1197,7 @@ ui_sources_in_core = [
 # Generated entries (slic lgen/pgen) survive — they're engine-side.
 # meson's `in` operator on a mixed-type array compares safely without
 # erroring on type mismatches (unlike `==`).
-ui_and_gfx_excludes = ui_sources_in_core + gfx_adapter_sources + glue_sources_in_core
+ui_and_gfx_excludes = ui_sources_in_core + gfx_adapter_sources + glue_sources_in_core + disabled_net_sources
 engine_only_sources = []
 foreach src : game_core_sources
 	if not (src in ui_and_gfx_excludes)

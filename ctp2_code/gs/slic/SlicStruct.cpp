@@ -43,47 +43,37 @@ namespace
 }
 
 SlicStructDescription::Member::Member(SlicStructDescription *parent, char const * name, SLIC_SYM type)
+:	m_type(type),
+	m_name(name ? name : ""),
+	m_parent(parent),
+	m_symbol(nullptr)
 {
-	m_parent = parent;
-	m_name = new char[strlen(name) + 1];
-	strcpy(m_name, name);
-
-	m_type = type;
-	m_symbol = NULL;
 }
 
 SlicStructDescription::Member::Member(SlicStructDescription *parent, char const * name, SlicStructMemberData *sym)
+:	m_type(sym->GetType()),
+	m_name(name ? name : ""),
+	m_parent(parent),
+	m_symbol(sym)
 {
-	m_parent = parent;
-	m_name = new char[strlen(name) + 1];
-	strcpy(m_name, name);
-
-	m_type = sym->GetType();
-	m_symbol = sym;
-
 }
 
 SlicStructDescription::Member::~Member()
 {
-	delete [] m_name;
 	delete m_symbol;
 }
 
 SlicStructDescription::SlicStructDescription(char const * name, SLIC_BUILTIN type)
-:	m_accessors()
+:	m_name(name ? name : ""),
+	m_type(type),
+	m_members(NULL),
+	m_numMembers(0),
+	m_accessors()
 {
-	m_name = new char[strlen(name) + 1];
-	m_type = type;
-	strcpy(m_name, name);
-
-	m_members = NULL;
-	m_numMembers = 0;
 }
 
 SlicStructDescription::~SlicStructDescription()
 {
-	delete [] m_name;
-
 	for (sint32 i = 0; i < m_numMembers; ++i)
     {
 		delete m_members[i];
@@ -274,7 +264,7 @@ sint32 SlicStructDescription::GetMemberIndex(char const * name) const
 {
 	sint32 i;
 	for(i = 0; i < m_numMembers; i++) {
-		if(!stricmp(name, m_members[i]->m_name))
+		if(!stricmp(name, m_members[i]->m_name.c_str()))
 			return i;
 	}
 
@@ -286,7 +276,7 @@ sint32 SlicStructDescription::GetMemberIndex(char const * name) const
 		++p
 	)
 	{
-		if (stricmp(name, (*p)->m_name))
+		if (stricmp(name, (*p)->m_name.c_str()))
 		{
 			++i;	// not the name we are looking for
 		}
@@ -340,14 +330,14 @@ const char * SlicStructDescription::GetMemberName(sint32 index) const
 	{
 		if (index < m_numMembers)
 		{
-			return m_members[index]->m_name;
+			return m_members[index]->m_name.c_str();
 		}
 		else
 		{
 			size_t const	accessorIndex	= index - m_numMembers;
 			if (accessorIndex < m_accessors.size())
 			{
-				return m_accessors[accessorIndex]->m_name;
+				return m_accessors[accessorIndex]->m_name.c_str();
 			}
 		}
 	}

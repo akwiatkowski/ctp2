@@ -44,6 +44,7 @@
 #ifndef __SLIC_STRUCT_H__
 #define __SLIC_STRUCT_H__ 1
 
+#include <string>		// std::string
 #include <vector>		// std::vector
 
 #include "gs/slic/slicif.h"
@@ -73,7 +74,7 @@ public:
 		friend class SlicStructInstance;
 
 		SLIC_SYM m_type;
-		char *m_name;
+		std::string m_name;
 		class SlicStructDescription *m_parent;
 		class SlicStructMemberData *m_symbol;
 	};
@@ -91,7 +92,7 @@ public:
 	void AddMember(SlicStructDescription::Member *member);
 	void AddMember(char const * name, SLIC_SYM type);
 	void AddMember(char const * name, SlicStructMemberData *sym);
-	const char * GetName() const { return m_name; }
+	const char * GetName() const { return m_name.c_str(); }
 	sint32 GetMemberIndex(char const * name) const;
 	const char *GetMemberName(sint32 index) const;
 	sint32 GetNumMembers() { return m_numMembers; }
@@ -107,7 +108,7 @@ public:
 	friend class SlicStructInstance;
 	friend SlicSymbolData *slicsymbol_Load(CivArchive &archive);
 private:
-	char *m_name;
+	std::string m_name;
 	SLIC_BUILTIN m_type;
 	SlicStructDescription::Member **m_members;
 	sint32 m_numMembers;

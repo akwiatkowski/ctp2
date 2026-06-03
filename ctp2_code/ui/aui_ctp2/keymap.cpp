@@ -37,7 +37,7 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "ui/interface/controlpanelwindow.h"
 
-extern CivPaths *civpaths_Get();
+
 
 static FUNC_TABLE func2key[] = {
 
@@ -187,7 +187,8 @@ KEYMAP::KEYMAP(BOOL useDefault)
 		c3errors_FatalDialog ("keymap.txt", "Could not open keymap.txt or userkeymap.txt");
 	}
 
-	sint32 k, old;
+	sint32 k;
+	sint32 old;
 	char funcstr[80];
 	char keystr[80];
 	char line[1024];
@@ -305,7 +306,10 @@ KEYMAP::KEYMAP(BOOL useDefault)
 uint32 KEYMAP::hash_32to16(unsigned long val)
 
 {
-	unsigned char a, b, c, d;
+	unsigned char a;
+	unsigned char b;
+	unsigned char c;
+	unsigned char d;
 
 	a = static_cast<unsigned char>(val >> 24);
 	b = static_cast<unsigned char>(val >> 16);

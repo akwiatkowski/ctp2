@@ -360,7 +360,9 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 	OffsetRect( &tempRect, rect.left, rect.top );
 	primitives_FrameRect16( surface, &tempRect, colorset_Get()->GetColor((COLOR)m_centerColor) );
 
-	POINT center, leftCenter, rightCenter;
+	POINT center;
+	POINT leftCenter;
+	POINT rightCenter;
 	center.x = rect.left + m_centerButton->X();
 	center.y = rect.top + m_centerButton->Y() + m_centerButton->Height() / 2;
 	leftCenter.x = center.x - m_distFromCenter / 2;
@@ -385,7 +387,8 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 
 	for ( i = 0;i < m_numPreReq;i++ )
 	{
-		POINT l, r;
+		POINT l;
+		POINT r;
 		l.x = rect.left + m_preReqButton[i]->X() + m_preReqButton[i]->Width();
 		l.y = rect.top + m_preReqButton[i]->Y() + m_preReqButton[i]->Height() / 2;
 		r.x = l.x + 5;
@@ -396,7 +399,8 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 
 	for ( i = 0;i < m_numEitherPreReq;i++ )
 	{
-		POINT l, r;
+		POINT l;
+		POINT r;
 		l.x = rect.left + m_eitherPreReqButton[i]->X() + m_eitherPreReqButton[i]->Width();
 		l.y = rect.top + m_eitherPreReqButton[i]->Y() + m_eitherPreReqButton[i]->Height() / 2;
 		r.x = l.x + 5;
@@ -407,7 +411,8 @@ AUI_ERRCODE Chart::Draw( aui_Surface *surface, sint32 x, sint32 y )
 
 	for ( i = 0;i < m_numLeadsTo;i++ )
 	{
-		POINT l, r;
+		POINT l;
+		POINT r;
 		l.x = rect.left + m_leadsToButton[i]->X() - 5;
 		l.y = rect.top + m_leadsToButton[i]->Y() + m_leadsToButton[i]->Height() / 2;
 		r.x = l.x + 5;

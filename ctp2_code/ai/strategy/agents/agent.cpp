@@ -227,7 +227,9 @@ const Squad_Strength & Agent::Compute_Squad_Strength()
 {
 	Assert(m_army.IsValid());
 
-	sint32 transports, max_slots, empty_slots;
+	sint32 transports;
+	sint32 max_slots;
+	sint32 empty_slots;
 	m_army->GetCargo(transports, max_slots, empty_slots);
 
 	sint8 defense_count;

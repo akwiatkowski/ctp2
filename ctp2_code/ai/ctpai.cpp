@@ -1969,7 +1969,9 @@ void CtpAi::ComputeCityGarrisons(const PLAYER_INDEX playerId )
 		if (city.m_id == 0)
 			continue;
 
-		sint32 transports,max,empty;
+		sint32 transports;
+		sint32 max;
+		sint32 empty;
 		if (army->GetCargo(transports, max, empty))
 			continue;
 
@@ -2505,7 +2507,9 @@ void CtpAi::BombardNearbyEnemies(const Army & army, const sint32 & max_rge)
 
 			Army def_army;
 			MapPoint def_pos;
-			sint32 i, dist = 0, min_dist = 0x7fffffff;
+			sint32 i;
+			sint32 dist = 0;
+			sint32 min_dist = 0x7fffffff;
 			//bombard the first enemy army within range
 			for(i = 0; i < num_armies; i++)
 			{

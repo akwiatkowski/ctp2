@@ -116,7 +116,7 @@ extern sint32 g_ScreenHeight;
 
 
 extern C3Window			*g_toolbar;
-extern SelectedItem		*selitem_Get();
+
 
 extern unsigned char *g_compression_buff;
 
@@ -630,7 +630,8 @@ SpriteEditWindow::LoadSprite(char *name)
 	m_currentSprite->LoadFull(tbuffer);
 
 	uint32		i;
-	uint16		w = 0, h = 0;
+	uint16		 w = 0;
+	uint16		 h = 0;
 
 	m_spriteRect.left	= 0;
 	m_spriteRect.right  = 100;
@@ -840,7 +841,8 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 	if ((m_currentSprite!=nullptr)&&(tiledmap_Get()!=nullptr))
 	{
-		POINT sav,pt;
+		POINT sav;
+		POINT pt;
 		static int cval=0;
 
 		c3ui_Get()->TheBlitter()->ColorBlt(m_spriteSurface,&m_spriteRect,RGB(64,64,64),k_AUI_BLITTER_FLAG_COPY);
@@ -912,7 +914,8 @@ AUI_ERRCODE SpriteEditWindow::Idle( )
 
 	if (PtInRect(&m_largeRectAbs,me->position))
 	{
-		int mx,my;
+		int mx;
+		int my;
 
 		mx = (int)((float)(me->position.x-m_largeRectAbs.left)*m_widthRatio);
 		my = (int)((float)(me->position.y-m_largeRectAbs.top )*m_heightRatio);

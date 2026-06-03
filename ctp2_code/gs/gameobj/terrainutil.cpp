@@ -1682,7 +1682,8 @@ sint32 terrainutil_GetMinimumProductionCost(sint32 type)
 //Calculates Heal Rate at a Mappoint
 double terrainutil_GetHealRate( const MapPoint & pos )
 {
-	double rate = 0.0, temp;
+	double rate = 0.0;
+	double temp;
 	sint32 imp;
 	bool can_heal = false;
 	Cell *cell = world_Get()->GetCell(pos);

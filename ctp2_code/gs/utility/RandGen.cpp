@@ -60,8 +60,10 @@ void RandomGenerator::Serialize(CivArchive &archive)
 void RandomGenerator::Initialize(sint32 seed)
 
 {
-	sint32 i, j;
-	sint32 mj, mk;
+	sint32 i;
+	sint32 j;
+	sint32 mj;
+	sint32 mk;
 
     m_start_seed = seed;
     m_buffer[0] = 0;

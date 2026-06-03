@@ -129,7 +129,7 @@ extern sint32 g_debugOwner;
 #include "ui/netshell/netshell.h"
 #include "ctp/civapp.h"
 #include "gs/database/StrDB.h"
-extern StringDB			*stringdb_Get();
+
 
 #include "gs/gameobj/GameSettings.h"
 #include "AgeRecord.h"
@@ -142,7 +142,7 @@ extern StringDB			*stringdb_Get();
 #include "ui/interface/progresswindow.h"
 extern ProgressWindow		*g_theProgressWindow;
 
-extern NETFunc			*netfunc_Get();
+
 
 #include "ui/aui_ctp2/SelItem.h"
 #include "ctp/ctp2_rsrc/resource.h"
@@ -483,7 +483,8 @@ void Network::InitFromNetFunc()
 	if(m_fromSave) {
 
 
-		sint32 i, numLegalSlots = 1;
+		sint32 i;
+		sint32 numLegalSlots = 1;
 		GUID zeroGuid;
 		memset(&zeroGuid, 0, sizeof(GUID));
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -1237,7 +1238,8 @@ bool Network::ReadyForPackets()
 
 void Network::SetReady(uint16 id)
 {
-	sint32 i,n;
+	sint32 i;
+	sint32 n;
 
 	sint32 index = IdToIndex(id);
 	if(index < 0)
@@ -1312,7 +1314,8 @@ void Network::SetReady(uint16 id)
 
 	PointerList<Packetizer> chunkPackets;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < size->x; x++) {
 		for(y = 0; y < size->y; y++) {
 			if(!cellList) {
@@ -2567,8 +2570,10 @@ void Network::DisplayChat(aui_Surface *surf)
 {
 	if(m_displayPackets) {
 		MBCHAR buf[256];
-		uint32 totalCount=0, totalBytes=0;
-		uint32 totalSent = 0, totalSentBytes = 0;
+		uint32 totalCount=0;
+		uint32 totalBytes=0;
+		uint32 totalSent = 0;
+		uint32 totalSentBytes = 0;
 
 		for(sint32 i = 0; i < k_NUM_PACKET_TYPES; i++) {
 			sprintf(buf, "%c%c : Rx: %d/%d   Tx: %d/%d",
@@ -2822,9 +2827,9 @@ PlayerData::~PlayerData()
 		packet->Release();
 	}
 
-	if(m_name) {
+	
 		delete [] m_name;
-	}
+	
 	delete m_bookmarks;
 	delete m_packetList;
 	delete m_createdCities;
@@ -3280,7 +3285,8 @@ void Network::AddResetCityOwnerHack(const Unit &unit)
 
 void Network::DoResetCityOwnerHack()
 {
-	sint32 i, n = m_resetCityOwnerHackList->Num();
+	sint32 i;
+	sint32 n = m_resetCityOwnerHackList->Num();
 
 	for(i = 0; i < n; i++) {
 		Unit u = m_resetCityOwnerHackList->Access(i);
@@ -4049,7 +4055,8 @@ void network_VerifyGameData()
 		}
 	}
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			Cell *cell = world_Get()->GetCell(x, y);

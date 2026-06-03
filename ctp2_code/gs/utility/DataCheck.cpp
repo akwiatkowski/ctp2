@@ -111,7 +111,7 @@
 
 
 // The Databases
-extern  StringDB                *g_theStringDB ;
+;
 extern  OzoneDatabase           *g_theUVDB ;
 
 // The Pools
@@ -182,8 +182,8 @@ void DataCheck_Requiem()
 
 DataCheck::DataCheck()
 {
-	sint32  i,
-	        j;
+	sint32  i;
+	sint32  j;
 
 	m_is_display = FALSE ;
 	for (i=CRC_TYPE_MIN; i<CRC_TYPE_MAX; i++)
@@ -225,9 +225,11 @@ void DataCheck::BeginTurn()
 
 	CivArchive	*archive;
 
-	sint32	i, j;
+	sint32	 i;
+	sint32	 j;
 
-	clock_t start, finish;
+	clock_t start;
+	clock_t finish;
 
 	for(i=CRC_TYPE_MIN; i<CRC_TYPE_MAX; i++)
 		for (j=0; j<CRC_ARRAY_MAX; j++)
@@ -682,9 +684,9 @@ void DataCheck::draw_time(aui_Surface *surf, sint32 x, sint32 y) const
 
 void DataCheck::DisplayCRC(aui_Surface *surf) const
 {
-	sint32 x=100,
-	       y=80,
-	       d=16;
+	sint32 x=100;
+	sint32 y=80;
+	sint32 d=16;
 
 	if (!m_is_display)
 		return ;

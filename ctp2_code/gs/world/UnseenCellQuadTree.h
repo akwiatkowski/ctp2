@@ -26,7 +26,8 @@ void UnseenCellQuadTree::Clear()
 {
 	DynamicArray<UnseenCellCarton> array;
 	BuildList(array);
-	sint32 i, n = array.Num();
+	sint32 i;
+	sint32 n = array.Num();
 	for(i = 0; i < n; i++) {
 		delete array[i].m_unseenCell;
 	}

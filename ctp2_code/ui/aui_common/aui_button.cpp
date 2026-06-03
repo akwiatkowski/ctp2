@@ -8,7 +8,7 @@
 #include "sound/gamesounds.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*soundmgr_Get();
+
 
 aui_Button::aui_Button(
 	AUI_ERRCODE *retval,

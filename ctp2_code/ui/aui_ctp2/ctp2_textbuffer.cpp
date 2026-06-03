@@ -152,15 +152,17 @@ void ctp2_TextBuffer::Scroll(sint32 numLines)
 	sint32		x = m_rect.left;
 	sint32		y = m_rect.top;
 
-	sint32		h = m_rect.bottom - m_rect.top,
-				w = m_rect.right - m_rect.left,
-				copyHeight = h - abs(deltaY);
+	sint32		 h = m_rect.bottom - m_rect.top;
+	sint32		 w = m_rect.right - m_rect.left;
+	sint32		 copyHeight = h - abs(deltaY);
 
 	sint32		pitch = m_surface->Pitch();
 
-	uint32		*srcPtr, *destPtr;
+	uint32		 *srcPtr;
+	uint32		 *destPtr;
 	sint32		dy = abs(deltaY);
-	sint32		i,j;
+	sint32		 i;
+	sint32		 j;
 
 	sint32		slop;
 	char		*scrollBuffer = buffer + (pitch * y + x * 2);
@@ -244,7 +246,8 @@ void ctp2_TextBuffer::AddLine(MBCHAR *text, sint32 len, COLOR color)
 
 void ctp2_TextBuffer::AddText(MBCHAR *text, COLOR color)
 {
-	MBCHAR		*start, *end;
+	MBCHAR		 *start;
+	MBCHAR		 *end;
 	sint32		col;
 
 	start = text;

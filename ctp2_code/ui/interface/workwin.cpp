@@ -68,7 +68,7 @@ WorkMap *g_workMap = nullptr;
 static c3_Button			*s_exitButton;
 
 
-extern SelectedItem			*selitem_Get();
+
 
 void WorkWinCleanupAction::Execute(aui_Control *control,
 									uint32 action,

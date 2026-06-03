@@ -54,7 +54,7 @@
 
 #include "ui/interface/TurnYearStatus.h"
 
-extern StringDB		*stringdb_Get();
+
 
 MessageWindow		*g_currentMessageWindow = nullptr;
 
@@ -499,7 +499,8 @@ AUI_ERRCODE MessageWindow::ShowWindow( BOOL show )
 
 
 
-		sint32 x,y;
+		sint32 x;
+		sint32 y;
 
 		if(g_ScreenWidth < 1024) {
 			x = 0,

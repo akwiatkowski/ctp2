@@ -414,7 +414,9 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			break;
 		case NET_ACTION_TAX_RATES:
 		{
-			double s,g,l;
+			double s;
+			double g;
+			double l;
 			s = (double)m_data[0] / 100000.;
 			g = (double)m_data[1] / 100000.;
 			l = (double)m_data[2] / 100000.;

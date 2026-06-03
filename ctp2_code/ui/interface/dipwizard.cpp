@@ -428,7 +428,8 @@ void DipWizard::FillProposalLists()
 {
 
 	sint32 pr;
-	ctp2_ListBox *propList = nullptr, *exchList = nullptr;
+	ctp2_ListBox *propList = nullptr;
+	ctp2_ListBox *exchList = nullptr;
 
 	sint32 i;
 	for(i = 0; i < DIP_WIZ_PROP_TAB_MAX; i++) {
@@ -1336,7 +1337,8 @@ void DipWizard::UpdateDetails()
 			ProposalData propData;
 			FillInProposalData(propData);
 
-			sint32 sender, receiver;
+			sint32 sender;
+			sint32 receiver;
 			if(!viewingProposal) {
 				sender = selitem_Get()->GetVisiblePlayer();
 				receiver = m_recipient;
@@ -1950,10 +1952,10 @@ void DipWizard::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 it
 bool DipWizard::ProposalContextMenu(sint32 proposal)
 {
 	Assert(!m_curMenu);
-	if(m_curMenu) {
+	
 
 		delete m_curMenu;
-	}
+	
 
 	const DiplomacyProposalRecord *rec = g_theDiplomacyProposalDB->Get(proposal);
 	Assert(rec);
@@ -2486,10 +2488,10 @@ void DipWizard::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 bool DipWizard::ThreatContextMenu(sint32 threat)
 {
 	Assert(!m_threatMenu);
-	if(m_threatMenu) {
+	
 
 		delete m_threatMenu;
-	}
+	
 
 	const DiplomacyThreatRecord *rec = g_theDiplomacyThreatDB->Get(threat);
 	Assert(rec);
@@ -2553,7 +2555,8 @@ void DipWizard::ThreatListCallback(aui_Control *control, uint32 action, uint32 d
 
 STDEHANDLER(DipWizResponseReady)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -2568,7 +2571,8 @@ STDEHANDLER(DipWizResponseReady)
 
 STDEHANDLER(DipWizNewProposalEvent)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -2581,7 +2585,8 @@ STDEHANDLER(DipWizNewProposalEvent)
 // Not called
 STDEHANDLER(DipWizContinueDiplomacyEvent)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 

@@ -665,7 +665,8 @@ void World::Grassfire8(bool is_choke_land, sint16 **tmp_map)
         }
     }
 
-    sint16 v, mv = 0; // Reconsider!
+    sint16 v;
+    sint16 mv = 0; // Reconsider!
     MapPoint w;
     for (pos.x=0; pos.x < m_size.x; pos.x++) {
         for (pos.y=0; pos.y < m_size.y; pos.y++) {

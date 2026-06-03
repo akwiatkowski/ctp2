@@ -709,7 +709,8 @@ void KnowledgeListItem::Update()
 
 sint32 KnowledgeListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	sint32	val1, val2;
+	sint32	 val1;
+	sint32	 val2;
 
 	if (column < 0) return 0;
 
@@ -773,7 +774,8 @@ void EmbassyListItem::Update()
 
 sint32 EmbassyListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	sint32	val1, val2;
+	sint32	 val1;
+	sint32	 val2;
 
 	if (column < 0) return 0;
 
@@ -928,7 +930,8 @@ void AdvanceListItem::Update()
 	subItem = (c3_Static *)GetChildByIndex(2);
 	subItem->SetText( g_theAdvanceDB->GetNameStr(m_index) );
 
-	sint32 i,x = 0;
+	sint32 i;
+	sint32 x = 0;
 
 	for ( i = 0;i < k_MAX_PLAYERS;i++ ) {
 		if ( i != curPlayer ) {
@@ -962,8 +965,10 @@ void AdvanceListItem::Update()
 
 sint32 AdvanceListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	c3_Static		*i1, *i2;
-	sint32	val1, val2;
+	c3_Static		 *i1;
+	c3_Static		 *i2;
+	sint32	 val1;
+	sint32	 val2;
 
 	if (column < 0) return 0;
 
@@ -1076,7 +1081,7 @@ sint32 sciencewin_Initialize( )
 
 sint32 sciencewin_Cleanup( )
 {
-	if ( g_scienceWin ) delete g_scienceWin;
+	delete g_scienceWin;
 	g_scienceWin = nullptr;
 
 	return 0;

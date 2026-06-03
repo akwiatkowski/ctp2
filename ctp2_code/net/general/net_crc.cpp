@@ -91,7 +91,7 @@
 #include "ctp/civapp.h"
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
-extern StringDB                *stringdb_Get();
+
 
 extern OzoneDatabase           *g_theUVDB;
 
@@ -312,7 +312,8 @@ void NetCRC::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		return;
 	}
 
-	sint32 i,j;
+	sint32 i;
+	sint32 j;
 	uint32 part;
 	BOOL alreadybad;
 

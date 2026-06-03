@@ -301,7 +301,8 @@ sint32 MilitaryReadiness::TotalUnitGoldSupport()
 
 	m_costGold = 0;
 	DynamicArray<Army> *all_armies = player_Get(m_owner)->m_all_armies;
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 const n = all_armies->Num();
 	for (i=0; i<n; i++)
     {
@@ -336,7 +337,9 @@ void MilitaryReadiness::KillUnitsOverBudget(sint32 gov, DynamicArray<Army> &m_al
 		return;
 	}
 
-	sint32 i, j, m;
+	sint32 i;
+	sint32 j;
+	sint32 m;
 	sint32 n_units = 0;
 	for (i=0; i<n; i++) {
 		n_units += m_all_armies[i].Num();

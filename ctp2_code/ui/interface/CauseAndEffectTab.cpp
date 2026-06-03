@@ -493,11 +493,15 @@ void CauseAndEffectTab::UpdateCommerceSpinners()
 void CauseAndEffectTab::UpdateFoodValues()
 {
 
-	double totalFoodRequired = 0.0, totalFood = 0.0,
-		totalFoodCrime = 0.0, totalFoodConsumed = 0.0,
-		totalTerrainFood = 0.0, totalFoodFromBuildings = 0.0,
-		totalFoodGovBonus = 0.0, totalFoodFarmers = 0.0,
-		totalFeatWonderFood = 0.0;
+	double totalFoodRequired = 0.0;
+	double totalFood = 0.0;
+	double totalFoodCrime = 0.0;
+	double totalFoodConsumed = 0.0;
+	double totalTerrainFood = 0.0;
+	double totalFoodFromBuildings = 0.0;
+	double totalFoodGovBonus = 0.0;
+	double totalFoodFarmers = 0.0;
+	double totalFeatWonderFood = 0.0;
 
 	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
@@ -611,12 +615,17 @@ void CauseAndEffectTab::UpdateFoodValues()
 void CauseAndEffectTab::UpdateProductionValues()
 {
 
-	double totalProduction = 0.0, totalProductionCrime = 0.0,
-		totalTerrainProd = 0.0, totalProdFromBuildings = 0.0,
-		totalLaborersProd = 0.0, totalProdGovBonus = 0.0,
-		totalFranchiseBioLoss = 0.0, totalFeatWonderProd = 0.0,
-		totalWorkdayBonus = 0.0;
-	sint32 totalProductionUnitUpkeep = 0, totalProductionPublicWorks = 0;
+	double totalProduction = 0.0;
+	double totalProductionCrime = 0.0;
+	double totalTerrainProd = 0.0;
+	double totalProdFromBuildings = 0.0;
+	double totalLaborersProd = 0.0;
+	double totalProdGovBonus = 0.0;
+	double totalFranchiseBioLoss = 0.0;
+	double totalFeatWonderProd = 0.0;
+	double totalWorkdayBonus = 0.0;
+	sint32 totalProductionUnitUpkeep = 0;
+	sint32 totalProductionPublicWorks = 0;
 
 	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
@@ -668,7 +677,9 @@ void CauseAndEffectTab::UpdateProductionValues()
 		prodGovBonus -= totalProdWithoutGov;
 
 		// Franchise and bio infection losses.
-		sint32 tmpProduction = 0, crimeLoss = 0, franchiseLoss = 0;
+		sint32 tmpProduction = 0;
+		sint32 crimeLoss = 0;
+		sint32 franchiseLoss = 0;
 		tmpProduction = static_cast<sint32>(production);
 
 #if defined(NEW_RESOURCE_PROCESS)
@@ -786,19 +797,31 @@ void CauseAndEffectTab::UpdateProductionValues()
 void CauseAndEffectTab::UpdateCommerceValues()
 {
 
-	sint32 totalCommerce = 0, totalCommerceGoldCrime = 0,
-		totalCommerceWages = 0, totalCommerceCityBuildingUpkeep = 0,
-		totalCommerceScience = 0, totalCommerceSavings = 0,
-		totalCommerceTerrain = 0, totalCommerceScieCrime = 0,
-		// Science and Savings stuff.
-		totalScienceFromBuildings = 0, totalGoldFromBuildings = 0,
-		totalScienceFromCommerce = 0, totalGoldFromCommerce = 0,
-		totalScientistsScie = 0, totalMerchantsGold = 0,
-		totalGoldConversionLoss = 0, totalScienceGov = 0,
-		totalGoldGov = 0, totalFeatWonderScie = 0,
-		totalFeatWonderGold = 0, totalScieSubTotal = 0,
-		totalGoldSubTotal = 0, totalUnitWages = 0,
-		totalGoldTradeRoutes = 0, totalGoldConversions = 0;
+	sint32 totalCommerce = 0;
+	sint32 totalCommerceGoldCrime = 0;
+	sint32 totalCommerceWages = 0;
+	sint32 totalCommerceCityBuildingUpkeep = 0;
+	sint32 totalCommerceScience = 0;
+	sint32 totalCommerceSavings = 0;
+	sint32 totalCommerceTerrain = 0;
+	sint32 totalCommerceScieCrime = 0;
+	sint32 // Science and Savings stuff.
+		totalScienceFromBuildings = 0;
+	sint32 totalGoldFromBuildings = 0;
+	sint32 totalScienceFromCommerce = 0;
+	sint32 totalGoldFromCommerce = 0;
+	sint32 totalScientistsScie = 0;
+	sint32 totalMerchantsGold = 0;
+	sint32 totalGoldConversionLoss = 0;
+	sint32 totalScienceGov = 0;
+	sint32 totalGoldGov = 0;
+	sint32 totalFeatWonderScie = 0;
+	sint32 totalFeatWonderGold = 0;
+	sint32 totalScieSubTotal = 0;
+	sint32 totalGoldSubTotal = 0;
+	sint32 totalUnitWages = 0;
+	sint32 totalGoldTradeRoutes = 0;
+	sint32 totalGoldConversions = 0;
 
 	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
@@ -984,7 +1007,8 @@ void CauseAndEffectTab::UpdateCommerceValues()
 	}
 
 	// Gold profit from conversions.
-	sint32 j, k;
+	sint32 j;
+	sint32 k;
 	for(j = 0; j < k_MAX_PLAYERS; j++) {
 		if(!player_Get(j) || player_Get(j) == player)
 			continue;

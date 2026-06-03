@@ -66,7 +66,8 @@ FILE *logPkt_open()
 		/* Delete all output9.* and move all old output0.* to output1.*,
 		 * output1.* to output2.*, etc.
 		 */
-		int n = 0, i;
+		int n = 0;
+		int i;
 		int retval;
 
 		do {

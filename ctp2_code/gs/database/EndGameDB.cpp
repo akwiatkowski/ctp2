@@ -6,7 +6,7 @@
 #include "gs/database/EndGameToken.h"
 #include "gs/database/StrDB.h"
 
-extern StringDB *g_theStringDB;
+
 
 static TokenData s_endgameTokenData[TOKEN_ENDGAME_MAX_VAL] = {
 	{TOKEN_ENDGAME_EXACTLY_ONE, "EXACTLY_ONE"},

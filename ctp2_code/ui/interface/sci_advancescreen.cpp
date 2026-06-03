@@ -85,7 +85,7 @@ extern ScienceWin	*g_scienceWin;
 
 #include "sound/soundmanager.h"
 #include "sound/gamesounds.h"
-extern SoundManager	*soundmgr_Get();
+
 
 static C3Window		*s_sci_advanceScreen	= nullptr;
 
@@ -807,7 +807,8 @@ sint32 sci_advancescreen_isOnScreen()
 
 sint32 ScienceSortCallback(ctp2_ListItem *item1, ctp2_ListItem *item2, sint32 column)
 {
-	sint32 turns1,turns2;
+	sint32 turns1;
+	sint32 turns2;
 	turns1 = g_theAdvanceDB->Get((long)item1->GetUserData())->GetCost();
 	turns2 = g_theAdvanceDB->Get((long)item2->GetUserData())->GetCost();
 	return turns1-turns2;

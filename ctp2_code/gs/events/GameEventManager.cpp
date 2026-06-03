@@ -566,7 +566,8 @@ bool GameEventManager::VerifyArgs(GAME_EVENT type, va_list *vl)
 
 
 		static Army a;
-		static Unit u, c;
+		static Unit u;
+		static Unit c;
 		static MapPoint pos;
 		static TerrainImprovement imp;
 		static TradeRoute route;

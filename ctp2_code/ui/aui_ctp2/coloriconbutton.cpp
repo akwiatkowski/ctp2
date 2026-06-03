@@ -21,7 +21,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern CivPaths		*civpaths_Get();
+
 
 ColorIconButton::ColorIconButton(
 	AUI_ERRCODE *retval,
@@ -79,7 +79,8 @@ AUI_ERRCODE ColorIconButton::Resize(sint32 width, sint32 height)
 }
 void ColorIconButton::ResizePictureRect()
 {
-	sint32 destHeight, destWidth;
+	sint32 destHeight;
+	sint32 destWidth;
 
 	if (GetImage(0) && GetImage(0)->TheSurface()) {
 
@@ -126,7 +127,7 @@ void ColorIconButton::SetIcon(MBCHAR *name)
 {
 	if (name == nullptr) return;
 
-	if (m_filename) delete[] m_filename;
+	delete[] m_filename;
 
 	m_filename = new MBCHAR[_MAX_PATH];
 

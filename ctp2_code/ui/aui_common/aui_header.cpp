@@ -147,7 +147,7 @@ aui_Header::~aui_Header()
 	{
 		aui_Switch *theSwitch = (aui_Switch *)m_childList->GetNext( position );
 		aui_Action *action = theSwitch->GetAction();
-		if ( action )
+		
 			delete action;
 		delete theSwitch;
 	}

@@ -698,8 +698,8 @@ bool ui_CheckForScroll()
 //	const int       k_MAX_SMOOTH_SCROLL         = 64;
 	const int       k_TICKS_PER_ACCELERATION    = 50;
 
-	sint32	deltaX = 0,
-			deltaY = 0;
+	sint32	 deltaX = 0;
+	sint32	 deltaY = 0;
 
 	CURSORINDEX		scrollCursor = CURSORINDEX_DEFAULT;
 
@@ -1231,7 +1231,8 @@ void ParseCommandLine(PSTR szCmdLine)
 			resArg = strchr(resArg, ' ');
 			if (resArg) {
 				while (*resArg == ' ') resArg++;
-				sint32 w = 0, h = 0;
+				sint32 w = 0;
+				sint32 h = 0;
 				if (sscanf(resArg, "%dx%d", &w, &h) == 2 && w >= 640 && h >= 480) {
 					g_ScreenWidth = w;
 					g_ScreenHeight = h;

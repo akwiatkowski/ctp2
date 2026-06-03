@@ -91,7 +91,7 @@
 #include "gs/world/World.h"                  // world_Get()
 
 extern Diplomacy_Log *  g_theDiplomacyLog;
-extern Network          g_network;
+
 
 sint32 g_cantEndTurn = 0;
 
@@ -1049,8 +1049,8 @@ void TurnCount::LogPlayerStats()
 	}
 
 	UnitDynamicArray *  cityList    = player_Get(playerNum)->GetAllCitiesList();
-	sint32              citySize,
-	                    maxCitySize = -1;
+	sint32              citySize;
+	sint32              maxCitySize = -1;
 	sint32              numCitiesRioting = 0;
 	sint32              totalPop = 0;
 	sint32              totalFood = 0;
@@ -1145,7 +1145,10 @@ void TurnCount::SendNextPlayerMessageEvent()
 
 		is_scenario_Set(FALSE);
 
-		MBCHAR fullPath[_MAX_PATH], *c, *startc, *fc;
+		MBCHAR fullPath[_MAX_PATH];
+		MBCHAR *c;
+		MBCHAR *startc;
+		MBCHAR *fc;
 		strncpy(fullPath, civpaths_Get()->GetDesktopPath(), sizeof(fullPath));
 		fullPath[sizeof(fullPath) - 1] = '\0';
 		// JJB changed this from CTP to CTP2 to avoid confusion between the two games

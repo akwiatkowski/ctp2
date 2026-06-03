@@ -109,7 +109,8 @@ void Crater::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
                       const double *settings, sint32 numSettings)
 #endif
 {
-	sint32 numCraters, maxRadius;
+	sint32 numCraters;
+	sint32 maxRadius;
 	if(numSettings >= 1) {
 		numCraters = sint32(settings[0]);
 	} else {
@@ -129,11 +130,14 @@ void Crater::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 		sint32 cx = randgen->Next(outwidth);
 		sint32 cy = randgen->Next(outheight);
 
-		sint32 x, y;
+		sint32 x;
+		sint32 y;
 
-		sint32 ax, ay;
+		sint32 ax;
+		sint32 ay;
 
-		sint32 rx, ry;
+		sint32 rx;
+		sint32 ry;
 
 		sint32 rsq = radius * radius;
 

@@ -1677,7 +1677,8 @@
                               TT_Matrix*   matrix )
   {
     UShort      n;
-    TT_F26Dot6  x, y;
+    TT_F26Dot6  x;
+    TT_F26Dot6  y;
     TT_Vector*  vec;
 
 
@@ -1718,7 +1719,8 @@
                              TT_F26Dot6*  y,
                              TT_Matrix*   matrix )
   {
-    TT_F26Dot6  xz, yz;
+    TT_F26Dot6  xz;
+    TT_F26Dot6  yz;
 
 
     xz = TT_MulFix( *x, matrix->xx ) +
@@ -1785,7 +1787,8 @@
   TT_Error  TT_Get_Outline_BBox( TT_Outline*  outline,
                                  TT_BBox*     bbox )
   {
-    TT_F26Dot6  x, y;
+    TT_F26Dot6  x;
+    TT_F26Dot6  y;
     UShort      k;
 
 

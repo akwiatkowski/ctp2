@@ -158,9 +158,9 @@ NetThread::~NetThread()
 			m_outgoing[i] = nullptr;
 		}
 	}
-	if(m_kickPlayers) {
+	
 		delete m_kickPlayers;
-	}
+	
 }
 
 #ifdef USE_SDL
@@ -378,7 +378,8 @@ NET_ERR NetThread::Send(uint16 id, sint32 flags, uint8* buf, sint32 len)
 {
 	Lock();
 
-	sint32 i, idx = 0;
+	sint32 i;
+	sint32 idx = 0;
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
 		if(m_ids[i] == id) {
 			idx = i;

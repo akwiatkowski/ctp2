@@ -336,8 +336,10 @@ char spriteutils_EncodeScanlineWshadow(Pixel32 *scanline, sint32 width, Pixel16 
 
 void spriteutils_MergeShadowMap(Pixel32 *buf, Pixel32 *shadowBuf, uint16 width, uint16 height)
 {
-	Pixel32     *pixPtr, pix;
-	Pixel32     *shadowPixPtr, shadowPix;
+	Pixel32     *pixPtr;
+	Pixel32     pix;
+	Pixel32     *shadowPixPtr;
+	Pixel32     shadowPix;
 
 
 	BOOL        whiteBackground = FALSE;
@@ -363,7 +365,10 @@ void spriteutils_MergeShadowMap(Pixel32 *buf, Pixel32 *shadowBuf, uint16 width, 
 
 				if (shadowPix != 0x00FFFFFF) {
 
-					Pixel16     r, g, b, a;
+					Pixel16     r;
+					Pixel16     g;
+					Pixel16     b;
+					Pixel16     a;
 
 					RGB32Components(pix, &r, &g, &b, &a);
 
@@ -375,7 +380,10 @@ void spriteutils_MergeShadowMap(Pixel32 *buf, Pixel32 *shadowBuf, uint16 width, 
 
 				if (shadowPix) {
 
-					Pixel16     r, g, b, a;
+					Pixel16     r;
+					Pixel16     g;
+					Pixel16     b;
+					Pixel16     a;
 
 					RGB32Components(pix, &r, &g, &b, &a);
 
@@ -396,7 +404,8 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 	Pixel16             *returnBuf = nullptr;
 	uint16              *table = (uint16 *)outBuf;
 	Pixel16             *startOfData;
-	Pixel16             *dataPtr, *startDataPtr;
+	Pixel16             *dataPtr;
+	Pixel16             *startDataPtr;
 	BOOL                empty;
 
 
@@ -449,7 +458,8 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 	Pixel16             *returnBuf = nullptr;
 	uint16              *table = (uint16 *)outBuf;
 	Pixel16             *startOfData;
-	Pixel16             *dataPtr, *startDataPtr;
+	Pixel16             *dataPtr;
+	Pixel16             *startDataPtr;
 	BOOL                empty;
 
 
@@ -559,11 +569,26 @@ void spriteutils_DecodeToBuffer(Pixel16 *data, sint32 width, sint32 height)
 
 Pixel32	spriteutils_AveragePixel32(Pixel32 pixel1, Pixel32 pixel2, Pixel32 pixel3, Pixel32 pixel4)
 {
-	Pixel16     r1, r2, r3, r4;
-	Pixel16     g1, g2, g3, g4;
-	Pixel16     b1, b2, b3, b4;
-	Pixel16     a1, a2, a3, a4;
-	Pixel32     r, g, b, a;
+	Pixel16     r1;
+	Pixel16     r2;
+	Pixel16     r3;
+	Pixel16     r4;
+	Pixel16     g1;
+	Pixel16     g2;
+	Pixel16     g3;
+	Pixel16     g4;
+	Pixel16     b1;
+	Pixel16     b2;
+	Pixel16     b3;
+	Pixel16     b4;
+	Pixel16     a1;
+	Pixel16     a2;
+	Pixel16     a3;
+	Pixel16     a4;
+	Pixel32     r;
+	Pixel32     g;
+	Pixel32     b;
+	Pixel32     a;
 	Pixel32     result;
 
 	RGB32Components(pixel1, &r1, &g1, &b1, &a1);
@@ -585,8 +610,13 @@ void spriteutils_CreateQuarterSize(Pixel32 *srcBuf, sint32 srcWidth, sint32 srcH
 {
 	sint32      destWidth = srcWidth / 2;
 	sint32      destHeight = srcHeight / 2;
-	sint32      i,j;
-	Pixel32     pixel, pixel1, pixel2, pixel3, pixel4;
+	sint32      i;
+	sint32      j;
+	Pixel32     pixel;
+	Pixel32     pixel1;
+	Pixel32     pixel2;
+	Pixel32     pixel3;
+	Pixel32     pixel4;
 	Pixel32     *outBuf;
 
 	outBuf = (Pixel32 *)malloc(destWidth * destHeight * sizeof(Pixel32) );

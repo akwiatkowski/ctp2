@@ -1935,7 +1935,8 @@ void Director::DecrementPendingGameActions() {
 }
 
 void Director::ReloadAllSprites() {
-  sint32 p, i;
+  sint32 p;
+  sint32 i;
   sint32 visiblePlayer = selitem_Get()->GetVisiblePlayer();
   if (visiblePlayer < 0 || visiblePlayer >= k_MAX_PLAYERS || !player_Get(visiblePlayer))
     return;

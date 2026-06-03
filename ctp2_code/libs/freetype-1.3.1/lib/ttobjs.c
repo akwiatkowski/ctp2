@@ -1422,7 +1422,8 @@
   LOCAL_FUNC
   TT_Error  TTObjs_Init( PEngine_Instance  engine )
   {
-    PCache        face_cache, exec_cache;
+    PCache        face_cache;
+    PCache        exec_cache;
     TT_Error      error;
 
 

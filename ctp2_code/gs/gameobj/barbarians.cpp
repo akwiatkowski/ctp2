@@ -101,7 +101,9 @@ sint32 Barbarians::ChooseUnitType()
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
 	BestUnit *best = new BestUnit[num_best_units];
-	sint32 i, j, k;
+	sint32 i;
+	sint32 j;
+	sint32 k;
 	sint32 count = 0;
 
 	for(i = 0; i < num_best_units; i++) {
@@ -250,7 +252,9 @@ sint32 Barbarians::ChooseSeaUnitType()
 	const RiskRecord *risk = g_theRiskDB->Get(gamesettings_Get()->GetRisk());
 	sint32 num_best_units = risk->GetBarbarianUnitRankMin();
 	BestUnit *best = new BestUnit[num_best_units];
-	sint32 i, j, k;
+	sint32 i;
+	sint32 j;
+	sint32 k;
 	sint32 count = 0;
 
 	for(i = 0; i < num_best_units; i++)

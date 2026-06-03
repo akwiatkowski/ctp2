@@ -39,7 +39,7 @@
 #include "gs/slic/SlicFrame.h"
 #include "gs/gameobj/message.h"
 
-extern StringDB *stringdb_Get();
+
 
 #ifdef _BAD_BUTTON
 PointerList<SlicButton> s_deletedButtons;
@@ -109,7 +109,7 @@ SlicButton::~SlicButton()
 		m_segmentName = nullptr;
 	}
 
-	if(m_message)
+	
 		delete m_message;
 }
 

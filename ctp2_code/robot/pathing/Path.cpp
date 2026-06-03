@@ -120,7 +120,8 @@ void Path::FlattenNormalizedPointList(const MapPoint &start,
 
     MapPoint p;
     sint32 i;
-    sint32 dx, dy;
+    sint32 dx;
+    sint32 dy;
 
     for (i=0, p = pixel[0]; i<n; i++) {
         dx = pixel[i+1].x - pixel[i].x;
@@ -361,7 +362,8 @@ void Path::PrependDir (sint32 dir)
 
 void Path::InsertEnd(const MapPoint &pos)
 {
-	MapPoint old, tmp;
+	MapPoint old;
+	MapPoint tmp;
 
 	Next(tmp);
 	for( ; !IsEnd(); Next(tmp))

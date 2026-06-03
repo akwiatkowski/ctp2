@@ -112,7 +112,7 @@ ns_Window::~ns_Window()
 				if ( !control->GetActionFunc() )
 				{
 					aui_Action *action = control->GetAction();
-					if ( action )
+					
 						delete action;
 				}
 

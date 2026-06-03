@@ -164,7 +164,10 @@ void Checksum::II(uint32 &i, const uint32 j, const uint32 k, const uint32 l, con
 void Checksum::Hash ()
 
 {
-   uint32 a, b, c, d;
+   uint32 a;
+   uint32 b;
+   uint32 c;
+   uint32 d;
 
    Assert(m_p1 == m_end_ptr);
 

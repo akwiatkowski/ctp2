@@ -93,13 +93,13 @@
 
 const int GreatLibraryWindow::GREAT_LIBRARY_PANEL_BLANK = 999;
 
-extern CivPaths						*civpaths_Get();
+
 extern sint32						g_ScreenWidth;
 extern sint32						g_ScreenHeight;
 extern DebugWindow					*g_debugWindow;
 extern ProjectFile                  *g_GreatLibPF;
-extern SoundManager					*soundmgr_Get();
-extern  C3UI				*c3ui_Get();
+
+
 
 namespace
 {

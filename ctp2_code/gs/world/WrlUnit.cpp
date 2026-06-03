@@ -49,7 +49,7 @@
 
 #include "gs/gameobj/wonderutil.h"
 
-extern bool player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him);
+
 
 bool World::InsertUnit (const MapPoint &pos, Unit &id,
 						  UnitDynamicArray &revealedUnits)
@@ -683,7 +683,8 @@ void World::GetAdjacentUnits(UnitDynamicArray &units, const MapPoint &cpos)
 void World::RecalculateZOC()
 {
 
-	MapPoint pos, chk;
+	MapPoint pos;
+	MapPoint chk;
 	sint32 d;
 	sint32 i;
 

@@ -64,8 +64,10 @@ public:
 
 	static uint16 Blend555( uint16 pixel1, uint16 pixel2, uint32 blend )
 	{
-		uint32 rb2, g2;
-		uint32 rb0, g0;
+		uint32 rb2;
+		uint32 g2;
+		uint32 rb0;
+		uint32 g0;
 
 		rb2 = (pixel2 & 0x7C1F);
 		rb0 = (((rb2<<5)+blend*((pixel1 & 0x7C1F)-rb2))>>5) & 0x7C1F;
@@ -82,8 +84,10 @@ public:
 
 	static uint16 Blend565( uint16 pixel1, uint16 pixel2, uint32 blend )
 	{
-		uint32 rb2, g2;
-		uint32 rb0, g0;
+		uint32 rb2;
+		uint32 g2;
+		uint32 rb0;
+		uint32 g0;
 
 		rb2 = (pixel2 & 0xF81F);
 

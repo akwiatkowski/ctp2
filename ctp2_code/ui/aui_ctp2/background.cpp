@@ -191,7 +191,7 @@ void Background::MouseLDropOutside(aui_MouseEvent *data)
 
 }
 
-extern SelectedItem *selitem_Get();
+
 
 void Background::MouseMoveInside(aui_MouseEvent *data)
 
@@ -335,7 +335,8 @@ void Background::MouseNoChange(aui_MouseEvent *data)
 void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 {
 	Assert(data);
-	MapPoint cur, old;
+	MapPoint cur;
+	MapPoint old;
 
 	selitem_Get()->GetOldMouseTilePos(old);
 	if(m_current_mouse_tile.x != -1
@@ -364,7 +365,8 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 
 		if(ScenarioEditor::IsShown())
 		{
-			sint32 x,y;
+			sint32 x;
+			sint32 y;
 			char lemurpoo[_MAX_PATH];
 			x = m_current_mouse_tile.x;
 			y = m_current_mouse_tile.y;

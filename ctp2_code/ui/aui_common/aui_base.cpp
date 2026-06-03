@@ -39,7 +39,8 @@ void gen_crc_table()
 {
    if (!g_crcTable)
       g_crcTable = new uint32[256];
-   int i, j;
+   int i;
+   int j;
    unsigned long crc_accum;
 
    for ( i = 0;  i < 256;  i++ ) {
@@ -58,7 +59,7 @@ void gen_crc_table()
 
 void free_crc()
 {
-   if(g_crcTable)
+   
       delete [] g_crcTable;
    g_crcTable = nullptr;
 }
@@ -69,7 +70,8 @@ uint32 update_crc(uint32 crc_accum, const MBCHAR *data_blk_ptr, sint32 data_blk_
       gen_crc_table();
    }
 
-   int i, j;
+   int i;
+   int j;
 
    for ( j = 0;  j < data_blk_size;  j++ ) {
       i = ( (int) ( crc_accum >> 24) ^ tolower(*data_blk_ptr++) ) & 0xff;

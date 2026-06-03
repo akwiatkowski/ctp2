@@ -272,7 +272,8 @@ void CombatField::SetUnit(sint32 x, sint32 y, CombatUnit *u)
 
 void CombatField::StartRound()
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
@@ -287,7 +288,8 @@ void CombatField::StartRound()
 
 sint32 CombatField::NumAlive()
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	sint32 count = 0;
 
 	for(x = 0; x < m_width; x++) {
@@ -303,7 +305,8 @@ sint32 CombatField::NumAlive()
 bool CombatField::FindTargetForRangedAttackFrom(sint32 x, sint32 y,
 												 sint32 *dx, sint32 *dy)
 {
-	sint32 yc, xc;
+	sint32 yc;
+	sint32 xc;
 
 	*dx = *dy = -1;
 
@@ -381,7 +384,9 @@ bool CombatField::FindTargetForAttackFrom(sint32 x, sint32 y,
 
 void CombatField::Move()
 {
-	sint32 x, y, y2;
+	sint32 x;
+	sint32 y;
+	sint32 y2;
 //	sint32 frontCount = CountColumn(k_FRONT_COL);
 	for(x = 1; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
@@ -435,7 +440,8 @@ void CombatField::Move()
 
 void CombatField::Sort()
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	sint32 dbgcount = 0;
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
@@ -521,7 +527,8 @@ void CombatField::InsertInPreferredCol(CombatUnit *u)
 	Assert(col >= 0);
 	Assert(col < m_width);
 
-	sint32 y,y2;
+	sint32 y;
+	sint32 y2;
 	bool full = true;
 	col--;
 	do {
@@ -551,7 +558,8 @@ void CombatField::InsertInPreferredCol(CombatUnit *u)
 
 sint32 CombatField::CountColumn(sint32 col)
 {
-	sint32 y, count=0;
+	sint32 y;
+	sint32 count=0;
 	for(y = 0; y < m_height; y++) {
 		if(m_field[col][y].IsActive())
 			count++;
@@ -583,7 +591,8 @@ void CombatField::MoveUnitsToFront(sint32 num)
 {
 	Assert((CountColumn(k_FRONT_COL) + num) <= m_height);
 
-	sint32 ydelta, ycenter;
+	sint32 ydelta;
+	sint32 ycenter;
 	ycenter = m_height / 2;
 	for(ydelta = 0; ydelta <= (m_height / 2); ydelta++) {
 		if(num <= 0)
@@ -874,7 +883,8 @@ CTP2Combat::CTP2Combat(sint32 w, sint32 h, FILE *input)
 void CombatField::FillFrom(CellUnitList &units)
 {
 	sint32 i;
-	sint32 x = 0, y = 0;
+	sint32 x = 0;
+	sint32 y = 0;
 	for(i = 0; i < units.Num(); i++) {
 		Unit u = units[i];
 		const UnitRecord *rec = u.GetDBRec();
@@ -1130,14 +1140,16 @@ void CTP2Combat::ExecuteRangedCounterAttackNC(CombatField *attacker, sint32 attX
 
 void CTP2Combat::DoRangedAttacks(CombatField *attacker, CombatField *defender)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(x = 1; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
 			CombatUnit *att = &attacker->GetUnit(x, y);
 			if(att->IsActive() &&
 			   att->GetRangedAttack() > 0.001) {
-				sint32 dx, dy;
+				sint32 dx;
+				sint32 dy;
 				if(!defender->FindTargetForRangedAttackFrom(x, y, &dx, &dy)) {
 					Assert(defender->NumAlive() == 0);
 				} else {
@@ -1151,14 +1163,16 @@ void CTP2Combat::DoRangedAttacks(CombatField *attacker, CombatField *defender)
 
 void CTP2Combat::DoRangedCounterAttacksNC(CombatField *attacker, CombatField *defender)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(x = 1; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
 			CombatUnit *att = &attacker->GetUnit(x, y);
 			if(att->IsActive() &&
 			   att->GetRangedAttack() > 0.001) {
-				sint32 dx, dy;
+				sint32 dx;
+				sint32 dy;
 				if(!defender->FindTargetForRangedAttackFrom(x, y, &dx, &dy)) {
 					Assert(defender->NumAlive() == 0);
 				} else {
@@ -1301,13 +1315,15 @@ void CTP2Combat::ExecuteCounterAttackNC(CombatField *attacker, sint32 attX, sint
 void CTP2Combat::DoAttacks(CombatField *attacker, CombatField *defender)
 {
 
-	sint32 x = 0, y;
+	sint32 x = 0;
+	sint32 y;
 
 	for(y = 0; y < m_height; y++) {
 		CombatUnit *att = &attacker->GetUnit(x, y);
 		if(att->IsActive() &&
 		   att->GetOffense() > 0.001) {
-			sint32 dx, dy;
+			sint32 dx;
+			sint32 dy;
 			if(!defender->FindTargetForAttackFrom(x, y, &dx, &dy, att->GetCombatType() == UNIT_TYPE_FLANKER)) {
 
 			} else {
@@ -1321,13 +1337,15 @@ void CTP2Combat::DoAttacks(CombatField *attacker, CombatField *defender)
 void CTP2Combat::DoCounterAttacksNC(CombatField *attacker, CombatField *defender)
 {
 
-	sint32 x = 0, y;
+	sint32 x = 0;
+	sint32 y;
 
 	for(y = 0; y < m_height; y++) {
 		CombatUnit *att = &attacker->GetUnit(x, y);
 		if(att->IsActive() &&
 		   att->GetDefense() > 0.001) {
-			sint32 dx, dy;
+			sint32 dx;
+			sint32 dy;
 			if(!defender->FindTargetForAttackFrom(x, y, &dx, &dy, att->GetCombatType() == UNIT_TYPE_FLANKER)) {
 
 			} else {

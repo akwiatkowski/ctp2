@@ -92,9 +92,9 @@ extern ScienceWin           *g_scienceWin;
 
 extern DebugWindow          *g_debugWindow;
 
-extern SelectedItem         *selitem_Get();
 
-extern Network              g_network;
+
+
 extern sint32               g_modalWindow;
 
 double	g_screenTime = 0.0;

@@ -88,7 +88,7 @@ void ChatBox::Initialize()
 
 void ChatBox::Cleanup()
 {
-	if (g_chatBox)
+	
 		delete g_chatBox;
 
 	g_chatBox = nullptr;

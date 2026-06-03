@@ -428,11 +428,13 @@ BOOL ResourceMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *c
 	UnitActorPtr actor = city.GetActor();
 	if (!actor) return FALSE;
 
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	ResourceMap		*resourceMap = (ResourceMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, resourceMap->GetNormalizedViewRect());
 
 	x -= resourceMap->GetLeftEdge();
@@ -461,11 +463,13 @@ BOOL ResourceMap::DrawALandCity(aui_Surface *pSurface, MapPoint const & pos, voi
 	UnitActorPtr actor = city.GetActor();
 	if (!actor) return FALSE;
 
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	ResourceMap		*resourceMap = (ResourceMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, resourceMap->GetNormalizedViewRect());
 
 	x -= resourceMap->GetLeftEdge();
@@ -496,11 +500,13 @@ BOOL ResourceMap::DrawAGood(aui_Surface *pSurface, MapPoint const & pos, void *c
 	GoodActor	*goodActor = curTileInfo->GetGoodActor();
 	if (!goodActor) return FALSE;
 
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	ResourceMap		*resourceMap = (ResourceMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, resourceMap->GetNormalizedViewRect());
 
 	x -= resourceMap->GetLeftEdge();
@@ -522,11 +528,13 @@ BOOL ResourceMap::DrawAGood(aui_Surface *pSurface, MapPoint const & pos, void *c
 
 BOOL ResourceMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	ResourceMap		*resourceMap = (ResourceMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y, resourceMap->GetNormalizedViewRect());
 
 	x -= resourceMap->GetLeftEdge();
@@ -903,7 +911,8 @@ BOOL ResourceMap::MousePointToTilePos(POINT point, MapPoint &tilePos)
 			tilePos.x -= static_cast<sint16>(world_Get()->GetWidth());
 		}
 
-		sint16 sx, sy;
+		sint16 sx;
+		sint16 sy;
 		if (tilePos.y < 0) {
 			sx = (sint16)world_Get()->GetWidth();
 			sy = (sint16)world_Get()->GetHeight();
@@ -975,7 +984,8 @@ void ResourceMap::HandlePop( MapPoint point )
 	sint32 x = mp.x - diffX;
 	sint32 y = mp.y - diffY;
 
-	sint32 xx, yy;
+	sint32 xx;
+	sint32 yy;
 	maputils_WrapPoint(x, y, &xx, &yy);
 	point.x = (sint16)xx;
 	point.y = (sint16)yy;

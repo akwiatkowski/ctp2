@@ -119,8 +119,10 @@ void Shift(sint8 *map, sint32 sx, sint32 sy,
            sint32 count, sint32 raiselower)
 {
 	sint32 s;
-	sint32 x = sx, y = sy;
-	sint32 ax = x, ay = y;
+	sint32 x = sx;
+	sint32 y = sy;
+	sint32 ax = x;
+	sint32 ay = y;
 	for(s = 0; s < count; s++) {
 		sint8 old = map[y * width + x];
 		if(raiselower > 0) {
@@ -163,7 +165,8 @@ void FaultGenerator::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
                               const double *settings, sint32 numSettings)
 #endif
 {
-	sint32 faults, f;
+	sint32 faults;
+	sint32 f;
 	if(numSettings >= 1) {
 		faults = sint32(settings[0]);
 	} else {
@@ -181,9 +184,10 @@ void FaultGenerator::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 #define ANGLERANGE (((PI / 4.0) * 2.0) - (PI / 4.0))
 
 	for(f = 0; f < faults; f++) {
-		sint32 sx = randgen->Next(outwidth),
-			sy = randgen->Next(outheight);
-		sint32 x, y;
+		sint32 sx = randgen->Next(outwidth);
+		sint32 sy = randgen->Next(outheight);
+		sint32 x;
+		sint32 y;
 		sint32 horiz = randgen->Next(100) < 50;
 		sint32 dir = randgen->Next(100) < 50;
 		if(horiz) {

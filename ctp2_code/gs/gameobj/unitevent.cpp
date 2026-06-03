@@ -226,7 +226,8 @@ STDEHANDLER(InvestigationEvent)
 
 STDEHANDLER(InciteRevolutionUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -236,7 +237,8 @@ STDEHANDLER(InciteRevolutionUnitEvent)
 
 STDEHANDLER(AssassinateRulerUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -252,7 +254,8 @@ STDEHANDLER(PlantNukeUnitEvent)
 
 STDEHANDLER(UndergroundRailwayUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -299,7 +302,8 @@ STDEHANDLER(UndergroundRailwayUnitEvent)
 
 STDEHANDLER(InciteUprisingUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -309,7 +313,8 @@ STDEHANDLER(InciteUprisingUnitEvent)
 
 STDEHANDLER(EstablishEmbassyUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -336,7 +341,8 @@ STDEHANDLER(EstablishEmbassyUnitEvent)
 
 STDEHANDLER(ThrowPartyUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -363,7 +369,8 @@ STDEHANDLER(ThrowPartyUnitEvent)
 
 STDEHANDLER(BioInfectCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -399,7 +406,8 @@ STDEHANDLER(BioInfectCityUnitEvent)
 
 STDEHANDLER(PlagueCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -435,7 +443,8 @@ STDEHANDLER(PlagueCityUnitEvent)
 
 STDEHANDLER(NanoInfectCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
@@ -460,7 +469,8 @@ STDEHANDLER(NanoInfectCityUnitEvent)
 
 STDEHANDLER(ConvertCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -500,7 +510,8 @@ STDEHANDLER(ConvertCityUnitEvent)
 
 STDEHANDLER(ReformCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -521,7 +532,8 @@ STDEHANDLER(ReformCityUnitEvent)
 
 STDEHANDLER(CreateParkUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -535,7 +547,8 @@ STDEHANDLER(CreateParkUnitEvent)
 
 STDEHANDLER(InjoinUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 
@@ -549,7 +562,8 @@ STDEHANDLER(InjoinUnitEvent)
 
 STDEHANDLER(NukeCityUnitEvent)
 {
-	Unit u, c;
+	Unit u;
+	Unit c;
 	if(!args->GetUnit(0, u)) return GEV_HD_Continue;
 	if(!args->GetCity(0, c)) return GEV_HD_Continue;
 

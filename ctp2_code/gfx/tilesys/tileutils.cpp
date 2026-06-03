@@ -48,7 +48,7 @@
 #include "gs/gameobj/terrainutil.h"
 #include "TerrainRecord.h"
 
-extern CivPaths		*civpaths_Get();
+
 
 BOOL		g_isForSpace;
 
@@ -135,7 +135,8 @@ Pixel16 *tileutils_TGA2mem(char *filename, uint16 *width, uint16 *height)
 {
 
 	int		bpp;
-	int		w, h;
+	int		 w;
+	int		 h;
 
 	if (!Get_TGA_Dimension(filename, w, h, bpp)) {
 		Assert(FALSE);
@@ -875,7 +876,8 @@ uint16 g_stencilSize = 0;
 
 sint32 tileutils_EncodeStencil(MBCHAR *filename)
 {
-	uint16	width=0, height=0;
+	uint16	 width=0;
+	uint16	 height=0;
 	char	*tif    = tileutils_TIF2mem(filename, &width, &height);
 	Assert(tif != nullptr);
 	if (tif == nullptr) exit(-1);
@@ -895,7 +897,8 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 	sint32      left    = 9999999;
 	sint32      right   = -1;
 
-	sint32	i,j;
+	sint32	 i;
+	sint32	 j;
 
 	for (i=0; i<height; i++) {
 		for (j=0; j<width; j++) {
@@ -968,7 +971,8 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 void tileutils_DumpStencil(MBCHAR *filename)
 {
 	uint32		accum;
-	sint32		i,j;
+	sint32		 i;
+	sint32		 j;
 	sint32		nudge;
 	FILE *  file = fopen(filename, "w");
 
@@ -1022,7 +1026,8 @@ void tileutils_LoadStencil()
 Pixel16 *tileutils_CreateBorkBork()
 {
 	Pixel16		*bork = new Pixel16[48*94];
-	sint32		i,j;
+	sint32		 i;
+	sint32		 j;
 	sint32		pixelX;
 	uint32		accum;
 
@@ -1072,8 +1077,10 @@ Pixel16 *tileutils_CreateBorkBork()
 
 Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sint32 x, sint32 y)
 {
-	sint32		i,j;
-	sint32		pixelX, pixelY;
+	sint32		 i;
+	sint32		 j;
+	sint32		 pixelX;
+	sint32		 pixelY;
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
@@ -1114,8 +1121,10 @@ Pixel16 *tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sin
 
 Pixel16 *tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint32 x, sint32 y)
 {
-	sint32		i,j;
-	sint32		pixelX, pixelY;
+	sint32		 i;
+	sint32		 j;
+	sint32		 pixelX;
+	sint32		 pixelY;
 	uint32		accum;
 	uint32		*image = (uint32 *)tif;
 
@@ -1171,7 +1180,8 @@ Pixel16 *tileutils_LoadStencilImage(uint16 from, uint16 to)
 
 Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
 {
-	sint32		i,j;
+	sint32		 i;
+	sint32		 j;
 	Pixel16		pix;
 	uint32		accum;
 	uint16		off;
@@ -1203,7 +1213,9 @@ Pixel16 *tileutils_MakeTransition1(Pixel16 *sourceStencil)
 
 Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
 {
-	sint32		i,j,k;
+	sint32		 i;
+	sint32		 j;
+	sint32		 k;
 	Pixel16		pix;
 	uint32		accum;
 	uint16		off;
@@ -1243,7 +1255,9 @@ Pixel16 *tileutils_MakeTransition2(Pixel16 *sourceStencil)
 
 Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
 {
-	sint32		i,j,k;
+	sint32		 i;
+	sint32		 j;
+	sint32		 k;
 	Pixel16		pix;
 	uint32		accum;
 	uint16		off;
@@ -1283,7 +1297,8 @@ Pixel16 *tileutils_MakeTransition3(Pixel16 *sourceStencil)
 void tileutils_DumpAllTransitions(MBCHAR *filename, Pixel16 *t0, Pixel16 *t1, Pixel16 *t2, Pixel16 *t3)
 {
 	uint32		accum;
-	sint32		i,j;
+	sint32		 i;
+	sint32		 j;
 	sint32		index;
 	FILE *      file = fopen(filename, "w");
 
@@ -1360,7 +1375,8 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 	ageChar = 'f';
 
 	char	*tif;
-	uint16	width=0, height=0;
+	uint16	 width=0;
+	uint16	 height=0;
 
 	MBCHAR		fname[_MAX_PATH];
 	snprintf(fname, sizeof(fname), "source" FILE_SEP "xitions" FILE_SEP "%s", filename);
@@ -1421,7 +1437,8 @@ uint16 *tileutils_GenerateAllWaterTable(uint16 width, uint16 height, uint16 x, u
 {
 	uint16		*waterTable = new uint16[(height-y) * 2];
 	uint16		i;
-	uint16		start, end;
+	uint16		 start;
+	uint16		 end;
 
 	for (i=y; i<height; i++) {
 		if ((i-y)<=23) {
@@ -1443,9 +1460,14 @@ uint16 *tileutils_ExtractWaterTable(Pixel32 *image, uint16 width, uint16 height,
 {
 	uint16		*waterTable = new uint16[(height-y) * 2];
 	BOOL		anyWater = FALSE;
-	Pixel16		r,g,b,a;
-	uint16		start, end;
-	uint16		i,j;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
+	uint16		 start;
+	uint16		 end;
+	uint16		 i;
+	uint16		 j;
 
 	for (i=y; i<height; i++) {
 		start = width;
@@ -1484,8 +1506,10 @@ BaseTile	*g_baseTiles[k_MAX_BASE_TILES];
 
 void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL useT0, BOOL useT1, BOOL useT2, BOOL useT3)
 {
-	sint32		x,y;
-	sint32		startX, endX;
+	sint32		 x;
+	sint32		 y;
+	sint32		 startX;
+	sint32		 endX;
 
 	Pixel16		borkPix;
 	sint32		yoffset = 24;
@@ -1493,7 +1517,8 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	sint32		accumIndex = 0;
 	sint32		accumCount;
 	uint32		accum = 0;
-	uint16		width, height;
+	uint16		 width;
+	uint16		 height;
 
 	Pixel16 *   bork = tileutils_CreateBorkBork();
 
@@ -1677,7 +1702,9 @@ uint16 tileutils_CompileImprovements(FILE *file)
 	MBCHAR		filename[_MAX_PATH];
 	uint32		dataLen;
 	char		*tif;
-	uint16		width, height, id;
+	uint16		 width;
+	uint16		 height;
+	uint16		 id;
 	Pixel16		*data;
 	uint16		count = 0;
 #ifdef WIN32
@@ -1725,7 +1752,9 @@ uint16 tileutils_CompileImprovements(FILE *file)
 
 void tileutils_EncodeTileset(MBCHAR *filename)
 {
-	sint32		i, j, k;
+	sint32		 i;
+	sint32		 j;
+	sint32		 k;
 
 	for (i=0; i<TERRAIN_MAX; i++) {
 		for (j=0; j<TERRAIN_MAX; j++) {
@@ -1753,7 +1782,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 	uint16			megaTileLengths[k_MAX_MEGATILES];
 	MegaTileStep	megaTileData[k_MAX_MEGATILES][k_MAX_MEGATILE_STEPS];
 
-	sint32			j,k;
+	sint32			 j;
+	sint32			 k;
 	MBCHAR			ageChar = 'f';
 	uint16			numRiverTransforms = 0;
 	uint16			numTransforms = 0;
@@ -1931,7 +1961,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 		case TOKEN_TILESET_TRANSITION:
 			{
-				sint16		fromType, toType;
+				sint16		 fromType;
+				sint16		 toType;
 
 				if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
 
@@ -1969,7 +2000,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 				MBCHAR		filename[_MAX_PATH];
 				char		*tif;
-				uint16		width, height;
+				uint16		 width;
+				uint16		 height;
 
 				snprintf(filename, sizeof(filename), "source" FILE_SEP "rivers" FILE_SEP "GTFL%.2d.tif", tmp);
 				tif = tileutils_TIF2mem(filename, &width, &height);
@@ -2046,7 +2078,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 			for (i=0; i<TERRAIN_MAX; i++) {
 				for (j=0; j<TERRAIN_MAX; j++) {
-					sint16 from, to;
+					sint16 from;
+					sint16 to;
 
 					if (g_transitions[i][j][0] != nullptr) {
 						from = (sint16)i;

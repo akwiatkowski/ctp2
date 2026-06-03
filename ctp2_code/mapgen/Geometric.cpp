@@ -85,10 +85,12 @@ void Geometric::RaiseRectangle(sint32 sx, sint32 sy,
                                sint32 rectw, sint32 recth,
                                sint32 amount)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = sx; x < sx + rectw; x++) {
 		for(y = sy; y < sy + recth; y++) {
-			sint32 ax, ay;
+			sint32 ax;
+			sint32 ay;
 			ax = x;
 			while(ax >= m_width)
 				ax -= m_width;
@@ -115,7 +117,8 @@ void Geometric::RaiseCircle(sint32 sx, sint32 sy,
                             sint32 rectw, sint32 recth,
                             sint32 amount)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	float x2;
 	float halfw = (float) rectw / 2;
 	float halfh = (float) recth / 2;
@@ -129,7 +132,8 @@ void Geometric::RaiseCircle(sint32 sx, sint32 sy,
 
 			if ((x2 + ((y-cy) * (y-cy) / b_squared)) <= 1)
 			{
-				sint32 ax, ay;
+				sint32 ax;
+				sint32 ay;
 				ax = x;
 				while(ax >= m_width)
 					ax -= m_width;
@@ -164,7 +168,8 @@ void Geometric::FixSeaFloor(sint8 *outmap, sint32 outwidth, sint32 outheight)
 
 	sint8 minContinentHeight = 127;
 	sint8 maxContinentHeight = -127;
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(y = 0; y < outheight; y++) {
 		for(x = 0; x < outwidth; x++) {
@@ -189,7 +194,8 @@ void Geometric::FixSeaFloor(sint8 *outmap, sint32 outwidth, sint32 outheight)
 		}
 	}
 
-	sint32 xl, yu;
+	sint32 xl;
+	sint32 yu;
 	for(y = 0; y < outheight; y++) {
 		for(x = 0; x < outwidth; x++) {
 			if(!LAND(x,y)) {
@@ -211,7 +217,8 @@ void Geometric::FixSeaFloor(sint8 *outmap, sint32 outwidth, sint32 outheight)
 		}
 	}
 
-	sint32 xr, yd;
+	sint32 xr;
+	sint32 yd;
 	for(y = outheight - 1; y >= 0; y--) {
 		for(x = outwidth - 1; x >= 0; x--) {
 			if(!LAND(x,y)) {
@@ -268,8 +275,10 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 	memset(m_usedmap, 0, outwidth * outheight);
 
 	sint32 numContinents;
-	sint32 maxWidth, maxHeight;
-	sint32 minWidth, minHeight;
+	sint32 maxWidth;
+	sint32 maxHeight;
+	sint32 minWidth;
+	sint32 minHeight;
 	sint32 initialContinentBumpSize;
 
 	if(numSettings >= 11) {
@@ -304,7 +313,8 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 		m_nsBorder = 5;
 	}
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(y = 0; y < m_nsBorder; y++) {
 		for(x = 0; x < outwidth; x++) {
 			m_usedmap[y * outwidth + x] = 1;
@@ -350,7 +360,8 @@ void Geometric::Generate(sint8 *outmap, sint32 outwidth, sint32 outheight,
 			}
 		}
 
-		sint32 ux, uy;
+		sint32 ux;
+		sint32 uy;
 		for(ux = contx - m_border; ux < contx + width + m_border; ux++) {
 			sint32 ax = ux;
 			while(ax < 0)
@@ -398,7 +409,8 @@ void Geometric::GenerateSubContinent(sint32 contx, sint32 conty,
                                      sint32 cwidth, sint32 cheight,
                                      sint32 bumpSize)
 {
-	sint32 cx, cy;
+	sint32 cx;
+	sint32 cy;
 	sint32 x, y;
 #ifdef EDGE_SUB_CONTINENTS
 	sint32 center = m_randgen->Next(cwidth * 2 + cheight * 2);

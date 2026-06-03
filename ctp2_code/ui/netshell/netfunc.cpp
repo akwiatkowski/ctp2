@@ -751,9 +751,9 @@ NETFunc::TransportSetup::TransportSetup(Transport *t) {
 
 NETFunc::TransportSetup::~TransportSetup() {
 
-	if ( parameters.modeministr )
+	
 		delete [] parameters.modeministr;
-	if ( parameters.phonenum )
+	
 		delete [] parameters.phonenum;
 }
 
@@ -1956,7 +1956,8 @@ bool NETFunc::Chat::Handle(Message *m) {
 
 NETFunc::Lobby *NETFunc::Lobbies::FindBest() {
 	iterator i;
-	Lobby *l, *lobby = nullptr;
+	Lobby *l;
+	Lobby *lobby = nullptr;
 
 	for(i = begin(); i != end(); i++) {
 		l = *i;
@@ -2242,16 +2243,16 @@ NETFunc::~NETFunc() {
 
 	while(GetStatus() != NETFunc::START) {
 		Message *m = GetMessage();
-		if(m)
+		
 			delete m;
 	}
 
 	messages.clear();
-	if(transport)
+	
 		delete transport;
-	if(playerStats)
+	
 		delete playerStats;
-	if(aiPlayers)
+	
 		delete aiPlayers;
 }
 
@@ -2281,7 +2282,7 @@ NETFunc::TransportSetup *NETFunc::GetTransport() {
 
 NETFunc::STATUS NETFunc::SetTransport(Transport *t) {
 	if(status == START) {
-		if(transport)
+		
 			delete transport;
 		if(t->GetType() == Transport::INTERNET && adialup_willdial())
 			return BUSSY;
@@ -2573,7 +2574,7 @@ NETFunc::STATUS NETFunc::DoUpdate() {
 
 			while(GetStatus() != NETFunc::START) {
 				Message *m = GetMessage();
-				if(m)
+				
 					delete m;
 			}
 

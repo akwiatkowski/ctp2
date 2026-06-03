@@ -150,12 +150,12 @@ sint32 custommapscreen_removeMyWindow(uint32 action)
 
 	if (profiledb_Get()->IsRandomCustomMap())
 	{
-		sint32 ranWetDry,
-			ranWarmCold,
-			ranOceanLand,
-			ranIslandContinent,
-			ranHomoDiverse,
-			ranGoodCount;
+		sint32 ranWetDry;
+		sint32 ranWarmCold;
+		sint32 ranOceanLand;
+		sint32 ranIslandContinent;
+		sint32 ranHomoDiverse;
+		sint32 ranGoodCount;
 		ranWetDry = custommapscreenRand->Next(11);
 		ranWarmCold = custommapscreenRand->Next(11);
 		ranOceanLand = custommapscreenRand->Next(11);
@@ -556,12 +556,12 @@ void custommapscreen_updateWindow()
 		s_homodiverse->HideChildren();
 		s_goodcount->HideChildren();
 
-		sint32 ranWetDry,
-			ranWarmCold,
-			ranOceanLand,
-			ranIslandContinent,
-			ranHomoDiverse,
-			ranGoodCount;
+		sint32 ranWetDry;
+		sint32 ranWarmCold;
+		sint32 ranOceanLand;
+		sint32 ranIslandContinent;
+		sint32 ranHomoDiverse;
+		sint32 ranGoodCount;
 		ranWetDry = custommapscreenRand->Next(11);
 		ranWarmCold = custommapscreenRand->Next(11);
 		ranOceanLand = custommapscreenRand->Next(11);

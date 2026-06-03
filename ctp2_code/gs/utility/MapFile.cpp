@@ -256,7 +256,8 @@ bool MapFile::SaveTerrainEnv(FILE *outfile)
 
 	uint32 *env = new uint32[m_chunk.m_size];
 	uint32 *eptr = env;
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	for(y = 0; y < world_Get()->GetYHeight(); y++) {
 		for(x = 0; x < world_Get()->GetXWidth(); x++) {
 			*eptr = world_Get()->GetCell(x, y)->GetEnv();
@@ -305,7 +306,8 @@ bool MapFile::SaveCities(FILE *outfile)
 	archive.SetStore();
 	sint32 cityCount = 0;
 
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	for(y = 0; y < world_Get()->GetYHeight(); y++) {
 		for(x = 0; x < world_Get()->GetXWidth(); x++) {
 			Cell *cell = world_Get()->GetCell(x, y);
@@ -577,7 +579,8 @@ bool MapFile::SaveHuts(FILE *outfile)
 
 	std::vector<uint8> terrain(m_chunk.m_size);
 	uint8 *tptr = terrain.data();
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	MapPoint mappoint;
 	uint8 zero = 0;
 	uint8 one = 1;
@@ -754,7 +757,8 @@ extern void gameinit_ResetMapSize();
 bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 {
 	sint32 pos = 0;
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	sint16 w = (sint16)world_Get()->GetXWidth();
 	sint16 h = (sint16)world_Get()->GetYHeight();
 
@@ -822,7 +826,8 @@ bool MapFile::LoadTerrain(uint8 *buf, sint32 size)
 bool MapFile::LoadTerrainEnv(uint8 *buf, sint32 size)
 {
 	sint32 pos = 0;
-	sint16 w, h;
+	sint16 w;
+	sint16 h;
 	PULLSHORT(w);
 	PULLSHORT(h);
 
@@ -834,7 +839,8 @@ bool MapFile::LoadTerrainEnv(uint8 *buf, sint32 size)
 		return false;
 	}
 
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	for(y = 0; y < h; y++) {
 		for(x = 0; x < w; x++) {
 			uint32 env;
@@ -861,9 +867,11 @@ bool MapFile::LoadUnits(uint8 *buf, sint32 size)
 	sint32 pos = 0;
 
 	PULLLONG(numCellsWithUnits);
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	for(i = 0; i < numCellsWithUnits; i++) {
-		sint16 x, y;
+		sint16 x;
+		sint16 y;
 		sint32 numUnits;
 		PULLSHORT(x);
 		PULLSHORT(y);
@@ -922,7 +930,8 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 	PULLLONG(numCities);
 	sint32 i;
 	for(i = 0; i < numCities; i++) {
-		sint16 x, y;
+		sint16 x;
+		sint16 y;
 		sint32 citySize;
 		uint64 improvements;
 		uint64 wonders;
@@ -970,7 +979,8 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 
 bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			Cell *cell = world_Get()->GetCell(x, y);
@@ -983,7 +993,8 @@ bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 	PULLLONG(numCities);
 	sint32 i;
 	for(i = 0; i < numCities; i++) {
-		sint16 x, y;
+		sint16 x;
+		sint16 y;
 		sint32 citySize;
 		uint64 improvements;
 		uint64 wonders;
@@ -1030,7 +1041,8 @@ bool MapFile::LoadImprovements(uint8 *buf, sint32 size)
 
 	sint32 i;
 	for(i = 0; i < numCells; i++) {
-		sint16 x, y;
+		sint16 x;
+		sint16 y;
 		uint8 numImprovements;
 		PULLSHORT(x);
 		PULLSHORT(y);
@@ -1076,7 +1088,8 @@ bool MapFile::LoadImprovementTypes(uint8 *buf, sint32 size)
 bool MapFile::LoadVision(uint8 *buf, sint32 size)
 {
 	uint8 p;
-	sint16 w, h;
+	sint16 w;
+	sint16 h;
 	sint32 pos = 0;
 
 	PULLBYTE(p);
@@ -1088,7 +1101,8 @@ bool MapFile::LoadVision(uint8 *buf, sint32 size)
 	if(!player_Get(p))
 		return true;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < w; x++) {
 		for(y = 0; y < h; y++) {
 			PULLSHORT(player_Get(p)->m_vision->m_array[x][y]);
@@ -1171,7 +1185,8 @@ bool MapFile::LoadHuts(uint8 *buf, sint32 size)
 {
 
 	sint32 pos = 0;
-	sint16 w, h;
+	sint16 w;
+	sint16 h;
 	PULLSHORT(w);
 	PULLSHORT(h);
 
@@ -1182,7 +1197,8 @@ bool MapFile::LoadHuts(uint8 *buf, sint32 size)
 		return false;
 	}
 
-	sint16 x, y;
+	sint16 x;
+	sint16 y;
 	for(y = 0; y < h; y++) {
 		for(x = 0; x < w; x++) {
 			uint8 isHut;

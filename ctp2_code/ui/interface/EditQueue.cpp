@@ -470,7 +470,8 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 	switch(column) {
 		case 0:
 		{
-			const char *name1, *name2;
+			const char *name1;
+			const char *name2;
 			if(info1->m_category == k_GAME_OBJ_TYPE_WONDER) {
 				name1 = g_theWonderDB->Get(info1->m_type)->GetNameText();
 			} else if(info1->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT) {
@@ -499,7 +500,8 @@ sint32 EditQueue::CompareBuildingWonderItems(ctp2_ListItem *item1, ctp2_ListItem
 		}
 		case 1:
 		{
-			sint32 cost1, cost2;
+			sint32 cost1;
+			sint32 cost2;
 
 			if(info1->m_category == k_GAME_OBJ_TYPE_WONDER) {
 				cost1 = wonderutil_Get(info1->m_type, selitem_Get()->GetVisiblePlayer())->GetProductionCost();
@@ -1631,7 +1633,8 @@ void EditQueue::Up(bool confirmedSwitch)
 			}
 		}
 
-		sint32 topIndex, bottomIndex;
+		sint32 topIndex;
+		sint32 bottomIndex;
 		m_queueList->GetDisplayRange(topIndex, bottomIndex);
 
 		UpdateQueueList();
@@ -1703,7 +1706,8 @@ void EditQueue::Down(bool confirmedSwitch)
 				idx++;
 			}
 		}
-		sint32 topIndex, bottomIndex;
+		sint32 topIndex;
+		sint32 bottomIndex;
 		m_queueList->GetDisplayRange(topIndex, bottomIndex);
 
 		UpdateQueueList();

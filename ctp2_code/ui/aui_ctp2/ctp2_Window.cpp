@@ -186,7 +186,8 @@ AUI_ERRCODE ctp2_Window::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 	}
 
 	if(block->GetBool("centeredwindow")) {
-		sint32 x, y;
+		sint32 x;
+		sint32 y;
 		x = c3ui_Get()->Width() / 2 - Width() / 2;
 		y = c3ui_Get()->Height() / 2 - Height() / 2;
 		if(x < k_STANDARD_MAIN_WINDOW_X) x = k_STANDARD_MAIN_WINDOW_X;
@@ -208,7 +209,8 @@ AUI_ERRCODE ctp2_Window::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 AUI_ERRCODE
 ctp2_Window::Move(sint32 x, sint32 y)
 {
-	sint32 oldx = X(), oldy = Y();
+	sint32 oldx = X();
+	sint32 oldy = Y();
 
 	AUI_ERRCODE err = aui_Window::Move(x, y);
 	PointerList<ctp2_Window>::Walker walk(&m_dockedWindows);

@@ -928,7 +928,8 @@ TerrainImprovement Cell::AccessImprovement(sint32 index)
 	Assert(m_objects);
 	Assert(m_env & k_BIT_ENV_HAS_IMPROVEMENT);
 	if(m_objects && (m_env & k_BIT_ENV_HAS_IMPROVEMENT)) {
-		sint32 i, c = 0;
+		sint32 i;
+		sint32 c = 0;
 		for(i = 0; i < m_objects->Num(); i++) {
 			if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT) {
 				if(c == index)

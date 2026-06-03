@@ -136,7 +136,10 @@ void AVLHeap::InitNewBlock()
 void AVLHeap::Validate()
 
 {
-    AstarPoint *o, *p, *s, *test;
+    AstarPoint *o;
+    AstarPoint *p;
+    AstarPoint *s;
+    AstarPoint *test;
     uint32 i;
     BOOL searching;
 

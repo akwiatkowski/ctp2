@@ -4,8 +4,8 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/database/StrDB.h"
 
-extern CivPaths *civpaths_Get();
-extern StringDB *stringdb_Get();
+
+
 
 int slicif_find_file(char *filename, char *fullpath)
 {

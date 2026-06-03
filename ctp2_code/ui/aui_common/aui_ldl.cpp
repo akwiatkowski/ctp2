@@ -988,7 +988,9 @@ sint32 aui_Ldl::GetIntDependent(MBCHAR const * strPtr)
 
 	for ( ; strPtr; ++strPtr)
 	{
-		sint32 w, h, value;
+		sint32 w;
+		sint32 h;
+		sint32 value;
 		if ( sscanf( strPtr, "%dx%d?%d", &w, &h, &value ) != 3 )
 			if ( sscanf( strPtr, "%dX%d?%d", &w, &h, &value ) != 3 )
 				break;

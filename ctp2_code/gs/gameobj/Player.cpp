@@ -1712,7 +1712,8 @@ void Player::BeginTurnScience()
 	if(otherCivRandomAdvanceChance > 0 &&
 	   civrand().Next(100) < otherCivRandomAdvanceChance) {
 
-		sint32 i, j;
+		sint32 i;
+		sint32 j;
 
 		uint8 *mergedCanGet = new uint8[g_theAdvanceDB->NumRecords()];
 		memset(mergedCanGet, 0, g_theAdvanceDB->NumRecords());
@@ -1891,7 +1892,8 @@ void Player::BeginTurnProduction()
 
 	Assert (p <= 1.000001);
 
-	sint32 mil_paid, mat_paid;
+	sint32 mil_paid;
+	sint32 mat_paid;
 	sint32 mil_paid_total=0;
 	sint32 r;
 
@@ -1967,7 +1969,8 @@ void Player::BeginTurnEnemyUnits()
 		g_network.Unblock(m_owner);
 	}
 
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	for(sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 		if(p == m_owner)
 			continue;
@@ -2057,7 +2060,8 @@ void Player::BeginTurnCommodityMarket()
 // gold, to send them a warning message.
 sint32 Player::CalcTotalBuildingUpkeep()
 {
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	sint32 bu = 0;
 	sint32 wonderLevel = wonderutil_GetDecreaseMaintenance(m_builtWonders);
 
@@ -2075,7 +2079,8 @@ sint32 Player::CalcTotalBuildingUpkeep()
 sint32 Player::CalcWonderGold()
 {
 	sint32 totalWonderGold = 0;
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	sint32 goldPerWaterRoute = wonderutil_GetGoldPerWaterTradeRoute(m_builtWonders);
 	sint32 goldPerInternationalRoute = wonderutil_GetGoldPerInternationalTradeRoute(m_builtWonders);
 	if(goldPerWaterRoute > 0 || goldPerInternationalRoute > 0) {
@@ -2650,7 +2655,8 @@ void Player::EndTurnPollution()
 void Player::ProcessUnitOrders(bool currentOnly)
 {
 	DynamicArray<Army> tmp_list = *m_all_armies;
-	sint32 army_idx, army_num = tmp_list.Num();
+	sint32 army_idx;
+	sint32 army_num = tmp_list.Num();
 
 	army_num = tmp_list.Num();
 	for (army_idx=army_num-1; 0 <= army_idx; army_idx--) {
@@ -2687,7 +2693,8 @@ void Player::RegisterProfessionalChange(bool on, Unit &u)
 
 sint32 Player::GetTotalUnitCost()
 {
-	sint32 unit_num, unit_idx;
+	sint32 unit_num;
+	sint32 unit_idx;
 
 	unit_num = m_all_units->Num();
 	sint32 cost = 0;
@@ -2730,8 +2737,10 @@ void Player::DelTailPathOrder(sint32 index)
 bool Player::GetNearestCity(const MapPoint &pos, Unit &nearest,
 							  double &distance, bool butNotThisOne, const sint32 continent, bool mustHaveRoom)
 {
-	sint32 j, n;
-	MapPoint cpos, diff;
+	sint32 j;
+	sint32 n;
+	MapPoint cpos;
+	MapPoint diff;
 	double d;
 	sint32 cont;
 
@@ -2797,7 +2806,8 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 {
 	MapPoint cpos;
 	sint32 d;
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 
 	sint32 minDistance = 0x7fffffff;
 
@@ -2875,7 +2885,8 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 bool Player::GetNearestFort(const MapPoint &src, MapPoint &dest)
 {
 	sint32 i;
-	MapPoint chkpos, diff;
+	MapPoint chkpos;
+	MapPoint diff;
 	double d;
 	double mindist = 1000000;
 	bool foundOne = false;
@@ -2898,7 +2909,8 @@ bool Player::GetNearestFort(const MapPoint &src, MapPoint &dest)
 bool Player::GetNearestAirfield(const MapPoint &src, MapPoint &dest, const sint32 continent)
 {
 	sint32 i;
-	MapPoint chkpos, diff;
+	MapPoint chkpos;
+	MapPoint diff;
 	double d;
 	double mindist = -1.0;
 	bool foundOne = false;
@@ -3715,7 +3727,8 @@ void Player::ObsoleteNotices(AdvanceType advance)
 {
 	SlicObject  *so;
 	const UnitRecord *rec;
-	sint32  i, j;
+	sint32  i;
+	sint32  j;
 	sint32 num_found=0;
 
 	so = new SlicObject("114UnitObsoleteCivwide");
@@ -3765,8 +3778,8 @@ void Player::BuildResearchDialog(AdvanceType advance)
 	if (dstring) {
 	sc.AddAdvance(advance);
 
-		MBCHAR	tempStr[1024],
-				messageStr[1024];
+		MBCHAR	 tempStr[1024];
+		MBCHAR	 messageStr[1024];
 
 		strcpy(messageStr, dstring);
 
@@ -3872,7 +3885,8 @@ void Player::RemoveUnitVision(const MapPoint &pnt, double range)
 
 void Player::OwnExploredArea()
 {
-	sint32 x,y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {
 			if(IsExplored(x,y)) {
@@ -3968,16 +3982,17 @@ void Player::AttemptRevolt()
 {
 	bool	*revolution;
 
-	sint32	i, j,
-			cityNum,
-			inciteBonus = 0 ;
+	sint32	 i;
+	sint32	 j;
+	sint32	 cityNum;
+	sint32	 inciteBonus = 0 ;
 
 	Unit	u ;
 
 	CityData	*cityData ;
 
-	MapPoint	cityPos,
-				neighbourPos ;
+	MapPoint	 cityPos;
+	MapPoint	 neighbourPos ;
 
 	m_num_revolted = 0;
 	cityNum = m_all_cities->Num() ;
@@ -4087,8 +4102,8 @@ void Player::GiveUnit(const PLAYER_INDEX other_player, const sint32 unit_idx)
 
 void Player::StopTradingWith(PLAYER_INDEX bannedRecipient)
 {
-	sint32	c,
-			cityNum;
+	sint32	 c;
+	sint32	 cityNum;
 
 	CityData	*cityData;
 
@@ -4263,8 +4278,8 @@ bool Player::FulfillCaptureCityAgreement(Unit city)
 {
 	AgreementDynamicArray	killList ;
 
-	sint32	i,
-			agreedNum ;
+	sint32	 i;
+	sint32	 agreedNum ;
 
 	Agreement	agree ;
 
@@ -4344,7 +4359,8 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 
 	if(player_Get(player)) {
 		DynamicArray<Army> *armies = player_Get(player)->m_all_armies;
-		sint32 i, n = armies->Num();
+		sint32 i;
+		sint32 n = armies->Num();
         sint32 num_moved = 0;
 		bool atLeastOneCouldntBeExpelled = false;
 		for(i = 0; i < n; i++) {
@@ -4412,8 +4428,8 @@ Agreement Player::MakeCaptureCityPact(PLAYER_INDEX player, Unit &city)
 
 bool Player::WillViolatePact(PLAYER_INDEX otherParty)
 {
-	sint32	i,
-			agreedNum ;
+	sint32	 i;
+	sint32	 agreedNum ;
 
 	agreedNum = m_agreed->Num() ;
 	for (i=0; i<agreedNum; i++)
@@ -4576,7 +4592,8 @@ void Player::BreakAllTreaties(PLAYER_INDEX with)
 
 void Player::BeginTurnAgreements()
 {
-	sint32 i, n = m_agreed->Num();
+	sint32 i;
+	sint32 n = m_agreed->Num();
 	DynamicArray<Agreement>   agreed(*m_agreed);
 
 	for(i = n - 1; i >= 0; i--) {
@@ -5025,8 +5042,8 @@ void Player::DumpAgreements()
 
 void Player::DumpRequests()
 {
-	sint32	i,
-			n ;
+	sint32	 i;
+	sint32	 n ;
 
 	DPRINTF(k_DBG_INFO, ("Dumping Diplomatic Requests for Player #%d\n", m_owner)) ;
 	n = m_requests->Num() ;
@@ -5069,8 +5086,8 @@ bool Player::IsViolatingBorders(PLAYER_INDEX player)
 
 	MapPoint	armyPos ;
 
-	sint32	i,
-			armyNum ;
+	sint32	 i;
+	sint32	 armyNum ;
 
 	armyNum = m_all_armies->Num() ;
 	for (i=0; i<armyNum; i++)
@@ -5368,7 +5385,9 @@ Unit Player::GetCityFromIndex(sint32 unit_idx)
 
 bool Player::GetArmyIndex(const Unit &u, sint32 &idx)
 {
-    sint32 n, m, j;
+    sint32 n;
+    sint32 m;
+    sint32 j;
 
     n=m_all_units->Num();
     for (idx=0; idx<n; idx++) {
@@ -5692,7 +5711,10 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 				ua[i].m_id = (0);
 			}
 
-			sint32 pl, c, po, mv;
+			sint32 pl;
+			sint32 c;
+			sint32 po;
+			sint32 mv;
 
 			for(pl = 0; pl < k_MAX_PLAYERS; pl++) {
 				if(!player_Get(pl)) continue;
@@ -5732,7 +5754,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 	//one time affect
 	if(wonderutil_GetFreeSlaves(safe_shift_left_u64(wonder))) {
-		sint32 i, n = m_all_cities->Num();
+		sint32 i;
+		sint32 n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
 			m_all_cities->Access(i).FreeSlaves();
 		}
@@ -5757,7 +5780,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 
 	sint32 hpBonus = wonderutil_GetIncreaseHP(safe_shift_left_u64(wonder));
 	if(hpBonus > 0) {
-		sint32 i, n = m_all_units->Num();
+		sint32 i;
+		sint32 n = m_all_units->Num();
 		for(i = 0; i < n; i++) {
 			m_all_units->Access(i).AddWonderHPBonus(hpBonus);
 		}
@@ -5766,7 +5790,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	sint32 fullHappinessTurns = wonderutil_GetTemporaryFullHappiness(
 		(safe_shift_left_u64(wonder)));
 	if(fullHappinessTurns > 0) {
-		sint32 i, n = m_all_cities->Num();
+		sint32 i;
+		sint32 n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
 			m_all_cities->Access(i).SetFullHappinessTurns(fullHappinessTurns);
 		}
@@ -5778,7 +5803,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	}
 
 	if(wonder < 64 && wonderutil_GetNukesEliminated((uint64) 1 << wonder)) {
-		sint32 i, p;
+		sint32 i;
+		sint32 p;
 		SlicObject *so = new SlicObject("251NaniteDefuseEliminatesNukes");
 		so->AddWonder(wonder);
 		so->AddCivilisation(m_owner);
@@ -5868,7 +5894,8 @@ void Player::AddWonder(sint32 wonder, Unit &city)
 	}
 
 
-	sint32 pl, c;
+	sint32 pl;
+	sint32 c;
 	for(pl = 0; pl < k_MAX_PLAYERS; pl++) {
 		if(pl == m_owner ||
 		   !player_Get(pl)) {
@@ -5940,7 +5967,8 @@ void Player::RemoveWonder(sint32 which, bool destroyed)
 	sint32 value;
 	if(wonderutil_Get(which, m_owner)->GetIncreaseHp(value))
 	{
-		sint32 i, n = m_all_units->Num();
+		sint32 i;
+		sint32 n = m_all_units->Num();
 		for(i = 0; i < n; i++)
 		{
 			if(m_all_units->Access(i)->GetHP() > double(m_all_units->Access(i)->CalculateTotalHP()))
@@ -5991,7 +6019,8 @@ void Player::Detrench(sint32 army_idx)
 
 void Player::AddFeatHPBonus(sint32 hpBonus)
 {
-	sint32 i, n = m_all_units->Num();
+	sint32 i;
+	sint32 n = m_all_units->Num();
 	for(i = 0; i < n; i++) {
 		m_all_units->Access(i).AddWonderHPBonus(hpBonus);
 	}
@@ -6571,7 +6600,8 @@ bool Player::ActuallySetGovernment(sint32 type)
 		g_network.Unblock(m_owner);
 	}
 
-	sint32 i, n = m_all_cities->Num();
+	sint32 i;
+	sint32 n = m_all_cities->Num();
 
 	for(i = 0; i < n; i++) {
 		(*m_all_cities)[i].NewGovernment(type);
@@ -6945,7 +6975,8 @@ void Player::GameOver(GAME_OVER reason, sint32 data)
 	BOOL previouslyWon = m_hasWonTheGame;
 	BOOL previouslyLost = m_hasLostTheGame;
 
-	sint32 i, aPlayer = 0; // Maybe has to be reconsidered (Barbs)
+	sint32 i;
+	sint32 aPlayer = 0; // Maybe has to be reconsidered (Barbs)
 	sint32 count = 0;
 
 	switch(reason) {
@@ -7113,7 +7144,8 @@ void Player::StartDeath(GAME_OVER reason, sint32 data)
 
 
 	if(m_terrainImprovements) {
-		sint32 i, n = m_terrainImprovements->Num();
+		sint32 i;
+		sint32 n = m_terrainImprovements->Num();
 		for(i = n - 1; i >= 0; i--) {
 			m_terrainImprovements->Access(i).Kill();
 		}
@@ -7139,7 +7171,8 @@ void Player::RemoveDeadPlayers()
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_REMOVE_DEAD_PLAYERS));
 	}
 
-	sint32 i, playersInGame = 0;
+	sint32 i;
+	sint32 playersInGame = 0;
 	for(i = 1; i < k_MAX_PLAYERS; i++) {
 		if(player_Get(i) && player_Get(i)->m_isDead) {
 
@@ -7151,7 +7184,8 @@ void Player::RemoveDeadPlayers()
 
 			world_Get()->RegisterPlayerDead(i);
 
-			sint32 j, k;
+			sint32 j;
+			sint32 k;
 
 			for(j = 0; j < k_MAX_PLAYERS; j++) {
 				if(!player_Get(j) || j == i)
@@ -7994,7 +8028,8 @@ bool Player::HasSeen(PLAYER_INDEX pl)
 
 void Player::CheckWonderObsoletions(AdvanceType advance)
 {
-    sint32 i, o;
+    sint32 i;
+    sint32 o;
     sint32 player_idx;
     SlicObject *so;
 
@@ -8154,7 +8189,8 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 	if (gameobservers_Get()) gameobservers_Get()->NotifyUpdateMessages(m_owner);
 
 	sint32 player_idx;
-	sint32 city_idx, city_num;
+	sint32 city_idx;
+	sint32 city_num;
 	for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++)
 	{
 		if (player_Get(player_idx) == nullptr) continue;
@@ -8296,7 +8332,8 @@ void Player::GiveArmyCommand(Army &army,
 
 void Player::Emancipate()
 {
-	sint32 i, n = m_all_cities->Num();
+	sint32 i;
+	sint32 n = m_all_cities->Num();
 	sint32 numFreed = 0;
 	for(i = 0; i < n; i++)
 	{
@@ -8345,7 +8382,8 @@ void Player::AddEndGameObject(Unit &city, sint32 type)
 
 void Player::MakeConvertedCitiesUnhappy(sint32 convertedTo)
 {
-	sint32 i, n = m_all_cities->Num();
+	sint32 i;
+	sint32 n = m_all_cities->Num();
 	for(i = 0; i < n; i++) {
 		m_all_cities->Access(i).AddConversionUnhappiness(convertedTo);
 	}
@@ -8488,7 +8526,9 @@ bool Player::CanBuildUnit(const sint32 type) const
 	// a good and makes availble in all cities, not optimized
 	if(rec->GetNumNeedsCityGoodCapitol()) {
 
-		sint32 i, g, n = m_all_cities->Num();
+		sint32 i;
+		sint32 g;
+		sint32 n = m_all_cities->Num();
 		for(g = 0; g < rec->GetNumNeedsCityGoodCapitol(); g++) {
 			for(i = 0; i < n; i++) {
 				if(m_all_cities->Access(i)->GetCityData()->HasNeededGood(rec->GetNeedsCityGoodCapitolIndex(g)))
@@ -8502,7 +8542,8 @@ bool Player::CanBuildUnit(const sint32 type) const
 	// either/or not AND
 	if(rec->GetNumNeedsCityGoodAnyCity()) {
 
-		sint32 i, g;
+		sint32 i;
+		sint32 g;
 		bool goodavail = false;
 
 		for(i = 0; i < m_all_cities->Num(); i++) {
@@ -8536,7 +8577,8 @@ bool Player::CanBuildUnit(const sint32 type) const
 	}
 
 	if(rec->HasSlaveRaids() || rec->HasSettlerSlaveRaids()) {
-		sint32 i, n = m_all_units->Num();
+		sint32 i;
+		sint32 n = m_all_units->Num();
 		for(i = 0; i < n; i++) {
 			if(m_all_units->Access(i).GetDBRec()->GetNoSlaves())
 				return false;
@@ -8545,7 +8587,8 @@ bool Player::CanBuildUnit(const sint32 type) const
 
 	if(rec->GetNoSlaves()) {
 
-		sint32 i, n = m_all_cities->Num();
+		sint32 i;
+		sint32 n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
 			if(m_all_cities->Access(i).CountSlaves() > 0)
 				return false;
@@ -9557,7 +9600,9 @@ bool Player::CanBuildLeader(const sint32 type) const
 	// a good and makes availble in all cities, not optimized
 	if(rec->GetNumNeedsCityGoodCapitol()) {
 
-		sint32 i, g, n = m_all_cities->Num();
+		sint32 i;
+		sint32 g;
+		sint32 n = m_all_cities->Num();
 		for(g = 0; g < rec->GetNumNeedsCityGoodCapitol(); g++) {
 			for(i = 0; i < n; i++) {
 				if(m_all_cities->Access(i)->GetCityData()->HasNeededGood(rec->GetNeedsCityGoodCapitolIndex(g)))
@@ -9571,7 +9616,8 @@ bool Player::CanBuildLeader(const sint32 type) const
 	// either/or not AND
 	if(rec->GetNumNeedsCityGoodAnyCity()) {
 
-		sint32 i, g;
+		sint32 i;
+		sint32 g;
 		bool goodavail = false;
 
 		for(i = 0; i < m_all_cities->Num(); i++) {
@@ -9605,7 +9651,8 @@ bool Player::CanBuildLeader(const sint32 type) const
 	}
 
 	if(rec->HasSlaveRaids() || rec->HasSettlerSlaveRaids()) {
-		sint32 i, n = m_all_units->Num();
+		sint32 i;
+		sint32 n = m_all_units->Num();
 		for(i = 0; i < n; i++) {
 			if(m_all_units->Access(i).GetDBRec()->GetNoSlaves())
 				return false;
@@ -9614,7 +9661,8 @@ bool Player::CanBuildLeader(const sint32 type) const
 
 	if(rec->GetNoSlaves()) {
 
-		sint32 i, n = m_all_cities->Num();
+		sint32 i;
+		sint32 n = m_all_cities->Num();
 		for(i = 0; i < n; i++) {
 			if(m_all_cities->Access(i).CountSlaves() > 0)
 				return false;

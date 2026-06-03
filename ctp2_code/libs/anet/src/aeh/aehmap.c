@@ -109,9 +109,11 @@ static void aeh_map_Unload(aeh_map_t *aehmap, int bWriteAlg);
  * returns aeh_RES_EMPTY if could not load file */
 static int aeh_map_algRead(aeh_map_t *aehmap, char *algpath) {
 	FILE *fh;
-	int nread, nsize;
+	int nread;
+	int nsize;
 	unsigned short tag;
-	char buffer[BUFFER_SIZE], *ptr;
+	char buffer[BUFFER_SIZE];
+	char *ptr;
 	char name[BUFFER_SIZE];
 	unsigned address;
 	unsigned prefadr = 0;
@@ -168,7 +170,8 @@ static int aeh_map_algWrite(aeh_map_t *aehmap, char *algpath) {
 	FILE *fh;
 	int bWriteError = 0;
 	aeh_map_func_t *curr = aehmap->firstfunc;
-	char buffer[BUFFER_SIZE], *ptr;
+	char buffer[BUFFER_SIZE];
+	char *ptr;
 	unsigned short tag = aeh_map_func_alg_MAGIC;
 	fh = fopen(algpath, "rb");
 	if (fh) { /* .alg already exists */
@@ -228,7 +231,8 @@ static int aeh_map_Load(aeh_map_t *aehmap)
 {
 	FILE *fp;
 	char buffer[BUFFER_SIZE];
-	char algpath[aeh_MAX_PATH], *ptr;
+	char algpath[aeh_MAX_PATH];
+	char *ptr;
 	int done;
 	int crap;
 	char name[BUFFER_SIZE];
@@ -299,7 +303,8 @@ static int aeh_map_Load(aeh_map_t *aehmap)
 static void aeh_map_Unload(aeh_map_t *aehmap, int bWriteAlg)
 {
 	aeh_map_func_t *curr = aehmap->firstfunc;
-	char algpath[aeh_MAX_PATH], *ptr;
+	char algpath[aeh_MAX_PATH];
+	char *ptr;
 	strcpy(algpath, aehmap->path);
 	if (bWriteAlg && curr && (ptr = strstr(algpath, ".map"))) {
 		strcpy(ptr, ".alg");

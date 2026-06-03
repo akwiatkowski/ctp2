@@ -47,7 +47,8 @@ STDEHANDLER(RunCombatEvent)
 {
 	Army army;
 	MapPoint pos;
-	sint32 attacker, defender;
+	sint32 attacker;
+	sint32 defender;
 
 	if(!args->GetArmy(0, army))
 		return(GEV_HD_Continue);

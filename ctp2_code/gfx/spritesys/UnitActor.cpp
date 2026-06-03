@@ -354,7 +354,8 @@ void UnitActor::PositionActor(MapPoint const& pos) {
 #endif
   m_pos = pos;
 
-  sint32 pixelX, pixelY;
+  sint32 pixelX;
+  sint32 pixelY;
   maputils_MapXY2PixelXY(pos.x, pos.y, &pixelX, &pixelY);
 
   SetX(pixelX);
@@ -606,13 +607,15 @@ void UnitActor::GetNextAction(bool isVisible) {
 
   m_curAction->SetSpecialDelayProcess(m_holdingCurAnimSpecialDelayProcess);
 
-  MapPoint curStartMapPoint, curEndMapPoint;
+  MapPoint curStartMapPoint;
+  MapPoint curEndMapPoint;
 
   m_curAction->GetStartMapPoint(curStartMapPoint);
   m_curAction->GetEndMapPoint(curEndMapPoint);
 
   auto& moveActors = m_curAction->GetMoveActors();
-  long i, j;
+  long i;
+  long j;
 
   if ((j = i = m_curAction->GetNumOActors()) > 0) {
     i--;
@@ -724,7 +727,8 @@ void UnitActor::Process() {
       m_x = curPt.x;
       m_y = curPt.y;
     } else {
-      sint32 x, y;
+      sint32 x;
+      sint32 y;
       MapPoint const here = GetPos();
       maputils_MapXY2PixelXY(here.x, here.y, &x, &y);
       m_x = x;
@@ -1024,8 +1028,8 @@ void UnitActor::DrawFortifying(bool fogged) {
     return;
 
   sint32 x = m_x +
-             (sint32)(double)(k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale()),
-         y = m_y +
+             (sint32)(double)(k_ACTOR_CENTER_OFFSET_X * tiledmap_Get()->GetScale());
+  sint32 y = m_y +
              (sint32)(double)(k_ACTOR_CENTER_OFFSET_Y * tiledmap_Get()->GetScale());
 
   MBCHAR* fString = tiledmap_Get()->GetFortifyString();
@@ -1132,8 +1136,8 @@ void UnitActor::DrawCityWalls(
   // else: keep default
 
   sint32 nudgeX = (sint32)((double)((k_ACTOR_CENTER_OFFSET_X)-48) *
-                           tiledmap_Get()->GetScale()),
-         nudgeY = (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) *
+                           tiledmap_Get()->GetScale());
+  sint32 nudgeY = (sint32)((double)((k_ACTOR_CENTER_OFFSET_Y)-48) *
                            tiledmap_Get()->GetScale());
 
   if (tiledmap_Get()->GetZoomLevel() == k_ZOOM_LARGEST) {

@@ -49,8 +49,8 @@
 #include "ui/interface/spnewgamewindow.h"
 #include "ui/interface/optionswindow.h"
 
-extern StringDB						*stringdb_Get();
-extern Network						g_network;
+
+
 
 
 

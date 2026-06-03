@@ -50,7 +50,8 @@ PictureButton::PictureButton(
 AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BOOL isLDL)
 {
 	MBCHAR		*ldlBlock;
-	MBCHAR		*upName, *downName;
+	MBCHAR		 *upName;
+	MBCHAR		 *downName;
 	MBCHAR		path[_MAX_PATH];
 
 	if (isLDL)

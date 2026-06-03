@@ -176,7 +176,8 @@ STDEHANDLER(NetNewProposalEvent)
 {
 	if(!g_network.IsActive()) return GEV_HD_Continue;
 
-	sint32 sender, receiver;
+	sint32 sender;
+	sint32 receiver;
 	if(!args->GetPlayer(0, sender)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, receiver)) return GEV_HD_Continue;
 

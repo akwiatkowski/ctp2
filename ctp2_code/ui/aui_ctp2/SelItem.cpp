@@ -173,7 +173,8 @@ bool CanAutoSelect(const Army &army)
 
 SelectedItem::SelectedItem(sint32 nPlayers)
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 
 	m_current_player = 1;
 
@@ -1433,7 +1434,8 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 			}
 			else
 			{
-				MapPoint start, curPos;
+				MapPoint start;
+				MapPoint curPos;
 				m_selected_army[player].GetPos(start);
 				goodPath->Start(start);
 				bool includesAttack = false;
@@ -2275,8 +2277,10 @@ void SelectedItem::EnslaveSettler(const MapPoint &point)
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		double success, death;
-		sint32 timer, amount;
+		double success;
+		double death;
+		sint32 timer;
+		sint32 amount;
 		sint32 uindex;
 		bool target_is_city;
 		Unit target_city;

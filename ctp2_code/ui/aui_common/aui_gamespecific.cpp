@@ -6,7 +6,7 @@
 #include "ctp/civapp.h"
 
 extern BOOL			g_helpMode;
-extern aui_UI		*aui_ui_Get();
+
 
 BOOL HandleGameSpecificLeftClick( void *control )
 {

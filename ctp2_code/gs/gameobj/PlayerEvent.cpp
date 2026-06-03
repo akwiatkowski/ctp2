@@ -92,7 +92,8 @@ STDEHANDLER(ContactMadeEvent)
 	GameEventArgument *firstPlayerArg  = args->GetArg(GEA_Player, 0);
 	GameEventArgument *secondPlayerArg = args->GetArg(GEA_Player, 1);
 
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 
 	if(!firstPlayerArg || !(firstPlayerArg->GetPlayer(p1)))
 		return GEV_HD_Continue;
@@ -514,7 +515,8 @@ STDEHANDLER(GrantAdvanceEvent)
 STDEHANDLER(SendGoodEvent)
 {
 	sint32 resIndex;
-	Unit sourceCity, destCity;
+	Unit sourceCity;
+	Unit destCity;
 
 	if(!args->GetInt(0, resIndex)) return GEV_HD_Continue;
 	if(!args->GetCity(0, sourceCity)) return GEV_HD_Continue;
@@ -535,7 +537,8 @@ STDEHANDLER(TradeBidEvent)
 {
 	sint32 player;
 	sint32 resIndex;
-	Unit sourceCity, destCity;
+	Unit sourceCity;
+	Unit destCity;
 
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, resIndex)) return GEV_HD_Continue;
@@ -555,7 +558,8 @@ STDEHANDLER(CreatedArmyEvent)
 
 STDEHANDLER(SubGoldEvent)
 {
-	sint32 player, amt;
+	sint32 player;
+	sint32 amt;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, amt)) return GEV_HD_Continue;
 
@@ -576,7 +580,8 @@ STDEHANDLER(AddGoldEvent)
 
 STDEHANDLER(EstablishEmbassyEvent)
 {
-	sint32 owner, otherguy;
+	sint32 owner;
+	sint32 otherguy;
 	if(!args->GetPlayer(0, owner)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, otherguy)) return GEV_HD_Continue;
 
@@ -586,7 +591,8 @@ STDEHANDLER(EstablishEmbassyEvent)
 
 STDEHANDLER(ThrowPartyEvent)
 {
-	sint32 owner, otherguy;
+	sint32 owner;
+	sint32 otherguy;
 	if(!args->GetPlayer(0, owner)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, otherguy)) return GEV_HD_Continue;
 

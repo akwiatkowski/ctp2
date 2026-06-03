@@ -90,7 +90,9 @@ template <class T> DAPriorityQueue<T>::~DAPriorityQueue()
 #ifdef _DEBUG
 template <class T> void DAPriorityQueue<T>::LookForDups(const sint32 g)
 {
-    sint32 i, j, n;
+    sint32 i;
+    sint32 j;
+    sint32 n;
 
     n = m_queue.Num();
     for (i=1; i<(n-1); i++) {

@@ -55,7 +55,7 @@
 #include "gs/diplomacy/diplomacy_types.h"
 #include "gs/slic/slicif.h"
 #include "gs/database/StrDB.h"
-extern StringDB *stringdb_Get();
+
 
 #include "ai/diplomacy/Diplomat.h"
 #include "ai/mapanalysis/mapanalysis.h"

@@ -567,7 +567,8 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 			if(player_Get(i) && player != i) {
 				const NewProposal *prop;
 				ProposalData propData;
-				sint32 sender, receiver;
+				sint32 sender;
+				sint32 receiver;
 
 				if(toPlayer) {
 
@@ -1850,7 +1851,8 @@ STDEHANDLER(DipWinContinueDiplomacyEvent)
 {
 	if(!s_dipWindow) return GEV_HD_Continue;
 
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -1862,7 +1864,8 @@ STDEHANDLER(DipWinResponseReady)
 {
 	if(!s_dipWindow) return GEV_HD_Continue;
 
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -1916,7 +1919,8 @@ STDEHANDLER(DipWinResponseReady)
 
 STDEHANDLER(DipWinNewProposalEvent)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -1955,7 +1959,8 @@ STDEHANDLER(DipWinNewProposalEvent)
 
 STDEHANDLER(DipWinNewNegotiationEvent)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 	if(!args->GetPlayer(0, p1)) return GEV_HD_Continue;
 	if(!args->GetPlayer(1, p2)) return GEV_HD_Continue;
 
@@ -2399,10 +2404,10 @@ void DiplomacyWindow::RequestPercentValue()
 bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 {
 	Assert(!m_curMenu);
-	if(m_curMenu) {
+	
 
 		delete m_curMenu;
-	}
+	
 
 	const DiplomacyProposalRecord *rec = g_theDiplomacyProposalDB->Get(proposal);
 	Assert(rec);
@@ -2839,10 +2844,10 @@ void DiplomacyWindow::RejectCounter(aui_Control *control, uint32 action, uint32 
 bool DiplomacyWindow::ThreatContextMenu(sint32 threat)
 {
 	Assert(!m_threatMenu);
-	if(m_threatMenu) {
+	
 
 		delete m_threatMenu;
-	}
+	
 
 	const DiplomacyThreatRecord *rec = g_theDiplomacyThreatDB->Get(threat);
 	Assert(rec);

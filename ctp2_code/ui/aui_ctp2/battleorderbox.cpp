@@ -111,7 +111,8 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	RECT			iconRect;
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	sint32	i,j;
+	sint32	 i;
+	sint32	 j;
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
 		m_cargo[i] = nullptr;

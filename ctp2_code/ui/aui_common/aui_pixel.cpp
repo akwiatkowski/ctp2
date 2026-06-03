@@ -133,8 +133,12 @@ AUI_ERRCODE aui_Pixel::Convert24To16Dither(
 
 	uint32 limitcol;
 	sint32 err;
-    sint32 sr, sg, sb;
-    sint32 tr, tg, tb;
+    sint32 sr;
+    sint32 sg;
+    sint32 sb;
+    sint32 tr;
+    sint32 tg;
+    sint32 tb;
     uint8 *fp;
     uint16 *tp;
 	sint32 *temperr;
@@ -350,8 +354,10 @@ void aui_Pixel::DoubleToImage(double **fimage, sint8 *image24,
 void aui_Pixel::Gradient(double **in_image, double **out_image,
               sint32 width, sint32 height)
 {
-   sint32          x, y;
-   double 	Dx, Dy;
+   sint32          x;
+   sint32          y;
+   double 	 Dx;
+   double 	 Dy;
 
    for (y = 1; y < (height-1); y++)
        for (x = 1; x < (width-1); x++) {
@@ -447,7 +453,9 @@ AUI_ERRCODE aui_Pixel::Convert24To16(
 
 		uint16 *origDestBuf = destBuf;
 
-		uint8 red,green,blue;
+		uint8 red;
+		uint8 green;
+		uint8 blue;
 
 		do
 		{

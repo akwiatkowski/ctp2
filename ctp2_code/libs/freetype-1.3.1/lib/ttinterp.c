@@ -526,7 +526,8 @@
 
   static TT_F26Dot6  Norm( TT_F26Dot6  X, TT_F26Dot6  Y )
   {
-    TT_Int64       T1, T2;
+    TT_Int64       T1;
+    TT_Int64       T2;
 
 
     MUL_64( X, X, T1 );
@@ -585,7 +586,8 @@
 
     else
     {
-      Long  x, y;
+      Long  x;
+      Long  y;
 
 
       x = TT_MulDiv( CUR.GS.projVector.x, CUR.metrics.x_ratio, 0x4000 );
@@ -1308,7 +1310,8 @@
   static TT_F26Dot6  Project( EXEC_OPS TT_Vector*  v1,
                                        TT_Vector*  v2 )
   {
-    TT_Int64  T1, T2;
+    TT_Int64  T1;
+    TT_Int64  T2;
 
 
     MUL_64( v1->x - v2->x, CUR.GS.projVector.x, T1 );
@@ -1336,7 +1339,8 @@
   static TT_F26Dot6  Dual_Project( EXEC_OPS TT_Vector*  v1,
                                             TT_Vector*  v2 )
   {
-    TT_Int64  T1, T2;
+    TT_Int64  T1;
+    TT_Int64  T2;
 
 
     MUL_64( v1->x - v2->x, CUR.GS.dualVector.x, T1 );
@@ -1364,7 +1368,8 @@
   static TT_F26Dot6  Free_Project( EXEC_OPS TT_Vector*  v1,
                                             TT_Vector*  v2 )
   {
-    TT_Int64  T1, T2;
+    TT_Int64  T1;
+    TT_Int64  T2;
 
 
     MUL_64( v1->x - v2->x, CUR.GS.freeVector.x, T1 );
@@ -1511,7 +1516,8 @@
                                    TT_UnitVector*  R )
   {
     TT_F26Dot6  W;
-    Bool        S1, S2;
+    Bool        S1;
+    Bool        S2;
 
 
     if ( ABS( Vx ) < 0x10000L && ABS( Vy ) < 0x10000L )
@@ -1610,7 +1616,9 @@
                                     Int             aOpc,
                                     TT_UnitVector*  Vec )
   {
-    Long       A, B, C;
+    Long       A;
+    Long       B;
+    Long       C;
     TT_Vector* p1;
     TT_Vector* p2;
 
@@ -2945,7 +2953,8 @@
 
   static void  Ins_MINDEX( INS_ARG )
   {
-    Long  L, K;
+    Long  L;
+    Long  K;
 
 
     L = args[0];
@@ -2973,7 +2982,9 @@
 
   static void  Ins_ROLL( INS_ARG )
   {
-    Long  A, B, C;
+    Long  A;
+    Long  B;
+    Long  C;
 
 
     A = args[2];
@@ -3396,7 +3407,8 @@
 
   static void  Ins_NPUSHB( INS_ARG )
   {
-    UShort  L, K;
+    UShort  L;
+    UShort  K;
 
 
     L = (UShort)CUR.code[CUR.IP + 1];
@@ -3421,7 +3433,8 @@
 
   static void  Ins_NPUSHW( INS_ARG )
   {
-    UShort  L, K;
+    UShort  L;
+    UShort  K;
 
 
     L = (UShort)CUR.code[CUR.IP + 1];
@@ -3449,7 +3462,8 @@
 
   static void  Ins_PUSHB( INS_ARG )
   {
-    UShort  L, K;
+    UShort  L;
+    UShort  K;
 
 
     L = (UShort)CUR.opcode - 0xB0 + 1;
@@ -3472,7 +3486,8 @@
 
   static void  Ins_PUSHW( INS_ARG )
   {
-    UShort  L, K;
+    UShort  L;
+    UShort  K;
 
 
     L = (UShort)CUR.opcode - 0xB8 + 1;
@@ -3592,7 +3607,8 @@
 
   static void  Ins_MD( INS_ARG )
   {
-    UShort      K, L;
+    UShort      K;
+    UShort      L;
     TT_F26Dot6  D;
 
 
@@ -3629,8 +3645,11 @@
 
   static void  Ins_SDPVTL( INS_ARG )
   {
-    Long    A, B, C;
-    UShort  p1, p2;   /* was Int in pas type ERROR */
+    Long    A;
+    Long    B;
+    Long    C;
+    UShort  p1;
+    UShort  p2;   /* was Int in pas type ERROR */
 
 
     p1 = (UShort)args[1];
@@ -3804,7 +3823,8 @@
 
   static void  Ins_INSTCTRL( INS_ARG )
   {
-    Long  K, L;
+    Long  K;
+    Long  L;
 
 
     K = args[1];
@@ -3949,7 +3969,9 @@
 
   static void  Ins_FLIPRGON( INS_ARG )
   {
-    UShort  I, K, L;
+    UShort  I;
+    UShort  K;
+    UShort  L;
 
 
     K = (UShort)args[1];
@@ -3976,7 +3998,9 @@
 
   static void  Ins_FLIPRGOFF( INS_ARG )
   {
-    UShort  I, K, L;
+    UShort  I;
+    UShort  K;
+    UShort  L;
 
 
     K = (UShort)args[1];
@@ -4068,8 +4092,8 @@
     TGlyph_Zone zp;
     UShort      refp;
 
-    TT_F26Dot6  dx,
-                dy;
+    TT_F26Dot6  dx;
+    TT_F26Dot6  dy;
     UShort      point;
 
 
@@ -4116,11 +4140,13 @@
   {
     TGlyph_Zone zp;
     UShort      refp;
-    TT_F26Dot6  dx,
-                dy;
+    TT_F26Dot6  dx;
+    TT_F26Dot6  dy;
 
     Short       contour;
-    UShort      first_point, last_point, i;
+    UShort      first_point;
+    UShort      last_point;
+    UShort      i;
 
 
     contour = (UShort)args[0];
@@ -4170,10 +4196,11 @@
   {
     TGlyph_Zone zp;
     UShort      refp;
-    TT_F26Dot6  dx,
-                dy;
+    TT_F26Dot6  dx;
+    TT_F26Dot6  dy;
 
-    UShort  last_point, i;
+    UShort  last_point;
+    UShort  i;
 
 
     if ( BOUNDS( args[0], 2 ) )
@@ -4207,7 +4234,8 @@
 
   static void  Ins_SHPIX( INS_ARG )
   {
-    TT_F26Dot6  dx, dy;
+    TT_F26Dot6  dx;
+    TT_F26Dot6  dy;
     UShort      point;
 
 
@@ -4298,8 +4326,8 @@
   static void  Ins_MDAP( INS_ARG )
   {
     UShort      point;
-    TT_F26Dot6  cur_dist,
-                distance;
+    TT_F26Dot6  cur_dist;
+    TT_F26Dot6  distance;
 
 
     point = (UShort)args[0];
@@ -4338,8 +4366,8 @@
   {
     ULong       cvtEntry;
     UShort      point;
-    TT_F26Dot6  distance,
-                org_dist;
+    TT_F26Dot6  distance;
+    TT_F26Dot6  org_dist;
 
 
     cvtEntry = (ULong)args[1];
@@ -4411,7 +4439,8 @@
   static void  Ins_MDRP( INS_ARG )
   {
     UShort      point;
-    TT_F26Dot6  org_dist, distance;
+    TT_F26Dot6  org_dist;
+    TT_F26Dot6  distance;
 
 
     point = (UShort)args[0];
@@ -4491,10 +4520,10 @@
     UShort      point;
     ULong       cvtEntry;
 
-    TT_F26Dot6  cvt_dist,
-                distance,
-                cur_dist,
-                org_dist;
+    TT_F26Dot6  cvt_dist;
+    TT_F26Dot6  distance;
+    TT_F26Dot6  cur_dist;
+    TT_F26Dot6  org_dist;
 
 
     point    = (UShort)args[0];
@@ -4661,15 +4690,20 @@
 
   static void  Ins_ISECT( INS_ARG )
   {
-    UShort  point,
-            a0, a1,
-            b0, b1;
+    UShort  point;
+    UShort  a0;
+    UShort  a1;
+    UShort  b0;
+    UShort  b1;
 
     TT_F26Dot6  discriminant;
 
-    TT_F26Dot6  dx,  dy,
-                dax, day,
-                dbx, dby;
+    TT_F26Dot6  dx;
+    TT_F26Dot6  dy;
+    TT_F26Dot6  dax;
+    TT_F26Dot6  day;
+    TT_F26Dot6  dbx;
+    TT_F26Dot6  dby;
 
     TT_F26Dot6  val;
 
@@ -4741,7 +4775,8 @@
 
   static void  Ins_ALIGNPTS( INS_ARG )
   {
-    UShort      p1, p2;
+    UShort      p1;
+    UShort      p2;
     TT_F26Dot6  distance;
 
 
@@ -4771,9 +4806,13 @@
 
   static void  Ins_IP( INS_ARG )
   {
-    TT_F26Dot6  org_a, org_b, org_x,
-                cur_a, cur_b, cur_x,
-                distance;
+    TT_F26Dot6  org_a;
+    TT_F26Dot6  org_b;
+    TT_F26Dot6  org_x;
+    TT_F26Dot6  cur_a;
+    TT_F26Dot6  cur_b;
+    TT_F26Dot6  cur_x;
+    TT_F26Dot6  distance;
     UShort      point;
 
 
@@ -4916,7 +4955,11 @@
                        struct LOC_Ins_IUP*  LINK )
   {
     UShort      i;
-    TT_F26Dot6  x, x1, x2, d1, d2;
+    TT_F26Dot6  x;
+    TT_F26Dot6  x1;
+    TT_F26Dot6  x2;
+    TT_F26Dot6  d1;
+    TT_F26Dot6  d2;
 
 
     if ( p1 > p2 )
@@ -5085,7 +5128,8 @@
 
   static void  Ins_DELTAP( INS_ARG )
   {
-    ULong   nump, k;
+    ULong   nump;
+    ULong   k;
     UShort  A;
     ULong   C;
     Long    B;
@@ -5159,8 +5203,10 @@
 
   static void  Ins_DELTAC( INS_ARG )
   {
-    ULong  nump, k;
-    ULong  A, C;
+    ULong  nump;
+    ULong  k;
+    ULong  A;
+    ULong  C;
     Long   B;
 
 
@@ -5266,7 +5312,8 @@
   static void  Ins_UNKNOWN( INS_ARG )
   {
     /* look up the current instruction in our table */
-    PDefRecord  def, limit;
+    PDefRecord  def;
+    PDefRecord  limit;
     
     def   = CUR.IDefs;
     limit = def + CUR.numIDefs;
@@ -5709,7 +5756,8 @@
         case 0x04:  /* SFvTCA y */
         case 0x05:  /* SFvTCA x */
           {
-            Short AA, BB;
+            Short AA;
+            Short BB;
 
 
             AA = (Short)(opcode & 1) << 14;

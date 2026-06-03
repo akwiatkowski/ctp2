@@ -58,10 +58,10 @@ BaseTile::~BaseTile()
 	}
 	else
 	{
-		if (m_tileData)
+		
 			delete[] m_tileData;
 
-		if (m_hatData)
+		
 			delete[] m_hatData;
 	}
 }

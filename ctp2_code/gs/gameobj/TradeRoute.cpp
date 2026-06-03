@@ -38,7 +38,8 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 
 
 
-	Unit source(data->GetSource()), dest(data->GetDestination());
+	Unit source(data->GetSource());
+	Unit dest(data->GetDestination());
 
 
 	if(unitpool_Get()->IsValid(source))

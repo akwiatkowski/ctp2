@@ -50,8 +50,15 @@ extern short  gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
 inline Pixel16 pixelutils_Blend(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
-	short			r1, g1, b1, r2, g2, b2;
-	short			r0, g0, b0;
+	short			 r1;
+	short			 g1;
+	short			 b1;
+	short			 r2;
+	short			 g2;
+	short			 b2;
+	short			 r0;
+	short			 g0;
+	short			 b0;
 
 	if (is_565_Get())
 	{
@@ -88,7 +95,10 @@ inline Pixel16 pixelutils_Blend(Pixel16 pixel1, Pixel16 pixel2, short blend)
 inline Pixel16 pixelutils_Additive(Pixel16 pixel1, Pixel16 pixel2)
 {
 
-	Pixel16				r, g, b, sum = (short)(pixel2 & 0x1F) ;
+	Pixel16				 r;
+	Pixel16				 g;
+	Pixel16				 b;
+	Pixel16				 sum = (short)(pixel2 & 0x1F) ;
 
 	if (is_565_Get())
 	{
@@ -118,8 +128,10 @@ inline Pixel16 pixelutils_Additive(Pixel16 pixel1, Pixel16 pixel2)
 
 inline Pixel16 pixelutils_BlendFast(sint32 pixel1, sint32 pixel2, sint32 blend)
 {
-	sint32 rb2, g2;
-	sint32 rb0, g0;
+	sint32 rb2;
+	sint32 g2;
+	sint32 rb0;
+	sint32 g0;
 
 	if (is_565_Get())
 	{
@@ -156,7 +168,9 @@ inline Pixel16 pixelutils_Shadow(Pixel16 pixel)
       return static_cast<Pixel16>((pixel&0xF7DF)>>1);
 	else
 	{
-	    short				r, g, b;
+	    short				 r;
+	    short				 g;
+	    short				 b;
 
 		r = (pixel & 0x7C00) >> 11;
 		g = (pixel & 0x03E0) >> 6;
@@ -170,7 +184,9 @@ inline Pixel16 pixelutils_Shadow(Pixel16 pixel)
 
 inline Pixel16 pixelutils_Lightening(Pixel16 pixel)
 {
-	short		r, g, b;
+	short		 r;
+	short		 g;
+	short		 b;
 
 	if (is_565_Get())
 	{
@@ -204,8 +220,12 @@ inline Pixel16 pixelutils_Lightening(Pixel16 pixel)
 
 inline Pixel16 pixelutils_PercentDarken(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT - percent;
 
 	if (is_565_Get())
@@ -242,8 +262,12 @@ inline Pixel16 pixelutils_PercentDarken(Pixel16 pixel, sint32 percent)
 
 inline Pixel16 pixelutils_PercentLighten(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT + percent;
 
 	if (is_565_Get())
@@ -309,8 +333,8 @@ inline Pixel16 pixelutils_Convert555to565(Pixel16 pixel)
 	return static_cast<Pixel16>(((pixel & 0x7FE0) << 1) | (pixel & 0x001F));
 }
 
-Pixel16 pixelutils_Convert565to555(Pixel16 pixel);
-Pixel16 pixelutils_Convert555to565(Pixel16 pixel);
+
+
 
 
 
@@ -320,8 +344,15 @@ Pixel16 pixelutils_Convert555to565(Pixel16 pixel);
 
 inline Pixel16 pixelutils_Blend_565(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
-	Pixel16			r1, g1, b1, r2, g2, b2;
-	Pixel16			r0, g0, b0;
+	Pixel16			 r1;
+	Pixel16			 g1;
+	Pixel16			 b1;
+	Pixel16			 r2;
+	Pixel16			 g2;
+	Pixel16			 b2;
+	Pixel16			 r0;
+	Pixel16			 g0;
+	Pixel16			 b0;
 
 	r1 = ((pixel1 & 0xF800) >> 10) ;
 	g1 = ((pixel1 & 0x07E0) >> 5);
@@ -341,7 +372,10 @@ inline Pixel16 pixelutils_Blend_565(Pixel16 pixel1, Pixel16 pixel2, short blend)
 
 inline Pixel16 pixelutils_Additive_565(Pixel16 pixel1, Pixel16 pixel2)
 {
-	Pixel16				r, g, b, sum = (short)(pixel2 & 0x1F) ;
+	Pixel16				 r;
+	Pixel16				 g;
+	Pixel16				 b;
+	Pixel16				 sum = (short)(pixel2 & 0x1F) ;
 
 	r = ((pixel1 & 0xF800) >> 11) + sum;
 	g = ((pixel1 & 0x07E0) >> 5)  + (sum << 1);
@@ -357,8 +391,10 @@ inline Pixel16 pixelutils_Additive_565(Pixel16 pixel1, Pixel16 pixel2)
 inline Pixel16 pixelutils_BlendFast_565(sint32 pixel1, sint32 pixel2, sint32 blend)
 {
 
-	sint32 rb2, g2;
-	sint32 rb0, g0;
+	sint32 rb2;
+	sint32 g2;
+	sint32 rb0;
+	sint32 g0;
 
 	rb2 = (pixel2 & 0xF81F);
 
@@ -381,7 +417,9 @@ inline Pixel16 pixelutils_Shadow_565(Pixel16 pixel)
 
 inline Pixel16 pixelutils_Lightening_565(Pixel16 pixel)
 {
-	short r, g, b;
+	short r;
+	short g;
+	short b;
 
 	r = (pixel & 0xF800) >> 10;
 	if (r > 0x001F)
@@ -400,8 +438,12 @@ inline Pixel16 pixelutils_Lightening_565(Pixel16 pixel)
 
 inline Pixel16 pixelutils_PercentDarken_565(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT - percent;
 
 	r32 = (pixel & 0xF800) >> 11;
@@ -420,8 +462,12 @@ inline Pixel16 pixelutils_PercentDarken_565(Pixel16 pixel, sint32 percent)
 
 inline Pixel16 pixelutils_PercentLighten_565(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT + percent;
 
 	r32 = (pixel & 0xF800) >> 11;
@@ -464,7 +510,7 @@ inline Pixel32 pixelutils_Shadow32_565(Pixel32 pixel)
 Pixel32 pixelutils_Lightening32_565(Pixel16 pixel);
 Pixel32 pixelutils_PercentDarken32_565(Pixel32 pixel, sint32 percent);
 Pixel32 pixelutils_PercentLighten32_565(Pixel32 pixel, sint32 percent);
-Pixel16 pixelutils_Desaturate_565(Pixel16 pixel);
+
 
 
 
@@ -472,8 +518,15 @@ Pixel16 pixelutils_Desaturate_565(Pixel16 pixel);
 
 inline Pixel16 pixelutils_Blend_555(Pixel16 pixel1, Pixel16 pixel2, short blend)
 {
-	Pixel16			r1, g1, b1, r2, g2, b2;
-	Pixel16			r0, g0, b0;
+	Pixel16			 r1;
+	Pixel16			 g1;
+	Pixel16			 b1;
+	Pixel16			 r2;
+	Pixel16			 g2;
+	Pixel16			 b2;
+	Pixel16			 r0;
+	Pixel16			 g0;
+	Pixel16			 b0;
 
 	r1 = ((pixel1 & 0x7C00) >> 9) ;
 	g1 = ((pixel1 & 0x03E0) >> 4) ;
@@ -492,7 +545,10 @@ inline Pixel16 pixelutils_Blend_555(Pixel16 pixel1, Pixel16 pixel2, short blend)
 
 inline Pixel16 pixelutils_Additive_555(Pixel16 pixel1, Pixel16 pixel2)
 {
-	Pixel16				r, g, b, sum = (short)(pixel2 & 0x1F) ;
+	Pixel16				 r;
+	Pixel16				 g;
+	Pixel16				 b;
+	Pixel16				 sum = (short)(pixel2 & 0x1F) ;
 
 	r = ((pixel1 & 0x7C00) >> 10) + sum;
 	g = ((pixel1 & 0x03E0) >> 5)  + sum;
@@ -507,8 +563,10 @@ inline Pixel16 pixelutils_Additive_555(Pixel16 pixel1, Pixel16 pixel2)
 
 inline Pixel16 pixelutils_BlendFast_555(sint32 pixel1, sint32 pixel2, sint32 blend)
 {
-	sint32 rb2, g2;
-	sint32 rb0, g0;
+	sint32 rb2;
+	sint32 g2;
+	sint32 rb0;
+	sint32 g0;
 
 	rb2 = (pixel2 & 0x7C1F);
 	rb0 = (((rb2<<5)+blend*((pixel1 & 0x7C1F)-rb2))>>5) & 0x7C1F;
@@ -526,7 +584,9 @@ inline Pixel16 pixelutils_Shadow_555(Pixel16 pixel)
 
 inline Pixel16 pixelutils_Lightening_555(Pixel16 pixel)
 {
-	short		r, g, b;
+	short		 r;
+	short		 g;
+	short		 b;
 	r = (pixel & 0x7C00) >> 9;
 	if (r > 0x001F)
 		r = 0x001F;
@@ -542,8 +602,12 @@ inline Pixel16 pixelutils_Lightening_555(Pixel16 pixel)
 
 inline Pixel16 pixelutils_PercentDarken_555(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT - percent;
 
 	r32 = (pixel & 0x7C00) >> 10;
@@ -562,8 +626,12 @@ inline Pixel16 pixelutils_PercentDarken_555(Pixel16 pixel, sint32 percent)
 
 inline Pixel16 pixelutils_PercentLighten_555(Pixel16 pixel, sint32 percent)
 {
-	sint32 r32, g32, b32;
-	sint16 r, g, b;
+	sint32 r32;
+	sint32 g32;
+	sint32 b32;
+	sint16 r;
+	sint16 g;
+	sint16 b;
 	sint32 newPercent = k_MAX_PERCENT + percent;
 
 	r32 = (pixel & 0x7C00) >> 10;

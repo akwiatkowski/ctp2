@@ -273,7 +273,8 @@ sint32 InstallationData::GetDistance(InstallationData* inst1,
 									 InstallationData* inst2,
 									 sint32 wrapRange)
 {
-	sint32 dx, dy;
+	sint32 dx;
+	sint32 dy;
 	dx = inst1->m_point.x - inst2->m_point.x;
 	dy = inst1->m_point.y - inst2->m_point.y;
 	dx = abs(dx);

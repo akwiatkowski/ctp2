@@ -324,9 +324,13 @@ double XY_Coordinates::Get_XY_Euclidean_Distance_Squared
 	sint32 delta_x_wrapped;
 	sint32 delta_y_unwrapped;
 	sint32 delta_y_wrapped;
-	sint32 straight, x_wrap_only, y_wrap_only, both_wrap;
+	sint32 straight;
+	sint32 x_wrap_only;
+	sint32 y_wrap_only;
+	sint32 both_wrap;
 	double shortest_distance;
-	sint32 t1, t2;
+	sint32 t1;
+	sint32 t2;
 
 
 	Calculate_Possible_X_Y_Deltas(A, B, delta_x_unwrapped, delta_x_wrapped,

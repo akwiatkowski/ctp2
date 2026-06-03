@@ -35,10 +35,7 @@
 
 // Forward declared in battle_view layer; used by combatevent.cpp's
 // "close previous view" path.
-extern void battleview_ExitButtonActionCallback(aui_Control *control,
-                                                uint32 action,
-                                                uint32 data,
-                                                void *cookie);
+
 
 namespace {
 

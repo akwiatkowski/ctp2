@@ -158,7 +158,8 @@ void SpriteFile::WriteFacedSpriteData(FacedSprite *s)
 	long  		frame_offsets[k_MAX_FACINGS];
 	uint32		normal_ssizes[k_MAX_FACINGS][128];
 	uint32		normal_msizes[k_MAX_FACINGS][128];
-	uint16	i, j;
+	uint16	 i;
+	uint16	 j;
 
 	for (j=0; j<k_NUM_FACINGS; j++)
 	{
@@ -228,7 +229,8 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 	WriteData(static_cast<uint16>(s->GetNumFrames()));
 	WriteData(static_cast<uint16>(s->GetHasShadow()));
 
-	uint16	i, j;
+	uint16	 i;
+	uint16	 j;
 
 	for (j=0; j<k_NUM_FACINGS; j++)
 	{
@@ -1419,7 +1421,8 @@ SPRITEFILEERR SpriteFile::Open(SPRITEFILETYPE *type)
 
 SPRITEFILEERR SpriteFile::Read(Sprite **s, Anim **anim)
 {
-	uint32			soffset=0, aoffset=0;
+	uint32			 soffset=0;
+	uint32			 aoffset=0;
 	SPRITEFILEERR	err;
 
 	err = ReadData((void *)&soffset, sizeof(soffset));
@@ -1436,7 +1439,8 @@ SPRITEFILEERR SpriteFile::Read(Sprite **s, Anim **anim)
 
 SPRITEFILEERR SpriteFile::Read(FacedSprite **s, Anim **anim)
 {
-	uint32			soffset=0, aoffset=0;
+	uint32			 soffset=0;
+	uint32			 aoffset=0;
 	SPRITEFILEERR	err;
 
 	err = ReadData((void *)&soffset, sizeof(soffset));
@@ -1453,7 +1457,8 @@ SPRITEFILEERR SpriteFile::Read(FacedSprite **s, Anim **anim)
 
 SPRITEFILEERR SpriteFile::Read(FacedSpriteWshadow **s, Anim **anim)
 {
-	uint32			soffset=0, aoffset=0;
+	uint32			 soffset=0;
+	uint32			 aoffset=0;
 	SPRITEFILEERR	err;
 
 	err = ReadData((void *)&soffset, sizeof(soffset));
@@ -2344,11 +2349,16 @@ SpriteFile::CompressData_LZW1(void *Data, size_t &DataLen)
  size_t  src_len=DataLen;
  uint32     p_dst_len=COM_BUFF_SIZE;
 
- uint8 *p_src=p_src_first,*p_dst=p_dst_first;
- uint8 *p_src_post=p_src_first+src_len,*p_dst_post=p_dst_first+src_len;
- uint8 *p_src_max1=p_src_post-LZW1_ITEMMAX,*p_src_max16=p_src_post-16*LZW1_ITEMMAX;
- uint8 *hash[4096],*p_control;
- uint16 control=0,control_bits=0;
+ uint8 *p_src=p_src_first;
+ uint8 *p_dst=p_dst_first;
+ uint8 *p_src_post=p_src_first+src_len;
+ uint8 *p_dst_post=p_dst_first+src_len;
+ uint8 *p_src_max1=p_src_post-LZW1_ITEMMAX;
+ uint8 *p_src_max16=p_src_post-16*LZW1_ITEMMAX;
+ uint8 *hash[4096];
+ uint8 *p_control;
+ uint16 control=0;
+ uint16 control_bits=0;
 
  *p_dst=LZW1_FLAG_COMPRESS;
  p_dst+=LZW1_FLAG_BYTES;
@@ -2357,8 +2367,10 @@ SpriteFile::CompressData_LZW1(void *Data, size_t &DataLen)
 
  while (true)
  {
-	uint8 *p,*s;
-	uint16 unroll=16,len;
+	uint8 *p;
+	uint8 *s;
+	uint16 unroll=16;
+	uint16 len;
 	uint32 index;
 	uint32 offset;
 
@@ -2452,11 +2464,14 @@ SpriteFile::DeCompressData_LZW1(void *Data, size_t CompressedLen, size_t ActualL
  uint8  *p_src_first=(uint8 *)Data;
  uint8  *p_dst_first=ReturnVal;
 
- uint32 loops=0,subloops=0;
+ uint32 loops=0;
+ uint32 subloops=0;
 
- uint16 controlbits=0, control=0;
- uint8 *p_src=p_src_first+LZW1_FLAG_BYTES, *p_dst=p_dst_first,
-       *p_src_post=p_src_first+src_len;
+ uint16 controlbits=0;
+ uint16 control=0;
+ uint8 *p_src=p_src_first+LZW1_FLAG_BYTES;
+ uint8 *p_dst=p_dst_first;
+ uint8 *p_src_post=p_src_first+src_len;
 
  if (*p_src_first==LZW1_FLAG_COPY)
  {

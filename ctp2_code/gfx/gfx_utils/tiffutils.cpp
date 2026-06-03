@@ -38,7 +38,8 @@ char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, siz
 	TIFF * tif = TIFFOpen(filename, "r");
 	if (tif)
 	{
-		uint32 w, h;
+		uint32 w;
+		uint32 h;
 		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
 		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
 
@@ -75,7 +76,8 @@ char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, siz
 char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
 {
 	char    *image = nullptr;
-	uint32  w=0, h=0;
+	uint32  w=0;
+	uint32  h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
 
 	if (tif) {
@@ -141,7 +143,8 @@ int TIFGetMetrics(const char *filename, uint16 *width, uint16 *height)
 
 int TIFLoadIntoBuffer16(const char *filename, uint16 *width, uint16 *height, uint16 imageRowBytes, uint16 *buffer, BOOL is565)
 {
-	uint32  w=0, h=0;
+	uint32  w=0;
+	uint32  h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
 
 	if (tif)

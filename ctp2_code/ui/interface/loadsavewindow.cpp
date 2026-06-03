@@ -527,7 +527,8 @@ void LoadSaveWindow::GetPowerGraph(SaveInfo *info)
 	myGraph->EnablePrecision(FALSE);
 
 	double **   graphData = nullptr;
-	sint32		xCount, yCount;
+	sint32		 xCount;
+	sint32		 yCount;
 
 	myGraph->GenrateGraph(xCount, yCount, &graphData, kRankingOverall);
 	if(yCount <= 0) return;

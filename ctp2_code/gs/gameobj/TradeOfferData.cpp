@@ -124,7 +124,8 @@ BOOL TradeOfferData::Accept(PLAYER_INDEX player,
 		return TRUE;
 	}
 
-	TradeRoute fromRoute, toRoute;
+	TradeRoute fromRoute;
+	TradeRoute toRoute;
 	fromRoute = player_Get(m_fromCity.GetOwner())->CreateTradeRoute(
 		m_fromCity, m_offerType, m_offerResource, destCity, destCity.GetOwner(), m_askingResource);
 

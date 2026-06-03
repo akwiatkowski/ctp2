@@ -832,7 +832,8 @@ SFN_ERROR Slic_IsContinentBiggerThan::Call(SlicArgList *args)
 
 SFN_ERROR Slic_IsHostile::Call(SlicArgList *args)
 {
-	sint32 p1, p2;
+	sint32 p1;
+	sint32 p2;
 
 	if (args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
@@ -1188,7 +1189,8 @@ SFN_ERROR Slic_PlayerCityCount::Call(SlicArgList *args)
 
 SFN_ERROR Slic_RegardLevel::Call(SlicArgList *args)
 {
-	PLAYER_INDEX pl1, pl2;
+	PLAYER_INDEX pl1;
+	PLAYER_INDEX pl2;
 
 	if (args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
@@ -1213,7 +1215,8 @@ SFN_ERROR Slic_RegardLevel::Call(SlicArgList *args)
 
 SFN_ERROR Slic_ChangeRegardLevel::Call(SlicArgList *args)
 {
-	PLAYER_INDEX pl1, pl2;
+	PLAYER_INDEX pl1;
+	PLAYER_INDEX pl2;
 	sint32 level;
 
 	if (args->Count() != 3)
@@ -1340,7 +1343,8 @@ SFN_ERROR Slic_ControlsRegion::Call(SlicArgList *args)
 
 SFN_ERROR Slic_DemandWarFromAllies::Call(SlicArgList *args)
 {
-	PLAYER_INDEX demandingPlayer, againstPlayer;
+	PLAYER_INDEX demandingPlayer;
+	PLAYER_INDEX againstPlayer;
 
 	if (args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
@@ -3186,7 +3190,8 @@ SFN_ERROR Slic_StartTimer::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	sint32 timer, duration;
+	sint32 timer;
+	sint32 duration;
 	if(!args->GetInt(0, timer))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -3265,7 +3270,8 @@ SFN_ERROR Slic_CreateUnit::Call(SlicArgList *args)
 	// Check if the function was called with a valid unit type.
 	if(!rec) return SFN_ERROR_UNKNOWN_UNIT_TYPE;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	BOOL found = FALSE;
 	DynamicArray<MapPoint> legalPoints;
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
@@ -3399,7 +3405,9 @@ SFN_ERROR Slic_ForceRegard::Call(SlicArgList *args)
 {
 	if (args->Count() != 3)
 		return SFN_ERROR_NUM_ARGS;
-	sint32 ofPlayer, forPlayer, toRegard;
+	sint32 ofPlayer;
+	sint32 forPlayer;
+	sint32 toRegard;
 	if(!args->GetInt(0, ofPlayer))
 		return SFN_ERROR_TYPE_ARGS;
 	if(!args->GetInt(1, forPlayer))
@@ -3520,7 +3528,8 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 	if(!args->GetInt(2, distance))
 		return SFN_ERROR_TYPE_ARGS;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	BOOL found = FALSE;
 	static DynamicArray<MapPoint> legalPoints;
 	legalPoints.Clear();
@@ -3620,7 +3629,8 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 	if(!args->GetInt(2, distance))
 		return SFN_ERROR_TYPE_ARGS;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	BOOL found = FALSE;
 	static DynamicArray<MapPoint> legalPoints;
 	legalPoints.Clear();
@@ -3765,7 +3775,8 @@ SFN_ERROR Slic_Terraform::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	MapPoint tpos, pos;
+	MapPoint tpos;
+	MapPoint pos;
 	if(!args->GetPos(0, tpos)) {
 		return SFN_ERROR_TYPE_ARGS;
 	}
@@ -3900,7 +3911,8 @@ SFN_ERROR Slic_GetRandomNeighbor::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	MapPoint pos, npos;
+	MapPoint pos;
+	MapPoint npos;
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -4118,7 +4130,8 @@ SFN_ERROR Slic_SetPlayer::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	sint32 index, player;
+	sint32 index;
+	sint32 player;
 	if(!args->GetInt(0, index))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -4170,7 +4183,8 @@ SFN_ERROR Slic_GetNearestWater::Call(SlicArgList *args)
 	if(!args->GetPos(0, pos))
 		return SFN_ERROR_TYPE_ARGS;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	MapPoint nearest;
 	sint32 minDist = 0x7fffffff;
 
@@ -4298,7 +4312,8 @@ SFN_ERROR Slic_SetScience::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	sint32 player, level;
+	sint32 player;
+	sint32 level;
 	if(!args->GetInt(0, player)) {
 		return SFN_ERROR_TYPE_ARGS;
 	}
@@ -4323,7 +4338,8 @@ SFN_ERROR Slic_SetResearching::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 	}
 
-	sint32 player, what;
+	sint32 player;
+	sint32 what;
 	if(!args->GetInt(0, player)) {
 		return SFN_ERROR_TYPE_ARGS;
 	}
@@ -4438,7 +4454,8 @@ SFN_ERROR Slic_BreakLeaveOurLands::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	sint32 unitOwner, cellOwner;
+	sint32 unitOwner;
+	sint32 cellOwner;
 	unitOwner = context->GetPlayer(0);
 	cellOwner = context->GetPlayer(1);
 
@@ -4483,7 +4500,8 @@ SFN_ERROR Slic_BreakNoPiracy::Call(SlicArgList *args)
 		return SFN_ERROR_TYPE_ARGS;
 	}
 
-	sint32 pirate, victim;
+	sint32 pirate;
+	sint32 victim;
 	pirate = context->GetPlayer(0);
 	victim = context->GetPlayer(1);
 
@@ -4691,12 +4709,14 @@ SFN_ERROR Slic_MakeLocation::Call(SlicArgList *args)
 	if(sym->GetType() != SLIC_SYM_LOCATION)
 		return SFN_ERROR_TYPE_ARGS;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	MapPoint point;
 	if(!args->GetInt(1, x)) return SFN_ERROR_TYPE_ARGS;
 	if(!args->GetInt(2, y)) return SFN_ERROR_TYPE_ARGS;
 
-	long width,height;
+	long width;
+	long height;
 
 	width=world_Get()->GetXWidth();
 	height=world_Get()->GetYHeight();
@@ -5659,7 +5679,8 @@ SFN_ERROR Slic_SetPW::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	sint32 player, amount;
+	sint32 player;
+	sint32 amount;
 	if(!args->GetPlayer(0, player))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -6177,7 +6198,8 @@ SFN_ERROR Slic_AddFeat::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	sint32 feat, player;
+	sint32 feat;
+	sint32 player;
 
 	if(!args->GetInt(0, feat))
 		return SFN_ERROR_TYPE_ARGS;
@@ -6240,7 +6262,8 @@ SFN_ERROR Slic_Distance::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	MapPoint p1, p2;
+	MapPoint p1;
+	MapPoint p2;
 	if(!args->GetPos(0, p1))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -6257,7 +6280,8 @@ SFN_ERROR Slic_SquaredDistance::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	MapPoint p1, p2;
+	MapPoint p1;
+	MapPoint p2;
 	if(!args->GetPos(0, p1))
 		return SFN_ERROR_TYPE_ARGS;
 
@@ -6358,8 +6382,10 @@ SFN_ERROR Slic_StringCompare::Call(SlicArgList *args)
 	char *string1 = nullptr;
 	char *string2 = nullptr;
 
-	const char *cstring1, *cstring2;
-	StringId stringId1, stringId2;
+	const char *cstring1;
+	const char *cstring2;
+	StringId stringId1;
+	StringId stringId2;
 
 	if(!args->GetString(0, string1)){
 		if(args->GetStringId(0, stringId1)){
@@ -6558,7 +6584,8 @@ SFN_ERROR Slic_RemoveAdvance::Call(SlicArgList *args)
 	if(args->Count() != 2)
 		return SFN_ERROR_NUM_ARGS;
 
-	sint32 pl, ad;
+	sint32 pl;
+	sint32 ad;
 	if(!args->GetPlayer(0, pl))
 		return SFN_ERROR_TYPE_ARGS;
 

@@ -263,7 +263,8 @@ AUI_ERRCODE aui_BitmapFont::Load( )
 	uint16 i;
 	for (i = 0; i < n; i++ )
 	{
-		uint16 platform, encoding;
+		uint16 platform;
+		uint16 encoding;
 		TT_Get_CharMap_ID( m_ttFace, i, &platform, &encoding );
 		if ( ( platform == 3 && encoding == 1 )
 		||   ( platform == 0 && encoding == 0 ) )

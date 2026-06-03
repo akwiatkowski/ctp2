@@ -67,7 +67,7 @@ void C3Rand::Serialize(CivArchive &archive)
 		m_refCount = l_refCount;
 		m_ownGenerator = archive.GetSINT32();
 		if (m_ownGenerator) {
-			if (m_rand)
+			
 				delete m_rand;
 			m_rand = new RandomGenerator(archive);
 		} else {

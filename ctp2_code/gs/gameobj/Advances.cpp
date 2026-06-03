@@ -533,7 +533,8 @@ void Advances::ResetCanResearch(sint32 justGot)
 /////////////////EMOD for Advances requiring Goods
 				if(rec->GetNumNeedsCityGoodAnyCity())
 				{
-					sint32 i, g;
+					sint32 i;
+					sint32 g;
 					sint32 n = player_Get(m_owner)->m_all_cities->Num();
 					bool goodavail = false;
 
@@ -589,7 +590,8 @@ void Advances::ResetCanResearch(sint32 justGot)
 		goto done;
 	}
 
-	sint32 j, numChosen;
+	sint32 j;
+	sint32 numChosen;
 	uint16 histogram[k_MAX_ADVANCE_TURNS + 1];
 	memset(histogram, 0, sizeof(uint16) * (k_MAX_ADVANCE_TURNS + 1));
 
@@ -1229,7 +1231,8 @@ sint32 Advances::GetProjectedScience() const
 {
 	if (!player_Get(m_owner)) return 0;
 	UnitDynamicArray *  cities  = player_Get(m_owner)->m_all_cities;
-	sint32 s = 0, i;
+	sint32 s = 0;
+	sint32 i;
 	for(i = 0; i < cities->Num(); i++)
 	{
 		s += cities->Access(i).CD()->GetProjectedScience();

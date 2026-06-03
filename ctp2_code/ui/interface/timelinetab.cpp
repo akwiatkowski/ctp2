@@ -33,7 +33,7 @@
 
 #include "ui/aui_ctp2/c3_button.h"
 
-extern StringDB *stringdb_Get();
+
 
 static sint32			s_currentWonderDisplay;
 static c3_Button		*s_eventsInfoButton[17];

@@ -96,7 +96,10 @@ PRIMITIVES_ERRCODE primitives_FrameRect16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -270,7 +273,10 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 				uint16 c1 = pSrcRowStart[srcCol + 1];
 				uint16 c2 = pSrcRowStart[srcCol + srcPixelsPerRow];
 				uint16 c3 = pSrcRowStart[srcCol + srcPixelsPerRow + 1];
-				double f0, f1, f2, f3;
+				double f0;
+				double f1;
+				double f2;
+				double f3;
 				double fracX = srcSampleX - floor(srcSampleX);
 				f1 = 1.0 - fracY;
 				f2 = 1.0 - fracX;
@@ -338,7 +344,10 @@ PRIMITIVES_ERRCODE primitives_PaintRect16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -399,7 +408,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelRect16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -614,7 +626,10 @@ PRIMITIVES_ERRCODE primitives_BevelRect16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -837,7 +852,10 @@ PRIMITIVES_ERRCODE primitives_FrameThickRect16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -1563,7 +1581,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelPane16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -1730,7 +1751,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabSelected16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -1884,7 +1908,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabDeselected16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -2204,7 +2231,10 @@ PRIMITIVES_ERRCODE primitives_BevelPane16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -2389,7 +2419,10 @@ PRIMITIVES_ERRCODE primitives_BevelTabSelected16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -2561,7 +2594,10 @@ PRIMITIVES_ERRCODE primitives_BevelTabDeselected16(
 	Assert(pRect);
 	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
-	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
+	sint32 left = pRect->left;
+	sint32 top = pRect->top;
+	sint32 right = pRect->right;
+	sint32 bottom = pRect->bottom;
 
 	Assert(left <= right);
 	Assert(top <= bottom);
@@ -2996,7 +3032,8 @@ PRIMITIVES_ERRCODE primitives_DrawFrame16(
 	sint32	imageHeight = pImageUpperLeft->TheSurface()->Height();
 	RECT	srcRect = { 0, 0, imageWidth, imageHeight };
 
-	sint32	x = pRect->left, y = pRect->top;
+	sint32	 x = pRect->left;
+	sint32	 y = pRect->top;
 
 	c3ui_Get()->TheBlitter()->Blt(pSurface, x, y, pImageUpperLeft->TheSurface(), &srcRect, k_AUI_BLITTER_FLAG_COPY);
 
@@ -3046,8 +3083,10 @@ PRIMITIVES_ERRCODE primitives_DrawFrame16(
 void primitives_HackTileDraw(aui_Surface *pSurface)
 {
 	uint16		len;
-	sint32		x, y;
-	sint32		startX, endX;
+	sint32		 x;
+	sint32		 y;
+	sint32		 startX;
+	sint32		 endX;
 	uint32		accumTable[k_TILE_PIXEL_HEIGHT][3];
 	FILE *      file = fopen("gtfb000.bin", "rb");
 	fread((void *)&accumTable, 1, sizeof(uint32)*3*k_TILE_PIXEL_HEIGHT, file);
@@ -3116,7 +3155,8 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 	if (tiledmap_Get() == nullptr) return;
 
-	static uint16 from=4, to=14;
+	static uint16 from=4;
+	static uint16 to=14;
 
 	tileutils_LoadStencil();
 
@@ -3145,9 +3185,11 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 		{
 			uint32		accum;
-			sint32		i,j;
+			sint32		 i;
+			sint32		 j;
 			sint32		nudge;
-			sint32		x, y;
+			sint32		 x;
+			sint32		 y;
 			Pixel16		*srcPixelPtr;
 
 			x = 10; y = 400;

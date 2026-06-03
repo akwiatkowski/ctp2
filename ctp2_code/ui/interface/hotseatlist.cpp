@@ -310,7 +310,7 @@ sint32 HotseatList::UpdateData( )
 		m_list->AddItem((c3_ListItem *)item);
 		m_items[i] = item;
 	}
-	if(info)
+	
 		delete info;
 
 	return 0;
@@ -329,8 +329,8 @@ sint32 HotseatList::DisableButtons( )
 sint32 HotseatList::ChooseNextOpenCiv(HotseatListItem *curItem, sint32 curCiv)
 {
 	sint32	i;
-	bool	found = false,
-			used;
+	bool	 found = false;
+	bool	 used;
 
 	sint32 realCiv = curCiv;
 	curCiv = g_theCivilisationDB->m_indexToAlpha[curCiv];

@@ -56,10 +56,10 @@
 extern MovieDB			*g_theVictoryMovieDB;
 
 #include "sound/soundmanager.h"
-extern SoundManager		*soundmgr_Get();
+
 
 #include "ui/aui_ctp2/SelItem.h"
-extern SelectedItem		*selitem_Get();
+
 
 #include "gs/gameobj/Player.h"
 

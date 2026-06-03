@@ -414,9 +414,9 @@ void NetCity2::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		}
 	}
 
-	double oldgross = m_data->m_gross_food,
-		oldproduced = m_data->m_net_food,
-		oldconsumed = m_data->m_food_consumed_this_turn;
+	double oldgross = m_data->m_gross_food;
+	double oldproduced = m_data->m_net_food;
+	double oldconsumed = m_data->m_food_consumed_this_turn;
 	double oldLostToCrime = m_data->m_food_lost_to_crime;
 	sint32 oldaccum = m_data->m_accumulated_food;
 

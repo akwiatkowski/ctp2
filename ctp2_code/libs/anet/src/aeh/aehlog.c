@@ -139,7 +139,9 @@ int aehlog_seek(aehlog_t *aehlog, long offset)
 	long old_offset = 0;
 	unsigned char buf[3 * sizeof(unsigned int)];
 	unsigned char *ptr = buf;
-	unsigned int aehlog_tag, ninst, buflen;
+	unsigned int aehlog_tag;
+	unsigned int ninst;
+	unsigned int buflen;
 
 	if (!aehlog) return aeh_RES_BAD;
 	if (aehlog->status == aehlog_WRITE)

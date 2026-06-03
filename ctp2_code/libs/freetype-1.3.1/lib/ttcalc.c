@@ -94,7 +94,8 @@
   LOCAL_FUNC
   TT_Int32  Sqrt64( TT_Int64  l )
   {
-    TT_Int64  r, s;
+    TT_Int64  r;
+    TT_Int64  s;
 
 
     if ( l <= 0 ) return 0;

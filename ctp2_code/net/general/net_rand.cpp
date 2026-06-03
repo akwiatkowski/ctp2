@@ -28,7 +28,9 @@ void NetRand::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	sint32 pos;
 
 	Assert(MAKE_CIV3_ID(buf[0], buf[1]) == k_PACKET_RAND_ID);
-	sint32 firstpindex, secondpindex, endpindex;
+	sint32 firstpindex;
+	sint32 secondpindex;
+	sint32 endpindex;
 
 	pos = 2;
 

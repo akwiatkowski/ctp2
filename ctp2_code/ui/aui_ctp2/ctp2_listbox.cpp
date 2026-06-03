@@ -562,7 +562,8 @@ void ctp2_ListBox::EnsureItemVisible(sint32 index)
 
 		return;
 
-	sint32 top, bottom;
+	sint32 top;
+	sint32 bottom;
 	GetDisplayRange(top, bottom);
 	if(top <= index && index <= bottom)
 

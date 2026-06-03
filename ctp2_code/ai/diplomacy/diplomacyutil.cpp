@@ -14,7 +14,8 @@ void diplomacyutil_Initialize()
 
 	Assert(g_theDiplomacyProposalDB->NumRecords() == PROPOSAL_MAX);
 
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 
 	for(i = 0; i < sint32(PROPOSAL_MAX); i++) {
 		s_proposal_to_db_map[i] = -1;

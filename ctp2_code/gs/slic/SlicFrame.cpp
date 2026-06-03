@@ -70,7 +70,7 @@
 #include "gs/slic/SlicDBConduit.h"
 #include <cmath>
 
-extern "C" FILE *debuglog;
+
 
 namespace
 {
@@ -189,7 +189,8 @@ sint32 SlicFrame::Eval(SS_TYPE type, SlicStackValue value)
 sint32 SlicFrame::IsEqual(SS_TYPE type1, SlicStackValue value1,
 						  SS_TYPE type2, SlicStackValue value2)
 {
-	SlicSymbolData *sym1, *sym2;
+	SlicSymbolData *sym1;
+	SlicSymbolData *sym2;
 	if(type1 == SS_TYPE_INT || type2 == SS_TYPE_INT) {
 		return Eval(type1, value1) == Eval(type2, value2);
 	}
@@ -213,8 +214,10 @@ sint32 SlicFrame::IsEqual(SS_TYPE type1, SlicStackValue value1,
 				return 0;
 			}
 
-			MapPoint pos1, pos2;
-			Unit u1, u2;
+			MapPoint pos1;
+			MapPoint pos2;
+			Unit u1;
+			Unit u2;
 			if(sym1->GetPos(pos1)) {
 				if(sym2->GetPos(pos2)) {
 					return pos1 == pos2;
@@ -358,11 +361,16 @@ BOOL SlicFrame::DoInstruction(SOP op)
 	double dval;
 #endif
 
-	sint32 ival, ival2;
+	sint32 ival;
+	sint32 ival2;
 
-	SlicStackValue sval1, sval2, sval3;
+	SlicStackValue sval1;
+	SlicStackValue sval2;
+	SlicStackValue sval3;
 
-	SS_TYPE type1, type2, type3;
+	SS_TYPE type1;
+	SS_TYPE type2;
+	SS_TYPE type3;
 	SlicSymbolData *symval;
 	BOOL stopped = FALSE;
 	sint32 sp;

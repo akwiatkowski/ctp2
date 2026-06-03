@@ -50,7 +50,7 @@
 #include "gs/gameobj/wonderutil.h"
 
 extern MovieDB			*g_theVictoryMovieDB;
-extern SoundManager		*soundmgr_Get();
+
 
 IntroMovieWindow		*g_introMovieWindow = nullptr;
 

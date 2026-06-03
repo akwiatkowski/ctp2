@@ -34,7 +34,8 @@
 
 const MapRecord *worldutils_FindBestMapSizeMatch(sint32 w, sint32 h)
 {
-	sint32 area, actualarea = w * h;
+	sint32 area;
+	sint32 actualarea = w * h;
 	sint32 closestArea = -1;
 	sint32 closestRec = -1;
 

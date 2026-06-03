@@ -53,7 +53,7 @@
 #include "net/general/net_action.h"
 #include "gs/core/player_view.h"
 
-	extern	StringDB	*g_theStringDB ;
+	;
 
 #include "gs/gameobj/Diplomacy_Log.h"
 extern Diplomacy_Log *g_theDiplomacyLog;

@@ -192,8 +192,8 @@ AUI_ERRCODE	C3FancyWindow::Resize( sint32 width, sint32 height )
 {
 	C3Window::Resize(width,height);
 
-	sint32 dw = width - m_originalDimensions.x,
-			dh = height - m_originalDimensions.y;
+	sint32 dw = width - m_originalDimensions.x;
+	sint32 dh = height - m_originalDimensions.y;
 
 
 

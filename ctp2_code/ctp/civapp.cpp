@@ -695,7 +695,8 @@ void print_dip_details(FILE *dipFile, const DiplomacyProposalRecord::StrengthStr
 					   const DiplomacyProposalRecord *rec2)
 {
 	const DiplomacyProposalRecord::StrengthStrings *strings2;
-	StringId str1, str2;
+	StringId str1;
+	StringId str2;
 
 	if(strings1->GetDetailsEven(str1)) {
 		if(rec2->GetDetailsEx0(strings2)) {
@@ -1288,7 +1289,8 @@ bool CivApp::InitializeAppDB()
 #ifdef _DEBUG
 	FILE *dipFile = fopen("dipcombo.txt", "w");
 	if(dipFile) {
-		sint32 i,j;
+		sint32 i;
+		sint32 j;
 
 		for(i = 1; i < g_theDiplomacyProposalDB->NumRecords(); i++) {
 			const DiplomacyProposalRecord *rec1 = g_theDiplomacyProposalDB->Get(i);
@@ -1298,8 +1300,10 @@ bool CivApp::InitializeAppDB()
 				const DiplomacyProposalRecord *rec2 = g_theDiplomacyProposalDB->Get(j);
 				if(rec1->GetExcludes() & rec2->GetClass()) continue;
 
-				StringId str1, str2;
-				const DiplomacyProposalRecord::StrengthStrings *strings1, *strings2;
+				StringId str1;
+				StringId str2;
+				const DiplomacyProposalRecord::StrengthStrings *strings1;
+				const DiplomacyProposalRecord::StrengthStrings *strings2;
 
 				if(rec1->GetDetails0(strings1)) {
 					if(strings1->GetDetailsEven(str1)) {
@@ -3116,7 +3120,9 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			}
 			else if (strncmp(cmd, "move_unit ", 10) == 0) {
 				if (m_gameLoaded) {
-					int city_idx = 0, dx = 0, dy = 0;
+					int city_idx = 0;
+					int dx = 0;
+					int dy = 0;
 					if (sscanf(cmd + 10, "%d %d %d", &city_idx, &dx, &dy) != 3) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {

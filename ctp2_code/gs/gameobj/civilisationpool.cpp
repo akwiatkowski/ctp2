@@ -45,7 +45,7 @@
 #include "net/general/network.h"
 #include "gs/utility/Globals.h"
 
-extern	StringDB	*g_theStringDB ;
+;
 
 
 
@@ -95,8 +95,8 @@ void CivilisationPool::Serialize(CivArchive &archive)
 {
 	CivilisationData	*newData ;
 
-	sint32	i,
-			count = 0 ;
+	sint32	 i;
+	sint32	 count = 0 ;
 
 	CHECKSERIALIZE
 

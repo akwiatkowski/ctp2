@@ -161,7 +161,8 @@ void specialAttackWindow_DisplayData(MapPoint &p, sint32 type)
 	    s_saWindowCostV->SetText(mytext);
     }
 
-	sint32       x, y;
+	sint32       x;
+	sint32       y;
 	maputils_MapXY2PixelXY(p.x,p.y,&x,&y);
 	g_theSpecialAttackWindow->Move(x,y);
 

@@ -416,7 +416,8 @@ sint32 MapPoint::NormalizedDistance(MapPoint const & dest) const
 
 void MapPoint::OldNormalizedSubtract(const MapPoint &dest, MapPoint &diff) const
 {
-	static MapPoint s, d;
+	static MapPoint s;
+	static MapPoint d;
 
 	s.x = (g_mp_size.y-1) - (x + y);
 	s.y = x;
@@ -424,10 +425,15 @@ void MapPoint::OldNormalizedSubtract(const MapPoint &dest, MapPoint &diff) const
 	d.x = (g_mp_size.y-1) - (dest.x + dest.y);
 	d.y = dest.x;
 
-	static MapPoint delta_inner,
-					delta_left, delta_right,
-					delta_up, delta_down,
-					delta_ur, delta_ul, delta_dr, delta_dl;
+	static MapPoint delta_inner;
+	static MapPoint delta_left;
+	static MapPoint delta_right;
+	static MapPoint delta_up;
+	static MapPoint delta_down;
+	static MapPoint delta_ur;
+	static MapPoint delta_ul;
+	static MapPoint delta_dr;
+	static MapPoint delta_dl;
 
 	delta_inner.x = d.x - s.x;
 	delta_inner.y = d.y - s.y;
@@ -512,7 +518,12 @@ void MapPoint::Norm2Iso(const MapPoint &pos)
 #ifdef _DEBUG
 sint32 OldSquaredDistance(const MapPoint &uPos, const MapPoint &pos)
 {
-	sint32 dx1, dy1, dx2, dy2, dx3, dy3;
+	sint32 dx1;
+	sint32 dy1;
+	sint32 dx2;
+	sint32 dy2;
+	sint32 dx3;
+	sint32 dy3;
 	sint16 w = sint16(world_Get()->GetXWidth());
 	sint16 h = sint16(world_Get()->GetYHeight());
 
@@ -616,7 +627,9 @@ uint32 MapPoint_MapPoint_GetVersion()
 
 void verifyYwrap()
 {
-	MapPoint pos, tmp1, tmp2;
+	MapPoint pos;
+	MapPoint tmp1;
+	MapPoint tmp2;
 
 	for (pos.x=0; pos.x<g_mp_size.x; pos.x++)
 	{

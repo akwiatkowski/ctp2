@@ -198,7 +198,9 @@ uint32 aui_Surface::SetChromaKey( uint32 color )
 
 uint32 aui_Surface::SetChromaKey( uint8 red, uint8 green, uint8 blue )
 {
-	sint32 r = red, g = green, b = blue;
+	sint32 r = red;
+	sint32 g = green;
+	sint32 b = blue;
 
 	switch ( m_Bpp )
 	{

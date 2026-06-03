@@ -40,7 +40,7 @@
 #include "EndGameRecord.h"
 
 #include "gs/database/StrDB.h"
-extern StringDB *g_theStringDB;
+
 
 template <class T> Database<T>::Database()
 
@@ -108,11 +108,11 @@ template <class T> void  Database<T>::SetSize(const sint32 n)
 		}
 	}
 
-	if (oldrec)
+	
 		delete [] oldrec;
-	if (oldalpha)
+	
 		delete [] oldalpha;
-	if (oldindex)
+	
 		delete [] oldindex;
 }
 

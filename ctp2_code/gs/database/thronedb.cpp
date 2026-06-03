@@ -11,7 +11,7 @@
 #include "gs/database/StrDB.h"
 
 extern sint32	g_abort_parse;
-extern StringDB	*g_theStringDB;
+
 
 enum TOKEN_THRONE
 {
@@ -48,7 +48,7 @@ ThroneDB::ThroneDB(CivArchive &archive)
 ThroneDB::~ThroneDB()
 {
 
-	if(m_throneInfo) delete [] m_throneInfo;
+	delete [] m_throneInfo;
 }
 
 void ThroneDB::Initialize()
@@ -260,7 +260,7 @@ void ThroneDB::Serialize(CivArchive &archive)
 		archive >> m_nThroneTypes;
 		archive >> m_nThroneLevels;
 
-		if(m_throneInfo) delete m_throneInfo;
+		delete m_throneInfo;
 
 		m_throneInfo = new ThroneInfo[(m_nThroneTypes * m_nThroneLevels)];
 

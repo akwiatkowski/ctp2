@@ -4,7 +4,7 @@
 #include "ctp/fingerprint/verify.h"
 #include "ctp/fingerprint/ctp_finger.h"
 
-extern CivPaths		*civpaths_Get();
+
 
 BOOL ctpfinger_Check()
 {

@@ -357,7 +357,12 @@ void DomesticControlPanel::UpdateStats()
 		return;
 	}
 
-	sint32 cities, population, pw, government, science, pollution;
+	sint32 cities;
+	sint32 population;
+	sint32 pw;
+	sint32 government;
+	sint32 science;
+	sint32 pollution;
 	double scienceTax = 0.0;
 
 	cities = player_Get(selitem_Get()->GetVisiblePlayer())->GetNumCities();

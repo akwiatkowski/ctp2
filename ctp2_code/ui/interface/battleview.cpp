@@ -216,8 +216,8 @@ void BattleView::DrawExplosions()
 
 int battleview_AttackerSort( const void *arg1, const void *arg2 )
 {
-	SortedActor	*sa1 = (SortedActor *)arg1,
-				*sa2 = (SortedActor *)arg2;
+	SortedActor	 *sa1 = (SortedActor *)arg1;
+	SortedActor	 *sa2 = (SortedActor *)arg2;
 
 	if (sa1->y < sa2->y) {
 		return -1;
@@ -235,7 +235,8 @@ int battleview_AttackerSort( const void *arg1, const void *arg2 )
 void BattleView::DrawAttackers()
 {
 	sint32		i;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 
 	SortedActor	sortedAttackers[k_MAX_UNITS_PER_SIDE];
 
@@ -263,8 +264,8 @@ void BattleView::DrawAttackers()
 
 int battleview_DefenderSort( const void *arg1, const void *arg2 )
 {
-	SortedActor	*sa1 = (SortedActor *)arg1,
-				*sa2 = (SortedActor *)arg2;
+	SortedActor	 *sa1 = (SortedActor *)arg1;
+	SortedActor	 *sa2 = (SortedActor *)arg2;
 
 	if(sa1->x < sa2->x) {
 		return 1;
@@ -299,7 +300,8 @@ int battleview_DefenderSort( const void *arg1, const void *arg2 )
 void BattleView::DrawDefenders()
 {
 	sint32		i;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 
 	SortedActor	sortedDefenders[k_MAX_UNITS_PER_SIDE];
 

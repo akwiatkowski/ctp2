@@ -59,7 +59,8 @@
 extern ProjectFile *    g_ImageMapPF;
 AUI_ERRCODE TiffImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 {
-	uint16	width, height;
+	uint16	 width;
+	uint16	 height;
 	TIFGetMetrics( filename, &width, &height);
 
 	AUI_ERRCODE errcode = image->LoadEmpty( width, height, 16 );

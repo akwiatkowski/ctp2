@@ -417,7 +417,8 @@ void A_Star_Heuristic_Cost::test_terrain_costs()
 void A_Star_Heuristic_Cost::Relax_Raw_Movement_Costs()
 {
 
-	int row, column;
+	int row;
+	int column;
 
 
 	for (row = 0; row < rows; row++)

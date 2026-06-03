@@ -85,8 +85,8 @@
 
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
-extern StringDB*	stringdb_Get();
-extern SoundManager	*soundmgr_Get();
+
+
 
 static EndGameWindow *	g_endgameWindow = nullptr;
 
@@ -453,7 +453,7 @@ public:
 			lastIdle = GetTickCount();
 		}
 
-	~c3_Animation() override { if(m_frames) delete m_frames; }
+	~c3_Animation() override { delete m_frames; }
 
 
 	AUI_ERRCODE Idle() override;

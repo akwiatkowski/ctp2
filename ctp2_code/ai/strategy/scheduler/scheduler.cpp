@@ -1878,7 +1878,9 @@ void Scheduler::Assign_Garrison()
 //		if(agent->Has_Any_Goal() && agent->Get_Goal()->Get_Target_Pos() != pos)
 //			continue;
 
-		sint32 transports,max,empty;
+		sint32 transports;
+		sint32 max;
+		sint32 empty;
 		if(army->GetCargo(transports, max, empty))
 			continue;
 

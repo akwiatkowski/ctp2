@@ -1899,7 +1899,8 @@ dp_hosts_cb(
 	for (id=host.firstId; id < host.firstId + dp_PLAYERS_PER_HOST; id++) {
 		char *pbuf;
 		dp_playerId_t player;
-		size_t len, len_used;
+		size_t len;
+		size_t len_used;
 		char pkey[dptab_KEY_MAXLEN];
 
 		pkey[0] = (char) dpGETSHORT_FIRSTBYTE(id);
@@ -2053,7 +2054,8 @@ dp_players_cb(
 {
 	dp_sessionContext_t *pSess = (dp_sessionContext_t *)context;
 	dp_t *dp;
-	dpid_t id, firstId;
+	dpid_t id;
+	dpid_t firstId;
 	dp_playerId_t player;
 	dp_result_t err;
 	size_t len;
@@ -4891,7 +4893,8 @@ static dp_result_t dp_selectSessionForHost
 	nRatingSelect = 0;
 	for (i = 0; i < dp->sessionContexts->n_used; i++) {
 		dp_result_t err;
-		int nPlayers, nHosts;
+		int nPlayers;
+		int nHosts;
 		dp_session_t sess;
 		dp_sessionContext_t *pSess;
 		dp_sessionContext_t **ppS = (dp_sessionContext_t **)dynatab_subscript(
@@ -7934,7 +7937,8 @@ static void dp_election_start(dp_t *dp, int hostDeleted)
 
 	/* Turn on keepalive for all handles for duration of election */
 	{
-		int i, n;
+		int i;
+		int n;
 		playerHdl_t dests[MY_MAX_HOSTS];		/* FIXME */
 
 		n = dp_getHdls(dp, dp_ID_BROADCAST, dests, dp_SEND_RELIABLE);
@@ -7968,7 +7972,8 @@ static void dp_election_end(dp_t *dp)
 
 	/* Turn off keepalive for all handles but host */
 	{
-		int i, n;
+		int i;
+		int n;
 		playerHdl_t dests[MY_MAX_HOSTS];		/* FIXME */
 
 		n = dp_getHdls(dp, dp_ID_BROADCAST, dests, dp_SEND_RELIABLE);

@@ -95,7 +95,7 @@ void MovieDB::Serialize(CivArchive &archive)
 
 	} else {
 		archive>>m_size ;
-		if (m_map)
+		
 			delete m_map ;
 
 		m_map = new MovieNameNode[m_size];

@@ -79,7 +79,8 @@ static unsigned long crc32_table[256];
 
 static void init_crc32()
 {
-	int i, j;
+	int i;
+	int j;
 	unsigned long c;
 
 	for (i = 0; i < 256; ++i) {

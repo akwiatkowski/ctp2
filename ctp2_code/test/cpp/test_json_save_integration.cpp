@@ -198,7 +198,8 @@ TEST_CASE("LoadJson round-trip: save / load / save preserves all state")
         REQUIRE(WEXITSTATUS(rc) == 0);
     }
 
-    std::string ra, rb;
+    std::string ra;
+    std::string rb;
     REQUIRE(read_file(patha, ra));
     REQUIRE(read_file(pathb, rb));
 
@@ -548,7 +549,8 @@ TEST_CASE("N-turn determinism: load+advance K turns → same JSON across runs")
     }
 
     // Compare.
-    std::string rb, rc;
+    std::string rb;
+    std::string rc;
     REQUIRE(read_file(out_b, rb));
     REQUIRE(read_file(out_c, rc));
 

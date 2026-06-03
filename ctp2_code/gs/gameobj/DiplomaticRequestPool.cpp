@@ -14,7 +14,7 @@
 #include "gs/utility/Globals.h"
 #include "gs/fileio/gamefile.h"
 
-extern	StringDB	*g_theStringDB ;
+;
 
 #include "gs/gameobj/Diplomacy_Log.h"
 extern Diplomacy_Log *g_theDiplomacyLog;
@@ -58,8 +58,8 @@ void DiplomaticRequestPool::Serialize(CivArchive &archive)
 {
 	DiplomaticRequestData	*newData ;
 
-	sint32	i,
-			count = 0 ;
+	sint32	 i;
+	sint32	 count = 0 ;
 
     CHECKSERIALIZE
 

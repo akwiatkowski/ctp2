@@ -487,7 +487,8 @@ void ArmyData::Serialize(CivArchive &archive)
     m_attackedByDefenders->Serialize(archive);
     m_pos.Serialize(archive);
 
-    sint32 ocount, i;
+    sint32 ocount;
+    sint32 i;
     uint8 hasChild;
 
     if(archive.IsStoring()) {
@@ -1493,7 +1494,10 @@ bool ArmyData::CheckActiveDefenders(MapPoint &pos, bool cargoPodCheck)
     sint32 owner            = GetOwner();
 
     UnitDynamicArray deadDefenders;
-    sint32 i, j, r, n = activeDefenders.Num();
+    sint32 i;
+    sint32 j;
+    sint32 r;
+    sint32 n = activeDefenders.Num();
     for (i = 0; i < n; i++)
     {
         Unit        ta      = activeDefenders[i];
@@ -2394,7 +2398,8 @@ ORDER_RESULT ArmyData::Expel(const MapPoint &point)
 		return ORDER_RESULT_ILLEGAL;
 	}
 
-	sint32 i, n = cell->GetNumUnits();
+	sint32 i;
+	sint32 n = cell->GetNumUnits();
 	if(n > 0)
 	{
 		// If at least one unit on a tile cannot be expelled, then none can be. -Maq
@@ -2734,7 +2739,8 @@ bool ArmyData::CanPlantNuke(double &chance, double &escape_chance) const
 //----------------------------------------------------------------------------
 ORDER_RESULT ArmyData::PlantNuke(const MapPoint &point)
 {
-	double chance, escape_chance;
+	double chance;
+	double escape_chance;
 	sint32 uindex;
 	if(!CanPlantNuke(chance, escape_chance, uindex))
 		return ORDER_RESULT_ILLEGAL;
@@ -2995,8 +3001,10 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 //----------------------------------------------------------------------------
 ORDER_RESULT ArmyData::SlaveRaid(const MapPoint &point)
 {
-	double success, death;
-	sint32 timer, amount;
+	double success;
+	double death;
+	sint32 timer;
+	sint32 amount;
 	sint32 uindex;
 	bool target_is_city;
 	Unit target_city;
@@ -3355,7 +3363,8 @@ bool ArmyData::CanUndergroundRailway(double &success, double &death) const
 ORDER_RESULT ArmyData::UndergroundRailway(const MapPoint &point)
 {
 	SlicObject *so;
-	double success, death;
+	double success;
+	double death;
 	sint32 uindex;
 
 	if(!CanUndergroundRailway(success, death, uindex))
@@ -4093,7 +4102,8 @@ bool ArmyData::CanConvertCity(const MapPoint &point) const
 //----------------------------------------------------------------------------
 ORDER_RESULT ArmyData::ConvertCity(const MapPoint &point)
 {
-	double chance = 0.0, death_chance = 0.0;
+	double chance = 0.0;
+	double death_chance = 0.0;
 	double best_chance = 0.0;
 	double best_death_chance = 0.0;
 	sint32 best_uindex = -1;
@@ -5553,7 +5563,8 @@ ORDER_RESULT ArmyData::Bombard(const MapPoint &orderPoint)
 	{
 		//PFT 30 mar 05, bombard from distance
 		sint32 dist = m_pos.NormalizedDistance(point);
-		sint32 min_rge, max_rge;
+		sint32 min_rge;
+		sint32 max_rge;
 		if(GetBombardRange(min_rge,max_rge))
 		{
 
@@ -6088,7 +6099,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	if(g_network.IsActive() && g_network.IsLocalPlayer(m_owner) &&
 	   !g_network.IsMyTurn() && player_view::CurPlayer() == m_owner &&
 	   player_view::VisiblePlayer() == m_owner) {
-		if(path)
+		
 			delete path;
 		Assert(false);
 		return;
@@ -7981,7 +7992,8 @@ sint32 ArmyData::NumUnitsCanMoveIntoTransport(const MapPoint &pos,
 //----------------------------------------------------------------------------
 sint32 ArmyData::NumUnitsCanMoveIntoThisTransport(const CellUnitList &transports) const
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 count[k_MAX_ARMY_SIZE];
 	memset(count, 0, k_MAX_ARMY_SIZE * sizeof(sint32));
 	for(i = 0; i < transports.Num(); i++)
@@ -8028,7 +8040,8 @@ sint32 ArmyData::NumUnitsCanMoveIntoThisTransport(const CellUnitList &transports
 //----------------------------------------------------------------------------
 bool ArmyData::CanMoveIntoThisTransport(const CellUnitList &transports) const
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 count[k_MAX_ARMY_SIZE];
 	memset(count, 0, k_MAX_ARMY_SIZE * sizeof(sint32));
 	for(i = 0; i < transports.Num(); i++) {
@@ -8576,10 +8589,12 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	}
 //	sint32 n_start_attackers = m_nElements;
 
-	PLAYER_INDEX attack_owner, defense_owner;
+	PLAYER_INDEX attack_owner;
+	PLAYER_INDEX defense_owner;
 	attack_owner = GetOwner();
 	defense_owner = defender.GetOwner();
-	MapPoint attack_pos, defense_pos;
+	MapPoint attack_pos;
+	MapPoint defense_pos;
 	GetPos(attack_pos);
 	defender.GetPos(defense_pos);
 
@@ -9771,7 +9786,8 @@ bool ArmyData::GetInciteUprisingCost( const MapPoint &point, sint32 &attackCost 
 		return false;
 	}
 
-	MapPoint start, dest;
+	MapPoint start;
+	MapPoint dest;
 	PLAYER_INDEX city_owner = c.GetOwner();
 	Player *p = player_Get(city_owner);
 	double distcost;
@@ -10631,7 +10647,8 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 		Assert(range <= moves || order_rec->GetTargetPretestAdjacentPosition());
 	}
 
-	sint32 min_rge, max_rge=0;
+	sint32 min_rge;
+	sint32 max_rge=0;
 	MapPoint move_pos = m_pos;//move_pos will become a position to move to if trying to bombard out of range
 	Path *move_path = tmp_path;//copy tmp_path
 	if (strcmp (order_rec->GetEventName(),"BombardOrder") == 0)

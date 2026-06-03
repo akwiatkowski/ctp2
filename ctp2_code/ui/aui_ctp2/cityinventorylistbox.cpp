@@ -200,7 +200,8 @@ sint32 CityInventoryListBox::FillInventoryBox(const Unit &unit)
 
 void CityInventoryListBox::UpdateInventoryBox( const Unit &unit )
 {
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	Player *p = player_Get(unit.GetOwner());
 	sint32 enable;
 	MBCHAR str[80];

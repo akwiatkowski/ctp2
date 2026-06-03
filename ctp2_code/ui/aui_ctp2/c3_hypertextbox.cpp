@@ -270,7 +270,9 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 			case 'c':
 			{
-				unsigned r, g, b;
+				unsigned r;
+				unsigned g;
+				unsigned b;
 				sscanf( ++ptr, ":%u,%u,%u>", &r, &g, &b );
 				m_hyperColorOld = m_hyperColor;
 				m_hyperColor = RGB(r,g,b);
@@ -283,7 +285,9 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 			case 'h':
 			{
-        unsigned r, g, b;
+        unsigned r;
+        unsigned g;
+        unsigned b;
 				sscanf( ++ptr, ":%u,%u,%u>", &r, &g, &b );
 				m_hyperShadowColor = RGB(r,g,b);
 			}

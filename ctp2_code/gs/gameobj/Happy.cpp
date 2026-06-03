@@ -316,7 +316,9 @@ double Happy::CalcEnemyAction()
 
 double Happy::CalcPeaceMovement(CityData &cd, Player *p)
 {
-	double overseas_defeat, home_defeat, overseas;
+	double overseas_defeat;
+	double home_defeat;
+	double overseas;
 	double prev_peace = m_peace;
 
 	p->GetPeaceMovement(overseas_defeat, home_defeat, overseas);

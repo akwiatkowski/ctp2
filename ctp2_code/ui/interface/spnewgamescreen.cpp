@@ -749,7 +749,8 @@ TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, M
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	MBCHAR *c0= nullptr,*c1= nullptr;
+	MBCHAR *c0= nullptr;
+	MBCHAR *c1= nullptr;
 	aui_StringTable * choices = spNewStringTable(errcode,ldlstringtable);
 	if(choices && choices->GetNumStrings()==2)
 	{ c0 = choices->GetString(0); c1 = choices->GetString(1); }

@@ -83,7 +83,8 @@ void SingleListItem::Update()
 
 sint32 SingleListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	c3_Static		*i1, *i2;
+	c3_Static		 *i1;
+	c3_Static		 *i2;
 	MBCHAR			strbuf1[256];
 	MBCHAR			strbuf2[256];
 

@@ -13,7 +13,8 @@ SlicModFunc::SlicModFunc(const MBCHAR *name, ...)
 	va_list vl;
 	va_start(vl, name);
 
-	bool done = false, abort = false;
+	bool done = false;
+	bool abort = false;
 	SLIC_TAG tag;
 
 	m_numArgs = 0;

@@ -240,7 +240,7 @@ MessageResponseStandard::~MessageResponseStandard()
 		m_identifier=nullptr;
 	}
 
-	if(m_dontShowButton) delete m_dontShowButton;
+	delete m_dontShowButton;
 }
 
 

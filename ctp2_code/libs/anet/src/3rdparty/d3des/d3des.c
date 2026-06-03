@@ -59,8 +59,13 @@ void deskey(key, edf)	/* Thanks to James Gillogly & Phil Karn! */
 const unsigned char *key;
 short edf;
 {
-	register int i, j, l, m, n;
-	unsigned char pc1m[56], pcr[56];
+	register int i;
+	register int j;
+	register int l;
+	register int m;
+	register int n;
+	unsigned char pc1m[56];
+	unsigned char pcr[56];
 	unsigned long kn[32];
 
 	for ( j = 0; j < 56; j++ ) {
@@ -94,7 +99,8 @@ short edf;
 static void cookey(raw1)
 register unsigned long *raw1;
 {
-	register unsigned long *cook, *raw0;
+	register unsigned long *cook;
+	register unsigned long *raw0;
 	unsigned long dough[32];
 	register int i;
 
@@ -116,7 +122,8 @@ register unsigned long *raw1;
 void cpkey(into)
 register unsigned long *into;
 {
-	register unsigned long *from, *endp;
+	register unsigned long *from;
+	register unsigned long *endp;
 
 	from = KnL, endp = &KnL[32];
 	while( from < endp ) *into++ = *from++;
@@ -125,7 +132,8 @@ register unsigned long *into;
 void usekey(from)
 register unsigned long *from;
 {
-	register unsigned long *to, *endp;
+	register unsigned long *to;
+	register unsigned long *endp;
 
 	to = KnL, endp = &KnL[32];
 	while( to < endp ) *to++ = *from++;
@@ -316,7 +324,10 @@ static unsigned long SP8[64] = {
 static void desfunc(block, keys)
 register unsigned long *block, *keys;
 {
-	register unsigned long fval, work, right, leftt;
+	register unsigned long fval;
+	register unsigned long work;
+	register unsigned long right;
+	register unsigned long leftt;
 	register int round;
 
 	leftt = block[0];
@@ -418,8 +429,11 @@ void D2des(from, into)
 const unsigned char *from;			/* unsigned char[16] */
 unsigned char *into;			/* unsigned char[16] */
 {
-	unsigned long *right, *l1, swap;
-	unsigned long leftt[2], bufR[2];
+	unsigned long *right;
+	unsigned long *l1;
+	unsigned long swap;
+	unsigned long leftt[2];
+	unsigned long bufR[2];
 
 	right = bufR;
 	l1 = &leftt[1];
@@ -446,7 +460,8 @@ register char *aptr;				/* NULL-terminated  */
 register unsigned char *kptr;		/* unsigned char[8] */
 {
 	register unsigned char *store;
-	register int first, i;
+	register int first;
+	register int i;
 	unsigned long savek[96];
 
 	cpDkey(savek);
@@ -470,7 +485,8 @@ register char *aptr;				/* NULL-terminated   */
 register unsigned char *kptr;		/* unsigned char[16] */
 {
 	register unsigned char *store;
-	register int first, i;
+	register int first;
+	register int i;
 	unsigned long savek[96];
 
 	cpDkey(savek);
@@ -526,7 +542,8 @@ void des3key(hexkey, mode)
 unsigned char *hexkey;			/* unsigned char[24] */
 short mode;
 {
-	unsigned char *first, *third;
+	unsigned char *first;
+	unsigned char *third;
 	short revmod;
 
 	if( mode == EN0 ) {
@@ -549,7 +566,8 @@ short mode;
 void cp3key(into)
 register unsigned long *into;	/* unsigned long[96] */
 {
-	register unsigned long *from, *endp;
+	register unsigned long *from;
+	register unsigned long *endp;
 
 	cpkey(into);
 	into = &into[32];
@@ -562,7 +580,8 @@ register unsigned long *into;	/* unsigned long[96] */
 void use3key(from)
 register unsigned long *from;	/* unsigned long[96] */
 {
-	register unsigned long *to, *endp;
+	register unsigned long *to;
+	register unsigned long *endp;
 
 	usekey(from);
 	from = &from[32];
@@ -576,7 +595,10 @@ static void D3des(from, into)	/* amateur theatrics */
 unsigned char *from;			/* unsigned char[24] */
 unsigned char *into;			/* unsigned char[24] */
 {
-	unsigned long swap, leftt[2], middl[2], right[2];
+	unsigned long swap;
+	unsigned long leftt[2];
+	unsigned long middl[2];
+	unsigned long right[2];
 
 	scrunch(from, leftt);
 	scrunch(&from[8], middl);
@@ -612,7 +634,8 @@ register char *aptr;				/* NULL-terminated   */
 register unsigned char *kptr;		/* unsigned char[24] */
 {
 	register unsigned char *store;
-	register int first, i;
+	register int first;
+	register int i;
 	unsigned long savek[96];
 
 	cp3key(savek);

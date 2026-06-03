@@ -98,14 +98,14 @@ extern sint32 g_ScreenHeight;
 
 extern C3Window				*g_turnWindow;
 extern C3Window				*g_statsWindow;
-extern CivPaths				*civpaths_Get();
+
 
 extern sint32				g_god;
 
 extern RECT g_backgroundViewport;
 
 DebugWindow					*g_debugWindow;
-extern SelectedItem	*selitem_Get();
+
 
 
 
@@ -1289,7 +1289,13 @@ int c3windows_MakeStatusWindow( BOOL make )
 
 	static C3TextField *textfield;
 	static C3TextField *textfield2;
-	static TextButton	*button, *debugButton, *resourceButton, *cheatButton, *cityViewButton, *knowledgeButton, *diplomacyButton;
+	static TextButton	 *button;
+	static TextButton	 *debugButton;
+	static TextButton	 *resourceButton;
+	static TextButton	 *cheatButton;
+	static TextButton	 *cityViewButton;
+	static TextButton	 *knowledgeButton;
+	static TextButton	 *diplomacyButton;
 
 	if ( make )
 	{
@@ -1488,8 +1494,8 @@ int c3windows_MakeStatusWindow( BOOL make )
 		delete knowledgeButton;
 		knowledgeButton = nullptr;
 
-		if (s_thumbWindow) delete s_thumbWindow;
-		if (s_thumbnail) delete s_thumbnail;
+		delete s_thumbWindow;
+		delete s_thumbnail;
 
 		delete statuswindow_Get();
 		statuswindow_Set(nullptr);

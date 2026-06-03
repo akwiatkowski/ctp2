@@ -323,7 +323,8 @@ TEST_CASE("Headless save: produces non-trivial files at different turn counts")
     run_headless("--new-game --turns 10 --players 3 --seed 42 "
                  "--legacy-binary-save --save-game /tmp/ctp2_test_save_long.sav");
 
-    struct stat st_short, st_long;
+    struct stat st_short;
+    struct stat st_long;
     REQUIRE(stat(short_path, &st_short) == 0);
     REQUIRE(stat(long_path,  &st_long)  == 0);
 
@@ -389,7 +390,8 @@ TEST_CASE("Save-load round-trip: 10t save + 10t resume = 20t continuous")
         return;
     }
 
-    Metrics cont_m, loaded_m;
+    Metrics cont_m;
+    Metrics loaded_m;
     bool cont_ok = parse_metrics(cont_metrics, cont_m);
     bool load_ok = parse_metrics(loaded_20, loaded_m);
 
@@ -458,7 +460,8 @@ TEST_CASE("Save-load round-trip: 25t save + 25t resume = 50t continuous")
         return;
     }
 
-    Metrics cont_m, loaded_m;
+    Metrics cont_m;
+    Metrics loaded_m;
     bool cont_ok = parse_metrics(cont_metrics, cont_m);
     bool load_ok = parse_metrics(loaded_50, loaded_m);
 
@@ -527,7 +530,8 @@ TEST_CASE("Save-load round-trip with 5 players")
         return;
     }
 
-    Metrics cont_m, loaded_m;
+    Metrics cont_m;
+    Metrics loaded_m;
     bool cont_ok = parse_metrics(cont_metrics, cont_m);
     bool load_ok = parse_metrics(loaded_5p, loaded_m);
 
@@ -587,7 +591,8 @@ TEST_CASE("Save-load determinism across two different seeds")
         } else if (!file_exists_and_nonempty(seed42_load)) {
             WARN("Seed 42 load produced no metrics; skipping comparison.");
         } else {
-            Metrics cont_m, load_m;
+            Metrics cont_m;
+            Metrics load_m;
             bool cok = parse_metrics(seed42_cont, cont_m);
             bool lok = parse_metrics(seed42_load, load_m);
             REQUIRE(cok);
@@ -627,7 +632,8 @@ TEST_CASE("Save-load determinism across two different seeds")
         } else if (!file_exists_and_nonempty(seed99_load)) {
             WARN("Seed 99 load produced no metrics; skipping comparison.");
         } else {
-            Metrics cont_m, load_m;
+            Metrics cont_m;
+            Metrics load_m;
             bool cok = parse_metrics(seed99_cont, cont_m);
             bool lok = parse_metrics(seed99_load, load_m);
             REQUIRE(cok);
@@ -672,7 +678,9 @@ TEST_CASE("Save file size grows monotonically with turn count")
     run_headless("--new-game --turns 20 --players 3 --seed 42 "
                  "--legacy-binary-save --save-game /tmp/ctp2_test_turn20.sav");
 
-    struct stat st5, st10, st20;
+    struct stat st5;
+    struct stat st10;
+    struct stat st20;
     REQUIRE(stat(path5, &st5) == 0);
     REQUIRE(stat(path10, &st10) == 0);
     REQUIRE(stat(path20, &st20) == 0);
@@ -720,7 +728,9 @@ TEST_CASE("Save file size grows monotonically with turn count 5-15-30")
     run_headless("--new-game --turns 30 --players 3 --seed 42 "
                  "--legacy-binary-save --save-game /tmp/ctp2_test_turn30b.sav");
 
-    struct stat st5, st15, st30;
+    struct stat st5;
+    struct stat st15;
+    struct stat st30;
     REQUIRE(stat(path5, &st5) == 0);
     REQUIRE(stat(path15, &st15) == 0);
     REQUIRE(stat(path30, &st30) == 0);

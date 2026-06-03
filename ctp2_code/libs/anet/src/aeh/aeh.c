@@ -1159,9 +1159,12 @@ static int parseDispCardInfo(const char *dispCard, char *szName, char *szDriver,
 
 static char *parseSystemInfo(const char *sysDesc, char **crshtxt)
 {
-	unsigned long VersionMS, VersionLS;
-	char buf[BUFFER_SIZE], buftxt[BUFFER_SIZE];
-	char szName[BUFFER_SIZE], szDriver[BUFFER_SIZE];
+	unsigned long VersionMS;
+	unsigned long VersionLS;
+	char buf[BUFFER_SIZE];
+	char buftxt[BUFFER_SIZE];
+	char szName[BUFFER_SIZE];
+	char szDriver[BUFFER_SIZE];
 	const char *pbuf = sysDesc;
 	const char *ptr = pbuf;
 	char *retStr = NULL;
@@ -1361,7 +1364,8 @@ int aeh_toString(const aeh_t *aeh, char *aehDesc, unsigned int *len)
 	if (aeh->app.sessionType != 0)
 		sprintf(&tmp[strlen(tmp)], "SessType: %d, Plat: %d, Lang: %d, Vers: %d.%d\n", aeh->app.sessionType, aeh->app.platform, aeh->app.language, aeh->app.major_version, aeh->app.minor_version);
 	if (aeh->systemDesc && strlen(aeh->systemDesc)) {
-		char *buf = NULL, *crshtxt;
+		char *buf = NULL;
+		char *crshtxt;
 		if ((buf = parseSystemInfo(aeh->systemDesc, &crshtxt))) {
 			if (crshtxt && (strlen(tmp) + strlen(crshtxt) + 22 < BUFFER_SIZE))
 				sprintf(&tmp[strlen(tmp)], "Caller Comment:\n %s\n", crshtxt);
@@ -1385,7 +1389,8 @@ int aeh_toString(const aeh_t *aeh, char *aehDesc, unsigned int *len)
 		if (strlen(tmp) + 29 < BUFFER_SIZE)
 			sprintf(&tmp[strlen(tmp)], " abs_addr  mod_off func_off\n");
 		for (i = 0; i < aeh->nstk; i++) {
-			unsigned long stkoffsetaddr, stkmodcrc;
+			unsigned long stkoffsetaddr;
+			unsigned long stkmodcrc;
 			char *stkmodname;
 			stkoffsetaddr = aeh->stk[i].offset_addr;
 			stkmodname = aeh_StkModName(aeh, i);
@@ -1531,7 +1536,9 @@ static int putStreamErrFull(unsigned char *p, aeh_buf_t *aehbuf)
 int aeh_writeOutputStream(const aeh_t *aeh, aeh_buf_t *aehbuf)
 {
 	unsigned int i;
-	unsigned char *pwrite, *psave, *pend;
+	unsigned char *pwrite;
+	unsigned char *psave;
+	unsigned char *pend;
 	aeh_SetCurrent(__LINE__, __FILE__);
 	if (!aeh || !aehbuf) {
 		aeh_SetCurrent(__LINE__, __FILE__);
@@ -1711,9 +1718,11 @@ int aeh_writeOutputStream(const aeh_t *aeh, aeh_buf_t *aehbuf)
 --------------------------------------------------------------------------*/
 int aeh_readInputStream(aeh_t *aeh, const aeh_buf_t *aehbuf)
 {
-	int err, err1;
+	int err;
+	int err1;
 	unsigned int i;
-	const unsigned char *pread, *pend;
+	const unsigned char *pread;
+	const unsigned char *pend;
 	aeh_SetCurrent(__LINE__, __FILE__);
 	if (!aeh || !aehbuf) {
 		aeh_SetCurrent(__LINE__, __FILE__);
@@ -1960,7 +1969,8 @@ int aeh_stripSysDesc(aeh_t *aeh)
 --------------------------------------------------------------------------*/
 int aeh_stripInfoId(aeh_t *aeh, unsigned int nids, unsigned int stripIds[])
 {
-	unsigned int n, n_left;
+	unsigned int n;
+	unsigned int n_left;
 
 	aeh_SetCurrent(__LINE__, __FILE__);
 	if (!aeh || !nids || !stripIds) {

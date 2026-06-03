@@ -18,7 +18,7 @@ public:
 	SlicConst(CivArchive &archive) { Serialize(archive); }
 
 	~SlicConst() {
-		if(m_name)
+		
 			delete [] m_name;
 	}
 

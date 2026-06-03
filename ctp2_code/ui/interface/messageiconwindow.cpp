@@ -26,7 +26,7 @@ extern uint8 g_messageMaxVisible;
 extern uint8 g_messageIconHeight;
 extern uint8 g_messageIconSpacing;
 extern FilenameDB *g_theMessageIconFileDB;
-extern SelectedItem *selitem_Get();
+
 
 MessageIconWindow *MessageIconWindow::m_currentIconWindow = nullptr;
 

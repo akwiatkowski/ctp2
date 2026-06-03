@@ -1659,8 +1659,8 @@ void aui_ListBox::MouseLGrabInside( aui_MouseEvent *mouseData )
 
 
 
-					sint32		firstIndex = 999999,
-								index;
+					sint32		 firstIndex = 999999;
+					sint32		 index;
 
 					sint32 i;
 					for (i=0; i<(sint32)(m_visualSelectedList->L()); i++) {

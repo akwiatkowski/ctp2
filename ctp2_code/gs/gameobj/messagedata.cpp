@@ -62,7 +62,7 @@ extern FilenameDB *g_theMessageIconFileDB;
 
 #define AND_I_AM_STEVE
 
-	extern	StringDB	*g_theStringDB ;
+	;
 
 
 
@@ -320,7 +320,8 @@ void MessageData::SetMsgText(MBCHAR const * s)
 void MessageData::Serialize(CivArchive &archive)
 	{
 	sint32		hasChild;
-	sint32 count, i;
+	sint32 count;
+	sint32 i;
 	if (archive.IsStoring())
 	{
 		GameObj::Serialize(archive);

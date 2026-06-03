@@ -75,10 +75,10 @@ ns_HPlayerItem::~ns_HPlayerItem()
 
 
 
-	if (m_civpointsButton)
+	
 		delete m_civpointsButton;
 
-	if (m_pwpointsButton)
+	
 		delete m_pwpointsButton;
 
 }

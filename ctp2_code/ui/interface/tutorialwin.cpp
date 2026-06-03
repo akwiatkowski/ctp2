@@ -57,7 +57,7 @@
 
 #include "ui/interface/tutorialwin.h"
 
-extern SelectedItem	*selitem_Get();
+
 
 
 

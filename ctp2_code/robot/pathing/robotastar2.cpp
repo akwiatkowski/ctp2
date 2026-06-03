@@ -233,9 +233,13 @@ bool RobotAstar2::FindPath( const PathType & pathType,
 	uint32 move_union;
 	m_is_robot = true;
 
-	bool isspecial, cancapture, haszoc, canbombard;
+	bool isspecial;
+	bool cancapture;
+	bool haszoc;
+	bool canbombard;
 	bool isstealth;
-	sint32 maxattack, maxdefense;
+	sint32 maxattack;
+	sint32 maxdefense;
 	army->CharacterizeArmy( isspecial,
 		isstealth,
 		maxattack,

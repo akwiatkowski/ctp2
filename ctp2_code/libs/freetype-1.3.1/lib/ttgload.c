@@ -193,11 +193,13 @@
     PGlyph_Zone  pts;
     Short        k;
     UShort       j;
-    UShort       n_points, n_ins;
+    UShort       n_points;
+    UShort       n_ins;
     PFace        face;
     Byte*        flag;
     TT_Vector*   vec;
-    TT_F26Dot6   x, y;
+    TT_F26Dot6   x;
+    TT_F26Dot6   y;
 
 
     face = exec->face;
@@ -272,7 +274,8 @@
 
     while ( j < n_points )
     {
-      Byte  c, cnt;
+      Byte  c;
+      Byte  cnt;
 
       flag[j] = c = GET_Byte();
       j++;
@@ -434,7 +437,8 @@
   {
     DEFINE_LOAD_LOCALS( input );
 
-    UShort       k, n_ins;
+    UShort       k;
+    UShort       n_ins;
     PGlyph_Zone  pts;
 
 
@@ -590,20 +594,30 @@
 
     Long    table;
     UShort  load_top;
-    Long    k, l;
+    Long    k;
+    Long    l;
     UShort  new_flags;
     Long    index;
-    UShort  u, v;
+    UShort  u;
+    UShort  v;
 
-    Long  glyph_offset, offset;
+    Long  glyph_offset;
+    Long  offset;
 
-    TT_F26Dot6  x, y, nx, ny;
+    TT_F26Dot6  x;
+    TT_F26Dot6  y;
+    TT_F26Dot6  nx;
+    TT_F26Dot6  ny;
 
-    Fixed  xx, xy, yx, yy;
+    Fixed  xx;
+    Fixed  xy;
+    Fixed  yx;
+    Fixed  yy;
 
     PExecution_Context  exec;
 
-    PSubglyph_Record  subglyph, subglyph2;
+    PSubglyph_Record  subglyph;
+    PSubglyph_Record  subglyph2;
 
     TGlyph_Zone base_pts;
 

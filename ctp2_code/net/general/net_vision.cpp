@@ -445,7 +445,8 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 #ifdef BATTLE_FLAGS
 	PULLSHORT(m_ucell->m_battleFlags);
 #endif
-	uint8 c, i;
+	uint8 c;
+	uint8 i;
 	PULLBYTE(c);
 	for(i = 0; i < c; i++) {
 		uint8 type;

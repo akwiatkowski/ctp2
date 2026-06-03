@@ -17,7 +17,7 @@
 #ifdef __AUI_USE_DIRECTX__
 extern DirectVideo		*g_video;
 #endif
-extern CivPaths			*civpaths_Get();
+
 
 
 VideoWindow::VideoWindow(

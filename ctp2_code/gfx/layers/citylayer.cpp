@@ -52,8 +52,10 @@
 void DrawTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIRECTION dir,
 							uint16 route, uint16 outline)
 {
-	sint32		x1 = 0, y1 = 0,
-				x2 = 0, y2 = 0;
+	sint32		 x1 = 0;
+	sint32		 y1 = 0;
+	sint32		 x2 = 0;
+	sint32		 y2 = 0;
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x1, &y1);
 
@@ -97,7 +99,10 @@ void DrawTradeRouteSegment(aui_Surface *surf, MapPoint &pos, WORLD_DIRECTION dir
 	x2 += tiledmap_Get()->GetZoomTilePixelWidth()/2;
 	y2 += tiledmap_Get()->GetZoomTilePixelHeight();
 
-	sint32 top, left, right, bottom;
+	sint32 top;
+	sint32 left;
+	sint32 right;
+	sint32 bottom;
 
 	if (x1 < x2) {
 		left = x1;
@@ -186,11 +191,13 @@ void DrawTradeRoute(
 	if (outline == 0x0000)
 		outline = 0x0001;
 
-	MapPoint prev, curr;
-	MapPoint screenPrev, screenCurr;
+	MapPoint prev;
+	MapPoint curr;
+	MapPoint screenPrev;
+	MapPoint screenCurr;
 
-	WORLD_DIRECTION		dir = NOWHERE,
-						oldDir = NOWHERE;
+	WORLD_DIRECTION		 dir = NOWHERE;
+	WORLD_DIRECTION		 oldDir = NOWHERE;
 
 	for (sint32 i = 0;i < pRoute->Num()-1;i++)
 	{

@@ -99,7 +99,9 @@ TileSet::TileSet()
 	m_MMapSize              (0)
 #endif
 {
-	sint32		i,j,k;
+	sint32		 i;
+	sint32		 j;
+	sint32		 k;
 
 	// Data from the tile file
 	for (i=0; i<TERRAIN_MAX; i++) {
@@ -223,7 +225,9 @@ void TileSet::Cleanup()
     }
 	else
     {
-	    sint32		i,j,k;
+	    sint32		 i;
+	    sint32		 j;
+	    sint32		 k;
 
 		if (m_transforms)
         {
@@ -299,7 +303,8 @@ void TileSet::LoadTransitions(FILE *file)
 	count = c3files_fread((void *)&transitionSize, 1, sizeof(transitionSize), file);
 	if (count != sizeof(transitionSize)) goto Error;
 
-	sint16	from, to;
+	sint16	 from;
+	sint16	 to;
 
 	for (i = 0; i < transitionCount; ++i)
     {
@@ -449,7 +454,8 @@ void TileSet::LoadMapIcons()
 {
 	MBCHAR		name[_MAX_PATH];
 	MBCHAR		path[_MAX_PATH];
-	uint16		width, height;
+	uint16		 width;
+	uint16		 height;
 	uint32		len;
 	Pixel16		*tga;
 	Pixel16		*data;

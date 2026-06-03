@@ -50,7 +50,7 @@
 #include "ui/interface/greatlibrary.h"
 #include "gs/slic/SlicObject.h"
 
-extern SoundManager		*soundmgr_Get();
+
 
 WonderMovieWindow		*g_wonderMovieWindow = nullptr;
 

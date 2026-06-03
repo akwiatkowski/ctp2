@@ -62,7 +62,7 @@
 
 #include "ui/aui_ctp2/radarmap.h"
 
-extern StringDB						*stringdb_Get();
+
 
 extern LoadSaveMapWindow			*g_loadSaveMapWindow;
 
@@ -431,7 +431,8 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 	info->radarMapHeight = height;
 	info->radarMapData = new Pixel16[width*height];
 
-	Pixel16		*buffer, *bufferDataPtr;
+	Pixel16		 *buffer;
+	Pixel16		 *bufferDataPtr;
 	Pixel16 *   radarDataPtr = info->radarMapData;
 
 	if (surf->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
@@ -499,7 +500,8 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 
 	aui_Surface		*surface = image->TheSurface();
 
-	Pixel16		*buffer, *bufferDataPtr;
+	Pixel16		 *buffer;
+	Pixel16		 *bufferDataPtr;
 
 	Pixel16 *   radarDataPtr = info->radarMapData;
 

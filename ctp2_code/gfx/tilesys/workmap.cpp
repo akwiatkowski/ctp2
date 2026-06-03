@@ -276,9 +276,11 @@ sint32 WorkMap::DrawSurface()
 
 
 
-	MapPoint	myPos1 = pos,
-				myPos2;
-	sint32		leftEdge, topEdge, temp;
+	MapPoint	 myPos1 = pos;
+	MapPoint	 myPos2;
+	sint32		 leftEdge;
+	sint32		 topEdge;
+	sint32		 temp;
 
 	tiledmap_Get()->RecalculateViewRect(m_normalizedViewRect);
 
@@ -594,9 +596,11 @@ sint32 WorkMap::DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint3
 BOOL WorkMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
 	WorkMap		*workMap = (WorkMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	Unit		city;
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 
 	city = world_Get()->GetCell(pos)->GetCity();
 	if (city.m_id == 0) return FALSE;
@@ -637,9 +641,11 @@ BOOL WorkMap::DrawACity(aui_Surface *pSurface, MapPoint const & pos, void *conte
 BOOL WorkMap::DrawALandCity(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
 	WorkMap		*workMap = (WorkMap *)context;
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	Unit		city;
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 
 	city = world_Get()->GetCell(pos)->GetCity();
 	if (city.m_id == 0) return FALSE;
@@ -681,8 +687,10 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 {
 	WorkMap		*workMap = (WorkMap *)context;
 	GoodActor	*goodActor;
-	sint32		mapWidth, mapHeight;
-	sint32		x, y;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
+	sint32		 x;
+	sint32		 y;
 
 	TileInfo *curTileInfo = tiledmap_Get()->GetTileInfo(pos);
 	Assert(curTileInfo != nullptr);
@@ -724,8 +732,10 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 BOOL WorkMap::DrawATile(aui_Surface *pSurface, MapPoint const & pos, void *context)
 {
 	WorkMap		*workMap = (WorkMap *)context;
-	sint32		x, y;
-	sint32		mapWidth, mapHeight;
+	sint32		 x;
+	sint32		 y;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
@@ -1046,9 +1056,12 @@ void WorkMap::DrawALabel( aui_Surface *surface, MBCHAR *label, sint32 x, sint32 
 
 void WorkMap::DrawLabels( aui_Surface *surface )
 {
-	sint32 foodWidth, foodHeight;
-	sint32 prodWidth, prodHeight;
-	sint32 goldWidth, goldHeight;
+	sint32 foodWidth;
+	sint32 foodHeight;
+	sint32 prodWidth;
+	sint32 prodHeight;
+	sint32 goldWidth;
+	sint32 goldHeight;
 
 	MBCHAR foodStr[_MAX_PATH];
 	MBCHAR prodStr[_MAX_PATH];
@@ -1068,7 +1081,8 @@ void WorkMap::DrawLabels( aui_Surface *surface )
 		goldWidth = tiledmap_Get()->GetFont()->GetStringWidth(goldStr);
 		goldHeight = tiledmap_Get()->GetFont()->GetMaxHeight();
 
-		sint32 offsetWidth = foodWidth, offsetHeight;
+		sint32 offsetWidth = foodWidth;
+		sint32 offsetHeight;
 
 		if ( prodWidth > offsetWidth )
 			offsetWidth = prodWidth;
@@ -1120,11 +1134,15 @@ void WorkMap::DrawResourceIcons(aui_Surface *surface, sint32 x, sint32 y, MapPoi
 	RECT		iconRect;
 	TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 	MBCHAR		str[80];
-	sint32		width, height;
+	sint32		 width;
+	sint32		 height;
 
-	sint32		xcenter, ycenter;
+	sint32		 xcenter;
+	sint32		 ycenter;
 
-	sint32 prod, food, gold;
+	sint32 prod;
+	sint32 food;
+	sint32 gold;
 	Cell *cell = world_Get()->GetCell(pos);
 
 	prod = cell->GetShieldsProduced();
@@ -1348,7 +1366,8 @@ BOOL WorkMap::MousePointToTilePos(POINT point, MapPoint &tilePos)
 			tilePos.x -= static_cast<sint16>(world_Get()->GetWidth());
 		}
 
-		sint16 sx, sy;
+		sint16 sx;
+		sint16 sy;
 		if (tilePos.y < 0) {
 			sx = (sint16)world_Get()->GetWidth();
 			sy = (sint16)world_Get()->GetHeight();
@@ -1421,7 +1440,8 @@ void WorkMap::HandlePop( MapPoint point )
 
 	m_unit.GetData()->GetPos(mp);
 
-	sint32 diffX, diffY;
+	sint32 diffX;
+	sint32 diffY;
 	diffY = 5 - point.y;
 	diffX = 2 - point.x;
 
@@ -1429,7 +1449,8 @@ void WorkMap::HandlePop( MapPoint point )
 	sint32 y = mp.y - diffY;
 
 
-	sint32 xx, yy;
+	sint32 xx;
+	sint32 yy;
 	maputils_WrapPoint( x, y, &xx, &yy);
 	point.x = (sint16)xx;
 	point.y = (sint16)yy;

@@ -77,7 +77,7 @@
 #include "ui/interface/screenutils.h"
 #include "net/general/network.h"
 
-extern Network				g_network;
+
 static c3_PopupWindow	*s_spNewGameRulesScreen	= nullptr;
 static aui_Switch		*s_genocide			= nullptr,
 						*s_pollution		= nullptr,

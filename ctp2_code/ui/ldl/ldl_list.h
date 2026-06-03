@@ -13,7 +13,8 @@ class ldl_attributelist {
 	}
 
 	~ldl_attributelist() {
-		ldl_attribute *del = m_head, *next;
+		ldl_attribute *del = m_head;
+		ldl_attribute *next;
 		while(del) {
 			next = del->m_next;
 			delete del;

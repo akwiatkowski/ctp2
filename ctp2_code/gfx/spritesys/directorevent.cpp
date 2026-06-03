@@ -56,7 +56,8 @@
 STDEHANDLER(DirectorMoveUnitsEvent)
 {
 	Army a;
-	MapPoint from, to;
+	MapPoint from;
+	MapPoint to;
 
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 	if(!args->GetPos(0, from)) return GEV_HD_Continue;
@@ -131,7 +132,8 @@ STDEHANDLER(DirectorMoveUnitsEvent)
 
 STDEHANDLER(DirectorActionSuccessful)
 {
-	Unit unit, c;
+	Unit unit;
+	Unit c;
 	if(!args->GetUnit(0, unit)) return GEV_HD_Continue;
 
 	MapPoint pos = unit.RetPos();
@@ -181,7 +183,8 @@ STDEHANDLER(DirectorActionSuccessful)
 			attack = SPECATTACK_NONE;
 	}
 
-	sint32 soundID, spriteID;
+	sint32 soundID;
+	sint32 spriteID;
 	if(attack != SPECATTACK_NONE)
 	{
 		const SpecialAttackInfoRecord *rec;

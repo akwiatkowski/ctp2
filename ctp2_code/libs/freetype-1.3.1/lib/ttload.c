@@ -153,7 +153,8 @@
   {
     DEFINE_LOCALS;
 
-    UShort     n, limit;
+    UShort     n;
+    UShort     limit;
     TTableDir  tableDir;
 
     PTableDirEntry  entry;
@@ -501,7 +502,10 @@
   {
     DEFINE_LOCALS;
 
-    Long              n, num_shorts, num_shorts_checked, num_longs;
+    Long              n;
+    Long              num_shorts;
+    Long              num_shorts_checked;
+    Long              num_longs;
 
     PLongMetrics*     longs;
     PShortMetrics*    shorts;
@@ -719,7 +723,8 @@
   {
     DEFINE_LOCALS;
 
-    Long   n, limit;
+    Long   n;
+    Long   limit;
     Short  LongOffsets;
 
 
@@ -802,7 +807,8 @@
   {
     DEFINE_LOCALS;
 
-    UShort  i, bytes;
+    UShort  i;
+    UShort  bytes;
     Long    n;
     PByte   storage;
 
@@ -1003,7 +1009,8 @@
   {
     DEFINE_LOCALS;
 
-    Long  n, limit;
+    Long  n;
+    Long  limit;
 
 
     PTRACE2(( "CVT " ));
@@ -1059,8 +1066,10 @@
   {
     DEFINE_LOCALS;
 
-    Long  off, table_start;
-    Long  n, limit;
+    Long  off;
+    Long  table_start;
+    Long  n;
+    Long  limit;
 
     TCMapDir       cmap_dir;
     TCMapDirEntry  entry_;
@@ -1383,7 +1392,8 @@
     TT_Hdmx_Record*  rec;
     TT_Hdmx          hdmx;
     Long             table;
-    UShort           n, num_glyphs;
+    UShort           n;
+    UShort           num_glyphs;
     Long             record_size;
 
 

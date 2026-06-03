@@ -424,7 +424,8 @@ void slicif_add_op(SOP op, ...)
 		memcpy(newcode, s_code, s_code_ptr - s_code);
 		s_code_ptr = newcode + (s_code_ptr - s_code);
 
-		sint32 i, j;
+		sint32 i;
+		sint32 j;
 		for(i = 0; i <= s_level; i++) {
 			s_block_ptr[i] = newcode + (s_block_ptr[i] - s_code);
 		}
@@ -1148,14 +1149,15 @@ void slicif_dump_code(unsigned char* code, int codeSize)
 {
 	unsigned char* codePtr = code;
 	double dval;
-	int ival, ival2;
+	int ival;
+	int ival2;
 	SlicNamedSymbol *symval;
 	//Added by Martin G�hmann for database access
 //	SlicDBInterface *conduit;
 	char* name;
 	const char* dbName;
 
-	extern FILE *debuglog;
+	
 
 	while(codePtr < code + codeSize) {
 		SOP op = (SOP)*codePtr;

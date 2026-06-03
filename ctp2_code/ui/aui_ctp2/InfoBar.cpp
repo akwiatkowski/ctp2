@@ -381,7 +381,9 @@ void InfoBar::SetTextFromMap(const MapPoint &point)
 				Concat(stringdb_Get()->GetNameStr("INFOBAR_RIVER"));
 			}
 
-			sint32 gold, food, prod;
+			sint32 gold;
+			sint32 food;
+			sint32 prod;
 			if(hasUnseen){
 				// Use the values from the hidden info if the tile is hidden
 				// (Reminder: Goods don't change once seen. If we want to allow goods to be discovered or run out,

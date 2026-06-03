@@ -88,7 +88,7 @@ SlicEyePoint::~SlicEyePoint()
 	s_deletedEyepoints.AddTail(this);
 #endif
 
-	if(m_message)
+	
 		delete m_message;
 }
 

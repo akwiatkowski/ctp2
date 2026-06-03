@@ -1419,9 +1419,13 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	if( target_owner > 0 &&
 		(!diplomat.IncursionPermission(target_owner)))
 	{
-		bool isspecial, cancapture, haszoc, canbombard;
+		bool isspecial;
+		bool cancapture;
+		bool haszoc;
+		bool canbombard;
 		bool isstealth;
-		sint32 maxattack, maxdefense;
+		sint32 maxattack;
+		sint32 maxdefense;
 
 		if(!agent_ptr->Get_Army()->HasCargo())
 		{
@@ -1455,7 +1459,9 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 	bool is_transporter = false;
 #endif
 
-	sint32 transports, max,empty;
+	sint32 transports;
+	sint32 max;
+	sint32 empty;
 	if(Needs_Transporter()
 	&& agent_ptr->Get_Army()->GetCargo(transports, max, empty)
 	&& empty > 0

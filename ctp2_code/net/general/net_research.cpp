@@ -40,7 +40,8 @@ void NetResearch::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		return;
 
 	m_adv = player_Get(owner)->m_advances;
-	sint32 i, d;
+	sint32 i;
+	sint32 d;
 	for(i = 0; i < m_adv->m_size; i += 8) {
 		for(d = 0; d < 8 && i+d < m_adv->m_size; d++) {
 			m_adv->m_canResearch[i + d] = uint8((buf[pos] & (1 << (7-d))) >> (7-d));

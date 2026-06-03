@@ -53,7 +53,7 @@
 #include <cctype>
 
 extern HWND			gHwnd;
-extern CivPaths		*civpaths_Get();
+
 extern PlayListDB	*g_thePlayListDB;
 
 static SoundManager *g_soundManager = nullptr;

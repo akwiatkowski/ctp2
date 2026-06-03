@@ -78,7 +78,7 @@
 
 extern c3_PopupWindow		*g_scorewarn;
 
-extern Network				g_network;
+
 
 extern sint32				g_isCheatModeOn;
 extern sint32				g_modalWindow;

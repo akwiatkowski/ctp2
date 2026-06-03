@@ -600,7 +600,8 @@ SFN_ERROR SlicSegment::Call(SlicArgList *args, SlicObject *&obj)
 void SlicSegment::GetDescription(char *str, sint32 maxsize)
 {
 	if(m_firstLineNumber < 0) {
-		sint32 offset, lastline;
+		sint32 offset;
+		sint32 lastline;
 		GetSourceLines(m_firstLineNumber, offset, lastline);
 	}
 
@@ -735,7 +736,8 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, sint32 &lastLineNum)
 {
 	uint8 *codePtr = m_code;
-	sint32 line = 0, offset;
+	sint32 line = 0;
+	sint32 offset;
 
 	firstLineNum = -1;
 	firstLineOffset = -1;

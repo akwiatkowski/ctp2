@@ -173,9 +173,9 @@ void ldlif_remove_block_from_tree(ldl_datablock *block)
 	block->GetFullName(fullname);
 	ldl_datablock dummy(aui_UI::CalculateHash(fullname));
 	myKey = s_blockTree->Delete(&dummy);
-	if(myKey) {
+	
 		delete myKey;
-	}
+	
 }
 
 void *ldlif_end_block(void *names)

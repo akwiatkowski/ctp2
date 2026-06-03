@@ -17,8 +17,10 @@ void Sprite::DrawLowClipped565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint3
 	sint32			surfHeight = m_surfHeight;
 	sint32			surfPitch = m_surfPitch;
 
-	sint32			xstart, xend,
-					ystart, yend;
+	sint32			 xstart;
+	sint32			 xend;
+	sint32			 ystart;
+	sint32			 yend;
 
 	if (drawX < 0) {
 		xstart = 0 - drawX;
@@ -339,8 +341,10 @@ void Sprite::DrawLowReversedClipped565(Pixel16 *frame, sint32 drawX, sint32 draw
 	sint32			surfHeight = m_surfHeight;
 	sint32			surfPitch = m_surfPitch;
 
-	sint32			xstart, xend,
-					ystart, yend;
+	sint32			 xstart;
+	sint32			 xend;
+	sint32			 ystart;
+	sint32			 yend;
 
 	if (drawX < 0) {
 		xstart = 0 - drawX;
@@ -669,10 +673,12 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 	Pixel16			*dataStart = table + m_height;
 
 	sint32				vaccum;
-	sint32				vincx, vincxy;
+	sint32				 vincx;
+	sint32				 vincxy;
 	sint32				vend;
 	sint32				vdestpos;
-	sint32				vpos1, vpos2;
+	sint32				 vpos1;
+	sint32				 vpos2;
 
 	vaccum = destHeight*2 - m_height;
 	vincx = destHeight*2;
@@ -689,12 +695,17 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 			vaccum += vincx;
 		} else {
 
-			Pixel16		*rowData1, *rowData2;
-			Pixel16		pixel1, pixel2, pixel3, pixel4;
+			Pixel16		 *rowData1;
+			Pixel16		 *rowData2;
+			Pixel16		 pixel1;
+			Pixel16		 pixel2;
+			Pixel16		 pixel3;
+			Pixel16		 pixel4;
 			Pixel16		pixel;
 
 			sint32		haccum;
-			sint32		hincx, hincxy;
+			sint32		 hincx;
+			sint32		 hincxy;
 			sint32		hend;
 			sint32		hpos;
 			sint32		hdestpos;
@@ -717,15 +728,15 @@ void Sprite::DrawScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 destWidt
 			sint32		mode2;
 			sint32		pos1 = 0;
 			sint32		pos2 = 0;
-			sint32		end1,
-						end2;
-			sint32		alpha1,
-						alpha2;
-			sint32		oldend1 = 0,
-						oldend2 = 0;
+			sint32		 end1;
+			sint32		 end2;
+			sint32		 alpha1;
+			sint32		 alpha2;
+			sint32		 oldend1 = 0;
+			sint32		 oldend2 = 0;
 
-			Pixel16			firstPixel,
-							secondPixel;
+			Pixel16			 firstPixel;
+			Pixel16			 secondPixel;
 
 			end1 = ReadTag(&mode1, &rowData1, &alpha1);
 			end2 = ReadTag(&mode2, &rowData2, &alpha2);
@@ -1130,10 +1141,12 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 	Pixel16			*dataStart = table + m_height;
 
 	sint32				vaccum;
-	sint32				vincx, vincxy;
+	sint32				 vincx;
+	sint32				 vincxy;
 	sint32				vend;
 	sint32				vdestpos;
-	sint32				vpos1, vpos2;
+	sint32				 vpos1;
+	sint32				 vpos2;
 
 	vaccum = destHeight*2 - m_height;
 	vincx = destHeight*2;
@@ -1150,12 +1163,17 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 			vaccum += vincx;
 		} else {
 
-			Pixel16		*rowData1, *rowData2;
-			Pixel16		pixel1, pixel2, pixel3, pixel4;
+			Pixel16		 *rowData1;
+			Pixel16		 *rowData2;
+			Pixel16		 pixel1;
+			Pixel16		 pixel2;
+			Pixel16		 pixel3;
+			Pixel16		 pixel4;
 			Pixel16		pixel;
 
 			sint32		haccum;
-			sint32		hincx, hincxy;
+			sint32		 hincx;
+			sint32		 hincxy;
 			sint32		hend;
 			sint32		hpos;
 			sint32		hdestpos;
@@ -1181,15 +1199,15 @@ void Sprite::DrawFlashScaledLow565(Pixel16 *data, sint32 x, sint32 y, sint32 des
 			sint32		mode2;
 			sint32		pos1 = 0;
 			sint32		pos2 = 0;
-			sint32		end1,
-						end2;
-			sint32		alpha1,
-						alpha2;
-			sint32		oldend1 = 0,
-						oldend2 = 0;
+			sint32		 end1;
+			sint32		 end2;
+			sint32		 alpha1;
+			sint32		 alpha2;
+			sint32		 oldend1 = 0;
+			sint32		 oldend2 = 0;
 
-			Pixel16			firstPixel,
-							secondPixel;
+			Pixel16			 firstPixel;
+			Pixel16			 secondPixel;
 
 			end1 = ReadTag(&mode1, &rowData1, &alpha1);
 			end2 = ReadTag(&mode2, &rowData2, &alpha2);
@@ -1446,11 +1464,21 @@ void Sprite::DrawReflectionLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, si
 
 inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, Pixel16 pixel4)
 {
-	uint16		r1, g1, b1,
-				r2, g2, b2,
-				r3, g3, b3,
-				r4, g4, b4;
-	uint16		r0, g0, b0;
+	uint16		 r1;
+	uint16		 g1;
+	uint16		 b1;
+	uint16		 r2;
+	uint16		 g2;
+	uint16		 b2;
+	uint16		 r3;
+	uint16		 g3;
+	uint16		 b3;
+	uint16		 r4;
+	uint16		 g4;
+	uint16		 b4;
+	uint16		 r0;
+	uint16		 g0;
+	uint16		 b0;
 
 	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
@@ -1504,9 +1532,15 @@ inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, P
 
 inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2)
 {
-	uint16		r1, g1, b1,
-				r2, g2, b2;
-	uint16		r0, g0, b0;
+	uint16		 r1;
+	uint16		 g1;
+	uint16		 b1;
+	uint16		 r2;
+	uint16		 g2;
+	uint16		 b2;
+	uint16		 r0;
+	uint16		 g0;
+	uint16		 b0;
 
 	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;

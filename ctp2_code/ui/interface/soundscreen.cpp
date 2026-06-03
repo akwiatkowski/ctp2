@@ -84,7 +84,9 @@ sint32 soundscreen_removeMyWindow(uint32 action)
 
 	AUI_ERRCODE auiErr;
 
-	sint32		sfx, voice, music;
+	sint32		 sfx;
+	sint32		 voice;
+	sint32		 music;
 
 	soundscreen_getValues(sfx, music, voice);
 

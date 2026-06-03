@@ -248,7 +248,8 @@ void dh_attack(DQAction* itemAction,
       (theDefender->GetPlayerNum() == selitem_Get()->GetVisiblePlayer()) ||
       (theAttacker->GetPlayerNum() == selitem_Get()->GetVisiblePlayer());
 
-  POINT AttackerPoints, DefenderPoints;
+  POINT AttackerPoints;
+  POINT DefenderPoints;
 
   maputils_MapXY2PixelXY(action->attacker_Pos.x, action->attacker_Pos.y,
                          AttackerPoints);
@@ -336,7 +337,8 @@ void dh_specialAttack(DQAction* itemAction,
   }
 
   sint32 facingIndex;
-  POINT AttackerPoints, DefenderPoints;
+  POINT AttackerPoints;
+  POINT DefenderPoints;
 
   maputils_MapXY2PixelXY(action->attacker_Pos.x, action->attacker_Pos.y,
                          AttackerPoints);
@@ -1088,7 +1090,8 @@ void dh_faceoff(DQAction* itemAction,
     }
   }
 
-  POINT AttackerPoints, AttackedPoints;
+  POINT AttackerPoints;
+  POINT AttackedPoints;
 
   maputils_MapXY2PixelXY(action->faceoff_attacker_pos.x,
                          action->faceoff_attacker_pos.y, AttackerPoints);
@@ -1289,7 +1292,8 @@ void dh_attackpos(DQAction* itemAction,
 
   AttackerActionObj->SetAnim(AttackerAnim);
 
-  POINT AttackerPoints, AttackedPoints;
+  POINT AttackerPoints;
+  POINT AttackedPoints;
 
   maputils_MapXY2PixelXY(action->attackpos_attacker_pos.x,
                          action->attackpos_attacker_pos.y, AttackerPoints);

@@ -1474,8 +1474,10 @@ bool UnitAstar::FindPath(Army army,
         }
     }
 
-    static MapPoint pos, old;
-    static MapPoint tmpa, tmpb;
+    static MapPoint pos;
+    static MapPoint old;
+    static MapPoint tmpa;
+    static MapPoint tmpb;
     static MapPoint no_enter_pos;
 
     bool r;

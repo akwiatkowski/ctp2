@@ -4,7 +4,7 @@
 
 #include "ui/aui_ctp2/SelItem.h"
 
-extern SelectedItem		*selitem_Get();
+
 
 
 

@@ -388,7 +388,8 @@ SPProfileBox::SPProfileBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) 
 	m_PRIGHT(nullptr)
 {
 	{
-		int i=0,numClans;
+		int i=0;
+		int numClans;
 
 		numClans = g_theCivilisationDB->NumRecords();
 

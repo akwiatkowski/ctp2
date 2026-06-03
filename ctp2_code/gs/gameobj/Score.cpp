@@ -48,7 +48,7 @@
 #include "gs/gameobj/FeatTracker.h"
 
 extern PointerList<Player> *g_deadPlayer;
-extern StringDB *g_theStringDB;
+
 
 Score::Score(PLAYER_INDEX owner)
 :   m_owner                (owner),
@@ -161,7 +161,8 @@ sint32 Score::GetPartialScoreCount(SCORE_CATEGORY cat)
 	if(!pl)
 		return 0;
 
-	sint32 i, count = 0;
+	sint32 i;
+	sint32 count = 0;
 	switch (cat)
 	{
 		case SCORE_CAT_TYPE_OF_VICTORY:

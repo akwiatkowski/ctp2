@@ -380,8 +380,12 @@ void LineGraph::DrawIndicator()
 void LineGraph::DrawLines(int eventsOfset)
 {
 	sint32		color = (sint32)COLOR_RED;
-	sint32		i, j;
-	sint32		xpos = 0, ypos = 0, oldxpos = 0, oldypos = 0;
+	sint32		 i;
+	sint32		 j;
+	sint32		 xpos = 0;
+	sint32		 ypos = 0;
+	sint32		 oldxpos = 0;
+	sint32		 oldypos = 0;
 	double		point;
 
     Assert(m_ymin <= m_ymax);
@@ -421,8 +425,11 @@ void LineGraph::DrawLines(int eventsOfset)
 	}
 	else if(m_graphType==GRAPH_TYPE_ZEROSUM)
 	{
-		double		top,bottom;
-		sint32		width,height,ypos2;
+		double		 top;
+		double		 bottom;
+		sint32		 width;
+		sint32		 height;
+		sint32		 ypos2;
 
 		width=m_graphRect.right-m_graphRect.left;
 		height=m_graphRect.bottom-m_graphRect.top;
@@ -495,8 +502,10 @@ void LineGraph::RenderGraph(int eventsOfset)
 
 void LineGraph::SetLineData(sint32 numLines, sint32 numSamples, double **data, sint32 *color)
 {
-	sint32		i,j;
-	double		sum,curYPos;
+	sint32		 i;
+	sint32		 j;
+	double		 sum;
+	double		 curYPos;
 
 	if (m_lineData)
 	{

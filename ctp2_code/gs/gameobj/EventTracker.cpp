@@ -81,7 +81,10 @@ void EventTracker::Serialize(CivArchive &archive)
 	else
 	{
 		sint32 Items;
-		sint32 type,playerNum,turn,dbIndex;
+		sint32 type;
+		sint32 playerNum;
+		sint32 turn;
+		sint32 dbIndex;
 		archive >> Items;
 		for(i=0; i<Items; i++)
 		{

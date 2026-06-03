@@ -48,7 +48,7 @@
 #include "ui/aui_common/aui_stringtable.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*soundmgr_Get();
+
 
 
 static c3_PopupWindow	*s_musicTrackScreen	= nullptr;

@@ -46,7 +46,7 @@ extern sint32 g_ScreenHeight;
 
 extern StatsWindow				*g_statsWindow;
 
-extern Network			g_network;
+
 
 extern RECT				g_backgroundViewport;
 
@@ -230,7 +230,8 @@ AUI_ERRCODE background_draw_handler(LPVOID bg)
 
 void DumpSpanList(aui_DirtyList *list)
 {
-	sint32			i,j;
+	sint32			 i;
+	sint32			 j;
 	FILE			*outFile;
 
 	outFile = fopen("spans.txt", "wt");

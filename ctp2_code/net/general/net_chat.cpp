@@ -76,7 +76,7 @@ NetChat::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		Assert(m_from == g_network.IdToIndex(id));
 		m_from = (uint8)g_network.IdToIndex(id);
 	}
-	if(m_str)
+	
 		delete [] m_str;
 
 	m_str = new MBCHAR[m_len + 1];

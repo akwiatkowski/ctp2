@@ -555,7 +555,8 @@ void TiledMap::AddDirtyRect(RECT &rect, aui_DirtyList * a_List)
 
 void TiledMap::AddDirtyTile(MapPoint &pos, aui_DirtyList * a_List)
 {
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 
 	maputils_MapXY2PixelXY(pos.x, pos.y, &x, &y);
 
@@ -883,7 +884,15 @@ sint16 TiledMap::TryRiver(BOOL bc, BOOL bn, BOOL bne, BOOL be, BOOL bse, BOOL bs
 {
 	if (!bc) return -1;
 
-	sint16		tc, tn, tne, te, tse, ts, tsw, tw, tnw;
+	sint16		 tc;
+	sint16		 tn;
+	sint16		 tne;
+	sint16		 te;
+	sint16		 tse;
+	sint16		 ts;
+	sint16		 tsw;
+	sint16		 tw;
+	sint16		 tnw;
 
 	for (uint16 i = 0; i < m_tileSet->GetNumRiverTransforms(); i++)
     {
@@ -1121,7 +1130,14 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 
 
 
-	uint16	n, ne, e, se, s, sw, w, nw;
+	uint16	 n;
+	uint16	 ne;
+	uint16	 e;
+	uint16	 se;
+	uint16	 s;
+	uint16	 sw;
+	uint16	 w;
+	uint16	 nw;
 	BOOL		rn, rne, re, rse, rs, rsw, rw, rnw;
 
 	uint16 c = static_cast<uint16>(g_theTerrainDB->Get(index)->GetTilesetIndex());
@@ -1248,7 +1264,8 @@ void TiledMap::PostProcessTile(MapPoint &pos, TileInfo *theTileInfo,
 void TiledMap::PostProcessMap(BOOL regenTilenums)
 {
 	MapPoint		pos;
-	sint16			i,j;
+	sint16			 i;
+	sint16			 j;
 	TILEINDEX       origTilenum = 0;
 	uint8           origMega = 0;
 
@@ -1667,7 +1684,9 @@ sint32 TiledMap::CalculateWrap
 			CellText *cellText = graphicsoptions_Get()->GetCellText(pos);
 			if (cellText != nullptr)
 			{
-				sint32 r,g,b;
+				sint32 r;
+				sint32 g;
+				sint32 b;
 				ColorMagnitudeToRGB(cellText->m_color, &r, &g, &b);
 
 				COLORREF fgColor = RGB(r, g, b);
@@ -1691,7 +1710,9 @@ sint32 TiledMap::CalculateWrap
 		sint32 color = world_Get()->GetColor(pos);
 		if (0 < color)
 		{
-			sint32 r=0,g=0, b;
+			sint32 r=0;
+			sint32 g=0;
+			sint32 b;
 			b = color * 2;
 			if (127 < b) {
 				g = b - 127;
@@ -1763,7 +1784,8 @@ sint32 TiledMap::CalculateWrapClipped(
 
 	maputils_MapXY2PixelXY(drawx,drawy,&drawx,&drawy);
 
-	sint32      baseX,baseY;
+	sint32      baseX;
+	sint32      baseY;
 	maputils_TileX2MapXAbs(m_mapViewRect.left,m_mapViewRect.top,&baseX);
 
 	maputils_MapXY2PixelXY(baseX,m_mapViewRect.top,&baseX,&baseY);
@@ -1889,7 +1911,8 @@ sint32 TiledMap::DrawImprovements(aui_Surface *surface,
 		!hasGoody)
 		return 0;
 
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x,pos.y,&x,&y);
 
 	if(x < m_surfaceRect.left || x > (m_surfaceRect.right - GetZoomTilePixelWidth()) ||
@@ -1927,7 +1950,8 @@ void TiledMap::RetargetTileSurface(aui_Surface *surf)
 
 sint32 TiledMap::RepaintTiles(RECT *repaintRect)
 {
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	GetMapMetrics(&mapWidth,&mapHeight);
 
 	for (sint32 i=repaintRect->top; i<repaintRect->bottom; i++){
@@ -1956,7 +1980,8 @@ sint32 TiledMap::RepaintTilesClipped(RECT *repaintRect)
 
 sint32 TiledMap::RepaintImprovements(RECT *repaintRect,bool clip)
 {
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	sint32		i;
 
 	GetMapMetrics(&mapWidth,&mapHeight);
@@ -2001,7 +2026,8 @@ sint32 TiledMap::CalculateHatWrap(
 		tileInfo = GetTileInfo(pos);
 	}
 
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	maputils_MapXY2PixelXY(pos.x,pos.y,&x,&y);
 
 	if (tileInfo == nullptr) return -1;
@@ -2043,7 +2069,8 @@ sint32 TiledMap::CalculateHatWrap(
 sint32 TiledMap::RepaintHats(RECT *repaintRect,bool clip)
 {
 
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
 
 	RECT tempRect = *repaintRect;
@@ -2065,7 +2092,8 @@ sint32 TiledMap::RepaintHats(RECT *repaintRect,bool clip)
 
 sint32 TiledMap::RepaintBorders(RECT *repaintRect, bool clip)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
 
 	RECT tempRect = *repaintRect;
@@ -2093,7 +2121,8 @@ sint32 TiledMap::RepaintBorders(RECT *repaintRect, bool clip)
 
 sint32 TiledMap::RepaintEdgeX(RECT *repaintRect)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth,&mapHeight);
 
 	if (repaintRect->left < 0) {
@@ -2137,7 +2166,8 @@ sint32 TiledMap::RepaintEdgeX(RECT *repaintRect)
 
 sint32 TiledMap::RepaintEdgeY(RECT *repaintRect)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth,&mapHeight);
 
 	if (repaintRect->top < 0) {
@@ -2357,7 +2387,9 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 				sint32 		ty = actor->GetY() + GetZoomTileHeadroom();
 
 				uint8		col = a.GetData()->GetDebugStringColor();
-				sint32		r,g,b;
+				sint32		 r;
+				sint32		 g;
+				sint32		 b;
 				ColorMagnitudeToRGB(col, &r, &g, &b);
 
 				COLORREF	fgColor = RGB(r, g, b);
@@ -2382,16 +2414,18 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 
 				const MBCHAR		*s = a.GetData()->GetName();
 
-				sint32		tx = (sint32)(actor->GetX()+GetZoomTilePixelWidth()/2),
-							ty = (sint32)(actor->GetY()+GetZoomTileHeadroom());
+				sint32		 tx = (sint32)(actor->GetX()+GetZoomTilePixelWidth()/2);
+				sint32		 ty = (sint32)(actor->GetY()+GetZoomTileHeadroom());
 
-				sint32		r,g,b;
+				sint32		 r;
+				sint32		 g;
+				sint32		 b;
 				uint8		col = a.GetData()->GetDebugStringColor();
 
 				ColorMagnitudeToRGB(col, &r, &g, &b);
 
-				COLORREF	fgColor = RGB(r, g, b),
-							bgColor = RGB(0,0,0);
+				COLORREF	 fgColor = RGB(r, g, b);
+				COLORREF	 bgColor = RGB(0,0,0);
 
 				DrawSomeText(true, s, tx, ty+40, colorset_Get()->GetColorRef(COLOR_BLACK), colorset_Get()->GetColorRef(COLOR_WHITE));
 			}
@@ -2405,8 +2439,8 @@ void TiledMap::PaintUnitActor(std::shared_ptr<UnitActor> actor, bool fog)
 			char text[80];
 			text[0] = '\0';
 
-			sint32	tx = (sint32)(actor->GetX()+(k_TILE_PIXEL_WIDTH*m_scale)/2),
-					ty = (sint32)(actor->GetY()+(k_TILE_PIXEL_HEIGHT*m_scale));
+			sint32	 tx = (sint32)(actor->GetX()+(k_TILE_PIXEL_WIDTH*m_scale)/2);
+			sint32	 ty = (sint32)(actor->GetY()+(k_TILE_PIXEL_HEIGHT*m_scale));
 
 			Cell *c = world_Get()->GetCell(pos);
 			Unit city = c->GetCity();
@@ -2509,7 +2543,8 @@ sint32 TiledMap::RepaintLayerSprites(RECT *paintRect, sint32 layer)
 			if(!world_Get()->IsXwrap() && (j < 0 || j >= world_Get()->GetXWidth()))
 				continue;
 
-			sint32 tileX,tileY;
+			sint32 tileX;
+			sint32 tileY;
 			maputils_WrapPoint(j,i,&tileX,&tileY);
 
 			sint32      mapY    = tileY;
@@ -2753,9 +2788,12 @@ void TiledMap::ProcessLayerSprites(RECT *paintRect, sint32 layer)
 		return;
 
 	UnseenCellCarton	ucell;
-	sint32				tileX,tileY;
-	sint32				i,j;
-	sint32				mapX, mapY;
+	sint32				 tileX;
+	sint32				 tileY;
+	sint32				 i;
+	sint32				 j;
+	sint32				 mapX;
+	sint32				 mapY;
 	MapPoint			pos;
 	TileInfo			*curTileInfo;
 	GoodActor			*curGoodActor;
@@ -2858,17 +2896,20 @@ sint32 TiledMap::OffsetLayerSprites(RECT *paintRect, sint32 deltaX, sint32 delta
 	for (sint32 i=paintRect->top; i<paintRect->bottom; i++) {
 		for (sint32 j=paintRect->left; j<paintRect->right; j++) {
 
-			sint32 tileX,tileY;
+			sint32 tileX;
+			sint32 tileY;
 			maputils_WrapPoint(j,i,&tileX,&tileY);
 
-			sint32 mapX, mapY = tileY;
+			sint32 mapX;
+			sint32 mapY = tileY;
 			mapX = maputils_TileX2MapX(tileX,tileY);
 
 			MapPoint pos;
 
 			pos.x = (sint16)mapX; pos.y = (sint16)mapY;
 
-			sint32 pixelX, pixelY;
+			sint32 pixelX;
+			sint32 pixelY;
 
 			maputils_MapXY2PixelXY(mapX, mapY, &pixelX, &pixelY);
 
@@ -2955,7 +2996,8 @@ sint32 TiledMap::RepaintSprites(aui_Surface *surf, RECT *paintRect, bool scrolli
 	if(!ReadyToDraw())
 		return 0;
 
-	sint32	mapWidth, mapHeight;
+	sint32	 mapWidth;
+	sint32	 mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
 
 	Assert(m_localVision);
@@ -3025,7 +3067,8 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 
 		if (TileIsVisible(pos.x, pos.y)) {
 
-			sint32		x, y;
+			sint32		 x;
+			sint32		 y;
 
 			maputils_MapXY2PixelXY(pos.x,pos.y,&x,&y);
 
@@ -3047,7 +3090,8 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 				return;
 			}
 
-			sint32 destX, destY;
+			sint32 destX;
+			sint32 destY;
 
 			destX = x + (GetZoomTilePixelWidth()/2) - (iconDim.x / 2);
 			destY = y + (GetZoomTileGridHeight()/2) - (iconDim.y / 2);
@@ -3059,7 +3103,9 @@ void TiledMap::DrawStartingLocations(aui_Surface *surf, sint32 layer)
 			ScenarioEditor::GetLabel(labelString, playerOrCiv);
 
 			if (m_font) {
-				RECT		rect, clipRect, boxRect;
+				RECT		 rect;
+				RECT		 clipRect;
+				RECT		 boxRect;
 
 				sint32 width = m_font->GetStringWidth(labelString);
 				sint32 height = m_font->GetMaxHeight();
@@ -3220,7 +3266,8 @@ if (x >= surface->Width() - k_TILE_PIXEL_WIDTH) return 0;
 if (y < 0) return 0;
 if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 
-	sint32 startX, endX;
+	sint32 startX;
+	sint32 endX;
 
 	Pixel16		pixelColor = colorset_Get()->GetColor(color);
 
@@ -3302,17 +3349,19 @@ void TiledMap::ScrollPixels(sint32 deltaX, sint32 deltaY, aui_Surface *surf)
 	if (errcode != AUI_ERRCODE_OK)
 		return;
 
-	sint32	h = surf->Height(),
-			w = surf->Width(),
-			copyWidth = (w - abs(deltaX))>>1,
-			copyHeight = h - abs(deltaY);
+	sint32	 h = surf->Height();
+	sint32	 w = surf->Width();
+	sint32	 copyWidth = (w - abs(deltaX))>>1;
+	sint32	 copyHeight = h - abs(deltaY);
 
 	sint32		pitch = surf->Pitch();
 
-	uint32		*srcPtr, *destPtr;
-	sint32		dx = abs(deltaX),
-				dy = abs(deltaY);
-	sint32		i,j;
+	uint32		 *srcPtr;
+	uint32		 *destPtr;
+	sint32		 dx = abs(deltaX);
+	sint32		 dy = abs(deltaY);
+	sint32		 i;
+	sint32		 j;
 
 	sint32		slop;
 
@@ -3938,7 +3987,8 @@ sint32 TiledMap::RedrawHat(
 
 
 
-	static MapPoint nw, ne;
+	static MapPoint nw;
+	static MapPoint ne;
 	if(tempPos.GetNeighborPosition(NORTHWEST, nw)) {
 		if (m_localVision->IsExplored(nw))
         {
@@ -4094,7 +4144,8 @@ void TiledMap::BlackTile(aui_Surface *surface, const MapPoint *point)
 {
 	if (!TileIsVisible(point->x, point->y)) return;
 
-	sint32 x,y;
+	sint32 x;
+	sint32 y;
 	maputils_MapXY2PixelXY(point->x,point->y,&x,&y);
 
 	if (m_zoomLevel == k_ZOOM_LARGEST)
@@ -4108,7 +4159,7 @@ void TiledMap::BlackTile(aui_Surface *surface, const MapPoint *point)
 void TiledMap::Blt(aui_Surface *surf)
 {
 	RECT			rect = {0, 0, surf->Width(), surf->Height()};
-	extern C3UI		*c3ui_Get();
+	
 
 	c3ui_Get()->TheBlitter()->Blt(surf, 0, 0, m_surface, &rect, 0);
 }
@@ -4135,9 +4186,11 @@ bool TiledMap::TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect)
 	RECT ur = shrunkMapViewRect;
 	RECT lr = shrunkMapViewRect;
 
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth,&mapHeight);
-	sint32 tileX, tileY = mapY;
+	sint32 tileX;
+	sint32 tileY = mapY;
 	maputils_MapX2TileX(mapX,mapY,&tileX);
 
 	if (shrunkMapViewRect.left < 0) {
@@ -4189,9 +4242,11 @@ bool TiledMap::TileIsVisible(sint32 mapX, sint32 mapY, sint32 /* mapZ */)
 	RECT ur = m_mapViewRect;
 	RECT lr = m_mapViewRect;
 
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	GetMapMetrics(&mapWidth,&mapHeight);
-	sint32 tileX, tileY = mapY;
+	sint32 tileX;
+	sint32 tileY = mapY;
 	maputils_MapX2TileX(mapX,mapY,&tileX);
 
 	if (m_mapViewRect.left < 0) {
@@ -4238,11 +4293,21 @@ bool TiledMap::TileIsVisible(sint32 mapX, sint32 mapY, sint32 /* mapZ */)
 
 Pixel16 TiledMap::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, Pixel16 pixel4)
 {
-	short		r1, g1, b1,
-				r2, g2, b2,
-				r3, g3, b3,
-				r4, g4, b4;
-	short		r0, g0, b0;
+	short		 r1;
+	short		 g1;
+	short		 b1;
+	short		 r2;
+	short		 g2;
+	short		 b2;
+	short		 r3;
+	short		 g3;
+	short		 b3;
+	short		 r4;
+	short		 g4;
+	short		 b4;
+	short		 r0;
+	short		 g0;
+	short		 b0;
 
 	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
@@ -4300,9 +4365,12 @@ void TiledMap::ProcessRun(Pixel16 **rowData1, Pixel16 **rowData2, Pixel16 *pix1,
 	static sint32		mode2;
 	static sint32		pos1;
 	static sint32		pos2;
-	static sint32		end1, end2;
-	static sint32		alpha1, alpha2;
-	static sint32		oldend1, oldend2;
+	static sint32		 end1;
+	static sint32		 end2;
+	static sint32		 alpha1;
+	static sint32		 alpha2;
+	static sint32		 oldend1;
+	static sint32		 oldend2;
 
 	Pixel16				pixel1 = 0;
 	Pixel16				pixel2 = 0;
@@ -4426,19 +4494,23 @@ sint32 TiledMap::ReadTag(sint32 *mode, Pixel16 **rowData, sint32 *alpha)
 
 UnitActorPtr TiledMap::GetClickedUnit(aui_MouseEvent *data)
 {
-	sint32				mapWidth, mapHeight;
+	sint32				 mapWidth;
+	sint32				 mapHeight;
 	GetMapMetrics(&mapWidth, &mapHeight);
 
-	sint32				x, y;
+	sint32				 x;
+	sint32				 y;
 	POINT       point = data->position;
 
 	for (sint32 i=m_mapViewRect.top; i<m_mapViewRect.bottom; i++) {
 		for (sint32 j=m_mapViewRect.left; j<m_mapViewRect.right; j++) {
 
-			sint32 tileX, tileY;
+			sint32 tileX;
+			sint32 tileY;
 			maputils_WrapPoint(j,i,&tileX,&tileY);
 
-			sint32 mapX, mapY = tileY;
+			sint32 mapX;
+			sint32 mapY = tileY;
 			mapX = maputils_TileX2MapX(tileX,tileY);
 
 			maputils_MapXY2PixelXY(mapX,mapY,&x,&y);
@@ -4487,7 +4559,8 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 	sint32      width   = GetZoomTilePixelWidth();
 	sint32      height  = GetZoomTilePixelHeight();
 
-    sint32  xoff,yoff;
+    sint32  xoff;
+    sint32  yoff;
 	GetSmoothScrollOffsets(xoff,yoff);
   	sint32  x = point.x + xoff;
 	sint32  y = point.y + yoff;
@@ -4553,7 +4626,8 @@ bool TiledMap::MousePointToTilePos(POINT point, MapPoint &tilePos) const
 	else if (world_Get()->GetWidth() <= tilePos.x) tilePos.x = tilePos.x - static_cast<sint16>(world_Get()->GetWidth());
 
 	if (world_Get()->IsYwrap()) {
-		sint16 sx, sy;
+		sint16 sx;
+		sint16 sy;
 
 		if (tilePos.y < 0) {
 			sx = (sint16)world_Get()->GetWidth();
@@ -5141,7 +5215,8 @@ TiledMap::DrawOverlayClipped(aui_Surface *surface, Pixel16 *data, sint32 x, sint
 	Pixel16		*table	= data;
 	Pixel16		*dataStart = table + (end - start + 1);
 
-	sint32 len,looplen;
+	sint32 len;
+	sint32 looplen;
 
 	sint32 xoff=x;
 	sint32 i;
@@ -5371,7 +5446,8 @@ bool TiledMap::CanZoomOut() const
 		RECT zoomViewRectangle;
 		CalculateZoomViewRectangle(GetZoomLevel() - 1, zoomViewRectangle);
 
-		sint32 width, height;
+		sint32 width;
+		sint32 height;
 		GetMapMetrics(&width, &height);
 
 		if((zoomViewRectangle.right <= width) &&
@@ -5422,7 +5498,8 @@ void TiledMap::ZoomUpdate(sint32 zoomLevel)
 
 	sint32 mapViewCenterX = (m_mapViewRect.left + m_mapViewRect.right) / 2;
 	sint32 mapViewCenterY = (m_mapViewRect.top + m_mapViewRect.bottom) / 2;
-	sint32 mapViewCenterXWrap = 0, mapViewCenterYWrap = 0;
+	sint32 mapViewCenterXWrap = 0;
+	sint32 mapViewCenterYWrap = 0;
 	maputils_WrapPoint(mapViewCenterX, mapViewCenterY,
 		&mapViewCenterXWrap, &mapViewCenterYWrap);
 

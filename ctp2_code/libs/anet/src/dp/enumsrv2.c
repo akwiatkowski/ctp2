@@ -291,8 +291,10 @@ static myhostname_t *get_bootstrap_list()
 
 		line[127] = '\0';
 		while (NULL != fgets(line, 127, fp)) {
-			char thisip[128], thishost[128];
-			int lenip, lenhost;
+			char thisip[128];
+			char thishost[128];
+			int lenip;
+			int lenhost;
 
 			if (2 != sscanf(line, "%s %s", thisip, thishost))
 				continue;

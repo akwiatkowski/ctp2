@@ -563,7 +563,8 @@
   Bool Insert_Y_Turn( RAS_ARGS  Int  y )
   {
     PStorage  y_turns;
-    Int       y2, n;
+    Int       y2;
+    Int       n;
 
     n       = ras.numTurns-1;
     y_turns = ras.sizeBuff - ras.numTurns;
@@ -613,7 +614,8 @@
   static
   Bool Finalize_Profile_Table( RAS_ARG )
   {
-    Int       bottom, top;
+    Int       bottom;
+    Int       top;
     UShort    n;
     PProfile  p;
 
@@ -681,7 +683,8 @@
 
   static void  Split_Bezier( TPoint*  base )
   {
-    Long     a, b;
+    Long     a;
+    Long     b;
 
 
     base[4].x = base[2].x;
@@ -742,9 +745,16 @@
                                  Long  x2, Long  y2,
                                  Long  miny, Long  maxy )
   {
-    Long  Dx, Dy;
-    Int   e1, e2, f1, f2, size;     /* XXX: is `Short' sufficient? */
-    Long  Ix, Rx, Ax;
+    Long  Dx;
+    Long  Dy;
+    Int   e1;
+    Int   e2;
+    Int   f1;
+    Int   f2;
+    Int   size;     /* XXX: is `Short' sufficient? */
+    Long  Ix;
+    Long  Rx;
+    Long  Ax;
 
     PStorage  top;
 
@@ -853,7 +863,8 @@
                                    Long  x2, Long  y2,
                                    Long  miny, Long  maxy )
   {
-    Bool result, fresh;
+    Bool result;
+    Bool fresh;
 
 
     fresh  = ras.fresh;
@@ -883,7 +894,11 @@
 
   static Bool  Bezier_Up( RAS_ARGS Long  miny, Long  maxy )
   {
-    Long   y1, y2, e, e2, e0;
+    Long   y1;
+    Long   y2;
+    Long   e;
+    Long   e2;
+    Long   e0;
     Short  f1;
 
     TPoint*  arc;
@@ -1013,7 +1028,8 @@
   static Bool  Bezier_Down( RAS_ARGS Long  miny, Long  maxy )
   {
     TPoint*  arc = ras.arc;
-    Bool     result, fresh;
+    Bool     result;
+    Bool     fresh;
 
 
     arc[0].y = -arc[0].y;
@@ -1129,7 +1145,10 @@
                                    Long  cx,
                                    Long  cy )
   {
-    Long     y1, y2, y3, x3;
+    Long     y1;
+    Long     y2;
+    Long     y3;
+    Long     x3;
     TStates  state_bez;
 
 
@@ -1242,12 +1261,17 @@
                                          UShort  last,
                                          Bool    flipped )
   {
-    Long   x,  y;   /* current point                */
-    Long   cx, cy;  /* current Bezier control point */
-    Long   mx, my;  /* current middle point         */
+    Long   x;
+    Long   y;   /* current point                */
+    Long   cx;
+    Long   cy;  /* current Bezier control point */
+    Long   mx;
+    Long   my;  /* current middle point         */
 
-    Long   x_first, y_first;  /* first point's coordinates */
-    Long   x_last,  y_last;   /* last point's coordinates  */
+    Long   x_first;
+    Long   y_first;  /* first point's coordinates */
+    Long   x_last;
+    Long   y_last;   /* last point's coordinates  */
 
     UShort  index;     /* current point's index */
     Bool    on_curve;  /* current point's state */
@@ -1451,7 +1475,8 @@
   static void  InsNew( PProfileList  list,
                        PProfile      profile )
   {
-    PProfile  *old, current;
+    PProfile  *old;
+    PProfile  current;
     Long       x;
 
 
@@ -1483,7 +1508,8 @@
   static void  DelOld( PProfileList  list,
                        PProfile      profile )
   {
-    PProfile  *old, current;
+    PProfile  *old;
+    PProfile  current;
 
 
     old     = list;
@@ -1542,7 +1568,9 @@
 
   static void  Sort( PProfileList  list )
   {
-    PProfile  *old, current, next;
+    PProfile  *old;
+    PProfile  current;
+    PProfile  next;
 
 
     /* First, set the new X coordinate of each profile */
@@ -1616,9 +1644,12 @@
                                              PProfile    left,
                                              PProfile    right )
   {
-    Long   e1, e2;
-    Short  c1, c2;
-    Short  f1, f2;
+    Long   e1;
+    Long   e2;
+    Short  c1;
+    Short  c2;
+    Short  f1;
+    Short  f2;
     Byte*  target;
 
 
@@ -1668,8 +1699,10 @@
                                              PProfile    left,
                                              PProfile    right )
   {
-    Long   e1, e2;
-    Short  c1, f1;
+    Long   e1;
+    Long   e2;
+    Short  c1;
+    Short  f1;
 
 
     /* Drop-out control */
@@ -1797,7 +1830,8 @@
                                                PProfile    left,
                                                PProfile    right )
   {
-    Long  e1, e2;
+    Long  e1;
+    Long  e2;
     PByte bits;
     Byte  f1;
 
@@ -1841,7 +1875,8 @@
                                                PProfile    left,
                                                PProfile    right )
   {
-    Long  e1, e2;
+    Long  e1;
+    Long  e2;
     PByte bits;
     Byte  f1;
 
@@ -1981,8 +2016,11 @@
 
   static void  Vertical_Gray_Sweep_Step( RAS_ARG )
   {
-    Int    c1, c2;
-    PByte  pix, bit, bit2;
+    Int    c1;
+    Int    c2;
+    PByte  pix;
+    PByte  bit;
+    PByte  bit2;
     Int*   count = ras.count_table;
     Byte*  grays;
 
@@ -2053,7 +2091,8 @@
                                                     PProfile    left,
                                                     PProfile    right )
   {
-    Long  e1, e2;
+    Long  e1;
+    Long  e2;
     PByte pixel;
     Byte  color;
 
@@ -2141,16 +2180,30 @@
 
   static Bool  Draw_Sweep( RAS_ARG )
   {
-    Short  y, y_change, y_height;
+    Short  y;
+    Short  y_change;
+    Short  y_height;
 
-    PProfile  P, Q, P_Left, P_Right;
+    PProfile  P;
+    PProfile  Q;
+    PProfile  P_Left;
+    PProfile  P_Right;
 
-    Short  min_Y, max_Y, top, bottom, dropouts;
+    Short  min_Y;
+    Short  max_Y;
+    Short  top;
+    Short  bottom;
+    Short  dropouts;
 
-    Long  x1, x2, xs, e1, e2;
+    Long  x1;
+    Long  x2;
+    Long  xs;
+    Long  e1;
+    Long  e2;
 
     TProfileList  wait;
-    TProfileList  draw_left, draw_right;
+    TProfileList  draw_left;
+    TProfileList  draw_right;
 
 
     /* Init empty linked lists */
@@ -2318,7 +2371,8 @@
       /* Now finalize the profiles that needs it */
 
       {
-        PProfile  Q, P;
+        PProfile  Q;
+        PProfile  P;
         P = draw_left;
         while ( P )
         {
@@ -2330,7 +2384,8 @@
       }
 
       {
-        PProfile  Q, P = draw_right;
+        PProfile  Q;
+        PProfile  P = draw_right;
         while ( P )
         {
           Q = P->link;
@@ -2391,7 +2446,9 @@ Scan_DropOuts :
 
   static TT_Error  Render_Single_Pass( RAS_ARGS Bool  flipped )
   {
-    Short  i, j, k;
+    Short  i;
+    Short  j;
+    Short  k;
 
 
     while ( ras.band_top >= 0 )
@@ -2676,7 +2733,10 @@ Scan_DropOuts :
   {
     TT_Error  error;
 
-    Int  i, l, j, c;
+    Int  i;
+    Int  l;
+    Int  j;
+    Int  c;
 
     TRaster_Instance*  ras;
 

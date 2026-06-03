@@ -79,7 +79,7 @@ C3Window( retval, id, x, y, width, height, bpp, pattern, type )
 
 IntroMovieWindow::~IntroMovieWindow()
 {
-	if (m_movieButton)
+	
 		delete m_movieButton;
 
 }

@@ -67,7 +67,8 @@ void NetFullStrengths::Packetize(uint8 *buf, uint16 &size)
 
 	sint32 n = str->m_strengthRecords[0].Num();
 	PUSHLONG(n);
-	sint32 r, i;
+	sint32 r;
+	sint32 i;
 	for(r = m_startRound; r <= m_endRound; r++) {
 		for(i = sint32(STRENGTH_CAT_NONE) + 1; i < sint32(STRENGTH_CAT_MAX); i++) {
 			PUSHLONG(str->m_strengthRecords[i][r]);
@@ -94,7 +95,8 @@ void NetFullStrengths::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	sint32 n;
 	PULLLONG(n);
-	sint32 r, i;
+	sint32 r;
+	sint32 i;
 	if(m_startRound == 0) {
 		for(i = sint32(STRENGTH_CAT_NONE) + 1; i < sint32(STRENGTH_CAT_MAX); i++) {
 			str->m_strengthRecords[i].Clear();

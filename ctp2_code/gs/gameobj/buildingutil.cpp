@@ -420,7 +420,8 @@ bool buildingutil_GetCityWalls(const uint64 built_improvements, const sint32 own
 
 double buildingutil_GetCityWallsDefense(const uint64 built_improvements, const sint32 owner)
 {
-	double val=0.0, temp=0.0;
+	double val=0.0;
+	double temp=0.0;
 	FOREACH_BUILT(GetCityWalls, owner)
 	{
 		if(buildingutil_Get(i, owner)->GetDefendersPercent(temp))

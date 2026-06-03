@@ -112,7 +112,8 @@ STDEHANDLER(ArmyMoveToOrderEvent)
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 	if(!args->GetDirection(0, d)) return GEV_HD_Continue;
 
-	MapPoint oldPos, newPos;
+	MapPoint oldPos;
+	MapPoint newPos;
 	a.GetPos(oldPos);
 	if(oldPos.GetNeighborPosition(d, newPos)) {
 		a->AddOrders(UNIT_ORDER_MOVE_TO, newPos);
@@ -1005,7 +1006,8 @@ STDEHANDLER(AftermathEvent)
 	MapPoint pos;
 	Unit ta;
 	Unit td;
-	sint32 attack_owner, defense_owner;
+	sint32 attack_owner;
+	sint32 defense_owner;
 
 	sint32 fromARealBattle;
 	if(!args->GetInt(0, fromARealBattle)) return GEV_HD_Continue;
@@ -1224,7 +1226,8 @@ STDEHANDLER(BeginTurnArmyEvent)
 STDEHANDLER(MoveUnitsEvent)
 {
 	Army a;
-	MapPoint from, to;
+	MapPoint from;
+	MapPoint to;
 
 	if(!args->GetArmy(0, a)) return GEV_HD_Stop;
 	if(!args->GetPos(0, from)) return GEV_HD_Continue;
@@ -1427,7 +1430,8 @@ STDEHANDLER(LawsuitEvent)
 		return GEV_HD_Continue;
 
 	sint32 victim = cell->AccessUnit(0)->GetOwner();
-	sint32 i, n = cell->GetNumUnits();
+	sint32 i;
+	sint32 n = cell->GetNumUnits();
 	sint32 utype = -1;
 	for(i = n-1; i >= 0; i--) {
 		Unit *u = &(cell->AccessUnit(i));

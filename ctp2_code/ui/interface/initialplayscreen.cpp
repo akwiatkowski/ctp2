@@ -61,7 +61,7 @@
 #include <string>               // std::basic_string
 #include "ui/interface/UIUtils.h"
 
-extern  C3UI				*c3ui_Get();
+
 
 namespace Os
 {

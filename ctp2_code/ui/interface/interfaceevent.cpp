@@ -101,7 +101,8 @@ STDEHANDLER(InterfaceOpenInitialCityInterfaceEvent)
 
 STDEHANDLER(InterfaceUpdateCityEvent)
 {
-	static Unit city, selCity;
+	static Unit city;
+	static Unit selCity;
 	if(!args->GetCity(0, city)) return GEV_HD_Continue;
 
 	if(selitem_Get()->GetSelectedCity(selCity) && city.m_id == selCity.m_id) {

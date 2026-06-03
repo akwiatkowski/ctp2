@@ -56,7 +56,7 @@
 #include "ui/aui_ctp2/keypress.h"
 #include "gs/gameobj/GameSettings.h"
 
-extern Network				g_network;
+
 
 static c3_PopupWindow		*s_gameplayoptionsWindow	= nullptr;
 static aui_Switch			*s_tutorialadvice			= nullptr,

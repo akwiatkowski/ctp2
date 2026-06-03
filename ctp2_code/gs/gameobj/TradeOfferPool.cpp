@@ -20,7 +20,7 @@ TradeOfferPool::TradeOfferPool(CivArchive &archive)
 
 TradeOfferPool::~TradeOfferPool()
 {
-	if(m_all_offers)
+	
 		delete m_all_offers;
 }
 

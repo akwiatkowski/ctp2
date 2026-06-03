@@ -9,7 +9,7 @@
 #include "ui/netshell/netfunc.h"
 #include "ui/netshell/netshell.h"
 
-extern NETFunc *netfunc_Get();
+
 
 #define HOST_ID dppt_MAKE('H', 'I')
 #define ADDME_ID dppt_MAKE('A', 'M')

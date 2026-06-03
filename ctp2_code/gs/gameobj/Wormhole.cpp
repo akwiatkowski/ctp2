@@ -115,7 +115,8 @@ Wormhole::~Wormhole()
 
 void Wormhole::Serialize(CivArchive &archive)
 {
-	sint32 i, c;
+	sint32 i;
+	sint32 c;
 	if(archive.IsStoring()) {
 	} else {
 		if(save_file_version_Get() < 55) {

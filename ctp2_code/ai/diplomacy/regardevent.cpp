@@ -169,7 +169,8 @@ STDEHANDLER(BorderIncursionRegardEvent)
 STDEHANDLER(InvaderMovementRegardEvent)
 {
 	Army a;
-	MapPoint from, to;
+	MapPoint from;
+	MapPoint to;
 
 	if(!args->GetArmy(0, a)) return GEV_HD_Continue;
 	if(!args->GetPos(0, from)) return GEV_HD_Continue;
@@ -224,7 +225,8 @@ STDEHANDLER(BattleAftermathRegardEvent)
 
 	Unit ta;
 	Unit td;
-	sint32 attack_owner, defense_owner;
+	sint32 attack_owner;
+	sint32 defense_owner;
 
 	args->GetArmy(0, army);
 
@@ -519,7 +521,8 @@ STDEHANDLER(PlantNukeUnit_RegardEvent)
 STDEHANDLER(EnslaveSettler_RegardEvent)
 {
 	Army a;
-	Unit slaver, settler;
+	Unit slaver;
+	Unit settler;
 
 	if(!args->GetArmy(0, a))
 		return GEV_HD_Continue;

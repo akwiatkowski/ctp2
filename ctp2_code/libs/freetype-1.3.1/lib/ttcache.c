@@ -445,7 +445,8 @@
   {
     /* We don't protect this function, as this is the end of the engine's */
     /* execution..                                                        */
-    PList_Element  element, next;
+    PList_Element  element;
+    PList_Element  next;
 
 
     /* frees the recycled list elements */

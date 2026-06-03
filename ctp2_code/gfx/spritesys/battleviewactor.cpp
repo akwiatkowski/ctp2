@@ -346,8 +346,10 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 {
 	if (!surf) return;
 
-	RECT		leftRect, rightRect;
-	sint32		top, middle;
+	RECT		 leftRect;
+	RECT		 rightRect;
+	sint32		 top;
+	sint32		 middle;
 
 	double		ratio = m_hitPoints / m_hitPointsMax;
 	Pixel16		color = colorset_Get()->GetPlayerColor(m_playerNum);
@@ -483,8 +485,8 @@ void BattleViewActor::GetBoundingRect(RECT *rect) const
 	POINT	hotPoint = m_unitSpriteGroup->GetHotPoint(m_curUnitAction, m_facing);
 	double	scale = tiledmap_Get()->GetScale();
 
-	sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
-			yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
+	sint32	 xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale);
+	sint32	 yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 
 	rect->left = 0;
 	rect->top = 0;

@@ -965,7 +965,8 @@ void RadarMap::RenderMap(aui_Surface *surface)
 		return;
 	}
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(y = 0; y < m_mapSize->y; y++)
 		for(x = 0; x < m_mapSize->x; x++)
@@ -1050,8 +1051,14 @@ void RadarMap::RenderViewRect
 	}
 
 
-	sint32 x1,x2,x3,x4;
-	sint32 y1,y2,y3,y4;
+	sint32 x1;
+	sint32 x2;
+	sint32 x3;
+	sint32 x4;
+	sint32 y1;
+	sint32 y2;
+	sint32 y3;
+	sint32 y4;
 
 	if ( m_mapSize )
 	{
@@ -1265,7 +1272,8 @@ BOOL RadarMap::IncludePointInView(MapPoint &pos, sint32 radius)
 	maputils_MapX2TileX(pos.x, pos.y, &tileX);
 	sint32  tileY = pos.y;
 
-	sint32		wrappedLeft, wrappedTop;
+	sint32		 wrappedLeft;
+	sint32		 wrappedTop;
 	maputils_WrapPoint(mapViewRect->left, mapViewRect->top, &wrappedLeft, &wrappedTop);
 
 	InflateRect(&adjustedRect, -radius, -radius);
@@ -1276,8 +1284,8 @@ BOOL RadarMap::IncludePointInView(MapPoint &pos, sint32 radius)
 			tileX >=adjustedRect.left && tileX < adjustedRect.right)
 		return FALSE;
 
-	sint32	newLeft=wrappedLeft,
-			newTop=wrappedTop;
+	sint32	 newLeft=wrappedLeft;
+	sint32	 newTop=wrappedTop;
 
 	if (tileX < adjustedRect.left)
 		newLeft = wrappedLeft - (adjustedRect.left - tileX);
@@ -1291,7 +1299,8 @@ BOOL RadarMap::IncludePointInView(MapPoint &pos, sint32 radius)
 		if (tileY >= adjustedRect.bottom)
 			newTop = wrappedTop + (tileY - adjustedRect.bottom);
 
-	sint32 newX, newY;
+	sint32 newX;
+	sint32 newY;
 	maputils_WrapPoint(newLeft, newTop, &newX, &newY);
 
 	sint32 w = mapViewRect->right - mapViewRect->left;
@@ -1353,7 +1362,8 @@ void RadarMap::RedrawTile( const MapPoint *point )
     MapPoint offsetpos = PosWorldToPosRadar( *point);
     RenderTile(m_tempSurface, offsetpos, *point, player);
 
-	fRect sRect, dRect;
+	fRect sRect;
+	fRect dRect;
 	sint32 x0 = (offsetpos.y + 2 * offsetpos.x) % (2 * m_mapSize->x);
 
 
@@ -1481,7 +1491,8 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 
 	tiledmap_Get()->SetSmoothScrollOffsets(0,0);
 
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth, &mapHeight);
 
 	sint32  tileY   = (sint32) (data->position.y / m_tilePixelHeight);

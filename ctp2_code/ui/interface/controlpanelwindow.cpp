@@ -236,7 +236,7 @@ static ControlPanelWindow   *g_controlPanel = nullptr;
 ControlPanelWindow * controlpanel_Get()              { return g_controlPanel; }
 void                 controlpanel_Set(ControlPanelWindow *p) { g_controlPanel = p; }
 
-extern Network              g_network;
+
 
 extern FilenameDB           *g_theMessageIconFileDB;
 
@@ -2264,7 +2264,8 @@ void ControlPanelWindow::AddMessage(Message &message,bool initializing)
 	memset((char *)tempStr, 0, k_MAX_MSG_LEN);
 	strncpy(tempStr, message.GetText(), k_MAX_MSG_LEN-1);
 
-	MBCHAR *begin,*end;
+	MBCHAR *begin;
+	MBCHAR *end;
 	sint32 length;
 	while(strchr(tempStr,'<'))
 	{
@@ -2553,7 +2554,10 @@ ControlPanelWindow::CreateTileImpBanks()
 
 	const	IconRecord *irec;
 	bool	found;
-	uint32	row = 0, column = 0, theClass = 0, group_id = 0;
+	uint32	 row = 0;
+	uint32	 column = 0;
+	uint32	 theClass = 0;
+	uint32	 group_id = 0;
 
 
 
@@ -3553,7 +3557,8 @@ ControlPanelWindow::TileImpButtonRedisplay(uint32 player_id,uint32 button)
 		return;
 
 	const	TerrainImprovementRecord *rec;
-	bool	show_button,grey_button;
+	bool	 show_button;
+	bool	 grey_button;
 
 	rec = g_theTerrainImprovementDB->Get((intptr_t)m_tileImpButtons[button]->GetCookie());
 

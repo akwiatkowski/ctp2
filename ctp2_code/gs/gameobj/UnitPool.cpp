@@ -46,7 +46,7 @@ auto unitpool_log = civlog::Get("unitpool");
 #include "gs/database/StrDB.h"
 
 
-extern StringDB     *g_theStringDB;
+
 
 
 #include "ctp/civ3_main.h"

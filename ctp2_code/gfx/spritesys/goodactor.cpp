@@ -168,7 +168,8 @@ void GoodActor::DumpFullLoad() {
 }
 
 void GoodActor::PositionActor(MapPoint &pos) {
-  sint32 pixelX, pixelY;
+  sint32 pixelX;
+  sint32 pixelY;
   maputils_MapXY2PixelXY(pos.x, pos.y, &pixelX, &pixelY);
   Actor::SetPos(pixelX, pixelY);
   SetPos(pos);
@@ -215,7 +216,8 @@ void GoodActor::Process() {
   }
 
   if (m_curAction) {
-    sint32 x, y;
+    sint32 x;
+    sint32 y;
     maputils_MapXY2PixelXY(m_pos.x, m_pos.y, &x, &y);
     Actor::SetPos(x, y);
 
@@ -405,8 +407,8 @@ void GoodActor::GetBoundingRect(RECT *rect) const {
 
   POINT	hotPoint = m_goodSpriteGroup->GetHotPoint(m_curGoodAction);
   double	scale = tiledmap_Get()->GetScale();
-  sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
-    yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
+  sint32	 xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale);
+  sint32	 yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 
   rect->left = 0;
   rect->top = 0;

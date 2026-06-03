@@ -252,7 +252,8 @@ bool db_files_differ(char const * newFilePath, char const * oldFilePath)
 #define DIFF_SIZE FREAD_BUF_SIZE
 
 	while(!feof(n) && !feof(o)) {
-		char nb[DIFF_SIZE], ob[DIFF_SIZE];
+		char nb[DIFF_SIZE];
+		char ob[DIFF_SIZE];
 		size_t const    nr      = fread(nb, 1, DIFF_SIZE, n);
 		size_t const    oldr    = fread(ob, 1, DIFF_SIZE, o);
 

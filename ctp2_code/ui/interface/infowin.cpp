@@ -1548,7 +1548,8 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 
 void InfoBigListItem::Update()
 {
-	sint32 i,j;
+	sint32 i;
+	sint32 j;
 
 	c3_Static *subItem;
 
@@ -1708,7 +1709,8 @@ void InfoWonderListItem::Update()
 
 sint32 InfoWonderListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	c3_Static		*i1, *i2;
+	c3_Static		 *i1;
+	c3_Static		 *i2;
 
 	if (column < 0) return 0;
 
@@ -1919,7 +1921,8 @@ void InfoPlayerListItem::Update()
 
 sint32 InfoPlayerListItem::Compare(c3_ListItem *item2, uint32 column)
 {
-	c3_Static		*i1, *i2;
+	c3_Static		 *i1;
+	c3_Static		 *i2;
 
 	if (column < 0) return 0;
 

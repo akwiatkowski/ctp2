@@ -141,7 +141,7 @@ extern BOOL			gSuspended;
 
 extern BOOL			g_helpMode;
 
-extern Network g_network;
+
 
 extern HWND gHwnd;
 
@@ -540,7 +540,8 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			return 0;
 
 		Army a;
-		double chance, escape_chance;
+		double chance;
+		double escape_chance;
 		if(selitem_Get()->GetSelectedArmy(a) && a.CanPlantNuke(chance, escape_chance)) {
 			controlpanel_Get()->BeginOrderDelivery(g_theOrderDB->Access(order));
 		} else {
@@ -1174,7 +1175,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 	case KEY_FUNCTION_OPEN_MESSAGE:
 		{
 
-			extern sint32 g_modalWindow;
+			
 			if (g_modalWindow == 0) {
 				if(g_currentMessageWindow) {
 					if(g_currentMessageWindow->GetMinimizeAction()) {

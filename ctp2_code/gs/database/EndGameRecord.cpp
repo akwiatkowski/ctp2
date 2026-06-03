@@ -9,7 +9,7 @@
 #include "IconRecord.h"
 
 static BOOL s_abort_endgame_parse;
-extern StringDB *g_theStringDB;
+
 
 EndGameRecord::EndGameRecord()
 {
@@ -42,10 +42,10 @@ EndGameRecord::EndGameRecord(CivArchive &archive)
 
 EndGameRecord::~EndGameRecord()
 {
-	if(m_requiredForStage)
+	
 		delete [] m_requiredForStage;
 
-	if(m_turnsPerStage)
+	
 		delete [] m_turnsPerStage;
 }
 

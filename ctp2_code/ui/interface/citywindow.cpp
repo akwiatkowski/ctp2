@@ -376,7 +376,8 @@ CityWindow::CityWindow(AUI_ERRCODE *err)
 	*err = aui_Ldl::SetActionFuncAndCookie(s_cityWindowBlock, "ShowStatisticsButton", ShowStatistics, nullptr);//advisor window button
 	Assert(*err == AUI_ERRCODE_OK);
 
-	sint32 x,y;
+	sint32 x;
+	sint32 y;
 	sint32 unitButton = 0;
 	for(y = 0; y < 3; y++) {
 		for(x = 0; x < 4; x++) {
@@ -2417,13 +2418,15 @@ void CityWindow::FillPollutionList()
 	}
 
 	MBCHAR interp[k_MAX_NAME_LEN];
-	ctp2_Static *label,*sublabel;
+	ctp2_Static *label;
+	ctp2_Static *sublabel;
 
 	m_pollutionList->Clear();
 
 	ctp2_ListItem *allAbsItems[2 + 64];
 	ctp2_ListItem *allPercentItems[64];
-	sint32 numAbsItems = 0, numPercentItems = 0;
+	sint32 numAbsItems = 0;
+	sint32 numPercentItems = 0;
 
 	if (m_cityData->GetPopulationPollution())
 	{

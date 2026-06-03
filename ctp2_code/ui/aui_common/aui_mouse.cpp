@@ -123,7 +123,8 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 #ifdef __AUI_USE_DIRECTX__
 	GetCursorPos( &m_data.position );
 #elif defined(__AUI_USE_SDL__)
-        int x = 0, y = 0;
+        int x = 0;
+        int y = 0;
         Uint8 state = SDL_GetMouseState(&x, &y);
         m_data.position.x = x;
         m_data.position.y = y;
@@ -851,7 +852,8 @@ AUI_ERRCODE aui_Mouse::ReactToInput( )
 		k_AUI_BLITTER_FLAG_COPY );
 	Assert( errcode == AUI_ERRCODE_OK );
 
-	static RECT eraser1, eraser2;
+	static RECT eraser1;
+	static RECT eraser2;
 	Rectangle_GetErasers(
 		&eraser1, &eraser2,
 		unclippedMixRect.left, unclippedMixRect.top,

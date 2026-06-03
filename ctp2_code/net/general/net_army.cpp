@@ -274,7 +274,8 @@ void NetGroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		g_network.Enqueue(new NetInfo(NET_INFO_CODE_ADD_ARMY, pl, CAUSE_NEW_ARMY_REMOTE_GROUPING, theArmy.m_id));
 	}
 
-	uint8 n, i;
+	uint8 n;
+	uint8 i;
 	PULLBYTE(n);
 	m_units.Clear();
 	for(i = 0; i < n; i++) {
@@ -324,7 +325,8 @@ void NetUngroupRequest::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		return;
 	}
 
-	uint8 n, i;
+	uint8 n;
+	uint8 i;
 	PULLBYTE(n);
 	for(i = 0; i < n; i++) {
 		Army newArmy = player_Get(pl)->GetNewArmy(CAUSE_NEW_ARMY_REMOTE_UNGROUPING);

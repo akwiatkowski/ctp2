@@ -238,10 +238,12 @@ BOOL Sprite::HitTestScaledLow(POINT mousePt, Pixel16 *data, sint32 x, sint32 y, 
 	Pixel16			*dataStart = table + m_height;
 
 	sint32				vaccum;
-	sint32				vincx, vincxy;
+	sint32				 vincx;
+	sint32				 vincxy;
 	sint32				vend;
 	sint32				vdestpos;
-	sint32				vpos1, vpos2;
+	sint32				 vpos1;
+	sint32				 vpos2;
 
 	vaccum = destHeight*2 - m_height;
 	vincx = destHeight*2;
@@ -261,11 +263,14 @@ BOOL Sprite::HitTestScaledLow(POINT mousePt, Pixel16 *data, sint32 x, sint32 y, 
 			vaccum += vincx;
 		} else {
 
-			Pixel16		*rowData1, *rowData2;
-			Pixel16		pixel1, pixel2;
+			Pixel16		 *rowData1;
+			Pixel16		 *rowData2;
+			Pixel16		 pixel1;
+			Pixel16		 pixel2;
 
 			sint32		haccum;
-			sint32		hincx, hincxy;
+			sint32		 hincx;
+			sint32		 hincxy;
 			sint32		hend;
 			sint32		hpos;
 			sint32		hdestpos;
@@ -288,12 +293,12 @@ BOOL Sprite::HitTestScaledLow(POINT mousePt, Pixel16 *data, sint32 x, sint32 y, 
 			sint32		mode2;
 			sint32		pos1 = 0;
 			sint32		pos2 = 0;
-			sint32		end1,
-						end2;
-			sint32		alpha1,
-						alpha2;
-			sint32		oldend1 = 0,
-						oldend2 = 0;
+			sint32		 end1;
+			sint32		 end2;
+			sint32		 alpha1;
+			sint32		 alpha2;
+			sint32		 oldend1 = 0;
+			sint32		 oldend2 = 0;
 
 			end1 = ReadTag(&mode1, &rowData1, &alpha1);
 			end2 = ReadTag(&mode2, &rowData2, &alpha2);

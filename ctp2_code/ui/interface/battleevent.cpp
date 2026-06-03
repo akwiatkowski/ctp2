@@ -39,7 +39,7 @@
 #include "ui/interface/battleviewwindow.h"
 #include "sound/soundmanager.h"
 
-extern SoundManager		*soundmgr_Get();
+
 
 
 BattleEvent::BattleEvent(BATTLE_EVENT_TYPE type)
@@ -68,9 +68,9 @@ BattleEvent::~BattleEvent()
 		delete m_dataList;
 	}
 
-	if (m_walker) {
+	
 		delete m_walker;
-	}
+	
 }
 
 
@@ -161,7 +161,8 @@ void BattleEvent::ProcessPlacement()
 		if (data) {
 			if(data->positionActor) {
 
-				sint32		x, y;
+				sint32		 x;
+				sint32		 y;
 				BattleViewWindow *bvw = battleviewwindow_Get();
 				if (data->positionIsDefender) {
 					bvw->GetDefenderPos(data->positionColumn, data->positionRow,
@@ -460,7 +461,8 @@ void BattleEvent::DrawExplosions(aui_Surface *surface)
 		if (data) {
 			EffectActor		*actor = data->explodeActor;
 			if (actor) {
-				sint32			x, y;
+				sint32			 x;
+				sint32			 y;
 				actor->GetPixelPos(x, y);
 				actor->DrawDirectWithFlags(surface, x, y, k_DRAWFLAGS_NORMAL | k_BIT_DRAWFLAGS_ADDITIVE);
 			}

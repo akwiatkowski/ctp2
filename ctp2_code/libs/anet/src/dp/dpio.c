@@ -4481,7 +4481,8 @@ int dpio_localQ_npkts(dpio_t *dpio)
 --------------------------------------------------------------------------*/
 int dpio_getBroadcastHdls(dpio_t *dpio, playerHdl_t hdls[], int max_nhdls)
 {
-	int i, nhdls;
+	int i;
+	int nhdls;
 
 	dpio_assertValid(dpio);
 
@@ -4546,7 +4547,8 @@ playerHdl_t dpio_findTimedOutHost(dpio_t *dpio)
 	/* Check all connections for closed or reset connections */
 	for (i=dpio->conns->n_used-1; i >= 0; i--) {
 		assoctab_item_t	*ip;
-		dpio_window_t *txw, *rxw;
+		dpio_window_t *txw;
+		dpio_window_t *rxw;
 
 		ip = assoctab_getkey(dpio->conns, i);
 		if (!ip) continue;

@@ -23,7 +23,7 @@ SlicSymTab::SlicSymTab(CivArchive &archive) :
 
 SlicSymTab::~SlicSymTab()
 {
-	if(m_array) {
+	
 #if 0
 
 
@@ -33,7 +33,7 @@ SlicSymTab::~SlicSymTab()
 		}
 #endif
 		delete [] m_array;
-	}
+	
 }
 
 void SlicSymTab::Serialize(CivArchive &archive)

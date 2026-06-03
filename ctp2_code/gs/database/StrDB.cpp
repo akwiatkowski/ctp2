@@ -643,7 +643,7 @@ bool StringDB::Parse(MBCHAR * filename)
 }
 
 #include "gs/fileio/CivPaths.h"
-extern CivPaths *civpaths_Get();
+
 
 void StringDB::Export(MBCHAR * file)
 {

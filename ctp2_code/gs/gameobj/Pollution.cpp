@@ -317,8 +317,8 @@ void Pollution::GotoNextLevel()
 
 void Pollution::EndRound()
 {
-	double	offset,
-			slope;
+	double	 offset;
+	double	 slope;
 
 	sint32 pollution = m_history[0];
 
@@ -349,11 +349,12 @@ sint32 Pollution::CalcTrend(sint32 level[], sint32 numPoints, double &offset, do
 {
 	sint32	i;
 
-	double	t,
-			sxoss,
-			sx=0.0, sy=0.0,
-			st2=0.0,
-			ss;
+	double	 t;
+	double	 sxoss;
+	double	 sx=0.0;
+	double	 sy=0.0;
+	double	 st2=0.0;
+	double	 ss;
 
 	slope=0.0;
 

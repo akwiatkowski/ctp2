@@ -106,7 +106,8 @@ void World::CDMove(sint32 costSoFar, const sint32 x, const sint32 y,
 	}
 
 	sint32 d;
-	MapPoint next, start(x, y);
+	MapPoint next;
+	MapPoint start(x, y);
 	DistItem item;
 	for(d = 0; d < sint32(NOWHERE); d++) {
 		if(start.GetNeighborPosition(WORLD_DIRECTION(d), next)) {
@@ -174,7 +175,8 @@ void World::FDMove(sint32 costSoFar, const sint32 x, const sint32 y,
 	}
 
 	sint32 d;
-	MapPoint next, start(x, y);
+	MapPoint next;
+	MapPoint start(x, y);
 	DistItem item;
 	for(d = 0; d < sint32(NOWHERE); d++) {
 		if(start.GetNeighborPosition(WORLD_DIRECTION(d), next)) {

@@ -544,7 +544,8 @@ void FeatTracker::CheckBuildingFeat(Unit &city, sint32 building)
 					}
 				}
 
-				sint32 num, percent;
+				sint32 num;
+				sint32 percent;
 
 				if(bf->GetNum(num))
 				{
@@ -654,7 +655,8 @@ bool FeatTracker::PlayerHasFeat(sint32 type, sint32 player) const
 STDEHANDLER(AccomplishFeat)
 {
 
-	sint32 player, featIndex;
+	sint32 player;
+	sint32 featIndex;
 	if(!args->GetInt(0, featIndex)) return GEV_HD_Continue;
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 

@@ -385,7 +385,9 @@ void ArmyManagerWindow::Update()
 		){
 			armyTextlabel->SetText(m_army->GetDebugString());
 
-			sint32		r,g,b;
+			sint32		 r;
+			sint32		 g;
+			sint32		 b;
 			uint8		col = m_army.GetData()->GetDebugStringColor();
 
 			tiledmap_Get()->ColorMagnitudeToRGB(col, &r, &g, &b);
@@ -529,7 +531,8 @@ void ArmyManagerWindow::UpdateList()
 
 void ArmyManagerWindow::FillArmies()
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	Cell *cell = world_Get()->GetCell(m_pos);
 	Assert(cell);
 	if(!cell)

@@ -47,7 +47,8 @@ void maputils_WrapPoint(
 	sint32 *wrapY
 	)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	*wrapX = x;
@@ -88,7 +89,8 @@ void maputils_WrapPoint(
 
 BOOL maputils_TilePointInTileRect(sint32 x, sint32 y, RECT *tileRect)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
 	RECT wrappedRect = *tileRect;
@@ -155,7 +157,8 @@ void maputils_TileX2MapXAbs(
 	sint32 *mapX
 	)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 
@@ -172,7 +175,8 @@ void maputils_MapX2TileX(
 	sint32 *tileX
 	)
 {
-	sint32 mapWidth, mapHeight;
+	sint32 mapWidth;
+	sint32 mapHeight;
 	tiledmap_Get()->GetMapMetrics(&mapWidth,&mapHeight);
 	*tileX = (mapX + mapY/2) % mapWidth;
 }
@@ -186,9 +190,13 @@ void maputils_MapXY2PixelXY(
 {
 	if (!tiledmap_Get()) return;
 
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	sint32		nudge;
-	RECT		splitViewRectL, splitViewRectR, splitViewRectT, splitViewRectB;
+	RECT		 splitViewRectL;
+	RECT		 splitViewRectR;
+	RECT		 splitViewRectT;
+	RECT		 splitViewRectB;
 	POINT		tempPos;
 
 	RECT		*mapViewRect = tiledmap_Get()->GetMapViewRect();
@@ -290,7 +298,8 @@ void maputils_MapXY2PixelXY(
 
 	}
 
-	sint32 xoff,yoff;
+	sint32 xoff;
+	sint32 yoff;
 
 	tiledmap_Get()->GetSmoothScrollOffsets(xoff,yoff);
 
@@ -320,9 +329,13 @@ void maputils_MapXY2PixelXY(
 	RECT *mapViewRect
 	)
 {
-	sint32		mapWidth, mapHeight;
+	sint32		 mapWidth;
+	sint32		 mapHeight;
 	sint32		nudge;
-	RECT		splitViewRectL, splitViewRectR, splitViewRectT, splitViewRectB;
+	RECT		 splitViewRectL;
+	RECT		 splitViewRectR;
+	RECT		 splitViewRectT;
+	RECT		 splitViewRectB;
 	POINT		tempPos;
 
 	sint32		tileWidth = k_TILE_PIXEL_WIDTH + 2;

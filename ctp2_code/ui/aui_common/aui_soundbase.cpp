@@ -10,7 +10,7 @@
 
 #include "ui/ldl/ldl_data.hpp"
 
-extern SoundManager		*soundmgr_Get();
+
 
 MBCHAR *aui_SoundBase::m_soundLdlKeywords[ AUI_SOUNDBASE_SOUND_LAST ] =
 {

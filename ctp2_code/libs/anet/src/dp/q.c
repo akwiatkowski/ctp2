@@ -152,7 +152,8 @@ static int thaw_element(q_element_t *qe, FILE *fp)
 -----------------------------------------------------------------------*/
 void q_freeze(q_t *pq, FILE *fp)
 {
-	int i, err;
+	int i;
+	int err;
 	int sig = q_SIGNATURE;
 
 	if (fwrite(&sig, sizeof(sig), 1, fp) != 1) {
@@ -202,7 +203,8 @@ void q_freeze(q_t *pq, FILE *fp)
 -----------------------------------------------------------------------*/
 int q_thaw(q_t *pq, FILE *fp)
 {
-	int i, err;
+	int i;
+	int err;
 	int sig;
 
 	if (fread(&sig, sizeof(sig), 1, fp) != 1) {

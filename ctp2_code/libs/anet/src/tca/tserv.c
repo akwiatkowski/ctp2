@@ -245,7 +245,8 @@ dp_result_t tserv_Freeze(tserv_t *tserv, FILE *fp)
 dp_result_t tserv_Thaw(tserv_t *tserv, FILE *fp)
 {
 	dp_result_t err;
-	int i, nClients;
+	int i;
+	int nClients;
 	clock_t now;
 
 	precondition(tserv);
@@ -423,7 +424,9 @@ dp_result_t tserv_uid2info(tserv_t *tserv, tcapw_uid_t uid, tcapw_entry_t *entry
 --------------------------------------------------------------------------*/
 static dp_result_t tserv_check_email(const char *email)
 {
-	int i, i_at = -1, i_dot = -1;
+	int i;
+	int i_at = -1;
+	int i_dot = -1;
 
 	/* some basic checks: */
 	for (i = 0; email[i] && i < tcapw_MAXLEN_EMAIL; i++) {

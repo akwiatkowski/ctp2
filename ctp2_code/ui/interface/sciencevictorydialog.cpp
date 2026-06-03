@@ -459,7 +459,8 @@ sint32 ScienceVictoryDialog::CompareMainframeCities(ctp2_ListItem *item1,
 													sint32 column)
 {
 
-	Unit city1, city2;
+	Unit city1;
+	Unit city2;
 	city1.m_id = reinterpret_cast<uintptr_t>(item1->GetUserData());
 	city2.m_id = reinterpret_cast<uintptr_t>(item2->GetUserData());
 

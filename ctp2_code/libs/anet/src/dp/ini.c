@@ -385,7 +385,8 @@ DP_API dp_result_t DP_APIX dpReadAnetInf(const char *path, dp_appParam_t *pAppPa
 		err = dp_RES_EMPTY;
 	} else {
 		/* Read info from the .ini file */
-        unsigned int val, val2; /* dummies to prevent sscanf from overwriting */
+        unsigned int val;
+        unsigned int val2; /* dummies to prevent sscanf from overwriting */
 		strcpy(pAppParam->name, dpini_readParameter("Name", 0));
 		strcpy(pAppParam->path, dpini_readParameter("Run", 0));
 		strcpy(pAppParam->args, dpini_readParameter("Cmdline", 1));

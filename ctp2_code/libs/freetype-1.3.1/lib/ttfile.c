@@ -359,7 +359,8 @@
   TT_Error  TT_Check_And_Access_Frame( STREAM_ARGS FRAME_ARGS Long  size )
   {
     TT_Error  error;
-    Long      readBytes, requested;
+    Long      readBytes;
+    Long      requested;
 
 
     if ( CUR_Frame.address != NULL )

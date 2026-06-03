@@ -677,7 +677,8 @@ QuadTreeNode<T>::SearchRect(DynamicArray<T> &array,
 							uint32 mask)
 {
 	MapPoint srch;
-	sint16 subwidth, subheight;
+	sint16 subwidth;
+	sint16 subheight;
 	if(pos.x + width > m_x + m_width)
 		width = m_width - (pos.x - m_x);
 
@@ -949,7 +950,8 @@ QuadTree<T>::SearchRect(DynamicArray<T> &array, MapPoint pos, sint16 width, sint
 
 	Convert(pos);
 
-	sint16 curwidth = width, curheight = height;
+	sint16 curwidth = width;
+	sint16 curheight = height;
 
 
 

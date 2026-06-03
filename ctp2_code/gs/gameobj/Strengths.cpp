@@ -55,7 +55,8 @@ Strengths::Strengths(sint32 owner)
 	if (curRound <= 0)
 		return;
  
-	sint32 c, y;
+	sint32 c;
+	sint32 y;
 	for(y = 1; y < curRound; y++) {
 		for(c = 0; c < sint32(STRENGTH_CAT_MAX); c++) {
 			m_strengthRecords[c].Insert(0);
@@ -173,7 +174,8 @@ sint32 Strengths::GetTotalUnitCost() const
 
 sint32 Strengths::GetTotalBuildingCost() const
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 c = 0;
 	UnitDynamicArray *cities = player_Get(m_owner)->m_all_cities;
 	for(i = cities->Num() - 1; i >= 0; i--) {

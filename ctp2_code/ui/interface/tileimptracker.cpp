@@ -200,7 +200,8 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 		return;
 
 	MBCHAR		mytext[256];
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 	sint32		visPlayer = selitem_Get()->GetVisiblePlayer();
 
 	s_tileImprovementNum = type;
@@ -230,9 +231,11 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 
 //		TERRAIN_TYPES terr = world_Get()->GetTerrainType(p);
 
-		sint32  mat, time,
-		        food, production,
-		        gold;
+		sint32  mat;
+		sint32  time;
+		sint32  food;
+		sint32  production;
+		sint32  gold;
 
 		sint32 extraData = 0;
 

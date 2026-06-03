@@ -2207,7 +2207,8 @@ void from_json(nlohmann::json const &j, EndGame &g)
     j.at("saved_current_stage").get_to(g.m_savedCurrentStage);
     j.at("current_stage_began").get_to(g.m_currentStageBegan);
 
-    std::vector<sint32> num_built, saved_num_built;
+    std::vector<sint32> num_built;
+    std::vector<sint32> saved_num_built;
     j.at("num_built")      .get_to(num_built);
     j.at("saved_num_built").get_to(saved_num_built);
 

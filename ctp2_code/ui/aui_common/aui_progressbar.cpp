@@ -330,7 +330,8 @@ AUI_ERRCODE aui_ProgressBar::DrawBar( aui_Surface *surface, RECT *bound )
 
 
 
-	double start, stop;
+	double start;
+	double stop;
 	CalculateIntervals( &start, &stop );
 
 	if ( start < 0.0 ) start = 0.0;

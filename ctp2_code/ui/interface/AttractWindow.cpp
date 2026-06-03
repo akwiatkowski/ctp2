@@ -139,15 +139,18 @@ void AttractWindow::DrawAttractiveStuff()
 
 	ClearWindow();
 
-	sint32 x1, y1, x2, y2;
+	sint32 x1;
+	sint32 y1;
+	sint32 x2;
+	sint32 y2;
 
 	x1 = (m_attractPoint.x)/k_ATTRACT_FINAL_STAGE * m_attractStage;
 	y1 = (m_attractPoint.y)/k_ATTRACT_FINAL_STAGE * m_attractStage;
 	x2 = Width() - (Width() - m_attractPoint.x)/k_ATTRACT_FINAL_STAGE * m_attractStage;
 	y2 = Height() - (Height() - m_attractPoint.y)/k_ATTRACT_FINAL_STAGE * m_attractStage;
 
-	RECT	attractRect = {x1, y1, x2, y2},
-			tempRect;
+	RECT	 attractRect = {x1, y1, x2, y2};
+	RECT	 tempRect;
 
 	if (attractRect.left < 0) OffsetRect(&attractRect, -attractRect.left, 0);
 	if (attractRect.top < 0) OffsetRect(&attractRect, 0, -attractRect.top);
@@ -213,7 +216,8 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 
 	m_screenAttractRect = rect;
 
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 
 	x = m_screenAttractRect.left + (m_screenAttractRect.right - m_screenAttractRect.left)/2;
 	y = m_screenAttractRect.top + (m_screenAttractRect.bottom - m_screenAttractRect.top)/2;

@@ -761,7 +761,8 @@ void HighScoreListItem::Update()
 
 sint32 HighScoreListItem::Compare(ctp2_ListItem *item2, uint32 column)
 {
-	c3_Static		*i1, *i2;
+	c3_Static		 *i1;
+	c3_Static		 *i2;
 
 	if (column < 0) return 0;
 
@@ -970,7 +971,8 @@ sint32 victorywin_LoadGraphData( )
 	MBCHAR strbuf[256];
 
 	double		**graphData;
-	sint32		xCount, yCount;
+	sint32		 xCount;
+	sint32		 yCount;
 
 	if (!s_graph) return -1;
 

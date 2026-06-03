@@ -33,8 +33,8 @@ Installation InstallationPool::Create(sint32 owner,
 
 void InstallationPool::Serialize(CivArchive &archive)
 {
-	sint32	i,
-			count = 0 ;
+	sint32	 i;
+	sint32	 count = 0 ;
 
 	InstallationData *instData;
 

@@ -255,7 +255,9 @@ void ctp2_MenuBar::AddMenuItem
 void ctp2_MenuBar::BuildNeighbors()
 {
 	sint32 i;
-	ctp2_MenuButton *lbutt, *mbutt, *rbutt;
+	ctp2_MenuButton *lbutt;
+	ctp2_MenuButton *mbutt;
+	ctp2_MenuButton *rbutt;
 	for(i = 0; i < NumChildren() - 1; i++) {
 
 		lbutt = (ctp2_MenuButton *)GetChildByIndex(i);

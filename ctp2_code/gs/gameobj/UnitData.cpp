@@ -1589,7 +1589,8 @@ bool UnitData::CanBombardType(const Unit & defender) const
 bool UnitData::Bombard(CellUnitList &defender, bool isCounterBombardment)
 {
 	const UnitRecord *rec = GetDBRec();
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 
 	Assert(0 < defender.Num());
 
@@ -2672,7 +2673,8 @@ void UnitData::DoVision(UnitDynamicArray &revealedUnits)
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  static_cast<sint16>(maxVisionRange) * 2 + 1,
 							  ~(1 << m_owner));
-	sint32 i, n = array.Num();
+	sint32 i;
+	sint32 n = array.Num();
 
 	if(!IsCity())
 	{
@@ -3393,7 +3395,8 @@ double UnitData::GetPositionDefense(const Unit &attacker) const
 //----------------------------------------------------------------------------
 double UnitData::GetOffense(const Unit &defender) const
 {
-	const UnitRecord	*defrec, *rec;
+	const UnitRecord	 *defrec;
+	const UnitRecord	 *rec;
 	defrec				= defender.GetDBRec();
 	rec					= GetDBRec();
 	double		base	= rec->GetAttack();
@@ -3586,7 +3589,8 @@ double UnitData::GetOffense(const Unit &defender) const
 //----------------------------------------------------------------------------
 double UnitData::GetDefense(const Unit &attacker) const
 {
-	const UnitRecord	*attackRec, *myRec;
+	const UnitRecord	 *attackRec;
+	const UnitRecord	 *myRec;
 	attackRec			= attacker.GetDBRec();
 	myRec				= GetDBRec();
 	double base			= myRec->GetDefense();
@@ -3804,7 +3808,8 @@ double UnitData::GetDefense(const Unit &attacker) const
 //----------------------------------------------------------------------------
 double UnitData::GetRanged(const Unit &defender) const
 {
-	const UnitRecord	*defrec, *rec;
+	const UnitRecord	 *defrec;
+	const UnitRecord	 *rec;
 						defrec  = defender.GetDBRec();
 						rec		= GetDBRec();
 	double              base	= rec->GetZBRangeAttack();
@@ -3965,7 +3970,8 @@ double UnitData::GetRanged(const Unit &defender) const
 //----------------------------------------------------------------------------
 double UnitData::GetDefCounterAttack(const Unit &attacker) const
 {
-	const UnitRecord	*attackRec, *myRec;
+	const UnitRecord	 *attackRec;
+	const UnitRecord	 *myRec;
 	attackRec			= attacker.GetDBRec();
 	myRec				= GetDBRec();
 	double base			= myRec->GetDefense();
@@ -4258,7 +4264,9 @@ ORDER_RESULT UnitData::InvestigateCity(Unit c)
 		return ORDER_RESULT_FAILED;
 	}
 
-	double chance, eliteChance, deathChance;
+	double chance;
+	double eliteChance;
+	double deathChance;
 	const UnitRecord::InvestigateCityData *data;
 	GetDBRec()->GetInvestigateCity(data);
 	chance = data->GetChance();
@@ -4537,7 +4545,9 @@ ORDER_RESULT UnitData::AssassinateRuler(Unit c)
 		return ORDER_RESULT_FAILED;
 	}
 
-	double chance, eliteChance, deathChance;
+	double chance;
+	double eliteChance;
+	double deathChance;
 	const UnitRecord::AssasinateRulerData *data;
 	GetDBRec()->GetAssasinateRuler(data);
 	chance = data->GetChance();
@@ -4690,7 +4700,8 @@ void UnitData::HearGossip(Unit c)
 	switch(civrand().Next(3)) {
 		case 0: {
 
-			sint32 i, num;
+			sint32 i;
+			sint32 num;
 			uint8 *canSteal = player_Get(m_owner)->m_advances->
 			    CanAskFor(player_Get(c.GetOwner())->m_advances, num);
 
@@ -4713,7 +4724,8 @@ void UnitData::HearGossip(Unit c)
 
 		case 2:
 			{
-				sint32 i, n = player_Get(oplayer)->m_all_armies->Num();
+				sint32 i;
+				sint32 n = player_Get(oplayer)->m_all_armies->Num();
 				for(i = 0; i < n; i++) {
 					cost = player_Get(oplayer)->m_all_armies->Access(i).GetCost();
 					if(cost > maxCost) {

@@ -88,8 +88,13 @@ void PlayerHappiness::CalcPeaceMovement(Player *p,
     m_home_defeat = m_raw_home_defeat;
 
     Unit nearest;
-    sint32 n, m, i, j;
-    MapPoint apos, cpos, diff;
+    sint32 n;
+    sint32 m;
+    sint32 i;
+    sint32 j;
+    MapPoint apos;
+    MapPoint cpos;
+    MapPoint diff;
     double distance;
     double d;
     double radius = p->GetAtHomeRadius();

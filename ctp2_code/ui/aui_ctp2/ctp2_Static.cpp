@@ -78,7 +78,9 @@ AUI_ERRCODE ctp2_Static::InitCommonLdl( MBCHAR *ldlBlock )
 	if ( !block )
 		return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	sint32 chromaRed=0,chromaGreen=0,chromaBlue=0;
+	sint32 chromaRed=0;
+	sint32 chromaGreen=0;
+	sint32 chromaBlue=0;
 	bool   chromaSpecified=false;
 
 	if (block->GetAttributeType(k_AUI_IMAGEBASE_LDL_CHROMAKEY_RED  ) == ATTRIBUTE_TYPE_INT)

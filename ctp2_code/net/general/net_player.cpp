@@ -137,7 +137,8 @@ void NetPlayer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PULLLONG(p->m_advances->m_researching);
 	PULLLONG(p->m_advances->m_discovered);
 
-	sint32 matLev, matCap;
+	sint32 matLev;
+	sint32 matCap;
 	PULLLONG(matLev);
 	PULLLONG(matCap);
 	p->m_materialPool->SetLevel(matLev);

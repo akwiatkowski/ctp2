@@ -277,7 +277,10 @@ void TiledMap::DrawLegalMove
 				TileIsVisible(currPos.x, currPos.y)
 			   )
 			{
-				sint32 x1, y1, x2, y2;
+				sint32 x1;
+				sint32 y1;
+				sint32 x2;
+				sint32 y2;
 
 				maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 				maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
@@ -360,7 +363,9 @@ void TiledMap::DrawLegalMove
 	MapPoint target_pos = goodPath.GetEnd();
 
 	const OrderRecord *rec = controlpanel_Get()->GetCurrentOrder();
-	sint32 min_rge, max_rge = 0, dist = 9999;
+	sint32 min_rge;
+	sint32 max_rge = 0;
+	sint32 dist = 9999;
 
 	if (rec && rec->GetUnitPretest_CanBombard() ){//test if it's a bombard order
 
@@ -397,7 +402,10 @@ void TiledMap::DrawLegalMove
 		prevPos = currPos;
 		currPos=target_pos;
 
-		sint32 x1, y1, x2, y2;
+		sint32 x1;
+		sint32 y1;
+		sint32 x2;
+		sint32 y2;
 
 		maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 		maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
@@ -458,7 +466,10 @@ void TiledMap::DrawLegalMove
 			TileIsVisible(currPos.x, currPos.y)
 		   )
 		{
-			sint32 x1, y1, x2, y2;
+			sint32 x1;
+			sint32 y1;
+			sint32 x2;
+			sint32 y2;
 
 			maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 			maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
@@ -535,7 +546,10 @@ void TiledMap::DrawLegalMove
 		TileIsVisible(currPos.x, currPos.y)
 	   )
 	{
-		sint32 x1, y1, x2, y2;
+		sint32 x1;
+		sint32 y1;
+		sint32 x2;
+		sint32 y2;
 
 		maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 		maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
@@ -604,7 +618,10 @@ void TiledMap::DrawLegalMove
 			TileIsVisible(currPos.x, currPos.y)
 		   )
 		{
-			sint32 x1, y1, x2, y2;
+			sint32 x1;
+			sint32 y1;
+			sint32 x2;
+			sint32 y2;
 
 			maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 			maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
@@ -913,7 +930,8 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 		prevPos = currPos;
 		goodPath.Next(currPos);
 		uint16 lineColor = colorset_Get()->GetColor(k_TURN_COLOR_UNFINISHED);
-		double old, cost;
+		double old;
+		double cost;
 		line_segement_count++;
 
 		if (!(sel_army.GetMovementTypeAir() || m_localVision->IsExplored(currPos)))
@@ -947,7 +965,10 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 			if (TileIsVisible(prevPos.x, prevPos.y) &&
 				TileIsVisible(currPos.x, currPos.y))
 			{
-				sint32 x1, y1, x2, y2;
+				sint32 x1;
+				sint32 y1;
+				sint32 x2;
+				sint32 y2;
 				maputils_MapXY2PixelXY(prevPos.x, prevPos.y, &x1, &y1);
 				maputils_MapXY2PixelXY(currPos.x, currPos.y, &x2, &y2);
 
@@ -1072,7 +1093,8 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 				turn++;
 				prevMovementPoints = 0;
 
-				sint32 x,y;
+				sint32 x;
+				sint32 y;
 
 				maputils_MapXY2PixelXY(drawPos.x,drawPos.y,&x,&y);
 

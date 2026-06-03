@@ -752,7 +752,9 @@ bool Governor::ComputeMinimumSliders( SlidersSetting & sliders_setting ) const
 	bool food_test;
 	bool happiness_test;
 	SlidersSetting tmp_sliders_setting;
-	sint32 prod, gold, food;
+	sint32 prod;
+	sint32 gold;
+	sint32 food;
 
 	bool found = TestSliderSettings(sliders_setting,
 	                                production_test,
@@ -970,7 +972,9 @@ bool Governor::FitSlidersToCities( SlidersSetting & sliders_setting ) const
 	bool gold_test;
 	bool food_test;
 	bool happiness_test;
-	sint32 prod, gold, food;
+	sint32 prod;
+	sint32 gold;
+	sint32 food;
 
 	NormalizeSliders(sliders_setting);
 
@@ -1320,7 +1324,10 @@ StringId Governor::GetSlidersAdvice() const
 //----------------------------------------------------------------------------
 void Governor::OptimizeSliders(SlidersSetting & sliders_setting) const
 {
-	sint32 value, valueProd, valueGold, valueFood;
+	sint32 value;
+	sint32 valueProd;
+	sint32 valueGold;
+	sint32 valueFood;
 
 	GetMaxSliderSettings(sliders_setting);
 	SliderTests slider_tests;
@@ -1460,7 +1467,8 @@ bool Governor::AddRoadPriority(Path & path, const double & priority_delta)
 	TiGoal ti_goal;
 	ti_goal.utility =  bonus * priority_delta;
 
-	MapPoint old, pos;
+	MapPoint old;
+	MapPoint pos;
 	path.Start(old);
 	path.Next(pos);
 
@@ -2429,9 +2437,18 @@ void Governor::AssignPopulation(CityData *city) const
 
 	///////////////////////////////////////////////////////////////
 	// Get the amount of workers needed for base resources supply.
-	sint32 farmers, laborers, merchants, scientists,
-	       minFood, minProd, minGold, minScie;
-	double farmersEff, laborersEff, merchantsEff, scientistsEff;
+	sint32 farmers;
+	sint32 laborers;
+	sint32 merchants;
+	sint32 scientists;
+	sint32 minFood;
+	sint32 minProd;
+	sint32 minGold;
+	sint32 minScie;
+	double farmersEff;
+	double laborersEff;
+	double merchantsEff;
+	double scientistsEff;
 	sint32 min_workers = ComputeMinimumWorkers(city,
 	                     farmers, laborers, merchants, scientists,
 #if defined(NEW_RESOURCE_PROCESS)

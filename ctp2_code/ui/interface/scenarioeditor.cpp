@@ -1969,7 +1969,8 @@ void ScenarioEditor::AddAddButton(aui_Control *control, uint32 action, uint32 da
 	if(!s_scenarioEditor)
 		return;
 
-	sint32 dbindex, i;
+	sint32 dbindex;
+	sint32 i;
 
 	Unit city;
 	BOOL haveCity = selitem_Get()->GetSelectedCity(city);
@@ -3149,7 +3150,8 @@ void ScenarioEditor::ClearWorld(aui_Control *control, uint32 action, uint32 data
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	for(x = 0; x < world_Get()->GetXWidth(); x++) {
 		for(y = 0; y < world_Get()->GetYHeight(); y++) {

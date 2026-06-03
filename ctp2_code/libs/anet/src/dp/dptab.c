@@ -525,7 +525,8 @@ DP_API dp_result_t dptab_deletePeer(dptab_t *dptab, playerHdl_t dest)
 --------------------------------------------------------------------------*/
 DP_API dp_result_t dptab_addPeer(dptab_t *dptab, playerHdl_t dest)
 {
-	dptab_peer_t *peer, temp;
+	dptab_peer_t *peer;
+	dptab_peer_t temp;
 
 	precondition(dptab != NULL);
 	dptab_assertValid(dptab);
@@ -2107,7 +2108,8 @@ static int compare_xfer_keys(dptab_xfer_t *xfer1, dptab_xfer_t *xfer2)
 {
 	int diff;
 	int minlen;
-	unsigned int k1, k2;
+	unsigned int k1;
+	unsigned int k2;
 
 	/* Sort keys as if they were strings, i.e. sort by first byte, then
 	* second, etc.  They cannot be zero length, but they may have single-
@@ -2153,7 +2155,8 @@ static int compare_xfer_keys(dptab_xfer_t *xfer1, dptab_xfer_t *xfer2)
 --------------------------------------------------------------------------*/
 static dptab_xfer_t *dptab_xfer_insert(dptab_peer_t *peer, dptab_table_t *table, int hops, char *subkey, int subkeylen, int offset)
 {
-	dptab_xfer_t *xfer, temp;
+	dptab_xfer_t *xfer;
+	dptab_xfer_t temp;
 	int j;
 	int diff = 1;
 
@@ -2469,7 +2472,8 @@ static void dptab_xferBuffer_flush(dptab_t *dptab, dptab_xferBuffer_t *xbuf)
 
 	/* If we were able to send it, mark the xfers as successful. */
 	if (err == dp_RES_OK) {
-		int i, j;
+		int i;
+		int j;
 		long totallen = 0;
 		int ierr;
 		for (i=0; i<xbuf->nxfers; i++) {

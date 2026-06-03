@@ -50,9 +50,12 @@
   {
     DEFINE_LOAD_LOCALS( input );
 
-    UShort  num_SH, num_Seg, i;
+    UShort  num_SH;
+    UShort  num_Seg;
+    UShort  i;
 
-    UShort  u, l;
+    UShort  u;
+    UShort  l;
 
     PCMap0  cmap0;
     PCMap2  cmap2;
@@ -368,7 +371,9 @@
   static UShort  code_to_index2( UShort  charCode,
                                  PCMap2  cmap2 )
   {
-    UShort           index1, idx, offset;
+    UShort           index1;
+    UShort           idx;
+    UShort           offset;
     TCMap2SubHeader  sh2;
 
 
@@ -427,7 +432,8 @@
   static UShort  code_to_index4( UShort  charCode,
                                  PCMap4  cmap4 )
   {
-    UShort         index1, segCount;
+    UShort         index1;
+    UShort         segCount;
     UShort         i;
     TCMap4Segment  seg4;
 

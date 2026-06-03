@@ -57,7 +57,7 @@
 #include "ui/aui_ctp2/ctp2_Static.h"
 
 extern KEYMAP       *theKeyMap;
-extern StringDB     *stringdb_Get();
+
 
 namespace
 {

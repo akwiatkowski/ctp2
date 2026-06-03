@@ -1350,7 +1350,8 @@ void SlicContext::DelAge()
 #ifdef _DEBUG
 void SlicContext::Dump()
 {
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	if(m_cityList) {
 		n = m_cityList->Num();
 		for(i = 0; i < n; i++) {
@@ -1587,7 +1588,8 @@ void SlicContext::FillBuiltins()
 
 void SlicContext::CopyFromBuiltins()
 {
-	sint32 i, b;
+	sint32 i;
+	sint32 b;
 	for(b = 0; b < SLIC_BUILTIN_MAX; b++) {
 		SlicSymbolData const * sym = slicengine_Get()->GetBuiltinSymbol((SLIC_BUILTIN)b);
 		if(!sym) continue;

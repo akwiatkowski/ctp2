@@ -38,7 +38,7 @@
 #include <dirent.h>
 #endif
 
-extern CivPaths		*civpaths_Get();
+
 
 static CivScenarios	*g_civScenarios = nullptr;
 

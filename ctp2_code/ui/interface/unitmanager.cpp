@@ -658,7 +658,8 @@ sint32 UnitManager::CompareStatItems(ctp2_ListItem *item1, ctp2_ListItem *item2,
 			if(!pl)
 				return 0;
 
-			sint32 count1 = 0, count2 = 0;
+			sint32 count1 = 0;
+			sint32 count2 = 0;
 			for(sint32 i = 0; i < pl->m_all_units->Num(); i++) {
 				if(pl->m_all_units->Access(i).GetType() == idx1) {
 					count1++;
@@ -738,7 +739,8 @@ sint32 UnitManager::CompareTacticalItems(ctp2_ListItem *item1, ctp2_ListItem *it
 			Unit c1 = world_Get()->GetCell(u1.RetPos())->GetCity();
 			Unit c2 = world_Get()->GetCell(u2.RetPos())->GetCity();
 
-			const MBCHAR *l1name, *l2name;
+			const MBCHAR *l1name;
+			const MBCHAR *l2name;
 			if(u1.Flag(k_UDF_IN_SPACE)) {
 				l1name = stringdb_Get()->GetNameStr("UNIT_LOCATION_IN_SPACE");
 			} else if(c1.IsValid()) {

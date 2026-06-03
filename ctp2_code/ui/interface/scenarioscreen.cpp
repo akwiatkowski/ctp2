@@ -22,7 +22,7 @@
 #include "gs/fileio/CivPaths.h"
 #include "gs/fileio/civscenarios.h"
 
-extern CivPaths				*civpaths_Get();
+
 
 extern SPNewGameWindow		*g_spNewGameWindow;
 

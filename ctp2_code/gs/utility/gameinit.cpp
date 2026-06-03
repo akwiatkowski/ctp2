@@ -459,7 +459,8 @@ void CreateInitialHuman
 
 sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_MAX_PLAYERS])
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 settler = -1;
 
 	sint32 n = g_theUnitDB->NumRecords();
@@ -1426,7 +1427,9 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 	gameinit_SetEmailGame(FALSE);
 
 	{
-		sint32 p, c, u;
+		sint32 p;
+		sint32 c;
+		sint32 u;
 		for(p = 0; p < k_MAX_PLAYERS; p++) {
 			if(g_player[p]) {
 				for(c = 0; c < g_player[p]->m_all_cities->Num(); c++) {
@@ -1591,7 +1594,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		if(
 
 			(is_scenario_Get() && start_info_type_Get() != STARTINFOTYPE_NOLOCS)) {
-			sint32 x, y;
+			sint32 x;
+			sint32 y;
 			for(x = 0; x < world_Get()->GetXWidth(); x++) {
 				for(y = 0; y < world_Get()->GetYHeight(); y++) {
 					world_Get()->GetCell(x,y)->ClearUnitsNStuff();
@@ -1910,7 +1914,8 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 
 	sint32 numPlayersLoaded = 0;
 
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	if (archive)
 	{
 		for (i = 0; i < k_MAX_PLAYERS; i++)

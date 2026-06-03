@@ -36,7 +36,7 @@ NetOrder::NetOrder()
 
 NetOrder::~NetOrder()
 {
-	if(m_path)
+	
 		delete m_path;
 }
 

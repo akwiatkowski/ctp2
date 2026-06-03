@@ -323,7 +323,9 @@ sint32 SourceList::UpdateData()
 	m_list->Clear();
 
 	sint32 i;
-	sint32 firstLineNum, firstLineOffset, lastLineNum;
+	sint32 firstLineNum;
+	sint32 firstLineOffset;
+	sint32 lastLineNum;
 
 	bool res = m_segment->GetSourceLines(firstLineNum, firstLineOffset, lastLineNum);
 	Assert(res);

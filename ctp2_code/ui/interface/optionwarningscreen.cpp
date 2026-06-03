@@ -65,7 +65,7 @@ WarningKeyboardHandler s_warningKeyboardHandler;
 
 
 #include "net/general/network.h"
-extern Network				g_network;
+
 
 static uint32	s_currentWarning = OWS_OWSTOTAL;
 static c3_PopupWindow *s_optionwarningscreenWindow	= nullptr;

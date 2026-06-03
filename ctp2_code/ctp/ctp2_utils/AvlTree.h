@@ -274,7 +274,7 @@ private:
 public:
 
    AvlTree() : myRoot(nullptr) {};
-   ~AvlTree() { if (myRoot)  delete myRoot; }
+   ~AvlTree() {  delete myRoot; }
 
    void DumpTree(std::ostream & os) const;
 

@@ -573,7 +573,8 @@ void aui_Window::MouseLDragAway( aui_MouseEvent *mouseData )
 
 		Offset( dx = newPositionX - dx, dy = newPositionY - dy );
 
-		RECT rect1, rect2;
+		RECT rect1;
+		RECT rect2;
 		Rectangle_GetErasers(
 			&rect1, &rect2,
 			newPositionX, newPositionY,

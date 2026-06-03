@@ -95,7 +95,7 @@
 #include "ui/aui_ctp2/textswitch.h"
 #include "ui/aui_ctp2/texttab.h"
 
-extern Network g_network;
+
 extern aui_Radio *s_maleRadio;
 
 static DialogBoxWindow *s_dbw = nullptr;
@@ -5418,7 +5418,12 @@ void AllinoneWorldTypeCallback(
 
 	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
-		sint32 val1, val2, val3, val4, val5, val6;
+		sint32 val1;
+		sint32 val2;
+		sint32 val3;
+		sint32 val4;
+		sint32 val5;
+		sint32 val6;
 		custommapscreen_getValues( val1, val2, val3, val4, val5, val6 );
 		gamesetup_Get().SetWorldType1(static_cast<char>(val1));
 		gamesetup_Get().SetWorldType2(static_cast<char>(val2));

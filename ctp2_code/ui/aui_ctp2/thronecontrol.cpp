@@ -54,7 +54,7 @@
 #include "ui/ldl/ldl_data.hpp"
 #include "ui/ldl/ldl_file.hpp"
 
-extern CivPaths	*civpaths_Get();
+
 
 static MBCHAR *s_throneImage[ k_THRONE_IMAGES + 1 ];
 
@@ -352,10 +352,10 @@ void ThroneControl::CrossFadeImage( MBCHAR *filename )
 			k_AUI_BLITTER_FLAG_COPY );
 	}
 
-	if ( tempBG )
-	{
+	
+	
 		delete tempBG;
-	}
+	
 }
 
 void ThroneControl::DisplayZoomedImage( MBCHAR *filename )

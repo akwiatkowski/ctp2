@@ -1078,7 +1078,8 @@ AUI_ERRCODE UnitControlPanel::FuelBarDrawCallback(ctp2_Static *control,
 	if(!u.IsValid())
 		return AUI_ERRCODE_OK;
 
-	sint32 fuel, maxFuel;
+	sint32 fuel;
+	sint32 maxFuel;
 	if(u->GetUsedFuel(fuel, maxFuel)) {
 		double fuelPercent;
 		if(maxFuel != 0) {

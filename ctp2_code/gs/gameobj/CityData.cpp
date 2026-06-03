@@ -704,7 +704,8 @@ void CityData::Serialize(CivArchive &archive)
 			Resources copyCollectingResources(m_collectingResources);
 			Resources copyBuyingResources(m_buyingResources);
 			Resources copySellingResources(m_sellingResources);
-			sint32 i, j;
+			sint32 i;
+			sint32 j;
 			for(j = 0; j < ressourceNum; ++j)
 			{
 				for(i = 0; i < g_theResourceDB->NumRecords(); ++i)
@@ -1344,15 +1345,15 @@ void CityData::NoRevoltCountdown()
 //----------------------------------------------------------------------------
 void CityData::Revolt(sint32 &playerToJoin, bool causeIsExternal)
 {
-	sint32 i,
-	       n;
+	sint32 i;
+	sint32 n;
 
 	PLAYER_INDEX const  orgowner    = m_owner;
 
 	CellUnitList army;
 
-	MapPoint     city_pos,
-	             new_city;
+	MapPoint     city_pos;
+	MapPoint     new_city;
 
 	bool         joined_egalatarians = false;
 
@@ -1599,8 +1600,8 @@ void CityData::StopTradingWith(PLAYER_INDEX bannedRecipient)
 {
 	TradeRoute route;
 
-	Unit       srcCity,
-	           destCity;
+	Unit       srcCity;
+	Unit       destCity;
 
 	sint32      i;
 	sint32      n = m_tradeSourceList.Num();
@@ -3965,7 +3966,8 @@ void CityData::AddTradeResource(ROUTE_TYPE type, sint32 resource)
 //----------------------------------------------------------------------------
 void CityData::CalculateTradeRoutes(bool projectedOnly)
 {
-	sint32 i, n;
+	sint32 i;
+	sint32 n;
 	ROUTE_TYPE routeType;
 	sint32 routeResource;
 	TradeDynamicArray deadRoutes;
@@ -6205,7 +6207,8 @@ uint32 CityData_CityData_GetVersion()
 
 void CityData::ResetCityOwner(sint32 owner)
 {
-	sint32	i, n;
+	sint32	 i;
+	sint32	 n;
 
 	m_capturedThisTurn = TRUE;
 
@@ -7267,7 +7270,8 @@ bool CityData::CanBuildWonder(sint32 type) const
 					numCities++;
 			}
 
-			sint32 num, percent;
+			sint32 num;
+			sint32 percent;
 
 			if(bf->GetNum(num)) {
 				if(numCities >= num) {
@@ -10368,7 +10372,8 @@ bool CityData::IsBuildingOperational(sint32 type) const
 
 	if(rec->GetNumNeedsCityGoodAnyCity()) {
 
-		sint32 i, g;
+		sint32 i;
+		sint32 g;
 		bool goodavail = false;
 
 		for(i = 0; i < player_Get(m_owner)->m_all_cities->Num(); i++) {

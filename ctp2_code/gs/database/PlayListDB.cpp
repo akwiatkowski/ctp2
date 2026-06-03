@@ -64,7 +64,7 @@ PlayListDB::PlayListDB(CivArchive &archive)
 
 PlayListDB::~PlayListDB()
 {
-	if (m_playList)
+	
 		delete m_playList;
 }
 

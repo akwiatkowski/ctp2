@@ -74,7 +74,7 @@ NetGameObj::~NetGameObj()
 		delete m_created;
 	}
 
-	if(m_limbo)
+	
 		delete m_limbo;
 }
 

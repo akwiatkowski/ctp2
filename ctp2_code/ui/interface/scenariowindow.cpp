@@ -61,7 +61,7 @@
 
 #include "ctp/civapp.h"
 
-extern StringDB                     *stringdb_Get();
+
 
 ScenarioWindow                      *s_ScenarioWindow = nullptr;
 

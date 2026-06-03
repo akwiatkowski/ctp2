@@ -338,7 +338,8 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 				sint32 sellingPrice = -1;
 				Unit curDestCity;
 
-				sint32 i,j;
+				sint32 i;
+				sint32 j;
 				for(i = 0; i < k_MAX_CITIES_PER_GOOD; i++) {
 					maxCity[i].m_id = 0;
 					maxPrice[i] = 0;
@@ -535,7 +536,9 @@ void TradeManager::UpdateAdviceWindow()
 		child->SetText(buf);
 	}
 
-	sint32 i, totalProfit = 0, totalRoutes = 0;
+	sint32 i;
+	sint32 totalProfit = 0;
+	sint32 totalRoutes = 0;
 	for(i = 0; i < player_Get(pl)->m_all_cities->Num(); i++) {
 		Unit city = player_Get(pl)->m_all_cities->Access(i);
 		totalRoutes += city.CD()->GetTradeSourceList()->Num();
@@ -920,8 +923,10 @@ sint32 TradeManager::CompareSummaryItems(ctp2_ListItem *item1, ctp2_ListItem *it
 		return 0;
 	}
 
-	ROUTE_TYPE rtype1, rtype2;
-	sint32 resource1, resource2;
+	ROUTE_TYPE rtype1;
+	ROUTE_TYPE rtype2;
+	sint32 resource1;
+	sint32 resource2;
 
 	route1.GetSourceResource(rtype1, resource1);
 	route2.GetSourceResource(rtype2, resource2);
@@ -1095,7 +1100,8 @@ STDEHANDLER(TradeManagerSendGoodEvent)
 {
 	if(!s_tradeManager) return GEV_HD_Continue;
 
-	Unit source, destination;
+	Unit source;
+	Unit destination;
 	sint32 good;
 	if(!args->GetInt(0, good)) return GEV_HD_Continue;
 	if(!args->GetCity(0, source)) return GEV_HD_Continue;

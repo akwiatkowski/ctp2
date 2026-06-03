@@ -797,19 +797,19 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 						{ "advance",	{ "name", "index", "prerequisites", "leadsto", nullptr } },
 						{ nullptr } } ;
 
-	MBCHAR	*pInput,
-			*pOutput,
-			*pToken,
-			*p,
-			sClass[_MAX_PATH],
-			sNum[_MAX_PATH],
-			sMember[_MAX_PATH],
-			sExpanded[_MAX_PATH],
-			sToken[_MAX_PATH] ;
+	MBCHAR	 *pInput;
+	MBCHAR	 *pOutput;
+	MBCHAR	 *pToken;
+	MBCHAR	 *p;
+	MBCHAR	 sClass[_MAX_PATH];
+	MBCHAR	 sNum[_MAX_PATH];
+	MBCHAR	 sMember[_MAX_PATH];
+	MBCHAR	 sExpanded[_MAX_PATH];
+	MBCHAR	 sToken[_MAX_PATH] ;
 
-	sint32	classId,
-			memberId,
-			indexId ;
+	sint32	 classId;
+	sint32	 memberId;
+	sint32	 indexId ;
 
 
 	pInput = msg ;
@@ -1287,7 +1287,8 @@ void AgreementData::BeginTurnOwner(sint32 currentRound)
 			if(player_Get(m_recipient)) {
 
 				DynamicArray<Army> *armies = safe_player(m_recipient)->m_all_armies;
-				sint32 i, n = armies->Num();
+				sint32 i;
+				sint32 n = armies->Num();
 				for(i = 0; i < n; i++) {
 					MapPoint pos;
 					sint32 j;

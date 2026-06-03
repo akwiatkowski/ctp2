@@ -124,7 +124,8 @@ void MapCopyBuffer::Save(const MBCHAR *fileName)
 
 	fprintf(f, "CTP2CLIP\n");
 	fprintf(f, "%d,%d\n", m_width, m_height);
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {
 			fwrite(&m_cells[x][y], 1, sizeof(CellInfo), f);
@@ -152,7 +153,8 @@ void MapCopyBuffer::Load(const MBCHAR *filename)
 		return;
 	}
 
-	sint32 w, h;
+	sint32 w;
+	sint32 h;
 	if(fscanf(f, "%d,%d\n", &w, &h) != 2) {
 		fclose(f);
 		return;
@@ -160,7 +162,8 @@ void MapCopyBuffer::Load(const MBCHAR *filename)
 
 	SetSize(w, h);
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	size_t r;
 	for(x = 0; x < m_width; x++) {
 		for(y = 0; y < m_height; y++) {

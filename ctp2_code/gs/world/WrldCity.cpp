@@ -242,7 +242,8 @@ sint32 World::GetShieldsProduced(const MapPoint &pos) const
 void World::GamestateDebug()
 
 {
-    sint32 x, y;
+    sint32 x;
+    sint32 y;
 
 	for (x=0; x<m_size.x; x++) {
 		for (y=0; y<m_size.y; y++) {

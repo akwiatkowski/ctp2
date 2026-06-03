@@ -78,7 +78,10 @@ AUI_ERRCODE Picture::MakeMipmap( )
 
 Pixel16 Picture::AveragePixels( uint16 *pBuffer, sint32 width )
 {
-	Pixel16 upperLeft,upperRight,lowerLeft,lowerRight;
+	Pixel16 upperLeft;
+	Pixel16 upperRight;
+	Pixel16 lowerLeft;
+	Pixel16 lowerRight;
 
 	Assert(pBuffer);
 	if (pBuffer==nullptr) return 0;
@@ -196,15 +199,22 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 				uint16 *pDestPixel;
 				sint32 inc = (destPitch >> 1) - width;
 
-				double left,top,right,bottom;
-				double centerX,centerY;
+				double left;
+				double top;
+				double right;
+				double bottom;
+				double centerX;
+				double centerY;
 				double distCenter;
-				double xSquared,ySquared;
+				double xSquared;
+				double ySquared;
 				Pixel16 srcPixel;
-				double mipX,mipY;
+				double mipX;
+				double mipY;
 				Pixel16 mipPixel;
 				Pixel16 weightedPixel;
-				sint32 cX,cY;
+				sint32 cX;
+				sint32 cY;
 
 				pDestPixel = (uint16 *)(pDestBuffer + y * destPitch + (x << 1));
 
@@ -241,11 +251,20 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 						mipX = (double)j*mipWidth / width;
 						mipPixel = ((uint16 *)pMipBuffer)[yMipIndex + (sint32)mipX];
 
-						sint16 srcR,srcG,srcB;
-						double tempsrcR,tempsrcG,tempsrcB;
-						sint16 mipR,mipG,mipB;
-						double tempmipR,tempmipG,tempmipB;
-						double a = distCenter,b = 1-distCenter;
+						sint16 srcR;
+						sint16 srcG;
+						sint16 srcB;
+						double tempsrcR;
+						double tempsrcG;
+						double tempsrcB;
+						sint16 mipR;
+						sint16 mipG;
+						sint16 mipB;
+						double tempmipR;
+						double tempmipG;
+						double tempmipB;
+						double a = distCenter;
+						double b = 1-distCenter;
 
 						if ( pDestSurf->PixelFormat() == AUI_SURFACE_PIXELFORMAT_565 )
 						{

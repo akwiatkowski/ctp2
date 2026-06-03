@@ -140,7 +140,8 @@ TEST_CASE("globals_cleanup_smoke: determinism re-check (--turns 5 --players 4 --
     std::remove(path_a);
     std::remove(path_b);
 
-    std::string log_a, log_b;
+    std::string log_a;
+    std::string log_b;
     REQUIRE(run_headless_raw(
         "--new-game --turns 5 --players 4 --seed 42 --export-metrics "
         "/tmp/ctp2_gc_det_a.csv", &log_a));
@@ -148,7 +149,8 @@ TEST_CASE("globals_cleanup_smoke: determinism re-check (--turns 5 --players 4 --
         "--new-game --turns 5 --players 4 --seed 42 --export-metrics "
         "/tmp/ctp2_gc_det_b.csv", &log_b));
 
-    std::string csv_a, csv_b;
+    std::string csv_a;
+    std::string csv_b;
     REQUIRE(read_file(path_a, csv_a));
     REQUIRE(read_file(path_b, csv_b));
     REQUIRE_FALSE(csv_a.empty());

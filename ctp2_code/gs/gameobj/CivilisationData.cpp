@@ -45,7 +45,7 @@
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/citydata.h"
 
-extern	StringDB                *g_theStringDB ;
+;
 
 
 #include "gs/gameobj/CivilisationPool.h"	// CIV_INDEX_INVALID
@@ -211,10 +211,10 @@ bool cityNameIsUsedByPlayer(const char *strName, sint32 player)
 
 sint32 CivilisationData::GetAnyCityName() const
 {
-	sint32	i,
-			count = 0xFFFFFFF,
-			name = k_CITY_NAME_UNDEFINED,
-			numNames;
+	sint32	 i;
+	sint32	 count = 0xFFFFFFF;
+	sint32	 name = k_CITY_NAME_UNDEFINED;
+	sint32	 numNames;
 
 	numNames = g_theCivilisationDB->Get(m_civ)->GetNumCityName();
 	for (i = 0; i < numNames; i++)

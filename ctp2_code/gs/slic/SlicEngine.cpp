@@ -371,7 +371,11 @@ bool SlicEngine::Reload(std::basic_string<MBCHAR> const & a_File)
 void SlicEngine::Serialize(CivArchive &archive)
 {
     CHECKSERIALIZE
-	sint32 i, j, p, num, numRecords;
+	sint32 i;
+	sint32 j;
+	sint32 p;
+	sint32 num;
+	sint32 numRecords;
 
     if (!archive.IsStoring())
     {
@@ -2415,7 +2419,9 @@ void SlicEngine::RunTrigger(TRIGGER_LIST tlist, ...)
 
 	Unit u;
 	sint32 player;
-	sint32 good, gold, advance;
+	sint32 good;
+	sint32 gold;
+	sint32 advance;
 	MapPoint pos;
 	char *str;
 

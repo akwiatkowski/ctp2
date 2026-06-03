@@ -70,7 +70,7 @@
 extern sint32		g_fog_toggle;
 extern sint32		g_god;
 
-extern StringDB					*stringdb_Get();
+
 
 c3_PopupWindow					*g_helpTileWindow = nullptr;
 
@@ -316,12 +316,14 @@ void helptile_displayData(const MapPoint &p)
 
 void helptile_setPosition(const MapPoint& p)
 {
-	sint32 i,j;
+	sint32 i;
+	sint32 j;
 	maputils_WrapPoint(p.x,p.y,&j,&i);
 
 	MapPoint pos (maputils_TileX2MapX(j,i), i);
 
-	sint32 x,y;
+	sint32 x;
+	sint32 y;
 	maputils_MapXY2PixelXY(p.x,p.y,&x,&y);
 	g_helpTileWindow->Move(x,y);
 }

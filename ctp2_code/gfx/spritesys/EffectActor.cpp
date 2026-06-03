@@ -121,7 +121,8 @@ void EffectActor::Process()
 	}
 
 	if (m_curAction != nullptr) {
-		sint32 x, y;
+		sint32 x;
+		sint32 y;
 
 		maputils_MapXY2PixelXY(m_pos.x, m_pos.y, &x, &y);
 
@@ -187,7 +188,8 @@ void EffectActor::EndTurnProcess()
 
 	if (m_curAction != nullptr)
 	{
-		sint32 x, y;
+		sint32 x;
+		sint32 y;
 
 		maputils_MapXY2PixelXY(m_pos.x, m_pos.y, &x, &y);
 
@@ -238,7 +240,8 @@ void EffectActor::GetNextAction(BOOL isVisible)
 
 
 
-		MapPoint curStartMapPoint, curEndMapPoint;
+		MapPoint curStartMapPoint;
+		MapPoint curEndMapPoint;
 		m_curAction->GetStartMapPoint(curStartMapPoint);
 		m_curAction->GetEndMapPoint(curEndMapPoint);
 
@@ -382,8 +385,8 @@ void EffectActor::GetBoundingRect(RECT *rect) const
 
 	POINT	hotPoint = m_effectSpriteGroup->GetHotPoint(m_curEffectAction, m_facing);
 	double	scale = tiledmap_Get()->GetScale();
-	sint32	xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale),
-			yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
+	sint32	 xoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_X - hotPoint.x) * scale);
+	sint32	 yoff = (sint32)((double)(k_ACTOR_CENTER_OFFSET_Y - hotPoint.y) * scale);
 
 	rect->left = 0;
 	rect->top = 0;

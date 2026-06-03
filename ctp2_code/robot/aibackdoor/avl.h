@@ -254,7 +254,8 @@ template <class T>  sint32 AVL<T>::Insert (AVL<T> *addme, AVL<T> **node)
 template <class T> sint32 AVL<T>::rotate_remove_avl(AVL<T> ** node,
                 AVL_INDEX_TYPE a, AVL_INDEX_TYPE b)
 
-{  AVL *tmp1, *tmp2;
+{  AVL *tmp1;
+AVL *tmp2;
    sint32 flag = TRUE;
 
    tmp1 = (*node)->m_ptr[a];
@@ -386,7 +387,8 @@ template <class T> sint32 AVL<T>::promote_rightmost_avl(AVL<T> **c, AVL<T> **p,
 template <class T> sint32 AVL<T>::Verify(AVL<T> *node, sint32 &depth)
 
 {
-   sint32 l=0, r=0;
+   sint32 l=0;
+   sint32 r=0;
 
    if (node == NULL)
        return TRUE;
@@ -532,7 +534,8 @@ template <class T> sint32 AVL<T>::Remove(AVL<T> *delme,
 
 template <class T>  void AVL<T>::rotate_insert_avl(AVL<T> ** node,
                        AVL_INDEX_TYPE a, AVL_INDEX_TYPE b)
-{  AVL *tmp1, *tmp2;
+{  AVL *tmp1;
+AVL *tmp2;
 
    tmp1 = (*node)->m_ptr[a];
    if (tmp1->m_balance == a) {

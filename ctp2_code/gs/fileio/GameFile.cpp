@@ -2132,7 +2132,8 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 {
 	memcpy(this, copyMe, sizeof(SaveInfo));
 
-	sint32 numPixels, numBytes;
+	sint32 numPixels;
+	sint32 numBytes;
 
 	if (copyMe->radarMapWidth > 0 &&
 		copyMe->radarMapHeight > 0 &&

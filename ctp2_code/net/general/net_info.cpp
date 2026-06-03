@@ -127,7 +127,7 @@
 #include "ui/interface/armymanagerwindow.h"
 #include "ui/interface/trademanager.h"
 
-extern CivPaths     *civpaths_Get();
+
 extern void player_ActivateSpaceButton(sint32 pl);
 extern void network_VerifyGameData();
 
@@ -1266,7 +1266,8 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		{
 			DPRINTF(k_DBG_NET, ("Send offer accept message, Src: %lx, dest: %lx, res: %d\n",
 								m_data, m_data2, m_data3));
-			Unit src(m_data), dest(m_data2);
+			Unit src(m_data);
+			Unit dest(m_data2);
 			if(unitpool_Get()->IsValid(src) && unitpool_Get()->IsValid(dest)) {
 				SlicObject *so = new SlicObject("363TradeOfferAccepted");
 				so->AddRecipient(dest.GetOwner());

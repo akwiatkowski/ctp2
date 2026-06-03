@@ -186,7 +186,8 @@ void Sprite::ImportTIFF(uint16 index, char **imageFiles,Pixel32 **imageData, siz
 void Sprite::ImportTGA(uint16 index, char **imageFiles,Pixel32 **imageData, size_t *size)
 {
 	int		bpp;
-	int     w,h;
+	int     w;
+	int     h;
 
 	if (!Get_TGA_Dimension(imageFiles[index], w, h, bpp))
 	{
@@ -226,28 +227,32 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 {
 	m_numFrames = static_cast<uint16>(nframes);
 
-	if (m_frames) {
+	
 		delete [] m_frames;
-	}
+	
 	m_frames = new Pixel16*[m_numFrames];
-	if (m_framesSizes) {
+	
 		delete [] m_framesSizes;
-	}
+	
 	m_framesSizes = new size_t[m_numFrames];
 
-	if (m_miniframes) {
+	
 		delete [] m_miniframes;
-	}
+	
 	m_miniframes = new Pixel16*[m_numFrames];
-	if (m_miniframesSizes) {
+	
 		delete [] m_miniframesSizes;
-	}
+	
 	m_miniframesSizes = new size_t[m_numFrames];
 
-	Pixel32 *image,*miniimage;
-	size_t   imageSize, miniimageSize;
-	Pixel32 *shadow,*minishadow;
-	size_t   shadowSize, minishadowSize;
+	Pixel32 *image;
+	Pixel32 *miniimage;
+	size_t   imageSize;
+	size_t   miniimageSize;
+	Pixel32 *shadow;
+	Pixel32 *minishadow;
+	size_t   shadowSize;
+	size_t   minishadowSize;
 
 	for (uint16 i=0; i<m_numFrames; i++)
 	{
@@ -335,10 +340,10 @@ void Sprite::Import(size_t nframes, char **imageFiles, char **shadowFiles)
 			SetMiniFrameData(i, data, dataSize);
 		}
 
-		if (image) 		delete []image;
-		if (shadow)		delete []shadow;
-		if (miniimage) 	delete []miniimage;
-		if (minishadow)	delete []minishadow;
+				delete []image;
+				delete []shadow;
+			delete []miniimage;
+			delete []minishadow;
 
 		printf(".");
 	}
@@ -917,11 +922,21 @@ void Sprite::Export(FILE *file)
 
 inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, Pixel16 pixel4)
 {
-	uint16		r1, g1, b1,
-				r2, g2, b2,
-				r3, g3, b3,
-				r4, g4, b4;
-	uint16		r0, g0, b0;
+	uint16		 r1;
+	uint16		 g1;
+	uint16		 b1;
+	uint16		 r2;
+	uint16		 g2;
+	uint16		 b2;
+	uint16		 r3;
+	uint16		 g3;
+	uint16		 b3;
+	uint16		 r4;
+	uint16		 g4;
+	uint16		 b4;
+	uint16		 r0;
+	uint16		 g0;
+	uint16		 b0;
 
 	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;
@@ -975,9 +990,15 @@ inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2, Pixel16 pixel3, P
 
 inline Pixel16 Sprite::average(Pixel16 pixel1, Pixel16 pixel2)
 {
-	uint16		r1, g1, b1,
-				r2, g2, b2;
-	uint16		r0, g0, b0;
+	uint16		 r1;
+	uint16		 g1;
+	uint16		 b1;
+	uint16		 r2;
+	uint16		 g2;
+	uint16		 b2;
+	uint16		 r0;
+	uint16		 g0;
+	uint16		 b0;
 
 	if (is_565_Get()) {
 		r1 = (pixel1 & 0xF800) >> 11;

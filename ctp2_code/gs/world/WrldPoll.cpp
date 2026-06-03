@@ -109,7 +109,8 @@ void World::RaiseWaters()
 		}
 	}
 
-	MapPoint cp(0,0), n;
+	MapPoint cp(0,0);
+	MapPoint n;
 	for(cp.x = 0; cp.x < m_size.x; cp.x++)
 	{
 		for(cp.y = 0; cp.y < m_size.y; cp.y++)
@@ -307,7 +308,8 @@ void World::MakeBeaches()
 
 void World::RemoveBeaches()
 {
-	sint32	x, y;
+	sint32	 x;
+	sint32	 y;
 
 	Cell	*c ;
 
@@ -469,7 +471,8 @@ void World::GlobalWarmingEvent(const sint32 phase)
 		}
 	}
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < m_size.x; x++)
 	{
 		for(y = 0; y < m_size.y; y++)
@@ -545,11 +548,12 @@ void World::InformPlayersOfFloodingCatastrophe()
 
 void World::FloodRivers()
 {
-	static	sint32	offset_pass1[4][2] = { { -1, +1 }, { -1, 0 }, { -1, -1 }, { 0, -1 } },
-					offset_pass2[4][2] = { { +1, -1 }, { +1, 0 }, {+1, +1 }, { 0, +1 } } ;
+	static	sint32	 offset_pass1[4][2] = { { -1, +1 }, { -1, 0 }, { -1, -1 }, { 0, -1 } };
+	static	sint32	 offset_pass2[4][2] = { { +1, -1 }, { +1, 0 }, {+1, +1 }, { 0, +1 } } ;
 
-	sint32	o,
-			x, y;
+	sint32	 o;
+	sint32	 x;
+	sint32	 y;
 
 	sint32 const    h = GetHeight();
 	sint32 const    w = GetWidth();
@@ -690,7 +694,8 @@ void World::RegenerateRivers()
 #define k_MOUNTAIN_HEIGHT static_cast<sint8>(k_BASE_MOUNTAIN_HEIGHT + (civrand().Next(k_HEIGHT_RANGE) - ((k_HEIGHT_RANGE) / 2)))
 #define k_WATER_HEIGHT -50
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < m_size.x; x++) {
 		for(y = 0; y < m_size.y; y++) {
 			m_map[x][y]->m_env &= ~(k_MASK_ENV_RIV_CUR);

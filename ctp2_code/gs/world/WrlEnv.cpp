@@ -59,7 +59,7 @@
 
 
 
-extern	StringDB *g_theStringDB ;
+;
 
 TERRAIN_TYPES World::GetTerrainType(const MapPoint &pos) const
 {
@@ -767,7 +767,8 @@ void World::CutImprovements(const MapPoint &point)
 	while(thisCell->GetNumDBImprovements())
 	{
 		const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(thisCell->GetDBImprovement(0));
-		sint32 intRad, sqRad;
+		sint32 intRad;
+		sint32 sqRad;
 		Assert(rec);
 		if(rec && rec->GetIntBorderRadius(intRad))
 		{
@@ -811,7 +812,8 @@ void World::CutImprovements(const MapPoint &point)
 
 double World::GetDefenseBonus(const MapPoint &point) const
 {
-	double terrain_bonus, fort_bonus;
+	double terrain_bonus;
+	double fort_bonus;
 	terrainutil_GetDefenseBonus(point,terrain_bonus, fort_bonus);
 	return fort_bonus;
 }
@@ -950,7 +952,8 @@ bool World::IsNextToCity(const MapPoint &pos) const
 
 void World::RegisterPlayerDead(sint32 owner)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(x = 0; x < m_size.x; x++) {
 		for(y = 0; y < m_size.y; y++) {
 			if(m_map[x][y]->GetOwner() == owner)

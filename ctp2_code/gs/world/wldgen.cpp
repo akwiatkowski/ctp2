@@ -441,7 +441,9 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	sint32 hillPercent = sint32(g_theConstDB->Get(0)->GetPercentHills());
 	hillPercent += mountainPercent;
 
-	sint32 waterLevel=0, hillLevel=80, mountainLevel=100;
+	sint32 waterLevel=0;
+	sint32 hillLevel=80;
+	sint32 mountainLevel=100;
 
 	sint32 totalCells = m_size.y * m_size.x;
 	sint32 count = 0;
@@ -473,7 +475,8 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	TerrainDump ("logs" FILE_SEP "TerrainMap.bmp", map.data(), m_size.x, m_size.y, waterLevel, mountainLevel, hillLevel);
 #endif
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for(y = 0; y < m_size.y; y++) {
 		for(x = 0; x < m_size.x; x++) {
 			MapPoint from(x,y);
@@ -541,10 +544,10 @@ void World::GenerateRandMap(MapPoint player_start_list[k_MAX_PLAYERS])
 	sint32 desertPercent = profiledb_Get()->PercentDesert();
 
 #define k_INVALID_LEVEL -1000
-	sint32 forestLevel = k_INVALID_LEVEL,
-		grassLevel = k_INVALID_LEVEL,
-		plainsLevel = k_INVALID_LEVEL,
-		desertLevel = k_INVALID_LEVEL;
+	sint32 forestLevel = k_INVALID_LEVEL;
+	sint32 grassLevel = k_INVALID_LEVEL;
+	sint32 plainsLevel = k_INVALID_LEVEL;
+	sint32 desertLevel = k_INVALID_LEVEL;
 
 	for(h = -128, count = 0; h < 128; h++) {
 		count += wethistogram[h];
@@ -757,7 +760,8 @@ void World::GenerateGoods()
 {
 	ClearScratch();
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	for (x = 0; x < m_size.x; x++)
 	{
 		for (y = 0; y < m_size.y; y++)
@@ -777,7 +781,8 @@ void World::GenerateGoods()
 		}
 	}
 
-	sint32 b, a;
+	sint32 b;
+	sint32 a;
 	if (90 < profiledb_Get()->PercentRichness()) {
 		b = 1;
 		a = 2;
@@ -807,7 +812,8 @@ void World::GenerateGoods()
 
 	sint32 minAdjacent = g_theConstDB->Get(0)->GetMinLikeTilesForGood();
 
-    sint32 ox, oy;
+    sint32 ox;
+    sint32 oy;
 	for (ox = b; ox + a < m_size.x ; ox += c) {
 		for (oy = b; oy + a < m_size.y ; oy += c) {
 			x = ox + civrand().Next(a);
@@ -1105,9 +1111,15 @@ bool World::IsNextToWaterNotDiagonals(const sint32 i, const sint32 j)
 void World::GenerateDeepWater()
 
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	MapPoint tmp;
-	sint32 minx = 0, miny = 0, rmin, ocount, dcount, k;
+	sint32 minx = 0;
+	sint32 miny = 0;
+	sint32 rmin;
+	sint32 ocount;
+	sint32 dcount;
+	sint32 k;
 	sint32 radius       = 2;
 	sint32 delta        = 1;
 	sint32 cellWidth    = g_theConstDB->Get(0)->GetRiverCellWidth();
@@ -1130,7 +1142,8 @@ void World::GenerateDeepWater()
 
 	BOOL    find = TRUE;
 	sint32  rcount = 0;
-	sint32  x, y;
+	sint32  x;
+	sint32  y;
 	BOOL hot;
 	sint32 oldval;
 	MapPoint pos;
@@ -1235,7 +1248,8 @@ void World::GenerateTrenches()
 		return;
 	}
 
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 	sint32 tcount = 0;
 	sint32 m = 0;
 
@@ -1265,7 +1279,8 @@ void World::GenerateTrenches()
 	MapPoint tmp;
 
 	sint32 ocount;
-	sint32 sdcount, socount;
+	sint32 sdcount;
+	sint32 socount;
 
 	for (i=0; i<m_size.x; i++)
 	{
@@ -1448,7 +1463,8 @@ void World::GenerateTrenches()
 void World::GenerateVolcano()
 
 {
-	sint32 i, j;
+	sint32 i;
+	sint32 j;
 
 	for (i=0; i<m_size.x; i++) {
 		for (j=0; j<m_size.y; j++) {
@@ -1474,7 +1490,16 @@ void World::GenerateVolcano()
 
     sint32 ocount;
     sint32 searching = TRUE;
-    MapPoint pos, tmp, n, e, s, w, ne, nw, sw, se;
+    MapPoint pos;
+    MapPoint tmp;
+    MapPoint n;
+    MapPoint e;
+    MapPoint s;
+    MapPoint w;
+    MapPoint ne;
+    MapPoint nw;
+    MapPoint sw;
+    MapPoint se;
 
 	while (searching) {
 		searching = FALSE;
@@ -1632,13 +1657,15 @@ BOOL World::FindMaxCumScore(sint32 d, float **cum_score, sint32 &maxx, sint32 &m
     sint32 searching;
 	MapPoint chk;
 	sint32 s;
-	sint32 badx = 0, bady = 0;
+	sint32 badx = 0;
+	sint32 bady = 0;
 	float badmax = -1.0;
 
     maxx = 0;
     maxy = 0;
     searching = TRUE;
-	sint32 topY = 0, botY = m_size.y;
+	sint32 topY = 0;
+	sint32 botY = m_size.y;
 	if(!m_isYwrap) {
 		topY += 4;
 		botY -= 4;
@@ -1754,8 +1781,12 @@ void World::FindPlayerStart(MapPoint player_start[k_MAX_PLAYERS],
 							sint32 player_start_score[k_MAX_PLAYERS])
 
 {
-    sint32 x, y, i, j;
-    sint32 maxx, maxy;
+    sint32 x;
+    sint32 y;
+    sint32 i;
+    sint32 j;
+    sint32 maxx;
+    sint32 maxy;
 
 	sint32 maxContinentSize = 0;
 	for(i = 0; i < m_land_size->Num(); i++)
@@ -2431,7 +2462,8 @@ void World::SerializeJustMap(CivArchive &archive)
 {
 	Serialize(archive);
 	if(!archive.IsStoring()) {
-		sint32 x, y;
+		sint32 x;
+		sint32 y;
 		for(x = 0; x < m_size.x; x++) {
 			for(y = 0; y < m_size.y; y++) {
 				m_map[x][y]->ClearUnitsNStuff();
@@ -2501,7 +2533,8 @@ void World::GenerateGoodyHuts()
 	hutBoxSize.y = sint16(g_theConstDB->Get(0)->GetRuinsBoxHeight());
 	double hutChance = g_theConstDB->Get(0)->GetRuinsChancePerBox();
 
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	sint32 w = m_size.x / hutBoxSize.x;
 	sint32 h = m_size.y / hutBoxSize.y;
 
@@ -2665,7 +2698,8 @@ void World::GetHistogram(sint8 *&map,
 		histogram[h] = 0;
 	}
 
-	sint32 y, x;
+	sint32 y;
+	sint32 x;
 	for(y = 0; y < m_size.y; y++) {
 		for(x = 0; x < m_size.x; x++) {
 			histogram[map[y * m_size.x + x]]++;
@@ -2725,7 +2759,8 @@ bool World::IsNextToOldRiver
 void World::NewGenerateRivers(sint8 *map, sint8 *wetmap)
 {
 	s_visited = new DynamicArray<MapPoint>;
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 	sint32 maxheight;
 	sint32  cellwidth   = g_theConstDB->Get(0)->GetRiverCellWidth();
 	sint32  cellheight  = g_theConstDB->Get(0)->GetRiverCellHeight();
@@ -2894,7 +2929,8 @@ void World::NewGenerateRivers(sint8 *map, sint8 *wetmap)
 
 void TemperatureFilter(sint8 *map, sint32 *histogram)
 {
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 
 	MapPoint	mapSize;
@@ -2979,7 +3015,8 @@ void World::RemoveIsolatedWater()
 			if(IS_SHALLOW(m_map[x][y]->m_terrain_type) &&
 			   !IsNextToWaterNotDiagonals(x,y))
             {
-				MapPoint n, p;
+				MapPoint n;
+				MapPoint p;
 				WORLD_DIRECTION d;
 				sint32 count = 0;
 				do {
@@ -3130,7 +3167,8 @@ bool World::ImportMap(MBCHAR const * filename)
 		return false;
 	}
 
-	sint32 width,height;
+	sint32 width;
+	sint32 height;
 	fscanf(infile, "%d,%d\n", &width, &height);
 	MapPoint size (width, height);
 
@@ -3148,7 +3186,8 @@ bool World::ImportMap(MBCHAR const * filename)
 		return false;
 	}
 
-	sint32		x, y;
+	sint32		 x;
+	sint32		 y;
 
 	Reset(m_size.x, m_size.y, m_isYwrap, m_isXwrap);
 
@@ -3233,7 +3272,8 @@ bool World::ImportMap(MBCHAR const * filename)
 void World::SmartSetTerrain(const MapPoint &pos, sint32 terr, sint32 radius)
 {
 	ClearScratch();
-	sint32 x, y;
+	sint32 x;
+	sint32 y;
 
 	if(radius > 0) {
 		SquareIterator it(pos, radius);

@@ -39,7 +39,9 @@ Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height)
 
 	for(int i=0; i<width*height; i++) {
 		unsigned long int pix = *srcPixel;
-		unsigned short int r, g, b;
+		unsigned short int r;
+		unsigned short int g;
+		unsigned short int b;
 		unsigned char a;
 
 		r = (unsigned short int) ((pix & 0x000000FF) >> 0);
@@ -81,7 +83,10 @@ void RGB32Components(Pixel32 pixel, Pixel16 *r, Pixel16 *g, Pixel16 *b, Pixel16 
 
 void RGB32Info(Pixel32 pixel, Pixel16 *outPixel, unsigned char *alpha)
 {
-	unsigned short int r, g, b, a;
+	unsigned short int r;
+	unsigned short int g;
+	unsigned short int b;
+	unsigned short int a;
 
 	RGB32Components(pixel, &r, &g, &b, &a);
 
@@ -286,19 +291,19 @@ Pixel16 pixelutils_Desaturate_565(Pixel16 pixel)
 }
 #endif
 
-Pixel32 pixelutils_Blend32_565(Pixel32 pixel1, Pixel32 pixel2, short blend);
-Pixel32 pixelutils_Additive32_565(Pixel32 pixel1, Pixel32 pixel2);
-Pixel32 pixelutils_BlendFast32_565(sint32 pixel1, sint32 pixel2, sint32 blend);
-Pixel32 pixelutils_Shadow32_565(Pixel32 pixel);
-Pixel32 pixelutils_Lightening32_565(Pixel16 pixel);
-Pixel32 pixelutils_PercentDarken32_565(Pixel32 pixel, sint32 percent);
-Pixel32 pixelutils_PercentLighten32_565(Pixel32 pixel, sint32 percent);
 
 
-Pixel32 pixelutils_Blend32_555(Pixel32 pixel1, Pixel32 pixel2, short blend);
-Pixel32 pixelutils_Additive32_555(Pixel32 pixel1, Pixel32 pixel2);
-Pixel32 pixelutils_BlendFast32_555(Pixel32 pixel1,Pixel32 pixel2, sint32 blend);
-Pixel32 pixelutils_Shadow32_555(Pixel32 pixel);
-Pixel32 pixelutils_Lightening32_555(Pixel32 pixel);
-Pixel32 pixelutils_PercentDarken32_555(Pixel32 pixel, sint32 percent);
-Pixel32 pixelutils_PercentLighten32_555(Pixel32 pixel, sint32 percent);
+
+
+
+
+
+
+
+
+
+
+
+
+
+

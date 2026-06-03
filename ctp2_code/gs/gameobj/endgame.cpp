@@ -26,7 +26,7 @@
 #include "gs/gameobj/advanceutil.h"
 #include "gs/utility/gstypes.h"
 
-extern StringDB *g_theStringDB;
+
 
 EndGame::EndGame(PLAYER_INDEX owner)
 {
@@ -41,9 +41,9 @@ EndGame::EndGame(CivArchive &archive)
 
 EndGame::~EndGame()
 {
-	if(m_numBuilt)
+	
 		delete [] m_numBuilt;
-	if (m_savedNumBuilt)
+	
 		delete [] m_savedNumBuilt;
 }
 
@@ -57,9 +57,9 @@ void EndGame::Serialize(CivArchive &archive)
 		archive.LoadChunk((uint8*)&m_owner, (uint8*)&m_currentStageBegan + sizeof(m_currentStageBegan));
 
 
-		if (m_numBuilt)
+		
 			delete [] m_numBuilt;
-		if (m_savedNumBuilt)
+		
 			delete [] m_savedNumBuilt;
 		m_numBuilt = new sint32[endgamedb_Get()->m_nRec];
 		m_savedNumBuilt = new sint32[endgamedb_Get()->m_nRec];

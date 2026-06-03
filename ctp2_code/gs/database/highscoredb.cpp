@@ -10,7 +10,7 @@
 #include "gs/database/highscoredb.h"
 
 extern sint32	g_abort_parse;
-extern StringDB	*g_theStringDB;
+
 
 HighScoreDB::HighScoreDB()
 {

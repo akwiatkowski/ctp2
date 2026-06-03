@@ -27,13 +27,25 @@ sint32 RealConvolution(Pixel32 *InImage,
 							   uint32 Absolute,
 							   Pixel32 **OutImageBufPtr)
 {
-	uint32		ColExtent, RowExtent;
-	uint32		ImageCol, ImageRow, KernCol, KernRow;
-	uint32		ColOffset, RowOffset, TempCol, TempRow;
+	uint32		 ColExtent;
+	uint32		 RowExtent;
+	uint32		 ImageCol;
+	uint32		 ImageRow;
+	uint32		 KernCol;
+	uint32		 KernRow;
+	uint32		 ColOffset;
+	uint32		 RowOffset;
+	uint32		 TempCol;
+	uint32		 TempRow;
 	Pixel32		*OutputImageBuffer;
-	double		rSum, gSum, bSum;
+	double		 rSum;
+	double		 gSum;
+	double		 bSum;
 	double		*KernelPtr;
-	Pixel16		r, g, b, a;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
 
 	if (Width >= KernelCols && Height >= KernelRows)
 	{
@@ -70,7 +82,9 @@ sint32 RealConvolution(Pixel32 *InImage,
 				bSum = 0.0;
 
 				Pixel32		pix32;
-				double		red, green, blue;
+				double		 red;
+				double		 green;
+				double		 blue;
 
 				pix32 = GetPixelFromImage(InImage, Width, Height, ImageCol, ImageRow);
 				RGB32Components(pix32, &r, &g, &b, &a);
@@ -152,10 +166,15 @@ void InitializeLUT(uint8 *LookUpTable)
 void PtTransform(Pixel32 *image, uint32 Width, uint32 Height, uint32 Col, uint32 Row, uint8 *LookUpTable)
 {
 
-	uint32		ImageCol, ImageRow;
-	uint32		ColExtent, RowExtent;
+	uint32		 ImageCol;
+	uint32		 ImageRow;
+	uint32		 ColExtent;
+	uint32		 RowExtent;
 	Pixel32		pix32;
-	Pixel16		r, g, b, a;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
 
 	ColExtent = Col+Width;
 	RowExtent = Row+Height;
@@ -177,9 +196,15 @@ void PtTransform(Pixel32 *image, uint32 Width, uint32 Height, uint32 Col, uint32
 
 void GenHistogram(Pixel32 *image, unsigned Width, unsigned Height, unsigned Col, unsigned Row)
 {
-	uint32		ImageRow, ImageCol, RowExtent, ColExtent;
+	uint32		 ImageRow;
+	uint32		 ImageCol;
+	uint32		 RowExtent;
+	uint32		 ColExtent;
 	uint32		Index;
-	Pixel16		r,g,b,a;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
 	Pixel32		pix32;
 
 	for (Index=0; Index < MAXQUANTLEVELS; Index++)
@@ -205,8 +230,11 @@ void StretchImageContrast(Pixel32 *image, uint32 Threshold,
 						  uint32 Width, uint32 Height,
 						  uint32 Col, uint32 Row)
 {
-   uint32		Index, NewMin, NewMax;
-   double		StepSiz, StepVal;
+   uint32		 Index;
+   uint32		 NewMin;
+   uint32		 NewMax;
+   double		 StepSiz;
+   double		 StepVal;
    uint8		LookUpTable[MAXQUANTLEVELS];
 
    GenHistogram(image, Width, Height, Col, Row);
@@ -309,7 +337,10 @@ void RGBtoHSV( double r, double g, double b, double *h, double *s, double *v )
 void HSVtoRGB(double h, double s, double v, double *r, double *g, double *b)
 {
 	int i;
-	double f, p, q, t;
+	double f;
+	double p;
+	double q;
+	double t;
 	if( s == 0 ) {
 
 		*r = *g = *b = v;
@@ -359,10 +390,18 @@ void AdjustSV(Pixel32 *image, uint32 width, uint32 height, double deltaS, double
 {
 
 	Pixel32		pix32;
-	Pixel16		r, g, b, a;
-	sint32		i,j;
-	double		dr, dg, db;
-	double		dh, ds, dv;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
+	sint32		 i;
+	sint32		 j;
+	double		 dr;
+	double		 dg;
+	double		 db;
+	double		 dh;
+	double		 ds;
+	double		 dv;
 
 	for (i=0; i < (sint32)height; i++) {
 		for (j=0; j < (sint32)width; j++) {
@@ -397,8 +436,12 @@ void BlendWithGray(Pixel32 *image, uint32 width, uint32 height, Pixel16 grayR, P
 {
 
 	Pixel32		pix32;
-	Pixel16		r, g, b, a;
-	sint32		i,j;
+	Pixel16		 r;
+	Pixel16		 g;
+	Pixel16		 b;
+	Pixel16		 a;
+	sint32		 i;
+	sint32		 j;
 	sint16		jitter = 0;
 
 	for (i=0; i < (sint32)height; i++) {

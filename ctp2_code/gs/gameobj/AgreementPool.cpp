@@ -46,8 +46,8 @@ void AgreementPool::Serialize(CivArchive &archive)
 	{
 	AgreementData	*newData ;
 
-	sint32	i,
-			count = 0 ;
+	sint32	 i;
+	sint32	 count = 0 ;
 
     CHECKSERIALIZE
 

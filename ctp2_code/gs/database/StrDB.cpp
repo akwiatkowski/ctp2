@@ -133,13 +133,9 @@ StringDB::StringDB()
 StringDB::~StringDB()
 {
 	for
-	(
-		std::vector<StringRecord *>::iterator p	= m_all.begin();
-		p != m_all.end();
-		++p
-	)
+	(auto & p : m_all)
 	{
-		delete (*p);
+		delete p;
 	}
 }
 
@@ -359,13 +355,9 @@ void StringDB::Btree2Array()
 	m_all.clear();
 
 	for
-	(
-		std::vector<StringRecord *>::iterator p	= m_head.begin();
-		p != m_head.end();
-		++p
-	)
+	(auto & p : m_head)
 	{
-		AssignIndex(*p);
+		AssignIndex(p);
 	}
 }
 
@@ -663,12 +655,12 @@ void StringDB::Export(MBCHAR * file)
 	FILE* fout = fopen(buff, "w");
 
 	DPRINTF(k_DBG_GAMESTATE, ("%s\n", buff));
-	for (size_t i = 0; i < m_all.size(); ++i)
+	for (auto & i : m_all)
     {
 		c3files_fprintf(fout, "%s\t\"%s\"\t%d\n",
-                        m_all[i]->m_id.c_str(),
-                        m_all[i]->m_text.c_str(),
-                        m_all[i]->m_index
+                        i->m_id.c_str(),
+                        i->m_text.c_str(),
+                        i->m_index
                        );
 	}
 

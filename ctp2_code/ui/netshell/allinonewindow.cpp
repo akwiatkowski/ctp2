@@ -1465,18 +1465,18 @@ sint32 AllinoneWindow::FindTribe( uint16 key, BOOL isAI, BOOL *isFemale )
 			}
 		}
 		else if(m_scenInfo.isScenario && m_scenInfo.m_haveSavedGame) {
-			for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-				if(m_scenInfo.m_legalCivs[i] > 0) {
+			for(int m_legalCiv : m_scenInfo.m_legalCivs) {
+				if(m_legalCiv > 0) {
 					uint16 curKey;
 					BOOL curIsAI;
 					BOOL curIsFemale;
-					BOOL success = WhoHasTribe( m_scenInfo.m_legalCivs[i] + 1,
+					BOOL success = WhoHasTribe( m_legalCiv + 1,
 												&curKey, &curIsAI,
 												&curIsFemale );
 					Assert(success);
 					if(curKey == 0) {
 						if(isFemale) *isFemale = curIsFemale;
-						return m_scenInfo.m_legalCivs[i] + 1;
+						return m_legalCiv + 1;
 					}
 				}
 			}
@@ -2847,11 +2847,11 @@ void AllinoneWindow::UpdateTribeSwitches( )
 	{
 		if(m_scenInfo.m_haveSavedGame)
 		{
-			for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
+			for(int m_legalCiv : m_scenInfo.m_legalCivs)
 			{
-				if(m_scenInfo.m_legalCivs[i] != 0)
+				if(m_legalCiv != 0)
 				{
-					spnewgametribescreen_addTribeNoDuplicate(m_scenInfo.m_legalCivs[i]);
+					spnewgametribescreen_addTribeNoDuplicate(m_legalCiv);
 				}
 			}
 			return;

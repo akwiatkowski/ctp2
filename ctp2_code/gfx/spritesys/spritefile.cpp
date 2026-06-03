@@ -2101,8 +2101,8 @@ SPRITEFILEERR SpriteFile::ReadFull(GoodSpriteGroup *s)
 SPRITEFILEERR SpriteFile::ReadIndexed(GoodSpriteGroup *s,GAME_ACTION index)
 {
 	uint32 	offsets[GOODACTION_MAX];
-	for (int i = 0; i < GOODACTION_MAX; i++)
-		ReadData((void *)&(offsets[i]), sizeof(uint32));
+	for (unsigned int & offset : offsets)
+		ReadData((void *)&offset, sizeof(uint32));
 
 	SetFilePos(GetFilePos()+offsets[index]);
 

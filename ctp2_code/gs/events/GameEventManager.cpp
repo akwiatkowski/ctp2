@@ -116,20 +116,16 @@ GameEventManager::~GameEventManager()
 
 #ifdef _DEBUG
     for
-    (
-        std::list<GameEvent *>::iterator    p = m_eventHistory.begin();
-        p != m_eventHistory.end();
-        ++p
-    )
+    (auto & p : m_eventHistory)
     {
-		delete *p;
+		delete p;
 	}
     std::list<GameEvent *>().swap(m_eventHistory);
 #endif
 
-	for (size_t i = 0; i < GEV_MAX; ++i)
+	for (auto & m_hook : m_hooks)
     {
-		delete m_hooks[i];
+		delete m_hook;
 	}
 }
 

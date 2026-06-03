@@ -115,9 +115,9 @@ void Foreigner::Load(CivArchive & archive)
 	m_hasInitiative = (val?true:false);
 	archive >> m_lastIncursion;
 
-	for (sint32 type = 0; type < (sint32) REGARD_EVENT_ALL; type++)
+	for (auto & type : m_regardEventList)
 	{
-		m_regardEventList[type].clear();
+		type.clear();
 
 		archive >> size;
 
@@ -146,7 +146,7 @@ void Foreigner::Load(CivArchive & archive)
 				archive.Load((uint8 *) &event, sizeof(RegardEvent));
 				event.explainStrId = -1;
 			}
-			m_regardEventList[type].push_back(event);
+			type.push_back(event);
 		}
 	}
 
@@ -194,12 +194,12 @@ void Foreigner::Save(CivArchive & archive) const
 	archive << (sint8)(m_hasInitiative?1:0);
 	archive << m_lastIncursion;
 
-	for (sint32 type = 0; type < (sint32) REGARD_EVENT_ALL; type++) {
+	for (const auto & type : m_regardEventList) {
 
-		archive << (sint16) m_regardEventList[type].size();
+		archive << (sint16) type.size();
 
-		for (event_iter = m_regardEventList[type].begin();
-			 event_iter != m_regardEventList[type].end();
+		for (event_iter = type.begin();
+			 event_iter != type.end();
 			 ++event_iter)
 		{
 			archive << (ai::Regard) event_iter->regard;
@@ -487,9 +487,9 @@ void Foreigner::AddNewNegotiationEvent(const NegotiationEvent & event)
 	m_negotiationEvents.push_front(event);
 
 	sint32 numberOfNegotiatedEvents = 0;
-	for(sint32 i = 0; i < m_negotiationEvents.size(); ++i)
+	for(auto & m_negotiationEvent : m_negotiationEvents)
 	{
-		if(m_negotiationEvents[i].round >= 0)
+		if(m_negotiationEvent.round >= 0)
 			numberOfNegotiatedEvents++;
 	}
 

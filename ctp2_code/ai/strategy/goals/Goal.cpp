@@ -367,27 +367,19 @@ void Goal::Set_Can_Be_Executed(const bool & can_be_executed)
 void Goal::Set_Needs_Transporter(const bool needs_transporter)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		match_iter->Set_Needs_Transporter(needs_transporter);
+		m_matche.Set_Needs_Transporter(needs_transporter);
 	}
 }
 
 void Goal::Set_Needs_Transporter(Agent_ptr agent_ptr)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		if(agent_ptr == match_iter->Get_Agent())
-			match_iter->Set_Needs_Transporter(true);
+		if(agent_ptr == m_matche.Get_Agent())
+			m_matche.Set_Needs_Transporter(true);
 	}
 }
 
@@ -692,15 +684,11 @@ bool Goal::CanGoalBeReevaluated() const
 bool Goal::Commited_Agents_Need_Orders() const
 {
 	for
-	(
-	    Plan_List::const_iterator   match_iter  = m_matches.begin();
-	                                match_iter != m_matches.end();
-	                              ++match_iter
-	)
+	(const auto & m_matche : m_matches)
 	{
-		if(match_iter->Get_Agent()->Has_Goal(this))
+		if(m_matche.Get_Agent()->Has_Goal(this))
 		{
-			if(match_iter->Get_Agent()->Get_Army()->NumOrders() <= 0)
+			if(m_matche.Get_Agent()->Get_Army()->NumOrders() <= 0)
 				return true;
 		}
 	}
@@ -871,15 +859,11 @@ void Goal::Rollback_Emptied_Transporters()
 bool Goal::Has_Agent_And_Set_Needs_Cargo(Agent* agent)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		if(agent == match_iter->Get_Agent())
+		if(agent == m_matche.Get_Agent())
 		{
-			match_iter->Set_Needs_Cargo(true);
+			m_matche.Set_Needs_Cargo(true);
 			return true;
 		}
 	}
@@ -890,15 +874,11 @@ bool Goal::Has_Agent_And_Set_Needs_Cargo(Agent* agent)
 bool Goal::Needs_Cargo(Agent* agent)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		if(agent == match_iter->Get_Agent())
+		if(agent == m_matche.Get_Agent())
 		{
-			return match_iter->Get_Needs_Cargo();
+			return m_matche.Get_Needs_Cargo();
 		}
 	}
 
@@ -908,15 +888,11 @@ bool Goal::Needs_Cargo(Agent* agent)
 bool Goal::Cannot_Be_Used(Agent* agent)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		if(agent == match_iter->Get_Agent())
+		if(agent == m_matche.Get_Agent())
 		{
-			return match_iter->Get_Cannot_Be_Used();
+			return m_matche.Get_Cannot_Be_Used();
 		}
 	}
 
@@ -926,15 +902,11 @@ bool Goal::Cannot_Be_Used(Agent* agent)
 void Goal::Set_Cannot_Be_Used(Agent* agent, bool cannotBeUsed)
 {
 	for
-	(
-	    Plan_List::iterator match_iter  = m_matches.begin();
-	                        match_iter != m_matches.end();
-	                      ++match_iter
-	)
+	(auto & m_matche : m_matches)
 	{
-		if(agent == match_iter->Get_Agent())
+		if(agent == m_matche.Get_Agent())
 		{
-			match_iter->Set_Cannot_Be_Used(cannotBeUsed);
+			m_matche.Set_Cannot_Be_Used(cannotBeUsed);
 		}
 	}
 }
@@ -944,13 +916,9 @@ void Goal::Recompute_Current_Attacking_Strength()
 	m_current_attacking_strength = Squad_Strength(0);
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		m_current_attacking_strength += (*agent_iter)->Get_Squad_Strength();
+		m_current_attacking_strength += m_agent->Get_Squad_Strength();
 	}
 }
 
@@ -959,13 +927,9 @@ Squad_Strength Goal::Compute_Current_Strength()
 	Squad_Strength strength;
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		strength += (*agent_iter)->Get_Squad_Strength();
+		strength += m_agent->Get_Squad_Strength();
 	}
 
 	return strength;
@@ -1503,18 +1467,14 @@ Utility Goal::Compute_Agent_Matching_Value(const Agent_ptr agent_ptr) const
 		sint32            count   = 0;
 
 		for
-		(
-		    Plan_List::const_iterator match_iter  = m_matches.begin();
-		                              match_iter != m_matches.end();
-		                            ++match_iter
-		)
+		(const auto & m_matche : m_matches)
 		{
-			Agent_ptr agent_trans_ptr = match_iter->Get_Agent();
+			Agent_ptr agent_trans_ptr = m_matche.Get_Agent();
 
 			if
 			  (
 			      !agent_trans_ptr->Get_Is_Dead()
-			   &&  match_iter->Get_Needs_Transporter()
+			   &&  m_matche.Get_Needs_Transporter()
 			   &&  agent_trans_ptr->EstimateTransportUtility(agent_ptr, utility)
 			  )
 			{
@@ -2342,13 +2302,9 @@ GOAL_RESULT Goal::Execute_Task()
 	if(goal_record->GetNeverSatisfied())
 	{
 		for
-		(
-		    Agent_List::iterator agent_iter  = m_agents.begin();
-		                         agent_iter != m_agents.end();
-		                       ++agent_iter
-		)
+		(auto & m_agent : m_agents)
 		{
-			Agent_ptr    agent_ptr       = (Agent_ptr) *agent_iter;
+			Agent_ptr    agent_ptr       = (Agent_ptr) m_agent;
 
 			// Add this condition to avoid that a 12 units army with SEIGE goal retreat
 			// at 1 tile near the city, because it has left 1 unit and has to group with
@@ -2437,13 +2393,9 @@ GOAL_RESULT Goal::Execute_Task()
 		}*/
 
 		for
-		(
-		    Agent_List::iterator agent_iter  = m_agents.begin();
-		                         agent_iter != m_agents.end();
-		                       ++agent_iter
-		)
+		(auto & m_agent : m_agents)
 		{
-			Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+			Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 
 			if(agent_ptr->Get_Is_Dead())
 				continue;
@@ -3752,13 +3704,9 @@ bool Goal::Ok_To_Rally() const
 	MapPoint        targetPos       = Get_Target_Pos();
 
 	for
-	(
-	    Agent_List::const_iterator agent_iter  = m_agents.begin();
-	                               agent_iter != m_agents.end();
-	                             ++agent_iter
-	)
+	(auto m_agent : m_agents)
 	{
-		const Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+		const Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 		Assert(agent_ptr);
 
 		if(!agent_ptr->Get_Is_Dead())
@@ -3805,13 +3753,9 @@ bool Goal::RallyComplete() const
 	bool incompleteStackFound   = false;
 
 	for
-	(
-	    Agent_List::const_iterator agent_iter  = m_agents.begin();
-	                               agent_iter != m_agents.end();
-	                             ++agent_iter
-	)
+	(auto m_agent : m_agents)
 	{
-		Agent_ptr agent_ptr   = (Agent_ptr) *agent_iter;
+		Agent_ptr agent_ptr   = (Agent_ptr) m_agent;
 		Assert(agent_ptr);
 
 		if (agent_ptr->Get_Is_Dead())
@@ -3856,13 +3800,9 @@ void Goal::GroupTroops()
 		}
 
 		for
-		(
-		    Agent_List::iterator agent2_iter  = m_agents.begin();
-		                         agent2_iter != m_agents.end();
-		                       ++agent2_iter
-		)
+		(auto & m_agent : m_agents)
 		{
-			Agent_ptr agent2_ptr = (Agent_ptr) *agent2_iter;
+			Agent_ptr agent2_ptr = (Agent_ptr) m_agent;
 
 			if( agent2_ptr->Get_Is_Dead()
 			|| !agent2_ptr->Get_Can_Be_Executed()
@@ -3960,13 +3900,9 @@ Agent_ptr Goal::GetRallyAgent() const
 	sint32 minDistance              = 0x7fffffff;
 
 	for
-	(
-	    Agent_List::const_iterator agent_iter  = m_agents.begin();
-	                               agent_iter != m_agents.end();
-	                             ++agent_iter
-	)
+	(auto m_agent : m_agents)
 	{
-		Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+		Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 
 		if(agent_ptr->GetUnitsAtPos() >= k_MAX_ARMY_SIZE)
 		{
@@ -4035,13 +3971,9 @@ bool Goal::RallyTroops()
 
 	sint32 unitsAtRallyPos = (rallyPos == rallyAgent->Get_Pos()) ? rallyAgent->GetUnitsAtPos() : rallyAgent->Get_Army()->Num();
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+		Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 		Assert(agent_ptr);
 
 		if( agent_ptr->Get_Is_Dead()
@@ -4279,13 +4211,9 @@ bool Goal::UnGroupTroops()
 	bool            breturn     = false;
 
 	for
-	(
-	    Agent_List::iterator agent1_iter  = m_agents.begin();
-	                         agent1_iter != m_agents.end();
-	                       ++agent1_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		Agent_ptr    agent1_ptr   = (Agent_ptr) *agent1_iter;
+		Agent_ptr    agent1_ptr   = (Agent_ptr) m_agent;
 		Assert(agent1_ptr);
 
 		if (!agent1_ptr->Get_Is_Dead())
@@ -4305,13 +4233,9 @@ bool Goal::UnGroupTroops()
 bool Goal::UnGroupComplete() const
 {
 	for
-	(
-	    Agent_List::const_iterator agent_iter  = m_agents.begin();
-	                               agent_iter != m_agents.end();
-	                             ++agent_iter
-	)
+	(auto m_agent : m_agents)
 	{
-		Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+		Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 		Assert(agent_ptr);
 
 		if (!agent_ptr->Get_Is_Dead() &&
@@ -4340,13 +4264,9 @@ bool Goal::FindTransporters(const Agent_ptr & agent_ptr, std::list< std::pair<Ut
 	double          max_utility         = Goal::BAD_UTILITY;
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		Agent_ptr    possible_transport  = (Agent_ptr) *agent_iter;
+		Agent_ptr    possible_transport  = (Agent_ptr) m_agent;
 
 		sint32          transports          = 0;
 		sint32          max_slots           = 0;
@@ -4403,14 +4323,9 @@ bool Goal::LoadTransporters(Agent_ptr agent_ptr)
 
 	/// @ToDo: Add transport escorts
 	for
-	(
-	    std::list< std::pair<Utility, Agent_ptr> >::iterator
-	        transporter  = transporter_list.begin();
-	        transporter != transporter_list.end();
-	      ++transporter
-	)
+	(auto & transporter : transporter_list)
 	{
-		Agent_ptr transport_ptr = transporter->second;
+		Agent_ptr transport_ptr = transporter.second;
 
 		transport_ptr->Log_Debug_Info(k_DBG_SCHEDULER, this);
 
@@ -4478,13 +4393,9 @@ bool Goal::ArmiesAtGoal() const
 	MapPoint pos = Get_Target_Pos();
 
 	for
-	(
-	    Agent_List::const_iterator agent_iter  = m_agents.begin();
-	                               agent_iter != m_agents.end();
-	                             ++agent_iter
-	)
+	(auto m_agent : m_agents)
 	{
-		Agent_ptr agent_ptr = (Agent_ptr) *agent_iter;
+		Agent_ptr agent_ptr = (Agent_ptr) m_agent;
 
 		if (agent_ptr->Get_Pos() != pos)
 			return false;
@@ -4533,19 +4444,15 @@ MapPoint Goal::GetClosestTransporterPos(const Agent_ptr agent_ptr) const
 	MapPoint          best_target_pos   = MapPoint(-1, -1);
 
 	for
-	(
-	    Plan_List::const_iterator match_iter  = m_matches.begin();
-	                              match_iter != m_matches.end();
-	                            ++match_iter
-	)
+	(const auto & m_matche : m_matches)
 	{
-		if(!match_iter->Get_Agent()->Get_Is_Dead() && match_iter->Get_Needs_Cargo())
+		if(!m_matche.Get_Agent()->Get_Is_Dead() && m_matche.Get_Needs_Cargo())
 		{
-			sint32 tmp_squared_dist = MapPoint::GetSquaredDistance(match_iter->Get_Agent()->Get_Pos(), agent_ptr->Get_Pos());
+			sint32 tmp_squared_dist = MapPoint::GetSquaredDistance(m_matche.Get_Agent()->Get_Pos(), agent_ptr->Get_Pos());
 			if (tmp_squared_dist < best_squared_dist)
 			{
 				best_squared_dist = tmp_squared_dist;
-				best_target_pos = match_iter->Get_Agent()->Get_Pos();
+				best_target_pos = m_matche.Get_Agent()->Get_Pos();
 			}
 		}
 	}
@@ -4559,19 +4466,15 @@ MapPoint Goal::GetClosestCargoPos(const Agent_ptr agent_ptr) const
 	MapPoint          best_target_pos   = MapPoint(-1, -1);
 
 	for
-	(
-	    Plan_List::const_iterator match_iter  = m_matches.begin();
-	                              match_iter != m_matches.end();
-	                            ++match_iter
-	)
+	(const auto & m_matche : m_matches)
 	{
-		if(!match_iter->Get_Agent()->Get_Is_Dead() && match_iter->Get_Needs_Transporter())
+		if(!m_matche.Get_Agent()->Get_Is_Dead() && m_matche.Get_Needs_Transporter())
 		{
-			sint32 tmp_squared_dist = MapPoint::GetSquaredDistance(match_iter->Get_Agent()->Get_Pos(), agent_ptr->Get_Pos());
+			sint32 tmp_squared_dist = MapPoint::GetSquaredDistance(m_matche.Get_Agent()->Get_Pos(), agent_ptr->Get_Pos());
 			if (tmp_squared_dist < best_squared_dist)
 			{
 				best_squared_dist = tmp_squared_dist;
-				best_target_pos = match_iter->Get_Agent()->Get_Pos();
+				best_target_pos = m_matche.Get_Agent()->Get_Pos();
 			}
 		}
 	}

@@ -235,9 +235,9 @@ SelectedItem::SelectedItem(sint32 nPlayers)
 
 SelectedItem::SelectedItem(CivArchive &archive)
 {
-	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
+	for(auto & m_select_po : m_select_pos)
 	{
-		m_select_pos[i] = MapPoint(0,0); // Find something better, like the first unit or the capital
+		m_select_po = MapPoint(0,0); // Find something better, like the first unit or the capital
 	}
 
 	Serialize(archive);
@@ -910,15 +910,15 @@ void SelectedItem::RemovePlayer(PLAYER_INDEX p)
 		NextPlayer();
 	}
 
-	for(sint32 i=0; i<k_MAX_PLAYERS; i++)
+	for(int & i : m_next_player)
 	{
-		if(m_next_player[i] == p )
+		if(i == p )
 		{
-			m_next_player[i] = m_next_player[p];
+			i = m_next_player[p];
 
 			if(p == g_keypress_stop_player)
 			{
-				g_keypress_stop_player = m_next_player[i];
+				g_keypress_stop_player = i;
 			}
 			m_next_player[p] = PLAYER_INDEX_INVALID;
 			break;

@@ -96,13 +96,9 @@ aui_StringTable::aui_StringTable
 aui_StringTable::~aui_StringTable()
 {
     for
-    (
-        std::vector<MBCHAR *>::iterator p = m_Strings.begin();
-        p != m_Strings.end();
-        ++p
-    )
+    (auto & m_String : m_Strings)
 	{
-		delete [] *p;
+		delete [] m_String;
 	}
 
     std::vector<MBCHAR *>().swap(m_Strings);

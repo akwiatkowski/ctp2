@@ -473,8 +473,8 @@ void BattleOrderBox::SetSingleUnit(Unit theUnit)
 	}
 	sint32 currentCargo = theUnit.GetNumCarried();
 
-	for ( sint32 j = 0;j < k_CARGO_CAPACITY;j++ ) {
-		m_unitImage->RemoveSubControl( m_cargo[j]->Id() );
+	for (auto & j : m_cargo) {
+		m_unitImage->RemoveSubControl( j->Id() );
 	}
 
 	if ( rec->GetCanCarry() ) {

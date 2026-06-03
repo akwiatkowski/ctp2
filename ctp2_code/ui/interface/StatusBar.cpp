@@ -63,8 +63,8 @@ void StatusBar::SetText(const MBCHAR *text, const aui_Control *owner)
 
 	m_owner = owner;
 
-	for(std::list<StatusBar*>::iterator i = m_list.begin(); i != m_list.end(); i++)
-		(*i)->Update();
+	for(auto & i : m_list)
+		i->Update();
 }
 
 StatusBar::StatusBar(MBCHAR *ldlBlock) :

@@ -548,11 +548,11 @@ int ui_Initialize()
 			"truetype",
 			"truetype/msttcorefonts"
 		};
-		for (int pIdx = 0; pIdx < maxPaths; pIdx++) {
-			for (int dIdx = 0; dIdx < maxDirs; dIdx++) {
+		for (auto & fontPath : fontPaths) {
+			for (auto & fontDir : fontDirs) {
 				struct stat st = { 0 };
 				snprintf(s, sizeof(s), "%s/%s",
-					fontPaths[pIdx], fontDirs[dIdx]);
+					fontPath, fontDir);
 				int rc = stat(s, &st);
 				if ((rc == 0) && (S_ISDIR(st.st_mode))) {
 					g_c3ui->AddBitmapFontSearchPath(s);

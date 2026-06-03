@@ -1763,15 +1763,11 @@ void NationalManagementDialog::MirrorSelectedCities()
 	g_nationalManagementDialog->m_mirroring = true;
 
 	for
-	(
-		std::vector<ctp2_ListBox *>::iterator p = invisList.begin();
-		p != invisList.end();
-		++p
-	)
+	(auto & p : invisList)
 	{
-		for (sint32 i = 0; i < (*p)->NumItems(); ++i)
+		for (sint32 i = 0; i < p->NumItems(); ++i)
 		{
-			(*p)->DeselectItem(i);
+			p->DeselectItem(i);
 		}
 	}
 
@@ -1786,22 +1782,18 @@ void NationalManagementDialog::MirrorSelectedCities()
                             );
 
         for
-        (
-            std::vector<ctp2_ListBox *>::iterator p = invisList.begin();
-            p != invisList.end();
-            ++p
-        )
+        (auto & p : invisList)
         {
-		    for (sint32 i = 0; i < (*p)->NumItems(); ++i)
+		    for (sint32 i = 0; i < p->NumItems(); ++i)
             {
 			    uint32 invisId  = reinterpret_cast<uintptr_t>
-                                    (static_cast<ctp2_ListItem *>((*p)->GetItemByIndex(i))
+                                    (static_cast<ctp2_ListItem *>(p->GetItemByIndex(i))
                                         ->GetUserData()
                                     );
 
                 if (invisId == cityId)
                 {
-				    (*p)->SelectItem(i);
+				    p->SelectItem(i);
 				    break;
 			    }
 		    }

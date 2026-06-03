@@ -264,9 +264,9 @@ ProfileDB::ProfileDB()
     m_vars                              (new PointerList<ProfileVar>),
     m_loadedFromTutorial                (FALSE)
 {
-	for (size_t player = 0; player < k_MAX_PLAYERS; ++player)
+	for (auto & player : m_ai_personality)
 	{
-		m_ai_personality[player][0] = 0;
+		player[0] = 0;
 	}
 
 	m_gameName[0]           = 0;

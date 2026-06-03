@@ -72,14 +72,14 @@ UnitSpriteGroup::UnitSpriteGroup(GROUPTYPE type)
 	{
 		m_moveOffsets[j]			= emptyPoint;
 
-		for (int i = 0; i < UNITACTION_MAX; i++)
+		for (auto & m_shieldPoint : m_shieldPoints)
 		{
-			m_shieldPoints[i][j]	= thePoint;
+			m_shieldPoint[j]	= thePoint;
 		}
 
-		for (int k = 0; k < k_NUM_FIREPOINTS; k++)
+		for (auto & k : m_firePointsWork)
 		{
-			m_firePointsWork[k][j]	= emptyPoint;
+			k[j]	= emptyPoint;
 		}
 	}
 }

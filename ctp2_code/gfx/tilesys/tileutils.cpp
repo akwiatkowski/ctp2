@@ -1519,10 +1519,10 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 
 	Pixel16 *   tileImage = RGB32ToRGB16(tif, width, height);
 
-	for (sint32 i=0; i<k_TILE_PIXEL_HEIGHT; i++) {
-		accumList[i][0] = 0;
-		accumList[i][1] = 0;
-		accumList[i][2] = 0;
+	for (auto & i : accumList) {
+		i[0] = 0;
+		i[1] = 0;
+		i[2] = 0;
 	}
 
 	uint32      tileDataLen = (k_TILE_PIXEL_WIDTH * k_TILE_PIXEL_HEIGHT)/2 + k_TILE_PIXEL_HEIGHT;

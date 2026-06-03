@@ -3136,10 +3136,10 @@ void ScenarioEditor::WorldTabSwitch(aui_Control *control, uint32 action, uint32 
 			}
 		}
 
-		for (sint32 i = 0; i < k_NUM_OTHER_MAP_SWITCHES; i++) {
-			if(s_scenarioEditor->m_otherMapSwitch[i] == control)
+		for (auto & i : s_scenarioEditor->m_otherMapSwitch) {
+			if(i == control)
 				continue;
-			s_scenarioEditor->m_otherMapSwitch[i]->SetState(0);
+			i->SetState(0);
 		}
 		s_scenarioEditor->m_mapMode =  (SCEN_MAP_MODE)(intptr_t)cookie;
 	}

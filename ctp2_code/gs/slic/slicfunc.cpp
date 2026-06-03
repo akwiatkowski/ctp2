@@ -183,9 +183,9 @@ SlicArgList::SlicArgList()
 
 void SlicArgList::ReleaseSymbols()
 {
-    for (size_t arg = 0; arg < m_argValue.size(); ++arg)
+    for (auto & arg : m_argValue)
     {
-	    delete m_argValue[arg].m_symbol;
+	    delete arg.m_symbol;
     }
 }
 

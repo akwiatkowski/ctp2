@@ -64,12 +64,12 @@ AUI_ERRCODE aui_SoundBase::InitCommon( MBCHAR **soundNames )
 
 aui_SoundBase::~aui_SoundBase()
 {
-	for ( sint32 i = 0; i < AUI_SOUNDBASE_SOUND_LAST; i++ )
+	for (auto & m_sound : m_sounds)
 	{
-		if ( m_sounds[ i ] )
+		if ( m_sound )
 		{
-			aui_ui_Get()->UnloadSound( m_sounds[ i ] );
-			m_sounds[ i ] = nullptr;
+			aui_ui_Get()->UnloadSound( m_sound );
+			m_sound = nullptr;
 		}
 	}
 }

@@ -163,13 +163,9 @@ void Happy::Serialize (CivArchive &archive)
 
 		archive << static_cast<uint32>(m_timedChanges.size());
 		for
-		(
-			std::list<HappyTimer>::iterator p = m_timedChanges.begin();
-			p != m_timedChanges.end();
-			++p
-		)
+		(auto & m_timedChange : m_timedChanges)
 		{
-			p->Serialize(archive);
+			m_timedChange.Serialize(archive);
 		}
 		m_tracker->Serialize(archive);
 	}

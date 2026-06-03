@@ -163,8 +163,8 @@ UnitTabButton::~UnitTabButton()
 	RemoveControl( m_fortify );
 	RemoveControl( m_veteran );
 
-	for ( sint32 i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		RemoveControl( m_cargo[i] );
+	for (auto & i : m_cargo) {
+		RemoveControl( i );
 	}
 }
 

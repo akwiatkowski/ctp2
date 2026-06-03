@@ -59,11 +59,11 @@ TEST_CASE("Same seed in ScopedRand produces identical sequences across runs")
 
     {
         ScopedRand fixture(424242);
-        for (int i = 0; i < 16; ++i) first[i] = civrand().Next(1000);
+        for (int & i : first) i = civrand().Next(1000);
     }
     {
         ScopedRand fixture(424242);
-        for (int i = 0; i < 16; ++i) second[i] = civrand().Next(1000);
+        for (int & i : second) i = civrand().Next(1000);
     }
     for (int i = 0; i < 16; ++i) CHECK(first[i] == second[i]);
 }

@@ -246,8 +246,8 @@ Network::Network() :
 		m_netIO->Init(this);
 	}
 
-	for(uint16 i = 0; i < k_MAX_PLAYERS; i++) {
-		m_playerData[i] = nullptr;
+	for(auto & i : m_playerData) {
+		i = nullptr;
 	}
 	m_transport = 5;
 	m_sessionIndex = -1;
@@ -326,9 +326,9 @@ Network::~Network()
 
 	delete m_netIO;
 
-	for (size_t i = 0; i < k_MAX_PLAYERS; i++)
+	for (auto & i : m_playerData)
     {
-		delete m_playerData[i];
+		delete i;
 	}
 
 	delete m_newPlayerList;
@@ -1044,8 +1044,8 @@ void Network::AddPlayer(uint16 id,
 		QueuePacketToAll(new NetAddPlayer(id, name));
 	}
 
-	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(m_playerData[i] && m_playerData[i]->m_id == id) {
+	for(auto & i : m_playerData) {
+		if(i && i->m_id == id) {
 			DPRINTF(k_DBG_NET, ("AddPlayer(%d) but already have that player.\n",
 			                    id));
 			return;
@@ -2041,9 +2041,9 @@ void Network::Unblock(sint32 index)
 sint32
 Network::IdToIndex(uint16 id)
 {
-	for(sint32 i = 0 ; i < k_MAX_PLAYERS; i++) {
-		if(m_playerData[i] && m_playerData[i]->m_id == id) {
-			return m_playerData[i]->m_index;
+	for(auto & i : m_playerData) {
+		if(i && i->m_id == id) {
+			return i->m_index;
 		}
 	}
 
@@ -2064,9 +2064,9 @@ Network::IdToIndex(uint16 id)
 uint16
 Network::IndexToId(sint32 index)
 {
-	for(sint32 i = 0; i < k_MAX_PLAYERS; i++) {
-		if(m_playerData[i] && m_playerData[i]->m_index == index) {
-			return m_playerData[i]->m_id;
+	for(auto & i : m_playerData) {
+		if(i && i->m_index == index) {
+			return i->m_id;
 		}
 	}
 	Assert(FALSE);

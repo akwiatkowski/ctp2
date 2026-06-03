@@ -67,13 +67,9 @@ namespace
         s_mapShapeIndex = shape;
 		size_t	i		= 0;
         for
-        (
-        	MapShapeSelector::iterator	p = s_checkBox.begin();
-        	p != s_checkBox.end();
-        	++p
-        )
+        (auto & p : s_checkBox)
         {
-            (*p)->SetState(i == s_mapShapeIndex);
+            p->SetState(i == s_mapShapeIndex);
             ++i;
         }
     }
@@ -140,13 +136,9 @@ sint32 spnewgamemapshapescreen_displayMyWindow(BOOL viewMode, sint32 useMode)
         s_spNewGameMapShapeScreen ? 0 : spnewgamemapshapescreen_Initialize();
 
 	for
-	(
-		MapShapeSelector::iterator	p = s_checkBox.begin();
-		p != s_checkBox.end();
-		++p
-	)
+	(auto & p : s_checkBox)
     {
-        (*p)->Enable(!viewMode);
+        p->Enable(!viewMode);
     }
 
 	s_useMode = useMode;
@@ -169,13 +161,9 @@ sint32 spnewgamemapshapescreen_removeMyWindow(uint32 action)
 	{
 		size_t	i = 0;
 		for
-		(
-			MapShapeSelector::iterator	p = s_checkBox.begin();
-			p != s_checkBox.end();
-			++p
-		)
+		(auto & p : s_checkBox)
 		{
-			if (id == (*p)->Id())
+			if (id == p->Id())
 			{
 				spnewgamemapshapescreen_setMapShapeIndex(i);
 			}
@@ -284,13 +272,9 @@ void spnewgamemapshapescreen_Cleanup()
 		keypress_RemoveHandler(s_spNewGameMapShapeScreen);
 
 		for
-		(
-			MapShapeSelector::iterator p = s_checkBox.begin();
-			p != s_checkBox.end();
-			++p
-		)
+		(auto & p : s_checkBox)
 		{
-			delete *p;
+			delete p;
 		}
 		MapShapeSelector().swap(s_checkBox);
 

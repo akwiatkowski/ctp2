@@ -71,10 +71,10 @@ void AgreementMatrix::Resize(const PLAYER_INDEX & newMaxPlayers)
     {
         m_agreements.resize(m_maxPlayers * m_maxPlayers * PROPOSAL_MAX, s_badAgreement);
 
-		for (size_t index = 0; index < old_agreements.size(); ++index)
+		for (auto & old_agreement : old_agreements)
 		{
-			PLAYER_INDEX const	senderId	= old_agreements[index].senderId;
-			PLAYER_INDEX const	receiverId	= old_agreements[index].receiverId;
+			PLAYER_INDEX const	senderId	= old_agreement.senderId;
+			PLAYER_INDEX const	receiverId	= old_agreement.receiverId;
 
 			if (senderId >= 0 && senderId < m_maxPlayers &&
 				receiverId >= 0 && receiverId < m_maxPlayers &&
@@ -82,7 +82,7 @@ void AgreementMatrix::Resize(const PLAYER_INDEX & newMaxPlayers)
 				player_Get(receiverId) && !player_Get(receiverId)->IsDead())
 			{
 
-				SetAgreement( old_agreements[index] );
+				SetAgreement( old_agreement );
 			}
 		}
 	}
@@ -111,9 +111,9 @@ void AgreementMatrix::Save(CivArchive & archive) const
 	Assert(m_agreements.size() < 0x10000);	// Report when it is too large.
 	archive << static_cast<uint16>(m_agreements.size());
 
-	for (size_t i = 0; i < m_agreements.size(); ++i)
+	for (const auto & m_agreement : m_agreements)
 	{
-		archive.Store((uint8 *) &(m_agreements[i]), sizeof(ai::Agreement));
+		archive.Store((uint8 *) &m_agreement, sizeof(ai::Agreement));
 	}
 }
 
@@ -421,11 +421,11 @@ void AgreementMatrix::SetAgreementFast(size_t index, const ai::Agreement &agreem
 
 void AgreementMatrix::ClearAgreementsInvolving(const PLAYER_INDEX playerId)
 {
-	for (size_t i = 0; i < m_agreements.size(); i++)
+	for (auto & m_agreement : m_agreements)
 	{
-		if ((m_agreements[i].senderId == playerId) ||
-			(m_agreements[i].receiverId == playerId))
-			m_agreements[i] = s_badAgreement;
+		if ((m_agreement.senderId == playerId) ||
+			(m_agreement.receiverId == playerId))
+			m_agreement = s_badAgreement;
 	}
 }
 

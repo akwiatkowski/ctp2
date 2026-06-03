@@ -146,12 +146,12 @@ FeatTracker::~FeatTracker()
 	m_activeList->DeleteAll();
 	delete m_activeList;
 
-	for(sint32 i = 0; i < FEAT_EFFECT_MAX; i++)
+	for(auto & i : m_effectList)
 	{
-		if(m_effectList[i])
+		if(i)
 		{
-			delete m_effectList[i];
-			m_effectList[i] = nullptr;
+			delete i;
+			i = nullptr;
 		}
 	}
 

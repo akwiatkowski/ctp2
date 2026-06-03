@@ -330,9 +330,9 @@ void loadsavescreen_TribeScreenActionCallback(aui_Control *control, uint32 actio
 	&& s_tempSaveInfo->startInfoType == STARTINFOTYPE_NOLOCS
 	){
 		bool noCivsInList = true;
-		for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
+		for(int i : s_tempSaveInfo->playerCivIndexList)
 		{
-			if(s_tempSaveInfo->playerCivIndexList[i] > 0)
+			if(i > 0)
 			{
 				noCivsInList = false;
 				break;
@@ -442,9 +442,9 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 					hotseatlist_ClearOptions();
 					hotseatlist_LockCivs();
 
-					for (sint32 i=0; i<k_MAX_PLAYERS; i++)
+					for (int i : s_tempSaveInfo->playerCivIndexList)
 					{
-						hotseatlist_EnableCiv(s_tempSaveInfo->playerCivIndexList[i]);
+						hotseatlist_EnableCiv(i);
 					}
 					loadsavescreen_SetupHotseatOrEmail();
 				}
@@ -499,11 +499,9 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 						{
 							BOOL foundOne = FALSE;
 
-							for (size_t i = 0; i < k_MAX_PLAYERS; ++i)
+							for (auto civName : s_tempSaveInfo->civList)
 							{
-								MBCHAR *    civName = s_tempSaveInfo->civList[i];
-
-								if (strlen(civName) > 0)
+									if (strlen(civName) > 0)
 								{
 									for (sint32 j=0; j<g_theCivilisationDB->NumRecords(); j++)
 									{
@@ -532,9 +530,9 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 						}
 						else
 						{
-							for (size_t i = 0; i < k_MAX_PLAYERS; ++i)
+							for (int i : s_tempSaveInfo->playerCivIndexList)
 							{
-								spnewgametribescreen_addTribeNoDuplicate(s_tempSaveInfo->playerCivIndexList[i]);
+								spnewgametribescreen_addTribeNoDuplicate(i);
 							}
 						}
 					}

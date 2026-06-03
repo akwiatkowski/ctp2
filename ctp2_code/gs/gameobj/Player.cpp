@@ -2861,13 +2861,9 @@ bool Player::GetSlaveCity(const MapPoint &pos, Unit &city)
 	}
 
 	for
-	(
-		CityDistQueue::const_iterator iter = cityDistQueue.begin();
-		iter != cityDistQueue.end();
-		++iter
-	)
+	(auto iter : cityDistQueue)
 	{
-		city.m_id = iter->m_city;
+		city.m_id = iter.m_city;
 		if(city.m_id != (0))
 			return true;
 	}

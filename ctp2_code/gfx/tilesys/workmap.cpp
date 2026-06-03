@@ -102,10 +102,10 @@ WorkMap::WorkMap(AUI_ERRCODE *retval,
 WorkMap::~WorkMap()
 {
 
-	for (sint32 i=0; i<k_MAX_WORKERS; i++) {
-		if (m_worker[i] != nullptr) {
-			delete m_worker[i];
-			m_worker[i] = nullptr;
+	for (auto & i : m_worker) {
+		if (i != nullptr) {
+			delete i;
+			i = nullptr;
 		}
 	}
 
@@ -145,8 +145,8 @@ void WorkMap::InitCommon( sint32 scale)
 
 	m_updateAction = nullptr;
 
-	for (sint32 i = 0;i < k_MAX_WORKERS;i++) {
-		m_worker[i] = nullptr;
+	for (auto & i : m_worker) {
+		i = nullptr;
 	}
 	m_numWorkers = 0;
 

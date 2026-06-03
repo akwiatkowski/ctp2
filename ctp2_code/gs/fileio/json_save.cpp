@@ -266,9 +266,9 @@ void to_json(nlohmann::json &j, RandomGenerator const &rng)
     // base address.  m_endp is always &m_buffer[56] — no need to
     // persist it.  Matches the binary Serialize() at randgen.cpp:28.
     nlohmann::json buffer = nlohmann::json::array();
-    for (sint32 i = 0; i < 56; ++i)
+    for (int i : rng.m_buffer)
     {
-        buffer.push_back(rng.m_buffer[i]);
+        buffer.push_back(i);
     }
 
     j = nlohmann::json{
@@ -349,9 +349,9 @@ void from_json(nlohmann::json const &j, Cell &c)
 void to_json(nlohmann::json &j, TileInfo const &t)
 {
     nlohmann::json transitions = nlohmann::json::array();
-    for (sint32 i = 0; i < k_NUM_TRANSITIONS; ++i)
+    for (unsigned char m_transition : t.m_transitions)
     {
-        transitions.push_back(t.m_transitions[i]);
+        transitions.push_back(m_transition);
     }
     j = nlohmann::json{
         {"river_piece",  t.m_riverPiece},
@@ -643,9 +643,9 @@ void from_json(nlohmann::json const &j, Score &s)
 void to_json(nlohmann::json &j, Regard const &r)
 {
     nlohmann::json regard = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    for (auto i : r.m_regard)
     {
-        regard.push_back(static_cast<sint32>(r.m_regard[i]));
+        regard.push_back(static_cast<sint32>(i));
     }
     j = nlohmann::json{{"regard", std::move(regard)}};
 }
@@ -723,9 +723,9 @@ void from_json(nlohmann::json const &j, MilitaryReadiness &r)
 void to_json(nlohmann::json &j, Pollution const &p)
 {
     nlohmann::json history = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; ++i)
+    for (int i : p.m_history)
     {
-        history.push_back(p.m_history[i]);
+        history.push_back(i);
     }
     j = nlohmann::json{
         {"event_trigger_next_round", p.m_eventTriggerNextRound},
@@ -765,9 +765,9 @@ void from_json(nlohmann::json const &j, Pollution &p)
 void to_json(nlohmann::json &j, WonderTracker const &wt)
 {
     nlohmann::json building = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    for (unsigned long long m_buildingWonder : wt.m_buildingWonders)
     {
-        building.push_back(wt.m_buildingWonders[i]);
+        building.push_back(m_buildingWonder);
     }
     j = nlohmann::json{
         {"built_wonders",    wt.m_builtWonders},
@@ -890,9 +890,9 @@ void from_json(nlohmann::json const &j, HappyTimer &ht)
 void to_json(nlohmann::json &j, HappyTracker const &t)
 {
     nlohmann::json amounts = nlohmann::json::array();
-    for (sint32 i = 0; i < HAPPY_REASON_MAX; ++i)
+    for (double m_happinessAmount : t.m_happinessAmounts)
     {
-        amounts.push_back(t.m_happinessAmounts[i]);
+        amounts.push_back(m_happinessAmount);
     }
     j = nlohmann::json{{"happiness_amounts", std::move(amounts)}};
     // m_tempSaveHappiness is transient (only used between Save/Restore
@@ -969,13 +969,13 @@ void to_json(nlohmann::json &j, Strengths const &s)
     // SimpleDynamicArray<sint32>.  Serialise as a 2D array indexed
     // first by category, then by per-turn record.
     nlohmann::json records = nlohmann::json::array();
-    for (sint32 cat = 0; cat < STRENGTH_CAT_MAX; ++cat)
+    for (const auto & m_strengthRecord : s.m_strengthRecords)
     {
         nlohmann::json per_cat = nlohmann::json::array();
-        sint32 const n = s.m_strengthRecords[cat].Num();
+        sint32 const n = m_strengthRecord.Num();
         for (sint32 i = 0; i < n; ++i)
         {
-            per_cat.push_back(s.m_strengthRecords[cat][i]);
+            per_cat.push_back(m_strengthRecord[i]);
         }
         records.push_back(std::move(per_cat));
     }
@@ -1137,9 +1137,9 @@ void to_json(nlohmann::json &j, CivilisationData const &c)
 {
     // m_cityname_count is uint8[500] — store as flat array.
     nlohmann::json cityname_count = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_CityName; ++i)
+    for (unsigned char i : c.m_cityname_count)
     {
-        cityname_count.push_back(c.m_cityname_count[i]);
+        cityname_count.push_back(i);
     }
     // Char buffers: store as plain JSON strings.  The binary path
     // dumps all 512 bytes of each buffer; JSON form is the
@@ -1798,10 +1798,10 @@ void from_json(nlohmann::json const &j, InstallationData &d)
 void to_json(nlohmann::json &j, InstallationPool const &p)
 {
     nlohmann::json installations = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            installations.push_back(*reinterpret_cast<InstallationData const *>(p.m_table[i]));
+        if (i)
+            installations.push_back(*reinterpret_cast<InstallationData const *>(i));
     }
     j = nlohmann::json{
         {"next_key",      const_cast<InstallationPool &>(p).HackGetKey()},
@@ -1812,10 +1812,10 @@ void to_json(nlohmann::json &j, InstallationPool const &p)
 void from_json(nlohmann::json const &j, InstallationPool &p)
 {
     // Drain pre-existing entries (see UnitPool::from_json for rationale).
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -1896,9 +1896,9 @@ void jsonToMapPointArray(nlohmann::json const &j, DynamicArray<MapPoint> &arr)
 void to_json(nlohmann::json &j, TradeRouteData const &d)
 {
     nlohmann::json passes_through = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    for (unsigned int i : d.m_passesThrough)
     {
-        passes_through.push_back(static_cast<bool>(d.m_passesThrough[i]));
+        passes_through.push_back(static_cast<bool>(i));
     }
 
     j = nlohmann::json{
@@ -1986,10 +1986,10 @@ void from_json(nlohmann::json const &j, TradeRouteData &d)
 void to_json(nlohmann::json &j, TradePool const &p)
 {
     nlohmann::json routes = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            routes.push_back(*reinterpret_cast<TradeRouteData const *>(p.m_table[i]));
+        if (i)
+            routes.push_back(*reinterpret_cast<TradeRouteData const *>(i));
     }
     j = nlohmann::json{
         {"next_key", const_cast<TradePool &>(p).HackGetKey()},
@@ -2000,10 +2000,10 @@ void to_json(nlohmann::json &j, TradePool const &p)
 void from_json(nlohmann::json const &j, TradePool &p)
 {
     // Drain pre-existing entries (see UnitPool::from_json for rationale).
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -2052,11 +2052,11 @@ void from_json(nlohmann::json const &j, TerrainImprovementData &d)
 void to_json(nlohmann::json &j, TerrainImprovementPool const &p)
 {
     nlohmann::json improvements = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
+        if (i)
             improvements.push_back(
-                *reinterpret_cast<TerrainImprovementData const *>(p.m_table[i]));
+                *reinterpret_cast<TerrainImprovementData const *>(i));
     }
     j = nlohmann::json{
         {"next_key",     const_cast<TerrainImprovementPool &>(p).HackGetKey()},
@@ -2067,10 +2067,10 @@ void to_json(nlohmann::json &j, TerrainImprovementPool const &p)
 void from_json(nlohmann::json const &j, TerrainImprovementPool &p)
 {
     // Drain pre-existing entries (see UnitPool::from_json for rationale).
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -2227,10 +2227,10 @@ void from_json(nlohmann::json const &j, EndGame &g)
 void to_json(nlohmann::json &j, CivilisationPool const &p)
 {
     nlohmann::json civs = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            civs.push_back(*reinterpret_cast<CivilisationData const *>(p.m_table[i]));
+        if (i)
+            civs.push_back(*reinterpret_cast<CivilisationData const *>(i));
     }
     nlohmann::json used_civs = nlohmann::json::array();
     if (p.m_usedCivs)
@@ -2248,10 +2248,10 @@ void to_json(nlohmann::json &j, CivilisationPool const &p)
 void from_json(nlohmann::json const &j, CivilisationPool &p)
 {
     // Drain pre-existing entries (see UnitPool::from_json for rationale).
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -2283,10 +2283,10 @@ void from_json(nlohmann::json const &j, CivilisationPool &p)
 void to_json(nlohmann::json &j, UnitPool const &p)
 {
     nlohmann::json units = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            units.push_back(*reinterpret_cast<UnitData const *>(p.m_table[i]));
+        if (i)
+            units.push_back(*reinterpret_cast<UnitData const *>(i));
     }
     j = nlohmann::json{
         {"next_key", const_cast<UnitPool &>(p).HackGetKey()},
@@ -2299,10 +2299,10 @@ void from_json(nlohmann::json const &j, UnitPool &p)
     // Drain any pre-existing entries so reloading on top of fresh-game
     // state (LoadJson pattern) doesn't double-populate.  Mirrors
     // MessagePool's from_json drain; ObjPool::Del walks the BST root.
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     p.HackSetKey(j.at("next_key").get<uint32>());
@@ -2326,10 +2326,10 @@ void from_json(nlohmann::json const &j, UnitPool &p)
 void to_json(nlohmann::json &j, ArmyPool const &p)
 {
     nlohmann::json armies = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            armies.push_back(*reinterpret_cast<ArmyData const *>(p.m_table[i]));
+        if (i)
+            armies.push_back(*reinterpret_cast<ArmyData const *>(i));
     }
     j = nlohmann::json{
         {"next_key", const_cast<ArmyPool &>(p).HackGetKey()},
@@ -2340,10 +2340,10 @@ void to_json(nlohmann::json &j, ArmyPool const &p)
 void from_json(nlohmann::json const &j, ArmyPool &p)
 {
     // Drain pre-existing entries (see UnitPool::from_json for rationale).
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
-            p.Del(p.m_table[i]);
+        while (i)
+            p.Del(i);
     }
 
     // Restore next-key counter so subsequent NewKey() calls continue
@@ -2701,13 +2701,13 @@ void to_json(nlohmann::json &j, Player const &p)
     // Pollution history arrays
     nlohmann::json pollution_history  = nlohmann::json::array();
     nlohmann::json event_pollution    = nlohmann::json::array();
-    for (sint32 i = 0; i < k_MAX_POLLUTION_HISTORY; ++i)
+    for (unsigned int i : p.m_pollution_history)
     {
-        pollution_history.push_back(p.m_pollution_history[i]);
+        pollution_history.push_back(i);
     }
-    for (sint32 i = 0; i < k_MAX_EVENT_POLLUTION_TURNS; ++i)
+    for (int i : p.m_event_pollution)
     {
-        event_pollution.push_back(p.m_event_pollution[i]);
+        event_pollution.push_back(i);
     }
 
     // m_goodSalePrices (variable-length, sized by ResourceDB)
@@ -3009,10 +3009,10 @@ void to_json(nlohmann::json &j, Foreigner const &f)
     // (excluding REGARD_EVENT_ALL — that's a derived total), inner is
     // the list of events for that type.
     nlohmann::json regard_event_list = nlohmann::json::array();
-    for (sint32 type = 0; type < REGARD_EVENT_ALL; ++type)
+    for (const auto & type : f.m_regardEventList)
     {
         nlohmann::json events = nlohmann::json::array();
-        for (auto const &ev : f.m_regardEventList[type])
+        for (auto const &ev : type)
         {
             events.push_back(ev);
         }
@@ -4294,13 +4294,13 @@ void from_json(nlohmann::json const &j, SlicEngine &e)
     }
 
     // Per-player records.
-    for (sint32 i = 0; i < k_MAX_PLAYERS; ++i)
+    for (auto & m_record : e.m_records)
     {
-        if (e.m_records[i])
+        if (m_record)
         {
-            e.m_records[i]->DeleteAll();
-            delete e.m_records[i];
-            e.m_records[i] = nullptr;
+            m_record->DeleteAll();
+            delete m_record;
+            m_record = nullptr;
         }
     }
     for (auto const &rec : j.at("records"))
@@ -4573,10 +4573,10 @@ void from_json(nlohmann::json const &j, MessageData &m)
 void to_json(nlohmann::json &j, MessagePool const &p)
 {
     nlohmann::json messages = nlohmann::json::array();
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto i : p.m_table)
     {
-        if (p.m_table[i])
-            messages.push_back(*static_cast<MessageData const *>(p.m_table[i]));
+        if (i)
+            messages.push_back(*static_cast<MessageData const *>(i));
     }
     j = nlohmann::json{
         {"next_key", const_cast<MessagePool &>(p).HackGetKey()},
@@ -4590,11 +4590,11 @@ void from_json(nlohmann::json const &j, MessagePool &p)
     // produce a hybrid pool. Mirrors MessageData::from_json semantics.
     // Each m_table slot is a GameObj BST root (m_lesser/m_greater), so we
     // must drain via Del() — matches ~ObjPool at ObjPool.cpp:48.
-    for (sint32 i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+    for (auto & i : p.m_table)
     {
-        while (p.m_table[i])
+        while (i)
         {
-            p.Del(p.m_table[i]);
+            p.Del(i);
         }
     }
 

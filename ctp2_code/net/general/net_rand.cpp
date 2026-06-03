@@ -14,8 +14,8 @@ void NetRand::Packetize(uint8* buf, uint16 &size)
 
 	size = 2;
 	PUSHLONG(rand_ptr()->m_start_seed);
-	for(sint32 i = 0; i < k_RAND_ARRAY_SIZE; i++) {
-		PUSHLONG(rand_ptr()->m_buffer[i]);
+	for(int i : rand_ptr()->m_buffer) {
+		PUSHLONG(i);
 	}
 	PUSHLONG(rand_ptr()->m_firstp - rand_ptr()->m_buffer);
 	PUSHLONG(rand_ptr()->m_secondp - rand_ptr()->m_buffer);
@@ -34,8 +34,8 @@ void NetRand::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	PULLLONG(rand_ptr()->m_start_seed);
 
-	for(sint32 i = 0; i < k_RAND_ARRAY_SIZE; i++) {
-		PULLLONG(rand_ptr()->m_buffer[i]);
+	for(int & i : rand_ptr()->m_buffer) {
+		PULLLONG(i);
 	}
 
 	PULLLONG(firstpindex);

@@ -91,7 +91,7 @@ private:
 	POINT	m_offset[k_NUM_C3_FANCYBORDERS];
 
 	POINT	m_originalDimensions;
-	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=nullptr; }
+	void NullBorders() { for(auto & i : m_border) i=nullptr; }
 
 	c3_Static	*m_title;
 
@@ -141,7 +141,7 @@ private:
 	C3Window *m_border[k_NUM_C3_FANCYBORDERS2];
 
 	POINT	m_offset[k_NUM_C3_FANCYBORDERS2];
-	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=nullptr; }
+	void NullBorders() { for(auto & i : m_border) i=nullptr; }
 
 	c3_Static	*m_title;
 

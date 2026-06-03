@@ -203,9 +203,9 @@ SlicEngine::SlicEngine()
 	m_contextStack          (new PointerList<SlicObject>),
 	m_breakRequested        (false)
 {
-	for (size_t i = 0; i < TRIGGER_LIST_MAX; ++i)
+	for (auto & m_triggerList : m_triggerLists)
 	{
-		m_triggerLists[i] = new PointerList<SlicSegment>;
+		m_triggerList = new PointerList<SlicSegment>;
 	}
 
 	std::fill(m_records, m_records + k_MAX_PLAYERS, (PointerList<SlicRecord> *) nullptr);
@@ -248,9 +248,9 @@ SlicEngine::SlicEngine(CivArchive &archive)
 	m_contextStack          (new PointerList<SlicObject>),
 	m_breakRequested        (false)
 {
-	for (size_t i = 0; i < TRIGGER_LIST_MAX; ++i)
+	for (auto & m_triggerList : m_triggerLists)
 	{
-		m_triggerLists[i] = new PointerList<SlicSegment>;
+		m_triggerList = new PointerList<SlicSegment>;
 	}
 
 	std::fill(m_records, m_records + k_MAX_PLAYERS, (PointerList<SlicRecord> *) nullptr);
@@ -2541,9 +2541,9 @@ bool SlicEngine::IsKeyPressed(MBCHAR key) const
 
 bool SlicEngine::RunKeyboardTrigger(MBCHAR key)
 {
-	for (size_t i = 0; i < k_MAX_TRIGGER_KEYS; i++)
+	for (char i : m_triggerKey)
 	{
-		if (m_triggerKey[i] == key)
+		if (i == key)
 		{
 			m_currentKeyTrigger = key;
 			RunTrigger(TRIGGER_LIST_KEY_PRESSED, ST_END);
@@ -3057,10 +3057,10 @@ SlicDBInterface *SlicEngine::GetDBConduit(const char *name)
 
 void SlicEngine::AddModFuncs()
 {
-	for (size_t i = 0; i < mod_MAX; ++i)
+	for (auto & i : m_modFunc)
 	{
-		delete m_modFunc[i];
-		m_modFunc[i] = nullptr;
+		delete i;
+		i = nullptr;
 	}
 
 	SMF_2A(mod_CanPlayerHaveAdvance, ST_PLAYER, ST_ADVANCE);

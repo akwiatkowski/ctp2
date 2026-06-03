@@ -648,10 +648,10 @@ public:
 			delete pFoo;
 		}
 
-		for (int i = 0; i < kCreditsTextNumFonts; i++)
+		for (auto & m_font : m_fonts)
 		{
-			if (m_fonts[i])
-				c3ui_Get()->UnloadBitmapFont(m_fonts[i]);
+			if (m_font)
+				c3ui_Get()->UnloadBitmapFont(m_font);
 		}
 
 	};

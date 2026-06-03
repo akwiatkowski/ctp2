@@ -1216,9 +1216,9 @@ bool MapFile::LoadCivilizations(uint8 *buf, sint32 size)
 		{
 			player_Get(i)->m_civilisation->ResetCiv(currNation, player_Get(i)->m_civilisation->GetGender());
 			MBCHAR name[k_MAPFILE_NAME_LEN];
-			for (int j = 0; j < k_MAPFILE_NAME_LEN; j++)
+			for (char & j : name)
 			{
-				PULLBYTE(name[j]);
+				PULLBYTE(j);
 			}
 
 

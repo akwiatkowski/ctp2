@@ -226,13 +226,9 @@ GAME_EVENT_ERR GameEventHook::Activate
     resumeIndex = 0;
 
 	for
-    (
-        std::list<Node>::const_iterator walk = m_callbacks.begin();
-        walk != m_callbacks.end();
-        ++walk
-    )
+    (auto runningNow : m_callbacks)
     {
-        Node const &    runningNow  = *walk;
+        
 #if defined(_DEBUG)
         char desc[1024];
 	    runningNow.m_cb->GetDescription(desc, 1024);

@@ -77,9 +77,9 @@ SpriteGroupList::SpriteGroupList()
 
 SpriteGroupList::~SpriteGroupList()
 {
-	for (size_t i = 0; i < k_MAX_SPRITES; ++i)
+	for (auto & i : m_spriteList)
     {
-		delete m_spriteList[i];
+		delete i;
 	}
 }
 

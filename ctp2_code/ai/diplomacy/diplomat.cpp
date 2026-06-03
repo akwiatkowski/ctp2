@@ -251,9 +251,9 @@ void Diplomat::ResizeAll(const PLAYER_INDEX & newMaxPlayers)
 
 void Diplomat::CleanupAll()
 {
-	for (size_t i = 0; i < s_theDiplomats.size(); ++i)
+	for (auto & s_theDiplomat : s_theDiplomats)
 	{
-		s_theDiplomats[i].Cleanup();
+		s_theDiplomat.Cleanup();
 	}
 
 	s_theDiplomats.clear();
@@ -262,9 +262,9 @@ void Diplomat::CleanupAll()
 
 void Diplomat::InitializeAll()
 {
-	for (size_t i = 0; i < s_theDiplomats.size(); ++i)
+	for (auto & s_theDiplomat : s_theDiplomats)
 	{
-		s_theDiplomats[i].Initialize();
+		s_theDiplomat.Initialize();
 	}
 }
 
@@ -273,9 +273,9 @@ void Diplomat::LoadAll(CivArchive & archive)
 	archive >> s_nextId;
 	AgreementMatrix::s_agreements.Load(archive);
 
-	for (size_t i = 0; i < s_theDiplomats.size(); ++i)
+	for (auto & s_theDiplomat : s_theDiplomats)
 	{
-		s_theDiplomats[i].Load(archive);
+		s_theDiplomat.Load(archive);
 	}
 }
 
@@ -284,9 +284,9 @@ void Diplomat::SaveAll(CivArchive & archive)
 	archive << s_nextId;
 	AgreementMatrix::s_agreements.Save(archive);
 
-	for (size_t i = 0; i < s_theDiplomats.size(); i++)
+	for (const auto & s_theDiplomat : s_theDiplomats)
 	{
-		s_theDiplomats[i].Save(archive);
+		s_theDiplomat.Save(archive);
 	}
 }
 
@@ -911,17 +911,15 @@ void Diplomat::BeginTurn()
 
 	m_motivations.clear();
 
-	for(size_t foreigner=0; foreigner < m_lastMotivation.size(); foreigner++)
+	for(auto & foreigner : m_lastMotivation)
 	{
-		m_lastMotivation[foreigner] = m_motivations.end();
+		foreigner = m_motivations.end();
 	}
 
-	for ( ForeignerVector::iterator iter = m_foreigners.begin();
-		  iter != m_foreigners.end();
-		  ++iter ) {
+	for (auto & m_foreigner : m_foreigners) {
 
-		iter->SetMyLastResponse( Diplomat::s_badResponse );
-		iter->SetMyLastNewProposal( Diplomat::s_badNewProposal );
+		m_foreigner.SetMyLastResponse( Diplomat::s_badResponse );
+		m_foreigner.SetMyLastNewProposal( Diplomat::s_badNewProposal );
 	}
 
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_ComputeMotivations,
@@ -4343,9 +4341,8 @@ bool Diplomat::TestEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai::R
 		pEntry->m_round = curRound;
 		pEntry->m_bits = 0;
 
-		for (int i=0;i<7;++i) {
-			int regard = s_regardList[i];
-			if (ComputeEffectiveRegard(foreignerId,regard)) {
+		for (int regard : s_regardList) {
+				if (ComputeEffectiveRegard(foreignerId,regard)) {
 				pEntry->m_bits |= (1<<pEntry->RegardToIndex(regard));
 			}
 		}
@@ -4362,9 +4359,9 @@ bool Diplomat::TestEffectiveRegard(const PLAYER_INDEX & foreignerId, const ai::R
 
 void Diplomat::ClearEffectiveRegardCache()
 {
-	for (size_t i = 0; i < k_MAX_PLAYERS; ++i)
+	for (auto & i : m_effectiveRegardCache)
     {
-		m_effectiveRegardCache[i].m_round = -666;
+		i.m_round = -666;
 	}
 }
 
@@ -4668,22 +4665,18 @@ void Diplomat::UpdateAttributes()
 bool Diplomat::GetTradeRoutePiracyRisk(const Unit & source_city, const Unit & dest_city) const
 {
 	for
-    (
-        PiracyHistoryList::const_iterator piracy_iter = m_piracyHistory.begin();
-	    piracy_iter != m_piracyHistory.end();
-        ++piracy_iter
-    )
+    (const auto & piracy_iter : m_piracyHistory)
 	{
-		if ((piracy_iter->m_sourceCity == source_city) &&
-			(piracy_iter->m_destinationCity == dest_city) &&
-			!AgreementMatrix::s_agreements.HasAgreement(piracy_iter->m_piratingPlayer,
+		if ((piracy_iter.m_sourceCity == source_city) &&
+			(piracy_iter.m_destinationCity == dest_city) &&
+			!AgreementMatrix::s_agreements.HasAgreement(piracy_iter.m_piratingPlayer,
 													   m_playerId, PROPOSAL_OFFER_STOP_PIRACY)
            )
 		{
         	sint32 max_piracy_events;
 	        GetCurrentStrategy().GetMaxPiracyEvents(max_piracy_events);
 
-			return piracy_iter->m_accumEvents >= max_piracy_events;
+			return piracy_iter.m_accumEvents >= max_piracy_events;
 		}
 	}
 
@@ -4770,15 +4763,11 @@ void Diplomat::ComputeTradeRoutePiracyRisk()
 bool Diplomat::GetTradeRoutePiracyRisk(const PLAYER_INDEX foreignerId) const
 {
 	for
-    (
-        PiracyHistoryList::const_iterator piracy_iter = m_piracyHistory.begin();
-	    piracy_iter != m_piracyHistory.end();
-        ++piracy_iter
-    )
+    (const auto & piracy_iter : m_piracyHistory)
 	{
-		if ((piracy_iter->m_piratingPlayer == foreignerId) &&
+		if ((piracy_iter.m_piratingPlayer == foreignerId) &&
 			!AgreementMatrix::s_agreements.HasAgreement
-                (piracy_iter->m_piratingPlayer, m_playerId, PROPOSAL_OFFER_STOP_PIRACY)
+                (piracy_iter.m_piratingPlayer, m_playerId, PROPOSAL_OFFER_STOP_PIRACY)
            )
 		{
 			return true;

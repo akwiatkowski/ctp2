@@ -489,13 +489,9 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 
 	// Put the special items on top
 	for
-	(
-		std::vector<Pixel16 *>::iterator	p	= drawOnTop.begin();
-		p != drawOnTop.end();
-		++p
-	)
+	(auto & p : drawOnTop)
 	{
-		DrawAnImprovement(surface, *p, x, y, fog);
+		DrawAnImprovement(surface, p, x, y, fog);
 		drewSomething = true;
 	}
 

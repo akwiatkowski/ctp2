@@ -4799,8 +4799,7 @@ namespace {
 
         static void handleSignal(int sig) {
             const char* name = "<unknown signal>";
-            for(std::size_t i = 0; i < DOCTEST_COUNTOF(signalDefs); ++i) {
-                SignalDefs& def = signalDefs[i];
+            for(auto & def : signalDefs) {
                 if(sig == def.id) {
                     name = def.name;
                     break;
@@ -6048,9 +6047,9 @@ namespace {
 
             if(currentSubcaseLevel != subcasesStack.size()) {
                 s << Color::Yellow << "\nDEEPEST SUBCASE STACK REACHED (DIFFERENT FROM THE CURRENT ONE):\n" << Color::None;
-                for(size_t i = 0; i < subcasesStack.size(); ++i) {
-                    if(subcasesStack[i].m_name[0] != '\0')
-                        s << "  " << subcasesStack[i].m_name << "\n";
+                for(auto & i : subcasesStack) {
+                    if(i.m_name[0] != '\0')
+                        s << "  " << i.m_name << "\n";
                 }
             }
 

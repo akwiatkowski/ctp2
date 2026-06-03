@@ -81,8 +81,8 @@ void WonderTracker::Serialize(CivArchive &archive)
 
 			sint32 tmp[k_MAX_PLAYERS];
 			archive.Load((uint8*)tmp, k_MAX_PLAYERS * sizeof(sint32));
-			for(int i=0; i<k_MAX_PLAYERS; i++)
-				m_buildingWonders[i] = (uint64) 0x0;
+			for(unsigned long long & m_buildingWonder : m_buildingWonders)
+				m_buildingWonder = (uint64) 0x0;
 		}
 	}
 }

@@ -79,7 +79,7 @@ private:
 	POINT	m_offset[k_NUM_BORDERS];
 
 	POINT	m_originalDimensions;
-	void NullBorders() { for(uint32 i =0; i< k_NUM_BORDERS; i++) m_border[i]=nullptr; }
+	void NullBorders() { for(auto & i : m_border) i=nullptr; }
 	c3_Button *m_exit;
 };
 

@@ -75,12 +75,12 @@ GameEventArgList::GameEventArgList(CivArchive &archive)
 
 GameEventArgList::~GameEventArgList()
 {
-	for (size_t arg = 0; arg < static_cast<size_t>(GEA_End); ++arg)
+	for (auto & m_argList : m_argLists)
 	{
-		if (m_argLists[arg])
+		if (m_argList)
 		{
-			m_argLists[arg]->DeleteAll();
-			delete m_argLists[arg];
+			m_argList->DeleteAll();
+			delete m_argList;
 		}
 	}
 }

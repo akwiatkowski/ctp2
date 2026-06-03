@@ -13,8 +13,8 @@ class NetHash
 public:
 	NetHash()
 	{
-		for(uint32 i = 0; i < k_NET_HASH_TABLE_SIZE; i++) {
-			m_table[i] = nullptr;
+		for(auto & i : m_table) {
+			i = nullptr;
 		}
 		m_numEntries = 0;
 		m_lowKey = k_NET_HASH_TABLE_SIZE;

@@ -161,15 +161,15 @@ ProjectFile::~ProjectFile()
         free(m_entries);
     }
 
-    for (size_t i = 0; i < MAX_PRJFILE_PATHS; i++)
+    for (auto & m_path : m_paths)
     {
-        switch(m_paths[i].type)
+        switch(m_path.type)
         {
         default:
             break;
 
         case PRJFILE_PATH_ZFS:
-            fclose(m_paths[i].zfs_fp);
+            fclose(m_path.zfs_fp);
             break;
 
         case PRJFILE_PATH_ZMS:
@@ -179,7 +179,7 @@ ProjectFile::~ProjectFile()
                       m_paths[i].zms_hf
                      );
 #else
-            unmapFile(m_paths[i]);
+            unmapFile(m_path);
 #endif
             break;
         }

@@ -1589,8 +1589,8 @@ void World::CalcCumScore(sint32 d, const sint32 x, const sint32 y,
     float &cum_score, float **raw_score)
 {
 	sint32 numCounted[TERRAIN_MAX];
-	for(sint32 i = 0; i < TERRAIN_MAX; i++) {
-		numCounted[i] = 0;
+	for(int & i : numCounted) {
+		i = 0;
 	}
 	sint32 maxToCount = g_theConstDB->Get(0)->GetMaxSameTiles();
 

@@ -369,15 +369,15 @@ TEST_CASE("GameObserverRegistry dispatches to many observers") {
         void OnTurnStart(sint32) override { ++count; }
     };
     Counter obs[10];
-    for (int i = 0; i < 10; ++i) {
-        reg.Register(&obs[i]);
+    for (auto & ob : obs) {
+        reg.Register(&ob);
     }
     reg.NotifyTurnStart(0);
-    for (int i = 0; i < 10; ++i) {
-        CHECK(obs[i].count == 1);
+    for (auto & ob : obs) {
+        CHECK(ob.count == 1);
     }
-    for (int i = 0; i < 10; ++i) {
-        reg.Unregister(&obs[i]);
+    for (auto & ob : obs) {
+        reg.Unregister(&ob);
     }
 }
 

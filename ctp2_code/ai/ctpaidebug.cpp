@@ -45,12 +45,12 @@ bool CtpAiDebug::DebugLogCheck(const sint32 player, const sint32 goal_type, cons
 	if (army_id != -1)
 	{
 		bool found = false;
-		for (sint32 i = 0; i < k_MAX_ARMY_SIZE; i++)
+		for (int s_debugArmie : s_debugArmies)
 		{
-			if (s_debugArmies[i] == army_id)
+			if (s_debugArmie == army_id)
 				return true;
 
-			if (s_debugArmies[i] != -1)
+			if (s_debugArmie != -1)
 				found = true;
 		}
 
@@ -80,9 +80,9 @@ bool CtpAiDebug::IsDebugGoalTypeSet()
 
 bool CtpAiDebug::IsDebugArmyIdSet()
 {
-	for (sint32 i = 0; i < k_MAX_ARMY_SIZE; i++)
+	for (int s_debugArmie : s_debugArmies)
 	{
-		if (s_debugArmies[i] != -1)
+		if (s_debugArmie != -1)
 			return true;
 	}
 	return false;

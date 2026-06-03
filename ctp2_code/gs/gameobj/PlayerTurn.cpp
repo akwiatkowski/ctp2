@@ -111,9 +111,9 @@ void Player::BeginTurn()
 
 		m_civRevoltingCitiesShouldJoin = -1;
 
-		for(sint32 p = 0; p < k_MAX_PLAYERS; p++)
+		for(int & p : m_sent_requests_this_turn)
 		{
-			m_sent_requests_this_turn[p] = 0;
+			p = 0;
 		}
 
 		gevmanager_Get()->AddEvent(GEV_INSERT_Tail,

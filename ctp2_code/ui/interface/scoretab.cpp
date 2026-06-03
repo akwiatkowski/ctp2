@@ -57,9 +57,9 @@ ScoreTab::ScoreTab()
 	m_difficultyStrings = new aui_StringTable(&errcode, "strings.difficulty1strings");
 
     m_scoreList->Clear();
-	for (int i = 0; i < SCORE_CAT_MAX; i++)
+	for (auto & i : m_scoreElem)
 	{
-		m_scoreElem[i] = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("ScoreElement");
+		i = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot("ScoreElement");
 	}
 	m_scoreList->AddItem(m_scoreElem[SCORE_CAT_TYPE_OF_VICTORY]);
 	m_scoreList->AddItem(m_scoreElem[SCORE_CAT_OPPONENTS_CONQUERED]);

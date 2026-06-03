@@ -421,13 +421,13 @@ AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 
 c3_Ranger::~c3_Ranger()
 {
-	for ( sint32 i = 0; i < 4; i++ )
+	for (auto & m_arrow : m_arrows)
     {
-	    if ( m_arrows[ i ] )
+	    if ( m_arrow )
 	    {
-		    aui_Ldl::Remove(m_arrows[i]);
+		    aui_Ldl::Remove(m_arrow);
 
-		    delete m_arrows[ i ];
+		    delete m_arrow;
 	    }
     }
 }
@@ -438,9 +438,9 @@ AUI_ERRCODE c3_Ranger::RepositionButtons( )
 	AUI_ERRCODE errcode = aui_Ranger::RepositionButtons();
 
 
-	for ( sint32 i = 0; i < 4; i++ )
-	if ( m_arrows[ i ] )
-		m_arrows[ i ]->Adjust();
+	for (auto & m_arrow : m_arrows)
+	if ( m_arrow )
+		m_arrow->Adjust();
 
 	return errcode;
 }

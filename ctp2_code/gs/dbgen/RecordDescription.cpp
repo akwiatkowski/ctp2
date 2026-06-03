@@ -239,15 +239,11 @@ void RecordDescription::ExportForwardDeclarations(FILE *outfile)
 	}
 
     for
-    (
-        std::set<std::string>::const_iterator  p = forwardClasses.begin();
-        p != forwardClasses.end();
-        ++p
-    )
+    (const auto & forwardClasse : forwardClasses)
     {
-        if (strcmp(m_name, p->c_str()))
+        if (strcmp(m_name, forwardClasse.c_str()))
         {
-	        fprintf(outfile, "class %sRecord;\n", p->c_str());
+	        fprintf(outfile, "class %sRecord;\n", forwardClasse.c_str());
         }
         // else: The main class has been exported at the top
     }

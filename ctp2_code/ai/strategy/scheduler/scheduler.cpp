@@ -285,25 +285,22 @@ void Scheduler::Cleanup()
 	}
 
 	Sorted_Goal_Iter sorted_goal_iter;
-	for(size_t    goal_type = 0;
-	              goal_type < m_goals_of_type.size();
-	              goal_type++
-	){
-		sorted_goal_iter = m_goals_of_type[goal_type].begin();
-		while (sorted_goal_iter != m_goals_of_type[goal_type].end() )
+	for(auto & goal_type : m_goals_of_type){
+		sorted_goal_iter = goal_type.begin();
+		while (sorted_goal_iter != goal_type.end() )
 		{
 			delete sorted_goal_iter->second;
 			sorted_goal_iter++;
 		}
-		m_goals_of_type[goal_type].clear();
+		goal_type.clear();
 	}
 
 	m_goals_of_type.clear();
 	m_goals.clear();
 
-	for(size_t i = 0; i < m_generic_goals.size(); ++i)
+	for(auto & m_generic_goal : m_generic_goals)
 	{
-		delete m_generic_goals[i];
+		delete m_generic_goal;
 	}
 
 	m_generic_goals.clear();
@@ -348,9 +345,9 @@ void Scheduler::SetPlayerId(const PLAYER_INDEX &player_index)
 {
 	m_playerId = player_index;
 
-	for(size_t i = 0; i < m_generic_goals.size(); ++i)
+	for(auto & m_generic_goal : m_generic_goals)
 	{
-		m_generic_goals[i]->Set_Player_Index(player_index);
+		m_generic_goal->Set_Player_Index(player_index);
 	}
 }
 
@@ -429,13 +426,9 @@ void Scheduler::Reset_Agent_Execution()
 	}
 
 	for
-	(
-	    Goal_List::iterator goal_iter  = m_goals.begin();
-	                        goal_iter != m_goals.end();
-	                      ++goal_iter
-	)
+	(auto & m_goal : m_goals)
 	{
-		(*goal_iter)->Set_Needs_Transporter(false);
+		m_goal->Set_Needs_Transporter(false);
 	}
 }
 
@@ -853,13 +846,9 @@ void Scheduler::Match_Resources(const bool move_armies)
 	sint32 committed_agents_test = 0;
 
 	for
-	(
-	    Goal_List::iterator goal_iter2  = m_goals.begin();
-	                        goal_iter2 != m_goals.end();
-	                      ++goal_iter2
-	)
+	(auto & m_goal : m_goals)
 	{
-		Goal_ptr goal_ptr        = static_cast<Goal_ptr>(*goal_iter2);
+		Goal_ptr goal_ptr        = static_cast<Goal_ptr>(m_goal);
 		committed_agents_test   += goal_ptr->Get_Agent_Count();
 	}
 
@@ -1016,15 +1005,10 @@ sint32 Scheduler::GetValueUnsatisfiedGoals(const GOAL_TYPE & type) const
 	if(IsValid(type, m_goals_of_type))
 	{
 		for
-		(
-		    Sorted_Goal_List::const_iterator
-		        sorted_goal_iter  = m_goals_of_type[type].begin();
-		        sorted_goal_iter != m_goals_of_type[type].end();
-		      ++sorted_goal_iter
-		)
+		(const auto & sorted_goal_iter : m_goals_of_type[type])
 		{
 			Goal_ptr const goal_ptr =
-				static_cast<Goal_ptr const>(sorted_goal_iter->second);
+				static_cast<Goal_ptr const>(sorted_goal_iter.second);
 
 			if(goal_ptr->Get_Invalid()		||
 			   goal_ptr->Is_Satisfied()	||
@@ -1069,15 +1053,10 @@ Goal_ptr Scheduler::GetHighestPriorityGoal(const GOAL_TYPE & type, const bool sa
 	if(IsValid(type, m_goals_of_type))
 	{
 		for
-		(
-		    Sorted_Goal_List::const_iterator
-		        sorted_goal_iter  = m_goals_of_type[type].begin();
-		        sorted_goal_iter != m_goals_of_type[type].end();
-		      ++sorted_goal_iter
-		)
+		(const auto & sorted_goal_iter : m_goals_of_type[type])
 		{
 			Goal_ptr	const	goal_ptr =
-				static_cast<Goal_ptr const>(sorted_goal_iter->second);
+				static_cast<Goal_ptr const>(sorted_goal_iter.second);
 
 			if(goal_ptr->Get_Invalid()                  ||
 			    (satisfied != goal_ptr->Is_Satisfied()) ||
@@ -1435,14 +1414,9 @@ void Scheduler::Add_New_Matches_For_Goal
 	SQUAD_CLASS goal_squad_class = g_theGoalDB->Get(type)->GetSquadClass();
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto agent : m_agents)
 	{
-		Agent* agent = (*agent_iter);
-		if((goal_squad_class & agent->Get_Squad_Class()) != goal_squad_class)
+			if((goal_squad_class & agent->Get_Squad_Class()) != goal_squad_class)
 			continue;
 
 		goal_ptr->Add_Match(agent, update_match_value);
@@ -1476,18 +1450,14 @@ void Scheduler::Add_New_Matches_For_Agent
 			continue;
 
 		for
-		(
-		    Sorted_Goal_Iter goal_iter  = goal_list.begin();
-		                     goal_iter != goal_list.end();
-		                   ++goal_iter
-		){
-			if(goal_iter->second->Get_Matches_Num() == 0)
+		(auto & goal_iter : goal_list){
+			if(goal_iter.second->Get_Matches_Num() == 0)
 				continue;
 
-			if(goal_iter->second->Get_Invalid())
+			if(goal_iter.second->Get_Invalid())
 				continue;
 
-			goal_iter->second->Add_Match(agent);
+			goal_iter.second->Add_Match(agent);
 		}
 	}
 }
@@ -1510,13 +1480,9 @@ void Scheduler::Remove_Matches_For_Agent
 		Sorted_Goal_List & goal_list = m_goals_of_type[i];
 
 		for
-		(
-		    Sorted_Goal_Iter goal_iter  = goal_list.begin();
-		                     goal_iter != goal_list.end();
-		                   ++goal_iter
-		){
+		(auto & goal_iter : goal_list){
 
-			goal_iter->second->Remove_Match(agent);
+			goal_iter.second->Remove_Match(agent);
 		}
 	}
 }
@@ -1563,14 +1529,9 @@ bool Scheduler::Add_Transport_Matches_For_Goal
 	bool match_added = false;
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto agent : m_agents)
 	{
-		Agent* agent = (*agent_iter);
-		if ( (k_Goal_SquadClass_CanTransport_Bit & agent->Get_Squad_Class()) !=
+			if ( (k_Goal_SquadClass_CanTransport_Bit & agent->Get_Squad_Class()) !=
 			  k_Goal_SquadClass_CanTransport_Bit )
 			  continue;
 
@@ -1837,13 +1798,9 @@ bool Scheduler::CachedIsAllyRegard(sint32 player, sint32 ally)
 void Scheduler::Recompute_Goal_Strength()
 {
 	for
-	(
-	    Goal_List::iterator goal_iter  = m_goals.begin();
-	                        goal_iter != m_goals.end();
-	                      ++goal_iter
-	)
+	(auto & m_goal : m_goals)
 	{
-		Goal_ptr theGoal = static_cast<Goal_ptr>(*goal_iter);
+		Goal_ptr theGoal = static_cast<Goal_ptr>(m_goal);
 
 		theGoal->Recompute_Current_Attacking_Strength();
 	}
@@ -1852,52 +1809,36 @@ void Scheduler::Recompute_Goal_Strength()
 void Scheduler::Compute_Agent_Strength()
 {
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto & m_agent : m_agents)
 	{
-		(*agent_iter)->Compute_Squad_Strength();
+		m_agent->Compute_Squad_Strength();
 	}
 }
 
 void Scheduler::Rollback_Emptied_Transporters()
 {
 	for
-	(
-	    Goal_List::iterator goal_iter  = m_goals.begin();
-	                        goal_iter != m_goals.end();
-	                      ++goal_iter
-	)
+	(auto & m_goal : m_goals)
 	{
-		(*goal_iter)->Rollback_Emptied_Transporters();
+		m_goal->Rollback_Emptied_Transporters();
 	}
 }
 
 void Scheduler::Sort_Goal_Matches_If_Necessary()
 {
 	for
-	(
-	    Goal_List::iterator goal_iter  = m_goals.begin();
-	                        goal_iter != m_goals.end();
-	                      ++goal_iter
-	)
+	(auto & m_goal : m_goals)
 	{
-		(*goal_iter)->Sort_Matches_If_Necessary();
+		m_goal->Sort_Matches_If_Necessary();
 	}
 }
 
 void Scheduler::ResetTransport()
 {
 	for
-	(
-	    Goal_List::iterator goal_iter  = m_goals.begin();
-	                        goal_iter != m_goals.end();
-	                      ++goal_iter
-	)
+	(auto & m_goal : m_goals)
 	{
-		(*goal_iter)->ResetNeededTransport();
+		m_goal->ResetNeededTransport();
 	}
 }
 
@@ -1911,15 +1852,9 @@ void Scheduler::Assign_Garrison()
 	garrisonAgents.resize(cityNum);
 
 	for
-	(
-	    Agent_List::iterator agent_iter  = m_agents.begin();
-	                         agent_iter != m_agents.end();
-	                       ++agent_iter
-	)
+	(auto agent : m_agents)
 	{
-		Agent_ptr agent = (*agent_iter);
-
-		agent->SetIsNeededForGarrison(false);
+			agent->SetIsNeededForGarrison(false);
 
 		Army army = agent->Get_Army();
 

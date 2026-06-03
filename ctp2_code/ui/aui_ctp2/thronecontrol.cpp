@@ -125,8 +125,8 @@ ThroneControl::~ThroneControl()
 	cleanup( m_throneSurface );
 	cleanup( m_background );
 
-	for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
-		cleanup( m_upgradeImage[i] );
+	for (auto & i : m_upgradeImage) {
+		cleanup( i );
 	}
 
 	cleanup( m_oldCutout );
@@ -246,11 +246,9 @@ sint32 ThroneControl::RenderThrone( aui_Surface *surf )
 
 	c3ui_Get()->TheBlitter()->Blt( surf, 0, 0, m_background->TheSurface(), &rect, k_AUI_BLITTER_FLAG_CHROMAKEY );
 
-	for ( sint32 i = 0;i < k_THRONE_IMAGES;i++ ) {
+	for (signed char j : m_drawOrder) {
 
-		sint8 j = m_drawOrder[i];
-
-		rect.right = m_upgradeRect[j].right - m_upgradeRect[j].left;
+			rect.right = m_upgradeRect[j].right - m_upgradeRect[j].left;
 		rect.bottom = m_upgradeRect[j].bottom - m_upgradeRect[j].top;
 
 		c3ui_Get()->TheBlitter()->Blt( surf, m_upgradeRect[j].left, m_upgradeRect[j].top, m_upgradeImage[j]->TheSurface(),

@@ -248,9 +248,9 @@ void Governor::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
 //----------------------------------------------------------------------------
 void Governor::LoadAll(CivArchive & archive)
 {
-	for (size_t i = 0; i < s_theGovernors.size(); ++i)
+	for (auto & s_theGovernor : s_theGovernors)
 	{
-		s_theGovernors[i].Load(archive);
+		s_theGovernor.Load(archive);
 	}
 }
 
@@ -273,9 +273,9 @@ void Governor::LoadAll(CivArchive & archive)
 //----------------------------------------------------------------------------
 void Governor::SaveAll(CivArchive & archive)
 {
-	for (size_t i = 0; i < s_theGovernors.size(); ++i)
+	for (const auto & s_theGovernor : s_theGovernors)
 	{
-		s_theGovernors[i].Save(archive);
+		s_theGovernor.Save(archive);
 	}
 }
 
@@ -1571,11 +1571,9 @@ void Governor::ComputeRoadPriorities()
 
 bool Governor::IsInCityPairList(sint32 city, sint32 neighborCity) const
 {
-	for(size_t i = 0; i < s_CityPairList.size(); ++i)
+	for(auto cityPair : s_CityPairList)
 	{
-		CityPair cityPair = s_CityPairList[i];
-
-		if( (cityPair.m_city         == city
+			if( (cityPair.m_city         == city
 		&&   cityPair.m_neighborCity == neighborCity
 		    )
 		||  (cityPair.m_city         == neighborCity

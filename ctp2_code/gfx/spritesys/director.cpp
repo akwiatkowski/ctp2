@@ -210,8 +210,8 @@ void Director::UpdateTimingClock() {
 
   if (m_timeLogIndex >= k_TIME_LOG_SIZE) {
     sint32 timeSum = 0;
-    for (sint32 i = 0; i < k_TIME_LOG_SIZE; i++)
-      timeSum += m_timeLog[i];
+    for (int i : m_timeLog)
+      timeSum += i;
 
     m_averageElapsed = (timeSum / k_TIME_LOG_SIZE);
 

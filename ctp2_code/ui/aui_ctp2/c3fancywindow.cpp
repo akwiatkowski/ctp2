@@ -107,10 +107,10 @@ C3FancyWindow::~C3FancyWindow()
 {
 
 
-	for(int i=0; i<k_NUM_BORDERS; i++) {
-		if(m_border[i]) {
-			c3ui_Get()->RemoveWindow(m_border[i]->Id());
-			delete m_border[i]; m_border[i]= nullptr;
+	for(auto & i : m_border) {
+		if(i) {
+			c3ui_Get()->RemoveWindow(i->Id());
+			delete i; i= nullptr;
 		}
 	}
 	if(m_exit) { delete m_exit; m_exit = nullptr;}
@@ -122,9 +122,9 @@ void C3FancyWindow::MakeDraggable( BOOL draggable )
 	m_grabRegion->Move( 0, 0 );
 	m_grabRegion->Resize( m_width, m_height );
 
-	for(int i=0; i<k_NUM_BORDERS; i++) {
-		if(m_border[i]) {
-			m_border[i]->SetBlindness( TRUE );
+	for(auto & i : m_border) {
+		if(i) {
+			i->SetBlindness( TRUE );
 		}
 	}
 }
@@ -154,18 +154,18 @@ void C3FancyWindow::MouseLDragAway (aui_MouseEvent *mouseData)
 
 void C3FancyWindow::BringBorderToTop()
 {
-	for(int i=0; i< k_NUM_BORDERS; i++)
-		if(m_border[i])
-			c3ui_Get()->BringWindowToTop( m_border[i] );
+	for(auto & i : m_border)
+		if(i)
+			c3ui_Get()->BringWindowToTop( i );
 }
 
 AUI_ERRCODE C3FancyWindow::AddBordersToUI()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	for(int i=0; i< k_NUM_BORDERS; i++)
+	for(auto & i : m_border)
 	{
-		if(m_border[i])
-			errcode = c3ui_Get()->AddWindow(m_border[i]);
+		if(i)
+			errcode = c3ui_Get()->AddWindow(i);
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 	return errcode;
@@ -174,10 +174,10 @@ AUI_ERRCODE C3FancyWindow::AddBordersToUI()
 AUI_ERRCODE C3FancyWindow::RemoveBordersFromUI()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	for(int i=0; i< k_NUM_BORDERS; i++)
+	for(auto & i : m_border)
 	{
-		if(m_border[i])
-			errcode = c3ui_Get()->RemoveWindow(m_border[i]->Id());
+		if(i)
+			errcode = c3ui_Get()->RemoveWindow(i->Id());
 		if(	errcode != AUI_ERRCODE_OK ) return errcode;
 	}
 	return errcode;

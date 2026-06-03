@@ -109,9 +109,9 @@ void NetFeatTracker::Packetize(uint8 * buf, uint16 & size)
 	PUSHBYTE(unknown);
 	PUSHBYTE(unknown);
 
-	for (size_t i = 0; i < 6; ++i)
+	for (unsigned char i : FIXED_BLOCK)
 	{
-		PUSHBYTE(FIXED_BLOCK[i] + unknown);
+		PUSHBYTE(i + unknown);
 	}
 
 	FeatTracker *ft = feattracker_Get();

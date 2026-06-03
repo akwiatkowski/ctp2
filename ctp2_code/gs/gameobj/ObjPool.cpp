@@ -47,11 +47,11 @@ ObjPool::ObjPool(uint32 it)
 
 ObjPool::~ObjPool()
 {
-	for (size_t i = 0 ; i < k_OBJ_POOL_TABLE_SIZE; ++i)
+	for (auto & i : m_table)
 	{
-		while (m_table[i])
+		while (i)
 		{
-			Del(m_table[i]);
+			Del(i);
 		}
 	}
 }
@@ -110,8 +110,8 @@ sint32 ObjPool::Num() const
 {
 	sint32 count = 0;
 
-	for (size_t i = 0; i < k_OBJ_POOL_TABLE_SIZE; ++i)
-		if (m_table[i])
+	for (auto i : m_table)
+		if (i)
 			count++ ;
 
 	return count;

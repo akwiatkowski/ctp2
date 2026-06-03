@@ -974,9 +974,9 @@ NETFunc::STATUS NETFunc::AIPlayer::Save(FILE *f) {
 
 
 NETFunc::STATUS NETFunc::AIPlayers::Send(dp_t *p, dpid_t id, dpid_t from) {
-	for(iterator i=begin(); i!=end(); i++)
+	for(auto & i : *this)
 	{
-		Message message = Message(Message::ADDAIPLAYER, (*i)->GetBody(), (*i)->GetSize());
+		Message message = Message(Message::ADDAIPLAYER, i->GetBody(), i->GetSize());
 		if(NETFunc::Send(p, &message, id, from) != OK)
 			return ERR;
 	}
@@ -1277,9 +1277,9 @@ NETFunc::PlayerStats::PlayerStats(PlayerStats *l):NETFunc::List<NETFunc::PlayerS
 }
 
 NETFunc::STATUS NETFunc::PlayerStats::Send(dp_t *p, dpid_t id, dpid_t from) {
-	for(iterator i=begin(); i!=end(); i++)
+	for(auto & i : *this)
 	{
-		Message message = Message(Message::ADDPLAYERSTAT, (*i)->GetBody(), (*i)->GetSize());
+		Message message = Message(Message::ADDPLAYERSTAT, i->GetBody(), i->GetSize());
 		if(NETFunc::Send(p, &message, id) != OK)
 			return ERR;
 	}
@@ -2017,8 +2017,8 @@ char NETFunc::Players::FindSmallestGroup() {
 		return 0;
 	iterator i;
 	char gc[nf_GROUPNUMBER];
-	for(int c = 0; c<nf_GROUPNUMBER; c++)
-		gc[c] = 0;
+	for(char & c : gc)
+		c = 0;
 	for(i = begin(); i!=end(); i++)
 		gc[(*i)->GetGroup()]++;
 	char sg = 0;
@@ -2074,10 +2074,10 @@ bool NETFunc::Players::Handle(Message *m) {
 					break;
 
 				case dp_RES_DELETED: {
-					for(iterator i = begin(); i!=end(); i++)
-						if((*i)->Equals(&t) && (*i)->IsHost()) {
-							for(iterator j = begin(); j!=end(); j++)
-								((PlayerSetup *)(*j))->SetReadyToLaunch(false);
+					for(auto & i : *this)
+						if(i->Equals(&t) && i->IsHost()) {
+							for(auto & j : *this)
+								((PlayerSetup *)j)->SetReadyToLaunch(false);
 							PushMessage(new Message(Message::UNLAUNCH));
 							break;
 						}
@@ -2131,8 +2131,8 @@ bool NETFunc::Players::Handle(Message *m) {
 		Clr();
 		return true;
 	} else if(m->GetCode() == Message::UNLAUNCH) {
-		for(iterator i = begin(); i!=end(); i++)
-			((PlayerSetup *)(*i))->SetReadyToLaunch(false);
+		for(auto & i : *this)
+			((PlayerSetup *)i)->SetReadyToLaunch(false);
 		return true;
 	}
 	return false;

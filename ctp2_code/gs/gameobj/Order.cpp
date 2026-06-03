@@ -282,8 +282,8 @@ void Order::AssociateEventsWithOrders()
 {
 
 	const char *event_name;
-	for(sint32 i = 0; i < UNIT_ORDER_MAX; i++) {
-		s_orderToEventMap[i] = GEV_MAX;
+	for(auto & i : s_orderToEventMap) {
+		i = GEV_MAX;
 	}
 
 	for (sint32 order_index = 0; order_index < g_numOrderInfo; order_index++)

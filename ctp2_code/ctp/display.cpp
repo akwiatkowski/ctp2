@@ -156,11 +156,11 @@ void display_EnumerateDisplayModes()
 			{ 2560, 1600 },
 			{ 3840, 2160 },
 		};
-		for (size_t i = 0; i < sizeof(s_commonModes)/sizeof(s_commonModes[0]); i++) {
+		for (auto s_commonMode : s_commonModes) {
 			CTPDisplayMode *mode = new CTPDisplayMode;
 			if (mode) {
-				mode->width  = s_commonModes[i].w;
-				mode->height = s_commonModes[i].h;
+				mode->width  = s_commonMode.w;
+				mode->height = s_commonMode.h;
 				g_displayModes->AddTail(mode);
 			}
 		}

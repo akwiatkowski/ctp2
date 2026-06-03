@@ -105,9 +105,9 @@ c3_FancyWindow::c3_FancyWindow
 
 c3_FancyWindow::~c3_FancyWindow()
 {
-    for (size_t i = 0; i < k_NUM_C3_FANCYBORDERS; ++i)
+    for (auto & i : m_border)
     {
-        delete m_border[i];
+        delete i;
     }
 	delete m_title;
 	delete m_cancel;
@@ -120,9 +120,9 @@ void c3_FancyWindow::MakeDraggable( BOOL draggable )
 	m_grabRegion->Move( 0, 0 );
 	m_grabRegion->Resize( m_width, m_height );
 
-	for(int i=0; i<k_NUM_C3_FANCYBORDERS; i++) {
-		if(m_border[i]) {
-			m_border[i]->SetBlindness( TRUE );
+	for(auto & i : m_border) {
+		if(i) {
+			i->SetBlindness( TRUE );
 		}
 	}
 }

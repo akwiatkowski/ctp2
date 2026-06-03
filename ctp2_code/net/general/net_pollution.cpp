@@ -13,8 +13,8 @@ void NetPollution::Packetize(uint8 *buf, uint16 &size)
 	PUSHID(k_PACKET_POLLUTION_ID);
 
 	PUSHLONG(pollution_Get()->m_trend);
-	for(sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; i++) {
-		PUSHLONG(pollution_Get()->m_history[i]);
+	for(int i : pollution_Get()->m_history) {
+		PUSHLONG(i);
 	}
 	PUSHLONG(pollution_Get()->m_phase);
 
@@ -30,8 +30,8 @@ void NetPollution::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		return;
 
 	PULLLONG(pollution_Get()->m_trend);
-	for(sint32 i = 0; i < k_MAX_GLOBAL_POLLUTION_RECORD_TURNS; i++) {
-		PULLLONG(pollution_Get()->m_history[i]);
+	for(int & i : pollution_Get()->m_history) {
+		PULLLONG(i);
 	}
 	PULLLONG(pollution_Get()->m_phase);
 

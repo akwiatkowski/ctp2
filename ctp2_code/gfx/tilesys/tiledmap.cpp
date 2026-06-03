@@ -5411,9 +5411,9 @@ void TiledMap::CalculateZoomViewRectangle(sint32 zoomLevel, RECT &rectangle) con
 
 void TiledMap::ZoomHitMask()
 {
-	for (int i=0; i<k_TILE_GRID_HEIGHT;i++) {
-   		m_tileHitMask[i].start = (sint16)(m_tileHitMask[i].d_start * m_scale);
-		m_tileHitMask[i].end   = (sint16)(m_tileHitMask[i].d_end * m_scale);
+	for (auto & i : m_tileHitMask) {
+   		i.start = (sint16)(i.d_start * m_scale);
+		i.end   = (sint16)(i.d_end * m_scale);
 	}
 }
 

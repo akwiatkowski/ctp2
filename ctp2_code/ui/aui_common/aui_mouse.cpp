@@ -259,9 +259,9 @@ aui_Mouse::~aui_Mouse()
 
 	if ( m_cursors )
 	{
-		for ( sint32 i = 0; i < k_MOUSE_MAXNUMCURSORS; i++ )
-			if ( m_cursors[ i ] )
-				aui_ui_Get()->UnloadCursor( m_cursors[ i ] );
+		for (auto & m_cursor : m_cursors)
+			if ( m_cursor )
+				aui_ui_Get()->UnloadCursor( m_cursor );
 
 		memset( m_cursors, 0, sizeof( m_cursors ) );
 	}

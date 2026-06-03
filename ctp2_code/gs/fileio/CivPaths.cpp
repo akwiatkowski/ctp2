@@ -99,9 +99,9 @@ CivPaths::CivPaths ()
 	readPath(m_saveMapPath);
 	scanPath(m_saveClipsPath);
 
-	for (size_t dir = 0; dir < C3DIR_MAX; ++dir)
+	for (auto & m_assetPath : m_assetPaths)
     {
-		scanPath(m_assetPaths[dir]);
+		scanPath(m_assetPath);
 	}
 
 	fclose(fin);

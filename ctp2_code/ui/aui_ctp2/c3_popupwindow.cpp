@@ -188,9 +188,9 @@ AUI_ERRCODE c3_PopupWindow::Resize( sint32 width, sint32 height )
 
 c3_PopupWindow::~c3_PopupWindow( )
 {
-	for (int i = 0; i < POPUP_BORDER_MAX; ++i)
+	for (auto & i : m_border)
 	{
-		delete m_border[i];
+		delete i;
 	}
 
 	delete m_title;

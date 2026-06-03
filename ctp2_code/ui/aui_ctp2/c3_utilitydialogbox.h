@@ -5,6 +5,8 @@
 #ifndef __C3_UTILITYDIALOGBOX_H__
 #define __C3_UTILITYDIALOGBOX_H__
 
+#include <string>
+
 #include "ui/aui_ctp2/c3_listitem.h"
 #include "ui/aui_common/aui_action.h"
 #include "ui/aui_ctp2/keyboardhandler.h"
@@ -153,9 +155,9 @@ public:
 
 	C3TextField		*m_text;
 
-	MBCHAR			*m_default_text;
-	MBCHAR			*m_title_text;
-	MBCHAR			*m_message_text;
+	std::string		m_default_text;
+	std::string		m_title_text;
+	std::string		m_message_text;
 
 	c3_Button		*m_ok;
 	c3_Button		*m_cancel;

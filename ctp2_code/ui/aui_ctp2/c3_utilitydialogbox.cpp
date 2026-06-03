@@ -32,6 +32,8 @@
 #include "ctp/c3.h"
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
 
+#include <string>
+
 #include "ui/aui_common/aui.h"
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_listbox.h"
@@ -194,24 +196,22 @@ void C3UtilityTextFieldButtonActionCallback( aui_Control *control, uint32 action
 				(action == AUI_TEXTFIELD_ACTION_EXECUTE)))
 	{
 
-		MBCHAR *resultText = new MBCHAR[256];
+		std::string resultText;
+		resultText.resize(256);
+		popup->m_text->GetFieldText(&resultText[0], 256);
+		resultText.resize(strlen(resultText.c_str()));
 
-		popup->m_text->GetFieldText(resultText, 256);
-
-		if (!strlen(resultText))
+		if (resultText.empty())
 		{
-
-			delete resultText;
-			resultText = NULL;
 			if(popup->m_wantEmpties) {
-				popup->m_callback(resultText, TRUE, popup->GetData());
+				popup->m_callback(NULL, TRUE, popup->GetData());
 				popup->RemoveWindow();
 			}
 			return;
 		}
 		else if (popup->m_callback)
 		{
-			popup->m_callback(resultText, TRUE, popup->GetData());
+			popup->m_callback(resultText.c_str(), TRUE, popup->GetData());
 
 			popup->RemoveWindow();
 		}
@@ -707,9 +707,6 @@ c3_UtilityTextFieldPopup::c3_UtilityTextFieldPopup
 	m_title_label           (NULL),
 	m_message_label         (NULL),
     m_text                  (NULL),
-    m_default_text          (NULL),
-    m_title_text            (NULL),
-	m_message_text          (NULL),
 	m_ok                    (NULL),
     m_cancel                (NULL),
     m_callback              (callback),
@@ -734,18 +731,15 @@ c3_UtilityTextFieldPopup::c3_UtilityTextFieldPopup
 
 	if (defaultText)
 	{
-		m_default_text = new MBCHAR[256];
-		strcpy(m_default_text, defaultText);
+		m_default_text = defaultText;
 	}
 
 	if (titleText) {
-		m_title_text = new MBCHAR[strlen(titleText)+1];
-		strcpy(m_title_text, titleText);
+		m_title_text = titleText;
 	}
 
 	if (messageText) {
-		m_message_text = new MBCHAR[strlen(messageText)+1];
-		strcpy(m_message_text, messageText);
+		m_message_text = messageText;
 	}
 
 	Initialize( windowBlock );
@@ -781,8 +775,8 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR *windowBlock )
 	m_title_label = new c3_Static( &errcode, aui_UniqueId(), controlBlock);
 	Assert( AUI_NEWOK(m_title_label, errcode) );
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
-	if (m_title_text)
-		m_title_label->SetText(m_title_text);
+	if (!m_title_text.empty())
+		m_title_label->SetText(m_title_text.c_str());
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TextField");
 	m_text = new C3TextField( &errcode, aui_UniqueId(), controlBlock,
@@ -802,9 +796,6 @@ c3_UtilityTextFieldPopup::~c3_UtilityTextFieldPopup( void )
     delete m_cancel;
     delete m_text;
     delete m_title_label;
-    delete [] m_default_text;
-    delete [] m_title_text;
-    delete [] m_message_text;
     delete m_window;
 }
 
@@ -814,16 +805,6 @@ void c3_UtilityTextFieldPopup::Cleanup(void)
     allocated::clear(m_cancel);
     allocated::clear(m_text);
     allocated::clear(m_title_label);
-
-    delete [] m_default_text;
-    m_default_text  = NULL;
-
-    delete [] m_title_text;
-    m_title_text    = NULL;
-
-    delete [] m_message_text;
-    m_message_text  = NULL;
-
     allocated::clear(m_window);
 }
 
@@ -846,8 +827,8 @@ void c3_UtilityTextFieldPopup::RemoveWindow( void )
 sint32 c3_UtilityTextFieldPopup::UpdateData( void )
 {
 
-	if (m_default_text)
-		m_text->SetFieldText(m_default_text);
+	if (!m_default_text.empty())
+		m_text->SetFieldText(m_default_text.c_str());
 
 	return 0;
 }
@@ -1554,10 +1535,8 @@ void c3_utilitydialogbox_NameCity(Unit city)
 									);
 	} else {
 
-		if (s_nameTheCityPopup->m_default_text) {
-			delete [] s_nameTheCityPopup->m_default_text;
-			s_nameTheCityPopup->m_default_text = new MBCHAR[strlen(nameText) + 1];
-			strcpy(s_nameTheCityPopup->m_default_text, nameText);
+		if (!s_nameTheCityPopup->m_default_text.empty()) {
+			s_nameTheCityPopup->m_default_text = nameText;
 
 			s_nameTheCityPopup->UpdateData();
 
@@ -1596,10 +1575,8 @@ void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 		Assert(s_genericTextEntryPopup);
 	}
 
-	if (s_genericTextEntryPopup->m_default_text) {
-		delete [] s_genericTextEntryPopup->m_default_text;
-		s_genericTextEntryPopup->m_default_text = new MBCHAR[strlen(defaultText) + 1];
-		strcpy(s_genericTextEntryPopup->m_default_text, defaultText);
+	if (!s_genericTextEntryPopup->m_default_text.empty()) {
+		s_genericTextEntryPopup->m_default_text = defaultText;
 	}
 
 

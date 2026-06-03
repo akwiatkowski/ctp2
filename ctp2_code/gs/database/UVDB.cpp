@@ -252,8 +252,7 @@ sint32 OzoneDatabase::ParseAnOzone(Token *uvToken)
 
 
 OzoneDatabase::~OzoneDatabase()
-	{
-	}
+	= default;
 
 
 

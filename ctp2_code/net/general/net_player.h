@@ -14,7 +14,7 @@ class NetPlayer : public Packetizer
 {
 public:
 	NetPlayer(Player* player);
-	NetPlayer() {}
+	NetPlayer() = default;
 
 	void Packetize(uint8* buf, uint16& size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);
@@ -30,7 +30,7 @@ public:
 		m_name = name;
 	}
 
-	NetAddPlayer() {}
+	NetAddPlayer() = default;
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
 private:

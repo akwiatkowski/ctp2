@@ -144,7 +144,7 @@ public:
 		m_parent        (parent)
 	{ ; };
 
-	virtual ~SlicStructMemberData() {}
+	virtual ~SlicStructMemberData() = default;
 
 	void Serialize(CivArchive &archive) {}
 	void SerializeMemberReference(CivArchive &archive);

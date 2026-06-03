@@ -53,8 +53,7 @@ WorkerActor::WorkerActor(sint32 index, const MapPoint &pos, sint32 x, sint32 y)
 }
 
 WorkerActor::~WorkerActor()
-{
-}
+= default;
 
 void WorkerActor::AddIdle()
 {

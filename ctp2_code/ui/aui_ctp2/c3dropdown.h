@@ -33,7 +33,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
 
-	virtual ~C3DropDown() {}
+	virtual ~C3DropDown() = default;
 
 protected:
 	C3DropDown() : aui_DropDown() {}

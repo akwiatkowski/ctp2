@@ -29,7 +29,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3Spinner() {}
+	virtual ~C3Spinner() = default;
 
 protected:
 	C3Spinner() : aui_Ranger() {}

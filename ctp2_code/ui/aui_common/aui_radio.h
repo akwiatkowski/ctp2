@@ -55,7 +55,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
-	virtual ~aui_Radio() {}
+	virtual ~aui_Radio() = default;
 
 protected:
 	aui_Radio() : aui_Switch() {}

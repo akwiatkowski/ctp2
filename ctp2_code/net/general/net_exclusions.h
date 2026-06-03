@@ -9,7 +9,7 @@
 class NetExclusions : public Packetizer
 {
 public:
-	NetExclusions() {}
+	NetExclusions() = default;
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
 };

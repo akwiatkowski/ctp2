@@ -30,7 +30,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~TextRadio() {}
+	virtual ~TextRadio() = default;
 
 protected:
 	TextRadio() : aui_Radio() {}

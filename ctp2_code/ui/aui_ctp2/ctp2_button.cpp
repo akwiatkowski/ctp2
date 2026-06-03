@@ -27,8 +27,7 @@ const sint32 ctp2_Button::k_CTP2_BUTTON_LAYER_FLAG_UP_ON        = 0x40;
 #define k_CTP2_BUTTON_ATTRACT_MS 250
 
 ctp2_Button::~ctp2_Button()
-{
-}
+= default;
 
 
 

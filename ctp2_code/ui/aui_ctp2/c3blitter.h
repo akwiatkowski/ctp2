@@ -30,7 +30,7 @@ class C3Blitter : public aui_SDLBlitter
 {
 public:
 	C3Blitter();
-	virtual ~C3Blitter() {}
+	virtual ~C3Blitter() = default;
 
 	virtual NakedBltFunc Blt16To16;
 	virtual NakedColorBltFunc ColorBlt16;

@@ -25,7 +25,7 @@ public:
 		sint32 height,
 		MBCHAR *pattern = nullptr,
 		MBCHAR *text = nullptr );
-	virtual ~RadioGroup() {}
+	virtual ~RadioGroup() = default;
 
 protected:
 	RadioGroup() : aui_SwitchGroup() {}

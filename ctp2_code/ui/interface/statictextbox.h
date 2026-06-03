@@ -27,7 +27,7 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock);
 
-	virtual ~StaticTextBox() {}
+	virtual ~StaticTextBox() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

@@ -10,7 +10,7 @@ class PlayerSelectWindow : public ns_Window
 public:
 
 	PlayerSelectWindow( AUI_ERRCODE *retval );
-	virtual ~PlayerSelectWindow() {}
+	virtual ~PlayerSelectWindow() = default;
 
 protected:
 	PlayerSelectWindow() : ns_Window() {}

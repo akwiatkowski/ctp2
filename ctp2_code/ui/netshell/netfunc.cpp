@@ -340,10 +340,9 @@ NETFunc::Message::CODE NETFunc::Message::GetCode() {
 }
 
 
-NETFunc::Messages::Messages() {}
+NETFunc::Messages::Messages() = default;
 
-NETFunc::Messages::~Messages() {
-}
+NETFunc::Messages::~Messages() = default;
 
 void NETFunc::Messages::Push(Message *m) {
 	push_back(m);
@@ -472,8 +471,7 @@ NETFunc::Server::Server(dp_object_t *o, KeyStruct *k, long f):Key(k) {
 	server = o->serv;
 }
 
-NETFunc::Server::~Server() {
-}
+NETFunc::Server::~Server() = default;
 
 char *NETFunc::Server::GetName() {
 	return server.hostname;
@@ -539,8 +537,7 @@ NETFunc::Contact::Contact(char *n, char *p) {
 	number = NETFunc::StringDup(p);
 }
 
-NETFunc::Contact::Contact() {
-}
+NETFunc::Contact::Contact() = default;
 
 NETFunc::Contact::~Contact() {
 	delete name;
@@ -566,12 +563,9 @@ void NETFunc::Contact::SetNumber(char *p) {
 }
 
 
-NETFunc::ContactList::ContactList() {
+NETFunc::ContactList::ContactList() = default;
 
-}
-
-NETFunc::ContactList::~ContactList() {
-}
+NETFunc::ContactList::~ContactList() = default;
 
 
 
@@ -587,11 +581,9 @@ NETFunc::Port::Port(commPortName_t *p, int b, char *i) {
 	strncpy(init, i, nf_PORTINITLEN);
 }
 
-NETFunc::Port::Port() {
-}
+NETFunc::Port::Port() = default;
 
-NETFunc::Port::~Port() {
-}
+NETFunc::Port::~Port() = default;
 
 commPortName_t *NETFunc::Port::GetPort() {
 	return &port;
@@ -628,11 +620,9 @@ NETFunc::PortList::PortList(Transport *t)
     }
 }
 
-NETFunc::PortList::PortList() {
-}
+NETFunc::PortList::PortList() = default;
 
-NETFunc::PortList::~PortList() {
-}
+NETFunc::PortList::~PortList() = default;
 
 NETFUNC_CONNECT_RESULT NETFunc::ConnectThread(NETFUNC_CONNECT_PARAMETER t)
 {
@@ -706,11 +696,9 @@ NETFunc::Transport::Transport(const comm_driverInfo_t *d, const dp_transport_t *
 	status = NOSETUP;
 }
 
-NETFunc::Transport::Transport() {
-}
+NETFunc::Transport::Transport() = default;
 
-NETFunc::Transport::~Transport() {
-}
+NETFunc::Transport::~Transport() = default;
 
 dp_transport_t *NETFunc::Transport::GetTransport() {
 	return &transport;
@@ -808,8 +796,7 @@ NETFunc::TransportList::TransportList() {
 	result = dpEnumTransports(&transport, CallBack, this);
 }
 
-NETFunc::TransportList::~TransportList() {
-}
+NETFunc::TransportList::~TransportList() = default;
 
 NETFUNC_CALLBACK_RESULT(void)
 NETFunc::TransportList::CallBack(const dp_transport_t *t, const comm_driverInfo_t *d, void *context) {
@@ -843,8 +830,7 @@ NETFunc::TransportList::CallBack(const dp_transport_t *t, const comm_driverInfo_
 NETFunc::Internet::Internet(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k):Transport(d, t, k) {
 }
 
-NETFunc::Internet::~Internet() {
-}
+NETFunc::Internet::~Internet() = default;
 
 NETFunc::STATUS NETFunc::Internet::SetPort(long p) {
 	long o = parameters.portnum;
@@ -861,8 +847,7 @@ NETFunc::IPX::IPX(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct
 	status = READY;
 }
 
-NETFunc::IPX::~IPX() {
-}
+NETFunc::IPX::~IPX() = default;
 
 NETFunc::Transport::TYPE NETFunc::IPX::GetType() {
 	return Transport::IPX;
@@ -876,8 +861,7 @@ NETFunc::Modem::Modem(const comm_driverInfo_t *d, const dp_transport_t *t, KeySt
 
 }
 
-NETFunc::Modem::~Modem() {
-}
+NETFunc::Modem::~Modem() = default;
 
 NETFunc::STATUS NETFunc::Modem::SetContact(Contact *c) {
 	if(c)
@@ -907,8 +891,7 @@ NETFunc::Transport::TYPE NETFunc::Modem::GetType() {
 NETFunc::NullModem::NullModem(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k):Transport(d, t, k) {
 }
 
-NETFunc::NullModem::~NullModem() {
-}
+NETFunc::NullModem::~NullModem() = default;
 
 NETFunc::STATUS NETFunc::NullModem::SetPort(Port *p) {
 
@@ -932,11 +915,9 @@ NETFunc::Transport::TYPE NETFunc::NullModem::GetType() {
 
 
 
-NETFunc::AIPlayer::AIPlayer() {
-}
+NETFunc::AIPlayer::AIPlayer() = default;
 
-NETFunc::AIPlayer::~AIPlayer() {
-}
+NETFunc::AIPlayer::~AIPlayer() = default;
 
 char *NETFunc::AIPlayer::GetName() {
 	return name;
@@ -1099,8 +1080,7 @@ void NETFunc::Player::Set(dp_playerId_t *p) {
 	player = *p;
 }
 
-NETFunc::Player::~Player() {
-}
+NETFunc::Player::~Player() = default;
 
 dpid_t NETFunc::Player::GetId() {
 	return player.id;
@@ -1219,8 +1199,7 @@ NETFunc::PlayerStat::PlayerStat() {
 	hasleft = false;
 }
 
-NETFunc::PlayerStat::~PlayerStat() {
-}
+NETFunc::PlayerStat::~PlayerStat() = default;
 
 char *NETFunc::PlayerStat::GetName() {
 	return name;
@@ -1376,8 +1355,7 @@ NETFunc::PlayerSetup::PlayerSetup() {
 	description[0] = 0;
 }
 
-NETFunc::PlayerSetup::~PlayerSetup() {
-}
+NETFunc::PlayerSetup::~PlayerSetup() = default;
 
 void NETFunc::PlayerSetup::SetName(char *n) {
 	strncpy(player.name, n, dp_PNAMELEN);
@@ -1800,8 +1778,7 @@ NETFunc::GameSetup::GameSetup(Game *g):Game(*g), Packet() {
 	description[0] = 0;
 }
 
-NETFunc::GameSetup::~GameSetup() {
-}
+NETFunc::GameSetup::~GameSetup() = default;
 
 char *NETFunc::GameSetup::GetDescription() {
 	return description;

@@ -25,7 +25,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~IconSwitch() {}
+	virtual ~IconSwitch() = default;
 
 	Pattern *&ThePattern( ) { return m_pattern; }
 	Icon *&TheIcon( ) { return m_icon; }

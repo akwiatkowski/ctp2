@@ -18,5 +18,4 @@ AUI_ERRCODE aui_AudioManager::InitCommon( )
 
 
 aui_AudioManager::~aui_AudioManager()
-{
-}
+= default;

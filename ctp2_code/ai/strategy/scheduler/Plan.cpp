@@ -167,14 +167,9 @@ Plan::Plan(Agent_ptr agent, bool needsCargo)
 //
 //----------------------------------------------------------------------------
 Plan::Plan(Plan const & a_Original)
-:
-    m_the_agent         (a_Original.m_the_agent),
-    m_matching_value    (a_Original.m_matching_value),
-    m_needs_cargo       (a_Original.m_needs_cargo),
-    m_needs_transporter (a_Original.m_needs_transporter),
-    m_cannot_be_used    (a_Original.m_cannot_be_used)
-{
-}
+
+    
+= default;
 
 //----------------------------------------------------------------------------
 //

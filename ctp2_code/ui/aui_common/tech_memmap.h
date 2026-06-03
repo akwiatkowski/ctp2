@@ -5,8 +5,8 @@
 class tech_MemMap
 {
 public:
-	tech_MemMap() {}
-	virtual ~tech_MemMap() {}
+	tech_MemMap() = default;
+	virtual ~tech_MemMap() = default;
 
 	virtual unsigned char *GetFileBits
 	(

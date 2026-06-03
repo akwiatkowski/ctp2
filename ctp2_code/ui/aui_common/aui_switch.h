@@ -75,7 +75,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
-	virtual ~aui_Switch() {}
+	virtual ~aui_Switch() = default;
 
 	virtual AUI_ERRCODE ResetThis( );
 

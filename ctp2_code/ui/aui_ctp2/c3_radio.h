@@ -33,7 +33,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_C3_RADIO_DEFAULTNUMSTATES );
-	virtual ~c3_Radio() {}
+	virtual ~c3_Radio() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 protected:

@@ -84,8 +84,7 @@ Pollution::Pollution(CivArchive &archive)
 }
 
 Pollution::~Pollution()
-{
-}
+= default;
 
 void Pollution::Serialize(CivArchive &archive)
 {

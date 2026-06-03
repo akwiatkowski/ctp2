@@ -59,7 +59,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_CTP2_SWITCH_DEFAULTNUMSTATES );
-	virtual ~ctp2_Switch() {}
+	virtual ~ctp2_Switch() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 	sint32 BevelWidth( ) const { return m_bevelWidth; }

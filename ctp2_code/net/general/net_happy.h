@@ -14,7 +14,7 @@ class NetHappy : public Packetizer
 {
 public:
 	NetHappy(Unit city, Happy *, BOOL isInitial = FALSE);
-	NetHappy() {}
+	NetHappy() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -30,7 +30,7 @@ class NetPlayerHappy : public Packetizer
 public:
 	NetPlayerHappy(uint8 owner, PlayerHappiness *hap,
 				   uint8 isInitialPacket);
-	NetPlayerHappy() {}
+	NetPlayerHappy() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

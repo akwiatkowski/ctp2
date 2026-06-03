@@ -31,7 +31,7 @@ public:
 		AUI_ERRCODE *retval,
 		const MBCHAR *name,
 		MBCHAR *ldlBlock);
-	~ns_ListItem() {}
+	~ns_ListItem() = default;
 
 	virtual void Update() {}
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }

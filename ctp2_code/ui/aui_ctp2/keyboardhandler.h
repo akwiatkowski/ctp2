@@ -8,8 +8,8 @@
 
 class KeyboardHandler {
 public:
-	KeyboardHandler() {}
-	virtual ~KeyboardHandler() {}
+	KeyboardHandler() = default;
+	virtual ~KeyboardHandler() = default;
 
 	virtual void kh_Close() {}
 	virtual void kh_Select() {}

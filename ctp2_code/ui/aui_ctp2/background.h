@@ -75,7 +75,7 @@ public:
 #endif
         }
 
-	virtual ~Background() {};
+	virtual ~Background() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

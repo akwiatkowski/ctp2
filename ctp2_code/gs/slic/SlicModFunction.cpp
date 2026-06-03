@@ -48,8 +48,7 @@ SlicModFunc::SlicModFunc(const MBCHAR *name, ...)
 }
 
 SlicModFunc::~SlicModFunc()
-{
-}
+= default;
 
 SlicSegment *SlicModFunc::GetSegment()
 {

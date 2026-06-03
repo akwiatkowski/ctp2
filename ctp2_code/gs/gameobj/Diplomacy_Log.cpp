@@ -28,8 +28,7 @@ Diplomacy_Log::Diplomacy_Log()
 }
 
 Diplomacy_Log::~Diplomacy_Log()
-{
-}
+= default;
 
 void Diplomacy_Log::LogAllPlayers()
 {

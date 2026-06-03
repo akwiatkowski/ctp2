@@ -278,8 +278,7 @@ void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
 
 
 GameFile::GameFile()
-{
-}
+= default;
 
 static uint32 CompressData(uint8 *inbuf, size_t insize,
                            uint8 **outbuf, size_t *outsize)
@@ -2239,8 +2238,7 @@ void GameMapFile::SaveGameMap(const MBCHAR *filename, SaveMapInfo *info)
 }
 
 GameMapFile::GameMapFile()
-{
-}
+= default;
 
 uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 {

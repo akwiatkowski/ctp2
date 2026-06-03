@@ -11,8 +11,8 @@ class aui_Surface;
 class TargaImageFormat : public aui_ImageFormat
 {
 public:
-	TargaImageFormat() {}
-	virtual ~TargaImageFormat() {}
+	TargaImageFormat() = default;
+	virtual ~TargaImageFormat() = default;
 
 	AUI_ERRCODE LoadRIM(MBCHAR const *filename, aui_Image *image);
 	virtual AUI_ERRCODE Load(MBCHAR const * filename, aui_Image *image);
@@ -23,8 +23,8 @@ class TiffImageFormat : public aui_ImageFormat
 {
 public:
 
-	TiffImageFormat() {}
-	virtual ~TiffImageFormat() {}
+	TiffImageFormat() = default;
+	virtual ~TiffImageFormat() = default;
 
 	virtual AUI_ERRCODE	Load(MBCHAR const *filename, aui_Image *image );
 };

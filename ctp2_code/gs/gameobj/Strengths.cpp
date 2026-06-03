@@ -69,8 +69,7 @@ Strengths::Strengths(CivArchive &archive)
 }
 
 Strengths::~Strengths()
-{
-}
+= default;
 
 void Strengths::Serialize(CivArchive &archive)
 {

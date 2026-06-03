@@ -64,7 +64,7 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~ctp2_Window() {}
+	virtual ~ctp2_Window() = default;
 
 protected:
 	ctp2_Window() : aui_Window() {}

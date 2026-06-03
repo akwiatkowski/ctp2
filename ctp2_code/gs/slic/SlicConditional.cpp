@@ -9,8 +9,7 @@ SlicConditional::SlicConditional(const char *expression)
 }
 
 SlicConditional::~SlicConditional()
-{
-}
+= default;
 
 sint32 SlicConditional::Eval()
 {

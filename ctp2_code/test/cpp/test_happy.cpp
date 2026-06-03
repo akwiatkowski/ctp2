@@ -39,8 +39,7 @@ struct HappyFixture
     }
 
     ~HappyFixture()
-    {
-    }
+    = default;
 };
 
 bool HappyFixture::s_dbsLoaded = false;

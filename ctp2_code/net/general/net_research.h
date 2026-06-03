@@ -11,7 +11,7 @@ class NetResearch : public Packetizer
 {
 public:
 	NetResearch(Advances *adv);
-	NetResearch() {}
+	NetResearch() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

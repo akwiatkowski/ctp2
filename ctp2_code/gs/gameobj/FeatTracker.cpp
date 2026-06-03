@@ -97,8 +97,7 @@ Feat::Feat(CivArchive &archive)
 }
 
 Feat::~Feat()
-{
-}
+= default;
 
 void Feat::Serialize(CivArchive &archive)
 {

@@ -8,8 +8,8 @@
 class aui_SoundFormat : public aui_FileFormat
 {
 public:
-	aui_SoundFormat() {}
-	virtual ~aui_SoundFormat() {};
+	aui_SoundFormat() = default;
+	virtual ~aui_SoundFormat() = default;
 
 	virtual AUI_ERRCODE LoadSoundData
     (
@@ -28,8 +28,8 @@ protected:
 class aui_WavSoundFormat : public aui_SoundFormat
 {
 public:
-	aui_WavSoundFormat() {};
-	virtual ~aui_WavSoundFormat() {};
+	aui_WavSoundFormat() = default;
+	virtual ~aui_WavSoundFormat() = default;
 
 	virtual AUI_ERRCODE LoadSoundData
     (
@@ -92,7 +92,7 @@ public:
 		MBCHAR const * filename = nullptr )
 		:
 	aui_Sound( retval, filename ) {}
-	virtual ~aui_Sound2D() {}
+	virtual ~aui_Sound2D() = default;
 
 	virtual void Update( ) {}
 

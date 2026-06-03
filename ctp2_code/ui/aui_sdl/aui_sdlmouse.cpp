@@ -19,8 +19,7 @@ aui_SDLMouse::aui_SDLMouse(
 }
 
 aui_SDLMouse::~aui_SDLMouse()
-{
-}
+= default;
 
 AUI_ERRCODE
 aui_SDLMouse::GetInput()

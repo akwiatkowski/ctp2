@@ -106,8 +106,7 @@ TradeActor::TradeActor(TradeActor *copy)
 }*/
 
 TradeActor::~TradeActor()
-{
-}
+= default;
 
 void TradeActor::AddIdle()
 {

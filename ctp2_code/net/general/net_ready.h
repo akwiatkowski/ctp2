@@ -11,7 +11,7 @@ class MilitaryReadiness;
 class NetReadiness : public Packetizer {
 public:
 	NetReadiness(MilitaryReadiness *);
-	NetReadiness() {}
+	NetReadiness() = default;
 
 	void Packetize(uint8* buf, uint16& size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);

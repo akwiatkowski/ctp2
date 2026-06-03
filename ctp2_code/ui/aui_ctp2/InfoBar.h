@@ -28,7 +28,7 @@ public:
 		sint32 height,
 		sint32 bpp,
 		MBCHAR *pattern );
-	virtual ~InfoBar() {}
+	virtual ~InfoBar() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

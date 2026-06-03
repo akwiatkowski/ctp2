@@ -2,9 +2,7 @@
 #include "ui/aui_ctp2/iteminfo.h"
 
 ItemInfo::ItemInfo()
-{
-}
+= default;
 
 ItemInfo::~ItemInfo()
-{
-}
+= default;

@@ -16,8 +16,7 @@ m_isLocked(FALSE)
 }
 
 ScreenManager::~ScreenManager()
-{
-}
+= default;
 
 void ScreenManager::LockSurface(aui_Surface *surf)
 {

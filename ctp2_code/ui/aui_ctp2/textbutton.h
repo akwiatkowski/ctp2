@@ -33,7 +33,7 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~TextButton() {}
+	virtual ~TextButton() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

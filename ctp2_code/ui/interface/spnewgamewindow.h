@@ -187,7 +187,7 @@ public:
 		MBCHAR *choiceOff, MBCHAR *choiceOn, uint32 onoff = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	~TwoChoiceButton() {};
+	~TwoChoiceButton() = default;
 
 	uint32	GetChoice() { return m_choice; };
 	uint32 Switch();

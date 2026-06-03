@@ -50,7 +50,7 @@ protected:
     sint32 m_nObsolete;
 public:
     Record();
-	virtual ~Record() {};
+	virtual ~Record() = default;
     void SetName(const StringId string_id);
     StringId GetName() const { return m_name; }
     void SetEnabling(const sint32 e);

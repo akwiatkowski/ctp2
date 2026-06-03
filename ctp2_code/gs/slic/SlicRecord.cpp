@@ -24,8 +24,7 @@ SlicRecord::SlicRecord(CivArchive &archive)
 }
 
 SlicRecord::~SlicRecord()
-{
-}
+= default;
 
 void SlicRecord::Serialize(CivArchive &archive)
 {

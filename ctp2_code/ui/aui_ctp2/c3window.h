@@ -29,7 +29,7 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~C3Window() {}
+	virtual ~C3Window() = default;
 
 protected:
 	C3Window() : aui_Window() {}

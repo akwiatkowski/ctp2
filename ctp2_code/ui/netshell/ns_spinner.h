@@ -31,7 +31,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_Spinner() {}
+	virtual ~ns_Spinner() = default;
 
 protected:
 	ns_Spinner() : aui_Ranger() {}

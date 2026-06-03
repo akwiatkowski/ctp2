@@ -17,7 +17,7 @@ class UnitData;
 class NetUnit : public Packetizer {
 public:
 	NetUnit(UnitData*, Unit useActor = Unit());
-	NetUnit() {}
+	NetUnit() = default;
 
 	void Packetize(uint8* buf, uint16& size);
 	void Unpacketize(uint16 id, uint8* buf,	uint16 size);
@@ -34,7 +34,7 @@ class NetUnitMove : public Packetizer
 {
 public:
 	NetUnitMove(const Unit id, const MapPoint &pnt);
-	NetUnitMove() {};
+	NetUnitMove() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -50,7 +50,7 @@ public:
 		m_unit = id;
 		m_hp = hp;
 	}
-	NetUnitHP() {};
+	NetUnitHP() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

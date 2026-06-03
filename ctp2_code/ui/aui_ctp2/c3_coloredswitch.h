@@ -33,7 +33,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_C3_COLOREDSWITCH_DEFAULTNUMSTATES );
-	virtual ~c3_ColoredSwitch() {}
+	virtual ~c3_ColoredSwitch() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 protected:

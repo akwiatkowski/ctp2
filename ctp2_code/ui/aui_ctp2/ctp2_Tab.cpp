@@ -20,8 +20,7 @@ m_tabPanel(nullptr)
 }
 
 ctp2_Tab::~ctp2_Tab()
-{
-}
+= default;
 
 AUI_ERRCODE ctp2_Tab::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 {

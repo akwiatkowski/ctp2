@@ -12,5 +12,4 @@ StringRecord::StringRecord()
 
 StringRecord::~StringRecord()
 
-{
-}
+= default;

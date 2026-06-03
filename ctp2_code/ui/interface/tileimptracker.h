@@ -14,7 +14,7 @@ public:
 		MBCHAR *ldlBlock,
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD) : C3Window(retval,id,ldlBlock,16,type,false) {};
-	virtual ~TileimpTrackerWindow() {};
+	virtual ~TileimpTrackerWindow() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

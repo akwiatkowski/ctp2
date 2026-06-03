@@ -204,8 +204,7 @@ AUI_ERRCODE ConnectionSelectWindow::CreateControls( )
 }
 
 ConnectionSelectWindow::~ConnectionSelectWindow()
-{
-}
+= default;
 
 void ConnectionSelectWindow::Update()
 {

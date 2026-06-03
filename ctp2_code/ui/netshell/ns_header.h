@@ -18,7 +18,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~ns_Header() {}
+	virtual ~ns_Header() = default;
 
 protected:
 	ns_Header() : aui_Header() {}

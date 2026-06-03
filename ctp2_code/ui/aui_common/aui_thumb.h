@@ -66,7 +66,7 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_Thumb() {}
+	virtual ~aui_Thumb() = default;
 
 public:
 	AUI_ERRCODE	Reposition( sint32 x, sint32 y );

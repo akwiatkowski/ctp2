@@ -96,9 +96,7 @@ public:
 			m_array[i] = 0;
 		}
 	}
-	~VisibilityDurationArray() {
-
-	}
+	~VisibilityDurationArray() = default;
 
 	uint32 GetCurrentVisibility(sint32 player) {
 		return m_array[GetArrayIndex(player) & (1 << player)];

@@ -21,7 +21,7 @@ public:
 		sint32 height,
 		const MBCHAR *text = nullptr,
 		uint32 maxLength = 0 );
-	virtual ~aui_Static() {}
+	virtual ~aui_Static() = default;
 
 protected:
 	aui_Static() : aui_Control() {}

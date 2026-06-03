@@ -19,9 +19,7 @@ public:
 	void Clear();
 
 	~UnseenCellQuadTree()
-	{
-
-	}
+	= default;
 };
 
 void UnseenCellQuadTree::Clear()

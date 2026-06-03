@@ -44,8 +44,7 @@ ActionQueue::ActionQueue(const ActionQueue &rhs) {
   *this = rhs;
 }
 
-ActionQueue::~ActionQueue() {
-}
+ActionQueue::~ActionQueue() = default;
 
 ActionQueue &ActionQueue::operator=(const ActionQueue &rhs) {
   if (this != &rhs) {

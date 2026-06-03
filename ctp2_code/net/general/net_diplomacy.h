@@ -11,7 +11,7 @@ class NetDipProposal : public Packetizer
 {
 public:
 	NetDipProposal(NewProposal &prop) { m_prop = prop; }
-	NetDipProposal() {}
+	NetDipProposal() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);
@@ -28,7 +28,7 @@ class NetDipResponse : public Packetizer
 		m_executor = (uint8)exec;
 		m_otherGuy = (uint8)other;
 	}
-	NetDipResponse() {}
+	NetDipResponse() = default;
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
 
@@ -40,7 +40,7 @@ class NetDipResponse : public Packetizer
 class NetAgreementMatrix : public Packetizer
 {
   public:
-	NetAgreementMatrix() {}
+	NetAgreementMatrix() = default;
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
 };

@@ -5,8 +5,7 @@
 
 #define k_RAND_ARRAY_SIZE 56
 NetRand::NetRand()
-{
-}
+= default;
 
 void NetRand::Packetize(uint8* buf, uint16 &size)
 {

@@ -12,7 +12,7 @@ class NetAgreement : public Packetizer
 {
 public:
 	NetAgreement(AgreementData *);
-	NetAgreement() {}
+	NetAgreement() = default;
 
 	static void PacketizeData(AgreementData *data, uint8 *buf, uint16 &size);
 	static void UnpacketizeData(AgreementData *data,
@@ -29,7 +29,7 @@ class NetClientAgreement : public Packetizer
 {
 public:
 	NetClientAgreement(AgreementData *);
-	NetClientAgreement() {}
+	NetClientAgreement() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

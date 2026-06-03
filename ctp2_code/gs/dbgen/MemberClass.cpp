@@ -65,8 +65,7 @@ MemberClass::MemberClass(char const * name)
 }
 
 MemberClass::~MemberClass()
-{
-}
+= default;
 
 void MemberClass::AddDatum(DATUM_TYPE type, struct namelist *nameInfo,
                            sint32 minSize, sint32 maxSize,

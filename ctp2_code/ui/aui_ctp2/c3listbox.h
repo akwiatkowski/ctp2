@@ -30,7 +30,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3ListBox() {}
+	virtual ~C3ListBox() = default;
 
 protected:
 	C3ListBox() : aui_ListBox() {}

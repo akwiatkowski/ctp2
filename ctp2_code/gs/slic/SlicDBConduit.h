@@ -49,7 +49,7 @@ public:
 //Added by Martin Gühmann to get the number of records in a database via slic
 	virtual sint32 GetNumRecords() = 0;
 	virtual bool IsTokenInDB(const char *valname) { return false; }
-	virtual ~SlicDBInterface() {}
+	virtual ~SlicDBInterface() = default;
 };
 
 template <class T> class CTPDatabase;

@@ -92,7 +92,7 @@ public:
 		memset(&val, 0, sizeof(val));
 	}
 
-	virtual ~Datum() {};
+	virtual ~Datum() = default;
 
 	void SetValue(union dbvalue &v);
 	void SetDBRefValue(struct defaultDBField &d);

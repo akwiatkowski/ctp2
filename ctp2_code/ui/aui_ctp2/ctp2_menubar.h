@@ -61,7 +61,7 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~ctp2_MenuBar() {}
+	virtual ~ctp2_MenuBar() = default;
 
 	ctp2_Menu		*GetMenu(MBCHAR *ldlParent,MBCHAR *menuname);
 	void			SetMenuCallback	(ctp2_Menu *menu,CTP2MenuCallback *callback);

@@ -113,8 +113,8 @@ class SpriteState;
 
 class DQAction {
 public:
-	DQAction() {}
-	virtual ~DQAction() {}
+	DQAction() = default;
+	virtual ~DQAction() = default;
 };
 
 class DQActionMove : public DQAction
@@ -152,7 +152,7 @@ public:
 class DQActionSpecialEffect : public DQAction
 {
 public:
-	DQActionSpecialEffect() {}
+	DQActionSpecialEffect() = default;
 
 	MapPoint					speceffect_pos;
 	sint32						speceffect_spriteID;
@@ -284,7 +284,7 @@ public:
 class DQActionVision : public DQAction
 {
 public:
-	DQActionVision() {}
+	DQActionVision() = default;
 
 	MapPoint		vision_pos;
 	double			vision_range;
@@ -331,7 +331,7 @@ public:
 class DQActionCombatFlash : public DQAction
 {
 public:
-	DQActionCombatFlash() {}
+	DQActionCombatFlash() = default;
 
 	MapPoint					flash_pos;
 };
@@ -339,8 +339,8 @@ public:
 class DQActionCopyVision : public DQAction
 {
 public:
-	DQActionCopyVision() {}
-	~DQActionCopyVision() {}
+	DQActionCopyVision() = default;
+	~DQActionCopyVision() = default;
 
 	BOOL						copyVision;
 };
@@ -348,8 +348,8 @@ public:
 class DQActionCenterMap : public DQAction
 {
 public:
-	DQActionCenterMap() {}
-	~DQActionCenterMap() {}
+	DQActionCenterMap() = default;
+	~DQActionCenterMap() = default;
 
 	MapPoint					centerMap_pos;
 };
@@ -357,8 +357,8 @@ public:
 class DQActionUnitSelection : public DQAction
 {
 public:
-	DQActionUnitSelection() {}
-	~DQActionUnitSelection() {}
+	DQActionUnitSelection() = default;
+	~DQActionUnitSelection() = default;
 
 	uint32 						flags;
 };
@@ -366,8 +366,8 @@ public:
 class DQActionEndTurn : public DQAction
 {
 public:
-	DQActionEndTurn() {}
-	~DQActionEndTurn() {}
+	DQActionEndTurn() = default;
+	~DQActionEndTurn() = default;
 
 	BOOL						endTurn;
 };
@@ -380,7 +380,7 @@ public:
         DQAction        (),
         battle          (nullptr)
     {};
-	~DQActionBattle() {}
+	~DQActionBattle() = default;
 
 	Battle						*battle;
 };
@@ -394,7 +394,7 @@ public:
         playsound_soundID   (CTPRecord::INDEX_INVALID),
         playsound_pos       ()
     {};
-	~DQActionPlaySound() {};
+	~DQActionPlaySound() = default;
 
 	sint32						playsound_soundID;
 	MapPoint					playsound_pos;
@@ -403,8 +403,8 @@ public:
 class DQActionPlayWonderMovie : public DQAction
 {
 public:
-	DQActionPlayWonderMovie() {}
-	~DQActionPlayWonderMovie() {}
+	DQActionPlayWonderMovie() = default;
+	~DQActionPlayWonderMovie() = default;
 
 	sint32						playwondermovie_which;
 };
@@ -412,8 +412,8 @@ public:
 class DQActionPlayVictoryMovie : public DQAction
 {
 public:
-	DQActionPlayVictoryMovie() {}
-	~DQActionPlayVictoryMovie() {}
+	DQActionPlayVictoryMovie() = default;
+	~DQActionPlayVictoryMovie() = default;
 
 	GAME_OVER					playvictorymovie_reason;
 };
@@ -421,8 +421,8 @@ public:
 class DQActionMessage : public DQAction
 {
 public:
-	DQActionMessage() {}
-	~DQActionMessage() {}
+	DQActionMessage() = default;
+	~DQActionMessage() = default;
 
 	Message						message;
 };
@@ -436,7 +436,7 @@ public:
         faceoff_attacker_pos    (),
         faceoff_attacked_pos    ()
     {};
-	~DQActionFaceoff() {}
+	~DQActionFaceoff() = default;
 
 	std::weak_ptr<UnitActor> faceoff_attacker;
 	MapPoint	    faceoff_attacker_pos;
@@ -451,7 +451,7 @@ public:
     :
         DQAction    ()
     {};
-	~DQActionTerminateFaceOff() {}
+	~DQActionTerminateFaceOff() = default;
 
 	std::weak_ptr<UnitActor> faceroffer;
 };
@@ -459,8 +459,8 @@ public:
 class DQActionTerminateSound : public DQAction
 {
 public:
-	DQActionTerminateSound() {}
-	~DQActionTerminateSound() {}
+	DQActionTerminateSound() = default;
+	~DQActionTerminateSound() = default;
 
 	Unit            terminate_sound_unit;
 };
@@ -468,8 +468,8 @@ public:
 class DQActionInvokeThroneRoom : public DQAction
 {
 public:
-	DQActionInvokeThroneRoom() {}
-	~DQActionInvokeThroneRoom() {}
+	DQActionInvokeThroneRoom() = default;
+	~DQActionInvokeThroneRoom() = default;
 };
 
 class DQActionInvokeResearchAdvance : public DQAction
@@ -488,8 +488,8 @@ public:
 class DQActionBeginScheduler : public DQAction
 {
   public:
-	DQActionBeginScheduler() {}
-	~DQActionBeginScheduler() {}
+	DQActionBeginScheduler() = default;
+	~DQActionBeginScheduler() = default;
 
 	sint32 player;
 };

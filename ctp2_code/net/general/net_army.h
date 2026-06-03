@@ -18,7 +18,7 @@ class NetNewArmy : public Packetizer
 public:
 	NetNewArmy(PLAYER_INDEX player, const ArmyList &army, sint32 armyIndex,
 			   CAUSE_NEW_ARMY cause);
-	NetNewArmy() {};
+	NetNewArmy() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -35,7 +35,7 @@ class NetRemoveArmy : public Packetizer
 public:
 	NetRemoveArmy(PLAYER_INDEX player, const ArmyList &army, sint32 armyIndex,
 				  CAUSE_REMOVE_ARMY cause);
-	NetRemoveArmy() {};
+	NetRemoveArmy() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -52,7 +52,7 @@ class NetArmy : public Packetizer
 {
 public:
 	NetArmy(ArmyData *data);
-	NetArmy() {}
+	NetArmy() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -64,7 +64,7 @@ class NetGroupRequest:public Packetizer
 {
   public:
 	NetGroupRequest(const CellUnitList &units, const Army &army);
-	NetGroupRequest() {}
+	NetGroupRequest() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -78,7 +78,7 @@ class NetUngroupRequest:public Packetizer
 {
   public:
 	NetUngroupRequest(const Army &army, const CellUnitList &units);
-	NetUngroupRequest() {}
+	NetUngroupRequest() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

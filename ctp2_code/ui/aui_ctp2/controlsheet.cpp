@@ -45,9 +45,7 @@ ControlSheet::ControlSheet(AUI_ERRCODE *retval,
 }
 
 ControlSheet::~ControlSheet()
-{
-
-}
+= default;
 
 AUI_ERRCODE ControlSheet::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 {

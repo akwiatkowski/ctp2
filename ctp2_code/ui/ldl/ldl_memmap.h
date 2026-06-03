@@ -9,7 +9,7 @@ class ldl_MemMap : public tech_MemMap
 {
 public:
 	ldl_MemMap() {;}
-	virtual ~ldl_MemMap() {}
+	virtual ~ldl_MemMap() = default;
 
 	virtual unsigned char *GetFileBits(
 		char *filename,

@@ -13,8 +13,7 @@ c3_UpdateAction *c3_UpdateAction::CopyMe()
 
 
 c3_UpdateAction::~c3_UpdateAction()
-{
-}
+= default;
 
 
 void c3_UpdateAction::Execute(aui_Control *control, uint32 action, uint32 data)

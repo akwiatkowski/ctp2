@@ -10,7 +10,7 @@ class LobbyChangeWindow : public ns_Window
 public:
 
 	LobbyChangeWindow( AUI_ERRCODE *retval );
-	virtual ~LobbyChangeWindow() {}
+	virtual ~LobbyChangeWindow() = default;
 
 protected:
 	LobbyChangeWindow() : ns_Window() {}

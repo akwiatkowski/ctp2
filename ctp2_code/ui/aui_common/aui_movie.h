@@ -45,8 +45,8 @@ class aui_MovieFormat : public aui_FileFormat
 {
 public:
 
-	aui_MovieFormat() {}
-	virtual ~aui_MovieFormat() {}
+	aui_MovieFormat() = default;
+	virtual ~aui_MovieFormat() = default;
 
 	virtual AUI_ERRCODE	Load( MBCHAR const *filename, aui_Movie *movie )
 		{ return AUI_ERRCODE_OK; }
@@ -166,8 +166,8 @@ class aui_AviMovieFormat : public aui_MovieFormat
 {
 public:
 
-	aui_AviMovieFormat() {}
-	virtual ~aui_AviMovieFormat() {}
+	aui_AviMovieFormat() = default;
+	virtual ~aui_AviMovieFormat() = default;
 
 	virtual AUI_ERRCODE	Load( MBCHAR const * filename, aui_Movie *movie )
 	{ return AUI_ERRCODE_OK; }

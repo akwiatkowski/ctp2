@@ -49,7 +49,7 @@ class aui_Dimension : public aui_Base
 public:
 
 	aui_Dimension( aui_Region *parent = nullptr );
-	virtual ~aui_Dimension() {}
+	virtual ~aui_Dimension() = default;
 
 	aui_Region	*SetParent( aui_Region *parent );
 	aui_Region	*GetParent( ) const { return m_parent; }

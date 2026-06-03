@@ -29,7 +29,7 @@ class ChatList
   public:
 	PointerList<ChatText> m_list;
 
-	ChatList() {}
+	ChatList() = default;
 
 	~ChatList() {
 		m_list.DeleteAll();

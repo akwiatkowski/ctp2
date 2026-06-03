@@ -14,7 +14,7 @@ class NetCity : public Packetizer
 {
 public:
 	NetCity(UnitData*, BOOL isInitialPacket = FALSE);
-	NetCity() {}
+	NetCity() = default;
 
 	void Packetize(uint8* buf, uint16& size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);
@@ -34,7 +34,7 @@ public:
 		m_data = cd;
 		m_isInitialPacket = isInitialPacket;
 	}
-	NetCity2() {}
+	NetCity2() = default;
 
 	void Packetize(uint8* buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -47,7 +47,7 @@ class NetCityName : public Packetizer
 {
 public:
 	NetCityName(CityData* cd) { m_cityData = cd;}
-	NetCityName() {}
+	NetCityName() = default;
 	void Packetize(uint8* buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);
 private:
@@ -58,7 +58,7 @@ class NetCityBuildQueue : public Packetizer
 {
 public:
 	NetCityBuildQueue(CityData *cd) { m_cityData = cd;}
-	NetCityBuildQueue() {}
+	NetCityBuildQueue() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -70,7 +70,7 @@ class NetCityResources : public Packetizer
 {
 public:
 	NetCityResources(CityData *cd) { m_cityData = cd; }
-	NetCityResources() {}
+	NetCityResources() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

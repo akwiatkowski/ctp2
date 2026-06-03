@@ -37,8 +37,7 @@ CursorManager::CursorManager()
 
 
 CursorManager::~CursorManager()
-{
-}
+= default;
 
 
 void CursorManager::SetCursor(CURSORINDEX cursor)

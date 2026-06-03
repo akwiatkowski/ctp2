@@ -28,7 +28,7 @@ bool aui_sdlkbd_TryPopQueueEvent(SDL_Event & event);
 class aui_SDLKeyboard : public aui_Keyboard, public aui_SDLInput {
 public:
 	aui_SDLKeyboard(AUI_ERRCODE *retval);
-	virtual ~aui_SDLKeyboard() {}
+	virtual ~aui_SDLKeyboard() = default;
 
 protected:
 	aui_SDLKeyboard() {}

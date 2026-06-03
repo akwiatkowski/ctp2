@@ -30,7 +30,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~Checkbox() {}
+	virtual ~Checkbox() = default;
 
 protected:
 	Checkbox() : aui_Switch() {}

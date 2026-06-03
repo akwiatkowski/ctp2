@@ -46,7 +46,7 @@ public:
 		sint32 y = 0,
 		sint32 width = 0,
 		sint32 height = 0 );
-	virtual ~aui_DragDropWindow() {}
+	virtual ~aui_DragDropWindow() = default;
 
 protected:
 	aui_DragDropWindow() : aui_Window() {}

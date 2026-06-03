@@ -25,7 +25,7 @@ public:
 		sint32 height )
 		:
 		aui_Control( retval, id, x, y, width, height ) {}
-	virtual ~aui_Item() {}
+	virtual ~aui_Item() = default;
 
 protected:
 	aui_Item() : aui_Control() {}

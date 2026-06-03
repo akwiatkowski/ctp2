@@ -13,5 +13,4 @@ aui_Undo::aui_Undo(
 }
 
 aui_Undo::~aui_Undo()
-{
-}
+= default;

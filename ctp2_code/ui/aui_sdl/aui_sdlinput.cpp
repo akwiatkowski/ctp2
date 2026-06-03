@@ -10,8 +10,7 @@ aui_SDLInput::aui_SDLInput(AUI_ERRCODE *retval, BOOL useExclusiveMode)
 }
 
 aui_SDLInput::~aui_SDLInput()
-{
-}
+= default;
 
 AUI_ERRCODE aui_SDLInput::InitCommon(BOOL useExclusiveMode)
 {

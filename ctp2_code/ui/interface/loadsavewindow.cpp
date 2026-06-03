@@ -1008,8 +1008,7 @@ LSCivsListItem::LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCH
 }
 
 LSCivsListItem::~LSCivsListItem()
-{
-}
+= default;
 
 sint32 LSCivsListItem::Compare(c3_ListItem *item2, uint32 column)
 {

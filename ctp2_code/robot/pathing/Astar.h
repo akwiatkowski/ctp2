@@ -81,7 +81,7 @@ public:
 	{
 	};
 
-	virtual ~Astar() { };
+	virtual ~Astar() = default;
 
 	virtual float EstimateFutureCost(const MapPoint &pos, const MapPoint &dest);
 

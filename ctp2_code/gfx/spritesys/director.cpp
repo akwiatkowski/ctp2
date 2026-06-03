@@ -144,7 +144,7 @@ Director::Director()
   std::fill(m_timeLog, m_timeLog + k_TIME_LOG_SIZE, 0);
 }
 
-Director::~Director() {}
+Director::~Director() = default;
 
 void Director::Kill(UnitActorPtr actor) {
   actor->DumpAllActions();

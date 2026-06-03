@@ -11,7 +11,7 @@ public:
 	aui_Cursor(
 		AUI_ERRCODE *retval,
 		MBCHAR const * filename = nullptr );
-	virtual ~aui_Cursor() {}
+	virtual ~aui_Cursor() = default;
 
 protected:
 	aui_Cursor() : aui_Image() {}

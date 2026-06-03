@@ -30,7 +30,7 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~ScienceWindow() {}
+	virtual ~ScienceWindow() = default;
 
 	virtual AUI_ERRCODE InitCommon();
 

@@ -28,7 +28,7 @@ public:
 		MBCHAR *pattern,
 		MBCHAR *text = nullptr );
 
-	virtual ~TipWindow() {}
+	virtual ~TipWindow() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

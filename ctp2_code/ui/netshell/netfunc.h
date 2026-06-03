@@ -228,8 +228,7 @@ public:
         }
 	}
 
-	List() {
-	}
+	List() = default;
 };
 
 class Messages;
@@ -379,8 +378,7 @@ public:
 		Set(s, b);
 	}
 
-	virtual ~Packet() {
-	}
+	virtual ~Packet() = default;
 
 	virtual void Pack() = 0;
 
@@ -481,8 +479,7 @@ public:
 		SetKey();
 	}
 
-	virtual ~ListHandler() {
-	}
+	virtual ~ListHandler() = default;
 
 	void SetKey();
 	bool Equals(KeyStruct *k) {

@@ -39,7 +39,7 @@ class NetMessage : public Packetizer
 {
 public:
 	NetMessage(MessageData *data) { m_data = data; }
-	NetMessage() {}
+	NetMessage() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);
@@ -58,7 +58,7 @@ class NetInfoMessage : public Packetizer
 {
 public:
 	NetInfoMessage(NET_MSG_TYPE msg, const MBCHAR *playerName, sint32 index);
-	NetInfoMessage() {}
+	NetInfoMessage() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

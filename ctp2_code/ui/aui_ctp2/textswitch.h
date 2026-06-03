@@ -30,7 +30,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~TextSwitch() {}
+	virtual ~TextSwitch() = default;
 
 protected:
 	TextSwitch() : aui_Switch() {}

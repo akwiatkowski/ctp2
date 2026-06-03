@@ -57,7 +57,7 @@ private:
 
 public:
 	SlicParameterSymbol(const char *name, sint32 index);
-	SlicParameterSymbol() {};
+	SlicParameterSymbol() = default;
 
 	void Serialize(CivArchive &archive);
 	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_PARAMETER; }
@@ -87,7 +87,7 @@ public:
 		m_builtin(which),
 		SlicNamedSymbol(name, structDesc)
 	{}
-	SlicBuiltinNamedSymbol() {}
+	SlicBuiltinNamedSymbol() = default;
 
 	void Serialize(CivArchive &archive);
 	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_BUILTIN; }

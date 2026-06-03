@@ -85,8 +85,7 @@ WonderTab::WonderTab(ctp2_Window *parent) :
 }
 
 WonderTab::~WonderTab()
-{
-}
+= default;
 
 void WonderTab::Show()
 {

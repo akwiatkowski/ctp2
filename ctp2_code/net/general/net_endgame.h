@@ -10,7 +10,7 @@ class NetEndGame : public Packetizer
 {
 public:
 	NetEndGame(sint32 owner);
-	NetEndGame() {}
+	NetEndGame() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -21,7 +21,7 @@ private:
 class NetWormhole : public Packetizer
 {
 public:
-	NetWormhole() {}
+	NetWormhole() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

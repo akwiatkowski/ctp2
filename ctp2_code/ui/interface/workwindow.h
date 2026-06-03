@@ -55,7 +55,7 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~WorkWindow() {}
+	virtual ~WorkWindow() = default;
 
 	virtual AUI_ERRCODE InitCommon();
 

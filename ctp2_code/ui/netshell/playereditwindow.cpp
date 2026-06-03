@@ -282,8 +282,7 @@ AUI_ERRCODE PlayerEditWindow::CreateControls( )
 }
 
 PlayerEditWindow::~PlayerEditWindow()
-{
-}
+= default;
 
 void PlayerEditWindow::SetPlayerSetup(nf_PlayerSetup *p)
 {

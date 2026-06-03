@@ -109,23 +109,12 @@ Advances::Advances(size_t a_Count)
 }
 
 Advances::Advances(Advances const & a_Original)
-:
-    m_owner                                 (a_Original.m_owner),
-    m_size                                  (a_Original.m_size),
-	m_researching                           (a_Original.m_researching),
-    m_age                                   (a_Original.m_age),
-    m_theLastAdvanceEnabledThisManyAdvances (a_Original.m_theLastAdvanceEnabledThisManyAdvances),
-	m_total_cost                            (a_Original.m_total_cost),
-	m_discovered                            (a_Original.m_discovered),
-    m_hasAdvance                            (a_Original.m_hasAdvance),
-    m_canResearch                           (a_Original.m_canResearch),
-    m_turnsSinceOffered                     (a_Original.m_turnsSinceOffered)
-{
-}
+
+    
+= default;
 
 Advances::~Advances()
-{
-}
+= default;
 
 Advances & Advances::operator = (Advances const & a_Original)
 {

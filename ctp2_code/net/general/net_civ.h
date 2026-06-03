@@ -8,7 +8,7 @@ class NetCivilization : public Packetizer
 {
 public:
 	NetCivilization(CivilisationData *data);
-	NetCivilization() {}
+	NetCivilization() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -23,7 +23,7 @@ public:
 	NetSetLeaderName(sint32 player) {
 		m_player = (uint8)player;
 	}
-	NetSetLeaderName() {}
+	NetSetLeaderName() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

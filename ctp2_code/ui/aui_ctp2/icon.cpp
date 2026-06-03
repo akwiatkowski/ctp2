@@ -19,8 +19,7 @@ aui_Image(retval, szFileName)
 }
 
 Icon::~Icon()
-{
-}
+= default;
 
 
 

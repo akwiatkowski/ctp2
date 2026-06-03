@@ -16,7 +16,7 @@ public:
 					time_t totalTime,
 					time_t turnTime,
 					time_t cityTime);
-	NetGameSettings() {}
+	NetGameSettings() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8* buf, uint16 size);

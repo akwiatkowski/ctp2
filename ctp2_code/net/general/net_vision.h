@@ -14,7 +14,7 @@ class NetVision : public Packetizer
 {
 public:
 	NetVision(sint32 owner, uint16 row, uint8 numRows);
-	NetVision() {}
+	NetVision() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -28,7 +28,7 @@ class NetUnseenCell : public Packetizer
 {
 public:
 	NetUnseenCell(UnseenCell *ucell, uint8 owner);
-	NetUnseenCell() {}
+	NetUnseenCell() = default;
 
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

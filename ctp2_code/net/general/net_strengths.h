@@ -9,7 +9,7 @@
 class NetStrengths : public Packetizer
 {
 public:
-	NetStrengths() {}
+	NetStrengths() = default;
 	NetStrengths(sint32 player);
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
@@ -21,7 +21,7 @@ private:
 class NetFullStrengths : public Packetizer
 {
   public:
-	NetFullStrengths() {}
+	NetFullStrengths() = default;
 	NetFullStrengths(sint32 player, sint32 startRound, sint32 endRound) {
 		m_player = player;
 		m_startRound = startRound;
@@ -38,7 +38,7 @@ private:
 class NetScores : public Packetizer
 {
   public:
-	NetScores() {}
+	NetScores() = default;
 	NetScores(sint32 player) { m_player = player; }
 	void Packetize(uint8 *buf, uint16 &size);
 	void Unpacketize(uint16 id, uint8 *buf, uint16 size);

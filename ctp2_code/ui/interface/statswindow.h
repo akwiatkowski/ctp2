@@ -45,7 +45,7 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_BACKGROUND );
 
-	virtual ~StatsWindow() {}
+	virtual ~StatsWindow() = default;
 
 	virtual AUI_ERRCODE InitCommon();
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);

@@ -53,8 +53,7 @@ TopTen::TopTen(CivArchive &archive)
 
 
 TopTen::~TopTen()
-{
-}
+= default;
 
 
 

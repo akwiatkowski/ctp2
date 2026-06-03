@@ -30,7 +30,7 @@ public:
 		sint32 windowSize = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_DropDown() {};
+	virtual ~c3_DropDown() = default;
 
 	void Clear();
 

@@ -10,8 +10,7 @@ NetGuid::NetGuid(const GUID *guid)
 }
 
 NetGuid::NetGuid()
-{
-}
+= default;
 
 void NetGuid::Packetize(uint8 *buf, uint16 &size)
 {

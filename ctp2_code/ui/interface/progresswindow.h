@@ -87,7 +87,7 @@ public:
 		aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 		aui_ProgressBar( retval, id, ldlBlock )
 	{}
-	virtual ~StandardProgressBar() {}
+	virtual ~StandardProgressBar() = default;
 
 protected:
 	virtual AUI_ERRCODE CalculateIntervals( double *start, double *stop );

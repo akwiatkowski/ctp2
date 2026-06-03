@@ -1324,8 +1324,7 @@ void MapAnalysis::DebugLog() const
 }
 
 MapAnalysis::MapAnalysis()
-{
-}
+= default;
 
 MapAnalysis::~MapAnalysis()
 {

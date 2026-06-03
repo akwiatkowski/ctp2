@@ -22,7 +22,7 @@ public:
 		:
 		C3Window( retval, id, x, y, width, height, bpp, pattern, AUI_WINDOW_TYPE_SINKING )
 		{}
-	virtual ~StatusWindow() {}
+	virtual ~StatusWindow() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

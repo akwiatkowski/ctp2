@@ -4,8 +4,7 @@
 #include "net/io/net_io.h"
 
 NetIO::~NetIO()
-{
-}
+= default;
 
 NET_ERR
 NetIO::Init(NetIOResponse* response)

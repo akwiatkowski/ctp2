@@ -61,8 +61,7 @@ DBToken::DBToken(const char *name, sint32 value)
 }
 
 DBToken::~DBToken()
-{
-}
+= default;
 
 
 

@@ -44,7 +44,7 @@ public:
 		BOOL autoArrange = TRUE,
 		sint32 paneOffsetX = 0,
 		sint32 paneOffsetY = 0 );
-	virtual ~aui_TabGroup() {}
+	virtual ~aui_TabGroup() = default;
 
 protected:
 	aui_TabGroup() : aui_SwitchGroup() {}

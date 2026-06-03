@@ -45,8 +45,7 @@ m_currentTab(nullptr)
 }
 
 ctp2_TabGroup::~ctp2_TabGroup()
-{
-}
+= default;
 
 AUI_ERRCODE ctp2_TabGroup::DoneInstantiatingThis(const MBCHAR *ldlBlock)
 {

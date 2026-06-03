@@ -31,7 +31,7 @@ public:
 		sint32 percentFilled = NULL,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~Thermometer() {}
+	virtual ~Thermometer() = default;
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,

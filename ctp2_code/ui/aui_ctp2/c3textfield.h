@@ -32,7 +32,7 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3TextField() {}
+	virtual ~C3TextField() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 

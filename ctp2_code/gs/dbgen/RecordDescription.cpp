@@ -119,8 +119,7 @@ RecordDescription::RecordDescription(char const * name, bool allowsSingleRecord)
 }
 
 RecordDescription::~RecordDescription()
-{
-}
+= default;
 
 void RecordDescription::SetBaseType(DATUM_TYPE type)
 {

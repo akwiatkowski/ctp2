@@ -46,7 +46,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_Button() {}
+	virtual ~c3_Button() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 

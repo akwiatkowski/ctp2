@@ -16,7 +16,7 @@ public:
 		m_unit = unit;
 		m_round = round;
 	}
-	EntryRecord() {}
+	EntryRecord() = default;
 
 	Unit m_unit;
 	sint32 m_round;

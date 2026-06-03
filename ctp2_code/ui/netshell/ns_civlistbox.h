@@ -33,7 +33,7 @@ public:
 		sint32 beveltype = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_CivListBox() {}
+	virtual ~ns_CivListBox() = default;
 
 	virtual AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,

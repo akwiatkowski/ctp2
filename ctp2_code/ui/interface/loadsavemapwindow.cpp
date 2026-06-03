@@ -701,9 +701,7 @@ LSMGameMapsListItem::LSMGameMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, 
 }
 
 LSMGameMapsListItem::~LSMGameMapsListItem()
-{
-
-}
+= default;
 
 sint32 LSMGameMapsListItem::Compare(c3_ListItem *item2, uint32 column)
 {
@@ -744,9 +742,7 @@ LSMSaveMapsListItem::LSMSaveMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, 
 }
 
 LSMSaveMapsListItem::~LSMSaveMapsListItem()
-{
-
-}
+= default;
 
 sint32 LSMSaveMapsListItem::Compare(c3_ListItem *item2, uint32 column)
 {

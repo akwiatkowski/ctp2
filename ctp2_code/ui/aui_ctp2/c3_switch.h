@@ -32,7 +32,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_C3_SWITCH_DEFAULTNUMSTATES );
-	virtual ~c3_Switch() {}
+	virtual ~c3_Switch() = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 	sint32 BevelWidth( ) const { return m_bevelWidth; }

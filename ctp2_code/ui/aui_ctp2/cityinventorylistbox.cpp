@@ -96,8 +96,7 @@ CityInventoryListBox::CityInventoryListBox (
 }
 
 CityInventoryListBox::~CityInventoryListBox()
-{
-}
+= default;
 
 AUI_ERRCODE CityInventoryListBox::InitCommon(MBCHAR *ldlBlock)
 {

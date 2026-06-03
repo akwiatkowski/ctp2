@@ -32,7 +32,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~TextTab() {}
+	virtual ~TextTab() = default;
 
 protected:
 	TextTab() : aui_Tab() {}

@@ -29,7 +29,7 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
-	virtual ~BevelLessWindow() {}
+	virtual ~BevelLessWindow() = default;
 
 protected:
 	BevelLessWindow() : aui_Window() {}

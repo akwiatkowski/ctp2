@@ -28,7 +28,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~PictureTab() {}
+	virtual ~PictureTab() = default;
 
 	Picture *&ThePictureOn( ) { return m_pictureOn; }
 	Picture *&ThePictureOff( ) { return m_pictureOff; }

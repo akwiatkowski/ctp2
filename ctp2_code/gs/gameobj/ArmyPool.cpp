@@ -16,8 +16,7 @@ ArmyPool::ArmyPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ_TYPE_ARMY)
 }
 
 ArmyPool::~ArmyPool()
-{
-}
+= default;
 
 Army ArmyPool::Create(UnitDynamicArray &units)
 {

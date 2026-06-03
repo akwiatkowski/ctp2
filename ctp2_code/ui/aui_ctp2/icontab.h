@@ -29,7 +29,7 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~IconTab() {}
+	virtual ~IconTab() = default;
 
 	Pattern *&ThePattern( ) { return m_pattern; }
 	Icon *&TheIcon( ) { return m_icon; }

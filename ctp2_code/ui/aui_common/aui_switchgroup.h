@@ -51,7 +51,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_SwitchGroup() {}
+	virtual ~aui_SwitchGroup() = default;
 
 protected:
 	aui_SwitchGroup() : aui_Control() {}

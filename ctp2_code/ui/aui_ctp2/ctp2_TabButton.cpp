@@ -49,8 +49,7 @@ ctp2_Button(retval, id, ldlBlock, ActionFunc, cookie)
 }
 
 ctp2_TabButton::~ctp2_TabButton()
-{
-}
+= default;
 
 
 uint32 ctp2_TabButton::ShouldDraw(uint32 draw)

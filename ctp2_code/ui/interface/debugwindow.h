@@ -32,7 +32,7 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_BACKGROUND );
 
-	virtual ~DebugWindow() {}
+	virtual ~DebugWindow() = default;
 
 	virtual AUI_ERRCODE InitCommon();
 

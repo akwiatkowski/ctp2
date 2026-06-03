@@ -173,6 +173,4 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR *ldlBlock )
 
 
 c3_Header::~c3_Header()
-{
-
-}
+= default;

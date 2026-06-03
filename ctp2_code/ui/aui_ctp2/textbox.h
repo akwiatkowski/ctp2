@@ -34,7 +34,7 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
-	virtual ~TextBox() {}
+	virtual ~TextBox() = default;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( BOOL fromLDL );

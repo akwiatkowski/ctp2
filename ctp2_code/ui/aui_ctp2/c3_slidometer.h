@@ -34,7 +34,7 @@ public:
 		sint32 percentFilled = NULL,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_Slidometer() {}
+	virtual ~c3_Slidometer() = default;
 
 protected:
 	c3_Slidometer() : aui_Ranger() {}

@@ -38,6 +38,7 @@
 #define __CIVPATHS_H__ 1
 
 #include "ctp/ctp2_utils/c3files.h"
+#include <string>
 #include <vector>	// list did not work: crashes on begin() for empty list
 
 
@@ -49,29 +50,29 @@
 
 class CivPaths {
 private:
-	MBCHAR *m_hdPath;
-	MBCHAR *m_cdPath;
+	std::string m_hdPath;
+	std::string m_cdPath;
 
-	MBCHAR *m_defaultPath;
-	MBCHAR *m_localizedPath;
+	std::string m_defaultPath;
+	std::string m_localizedPath;
 
-	MBCHAR *m_dataPath;			                    // original data path (...\ctp2_data)
-	std::vector<MBCHAR const *> m_extraDataPaths;   // searched before m_dataPath
-	MBCHAR *m_scenariosPath;
+	std::string m_dataPath;			                // original data path (...\ctp2_data)
+	std::vector<std::string> m_extraDataPaths;      // searched before m_dataPath
+	std::string m_scenariosPath;
 
-	MBCHAR *m_savePath;
-	MBCHAR *m_saveGamePath;
-	MBCHAR *m_saveQueuePath;
-	MBCHAR *m_saveMPPath;
-	MBCHAR *m_saveSCENPath;
-	MBCHAR *m_saveMapPath;
-	MBCHAR *m_saveClipsPath;
+	std::string m_savePath;
+	std::string m_saveGamePath;
+	std::string m_saveQueuePath;
+	std::string m_saveMPPath;
+	std::string m_saveSCENPath;
+	std::string m_saveMapPath;
+	std::string m_saveClipsPath;
 
-	MBCHAR *m_assetPaths[C3DIR_MAX];
+	std::string m_assetPaths[C3DIR_MAX];
 
-	MBCHAR *m_curScenarioPath;
+	std::string m_curScenarioPath;
 
-	MBCHAR *m_curScenarioPackPath;
+	std::string m_curScenarioPackPath;
 
 	MBCHAR m_desktopPath[_MAX_PATH];
 
@@ -99,7 +100,7 @@ public:
 
 	void	SetCurScenarioPath(const MBCHAR *path);
 
-	MBCHAR *GetCurScenarioPath();
+	const MBCHAR *GetCurScenarioPath() const;
 
 	void	ClearCurScenarioPath();
 
@@ -108,7 +109,7 @@ public:
 
 	void	SetCurScenarioPackPath(const MBCHAR *path);
 
-	MBCHAR	* GetCurScenarioPackPath();
+	const MBCHAR * GetCurScenarioPackPath() const;
 
 	void	ClearCurScenarioPackPath();
 
@@ -124,14 +125,14 @@ public:
 
     bool        FindPath(C3DIR dir, int num, MBCHAR *path);
 
-	MBCHAR *    GetSavePathString() const { return m_savePath; }
+	const MBCHAR *  GetSavePathString() const { return m_savePath.c_str(); }
 
-	MBCHAR *    GetDesktopPath();
+	const MBCHAR *  GetDesktopPath();
 
-	std::vector<MBCHAR const *> const &
-                GetExtraDataPaths() const;
-	void	    InsertExtraDataPath(MBCHAR const * path);
-	void	    ResetExtraDataPaths();
+	std::vector<std::string> const &
+                    GetExtraDataPaths() const;
+	void	        InsertExtraDataPath(MBCHAR const * path);
+	void	        ResetExtraDataPaths();
 
 protected:
 

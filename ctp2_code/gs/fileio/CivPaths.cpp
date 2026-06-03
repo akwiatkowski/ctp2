@@ -61,36 +61,30 @@ void CivPaths_CleanupCivPaths()
 
 
 CivPaths::CivPaths ()
-:
-    m_hdPath                (new MBCHAR[_MAX_PATH]),
-	m_cdPath                (new MBCHAR[_MAX_PATH]),
-    m_defaultPath           (new MBCHAR[_MAX_PATH]),
-	m_localizedPath         (new MBCHAR[_MAX_PATH]),
-	m_dataPath              (new MBCHAR[_MAX_PATH]),
-    m_extraDataPaths        (),
-	m_scenariosPath         (new MBCHAR[_MAX_PATH]),
-    m_savePath              (new MBCHAR[_MAX_PATH]),
-	m_saveGamePath          (new MBCHAR[_MAX_PATH]),
-	m_saveQueuePath         (new MBCHAR[_MAX_PATH]),
-	m_saveMPPath            (new MBCHAR[_MAX_PATH]),
-	m_saveSCENPath          (new MBCHAR[_MAX_PATH]),
-	m_saveMapPath           (new MBCHAR[_MAX_PATH]),
-	m_saveClipsPath         (new MBCHAR[_MAX_PATH]),
-    m_curScenarioPath       (nullptr),
-	m_curScenarioPackPath   (nullptr)
 {
     std::fill(m_desktopPath, m_desktopPath + _MAX_PATH, 0);
 
     FILE *  fin = fopen("civpaths.txt", "r");
     Assert(fin);
 
-	auto readPath = [fin](MBCHAR *buf) {
-		if(fgets(buf, _MAX_PATH, fin)) {
+	// fgets a single line into `dst`, trim trailing \n / \r.
+	auto readPath = [fin](std::string &dst) {
+		MBCHAR buf[_MAX_PATH];
+		if (fgets(buf, _MAX_PATH, fin)) {
 			size_t len = strlen(buf);
-			while(len > 0 && (buf[len-1] == '\n' || buf[len-1] == '\r'))
+			while (len > 0 && (buf[len - 1] == '\n' || buf[len - 1] == '\r'))
 				buf[--len] = '\0';
+			dst.assign(buf, len);
 		}
 	};
+	// fscanf-%s into `dst`. Bounded by _MAX_PATH like the legacy path.
+	auto scanPath = [fin](std::string &dst) {
+		MBCHAR buf[_MAX_PATH];
+		buf[0] = '\0';
+		fscanf(fin, "%1023s", buf);
+		dst = buf;
+	};
+
 	readPath(m_hdPath);
 	readPath(m_cdPath);
 	readPath(m_defaultPath);
@@ -103,12 +97,11 @@ CivPaths::CivPaths ()
 	readPath(m_saveMPPath);
 	readPath(m_saveSCENPath);
 	readPath(m_saveMapPath);
-	fscanf(fin, "%s", m_saveClipsPath);
+	scanPath(m_saveClipsPath);
 
 	for (size_t dir = 0; dir < C3DIR_MAX; ++dir)
     {
-		m_assetPaths[dir] = new MBCHAR[_MAX_PATH];
-		fscanf (fin, "%s", m_assetPaths[dir]);
+		scanPath(m_assetPaths[dir]);
 	}
 
 	fclose(fin);
@@ -117,7 +110,7 @@ CivPaths::CivPaths ()
 	MBCHAR	fullPath[_MAX_PATH];
 	MBCHAR	*s;
 
-	snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath, FILE_SEP, m_savePath);
+	snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath.c_str(), FILE_SEP, m_savePath.c_str());
 	s = _fullpath(fullPath, tempPath, _MAX_PATH);
 	Assert(s != nullptr);
 
@@ -125,32 +118,7 @@ CivPaths::CivPaths ()
 }
 
 
-CivPaths::~CivPaths()
-{
-	ResetExtraDataPaths();
-    std::vector<MBCHAR const *>().swap(m_extraDataPaths);
-
-	delete [] m_curScenarioPath;
-	delete [] m_curScenarioPackPath;
-	delete [] m_hdPath;
-	delete [] m_cdPath;
-	delete [] m_defaultPath;
-	delete [] m_localizedPath;
-	delete [] m_dataPath;
-	delete [] m_scenariosPath;
-	delete [] m_savePath;
-	delete [] m_saveGamePath;
-	delete [] m_saveQueuePath;
-	delete [] m_saveMPPath;
-	delete [] m_saveSCENPath;
-	delete [] m_saveMapPath;
-	delete [] m_saveClipsPath;
-
-	for (size_t dir = 0; dir < C3DIR_MAX; ++dir)
-    {
-		delete [] m_assetPaths[dir];
-	}
-}
+CivPaths::~CivPaths() = default;
 
 void CivPaths::CreateSaveFolders(const MBCHAR *path)
 {
@@ -169,37 +137,37 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 
 	MBCHAR subFolderPath[_MAX_PATH];
 
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveGamePath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveGamePath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
 	mkdir(subFolderPath, mode);
 #endif
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveQueuePath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveQueuePath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
 	mkdir(subFolderPath, mode);
 #endif
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMPPath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMPPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
 	mkdir(subFolderPath, mode);
 #endif
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveSCENPath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveSCENPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
 	mkdir(subFolderPath, mode);
 #endif
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMapPath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveMapPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
 	mkdir(subFolderPath, mode);
 #endif
-	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveClipsPath);
+	snprintf(subFolderPath, sizeof(subFolderPath), "%s%s%s", path, FILE_SEP, m_saveClipsPath.c_str());
 #ifdef WIN32
 	CreateDirectory((LPCTSTR)subFolderPath, &sa);
 #else
@@ -210,8 +178,8 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 void CivPaths::InitCDPath()
 {
 	MBCHAR tempPath[_MAX_PATH];
-	snprintf(tempPath, sizeof(tempPath), "%c:%s%s", c3files_GetCtpCdId(), FILE_SEP, m_cdPath);
-	strcpy(m_cdPath, tempPath);
+	snprintf(tempPath, sizeof(tempPath), "%c:%s%s", c3files_GetCtpCdId(), FILE_SEP, m_cdPath.c_str());
+	m_cdPath = tempPath;
 }
 
 
@@ -257,39 +225,43 @@ MBCHAR *CivPaths::GetSavePath(C3SAVEDIR dir, MBCHAR *path)
 {
 	MBCHAR		fullPath[_MAX_PATH];
 
+	// MakeSavePath takes mutable MBCHAR* params (legacy signature); the
+	// strings are read-only inside, so a const_cast is safe here.
+	auto cs = [](std::string const &s) { return const_cast<MBCHAR *>(s.c_str()); };
+
 	switch (dir) {
 	case C3SAVEDIR_GAME:
-		if (MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveGamePath)) {
+		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveGamePath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_QUEUES:
-		if (MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveQueuePath)) {
+		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveQueuePath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_MP:
-		if (MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveMPPath)) {
+		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveMPPath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_SCEN:
-		if (MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveSCENPath)) {
+		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveSCENPath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_MAP:
-		if (MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveMapPath)) {
+		if (MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveMapPath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
 		break;
 	case C3SAVEDIR_CLIPS:
-		if(MakeSavePath(fullPath, m_hdPath, m_savePath, m_saveClipsPath)) {
+		if(MakeSavePath(fullPath, cs(m_hdPath), cs(m_savePath), cs(m_saveClipsPath))) {
 			strcpy(path, fullPath);
 			return path;
 		}
@@ -358,15 +330,15 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	}
 
 	if(checkScenario){
-		if (m_curScenarioPath) {
+		if (!m_curScenarioPath.empty()) {
 
-			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPath, FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir], FILE_SEP, filename);
+			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 			if (c3files_PathIsValid(fullPath)) {
 
 				strcpy(path, fullPath);
 				return path;
 			}
-			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPath, FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir], FILE_SEP, filename);
+			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPath.c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 
 			if (c3files_PathIsValid(fullPath)) {
 
@@ -375,15 +347,15 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 			}
 		}
 
-		if (m_curScenarioPackPath) {
+		if (!m_curScenarioPackPath.empty()) {
 
-			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPackPath, FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir], FILE_SEP, filename);
+			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPackPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 			if (c3files_PathIsValid(fullPath)) {
 
 				strcpy(path, fullPath);
 				return path;
 			}
-			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPackPath, FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir], FILE_SEP, filename);
+			snprintf(fullPath, sizeof(fullPath), "%s%s%s%s%s%s%s", m_curScenarioPackPath.c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str(), FILE_SEP, filename);
 
 			if (c3files_PathIsValid(fullPath)) {
 
@@ -394,16 +366,10 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	}
 
     // The extra data paths take priority over the regular one.
-	for
-	(
-		std::vector<MBCHAR const *>::iterator	p	= m_extraDataPaths.begin();
-		p != m_extraDataPaths.end();
-		++p
-	)
+	for (auto const &extra : m_extraDataPaths)
 	{
-		MBCHAR const *	l_dataPath	= *p;
-		if (MakeAssetPath(fullPath, m_hdPath, l_dataPath, m_localizedPath, m_assetPaths[dir], filename) ||
-			MakeAssetPath(fullPath, m_hdPath, l_dataPath, m_defaultPath,   m_assetPaths[dir], filename)
+		if (MakeAssetPath(fullPath, m_hdPath.c_str(), extra.c_str(), m_localizedPath.c_str(), m_assetPaths[dir].c_str(), filename) ||
+			MakeAssetPath(fullPath, m_hdPath.c_str(), extra.c_str(), m_defaultPath.c_str(),   m_assetPaths[dir].c_str(), filename)
 		   )
 		{
 			strcpy(path, fullPath);
@@ -412,13 +378,13 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 	}
 
 	// When not found in the new data, try the original directories
-	if (MakeAssetPath(fullPath, m_hdPath, m_dataPath, m_localizedPath, m_assetPaths[dir], filename)) {
+	if (MakeAssetPath(fullPath, m_hdPath.c_str(), m_dataPath.c_str(), m_localizedPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
 		strcpy(path, fullPath);
 		return path;
 	}
 
-	if (MakeAssetPath(fullPath, m_hdPath, m_dataPath, m_defaultPath, m_assetPaths[dir], filename)) {
+	if (MakeAssetPath(fullPath, m_hdPath.c_str(), m_dataPath.c_str(), m_defaultPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
 		strcpy(path, fullPath);
 		return path;
@@ -426,13 +392,13 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 
 
 	// The CD will only have the original content
-	if (MakeAssetPath(fullPath, m_cdPath, m_dataPath, m_localizedPath, m_assetPaths[dir], filename)) {
+	if (MakeAssetPath(fullPath, m_cdPath.c_str(), m_dataPath.c_str(), m_localizedPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
 		strcpy(path, fullPath);
 		return path;
 	}
 
-	if (MakeAssetPath(fullPath, m_cdPath, m_dataPath, m_defaultPath, m_assetPaths[dir], filename)) {
+	if (MakeAssetPath(fullPath, m_cdPath.c_str(), m_dataPath.c_str(), m_defaultPath.c_str(), m_assetPaths[dir].c_str(), filename)) {
 
 		strcpy(path, fullPath);
 		return path;
@@ -499,34 +465,34 @@ bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
 	switch (num)
 	{
 	case 0:
-		if (m_curScenarioPath)
+		if (!m_curScenarioPath.empty())
 		{
-			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPath, FILE_SEP,
-				m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPath.c_str(), FILE_SEP,
+				m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 		}
 		break;
 
 	case 1:
-		if (m_curScenarioPath)
+		if (!m_curScenarioPath.empty())
 		{
-			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPath, FILE_SEP,
-				m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPath.c_str(), FILE_SEP,
+				m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 		}
 		break;
 
 	case 2:
-		if (m_curScenarioPath)
+		if (!m_curScenarioPath.empty())
 		{
-			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPackPath, FILE_SEP,
-				m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPackPath.c_str(), FILE_SEP,
+				m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 		}
 		break;
 
 	case 3:
-		if (m_curScenarioPath)
+		if (!m_curScenarioPath.empty())
 		{
-			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPackPath, FILE_SEP,
-				m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+			snprintf(path, _MAX_PATH, "%s%s%s%s%s", m_curScenarioPackPath.c_str(), FILE_SEP,
+				m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 		}
 		break;
 
@@ -538,13 +504,13 @@ bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
             {
                 if (num & 1)    // even: language dependent, odd: default
                 {
-		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP,
-			                m_extraDataPaths[i], FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP,
+			                m_extraDataPaths[i].c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
                 }
                 else
                 {
-		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP,
-			                m_extraDataPaths[i], FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP,
+			                m_extraDataPaths[i].c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
                 }
             }
             else
@@ -552,25 +518,25 @@ bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
                 switch (num - 2 * m_extraDataPaths.size())
                 {
 	            case 4:
-		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP,
-			                m_dataPath, FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP,
+			                m_dataPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
                     break;
         	    case 5:
-		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP,
-			                m_dataPath, FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+		            snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP,
+			                m_dataPath.c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
                     break;
 	            case 6:
-					if (m_cdPath && m_cdPath[0])
+					if (!m_cdPath.empty())
 					{
-						snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_cdPath, FILE_SEP,
-			                m_dataPath, FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+						snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_cdPath.c_str(), FILE_SEP,
+			                m_dataPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 					}
                     break;
 	            case 7:
-					if (m_cdPath && m_cdPath[0])
+					if (!m_cdPath.empty())
 					{
-						snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_cdPath, FILE_SEP,
-			                m_dataPath, FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+						snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_cdPath.c_str(), FILE_SEP,
+			                m_dataPath.c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
 					}
                     break;
 
@@ -600,11 +566,11 @@ MBCHAR *CivPaths::GetSpecificPath(C3DIR dir, MBCHAR *path, BOOL local)
 	MBCHAR			tempPath[_MAX_PATH];
 	if (local)
     {
-		snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP, m_dataPath, FILE_SEP, m_localizedPath, FILE_SEP, m_assetPaths[dir]);
+		snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP, m_dataPath.c_str(), FILE_SEP, m_localizedPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
     }
     else
     {
-		snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath, FILE_SEP, m_dataPath, FILE_SEP, m_defaultPath, FILE_SEP, m_assetPaths[dir]);
+		snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s%s%s", m_hdPath.c_str(), FILE_SEP, m_dataPath.c_str(), FILE_SEP, m_defaultPath.c_str(), FILE_SEP, m_assetPaths[dir].c_str());
     }
 
 	MBCHAR          fullPath[_MAX_PATH];
@@ -620,7 +586,7 @@ MBCHAR *CivPaths::GetSpecificPath(C3DIR dir, MBCHAR *path, BOOL local)
 MBCHAR *CivPaths::GetScenarioRootPath(MBCHAR *path)
 {
 	MBCHAR	        temp[_MAX_PATH];
-	MBCHAR const *  s  = _fullpath(temp, m_scenariosPath, _MAX_PATH);
+	MBCHAR const *  s  = _fullpath(temp, m_scenariosPath.c_str(), _MAX_PATH);
 	Assert(s);
 	if (s)
     {
@@ -632,47 +598,39 @@ MBCHAR *CivPaths::GetScenarioRootPath(MBCHAR *path)
 
 void CivPaths::SetCurScenarioPath(const MBCHAR *path)
 {
-	delete [] m_curScenarioPath;
-	m_curScenarioPath = new MBCHAR[_MAX_PATH];
-	memset(m_curScenarioPath, 0, _MAX_PATH);
-	strcpy(m_curScenarioPath, path);
+	m_curScenarioPath = path ? path : "";
 }
 
-MBCHAR *CivPaths::GetCurScenarioPath()
+const MBCHAR *CivPaths::GetCurScenarioPath() const
 {
-	return m_curScenarioPath;
+	return m_curScenarioPath.empty() ? nullptr : m_curScenarioPath.c_str();
 }
 
 void CivPaths::ClearCurScenarioPath()
 {
-	delete[] m_curScenarioPath;
-	m_curScenarioPath = nullptr;
+	m_curScenarioPath.clear();
 }
 
 void CivPaths::SetCurScenarioPackPath(const MBCHAR *path)
 {
-	delete[] m_curScenarioPackPath;
-	m_curScenarioPackPath = new MBCHAR[_MAX_PATH];
-	memset(m_curScenarioPackPath, 0, _MAX_PATH);
-	strcpy(m_curScenarioPackPath, path);
+	m_curScenarioPackPath = path ? path : "";
 }
 
-MBCHAR *CivPaths::GetCurScenarioPackPath()
+const MBCHAR *CivPaths::GetCurScenarioPackPath() const
 {
-	return m_curScenarioPackPath;
+	return m_curScenarioPackPath.empty() ? nullptr : m_curScenarioPackPath.c_str();
 }
 
 void CivPaths::ClearCurScenarioPackPath()
 {
-	delete[] m_curScenarioPackPath;
-	m_curScenarioPackPath = nullptr;
+	m_curScenarioPackPath.clear();
 }
 
 
 
 
 
-MBCHAR *CivPaths::GetDesktopPath()
+const MBCHAR *CivPaths::GetDesktopPath()
 {
 #ifdef WIN32
 	MBCHAR		    tempStr[_MAX_PATH] = { 0 };
@@ -711,7 +669,7 @@ MBCHAR *CivPaths::GetDesktopPath()
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-std::vector<MBCHAR const *> const & CivPaths::GetExtraDataPaths() const
+std::vector<std::string> const & CivPaths::GetExtraDataPaths() const
 {
     return m_extraDataPaths;
 }
@@ -735,9 +693,7 @@ std::vector<MBCHAR const *> const & CivPaths::GetExtraDataPaths() const
 //----------------------------------------------------------------------------
 void CivPaths::InsertExtraDataPath(MBCHAR const * path)
 {
-	MBCHAR *	newPath	= new MBCHAR[1 + strlen(path)];
-	strcpy(newPath, path);
-	m_extraDataPaths.insert(m_extraDataPaths.begin(), newPath);
+	m_extraDataPaths.insert(m_extraDataPaths.begin(), path ? std::string(path) : std::string());
 }
 
 //----------------------------------------------------------------------------
@@ -758,14 +714,5 @@ void CivPaths::InsertExtraDataPath(MBCHAR const * path)
 //----------------------------------------------------------------------------
 void CivPaths::ResetExtraDataPaths()
 {
-	for
-	(
-		std::vector<MBCHAR const *>::iterator	p = m_extraDataPaths.begin();
-		p != m_extraDataPaths.end();
-		++p
-	)
-	{
-		delete [] const_cast<MBCHAR *>(*p);
-	}
     m_extraDataPaths.clear();
 }

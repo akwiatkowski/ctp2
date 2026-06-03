@@ -910,8 +910,6 @@ void Sprite::Export(FILE *file)
 	fprintf(file, "\t\t%s\t%d %d\n", g_allTokens[TOKEN_SPRITE_HOT_POINT].keyword, m_hotPoint.x, m_hotPoint.y);
 
 	fprintf(file, "\t}\n\n");
-
-	return;
 }
 
 

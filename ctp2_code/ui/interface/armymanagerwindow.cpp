@@ -181,7 +181,7 @@ AUI_ERRCODE ArmyManagerWindow::Display()
 		}
 
 		s_armyWindow->Update();
-		s_armyWindow->NotifySelection();
+		ArmyManagerWindow::NotifySelection();
 	}
 	return err;
 }

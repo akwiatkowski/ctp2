@@ -828,7 +828,7 @@ void loadsavescreen_LoadMPGame()
 	}
 
 	// SAM042099 check for a valid CD-ROM before allowing a game to be loaded
-	if ((!netfunc_Get() || netfunc_Get()->IsHost()) && !c3files_HasLegalCD())
+	if ((!netfunc_Get() || NETFunc::IsHost()) && !c3files_HasLegalCD())
 		return;
 
 	GameInfo *  gameInfo = g_loadsaveWindow->GetGameInfo();
@@ -840,7 +840,7 @@ void loadsavescreen_LoadMPGame()
 	// EAS02161999 - Must also check to see if you're not the host.
 	// 'Cause in single player mode, somebody might've already created
 	// a ligitimate *single*player gameInfo that's still lying around.
-	if (!gameInfo || (netfunc_Get() && !netfunc_Get()->IsHost())) {
+	if (!gameInfo || (netfunc_Get() && !NETFunc::IsHost())) {
 		civapp_Get()->PostStartGameAction();
 		return;
 	}

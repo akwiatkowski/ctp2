@@ -747,8 +747,7 @@ void TurnCount::NetworkEndTurn(BOOL force)
 		return;
 	}
 
-	return;
-#if 0 // Unreachable
+	#if 0 // Unreachable
 	{
 		if(player_Get(player_view::CurPlayer())->IsNetwork())
 		{

@@ -1868,7 +1868,7 @@ STDEHANDLER(DipWinResponseReady)
 
 	if(p1 == selitem_Get()->GetVisiblePlayer()) {
 
-		s_dipWindow->Display();
+		DiplomacyWindow::Display();
 		s_dipWindow->SetViewingResponse(p1, p2);
 
 		ctp2_ListBox *lb = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Negotiations.TabPanel.ProposalsMadeBox.List");

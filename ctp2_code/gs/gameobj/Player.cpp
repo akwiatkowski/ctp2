@@ -6697,8 +6697,7 @@ void Player::RegisterYourArmyWasMoved(const Army &i_moved, const MapPoint &new_p
         }
 	}
 
-    return;
-}
+    }
 
 void Player::AssasinateRuler()
 {

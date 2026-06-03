@@ -623,6 +623,4 @@ void FacedSprite::Export(FILE *file)
 	}
 
 	fprintf(file, "\t}\n\n");
-
-	return;
 }

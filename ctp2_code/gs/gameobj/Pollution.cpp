@@ -438,8 +438,7 @@ void pollution_NukeCell(MapPoint &pos, Cell *cell)
 {
 	bool CutNPasteCodeIsBad = false;
 	Assert(CutNPasteCodeIsBad);
-	return;
-#if 0 // CtP1?
+	#if 0 // CtP1?
 	if(cell->GetCanDie())
 	{
 		cell->Kill();

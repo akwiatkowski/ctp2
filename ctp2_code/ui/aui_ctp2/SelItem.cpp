@@ -1567,7 +1567,6 @@ void SelectedItem::RegisterClick(const MapPoint &pos,  const aui_MouseEvent *dat
 	}
 
 	NewRegisterClick(pos, data, doubleClick, leftDrag, leftDrop);
-	return;
 }
 
 void SelectedItem::SelectTradeRoute( const MapPoint &pos )
@@ -1612,8 +1611,7 @@ void SelectedItem::SelectTradeRoute( const MapPoint &pos )
 		}
 	}
 
-	return;
-}
+	}
 
 sint32 SelectedItem::GetVisiblePlayer() const
 {
@@ -2796,7 +2794,7 @@ bool SelectedItem::GetInciteRevolutionCost( const MapPoint &point, sint32 &cost 
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		return m_selected_army[player].GetInciteRevolutionCost( point, cost );
+		return Army::GetInciteRevolutionCost( point, cost );
 	}
 
 	return false;
@@ -2808,7 +2806,7 @@ bool SelectedItem::GetInciteUprisingCost( const MapPoint &point, sint32 &cost )
 
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY )
 	{
-		return m_selected_army[player].GetInciteUprisingCost( point, cost );
+		return Army::GetInciteUprisingCost( point, cost );
 	}
 
 	return false;

@@ -12,9 +12,9 @@ class Unit;
 class Agreement : public ID
 {
 public:
-	Agreement() : ID() { return ; }
-	Agreement(sint32 val) : ID(val) { return ; }
-	Agreement(uint32 val) : ID(val) { return ; }
+	Agreement() : ID() { }
+	Agreement(sint32 val) : ID(val) { }
+	Agreement(uint32 val) : ID(val) { }
 
 	void KillAgreement() ;
 	void Kill() { KillAgreement() ; } ;

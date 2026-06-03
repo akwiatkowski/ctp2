@@ -1393,7 +1393,7 @@ void aui_Region::MouseLDropEditMode( aui_MouseEvent *mouseData )
 
 		aui_Ldl *theLdl = aui_ui_Get()->GetLdl();
 		if ( theLdl ) {
-			MBCHAR	*ldlBlock = theLdl->GetBlock( this );
+			MBCHAR	*ldlBlock = aui_Ldl::GetBlock( this );
 
 			if ( m_editGrabPointAttributes & k_REGION_GRAB_INSIDE ) {
 				m_dim->SetHorizontalPosition( X() );
@@ -1406,7 +1406,7 @@ void aui_Region::MouseLDropEditMode( aui_MouseEvent *mouseData )
 			m_editGrabPointAttributes = k_REGION_GRAB_NONE;
 
 			if ( ldlBlock ) {
-				theLdl->ModifyAttributes( ldlBlock, m_dim );
+				aui_Ldl::ModifyAttributes( ldlBlock, m_dim );
 			}
 		}
 	}
@@ -1439,8 +1439,8 @@ void aui_Region::EditModeModifyRegion( RECT rect )
 			region->GetParent()->ShouldDraw();
 
 			if ( aui_Ldl *theLdl = aui_ui_Get()->GetLdl() ) {
-				if ( MBCHAR	*ldlBlock = theLdl->GetBlock( region ) ) {
-					theLdl->ModifyAttributes( ldlBlock, dim );
+				if ( MBCHAR	*ldlBlock = aui_Ldl::GetBlock( region ) ) {
+					aui_Ldl::ModifyAttributes( ldlBlock, dim );
 				}
 			}
 		}

@@ -152,8 +152,7 @@ void SegmentListActionCallback(aui_Control *control, uint32 action, uint32 data,
 		return;
 	}
 
-	return;
-}
+	}
 
 void SegmentListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {

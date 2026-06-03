@@ -220,7 +220,7 @@ sint32 g_isCheatModeOn = FALSE;
 
 void scenarioeditor_SetSaveOptionsFromMode()
 {
-	switch (s_scenarioEditor->GetStartLocMode()) {
+	switch (ScenarioEditor::GetStartLocMode()) {
 	case SCEN_START_LOC_MODE_NONE:
 		start_info_type_Set(STARTINFOTYPE_NOLOCS);
 
@@ -620,7 +620,7 @@ AUI_ERRCODE ScenarioEditor::Hide()
 	if(world_Get())
 		world_Get()->NumberContinents();
 
-	if(s_scenarioEditor->IsShown())
+	if(ScenarioEditor::IsShown())
 		ScenarioEditor::Reupdate();
 
 	return c3ui_Get()->RemoveWindow(s_scenarioEditor->m_window->Id());

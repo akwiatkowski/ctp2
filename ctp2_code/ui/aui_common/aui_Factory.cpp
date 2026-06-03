@@ -53,7 +53,7 @@ aui_Factory::new_Surface(AUI_ERRCODE &retval,
 #if defined(__AUI_USE_SDL__)
 	aui_SDLSurface *surface = nullptr;
 
-	surface = new aui_SDLSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), c3ui_Get()->DD(),
+	surface = new aui_SDLSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), C3UI::DD(),
 	                             isPrimary, useVideoMemory, takeOwnership);
 #elif defined(__AUI_USE_DIRECTX__)
 	aui_DirectSurface *surface = 0;

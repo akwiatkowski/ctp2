@@ -384,7 +384,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 {
 
 	AllinoneWindow *w = allinonewindow_Get();
-	AllinoneWindow::Mode mode = w->JOIN;
+	AllinoneWindow::Mode mode = AllinoneWindow::JOIN;
 
 	TellEricAboutThisBug( loadsavewindow_Get() );
 
@@ -429,7 +429,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 				strcpy( sess->sessionName, name );
 			}
 
-			mode = w->CONTINUE_CREATE;
+			mode = AllinoneWindow::CONTINUE_CREATE;
 
 			switch ( loadsavewindow_Get()->GetType() )
 			{
@@ -469,12 +469,12 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 
 			gamesetup_Get() = *item->GetNetShellObject()->GetNETFuncObject();
 
-			mode = w->CREATE;
+			mode = AllinoneWindow::CREATE;
 			gamesetup_Get().SetSavedId( 0 );
 		}
 	}
 
-	if ( mode != w->JOIN )
+	if ( mode != AllinoneWindow::JOIN )
 	{
 		MBCHAR temp[ dp_PASSWORDLEN + 1 ] = "";
 		if ( password )
@@ -791,7 +791,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		listbox->InsertItem( s );
 		listbox->SelectItem(listbox->FindItem(s));
 
-		c3_Button *button = (c3_Button *)w->FindControl( w->CONTROL_OKBUTTON );
+		c3_Button *button = (c3_Button *)w->FindControl( GameSelectWindow::CONTROL_OKBUTTON );
 		button->GetAction()->Execute( button, AUI_BUTTON_ACTION_EXECUTE, 0 );
 	}
 }
@@ -894,7 +894,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		listbox->InsertItem( s );
 		listbox->SelectItem(listbox->FindItem(s));
 
-		c3_Button *button = (c3_Button *)w->FindControl( w->CONTROL_OKBUTTON );
+		c3_Button *button = (c3_Button *)w->FindControl( GameSelectWindow::CONTROL_OKBUTTON );
 		button->GetAction()->Execute( button, AUI_BUTTON_ACTION_EXECUTE, 0 );
 	}
 	allinonewindow_Get()->SetScenarioGame(TRUE);

@@ -888,13 +888,13 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 
 	aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 	if (ldl) {
-		ldl->Remove((void *)this);
+		aui_Ldl::Remove((void *)this);
 
 		MBCHAR name[k_MAX_NAME_LEN];
 
 		snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(index)->m_name));
 
-		ldl->Associate((aui_Control *)this, name);
+		aui_Ldl::Associate((aui_Control *)this, name);
 	}
 
 	Update();

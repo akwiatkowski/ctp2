@@ -273,7 +273,7 @@ AUI_ERRCODE ConnectionSelectWindow::Idle( )
 		delete m;
 	}
 
-	if (netfunc_Get()->GetStatus() == NETFunc::READY)
+	if (NETFunc::GetStatus() == NETFunc::READY)
     {
 		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
 	}

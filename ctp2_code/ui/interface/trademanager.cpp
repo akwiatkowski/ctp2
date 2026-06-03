@@ -855,9 +855,9 @@ void TradeManager::Summary(aui_Control *control, uint32 action, uint32 data, voi
 	ctp2_Static *market = (ctp2_Static *)aui_Ldl::GetObject(s_tradeManagerBlock, "Market");
 	Assert(market);
 	if(market && market->IsHidden()) {
-		s_tradeManager->SetMode(TRADE_MANAGER_MARKET);
+		TradeManager::SetMode(TRADE_MANAGER_MARKET);
 	} else {
-		s_tradeManager->SetMode(TRADE_MANAGER_SUMMARY);
+		TradeManager::SetMode(TRADE_MANAGER_SUMMARY);
 	}
 }
 

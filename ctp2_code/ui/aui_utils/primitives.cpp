@@ -3517,8 +3517,7 @@ void primitives_BlendSurfaces( aui_Surface *pOldSurface, aui_Surface *pNewSurfac
 		if (errcode != AUI_ERRCODE_OK) return;
 	}
 
-	return;
-}
+	}
 
 void primitives_LightenSurface( aui_Surface *pSurface, sint32 percentLighten )
 {
@@ -3568,8 +3567,7 @@ void primitives_LightenSurface( aui_Surface *pSurface, sint32 percentLighten )
 		if (errcode != AUI_ERRCODE_OK) return;
 	}
 
-	return;
-}
+	}
 
 void primitives_LightenRect(aui_Surface *pSurface, RECT &rect, sint32 percentLighten)
 {
@@ -3612,8 +3610,7 @@ void primitives_LightenRect(aui_Surface *pSurface, RECT &rect, sint32 percentLig
 		if (errcode != AUI_ERRCODE_OK) return;
 	}
 
-	return;
-}
+	}
 
 RECT primitives_GetScreenAdjustedRectCopy(aui_Surface *surf, RECT &theRect)
 {

@@ -38,8 +38,7 @@ m_ctrack(-1),
 m_volume(0xff),
 m_pause(FALSE)
 {
-	return;
-}
+	}
 
 aui_Music::~aui_Music()
 {
@@ -69,8 +68,7 @@ m_cd_drive_index(0),
 m_cd_ok(FALSE),
 m_aux_cdrom_id(-1)
 {
-	return;
-}
+	}
 
 aui_Redbook::~aui_Redbook()
 {

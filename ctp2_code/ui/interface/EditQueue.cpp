@@ -379,7 +379,7 @@ AUI_ERRCODE EditQueue::Cleanup()
 {
 	if(s_editQueue)
 	{
-		s_editQueue->Hide();
+		EditQueue::Hide();
 	}
 
 	delete s_editQueue;
@@ -2164,8 +2164,6 @@ void EditQueue::MultiActionButton(aui_Control *control, uint32 action, uint32 da
 void EditQueue::SaveCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
-
-	return;
 #if 0
 
 	MBCHAR saveName[_MAX_PATH];
@@ -2251,7 +2249,7 @@ void EditQueue::LoadCallback(aui_Control *control, uint32 action, uint32 data, v
 
 	if(!s_editQueue) return;
 
-	const MBCHAR *loadName = s_editQueue->GetSelectedQueueName();
+	const MBCHAR *loadName = EditQueue::GetSelectedQueueName();
 	if(!loadName)
 		return;
 
@@ -2600,7 +2598,7 @@ void EditQueue::QueueListCallback(aui_Control *control, uint32 action, uint32 da
 			s_editQueue->Remove();
 		}
 	} else {
-		s_editQueue->ShowSelectedInfo();
+		EditQueue::ShowSelectedInfo();
 		s_editQueue->UpdateButtons();
 	}
 }

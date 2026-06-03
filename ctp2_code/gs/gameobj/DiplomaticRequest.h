@@ -12,9 +12,9 @@ class DiplomaticRequest;
 class DiplomaticRequest : public ID
 {
 public:
-	DiplomaticRequest() : ID() { return ; }
-	DiplomaticRequest(sint32 val) : ID(val) { return ; }
-	DiplomaticRequest(uint32 val) : ID(val) { return ; }
+	DiplomaticRequest() : ID() { }
+	DiplomaticRequest(sint32 val) : ID(val) { }
+	DiplomaticRequest(uint32 val) : ID(val) { }
 
 	void KillRequest() ;
 	void Kill() { KillRequest() ; }

@@ -219,8 +219,7 @@ namespace
 
 void  TiledMap::DrawRectMetrics()
 {
-	return;
-#if 0
+	#if 0
 	if(num_loops<1.0)
 	   num_loops=1.0;
 

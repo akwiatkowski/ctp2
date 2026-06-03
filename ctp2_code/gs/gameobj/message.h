@@ -15,9 +15,9 @@ class Message;
 class Message : public ID
 {
 public:
-		Message() : ID() { return ; }
-		Message(sint32 val) : ID(val) { return ; }
-		Message(uint32 val) : ID(val) { return ; }
+		Message() : ID() { }
+		Message(sint32 val) : ID(val) { }
+		Message(uint32 val) : ID(val) { }
 
 		void KillMessage() ;
 		void Kill() { KillMessage() ; }

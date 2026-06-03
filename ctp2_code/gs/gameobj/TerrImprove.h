@@ -11,9 +11,9 @@ template <class T> class DynamicArray;
 
 class TerrainImprovement : public ID {
 public:
-	TerrainImprovement () : ID() { return; } ;
-	TerrainImprovement (sint32 val) : ID (val) { return; };
-	TerrainImprovement (uint32 val) : ID (val) { return; };
+	TerrainImprovement () : ID() { } ;
+	TerrainImprovement (sint32 val) : ID (val) { };
+	TerrainImprovement (uint32 val) : ID (val) { };
 
 	TerrainImprovementData *operator -> () const { return AccessData(); }
 

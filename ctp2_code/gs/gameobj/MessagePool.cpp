@@ -193,8 +193,7 @@ Message MessagePool::ServerCreate()
 void MessagePool::DoNetwork(MessageData *newData)
 {
 
-	return;
-#if 0   // Unreachable
+	#if 0   // Unreachable
     if(g_network.IsClient()) {
 		Assert(newData->GetSender() == g_network.GetPlayerIndex() ||
 			   newData->GetSender() == PLAYER_INDEX_INVALID);

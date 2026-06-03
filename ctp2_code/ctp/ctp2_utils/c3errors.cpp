@@ -200,5 +200,4 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 		exit(1);
 	}
 
-	return;
-}
+	}

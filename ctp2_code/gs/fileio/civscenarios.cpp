@@ -313,8 +313,6 @@ void CivScenarios::LoadData()
 	delete walker;
 	delete packList;
 
-	return;
-
 }
 
 

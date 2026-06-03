@@ -1401,8 +1401,7 @@ void AgreementData::Break()
 void AgreementData::BeginTurnRecipient(sint32 currentRound)
 {
 
-	return;
-
+	
 #if 0   // Unreachable
     if(!player_Get(m_owner) || safe_player(m_owner)->m_isDead)
 		return;

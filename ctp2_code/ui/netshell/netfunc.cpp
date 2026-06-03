@@ -3257,28 +3257,28 @@ NETFunc::SessionCallBack(dp_session_t *s, long *pTimeout, long flags, void *cont
 
 	if(s) {
 
-		((NETFunc *)context)->session.session = *s;
-		((NETFunc *)context)->session.SetKey();
-		((NETFunc *)context)->session.flags = 0;
+		NETFunc::session.session = *s;
+		NETFunc::session.SetKey();
+		NETFunc::session.flags = 0;
 
 		strncpy(sessionname, s->sessionName, sizeof(sessionname));
 		sessionname[sizeof(sessionname) - 1] = '\0';
 		EnumSessions(false);
-		if(((NETFunc *)context)->session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
+		if(NETFunc::session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
 			EnumSessions(true);
 		dpSetPingIntervals( ((NETFunc *)context)->GetDP(), 5000, 5000 );
-		((NETFunc *)context)->status = CREATEPLAYER;
+		NETFunc::status = CREATEPLAYER;
 	} else {
-		if((((NETFunc *)context)->session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
-			&& ((NETFunc *)context)->transport
-			&& ((NETFunc *)context)->transport->GetType() != Transport::INTERNET) {
+		if((NETFunc::session.session.flags & dp_SESSION_FLAGS_ISLOBBY)
+			&& NETFunc::transport
+			&& NETFunc::transport->GetType() != Transport::INTERNET) {
 
 			Lobby l;
 			session.session = l.session;
 			l.SetBad();
 			((NETFunc *)context)->lobbies.Chg(&l);
 		}
-		((NETFunc *)context)->status = OPENLOBBY;
+		NETFunc::status = OPENLOBBY;
 
 		PushMessage(new Message(Message::SESSIONERR));
 	}
@@ -3290,21 +3290,21 @@ NETFunc::PlayerCallBack(dpid_t id, dp_char_t *n, long flags, void *context) {
 
 	if(n) {
 
-		strncpy(((NETFunc *)context)->player.player.name, n, dp_PNAMELEN);
-		((NETFunc *)context)->player.player.name[dp_PNAMELEN - 1] = '\0';
-		((NETFunc *)context)->player.player.id = id;
-		((NETFunc *)context)->player.SetKey();
-		((NETFunc *)context)->status = OK;
+		strncpy(NETFunc::player.player.name, n, dp_PNAMELEN);
+		NETFunc::player.player.name[dp_PNAMELEN - 1] = '\0';
+		NETFunc::player.player.id = id;
+		NETFunc::player.SetKey();
+		NETFunc::status = OK;
 
 		strncpy(playername, n, sizeof(playername));
 		playername[sizeof(playername) - 1] = '\0';
 
-		if(((NETFunc *)context)->session.IsLobby())
-			PushMessage(new Message(Message::ENTERLOBBY, ((NETFunc *)context)->session.GetKey(), sizeof(KeyStruct)));
+		if(NETFunc::session.IsLobby())
+			PushMessage(new Message(Message::ENTERLOBBY, NETFunc::session.GetKey(), sizeof(KeyStruct)));
 		else
-			PushMessage(new Message(Message::ENTERGAME, ((NETFunc *)context)->session.GetKey(), sizeof(KeyStruct)));
+			PushMessage(new Message(Message::ENTERGAME, NETFunc::session.GetKey(), sizeof(KeyStruct)));
 	} else {
-		((NETFunc *)context)->status = CLOSE;
+		NETFunc::status = CLOSE;
 		((NETFunc *)context)->nextStatus = OPENLOBBY;
 
 		PushMessage(new Message(Message::SESSIONERR));

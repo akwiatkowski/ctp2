@@ -169,8 +169,7 @@ static void getSystemInfo(char *systemDesc, char *crshtxt, unsigned int len)
 			return;
 		}
 	}
-	return;
-}
+	}
 #endif
 
 #ifndef NO_NETWORK

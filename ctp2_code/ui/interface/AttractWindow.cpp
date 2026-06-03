@@ -191,7 +191,7 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 	Assert(c3ui_Get()->GetLdl());
 	if (!c3ui_Get()->GetLdl()) return;
 
-	aui_Region *region = (aui_Region *)c3ui_Get()->GetLdl()->GetObject(ldlName);
+	aui_Region *region = (aui_Region *)aui_Ldl::GetObject(ldlName);
 
 	Assert(region);
 	if (!region) {
@@ -251,7 +251,7 @@ void AttractWindow::HighlightControl(MBCHAR *ldlName)
 
 void AttractWindow::RemoveControl(MBCHAR *ldlName)
 {
-	aui_Region *region = (aui_Region *)c3ui_Get()->GetLdl()->GetObject(ldlName);
+	aui_Region *region = (aui_Region *)aui_Ldl::GetObject(ldlName);
 	if(region) {
 		RemoveRegion(region);
 	}

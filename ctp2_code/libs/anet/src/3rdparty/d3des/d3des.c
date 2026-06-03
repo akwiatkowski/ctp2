@@ -89,7 +89,6 @@ short edf;
 			}
 		}
 	cookey(kn);
-	return;
 	}
 
 static void cookey(raw1)
@@ -112,7 +111,6 @@ register unsigned long *raw1;
 		*cook++ |= (*raw1 & 0x0000003fL);
 		}
 	usekey(dough);
-	return;
 	}
 
 void cpkey(into)
@@ -122,7 +120,6 @@ register unsigned long *into;
 
 	from = KnL, endp = &KnL[32];
 	while( from < endp ) *into++ = *from++;
-	return;
 	}
 
 void usekey(from)
@@ -132,7 +129,6 @@ register unsigned long *from;
 
 	to = KnL, endp = &KnL[32];
 	while( to < endp ) *to++ = *from++;
-	return;
 	}
 
 void des(inblock, outblock)
@@ -143,7 +139,6 @@ unsigned char *inblock, *outblock;
 	scrunch(inblock, work);
 	desfunc(work, KnL);
 	unscrun(work, outblock);
-	return;
 	}
 
 static void scrunch(outof, into)
@@ -158,7 +153,6 @@ register unsigned long *into;
 	*into	|= (*outof++ & 0xffL) << 16;
 	*into	|= (*outof++ & 0xffL) << 8;
 	*into	|= (*outof   & 0xffL);
-	return;
 	}
 
 static void unscrun(outof, into)
@@ -173,7 +167,6 @@ register unsigned char *into;
 	*into++ = (*outof >> 16) & 0xffL;
 	*into++ = (*outof >>  8) & 0xffL;
 	*into	=  *outof	 & 0xffL;
-	return;
 	}
 
 static unsigned long SP1[64] = {
@@ -392,7 +385,6 @@ register unsigned long *block, *keys;
 	right ^= (work << 4);
 	*block++ = right;
 	*block = leftt;
-	return;
 	}
 
 #ifdef D2_DES
@@ -407,9 +399,7 @@ short mode;
 	deskey(&hexkey[8], revmod);
 	cpkey(KnR);
 	deskey(hexkey, mode);
-	cpkey(Kn3);					/* Kn3 = KnL */
-	return;
-	}
+	cpkey(Kn3);						}
 
 void Ddes(from, into)
 const unsigned char *from;		/* unsigned char[8] */
@@ -422,7 +412,6 @@ unsigned char *into;		/* unsigned char[8] */
 	desfunc(work, KnR);
 	desfunc(work, Kn3);
 	unscrun(work, into);
-	return;
 	}
 
 void D2des(from, into)
@@ -450,7 +439,6 @@ unsigned char *into;			/* unsigned char[16] */
 	desfunc(right, Kn3);
 	unscrun(leftt, into);
 	unscrun(right, &into[8]);
-	return;
 	}
 
 void makekey(aptr, kptr)
@@ -475,7 +463,6 @@ register unsigned char *kptr;		/* unsigned char[8] */
 		first = 0;
 		}
 	useDkey(savek);
-	return;
 	}
 
 void make2key(aptr, kptr)
@@ -500,7 +487,6 @@ register unsigned char *kptr;		/* unsigned char[16] */
 		first = 0;
 		}
 	useDkey(savek);
-	return;
 	}
 
 #ifndef D3_DES	/* D2_DES only */
@@ -558,7 +544,6 @@ short mode;
 	deskey(third, mode);
 	cpkey(Kn3);
 	deskey(first, mode);
-	return;
 	}
 
 void cp3key(into)
@@ -572,7 +557,6 @@ register unsigned long *into;	/* unsigned long[96] */
 	while( from < endp ) *into++ = *from++;
 	from = Kn3, endp = &Kn3[32];
 	while( from < endp ) *into++ = *from++;
-	return;
 	}
 
 void use3key(from)
@@ -586,7 +570,6 @@ register unsigned long *from;	/* unsigned long[96] */
 	while( to < endp ) *to++ = *from++;
 	to = Kn3, endp = &Kn3[32];
 	while( to < endp ) *to++ = *from++;
-	return;
 	}
 
 static void D3des(from, into)	/* amateur theatrics */
@@ -622,7 +605,6 @@ unsigned char *into;			/* unsigned char[24] */
 	unscrun(leftt, into);
 	unscrun(middl, &into[8]);
 	unscrun(right, &into[16]);
-	return;
 	}
 
 void make3key(aptr, kptr)
@@ -647,7 +629,6 @@ register unsigned char *kptr;		/* unsigned char[24] */
 		first = 0;
 		}
 	use3key(savek);
-	return;
 	}
 
 #endif	/* D3_DES */

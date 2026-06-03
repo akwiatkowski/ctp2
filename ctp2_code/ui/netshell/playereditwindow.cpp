@@ -480,7 +480,7 @@ void PlayerEditWindow::OKButtonAction::Execute(
 		GetFieldText(info, nf_PLAYERDESCLEN);
 
 	if(p->GetPlayerSetup()) {
-		if(p->GetMode() == p->EDIT || p->GetMode() == p->EDIT_GAMESETUP) {
+		if(p->GetMode() == PlayerEditWindow::EDIT || p->GetMode() == PlayerEditWindow::EDIT_GAMESETUP) {
 
 			p->GetPlayerSetup()->SetName(name);
 			p->GetPlayerSetup()->SetIcq(icq);

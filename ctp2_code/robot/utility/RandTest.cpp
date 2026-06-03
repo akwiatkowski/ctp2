@@ -12,8 +12,7 @@ void ai_rand_test()
 
 {
 
-    return;
-#if 0 // CTP1?
+    #if 0 // CTP1?
     static count=0;
     static total=0;
 

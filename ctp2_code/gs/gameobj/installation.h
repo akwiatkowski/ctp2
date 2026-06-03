@@ -12,9 +12,9 @@ class TerrainImprovementRecord;
 class Installation : public ID {
 private:
 public:
-	Installation () : ID() { return; } ;
-	Installation (sint32 val) : ID (val) { return; };
-	Installation (uint32 val) : ID (val) { return; };
+	Installation () : ID() { } ;
+	Installation (sint32 val) : ID (val) { };
+	Installation (uint32 val) : ID (val) { };
 
 	void KillInstallation();
 	void Kill() { KillInstallation(); }

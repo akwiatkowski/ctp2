@@ -95,10 +95,10 @@ private:
 	void RemoveAllReferences(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy);
 
 public:
-  Unit () : ID() { return; } ;
-	Unit (sint32 val) : ID (val) { return; };
-	Unit (uint32 val) : ID (val) { return; };
-	Unit (ID i) : ID (i.m_id) { return; };
+  Unit () : ID() { } ;
+	Unit (sint32 val) : ID (val) { };
+	Unit (uint32 val) : ID (val) { };
+	Unit (ID i) : ID (i.m_id) { };
 
 	UnitData *operator -> () const { return AccessData(); }
 #ifdef _DEBUG

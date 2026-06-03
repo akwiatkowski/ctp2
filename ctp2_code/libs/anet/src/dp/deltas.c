@@ -91,8 +91,7 @@ void dp_PASCAL dp_rplayers_enumEx_cb(dpid_t id, char *name, long flags, void *co
 		return;
 	}
 
-	return;
-}
+	}
 
 /*------------------------------------------------------------------------
  Start or stop monitoring the given object table for changes.

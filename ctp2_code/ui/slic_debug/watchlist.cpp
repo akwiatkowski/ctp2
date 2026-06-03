@@ -168,8 +168,7 @@ void WatchListActionCallback(aui_Control *control, uint32 action, uint32 data, v
 		return;
 	}
 
-	return;
-}
+	}
 
 void WatchListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {

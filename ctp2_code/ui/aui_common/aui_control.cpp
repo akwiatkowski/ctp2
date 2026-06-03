@@ -994,7 +994,7 @@ AUI_ERRCODE	aui_Control::Resize(sint32 width, sint32 height)
 
 
 
-			InitializeImageLayers(aui_ui_Get()->GetLdl()->GetLdl()->FindDataBlock(ldlBlock));
+			InitializeImageLayers(aui_Ldl::GetLdl()->FindDataBlock(ldlBlock));
 		}
 	}
 

@@ -54,8 +54,7 @@ void gen_crc_table()
       g_crcTable[i] = crc_accum;
    }
 
-   return;
-}
+   }
 
 void free_crc()
 {

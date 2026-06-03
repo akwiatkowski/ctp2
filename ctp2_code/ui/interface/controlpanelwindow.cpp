@@ -3331,8 +3331,7 @@ ControlPanelWindow::CityPanelGetCurrent()
 void
 ControlPanelWindow::CityPanelRebuild()
 {
-	return;
-#if 0   // Unreachable
+	#if 0   // Unreachable
 	if (m_mainDropDown==NULL)
 		return;
 
@@ -3469,8 +3468,7 @@ ControlPanelWindow::UnitPanelGetCurrent()
 void
 ControlPanelWindow::UnitPanelRedisplay()
 {
-	return;
-#if 0   // Unreachable
+	#if 0   // Unreachable
 	Army army=UnitPanelGetCurrent();
 
 	Unit unit;
@@ -3764,10 +3762,10 @@ void ControlPanelWindow::TabCallback(aui_Control *control, uint32 action,
 		MainControlPanel *mcp = maincontrolpanel_Get();
 		switch(tab) {
 			case CP_TAB_UNIT:
-				mcp->UnitPanelActivated();
+				MainControlPanel::UnitPanelActivated();
 				break;
 			case CP_TAB_CITY:
-				mcp->CityPanelActivated();
+				MainControlPanel::CityPanelActivated();
 				break;
 			case CP_TAB_MSGLOG:
 				ctp2_Static *tabLabel;

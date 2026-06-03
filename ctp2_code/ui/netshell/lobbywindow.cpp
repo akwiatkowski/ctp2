@@ -487,7 +487,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
 				    *(NETFunc::PlayerSetup *)&rplayersetup_Get() = NETFunc::PlayerSetup(player);
 				    rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 				    p->SetPlayerSetup(&rplayersetup_Get());
-				    p->SetMode(p->VIEW);
+				    p->SetMode(PlayerEditWindow::VIEW);
 				    netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 			    }
             }
@@ -498,7 +498,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
         m = netfunc_Get()->GetMessage();
 	}
 
-	if(joinedLobby && netfunc_Get()->GetStatus() == NETFunc::OK) {
+	if(joinedLobby && NETFunc::GetStatus() == NETFunc::OK) {
 		netfunc_Get()->PushChatMessage(m_messageLobbyEnter->GetString());
 
 		((aui_Static *)m_controls[CONTROL_CURRENTLOBBYTEXTFIELD])->
@@ -553,7 +553,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
 				GetInputField())->SetKeyboardFocus();
 		}
 	}
-	if(netfunc_Get()->GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(nullptr) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
+	if(NETFunc::GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(nullptr) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
 
 		if ( s_dbw )
 		{
@@ -705,9 +705,9 @@ void LobbyWindow::PasswordScreenDone( MBCHAR *password )
 
 
 				if ( gamesetup_Get().GetSavedId() )
-					w->SetMode( w->CONTINUE_JOIN );
+					w->SetMode( AllinoneWindow::CONTINUE_JOIN );
 				else
-					w->SetMode( w->JOIN );
+					w->SetMode( AllinoneWindow::JOIN );
 
 				netshell_Get()->GotoScreen( NetShell::SCREEN_ALLINONE );
 				w->Update();
@@ -926,7 +926,7 @@ void LobbyWindow::InfoButtonAction::Execute(
 		if(item->GetNetShellObject()->IsMine()) {
 			PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			p->SetPlayerSetup(&playersetup_Get());
-			p->SetMode(p->EDIT);
+			p->SetMode(PlayerEditWindow::EDIT);
 			netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 		} else {
 			NETFunc::Player *player = item->GetNetShellObject()->GetNETFuncObject();

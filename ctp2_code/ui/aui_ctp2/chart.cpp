@@ -500,11 +500,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			ldl->Remove((void *)m_preReqButton[i]);
+			aui_Ldl::Remove((void *)m_preReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_preReqIndex[i])->m_name));
-			ldl->Associate((aui_Control *)m_preReqButton[i], name);
+			aui_Ldl::Associate((aui_Control *)m_preReqButton[i], name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_preReqIndex[i]) )
@@ -543,11 +543,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			ldl->Remove((void *)m_eitherPreReqButton[i]);
+			aui_Ldl::Remove((void *)m_eitherPreReqButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_eitherPreReqIndex[i])->m_name));
-			ldl->Associate((aui_Control *)m_eitherPreReqButton[i], name);
+			aui_Ldl::Associate((aui_Control *)m_eitherPreReqButton[i], name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_eitherPreReqIndex[i]) )
@@ -584,11 +584,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 	aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 	if (ldl)
 	{
-		ldl->Remove((void *)m_centerButton);
+		aui_Ldl::Remove((void *)m_centerButton);
 
 		MBCHAR name[k_MAX_NAME_LEN];
 		snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_centerIndex)->m_name));
-		ldl->Associate((aui_Control *)m_centerButton, name);
+		aui_Ldl::Associate((aui_Control *)m_centerButton, name);
 	}
 
 	if ( player_Get(curPlayer)->HasAdvance(m_centerIndex) )
@@ -621,11 +621,11 @@ AUI_ERRCODE Chart::Update( sint32 index )
 		aui_Ldl		*ldl = c3ui_Get()->GetLdl();
 		if (ldl)
 		{
-			ldl->Remove((void *)m_leadsToButton[i]);
+			aui_Ldl::Remove((void *)m_leadsToButton[i]);
 
 			MBCHAR name[k_MAX_NAME_LEN];
 			snprintf(name, sizeof(name), "%s", stringdb_Get()->GetIdStr(g_theAdvanceDB->Get(m_leadsToIndex[i])->m_name));
-			ldl->Associate((aui_Control *)m_leadsToButton[i], name);
+			aui_Ldl::Associate((aui_Control *)m_leadsToButton[i], name);
 		}
 
 		if ( player_Get(curPlayer)->HasAdvance(m_leadsToIndex[i]) )

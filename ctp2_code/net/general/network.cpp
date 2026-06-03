@@ -455,7 +455,7 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 	m_launchFromNetFunc = TRUE;
 	m_fromSave = fromSave;
 	m_readyToStart = FALSE;
-	m_launchHost = netfunc_Get()->IsHost();
+	m_launchHost = NETFunc::IsHost();
 
 
 	m_rememberExclusions = exclusions_Get();
@@ -471,7 +471,7 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 void Network::InitFromNetFunc()
 {
 	m_initialized = TRUE;
-	m_iAmHost = netfunc_Get()->IsHost();
+	m_iAmHost = NETFunc::IsHost();
 	m_iAmClient = !m_iAmHost;
 
 	Assert(player_arr_Get() && player_Get(0));

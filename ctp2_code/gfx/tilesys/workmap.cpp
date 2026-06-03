@@ -1438,9 +1438,6 @@ void WorkMap::HandlePop( MapPoint point )
 	Cell *cell;
 	cell = world_Get()->GetCell(point);
 
-
-	return;
-
 #if 0   // Unreachable
 	PLAYER_INDEX	player ;
 	ID	item ;

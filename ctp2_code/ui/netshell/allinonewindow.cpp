@@ -1371,7 +1371,7 @@ BOOL AllinoneWindow::WhoHasTribe( sint32 index, uint16 *curKey, BOOL *curIsAI, B
 	}
 
 	Assert( netfunc_Get()->IsHost() );
-	if ( !netfunc_Get()->IsHost() ) return FALSE;
+	if ( !NETFunc::IsHost() ) return FALSE;
 
 	if ( index == 0 ) return TRUE;
 
@@ -1403,7 +1403,7 @@ sint32 AllinoneWindow::FindTribe( uint16 key, BOOL isAI, BOOL *isFemale )
 {
 
 	Assert( netfunc_Get()->IsHost() );
-	if ( !netfunc_Get()->IsHost() ) return 0;
+	if ( !NETFunc::IsHost() ) return 0;
 
 	if ( key )
 	{
@@ -1522,7 +1522,7 @@ BOOL AllinoneWindow::AssignTribe(
 	}
 
 	Assert( netfunc_Get()->IsHost() );
-	if ( !netfunc_Get()->IsHost() ) return FALSE;
+	if ( !NETFunc::IsHost() ) return FALSE;
 
 	uint16 curKey;
 	BOOL curIsAI;
@@ -1649,14 +1649,14 @@ void AllinoneWindow::RequestTribe( sint32 index )
 	if (!IsValidTribeIndex(index)) return;
 
 	Assert( !netfunc_Get()->IsHost() );
-	if ( netfunc_Get()->IsHost() ) return;
+	if ( NETFunc::IsHost() ) return;
 
 	NETFunc::Message message = NETFunc::Message(
 		(NETFunc::Message::Code)CUSTOMCODE_REQUESTTRIBE,
 		&index,
 		sizeof( index ) );
 
-	NETFunc::STATUS err = netfunc_Get()->Send(
+	NETFunc::STATUS err = NETFunc::Send(
 		netfunc_Get()->GetDP(),
 		&message,
 		0 );
@@ -1992,7 +1992,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 						NETFunc::Message msg = NETFunc::Message(
 							(NETFunc::Message::Code)CUSTOMCODE_REQUESTDENIED );
 
-						NETFunc::STATUS err = netfunc_Get()->Send(
+						NETFunc::STATUS err = NETFunc::Send(
 							netfunc_Get()->GetDP(),
 							&msg,
 							m->GetSender() );
@@ -2042,7 +2042,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 						 NETFunc::PlayerSetup(player);
 					 rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 					 p->SetPlayerSetup(&rplayersetup_Get());
-					 p->SetMode(p->VIEW);
+					 p->SetMode(PlayerEditWindow::VIEW);
 					 netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				 }
 			}
@@ -2051,7 +2051,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 			n = false;
 	}
 
-	if(joinedgame && netfunc_Get()->GetStatus() == NETFunc::OK) {
+	if(joinedgame && NETFunc::GetStatus() == NETFunc::OK) {
 		PlayerSelectWindow *w = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
 		playersetup_Get() = *(w->GetPlayerSetup(netfunc_Get()->GetPlayer()));
@@ -2195,12 +2195,12 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 	if(launchGame) {
 		netfunc_Get()->PushChatMessage(m_messageLaunched->GetString());
-		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&netfunc_Get()->gameSetup;
+		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&NETFunc::gameSetup;
 		AllinoneWindow_SetupGameForLaunch();
 
 		for ( sint32 child = aui_ui_Get()->ChildList()->L(); child; child-- )
 			aui_ui_Get()->RemoveChild( aui_ui_Get()->ChildList()->GetHead()->Id() );
-		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
+		NetShell::Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 
 	if ( m_shouldUpdateGame )
@@ -2501,7 +2501,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 						NETFunc::PlayerSetup(player);
 					rplayersetup_Get().Packet::Set(m->GetBodySize(), m->GetBody());
 					p->SetPlayerSetup(&rplayersetup_Get());
-					p->SetMode(p->VIEW);
+					p->SetMode(PlayerEditWindow::VIEW);
 					netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 				}
 			}
@@ -2551,7 +2551,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 	}
 	}
 
-	if(joinedgame && netfunc_Get()->GetStatus() == NETFunc::OK) {
+	if(joinedgame && NETFunc::GetStatus() == NETFunc::OK) {
 
 		PlayerSelectWindow *w = (PlayerSelectWindow *)netshell_Get()->
 			FindWindow(NetShell::WINDOW_PLAYERSELECT);
@@ -2696,12 +2696,12 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 	if(!becameHost && launchGame) {
 		netfunc_Get()->PushChatMessage(m_messageLaunched->GetString());
-		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&netfunc_Get()->gameSetup;
+		*(NETFunc::Session *)&gamesetup_Get() = *(NETFunc::Session *)&NETFunc::gameSetup;
 		AllinoneWindow_SetupGameForLaunch();
 
 		for ( sint32 child = aui_ui_Get()->ChildList()->L(); child; child-- )
 			aui_ui_Get()->RemoveChild( aui_ui_Get()->ChildList()->GetHead()->Id() );
-		netshell_Get()->Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
+		NetShell::Leave(k_NS_FLAGS_LAUNCH | k_NS_FLAGS_DESTROYNETSHELL, TRUE);
 	}
 	}
 
@@ -2794,7 +2794,7 @@ void AllinoneWindow::UpdateDisplay( )
 				GetItemByIndex( i );
 			if ( item->IsAI() )
 			{
-				if ( netfunc_Get()->IsHost() )
+				if ( NETFunc::IsHost() )
 				{
 					item->GetCivpointsButton()->Enable( false );
 					item->GetPwpointsButton()->Enable( false );
@@ -2824,7 +2824,7 @@ void AllinoneWindow::UpdateTribeSwitches( )
 {
 	TribeSlot *tribeSlots = gamesetup_Get().GetTribeSlots();
 
-	if ( !netfunc_Get()->IsHost() )
+	if ( !NETFunc::IsHost() )
 	{
 		for ( sint32 i = 0; i < k_NS_MAX_PLAYERS; i++ )
 		{
@@ -2937,7 +2937,7 @@ void AllinoneWindow::UpdateConfig( )
 				GetItemByIndex( i );
 			if ( item->IsAI() )
 			{
-				if ( netfunc_Get()->IsHost() )
+				if ( NETFunc::IsHost() )
 				{
 					item->GetCivpointsButton()->Enable( true );
 					item->GetPwpointsButton()->Enable( true );
@@ -2974,7 +2974,7 @@ void AllinoneWindow::UpdateConfig( )
 				GetItemByIndex( i );
 			if ( item->IsAI() )
 			{
-				if ( netfunc_Get()->IsHost() )
+				if ( NETFunc::IsHost() )
 				{
 					item->GetCivpointsButton()->Enable( false );
 					item->GetPwpointsButton()->Enable( false );
@@ -3024,10 +3024,10 @@ void AllinoneWindow::UpdateConfig( )
 void AllinoneWindow::UpdateGameSetup(bool b)
 {
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 		if(b)
-			netfunc_Get()->UnLaunchAll();
+			NETFunc::UnLaunchAll();
 
 		m_shouldUpdateGame = true;
 
@@ -3084,7 +3084,7 @@ void AllinoneWindow::UpdatePlayerSetup()
 void AllinoneWindow::UpdateAIPlayerSetup( nf_AIPlayer *aiplayer )
 {
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 
 		if ( !m_aiplayerList->Find( aiplayer ) )
@@ -3360,7 +3360,7 @@ void AllinoneWindow::PlayersListBoxAction::Execute(
 
 	if (!chatbox->GetPlayer() || chatbox->GetPlayer()->IsMe())
     {
-		aui_Switch * s = (aui_Switch *) w->FindControl( w->CONTROL_PPTSWITCH );
+		aui_Switch * s = (aui_Switch *) w->FindControl( AllinoneWindow::CONTROL_PPTSWITCH );
 		s->SetState(k_PPT_PUBLIC);
 	}
 
@@ -3387,7 +3387,7 @@ void AllinoneWindow::UpdatePlayerButtons( )
 			m_controls[ CONTROL_PPTSWITCH ]->Enable(!item->GetPlayer()->IsMe());
 		}
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			if ( item->IsAI() )
 			{
@@ -3404,7 +3404,7 @@ void AllinoneWindow::UpdatePlayerButtons( )
 		m_controls[ CONTROL_INFOBUTTON ]->Enable( false );
 		m_controls[ CONTROL_PPTSWITCH ]->Enable( false );
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			m_controls[ CONTROL_KICKBUTTON ]->Enable( false );
 		}
@@ -3489,7 +3489,7 @@ void AllinoneWindow::KickButtonAction::Execute(
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 	Assert( netfunc_Get()->IsHost() );
-	if ( !netfunc_Get()->IsHost() ) return;
+	if ( !NETFunc::IsHost() ) return;
 
 	AllinoneWindow *w = (AllinoneWindow *)control->GetParentWindow();
 	ns_HPlayerListBox *listbox = (ns_HPlayerListBox *)w->
@@ -3529,7 +3529,7 @@ void AllinoneWindow::KickButtonAction::Execute(
 			NETFunc::Player *player = item->GetPlayer();
 			if ( !w->IsMine( player ) )
 			{
-				netfunc_Get()->Kick(player);
+				NETFunc::Kick(player);
 
 				w->UpdatePlayerButtons();
 			}
@@ -3558,7 +3558,7 @@ void AllinoneWindow::InfoButtonAction::Execute(
 			PlayerEditWindow *p = (PlayerEditWindow *)netshell_Get()->
 				FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			p->SetPlayerSetup(&playersetup_Get());
-			p->SetMode(p->EDIT_GAMESETUP);
+			p->SetMode(PlayerEditWindow::EDIT_GAMESETUP);
 			netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 		}
 		else
@@ -3578,7 +3578,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 	if ( playersetup_Get().IsReadyToLaunch() ) return;
 
-	if (netfunc_Get()->IsHost() && !c3files_HasLegalCD() )
+	if (NETFunc::IsHost() && !c3files_HasLegalCD() )
 	{
 		static ns_String donthavecd( "strings.system.donthavecd" );
 		netfunc_Get()->PushChatMessage( donthavecd.GetString() );
@@ -3587,7 +3587,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 	AllinoneWindow *w = g_allinoneWindow;
 
-	if ( netfunc_Get()->IsHost() && !gamesetup_Get().GetDynamicJoin() )
+	if ( NETFunc::IsHost() && !gamesetup_Get().GetDynamicJoin() )
 	{
 
 		if ( w->CurNumHumanPlayers() <= 1 ||
@@ -3625,7 +3625,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 	profiledb_Get()->SetCivName( playersetup_Get().GetName() );
 
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 		sint32 playStyleValue = gamesetup_Get().GetPlayStyleValue();
 
@@ -3665,9 +3665,9 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
-		aui_Switch *ls = (aui_Switch *)w->FindControl( w->CONTROL_LOCKSWITCH );
+		aui_Switch *ls = (aui_Switch *)w->FindControl( AllinoneWindow::CONTROL_LOCKSWITCH );
 
 		if ( gamesetup_Get().GetDynamicJoin() )
 		{
@@ -3800,7 +3800,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 #ifdef LOCKSETTINGSONLAUNCH
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 
 		uint8 isScenario = g_allinoneWindow->GetScenarioInfo()->isScenario;
@@ -3808,7 +3808,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 		g_allinoneWindow->SetMode( g_allinoneWindow->GetMode() );
 		g_allinoneWindow->GetScenarioInfo()->isScenario = isScenario;
 
-		g_allinoneWindow->FindControl( g_allinoneWindow->CONTROL_LOCKSWITCH )->
+		g_allinoneWindow->FindControl( AllinoneWindow::CONTROL_LOCKSWITCH )->
 			Enable( TRUE );
 		g_allinoneWindow->UpdatePlayerButtons();
 	}
@@ -3893,7 +3893,7 @@ void AllinoneWindow_SetupGameForLaunch( )
 		}
 	}
 
-	profiledb_Get()->SetAI(netfunc_Get()->IsHost());
+	profiledb_Get()->SetAI(NETFunc::IsHost());
 
 	g_network.SetStartingAge(agesscreen_getStartAge());
 	g_network.SetEndingAge(agesscreen_getEndAge());
@@ -4044,7 +4044,7 @@ void AllinoneWindow::CancelButtonAction::Execute(
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 	if(netfunc_Get()->GetTransport()) {
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			AllinoneWindow *w = g_allinoneWindow;
 
@@ -4056,7 +4056,7 @@ void AllinoneWindow::CancelButtonAction::Execute(
 				TRUE );
 
 			ns_HPlayerListBox *hplistbox = (ns_HPlayerListBox *)
-				w->FindControl( w->CONTROL_HPLAYERSLISTBOX );
+				w->FindControl( AllinoneWindow::CONTROL_HPLAYERSLISTBOX );
 			for ( sint32 i = 0; i < hplistbox->NumItems(); i++ )
 			{
 				ns_HPlayerItem *item = (ns_HPlayerItem *)hplistbox->
@@ -4742,10 +4742,10 @@ void AllinoneWindow::HandicappingSwitchAction::Execute(
 		playersetup_Get().SetPwPoints( gamesetup_Get().GetPwPoints() );
 		w->UpdatePlayerSetup();
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			ns_HPlayerListBox *hplistbox = (ns_HPlayerListBox *)w->
-				FindControl( w->CONTROL_HPLAYERSLISTBOX );
+				FindControl( AllinoneWindow::CONTROL_HPLAYERSLISTBOX );
 
 			for ( sint32 i = 0; i < hplistbox->NumItems(); i++ )
 			{
@@ -5003,10 +5003,10 @@ void AllinoneWindow::CivPointsButtonAction::Execute(
 		playersetup_Get().SetCivPoints( gamesetup_Get().GetCivPoints() );
 		w->UpdatePlayerSetup();
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			ns_HPlayerListBox *hplistbox = (ns_HPlayerListBox *)w->
-				FindControl( w->CONTROL_HPLAYERSLISTBOX );
+				FindControl( AllinoneWindow::CONTROL_HPLAYERSLISTBOX );
 
 			for ( sint32 i = 0; i < hplistbox->NumItems(); i++ )
 			{
@@ -5046,10 +5046,10 @@ void AllinoneWindow::PwPointsButtonAction::Execute(
 		playersetup_Get().SetPwPoints( gamesetup_Get().GetPwPoints() );
 		w->UpdatePlayerSetup();
 
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			ns_HPlayerListBox *hplistbox = (ns_HPlayerListBox *)w->
-				FindControl( w->CONTROL_HPLAYERSLISTBOX );
+				FindControl( AllinoneWindow::CONTROL_HPLAYERSLISTBOX );
 
 			for ( sint32 i = 0; i < hplistbox->NumItems(); i++ )
 			{
@@ -5150,7 +5150,7 @@ void AllinoneWindow::AgesButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( netfunc_Get()->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
+		( NETFunc::IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5168,7 +5168,7 @@ void AllinoneAgesCallback(
 	agesscreen_removeMyWindow( action );
 
 
-	if ( w->GetMode() == w->CREATE )
+	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
 		gamesetup_Get().SetStartAge(static_cast<char>(agesscreen_getStartAge()));
 		gamesetup_Get().SetEndAge(static_cast<char>(agesscreen_getEndAge()));
@@ -5190,7 +5190,7 @@ void AllinoneWindow::MapSizeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( netfunc_Get()->IsHost() && playersetup_Get().IsReadyToLaunch() ),
+		( NETFunc::IsHost() && playersetup_Get().IsReadyToLaunch() ),
 		0 );
 }
 
@@ -5209,7 +5209,7 @@ void AllinoneWindow::WorldShapeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( netfunc_Get()->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
+		( NETFunc::IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 
 }
 
@@ -5228,7 +5228,7 @@ void AllinoneMapSizeCallback(
 	spnewgamemapsizescreen_removeMyWindow( action );
 
 
-	if ( w->GetMode() == w->CREATE )
+	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
 		gamesetup_Get().SetMapSize(static_cast<char>(spnewgamemapsizescreen_getMapSizeIndex()));
 		w->UpdateGameSetup(true);
@@ -5250,7 +5250,7 @@ void AllinoneWorldShapeCallback(
 	spnewgamemapshapescreen_removeMyWindow( action );
 
 
-	if ( w->GetMode() == w->CREATE )
+	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
 		gamesetup_Get().SetWorldShape
             (static_cast<char>(spnewgamemapshapescreen_getMapShapeIndex()));
@@ -5289,7 +5289,7 @@ void AllinoneTribeCallback(
 		key = *(uint16 *)item->GetPlayer()->GetKey()->buf;
 
 
-	if ( netfunc_Get()->IsHost() && index == 0 )
+	if ( NETFunc::IsHost() && index == 0 )
 	{
 		w->AssignTribe(
 			0,
@@ -5303,7 +5303,7 @@ void AllinoneTribeCallback(
 
 	if ( item->IsAI() )
 	{
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			uint16 curKey;
 			BOOL curIsAI;
@@ -5346,7 +5346,7 @@ void AllinoneTribeCallback(
 
 		if ( gplistbox->NumItems() && w->IsMine( item->GetPlayer() ) )
 		{
-			if ( !netfunc_Get()->IsHost() )
+			if ( !NETFunc::IsHost() )
 			{
 
 				w->RequestTribe( index );
@@ -5398,7 +5398,7 @@ void AllinoneWindow::WorldTypeButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( netfunc_Get()->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
+		( NETFunc::IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5416,7 +5416,7 @@ void AllinoneWorldTypeCallback(
 	custommapscreen_removeMyWindow( action );
 
 
-	if ( w->GetMode() == w->CREATE )
+	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
 		sint32 val1, val2, val3, val4, val5, val6;
 		custommapscreen_getValues( val1, val2, val3, val4, val5, val6 );
@@ -5444,7 +5444,7 @@ void AllinoneWindow::DifficultyButtonAction::Execute(
 		w->GetMode() == JOIN ||
 		w->GetMode() == CONTINUE_CREATE ||
 		w->GetMode() == CONTINUE_JOIN ||
-		( netfunc_Get()->IsHost() && playersetup_Get().IsReadyToLaunch() ) );
+		( NETFunc::IsHost() && playersetup_Get().IsReadyToLaunch() ) );
 }
 
 
@@ -5462,7 +5462,7 @@ void AllinoneDifficultyCallback(
 	spnewgamediffscreen_removeMyWindow( action );
 
 
-	if ( w->GetMode() == w->CREATE )
+	if ( w->GetMode() == AllinoneWindow::CREATE )
 	{
 		gamesetup_Get().SetDifficulty1(static_cast<char>(spnewgamediffscreen_getDifficulty1()));
 		gamesetup_Get().SetDifficulty2(static_cast<char>(spnewgamediffscreen_getDifficulty2()));
@@ -5483,7 +5483,7 @@ void AllinoneWindow::UnitExclusionAction::Execute(
 	if(!netfunc_Get())
 		return;
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 		AllinoneWindow *w = g_allinoneWindow;
 		if ( !w ) return;
@@ -5513,7 +5513,7 @@ void AllinoneWindow::ImprovementExclusionAction::Execute(
 	&&   action != (uint32)AUI_SWITCH_ACTION_OFF ) return;
 
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 		AllinoneWindow *w = g_allinoneWindow;
 		if ( !w ) return;
@@ -5539,7 +5539,7 @@ void AllinoneWindow::WonderExclusionAction::Execute(
 	&&   action != (uint32)AUI_SWITCH_ACTION_OFF ) return;
 
 
-	if ( netfunc_Get()->IsHost() )
+	if ( NETFunc::IsHost() )
 	{
 		AllinoneWindow *w = g_allinoneWindow;
 		if ( !w ) return;
@@ -5765,7 +5765,7 @@ void CivPointsButtonCallback(
 
 	if ( item->IsAI() )
 	{
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			nf_AIPlayer *aiplayer = item->GetAIPlayer();
 			if ( value != aiplayer->GetCivPoints() )
@@ -5810,7 +5810,7 @@ void PwPointsButtonCallback(
 
 	if ( item->IsAI() )
 	{
-		if ( netfunc_Get()->IsHost() )
+		if ( NETFunc::IsHost() )
 		{
 			nf_AIPlayer *aiplayer = item->GetAIPlayer();
 			if ( value != aiplayer->GetPwPoints() )
@@ -5842,8 +5842,8 @@ void AllinoneWindow::EnableButtonsForUnlaunch()
 	sint32 i;
 	for(i = 0; i < lb->NumItems(); i++) {
 		ns_HPlayerItem *item = (ns_HPlayerItem *)lb->GetItemByIndex(i);
-		if((item->IsAI() && netfunc_Get()->IsHost()) || (item->GetPlayer() && IsMine(item->GetPlayer()))) {
-			if(netfunc_Get()->IsHost()) {
+		if((item->IsAI() && NETFunc::IsHost()) || (item->GetPlayer() && IsMine(item->GetPlayer()))) {
+			if(NETFunc::IsHost()) {
 				item->GetTribeButton()->Enable(TRUE);
 				if(gamesetup_Get().GetHandicapping()) {
 					item->GetCivpointsButton()->Enable(true);

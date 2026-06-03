@@ -65,9 +65,9 @@ class Civilisation;
 class Civilisation : public ID
 {
 public:
-	Civilisation() : ID() { return ; }
-	Civilisation(sint32 val) : ID(val) { return ; }
-	Civilisation(uint32 val) : ID(val) { return ; }
+	Civilisation() : ID() { }
+	Civilisation(sint32 val) : ID(val) { }
+	Civilisation(uint32 val) : ID(val) { }
 
 	CivilisationData *operator -> () const { return AccessData(); }
 

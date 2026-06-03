@@ -20,7 +20,7 @@ BOOL HandleGameSpecificLeftClick( void *control )
 
 
 
-			slicengine_Get()->RunUITriggers( ldl->GetBlock( control ) );
+			slicengine_Get()->RunUITriggers( aui_Ldl::GetBlock( control ) );
 
 	}
 
@@ -36,7 +36,7 @@ BOOL HandleGameSpecificRightClick( void *control )
 	{
 		if (g_helpMode) {
 
-				slicengine_Get()->RunHelpTriggers(ldl->GetBlock(control));
+				slicengine_Get()->RunHelpTriggers(aui_Ldl::GetBlock(control));
 			handled = TRUE;
 		}
 

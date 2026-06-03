@@ -511,11 +511,11 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 
 	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
-	BOOL valid = theLdl->IsValid( ldlBlock );
+	BOOL valid = aui_Ldl::IsValid( ldlBlock );
 	Assert(valid);
 	if(!valid) return;
 
-	ldl_datablock *datablock = theLdl->GetLdl()->FindDataBlock( ldlBlock );
+	ldl_datablock *datablock = aui_Ldl::GetLdl()->FindDataBlock( ldlBlock );
 	Assert(datablock != nullptr);
 	if(!datablock) return;
 
@@ -902,11 +902,11 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 
 	aui_Ldl *theLdl = c3ui_Get()->GetLdl();
 
-	BOOL valid = theLdl->IsValid( ldlBlock );
+	BOOL valid = aui_Ldl::IsValid( ldlBlock );
 	Assert(valid);
 	if(!valid) return;
 
-	ldl_datablock *datablock = theLdl->GetLdl()->FindDataBlock( ldlBlock );
+	ldl_datablock *datablock = aui_Ldl::GetLdl()->FindDataBlock( ldlBlock );
 	Assert(datablock != nullptr);
 	if(!datablock) return;
 

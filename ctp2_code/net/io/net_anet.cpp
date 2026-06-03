@@ -113,7 +113,7 @@ void ActivNetIO::SetDP(dp_t *dp)
 {
 	m_dp = dp;
 
-	m_isHost = netfunc_Get()->IsHost();
+	m_isHost = NETFunc::IsHost();
 
 	if(m_isHost) {
 		m_hostId = m_pid;

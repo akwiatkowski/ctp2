@@ -11,9 +11,9 @@
 
 class TradeOffer : public ID {
 public:
-	TradeOffer () : ID() { return; } ;
-	TradeOffer (sint32 val) : ID (val) { return; };
-	TradeOffer (uint32 val) : ID (val) { return; };
+	TradeOffer () : ID() { } ;
+	TradeOffer (sint32 val) : ID (val) { };
+	TradeOffer (uint32 val) : ID (val) { };
 
 	void KillOffer();
 	void Kill() { KillOffer(); }

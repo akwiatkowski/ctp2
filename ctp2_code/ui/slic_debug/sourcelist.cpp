@@ -193,8 +193,7 @@ void SourceListActionCallback(aui_Control *control, uint32 action, uint32 data, 
 		return;
 	}
 
-	return;
-}
+	}
 
 void SourceListButtonCallback(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
@@ -503,8 +502,7 @@ sint32 SourceListItem::Compare(c3_ListItem *item2, uint32 column)
 
 void SourceListItem::Open()
 {
-	return;
-}
+	}
 
 void SourceListItem::Continue()
 {

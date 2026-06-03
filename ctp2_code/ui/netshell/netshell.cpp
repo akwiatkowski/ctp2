@@ -122,7 +122,7 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 	{
 		if(g_netfunc->Connect("freeze.dat") == NETFunc::OK) {
 
-			if(g_netfunc->IsHost()) {
+			if(NETFunc::IsHost()) {
 				GameSelectWindow *sw = (GameSelectWindow *)(g_netshell->FindWindow(NetShell::WINDOW_GAMESELECT));
 				g_gamesetup = *sw->GetGameSetup(g_netfunc->GetSession());
 			}

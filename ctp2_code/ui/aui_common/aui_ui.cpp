@@ -1151,7 +1151,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 	m_editRegion = region;
 
 	if ( aui_Ldl *theLdl = g_ui->GetLdl() ) {
-		if ( MBCHAR	*ldlBlock = theLdl->GetBlock( region ) ) {
+		if ( MBCHAR	*ldlBlock = aui_Ldl::GetBlock( region ) ) {
 			MBCHAR editBuffer[ 1024 ];
 			MBCHAR *p = editBuffer;
 			memset( editBuffer, '\0', sizeof( editBuffer ) );

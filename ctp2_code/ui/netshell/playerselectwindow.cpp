@@ -328,7 +328,7 @@ void PlayerSelectWindow::NewButtonAction::Execute(
 		listbox->DeselectItem(item);
 
 	p->SetPlayerSetup(nullptr);
-	p->SetMode(p->EDIT);
+	p->SetMode(PlayerEditWindow::EDIT);
 	netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 }
 
@@ -346,7 +346,7 @@ void PlayerSelectWindow::EditButtonAction::Execute(
 
 	if(item) {
 		p->SetPlayerSetup(item->GetNetShellObject()->GetNETFuncObject());
-		p->SetMode(p->EDIT);
+		p->SetMode(PlayerEditWindow::EDIT);
 		netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 	}
 }
@@ -410,18 +410,18 @@ void PlayerSelectWindow::OKButtonAction::Execute(
 		{
 
 			c3_Button *newbut = (c3_Button *)w->
-				FindControl( w->CONTROL_NEWBUTTON );
+				FindControl( PlayerSelectWindow::CONTROL_NEWBUTTON );
 			newbut->GetAction()->
 				Execute( newbut, AUI_BUTTON_ACTION_EXECUTE, 0 );
 
 			PlayerEditWindow *pew = (PlayerEditWindow *)netshell_Get()->
 				FindWindow( NetShell::WINDOW_PLAYEREDIT );
 			((aui_TextField *)pew->
-			 FindControl( pew->CONTROL_PLAYERNAMETEXTFIELD ))
+			 FindControl( PlayerEditWindow::CONTROL_PLAYERNAMETEXTFIELD ))
 				->SetFieldText( name );
 
 			c3_Button *okbut = (c3_Button *)pew->
-				FindControl( pew->CONTROL_OKBUTTON );
+				FindControl( PlayerEditWindow::CONTROL_OKBUTTON );
 			okbut->GetAction()->Execute( okbut, AUI_BUTTON_ACTION_EXECUTE, 0 );
 		}
 	}
@@ -457,7 +457,7 @@ void PlayerSelectWindow::PlayerNameTextFieldAction::Execute(
 
 	PlayerSelectWindow *w = (PlayerSelectWindow *)control->GetParentWindow();
 
-	aui_Control *ctrl = w->FindControl( w->CONTROL_OKBUTTON );
+	aui_Control *ctrl = w->FindControl( PlayerSelectWindow::CONTROL_OKBUTTON );
 	ctrl->GetAction()->Execute( ctrl, AUI_BUTTON_ACTION_EXECUTE, 0 );
 }
 

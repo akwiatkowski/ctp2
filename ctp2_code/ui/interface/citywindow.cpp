@@ -482,7 +482,7 @@ AUI_ERRCODE CityWindow::Cleanup()
 {
 	if(s_cityWindow)
 	{
-		s_cityWindow->Hide();
+		CityWindow::Hide();
 	}
 
 	delete s_cityWindow;

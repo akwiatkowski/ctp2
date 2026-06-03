@@ -137,7 +137,6 @@ void MessageList::CheckVisibleMessages( )
 
 
 
-return;
 #if 0   // CTP1?
 	uint32 minCount = m_offset;
 	uint32 maxCount = ( m_offset + g_messageMaxVisible );

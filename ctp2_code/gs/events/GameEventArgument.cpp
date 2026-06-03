@@ -389,9 +389,9 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			char buf[1024];
 			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was called during execution of event %s.\nIt was called from object %s at line %i in file:\n%s\nPossible Explanation: Data became invlid during internal or slic code executation.",
 			             argIndex,
-			             gevmanager_Get()->ArgToName(m_type),
-			             gevmanager_Get()->GetEventName(type),
-			             gevmanager_Get()->GetEventName(event->AddedDuring()),
+			             GameEventManager::ArgToName(m_type),
+			             GameEventManager::GetEventName(type),
+			             GameEventManager::GetEventName(event->AddedDuring()),
 			             event->GetContextName(),
 			             event->GetLine(),
 			             event->GetFile());
@@ -403,9 +403,9 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			char buf[1024];
 			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid, the argument is invalid at event call.\nThe event was called during execution of event %s\nThe event was called from object %s at line %i in file:\n%s\nThe argument was already invalid at event call time.",
 			             argIndex,
-			             gevmanager_Get()->ArgToName(m_type),
-			             gevmanager_Get()->GetEventName(type),
-			             gevmanager_Get()->GetEventName(gevmanager_Get()->GetProcessingEvent()),
+			             GameEventManager::ArgToName(m_type),
+			             GameEventManager::GetEventName(type),
+			             GameEventManager::GetEventName(gevmanager_Get()->GetProcessingEvent()),
 			             slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetName(),
 			             slicengine_Get()->GetContext()->GetFrame()->GetCurrentLine(),
 			             slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetFilename());
@@ -420,17 +420,17 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 			{
 				snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed if it was not caused by slic interference.\nPossible reason for the problem: The data became invalid between event call and event execution.",
 				             argIndex,
-			             gevmanager_Get()->ArgToName(m_type),
-			             gevmanager_Get()->GetEventName(type),
-			             gevmanager_Get()->GetEventName(event->AddedDuring()));
+			             GameEventManager::ArgToName(m_type),
+			             GameEventManager::GetEventName(type),
+			             GameEventManager::GetEventName(event->AddedDuring()));
 			}
 			else
 			{
 				snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.The event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed.\nThe data was already invalid at event call time.",
 				             argIndex,
-			             gevmanager_Get()->ArgToName(m_type),
-			             gevmanager_Get()->GetEventName(type),
-			             gevmanager_Get()->GetEventName(gevmanager_Get()->GetProcessingEvent()));
+			             GameEventManager::ArgToName(m_type),
+			             GameEventManager::GetEventName(type),
+			             GameEventManager::GetEventName(gevmanager_Get()->GetProcessingEvent()));
 			}
 
 			c3errors_ErrorDialog("Slic Event Source Error", buf);

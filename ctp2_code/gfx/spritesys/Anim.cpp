@@ -444,6 +444,4 @@ void Anim::Export(FILE *file)
 	fprintf(file, "\n\t\t}\n\n");
 
 	fprintf(file, "\t}\n\n");
-
-	return;
 }

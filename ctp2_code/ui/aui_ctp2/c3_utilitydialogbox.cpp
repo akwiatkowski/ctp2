@@ -1510,7 +1510,7 @@ void NameTheCityDialogBoxCallback(MBCHAR const * text, sint32 val2, void *data)
 		if (s_unit.GetOwner() == selitem_Get()->GetVisiblePlayer())
         {
 			s_unit.GetData()->GetCityData()->SetName(text);
-			maincontrolpanel_Get()->UpdateCityList();
+			MainControlPanel::UpdateCityList();
 		}
 	}
 }

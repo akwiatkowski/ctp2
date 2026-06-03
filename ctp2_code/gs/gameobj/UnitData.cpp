@@ -1644,8 +1644,7 @@ void UnitData::DeductHP(double fp)
 		m_hp -= fp * (1 / player_Get(m_owner)->m_readiness->GetHPModifier()); //military readiness
 	}
 
-	return;
-}
+	}
 
 //----------------------------------------------------------------------------
 //
@@ -5350,8 +5349,7 @@ double UnitData::GetOverseasDistress() const
 void UnitData::SupportBuildings()
 {
 	Assert(false);
-	return;
-}
+	}
 
 void UnitData::CheckRiot()
 {

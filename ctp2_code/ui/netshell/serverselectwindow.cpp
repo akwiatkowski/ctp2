@@ -224,7 +224,7 @@ AUI_ERRCODE ServerSelectWindow::Idle( )
 			delete m;
 		}
 
-		if(netfunc_Get()->GetStatus() == NETFunc::START)
+		if(NETFunc::GetStatus() == NETFunc::START)
 			netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );
 	}
 

@@ -190,7 +190,7 @@ AUI_ERRCODE IntelligenceWindow::Display()
 			}
 		}
 
-		Update(s_intelligenceWindow->sm_list);
+		Update(IntelligenceWindow::sm_list);
 	}
 
 	return err;

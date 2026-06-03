@@ -5,6 +5,7 @@
 #define __SLIC_RECORD_H__
 
 #include <nlohmann/json.hpp>
+#include <string>
 
 class CivArchive;
 
@@ -13,8 +14,8 @@ class SlicSegment;
 class SlicRecord {
 private:
 	sint32 m_owner;
-	MBCHAR *m_title;
-	MBCHAR *m_text;
+	std::string m_title;
+	std::string m_text;
 	SlicSegment *m_segment;
 
 public:
@@ -24,10 +25,10 @@ public:
 	~SlicRecord();
 	void Serialize(CivArchive &archive);
 
-	const MBCHAR *GetTitle() { return m_title; }
+	const MBCHAR *GetTitle() { return m_title.c_str(); }
 
-	MBCHAR *AccessTitle() { return m_title; }
-	const MBCHAR *GetText() { return m_text; }
+	const MBCHAR *AccessTitle() { return m_title.c_str(); }
+	const MBCHAR *GetText() { return m_text.c_str(); }
 	SlicSegment *GetSegment() { return m_segment; }
 	void Reconstitute();
 

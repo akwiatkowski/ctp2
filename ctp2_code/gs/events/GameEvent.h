@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -48,6 +48,8 @@ class GameEvent;
 //----------------------------------------------------------------------------
 // Project dependencies
 //----------------------------------------------------------------------------
+
+#include <string>
 
 #include "os/include/ctp2_inttypes.h"          // sint32
 #include "gs/events/GameEventDescription.h"   // GAME_EVENT
@@ -78,8 +80,8 @@ public:
 	sint32              GetSerial()      const   { return m_serial;      };
 	GAME_EVENT          GetType()        const   { return m_type;        };
 	sint32              GetLine()        const   { return m_line;        };
-	char *              GetFile()        const   { return m_file;        };
-	char *              GetContextName() const   { return m_contextName; };
+	const char *        GetFile()        const   { return m_file.c_str();        };
+	const char *        GetContextName() const   { return m_contextName.c_str(); };
 	GAME_EVENT          AddedDuring()    const   { return m_addedDuring; };
 
 	GAME_EVENT_ERR      Process();
@@ -98,8 +100,8 @@ private:
 	GAME_EVENT          m_addedDuring;
 	sint32              m_serial;
 	sint32              m_line;
-	char *              m_file;
-	char *              m_contextName;
+	std::string         m_file;
+	std::string         m_contextName;
 };
 
 #endif

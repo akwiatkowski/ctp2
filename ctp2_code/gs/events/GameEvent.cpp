@@ -55,9 +55,7 @@ GameEvent::GameEvent
 	m_resumeIndex       (-1),   // Handling not started yet
 	m_addedDuring       (addedDuring),
 	m_serial            (serial),
-	m_line              (-1),   // Line invalid
-	m_file              (NULL),
-	m_contextName       (NULL)
+	m_line              (-1)   // Line invalid
 {
 	/// @todo Improve code style
 	// Instead of accessing global variables (which may or may not exist),
@@ -70,11 +68,8 @@ GameEvent::GameEvent
 		const char * file = slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetFilename();
 		const char * name = slicengine_Get()->GetContext()->GetFrame()->GetSlicSegment()->GetName();
 
-		m_file        = new char[strlen(file) + 1];
-		m_contextName = new char[strlen(name) + 1];
-
-		strcpy(m_file       , file);
-		strcpy(m_contextName, name);
+		m_file        = file;
+		m_contextName = name;
 	}
 	else if(gevmanager_Get()->GetHeadEvent()
 	&&      gevmanager_Get()->GetHeadEvent()->GetLine() >= 0
@@ -86,19 +81,14 @@ GameEvent::GameEvent
 		const char * file = event->GetFile();
 		const char * name = event->GetContextName();
 
-		m_file        = new char[strlen(file) + 1];
-		m_contextName = new char[strlen(name) + 1];
-
-		strcpy(m_file       , file);
-		strcpy(m_contextName, name);
+		m_file        = file;
+		m_contextName = name;
 	}
 }
 
 GameEvent::~GameEvent()
 {
 	delete m_argList;
-	delete [] m_file;
-	delete [] m_contextName;
 }
 
 GAME_EVENT_ERR GameEvent::Process()

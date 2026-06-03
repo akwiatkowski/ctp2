@@ -856,13 +856,10 @@ void from_json(nlohmann::json const &j, Advances &a)
             522, "advances arrays must match m_size", &j);
     }
 
-    // Reallocate to match the new size (binary path does the same).
-    delete[] a.m_hasAdvance;
-    delete[] a.m_canResearch;
-    delete[] a.m_turnsSinceOffered;
-    a.m_hasAdvance        = new uint8 [expected];
-    a.m_canResearch       = new uint8 [expected];
-    a.m_turnsSinceOffered = new uint16[expected];
+    // Resize vectors to match the new size (binary path does the same).
+    a.m_hasAdvance.resize(expected);
+    a.m_canResearch.resize(expected);
+    a.m_turnsSinceOffered.resize(expected);
 
     for (sint32 i = 0; i < expected; ++i)
     {

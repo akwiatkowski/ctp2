@@ -79,6 +79,7 @@
 #include "gs/gameobj/CivilisationPool.h"   // civilisationpool_Get()
 #include "gs/gameobj/GameSettings.h"       // gamesettings_Get()
 #include <stdexcept>            // overflow_error
+#include <vector>
 
 namespace
 {
@@ -99,19 +100,12 @@ Advances::Advances(size_t a_Count)
     m_age                                   (0),
     m_theLastAdvanceEnabledThisManyAdvances (0),
     m_total_cost                            (0),
-    m_discovered                            (0),
-    m_hasAdvance                            (NULL),
-    m_canResearch                           (NULL),
-    m_turnsSinceOffered                     (NULL)
+    m_discovered                            (0)
 {
     Assert(m_size);
-	m_hasAdvance        = new uint8[m_size];
-	m_canResearch       = new uint8[m_size];
-	m_turnsSinceOffered = new uint16[m_size];
-
-    std::fill(m_hasAdvance, m_hasAdvance + m_size, 0);
-    std::fill(m_canResearch, m_canResearch + m_size, 0);
-    std::fill(m_turnsSinceOffered, m_turnsSinceOffered + m_size, 0);
+    m_hasAdvance.resize(m_size);
+    m_canResearch.resize(m_size);
+    m_turnsSinceOffered.resize(m_size);
 }
 
 Advances::Advances(Advances const & a_Original)
@@ -123,33 +117,14 @@ Advances::Advances(Advances const & a_Original)
     m_theLastAdvanceEnabledThisManyAdvances (a_Original.m_theLastAdvanceEnabledThisManyAdvances),
 	m_total_cost                            (a_Original.m_total_cost),
 	m_discovered                            (a_Original.m_discovered),
-	m_hasAdvance                            (NULL),
-	m_canResearch                           (NULL),
-	m_turnsSinceOffered                     (NULL)
+    m_hasAdvance                            (a_Original.m_hasAdvance),
+    m_canResearch                           (a_Original.m_canResearch),
+    m_turnsSinceOffered                     (a_Original.m_turnsSinceOffered)
 {
-	m_hasAdvance        = new uint8[m_size];
-	m_canResearch       = new uint8[m_size];
-	m_turnsSinceOffered = new uint16[m_size];
-
-    std::copy(a_Original.m_hasAdvance,
-              a_Original.m_hasAdvance + m_size,
-              m_hasAdvance
-             );
-    std::copy(a_Original.m_canResearch,
-              a_Original.m_canResearch + m_size,
-              m_canResearch
-             );
-    std::copy(a_Original.m_turnsSinceOffered,
-              a_Original.m_turnsSinceOffered + m_size,
-              m_turnsSinceOffered
-             );
 }
 
 Advances::~Advances()
 {
-	delete [] m_hasAdvance;
-	delete [] m_canResearch;
-	delete [] m_turnsSinceOffered;
 }
 
 Advances & Advances::operator = (Advances const & a_Original)
@@ -165,26 +140,9 @@ Advances & Advances::operator = (Advances const & a_Original)
 	    m_total_cost                            = a_Original.m_total_cost;
 	    m_discovered                            = a_Original.m_discovered;
 
-        delete [] m_hasAdvance;
-	    delete [] m_canResearch;
-	    delete [] m_turnsSinceOffered;
-
-	    m_hasAdvance        = new uint8[m_size];
-	    m_canResearch       = new uint8[m_size];
-	    m_turnsSinceOffered = new uint16[m_size];
-
-        std::copy(a_Original.m_hasAdvance,
-                  a_Original.m_hasAdvance + m_size,
-                  m_hasAdvance
-                 );
-        std::copy(a_Original.m_canResearch,
-                  a_Original.m_canResearch + m_size,
-                  m_canResearch
-                 );
-        std::copy(a_Original.m_turnsSinceOffered,
-                  a_Original.m_turnsSinceOffered + m_size,
-                  m_turnsSinceOffered
-                 );
+        m_hasAdvance        = a_Original.m_hasAdvance;
+        m_canResearch       = a_Original.m_canResearch;
+        m_turnsSinceOffered = a_Original.m_turnsSinceOffered;
     }
 
     return *this;
@@ -451,7 +409,7 @@ void Advances::InitialAdvance(AdvanceType adv)
 uint8 * Advances::CanResearch() const
 {
 	uint8 *  research = new uint8[m_size];
-	std::copy(m_canResearch, m_canResearch + m_size, research);
+	std::copy(m_canResearch.begin(), m_canResearch.end(), research);
 	return research;
 }
 
@@ -689,7 +647,7 @@ void Advances::ResetCanResearch(sint32 justGot)
 			if(numOffered + histogram[i] > minChoices)
 			{
 				sint32 howMany = minChoices - numOffered;
-				uint32 *possible = new uint32[m_size];
+				std::vector<uint32> possible(m_size);
 				sint32 p = 0;
 
 				for(j = 0; j < m_size; j++)
@@ -708,11 +666,10 @@ void Advances::ResetCanResearch(sint32 justGot)
 				{
 					sint32 which = civrand().Next(p);
 					m_canResearch[possible[which]] = 0;
-					memmove(&possible[which], &possible[which + 1], p - which - 1);
+					memmove(&possible[which], &possible[which + 1], (p - which - 1) * sizeof(uint32));
 					p--;
 				}
 
-				delete [] possible;
 				goto done;
 			}
 			else
@@ -1077,7 +1034,7 @@ void
 Advances::DebugDumpTree()
 {
     Assert(0<m_size);
-	sint32* level = new sint32[m_size];
+	std::vector<sint32> level(m_size);
 	sint32 numLevels = 0;
 	sint32 const	LEVEL_LOOPED	= -1;
 	bool			isLoopDetected	= false;
@@ -1122,8 +1079,6 @@ Advances::DebugDumpTree()
 		}
 		DPRINTF(k_DBG_INFO, ("\n"));
 	}
-
-	delete [] level;
 }
 #endif
 
@@ -1135,18 +1090,19 @@ Advances::Serialize(CivArchive& archive)
 	if(archive.IsStoring()) {
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_discovered)+sizeof(m_discovered));
 
-		archive.Store((uint8*)m_hasAdvance, m_size * sizeof(uint8));
-		archive.Store((uint8*)m_canResearch, m_size * sizeof(uint8));
-		archive.Store((uint8*)m_turnsSinceOffered, m_size * sizeof(uint16));
+		archive.Store(m_hasAdvance.data(), m_size * sizeof(uint8));
+		archive.Store(m_canResearch.data(), m_size * sizeof(uint8));
+		archive.Store(reinterpret_cast<uint8*>(m_turnsSinceOffered.data()), m_size * sizeof(uint16));
 	} else {
 		archive.LoadChunk((uint8 *)&m_owner, ((uint8 *)&m_discovered)+sizeof(m_discovered));
 
         Assert(m_size);
-        delete [] m_hasAdvance;
-		m_hasAdvance = new uint8[m_size];
-		archive.Load((uint8*)m_hasAdvance, m_size * sizeof(uint8));
-		archive.Load((uint8*)m_canResearch, m_size * sizeof(uint8));
-		archive.Load((uint8*)m_turnsSinceOffered, m_size * sizeof(uint16));
+        m_hasAdvance.resize(m_size);
+        m_canResearch.resize(m_size);
+        m_turnsSinceOffered.resize(m_size);
+		archive.Load(m_hasAdvance.data(), m_size * sizeof(uint8));
+		archive.Load(m_canResearch.data(), m_size * sizeof(uint8));
+		archive.Load(reinterpret_cast<uint8*>(m_turnsSinceOffered.data()), m_size * sizeof(uint16));
 	}
 }
 

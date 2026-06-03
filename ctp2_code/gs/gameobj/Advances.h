@@ -63,6 +63,7 @@ typedef sint32  AdvanceType;
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
 
 #include <nlohmann/json.hpp>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Declarations
@@ -96,9 +97,9 @@ private:
 // End of fixed variable list. Changing below this line is less dangerous.
 //----------------------------------------------------------------------------
 
-	uint8* m_hasAdvance;
-	uint8 *m_canResearch;
-	uint16 *m_turnsSinceOffered;
+	std::vector<uint8>  m_hasAdvance;
+	std::vector<uint8>  m_canResearch;
+	std::vector<uint16> m_turnsSinceOffered;
 
 	friend class NetInfo;
 	friend class NetPlayer;

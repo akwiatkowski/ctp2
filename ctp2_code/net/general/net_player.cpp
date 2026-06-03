@@ -123,14 +123,10 @@ void NetPlayer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	sint32 advSize;
 	PULLLONG(advSize);
-	if(p->m_advances->m_hasAdvance) {
-		delete [] p->m_advances->m_hasAdvance;
-	}
-
-	p->m_advances->m_hasAdvance = new uint8[advSize];
+	p->m_advances->m_hasAdvance.resize(advSize);
 
 	p->m_advances->m_size = advSize;
-	uint8* hasAdvance = p->m_advances->m_hasAdvance;
+	uint8* hasAdvance = p->m_advances->m_hasAdvance.data();
 	sint32 i;
 	for(i = 0; i < advSize; i += 8) {
 		for(sint32 d = 0; d < 8 && i+d < advSize; d++) {

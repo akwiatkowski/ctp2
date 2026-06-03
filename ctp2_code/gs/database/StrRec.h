@@ -34,12 +34,14 @@
 
 #include "gs/database/dbtypes.h"
 
+#include <string>
+
 class StringRecord {
 
 public:
 	StringId m_index;
-	char *m_id;
-	char *m_text;
+	std::string m_id;
+	std::string m_text;
 	StringRecord *m_lesser, *m_greater;
 
 	StringRecord();

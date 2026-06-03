@@ -109,6 +109,18 @@ size_t ComputeHashIndex(MBCHAR const * id)
 		return static_cast<size_t>(hash % STRDB_NUM_HEADS);
 	}
 
+	StringRecord * GetStrNodeRecord(StringRecord * ptr, MBCHAR const * add_id)
+	{
+		if (!ptr) return NULL;
+		int const r = strcmp(add_id, ptr->m_id.c_str());
+		if (r < 0)
+			return GetStrNodeRecord(ptr->m_lesser, add_id);
+		else if (0 < r)
+			return GetStrNodeRecord(ptr->m_greater, add_id);
+		else
+			return ptr;
+	}
+
 } // namespace
 
 
@@ -176,30 +188,31 @@ bool StringDB::InsertStr
 		// a special key (add_id + "#COUNT") to keep track of the (sequence)
 		// number.
 
-		MBCHAR * 	tempstr	= new MBCHAR[strlen(add_id) + 7];
-		snprintf(tempstr, strlen(add_id) + 7, "%s#COUNT", add_id);
+		std::string tempstr(add_id);
+		tempstr += "#COUNT";
 
-		MBCHAR *	countstr;
-		if (GetStrNode(GetHead(tempstr), tempstr, &countstr))
+		StringRecord * countRec = GetStrNodeRecord(GetHead(tempstr.c_str()), tempstr.c_str());
+		if (countRec)
 		{
 			// No action: the special key has been created already.
 		}
 		else
 		{
 			// Create a new special key, initialised with count 1.
-			AddStrNode(GetHead(tempstr), tempstr, "1     ", newRec);
-			GetStrNode(GetHead(tempstr), tempstr, &countstr);
-        }
+			AddStrNode(GetHead(tempstr.c_str()), tempstr.c_str(), "1     ", newRec);
+			countRec = GetStrNodeRecord(GetHead(tempstr.c_str()), tempstr.c_str());
+		}
 
 		// Create a new numbered key.
-		int const	count	= atoi(countstr);
-		snprintf(tempstr, strlen(add_id) + 7, "%s#%d", add_id, count);
-		AddStrNode(GetHead(tempstr), tempstr, new_text, newRec);
+		int const	count	= atoi(countRec->m_text.c_str());
+		std::vector<char> keybuf(strlen(add_id) + 7);
+		snprintf(keybuf.data(), keybuf.size(), "%s#%d", add_id, count);
+		AddStrNode(GetHead(keybuf.data()), keybuf.data(), new_text, newRec);
 
 		// Update the sequence counter.
-		sprintf(countstr, "%d", count + 1);
-
-		delete [] tempstr;
+		char countBuf[16];
+		snprintf(countBuf, sizeof(countBuf), "%d", count + 1);
+		countRec->m_text = countBuf;
 	}
 
 	return true;
@@ -234,7 +247,7 @@ bool StringDB::AddStrNode
 	if (ptr)
 	{
 		// At a branch: traverse the tree to find the right place to add.
-		int const	r	= strcmp(add_id, ptr->m_id);
+		int const	r	= strcmp(add_id, ptr->m_id.c_str());
 		if (r < 0)
 		{
 			return AddStrNode(ptr->m_lesser, add_id, new_text, newPtr);
@@ -253,10 +266,8 @@ bool StringDB::AddStrNode
 	{
 		// At a leaf: add here.
 		ptr				= new StringRecord();
-		ptr->m_id		= new char[strlen(add_id) + 1];
-		strcpy(ptr->m_id, add_id);
-		ptr->m_text		= new char[strlen(new_text) + 1];
-		strcpy(ptr->m_text, new_text);
+		ptr->m_id		= add_id ? add_id : "";
+		ptr->m_text		= new_text ? new_text : "";
 		AssignIndex(ptr);
 		newPtr			= ptr;
 		return true;
@@ -292,7 +303,7 @@ MBCHAR * StringDB::GetIdStr(StringId const & index) const
 {
 	Assert(0 <= index);
 	Assert(static_cast<size_t>(index) < m_all.size());
-	return (index < 0) || (index >= static_cast<sint32>(m_all.size())) ? NULL : m_all[index]->m_id;
+	return (index < 0) || (index >= static_cast<sint32>(m_all.size())) ? NULL : const_cast<MBCHAR *>(m_all[index]->m_id.c_str());
 }
 
 
@@ -309,7 +320,7 @@ bool StringDB::GetStrNode
 {
 	if (ptr)
 	{
-		int const r	= strcmp(add_id, ptr->m_id);
+		int const r	= strcmp(add_id, ptr->m_id.c_str());
 		if (r < 0)
 		{
 			return GetStrNode(ptr->m_lesser, add_id, new_text);
@@ -320,7 +331,7 @@ bool StringDB::GetStrNode
 		}
 		else
 		{
-			*new_text = ptr->m_text;
+			*new_text = const_cast<MBCHAR *>(ptr->m_text.c_str());
 			return true;
 		}
 	}
@@ -421,7 +432,7 @@ bool StringDB::GetIndexNode
 		return false;
 	} else {
 
-		r = strcmp(str_id, ptr->m_id);
+		r = strcmp(str_id, ptr->m_id.c_str());
 		if (r < 0) {
 			return GetIndexNode(ptr->m_lesser, str_id, index);
 		} else if (0 < r) {
@@ -451,7 +462,7 @@ bool StringDB::GetIndexNode
 MBCHAR const * StringDB::GetNameStr(StringId const & n) const
 {
 	Assert(n >= 0);
-	return (n < 0) || (n >= static_cast<sint32>(m_all.size())) ? "BADSTRING" : m_all[n]->m_text;
+	return (n < 0) || (n >= static_cast<sint32>(m_all.size())) ? "BADSTRING" : m_all[n]->m_text.c_str();
 }
 
 
@@ -655,8 +666,8 @@ void StringDB::Export(MBCHAR * file)
 	for (size_t i = 0; i < m_all.size(); ++i)
     {
 		c3files_fprintf(fout, "%s\t\"%s\"\t%d\n",
-                        m_all[i]->m_id,
-                        m_all[i]->m_text,
+                        m_all[i]->m_id.c_str(),
+                        m_all[i]->m_text.c_str(),
                         m_all[i]->m_index
                        );
 	}

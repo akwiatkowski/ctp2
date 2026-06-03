@@ -468,4 +468,121 @@ TEST_CASE("UTF-8: SaveJson handles 8-player games with Latin-1 civ names")
     REQUIRE_NOTHROW(nlohmann::json::parse(raw));
 }
 
+// ---------------------------------------------------------------------------
+// Phase 1j / Modernization 0.A.3 — N-turn determinism
+//
+// Stronger than the 0-turn round-trip above: load the same snapshot
+// twice, advance K turns each time, save, and compare. If the engine
+// is deterministic from a loaded state, the two post-advance JSON
+// blobs must be byte-identical on the keys we round-trip.
+//
+// What this catches that the 0-turn test does not:
+//   - State that is correctly serialized but stale-and-reset on load
+//     (e.g. caches whose first-touch differs between runs).
+//   - RNG paths that consume different amounts during turn processing
+//     depending on hidden mutable state.
+//   - Iteration-order dependencies in subsystems that mutate during
+//     turn advancement (vs. SaveJson-only iteration).
+// ---------------------------------------------------------------------------
+
+namespace {
+
+bool run_headless(const char *cmd, std::string *log)
+{
+    std::FILE *pipe = popen(cmd, "r");
+    if (!pipe) return false;
+    char buf[512];
+    std::string out;
+    while (std::fgets(buf, sizeof(buf), pipe)) out += buf;
+    int rc = pclose(pipe);
+    if (log) *log = std::move(out);
+    return WIFEXITED(rc) && WEXITSTATUS(rc) == 0;
+}
+
+}  // namespace
+
+TEST_CASE("N-turn determinism: load+advance K turns → same JSON across runs")
+{
+    const char *bin = find_headless();
+    REQUIRE(bin);
+
+    const char *snap = "/tmp/ctp2_det_snapshot.json";
+    const char *out_b = "/tmp/ctp2_det_run_b.json";
+    const char *out_c = "/tmp/ctp2_det_run_c.json";
+    std::remove(snap); std::remove(out_b); std::remove(out_c);
+
+    // Step 1: produce the initial snapshot at turn 3.
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 3 --players 3 --seed 42 "
+                      "--json-save %s 2>&1", bin, snap);
+        std::string log;
+        REQUIRE_MESSAGE(run_headless(cmd, &log), log);
+    }
+
+    // Step 2: load snapshot, advance 3 more turns, save (run B).
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 3 --players 3 --seed 42 "
+                      "--json-load %s --json-save %s 2>&1",
+                      bin, snap, out_b);
+        std::string log;
+        REQUIRE_MESSAGE(run_headless(cmd, &log), log);
+        REQUIRE(log.find("LoadJson returned ok") != std::string::npos);
+        REQUIRE(log.find("SaveJson returned ok") != std::string::npos);
+    }
+
+    // Step 3: do it again from the same snapshot (run C).
+    {
+        char cmd[1024];
+        std::snprintf(cmd, sizeof(cmd),
+                      "%s --new-game --turns 3 --players 3 --seed 42 "
+                      "--json-load %s --json-save %s 2>&1",
+                      bin, snap, out_c);
+        std::string log;
+        REQUIRE_MESSAGE(run_headless(cmd, &log), log);
+        REQUIRE(log.find("LoadJson returned ok") != std::string::npos);
+        REQUIRE(log.find("SaveJson returned ok") != std::string::npos);
+    }
+
+    // Compare.
+    std::string rb, rc;
+    REQUIRE(read_file(out_b, rb));
+    REQUIRE(read_file(out_c, rc));
+
+    nlohmann::json b = nlohmann::json::parse(rb);
+    nlohmann::json c = nlohmann::json::parse(rc);
+
+    // Same exclusions as the 0-turn round-trip:
+    //   - saved_at / ctp2_build: wall-clock + build SHA.
+    //   - selection: load not implemented.
+    //   - slic_engine: StringHash iteration drift (validated by size
+    //     near-equality only — see 0-turn case for rationale).
+    for (const char *key : {
+        "magic", "schema_version",
+        "rng", "settings", "world", "turn",
+        "unit_pool", "army_pool", "trade_pool", "pollution",
+        "terrain_improvement_pool", "civilisation_pool",
+        "message_pool", "installation_pool",
+        "wonder_tracker", "exclusions", "feat_tracker",
+        "event_tracker", "top_ten",
+        "players", "dead_players", "ai_state",
+    }) {
+        INFO("determinism key: " << key);
+        REQUIRE(b.contains(key));
+        REQUIRE(c.contains(key));
+        CHECK(b[key] == c[key]);
+    }
+
+    REQUIRE(b.contains("slic_engine"));
+    REQUIRE(c.contains("slic_engine"));
+    auto const sb_size = b["slic_engine"].dump().size();
+    auto const sc_size = c["slic_engine"].dump().size();
+    INFO("slic_engine sizes: b=" << sb_size << " c=" << sc_size);
+    CHECK(std::abs(static_cast<long>(sb_size) - static_cast<long>(sc_size)) < 100);
+    CHECK(b["slic_engine"].size() == c["slic_engine"].size());
+}
+
 TEST_SUITE_END;

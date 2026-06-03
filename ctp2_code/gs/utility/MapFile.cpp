@@ -39,6 +39,7 @@
 
 #include "AdvanceRecord.h"              // g_theAdvanceDB
 #include <algorithm>
+#include <vector>
 #include "gs/outcom/AICause.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
@@ -209,8 +210,8 @@ bool MapFile::SaveTerrain(FILE *outfile)
     m_chunk.m_size      = (xSize * ySize) + sizeof(uint16) * 2;
     m_chunk.m_id        = k_TERRAIN_HEADER;
 
-    uint8 * terrain     = new uint8[xSize * ySize];
-    uint8 * tptr        = terrain;
+    std::vector<uint8> terrain(xSize * ySize);
+    uint8 * tptr        = terrain.data();
     for (size_t y = 0; y < ySize; ++y)
     {
         for (size_t x = 0; x < xSize; ++x)
@@ -222,7 +223,6 @@ bool MapFile::SaveTerrain(FILE *outfile)
     if (!m_chunk.Save(outfile))
     {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		delete [] terrain;
 		return false;
     }
 
@@ -230,7 +230,6 @@ bool MapFile::SaveTerrain(FILE *outfile)
     if (fwrite(&value, sizeof(value), 1, outfile) != 1)
     {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		delete [] terrain;
 		return false;
     }
 
@@ -238,18 +237,15 @@ bool MapFile::SaveTerrain(FILE *outfile)
     if (fwrite(&value, sizeof(value), 1, outfile) != 1)
     {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		delete [] terrain;
 		return false;
     }
 
-    if (fwrite(terrain, 1, xSize * ySize, outfile) != xSize * ySize)
+    if (fwrite(terrain.data(), 1, xSize * ySize, outfile) != xSize * ySize)
     {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving terrain.\n"));
-		delete [] terrain;
 		return false;
     }
 
-    delete [] terrain;
     return true;
 }
 
@@ -579,8 +575,8 @@ bool MapFile::SaveHuts(FILE *outfile)
 	m_chunk.m_size = world_Get()->GetXWidth() * world_Get()->GetYHeight() * sizeof(uint8) + sizeof(sint16) * 2;
 	m_chunk.m_id = k_HUTS_HEADER;
 
-	uint8 *terrain = new uint8[m_chunk.m_size];
-	uint8 *tptr = terrain;
+	std::vector<uint8> terrain(m_chunk.m_size);
+	uint8 *tptr = terrain.data();
 	sint16 x, y;
 	MapPoint mappoint;
 	uint8 zero = 0;
@@ -596,7 +592,6 @@ bool MapFile::SaveHuts(FILE *outfile)
 
 	if(!m_chunk.Save(outfile)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		delete [] terrain;
 		return false;
 	}
 
@@ -604,7 +599,6 @@ bool MapFile::SaveHuts(FILE *outfile)
 	if(fwrite(&x, sizeof(x), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		delete [] terrain;
 		return false;
 	}
 
@@ -612,17 +606,14 @@ bool MapFile::SaveHuts(FILE *outfile)
 	if(fwrite(&y, sizeof(y), 1, outfile) != 1)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		delete [] terrain;
 		return false;
 	}
 
-	if(fwrite(terrain, 1, x * y, outfile) != (uint32)x * y) {
+	if(fwrite(terrain.data(), 1, x * y, outfile) != (uint32)x * y) {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving huts.\n"));
-		delete [] terrain;
 		return false;
 	}
 
-	delete [] terrain;
 	return true;
 }
 
@@ -631,8 +622,8 @@ bool MapFile::SaveCivilizations(FILE *outfile)
 	m_chunk.m_size = k_CIVS_BLOCK_LENGTH;
 	m_chunk.m_id = k_CIVS_HEADER;
 
-	uint8 *civs = new uint8[m_chunk.m_size];
-	uint8 *ptr = civs;
+	std::vector<uint8> civs(m_chunk.m_size);
+	uint8 *ptr = civs.data();
 
 	for (int i = 0; i < k_MAX_PLAYERS; i++)
 	{
@@ -674,18 +665,15 @@ bool MapFile::SaveCivilizations(FILE *outfile)
 
 	if (!m_chunk.Save(outfile)) {
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
-		delete [] civs;
 		return false;
 	}
 
-	if (fwrite(civs, 1, k_CIVS_BLOCK_LENGTH, outfile) != k_CIVS_BLOCK_LENGTH)
+	if (fwrite(civs.data(), 1, k_CIVS_BLOCK_LENGTH, outfile) != k_CIVS_BLOCK_LENGTH)
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("Error saving civilizations.\n"));
-		delete [] civs;
 		return false;
 	}
 
-	delete [] civs;
 	return true;
 }
 
@@ -715,10 +703,10 @@ bool MapFile::LoadMap(FILE *infile)
 			Assert(chunkSize > 0 && chunkSize <= 1024*1024*100);
 			return false;
 		}
-		uint8 * buf = new uint8[chunkSize];
-#define LoadMapStop()	{ delete [] buf; return false; }
+		std::vector<uint8> buf(chunkSize);
+#define LoadMapStop()	{ return false; }
 
-		r = fread(buf, 1, chunkSize, infile);
+		r = fread(buf.data(), 1, chunkSize, infile);
 		if (r != chunkSize)
 		{
 
@@ -735,26 +723,25 @@ bool MapFile::LoadMap(FILE *infile)
 		}
 
 		switch(chunkId) {
-			case k_TERRAIN_HEADER:           if(!LoadTerrain(buf, chunkSize)) LoadMapStop(); break;
-			case k_TERRAIN_ENV_HEADER:       if(!LoadTerrainEnv(buf, chunkSize)) LoadMapStop(); break;
-			case k_UNITS_HEADER:             if(!LoadUnits(buf, chunkSize)) LoadMapStop(); break;
-			case k_UNIT_TYPES_HEADER:        if(!LoadUnitTypes(buf, chunkSize)) LoadMapStop(); break;
-			case k_NEW_CITIES_HEADER:        if(!LoadCities(buf, chunkSize)) LoadMapStop(); break;
-			case k_CITIES_HEADER:            if(!LoadOldCities(buf, chunkSize)) LoadMapStop(); break;
-			case k_IMPROVEMENT_TYPES_HEADER: if(!LoadImprovementTypes(buf, chunkSize)) LoadMapStop(); break;
-			case k_IMPROVEMENTS_HEADER:      if(!LoadImprovements(buf, chunkSize)) LoadMapStop(); break;
-			case k_VISION_HEADER:            if(!LoadVision(buf, chunkSize)) LoadMapStop(); break;
-			case k_ADVANCE_TYPES_HEADER:     if(!LoadAdvanceNames(buf, chunkSize)) LoadMapStop(); break;
-			case k_PLAYER_ADVANCES_HEADER:   if(!LoadAdvances(buf, chunkSize)) LoadMapStop(); break;
+			case k_TERRAIN_HEADER:           if(!LoadTerrain(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_TERRAIN_ENV_HEADER:       if(!LoadTerrainEnv(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_UNITS_HEADER:             if(!LoadUnits(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_UNIT_TYPES_HEADER:        if(!LoadUnitTypes(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_NEW_CITIES_HEADER:        if(!LoadCities(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_CITIES_HEADER:            if(!LoadOldCities(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_IMPROVEMENT_TYPES_HEADER: if(!LoadImprovementTypes(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_IMPROVEMENTS_HEADER:      if(!LoadImprovements(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_VISION_HEADER:            if(!LoadVision(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_ADVANCE_TYPES_HEADER:     if(!LoadAdvanceNames(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_PLAYER_ADVANCES_HEADER:   if(!LoadAdvances(buf.data(), chunkSize)) LoadMapStop(); break;
 
-			case k_HUTS_HEADER:				 if(!LoadHuts(buf, chunkSize)) LoadMapStop(); break;
-			case k_CIVS_HEADER:			     if(!LoadCivilizations(buf, chunkSize)) LoadMapStop(); break;
+			case k_HUTS_HEADER:				 if(!LoadHuts(buf.data(), chunkSize)) LoadMapStop(); break;
+			case k_CIVS_HEADER:		     if(!LoadCivilizations(buf.data(), chunkSize)) LoadMapStop(); break;
 			default:
 				Assert("Unknown chunk type" == 0);
 				break;
 		}
 
-		delete [] buf;
 #undef LoadMapStop
 	}
 

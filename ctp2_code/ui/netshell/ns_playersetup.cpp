@@ -87,7 +87,7 @@ void nf_PlayerSetup::Reset()
 ns_PlayerSetup::ns_PlayerSetup(nf_PlayerSetup * player)
 :	ns_Object<nf_PlayerSetup, ns_PlayerSetup>(player)
 {
-	list.push_back(Struct(STRING,	&m_name));
+	list.emplace_back(STRING,	&m_name);
 };
 
 void ns_PlayerSetup::Update( nf_PlayerSetup *playersetup ) {

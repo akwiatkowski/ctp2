@@ -34,11 +34,11 @@
 ns_Game::ns_Game(NETFunc::Game * game)
 :	ns_Object<NETFunc::Game, ns_Game>(game)
 {
-	list.push_back(Struct(ICON,		&m_launched));
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(ICON,		&m_locked));
-	list.push_back(Struct(ICON,		&m_closed));
-	list.push_back(Struct(INT,		&m_players));
+	list.emplace_back(ICON,		&m_launched);
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(ICON,		&m_locked);
+	list.emplace_back(ICON,		&m_closed);
+	list.emplace_back(INT,		&m_players);
 };
 
 void ns_Game::Update( NETFunc::Game *game ) {

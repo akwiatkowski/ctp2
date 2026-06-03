@@ -19,7 +19,7 @@ bool InterfaceEventRegister::AddCallback(GAME_EVENT type,
 		gevmanager_Get()->AddCallback(type, priority, callback);
 	} else {
 
-		m_interfaceCallbackList().push(EventInfo(type, priority, callback));
+		m_interfaceCallbackList().emplace(type, priority, callback);
 	}
 
 	return(m_isInitialized());

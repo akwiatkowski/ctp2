@@ -33,7 +33,7 @@
 ns_Transport::ns_Transport(NETFunc::Transport * transport)
 :	ns_Object<NETFunc::Transport, ns_Transport>(transport)
 {
-	list.push_back(Struct(STRING,	&m_name));
+	list.emplace_back(STRING,	&m_name);
 };
 
 void ns_Transport::Update( NETFunc::Transport *transport ) {

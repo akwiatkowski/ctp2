@@ -4604,7 +4604,7 @@ namespace detail {
 #endif
             std::ostringstream s;
             this->stringify(&s);
-            g_cs->stringifiedContexts.push_back(s.str().c_str());
+            g_cs->stringifiedContexts.emplace_back(s.str().c_str());
         }
         g_infoContexts.pop_back();
     }
@@ -6508,7 +6508,7 @@ namespace {
             auto flush = [&s, &res]() {
                 auto string = s.str();
                 if(string.size() > 0) {
-                    res.push_back(string.c_str());
+                    res.emplace_back(string.c_str());
                 }
                 s.str("");
             };
@@ -6844,7 +6844,7 @@ int Context::run() {
 
     // setup default reporter if none is given through the command line
     if(p->filters[8].empty())
-        p->filters[8].push_back("console");
+        p->filters[8].emplace_back("console");
 
     // check to see if any of the registered reporters has been selected
     for(auto& curr : getReporters()) {

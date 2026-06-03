@@ -1016,7 +1016,7 @@ void GaiaController::ComputeTowerCandidates(Scored_MapPoint_List & candidates) c
 		{
 			if (terrainutil_CanPlayerBuildAt(rec, m_playerId, pos))
 			{
-                candidates.push_back(std::pair<sint32,MapPoint>(-1,pos));
+                candidates.emplace_back(-1,pos);
 			}
 		}
 }

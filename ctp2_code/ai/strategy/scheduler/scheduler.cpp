@@ -896,7 +896,7 @@ void Scheduler::Add_New_Goal(const Goal_ptr & new_goal)
 	}
 
 	m_goals_of_type[goal_type].
-		push_back(Sorted_Goal_ptr(Goal::BAD_UTILITY, new_goal));
+		emplace_back(Goal::BAD_UTILITY, new_goal);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1910,7 +1910,7 @@ void Scheduler::Assign_Garrison()
 			sint32 idx = -1;
 			if(player_Get(m_playerId)->GetCityIndex(city, idx))
 			{
-				garrisonAgents[idx].push_back(Sorted_Agent_ptr(defense_strength, agent));
+				garrisonAgents[idx].emplace_back(defense_strength, agent);
 			}
 		}
 	}

@@ -33,9 +33,9 @@
 ns_Server::ns_Server(NETFunc::Server * server)
 :	ns_Object<NETFunc::Server, ns_Server>(server)
 {
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(INT,		&m_players));
-	list.push_back(Struct(INT,		&m_ping));
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(INT,		&m_players);
+	list.emplace_back(INT,		&m_ping);
 };
 
 void ns_Server::Update( NETFunc::Server *server ) {

@@ -77,7 +77,7 @@ void nf_AIPlayer::Reset()
 ns_AIPlayerSetup::ns_AIPlayerSetup(NETFunc::AIPlayer * player)
 :	ns_Object<NETFunc::AIPlayer, ns_AIPlayerSetup>(player)
 {
-	list.push_back(Struct(STRING,	&m_name));
+	list.emplace_back(STRING,	&m_name);
 };
 
 void ns_AIPlayerSetup::Update( NETFunc::AIPlayer *aiplayer ) {

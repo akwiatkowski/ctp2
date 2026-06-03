@@ -38,10 +38,10 @@
 ns_AIPlayer::ns_AIPlayer(NETFunc::AIPlayer * player)
 :	ns_Object<NETFunc::AIPlayer, ns_AIPlayer>(player)
 {
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(STRING,	&m_tribe));
-	list.push_back(Struct(INT,		&m_civpoints));
-	list.push_back(Struct(INT,		&m_pwpoints));
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(STRING,	&m_tribe);
+	list.emplace_back(INT,		&m_civpoints);
+	list.emplace_back(INT,		&m_pwpoints);
 };
 
 void ns_AIPlayer::Update( NETFunc::AIPlayer *aiplayer ) {

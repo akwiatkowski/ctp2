@@ -34,9 +34,9 @@
 ns_Lobby::ns_Lobby(NETFunc::Lobby * lobby)
 :	ns_Object<NETFunc::Lobby, ns_Lobby>(lobby)
 {
-	list.push_back(Struct(ICON,		&m_closed));
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(INT,		&m_players));
+	list.emplace_back(ICON,		&m_closed);
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(INT,		&m_players);
 };
 
 void ns_Lobby::Update( NETFunc::Lobby *lobby ) {

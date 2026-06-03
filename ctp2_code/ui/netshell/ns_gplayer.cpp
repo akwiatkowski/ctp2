@@ -38,13 +38,13 @@
 ns_GPlayer::ns_GPlayer(NETFunc::Player * player)
 :	ns_Object<NETFunc::Player, ns_GPlayer>(player)
 {
-	list.push_back(Struct(ICON,		&m_host));
-	list.push_back(Struct(ICON,		&m_launched));
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(INT,		&m_ping));
-	list.push_back(Struct(STRING,	&m_tribe));
-	list.push_back(Struct(INT,		&m_civpoints));
-	list.push_back(Struct(INT,		&m_pwpoints));
+	list.emplace_back(ICON,		&m_host);
+	list.emplace_back(ICON,		&m_launched);
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(INT,		&m_ping);
+	list.emplace_back(STRING,	&m_tribe);
+	list.emplace_back(INT,		&m_civpoints);
+	list.emplace_back(INT,		&m_pwpoints);
 };
 
 

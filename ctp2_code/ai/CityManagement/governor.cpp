@@ -1526,8 +1526,8 @@ void Governor::ComputeRoadPriorities()
 
 			if(!IsInCityPairList(city_index, neighbor_index))
 			{
-				s_CityDistQueue.push_back(CityDist(neighbor_unit, neighbor_dist));
-				s_CityPairList.push_back(CityPair(city_index, neighbor_index));
+				s_CityDistQueue.emplace_back(neighbor_unit, neighbor_dist);
+				s_CityPairList.emplace_back(city_index, neighbor_index);
 			}
 		}
 

@@ -191,17 +191,17 @@ void SlicArgList::ReleaseSymbols()
 
 void SlicArgList::AddArg(SA_TYPE type, sint32 value)
 {
-    m_argValue.push_back(SlicArg(type, value, nullptr, nullptr));
+    m_argValue.emplace_back(type, value, nullptr, nullptr);
 }
 
 void SlicArgList::AddArg(SlicSegment *segment, SlicSymbolData *symbol)
 {
-    m_argValue.push_back(SlicArg(SA_TYPE_SEGMENT, 0, segment, symbol));
+    m_argValue.emplace_back(SA_TYPE_SEGMENT, 0, segment, symbol);
 }
 
 void SlicArgList::AddArg(SA_TYPE type, SlicSymbolData *symbol)
 {
-	m_argValue.push_back(SlicArg(type, 0, nullptr, symbol));
+	m_argValue.emplace_back(type, 0, nullptr, symbol);
 }
 
 //----------------------------------------------------------------------------

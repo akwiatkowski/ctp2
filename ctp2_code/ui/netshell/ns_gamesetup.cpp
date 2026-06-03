@@ -266,7 +266,7 @@ uint32 nf_GameSetup::GetSavedId( )
 ns_GameSetup::ns_GameSetup(nf_GameSetup * game)
 :	ns_Object<nf_GameSetup, ns_GameSetup>(game)
 {
-	list.push_back(Struct(STRING,	&m_name));
+	list.emplace_back(STRING,	&m_name);
 };
 
 void ns_GameSetup::Update( nf_GameSetup *gamesetup ) {

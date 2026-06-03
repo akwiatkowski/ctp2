@@ -748,7 +748,7 @@ double Happy::GetGreedyPopHappiness(CityData &cd)
 
 void Happy::AddTimer(sint32 turns, double adjust, HAPPY_REASON reason)
 {
-	m_timedChanges.push_back(HappyTimer(turns, adjust, reason));
+	m_timedChanges.emplace_back(turns, adjust, reason);
 }
 
 void Happy::RemoveTimerReason(HAPPY_REASON reason)

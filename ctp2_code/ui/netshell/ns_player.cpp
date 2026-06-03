@@ -33,9 +33,9 @@
 ns_Player::ns_Player(NETFunc::Player * player)
 :	ns_Object<NETFunc::Player, ns_Player>(player)
 {
-	list.push_back(Struct(ICON,		&m_mute));
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(INT,		&m_ping));
+	list.emplace_back(ICON,		&m_mute);
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(INT,		&m_ping);
 };
 
 void ns_Player::Update( NETFunc::Player *player ) {

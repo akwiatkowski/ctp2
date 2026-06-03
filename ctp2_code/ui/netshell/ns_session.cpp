@@ -34,10 +34,10 @@
 ns_Session::ns_Session(NETFunc::Session * session)
 :	ns_Object<NETFunc::Session, ns_Session>(session)
 {
-	list.push_back(Struct(ICON,		&m_locked));
-	list.push_back(Struct(ICON,		&m_closed));
-	list.push_back(Struct(STRING,	&m_name));
-	list.push_back(Struct(INT,		&m_players));
+	list.emplace_back(ICON,		&m_locked);
+	list.emplace_back(ICON,		&m_closed);
+	list.emplace_back(STRING,	&m_name);
+	list.emplace_back(INT,		&m_players);
 };
 
 void ns_Session::Update( NETFunc::Session *session ) {

@@ -20,6 +20,8 @@ class Army;
 #include "gs/gameobj/UnitTypes.h"
 #include "gs/diplomacy/diplomacy_types.h"
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 
 class SlicContext {
@@ -51,11 +53,7 @@ private:
 	sint32 *m_wonderList;
 	sint32 m_numWonders;
 
-	MBCHAR **m_actionList;
-	sint32 m_numActions;
-
-
-
+	std::vector<std::string> m_actionList;
 
 	sint32 *m_orderList;
 	sint32 m_numOrders;

@@ -3797,9 +3797,8 @@ void to_json(nlohmann::json &j, SlicContext const &c)
     rawToVec(j["trade_bids"],     c.m_tradeBidList,     c.m_numTradeBids);
 
     nlohmann::json actions = nlohmann::json::array();
-    for (sint32 i = 0; i < c.m_numActions; ++i)
-        actions.push_back(c.m_actionList[i] ? std::string(c.m_actionList[i])
-                                            : std::string());
+    for (auto const &action : c.m_actionList)
+        actions.push_back(action);
     j["actions"] = std::move(actions);
 }
 
@@ -3819,14 +3818,7 @@ void from_json(nlohmann::json const &j, SlicContext &c)
     delete c.m_goodList;       c.m_goodList = nullptr;
     delete c.m_governmentList; c.m_governmentList = nullptr;
     delete c.m_advanceList;    c.m_advanceList = nullptr;
-    if (c.m_actionList)
-    {
-        for (sint32 i = 0; i < c.m_numActions; ++i)
-            delete[] c.m_actionList[i];
-        delete[] c.m_actionList;
-        c.m_actionList = nullptr;
-    }
-    c.m_numActions = 0;
+    c.m_actionList.clear();
 
     c.m_cityList        = jsonToSda<Unit>(j.at("cities"));
     c.m_unitList        = jsonToSda<Unit>(j.at("units"));
@@ -3860,17 +3852,9 @@ void from_json(nlohmann::json const &j, SlicContext &c)
     jsonToRaw(j.at("trade_bids"),     c.m_tradeBidList,     c.m_numTradeBids);
 
     auto const &actions = j.at("actions");
-    c.m_numActions = static_cast<sint32>(actions.size());
-    if (c.m_numActions > 0)
-    {
-        c.m_actionList = new MBCHAR *[c.m_numActions];
-        for (sint32 i = 0; i < c.m_numActions; ++i)
-        {
-            std::string s = actions[i].get<std::string>();
-            c.m_actionList[i] = new MBCHAR[s.size() + 1];
-            std::memcpy(c.m_actionList[i], s.c_str(), s.size() + 1);
-        }
-    }
+    c.m_actionList.reserve(actions.size());
+    for (auto const &action : actions)
+        c.m_actionList.push_back(action.get<std::string>());
 }
 
 // Phase F-15b — SlicObject (extends SlicContext with message/event

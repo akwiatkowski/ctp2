@@ -183,8 +183,6 @@ SlicContext::SlicContext()
 	m_numRanks = 0;
 	m_wonderList = NULL;
 	m_numWonders = 0;
-	m_actionList = NULL;
-	m_numActions = 0;
 	m_tradeOffersList = NULL;
 
 	m_governmentList = NULL;
@@ -256,18 +254,7 @@ SlicContext::SlicContext(SlicContext *copy)
 	CopyArray((sint32*&)m_tradeBidList, (sint32*&)copy->m_tradeBidList,
 			  m_numTradeBids, copy->m_numTradeBids);
 
-	{
-		m_numActions = copy->m_numActions;
-		if(m_numActions > 0) {
-			m_actionList = new MBCHAR*[copy->m_numActions];
-			for(sint32 i = 0; i < m_numActions; i++) {
-				m_actionList[i] = new MBCHAR[strlen(copy->m_actionList[i]) + 1];
-				strcpy(m_actionList[i], copy->m_actionList[i]);
-			}
-		} else {
-			m_actionList = NULL;
-		}
-	}
+	m_actionList = copy->m_actionList;
 
 	m_eventArgs = copy->m_eventArgs;
 }
@@ -298,16 +285,7 @@ SlicContext::~SlicContext()
 	delete [] m_attitudeList;
     delete [] m_ageList;
     delete [] m_buildingList;
-    delete [] m_tradeBidList;
-
-	if (m_actionList)
-    {
-		for (sint32 i = 0; i < m_numActions; ++i)
-        {
-			delete [] m_actionList[i];
-		}
-		delete [] m_actionList;
-	}
+	delete [] m_tradeBidList;
 }
 
 #define SER_ARRAY(list) \
@@ -377,11 +355,14 @@ void SlicContext::Serialize(CivArchive &archive)
 		if(m_numAges > 0)
 			archive.Store((uint8*)m_ageList, m_numAges * sizeof(sint32));
 
-		archive << m_numActions;
-		for(sint32 i = 0; i < m_numActions; i++) {
-			l = strlen(m_actionList[i]) + 1;
-			archive << l;
-			archive.Store((uint8*)m_actionList[i], l);
+		{
+			sint32 num = static_cast<sint32>(m_actionList.size());
+			archive << num;
+			for (auto const &action : m_actionList) {
+				sint32 len = static_cast<sint32>(action.size() + 1);
+				archive << len;
+				archive.Store((uint8 *)action.c_str(), len);
+			}
 		}
 
 		archive << m_numBuildings;
@@ -474,16 +455,17 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_ageList = NULL;
 		}
 
-		archive >> m_numActions;
-		if(m_numActions > 0) {
-			m_actionList = new MBCHAR *[m_numActions];
-			for(sint32 i = 0; i < m_numActions; i++) {
+		{
+			sint32 num;
+			archive >> num;
+			m_actionList.clear();
+			m_actionList.reserve(num);
+			for (sint32 i = 0; i < num; i++) {
 				archive >> l;
-				m_actionList[i] = new MBCHAR[l];
-				archive.Load((uint8*)m_actionList[i], l);
+				std::vector<MBCHAR> buf(l);
+				archive.Load((uint8*)buf.data(), l);
+				m_actionList.emplace_back(buf.data());
 			}
-		} else {
-			m_actionList = NULL;
 		}
 
 		archive >> m_numBuildings;
@@ -612,27 +594,15 @@ void SlicContext::AddWonder(const sint32 wonderIndex)
 
 void SlicContext::AddAction(const MBCHAR *action)
 {
-	MBCHAR **newList = new MBCHAR*[m_numActions + 1];
-	if(m_actionList) {
-		memcpy(newList, m_actionList, m_numActions * sizeof(MBCHAR *));
-		delete [] m_actionList;
-	}
-	m_actionList = newList;
-    sint32 n = strlen(action) + 1;
-	newList[m_numActions] = new MBCHAR[n];
-    memset(newList[m_numActions], 0, n);
-	strcpy(newList[m_numActions], action);
-	m_numActions++;
+	m_actionList.emplace_back(action ? action : "");
 }
 
 void SlicContext::SetAction(sint32 index, const MBCHAR *action)
 {
-	while(m_numActions <= index) {
+	while(static_cast<sint32>(m_actionList.size()) <= index) {
 		AddAction("");
 	}
-	delete [] m_actionList[index];
-	m_actionList[index] = new MBCHAR[strlen(action) + 1];
-	strcpy(m_actionList[index], action);
+	m_actionList[index] = action ? action : "";
 }
 
 sint32 *SlicContext::Expand(sint32 *list, sint32 size)
@@ -1030,15 +1000,15 @@ sint32 SlicContext::GetNumWonders() const
 
 MBCHAR *SlicContext::GetAction(sint32 index) const
 {
-	if(!m_actionList)
+	if(m_actionList.empty())
 		return NULL;
-	Assert(index >= 0 && index < m_numActions);
-	return m_actionList[index];
+	Assert(index >= 0 && index < static_cast<sint32>(m_actionList.size()));
+	return const_cast<MBCHAR*>(m_actionList[index].c_str());
 }
 
 sint32 SlicContext::GetNumActions() const
 {
-	return m_numActions;
+	return static_cast<sint32>(m_actionList.size());
 }
 
 bool SlicContext::ConcernsPlayer(PLAYER_INDEX player) const
@@ -1446,10 +1416,8 @@ void SlicContext::Dump()
 		}
 	}
 
-	if(m_actionList) {
-		for(sint32 i = 0; i < m_numActions; i++) {
-			DPRINTF(k_DBG_INFO, (" Action.%d: %s\n", i, m_actionList[i]));
-		}
+	for(sint32 i = 0; i < static_cast<sint32>(m_actionList.size()); i++) {
+		DPRINTF(k_DBG_INFO, (" Action.%d: %s\n", i, m_actionList[i].c_str()));
 	}
 }
 #endif
@@ -1581,7 +1549,19 @@ void SlicContext::FillBuiltins()
     // The following lists do not have SimpleDynamicArray structure,
     // but are plain arrays, with a separate count.
 
-    FILL_ARRAY(SLIC_BUILTIN_ACTION, m_actionList, m_numActions, SetString);
+    {
+        sint32 const    count   = static_cast<sint32>(m_actionList.size());
+        SlicArray *     array   = ResizedArray(SLIC_BUILTIN_ACTION, count);
+        if (count > 0)
+        {
+            SingleItemStack item(ImplementationType(SLIC_BUILTIN_ACTION));
+            for (sint32 i = 0; i < count; ++i)
+            {
+                item.Symbol().SetString(m_actionList[i].c_str());
+                array->Insert(i, SS_TYPE_SYM, item.Value());
+            }
+        }
+    }
     FILL_ARRAY(SLIC_BUILTIN_BUILDING, m_buildingList, m_numBuildings, SetIntValue);
     FILL_ARRAY(SLIC_BUILTIN_WONDER, m_wonderList, m_numWonders, SetIntValue);
     FILL_ARRAY(SLIC_BUILTIN_GOLD, m_goldList, m_numGolds, SetIntValue);

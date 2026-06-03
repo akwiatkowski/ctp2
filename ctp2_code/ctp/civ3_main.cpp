@@ -959,7 +959,11 @@ int sprite_Initialize(void)
 	// Bridge g_director → render_observer interface so gs/ and ai/ code
 	// can call render_observer::AddMove(...) etc. without depending on
 	// gfx/.  Headless leaves this unregistered → all calls become no-ops.
-	RegisterDirectorRenderObserver();
+	// (Director::AddMove and friends look up UnitActor from the registry
+	// and would null-deref in headless, where actors are never created.)
+	if (!is_headless()) {
+		RegisterDirectorRenderObserver();
+	}
 
 	return 0;
 }

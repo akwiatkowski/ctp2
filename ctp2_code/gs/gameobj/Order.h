@@ -74,7 +74,13 @@ public:
 		m_path = NULL;
 		m_round = -1;
 		m_argument = 0;
-		m_index = -1;
+		// m_index is intentionally NOT initialised here — Order::operator
+		// new (Order.cpp:209) has already populated it with the pool
+		// slot returned by g_theOrderPond->Get_Next_Pointer. Writing -1
+		// here would clobber that and corrupt Pool bookkeeping at delete
+		// time (caught 2026-06-03 by Phase 1j determinism test —
+		// json_save uses `new Order` and the prior default-ctor wipe
+		// caused Pool::Release_Pointer(-1) at first turn after load).
 		m_gameEventArgs = NULL;
 	}
 

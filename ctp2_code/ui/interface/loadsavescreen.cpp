@@ -575,22 +575,22 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 
 
-		if (saveInfo->scenarioName != NULL && strlen(saveInfo->scenarioName) > 0) {
+		if (!saveInfo->scenarioName.empty()) {
 
 			Scenario		*scen;
 			ScenarioPack	*pack;
 
-			if (civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
+			if (civscenarios_Get()->FindScenario(const_cast<MBCHAR*>(saveInfo->scenarioName.c_str()), &pack, &scen)) {
 
 				civpaths_Get()->SetCurScenarioPath(scen->m_path);
 				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 				profiledb_Get()->SetIsScenario(TRUE);
 
-				strcpy(scenario_name_buf(), saveInfo->scenarioName);
+				strcpy(scenario_name_buf(), saveInfo->scenarioName.c_str());
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName.c_str());
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenario",NULL, NULL, "str_ldl_MB_OK", false);
 				return;
@@ -604,7 +604,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 		}
 	} else {
 
-		BOOL wasScenario = saveInfo->scenarioName != NULL && strlen(saveInfo->scenarioName) > 0;
+		BOOL wasScenario = !saveInfo->scenarioName.empty();
 
 
 
@@ -620,13 +620,13 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 			Scenario *scen;
 			ScenarioPack *pack;
-			if(civscenarios_Get()->FindScenario(saveInfo->scenarioName, &pack, &scen)) {
+			if(civscenarios_Get()->FindScenario(const_cast<MBCHAR*>(saveInfo->scenarioName.c_str()), &pack, &scen)) {
 				civpaths_Get()->SetCurScenarioPath(scen->m_path);
 				civpaths_Get()->SetCurScenarioPackPath(pack->m_path);
 			} else {
 
 				MBCHAR tempStr[_MAX_PATH];
-				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName);
+				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName.c_str());
 
 				MessageBoxDialog::Information(tempStr,"CantLoadScenarioData",NULL, NULL, "str_ldl_MB_OK", false);
 				return;

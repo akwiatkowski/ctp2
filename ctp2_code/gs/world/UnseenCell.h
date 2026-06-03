@@ -52,6 +52,7 @@
 //----------------------------------------------------------------------------
 
 #include <memory>
+#include <string>
 
 //----------------------------------------------------------------------------
 // Exported names
@@ -186,7 +187,7 @@ private:
 	PointerList<UnseenInstallationInfo> *m_installations;
 	PointerList<UnseenImprovementInfo> *m_improvements;
 
-	MBCHAR *m_cityName;
+	std::string m_cityName;
   std::shared_ptr<UnitActor> m_actor;
 
 	// Fog-of-war snapshot state for m_actor.  Lifetime tied to this
@@ -218,7 +219,7 @@ public:
 	sint32 GetCityOwner() const { return m_cityOwner; }
 	sint32 GetCitySize() const { return m_citySize; }
 	uint32 GetVisibleCityOwner() const { return m_visibleCityOwner; }
-	const MBCHAR *GetCityName() const { return m_cityName; }
+	const MBCHAR *GetCityName() const { return m_cityName.c_str(); }
   std::shared_ptr<UnitActor> GetActor() const { return m_actor; }
 
 	bool    IsBioInfected           (void) const   { return 0 != (m_flags & k_UCF_IS_BIOINFECTED)         ; }

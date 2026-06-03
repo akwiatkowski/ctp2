@@ -1267,13 +1267,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 		return false;
 	}
 
-	delete [] info->scenarioName;
-	info->scenarioName = NULL;
-
-	if (strlen(name) > 0) {
-		info->scenarioName = new MBCHAR[strlen(name)+1];
-		strcpy(info->scenarioName, name);
-	}
+	info->scenarioName = name;
 
 
 	if (g_saveFileVersion >= 47) {
@@ -1461,13 +1455,7 @@ bool GameFile::LoadBasicGameInfo(FILE *saveFile, SaveInfo *info)
 			return false;
 		}
 
-		delete [] info->scenarioName;
-		info->scenarioName = NULL;
-
-		if (strlen(name) > 0) {
-			info->scenarioName = new MBCHAR[strlen(name)+1];
-			strcpy(info->scenarioName, name);
-		}
+		info->scenarioName = name;
 	}
 
 
@@ -1778,8 +1766,8 @@ void GameFile::SetProfileFromExtendedInfo(SaveInfo *info)
 
 	if(g_saveFileVersion >= 42) {
         if(!info->isScenario){// exclude starting new scenarios
-            if (info->scenarioName != NULL && strlen(info->scenarioName) > 0) {//same as in beginloadprocess
-		        strcpy(g_scenarioName,info->scenarioName);
+            if (!info->scenarioName.empty()) {//same as in beginloadprocess
+		        strcpy(g_scenarioName, info->scenarioName.c_str());
 			}
 		}
 		g_isScenario = info->isScenario;
@@ -2101,7 +2089,6 @@ SaveInfo::SaveInfo()
 	startInfoType       (STARTINFOTYPE_NONE),
 	numPositions        (0),
 	loadType            (SAVEINFOLOAD_NONE),
-	scenarioName        (NULL),
 	showLabels          (false),
 	startingPlayer      (CIV_INDEX_VANDALS)
 {
@@ -2170,12 +2157,6 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 		memcpy(powerGraphData, copyMe->powerGraphData, numBytes);
 	}
 
-	if (copyMe->scenarioName)
-	{
-		size_t const	sizeHeap	= strlen(copyMe->scenarioName) + 1;
-		scenarioName				= new MBCHAR[sizeHeap];
-		memcpy(scenarioName, copyMe->scenarioName, sizeHeap);
-	}
 }
 
 //----------------------------------------------------------------------------
@@ -2199,7 +2180,6 @@ SaveInfo::~SaveInfo()
 {
 	delete [] powerGraphData;
 	delete [] radarMapData;
-	delete [] scenarioName;
 }
 
 //----------------------------------------------------------------------------

@@ -286,7 +286,11 @@ void NetUnseenCell::Packetize(uint8 *buf, uint16 &size)
 		PUSHSHORT((uint16)m_ucell->m_cityOwner);
 		PUSHSHORT((uint16)m_ucell->m_citySpriteIndex);
 
-		PUSHSTRING(m_ucell->m_cityName);
+		{
+			uint16 l = static_cast<uint16>(m_ucell->m_cityName.size());
+			PUSHSHORT(l);
+			if (l > 0) { memcpy(&buf[size], m_ucell->m_cityName.data(), l); size += l; }
+		}
 
 
 		PUSHSHORT((uint16)m_ucell->m_actor->GetUnitDBIndex());
@@ -393,7 +397,11 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		PULLSHORT(m_ucell->m_cityOwner);
 		PULLSHORT(m_ucell->m_citySpriteIndex);
 
-		PULLNEWSTRING(m_ucell->m_cityName);
+		{
+			uint16 l; PULLSHORT(l);
+			m_ucell->m_cityName.resize(l);
+			if (l > 0) { memcpy(&m_ucell->m_cityName[0], &buf[pos], l); pos += l; }
+		}
 
 
 

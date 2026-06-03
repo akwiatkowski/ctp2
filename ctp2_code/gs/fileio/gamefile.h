@@ -73,6 +73,7 @@ enum SAVEINFOLOAD
 #include "gs/gameobj/CivilisationPool.h"
 class CivArchive;
 
+#include <string>
 
 struct CivGuid {
 	sint32 civIndex;
@@ -144,7 +145,7 @@ public:
 
 
 
-	MBCHAR			*scenarioName;
+	std::string			scenarioName;
 
 
 	sint32		playerCivIndexList[k_MAX_PLAYERS];

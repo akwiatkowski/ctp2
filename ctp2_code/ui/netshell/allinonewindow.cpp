@@ -1740,8 +1740,8 @@ BOOL AllinoneWindow::SetScenarioInfo(SaveInfo *info)
 	m_scenInfo.m_haveSavedGame = TRUE;
 	strcpy(m_scenInfo.m_fileName, info->fileName);
 	strcpy(m_scenInfo.m_gameName, scenario_name_buf());
-	if(info->isScenario && info->scenarioName) {
-		strcpy(m_scenInfo.m_scenarioName, info->scenarioName);
+	if(info->isScenario && !info->scenarioName.empty()) {
+		strcpy(m_scenInfo.m_scenarioName, info->scenarioName.c_str());
 		ScenarioPack *pack;
 		Scenario *scen;
 		if(!civscenarios_Get()->FindScenario(m_scenInfo.m_scenarioName,

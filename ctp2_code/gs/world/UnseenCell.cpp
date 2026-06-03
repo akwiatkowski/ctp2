@@ -65,6 +65,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/core/player_view.h"
+#include <vector>
 
 namespace
 {
@@ -127,7 +128,6 @@ UnseenCell::UnseenCell(const MapPoint & point)
 	m_point                         (point),
 	m_installations                 (new PointerList<UnseenInstallationInfo>),
 	m_improvements                  (new PointerList<UnseenImprovementInfo>),
-	m_cityName                      (NULL),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
@@ -186,8 +186,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 			m_citySize = (sint16)city.PopCount();
 			m_citySpriteIndex = (sint16)city.CD()->GetDesiredSpriteIndex();
 			const MBCHAR *name = city.GetName();
-			m_cityName = new MBCHAR[strlen(name) + 1];
-			strcpy(m_cityName, name);
+			m_cityName = name ? name : "";
 
 			m_cityOwner = static_cast<sint16>(city.GetCityData()->GetOwner());
 
@@ -306,7 +305,6 @@ UnseenCell::UnseenCell()
 	m_point                         (),
 	m_installations                 (new PointerList<UnseenInstallationInfo>),
 	m_improvements                  (new PointerList<UnseenImprovementInfo>),
-	m_cityName                      (NULL),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
@@ -364,10 +362,6 @@ UnseenCell::UnseenCell(UnseenCell *old)
 		}
 	}
 
-	if(old->m_cityName) {
-		m_cityName = new MBCHAR[strlen(old->m_cityName) + 1];
-		strcpy(m_cityName, old->m_cityName);
-	}
 }
 
 //----------------------------------------------------------------------------
@@ -409,7 +403,6 @@ UnseenCell::UnseenCell(CivArchive &archive)
 	m_point                         (),
 	m_installations                 (NULL),
 	m_improvements                  (NULL),
-	m_cityName                      (NULL),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
@@ -453,8 +446,6 @@ UnseenCell::~UnseenCell()
 		m_improvements->DeleteAll();
 		delete m_improvements;
 	}
-
-	delete [] m_cityName;
 }
 
 //----------------------------------------------------------------------------
@@ -585,7 +576,7 @@ sint32 UnseenCell::GetFoodFromTerrain() const
 
 	sint32 food = rec->GetEnvBase()->GetFood();
 
-	if(m_cityName != NULL && rec->HasEnvCity()) {
+	if(!m_cityName.empty() && rec->HasEnvCity()) {
 		food += rec->GetEnvCityPtr()->GetFood();
 	}
 
@@ -672,7 +663,7 @@ sint32 UnseenCell::GetShieldsFromTerrain() const
 
 	sint32 shield = rec->GetEnvBase()->GetShield();
 
-	if(m_cityName != NULL && rec->HasEnvCity()) {
+	if(!m_cityName.empty() && rec->HasEnvCity()) {
 		shield += rec->GetEnvCityPtr()->GetShield();
 	}
 
@@ -758,7 +749,7 @@ sint32 UnseenCell::GetGoldFromTerrain() const
 
 	sint32 gold = rec->GetEnvBase()->GetGold();
 
-	if(m_cityName != NULL && rec->HasEnvCity()) {
+	if(!m_cityName.empty() && rec->HasEnvCity()) {
 		gold += rec->GetEnvCityPtr()->GetGold();
 	}
 
@@ -869,16 +860,11 @@ void UnseenCell::Serialize(CivArchive &archive)
 		}
 
 
-		if (m_cityName)
+		l = static_cast<sint32>(m_cityName.size() + 1);
+		archive << l;
+		if (l > 1)
 		{
-			l = strlen(m_cityName) + 1;
-			archive << l;
-			archive.Store((uint8*)m_cityName, (strlen(m_cityName) + 1) * sizeof(MBCHAR));
-		}
-		else
-		{
-			l = 0;
-			archive << l;
+			archive.Store((uint8*)m_cityName.c_str(), l * sizeof(MBCHAR));
 		}
 
 		archive << (sint32)(m_actor != NULL);
@@ -937,16 +923,16 @@ void UnseenCell::Serialize(CivArchive &archive)
 			m_improvements->AddTail(new UnseenImprovementInfo(archive));
 		}
 
-		delete [] m_cityName;
 		archive >> l;
 		if (l > 0)
 		{
-			m_cityName = new MBCHAR[l];
-			archive.Load((uint8*)m_cityName, l * sizeof(MBCHAR));
+			std::vector<MBCHAR> buf(l);
+			archive.Load((uint8*)buf.data(), l * sizeof(MBCHAR));
+			m_cityName.assign(buf.data());
 		}
 		else
 		{
-			m_cityName = NULL;
+			m_cityName.clear();
 		}
 
 		sint32 hasActor;

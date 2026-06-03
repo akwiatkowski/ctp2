@@ -56,7 +56,7 @@
 #include "ui/aui_common/aui_pixel.h"
 #include "ui/aui_common/aui_rectangle.h"
 #include "ui/aui_common/aui_ui.h"
-#include <locale.h>
+#include <clocale>
 
 #if defined(_JAPANESE)
 #include "gs/utility/japanese.h"

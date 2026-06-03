@@ -48,10 +48,10 @@
 #include "os/include/ctp2_inttypes.h"
 #include "gs/dbgen/ctpdb.h"
 
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #if defined(HAVE_UNISTD_H)
 #include <unistd.h>
 #endif
@@ -61,9 +61,9 @@
 #else
 #include "os/nowin32/windows.h"
 #endif
-#include <time.h>
-#include <errno.h>
-#include <inttypes.h>
+#include <ctime>
+#include <cerrno>
+#include <cinttypes>
 
 #include "gs/dbgen/RecordDescription.h"
 

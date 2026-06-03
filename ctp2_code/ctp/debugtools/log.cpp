@@ -9,10 +9,10 @@
 #include <mmsystem.h>
 #else
 #include <pthread.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdio>
+#include <cstdarg>
+#include <cstdlib>
 #include <sys/time.h>
 
 // POSIX compatibility macros

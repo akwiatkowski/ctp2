@@ -67,7 +67,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/controlpanelwindow.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #include <algorithm>                    // std::fill
 #include "ui/aui_common/aui.h"

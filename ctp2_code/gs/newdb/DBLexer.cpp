@@ -40,7 +40,7 @@
 #include "gs/database/StrDB.h"
 #include "ctp/ctp2_utils/c3files.h"
 
-#include <ctype.h>
+#include <cctype>
 
 extern "C" FILE *dblin;
 extern "C" char *dbltext;

@@ -11,9 +11,9 @@
 #if defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
 #endif
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
+#include <climits>
+#include <cstdio>
+#include <cstring>
 
 #include "ctp/ctp2_utils/c3errors.h"
 #include "os/include/ctp2_config.h"

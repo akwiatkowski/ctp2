@@ -47,10 +47,10 @@
 #include "gs/slic/slicif.h"
 
 FILE *debuglog = nullptr;
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
+#include <cstdio>
 
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSymbol.h"

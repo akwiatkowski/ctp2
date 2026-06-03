@@ -52,8 +52,8 @@
 #else
 #include "os/nowin32/windows.h"
 #endif
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #ifdef WIN32
 #include <imagehlp.h>
 #endif

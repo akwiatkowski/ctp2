@@ -5,12 +5,12 @@
 #include <sys/types.h>
 #include <sys/param.h>
 #include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <strings.h>
 #include <unistd.h>
-#include <ctype.h>
+#include <cctype>
 #include <SDL2/SDL_timer.h>
 
 #include "os/nowin32/windows.h"

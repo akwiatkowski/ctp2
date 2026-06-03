@@ -9,14 +9,14 @@
 #endif
 
 #if defined(HAVE_STRING_H)
-#include <string.h>
+#include <cstring>
 #endif
 
 #include <algorithm>
 #include <vector>
 #include "mapgen/Geometric.h"
 #include "mapgen/FaultGen.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include "gs/outcom/IC3Rand.h"
 
 struct georect {

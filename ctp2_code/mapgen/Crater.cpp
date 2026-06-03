@@ -38,7 +38,7 @@
 #endif
 
 #include "mapgen/Crater.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include "gs/outcom/IC3Rand.h"
 
 #if defined(USE_COM_REPLACEMENT)

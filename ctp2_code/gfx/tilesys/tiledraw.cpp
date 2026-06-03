@@ -69,7 +69,7 @@
 #include "ui/interface/backgroundwin.h"
 #include "gfx/tilesys/tiledmap.h"               // tiledraw.h does not exist
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #include "ui/aui_common/aui.h"
 #include "ui/aui_sdl/aui_sdlsurface.h"

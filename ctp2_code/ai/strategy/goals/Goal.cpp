@@ -100,7 +100,7 @@
 
 #include "ai/strategy/goals/Goal.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <algorithm>
 
 using namespace std;

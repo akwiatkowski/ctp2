@@ -73,9 +73,9 @@
 
 #pragma warning(disable:4786)   // (Level ?)   identifier length over 255 (with templates)
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 #if defined(WIN32)
 // Do not define the min and max *macros* in <windows.h>.

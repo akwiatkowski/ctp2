@@ -14,7 +14,7 @@
 
 #include "ctp/c3.h"
 #include "ctp/debugtools/Timer.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 ///////////////////////////////////////////////////////////////////////////////
 // constructor

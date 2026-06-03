@@ -46,7 +46,7 @@
 #include "ctp/ctp2_utils/tracklen.h"
 
 #ifdef HAVE_STRING_H
-#include <string.h>
+#include <cstring>
 #endif
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>

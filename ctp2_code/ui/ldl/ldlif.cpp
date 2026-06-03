@@ -1,6 +1,6 @@
 #include "ctp/c3.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #include "ui/ldl/ldlif.h"
 #include "gs/fileio/CivPaths.h"

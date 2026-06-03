@@ -45,9 +45,9 @@
 #include "os/include/ctp2_config.h"
 #include "os/include/ctp2_inttypes.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #if defined(WIN32)
 #include <windows.h>
 #else

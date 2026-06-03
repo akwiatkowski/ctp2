@@ -119,7 +119,7 @@
 #include "gs/gameobj/UnitData.h"
 #include "gs/gameobj/UnitPool.h"
 #include "gs/world/World.h"                          // world_Get()
-#include "time.h"
+#include <ctime>
 #include "gs/world/Cell.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/utility/RandGen.h"

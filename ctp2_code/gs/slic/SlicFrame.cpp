@@ -68,7 +68,7 @@
 
 //Added by Martin G�hmann for database access
 #include "gs/slic/SlicDBConduit.h"
-#include <math.h>
+#include <cmath>
 
 extern "C" FILE *debuglog;
 

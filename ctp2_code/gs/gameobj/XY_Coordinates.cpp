@@ -6,7 +6,7 @@
 
 #endif
 
-#include <math.h>
+#include <cmath>
 
 #ifdef TEST_XY_COORDS
 

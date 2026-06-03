@@ -21,9 +21,9 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/stat.h>
 #include <string>
 #include <vector>

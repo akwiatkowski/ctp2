@@ -16,7 +16,7 @@
 
 #include <algorithm>
 #include "mapgen/FaultGen.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include "gs/outcom/IC3Rand.h"
 
 #ifndef GEOMETRIC

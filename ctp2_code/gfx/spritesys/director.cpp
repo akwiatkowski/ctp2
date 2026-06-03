@@ -41,7 +41,7 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/Director.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 #include <algorithm>  // std::fill
 #include <utility>

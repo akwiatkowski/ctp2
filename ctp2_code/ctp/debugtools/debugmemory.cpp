@@ -51,13 +51,13 @@
 #include "ctp/debugtools/debugcallstack.h"
 #include "ctp/debugtools/debugassert.h"
 #include "ctp/debugtools/breakpoint.h"
-#include <string.h>
+#include <cstring>
 
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 // Windows heap API compatibility stubs
 #define HANDLE void*

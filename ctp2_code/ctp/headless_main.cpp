@@ -30,9 +30,9 @@
 #include "gs/events/GameEventManager.h"       // gevmanager_Get()
 #include "ai/ctpai.h"                         // CtpAi::BeginDiplomacy
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 extern sint32  g_runInBackground;
 #include "gs/utility/Globals.h"   // set_headless()

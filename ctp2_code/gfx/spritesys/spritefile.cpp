@@ -34,6 +34,8 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/SpriteFile.h"
 
+#include <vector>
+
 #include "gfx/gfx_utils/pixelutils.h"
 #include "gfx/gfx_utils/tiffutils.h"
 #include "gfx/spritesys/spriteutils.h"
@@ -389,7 +391,7 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 	ReadData((uint8 *)msizes, sizeof(uint32) * s->GetNumFrames());
 
 	uint32  size            = ssizes[0];
-	uint8 * CompressedData  = new uint8[size];
+	std::vector<uint8> compressed(size);
 
 	uint32	actual_size;
 	if(m_version>k_SPRITEFILE_VERSION1)
@@ -397,11 +399,11 @@ void SpriteFile::ReadSpriteDataBasic(Sprite *s)
 	else
 		actual_size = size;
 
-	ReadData((void *)CompressedData, size);
+	ReadData((void *)compressed.data(), size);
 
-	Pixel16	*   ActualData = (Pixel16 *) DeCompressData(CompressedData,size,actual_size);
-
-	delete [] CompressedData;
+	Pixel16	*   ActualData = (Pixel16 *) DeCompressData(compressed.data(),size,actual_size);
+	// compressed buffer freed automatically at scope exit; ActualData
+	// is owned by `s` after SetFrameData below.
 
 	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 
@@ -473,18 +475,16 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 	for (i=0; i<s->GetNumFrames(); i++)
 	{
 		uint32  size            = ssizes[i];
-		uint8 * CompressedData  = new uint8[size];
+		std::vector<uint8> compressed(size);
 
 		if(m_version>k_SPRITEFILE_VERSION1)
 		    ReadData((void *)&actual_size,sizeof(uint32));
 		else
 			actual_size = size;
 
-		ReadData((void *)CompressedData, size);
+		ReadData((void *)compressed.data(), size);
 
-		Pixel16 * ActualData = (Pixel16 *)DeCompressData(CompressedData,size,actual_size);
-
-		delete [] CompressedData;
+		Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
 
 		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 		s->SetFrameData(i, ActualData, actual_size);
@@ -580,18 +580,16 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 		if (size > 64 * 1024 * 1024) {
 			continue;
 		}
-		uint8 * CompressedData  = new uint8[size];
+		std::vector<uint8> compressed(size);
 
 		if (m_version>k_SPRITEFILE_VERSION1)
 		   ReadData((void *)&actual_size,sizeof(uint32));
 		else
 		   actual_size = size;
 
-		ReadData((void *)CompressedData, size);
+		ReadData((void *)compressed.data(), size);
 
-		Pixel16 * ActualData = (Pixel16 *)DeCompressData(CompressedData,size,actual_size);
-
-		delete [] CompressedData;
+		Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
 
 		spriteutils_ConvertPixelFormat(ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 		s->SetFrameData(j, 0, ActualData, actual_size);
@@ -665,18 +663,16 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			uint32  size            = ssizes[j][i];
-			uint8 * CompressedData  = new uint8[size];
+			std::vector<uint8> compressed(size);
 
 			if (m_version>k_SPRITEFILE_VERSION1)
 			   ReadData((void *)&actual_size,sizeof(uint32));
 			else
 			   actual_size = size;
 
-			ReadData((void *)CompressedData, size);
+			ReadData((void *)compressed.data(), size);
 
-			Pixel16 * ActualData = (Pixel16 *)DeCompressData(CompressedData,size,actual_size);
-
-			delete [] CompressedData;
+			Pixel16 * ActualData = (Pixel16 *)DeCompressData(compressed.data(),size,actual_size);
 
 	spriteutils_ConvertPixelFormat((Pixel16 *)ActualData, s->GetWidth(), s->GetHeight(), actual_size);
 			s->SetFrameData(j, i, ActualData, actual_size);

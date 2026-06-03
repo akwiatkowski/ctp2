@@ -45,6 +45,9 @@
 //----------------------------------------------------------------------------
 
 #include "ctp/c3.h"
+
+#include <vector>
+
 #include "ai/strategy/agents/agent.h"
 
 #include "gs/core/gfx_options_observer.h"
@@ -688,10 +691,8 @@ void Agent::Group_With( Agent_ptr second_army )
 
 	const char * myText = rec->GetNameText();
 	size_t textLen = strlen(myText);
-	MBCHAR * myString   = new MBCHAR[textLen + 80];
-	MBCHAR * goalString = new MBCHAR[textLen + 40];
-	memset(goalString, 0, textLen + 40);
-	memset(myString,   0, textLen + 80);
+	std::vector<char> goalString(textLen + 40, '\0');
+	std::vector<char> myString(textLen + 80);
 
 	for (size_t myComp = 0; myComp + 5 < textLen; myComp++)
 	{
@@ -700,11 +701,8 @@ void Agent::Group_With( Agent_ptr second_army )
 
 	MapPoint dest_pos = m_goal->Get_Target_Pos();
 
-	snprintf(myString, textLen + 80, "Grouping at (%d,%d) to %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
-	gfx_options_observer::AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
-
-	delete[] goalString;
-	delete[] myString;
+	snprintf(myString.data(), myString.size(), "Grouping at (%d,%d) to %s (%d,%d)", pos.x, pos.y, goalString.data(), dest_pos.x, dest_pos.y);
+	gfx_options_observer::AddTextToArmy(m_army, myString.data(), 220, m_goal->Get_Goal_Type());
 }
 
 void Agent::Ungroup_Order()
@@ -722,10 +720,9 @@ void Agent::Ungroup_Order()
 	Set_Target_Pos(pos);
 	Set_Can_Be_Executed(false);
 
-	MBCHAR * myString = new MBCHAR[256];
-	snprintf(myString, 256, "Ungrouping at (%d,%d)", pos.x, pos.y);
-	gfx_options_observer::AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
-	delete[] myString;
+	std::vector<char> myString(256);
+	snprintf(myString.data(), myString.size(), "Ungrouping at (%d,%d)", pos.x, pos.y);
+	gfx_options_observer::AddTextToArmy(m_army, myString.data(), 220, Get_Goal_Type());
 }
 
 void Agent::MoveIntoTransport()
@@ -913,10 +910,9 @@ void Agent::WaitHere(const MapPoint & goal_pos)
 
 		MapPoint pos;
 		m_army->GetPos(pos);
-		MBCHAR * myString = new MBCHAR[255];
-		snprintf(myString, 255, "Waiting GROUP @ (%d,%d) to GO (%d,%d)", pos.x, pos.y, goal_pos.x, goal_pos.y);
-		gfx_options_observer::AddTextToArmy(m_army, myString, 220, Get_Goal_Type());
-		delete[] myString;
+		std::vector<char> myString(255);
+		snprintf(myString.data(), myString.size(), "Waiting GROUP @ (%d,%d) to GO (%d,%d)", pos.x, pos.y, goal_pos.x, goal_pos.y);
+		gfx_options_observer::AddTextToArmy(m_army, myString.data(), 220, Get_Goal_Type());
 	}
 }
 
@@ -930,10 +926,8 @@ void Agent::ClearOrders()
 
 		const char * myText = rec->GetNameText();
 		size_t textLen = strlen(myText);
-		MBCHAR * myString   = new MBCHAR[textLen + 80];
-		MBCHAR * goalString = new MBCHAR[textLen + 40];
-		memset(goalString, 0, textLen + 40);
-		memset(myString,   0, textLen + 80);
+		std::vector<char> goalString(textLen + 40, '\0');
+		std::vector<char> myString(textLen + 80);
 
 		for(size_t myComp = 0; myComp + 5 < textLen; myComp++)
 		{
@@ -946,17 +940,14 @@ void Agent::ClearOrders()
 		{
 			MapPoint dest_pos = m_goal->Get_Target_Pos();
 
-			snprintf(myString, textLen + 80, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, dest_pos.x, dest_pos.y);
+			snprintf(myString.data(), myString.size(), "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString.data(), dest_pos.x, dest_pos.y);
 		}
 		else
 		{
-			snprintf(myString, textLen + 80, "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString, m_targetPos.x, m_targetPos.y);
+			snprintf(myString.data(), myString.size(), "Clearing oders at (%d,%d) for %s (%d,%d)", pos.x, pos.y, goalString.data(), m_targetPos.x, m_targetPos.y);
 		}
 
-		gfx_options_observer::AddTextToArmy(m_army, myString, 220, m_goal->Get_Goal_Type());
-
-		delete[] goalString;
-		delete[] myString;
+		gfx_options_observer::AddTextToArmy(m_army, myString.data(), 220, m_goal->Get_Goal_Type());
 	}
 }
 

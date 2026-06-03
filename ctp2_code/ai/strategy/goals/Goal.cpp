@@ -96,6 +96,8 @@
 
 #include "ctp/c3.h"
 
+#include <vector>
+
 #include "ai/strategy/goals/Goal.h"
 
 #include <inttypes.h>
@@ -3250,45 +3252,39 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 		double rawMagnitude = ((5000000.0 - val) * 255.0) / 5000000.0;
 		uint8 magnitude = (uint8) std::max(0.0, std::min(255.0, rawMagnitude));
 		const char * myText = goal_rec->GetNameText();
-		MBCHAR * myString   = new MBCHAR[strlen(myText) + 80];
-		MBCHAR * goalString = new MBCHAR[strlen(myText) + 40];
-		memset(goalString, 0, strlen(myText) + 40);
-		memset(myString,   0, strlen(myText) + 80);
-
 		size_t textLen = strlen(myText);
+		std::vector<char> goalString(textLen + 40, '\0');
+		std::vector<char> myString(textLen + 80);
 		for (uint8 myComp = 0; myComp + 5 < textLen; myComp++)
 		{
 			goalString[myComp] = myText[myComp + 5];
 		}
 
 		MapPoint targetPos = Get_Target_Pos(first_army->Get_Army());
-			size_t myStringSize = strlen(myText) + 80;
 			switch (m_sub_task)
 			{
 				case SUB_TASK_RALLY:
-					snprintf(myString, myStringSize, "Group to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					snprintf(myString.data(), myString.size(), "Group to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString.data(), targetPos.x, targetPos.y);
 					break;
 				case SUB_TASK_TRANSPORT_TO_BOARD:
-					snprintf(myString, myStringSize, "Boat to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					snprintf(myString.data(), myString.size(), "Boat to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString.data(), targetPos.x, targetPos.y);
 					break;
 				case SUB_TASK_TRANSPORT_TO_GOAL:
-					snprintf(myString, myStringSize, "Transp. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					snprintf(myString.data(), myString.size(), "Transp. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString.data(), targetPos.x, targetPos.y);
 					break;
 				case SUB_TASK_CARGO_TO_BOARD:
-					snprintf(myString, myStringSize, "Cargo. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					snprintf(myString.data(), myString.size(), "Cargo. to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString.data(), targetPos.x, targetPos.y);
 					break;
 				case SUB_TASK_AIRLIFT:
-					snprintf(myString, myStringSize, "Airlift to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString, targetPos.x, targetPos.y);
+					snprintf(myString.data(), myString.size(), "Airlift to (%d,%d), %s (%d,%d)", dest_pos.x, dest_pos.y, goalString.data(), targetPos.x, targetPos.y);
 					break;
 				case SUB_TASK_GOAL:
 				default:
-					snprintf(myString, myStringSize, "%s (%d,%d)", goalString, dest_pos.x, dest_pos.y);
+					snprintf(myString.data(), myString.size(), "%s (%d,%d)", goalString.data(), dest_pos.x, dest_pos.y);
 					break;
 			}
 
-		gfx_options_observer::AddTextToArmy(first_army->Get_Army(), myString, magnitude, m_goal_type);
-		delete[] myString;
-		delete[] goalString;
+		gfx_options_observer::AddTextToArmy(first_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 
 		if (first_army->Get_Can_Be_Executed())
 		{
@@ -3315,13 +3311,10 @@ bool Goal::FollowPathToTask( Agent_ptr first_army,
 	else
 	{
 		const char * myText = goal_rec->GetNameText();
-		size_t myStringSize = strlen(myText) + 80;
-		MBCHAR * myString = new MBCHAR[myStringSize];
-		memset(myString, 0, myStringSize);
-		snprintf(myString, myStringSize, "%s failed at (%d, %d), order: %s", goal_rec->GetNameText(), dest_pos.x, dest_pos.y, order_rec->GetNameText());
+		std::vector<char> myString(strlen(myText) + 80);
+		snprintf(myString.data(), myString.size(), "%s failed at (%d, %d), order: %s", goal_rec->GetNameText(), dest_pos.x, dest_pos.y, order_rec->GetNameText());
 
-		gfx_options_observer::AddTextToArmy(first_army->Get_Army(), myString, 0, m_goal_type);
-		delete[] myString;
+		gfx_options_observer::AddTextToArmy(first_army->Get_Army(), myString.data(), 0, m_goal_type);
 
 		if(test != ORDER_TEST_OK && test == ORDER_TEST_NO_MOVEMENT)
 		{
@@ -3455,10 +3448,9 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			        this, m_goal_type, dest_pos.x, dest_pos.y));
 			the_transport->Log_Debug_Info(k_DBG_SCHEDULER, this);
 			uint8 magnitude = 220;
-			MBCHAR * myString = new MBCHAR[256];
-			snprintf(myString, 256, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
-			gfx_options_observer::AddTextToArmy(the_transport->Get_Army(), myString, magnitude, m_goal_type);
-			delete[] myString;
+			std::vector<char> myString(256);
+			snprintf(myString.data(), myString.size(), "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
+			gfx_options_observer::AddTextToArmy(the_transport->Get_Army(), myString.data(), magnitude, m_goal_type);
 			Set_Cannot_Be_Used(the_transport, true);
 		}
 		else
@@ -3544,10 +3536,9 @@ bool Goal::GotoTransportTaskSolution(Agent_ptr the_army, Agent_ptr the_transport
 			        this, m_goal_type, dest_pos.x, dest_pos.y));
 			the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 			uint8 magnitude = 220;
-			MBCHAR * myString = new MBCHAR[256];
-			snprintf(myString, 256, "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
-			gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-			delete[] myString;
+			std::vector<char> myString(256);
+			snprintf(myString.data(), myString.size(), "NO PATH -> BOARD (%d,%d)", dest_pos.x, dest_pos.y);
+			gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 		}
 
 		if (found && FollowPathToTask(the_army, the_transport, dest_pos, found_path) )
@@ -3678,11 +3669,9 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				            this, g_theGoalDB->Get(m_goal_type)->GetNameText(), the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
-				MBCHAR * myString = new MBCHAR[256];
-				snprintf(myString, 256, "NO PATH to (%d,%d) - %s", goal_pos.x, goal_pos.y, g_theGoalDB->Get(m_goal_type)->GetNameText());
-				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-
-				delete[] myString;
+				std::vector<char> myString(256);
+				snprintf(myString.data(), myString.size(), "NO PATH to (%d,%d) - %s", goal_pos.x, goal_pos.y, g_theGoalDB->Get(m_goal_type)->GetNameText());
+				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 			}
 
 			break;
@@ -3693,10 +3682,9 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 			{
 				Utility val = Compute_Agent_Matching_Value(the_army);
 				uint8 magnitude = (uint8)(((5000000 - val) * 255.0) / 5000000);
-				MBCHAR * myString = new MBCHAR[256];
-				snprintf(myString, 256, "Waiting GROUP to GO (%d,%d)\n", goal_pos.x, goal_pos.y);
-				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-				delete[] myString;
+				std::vector<char> myString(256);
+				snprintf(myString.data(), myString.size(), "Waiting GROUP to GO (%d,%d)\n", goal_pos.x, goal_pos.y);
+				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 
 				return true;
 			}
@@ -3708,10 +3696,9 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				           this, m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
-				MBCHAR * myString = new MBCHAR[256];
-				snprintf(myString, 256, "NO PATH (GROUP)(%d,%d)", goal_pos.x, goal_pos.y);
-				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-				delete[] myString;
+				std::vector<char> myString(256);
+				snprintf(myString.data(), myString.size(), "NO PATH (GROUP)(%d,%d)", goal_pos.x, goal_pos.y);
+				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 			}
 
 			break;
@@ -3725,10 +3712,9 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 				           this, m_goal_type, the_army->Get_Pos().x, the_army->Get_Pos().y, goal_pos.x, goal_pos.y));
 				the_army->Log_Debug_Info(k_DBG_SCHEDULER, this);
 				uint8 magnitude = 220;
-				MBCHAR * myString = new MBCHAR[256];
-				snprintf(myString, 256, "NO PATH (TRANSP.)(%d,%d)", goal_pos.x, goal_pos.y);
-				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString, magnitude, m_goal_type);
-				delete[] myString;
+				std::vector<char> myString(256);
+				snprintf(myString.data(), myString.size(), "NO PATH (TRANSP.)(%d,%d)", goal_pos.x, goal_pos.y);
+				gfx_options_observer::AddTextToArmy(the_army->Get_Army(), myString.data(), magnitude, m_goal_type);
 			}
 		}
 	}
@@ -4216,12 +4202,11 @@ bool Goal::RallyTroops()
 			else
 			{
 				uint8 magnitude = 220;
-				MBCHAR * myString = new MBCHAR[256];
+				std::vector<char> myString(256);
 				MapPoint goal_pos;
 				goal_pos = Get_Target_Pos(agent1_ptr->Get_Army());
-				snprintf(myString, 256, "Waiting GROUP to GO (%d,%d)", goal_pos.x, goal_pos.y);
-				gfx_options_observer::AddTextToArmy(agent1_ptr->Get_Army(), myString, magnitude);
-				delete[] myString;
+				snprintf(myString.data(), myString.size(), "Waiting GROUP to GO (%d,%d)", goal_pos.x, goal_pos.y);
+				gfx_options_observer::AddTextToArmy(agent1_ptr->Get_Army(), myString.data(), magnitude);
 			}
 
 			MapPoint agent1_pos = agent1_ptr->Get_Pos();

@@ -136,7 +136,7 @@ public:
 		AUI_RANGER_ORIENTATION orientation = AUI_RANGER_ORIENTATION_BIDIRECTIONAL,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_Ranger();
+	~aui_Ranger() override;
 
 protected:
 	aui_Ranger() : aui_Control() {}
@@ -159,7 +159,7 @@ protected:
 		sint32 minThumbSize = k_CONTROL_DEFAULT_SIZE );
 
 public:
-	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
 	aui_Thumb	*GetThumb( ) const { return m_thumb; }
 	aui_Button	*GetIncrementXButton( ) const { return m_incXButton; }
@@ -214,7 +214,7 @@ public:
 	AUI_ERRCODE	UseQuantizedDragging( BOOL quantized )
 		{ m_quantized = quantized; return AUI_ERRCODE_OK; }
 
-	virtual AUI_ERRCODE Show( );
+	AUI_ERRCODE Show( ) override;
 
 protected:
 	AUI_ERRCODE	ValueToPosition( sint32 *x, sint32 *y );
@@ -264,19 +264,19 @@ protected:
 	sint32		m_slideDx;
 	sint32		m_slideDy;
 
-	virtual void	PostChildrenCallback(aui_MouseEvent * mouseData);
+	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseMoveOver(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
+	void	MouseMoveOver(aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 };
 
 

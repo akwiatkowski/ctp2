@@ -33,20 +33,20 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
 
-	virtual ~C3DropDown() = default;
+	~C3DropDown() override = default;
 
 protected:
 	C3DropDown() : aui_DropDown() {}
 	AUI_ERRCODE CreateComponents();
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( );
+	AUI_ERRCODE	RepositionButton( ) override;
 };
 
 #endif

@@ -191,8 +191,8 @@ public:
 	NetAction(NET_ACTION action, ...);
 	NetAction();
 
-	void Packetize(uint8* buf, uint16& size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8* buf, uint16& size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 
 private:
 	NET_ACTION m_action;

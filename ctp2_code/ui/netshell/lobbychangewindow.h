@@ -10,17 +10,17 @@ class LobbyChangeWindow : public ns_Window
 public:
 
 	LobbyChangeWindow( AUI_ERRCODE *retval );
-	virtual ~LobbyChangeWindow() = default;
+	~LobbyChangeWindow() override = default;
 
 protected:
 	LobbyChangeWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( );
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 
 
 	enum CONTROL

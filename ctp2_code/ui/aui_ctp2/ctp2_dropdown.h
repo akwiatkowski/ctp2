@@ -62,16 +62,16 @@ public:
 		sint32 windowSize = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ctp2_DropDown() = default;
+	~ctp2_DropDown() override = default;
 
 	void	Clear();
 
-	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y) override;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 						aui_Surface *surface = nullptr,
 						sint32 x = 0,
-						sint32 y = 0 );
+						sint32 y = 0 ) override;
 
 
 	AUI_ERRCODE		AddItem(ctp2_ListItem *item);
@@ -90,8 +90,8 @@ protected:
 	AUI_ERRCODE		CreateComponents( MBCHAR *ldlBlock = nullptr );
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( );
-	virtual AUI_ERRCODE	RepositionListBoxWindow( );
+	AUI_ERRCODE	RepositionButton( ) override;
+	AUI_ERRCODE	RepositionListBoxWindow( ) override;
 };
 
 #endif

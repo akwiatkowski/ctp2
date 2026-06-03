@@ -13,8 +13,8 @@ public:
 	NetDipProposal(NewProposal &prop) { m_prop = prop; }
 	NetDipProposal() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 
 private:
 	NewProposal m_prop;
@@ -29,8 +29,8 @@ class NetDipResponse : public Packetizer
 		m_otherGuy = (uint8)other;
 	}
 	NetDipResponse() = default;
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
   private:
 	Response m_resp;
@@ -41,8 +41,8 @@ class NetAgreementMatrix : public Packetizer
 {
   public:
 	NetAgreementMatrix() = default;
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 };
 
 #endif

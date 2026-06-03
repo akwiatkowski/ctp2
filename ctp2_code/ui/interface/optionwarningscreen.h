@@ -29,12 +29,12 @@ void optionwarningscreen_nevermindPress(aui_Control *control, uint32 action, uin
 
 class CloseOptionWarningScreenAction : public aui_Action
 {
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 };
 
 #endif

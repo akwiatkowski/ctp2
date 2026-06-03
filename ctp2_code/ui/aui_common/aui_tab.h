@@ -58,7 +58,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
-	virtual ~aui_Tab();
+	~aui_Tab() override;
 
 protected:
 	aui_Tab() : aui_Radio() {}
@@ -66,7 +66,7 @@ protected:
 	AUI_ERRCODE InitCommon( sint32 paneWidth, sint32 paneHeight );
 
 public:
-	virtual sint32 SetState( sint32 state );
+	sint32 SetState( sint32 state ) override;
 
 	aui_Control	*GetPane( ) const { return m_pane; }
 
@@ -75,19 +75,19 @@ public:
 	aui_Control	*GetPaneControl( uint32 controlId ) const
 		{ return (aui_Control *)m_pane->GetChild( controlId ); }
 
-	virtual AUI_ERRCODE	Show( );
+	AUI_ERRCODE	Show( ) override;
 
 protected:
 	aui_Control		*m_pane;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData) {};
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override {};
 
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

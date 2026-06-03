@@ -40,11 +40,11 @@ public:
 		sint32 barHeight = k_DEFAULT_HEALTHBAR_HEIGHT,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~UnitTabButton();
+	~UnitTabButton() override;
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
 								sint32 x = 0,
-								sint32 y = 0);
+								sint32 y = 0) override;
 
 	AUI_ERRCODE InitCommon( );
 

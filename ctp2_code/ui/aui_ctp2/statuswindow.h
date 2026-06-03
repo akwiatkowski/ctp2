@@ -22,12 +22,12 @@ public:
 		:
 		C3Window( retval, id, x, y, width, height, bpp, pattern, AUI_WINDOW_TYPE_SINKING )
 		{}
-	virtual ~StatusWindow() = default;
+	~StatusWindow() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 #ifdef _PLAYTEST
 	AUI_ERRCODE DrawCommand(char* str);

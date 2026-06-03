@@ -16,8 +16,8 @@ public:
 	NetCity(UnitData*, BOOL isInitialPacket = FALSE);
 	NetCity() = default;
 
-	void Packetize(uint8* buf, uint16& size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8* buf, uint16& size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 	void PacketizeResources(const Resources &resources, uint8 *buf, uint16 &size);
 	void UnpacketizeResources(Resources &resources, uint8 *buf, sint32 &pos);
 
@@ -36,8 +36,8 @@ public:
 	}
 	NetCity2() = default;
 
-	void Packetize(uint8* buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8* buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	CityData *m_data;
 	uint8 m_isInitialPacket;
@@ -48,8 +48,8 @@ class NetCityName : public Packetizer
 public:
 	NetCityName(CityData* cd) { m_cityData = cd;}
 	NetCityName() = default;
-	void Packetize(uint8* buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8* buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 private:
 	CityData *m_cityData;
 };
@@ -60,8 +60,8 @@ public:
 	NetCityBuildQueue(CityData *cd) { m_cityData = cd;}
 	NetCityBuildQueue() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	CityData *m_cityData;
 };
@@ -72,8 +72,8 @@ public:
 	NetCityResources(CityData *cd) { m_cityData = cd; }
 	NetCityResources() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	CityData *m_cityData;
 };

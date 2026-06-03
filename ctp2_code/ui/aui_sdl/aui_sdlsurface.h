@@ -23,31 +23,31 @@ public:
 	               BOOL isPrimary = FALSE,
 	               BOOL useVideoMemory = FALSE,
 	               BOOL takeOwnership = FALSE );
-        virtual ~aui_SDLSurface();
+        ~aui_SDLSurface() override;
 
 protected:
         aui_SDLSurface() : aui_Surface() {}
         AUI_ERRCODE InitCommon( );
 
 public:
-	virtual BOOL IsThisA( uint32 classId ) {
+	BOOL IsThisA( uint32 classId ) override {
             return ((classId == m_SDLSurfaceClassId)
                     || aui_Surface::IsThisA( classId )
                     || aui_SDL::IsThisA( classId ));
             }
 
-	virtual uint32 SetChromaKey( uint32 color );
+	uint32 SetChromaKey( uint32 color ) override;
 
-	virtual AUI_ERRCODE Lock( RECT *rect, LPVOID *buffer, DWORD flags );
-	virtual AUI_ERRCODE Unlock( LPVOID buffer );
+	AUI_ERRCODE Lock( RECT *rect, LPVOID *buffer, DWORD flags ) override;
+	AUI_ERRCODE Unlock( LPVOID buffer ) override;
 
 	SDL_Surface*    DDS( ) const { return m_lpdds; }
 	BOOL                            IsDCGot( ) const { return m_dcIsGot
 ; }
 
-	virtual BOOL IsOK( ) const;
-	virtual AUI_ERRCODE Blank(const uint32 &color);
-	virtual void Flip( );
+	BOOL IsOK( ) const override;
+	AUI_ERRCODE Blank(const uint32 &color) override;
+	void Flip( ) override;
 
 	static uint32 m_SDLSurfaceClassId;
 

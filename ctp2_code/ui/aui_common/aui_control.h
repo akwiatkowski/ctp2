@@ -94,9 +94,9 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_Control();
+	~aui_Control() override;
 
-	virtual BOOL IsThisA( uint32 classId )
+	BOOL IsThisA( uint32 classId ) override
 	{
 		return classId == s_controlClassId
 		||     aui_Region::IsThisA( classId );
@@ -131,7 +131,7 @@ public:
 
 	aui_StringTable *m_stringTable;
 
-	virtual AUI_ERRCODE ResetThis( );
+	AUI_ERRCODE ResetThis( ) override;
 
 	AUI_ERRCODE AddSubControl( aui_Control *control )
 	{ return AddChild( (aui_Region *)control ); }
@@ -141,9 +141,9 @@ public:
 	{ return RemoveChild( controlId ); }
 	aui_Control	*GetSubControl( uint32 controlId )
 	{ return (aui_Control *)GetChild( controlId ); }
-	virtual AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual AUI_ERRCODE InsertChild( aui_Region *child, sint32 index );
-	virtual AUI_ERRCODE	RemoveChild( uint32 controlId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE InsertChild( aui_Region *child, sint32 index ) override;
+	AUI_ERRCODE	RemoveChild( uint32 controlId ) override;
 
 	aui_Window	*GetParentWindow( ) const { return m_window; }
 	AUI_ERRCODE	SetParentWindow( aui_Window *window );
@@ -163,14 +163,14 @@ public:
 	BOOL IsActive( ) const
 		{ return m_attributes & k_CONTROL_ATTRIBUTE_ACTIVE; }
 
-	virtual AUI_ERRCODE	SetText(
+	AUI_ERRCODE	SetText(
 		const MBCHAR *text,
-		uint32 maxlen = 0xffffffff )
+		uint32 maxlen = 0xffffffff ) override
 	{
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 		return aui_TextBase::SetText( text, maxlen );
 	}
-	virtual AUI_ERRCODE	AppendText(MBCHAR const * text)
+	AUI_ERRCODE	AppendText(MBCHAR const * text) override
 	{
 		m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;
 		return aui_TextBase::AppendText(text);
@@ -191,9 +191,9 @@ public:
 	aui_Action *GetAction( ) const
 	{ Assert( m_ActionFunc == nullptr ); return m_action; }
 
-	virtual AUI_ERRCODE ShowThis();
+	AUI_ERRCODE ShowThis() override;
 
-	virtual AUI_ERRCODE	HideThis( );
+	AUI_ERRCODE	HideThis( ) override;
 
 	uint32		GetTimeOut( ) const { return m_timeOut; }
 	AUI_ERRCODE	SetTimeOut( uint32 timeOut )
@@ -211,14 +211,14 @@ public:
 	virtual aui_Control	*SetKeyboardFocus( );
 	virtual AUI_ERRCODE	ReleaseKeyboardFocus( );
 
-	virtual AUI_ERRCODE Draw(
+	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
-	virtual AUI_ERRCODE DrawThis(
+		sint32 y = 0 ) override;
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	AUI_ERRCODE DrawThisStateImage(
 		sint32 state,
@@ -264,18 +264,18 @@ protected:
 	virtual void	KeyboardCallback(aui_KeyboardEvent * keyBoardData) {};
 	virtual void	JoystickCallback(aui_JoystickEvent * joystickData) {};
 
-	virtual void	MouseMoveOver(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveAway(aui_MouseEvent * 	mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
+	void	MouseMoveOver(aui_MouseEvent * mouseData) override;
+	void	MouseMoveAway(aui_MouseEvent * 	mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragAway(aui_MouseEvent * mouseData);
+	void	MouseLDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseRDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseRDragAway(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseNoChange(aui_MouseEvent * mouseData);
+	void	MouseNoChange(aui_MouseEvent * mouseData) override;
 
 private:
 
@@ -292,7 +292,7 @@ public:
 		const MBCHAR *imageName);
 
 
-	virtual AUI_ERRCODE	Resize(sint32 width, sint32 height);
+	AUI_ERRCODE	Resize(sint32 width, sint32 height) override;
 
 	virtual void SendKeyboardAction();
 	virtual bool HandleKey(uint32 wParam);

@@ -24,7 +24,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_TipWindow();
+	~aui_TipWindow() override;
 
 protected:
 	aui_TipWindow() : aui_Window() {}
@@ -36,10 +36,10 @@ public:
 	aui_Static *GetStatic( ) const { return m_staticTip; }
 	AUI_ERRCODE SetTipText(MBCHAR *text);
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	BOOL		m_allocatedTip;

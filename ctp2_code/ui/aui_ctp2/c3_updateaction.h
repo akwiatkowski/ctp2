@@ -15,14 +15,14 @@ public:
     :   aui_Action  ()
     { ; };
 
-	virtual ~c3_UpdateAction();
+	~c3_UpdateAction() override;
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 	virtual c3_UpdateAction * CopyMe();
 };

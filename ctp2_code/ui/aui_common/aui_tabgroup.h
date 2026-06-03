@@ -44,7 +44,7 @@ public:
 		BOOL autoArrange = TRUE,
 		sint32 paneOffsetX = 0,
 		sint32 paneOffsetY = 0 );
-	virtual ~aui_TabGroup() = default;
+	~aui_TabGroup() override = default;
 
 protected:
 	aui_TabGroup() : aui_SwitchGroup() {}
@@ -59,8 +59,8 @@ public:
 	AUI_ERRCODE	AddTab( aui_Tab *tab ) { return AddChild( (aui_Region *)tab ); }
 	AUI_ERRCODE RemoveTab( uint32 tabId ) { return RemoveChild( tabId ); }
 	aui_Tab		*GetTab( uint32 tabId ) { return (aui_Tab *)GetChild( tabId ); }
-	virtual		AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual		AUI_ERRCODE	RemoveChild( uint32 tabId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE	RemoveChild( uint32 tabId ) override;
 
 	AUI_TABGROUP_ALIGNMENT GetTabGroupAlignment( ) const
 		{ return m_alignment; }

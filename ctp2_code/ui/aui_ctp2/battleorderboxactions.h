@@ -14,12 +14,12 @@ class BobButtonAction : public aui_Action
 public:
 	BobButtonAction(BattleOrderBox * bob);
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 	void SetUnit(Unit const & unit) { m_unit = unit; };
 	void SetArmy(Army const & army) { m_army = army; };

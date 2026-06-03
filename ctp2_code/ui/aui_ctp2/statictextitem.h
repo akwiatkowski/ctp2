@@ -26,7 +26,7 @@ public:
 		sint32 category = 0,
 		sint32 itemType = 0);
 
-	virtual ~StaticTextItem() = default;
+	~StaticTextItem() override = default;
 };
 
 #endif

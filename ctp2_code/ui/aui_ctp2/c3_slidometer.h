@@ -34,7 +34,7 @@ public:
 		sint32 percentFilled = NULL,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_Slidometer() = default;
+	~c3_Slidometer() override = default;
 
 protected:
 	c3_Slidometer() : aui_Ranger() {}
@@ -45,10 +45,10 @@ protected:
 	sint32	m_percentFilled;
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	sint32 GetPercentFilled() { return m_percentFilled; }
 	void SetPercentFilled( sint32 percentFilled );

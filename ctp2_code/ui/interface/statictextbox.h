@@ -27,12 +27,12 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock);
 
-	virtual ~StaticTextBox() = default;
+	~StaticTextBox() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	sint32 GetBevel() { return m_bevel; }
 	void SetBevel( sint32 bevel ) { m_bevel = bevel; }

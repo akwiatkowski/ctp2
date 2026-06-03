@@ -64,8 +64,8 @@ public:
 		bool bevel = true,
 		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = nullptr);
 
-	virtual ~c3_FancyWindow();
-	virtual AUI_ERRCODE Resize( sint32 width, sint32 height );
+	~c3_FancyWindow() override;
+	AUI_ERRCODE Resize( sint32 width, sint32 height ) override;
 
 	void BringBorderToTop();
 	AUI_ERRCODE AddBordersToUI();
@@ -81,8 +81,8 @@ public:
 	void RemoveCancel( ) { RemoveControl( m_cancel->Id() ); }
 
 protected:
-    virtual void	MouseLGrabInside(aui_MouseEvent * data);
-    virtual void	MouseLDragAway(aui_MouseEvent * data);
+    void	MouseLGrabInside(aui_MouseEvent * data) override;
+    void	MouseLDragAway(aui_MouseEvent * data) override;
 
 private:
 
@@ -124,7 +124,7 @@ public:
 		bool bevel = true,
 		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = nullptr);
 
-	virtual ~c3_FancyWindow2();
+	~c3_FancyWindow2() override;
 
 	void BringBorderToTop();
 	AUI_ERRCODE AddBordersToUI();

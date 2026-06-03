@@ -13,7 +13,7 @@ public:
 	aui_Font(
 		AUI_ERRCODE *retval,
 		MBCHAR *descriptor = nullptr );
-	virtual ~aui_Font();
+	~aui_Font() override;
 
 protected:
 	aui_Font() : aui_Base() {}

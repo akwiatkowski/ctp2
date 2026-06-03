@@ -41,7 +41,7 @@ class aui_Shell : public aui_Base
 public:
 
 	aui_Shell(AUI_ERRCODE *retval);
-	virtual ~aui_Shell();
+	~aui_Shell() override;
 
 protected:
 	aui_Shell() : aui_Base() { InitCommon(); }

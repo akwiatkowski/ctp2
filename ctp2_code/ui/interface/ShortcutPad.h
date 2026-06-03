@@ -21,7 +21,7 @@ public:
 		ShortcutCallback(return_type (*function)()) :
 		m_function(function) { Assert(m_function); }
 
-		virtual void operator()() { m_function(); }
+		void operator()() override { m_function(); }
 	private:
 
 		return_type (*m_function)();

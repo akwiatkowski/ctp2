@@ -541,7 +541,7 @@ public:
 
     CellUnitList * GetArmyPtr(const MapPoint &pos);
 
-    void CityRadiusFunc(const MapPoint &pos);
+    void CityRadiusFunc(const MapPoint &pos) override;
     bool InsertCity(const MapPoint &pos, Unit u);
     void MoveUnitToCitySlot(Unit newCity, const MapPoint &pos);
     Unit GetCity(const MapPoint &pos);

@@ -16,8 +16,8 @@ public:
 	NetVision(sint32 owner, uint16 row, uint8 numRows);
 	NetVision() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	uint8 m_owner;
 	uint16 m_row;
@@ -30,8 +30,8 @@ public:
 	NetUnseenCell(UnseenCell *ucell, uint8 owner);
 	NetUnseenCell() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	UnseenCell *m_ucell;
 	uint8 m_owner;

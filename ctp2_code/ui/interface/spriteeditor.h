@@ -50,7 +50,7 @@ public:
 
 
 
-	virtual ~SpriteEditWindow();
+	~SpriteEditWindow() override;
 
 
 
@@ -61,15 +61,15 @@ public:
 
 
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 
 
 
-	virtual AUI_ERRCODE	Idle( );
+	AUI_ERRCODE	Idle( ) override;
 
 
 

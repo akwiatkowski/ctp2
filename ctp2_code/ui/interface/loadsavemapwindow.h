@@ -111,7 +111,7 @@ public:
 
 	AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 
-	virtual ~LoadSaveMapWindow();
+	~LoadSaveMapWindow() override;
 
 	void FillListOne();
 	void FillListTwo(GameMapInfo *info);
@@ -201,9 +201,9 @@ class LSMGameMapsListItem : public c3_ListItem
 {
 public:
 	LSMGameMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameMapInfo *info);
-	~LSMGameMapsListItem();
+	~LSMGameMapsListItem() override;
 
-	sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	GameMapInfo	*GetGameMapInfo() const { return m_info; }
 
@@ -218,9 +218,9 @@ class LSMSaveMapsListItem : public c3_ListItem
 {
 public:
 	LSMSaveMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveMapInfo *info);
-	~LSMSaveMapsListItem();
+	~LSMSaveMapsListItem() override;
 
-	sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	SaveMapInfo	*GetSaveMapInfo() const { return m_info; }
 

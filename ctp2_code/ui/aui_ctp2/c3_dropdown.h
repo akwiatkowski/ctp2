@@ -30,14 +30,14 @@ public:
 		sint32 windowSize = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_DropDown() = default;
+	~c3_DropDown() override = default;
 
 	void Clear();
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	c3_DropDown() : aui_DropDown() {}
@@ -46,8 +46,8 @@ protected:
 	AUI_ERRCODE CreateComponents( MBCHAR *ldlBlock = nullptr );
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( );
-	virtual AUI_ERRCODE	RepositionListBoxWindow( );
+	AUI_ERRCODE	RepositionButton( ) override;
+	AUI_ERRCODE	RepositionListBoxWindow( ) override;
 };
 
 #endif

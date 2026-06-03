@@ -22,7 +22,7 @@ public:
 		MBCHAR *ldlBlock,
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
-	virtual ~ns_Window();
+	~ns_Window() override;
 
 protected:
 

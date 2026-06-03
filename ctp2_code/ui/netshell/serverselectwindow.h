@@ -10,16 +10,16 @@ class ServerSelectWindow : public ns_Window
 public:
 
 	ServerSelectWindow( AUI_ERRCODE *retval );
-	virtual ~ServerSelectWindow();
+	~ServerSelectWindow() override;
 
 protected:
 	ServerSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( bool wait = false );
-	virtual AUI_ERRCODE Idle( );
+	AUI_ERRCODE Idle( ) override;
 
 
 	enum CONTROL

@@ -25,7 +25,7 @@ public:
 	Agreement Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE request);
 	void EndRound();
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 };
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.  External

@@ -23,7 +23,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~c3_Header();
+	~c3_Header() override;
 
 protected:
 	c3_Header() : aui_Header() {}

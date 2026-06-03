@@ -47,18 +47,18 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual ~MessageIconButton();
-	virtual AUI_ERRCODE DrawThis(
+	~MessageIconButton() override;
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void SetCurrentIconButton( MessageIconButton *button );
 
 protected:
-    virtual void	MouseRGrabInside(aui_MouseEvent * data);
-    virtual void	MouseRDropInside(aui_MouseEvent * data);
-    virtual void	MouseRDropOutside(aui_MouseEvent * data);
+    void	MouseRGrabInside(aui_MouseEvent * data) override;
+    void	MouseRDropInside(aui_MouseEvent * data) override;
+    void	MouseRDropOutside(aui_MouseEvent * data) override;
 
 private:
 	static MessageIconButton	*m_currentButton;

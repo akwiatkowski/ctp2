@@ -18,7 +18,7 @@ public:
 	Picture(
 		AUI_ERRCODE *retval,
 		MBCHAR const *szFileName = nullptr );
-	virtual ~Picture();
+	~Picture() override;
 
 	aui_Surface *TheMipmap( ) const { return m_mipmap; }
 

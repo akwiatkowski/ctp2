@@ -66,7 +66,7 @@ public:
 
 	const UnitRecord * GetDBRec(const Unit id) const;
 
-	void Serialize(CivArchive &archive) ;
+	void Serialize(CivArchive &archive) override ;
 	void RebuildQuadTree();
 
 	// JSON bridge — mirrors UnitPool::Serialize at UnitPool.cpp:129.

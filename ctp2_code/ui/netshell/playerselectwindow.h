@@ -10,17 +10,17 @@ class PlayerSelectWindow : public ns_Window
 public:
 
 	PlayerSelectWindow( AUI_ERRCODE *retval );
-	virtual ~PlayerSelectWindow() = default;
+	~PlayerSelectWindow() override = default;
 
 protected:
 	PlayerSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( );
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 	nf_PlayerSetup *GetPlayerSetup(NETFunc::Player *player);
 
 

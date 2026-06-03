@@ -18,7 +18,7 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 lMin = -1000,
 		uint32 lMax = 1000);
-	virtual ~aui_SDLJoystick();
+	~aui_SDLJoystick() override;
 
 #if 0
 	void SetDevice( LPDIRECTINPUTDEVICE device ) { m_lpdid = device;};
@@ -38,8 +38,8 @@ protected:
 #endif
 
 public:
-	virtual AUI_ERRCODE Acquire( ) { return aui_SDLInput::Acquire(); }
-	virtual AUI_ERRCODE Unacquire( ) { return aui_SDLInput::Unacquire(); }
+	AUI_ERRCODE Acquire( ) override { return aui_SDLInput::Acquire(); }
+	AUI_ERRCODE Unacquire( ) override { return aui_SDLInput::Unacquire(); }
 
 #if 0
 	virtual AUI_ERRCODE GetInput( void );

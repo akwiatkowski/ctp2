@@ -14,7 +14,7 @@ public:
 	aui_Screen(
 		AUI_ERRCODE *retval,
 		uint32 id );
-	virtual ~aui_Screen();
+	~aui_Screen() override;
 
 protected:
 	aui_Screen() : aui_Base() {}

@@ -19,7 +19,7 @@ public:
 	Pattern(
 		AUI_ERRCODE *retval,
 		MBCHAR const *filename = nullptr );
-	virtual ~Pattern();
+	~Pattern() override;
 
 	aui_Image	*LightImage( ) const { return m_lightImage; }
 	aui_Image	*DarkImage( ) const { return m_darkImage; }

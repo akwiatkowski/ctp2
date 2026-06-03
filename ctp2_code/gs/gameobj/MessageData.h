@@ -155,7 +155,7 @@ class MessageData : public GameObj
 		MessageData(CivArchive &archive);
 		MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_INDEX sender, const MESSAGE_TYPE type, MBCHAR *s, sint32 currentYear);
 		MessageData(const ID id, MessageData *copy);
-		~MessageData();
+		~MessageData() override;
 
 		PLAYER_INDEX GetOwner() const { return (m_owner) ; }
 		void SetOwner(PLAYER_INDEX o) { m_owner = o; }
@@ -222,7 +222,7 @@ class MessageData : public GameObj
 		SlicEyePoint *GetEyePoint(sint32 index);
 
 		void Dump(const sint32 i) ;
-		void Serialize(CivArchive &archive) ;
+		void Serialize(CivArchive &archive) override ;
 
 		void SetSelectedAdvance(AdvanceType adv);
 		AdvanceType GetSelectedAdvance() const;

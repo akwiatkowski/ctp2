@@ -2089,12 +2089,12 @@ public:
 		m_mode = mode;
 	}
 
-	virtual void Execute
+	void Execute
     (
         aui_Control *   control,
 		uint32          action,
 		uint32          data
-    );
+    ) override;
 
   protected:
 	DW_CREATE_MODE m_mode;

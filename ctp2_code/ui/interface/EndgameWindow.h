@@ -43,7 +43,7 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
 
-	virtual ~EndGameWindow();
+	~EndGameWindow() override;
 
 	void SetStage(sint32 stage, sint32 lastStage);
 
@@ -58,9 +58,9 @@ public:
 	void UpdateTurn(EndGame *endGame);
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
-	void kh_Close();
+	void kh_Close() override;
 
 protected:
 

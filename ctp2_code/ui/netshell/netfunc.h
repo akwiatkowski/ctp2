@@ -324,7 +324,7 @@ public:
 
 	Messages();
 
-	~Messages();
+	~Messages() override;
 
 	void Push(Message *m);
 
@@ -479,9 +479,9 @@ public:
 		SetKey();
 	}
 
-	virtual ~ListHandler() = default;
+	~ListHandler() override = default;
 
-	void SetKey();
+	void SetKey() override;
 	bool Equals(KeyStruct *k) {
 
 		if(key.buf[0] == dp_KEY_PLAYERS)
@@ -512,7 +512,7 @@ public:
 
 	virtual void Destroy() = 0;
 
-	bool Handle(Message *m);
+	bool Handle(Message *m) override;
 };
 
 
@@ -531,7 +531,7 @@ class Server:public Key {
 	dp_serverInfo_t server;
 public:
 
-	void SetKey() {};
+	void SetKey() override {};
 
 	Server();
 
@@ -580,7 +580,7 @@ public:
 
 	ContactList();
 
-	~ContactList();
+	~ContactList() override;
 };
 ContactList	contactList;
 
@@ -621,7 +621,7 @@ public:
 
 	PortList();
 
-	~PortList();
+	~PortList() override;
 };
 
 PortList portList;
@@ -713,11 +713,11 @@ public:
 
 	Internet(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~Internet();
+	~Internet() override;
 
-	STATUS SetPort(long p);
+	STATUS SetPort(long p) override;
 
-	TYPE GetType();
+	TYPE GetType() override;
 };
 friend class Internet;
 
@@ -727,9 +727,9 @@ public:
 
 	IPX(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~IPX();
+	~IPX() override;
 
-	TYPE GetType();
+	TYPE GetType() override;
 };
 friend class IPX;
 
@@ -739,13 +739,13 @@ public:
 
 	Modem(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~Modem();
+	~Modem() override;
 
-	STATUS SetContact(Contact *c);
+	STATUS SetContact(Contact *c) override;
 
-	STATUS SetPort(Port *p);
+	STATUS SetPort(Port *p) override;
 
-	TYPE GetType();
+	TYPE GetType() override;
 };
 friend class Modem;
 
@@ -755,11 +755,11 @@ public:
 
 	NullModem(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~NullModem();
+	~NullModem() override;
 
-	STATUS SetPort(Port *p);
+	STATUS SetPort(Port *p) override;
 
-	TYPE GetType();
+	TYPE GetType() override;
 };
 friend class NullModem;
 
@@ -773,7 +773,7 @@ public:
 
 	TransportList();
 
-	~TransportList();
+	~TransportList() override;
 };
 TransportList transportList;
 friend class TransportList;
@@ -796,7 +796,7 @@ public:
 
 	AIPlayer();
 
-	~AIPlayer();
+	~AIPlayer() override;
 
 	char *GetName();
 
@@ -808,9 +808,9 @@ public:
 
 	void SetKey(KeyStruct *k);
 
-	void Pack();
+	void Pack() override;
 
-	void Unpack();
+	void Unpack() override;
 
 	STATUS Save(FILE *f);
 
@@ -854,7 +854,7 @@ protected:
 	void SetGroupMaster(bool b);
 public:
 
-	void SetKey();
+	void SetKey() override;
 
 	Player();
 
@@ -923,13 +923,13 @@ protected:
 	bool hasleft;
 public:
 
-	void Pack();
+	void Pack() override;
 
-	void Unpack();
+	void Unpack() override;
 
 	PlayerStat();
 
-	~PlayerStat();
+	~PlayerStat() override;
 
 	void SetName(char *n);
 
@@ -991,16 +991,16 @@ private:
 	char description[nf_PLAYERDESCLEN];
 protected:
 
-	void Pack();
+	void Pack() override;
 
-	void Unpack();
+	void Unpack() override;
 public:
 
 	PlayerSetup();
 
 	PlayerSetup(Player *p);
 
-	~PlayerSetup();
+	~PlayerSetup() override;
 
 	void SetName(char *n);
 
@@ -1050,7 +1050,7 @@ protected:
 	long flags;
 public:
 
-	void SetKey();
+	void SetKey() override;
 
 	Session();
 
@@ -1135,10 +1135,10 @@ friend class Lobby;
 class PlayerList {
 	public:
 	class Players:public ListHandler<Player> {
-		void Insert(Player *) {};
-		void Delete(Player *) {};
-		void Change(Player *) {};
-		void Destroy() {};
+		void Insert(Player *) override {};
+		void Delete(Player *) override {};
+		void Change(Player *) override {};
+		void Destroy() override {};
 	};
 	static Players *players;
 	static int count;
@@ -1170,16 +1170,16 @@ protected:
 
 	STATUS Send(dp_t *p, dpid_t id, dpid_t from = dp_ID_BROADCAST);
 
-	void Pack();
+	void Pack() override;
 
-	void Unpack();
+	void Unpack() override;
 public:
 
 	GameSetup();
 
 	GameSetup(Game *g);
 
-	~GameSetup();
+	~GameSetup() override;
 
 	char *GetDescription();
 
@@ -1237,7 +1237,7 @@ public:
 
 	virtual void Receive(Player *p, TYPE t, char *m) = 0;
 
-	bool Handle(Message *m);
+	bool Handle(Message *m) override;
 };
 
 	NETFunc();

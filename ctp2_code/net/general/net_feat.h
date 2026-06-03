@@ -59,10 +59,10 @@ class NetFeatTracker: public Packetizer
 {
 public:
 	NetFeatTracker();
-	virtual ~NetFeatTracker();
+	~NetFeatTracker() override;
 
-	void Packetize(uint8 * buf, uint16 & size);
-	void Unpacketize(uint16 id, uint8 * buf, uint16 size);
+	void Packetize(uint8 * buf, uint16 & size) override;
+	void Unpacketize(uint16 id, uint8 * buf, uint16 size) override;
 };
 
 #endif	// Multiple include guard

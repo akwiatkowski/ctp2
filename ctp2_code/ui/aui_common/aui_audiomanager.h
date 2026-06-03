@@ -14,7 +14,7 @@ class aui_AudioManager : aui_Base
 {
 public:
 	aui_AudioManager();
-	virtual ~aui_AudioManager();
+	~aui_AudioManager() override;
 
 protected:
 	AUI_ERRCODE InitCommon( );

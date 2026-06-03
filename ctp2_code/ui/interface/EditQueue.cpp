@@ -2645,12 +2645,12 @@ class ConfirmOverwriteQueueAction:public aui_Action
   public:
 	ConfirmOverwriteQueueAction(MBCHAR *saveFileName, const MBCHAR *text) { m_saveFileName = saveFileName; strncpy(m_text, text, 256); m_text[256] = 0; }
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
   private:
 	MBCHAR m_text[257];

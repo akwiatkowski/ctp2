@@ -48,20 +48,20 @@ public:
 		EMAIL,
 		HOTSEAT
 	};
-	TYPE GetType() { return UNKNOWN; }
+	TYPE GetType() override { return UNKNOWN; }
 	virtual SUBTYPE GetSubType() = 0;
 };
 
 class EmailTransport:public FakeTransport {
 public:
 	EmailTransport();
-	SUBTYPE GetSubType() { return EMAIL; }
+	SUBTYPE GetSubType() override { return EMAIL; }
 };
 
 class HotseatTransport:public FakeTransport {
 public:
 	HotseatTransport();
-	SUBTYPE GetSubType() { return HOTSEAT; }
+	SUBTYPE GetSubType() override { return HOTSEAT; }
 };
 
 class ns_TransportListBox:public ns_ListBox<NETFunc::Transport, ns_Transport> {
@@ -75,7 +75,7 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_TransportListBox();
+	~ns_TransportListBox() override;
 };
 
 template <class NFT, class NST>
@@ -262,14 +262,14 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_PlayerListBox();
+	~ns_PlayerListBox() override;
 
 	aui_TextBase *m_pingFastStyle;
 	aui_TextBase *m_pingMedStyle;
 	aui_TextBase *m_pingSlowStyle;
 
-	virtual void Insert( NETFunc::Player *object );
-	virtual void Change( NETFunc::Player *object );
+	void Insert( NETFunc::Player *object ) override;
+	void Change( NETFunc::Player *object ) override;
 
 	void ColorCodePingTime( NETFunc::Player *object );
 };
@@ -292,14 +292,14 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_ServerListBox();
+	~ns_ServerListBox() override;
 
 	aui_TextBase *m_pingFastStyle;
 	aui_TextBase *m_pingMedStyle;
 	aui_TextBase *m_pingSlowStyle;
 
-	virtual void Insert( NETFunc::Server *object );
-	virtual void Change( NETFunc::Server *object );
+	void Insert( NETFunc::Server *object ) override;
+	void Change( NETFunc::Server *object ) override;
 
 	void ColorCodePingTime( NETFunc::Server *object );
 };
@@ -314,15 +314,15 @@ public:
 		ns_HPlayerListBox *hplayerlistbox,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_GPlayerListBox();
+	~ns_GPlayerListBox() override;
 
-	virtual void Insert( NETFunc::Player *object );
-	virtual void Delete( NETFunc::Player *object );
-	virtual void Change( NETFunc::Player *object );
-	virtual void Destroy( );
+	void Insert( NETFunc::Player *object ) override;
+	void Delete( NETFunc::Player *object ) override;
+	void Change( NETFunc::Player *object ) override;
+	void Destroy( ) override;
 	void EnableTribeButton( NETFunc::Player *player );
 
-	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
+	AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending ) override;
 
 	ns_HPlayerItem *FindHPlayerItem( NETFunc::Player *player );
 	void UpdateHPlayerItem(
@@ -349,12 +349,12 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual void Insert( nf_AIPlayer *object );
-	virtual void Delete( nf_AIPlayer *object );
-	virtual void Change( nf_AIPlayer *object );
-	virtual void Destroy( );
+	void Insert( nf_AIPlayer *object ) override;
+	void Delete( nf_AIPlayer *object ) override;
+	void Change( nf_AIPlayer *object ) override;
+	void Destroy( ) override;
 
-	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
+	AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending ) override;
 
 	ns_HPlayerItem *FindHPlayerItem( nf_AIPlayer *player );
 	void UpdateHPlayerItem(

@@ -9,12 +9,12 @@ class ldl_MemMap : public tech_MemMap
 {
 public:
 	ldl_MemMap() {;}
-	virtual ~ldl_MemMap() = default;
+	~ldl_MemMap() override = default;
 
 	virtual unsigned char *GetFileBits(
 		char *filename,
 		unsigned long *filesize = nullptr );
-	virtual void ReleaseFileBits( unsigned char *&bits );
+	void ReleaseFileBits( unsigned char *&bits ) override;
 };
 
 #endif

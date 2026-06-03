@@ -71,7 +71,7 @@ public:
 		nf_object = nullptr;
 	}
 
-	void SetKey( ) {}
+	void SetKey( ) override {}
 };
 
 #endif

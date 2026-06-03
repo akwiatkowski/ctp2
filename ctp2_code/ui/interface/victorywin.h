@@ -46,7 +46,7 @@ public:
 	WonderIconListItem(AUI_ERRCODE *retval, sint32 age, sint32 *array, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	*GetArray( ) { return m_array; }
 
@@ -58,7 +58,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(ctp2_ListItem *item2, uint32 column);
+	sint32 Compare(ctp2_ListItem *item2, uint32 column) override;
 
 private:
 	sint32	m_age;
@@ -86,7 +86,7 @@ public:
 	HighScoreListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 score, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	MBCHAR	*GetName( ) { return m_name; }
 	sint32	GetScore( ) { return m_score; }
@@ -99,7 +99,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(ctp2_ListItem *item2, uint32 column);
+	sint32 Compare(ctp2_ListItem *item2, uint32 column) override;
 
 private:
 	MBCHAR			m_name[256];

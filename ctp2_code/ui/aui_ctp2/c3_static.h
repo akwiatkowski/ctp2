@@ -63,19 +63,19 @@ public:
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon(uint32 bevelWidth, uint32 bevelType );
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface,
+	AUI_ERRCODE DrawThis(aui_Surface *surface,
 											sint32 x,
-											sint32 y);
+											sint32 y) override;
 
 	uint32 BevelWidth() { return m_bevelWidth; }
 
-	virtual bool IgnoreHighlight() { return true; }
+	bool IgnoreHighlight() override { return true; }
 
 protected:
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 
 	uint32 m_bevelWidth;
 	uint32 m_bevelType;

@@ -38,7 +38,7 @@ public:
 		Message Create(PLAYER_INDEX owner, MessageData *copy);
 		Message Recreate(PLAYER_INDEX owner, MBCHAR *msg, MBCHAR *title);
 		Message ServerCreate();
-		void Serialize(CivArchive &archive) ;
+		void Serialize(CivArchive &archive) override ;
 		void DoNetwork(MessageData *newData);
 
 		void NotifySlicReload();

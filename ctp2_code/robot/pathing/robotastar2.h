@@ -86,11 +86,11 @@ private:
 
 
 	bool EntryCost(const MapPoint & prev, const MapPoint & pos,
-					 float &cost, bool & is_zoc, ASTAR_ENTRY_TYPE & entry);
+					 float &cost, bool & is_zoc, ASTAR_ENTRY_TYPE & entry) override;
 
 	void RecalcEntryCost(AstarPoint *parent, AstarPoint *node,
 						 float &new_entry_cost, bool &new_is_zoc,
-						 ASTAR_ENTRY_TYPE &new_entry);
+						 ASTAR_ENTRY_TYPE &new_entry) override;
 
 	PathType m_pathType;
 	sint32 m_transDestCont;

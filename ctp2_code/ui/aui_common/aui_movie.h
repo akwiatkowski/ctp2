@@ -46,7 +46,7 @@ class aui_MovieFormat : public aui_FileFormat
 public:
 
 	aui_MovieFormat() = default;
-	virtual ~aui_MovieFormat() = default;
+	~aui_MovieFormat() override = default;
 
 	virtual AUI_ERRCODE	Load( MBCHAR const *filename, aui_Movie *movie )
 		{ return AUI_ERRCODE_OK; }
@@ -60,7 +60,7 @@ public:
 	aui_Movie(
 		AUI_ERRCODE *retval,
 		MBCHAR const * filename = nullptr );
-	virtual ~aui_Movie();
+	~aui_Movie() override;
 
 protected:
 	AUI_ERRCODE InitCommon( MBCHAR const * filename );
@@ -167,9 +167,9 @@ class aui_AviMovieFormat : public aui_MovieFormat
 public:
 
 	aui_AviMovieFormat() = default;
-	virtual ~aui_AviMovieFormat() = default;
+	~aui_AviMovieFormat() override = default;
 
-	virtual AUI_ERRCODE	Load( MBCHAR const * filename, aui_Movie *movie )
+	AUI_ERRCODE	Load( MBCHAR const * filename, aui_Movie *movie ) override
 	{ return AUI_ERRCODE_OK; }
 };
 

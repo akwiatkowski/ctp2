@@ -29,17 +29,17 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~C3Window() = default;
+	~C3Window() override = default;
 
 protected:
 	C3Window() : aui_Window() {}
 	AUI_ERRCODE InitCommon( );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 private:
 	bool m_bevel;

@@ -84,7 +84,7 @@ private:
 
 public:
 	NetThread();
-	virtual ~NetThread();
+	~NetThread() override;
 
 	void Run();
 
@@ -93,24 +93,24 @@ public:
 
 
 
-	NET_ERR Init(NetIOResponse *response);
-	NET_ERR EnumTransports();
-	NET_ERR SetTransport(sint32 trans_id);
-	NET_ERR Host(char* sessionName);
-	NET_ERR EnumSessions();
-	NET_ERR Join(sint32 index);
-	NET_ERR GetMyId(uint16& id);
-	NET_ERR GetHostId(uint16& id);
-	NET_ERR EnumPlayers();
-	NET_ERR Send(uint16 id, sint32 flags, uint8* buf, sint32 len);
-	NET_ERR SendCompressed(uint16 id, sint32 flags, uint8* buf, sint32 len);
-	NET_ERR Idle();
-	NET_ERR SetName(char* name);
-	NET_ERR SetLobby(char* serverName);
-	NET_ERR SetMaxPlayers(uint16 players, bool lock);
-	NET_ERR KickPlayer(uint16 player);
-	NET_ERR Reset();
-	BOOL    ReadyForData();
+	NET_ERR Init(NetIOResponse *response) override;
+	NET_ERR EnumTransports() override;
+	NET_ERR SetTransport(sint32 trans_id) override;
+	NET_ERR Host(char* sessionName) override;
+	NET_ERR EnumSessions() override;
+	NET_ERR Join(sint32 index) override;
+	NET_ERR GetMyId(uint16& id) override;
+	NET_ERR GetHostId(uint16& id) override;
+	NET_ERR EnumPlayers() override;
+	NET_ERR Send(uint16 id, sint32 flags, uint8* buf, sint32 len) override;
+	NET_ERR SendCompressed(uint16 id, sint32 flags, uint8* buf, sint32 len) override;
+	NET_ERR Idle() override;
+	NET_ERR SetName(char* name) override;
+	NET_ERR SetLobby(char* serverName) override;
+	NET_ERR SetMaxPlayers(uint16 players, bool lock) override;
+	NET_ERR KickPlayer(uint16 player) override;
+	NET_ERR Reset() override;
+	BOOL    ReadyForData() override;
 
 	TPacketData *FindSplitStart(uint16 from);
 
@@ -120,25 +120,25 @@ public:
 	void EnumTransport(NET_ERR result,
 					   sint32 index,
 					   const char* transname,
-					   void* transdata);
+					   void* transdata) override;
 	void EnumSession(NET_ERR result,
 					 sint32 index,
 					 const char* sessionName,
-					 void* sessionData);
+					 void* sessionData) override;
 	void SessionReady(NET_ERR result,
-					  void* sessionData);
+					  void* sessionData) override;
 	void PacketReady(sint32 from,
 					 uint8* buf,
-					 sint32 size);
+					 sint32 size) override;
 	void AddPlayer(uint16 id,
-				   char* name);
-	void RemovePlayer(uint16 id);
-	void SetToHost();
-	void ChangeHost(uint16 id);
-	void SessionLost();
+				   char* name) override;
+	void RemovePlayer(uint16 id) override;
+	void SetToHost() override;
+	void ChangeHost(uint16 id) override;
+	void SessionLost() override;
 
 
-	bool ReadyForPackets() { return true; }
+	bool ReadyForPackets() override { return true; }
 };
 
 #endif

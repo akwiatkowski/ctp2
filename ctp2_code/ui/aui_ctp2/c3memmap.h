@@ -16,7 +16,7 @@ class C3MemMap : public aui_MemMap
 public:
     C3MemMap() : aui_MemMap() {};
 
-	virtual aui_FileFormat * GetFileFormat(MBCHAR const * filename);
+	aui_FileFormat * GetFileFormat(MBCHAR const * filename) override;
 };
 
 #endif

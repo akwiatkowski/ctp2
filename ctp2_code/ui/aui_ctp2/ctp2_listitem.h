@@ -55,9 +55,9 @@ public:
 	CTP2ItemCompareCallback *   m_compareCallback;
 
 	ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock);
-	virtual ~ctp2_ListItem();
+	~ctp2_ListItem() override;
 
-	virtual AUI_ERRCODE Draw( aui_Surface *surface, sint32 x, sint32 y );
+	AUI_ERRCODE Draw( aui_Surface *surface, sint32 x, sint32 y ) override;
 
 
 

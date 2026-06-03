@@ -16,17 +16,17 @@ class GameSelectWindow : public ns_Window
 public:
 
 	GameSelectWindow( AUI_ERRCODE *retval );
-	virtual ~GameSelectWindow();
+	~GameSelectWindow() override;
 
 protected:
 	GameSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( );
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 	nf_GameSetup *GetGameSetup(NETFunc::Session *session);
 
 	void PasswordScreenDone( MBCHAR *password );
@@ -60,16 +60,16 @@ class StartSelectingWindow : public ns_Window
 public:
 
 	StartSelectingWindow( AUI_ERRCODE *retval );
-	virtual ~StartSelectingWindow();
+	~StartSelectingWindow() override;
 
 protected:
 	StartSelectingWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 
 
 	enum CONTROL

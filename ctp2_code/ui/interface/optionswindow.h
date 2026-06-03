@@ -40,7 +40,7 @@ public:
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true);
-	virtual ~OptionsWindow();
+	~OptionsWindow() override;
 
 	sint32 EnableButtons( );
 	sint32 DisableButtons( );

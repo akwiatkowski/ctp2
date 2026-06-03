@@ -86,7 +86,7 @@ public:
 		sint32 bpp,
 		MBCHAR *ldlFilename = nullptr,
 		BOOL useExclusiveMode = FALSE );
-	virtual ~C3UI();
+	~C3UI() override;
 
 	aui_Resource<Pattern>	*GetPatternResource( ) const { return m_patternResource; }
 

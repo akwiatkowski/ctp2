@@ -140,7 +140,7 @@ public:
 	void ToString(MBCHAR *s) ;
 
 	void Dump(const sint32 i) ;
-	void Serialize(CivArchive &archive) ;
+	void Serialize(CivArchive &archive) override ;
 
 	BOOL IsBroken() const { return m_isBroken; }
 	void Break();

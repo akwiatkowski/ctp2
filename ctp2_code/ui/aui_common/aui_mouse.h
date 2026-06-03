@@ -100,7 +100,7 @@ public:
 	aui_Mouse(
 		AUI_ERRCODE *retval,
 		MBCHAR *ldlBlock );
-	virtual ~aui_Mouse();
+	~aui_Mouse() override;
 
 protected:
 	aui_Mouse() {}
@@ -171,7 +171,7 @@ public:
 
 	void SetAnim( sint32 anim );
 
-	virtual AUI_ERRCODE ReactToInput( );
+	AUI_ERRCODE ReactToInput( ) override;
 
 	BOOL	ShouldTerminateThread( );
 

@@ -68,36 +68,36 @@ public:
 	{ *retval = InitCommonLdl(ldlBlock, ldlTemplate,
 		x, y, width, height); }
 
-	virtual ~ctp2_Button();
+	~ctp2_Button() override;
 
 	AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock, MBCHAR *ldlTemplate,
 		sint32 x, sint32 y, sint32 width, sint32 height);
 
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
-								 sint32 x = 0, sint32 y = 0);
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
+								 sint32 x = 0, sint32 y = 0) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
 
 	static const sint32 k_CTP2_BUTTON_LAYER_FLAG_UP;
 	static const sint32 k_CTP2_BUTTON_LAYER_FLAG_DOWN;
 	static const sint32 k_CTP2_BUTTON_LAYER_FLAG_UP_ON;
 
-	virtual bool IgnoreHighlight() { return m_ignoreHighlight; }
+	bool IgnoreHighlight() override { return m_ignoreHighlight; }
 
-	virtual bool CanAttract() { return true; }
-	virtual void SetAttract(bool on, uint32 ticksSinceStart) ;
-	virtual bool GetAttracting() { return m_attract; }
+	bool CanAttract() override { return true; }
+	void SetAttract(bool on, uint32 ticksSinceStart) override ;
+	bool GetAttracting() override { return m_attract; }
 
 	void SetToggleState(bool state);
 	bool GetToggleState() { return m_toggleState; }
 
 private:
 
-	virtual void ResetCurrentRenderFlags();
+	void ResetCurrentRenderFlags() override;
 
 	void RenderDown(bool status = true);
 

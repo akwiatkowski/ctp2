@@ -26,7 +26,7 @@ public:
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~BattleViewWindow();
+	~BattleViewWindow() override;
 
 	void SetupBattle(Battle *battle);
 	void UpdateBattle(Battle *battle);
@@ -49,11 +49,11 @@ protected:
 	AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
-	virtual AUI_ERRCODE Idle();
+		sint32 y = 0 ) override;
+	AUI_ERRCODE Idle() override;
 
 private:
 
@@ -113,12 +113,12 @@ public:
         m_killBattle    (kill)
     { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 private:
 	bool m_killBattle;

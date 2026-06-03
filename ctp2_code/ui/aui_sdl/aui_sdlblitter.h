@@ -10,13 +10,13 @@ class aui_SDLBlitter : public aui_Blitter
 public:
 
 	aui_SDLBlitter() = default;
-	virtual ~aui_SDLBlitter() = default;
+	~aui_SDLBlitter() override = default;
 
-	virtual RobustBltFunc Blt;
-	virtual NakedBltFunc Blt16To16;
-	virtual NakedColorBltFunc ColorBlt16;
-	virtual NakedStretchBltFunc StretchBlt16To16;
-	virtual NakedColorStencilBltFunc ColorStencilBlt16;
+	RobustBltFunc Blt override;
+	NakedBltFunc Blt16To16 override;
+	NakedColorBltFunc ColorBlt16 override;
+	NakedStretchBltFunc StretchBlt16To16 override;
+	NakedColorStencilBltFunc ColorStencilBlt16 override;
 
 protected:
 };

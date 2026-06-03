@@ -14,14 +14,14 @@ public:
 	ctp2_TabGroup(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
-	virtual ~ctp2_TabGroup();
+	~ctp2_TabGroup() override;
 
-	virtual AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock);
+	AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock) override;
 
-	virtual AUI_ERRCODE	Show();
+	AUI_ERRCODE	Show() override;
 
 
-	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y) override;
 
 	void SelectTab(ctp2_Tab *tab);
 

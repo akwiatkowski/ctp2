@@ -95,7 +95,7 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_ListBox();
+	~aui_ListBox() override;
 
 protected:
 	aui_ListBox() : aui_Control() {}
@@ -104,9 +104,9 @@ protected:
 	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = nullptr );
 
 public:
-	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
-	virtual AUI_ERRCODE Show( );
+	AUI_ERRCODE Show( ) override;
 
 	aui_Control	*GetPane( ) const
 		{ return m_pane; }
@@ -207,14 +207,14 @@ public:
 
 	AUI_ERRCODE	RangerMoved( );
 
-	virtual AUI_ERRCODE Draw(
+	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
-	virtual AUI_ERRCODE DrawThis(
+		sint32 y = 0 ) override;
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 ) { return aui_Control::DrawThis( surface, x, y ); }
+		sint32 y = 0 ) override { return aui_Control::DrawThis( surface, x, y ); }
 
 	sint32 GetSortColumn( ) const { return m_sortColumn; }
 	BOOL GetSortAscending( ) const { return m_sortAscending; }
@@ -236,8 +236,8 @@ public:
 
 	void SetIgnoreOutsideDrops(bool ignore) { m_ignoreOutsideDrops = ignore; }
 
-	virtual void SendKeyboardAction();
-	virtual bool HandleKey(uint32 wParam);
+	void SendKeyboardAction() override;
+	bool HandleKey(uint32 wParam) override;
 
 	void SetKeyboardActionControl(aui_Control *control);
 
@@ -254,7 +254,7 @@ protected:
 	virtual AUI_ERRCODE	RepositionHeaderSwitches( );
 	virtual AUI_ERRCODE	RepositionRangers( );
 
-	virtual aui_DragDropWindow *CreateDragDropWindow( aui_Control *dragDropItem );
+	aui_DragDropWindow *CreateDragDropWindow( aui_Control *dragDropItem ) override;
 
 	sint32		ItemsPerWidth( sint32 column );
 	sint32		ColumnWidth( sint32 column );
@@ -338,28 +338,28 @@ protected:
 
 	bool        m_sendRightClicks;
 
-	virtual void	PreChildrenCallback    (aui_MouseEvent * mouseData);
-	virtual void	PostChildrenCallback   (aui_MouseEvent * mouseData);
+	void	PreChildrenCallback    (aui_MouseEvent * mouseData) override;
+	void	PostChildrenCallback   (aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseMoveOver          (aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside        (aui_MouseEvent * mouseData);
-	virtual void	MouseMoveAway          (aui_MouseEvent * mouseData);
+	void	MouseMoveOver          (aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside        (aui_MouseEvent * mouseData) override;
+	void	MouseMoveAway          (aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDragOver         (aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway         (aui_MouseEvent * mouseData);
-	virtual void	MouseLDragInside       (aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOutside      (aui_MouseEvent * mouseData);
+	void	MouseLDragOver         (aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway         (aui_MouseEvent * mouseData) override;
+	void	MouseLDragInside       (aui_MouseEvent * mouseData) override;
+	void	MouseLDragOutside      (aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLGrabInside       (aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside       (aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside      (aui_MouseEvent * mouseData);
+	void	MouseLGrabInside       (aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside       (aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside      (aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDoubleClickInside(aui_MouseEvent * mouseData);
+	void	MouseLDoubleClickInside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseRGrabInside       (aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside       (aui_MouseEvent * mouseData);
-	virtual void	MouseRDragAway         (aui_MouseEvent * mouseData);
-	virtual void	MouseRDragOver         (aui_MouseEvent * mouseData);
+	void	MouseRGrabInside       (aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside       (aui_MouseEvent * mouseData) override;
+	void	MouseRDragAway         (aui_MouseEvent * mouseData) override;
+	void	MouseRDragOver         (aui_MouseEvent * mouseData) override;
 };
 
 aui_Control::ControlActionCallback ListBoxRangerActionCallback;

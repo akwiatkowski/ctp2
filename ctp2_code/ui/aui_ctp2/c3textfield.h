@@ -32,7 +32,7 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3TextField() = default;
+	~C3TextField() override = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 
@@ -41,10 +41,10 @@ protected:
 	AUI_ERRCODE InitCommon( sint32 bevelWidth  );
 
 public:
-	virtual AUI_ERRCODE	DrawThis(
+	AUI_ERRCODE	DrawThis(
 		aui_Surface *surface,
 		sint32 x,
-		sint32 y );
+		sint32 y ) override;
 
 private:
 	sint32	m_bevelWidth;

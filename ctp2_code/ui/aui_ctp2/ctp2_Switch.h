@@ -59,17 +59,17 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_CTP2_SWITCH_DEFAULTNUMSTATES );
-	virtual ~ctp2_Switch() = default;
+	~ctp2_Switch() override = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 	sint32 BevelWidth( ) const { return m_bevelWidth; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual void	MouseLDoubleClickInside(aui_MouseEvent * mouseData);
+	void	MouseLDoubleClickInside(aui_MouseEvent * mouseData) override;
 
 protected:
 	ctp2_Switch() : aui_Switch() {}

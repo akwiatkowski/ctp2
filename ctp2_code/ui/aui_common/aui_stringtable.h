@@ -29,7 +29,7 @@ public:
 		AUI_ERRCODE *   retval,
 		size_t          numStrings = 0
     );
-	virtual ~aui_StringTable();
+	~aui_StringTable() override;
 
 	sint32	    GetNumStrings( ) const
     {

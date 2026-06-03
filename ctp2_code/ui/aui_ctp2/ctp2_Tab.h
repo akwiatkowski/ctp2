@@ -25,9 +25,9 @@ public:
 	ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
-	virtual ~ctp2_Tab();
+	~ctp2_Tab() override;
 
-	virtual AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock);
+	AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock) override;
 
 	void Activate();
 

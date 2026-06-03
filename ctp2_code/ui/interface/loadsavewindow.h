@@ -79,7 +79,7 @@ public:
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true);
 
-	virtual ~LoadSaveWindow();
+	~LoadSaveWindow() override;
 
 	void FillListOne();
 	void FillListTwo(GameInfo *info);
@@ -189,9 +189,9 @@ class LSCivsListItem : public c3_ListItem
 {
 public:
 	LSCivsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, const MBCHAR *name);
-	~LSCivsListItem();
+	~LSCivsListItem() override;
 
-	sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	c3_Static *m_myItem;
@@ -201,9 +201,9 @@ class LSGamesListItem : public c3_ListItem
 {
 public:
 	LSGamesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameInfo *info);
-	~LSGamesListItem();
+	~LSGamesListItem() override;
 
-	sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	GameInfo	*GetGameInfo() const { return m_info; }
 
@@ -218,9 +218,9 @@ class LSSavesListItem : public c3_ListItem
 {
 public:
 	LSSavesListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveInfo *info);
-	~LSSavesListItem();
+	~LSSavesListItem() override;
 
-	sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	MBCHAR *GetText( ) const { return m_itemText->GetText(); }
 

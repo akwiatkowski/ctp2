@@ -25,15 +25,15 @@ class WatchListItem : public c3_ListItem, public SlicSymbolWatchCallback
 public:
 	WatchListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *line,
 				  MBCHAR *ldlBlock);
-	virtual ~WatchListItem();
+	~WatchListItem() override;
 
-	virtual void Update();
+	void Update() override;
 
-	void WatchCallback(SlicSymbolData *symbol, bool isAddCallback);
-	void WatchVariableDeleted(SlicSymbolData *symbol);
+	void WatchCallback(SlicSymbolData *symbol, bool isAddCallback) override;
+	void WatchVariableDeleted(SlicSymbolData *symbol) override;
 
 	MBCHAR *GetLine();
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 	void ToggleBreak() { m_break = !m_break; }
 
 protected:
@@ -54,7 +54,7 @@ class WatchList : public KeyboardHandler
 {
 public:
 	WatchList(WatchListCallback callback = nullptr, MBCHAR *ldlBlock = nullptr);
-	virtual ~WatchList();
+	~WatchList() override;
 
 //public:
 	sint32 Initialize(MBCHAR *ldlBlock);
@@ -64,7 +64,7 @@ public:
 	void RemoveWindow();
 	void DisplayWindow();
 
-	virtual void kh_Close();
+	void kh_Close() override;
 
 	c3_ListBox *GetList() { return m_list; }
 	void ShowBreak(sint32 offset);

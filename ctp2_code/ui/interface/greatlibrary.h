@@ -129,12 +129,12 @@ class TechListItem: public ctp2_ListItem
 public:
 	TechListItem(AUI_ERRCODE *retval, sint32 index, DATABASE database, MBCHAR *ldlBlock);
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex() const { return m_index; }
 	DATABASE GetDatabase() const { return m_database; }
 
-	virtual sint32 Compare(ctp2_ListItem *item2, uint32 column);
+	sint32 Compare(ctp2_ListItem *item2, uint32 column) override;
 
 protected:
     TechListItem()
@@ -155,7 +155,7 @@ class GreatLibrary : public KeyboardHandler
 {
 public:
 	GreatLibrary( sint32 theMode );
-	virtual ~GreatLibrary( );
+	~GreatLibrary( ) override;
 
 	static void Initialize_Great_Library_Data();
 	static void Shutdown_Great_Library_Data();
@@ -179,7 +179,7 @@ public:
 
 	void Display( );
 	void Remove( );
-	void kh_Close();
+	void kh_Close() override;
 
 	sint32 SetLibrary( sint32 theMode, DATABASE theDatabase,
 		bool add_to_history = true);

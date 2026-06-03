@@ -187,7 +187,7 @@ public:
 		MBCHAR *choiceOff, MBCHAR *choiceOn, uint32 onoff = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	~TwoChoiceButton() = default;
+	~TwoChoiceButton() override = default;
 
 	uint32	GetChoice() { return m_choice; };
 	uint32 Switch();
@@ -296,7 +296,7 @@ public:
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true);
-	virtual ~SPNewGameWindow();
+	~SPNewGameWindow() override;
 
 	void Update( );
 
@@ -360,8 +360,8 @@ class SPDropDownListItem : public c3_ListItem
 {
 public:
 	SPDropDownListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock,MBCHAR *type,const MBCHAR *name);
-	~SPDropDownListItem();
-	sint32 Compare(c3_ListItem *item2, uint32 column){return 0; };
+	~SPDropDownListItem() override;
+	sint32 Compare(c3_ListItem *item2, uint32 column) override{return 0; };
 private:
 	c3_Static *m_myItem;
 };

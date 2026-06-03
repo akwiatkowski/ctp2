@@ -311,7 +311,7 @@ public:
 	// of pointer-typed members + from_json (see json_save.cpp).
 	explicit UnitData(nlohmann::json const &j);
 
-	virtual ~UnitData();
+	~UnitData() override;
 
 	bool Flag(uint32 f) const { return (m_flags & f) != 0; }
 	void SetFlag(uint32 f) { m_flags |= f; }
@@ -393,7 +393,7 @@ public:
 	CityData* GetCityData() const { return m_city_data; }
 	void InitializeCityData(sint32 settlerType = -1);
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 #ifdef _DEBUG
 	char const * GetText() const;
 	void SetText(char const * str);
@@ -583,7 +583,7 @@ public:
 	ORDER_RESULT ThrowParty(Unit c, sint32 gold);
 	void HearGossip(Unit c);
 
-	void CityRadiusFunc(const MapPoint &pos);
+	void CityRadiusFunc(const MapPoint &pos) override;
 	bool IsCapitol() const;
 
 	void MakeFranchise(sint32 player);

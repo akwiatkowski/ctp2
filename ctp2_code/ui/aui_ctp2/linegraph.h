@@ -99,7 +99,7 @@ public:
 	                sint32 height,
 	                ControlActionCallback *ActionFunc = nullptr,
 	                void *cookie = nullptr);
-	virtual ~LineGraph();
+	~LineGraph() override;
 
 	void		SetXBounds(double min, double max) { m_xmin = min; m_xmax = max; }
 	void		SetYBounds(double min, double max) { m_ymin = min; m_ymax = max; }
@@ -134,7 +134,7 @@ public:
 
 	LineGraphData *GetData() { return m_data; }
 
-	virtual AUI_ERRCODE		DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE		DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
 	aui_Surface	*   GetGraphSurface() const { return m_surface; }
 

@@ -92,7 +92,7 @@
 class GlobalSymbol_Year : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_Year);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		value = turn_Get()->GetSessionRound();
 		return TRUE;
 	}
@@ -101,7 +101,7 @@ class GlobalSymbol_Year : public SlicStructMemberData {
 class GlobalSymbol_YearString : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_YearString);
 
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		player_view::GetCurrentYearString(text, (size_t)maxLen);
 		return TRUE;
 	}
@@ -110,12 +110,12 @@ class GlobalSymbol_YearString : public SlicStructMemberData {
 class GlobalSymbol_Player : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_Player);
 
-	BOOL GetPlayer(sint32 &player) const {
+	BOOL GetPlayer(sint32 &player) const override {
 		player = player_view::CurPlayer();
 		return TRUE;
 	};
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
 	{
 		return GetPlayer(value);
 	};
@@ -124,7 +124,7 @@ class GlobalSymbol_Player : public SlicStructMemberData {
 class GlobalSymbol_NumOfPlayers : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_NumOfPlayers);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		value = 0;
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -138,7 +138,7 @@ class GlobalSymbol_NumOfPlayers : public SlicStructMemberData {
 class GlobalSymbol_LastPlayer : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_LastPlayer);
 
-	BOOL GetPlayer(sint32 &player) const {
+	BOOL GetPlayer(sint32 &player) const override {
 		player = 0;
 		sint32 i;
 		for(i = 0; i < k_MAX_PLAYERS; i++) {
@@ -148,7 +148,7 @@ class GlobalSymbol_LastPlayer : public SlicStructMemberData {
 		return TRUE;
 	}
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
 	{
 		return GetPlayer(value);
 	};
@@ -157,7 +157,7 @@ class GlobalSymbol_LastPlayer : public SlicStructMemberData {
 class GlobalSymbol_MaxPlayers : public SlicStructMemberData {
 	DEF_MAKECOPY(GlobalSymbol_MaxPlayers);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		value = k_MAX_PLAYERS;
 		return TRUE;
 	}
@@ -179,9 +179,9 @@ SlicStruct_Global::SlicStruct_Global() :
 class UnitSymbol_Owner : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_Owner);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
 
-	BOOL GetPlayer(sint32 &val) const {
+	BOOL GetPlayer(sint32 &val) const override {
 		Unit unit;
 		BOOL res = m_parent->GetDataSymbol()->GetUnit(unit);
 		Assert(res);
@@ -193,7 +193,7 @@ class UnitSymbol_Owner : public SlicStructMemberData {
 		}
 	}
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
     {
         return GetPlayer(value);
 	}
@@ -201,8 +201,8 @@ class UnitSymbol_Owner : public SlicStructMemberData {
 
 class UnitSymbol_Location : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_Location);
-	SLIC_SYM GetType() const { return SLIC_SYM_LOCATION; }
-	BOOL GetPos(MapPoint &pos) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_LOCATION; }
+	BOOL GetPos(MapPoint &pos) const override {
 		Unit unit;
 		BOOL res = m_parent->GetDataSymbol()->GetUnit(unit);
 		Assert(res);
@@ -218,7 +218,7 @@ class UnitSymbol_Location : public SlicStructMemberData {
 class UnitSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_Type);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit unit;
 		if (m_parent->GetDataSymbol()->GetUnit(unit))
         {
@@ -233,7 +233,7 @@ class UnitSymbol_Type : public SlicStructMemberData {
 class UnitSymbol_HP : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_HP);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit unit;
 		if (m_parent->GetDataSymbol()->GetUnit(unit))
         {
@@ -248,7 +248,7 @@ class UnitSymbol_HP : public SlicStructMemberData {
 class UnitSymbol_ActualMaxHP : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_ActualMaxHP);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit unit;
 		if (m_parent->GetDataSymbol()->GetUnit(unit))
         {
@@ -263,7 +263,7 @@ class UnitSymbol_ActualMaxHP : public SlicStructMemberData {
 class UnitSymbol_Valid : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_Valid);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit unit;
 		value = m_parent->GetDataSymbol()->GetUnit(unit);
 		return TRUE;
@@ -272,8 +272,8 @@ class UnitSymbol_Valid : public SlicStructMemberData {
 
 class UnitSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		Unit u;
 		BOOL res = m_parent->GetDataSymbol()->GetUnit(u);
 		Assert(res);
@@ -284,7 +284,7 @@ class UnitSymbol_Name : public SlicStructMemberData {
 		return FALSE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		Unit u;
 		if (m_parent->GetDataSymbol()->GetUnit(u))
 	    {
@@ -312,9 +312,9 @@ SlicStruct_Unit::SlicStruct_Unit() :
 class CitySymbol_Owner : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Owner);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
 
-    BOOL GetPlayer(sint32 &val) const
+    BOOL GetPlayer(sint32 &val) const override
     {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
@@ -325,7 +325,7 @@ class CitySymbol_Owner : public SlicStructMemberData {
 		return res;
 	};
 
-    BOOL GetIntValue(sint32 & val) const
+    BOOL GetIntValue(sint32 & val) const override
     {
         return GetPlayer(val);
     };
@@ -333,8 +333,8 @@ class CitySymbol_Owner : public SlicStructMemberData {
 
 class CitySymbol_Location : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Location);
-	SLIC_SYM GetType() const { return SLIC_SYM_LOCATION; }
-	BOOL GetPos(MapPoint &pos) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_LOCATION; }
+	BOOL GetPos(MapPoint &pos) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -350,7 +350,7 @@ class CitySymbol_Location : public SlicStructMemberData {
 
 class CitySymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Name);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -365,8 +365,8 @@ class CitySymbol_Name : public SlicStructMemberData {
 class CitySymbol_Population : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Population);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -381,8 +381,8 @@ class CitySymbol_Population : public SlicStructMemberData {
 class CitySymbol_Happiness : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Happiness);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override
 	{
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
@@ -402,8 +402,8 @@ class CitySymbol_Happiness : public SlicStructMemberData {
 class CitySymbol_NetCityGold : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_NetCityGold);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -419,8 +419,8 @@ class CitySymbol_NetCityGold : public SlicStructMemberData {
 class CitySymbol_GoldFromTradeRoutes : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_GoldFromTradeRoutes);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -435,7 +435,7 @@ class CitySymbol_GoldFromTradeRoutes : public SlicStructMemberData {
 
 class CitySymbol_Building : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Building);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -454,7 +454,7 @@ class CitySymbol_Building : public SlicStructMemberData {
 		return FALSE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -480,8 +480,8 @@ class CitySymbol_Building : public SlicStructMemberData {
 class CitySymbol_BuildingTime : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_BuildingTime);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -497,8 +497,8 @@ class CitySymbol_BuildingTime : public SlicStructMemberData {
 class CitySymbol_BuildQueueLength : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_BuildQueueLength);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		BOOL res = m_parent->GetDataSymbol()->GetCity(city);
 		Assert(res);
@@ -514,7 +514,7 @@ class CitySymbol_BuildQueueLength : public SlicStructMemberData {
 class CitySymbol_Valid : public SlicStructMemberData {
 	DEF_MAKECOPY(CitySymbol_Valid);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		Unit city;
 		value = m_parent->GetDataSymbol()->GetCity(city);
 		return TRUE;
@@ -544,12 +544,12 @@ SlicStruct_City::SlicStruct_City() :
 class PlayerSymbol_Owner : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Owner);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 
-	BOOL GetPlayer(sint32 &value) const {
+	BOOL GetPlayer(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetPlayer(value);
 	}
 
@@ -557,7 +557,7 @@ class PlayerSymbol_Owner : public SlicStructMemberData {
 
 class PlayerSymbol_Cities : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Cities);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -571,7 +571,7 @@ class PlayerSymbol_Cities : public SlicStructMemberData {
 
 class PlayerSymbol_Units : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Units);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -585,7 +585,7 @@ class PlayerSymbol_Units : public SlicStructMemberData {
 
 class PlayerSymbol_Armies : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Armies);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -601,7 +601,7 @@ class PlayerSymbol_Armies : public SlicStructMemberData {
 
 class PlayerSymbol_Government : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Government);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -617,7 +617,7 @@ class PlayerSymbol_Government : public SlicStructMemberData {
 
 class PlayerSymbol_MilitaryUnits : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_MilitaryUnits);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL const res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -641,7 +641,7 @@ class PlayerSymbol_MilitaryUnits : public SlicStructMemberData {
 
 class PlayerSymbol_TotalPopulation : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_TotalPopulation);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -655,7 +655,7 @@ class PlayerSymbol_TotalPopulation : public SlicStructMemberData {
 
 class PlayerSymbol_TotalPollution : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_TotalPollution);
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -669,7 +669,7 @@ class PlayerSymbol_TotalPollution : public SlicStructMemberData {
 
 class PlayerSymbol_Capital : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Capital);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		Unit capitol;
 		BOOL const res = GetCity(capitol);
 		if (res)
@@ -684,7 +684,7 @@ class PlayerSymbol_Capital : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to allow to access the capital
 	// as city_t.
-	BOOL GetCity(Unit &city) const {
+	BOOL GetCity(Unit &city) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -706,7 +706,7 @@ class PlayerSymbol_Capital : public SlicStructMemberData {
 
 class PlayerSymbol_LargestCity : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_LargestCity);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		Unit        largestCity;
 		BOOL const  res = GetCity(largestCity);
 		if (res)
@@ -721,7 +721,7 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to allow to access the largest city
 	// as city_t.
-	BOOL GetCity(Unit &city) const
+	BOOL GetCity(Unit &city) const override
     {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
@@ -759,7 +759,7 @@ class PlayerSymbol_LargestCity : public SlicStructMemberData {
 
 class PlayerSymbol_Researching : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Researching);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -770,7 +770,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		PLAYER_INDEX pl = PLAYER_UNASSIGNED;
 		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
@@ -781,7 +781,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to allow to access the database index
 	// of the current research project.
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		PLAYER_INDEX pl = PLAYER_UNASSIGNED;
 		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
@@ -795,7 +795,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 
 class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_MilitaryState);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -820,7 +820,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -848,7 +848,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to allow to access the index of
 	// the current military readiness level.
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		PLAYER_INDEX    pl   = PLAYER_UNASSIGNED;
 		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
         {
@@ -862,7 +862,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 
 class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_LeaderPersonality);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		PLAYER_INDEX    pl = PLAYER_UNASSIGNED;
 		if (m_parent->GetDataSymbol()->GetPlayer(pl) && player_Get(pl))
 		{
@@ -877,7 +877,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to allow access to the database personality
 	// index of the player leader's personality.
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -893,7 +893,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 
 class PlayerSymbol_GovtType : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_GovtType);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -906,7 +906,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		return FALSE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -918,7 +918,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 	}
 	// Added by Martin G�hmann to access the database index of the
 	// current player's government.
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -934,7 +934,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 
 class PlayerSymbol_CivNamePlural : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_CivNamePlural);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -949,7 +949,7 @@ class PlayerSymbol_CivNamePlural : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -967,7 +967,7 @@ class PlayerSymbol_CivNamePlural : public SlicStructMemberData {
 
 class PlayerSymbol_CivNameSingular : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_CivNameSingular);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -977,7 +977,7 @@ class PlayerSymbol_CivNameSingular : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -990,7 +990,7 @@ class PlayerSymbol_CivNameSingular : public SlicStructMemberData {
 
 class PlayerSymbol_LeaderName : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_LeaderName);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1001,7 +1001,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 		return FALSE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1025,7 +1025,7 @@ class PlayerSymbol_LeaderName : public SlicStructMemberData {
 
 class PlayerSymbol_CountryName : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_CountryName);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1035,7 +1035,7 @@ class PlayerSymbol_CountryName : public SlicStructMemberData {
 		}
 		return FALSE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1048,7 +1048,7 @@ class PlayerSymbol_CountryName : public SlicStructMemberData {
 
 class PlayerSymbol_He : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_He);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1066,7 +1066,7 @@ class PlayerSymbol_He : public SlicStructMemberData {
 
 class PlayerSymbol_Him : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Him);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1084,7 +1084,7 @@ class PlayerSymbol_Him : public SlicStructMemberData {
 
 class PlayerSymbol_His : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_His);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1102,7 +1102,7 @@ class PlayerSymbol_His : public SlicStructMemberData {
 
 class PlayerSymbol_HeCap : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_HeCap);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1120,7 +1120,7 @@ class PlayerSymbol_HeCap : public SlicStructMemberData {
 
 class PlayerSymbol_HimCap : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_HimCap);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1138,7 +1138,7 @@ class PlayerSymbol_HimCap : public SlicStructMemberData {
 
 class PlayerSymbol_HisCap : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_HisCap);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1156,7 +1156,7 @@ class PlayerSymbol_HisCap : public SlicStructMemberData {
 
 class PlayerSymbol_Sir : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_Sir);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1174,7 +1174,7 @@ class PlayerSymbol_Sir : public SlicStructMemberData {
 
 class PlayerSymbol_SirCap : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_SirCap);
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1193,7 +1193,7 @@ class PlayerSymbol_SirCap : public SlicStructMemberData {
 class PlayerSymbol_PublicWorksTax : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_PublicWorksTax);
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
 	{
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
@@ -1206,7 +1206,7 @@ class PlayerSymbol_PublicWorksTax : public SlicStructMemberData {
 class PlayerSymbol_PublicWorksLevel : public SlicStructMemberData {
 	DEF_MAKECOPY(PlayerSymbol_PublicWorksLevel);
 
-	BOOL GetIntValue(sint32 &value) const {
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
@@ -1253,8 +1253,8 @@ SlicStruct_Player::SlicStruct_Player() :
 class ArmySymbol_Owner : public SlicStructMemberData {
 	DEF_MAKECOPY(ArmySymbol_Owner);
 
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetPlayer(sint32 &val) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetPlayer(sint32 &val) const override {
 		Army army;
 		BOOL res = m_parent->GetDataSymbol()->GetArmy(army);
 
@@ -1265,7 +1265,7 @@ class ArmySymbol_Owner : public SlicStructMemberData {
 		return TRUE;
 	}
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
     {
 		return GetPlayer(value);
 	}
@@ -1273,9 +1273,9 @@ class ArmySymbol_Owner : public SlicStructMemberData {
 
 class ArmySymbol_Location : public SlicStructMemberData {
 	DEF_MAKECOPY(ArmySymbol_Location);
-	SLIC_SYM GetType() const { return SLIC_SYM_LOCATION; }
+	SLIC_SYM GetType() const override { return SLIC_SYM_LOCATION; }
 
-	BOOL GetPos(MapPoint &pos) const {
+	BOOL GetPos(MapPoint &pos) const override {
 		Army army;
 		BOOL res = m_parent->GetDataSymbol()->GetArmy(army);
 
@@ -1289,9 +1289,9 @@ class ArmySymbol_Location : public SlicStructMemberData {
 
 class ArmySymbol_Size : public SlicStructMemberData {
 	DEF_MAKECOPY(ArmySymbol_Size);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
 
-	BOOL GetIntValue(sint32 &value) const
+	BOOL GetIntValue(sint32 &value) const override
     {
 		Army army;
 		BOOL const res = m_parent->GetDataSymbol()->GetArmy(army);
@@ -1316,8 +1316,8 @@ SlicStruct_Army::SlicStruct_Army() :
 
 class LocationSymbol_Location : public SlicStructMemberData {
 	DEF_MAKECOPY(LocationSymbol_Location);
-	SLIC_SYM GetType() const { return SLIC_SYM_LOCATION; }
-	BOOL GetPos(MapPoint &pos) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_LOCATION; }
+	BOOL GetPos(MapPoint &pos) const override {
 		Assert(m_parent);
 		return m_parent->GetDataSymbol()->GetPos(pos);
 	}
@@ -1326,8 +1326,8 @@ class LocationSymbol_Location : public SlicStructMemberData {
 
 class LocationSymbol_X : public SlicStructMemberData {
 	DEF_MAKECOPY(LocationSymbol_X);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		MapPoint pos;
 		BOOL res = m_parent->GetDataSymbol()->GetPos(pos);
 
@@ -1341,8 +1341,8 @@ class LocationSymbol_X : public SlicStructMemberData {
 
 class LocationSymbol_Y : public SlicStructMemberData {
 	DEF_MAKECOPY(LocationSymbol_Y);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		MapPoint pos;
 		BOOL res = m_parent->GetDataSymbol()->GetPos(pos);
 
@@ -1368,8 +1368,8 @@ SlicStruct_Location::SlicStruct_Location() :
 
 class GovernmentSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(GovernmentSymbol_Type);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
@@ -1386,16 +1386,16 @@ SlicStruct_Government::SlicStruct_Government() :
 
 class AdvanceSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(AdvanceSymbol_Type);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
 
 class AdvanceSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(AdvanceSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_SVAR; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_SVAR; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 adv;
 		if(m_parent->GetDataSymbol()->GetIntValue(adv)) {
 			strncpy(text, g_theAdvanceDB->Get(adv)->GetNameText(), maxLen);
@@ -1404,7 +1404,7 @@ class AdvanceSymbol_Name : public SlicStructMemberData {
 			return FALSE;
 		}
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 adv;
 		if(m_parent->GetDataSymbol()->GetIntValue(adv)) {
 			return g_theAdvanceDB->Get(adv)->GetName();
@@ -1426,8 +1426,8 @@ SlicStruct_Advance::SlicStruct_Advance() :
 
 class ActionSymbol_Text : public SlicStructMemberData {
 	DEF_MAKECOPY(ActionSymbol_Text);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		return m_parent->GetDataSymbol()->GetText(text, maxLen);
 	}
 };
@@ -1444,8 +1444,8 @@ SlicStruct_Action::SlicStruct_Action() :
 
 class ImprovementSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(ImprovementSymbol_Type);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		TerrainImprovement imp;
 		BOOL res = m_parent->GetDataSymbol()->GetImprovement(imp);
 		if(res && imp.IsValid()) {
@@ -1467,8 +1467,8 @@ SlicStruct_Improvement::SlicStruct_Improvement() :
 
 class ValueSymbol_Value : public SlicStructMemberData {
 	DEF_MAKECOPY(ValueSymbol_Value);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
@@ -1484,8 +1484,8 @@ SlicStruct_Value::SlicStruct_Value() :
 
 class BuildingSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(BuildingSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1497,7 +1497,7 @@ class BuildingSymbol_Name : public SlicStructMemberData {
 		return TRUE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1510,8 +1510,8 @@ class BuildingSymbol_Name : public SlicStructMemberData {
 
 class BuildingSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(BuildingSymbol_Type);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
@@ -1528,8 +1528,8 @@ SlicStruct_Building::SlicStruct_Building() :
 
 class WonderSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(WonderSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1541,7 +1541,7 @@ class WonderSymbol_Name : public SlicStructMemberData {
 		return TRUE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1554,8 +1554,8 @@ class WonderSymbol_Name : public SlicStructMemberData {
 
 class WonderSymbol_Type : public SlicStructMemberData {
 	DEF_MAKECOPY(WonderSymbol_Type);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
@@ -1572,8 +1572,8 @@ SlicStruct_Wonder::SlicStruct_Wonder() :
 
 class UnitRecordSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1583,7 +1583,7 @@ class UnitRecordSymbol_Name : public SlicStructMemberData {
 		strncpy(text, g_theUnitDB->Get(type)->GetNameText(), maxLen);
 		return TRUE;
 	}
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1596,8 +1596,8 @@ class UnitRecordSymbol_Name : public SlicStructMemberData {
 
 class UnitRecordSymbol_Cost : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Cost);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1611,8 +1611,8 @@ class UnitRecordSymbol_Cost : public SlicStructMemberData {
 
 class UnitRecordSymbol_Attack : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Attack);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1626,8 +1626,8 @@ class UnitRecordSymbol_Attack : public SlicStructMemberData {
 
 class UnitRecordSymbol_Defense : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Defense);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1641,8 +1641,8 @@ class UnitRecordSymbol_Defense : public SlicStructMemberData {
 
 class UnitRecordSymbol_Ranged : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Ranged);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1656,8 +1656,8 @@ class UnitRecordSymbol_Ranged : public SlicStructMemberData {
 
 class UnitRecordSymbol_Movement : public SlicStructMemberData {
 	DEF_MAKECOPY(UnitRecordSymbol_Movement);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1685,8 +1685,8 @@ SlicStruct_UnitRecord::SlicStruct_UnitRecord() :
 
 class GoldSymbol_Value : public SlicStructMemberData {
 	DEF_MAKECOPY(GoldSymbol_Value);
-	SLIC_SYM GetType() const { return SLIC_SYM_IVAR; }
-	BOOL GetIntValue(sint32 &value) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_IVAR; }
+	BOOL GetIntValue(sint32 &value) const override {
 		return m_parent->GetDataSymbol()->GetIntValue(value);
 	}
 };
@@ -1702,8 +1702,8 @@ SlicStruct_Gold::SlicStruct_Gold() :
 
 class GoodSymbol_Name : public SlicStructMemberData {
 	DEF_MAKECOPY(GoodSymbol_Name);
-	SLIC_SYM GetType() const { return SLIC_SYM_STRING; }
-	BOOL GetText(MBCHAR *text, sint32 maxLen) const {
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRING; }
+	BOOL GetText(MBCHAR *text, sint32 maxLen) const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);
@@ -1714,7 +1714,7 @@ class GoodSymbol_Name : public SlicStructMemberData {
 		return TRUE;
 	}
 
-	StringId GetStringId() const {
+	StringId GetStringId() const override {
 		sint32 type;
 		BOOL res = m_parent->GetDataSymbol()->GetIntValue(type);
 		Assert(res);

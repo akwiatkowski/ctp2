@@ -28,12 +28,12 @@ public:
 		sint32 height,
 		sint32 bpp,
 		MBCHAR *pattern );
-	virtual ~InfoBar() = default;
+	~InfoBar() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	AUI_ERRCODE DrawText(aui_Surface *surface, sint32 x, sint32 y);
 	void SetText(const char *str);

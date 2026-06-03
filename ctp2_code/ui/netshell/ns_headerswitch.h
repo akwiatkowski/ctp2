@@ -34,7 +34,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_NS_HEADERSWITCH_DEFAULTNUMSTATES );
-	virtual ~ns_HeaderSwitch();
+	~ns_HeaderSwitch() override;
 
 protected:
 	ns_HeaderSwitch() : aui_Radio() {}
@@ -45,10 +45,10 @@ protected:
 	AUI_ERRCODE	SetIcon( MBCHAR *icon );
 	aui_Image	*GetIcon( ) const { return m_icon; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	aui_Image	*m_icon;
 };

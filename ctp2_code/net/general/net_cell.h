@@ -80,8 +80,8 @@ public:
 		m_y			(0)
 	{};
 
-	void Packetize(uint8* buf, uint16& size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8* buf, uint16& size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 
 private:
 	Cell * m_cell;
@@ -108,8 +108,8 @@ public:
 		m_cells		(0)
 	{};
 
-	void Packetize(uint8* buf, uint16& size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8* buf, uint16& size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 
 private:
 	uint16 m_x;
@@ -136,8 +136,8 @@ public:
 		m_y			(0)
 	{};
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
 private:
 	uint16 m_x;

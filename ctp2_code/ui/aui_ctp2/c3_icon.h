@@ -34,7 +34,7 @@ public:
 	void SetMapIcon(MAPICON mapIcon) { m_mapIcon = mapIcon; }
 	MAPICON GetMapIcon() { return m_mapIcon; }
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
 private:
 	COLOR	m_color;

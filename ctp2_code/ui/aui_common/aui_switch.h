@@ -75,9 +75,9 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
-	virtual ~aui_Switch() = default;
+	~aui_Switch() override = default;
 
-	virtual AUI_ERRCODE ResetThis( );
+	AUI_ERRCODE ResetThis( ) override;
 
 	BOOL			IsSelected( ) const { return m_state != 0; }
 	sint32			GetState( ) const { return m_state; }
@@ -87,10 +87,10 @@ public:
 
 	sint32			ExtractState( uint32 data ) { return (sint32)data; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	typedef AUI_ERRCODE (SwitchDrawCallback)(
 		aui_Switch *control,
@@ -121,12 +121,12 @@ protected:
 	SwitchDrawCallback *m_drawFunc;
 	void *m_drawCookie;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

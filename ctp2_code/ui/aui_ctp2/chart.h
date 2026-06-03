@@ -42,19 +42,19 @@ public:
 
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
 
-	virtual ~Chart();
+	~Chart() override;
 
-	virtual AUI_ERRCODE Draw(
+	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE DrawThis( aui_Surface *surface = nullptr,
+	AUI_ERRCODE DrawThis( aui_Surface *surface = nullptr,
 									sint32 x = 0,
-									sint32 y = 0 );
+									sint32 y = 0 ) override;
 
 	AUI_ERRCODE Update( sint32 index );
-	AUI_ERRCODE Show();
+	AUI_ERRCODE Show() override;
 
 	ctp2_Button	*GetPreReqButton( sint32 index ) { return m_preReqButton[index]; }
 	ctp2_Button	*GetEitherPreReqButton( sint32 index ) { return m_eitherPreReqButton[index]; }

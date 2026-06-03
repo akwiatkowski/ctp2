@@ -46,7 +46,7 @@ public:
 
 	virtual AUI_ERRCODE	InitCommon( Message *data, MBCHAR *ldlBlock, MessageList *messagelist );
 
-	virtual ~MessageIconWindow( );
+	~MessageIconWindow( ) override;
 
 	MessageWindow	*GetWindow()	{ return m_messageWindow; }
 	void SetWindow( MessageWindow *window ) { m_messageWindow = window; }
@@ -82,7 +82,7 @@ public:
 
 	BOOL	Animating( ) { return m_isMoving; }
 
-	virtual AUI_ERRCODE Idle( );
+	AUI_ERRCODE Idle( ) override;
 
 
 

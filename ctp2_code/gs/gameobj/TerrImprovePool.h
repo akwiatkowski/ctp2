@@ -42,7 +42,7 @@ public:
 							TERRAIN_IMPROVEMENT type,
 							sint32 extraData);
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 
 	// JSON bridge — mirrors TerrainImprovementPool::Serialize.  Persists
 	// ObjPool key counter + every live TerrainImprovementData entry.

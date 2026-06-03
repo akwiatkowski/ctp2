@@ -61,7 +61,7 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~ctp2_MenuBar() = default;
+	~ctp2_MenuBar() override = default;
 
 	ctp2_Menu		*GetMenu(MBCHAR *ldlParent,MBCHAR *menuname);
 	void			SetMenuCallback	(ctp2_Menu *menu,CTP2MenuCallback *callback);
@@ -79,17 +79,17 @@ protected:
 	ctp2_MenuBar() : aui_Window() {}
 	AUI_ERRCODE InitCommon( );
 
-	AUI_ERRCODE	AddChild( aui_Region *child );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
 
 	sint32	m_runningWidth;
 	sint32  m_rightRunningWidth;
 	sint32	m_largestItemHeight;
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 private:
 	bool m_bevel;

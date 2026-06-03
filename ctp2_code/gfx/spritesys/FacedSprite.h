@@ -69,22 +69,22 @@ class FacedSprite : public Sprite
 {
 public:
 	FacedSprite();
-	virtual ~FacedSprite();
+	~FacedSprite() override;
 
 	void			Import(size_t nframes, char *files[k_NUM_FACINGS][k_MAX_NAMES], char *shadowFiles[k_NUM_FACINGS][k_MAX_NAMES]);
 	void			Export(FILE *file);
 
 	void			Load(char *filename);
 
-	virtual void	Draw(sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
-						Pixel16 outlineColor, uint16 flags);
-	virtual void	DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
-					   double scale, sint16 transparency, Pixel16 outlineColor, uint16 flags);
-	virtual void	DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
-						Pixel16 outlineColor, uint16 flags);
+	void	Draw(sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
+						Pixel16 outlineColor, uint16 flags) override;
+	void	DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
+					   double scale, sint16 transparency, Pixel16 outlineColor, uint16 flags) override;
+	void	DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
+						Pixel16 outlineColor, uint16 flags) override;
 
-	virtual BOOL	HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
-						Pixel16 outlineColor, uint16 flags);
+	BOOL	HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
+						Pixel16 outlineColor, uint16 flags) override;
 
 	Pixel16			*GetFrameData(uint16 facing, uint16 frame);
 	size_t			GetFrameDataSize(uint16 facing, uint16 frame);
@@ -98,11 +98,11 @@ public:
 	void			SetHotPoint(uint16 facing, sint32 x, sint32 y) { m_hotPoints[facing].x = x; m_hotPoints[facing].y = y; }
 	void			SetHotPoints(POINT *points) { memcpy(m_hotPoints, points, sizeof(m_hotPoints)); }
 
-	virtual sint32	ParseFromTokens(Token *theToken);
-	virtual void	AllocateFrameArrays(size_t count);
+	sint32	ParseFromTokens(Token *theToken) override;
+	void	AllocateFrameArrays(size_t count) override;
 
-	virtual size_t	GetNumFrames() const    { return m_facedFrameCount; };
-	virtual void	SetNumFrames(uint16 num)    { m_facedFrameCount = num; }
+	size_t	GetNumFrames() const override    { return m_facedFrameCount; };
+	void	SetNumFrames(uint16 num) override    { m_facedFrameCount = num; }
 
 protected:
 	Pixel16			**m_frames[k_NUM_FACINGS];

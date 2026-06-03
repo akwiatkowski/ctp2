@@ -55,13 +55,13 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
-	virtual ~aui_Radio() = default;
+	~aui_Radio() override = default;
 
 protected:
 	aui_Radio() : aui_Switch() {}
 
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

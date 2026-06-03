@@ -21,7 +21,7 @@ private:
 public:
 	TradeOfferPool();
 	TradeOfferPool(CivArchive &archive);
-	~TradeOfferPool();
+	~TradeOfferPool() override;
 
 	TradeOfferData* AccessTradeOffer(const TradeOffer id)
 	{
@@ -44,7 +44,7 @@ public:
 	void ReRegisterOffers();
 
 	void RemoveTradeOffersFromCity(Unit &city);
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 	void AddFromNetwork(const TradeOffer &offer);
 };
 

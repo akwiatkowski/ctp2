@@ -16,11 +16,11 @@ class aui_SDLMouse : public aui_Mouse, public aui_SDLInput {
 public:
 	aui_SDLMouse(AUI_ERRCODE *retval, MBCHAR *ldlBlock,
 	             BOOL useExclusiveMode = FALSE);
-	virtual ~aui_SDLMouse();
+	~aui_SDLMouse() override;
 
 protected:
 	aui_SDLMouse();
-	virtual AUI_ERRCODE GetInput();
+	AUI_ERRCODE GetInput() override;
 };
 
 typedef aui_SDLMouse aui_NativeMouse;

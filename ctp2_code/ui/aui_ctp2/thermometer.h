@@ -31,12 +31,12 @@ public:
 		sint32 percentFilled = NULL,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~Thermometer() = default;
+	~Thermometer() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 

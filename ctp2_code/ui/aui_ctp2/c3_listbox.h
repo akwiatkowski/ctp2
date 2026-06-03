@@ -23,7 +23,7 @@ public:
 							MBCHAR *pattern, sint32 bevelwidth = 0, sint32 beveltype = 0,
 							ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
-	~c3_ListBox();
+	~c3_ListBox() override;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon(sint32 bevelWidth, sint32 bevelType );
@@ -31,9 +31,9 @@ public:
 
 	void Clear();
 
-	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
-	virtual AUI_ERRCODE Draw(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 );
+	AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending ) override;
+	AUI_ERRCODE Draw(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 ) override;
 
 	sint32 GetBevelWidth() { return m_bevelWidth; }
 	sint32 GetBevelType() { return m_bevelType; }

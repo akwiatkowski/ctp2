@@ -19,8 +19,8 @@ public:
 	NetUnit(UnitData*, Unit useActor = Unit());
 	NetUnit() = default;
 
-	void Packetize(uint8* buf, uint16& size);
-	void Unpacketize(uint16 id, uint8* buf,	uint16 size);
+	void Packetize(uint8* buf, uint16& size) override;
+	void Unpacketize(uint16 id, uint8* buf,	uint16 size) override;
 private:
 	friend class NetCity;
 	static void PacketizeUnit(uint8* buf, uint16& size, UnitData* unitData);
@@ -36,8 +36,8 @@ public:
 	NetUnitMove(const Unit id, const MapPoint &pnt);
 	NetUnitMove() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	uint32 m_id;
 	MapPoint m_point;
@@ -52,8 +52,8 @@ public:
 	}
 	NetUnitHP() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	double m_hp;
 	Unit m_unit;

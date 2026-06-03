@@ -16,7 +16,7 @@ public:
 		AUI_ERRCODE *retval,
 		MBCHAR const * szFileName = nullptr);
 
-	virtual ~Icon();
+	~Icon() override;
 
 	AUI_ERRCODE Draw( aui_Surface *pDestSurf, RECT *pDestRect, uint32 color );
 

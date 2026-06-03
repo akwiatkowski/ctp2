@@ -41,8 +41,8 @@ public:
 	NetMessage(MessageData *data) { m_data = data; }
 	NetMessage() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 
 private:
 	MessageData *m_data;
@@ -60,8 +60,8 @@ public:
 	NetInfoMessage(NET_MSG_TYPE msg, const MBCHAR *playerName, sint32 index);
 	NetInfoMessage() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	NET_MSG_TYPE m_msg;
 	const MBCHAR *m_name;

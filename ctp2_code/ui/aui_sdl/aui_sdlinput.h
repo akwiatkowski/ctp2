@@ -19,7 +19,7 @@ public:
 	aui_SDLInput(
 		AUI_ERRCODE *retval,
 		BOOL useExclusiveMode = FALSE );
-	virtual ~aui_SDLInput();
+	~aui_SDLInput() override;
 
 protected:
 	aui_SDLInput() {}
@@ -27,8 +27,8 @@ protected:
 
 public:
 
-	virtual AUI_ERRCODE Acquire( );
-	virtual AUI_ERRCODE Unacquire( );
+	AUI_ERRCODE Acquire( ) override;
+	AUI_ERRCODE Unacquire( ) override;
 
 };
 

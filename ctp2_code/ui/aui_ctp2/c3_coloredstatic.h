@@ -29,7 +29,7 @@ public:
 	void SetColor(COLOR color) { m_color = color; }
 	COLOR GetColor() { return m_color; }
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
 private:
 	COLOR	m_color;

@@ -34,24 +34,24 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr);
-	virtual ~TextBox() = default;
+	~TextBox() override = default;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( BOOL fromLDL );
 
 	virtual void		SetTextFont(MBCHAR *name) { aui_TextBox::SetTextFont(name); }
 	virtual void		SetTextFontSize( uint8 size ) { aui_TextBox::SetTextFontSize(size); }
-	virtual AUI_ERRCODE	RepositionItems( );
+	AUI_ERRCODE	RepositionItems( ) override;
 
 protected:
 	AUI_ERRCODE	CreateRangers( MBCHAR *ldlBlock );
 
 public:
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

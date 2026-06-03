@@ -14,12 +14,12 @@ public:
 		MBCHAR *ldlBlock,
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD) : C3Window(retval,id,ldlBlock,16,type,false) {};
-	virtual ~TileimpTrackerWindow() = default;
+	~TileimpTrackerWindow() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 
 };

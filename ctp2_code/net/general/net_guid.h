@@ -12,8 +12,8 @@ public:
 	NetGuid(const GUID *guid);
 	NetGuid();
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
 private:
 	const GUID *m_guid;
@@ -27,8 +27,8 @@ public:
 	}
 	NetSetPlayerGuid() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	uint8 m_player;
 };

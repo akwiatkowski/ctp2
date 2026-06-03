@@ -50,7 +50,7 @@ public:
 		sint32 bpp,
 		MBCHAR *ldlFilename = nullptr,
 		BOOL useExclusiveMode = FALSE );
-	virtual ~aui_SDLUI();
+	~aui_SDLUI() override;
 
 protected:
 	aui_SDLUI()
@@ -62,8 +62,8 @@ protected:
 
 public:
 
-	virtual AUI_ERRCODE AltTabOut( );
-	virtual AUI_ERRCODE AltTabIn( );
+	AUI_ERRCODE AltTabOut( ) override;
+	AUI_ERRCODE AltTabIn( ) override;
 	AUI_ERRCODE CreateNativeScreen( BOOL useExclusiveMode );
 	AUI_ERRCODE DestroyNativeScreen();
 	AUI_ERRCODE TearDownMouse();

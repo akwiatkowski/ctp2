@@ -12,8 +12,8 @@ public:
 	NetInstallation(InstallationData *);
 	NetInstallation() = default;
 
-	void Packetize(uint8* buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8* buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
 private:
 	InstallationData *m_data;

@@ -46,7 +46,7 @@ public:
 		sint32 y = 0,
 		sint32 width = 0,
 		sint32 height = 0 );
-	virtual ~aui_DragDropWindow() = default;
+	~aui_DragDropWindow() override = default;
 
 protected:
 	aui_DragDropWindow() : aui_Window() {}
@@ -66,17 +66,17 @@ public:
 	void SetDragDropItem( aui_Control *dragDropItem )
 	{ m_dragDropItem = dragDropItem; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 
 	aui_Control *m_dragDropItem;
 	aui_Region *m_launchPad;
 
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

@@ -19,7 +19,7 @@ class aui_ImageFormat : public aui_FileFormat
 public:
 
 	aui_ImageFormat() = default;
-	virtual ~aui_ImageFormat() = default;
+	~aui_ImageFormat() override = default;
 
 	virtual AUI_ERRCODE	Load(MBCHAR const * filename, aui_Image *image )
 		{ return AUI_ERRCODE_OK; }
@@ -33,7 +33,7 @@ public:
 	aui_Image(
 		AUI_ERRCODE *retval,
 		MBCHAR const *filename = nullptr );
-	virtual ~aui_Image();
+	~aui_Image() override;
 
 
 
@@ -80,9 +80,9 @@ class aui_BmpImageFormat : public aui_ImageFormat
 public:
 
 	aui_BmpImageFormat() = default;
-	virtual ~aui_BmpImageFormat() = default;
+	~aui_BmpImageFormat() override = default;
 
-	virtual AUI_ERRCODE	Load(MBCHAR const * filename, aui_Image *image );
+	AUI_ERRCODE	Load(MBCHAR const * filename, aui_Image *image ) override;
 };
 
 #endif

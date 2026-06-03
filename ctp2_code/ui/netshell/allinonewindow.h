@@ -47,18 +47,18 @@ class AllinoneWindow : public ns_Window
 public:
 
 	AllinoneWindow( AUI_ERRCODE *retval );
-	virtual ~AllinoneWindow();
+	~AllinoneWindow() override;
 
 protected:
 	AllinoneWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	sint32 CurNumHumanPlayers( );
 	sint32 CurNumAiPlayers( );
@@ -134,8 +134,8 @@ public:
 
 	ns_ScenarioInfo *GetScenarioInfo() { return &m_scenInfo; }
 
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 
 	void EnableButtonsForUnlaunch();
 
@@ -344,12 +344,12 @@ protected:
             m_index     (index)
         { ; };
 
-	    virtual void	Execute
+	    void	Execute
 	    (
 		    aui_Control	*	control,
 		    uint32			action,
 		    uint32			data
-	    );
+	    ) override;
 
 	private:
 		sint32 m_index;
@@ -363,12 +363,12 @@ protected:
             m_index     (index)
         { ; };
 
-	    virtual void	Execute
+	    void	Execute
 	    (
 		    aui_Control	*	control,
 		    uint32			action,
 		    uint32			data
-	    );
+	    ) override;
 
 	private:
 		sint32 m_index;
@@ -382,12 +382,12 @@ protected:
             m_index     (index)
         { ; };
 
-	    virtual void	Execute
+	    void	Execute
 	    (
 		    aui_Control	*	control,
 		    uint32			action,
 		    uint32			data
-	    );
+	    ) override;
 
 	private:
 		sint32 m_index;

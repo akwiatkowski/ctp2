@@ -30,14 +30,14 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~ScienceWindow() = default;
+	~ScienceWindow() override = default;
 
 	virtual AUI_ERRCODE InitCommon();
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	sint32 SetTechMode ( sint32 mode, DATABASE database );
 

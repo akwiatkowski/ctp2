@@ -219,12 +219,12 @@ public:
         }
     };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 private:
 	MBCHAR m_filename[k_AUI_LDL_MAXBLOCK + 1];
@@ -275,12 +275,12 @@ public:
         }
     };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 private:
 	MBCHAR m_filename[_MAX_PATH];

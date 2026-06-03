@@ -199,7 +199,7 @@ public:
 	{
 	};
 
-	virtual ~c3_SimpleAnimation()
+	~c3_SimpleAnimation() override
 	{
 		delete m_frames;
 	};
@@ -207,7 +207,7 @@ public:
 
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 protected:
 
@@ -317,15 +317,15 @@ public:
 	{
 	};
 
-	virtual ~c3_TriggeredAnimation()
+	~c3_TriggeredAnimation() override
 	{
 		delete m_frames;
 	};
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 	void TriggerAnimationStep();
 
@@ -637,7 +637,7 @@ public:
 		std::fill(m_fonts, m_fonts + kCreditsTextNumFonts, (aui_BitmapFont *) nullptr);
 	};
 
-	virtual ~c3_CreditsText()
+	~c3_CreditsText() override
 	{
 		cCreditsPage *pFoo;
 		ResetPages();
@@ -658,10 +658,10 @@ public:
 
 	void NewPage();
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *pSurface = nullptr, sint32 x = 0, sint32 y = 0);
+	AUI_ERRCODE DrawThis(aui_Surface *pSurface = nullptr, sint32 x = 0, sint32 y = 0) override;
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 	uint32 m_lastIdle;
 

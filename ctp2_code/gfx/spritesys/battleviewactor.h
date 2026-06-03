@@ -87,7 +87,7 @@ public:
 
 	~BattleViewActor();
 
-	virtual void	Process();
+	void	Process() override;
 	void			DumpAllActions();
 	void			AddAction(ActionPtr actionObj) override;
 	void			GetNextAction(BOOL isVisible = TRUE);

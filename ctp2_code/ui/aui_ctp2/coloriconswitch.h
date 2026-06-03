@@ -36,9 +36,9 @@ public:
 
 	virtual AUI_ERRCODE	InitCommon( MBCHAR *ldlBlock, BOOL isLDL = FALSE);
 
-	virtual ~ColorIconSwitch();
+	~ColorIconSwitch() override;
 
-	virtual AUI_ERRCODE Resize(sint32 width, sint32 height);
+	AUI_ERRCODE Resize(sint32 width, sint32 height) override;
 	void	ResizePictureRect();
 
 	void SetIcon(MBCHAR *name);
@@ -46,10 +46,10 @@ public:
 
 	MBCHAR *GetFilename() { return m_filename; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	MBCHAR		*m_filename;

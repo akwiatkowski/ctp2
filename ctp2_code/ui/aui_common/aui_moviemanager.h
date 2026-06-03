@@ -43,7 +43,7 @@ class aui_MovieManager : aui_Base
 {
 public:
 	aui_MovieManager(bool init = true);
-	virtual ~aui_MovieManager();
+	~aui_MovieManager() override;
 
 	virtual aui_Movie	*Load( const MBCHAR *filename, C3DIR dir = C3DIR_DIRECT )
 	{ return m_movieResource->Load( filename, dir ); }

@@ -262,7 +262,7 @@ public:
 protected:
 	double          m_squaredRadius;
 
-	virtual bool    IsIncluded();
+	bool    IsIncluded() override;
 };
 
 class CircleIterator : public RadiusIterator
@@ -274,7 +274,7 @@ public:
 protected:
 	double          m_innerSquaredRadius;
 
-	virtual bool    IsIncluded();
+	bool    IsIncluded() override;
 };
 
 #endif

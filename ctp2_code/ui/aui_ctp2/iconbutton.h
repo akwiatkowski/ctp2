@@ -36,14 +36,14 @@ public:
 
 	virtual AUI_ERRCODE	InitCommon( MBCHAR *ldlBlock, BOOL isLDL = FALSE);
 
-	virtual ~IconButton();
+	~IconButton() override;
 
 	Icon *&TheIcon( ) { return m_icon; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	Icon		*m_icon;

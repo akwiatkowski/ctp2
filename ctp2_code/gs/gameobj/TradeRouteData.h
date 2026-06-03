@@ -120,7 +120,7 @@ public:
 	TradeRouteData(const TradeRoute route);
 	TradeRouteData(CivArchive &archive);
 	TradeRouteData(TradeRouteData* copyme, uint32 new_id);
-	~TradeRouteData();
+	~TradeRouteData() override;
 
 	Unit GetSource() const { return m_sourceCity; }
 	Unit GetDestination() const { return m_destinationCity; }
@@ -150,7 +150,7 @@ public:
 	void RemoveFromCells();
 
 	BOOL PassesThrough(sint32 player) const;
-	void CityRadiusFunc(const MapPoint &pos);
+	void CityRadiusFunc(const MapPoint &pos) override;
 
 	BOOL CrossesWater() const;
 
@@ -184,7 +184,7 @@ public:
 	sint32 GetGoldInReturn() const { return m_gold_in_return; }
 
 	StringId GetResourceName() const;
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 
 	void DontAdjustPointsWhenKilled();
 	BOOL GetDontAdjustPoints() const { return m_dontAdjustPointsWhenKilled; }

@@ -41,8 +41,8 @@ class ctp2_MenuButton : public c3_Button
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr );
 
-	virtual ~ctp2_MenuButton();
-	virtual BOOL IsThisA(uint32 classId)
+	~ctp2_MenuButton() override;
+	BOOL IsThisA(uint32 classId) override
 	{
 		return classId == m_menuButtonClassId ||
 			aui_Control::IsThisA(classId);
@@ -58,8 +58,8 @@ class ctp2_MenuButton : public c3_Button
   protected:
 	ctp2_MenuButton() : c3_Button() {}
 
-	virtual void	MouseLGrabInside	(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway		(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside	(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway		(aui_MouseEvent * mouseData) override;
 
 	friend class ctp2_ListBox;
 

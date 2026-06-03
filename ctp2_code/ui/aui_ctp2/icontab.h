@@ -29,16 +29,16 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~IconTab() = default;
+	~IconTab() override = default;
 
 	Pattern *&ThePattern( ) { return m_pattern; }
 	Icon *&TheIcon( ) { return m_icon; }
 	uint16 TheColor( ) { return m_color; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	Icon *m_icon;

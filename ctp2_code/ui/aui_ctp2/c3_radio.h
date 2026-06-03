@@ -33,7 +33,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_C3_RADIO_DEFAULTNUMSTATES );
-	virtual ~c3_Radio() = default;
+	~c3_Radio() override = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 protected:
@@ -42,10 +42,10 @@ protected:
 	AUI_ERRCODE InitCommon( sint32 bevelWidth  );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 private:
 	sint32	m_bevelWidth;

@@ -63,7 +63,7 @@ public:
 					MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32  GetCiv() { return m_civ; }
 	void	SetCiv(sint32 civ) { m_civ = civ; }
@@ -85,7 +85,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32          m_index;
@@ -99,7 +99,7 @@ class HotseatList : public KeyboardHandler
 {
 public:
 	HotseatList( HotseatListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
-	virtual ~HotseatList();
+	~HotseatList() override;
 
 	c3_PopupWindow	*m_window;
 
@@ -120,7 +120,7 @@ public:
 	void RemoveWindow( );
 	void DisplayWindow( );
 
-	void kh_Close();
+	void kh_Close() override;
 };
 
 

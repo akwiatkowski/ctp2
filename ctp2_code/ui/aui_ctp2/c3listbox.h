@@ -30,17 +30,17 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3ListBox() = default;
+	~C3ListBox() override = default;
 
 protected:
 	C3ListBox() : aui_ListBox() {}
 	AUI_ERRCODE CreateRangers( );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

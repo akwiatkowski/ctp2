@@ -9,17 +9,17 @@ class UnseenCellQuadTree : public QuadTree<UnseenCellCarton>
 {
 
 public:
-	uint32 GetFlags(UnseenCellCarton cell) { return 0xffffffff; }
+	uint32 GetFlags(UnseenCellCarton cell) override { return 0xffffffff; }
 
 	UnseenCellQuadTree(sint16 width, sint16 height, BOOL yWrap) :
 		QuadTree<UnseenCellCarton>(width, height, yWrap)
 	{
 	}
 	void Convert(MapPoint &pos) {}
-	void Clear();
+	void Clear() override;
 
 	~UnseenCellQuadTree()
-	= default;
+	override = default;
 };
 
 void UnseenCellQuadTree::Clear()

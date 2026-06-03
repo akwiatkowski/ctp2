@@ -71,28 +71,28 @@ public:
 
 	virtual AUI_ERRCODE	InitCommon( MBCHAR *ldlBlock, BOOL isLDL = FALSE);
 
-	virtual ~ColorIconButton();
+	~ColorIconButton() override;
 
-	virtual AUI_ERRCODE Resize(sint32 width, sint32 height);
+	AUI_ERRCODE Resize(sint32 width, sint32 height) override;
 	void	ResizePictureRect();
 
 	void SetIcon(MBCHAR *name);
 	void ShrinkToFit(BOOL fit) { m_shrinkToFit = fit; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	MBCHAR		*m_filename;
 	BOOL		m_shrinkToFit;
 	RECT		m_pictureRect;
 
-    virtual void	MouseLDoubleClickInside(aui_MouseEvent * data);
-    virtual void	MouseRGrabInside(aui_MouseEvent * data);
-    virtual void	MouseRDropInside(aui_MouseEvent * data);
-    virtual void	MouseRDropOutside(aui_MouseEvent * data);
+    void	MouseLDoubleClickInside(aui_MouseEvent * data) override;
+    void	MouseRGrabInside(aui_MouseEvent * data) override;
+    void	MouseRDropInside(aui_MouseEvent * data) override;
+    void	MouseRDropOutside(aui_MouseEvent * data) override;
 };
 
 #endif

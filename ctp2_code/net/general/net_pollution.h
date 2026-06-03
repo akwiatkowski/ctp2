@@ -8,8 +8,8 @@ class NetPollution : public Packetizer
 public:
 	NetPollution() = default;
 
-	void Packetize(uint8* buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8* buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 };
 
 #endif

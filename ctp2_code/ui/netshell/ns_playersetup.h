@@ -41,8 +41,8 @@ public:
 	nf_PlayerSetup(NETFunc::Player *p);
 	nf_PlayerSetup();
 	void SetKey(NETFunc::KeyStruct *k);
-	void Pack();
-	void Unpack();
+	void Pack() override;
+	void Unpack() override;
 
 	void Reset();
 

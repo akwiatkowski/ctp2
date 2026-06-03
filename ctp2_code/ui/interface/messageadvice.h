@@ -47,7 +47,7 @@ public:
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_FLOATING );
 
-	virtual ~MessageAdvice();
+	~MessageAdvice() override;
 
 	virtual AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
 
@@ -58,8 +58,8 @@ public:
 	AUI_ERRCODE AppendText( MBCHAR *text );
 
 protected:
-    virtual void	MouseLGrabInside(aui_MouseEvent * data);
-    virtual void	MouseLDragAway(aui_MouseEvent * data);
+    void	MouseLGrabInside(aui_MouseEvent * data) override;
+    void	MouseLDragAway(aui_MouseEvent * data) override;
 
 	AUI_ERRCODE CreateWindowEdges( MBCHAR *ldlBlock );
 	AUI_ERRCODE CreateTextBox( MBCHAR *ldlBlock );

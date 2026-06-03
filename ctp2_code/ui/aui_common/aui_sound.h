@@ -9,7 +9,7 @@ class aui_SoundFormat : public aui_FileFormat
 {
 public:
 	aui_SoundFormat() = default;
-	virtual ~aui_SoundFormat() = default;
+	~aui_SoundFormat() override = default;
 
 	virtual AUI_ERRCODE LoadSoundData
     (
@@ -29,14 +29,14 @@ class aui_WavSoundFormat : public aui_SoundFormat
 {
 public:
 	aui_WavSoundFormat() = default;
-	virtual ~aui_WavSoundFormat() = default;
+	~aui_WavSoundFormat() override = default;
 
-	virtual AUI_ERRCODE LoadSoundData
+	AUI_ERRCODE LoadSoundData
     (
 		MBCHAR const * filename,
 		uint8 **wavdata,
 		size_t * size
-    );
+    ) override;
 
 protected:
 	void TrimWavHeader( uint8 **wavdata, size_t *size );
@@ -53,7 +53,7 @@ public:
 	aui_Sound(
 		AUI_ERRCODE *retval,
 		MBCHAR const * filename = nullptr );
-	virtual ~aui_Sound();
+	~aui_Sound() override;
 
 	virtual AUI_ERRCODE Load(
 		char const * fileName,
@@ -92,7 +92,7 @@ public:
 		MBCHAR const * filename = nullptr )
 		:
 	aui_Sound( retval, filename ) {}
-	virtual ~aui_Sound2D() = default;
+	~aui_Sound2D() override = default;
 
 	virtual void Update( ) {}
 

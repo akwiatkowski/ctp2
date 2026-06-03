@@ -13,7 +13,7 @@ public:
 	c3_Image(
 		AUI_ERRCODE *retval,
 		MBCHAR *filename = nullptr );
-	virtual ~c3_Image() = default;
+	~c3_Image() override = default;
 
 	BOOL PtOnImage( POINT *p );
 

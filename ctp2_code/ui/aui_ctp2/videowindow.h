@@ -22,7 +22,7 @@ public:
 		MBCHAR *name,
 		BOOL modal,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_FLOATING );
-	virtual ~VideoWindow();
+	~VideoWindow() override;
 
 protected:
 	VideoWindow() : C3Window() {};
@@ -30,8 +30,8 @@ protected:
 	AUI_ERRCODE CreateVideoSurface( MBCHAR *name, BOOL modal );
 
 public:
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 ) override;
 
 private:
 #ifdef __AUI_USE_DIRECTX__

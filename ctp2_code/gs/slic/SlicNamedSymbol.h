@@ -29,18 +29,18 @@ public:
 	SlicNamedSymbol(const char *name, SlicArray *array);
 	SlicNamedSymbol(const char *name, SlicStructDescription *structDesc);
 	SlicNamedSymbol() { m_name = nullptr; }
-	virtual ~SlicNamedSymbol();
+	~SlicNamedSymbol() override;
 
-	virtual bool IsParameter() const { return false; }
+	bool IsParameter() const override { return false; }
 	virtual bool IsBuiltin() const { return false; }
 
 	void Init(const char *name);
 
 	void Serialize(CivArchive &archive);
 	void PostSerialize();
-	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_NAMED; }
+	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_NAMED; }
 
-	const char *GetName() const;
+	const char *GetName() const override;
 	void DelName();
 
 	sint32 GetIndex() const { return m_index; }
@@ -60,16 +60,16 @@ public:
 	SlicParameterSymbol() = default;
 
 	void Serialize(CivArchive &archive);
-	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_PARAMETER; }
+	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_PARAMETER; }
 
-	BOOL GetIntValue(sint32 &value) const;
-	BOOL GetPlayer(sint32 &value) const;
-	BOOL GetPos(MapPoint &pos) const;
-	BOOL GetUnit(Unit &u) const;
-	BOOL GetArmy(Army &a) const;
-	BOOL GetCity(Unit &c) const;
+	BOOL GetIntValue(sint32 &value) const override;
+	BOOL GetPlayer(sint32 &value) const override;
+	BOOL GetPos(MapPoint &pos) const override;
+	BOOL GetUnit(Unit &u) const override;
+	BOOL GetArmy(Army &a) const override;
+	BOOL GetCity(Unit &c) const override;
 
-	bool IsParameter() const { return TRUE; }
+	bool IsParameter() const override { return TRUE; }
 
 	friend void to_json(nlohmann::json &j, SlicParameterSymbol const &s);
 	friend void from_json(nlohmann::json const &j, SlicParameterSymbol &s);
@@ -90,9 +90,9 @@ public:
 	SlicBuiltinNamedSymbol() = default;
 
 	void Serialize(CivArchive &archive);
-	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_BUILTIN; }
+	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_BUILTIN; }
 
-	bool IsBuiltin() const { return true; }
+	bool IsBuiltin() const override { return true; }
 	SLIC_BUILTIN GetBuiltin() { return m_builtin; }
 
 	friend void to_json(nlohmann::json &j, SlicBuiltinNamedSymbol const &s);

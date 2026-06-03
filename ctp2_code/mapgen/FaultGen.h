@@ -55,11 +55,11 @@ public:
 	                     const double *settings, sint32 numSettings);
 #else
 	virtual ~FaultGenerator();
-	virtual uint32 AddRef();
-	virtual uint32 Release();
-	virtual void Generate(sint8 *map, sint32 width, sint32 height,
+	uint32 AddRef() override;
+	uint32 Release() override;
+	void Generate(sint8 *map, sint32 width, sint32 height,
 	                      IC3Rand *randgen, const double *settings,
-	                      sint32 numSettings);
+	                      sint32 numSettings) override;
 #endif
 };
 

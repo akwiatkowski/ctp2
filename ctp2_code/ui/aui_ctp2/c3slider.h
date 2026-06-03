@@ -65,17 +65,17 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3Slider() = default;
+	~C3Slider() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	BOOL	IsVertical( ) const
 	{ return m_orientation == AUI_RANGER_ORIENTATION_VERTICAL; }
 
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
 
 protected:
 	C3Slider() : aui_Ranger() {}

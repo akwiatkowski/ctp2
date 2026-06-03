@@ -124,7 +124,7 @@ public:
 		aui_Static(retval, id, x, y, width, height)
 		{ }
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
 };
 
 AUI_ERRCODE c3_DarkenArea::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
@@ -157,7 +157,7 @@ public:
 protected:
 	c3_YetAnotherProgressBar() : aui_ProgressBar() {}
 
-	virtual AUI_ERRCODE CalculateIntervals( double *start, double *stop ) {
+	AUI_ERRCODE CalculateIntervals( double *start, double *stop ) override {
 
 		double x = (double)m_curValue / (double)m_maxValue;
 
@@ -171,7 +171,7 @@ protected:
 class RemoveEndGameAction : public aui_Action
 {
 public:
-	virtual void Execute(aui_Control *control, uint32 action, uint32 data);
+	void Execute(aui_Control *control, uint32 action, uint32 data) override;
 };
 
 void RemoveEndGameAction::Execute(aui_Control *control, uint32 action, uint32 data)
@@ -271,9 +271,9 @@ public:
 		aui_Static(retval, id, x, y, width, height, text, maxLength)
 		{ m_blendVal = 0; m_soundID = -1; }
 
-	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y) override;
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
 
 	void SetBlend(sint32 val) { m_blendVal = val; }
 
@@ -453,10 +453,10 @@ public:
 			lastIdle = GetTickCount();
 		}
 
-	virtual ~c3_Animation() { if(m_frames) delete m_frames; }
+	~c3_Animation() override { if(m_frames) delete m_frames; }
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 protected:
 

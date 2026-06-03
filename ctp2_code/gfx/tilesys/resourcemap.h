@@ -69,15 +69,15 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ResourceMap();
+	~ResourceMap() override;
 
 	void InitCommonLdl(MBCHAR *ldlBlock);
 	void InitCommon( sint32 scale );
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void DrawView();
 
@@ -120,7 +120,7 @@ public:
 	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction = action; }
 	c3_UpdateAction *GetUpdateAction() { return m_updateAction; }
 
-	virtual AUI_ERRCODE			Idle( );
+	AUI_ERRCODE			Idle( ) override;
 
 	RECT		*GetNormalizedViewRect() { return &m_normalizedViewRect; }
 	sint32		GetLeftEdge() { return m_leftEdge; }
@@ -161,9 +161,9 @@ protected:
 	RECT        m_usedRect;
 
 	// Event callback handlers
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveAway(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
+	void	MouseMoveAway(aui_MouseEvent * mouseData) override;
 };
 
 ResourceMap * resourcemap_Get();

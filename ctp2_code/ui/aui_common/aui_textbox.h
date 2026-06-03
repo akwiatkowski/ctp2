@@ -29,7 +29,7 @@ public:
 		MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_TextBox();
+	~aui_TextBox() override;
 
 protected:
 	aui_TextBox() : aui_ListBox() {}
@@ -37,10 +37,10 @@ protected:
 	AUI_ERRCODE InitCommon( );
 
 public:
-	virtual AUI_ERRCODE	SetText(
+	AUI_ERRCODE	SetText(
 		const MBCHAR *text,
-		uint32 maxlen = 0xffffffff );
-	virtual AUI_ERRCODE	AppendText(MBCHAR const *text);
+		uint32 maxlen = 0xffffffff ) override;
+	AUI_ERRCODE	AppendText(MBCHAR const *text) override;
 
 	virtual AUI_ERRCODE AppendText(
 		MBCHAR const *  text,
@@ -48,13 +48,13 @@ public:
 		sint32 bold = 0,
 		sint32 italic = 0 );
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual void SetTextFont( MBCHAR const * ttffile );
-	virtual void SetTextFontSize( sint32 pointSize );
+	void SetTextFont( MBCHAR const * ttffile ) override;
+	void SetTextFontSize( sint32 pointSize ) override;
 
 protected:
 

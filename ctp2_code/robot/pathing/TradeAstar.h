@@ -41,9 +41,9 @@ class TradeAstar : public Astar {
 
 	bool EntryCost(const MapPoint &prev, const MapPoint &pos,
                             float &cost, bool &is_zoc,
-							ASTAR_ENTRY_TYPE &entry);
+							ASTAR_ENTRY_TYPE &entry) override;
 
-    sint32 GetMaxDir(MapPoint &pos) const;
+    sint32 GetMaxDir(MapPoint &pos) const override;
 
 public:
 

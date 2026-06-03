@@ -64,41 +64,41 @@ public:
 		sint32 bpp,
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
-	virtual ~ctp2_Window() = default;
+	~ctp2_Window() override = default;
 
 protected:
 	ctp2_Window() : aui_Window() {}
 	AUI_ERRCODE InitCommon( );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void SetWeaklyModalCancelCallback(CTP2WindowWeaklyModalCancelCallback *cb, void *cookie) {
 		m_weaklyModalCancelCallback = cb;
 		m_weaklyModalCancelCookie = cookie;
 	}
 
-	virtual void	MouseLGrabOutside		(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside		(aui_MouseEvent * mouseData);
+	void	MouseLGrabOutside		(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside		(aui_MouseEvent * mouseData) override;
 
 	void	SetBevelMode(bool on_or_off) { m_bevel=on_or_off;};
 
 
 	void    ResetCurrentMouseState();
 
-	virtual AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock);
+	AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock) override;
 
-	virtual AUI_ERRCODE Move(sint32 x, sint32 y);
-	virtual AUI_ERRCODE Offset(sint32 dx, sint32 dy);
+	AUI_ERRCODE Move(sint32 x, sint32 y) override;
+	AUI_ERRCODE Offset(sint32 dx, sint32 dy) override;
 
 	void AddDockedWindow(ctp2_Window *window);
 	void RemoveDockedWindow(ctp2_Window *window);
 	void SetDock(ctp2_Window *window);
 
-	virtual bool HandleKey(uint32 wParam);
+	bool HandleKey(uint32 wParam) override;
 
 private:
 	bool m_bevel;

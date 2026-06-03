@@ -33,7 +33,7 @@ public:
 		BOOL useSpans = FALSE,
 		sint32 width = 0,
 		sint32 height = 0 );
-	virtual ~aui_DirtyList();
+	~aui_DirtyList() override;
 
 	AUI_ERRCODE	AddRect(
 		sint32 left,

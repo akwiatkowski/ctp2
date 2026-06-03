@@ -30,12 +30,12 @@ class C3Blitter : public aui_SDLBlitter
 {
 public:
 	C3Blitter();
-	virtual ~C3Blitter() = default;
+	~C3Blitter() override = default;
 
-	virtual NakedBltFunc Blt16To16;
-	virtual NakedColorBltFunc ColorBlt16;
-	virtual NakedStretchBltFunc StretchBlt16To16;
-	virtual NakedColorStencilBltFunc ColorStencilBlt16;
+	NakedBltFunc Blt16To16 override;
+	NakedColorBltFunc ColorBlt16 override;
+	NakedStretchBltFunc StretchBlt16To16 override;
+	NakedColorStencilBltFunc ColorStencilBlt16 override;
 
 protected:
 	AUI_ERRCODE Blt16To16Fast(

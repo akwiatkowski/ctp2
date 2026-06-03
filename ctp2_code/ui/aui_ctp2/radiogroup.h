@@ -25,16 +25,16 @@ public:
 		sint32 height,
 		MBCHAR *pattern = nullptr,
 		MBCHAR *text = nullptr );
-	virtual ~RadioGroup() = default;
+	~RadioGroup() override = default;
 
 protected:
 	RadioGroup() : aui_SwitchGroup() {}
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

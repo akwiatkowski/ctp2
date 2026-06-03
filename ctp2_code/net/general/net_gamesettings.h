@@ -18,8 +18,8 @@ public:
 					time_t cityTime);
 	NetGameSettings() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8* buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8* buf, uint16 size) override;
 private:
 	sint32 m_x, m_y;
 	sint32 m_numPlayers;

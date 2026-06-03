@@ -37,27 +37,27 @@ class ActivNetIO : public NetIO
 {
 public:
 	ActivNetIO();
-	virtual ~ActivNetIO();
+	~ActivNetIO() override;
 
 	void SetDP(dp_t *dp);
 
-	NET_ERR EnumTransports();
-	NET_ERR SetTransport(sint32 trans_id);
-	NET_ERR Host(char* sessionName);
-	NET_ERR EnumSessions();
-	NET_ERR Join(sint32 index);
-	NET_ERR GetMyId(uint16& id);
-	NET_ERR GetHostId(uint16& id);
-	NET_ERR EnumPlayers();
-	NET_ERR Send(uint16 id, sint32 flags, uint8* buf, sint32 len);
-	NET_ERR Idle();
-	NET_ERR SetName(char* name);
-	NET_ERR SetLobby(char* serverName);
-	NET_ERR SetMaxPlayers(uint16 players, bool lock);
-	NET_ERR KickPlayer(uint16 player);
-	NET_ERR Reset();
+	NET_ERR EnumTransports() override;
+	NET_ERR SetTransport(sint32 trans_id) override;
+	NET_ERR Host(char* sessionName) override;
+	NET_ERR EnumSessions() override;
+	NET_ERR Join(sint32 index) override;
+	NET_ERR GetMyId(uint16& id) override;
+	NET_ERR GetHostId(uint16& id) override;
+	NET_ERR EnumPlayers() override;
+	NET_ERR Send(uint16 id, sint32 flags, uint8* buf, sint32 len) override;
+	NET_ERR Idle() override;
+	NET_ERR SetName(char* name) override;
+	NET_ERR SetLobby(char* serverName) override;
+	NET_ERR SetMaxPlayers(uint16 players, bool lock) override;
+	NET_ERR KickPlayer(uint16 player) override;
+	NET_ERR Reset() override;
 
-	BOOL    ReadyForData();
+	BOOL    ReadyForData() override;
 	BOOL    IsHost() const { return m_isHost; }
 
 private:

@@ -69,14 +69,14 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual AUI_ERRCODE ResetThis( );
+	AUI_ERRCODE ResetThis( ) override;
 
 	sint32 ExtractRepeatCount( uint32 data ) const { return (sint32)data; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	aui_Button()
@@ -88,16 +88,16 @@ protected:
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 
-	virtual void	KeyboardCallback(aui_KeyboardEvent * keyboardData);
+	void	KeyboardCallback(aui_KeyboardEvent * keyboardData) override;
 
-	virtual void	PostChildrenCallback(aui_MouseEvent * mouseData);
+	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 
 	BOOL	m_isRepeating;
 	sint32	m_repeatCount;

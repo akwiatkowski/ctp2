@@ -50,10 +50,10 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD, bool bevel = true );
 
-	virtual ~CreditsWindow();
+	~CreditsWindow() override;
 
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 	void ToggleAnimation();
 

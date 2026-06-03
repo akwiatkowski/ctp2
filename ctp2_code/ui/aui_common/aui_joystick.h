@@ -59,7 +59,7 @@ class aui_Joystick : public aui_Base, public virtual aui_Input
 {
 public:
 	aui_Joystick();
-	virtual ~aui_Joystick();
+	~aui_Joystick() override;
 
 	aui_JoystickEvent	*GetLatestJoystickEvent( ) { return &m_data; }
 

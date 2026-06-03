@@ -144,12 +144,12 @@ public:
 		m_parent        (parent)
 	{ ; };
 
-	virtual ~SlicStructMemberData() = default;
+	~SlicStructMemberData() override = default;
 
 	void Serialize(CivArchive &archive) {}
 	void SerializeMemberReference(CivArchive &archive);
-	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_MEMBER; }
-	SLIC_SYM GetType() const { return SLIC_SYM_STRUCT_MEMBER; }
+	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_MEMBER; }
+	SLIC_SYM GetType() const override { return SLIC_SYM_STRUCT_MEMBER; }
 	SlicStructInstance *GetParent() { return m_parent; }
 	void SetParent(SlicStructInstance *parent) { m_parent = parent; }
 

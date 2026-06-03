@@ -33,18 +33,18 @@ public:
 		sint32 beveltype = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_CivListBox() = default;
+	~ns_CivListBox() override = default;
 
-	virtual AUI_ERRCODE Draw(
+	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0);
-	virtual AUI_ERRCODE DrawThis(
+		sint32 y = 0) override;
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE	RemoveItem( uint32 itemId );
+	AUI_ERRCODE	RemoveItem( uint32 itemId ) override;
 
 	sint32 GetBevelWidth() { return m_bevelWidth; }
 	sint32 GetBevelType() { return m_bevelType; }
@@ -84,7 +84,7 @@ public:
 		sint32 beveltype = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_HPlayerListBox();
+	~ns_HPlayerListBox() override;
 
 protected:
 	ns_HPlayerListBox() : ns_CivListBox() {}

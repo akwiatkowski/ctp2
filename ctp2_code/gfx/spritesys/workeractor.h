@@ -22,7 +22,7 @@ public:
 	WorkerActor(sint32 index, const MapPoint &pos, sint32 x = 0, sint32 y = 0);
     ~WorkerActor();
 
-	virtual void	Process();
+	void	Process() override;
 
   void			AddAction(ActionPtr actionObj) override;
 	void			GetNextAction();

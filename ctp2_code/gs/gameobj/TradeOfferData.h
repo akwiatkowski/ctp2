@@ -95,7 +95,7 @@ public:
 	BOOL Accept(PLAYER_INDEX player, const Unit &sourceCity, Unit const &destCity);
 
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 };
 
 #endif

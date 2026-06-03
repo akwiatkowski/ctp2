@@ -53,7 +53,7 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_Win();
+	~aui_Win() override;
 
 protected:
 	aui_Win() : aui_Control() {}
@@ -66,14 +66,14 @@ public:
 
 	HWND	TheHWND( ) const { return m_hwnd; }
 
-	virtual aui_Control	*SetKeyboardFocus( );
+	aui_Control	*SetKeyboardFocus( ) override;
 
 	static aui_Win *GetWinFromHWND( HWND hwnd );
 
-	virtual AUI_ERRCODE	DrawThis(
+	AUI_ERRCODE	DrawThis(
 		aui_Surface *surface,
 		sint32 x,
-		sint32 y );
+		sint32 y ) override;
 
 protected:
 	static BOOL		m_registered;
@@ -94,31 +94,31 @@ protected:
 	void			WinMouseLDrag(aui_MouseEvent * mouseData);
 	void			WinMouseRDrag(aui_MouseEvent * mouseData);
 
-	virtual void	MouseMoveOver(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveAway(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveOutside(aui_MouseEvent * mouseData);
+	void	MouseMoveOver(aui_MouseEvent * mouseData) override;
+	void	MouseMoveAway(aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
+	void	MouseMoveOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDragOutside(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseLDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseRDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseRDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDragOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropOutside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDoubleClickInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDoubleClickInside(aui_MouseEvent * mouseData);
+	void	MouseLDoubleClickInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDoubleClickInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

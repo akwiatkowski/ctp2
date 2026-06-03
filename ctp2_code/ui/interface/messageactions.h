@@ -21,14 +21,14 @@ public:
     :   aui_Action      (),
         m_iconWindow    (iconWindow)
     { ; };
-	virtual ~MessageOpenAction() { ; };
+	~MessageOpenAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MessageIconWindow * m_iconWindow;
@@ -85,14 +85,14 @@ public:
         m_window    (window),
         m_modal     (modal)
     { ; };
-	virtual ~MessageStandardEyePointAction() { ; };
+	~MessageStandardEyePointAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MessageWindow * m_window;
@@ -111,16 +111,16 @@ public:
     :   MessageStandardEyePointAction   (window, modal),
         m_dropdown                      (dropdown)
     { ; };
-    virtual ~MessageDropdownEyePointAction() { ; };
+    ~MessageDropdownEyePointAction() override { ; };
 
 	void SetDropdown(c3_DropDown * dropdown) { m_dropdown = dropdown; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	c3_DropDown	*   m_dropdown;
@@ -140,14 +140,14 @@ public:
         m_dropdown  (dropdown),
         m_modal     (modal)
     { ; };
-	virtual ~MessageDropdownAction() { ; };
+	~MessageDropdownAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MessageWindow * m_window;
@@ -174,17 +174,17 @@ public:
         m_max                           (max),
         m_action                        (nullptr)
     { ; }
-	virtual ~MessageListboxEyePointAction() { ; };
+	~MessageListboxEyePointAction() override { ; };
 
 	void SetIndex(sint32 index) { m_index = index; };
 	void SetAction(MessageListboxEyePointAction * action ) { m_action = action; }
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	sint32							m_index;
@@ -202,14 +202,14 @@ public:
         m_window    (window),
         m_response  (response)
     { ; };
-	virtual ~MessageResponseAction() { ; };
+	~MessageResponseAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MessageWindow * m_window;
@@ -222,14 +222,14 @@ public:
 	MessageResponseUIAction(MessageWindow * window, sint32 response)
     : MessageResponseAction (window, response)
     { ; };
-	virtual ~MessageResponseUIAction() { ; };
+	~MessageResponseUIAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 };
 
 class MessageModalResponseAction : public aui_Action
@@ -240,14 +240,14 @@ public:
         m_message   (message),
         m_response  (response)
     { ; };
-	virtual ~MessageModalResponseAction() { ; };
+	~MessageModalResponseAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	Message	*   m_message;
@@ -262,16 +262,16 @@ public:
     :   aui_Action  (),
         m_window    (window)
     { ; };
-	virtual ~MessageResponseSubmitAction() { ; };
+	~MessageResponseSubmitAction() override { ; };
 
 	void SetDropdown(c3_DropDown * dropdown) { m_dropdown = dropdown; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MessageWindow * m_window;
@@ -299,14 +299,14 @@ public:
         m_iconWindow    (window ? window->GetIconWindow() : nullptr),
         m_index         (index)
     { ; };
-	virtual ~MessageCleanupAction() { ; };
+	~MessageCleanupAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	PLAYER_INDEX        m_index;
@@ -327,14 +327,14 @@ public:
         m_messagelist   (list),
         m_offsetflag    (flag)
     { ; };
-	virtual ~ChangeOffsetMessageIconButtonAction() { ; };
+	~ChangeOffsetMessageIconButtonAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 	void SetList(MessageList * newlist) { m_messagelist = newlist; };
 
@@ -351,14 +351,14 @@ public:
 	:   aui_Action  (),
         m_more      (more)
     { ; };
-	virtual ~ChangeOffsetDestroyButtonAction() { ; };
+	~ChangeOffsetDestroyButtonAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	bool    m_more;

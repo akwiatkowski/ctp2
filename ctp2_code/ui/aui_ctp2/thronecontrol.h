@@ -85,17 +85,17 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ThroneControl();
+	~ThroneControl() override;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
 
-	AUI_ERRCODE Idle( );
+	AUI_ERRCODE Idle( ) override;
 
 	sint32		GetSelectedImage( ) const { return m_selectedImage; }
 	void		SetSelectedImage( sint32 selectedImage ) { m_selectedImage = selectedImage; }

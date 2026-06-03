@@ -39,12 +39,12 @@ public:
 		void *cookie = nullptr
     );
 
-	virtual AUI_ERRCODE DrawThis
+	AUI_ERRCODE DrawThis
     (
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0
-    );
+    ) override;
 
 	bool	IsVertical( ) const { return m_isVertical; }
 

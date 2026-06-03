@@ -119,7 +119,7 @@ class aui_Keyboard : public aui_Base, public virtual aui_Input
 {
 public:
 	aui_Keyboard();
-	virtual ~aui_Keyboard();
+	~aui_Keyboard() override;
 
 	AUI_ERRCODE         GetKeyboardState(uint8 * keyboardState) const;
 	aui_KeyboardEvent * GetLatestKeyboardEvent()

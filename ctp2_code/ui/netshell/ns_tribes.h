@@ -41,7 +41,7 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_TribesDropDown();
+	~ns_TribesDropDown() override;
 };
 
 #endif

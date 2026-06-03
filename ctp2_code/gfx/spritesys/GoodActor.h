@@ -86,7 +86,7 @@ public:
     virtual ~GoodActor();
     GoodActor & operator = (GoodActor const & rhs);
 
-	virtual void	Process();
+	void	Process() override;
 
 	void			PositionActor(MapPoint &pos);
   void			AddAction(ActionPtr actionObj) override;

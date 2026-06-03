@@ -80,7 +80,7 @@ public:
 		sint32 windowSize = 0,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_DropDown();
+	~aui_DropDown() override;
 
 protected:
 	aui_DropDown() : aui_Control() {}
@@ -93,9 +93,9 @@ public:
 	BOOL ExtractEndUserTriggeredEvent( uint32 data ) const
 	{ return (data & 0x1) == 0; }
 
-	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
-	virtual AUI_ERRCODE	Hide( );
+	AUI_ERRCODE	Hide( ) override;
 
 	aui_Button	*GetButton( ) const { return m_button; }
 	aui_ListBox	*GetListBox( ) const { return m_listBox; }
@@ -123,10 +123,10 @@ public:
 	AUI_ERRCODE	ShowListBoxWindow( BOOL showIt );
 	AUI_ERRCODE	ToggleListBoxWindow( );
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	AUI_ERRCODE UpdateSelectedItem( BOOL update = TRUE );
 
@@ -150,11 +150,11 @@ protected:
 
 	sint32		m_selectedItem;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabOutside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
 };
 
 aui_Control::ControlActionCallback DropDownButtonActionCallback;

@@ -28,7 +28,7 @@ bool aui_sdlkbd_TryPopQueueEvent(SDL_Event & event);
 class aui_SDLKeyboard : public aui_Keyboard, public aui_SDLInput {
 public:
 	aui_SDLKeyboard(AUI_ERRCODE *retval);
-	virtual ~aui_SDLKeyboard() = default;
+	~aui_SDLKeyboard() override = default;
 
 protected:
 	aui_SDLKeyboard() {}
@@ -38,9 +38,9 @@ protected:
 	uint32 convertSDLKey(SDL_Keysym keysym);
 
 public:
-	virtual AUI_ERRCODE Acquire();
-	virtual AUI_ERRCODE Unacquire();
-	virtual AUI_ERRCODE GetInput();
+	AUI_ERRCODE Acquire() override;
+	AUI_ERRCODE Unacquire() override;
+	AUI_ERRCODE GetInput() override;
 };
 
 typedef aui_SDLKeyboard aui_NativeKeyboard;

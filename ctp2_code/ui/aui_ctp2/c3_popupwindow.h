@@ -84,14 +84,14 @@ public:
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD,
 		bool bevel = true );
 
-	virtual ~c3_PopupWindow();
+	~c3_PopupWindow() override;
 
-	virtual AUI_ERRCODE Resize( sint32 width, sint32 height );
+	AUI_ERRCODE Resize( sint32 width, sint32 height ) override;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	sint32 AddTitle( MBCHAR *titleBlock = nullptr );
 	sint32 AddCancel(
@@ -121,7 +121,7 @@ public:
 	c3_Button	*Cancel( ) const { return m_cancel; }
 	ctp2_Button	*Ok( ) const { return m_ok; }
 
-	virtual void    kh_Close();
+	void    kh_Close() override;
 	virtual void    PatternInfoRestore();
 	virtual void    PatternInfoSave();
 

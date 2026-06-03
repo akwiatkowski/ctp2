@@ -99,7 +99,7 @@ public:
 		sint32 height,
 		sint32 bpp,
 		const MBCHAR *ldlFilename  = nullptr);
-	virtual ~aui_UI();
+	~aui_UI() override;
 
 protected:
 	aui_UI()
@@ -340,8 +340,8 @@ public:
 	{ return RemoveChild( windowId ); }
 	aui_Window	*GetWindow( uint32 windowId )
 	{ return (aui_Window *)GetChild( windowId ); }
-	virtual AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual AUI_ERRCODE	RemoveChild( uint32 windowId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE	RemoveChild( uint32 windowId ) override;
 
 	AUI_ERRCODE	ShowWindow( uint32 windowId );
 	AUI_ERRCODE	HideWindow( uint32 windowId );

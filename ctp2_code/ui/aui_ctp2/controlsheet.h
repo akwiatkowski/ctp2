@@ -27,11 +27,11 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ControlSheet();
+	~ControlSheet() override;
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
 								sint32 x = 0,
-								sint32 y = 0);
+								sint32 y = 0) override;
 
 	void SetBorder( sint32 border ) { m_border = border; }
 

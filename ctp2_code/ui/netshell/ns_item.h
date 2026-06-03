@@ -31,10 +31,10 @@ public:
 		AUI_ERRCODE *retval,
 		const MBCHAR *name,
 		MBCHAR *ldlBlock);
-	~ns_ListItem() = default;
+	~ns_ListItem() override = default;
 
-	virtual void Update() {}
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }
+	void Update() override {}
+	sint32 Compare(c3_ListItem *item2, uint32 column) override { return 0; }
 
 protected:
 	ns_ListItem() : c3_ListItem() {}
@@ -54,10 +54,10 @@ public:
 		BOOL isAI,
 		MBCHAR *ldlBlock);
 
-	~ns_HPlayerItem();
+	~ns_HPlayerItem() override;
 
-	virtual void Update() {}
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }
+	void Update() override {}
+	sint32 Compare(c3_ListItem *item2, uint32 column) override { return 0; }
 
 	NETFunc::Player *GetPlayer( ) const
 	{ return IsAI() ? nullptr : (NETFunc::Player *)m_player; }
@@ -138,7 +138,7 @@ public:
 		sint32 width,
 		sint32 height,
 		T *object = NULL );
-	virtual ~ns_Item();
+	~ns_Item() override;
 
 protected:
 	ns_Item() : aui_Item() {}
@@ -152,10 +152,10 @@ public:
 	AUI_ERRCODE	SetIcon( MBCHAR *icon );
 	aui_Image	*GetIcon( ) const { return m_icon; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	NetShellT	*m_netShellT;

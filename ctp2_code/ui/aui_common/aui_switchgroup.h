@@ -51,7 +51,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_SwitchGroup() = default;
+	~aui_SwitchGroup() override = default;
 
 protected:
 	aui_SwitchGroup() : aui_Control() {}
@@ -66,8 +66,8 @@ public:
 	AUI_ERRCODE	AddSwitch( aui_Switch *theSwitch ) { return AddChild( (aui_Region *)theSwitch ); }
 	AUI_ERRCODE RemoveSwitch( uint32 switchId ) { return RemoveChild( switchId ); }
 	aui_Switch	*GetSwitch( uint32 switchId ) { return (aui_Switch *)GetChild( switchId ); }
-	virtual AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual AUI_ERRCODE	RemoveChild( uint32 switchId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE	RemoveChild( uint32 switchId ) override;
 
 protected:
 
@@ -76,8 +76,8 @@ protected:
 	uint32	m_whichWasSelected;
 	uint32	m_whichIsSelected;
 
-	virtual void	PreChildrenCallback(aui_MouseEvent * mouseData);
-	virtual void	PostChildrenCallback(aui_MouseEvent * mouseData);
+	void	PreChildrenCallback(aui_MouseEvent * mouseData) override;
+	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 };
 
 #endif

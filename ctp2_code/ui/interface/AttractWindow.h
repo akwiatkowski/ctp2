@@ -22,15 +22,15 @@ public:
 		sint32 bpp,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_POPUP);
 
-	virtual ~AttractWindow();
+	~AttractWindow() override;
 
 	virtual AUI_ERRCODE InitCommon();
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
-	virtual AUI_ERRCODE Idle();
+		sint32 y = 0 ) override;
+	AUI_ERRCODE Idle() override;
 	void AppIdle();
 
 public:

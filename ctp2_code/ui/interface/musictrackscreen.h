@@ -15,7 +15,7 @@ public:
 	MusicTrackListItem(AUI_ERRCODE *retval, sint32 trackNum, MBCHAR *name, MBCHAR *ldlBlock);
 
 
-	virtual void Update() {}
+	void Update() override {}
 
 	sint32 GetTrackNum() { return m_trackNum; }
 protected:

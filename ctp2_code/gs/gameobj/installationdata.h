@@ -40,7 +40,7 @@ public:
 	static sint32 GetDistance(InstallationData *inst1, InstallationData *inst2,
 							  sint32 wrap);
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 	void RebuildQuadTree();
 
 	void UseAirfield(sint32 currentRound);

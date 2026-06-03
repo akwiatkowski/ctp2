@@ -84,9 +84,9 @@ public:
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon(uint32 bevelWidth, uint32 bevelType );
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface,
+	AUI_ERRCODE DrawThis(aui_Surface *surface,
 											sint32 x,
-											sint32 y);
+											sint32 y) override;
 
 	uint32 BevelWidth() { return m_bevelWidth; }
 
@@ -106,15 +106,15 @@ public:
 
 	bool	BuildImageList();
 
-	virtual AUI_ERRCODE Resize(sint32 width, sint32 height);
+	AUI_ERRCODE Resize(sint32 width, sint32 height) override;
 
-	virtual bool IgnoreHighlight() { return m_ignoreHighlight; }
+	bool IgnoreHighlight() override { return m_ignoreHighlight; }
 
 protected:
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 
 	bool	ConstructImageRect(uint32 index);
 

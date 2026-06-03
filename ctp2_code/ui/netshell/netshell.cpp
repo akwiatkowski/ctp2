@@ -147,12 +147,12 @@ AUI_ERRCODE NetShell::Enter( uint32 flags )
 class EnterMainMenuAction : public aui_Action
 {
 public:
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	)
+	) override
     {
         EnterMainMenu();
     };

@@ -56,7 +56,7 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_ListBox();
+	~ns_ListBox() override;
 
 protected:
 	sint32 m_artXOffset;
@@ -69,17 +69,17 @@ protected:
 
 public:
 
-	virtual void Insert( T *object );
-	virtual void Delete( T *object );
-	virtual void Change( T *object );
-	virtual void Destroy( );
+	void Insert( T *object ) override;
+	void Delete( T *object ) override;
+	void Change( T *object ) override;
+	void Destroy( ) override;
 
 	ns_Item<T,NetShellT> *GetSelectedNetShellItem( ) const
 	{ return (ns_Item<T,NetShellT> *)GetSelectedItem(); }
 
 	ns_Item<T,NetShellT> *FindItem( T *object );
 
-	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
+	AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending ) override;
 
 protected:
 

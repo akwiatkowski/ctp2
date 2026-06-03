@@ -130,8 +130,8 @@ public:
 
 	SFN_ERROR Call(SlicArgList *args, SlicObject *&obj);
 
-	GAME_EVENT_HOOK_DISPOSITION GEVHookCallback(GAME_EVENT type, GameEventArgList *args);
-	void GetDescription(char *str, sint32 maxsize);
+	GAME_EVENT_HOOK_DISPOSITION GEVHookCallback(GAME_EVENT type, GameEventArgList *args) override;
+	void GetDescription(char *str, sint32 maxsize) override;
 
 	const char *GetFilename() { return m_filename; }
 	uint8 *FindNextLine(uint8 *start);
@@ -167,13 +167,13 @@ public:
 		m_segments = nullptr;
 		m_nextSegment = 0;
 	}
-	~SlicSegmentHash() {
+	~SlicSegmentHash() override {
 		delete [] m_segments;
 	}
 
 	void SetSize(sint32 size);
 	void LinkTriggerSymbols(StringHash<SlicUITrigger> *uiHash);
-	void Add(const char *str, SlicSegment *obj);
+	void Add(const char *str, SlicSegment *obj) override;
 };
 
 class SlicUITrigger {

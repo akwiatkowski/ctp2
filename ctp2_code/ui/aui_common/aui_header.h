@@ -23,7 +23,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_Header();
+	~aui_Header() override;
 
 protected:
 	aui_Header() : aui_SwitchGroup() {}
@@ -32,8 +32,8 @@ protected:
 	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = nullptr );
 
 public:
-	virtual AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual AUI_ERRCODE	RemoveChild( uint32 switchId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE	RemoveChild( uint32 switchId ) override;
 
 protected:
 	AUI_ERRCODE	CalculateDimensions( );
@@ -49,12 +49,12 @@ public:
         m_column    (column)
     { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	sint32 m_column;

@@ -233,12 +233,12 @@ public:
         MBCHAR const *                  ldlBlock    = nullptr
     );
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 protected:
 	MBCHAR const *                  m_text;
@@ -263,7 +263,7 @@ class c3_UtilityAbortPopup : public KeyboardHandler
 {
 public:
 	c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallback *callback = nullptr, MBCHAR const *ldlBlock = nullptr );
-	virtual ~c3_UtilityAbortPopup( );
+	~c3_UtilityAbortPopup( ) override;
 
 	c3_PopupWindow	*m_window;
 
@@ -285,7 +285,7 @@ public:
 	void RemoveWindow( );
 	void DisplayWindow( MBCHAR const *text = nullptr, sint32 percentFilled  = 0);
 
-	void kh_Close();
+	void kh_Close() override;
 };
 
 AUI_ACTION_BASIC(c3_UtilityAbortCleanupAction);
@@ -303,7 +303,7 @@ class c3_UtilityPlayerListPopup : public KeyboardHandler
 {
 public:
 	c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
-	virtual ~c3_UtilityPlayerListPopup( );
+	~c3_UtilityPlayerListPopup( ) override;
 
 	c3_PopupWindow	*m_window;
 
@@ -329,7 +329,7 @@ public:
 
 	void SetText( MBCHAR *s, sint32 index );
 
-	void kh_Close();
+	void kh_Close() override;
 };
 
 
@@ -343,7 +343,7 @@ public:
 	DoubleListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 value, MBCHAR *text, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	MBCHAR	*GetName( ) { return m_name; }
 	sint32	GetValue( ) { return m_value; }
@@ -358,7 +358,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	MBCHAR			m_name[256];

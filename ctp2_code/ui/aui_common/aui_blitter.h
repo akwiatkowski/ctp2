@@ -28,7 +28,7 @@ class aui_Blitter : public aui_Base
 public:
 
 	aui_Blitter() = default;
-	virtual ~aui_Blitter() = default;
+	~aui_Blitter() override = default;
 
 
 

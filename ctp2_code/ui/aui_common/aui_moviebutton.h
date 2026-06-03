@@ -65,7 +65,7 @@ public:
 		MBCHAR *movie = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_MovieButton();
+	~aui_MovieButton() override;
 
 protected:
 	aui_MovieButton()
@@ -85,13 +85,13 @@ public:
 
 	void SetFullScreen(bool on) { m_fullScreen = on; }
 
-	virtual AUI_ERRCODE Idle( );
+	AUI_ERRCODE Idle( ) override;
 
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 ) { return AUI_ERRCODE_OK; }
+		sint32 y = 0 ) override { return AUI_ERRCODE_OK; }
 
 	void SetFlags(uint32 flags) { m_flags = flags; }
 	uint32 GetFlags() const { return m_flags; }

@@ -78,14 +78,14 @@ public:
     :   aui_Action  (),
         m_item      (item)
     { ; };
-    virtual ~SourceListItemContinueAction() { ; };
+    ~SourceListItemContinueAction() override { ; };
 
-	virtual void Execute
+	void Execute
     (
         aui_Control *   control,
 	    uint32          action,
 	    uint32          data
-    )
+    ) override
 	{
         if (m_item)
         {
@@ -551,9 +551,9 @@ static c3_UtilityTextFieldPopup *s_conditionalPopup = nullptr;
 class KillConditionalPopupAction : public aui_Action
 {
 public:
-	virtual void Execute(aui_Control* control,
+	void Execute(aui_Control* control,
 	                     uint32 action,
-	                     uint32 data)
+	                     uint32 data) override
 	{
 		delete s_conditionalPopup;
 		s_conditionalPopup = nullptr;

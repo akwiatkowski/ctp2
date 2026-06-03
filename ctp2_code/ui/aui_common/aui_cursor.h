@@ -11,7 +11,7 @@ public:
 	aui_Cursor(
 		AUI_ERRCODE *retval,
 		MBCHAR const * filename = nullptr );
-	virtual ~aui_Cursor() = default;
+	~aui_Cursor() override = default;
 
 protected:
 	aui_Cursor() : aui_Image() {}
@@ -22,7 +22,7 @@ public:
 	AUI_ERRCODE	GetHotspot( sint32 *x, sint32 *y );
     void        GetHotspot(POINT & a_Hotspot) const;
 
-	virtual AUI_ERRCODE LoadEmpty( sint32 width, sint32 height, sint32 bpp );
+	AUI_ERRCODE LoadEmpty( sint32 width, sint32 height, sint32 bpp ) override;
 
 protected:
 	POINT		m_hotspot;

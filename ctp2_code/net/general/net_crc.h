@@ -43,8 +43,8 @@ public:
 	NetCRC(sint32 startat, sint32 stopat);
 	NetCRC();
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
 private:
 	sint32 SerializeDBs();

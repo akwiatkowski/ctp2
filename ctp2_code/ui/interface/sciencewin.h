@@ -50,7 +50,7 @@ public:
 	C3Window	*m_window;
 
 	ScienceWin( );
-	virtual ~ScienceWin( );
+	~ScienceWin( ) override;
 
 	sint32 Initialize( MBCHAR *windowBlock );
 protected:
@@ -88,7 +88,7 @@ public:
 	void Display( );
 	void Remove( );
 
-	void kh_Close();
+	void kh_Close() override;
 
 	sint32 UpdateData( SCI_UPDATE update );
 	void UpdateList();
@@ -110,7 +110,7 @@ public:
 	KnowledgeListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex() { return m_index; }
 
@@ -122,7 +122,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32	m_index;
@@ -135,7 +135,7 @@ public:
 	EmbassyListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex() { return m_index; }
 
@@ -147,7 +147,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32	m_index;
@@ -158,10 +158,10 @@ class AdvanceListItem: public c3_ListItem
 public:
 
 	AdvanceListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock);
-	~AdvanceListItem();
+	~AdvanceListItem() override;
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex() { return m_index; }
 	sint32	GetBranchVal( ) { return m_branchVal; }
@@ -174,7 +174,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32	m_index;
@@ -194,14 +194,14 @@ public:
         m_all           (all)
     { ; };
 
-	virtual	~SW_UpdateAction() { ; };
+	~SW_UpdateAction() override { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	);
+	) override;
 
 private:
 	bool    m_all;

@@ -113,7 +113,7 @@ class UnitActor : public Actor {
   void SetSize(sint32 size) { m_size = size; }
   sint32 GetSize() const { return m_size; }
 
-  virtual void Process();
+  void Process() override;
   void DumpAllActions();
   void EndTurnProcess();
   ActionPtr WillMorph() const;

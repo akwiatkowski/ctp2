@@ -632,7 +632,7 @@ public:
 	sint32 GetProductionPollution() const;
 	void CityToPark(sint32 agressor);
 
-	void CityRadiusFunc(const MapPoint &pos);
+	void CityRadiusFunc(const MapPoint &pos) override;
 	void GetNuked(UnitDynamicArray &killList);
 
 	bool SafeFromNukes() const;

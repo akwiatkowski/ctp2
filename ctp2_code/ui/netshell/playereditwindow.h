@@ -10,11 +10,11 @@ class PlayerEditWindow : public ns_Window
 public:
 
 	PlayerEditWindow( AUI_ERRCODE *retval );
-	virtual ~PlayerEditWindow();
+	~PlayerEditWindow() override;
 
 protected:
 	PlayerEditWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 	nf_PlayerSetup *m_playersetup;
 
@@ -29,8 +29,8 @@ public:
 	void SetMode(Mode m);
 	Mode GetMode();
 
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 
 
 	enum CONTROL

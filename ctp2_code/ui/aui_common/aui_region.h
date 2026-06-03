@@ -125,7 +125,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_Region();
+	~aui_Region() override;
 
 	virtual BOOL IsThisA( uint32 classId )
 	{

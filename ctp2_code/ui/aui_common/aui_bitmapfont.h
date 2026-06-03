@@ -89,7 +89,7 @@ public:
 	aui_BitmapFont(
 		AUI_ERRCODE *retval,
 		MBCHAR const * descriptor = nullptr );
-	virtual ~aui_BitmapFont();
+	~aui_BitmapFont() override;
 
 	static void AttributesToDescriptor(
 		MBCHAR out[ k_AUI_BITMAPFONT_MAXDESCLEN + 1 ],

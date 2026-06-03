@@ -49,7 +49,7 @@ public:
 		MessageIconWindow *icon,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~MessageWindow();
+	~MessageWindow() override;
 
 	virtual AUI_ERRCODE InitCommon( Message data, MessageIconWindow *iconWindow );
 

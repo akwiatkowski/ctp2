@@ -121,7 +121,7 @@ void sci_advancescreen_fillgoalarray(sint32 goal);
 
 class SciAdvanceScreenKeyboardHandler : public KeyboardHandler {
 public:
-	void kh_Close() {
+	void kh_Close() override {
 		sci_advancescreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 	}
 };

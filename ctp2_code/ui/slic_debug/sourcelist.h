@@ -22,12 +22,12 @@ public:
 	SourceListItem(AUI_ERRCODE *retval, sint32 index, SlicSegment *segment, MBCHAR *line,
 				   sint32 lineNumber, MBCHAR *ldlBlock);
 
-	virtual void Update();
+	void Update() override;
 
 	SlicSegment *GetSegment() { return m_segment; }
 	MBCHAR *GetLine();
 	sint32 GetLineNumber() { return m_lineNumber; }
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	void Open();
 	void ToggleBreak();
@@ -58,7 +58,7 @@ class SourceList : public KeyboardHandler
 {
 public:
 	SourceList(SourceListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr);
-	virtual ~SourceList();
+	~SourceList() override;
 
 	c3_PopupWindow *m_window;
 	c3_ListBox     *m_list;
@@ -80,7 +80,7 @@ public:
 	void RemoveWindow();
 	void DisplayWindow(SlicSegment *segment);
 
-	void kh_Close();
+	void kh_Close() override;
 
 	c3_ListBox *GetList() { return m_list; }
 	void ShowBreak(sint32 offset);

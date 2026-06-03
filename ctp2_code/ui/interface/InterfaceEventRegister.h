@@ -28,7 +28,7 @@ public:
 	{}
 
 	GAME_EVENT_HOOK_DISPOSITION GEVHookCallback(
-		GAME_EVENT gameEventType, GameEventArgList *args)
+		GAME_EVENT gameEventType, GameEventArgList *args) override
 	{ return(m_callback(m_attachment, gameEventType, args)); }
 
 private:

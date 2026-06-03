@@ -75,11 +75,11 @@ public:
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 
-	virtual ~RadarMap();
+	~RadarMap() override;
 
 	void		InitCommonLdl(MBCHAR *ldlBlock);
 	void		InitCommon();
-	virtual		AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
 
 
@@ -107,12 +107,12 @@ public:
 
 	aui_Surface *GetMapSurface() const { return m_mapSurface; }
 
-	virtual AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override;
 
-	virtual AUI_ERRCODE			Idle( );
+	AUI_ERRCODE			Idle( ) override;
 
 	bool IsInteractive() const { return(m_isInteractive); }
 

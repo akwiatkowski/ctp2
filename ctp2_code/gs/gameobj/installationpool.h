@@ -32,7 +32,7 @@ public:
 						sint32 type);
 	void Remove(Installation id);
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 	void RebuildQuadTree();
 
 	// JSON bridge — mirrors InstallationPool::Serialize.  Persists

@@ -36,10 +36,10 @@ class InfoBigListItem : public c3_ListItem
 public:
 
 	InfoBigListItem(AUI_ERRCODE *retval, Unit *city, sint32 index, MBCHAR *ldlBlock);
-	~InfoBigListItem();
+	~InfoBigListItem() override;
 
 
-	virtual void Update();
+	void Update() override;
 
 	Unit	*GetCity( ) { return &m_city; }
 	sint32	GetIndex( ) { return m_index; }
@@ -52,7 +52,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	Unit			m_city;
@@ -75,7 +75,7 @@ public:
 	InfoPlayerListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex( ) { return m_index; }
 	MBCHAR	*GetName( ) { return m_name; }
@@ -89,7 +89,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32			m_index;
@@ -103,7 +103,7 @@ public:
 	InfoWonderListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	Unit	*GetCity( ) { return &m_city; }
 	sint32	GetIndex( ) { return m_index; }
@@ -117,7 +117,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	Unit			m_city;
@@ -132,7 +132,7 @@ public:
 	InfoScoreListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 	sint32	GetIndex( ) { return m_index; }
 	sint32	GetPlayer( ) { return m_player; }
@@ -146,7 +146,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	sint32			m_index;
@@ -161,7 +161,7 @@ public:
 	InfoScoreLabelListItem(AUI_ERRCODE *retval, MBCHAR *label, MBCHAR *text, MBCHAR *ldlBlock);
 
 
-	virtual void Update();
+	void Update() override;
 
 protected:
 	InfoScoreLabelListItem() : c3_ListItem() {}
@@ -171,7 +171,7 @@ protected:
 
 public:
 
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 private:
 	MBCHAR			m_label[256];

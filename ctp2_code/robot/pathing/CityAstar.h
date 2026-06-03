@@ -41,8 +41,8 @@ class CityAstar : public Astar
 	uint32 m_alliance_mask;
 
 	bool EntryCost(const MapPoint &prev, const MapPoint &pos,
-	                        float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry);
-	sint32 GetMaxDir(MapPoint &pos) const;
+	                        float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry) override;
+	sint32 GetMaxDir(MapPoint &pos) const override;
 
 public:
 	CityAstar()

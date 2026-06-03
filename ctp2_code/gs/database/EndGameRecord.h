@@ -37,7 +37,7 @@ private:
 public:
 	EndGameRecord();
 	EndGameRecord(CivArchive &archive);
-	~EndGameRecord();
+	~EndGameRecord() override;
 	void Serialize(CivArchive &archive);
 
 	BOOL ParseNumber(Token *token, sint32 &val);

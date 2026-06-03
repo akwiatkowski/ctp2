@@ -67,7 +67,7 @@ public:
 protected:
 	uint32  m_cityId;
 
-    virtual bool    IsIncluded();
+    bool    IsIncluded() override;
 };
 
 void GenerateCityInfluence(const MapPoint &cpos, sint32 size);

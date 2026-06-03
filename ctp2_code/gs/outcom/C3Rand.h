@@ -20,14 +20,14 @@ public:
 	C3Rand(BOOL ownGenerator = FALSE);
 	virtual ~C3Rand();
 
-	STDMETHODIMP QueryInterface(REFIID, void **obj);
-	STDMETHODIMP_(ULONG) AddRef();
-	STDMETHODIMP_(ULONG) Release();
+	STDMETHODIMP QueryInterface(REFIID, void **obj) override;
+	STDMETHODIMP_(ULONG) AddRef() override;
+	STDMETHODIMP_(ULONG) Release() override;
 
 	C3Rand(CivArchive &archive);
 	void Serialize(CivArchive &archive);
 
-	STDMETHODIMP_(sint32) Next(sint32 range);
+	STDMETHODIMP_(sint32) Next(sint32 range) override;
 };
 
 #endif

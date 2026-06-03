@@ -26,7 +26,7 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *picture );
-	virtual ~StaticPicture();
+	~StaticPicture() override;
 
 protected:
 	StaticPicture() : aui_Static(), m_picture(nullptr) {};
@@ -34,10 +34,10 @@ protected:
 	AUI_ERRCODE InitCommon( MBCHAR *picture );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void SetPicture(MBCHAR *picture);
 

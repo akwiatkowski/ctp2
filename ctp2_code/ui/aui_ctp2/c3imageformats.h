@@ -12,10 +12,10 @@ class TargaImageFormat : public aui_ImageFormat
 {
 public:
 	TargaImageFormat() = default;
-	virtual ~TargaImageFormat() = default;
+	~TargaImageFormat() override = default;
 
 	AUI_ERRCODE LoadRIM(MBCHAR const *filename, aui_Image *image);
-	virtual AUI_ERRCODE Load(MBCHAR const * filename, aui_Image *image);
+	AUI_ERRCODE Load(MBCHAR const * filename, aui_Image *image) override;
 };
 
 
@@ -24,9 +24,9 @@ class TiffImageFormat : public aui_ImageFormat
 public:
 
 	TiffImageFormat() = default;
-	virtual ~TiffImageFormat() = default;
+	~TiffImageFormat() override = default;
 
-	virtual AUI_ERRCODE	Load(MBCHAR const *filename, aui_Image *image );
+	AUI_ERRCODE	Load(MBCHAR const *filename, aui_Image *image ) override;
 };
 
 #endif

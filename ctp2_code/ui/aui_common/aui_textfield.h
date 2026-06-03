@@ -76,7 +76,7 @@ public:
 		const MBCHAR *text = nullptr,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_TextField();
+	~aui_TextField() override;
 
 protected:
 	aui_TextField() : aui_Win() {}
@@ -110,13 +110,13 @@ public:
 	sint32	GetMaxFieldLen( ) const { return m_maxFieldLen; }
 	sint32	SetMaxFieldLen( sint32 maxFieldLen );
 
-	virtual aui_Control	*SetKeyboardFocus( );
-	virtual AUI_ERRCODE	ReleaseKeyboardFocus( );
+	aui_Control	*SetKeyboardFocus( ) override;
+	AUI_ERRCODE	ReleaseKeyboardFocus( ) override;
 
-	virtual AUI_ERRCODE	DrawThis(
+	AUI_ERRCODE	DrawThis(
 		aui_Surface *surface,
 		sint32 x,
-		sint32 y );
+		sint32 y ) override;
 
 	static WNDPROC	m_windowProc;
 #ifdef __AUI_USE_DIRECTX__
@@ -157,8 +157,8 @@ public:
 	aui_BitmapFont *m_holdfont;
 #endif
 
-	virtual void	MouseLGrabOutside(aui_MouseEvent * mouseData);
-	virtual void	PostChildrenCallback(aui_MouseEvent * mouseData);
+	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
+	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
 };
 
 

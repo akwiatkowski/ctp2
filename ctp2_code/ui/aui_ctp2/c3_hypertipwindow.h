@@ -26,7 +26,7 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern );
-	virtual ~c3_HyperTipWindow();
+	~c3_HyperTipWindow() override;
 
 protected:
 	c3_HyperTipWindow() : aui_TipWindow() {}
@@ -38,10 +38,10 @@ public:
 	aui_HyperTextBox *GetHyperTip( ) const { return m_hyperTip; }
 	AUI_ERRCODE SetHyperTipText(MBCHAR *text);
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	BOOL m_allocatedHyperTip;

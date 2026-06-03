@@ -18,10 +18,10 @@ public:
 	NetOrder(sint32 owner, const Army &army, UNIT_ORDER_TYPE o, Path *a_path,
 			 MapPoint point, sint32 arg, GAME_EVENT event);
 	NetOrder();
-	virtual ~NetOrder();
+	~NetOrder() override;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	sint32 m_owner;
 	Army m_army;

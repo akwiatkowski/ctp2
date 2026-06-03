@@ -31,16 +31,16 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_Spinner() = default;
+	~ns_Spinner() override = default;
 
 protected:
 	ns_Spinner() : aui_Ranger() {}
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

@@ -34,7 +34,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_Ranger();
+	~c3_Ranger() override;
 
 protected:
 	c3_Ranger() : aui_Ranger() {}
@@ -43,13 +43,13 @@ protected:
 	AUI_ERRCODE CreateButtonsAndThumb( MBCHAR *ldlBlock );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
-	virtual AUI_ERRCODE RepositionButtons( );
+	AUI_ERRCODE RepositionButtons( ) override;
 
 	aui_Static *m_arrows[ 4 ];
 };

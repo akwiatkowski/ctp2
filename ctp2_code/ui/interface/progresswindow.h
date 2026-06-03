@@ -63,7 +63,7 @@ private:
 		AUI_ERRCODE *retval,
 		MBCHAR *ldlBlock,
 		sint32 x = -1, sint32 y = -1);
-	virtual ~ProgressWindow();
+	~ProgressWindow() override;
 
 	c3_Static *m_message;
 	aui_ProgressBar *m_pbar;
@@ -87,10 +87,10 @@ public:
 		aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 		aui_ProgressBar( retval, id, ldlBlock )
 	{}
-	virtual ~StandardProgressBar() = default;
+	~StandardProgressBar() override = default;
 
 protected:
-	virtual AUI_ERRCODE CalculateIntervals( double *start, double *stop );
+	AUI_ERRCODE CalculateIntervals( double *start, double *stop ) override;
 };
 
 #endif

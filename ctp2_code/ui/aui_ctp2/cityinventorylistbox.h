@@ -28,7 +28,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~CityInventoryListBox ();
+	~CityInventoryListBox () override;
 
 	sint32 FillInventoryBox( const Unit &unit );
 	void UpdateInventoryBox( const Unit &unit );

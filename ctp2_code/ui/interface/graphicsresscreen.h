@@ -47,7 +47,7 @@ public:
 	ScreenResListItem(AUI_ERRCODE *retval, CTPDisplayMode *mode, MBCHAR *ldlBlock);
 
 
-	virtual void Update() {}
+	void Update() override {}
 
 	CTPDisplayMode *GetDisplayMode() { return m_mode; }
 protected:

@@ -53,7 +53,7 @@ public:
 
 	CivilisationPool() ;
 	CivilisationPool(CivArchive &archive) ;
-	~CivilisationPool() ;
+	~CivilisationPool() override ;
 
 	CivilisationData* AccessData(const Civilisation id) { return ((CivilisationData*)Access(id)) ; }
 
@@ -62,7 +62,7 @@ public:
 	Civilisation Create(const PLAYER_INDEX owner, sint32 civ, GENDER gender) ;
 	void Release(sint32 const & civ);
 
-	void Serialize(CivArchive &archive) ;
+	void Serialize(CivArchive &archive) override ;
 
 	// JSON bridge — mirrors CivilisationPool::Serialize.  Persists
 	// ObjPool key counter + every live CivilisationData entry +

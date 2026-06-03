@@ -81,7 +81,7 @@ public:
 		uint8 *buffer = nullptr,
 		BOOL isPrimary = FALSE,
 		HDC hdc = nullptr);
-	virtual ~aui_Surface();
+	~aui_Surface() override;
 
 protected:
 	aui_Surface() : aui_Base() {}

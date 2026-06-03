@@ -34,8 +34,8 @@ public:
 	void			Import(uint16 id);
 
 	void			Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale,
-					  uint16 transparency, Pixel16 outlineColor, uint16 flags);
-	void			DrawText(sint32 x, sint32 y, MBCHAR const * s);
+					  uint16 transparency, Pixel16 outlineColor, uint16 flags) override;
+	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 
 private:
 	CITYSIZE		m_currentSize;

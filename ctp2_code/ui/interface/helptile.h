@@ -18,7 +18,7 @@ class TileImprovementListItem : public c3_ListItem
 {
 public:
 	TileImprovementListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, sint32 time, uint32 name);
-	void Update();
+	void Update() override;
 private:
 	sint32 m_time;
 	sint32 m_name;

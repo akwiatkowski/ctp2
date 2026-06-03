@@ -27,17 +27,17 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~PictureSwitch() = default;
+	~PictureSwitch() override = default;
 
 	Picture *&ThePictureOn( ) { return m_pictureOn; }
 	Picture *&ThePictureOff( ) { return m_pictureOff; }
 	Picture *&ThePictureActiveOn( ) { return m_pictureActiveOn; }
 	Picture *&ThePictureActiveOff( ) { return m_pictureActiveOff; }
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	Picture *m_pictureOn;

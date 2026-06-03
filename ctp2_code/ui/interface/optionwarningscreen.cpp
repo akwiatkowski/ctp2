@@ -56,7 +56,7 @@
 class WarningKeyboardHandler : public KeyboardHandler
 {
 public:
-	void kh_Close()
+	void kh_Close() override
 	{
 		optionwarningscreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 	}

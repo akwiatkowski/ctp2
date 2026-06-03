@@ -92,7 +92,7 @@ public:
 		AUI_ERRCODE *   retval,
 		MBCHAR const *  ldlFilename
     );
-	virtual ~aui_Ldl();
+	~aui_Ldl() override;
 
 public:
 	static bool			IsValid(MBCHAR const * ldlBlock);

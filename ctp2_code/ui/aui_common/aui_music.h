@@ -43,7 +43,7 @@ class aui_Music : public aui_Base
 {
 public:
 	aui_Music();
-	~aui_Music();
+	~aui_Music() override;
 
 	virtual AUI_MUSIC_ERRCODE Init() { return AUI_MUSIC_ERRCODE_OK; }
 	virtual AUI_MUSIC_ERRCODE Close() { return AUI_MUSIC_ERRCODE_OK; }
@@ -77,18 +77,18 @@ class aui_Redbook : public aui_Music
 {
 public:
 	aui_Redbook();
-	virtual ~aui_Redbook();
+	~aui_Redbook() override;
 
 
-	virtual AUI_MUSIC_ERRCODE Init();
-	virtual AUI_MUSIC_ERRCODE Close();
-	virtual AUI_MUSIC_ERRCODE Pause();
-	virtual AUI_MUSIC_ERRCODE Resume();
-	virtual AUI_MUSIC_ERRCODE Stop();
-	virtual AUI_MUSIC_ERRCODE Play();
-	virtual AUI_MUSIC_ERRCODE Play( sint32 itrack );
-	virtual AUI_MUSIC_ERRCODE SetVolume( uint8 volume );
-	virtual AUI_MUSIC_CODE Status();
+	AUI_MUSIC_ERRCODE Init() override;
+	AUI_MUSIC_ERRCODE Close() override;
+	AUI_MUSIC_ERRCODE Pause() override;
+	AUI_MUSIC_ERRCODE Resume() override;
+	AUI_MUSIC_ERRCODE Stop() override;
+	AUI_MUSIC_ERRCODE Play() override;
+	AUI_MUSIC_ERRCODE Play( sint32 itrack ) override;
+	AUI_MUSIC_ERRCODE SetVolume( uint8 volume ) override;
+	AUI_MUSIC_CODE Status() override;
 
 protected:
 

@@ -32,14 +32,14 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
 
-	virtual ~PictureButton();
+	~PictureButton() override;
 
 	AUI_ERRCODE InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BOOL isLDL = FALSE);
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 
 	Picture *&UpPicture( ) { return m_upPicture; }

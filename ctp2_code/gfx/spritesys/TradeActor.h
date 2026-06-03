@@ -25,7 +25,7 @@ public:
 	//TradeActor(TradeActor *copy);
 	~TradeActor();
 
-	virtual void	Process();
+	void	Process() override;
 
   void			AddAction(ActionPtr actionObj) override;
 	void			GetNextAction();

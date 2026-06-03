@@ -76,13 +76,13 @@ class GoodSpriteGroup : public SpriteGroup
 public:
 	GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
 
-	void			DeallocateStorage();
-	void			DeallocateFullLoadAnims();
+	void			DeallocateStorage() override;
+	void			DeallocateFullLoadAnims() override;
 
-	void			LoadBasic(MBCHAR const * filename);
-	void			LoadFull(MBCHAR const * filename);
+	void			LoadBasic(MBCHAR const * filename) override;
+	void			LoadFull(MBCHAR const * filename) override;
 
-	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode);
+	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 
 	void			ExportScript(MBCHAR const * name);
 
@@ -91,12 +91,12 @@ public:
 	void			DrawDirect(aui_Surface *surf, GOODACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags);
 
-	void			DrawText(sint32 x, sint32 y, MBCHAR const * s);
+	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 
 	POINT			GetHotPoint(GOODACTION action);
 
 
-	sint32			Parse(uint16 id,GROUPTYPE group);
+	sint32			Parse(uint16 id,GROUPTYPE group) override;
 };
 
 #endif

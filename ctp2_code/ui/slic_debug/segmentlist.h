@@ -23,10 +23,10 @@ class SegmentListItem : public c3_ListItem
 public:
 	SegmentListItem(AUI_ERRCODE *retval, sint32 index, SlicSegment *segment, MBCHAR *ldlBlock);
 
-	virtual void Update();
+	void Update() override;
 
 	SlicSegment *GetSegment() { return m_segment; }
-	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
+	sint32 Compare(c3_ListItem *item2, uint32 column) override;
 
 	void Open();
 
@@ -44,13 +44,13 @@ class SegmentList : public KeyboardHandler
 {
 public:
 	SegmentList(SegmentListCallback* callback = nullptr, MBCHAR *ldlBlock = nullptr);
-	virtual ~SegmentList();
+	~SegmentList() override;
 
 	void DisplayWindow();
 	void RemoveWindow();
 
 	c3_ListBox *GetList() const { return m_list; }
-	virtual void kh_Close();
+	void kh_Close() override;
 
 private:
 	sint32 Initialize(MBCHAR *ldlBlock);

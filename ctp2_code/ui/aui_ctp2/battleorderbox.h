@@ -45,12 +45,12 @@ public:
 
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock);
 
-	virtual ~BattleOrderBox();
+	~BattleOrderBox() override;
 
-	virtual AUI_ERRCODE	Show( );
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
+	AUI_ERRCODE	Show( ) override;
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
 								sint32 x = 0,
-								sint32 y = 0);
+								sint32 y = 0) override;
 
 	void	SetSingleUnit(Unit theUnit);
 	void	SetStackMode(BOOL stackDisplay);

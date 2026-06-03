@@ -151,16 +151,16 @@ public:
     ArmyData(const Army &army);
 
     ArmyData(CivArchive &archive);
-    ~ArmyData();
+    ~ArmyData() override;
 
-    void Serialize(CivArchive &archive);
+    void Serialize(CivArchive &archive) override;
 
-    PLAYER_INDEX GetOwner() const { return m_owner; }
+    PLAYER_INDEX GetOwner() const override { return m_owner; }
     void SetOwner(PLAYER_INDEX p);
 
 
     bool Insert(const Unit &id);
-    void GetPos(MapPoint &pos) const { pos = m_pos; }
+    void GetPos(MapPoint &pos) const override { pos = m_pos; }
     MapPoint RetPos() const { return m_pos; }
 
     uint32 GetMovementType() const;
@@ -202,7 +202,7 @@ public:
 
     void FastKill();
 
-    void CityRadiusFunc(const MapPoint &pos);
+    void CityRadiusFunc(const MapPoint &pos) override;
     void GetActiveDefenders(UnitDynamicArray &input,
                             UnitDynamicArray &output,
                             bool isCargoPodCheck);

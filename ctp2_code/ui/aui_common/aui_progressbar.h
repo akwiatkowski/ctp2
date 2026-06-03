@@ -64,7 +64,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height );
-	virtual ~aui_ProgressBar();
+	~aui_ProgressBar() override;
 
 protected:
 	aui_ProgressBar() : aui_Control() {}
@@ -98,12 +98,12 @@ public:
 	aui_Image	*SetBarImage( MBCHAR *image );
 	COLORREF	SetBarColor( COLORREF color );
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE Idle( );
+	AUI_ERRCODE Idle( ) override;
 
 protected:
 	virtual AUI_ERRCODE CalculateIntervals( double *start, double *stop );

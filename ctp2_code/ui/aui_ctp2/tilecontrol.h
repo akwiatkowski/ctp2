@@ -25,12 +25,12 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~TileControl() = default;
+	~TileControl() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void SetMouseTile(const MapPoint &p) { m_currentTile = p; };
 

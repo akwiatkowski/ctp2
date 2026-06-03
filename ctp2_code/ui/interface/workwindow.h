@@ -55,19 +55,19 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
 
-	virtual ~WorkWindow() = default;
+	~WorkWindow() override = default;
 
 	virtual AUI_ERRCODE InitCommon();
 
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
-	virtual void	MouseMoveAway(aui_MouseEvent * mouseData);
-	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
+	void	MouseMoveAway(aui_MouseEvent * mouseData) override;
+	void	MouseMoveInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

@@ -139,7 +139,7 @@ class DQActionMoveProjectile : public DQAction
 {
 public:
 	DQActionMoveProjectile();
-	~DQActionMoveProjectile();
+	~DQActionMoveProjectile() override;
 
 	std::weak_ptr<UnitActor> pshooting_actor;
 	std::weak_ptr<UnitActor> ptarget_actor;
@@ -340,7 +340,7 @@ class DQActionCopyVision : public DQAction
 {
 public:
 	DQActionCopyVision() = default;
-	~DQActionCopyVision() = default;
+	~DQActionCopyVision() override = default;
 
 	BOOL						copyVision;
 };
@@ -349,7 +349,7 @@ class DQActionCenterMap : public DQAction
 {
 public:
 	DQActionCenterMap() = default;
-	~DQActionCenterMap() = default;
+	~DQActionCenterMap() override = default;
 
 	MapPoint					centerMap_pos;
 };
@@ -358,7 +358,7 @@ class DQActionUnitSelection : public DQAction
 {
 public:
 	DQActionUnitSelection() = default;
-	~DQActionUnitSelection() = default;
+	~DQActionUnitSelection() override = default;
 
 	uint32 						flags;
 };
@@ -367,7 +367,7 @@ class DQActionEndTurn : public DQAction
 {
 public:
 	DQActionEndTurn() = default;
-	~DQActionEndTurn() = default;
+	~DQActionEndTurn() override = default;
 
 	BOOL						endTurn;
 };
@@ -380,7 +380,7 @@ public:
         DQAction        (),
         battle          (nullptr)
     {};
-	~DQActionBattle() = default;
+	~DQActionBattle() override = default;
 
 	Battle						*battle;
 };
@@ -394,7 +394,7 @@ public:
         playsound_soundID   (CTPRecord::INDEX_INVALID),
         playsound_pos       ()
     {};
-	~DQActionPlaySound() = default;
+	~DQActionPlaySound() override = default;
 
 	sint32						playsound_soundID;
 	MapPoint					playsound_pos;
@@ -404,7 +404,7 @@ class DQActionPlayWonderMovie : public DQAction
 {
 public:
 	DQActionPlayWonderMovie() = default;
-	~DQActionPlayWonderMovie() = default;
+	~DQActionPlayWonderMovie() override = default;
 
 	sint32						playwondermovie_which;
 };
@@ -413,7 +413,7 @@ class DQActionPlayVictoryMovie : public DQAction
 {
 public:
 	DQActionPlayVictoryMovie() = default;
-	~DQActionPlayVictoryMovie() = default;
+	~DQActionPlayVictoryMovie() override = default;
 
 	GAME_OVER					playvictorymovie_reason;
 };
@@ -422,7 +422,7 @@ class DQActionMessage : public DQAction
 {
 public:
 	DQActionMessage() = default;
-	~DQActionMessage() = default;
+	~DQActionMessage() override = default;
 
 	Message						message;
 };
@@ -436,7 +436,7 @@ public:
         faceoff_attacker_pos    (),
         faceoff_attacked_pos    ()
     {};
-	~DQActionFaceoff() = default;
+	~DQActionFaceoff() override = default;
 
 	std::weak_ptr<UnitActor> faceoff_attacker;
 	MapPoint	    faceoff_attacker_pos;
@@ -451,7 +451,7 @@ public:
     :
         DQAction    ()
     {};
-	~DQActionTerminateFaceOff() = default;
+	~DQActionTerminateFaceOff() override = default;
 
 	std::weak_ptr<UnitActor> faceroffer;
 };
@@ -460,7 +460,7 @@ class DQActionTerminateSound : public DQAction
 {
 public:
 	DQActionTerminateSound() = default;
-	~DQActionTerminateSound() = default;
+	~DQActionTerminateSound() override = default;
 
 	Unit            terminate_sound_unit;
 };
@@ -469,7 +469,7 @@ class DQActionInvokeThroneRoom : public DQAction
 {
 public:
 	DQActionInvokeThroneRoom() = default;
-	~DQActionInvokeThroneRoom() = default;
+	~DQActionInvokeThroneRoom() override = default;
 };
 
 class DQActionInvokeResearchAdvance : public DQAction
@@ -480,7 +480,7 @@ public:
         DQAction    (),
         message     (nullptr)
     {}
-	~DQActionInvokeResearchAdvance();
+	~DQActionInvokeResearchAdvance() override;
 
 	MBCHAR *        message;
 };
@@ -489,7 +489,7 @@ class DQActionBeginScheduler : public DQAction
 {
   public:
 	DQActionBeginScheduler() = default;
-	~DQActionBeginScheduler() = default;
+	~DQActionBeginScheduler() override = default;
 
 	sint32 player;
 };

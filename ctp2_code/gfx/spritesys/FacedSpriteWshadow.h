@@ -69,7 +69,7 @@ class FacedSpriteWshadow : public Sprite
 {
 public:
 	FacedSpriteWshadow();
-	virtual ~FacedSpriteWshadow();
+	~FacedSpriteWshadow() override;
 
 	void			Import(uint16 nframes, char *files[k_NUM_FACINGS][k_MAX_NAMES], char *shadowFiles[k_NUM_FACINGS][k_MAX_NAMES]);
 	void			Import(uint16 nframes, char *files[k_NUM_FACINGS][k_MAX_NAMES]);
@@ -77,13 +77,13 @@ public:
 	void			Load(char *filename);
 
 	void			Draw(sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
-							Pixel16 outlineColor, uint16 flags);
+							Pixel16 outlineColor, uint16 flags) override;
 
 	void			DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
-						Pixel16 outlineColor, uint16 flags);
+						Pixel16 outlineColor, uint16 flags) override;
 
 	void			DirectionalDraw(sint32 drawX, sint32 drawY, sint32 facing,
-					   double scale, sint16 transparency, Pixel16 outlineColor, uint16 flags);
+					   double scale, sint16 transparency, Pixel16 outlineColor, uint16 flags) override;
 
 	void			DrawShadow(sint32 SdrawX, sint32 SdrawY, sint32 facing, double m_scale, sint16 transparency,
 						Pixel16 outlineColor, uint16 flags);
@@ -116,14 +116,14 @@ public:
 	void			SetHotPoint(uint16 facing, sint32 x, sint32 y) { m_hotPoints[facing].x = x; m_hotPoints[facing].y = y; }
 	void			SetHotPoints(POINT *points) { memcpy(m_hotPoints, points, sizeof(m_hotPoints)); }
 
-	virtual sint32	ParseFromTokens(Token *theToken);
-	virtual void	AllocateFrameArrays(size_t count);
+	sint32	ParseFromTokens(Token *theToken) override;
+	void	AllocateFrameArrays(size_t count) override;
 
 	void			SetHasShadow(BOOL val) { m_hasShadow = static_cast<uint16>(val); }
 	BOOL			GetHasShadow() { return m_hasShadow; }
 
-	virtual size_t	GetNumFrames() const    { return m_shadowFrameCount; };
-	virtual void	SetNumFrames(uint16 num)    { m_shadowFrameCount = num; }
+	size_t	GetNumFrames() const override    { return m_shadowFrameCount; };
+	void	SetNumFrames(uint16 num) override    { m_shadowFrameCount = num; }
 
 protected:
 	Pixel16			**m_frames[k_NUM_FACINGS];

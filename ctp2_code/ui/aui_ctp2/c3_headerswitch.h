@@ -33,7 +33,7 @@ public:
 		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_C3_HEADERSWITCH_DEFAULTNUMSTATES );
-	virtual ~c3_HeaderSwitch();
+	~c3_HeaderSwitch() override;
 
 	c3_Static *GetImage( ) const { return m_image; }
 
@@ -43,10 +43,10 @@ protected:
 	AUI_ERRCODE InitCommon( );
 
 protected:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	c3_Static *m_image;
 };

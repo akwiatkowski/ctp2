@@ -61,12 +61,12 @@ public:
         m_menu      (menu)
     { ; };
 
-	virtual void	Execute
+	void	Execute
 	(
 		aui_Control	*	control,
 		uint32			action,
 		uint32			data
-	)
+	) override
     {
         if (m_menu)
         {

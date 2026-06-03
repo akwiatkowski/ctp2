@@ -76,7 +76,7 @@ class NetShell : public aui_Shell
 {
 public:
 	NetShell();
-	virtual ~NetShell();
+	~NetShell() override;
 
 	enum SCREEN
 	{
@@ -110,7 +110,7 @@ public:
 		WINDOW_MAX = WINDOW_LAST - WINDOW_FIRST
 	};
 
-	virtual aui_Screen *FindScreen( uint32 id );
+	aui_Screen *FindScreen( uint32 id ) override;
 	aui_Window *FindWindow( uint32 id );
 
 	static AUI_ERRCODE	Enter( uint32 flags );

@@ -48,7 +48,7 @@ class DiplomaticRequestPool : public ObjPool
 		void EndTurn(const PLAYER_INDEX sender) ;
 		void EndTurn(DiplomaticRequestData *top, const PLAYER_INDEX sender,
 					 MessageDynamicArray &msgExpired);
-		void Serialize(CivArchive &archive) ;
+		void Serialize(CivArchive &archive) override ;
 
 	} ;
 

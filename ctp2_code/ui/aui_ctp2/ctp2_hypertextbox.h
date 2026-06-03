@@ -76,14 +76,14 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ctp2_HyperTextBox();
+	~ctp2_HyperTextBox() override;
 
 	void RemoveHyperLinks();
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	ctp2_HyperLink *GetSelectedHyperLink( ) { return m_selectedHyperLink; }
 
@@ -93,11 +93,11 @@ protected:
 	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRanger( MBCHAR *ldlBlock = nullptr );
 
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
 
-	virtual AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText );
+	AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText ) override;
 
 	tech_WLList<ctp2_HyperLink *>	*m_hyperLinkList;
 

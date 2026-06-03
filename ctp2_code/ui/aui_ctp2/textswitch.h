@@ -30,16 +30,16 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~TextSwitch() = default;
+	~TextSwitch() override = default;
 
 protected:
 	TextSwitch() : aui_Switch() {}
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

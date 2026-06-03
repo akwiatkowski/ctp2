@@ -22,7 +22,7 @@ public:
 		MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~ns_ChatBox();
+	~ns_ChatBox() override;
 
 	NETFunc::Player *GetPlayer();
 	void SetPlayer(NETFunc::Player *p);
@@ -31,13 +31,13 @@ public:
 	bool IsGroup();
 	void SetGroup(bool g);
 
-	void Receive(NETFunc::Player *p, TYPE t, char *m);
+	void Receive(NETFunc::Player *p, TYPE t, char *m) override;
 
-	AUI_ERRCODE RepositionItems( );
+	AUI_ERRCODE RepositionItems( ) override;
 	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	aui_TextBase *m_textstyleSystem;

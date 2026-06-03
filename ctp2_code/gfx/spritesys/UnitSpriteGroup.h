@@ -53,21 +53,21 @@ class UnitSpriteGroup : public SpriteGroup
 public:
 	UnitSpriteGroup(GROUPTYPE type);
 
-	void			DeallocateStorage();
-	void			DeallocateFullLoadAnims();
+	void			DeallocateStorage() override;
+	void			DeallocateFullLoadAnims() override;
 
-	void			LoadBasic(MBCHAR const * filename);
-	void			LoadIndexed(MBCHAR const * filename, GAME_ACTION index);
-	void			LoadFull(MBCHAR const * filename);
+	void			LoadBasic(MBCHAR const * filename) override;
+	void			LoadIndexed(MBCHAR const * filename, GAME_ACTION index) override;
+	void			LoadFull(MBCHAR const * filename) override;
 
 	bool			GetImageFileName(MBCHAR * name, char * format, ...);
 
-	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode);
+	void			Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode) override;
 
 	void			Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 						   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags, BOOL specialDelayProcess, BOOL directionalAttack);
 
-	void			DrawText(sint32 x, sint32 y, MBCHAR const * s);
+	void			DrawText(sint32 x, sint32 y, MBCHAR const * s) override;
 	void			DrawDirect(aui_Surface *surf, UNITACTION action, sint32 frame, sint32 drawX, sint32 drawY,
 							   sint32 facing, double scale, uint16 transparency, Pixel16 outlineColor, uint16 flags,
 							   BOOL specialDelayProcess,
@@ -88,7 +88,7 @@ public:
 	uint16			GetNumFirePointsWork() { return m_numFirePointsWork; }
 	void			SetNumFirePointsWork(uint16 num) { m_numFirePointsWork = num; }
 
-	sint32			Parse(uint16 id,GROUPTYPE type);
+	sint32			Parse(uint16 id,GROUPTYPE type) override;
 	void			ExportScript(MBCHAR const * name);
 
 	POINT			GetHotPoint(UNITACTION action, sint32 facing);

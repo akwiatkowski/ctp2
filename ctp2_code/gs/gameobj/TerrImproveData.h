@@ -116,7 +116,7 @@ public:
 
 	void StartBuilding();
 
-	void Serialize(CivArchive &archive);
+	void Serialize(CivArchive &archive) override;
 
 	// JSON bridge — mirrors TerrainImprovementData::Serialize.  Persists
 	// GameObj id + 8 fields (owner, type, point, turns_to_complete,

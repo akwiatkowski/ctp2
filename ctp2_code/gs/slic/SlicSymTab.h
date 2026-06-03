@@ -21,11 +21,11 @@ private:
 public:
 	SlicSymTab(sint32 size);
 	SlicSymTab(CivArchive &archive);
-	~SlicSymTab();
+	~SlicSymTab() override;
 	void Serialize(CivArchive &archive);
 	void PostSerialize();
 
-	void Add(SlicNamedSymbol *sym);
+	void Add(SlicNamedSymbol *sym) override;
 	void Add(sint32 index);
 	const SlicNamedSymbol *Get(sint32 index) const;
 	SlicNamedSymbol *Access(sint32 index);

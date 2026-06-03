@@ -66,7 +66,7 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_Thumb() = default;
+	~aui_Thumb() override = default;
 
 public:
 	AUI_ERRCODE	Reposition( sint32 x, sint32 y );
@@ -77,17 +77,17 @@ protected:
 
 	POINT	m_grabPoint;
 
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOutside(aui_MouseEvent * mouseData);
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseLDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData) {};
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseRGrabInside(aui_MouseEvent * mouseData) override {};
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
 
-	virtual void	MouseRDropInside(aui_MouseEvent * mouseData);
+	void	MouseRDropInside(aui_MouseEvent * mouseData) override;
 };
 
 #endif

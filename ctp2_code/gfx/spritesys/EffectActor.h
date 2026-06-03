@@ -29,7 +29,7 @@ public:
 
 	void ChangeType(SpriteStatePtr ss, sint32 type, Unit id);
 
-	virtual void	Process();
+	void	Process() override;
 	void			EndTurnProcess();
 
   void			AddAction(ActionPtr actionObj) override;

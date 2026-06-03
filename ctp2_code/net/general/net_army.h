@@ -20,8 +20,8 @@ public:
 			   CAUSE_NEW_ARMY cause);
 	NetNewArmy() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	sint32 m_index;
 	PLAYER_INDEX m_player;
@@ -37,8 +37,8 @@ public:
 				  CAUSE_REMOVE_ARMY cause);
 	NetRemoveArmy() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
 private:
 	sint32 m_index;
@@ -54,8 +54,8 @@ public:
 	NetArmy(ArmyData *data);
 	NetArmy() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 private:
 	ArmyData *m_data;
 };
@@ -66,8 +66,8 @@ class NetGroupRequest:public Packetizer
 	NetGroupRequest(const CellUnitList &units, const Army &army);
 	NetGroupRequest() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
   private:
 	uint32 m_armyId;
@@ -80,8 +80,8 @@ class NetUngroupRequest:public Packetizer
 	NetUngroupRequest(const Army &army, const CellUnitList &units);
 	NetUngroupRequest() = default;
 
-	void Packetize(uint8 *buf, uint16 &size);
-	void Unpacketize(uint16 id, uint8 *buf, uint16 size);
+	void Packetize(uint8 *buf, uint16 &size) override;
+	void Unpacketize(uint16 id, uint8 *buf, uint16 size) override;
 
   private:
 	uint32 m_armyId;

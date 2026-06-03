@@ -64,7 +64,7 @@ public:
 		Message data,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_FLOATING );
 
-	virtual ~MessageModal();
+	~MessageModal() override;
 
 	virtual AUI_ERRCODE InitCommon( MBCHAR *ldlBlock, Message data );
 
@@ -75,8 +75,8 @@ public:
 	Message				*GetMessage( ) { return &m_message; }
 
 protected:
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
 
 	AUI_ERRCODE CreateWindowEdges( MBCHAR *ldlBlock );
 	AUI_ERRCODE CreateResponses( MBCHAR *ldlBlock );

@@ -93,11 +93,11 @@ public:
 					ControlActionCallback *ActionFunc = nullptr,
 					void *cookie = nullptr);
 
-	virtual ~ThumbnailMap();
+	~ThumbnailMap() override;
 
 	void		InitCommonLdl(MBCHAR *ldlBlock);
 	void		InitCommon();
-	virtual		AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
 	void		BuildCityList();
 
@@ -134,14 +134,14 @@ public:
 	void		UpdateMap(aui_Surface *surf, sint32 x, sint32 y);
 	void		UpdateAll( );
 
-	virtual AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
-    virtual void	MouseLGrabInside(aui_MouseEvent * data);
-    virtual void	MouseRGrabInside(aui_MouseEvent * data);
-    virtual void	MouseNoChange(aui_MouseEvent * data);
-    virtual void	MouseMoveInside(aui_MouseEvent * data);
+    void	MouseLGrabInside(aui_MouseEvent * data) override;
+    void	MouseRGrabInside(aui_MouseEvent * data) override;
+    void	MouseNoChange(aui_MouseEvent * data) override;
+    void	MouseMoveInside(aui_MouseEvent * data) override;
 
-	virtual AUI_ERRCODE			Idle( );
+	AUI_ERRCODE			Idle( ) override;
 
 	BOOL ShowTipWindow( aui_MouseEvent *mouseData );
 

@@ -112,23 +112,23 @@ public:
         Cell *the_prev_cell, Cell *the_pos_cell,
         float &cost, bool &is_zoc, const bool can_be_zoc, ASTAR_ENTRY_TYPE &entry, bool &can_enter);
 
-    virtual bool EntryCost(const MapPoint &prev, const MapPoint &pos,
-       float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry);
+    bool EntryCost(const MapPoint &prev, const MapPoint &pos,
+       float &cost, bool &is_zoc, ASTAR_ENTRY_TYPE &entry) override;
 
     bool InitPoint(AstarPoint *parent, AstarPoint *point, const MapPoint &pos,
-        const float pc, const MapPoint &dest);
+        const float pc, const MapPoint &dest) override;
     bool CheckIsDangerForPos(const MapPoint & myPos);
 
     void RecalcEntryCost(AstarPoint *parent, AstarPoint *node, float &new_entery_cost,
-        bool &new_is_zoc, ASTAR_ENTRY_TYPE &entry);
+        bool &new_is_zoc, ASTAR_ENTRY_TYPE &entry) override;
 
-    sint32 GetMaxDir(MapPoint &pos) const;
+    sint32 GetMaxDir(MapPoint &pos) const override;
     bool CanMoveIntoTransports(const MapPoint &pos);
     bool CanRailLaunch(const MapPoint &spos);
     bool CanSpaceLaunch();
     bool CanSpaceLand();
 
-    float EstimateFutureCost(const MapPoint &pos, const MapPoint &dest);
+    float EstimateFutureCost(const MapPoint &pos, const MapPoint &dest) override;
 
     void InitArmy(const Army &army, sint32 &nUnints,
     uint32 &move_intersection,  uint32 &move_union, float &army_minmax_move);

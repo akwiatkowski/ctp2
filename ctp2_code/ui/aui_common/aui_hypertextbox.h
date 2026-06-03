@@ -38,7 +38,7 @@ public:
 		sint32 height,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~aui_HyperTextBox();
+	~aui_HyperTextBox() override;
 
 protected:
 	aui_HyperTextBox() : aui_Control(), aui_HyperTextBase() {}
@@ -47,9 +47,9 @@ protected:
 	AUI_ERRCODE CreateRanger( MBCHAR *ldlBlock = nullptr );
 
 public:
-	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
-	virtual AUI_ERRCODE Show( );
+	AUI_ERRCODE Show( ) override;
 
 	aui_Ranger *GetRanger( ) const { return m_ranger; }
 
@@ -60,18 +60,18 @@ public:
 
 	AUI_ERRCODE	RangerMoved( );
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	virtual AUI_ERRCODE	SetHyperText( const MBCHAR *hyperText );
-	virtual AUI_ERRCODE	AppendHyperText( const MBCHAR *hyperText );
+	AUI_ERRCODE	AppendHyperText( const MBCHAR *hyperText ) override;
 
 	sint32 GetVirtualHeight( ) const { return m_virtualHeight; }
 
 protected:
-	virtual AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText );
+	AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText ) override;
 
 	AUI_ERRCODE	RepositionRanger( );
 

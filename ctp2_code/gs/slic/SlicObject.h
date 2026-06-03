@@ -94,7 +94,7 @@ public:
 	SlicObject(SlicSegment *segment, SlicObject *copy);
 	SlicObject(char const * id, SlicContext *copy);
 	SlicObject(CivArchive &archive) ;
-	virtual ~SlicObject();
+	~SlicObject() override;
 	void Serialize(CivArchive &archive) ;
 
 	sint32 GetIndex() const { return m_index; }
@@ -125,7 +125,7 @@ public:
 
 	void SetDefaultAdvance(sint32 adv);
 
-	bool ConcernsPlayer(PLAYER_INDEX player) const;
+	bool ConcernsPlayer(PLAYER_INDEX player) const override;
 
 	void Abort() { m_aborted = TRUE; }
 	void SetInstant() { m_instantMessage = TRUE; }

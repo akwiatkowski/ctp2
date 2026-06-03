@@ -108,7 +108,7 @@ class DiplomaticRequestData : public GameObj
 		void InterpretString(MBCHAR *ip, MBCHAR *op) ;
 		void GetRequestString(MBCHAR *s) ;
 		void Reject(BOOL fromServer = FALSE) ;
-		void Serialize(CivArchive &archive) ;
+		void Serialize(CivArchive &archive) override ;
 		ATTITUDE_TYPE GetAttitude(PLAYER_INDEX p1, PLAYER_INDEX p2) ;
 		MBCHAR *GetRequestString() ;
 

@@ -30,17 +30,17 @@ public:
 		MBCHAR *pattern,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_POPUP );
 
-	virtual ~VictoryMovieWindow();
+	~VictoryMovieWindow() override;
 
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 	virtual AUI_ERRCODE InitCommon();
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	void SetMovie(MBCHAR *filename);
 	void SetVictoryName(MBCHAR *name);

@@ -21,17 +21,17 @@ class LobbyWindow : public ns_Window
 public:
 
 	LobbyWindow( AUI_ERRCODE *retval );
-	virtual ~LobbyWindow();
+	~LobbyWindow() override;
 
 protected:
 	LobbyWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( BOOL init = TRUE );
-	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE SetParent( aui_Region *region );
+	AUI_ERRCODE Idle( ) override;
+	AUI_ERRCODE SetParent( aui_Region *region ) override;
 
 	void PasswordScreenDone( MBCHAR *password );
 

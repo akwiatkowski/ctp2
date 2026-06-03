@@ -91,9 +91,9 @@ public:
 		sint32 height,
 		sint32 bpp = 0,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_STANDARD );
-	virtual ~aui_Window();
+	~aui_Window() override;
 
-	virtual BOOL IsThisA( uint32 classId )
+	BOOL IsThisA( uint32 classId ) override
 	{
 		return classId == m_windowClassId
 		||     aui_Region::IsThisA( classId );
@@ -124,9 +124,9 @@ protected:
 #endif
 
 public:
-	virtual AUI_ERRCODE	Move( sint32 x, sint32 y );
-	virtual AUI_ERRCODE Offset( sint32 dx, sint32 dy );
-	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
+	AUI_ERRCODE	Move( sint32 x, sint32 y ) override;
+	AUI_ERRCODE Offset( sint32 dx, sint32 dy ) override;
+	AUI_ERRCODE	Resize( sint32 width, sint32 height ) override;
 
 	virtual AUI_ERRCODE MoveOG( );
 
@@ -144,11 +144,11 @@ public:
 	{ return RemoveChild( controlId ); }
 	aui_Control	*GetControl( uint32 controlId )
 	{ return (aui_Control *)GetChild( controlId ); }
-	virtual AUI_ERRCODE	AddChild( aui_Region *child );
-	virtual AUI_ERRCODE	RemoveChild( uint32 controlId );
+	AUI_ERRCODE	AddChild( aui_Region *child ) override;
+	AUI_ERRCODE	RemoveChild( uint32 controlId ) override;
 
-	virtual AUI_ERRCODE	ShowThis( );
-	virtual AUI_ERRCODE	HideThis( );
+	AUI_ERRCODE	ShowThis( ) override;
+	AUI_ERRCODE	HideThis( ) override;
 
 	BOOL	IsDirty( ) const { return !m_dirtyList->IsEmpty(); }
 
@@ -178,15 +178,15 @@ public:
 
 	aui_Region *GrabRegion( ) const { return m_grabRegion; }
 
-	virtual AUI_ERRCODE Draw(
+	AUI_ERRCODE Draw(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	AUI_ERRCODE	Invalidate( RECT *rect = nullptr );
 
@@ -238,15 +238,15 @@ protected:
 	aui_Control *m_focusControl;
 	tech_WLList<aui_Region *> *m_focusList;
 
-	virtual void	PostChildrenCallback(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOver(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDragOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLGrabOutside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
-	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
+	void	PostChildrenCallback(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOver(aui_MouseEvent * mouseData) override;
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
+	void	MouseLDragInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDragOutside(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabInside(aui_MouseEvent * mouseData) override;
+	void	MouseLGrabOutside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropInside(aui_MouseEvent * mouseData) override;
+	void	MouseLDropOutside(aui_MouseEvent * mouseData) override;
 
 	friend class aui_UI;
 };

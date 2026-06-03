@@ -32,16 +32,16 @@ public:
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr,
 		BOOL selected = FALSE );
-	virtual ~TextTab() = default;
+	~TextTab() override = default;
 
 protected:
 	TextTab() : aui_Tab() {}
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 };
 
 #endif

@@ -20,10 +20,10 @@ public:
 	ctp2_TabButton(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
 		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
-	virtual ~ctp2_TabButton();
+	~ctp2_TabButton() override;
 
 
-	virtual uint32 ShouldDraw(uint32 draw = k_AUI_REGION_DRAWFLAG_UPDATE);
+	uint32 ShouldDraw(uint32 draw = k_AUI_REGION_DRAWFLAG_UPDATE) override;
 
 private:
 

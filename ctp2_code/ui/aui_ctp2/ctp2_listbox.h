@@ -72,10 +72,10 @@ public:
 							MBCHAR *pattern, sint32 bevelwidth = 0, sint32 beveltype = 0,
 							ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
-	virtual ~ctp2_ListBox();
+	~ctp2_ListBox() override;
 
 
-	virtual BOOL IsThisA( uint32 classId )
+	BOOL IsThisA( uint32 classId ) override
 	{
 		return classId == m_ctp2_listboxClassId;
 	}
@@ -103,9 +103,9 @@ public:
 
 	void Clear();
 
-	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
-	virtual AUI_ERRCODE Draw(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 );
+	AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending ) override;
+	AUI_ERRCODE Draw(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0) override;
+	AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 ) override;
 
 	sint32 GetBevelWidth() { return m_bevelWidth; }
 	sint32 GetBevelType() { return m_bevelType; }
@@ -122,11 +122,11 @@ public:
 	friend class ctp2_Menu;
 
 protected:
-	virtual AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock);
+	AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock) override;
 
 	AUI_ERRCODE ReformatItemFromHeader(aui_Item *item);
 
-	virtual void	MouseLDragAway(aui_MouseEvent * mouseData);
+	void	MouseLDragAway(aui_MouseEvent * mouseData) override;
 
 private:
 	sint32		m_bevelWidth;

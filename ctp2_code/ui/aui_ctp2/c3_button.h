@@ -46,14 +46,14 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_Button() = default;
+	~c3_Button() override = default;
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	c3_Button()
@@ -91,7 +91,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~c3_EditButton();
+	~c3_EditButton() override;
 
 	sint32		GetValue( ) const { return m_val; }
 	sint32		GetMinimum( ) const { return m_min; }

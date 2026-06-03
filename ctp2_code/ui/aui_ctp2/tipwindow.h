@@ -28,12 +28,12 @@ public:
 		MBCHAR *pattern,
 		MBCHAR *text = nullptr );
 
-	virtual ~TipWindow() = default;
+	~TipWindow() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 protected:
 	AUI_ERRCODE FitWindowToText( );

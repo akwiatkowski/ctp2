@@ -75,32 +75,32 @@ public:
 #endif
         }
 
-	virtual ~Background() = default;
+	~Background() override = default;
 
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
-	virtual AUI_ERRCODE Idle();
+	AUI_ERRCODE Idle() override;
 
 protected:
     sint32 m_lbutton_isdown;
     sint32 m_rbutton_isdown;
 
-    virtual void	MouseLDragOver(aui_MouseEvent * data);
-    virtual void	MouseLGrabInside(aui_MouseEvent * data);
-    virtual void	MouseLDropInside(aui_MouseEvent * data);
-    virtual void	MouseLDropOutside(aui_MouseEvent * data);
-    virtual void	MouseLDragInside(aui_MouseEvent * data);
-    virtual void	MouseRGrabInside(aui_MouseEvent * data);
-    virtual void	MouseMoveOver(aui_MouseEvent * data);
-    virtual void	MouseMoveInside(aui_MouseEvent * data);
-    virtual void	MouseMoveAway(aui_MouseEvent * data);
-    virtual void	MouseMoveOutside(aui_MouseEvent * data);
-    virtual void	MouseNoChange(aui_MouseEvent * data);
-    virtual void	MouseLDoubleClickInside(aui_MouseEvent * data);
-    virtual void	MouseRDoubleClickInside(aui_MouseEvent * data);
+    void	MouseLDragOver(aui_MouseEvent * data) override;
+    void	MouseLGrabInside(aui_MouseEvent * data) override;
+    void	MouseLDropInside(aui_MouseEvent * data) override;
+    void	MouseLDropOutside(aui_MouseEvent * data) override;
+    void	MouseLDragInside(aui_MouseEvent * data) override;
+    void	MouseRGrabInside(aui_MouseEvent * data) override;
+    void	MouseMoveOver(aui_MouseEvent * data) override;
+    void	MouseMoveInside(aui_MouseEvent * data) override;
+    void	MouseMoveAway(aui_MouseEvent * data) override;
+    void	MouseMoveOutside(aui_MouseEvent * data) override;
+    void	MouseNoChange(aui_MouseEvent * data) override;
+    void	MouseLDoubleClickInside(aui_MouseEvent * data) override;
+    void	MouseRDoubleClickInside(aui_MouseEvent * data) override;
 
     void ProcessLastMouseMoveThisFrame(aui_MouseEvent *data);
 

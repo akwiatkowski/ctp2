@@ -11,10 +11,10 @@ public:
 	CityManagerWindow(AUI_ERRCODE *retval,
 					  uint32 id,
 					  MBCHAR *ldlBlock);
-	~CityManagerWindow();
+	~CityManagerWindow() override;
 
 	AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
-	AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y);
+	AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y) override;
 
 	static void Open();
 	static void Cleanup();

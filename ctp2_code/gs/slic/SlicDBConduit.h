@@ -66,20 +66,20 @@ public:
 		m_numTokens = numTokens;
 	}
 
-	virtual ~SlicDBConduit() {
+	~SlicDBConduit() override {
 		delete [] m_slicname;
 	}
 
-	sint32 GetIndex(const char *name) {
+	sint32 GetIndex(const char *name) override {
 		sint32 index;
 		if(m_db->GetNamedItem(name, index))
 			return index;
 		else
 			return -1;
 	}
-	const char *GetName() { return m_slicname; }
+	const char *GetName() override { return m_slicname; }
 
-	sint32 GetValue(sint32 index, const char *valname) {
+	sint32 GetValue(sint32 index, const char *valname) override {
 		const T *rec = m_db->Get(index);
 		Assert(rec);
 		if(!rec)return 0; //Added by Martin Gühmann to avoid an access violation
@@ -108,7 +108,7 @@ public:
 		return 0;
 	}
 
-	sint32 GetValue(sint32 index, const char *valname, const sint32 val){
+	sint32 GetValue(sint32 index, const char *valname, const sint32 val) override{
 		const T *rec = m_db->Get(index);
 		Assert(rec);
 		if(!rec)return 0;
@@ -126,7 +126,7 @@ public:
 		return 0;
 	}
 
-	const MBCHAR *GetRecordName(const char *id) {
+	const MBCHAR *GetRecordName(const char *id) override {
 		sint32 index;
 		if(m_db->GetNamedItem(id, index)) {
 			return m_db->Get(index)->GetNameText();
@@ -135,7 +135,7 @@ public:
 		}
 	}
 
-	const MBCHAR *GetRecordNameByIndex(sint32 index) {
+	const MBCHAR *GetRecordNameByIndex(sint32 index) override {
 		if(m_db->Get(index)) {
 			return m_db->Get(index)->GetNameText();
 		} else {
@@ -143,7 +143,7 @@ public:
 		}
 	}
 
-	sint32 GetRecordNameIDByIndex(sint32 index) {
+	sint32 GetRecordNameIDByIndex(sint32 index) override {
 		if(m_db->Get(index)) {
 			return m_db->Get(index)->GetName();
 		} else {
@@ -151,7 +151,7 @@ public:
 		}
 	}
 
-	sint32 GetRecordNameID(const char *id) {
+	sint32 GetRecordNameID(const char *id) override {
 		sint32 index;
 		if(m_db->GetNamedItem(id, index)) {
 			return m_db->Get(index)->GetName();
@@ -177,7 +177,7 @@ public:
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-	sint32 GetNumRecords(){
+	sint32 GetNumRecords() override{
 		return m_db->NumRecords();
 	}
 
@@ -199,7 +199,7 @@ public:
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-	bool IsTokenInDB(const char *valname){
+	bool IsTokenInDB(const char *valname) override{
 		sint32 i;
 		for(i = 0; i < m_numTokens; i++) {
 			if(stricmp(valname, m_tokens[i]) == 0) {

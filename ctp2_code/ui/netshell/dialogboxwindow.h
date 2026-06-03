@@ -15,7 +15,7 @@ public:
 		MBCHAR *ldlBlock,
 		aui_Action **actions );
 
-	virtual ~DialogBoxWindow();
+	~DialogBoxWindow() override;
 
 	static DialogBoxWindow *PopUp(
 		MBCHAR *ldlBlock,
@@ -58,7 +58,7 @@ protected:
 		m_buttons		(nullptr)
 	{ ; };
 
-	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE	InitCommon( ) override;
 	AUI_ERRCODE CreateControls(
 		MBCHAR *ldlBlock,
 		aui_Action **actions );
@@ -73,14 +73,14 @@ protected:
         :   aui_Action  (),
             m_dbw       (dbw)
         { ; };
-		virtual ~SafeDeleteAction() { ; };
+		~SafeDeleteAction() override { ; };
 
-	    virtual void	Execute
+	    void	Execute
 	    (
 		    aui_Control	*	control,
 		    uint32			action,
 		    uint32			data
-	    );
+	    ) override;
 
 	protected:
 		DialogBoxWindow *   m_dbw;

@@ -29,7 +29,7 @@ public:
 		MBCHAR *pattern,
 		ControlActionCallback *ActionFunc = nullptr,
 		void *cookie = nullptr );
-	virtual ~C3Spinner() = default;
+	~C3Spinner() override = default;
 
 protected:
 	C3Spinner() : aui_Ranger() {}
@@ -38,10 +38,10 @@ protected:
 	AUI_ERRCODE CreateButtons( );
 
 public:
-	virtual AUI_ERRCODE DrawThis(
+	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = nullptr,
 		sint32 x = 0,
-		sint32 y = 0 );
+		sint32 y = 0 ) override;
 
 	BOOL	IsVertical( ) const { return m_isVertical; }
 

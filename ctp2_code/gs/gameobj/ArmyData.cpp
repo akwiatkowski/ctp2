@@ -364,14 +364,12 @@ ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
     m_killer                (-1),
     m_hasBeenAdded          (false),
     m_isPirating            (false),
-    m_name                  (NULL),
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
     m_killMeSoon            (new PointerList<KillRecord>),
     m_dontKillCount         (0),
-    m_needToKill            (false),
-    m_debugString           (NULL)
+    m_needToKill            (false)
 {
     for (sint32 i = 0; i < units.Num(); ++i)
     {
@@ -390,14 +388,12 @@ ArmyData::ArmyData(const Army &army, const CellUnitList &units)
     m_killer                (-1),
     m_hasBeenAdded          (false),
     m_isPirating            (false),
-    m_name                  (NULL),
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
     m_killMeSoon            (new PointerList<KillRecord>),
     m_dontKillCount         (0),
-    m_needToKill            (false),
-    m_debugString           (NULL)
+    m_needToKill            (false)
 {
     for (sint32 i = 0; i < units.Num(); ++i)
     {
@@ -416,14 +412,12 @@ ArmyData::ArmyData(const Army &army, Unit &u)
     m_killer                (-1),
     m_hasBeenAdded          (false),
     m_isPirating            (false),
-    m_name                  (NULL),
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
     m_killMeSoon            (new PointerList<KillRecord>),
     m_dontKillCount         (0),
-    m_needToKill            (false),
-    m_debugString           (NULL)
+    m_needToKill            (false)
 {
     Insert(u);
 }
@@ -439,14 +433,12 @@ ArmyData::ArmyData(const Army &army)
     m_killer                (-1),
     m_hasBeenAdded          (false),
     m_isPirating            (false),
-    m_name                  (NULL),
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
     m_killMeSoon            (new PointerList<KillRecord>),
     m_dontKillCount         (0),
-    m_needToKill            (false),
-    m_debugString           (NULL)
+    m_needToKill            (false)
 {
 }
 
@@ -461,14 +453,12 @@ ArmyData::ArmyData(CivArchive &archive)
     m_killer                (-1),
     m_hasBeenAdded          (false),
     m_isPirating            (false),
-    m_name                  (NULL),
     m_reentryTurn           (-1),
     m_reentryPos            (),
     m_debugStringColor      (0),
     m_killMeSoon            (new PointerList<KillRecord>),
     m_dontKillCount         (0),
-    m_needToKill            (false),
-    m_debugString           (NULL)
+    m_needToKill            (false)
 {
     Serialize(archive);
 }
@@ -487,8 +477,6 @@ ArmyData::~ArmyData()
     }
 
     delete m_attackedByDefenders;
-    delete m_debugString;
-    delete m_name;
     delete m_tempKillList;
 }
 
@@ -519,10 +507,10 @@ void ArmyData::Serialize(CivArchive &archive)
             walk.Next();
         }
 
-        sint32 len = m_name ? strlen(m_name) : 0;
+        sint32 len = m_name.size();
         archive << len;
         if(len > 0) {
-            archive.Store((uint8*)m_name, len);
+            archive.Store((uint8*)m_name.c_str(), len);
         }
 
         hasChild = m_lesser != NULL;
@@ -555,11 +543,11 @@ void ArmyData::Serialize(CivArchive &archive)
         sint32 len;
         archive >> len;
         if(len <= 0)
-            m_name = NULL;
+            m_name.clear();
         else {
-            m_name = new MBCHAR[(len + 1) * sizeof(MBCHAR)];
-            archive.Load((uint8*)m_name, len);
-            m_name[len] = 0;
+            std::vector<MBCHAR> buf(len);
+            archive.Load((uint8*)buf.data(), len);
+            m_name.assign(buf.data(), len);
         }
 
         archive >> hasChild;
@@ -10900,9 +10888,9 @@ void ArmyData::StopPirating()
 
 const MBCHAR * ArmyData::GetName() const
 {
-	if (m_name)
+	if (!m_name.empty())
 	{
-		return m_name;
+		return m_name.c_str();
 	}
 	else
 	{
@@ -10915,35 +10903,17 @@ const MBCHAR * ArmyData::GetName() const
 
 void ArmyData::SetName(const MBCHAR *name)
 {
-	delete [] m_name;
-	if (name)
-	{
-		m_name = new MBCHAR[strlen(name) + 1];
-		strcpy(m_name, name);
-	}
-	else
-	{
-		m_name = NULL;
-	}
+	m_name = name ? name : "";
 }
 
 const MBCHAR * ArmyData::GetDebugString() const
 {
-	return m_debugString;
+	return m_debugString.c_str();
 }
 
 void ArmyData::SetDebugString(const MBCHAR * name)
 {
-	delete [] m_debugString;
-	if (name)
-	{
-		m_debugString = new MBCHAR[strlen(name) + 1];
-		strcpy(m_debugString, name);
-	}
-	else
-	{
-		m_debugString = NULL;
-	}
+	m_debugString = name ? name : "";
 }
 bool ArmyData::PlayerCanSee(const PLAYER_INDEX playerId) const
 {

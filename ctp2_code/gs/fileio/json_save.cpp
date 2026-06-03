@@ -1620,7 +1620,7 @@ void to_json(nlohmann::json &j, ArmyData const &a)
         {"has_been_added",           a.m_hasBeenAdded},
         {"is_pirating",              a.m_isPirating},
         {"orders",                   std::move(orders)},
-        {"name",                     utf8_safe(a.m_name)},
+        {"name",                     utf8_safe(a.m_name.c_str())},
     };
 }
 
@@ -1657,15 +1657,7 @@ void from_json(nlohmann::json const &j, ArmyData &a)
         a.m_orders->AddTail(order);
     }
 
-    delete[] a.m_name;
-    a.m_name = nullptr;
-    std::string const name = j.at("name").get<std::string>();
-    if (!name.empty())
-    {
-        a.m_name = new MBCHAR[name.size() + 1];
-        std::memcpy(a.m_name, name.data(), name.size());
-        a.m_name[name.size()] = 0;
-    }
+    a.m_name = j.at("name").get<std::string>();
 }
 
 // Phase E-5 — UnitData

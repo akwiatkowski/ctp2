@@ -61,6 +61,7 @@
 #include "gs/world/cellunitlist.h"
 
 #include <nlohmann/json.hpp>
+#include <string>
 
 class CivArchive;
 class Path;
@@ -126,7 +127,7 @@ private:
     PLAYER_INDEX               m_killer;               // In unused methods used and is serialized
     bool                       m_hasBeenAdded;         // Used and serialized (uint8)
     bool                       m_isPirating;           // Used and serialized (uint8)
-    MBCHAR                    *m_name;                 // Used and serialized
+    std::string                m_name;                 // Used and serialized
     sint32                     m_reentryTurn;          // Used
     MapPoint                   m_reentryPos;           // Used
 
@@ -137,7 +138,7 @@ private:
     uint8                      m_dontKillCount;        // Used and serialized
     bool                       m_needToKill;           // Used and serialized (uint8)
 
-    MBCHAR                    *m_debugString;          // Unused
+    std::string                m_debugString;          // Unused
 
 public:
 

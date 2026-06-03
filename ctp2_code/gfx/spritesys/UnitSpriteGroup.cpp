@@ -38,6 +38,7 @@
 #include "gfx/spritesys/UnitSpriteGroup.h"    // Own declarations: consistency check
 
 #include <memory>               // std::unique_ptr
+#include <vector>               // std::vector
 #include "gfx/gfx_utils/tiffutils.h"
 #include "gfx/gfx_utils/pixelutils.h"
 
@@ -367,6 +368,16 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 {
 	MBCHAR			scriptName[k_MAX_NAME_LENGTH];
 
+	std::vector<std::vector<std::vector<char>>> facedImageBuffers(
+	    k_NUM_FACINGS,
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+	std::vector<std::vector<std::vector<char>>> facedShadowBuffers(
+	    k_NUM_FACINGS,
+	    std::vector<std::vector<char>>(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH)));
+
+	std::vector<std::vector<char>> imageBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
+	std::vector<std::vector<char>> shadowBuffers(k_MAX_NAMES, std::vector<char>(2 * k_MAX_NAME_LENGTH));
+
 	MBCHAR			*facedImageNames[k_NUM_FACINGS][k_MAX_NAMES];
 	MBCHAR			*facedShadowNames[k_NUM_FACINGS][k_MAX_NAMES];
 
@@ -382,15 +393,15 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 	{
 		for (i=0; i<k_MAX_NAMES; i++)
 		{
-			facedImageNames[j][i] =  new MBCHAR[2 * k_MAX_NAME_LENGTH];
-			facedShadowNames[j][i] = new MBCHAR[2 * k_MAX_NAME_LENGTH];
+			facedImageNames[j][i] =  facedImageBuffers[j][i].data();
+			facedShadowNames[j][i] = facedShadowBuffers[j][i].data();
 		}
 	}
 
 	for (i=0; i<k_MAX_NAMES; i++)
 	{
-		imageNames[i] =  new MBCHAR[2 * k_MAX_NAME_LENGTH];
-		shadowNames[i] = new MBCHAR[2 * k_MAX_NAME_LENGTH];
+		imageNames[i] =  imageBuffers[i].data();
+		shadowNames[i] = shadowBuffers[i].data();
 	}
 
 	snprintf(prefixStr, sizeof(prefixStr), ".%s%d%s", FILE_SEP, id, FILE_SEP);
@@ -711,21 +722,6 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 
 
 	delete theToken;
-
-	for (j=0; j<k_NUM_FACINGS; j++)
-    {
-		for (i=0; i<k_MAX_NAMES; i++)
-		{
-			delete [] facedImageNames[j][i];
-			delete [] facedShadowNames[j][i];
-		}
-	}
-
-	for (i = 0; i < k_MAX_NAMES; i++)
-    {
-		delete [] imageNames[i];
-		delete [] shadowNames[i];
-	}
 
 	return TRUE;
 }

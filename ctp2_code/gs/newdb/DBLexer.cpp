@@ -55,15 +55,13 @@ namespace
 }
 
 DBToken::DBToken(const char *name, sint32 value)
+:   m_name(name ? name : ""),
+    m_value(value)
 {
-	m_name = new char[strlen(name) + 1];
-	strcpy(m_name, name);
-	m_value = value;
 }
 
 DBToken::~DBToken()
 {
-	delete [] m_name;
 }
 
 
@@ -282,28 +280,48 @@ bool DBLexer::GetStringId(sint32 &strId)
 	return g_theStringDB->GetStringID(GetTokenText(), strId) != 0;
 }
 
-bool DBLexer::GetFileAssignment(char *&filename)
+bool DBLexer::GetFileAssignment(std::string &filename)
 {
 	sint32 tok = GetToken();
 	if(tok != k_Token_String)
 		return false;
 
-	delete [] filename;
-	filename = new char[strlen(m_tokenText[m_whichTokenText]) + 1];
-	strcpy(filename, m_tokenText[m_whichTokenText]);
+	filename = m_tokenText[m_whichTokenText];
 	return true;
 }
 
-bool DBLexer::GetFile(char *&filename)
+bool DBLexer::GetFileAssignment(char *&filename)
+{
+	std::string temp;
+	bool result = GetFileAssignment(temp);
+	if (result) {
+		delete [] filename;
+		filename = new char[temp.size() + 1];
+		strcpy(filename, temp.c_str());
+	}
+	return result;
+}
+
+bool DBLexer::GetFile(std::string &filename)
 {
 	sint32 tok = GetCurrentToken();
 	if(tok != k_Token_String)
 		return false;
 
-	delete [] filename;
-	filename = new char[strlen(m_tokenText[m_whichTokenText]) + 1];
-	strcpy(filename, m_tokenText[m_whichTokenText]);
+	filename = m_tokenText[m_whichTokenText];
 	return true;
+}
+
+bool DBLexer::GetFile(char *&filename)
+{
+	std::string temp;
+	bool result = GetFile(temp);
+	if (result) {
+		delete [] filename;
+		filename = new char[temp.size() + 1];
+		strcpy(filename, temp.c_str());
+	}
+	return result;
 }
 
 bool DBLexer::GetBitIndex(const char **bitnames, sint32 numBitnames, sint32 &index)

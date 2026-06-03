@@ -5,6 +5,7 @@
 #define __SLIC_EYE_POINT_H__
 
 #include <nlohmann/json.hpp>
+#include <string>
 
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Unit.h"
@@ -41,7 +42,7 @@ public:
 	void Serialize(CivArchive &archive);
 
 	void GetPoint(MapPoint &point) { point = m_point; }
-	const MBCHAR *GetName() { return m_name; }
+	const char *GetName() { return m_name.empty() ? nullptr : m_name.c_str(); }
 
 	void SetMessage(const Message &message);
 	Message GetMessage() const;
@@ -50,7 +51,7 @@ public:
 
 private:
 	MapPoint m_point;
-	MBCHAR *m_name;
+	std::string m_name;
 	Message *m_message;
 	sint32 m_data;
 	Unit m_unit;
@@ -60,5 +61,22 @@ private:
 	EYE_POINT_TYPE m_type;
 
 };
+
+// Overloads so json_save.cpp can serialise SlicEyePoint::m_name after its
+// migration to std::string without touching json_save.cpp itself.
+inline nlohmann::json optStringToJson(std::string const &s)
+{
+	return s.empty() ? nlohmann::json(nullptr) : nlohmann::json(s);
+}
+
+inline void jsonToOptString(nlohmann::json const &j, std::string &dest)
+{
+	if (j.is_null())
+	{
+		dest.clear();
+		return;
+	}
+	dest = j.get<std::string>();
+}
 
 #endif

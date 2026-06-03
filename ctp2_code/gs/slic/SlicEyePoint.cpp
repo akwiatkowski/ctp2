@@ -27,6 +27,8 @@
 
 #include "ctp/c3.h"
 #include "gs/slic/SlicEyePoint.h"
+
+#include <vector>
 #include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/message.h"
 #include "gs/core/tiledmap_observer.h"
@@ -43,7 +45,6 @@ PointerList<SlicEyePoint> s_deletedEyepoints;
 
 SlicEyePoint::SlicEyePoint()
 :   m_point     (),
-    m_name      (NULL),
     m_message   (new Message()),
     m_data      (0),
     m_unit      (),
@@ -58,38 +59,27 @@ SlicEyePoint::SlicEyePoint(const MapPoint &point, const MBCHAR *name,
 						   const Unit &unit,
 						   sint32 recipient,
 						   SlicSegment *segment)
+:   m_point     (point),
+    m_name      (name ? name : ""),
+    m_message   (new Message()),
+    m_data      (data),
+    m_type      (type),
+    m_unit      (unit),
+    m_recipient (recipient),
+    m_segment   (segment)
 {
-	m_point = point;
-	if(name) {
-		m_name = new char[strlen(name) + 1];
-		strcpy(m_name, name);
-	} else {
-		m_name = NULL;
-	}
-	m_message = new Message();
-	m_data = data;
-	m_type = type;
-	m_unit = unit;
-
-	m_segment = segment;
-	m_recipient = recipient;
 }
 
 SlicEyePoint::SlicEyePoint(SlicEyePoint *copy)
+:   m_point     (copy->m_point),
+    m_name      (copy->m_name),
+    m_message   (new Message(*copy->m_message)),
+    m_data      (copy->m_data),
+    m_type      (copy->m_type),
+    m_unit      (copy->m_unit),
+    m_recipient (copy->m_recipient),
+    m_segment   (copy->m_segment)
 {
-	m_point = copy->m_point;
-	if(copy->m_name) {
-		m_name = new char[strlen(copy->m_name) + 1];
-		strcpy(m_name, copy->m_name);
-	} else {
-		m_name = NULL;
-	}
-	m_message = new Message(*copy->m_message);
-	m_data = copy->m_data;
-	m_type = copy->m_type;
-	m_unit = copy->m_unit;
-	m_recipient = copy->m_recipient;
-	m_segment = copy->m_segment;
 }
 
 SlicEyePoint::~SlicEyePoint()
@@ -97,9 +87,6 @@ SlicEyePoint::~SlicEyePoint()
 #ifdef _BAD_EYE
 	s_deletedEyepoints.AddTail(this);
 #endif
-
-	if(m_name)
-		delete [] m_name;
 
 	if(m_message)
 		delete m_message;
@@ -118,13 +105,10 @@ void SlicEyePoint::Serialize(CivArchive &archive)
 	m_unit.Serialize(archive);
 	sint32 l;
 	if(archive.IsStoring()) {
-		if(m_name) {
-			l = strlen(m_name) + 1;
-			archive << l;
-			archive.Store((uint8*)m_name, l);
-		} else {
-			l = 0;
-			archive << l;
+		l = m_name.size() + 1;
+		archive << l;
+		if (l > 1) {
+			archive.Store((uint8*)m_name.c_str(), l);
 		}
 
 		if(m_segment) {
@@ -143,10 +127,11 @@ void SlicEyePoint::Serialize(CivArchive &archive)
 	} else {
 		archive >> l;
 		if(l > 0) {
-			m_name = new char[l];
-			archive.Load((uint8*)m_name, l);
+			std::vector<char> buf(l);
+			archive.Load((uint8*)buf.data(), l);
+			m_name.assign(buf.data());
 		} else {
-			m_name = NULL;
+			m_name.clear();
 		}
 		archive >> l;
 		if(l > 0 && l < 1024) {

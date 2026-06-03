@@ -30,12 +30,14 @@
 //   more details  _____ by MrBaggins Jan-04
 //
 //   * Added PeekAheadText member function prototype
-// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gühmann)
+// - Parser for struct ADVANCE_CHANCES of DiffDB.txt can now be generated. (Jan 3rd 2006 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
 #ifndef __DBLEXER_H__
 #define __DBLEXER_H__
+
+#include <string>
 
 template <class T> class StringHash;
 template <class T> class PointerList;
@@ -48,14 +50,14 @@ template <class T> class PointerList;
 class DBToken
 {
 private:
-	char *m_name;
+	std::string m_name;
 	sint32 m_value;
 
 public:
 	DBToken(const char *name, sint32 value);
 	~DBToken();
 
-	const char *GetName() { return m_name; }
+	const char *GetName() { return m_name.c_str(); }
 	sint32 GetValue() { return m_value; }
 };
 
@@ -93,11 +95,13 @@ public:
 	bool GetFloatAssignment(double &value);
 	bool GetBitIndex(const char **bitnames, sint32 numNames, sint32 &index);
 	bool GetStringIdAssignment(sint32 &strId);
+	bool GetFileAssignment(std::string &filename);
 	bool GetFileAssignment(char *&filename);
 
 	bool GetInt(sint32 &value);
 	bool GetFloat(double &value);
 	bool GetStringId(sint32 &strId);
+	bool GetFile(std::string &filename);
 	bool GetFile(char *&filename);
 
 	void SetTokens(const char **tokens, sint32 maxToken);

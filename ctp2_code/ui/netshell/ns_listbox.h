@@ -431,7 +431,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::StoreAppropriateData(
 
 		case ns_Accessor<T>::INT:
 			item->SetTextBold(netShellObject->IsMine());
-			 sprintf(scratch, "%d", * reinterpret_cast<sint32 const *>(dataPtr));
+			 snprintf(scratch, sizeof(scratch), "%d", * reinterpret_cast<sint32 const *>(dataPtr));
 			 return item->SetText(scratch);
 
 		case ns_Accessor<T>::ICON:

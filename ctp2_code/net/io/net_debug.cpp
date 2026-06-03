@@ -20,7 +20,7 @@ char* netdebug_NetErrToString(NET_ERR err)
 	default:
 	{
 		static char str[80];
-		sprintf(str, "NET_ERR_IHADSOMEBADCLAMS(%d)\n", err);
+		snprintf(str, sizeof(str), "NET_ERR_IHADSOMEBADCLAMS(%d)\n", err);
 		return str;
 	}
 	}

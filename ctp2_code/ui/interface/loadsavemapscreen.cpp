@@ -194,7 +194,7 @@ void loadsavemapscreen_SaveGameMap()
 		}
 	}
 
-	sprintf(saveMapInfo->pathName, "%s\\%s", fullPath, saveMapInfo->fileName);
+	snprintf(saveMapInfo->pathName, sizeof(saveMapInfo->pathName), "%s\\%s", fullPath, saveMapInfo->fileName);
 
 	g_loadSaveMapWindow->GetRadarMap(saveMapInfo);
 

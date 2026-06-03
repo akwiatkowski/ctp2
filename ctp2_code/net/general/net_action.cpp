@@ -272,14 +272,14 @@ NetAction::NetAction(NET_ACTION action, ...)
 	uint32 i;
 #ifdef _DEBUG
 	char str[1024];
-	sprintf(str, "NetAction: action=%d ", m_action);
+	snprintf(str, sizeof(str), "NetAction: action=%d ", m_action);
 #endif
 	if(m_action >= 0 && m_action < NET_ACTION_NULL && m_args[m_action] > 0) {
 		va_start( vl, action );
 		for(i = 0; i < m_args[m_action]; i++) {
 			m_data[i] = va_arg( vl, uint32 );
 #ifdef _DEBUG
-			sprintf(str + strlen(str), "arg: %8d/0x%lx ", m_data[i], m_data[i]);
+			snprintf(str + strlen(str), sizeof(str) - strlen(str), "arg: %8d/0x%lx ", m_data[i], m_data[i]);
 #endif
 		}
 		va_end(vl);

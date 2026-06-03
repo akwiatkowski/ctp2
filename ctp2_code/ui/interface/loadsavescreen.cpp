@@ -801,11 +801,11 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 		}
 
 		// Full path, including the save file's filename
-		sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
+		snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
 	} else {
 		snprintf(fullPath, sizeof(fullPath), "%s", path);
 		strcpy(saveInfo->fileName, useName);
-		sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, useName);
+		snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, useName);
 	}
 
 	// Build a power graph from the UI
@@ -912,7 +912,7 @@ void loadsavescreen_SaveMPGame()
 	}
 
 	// Full path, including the save file's filename
-	sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
+	snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
 
 	// Build a power graph from the UI
 	g_loadsaveWindow->GetPowerGraph(saveInfo);
@@ -1024,7 +1024,7 @@ void loadsavescreen_SaveSCENGame()
 	}
 
 	// Full path, including the save file's filename
-	sprintf(saveInfo->pathName, "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
+	snprintf(saveInfo->pathName, sizeof(saveInfo->pathName), "%s%s%s", fullPath, FILE_SEP, saveInfo->fileName);
 
 	// Build a power graph from the UI
 	g_loadsaveWindow->GetPowerGraph(saveInfo);

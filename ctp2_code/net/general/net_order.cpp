@@ -52,7 +52,7 @@ void NetOrder::Packetize(uint8 *buf, uint16 &size)
 	char pathstr[1024];
 	pathstr[0] = 0;
 	if(m_path) {
-		sprintf(pathstr, "(%d,%d) (%d,%d), %d:%d:", m_path->m_start.x, m_path->m_start.y, m_path->m_current.x, m_path->m_current.y, m_path->m_next_dir, m_path->m_next);
+		snprintf(pathstr, sizeof(pathstr), "(%d,%d) (%d,%d), %d:%d:", m_path->m_start.x, m_path->m_start.y, m_path->m_current.x, m_path->m_current.y, m_path->m_next_dir, m_path->m_next);
 		for(i = 0; i < m_path->m_step.Num(); i++) {
 			switch(m_path->m_step[i].dir) {
 				case NORTH: strcat(pathstr, ":N "); break;
@@ -174,7 +174,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	char pathstr[1024];
 	pathstr[0] = 0;
 	if(path) {
-		sprintf(pathstr, "(%d,%d) (%d,%d), %d:%d:", path->m_start.x, path->m_start.y, path->m_current.x, path->m_current.y, path->m_next_dir, path->m_next);
+		snprintf(pathstr, sizeof(pathstr), "(%d,%d) (%d,%d), %d:%d:", path->m_start.x, path->m_start.y, path->m_current.x, path->m_current.y, path->m_next_dir, path->m_next);
 		for(i = 0; i < path->m_step.Num(); i++) {
 			switch(path->m_step[i].dir) {
 				case NORTH: strcat(pathstr, ":N "); break;

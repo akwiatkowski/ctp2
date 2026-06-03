@@ -322,7 +322,7 @@ void NetCRC::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 			PULLLONG(part);
 			if(!alreadybad && (part != m_db_crc[j+m_startAt][i])) {
 				char buf[2048];
-				sprintf(buf, "Database #%d is out of synch", j + m_startAt);
+				snprintf(buf, sizeof(buf), "Database #%d is out of synch", j + m_startAt);
 				Error(buf);
 				alreadybad = TRUE;
 

@@ -605,7 +605,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 			if( !isAdvance )
 			{
-				sprintf(givesText + strlen(givesText), "%s\n",
+				snprintf(givesText + strlen(givesText), sizeof(givesText) - strlen(givesText), "%s\n",
 					stringdb_Get()->GetNameStr("ADVANCE_GIVES_BUILDINGS"));
 				isAdvance = true;
 				anyAdvance = true;
@@ -630,7 +630,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 			if( !isAdvance )
 			{
-				sprintf(givesText + strlen(givesText), "%s\n",
+				snprintf(givesText + strlen(givesText), sizeof(givesText) - strlen(givesText), "%s\n",
 					stringdb_Get()->GetNameStr("ADVANCE_GIVES_WONDERS"));
 				isAdvance = true;
 				anyAdvance = true;
@@ -647,7 +647,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 
 		if(terrainutil_AdvanceEnablesImprovement(index, i)) {
 			if(!isTileImp) {
-				sprintf(givesText + strlen(givesText), "%s\n",
+				snprintf(givesText + strlen(givesText), sizeof(givesText) - strlen(givesText), "%s\n",
 						stringdb_Get()->GetNameStr("ADVANCE_GIVES_TILE_IMPROVEMENTS"));
 				isTileImp = true;
 				anyAdvance = true;
@@ -663,7 +663,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
 		const GovernmentRecord *rec = g_theGovernmentDB->Get(i);
 		if(rec->GetEnableAdvanceIndex() == index) {
 			if(!isGov) {
-				sprintf(givesText + strlen(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_GOVS"));
+				snprintf(givesText + strlen(givesText), sizeof(givesText) - strlen(givesText), "%s\n", stringdb_Get()->GetNameStr("ADVANCE_GIVES_GOVS"));
 				isGov = true;
 				anyAdvance = true;
 			}

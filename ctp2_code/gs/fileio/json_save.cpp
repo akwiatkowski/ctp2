@@ -2134,6 +2134,24 @@ void jsonToOptString(nlohmann::json const &j, MBCHAR *&dest)
     dest = new MBCHAR[s.size() + 1];
     std::memcpy(dest, s.c_str(), s.size() + 1);
 }
+
+// std::string overloads — preserve the same shape (null in JSON ↔ empty
+// string), used by classes whose char* fields have been migrated to
+// std::string (e.g. MessageData::m_text / m_title).
+nlohmann::json optStringToJson(std::string const &s)
+{
+    return s.empty() ? nlohmann::json(nullptr) : nlohmann::json(utf8_safe(s.c_str()));
+}
+
+void jsonToOptString(nlohmann::json const &j, std::string &dest)
+{
+    if (j.is_null())
+    {
+        dest.clear();
+        return;
+    }
+    dest = j.get<std::string>();
+}
 }  // namespace
 
 void to_json(nlohmann::json &j, SlicRecord const &r)

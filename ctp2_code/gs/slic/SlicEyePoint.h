@@ -62,21 +62,9 @@ private:
 
 };
 
-// Overloads so json_save.cpp can serialise SlicEyePoint::m_name after its
-// migration to std::string without touching json_save.cpp itself.
-inline nlohmann::json optStringToJson(std::string const &s)
-{
-	return s.empty() ? nlohmann::json(nullptr) : nlohmann::json(s);
-}
+// std::string overloads of optStringToJson / jsonToOptString live in
+// gs/fileio/json_save.cpp's anonymous namespace — all callers of these
+// helpers for std::string-typed fields (SlicEyePoint::m_name,
+// MessageData::m_text, etc.) are inside json_save.cpp.
 
-inline void jsonToOptString(nlohmann::json const &j, std::string &dest)
-{
-	if (j.is_null())
-	{
-		dest.clear();
-		return;
-	}
-	dest = j.get<std::string>();
-}
-
-#endif
+#endif  // __SLIC_EYE_POINT_H__

@@ -35,6 +35,7 @@
 #define __MESSAGEDATA_H__
 
 #include <nlohmann/json.hpp>
+#include <string>
 
 #include "gs/gameobj/GameObj.h"
 #include "gs/gameobj/ID.h"
@@ -118,7 +119,7 @@ class MessageData : public GameObj
 		MBCHAR  m_caption[k_MAX_MSG_LEN];
 
 
-		MBCHAR	*m_text;
+		std::string	m_text;
 		UnitDynamicArray *m_cityList ;
 
 		ID	m_request ;
@@ -130,7 +131,7 @@ class MessageData : public GameObj
 		MessageWindow *m_window;
 
 		SlicSegment *m_slicSegment;
-		MBCHAR *m_title;
+		std::string m_title;
 
 
 		friend class NetMessage;
@@ -166,7 +167,7 @@ class MessageData : public GameObj
 		void SetSelectedMsgType(MESSAGE_TYPE type) { m_msgSelectedType = type; }
 
 		void ToString(MBCHAR *s) ;
-		MBCHAR *GetMsgText(void) { return (m_text) ; }
+		MBCHAR *GetMsgText(void) { return m_text.empty() ? NULL : &m_text[0]; }
 
 
 
@@ -247,7 +248,7 @@ class MessageData : public GameObj
 		void SetClass(sint32 mclass) { m_class = mclass; }
 		sint32 GetClass() const { return m_class; }
 
-		MBCHAR *GetTitle() { return m_title; }
+		MBCHAR *GetTitle() { return m_title.empty() ? NULL : &m_title[0]; }
 		void SetTitle(MBCHAR *title);
 
 		void DisableClose(BOOL dis) { m_closeDisabled = dis; }

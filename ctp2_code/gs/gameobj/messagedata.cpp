@@ -31,6 +31,8 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/MessageData.h"
 
+#include <vector>
+
 #include "ctp/ctp2_utils/c3errors.h"
 
 #include "gs/gameobj/Civilisation.h"
@@ -89,15 +91,13 @@ MessageData::MessageData(CivArchive &archive)
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_text                  (NULL),
 	m_cityList              (new UnitDynamicArray),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
     m_window                (NULL),
-    m_slicSegment           (NULL),
-    m_title                 (NULL)
+    m_slicSegment           (NULL)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
@@ -123,15 +123,13 @@ MessageData::MessageData(const ID id, sint32 currentYear)
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_text                  (NULL),
 	m_cityList              (new UnitDynamicArray),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
     m_window                (NULL),
-    m_slicSegment           (NULL),
-    m_title                 (NULL)
+    m_slicSegment           (NULL)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 }
@@ -160,24 +158,17 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_text                  (NULL),
 	m_cityList              (new UnitDynamicArray),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
     m_window                (NULL),
-    m_slicSegment           (NULL),
-    m_title                 (NULL)
+    m_slicSegment           (NULL)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
-	if (s) {
-		m_text = new char[strlen(s) + 1];
-		strcpy(m_text, s);
-	} else {
-		m_text = NULL;
-	}
+	m_text = s ? s : "";
 }
 
 /// @todo Replace with standard copy constructor
@@ -200,15 +191,13 @@ MessageData::MessageData(const ID id, MessageData *copy)
 	m_closeDisabled         (false),
 	m_isDiplomaticResponse  (false),
 	m_useDirector           (false),
-	m_text                  (NULL),
 	m_cityList              (new UnitDynamicArray),
 	m_request               (DiplomaticRequest()),
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
     m_window                (NULL),
-    m_slicSegment           (NULL),
-    m_title                 (NULL)
+    m_slicSegment           (NULL)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
@@ -239,10 +228,7 @@ MessageData::MessageData(const ID id, MessageData *copy)
 
 	m_advanceSet = copy->m_advanceSet;
 
-	if(copy->m_text) {
-		m_text = new char[strlen(copy->m_text) + 1];
-		strcpy(m_text, copy->m_text);
-	}
+	m_text = copy->m_text;
 
     // Most of these have been set through the memcpy already
 	m_msgType = copy->m_msgType;
@@ -261,10 +247,7 @@ MessageData::MessageData(const ID id, MessageData *copy)
 	m_caption[k_MAX_MSG_LEN - 1] = '\0';
 	m_class = copy->m_class;
 
-	if(copy->m_title) {
-		m_title = new MBCHAR[strlen(copy->m_title) + 1];
-		strcpy(m_title, copy->m_title);
-	}
+	m_title = copy->m_title;
 
 	m_tradeOffer = copy->m_tradeOffer;
 }
@@ -306,9 +289,6 @@ MessageData::~MessageData()
     {
 		player_Get(m_owner)->StartResearching(m_advance);
     }
-
-	delete [] m_text;
-	delete [] m_title;
 }
 
 
@@ -323,13 +303,7 @@ MessageData::~MessageData()
 
 void MessageData::SetMsgText(MBCHAR const * s)
 {
-	delete [] m_text;
-	if (s) {
-		m_text = new char[strlen(s) + 1];
-		strcpy(m_text, s);
-	} else {
-		m_text = NULL;
-	}
+	m_text = s ? s : "";
 }
 
 
@@ -353,24 +327,13 @@ void MessageData::Serialize(CivArchive &archive)
 
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_caption)+sizeof(m_caption));
 
-		if(m_text) {
-			count = strlen(m_text) + 1;
-			archive << count;
-			archive.Store((uint8*)m_text, count * sizeof(MBCHAR));
-		} else {
-			count = 0;
-			archive << count;
-		}
-
-		if(m_title) {
-			count = strlen(m_title) + 1;
-		} else {
-			count = 0;
-		}
+		count = m_text.size() + 1;
 		archive << count;
-		if(count > 0) {
-			archive.Store((uint8*)m_title, count * sizeof(MBCHAR));
-		}
+		archive.Store((uint8*)&m_text[0], count * sizeof(MBCHAR));
+
+		count = m_title.size() + 1;
+		archive << count;
+		archive.Store((uint8*)&m_title[0], count * sizeof(MBCHAR));
 		count = m_buttonList->GetCount();
 		archive << count;
 		PointerList<SlicButton>::Walker bwalk(m_buttonList);
@@ -404,18 +367,20 @@ void MessageData::Serialize(CivArchive &archive)
 
 		archive >> count;
 		if(count > 0) {
-			m_text = new MBCHAR[count];
-			archive.Load((uint8*)m_text, count * sizeof(MBCHAR));
+			std::vector<MBCHAR> buf(count);
+			archive.Load((uint8*)buf.data(), count * sizeof(MBCHAR));
+			m_text.assign(buf.data());
 		} else {
-			m_text = NULL;
+			m_text.clear();
 		}
 
 		archive >> count;
-		if(count <= 0) {
-			m_title = NULL;
+		if(count > 0) {
+			std::vector<MBCHAR> buf(count);
+			archive.Load((uint8*)buf.data(), count * sizeof(MBCHAR));
+			m_title.assign(buf.data());
 		} else {
-			m_title = new MBCHAR[count];
-			archive.Load((uint8*)m_title, count * sizeof(MBCHAR));
+			m_title.clear();
 		}
 
 		archive >> count;
@@ -467,7 +432,7 @@ void MessageData::Serialize(CivArchive &archive)
 
 void MessageData::Dump(const sint32 i)
 	{
-	DPRINTF(k_DBG_INFO, ("%d -- %d %d %d %s\n", i, m_owner, m_sender, m_msgType, m_text)) ;
+	DPRINTF(k_DBG_INFO, ("%d -- %d %d %d %s\n", i, m_owner, m_sender, m_msgType, m_text.c_str())) ;
 	}
 
 
@@ -1387,13 +1352,7 @@ void MessageData::ToString(MBCHAR *s)
 
 void MessageData::SetTitle(MBCHAR *title)
 {
-	delete [] m_title;
-	if (title) {
-		m_title = new MBCHAR[strlen(title) + 1];
-		strcpy(m_title, title);
-	} else {
-		m_title = NULL;
-	}
+	m_title = title ? title : "";
 }
 
 void MessageData::NotifySlicReload()

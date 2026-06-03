@@ -50,7 +50,15 @@ void NetMessage::Packetize(uint8 *buf, uint16 &size)
 	PUSHBYTE((uint8)m_data->m_sender);
 	PUSHBYTE((uint8)m_data->m_msgType);
 	PUSHLONG(m_data->m_timestamp);
-	PUSHSTRING(m_data->m_text);
+	// m_text is std::string; inline the PUSHSTRING expansion against
+	// .data() / .size() because the macro takes a writable char* lvalue.
+	// Net code is disabled pending protocol rewrite; this preserves wire
+	// shape so the file compiles.
+	{
+		uint16 l = static_cast<uint16>(m_data->m_text.size());
+		PUSHSHORT(l);
+		if (l > 0) { memcpy(&buf[size], m_data->m_text.data(), l); size += l; }
+	}
 	if(!m_data->m_cityList) {
 		PUSHSHORT(-1);
 	} else {
@@ -90,7 +98,14 @@ void NetMessage::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLBYTETYPE(m_data->m_sender, PLAYER_INDEX);
 	PULLBYTETYPE(m_data->m_msgType, MESSAGE_TYPE);
 	PULLLONG(m_data->m_timestamp);
-	PULLSTRING(m_data->m_text);
+	// m_text is std::string; inline the PULLSTRING expansion — see
+	// matching Packetize() comment. Resize first, then memcpy into
+	// .data() (writable in C++17+).
+	{
+		uint16 l; PULLSHORT(l);
+		m_data->m_text.resize(l);
+		if (l > 0) { memcpy(&m_data->m_text[0], &buf[pos], l); pos += l; }
+	}
 
 	sint16 numCities;
 	PULLSHORT(numCities);

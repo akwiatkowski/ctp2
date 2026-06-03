@@ -1472,8 +1472,7 @@ void SlicFrame::ClearMessageData()
 	m_messageData->m_sender = PLAYER_INDEX_INVALID;
 	m_messageData->m_msgType = 0;
 	m_messageData->m_cityList->Clear();
-	delete [] m_messageData->m_text;
-	m_messageData->m_text = NULL;
+	m_messageData->m_text.clear();
 	m_messageData->m_request = ID();
 	m_messageData->m_timestamp = turn_Get() ? turn_Get()->GetYear() : 0;
 }

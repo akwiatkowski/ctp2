@@ -34,6 +34,7 @@
 
 #include "gs/slic/SlicContext.h"
 #include <nlohmann/json.hpp>
+#include <string>
 
 class ID;
 class CivArchive ;
@@ -49,7 +50,7 @@ class SlicObject : public SlicContext
 private:
 	sint32 m_refCount;
 
-	char *m_id;
+	std::string m_id;
 	SlicSegment *m_segment;
 	SlicFrame *m_frame;
 	sint32 m_seconds;

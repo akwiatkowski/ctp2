@@ -53,6 +53,7 @@
 #include "gs/utility/stringutils.h"
 #include "gs/utility/TurnCnt.h"            // turn_Get()
 #include "gs/utility/Globals.h"
+#include <vector>
 
 
 namespace
@@ -70,7 +71,7 @@ SlicObject::SlicObject()
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    (NULL),
+    m_id                    (),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -96,7 +97,7 @@ SlicObject::SlicObject(char const * id)
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    (id ? new char[strlen(id) + 1] : NULL),
+    m_id                    (id ? id : ""),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -116,9 +117,7 @@ SlicObject::SlicObject(char const * id)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	if (m_id) strcpy(m_id, id);
-
-	m_segment   = slicengine_Get()->GetSegment(m_id);
+	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
 	m_frame     = new SlicFrame(m_segment);
 
     if (m_segment && !m_segment->IsHelp())
@@ -131,7 +130,7 @@ SlicObject::SlicObject(SlicSegment *segment)
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    ((segment && segment->GetName()) ? new char[strlen(segment->GetName()) + 1] : NULL),
+    m_id                    ((segment && segment->GetName()) ? segment->GetName() : ""),
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
@@ -151,7 +150,6 @@ SlicObject::SlicObject(SlicSegment *segment)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	if (m_id && segment && segment->GetName()) strcpy(m_id, segment->GetName());
 	if (m_segment && !m_segment->IsHelp())
     {
 		m_class = k_NON_TUTORIAL_MESSAGE_CLASS;
@@ -162,7 +160,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 :
     SlicContext             (copy),
     m_refCount              (0),
-    m_id                    ((segment && segment->GetName()) ? new char[strlen(segment->GetName()) + 1] : NULL),
+    m_id                    ((segment && segment->GetName()) ? segment->GetName() : ""),
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
@@ -182,7 +180,6 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	if (m_id && segment && segment->GetName()) strcpy(m_id, segment->GetName());
 	m_request               = new ID(*copy->m_request);
 }
 
@@ -190,7 +187,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 :
     SlicContext             (copy),
     m_refCount              (0),
-    m_id                    (id ? new char[strlen(id) + 1] : NULL),
+    m_id                    (id ? id : ""),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -210,8 +207,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_result                (0),
 	m_argList               (NULL)
 {
-	if (m_id && id) strcpy(m_id, id);
-	m_segment   = slicengine_Get()->GetSegment(m_id);
+	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
 	m_frame     = new SlicFrame(m_segment);
 	if (m_segment && !m_segment->IsHelp())
     {
@@ -223,7 +219,7 @@ SlicObject::SlicObject(CivArchive &archive)
 :
     SlicContext             (),
     m_refCount              (0),
-    m_id                    (NULL),
+    m_id                    (),
 	m_segment               (NULL),
 	m_frame                 (NULL),
 	m_seconds               (1),
@@ -248,7 +244,6 @@ SlicObject::SlicObject(CivArchive &archive)
 
 SlicObject::~SlicObject()
 {
-	delete [] m_id;
 	delete [] m_recipientList;
 	delete m_frame;
 	delete m_request;
@@ -477,7 +472,7 @@ void SlicObject::Finish()
 #ifdef _DEBUG
 void SlicObject::Dump()
 {
-	DPRINTF(k_DBG_INFO, ("SlicObject: ID '%s'\n", m_id));
+	DPRINTF(k_DBG_INFO, ("SlicObject: ID '%s'\n", m_id.c_str()));
 
 	SlicContext::Dump();
 }
@@ -545,9 +540,9 @@ void SlicObject::Serialize(CivArchive &archive)
 	if (archive.IsStoring()) {
 		archive.PerformMagic(SLICLIST_MAGIC) ;
 
-		l = (m_id) ? strlen(m_id) + 1 : 1;
+		l = m_id.size() + 1;
 		archive << l;
-		if (m_id) archive.Store((uint8 *)m_id, l);
+		archive.Store(const_cast<uint8 *>(reinterpret_cast<uint8 const *>(m_id.c_str())), l);
 
 		archive<<m_seconds ;
 		archive<<m_numRecipients ;
@@ -582,9 +577,9 @@ void SlicObject::Serialize(CivArchive &archive)
 
 		m_refCount = 0;
 
-		delete [] m_id;
-		m_id = new char[l] ;
-		archive.Load((uint8 *)m_id, l) ;
+		std::vector<char> buf(l);
+		archive.Load((uint8 *)buf.data(), l);
+		m_id.assign(buf.data());
 
 		archive>>m_seconds ;
 		archive>>m_numRecipients ;

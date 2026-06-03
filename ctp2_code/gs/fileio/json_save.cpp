@@ -3881,7 +3881,7 @@ void to_json(nlohmann::json &j, SlicObject const &o)
     to_json(j, static_cast<SlicContext const &>(o));
 
     j["kind"]    = "slic_object";
-    j["id"]      = o.m_id ? std::string(o.m_id) : std::string();
+    j["id"]      = o.m_id;
     j["seconds"] = o.m_seconds;
 
     nlohmann::json recipients = nlohmann::json::array();
@@ -3912,10 +3912,7 @@ void from_json(nlohmann::json const &j, SlicObject &o)
 
     o.m_refCount = 0;
 
-    std::string id = j.at("id").get<std::string>();
-    delete[] o.m_id;
-    o.m_id = new char[id.size() + 1];
-    std::memcpy(o.m_id, id.c_str(), id.size() + 1);
+    o.m_id = j.at("id").get<std::string>();
 
     j.at("seconds").get_to(o.m_seconds);
 

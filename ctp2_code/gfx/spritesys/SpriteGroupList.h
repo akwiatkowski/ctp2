@@ -95,7 +95,7 @@ private:
 // Function declarations
 //----------------------------------------------------------------------------
 
-void spritegrouplist_Initialize(void);
-void spritegrouplist_Cleanup(void);
+void spritegrouplist_Initialize();
+void spritegrouplist_Cleanup();
 
 #endif	// Multiple include guard

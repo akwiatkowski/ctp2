@@ -139,7 +139,7 @@ GoodActor::~GoodActor() {
   }
 }
 
-void GoodActor::FullLoad(void) { // Doesn't seem to do much
+void GoodActor::FullLoad() { // Doesn't seem to do much
   if (!m_goodSpriteGroup) return;
   if (m_loadType == LOADTYPE_FULL) return;
 
@@ -150,7 +150,7 @@ void GoodActor::FullLoad(void) { // Doesn't seem to do much
   m_frame = 0;
 }
 
-void GoodActor::DumpFullLoad(void) {
+void GoodActor::DumpFullLoad() {
   if (!m_goodSpriteGroup) return;
   if (m_loadType != LOADTYPE_FULL) return;
 
@@ -172,7 +172,7 @@ void GoodActor::PositionActor(MapPoint &pos) {
   SetPos(pos);
 }
 
-void GoodActor::AddIdle(void) {
+void GoodActor::AddIdle() {
   if (m_curAction) return;
 
   m_curAction.reset(new Action(GOODACTION_IDLE, ACTIONEND_ANIMEND));
@@ -185,7 +185,7 @@ void GoodActor::AddIdle(void) {
   }
 }
 
-void GoodActor::Process(void) {
+void GoodActor::Process() {
   sint32		tickCount = GetTickCount();
 
   if (m_curAction) {
@@ -229,7 +229,7 @@ void GoodActor::Process(void) {
   }
 }
 
-void GoodActor::GetNextAction(void) {
+void GoodActor::GetNextAction() {
   m_curAction.reset();
 
   if (!m_actionQueue.Empty()) {
@@ -271,7 +271,7 @@ Anim *GoodActor::CreateAnim(GOODACTION action) {
   return origAnim ? new Anim(*origAnim) : NULL;
 }
 
-void GoodActor::DrawSelectionBrackets(void) {
+void GoodActor::DrawSelectionBrackets() {
 
   TileSet		*tileSet = tiledmap_Get()->GetTileSet();
 
@@ -368,7 +368,7 @@ void GoodActor::DrawText(sint32 x, sint32 y, MBCHAR const * goodText) {
   m_goodSpriteGroup->DrawText(x, y, goodText);
 }
 
-POINT GoodActor::GetHotpoint(void) const {
+POINT GoodActor::GetHotpoint() const {
   POINT pt = { 0,0 };
 
   if (!m_goodSpriteGroup) return pt;
@@ -377,11 +377,11 @@ POINT GoodActor::GetHotpoint(void) const {
   return m_goodSpriteGroup->GetGroupSprite((GAME_ACTION)GOODACTION_IDLE)->GetHotPoint();
 }
 
-bool GoodActor::IsAnimating(void) const {
+bool GoodActor::IsAnimating() const {
   return false;
 }
 
-uint16 GoodActor::GetWidth(void) const {
+uint16 GoodActor::GetWidth() const {
   Assert(m_goodSpriteGroup);
   if (!m_goodSpriteGroup) return 0;
 
@@ -389,7 +389,7 @@ uint16 GoodActor::GetWidth(void) const {
   return (theSprite) ? theSprite->GetWidth() : 0;
 }
 
-uint16 GoodActor::GetHeight(void) const {
+uint16 GoodActor::GetHeight() const {
   Assert(m_goodSpriteGroup);
   if (!m_goodSpriteGroup) return 0;
 

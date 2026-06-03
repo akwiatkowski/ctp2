@@ -8,7 +8,7 @@
 
 sint32 optionwarningscreen_displayMyWindow(uint32 warning);
 sint32 optionwarningscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE optionwarningscreen_Initialize( void );
+AUI_ERRCODE optionwarningscreen_Initialize( );
 AUI_ERRCODE optionwarningscreen_Cleanup();
 
 

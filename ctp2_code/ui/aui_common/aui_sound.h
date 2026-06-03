@@ -60,12 +60,12 @@ public:
 		float x,
 		float y,
 		float z ) { return AUI_ERRCODE_OK; }
-	virtual AUI_ERRCODE Load( void );
-	virtual AUI_ERRCODE Unload ( void );
-	virtual void Play( void ) {}
-	virtual void Stop( void ) {}
+	virtual AUI_ERRCODE Load( );
+	virtual AUI_ERRCODE Unload ( );
+	virtual void Play( ) {}
+	virtual void Stop( ) {}
 
-	MBCHAR *GetFilename( void ) const { return (MBCHAR *)m_filename; }
+	MBCHAR *GetFilename( ) const { return (MBCHAR *)m_filename; }
 	virtual AUI_ERRCODE SetFilename ( MBCHAR const *filename );
 
 protected:
@@ -94,10 +94,10 @@ public:
 	aui_Sound( retval, filename ) {}
 	virtual ~aui_Sound2D() {}
 
-	virtual void Update( void ) {}
+	virtual void Update( ) {}
 
 protected:
-	void SetSoundProperties( void ) {}
+	void SetSoundProperties( ) {}
 };
 
 #endif

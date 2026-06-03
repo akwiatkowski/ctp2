@@ -46,7 +46,7 @@ public:
 		sint32 y = 0 );
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( void );
+	virtual AUI_ERRCODE	RepositionButton( );
 };
 
 #endif

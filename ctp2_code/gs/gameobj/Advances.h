@@ -69,7 +69,7 @@ typedef sint32  AdvanceType;
 // Declarations
 //----------------------------------------------------------------------------
 
-uint32 Advances_Advances_GetVersion(void);
+uint32 Advances_Advances_GetVersion();
 
 class Advances
 {
@@ -127,8 +127,8 @@ public:
 	void GiveAdvancePlusPrerequisites(AdvanceType adv);
 	void TakeAdvance(AdvanceType adv);
 	void InitialAdvance(AdvanceType adv);
-	double GetPollutionSizeModifier(void) const;
-	double GetPollutionProductionModifier(void) const;
+	double GetPollutionSizeModifier() const;
+	double GetPollutionProductionModifier() const;
 
 	AdvanceType GetResearching() const { return m_researching; }
 	void SetResearching(AdvanceType adv);

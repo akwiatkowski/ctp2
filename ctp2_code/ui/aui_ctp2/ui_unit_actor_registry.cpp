@@ -6,7 +6,7 @@
 
 static UIUnitActorRegistry g_uiUnitActorRegistry;
 
-UIUnitActorRegistry & uiunitactorregistry_Get(void)
+UIUnitActorRegistry & uiunitactorregistry_Get()
 {
     return g_uiUnitActorRegistry;
 }

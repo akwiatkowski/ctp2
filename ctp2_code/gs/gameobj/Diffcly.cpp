@@ -251,7 +251,7 @@ const char *diffutil_GetYearStringFromTurn(sint32 diff, sint32 turn)
 	return buf;
 }
 
-uint32 Diffcly_Difficulty_GetVersion(void)
+uint32 Diffcly_Difficulty_GetVersion()
 {
 	return (k_DIFFICULTY_VERSION_MAJOR<<16 | k_DIFFICULTY_VERSION_MINOR) ;
 }

@@ -34,9 +34,9 @@ public:
 	aui_Control	*FindControl( uint32 index );
 
 	aui_Image	*SetTile( MBCHAR *tile );
-	aui_Image	*GetTile( void ) const { return m_tile; }
+	aui_Image	*GetTile( ) const { return m_tile; }
 
-	BOOL		IsRetired( void ) const { return m_retired; }
+	BOOL		IsRetired( ) const { return m_retired; }
 	BOOL		SetRetired( BOOL retired );
 
 

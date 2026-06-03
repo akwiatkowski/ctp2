@@ -39,7 +39,7 @@ public:
 
 	nf_PlayerSetup(NETFunc::KeyStruct *k);
 	nf_PlayerSetup(NETFunc::Player *p);
-	nf_PlayerSetup(void);
+	nf_PlayerSetup();
 	void SetKey(NETFunc::KeyStruct *k);
 	void Pack();
 	void Unpack();

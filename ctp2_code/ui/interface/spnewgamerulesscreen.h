@@ -50,7 +50,7 @@ void spnewgamerulesscreen_switchPress(aui_Control *control, uint32 action, uint3
 
 sint32 spnewgamerulesscreen_displayMyWindow();
 sint32 spnewgamerulesscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE spnewgamerulesscreen_Initialize( void );
+AUI_ERRCODE spnewgamerulesscreen_Initialize( );
 AUI_ERRCODE spnewgamerulesscreen_Cleanup();
 
 void spnewgamerulesscreen_agesPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

@@ -94,7 +94,7 @@ uint32 const    NUMBER_INVALID          = static_cast<uint32>(-1);
 
 static CreditsWindow *  g_creditsWindow = NULL;
 
-CreditsWindow * creditsscreen_GetWindow(void)
+CreditsWindow * creditsscreen_GetWindow()
 {
     return g_creditsWindow;
 }
@@ -552,8 +552,8 @@ class cCreditsPage
 {
 public:
 	void			 AddLine(uint32 font, MBCHAR *pText);
-	void			 ResetLines(void);
-	cCreditsPage(void);
+	void			 ResetLines();
+	cCreditsPage();
 	~cCreditsPage();
 
 	cCreditsPage	*m_pNext;
@@ -637,7 +637,7 @@ public:
 		std::fill(m_fonts, m_fonts + kCreditsTextNumFonts, (aui_BitmapFont *) NULL);
 	};
 
-	virtual ~c3_CreditsText(void)
+	virtual ~c3_CreditsText()
 	{
 		cCreditsPage *pFoo;
 		ResetPages();
@@ -656,7 +656,7 @@ public:
 
 	};
 
-	void NewPage(void);
+	void NewPage();
 
 	virtual AUI_ERRCODE DrawThis(aui_Surface *pSurface = NULL, sint32 x = 0, sint32 y = 0);
 
@@ -976,7 +976,7 @@ sCreditsLine::sCreditsLine(uint32 font, MBCHAR *pText)
 	m_pNext = NULL;
 };
 
-cCreditsPage::cCreditsPage(void)
+cCreditsPage::cCreditsPage()
 {
 	m_numLines = 0;
 	m_pLines = NULL;
@@ -1012,7 +1012,7 @@ void cCreditsPage::AddLine(uint32 font, MBCHAR *pText)
 }
 
 
-void cCreditsPage::ResetLines(void)
+void cCreditsPage::ResetLines()
 {
 	m_pCurrLine = m_pLines;
 }
@@ -1246,7 +1246,7 @@ c3_CreditsText * c3_CreditsText::Parse(FILE *textfile)
 	return NULL;
 }
 
-void c3_CreditsText::NewPage(void)
+void c3_CreditsText::NewPage()
 {
 	cCreditsPage *  pNewPage = new cCreditsPage();
 

@@ -14,10 +14,10 @@ Pixel16		gRGBTable[RGB_VALUES];
 // startup and calls is_565_Set() before any rendering touches this flag.
 static sint32 s_is565Format = TRUE;
 
-bool is_565_Get(void)   { return s_is565Format != 0; }
+bool is_565_Get()   { return s_is565Format != 0; }
 void is_565_Set(bool v) { s_is565Format = v ? TRUE : FALSE; }
 
-void pixelutils_Initialize(void)
+void pixelutils_Initialize()
 {
 	pixelutils_ComputeBlendTable();
 	pixelutils_ComputeRGBTable();
@@ -60,7 +60,7 @@ Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height)
 	return (Pixel16 *)outBuf;
 }
 
-void pixelutils_ComputeBlendTable(void)
+void pixelutils_ComputeBlendTable()
 {
 	for (short i=0; i<BLEND_LEVELS; i++) {
 		for (short c1=0; c1<BLEND_MAX_VALUE; c1++) {
@@ -93,7 +93,7 @@ void RGB32Info(Pixel32 pixel, Pixel16 *outPixel, unsigned char *alpha)
 		*outPixel = (Pixel16) (((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3));
 }
 
-void pixelutils_ComputeRGBTable(void)
+void pixelutils_ComputeRGBTable()
 {
 	for (int r = 0; r < 32; r++)
     {

@@ -81,6 +81,6 @@ private:
 };
 
 int messageadvice_AddText( MBCHAR *text );
-int messageadvice_DestroyWindow( void );
+int messageadvice_DestroyWindow( );
 
 #endif

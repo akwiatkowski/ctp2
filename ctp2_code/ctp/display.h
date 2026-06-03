@@ -61,12 +61,12 @@ struct CTPDisplayMode {
 BOOL CALLBACK		display_FindDeviceCallbackEx(GUID* lpGUID, LPSTR szName,
 								   LPSTR szDevice, LPVOID lParam, HMONITOR hMonitor);
 #endif
-BOOL				display_EnumerateDisplayDevices(void);
+BOOL				display_EnumerateDisplayDevices();
 
 #ifdef WIN32
 HRESULT CALLBACK	display_DisplayModeCallback(LPDDSURFACEDESC pdds, LPVOID lParam);
 #endif
-void				display_EnumerateDisplayModes(void);
+void				display_EnumerateDisplayModes();
 BOOL				display_IsLegalResolution(sint32 width, sint32 height);
 
 BOOL				display_InitWindow(HINSTANCE hinst, int cmdshow);

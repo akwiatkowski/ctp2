@@ -139,7 +139,7 @@ void TopTen::InsertCity(const Unit &c)
 	InsertCity(m_happiestCities, c, (sint32)(c.GetHappiness()), pos) ;
 }
 
-void TopTen::CalculateBiggestCities(void)
+void TopTen::CalculateBiggestCities()
 {
 	Clear();
 
@@ -204,7 +204,7 @@ BOOL TopTen::GetCityPosition(const Unit &c, const sint32 category, sint32 &pos)
 	}
 }
 
-void TopTen::EndTurn(void)
+void TopTen::EndTurn()
 {
 	CalculateBiggestCities();
 }

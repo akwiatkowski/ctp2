@@ -50,7 +50,7 @@ AUI_ERRCODE aui_SwitchGroup::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_SwitchGroup::InitCommon( void )
+AUI_ERRCODE aui_SwitchGroup::InitCommon( )
 {
 	m_whichWasSelected = 0,
 	m_whichIsSelected = 0;
@@ -76,7 +76,7 @@ AUI_ERRCODE aui_SwitchGroup::RemoveChild( uint32 switchId )
 	return aui_Control::RemoveChild( switchId );
 }
 
-sint32 aui_SwitchGroup::WhichIndexIsSelected( void )
+sint32 aui_SwitchGroup::WhichIndexIsSelected( )
 {
 	ListPos position = m_childList->GetHeadPosition();
 
@@ -89,7 +89,7 @@ sint32 aui_SwitchGroup::WhichIndexIsSelected( void )
 	return -1;
 }
 
-BOOL aui_SwitchGroup::MakeSureOnlyOneIsSelected( void )
+BOOL aui_SwitchGroup::MakeSureOnlyOneIsSelected( )
 {
 	BOOL foundSelectedSwitch = FALSE;
 

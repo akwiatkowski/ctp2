@@ -38,7 +38,7 @@ public:
 
 	virtual ~IconButton();
 
-	Icon *&TheIcon( void ) { return m_icon; }
+	Icon *&TheIcon( ) { return m_icon; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,

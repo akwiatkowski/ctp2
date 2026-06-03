@@ -253,7 +253,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE ctp2_DropDown::RepositionListBoxWindow( void )
+AUI_ERRCODE ctp2_DropDown::RepositionListBoxWindow( )
 {
 
 
@@ -318,14 +318,14 @@ AUI_ERRCODE ctp2_DropDown::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE ctp2_DropDown::RepositionButton( void )
+AUI_ERRCODE ctp2_DropDown::RepositionButton( )
 {
 	m_button->Resize( m_width, m_button->Height() );
 
 	return AUI_ERRCODE_OK;
 }
 
-void ctp2_DropDown::Clear(void)
+void ctp2_DropDown::Clear()
 {
 	((ctp2_ListBox *)m_listBox)->Clear();
 }
@@ -345,7 +345,7 @@ AUI_ERRCODE ctp2_DropDown::AddItem(ctp2_ListItem *item)
 	return AUI_ERRCODE_OK;
 }
 
-void ctp2_DropDown::BuildListStart(void)
+void ctp2_DropDown::BuildListStart()
 {
 	Assert(m_listBox);
 	if (m_listBox == NULL) return;
@@ -353,7 +353,7 @@ void ctp2_DropDown::BuildListStart(void)
 	m_listBox->BuildListStart();
 }
 
-void ctp2_DropDown::BuildListEnd(void)
+void ctp2_DropDown::BuildListEnd()
 {
 	Assert(m_listBox);
 	if (m_listBox == NULL) return;

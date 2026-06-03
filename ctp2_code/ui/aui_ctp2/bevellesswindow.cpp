@@ -46,7 +46,7 @@ BevelLessWindow::BevelLessWindow(
 }
 
 
-AUI_ERRCODE BevelLessWindow::InitCommon( void )
+AUI_ERRCODE BevelLessWindow::InitCommon( )
 {
 	GrabRegion()->Move( 0, 0 );
 	GrabRegion()->Resize( m_width, 20 );

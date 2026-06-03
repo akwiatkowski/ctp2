@@ -37,7 +37,7 @@ TipWindow::TipWindow(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 
 
 
 
-AUI_ERRCODE TipWindow::FitWindowToText( void )
+AUI_ERRCODE TipWindow::FitWindowToText( )
 {
 	if ( m_text && m_surface)
 	{

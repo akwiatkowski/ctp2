@@ -15,7 +15,7 @@ class Splash;
 // Reset the debug-only "previous splash tick" baseline.  Backing storage
 // is `static sint32 g_splash_old` in splash.cpp; only debug-build callers
 // (civapp.cpp, civ3_main.cpp) ever poke it.
-void splash_MarkOld(void);
+void splash_MarkOld();
 #endif
 
 // SPLASH_STRING / SPLASH_STRING_SIMPLE now live in gs/core/splash_progress.h
@@ -27,8 +27,8 @@ void splash_MarkOld(void);
 class Splash
 {
 public:
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
 	Splash();
 

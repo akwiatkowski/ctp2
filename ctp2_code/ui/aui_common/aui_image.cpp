@@ -92,7 +92,7 @@ AUI_ERRCODE aui_Image::SetFilename( MBCHAR const *filename )
 	return m_format ? AUI_ERRCODE_OK : AUI_ERRCODE_MEMALLOCFAILED;
 }
 
-AUI_ERRCODE aui_Image::Load( void )
+AUI_ERRCODE aui_Image::Load( )
 {
 	Assert(m_format);
 	if ( !m_format ) return AUI_ERRCODE_INVALIDPARAM;
@@ -102,7 +102,7 @@ AUI_ERRCODE aui_Image::Load( void )
 	return m_format->Load(m_filename, this);
 }
 
-AUI_ERRCODE aui_Image::Unload( void )
+AUI_ERRCODE aui_Image::Unload( )
 {
 	if (aui_ui_Get() && aui_ui_Get()->TheMemMap())
 	{

@@ -241,7 +241,7 @@ LoadSaveWindow::~LoadSaveWindow()
 	delete m_deleteButton;
 }
 
-void LoadSaveWindow::FillListOne(void)
+void LoadSaveWindow::FillListOne()
 {
 	if (!m_fileList) return;
 	if (m_fileList->GetCount() <= 0) return;
@@ -324,7 +324,7 @@ void LoadSaveWindow::FillCivList(SaveInfo *info)
 	}
 }
 
-void LoadSaveWindow::SelectCurrentGame(void)
+void LoadSaveWindow::SelectCurrentGame()
 {
 	if (!m_listOne) return;
 
@@ -345,7 +345,7 @@ void LoadSaveWindow::SelectCurrentGame(void)
     }
 }
 
-void LoadSaveWindow::SelectCurrentSave(void)
+void LoadSaveWindow::SelectCurrentSave()
 {
 	if (!m_listTwo) return;
 
@@ -503,7 +503,7 @@ bool LoadSaveWindow::CreateSaveInfoIfNeeded( SaveInfo *&info )
 	return false;
 }
 
-void LoadSaveWindow::CleanUpSaveInfo( void )
+void LoadSaveWindow::CleanUpSaveInfo( )
 {
 	delete m_saveInfoToSave;
 	m_saveInfoToSave = NULL;
@@ -812,7 +812,7 @@ BOOL LoadSaveWindow::GetSaveName(MBCHAR *name)
 	return TRUE;
 }
 
-MBCHAR *LoadSaveWindow::GetLeaderName(void)
+MBCHAR *LoadSaveWindow::GetLeaderName()
 {
 	Assert(m_playerText);
 	if (!m_playerText) return NULL;
@@ -820,7 +820,7 @@ MBCHAR *LoadSaveWindow::GetLeaderName(void)
 	return m_playerText->GetText();
 }
 
-MBCHAR *LoadSaveWindow::GetCivName(void)
+MBCHAR *LoadSaveWindow::GetCivName()
 {
 	Assert(m_civText);
 	if (!m_civText) return NULL;
@@ -963,7 +963,7 @@ void LoadSaveWindow::EnableFields( BOOL enable )
 	m_noteTextBox->Enable( enable );
 }
 
-bool LoadSaveWindow::NoName( void )
+bool LoadSaveWindow::NoName( )
 {
 	MBCHAR s[_MAX_PATH];
 

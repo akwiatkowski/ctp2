@@ -83,7 +83,7 @@ TerrainImprovementData::TerrainImprovementData(CivArchive &archive) : GameObj(0)
 	Serialize(archive);
 }
 
-BOOL TerrainImprovementData::Complete(void)
+BOOL TerrainImprovementData::Complete()
 {
 	TerrainImprovement imp(m_id);
 

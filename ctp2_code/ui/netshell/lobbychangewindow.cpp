@@ -68,7 +68,7 @@ LobbyChangeWindow::LobbyChangeWindow(
 	Assert( AUI_SUCCESS(*retval) );
 }
 
-AUI_ERRCODE LobbyChangeWindow::InitCommon( void )
+AUI_ERRCODE LobbyChangeWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );
@@ -78,7 +78,7 @@ AUI_ERRCODE LobbyChangeWindow::InitCommon( void )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE LobbyChangeWindow::CreateControls( void )
+AUI_ERRCODE LobbyChangeWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -168,7 +168,7 @@ AUI_ERRCODE LobbyChangeWindow::CreateControls( void )
 	return AUI_ERRCODE_OK;
 }
 
-void LobbyChangeWindow::Update(void)
+void LobbyChangeWindow::Update()
 {
 	ns_LobbyListBox *listbox = (ns_LobbyListBox *)(FindControl( LobbyChangeWindow::CONTROL_LOBBIESLISTBOX ));
 	ns_LobbyItem *item = (ns_LobbyItem *)listbox->GetSelectedItem();
@@ -179,7 +179,7 @@ void LobbyChangeWindow::Update(void)
 		b->Enable(FALSE);
 }
 
-AUI_ERRCODE LobbyChangeWindow::Idle( void )
+AUI_ERRCODE LobbyChangeWindow::Idle( )
 {
     while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {

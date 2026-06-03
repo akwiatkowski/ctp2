@@ -15,7 +15,7 @@ public:
 
 protected:
 	aui_Cursor() : aui_Image() {}
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 	AUI_ERRCODE	SetHotspot( sint32 x, sint32 y );

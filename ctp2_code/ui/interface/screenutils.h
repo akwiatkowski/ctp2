@@ -46,62 +46,62 @@
 								if ( g_debugWindow) g_debugWindow->AddText( str );
 #endif
 
-sint32  open_CreditsScreen( void );
-void    close_CreditsScreen( void );
+sint32  open_CreditsScreen( );
+void    close_CreditsScreen( );
 
-sint32  open_WorkView( void );
-void    close_WorkView( void );
+sint32  open_WorkView( );
+void    close_WorkView( );
 
-sint32  open_CityView( void );
-void    close_CityView( void );
+sint32  open_CityView( );
+void    close_CityView( );
 
-sint32  open_CityStatus( void );
-void    close_CityStatus( void );
+sint32  open_CityStatus( );
+void    close_CityStatus( );
 
-sint32  open_CivStatus( void );
-void    close_CivStatus( void );
+sint32  open_CivStatus( );
+void    close_CivStatus( );
 
-sint32  open_ScienceStatus( void );
-void    close_ScienceStatus(void);
+sint32  open_ScienceStatus( );
+void    close_ScienceStatus();
 
-sint32  open_ScienceVictory( void );
-void    close_ScienceVictory( void );
+sint32  open_ScienceVictory( );
+void    close_ScienceVictory( );
 
-sint32  open_UnitStatus( void );
-void    close_UnitStatus( void );
+sint32  open_UnitStatus( );
+void    close_UnitStatus( );
 
-sint32  open_TradeStatus( void );
-void    close_TradeStatus( void );
+sint32  open_TradeStatus( );
+void    close_TradeStatus( );
 
-sint32  open_VictoryWindow( void );
-void    close_VictoryWindow( void );
+sint32  open_VictoryWindow( );
+void    close_VictoryWindow( );
 
-sint32  open_Diplomacy( void );
-void    close_Diplomacy( void );
+sint32  open_Diplomacy( );
+void    close_Diplomacy( );
 
-sint32  open_InfoScreen( void );
-void    close_InfoScreen( void );
+sint32  open_InfoScreen( );
+void    close_InfoScreen( );
 
 bool    open_GreatLibrary( sint32 index, bool sci = false );
-bool    open_GreatLibrary( void );
-void    close_GreatLibrary( void );
+bool    open_GreatLibrary( );
+void    close_GreatLibrary( );
 
 sint32  open_OptionsScreen( sint32 fromWhichScreen );
-void    close_OptionsScreen( void );
+void    close_OptionsScreen( );
 
-sint32  open_KeyMappingScreen( void );
-void    close_KeyMappingScreen( void );
+sint32  open_KeyMappingScreen( );
+void    close_KeyMappingScreen( );
 
-sint32  open_EndGame( void );
-void    close_EndGame( void );
+sint32  open_EndGame( );
+void    close_EndGame( );
 
-sint32  open_TutorialWin( void );
-void    close_TutorialWin( void );
+sint32  open_TutorialWin( );
+void    close_TutorialWin( );
 
-void    close_AllScreens( void );
-void    close_AllScreensAndUpdateInfoScreen( void );
+void    close_AllScreens( );
+void    close_AllScreensAndUpdateInfoScreen( );
 
-sint32  open_ScenarioEditor(void);
-void    close_ScenarioEditor(void);
+sint32  open_ScenarioEditor();
+void    close_ScenarioEditor();
 
 #endif

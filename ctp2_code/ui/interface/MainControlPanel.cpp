@@ -51,7 +51,7 @@
 
 static MainControlPanel *g_mainControlPanel = NULL;
 
-MainControlPanel * maincontrolpanel_Get(void)
+MainControlPanel * maincontrolpanel_Get()
 {
 	return g_mainControlPanel;
 }

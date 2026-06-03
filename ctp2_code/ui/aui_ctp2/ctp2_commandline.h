@@ -12,12 +12,12 @@ public:
 	ctp2_CommandLine(aui_Surface *surface, RECT *clRect);
 	~ctp2_CommandLine();
 
-	void	Draw(void);
+	void	Draw();
 
 	void	HandleKeypress(WPARAM wParam, LPARAM lParam);
 
-	RECT	*GetRect(void) { return &m_rect; }
-	MBCHAR	*GetString(void) { return m_string; }
+	RECT	*GetRect() { return &m_rect; }
+	MBCHAR	*GetString() { return m_string; }
 
 private:
 	aui_BitmapFont		*m_font;

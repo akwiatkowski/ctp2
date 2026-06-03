@@ -56,7 +56,7 @@ void Sprite::DrawLowClipped565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint3
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
 
-	register	sint32 j;
+		sint32 j;
 	sint32		len;
 
 	sint32		xpos;
@@ -225,7 +225,7 @@ void Sprite::DrawLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint32 width
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
 
-	register	sint32 j;
+		sint32 j;
 	sint32		len;
 
 	for(j=0; j<height; j++)
@@ -378,7 +378,7 @@ void Sprite::DrawLowReversedClipped565(Pixel16 *frame, sint32 drawX, sint32 draw
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
 
-	register	sint32 j;
+		sint32 j;
 	sint32		len;
 
 	sint32		xpos;
@@ -545,8 +545,8 @@ void Sprite::DrawLowReversed565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
 
-	register	sint32 j;
-	register	sint32 len;
+		sint32 j;
+		sint32 len;
 
 	for(j=0; j < height; j++) {
 		if (table[j] != k_EMPTY_TABLE_ENTRY) {
@@ -936,8 +936,8 @@ void Sprite::DrawFlashLow565(Pixel16 *frame, sint32 drawX, sint32 drawY, sint32 
 	Pixel16		*table = frame+1;
 	Pixel16		*dataStart = table + height;
 
-	register sint32 j;
-	register sint32 len;
+	sint32 j;
+	sint32 len;
 
 	for(j=0; j<height; j++) {
 		if (table[j] != k_EMPTY_TABLE_ENTRY) {

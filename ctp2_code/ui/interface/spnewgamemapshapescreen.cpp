@@ -100,7 +100,7 @@ static MBCHAR const	checknames[WORLD_SHAPE_COUNT][50] = {
 
 static sint32 s_useMode = 0;
 
-size_t spnewgamemapshapescreen_getMapShapeIndex( void )
+size_t spnewgamemapshapescreen_getMapShapeIndex( )
 {
 	return s_mapShapeIndex;
 }

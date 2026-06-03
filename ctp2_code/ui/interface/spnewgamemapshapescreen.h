@@ -44,7 +44,7 @@ void spnewgamemapshapescreen_acceptPress(aui_Control *control, uint32 action, ui
 void spnewgamemapshapescreen_cancelPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 void spnewgamemapshapescreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-size_t  spnewgamemapshapescreen_getMapShapeIndex(void);
+size_t  spnewgamemapshapescreen_getMapShapeIndex();
 void    spnewgamemapshapescreen_setMapShapeIndex(size_t);
 
 #endif

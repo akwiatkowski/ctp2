@@ -72,7 +72,7 @@ size_t SpriteGroup::GetNumFrames(GAME_ACTION action) const
     return m_sprites[action] ? m_sprites[action]->GetNumFrames() : 0;
 }
 
-void SpriteGroup::DeallocateStorage(void)
+void SpriteGroup::DeallocateStorage()
 {
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
@@ -81,7 +81,7 @@ void SpriteGroup::DeallocateStorage(void)
     }
 }
 
-void SpriteGroup::DeallocateFullLoadAnims(void)
+void SpriteGroup::DeallocateFullLoadAnims()
 {
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
@@ -107,23 +107,23 @@ void SpriteGroup::DrawText(sint32 x,
 {
 }
 
-void SpriteGroup::AddRef(void)
+void SpriteGroup::AddRef()
 {
 	m_usageRefCount++;
 }
 
-void SpriteGroup::Release(void)
+void SpriteGroup::Release()
 {
 	m_usageRefCount--;
 	Assert(m_usageRefCount >= 0);
 }
 
-void SpriteGroup::AddFullLoadRef(void)
+void SpriteGroup::AddFullLoadRef()
 {
 	m_fullLoadRefCount++;
 }
 
-void SpriteGroup::ReleaseFullLoad(void)
+void SpriteGroup::ReleaseFullLoad()
 {
 	m_fullLoadRefCount--;
 	Assert(m_fullLoadRefCount >= 0);

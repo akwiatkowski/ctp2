@@ -55,12 +55,12 @@ class DiplomaticRequestPool : public ObjPool
 // Lifecycle (new / archive-load / Cleanup) lives in
 // gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through diplomaticrequestpool_Get().
-DiplomaticRequestPool * diplomaticrequestpool_Get(void);
+DiplomaticRequestPool * diplomaticrequestpool_Get();
 void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p);
 #else
 
 class DiplomaticRequestPool ;
-DiplomaticRequestPool * diplomaticrequestpool_Get(void);
+DiplomaticRequestPool * diplomaticrequestpool_Get();
 void                    diplomaticrequestpool_Set(DiplomaticRequestPool *p);
 
 #endif

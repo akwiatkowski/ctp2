@@ -35,7 +35,7 @@ public:
 
 	static sint32 m_version;
 
-	nf_AIPlayer(void);
+	nf_AIPlayer();
 	nf_AIPlayer(NETFunc::AIPlayer *p);
 
 	void SetKey(NETFunc::KeyStruct *k);

@@ -17,7 +17,7 @@ public:
 	virtual ~aui_AudioManager();
 
 protected:
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 	virtual aui_Sound	*Load( const MBCHAR *filename )
@@ -36,7 +36,7 @@ public:
 	virtual AUI_ERRCODE PlaySound( const MBCHAR *name )
 		{ return AUI_ERRCODE_OK; }
 
-	BOOL UsingAudio( void ) const { return m_useAudio; }
+	BOOL UsingAudio( ) const { return m_useAudio; }
 
 protected:
 	BOOL m_useAudio;

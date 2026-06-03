@@ -77,7 +77,7 @@ public:
 
 protected:
 	ctp2_MenuBar() : aui_Window() {}
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 	AUI_ERRCODE	AddChild( aui_Region *child );
 

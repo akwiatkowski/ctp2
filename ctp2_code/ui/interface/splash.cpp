@@ -21,7 +21,7 @@ static sint32          g_splash_cur = 0;
 static sint32   g_splash_old = 0;
 
 #ifdef _DEBUG
-void splash_MarkOld(void) { g_splash_old = GetTickCount(); }
+void splash_MarkOld() { g_splash_old = GetTickCount(); }
 #endif
 static MBCHAR          g_splash_buf[100] = {0};
 
@@ -39,7 +39,7 @@ void UISplashShow(const char *msg)
 } // anonymous namespace
 #endif
 
-void Splash::Initialize(void)
+void Splash::Initialize()
 {
     allocated::reassign(g_splash, new Splash());
 #ifdef _DEBUG
@@ -48,7 +48,7 @@ void Splash::Initialize(void)
 #endif
 }
 
-void Splash::Cleanup(void)
+void Splash::Cleanup()
 {
     allocated::clear(g_splash);
 }

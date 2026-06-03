@@ -127,7 +127,7 @@ void ctp2_TextBuffer::DrawLine(sint32 lineNum, COLOR color)
 	}
 }
 
-void ctp2_TextBuffer::Redraw(void)
+void ctp2_TextBuffer::Redraw()
 {
 
 	sint32		start = m_topLine;
@@ -289,7 +289,7 @@ void ctp2_TextBuffer::AddText(MBCHAR *text, COLOR color)
 	}
 }
 
-void ctp2_TextBuffer::PageUp(void)
+void ctp2_TextBuffer::PageUp()
 {
 	m_topLine = m_topLine + (m_numDisplayedRows - 5);
 
@@ -299,7 +299,7 @@ void ctp2_TextBuffer::PageUp(void)
 	Redraw();
 }
 
-void ctp2_TextBuffer::PageDown(void)
+void ctp2_TextBuffer::PageDown()
 {
 	m_topLine = m_topLine - (m_numDisplayedRows - 5);
 

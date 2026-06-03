@@ -62,7 +62,7 @@ AUI_ERRCODE aui_Win::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_Win::InitCommon( void )
+AUI_ERRCODE aui_Win::InitCommon( )
 {
 	m_hwnd = NULL;
 	m_memdc = NULL;
@@ -198,7 +198,7 @@ aui_Win::~aui_Win()
 }
 
 
-aui_Control *aui_Win::SetKeyboardFocus( void )
+aui_Control *aui_Win::SetKeyboardFocus( )
 {
 	if ( !IsDisabled() )
 #ifdef __AUI_USE_DIRECTX__

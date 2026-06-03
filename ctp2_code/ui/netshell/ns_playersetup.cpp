@@ -46,7 +46,7 @@ nf_PlayerSetup::nf_PlayerSetup(NETFunc::Player *p):NETFunc::PlayerSetup(p) {
 	SetExperience(0);
 }
 
-nf_PlayerSetup::nf_PlayerSetup(void):NETFunc::PlayerSetup() {
+nf_PlayerSetup::nf_PlayerSetup():NETFunc::PlayerSetup() {
 	SetIcq(NULL);
 	SetEmail(NULL);
 	SetLocation(NULL);

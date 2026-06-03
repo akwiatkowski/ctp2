@@ -102,7 +102,7 @@ AUI_ERRCODE ColorIconSwitch::Resize(sint32 width, sint32 height)
 
 
 
-void ColorIconSwitch::ResizePictureRect(void)
+void ColorIconSwitch::ResizePictureRect()
 {
 	sint32 destHeight, destWidth;
 

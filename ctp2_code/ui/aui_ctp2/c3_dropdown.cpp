@@ -245,7 +245,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE c3_DropDown::RepositionListBoxWindow( void )
+AUI_ERRCODE c3_DropDown::RepositionListBoxWindow( )
 {
 
 
@@ -333,7 +333,7 @@ AUI_ERRCODE c3_DropDown::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE c3_DropDown::RepositionButton( void )
+AUI_ERRCODE c3_DropDown::RepositionButton( )
 {
 
 	m_button->Resize( m_buttonSize - 2, m_height - 4 );
@@ -348,7 +348,7 @@ AUI_ERRCODE c3_DropDown::RepositionButton( void )
 	return AUI_ERRCODE_OK;
 }
 
-void c3_DropDown::Clear(void)
+void c3_DropDown::Clear()
 {
 	((c3_ListBox *)m_listBox)->Clear();
 }

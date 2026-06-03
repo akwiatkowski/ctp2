@@ -67,4 +67,4 @@ private:
 // Future synchronisation: drop a `std::shared_mutex` inside this
 // accessor (or behind dedicated Insert/Remove/Get operations that
 // already exist on the class) — all readers go through one point.
-UIUnitActorRegistry & uiunitactorregistry_Get(void);
+UIUnitActorRegistry & uiunitactorregistry_Get();

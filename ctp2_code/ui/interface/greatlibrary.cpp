@@ -128,7 +128,7 @@ static char const s_database_names[DATABASE_MAX][GL_MAX_DB_NAME_SIZE] =
 
 static GreatLibrary	*g_greatLibrary = NULL;
 
-GreatLibrary * greatlibrary_Get(void)
+GreatLibrary * greatlibrary_Get()
 {
 	return g_greatLibrary;
 }
@@ -594,7 +594,7 @@ AUI_ERRCODE TechListItem::InitCommonLdl(MBCHAR const * ldlBlock)
 	return retval;
 }
 
-void TechListItem::Update(void)
+void TechListItem::Update()
 {
 	ctp2_Static *   subItem         = (ctp2_Static *) GetChildByIndex(0);
 	enum DATABASE   real_database   = m_database;
@@ -695,7 +695,7 @@ bool greatlibrary_Initialize( sint32 theMode, bool sci )
     return false;
 }
 
-void greatlibrary_Cleanup(void)
+void greatlibrary_Cleanup()
 {
     if (g_greatLibrary)
     {
@@ -966,7 +966,7 @@ void GreatLibrary::Initialize(MBCHAR const * windowBlock)
 	}
 }
 
-GreatLibrary::~GreatLibrary( void )
+GreatLibrary::~GreatLibrary( )
 {
     delete m_window;
     delete m_techTree;
@@ -976,7 +976,7 @@ GreatLibrary::~GreatLibrary( void )
 #endif // __AUI_USE_DIRECTX__
 }
 
-void GreatLibrary::Display( void )
+void GreatLibrary::Display( )
 {
 	GetWindow()->SetType(AUI_WINDOW_TYPE_FLOATING);
 	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( GetWindow() );
@@ -994,7 +994,7 @@ void GreatLibrary::Display( void )
 	FixTabs();
 }
 
-void GreatLibrary::Remove(void)
+void GreatLibrary::Remove()
 {
 	AUI_ERRCODE errcode = c3ui_Get()->RemoveWindow(GetWindow()->Id());
 	Assert(errcode == AUI_ERRCODE_OK);
@@ -1194,7 +1194,7 @@ sint32 GreatLibrary::SetLibrary( sint32 theMode, DATABASE theDatabase, bool add_
 	return 0;
 }
 
-void GreatLibrary::ClearHistory( void )
+void GreatLibrary::ClearHistory( )
 {
 	m_history.clear();
 	m_history_position  = 0;
@@ -1219,7 +1219,7 @@ void GreatLibrary::ClearHistory( void )
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void GreatLibrary::HandleSetGoal( void )
+void GreatLibrary::HandleSetGoal( )
 {
 	const MBCHAR * selection_name = GetObjectName(m_database, m_window->GetTechMode());
 
@@ -1410,7 +1410,7 @@ const MBCHAR * GreatLibrary::GetSelectionName() const
 
 
 
-ctp2_Window *GreatLibrary::GetWindow(void) const
+ctp2_Window *GreatLibrary::GetWindow() const
 {
     return m_window ? m_window->m_window : NULL;
 }

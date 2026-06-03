@@ -31,7 +31,7 @@ public:
     );
 	virtual ~aui_StringTable();
 
-	sint32	    GetNumStrings( void ) const
+	sint32	    GetNumStrings( ) const
     {
         return static_cast<sint32>(m_Strings.size());
     };

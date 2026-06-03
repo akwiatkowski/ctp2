@@ -81,7 +81,7 @@ void gameEventManager_Cleanup();
 // / pollution_Get.  The legacy g_gevManager pointer is now file-static
 // in GameEventManager.cpp; outside callers must go through these
 // accessors.
-GameEventManager * gevmanager_Get(void);
+GameEventManager * gevmanager_Get();
 void               gevmanager_Set(GameEventManager *p);
 
 //----------------------------------------------------------------------------

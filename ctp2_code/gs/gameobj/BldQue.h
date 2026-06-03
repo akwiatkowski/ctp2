@@ -117,9 +117,9 @@ private:
 	sint32                      m_wonderComplete;
 	BuildNode *                 m_frontWhenBuilt;
 
-	void HandleProductionComplete(void);
-	void HandleProductionStart(void);
-	void HandleProductionStop(void);
+	void HandleProductionComplete();
+	void HandleProductionStart();
+	void HandleProductionStop();
 #if defined(CTP1_HAS_RISEN_FROM_THE_GRAVE)
 	void SendMsgWormholeProbeStarted(void);
 	void SendMsgWormholeProbeComplete(void);
@@ -127,7 +127,7 @@ private:
 	void SendMsgWonderStarted(sint32 type);
 	void SendMsgWonderCompleteOwner(CityData *cd, sint32 wonder);
 	void SendMsgWonderCompleteEveryone(CityData *cd, sint32 wonder);
-	void SendMsgWonderAlmostComplete(void);
+	void SendMsgWonderAlmostComplete();
 	void SendMsgWonderStopped(sint32 type);
 
 	friend class NetCityBuildQueue;
@@ -171,7 +171,7 @@ public:
 	void ReplaceHead(sint32 cat, sint32 item_type, sint32 cost);
 	void Serialize(CivArchive &archive) ;
 
-	BuildNode *GetHead(void);
+	BuildNode *GetHead();
 	PointerList<BuildNode> *GetList() const { return m_list; }
 
 	void ResetOwner(sint32 new_owner);
@@ -182,7 +182,7 @@ public:
 	bool RemoveNodeByIndex(sint32 index, CAUSE_REMOVE_BUILD_ITEM cause);
 	bool InsertAfter(BuildNode *targetNode, BuildNode *node);
 	bool InsertIndex(sint32 index, BuildNode *node);
-	MBCHAR *GetName( void ) { return m_name; }
+	MBCHAR *GetName( ) { return m_name; }
 	void SetName( MBCHAR *name );
 
 	double GetTypeCoeff() const;
@@ -213,9 +213,9 @@ public:
 	BuildQueue & operator= (const BuildQueue &copy);
 
 private:
-	void SynchroniseNetworkData(void) const;
+	void SynchroniseNetworkData() const;
 };
 
-uint32 BldQue_BuildQueue_GetVersion(void) ;
+uint32 BldQue_BuildQueue_GetVersion() ;
 
 #endif

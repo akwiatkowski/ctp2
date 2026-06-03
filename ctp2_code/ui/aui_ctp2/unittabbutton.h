@@ -46,9 +46,9 @@ public:
 								sint32 x = 0,
 								sint32 y = 0);
 
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
-	c3_ColorIconButton	*IconButton( void ) const { return m_button; }
+	c3_ColorIconButton	*IconButton( ) const { return m_button; }
 
 	sint32	UpdateData( Unit *unit );
 

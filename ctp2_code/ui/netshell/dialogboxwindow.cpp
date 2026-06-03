@@ -68,7 +68,7 @@ DialogBoxWindow::DialogBoxWindow(
 	*retval = CreateControls( ldlBlock, actions );
 }
 
-AUI_ERRCODE DialogBoxWindow::InitCommon( void )
+AUI_ERRCODE DialogBoxWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );

@@ -39,7 +39,7 @@
 
 static ns_Wonders *g_nsWonders = NULL;
 
-ns_Wonders * nswonders_Get(void)            { return g_nsWonders; }
+ns_Wonders * nswonders_Get()            { return g_nsWonders; }
 void         nswonders_Set(ns_Wonders *p)   { g_nsWonders = p; }
 
 ns_Wonders::ns_Wonders()

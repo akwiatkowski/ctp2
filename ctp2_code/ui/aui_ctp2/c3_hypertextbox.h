@@ -86,19 +86,19 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	c3_HyperLink *GetSelectedHyperLink( void ) { return m_selectedHyperLink; }
+	c3_HyperLink *GetSelectedHyperLink( ) { return m_selectedHyperLink; }
 
 protected:
 	bool m_draw_frame;
 	c3_HyperTextBox() : aui_HyperTextBox() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRanger( MBCHAR *ldlBlock = NULL );
 
 	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
 	virtual void	MouseLDropOutside(aui_MouseEvent * mouseData);
 	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
-	void            RemoveHyperLinks(void);
+	void            RemoveHyperLinks();
 
 	virtual AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText );
 

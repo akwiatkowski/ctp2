@@ -52,8 +52,8 @@ public:
 
 	nf_GameSetup(NETFunc::KeyStruct *k);
 	nf_GameSetup(NETFunc::Game *g);
-	nf_GameSetup(void);
-	void Init( void );
+	nf_GameSetup();
+	void Init( );
 	void SetKey(NETFunc::KeyStruct *k);
 	void Pack();
 	void Unpack();
@@ -168,7 +168,7 @@ public:
 	void SetDifficulty2( char difficulty2 )
 	{ m_difficulty2 = difficulty2; }
 
-	TribeSlot *GetTribeSlots( void ) const { return (TribeSlot *)m_tribeSlots; }
+	TribeSlot *GetTribeSlots( ) const { return (TribeSlot *)m_tribeSlots; }
 	void SetTribeSlot( int slot, BOOL isFemale, BOOL isAI, uint16 key, sint32 tribe)
 	{
 		m_tribeSlots[ slot ].isFemale = (sint8)isFemale;
@@ -177,7 +177,7 @@ public:
 		m_tribeSlots[ slot ].tribe = tribe;
 	}
 
-	TribeSlot *GetSavedTribeSlots( void ) const
+	TribeSlot *GetSavedTribeSlots( ) const
 	{ return (TribeSlot *)m_savedTribeSlots; }
 	void SetSavedTribeSlot( int slot, BOOL isFemale, BOOL isAI, uint16 key, sint32 tribe)
 	{
@@ -194,7 +194,7 @@ public:
 		m_excludedUnits[ i >> 3 ] |= ( 1 << ( (uint32)i % 8 ) ) :
 		m_excludedUnits[ i >> 3 ] &= ~( 1 << ( (uint32)i % 8 ) ); }
 
-	int  GetNumAvailUnits( void ) const { return m_numAvailUnits; }
+	int  GetNumAvailUnits( ) const { return m_numAvailUnits; }
 	void SetNumAvailUnits( int numAvailUnits )
 	{ m_numAvailUnits = numAvailUnits; }
 
@@ -205,7 +205,7 @@ public:
 		m_excludedImprovements[ i >> 3 ] |= ( 1 << ( (uint32)i % 8 ) ) :
 		m_excludedImprovements[ i >> 3 ] &= ~( 1 << ( (uint32)i % 8 ) ); }
 
-	int  GetNumAvailImprovements( void ) const {return m_numAvailImprovements; }
+	int  GetNumAvailImprovements( ) const {return m_numAvailImprovements; }
 	void SetNumAvailImprovements( int numAvailImprovements )
 	{ m_numAvailImprovements = numAvailImprovements; }
 
@@ -216,7 +216,7 @@ public:
 		m_excludedWonders[ i >> 3 ] |= ( 1 << ( (uint32)i % 8 ) ) :
 		m_excludedWonders[ i >> 3 ] &= ~( 1 << ( (uint32)i % 8 ) ); }
 
-	int  GetNumAvailWonders( void ) const { return m_numAvailWonders; }
+	int  GetNumAvailWonders( ) const { return m_numAvailWonders; }
 	void SetNumAvailWonders( int numAvailWonders )
 	{ m_numAvailWonders = numAvailWonders; }
 
@@ -226,7 +226,7 @@ public:
 
 
 	void SetSavedId( uint32 savedId );
-	uint32 GetSavedId( void );
+	uint32 GetSavedId( );
 
 private:
 	int m_playstyle;

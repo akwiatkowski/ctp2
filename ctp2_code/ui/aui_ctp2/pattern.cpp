@@ -32,7 +32,7 @@ Pattern::Pattern(
 {
 }
 
-Pattern::~Pattern( void )
+Pattern::~Pattern( )
 {
 	if ( m_lightImage )
 	{

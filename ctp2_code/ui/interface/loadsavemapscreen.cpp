@@ -133,7 +133,7 @@ AUI_ERRCODE loadsavemapscreen_Initialize( aui_Control::ControlActionCallback *ca
 
 
 
-void loadsavemapscreen_Cleanup(void)
+void loadsavemapscreen_Cleanup()
 {
     if (c3ui_Get() && g_loadSaveMapWindow)
     {
@@ -147,7 +147,7 @@ void loadsavemapscreen_Cleanup(void)
 
 
 
-void loadsavemapscreen_LoadGameMap(void)
+void loadsavemapscreen_LoadGameMap()
 {
 	GameMapInfo	*gameMapInfo = g_loadSaveMapWindow->GetGameMapInfo();
 	SaveMapInfo	*saveMapInfo = g_loadSaveMapWindow->GetSaveMapInfo();
@@ -167,7 +167,7 @@ void loadsavemapscreen_LoadGameMap(void)
 
 
 
-void loadsavemapscreen_SaveGameMap(void)
+void loadsavemapscreen_SaveGameMap()
 {
 	SaveMapInfo		*saveMapInfo = g_loadSaveMapWindow->GetSaveMapInfoToSave();
 

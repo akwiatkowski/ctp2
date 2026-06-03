@@ -72,7 +72,7 @@ PlayerSelectWindow::PlayerSelectWindow(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE PlayerSelectWindow::InitCommon( void )
+AUI_ERRCODE PlayerSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );
@@ -82,7 +82,7 @@ AUI_ERRCODE PlayerSelectWindow::InitCommon( void )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE PlayerSelectWindow::CreateControls( void )
+AUI_ERRCODE PlayerSelectWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -233,7 +233,7 @@ nf_PlayerSetup *PlayerSelectWindow::GetPlayerSetup(NETFunc::Player *player) {
 	return s;
 }
 
-void PlayerSelectWindow::Update(void)
+void PlayerSelectWindow::Update()
 {
 	ns_PlayerSetupListBox *listbox = (ns_PlayerSetupListBox *)(FindControl( PlayerSelectWindow::CONTROL_PLAYERNAMELISTBOX ));
 	ns_PlayerSetupItem *item = (ns_PlayerSetupItem *)listbox->GetSelectedItem();
@@ -255,7 +255,7 @@ void PlayerSelectWindow::Update(void)
 	}
 }
 
-AUI_ERRCODE PlayerSelectWindow::Idle( void )
+AUI_ERRCODE PlayerSelectWindow::Idle( )
 {
 	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {

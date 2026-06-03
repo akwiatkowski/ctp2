@@ -144,7 +144,7 @@ AUI_ERRCODE WonderMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	return InitCommon();
 }
 
-AUI_ERRCODE WonderMovieWindow::InitCommon(void)
+AUI_ERRCODE WonderMovieWindow::InitCommon()
 {
 	return C3Window::InitCommon();
 }

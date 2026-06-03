@@ -118,7 +118,7 @@ OptionsWindow::~OptionsWindow()
 #undef mycleanup
 }
 
-sint32 OptionsWindow::EnableButtons( void )
+sint32 OptionsWindow::EnableButtons( )
 {
 
 	m_newgame->Enable( TRUE );
@@ -131,7 +131,7 @@ sint32 OptionsWindow::EnableButtons( void )
 	return 0;
 }
 
-sint32 OptionsWindow::DisableButtons( void )
+sint32 OptionsWindow::DisableButtons( )
 {
 
 	m_newgame->Enable( FALSE );
@@ -144,13 +144,13 @@ sint32 OptionsWindow::DisableButtons( void )
 	return 0;
 }
 
-void OptionsWindow::RemoveQuitToWindowsButton( void )
+void OptionsWindow::RemoveQuitToWindowsButton( )
 {
 	if ( m_quittoshell && GetChild( m_quittoshell->Id() ) )
 		RemoveChild( m_quittoshell->Id() );
 }
 
-void OptionsWindow::AddQuitToWindowsButton( void )
+void OptionsWindow::AddQuitToWindowsButton( )
 {
 	if ( m_quittoshell && !GetChild( m_quittoshell->Id() ) )
 		AddChild( m_quittoshell );

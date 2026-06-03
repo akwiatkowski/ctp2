@@ -26,14 +26,14 @@ public:
 
 	NETFunc::Player *GetPlayer();
 	void SetPlayer(NETFunc::Player *p);
-	bool IsWhisper(void);
+	bool IsWhisper();
 	void SetWhisper(bool w);
-	bool IsGroup(void);
+	bool IsGroup();
 	void SetGroup(bool g);
 
 	void Receive(NETFunc::Player *p, TYPE t, char *m);
 
-	AUI_ERRCODE RepositionItems( void );
+	AUI_ERRCODE RepositionItems( );
 	AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
 		sint32 x = 0,
@@ -45,11 +45,11 @@ protected:
 	aui_TextBase *m_textstyleWhisper;
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
-	AUI_ERRCODE	CreateComponents( void );
+	AUI_ERRCODE InitCommon( );
+	AUI_ERRCODE	CreateComponents( );
 
 public:
-	aui_TextField	*GetInputField( void ) const { return m_inputField; }
+	aui_TextField	*GetInputField( ) const { return m_inputField; }
 
 protected:
 	aui_TextField	*m_inputField;

@@ -267,7 +267,7 @@ void ResourceMap::NotifyPopChanged()
 
 
 
-sint32 ResourceMap::DrawSurface(void)
+sint32 ResourceMap::DrawSurface()
 {
 	sint32 width = m_surface->Width();
 	sint32 height = m_surface->Height();
@@ -984,7 +984,7 @@ void ResourceMap::HandlePop( MapPoint point )
 
 
 
-AUI_ERRCODE ResourceMap::Idle( void )
+AUI_ERRCODE ResourceMap::Idle( )
 {
 	static uint32 lastDraw = 0;
 	if (GetTickCount() - lastDraw > 100)

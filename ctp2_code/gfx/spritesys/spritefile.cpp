@@ -500,7 +500,7 @@ void SpriteFile::ReadSpriteDataFull(Sprite *s)
 	}
 }
 
-void SpriteFile::SkipSpriteData(void)
+void SpriteFile::SkipSpriteData()
 {
 	uint16		data16;
 	ReadData((void *)&data16, sizeof(data16));
@@ -693,7 +693,7 @@ void SpriteFile::ReadFacedSpriteDataFull(FacedSprite *s)
 	}
 }
 
-void SpriteFile::SkipFacedSpriteData(void)
+void SpriteFile::SkipFacedSpriteData()
 {
 	uint16		data16;
 	ReadData((void *)&data16, sizeof(data16));
@@ -894,7 +894,7 @@ void SpriteFile::ReadSpriteDataGeneralFull(Sprite **sprite)
 
 }
 
-void SpriteFile::SkipSpriteDataGeneral(void)
+void SpriteFile::SkipSpriteDataGeneral()
 {
 	uint16		data16;
 	ReadData((void *)&data16, sizeof(data16));
@@ -981,7 +981,7 @@ void SpriteFile::ReadAnimDataFull(Anim *a)
 	a->SetTransparencies(u);
 }
 
-void SpriteFile::SkipAnimData(void)
+void SpriteFile::SkipAnimData()
 {
 	uint16		data16;
 	ReadData(&data16, sizeof(data16));
@@ -2208,7 +2208,7 @@ SPRITEFILEERR SpriteFile::ReadData(void *data, size_t bytes)
  *       for each platform.  Missing the macOS branch caused UBSan
  *       "Missing return" because the function fell through without returning.
  */
-long SpriteFile::GetFilePos(void)
+long SpriteFile::GetFilePos()
 {
 	sint32	err = c3files_fgetpos(m_file, &m_filePos);
 	Assert(err == 0);

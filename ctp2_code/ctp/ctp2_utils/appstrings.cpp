@@ -22,7 +22,7 @@
 static MBCHAR **    s_appStrings        = NULL;
 static size_t	    s_numAppStrings     = 0;
 
-void appstrings_Initialize(void)
+void appstrings_Initialize()
 {
 	FILE *inFile = fopen("appstr.txt", "rt");
 	if (!inFile) {
@@ -47,7 +47,7 @@ void appstrings_Initialize(void)
 
 }
 
-void appstrings_Cleanup(void)
+void appstrings_Cleanup()
 {
 	if (!s_appStrings) return;
 

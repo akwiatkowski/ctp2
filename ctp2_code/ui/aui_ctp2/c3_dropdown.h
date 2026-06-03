@@ -32,7 +32,7 @@ public:
 		void *cookie = NULL );
 	virtual ~c3_DropDown() {};
 
-	void Clear(void);
+	void Clear();
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
@@ -46,8 +46,8 @@ protected:
 	AUI_ERRCODE CreateComponents( MBCHAR *ldlBlock = NULL );
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( void );
-	virtual AUI_ERRCODE	RepositionListBoxWindow( void );
+	virtual AUI_ERRCODE	RepositionButton( );
+	virtual AUI_ERRCODE	RepositionListBoxWindow( );
 };
 
 #endif

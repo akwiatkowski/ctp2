@@ -358,7 +358,7 @@ void Sprite::LockSurface(aui_Surface *surf)
 	m_surfPitch = surf->Pitch();
 }
 
-void Sprite::UnlockSurface(void)
+void Sprite::UnlockSurface()
 {
 	AUI_ERRCODE		errcode = m_surface->Unlock(m_surfBase);
 	Assert(errcode == AUI_ERRCODE_OK);
@@ -370,7 +370,7 @@ void Sprite::UnlockSurface(void)
 	m_surfPitch = 0;
 }
 
-void Sprite::SetSurface(void)
+void Sprite::SetSurface()
 {
 	m_surface = screenmanager_Get()->GetSurface();
 	m_surfBase = screenmanager_Get()->GetSurfBase();

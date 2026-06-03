@@ -94,7 +94,7 @@ C3DropDown::C3DropDown(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE C3DropDown::CreateComponents( void )
+AUI_ERRCODE C3DropDown::CreateComponents( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -161,7 +161,7 @@ AUI_ERRCODE C3DropDown::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE C3DropDown::RepositionButton( void )
+AUI_ERRCODE C3DropDown::RepositionButton( )
 {
 	m_button->Move( m_width, 5 );
 

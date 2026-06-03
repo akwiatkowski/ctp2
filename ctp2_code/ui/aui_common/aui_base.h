@@ -34,7 +34,7 @@ public:
 	aui_Base() { m_baseRefCount++; }
 	virtual ~aui_Base() { m_baseRefCount--; }
 
-	static sint32	GetBaseRefCount( void ) { return m_baseRefCount; }
+	static sint32	GetBaseRefCount( ) { return m_baseRefCount; }
    static uint32   CalculateHash(const MBCHAR *string);
 
 protected:

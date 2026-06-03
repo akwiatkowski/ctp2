@@ -463,7 +463,7 @@ ProfileDB::ProfileDB()
 	Var("ShowCityProduction"         , PV_BOOL  , &m_showCityProduction         , NULL, false);
 }
 
-void ProfileDB::DefaultSettings(void)
+void ProfileDB::DefaultSettings()
 {
 	StringId    leaderNameId = g_theCivilisationDB->Get(m_civIndex)->GetLeaderNameMale();
 	StringId    civNameId = g_theCivilisationDB->Get(m_civIndex)->GetPluralCivName();

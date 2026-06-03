@@ -62,12 +62,12 @@ public:
 	static void            Cleanup();
 
 	void			SetScenario(Scenario *scenario);
-	Scenario		*GetScenario(void) const { return m_scenario; }
+	Scenario		*GetScenario() const { return m_scenario; }
 
 	void			SetScenarioPack(ScenarioPack *scenarioPack) { m_scenarioPack = scenarioPack; }
-	ScenarioPack	*GetScenarioPack(void) const { return m_scenarioPack; }
+	ScenarioPack	*GetScenarioPack() const { return m_scenarioPack; }
 
-	SCENARIO_WINDOW_MODE 	GetMode(void) { return m_mode; }
+	SCENARIO_WINDOW_MODE 	GetMode() { return m_mode; }
 	void			SetMode(SCENARIO_WINDOW_MODE mode);
 
 	void			FillListWithScenarios(ctp2_ListBox *available);
@@ -75,7 +75,7 @@ public:
 	void			FillListWithScenarioPacks(ctp2_ListBox *available, bool hideOriginalScenarios=false);
 
 	static void			SetExitCallback(aui_Control::ControlActionCallback *callback);
-	aui_Control::ControlActionCallback *GetExitCallback(void) { return m_exitCallback; }
+	aui_Control::ControlActionCallback *GetExitCallback() { return m_exitCallback; }
 
 	static void ScenarioSelect(aui_Control *control, uint32 action, uint32 data, void *cookie );
 	static void CancelPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -90,8 +90,8 @@ public:
 	static void NewScenOk(aui_Control *control, uint32 action, uint32 data, void *cookie );
 	static void NewScenCancel(aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-	static void SetProfileFromScenario( void );
-	static void LoadScenarioGame( void );
+	static void SetProfileFromScenario( );
+	static void LoadScenarioGame( );
 
 public:
 

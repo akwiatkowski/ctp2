@@ -63,23 +63,23 @@ public:
 	void SetBattle(Battle *battle);
 	void UpdateBattle(Battle *battle);
 	void SetBackgroundImage(aui_Image *image) { m_backgroundImage = image; }
-	aui_Image * GetBackgroundImage(void) const { return m_backgroundImage; }
+	aui_Image * GetBackgroundImage() const { return m_backgroundImage; }
 
 	void SetCityImage(aui_Image *image) { m_cityImage = image; }
 	aui_Image * GetCityImage() const { return m_cityImage; }
 
 	void GetAttackerPos(sint32 column, sint32 row, sint32 *x, sint32 *y);
 	void GetDefenderPos(sint32 column, sint32 row, sint32 *x, sint32 *y);
-	void UpdateDisplay(void);
+	void UpdateDisplay();
 	void RemoveAttacker(sint32 index);
 	void RemoveDefender(sint32 index);
 	void RemoveActor(BattleViewActor *actor);
-	void Process(void);
-	void DrawProjectiles(void);
-	void DrawExplosions(void);
-	void DrawAttackers(void);
-	void DrawDefenders(void);
-	aui_Surface	* GetBattleSurface(void) const { return m_battleSurface; }
+	void Process();
+	void DrawProjectiles();
+	void DrawExplosions();
+	void DrawAttackers();
+	void DrawDefenders();
+	aui_Surface	* GetBattleSurface() const { return m_battleSurface; }
 
 private:
 	Battle *                    m_battle;

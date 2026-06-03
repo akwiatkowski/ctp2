@@ -8,7 +8,7 @@ class ns_Units;
 // callers go through nsunits_Get() / nsunits_Set() — the second is
 // needed because allinonewindow.cpp recreates the singleton across
 // option changes (delete-then-new).
-ns_Units * nsunits_Get(void);
+ns_Units * nsunits_Get();
 void       nsunits_Set(ns_Units *p);
 
 
@@ -21,7 +21,7 @@ public:
 	ns_Units();
 	virtual ~ns_Units();
 
-	aui_StringTable *GetStrings( void ) const { return m_stringtable; }
+	aui_StringTable *GetStrings( ) const { return m_stringtable; }
 
 	sint32 *m_noIndex;
 

@@ -29,10 +29,10 @@ class MessageEyePointListItem : public c3_ListItem
 public:
 	MessageEyePointListItem(AUI_ERRCODE *retval, MBCHAR const *name, sint32 index, MBCHAR const *ldlBlock);
 
-	virtual void Update(void);
+	virtual void Update();
 
-	MBCHAR const * GetName( void ) const { return m_name; }
-	sint32 GetIndex( void ) const { return m_index; }
+	MBCHAR const * GetName( ) const { return m_name; }
+	sint32 GetIndex( ) const { return m_index; }
 
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
 

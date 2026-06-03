@@ -998,7 +998,7 @@ void tileutils_DumpStencil(MBCHAR *filename)
 	fclose(file);
 }
 
-void tileutils_LoadStencil(void)
+void tileutils_LoadStencil()
 {
 	FILE *  file    = fopen("source" FILE_SEP "stencil" FILE_SEP "stencil.bin", "rb");
 
@@ -1019,7 +1019,7 @@ void tileutils_LoadStencil(void)
 
 }
 
-Pixel16 *tileutils_CreateBorkBork(void)
+Pixel16 *tileutils_CreateBorkBork()
 {
 	Pixel16		*bork = new Pixel16[48*94];
 	sint32		i,j;

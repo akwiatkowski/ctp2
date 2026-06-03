@@ -82,7 +82,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	virtual AUI_ERRCODE Idle(void);
+	virtual AUI_ERRCODE Idle();
 
 protected:
     sint32 m_lbutton_isdown;

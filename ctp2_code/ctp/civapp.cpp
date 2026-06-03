@@ -404,7 +404,7 @@ ProgressWindow *g_theProgressWindow = NULL;
 
 static bool g_headlessMode = false;
 
-bool is_headless(void)      { return g_headlessMode; }
+bool is_headless()      { return g_headlessMode; }
 void set_headless(bool v)   { g_headlessMode = v; }
 
 // Null-safe wrapper around ProgressTo.  In headless
@@ -516,7 +516,7 @@ void AddSearchPacks
 //              semicolon-separated string 'Rulesets' in userprofile.txt.
 //
 //----------------------------------------------------------------------------
-void InitDataIncludePath(void)
+void InitDataIncludePath()
 {
 	MBCHAR                  ruleSets[MAX_PATH];
 	strncpy(ruleSets, profiledb_Get()->GetRuleSets(), MAX_PATH - 1);
@@ -569,7 +569,7 @@ void InitDataIncludePath(void)
 //              - The existence of the file is not checked.
 //
 //----------------------------------------------------------------------------
-void SelectColorSet(void)
+void SelectColorSet()
 {
 	Assert(profiledb_Get());
 	ColorSet::Initialize(profiledb_Get()->GetValueByName("ColorSet"));
@@ -588,7 +588,7 @@ void SelectColorSet(void)
 //----------------------------------------------------------------------------
 namespace Os
 {
-	uint32 GetTicks(void)
+	uint32 GetTicks()
 	{
 #if defined(USE_SDL)
 		return SDL_GetTicks();
@@ -639,7 +639,7 @@ CivApp::CivApp()
 // the unique_ptr's deleter needs to see the full type here.
 CivApp::~CivApp() = default;
 
-void CivApp::InitializeAppUI(void)
+void CivApp::InitializeAppUI()
 {
 	civapp_log->info("InitializeAppUI: called");
 	// Set CTP2 specific data for the Anet library (multiplayer only)
@@ -744,7 +744,7 @@ sint32 CivApp::InitializeAppDB(CivArchive & /* archive */)
 }
 
 /// Initialize databases
-bool CivApp::InitializeAppDB(void)
+bool CivApp::InitializeAppDB()
 {
 	ProgressWindow::BeginProgress
 		(g_theProgressWindow, "InitProgressWindow", 520);
@@ -1375,17 +1375,17 @@ bool CivApp::InitializeAppDB(void)
 
 
 
-bool CivApp::IsScenarioEditorShown(void) const
+bool CivApp::IsScenarioEditorShown() const
 {
 	return ScenarioEditor::IsShown();
 }
 
-bool CivApp::IsScenarioEditorGivingAdvances(void) const
+bool CivApp::IsScenarioEditorGivingAdvances() const
 {
 	return ScenarioEditor::IsGivingAdvances();
 }
 
-sint32 CivApp::InitializeEngine(void)
+sint32 CivApp::InitializeEngine()
 {
 	civapp_log->info("InitializeEngine: started");
 
@@ -1596,7 +1596,7 @@ sint32 CivApp::QuickInit(HINSTANCE hInstance, int iCmdShow)
 	return 0;
 }
 
-void CivApp::CleanupAppUI(void)
+void CivApp::CleanupAppUI()
 {
 	NetShell::Leave( k_NS_FLAGS_DESTROY );
 
@@ -1634,7 +1634,7 @@ void CivApp::CleanupAppUI(void)
 
 
 
-void CivApp::CleanupAppDB(void)
+void CivApp::CleanupAppDB()
 {
     allocated::clear(g_theMapDB);
     { Exclusions *p = exclusions_Get(); delete p; exclusions_Set(NULL); }
@@ -1695,7 +1695,7 @@ void CivApp::CleanupAppDB(void)
 
 
 
-void CivApp::CleanupApp(void)
+void CivApp::CleanupApp()
 {
 	if (m_appLoaded)
 	{
@@ -1750,7 +1750,7 @@ void CivApp::CleanupApp(void)
 
 
 
-sint32 CivApp::InitializeGameUI(void)
+sint32 CivApp::InitializeGameUI()
 {
 	SelectColorSet();
 	spnewgamescreen_Cleanup();
@@ -2169,7 +2169,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 
 
-sint32 InitializeSpriteEditorUI(void)
+sint32 InitializeSpriteEditorUI()
 {
 	SelectColorSet();
 
@@ -2442,7 +2442,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 }
 
 
-void CivApp::CleanupGameUI(void)
+void CivApp::CleanupGameUI()
 {
 	AttractWindow::Cleanup();
 	GrabItem::Cleanup();
@@ -2639,7 +2639,7 @@ void CivApp::StopKeyboardScrolling(sint32 key)
 
 
 
-void CivApp::ProcessGraphicsCallback(void)
+void CivApp::ProcessGraphicsCallback()
 {
     static bool s_inCallback = false;
 
@@ -3334,7 +3334,7 @@ sint32 CivApp::ProcessNet(const uint32 target_milliseconds, uint32 &used_millise
 	return 0;
 }
 
-sint32 CivApp::ProcessSLIC(void)
+sint32 CivApp::ProcessSLIC()
 {
 	if (!m_game->GetSlicPtr())
 		return 0;
@@ -3357,7 +3357,7 @@ sint32 CivApp::ProcessSLIC(void)
 	return 0;
 }
 
-sint32 CivApp::ProcessProfile(void)
+sint32 CivApp::ProcessProfile()
 {
     uint32 target_milliseconds = (g_no_timeslice) ? 10000000 : 30;
 	uint32 used_milliseconds;
@@ -3377,7 +3377,7 @@ sint32 CivApp::ProcessProfile(void)
     return 0;
 }
 
-sint32 CivApp::Process(void)
+sint32 CivApp::Process()
 {
 #if defined(_DEBUG) && defined(WIN32)
 	if(g_tempLeakCheck) {
@@ -3457,7 +3457,7 @@ sint32 CivApp::Process(void)
     return 0;
 }
 
-sint32 CivApp::StartGame(void)
+sint32 CivApp::StartGame()
 {
 	return InitializeGame(NULL);
 }
@@ -3523,7 +3523,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	return 0;
 }
 
-sint32 CivApp::StartSpriteEditor(void)
+sint32 CivApp::StartSpriteEditor()
 {
 	return InitializeSpriteEditor(NULL);
 }
@@ -3534,7 +3534,7 @@ sint32 CivApp::StartSpriteEditor(void)
 
 
 
-sint32 CivApp::EndGame(void)
+sint32 CivApp::EndGame()
 {
 	if (m_gameLoaded) {
 		CleanupGame(false);
@@ -3644,7 +3644,7 @@ sint32 CivApp::LoadScenarioGame(MBCHAR const * file)
 	return 0;
 }
 
-sint32 CivApp::RestartGame(void)
+sint32 CivApp::RestartGame()
 {
 	if (m_gameLoaded) {
 		CleanupGame(true);
@@ -3654,7 +3654,7 @@ sint32 CivApp::RestartGame(void)
 	return StartGame();
 }
 
-sint32 CivApp::RestartGameSameMap(void)
+sint32 CivApp::RestartGameSameMap()
 {
 	Assert(rand_ptr());
 	g_oldRandSeed = rand_ptr() ? civrand().GetSeed() : 0;
@@ -3676,7 +3676,7 @@ sint32 CivApp::RestartGameSameMap(void)
 	}
 }
 
-sint32 CivApp::QuitToSPShell(void)
+sint32 CivApp::QuitToSPShell()
 {
 	if (m_gameLoaded)
 	{
@@ -3689,7 +3689,7 @@ sint32 CivApp::QuitToSPShell(void)
 	return initialplayscreen_displayMyWindow();
 }
 
-sint32 CivApp::QuitToLobby(void)
+sint32 CivApp::QuitToLobby()
 {
 	if (m_gameLoaded) {
 		CleanupGame(false);
@@ -3699,7 +3699,7 @@ sint32 CivApp::QuitToLobby(void)
 	return NetShell::Enter( k_NS_FLAGS_RETURN );
 }
 
-void CivApp::QuitGame(void)
+void CivApp::QuitGame()
 {
 	if (m_gameLoaded)
 		CleanupGame(true);
@@ -3759,12 +3759,12 @@ void CivApp::RestoreAutoSave(sint32 player)
 }
 
 
-void CivApp::PostStartGameAction(void)
+void CivApp::PostStartGameAction()
 {
 	c3ui_Get()->AddAction(new StartGameAction());
 }
 
-void CivApp::PostSpriteTestAction(void)
+void CivApp::PostSpriteTestAction()
 {
 	c3ui_Get()->AddAction(new SpriteTestAction());
 }
@@ -3824,12 +3824,12 @@ void CivApp::PostLoadSaveGameMapAction(MBCHAR const * name)
 }
 #endif
 
-void CivApp::PostRestartGameAction(void)
+void CivApp::PostRestartGameAction()
 {
 	c3ui_Get()->AddAction(new RestartGameAction());
 }
 
-void CivApp::PostRestartGameSameMapAction(void)
+void CivApp::PostRestartGameSameMapAction()
 {
 	Player * p = player_Get(selitem_Get()->GetVisiblePlayer());
 
@@ -3842,17 +3842,17 @@ void CivApp::PostRestartGameSameMapAction(void)
 	c3ui_Get()->AddAction(new RestartGameSameMapAction());
 }
 
-void CivApp::PostQuitToSPShellAction(void)
+void CivApp::PostQuitToSPShellAction()
 {
 	c3ui_Get()->AddAction(new QuitToSPShellAction());
 }
 
-void CivApp::PostQuitToLobbyAction(void)
+void CivApp::PostQuitToLobbyAction()
 {
 	c3ui_Get()->AddAction(new QuitToLobbyAction());
 }
 
-void CivApp::PostEndGameAction(void)
+void CivApp::PostEndGameAction()
 {
 	c3ui_Get()->AddAction(new EndGameAction());
 }

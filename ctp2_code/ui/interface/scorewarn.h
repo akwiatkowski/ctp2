@@ -8,13 +8,13 @@ void scorewarn_AcceptWarningCallback( aui_Control *control, uint32 action, uint3
 void scorewarn_OkButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie );
 void scorewarn_CancelButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-sint32 scorewarn_Initialize(void);
-void   scorewarn_Cleanup(void);
+sint32 scorewarn_Initialize();
+void   scorewarn_Cleanup();
 
 AUI_ACTION_BASIC(DisclaimerCloseAction);
 
 void disclaimer_AcceptButtonActionCallback(aui_Control *control, uint32 action, uint32 data, void *cookie);
 sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback);
-void disclaimer_Cleanup(void);
+void disclaimer_Cleanup();
 
 #endif

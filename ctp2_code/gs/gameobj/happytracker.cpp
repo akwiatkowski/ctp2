@@ -50,7 +50,7 @@ HappyTracker::~HappyTracker()
      s_refCount--;
 }
 
-void HappyTracker::RefreshStringIds(void)
+void HappyTracker::RefreshStringIds()
 {
 	if (!g_theStringDB)
 		return;

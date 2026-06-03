@@ -1586,7 +1586,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 	return 0;
 }
 
-void c3windows_Cleanup( void )
+void c3windows_Cleanup( )
 {
 	c3windows_MakeDebugWindow( FALSE );
 	workwin_Cleanup();

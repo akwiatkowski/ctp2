@@ -75,10 +75,10 @@ class Sequence {
   void Release();
   sint32 GetRefCount() const;
 
-  sint32 GetSequenceID(void) const;
+  sint32 GetSequenceID() const;
 
   void SetItem(std::weak_ptr<DQItem> item);
-  std::shared_ptr<DQItem> GetItem(void);
+  std::shared_ptr<DQItem> GetItem();
 
   void SetAddedToActiveList(SEQ_ACTOR which, bool added);
   bool GetAddedToActiveList(SEQ_ACTOR which) const;

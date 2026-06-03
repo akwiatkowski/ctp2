@@ -24,10 +24,10 @@ public:
 						uint32 bevelType);
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon(void);
+	AUI_ERRCODE InitCommon();
 
 	void SetColor(COLOR color) { m_color = color; }
-	COLOR GetColor(void) { return m_color; }
+	COLOR GetColor() { return m_color; }
 
 	virtual AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y);
 

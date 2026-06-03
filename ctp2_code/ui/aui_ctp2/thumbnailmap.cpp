@@ -99,7 +99,7 @@ void ThumbnailMap::InitCommonLdl(MBCHAR *ldlBlock)
 	InitCommon();
 }
 
-void ThumbnailMap::InitCommon(void)
+void ThumbnailMap::InitCommon()
 {
 	m_mapSurface = NULL;
 	m_mapSize = NULL;
@@ -140,7 +140,7 @@ void ThumbnailMap::InitCommon(void)
 }
 
 
-void ThumbnailMap::BuildCityList(void)
+void ThumbnailMap::BuildCityList()
 {
 	delete m_cityList;
 	m_cityList = new DynamicArray<CityInfo>();
@@ -210,7 +210,7 @@ void ThumbnailMap::SetCityBlink(Unit city, BOOL blink, COLOR blinkColor)
 	}
 }
 
-void ThumbnailMap::ClearMapOverlay(void)
+void ThumbnailMap::ClearMapOverlay()
 {
 	delete[] m_mapOverlay;
 	m_mapOverlay = NULL;
@@ -246,7 +246,7 @@ AUI_ERRCODE	ThumbnailMap::Resize( sint32 width, sint32 height )
 	return errcode;
 }
 
-void ThumbnailMap::CalculateMetrics(void)
+void ThumbnailMap::CalculateMetrics()
 {
     Assert(world_Get());
 	m_mapSize = world_Get()->GetSize();
@@ -639,7 +639,7 @@ void ThumbnailMap::MouseMoveInside( aui_MouseEvent *mouseData )
 }
 
 
-AUI_ERRCODE ThumbnailMap::Idle( void )
+AUI_ERRCODE ThumbnailMap::Idle( )
 {
 
 	ShouldDraw(TRUE) ;
@@ -648,7 +648,7 @@ AUI_ERRCODE ThumbnailMap::Idle( void )
 }
 
 
-void ThumbnailMap::UpdateAll( void )
+void ThumbnailMap::UpdateAll( )
 {
 
 	m_mapSize = world_Get()->GetSize();

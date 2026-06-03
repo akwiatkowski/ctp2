@@ -54,12 +54,12 @@ extern sint32		g_ScreenHeight;
 
 static WorkWindow	*g_workWindow = NULL;
 
-WorkWindow * workwindow_Get(void)             { return g_workWindow; }
+WorkWindow * workwindow_Get()             { return g_workWindow; }
 void         workwindow_Set(WorkWindow *p)    { g_workWindow = p; }
 
 static ResourceMap		*g_resourceMap = NULL;
 
-ResourceMap * resourcemap_Get(void)           { return g_resourceMap; }
+ResourceMap * resourcemap_Get()           { return g_resourceMap; }
 void          resourcemap_Set(ResourceMap *p) { g_resourceMap = p; }
 
 
@@ -111,7 +111,7 @@ void WorkExitButtonActionCallback( aui_Control *control, uint32 action, uint32 d
 	c3ui_Get()->AddAction( tempAction );
 }
 
-sint32 workwin_Initialize( void )
+sint32 workwin_Initialize( )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -184,7 +184,7 @@ sint32 workwin_Initialize( void )
 	return 0;
 }
 
-sint32 workwin_Cleanup( void )
+sint32 workwin_Cleanup( )
 {
 	if ( !g_workWindow ) return 0;
 
@@ -204,7 +204,7 @@ sint32 workwin_Cleanup( void )
 	return 0;
 }
 
-sint32 workwin_Update( void )
+sint32 workwin_Update( )
 {
 	if ( g_workWindow ) {
 		if ( c3ui_Get()->GetWindow(g_workWindow->Id()) ) {

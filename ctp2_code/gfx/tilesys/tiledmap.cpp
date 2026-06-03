@@ -372,7 +372,7 @@ void TiledMap::InitGrid(sint32 maxPixelsPerGridRectX, sint32 maxPixelsPerGridRec
 	}
 }
 
-void TiledMap::DeleteGrid(void)
+void TiledMap::DeleteGrid()
 {
 	for (sint32 i=0; i<m_gridHeight; i++) {
 		delete m_gridRects[i];
@@ -454,7 +454,7 @@ void TiledMap::CheckRectAgainstGrid
 	}
 }
 
-void TiledMap::ClearGrid(void)
+void TiledMap::ClearGrid()
 {
 	for (sint32 i=0; i<m_gridHeight; i++) {
 		for (sint32 j=0; j<m_gridWidth; j++) {
@@ -463,7 +463,7 @@ void TiledMap::ClearGrid(void)
 	}
 }
 
-void TiledMap::LockSurface(void)
+void TiledMap::LockSurface()
 {
 	LockThisSurface(m_surface);
 }
@@ -483,7 +483,7 @@ void TiledMap::LockThisSurface(aui_Surface *surface)
 	m_surfIsLocked = TRUE;
 }
 
-void TiledMap::UnlockSurface(void)
+void TiledMap::UnlockSurface()
 {
 	AUI_ERRCODE	errcode = m_lockedSurface->Unlock((LPVOID)m_surfBase);
 	Assert(errcode == AUI_ERRCODE_OK);
@@ -600,7 +600,7 @@ void TiledMap::AddDirtyTileToMix(MapPoint &pos)
 }
 
 
-void TiledMap::ClearMixDirtyRects(void)
+void TiledMap::ClearMixDirtyRects()
 {
 	Assert (m_mixDirtyList);
 
@@ -774,7 +774,7 @@ void TiledMap::OffsetMixDirtyRects(sint32 deltaX, sint32 deltaY)
 #endif
 }
 
-void TiledMap::InvalidateMap(void)
+void TiledMap::InvalidateMap()
 {
 
 	RECT tempRect = m_surfaceRect;
@@ -784,12 +784,12 @@ void TiledMap::InvalidateMap(void)
 	AddDirtyRect(tempRect, m_mapDirtyList);
 }
 
-void TiledMap::ValidateMap(void)
+void TiledMap::ValidateMap()
 {
 	m_mapDirtyList->Flush();
 }
 
-void TiledMap::InvalidateMix(void)
+void TiledMap::InvalidateMix()
 {
 	RECT tempRect = g_backgroundViewport;
 
@@ -808,7 +808,7 @@ m_oldMixDirtyList->Flush();
 AddDirtyRect(g_backgroundViewport, m_oldMixDirtyList);
 }
 
-void TiledMap::ValidateMix(void)
+void TiledMap::ValidateMix()
 {
 	m_mixDirtyList->Flush();
 
@@ -871,7 +871,7 @@ void TiledMap::UpdateMixFromMap(aui_Surface *mixSurf)
 
 
 
-void TiledMap::LoadTileset(void)
+void TiledMap::LoadTileset()
 {
 	TileSet *tileSet = new TileSet;
 	tileSet->QuickLoadMapped();
@@ -1387,7 +1387,7 @@ void TiledMap::TileChanged(MapPoint &pos)
 }
 
 
-void TiledMap::ReloadGoodActors(void)
+void TiledMap::ReloadGoodActors()
 {
 	Assert (world_Get());
 	if (world_Get() == NULL) return;
@@ -1419,7 +1419,7 @@ void TiledMap::ReloadGoodActors(void)
 	}
 }
 
-void TiledMap::GenerateHitMask(void)
+void TiledMap::GenerateHitMask()
 {
  	sint32 const    startLine = k_TILE_PIXEL_HEADROOM;
 	sint32 const    midLine = k_TILE_PIXEL_HEADROOM + (k_TILE_GRID_HEIGHT - k_TILE_PIXEL_HEADROOM) / 2;
@@ -1504,7 +1504,7 @@ sint32 TiledMap::RecalculateViewRect(RECT &myRect)
 	return(0);
 }
 
-sint32 TiledMap::CalculateMetrics(void)
+sint32 TiledMap::CalculateMetrics()
 {
 	sint32			w = m_displayRect.right - m_displayRect.left;
 	sint32			h = m_displayRect.bottom - m_displayRect.top;
@@ -3249,7 +3249,7 @@ if (y >= surface->Height() - k_TILE_PIXEL_HEIGHT) return 0;
 }
 
 
-sint32 TiledMap::Refresh(void)
+sint32 TiledMap::Refresh()
 {
 	// Headless builds construct a TiledMap with no rendering surface.
 	// Refresh is purely a render-pass; no game state lives here.
@@ -4992,7 +4992,7 @@ void TiledMap::Drop(aui_MouseEvent *data)
 	}
 }
 
-void TiledMap::Idle(void)
+void TiledMap::Idle()
 {
 	MapPoint point;
 	if (!GetMouseTilePos(point)) return;
@@ -5039,7 +5039,7 @@ TileInfo *TiledMap::GetTileInfo(const MapPoint &pos)
 	return world_Get()->GetTileInfo(pos);
 }
 
-void TiledMap::NextPlayer(void)
+void TiledMap::NextPlayer()
 {
 	m_nextPlayer = TRUE;
 }
@@ -5350,7 +5350,7 @@ bool TiledMap::CanZoomIn() const
 	return(GetZoomLevel() < k_ZOOM_LARGEST);
 }
 
-bool TiledMap::ZoomIn(void)
+bool TiledMap::ZoomIn()
 {
 
 	if(CanZoomIn()) {
@@ -5382,7 +5382,7 @@ bool TiledMap::CanZoomOut() const
 	return(false);
 }
 
-bool TiledMap::ZoomOut(void)
+bool TiledMap::ZoomOut()
 {
 
 	if(CanZoomOut()) {

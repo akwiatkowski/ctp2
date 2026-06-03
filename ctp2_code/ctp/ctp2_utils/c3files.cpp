@@ -88,7 +88,7 @@ namespace
     MBCHAR              VolumeName[VOLUME_NAME_SIZE];
     DriveIdType         WhichCD             = DRIVE_UNDETERMINED;
 
-    void		        c3files_GetCDDrives(void);
+    void		        c3files_GetCDDrives();
     MBCHAR const *      c3files_GetVolumeName(DriveIdType id);
     bool                c3files_FindCDByName(MBCHAR const * name);
 }
@@ -501,18 +501,18 @@ bool c3files_HasLegalCD()
 	return success;
 }
 
-void c3files_InitializeCD(void)
+void c3files_InitializeCD()
 {
 	c3files_GetCDDrives();
 	(void) c3files_FindCDByName(k_CTP_CD_VOLUME_NAME);
 }
 
-bool c3files_HasCD(void)
+bool c3files_HasCD()
 {
 	return g_hasCD;
 }
 
-DriveIdType c3files_GetCtpCdId(void)
+DriveIdType c3files_GetCtpCdId()
 {
     return WhichCD;
 }
@@ -535,7 +535,7 @@ namespace
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void c3files_GetCDDrives(void)
+void c3files_GetCDDrives()
 {
 #ifdef _WIN32 // #ifndef USE_SDL
 	MBCHAR          drivepath[4];   // letter + : + dir seperator + zero

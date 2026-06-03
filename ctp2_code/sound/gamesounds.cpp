@@ -138,7 +138,7 @@ sint32 gamesounds_GetGameSoundID(sint32 gamesound)
 	}
 }
 
-void gamesounds_WindowOpened(void)
+void gamesounds_WindowOpened()
 {
 	if (soundmgr_Get()) {
 		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,
@@ -146,7 +146,7 @@ void gamesounds_WindowOpened(void)
 	}
 }
 
-void gamesounds_WindowClosed(void)
+void gamesounds_WindowClosed()
 {
 	if (soundmgr_Get()) {
 		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, 0,

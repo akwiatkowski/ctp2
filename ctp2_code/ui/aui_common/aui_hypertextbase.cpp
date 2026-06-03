@@ -215,7 +215,7 @@ AUI_ERRCODE aui_HyperTextBase::AddHyperStatics( const MBCHAR *hyperText )
 }
 
 
-void aui_HyperTextBase::RemoveHyperStatics(void)
+void aui_HyperTextBase::RemoveHyperStatics()
 {
 	for (sint32 i = m_hyperStaticList->L(); i; --i)
     {

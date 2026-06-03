@@ -46,7 +46,7 @@ struct GameSoundData
 
 sint32 gamesounds_GetGameSoundID(sint32 gamesound);
 
-void gamesounds_WindowOpened(void);
-void gamesounds_WindowClosed(void);
+void gamesounds_WindowOpened();
+void gamesounds_WindowClosed();
 
 #endif

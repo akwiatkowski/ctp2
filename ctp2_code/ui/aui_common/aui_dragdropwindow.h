@@ -58,11 +58,11 @@ public:
 
 	void StartDragging( sint32 localX, sint32 localY );
 
-	aui_Region *GetLaunchPad( void ) const { return m_launchPad; }
+	aui_Region *GetLaunchPad( ) const { return m_launchPad; }
 	void SetLaunchPad( aui_Region *launchPad )
 	{ m_launchPad = launchPad; }
 
-	aui_Control *GetDragDropItem( void ) const { return m_dragDropItem; }
+	aui_Control *GetDragDropItem( ) const { return m_dragDropItem; }
 	void SetDragDropItem( aui_Control *dragDropItem )
 	{ m_dragDropItem = dragDropItem; }
 

@@ -1065,7 +1065,7 @@ void AgreementData::ToString(MBCHAR *s)
 
 
 
-sint32 AgreementData::DecrementTurns(void)
+sint32 AgreementData::DecrementTurns()
 	{
 	if (m_expires == k_EXPIRATION_NEVER)
 		return (k_EXPIRATION_NEVER) ;
@@ -1087,7 +1087,7 @@ sint32 AgreementData::DecrementTurns(void)
 
 
 
-void AgreementData::EndTurn(void)
+void AgreementData::EndTurn()
 	{
 	DecrementTurns() ;
 	ENQUEUE();

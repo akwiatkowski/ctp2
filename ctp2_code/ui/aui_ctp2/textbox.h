@@ -41,7 +41,7 @@ public:
 
 	virtual void		SetTextFont(MBCHAR *name) { aui_TextBox::SetTextFont(name); }
 	virtual void		SetTextFontSize( uint8 size ) { aui_TextBox::SetTextFontSize(size); }
-	virtual AUI_ERRCODE	RepositionItems( void );
+	virtual AUI_ERRCODE	RepositionItems( );
 
 protected:
 	AUI_ERRCODE	CreateRangers( MBCHAR *ldlBlock );

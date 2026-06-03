@@ -46,43 +46,43 @@ public:
 
 	virtual AUI_ERRCODE	InitCommon( Message *data, MBCHAR *ldlBlock, MessageList *messagelist );
 
-	virtual ~MessageIconWindow( void );
+	virtual ~MessageIconWindow( );
 
 	MessageWindow	*GetWindow()	{ return m_messageWindow; }
 	void SetWindow( MessageWindow *window ) { m_messageWindow = window; }
 
-	MessageIconButton		*GetIconButton( void ) { return m_icon; }
+	MessageIconButton		*GetIconButton( ) { return m_icon; }
 
-	Message					*GetMessage( void )
+	Message					*GetMessage( )
 				{ return ( m_messageWindow ? m_messageWindow->GetMessage() : NULL ); }
 
-	BOOL			IsMoving( void ) { return m_isMoving; }
+	BOOL			IsMoving( ) { return m_isMoving; }
 
-	uint32			GetTicks( void ) { return m_lastticks; }
+	uint32			GetTicks( ) { return m_lastticks; }
 
 	void			SetMoving( BOOL moving ) { m_isMoving = moving; }
 
 	AUI_ERRCODE SetupAnimation( uint32 position );
-	void	StopAnimation( void );
+	void	StopAnimation( );
 
 	void SetTipWindowText( MBCHAR *text );
 	void ChangeIcon( const MBCHAR *image, const MBCHAR *image2 = NULL );
 
 	void SetCurrentIconButton( MessageIconButton *iconButton );
-	MessageIconWindow *GetCurrentMessageIconWindow( void ) { return m_currentIconWindow; }
+	MessageIconWindow *GetCurrentMessageIconWindow( ) { return m_currentIconWindow; }
 
-	MessageOpenAction		*GetMessageOpenAction( void ) { return m_messageOpenAction; }
+	MessageOpenAction		*GetMessageOpenAction( ) { return m_messageOpenAction; }
 
 	void SetNext( MessageIconWindow *iconWindow ) { m_next = iconWindow; }
 	void SetPrev( MessageIconWindow *iconWindow ) { m_prev = iconWindow; }
-	BOOL CheckShowWindow( void );
+	BOOL CheckShowWindow( );
 
 	void	SetAcceleration( sint32 dy ) { m_acceleration = dy; }
-	sint32	Acceleration( void ) { return m_acceleration; }
+	sint32	Acceleration( ) { return m_acceleration; }
 
-	BOOL	Animating( void ) { return m_isMoving; }
+	BOOL	Animating( ) { return m_isMoving; }
 
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 
 
 

@@ -63,13 +63,13 @@ public:
 					MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
 	sint32  GetCiv() { return m_civ; }
 	void	SetCiv(sint32 civ) { m_civ = civ; }
 
 	bool IsHuman() { return m_isHuman; }
-	MBCHAR	*GetEmail( void ) { return m_email; }
+	MBCHAR	*GetEmail( ) { return m_email; }
 	sint32  GetIndex() { return m_index; }
 	MBCHAR *GetName() { return m_name; }
 
@@ -111,29 +111,29 @@ public:
 
 public:
 	sint32 Initialize ( MBCHAR *ldlBlock );
-	sint32 UpdateData ( void );
+	sint32 UpdateData ( );
 
-	sint32 EnableButtons( void );
-	sint32 DisableButtons( void );
+	sint32 EnableButtons( );
+	sint32 DisableButtons( );
 	sint32 ChooseNextOpenCiv(HotseatListItem *curItem, sint32 curCiv);
 
-	void RemoveWindow( void );
-	void DisplayWindow( void );
+	void RemoveWindow( );
+	void DisplayWindow( );
 
 	void kh_Close();
 };
 
 
-void hotseatlist_ClearOptions(void);
+void hotseatlist_ClearOptions();
 void hotseatlist_SetPlayerCiv(PLAYER_INDEX index, sint32 civ);
-void hotseatlist_LockCivs(void);
-bool hotseatlist_PlayerCivsLocked(void);
-void hotseatlist_EnableAllCivs(void);
-void hotseatlist_DisableAllCivs(void);
+void hotseatlist_LockCivs();
+bool hotseatlist_PlayerCivsLocked();
+void hotseatlist_EnableAllCivs();
+void hotseatlist_DisableAllCivs();
 void hotseatlist_EnableCiv(sint32 civ);
 void hotseatlist_DisableCiv(sint32 civ);
 bool hotseatlist_CivEnabled(sint32 civ);
-sint32 hotseatlist_NumEnabled(void);
+sint32 hotseatlist_NumEnabled();
 
 
 
@@ -145,7 +145,7 @@ sint32 hotseatlist_NumEnabled(void);
 //   hotseatlist_Cleanup()                — destroy and reset.
 // The accessor below is read-only and returns NULL when no list exists.
 void hotseatlist_DisplayWindow(HotseatListCallback *callback);
-void hotseatlist_Cleanup(void);
-HotseatList * hotseatlist_Get(void);
+void hotseatlist_Cleanup();
+HotseatList * hotseatlist_Get();
 
 #endif

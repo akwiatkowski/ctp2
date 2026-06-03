@@ -522,5 +522,5 @@ void GameObserverRegistry::NotifyTutorialRecreate()
 // inter-TU init order.  Deferring to InitializeEngine makes the lifetime
 // explicit and ordered.
 static GameObserverRegistry* g_gameObservers = nullptr;
-GameObserverRegistry * gameobservers_Get(void)                    { return g_gameObservers; }
+GameObserverRegistry * gameobservers_Get()                    { return g_gameObservers; }
 void                   gameobservers_Set(GameObserverRegistry *p) { g_gameObservers = p; }

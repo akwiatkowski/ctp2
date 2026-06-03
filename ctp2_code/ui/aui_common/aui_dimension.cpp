@@ -36,37 +36,37 @@ aui_Region *aui_Dimension::SetParent( aui_Region *parent )
 }
 
 
-void aui_Dimension::AnchorLeft( void )
+void aui_Dimension::AnchorLeft( )
 {
 	m_hanchorType = AUI_DIMENSION_HANCHOR_LEFT;
 }
 
 
-void aui_Dimension::AnchorHorizontalCenter( void )
+void aui_Dimension::AnchorHorizontalCenter( )
 {
 	m_hanchorType = AUI_DIMENSION_HANCHOR_CENTER;
 }
 
 
-void aui_Dimension::AnchorRight( void )
+void aui_Dimension::AnchorRight( )
 {
 	m_hanchorType = AUI_DIMENSION_HANCHOR_RIGHT;
 }
 
 
-void aui_Dimension::AnchorTop( void )
+void aui_Dimension::AnchorTop( )
 {
 	m_vanchorType = AUI_DIMENSION_VANCHOR_TOP;
 }
 
 
-void aui_Dimension::AnchorVerticalCenter( void )
+void aui_Dimension::AnchorVerticalCenter( )
 {
 	m_vanchorType = AUI_DIMENSION_VANCHOR_CENTER;
 }
 
 
-void aui_Dimension::AnchorBottom( void )
+void aui_Dimension::AnchorBottom( )
 {
 	m_vanchorType = AUI_DIMENSION_VANCHOR_BOTTOM;
 }
@@ -108,7 +108,7 @@ void aui_Dimension::AbsoluteVerticalSize( BOOL absolute )
 }
 
 
-sint32 aui_Dimension::CalculateX( void )
+sint32 aui_Dimension::CalculateX( )
 {
 	if ( !m_parent ) return m_hpos;
 
@@ -138,7 +138,7 @@ sint32 aui_Dimension::CalculateX( void )
 }
 
 
-sint32 aui_Dimension::CalculateY( void )
+sint32 aui_Dimension::CalculateY( )
 {
 	if ( !m_parent ) return m_vpos;
 
@@ -168,7 +168,7 @@ sint32 aui_Dimension::CalculateY( void )
 }
 
 
-sint32 aui_Dimension::CalculateWidth( void )
+sint32 aui_Dimension::CalculateWidth( )
 {
 	if ( !m_parent ) return m_hsize;
 
@@ -184,7 +184,7 @@ sint32 aui_Dimension::CalculateWidth( void )
 }
 
 
-sint32 aui_Dimension::CalculateHeight( void )
+sint32 aui_Dimension::CalculateHeight( )
 {
 	if ( !m_parent ) return m_vsize;
 

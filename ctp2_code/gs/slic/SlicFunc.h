@@ -177,9 +177,9 @@ public:
 	bool GetStringId(sint32 arg, StringId &id) const;
 
 	GameEventArgList *CreateGameEventArgs(GAME_EVENT ev);
-    void ReleaseSymbols(void);
+    void ReleaseSymbols();
 
-    size_t Count(void) const
+    size_t Count() const
     {
         return m_argValue.size();
     }

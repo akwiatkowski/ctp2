@@ -68,7 +68,7 @@ static bool debug_dump_whole_stack = false;
 
 
 
-void Debug_FunctionNameInit (void);
+void Debug_FunctionNameInit ();
 int Debug_FunctionNameOpen (char *map_file_name);
 
 #ifdef WIN32
@@ -84,7 +84,7 @@ int				Debug_FunctionNameOpenFromPDB(void);
 
 #endif // WIN32
 
-void Debug_FunctionNameClose (void);
+void Debug_FunctionNameClose ();
 char *Debug_FunctionNameGet (unsigned address);
 
 #define DEBUG_CODE_LIMIT 0x80000000
@@ -294,7 +294,7 @@ void Debug_AddFunction (char *name, unsigned address)
 
 
 
-void Debug_FunctionNameInit (void)
+void Debug_FunctionNameInit ()
 {
 	fa_first = NULL;
 }
@@ -417,7 +417,7 @@ BOOL CALLBACK Debug_EnumModulesCallback(LPCSTR moduleName, ULONG dllBase, PVOID 
 
 
 
-void Debug_FunctionNameClose (void)
+void Debug_FunctionNameClose ()
 {
   FUNCTION_ADDRESS *pointer = fa_first;
   FUNCTION_ADDRESS *next;
@@ -926,7 +926,7 @@ void DebugCallStack_ShowToAltFile  (LogClass log_class, unsigned *call_stack, in
 	fprintf(file, "\n");
 }
 
-char * c3debug_StackTrace(void)
+char * c3debug_StackTrace()
 {
 	unsigned caller;
 	char *caller_name;

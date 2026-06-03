@@ -84,7 +84,7 @@ extern sint32 g_ScreenHeight;
 
 static InfoBar *g_infoBar = NULL;
 
-InfoBar * infobar_Get(void)
+InfoBar * infobar_Get()
 {
 	return g_infoBar;
 }

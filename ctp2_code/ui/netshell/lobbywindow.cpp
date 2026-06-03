@@ -63,7 +63,7 @@ static time_t				s_startedLeavingAt	= 0;
 
 static LobbyWindow * g_lobbyWindow = NULL;
 
-LobbyWindow * lobbywindow_Get(void)
+LobbyWindow * lobbywindow_Get()
 {
     return g_lobbyWindow;
 }
@@ -95,7 +95,7 @@ LobbyWindow::LobbyWindow(
 }
 
 
-AUI_ERRCODE LobbyWindow::InitCommon( void )
+AUI_ERRCODE LobbyWindow::InitCommon( )
 {
 	g_lobbyWindow = this;
 
@@ -124,7 +124,7 @@ AUI_ERRCODE LobbyWindow::InitCommon( void )
 }
 
 
-AUI_ERRCODE LobbyWindow::CreateControls( void )
+AUI_ERRCODE LobbyWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -391,7 +391,7 @@ AUI_ERRCODE LobbyWindow::CreateControls( void )
 	return AUI_ERRCODE_OK;
 }
 
-LobbyWindow::~LobbyWindow( void )
+LobbyWindow::~LobbyWindow( )
 {
 	sint32 numActions = sizeof( m_dbActionArray ) / sizeof( aui_Action *);
 	for ( sint32 i = 0; i < numActions; i++ )
@@ -434,7 +434,7 @@ void LobbyWindow::Update(BOOL init)
 	}
 }
 
-AUI_ERRCODE LobbyWindow::Idle( void )
+AUI_ERRCODE LobbyWindow::Idle( )
 {
 	if(m_wait) {
 
@@ -789,7 +789,7 @@ void LobbyWindow::PlayersListBoxAction::Execute(
 
 }
 
-void LobbyWindow::UpdatePlayerButtons( void )
+void LobbyWindow::UpdatePlayerButtons( )
 {
 
 	ns_PlayerListBox *listbox = (ns_PlayerListBox *)
@@ -949,7 +949,7 @@ void LobbyWindow::ReviewButtonAction::Execute(
 
 
 
-void LobbyWindow::SpitOutDetails( void )
+void LobbyWindow::SpitOutDetails( )
 {
 	ns_GameItem *item = (ns_GameItem *)
 		((ns_GameListBox *)m_controls[ CONTROL_GAMESLISTBOX ])->

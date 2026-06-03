@@ -158,7 +158,7 @@ AUI_ERRCODE c3_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE c3_HyperTextBox::InitCommon( void )
+AUI_ERRCODE c3_HyperTextBox::InitCommon( )
 {
 	m_hyperLinkList = new tech_WLList<c3_HyperLink *>;
 	Assert( m_hyperLinkList != NULL );
@@ -608,7 +608,7 @@ AUI_ERRCODE c3_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 
 
-void c3_HyperTextBox::RemoveHyperLinks( void )
+void c3_HyperTextBox::RemoveHyperLinks( )
 {
 	for (sint32 i = m_hyperLinkList->L(); i; --i)
     {

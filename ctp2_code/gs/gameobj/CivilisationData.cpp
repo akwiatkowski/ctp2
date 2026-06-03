@@ -209,7 +209,7 @@ bool cityNameIsUsedByPlayer(const char *strName, sint32 player)
 
 
 
-sint32 CivilisationData::GetAnyCityName(void) const
+sint32 CivilisationData::GetAnyCityName() const
 {
 	sint32	i,
 			count = 0xFFFFFFF,
@@ -347,7 +347,7 @@ sint32 CivilisationData::GetUseCount(const sint32 name) const
 	return (m_cityname_count[name]) ;
 }
 
-MBCHAR const * CivilisationData::GetLeaderName(void) const
+MBCHAR const * CivilisationData::GetLeaderName() const
 {
     return (m_leader_name[0]) ? m_leader_name : profiledb_Get()->GetLeaderName();
 }
@@ -366,7 +366,7 @@ void CivilisationData::SetPersonalityDescription(const MBCHAR* s)
 	strcpy(m_personality_description, s) ;
 }
 
-MBCHAR* CivilisationData::GetPersonalityDescription(void)
+MBCHAR* CivilisationData::GetPersonalityDescription()
 {
 	return m_personality_description;
 }
@@ -410,7 +410,7 @@ void CivilisationData::SetSingularCivName(const MBCHAR *s)
 	strcpy(m_singular_name, s) ;
 }
 
-sint32 CivilisationData::GetCapitalName(void) const
+sint32 CivilisationData::GetCapitalName() const
 {
 	sint32 capital = g_theCivilisationDB->Get(m_civ)->GetCapital();
 	if(capital >= 0 && capital < g_theCivilisationDB->Get(m_civ)->GetNumCityName()){
@@ -482,7 +482,7 @@ void CivilisationData::ResetStrings()
 //              2. The default style from the civilisation database.
 //
 //----------------------------------------------------------------------------
-sint32 CivilisationData::GetCityStyle(void) const
+sint32 CivilisationData::GetCityStyle() const
 {
 	if ((m_cityStyle >= 0) && (m_cityStyle < g_theCityStyleDB->NumRecords()))
 	{

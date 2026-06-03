@@ -96,10 +96,10 @@ public:
 	virtual ~ThumbnailMap();
 
 	void		InitCommonLdl(MBCHAR *ldlBlock);
-	void		InitCommon(void);
+	void		InitCommon();
 	virtual		AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	void		BuildCityList(void);
+	void		BuildCityList();
 
 
 	void		SetCityBlink(Unit city, BOOL blink, COLOR blinkColor = COLOR_BLACK);
@@ -107,19 +107,19 @@ public:
 
 
 
-	void		ClearMapOverlay(void);
+	void		ClearMapOverlay();
 	void		SetMapOverlayCell(MapPoint &pos, COLOR color);
 
 	void		SetSelectedCity(Unit city) { m_selectedCity = city; }
-	Unit		GetSelectedCity(void) { return m_selectedCity; }
+	Unit		GetSelectedCity() { return m_selectedCity; }
 
 	void		SetSelectedRoute(TradeRoute *route) { m_selectedRoute = route; }
-	TradeRoute *GetSelectedRoute(void) { return m_selectedRoute; }
+	TradeRoute *GetSelectedRoute() { return m_selectedRoute; }
 
 	void		SetCityFilterProc(CityFilterProc *proc) { m_cityFilterProc = proc; }
-	CityFilterProc *GetCityFilterProc(void) { return m_cityFilterProc; }
+	CityFilterProc *GetCityFilterProc() { return m_cityFilterProc; }
 
-	void		CalculateMetrics(void);
+	void		CalculateMetrics();
 
 	void		RenderMap(aui_Surface *surf);
 	void		RenderTradeRoute(aui_Surface *surf, TradeRoute *route);
@@ -132,7 +132,7 @@ public:
 
 	void		UpdateCities(aui_Surface *surf, sint32 x, sint32 y);
 	void		UpdateMap(aui_Surface *surf, sint32 x, sint32 y);
-	void		UpdateAll( void );
+	void		UpdateAll( );
 
 	virtual AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y);
 
@@ -141,7 +141,7 @@ public:
     virtual void	MouseNoChange(aui_MouseEvent * data);
     virtual void	MouseMoveInside(aui_MouseEvent * data);
 
-	virtual AUI_ERRCODE			Idle( void );
+	virtual AUI_ERRCODE			Idle( );
 
 	BOOL ShowTipWindow( aui_MouseEvent *mouseData );
 

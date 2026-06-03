@@ -59,7 +59,7 @@ AUI_ERRCODE aui_Font::SetDescriptor( MBCHAR *descriptor )
 }
 
 
-AUI_ERRCODE aui_Font::SetVariablesFromDescriptor( void )
+AUI_ERRCODE aui_Font::SetVariablesFromDescriptor( )
 {
 	if ( sscanf( m_descriptor,
 		"%d.%d.%d.%d.%d.%u.%u.%u.%u.%u.%u.%u.%u.%[^\t\n]",
@@ -84,7 +84,7 @@ AUI_ERRCODE aui_Font::SetVariablesFromDescriptor( void )
 
 
 
-AUI_ERRCODE aui_Font::Load( void )
+AUI_ERRCODE aui_Font::Load( )
 {
 
 	Unload();
@@ -112,7 +112,7 @@ AUI_ERRCODE aui_Font::Load( void )
 }
 
 
-AUI_ERRCODE aui_Font::Unload( void )
+AUI_ERRCODE aui_Font::Unload( )
 {
 	if ( m_hfont )
 	{

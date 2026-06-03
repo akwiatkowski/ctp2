@@ -58,15 +58,15 @@ public:
 
 	sint32 GetDiscoveredAt() const { return m_discoveredAt; }
 
-	GoodActor *GetActor(void) { return m_actor;}
-	MapPoint	GetPos(void) { return m_pos; }
+	GoodActor *GetActor() { return m_actor;}
+	MapPoint	GetPos() { return m_pos; }
 };
 
 // Lifecycle (new from archive / NULL / cleanup) lives in
 // gs/utility/gameinit.cpp; the variable is file-scope `static` there.
 // External readers go through wormhole_Get(); the cleanup path uses
 // wormhole_Set(NULL) after destroying the instance.
-Wormhole * wormhole_Get(void);
+Wormhole * wormhole_Get();
 void       wormhole_Set(Wormhole *w);
 
 #endif

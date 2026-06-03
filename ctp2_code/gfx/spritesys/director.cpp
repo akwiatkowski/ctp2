@@ -126,7 +126,7 @@ SequenceWeakPtr DQItem::getSequence() {
 #define k_MAX_DISPATCHED_QUEUE_ITEMS 1000
 #define k_MAX_SAVED_SEQUENCES 1000
 
-Director::Director(void)
+Director::Director()
     : m_nextPlayer(FALSE),
       m_masterCurTime(0),
       m_lastTickCount(0),
@@ -144,7 +144,7 @@ Director::Director(void)
   std::fill(m_timeLog, m_timeLog + k_TIME_LOG_SIZE, 0);
 }
 
-Director::~Director(void) {}
+Director::~Director() {}
 
 void Director::Kill(UnitActorPtr actor) {
   actor->DumpAllActions();
@@ -192,7 +192,7 @@ void Director::FastKill(EffectActor* actor) {
   }
 }
 
-void Director::UpdateTimingClock(void) {
+void Director::UpdateTimingClock() {
   sint32 elapsed;
 
   if (m_lastTickCount == 0) {
@@ -227,7 +227,7 @@ void Director::UpdateTimingClock(void) {
   m_masterCurTime += elapsed;
 }
 
-void Director::Process(void) {
+void Director::Process() {
   UpdateTimingClock();
 
   static uint32 nextTime = 0;
@@ -591,7 +591,7 @@ void Director::DumpItem(DQItem* item) {
 
 #ifdef _DEBUG
 
-void Director::DumpInfo(void) {
+void Director::DumpInfo() {
   DPRINTF(k_DBG_UI, (" ------------------\n"));
   DPRINTF(k_DBG_UI, ("Director Dump:\n"));
   DPRINTF(k_DBG_UI, (" m_curSequenceID  :%d\n", m_curSequenceID));
@@ -627,7 +627,7 @@ void Director::DumpInfo(void) {
 }
 #endif
 
-void Director::HandleNextAction(void) {
+void Director::HandleNextAction() {
   if (m_paused)
     return;
 
@@ -709,7 +709,7 @@ void Director::ActionFinished(SequenceWeakPtr seq) {
   }
 }
 
-SequencePtr Director::NewSequence(void) {
+SequencePtr Director::NewSequence() {
   return std::make_shared<Sequence>(++m_curSequenceID);
 }
 
@@ -832,7 +832,7 @@ void Director::SaveFinishedItem(DQItemPtr item) {
   m_savedItems.push_back(item);
 }
 
-void Director::GarbageCollectItems(void) {
+void Director::GarbageCollectItems() {
   while (!m_savedItems.empty()) {
     DQItemPtr item = m_savedItems.front();
     m_savedItems.pop_front();
@@ -844,7 +844,7 @@ void Director::ProcessImmediately(DQItemPtr item) {
   item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_IMMEDIATE);
 }
 
-void Director::CatchUp(void) {
+void Director::CatchUp() {
   m_activeUnitList.erase(
       std::remove_if(m_activeUnitList.begin(), m_activeUnitList.end(),
                      [](UnitActorPtr a) { return a->WillDie(); }),
@@ -882,7 +882,7 @@ void Director::CatchUp(void) {
   }
 }
 
-bool Director::CaughtUp(void) {
+bool Director::CaughtUp() {
   return m_itemQueue.empty();
 }
 
@@ -992,7 +992,7 @@ BOOL Director::IsActive(UnitActorPtr unitActor)
 }
 #endif
 
-uint32 Director::ProcessActiveUnits(void) {
+uint32 Director::ProcessActiveUnits() {
   if (m_activeUnitList.empty())
     return 0;
 
@@ -1021,7 +1021,7 @@ uint32 Director::ProcessActiveUnits(void) {
   return 0;
 }
 
-uint32 Director::ProcessActiveEffects(void) {
+uint32 Director::ProcessActiveEffects() {
   if (m_activeEffectList.empty())
     return 0;
 
@@ -1047,7 +1047,7 @@ uint32 Director::ProcessActiveEffects(void) {
   return 0;
 }
 
-void Director::ProcessTradeRouteAnimations(void) {
+void Director::ProcessTradeRouteAnimations() {
   if (!profiledb_Get()->IsTradeAnim())
     return;
 
@@ -1346,7 +1346,7 @@ void Director::AddCombatFlash(MapPoint const& pos) {
   m_itemQueue.push_back(item);
 }
 
-void Director::AddCopyVision(void) {
+void Director::AddCopyVision() {
   DQActionCopyVision* action = new DQActionCopyVision;
   DQItemPtr item(DQItem::CreatePtr(DQITEM_COPYVISION, action, dh_copyVision));
 
@@ -1373,7 +1373,7 @@ void Director::AddSelectUnit(uint32 flags) {
   m_itemQueue.push_back(item);
 }
 
-void Director::AddEndTurn(void) {
+void Director::AddEndTurn() {
   DPRINTF(k_DBG_GAMESTATE, ("Director::AddEndTurn, curPlayer = %d\n",
                             selitem_Get()->GetCurPlayer()));
 
@@ -1860,7 +1860,7 @@ void Director::AddTerminateSound(Unit& unit) {
   }
 }
 
-void Director::AddInvokeThroneRoom(void) {
+void Director::AddInvokeThroneRoom() {
   DQActionInvokeThroneRoom* action = new DQActionInvokeThroneRoom;
 
   m_itemQueue.push_back(DQItem::CreatePtr(DQITEM_INVOKE_THRONE_ROOM, action,

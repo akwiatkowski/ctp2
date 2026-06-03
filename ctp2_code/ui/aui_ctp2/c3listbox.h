@@ -34,7 +34,7 @@ public:
 
 protected:
 	C3ListBox() : aui_ListBox() {}
-	AUI_ERRCODE CreateRangers( void );
+	AUI_ERRCODE CreateRangers( );
 
 public:
 	virtual AUI_ERRCODE DrawThis(

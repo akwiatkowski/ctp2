@@ -34,7 +34,7 @@ public:
 // init/load path was never wired up.  Reads still happen (endgame.cpp,
 // EndgameWindow.cpp, etc.) but with the pointer NULL they fall through
 // to no-op stages.  The accessor preserves that behaviour.
-EndGameDatabase * endgamedb_Get(void);
+EndGameDatabase * endgamedb_Get();
 void              endgamedb_Set(EndGameDatabase *p);
 
 #endif

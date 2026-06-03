@@ -57,23 +57,23 @@ public:
 	GraphicsOptions();
 	~GraphicsOptions();
 
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
-	bool IsArmyTextOn(void) const { return m_armyTextOn; }
-	void ArmyTextOn(void);
-	void ArmyTextOff(void);
+	bool IsArmyTextOn() const { return m_armyTextOn; }
+	void ArmyTextOn();
+	void ArmyTextOff();
 
 	bool AddTextToArmy(Army army, const char *text, const uint8 &colorMagnitude, const sint32 goalType = -1) const;
 	void ResetArmyText(Army army);
 
-	bool IsArmyNameOn(void) const { return m_armyNameOn; }
-	void ArmyNameOn(void);
-	void ArmyNameOff(void);
+	bool IsArmyNameOn() const { return m_armyNameOn; }
+	void ArmyNameOn();
+	void ArmyNameOff();
 
-	bool IsCellTextOn(void) const { return m_cellTextOn; }
-	void CellTextOn(void);
-	void CellTextOff(void);
+	bool IsCellTextOn() const { return m_cellTextOn; }
+	void CellTextOn();
+	void CellTextOff();
 
 	CellText * GetCellText(MapPoint const & pos);
 	bool AddTextToCell(const MapPoint &pos, const char * text, const uint8 & colorMagnitude);
@@ -87,7 +87,7 @@ private:
 };
 
 // g_graphicsOptions is file-static in gfx_options.cpp; access via accessors.
-GraphicsOptions * graphicsoptions_Get(void);
+GraphicsOptions * graphicsoptions_Get();
 void              graphicsoptions_Set(GraphicsOptions *p);
 
 #endif

@@ -297,7 +297,7 @@ AUI_ERRCODE aui_DropDown::Resize( sint32 width, sint32 height )
 }
 
 
-AUI_ERRCODE aui_DropDown::Hide( void )
+AUI_ERRCODE aui_DropDown::Hide( )
 {
 	aui_ui_Get()->RemoveWindow( m_listBoxWindow->Id() );
 
@@ -335,7 +335,7 @@ AUI_ERRCODE aui_DropDown::RemoveItem( uint32 itemId )
 }
 
 
-AUI_ERRCODE aui_DropDown::RepositionButton( void )
+AUI_ERRCODE aui_DropDown::RepositionButton( )
 {
 	m_button->Resize( m_buttonSize, m_height );
 	m_button->Move( m_width, 0 );
@@ -344,7 +344,7 @@ AUI_ERRCODE aui_DropDown::RepositionButton( void )
 }
 
 
-AUI_ERRCODE aui_DropDown::RepositionListBoxWindow( void )
+AUI_ERRCODE aui_DropDown::RepositionListBoxWindow( )
 {
 
 
@@ -411,7 +411,7 @@ AUI_ERRCODE aui_DropDown::ShowListBoxWindow( BOOL showIt )
 }
 
 
-AUI_ERRCODE aui_DropDown::ToggleListBoxWindow( void )
+AUI_ERRCODE aui_DropDown::ToggleListBoxWindow( )
 {
 	if ( !aui_ui_Get()->GetWindow( m_listBoxWindow->Id() ) )
 	{

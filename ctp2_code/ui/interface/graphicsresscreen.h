@@ -34,7 +34,7 @@ struct  CTPDisplayMode;
 
 sint32 graphicsresscreen_displayMyWindow();
 sint32 graphicsresscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE graphicsresscreen_Initialize( void );
+AUI_ERRCODE graphicsresscreen_Initialize( );
 AUI_ERRCODE graphicsresscreen_Cleanup();
 
 void graphicsscreen_unitSpeedSlide(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -47,9 +47,9 @@ public:
 	ScreenResListItem(AUI_ERRCODE *retval, CTPDisplayMode *mode, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 
-	CTPDisplayMode *GetDisplayMode(void) { return m_mode; }
+	CTPDisplayMode *GetDisplayMode() { return m_mode; }
 protected:
 	ScreenResListItem() : c3_ListItem() {}
 	AUI_ERRCODE InitCommonLdl(CTPDisplayMode *mode, MBCHAR *ldlBlock);

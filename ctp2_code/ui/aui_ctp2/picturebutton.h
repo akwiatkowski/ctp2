@@ -42,8 +42,8 @@ public:
 		sint32 y = 0 );
 
 
-	Picture *&UpPicture( void ) { return m_upPicture; }
-	Picture *&DownPicture( void ) { return m_downPicture; }
+	Picture *&UpPicture( ) { return m_upPicture; }
+	Picture *&DownPicture( ) { return m_downPicture; }
 
 protected:
 	Picture *m_upPicture;

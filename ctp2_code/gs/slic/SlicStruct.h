@@ -86,7 +86,7 @@ public:
 
 	SlicStructMemberData * GetMemberSymbol(sint32 index) const;
 	sint32 GetMemberSymbolIndex(SlicStructMemberData * symbol) const;
-	size_t GetNumAccessors(void) const
+	size_t GetNumAccessors() const
 		{ return m_accessors.size(); };
 
 	void AddMember(SlicStructDescription::Member *member);

@@ -13,7 +13,7 @@ aui_Shell::aui_Shell(
 }
 
 
-AUI_ERRCODE aui_Shell::InitCommon( void )
+AUI_ERRCODE aui_Shell::InitCommon( )
 {
 	m_curScreen = NULL;
 
@@ -35,7 +35,7 @@ aui_Shell::~aui_Shell()
 }
 
 
-aui_Screen *aui_Shell::LeaveCurrentScreen( void )
+aui_Screen *aui_Shell::LeaveCurrentScreen( )
 {
 	aui_Screen *prevCurScreen = m_curScreen;
 
@@ -65,7 +65,7 @@ AUI_ERRCODE aui_Shell::GotoScreen( uint32 id )
 }
 
 
-aui_Screen *aui_Shell::GoBackScreen( void )
+aui_Screen *aui_Shell::GoBackScreen( )
 {
 	aui_Screen *prevScreen = m_curScreen;
 

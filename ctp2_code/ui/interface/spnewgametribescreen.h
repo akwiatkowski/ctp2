@@ -74,8 +74,8 @@ void spnewgametribescreen_switchPress    (aui_Control *control, uint32 action, u
 void spnewgametribescreen_malePress      (aui_Control *control, uint32 action, uint32 data, void *cookie );
 void spnewgametribescreen_femalePress    (aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-sint32 spnewgametribescreen_getTribeIndex( void );
-GENDER spnewgametribescreen_getGender(void);
+sint32 spnewgametribescreen_getTribeIndex( );
+GENDER spnewgametribescreen_getGender();
 void spnewgametribescreen_setTribeIndex( sint32, MBCHAR *lname = NULL );
 void spnewgametribescreen_getLeaderName( MBCHAR *lname );
 

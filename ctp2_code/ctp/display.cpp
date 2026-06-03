@@ -120,7 +120,7 @@ HRESULT CALLBACK display_DisplayModeCallback(LPDDSURFACEDESC pdds, LPVOID lParam
 }
 #endif
 
-void display_EnumerateDisplayModes(void)
+void display_EnumerateDisplayModes()
 {
 #ifdef __AUI_USE_DIRECTX__
 	HRESULT				hr;

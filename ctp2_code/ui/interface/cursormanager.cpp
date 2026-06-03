@@ -9,10 +9,10 @@
 
 static CursorManager		*g_cursorManager = NULL;
 
-CursorManager * cursormanager_Get(void) { return g_cursorManager; }
+CursorManager * cursormanager_Get() { return g_cursorManager; }
 
 
-void CursorManager::Initialize(void)
+void CursorManager::Initialize()
 {
 	Cleanup();
 
@@ -20,7 +20,7 @@ void CursorManager::Initialize(void)
 }
 
 
-void CursorManager::Cleanup(void)
+void CursorManager::Cleanup()
 {
 	if (g_cursorManager != NULL) {
 		delete g_cursorManager;
@@ -61,13 +61,13 @@ void CursorManager::SetCursor(CURSORINDEX cursor)
 }
 
 
-void CursorManager::SaveCursor(void)
+void CursorManager::SaveCursor()
 {
 	m_savedCursor = m_curCursor;
 }
 
 
-void CursorManager::RestoreCursor(void)
+void CursorManager::RestoreCursor()
 {
 	if (m_savedCursor == CURSORINDEX_MAX) {
 		m_curCursor = CURSORINDEX_DEFAULT;

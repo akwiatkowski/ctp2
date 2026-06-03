@@ -62,7 +62,7 @@ public:
 	virtual ~ctp2_Switch() {}
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
-	sint32 BevelWidth( void ) const { return m_bevelWidth; }
+	sint32 BevelWidth( ) const { return m_bevelWidth; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,

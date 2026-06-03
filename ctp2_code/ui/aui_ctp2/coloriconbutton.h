@@ -74,7 +74,7 @@ public:
 	virtual ~ColorIconButton();
 
 	virtual AUI_ERRCODE Resize(sint32 width, sint32 height);
-	void	ResizePictureRect(void);
+	void	ResizePictureRect();
 
 	void SetIcon(MBCHAR *name);
 	void ShrinkToFit(BOOL fit) { m_shrinkToFit = fit; }

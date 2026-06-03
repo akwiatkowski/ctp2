@@ -137,7 +137,7 @@ uint16 Anim::GetFrame(sint32 animPos)
 	return m_frames[(animPos % m_numFrames)];
 }
 
-uint16 Anim::GetPlaybackTime(void)
+uint16 Anim::GetPlaybackTime()
 {
 
 

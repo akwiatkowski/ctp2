@@ -20,12 +20,12 @@ public:
 					GrabItem();
 					~GrabItem();
 
-	static void		Init(void);
-	static void		Cleanup(void);
+	static void		Init();
+	static void		Cleanup();
 
-	BOOL			SomethingIsGrabbed(void) { return m_isGrabbed; }
+	BOOL			SomethingIsGrabbed() { return m_isGrabbed; }
 
-	GrabItemType	GetItemType(void) { return m_grabbedItemType; }
+	GrabItemType	GetItemType() { return m_grabbedItemType; }
 
 	void			SetGrabbedItem(Unit *unit);
 	void			GetGrabbedItem(Unit **unit);
@@ -33,7 +33,7 @@ public:
 	void			SetGrabbedItem(TradeRoute *route);
 	void			GetGrabbedItem(TradeRoute **route);
 
-	void			Release(void) { m_isGrabbed = FALSE; m_grabbedItem = NULL; m_grabbedItemType = GRABITEMTYPE_NONE; }
+	void			Release() { m_isGrabbed = FALSE; m_grabbedItem = NULL; m_grabbedItemType = GRABITEMTYPE_NONE; }
 
 private:
 	BOOL			m_isGrabbed;

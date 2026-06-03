@@ -115,15 +115,15 @@ public:
 		void *cookie = NULL,
 		MBCHAR *buttonBlock = "c3_PopupNo" );
 
-	c3_Static	*TitleText( void ) { return m_titleText; }
-	c3_Static	*Title( void ) { return m_title; }
+	c3_Static	*TitleText( ) { return m_titleText; }
+	c3_Static	*Title( ) { return m_title; }
 
-	c3_Button	*Cancel( void ) const { return m_cancel; }
-	ctp2_Button	*Ok( void ) const { return m_ok; }
+	c3_Button	*Cancel( ) const { return m_cancel; }
+	ctp2_Button	*Ok( ) const { return m_ok; }
 
 	virtual void    kh_Close();
-	virtual void    PatternInfoRestore(void);
-	virtual void    PatternInfoSave(void);
+	virtual void    PatternInfoRestore();
+	virtual void    PatternInfoSave();
 
 protected:
 	c3_PopupWindow()
@@ -138,7 +138,7 @@ protected:
 	}
 
 private:
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	c3_Static *     m_border[POPUP_BORDER_MAX];
 	c3_Static *     m_title;

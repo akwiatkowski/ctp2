@@ -64,7 +64,7 @@ public:
 		void *cookie = NULL );
 	virtual ~ctp2_DropDown() {};
 
-	void	Clear(void);
+	void	Clear();
 
 	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
 
@@ -77,10 +77,10 @@ public:
 	AUI_ERRCODE		AddItem(ctp2_ListItem *item);
 
 
-	void			BuildListStart(void);
+	void			BuildListStart();
 
 
-	void			BuildListEnd(void);
+	void			BuildListEnd();
 	void			SetForceSelect(bool forceSelect);
 
 protected:
@@ -90,8 +90,8 @@ protected:
 	AUI_ERRCODE		CreateComponents( MBCHAR *ldlBlock = NULL );
 
 protected:
-	virtual AUI_ERRCODE	RepositionButton( void );
-	virtual AUI_ERRCODE	RepositionListBoxWindow( void );
+	virtual AUI_ERRCODE	RepositionButton( );
+	virtual AUI_ERRCODE	RepositionListBoxWindow( );
 };
 
 #endif

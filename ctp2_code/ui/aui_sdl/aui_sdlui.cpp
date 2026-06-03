@@ -115,7 +115,7 @@ AUI_ERRCODE aui_SDLUI::InitCommon()
 }
 
 
-AUI_ERRCODE aui_SDLUI::DestroyNativeScreen(void)
+AUI_ERRCODE aui_SDLUI::DestroyNativeScreen()
 {
 	if (m_primary)
 	{
@@ -204,7 +204,7 @@ aui_SDLUI::getDisplay()
 }
 #endif
 
-aui_SDLUI::~aui_SDLUI( void )
+aui_SDLUI::~aui_SDLUI( )
 {
 	if ( m_window ) {
 		SDL_DestroyWindow(m_window);
@@ -219,7 +219,7 @@ aui_SDLUI::~aui_SDLUI( void )
 #endif
 }
 
-AUI_ERRCODE aui_SDLUI::TearDownMouse(void)
+AUI_ERRCODE aui_SDLUI::TearDownMouse()
 {
 
 	if (m_mouse) {
@@ -243,7 +243,7 @@ AUI_ERRCODE aui_SDLUI::TearDownMouse(void)
 }
 
 
-AUI_ERRCODE aui_SDLUI::RestoreMouse(void)
+AUI_ERRCODE aui_SDLUI::RestoreMouse()
 {
 	AUI_ERRCODE		auiErr;
 	BOOL			exclusive = TRUE;
@@ -273,7 +273,7 @@ AUI_ERRCODE aui_SDLUI::RestoreMouse(void)
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_SDLUI::AltTabOut( void )
+AUI_ERRCODE aui_SDLUI::AltTabOut( )
 {
 	assert(0);
 
@@ -317,7 +317,7 @@ AUI_ERRCODE aui_SDLUI::AltTabOut( void )
 }
 
 
-AUI_ERRCODE aui_SDLUI::AltTabIn( void )
+AUI_ERRCODE aui_SDLUI::AltTabIn( )
 {
 	assert(0);
 

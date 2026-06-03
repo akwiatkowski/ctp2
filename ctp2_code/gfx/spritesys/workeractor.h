@@ -22,24 +22,24 @@ public:
 	WorkerActor(sint32 index, const MapPoint &pos, sint32 x = 0, sint32 y = 0);
     ~WorkerActor();
 
-	virtual void	Process(void);
+	virtual void	Process();
 
   void			AddAction(ActionPtr actionObj) override;
-	void			GetNextAction(void);
-	void			AddIdle(void);
+	void			GetNextAction();
+	void			AddIdle();
 
 	Anim *          CreateAnim(UNITACTION action);
 
-	void			Draw(void);
+	void			Draw();
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y, double scale);
 
 	void			DrawText(sint32 x, sint32 y, MBCHAR const * goodText);
 
-	bool			IsAnimating(void) const;
+	bool			IsAnimating() const;
 
-	MapPoint		GetPos(void) const { return m_pos; }
-	uint16			GetWidth(void) const;
-	uint16			GetHeight(void) const;
+	MapPoint		GetPos() const { return m_pos; }
+	uint16			GetWidth() const;
+	uint16			GetHeight() const;
 
 	void			SetFrame(sint32 frame) { m_frame = frame; }
 

@@ -80,7 +80,7 @@
 
 static HotseatList * g_hotseatList = NULL;
 
-HotseatList * hotseatlist_Get(void)
+HotseatList * hotseatlist_Get()
 {
     return g_hotseatList;
 }
@@ -93,7 +93,7 @@ void hotseatlist_DisplayWindow(HotseatListCallback *callback)
     g_hotseatList->DisplayWindow();
 }
 
-void hotseatlist_Cleanup(void)
+void hotseatlist_Cleanup()
 {
     allocated::clear(g_hotseatList);
 }
@@ -246,7 +246,7 @@ HotseatList::~HotseatList()
 
 }
 
-void HotseatList::DisplayWindow( void )
+void HotseatList::DisplayWindow( )
 {
 	AUI_ERRCODE auiErr;
 
@@ -258,7 +258,7 @@ void HotseatList::DisplayWindow( void )
 	keypress_RegisterHandler(this);
 }
 
-void HotseatList::RemoveWindow( void )
+void HotseatList::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr;
 
@@ -273,7 +273,7 @@ void HotseatList::kh_Close()
 	RemoveWindow();
 }
 
-sint32 HotseatList::UpdateData( void )
+sint32 HotseatList::UpdateData( )
 {
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
@@ -316,12 +316,12 @@ sint32 HotseatList::UpdateData( void )
 	return 0;
 }
 
-sint32 HotseatList::EnableButtons( void )
+sint32 HotseatList::EnableButtons( )
 {
 	return 1;
 }
 
-sint32 HotseatList::DisableButtons( void )
+sint32 HotseatList::DisableButtons( )
 {
 	return 1;
 }
@@ -474,7 +474,7 @@ AUI_ERRCODE HotseatListItem::InitCommonLdl(sint32 civ,
 	return AUI_ERRCODE_OK;
 }
 
-void HotseatListItem::Update(void)
+void HotseatListItem::Update()
 {
 
 	c3_Button *subButton;
@@ -558,7 +558,7 @@ void HotseatListItem::EnterEmail()
 	Update();
 }
 
-void hotseatlist_ClearOptions(void)
+void hotseatlist_ClearOptions()
 {
 	delete s_legalCivList;
 	s_legalCivList = new bool[g_theCivilisationDB->NumRecords()];
@@ -573,23 +573,23 @@ void hotseatlist_SetPlayerCiv(PLAYER_INDEX index, sint32 civ)
 {
 }
 
-void hotseatlist_LockCivs(void)
+void hotseatlist_LockCivs()
 {
 	s_playerCivsLocked = true;
 }
 
-bool hotseatlist_PlayerCivsLocked(void)
+bool hotseatlist_PlayerCivsLocked()
 {
 	return s_playerCivsLocked;
 }
 
 
-void hotseatlist_EnableAllCivs(void)
+void hotseatlist_EnableAllCivs()
 {
 	std::fill(s_legalCivList, s_legalCivList + g_theCivilisationDB->NumRecords(), true);
 }
 
-void hotseatlist_DisableAllCivs(void)
+void hotseatlist_DisableAllCivs()
 {
 	std::fill(s_legalCivList, s_legalCivList + g_theCivilisationDB->NumRecords(), false);
 }
@@ -609,7 +609,7 @@ bool hotseatlist_CivEnabled(sint32 civ)
 	return s_legalCivList[civ];
 }
 
-sint32 hotseatlist_NumEnabled(void)
+sint32 hotseatlist_NumEnabled()
 {
 	sint32 count = 0;
 

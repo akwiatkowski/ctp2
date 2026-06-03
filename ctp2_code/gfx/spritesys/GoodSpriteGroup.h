@@ -76,8 +76,8 @@ class GoodSpriteGroup : public SpriteGroup
 public:
 	GoodSpriteGroup(GROUPTYPE type) : SpriteGroup(type) {};
 
-	void			DeallocateStorage(void);
-	void			DeallocateFullLoadAnims(void);
+	void			DeallocateStorage();
+	void			DeallocateFullLoadAnims();
 
 	void			LoadBasic(MBCHAR const * filename);
 	void			LoadFull(MBCHAR const * filename);

@@ -56,6 +56,6 @@ int c3windows_MakeTestWindow( BOOL make = TRUE );
 int c3windows_MakeFloatingWindow( BOOL make = TRUE );
 int c3windows_MakeTipWindow( BOOL make = TRUE );
 
-void c3windows_Cleanup( void );
+void c3windows_Cleanup( );
 
 #endif

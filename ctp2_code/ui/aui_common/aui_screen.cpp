@@ -80,7 +80,7 @@ aui_Screen::~aui_Screen()
 }
 
 
-AUI_ERRCODE aui_Screen::Show( void )
+AUI_ERRCODE aui_Screen::Show( )
 {
 	ListPos position = m_windowList->GetHeadPosition();
 	for ( sint32 i = m_windowList->L(); i; i-- )
@@ -96,7 +96,7 @@ AUI_ERRCODE aui_Screen::Show( void )
 }
 
 
-AUI_ERRCODE aui_Screen::Hide( void )
+AUI_ERRCODE aui_Screen::Hide( )
 {
 	ListPos position = m_windowList->GetHeadPosition();
 	sint32 i;

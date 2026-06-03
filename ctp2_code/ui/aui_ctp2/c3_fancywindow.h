@@ -73,12 +73,12 @@ public:
 
 	void MakeDraggable( BOOL draggable );
 
-	c3_Static	*Title( void ) const { return m_title; }
+	c3_Static	*Title( ) const { return m_title; }
 
-	c3_Button	*Cancel( void ) { return m_cancel; }
-	c3_Button	*Ok( void ) { return m_ok; }
+	c3_Button	*Cancel( ) { return m_cancel; }
+	c3_Button	*Ok( ) { return m_ok; }
 
-	void RemoveCancel( void ) { RemoveControl( m_cancel->Id() ); }
+	void RemoveCancel( ) { RemoveControl( m_cancel->Id() ); }
 
 protected:
     virtual void	MouseLGrabInside(aui_MouseEvent * data);
@@ -130,10 +130,10 @@ public:
 	AUI_ERRCODE AddBordersToUI();
 	AUI_ERRCODE RemoveBordersFromUI();
 
-	c3_Static	*Title( void ) const { return m_title; }
+	c3_Static	*Title( ) const { return m_title; }
 
-	c3_Button	*Cancel( void ) { return m_cancel; }
-	c3_Button	*Ok( void ) { return m_ok; }
+	c3_Button	*Cancel( ) { return m_cancel; }
+	c3_Button	*Ok( ) { return m_ok; }
 
 private:
 

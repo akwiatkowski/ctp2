@@ -64,7 +64,7 @@ private:
 // gs/utility/gameinit.cpp; the variable is file-scope `static` there.
 // UI MessageBoxDialog has lazy-init fallbacks that allocate via
 // critical_messages_prefs_Set() if Get() returns null.
-CriticalMessagesPrefs * critical_messages_prefs_Get(void);
+CriticalMessagesPrefs * critical_messages_prefs_Get();
 void critical_messages_prefs_Set(CriticalMessagesPrefs *p);
 
 #endif

@@ -40,7 +40,7 @@ int messageadvice_AddText( MBCHAR *text )
 	return 1;
 }
 
-int messageadvice_DestroyWindow( void )
+int messageadvice_DestroyWindow( )
 {
 	if ( g_adviceMessageWindow )
 	{

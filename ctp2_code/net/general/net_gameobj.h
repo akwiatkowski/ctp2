@@ -56,7 +56,7 @@ private:
 	PointerList<LimboID> *m_limbo;
 	NetHash m_createdHash;
 
-	void TheReaper(void);
+	void TheReaper();
 	void KillObject(uint32 id);
 public:
 	NetGameObj();

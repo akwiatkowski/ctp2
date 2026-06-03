@@ -106,28 +106,28 @@ public:
 	Pollution(CivArchive &archive);
 	~Pollution();
 
-	sint32 GetHistory(void) { return (m_history[0]); }
+	sint32 GetHistory() { return (m_history[0]); }
 	void   SetHistory(sint32 pollution) { m_history[0] = pollution; }
-	sint32 GetRoundsToNextDisaster(void);
+	sint32 GetRoundsToNextDisaster();
 
 	void   Serialize(CivArchive &archive);
 	void   WarnPlayers();
-	sint32 AtTriggerLevel(void);
+	sint32 AtTriggerLevel();
 	sint32 GetNextTrigger();
 	sint32 GetTriggerLevel(sint32 phase);
 	sint32 GetGlobalPollutionLevel();
 	void   SetGlobalPollutionLevel(sint32 requiredPollution);
-	sint32 GetTrend(void) const;
-	void   BeginTurn(void);
-	void   EndRound(void);
+	sint32 GetTrend() const;
+	void   BeginTurn();
+	void   EndRound();
 
-	sint32 GetPhase(void) { return m_phase; }
+	sint32 GetPhase() { return m_phase; }
 
 	void   AddNukePollution(const MapPoint &cpos);
 
 private:
 	sint32 CalcTrend(sint32 level[], sint32 numPoints, double &offset, double &slope);
-	void   GotoNextLevel(void);
+	void   GotoNextLevel();
 
 };
 
@@ -136,7 +136,7 @@ private:
 // g_thePollution global directly; pollution_Set() lets gameinit reseat
 // the pointer on new-game / load.  Once all callers are migrated the
 // underlying global will become file-static.
-Pollution * pollution_Get(void);
+Pollution * pollution_Get();
 void        pollution_Set(Pollution *p);
 
 #endif

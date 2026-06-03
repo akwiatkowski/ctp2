@@ -70,7 +70,7 @@ PlayerEditWindow::PlayerEditWindow(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE PlayerEditWindow::InitCommon( void )
+AUI_ERRCODE PlayerEditWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );
@@ -82,7 +82,7 @@ AUI_ERRCODE PlayerEditWindow::InitCommon( void )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE PlayerEditWindow::CreateControls( void )
+AUI_ERRCODE PlayerEditWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -334,7 +334,7 @@ PlayerEditWindow::Mode PlayerEditWindow::GetMode()
 	return mode;
 }
 
-AUI_ERRCODE PlayerEditWindow::Idle( void )
+AUI_ERRCODE PlayerEditWindow::Idle( )
 {
 	return AUI_ERRCODE_OK;
 }

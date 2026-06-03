@@ -64,7 +64,7 @@ AUI_ERRCODE MessageEyePointListItem::InitCommonLdl(MBCHAR const *name, sint32 in
 	return AUI_ERRCODE_OK;
 }
 
-void MessageEyePointListItem::Update(void)
+void MessageEyePointListItem::Update()
 {
 	c3_Static *subItem;
 

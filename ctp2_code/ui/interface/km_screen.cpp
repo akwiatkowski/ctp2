@@ -242,8 +242,8 @@ namespace
 // Function prototypes
 //----------------------------------------------------------------------------
 
-    AUI_ERRCODE km_screen_Initialize(void);
-    void        km_screen_loadKeyList(void);
+    AUI_ERRCODE km_screen_Initialize();
+    void        km_screen_loadKeyList();
 
 //----------------------------------------------------------------------------
 // Variables
@@ -277,7 +277,7 @@ namespace
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void km_screen_loadKeyList(void)
+void km_screen_loadKeyList()
 {
 	MBCHAR ldl[_MAX_PATH];
 	snprintf(ldl, sizeof(ldl), "KeyListItem");
@@ -362,7 +362,7 @@ void km_screen_loadKeyList(void)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-AUI_ERRCODE km_screen_Initialize( void )
+AUI_ERRCODE km_screen_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -671,7 +671,7 @@ MBCHAR const * km_GetKeyName(uint32 code)
 	return const_cast<MBCHAR const *>(str);
 }
 
-void KeyListItem::Update(void)
+void KeyListItem::Update()
 {
 	c3_Static * subName = static_cast<c3_Static *>(GetChildByIndex(0));
 	subName->SetText(m_name);

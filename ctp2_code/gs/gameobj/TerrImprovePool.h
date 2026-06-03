@@ -53,6 +53,6 @@ public:
 // g_theTerrainImprovementPool's lifecycle (new / archive-load / Cleanup)
 // lives in gs/utility/gameinit.cpp; the variable is now file-scope
 // `static` there.  External readers go through terrimprovepool_Get().
-TerrainImprovementPool * terrimprovepool_Get(void);
+TerrainImprovementPool * terrimprovepool_Get();
 void                     terrimprovepool_Set(TerrainImprovementPool *p);
 #endif

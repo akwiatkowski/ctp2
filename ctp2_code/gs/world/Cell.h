@@ -229,7 +229,7 @@ public:
 	sint32 GetMineIndex() const;
 	sint32 GetRivCurIndex() const;
 	sint32 GetCanalTunnelIndex() const;
-	bool GetCanDie(void) const ;
+	bool GetCanDie() const ;
 
 	void SetIrrigation(sint32 level);
 	void SetMine(sint32 level);
@@ -272,10 +272,10 @@ public:
 	void Serialize(CivArchive &archive) ;
 
 
-	bool IsDead(void) const;
-	void Kill(void);
+	bool IsDead() const;
+	void Kill();
 
-	sint32 GetScratch(void) const { return (m_search_count) ; }
+	sint32 GetScratch() const { return (m_search_count) ; }
 	void SetScratch(sint32 s) { m_search_count = s; }
 
 
@@ -315,7 +315,7 @@ public:
 
 	void SetOwner(sint32 o);
 
-	inline sint32 GetOwner(void) const {
+	inline sint32 GetOwner() const {
 		return ((sint32)(m_cellOwner)) ;
 	}
 
@@ -324,7 +324,7 @@ public:
 	void		SetTileInfo(TileInfo *tileInfo) { m_tileInfo = tileInfo; }
 #endif
 
-	GoodyHut	*GetGoodyHut(void);
+	GoodyHut	*GetGoodyHut();
 	void DeleteGoodyHut();
 
 	void CreateGoodyHut();
@@ -367,6 +367,6 @@ public:
 	static void RecalcPlayerLandArea();
 };
 
-uint32 Cell_CELL_GetVersion(void) ;
+uint32 Cell_CELL_GetVersion() ;
 
 #endif

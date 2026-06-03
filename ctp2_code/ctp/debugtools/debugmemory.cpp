@@ -204,7 +204,7 @@ struct MemoryHeapDescriptor
 
 
 
-static void DebugMemory_CreateDefaultHeap (void)
+static void DebugMemory_CreateDefaultHeap ()
 {
 	MemoryHeap heap;
 
@@ -247,14 +247,14 @@ static void DebugMemory_CreateDefaultHeap (void)
 
 
 
-void DebugMemory_Initialise (void)
+void DebugMemory_Initialise ()
 {
 
 	DebugMemory_CreateDefaultHeap();
 	debug_memory->initialised = true;
 }
 
-void DebugMemory_Allocate(void)
+void DebugMemory_Allocate()
 {
 	debug_memory = (DebugMemory *)malloc(sizeof(DebugMemory));
 
@@ -275,7 +275,7 @@ void DebugMemory_Allocate(void)
 	debug_memory->total_from_exe = 0;
 }
 
-static inline void DebugMemory_EnsureAllocated(void)
+static inline void DebugMemory_EnsureAllocated()
 {
 	if (!debug_memory)
 		DebugMemory_Allocate();
@@ -292,7 +292,7 @@ static inline void DebugMemory_EnsureAllocated(void)
 
 
 
-static inline void DebugMemory_EnsureInitialised (void)
+static inline void DebugMemory_EnsureInitialised ()
 {
 	DebugMemory_EnsureAllocated();
 

@@ -156,7 +156,7 @@ class DQItem : std::enable_shared_from_this<DQItem> {
   ~DQItem();
 
   void SetOwner(sint32 owner) { m_owner = (sint8)owner; }
-  sint32 GetOwner(void) const { return (sint32)m_owner; }
+  sint32 GetOwner() const { return (sint32)m_owner; }
 
   SequenceWeakPtr getSequence();
 
@@ -176,32 +176,32 @@ class Director {
  public:
   typedef std::vector<std::weak_ptr<UnitActor> > UnitActorVec;
 
-  Director(void);
-  ~Director(void);
+  Director();
+  ~Director();
 
-  SequencePtr NewSequence(void);
+  SequencePtr NewSequence();
 
-  void UpdateTimingClock(void);
-  void Process(void);
+  void UpdateTimingClock();
+  void Process();
   void PauseDirector(BOOL pause);
 
 #ifdef _DEBUG
   void DumpItem(DQItem* item);
-  void DumpInfo(void);
+  void DumpInfo();
 #endif
 
-  void HandleNextAction(void);
+  void HandleNextAction();
 
   void ActionFinished(SequenceWeakPtr seq);
 
   void HandleFinishedItem(DQItemPtr item);
   void SaveFinishedItem(DQItemPtr item);
-  void GarbageCollectItems(void);
+  void GarbageCollectItems();
 
   void ProcessImmediately(DQItemPtr item);
 
-  void CatchUp(void);
-  bool CaughtUp(void);
+  void CatchUp();
+  bool CaughtUp();
 
   bool TileIsVisibleToPlayer(MapPoint& pos);
 
@@ -253,10 +253,10 @@ class Director {
   void AddSetOwner(std::shared_ptr<UnitActor> actor, sint32 owner);
   void AddSetVisionRange(std::shared_ptr<UnitActor> actor, double range);
   void AddCombatFlash(MapPoint const& pos);
-  void AddCopyVision(void);
+  void AddCopyVision();
   void AddCenterMap(const MapPoint& pos);
   void AddSelectUnit(uint32 flags);
-  void AddEndTurn(void);
+  void AddEndTurn();
   void AddBattle(Battle* battle);
   void AddPlaySound(sint32 soundID, MapPoint const& pos);
   void AddGameSound(GAMESOUNDS sound);
@@ -268,7 +268,7 @@ class Director {
   void AddFaceoff(Unit& attacker, Unit& defender);
   void AddTerminateFaceoff(Unit& faceroffer);
   void AddTerminateSound(Unit& unit);
-  void AddInvokeThroneRoom(void);
+  void AddInvokeThroneRoom();
   void AddInvokeResearchAdvance(MBCHAR* text);
   void AddBeginScheduler(sint32 player);
 
@@ -280,17 +280,17 @@ class Director {
   void TradeActorCreate(TradeRoute newRoute);
   void TradeActorDestroy(TradeRoute routeToDestroy);
 
-  uint32 KillAllActiveEffects(void);
+  uint32 KillAllActiveEffects();
 
   void DrawActiveUnits(RECT* paintRect, sint32 layer);
 
   void DrawActiveEffects(RECT* paintRect, sint32 layer);
   void DrawTradeRouteAnimations(RECT* paintRect, sint32 layer);
 
-  uint32 ProcessActiveUnits(void);
+  uint32 ProcessActiveUnits();
 
-  uint32 ProcessActiveEffects(void);
-  void ProcessTradeRouteAnimations(void);
+  uint32 ProcessActiveEffects();
+  void ProcessTradeRouteAnimations();
 
   void OffsetActiveUnits(sint32 deltaX, sint32 deltaY);
 
@@ -301,15 +301,15 @@ class Director {
 
   void NextPlayer(BOOL forcedUpdate = FALSE);
 
-  uint32 GetMasterCurTime(void) { return m_masterCurTime; }
+  uint32 GetMasterCurTime() { return m_masterCurTime; }
   void SetMasterCurTime(uint32 val) { m_masterCurTime = val; }
-  sint32 GetAverageFPS(void) const { return m_averageFPS; }
+  sint32 GetAverageFPS() const { return m_averageFPS; }
 
   void Kill(std::shared_ptr<UnitActor> actor);
   void FastKill(std::shared_ptr<UnitActor> actor);
   void FastKill(EffectActor* actor);
 
-  BOOL GetActionFinished(void) const { return m_actionFinished; }
+  BOOL GetActionFinished() const { return m_actionFinished; }
   void SetActionFinished(BOOL finished = TRUE) { m_actionFinished = finished; }
 
   BOOL TileWillBeCompletelyVisible(sint32 x, sint32 y);
@@ -365,7 +365,7 @@ class Director {
 // Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
 // / gevmanager_Get.  The legacy g_director pointer is now file-static
 // in ctp/civ3_main.cpp; outside callers must go through these accessors.
-Director * director_Get(void);
+Director * director_Get();
 void       director_Set(Director *p);
 
 #endif

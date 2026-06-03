@@ -61,7 +61,7 @@ UnitTabButton::UnitTabButton(AUI_ERRCODE *retval,
 	InitCommon();
 }
 
-AUI_ERRCODE UnitTabButton::InitCommon( void )
+AUI_ERRCODE UnitTabButton::InitCommon( )
 {
 	AUI_ERRCODE errcode;
 	MBCHAR	buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

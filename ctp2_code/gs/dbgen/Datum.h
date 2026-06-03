@@ -92,7 +92,7 @@ public:
 		memset(&val, 0, sizeof(val));
 	}
 
-	virtual ~Datum(void) {};
+	virtual ~Datum() {};
 
 	void SetValue(union dbvalue &v);
 	void SetDBRefValue(struct defaultDBField &d);
@@ -122,9 +122,9 @@ public:
 	void ExportMerge(FILE *outfile, char *recordName);
 
 private:
-    char const *    BitPairTypeString(void);
-    char const *    ReturnTypeString(void);
-    char const *    VarTypeString(void);
+    char const *    BitPairTypeString();
+    char const *    ReturnTypeString();
+    char const *    VarTypeString();
 };
 
 #endif

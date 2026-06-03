@@ -425,15 +425,15 @@ void GotoCityUtilityDialogBoxCallback  (Unit city, sint32 val2);
 void controlpanelwindow_Update(Unit *city = NULL);
 
 sint32  controlpanelwindow_Initialize();
-sint32  controlpanelwindow_InitializeHats(void);
-void    controlpanelwindow_Cleanup(void);
-void    HideControlPanel(void);
+sint32  controlpanelwindow_InitializeHats();
+void    controlpanelwindow_Cleanup();
+void    HideControlPanel();
 
 // App-singleton accessor pair, mirroring world_Get / c3ui_Get /
 // tiledmap_Get.  The legacy g_controlPanel pointer is now file-static
 // in ui/interface/controlpanelwindow.cpp; outside callers must go
 // through these accessors.
-ControlPanelWindow * controlpanel_Get(void);
+ControlPanelWindow * controlpanel_Get();
 void                 controlpanel_Set(ControlPanelWindow *p);
 
 #endif

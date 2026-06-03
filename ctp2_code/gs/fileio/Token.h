@@ -166,8 +166,8 @@ public:
 	void NextNumber();
 	void NextString();
 
-	bool    HandleImport(void);
-	void    CloseImport(void);
+	bool    HandleImport();
+	void    CloseImport();
 
 	sint32 Next();
 	void GetString(char *str);

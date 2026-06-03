@@ -95,15 +95,15 @@ public:
 	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);
 	virtual void	MouseMoveInside(aui_MouseEvent * mouseData);
 
-	AUI_ERRCODE Idle( void );
+	AUI_ERRCODE Idle( );
 
-	sint32		GetSelectedImage( void ) const { return m_selectedImage; }
+	sint32		GetSelectedImage( ) const { return m_selectedImage; }
 	void		SetSelectedImage( sint32 selectedImage ) { m_selectedImage = selectedImage; }
 
-	sint32		GetHilightedImage( void ) const { return m_hilightedImage; }
+	sint32		GetHilightedImage( ) const { return m_hilightedImage; }
 	void		SetHilightedImage( sint32 hilightedImage ) { m_hilightedImage = hilightedImage; }
 
-	aui_Surface *GetThroneSurface( void ) const { return m_throneSurface; }
+	aui_Surface *GetThroneSurface( ) const { return m_throneSurface; }
 
 	sint32		RenderThrone( aui_Surface *surf );
 	sint32		RepaintFrames( aui_Surface *surf );
@@ -117,20 +117,20 @@ public:
 
 	void		DisplayZoomedImage( MBCHAR *filename );
 
-	sint32		GetBlendSpeed( void ) const { return m_blendSpeed; }
+	sint32		GetBlendSpeed( ) const { return m_blendSpeed; }
 	void		SetBlendSpeed( sint32 blendSpeed ) { m_blendSpeed = blendSpeed; }
 
 	void		HilightImage( sint32 index );
 	void		UnhilightImage( sint32 index );
 
-	void		DisplayHilightedText( void );
+	void		DisplayHilightedText( );
 
 	void		SetZoomedMode( BOOL on );
 
 protected:
 	ThroneControl() : aui_Control() {}
 	void InitCommonLdl( MBCHAR *ldlBlock );
-	void InitCommon( void  );
+	void InitCommon(  );
 
 private:
 	aui_Surface	*m_throneSurface;

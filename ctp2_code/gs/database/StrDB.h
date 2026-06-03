@@ -59,7 +59,7 @@ class	StringDB;
 // gs/utility/gameinit.cpp; the consolidating commit makes it file-static
 // and drops this extern once all consumers are routed.
 extern	StringDB *	g_theStringDB;
-StringDB * stringdb_Get(void);
+StringDB * stringdb_Get();
 void       stringdb_Set(StringDB *p);
 
 //----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ private:
 		StringRecord * &		newPtr
 	);
 	void					AssignIndex(StringRecord * & ptr);
-	void					Btree2Array(void);
+	void					Btree2Array();
 	StringRecord * &		GetHead(MBCHAR const * id);
 	StringRecord const * const &
 							GetHead(MBCHAR const * id) const;

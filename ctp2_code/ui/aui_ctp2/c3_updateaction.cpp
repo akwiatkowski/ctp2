@@ -2,7 +2,7 @@
 #include "ui/aui_common/aui_control.h"
 #include "ui/aui_ctp2/c3_updateaction.h"
 
-c3_UpdateAction *c3_UpdateAction::CopyMe(void)
+c3_UpdateAction *c3_UpdateAction::CopyMe()
 {
 	c3_UpdateAction *action = new c3_UpdateAction;
 

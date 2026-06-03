@@ -375,7 +375,7 @@ void Background::ProcessLastMouseMoveThisFrame(aui_MouseEvent *data)
 	}
 }
 
-AUI_ERRCODE Background::Idle(void)
+AUI_ERRCODE Background::Idle()
 {
 	if(tiledmap_Get()) {
 		tiledmap_Get()->Idle();

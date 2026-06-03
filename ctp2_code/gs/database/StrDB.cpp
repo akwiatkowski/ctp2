@@ -354,7 +354,7 @@ bool StringDB::GetStrNode
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void StringDB::Btree2Array(void)
+void StringDB::Btree2Array()
 {
 	m_all.clear();
 

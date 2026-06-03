@@ -78,10 +78,10 @@ public:
 
 // g_theUnitPool is now file-static in gameinit.cpp; external access goes
 // through the accessor pair below.
-UnitPool * unitpool_Get(void);
+UnitPool * unitpool_Get();
 void       unitpool_Set(UnitPool *p);
 
-uint32 UnitPool_UnitPool_GetVersion(void) ;
+uint32 UnitPool_UnitPool_GetVersion() ;
 #else
 
 class UnitPool;

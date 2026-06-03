@@ -93,7 +93,7 @@ c3_PopupWindow::c3_PopupWindow
 	*retval = InitCommon();
 }
 
-AUI_ERRCODE c3_PopupWindow::InitCommon(void)
+AUI_ERRCODE c3_PopupWindow::InitCommon()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -186,7 +186,7 @@ AUI_ERRCODE c3_PopupWindow::Resize( sint32 width, sint32 height )
 }
 
 
-c3_PopupWindow::~c3_PopupWindow( void )
+c3_PopupWindow::~c3_PopupWindow( )
 {
 	for (int i = 0; i < POPUP_BORDER_MAX; ++i)
 	{
@@ -347,7 +347,7 @@ void c3_PopupWindow::kh_Close()
 }
 
 /// Restore data from any previously saved pattern information
-void c3_PopupWindow::PatternInfoRestore(void)
+void c3_PopupWindow::PatternInfoRestore()
 {
 	if (Pattern * background = ThePattern())
 	{
@@ -369,7 +369,7 @@ void c3_PopupWindow::PatternInfoRestore(void)
 }
 
 /// Save pattern information for later restore
-void c3_PopupWindow::PatternInfoSave(void)
+void c3_PopupWindow::PatternInfoSave()
 {
 	if (Pattern * background = ThePattern())
 	{

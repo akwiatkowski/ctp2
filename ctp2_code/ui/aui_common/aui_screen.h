@@ -21,8 +21,8 @@ protected:
 	AUI_ERRCODE InitCommon( uint32 id );
 
 public:
-	virtual AUI_ERRCODE Show( void );
-	virtual AUI_ERRCODE Hide( void );
+	virtual AUI_ERRCODE Show( );
+	virtual AUI_ERRCODE Hide( );
 
 	AUI_ERRCODE	AddWindow( aui_Window *window, BOOL temp = FALSE );
 	AUI_ERRCODE	RemoveWindow( uint32 windowId );

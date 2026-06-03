@@ -14,8 +14,8 @@ public:
 
 protected:
 	PlayerEditWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 	nf_PlayerSetup *m_playersetup;
 
 public:
@@ -25,11 +25,11 @@ public:
 		VIEW
 	};
 	void SetPlayerSetup(nf_PlayerSetup *p);
-	nf_PlayerSetup *GetPlayerSetup( void ) const { return m_playersetup; }
+	nf_PlayerSetup *GetPlayerSetup( ) const { return m_playersetup; }
 	void SetMode(Mode m);
 	Mode GetMode();
 
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 
 

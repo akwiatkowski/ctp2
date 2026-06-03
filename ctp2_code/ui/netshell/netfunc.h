@@ -88,11 +88,11 @@ class Timer {
 	bool	done;
 public:
 
-	Timer(void);
+	Timer();
 
 	void Start(int d);
 
-	bool Finished(void);
+	bool Finished();
 };
 Timer timer;
 Timer timeout;
@@ -110,8 +110,8 @@ protected:
 	KeyStruct curkey;
 public:
 
-	Keys(void);
-	void NextKey(void);
+	Keys();
+	void NextKey();
 };
 
 
@@ -121,7 +121,7 @@ protected:
 	KeyStruct key;
 public:
 
-	Key(void);
+	Key();
 
 	Key(Key *k);
 
@@ -131,9 +131,9 @@ public:
 
 	bool Equals(KeyStruct *k);
 
-	virtual void SetKey(void) {};
+	virtual void SetKey() {};
 
-	KeyStruct *GetKey(void);
+	KeyStruct *GetKey();
 };
 
 
@@ -157,7 +157,7 @@ public:
 		return this->end();
 	}
 
-	void Clr(void)
+	void Clr()
     {
 		for (typename List<T>::iterator i = this->begin(); i != this->end(); ++i)
         {
@@ -212,7 +212,7 @@ public:
 		}
 	}
 
-	virtual ~List(void)
+	virtual ~List()
     {
         this->Clr();
 	}
@@ -228,7 +228,7 @@ public:
         }
 	}
 
-	List(void) {
+	List() {
 	}
 };
 
@@ -295,23 +295,23 @@ public:
 
 	Message(CODE c);
 
-	Message(void);
+	Message();
 
 	Message(void *p, size_t s, dpid_t id, bool b = true);
 
-	virtual ~Message(void);
+	virtual ~Message();
 
-	CODE GetCode(void);
+	CODE GetCode();
 
-	void *GetBody(void);
+	void *GetBody();
 
-	dp_packetType_t *Get(void);
+	dp_packetType_t *Get();
 
-	size_t GetSize(void);
+	size_t GetSize();
 
-	size_t GetBodySize(void);
+	size_t GetBodySize();
 
-	dpid_t GetSender(void);
+	dpid_t GetSender();
 };
 friend class Message;
 
@@ -323,13 +323,13 @@ friend class Message;
 class Messages:public List<Message> {
 public:
 
-	Messages(void);
+	Messages();
 
-	~Messages(void);
+	~Messages();
 
 	void Push(Message *m);
 
-	Message *Pop(void);
+	Message *Pop();
 };
 static Messages messages;
 
@@ -351,11 +351,11 @@ protected:
 	char	*first;
 public:
 
-	char *GetBody(void) {
+	char *GetBody() {
 		return body;
 	}
 
-	size_t GetSize(void) {
+	size_t GetSize() {
 		return size;
 	}
 
@@ -382,9 +382,9 @@ public:
 	virtual ~Packet() {
 	}
 
-	virtual void Pack(void) = 0;
+	virtual void Pack() = 0;
 
-	virtual void Unpack(void) = 0;
+	virtual void Unpack() = 0;
 
 	void Clear() {
 		size = 0;
@@ -456,12 +456,12 @@ class MessageHandler {
 	virtual bool Handle(Message *m) = 0;
 protected:
 
-	MessageHandler(void);
+	MessageHandler();
 
-	virtual ~MessageHandler(void);
+	virtual ~MessageHandler();
 public:
 
-	void Unregister(void);
+	void Unregister();
 
 	static bool HandleAll(Message *m);
 };
@@ -477,11 +477,11 @@ class ListHandler:public MessageHandler, public List<T>, public Key {
 	STATUS status;
 public:
 
-	ListHandler(void) {
+	ListHandler() {
 		SetKey();
 	}
 
-	virtual ~ListHandler(void) {
+	virtual ~ListHandler() {
 	}
 
 	void SetKey();
@@ -534,21 +534,21 @@ class Server:public Key {
 	dp_serverInfo_t server;
 public:
 
-	void SetKey(void) {};
+	void SetKey() {};
 
-	Server(void);
+	Server();
 
 	Server(dp_object_t *o, KeyStruct *k, long f);
 
-	virtual ~Server(void);
+	virtual ~Server();
 
-	char *GetName(void);
+	char *GetName();
 
-	int GetPlayers(void);
+	int GetPlayers();
 
-	int GetPing(void);
+	int GetPing();
 
-	dp_serverInfo_t *GetServer(void);
+	dp_serverInfo_t *GetServer();
 };
 
 
@@ -562,13 +562,13 @@ public:
 
 	Contact(char *n, char *p);
 
-	Contact(void);
+	Contact();
 
-	virtual ~Contact(void);
+	virtual ~Contact();
 
-	char *GetName(void);
+	char *GetName();
 
-	char *GetNumber(void);
+	char *GetNumber();
 
 	void SetName(char *n);
 
@@ -581,9 +581,9 @@ public:
 class ContactList:public List<Contact> {
 public:
 
-	ContactList(void);
+	ContactList();
 
-	~ContactList(void);
+	~ContactList();
 };
 ContactList	contactList;
 
@@ -599,19 +599,19 @@ public:
 
 	Port(commPortName_t *p, int b, char *i);
 
-	Port(void);
+	Port();
 
-	virtual ~Port(void);
+	virtual ~Port();
 
-	commPortName_t *GetPort(void);
+	commPortName_t *GetPort();
 
-	int GetNumber(void);
+	int GetNumber();
 
-	char *GetName(void);
+	char *GetName();
 
-	int GetBaud(void);
+	int GetBaud();
 
-	char *GetInit(void);
+	char *GetInit();
 };
 
 class Transport;
@@ -622,9 +622,9 @@ public:
 
 	PortList(Transport *t);
 
-	PortList(void);
+	PortList();
 
-	~PortList(void);
+	~PortList();
 };
 
 PortList portList;
@@ -657,21 +657,21 @@ public:
 
 	Transport(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	Transport(void);
+	Transport();
 
-	virtual ~Transport(void);
+	virtual ~Transport();
 
-	dp_transport_t *GetTransport(void);
+	dp_transport_t *GetTransport();
 
-	commInitReq_t *GetParams(void);
+	commInitReq_t *GetParams();
 
-	virtual STATUS GetStatus(void);
+	virtual STATUS GetStatus();
 
-	virtual TYPE GetType(void);
+	virtual TYPE GetType();
 
-	char *GetName(void);
+	char *GetName();
 
-	char *GetFileName(void);
+	char *GetFileName();
 
 	virtual STATUS SetPort(long p);
 
@@ -694,15 +694,15 @@ public:
 
 	TransportSetup(Transport *t);
 
-	~TransportSetup(void);
+	~TransportSetup();
 
-	Transport::TYPE GetType(void);
+	Transport::TYPE GetType();
 
-	STATUS GetStatus(void);
+	STATUS GetStatus();
 
-	dp_transport_t		*GetTransport(void);
+	dp_transport_t		*GetTransport();
 
-	commInitReq_t		*GetParams(void);
+	commInitReq_t		*GetParams();
 };
 static TransportSetup *transport;
 friend class TransportSetup;
@@ -716,11 +716,11 @@ public:
 
 	Internet(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~Internet(void);
+	~Internet();
 
 	STATUS SetPort(long p);
 
-	TYPE GetType(void);
+	TYPE GetType();
 };
 friend class Internet;
 
@@ -730,9 +730,9 @@ public:
 
 	IPX(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~IPX(void);
+	~IPX();
 
-	TYPE GetType(void);
+	TYPE GetType();
 };
 friend class IPX;
 
@@ -742,13 +742,13 @@ public:
 
 	Modem(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~Modem(void);
+	~Modem();
 
 	STATUS SetContact(Contact *c);
 
 	STATUS SetPort(Port *p);
 
-	TYPE GetType(void);
+	TYPE GetType();
 };
 friend class Modem;
 
@@ -758,11 +758,11 @@ public:
 
 	NullModem(const comm_driverInfo_t *d, const dp_transport_t *t, KeyStruct *k);
 
-	~NullModem(void);
+	~NullModem();
 
 	STATUS SetPort(Port *p);
 
-	TYPE GetType(void);
+	TYPE GetType();
 };
 friend class NullModem;
 
@@ -774,9 +774,9 @@ class TransportList:public List<Transport> {
     CallBack(const dp_transport_t *t, const comm_driverInfo_t *d, void *context);
 public:
 
-	TransportList(void);
+	TransportList();
 
-	~TransportList(void);
+	~TransportList();
 };
 TransportList transportList;
 friend class TransportList;
@@ -797,23 +797,23 @@ protected:
 	unsigned char group;
 public:
 
-	AIPlayer(void);
+	AIPlayer();
 
-	~AIPlayer(void);
+	~AIPlayer();
 
-	char *GetName(void);
+	char *GetName();
 
 	void SetName(char *name);
 
-	unsigned char GetGroup(void);
+	unsigned char GetGroup();
 
 	void SetGroup(unsigned char group);
 
 	void SetKey(KeyStruct *k);
 
-	void Pack(void);
+	void Pack();
 
-	void Unpack(void);
+	void Unpack();
 
 	STATUS Save(FILE *f);
 
@@ -857,41 +857,41 @@ protected:
 	void SetGroupMaster(bool b);
 public:
 
-	void SetKey(void);
+	void SetKey();
 
-	Player(void);
+	Player();
 
 	Player(dp_object_t *o, KeyStruct *k, long f, short l = 0);
 
 	void Set(dp_playerId_t *p);
 
-	virtual ~Player(void);
+	virtual ~Player();
 
-	dpid_t GetId(void);
+	dpid_t GetId();
 
-	char *GetName(void);
+	char *GetName();
 
-	unsigned char *GetBlob(void);
+	unsigned char *GetBlob();
 
-	unsigned char GetBlobLen(void);
+	unsigned char GetBlobLen();
 
-	unsigned char GetGroup(void);
+	unsigned char GetGroup();
 
-	short GetLatency(void);
+	short GetLatency();
 
-	bool IsMe(void);
+	bool IsMe();
 
-	bool IsMuted(void);
+	bool IsMuted();
 
 	void SetMuted(bool m);
 
-	bool IsInCurrentSession(void);
+	bool IsInCurrentSession();
 
-	bool IsHost(void);
+	bool IsHost();
 
-	bool IsGroupMaster(void);
+	bool IsGroupMaster();
 
-	bool IsReadyToLaunch(void);
+	bool IsReadyToLaunch();
 };
 friend class Player;
 static Player player;
@@ -907,9 +907,9 @@ public:
 
 	Player *FindGroupMaster(char g);
 
-	char FindSmallestGroup(void);
+	char FindSmallestGroup();
 
-	bool ReadyToLaunch(void);
+	bool ReadyToLaunch();
 
 	bool Handle(Message *m);
 };
@@ -926,33 +926,33 @@ protected:
 	bool hasleft;
 public:
 
-	void Pack(void);
+	void Pack();
 
-	void Unpack(void);
+	void Unpack();
 
-	PlayerStat(void);
+	PlayerStat();
 
-	~PlayerStat(void);
+	~PlayerStat();
 
 	void SetName(char *n);
 
-	char *GetName(void);
+	char *GetName();
 
 	void SetGroup(unsigned char group);
 
-	unsigned char GetGroup(void);
+	unsigned char GetGroup();
 
 	void SetId(dpid_t id);
 
-	dpid_t GetId(void);
+	dpid_t GetId();
 
 	void SetInGame(bool b);
 
-	bool IsInGame(void);
+	bool IsInGame();
 
 	void SetLeft(bool b);
 
-	bool HasLeft(void);
+	bool HasLeft();
 
 	STATUS Update(dp_t *p, bool r = false);
 };
@@ -994,12 +994,12 @@ private:
 	char description[nf_PLAYERDESCLEN];
 protected:
 
-	void Pack(void);
+	void Pack();
 
-	void Unpack(void);
+	void Unpack();
 public:
 
-	PlayerSetup(void);
+	PlayerSetup();
 
 	PlayerSetup(Player *p);
 
@@ -1013,7 +1013,7 @@ public:
 
 	void SetBlobLen(unsigned char l);
 
-	char *GetDescription(void);
+	char *GetDescription();
 
 	void SetDescription(char *d);
 
@@ -1023,7 +1023,7 @@ public:
 
 	STATUS Load(FILE *f);
 
-	STATUS Update(void);
+	STATUS Update();
 
 
 	void SetReadyToLaunch(bool b);
@@ -1053,19 +1053,19 @@ protected:
 	long flags;
 public:
 
-	void SetKey(void);
+	void SetKey();
 
-	Session(void);
+	Session();
 
 	Session(dp_object_t *o, KeyStruct *k, long f);
 
-	char *GetName(void);
+	char *GetName();
 
-	char *GetPassword(void);
+	char *GetPassword();
 
-	short GetPlayers(void);
+	short GetPlayers();
 
-	short GetMaxPlayers(void);
+	short GetMaxPlayers();
 
 	short GetFree();
 
@@ -1079,9 +1079,9 @@ public:
 
 	bool IsClosed();
 
-	bool IsMine(void);
+	bool IsMine();
 
-	bool IsCurrentSession(void);
+	bool IsCurrentSession();
 };
 static Session session;
 friend class Session;
@@ -1095,7 +1095,7 @@ protected:
 	bool hostile;
 public:
 
-	Game(void);
+	Game();
 
 	Game(dp_object_t *o, KeyStruct *k, long f);
 
@@ -1105,11 +1105,11 @@ public:
 
 	void Set(dp_session_t *s);
 
-	bool IsLaunched(void);
+	bool IsLaunched();
 
-	bool IsSyncLaunch(void);
+	bool IsSyncLaunch();
 
-	bool IsHostile(void);
+	bool IsHostile();
 
 	void SetHostile(bool h);
 };
@@ -1121,13 +1121,13 @@ friend class NETFunc;
 bool bad;
 public:
 
-	Lobby(void);
+	Lobby();
 
 	Lobby(dp_object_t *o, KeyStruct *k, long f);
 
 	void SetBad(bool b = true);
 
-	bool IsBad(void);
+	bool IsBad();
 };
 static Lobby lobby;
 friend class Lobby;
@@ -1141,12 +1141,12 @@ class PlayerList {
 		void Insert(Player *) {};
 		void Delete(Player *) {};
 		void Change(Player *) {};
-		void Destroy(void) {};
+		void Destroy() {};
 	};
 	static Players *players;
 	static int count;
 
-	PlayerList(void);
+	PlayerList();
 
 	~PlayerList();
 
@@ -1173,18 +1173,18 @@ protected:
 
 	STATUS Send(dp_t *p, dpid_t id, dpid_t from = dp_ID_BROADCAST);
 
-	void Pack(void);
+	void Pack();
 
-	void Unpack(void);
+	void Unpack();
 public:
 
-	GameSetup(void);
+	GameSetup();
 
 	GameSetup(Game *g);
 
 	~GameSetup();
 
-	char *GetDescription(void);
+	char *GetDescription();
 
 	void SetDescription(char *d);
 
@@ -1243,13 +1243,13 @@ public:
 	bool Handle(Message *m);
 };
 
-	NETFunc(void);
+	NETFunc();
 
-	~NETFunc(void);
+	~NETFunc();
 
-	STATUS Quit(void);
+	STATUS Quit();
 
-	static STATUS GetStatus(void);
+	static STATUS GetStatus();
 
 
 
@@ -1295,17 +1295,17 @@ public:
 
 
 
-	STATUS Launch(void);
+	STATUS Launch();
 
-	static STATUS UnLaunchAll(void);
+	static STATUS UnLaunchAll();
 
 	STATUS Login(char *username, char *password);
 
 	STATUS SetTransport(Transport *t);
 
-	bool NeedUpdate(void);
+	bool NeedUpdate();
 
-	STATUS DoUpdate(void);
+	STATUS DoUpdate();
 
 	STATUS SetServer(Server *s);
 
@@ -1321,17 +1321,17 @@ public:
 
 	void Mute(Key *p, bool m);
 
-	bool Connected(void);
+	bool Connected();
 
-	void CancelDial(void);
+	void CancelDial();
 
-	STATUS Connect(void);
+	STATUS Connect();
 
 	STATUS Connect(dp_t *d, PlayerStats *stats = NULL, bool host = false);
 
-	void ReConnect(void);
+	void ReConnect();
 
-	STATUS Reset(void);
+	STATUS Reset();
 
 	STATUS Connect(char *file);
 
@@ -1347,17 +1347,17 @@ public:
 
 	static STATUS Kick(Player *p);
 
-	static void Receive(void);
+	static void Receive();
 
-	Message *GetMessage(void);
+	Message *GetMessage();
 
-	dp_t *GetDP(void);
+	dp_t *GetDP();
 
-	Session *GetSession(void);
+	Session *GetSession();
 
-	Player *GetPlayer(void);
+	Player *GetPlayer();
 
-	TransportSetup *GetTransport(void);
+	TransportSetup *GetTransport();
 
 	void PushChatMessage(char *m);
 
@@ -1443,9 +1443,9 @@ private:
 
 bool Handle(Message *m);
 
-void Execute(void);
+void Execute();
 
-STATUS Close(void);
+STATUS Close();
 
 static NETFUNC_CALLBACK_RESULT(int)
 SessionCallBack(dp_session_t *s, long *pTimeout, long flags, void *context);
@@ -1459,9 +1459,9 @@ PlayerCallBack(dpid_t id, dp_char_t *n, long flags, void *context);
 class Lobbies:public List<Lobby> {
 public:
 
-	Lobby *FindBest(void);
+	Lobby *FindBest();
 
-	void Reset(void);
+	void Reset();
 };
 Lobbies lobbies;
 friend class Lobbies;

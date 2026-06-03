@@ -12,7 +12,7 @@ ldl::ldl(const char *fname, const char *outputDir, BOOL bUseInternalMemmap )
 	ReadData( fname );
 }
 
-ldl::~ldl( void )
+ldl::~ldl( )
 {
 	ldlif_deallocate_stuff();
 }

@@ -85,7 +85,7 @@ sint32 loadsavemapscreen_displayMyWindow(uint32 type);
 sint32 loadsavemapscreen_removeMyWindow(uint32 action);
 AUI_ERRCODE loadsavemapscreen_Initialize(
 	aui_Control::ControlActionCallback *callback = NULL );
-void loadsavemapscreen_Cleanup(void);
+void loadsavemapscreen_Cleanup();
 
 void loadsavemapscreen_executePress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 void loadsavemapscreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -113,15 +113,15 @@ public:
 
 	virtual ~LoadSaveMapWindow();
 
-	void FillListOne(void);
+	void FillListOne();
 	void FillListTwo(GameMapInfo *info);
 
 	void GetRadarMap(SaveMapInfo *info);
 
 	void SetRadarMap(SaveMapInfo *info);
 
-	void SelectCurrentGameMap(void);
-	void SelectCurrentSaveMap(void);
+	void SelectCurrentGameMap();
+	void SelectCurrentSaveMap();
 
 	void SetType(uint32 type);
 	uint32 GetType() { return m_type; }
@@ -136,24 +136,24 @@ public:
 
 	void EnableFields( BOOL enable );
 
-	GameMapInfo *GetGameMapInfo(void) const { return m_gameMapInfo; }
-	SaveMapInfo *GetSaveMapInfo(void) const { return m_saveMapInfo; }
+	GameMapInfo *GetGameMapInfo() const { return m_gameMapInfo; }
+	SaveMapInfo *GetSaveMapInfo() const { return m_saveMapInfo; }
 	void SetGameMapInfo(GameMapInfo *info);
 	void SetSaveMapInfo(SaveMapInfo *info);
 
-	void CleanUpSaveMapInfo( void );
-	SaveMapInfo *GetSaveMapInfoToSave( void ) const { return m_saveMapInfoToSave; }
+	void CleanUpSaveMapInfo( );
+	SaveMapInfo *GetSaveMapInfoToSave( ) const { return m_saveMapInfoToSave; }
 
 	void BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *name);
 
 	C3TextField* GetTextField() { return m_gameMapTextBox; }
 
-	c3_Button *GetDeleteButton( void ) { return m_deleteButton; }
-	ctp2_Button *GetOkButton( void ) { return Ok(); }
-	c3_Static *GetMapStatic( void ) { return m_mapTabImage; }
+	c3_Button *GetDeleteButton( ) { return m_deleteButton; }
+	ctp2_Button *GetOkButton( ) { return Ok(); }
+	c3_Static *GetMapStatic( ) { return m_mapTabImage; }
 
-	c3_ListBox *GetListOne( void ) const { return m_listOne; }
-	c3_ListBox *GetListTwo( void ) const { return m_listTwo; }
+	c3_ListBox *GetListOne( ) const { return m_listOne; }
+	c3_ListBox *GetListTwo( ) const { return m_listTwo; }
 
 private:
 
@@ -205,7 +205,7 @@ public:
 
 	sint32 Compare(c3_ListItem *item2, uint32 column);
 
-	GameMapInfo	*GetGameMapInfo(void) const { return m_info; }
+	GameMapInfo	*GetGameMapInfo() const { return m_info; }
 
 private:
 	c3_Static	*m_itemIcon;
@@ -222,7 +222,7 @@ public:
 
 	sint32 Compare(c3_ListItem *item2, uint32 column);
 
-	SaveMapInfo	*GetSaveMapInfo(void) const { return m_info; }
+	SaveMapInfo	*GetSaveMapInfo() const { return m_info; }
 
 private:
 	c3_Static	*m_itemIcon;

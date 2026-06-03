@@ -148,7 +148,7 @@ void Pollution::WarnPlayers()
 	}
 }
 
-sint32 Pollution::AtTriggerLevel(void)
+sint32 Pollution::AtTriggerLevel()
 {
 	if(!gamesettings_Get()->GetPollution())
 		return FALSE;
@@ -269,7 +269,7 @@ void Pollution::SetGlobalPollutionLevel(sint32 requiredPollution)
 	SetHistory(requiredPollution);
 }
 
-void Pollution::BeginTurn(void)
+void Pollution::BeginTurn()
 {
 	if(!gamesettings_Get()->GetPollution())
 		return;
@@ -310,7 +310,7 @@ void Pollution::BeginTurn(void)
 	}
 }
 
-void Pollution::GotoNextLevel(void)
+void Pollution::GotoNextLevel()
 {
 	if(m_phase < (g_thePollutionDB->Get(profiledb_Get()->GetMapSize())->GetNumPhase() - 1))
 		m_phase++;
@@ -385,7 +385,7 @@ sint32 Pollution::CalcTrend(sint32 level[], sint32 numPoints, double &offset, do
 	return (k_TREND_LEVEL);
 }
 
-sint32 Pollution::GetTrend(void) const
+sint32 Pollution::GetTrend() const
 {
 	return (m_trend);
 }
@@ -409,7 +409,7 @@ sint32 Pollution::GetTrend(void) const
 //              m_history[1]    : pollution level previous turn
 //
 //----------------------------------------------------------------------------
-sint32 Pollution::GetRoundsToNextDisaster(void)
+sint32 Pollution::GetRoundsToNextDisaster()
 {
 	// Check if there has been any pollution at all in this turn.
 	if((m_history[0] <= 0) || (m_history[0] <= m_history[1]))

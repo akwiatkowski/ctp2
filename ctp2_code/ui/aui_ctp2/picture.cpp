@@ -19,7 +19,7 @@ Picture::Picture(
 	MakeMipmap();
 }
 
-AUI_ERRCODE Picture::MakeMipmap( void )
+AUI_ERRCODE Picture::MakeMipmap( )
 {
 	Assert(m_surface);
 	if (m_surface == NULL) return AUI_ERRCODE_INVALIDPARAM;

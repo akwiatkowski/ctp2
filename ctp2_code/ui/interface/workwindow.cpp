@@ -46,7 +46,7 @@ WorkWindow::WorkWindow(
 }
 
 
-AUI_ERRCODE WorkWindow::InitCommon(void)
+AUI_ERRCODE WorkWindow::InitCommon()
 {
 	return C3Window::InitCommon();
 }

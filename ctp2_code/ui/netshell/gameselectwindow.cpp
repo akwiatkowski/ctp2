@@ -74,7 +74,7 @@
 static GameSelectWindow * g_gameSelectWindow = NULL;
 static StartSelectingWindow *g_startSelectingWindow = NULL;
 
-GameSelectWindow * gameselectwindow_Get(void)
+GameSelectWindow * gameselectwindow_Get()
 {
     return g_gameSelectWindow;
 }
@@ -101,7 +101,7 @@ GameSelectWindow::GameSelectWindow(
 }
 
 
-AUI_ERRCODE GameSelectWindow::InitCommon( void )
+AUI_ERRCODE GameSelectWindow::InitCommon( )
 {
 	g_gameSelectWindow = this;
 
@@ -114,7 +114,7 @@ AUI_ERRCODE GameSelectWindow::InitCommon( void )
 }
 
 
-AUI_ERRCODE GameSelectWindow::CreateControls( void )
+AUI_ERRCODE GameSelectWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -254,7 +254,7 @@ nf_GameSetup *GameSelectWindow::GetGameSetup(NETFunc::Session *session) {
 	return s;
 }
 
-void GameSelectWindow::Update(void)
+void GameSelectWindow::Update()
 {
 	ns_GameSetupListBox *listbox = (ns_GameSetupListBox *)
 		(FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX ));
@@ -273,7 +273,7 @@ void GameSelectWindow::Update(void)
 	}
 }
 
-AUI_ERRCODE GameSelectWindow::Idle( void )
+AUI_ERRCODE GameSelectWindow::Idle( )
 {
 	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {
@@ -537,7 +537,7 @@ StartSelectingWindow::StartSelectingWindow(
 }
 
 
-AUI_ERRCODE StartSelectingWindow::InitCommon( void )
+AUI_ERRCODE StartSelectingWindow::InitCommon( )
 {
 	g_startSelectingWindow = this;
 
@@ -552,7 +552,7 @@ AUI_ERRCODE StartSelectingWindow::InitCommon( void )
 }
 
 
-AUI_ERRCODE StartSelectingWindow::CreateControls( void )
+AUI_ERRCODE StartSelectingWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -680,7 +680,7 @@ StartSelectingWindow::~StartSelectingWindow()
 }
 
 
-AUI_ERRCODE StartSelectingWindow::Idle( void )
+AUI_ERRCODE StartSelectingWindow::Idle( )
 {
 	while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {

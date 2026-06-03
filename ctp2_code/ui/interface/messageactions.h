@@ -21,7 +21,7 @@ public:
     :   aui_Action      (),
         m_iconWindow    (iconWindow)
     { ; };
-	virtual ~MessageOpenAction(void) { ; };
+	virtual ~MessageOpenAction() { ; };
 
 	virtual void	Execute
 	(
@@ -85,7 +85,7 @@ public:
         m_window    (window),
         m_modal     (modal)
     { ; };
-	virtual ~MessageStandardEyePointAction(void) { ; };
+	virtual ~MessageStandardEyePointAction() { ; };
 
 	virtual void	Execute
 	(
@@ -111,7 +111,7 @@ public:
     :   MessageStandardEyePointAction   (window, modal),
         m_dropdown                      (dropdown)
     { ; };
-    virtual ~MessageDropdownEyePointAction(void) { ; };
+    virtual ~MessageDropdownEyePointAction() { ; };
 
 	void SetDropdown(c3_DropDown * dropdown) { m_dropdown = dropdown; };
 
@@ -140,7 +140,7 @@ public:
         m_dropdown  (dropdown),
         m_modal     (modal)
     { ; };
-	virtual ~MessageDropdownAction(void) { ; };
+	virtual ~MessageDropdownAction() { ; };
 
 	virtual void	Execute
 	(
@@ -174,7 +174,7 @@ public:
         m_max                           (max),
         m_action                        (NULL)
     { ; }
-	virtual ~MessageListboxEyePointAction(void) { ; };
+	virtual ~MessageListboxEyePointAction() { ; };
 
 	void SetIndex(sint32 index) { m_index = index; };
 	void SetAction(MessageListboxEyePointAction * action ) { m_action = action; }
@@ -202,7 +202,7 @@ public:
         m_window    (window),
         m_response  (response)
     { ; };
-	virtual ~MessageResponseAction(void) { ; };
+	virtual ~MessageResponseAction() { ; };
 
 	virtual void	Execute
 	(
@@ -222,7 +222,7 @@ public:
 	MessageResponseUIAction(MessageWindow * window, sint32 response)
     : MessageResponseAction (window, response)
     { ; };
-	virtual ~MessageResponseUIAction(void) { ; };
+	virtual ~MessageResponseUIAction() { ; };
 
 	virtual void	Execute
 	(
@@ -240,7 +240,7 @@ public:
         m_message   (message),
         m_response  (response)
     { ; };
-	virtual ~MessageModalResponseAction(void) { ; };
+	virtual ~MessageModalResponseAction() { ; };
 
 	virtual void	Execute
 	(
@@ -262,7 +262,7 @@ public:
     :   aui_Action  (),
         m_window    (window)
     { ; };
-	virtual ~MessageResponseSubmitAction(void) { ; };
+	virtual ~MessageResponseSubmitAction() { ; };
 
 	void SetDropdown(c3_DropDown * dropdown) { m_dropdown = dropdown; };
 
@@ -299,7 +299,7 @@ public:
         m_iconWindow    (window ? window->GetIconWindow() : NULL),
         m_index         (index)
     { ; };
-	virtual ~MessageCleanupAction(void) { ; };
+	virtual ~MessageCleanupAction() { ; };
 
 	virtual void	Execute
 	(
@@ -327,7 +327,7 @@ public:
         m_messagelist   (list),
         m_offsetflag    (flag)
     { ; };
-	virtual ~ChangeOffsetMessageIconButtonAction(void) { ; };
+	virtual ~ChangeOffsetMessageIconButtonAction() { ; };
 
 	virtual void	Execute
 	(
@@ -351,7 +351,7 @@ public:
 	:   aui_Action  (),
         m_more      (more)
     { ; };
-	virtual ~ChangeOffsetDestroyButtonAction(void) { ; };
+	virtual ~ChangeOffsetDestroyButtonAction() { ; };
 
 	virtual void	Execute
 	(

@@ -90,7 +90,7 @@ struct aui_MouseEvent
 // HACK: Halt mouse event handling thread on game exit.  Backing storage
 // is `static BOOL g_mouseShouldTerminateThread` in aui_mouse.cpp.
 // civ3_main.cpp's shutdown path is the only cross-TU writer.
-void aui_mouse_RequestTerminate(void);
+void aui_mouse_RequestTerminate();
 #endif
 
 class aui_Mouse : public aui_Base, public virtual aui_Input
@@ -105,23 +105,23 @@ public:
 protected:
 	aui_Mouse() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 	sint32 FindNumCursorsFromLdl( ldl_datablock *block );
 
 public:
 
-	AUI_ERRCODE Start( void );
-	AUI_ERRCODE End( void );
+	AUI_ERRCODE Start( );
+	AUI_ERRCODE End( );
 	AUI_ERRCODE Suspend( BOOL eraseCursor );
-	AUI_ERRCODE Resume( void );
+	AUI_ERRCODE Resume( );
 
-	AUI_ERRCODE Show( void )
+	AUI_ERRCODE Show( )
 	{
 		m_showCount++;
 		return AUI_ERRCODE_OK;
 	}
-	AUI_ERRCODE Hide( void )
+	AUI_ERRCODE Hide( )
 	{
 		if ( !m_showCount )
 		{
@@ -133,16 +133,16 @@ public:
 		return AUI_ERRCODE_OK;
 	}
 
-	BOOL IsSuspended( void ) const { return m_suspendCount; }
-	BOOL IsHidden( void ) const { return m_showCount < 0; }
+	BOOL IsSuspended( ) const { return m_suspendCount; }
+	BOOL IsHidden( ) const { return m_showCount < 0; }
 
-	sint32	X( void ) { return m_data.position.x; }
-	sint32	Y( void ) { return m_data.position.y; }
+	sint32	X( ) { return m_data.position.x; }
+	sint32	Y( ) { return m_data.position.y; }
 
 	void SetClip( sint32 left, sint32 top, sint32 right, sint32 bottom );
 	void SetClip( RECT *clip );
 
-	aui_MouseEvent *GetLatestMouseEvent( void ) { return &m_data; }
+	aui_MouseEvent *GetLatestMouseEvent( ) { return &m_data; }
 
 	AUI_ERRCODE SetPosition( sint32 x, sint32 y );
 	AUI_ERRCODE SetPosition( POINT *point );
@@ -150,16 +150,16 @@ public:
 	AUI_ERRCODE	GetHotspot( sint32 *x, sint32 *y, sint32 index = 0 );
 	AUI_ERRCODE	SetHotspot( sint32 x, sint32 y, sint32 index = 0 );
 
-	double		&Sensitivity( void ) { return m_sensitivity; }
+	double		&Sensitivity( ) { return m_sensitivity; }
 
 	aui_Cursor *GetCursor( sint32 index ) const { return m_cursors[ index ]; }
 	void SetCursor( sint32 index, MBCHAR *cursor );
 
-	aui_Cursor *GetCurrentCursor( void ) const { return *m_curCursor; }
-	sint32		GetCurrentCursorIndex(void) ;
+	aui_Cursor *GetCurrentCursor( ) const { return *m_curCursor; }
+	sint32		GetCurrentCursorIndex() ;
 	void		SetCurrentCursor( sint32 index );
 
-	uint32 GetAnimDelay( void ) const { return m_animDelay; }
+	uint32 GetAnimDelay( ) const { return m_animDelay; }
 	void SetAnimDelay( uint32 animDelay );
 
 	void GetAnimIndexes( sint32 *firstIndex, sint32 *lastIndex )
@@ -171,16 +171,16 @@ public:
 
 	void SetAnim( sint32 anim );
 
-	virtual AUI_ERRCODE ReactToInput( void );
+	virtual AUI_ERRCODE ReactToInput( );
 
-	BOOL	ShouldTerminateThread( void );
+	BOOL	ShouldTerminateThread( );
 
 	sint32	ManipulateInputs( aui_MouseEvent *data, BOOL add );
 
-	AUI_ERRCODE HandleAnim( void );
+	AUI_ERRCODE HandleAnim( );
 
 	AUI_ERRCODE	BltWindowToPrimary( aui_Window *window );
-	AUI_ERRCODE BltDirtyRectInfoToPrimary( void );
+	AUI_ERRCODE BltDirtyRectInfoToPrimary( );
 	AUI_ERRCODE	BltBackgroundColorToPrimary(
 		COLORREF color,
 		aui_DirtyList *colorAreas );
@@ -190,15 +190,15 @@ public:
 		aui_DirtyList *imageAreas );
 
 #ifdef __AUI_USE_SDL__
-	SDL_mutex *LPCS(void) const { return m_lpcs; }
+	SDL_mutex *LPCS() const { return m_lpcs; }
 #else
 	LPCRITICAL_SECTION LPCS( void ) const { return m_lpcs; }
 #endif
 
-	AUI_ERRCODE CreatePrivateBuffers( void );
-	void DestroyPrivateBuffers( void );
+	AUI_ERRCODE CreatePrivateBuffers( );
+	void DestroyPrivateBuffers( );
 
-	uint32 GetFlags(void) { return m_flags;}
+	uint32 GetFlags() { return m_flags;}
 	void SetFlags(uint32 flags) { m_flags = flags; }
 
 protected:
@@ -209,7 +209,7 @@ protected:
 	static LPCRITICAL_SECTION m_lpcs;
 #endif
 
-	virtual AUI_ERRCODE Erase( void );
+	virtual AUI_ERRCODE Erase( );
 
 	aui_MouseEvent	m_data;
 	double			m_sensitivity;

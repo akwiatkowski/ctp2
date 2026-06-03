@@ -405,7 +405,7 @@ sint32 c3_UtilityCityListPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_UtilityCityListPopup::~c3_UtilityCityListPopup( void )
+c3_UtilityCityListPopup::~c3_UtilityCityListPopup( )
 {
     if (m_list)
     {
@@ -418,7 +418,7 @@ c3_UtilityCityListPopup::~c3_UtilityCityListPopup( void )
     delete m_window;
 }
 
-void c3_UtilityCityListPopup::Cleanup(void)
+void c3_UtilityCityListPopup::Cleanup()
 {
     if (m_list)
     {
@@ -432,7 +432,7 @@ void c3_UtilityCityListPopup::Cleanup(void)
 	m_callback = NULL;
 }
 
-void c3_UtilityCityListPopup::DisplayWindow( void )
+void c3_UtilityCityListPopup::DisplayWindow( )
 {
 	UpdateData();
 
@@ -440,13 +440,13 @@ void c3_UtilityCityListPopup::DisplayWindow( void )
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-void c3_UtilityCityListPopup::RemoveWindow( void )
+void c3_UtilityCityListPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-sint32 c3_UtilityCityListPopup::UpdateData( void )
+sint32 c3_UtilityCityListPopup::UpdateData( )
 {
 	MBCHAR strbuf[256];
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -530,7 +530,7 @@ sint32 c3_PiracyPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_PiracyPopup::~c3_PiracyPopup( void )
+c3_PiracyPopup::~c3_PiracyPopup( )
 {
     if (m_list)
     {
@@ -543,7 +543,7 @@ c3_PiracyPopup::~c3_PiracyPopup( void )
     delete m_window;
 }
 
-void c3_PiracyPopup::Cleanup( void )
+void c3_PiracyPopup::Cleanup( )
 {
     if (m_list)
     {
@@ -557,7 +557,7 @@ void c3_PiracyPopup::Cleanup( void )
 	m_callback = NULL;
 }
 
-void c3_PiracyPopup::DisplayWindow( void )
+void c3_PiracyPopup::DisplayWindow( )
 {
 	UpdateData();
 
@@ -565,13 +565,13 @@ void c3_PiracyPopup::DisplayWindow( void )
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-void c3_PiracyPopup::RemoveWindow( void )
+void c3_PiracyPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-sint32 c3_PiracyPopup::UpdateData( void )
+sint32 c3_PiracyPopup::UpdateData( )
 {
 	MBCHAR strbuf[256];
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -656,7 +656,7 @@ sint32 c3_ExpelPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_ExpelPopup::~c3_ExpelPopup( void )
+c3_ExpelPopup::~c3_ExpelPopup( )
 {
     delete m_title_label;
     delete m_attack;
@@ -665,7 +665,7 @@ c3_ExpelPopup::~c3_ExpelPopup( void )
     delete m_window;
 }
 
-void c3_ExpelPopup::Cleanup(void)
+void c3_ExpelPopup::Cleanup()
 {
     allocated::clear(m_title_label);
     allocated::clear(m_attack);
@@ -675,13 +675,13 @@ void c3_ExpelPopup::Cleanup(void)
 	m_callback = NULL;
 }
 
-void c3_ExpelPopup::DisplayWindow( void )
+void c3_ExpelPopup::DisplayWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->AddWindow(m_window);
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-void c3_ExpelPopup::RemoveWindow( void )
+void c3_ExpelPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -790,7 +790,7 @@ sint32 c3_UtilityTextFieldPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_UtilityTextFieldPopup::~c3_UtilityTextFieldPopup( void )
+c3_UtilityTextFieldPopup::~c3_UtilityTextFieldPopup( )
 {
     delete m_ok;
     delete m_cancel;
@@ -799,7 +799,7 @@ c3_UtilityTextFieldPopup::~c3_UtilityTextFieldPopup( void )
     delete m_window;
 }
 
-void c3_UtilityTextFieldPopup::Cleanup(void)
+void c3_UtilityTextFieldPopup::Cleanup()
 {
     allocated::clear(m_ok);
     allocated::clear(m_cancel);
@@ -808,7 +808,7 @@ void c3_UtilityTextFieldPopup::Cleanup(void)
     allocated::clear(m_window);
 }
 
-void c3_UtilityTextFieldPopup::DisplayWindow( void )
+void c3_UtilityTextFieldPopup::DisplayWindow( )
 {
 	UpdateData();
 
@@ -817,14 +817,14 @@ void c3_UtilityTextFieldPopup::DisplayWindow( void )
 	keypress_RegisterHandler(m_window);
 }
 
-void c3_UtilityTextFieldPopup::RemoveWindow( void )
+void c3_UtilityTextFieldPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
 	keypress_RemoveHandler(m_window);
 }
 
-sint32 c3_UtilityTextFieldPopup::UpdateData( void )
+sint32 c3_UtilityTextFieldPopup::UpdateData( )
 {
 
 	if (!m_default_text.empty())
@@ -938,7 +938,7 @@ sint32 c3_UtilityTextMessagePopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_UtilityTextMessagePopup::~c3_UtilityTextMessagePopup( void )
+c3_UtilityTextMessagePopup::~c3_UtilityTextMessagePopup( )
 {
     delete m_ok;
     delete m_cancel;
@@ -947,7 +947,7 @@ c3_UtilityTextMessagePopup::~c3_UtilityTextMessagePopup( void )
     delete m_window;
 }
 
-void c3_UtilityTextMessagePopup::Cleanup( void )
+void c3_UtilityTextMessagePopup::Cleanup( )
 {
     allocated::clear(m_ok);
     allocated::clear(m_cancel);
@@ -967,7 +967,7 @@ void c3_UtilityTextMessagePopup::DisplayWindow( MBCHAR const *text )
 	keypress_RegisterHandler(m_window);
 }
 
-void c3_UtilityTextMessagePopup::RemoveWindow( void )
+void c3_UtilityTextMessagePopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -1042,7 +1042,7 @@ void c3_TextMessage(MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallba
 	g_utilityTextMessage->DisplayWindow(text);
 }
 
-void c3_KillTextMessage( void )
+void c3_KillTextMessage( )
 {
 	if (g_utilityTextMessage)
     {
@@ -1077,7 +1077,7 @@ void c3_AbortUpdateData( MBCHAR *text, sint32 percentFilled )
 	}
 }
 
-void c3_RemoveAbortMessage( void )
+void c3_RemoveAbortMessage( )
 {
 	if ( g_utilityAbort ) {
 		g_utilityAbort->RemoveWindow();
@@ -1147,7 +1147,7 @@ sint32 c3_UtilityAbortPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_UtilityAbortPopup::~c3_UtilityAbortPopup( void )
+c3_UtilityAbortPopup::~c3_UtilityAbortPopup( )
 {
     delete m_abort;
     delete m_meter;
@@ -1155,7 +1155,7 @@ c3_UtilityAbortPopup::~c3_UtilityAbortPopup( void )
     delete m_window;
 }
 
-void c3_UtilityAbortPopup::Cleanup(void)
+void c3_UtilityAbortPopup::Cleanup()
 {
     allocated::clear(m_abort);
     allocated::clear(m_meter);
@@ -1179,7 +1179,7 @@ void c3_UtilityAbortPopup::DisplayWindow( MBCHAR const *text, sint32 percentFill
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-void c3_UtilityAbortPopup::RemoveWindow( void )
+void c3_UtilityAbortPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( auiErr == AUI_ERRCODE_OK );
@@ -1281,7 +1281,7 @@ sint32 c3_UtilityPlayerListPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-c3_UtilityPlayerListPopup::~c3_UtilityPlayerListPopup( void )
+c3_UtilityPlayerListPopup::~c3_UtilityPlayerListPopup( )
 {
     delete m_abort;
     delete m_kick;
@@ -1295,7 +1295,7 @@ c3_UtilityPlayerListPopup::~c3_UtilityPlayerListPopup( void )
     delete m_window;
 }
 
-void c3_UtilityPlayerListPopup::Cleanup( void )
+void c3_UtilityPlayerListPopup::Cleanup( )
 {
     allocated::clear(m_abort);
     allocated::clear(m_kick);
@@ -1310,7 +1310,7 @@ void c3_UtilityPlayerListPopup::Cleanup( void )
 	m_callback = NULL;
 }
 
-void c3_UtilityPlayerListPopup::DisplayWindow( void )
+void c3_UtilityPlayerListPopup::DisplayWindow( )
 {
 	UpdateData();
 
@@ -1320,7 +1320,7 @@ void c3_UtilityPlayerListPopup::DisplayWindow( void )
 	keypress_RegisterHandler(this);
 }
 
-void c3_UtilityPlayerListPopup::RemoveWindow( void )
+void c3_UtilityPlayerListPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr = c3ui_Get()->RemoveWindow(m_window->Id());
 	Assert(auiErr == AUI_ERRCODE_OK);
@@ -1333,7 +1333,7 @@ void c3_UtilityPlayerListPopup::kh_Close()
 	RemoveWindow();
 }
 
-sint32 c3_UtilityPlayerListPopup::UpdateData( void )
+sint32 c3_UtilityPlayerListPopup::UpdateData( )
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 	strcpy(ldlBlock, "DoubleListItem");
@@ -1362,7 +1362,7 @@ sint32 c3_UtilityPlayerListPopup::UpdateData( void )
 	return 0;
 }
 
-sint32 c3_UtilityPlayerListPopup::EnableButtons( void )
+sint32 c3_UtilityPlayerListPopup::EnableButtons( )
 {
 	m_kick->Enable( TRUE );
 	m_open->Enable( TRUE );
@@ -1371,7 +1371,7 @@ sint32 c3_UtilityPlayerListPopup::EnableButtons( void )
 	return 1;
 }
 
-sint32 c3_UtilityPlayerListPopup::DisableButtons( void )
+sint32 c3_UtilityPlayerListPopup::DisableButtons( )
 {
 	m_kick->Enable( FALSE );
 	m_open->Enable( FALSE );
@@ -1441,7 +1441,7 @@ AUI_ERRCODE DoubleListItem::InitCommonLdl(MBCHAR *name, sint32 value, MBCHAR *te
 	return AUI_ERRCODE_OK;
 }
 
-void DoubleListItem::Update(void)
+void DoubleListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -1492,7 +1492,7 @@ void c3Expel_Initialize( c3_ExpelCallback callback )
 	g_expelPopup = new c3_ExpelPopup( callback );
 }
 
-void c3Expel_Cleanup( void )
+void c3Expel_Cleanup( )
 {
     allocated::clear(g_expelPopup);
 }
@@ -1548,7 +1548,7 @@ void c3_utilitydialogbox_NameCity(Unit city)
 	s_nameTheCityPopup->DisplayWindow();
 }
 
-void c3_utilitydialogbox_NameCityCleanup(void)
+void c3_utilitydialogbox_NameCityCleanup()
 {
     allocated::clear(s_nameTheCityPopup);
 }
@@ -1588,7 +1588,7 @@ void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 	s_genericTextEntryPopup->DisplayWindow();
 }
 
-void c3_utilitydialogbox_CleanupTextFieldDialog(void)
+void c3_utilitydialogbox_CleanupTextFieldDialog()
 {
     allocated::clear(s_genericTextEntryPopup);
 }

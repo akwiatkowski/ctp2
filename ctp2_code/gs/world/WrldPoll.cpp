@@ -92,7 +92,7 @@ extern  OzoneDatabase   *g_theUVDB ;
 #define NW_X(d)     (d-1)
 #define NW_Y(d)     (d-1)
 
-void World::RaiseWaters(void)
+void World::RaiseWaters()
 {
 	Cell	*c ;
 
@@ -532,7 +532,7 @@ void World::GlobalWarmingEvent(const sint32 phase)
 	ClearScratch();
 }
 
-void World::InformPlayersOfFloodingCatastrophe(void)
+void World::InformPlayersOfFloodingCatastrophe()
 {
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
@@ -543,7 +543,7 @@ void World::InformPlayersOfFloodingCatastrophe(void)
 	}
 }
 
-void World::FloodRivers(void)
+void World::FloodRivers()
 {
 	static	sint32	offset_pass1[4][2] = { { -1, +1 }, { -1, 0 }, { -1, -1 }, { 0, -1 } },
 					offset_pass2[4][2] = { { +1, -1 }, { +1, 0 }, {+1, +1 }, { 0, +1 } } ;
@@ -619,14 +619,14 @@ void World::FloodRivers(void)
 	}
 }
 
-void World::OzoneDepletion(void)
+void World::OzoneDepletion()
 {
 	gevmanager_Get()->AddEvent(GEV_INSERT_Tail, GEV_OzoneDepletion,
 	                       GEA_End);
 }
 
 // Only called by the event
-void World::OzoneDepletionEvent(void)
+void World::OzoneDepletionEvent()
 {
 	if(g_network.IsHost())
 	{

@@ -192,7 +192,7 @@ public:
     :   aui_Action  (),
         m_dialog    (dialog)
     { ; };
-	virtual ~DismissMessageBoxAction(void) { ; };
+	virtual ~DismissMessageBoxAction() { ; };
 
 	virtual void	Execute
 	(

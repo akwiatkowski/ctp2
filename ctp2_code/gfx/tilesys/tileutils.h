@@ -37,7 +37,7 @@ sint32		tileutils_ExtractStencils(sint16 fromType, sint16 toType);
 Pixel16		*tileutils_ExtractUpperRight(char *tif, uint16 width, uint16 height, sint32 x, sint32 y);
 Pixel16		*tileutils_ExtractLowerLeft(char *tif, uint16 width, uint16 height, sint32 x, sint32 y);
 void		tileutils_DumpStencil(MBCHAR *filename);
-void		tileutils_LoadStencil(void);
+void		tileutils_LoadStencil();
 Pixel16		*tileutils_LoadStencilImage(uint16 from, uint16 to);
 Pixel16		*tileutils_MakeTransition1(Pixel16 *sourceStencil);
 Pixel16		*tileutils_MakeTransition2(Pixel16 *sourceStencil);

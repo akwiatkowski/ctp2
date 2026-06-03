@@ -69,7 +69,7 @@ public:
 		ControlActionCallback *ActionFunc = NULL,
 		void *cookie = NULL );
 
-	virtual AUI_ERRCODE ResetThis( void );
+	virtual AUI_ERRCODE ResetThis( );
 
 	sint32 ExtractRepeatCount( uint32 data ) const { return (sint32)data; }
 
@@ -103,7 +103,7 @@ protected:
 	sint32	m_repeatCount;
 
 private:
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 };
 
 #endif

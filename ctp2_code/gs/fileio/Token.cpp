@@ -359,7 +359,7 @@ void Token::NextString()
 	}
 }
 
-bool Token::HandleImport(void)
+bool Token::HandleImport()
 {
 	if (Next() != TOKEN_QUOTED_STRING)
     {
@@ -390,7 +390,7 @@ bool Token::HandleImport(void)
 	return true;
 }
 
-void Token::CloseImport(void)
+void Token::CloseImport()
 {
 	Assert(m_importFile);
 	fclose(m_importFile);

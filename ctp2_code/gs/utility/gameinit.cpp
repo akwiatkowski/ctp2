@@ -180,23 +180,23 @@ extern sint32 g_cheat_age;
 GAME_TRAMPOLINE(gamesettings_Get, gamesettings_Set, Settings, GameSettings)
 
 static Wormhole             *g_wormhole=NULL;
-Wormhole * wormhole_Get(void)    { return g_wormhole; }
+Wormhole * wormhole_Get()    { return g_wormhole; }
 void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
 
 StringDB                    *g_theStringDB=NULL;
 
-StringDB * stringdb_Get(void)        { return g_theStringDB; }
+StringDB * stringdb_Get()        { return g_theStringDB; }
 void       stringdb_Set(StringDB *p) { g_theStringDB = p; }
 OzoneDatabase               *g_theUVDB=NULL;
 static ThroneDB             *g_theThroneDB = NULL;
 
-ThroneDB * thronedb_Get(void)        { return g_theThroneDB; }
+ThroneDB * thronedb_Get()        { return g_theThroneDB; }
 void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
 PlayListDB                  *g_thePlayListDB = NULL;
 GAME_TRAMPOLINE(world_Get, world_Set, World, World)
 GAME_TRAMPOLINE(unitpool_Get, unitpool_Set, Units, UnitPool)
 
-ArmyPool * armypool_Get(void) {
+ArmyPool * armypool_Get() {
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
     return game ? game->GetArmiesPtr() : nullptr;
@@ -214,7 +214,7 @@ ArmyPool * armypool_Set(ArmyPool *p) {
 static Player               **g_player=NULL;
 
 Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
-Player ** player_arr_Get(void)                { return g_player; }
+Player ** player_arr_Get()                { return g_player; }
 void      player_arr_Set(Player **p)          { g_player = p; }
 PointerList<Player>         *g_deadPlayer = NULL;
 GAME_TRAMPOLINE(rand_ptr, rand_ptr_Set, Rand, RandomGenerator)
@@ -222,7 +222,7 @@ GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
 GAME_TRAMPOLINE(tradeofferpool_Get, tradeofferpool_Set, TradeOffers, TradeOfferPool)
 static QuadTree<Unit>       *g_theUnitTree = NULL;
 
-QuadTree<Unit> * unit_tree_Get(void)              { return g_theUnitTree; }
+QuadTree<Unit> * unit_tree_Get()              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
 GAME_TRAMPOLINE(pollution_Get, pollution_Set, Pollution, Pollution)
 GAME_TRAMPOLINE(diplomaticrequestpool_Get, diplomaticrequestpool_Set, DiplomaticRequests,  DiplomaticRequestPool)
@@ -233,7 +233,7 @@ GAME_TRAMPOLINE(terrimprovepool_Get,       terrimprovepool_Set,       TerrainImp
 GAME_TRAMPOLINE(installationpool_Get,      installationpool_Set,      Installations,       InstallationPool)
 static InstallationQuadTree *g_theInstallationTree = NULL;
 
-InstallationQuadTree * installation_tree_Get(void)              { return g_theInstallationTree; }
+InstallationQuadTree * installation_tree_Get()              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
 GAME_TRAMPOLINE(topten_Get, topten_Set, TopTen, TopTen)
 
@@ -241,7 +241,7 @@ GAME_TRAMPOLINE(turn_Get, turn_Set, Turn, TurnCount)
 
 static ProfileDB            *g_theProfileDB = NULL;
 
-ProfileDB * profiledb_Get(void)                 { return g_theProfileDB; }
+ProfileDB * profiledb_Get()                 { return g_theProfileDB; }
 void        profiledb_Set(ProfileDB *p)         { g_theProfileDB = p; }
 
 MovieDB                     *g_theVictoryMovieDB = NULL;
@@ -256,7 +256,7 @@ GAME_TRAMPOLINE(tradebids_Get,          tradebids_Set,          TradeBids,    Tr
 GAME_TRAMPOLINE(achievementtracker_Get, achievementtracker_Set, Achievements, AchievementTracker)
 static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
 
-CriticalMessagesPrefs * critical_messages_prefs_Get(void) { return g_theCriticalMessagesPrefs; }
+CriticalMessagesPrefs * critical_messages_prefs_Get() { return g_theCriticalMessagesPrefs; }
 void critical_messages_prefs_Set(CriticalMessagesPrefs *p) { g_theCriticalMessagesPrefs = p; }
 
 MapPoint g_player_start_list[k_MAX_PLAYERS];
@@ -354,14 +354,14 @@ sint32                    g_barbarianRiskUponLaunch = 0;
 static BOOL g_startEmailGame   = FALSE;
 static BOOL g_startHotseatGame = FALSE;
 
-BOOL gameinit_IsEmailGame(void)         { return g_startEmailGame; }
+BOOL gameinit_IsEmailGame()         { return g_startEmailGame; }
 void gameinit_SetEmailGame(BOOL v)      { g_startEmailGame = v; }
-BOOL gameinit_IsHotseatGame(void)       { return g_startHotseatGame; }
+BOOL gameinit_IsHotseatGame()       { return g_startHotseatGame; }
 void gameinit_SetHotseatGame(BOOL v)    { g_startHotseatGame = v; }
 static HotseatPlayerSetup g_hsPlayerSetup[k_MAX_PLAYERS];
 
-HotseatPlayerSetup * hs_player_setup_buf(void) { return g_hsPlayerSetup; }
-void hs_player_setup_Clear(void) { memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup)); }
+HotseatPlayerSetup * hs_player_setup_buf() { return g_hsPlayerSetup; }
+void hs_player_setup_Clear() { memset(g_hsPlayerSetup, 0, sizeof(g_hsPlayerSetup)); }
 
 //----------------------------------------------------------------------------
 
@@ -642,7 +642,7 @@ void gameinit_PlaceInitalUnits()
 	}
 }
 
-sint32 gameinit_InitializeGameFiles(void)
+sint32 gameinit_InitializeGameFiles()
 {
 	MBCHAR const fn[] = "InitializeGameFiles";
 
@@ -2571,7 +2571,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 }
 
 
-void gameinit_CleanupMessages(void)
+void gameinit_CleanupMessages()
 {
 	if (g_player)
     {
@@ -2585,7 +2585,7 @@ void gameinit_CleanupMessages(void)
 	}
 }
 
-void gameinit_Cleanup(void)
+void gameinit_Cleanup()
 {
 	// This must come before g_theArmyPool, since this is needed
 	CtpAi::Cleanup();

@@ -53,8 +53,8 @@ class UnitSpriteGroup : public SpriteGroup
 public:
 	UnitSpriteGroup(GROUPTYPE type);
 
-	void			DeallocateStorage(void);
-	void			DeallocateFullLoadAnims(void);
+	void			DeallocateStorage();
+	void			DeallocateFullLoadAnims();
 
 	void			LoadBasic(MBCHAR const * filename);
 	void			LoadIndexed(MBCHAR const * filename, GAME_ACTION index);
@@ -85,7 +85,7 @@ public:
 
 
 
-	uint16			GetNumFirePointsWork(void) { return m_numFirePointsWork; }
+	uint16			GetNumFirePointsWork() { return m_numFirePointsWork; }
 	void			SetNumFirePointsWork(uint16 num) { m_numFirePointsWork = num; }
 
 	sint32			Parse(uint16 id,GROUPTYPE type);

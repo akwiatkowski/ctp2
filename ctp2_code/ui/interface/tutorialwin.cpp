@@ -63,7 +63,7 @@ extern SelectedItem	*selitem_Get();
 
 static TutorialWin	*g_tutorialWin = NULL;
 
-TutorialWin * tutorialwin_Get(void)           { return g_tutorialWin; }
+TutorialWin * tutorialwin_Get()           { return g_tutorialWin; }
 void          tutorialwin_Set(TutorialWin *p) { g_tutorialWin = p; }
 
 
@@ -125,7 +125,7 @@ void tutorialwin_ListCallback( aui_Control *control, uint32 action, uint32 data,
 	}
 }
 
-sint32 tutorialwin_Initialize( void )
+sint32 tutorialwin_Initialize( )
 {
 	if ( g_tutorialWin ) {
 		g_tutorialWin->UpdateData();
@@ -137,14 +137,14 @@ sint32 tutorialwin_Initialize( void )
 	return 0;
 }
 
-sint32 tutorialwin_Cleanup( void )
+sint32 tutorialwin_Cleanup( )
 {
 	RemoveControl( g_tutorialWin );
 
 	return 0;
 }
 
-TutorialWin::TutorialWin( void )
+TutorialWin::TutorialWin( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -199,7 +199,7 @@ sint32 TutorialWin::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-TutorialWin::~TutorialWin( void )
+TutorialWin::~TutorialWin( )
 {
 	Remove();
 
@@ -212,7 +212,7 @@ TutorialWin::~TutorialWin( void )
 	RemoveControl( m_window );
 }
 
-void TutorialWin::Display( void )
+void TutorialWin::Display( )
 {
 	AUI_ERRCODE errcode = c3ui_Get()->AddWindow( m_window );
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -220,7 +220,7 @@ void TutorialWin::Display( void )
 
 }
 
-void TutorialWin::Remove( void )
+void TutorialWin::Remove( )
 {
 	AUI_ERRCODE errcode = c3ui_Get()->RemoveWindow( m_window->Id() );
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -228,7 +228,7 @@ void TutorialWin::Remove( void )
 
 }
 
-sint32 TutorialWin::UpdateData( void )
+sint32 TutorialWin::UpdateData( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

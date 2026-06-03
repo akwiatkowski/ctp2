@@ -98,24 +98,24 @@ public:
 	void	SetPos(POINT p) { m_x = p.x; m_y = p.y; }
 	void	SetMorphing(bool val) { m_morphing = val; }
 
-	sint32	GetX(void) const { return m_x; }
-	sint32	GetY(void) const { return m_y; }
-	POINT	GetPos(void) const { POINT p; p.x = m_x; p.y = m_y; return p; }
-	bool	GetMorphing(void) const { return m_morphing; }
+	sint32	GetX() const { return m_x; }
+	sint32	GetY() const { return m_y; }
+	POINT	GetPos() const { POINT p; p.x = m_x; p.y = m_y; return p; }
+	bool	GetMorphing() const { return m_morphing; }
 
-	SpriteStatePtr GetSpriteState(void) const { return m_spriteState; }
+	SpriteStatePtr GetSpriteState() const { return m_spriteState; }
 	void SetSpriteState(SpriteStatePtr ss) { m_spriteState = ss; }
 
 	virtual void	SetAnim(Anim *a)  {};
-	virtual void	Process(void)     {};
+	virtual void	Process()     {};
 
 	bool	IsActive () const { return m_isactive; };
 	void	SetActive(bool active) { m_isactive = active; };
 
-  ActionQueue::ActionPtr &LookAtNextAction(void) { return m_actionQueue.Back(); }
+  ActionQueue::ActionPtr &LookAtNextAction() { return m_actionQueue.Back(); }
   virtual void AddAction(ActionPtr actionObj) = 0;
   std::size_t GetActionQueueNumItems() const;
-  ActionConstPtr GetCurAction(void) const { return m_curAction; }
+  ActionConstPtr GetCurAction() const { return m_curAction; }
 
 protected:
 #ifdef _ACTOR_DRAW_OPTIMIZATION

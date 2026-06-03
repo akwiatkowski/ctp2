@@ -316,7 +316,7 @@ AUI_ERRCODE aui_Control::SetParentWindow( aui_Window *window )
 }
 
 
-AUI_ERRCODE aui_Control::ResetThis( void )
+AUI_ERRCODE aui_Control::ResetThis( )
 {
 	if ( GetMouseOwnership() == this ) ReleaseMouseOwnership();
 	if ( GetKeyboardFocus() == this ) ReleaseKeyboardFocus();
@@ -496,7 +496,7 @@ aui_Window *aui_Control::SetTipWindow( aui_Window *window )
 }
 
 
-BOOL aui_Control::HideTipWindow( void )
+BOOL aui_Control::HideTipWindow( )
 {
 	if ( m_tip && m_showingTip )
 	{
@@ -520,7 +520,7 @@ AUI_ERRCODE aui_Control::ShowThis()
 	return aui_Region::ShowThis();
 }
 
-AUI_ERRCODE aui_Control::HideThis( void )
+AUI_ERRCODE aui_Control::HideThis( )
 {
 
 	HideTipWindow();
@@ -529,7 +529,7 @@ AUI_ERRCODE aui_Control::HideThis( void )
 }
 
 
-aui_Control *aui_Control::SetMouseOwnership( void )
+aui_Control *aui_Control::SetMouseOwnership( )
 {
 	aui_Control *prevOwner = GetMouseOwnership();
 	if ( prevOwner ) prevOwner->ReleaseMouseOwnership();
@@ -550,7 +550,7 @@ aui_Control *aui_Control::SetMouseOwnership( void )
 }
 
 
-AUI_ERRCODE aui_Control::ReleaseMouseOwnership( void )
+AUI_ERRCODE aui_Control::ReleaseMouseOwnership( )
 {
 	if (GetMouseOwnership() != this)
 	    return AUI_ERRCODE_NOCONTROL;
@@ -560,7 +560,7 @@ AUI_ERRCODE aui_Control::ReleaseMouseOwnership( void )
 }
 
 
-aui_Control *aui_Control::SetKeyboardFocus( void )
+aui_Control *aui_Control::SetKeyboardFocus( )
 {
 	aui_Control *   prevFocus = GetKeyboardFocus();
 	if ( prevFocus ) prevFocus->ReleaseKeyboardFocus();
@@ -575,7 +575,7 @@ aui_Control *aui_Control::SetKeyboardFocus( void )
 }
 
 
-AUI_ERRCODE aui_Control::ReleaseKeyboardFocus(void)
+AUI_ERRCODE aui_Control::ReleaseKeyboardFocus()
 {
 	if (GetKeyboardFocus() != this)
 	    return AUI_ERRCODE_NOCONTROL;

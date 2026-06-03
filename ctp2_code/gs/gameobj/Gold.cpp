@@ -138,7 +138,7 @@ void Gold::Serialize(CivArchive &archive)
 
 
 
-uint32 Gold_Gold_GetVersion(void)
+uint32 Gold_Gold_GetVersion()
 	{
 	return (k_GOLD_VERSION_MAJOR<<16 | k_GOLD_VERSION_MINOR) ;
 	}

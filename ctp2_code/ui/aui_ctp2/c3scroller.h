@@ -46,11 +46,11 @@ public:
 		sint32 y = 0
     );
 
-	bool	IsVertical( void ) const { return m_isVertical; }
+	bool	IsVertical( ) const { return m_isVertical; }
 
 private:
-	AUI_ERRCODE CreateButtonsAndThumb( void );
-	AUI_ERRCODE InitCommon(void);
+	AUI_ERRCODE CreateButtonsAndThumb( );
+	AUI_ERRCODE InitCommon();
 
 	bool	m_isVertical;
 };

@@ -9,7 +9,7 @@ class aui_StringTable;
 class LobbyWindow;
 // g_lobbyWindow demoted to file-scope `static` in lobbywindow.cpp.
 // Use lobbywindow_Get() instead.  Returns NULL when no lobby is active.
-LobbyWindow * lobbywindow_Get(void);
+LobbyWindow * lobbywindow_Get();
 
 
 #define k_PP_PUBLIC		0
@@ -25,12 +25,12 @@ public:
 
 protected:
 	LobbyWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( BOOL init = TRUE );
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 
 	void PasswordScreenDone( MBCHAR *password );
@@ -64,8 +64,8 @@ public:
 		CONTROL_MAX = CONTROL_LAST - CONTROL_FIRST
 	};
 
-	void SpitOutDetails( void );
-	void UpdatePlayerButtons( void );
+	void SpitOutDetails( );
+	void UpdatePlayerButtons( );
 
 public:
 	AUI_ACTION_BASIC(JoinButtonAction);

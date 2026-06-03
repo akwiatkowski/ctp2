@@ -85,7 +85,7 @@ aui_SDLSurface::aui_SDLSurface(
 }
 
 
-AUI_ERRCODE aui_SDLSurface::InitCommon( void )
+AUI_ERRCODE aui_SDLSurface::InitCommon( )
 {
 	m_lpdds = NULL;
 
@@ -119,7 +119,7 @@ uint32 aui_SDLSurface::SetChromaKey( uint32 color ) {
     }
 
 
-BOOL aui_SDLSurface::IsOK( void ) const
+BOOL aui_SDLSurface::IsOK( ) const
 {
 	return TRUE;
 }
@@ -182,7 +182,7 @@ AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 	return AUI_ERRCODE_BLTFAILED;
 }
 
-void aui_SDLSurface::Flip( void )
+void aui_SDLSurface::Flip( )
 {
 	if ( m_isPrimary && m_window )
 	{

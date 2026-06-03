@@ -132,6 +132,6 @@ sint32 diffutil_GetYearFromTurn(const sint32 diff, const sint32 turn);
 sint32 diffutil_GetYearIncrementFromTurn(sint32 diff, sint32 turn);
 const char *diffutil_GetYearStringFromTurn(sint32 diff, sint32 turn);
 
-uint32 Diffcly_Difficulty_GetVersion(void) ;
+uint32 Diffcly_Difficulty_GetVersion() ;
 
 #endif

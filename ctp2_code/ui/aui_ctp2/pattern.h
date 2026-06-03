@@ -21,8 +21,8 @@ public:
 		MBCHAR const *filename = NULL );
 	virtual ~Pattern();
 
-	aui_Image	*LightImage( void ) const { return m_lightImage; }
-	aui_Image	*DarkImage( void ) const { return m_darkImage; }
+	aui_Image	*LightImage( ) const { return m_lightImage; }
+	aui_Image	*DarkImage( ) const { return m_darkImage; }
 
 	AUI_ERRCODE Draw( aui_Surface *pDestSurf, RECT *pDestRect );
 

@@ -109,36 +109,36 @@ protected:
 	AUI_ERRCODE InitCommon( MBCHAR const *descriptor );
 
 public:
-	AUI_ERRCODE Load( void );
-	AUI_ERRCODE Unload( void );
+	AUI_ERRCODE Load( );
+	AUI_ERRCODE Unload( );
 
-	bool IsLoaded( void ) const { return m_ttFace.z != NULL; }
+	bool IsLoaded( ) const { return m_ttFace.z != NULL; }
 
-	bool HasCached( void ) const { return m_surfaceList->L() != 0; }
+	bool HasCached( ) const { return m_surfaceList->L() != 0; }
 
-	MBCHAR		*GetFilename( void ) const { return (MBCHAR *)m_descriptor; }
+	MBCHAR		*GetFilename( ) const { return (MBCHAR *)m_descriptor; }
 	AUI_ERRCODE	SetFilename( MBCHAR const * descriptor );
 
-	MBCHAR		*GetTTFFile( void ) const { return (MBCHAR *)m_ttffile; }
+	MBCHAR		*GetTTFFile( ) const { return (MBCHAR *)m_ttffile; }
 	AUI_ERRCODE	SetTTFFile( MBCHAR const * ttffile );
-	sint32		GetPointSize( void ) const { return m_pointSize; }
+	sint32		GetPointSize( ) const { return m_pointSize; }
 	AUI_ERRCODE	SetPointSize( sint32 pointSize );
-	sint32		GetBold( void ) const { return m_bold; }
+	sint32		GetBold( ) const { return m_bold; }
 	sint32		SetBold( sint32 bold );
-	sint32		GetItalic( void ) const { return m_italic; }
+	sint32		GetItalic( ) const { return m_italic; }
 	sint32		SetItalic( sint32 italic );
 
-	sint32		GetLineSkip( void ) const { return m_lineSkip; }
+	sint32		GetLineSkip( ) const { return m_lineSkip; }
 	sint32		SetLineSkip( sint32 lineSkip );
-	sint32		GetTabSkip( void ) const { return m_tabSkip; }
+	sint32		GetTabSkip( ) const { return m_tabSkip; }
 	sint32		SetTabSkip( sint32 tabSkip );
 
 
 
 
-	sint32		GetMaxHeight( void ) const { return m_maxHeight; }
+	sint32		GetMaxHeight( ) const { return m_maxHeight; }
 	sint32		SetMaxHeight( sint32 maxHeight );
-	sint32		GetBaseLine( void ) const { return m_baseLine; }
+	sint32		GetBaseLine( ) const { return m_baseLine; }
 	sint32		SetBaseLine( sint32 baseLine );
 
 	AUI_ERRCODE DrawString(

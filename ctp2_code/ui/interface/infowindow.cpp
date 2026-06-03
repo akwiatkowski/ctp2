@@ -47,7 +47,7 @@
 
 static InfoWindow * s_InfoWindow = NULL;
 
-InfoWindow::InfoWindow(void)
+InfoWindow::InfoWindow()
 :
 	m_window        (static_cast<ctp2_Window*>
                         (aui_Ldl::BuildHierarchyFromRoot("InfoDialog"))
@@ -71,7 +71,7 @@ InfoWindow::InfoWindow(void)
     }
 }
 
-InfoWindow::~InfoWindow(void)
+InfoWindow::~InfoWindow()
 {
     delete m_ranking_tab;
     delete m_score_tab;
@@ -83,28 +83,28 @@ InfoWindow::~InfoWindow(void)
     }
 }
 
-void InfoWindow::SelectRankingTab(void)
+void InfoWindow::SelectRankingTab()
 {
 	Open();
 	ctp2_TabGroup *tabGroup = (ctp2_TabGroup *)aui_Ldl::GetObject("InfoDialog.TabGroup");
 	tabGroup->SelectTab((ctp2_Tab *)aui_Ldl::GetObject("InfoDialog.TabGroup.Tab3"));
 }
 
-void InfoWindow::SelectWonderTab(void)
+void InfoWindow::SelectWonderTab()
 {
 	Open();
 	ctp2_TabGroup *tabGroup = (ctp2_TabGroup *)aui_Ldl::GetObject("InfoDialog.TabGroup");
 	tabGroup->SelectTab((ctp2_Tab *)aui_Ldl::GetObject("InfoDialog.TabGroup.Tab2"));
 }
 
-void InfoWindow::SelectScoreTab(void)
+void InfoWindow::SelectScoreTab()
 {
 	Open();
 	ctp2_TabGroup *tabGroup = (ctp2_TabGroup *)aui_Ldl::GetObject("InfoDialog.TabGroup");
 	tabGroup->SelectTab((ctp2_Tab *)aui_Ldl::GetObject("InfoDialog.TabGroup.Tab1"));
 }
 
-void InfoWindow::Open(void)
+void InfoWindow::Open()
 {
 	if (s_InfoWindow==NULL)
 		s_InfoWindow = new InfoWindow();
@@ -114,7 +114,7 @@ void InfoWindow::Open(void)
 }
 
 /// Update the data, without modifying the current window status
-void InfoWindow::Update(void)
+void InfoWindow::Update()
 {
     if (s_InfoWindow)
     {
@@ -122,7 +122,7 @@ void InfoWindow::Update(void)
     }
 }
 
-void InfoWindow::Close(void)
+void InfoWindow::Close()
 {
     if (s_InfoWindow)
     {
@@ -131,7 +131,7 @@ void InfoWindow::Close(void)
 }
 
 /// Update the data at all tabs
-void InfoWindow::UpdateData(void)
+void InfoWindow::UpdateData()
 {
     m_score_tab->Update();
     m_ranking_tab->LoadData();
@@ -180,7 +180,7 @@ void InfoWindow::CloseButtonActionCallback
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void InfoWindow::Cleanup(void)
+void InfoWindow::Cleanup()
 {
 	Close();
     allocated::clear(s_InfoWindow);

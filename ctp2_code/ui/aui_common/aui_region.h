@@ -132,55 +132,55 @@ public:
 		return classId == s_regionClassId;
 	}
 
-	uint32	&Id( void ) { return m_id; }
-	uint32	Attributes( void ) const { return m_attributes; }
+	uint32	&Id( ) { return m_id; }
+	uint32	Attributes( ) const { return m_attributes; }
 
 	virtual AUI_ERRCODE	Move( sint32 x, sint32 y );
 	virtual AUI_ERRCODE Offset( sint32 dx, sint32 dy );
 	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	virtual AUI_ERRCODE	Adjust( void );
+	virtual AUI_ERRCODE	Adjust( );
 
-	sint32	X( void ) const { return m_x; }
-	sint32	Y( void ) const { return m_y; }
-	sint32	Width( void ) const { return m_width; }
-	sint32	Height( void ) const { return m_height; }
+	sint32	X( ) const { return m_x; }
+	sint32	Y( ) const { return m_y; }
+	sint32	Width( ) const { return m_width; }
+	sint32	Height( ) const { return m_height; }
 
-	aui_Dimension	*GetDim( void ) const { return m_dim; }
+	aui_Dimension	*GetDim( ) const { return m_dim; }
 
-	aui_Region			*GetParent( void ) const { return m_parent; }
+	aui_Region			*GetParent( ) const { return m_parent; }
 	virtual AUI_ERRCODE	SetParent( aui_Region *region );
 
-	tech_WLList<aui_Region *>	*ChildList( void ) const { return m_childList; }
+	tech_WLList<aui_Region *>	*ChildList( ) const { return m_childList; }
 
 	BOOL	IsInside( DWORD point ) const;
 	BOOL	IsInside( LPPOINT point ) const;
 	BOOL	IsInside( LONG x, LONG y ) const;
 
-	virtual AUI_ERRCODE	Show( void );
-	virtual AUI_ERRCODE	Hide( void );
-	virtual AUI_ERRCODE	ShowThis( void );
-	virtual AUI_ERRCODE	HideThis( void );
-	AUI_ERRCODE	ShowChildren( void );
-	AUI_ERRCODE	HideChildren( void );
+	virtual AUI_ERRCODE	Show( );
+	virtual AUI_ERRCODE	Hide( );
+	virtual AUI_ERRCODE	ShowThis( );
+	virtual AUI_ERRCODE	HideThis( );
+	AUI_ERRCODE	ShowChildren( );
+	AUI_ERRCODE	HideChildren( );
 
 
 
 
 
-	AUI_ERRCODE Reset( void );
-	virtual AUI_ERRCODE ResetThis( void );
+	AUI_ERRCODE Reset( );
+	virtual AUI_ERRCODE ResetThis( );
 
 	AUI_ERRCODE	Enable( BOOL enable );
 	AUI_ERRCODE EnableDragDrop( BOOL enable );
 
 	BOOL IsDescendent( aui_Region *region );
 
-	BOOL IsHidden( void ) const
+	BOOL IsHidden( ) const
 		{ return m_attributes & k_REGION_ATTRIBUTE_HIDDEN; }
-	BOOL IsDisabled( void ) const
+	BOOL IsDisabled( ) const
 		{ return m_attributes & k_REGION_ATTRIBUTE_DISABLED; }
-	BOOL IsDragDrop( void ) const
+	BOOL IsDragDrop( ) const
 		{ return m_attributes & k_REGION_ATTRIBUTE_DRAGDROP; }
 
 	AUI_ERRCODE	HandleMouseEvent( aui_MouseEvent *input, BOOL handleIt = TRUE );
@@ -188,16 +188,16 @@ public:
 
 	void MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt );
 	void EditModeModifyRegion( RECT rect );
-	static void EditModeClear( void )
+	static void EditModeClear( )
 			{ s_editChild = NULL;
 			  s_editModeStatus = AUI_EDIT_MODE_CHOOSE_REGION;
 			  s_editSelectionCount = 0;
 			  s_editSelectionCurrent = 0; }
 
 	AUI_ERRCODE ExpandRect( RECT *rect );
-	AUI_ERRCODE AddUndo( void );
-	void        PurgeUndoList( void );
-	AUI_ERRCODE UndoEdit( void );
+	AUI_ERRCODE AddUndo( );
+	void        PurgeUndoList( );
+	AUI_ERRCODE UndoEdit( );
 
 	uint32 GetDrawMask() const { return(m_drawMask); }
 	uint32 SetDrawMask(uint32 drawMask);
@@ -222,7 +222,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) { return AUI_ERRCODE_OK; }
 
-	virtual AUI_ERRCODE Idle( void ) { return AUI_ERRCODE_OK; }
+	virtual AUI_ERRCODE Idle( ) { return AUI_ERRCODE_OK; }
 
 	virtual AUI_ERRCODE	AddChild( aui_Region *child );
 	virtual AUI_ERRCODE InsertChild( aui_Region *child, sint32 index );
@@ -230,24 +230,24 @@ public:
 	aui_Region			*GetChild( uint32 regionId );
 
 	aui_Region	*GetChildByIndex(sint32 index);
-	sint32		NumChildren(void);
+	sint32		NumChildren();
 
 	virtual void DeleteChildren();
 
 	BOOL	IgnoreEvents( BOOL ignore );
-	BOOL	IgnoringEvents( void ) const { return m_ignoreEvents; }
+	BOOL	IgnoringEvents( ) const { return m_ignoreEvents; }
 
-	uint32		GetDoubleClickTimeOut( void ) const
+	uint32		GetDoubleClickTimeOut( ) const
 		{ return m_doubleClickTimeOut; }
 	AUI_ERRCODE	SetDoubleClickTimeOut( uint32 doubleClickTimeOut )
 		{ m_doubleClickTimeOut = doubleClickTimeOut; return AUI_ERRCODE_OK; }
 
-	static aui_Region * GetWhichSeesMouse( void ) { return s_whichSeesMouse; }
+	static aui_Region * GetWhichSeesMouse( ) { return s_whichSeesMouse; }
 	static aui_Region * SetWhichSeesMouse(
 		aui_Region *region,
 		BOOL force = FALSE );
 
-	BOOL IsBlind( void ) const { return m_blind; }
+	BOOL IsBlind( ) const { return m_blind; }
 	BOOL SetBlindness( BOOL blind );
 
 
@@ -333,8 +333,8 @@ protected:
 
 	virtual AUI_ERRCODE DoneInstantiatingThis(const MBCHAR *ldlBlock);
 
-	BOOL HasHeirarchyChanged( void ) const;
-	void ResetHeirarchyChanged( void );
+	BOOL HasHeirarchyChanged( ) const;
+	void ResetHeirarchyChanged( );
 	virtual aui_DragDropWindow *CreateDragDropWindow( aui_Control *dragDropItem );
 	virtual void DestroyDragDropWindow( aui_DragDropWindow *ddw );
 
@@ -463,7 +463,7 @@ protected:
 
 private:
 	AUI_ERRCODE InitCommonLdl(MBCHAR const * ldlBlock);
-	void        InitCommon(void);
+	void        InitCommon();
 
 	static aui_Region *                 s_whichSeesMouse;
 	static uint32                       s_regionClassId;

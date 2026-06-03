@@ -102,25 +102,25 @@ public:
 	virtual void	Save(MBCHAR const * filename, unsigned int version_id, unsigned int compression_mode){};
 	virtual sint32	Parse(uint16 id,GROUPTYPE group){ return FALSE;};
 
-	virtual void	DeallocateStorage(void);
-	virtual void	DeallocateFullLoadAnims(void);
+	virtual void	DeallocateStorage();
+	virtual void	DeallocateFullLoadAnims();
 
 	virtual void	Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale,
 					  uint16 transparency, Pixel16 outlineColor, uint16 flags);
 	virtual void	DrawText(sint32 x, sint32 y, MBCHAR const * s);
 
-	virtual void	AddRef(void);
-	virtual void	Release(void);
+	virtual void	AddRef();
+	virtual void	Release();
 
-	virtual void	AddFullLoadRef(void);
-	virtual void	ReleaseFullLoad(void);
+	virtual void	AddFullLoadRef();
+	virtual void	ReleaseFullLoad();
 
-	sint32			GetRefCount(void) const { return m_usageRefCount; }
-	sint32			GetFullLoadRefCount(void) const { return m_fullLoadRefCount; }
+	sint32			GetRefCount() const { return m_usageRefCount; }
+	sint32			GetFullLoadRefCount() const { return m_fullLoadRefCount; }
 
-	GROUPTYPE		GetType(void) const { return m_type; }
+	GROUPTYPE		GetType() const { return m_type; }
 
-	LOADTYPE		GetLoadType(void) const { return m_loadType; }
+	LOADTYPE		GetLoadType() const { return m_loadType; }
 	void			SetLoadType(LOADTYPE type) { m_loadType = type; }
 
 	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action] : NULL; }
@@ -134,16 +134,16 @@ public:
 	// entry.  Bounds-check then index is safe with an int.
 	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : NULL; }
 
-	sint32			GetWidth(void) const { return m_width; };
-	sint32			GetHeight(void) const { return m_height; };
+	sint32			GetWidth() const { return m_width; };
+	sint32			GetHeight() const { return m_height; };
 
 	size_t			GetNumFrames(GAME_ACTION action) const;
     virtual void   	ExportSpriteGroup(FILE *file,GAME_ACTION action,TOKEN_TYPES main_token,TOKEN_TYPES sub_token,BOOL sub_value=FALSE);
 
-	bool			HasDirectional(void) const { return m_hasDirectional; }
+	bool			HasDirectional() const { return m_hasDirectional; }
 	void			SetHasDirectional(bool val) { m_hasDirectional = val; }
 
-	bool			HasDeath(void) const { return m_hasDeath; }
+	bool			HasDeath() const { return m_hasDeath; }
 	void			SetHasDeath(bool val) { m_hasDeath = val; }
 
 

@@ -32,7 +32,7 @@ struct OrderInfo {
 // past startup (future multi-threading hardening can add `const`-only
 // guarantees here).
 OrderInfo const & orderinfo_Get(sint32 idx);
-sint32           orderinfo_Num(void);
+sint32           orderinfo_Num();
 sint32           orderinfo_MapAt(sint32 unitOrder);
 
 #include "gs/events/GameEventDescription.h"

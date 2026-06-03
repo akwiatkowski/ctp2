@@ -75,7 +75,7 @@ static const sint32 k_SMD_CIVILIZATION_COLUMNS	= 8;
 
 static ScienceManagementDialog * g_scienceManagementDialog = NULL;
 
-ScienceManagementDialog * sciencemanagementdialog_Get(void)
+ScienceManagementDialog * sciencemanagementdialog_Get()
 {
     return g_scienceManagementDialog;
 }

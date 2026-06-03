@@ -20,8 +20,8 @@ public:
 	WonderTab(ctp2_Window *parent);
 	~WonderTab();
 
-	static void Open(void);
-	static void Close(void);
+	static void Open();
+	static void Close();
 
 	void UpdateList();
 

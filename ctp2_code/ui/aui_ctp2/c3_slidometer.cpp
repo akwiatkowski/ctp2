@@ -159,7 +159,7 @@ AUI_ERRCODE c3_Slidometer::InitCommon( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE c3_Slidometer::InitCommon( void )
+AUI_ERRCODE c3_Slidometer::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }

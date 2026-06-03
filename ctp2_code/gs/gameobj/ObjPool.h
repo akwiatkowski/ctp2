@@ -162,10 +162,10 @@ public:
 	void    Insert(GameObj * p);
 	void    Del(GameObj * p);
 	void    Del(const ID & id);
-	sint32  Num(void) const;
+	sint32  Num() const;
 	virtual void Serialize(CivArchive &archive);
 
 };
 
-uint32 ObjPool_ObjPool_GetVersion(void);
+uint32 ObjPool_ObjPool_GetVersion();
 #endif

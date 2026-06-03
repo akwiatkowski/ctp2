@@ -43,22 +43,22 @@ public:
 protected:
 	aui_HyperTextBox() : aui_Control(), aui_HyperTextBase() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRanger( MBCHAR *ldlBlock = NULL );
 
 public:
 	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	virtual AUI_ERRCODE Show( void );
+	virtual AUI_ERRCODE Show( );
 
-	aui_Ranger *GetRanger( void ) const { return m_ranger; }
+	aui_Ranger *GetRanger( ) const { return m_ranger; }
 
-	sint32		GetRangerSize( void ) const { return m_rangerSize; }
+	sint32		GetRangerSize( ) const { return m_rangerSize; }
 	AUI_ERRCODE	SetRangerSize( sint32 rangerSize )
 		{ m_rangerSize = rangerSize; return RepositionRanger(); }
 	void		SetAlwaysRanger( BOOL always ) { m_alwaysRanger = always; }
 
-	AUI_ERRCODE	RangerMoved( void );
+	AUI_ERRCODE	RangerMoved( );
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
@@ -68,12 +68,12 @@ public:
 	virtual AUI_ERRCODE	SetHyperText( const MBCHAR *hyperText );
 	virtual AUI_ERRCODE	AppendHyperText( const MBCHAR *hyperText );
 
-	sint32 GetVirtualHeight( void ) const { return m_virtualHeight; }
+	sint32 GetVirtualHeight( ) const { return m_virtualHeight; }
 
 protected:
 	virtual AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText );
 
-	AUI_ERRCODE	RepositionRanger( void );
+	AUI_ERRCODE	RepositionRanger( );
 
 	aui_Ranger	*m_ranger;
 	sint32		m_rangerSize;

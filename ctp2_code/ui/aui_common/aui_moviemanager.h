@@ -58,7 +58,7 @@ public:
 	virtual AUI_ERRCODE RemoveSearchPath( const MBCHAR *path )
 	{ return m_movieResource->RemoveSearchPath( path ); }
 
-	aui_Resource<aui_Movie> *MovieResource( void ) const
+	aui_Resource<aui_Movie> *MovieResource( ) const
 	{ return m_movieResource; }
 
 protected:

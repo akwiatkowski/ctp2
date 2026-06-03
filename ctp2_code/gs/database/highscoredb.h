@@ -24,12 +24,12 @@ public:
 	HighScoreDB();
 	~HighScoreDB();
 
-	void Initialize(void);
-	void LoadHighScores( void );
-	void SaveHighScores( void );
+	void Initialize();
+	void LoadHighScores( );
+	void SaveHighScores( );
 
 	sint32 AddHighScore(MBCHAR *name, sint32 score);
-	sint32 CheckMaxScores( void );
+	sint32 CheckMaxScores( );
 	sint32 GetNumHighScores() const { return m_nHighScores; }
 	HighScoreInfo *GetHighScoreInfo( sint32 index );
 };

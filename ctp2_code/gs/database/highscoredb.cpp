@@ -38,7 +38,7 @@ HighScoreDB::~HighScoreDB()
 	}
 }
 
-void HighScoreDB::Initialize(void)
+void HighScoreDB::Initialize()
 {
 	m_nHighScores = 0;
 	m_highScoreInfo = NULL;
@@ -104,7 +104,7 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 	return 0;
 }
 
-sint32 HighScoreDB::CheckMaxScores( void )
+sint32 HighScoreDB::CheckMaxScores( )
 {
 	HighScoreInfo *nextScore = m_highScoreInfo;
 	HighScoreInfo *prevScore = NULL;
@@ -147,7 +147,7 @@ HighScoreInfo *HighScoreDB::GetHighScoreInfo( sint32 index )
 }
 
 
-void HighScoreDB::LoadHighScores( void )
+void HighScoreDB::LoadHighScores( )
 {
 	MBCHAR strbuf[256];
 	MBCHAR scorebuf[256];
@@ -207,7 +207,7 @@ void HighScoreDB::LoadHighScores( void )
 	fclose(fp);
 }
 
-void HighScoreDB::SaveHighScores( void )
+void HighScoreDB::SaveHighScores( )
 {
 	FILE *fp;
 

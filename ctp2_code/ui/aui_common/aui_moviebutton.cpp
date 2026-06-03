@@ -146,7 +146,7 @@ aui_Movie *aui_MovieButton::SetMovie( const MBCHAR *movie )
 }
 
 
-AUI_ERRCODE aui_MovieButton::Idle( void )
+AUI_ERRCODE aui_MovieButton::Idle( )
 {
 	if ( m_movie )
 	{

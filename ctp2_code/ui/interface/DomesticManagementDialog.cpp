@@ -14,7 +14,7 @@
 
 static DomesticManagementDialog * g_domesticManagementDialog = NULL;
 
-DomesticManagementDialog * domesticmanagementdialog_Get(void)
+DomesticManagementDialog * domesticmanagementdialog_Get()
 {
     return g_domesticManagementDialog;
 }

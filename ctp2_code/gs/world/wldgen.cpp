@@ -2452,12 +2452,12 @@ void World::SerializeJustMap(CivArchive &archive)
 
 
 
-uint32 World_World_GetVersion(void)
+uint32 World_World_GetVersion()
 {
 	return (k_WORLD_VERSION_MAJOR<<16 | k_WORLD_VERSION_MINOR) ;
 }
 
-void World::AllocateTileInfoStorage(void)
+void World::AllocateTileInfoStorage()
 {
 	sint32			width = m_size.x;
 	sint32			height = m_size.y;
@@ -2466,7 +2466,7 @@ void World::AllocateTileInfoStorage(void)
 	m_tileInfoStorage = new TileInfo[width*height];
 }
 
-void World::DisposeTileInfoStorage(void)
+void World::DisposeTileInfoStorage()
 {
 	delete [] m_tileInfoStorage;
 	m_tileInfoStorage = NULL;

@@ -26,7 +26,7 @@ static inline void EnterCriticalSection(pthread_mutex_t *cs) { pthread_mutex_loc
 static inline void LeaveCriticalSection(pthread_mutex_t *cs) { pthread_mutex_unlock(cs); }
 static inline void DeleteCriticalSection(pthread_mutex_t *cs) { pthread_mutex_destroy(cs); }
 
-static inline unsigned long timeGetTime(void)
+static inline unsigned long timeGetTime()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -112,7 +112,7 @@ static void Hash_CloseEntry (HashTableEntry_Ptr entry)
 	}
 }
 
-static void Hash_Close (void)
+static void Hash_Close ()
 {
 	int bucket;
 
@@ -185,7 +185,7 @@ static void Hash_DumpEntry (HashTableEntry_Ptr entry, int bucket)
 	}
 }
 
-static void Hash_Dump (void)
+static void Hash_Dump ()
 {
 	int bucket;
 
@@ -222,7 +222,7 @@ struct Logging
 
 static Logging *logging = NULL;
 
-void Log_Allocate(void)
+void Log_Allocate()
 {
 	logging               = (Logging *)malloc(sizeof(Logging));
 	logging->open         = false;
@@ -239,7 +239,7 @@ void Log_Allocate(void)
 	logging->number       = 0;
 }
 
-static inline void Log_EnsureLogAllocated(void)
+static inline void Log_EnsureLogAllocated()
 {
 	if (!logging)
 		Log_Allocate();

@@ -67,7 +67,7 @@ extern BOOL g_exclusiveMode;
 
 static aui_UI *g_ui = NULL;
 
-aui_UI * aui_ui_Get(void)         { return g_ui; }
+aui_UI * aui_ui_Get()         { return g_ui; }
 void     aui_ui_Set(aui_UI *p)    { g_ui = p; }
 
 aui_UI::aui_UI
@@ -262,7 +262,7 @@ AUI_ERRCODE aui_UI::InitCommon(
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_UI::CreateScreen( void )
+AUI_ERRCODE aui_UI::CreateScreen( )
 {
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	m_primary   = new aui_Surface( &retcode, m_width, m_height, m_bpp, 0, NULL, TRUE  );
@@ -671,7 +671,7 @@ AUI_ERRCODE aui_UI::Invalidate( RECT *rect )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_UI::FlushDirtyList( void )
+AUI_ERRCODE aui_UI::FlushDirtyList( )
 {
 	m_dirtyList->Flush();
 
@@ -719,7 +719,7 @@ AUI_ERRCODE aui_UI::HideWindow( uint32 windowId )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_UI::ClipAndConsolidate(void)
+AUI_ERRCODE aui_UI::ClipAndConsolidate()
 {
 
 	static aui_Window *window = NULL;
@@ -1040,7 +1040,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 	return AUI_ERRCODE_OK;
 }
 
-void aui_UI::FlushDirtyRectInfoList( void )
+void aui_UI::FlushDirtyRectInfoList( )
 {
 	for ( sint32 i = m_dirtyRectInfoList->L(); i; i-- )
 		m_dirtyRectInfoMemory->Delete( m_dirtyRectInfoList->RemoveHead() );
@@ -1083,7 +1083,7 @@ AUI_ERRCODE aui_UI::DrawOne(aui_Window *window)
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_UI::Draw( void )
+AUI_ERRCODE aui_UI::Draw( )
 {
 	if ( !m_primary ) return AUI_ERRCODE_OK;
 
@@ -1418,7 +1418,7 @@ AUI_ERRCODE aui_UI::HandleMouseEvents(
 }
 
 
-AUI_ERRCODE aui_UI::HandleKeyboardEvents( void )
+AUI_ERRCODE aui_UI::HandleKeyboardEvents( )
 {
 //	AUI_ERRCODE errcode = AUI_ERRCODE_UNHANDLED;
 
@@ -1500,7 +1500,7 @@ AUI_ERRCODE aui_UI::HandleKeyboardEvents( void )
 }
 
 
-AUI_ERRCODE aui_UI::HandleJoystickEvents( void )
+AUI_ERRCODE aui_UI::HandleJoystickEvents( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_UNHANDLED;
 
@@ -1760,7 +1760,7 @@ AUI_ERRCODE aui_UI::HandleWindowsMessage(
 #endif// __AUI_USE_DIRECTX__
 }
 
-AUI_ERRCODE aui_UI::AltTabOut( void )
+AUI_ERRCODE aui_UI::AltTabOut( )
 {
 	if ( m_keyboard ) m_keyboard->Unacquire();
 	if ( m_joystick ) m_joystick->Unacquire();
@@ -1792,7 +1792,7 @@ AUI_ERRCODE aui_UI::AltTabOut( void )
 }
 
 
-AUI_ERRCODE aui_UI::AltTabIn( void )
+AUI_ERRCODE aui_UI::AltTabIn( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	if ( m_minimize )
@@ -1829,7 +1829,7 @@ BOOL aui_UI::MinimizeOnAltTabOut( BOOL minimize )
 }
 
 
-AUI_ERRCODE aui_UI::Process( void )
+AUI_ERRCODE aui_UI::Process( )
 {
 	Idle();
 
@@ -1858,7 +1858,7 @@ AUI_ERRCODE aui_UI::Process( void )
 
 
 
-void aui_UI::HandleActions( void )
+void aui_UI::HandleActions( )
 {
 	for ( sint32 i = m_actionList->L(); i && m_actionList->L(); i-- )
 	{
@@ -1876,7 +1876,7 @@ void aui_UI::AddAction( aui_Action *action )
 }
 
 
-void aui_UI::HandleDestructiveActions( void )
+void aui_UI::HandleDestructiveActions( )
 {
 	for ( sint32 i = m_destructiveActionList->L(); i; i-- )
 	{

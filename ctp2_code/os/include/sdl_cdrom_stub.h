@@ -30,7 +30,7 @@ typedef enum { CD_TRAYEMPTY, CD_STOPPED, CD_PLAYING, CD_PAUSED, CD_ERROR } CDsta
 #define SDL_MAX_TRACKS 99
 
 // Stub functions
-static inline int SDL_CDNumDrives(void) { return 0; }
+static inline int SDL_CDNumDrives() { return 0; }
 static inline const char* SDL_CDName(int drive) { return NULL; }
 static inline SDL_CD* SDL_CDOpen(int drive) { return NULL; }
 static inline CDstatus SDL_CDStatus(SDL_CD *cdrom) { return CD_TRAYEMPTY; }

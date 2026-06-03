@@ -147,7 +147,7 @@ public:
 	SlicConditional *GetConditional(sint32 line);
 	SlicConditional *NewConditional(sint32 line, const char *expression);
 
-	static void Cleanup(void);
+	static void Cleanup();
 
 	friend void to_json(nlohmann::json &j, SlicSegment const &s);
 	friend void from_json(nlohmann::json const &j, SlicSegment &s);

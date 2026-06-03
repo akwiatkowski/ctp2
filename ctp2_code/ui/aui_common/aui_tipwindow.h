@@ -29,11 +29,11 @@ public:
 protected:
 	aui_TipWindow() : aui_Window() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 
-	aui_Static *GetStatic( void ) const { return m_staticTip; }
+	aui_Static *GetStatic( ) const { return m_staticTip; }
 	AUI_ERRCODE SetTipText(MBCHAR *text);
 
 	virtual AUI_ERRCODE DrawThis(

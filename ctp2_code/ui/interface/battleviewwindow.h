@@ -17,7 +17,7 @@ class Sequence;
 class BattleViewWindow : public C3Window {
 public:
 	static void Initialize(std::weak_ptr<Sequence> seq);
-	static void Cleanup(void);
+	static void Cleanup();
 
 	BattleViewWindow(
 		AUI_ERRCODE *retval,
@@ -34,13 +34,13 @@ public:
 
 	void RemoveActor(BattleViewActor *actor);
 
-	void Refresh(void);
+	void Refresh();
 
 	void GetAttackerPos(sint32 column, sint32 row, sint32 *x, sint32 *y);
 	void GetDefenderPos(sint32 column, sint32 row, sint32 *x, sint32 *y);
 
 	void SetSequence(std::weak_ptr<Sequence> seq) { m_sequence = seq; }
-	std::weak_ptr<Sequence> GetSequence(void) { return m_sequence; }
+	std::weak_ptr<Sequence> GetSequence() { return m_sequence; }
 
 
 	const BattleView *GetBattleView() const { return(m_battleView); }
@@ -53,7 +53,7 @@ public:
 		aui_Surface *surface = NULL,
 		sint32 x = 0,
 		sint32 y = 0 );
-	virtual AUI_ERRCODE Idle(void);
+	virtual AUI_ERRCODE Idle();
 
 private:
 
@@ -127,6 +127,6 @@ private:
 // g_battleViewWindow demoted to file-scope `static` in battleviewwindow.cpp.
 // External callers go through battleviewwindow_Get() (returns NULL when
 // no battle is in progress).
-BattleViewWindow * battleviewwindow_Get(void);
+BattleViewWindow * battleviewwindow_Get();
 
 #endif

@@ -77,10 +77,10 @@ public:
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
 	virtual ~aui_Switch() {}
 
-	virtual AUI_ERRCODE ResetThis( void );
+	virtual AUI_ERRCODE ResetThis( );
 
-	BOOL			IsSelected( void ) const { return m_state != 0; }
-	sint32			GetState( void ) const { return m_state; }
+	BOOL			IsSelected( ) const { return m_state != 0; }
+	sint32			GetState( ) const { return m_state; }
 	virtual sint32	SetState( sint32 state );
 
 	sint32			SetNumStates( sint32 numStates );

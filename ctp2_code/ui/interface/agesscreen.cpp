@@ -65,11 +65,11 @@ static ctp2_DropDown	*s_endDropDown		= NULL;
 static sint32 s_numAges = 0;
 static sint32 s_startAge = 0;
 static sint32 s_endAge = s_numAges;
-sint32 agesscreen_getStartAge( void )
+sint32 agesscreen_getStartAge( )
 {
 	return s_startAge;
 }
-sint32 agesscreen_getEndAge( void )
+sint32 agesscreen_getEndAge( )
 {
 	return s_endAge;
 }

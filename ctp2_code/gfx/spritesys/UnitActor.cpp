@@ -254,7 +254,7 @@ UnitActor::UnitActor(CivArchive& archive)
   Initialize();
 }
 
-void UnitActor::Initialize(void) {
+void UnitActor::Initialize() {
   RECT tmpRect = {0, 0, 10, 16};
 
   m_heraldRect = tmpRect;
@@ -327,7 +327,7 @@ void UnitActor::Initialize(void) {
 #endif
 }
 
-void UnitActor::AddVision(void) {
+void UnitActor::AddVision() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -336,7 +336,7 @@ void UnitActor::AddVision(void) {
   }
 }
 
-void UnitActor::RemoveVision(void) {
+void UnitActor::RemoveVision() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -413,11 +413,11 @@ UnitActor::~UnitActor() {
   }
 }
 
-void UnitActor::Hide(void) {
+void UnitActor::Hide() {
   m_hidden = TRUE;
 }
 
-void UnitActor::Show(void) {
+void UnitActor::Show() {
   m_hidden = FALSE;
 }
 
@@ -666,7 +666,7 @@ void UnitActor::GetNextAction(bool isVisible) {
   m_curUnitAction = (UNITACTION)m_curAction->GetActionType();
 }
 
-void UnitActor::Process(void) {
+void UnitActor::Process() {
   if (!m_curAction)
     GetNextAction();
 
@@ -749,7 +749,7 @@ void UnitActor::Process(void) {
   }
 }
 
-ActionPtr UnitActor::WillDie(void) const {
+ActionPtr UnitActor::WillDie() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -780,7 +780,7 @@ ActionPtr UnitActor::WillDie(void) const {
   return NULL;
 }
 
-ActionPtr UnitActor::WillMorph(void) const {
+ActionPtr UnitActor::WillMorph() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -798,7 +798,7 @@ ActionPtr UnitActor::WillMorph(void) const {
   return NULL;
 }
 
-void UnitActor::DumpAllActions(void) {
+void UnitActor::DumpAllActions() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -844,7 +844,7 @@ void UnitActor::DumpAllActions(void) {
   }
 }
 
-void UnitActor::EndTurnProcess(void) {
+void UnitActor::EndTurnProcess() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -929,7 +929,7 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
 #define k_FAKE_DEATH_FRAMES 15
 #define k_FAKE_DEATH_DURATION 1500
 
-Anim* UnitActor::MakeFakeDeath(void) {
+Anim* UnitActor::MakeFakeDeath() {
   uint16* frames = new uint16[k_FAKE_DEATH_FRAMES];
   std::fill(frames, frames + k_FAKE_DEATH_FRAMES, 0);
 
@@ -956,7 +956,7 @@ Anim* UnitActor::MakeFakeDeath(void) {
 #define k_FACEOFF_FRAMES 1
 #define k_FACEOFF_DURATION 1000
 
-Anim* UnitActor::MakeFaceoff(void) {
+Anim* UnitActor::MakeFaceoff() {
   uint16* frames = new uint16[k_FACEOFF_FRAMES];
   std::fill(frames, frames + k_FACEOFF_FRAMES, 0);
 
@@ -1441,7 +1441,7 @@ void UnitActor::DrawText(sint32 x, sint32 y, MBCHAR* unitText) {
 
 // it doesn't look like this is used. I did create a drawstackingindicator that
 // is used - E
-void UnitActor::DrawHerald(void) {
+void UnitActor::DrawHerald() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -1493,7 +1493,7 @@ void UnitActor::DrawHerald(void) {
   tiledmap_Get()->AddDirtyRectToMix(rect);
 }
 
-void UnitActor::DrawHealthBar(void) {
+void UnitActor::DrawHealthBar() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -1951,7 +1951,7 @@ void UnitActor::DrawSpecialIndicators(
 
 // end emod
 
-void UnitActor::DrawSelectionBrackets(void) {
+void UnitActor::DrawSelectionBrackets() {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -2012,14 +2012,14 @@ void UnitActor::DrawSelectionBrackets(void) {
                                           pixelColor);
 }
 
-bool UnitActor::IsAnimating(void) const {
+bool UnitActor::IsAnimating() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
   return m_curAction && (m_curAction->GetActionType() != UNITACTION_IDLE);
 }
 
-uint16 UnitActor::GetWidth(void) const {
+uint16 UnitActor::GetWidth() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -2037,7 +2037,7 @@ uint16 UnitActor::GetWidth(void) const {
   return theSprite ? theSprite->GetWidth() : 0;
 }
 
-uint16 UnitActor::GetHeight(void) const {
+uint16 UnitActor::GetHeight() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
@@ -2145,7 +2145,7 @@ void UnitActor::Serialize(CivArchive& archive) {
   }
 }
 
-LOADTYPE UnitActor::GetLoadType(void) const {
+LOADTYPE UnitActor::GetLoadType() const {
   return (m_unitSpriteGroup) ? m_loadType : LOADTYPE_NONE;
 }
 
@@ -2301,7 +2301,7 @@ bool UnitActor::TryAnimation(ActionPtr actionObj, UNITACTION action) {
   return false;
 }
 
-void UnitActor::DumpFullLoad(void) {
+void UnitActor::DumpFullLoad() {
   if (!m_unitSpriteGroup)
     return;
   if (m_loadType != LOADTYPE_FULL)
@@ -2463,7 +2463,7 @@ void UnitActor::DrawCityImprovements(bool fogged) {
 }
 
 #ifdef _DEBUG
-void UnitActor::DumpActor(void) {
+void UnitActor::DumpActor() {
   DPRINTF(k_DBG_UI, ("Actor %#.8lx\n", this));
   DPRINTF(k_DBG_UI, ("  m_unitID           :%#.8lx\n", m_unitID));
   DPRINTF(k_DBG_UI, ("  m_unitDBIndex      :%d\n", m_unitDBIndex));

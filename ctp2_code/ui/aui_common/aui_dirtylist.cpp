@@ -183,7 +183,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 }
 
 
-AUI_ERRCODE aui_DirtyList::Minimize( void )
+AUI_ERRCODE aui_DirtyList::Minimize( )
 {
 
 	BOOL shouldContinue = L() > 1;
@@ -230,7 +230,7 @@ AUI_ERRCODE aui_DirtyList::Minimize( void )
 }
 
 
-void aui_DirtyList::Flush( void )
+void aui_DirtyList::Flush( )
 {
 
 	ListPos position = GetHeadPosition();

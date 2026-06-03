@@ -60,7 +60,7 @@ AUI_ERRCODE aui_TextBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_TextBox::InitCommon( void )
+AUI_ERRCODE aui_TextBox::InitCommon( )
 {
 	m_numItems = 0,
 	m_curItem = 0;

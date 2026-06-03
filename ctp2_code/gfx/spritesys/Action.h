@@ -119,46 +119,46 @@ class Action
 public:
 	Action(sint32 actionType=0, ACTIONEND endCondition=ACTIONEND_PATHEND, sint32 startAnimPos = 0, sint32 specialDelayProcess = 0);
   Action(const Action &rhs);
-  virtual ~Action(void);
+  virtual ~Action();
 
-	sint32			GetActionType(void) const { return (m_actionType > 0 ) ? m_actionType : 0; }
+	sint32			GetActionType() const { return (m_actionType > 0 ) ? m_actionType : 0; }
 	void			SetActionType(sint32 action) { m_actionType=action;};
-	bool			GetIsSpecialActionType(void) const { return (m_actionType < 0 ); }
+	bool			GetIsSpecialActionType() const { return (m_actionType < 0 ); }
 
-	Anim *          GetAnim(void) const { return m_curAnim; }
-	sint32			GetAnimPos(void) const { return m_animPos; }
+	Anim *          GetAnim() const { return m_curAnim; }
+	sint32			GetAnimPos() const { return m_animPos; }
 	void			SetAnimPos(sint32 pos) { m_animPos=pos; }
-	sint32			GetAnimDelayEnd(void) const { return m_animDelayEnd; }
-	sint32			GetAnimElapsed(void) const { return m_animElapsed; }
-	sint32			GetAnimLastFrameTime(void) const { return m_animLastFrameTime; }
+	sint32			GetAnimDelayEnd() const { return m_animDelayEnd; }
+	sint32			GetAnimElapsed() const { return m_animElapsed; }
+	sint32			GetAnimLastFrameTime() const { return m_animLastFrameTime; }
 
-	ActorPathPtr GetPath(void) const { return m_curPath; }
+	ActorPathPtr GetPath() const { return m_curPath; }
 
-	virtual void	Process(void);
+	virtual void	Process();
 	void			Process(ActionPtr pendingAction);
 
 	void			SetAnim(Anim *anim);
 	void			CreatePath(sint32 x1, sint32 y1, sint32 x2, sint32 y2);
 
-	sint32			GetMaxActionCounter(void) const { return m_maxActionCounter; }
+	sint32			GetMaxActionCounter() const { return m_maxActionCounter; }
 	void			SetMaxActionCounter(sint32 count) { m_maxActionCounter = count; }
 
-	sint32			GetCurActionCounter(void) const { return m_curActionCounter; }
+	sint32			GetCurActionCounter() const { return m_curActionCounter; }
 	void			SetCurActionCounter(sint32 count) { m_curActionCounter = count; }
 
-	POINT			GetPosition(void) const;
-	uint16			GetSpriteFrame(void) const;
-	uint16			GetTransparency(void) const;
+	POINT			GetPosition() const;
+	uint16			GetSpriteFrame() const;
+	uint16			GetTransparency() const;
 
-	sint32			GetFacing(void); // not quite const
+	sint32			GetFacing(); // not quite const
 	void			SetFacing(sint32 facing) { m_facing = facing; }
-	sint32			SpecialDelayProcess(void) const {return m_specialDelayProcess; }
+	sint32			SpecialDelayProcess() const {return m_specialDelayProcess; }
 	void			SetSpecialDelayProcess(sint32 val) {m_specialDelayProcess = val; }
 
 	void			SetDelay(sint32 delay) { m_delay = delay; }
-	sint32			GetDelay(void) const { return m_delay; }
+	sint32			GetDelay() const { return m_delay; }
 
-	bool			Finished(void) const { return m_finished; }
+	bool			Finished() const { return m_finished; }
 	void			SetFinished(bool fin) { m_finished = fin; }
 
 	void			SetStartMapPoint(MapPoint &point) { m_startMapPoint = point;}
@@ -167,37 +167,37 @@ public:
 	void			SetEndMapPoint(MapPoint &point) { m_endMapPoint = point; }
 	void			GetEndMapPoint(MapPoint &point) const { point = m_endMapPoint; }
 
-	ACTIONEND		GetCurrentEndCondition(void) const { return m_endCondition; }
+	ACTIONEND		GetCurrentEndCondition() const { return m_endCondition; }
 	void			SetCurrentEndCondition(ACTIONEND end_condition) { m_endCondition = end_condition; }
-	bool			LoopAnimHasCycled(void) const { return m_loopAnimFinished; }
-	void			ResetAnimLoop(void) { m_loopAnimFinished = false; }
+	bool			LoopAnimHasCycled() const { return m_loopAnimFinished; }
+	void			ResetAnimLoop() { m_loopAnimFinished = false; }
 
 	void			SetItIsTimeToAct(bool act) { m_itIsTimeToAct = act; }
 	bool			GetItIsTimeToAct() const { return m_itIsTimeToAct; }
 
   void			SetRevealedActors(const std::vector<std::weak_ptr<UnitActor> > &revealedActors);
-  const std::vector<std::weak_ptr<UnitActor> > &GetRevealedActors(void) const { return m_revealedActors; }
+  const std::vector<std::weak_ptr<UnitActor> > &GetRevealedActors() const { return m_revealedActors; }
 
   void			SetMoveActors(const std::vector<std::weak_ptr<UnitActor> > &moveActors);
   void SetNumOActors(long numOActors) { m_numOActors = numOActors; }
   long GetNumOActors() const { return m_numOActors; }
 
-  const std::vector<std::weak_ptr<UnitActor> > &GetMoveActors(void) const { return m_moveActors; }
+  const std::vector<std::weak_ptr<UnitActor> > &GetMoveActors() const { return m_moveActors; }
 
 	void			SetUnitsVisibility(uint32 unitsVis) { m_unitsVisibility = unitsVis; }
-	uint32			GetUnitsVisibility(void) const { return m_unitsVisibility; }
+	uint32			GetUnitsVisibility() const { return m_unitsVisibility; }
 
 	void			SetUnitVisionRange(double visRange) { m_unitVisionRange = visRange; }
-	double			GetUnitVisionRange(void) const { return m_unitVisionRange; }
+	double			GetUnitVisionRange() const { return m_unitVisionRange; }
 
 	void			SetSpecialUnitEffectsAction(DQAction action) { m_specialUnitEffectsAction = action; }
-	DQAction		GetSpecialUnitEffectsAction(void) const { return m_specialUnitEffectsAction; }
+	DQAction		GetSpecialUnitEffectsAction() const { return m_specialUnitEffectsAction; }
 
   void SetSequence(std::weak_ptr<Sequence> seq);
-  std::weak_ptr<Sequence> GetSequence(void) const;
+  std::weak_ptr<Sequence> GetSequence() const;
 
 	void			SetSoundEffect(sint32 sound_id) { m_sound_effect_id = sound_id; }
-	sint32  		GetSoundEffect(void) const { return m_sound_effect_id; }
+	sint32  		GetSoundEffect() const { return m_sound_effect_id; }
 
 	sint32				m_actionType;
 protected:

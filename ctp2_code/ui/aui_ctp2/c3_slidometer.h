@@ -39,7 +39,7 @@ public:
 protected:
 	c3_Slidometer() : aui_Ranger() {}
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateThumb( MBCHAR *ldlBlock );
 
 	sint32	m_percentFilled;
@@ -53,7 +53,7 @@ public:
 	sint32 GetPercentFilled() { return m_percentFilled; }
 	void SetPercentFilled( sint32 percentFilled );
 
-	BOOL	IsVertical( void ) const
+	BOOL	IsVertical( ) const
 	{ return m_orientation == AUI_RANGER_ORIENTATION_VERTICAL; }
 };
 

@@ -61,7 +61,7 @@ protected:
 
 	_C3BLIT_PROTO  _Blt16To16Fast;
 
-	bool CheckMMXTechnology(void);
+	bool CheckMMXTechnology();
 };
 
 #endif

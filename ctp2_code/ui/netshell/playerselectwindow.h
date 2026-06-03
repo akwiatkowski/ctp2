@@ -14,12 +14,12 @@ public:
 
 protected:
 	PlayerSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
-	void	Update( void );
-	virtual AUI_ERRCODE Idle( void );
+	void	Update( );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 	nf_PlayerSetup *GetPlayerSetup(NETFunc::Player *player);
 

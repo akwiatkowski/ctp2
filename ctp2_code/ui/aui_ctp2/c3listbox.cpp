@@ -103,7 +103,7 @@ C3ListBox::C3ListBox(
 }
 
 
-AUI_ERRCODE C3ListBox::CreateRangers( void )
+AUI_ERRCODE C3ListBox::CreateRangers( )
 {
 	AUI_ERRCODE errcode;
 

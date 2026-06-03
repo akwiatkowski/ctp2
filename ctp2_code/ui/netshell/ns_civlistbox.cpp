@@ -476,7 +476,7 @@ AUI_ERRCODE ns_HPlayerListBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE ns_HPlayerListBox::InitCommon( void )
+AUI_ERRCODE ns_HPlayerListBox::InitCommon( )
 {
 
 	SetAbsorbancy( FALSE );

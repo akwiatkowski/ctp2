@@ -38,27 +38,27 @@ public:
 	void					AddEvent(BattleEvent *event);
 	void					ShowEvent(BattleEvent *event);
 
-	double					GetCityBonus(void) { return m_cityBonus; }
-	double					GetCityLandAttackBonus(void) { return m_citylandattackBonus; }
-	double					GetCityAirAttackBonus(void) { return m_cityairattackBonus; }
-	double					GetCitySeaAttackBonus(void) { return m_cityseaattackBonus; }
-	sint32					GetCityImage(void) { return m_cityImage; }
-	MBCHAR					*GetCityName(void) { return m_cityName; }
-	double					GetTerrainBonus(void) { return m_terrainBonus; }
-	sint32					GetTerrainType(void) { return m_terrainType; }
+	double					GetCityBonus() { return m_cityBonus; }
+	double					GetCityLandAttackBonus() { return m_citylandattackBonus; }
+	double					GetCityAirAttackBonus() { return m_cityairattackBonus; }
+	double					GetCitySeaAttackBonus() { return m_cityseaattackBonus; }
+	sint32					GetCityImage() { return m_cityImage; }
+	MBCHAR					*GetCityName() { return m_cityName; }
+	double					GetTerrainBonus() { return m_terrainBonus; }
+	sint32					GetTerrainType() { return m_terrainType; }
 	sint32                  GetAttackersTerrainType() { return m_attackerTerrainType; }
 
-	double					GetFortBonus(void) { return m_fortBonus; }
-	double					GetFortifiedBonus(void) { return m_fortifiedBonus; }
+	double					GetFortBonus() { return m_fortBonus; }
+	double					GetFortifiedBonus() { return m_fortifiedBonus; }
 
-	COLOR					GetAttackersColor(void) { return m_attackersColor; }
-	COLOR					GetDefendersColor(void) { return m_defendersColor; }
+	COLOR					GetAttackersColor() { return m_attackersColor; }
+	COLOR					GetDefendersColor() { return m_defendersColor; }
 	void					GetAttackersName(MBCHAR *s) { strcpy(s, m_attackersName); }
 	void					GetDefendersName(MBCHAR *s) { strcpy(s, m_defendersName); }
 
-	sint32					GetNumAttackers(void) { return m_numAttackers; }
+	sint32					GetNumAttackers() { return m_numAttackers; }
 	BattleViewActor			*GetAttacker(sint32 index) { return m_attackers[index]; }
-	sint32					GetNumDefenders(void) { return m_numDefenders; }
+	sint32					GetNumDefenders() { return m_numDefenders; }
 	BattleViewActor			*GetDefender(sint32 index) { return m_defenders[index]; }
 
 

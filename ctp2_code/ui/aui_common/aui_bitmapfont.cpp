@@ -229,7 +229,7 @@ AUI_ERRCODE aui_BitmapFont::SetFilename( MBCHAR const * descriptor )
 }
 
 
-AUI_ERRCODE aui_BitmapFont::Load( void )
+AUI_ERRCODE aui_BitmapFont::Load( )
 {
 
 	Unload();
@@ -286,7 +286,7 @@ AUI_ERRCODE aui_BitmapFont::Load( void )
 }
 
 
-AUI_ERRCODE aui_BitmapFont::Unload( void )
+AUI_ERRCODE aui_BitmapFont::Unload( )
 {
 	for ( sint32 i = m_surfaceList->L(); i; i-- )
 		delete m_surfaceList->RemoveHead();

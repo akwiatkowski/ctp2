@@ -23,14 +23,14 @@ public:
 	AgreementPool(CivArchive &archive);
 
 	Agreement Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGREEMENT_TYPE request);
-	void EndRound(void);
+	void EndRound();
 
 	void Serialize(CivArchive &archive);
 };
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.  External
 // readers go through agreementpool_Get().
-AgreementPool * agreementpool_Get(void);
+AgreementPool * agreementpool_Get();
 void            agreementpool_Set(AgreementPool *p);
 
 #endif

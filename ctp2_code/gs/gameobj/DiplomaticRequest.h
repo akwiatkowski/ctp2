@@ -24,10 +24,10 @@ public:
 	DiplomaticRequestData* AccessData() ;
 
 	void Castrate() {} ;
-	PLAYER_INDEX GetOwner(void) const { return (GetData()->GetOwner()) ; }
-	PLAYER_INDEX GetRecipient(void) const { return (GetData()->GetRecipient()) ; }
+	PLAYER_INDEX GetOwner() const { return (GetData()->GetOwner()) ; }
+	PLAYER_INDEX GetRecipient() const { return (GetData()->GetRecipient()) ; }
 
-	REQUEST_TYPE GetRequest(void) const { return (GetData()->GetRequest()) ; }
+	REQUEST_TYPE GetRequest() const { return (GetData()->GetRequest()) ; }
 
 
 	void SetAdvance(const AdvanceType &advance) { AccessData()->SetAdvance(advance) ; }
@@ -49,7 +49,7 @@ public:
 	void Reject(BOOL fromServer = FALSE) { AccessData()->Reject(fromServer) ; }
 	void Enact(BOOL fromServer = FALSE) { AccessData()->Enact(fromServer) ; }
 	void Dump(const sint32 i) { AccessData()->Dump(i) ; }
-	MBCHAR *GetRequestString(void) { return (AccessData()->GetRequestString()) ; }
+	MBCHAR *GetRequestString() { return (AccessData()->GetRequestString()) ; }
 
 	sint32 GetTone() const;
 	sint32 GetRound() const;

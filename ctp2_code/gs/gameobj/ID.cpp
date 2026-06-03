@@ -25,7 +25,7 @@ void ID::Serialize(CivArchive &archive)
 
 
 
-uint32 ID_ID_GetVersion(void)
+uint32 ID_ID_GetVersion()
 	{
 	return (k_ID_VERSION_MAJOR<<16 | k_ID_VERSION_MINOR) ;
 	}

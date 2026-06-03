@@ -63,7 +63,7 @@ AUI_ERRCODE MessageIconButton::DrawThis(
 	return AUI_ERRCODE_OK;
 }
 
-MessageIconButton::~MessageIconButton( void )
+MessageIconButton::~MessageIconButton( )
 {
 	ReleaseMouseOwnership();
 }

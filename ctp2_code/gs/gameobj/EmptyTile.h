@@ -19,12 +19,12 @@ class EmptyTile
 	public :
 		EmptyTile(MapPoint &pos, sint32 f, sint32 p, sint32 g) ;
 		EmptyTile(EmptyTile *tile) ;
-		EmptyTile(void) ;
+		EmptyTile() ;
 
-		MapPoint GetPos(void) { return (m_pos) ; }
-		sint32 GetFood(void) { return (m_food) ; }
-		sint32 GetProduction(void) { return (m_production) ; }
-		sint32 GetGold(void) { return (m_gold) ; }
+		MapPoint GetPos() { return (m_pos) ; }
+		sint32 GetFood() { return (m_food) ; }
+		sint32 GetProduction() { return (m_production) ; }
+		sint32 GetGold() { return (m_gold) ; }
 
 	} ;
 

@@ -105,7 +105,7 @@ AUI_ERRCODE MessageList::CreateMessage( Message data )
 
 }
 
-void MessageList::HideVisibleWindows( void )
+void MessageList::HideVisibleWindows( )
 {
 	if ( !m_iconList ) return;
 
@@ -131,7 +131,7 @@ void MessageList::HideVisibleWindows( void )
 
 }
 
-void MessageList::CheckVisibleMessages( void )
+void MessageList::CheckVisibleMessages( )
 {
 
 
@@ -194,7 +194,7 @@ return;
 
 
 
-void MessageList::CheckMaxMessages( void )
+void MessageList::CheckMaxMessages( )
 {
 
 	uint32 count = m_iconList->L();

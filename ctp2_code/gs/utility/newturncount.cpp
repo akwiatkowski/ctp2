@@ -291,7 +291,7 @@ sint32 NewTurnCount::GetCurrentRound()
 	return player_Get(current_player)->GetCurRound();
 }
 
-void NewTurnCount::RunNewYearMessages(void)
+void NewTurnCount::RunNewYearMessages()
 {
 
 	if (GetCurrentYear() >= g_theConstDB->Get(0)->GetEndOfGameYearEarlyWarning())

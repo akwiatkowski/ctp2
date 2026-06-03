@@ -137,11 +137,11 @@ class DataCheck
 		sint32 IsPopChanged () const;
 		sint32 IsUnitChanged () const;
 
-		void BeginTurn(void);
+		void BeginTurn();
 		BOOL GetCRC(CRC_TYPE group, uint32 &a, uint32 &b, uint32 &c, uint32 &d);
 		void SetDisplay(sint32 val);
 		void DisplayCRC(aui_Surface *surf) const;
-		void DumpChecksum(void);
+		void DumpChecksum();
 		void DumpSingleCRC(MBCHAR *grp, sint32 t);
 		void draw_crc(aui_Surface *surf, char str1[80], sint32 t, sint32 x, sint32 y) const;
 		void draw_time(aui_Surface *surf, sint32 x, sint32 y) const;
@@ -155,6 +155,6 @@ void DataCheck_Requiem();
 // release builds: the only write path is in keypress.cpp under
 // `#ifdef _DEBUG / #if 0`, so the pointer is never assigned in
 // shipping configurations).
-DataCheck * datacheck_Get(void);
+DataCheck * datacheck_Get();
 
 #endif

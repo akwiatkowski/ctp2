@@ -121,8 +121,8 @@ protected:
 
 public:
 
-	AUI_IMAGEBASE_BLTTYPE GetImageBltType( void ) const { return m_imageblttype; }
-	AUI_IMAGEBASE_BLTFLAG GetImageBltFlag( void) const { return m_imagebltflag; }
+	AUI_IMAGEBASE_BLTTYPE GetImageBltType( ) const { return m_imageblttype; }
+	AUI_IMAGEBASE_BLTFLAG GetImageBltFlag( ) const { return m_imagebltflag; }
 	aui_Image *GetImage(
 		sint32 state = 0,
 		AUI_IMAGEBASE_SUBSTATE substate = AUI_IMAGEBASE_SUBSTATE_STATE ) const;

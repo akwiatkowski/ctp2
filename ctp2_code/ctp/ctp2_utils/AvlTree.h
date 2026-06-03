@@ -119,7 +119,7 @@ public:
 
 
    AvlNode(Comparable<KeyType>  * item=NULL);
-   virtual ~AvlNode(void);
+   virtual ~AvlNode();
 
 
 
@@ -136,7 +136,7 @@ public:
 
 
    short
-   Bal(void) const { return  myBal; }
+   Bal() const { return  myBal; }
 
 
 
@@ -197,7 +197,7 @@ private:
    short      myBal;
 
    void
-   Reset(void) {
+   Reset() {
       myBal = 0 ;
       mySubtree[LEFT] = mySubtree[RIGHT] = NULL ;
    }
@@ -328,7 +328,7 @@ AvlNode<KeyType>::AvlNode(Comparable<KeyType> * item)
 }
 
 template <class KeyType>
-AvlNode<KeyType>::~AvlNode(void) {
+AvlNode<KeyType>::~AvlNode() {
    if (mySubtree[LEFT])  delete  mySubtree[LEFT];
    if (mySubtree[RIGHT]) delete  mySubtree[RIGHT];
 }

@@ -51,6 +51,6 @@ public:
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.
 // test_citydata.cpp re-allocates the singleton via gamesettings_Set().
-GameSettings * gamesettings_Get(void);
+GameSettings * gamesettings_Get();
 void           gamesettings_Set(GameSettings *p);
 #endif

@@ -47,7 +47,7 @@ public:
 
 	virtual ~StatsWindow() {}
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 
 	virtual AUI_ERRCODE DrawThis(
@@ -55,11 +55,11 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	virtual AUI_ERRCODE			Idle( void );
+	virtual AUI_ERRCODE			Idle( );
 
-	BOOL	CheckCity( void );
-	BOOL	CheckUnit( void );
-	BOOL	CheckDiplomacy( void );
+	BOOL	CheckCity( );
+	BOOL	CheckUnit( );
+	BOOL	CheckDiplomacy( );
 
 private:
 	sint32 m_dest;
@@ -71,8 +71,8 @@ private:
 #define k_STATS_WINDOW_HEIGHT		40
 #define k_STATS_NUM_BUTTONS			8
 
-int StatsWindow_Initialize( void );
-int StatsWindow_Cleanup( void );
+int StatsWindow_Initialize( );
+int StatsWindow_Cleanup( );
 
 sint32 statswindow_EnableDiplomacy();
 sint32 statswindow_EnableTrade();
@@ -80,7 +80,7 @@ sint32 statswindow_EnableCityButtons();
 
 BOOL statswindow_IsTradeDisabled();
 
-sint32 statswindow_DisableScreensButton( void );
-sint32 statswindow_EnableScreensButton( void );
+sint32 statswindow_DisableScreensButton( );
+sint32 statswindow_EnableScreensButton( );
 
 #endif

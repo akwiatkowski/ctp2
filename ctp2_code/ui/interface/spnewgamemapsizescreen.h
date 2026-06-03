@@ -29,7 +29,7 @@ void spnewgamemapsizescreen_acceptPress(aui_Control *control, uint32 action, uin
 void spnewgamemapsizescreen_cancelPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 void spnewgamemapsizescreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-sint32 spnewgamemapsizescreen_getMapSizeIndex( void );
+sint32 spnewgamemapsizescreen_getMapSizeIndex( );
 void spnewgamemapsizescreen_setMapSizeIndex( sint32 );
 
 #endif

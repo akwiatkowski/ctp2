@@ -100,7 +100,7 @@ sint32 soundscreen_removeMyWindow(uint32 action)
 }
 
 
-AUI_ERRCODE soundscreen_Initialize( void )
+AUI_ERRCODE soundscreen_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

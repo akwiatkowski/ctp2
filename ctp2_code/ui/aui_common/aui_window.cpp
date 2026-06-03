@@ -117,7 +117,7 @@ AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 	return errcode;
 }
 
-AUI_ERRCODE aui_Window::CreateSurface( void )
+AUI_ERRCODE aui_Window::CreateSurface( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -173,7 +173,7 @@ AUI_ERRCODE aui_Window::Move( sint32 x, sint32 y )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_Window::MoveOG( void )
+AUI_ERRCODE aui_Window::MoveOG( )
 {
 	return Move(m_ogX, m_ogY);
 }
@@ -287,7 +287,7 @@ AUI_ERRCODE aui_Window::RemoveChild( uint32 controlId )
 }
 
 
-AUI_ERRCODE aui_Window::ShowThis( void )
+AUI_ERRCODE aui_Window::ShowThis( )
 {
 	MakeSureSurfaceIsValid();
 
@@ -303,7 +303,7 @@ AUI_ERRCODE aui_Window::ShowThis( void )
 }
 
 
-AUI_ERRCODE aui_Window::HideThis( void )
+AUI_ERRCODE aui_Window::HideThis( )
 {
 	DeleteSurfaceIfDynamic();
 
@@ -320,7 +320,7 @@ AUI_ERRCODE aui_Window::HideThis( void )
 }
 
 
-void aui_Window::MakeSureSurfaceIsValid( void )
+void aui_Window::MakeSureSurfaceIsValid( )
 {
 	if (!m_surface)
 	{
@@ -328,7 +328,7 @@ void aui_Window::MakeSureSurfaceIsValid( void )
 	}
 }
 
-void aui_Window::DeleteSurfaceIfDynamic( void )
+void aui_Window::DeleteSurfaceIfDynamic( )
 {
 	if (IsDynamic())
 	{

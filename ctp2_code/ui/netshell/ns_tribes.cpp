@@ -42,7 +42,7 @@
 
 static ns_Tribes *g_nsTribes = NULL;
 
-ns_Tribes * nstribes_Get(void) { return g_nsTribes; }
+ns_Tribes * nstribes_Get() { return g_nsTribes; }
 
 
 

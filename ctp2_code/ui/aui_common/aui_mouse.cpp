@@ -39,7 +39,7 @@
 
 static BOOL g_mouseShouldTerminateThread = FALSE;
 
-void aui_mouse_RequestTerminate(void) { g_mouseShouldTerminateThread = TRUE; }
+void aui_mouse_RequestTerminate() { g_mouseShouldTerminateThread = TRUE; }
 
 #include "ui/aui_common/aui_Factory.h"
 #include "ui/aui_common/aui_ui.h"
@@ -84,7 +84,7 @@ aui_Mouse::aui_Mouse
 }
 
 
-AUI_ERRCODE aui_Mouse::InitCommon( void )
+AUI_ERRCODE aui_Mouse::InitCommon( )
 {
 	m_curCursor = m_cursors;
 	m_firstIndex = 0;
@@ -352,7 +352,7 @@ void aui_Mouse::SetCurrentCursor( sint32 index )
 }
 
 
-sint32 aui_Mouse::GetCurrentCursorIndex(void)
+sint32 aui_Mouse::GetCurrentCursorIndex()
 {
 	for (sint32 i = m_firstIndex; i <= m_lastIndex; ++i)
     {
@@ -398,7 +398,7 @@ void aui_Mouse::SetAnim( sint32 anim )
 
 
 
-AUI_ERRCODE aui_Mouse::Start( void )
+AUI_ERRCODE aui_Mouse::Start( )
 {
 
 	CreatePrivateBuffers();
@@ -439,7 +439,7 @@ AUI_ERRCODE aui_Mouse::Start( void )
 
 
 
-AUI_ERRCODE aui_Mouse::CreatePrivateBuffers( void )
+AUI_ERRCODE aui_Mouse::CreatePrivateBuffers( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -460,7 +460,7 @@ AUI_ERRCODE aui_Mouse::CreatePrivateBuffers( void )
 	return errcode;
 }
 
-void aui_Mouse::DestroyPrivateBuffers( void )
+void aui_Mouse::DestroyPrivateBuffers( )
 {
 	delete m_privateMix;
 	m_privateMix = NULL;
@@ -472,7 +472,7 @@ void aui_Mouse::DestroyPrivateBuffers( void )
 	m_prevPickup = NULL;
 }
 
-AUI_ERRCODE aui_Mouse::End( void )
+AUI_ERRCODE aui_Mouse::End( )
 {
 	Unacquire();
 
@@ -574,7 +574,7 @@ AUI_ERRCODE aui_Mouse::Suspend( BOOL eraseCursor )
 	return AUI_ERRCODE_SUSPENDFAILED;
 }
 
-AUI_ERRCODE aui_Mouse::Resume( void )
+AUI_ERRCODE aui_Mouse::Resume( )
 {
 
 	if ( !m_thread ) return AUI_ERRCODE_NOTHREAD;
@@ -610,7 +610,7 @@ AUI_ERRCODE aui_Mouse::Resume( void )
 }
 
 
-inline BOOL aui_Mouse::ShouldTerminateThread( void )
+inline BOOL aui_Mouse::ShouldTerminateThread( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	if ( WaitForSingleObject( m_threadEvent, 0 ) == WAIT_OBJECT_0 )
@@ -718,7 +718,7 @@ AUI_ERRCODE aui_Mouse::SetHotspot( sint32 x, sint32 y, sint32 index )
 
 
 
-AUI_ERRCODE aui_Mouse::ReactToInput( void )
+AUI_ERRCODE aui_Mouse::ReactToInput( )
 {
 	if ( IsHidden() || (!*m_curCursor)) return AUI_ERRCODE_OK;
 
@@ -905,7 +905,7 @@ AUI_ERRCODE aui_Mouse::ReactToInput( void )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_Mouse::HandleAnim( void )
+AUI_ERRCODE aui_Mouse::HandleAnim( )
 {
 	if ( m_lastIndex >= m_firstIndex )
 	{
@@ -1055,7 +1055,7 @@ AUI_ERRCODE	aui_Mouse::BltWindowToPrimary( aui_Window *window )
 	return retcode;
 }
 
-AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( void )
+AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 {
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	AUI_ERRCODE errcode;
@@ -1480,7 +1480,7 @@ AUI_ERRCODE	aui_Mouse::BltBackgroundImageToPrimary(
 	return retcode;
 }
 
-AUI_ERRCODE aui_Mouse::Erase( void )
+AUI_ERRCODE aui_Mouse::Erase( )
 {
 	AUI_ERRCODE errcode;
 

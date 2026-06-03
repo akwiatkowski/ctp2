@@ -39,7 +39,7 @@ public:
 protected:
 	c3_Ranger() : aui_Ranger() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateButtonsAndThumb( MBCHAR *ldlBlock );
 
 public:
@@ -49,7 +49,7 @@ public:
 		sint32 y = 0 );
 
 protected:
-	virtual AUI_ERRCODE RepositionButtons( void );
+	virtual AUI_ERRCODE RepositionButtons( );
 
 	aui_Static *m_arrows[ 4 ];
 };

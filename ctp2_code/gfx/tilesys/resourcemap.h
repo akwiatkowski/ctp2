@@ -79,12 +79,12 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	void DrawView(void);
+	void DrawView();
 
 	void NotifyPopChanged();
 
 	BOOL		DrawSprites(aui_Surface *pSurface, RECT *destRect);
-	sint32		DrawSurface(void);
+	sint32		DrawSurface();
 	sint32		DrawSpaceImprovements( aui_Surface *pSurface, sint32 xOff, sint32 yOff );
 
 	static ResourceMapDrawFunc	DrawACity;
@@ -101,7 +101,7 @@ public:
 	BOOL		DrawResourceMapThing(aui_Surface *pSurface, ResourceMapDrawFunc *func);
 
 	void		SetUnit(const Unit &unit) { m_unit = unit; }
-	Unit		GetUnit(void) { return m_unit; }
+	Unit		GetUnit() { return m_unit; }
 
 	sint32		CalculateWrap(aui_Surface *surface, sint32 i, sint32 j, sint32 x, sint32 y);
 	sint32		DrawImprovements(aui_Surface *surface, sint32 i, sint32 j, sint32 x, sint32 y);
@@ -118,15 +118,15 @@ public:
 	void		HandlePop( MapPoint point );
 
 	void		SetUpdateAction(c3_UpdateAction *action) { m_updateAction = action; }
-	c3_UpdateAction *GetUpdateAction(void) { return m_updateAction; }
+	c3_UpdateAction *GetUpdateAction() { return m_updateAction; }
 
-	virtual AUI_ERRCODE			Idle( void );
+	virtual AUI_ERRCODE			Idle( );
 
-	RECT		*GetNormalizedViewRect(void) { return &m_normalizedViewRect; }
-	sint32		GetLeftEdge(void) { return m_leftEdge; }
-	sint32		GetTopEdge(void) { return m_topEdge; }
-	MapPoint	*GetTopLeftPos(void) { return &m_topLeftPos; }
-	sint32		GetScale(void) { return m_scale; }
+	RECT		*GetNormalizedViewRect() { return &m_normalizedViewRect; }
+	sint32		GetLeftEdge() { return m_leftEdge; }
+	sint32		GetTopEdge() { return m_topEdge; }
+	MapPoint	*GetTopLeftPos() { return &m_topLeftPos; }
+	sint32		GetScale() { return m_scale; }
 
 	void		GetOwningCity(Unit &c) { c = m_unit; }
 
@@ -166,7 +166,7 @@ protected:
 	virtual void	MouseMoveAway(aui_MouseEvent * mouseData);
 };
 
-ResourceMap * resourcemap_Get(void);
+ResourceMap * resourcemap_Get();
 void          resourcemap_Set(ResourceMap *p);
 
 #endif

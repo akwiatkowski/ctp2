@@ -27,7 +27,7 @@ public:
 
 protected:
         aui_SDLSurface() : aui_Surface() {}
-        AUI_ERRCODE InitCommon( void );
+        AUI_ERRCODE InitCommon( );
 
 public:
 	virtual BOOL IsThisA( uint32 classId ) {
@@ -41,13 +41,13 @@ public:
 	virtual AUI_ERRCODE Lock( RECT *rect, LPVOID *buffer, DWORD flags );
 	virtual AUI_ERRCODE Unlock( LPVOID buffer );
 
-	SDL_Surface*    DDS( void ) const { return m_lpdds; }
-	BOOL                            IsDCGot( void ) const { return m_dcIsGot
+	SDL_Surface*    DDS( ) const { return m_lpdds; }
+	BOOL                            IsDCGot( ) const { return m_dcIsGot
 ; }
 
-	virtual BOOL IsOK( void ) const;
+	virtual BOOL IsOK( ) const;
 	virtual AUI_ERRCODE Blank(const uint32 &color);
-	virtual void Flip( void );
+	virtual void Flip( );
 
 	static uint32 m_SDLSurfaceClassId;
 

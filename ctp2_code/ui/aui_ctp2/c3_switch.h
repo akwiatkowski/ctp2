@@ -35,7 +35,7 @@ public:
 	virtual ~c3_Switch() {}
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
-	sint32 BevelWidth( void ) const { return m_bevelWidth; }
+	sint32 BevelWidth( ) const { return m_bevelWidth; }
 protected:
 	c3_Switch() : aui_Switch() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );

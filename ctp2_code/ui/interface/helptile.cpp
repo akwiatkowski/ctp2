@@ -116,7 +116,7 @@ static AUI_ERRCODE newC3Static(MBCHAR *parent,MBCHAR *name,c3_Static **mystatic)
 	return errcode;
 }
 
-sint32 helptile_Initialize( void )
+sint32 helptile_Initialize( )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -180,7 +180,7 @@ template <typename T>
 static void mycleanup(T * & mypointer)
 { delete mypointer; mypointer = NULL; }
 
-void helptile_Cleanup( void )
+void helptile_Cleanup( )
 {
 	if (g_helpTileWindow && c3ui_Get())
 	{

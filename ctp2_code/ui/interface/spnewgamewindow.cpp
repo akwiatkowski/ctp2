@@ -235,7 +235,7 @@ SPNewGameWindow::~SPNewGameWindow()
 //              prevent a crash if the last argument is invalid.
 //
 //----------------------------------------------------------------------------
-void SPNewGameWindow::Update( void )
+void SPNewGameWindow::Update( )
 {
 	MBCHAR s[_MAX_PATH];
 	sint32 index;

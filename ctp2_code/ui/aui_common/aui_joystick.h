@@ -61,7 +61,7 @@ public:
 	aui_Joystick();
 	virtual ~aui_Joystick();
 
-	aui_JoystickEvent	*GetLatestJoystickEvent( void ) { return &m_data; }
+	aui_JoystickEvent	*GetLatestJoystickEvent( ) { return &m_data; }
 
 protected:
 	aui_JoystickEvent m_data;

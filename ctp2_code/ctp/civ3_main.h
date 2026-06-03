@@ -41,32 +41,32 @@
 
 class aui_Surface;
 
-int ui_Initialize(void);
-int ui_Process(void);
-bool ui_CheckForScroll(void);
+int ui_Initialize();
+int ui_Process();
+bool ui_CheckForScroll();
 
-sint32 sharedsurface_Initialize( void );
-void   sharedsurface_Cleanup( void );
+sint32 sharedsurface_Initialize( );
+void   sharedsurface_Cleanup( );
 
-int sprite_Initialize(void);
+int sprite_Initialize();
 int sprite_Update(aui_Surface *surf);
-void sprite_Cleanup(void);
+void sprite_Cleanup();
 
 int tile_Initialize(BOOL isRestoring);
-void tile_Cleanup(void);
+void tile_Cleanup();
 
-int WINAPI main_filehelper_GetOS(void);
+int WINAPI main_filehelper_GetOS();
 
 int main_Restart();
 int main_RestoreGame(const MBCHAR *filename);
 
-void main_HideTaskBar(void);
-void main_RestoreTaskBar(void);
+void main_HideTaskBar();
+void main_RestoreTaskBar();
 
-int radar_Initialize(void);
+int radar_Initialize();
 
 void DoFinalCleanup(int exitCode = -1);
 
-BOOL ExitGame(void);
+BOOL ExitGame();
 
 #endif

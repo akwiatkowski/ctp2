@@ -50,7 +50,7 @@ aui_Thumb::aui_Thumb(
 }
 
 
-AUI_ERRCODE aui_Thumb::InitCommon( void )
+AUI_ERRCODE aui_Thumb::InitCommon( )
 {
 	m_grabPoint.x = m_grabPoint.y = 0;
 

@@ -67,9 +67,9 @@ public:
 
 	void Clear();
 	void Serialize(CivArchive &archive) ;
-	void CalculateBiggestCities(void) ;
+	void CalculateBiggestCities() ;
 	BOOL FindCity(const Unit &c, TopEntry *list, sint32 &pos) ;
-	void EndTurn(void) ;
+	void EndTurn() ;
 	BOOL IsTopTenCity(const Unit &c, const sint32 category, sint32 &pos) ;
 	BOOL GetCityPosition(const Unit &c, const sint32 category, sint32 &pos) ;
 	void InsertCity(const Unit &c) ;
@@ -117,5 +117,5 @@ class TopTen ;
 
 // Session-singleton accessor pair.  Callers should use topten_Get()
 // instead of reaching for the legacy g_theTopTen global directly.
-TopTen * topten_Get(void);
+TopTen * topten_Get();
 void     topten_Set(TopTen *p);

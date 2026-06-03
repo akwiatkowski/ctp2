@@ -14,14 +14,14 @@ public:
 
 	void DrawLine(sint32 lineNum, COLOR color = COLOR_WHITE);
 
-	void Redraw(void);
+	void Redraw();
 	void Scroll(sint32 numLines);
 
 	void AddLine(MBCHAR *line, sint32 len, COLOR color = COLOR_WHITE);
 	void AddText(MBCHAR *text, COLOR color = COLOR_WHITE);
 
-	void PageUp(void);
-	void PageDown(void);
+	void PageUp();
+	void PageDown();
 
 private:
 	aui_BitmapFont	*m_font;

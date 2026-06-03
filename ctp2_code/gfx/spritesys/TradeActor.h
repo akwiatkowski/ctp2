@@ -25,29 +25,29 @@ public:
 	//TradeActor(TradeActor *copy);
 	~TradeActor();
 
-	virtual void	Process(void);
+	virtual void	Process();
 
   void			AddAction(ActionPtr actionObj) override;
-	void			GetNextAction(void);
-	void			AddIdle(void);
+	void			GetNextAction();
+	void			AddIdle();
 
 	Anim *          CreateAnim(GOODACTION action);
 
 	void			Draw(const Vision *tileLocalVision);
 	void			DrawText(sint32 x, sint32 y, MBCHAR *goodText);
 
-	BOOL			IsAnimating(void);
+	BOOL			IsAnimating();
 
-	TradeRoute		GetRouteID(void) { return m_routeID; }
+	TradeRoute		GetRouteID() { return m_routeID; }
 
-	MapPoint		GetCurrentPos(void) { return m_currentPos; }
-	MapPoint		GetSourcePos(void) { return m_sourcePos; }
-	MapPoint		GetDestPos(void) { return m_destPos; }
-	MapPoint		GetNextPos(void);
-	MapPoint		LookAtNextPos(void);
+	MapPoint		GetCurrentPos() { return m_currentPos; }
+	MapPoint		GetSourcePos() { return m_sourcePos; }
+	MapPoint		GetDestPos() { return m_destPos; }
+	MapPoint		GetNextPos();
+	MapPoint		LookAtNextPos();
 
-	uint16			GetWidth(void);
-	uint16			GetHeight(void);
+	uint16			GetWidth();
+	uint16			GetHeight();
 
 	void			GetBoundingRect(RECT *rect);
 

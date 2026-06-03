@@ -113,7 +113,7 @@ void MusicTrackListCallback( aui_Control *control, uint32 action, uint32 data, v
 
 
 
-AUI_ERRCODE musictrackscreen_Initialize( void )
+AUI_ERRCODE musictrackscreen_Initialize( )
 {
 	if (s_musicTrackScreen) return AUI_ERRCODE_OK;
 

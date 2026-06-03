@@ -10,9 +10,9 @@ public:
 
 	ns_String(char *ldlblock);
 
-	virtual ~ns_String(void);
+	virtual ~ns_String();
 
-	char *GetString(void);
+	char *GetString();
 };
 
 #endif

@@ -443,7 +443,7 @@ void MessageData::Dump(const sint32 i)
 
 
 
-MESSAGE_RESPONSE_TYPE MessageData::Reject(void)
+MESSAGE_RESPONSE_TYPE MessageData::Reject()
 	{
 	return (MESSAGE_RESPONSE_TYPE_REJECT) ;
 	}
@@ -456,7 +456,7 @@ MESSAGE_RESPONSE_TYPE MessageData::Reject(void)
 
 
 
-MESSAGE_RESPONSE_TYPE MessageData::Accept(void)
+MESSAGE_RESPONSE_TYPE MessageData::Accept()
 {
 	return (MESSAGE_RESPONSE_TYPE_ACCEPT) ;
 }
@@ -1260,13 +1260,13 @@ void MessageData::EyeDropdownCallback(sint32 index)
 	EyePointCallback(index);
 }
 
-void MessageData::KillMessageWindow( void )
+void MessageData::KillMessageWindow( )
 {
 	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
 	m_window = NULL;
 }
 
-void MessageData::IgnoreMessage( void )
+void MessageData::IgnoreMessage( )
 {
 	if (m_window && gameobservers_Get()) {
 		gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
@@ -1279,7 +1279,7 @@ sint32 MessageData::GetNumEyePoints() const
 	return m_eyePoints->GetCount();
 }
 
-MESSAGE_EYEPOINT_STYLE MessageData::GetEyePointStyle( void )
+MESSAGE_EYEPOINT_STYLE MessageData::GetEyePointStyle( )
 {
 	sint32 count = GetNumEyePoints();
 
@@ -1294,7 +1294,7 @@ MESSAGE_EYEPOINT_STYLE MessageData::GetEyePointStyle( void )
 
 }
 
-MESSAGE_RESPONSE_STYLE MessageData::GetResponseStyle( void )
+MESSAGE_RESPONSE_STYLE MessageData::GetResponseStyle( )
 {
 
 

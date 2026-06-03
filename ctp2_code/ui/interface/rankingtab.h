@@ -51,8 +51,8 @@ public:
 	RankingTab(ctp2_Window *parent);
 	~RankingTab();
 
-	static void Open(void);
-	static void Close(void);
+	static void Open();
+	static void Close();
 
 	void LoadData();
 

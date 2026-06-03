@@ -144,7 +144,7 @@ void C3UI::RegisterCleanup(UiCleanupCallback callback)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-bool C3UI::TopWindowIsNonBackground(void) const
+bool C3UI::TopWindowIsNonBackground() const
 {
 	return TopWindow()                                          &&
            (TopWindow()->Type() != AUI_WINDOW_TYPE_BACKGROUND)  &&

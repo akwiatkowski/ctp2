@@ -62,14 +62,14 @@ public:
 	virtual		AUI_ERRCODE	AddChild( aui_Region *child );
 	virtual		AUI_ERRCODE	RemoveChild( uint32 tabId );
 
-	AUI_TABGROUP_ALIGNMENT GetTabGroupAlignment( void ) const
+	AUI_TABGROUP_ALIGNMENT GetTabGroupAlignment( ) const
 		{ return m_alignment; }
 	AUI_TABGROUP_ALIGNMENT SetTabGroupAlignment(
 		AUI_TABGROUP_ALIGNMENT alignment );
 
 protected:
 
-	virtual AUI_ERRCODE	FormatTabs( void );
+	virtual AUI_ERRCODE	FormatTabs( );
 
 	AUI_TABGROUP_ALIGNMENT	m_alignment;
 	BOOL					m_autoArrange;

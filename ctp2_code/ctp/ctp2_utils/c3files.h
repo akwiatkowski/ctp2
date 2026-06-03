@@ -143,9 +143,9 @@ bool		c3files_getfilelist(C3SAVEDIR dirID, MBCHAR *ext, PointerList<MBCHAR> *pli
 bool		c3files_getfilelist_ex(C3SAVEDIR dirID, MBCHAR *ext, PointerList<WIN32_FIND_DATA> *plist);
 #endif
 
-DriveIdType c3files_GetCtpCdId(void);
-bool		c3files_HasCD(void);
-bool		c3files_HasLegalCD(void);
-void		c3files_InitializeCD(void);
+DriveIdType c3files_GetCtpCdId();
+bool		c3files_HasCD();
+bool		c3files_HasLegalCD();
+void		c3files_InitializeCD();
 
 #endif

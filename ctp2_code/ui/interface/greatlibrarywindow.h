@@ -59,7 +59,7 @@ public:
 	GreatLibraryWindow(AUI_ERRCODE *err);
 	~GreatLibraryWindow();
 
-	virtual AUI_ERRCODE Idle (void);
+	virtual AUI_ERRCODE Idle ();
 
 	void SetTechTitle( ctp2_Static *text ) { m_techTitle = text; };
 	void SetTechTree( Chart *chart ) { m_techTree = chart; }
@@ -89,10 +89,10 @@ public:
 	char const * GetVariablesText( int database, int item );
 
 	sint32 SetTechMode ( sint32 mode, DATABASE database );
-	sint32 GetTechMode ( void ) const { return m_mode; };
+	sint32 GetTechMode ( ) const { return m_mode; };
 
 	void SetTechDatabase( DATABASE database ) { m_database = database; }
-	DATABASE GetTechDatabase( void ) const { return m_database; }
+	DATABASE GetTechDatabase( ) const { return m_database; }
 
 	sint32 LoadText( ctp2_HyperTextBox *textbox, char *filename, SlicObject &so );
 	sint32 LoadHistoricalText( SlicObject &so );
@@ -100,9 +100,9 @@ public:
 	sint32 LoadRequirementsText ( SlicObject &so );
 	sint32 LoadVariablesText ( SlicObject &so );
 
-	void PlayTechMovie ( void );
-	sint32 LoadTechMovie ( void );
-	sint32 LoadTechStill( void );
+	void PlayTechMovie ( );
+	sint32 LoadTechMovie ( );
+	sint32 LoadTechStill( );
 
 	char	m_title_name[_MAX_PATH];
 	char	m_still_file[_MAX_PATH];

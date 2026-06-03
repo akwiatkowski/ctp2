@@ -136,7 +136,7 @@ sint32 aui_Switch::SetNumStates( sint32 numStates )
 }
 
 
-AUI_ERRCODE aui_Switch::ResetThis( void )
+AUI_ERRCODE aui_Switch::ResetThis( )
 {
 	if ( GetState() )
 		m_attributes |= k_CONTROL_ATTRIBUTE_ON;

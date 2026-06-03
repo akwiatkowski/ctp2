@@ -42,7 +42,7 @@
 
 static ctp2_Window *g_radarWindow = NULL;
 
-ctp2_Window * radarwindow_Get(void)
+ctp2_Window * radarwindow_Get()
 {
 	return g_radarWindow;
 }
@@ -342,7 +342,7 @@ sint32 radarwindow_Initialize()
 	return(0);
 }
 
-void radarwindow_Display(void)
+void radarwindow_Display()
 {
 
 	Assert(g_radarWindow != NULL);
@@ -352,7 +352,7 @@ void radarwindow_Display(void)
 	g_radarWindow->Show();
 }
 
-sint32 radarwindow_Cleanup( void )
+sint32 radarwindow_Cleanup( )
 {
 
 	if(g_radarWindow) {

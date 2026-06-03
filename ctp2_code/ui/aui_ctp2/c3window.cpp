@@ -52,7 +52,7 @@ C3Window::C3Window(
 }
 
 
-AUI_ERRCODE C3Window::InitCommon( void )
+AUI_ERRCODE C3Window::InitCommon( )
 {
 	GrabRegion()->Move( 0, 0 );
 	GrabRegion()->Resize( m_width, 20 );

@@ -47,7 +47,7 @@ public:
 
 	virtual ~BattleOrderBox();
 
-	virtual AUI_ERRCODE	Show( void );
+	virtual AUI_ERRCODE	Show( );
 	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL,
 								sint32 x = 0,
 								sint32 y = 0);
@@ -56,9 +56,9 @@ public:
 	void	SetStackMode(BOOL stackDisplay);
 	void	SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit singleUnit = Unit());
 
-	sint32	ToggleStackDisplay( void );
+	sint32	ToggleStackDisplay( );
 
-	BOOL	GetStackDisplay( void ) { return m_stackDisplay; }
+	BOOL	GetStackDisplay( ) { return m_stackDisplay; }
 
 private:
 	RECT			m_unitRect[k_MAX_BOB_UNITS];

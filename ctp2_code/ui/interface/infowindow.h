@@ -55,18 +55,18 @@ public:
 
 	ctp2_Window *GetWindow() {return m_window;}
 
-	static void Open(void);
-	static void Close(void);
-	static void Update(void);
-	static void SelectRankingTab(void);
-	static void SelectScoreTab(void);
-	static void SelectWonderTab(void);
-	static void Cleanup(void);
+	static void Open();
+	static void Close();
+	static void Update();
+	static void SelectRankingTab();
+	static void SelectScoreTab();
+	static void SelectWonderTab();
+	static void Cleanup();
 
 private:
-	void Hide(void);
-	void Show(void);
-	void UpdateData(void);
+	void Hide();
+	void Show();
+	void UpdateData();
 
 	static void CloseButtonActionCallback(aui_Control *control,
 	                                      uint32 action, uint32 data, void *cookie);

@@ -7,7 +7,7 @@ class ns_Tribes;
 // g_nsTribes demoted to file-scope `static` in ns_tribes.cpp.  External
 // callers go through nstribes_Get() (returns NULL before the ns_Tribes
 // singleton has been constructed).
-ns_Tribes * nstribes_Get(void);
+ns_Tribes * nstribes_Get();
 
 class ns_HPlayerItem;
 
@@ -25,8 +25,8 @@ public:
 	ns_Tribes();
 	virtual ~ns_Tribes();
 
-	sint32 GetNumTribes( void ) const { return m_stringtable->GetNumStrings(); }
-	aui_StringTable *GetStrings( void ) const { return m_stringtable; }
+	sint32 GetNumTribes( ) const { return m_stringtable->GetNumStrings(); }
+	aui_StringTable *GetStrings( ) const { return m_stringtable; }
 
 private:
 	aui_StringTable *m_stringtable;

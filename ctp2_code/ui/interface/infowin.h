@@ -39,10 +39,10 @@ public:
 	~InfoBigListItem();
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	Unit	*GetCity( void ) { return &m_city; }
-	sint32	GetIndex( void ) { return m_index; }
+	Unit	*GetCity( ) { return &m_city; }
+	sint32	GetIndex( ) { return m_index; }
 
 protected:
 	InfoBigListItem() : c3_ListItem() {}
@@ -75,10 +75,10 @@ public:
 	InfoPlayerListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex( void ) { return m_index; }
-	MBCHAR	*GetName( void ) { return m_name; }
+	sint32	GetIndex( ) { return m_index; }
+	MBCHAR	*GetName( ) { return m_name; }
 	void	SetIndex( sint32 index ) { m_index = index; }
 
 protected:
@@ -103,11 +103,11 @@ public:
 	InfoWonderListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	Unit	*GetCity( void ) { return &m_city; }
-	sint32	GetIndex( void ) { return m_index; }
-	sint32	GetPlayer( void ) { return m_player; }
+	Unit	*GetCity( ) { return &m_city; }
+	sint32	GetIndex( ) { return m_index; }
+	sint32	GetPlayer( ) { return m_player; }
 
 protected:
 	InfoWonderListItem() : c3_ListItem() {}
@@ -132,11 +132,11 @@ public:
 	InfoScoreListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex( void ) { return m_index; }
-	sint32	GetPlayer( void ) { return m_player; }
-	sint32	GetValue( void ) { return m_value; }
+	sint32	GetIndex( ) { return m_index; }
+	sint32	GetPlayer( ) { return m_player; }
+	sint32	GetValue( ) { return m_value; }
 
 protected:
 	InfoScoreListItem() : c3_ListItem() {}
@@ -161,7 +161,7 @@ public:
 	InfoScoreLabelListItem(AUI_ERRCODE *retval, MBCHAR *label, MBCHAR *text, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
 protected:
 	InfoScoreLabelListItem() : c3_ListItem() {}
@@ -181,22 +181,22 @@ private:
 
 AUI_ACTION_BASIC(InfoCleanupAction);
 
-sint32  infowin_Initialize( void );
-void    infowin_Cleanup(void);
-void    infowin_Cleanup_Controls(void);
+sint32  infowin_Initialize( );
+void    infowin_Cleanup();
+void    infowin_Cleanup_Controls();
 
 sint32 infowin_Init_Controls( MBCHAR *windowBlock );
 
 void infowin_SetMinRoundForGraphs(sint32 minRound);
 
-sint32 infowin_LoadData( void );
-sint32 infowin_UpdateBigList( void );
-sint32 infowin_UpdateScoreList( void );
-sint32 infowin_UpdateWonderList( void );
+sint32 infowin_LoadData( );
+sint32 infowin_UpdateBigList( );
+sint32 infowin_UpdateScoreList( );
+sint32 infowin_UpdateWonderList( );
 
-sint32 infowin_UpdatePlayerList( void );
-sint32 infowin_UpdateCivData( void );
-sint32 infowin_UpdatePollutionData( void );
+sint32 infowin_UpdatePlayerList( );
+sint32 infowin_UpdateCivData( );
+sint32 infowin_UpdatePollutionData( );
 
 sint32 infowin_UpdateGraph( LineGraph *infoGraph,
 							sint32 &infoXCount,
@@ -210,9 +210,9 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 
 sint32 infowin_ChangeSetting( sint32 type );
 sint32 infowin_ChangeDataSetting( sint32 type );
-sint32 infowin_DisplayLab( void );
+sint32 infowin_DisplayLab( );
 sint32 infowin_GetCivScore( sint32 player );
-sint32 infowin_LabReady( void );
+sint32 infowin_LabReady( );
 sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name);
 
 #endif

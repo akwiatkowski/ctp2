@@ -149,7 +149,7 @@ AUI_ERRCODE c3_Ranger::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE c3_Ranger::InitCommon( void )
+AUI_ERRCODE c3_Ranger::InitCommon( )
 {
 	memset( m_arrows, 0, sizeof( m_arrows ) );
 
@@ -433,7 +433,7 @@ c3_Ranger::~c3_Ranger()
 }
 
 
-AUI_ERRCODE c3_Ranger::RepositionButtons( void )
+AUI_ERRCODE c3_Ranger::RepositionButtons( )
 {
 	AUI_ERRCODE errcode = aui_Ranger::RepositionButtons();
 

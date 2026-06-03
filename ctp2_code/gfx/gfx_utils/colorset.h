@@ -54,7 +54,7 @@ class ColorSet;
 
 // App-singleton accessor pair.  g_colorSet is file-static in
 // ColorSet.cpp; external consumers go through these accessors.
-ColorSet * colorset_Get(void);
+ColorSet * colorset_Get();
 void       colorset_Set(ColorSet *p);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class ColorSet
 {
 public:
 	ColorSet();
-	virtual ~ColorSet(void);
+	virtual ~ColorSet();
 
 	Pixel16		GetColor(COLOR color) const;
 	COLORREF	GetColorRef(COLOR color) const;
@@ -86,7 +86,7 @@ public:
 	COLORREF	GetLightColorRef(COLOR color) const;
 
 	static void	Initialize(uint32 fileNumber = 0);
-    static void Cleanup(void);
+    static void Cleanup();
 
 private:
     void        Import(uint32 fileNumber = 0);

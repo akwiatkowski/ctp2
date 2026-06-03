@@ -67,7 +67,7 @@
 
 static CTP2Combat * g_theCurrentBattle = NULL;
 
-CTP2Combat * combat_Get(void)
+CTP2Combat * combat_Get()
 {
     return g_theCurrentBattle;
 }

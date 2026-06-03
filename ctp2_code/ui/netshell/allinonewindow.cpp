@@ -101,7 +101,7 @@ extern aui_Radio *s_maleRadio;
 static DialogBoxWindow *s_dbw = NULL;
 static AllinoneWindow * g_allinoneWindow = NULL;
 
-AllinoneWindow * allinonewindow_Get(void)
+AllinoneWindow * allinonewindow_Get()
 {
     return g_allinoneWindow;
 }
@@ -122,7 +122,7 @@ static DialogBoxWindow *g_exclusionsWindow = NULL;
 
 #define LOCKSETTINGSONLAUNCH 1
 
-void AllinoneWindow_SetupGameForLaunch( void );
+void AllinoneWindow_SetupGameForLaunch( );
 
 namespace
 {
@@ -157,7 +157,7 @@ AllinoneWindow::AllinoneWindow(
 }
 
 
-AUI_ERRCODE AllinoneWindow::InitCommon( void )
+AUI_ERRCODE AllinoneWindow::InitCommon( )
 {
     if (!g_allinoneWindow)
     {
@@ -240,7 +240,7 @@ AUI_ERRCODE AllinoneWindow::InitCommon( void )
 }
 
 
-AUI_ERRCODE AllinoneWindow::CreateControls( void )
+AUI_ERRCODE AllinoneWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -874,7 +874,7 @@ AUI_ERRCODE AllinoneWindow::DrawThis(
 }
 
 
-AUI_ERRCODE AllinoneWindow::CreateExclusions( void )
+AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 {
 	if ( m_createdExclusions )
 	{
@@ -1861,7 +1861,7 @@ void AllinoneWindow::SetupNewScenario()
 
 
 
-AUI_ERRCODE AllinoneWindow::Idle( void )
+AUI_ERRCODE AllinoneWindow::Idle( )
 {
 
 	if ( m_mode == CREATE ||
@@ -2709,7 +2709,7 @@ AUI_ERRCODE AllinoneWindow::Idle( void )
 }
 
 
-void AllinoneWindow::UpdateDisplay( void )
+void AllinoneWindow::UpdateDisplay( )
 {
 	((aui_TextField *)FindControl(CONTROL_GAMENAMETEXTFIELD))->
 		SetFieldText(gamesetup_Get().GetName());
@@ -2820,7 +2820,7 @@ void AllinoneWindow::UpdateDisplay( void )
 }
 
 
-void AllinoneWindow::UpdateTribeSwitches( void )
+void AllinoneWindow::UpdateTribeSwitches( )
 {
 	TribeSlot *tribeSlots = gamesetup_Get().GetTribeSlots();
 
@@ -2908,7 +2908,7 @@ void AllinoneWindow::UpdateTribeSwitches( void )
 }
 
 
-void AllinoneWindow::UpdateConfig( void )
+void AllinoneWindow::UpdateConfig( )
 {
 
 
@@ -3063,7 +3063,7 @@ void AllinoneWindow::ReallyUpdateGameSetup()
 }
 
 
-void AllinoneWindow::UpdatePlayerSetup(void)
+void AllinoneWindow::UpdatePlayerSetup()
 {
 	m_shouldUpdatePlayer = true;
 
@@ -3103,7 +3103,7 @@ void AllinoneWindow::UpdateAIPlayerSetup( nf_AIPlayer *aiplayer )
 }
 
 
-void AllinoneWindow::ReallyUpdateAIPlayerSetup( void )
+void AllinoneWindow::ReallyUpdateAIPlayerSetup( )
 {
 	for ( sint32 i = m_aiplayerList->L(); i; i-- )
 	{
@@ -3127,14 +3127,14 @@ void AllinoneWindow::DeleteAIPlayer( nf_AIPlayer *player )
 }
 
 
-sint32 AllinoneWindow::CurNumHumanPlayers( void )
+sint32 AllinoneWindow::CurNumHumanPlayers( )
 {
 
 	return netfunc_Get()->players.size();
 }
 
 
-sint32 AllinoneWindow::CurNumAiPlayers( void )
+sint32 AllinoneWindow::CurNumAiPlayers( )
 {
 	ns_AIPlayerListBox *aiplistbox = (ns_AIPlayerListBox *)
 		m_controls[ CONTROL_AIPLAYERSLISTBOX ];
@@ -3143,13 +3143,13 @@ sint32 AllinoneWindow::CurNumAiPlayers( void )
 }
 
 
-sint32 AllinoneWindow::CurNumPlayers( void )
+sint32 AllinoneWindow::CurNumPlayers( )
 {
 	return CurNumHumanPlayers() + CurNumAiPlayers();
 }
 
 
-sint32 AllinoneWindow::OKToAddPlayers( void )
+sint32 AllinoneWindow::OKToAddPlayers( )
 {
 	sint32 curNumPlayers = CurNumHumanPlayers();
 
@@ -3242,7 +3242,7 @@ void AllinoneWindow::AddAIPlayer( sint32 curCount )
 }
 
 
-void AllinoneWindow::Update(void)
+void AllinoneWindow::Update()
 {
 	ns_GPlayerListBox *list = (ns_GPlayerListBox *)
 		FindControl( AllinoneWindow::CONTROL_GPLAYERSLISTBOX );
@@ -3369,7 +3369,7 @@ void AllinoneWindow::PlayersListBoxAction::Execute(
 }
 
 
-void AllinoneWindow::UpdatePlayerButtons( void )
+void AllinoneWindow::UpdatePlayerButtons( )
 {
 	ns_HPlayerListBox *listbox = (ns_HPlayerListBox *)
 		m_controls[ CONTROL_HPLAYERSLISTBOX ];
@@ -3829,7 +3829,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 	netfunc_Get()->PushChatMessage( readytolaunch.GetString() );
 }
 
-void AllinoneWindow_SetupGameForLaunch( void )
+void AllinoneWindow_SetupGameForLaunch( )
 {
 
 	sint32 numPlayers = ((aui_ListBox *)g_allinoneWindow->FindControl(
@@ -4106,7 +4106,7 @@ void AllinoneWindow::ReviewButtonAction::Execute(
 
 
 
-void AllinoneWindow::SpitOutGameSetup( void )
+void AllinoneWindow::SpitOutGameSetup( )
 {
 	bool displayedSomething = false;
 

@@ -6,7 +6,7 @@ class aui_StringTable;
 class ns_Wonders;
 // g_nsWonders demoted to file-scope `static` in ns_wonders.cpp.
 // External callers go through nswonders_Get() / nswonders_Set().
-ns_Wonders * nswonders_Get(void);
+ns_Wonders * nswonders_Get();
 void         nswonders_Set(ns_Wonders *p);
 
 
@@ -19,7 +19,7 @@ public:
 	ns_Wonders();
 	virtual ~ns_Wonders();
 
-	aui_StringTable *GetStrings( void ) const { return m_stringtable; }
+	aui_StringTable *GetStrings( ) const { return m_stringtable; }
 
 private:
 	aui_StringTable *m_stringtable;

@@ -928,7 +928,7 @@ void DiplomaticRequestData::Reject(BOOL fromServer)
 
 }
 
-MBCHAR *DiplomaticRequestData::GetRequestString(void)
+MBCHAR *DiplomaticRequestData::GetRequestString()
 {
 	switch (m_request) {
 		case REQUEST_TYPE_GREETING :

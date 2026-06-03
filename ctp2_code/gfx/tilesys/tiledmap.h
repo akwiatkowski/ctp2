@@ -77,7 +77,7 @@ struct  TILEHITMASK;
 // Session-singleton accessor pair, mirroring world_Get / gevmanager_Get
 // / slicengine_Get.  The legacy g_tiledMap pointer is now file-static
 // in ctp/civ3_main.cpp; outside callers must go through these accessors.
-TiledMap * tiledmap_Get(void);
+TiledMap * tiledmap_Get();
 void       tiledmap_Set(TiledMap *p);
 
 //----------------------------------------------------------------------------
@@ -139,14 +139,14 @@ public:
 	virtual ~TiledMap();
 
 	void			AllocateTileInfoStorage(MapPoint *size);
-	void			DisposeTileInfoStorage(void);
+	void			DisposeTileInfoStorage();
 	TileInfo		*GetTileInfoStoragePtr(MapPoint &pos);
 	sint32			Initialize(RECT *rect);
 
 	void			InitGrid(sint32 maxPixelsPerGridRectX,sint32 maxPixelsPerGridRectY);
-	void			DeleteGrid(void);
+	void			DeleteGrid();
 	void			CheckRectAgainstGrid(RECT &rect, aui_DirtyList *list);
-	void			ClearGrid(void);
+	void			ClearGrid();
 
 	void			AddDirty(sint32 left, sint32 top, sint32 width, sint32 height, aui_DirtyList *list);
 	void			AddDirtyRect(RECT &rect, aui_DirtyList *list);
@@ -160,17 +160,17 @@ public:
 	void			AddDirtyRectToMix(RECT &rect);
 	void			AddDirtyTileToMix(MapPoint &pos);
 
-	void			ClearMixDirtyRects(void);
+	void			ClearMixDirtyRects();
 	void			CopyMixDirtyRects(aui_DirtyList *dest);
-	void			InvalidateMap(void);
-	void			ValidateMap(void);
-	void			InvalidateMix(void);
-	void			ValidateMix(void);
+	void			InvalidateMap();
+	void			ValidateMap();
+	void			InvalidateMix();
+	void			ValidateMix();
 	void			RestoreMixFromMap(aui_Surface *destSurf);
 	void			UpdateMixFromMap(aui_Surface *mixSurf);
 	void			OffsetMixDirtyRects(sint32 deltaX, sint32 deltaY);
 
-	void			LoadTileset(void);
+	void			LoadTileset();
 
 	sint16			TryRiver(BOOL c, BOOL n, BOOL ne, BOOL e, BOOL se, BOOL s, BOOL sw, BOOL w, BOOL nw, BOOL cwater);
 	bool			TryTransforms(MapPoint &pos, uint16 c, uint16 n, uint16 ne, uint16 e, uint16 se, uint16 s,
@@ -183,9 +183,9 @@ public:
 	void			BreakMegaTile(MapPoint &pos);
 	void			TileChanged(MapPoint &pos);
 
-	void			ReloadGoodActors(void);
+	void			ReloadGoodActors();
 
-	void			GenerateHitMask(void);
+	void			GenerateHitMask();
 	void			DrawHitMask(aui_Surface *surf, const MapPoint &pos);
 	void			DrawColoredHitMask(aui_Surface *surf, const MapPoint &pos, COLOR color);
 	void			DrawColoredHitMaskEdge(aui_Surface *surf, const MapPoint &pos, Pixel16 color, WORLD_DIRECTION d);
@@ -198,7 +198,7 @@ public:
 	void			DrawTerrainOverlay(aui_Surface *destSurf);
 
 	sint32			RecalculateViewRect(RECT &myRect);
-	sint32			CalculateMetrics(void);
+	sint32			CalculateMetrics();
 	void			DrawBorderIcon(aui_Surface *surf, const MapPoint &pos);  //test
 
 	void            GetMapMetrics(sint32 *width,sint32 *height) const
@@ -226,7 +226,7 @@ public:
 	sint32          RepaintBorders(RECT *repaintRect, bool clip=false);
 	sint32			RepaintEdgeX(RECT *repaintRect);
 	sint32			RepaintEdgeY(RECT *repaintRect);
-	sint32			Refresh(void);
+	sint32			Refresh();
 
 	sint32			DrawCityRadius(const MapPoint &cpos, COLOR color,sint32 size=1);
 	sint32			DrawCityRadius1(const MapPoint &cpos, COLOR color);
@@ -379,13 +379,13 @@ public:
 #endif
 	bool		TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect = NULL);
 
-	double		GetScale(void) { return m_scale; }
+	double		GetScale() { return m_scale; }
 	void		SetScale(double s) { m_scale = s; }
 
 	TileInfo   *GetTileInfo(const MapPoint &pos);
-	RECT		*GetMapViewRect(void) { return &m_mapViewRect; }
+	RECT		*GetMapViewRect() { return &m_mapViewRect; }
 
-	TileSet		*GetTileSet(void) { return m_tileSet; }
+	TileSet		*GetTileSet() { return m_tileSet; }
 
 	void		DrawLabel(aui_Surface *surface, sint32 color, sint32 x, sint32 y);
 
@@ -404,7 +404,7 @@ public:
 	void		MouseDrag(aui_MouseEvent *data);
 	void		Click(aui_MouseEvent *data, bool doubleClick);
 	void		Drop(aui_MouseEvent *data);
-	void		Idle(void);
+	void		Idle();
 
 	bool		GetMousePos(POINT &pos) const;
 	bool		GetMouseTilePos(MapPoint &pt) const;
@@ -412,7 +412,7 @@ public:
 	void		DrawTransitionTile(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y);
 	void		DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &pos, sint32 x, sint32 y, sint32 destWidth, sint32 destHeight);
 
-	void		DrawWater(void);
+	void		DrawWater();
 
 	bool        CanDrawSpecialMove(SELECT_TYPE sType, Army &sel_army, const MapPoint &old_pos, const MapPoint &cur_pos);
 	void		DrawLegalMove(aui_Surface *pSurface);
@@ -451,30 +451,30 @@ public:
 	void		DrawCityReligionIcons(aui_Surface *surf, MapPoint const & pos, sint32 owner, bool fog, RECT &popRect, BOOL HasReligionIcon );
 	void		DrawCitySpecialIcons (aui_Surface *surf, MapPoint const & pos, sint32 owner, bool fog, RECT &popRect, BOOL HasSpecialIcon);
 
-	void		NextPlayer(void);
+	void		NextPlayer();
 	void		CopyVision();
-	const Vision		*GetLocalVision(void) const { return m_localVision; }
+	const Vision		*GetLocalVision() const { return m_localVision; }
 	void		AddVisible(MapPoint& pos, double& radius) { m_localVision->AddVisible(pos, radius); };
 	void		RemoveVisible(MapPoint& pos, double& radius) { m_localVision->RemoveVisible(pos, radius); };
 
-	aui_Surface *GetSurface(void) { return m_surface; }
+	aui_Surface *GetSurface() { return m_surface; }
 
-	TILEHITMASK	*GetTileHitMask( void ) { return m_tileHitMask; }
+	TILEHITMASK	*GetTileHitMask( ) { return m_tileHitMask; }
 	void		GetMapBounds( RECT &rect ) { rect = m_mapBounds; }
 
 	void		RetargetTileSurface(aui_Surface *surface);
 
-	void		LockSurface(void);
+	void		LockSurface();
 	void		LockThisSurface(aui_Surface *surface);
-	void		UnlockSurface(void);
-	BOOL		IsLocked(void) const { return m_surfIsLocked; }
+	void		UnlockSurface();
+	BOOL		IsLocked() const { return m_surfIsLocked; }
 
 	void		DrawHilite( BOOL drawHilite ) { m_drawHilite = drawHilite; }
 
 	bool        ReadyToDraw() const;
 
-	aui_BitmapFont		*GetFont(void) { return m_font; }
-	MBCHAR				*GetFortifyString(void) { return m_fortifyString; }
+	aui_BitmapFont		*GetFont() { return m_font; }
+	MBCHAR				*GetFortifyString() { return m_fortifyString; }
 
 	sint32 GetVisibleCellOwner  (const MapPoint &pos) const;
 	uint32 GetVisibleCityOwner  (const MapPoint &pos) const;

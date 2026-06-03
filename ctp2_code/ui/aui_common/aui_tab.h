@@ -68,14 +68,14 @@ protected:
 public:
 	virtual sint32 SetState( sint32 state );
 
-	aui_Control	*GetPane( void ) const { return m_pane; }
+	aui_Control	*GetPane( ) const { return m_pane; }
 
 	AUI_ERRCODE	AddPaneControl( aui_Control *control );
 	AUI_ERRCODE RemovePaneControl( uint32 controlId );
 	aui_Control	*GetPaneControl( uint32 controlId ) const
 		{ return (aui_Control *)m_pane->GetChild( controlId ); }
 
-	virtual AUI_ERRCODE	Show( void );
+	virtual AUI_ERRCODE	Show( );
 
 protected:
 	aui_Control		*m_pane;

@@ -24,16 +24,16 @@ public:
 	AgreementData* AccessData() ;
 
 	void Castrate() {} ;
-	PLAYER_INDEX GetOwner(void) const { return (GetData()->GetOwner()) ; }
-	Unit GetTarget(void) { return (GetData()->GetTarget()) ; }
-	PLAYER_INDEX GetRecipient(void) const { return (GetData()->GetRecipient()) ; }
-	PLAYER_INDEX GetThirdParty(void) const { return (GetData()->GetThirdParty()) ; }
-	AGREEMENT_TYPE GetAgreement(void) const { return (GetData()->GetAgreement()) ; }
+	PLAYER_INDEX GetOwner() const { return (GetData()->GetOwner()) ; }
+	Unit GetTarget() { return (GetData()->GetTarget()) ; }
+	PLAYER_INDEX GetRecipient() const { return (GetData()->GetRecipient()) ; }
+	PLAYER_INDEX GetThirdParty() const { return (GetData()->GetThirdParty()) ; }
+	AGREEMENT_TYPE GetAgreement() const { return (GetData()->GetAgreement()) ; }
 
 	void SetExpires(const sint32 turns) { AccessData()->SetExpires(turns) ; }
-	BOOL IsExpired(void) const { return (GetData()->IsExpired()) ; }
-	BOOL DoesExpire(void) const { return (GetData()->DoesExpire()) ; }
-	sint32 GetTurns(void) const { return (GetData()->GetTurns()) ; }
+	BOOL IsExpired() const { return (GetData()->IsExpired()) ; }
+	BOOL DoesExpire() const { return (GetData()->DoesExpire()) ; }
+	sint32 GetTurns() const { return (GetData()->GetTurns()) ; }
 
 
 

@@ -42,19 +42,19 @@ extern CivPaths		*civpaths_Get();
 
 static CivScenarios	*g_civScenarios = NULL;
 
-CivScenarios * civscenarios_Get(void)
+CivScenarios * civscenarios_Get()
 {
 	return g_civScenarios;
 }
 
 
-void CivScenarios::Initialize(void)
+void CivScenarios::Initialize()
 {
 	g_civScenarios = new CivScenarios();
 }
 
 
-void CivScenarios::Cleanup(void)
+void CivScenarios::Cleanup()
 {
 	if (g_civScenarios) {
 		delete g_civScenarios;
@@ -213,7 +213,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 }
 
 
-void CivScenarios::LoadData(void)
+void CivScenarios::LoadData()
 {
 	MBCHAR			    path[_MAX_PATH];
     MBCHAR              rootPath[_MAX_PATH];
@@ -318,7 +318,7 @@ void CivScenarios::LoadData(void)
 }
 
 
-void CivScenarios::ClearData(void)
+void CivScenarios::ClearData()
 {
 	sint32		i;
 
@@ -333,7 +333,7 @@ void CivScenarios::ClearData(void)
 }
 
 
-void CivScenarios::ReloadData(void)
+void CivScenarios::ReloadData()
 {
 	if (m_scenarioPacks) {
 		ClearData();

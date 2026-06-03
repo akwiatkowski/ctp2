@@ -76,7 +76,7 @@ AUI_ERRCODE c3_ColorIconButton::Resize(sint32 width, sint32 height)
 
 	return errcode;
 }
-void c3_ColorIconButton::ResizePictureRect(void)
+void c3_ColorIconButton::ResizePictureRect()
 {
 	sint32 destHeight, destWidth;
 

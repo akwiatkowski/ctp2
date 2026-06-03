@@ -326,9 +326,9 @@ public:
 	TileSet();
 	~TileSet();
 
-	void			Cleanup(void);
-	void			CleanupQuick(void);
-	void			CleanupMapped(void);
+	void			Cleanup();
+	void			CleanupQuick();
+	void			CleanupMapped();
 
 	void			LoadBaseTiles(FILE *file);
 	void			LoadTransitions(FILE *file);
@@ -337,27 +337,27 @@ public:
 	void			LoadImprovements(FILE *file);
 	void			LoadMegaTiles(FILE *file);
 
-	void			LoadMapIcons(void);
+	void			LoadMapIcons();
 	//Pixel16			ConvertMapIcons(const MBCHAR *name);  //EMOD
 
-	void			Load(void);
+	void			Load();
 
 	Pixel16			*GetRiverData(uint16 riverNum) const { return m_riverData[riverNum]; }
 
 	sint16			*GetTransformData(uint16 transformNum) const { return m_transforms[transformNum]; }
 	sint16			GetTransform(uint16 transformNum, uint16 index) { return m_transforms[transformNum][index]; }
-	uint16			GetNumTransforms(void) const { return m_numTransforms; }
+	uint16			GetNumTransforms() const { return m_numTransforms; }
 
 	BaseTile		*GetBaseTile(uint16 baseTileNum) const { return m_baseTiles[baseTileNum]; }
 	Pixel16			*GetTransitionData(uint16 from, uint16 to, uint16 which) const { return m_transitions[from][to][which]; }
 
-	uint16			GetNumRiverTransforms(void) const { return m_numRiverTransforms; }
+	uint16			GetNumRiverTransforms() const { return m_numRiverTransforms; }
 	sint16			GetRiverTransform(uint16 transformNum, uint16 index) { return m_riverTransforms[transformNum][index];}
 
 	Pixel16			*GetImprovementData(uint16 improveNum) const { return m_improvementData[improveNum]; }
 	Pixel16			*GetRoadData(uint16 roadNum) const { return m_improvementData[roadNum]; } // Now the same as GetImprovementData
 
-	uint16			GetNumMegaTiles(void) const { return m_numMegaTiles; }
+	uint16			GetNumMegaTiles() const { return m_numMegaTiles; }
 	uint16			GetMegaTileLength(sint32 megaTileNum) const { return m_megaTileLengths[megaTileNum]; }
 	MegaTileStep	GetMegaTileStep(sint32 megaTileNum, sint32 stepNum) const { return m_megaTileData[megaTileNum][stepNum]; }
 
@@ -374,10 +374,10 @@ public:
 	void			QuickLoadImprovements(uint8 **dataPtr);
 	void			QuickLoadMegaTiles(uint8 **dataPtr);
 
-	void			QuickLoad(void);
-	void			QuickLoadMapped(void);
+	void			QuickLoad();
+	void			QuickLoadMapped();
 
-	BOOL			QuickLoaded(void) { return m_quick; }
+	BOOL			QuickLoaded() { return m_quick; }
 
 private:
 	uint16			m_numTransforms;

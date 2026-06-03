@@ -78,16 +78,16 @@ public:
 	virtual ~RadarMap();
 
 	void		InitCommonLdl(MBCHAR *ldlBlock);
-	void		InitCommon(void);
+	void		InitCommon();
 	virtual		AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
 
 
 
-	void		ClearMapOverlay(void);
+	void		ClearMapOverlay();
 	void		SetMapOverlayCell(MapPoint const & pos, COLOR color);
 
-	void		CalculateMetrics(void);
+	void		CalculateMetrics();
 
 	void RenderMap(aui_Surface *surface);
 	void RenderViewRect(aui_Surface *surf, sint32 x, sint32 y);
@@ -100,19 +100,19 @@ public:
 	BOOL		IncludePointInView(MapPoint &pos, sint32 radius);
 	MapPoint	ComputeCenteredMap(MapPoint const & pos, RECT *viewRect);
 	MapPoint	CenterMap(const MapPoint &pos );
-	void		Setup( void );
-	void		Update( void );
+	void		Setup( );
+	void		Update( );
 	void		RedrawTile( const MapPoint *point );
 	void		SetSelectedCity( Unit city ) { m_selectedCity = city; };
 
-	aui_Surface *GetMapSurface(void) const { return m_mapSurface; }
+	aui_Surface *GetMapSurface() const { return m_mapSurface; }
 
 	virtual AUI_ERRCODE			DrawThis(aui_Surface *surface, sint32 x, sint32 y);
 
 	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);
 	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
 
-	virtual AUI_ERRCODE			Idle( void );
+	virtual AUI_ERRCODE			Idle( );
 
 	bool IsInteractive() const { return(m_isInteractive); }
 
@@ -235,7 +235,7 @@ private:
 
 // Storage is file-scope `static` in civ3_main.cpp.  Readers use
 // radar_map_Get(); radarwindow's lifecycle (create + clear) uses _Set.
-RadarMap * radar_map_Get(void);
+RadarMap * radar_map_Get();
 void       radar_map_Set(RadarMap *p);
 
 #endif

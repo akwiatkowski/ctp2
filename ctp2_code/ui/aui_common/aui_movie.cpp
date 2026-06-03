@@ -130,7 +130,7 @@ AUI_ERRCODE aui_Movie::SetFilename( MBCHAR const *filename )
 }
 
 
-AUI_ERRCODE aui_Movie::Load( void )
+AUI_ERRCODE aui_Movie::Load( )
 {
 	Assert(m_format);
 	if ( !m_format ) return AUI_ERRCODE_INVALIDPARAM;
@@ -139,7 +139,7 @@ AUI_ERRCODE aui_Movie::Load( void )
 }
 
 
-AUI_ERRCODE aui_Movie::Unload( void )
+AUI_ERRCODE aui_Movie::Unload( )
 {
 	Close();
 
@@ -308,7 +308,7 @@ AUI_ERRCODE aui_Movie::Open(
 }
 
 
-AUI_ERRCODE aui_Movie::Close( void )
+AUI_ERRCODE aui_Movie::Close( )
 {
 	if ( m_isOpen )
 	{
@@ -342,7 +342,7 @@ AUI_ERRCODE aui_Movie::Close( void )
 }
 
 
-AUI_ERRCODE aui_Movie::Play( void )
+AUI_ERRCODE aui_Movie::Play( )
 {
 	if ( !m_isPlaying )
 	{
@@ -373,7 +373,7 @@ AUI_ERRCODE aui_Movie::Play( void )
 
 
 
-AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
+AUI_ERRCODE aui_Movie::PlayOnScreenMovie( )
 {
 	aui_Mouse *mouse = aui_ui_Get()->TheMouse();
 	sint32 numEvents;
@@ -447,7 +447,7 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( void )
 }
 
 
-AUI_ERRCODE aui_Movie::Stop( void )
+AUI_ERRCODE aui_Movie::Stop( )
 {
 	if ( m_isPlaying )
 	{
@@ -465,7 +465,7 @@ AUI_ERRCODE aui_Movie::Stop( void )
 }
 
 
-AUI_ERRCODE aui_Movie::Pause(void)
+AUI_ERRCODE aui_Movie::Pause()
 {
 	if (m_isPlaying)
 	{
@@ -476,7 +476,7 @@ AUI_ERRCODE aui_Movie::Pause(void)
 }
 
 
-AUI_ERRCODE aui_Movie::Resume(void)
+AUI_ERRCODE aui_Movie::Resume()
 {
 	if (m_isPlaying)
 	{
@@ -487,7 +487,7 @@ AUI_ERRCODE aui_Movie::Resume(void)
 }
 
 
-AUI_ERRCODE aui_Movie::Process( void )
+AUI_ERRCODE aui_Movie::Process( )
 {
 	AUI_ERRCODE retval = AUI_ERRCODE_UNHANDLED;
 

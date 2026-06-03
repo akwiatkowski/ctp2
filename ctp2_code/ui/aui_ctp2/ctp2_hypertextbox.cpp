@@ -373,7 +373,7 @@ AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE ctp2_HyperTextBox::InitCommon( void )
+AUI_ERRCODE ctp2_HyperTextBox::InitCommon( )
 {
 	m_hyperLinkList = new tech_WLList<ctp2_HyperLink *>;
 	Assert( m_hyperLinkList != NULL );
@@ -634,7 +634,7 @@ AUI_ERRCODE ctp2_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 
 
 
-void ctp2_HyperTextBox::RemoveHyperLinks( void )
+void ctp2_HyperTextBox::RemoveHyperLinks( )
 {
 	for (sint32 i = m_hyperLinkList->L(); i; --i)
     {

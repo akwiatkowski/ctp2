@@ -51,7 +51,7 @@ ThroneDB::~ThroneDB()
 	if(m_throneInfo) delete [] m_throneInfo;
 }
 
-void ThroneDB::Initialize(void)
+void ThroneDB::Initialize()
 {
 
 	m_nThroneTypes = 0;

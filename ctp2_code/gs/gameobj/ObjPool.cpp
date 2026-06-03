@@ -106,7 +106,7 @@ void ObjPool::Del(const ID &id)
 	GameObj_Delete(&m_table[Key(id.m_id)], id.m_id);
 }
 
-sint32 ObjPool::Num(void) const
+sint32 ObjPool::Num() const
 {
 	sint32 count = 0;
 
@@ -117,7 +117,7 @@ sint32 ObjPool::Num(void) const
 	return count;
 }
 
-uint32 ObjPool_ObjPool_GetVersion(void)
+uint32 ObjPool_ObjPool_GetVersion()
 {
 	return (k_OBJPOOL_VERSION_MAJOR<<16 | k_OBJPOOL_VERSION_MINOR);
 }

@@ -28,7 +28,7 @@ public:
 protected:
 	aui_Header() : aui_SwitchGroup() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = NULL );
 
 public:
@@ -36,8 +36,8 @@ public:
 	virtual AUI_ERRCODE	RemoveChild( uint32 switchId );
 
 protected:
-	AUI_ERRCODE	CalculateDimensions( void );
-	AUI_ERRCODE	RepositionSwitches( void );
+	AUI_ERRCODE	CalculateDimensions( );
+	AUI_ERRCODE	RepositionSwitches( );
 };
 
 

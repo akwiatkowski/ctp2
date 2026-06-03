@@ -161,22 +161,22 @@ protected:
 public:
 	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	aui_Thumb	*GetThumb( void ) const { return m_thumb; }
-	aui_Button	*GetIncrementXButton( void ) const { return m_incXButton; }
-	aui_Button	*GetIncrementYButton( void ) const { return m_incYButton; }
-	aui_Button	*GetDecrementXButton( void ) const { return m_decXButton; }
-	aui_Button	*GetDecrementYButton( void ) const { return m_decYButton; }
+	aui_Thumb	*GetThumb( ) const { return m_thumb; }
+	aui_Button	*GetIncrementXButton( ) const { return m_incXButton; }
+	aui_Button	*GetIncrementYButton( ) const { return m_incYButton; }
+	aui_Button	*GetDecrementXButton( ) const { return m_decXButton; }
+	aui_Button	*GetDecrementYButton( ) const { return m_decYButton; }
 
-	sint32		GetValueX( void ) const { return m_valX; }
-	sint32		GetValueY( void ) const { return m_valY; }
-	sint32		GetMinimumX( void ) const { return m_minX; }
-	sint32		GetMinimumY( void ) const { return m_minY; }
-	sint32		GetMaximumX( void ) const { return m_maxX; }
-	sint32		GetMaximumY( void ) const { return m_maxY; }
-	sint32		GetIncrementX( void ) const { return m_incX; }
-	sint32		GetIncrementY( void ) const { return m_incY; }
-	sint32		GetPageX( void ) const { return m_pageX; }
-	sint32		GetPageY( void ) const { return m_pageY; }
+	sint32		GetValueX( ) const { return m_valX; }
+	sint32		GetValueY( ) const { return m_valY; }
+	sint32		GetMinimumX( ) const { return m_minX; }
+	sint32		GetMinimumY( ) const { return m_minY; }
+	sint32		GetMaximumX( ) const { return m_maxX; }
+	sint32		GetMaximumY( ) const { return m_maxY; }
+	sint32		GetIncrementX( ) const { return m_incX; }
+	sint32		GetIncrementY( ) const { return m_incY; }
+	sint32		GetPageX( ) const { return m_pageX; }
+	sint32		GetPageY( ) const { return m_pageY; }
 
 	AUI_ERRCODE	SetValue( sint32 valX, sint32 valY );
 	AUI_ERRCODE	SetMinimum( sint32 minX, sint32 minY );
@@ -184,44 +184,44 @@ public:
 	AUI_ERRCODE	SetIncrement( sint32 incX, sint32 incY );
 	AUI_ERRCODE	SetPage( sint32 pageX, sint32 pageY );
 
-	AUI_ERRCODE	IncrementUpX( void );
-	AUI_ERRCODE	IncrementUpY( void );
-	AUI_ERRCODE	IncrementDownX( void );
-	AUI_ERRCODE	IncrementDownY( void );
+	AUI_ERRCODE	IncrementUpX( );
+	AUI_ERRCODE	IncrementUpY( );
+	AUI_ERRCODE	IncrementDownX( );
+	AUI_ERRCODE	IncrementDownY( );
 
-	AUI_ERRCODE	PageUpX( void );
-	AUI_ERRCODE	PageUpY( void );
-	AUI_ERRCODE	PageDownX( void );
-	AUI_ERRCODE	PageDownY( void );
+	AUI_ERRCODE	PageUpX( );
+	AUI_ERRCODE	PageUpY( );
+	AUI_ERRCODE	PageDownX( );
+	AUI_ERRCODE	PageDownY( );
 
-	sint32		GetMinThumbSize( void ) const { return m_minThumbSize; }
+	sint32		GetMinThumbSize( ) const { return m_minThumbSize; }
 	AUI_ERRCODE	SetMinThumbSize( sint32 minThumbSize )
 		{ m_minThumbSize = minThumbSize; return RepositionThumb(); }
 
-	sint32		GetButtonSize( void ) const { return m_buttonSize; }
+	sint32		GetButtonSize( ) const { return m_buttonSize; }
 	AUI_ERRCODE	SetButtonSize( sint32 buttonSize )
 		{ m_buttonSize = buttonSize; return RepositionButtons(); }
 
-	AUI_RANGER_TYPE GetType( void ) const { return m_type; }
+	AUI_RANGER_TYPE GetType( ) const { return m_type; }
 
 	AUI_ERRCODE	ThumbMoved( BOOL forceQuantize = FALSE );
 
-	BOOL		UsingRigidThumb( void ) const { return m_rigidThumb; }
-	BOOL		UsingQuantizedDragging( void ) const { return m_quantized; }
+	BOOL		UsingRigidThumb( ) const { return m_rigidThumb; }
+	BOOL		UsingQuantizedDragging( ) const { return m_quantized; }
 
 	AUI_ERRCODE	UseRigidThumb( BOOL rigidThumb )
 		{ m_rigidThumb = rigidThumb; return RepositionThumb(); }
 	AUI_ERRCODE	UseQuantizedDragging( BOOL quantized )
 		{ m_quantized = quantized; return AUI_ERRCODE_OK; }
 
-	virtual AUI_ERRCODE Show( void );
+	virtual AUI_ERRCODE Show( );
 
 protected:
 	AUI_ERRCODE	ValueToPosition( sint32 *x, sint32 *y );
 	AUI_ERRCODE	PositionToValue( sint32 *x, sint32 *y );
 	AUI_ERRCODE	CenterPositionToValue( sint32 *x, sint32 *y );
 
-	AUI_ERRCODE	SlideThumb( void );
+	AUI_ERRCODE	SlideThumb( );
 
 	AUI_ERRCODE	RepositionThumb( BOOL callActionFunc = TRUE );
 

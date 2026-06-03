@@ -47,7 +47,7 @@ ctp2_CommandLine::~ctp2_CommandLine()
 		c3ui_Get()->UnloadBitmapFont(m_font);
 }
 
-void ctp2_CommandLine::Draw(void)
+void ctp2_CommandLine::Draw()
 {
 
 	primitives_PaintRect16(m_surface, &m_rect, colorset_Get()->GetColor(COLOR_BLACK));

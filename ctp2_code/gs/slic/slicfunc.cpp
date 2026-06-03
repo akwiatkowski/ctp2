@@ -181,7 +181,7 @@ SlicArgList::SlicArgList()
 {
 }
 
-void SlicArgList::ReleaseSymbols(void)
+void SlicArgList::ReleaseSymbols()
 {
     for (size_t arg = 0; arg < m_argValue.size(); ++arg)
     {

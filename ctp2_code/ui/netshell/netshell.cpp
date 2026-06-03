@@ -50,26 +50,26 @@
 #include "ui/netshell/playerselectwindow.h"
 #include "ui/netshell/serverselectwindow.h"
 
-extern void EnterMainMenu(void);
-extern void LeaveMainMenu(void);
-extern void LaunchGame(void);
+extern void EnterMainMenu();
+extern void LeaveMainMenu();
+extern void LaunchGame();
 extern MBCHAR g_serverName[ 100 + 1 ];
 
 static NetShell *   g_netshell          = NULL;
 
-NetShell * netshell_Get(void) { return g_netshell; }
+NetShell * netshell_Get() { return g_netshell; }
 static NETFunc *      g_netfunc          = NULL;
 static nf_GameSetup   g_gamesetup;
 
-NETFunc *      netfunc_Get(void)         { return g_netfunc; }
+NETFunc *      netfunc_Get()         { return g_netfunc; }
 void           netfunc_Set(NETFunc *p)   { g_netfunc = p; }
-nf_GameSetup & gamesetup_Get(void)       { return g_gamesetup; }
+nf_GameSetup & gamesetup_Get()       { return g_gamesetup; }
 static nf_PlayerSetup g_playersetup;
 
-nf_PlayerSetup & playersetup_Get(void) { return g_playersetup; }
+nf_PlayerSetup & playersetup_Get() { return g_playersetup; }
 static nf_PlayerSetup g_rplayersetup;
 
-nf_PlayerSetup & rplayersetup_Get(void) { return g_rplayersetup; }
+nf_PlayerSetup & rplayersetup_Get() { return g_rplayersetup; }
 
 
 AUI_ERRCODE NetShell::Enter( uint32 flags )
@@ -237,7 +237,7 @@ NetShell::NetShell()
 }
 
 
-AUI_ERRCODE NetShell::CreateScreens( void )
+AUI_ERRCODE NetShell::CreateScreens( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -391,7 +391,7 @@ NetShell::~NetShell()
     }
 }
 
-void NetShell::DestroyScreens( void )
+void NetShell::DestroyScreens( )
 {
     SavePlayerSetupList();
     SaveGameSetupList();
@@ -417,25 +417,25 @@ void NetShell::DestroyScreens( void )
 	passwordscreen_Cleanup();
 }
 
-void NetShell::SavePlayerSetupList( void )
+void NetShell::SavePlayerSetupList( )
 {
 	PlayerSelectWindow *pw = (PlayerSelectWindow *)g_netshell->FindWindow( NetShell::WINDOW_PLAYERSELECT );
 	ns_PlayerSetupListBox *pl = (ns_PlayerSetupListBox *)(pw->FindControl( PlayerSelectWindow::CONTROL_PLAYERNAMELISTBOX ));
 	pl->Save();
 }
 
-void NetShell::SaveGameSetupList( void )
+void NetShell::SaveGameSetupList( )
 {
 	GameSelectWindow *gw = (GameSelectWindow *)g_netshell->FindWindow( NetShell::WINDOW_GAMESELECT );
 	ns_GameSetupListBox *gl = (ns_GameSetupListBox *)(gw->FindControl( GameSelectWindow::CONTROL_GAMENAMELISTBOX ));
 	gl->Save();
 }
 
-void NetShell::SaveAiSetupList( void )
+void NetShell::SaveAiSetupList( )
 {
 }
 
-void NetShell::DestroyNETFunc( void )
+void NetShell::DestroyNETFunc( )
 {
 	allocated::clear(g_netfunc);
 }

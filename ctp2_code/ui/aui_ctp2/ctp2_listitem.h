@@ -63,7 +63,7 @@ public:
 
 
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 
 
 

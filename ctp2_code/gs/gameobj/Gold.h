@@ -146,5 +146,5 @@ public:
 
 };
 
-uint32 Gold_Gold_GetVersion(void) ;
+uint32 Gold_Gold_GetVersion() ;
 #endif

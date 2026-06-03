@@ -98,7 +98,7 @@ public:
 
 
 
-	void FitToBitmap(void);
+	void FitToBitmap();
 
 	void SetChromaKey(sint32 r,sint32 g,sint32 b);
 

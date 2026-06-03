@@ -63,22 +63,22 @@ public:
 	BattleEvent(BATTLE_EVENT_TYPE type);
 	~BattleEvent();
 
-	void Initialize(void);
+	void Initialize();
 
-	void ProcessPlacement(void);
-	void ProcessAttack(void);
-	void ProcessExplode(void);
-	void ProcessDeath(void);
-	void Process(void);
+	void ProcessPlacement();
+	void ProcessAttack();
+	void ProcessExplode();
+	void ProcessDeath();
+	void Process();
 
 	void DrawExplosions(aui_Surface *surface);
 
-	BOOL					IsFinished(void) const { return m_finished; }
+	BOOL					IsFinished() const { return m_finished; }
 	void					SetFinished(BOOL finished) { m_finished = TRUE; }
 
 	void					SetType(BATTLE_EVENT_TYPE type) { m_type = type; }
 
-	BATTLE_EVENT_TYPE		GetType(void) const { return m_type; }
+	BATTLE_EVENT_TYPE		GetType() const { return m_type; }
 
 	BOOL					HasActor(BattleViewActor *actor);
 
@@ -88,8 +88,8 @@ public:
 	void					AddExplosionData(BattleViewActor *actor, EffectActor *explodeActor, sint32 soundID, double hp);
 	void					AddDeathData(BattleViewActor *actor, sint32 soundID, double hp);
 
-	BattleViewActor			*GetActor(void);
-	PointerList<BattleEventData>	*GetDataList(void) { return m_dataList; }
+	BattleViewActor			*GetActor();
+	PointerList<BattleEventData>	*GetDataList() { return m_dataList; }
 
 	void RemoveDeadActor(BattleViewActor *actor);
 private:

@@ -18,7 +18,7 @@
 
 static AttractWindow	*g_attractWindow;
 
-AttractWindow * attractwindow_Get(void)
+AttractWindow * attractwindow_Get()
 {
 	return g_attractWindow;
 }
@@ -26,7 +26,7 @@ AttractWindow * attractwindow_Get(void)
 #define k_ATTRACT_FINAL_STAGE		20
 #define k_ATTRACT_DURATION			120000
 
-void AttractWindow::Initialize(void)
+void AttractWindow::Initialize()
 {
 	AUI_ERRCODE		retval;
 
@@ -38,7 +38,7 @@ void AttractWindow::Initialize(void)
 	g_attractWindow->SetTransparent(TRUE);
 }
 
-void AttractWindow::Cleanup(void)
+void AttractWindow::Cleanup()
 {
 
 	if (g_attractWindow) {
@@ -62,7 +62,7 @@ AttractWindow::~AttractWindow()
 	m_regions.DeleteAll();
 }
 
-AUI_ERRCODE AttractWindow::InitCommon(void)
+AUI_ERRCODE AttractWindow::InitCommon()
 {
 	m_attractStage = -1;
 	m_finishTime = 0;
@@ -93,7 +93,7 @@ AUI_ERRCODE AttractWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 
 
 
-AUI_ERRCODE AttractWindow::Idle(void)
+AUI_ERRCODE AttractWindow::Idle()
 {
 	if (m_attractStage != -1) {
 		m_attractStage++;
@@ -131,7 +131,7 @@ void AttractWindow::AppIdle()
 
 
 
-void AttractWindow::DrawAttractiveStuff(void)
+void AttractWindow::DrawAttractiveStuff()
 {
 	static RECT		lastRect;
 
@@ -171,7 +171,7 @@ void AttractWindow::DrawAttractiveStuff(void)
 
 
 
-void AttractWindow::ClearWindow(void)
+void AttractWindow::ClearWindow()
 {
 	RECT rect = {0,0,Width(),Height()};
 

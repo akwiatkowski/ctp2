@@ -177,7 +177,7 @@ void BuildQueue::Serialize(CivArchive &archive)
 
 
 
-uint32 BldQue_BuildQueue_GetVersion(void)
+uint32 BldQue_BuildQueue_GetVersion()
 {
 	return (k_BUILDQUEUE_VERSION_MAJOR<<16 | k_BUILDQUEUE_VERSION_MINOR) ;
 }
@@ -339,7 +339,7 @@ sint32 BuildQueue::Save(const MBCHAR *file)
 
 
 
-void BuildQueue::EndTurn(void)
+void BuildQueue::EndTurn()
 {
 	if (m_wonderStarted != m_wonderStopped)
 	{
@@ -819,7 +819,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void BuildQueue::HandleProductionComplete(void)
+void BuildQueue::HandleProductionComplete()
 {
 	BuildNode * head	= m_list->GetHead();
 
@@ -871,7 +871,7 @@ void BuildQueue::HandleProductionComplete(void)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void BuildQueue::HandleProductionStart(void)
+void BuildQueue::HandleProductionStart()
 {
     BuildNode * newHead = m_list->GetHead();
 
@@ -928,7 +928,7 @@ void BuildQueue::HandleProductionStart(void)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void BuildQueue::HandleProductionStop(void)
+void BuildQueue::HandleProductionStop()
 {
 	BuildNode * oldHead = m_list->GetHead();
 
@@ -1011,7 +1011,7 @@ void BuildQueue::SendMsgWonderStopped(sint32 type)
 	slicengine_Get()->Execute(so) ;
 }
 
-void BuildQueue::SendMsgWonderAlmostComplete(void)
+void BuildQueue::SendMsgWonderAlmostComplete()
 {
 	SlicObject *    so = new SlicObject("45WonderAlmostFinished") ;
 	so->AddCivilisation(m_owner) ;
@@ -1902,7 +1902,7 @@ BuildQueue & BuildQueue::operator = (BuildQueue const & copy)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void BuildQueue::SynchroniseNetworkData(void) const
+void BuildQueue::SynchroniseNetworkData() const
 {
 	if (g_network.IsHost())
 	{

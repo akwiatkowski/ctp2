@@ -47,7 +47,7 @@ aui_Cursor::aui_Cursor(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE aui_Cursor::InitCommon( void )
+AUI_ERRCODE aui_Cursor::InitCommon( )
 {
 	memset( &m_hotspot, 0, sizeof( m_hotspot ) );
 

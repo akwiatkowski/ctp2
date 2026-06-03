@@ -115,6 +115,6 @@ public:
 	void Serialize(CivArchive &archive) ;
 };
 
-uint32 ID_ID_GetVersion(void) ;
+uint32 ID_ID_GetVersion() ;
 
 #endif

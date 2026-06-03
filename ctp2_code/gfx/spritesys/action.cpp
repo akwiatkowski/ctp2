@@ -111,13 +111,13 @@ Action::Action(const Action &rhs):
     /// @todo Check copying of m_curPath, m_moveActors, m_revealedActors (NULLed in original code)
 }
 
-Action::~Action(void)
+Action::~Action()
 {
 	delete m_curAnim;
   m_curAnim = NULL;
 }
 
-void Action::Process(void)
+void Action::Process()
 {
 #ifndef _TEST
 	STOMPCHECK();
@@ -212,7 +212,7 @@ void Action::CreatePath(sint32 x1, sint32 y1, sint32 x2, sint32 y2)
 
 }
 
-POINT Action::GetPosition(void) const
+POINT Action::GetPosition() const
 {
 	POINT pos = {0,0};
 
@@ -224,7 +224,7 @@ POINT Action::GetPosition(void) const
 	return pos;
 }
 
-uint16 Action::GetSpriteFrame(void) const
+uint16 Action::GetSpriteFrame() const
 {
 	uint16 frame;
 
@@ -242,7 +242,7 @@ uint16 Action::GetSpriteFrame(void) const
 	return frame;
 }
 
-sint32 Action::GetFacing(void)
+sint32 Action::GetFacing()
 {
 #ifndef _TEST
 	STOMPCHECK();
@@ -257,7 +257,7 @@ sint32 Action::GetFacing(void)
 	return m_facing;
 }
 
-uint16 Action::GetTransparency(void) const
+uint16 Action::GetTransparency() const
 {
 #ifndef _TEST
 	STOMPCHECK();
@@ -290,6 +290,6 @@ void Action::SetSequence(std::weak_ptr<Sequence> seq) {
   m_sequence = seq; 
 }
 
-std::weak_ptr<Sequence> Action::GetSequence(void) const {
+std::weak_ptr<Sequence> Action::GetSequence() const {
   return m_sequence; 
 }

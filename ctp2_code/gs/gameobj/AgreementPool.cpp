@@ -107,7 +107,7 @@ Agreement AgreementPool::Create(PLAYER_INDEX owner, PLAYER_INDEX recipient, AGRE
 
 
 
-void AgreementPool::EndRound(void)
+void AgreementPool::EndRound()
 	{
 	sint32	i ;
 

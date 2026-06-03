@@ -37,7 +37,7 @@
 
 static Exclusions *g_exclusions = NULL;
 
-Exclusions * exclusions_Get(void)          { return g_exclusions; }
+Exclusions * exclusions_Get()          { return g_exclusions; }
 void         exclusions_Set(Exclusions *p) { g_exclusions = p; }
 
 Exclusions::Exclusions()

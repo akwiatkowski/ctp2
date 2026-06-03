@@ -75,7 +75,7 @@ ConnectionSelectWindow::ConnectionSelectWindow(
 }
 
 
-AUI_ERRCODE ConnectionSelectWindow::InitCommon( void )
+AUI_ERRCODE ConnectionSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );
@@ -86,7 +86,7 @@ AUI_ERRCODE ConnectionSelectWindow::InitCommon( void )
 }
 
 
-AUI_ERRCODE ConnectionSelectWindow::CreateControls( void )
+AUI_ERRCODE ConnectionSelectWindow::CreateControls( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -207,7 +207,7 @@ ConnectionSelectWindow::~ConnectionSelectWindow()
 {
 }
 
-void ConnectionSelectWindow::Update(void)
+void ConnectionSelectWindow::Update()
 {
 	c3_Static *text = (c3_Static *)(FindControl( ConnectionSelectWindow::CONTROL_CONNECTIONDESCRIPTIONTEXTFIELD ));
 	ns_TransportListBox *listbox = (ns_TransportListBox *)(FindControl( ConnectionSelectWindow::CONTROL_CONNECTIONTYPELISTBOX ));
@@ -260,7 +260,7 @@ void ConnectionSelectWindow::Update(void)
 }
 
 
-AUI_ERRCODE ConnectionSelectWindow::Idle( void )
+AUI_ERRCODE ConnectionSelectWindow::Idle( )
 {
     while (NETFunc::Message * m = netfunc_Get()->GetMessage())
     {

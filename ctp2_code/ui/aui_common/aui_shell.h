@@ -45,16 +45,16 @@ public:
 
 protected:
 	aui_Shell() : aui_Base() { InitCommon(); }
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
-	aui_Screen          *GetCurrentScreen( void ) const { return m_curScreen; }
-	virtual aui_Screen  *LeaveCurrentScreen( void );
+	aui_Screen          *GetCurrentScreen( ) const { return m_curScreen; }
+	virtual aui_Screen  *LeaveCurrentScreen( );
 
 	virtual AUI_ERRCODE GotoScreen( uint32 id );
 	virtual aui_Screen  *FindScreen( uint32 id ) = 0;
 
-	virtual aui_Screen  *GoBackScreen( void );
+	virtual aui_Screen  *GoBackScreen( );
 
 protected:
 	aui_Screen          *m_curScreen;

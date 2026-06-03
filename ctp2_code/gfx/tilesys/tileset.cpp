@@ -72,7 +72,7 @@ namespace
     char const      TILESETFILE_555[]   = "gtset555.til";
     char const      TILESETFILE_565[]   = "gtset565.til";
 
-    char const *    TileSetFile(void)
+    char const *    TileSetFile()
     {
         return (is_565_Get()) ? TILESETFILE_565 : TILESETFILE_555;
     }
@@ -138,7 +138,7 @@ TileSet::~TileSet()
 
 // ToDo: Merge the comon parts of CleanupQuick and CleanupMapped
 
-void TileSet::CleanupQuick(void)
+void TileSet::CleanupQuick()
 {
 	delete[] m_transforms;
 	m_transforms = NULL;
@@ -171,7 +171,7 @@ void TileSet::CleanupQuick(void)
 	m_tileSetData = NULL;
 }
 
-void TileSet::CleanupMapped(void)
+void TileSet::CleanupMapped()
 {
 	delete[] m_transforms;
 	m_transforms = NULL;
@@ -211,7 +211,7 @@ void TileSet::CleanupMapped(void)
 #endif
 }
 
-void TileSet::Cleanup(void)
+void TileSet::Cleanup()
 {
 	if (m_mapped)
     {
@@ -445,7 +445,7 @@ uint8 TileSet::ReverseDirection(sint32 dir)
 	return DIRECTION_INVALID;
 }
 
-void TileSet::LoadMapIcons(void)
+void TileSet::LoadMapIcons()
 {
 	MBCHAR		name[_MAX_PATH];
 	MBCHAR		path[_MAX_PATH];
@@ -577,7 +577,7 @@ Pixel16 TileSet::ConvertMapIcons(const MBCHAR *name)  //EMOD
 }
 */
 
-void TileSet::Load(void)
+void TileSet::Load()
 {
 	FILE *  file = c3files_fopen(C3DIR_TILES, TileSetFile(), "rb");
 
@@ -745,7 +745,7 @@ void TileSet::QuickLoadMegaTiles(uint8 **dataPtr)
 	}
 }
 
-void TileSet::QuickLoad(void)
+void TileSet::QuickLoad()
 {
 	FILE *  file = c3files_fopen(C3DIR_TILES, TileSetFile(), "rb");
 	Assert(file != NULL);
@@ -808,7 +808,7 @@ Error:
 	c3errors_FatalDialog("Tile Set", "Unable to load tileset.");
 }
 
-void TileSet::QuickLoadMapped(void)
+void TileSet::QuickLoadMapped()
 {
 	MBCHAR  path[_MAX_PATH];
 	civpaths_Get()->FindFile(C3DIR_TILES, TileSetFile(), path);

@@ -296,16 +296,16 @@ void InfoBigListCallback( aui_Control *control, uint32 action, uint32 data, void
 	}
 }
 
-sint32 infowin_Initialize( void )
+sint32 infowin_Initialize( )
 {
 	return 0;
 }
 
-void infowin_Cleanup(void)
+void infowin_Cleanup()
 {
 }
 
-void infowin_Cleanup_Controls(void)
+void infowin_Cleanup_Controls()
 {
     allocated::clear(s_titleBox);
     allocated::clear(s_bottomRightBox);
@@ -540,7 +540,7 @@ void infowin_SetMinRoundForGraphs(sint32 minRound)
 	s_minRound = minRound;
 }
 
-sint32 infowin_LoadData( void )
+sint32 infowin_LoadData( )
 {
 	infowin_UpdateBigList();
 	infowin_UpdateScoreList();
@@ -556,7 +556,7 @@ sint32 infowin_LoadData( void )
 	return 0;
 }
 
-sint32 infowin_UpdateCivData( void )
+sint32 infowin_UpdateCivData( )
 {
 	MBCHAR strbuf[256];
 
@@ -613,7 +613,7 @@ sint32 infowin_UpdateCivData( void )
 	return 0;
 }
 
-sint32 infowin_UpdateBigList( void )
+sint32 infowin_UpdateBigList( )
 {
 	if (!topten_Get()) return 0;
 	topten_Get()->CalculateBiggestCities();
@@ -637,7 +637,7 @@ sint32 infowin_UpdateBigList( void )
 	return 0;
 }
 
-sint32 infowin_UpdateScoreList( void )
+sint32 infowin_UpdateScoreList( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -775,7 +775,7 @@ sint32 infowin_UpdateScoreList( void )
 	return 0;
 }
 
-sint32 infowin_UpdateWonderList( void )
+sint32 infowin_UpdateWonderList( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1025,7 +1025,7 @@ sint32 infowin_UpdatePollutionGraph( LineGraph *infoGraph,
 	return 0;
 }
 
-sint32 infowin_UpdatePlayerList( void )
+sint32 infowin_UpdatePlayerList( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1096,7 +1096,7 @@ sint32 infowin_UpdatePlayerList( void )
 	return 0;
 }
 
-sint32 infowin_UpdatePollutionData( void )
+sint32 infowin_UpdatePollutionData( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1546,7 +1546,7 @@ AUI_ERRCODE InfoBigListItem::InitCommonLdl(Unit *city, sint32 index, MBCHAR *ldl
 	return AUI_ERRCODE_OK;
 }
 
-void InfoBigListItem::Update(void)
+void InfoBigListItem::Update()
 {
 	sint32 i,j;
 
@@ -1675,7 +1675,7 @@ AUI_ERRCODE InfoWonderListItem::InitCommonLdl(sint32 player, sint32 index, MBCHA
 	return AUI_ERRCODE_OK;
 }
 
-void InfoWonderListItem::Update(void)
+void InfoWonderListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -1767,7 +1767,7 @@ AUI_ERRCODE InfoScoreListItem::InitCommonLdl(sint32 player, sint32 index, MBCHAR
 	return AUI_ERRCODE_OK;
 }
 
-void InfoScoreListItem::Update(void)
+void InfoScoreListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -1847,7 +1847,7 @@ AUI_ERRCODE InfoScoreLabelListItem::InitCommonLdl(MBCHAR *label, MBCHAR *text, M
 	return AUI_ERRCODE_OK;
 }
 
-void InfoScoreLabelListItem::Update(void)
+void InfoScoreLabelListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -1903,7 +1903,7 @@ AUI_ERRCODE InfoPlayerListItem::InitCommonLdl(MBCHAR *name, sint32 index, MBCHAR
 	return AUI_ERRCODE_OK;
 }
 
-void InfoPlayerListItem::Update(void)
+void InfoPlayerListItem::Update()
 {
 
 	c3_Static *subItem;

@@ -72,7 +72,7 @@ ServerSelectWindow::ServerSelectWindow(
 	Assert( AUI_SUCCESS(*retval) );
 }
 
-AUI_ERRCODE ServerSelectWindow::InitCommon( void )
+AUI_ERRCODE ServerSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
 	Assert( m_controls != NULL );
@@ -86,7 +86,7 @@ AUI_ERRCODE ServerSelectWindow::InitCommon( void )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE ServerSelectWindow::CreateControls( void )
+AUI_ERRCODE ServerSelectWindow::CreateControls( )
 {
 	AUI_ERRCODE     errcode = AUI_ERRCODE_OK;
 	aui_Control *   control = new c3_Static
@@ -188,7 +188,7 @@ void ServerSelectWindow::Update( bool wait )
 	}
 }
 
-AUI_ERRCODE ServerSelectWindow::Idle( void )
+AUI_ERRCODE ServerSelectWindow::Idle( )
 {
 	if (netfunc_Get())
     {

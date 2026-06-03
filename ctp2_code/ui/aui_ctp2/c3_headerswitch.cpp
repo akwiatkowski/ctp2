@@ -120,7 +120,7 @@ AUI_ERRCODE c3_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE c3_HeaderSwitch::InitCommon(void)
+AUI_ERRCODE c3_HeaderSwitch::InitCommon()
 {
 
 	SetNumStates( k_C3_HEADERSWITCH_DEFAULTNUMSTATES );

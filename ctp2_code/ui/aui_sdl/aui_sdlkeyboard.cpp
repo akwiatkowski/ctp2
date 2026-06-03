@@ -23,12 +23,12 @@ static std::queue<SDL_Event> g_secondaryKeyboardEventQueue;
 // from civ3_main.cpp.
 static SDL_mutex* g_secondaryKeyboardEventQueueMutex = NULL;
 
-void aui_sdlkbd_InitQueueMutex(void)
+void aui_sdlkbd_InitQueueMutex()
 {
 	g_secondaryKeyboardEventQueueMutex = SDL_CreateMutex();
 }
 
-void aui_sdlkbd_DestroyQueueMutex(void)
+void aui_sdlkbd_DestroyQueueMutex()
 {
 	SDL_DestroyMutex(g_secondaryKeyboardEventQueueMutex);
 	g_secondaryKeyboardEventQueueMutex = NULL;
@@ -79,13 +79,13 @@ aui_SDLKeyboard::aui_SDLKeyboard(
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
 
-AUI_ERRCODE aui_SDLKeyboard::createSDLKeyboard( void )
+AUI_ERRCODE aui_SDLKeyboard::createSDLKeyboard( )
 {
 	// TODO: SDL_Init()
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_SDLKeyboard::GetInput( void )
+AUI_ERRCODE aui_SDLKeyboard::GetInput( )
 {
 	SDL_Event event;
 	if (!aui_sdlkbd_TryPopQueueEvent(event)) {

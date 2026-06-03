@@ -402,7 +402,7 @@ sint32 aui_TextField::SetMaxFieldLen( sint32 maxFieldLen )
 }
 
 
-aui_Control *aui_TextField::SetKeyboardFocus( void )
+aui_Control *aui_TextField::SetKeyboardFocus( )
 {
 	if ( !IsDisabled() )
 	{
@@ -415,7 +415,7 @@ aui_Control *aui_TextField::SetKeyboardFocus( void )
 }
 
 
-AUI_ERRCODE aui_TextField::ReleaseKeyboardFocus( void )
+AUI_ERRCODE aui_TextField::ReleaseKeyboardFocus( )
 {
 	m_blink = FALSE;
 	m_blinkThisFrame = FALSE;
@@ -650,7 +650,7 @@ void aui_TextField::GetSelection(sint32 *start, sint32 *end)
 #endif
 }
 
-void aui_TextField::SelectAll(void)
+void aui_TextField::SelectAll()
 {
 	SetSelection(9999, 9999);
 }

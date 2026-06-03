@@ -32,25 +32,25 @@ class ns_Tribes;
 // Lifecycle is internal to netshell.cpp (ctor sets, dtor clears).  All
 // external consumers across UI / net / lobby code read it through
 // netshell_Get().  No external writer.
-NetShell * netshell_Get(void);
+NetShell * netshell_Get();
 // App-singleton accessor pair for g_netfunc.  g_netfunc is file-static
 // in netshell.cpp; external consumers go through netfunc_Get / netfunc_Set.
-NETFunc * netfunc_Get(void);
+NETFunc * netfunc_Get();
 void      netfunc_Set(NETFunc *p);
 
 // Reference accessor for g_gamesetup (value-type struct).  The struct is
 // file-static in netshell.cpp.
-nf_GameSetup & gamesetup_Get(void);
+nf_GameSetup & gamesetup_Get();
 // Local player setup buffer (sibling to g_rplayersetup which is the
 // remote one).  Storage is file-scope `static` in netshell.cpp; callers
 // get a writable reference via playersetup_Get() and use it for method
 // calls / assignment / address-of.
-nf_PlayerSetup & playersetup_Get(void);
+nf_PlayerSetup & playersetup_Get();
 // Remote player setup buffer.  Definition is file-scope `static` in
 // netshell.cpp; callers (allinonewindow, lobbywindow) get a writable
 // reference via rplayersetup_Get() and use it for assignment / method
 // calls / address-of as before.
-nf_PlayerSetup & rplayersetup_Get(void);
+nf_PlayerSetup & rplayersetup_Get();
 
 
 #define k_PACKET_DELAY 2000
@@ -116,21 +116,21 @@ public:
 	static AUI_ERRCODE	Enter( uint32 flags );
 	static void			Leave( uint32 flags, BOOL safe = FALSE );
 
-	static void SavePlayerSetupList( void );
-	static void SaveGameSetupList( void );
-	static void SaveAiSetupList( void );
+	static void SavePlayerSetupList( );
+	static void SaveGameSetupList( );
+	static void SaveAiSetupList( );
 
-	BOOL &WasMinimizing( void ) { return m_wasMinimizing; }
+	BOOL &WasMinimizing( ) { return m_wasMinimizing; }
 
 	AUI_ACTION_BASIC(DestroyAction);
 
-	MBCHAR *GetTrueBmp( void ) { return m_truebmp ? m_truebmp->GetString() : NULL; }
+	MBCHAR *GetTrueBmp( ) { return m_truebmp ? m_truebmp->GetString() : NULL; }
 
 protected:
-	static void	DestroyNETFunc( void );
+	static void	DestroyNETFunc( );
 
-	AUI_ERRCODE	CreateScreens( void );
-	void		DestroyScreens( void );
+	AUI_ERRCODE	CreateScreens( );
+	void		DestroyScreens( );
 	void MoveButton(aui_Window *window, const MBCHAR *parentBlock, const MBCHAR *regionBlock, BOOL left);
 
 private:

@@ -334,7 +334,7 @@ sint32 Unit::GetFoodHunger() const
 	return GetDBRec()->GetFoodHunger();
 }
 
-const UnitRecord * Unit::GetDBRec(void) const
+const UnitRecord * Unit::GetDBRec() const
 {
 	return GetData()->GetDBRec();
 }
@@ -376,7 +376,7 @@ const MBCHAR * Unit::GetName() const
 //              to the unit name.
 //
 //----------------------------------------------------------------------------
-std::string Unit::GetDisplayName(void) const
+std::string Unit::GetDisplayName() const
 {
 	UnitRecord const *	info	= GetDBRec();
 	Assert(info);
@@ -944,59 +944,59 @@ bool Unit::DeathEffectsHappy() const
 	return GetDBRec()->GetDeathEffectsHappy();
 }
 
-sint32 Unit::GetSelect1SoundID(void)
+sint32 Unit::GetSelect1SoundID()
 {
 	return GetDBRec()->GetSoundSelect1Index();
 }
 
-sint32 Unit::GetSelect2SoundID(void)
+sint32 Unit::GetSelect2SoundID()
 {
 	return GetDBRec()->GetSoundSelect2Index();
 }
 
-sint32 Unit::GetMoveSoundID(void)
+sint32 Unit::GetMoveSoundID()
 {
 	if(!unitpool_Get()->IsValid(m_id))
 		return 0;   // TODO: check whether this should be -1
 	return GetDBRec()->GetSoundMoveIndex();
 }
 
-sint32 Unit::GetAcknowledgeSoundID(void)
+sint32 Unit::GetAcknowledgeSoundID()
 {
 	return GetDBRec()->GetSoundAcknowledgeIndex();
 }
 
-sint32 Unit::GetCantMoveSoundID(void)
+sint32 Unit::GetCantMoveSoundID()
 {
 	return GetDBRec()->GetSoundCantMoveIndex();
 }
 
-sint32 Unit::GetAttackSoundID(void)
+sint32 Unit::GetAttackSoundID()
 {
 	return GetDBRec()->GetSoundAttackIndex();
 }
 
-sint32 Unit::GetWorkSoundID(void)
+sint32 Unit::GetWorkSoundID()
 {
 	return GetDBRec()->GetSoundWorkIndex();
 }
 
-sint32 Unit::GetVictorySoundID(void)
+sint32 Unit::GetVictorySoundID()
 {
 	return GetDBRec()->GetSoundVictoryIndex();
 }
 
-sint32 Unit::GetDeathSoundID(void)
+sint32 Unit::GetDeathSoundID()
 {
 	return GetDBRec()->GetSoundDeathIndex();
 }
 
-sint32 Unit::GetLoadSoundID(void)
+sint32 Unit::GetLoadSoundID()
 {
 	return GetDBRec()->GetSoundLoadIndex();
 }
 
-sint32 Unit::GetUnloadSoundID(void)
+sint32 Unit::GetUnloadSoundID()
 {
 	return GetDBRec()->GetSoundUnloadIndex();
 }
@@ -1190,7 +1190,7 @@ sint32 Unit::ImprovementCanRefuel(const Unit &u) const
 	return GetData()->ImprovementCanRefuel(u);
 }
 
-uint32 Unit_Unit_GetVersion(void)
+uint32 Unit_Unit_GetVersion()
 {
 	return (k_UNIT_VERSION_MAJOR<<16 | k_UNIT_VERSION_MINOR);
 }

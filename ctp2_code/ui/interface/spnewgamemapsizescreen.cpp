@@ -70,7 +70,7 @@ static MBCHAR	checknames[k_NUM_MAPSIZEBOXES][50] = {
 static sint32 s_useMode = 0;
 
 static sint32 s_mapSizeIndex = 0;
-sint32 spnewgamemapsizescreen_getMapSizeIndex( void )
+sint32 spnewgamemapsizescreen_getMapSizeIndex( )
 {
 	return s_mapSizeIndex;
 }

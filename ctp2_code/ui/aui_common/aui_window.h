@@ -128,15 +128,15 @@ public:
 	virtual AUI_ERRCODE Offset( sint32 dx, sint32 dy );
 	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	virtual AUI_ERRCODE MoveOG( void );
+	virtual AUI_ERRCODE MoveOG( );
 
 
-	aui_DirtyList *GetDirtyList( void ) { return m_dirtyList; }
+	aui_DirtyList *GetDirtyList( ) { return m_dirtyList; }
 
-	aui_Surface *TheSurface( void ) const { return m_surface; }
+	aui_Surface *TheSurface( ) const { return m_surface; }
 
-	BOOL		AreControlsOpaque( void ) const { return m_opaqueControls; }
-	uint32		Type( void ) const { return m_type; }
+	BOOL		AreControlsOpaque( ) const { return m_opaqueControls; }
+	uint32		Type( ) const { return m_type; }
 
 	AUI_ERRCODE	AddControl( aui_Control *control )
 	{ return AddChild( (aui_Region *)control ); }
@@ -147,26 +147,26 @@ public:
 	virtual AUI_ERRCODE	AddChild( aui_Region *child );
 	virtual AUI_ERRCODE	RemoveChild( uint32 controlId );
 
-	virtual AUI_ERRCODE	ShowThis( void );
-	virtual AUI_ERRCODE	HideThis( void );
+	virtual AUI_ERRCODE	ShowThis( );
+	virtual AUI_ERRCODE	HideThis( );
 
-	BOOL	IsDirty( void ) const { return !m_dirtyList->IsEmpty(); }
+	BOOL	IsDirty( ) const { return !m_dirtyList->IsEmpty(); }
 
-	BOOL IsOpaque( void ) const
+	BOOL IsOpaque( ) const
 		{ return !IsTransparent() && !IsTranslucent(); }
-	BOOL IsTransparent( void ) const
+	BOOL IsTransparent( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_TRANSPARENT; }
-	BOOL IsTranslucent( void ) const
+	BOOL IsTranslucent( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_TRANSLUCENT; }
-	BOOL IsModal( void ) const
+	BOOL IsModal( ) const
 		{ return IsStronglyModal() || IsWeaklyModal(); }
-	BOOL IsStronglyModal( void ) const
+	BOOL IsStronglyModal( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_STRONGLYMODAL; }
-	BOOL IsWeaklyModal( void ) const
+	BOOL IsWeaklyModal( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_WEAKLYMODAL; }
-	BOOL IsDraggable( void ) const
+	BOOL IsDraggable( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_DRAGGABLE; }
-	BOOL IsDynamic( void ) const
+	BOOL IsDynamic( ) const
 		{ return m_attributes & k_WINDOW_ATTRIBUTE_DYNAMIC; }
 
 	uint32 SetTransparent( BOOL transparent, BOOL transparentControls = TRUE );  //FALSE );
@@ -176,7 +176,7 @@ public:
 	uint32 SetDraggable( BOOL draggable );
 	uint32 SetDynamic( BOOL dynamic );
 
-	aui_Region *GrabRegion( void ) const { return m_grabRegion; }
+	aui_Region *GrabRegion( ) const { return m_grabRegion; }
 
 	virtual AUI_ERRCODE Draw(
 		aui_Surface *surface = NULL,
@@ -211,11 +211,11 @@ public:
 	void AddFocusControl(aui_Control *control);
 
 protected:
-	virtual AUI_ERRCODE CreateSurface( void );
+	virtual AUI_ERRCODE CreateSurface( );
 
 
-	void MakeSureSurfaceIsValid( void );
-	void DeleteSurfaceIfDynamic( void );
+	void MakeSureSurfaceIsValid( );
+	void DeleteSurfaceIfDynamic( );
 
 	aui_Surface	*m_surface;
 

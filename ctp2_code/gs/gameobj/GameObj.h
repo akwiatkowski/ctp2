@@ -68,7 +68,7 @@ public:
 	friend void GameObj_Delete(GameObj **p, uint32 i);
 };
 
-uint32 GameObj_GameObj_GetVersion(void) ;
+uint32 GameObj_GameObj_GetVersion() ;
 GameObj * GameObj_Access(GameObj *p, const uint32 i);
 const GameObj * GameObj_Get(GameObj *p, const uint32 i);
 bool GameObj_Valid(GameObj *p, uint32 id);

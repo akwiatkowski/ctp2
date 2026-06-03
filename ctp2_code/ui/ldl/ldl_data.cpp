@@ -116,7 +116,7 @@ bool ldl_datablock::ContstructFullName(
 	return true;
 }
 
-ldl_attribute *ldl_datablock::GetLastAttribute( void )
+ldl_attribute *ldl_datablock::GetLastAttribute( )
 {
 	return m_attributes.GetTail();
 }

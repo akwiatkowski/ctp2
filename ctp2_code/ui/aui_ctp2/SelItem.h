@@ -168,7 +168,7 @@ public:
 	void GetTopCurItem(PLAYER_INDEX &s_player, ID &s_item,
 					   SELECT_TYPE &s_state);
 
-	MapPoint GetCurSelectPos(void) { return m_select_pos[GetVisiblePlayer()]; }
+	MapPoint GetCurSelectPos() { return m_select_pos[GetVisiblePlayer()]; }
 
 	void ClipCurrentItem();
 	void NextItem();
@@ -275,11 +275,11 @@ public:
 			const MapPoint &src, const MapPoint &dest);
 	void EntrenchArmy(sint32 owner, sint32 index);
 	void SleepArmy(sint32 owner, sint32 index);
-	void InterceptTrade(void);
+	void InterceptTrade();
 	bool GetSelectedCity( Unit &city );
 	void UnitCityToggle();
 
-	PLAYER_INDEX GetPlayerOnScreen(void) { return m_player_on_screen; }
+	PLAYER_INDEX GetPlayerOnScreen() { return m_player_on_screen; }
 	void SetPlayerOnScreen(PLAYER_INDEX player);
 	void ClearCycle();
 	void DidKeyboardMove();
@@ -289,7 +289,7 @@ public:
 	void ForceDirectorSelect(const Army &army);
 	void RegisterUIClick();
 	void RegisterManualEndTurn();
-	void UpdateSelectedItem( void );
+	void UpdateSelectedItem( );
 
 	bool GetInciteRevolutionCost( const MapPoint &point, sint32 &cost );
 	bool GetInciteUprisingCost( const MapPoint &point, sint32 &cost );
@@ -343,13 +343,13 @@ public:
 
 bool CanAutoSelect(const Army &army);
 
-extern uint32 SelectedItem_GetVersion(void);
+extern uint32 SelectedItem_GetVersion();
 
 // Session-singleton accessor pair, mirroring world_Get / tiledmap_Get
 // / director_Get.  The legacy g_selected_item pointer is now file-static
 // in ui/aui_ctp2/SelItem.cpp; outside callers must go through these
 // accessors.
-SelectedItem * selitem_Get(void);
+SelectedItem * selitem_Get();
 void           selitem_Set(SelectedItem *p);
 
 #endif

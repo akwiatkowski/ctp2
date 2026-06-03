@@ -79,16 +79,16 @@ public:
 	CivilisationData *AccessData() const;
 	const CivilisationRecord *GetDBRec() const;
 
-	PLAYER_INDEX GetOwner(void) const { return (GetData()->GetOwner()) ; }
-	sint32 GetCivilisation(void) const { return (GetData()->GetCivilisation()) ; }
-	GENDER GetGender(void) const { return (GetData()->GetGender()); }
+	PLAYER_INDEX GetOwner() const { return (GetData()->GetOwner()) ; }
+	sint32 GetCivilisation() const { return (GetData()->GetCivilisation()) ; }
+	GENDER GetGender() const { return (GetData()->GetGender()); }
 
-	MBCHAR const * GetLeaderName(void) const { return (GetData()->GetLeaderName()) ; }
+	MBCHAR const * GetLeaderName() const { return (GetData()->GetLeaderName()) ; }
 	void GetPluralCivName(MBCHAR *s) { AccessData()->GetPluralCivName(s) ; }
 	void GetCountryName(MBCHAR *s) { AccessData()->GetCountryName(s) ; }
 	void GetSingularCivName(MBCHAR *s) { AccessData()->GetSingularCivName(s) ; }
 
-	sint32 GetCityStyle( void ) const { return GetData()->GetCityStyle(); }
+	sint32 GetCityStyle( ) const { return GetData()->GetCityStyle(); }
 
    	//EMOD
 	//sint32 GetProductionBonus( void ) { return AccessData()->GetProductionBonus(); }

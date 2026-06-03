@@ -27,7 +27,7 @@ public:
 		return classId == m_SDLClassId;
 	}
 
-	BOOL GetExclusiveMode(void) { return m_exclusiveMode; }
+	BOOL GetExclusiveMode() { return m_exclusiveMode; }
 	static SDL_Surface *DD() { return m_lpdd; }
 
 protected:

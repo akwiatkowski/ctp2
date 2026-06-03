@@ -58,9 +58,9 @@ public:
 
 	BOOL CheckForEasterEggs(MBCHAR *s);
 
-	c3_HyperTextBox	*   GetTextBox(void) const { return m_textBox; }
-	C3TextField	*       GetTextField(void) const { return m_textField; }
-	ChatBox	*           GetChatBox(void) const { return m_chatBox; }
+	c3_HyperTextBox	*   GetTextBox() const { return m_textBox; }
+	C3TextField	*       GetTextField() const { return m_textField; }
+	ChatBox	*           GetChatBox() const { return m_chatBox; }
 
 	void				ColorizeString(MBCHAR *destString, MBCHAR *srcString, COLORREF colorRef);
 
@@ -74,13 +74,13 @@ private:
 
 class ChatBox {
 public:
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
 	ChatBox();
 	~ChatBox();
 
-	BOOL IsActive(void) { return m_active; }
+	BOOL IsActive() { return m_active; }
 	void SetActive(BOOL active);
 
 	void AddText(MBCHAR *text);
@@ -92,7 +92,7 @@ private:
 	BOOL				m_active;
 };
 
-ChatBox * chatbox_Get(void);
+ChatBox * chatbox_Get();
 void      chatbox_Set(ChatBox *p);
 
 #endif

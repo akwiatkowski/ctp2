@@ -122,7 +122,7 @@ public:
 	virtual ~aui_Keyboard();
 
 	AUI_ERRCODE         GetKeyboardState(uint8 * keyboardState) const;
-	aui_KeyboardEvent * GetLatestKeyboardEvent(void)
+	aui_KeyboardEvent * GetLatestKeyboardEvent()
 	{
 		return &m_data;
 	};

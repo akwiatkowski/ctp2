@@ -50,7 +50,7 @@ SpriteGroupList	*       g_goodSpriteGroupList   = NULL;
 SpriteGroupList	*       g_citySpriteGroupList   = NULL;
 
 
-void spritegrouplist_Initialize(void)
+void spritegrouplist_Initialize()
 {
     delete g_unitSpriteGroupList;
     g_unitSpriteGroupList = new SpriteGroupList();
@@ -62,7 +62,7 @@ void spritegrouplist_Initialize(void)
     g_citySpriteGroupList = new SpriteGroupList();
 }
 
-void spritegrouplist_Cleanup(void)
+void spritegrouplist_Cleanup()
 {
     allocated::clear(g_unitSpriteGroupList);
     allocated::clear(g_effectSpriteGroupList);

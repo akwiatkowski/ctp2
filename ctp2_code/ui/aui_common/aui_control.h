@@ -131,7 +131,7 @@ public:
 
 	aui_StringTable *m_stringTable;
 
-	virtual AUI_ERRCODE ResetThis( void );
+	virtual AUI_ERRCODE ResetThis( );
 
 	AUI_ERRCODE AddSubControl( aui_Control *control )
 	{ return AddChild( (aui_Region *)control ); }
@@ -145,10 +145,10 @@ public:
 	virtual AUI_ERRCODE InsertChild( aui_Region *child, sint32 index );
 	virtual AUI_ERRCODE	RemoveChild( uint32 controlId );
 
-	aui_Window	*GetParentWindow( void ) const { return m_window; }
+	aui_Window	*GetParentWindow( ) const { return m_window; }
 	AUI_ERRCODE	SetParentWindow( aui_Window *window );
 
-	aui_Window	*GetTipWindow( void ) const { return m_tip; }
+	aui_Window	*GetTipWindow( ) const { return m_tip; }
 	aui_Window	*SetTipWindow( aui_Window *window );
 
 	AUI_ERRCODE	ToWindow( RECT *rect );
@@ -156,11 +156,11 @@ public:
 	AUI_ERRCODE	ToScreen( RECT *rect );
 	AUI_ERRCODE	ToScreen( POINT *point );
 
-	BOOL IsDown( void ) const
+	BOOL IsDown( ) const
 		{ return m_attributes & k_CONTROL_ATTRIBUTE_DOWN; }
-	BOOL IsOn( void ) const
+	BOOL IsOn( ) const
 		{ return m_attributes & k_CONTROL_ATTRIBUTE_ON; }
-	BOOL IsActive( void ) const
+	BOOL IsActive( ) const
 		{ return m_attributes & k_CONTROL_ATTRIBUTE_ACTIVE; }
 
 	virtual AUI_ERRCODE	SetText(
@@ -180,36 +180,36 @@ public:
 		ControlActionCallback *ActionFunc,
 		void *cookie );
 
-	ControlActionCallback *GetActionFunc( void ) const
+	ControlActionCallback *GetActionFunc( ) const
 	{ return m_ActionFunc; }
 
-	void *GetCookie( void ) const
+	void *GetCookie( ) const
 	{ Assert( m_ActionFunc != NULL ); return m_cookie; }
 
 	aui_Action *SetAction( aui_Action *action );
 
-	aui_Action *GetAction( void ) const
+	aui_Action *GetAction( ) const
 	{ Assert( m_ActionFunc == NULL ); return m_action; }
 
 	virtual AUI_ERRCODE ShowThis();
 
-	virtual AUI_ERRCODE	HideThis( void );
+	virtual AUI_ERRCODE	HideThis( );
 
-	uint32		GetTimeOut( void ) const { return m_timeOut; }
+	uint32		GetTimeOut( ) const { return m_timeOut; }
 	AUI_ERRCODE	SetTimeOut( uint32 timeOut )
 		{ m_timeOut = timeOut; return AUI_ERRCODE_OK; }
 
-	uint32		GetRepeatTime( void ) const { return m_repeatTime; }
+	uint32		GetRepeatTime( ) const { return m_repeatTime; }
 	AUI_ERRCODE	SetRepeatTime( uint32 repeatTime )
 		{ m_repeatTime = repeatTime; return AUI_ERRCODE_OK; }
 
-	static aui_Control	*GetMouseOwnership( void ) { return s_whichOwnsMouse; }
-	virtual aui_Control	*SetMouseOwnership( void );
-	virtual AUI_ERRCODE	ReleaseMouseOwnership( void );
+	static aui_Control	*GetMouseOwnership( ) { return s_whichOwnsMouse; }
+	virtual aui_Control	*SetMouseOwnership( );
+	virtual AUI_ERRCODE	ReleaseMouseOwnership( );
 
-	static aui_Control	*GetKeyboardFocus( void ) { return s_whichHasFocus; }
-	virtual aui_Control	*SetKeyboardFocus( void );
-	virtual AUI_ERRCODE	ReleaseKeyboardFocus( void );
+	static aui_Control	*GetKeyboardFocus( ) { return s_whichHasFocus; }
+	virtual aui_Control	*SetKeyboardFocus( );
+	virtual AUI_ERRCODE	ReleaseKeyboardFocus( );
 
 	virtual AUI_ERRCODE Draw(
 		aui_Surface *surface = NULL,
@@ -229,7 +229,7 @@ public:
 	virtual AUI_ERRCODE	HandleJoystickEvent( aui_JoystickEvent *input );
 
 	BOOL	ShowTipWindow( aui_MouseEvent *mouseData );
-	BOOL	HideTipWindow( void );
+	BOOL	HideTipWindow( );
 
 protected:
 

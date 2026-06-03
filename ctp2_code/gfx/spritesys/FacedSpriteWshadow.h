@@ -111,7 +111,7 @@ public:
 	void			SetMiniShadowFrameData(uint16 facing, uint16 frame, Pixel16 *data, size_t size);
 
 	POINT			GetHotPoint(uint16 facing) { return m_hotPoints[facing]; }
-	POINT			*GetHotPoints(void) { return m_hotPoints; }
+	POINT			*GetHotPoints() { return m_hotPoints; }
 
 	void			SetHotPoint(uint16 facing, sint32 x, sint32 y) { m_hotPoints[facing].x = x; m_hotPoints[facing].y = y; }
 	void			SetHotPoints(POINT *points) { memcpy(m_hotPoints, points, sizeof(m_hotPoints)); }
@@ -122,7 +122,7 @@ public:
 	void			SetHasShadow(BOOL val) { m_hasShadow = static_cast<uint16>(val); }
 	BOOL			GetHasShadow() { return m_hasShadow; }
 
-	virtual size_t	GetNumFrames(void) const    { return m_shadowFrameCount; };
+	virtual size_t	GetNumFrames() const    { return m_shadowFrameCount; };
 	virtual void	SetNumFrames(uint16 num)    { m_shadowFrameCount = num; }
 
 protected:

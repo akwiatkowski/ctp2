@@ -170,7 +170,7 @@ Scheduler & Scheduler::GetScheduler(const sint32 & playerId)
 	return s_theSchedulers[playerId];
 }
 
-void Scheduler::CleanupAll(void)
+void Scheduler::CleanupAll()
 {
 	Scheduler_Vector().swap(s_theSchedulers);
 }

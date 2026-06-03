@@ -183,13 +183,13 @@ struct PSlicComplexRegion;
 
 bool    player_isAlly(PLAYER_INDEX me, PLAYER_INDEX him);
 bool    player_isEnemy(PLAYER_INDEX me, PLAYER_INDEX him);
-uint32  Player_Player_GetVersion(void);
+uint32  Player_Player_GetVersion();
 
 // g_player is file-static in gameinit.cpp; access via player_Get / player_arr_Get.
 // Forward-declare here so inline members of Player (below) can call it.
 class Player;
 Player *  player_Get    (sint32 i);
-Player ** player_arr_Get(void);
+Player ** player_arr_Get();
 void      player_arr_Set(Player **p);
 
 //----------------------------------------------------------------------------
@@ -443,10 +443,10 @@ public:
 	void EndTurn();
 	void EndTurnSoon();
 	void ProcessUnitOrders(bool currentOnly = false);
-	Civilisation *GetCivilisation(void) const { return (m_civilisation) ; }
+	Civilisation *GetCivilisation() const { return (m_civilisation) ; }
 	void GetPluralCivName(MBCHAR *s) ;
 	void GetSingularCivName(MBCHAR *s) ;
-	const MBCHAR *GetLeaderName(void) ;
+	const MBCHAR *GetLeaderName() ;
 
 	void RegisterLostUnits(sint32 nUnits, const MapPoint &pos,
 	                       const DEATH_EFFECT_MORALE mtype);
@@ -475,15 +475,15 @@ public:
 	void InsertArmy(const MapPoint &point, const Unit &home_city,
 	                Army &army, CAUSE_NEW_ARMY cause);
 
-	void BeginTurnPollution(void) ;
-	void EndTurnPollution(void) ;
+	void BeginTurnPollution() ;
+	void EndTurnPollution() ;
 	void AdjustPollution(const sint32 amount) ;
 	void AdjustEventPollution(const sint32 amount) ;
-	uint32 GetCurrentPollution(void) const { return (m_pollution_history[0]) ; }
+	uint32 GetCurrentPollution() const { return (m_pollution_history[0]) ; }
 
-	uint32 *GetPollutionHistory(void) { return (&m_pollution_history[0]) ; }
-	uint32 GetPollutionLevel(void) { return (m_pollution_history[0]) ; }
-	uint32 GetAverageEventPollution(void) ;
+	uint32 *GetPollutionHistory() { return (&m_pollution_history[0]) ; }
+	uint32 GetPollutionLevel() { return (m_pollution_history[0]) ; }
+	uint32 GetAverageEventPollution() ;
 
 	Army GetArmy(sint32 s_index);
 	UnitDynamicArray *GetAllUnitList() { return m_all_units; }
@@ -543,7 +543,7 @@ public:
 	void BreakAlliance(const PLAYER_INDEX ally) ;
 	void ExchangeMap(const PLAYER_INDEX recipient) ;
 	void GiveMap(const PLAYER_INDEX recipient) ;
-	bool IsPollutionReduced(void) ;
+	bool IsPollutionReduced() ;
 	bool IsViolatingPeace(const PLAYER_INDEX violator) ;
 	bool IsViolatingBorders(const PLAYER_INDEX violator) ;
 	bool WillViolateCeaseFire(const PLAYER_INDEX violator) ;
@@ -555,11 +555,11 @@ public:
 
 	void BeginTurnAgreements();
 
-	void DumpAgreements(void) ;
-	void DumpRequests(void) ;
+	void DumpAgreements() ;
+	void DumpRequests() ;
 	void RemoveAgreementReferences(Agreement a) ;
 	void RemoveDiplomaticReferences(DiplomaticRequest a) ;
-	DynamicArray<Agreement> *GetAgreements(void) const { return (m_agreed) ; }
+	DynamicArray<Agreement> *GetAgreements() const { return (m_agreed) ; }
 	Agreement FindAgreement(const AGREEMENT_TYPE agreement, const PLAYER_INDEX otherParty) const ;
 	Agreement FindAgreement(const AGREEMENT_TYPE agreement) const ;
 	Agreement FindAgreement(const PLAYER_INDEX otherParty) const ;
@@ -577,7 +577,7 @@ public:
 	bool HaveNoPiracyAgreement(PLAYER_INDEX otherParty);
 
 	bool FulfillCaptureCityAgreement(Unit city) ;
-	DynamicArray<DiplomaticRequest>	*GetRequests(void) const { return (m_requests) ; }
+	DynamicArray<DiplomaticRequest>	*GetRequests() const { return (m_requests) ; }
 	void RequestGreeting(const PLAYER_INDEX recipient) ;
 	void RequestDemandAdvance(const PLAYER_INDEX recipient, AdvanceType advance) ;
 	void RequestDemandCity(const PLAYER_INDEX recipient, Unit &city) ;
@@ -610,23 +610,23 @@ public:
 	void DiplomaticMute(PLAYER_INDEX player, bool enable) ;
 
 	bool IsMuted(PLAYER_INDEX player) ;
-	void DumpAllies(void) ;
+	void DumpAllies() ;
 
 
 	void AddMessage(Message &msg) ;
 	void RegisterDiplomaticMessage(const Message &msg);
 	void RegisterDiplomaticResponse(const DiplomaticRequest &req);
 	void RemoveMessageReferences(Message msg) ;
-	void DumpMessages(void) ;
-	void SendTestMessage(void) ;
-	DynamicArray<Message> *GetMessages(void) const { return (m_messages) ; }
+	void DumpMessages() ;
+	void SendTestMessage() ;
+	DynamicArray<Message> *GetMessages() const { return (m_messages) ; }
 	void NotifyModalMessageDestroyed();
 
 
 	bool HasAdvance(AdvanceType adv) const;
 	sint32 NumAdvances();
-	double GetPollutionSizeModifier(void) const;
-	double GetPollutionProductionModifier(void) const;
+	double GetPollutionSizeModifier() const;
+	double GetPollutionProductionModifier() const;
 	uint32 RoadAdvanceLevel() const;
 	void SetCityRoads();
 #ifdef _DEBUG
@@ -791,10 +791,10 @@ public:
 	sint32 GetGovernmentType() const { return m_government_type; }
 	bool   SetGovernmentType(sint32 type);
 	bool   ActuallySetGovernment(sint32 type);
-	void   AttemptRevolt(void) ;
+	void   AttemptRevolt() ;
 	void   Revolt(const sint32 idx) ;
 
-	sint32 GetNumRevolted(void) const { return m_num_revolted; }
+	sint32 GetNumRevolted() const { return m_num_revolted; }
 
 	sint32 GetUnitsLostHome() const { return m_home_lost_unit_count; }
 	sint32 GetUnitsLostOverseas() const { return m_oversea_lost_unit_count; }
@@ -909,11 +909,11 @@ public:
 	sint32 GetProductionFromFranchises();
 	void   AddProductionFromFranchise(sint32 amt);
 
-	void IndicateTerrainPolluted(void) { m_terrainPollution = TRUE; }
-	bool WasTerrainPolluted(void) const { return m_terrainPollution != FALSE; }
+	void IndicateTerrainPolluted() { m_terrainPollution = TRUE; }
+	bool WasTerrainPolluted() const { return m_terrainPollution != FALSE; }
 
 	bool CheckPlayerDead();
-	bool IsDead(void) const { return m_isDead != FALSE; }
+	bool IsDead() const { return m_isDead != FALSE; }
 	void StartDeath(GAME_OVER reason, sint32 data);
 	static void RemoveDeadPlayers();
 	static Player *GetDeadPlayer(sint32 index);
@@ -973,7 +973,7 @@ public:
 
 	void RegisterAttack(PLAYER_INDEX against);
 
-	bool GetDeepOceanVisible(void) const { return m_deepOceanVisible != FALSE; }
+	bool GetDeepOceanVisible() const { return m_deepOceanVisible != FALSE; }
 	void SetDeepOceanVisible(BOOL visible) { m_deepOceanVisible = visible; }
 
 	void ContactMade(PLAYER_INDEX with);
@@ -1000,10 +1000,10 @@ public:
 	void SetLastSalePrice(sint32 good, sint32 price);
 	sint32 GetLastAttacked(PLAYER_INDEX player);
 
-	bool CanUseTerraTab( void ) const { return m_can_use_terra_tab != FALSE; }
-	bool CanUseSpaceTab( void ) const { return m_can_use_space_tab != FALSE; }
-	bool CanUseSeaTab( void ) const { return m_can_use_sea_tab != FALSE; }
-	bool CanUseSpaceButton( void ) const { return m_can_use_space_button != FALSE; }
+	bool CanUseTerraTab( ) const { return m_can_use_terra_tab != FALSE; }
+	bool CanUseSpaceTab( ) const { return m_can_use_space_tab != FALSE; }
+	bool CanUseSeaTab( ) const { return m_can_use_sea_tab != FALSE; }
+	bool CanUseSpaceButton( ) const { return m_can_use_space_button != FALSE; }
 
 	bool CanStillSendRequestsTo(PLAYER_INDEX otherPlayer);
 	void IncrementSentRequests(PLAYER_INDEX otherPlayer);

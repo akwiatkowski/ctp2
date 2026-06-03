@@ -5,11 +5,11 @@
 #define __BACKGROUNDWIN_H__
 
 sint32      backgroundWin_Initialize(bool fullscreen = false);
-void        backgroundWin_Cleanup(void);
+void        backgroundWin_Cleanup();
 AUI_ERRCODE background_draw_handler(LPVOID bg);
 
 class Background;
-Background * background_Get(void);
+Background * background_Get();
 void         background_Set(Background *p);
 
 #endif

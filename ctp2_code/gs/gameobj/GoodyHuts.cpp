@@ -203,7 +203,7 @@ namespace
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-        sint32  GetMaxAdvanceLeap(void) const
+        sint32  GetMaxAdvanceLeap() const
         {
             return m_risk->GetHutMaxAdvancePrerequisites();
         }
@@ -224,7 +224,7 @@ namespace
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-        sint32  GetMaxUnitAdvanceLeap(void) const
+        sint32  GetMaxUnitAdvanceLeap() const
         {
             return m_risk->GetHutMaxUnitPrerequisites();
         }

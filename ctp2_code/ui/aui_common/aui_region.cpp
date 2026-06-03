@@ -159,7 +159,7 @@ aui_Region::aui_Region
     *retval           = AUI_ERRCODE_OK;
 }
 
-void aui_Region::InitCommon(void)
+void aui_Region::InitCommon()
 {
 #ifdef __AUI_USE_DIRECTX__
 	m_doubleClickTimeOut    = GetDoubleClickTime();
@@ -409,7 +409,7 @@ AUI_ERRCODE aui_Region::Resize( sint32 width, sint32 height )
 }
 
 
-AUI_ERRCODE aui_Region::Adjust( void )
+AUI_ERRCODE aui_Region::Adjust( )
 {
 	if ( m_dim->GetParent() )
 	{
@@ -570,7 +570,7 @@ aui_Region *aui_Region::GetChildByIndex(sint32 index)
 
 
 
-sint32 aui_Region::NumChildren(void)
+sint32 aui_Region::NumChildren()
 {
     return m_childList ? m_childList->L() : 0;
 }
@@ -600,7 +600,7 @@ uint32 aui_Region::SetDrawMask( uint32 drawMask )
 }
 
 
-AUI_ERRCODE aui_Region::Show( void )
+AUI_ERRCODE aui_Region::Show( )
 {
 	ShowThis();
 	ShowChildren();
@@ -612,7 +612,7 @@ AUI_ERRCODE aui_Region::Show( void )
 }
 
 
-AUI_ERRCODE aui_Region::Hide( void )
+AUI_ERRCODE aui_Region::Hide( )
 {
 	HideChildren();
 	HideThis();
@@ -624,7 +624,7 @@ AUI_ERRCODE aui_Region::Hide( void )
 }
 
 
-AUI_ERRCODE aui_Region::ShowThis( void )
+AUI_ERRCODE aui_Region::ShowThis( )
 {
 	if ( IsHidden() )
 	{
@@ -638,7 +638,7 @@ AUI_ERRCODE aui_Region::ShowThis( void )
 }
 
 
-AUI_ERRCODE aui_Region::HideThis( void )
+AUI_ERRCODE aui_Region::HideThis( )
 {
 	if ( !IsHidden() )
 	{
@@ -653,7 +653,7 @@ AUI_ERRCODE aui_Region::HideThis( void )
 }
 
 
-AUI_ERRCODE aui_Region::ShowChildren( void )
+AUI_ERRCODE aui_Region::ShowChildren( )
 {
 	ListPos position = m_childList->GetHeadPosition();
 	for ( sint32 i = m_childList->L(); i; i-- )
@@ -666,7 +666,7 @@ AUI_ERRCODE aui_Region::ShowChildren( void )
 }
 
 
-AUI_ERRCODE aui_Region::HideChildren( void )
+AUI_ERRCODE aui_Region::HideChildren( )
 {
 	ListPos position = m_childList->GetHeadPosition();
 	for ( sint32 i = m_childList->L(); i; i-- )
@@ -722,7 +722,7 @@ AUI_ERRCODE aui_Region::Enable( BOOL enable )
 }
 
 
-AUI_ERRCODE aui_Region::Reset( void )
+AUI_ERRCODE aui_Region::Reset( )
 {
 	ResetThis();
 
@@ -739,7 +739,7 @@ AUI_ERRCODE aui_Region::Reset( void )
 }
 
 
-AUI_ERRCODE aui_Region::ResetThis( void )
+AUI_ERRCODE aui_Region::ResetThis( )
 {
 	if ( GetWhichSeesMouse() == this ) SetWhichSeesMouse( NULL );
 
@@ -773,7 +773,7 @@ BOOL aui_Region::IsDescendent( aui_Region *region )
 }
 
 
-inline BOOL aui_Region::HasHeirarchyChanged( void ) const
+inline BOOL aui_Region::HasHeirarchyChanged( ) const
 {
 	if ( m_childListChanged ) return TRUE;
 	if ( !m_parent ) return this != aui_ui_Get();
@@ -781,7 +781,7 @@ inline BOOL aui_Region::HasHeirarchyChanged( void ) const
 }
 
 
-void aui_Region::ResetHeirarchyChanged( void )
+void aui_Region::ResetHeirarchyChanged( )
 {
 	m_childListChanged = FALSE;
 	if ( m_parent ) m_parent->ResetHeirarchyChanged();
@@ -1040,7 +1040,7 @@ void aui_Region::MouseNoChange( aui_MouseEvent *mouseData )
 
 
 
-AUI_ERRCODE aui_Region::AddUndo( void )
+AUI_ERRCODE aui_Region::AddUndo( )
 {
 	if (!s_undoList)
 	{
@@ -1058,7 +1058,7 @@ AUI_ERRCODE aui_Region::AddUndo( void )
 	return AUI_ERRCODE_OK;
 }
 
-void aui_Region::PurgeUndoList( void )
+void aui_Region::PurgeUndoList( )
 {
 	if (s_undoList)
     {
@@ -1072,7 +1072,7 @@ void aui_Region::PurgeUndoList( void )
 	}
 }
 
-AUI_ERRCODE aui_Region::UndoEdit( void )
+AUI_ERRCODE aui_Region::UndoEdit( )
 {
 	if (s_undoList) {
 		ListPos position = s_undoList->GetHeadPosition();

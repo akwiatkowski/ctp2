@@ -58,16 +58,16 @@ protected:
         aui_SDL             ()
     { ; };
 
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 
-	virtual AUI_ERRCODE AltTabOut( void );
-	virtual AUI_ERRCODE AltTabIn( void );
+	virtual AUI_ERRCODE AltTabOut( );
+	virtual AUI_ERRCODE AltTabIn( );
 	AUI_ERRCODE CreateNativeScreen( BOOL useExclusiveMode );
-	AUI_ERRCODE DestroyNativeScreen(void);
-	AUI_ERRCODE TearDownMouse(void);
-	AUI_ERRCODE RestoreMouse(void);
+	AUI_ERRCODE DestroyNativeScreen();
+	AUI_ERRCODE TearDownMouse();
+	AUI_ERRCODE RestoreMouse();
 
 	void SetWidth(sint32 width) { m_width = width; }
 	void SetHeight(sint32 height) { m_height = height; }

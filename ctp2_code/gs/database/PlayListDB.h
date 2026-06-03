@@ -14,7 +14,7 @@ public:
 
 	void Serialize(CivArchive &archive);
 
-	sint32		GetNumSongs(void) { return m_numSongs; }
+	sint32		GetNumSongs() { return m_numSongs; }
 	sint32		GetSong(sint32 songNum) { return m_playList[songNum]; }
 
 private:

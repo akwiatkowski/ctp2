@@ -227,7 +227,7 @@ AUI_ERRCODE aui_Ldl::MakeSureBlockExists(MBCHAR const *ldlBlock)
 }
 
 
-AUI_ERRCODE aui_Ldl::MakeSureDefaultTemplateExists( void )
+AUI_ERRCODE aui_Ldl::MakeSureDefaultTemplateExists( )
 {
 	ldl_datablock *format = s_ldl->FindDataBlock( k_AUI_LDL_DEFAULTTEMPLATE );
 	if ( !format )

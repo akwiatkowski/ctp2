@@ -16,12 +16,12 @@ class KeyListItem : public c3_ListItem
 public:
 	KeyListItem(AUI_ERRCODE *retval, sint32 index, uint32 keycode, MBCHAR *ldlBlock);
 
-	virtual void    Update(void);
+	virtual void    Update();
 	void            UpdateKey(uint32 keycode);
 
-	sint32	        GetKey(void) const      { return m_index; };
-	sint32	        GetKeycode(void) const  { return m_keycode; };
-    MBCHAR *        GetName(void) const     { return m_name; };
+	sint32	        GetKey() const      { return m_index; };
+	sint32	        GetKeycode() const  { return m_keycode; };
+    MBCHAR *        GetName() const     { return m_name; };
 
 	virtual sint32  Compare(c3_ListItem *item2, uint32 column);
 
@@ -37,7 +37,7 @@ private:
 
 sint32      km_screen_displayMyWindow();
 sint32      km_screen_removeMyWindow(uint32 action);
-void        km_screen_Cleanup(void);
+void        km_screen_Cleanup();
 sint32      km_screen_remapKey( WPARAM wParam, LPARAM lParam );
 
 void        km_screen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

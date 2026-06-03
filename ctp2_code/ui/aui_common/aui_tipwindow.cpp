@@ -100,7 +100,7 @@ AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR *text)
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE aui_TipWindow::InitCommon( void )
+AUI_ERRCODE aui_TipWindow::InitCommon( )
 {
 	m_allocatedTip = FALSE;
 	m_staticTip = NULL;

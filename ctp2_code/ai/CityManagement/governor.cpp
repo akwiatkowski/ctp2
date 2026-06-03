@@ -294,7 +294,7 @@ void Governor::SaveAll(CivArchive & archive)
 // Remark(s)  : static function
 //
 //----------------------------------------------------------------------------
-void Governor::Cleanup(void)
+void Governor::Cleanup()
 {
 	GovernorVector().swap(s_theGovernors);
     CityPairList  ().swap(s_CityPairList);

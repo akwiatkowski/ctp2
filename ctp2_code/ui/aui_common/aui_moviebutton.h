@@ -81,11 +81,11 @@ protected:
 
 public:
 	aui_Movie *SetMovie( const MBCHAR *movie );
-	aui_Movie *GetMovie( void ) const { return m_movie; }
+	aui_Movie *GetMovie( ) const { return m_movie; }
 
 	void SetFullScreen(bool on) { m_fullScreen = on; }
 
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 
 
 	virtual AUI_ERRCODE DrawThis(
@@ -94,7 +94,7 @@ public:
 		sint32 y = 0 ) { return AUI_ERRCODE_OK; }
 
 	void SetFlags(uint32 flags) { m_flags = flags; }
-	uint32 GetFlags(void) const { return m_flags; }
+	uint32 GetFlags() const { return m_flags; }
 
 protected:
 	aui_Movie	*m_movie;

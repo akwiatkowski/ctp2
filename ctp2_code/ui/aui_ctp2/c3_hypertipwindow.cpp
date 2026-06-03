@@ -107,7 +107,7 @@ AUI_ERRCODE c3_HyperTipWindow::SetHyperTipText(MBCHAR *text)
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE c3_HyperTipWindow::InitCommon( void )
+AUI_ERRCODE c3_HyperTipWindow::InitCommon( )
 {
 	m_allocatedHyperTip = FALSE;
 	m_hyperTip = NULL;

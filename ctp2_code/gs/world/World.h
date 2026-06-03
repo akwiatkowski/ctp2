@@ -578,10 +578,10 @@ public:
 
     void GlobalWarming     (const sint32 phase);
     void GlobalWarmingEvent(const sint32 phase);
-    void GWPhase0(void) ;
-    void GWPhase1(void) ;
-    void RaiseWaters(void) ;
-    void MakeBeaches(void) ;
+    void GWPhase0() ;
+    void GWPhase1() ;
+    void RaiseWaters() ;
+    void MakeBeaches() ;
     void FloodCell(sint32 x, sint32 y, Cell *c) ;
     void FloodEverythingInCell(sint32 x, sint32 y, Cell *c) ;
     void FloodImprovements(sint32 x, sint32 y, Cell *c) ;
@@ -592,9 +592,9 @@ public:
     void ConvertToShallowWater(sint32 x, sint32 y, Cell *c) ;
     void ConvertToBeach(sint32 x, sint32 y, Cell *c) ;
 
-    void RemoveBeaches(void) ;
-    void FloodRivers(void) ;
-    void InformPlayersOfFloodingCatastrophe(void) ;
+    void RemoveBeaches() ;
+    void FloodRivers() ;
+    void InformPlayersOfFloodingCatastrophe() ;
 
     void ChangeOwner(const MapPoint &point, sint32 fromOwner, sint32 toOwner);
     void CutImprovements(const MapPoint &point);
@@ -618,8 +618,8 @@ public:
 
     GoodyHut *GetGoodyHut(const MapPoint & pos);
 
-    void AllocateTileInfoStorage(void);
-    void DisposeTileInfoStorage(void);
+    void AllocateTileInfoStorage();
+    void DisposeTileInfoStorage();
     TileInfo *GetTileInfoStoragePtr(const MapPoint &pos);
 
     PLAYER_INDEX GetOwner(const MapPoint &pos) const;
@@ -644,8 +644,8 @@ public:
 	void GWPhase(const sint32 phase);
 
 //	void OzoneDepletion     (const sint32 phase); // This should be reimplemented to use the phase dependent boni of the ozone database.
-	void OzoneDepletion     (void);
-	void OzoneDepletionEvent(void);
+	void OzoneDepletion     ();
+	void OzoneDepletionEvent();
 
 	void AddZOC(const MapPoint &pos, sint32 player);
 	void RemoveZOC(const MapPoint &pos, sint32 player);
@@ -714,9 +714,9 @@ private:
 // Session-singleton accessor pair, mirroring pollution_Get / topten_Get
 // / unitpool_Get.  The legacy g_theWorld pointer is now file-static in
 // gameinit.cpp; outside callers must go through these accessors.
-World * world_Get(void);
+World * world_Get();
 void    world_Set(World *p);
 
-uint32 World_World_GetVersion(void);
+uint32 World_World_GetVersion();
 
 #endif

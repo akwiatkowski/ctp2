@@ -34,7 +34,7 @@ public:
 protected:
 	aui_TextBox() : aui_ListBox() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 	virtual AUI_ERRCODE	SetText(

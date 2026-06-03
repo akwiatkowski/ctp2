@@ -109,7 +109,7 @@ AUI_ERRCODE ns_Header::InitCommonLdl( MBCHAR *ldlBlock )
 	return InitCommon();
 }
 
-AUI_ERRCODE ns_Header::InitCommon( void )
+AUI_ERRCODE ns_Header::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }

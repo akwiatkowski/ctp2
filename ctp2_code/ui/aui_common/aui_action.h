@@ -86,7 +86,7 @@ class aui_Action : public aui_Base
 {
 public:
 	aui_Action() : aui_Base() { ; };
-	virtual ~aui_Action(void) { ; };
+	virtual ~aui_Action() { ; };
 
 	virtual void	Execute
 	(

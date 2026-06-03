@@ -83,30 +83,30 @@ public:
 	TileInfo(CivArchive &archive);
 	~TileInfo();
 
-	uint8 GetTerrainType(void) const { return m_terrainType; }
+	uint8 GetTerrainType() const { return m_terrainType; }
 	void SetTerrainType(uint8 type) { m_terrainType = type; }
 
 	uint8 GetTransform() const { return m_transform; }
 	void SetTransform(uint8 trans) { m_transform = trans; }
 
-	TILEINDEX GetTileNum(void);
+	TILEINDEX GetTileNum();
 
 	void SetTileNum(TILEINDEX index) { m_tileNum = index; }
 
-	sint16 GetRiverPiece(void) const { return m_riverPiece; }
+	sint16 GetRiverPiece() const { return m_riverPiece; }
 	void SetRiverPiece(sint16 river) { m_riverPiece = static_cast<sint8>(river); }
 
 	void SetGoodActor(sint32 index, MapPoint const & pos);
-	GoodActor * GetGoodActor(void) const {return m_goodActor;}
-	bool HasGoodActor(void) const { return m_goodActor != NULL; }
-	void DeleteGoodActor(void);
+	GoodActor * GetGoodActor() const {return m_goodActor;}
+	bool HasGoodActor() const { return m_goodActor != NULL; }
+	void DeleteGoodActor();
 
 	void SetTransition(uint16 transNum, uint16 index) { m_transitions[transNum] = (sint8)index; }
 	uint16 GetTransition(uint16 transNum) { return m_transitions[transNum]; }
 
-	sint32 GetNextMega(void) { return static_cast<sint32>((m_megaInfo & k_MASK_MEGA_NEXT) >> k_SHIFT_MEGA_NEXT); }
-	sint32 GetLastMega(void) { return static_cast<sint32>((m_megaInfo & k_MASK_MEGA_LAST) >> k_SHIFT_MEGA_LAST); }
-	bool IsMega(void) const { return m_megaInfo != 0; }
+	sint32 GetNextMega() { return static_cast<sint32>((m_megaInfo & k_MASK_MEGA_NEXT) >> k_SHIFT_MEGA_NEXT); }
+	sint32 GetLastMega() { return static_cast<sint32>((m_megaInfo & k_MASK_MEGA_LAST) >> k_SHIFT_MEGA_LAST); }
+	bool IsMega() const { return m_megaInfo != 0; }
 	void SetNextMega(sint32 dir) { m_megaInfo = static_cast<sint8>((m_megaInfo & k_MASK_MEGA_NEXT) | ((dir << k_SHIFT_MEGA_NEXT) & k_MASK_MEGA_NEXT));}
 	void SetLastMega(sint32 dir) { m_megaInfo = static_cast<sint8>((m_megaInfo & k_MASK_MEGA_LAST) | ((dir << k_SHIFT_MEGA_LAST) & k_MASK_MEGA_LAST));}
 

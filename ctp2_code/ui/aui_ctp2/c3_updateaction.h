@@ -15,7 +15,7 @@ public:
     :   aui_Action  ()
     { ; };
 
-	virtual ~c3_UpdateAction(void);
+	virtual ~c3_UpdateAction();
 
 	virtual void	Execute
 	(
@@ -24,7 +24,7 @@ public:
 		uint32			data
 	);
 
-	virtual c3_UpdateAction * CopyMe(void);
+	virtual c3_UpdateAction * CopyMe();
 };
 
 

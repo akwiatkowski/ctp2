@@ -79,7 +79,7 @@ uint8 g_messageIconWidth = 33;
 
 
 
-AUI_ERRCODE messagewin_InitializeMessages( void )
+AUI_ERRCODE messagewin_InitializeMessages( )
 {
 	g_messageUserList = new tech_WLList<MessageList *>;
 
@@ -361,14 +361,14 @@ int messagewin_CleanupMessage( MessageIconWindow *iconWindow,
 
 
 
-void messagewin_Cleanup(void)
+void messagewin_Cleanup()
 {
 	messagewin_PurgeMessages();
     allocated::clear(g_messageUserList);
 }
 
 
-void messagewin_PurgeMessages(void)
+void messagewin_PurgeMessages()
 {
 	if (g_messageUserList)
     {

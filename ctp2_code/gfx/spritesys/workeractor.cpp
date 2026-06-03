@@ -56,14 +56,14 @@ WorkerActor::~WorkerActor()
 {
 }
 
-void WorkerActor::AddIdle(void)
+void WorkerActor::AddIdle()
 {
 	m_curAction.reset(new Action(UNITACTION_IDLE, ACTIONEND_ANIMEND));
 	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE));
 	m_curUnitAction = UNITACTION_IDLE;
 }
 
-void WorkerActor::Process(void)
+void WorkerActor::Process()
 {
 
 	if (m_curAction) {
@@ -103,7 +103,7 @@ void WorkerActor::Process(void)
 	}
 }
 
-void WorkerActor::GetNextAction(void)
+void WorkerActor::GetNextAction()
 {
 	m_curAction.reset();
 
@@ -165,7 +165,7 @@ Anim *WorkerActor::CreateAnim(UNITACTION action)
 	return new Anim(*origAnim);
 }
 
-void WorkerActor::Draw(void)
+void WorkerActor::Draw()
 {
 	uint16			flags = k_DRAWFLAGS_NORMAL;
 	Pixel16			color = 0x0000;
@@ -188,12 +188,12 @@ void WorkerActor::DrawText(sint32 x, sint32 y, MBCHAR const * unitText)
 	m_unitSpriteGroup->DrawText(x, y, unitText);
 }
 
-bool WorkerActor::IsAnimating(void) const
+bool WorkerActor::IsAnimating() const
 {
 	return false;
 }
 
-uint16 WorkerActor::GetWidth(void) const
+uint16 WorkerActor::GetWidth() const
 {
 	Assert(m_unitSpriteGroup != NULL);
 	if (m_unitSpriteGroup == NULL) return 0;
@@ -202,7 +202,7 @@ uint16 WorkerActor::GetWidth(void) const
     return (theSprite) ? theSprite->GetWidth() : 0;
 }
 
-uint16 WorkerActor::GetHeight(void) const
+uint16 WorkerActor::GetHeight() const
 {
 	Assert(m_unitSpriteGroup != NULL);
 	if (m_unitSpriteGroup == NULL) return 0;

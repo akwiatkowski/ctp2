@@ -44,7 +44,7 @@ class SegmentList : public KeyboardHandler
 {
 public:
 	SegmentList(SegmentListCallback* callback = 0, MBCHAR *ldlBlock = 0);
-	virtual ~SegmentList(void);
+	virtual ~SegmentList();
 
 	void DisplayWindow();
 	void RemoveWindow();

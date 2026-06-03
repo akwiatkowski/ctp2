@@ -153,7 +153,7 @@ AUI_ERRCODE aui_TabGroup::AddChild( aui_Region *child )
 }
 
 
-AUI_ERRCODE aui_TabGroup::FormatTabs( void )
+AUI_ERRCODE aui_TabGroup::FormatTabs( )
 {
 	sint32 numTabs = m_childList->L();
 

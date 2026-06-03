@@ -17,7 +17,7 @@ c3_Image::c3_Image(
 	InitCommon();
 }
 
-AUI_ERRCODE c3_Image::InitCommon( void )
+AUI_ERRCODE c3_Image::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }

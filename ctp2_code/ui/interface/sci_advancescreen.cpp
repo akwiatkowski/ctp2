@@ -365,7 +365,7 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 }
 
 
-void sci_advancescreen_Cleanup(void)
+void sci_advancescreen_Cleanup()
 {
 	if (s_sci_advanceScreen && c3ui_Get())
     {
@@ -491,7 +491,7 @@ void sci_advancescreen_cancelPress(aui_Control *control, uint32 action, uint32 d
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-sint32 sci_advancescreen_loadList( void )
+sint32 sci_advancescreen_loadList( )
 {
 
 	Player *p = player_Get(selitem_Get()->GetVisiblePlayer());

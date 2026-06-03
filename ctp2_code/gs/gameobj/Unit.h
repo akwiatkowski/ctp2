@@ -107,12 +107,12 @@ public:
 #endif
 
 	const UnitRecord * GetDBRec() const;
-	const UnitData * GetData(void) const;
-	UnitData * AccessData(void) const;
+	const UnitData * GetData() const;
+	UnitData * AccessData() const;
 	void KillUnit(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy);
 	void Kill(const CAUSE_REMOVE_ARMY cause, PLAYER_INDEX killedBy)
 	{ KillUnit(cause, killedBy); }
-	void FastKill(void);
+	void FastKill();
 
 	bool IsValid() const;
 
@@ -174,12 +174,12 @@ public:
 	void    SetMovementPoints(double m);
 	bool    DeductMoveCost(const double cost, bool &out_of_fuel);
 	void    GetPos(MapPoint &pos) const;
-	MapPoint RetPos(void) const;
+	MapPoint RetPos() const;
 	bool MoveToPosition(const MapPoint &p, UnitDynamicArray &revealedUnits);
 	bool SetPosition(const MapPoint &p, UnitDynamicArray &revealedUnits);
 	void SetPosAndNothingElse(const MapPoint &p);
 
-	void Launch(void);
+	void Launch();
 	void MoveIt(const sint32 owner, const WORLD_DIRECTION d,
 	            const sint32 is_manual);
 
@@ -254,18 +254,18 @@ public:
 	bool CanCarry(Unit u) const ;
 	bool DeathEffectsHappy() const;
 
-	sint32 GetSelect1SoundID(void);
-	sint32 GetSelect2SoundID(void);
-	sint32 GetMoveSoundID(void);
-	sint32 GetAcknowledgeSoundID(void);
-	sint32 GetCantMoveSoundID(void);
-	sint32 GetAttackSoundID(void);
+	sint32 GetSelect1SoundID();
+	sint32 GetSelect2SoundID();
+	sint32 GetMoveSoundID();
+	sint32 GetAcknowledgeSoundID();
+	sint32 GetCantMoveSoundID();
+	sint32 GetAttackSoundID();
 
-	sint32 GetWorkSoundID(void);
-	sint32 GetVictorySoundID(void);
-	sint32 GetDeathSoundID(void);
-	sint32 GetLoadSoundID(void);
-	sint32 GetUnloadSoundID(void);
+	sint32 GetWorkSoundID();
+	sint32 GetVictorySoundID();
+	sint32 GetDeathSoundID();
+	sint32 GetLoadSoundID();
+	sint32 GetUnloadSoundID();
 
 	bool GetSpecialAttackInfo(SPECATTACK attack, sint32 *soundID, sint32 *spriteID);
 
@@ -600,7 +600,7 @@ public:
 	CityData *GetCityData() const;
 	CityData *CD() { return GetCityData(); }
 
-	std::string GetDisplayName(void) const;
+	std::string GetDisplayName() const;
 
 	bool NeedsRefueling() const;
 	bool UnitValidForOrder(const OrderRecord * order_rec) const;
@@ -620,7 +620,7 @@ public:
 	void UnMercenary();
 };
 
-uint32 Unit_Unit_GetVersion(void);
+uint32 Unit_Unit_GetVersion();
 
 // JSON bridge — Unit is a pure ID-derived handle, serialise as uint32.
 inline void to_json(nlohmann::json &j, Unit const &u)

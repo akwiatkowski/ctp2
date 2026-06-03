@@ -35,7 +35,7 @@ public:
 	virtual ~WonderMovieWindow();
 
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	virtual AUI_ERRCODE Idle();
 
@@ -48,7 +48,7 @@ public:
 	void SetWonderName(MBCHAR *name);
 	void SetText(const MBCHAR *text);
 
-  std::weak_ptr<Sequence> GetSequence(void) { return m_sequence;}
+  std::weak_ptr<Sequence> GetSequence() { return m_sequence;}
 	void SetSequence(std::weak_ptr<Sequence> seq) { m_sequence = seq; }
 
 private:

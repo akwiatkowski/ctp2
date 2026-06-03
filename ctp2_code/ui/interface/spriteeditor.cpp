@@ -236,7 +236,7 @@ void FacingCallback( aui_Control *control, uint32 action, uint32 data, void *coo
 
 
 
-int SpriteEditWindow_Initialize( void )
+int SpriteEditWindow_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -268,7 +268,7 @@ int SpriteEditWindow_Initialize( void )
 }
 
 
-void SpriteEditWindow_Cleanup(void)
+void SpriteEditWindow_Cleanup()
 {
 	if (c3ui_Get() && g_spriteEditWindow)
     {
@@ -552,7 +552,7 @@ SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowBlock)
 
 
 
-AUI_ERRCODE SpriteEditWindow::InitCommon(void)
+AUI_ERRCODE SpriteEditWindow::InitCommon()
 {
 	m_scroll = FALSE;
 	m_dest = 0;
@@ -889,7 +889,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 	}
 }
 
-AUI_ERRCODE SpriteEditWindow::Idle( void )
+AUI_ERRCODE SpriteEditWindow::Idle( )
 {
 	if ((c3ui_Get()->TheMouse()==NULL)||(tiledmap_Get()==NULL))
 		return AUI_ERRCODE_OK;

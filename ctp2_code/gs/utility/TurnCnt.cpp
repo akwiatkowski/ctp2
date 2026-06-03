@@ -785,7 +785,7 @@ void TurnCount::NetworkEndTurn(BOOL force)
 #endif // Unreachable
 }
 
-void TurnCount::RunNewYearMessages(void)
+void TurnCount::RunNewYearMessages()
 {
 
 	if (GetYear() >= g_theConstDB->Get(0)->GetEndOfGameYearEarlyWarning()) {
@@ -830,7 +830,7 @@ void TurnCount::RunNewYearMessages(void)
 	}
 }
 
-void TurnCount::SendMsgEndOfGameEarlyWarning(void)
+void TurnCount::SendMsgEndOfGameEarlyWarning()
 {
 	SendMsgToAllPlayers("73EndOfGameTimeIsRunningOut") ;
 	if(g_network.IsHost()) {
@@ -1004,7 +1004,7 @@ void TurnCount::ChooseHappinessPlayer()
 }
 
 #ifdef _DEBUG
-void TurnCount::LogPlayerStats(void)
+void TurnCount::LogPlayerStats()
 {
 	PLAYER_INDEX    playerNum   = player_view::CurPlayer();
 	MBCHAR          filename[80];

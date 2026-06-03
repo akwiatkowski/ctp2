@@ -113,9 +113,9 @@ class aui_StringTable;
 sint32      spnewgamescreen_displayMyWindow();
 sint32      spnewgamescreen_removeMyWindow(uint32 action);
 sint32      spnewgamescreen_setPlayerName( const MBCHAR *name );
-AUI_ERRCODE spnewgamescreen_Initialize( void );
+AUI_ERRCODE spnewgamescreen_Initialize( );
 void        spnewgamescreen_Cleanup();
-sint32      spnewgamescreen_update( void );
+sint32      spnewgamescreen_update( );
 
 
 
@@ -298,7 +298,7 @@ public:
 		bool bevel = true);
 	virtual ~SPNewGameWindow();
 
-	void Update( void );
+	void Update( );
 
 
 	ctp2_Button		*m_spStart;

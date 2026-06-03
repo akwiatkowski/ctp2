@@ -34,7 +34,7 @@ public:
 
 	virtual ~DebugWindow() {}
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
@@ -47,7 +47,7 @@ public:
 
 
 	void SetTextBox(TextBox *box) { m_textBox = box; }
-	TextBox *GetTextBox(void) const { return m_textBox; }
+	TextBox *GetTextBox() const { return m_textBox; }
 	void AddText(MBCHAR *text);
 
     void SetDebugMask(uint32 m);

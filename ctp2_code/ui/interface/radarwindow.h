@@ -19,6 +19,6 @@ void    radarwindow_Toggle();
 // g_radarWindow demoted to file-scope `static` in radarwindow.cpp.
 // External callers go through radarwindow_Get() (returns NULL when the
 // radar window has not been initialized).
-ctp2_Window * radarwindow_Get(void);
+ctp2_Window * radarwindow_Get();
 
 #endif

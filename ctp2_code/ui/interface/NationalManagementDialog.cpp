@@ -128,7 +128,7 @@ static const sint32 k_NMD_SPEC_COMBAT_UNITS = 9;
 
 static NationalManagementDialog * g_nationalManagementDialog = NULL;
 
-NationalManagementDialog * nationalmanagementdialog_Get(void)
+NationalManagementDialog * nationalmanagementdialog_Get()
 {
     return g_nationalManagementDialog;
 }

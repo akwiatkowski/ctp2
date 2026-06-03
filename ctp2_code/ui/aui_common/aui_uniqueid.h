@@ -6,6 +6,6 @@
 
 
 
-uint32 aui_UniqueId( void );
+uint32 aui_UniqueId( );
 
 #endif

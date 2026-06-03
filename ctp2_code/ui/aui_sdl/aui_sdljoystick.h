@@ -26,10 +26,10 @@ public:
 #endif
 
 	void SetDeviceName( MBCHAR *name ) { strcpy( m_deviceName, name ); };
-	MBCHAR *DeviceName( void ) { return m_deviceName; };
+	MBCHAR *DeviceName( ) { return m_deviceName; };
 
-	uint32 GetLowerMin ( void ) { return m_lMin; };
-	uint32 GetUpperMax ( void ) { return m_lMax; };
+	uint32 GetLowerMin ( ) { return m_lMin; };
+	uint32 GetUpperMax ( ) { return m_lMax; };
 
 protected:
 	aui_SDLJoystick() {}
@@ -38,8 +38,8 @@ protected:
 #endif
 
 public:
-	virtual AUI_ERRCODE Acquire( void ) { return aui_SDLInput::Acquire(); }
-	virtual AUI_ERRCODE Unacquire( void ) { return aui_SDLInput::Unacquire(); }
+	virtual AUI_ERRCODE Acquire( ) { return aui_SDLInput::Acquire(); }
+	virtual AUI_ERRCODE Unacquire( ) { return aui_SDLInput::Unacquire(); }
 
 #if 0
 	virtual AUI_ERRCODE GetInput( void );

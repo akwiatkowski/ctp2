@@ -49,7 +49,7 @@
 
 class   C3UI;
 
-typedef void (* UiCleanupCallback) (void);
+typedef void (* UiCleanupCallback) ();
 
 //----------------------------------------------------------------------------
 // Project dependencies
@@ -88,7 +88,7 @@ public:
 		BOOL useExclusiveMode = FALSE );
 	virtual ~C3UI();
 
-	aui_Resource<Pattern>	*GetPatternResource( void ) const { return m_patternResource; }
+	aui_Resource<Pattern>	*GetPatternResource( ) const { return m_patternResource; }
 
 	Pattern	*LoadPattern( MBCHAR const * name )
 		{ return m_patternResource->Load(name); }
@@ -103,7 +103,7 @@ public:
 	AUI_ERRCODE	RemovePatternSearchPath(MBCHAR const * path)
 		{ return m_patternResource->RemoveSearchPath(path); }
 
-	aui_Resource<Icon>	*GetIconResource( void ) const { return m_iconResource; }
+	aui_Resource<Icon>	*GetIconResource( ) const { return m_iconResource; }
 
 	Icon	*LoadIcon(MBCHAR const * name)
 		{ return m_iconResource->Load(name); }
@@ -118,7 +118,7 @@ public:
 	AUI_ERRCODE	RemoveIconSearchPath(MBCHAR const * path)
 		{ return m_iconResource->RemoveSearchPath(path); }
 
-	aui_Resource<Picture>	*GetPictureResource( void ) const { return m_pictureResource; }
+	aui_Resource<Picture>	*GetPictureResource( ) const { return m_pictureResource; }
 
 	Picture	*LoadPicture(MBCHAR const * name)
 		{ return m_pictureResource->Load(name); }
@@ -134,7 +134,7 @@ public:
 		{ return m_pictureResource->RemoveSearchPath(path); }
 
     void        RegisterCleanup(UiCleanupCallback);
-	bool        TopWindowIsNonBackground(void) const;
+	bool        TopWindowIsNonBackground() const;
 
 private:
 	aui_Resource<Pattern> *         m_patternResource;
@@ -146,7 +146,7 @@ private:
 // App-singleton accessor pair, mirroring world_Get / tiledmap_Get
 // / director_Get.  Callers should use c3ui_Get() instead of
 // reaching for g_c3ui directly.
-C3UI * c3ui_Get(void);
+C3UI * c3ui_Get();
 void   c3ui_Set(C3UI *p);
 
 #endif

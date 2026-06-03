@@ -58,15 +58,15 @@ public:
 protected:
 	aui_Win() : aui_Control() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
-	BOOL	IsRegistered( void ) const { return m_registered; }
-	MBCHAR	*GetWindowClass( void ) const { return m_windowClass; }
+	BOOL	IsRegistered( ) const { return m_registered; }
+	MBCHAR	*GetWindowClass( ) const { return m_windowClass; }
 
-	HWND	TheHWND( void ) const { return m_hwnd; }
+	HWND	TheHWND( ) const { return m_hwnd; }
 
-	virtual aui_Control	*SetKeyboardFocus( void );
+	virtual aui_Control	*SetKeyboardFocus( );
 
 	static aui_Win *GetWinFromHWND( HWND hwnd );
 

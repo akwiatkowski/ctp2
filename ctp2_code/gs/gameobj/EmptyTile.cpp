@@ -18,7 +18,7 @@ EmptyTile::EmptyTile(EmptyTile *tile)
 	m_gold = tile->GetGold() ;
 	}
 
-EmptyTile::EmptyTile(void)
+EmptyTile::EmptyTile()
 	{
 	m_pos = MapPoint(0,0) ;
 	m_food = 0 ;

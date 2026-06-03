@@ -87,18 +87,18 @@ public:
 
 	void		AutoSave(sint32 player, bool isQuickSave = false);
 	void		BeginKeyboardScrolling(sint32 key);
-	void		CleanupApp(void);
-	void		CleanupAppDB(void);
-	sint32		EndGame(void);
+	void		CleanupApp();
+	void		CleanupAppDB();
+	sint32		EndGame();
 
-	sint32		GetKeyboardScrollingKey(void) const
+	sint32		GetKeyboardScrollingKey() const
     {
         return m_keyboardScrollingKey;
     };
 
     sint32		InitializeApp(HINSTANCE hInstance, int iCmdShow);
-	sint32		InitializeEngine(void);
-	bool		InitializeAppDB(void);
+	sint32		InitializeEngine();
+	bool		InitializeAppDB();
 	// archive == NULL means new game; non-null means restore from save.
 	// Used directly by headless_main for --new-game; also called from
 	// InitializeGame() when c3ui_Get() is null (i.e. headless save-load).
@@ -106,7 +106,7 @@ public:
 	sint32		InitializeAppDB(CivArchive &archive);
 	sint32		InitializeGame(CivArchive *archive);
 
-   	bool		IsGameLoaded(void) const
+   	bool		IsGameLoaded() const
     {
         return m_gameLoaded;
     };
@@ -117,15 +117,15 @@ public:
     // include is already pulled in.  Headless build links the same source
     // but the editor predicates evaluate to false there because the editor
     // is never instantiated.
-    bool		IsScenarioEditorShown(void) const;
-    bool		IsScenarioEditorGivingAdvances(void) const;
+    bool		IsScenarioEditorShown() const;
+    bool		IsScenarioEditorGivingAdvances() const;
 
-	bool		IsInBackground(void) const
+	bool		IsInBackground() const
     {
         return m_inBackground;
     };
 
-	bool		IsKeyboardScrolling(void) const
+	bool		IsKeyboardScrolling() const
     {
         return m_isKeyboardScrolling;
     };
@@ -133,25 +133,25 @@ public:
 	sint32		LoadSavedGame(MBCHAR const * name);
 	sint32		LoadSavedGameMap(MBCHAR const * name);
 	sint32		LoadScenarioGame(MBCHAR const * name);
-	void		PostEndGameAction(void);
+	void		PostEndGameAction();
 	void        PostLoadQuickSaveAction(sint32 player);
 	void		PostLoadSaveGameAction(MBCHAR const *);
 	void		PostLoadScenarioGameAction(MBCHAR const * name);
-	void		PostQuitToLobbyAction(void);
-	void		PostQuitToSPShellAction(void);
-	void		PostRestartGameAction(void);
-	void		PostRestartGameSameMapAction(void);
-	void		PostSpriteTestAction(void);
-	void		PostStartGameAction(void);
-	sint32		Process(void);
-	void		ProcessGraphicsCallback(void);
+	void		PostQuitToLobbyAction();
+	void		PostQuitToSPShellAction();
+	void		PostRestartGameAction();
+	void		PostRestartGameSameMapAction();
+	void		PostSpriteTestAction();
+	void		PostStartGameAction();
+	sint32		Process();
+	void		ProcessGraphicsCallback();
 	sint32		QuickInit(HINSTANCE hInstance, int iCmdShow);
-	void		QuitGame(void);
-	sint32		QuitToLobby(void);
-	sint32		QuitToSPShell(void);
-	sint32		RestartGame(void);
-	sint32		RestartGameSameMap(void);
-	bool		SaveDBInGameFile(void) const
+	void		QuitGame();
+	sint32		QuitToLobby();
+	sint32		QuitToSPShell();
+	sint32		RestartGame();
+	sint32		RestartGameSameMap();
+	bool		SaveDBInGameFile() const
     {
         return m_saveDBInGameFile;
     }
@@ -159,23 +159,23 @@ public:
     {
         m_inBackground = in;
     }
-	sint32		StartSpriteEditor(void);
-	sint32		StartGame(void);
+	sint32		StartSpriteEditor();
+	sint32		StartGame();
 	void		StopKeyboardScrolling(sint32 key);
 
 private:
-	void		CleanupAppUI(void);
+	void		CleanupAppUI();
 	void		CleanupGame(bool keepScenInfo);
-	void		CleanupGameUI(void);
-	void 		InitializeAppUI(void);
-	sint32  	InitializeGameUI(void);
+	void		CleanupGameUI();
+	void 		InitializeAppUI();
+	sint32  	InitializeGameUI();
 	sint32		InitializeSpriteEditor(CivArchive *archive);
 	void		PostLoadSaveGameMapAction(MBCHAR const *);
 	sint32      ProcessAI();
 	sint32      ProcessNet(const uint32 target_milliseconds, uint32 &used_milliseconds);
-	sint32		ProcessProfile(void);
+	sint32		ProcessProfile();
 	sint32      ProcessRobot(const uint32 target_milliseconds, uint32 &used_milliseconds);
-	sint32      ProcessSLIC(void);
+	sint32      ProcessSLIC();
 	sint32		ProcessUI(const uint32 target_milliseconds, uint32 &used_milliseconds);
 	void		RestoreAutoSave(sint32 player);
 	void        StartMessageSystem();
@@ -289,7 +289,7 @@ private:
 // App-singleton accessor pair, mirroring world_Get / c3ui_Get /
 // tiledmap_Get.  The legacy g_civApp pointer is now file-static
 // in ctp/civ3_main.cpp; outside callers must go through these accessors.
-CivApp * civapp_Get(void);
+CivApp * civapp_Get();
 void     civapp_Set(CivApp *p);
 
 #endif

@@ -59,5 +59,5 @@ public:
 
 };
 
-uint32 Sci_Science_GetVersion(void) ;
+uint32 Sci_Science_GetVersion() ;
 #endif

@@ -32,7 +32,7 @@ public:
 
 	virtual ~ScienceWindow() {}
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
@@ -42,7 +42,7 @@ public:
 	sint32 SetTechMode ( sint32 mode, DATABASE database );
 
 	void SetGivesText( c3_HyperTextBox *text ) { m_givesBox = text; };
-	sint32 LoadGivesText ( void );
+	sint32 LoadGivesText ( );
 
 	char	m_givesFile[_MAX_PATH];
 

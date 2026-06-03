@@ -44,7 +44,7 @@ public:
 // g_theInstallationPool's lifecycle (new / archive-load / Cleanup) lives
 // in gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through installationpool_Get().
-InstallationPool * installationpool_Get(void);
+InstallationPool * installationpool_Get();
 void               installationpool_Set(InstallationPool *p);
 
 #endif

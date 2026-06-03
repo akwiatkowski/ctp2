@@ -120,7 +120,7 @@ template <typename T> T ParseNextNumber(Token & tokenStream)
 
 static ColorSet *	g_colorSet  = &s_theUniqueColorSet;
 
-ColorSet * colorset_Get(void)         { return g_colorSet; }
+ColorSet * colorset_Get()         { return g_colorSet; }
 void       colorset_Set(ColorSet *p)  { g_colorSet = p; }
 
 ColorSet::ColorSet()
@@ -147,7 +147,7 @@ ColorSet::~ColorSet()
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void ColorSet::Cleanup(void)
+void ColorSet::Cleanup()
 {
     std::vector<Pixel16>().swap(s_theUniqueColorSet.m_colors);
 }

@@ -45,14 +45,14 @@ public:
 	aui_Input();
 	virtual ~aui_Input();
 
-	virtual AUI_ERRCODE GetInput( void ) { return AUI_ERRCODE_OK; }
-	virtual AUI_ERRCODE ReactToInput( void ) { return AUI_ERRCODE_OK; }
+	virtual AUI_ERRCODE GetInput( ) { return AUI_ERRCODE_OK; }
+	virtual AUI_ERRCODE ReactToInput( ) { return AUI_ERRCODE_OK; }
 
-	virtual AUI_ERRCODE Acquire( void );
-	virtual AUI_ERRCODE Unacquire( void );
+	virtual AUI_ERRCODE Acquire( );
+	virtual AUI_ERRCODE Unacquire( );
 
 protected:
-	bool IsAcquired( void ) const { return m_acquired; }
+	bool IsAcquired( ) const { return m_acquired; }
 
 private:
 	bool m_acquired;

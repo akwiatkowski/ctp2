@@ -20,7 +20,7 @@ class RandomGenerator;
 // reference.  Lifecycle code (gameinit, net_rand, c3rand, the JSON
 // save/load bridges) needs the raw pointer; rand_ptr() returns it and
 // rand_ptr_Set() lets gameinit reseat the pointer on new-game / load.
-RandomGenerator * rand_ptr(void);
+RandomGenerator * rand_ptr();
 void              rand_ptr_Set(RandomGenerator *p);
 
 class RandomGenerator

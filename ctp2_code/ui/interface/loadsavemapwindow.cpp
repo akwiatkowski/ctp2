@@ -210,7 +210,7 @@ LoadSaveMapWindow::~LoadSaveMapWindow()
 }
 
 
-void LoadSaveMapWindow::FillListOne(void)
+void LoadSaveMapWindow::FillListOne()
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
@@ -264,7 +264,7 @@ void LoadSaveMapWindow::FillListTwo(GameMapInfo *info)
 	}
 }
 
-void LoadSaveMapWindow::SelectCurrentGameMap(void)
+void LoadSaveMapWindow::SelectCurrentGameMap()
 {
 	if (!m_listOne) return;
 
@@ -298,7 +298,7 @@ void LoadSaveMapWindow::SelectCurrentGameMap(void)
 	}
 }
 
-void LoadSaveMapWindow::SelectCurrentSaveMap(void)
+void LoadSaveMapWindow::SelectCurrentSaveMap()
 {
 	if (!m_listTwo) return;
 
@@ -395,7 +395,7 @@ BOOL LoadSaveMapWindow::CreateSaveMapInfoIfNeeded( SaveMapInfo *&info )
 	return FALSE;
 }
 
-void LoadSaveMapWindow::CleanUpSaveMapInfo( void )
+void LoadSaveMapWindow::CleanUpSaveMapInfo( )
 {
 	if ( m_saveMapInfoToSave )
 	{

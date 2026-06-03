@@ -73,7 +73,7 @@ public:
 
 protected:
 	aui_Thumb() : aui_Control() {}
-	AUI_ERRCODE	InitCommon( void );
+	AUI_ERRCODE	InitCommon( );
 
 	POINT	m_grabPoint;
 

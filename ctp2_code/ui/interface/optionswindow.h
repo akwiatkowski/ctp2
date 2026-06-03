@@ -12,8 +12,8 @@ class ctp2_Button;
 
 sint32 optionsscreen_displayMyWindow(sint32 from);
 sint32 optionsscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE optionsscreen_Initialize( void );
-void optionsscreen_Cleanup(void);
+AUI_ERRCODE optionsscreen_Initialize( );
+void optionsscreen_Cleanup();
 
 void optionsscreen_graphicsPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 void optionsscreen_soundPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -42,11 +42,11 @@ public:
 		bool bevel = true);
 	virtual ~OptionsWindow();
 
-	sint32 EnableButtons( void );
-	sint32 DisableButtons( void );
+	sint32 EnableButtons( );
+	sint32 DisableButtons( );
 
-	void RemoveQuitToWindowsButton( void );
-	void AddQuitToWindowsButton( void );
+	void RemoveQuitToWindowsButton( );
+	void AddQuitToWindowsButton( );
 
 	ctp2_Button *SaveGameButton() const { return m_savegame; }
 	ctp2_Button *LoadGameButton() const { return m_loadgame; }

@@ -20,20 +20,20 @@ protected:
 	AUI_ERRCODE InitCommon( MBCHAR *descriptor );
 
 public:
-	AUI_ERRCODE Load( void );
-	AUI_ERRCODE Unload( void );
+	AUI_ERRCODE Load( );
+	AUI_ERRCODE Unload( );
 
-	HFONT		GetHFONT( void ) const { return m_hfont; }
-	MBCHAR		*GetDescriptor( void ) const { return (MBCHAR *)m_descriptor; }
+	HFONT		GetHFONT( ) const { return m_hfont; }
+	MBCHAR		*GetDescriptor( ) const { return (MBCHAR *)m_descriptor; }
 
 	AUI_ERRCODE	SetDescriptor( MBCHAR *descriptor );
 
-	MBCHAR		*GetFilename( void ) const { return GetDescriptor(); }
+	MBCHAR		*GetFilename( ) const { return GetDescriptor(); }
 	AUI_ERRCODE	SetFilename( MBCHAR *filename )
 	{ return SetDescriptor( filename ); }
 
 protected:
-	AUI_ERRCODE	SetVariablesFromDescriptor( void );
+	AUI_ERRCODE	SetVariablesFromDescriptor( );
 
 	MBCHAR	m_descriptor[ MAX_PATH + 1 ];
 

@@ -99,33 +99,33 @@ class UnitActor : public Actor {
                     GROUPTYPE* groupType,
                     sint32 citySprite = CTPRecord::INDEX_INVALID) const;
 
-  void AddVision(void);
-  void RemoveVision(void);
+  void AddVision();
+  void RemoveVision();
   void PositionActor(MapPoint const& pos);
-  void Hide(void);
-  void Show(void);
+  void Hide();
+  void Show();
 
-  void Initialize(void);
+  void Initialize();
 
   void ChangeImage(SpriteStatePtr ss, sint32 type, Unit id);
   void ChangeType(SpriteStatePtr ss, sint32 type, Unit id, BOOL updateVision);
 
   void SetSize(sint32 size) { m_size = size; }
-  sint32 GetSize(void) const { return m_size; }
+  sint32 GetSize() const { return m_size; }
 
-  virtual void Process(void);
-  void DumpAllActions(void);
-  void EndTurnProcess(void);
-  ActionPtr WillMorph(void) const;
-  ActionPtr WillDie(void) const;
+  virtual void Process();
+  void DumpAllActions();
+  void EndTurnProcess();
+  ActionPtr WillMorph() const;
+  ActionPtr WillDie() const;
   void AddAction(ActionPtr actionObj) override;
   void GetNextAction(bool isVisible = true);
   void AddIdle(bool NoIdleJustDelay = false);
   void ActionQueueUpIdle(bool NoIdleJustDelay = false);
 
   Anim* CreateAnim(UNITACTION action);
-  Anim* MakeFakeDeath(void);
-  Anim* MakeFaceoff(void);
+  Anim* MakeFakeDeath();
+  Anim* MakeFaceoff();
 
   bool HasThisAnim(UNITACTION action) const {
     return m_unitSpriteGroup && m_unitSpriteGroup->GetAnim((GAME_ACTION)action);
@@ -138,9 +138,9 @@ class UnitActor : public Actor {
   void DrawCityImprovements(bool fogged);  // emod
 
   bool Draw(bool fogged = FALSE);
-  void DrawHerald(void);
-  void DrawSelectionBrackets(void);
-  void DrawHealthBar(void);
+  void DrawHerald();
+  void DrawSelectionBrackets();
+  void DrawHealthBar();
   void DrawStackingIndicator(sint32& x, sint32& y, sint32 stackSize);
   void DrawIndicators(sint32& x, sint32& y, sint32 stackSize);
   void DrawSpecialIndicators(sint32& x, sint32& y, sint32 stackSize);
@@ -148,14 +148,14 @@ class UnitActor : public Actor {
 
   void DrawDirect(aui_Surface* surf, sint32 x, sint32 y, double scale);
 
-  bool IsAnimating(void) const;
+  bool IsAnimating() const;
 
   // GetPos dispatches: when wired to a gs/UnitState (live unit via
   // UnitData, or fog-of-war snapshot via UnseenCell), reads go through
   // the state (which for live units defers to authoritative UnitData).
   // Fallback m_pos is the legacy path used by actors with no state
   // wired yet — being phased out.
-  MapPoint GetPos(void) const { return m_state ? m_state->GetPos() : m_pos; }
+  MapPoint GetPos() const { return m_state ? m_state->GetPos() : m_pos; }
   void SetPos(MapPoint pnt) { m_pos = pnt; }
 
   // Wired by gs/ (UnitData ctors for live units; UnseenCell ctor for
@@ -168,21 +168,21 @@ class UnitActor : public Actor {
     y = m_y;
   }
 
-  sint32 GetFacing(void) const { return m_facing; }
+  sint32 GetFacing() const { return m_facing; }
 
-  uint16 GetWidth(void) const;
-  uint16 GetHeight(void) const;
+  uint16 GetWidth() const;
+  uint16 GetHeight() const;
 
-  uint32 GetUnitID(void) const { return m_unitID.m_id; }
-  sint32 GetUnitDBIndex(void) const { return m_unitDBIndex; }
+  uint32 GetUnitID() const { return m_unitID.m_id; }
+  sint32 GetUnitDBIndex() const { return m_unitDBIndex; }
 
   void SetPlayerNum(sint32 playerNum) { m_playerNum = playerNum; }
-  sint32 GetPlayerNum(void) const { return m_playerNum; }
+  sint32 GetPlayerNum() const { return m_playerNum; }
 
-  sint32 GetNextPop(void) const { return m_nextPop; }
+  sint32 GetNextPop() const { return m_nextPop; }
 
-  bool HasDeath(void) const { return m_unitSpriteGroup->HasDeath(); }
-  bool HasDirectional(void) { return m_unitSpriteGroup->HasDirectional(); }
+  bool HasDeath() const { return m_unitSpriteGroup->HasDeath(); }
+  bool HasDirectional() { return m_unitSpriteGroup->HasDirectional(); }
 
   void SetUnitVisibility(uint32 val) {
     m_unitSaveVisibility = m_unitVisibility = val;
@@ -194,33 +194,33 @@ class UnitActor : public Actor {
   }
 
   void SetUnitVisibility() { m_bVisSpecial = FALSE; }
-  uint32 GetUnitVisibility(void) const { return m_unitVisibility; }
-  uint32 GetUnitSavedVisibility(void) const { return m_unitSaveVisibility; }
+  uint32 GetUnitVisibility() const { return m_unitVisibility; }
+  uint32 GetUnitSavedVisibility() const { return m_unitSaveVisibility; }
 
-  BOOL GetVisSpecial(void) const { return m_bVisSpecial; }
+  BOOL GetVisSpecial() const { return m_bVisSpecial; }
   void SetVisSpecial(BOOL val) { m_bVisSpecial = val; }
 
-  double GetUnitVisionRange(void) const { return m_unitVisionRange; }
+  double GetUnitVisionRange() const { return m_unitVisionRange; }
   void SetUnitVisionRange(double range) { m_unitVisionRange = range; }
   void SetNewUnitVisionRange(double range) { m_newUnitVisionRange = range; }
 
   void SetNeedsToDie(BOOL val) { m_needsToDie = val; }
-  BOOL GetNeedsToDie(void) const { return m_needsToDie; }
+  BOOL GetNeedsToDie() const { return m_needsToDie; }
 
   void SetNeedsToVictor(BOOL val) { m_needsToVictor = val; }
-  BOOL GetNeedsToVictor(void) const { return m_needsToVictor; }
+  BOOL GetNeedsToVictor() const { return m_needsToVictor; }
 
-  void SetKillNow(void) { m_killNow = TRUE; }
-  BOOL GetKillNow(void) const { return m_killNow; }
+  void SetKillNow() { m_killNow = TRUE; }
+  BOOL GetKillNow() const { return m_killNow; }
 
   void SetRevealedActors(const UnitActorVec& revealedActors);
   void SaveRevealedActors(const UnitActorVec& revealedActors);
-  const UnitActorVec& GetRevealedActors(void) const { return m_revealedActors; }
+  const UnitActorVec& GetRevealedActors() const { return m_revealedActors; }
 
   void SetMoveActors(const UnitActorVec& moveActors);
-  const UnitActorVec& GetMoveActors(void) const { return m_moveActors; }
+  const UnitActorVec& GetMoveActors() const { return m_moveActors; }
 
-  BOOL HiddenUnderStack(void) const { return m_hiddenUnderStack; }
+  BOOL HiddenUnderStack() const { return m_hiddenUnderStack; }
   void SetHiddenUnderStack(BOOL val) { m_hiddenUnderStack = val; }
 
   void SetIsTransported(sint32 val) { m_isTransported = val; }
@@ -249,10 +249,10 @@ class UnitActor : public Actor {
     return m_holdingCurAnimSpecialDelayProcess;
   }
 
-  LOADTYPE GetLoadType(void) const;
+  LOADTYPE GetLoadType() const;
 
   void FullLoad(UNITACTION action);
-  void DumpFullLoad(void);
+  void DumpFullLoad();
 
   // m_isFortified / m_isFortifying / m_hasCityWalls / m_hasForceField
   // removed (UnitActor split Phase 3 slices 1-2).  Renderer reads
@@ -260,21 +260,21 @@ class UnitActor : public Actor {
   // HasForceField() directly from gs/ each frame.
 
   void SetHealthPercent(double p) { m_healthPercent = p; }
-  double GetHealthPercent(void) const { return m_healthPercent; }
+  double GetHealthPercent() const { return m_healthPercent; }
 
   void SetTempStackSize(sint32 i) { m_tempStackSize = i; }
-  sint32 GetTempStackSize(void) const { return m_tempStackSize; }
+  sint32 GetTempStackSize() const { return m_tempStackSize; }
 
   BOOL HitTest(POINT mousePt);
 
-  void AddActiveListRef(void) { m_activeListRef++; }
-  sint32 ReleaseActiveListRef(void) { return --m_activeListRef; }
-  sint32 GetActiveListRef(void) const { return m_activeListRef; }
+  void AddActiveListRef() { m_activeListRef++; }
+  sint32 ReleaseActiveListRef() { return --m_activeListRef; }
+  sint32 GetActiveListRef() const { return m_activeListRef; }
 
   void Serialize(CivArchive& archive);
 
 #ifdef _DEBUG
-  void DumpActor(void);
+  void DumpActor();
 #endif
   sint32 m_refCount;
 

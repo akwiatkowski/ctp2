@@ -368,7 +368,7 @@ private:
 // / unitpool_Get / pollution_Get.  The legacy g_slicEngine pointer is
 // now file-static in SlicEngine.cpp; outside callers must go through
 // these accessors.
-SlicEngine * slicengine_Get(void);
+SlicEngine * slicengine_Get();
 void         slicengine_Set(SlicEngine *p);
 
 #endif

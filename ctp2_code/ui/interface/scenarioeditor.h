@@ -305,7 +305,7 @@ class ScenarioEditor {
 	static void LimitPlayerChoice(aui_Control *control, uint32 action, uint32 data, void *cookie);
 	static void ExcludeSwitch(aui_Control *control, uint32 action, uint32 data, void *cookie);
 
-	static void DisableErase(void);
+	static void DisableErase();
 	static void ReloadSlic(aui_Control *control, uint32 action, uint32 data, void *cookie);
 	static void RemoveGoods(aui_Control *control, uint32 action, uint32 data, void *cookie);
 	static void GenerateGoods(aui_Control *control, uint32 action, uint32 data, void *cookie);

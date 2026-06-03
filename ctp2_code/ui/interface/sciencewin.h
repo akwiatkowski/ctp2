@@ -42,15 +42,15 @@ enum BRANCH {
 	BRANCH_MAX
 };
 
-sint32 sciencewin_Initialize( void );
-sint32 sciencewin_Cleanup( void );
+sint32 sciencewin_Initialize( );
+sint32 sciencewin_Cleanup( );
 
 class ScienceWin : public KeyboardHandler {
 public:
 	C3Window	*m_window;
 
-	ScienceWin( void );
-	virtual ~ScienceWin( void );
+	ScienceWin( );
+	virtual ~ScienceWin( );
 
 	sint32 Initialize( MBCHAR *windowBlock );
 protected:
@@ -85,19 +85,19 @@ protected:
 	aui_StringTable	*m_string;
 
 public:
-	void Display( void );
-	void Remove( void );
+	void Display( );
+	void Remove( );
 
 	void kh_Close();
 
 	sint32 UpdateData( SCI_UPDATE update );
-	void UpdateList(void);
+	void UpdateList();
 
-	c3_ListBox *AdvanceList( void ) { return m_advanceList; }
-	c3_Button *PlusButton( void ) { return m_plusButton; }
-	c3_Button *MinusButton( void ) { return m_minusButton; }
+	c3_ListBox *AdvanceList( ) { return m_advanceList; }
+	c3_Button *PlusButton( ) { return m_plusButton; }
+	c3_Button *MinusButton( ) { return m_minusButton; }
 
-	Chart *Tree( void ) { return m_tree; }
+	Chart *Tree( ) { return m_tree; }
 
 	MBCHAR *GetString( sint32 index ) { return m_string->GetString(index); }
 
@@ -110,9 +110,9 @@ public:
 	KnowledgeListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex(void) { return m_index; }
+	sint32	GetIndex() { return m_index; }
 
 protected:
 	KnowledgeListItem() : c3_ListItem() {}
@@ -135,9 +135,9 @@ public:
 	EmbassyListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex(void) { return m_index; }
+	sint32	GetIndex() { return m_index; }
 
 protected:
 	EmbassyListItem() : c3_ListItem() {}
@@ -161,10 +161,10 @@ public:
 	~AdvanceListItem();
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex(void) { return m_index; }
-	sint32	GetBranchVal( void ) { return m_branchVal; }
+	sint32	GetIndex() { return m_index; }
+	sint32	GetBranchVal( ) { return m_branchVal; }
 
 protected:
 	AdvanceListItem() : c3_ListItem() {}
@@ -181,10 +181,10 @@ private:
 	sint32	m_branchVal;
 };
 
-sint32 knowledgewin_UpdateFromSwitch( void );
+sint32 knowledgewin_UpdateFromSwitch( );
 sint32 knowledgewin_InitGraphicTrim( MBCHAR *windowBlock );
-sint32 knowledgewin_Initialize( void );
-sint32 knowledgewin_Cleanup( void );
+sint32 knowledgewin_Initialize( );
+sint32 knowledgewin_Cleanup( );
 
 class SW_UpdateAction : public c3_UpdateAction
 {
@@ -194,7 +194,7 @@ public:
         m_all           (all)
     { ; };
 
-	virtual	~SW_UpdateAction(void) { ; };
+	virtual	~SW_UpdateAction() { ; };
 
 	virtual void	Execute
 	(

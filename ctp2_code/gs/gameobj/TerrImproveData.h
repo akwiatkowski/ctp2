@@ -106,7 +106,7 @@ public:
     sint32 GetOwner() const { return m_owner; }
 	MapPoint GetLocation() const { return m_point; }
 	sint32 GetCompletion() const { return m_turnsToComplete; }
-	BOOL Complete(void);
+	BOOL Complete();
 	BOOL AddTurn(sint32 turns);
 	sint32 PercentComplete() const;
 

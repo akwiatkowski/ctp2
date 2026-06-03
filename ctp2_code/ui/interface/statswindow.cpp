@@ -257,7 +257,7 @@ static aui_StringTable *s_statsString;
 
 
 
-void statswindow_HideButtons( void )
+void statswindow_HideButtons( )
 {
 	sint32 i;
 
@@ -266,7 +266,7 @@ void statswindow_HideButtons( void )
 	}
 }
 
-void statswindow_ShowButtons( void )
+void statswindow_ShowButtons( )
 {
 	sint32 i;
 
@@ -355,7 +355,7 @@ void StatsButtonActionCallback( aui_Control *control, uint32 action, uint32 data
 	}
 }
 
-int StatsWindow_Initialize( void )
+int StatsWindow_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -538,7 +538,7 @@ int StatsWindow_Initialize( void )
 }
 
 
-int StatsWindow_Cleanup( void )
+int StatsWindow_Cleanup( )
 {
 
 	if ( !g_statsWindow ) return 0;
@@ -614,7 +614,7 @@ StatsWindow::StatsWindow(
 }
 
 
-AUI_ERRCODE StatsWindow::InitCommon(void)
+AUI_ERRCODE StatsWindow::InitCommon()
 {
 	m_scroll = FALSE;
 	m_dest = 0;
@@ -650,7 +650,7 @@ AUI_ERRCODE StatsWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 	return AUI_ERRCODE_OK;
 }
 
-BOOL StatsWindow::CheckCity( void )
+BOOL StatsWindow::CheckCity( )
 {
 	if(!player_Get(selitem_Get()->GetVisiblePlayer()))
 		return FALSE;
@@ -667,7 +667,7 @@ BOOL StatsWindow::CheckCity( void )
 	}
 }
 
-BOOL StatsWindow::CheckUnit( void )
+BOOL StatsWindow::CheckUnit( )
 {
 	sint32 units = player_Get(selitem_Get()->GetVisiblePlayer())->m_all_units->Num();
 
@@ -681,7 +681,7 @@ BOOL StatsWindow::CheckUnit( void )
 	}
 }
 
-BOOL StatsWindow::CheckDiplomacy( void )
+BOOL StatsWindow::CheckDiplomacy( )
 {
 	sint32 player = selitem_Get()->GetVisiblePlayer();
 
@@ -805,25 +805,25 @@ BOOL StatsWindow::CheckDiplomacy( void )
 
 
 
-AUI_ERRCODE StatsWindow::Idle( void )
+AUI_ERRCODE StatsWindow::Idle( )
 {
 
 	return AUI_ERRCODE_OK;
 }
 
-sint32 statswindow_EnableDiplomacy( void )
+sint32 statswindow_EnableDiplomacy( )
 {
 	s_statsButton[BUTTON_DIP]->Enable( TRUE );
 	return 1;
 }
 
-sint32 statswindow_EnableTrade( void )
+sint32 statswindow_EnableTrade( )
 {
 	s_statsButton[BUTTON_TRADE]->Enable( TRUE );
 	return 1;
 }
 
-sint32 statswindow_EnableCityButtons( void )
+sint32 statswindow_EnableCityButtons( )
 {
 	s_statsButton[BUTTON_CITY]->Enable( TRUE );
 	s_statsButton[BUTTON_CIV]->Enable( TRUE );
@@ -831,18 +831,18 @@ sint32 statswindow_EnableCityButtons( void )
 	return 1;
 }
 
-BOOL statswindow_IsTradeDisabled( void )
+BOOL statswindow_IsTradeDisabled( )
 {
 	return s_statsButton[BUTTON_TRADE]->IsDisabled();
 }
 
-sint32 statswindow_DisableScreensButton( void )
+sint32 statswindow_DisableScreensButton( )
 {
 
 	return 1;
 }
 
-sint32 statswindow_EnableScreensButton( void )
+sint32 statswindow_EnableScreensButton( )
 {
 
 	return 1;

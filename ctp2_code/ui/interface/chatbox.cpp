@@ -77,16 +77,16 @@ extern HWND			gHwnd;
 
 static ChatBox		*g_chatBox = NULL;
 
-ChatBox * chatbox_Get(void)                   { return g_chatBox; }
+ChatBox * chatbox_Get()                   { return g_chatBox; }
 void      chatbox_Set(ChatBox *p)             { g_chatBox = p; }
 
 
-void ChatBox::Initialize(void)
+void ChatBox::Initialize()
 {
 	g_chatBox = new ChatBox;
 }
 
-void ChatBox::Cleanup(void)
+void ChatBox::Cleanup()
 {
 	if (g_chatBox)
 		delete g_chatBox;

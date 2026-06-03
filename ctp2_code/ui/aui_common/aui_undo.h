@@ -12,10 +12,10 @@ public:
 	~aui_Undo();
 
 public:
-	aui_Region *GetUndoRegion( void ) { return m_region; }
+	aui_Region *GetUndoRegion( ) { return m_region; }
 	void SetUndoRegion( aui_Region *region ) { m_region = region; }
 
-	RECT GetUndoRect( void ) { return m_rect; }
+	RECT GetUndoRect( ) { return m_rect; }
 	void SetUndoRect( RECT *rect ) { SetRect( &m_rect, rect->left, rect->top,
 											  rect->right, rect->bottom); }
 

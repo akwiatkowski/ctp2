@@ -141,7 +141,7 @@ ctp2_MenuBar::ctp2_MenuBar(
 }
 
 
-AUI_ERRCODE ctp2_MenuBar::InitCommon( void )
+AUI_ERRCODE ctp2_MenuBar::InitCommon( )
 {
 	m_runningWidth=0;
 	m_largestItemHeight=0;

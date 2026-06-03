@@ -58,7 +58,7 @@ extern PlayListDB	*g_thePlayListDB;
 
 static SoundManager *g_soundManager = NULL;
 
-SoundManager * soundmgr_Get(void)         { return g_soundManager; }
+SoundManager * soundmgr_Get()         { return g_soundManager; }
 void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }
 
 namespace
@@ -950,7 +950,7 @@ void SoundManager::StartMusic(const sint32 &InTrackNum)
 #endif
 }
 
-void SoundManager::TerminateMusic(void)
+void SoundManager::TerminateMusic()
 {
 	if (!profiledb_Get()->IsUseRedbookAudio() || !c3files_HasCD()) return;
 
@@ -979,7 +979,7 @@ void SoundManager::TerminateMusic(void)
 #endif
 }
 
-void SoundManager::PickNextTrack(void)
+void SoundManager::PickNextTrack()
 {
 	switch (m_style)
     {

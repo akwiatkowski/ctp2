@@ -287,7 +287,7 @@ private:
 // Accessors below.  combat_Set(NULL) tears down the current battle;
 // combat_Set(new ...) replaces it.  Future multi-threading: the setter
 // is the natural mutex point.
-CTP2Combat * combat_Get(void);
+CTP2Combat * combat_Get();
 void         combat_Set(CTP2Combat *battle);
 #endif
 

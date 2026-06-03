@@ -878,17 +878,17 @@ void Army::GetCurrentHP
 	GetData()->GetCurrentHP(count, unit_type, unit_hp);
 }
 
-bool Army::CanTransport(void) const
+bool Army::CanTransport() const
 {
 	return GetData()->CanTransport();
 }
 
-bool Army::IsCivilian(void) const
+bool Army::IsCivilian() const
 {
 	return GetData()->IsCivilian();
 }
 
-bool Army::IsWounded(void) const
+bool Army::IsWounded() const
 {
 	return GetData()->IsWounded();
 }

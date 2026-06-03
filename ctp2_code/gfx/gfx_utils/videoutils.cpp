@@ -19,7 +19,7 @@ extern CivPaths			*civpaths_Get();
 
 void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 data, void *cookie);
 
-void videoutils_Initialize(void)
+void videoutils_Initialize()
 {
 	g_videoWindow = NULL;
 }
@@ -53,7 +53,7 @@ sint32 videoutils_PlayVideoInWindow(MBCHAR *name, MBCHAR *pattern)
 	return 0;
 }
 
-void videoutils_Cleanup(void)
+void videoutils_Cleanup()
 {
 	if (g_videoWindow != NULL) {
 		c3ui_Get()->RemoveWindow(k_VIDEO_WINDOW_ID);

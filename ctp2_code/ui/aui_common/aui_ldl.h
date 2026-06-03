@@ -96,7 +96,7 @@ public:
 
 public:
 	static bool			IsValid(MBCHAR const * ldlBlock);
-	static ldl *        GetLdl( void ) { return s_ldl; }
+	static ldl *        GetLdl( ) { return s_ldl; }
 
 	static AUI_ERRCODE	Associate( void *object, MBCHAR const * ldlBlock);
 	static AUI_ERRCODE	Remove( void *object );
@@ -179,7 +179,7 @@ protected:
 	static void			DeleteLdlObject( aui_LdlObject *ldlObject );
 
 	static AUI_ERRCODE	MakeSureBlockExists(MBCHAR const * ldlBlock);
-	static AUI_ERRCODE	MakeSureDefaultTemplateExists( void );
+	static AUI_ERRCODE	MakeSureDefaultTemplateExists( );
 
 	static AUI_ERRCODE	AppendLdlObject(aui_LdlObject *object);
 	static AUI_ERRCODE	RemoveLdlObject(aui_LdlObject *object);

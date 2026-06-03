@@ -60,7 +60,7 @@ public:
 		mine = m;
 	}
 
-	T *GetNETFuncObject(void) {
+	T *GetNETFuncObject() {
 		return nf_object;
 	}
 
@@ -71,7 +71,7 @@ public:
 		nf_object = 0;
 	}
 
-	void SetKey( void ) {}
+	void SetKey( ) {}
 };
 
 #endif

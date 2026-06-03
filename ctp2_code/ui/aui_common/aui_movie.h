@@ -67,14 +67,14 @@ protected:
 
 public:
 
-	AUI_ERRCODE Load( void );
-	AUI_ERRCODE Unload( void );
+	AUI_ERRCODE Load( );
+	AUI_ERRCODE Unload( );
 
 	AUI_ERRCODE	SetFilename( MBCHAR const * filename );
-	MBCHAR		*GetFilename( void ) const { return (MBCHAR *)m_filename; }
+	MBCHAR		*GetFilename( ) const { return (MBCHAR *)m_filename; }
 
 	aui_Surface	*SetDestSurface( aui_Surface *surface );
-	aui_Surface	*GetDestSurface( void ) const { return m_surface; }
+	aui_Surface	*GetDestSurface( ) const { return m_surface; }
 
 	void SetDestRect( RECT *rect );
 	void SetDestRect(
@@ -82,7 +82,7 @@ public:
 		sint32 y,
 		sint32 w,
 		sint32 h );
-	RECT *GetDestRect( void ) { return &m_rect; }
+	RECT *GetDestRect( ) { return &m_rect; }
 	void GetDestRect(
 		sint32 *x,
 		sint32 *y,
@@ -90,40 +90,40 @@ public:
 		sint32 *h ) const;
 
 	uint32 SetTimePerFrame( uint32 timePerFrame );
-	uint32 GetTimePerFrame( void ) const { return m_timePerFrame; }
+	uint32 GetTimePerFrame( ) const { return m_timePerFrame; }
 
 	virtual AUI_ERRCODE Open(
 		uint32 flags = 0,
 		aui_Surface *surface = NULL,
 		RECT *rect = NULL );
-	virtual AUI_ERRCODE Close( void );
+	virtual AUI_ERRCODE Close( );
 
-	virtual AUI_ERRCODE Play( void );
-	virtual AUI_ERRCODE Stop( void );
+	virtual AUI_ERRCODE Play( );
+	virtual AUI_ERRCODE Stop( );
 
-	virtual AUI_ERRCODE Pause( void );
-	virtual AUI_ERRCODE Resume( void );
+	virtual AUI_ERRCODE Pause( );
+	virtual AUI_ERRCODE Resume( );
 
-	virtual AUI_ERRCODE Process( void );
+	virtual AUI_ERRCODE Process( );
 
-	BOOL IsOpen( void ) const { return m_isOpen; }
-	BOOL IsPlaying( void ) const { return m_isPlaying; }
-	BOOL IsFinished( void ) const { return m_isFinished; }
-	BOOL IsPaused( void ) const { return m_isPaused; }
+	BOOL IsOpen( ) const { return m_isOpen; }
+	BOOL IsPlaying( ) const { return m_isPlaying; }
+	BOOL IsFinished( ) const { return m_isFinished; }
+	BOOL IsPaused( ) const { return m_isPaused; }
 
 	static WNDPROC		m_windowProc;
 	static aui_Movie	*m_onScreenMovie;
 
-	uint32 GetFlags(void) { return m_flags; }
+	uint32 GetFlags() { return m_flags; }
 
-	aui_Surface *GetWindowSurface(void) { return m_windowSurface; }
+	aui_Surface *GetWindowSurface() { return m_windowSurface; }
 	void SetWindowSurface(aui_Surface *surf) { m_windowSurface = surf; }
-	RECT *GetWindowRect(void) { return &m_windowRect; }
+	RECT *GetWindowRect() { return &m_windowRect; }
 	void SetWindowRect(RECT *rect) { m_windowRect = *rect; }
 
 protected:
 
-	AUI_ERRCODE PlayOnScreenMovie( void );
+	AUI_ERRCODE PlayOnScreenMovie( );
 
 	MBCHAR m_filename[ MAX_PATH + 1 ];
 	aui_MovieFormat *m_format;

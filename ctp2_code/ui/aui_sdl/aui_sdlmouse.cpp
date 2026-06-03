@@ -23,7 +23,7 @@ aui_SDLMouse::~aui_SDLMouse()
 }
 
 AUI_ERRCODE
-aui_SDLMouse::GetInput(void)
+aui_SDLMouse::GetInput()
 {
    m_data.time = SDL_GetTicks();
    bool haveMoves = false;

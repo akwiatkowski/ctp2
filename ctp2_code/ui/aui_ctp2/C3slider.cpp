@@ -153,7 +153,7 @@ AUI_ERRCODE C3Slider::InitCommon( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE C3Slider::InitCommon( void )
+AUI_ERRCODE C3Slider::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }

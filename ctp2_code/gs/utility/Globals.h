@@ -134,7 +134,7 @@ template <typename T> void clearContainer(T & a_Container)
 /// When true, the game runs without UI/rendering. Used by unit tests
 /// and ctp2_headless.  Backing storage is file-scope `static` in
 /// civapp.cpp.
-bool is_headless(void);
+bool is_headless();
 void set_headless(bool v);
 
 #endif

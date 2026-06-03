@@ -70,7 +70,7 @@
 #define Report(x) { fprintf(stderr, "%s\n", x); }
 #endif
 
-typedef void (* CivExceptionFunction) (void);
+typedef void (* CivExceptionFunction) ();
 
 #define k_DBG_ALL               0xffffffff
 #define k_DBG_NONE              0x00000000

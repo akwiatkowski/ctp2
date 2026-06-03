@@ -27,9 +27,9 @@ public:
 		BOOL selected = FALSE );
 	virtual ~IconSwitch() {}
 
-	Pattern *&ThePattern( void ) { return m_pattern; }
-	Icon *&TheIcon( void ) { return m_icon; }
-	uint16 TheColor( void ) { return m_color; }
+	Pattern *&ThePattern( ) { return m_pattern; }
+	Icon *&TheIcon( ) { return m_icon; }
+	uint16 TheColor( ) { return m_color; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,

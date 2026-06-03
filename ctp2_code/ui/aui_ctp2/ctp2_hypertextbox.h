@@ -78,19 +78,19 @@ public:
 		void *cookie = NULL );
 	virtual ~ctp2_HyperTextBox();
 
-	void RemoveHyperLinks(void);
+	void RemoveHyperLinks();
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	ctp2_HyperLink *GetSelectedHyperLink( void ) { return m_selectedHyperLink; }
+	ctp2_HyperLink *GetSelectedHyperLink( ) { return m_selectedHyperLink; }
 
 protected:
 	ctp2_HyperTextBox() : aui_HyperTextBox() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRanger( MBCHAR *ldlBlock = NULL );
 
 	virtual void	MouseLDropInside(aui_MouseEvent * mouseData);

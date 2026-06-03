@@ -17,10 +17,10 @@ class aui_Surface;
 // g_hFont demoted to file-scope `static` in textutils.cpp.  External
 // callers go through hfont_Get() (returns NULL before
 // textutils_SetCurrentFont has been called).
-HFONT hfont_Get(void);
+HFONT hfont_Get();
 
-void	textutils_Initialize(void);
-void	textutils_Cleanup(void);
+void	textutils_Initialize();
+void	textutils_Cleanup();
 
 sint32	textutils_GetWidth(aui_Surface *pDirectSurface, const MBCHAR *pString);
 sint32	textutils_GetHeight(aui_Surface *pDirectSurface, const MBCHAR *pString);

@@ -18,21 +18,21 @@
 
 
 
-void EnterMainMenu( void )
+void EnterMainMenu( )
 {
 	initialplayscreen_Initialize();
 	initialplayscreen_displayMyWindow();
 }
 
 
-void LeaveMainMenu( void )
+void LeaveMainMenu( )
 {
 
 	aui_ui_Get()->AddAction( new DestroyInitialPlayScreenAction );
 }
 
 
-void LaunchGame( void )
+void LaunchGame( )
 {
 	AllinoneWindow *w = allinonewindow_Get();
 

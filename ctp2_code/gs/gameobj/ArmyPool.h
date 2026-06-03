@@ -71,7 +71,7 @@ public:
 // Lifecycle (new / archive-load / Cleanup) lives in
 // gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through armypool_Get().
-ArmyPool * armypool_Get(void);
+ArmyPool * armypool_Get();
 // Setter returns the previous value; used by Ctp2::Game's adoption path.
 ArmyPool * armypool_Set(ArmyPool *p);
 

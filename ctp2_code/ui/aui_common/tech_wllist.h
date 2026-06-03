@@ -58,18 +58,18 @@ public:
 	tech_WLList( size_t blockSize = k_TECH_WLLIST_DEFAULT_BLOCKSIZE );
 	virtual ~tech_WLList();
 
-	size_t  L( void ) const { return m_length; }
-	bool    IsEmpty( void ) const { return m_length == 0; }
+	size_t  L( ) const { return m_length; }
+	bool    IsEmpty( ) const { return m_length == 0; }
 
-	T &GetHead( void ) { return m_pHead->element; }
-	T GetHead( void ) const { return m_pHead->element; }
-	T &GetTail( void ) { return m_pTail->element; }
-	T GetTail( void ) const { return m_pTail->element; }
+	T &GetHead( ) { return m_pHead->element; }
+	T GetHead( ) const { return m_pHead->element; }
+	T &GetTail( ) { return m_pTail->element; }
+	T GetTail( ) const { return m_pTail->element; }
 
-	T RemoveHead( void );
-	T RemoveTail( void );
+	T RemoveHead( );
+	T RemoveTail( );
 
-	size_t RemoveDuplicates( void );
+	size_t RemoveDuplicates( );
 
 	ListPos AddHead( const T &newElement );
 	ListPos AddTail( const T &newElement );
@@ -77,8 +77,8 @@ public:
 	void AddHead( const tech_WLList &NewList );
 	void AddTail( const tech_WLList &NewList );
 
-	ListPos GetHeadPosition( void ) const { return (ListPos)m_pHead; }
-	ListPos GetTailPosition( void ) const { return (ListPos)m_pTail; }
+	ListPos GetHeadPosition( ) const { return (ListPos)m_pHead; }
+	ListPos GetTailPosition( ) const { return (ListPos)m_pTail; }
 
 	T &GetNext( ListPos &position );
 	T GetNext( ListPos &position ) const;
@@ -90,7 +90,7 @@ public:
 	T GetAt( ListPos position ) const;
 	void SetAt( ListPos position, const T &newElement );
 	void DeleteAt( ListPos position );
-	void DeleteAll( void );
+	void DeleteAll( );
 
 	ListPos InsertBefore( ListPos position, const T &newElement );
 	ListPos InsertAfter( ListPos position, const T &newElement );
@@ -307,7 +307,7 @@ void tech_WLList< T >::AddTail( const tech_WLList &NewList )
 }
 
 template< class T >
-T tech_WLList< T >::RemoveHead( void )
+T tech_WLList< T >::RemoveHead( )
 {
 	Link *pOldLink = m_pHead;
 	T theElement = pOldLink->element;
@@ -327,7 +327,7 @@ T tech_WLList< T >::RemoveHead( void )
 }
 
 template< class T >
-T tech_WLList< T >::RemoveTail( void )
+T tech_WLList< T >::RemoveTail( )
 {
 	Link *pOldLink = m_pTail;
 	T theElement = pOldLink->element;
@@ -425,7 +425,7 @@ void tech_WLList< T >::DeleteAt( ListPos position )
 }
 
 template< class T >
-void tech_WLList< T >::DeleteAll( void )
+void tech_WLList< T >::DeleteAll( )
 {
 	Link *pNextLink;
 	for ( Link *pLink = m_pHead; pLink; pLink = pNextLink )
@@ -480,7 +480,7 @@ ListPos tech_WLList< T >::Find( const T &searchElement, ListPos startAt ) const
 }
 
 template< class T >
-size_t tech_WLList< T >::RemoveDuplicates( void )
+size_t tech_WLList< T >::RemoveDuplicates( )
 {
 	size_t numDupsFound = 0;
 

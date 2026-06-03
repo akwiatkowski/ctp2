@@ -143,7 +143,7 @@ sint32 graphicsscreen_removeMyWindow(uint32 action)
 }
 
 
-AUI_ERRCODE graphicsscreen_Initialize( void )
+AUI_ERRCODE graphicsscreen_Initialize( )
 {
 	s_gridToggled = FALSE;
 	s_cityInfluenceToggled = FALSE;

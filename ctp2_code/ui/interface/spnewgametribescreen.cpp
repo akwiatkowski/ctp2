@@ -101,7 +101,7 @@ aui_Radio					*s_femaleRadio = NULL;
 sint32						s_tribeIndex    = INDEX_TRIBE_INVALID;
 sint32						s_skipIndex = 0;
 
-sint32 spnewgametribescreen_getTribeIndex( void )
+sint32 spnewgametribescreen_getTribeIndex( )
 {
 	return s_tribeIndex;
 }
@@ -340,7 +340,7 @@ void spnewgametribescreen_getLeaderName(MBCHAR *lname)
 	s_leaderNameTextField->GetFieldText(lname, 100);
 }
 
-GENDER spnewgametribescreen_getGender(void)
+GENDER spnewgametribescreen_getGender()
 {
 	return s_gender;
 }

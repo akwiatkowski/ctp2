@@ -57,7 +57,7 @@ public:
 
 	virtual ~WorkWindow() {}
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 
 	virtual AUI_ERRCODE DrawThis(

@@ -37,7 +37,7 @@ public:
 	sint32 GetMaterialCost() const { return GetData()->GetMaterialCost(); }
 	bool IsBuilding() const { return GetData()->IsBuilding(); }
 
-	BOOL Complete(void) { return AccessData()->Complete(); }
+	BOOL Complete() { return AccessData()->Complete(); }
 	void AddTurn();
 	void StartBuilding() { AccessData()->StartBuilding(); }
 

@@ -347,7 +347,7 @@ aui_Ranger::~aui_Ranger()
 }
 
 
-AUI_ERRCODE aui_Ranger::Show( void )
+AUI_ERRCODE aui_Ranger::Show( )
 {
 	AUI_ERRCODE errcode = aui_Control::Show();
 
@@ -461,7 +461,7 @@ AUI_ERRCODE aui_Ranger::SetPage( sint32 pageX, sint32 pageY )
 }
 
 
-AUI_ERRCODE aui_Ranger::IncrementUpX( void )
+AUI_ERRCODE aui_Ranger::IncrementUpX( )
 {
 	m_valX += m_incX;
 	if ( m_valX > m_maxX ) m_valX = m_maxX;
@@ -469,7 +469,7 @@ AUI_ERRCODE aui_Ranger::IncrementUpX( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::IncrementUpY( void )
+AUI_ERRCODE aui_Ranger::IncrementUpY( )
 {
 	m_valY += m_incY;
 	if ( m_valY > m_maxY ) m_valY = m_maxY;
@@ -477,7 +477,7 @@ AUI_ERRCODE aui_Ranger::IncrementUpY( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::IncrementDownX( void )
+AUI_ERRCODE aui_Ranger::IncrementDownX( )
 {
 	m_valX -= m_incX;
 	if ( m_valX < m_minX ) m_valX = m_minX;
@@ -485,7 +485,7 @@ AUI_ERRCODE aui_Ranger::IncrementDownX( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::IncrementDownY( void )
+AUI_ERRCODE aui_Ranger::IncrementDownY( )
 {
 	m_valY -= m_incY;
 	if ( m_valY < m_minY ) m_valY = m_minY;
@@ -493,7 +493,7 @@ AUI_ERRCODE aui_Ranger::IncrementDownY( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::PageUpX( void )
+AUI_ERRCODE aui_Ranger::PageUpX( )
 {
 	m_valX += m_pageX;
 	if ( m_valX > m_maxX ) m_valX = m_maxX;
@@ -501,7 +501,7 @@ AUI_ERRCODE aui_Ranger::PageUpX( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::PageUpY( void )
+AUI_ERRCODE aui_Ranger::PageUpY( )
 {
 	m_valY += m_pageY;
 	if ( m_valY > m_maxY ) m_valY = m_maxY;
@@ -509,7 +509,7 @@ AUI_ERRCODE aui_Ranger::PageUpY( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::PageDownX( void )
+AUI_ERRCODE aui_Ranger::PageDownX( )
 {
 	m_valX -= m_pageX;
 	if ( m_valX < m_minX ) m_valX = m_minX;
@@ -517,7 +517,7 @@ AUI_ERRCODE aui_Ranger::PageDownX( void )
 }
 
 
-AUI_ERRCODE aui_Ranger::PageDownY( void )
+AUI_ERRCODE aui_Ranger::PageDownY( )
 {
 	m_valY -= m_pageY;
 	if ( m_valY < m_minY ) m_valY = m_minY;
@@ -810,7 +810,7 @@ AUI_ERRCODE aui_Ranger::CenterPositionToValue( sint32 *x, sint32 *y )
 }
 
 
-AUI_ERRCODE aui_Ranger::SlideThumb( void )
+AUI_ERRCODE aui_Ranger::SlideThumb( )
 {
 	m_valX += m_slideDx;
 	m_valY += m_slideDy;

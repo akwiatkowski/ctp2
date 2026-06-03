@@ -262,7 +262,7 @@ LineGraph::~LineGraph()
 	}
 }
 
-void LineGraph::InitCommon(void)
+void LineGraph::InitCommon()
 {
 	AUI_ERRCODE			errcode = AUI_ERRCODE_OK;
 
@@ -308,7 +308,7 @@ void LineGraph::UpdateGraph(aui_Surface * surface, sint32 x, sint32 y)
     c3ui_Get()->TheBlitter()->Blt(surface, x, y, m_surface, &rect, k_AUI_BLITTER_FLAG_COPY);
 }
 
-void LineGraph::LabelAxes(void)
+void LineGraph::LabelAxes()
 {
 	MBCHAR		s[80];
 
@@ -360,7 +360,7 @@ void LineGraph::LabelAxes(void)
 	}
 }
 
-void LineGraph::DrawIndicator(void)
+void LineGraph::DrawIndicator()
 {
 	sint32 xpos;
 	MBCHAR s[80];

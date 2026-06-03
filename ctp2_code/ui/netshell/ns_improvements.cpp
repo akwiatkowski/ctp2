@@ -38,7 +38,7 @@
 
 static ns_Improvements *g_nsImprovements = NULL;
 
-ns_Improvements * nsimprovements_Get(void)                { return g_nsImprovements; }
+ns_Improvements * nsimprovements_Get()                { return g_nsImprovements; }
 void              nsimprovements_Set(ns_Improvements *p)  { g_nsImprovements = p; }
 
 ns_Improvements::ns_Improvements()

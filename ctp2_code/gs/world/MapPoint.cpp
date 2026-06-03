@@ -346,7 +346,7 @@ bool MapPoint::IsNextTo(MapPoint const & neighbor) const
 //              World::m_map array.
 //
 //----------------------------------------------------------------------------
-bool MapPoint::IsValid(void) const
+bool MapPoint::IsValid() const
 {
 	return ((x >= 0) && (x < g_mp_size.x))
 	    && ((y >= 0) && (y < g_mp_size.y))
@@ -609,7 +609,7 @@ sint32 MapPoint::GetSquaredDistance(MapPoint const & from, MapPoint const & to)
 	// Check return value when defining !_SMALL_MAPPOINTS
 }
 
-uint32 MapPoint_MapPoint_GetVersion(void)
+uint32 MapPoint_MapPoint_GetVersion()
 	{
 	return (k_MAPPOINT_VERSION_MAJOR<<16 | k_MAPPOINT_VERSION_MINOR) ;
 	}
@@ -756,7 +756,7 @@ OrthogonalPoint & OrthogonalPoint::operator = (OrthogonalPoint const & copy)
 //              a valid map point.
 //
 //----------------------------------------------------------------------------
-MapPoint OrthogonalPoint::GetRC(void)
+MapPoint OrthogonalPoint::GetRC()
 {
 	MapPoint	remap(m_point);
 
@@ -788,7 +788,7 @@ MapPoint OrthogonalPoint::GetRC(void)
 // Remark(s)  : Apply wrapping first.
 //
 //----------------------------------------------------------------------------
-bool OrthogonalPoint::IsValid(void)
+bool OrthogonalPoint::IsValid()
 {
 	Normalise();
 
@@ -858,7 +858,7 @@ void OrthogonalPoint::Move
 // Remark(s)  : "Usual" range: 0 <= x < 2 * map width, 0 <= y < map height
 //
 //----------------------------------------------------------------------------
-void OrthogonalPoint::Normalise(void)
+void OrthogonalPoint::Normalise()
 {
 	if (world_Get()->IsXwrap())
 	{

@@ -32,13 +32,13 @@ public:
 		MessageData* AccessData() ;
 
 		void Castrate() {} ;
-		PLAYER_INDEX GetOwner(void) const { return (GetData()->GetOwner()) ; }
-		PLAYER_INDEX GetSender(void) const { return (GetData()->GetSender()) ; }
-		MESSAGE_TYPE GetMsgType(void) const { return (GetData()->GetMsgType()) ; }
-		MBCHAR *GetText(void) { return (AccessData()->GetMsgText()) ; }
+		PLAYER_INDEX GetOwner() const { return (GetData()->GetOwner()) ; }
+		PLAYER_INDEX GetSender() const { return (GetData()->GetSender()) ; }
+		MESSAGE_TYPE GetMsgType() const { return (GetData()->GetMsgType()) ; }
+		MBCHAR *GetText() { return (AccessData()->GetMsgText()) ; }
 		void ToString(MBCHAR *s) { AccessData()->ToString(s) ; }
-		MESSAGE_RESPONSE_TYPE Reject(void) { return (AccessData()->Reject()) ; }
-		MESSAGE_RESPONSE_TYPE Accept(void) { return (AccessData()->Accept()) ; }
+		MESSAGE_RESPONSE_TYPE Reject() { return (AccessData()->Reject()) ; }
+		MESSAGE_RESPONSE_TYPE Accept() { return (AccessData()->Accept()) ; }
 		void Dump(const sint32 i) { AccessData()->Dump(i) ; }
 		void Show();
 

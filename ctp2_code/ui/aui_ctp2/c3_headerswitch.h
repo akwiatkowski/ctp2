@@ -35,12 +35,12 @@ public:
 		sint32 numStates = k_C3_HEADERSWITCH_DEFAULTNUMSTATES );
 	virtual ~c3_HeaderSwitch();
 
-	c3_Static *GetImage( void ) const { return m_image; }
+	c3_Static *GetImage( ) const { return m_image; }
 
 protected:
 	c3_HeaderSwitch() : aui_Radio() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 protected:
 	virtual AUI_ERRCODE DrawThis(

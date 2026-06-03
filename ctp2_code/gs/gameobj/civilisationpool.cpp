@@ -56,7 +56,7 @@ extern	StringDB	*g_theStringDB ;
 
 
 
-CivilisationPool::CivilisationPool(void) : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
+CivilisationPool::CivilisationPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_CIVILISATION)
 {
 	m_usedCivs = new SimpleDynamicArray<sint32>;
 }
@@ -75,7 +75,7 @@ CivilisationPool::CivilisationPool(CivArchive &archive) : ObjPool(k_BIT_GAME_OBJ
 	Serialize(archive) ;
 }
 
-CivilisationPool::~CivilisationPool(void)
+CivilisationPool::~CivilisationPool()
 {
 	delete m_usedCivs;
 }

@@ -464,7 +464,7 @@ UnseenCell::~UnseenCell()
 //              should be.
 //
 //----------------------------------------------------------------------------
-bool UnseenCell::IsAirfield(void) const
+bool UnseenCell::IsAirfield() const
 {
 	return terrainutil_HasAirfield(m_point);
 }
@@ -485,7 +485,7 @@ bool UnseenCell::IsAirfield(void) const
 //              should be.
 //
 //----------------------------------------------------------------------------
-bool UnseenCell::IsListeningPost(void) const
+bool UnseenCell::IsListeningPost() const
 {
 	return terrainutil_HasListeningPost(m_point);
 }
@@ -506,7 +506,7 @@ bool UnseenCell::IsListeningPost(void) const
 //              should be.
 //
 //----------------------------------------------------------------------------
-bool UnseenCell::IsFort(void) const
+bool UnseenCell::IsFort() const
 {
 	return terrainutil_HasFort(m_point);
 }
@@ -527,7 +527,7 @@ bool UnseenCell::IsFort(void) const
 //              should be.
 //
 //----------------------------------------------------------------------------
-bool UnseenCell::IsRadar(void) const
+bool UnseenCell::IsRadar() const
 {
 	return terrainutil_HasRadar(m_point);
 }
@@ -548,7 +548,7 @@ bool UnseenCell::IsRadar(void) const
 //              should be.
 //
 //----------------------------------------------------------------------------
-bool UnseenCell::IsHealUnits(void) const
+bool UnseenCell::IsHealUnits() const
 {
 	return terrainutil_HasFort(m_point);
 }

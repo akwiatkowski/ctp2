@@ -75,7 +75,7 @@ ctp2_Window::ctp2_Window(
 }
 
 
-AUI_ERRCODE ctp2_Window::InitCommon( void )
+AUI_ERRCODE ctp2_Window::InitCommon( )
 {
 	GrabRegion()->Move( 0, 0 );
 	GrabRegion()->Resize( m_width, 20 );

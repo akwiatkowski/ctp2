@@ -913,7 +913,7 @@ SlicConditional *SlicSegment::NewConditional(sint32 line, const char *expression
 	return NULL;
 }
 
-void SlicSegment::Cleanup(void)
+void SlicSegment::Cleanup()
 {
 	delete s_segmentPond;
 	s_segmentPond = NULL;

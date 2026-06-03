@@ -127,7 +127,7 @@ WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
 	}
 }
 
-WatchList::~WatchList(void)
+WatchList::~WatchList()
 {
     if (c3ui_Get() && m_window)
     {
@@ -237,7 +237,7 @@ void WatchList::DisplayWindow()
 	keypress_RegisterHandler(this);
 }
 
-void WatchList::RemoveWindow(void)
+void WatchList::RemoveWindow()
 {
 	AUI_ERRCODE auiErr;
 
@@ -252,7 +252,7 @@ void WatchList::kh_Close()
 	RemoveWindow();
 }
 
-sint32 WatchList::UpdateData(void)
+sint32 WatchList::UpdateData()
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 
@@ -354,7 +354,7 @@ AUI_ERRCODE WatchListItem::InitCommonLdl(MBCHAR *ldlBlock)
 	return AUI_ERRCODE_OK;
 }
 
-void WatchListItem::Update(void)
+void WatchListItem::Update()
 {
 	C3TextField *expressionItem;
 	expressionItem = (C3TextField *)GetChildByIndex(1);

@@ -64,8 +64,8 @@ class TurnCount {
 	friend void from_json(nlohmann::json const &j, TurnCount &tc);
 
 private:
-	void RunNewYearMessages(void);
-	void SendMsgEndOfGameEarlyWarning(void);
+	void RunNewYearMessages();
+	void SendMsgEndOfGameEarlyWarning();
 	void SendMsgToAllPlayers(MBCHAR *s);
 	static sint32 sm_the_stop_player;
 
@@ -135,7 +135,7 @@ public:
 	BOOL VerifyEndTurn(BOOL force);
 
 #ifdef _DEBUG
-	void LogPlayerStats(void);
+	void LogPlayerStats();
 #endif
 
 	void ChooseHappinessPlayer();
@@ -150,7 +150,7 @@ public:
 
 // Accessor pair, mirroring world_Get/world_Set and friends.  Used by
 // Ctp2::Game to adopt the legacy global into its unique_ptr.
-TurnCount * turn_Get(void);
+TurnCount * turn_Get();
 void        turn_Set(TurnCount *p);
 
 #endif

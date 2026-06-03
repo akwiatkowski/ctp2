@@ -1033,6 +1033,6 @@ class Unit;
 // in gs/utility/gameinit.cpp.  External readers use unit_tree_Get();
 // the lifecycle code in gameinit and net_gamesettings uses
 // unit_tree_Set() for the new/clear transitions.
-QuadTree<Unit> * unit_tree_Get(void);
+QuadTree<Unit> * unit_tree_Get();
 void             unit_tree_Set(QuadTree<Unit> *p);
 #endif

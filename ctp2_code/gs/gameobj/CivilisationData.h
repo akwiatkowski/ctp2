@@ -117,23 +117,23 @@ public:
 
 	void Serialize(CivArchive &archive);
 
-	PLAYER_INDEX GetOwner(void) const { return m_owner; }
-	sint32 GetCivilisation(void) const { return m_civ; }
-	GENDER GetGender(void) const { return m_gender; }
+	PLAYER_INDEX GetOwner() const { return m_owner; }
+	sint32 GetCivilisation() const { return m_civ; }
+	GENDER GetGender() const { return m_gender; }
 
-	sint32 GetAnyCityName(void) const;
-	sint32 GetCapitalName(void) const;
+	sint32 GetAnyCityName() const;
+	sint32 GetCapitalName() const;
 
 	void GetCityName(const sint32 name, MBCHAR *s) const;
 	void UseCityName(const sint32 name);
 	void ReleaseCityName(const sint32 name);
 	sint32 GetUseCount(const sint32 name) const;
 
-	MBCHAR const * GetLeaderName(void) const;
+	MBCHAR const * GetLeaderName() const;
 	void SetLeaderName(const MBCHAR *s);
 
 	void SetPersonalityDescription(const MBCHAR* s);
-	MBCHAR* GetPersonalityDescription(void);
+	MBCHAR* GetPersonalityDescription();
 
 	void GetPluralCivName(MBCHAR *s);
 	void SetPluralCivName(const MBCHAR *s);
@@ -142,7 +142,7 @@ public:
 	void GetSingularCivName(MBCHAR *s);
 	void SetSingularCivName(const MBCHAR *s);
 
-	sint32 GetCityStyle(void) const;
+	sint32 GetCityStyle() const;
 	void SetCityStyle( sint32 cityStyle ) { m_cityStyle = cityStyle; }
 
 	void ResetCiv(sint32 newCivIndex, GENDER gender);

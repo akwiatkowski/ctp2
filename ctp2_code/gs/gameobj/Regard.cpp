@@ -130,7 +130,7 @@ void Regard::Serialize(CivArchive &archive)
 
 
 
-uint32 Regard_Regard_GetVersion(void)
+uint32 Regard_Regard_GetVersion()
 	{
 	return (k_REGARD_VERSION_MAJOR<<16 | k_REGARD_VERSION_MINOR);
 	}

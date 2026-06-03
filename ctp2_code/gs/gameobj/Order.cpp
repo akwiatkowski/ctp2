@@ -121,7 +121,7 @@ OrderInfo const & orderinfo_Get(sint32 idx)
     return g_orderInfo[idx];
 }
 
-sint32 orderinfo_Num(void)
+sint32 orderinfo_Num()
 {
     return g_numOrderInfo;
 }

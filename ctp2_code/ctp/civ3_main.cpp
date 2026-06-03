@@ -191,7 +191,7 @@
 
 namespace Os
 {
-	extern uint32 GetTicks(void);
+	extern uint32 GetTicks();
 }
 
 #ifdef _BFR_
@@ -228,12 +228,12 @@ BOOL                                g_cmdlineResolutionSet = FALSE;
 
 static C3UI                         *g_c3ui = NULL;
 
-C3UI * c3ui_Get(void)                 { return g_c3ui; }
+C3UI * c3ui_Get()                 { return g_c3ui; }
 void   c3ui_Set(C3UI *p)              { g_c3ui = p; }
 
 static StatusWindow                 *g_statusWindow = NULL;
 
-StatusWindow * statuswindow_Get(void)         { return g_statusWindow; }
+StatusWindow * statuswindow_Get()         { return g_statusWindow; }
 void           statuswindow_Set(StatusWindow *p) { g_statusWindow = p; }
 
 aui_Surface                         *g_sharedSurface = NULL;
@@ -255,29 +255,29 @@ sint32                              g_terrainPollution;
 
 static Director                     *g_director = NULL;
 
-Director * director_Get(void)         { return g_director; }
+Director * director_Get()         { return g_director; }
 void       director_Set(Director *p)  { g_director = p; }
 
 double                              g_ave_frame_rate = 10.0;
 double                              g_ave_frame_time = 200.0;
 static ScreenManager                *g_screenManager = NULL;
 
-ScreenManager * screenmanager_Get(void)        { return g_screenManager; }
+ScreenManager * screenmanager_Get()        { return g_screenManager; }
 void            screenmanager_Set(ScreenManager *p) { g_screenManager = p; }
 
 static TiledMap                     *g_tiledMap = NULL;
 
-TiledMap * tiledmap_Get(void)         { return g_tiledMap; }
+TiledMap * tiledmap_Get()         { return g_tiledMap; }
 void       tiledmap_Set(TiledMap *p)  { g_tiledMap = p; }
 
 static RadarMap                     *g_radarMap = NULL;
 
-RadarMap * radar_map_Get(void)        { return g_radarMap; }
+RadarMap * radar_map_Get()        { return g_radarMap; }
 void       radar_map_Set(RadarMap *p) { g_radarMap = p; }
 
 static CivApp                       *g_civApp = NULL;
 
-CivApp * civapp_Get(void)             { return g_civApp; }
+CivApp * civapp_Get()             { return g_civApp; }
 void     civapp_Set(CivApp *p)        { g_civApp = p; }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
@@ -324,7 +324,7 @@ namespace Os
 {
     /// Get the name of the executable
     /// \remarks Including the full path
-    std::basic_string<TCHAR> GetExeName(void)
+    std::basic_string<TCHAR> GetExeName()
     {
 #if defined(WIN32)
 		TCHAR   filepath[MAX_PATH];
@@ -367,7 +367,7 @@ namespace Os
 
     /// Get the version of the executable
     /// \remarks Using the last modification date as version
-    std::basic_string<TCHAR> GetExeVersion(void)
+    std::basic_string<TCHAR> GetExeVersion()
     {
         std::basic_stringstream<TCHAR>  exeVersion;
 
@@ -415,7 +415,7 @@ namespace Os
 	}
 }
 
-int ui_Initialize(void)
+int ui_Initialize()
 {
 	AUI_ERRCODE auiErr = AUI_ERRCODE_OK;
 
@@ -666,7 +666,7 @@ bool compute_scroll_deltas(sint32 time,sint32 &deltaX,sint32 &deltaY)
 	return retval;
 }
 
-bool ui_CheckForScroll(void)
+bool ui_CheckForScroll()
 {
 	if (!g_tiledMap) return false;
 
@@ -887,7 +887,7 @@ bool ui_CheckForScroll(void)
 	return scrolled;
 }
 
-int ui_Process(void)
+int ui_Process()
 {
 	if ( g_c3ui->TheMouse()->IsSuspended() ) return 0;
 
@@ -923,7 +923,7 @@ int ui_Process(void)
 }
 
 
-sint32 sharedsurface_Initialize( void )
+sint32 sharedsurface_Initialize( )
 {
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -943,12 +943,12 @@ sint32 sharedsurface_Initialize( void )
 #endif
 }
 
-void sharedsurface_Cleanup( void )
+void sharedsurface_Cleanup( )
 {
 	allocated::clear(g_sharedSurface);
 }
 
-int sprite_Initialize(void)
+int sprite_Initialize()
 {
 	g_screenManager = new ScreenManager();
 
@@ -975,7 +975,7 @@ int sprite_Update(aui_Surface *surf)
 	return 0;
 }
 
-void sprite_Cleanup(void)
+void sprite_Cleanup()
 {
 	spritegrouplist_Cleanup();
 
@@ -1016,12 +1016,12 @@ int tile_Initialize(BOOL isRestoring)
 	return 0;
 }
 
-void tile_Cleanup(void)
+void tile_Cleanup()
 {
     allocated::clear(g_tiledMap);
 }
 
-int radar_Initialize(void)
+int radar_Initialize()
 {
 	g_radarMap->Setup();
 
@@ -1040,7 +1040,7 @@ int main_Restart()
 
 static HWND s_taskBar   = NULL;
 
-void main_HideTaskBar(void)
+void main_HideTaskBar()
 {
 #ifndef __AUI_USE_SDL__
 	if (g_hideTaskBar)
@@ -1055,7 +1055,7 @@ void main_HideTaskBar(void)
 #endif // !__AUI_USE_SDL__
 }
 
-void main_RestoreTaskBar(void)
+void main_RestoreTaskBar()
 {
 #ifndef __AUI_USE_SDL__
 	if (s_taskBar)
@@ -1065,13 +1065,13 @@ void main_RestoreTaskBar(void)
 #endif
 }
 
-void ui_CivAppProcess(void)
+void ui_CivAppProcess()
 {
 	if (g_civApp)
 		g_civApp->Process();
 }
 
-void AtExitProc(void)
+void AtExitProc()
 {
 #if defined(_DEBUG) || defined(USE_LOGGING)
 	DPRINTF(k_DBG_FIX, ("Exiting game\n"));
@@ -1381,7 +1381,7 @@ BOOL main_CheckDirectX(void)
 }
 #endif // __AUI_USE_DIRECTX__
 
-void main_InitializeLogs(void)
+void main_InitializeLogs()
 {
 	time_t		ltime;
 	time(&ltime);
@@ -2273,7 +2273,7 @@ void DisplayFrame(aui_Surface *surf)
 	primitives_DrawText(surf, 100, 100, str, 1, 0);
 }
 
-BOOL ExitGame(void)
+BOOL ExitGame()
 {
 #if defined(__AUI_USE_SDL__)
 	static SDL_Event quit = { 0 };

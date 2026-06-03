@@ -31,8 +31,8 @@ enum APPSTR {
 	APPSTR_MAX
 };
 
-void appstrings_Initialize(void);
-void appstrings_Cleanup(void);
+void appstrings_Initialize();
+void appstrings_Cleanup();
 
 MBCHAR *appstrings_GetString(APPSTR stringID);
 

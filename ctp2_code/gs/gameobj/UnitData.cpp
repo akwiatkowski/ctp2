@@ -2436,7 +2436,7 @@ void UnitData::Serialize(CivArchive &archive)
 	}
 }
 
-uint32 UnitData_UnitData_GetVersion(void)
+uint32 UnitData_UnitData_GetVersion()
 {
 	return (k_UNITDATA_VERSION_MAJOR<<16 | k_UNITDATA_VERSION_MINOR);
 }
@@ -6238,7 +6238,7 @@ void UnitData::ActionSuccessful(SPECATTACK attack, const Unit &c)
 	}
 }
 
-void UnitData::ActionUnsuccessful(void)
+void UnitData::ActionUnsuccessful()
 {
 	sint32 visiblePlayer = player_view::VisiblePlayer();
 	if ((visiblePlayer == m_owner) ||
@@ -6434,7 +6434,7 @@ double UnitData::CalculateTotalMovePoints() const
 	return movePoints;
 }
 
-const UnitRecord * UnitData::GetDBRec(void) const
+const UnitRecord * UnitData::GetDBRec() const
 {
 	if(player_arr_Get()
 	&& player_Get(m_owner)

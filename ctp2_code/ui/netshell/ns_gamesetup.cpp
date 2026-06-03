@@ -68,7 +68,7 @@ nf_GameSetup::nf_GameSetup(NETFunc::Game *g):NETFunc::GameSetup(g) {
 	Init();
 }
 
-nf_GameSetup::nf_GameSetup(void):NETFunc::GameSetup() {
+nf_GameSetup::nf_GameSetup():NETFunc::GameSetup() {
 	Init();
 
 
@@ -77,7 +77,7 @@ nf_GameSetup::nf_GameSetup(void):NETFunc::GameSetup() {
 	SetSyncLaunch( true );
 }
 
-void nf_GameSetup::Init( void ) {
+void nf_GameSetup::Init( ) {
 	SetPlayStyle(0);
 	SetPlayStyleValue(0);
 
@@ -256,7 +256,7 @@ void nf_GameSetup::SetSavedId( uint32 savedId )
 	buff[ 1 ] = savedId;
 	SetUserField( (char *)buff, 2 * sizeof( uint32 ) );
 }
-uint32 nf_GameSetup::GetSavedId( void )
+uint32 nf_GameSetup::GetSavedId( )
 {
 	uint32 *buff = (uint32 *)GetUserField();
 	return buff[ 1 ];

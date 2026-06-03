@@ -103,8 +103,8 @@ private:
 
 sint32 initialplayscreen_displayMyWindow();
 sint32 initialplayscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE initialplayscreen_Initialize( void );
-void initialplayscreen_Cleanup(void);
+AUI_ERRCODE initialplayscreen_Initialize( );
+void initialplayscreen_Cleanup();
 
 void
 spritetest_spPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

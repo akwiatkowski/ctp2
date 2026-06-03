@@ -65,16 +65,16 @@ protected:
 
 	ns_ListBox() : ns_CivListBox() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 
 	virtual void Insert( T *object );
 	virtual void Delete( T *object );
 	virtual void Change( T *object );
-	virtual void Destroy( void );
+	virtual void Destroy( );
 
-	ns_Item<T,NetShellT> *GetSelectedNetShellItem( void ) const
+	ns_Item<T,NetShellT> *GetSelectedNetShellItem( ) const
 	{ return (ns_Item<T,NetShellT> *)GetSelectedItem(); }
 
 	ns_Item<T,NetShellT> *FindItem( T *object );
@@ -143,7 +143,7 @@ void ns_ListBox<T,NetShellT>::Change( T *object )
 
 
 template<class T,class NetShellT>
-void ns_ListBox<T,NetShellT>::Destroy( void )
+void ns_ListBox<T,NetShellT>::Destroy( )
 {
 
 	ListPos position = m_pane->ChildList()->GetHeadPosition();
@@ -224,7 +224,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 
 
 template<class T,class NetShellT>
-AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommon( void )
+AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommon( )
 {
 	m_artXOffset = 0;
 	m_artYOffset = 0;

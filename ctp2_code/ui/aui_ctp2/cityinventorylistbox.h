@@ -34,7 +34,7 @@ public:
 	void UpdateInventoryBox( const Unit &unit );
 	sint32 UpdateImage( const Unit &unit );
 	void SetUnit( const Unit *unit ) { m_unit = unit; }
-	const Unit *GetUnit( void ) { return m_unit; }
+	const Unit *GetUnit( ) { return m_unit; }
 	void CutBuilding( const Unit &unit );
 
 protected:

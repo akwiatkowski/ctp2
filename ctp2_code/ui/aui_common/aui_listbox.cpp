@@ -140,7 +140,7 @@ AUI_ERRCODE aui_ListBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_ListBox::InitCommon( void )
+AUI_ERRCODE aui_ListBox::InitCommon( )
 {
 	m_header = NULL,
 	m_verticalRanger = NULL,
@@ -431,7 +431,7 @@ BOOL aui_ListBox::IsItem( aui_Region *region )
 
 
 
-aui_Item *aui_ListBox::GetSelectedItem( void ) const
+aui_Item *aui_ListBox::GetSelectedItem( ) const
 {
 	if ( m_selectedList->L() )
 		return (aui_Item *)m_pane->ChildList()->GetAt(
@@ -443,7 +443,7 @@ aui_Item *aui_ListBox::GetSelectedItem( void ) const
 
 
 
-sint32 aui_ListBox::GetSelectedItemIndex(void) const
+sint32 aui_ListBox::GetSelectedItemIndex() const
 {
 	return m_selectedList->L() ? m_selectedList->GetHead() : -1;
 }
@@ -488,7 +488,7 @@ AUI_ERRCODE aui_ListBox::Resize( sint32 width, sint32 height )
 }
 
 
-AUI_ERRCODE aui_ListBox::Show( void )
+AUI_ERRCODE aui_ListBox::Show( )
 {
 	aui_Control::Show();
 
@@ -780,7 +780,7 @@ aui_Switch *aui_ListBox::GetHeaderSwitchByIndex( sint32 index )
 	return (aui_Switch *)m_header->ChildList()->GetAt( position );
 }
 
-AUI_ERRCODE aui_ListBox::RangerMoved( void )
+AUI_ERRCODE aui_ListBox::RangerMoved( )
 {
 
 	if (!m_buildingTheList) {
@@ -822,7 +822,7 @@ sint32 aui_ListBox::ColumnWidth( sint32 column )
 }
 
 
-sint32 aui_ListBox::HorizontalRangerPositionCount( void )
+sint32 aui_ListBox::HorizontalRangerPositionCount( )
 {
 	sint32 width = 0;
 	sint32 count = 0;
@@ -848,7 +848,7 @@ sint32 aui_ListBox::HorizontalRangerPositionCount( void )
 }
 
 
-AUI_ERRCODE aui_ListBox::CalculateDimensions( void )
+AUI_ERRCODE aui_ListBox::CalculateDimensions( )
 {
 
 	m_maxItemWidth = 0;
@@ -889,7 +889,7 @@ AUI_ERRCODE aui_ListBox::CalculateDimensions( void )
 }
 
 
-AUI_ERRCODE aui_ListBox::RepositionItems( void )
+AUI_ERRCODE aui_ListBox::RepositionItems( )
 {
 	sint32 minVertical = m_verticalRanger->GetValueY();
 	sint32 maxVertical = minVertical + m_itemsPerHeight;
@@ -960,7 +960,7 @@ AUI_ERRCODE aui_ListBox::RepositionItems( void )
 }
 
 
-AUI_ERRCODE aui_ListBox::RepositionHeaderSwitches( void )
+AUI_ERRCODE aui_ListBox::RepositionHeaderSwitches( )
 {
 
 	m_header->Move( m_headerOffset.x, m_headerOffset.y - m_header->Height() );
@@ -1011,7 +1011,7 @@ AUI_ERRCODE aui_ListBox::RepositionHeaderSwitches( void )
 }
 
 
-AUI_ERRCODE aui_ListBox::RepositionRangers( void )
+AUI_ERRCODE aui_ListBox::RepositionRangers( )
 {
 	sint32 rangerDimension;
 
@@ -1162,7 +1162,7 @@ AUI_ERRCODE aui_ListBox::CalculateScroll( sint32 x, sint32 y )
 }
 
 
-AUI_ERRCODE aui_ListBox::ScrollList( void )
+AUI_ERRCODE aui_ListBox::ScrollList( )
 {
 	if ( m_dragDropWindow ) return AUI_ERRCODE_OK;
 
@@ -1403,7 +1403,7 @@ AUI_ERRCODE aui_ListBox::DeselectItem( aui_Item *item, uint32 data )
 
 
 
-AUI_ERRCODE aui_ListBox::StartSelecting( void )
+AUI_ERRCODE aui_ListBox::StartSelecting( )
 {
 	SetMouseOwnership();
 	SetKeyboardFocus();
@@ -2013,7 +2013,7 @@ void aui_ListBox::MouseLDoubleClickInside( aui_MouseEvent *mouseData )
 //              BuildListEnd to resume automatic updating.
 //
 //----------------------------------------------------------------------------
-void aui_ListBox::BuildListStart(void)
+void aui_ListBox::BuildListStart()
 {
 	m_savedForceSelect = IsForceSelect();
 

@@ -9,13 +9,13 @@
 AUI_ACTION_BASIC(WorkWinCleanupAction);
 AUI_ACTION_BASIC(WorkWinUpdateAction);
 
-sint32 workwin_Initialize( void );
-sint32 workwin_Cleanup( void );
+sint32 workwin_Initialize( );
+sint32 workwin_Cleanup( );
 
-sint32 workwin_Update( void );
+sint32 workwin_Update( );
 
 class WorkWindow;
-WorkWindow * workwindow_Get(void);
+WorkWindow * workwindow_Get();
 void         workwindow_Set(WorkWindow *p);
 
 #endif

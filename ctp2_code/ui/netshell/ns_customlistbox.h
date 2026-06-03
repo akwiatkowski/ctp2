@@ -48,20 +48,20 @@ public:
 		EMAIL,
 		HOTSEAT
 	};
-	TYPE GetType(void) { return UNKNOWN; }
-	virtual SUBTYPE GetSubType(void) = 0;
+	TYPE GetType() { return UNKNOWN; }
+	virtual SUBTYPE GetSubType() = 0;
 };
 
 class EmailTransport:public FakeTransport {
 public:
 	EmailTransport();
-	SUBTYPE GetSubType(void) { return EMAIL; }
+	SUBTYPE GetSubType() { return EMAIL; }
 };
 
 class HotseatTransport:public FakeTransport {
 public:
 	HotseatTransport();
-	SUBTYPE GetSubType(void) { return HOTSEAT; }
+	SUBTYPE GetSubType() { return HOTSEAT; }
 };
 
 class ns_TransportListBox:public ns_ListBox<NETFunc::Transport, ns_Transport> {
@@ -153,7 +153,7 @@ public:
 		this->Del(t);
 	}
 
-	AUI_ERRCODE Save(void) {
+	AUI_ERRCODE Save() {
 
 		memset(&(this->curkey), 0, sizeof(this->curkey));
 		this->curkey.len = 1;
@@ -319,7 +319,7 @@ public:
 	virtual void Insert( NETFunc::Player *object );
 	virtual void Delete( NETFunc::Player *object );
 	virtual void Change( NETFunc::Player *object );
-	virtual void Destroy( void );
+	virtual void Destroy( );
 	void EnableTribeButton( NETFunc::Player *player );
 
 	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
@@ -352,7 +352,7 @@ public:
 	virtual void Insert( nf_AIPlayer *object );
 	virtual void Delete( nf_AIPlayer *object );
 	virtual void Change( nf_AIPlayer *object );
-	virtual void Destroy( void );
+	virtual void Destroy( );
 
 	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
 

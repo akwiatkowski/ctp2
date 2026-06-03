@@ -41,7 +41,7 @@
 
 static GraphicsOptions * g_graphicsOptions = NULL;
 
-GraphicsOptions * graphicsoptions_Get(void)             { return g_graphicsOptions; }
+GraphicsOptions * graphicsoptions_Get()             { return g_graphicsOptions; }
 void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions = p; }
 
 namespace
@@ -79,7 +79,7 @@ GraphicsOptions::~GraphicsOptions()
     delete m_cellAVL;
 }
 
-void GraphicsOptions::Initialize(void)
+void GraphicsOptions::Initialize()
 {
 	delete g_graphicsOptions;
 	g_graphicsOptions = new GraphicsOptions();
@@ -91,28 +91,28 @@ void GraphicsOptions::Initialize(void)
 	RegisterGraphicsOptionsObserverAdapter();
 }
 
-void GraphicsOptions::Cleanup(void)
+void GraphicsOptions::Cleanup()
 {
 	allocated::clear(g_graphicsOptions);
 }
 
 // ArmyName added by E
-void GraphicsOptions::ArmyNameOn(void)
+void GraphicsOptions::ArmyNameOn()
 {
 	m_armyNameOn = true;
 }
 
-void GraphicsOptions::ArmyNameOff(void)
+void GraphicsOptions::ArmyNameOff()
 {
 	m_armyNameOn = false;
 }
 
-void GraphicsOptions::ArmyTextOn(void)
+void GraphicsOptions::ArmyTextOn()
 {
 	m_armyTextOn = true;
 }
 
-void GraphicsOptions::ArmyTextOff(void)
+void GraphicsOptions::ArmyTextOff()
 {
 	m_armyTextOn = false;
 }
@@ -138,12 +138,12 @@ void GraphicsOptions::ResetArmyText(Army army)
 	}
 }
 
-void GraphicsOptions::CellTextOn(void)
+void GraphicsOptions::CellTextOn()
 {
 	m_cellTextOn = true;
 }
 
-void GraphicsOptions::CellTextOff(void)
+void GraphicsOptions::CellTextOff()
 {
 	m_cellTextOn = false;
 }

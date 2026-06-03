@@ -31,7 +31,7 @@ public:
 // g_theAchievementTracker demoted to file-scope `static` in gameinit.cpp
 // (where the lifecycle lives).  External callers go through
 // achievementtracker_Get() (returns NULL before the game state is loaded).
-AchievementTracker * achievementtracker_Get(void);
+AchievementTracker * achievementtracker_Get();
 void                 achievementtracker_Set(AchievementTracker *p);
 
 #endif

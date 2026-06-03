@@ -501,7 +501,7 @@ sint32 EndGame::GetNumberShown(sint32 type)
 
 
 
-void EndGame::UpdateDisplayState(void)
+void EndGame::UpdateDisplayState()
 {
 	sint32 i;
 

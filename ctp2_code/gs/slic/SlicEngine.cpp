@@ -152,7 +152,7 @@
 #include "gs/database/profileDB.h"
 
 // SlicEngine storage lives in Ctp2::Game; accessors trampoline through CivApp.
-SlicEngine * slicengine_Get(void) {
+SlicEngine * slicengine_Get() {
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
     return game ? game->GetSlicPtr() : nullptr;

@@ -64,11 +64,11 @@ public:
 	sint32		GetEitherPreReqIndex( sint32 index ) { return m_eitherPreReqIndex[index]; }
 	sint32		GetLeadsToIndex( sint32 index ) { return m_leadsToIndex[index]; }
 
-	sint32		GetNumPreReq( void ) { return m_numPreReq; }
-	sint32		GetNumEitherPreReq( void ) { return m_numEitherPreReq; }
-	sint32		GetNumLeadsTo( void ) { return m_numLeadsTo; }
+	sint32		GetNumPreReq( ) { return m_numPreReq; }
+	sint32		GetNumEitherPreReq( ) { return m_numEitherPreReq; }
+	sint32		GetNumLeadsTo( ) { return m_numLeadsTo; }
 
-	sint32		GetCenterIndex( void ) { return m_centerIndex; }
+	sint32		GetCenterIndex( ) { return m_centerIndex; }
 
 	sint32		SetTipInfo( ctp2_Button *button, sint32 index );
 

@@ -7,11 +7,11 @@
 
 
 
-int AncientWindows_PreInitialize(void);
-int AncientWindows_Initialize( void );
-int AncientWindows_Cleanup( void );
+int AncientWindows_PreInitialize();
+int AncientWindows_Initialize( );
+int AncientWindows_Cleanup( );
 
-sint32 ancientwindows_GetControlPieceY( void );
-sint32 ancientwindows_GetControlPieceHeight( void );
+sint32 ancientwindows_GetControlPieceY( );
+sint32 ancientwindows_GetControlPieceHeight( );
 
 #endif

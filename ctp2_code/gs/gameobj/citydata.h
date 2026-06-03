@@ -433,7 +433,7 @@ public:
 	sint32 LoadQueue(const MBCHAR *file);
 	sint32 SaveQueue(const MBCHAR *file);
 
-	BuildQueue *GetBuildQueue(void) { return &m_build_queue; }
+	BuildQueue *GetBuildQueue() { return &m_build_queue; }
 
 
 	void   CollectResources();
@@ -483,7 +483,7 @@ public:
 	void GetOpenTerrainValues(const MapPoint &center, sint32 &n, DynamicArray<TerrainValue> &val);
 	bool CityCanHavePopAt(MapPoint &pos) const;
 
-	void UpdateSprite(void);
+	void UpdateSprite();
 
 	bool IsWatchful() const;
 	void SetWatchful();
@@ -541,7 +541,7 @@ public:
 	void UseRawMaterials(sint32 amt);
 	bool IsConnected(MapPoint &point, uint8* array = NULL, sint32 w = 0, sint32 h = 0);
 
-	void CalcPollution(void) ;
+	void CalcPollution() ;
 	void DoLocalPollution();
 
 	void CheatBuildFirstItem();
@@ -585,9 +585,9 @@ public:
 	void Revolt(sint32 &playerToJoin, bool causeIsExternal = false);
 	void TeleportUnits(const MapPoint &pos,  bool &revealed_foreign_units, sint32 foreigner);
 	void StopTradingWith(const PLAYER_INDEX bannedRecipient);
-	Happy *GetHappy(void) { return (m_happy); }
+	Happy *GetHappy() { return (m_happy); }
 
-	MBCHAR *GetName(void) { return (m_name); }
+	MBCHAR *GetName() { return (m_name); }
 	void SetName(const MBCHAR *name);
 
 	void GetPop(sint32 &p)const { p = m_population; }
@@ -603,7 +603,7 @@ public:
 		foodCrime = (sint32)(m_food_lost_to_crime);
 	}
 
-	bool GetIsRioting(void) const { return m_is_rioting != FALSE; }
+	bool GetIsRioting() const { return m_is_rioting != FALSE; }
 
 	void CalcHappiness(sint32 &virtualGoldSpent, bool isFirstPass);
 	void CheckRiot();
@@ -622,7 +622,7 @@ public:
 	double GetHappyImprovement() const;
 	double GetHappyWonders() const;
 	double GetHappyCrime() const;
-	bool IsCelebratingHappiness(void) const;
+	bool IsCelebratingHappiness() const;
 
 	double GetImprovementCrimeMod() const;
 	sint32 GetImprovementPeaceMod() const;
@@ -674,8 +674,8 @@ public:
 	bool IsBioInfected() const { return m_bioInfectionTurns > 0; }
 	bool IsFranchised() const { return m_franchise_owner >= 0; }
 	bool IsConverted() const { return m_convertedTo >= 0; }
-	sint32 GetConvertedTo(void) const { return (m_convertedTo) ; }
-	sint32 GetConvertedGold(void) const { return (m_convertedGold) ; }
+	sint32 GetConvertedTo() const { return (m_convertedTo) ; }
+	sint32 GetConvertedGold() const { return (m_convertedGold) ; }
 
 	void ConvertTo(sint32 player, CONVERTED_BY by);
 	double TheologicalModifier() const;
@@ -731,18 +731,18 @@ public:
 #endif
 
 	sint32 GetCombatUnits() const;
-	void IndicateImprovementBuilt(void) { m_improvementWasBuilt = TRUE ; }
-	BOOL WasImprovementBuilt(void) const { return (m_improvementWasBuilt) ; }
-	void IndicateTerrainImprovementBuilt(void) { m_terrainImprovementWasBuilt=TRUE ; }
-	BOOL WasTerrainImprovementBuilt(void) const { return (m_terrainImprovementWasBuilt) ; }
-	void IndicateHappinessAttacked(void) { m_happinessAttacked = TRUE ; }
-	bool WasHappinessAttacked(void) const;
+	void IndicateImprovementBuilt() { m_improvementWasBuilt = TRUE ; }
+	BOOL WasImprovementBuilt() const { return (m_improvementWasBuilt) ; }
+	void IndicateTerrainImprovementBuilt() { m_terrainImprovementWasBuilt=TRUE ; }
+	BOOL WasTerrainImprovementBuilt() const { return (m_terrainImprovementWasBuilt) ; }
+	void IndicateHappinessAttacked() { m_happinessAttacked = TRUE ; }
+	bool WasHappinessAttacked() const;
 	void HappinessAttackedBy(sint32 player);
 	sint32 GetHappinessAttackedBy() const { return m_happinessAttackedBy;}
-	void IndicateTerrainPolluted(void) { m_terrainWasPolluted = TRUE ; }
-	BOOL WasTerrainPolluted(void) const { return (m_terrainWasPolluted) ; }
-	sint32 GetScience(void) const { return (m_science) ; }
-	sint32 GetScienceFromCommerce(void) const;
+	void IndicateTerrainPolluted() { m_terrainWasPolluted = TRUE ; }
+	BOOL WasTerrainPolluted() const { return (m_terrainWasPolluted) ; }
+	sint32 GetScience() const { return (m_science) ; }
+	sint32 GetScienceFromCommerce() const;
 	bool CanBuildUnit(sint32 type) const;
 	bool CanBuildBuilding(sint32 type) const;
 
@@ -803,9 +803,9 @@ public:
 	void AddGoods(SlicObject *obj);
 	sint32 GetGoodCountInRadius(sint32 good);
 
-	sint32 GetBioInfectedBy( void ) const { return m_bioInfectedBy; }
-	sint32 GetNanoInfectedBy( void ) const { return m_nanoInfectedBy; }
-	sint32 GetProductionLostToFranchise( void ) const { return m_productionLostToFranchise; }
+	sint32 GetBioInfectedBy( ) const { return m_bioInfectedBy; }
+	sint32 GetNanoInfectedBy( ) const { return m_nanoInfectedBy; }
+	sint32 GetProductionLostToFranchise( ) const { return m_productionLostToFranchise; }
 
 	void SetProbeRecoveredHere(bool recovered){ m_probeRecoveredHere = recovered; }
 	bool GetProbeRecoveredHere() { return m_probeRecoveredHere; }
@@ -1043,9 +1043,9 @@ public:
 	double  GetBonusScieCoeff() const { return m_bonusScieCoeff; };
 
 private:
-	bool    IsBankrupting(void) const;
+	bool    IsBankrupting() const;
 	bool    PayWages(bool projectedOnly);
 };
 
-uint32 CityData_CityData_GetVersion(void);
+uint32 CityData_CityData_GetVersion();
 #endif

@@ -101,7 +101,7 @@ public:
 
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
-	static void Cleanup(void);
+	static void Cleanup();
 
 	static void LoadAll(CivArchive & archive);
 	static void SaveAll(CivArchive & archive);

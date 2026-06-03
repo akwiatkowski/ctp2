@@ -32,7 +32,7 @@
 #include "gfx/spritesys/screenmanager.h"
 static Background		*g_background = NULL;
 
-Background * background_Get(void)             { return g_background; }
+Background * background_Get()             { return g_background; }
 void         background_Set(Background *p)    { g_background = p; }
 
 
@@ -134,7 +134,7 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 	return 0;
 }
 
-void backgroundWin_Cleanup(void)
+void backgroundWin_Cleanup()
 {
 	if (c3ui_Get() && g_background)
     {

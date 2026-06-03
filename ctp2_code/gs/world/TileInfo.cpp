@@ -78,7 +78,7 @@ TileInfo::~TileInfo()
 	delete m_goodActor;
 }
 
-TILEINDEX TileInfo::GetTileNum(void)
+TILEINDEX TileInfo::GetTileNum()
 {
 	return m_tileNum;
 #if 0   // Unreachable code
@@ -117,7 +117,7 @@ void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)
 	}
 }
 
-void TileInfo::DeleteGoodActor(void)
+void TileInfo::DeleteGoodActor()
 {
 	delete m_goodActor;
 	m_goodActor = NULL;

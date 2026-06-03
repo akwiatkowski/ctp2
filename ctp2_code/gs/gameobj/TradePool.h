@@ -76,12 +76,12 @@ public:
 // g_theTradePool's lifecycle (new / archive-load / Cleanup) lives in
 // gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through tradepool_Get().
-TradePool * tradepool_Get(void);
+TradePool * tradepool_Get();
 void        tradepool_Set(TradePool *p);
 #else
 
 class TradePool;
-TradePool * tradepool_Get(void);
+TradePool * tradepool_Get();
 void        tradepool_Set(TradePool *p);
 
 #endif

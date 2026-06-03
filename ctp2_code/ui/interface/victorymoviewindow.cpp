@@ -113,7 +113,7 @@ AUI_ERRCODE VictoryMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	return InitCommon();
 }
 
-AUI_ERRCODE VictoryMovieWindow::InitCommon(void)
+AUI_ERRCODE VictoryMovieWindow::InitCommon()
 {
 	return C3Window::InitCommon();
 }

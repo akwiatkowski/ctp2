@@ -87,8 +87,8 @@ public:
 
 	~BattleViewActor();
 
-	virtual void	Process(void);
-	void			DumpAllActions(void);
+	virtual void	Process();
+	void			DumpAllActions();
 	void			AddAction(ActionPtr actionObj) override;
 	void			GetNextAction(BOOL isVisible = TRUE);
 	void			AddIdle(BOOL NoIdleJustDelay = FALSE);
@@ -99,14 +99,14 @@ public:
     {
         return m_unitSpriteGroup && m_unitSpriteGroup->GetAnim((GAME_ACTION) action);
     };
-	Anim			*MakeFakeDeath(void);
+	Anim			*MakeFakeDeath();
 
 	void			Draw(BOOL fogged = FALSE);
 	void			DrawDirect(aui_Surface *surf, sint32 x, sint32 y);
 
 	void			DrawHealthBar(aui_Surface *surf);
 
-	MapPoint		GetPos(void) const
+	MapPoint		GetPos() const
     {
         return m_pos;
     };
@@ -121,34 +121,34 @@ public:
         Actor::SetPos(x, y);
     };
 
-	sint32			GetFacing(void) const { return m_facing; }
+	sint32			GetFacing() const { return m_facing; }
 	void			SetFacing(sint32 facing) { m_facing = facing; }
 
-	uint16			GetWidth(void) const;
-	uint16			GetHeight(void) const;
-	Unit			GetUnitID(void) const
+	uint16			GetWidth() const;
+	uint16			GetHeight() const;
+	Unit			GetUnitID() const
     {
         return m_unitID;
     };
 
-	bool			HasDeath(void) const
+	bool			HasDeath() const
     {
         return m_unitSpriteGroup->HasDeath();
     };
-	bool			HasDirectional(void) const
+	bool			HasDirectional() const
     {
         return m_unitSpriteGroup->HasDirectional();
     };
 
 	void			GetBoundingRect(RECT *rect) const;
 
-	double			GetHitPoints(void) const { return m_hitPoints; }
-	double			GetHitPointsMax(void) const{ return m_hitPointsMax; }
+	double			GetHitPoints() const { return m_hitPoints; }
+	double			GetHitPointsMax() const{ return m_hitPointsMax; }
 	void			SetHitPoints(double points) { m_hitPoints = points; }
 	void			SetHitPointsMax(double points) { m_hitPointsMax = points; }
 
 	void			SetFortified(bool fortified) { m_isFortified = fortified; }
-	bool			GetFortified(void) const { return m_isFortified; }
+	bool			GetFortified() const { return m_isFortified; }
 
 protected:
 	MapPoint			m_pos;

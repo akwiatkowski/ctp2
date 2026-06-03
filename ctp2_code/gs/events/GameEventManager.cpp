@@ -57,7 +57,7 @@
 #include "ctp/civapp.h"            // civapp_Get → CivApp::GetGame
 
 // GameEventManager storage lives in Ctp2::Game; trampoline through CivApp.
-GameEventManager * gevmanager_Get(void) {
+GameEventManager * gevmanager_Get() {
     CivApp * app = civapp_Get();
     Ctp2::Game * game = app ? app->GetGame() : nullptr;
     return game ? game->GetEventsPtr() : nullptr;

@@ -198,7 +198,7 @@ void BattleView::GetDefenderPos(sint32 column, sint32 row, sint32 *x, sint32 *y)
 
 
 
-void BattleView::DrawExplosions(void)
+void BattleView::DrawExplosions()
 {
 	PointerList<BattleEvent>::Walker *walker = new PointerList<BattleEvent>::Walker(m_activeEvents);
 
@@ -232,7 +232,7 @@ int battleview_AttackerSort( const void *arg1, const void *arg2 )
 }
 
 
-void BattleView::DrawAttackers(void)
+void BattleView::DrawAttackers()
 {
 	sint32		i;
 	sint32		x, y;
@@ -296,7 +296,7 @@ int battleview_DefenderSort( const void *arg1, const void *arg2 )
 
 
 
-void BattleView::DrawDefenders(void)
+void BattleView::DrawDefenders()
 {
 	sint32		i;
 	sint32		x, y;
@@ -395,7 +395,7 @@ void BattleView::RemoveActor(BattleViewActor *actor)
 }
 
 
-void BattleView::UpdateDisplay(void)
+void BattleView::UpdateDisplay()
 {
 
 	if (!m_backgroundImage)
@@ -432,7 +432,7 @@ void BattleView::UpdateDisplay(void)
 
 #define k_EVENT_FREQUENCY		1500
 
-void BattleView::Process(void)
+void BattleView::Process()
 {
 
 	Assert(m_eventQueue);

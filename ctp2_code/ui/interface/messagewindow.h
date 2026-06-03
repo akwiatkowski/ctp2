@@ -53,19 +53,19 @@ public:
 
 	virtual AUI_ERRCODE InitCommon( Message data, MessageIconWindow *iconWindow );
 
-	MessageIconWindow	*GetIconWindow( void ) { return m_iconWindow; }
+	MessageIconWindow	*GetIconWindow( ) { return m_iconWindow; }
 
-	Message				*GetMessage( void ) { return &m_message; }
+	Message				*GetMessage( ) { return &m_message; }
 
-	MessageOpenAction	*GetMessageOpenAction( void );
+	MessageOpenAction	*GetMessageOpenAction( );
 
 	AUI_ERRCODE	ShowWindow( BOOL show );
 
 	void SetMessageText( MBCHAR *text ) { m_messageText->SetHyperText( text ); }
 
-	PLAYER_INDEX		GetPlayer( void ) { return m_player; }
+	PLAYER_INDEX		GetPlayer( ) { return m_player; }
 
-	aui_Button	*GetGreatLibraryButton( void ) { return m_libraryIcon; }
+	aui_Button	*GetGreatLibraryButton( ) { return m_libraryIcon; }
 	MessageMinimizeAction *GetMinimizeAction() { return m_minimizeAction; }
 protected:
 

@@ -187,7 +187,7 @@ void UnitPool::RebuildQuadTree()
 	}
 }
 
-uint32 UnitPool_UnitPool_GetVersion(void)
+uint32 UnitPool_UnitPool_GetVersion()
 {
 	return (k_UNITPOOL_VERSION_MAJOR<<16 | k_UNITPOOL_VERSION_MINOR);
 }

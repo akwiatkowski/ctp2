@@ -84,7 +84,7 @@ WonderTab::WonderTab(ctp2_Window *parent) :
 	LoadData();
 }
 
-WonderTab::~WonderTab(void)
+WonderTab::~WonderTab()
 {
 }
 

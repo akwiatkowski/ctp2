@@ -3,7 +3,7 @@
 #include "ui/aui_common/aui_uniqueid.h"
 
 
-uint32 aui_UniqueId( void )
+uint32 aui_UniqueId( )
 {
 	static uint32 id = 0x00000000;
 

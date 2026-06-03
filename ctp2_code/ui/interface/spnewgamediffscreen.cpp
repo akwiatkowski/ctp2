@@ -67,12 +67,12 @@ static c3_Static *       s_barbarianThreat      = NULL; // Barbarian threat leve
 static sint32            s_difficulty1          = 0;
 static sint32            s_difficulty2          = 0;
 
-sint32 spnewgamediffscreen_getDifficulty1( void )
+sint32 spnewgamediffscreen_getDifficulty1( )
 {
 	return s_difficulty1;
 }
 
-sint32 spnewgamediffscreen_getDifficulty2( void )
+sint32 spnewgamediffscreen_getDifficulty2( )
 {
 	return s_difficulty2;
 }

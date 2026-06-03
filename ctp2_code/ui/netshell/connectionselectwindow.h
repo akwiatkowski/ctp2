@@ -16,12 +16,12 @@ public:
 
 protected:
 	ConnectionSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
-	void	Update( void );
-	virtual	AUI_ERRCODE Idle( void );
+	void	Update( );
+	virtual	AUI_ERRCODE Idle( );
 
 
 	enum CONTROL

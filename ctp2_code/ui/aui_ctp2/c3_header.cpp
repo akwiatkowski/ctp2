@@ -119,7 +119,7 @@ AUI_ERRCODE c3_Header::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE c3_Header::InitCommon( void )
+AUI_ERRCODE c3_Header::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }

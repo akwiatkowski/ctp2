@@ -62,7 +62,7 @@ VideoWindow::VideoWindow(
 }
 
 
-AUI_ERRCODE VideoWindow::InitCommon( void )
+AUI_ERRCODE VideoWindow::InitCommon( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	m_video = NULL,
@@ -136,7 +136,7 @@ VideoWindow::~VideoWindow()
 }
 
 
-AUI_ERRCODE VideoWindow::Idle(void)
+AUI_ERRCODE VideoWindow::Idle()
 {
 #ifdef __AUI_USE_DIRECTX__
 	if (m_video != NULL) {

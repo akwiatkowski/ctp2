@@ -48,7 +48,7 @@ AUI_ERRCODE aui_Static::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_Static::InitCommon( void )
+AUI_ERRCODE aui_Static::InitCommon( )
 {
 
 

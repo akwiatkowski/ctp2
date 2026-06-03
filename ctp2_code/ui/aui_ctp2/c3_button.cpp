@@ -318,7 +318,7 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR *ldlBlock )
 }
 
 
-c3_EditButton::~c3_EditButton( void )
+c3_EditButton::~c3_EditButton( )
 {
 	delete m_field;
 
@@ -372,7 +372,7 @@ AUI_ERRCODE c3_EditButton::SetMaximum( sint32 max )
 }
 
 
-void c3_EditButton::DoCallback( void )
+void c3_EditButton::DoCallback( )
 {
 
 	if ( !GetActionFunc() && !GetAction() ) return;

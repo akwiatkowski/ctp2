@@ -182,6 +182,6 @@ private:
 // g_nationalManagementDialog demoted to file-scope `static` in
 // NationalManagementDialog.cpp.  Use nationalmanagementdialog_Get() instead.
 // Returns NULL when the dialog has not been opened yet.
-NationalManagementDialog * nationalmanagementdialog_Get(void);
+NationalManagementDialog * nationalmanagementdialog_Get();
 
 #endif

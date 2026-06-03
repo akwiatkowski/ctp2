@@ -26,13 +26,13 @@ public:
 						uint32 bevelType);
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon(void);
+	AUI_ERRCODE InitCommon();
 
 	void SetColor(COLOR color) { m_color = color; }
-	COLOR GetColor(void) { return m_color; }
+	COLOR GetColor() { return m_color; }
 
 	void SetMapIcon(MAPICON mapIcon) { m_mapIcon = mapIcon; }
-	MAPICON GetMapIcon(void) { return m_mapIcon; }
+	MAPICON GetMapIcon() { return m_mapIcon; }
 
 	virtual AUI_ERRCODE DrawThis(aui_Surface *surface, sint32 x, sint32 y);
 

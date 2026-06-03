@@ -116,7 +116,7 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 		soundmgr_Get()->TerminateLoopingSound(SOUNDTYPE_SFX, GetUnitID());
 }
 
-void BattleViewActor::Process(void)
+void BattleViewActor::Process()
 {
 	if(!m_curAction)
 		GetNextAction();
@@ -149,7 +149,7 @@ void BattleViewActor::Process(void)
     }
 }
 
-void BattleViewActor::DumpAllActions(void)
+void BattleViewActor::DumpAllActions()
 {
 
 	if (m_curAction) {
@@ -243,7 +243,7 @@ Anim *BattleViewActor::CreateAnim(UNITACTION action)
 #define k_FAKE_DEATH_FRAMES			15
 #define k_FAKE_DEATH_DURATION		1500
 
-Anim * BattleViewActor::MakeFakeDeath(void)
+Anim * BattleViewActor::MakeFakeDeath()
 {
     Anim *      anim        = new Anim();
 
@@ -424,7 +424,7 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	primitives_PaintRect16(surf, &leftRect, color);
 }
 
-uint16 BattleViewActor::GetWidth(void) const
+uint16 BattleViewActor::GetWidth() const
 {
 	Assert(m_unitSpriteGroup != NULL);
 	if (m_unitSpriteGroup == NULL) return 0;
@@ -449,7 +449,7 @@ uint16 BattleViewActor::GetWidth(void) const
 	}
 }
 
-uint16 BattleViewActor::GetHeight(void) const
+uint16 BattleViewActor::GetHeight() const
 {
 	Assert(m_unitSpriteGroup != NULL);
 	if (m_unitSpriteGroup == NULL) return 0;

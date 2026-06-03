@@ -126,7 +126,7 @@ extern  OzoneDatabase           *g_theUVDB ;
 
 static DataCheck                *g_dataCheck = NULL;
 
-DataCheck * datacheck_Get(void)
+DataCheck * datacheck_Get()
 {
 	return g_dataCheck;
 }
@@ -141,7 +141,7 @@ DataCheck * datacheck_Get(void)
 
 
 
-void DataCheck_Init(void)
+void DataCheck_Init()
 {
 
 }
@@ -157,7 +157,7 @@ void DataCheck_Init(void)
 
 
 
-void DataCheck_Requiem(void)
+void DataCheck_Requiem()
 {
 
 
@@ -219,7 +219,7 @@ DataCheck::DataCheck()
 
 
 
-void DataCheck::BeginTurn(void)
+void DataCheck::BeginTurn()
 {
 	CheckSum	*check;
 
@@ -770,7 +770,7 @@ void DataCheck::DumpSingleCRC(MBCHAR *grp, sint32 t)
 
 
 
-void DataCheck::DumpChecksum(void)
+void DataCheck::DumpChecksum()
 {
 	DumpSingleCRC("GLOBAL",                   CRC_TYPE_GLOBAL);
 	DumpSingleCRC("RAND",                     CRC_TYPE_RAND);

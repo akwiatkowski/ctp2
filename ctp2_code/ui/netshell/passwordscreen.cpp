@@ -270,7 +270,7 @@ sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 
 	return retval;
 }
-sint32 passwordscreen_removeMyWindow( void )
+sint32 passwordscreen_removeMyWindow( )
 {
 	AUI_ERRCODE auiErr;
 
@@ -280,7 +280,7 @@ sint32 passwordscreen_removeMyWindow( void )
 	return 1;
 }
 
-AUI_ERRCODE passwordscreen_Initialize( void )
+AUI_ERRCODE passwordscreen_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

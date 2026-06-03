@@ -1,6 +1,6 @@
 sint32 graphicsscreen_displayMyWindow();
 sint32 graphicsscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE graphicsscreen_Initialize( void );
+AUI_ERRCODE graphicsscreen_Initialize( );
 void graphicsscreen_Cleanup();
 void graphicsscreen_getValues(sint32 &bright, sint32 &gamma, sint32 &color,sint32 &contrast);
 

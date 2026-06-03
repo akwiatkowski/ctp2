@@ -79,20 +79,20 @@ protected:
 		sint32 maxValue );
 
 public:
-	AUI_PROGRESSBAR_ORIENTATION GetOrientation( void ) const
+	AUI_PROGRESSBAR_ORIENTATION GetOrientation( ) const
 		{ return m_orientation; }
 	AUI_PROGRESSBAR_ORIENTATION SetOrientation(
 		AUI_PROGRESSBAR_ORIENTATION orientation );
 
-	sint32 GetCurValue( void ) const { return m_curValue; }
+	sint32 GetCurValue( ) const { return m_curValue; }
 	sint32 SetCurValue( sint32 value );
-	sint32 GetMaxValue( void ) const { return m_maxValue; }
+	sint32 GetMaxValue( ) const { return m_maxValue; }
 	sint32 SetMaxValue( sint32 value );
 
-	AUI_PROGRESSBAR_TYPE GetProgressType( void ) const { return m_type; }
+	AUI_PROGRESSBAR_TYPE GetProgressType( ) const { return m_type; }
 	AUI_PROGRESSBAR_TYPE SetProgressType( AUI_PROGRESSBAR_TYPE type );
 
-	sint32 GetValuesPerSecond( void ) const { return m_vps; }
+	sint32 GetValuesPerSecond( ) const { return m_vps; }
 	sint32 SetValuesPerSecond( sint32 vps );
 
 	aui_Image	*SetBarImage( MBCHAR *image );
@@ -103,7 +103,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 
 protected:
 	virtual AUI_ERRCODE CalculateIntervals( double *start, double *stop );

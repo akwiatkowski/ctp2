@@ -6,8 +6,8 @@
 
 #include "ui/aui_common/aui_action.h"
 
-void intromoviewin_Initialize(void);
-void intromoviewin_DisplayIntroMovie(void);
+void intromoviewin_Initialize();
+void intromoviewin_DisplayIntroMovie();
 
 void intromoviewin_Cleanup();
 

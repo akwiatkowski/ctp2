@@ -42,7 +42,7 @@ void TaxRate::Serialize(CivArchive &archive)
 
 
 
-uint32 TaxRate_TaxRate_GetVersion(void)
+uint32 TaxRate_TaxRate_GetVersion()
 	{
 	return (k_TAXRATE_VERSION_MAJOR<<16 | k_TAXRATE_VERSION_MINOR);
 	}

@@ -93,21 +93,21 @@ public:
 		return classId == m_surfaceClassId;
 	}
 
-	sint32 Width( void ) const { return m_width; }
-	sint32 Height( void ) const { return m_height; }
-	sint32 BitsPerPixel( void ) const { return m_bpp; }
-	sint32 BytesPerPixel( void ) const { return m_Bpp; }
-	sint32 Bytewidth( void ) const { return m_bytewidth; }
-	sint32 Pitch( void ) const { return m_pitch; }
-	sint32 Size( void ) const { return m_size; }
-	uint8 *Buffer( void ) const { return m_buffer; }
-	AUI_SURFACE_PIXELFORMAT PixelFormat( void ) const { return m_pixelFormat; }
+	sint32 Width( ) const { return m_width; }
+	sint32 Height( ) const { return m_height; }
+	sint32 BitsPerPixel( ) const { return m_bpp; }
+	sint32 BytesPerPixel( ) const { return m_Bpp; }
+	sint32 Bytewidth( ) const { return m_bytewidth; }
+	sint32 Pitch( ) const { return m_pitch; }
+	sint32 Size( ) const { return m_size; }
+	uint8 *Buffer( ) const { return m_buffer; }
+	AUI_SURFACE_PIXELFORMAT PixelFormat( ) const { return m_pixelFormat; }
 
-	uint32 GetChromaKey( void ) const { return m_chromaKey; }
+	uint32 GetChromaKey( ) const { return m_chromaKey; }
 	virtual uint32 SetChromaKey( uint32 color );
 	uint32 SetChromaKey( uint8 red, uint8 green, uint8 blue );
 
-	BOOL IsPrimary( void ) const { return m_isPrimary; }
+	BOOL IsPrimary( ) const { return m_isPrimary; }
 
 
 	virtual AUI_ERRCODE Lock( RECT *rect, LPVOID *buffer, DWORD flags );
@@ -119,12 +119,12 @@ public:
 #endif
 
 #ifdef USE_SDL
-	SDL_mutex *LPCS( void ) const { return m_cs; };
+	SDL_mutex *LPCS( ) const { return m_cs; };
 #else
 	LPCRITICAL_SECTION LPCS( void ) const { return &m_cs; };
 #endif
 
-	virtual BOOL IsOK( void ) const { return m_saveBuffer != NULL; }
+	virtual BOOL IsOK( ) const { return m_saveBuffer != NULL; }
 
 	virtual AUI_ERRCODE BlankRGB(const uint8 &red, const uint8 &green, const uint8 &blue);
 	virtual AUI_ERRCODE Blank(const uint32 &color);

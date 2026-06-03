@@ -39,7 +39,7 @@ void ScreenManager::LockSurface(aui_Surface *surf)
 	m_isLocked = TRUE;
 }
 
-void ScreenManager::UnlockSurface(void)
+void ScreenManager::UnlockSurface()
 {
 	AUI_ERRCODE		errcode;
 

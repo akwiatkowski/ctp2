@@ -213,7 +213,7 @@ class Happy
 		double GetWonders() const { return m_wonders; }
 		double GetCrime() const { return m_crime; }
 		double GetTooManyCities() const { return m_too_many_cities; }
-		bool IsVeryHappy(void) const ;
+		bool IsVeryHappy() const ;
 
 		void ResetCrime(CityData *cd, double target_happiness);
 		double GetGreedyPopHappiness(CityData &cd);
@@ -221,12 +221,12 @@ class Happy
 		void SetFullHappinessTurns(sint32 turns);
 		void Serialize(CivArchive &archive);
 
-		void ForceRevolt(void);
+		void ForceRevolt();
 		void CountAffectivePop(CityData &cd);
 		HappyTracker *GetHappyTracker() { return m_tracker; }
 		void Copy(Happy *copy);
 	};
 
-uint32 Happy_Happy_GetVersion(void);
+uint32 Happy_Happy_GetVersion();
 
 #endif

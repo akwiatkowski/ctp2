@@ -26,7 +26,7 @@ public:
 protected:
 	aui_Static() : aui_Control() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 };
 
 #endif

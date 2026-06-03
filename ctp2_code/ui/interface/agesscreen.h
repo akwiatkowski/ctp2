@@ -18,8 +18,8 @@ void agesscreen_startDropDownCallback(aui_Control *,uint32,uint32,void *);
 void agesscreen_endDropDownCallback(aui_Control *,uint32,uint32,void *);
 void agesscreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-sint32 agesscreen_getStartAge( void );
-sint32 agesscreen_getEndAge( void );
+sint32 agesscreen_getStartAge( );
+sint32 agesscreen_getEndAge( );
 void agesscreen_setStartAge( sint32 );
 void agesscreen_setEndAge( sint32 );
 

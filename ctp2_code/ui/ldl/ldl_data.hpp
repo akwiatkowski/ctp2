@@ -106,7 +106,7 @@ public:
 	ldl_attribute *GetAttribute(const char *szName);
 
 	// returns a pointer to the last attribute in the list (to preserve order)
-	ldl_attribute *GetLastAttribute( void );
+	ldl_attribute *GetLastAttribute( );
 
 	// returns the attribute value or 0 if the attribute can't be found.
 	int GetAttributeType(const char *szName);

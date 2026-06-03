@@ -82,7 +82,7 @@ public:
 #endif
 
 private:
-    static void RefreshStringIds(void);
+    static void RefreshStringIds();
 
 	double m_happinessAmounts[HAPPY_REASON_MAX];
 	static StringId sm_happinessNames[HAPPY_REASON_MAX];

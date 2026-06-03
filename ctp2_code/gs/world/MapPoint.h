@@ -71,7 +71,7 @@ struct	TileUtility;
 // General declarations
 //----------------------------------------------------------------------------
 
-uint32 MapPoint_MapPoint_GetVersion(void);
+uint32 MapPoint_MapPoint_GetVersion();
 
 //----------------------------------------------------------------------------
 // Class declarations
@@ -174,7 +174,7 @@ public:
 	sint32 NormalizedDistance(const MapPoint &dest) const;
     void OldNormalizedSubtract(const MapPoint &dest, MapPoint &diff) const;
     bool IsNextTo(const MapPoint &neighbor) const;
-	bool IsValid(void) const;
+	bool IsValid() const;
 
 	void DelPointers() {}
 
@@ -203,8 +203,8 @@ public:
     OrthogonalPoint(OrthogonalPoint const & copy);
     OrthogonalPoint & operator = (OrthogonalPoint const & copy);
 
-	MapPoint			GetRC(void);
-	bool				IsValid(void);
+	MapPoint			GetRC();
+	bool				IsValid();
 	void				Move
 	(
 		MapPointData const &	delta
@@ -223,7 +223,7 @@ public:
 
 private:
 
-	void				Normalise(void);
+	void				Normalise();
 
 	static MapPointData	Step(WORLD_DIRECTION const direction);
 

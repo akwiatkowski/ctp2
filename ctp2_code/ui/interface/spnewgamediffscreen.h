@@ -11,8 +11,8 @@ AUI_ERRCODE spnewgamediffscreen_Cleanup();
 
 void spnewgamediffscreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 
-sint32 spnewgamediffscreen_getDifficulty1( void );
-sint32 spnewgamediffscreen_getDifficulty2( void );
+sint32 spnewgamediffscreen_getDifficulty1( );
+sint32 spnewgamediffscreen_getDifficulty2( );
 void spnewgamediffscreen_setDifficulty1( sint32 );
 void spnewgamediffscreen_setDifficulty2( sint32 );
 

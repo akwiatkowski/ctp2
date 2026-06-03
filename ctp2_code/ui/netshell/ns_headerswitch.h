@@ -43,7 +43,7 @@ protected:
 
 protected:
 	AUI_ERRCODE	SetIcon( MBCHAR *icon );
-	aui_Image	*GetIcon( void ) const { return m_icon; }
+	aui_Image	*GetIcon( ) const { return m_icon; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,

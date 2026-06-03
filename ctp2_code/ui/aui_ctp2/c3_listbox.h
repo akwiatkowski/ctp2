@@ -29,14 +29,14 @@ public:
 	AUI_ERRCODE InitCommon(sint32 bevelWidth, sint32 bevelType );
 	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = NULL );
 
-	void Clear(void);
+	void Clear();
 
 	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
 	virtual AUI_ERRCODE Draw(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0);
 	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0 );
 
-	sint32 GetBevelWidth(void) { return m_bevelWidth; }
-	sint32 GetBevelType(void) { return m_bevelType; }
+	sint32 GetBevelWidth() { return m_bevelWidth; }
+	sint32 GetBevelType() { return m_bevelType; }
 
 protected:
 	AUI_ERRCODE ReformatItemFromHeader(aui_Item *item);

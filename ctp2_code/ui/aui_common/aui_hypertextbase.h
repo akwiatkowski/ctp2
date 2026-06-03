@@ -37,7 +37,7 @@ protected:
 		uint32 hyperMaxLen );
 
 public:
-	MBCHAR *GetHyperText( void ) const { return (MBCHAR *)m_hyperText; }
+	MBCHAR *GetHyperText( ) const { return (MBCHAR *)m_hyperText; }
 	virtual AUI_ERRCODE	SetHyperText(
 		const MBCHAR *hyperText,
 		uint32 maxlen = 0xffffffff );
@@ -45,7 +45,7 @@ public:
 
 protected:
 	virtual AUI_ERRCODE AddHyperStatics( const MBCHAR *hyperText );
-	void RemoveHyperStatics( void );
+	void RemoveHyperStatics( );
 	static aui_Static *CreateHyperStatic(
 		const MBCHAR *string,
 		uint32 len,

@@ -51,7 +51,7 @@ AUI_ERRCODE aui_Sound::SetFilename( MBCHAR const *filename)
 }
 
 
-AUI_ERRCODE aui_Sound::Load( void )
+AUI_ERRCODE aui_Sound::Load( )
 {
 
 	Assert ( m_format != NULL );
@@ -63,7 +63,7 @@ AUI_ERRCODE aui_Sound::Load( void )
 }
 
 
-AUI_ERRCODE aui_Sound::Unload( void )
+AUI_ERRCODE aui_Sound::Unload( )
 {
 	aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
 

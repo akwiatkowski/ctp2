@@ -42,7 +42,7 @@ public:
 	tech_Memory(size_t blockSize = k_TECH_MEMORY_DEFAULT_BLOCKSIZE );
 	virtual ~tech_Memory();
 
-	T		*New( void );
+	T		*New( );
 	void	Delete( T *t );
 
 protected:
@@ -98,7 +98,7 @@ protected:
 		T *         data;
 	};
 
-	T *UseFreeElement( void );
+	T *UseFreeElement( );
 
 	void UnuseElement( T *t );
 
@@ -136,7 +136,7 @@ tech_Memory< T >::~tech_Memory()
 
 
 template< class T >
-T *tech_Memory< T >::New( void )
+T *tech_Memory< T >::New( )
 {
 	if (m_pLast)
 	{
@@ -166,7 +166,7 @@ void tech_Memory< T >::Delete( T *t )
 
 
 template< class T >
-T *tech_Memory< T >::UseFreeElement( void )
+T *tech_Memory< T >::UseFreeElement( )
 {
 
 	for ( Block *pBlock = m_pFirst; pBlock; pBlock = pBlock->pNext )

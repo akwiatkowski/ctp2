@@ -114,7 +114,7 @@ SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
 	Initialize( windowBlock );
 }
 
-SegmentList::~SegmentList(void)
+SegmentList::~SegmentList()
 {
     // m_callback not deleted: reference only
 	delete m_exitButton;
@@ -199,7 +199,7 @@ sint32 SegmentList::Initialize(MBCHAR *windowBlock)
 	return 0;
 }
 
-void SegmentList::DisplayWindow(void)
+void SegmentList::DisplayWindow()
 {
 	UpdateData();
 	AUI_ERRCODE const auiErr = c3ui_Get()->AddWindow(m_window);
@@ -207,7 +207,7 @@ void SegmentList::DisplayWindow(void)
 	keypress_RegisterHandler(this);
 }
 
-void SegmentList::RemoveWindow(void)
+void SegmentList::RemoveWindow()
 {
     if (c3ui_Get() && m_window)
     {
@@ -221,7 +221,7 @@ void SegmentList::kh_Close()
 	RemoveWindow();
 }
 
-sint32 SegmentList::UpdateData(void)
+sint32 SegmentList::UpdateData()
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 	strcpy(ldlBlock, "SegmentListItem");
@@ -275,7 +275,7 @@ AUI_ERRCODE SegmentListItem::InitCommonLdl(SlicSegment *segment,
 	return AUI_ERRCODE_OK;
 }
 
-void SegmentListItem::Update(void)
+void SegmentListItem::Update()
 {
 	c3_Static * name = static_cast<c3_Static *>(GetChildByIndex(0));
 	name->SetText(m_segment->GetName());

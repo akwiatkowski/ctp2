@@ -115,7 +115,7 @@ void ScreenResListCallback( aui_Control *control, uint32 action, uint32 data, vo
 
 
 
-AUI_ERRCODE graphicsresscreen_Initialize( void )
+AUI_ERRCODE graphicsresscreen_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

@@ -51,7 +51,7 @@ sint32 Sequence::GetRefCount() const {
   return m_refCount;
 }
 
-sint32 Sequence::GetSequenceID(void) const {
+sint32 Sequence::GetSequenceID() const {
   return m_sequenceID;
 }
 
@@ -59,7 +59,7 @@ void Sequence::SetItem(std::weak_ptr<DQItem> item) {
   m_item = item;
 }
 
-std::shared_ptr<DQItem> Sequence::GetItem(void) {
+std::shared_ptr<DQItem> Sequence::GetItem() {
   Assert(!m_item.expired());
   return m_item.lock();
 }

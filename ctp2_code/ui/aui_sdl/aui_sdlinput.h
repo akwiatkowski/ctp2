@@ -27,8 +27,8 @@ protected:
 
 public:
 
-	virtual AUI_ERRCODE Acquire( void );
-	virtual AUI_ERRCODE Unacquire( void );
+	virtual AUI_ERRCODE Acquire( );
+	virtual AUI_ERRCODE Unacquire( );
 
 };
 

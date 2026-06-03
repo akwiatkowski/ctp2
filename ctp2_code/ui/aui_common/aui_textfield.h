@@ -104,14 +104,14 @@ public:
 	BOOL	SetPasswordReady( BOOL passwordReady );
 #endif
 
-	BOOL	IsFileName( void ) const { return m_isFileName; }
+	BOOL	IsFileName( ) const { return m_isFileName; }
 	BOOL	SetIsFileName( BOOL isFileName );
 
-	sint32	GetMaxFieldLen( void ) const { return m_maxFieldLen; }
+	sint32	GetMaxFieldLen( ) const { return m_maxFieldLen; }
 	sint32	SetMaxFieldLen( sint32 maxFieldLen );
 
-	virtual aui_Control	*SetKeyboardFocus( void );
-	virtual AUI_ERRCODE	ReleaseKeyboardFocus( void );
+	virtual aui_Control	*SetKeyboardFocus( );
+	virtual AUI_ERRCODE	ReleaseKeyboardFocus( );
 
 	virtual AUI_ERRCODE	DrawThis(
 		aui_Surface *surface,
@@ -130,7 +130,7 @@ public:
 
 	void SetSelection(sint32 start, sint32 end);
 	void GetSelection(sint32 *start, sint32 *end);
-	void SelectAll(void);
+	void SelectAll();
 
 protected:
 	BOOL	m_blink;

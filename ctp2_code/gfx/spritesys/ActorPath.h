@@ -25,7 +25,7 @@ public:
 	void    CalcPosition(sint32 start, sint32 end, sint32 current, POINT *pos);
 	sint32  CalcFacing(sint32 start, sint32 end, sint32 current) const;
 
-	BOOL	Finished(void) const        { return m_finished; };
+	BOOL	Finished() const        { return m_finished; };
 	void	SetFinished(BOOL finished)  { m_finished = finished; };
 
 protected:

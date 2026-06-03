@@ -3377,7 +3377,7 @@ sint32			inctable[k_MAX_WATER_DISPLACEMENTS] = {1, 2, 1, 0, -1, 1, 0, -1, -2, -1
 sint32			tinc[2]={0,1};
 #endif
 
-void TiledMap::DrawWater(void)
+void TiledMap::DrawWater()
 {
 }
 

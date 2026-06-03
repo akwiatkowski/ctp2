@@ -289,7 +289,7 @@ void sciencewin_AdvanceListCallback( aui_Control *control, uint32 action, uint32
 	}
 }
 
-sint32 knowledgewin_Initialize( void )
+sint32 knowledgewin_Initialize( )
 {
 
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
@@ -607,7 +607,7 @@ sint32 knowledgewin_InitGraphicTrim( MBCHAR *windowBlock )
 	return 0;
 }
 
-sint32 knowledgewin_Cleanup( void )
+sint32 knowledgewin_Cleanup( )
 {
 
 
@@ -698,7 +698,7 @@ AUI_ERRCODE KnowledgeListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	return AUI_ERRCODE_OK;
 }
 
-void KnowledgeListItem::Update(void)
+void KnowledgeListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -759,7 +759,7 @@ AUI_ERRCODE EmbassyListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	return AUI_ERRCODE_OK;
 }
 
-void EmbassyListItem::Update(void)
+void EmbassyListItem::Update()
 {
 	MBCHAR			name[_MAX_PATH];
 
@@ -902,7 +902,7 @@ AUI_ERRCODE AdvanceListItem::InitCommonLdl(sint32 index, MBCHAR *ldlBlock)
 	return AUI_ERRCODE_OK;
 }
 
-void AdvanceListItem::Update(void)
+void AdvanceListItem::Update()
 {
 	c3_Static *subItem;
 	c3_Icon	*subIcon;
@@ -1060,7 +1060,7 @@ sint32 AdvanceListItem::Compare(c3_ListItem *item2, uint32 column)
 	return 0;
 }
 
-sint32 sciencewin_Initialize( void )
+sint32 sciencewin_Initialize( )
 {
 	if ( g_scienceWin ) {
 		g_scienceWin->UpdateData( SCI_UPDATE_ALL );
@@ -1074,7 +1074,7 @@ sint32 sciencewin_Initialize( void )
 	return 0;
 }
 
-sint32 sciencewin_Cleanup( void )
+sint32 sciencewin_Cleanup( )
 {
 	if ( g_scienceWin ) delete g_scienceWin;
 	g_scienceWin = NULL;
@@ -1082,7 +1082,7 @@ sint32 sciencewin_Cleanup( void )
 	return 0;
 }
 
-ScienceWin::ScienceWin( void )
+ScienceWin::ScienceWin( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1220,7 +1220,7 @@ sint32 ScienceWin::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-ScienceWin::~ScienceWin( void )
+ScienceWin::~ScienceWin( )
 {
 	sint32 i;
 
@@ -1270,7 +1270,7 @@ ScienceWin::~ScienceWin( void )
 	RemoveControl( m_window );
 }
 
-void ScienceWin::Display( void )
+void ScienceWin::Display( )
 {
 	AUI_ERRCODE errcode;
 
@@ -1282,7 +1282,7 @@ void ScienceWin::Display( void )
 	g_modalWindow++;
 }
 
-void ScienceWin::Remove( void )
+void ScienceWin::Remove( )
 {
 	AUI_ERRCODE errcode;
 
@@ -1405,7 +1405,7 @@ sint32 ScienceWin::UpdateData( SCI_UPDATE update )
 	return 0;
 }
 
-void ScienceWin::UpdateList(void)
+void ScienceWin::UpdateList()
 {
 	AUI_ERRCODE errcode;
 	MBCHAR		ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

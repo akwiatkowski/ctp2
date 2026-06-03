@@ -140,7 +140,7 @@ AUI_ERRCODE C3Scroller::InitCommon()
 }
 
 
-AUI_ERRCODE C3Scroller::CreateButtonsAndThumb( void )
+AUI_ERRCODE C3Scroller::CreateButtonsAndThumb( )
 {
 	aui_Button *button1;
 	aui_Button *button2;

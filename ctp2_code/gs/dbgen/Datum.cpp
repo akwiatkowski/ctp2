@@ -53,7 +53,7 @@
 #include "gs/dbgen/ctpdb.h"
 #include "gs/dbgen/RecordDescription.h"
 
-char const * Datum::BitPairTypeString(void)
+char const * Datum::BitPairTypeString()
 {
 	switch (m_bitPairDatum->m_type)
 	{
@@ -74,7 +74,7 @@ char const * Datum::BitPairTypeString(void)
 	}
 }
 
-char const * Datum::ReturnTypeString(void)
+char const * Datum::ReturnTypeString()
 {
 	switch (m_type)
 	{
@@ -104,7 +104,7 @@ char const * Datum::ReturnTypeString(void)
 	}
 }
 
-char const * Datum::VarTypeString(void)
+char const * Datum::VarTypeString()
 {
 	switch (m_type)
 	{

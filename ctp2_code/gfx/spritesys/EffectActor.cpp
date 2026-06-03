@@ -96,7 +96,7 @@ void EffectActor::ChangeType(SpriteStatePtr ss, sint32 type,  Unit id)
 	m_effectSpriteGroup = (EffectSpriteGroup *)g_effectSpriteGroupList->GetSprite(ss->GetIndex(), GROUPTYPE_EFFECT, LOADTYPE_FULL,(GAME_ACTION)0);
 }
 
-void EffectActor::Process(void)
+void EffectActor::Process()
 {
 	if(!m_curAction)
 		GetNextAction();
@@ -169,7 +169,7 @@ void EffectActor::Process(void)
 	}
 }
 
-void EffectActor::EndTurnProcess(void)
+void EffectActor::EndTurnProcess()
 {
 
 
@@ -286,7 +286,7 @@ Anim *EffectActor::CreateAnim(EFFECTACTION action)
 	return origAnim ? new Anim(*origAnim) : NULL;
 }
 
-void EffectActor::Draw(void)
+void EffectActor::Draw()
 {
 	uint16			flags   = k_DRAWFLAGS_NORMAL;;
 	Pixel16			color   = 0x0000;
@@ -345,7 +345,7 @@ void EffectActor::DrawText(sint32 x, sint32 y, MBCHAR *effectText)
 	m_effectSpriteGroup->DrawText(x, y, effectText);
 }
 
-uint16 EffectActor::GetWidth(void) const
+uint16 EffectActor::GetWidth() const
 {
     Assert(m_effectSpriteGroup);
     if (!m_effectSpriteGroup) return 0;
@@ -360,7 +360,7 @@ uint16 EffectActor::GetWidth(void) const
     return theSprite ? theSprite->GetWidth() : 0;
 }
 
-uint16 EffectActor::GetHeight(void) const
+uint16 EffectActor::GetHeight() const
 {
     Assert(m_effectSpriteGroup);
     if (!m_effectSpriteGroup) return 0;

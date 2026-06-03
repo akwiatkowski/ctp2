@@ -50,8 +50,8 @@ public:
 		sint32 bottom );
 	AUI_ERRCODE	SubtractRect( RECT *sub );
 
-	AUI_ERRCODE	Minimize( void );
-	void		Flush( void );
+	AUI_ERRCODE	Minimize( );
+	void		Flush( );
 
 	sint32 GetWidth() const { return m_width; }
 	sint32 GetHeight() const { return m_height; }
@@ -59,7 +59,7 @@ public:
 	aui_SpanList *GetSpans() const { return m_spanListArray; }
 	AUI_ERRCODE SetSpans( aui_DirtyList *newDirtyList );
 
-	BOOL IsEmpty( void ) const { return m_isEmpty; }
+	BOOL IsEmpty( ) const { return m_isEmpty; }
 
 	AUI_ERRCODE ComputeSpans( RECT *newRect );
 

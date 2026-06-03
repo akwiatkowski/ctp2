@@ -220,7 +220,7 @@ AUI_ERRCODE MessageIconWindow::SetupAnimation( uint32 position )
 }
 
 
-void MessageIconWindow::StopAnimation( void )
+void MessageIconWindow::StopAnimation( )
 {
 	m_targetY = 0;
 	m_isMoving = FALSE;
@@ -229,7 +229,7 @@ void MessageIconWindow::StopAnimation( void )
 }
 
 
-BOOL MessageIconWindow::CheckShowWindow( void )
+BOOL MessageIconWindow::CheckShowWindow( )
 {
 	if ( m_prev ) {
 		if ( m_prev->Y() > ( Y() + Height( )))
@@ -241,7 +241,7 @@ BOOL MessageIconWindow::CheckShowWindow( void )
 	return TRUE;
 }
 
-AUI_ERRCODE MessageIconWindow::Idle( void )
+AUI_ERRCODE MessageIconWindow::Idle( )
 {
 	if ( !m_isMoving ) return AUI_ERRCODE_OK;
 

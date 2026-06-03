@@ -19,7 +19,7 @@ public:
 
 protected:
 	c3_Image() : aui_Image() {}
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 };
 
 #endif

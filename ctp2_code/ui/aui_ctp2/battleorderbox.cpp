@@ -345,7 +345,7 @@ BattleOrderBox::~BattleOrderBox()
 	}
 }
 
-AUI_ERRCODE BattleOrderBox::Show( void )
+AUI_ERRCODE BattleOrderBox::Show( )
 {
 	ShowThis();
 
@@ -675,7 +675,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 
 }
 
-sint32 BattleOrderBox::ToggleStackDisplay( void )
+sint32 BattleOrderBox::ToggleStackDisplay( )
 {
 	m_stackDisplay = !m_stackDisplay;
 	SetStackMode( m_stackDisplay );

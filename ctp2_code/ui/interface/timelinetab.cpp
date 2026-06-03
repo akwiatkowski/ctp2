@@ -145,7 +145,7 @@ void TimelineTab::UpdateGraph()
 	m_info_window->Draw();
 }
 
-TimelineTab::~TimelineTab(void)
+TimelineTab::~TimelineTab()
 {
 	CleanupGraph();
 }

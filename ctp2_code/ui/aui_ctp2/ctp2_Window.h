@@ -68,7 +68,7 @@ public:
 
 protected:
 	ctp2_Window() : aui_Window() {}
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 	virtual AUI_ERRCODE DrawThis(

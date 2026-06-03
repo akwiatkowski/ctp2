@@ -33,7 +33,7 @@ extern sint32	g_modalWindow;
 
 static BattleViewWindow		*g_battleViewWindow = NULL;
 
-BattleViewWindow * battleviewwindow_Get(void)
+BattleViewWindow * battleviewwindow_Get()
 {
 	return g_battleViewWindow;
 }
@@ -113,7 +113,7 @@ void BattleViewWindow::Initialize(SequenceWeakPtr seq)
 }
 
 
-void BattleViewWindow::Cleanup(void)
+void BattleViewWindow::Cleanup()
 {
 	SequenceWeakPtr	seq;
 
@@ -551,7 +551,7 @@ AUI_ERRCODE BattleViewWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 
 
 
-AUI_ERRCODE BattleViewWindow::Idle(void)
+AUI_ERRCODE BattleViewWindow::Idle()
 {
 	if(!tiledmap_Get()) {
 
@@ -567,7 +567,7 @@ AUI_ERRCODE BattleViewWindow::Idle(void)
 
 #define k_BATTLE_VIEW_FRAME_TIME		50
 
-void BattleViewWindow::Refresh(void)
+void BattleViewWindow::Refresh()
 {
 	if(!m_battleView)
 		return;

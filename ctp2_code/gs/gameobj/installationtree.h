@@ -22,6 +22,6 @@ public:
 // there.  External readers go through installation_tree_Get(); the
 // lifecycle code uses installation_tree_Set() for the new/clear
 // transitions.
-InstallationQuadTree * installation_tree_Get(void);
+InstallationQuadTree * installation_tree_Get();
 void                   installation_tree_Set(InstallationQuadTree *p);
 #endif

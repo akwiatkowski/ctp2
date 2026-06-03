@@ -94,14 +94,14 @@ public:
 	void			SetMiniFrameData(uint16 facing, uint16 frame, Pixel16 *data, size_t size);
 
 	POINT			GetHotPoint(uint16 facing) { return m_hotPoints[facing]; }
-	POINT			*GetHotPoints(void) { return m_hotPoints; }
+	POINT			*GetHotPoints() { return m_hotPoints; }
 	void			SetHotPoint(uint16 facing, sint32 x, sint32 y) { m_hotPoints[facing].x = x; m_hotPoints[facing].y = y; }
 	void			SetHotPoints(POINT *points) { memcpy(m_hotPoints, points, sizeof(m_hotPoints)); }
 
 	virtual sint32	ParseFromTokens(Token *theToken);
 	virtual void	AllocateFrameArrays(size_t count);
 
-	virtual size_t	GetNumFrames(void) const    { return m_facedFrameCount; };
+	virtual size_t	GetNumFrames() const    { return m_facedFrameCount; };
 	virtual void	SetNumFrames(uint16 num)    { m_facedFrameCount = num; }
 
 protected:

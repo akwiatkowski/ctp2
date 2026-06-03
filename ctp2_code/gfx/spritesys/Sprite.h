@@ -119,19 +119,19 @@ public:
 	void			Export(FILE *file);
 
 	void			LockSurface(aui_Surface *surf);
-	void			UnlockSurface(void);
-	void			SetSurface(void);
+	void			UnlockSurface();
+	void			SetSurface();
 
-	uint16			GetType(void) { return static_cast<uint16>(m_type); }
+	uint16			GetType() { return static_cast<uint16>(m_type); }
 	void			SetType(uint16 type) { m_type = static_cast<SPRITETYPE>(type); }
 
-	uint16			GetWidth(void) { return m_width; }
-	uint16			GetHeight(void) { return m_height; }
+	uint16			GetWidth() { return m_width; }
+	uint16			GetHeight() { return m_height; }
 
 	void			SetWidth(uint16 w) { m_width = w; }
 	void			SetHeight(uint16 h) { m_height = h; }
 
-	POINT			GetHotPoint(void) { return m_hotPoint; }
+	POINT			GetHotPoint() { return m_hotPoint; }
 	void			SetHotPoint(sint32 hx, sint32 hy) { m_hotPoint.x = hx; m_hotPoint.y = hy; };
 
 	virtual void	Draw(sint32 drawX, sint32 drawY, sint32 facing, double scale, sint16 transparency,
@@ -145,10 +145,10 @@ public:
 	virtual BOOL	HitTest(POINT mousePt, sint32 drawX, sint32 drawY, sint32 facing, double m_scale, sint16 transparency,
 						Pixel16 outlineColor, uint16 flags);
 
-	virtual size_t	GetNumFrames(void) const { return m_numFrames; };
+	virtual size_t	GetNumFrames() const { return m_numFrames; };
 	virtual void	SetNumFrames(uint16 num) { m_numFrames = num; }
 
-	sint32			GetCurrentFrame(void) { return m_currentFrame; };
+	sint32			GetCurrentFrame() { return m_currentFrame; };
 	void			SetCurrentFrame(uint16 cFrame) { m_currentFrame = cFrame; };
 
 	Pixel16*		GetFrameData(uint16 frameNum);
@@ -156,7 +156,7 @@ public:
 	Pixel16*		GetMiniFrameData(uint16 frameNum);
 	size_t			GetMiniFrameDataSize(uint16 frameNum);
 
-	uint16			GetFirstFrame(void) const { return m_firstFrame; }
+	uint16			GetFirstFrame() const { return m_firstFrame; }
 	void			SetFirstFrame(uint16 frame) { m_firstFrame = frame; }
 
 	void			SetFrameData(uint16 frameNum, Pixel16 *data, size_t size);

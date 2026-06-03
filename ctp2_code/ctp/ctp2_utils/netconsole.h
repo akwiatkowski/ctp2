@@ -55,6 +55,6 @@ public:
 // g_netConsole demoted to file-scope `static` in netconsole.cpp.  External
 // callers go through netconsole_Get() (returns NULL until
 // netconsole_Initialize() runs).
-NetConsole * netconsole_Get(void);
+NetConsole * netconsole_Get();
 
 #endif

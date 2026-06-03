@@ -97,7 +97,7 @@ sint32 musicscreen_removeMyWindow(uint32 action)
 }
 
 
-AUI_ERRCODE musicscreen_Initialize( void )
+AUI_ERRCODE musicscreen_Initialize( )
 {
 	if ( s_musicScreen ) return AUI_ERRCODE_OK;
 

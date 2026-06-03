@@ -32,12 +32,12 @@ protected:
 
 public:
 
-	Pattern *&ThePattern( void ) { return m_pattern; }
+	Pattern *&ThePattern( ) { return m_pattern; }
 
-	sint32	SrcX( void ) const { return m_srcX; }
-	sint32	SrcY( void ) const { return m_srcY; }
-	sint32	SrcWidthPix( void ) const { return m_srcWidthPix; }
-	sint32	SrcHeightPix( void ) const { return m_srcHeightPix; }
+	sint32	SrcX( ) const { return m_srcX; }
+	sint32	SrcY( ) const { return m_srcY; }
+	sint32	SrcWidthPix( ) const { return m_srcWidthPix; }
+	sint32	SrcHeightPix( ) const { return m_srcHeightPix; }
 
 	void	MoveSrc( sint32 srcX, sint32 srcY ) { m_srcX = srcX; m_srcY = srcY; }
 	void	ResizeSrc( sint32 widthPix, sint32 heightPix ) { m_srcWidthPix = widthPix; m_srcHeightPix = heightPix; }

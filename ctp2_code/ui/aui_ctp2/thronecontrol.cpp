@@ -183,7 +183,7 @@ void ThroneControl::InitCommonLdl(MBCHAR *ldlBlock)
 	InitCommon();
 }
 
-void ThroneControl::InitCommon(void)
+void ThroneControl::InitCommon()
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR s[_MAX_PATH];
@@ -524,7 +524,7 @@ void ThroneControl::MouseMoveInside(aui_MouseEvent *data)
 	}
 }
 
-void ThroneControl::DisplayHilightedText( void )
+void ThroneControl::DisplayHilightedText( )
 {
 	m_upgradeText[ m_hilightedImage ]->Show();
 }
@@ -543,7 +543,7 @@ void ThroneControl::SetZoomedMode( BOOL on )
 	}
 }
 
-AUI_ERRCODE ThroneControl::Idle( void )
+AUI_ERRCODE ThroneControl::Idle( )
 {
 	static uint32 lastDraw = 0;
 	if (GetTickCount() - lastDraw > 100) lastDraw = GetTickCount();

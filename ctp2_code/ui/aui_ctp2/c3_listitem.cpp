@@ -64,7 +64,7 @@ AUI_ERRCODE SingleListItem::InitCommonLdl(MBCHAR const *name, sint32 value, MBCH
 	return retval;
 }
 
-void SingleListItem::Update(void)
+void SingleListItem::Update()
 {
 	c3_Static * subItem = (c3_Static *)GetChildByIndex(0);
 

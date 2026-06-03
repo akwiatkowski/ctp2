@@ -103,7 +103,7 @@ AUI_ERRCODE IntroMovieWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	return InitCommon();
 }
 
-AUI_ERRCODE IntroMovieWindow::InitCommon(void)
+AUI_ERRCODE IntroMovieWindow::InitCommon()
 {
 	return C3Window::InitCommon();
 }

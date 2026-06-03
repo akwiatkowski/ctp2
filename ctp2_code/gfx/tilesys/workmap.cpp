@@ -242,7 +242,7 @@ void WorkMap::NotifyPopChanged()
 	DrawSurface();
 }
 
-sint32 WorkMap::DrawSurface(void)
+sint32 WorkMap::DrawSurface()
 {
 	sint32 width = m_surface->Width();
 	sint32 height = m_surface->Height();
@@ -1458,7 +1458,7 @@ void WorkMap::HandlePop( MapPoint point )
 
 
 
-AUI_ERRCODE WorkMap::Idle( void )
+AUI_ERRCODE WorkMap::Idle( )
 {
 	static uint32 lastDraw = 0;
 	if (GetTickCount() - lastDraw > 100) lastDraw = GetTickCount();

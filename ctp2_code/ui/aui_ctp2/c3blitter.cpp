@@ -617,7 +617,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 	return retcode;
 }
 
-bool C3Blitter::CheckMMXTechnology(void)
+bool C3Blitter::CheckMMXTechnology()
 {
 #if !defined(__i386__) && !defined(__x86_64__)
     // MMX is x86-only

@@ -39,7 +39,7 @@
 #endif
 
 static CivPaths *g_civPaths = nullptr;
-CivPaths * civpaths_Get(void)        { return g_civPaths; }
+CivPaths * civpaths_Get()        { return g_civPaths; }
 void       civpaths_Set(CivPaths *p) { g_civPaths = p; }
 
 #include "gs/fileio/prjfile.h"
@@ -207,7 +207,7 @@ void CivPaths::CreateSaveFolders(const MBCHAR *path)
 #endif
 }
 
-void CivPaths::InitCDPath(void)
+void CivPaths::InitCDPath()
 {
 	MBCHAR tempPath[_MAX_PATH];
 	snprintf(tempPath, sizeof(tempPath), "%c:%s%s", c3files_GetCtpCdId(), FILE_SEP, m_cdPath);
@@ -638,12 +638,12 @@ void CivPaths::SetCurScenarioPath(const MBCHAR *path)
 	strcpy(m_curScenarioPath, path);
 }
 
-MBCHAR *CivPaths::GetCurScenarioPath(void)
+MBCHAR *CivPaths::GetCurScenarioPath()
 {
 	return m_curScenarioPath;
 }
 
-void CivPaths::ClearCurScenarioPath(void)
+void CivPaths::ClearCurScenarioPath()
 {
 	delete[] m_curScenarioPath;
 	m_curScenarioPath = NULL;
@@ -657,12 +657,12 @@ void CivPaths::SetCurScenarioPackPath(const MBCHAR *path)
 	strcpy(m_curScenarioPackPath, path);
 }
 
-MBCHAR *CivPaths::GetCurScenarioPackPath(void)
+MBCHAR *CivPaths::GetCurScenarioPackPath()
 {
 	return m_curScenarioPackPath;
 }
 
-void CivPaths::ClearCurScenarioPackPath(void)
+void CivPaths::ClearCurScenarioPackPath()
 {
 	delete[] m_curScenarioPackPath;
 	m_curScenarioPackPath = NULL;
@@ -672,7 +672,7 @@ void CivPaths::ClearCurScenarioPackPath(void)
 
 
 
-MBCHAR *CivPaths::GetDesktopPath(void)
+MBCHAR *CivPaths::GetDesktopPath()
 {
 #ifdef WIN32
 	MBCHAR		    tempStr[_MAX_PATH] = { 0 };
@@ -711,7 +711,7 @@ MBCHAR *CivPaths::GetDesktopPath(void)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-std::vector<MBCHAR const *> const & CivPaths::GetExtraDataPaths(void) const
+std::vector<MBCHAR const *> const & CivPaths::GetExtraDataPaths() const
 {
     return m_extraDataPaths;
 }
@@ -756,7 +756,7 @@ void CivPaths::InsertExtraDataPath(MBCHAR const * path)
 //              stored in m_extraDataPaths, but in m_dataPath.
 //
 //----------------------------------------------------------------------------
-void CivPaths::ResetExtraDataPaths(void)
+void CivPaths::ResetExtraDataPaths()
 {
 	for
 	(

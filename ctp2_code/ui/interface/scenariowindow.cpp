@@ -601,7 +601,7 @@ void ScenarioWindow::BackPress(aui_Control *control, uint32 action, uint32 data,
 	}
 }
 
-void ScenarioWindow::SetProfileFromScenario( void )
+void ScenarioWindow::SetProfileFromScenario( )
 {
 	if (s_ScenarioWindow) {
 		if (s_ScenarioWindow->GetScenario() != NULL) {
@@ -639,7 +639,7 @@ void ScenarioWindow::SetProfileFromScenario( void )
 	}
 }
 
-void ScenarioWindow::LoadScenarioGame( void )
+void ScenarioWindow::LoadScenarioGame( )
 {
 	if (s_ScenarioWindow) {
 		if (s_ScenarioWindow->GetScenario() != NULL) {

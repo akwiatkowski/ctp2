@@ -452,7 +452,7 @@ void ctp2_Static::SetBevel(uint32 width, uint32 type)
 }
 
 
-void ctp2_Static::FitToBitmap(void)
+void ctp2_Static::FitToBitmap()
 {
 
 	if (m_multiImageStatic)

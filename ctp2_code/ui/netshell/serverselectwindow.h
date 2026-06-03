@@ -14,12 +14,12 @@ public:
 
 protected:
 	ServerSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
 	void	Update( bool wait = false );
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 
 
 	enum CONTROL

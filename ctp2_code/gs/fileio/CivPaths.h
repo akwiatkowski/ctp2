@@ -83,7 +83,7 @@ public:
 
 	void CreateSaveFolders(const MBCHAR *path);
 
-	void InitCDPath(void);
+	void InitCDPath();
 
 	MBCHAR *GetSavePath(C3SAVEDIR dir, MBCHAR *path);
 
@@ -99,18 +99,18 @@ public:
 
 	void	SetCurScenarioPath(const MBCHAR *path);
 
-	MBCHAR *GetCurScenarioPath(void);
+	MBCHAR *GetCurScenarioPath();
 
-	void	ClearCurScenarioPath(void);
+	void	ClearCurScenarioPath();
 
 
 
 
 	void	SetCurScenarioPackPath(const MBCHAR *path);
 
-	MBCHAR	* GetCurScenarioPackPath(void);
+	MBCHAR	* GetCurScenarioPackPath();
 
-	void	ClearCurScenarioPackPath(void);
+	void	ClearCurScenarioPackPath();
 
 
 
@@ -124,14 +124,14 @@ public:
 
     bool        FindPath(C3DIR dir, int num, MBCHAR *path);
 
-	MBCHAR *    GetSavePathString(void) const { return m_savePath; }
+	MBCHAR *    GetSavePathString() const { return m_savePath; }
 
-	MBCHAR *    GetDesktopPath(void);
+	MBCHAR *    GetDesktopPath();
 
 	std::vector<MBCHAR const *> const &
-                GetExtraDataPaths(void) const;
+                GetExtraDataPaths() const;
 	void	    InsertExtraDataPath(MBCHAR const * path);
-	void	    ResetExtraDataPaths(void);
+	void	    ResetExtraDataPaths();
 
 protected:
 
@@ -165,7 +165,7 @@ void CivPaths_CleanupCivPaths();
 
 
 // civpaths_Get() is file-static in CivPaths.cpp; access via accessors.
-CivPaths * civpaths_Get(void);
+CivPaths * civpaths_Get();
 void       civpaths_Set(CivPaths *p);
 
 #endif

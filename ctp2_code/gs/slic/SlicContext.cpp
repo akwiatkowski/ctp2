@@ -152,10 +152,10 @@ namespace
         {
             m_stackValue.m_sym  = &m_symbol;
         };
-        virtual ~SingleItemStack(void) { ; };
+        virtual ~SingleItemStack() { ; };
 
-        SlicStackValue      Value(void) const   { return m_stackValue; };
-        SlicSymbolData &    Symbol(void)        { return m_symbol; }
+        SlicStackValue      Value() const   { return m_stackValue; };
+        SlicSymbolData &    Symbol()        { return m_symbol; }
 
     private:
         SlicSymbolData  m_symbol;

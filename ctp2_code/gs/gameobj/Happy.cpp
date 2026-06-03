@@ -847,7 +847,7 @@ bool Happy::ShouldRevolt(const sint32 incite_bonus) const
 
 
 
-bool Happy::IsVeryHappy(void) const
+bool Happy::IsVeryHappy() const
 {
 	return m_happiness >= g_theConstDB->Get(0)->GetVeryHappyThreshold();
 }
@@ -863,7 +863,7 @@ bool Happy::IsVeryHappy(void) const
 
 
 
-void Happy::ForceRevolt(void)
+void Happy::ForceRevolt()
 {
 	m_happiness = g_theConstDB->Get(0)->GetRevolutionLevel()-10 ;
 }
@@ -887,7 +887,7 @@ void Happy::SetFullHappinessTurns(sint32 turns)
 
 
 
-uint32 Happy_Happy_GetVersion(void)
+uint32 Happy_Happy_GetVersion()
 {
 	return (k_HAPPY_VERSION_MAJOR<<16 | k_HAPPY_VERSION_MINOR) ;
 }

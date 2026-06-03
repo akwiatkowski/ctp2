@@ -46,9 +46,9 @@ public:
 	WonderIconListItem(AUI_ERRCODE *retval, sint32 age, sint32 *array, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	*GetArray( void ) { return m_array; }
+	sint32	*GetArray( ) { return m_array; }
 
 protected:
 	WonderIconListItem() : ctp2_ListItem() {}
@@ -86,10 +86,10 @@ public:
 	HighScoreListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 score, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void);
+	virtual void Update();
 
-	MBCHAR	*GetName( void ) { return m_name; }
-	sint32	GetScore( void ) { return m_score; }
+	MBCHAR	*GetName( ) { return m_name; }
+	sint32	GetScore( ) { return m_score; }
 
 protected:
 	HighScoreListItem() : ctp2_ListItem() {}
@@ -115,7 +115,7 @@ class HighScoreWindowPopup
 {
 public:
 	HighScoreWindowPopup( sint32 type );
-	~HighScoreWindowPopup( void );
+	~HighScoreWindowPopup( );
 
 	c3_PopupWindow	*m_window;
 
@@ -128,11 +128,11 @@ public:
 
 public:
 	sint32  Initialize ( MBCHAR *windowBlock );
-	void    Cleanup(void);
-	sint32  UpdateData ( void );
+	void    Cleanup();
+	sint32  UpdateData ( );
 
-	void    RemoveWindow( void );
-	void    DisplayWindow( void );
+	void    RemoveWindow( );
+	void    DisplayWindow( );
 	c3_PopupWindow *GetWindow() { return m_window; }
 };
 
@@ -144,18 +144,18 @@ sint32 victorywin_Init_Controls( MBCHAR* windowBlock );
 sint32 victorywin_Init_TabGroups( MBCHAR* windowBlock );
 
 sint32 victorywin_DisplayWindow( sint32 type = 0 );
-void   victorywin_Cleanup( void );
+void   victorywin_Cleanup( );
 sint32 victorywin_UpdateData( sint32 type );
-sint32 victorywin_RemoveWindow( void );
+sint32 victorywin_RemoveWindow( );
 
-sint32 victorywin_DisplayHighScore( void );
+sint32 victorywin_DisplayHighScore( );
 
 sint32 victorywin_SetLineGraph( BOOL lineGraph);
 
 sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name );
-sint32 victorywin_LoadGraphData( void );
-sint32 victorywin_LoadScoreData( void );
-sint32 victorywin_LoadWonderData( void );
+sint32 victorywin_LoadGraphData( );
+sint32 victorywin_LoadScoreData( );
+sint32 victorywin_LoadWonderData( );
 
 sint32 victorywin_GetRankName( sint32 player, MBCHAR *name, sint32 gameResult );
 bool   victorywin_IsOnScreen();

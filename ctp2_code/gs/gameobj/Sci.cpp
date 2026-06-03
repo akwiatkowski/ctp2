@@ -47,7 +47,7 @@ void Science::Serialize(CivArchive &archive)
 
 
 
-uint32 Sci_Science_GetVersion(void)
+uint32 Sci_Science_GetVersion()
 	{
 	return (k_SCIENCE_VERSION_MAJOR<<16 | k_SCIENCE_VERSION_MINOR) ;
 	}

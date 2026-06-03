@@ -52,7 +52,7 @@ static BevelLessWindow *s_controlPiece = NULL;
 
 
 
-int AncientWindows_PreInitialize(void)
+int AncientWindows_PreInitialize()
 {
 return 0;
 #if 0 // CTP1?
@@ -75,13 +75,13 @@ return 0;
 #endif
 }
 
-sint32 ancientwindows_GetControlPieceY( void )
+sint32 ancientwindows_GetControlPieceY( )
 {
 
 	return controlpanel_Get()->Y();
 }
 
-sint32 ancientwindows_GetControlPieceHeight( void )
+sint32 ancientwindows_GetControlPieceHeight( )
 {
 
 	return controlpanel_Get()->Height();
@@ -91,7 +91,7 @@ sint32 ancientwindows_GetControlPieceHeight( void )
 BevelLessWindow		*s_controlPanelLeftHat=NULL;
 BevelLessWindow		*s_controlPanelRightHat=NULL;
 
-int AncientWindows_Initialize( void )
+int AncientWindows_Initialize( )
 {
 return 0;
 
@@ -280,7 +280,7 @@ return 0;
 #endif
 }
 
-int AncientWindows_Cleanup( void )
+int AncientWindows_Cleanup( )
 {
 
 	if (s_controlPanelLeftHat) {

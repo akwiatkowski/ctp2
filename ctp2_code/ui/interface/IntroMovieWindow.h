@@ -30,7 +30,7 @@ public:
 	virtual ~IntroMovieWindow();
 
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	virtual AUI_ERRCODE Idle();
 

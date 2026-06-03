@@ -20,7 +20,7 @@ extern void cpw_NumberToCommas( uint64 number, MBCHAR *s );
 
 
 
-ScoreTab::ScoreTab(void)
+ScoreTab::ScoreTab()
 :
 	m_difficulty        (static_cast<ctp2_Static *>
                             (aui_Ldl::GetObject
@@ -83,7 +83,7 @@ ScoreTab::~ScoreTab()
     delete m_difficultyStrings;
 }
 
-void ScoreTab::Update(void)
+void ScoreTab::Update()
 {
 	sint32      curPlayer   = selitem_Get()->GetVisiblePlayer();
 	Player *    pl          = player_Get(curPlayer);

@@ -9,6 +9,6 @@
 #define k_USER_LIST_ASSET			"ca098f.BMP"
 #define k_USER_LIST_ASSET_DIR		C3DIR_PICTURES
 
-BOOL	ctpfinger_Check(void);
+BOOL	ctpfinger_Check();
 
 #endif

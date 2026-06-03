@@ -28,7 +28,7 @@ static TokenData s_endgameTokenData[TOKEN_ENDGAME_MAX_VAL] = {
 
 static EndGameDatabase *g_theEndGameDB = NULL;
 
-EndGameDatabase * endgamedb_Get(void)              { return g_theEndGameDB; }
+EndGameDatabase * endgamedb_Get()              { return g_theEndGameDB; }
 void              endgamedb_Set(EndGameDatabase *p) { g_theEndGameDB = p; }
 
 EndGameDatabase::EndGameDatabase()

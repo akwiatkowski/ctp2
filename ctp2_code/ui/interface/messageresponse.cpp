@@ -64,7 +64,7 @@ AUI_ERRCODE MessageResponseListItem::InitCommonLdl(MBCHAR const * name, sint32 i
 	return AUI_ERRCODE_OK;
 }
 
-void MessageResponseListItem::Update(void)
+void MessageResponseListItem::Update()
 {
 	c3_Static *subItem;
 

@@ -48,7 +48,7 @@ public:
 		sint32 y = 0 );
 
 	void SetColor(COLOR color) { m_color = color; }
-	COLOR GetColor(void) { return m_color; }
+	COLOR GetColor() { return m_color; }
 
 private:
 	sint32	m_bevelWidth;

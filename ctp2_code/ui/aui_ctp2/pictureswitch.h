@@ -29,10 +29,10 @@ public:
 		BOOL selected = FALSE );
 	virtual ~PictureSwitch() {}
 
-	Picture *&ThePictureOn( void ) { return m_pictureOn; }
-	Picture *&ThePictureOff( void ) { return m_pictureOff; }
-	Picture *&ThePictureActiveOn( void ) { return m_pictureActiveOn; }
-	Picture *&ThePictureActiveOff( void ) { return m_pictureActiveOff; }
+	Picture *&ThePictureOn( ) { return m_pictureOn; }
+	Picture *&ThePictureOff( ) { return m_pictureOff; }
+	Picture *&ThePictureActiveOn( ) { return m_pictureActiveOn; }
+	Picture *&ThePictureActiveOff( ) { return m_pictureActiveOff; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,

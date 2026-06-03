@@ -92,7 +92,7 @@ AUI_ERRCODE aui_Header::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_Header::InitCommon( void )
+AUI_ERRCODE aui_Header::InitCommon( )
 {
 	return AUI_ERRCODE_OK;
 }
@@ -176,7 +176,7 @@ AUI_ERRCODE aui_Header::RemoveChild( uint32 itemId )
 }
 
 
-AUI_ERRCODE aui_Header::CalculateDimensions( void )
+AUI_ERRCODE aui_Header::CalculateDimensions( )
 {
 
 	m_width = 0;
@@ -195,7 +195,7 @@ AUI_ERRCODE aui_Header::CalculateDimensions( void )
 }
 
 
-AUI_ERRCODE aui_Header::RepositionSwitches( void )
+AUI_ERRCODE aui_Header::RepositionSwitches( )
 {
 	sint32 x = 0;
 

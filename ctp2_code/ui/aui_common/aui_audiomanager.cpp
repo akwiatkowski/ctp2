@@ -9,7 +9,7 @@ aui_AudioManager::aui_AudioManager()
 }
 
 
-AUI_ERRCODE aui_AudioManager::InitCommon( void )
+AUI_ERRCODE aui_AudioManager::InitCommon( )
 {
 	m_useAudio = TRUE;
 

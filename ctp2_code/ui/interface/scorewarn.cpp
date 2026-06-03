@@ -94,7 +94,7 @@ void scorewarn_CancelButtonActionCallback( aui_Control *control, uint32 action, 
 	gamesettings_Get()->SetKeepScore( TRUE );
 }
 
-sint32 scorewarn_Initialize( void )
+sint32 scorewarn_Initialize( )
 {
 	if (g_scorewarn) return 0;
 
@@ -129,7 +129,7 @@ sint32 scorewarn_Initialize( void )
 	return 0;
 }
 
-void scorewarn_Cleanup(void)
+void scorewarn_Cleanup()
 {
 	if (g_scorewarn)
     {
@@ -292,7 +292,7 @@ Error:
 }
 
 
-void disclaimer_Cleanup(void)
+void disclaimer_Cleanup()
 {
 	if (s_disclaimerWindow)
     {

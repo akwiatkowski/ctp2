@@ -13,15 +13,15 @@ public:
 	~ScreenManager();
 
 	void LockSurface(aui_Surface *surf);
-	void UnlockSurface(void);
+	void UnlockSurface();
 
-	BOOL IsLocked(void) const { return m_isLocked; }
+	BOOL IsLocked() const { return m_isLocked; }
 
-	aui_Surface *GetSurface(void) const { return m_surface; }
-	uint8 *GetSurfBase(void) const { return m_surfBase; }
-	sint32 GetSurfWidth(void) const { return m_surfWidth; }
-	sint32 GetSurfHeight(void) const { return m_surfHeight; }
-	sint32 GetSurfPitch(void) const { return m_surfPitch; }
+	aui_Surface *GetSurface() const { return m_surface; }
+	uint8 *GetSurfBase() const { return m_surfBase; }
+	sint32 GetSurfWidth() const { return m_surfWidth; }
+	sint32 GetSurfHeight() const { return m_surfHeight; }
+	sint32 GetSurfPitch() const { return m_surfPitch; }
 
 private:
 	aui_Surface		*m_surface;
@@ -35,7 +35,7 @@ private:
 // App-singleton accessor pair, mirroring world_Get / c3ui_Get /
 // tiledmap_Get.  The legacy g_screenManager pointer is now file-static
 // in ctp/civ3_main.cpp; outside callers must go through these accessors.
-ScreenManager * screenmanager_Get(void);
+ScreenManager * screenmanager_Get();
 void            screenmanager_Set(ScreenManager *p);
 
 #endif

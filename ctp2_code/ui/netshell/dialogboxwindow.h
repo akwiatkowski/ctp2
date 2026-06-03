@@ -58,7 +58,7 @@ protected:
 		m_buttons		(NULL)
 	{ ; };
 
-	AUI_ERRCODE	InitCommon( void );
+	AUI_ERRCODE	InitCommon( );
 	AUI_ERRCODE CreateControls(
 		MBCHAR *ldlBlock,
 		aui_Action **actions );
@@ -73,7 +73,7 @@ protected:
         :   aui_Action  (),
             m_dbw       (dbw)
         { ; };
-		virtual ~SafeDeleteAction(void) { ; };
+		virtual ~SafeDeleteAction() { ; };
 
 	    virtual void	Execute
 	    (

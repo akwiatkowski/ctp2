@@ -18,7 +18,7 @@ class aui_Control;
 
 sint32 musicscreen_displayMyWindow();
 sint32 musicscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE musicscreen_Initialize( void );
+AUI_ERRCODE musicscreen_Initialize( );
 void musicscreen_Cleanup();
 
 void musicscreen_checkPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

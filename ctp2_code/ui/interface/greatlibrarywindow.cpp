@@ -140,7 +140,7 @@ GreatLibraryWindow::~GreatLibraryWindow()
 	aui_Ldl::DeleteHierarchyFromRoot(s_libraryWindowBlock);
 }
 
-AUI_ERRCODE GreatLibraryWindow::Idle ( void )
+AUI_ERRCODE GreatLibraryWindow::Idle ( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	if (m_techMovie && m_techMovie->Open())
@@ -230,7 +230,7 @@ sint32 GreatLibraryWindow::LoadVariablesText ( SlicObject &so )
 
 }
 
-sint32 GreatLibraryWindow::LoadTechMovie ( void )
+sint32 GreatLibraryWindow::LoadTechMovie ( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	if (!m_techMovie) return 0;
@@ -254,7 +254,7 @@ sint32 GreatLibraryWindow::LoadTechMovie ( void )
 #endif // __AUI_USE_DIRECTX__
 }
 
-sint32 GreatLibraryWindow::LoadTechStill( void )
+sint32 GreatLibraryWindow::LoadTechStill( )
 {
 	if ( !m_techStillShot ) return 0;
 	if ( !strcmp(m_still_file, "null") ) return 0;
@@ -271,7 +271,7 @@ sint32 GreatLibraryWindow::LoadTechStill( void )
 	return 1;
 }
 
-void GreatLibraryWindow::PlayTechMovie ( void )
+void GreatLibraryWindow::PlayTechMovie ( )
 {
 #ifdef __AUI_USE_DIRECTX__
 	if (m_techMovie)

@@ -115,11 +115,11 @@ private:
 
 public:
 		void SetSize(uint32 ulSize) ;
-		void SetStore(void) { m_bIsStoring = true ; }
-		void SetLoad(void) { m_bIsStoring = false ; }
-		void ResetForLoad(void);
-		uint8 *GetStream(void) { return (m_pbBaseMemory) ; }
-		uint32 StreamLen(void) { return (m_ulLength) ; }
+		void SetStore() { m_bIsStoring = true ; }
+		void SetLoad() { m_bIsStoring = false ; }
+		void ResetForLoad();
+		uint8 *GetStream() { return (m_pbBaseMemory) ; }
+		uint32 StreamLen() { return (m_ulLength) ; }
 
 		friend class GameFile ;
 		friend class GameMapFile ;
@@ -255,53 +255,53 @@ public:
 		CivArchive &operator>> (MBCHAR *val) {
 			val = GetMBCHAR(); return (*this);
 		}
-		double GetDOUBLE(void) {
+		double GetDOUBLE() {
 			double val;
 			Load((uint8 *)&val, sizeof(val));
 
 			return val;
 		}
-		sint8 GetSINT8(void) {
+		sint8 GetSINT8() {
 			sint8 val;
 			Load((uint8 *)&val, sizeof(val));
 			return val;
 		}
-		uint8 GetUINT8(void) {
+		uint8 GetUINT8() {
 			uint8 val;
 			Load((uint8 *)&val, sizeof(val));
 			return val;
 		}
-		sint16 GetSINT16(void) {
+		sint16 GetSINT16() {
 			sint16 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE16(val);
 		}
-		uint16 GetUINT16(void) {
+		uint16 GetUINT16() {
 			uint16 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE16(val);
 		}
-		sint32 GetSINT32(void) {
+		sint32 GetSINT32() {
 			sint32 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE32(val);
 		}
-		uint32 GetUINT32(void) {
+		uint32 GetUINT32() {
 			uint32 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE32(val);
 		}
-		sint64 GetSINT64(void) {
+		sint64 GetSINT64() {
 			sint64 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE64(val);
 		}
-		uint64 GetUINT64(void) {
+		uint64 GetUINT64() {
 			uint64 val;
 			Load((uint8 *)&val, sizeof(val));
 			return SDL_SwapLE64(val);
 		}
-		MBCHAR *GetMBCHAR(void) {
+		MBCHAR *GetMBCHAR() {
 			uint32 len = GetUINT32();
 			if(len > 0){
 				MBCHAR *val = new MBCHAR[len];
@@ -316,7 +316,7 @@ public:
 		void PerformMagic(uint32 id) ;
 		void TestMagic(uint32 id) ;
 
-      BOOL IsStoring(void) { return m_bIsStoring; };
+      BOOL IsStoring() { return m_bIsStoring; };
 
 		void StoreArray( sint8 * dataarray, size_t size ) {
 			Store((uint8 *)dataarray, size);

@@ -15,10 +15,10 @@ class ctp2_Static;
 class ScoreTab
 {
 public:
-	ScoreTab(void);
+	ScoreTab();
     ~ScoreTab();
 
-	void Update(void);
+	void Update();
 
 private:
 	ctp2_Static *       m_difficulty;

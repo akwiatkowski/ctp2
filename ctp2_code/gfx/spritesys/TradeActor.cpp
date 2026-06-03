@@ -109,14 +109,14 @@ TradeActor::~TradeActor()
 {
 }
 
-void TradeActor::AddIdle(void)
+void TradeActor::AddIdle()
 {
 	m_curAction.reset(new Action(GOODACTION_IDLE, ACTIONEND_INTERRUPT));
 	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE));
 	m_curGoodAction = GOODACTION_IDLE;
 }
 
-MapPoint TradeActor::GetNextPos(void)
+MapPoint TradeActor::GetNextPos()
 {
 
 	if(++m_currentPosID >= m_destPosID)
@@ -125,7 +125,7 @@ MapPoint TradeActor::GetNextPos(void)
 	return m_routePath->Get(m_currentPosID);
 }
 
-MapPoint TradeActor::LookAtNextPos(void)
+MapPoint TradeActor::LookAtNextPos()
 {
 
 	if(m_currentPosID+1 >= m_destPosID)
@@ -134,7 +134,7 @@ MapPoint TradeActor::LookAtNextPos(void)
 		return m_routePath->Get(m_currentPosID+1);
 }
 
-void TradeActor::Process(void)
+void TradeActor::Process()
 {
 
  	if (m_curAction)
@@ -206,7 +206,7 @@ void TradeActor::Process(void)
 	}
 }
 
-void TradeActor::GetNextAction(void)
+void TradeActor::GetNextAction()
 {
   m_curAction.reset();
 
@@ -283,13 +283,13 @@ void TradeActor::DrawText(sint32 x, sint32 y, MBCHAR *goodText)
 	m_goodSpriteGroup->DrawText(x, y, goodText);
 }
 
-BOOL TradeActor::IsAnimating(void)
+BOOL TradeActor::IsAnimating()
 {
 
 	return FALSE;
 }
 
-uint16 TradeActor::GetWidth(void)
+uint16 TradeActor::GetWidth()
 {
 	Assert(m_goodSpriteGroup != NULL);
 	if (m_goodSpriteGroup == NULL) return 0;
@@ -304,7 +304,7 @@ uint16 TradeActor::GetWidth(void)
 	}
 }
 
-uint16 TradeActor::GetHeight(void)
+uint16 TradeActor::GetHeight()
 {
 	Assert(m_goodSpriteGroup != NULL);
 	if (m_goodSpriteGroup == NULL) return 0;

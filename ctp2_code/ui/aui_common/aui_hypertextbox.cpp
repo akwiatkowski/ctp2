@@ -79,7 +79,7 @@ AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::InitCommon( void )
+AUI_ERRCODE aui_HyperTextBox::InitCommon( )
 {
 	m_ranger = NULL;
 	m_rangerSize = k_CONTROL_DEFAULT_SIZE;
@@ -407,7 +407,7 @@ AUI_ERRCODE aui_HyperTextBox::Resize( sint32 width, sint32 height )
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::Show( void )
+AUI_ERRCODE aui_HyperTextBox::Show( )
 {
 	aui_Control::Show();
 
@@ -417,7 +417,7 @@ AUI_ERRCODE aui_HyperTextBox::Show( void )
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::RepositionRanger( void )
+AUI_ERRCODE aui_HyperTextBox::RepositionRanger( )
 {
 	sint32 rangerButtonSize = m_ranger->GetButtonSize();
 	sint32 rangerDimension = m_height - 2 * rangerButtonSize;
@@ -484,7 +484,7 @@ AUI_ERRCODE aui_HyperTextBox::DrawThis(
 }
 
 
-AUI_ERRCODE aui_HyperTextBox::RangerMoved( void )
+AUI_ERRCODE aui_HyperTextBox::RangerMoved( )
 {
 
 	m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_UPDATE;

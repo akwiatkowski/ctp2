@@ -460,7 +460,7 @@ AUI_ERRCODE aui_ProgressBar::DrawThis(
 
 
 
-AUI_ERRCODE aui_ProgressBar::Idle( void )
+AUI_ERRCODE aui_ProgressBar::Idle( )
 {
 	if ( m_type == AUI_PROGRESSBAR_TYPE_LOOP
 	||   m_type == AUI_PROGRESSBAR_TYPE_BACKANDFORTH )

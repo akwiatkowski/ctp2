@@ -202,7 +202,7 @@ AUI_ERRCODE aui_Tab::RemovePaneControl( uint32 controlId )
 }
 
 
-AUI_ERRCODE aui_Tab::Show( void )
+AUI_ERRCODE aui_Tab::Show( )
 {
 	aui_Switch::Show();
 

@@ -531,7 +531,7 @@ AUI_ERRCODE MessageWindow::ShowWindow( BOOL show )
 }
 
 
-MessageOpenAction *MessageWindow::GetMessageOpenAction( void )
+MessageOpenAction *MessageWindow::GetMessageOpenAction( )
 {
 	return m_iconWindow->GetMessageOpenAction();
 }

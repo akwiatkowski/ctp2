@@ -31,11 +31,11 @@ ns_String::ns_String( char *ldlBlock )
     strcpy(m_string, string);
 }
 
-ns_String::~ns_String( void )
+ns_String::~ns_String( )
 {
 	delete [] m_string;
 }
 
-char *ns_String::GetString( void ) {
+char *ns_String::GetString( ) {
 	return m_string;
 }

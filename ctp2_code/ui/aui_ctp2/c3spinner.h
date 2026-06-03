@@ -35,7 +35,7 @@ protected:
 	C3Spinner() : aui_Ranger() {}
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( BOOL isVertical );
-	AUI_ERRCODE CreateButtons( void );
+	AUI_ERRCODE CreateButtons( );
 
 public:
 	virtual AUI_ERRCODE DrawThis(
@@ -43,7 +43,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	BOOL	IsVertical( void ) const { return m_isVertical; }
+	BOOL	IsVertical( ) const { return m_isVertical; }
 
 protected:
 	BOOL	m_isVertical;

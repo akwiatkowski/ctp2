@@ -115,8 +115,8 @@ public:
 
 	void		UpdateGraph(aui_Surface *surface, sint32 x, sint32 y);
 
-	void		LabelAxes(void);
-	void		DrawIndicator(void);
+	void		LabelAxes();
+	void		DrawIndicator();
 	void		DrawLines(int eventsOfset=0);
 	void		RenderGraph(int eventsOfset=0);
 	void		EnableXLabel( sint32 enable ) { m_enableXLabel = enable; };
@@ -132,11 +132,11 @@ public:
 		if (m_events != NULL) SetGraphType(GRAPH_TYPE_ZEROSUM);
 	}
 
-	LineGraphData *GetData(void) { return m_data; }
+	LineGraphData *GetData() { return m_data; }
 
 	virtual AUI_ERRCODE		DrawThis(aui_Surface *surface, sint32 x, sint32 y);
 
-	aui_Surface	*   GetGraphSurface(void) const { return m_surface; }
+	aui_Surface	*   GetGraphSurface() const { return m_surface; }
 
 	void GenrateGraph(sint32     &infoXCount,
 	                             sint32     &infoYCount,
@@ -144,7 +144,7 @@ public:
 	                             sint32      category);
 
 private:
-	void		InitCommon(void);
+	void		InitCommon();
 	void		InitCommonLdl(MBCHAR *ldlBlock);
 
 	double			m_xmin;

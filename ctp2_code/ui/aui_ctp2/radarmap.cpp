@@ -161,7 +161,7 @@ void RadarMap::InitCommonLdl(MBCHAR *ldlBlock)
 //	RadarMap::InitCommon
 //
 //---------------------------------------------------------------------------
-void RadarMap::InitCommon(void)
+void RadarMap::InitCommon()
 {
 	m_mapSurface = NULL;
 	m_mapSize = NULL;
@@ -214,7 +214,7 @@ void RadarMap::InitCommon(void)
 //	RadarMap::ClearMapOverlay
 //
 //---------------------------------------------------------------------------
-void RadarMap::ClearMapOverlay(void)
+void RadarMap::ClearMapOverlay()
 {
 	delete [] m_mapOverlay;
 	m_mapOverlay = NULL;
@@ -274,7 +274,7 @@ AUI_ERRCODE	RadarMap::Resize( sint32 width, sint32 height )
 //	- calculate some values depending on the current radar map size
 //
 //---------------------------------------------------------------------------
-void RadarMap::CalculateMetrics(void)
+void RadarMap::CalculateMetrics()
 {
 	if (!world_Get()) return;
 
@@ -1310,7 +1310,7 @@ BOOL RadarMap::IncludePointInView(MapPoint &pos, sint32 radius)
 //	RadarMap::Setup
 //
 //---------------------------------------------------------------------------
-void RadarMap::Setup(void)
+void RadarMap::Setup()
 {
 	CalculateMetrics();
 
@@ -1327,7 +1327,7 @@ void RadarMap::Setup(void)
 //	RadarMap::Update
 //
 //---------------------------------------------------------------------------
-void RadarMap::Update( void )
+void RadarMap::Update( )
 {
 
 	m_mapSize = world_Get()->GetSize();
@@ -1564,7 +1564,7 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 //  - Constantly called in the idle time
 //
 //---------------------------------------------------------------------------
-AUI_ERRCODE RadarMap::Idle( void )
+AUI_ERRCODE RadarMap::Idle( )
 {
 	static uint32 lastDraw = 0;
 	if (GetTickCount() - lastDraw > 100) lastDraw = GetTickCount();

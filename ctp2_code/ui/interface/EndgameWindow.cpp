@@ -90,7 +90,7 @@ extern SoundManager	*soundmgr_Get();
 
 static EndGameWindow *	g_endgameWindow = NULL;
 
-EndGameWindow * endgamewindow_Get(void)
+EndGameWindow * endgamewindow_Get()
 {
 	return g_endgameWindow;
 }

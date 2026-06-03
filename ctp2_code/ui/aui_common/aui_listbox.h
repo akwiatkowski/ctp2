@@ -100,26 +100,26 @@ public:
 protected:
 	aui_ListBox() : aui_Control() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = NULL );
 
 public:
 	virtual AUI_ERRCODE	Resize( sint32 width, sint32 height );
 
-	virtual AUI_ERRCODE Show( void );
+	virtual AUI_ERRCODE Show( );
 
-	aui_Control	*GetPane( void ) const
+	aui_Control	*GetPane( ) const
 		{ return m_pane; }
-	aui_Header	*GetHeader( void ) const
+	aui_Header	*GetHeader( ) const
 		{ return m_header; }
-	aui_Ranger	*GetVerticalRanger( void ) const
+	aui_Ranger	*GetVerticalRanger( ) const
 		{ return m_verticalRanger; }
-	aui_Ranger	*GetHorizontalRanger( void ) const
+	aui_Ranger	*GetHorizontalRanger( ) const
 		{ return m_horizontalRanger; }
 
 	void		SetAlwaysRanger( BOOL always ) { m_alwaysRanger = always; }
 
-	sint32		GetRangerSize( void ) const { return m_rangerSize; }
+	sint32		GetRangerSize( ) const { return m_rangerSize; }
 	AUI_ERRCODE	SetRangerSize( sint32 rangerSize )
 		{ m_rangerSize = rangerSize; return RepositionRangers(); }
 
@@ -165,13 +165,13 @@ public:
 		return AUI_ERRCODE_OK;
 	}
 
-	tech_WLList<sint32>	*GetSelectedList( void ) const
+	tech_WLList<sint32>	*GetSelectedList( ) const
 		{ return m_selectedList; }
-	tech_WLList<sint32>	*GetSelectedListLastTime( void ) const
+	tech_WLList<sint32>	*GetSelectedListLastTime( ) const
 		{ return m_selectedListLastTime; }
 
-	aui_Item	*GetSelectedItem( void ) const;
-	sint32		GetSelectedItemIndex( void ) const;
+	aui_Item	*GetSelectedItem( ) const;
+	sint32		GetSelectedItemIndex( ) const;
 
 
 
@@ -188,16 +188,16 @@ public:
 	BOOL ExtractEndUserTriggeredEvent( uint32 data ) const
 	{ return (data & 0x1) == 0; }
 
-	BOOL		IsMultiSelect( void ) const { return m_multiSelect; }
+	BOOL		IsMultiSelect( ) const { return m_multiSelect; }
 	BOOL		SetMultiSelect( BOOL multiSelect );
 
-	BOOL		IsForceSelect( void ) const { return m_forceSelect; }
+	BOOL		IsForceSelect( ) const { return m_forceSelect; }
 	BOOL		SetForceSelect( BOOL forceSelect );
 
-	BOOL		IsAbsorbant( void ) const { return m_absorbEvents; }
+	BOOL		IsAbsorbant( ) const { return m_absorbEvents; }
 	BOOL		SetAbsorbancy( BOOL absorbEvents );
 
-	sint32		NumItems( void ) const { return m_numRows; }
+	sint32		NumItems( ) const { return m_numRows; }
 
 	BOOL		IsItem( aui_Region *region );
 
@@ -205,7 +205,7 @@ public:
 		tech_WLList<sint32> &selectedList,
 		tech_WLList<sint32> &deselectedList );
 
-	AUI_ERRCODE	RangerMoved( void );
+	AUI_ERRCODE	RangerMoved( );
 
 	virtual AUI_ERRCODE Draw(
 		aui_Surface *surface = NULL,
@@ -216,8 +216,8 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 ) { return aui_Control::DrawThis( surface, x, y ); }
 
-	sint32 GetSortColumn( void ) const { return m_sortColumn; }
-	BOOL GetSortAscending( void ) const { return m_sortAscending; }
+	sint32 GetSortColumn( ) const { return m_sortColumn; }
+	BOOL GetSortAscending( ) const { return m_sortAscending; }
 
 
 
@@ -228,7 +228,7 @@ public:
 
 
 
-	void BuildListStart(void);
+	void BuildListStart();
 
 	void BuildListEnd(bool isAddBottom = false);
 
@@ -243,27 +243,27 @@ public:
 
 	static aui_ListBox *ms_mouseFocusListBox;
 
-	static aui_ListBox *GetMouseFocusListBox(void) { return ms_mouseFocusListBox; }
+	static aui_ListBox *GetMouseFocusListBox() { return ms_mouseFocusListBox; }
 	static void SetMouseFocusListBox(aui_ListBox *box) { ms_mouseFocusListBox = box; }
 
 	void ForceScroll(sint32 deltaX, sint32 deltaY);
 
 protected:
-	AUI_ERRCODE	CalculateDimensions( void );
-	virtual AUI_ERRCODE	RepositionItems( void );
-	virtual AUI_ERRCODE	RepositionHeaderSwitches( void );
-	virtual AUI_ERRCODE	RepositionRangers( void );
+	AUI_ERRCODE	CalculateDimensions( );
+	virtual AUI_ERRCODE	RepositionItems( );
+	virtual AUI_ERRCODE	RepositionHeaderSwitches( );
+	virtual AUI_ERRCODE	RepositionRangers( );
 
 	virtual aui_DragDropWindow *CreateDragDropWindow( aui_Control *dragDropItem );
 
 	sint32		ItemsPerWidth( sint32 column );
 	sint32		ColumnWidth( sint32 column );
-	sint32		HorizontalRangerPositionCount( void );
+	sint32		HorizontalRangerPositionCount( );
 
 	AUI_ERRCODE SwitchItems( sint32 indexA, sint32 indexB );
 
 	AUI_ERRCODE	CalculateScroll( sint32 x, sint32 y );
-	AUI_ERRCODE	ScrollList( void );
+	AUI_ERRCODE	ScrollList( );
 
 	AUI_ERRCODE	DragSelect( sint32 y );
 
@@ -271,7 +271,7 @@ protected:
 		AUI_LISTBOX_ACTION action = AUI_LISTBOX_ACTION_SELECT,
 		uint32 data = 0 );
 
-	AUI_ERRCODE	StartSelecting( void );
+	AUI_ERRCODE	StartSelecting( );
 	friend class aui_DropDown;
 
 	static aui_DragDropWindow *m_dragDropWindow;

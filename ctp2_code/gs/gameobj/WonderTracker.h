@@ -76,7 +76,7 @@ public:
 // Lifecycle (new during gameinit + allocated::clear cleanup) lives in
 // gs/utility/gameinit.cpp; the variable is file-scope `static` there.
 // External readers go through wonder_tracker_Get().
-WonderTracker * wonder_tracker_Get(void);
+WonderTracker * wonder_tracker_Get();
 void            wonder_tracker_Set(WonderTracker *p);
 
 #endif

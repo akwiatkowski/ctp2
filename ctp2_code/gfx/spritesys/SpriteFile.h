@@ -149,14 +149,14 @@ public:
 	void			ReadSpriteDataGeneralBasic(Sprite **sprite);
 	void			ReadSpriteDataGeneralFull(Sprite **sprite);
 
-	void			SkipSpriteDataGeneral(void);
+	void			SkipSpriteDataGeneral();
 
 	void			ReadSpriteDataGeneral(FacedSpriteWshadow **sprite);
 	void			ReadFacedSpriteWshadowData(FacedSpriteWshadow *s);
 
 	void			ReadAnimDataBasic(Anim *s);
 	void			ReadAnimDataFull(Anim *s);
-	void			SkipAnimData(void);
+	void			SkipAnimData();
 
 	SPRITEFILEERR	Open(SPRITEFILETYPE *type);
 	SPRITEFILEERR	Read(Sprite **s, Anim **anim);
@@ -186,7 +186,7 @@ public:
 
 	SPRITEFILEERR	ReadData(void *data, size_t bytes);
 
-	long  			GetFilePos(void);
+	long  			GetFilePos();
 	void			SetFilePos(long pos);
 
 protected:

@@ -49,7 +49,7 @@ BattleEvent::BattleEvent(BATTLE_EVENT_TYPE type)
 }
 
 
-void BattleEvent::Initialize(void)
+void BattleEvent::Initialize()
 {
 	m_type = BATTLE_EVENT_TYPE_NONE;
 	m_finished = FALSE;
@@ -149,7 +149,7 @@ void BattleEvent::AddDeathData(BattleViewActor *actor, sint32 soundID, double hp
 }
 
 
-void BattleEvent::ProcessPlacement(void)
+void BattleEvent::ProcessPlacement()
 {
 	BattleEventData		*data;
 
@@ -191,7 +191,7 @@ void BattleEvent::ProcessPlacement(void)
 }
 
 
-void BattleEvent::ProcessAttack(void)
+void BattleEvent::ProcessAttack()
 {
 	BattleEventData		*data;
 
@@ -261,7 +261,7 @@ void BattleEvent::ProcessAttack(void)
 }
 
 
-void BattleEvent::ProcessExplode(void)
+void BattleEvent::ProcessExplode()
 {
 	BattleEventData		*data;
 
@@ -346,7 +346,7 @@ void BattleEvent::ProcessExplode(void)
 }
 
 
-void BattleEvent::ProcessDeath(void)
+void BattleEvent::ProcessDeath()
 {
 	BattleEventData		*data;
 
@@ -426,7 +426,7 @@ void BattleEvent::ProcessDeath(void)
 }
 
 
-void BattleEvent::Process(void)
+void BattleEvent::Process()
 {
 	switch (m_type) {
 	case BATTLE_EVENT_TYPE_PLACEMENT:	ProcessPlacement();
@@ -469,7 +469,7 @@ void BattleEvent::DrawExplosions(aui_Surface *surface)
 }
 
 
-BattleViewActor *BattleEvent::GetActor(void)
+BattleViewActor *BattleEvent::GetActor()
 {
 	if (m_dataList->GetCount() <= 0) return NULL;
 

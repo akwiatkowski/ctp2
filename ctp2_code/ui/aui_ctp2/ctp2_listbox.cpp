@@ -317,7 +317,7 @@ AUI_ERRCODE ctp2_ListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 }
 
 
-void ctp2_ListBox::Clear(void)
+void ctp2_ListBox::Clear()
 {
 	ListPos position = m_pane->ChildList()->GetHeadPosition();
 	for ( sint32 i = m_pane->ChildList()->L(); i; i-- )

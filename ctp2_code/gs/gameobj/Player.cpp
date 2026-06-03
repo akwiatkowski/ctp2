@@ -2557,7 +2557,7 @@ void Player::EndTurn()
 	Governor::GetGovernor(m_owner).FillEmptyBuildQueues(true);
 }
 
-void Player::EndTurnPollution(void)
+void Player::EndTurnPollution()
 {
 	Unit city;
 	sint32 i;
@@ -3952,7 +3952,7 @@ bool Player::GetLastSeen(const MapPoint &point, UnseenCellCarton &ucell)
 	return m_vision->GetLastSeen(point, ucell);
 }
 
-uint32 Player::GetAverageEventPollution(void)
+uint32 Player::GetAverageEventPollution()
 {
 	uint32	average = 0;
 
@@ -3968,7 +3968,7 @@ uint32 Player::GetAverageEventPollution(void)
 	return (average) ;
 }
 
-void Player::AttemptRevolt(void)
+void Player::AttemptRevolt()
 {
 	bool	*revolution;
 
@@ -4192,7 +4192,7 @@ void Player::GiveMap(PLAYER_INDEX recipient)
 	}
 }
 
-bool Player::IsPollutionReduced(void)
+bool Player::IsPollutionReduced()
 {
 
 #define k_DIPLOMATIC_REDUCE_POLLUTION_THRESHOLD		10
@@ -5019,7 +5019,7 @@ void Player::RequestExchangeMap(const PLAYER_INDEX recipient)
 
 }
 
-void Player::DumpAgreements(void)
+void Player::DumpAgreements()
 {
 	DPRINTF(k_DBG_INFO, ("Diplomatic Agreements for P%d\n", m_owner)) ;
 	sint32 n = m_agreed->Num();
@@ -5027,7 +5027,7 @@ void Player::DumpAgreements(void)
 		m_agreed->Access(i).Dump(i);
 }
 
-void Player::DumpRequests(void)
+void Player::DumpRequests()
 {
 	sint32	i,
 			n ;
@@ -5276,7 +5276,7 @@ void Player::RemoveMessageReferences(Message msg)
 	m_messages->Del(msg);
 }
 
-void Player::DumpMessages(void)
+void Player::DumpMessages()
 {
 	sint32 n = m_messages->Num();
 	if(n==0)
@@ -5292,7 +5292,7 @@ void Player::DumpMessages(void)
 	}
 }
 
-void Player::SendTestMessage(void)
+void Player::SendTestMessage()
 {
 	SlicObject *so = new SlicObject("pact fulfilled city captured") ;
 	so->AddCity(m_all_cities->Get(0)) ;
@@ -5300,7 +5300,7 @@ void Player::SendTestMessage(void)
 	so->AddCivilisation(m_owner+1) ;
 }
 
-const MBCHAR *Player::GetLeaderName(void)
+const MBCHAR *Player::GetLeaderName()
 {
 	if(!g_network.IsActive()
 	&& !slicengine_Get()->GetTutorialActive()
@@ -5324,7 +5324,7 @@ void Player::GetSingularCivName(MBCHAR *s)
 	m_civilisation->GetSingularCivName(s) ;
 }
 
-void Player::DumpAllies(void)
+void Player::DumpAllies()
 {
 	MBCHAR	s[_MAX_PATH];
 
@@ -5398,7 +5398,7 @@ void Player::AdjustEventPollution(const sint32 amount)
 		m_event_pollution[0] += amount ;
 }
 
-void Player::BeginTurnPollution(void)
+void Player::BeginTurnPollution()
 {
 	memmove(&m_event_pollution[1], &m_event_pollution[0], sizeof(m_event_pollution) - sizeof(m_event_pollution[0])) ;
 	m_event_pollution[0] = 0 ;
@@ -6055,13 +6055,13 @@ sint32 Player::GetMaxCityCount() const
 }
 
 // Unused
-double Player::GetPollutionSizeModifier(void) const
+double Player::GetPollutionSizeModifier() const
 {
 	return m_advances->GetPollutionSizeModifier();
 }
 
 // Unused
-double Player::GetPollutionProductionModifier(void) const
+double Player::GetPollutionProductionModifier() const
 {
 	return m_advances->GetPollutionProductionModifier();
 }
@@ -6850,7 +6850,7 @@ void Player::DisplayWWR()
 
 
 
-uint32 Player_Player_GetVersion(void)
+uint32 Player_Player_GetVersion()
 	{
 	return (k_PLAYER_VERSION_MAJOR<<16 | k_PLAYER_VERSION_MINOR) ;
 	}
@@ -7316,7 +7316,7 @@ sint32 Player::GetTotalResources()
 
 
 
-void Player::BeginTurnMonopoly(void)  //EMOD add back in but grant a feat?
+void Player::BeginTurnMonopoly()  //EMOD add back in but grant a feat?
 	{
 #ifdef CTP1_TRADE
 	SlicObject	*so ;

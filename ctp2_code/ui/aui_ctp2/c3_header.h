@@ -28,7 +28,7 @@ public:
 protected:
 	c3_Header() : aui_Header() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = NULL );
 };
 

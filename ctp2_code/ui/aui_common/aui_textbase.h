@@ -122,7 +122,7 @@ protected:
 		uint32 flags );
 
 public:
-	MBCHAR *GetText( void ) const { return m_text; }
+	MBCHAR *GetText( ) const { return m_text; }
 	virtual AUI_ERRCODE	SetText(
 		const MBCHAR *text,
 		uint32 len = 0xffffffff );
@@ -131,21 +131,21 @@ public:
 
 	virtual AUI_ERRCODE	AppendText(MBCHAR const * text);
 
-	COLORREF GetTextColor( void ) const { return m_textcolor; }
+	COLORREF GetTextColor( ) const { return m_textcolor; }
 	void SetTextColor( COLORREF color ) { m_textcolor = color; }
 
-	sint32 GetTextUnderline( void ) const { return m_textunderline; }
+	sint32 GetTextUnderline( ) const { return m_textunderline; }
 	void SetTextUnderline( sint32 underline ) { m_textunderline = underline; }
 
-	BOOL GetTextShadow(void) const { return m_textshadow; }
+	BOOL GetTextShadow() const { return m_textshadow; }
 	void SetTextShadow( BOOL flag ) { m_textshadow = flag; }
 
-	COLORREF GetTextShadowColor(void) const { return m_textshadowcolor; }
+	COLORREF GetTextShadowColor() const { return m_textshadowcolor; }
 	void SetTextShadowColor( COLORREF color ) { m_textshadowcolor = color; }
 
-	aui_BitmapFont *GetTextFont( void ) const { return m_textfont; }
+	aui_BitmapFont *GetTextFont( ) const { return m_textfont; }
 
-	uint32 &TextFlags( void ) { return m_textflags; }
+	uint32 &TextFlags( ) { return m_textflags; }
 
 
 	virtual void SetTextFont(MBCHAR const * ttffile);
@@ -153,7 +153,7 @@ public:
 	void SetTextBold( sint32 bold );
 	void SetTextItalic( sint32 italic );
 
-	void TextReloadFont( void );
+	void TextReloadFont( );
 
 protected:
 

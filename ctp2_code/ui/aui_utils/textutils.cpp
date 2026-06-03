@@ -37,7 +37,7 @@
 
 static HFONT		g_hFont;
 
-HFONT hfont_Get(void)
+HFONT hfont_Get()
 {
 	return g_hFont;
 }
@@ -53,7 +53,7 @@ namespace
 	}
 };	// namespace
 
-void textutils_Initialize(void)
+void textutils_Initialize()
 {
 	MBCHAR		path[_MAX_PATH];
 
@@ -61,7 +61,7 @@ void textutils_Initialize(void)
 	textutils_AddFont(path);
 }
 
-void textutils_Cleanup(void)
+void textutils_Cleanup()
 {
 }
 

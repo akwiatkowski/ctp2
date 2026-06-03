@@ -56,12 +56,12 @@ public:
 protected:
 	aui_SwitchGroup() : aui_Control() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 
-	uint32	WhichIsSelected( void ) const { return m_whichIsSelected; }
-	sint32	WhichIndexIsSelected( void );
+	uint32	WhichIsSelected( ) const { return m_whichIsSelected; }
+	sint32	WhichIndexIsSelected( );
 
 	AUI_ERRCODE	AddSwitch( aui_Switch *theSwitch ) { return AddChild( (aui_Region *)theSwitch ); }
 	AUI_ERRCODE RemoveSwitch( uint32 switchId ) { return RemoveChild( switchId ); }
@@ -71,7 +71,7 @@ public:
 
 protected:
 
-	BOOL	MakeSureOnlyOneIsSelected( void );
+	BOOL	MakeSureOnlyOneIsSelected( );
 
 	uint32	m_whichWasSelected;
 	uint32	m_whichIsSelected;

@@ -52,26 +52,26 @@ public:
 	virtual ~aui_Dimension() {}
 
 	aui_Region	*SetParent( aui_Region *parent );
-	aui_Region	*GetParent( void ) const { return m_parent; }
+	aui_Region	*GetParent( ) const { return m_parent; }
 
-	AUI_DIMENSION_HANCHOR	GetHorizontalAnchorType( void ) { return (AUI_DIMENSION_HANCHOR)m_hanchorType; }
-	AUI_DIMENSION_VANCHOR	GetVerticalAnchorType( void ) { return (AUI_DIMENSION_VANCHOR)m_vanchorType; }
-	AUI_DIMENSION_HPOSITION	GetHorizontalPositionType( void ) { return (AUI_DIMENSION_HPOSITION)m_hposType; }
-	AUI_DIMENSION_VPOSITION	GetVerticalPositionType( void ) { return (AUI_DIMENSION_VPOSITION)m_vposType; }
-	AUI_DIMENSION_HSIZE		GetHorizontalSizeType( void ) { return (AUI_DIMENSION_HSIZE)m_hsizeType; }
-	AUI_DIMENSION_VSIZE		GetVerticalSizeType( void ) { return (AUI_DIMENSION_VSIZE)m_vsizeType; }
+	AUI_DIMENSION_HANCHOR	GetHorizontalAnchorType( ) { return (AUI_DIMENSION_HANCHOR)m_hanchorType; }
+	AUI_DIMENSION_VANCHOR	GetVerticalAnchorType( ) { return (AUI_DIMENSION_VANCHOR)m_vanchorType; }
+	AUI_DIMENSION_HPOSITION	GetHorizontalPositionType( ) { return (AUI_DIMENSION_HPOSITION)m_hposType; }
+	AUI_DIMENSION_VPOSITION	GetVerticalPositionType( ) { return (AUI_DIMENSION_VPOSITION)m_vposType; }
+	AUI_DIMENSION_HSIZE		GetHorizontalSizeType( ) { return (AUI_DIMENSION_HSIZE)m_hsizeType; }
+	AUI_DIMENSION_VSIZE		GetVerticalSizeType( ) { return (AUI_DIMENSION_VSIZE)m_vsizeType; }
 
-	sint32	&HorizontalPositionData( void ) { return m_hpos; }
-	sint32	&VerticalPositionData( void ) { return m_vpos; }
-	sint32	&HorizontalSizeData( void ) { return m_hsize; }
-	sint32	&VerticalSizeData( void ) { return m_vsize; }
+	sint32	&HorizontalPositionData( ) { return m_hpos; }
+	sint32	&VerticalPositionData( ) { return m_vpos; }
+	sint32	&HorizontalSizeData( ) { return m_hsize; }
+	sint32	&VerticalSizeData( ) { return m_vsize; }
 
-	void	AnchorLeft( void );
-	void	AnchorHorizontalCenter( void );
-	void	AnchorRight( void );
-	void	AnchorTop( void );
-	void	AnchorVerticalCenter( void );
-	void	AnchorBottom( void );
+	void	AnchorLeft( );
+	void	AnchorHorizontalCenter( );
+	void	AnchorRight( );
+	void	AnchorTop( );
+	void	AnchorVerticalCenter( );
+	void	AnchorBottom( );
 
 	void	AbsoluteHorizontalPosition( BOOL absolute );
 	void	AbsoluteVerticalPosition( BOOL absolute );
@@ -83,10 +83,10 @@ public:
 	void	SetHorizontalSize( sint32 width );
 	void	SetVerticalSize( sint32 height );
 
-	sint32	CalculateX( void );
-	sint32	CalculateY( void );
-	sint32	CalculateWidth( void );
-	sint32	CalculateHeight( void );
+	sint32	CalculateX( );
+	sint32	CalculateY( );
+	sint32	CalculateWidth( );
+	sint32	CalculateHeight( );
 
 	void	CalculateAll(
 		sint32 *x,

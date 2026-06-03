@@ -36,7 +36,7 @@ public:
 		sint32 y = 0 );
 
 protected:
-	AUI_ERRCODE FitWindowToText( void );
+	AUI_ERRCODE FitWindowToText( );
 };
 
 #endif

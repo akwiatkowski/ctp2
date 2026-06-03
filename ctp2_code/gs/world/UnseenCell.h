@@ -222,21 +222,21 @@ public:
 	const MBCHAR *GetCityName() const { return m_cityName.c_str(); }
   std::shared_ptr<UnitActor> GetActor() const { return m_actor; }
 
-	bool    IsBioInfected           (void) const   { return 0 != (m_flags & k_UCF_IS_BIOINFECTED)         ; }
-	bool    IsNanoInfected          (void) const   { return 0 != (m_flags & k_UCF_IS_NANOINFECTED)        ; }
-	bool    IsConverted             (void) const   { return 0 != (m_flags & k_UCF_IS_CONVERTED)           ; }
-	bool    IsFranchised            (void) const   { return 0 != (m_flags & k_UCF_IS_FRANCHISED)          ; }
-	bool    IsInjoined              (void) const   { return 0 != (m_flags & k_UCF_IS_INJOINED)            ; }
-	bool    WasHappinessAttacked    (void) const   { return 0 != (m_flags & k_UCF_WAS_HAPPINESS_ATTACKED) ; }
-	bool    HasHut                  (void) const   { return 0 != (m_flags & k_UCF_HAS_HUT)                ; }
-	bool    IsRioting               (void) const   { return 0 != (m_flags & k_UCF_IS_RIOTING)             ; }
-	bool    HasAirport              (void) const   { return 0 != (m_flags & k_UCF_HAS_AIRPORT)            ; }
-	bool    HasSleepingUnits        (void) const   { return 0 != (m_flags & k_UCF_HAS_SLEEPINGUNITS)      ; }
-	bool    IsWatchful              (void) const   { return 0 != (m_flags & k_UCF_IS_WATCHFUL)            ; }
-	bool    IsCapitol               (void) const   { return 0 != (m_flags & k_UCF_IS_CAPITOL)             ; }
-	bool    IsReligionIcon          (void) const   { return 0 != (m_flags & k_UCF_IS_RELIGION_ICON)       ; }
-	bool    IsSpecialIcon           (void) const   { return 0 != (m_flags & k_UCF_IS_SPECIAL_ICON)        ; }
-	bool    IsPollutionRisk         (void) const   { return 0 != (m_flags & k_UCF_IS_POLLUTION_RISK)      ; }
+	bool    IsBioInfected           () const   { return 0 != (m_flags & k_UCF_IS_BIOINFECTED)         ; }
+	bool    IsNanoInfected          () const   { return 0 != (m_flags & k_UCF_IS_NANOINFECTED)        ; }
+	bool    IsConverted             () const   { return 0 != (m_flags & k_UCF_IS_CONVERTED)           ; }
+	bool    IsFranchised            () const   { return 0 != (m_flags & k_UCF_IS_FRANCHISED)          ; }
+	bool    IsInjoined              () const   { return 0 != (m_flags & k_UCF_IS_INJOINED)            ; }
+	bool    WasHappinessAttacked    () const   { return 0 != (m_flags & k_UCF_WAS_HAPPINESS_ATTACKED) ; }
+	bool    HasHut                  () const   { return 0 != (m_flags & k_UCF_HAS_HUT)                ; }
+	bool    IsRioting               () const   { return 0 != (m_flags & k_UCF_IS_RIOTING)             ; }
+	bool    HasAirport              () const   { return 0 != (m_flags & k_UCF_HAS_AIRPORT)            ; }
+	bool    HasSleepingUnits        () const   { return 0 != (m_flags & k_UCF_HAS_SLEEPINGUNITS)      ; }
+	bool    IsWatchful              () const   { return 0 != (m_flags & k_UCF_IS_WATCHFUL)            ; }
+	bool    IsCapitol               () const   { return 0 != (m_flags & k_UCF_IS_CAPITOL)             ; }
+	bool    IsReligionIcon          () const   { return 0 != (m_flags & k_UCF_IS_RELIGION_ICON)       ; }
+	bool    IsSpecialIcon           () const   { return 0 != (m_flags & k_UCF_IS_SPECIAL_ICON)        ; }
+	bool    IsPollutionRisk         () const   { return 0 != (m_flags & k_UCF_IS_POLLUTION_RISK)      ; }
 	void    SetIsBioInfected        (bool yes)     { if (yes) m_flags |= k_UCF_IS_BIOINFECTED          ; else m_flags &= ~k_UCF_IS_BIOINFECTED         ; }
 	void    SetIsNanoInfected       (bool yes)     { if (yes) m_flags |= k_UCF_IS_NANOINFECTED         ; else m_flags &= ~k_UCF_IS_NANOINFECTED        ; }
 	void    SetIsConverted          (bool yes)     { if (yes) m_flags |= k_UCF_IS_CONVERTED            ; else m_flags &= ~k_UCF_IS_CONVERTED           ; }
@@ -253,15 +253,15 @@ public:
 	void    SetIsSpecialIcon        (bool yes)     { if (yes) m_flags |= k_UCF_IS_SPECIAL_ICON         ; else m_flags &= ~k_UCF_IS_SPECIAL_ICON        ; }
 	void    SetIsPollutionRisk      (bool yes)     { if (yes) m_flags |= k_UCF_IS_POLLUTION_RISK       ; else m_flags &= ~k_UCF_IS_POLLUTION_RISK      ; }
 
-	bool    IsAirfield      (void) const;
-	bool    IsListeningPost (void) const;
-	bool    IsRadar         (void) const;
-	bool    IsHealUnits     (void) const;
-	bool    IsFort          (void) const;
+	bool    IsAirfield      () const;
+	bool    IsListeningPost () const;
+	bool    IsRadar         () const;
+	bool    IsHealUnits     () const;
+	bool    IsFort          () const;
 
 	bool    HasRiver() const { return (m_env & k_MASK_ENV_RIV_CUR) != 0; }
 
-	uint32  GetSlaveBits(void) const { return m_slaveBits; }
+	uint32  GetSlaveBits() const { return m_slaveBits; }
 
 	sint32  GetFoodFromTerrain     () const;
 	sint32  GetFoodProduced        () const;

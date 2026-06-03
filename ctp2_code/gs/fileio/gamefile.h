@@ -247,40 +247,40 @@ public:
 // in GameFile.cpp).  Almost every gs/ Serialize() reads this to gate
 // backward-compat branches.  Definition is file-scope `static` in
 // GameFile.cpp; external readers go through save_file_version_Get().
-sint32 save_file_version_Get(void);
+sint32 save_file_version_Get();
 void   save_file_version_Set(sint32 v);
 // Scenario start-info type (NOLOCS / CIVSFIXED / POSITIONSFIXED / CIVS /
 // NONE).  Definition is file-scope `static` in GameFile.cpp; the
 // scenario editor + scenario window set it, the world-init plumbing
 // reads it.
-sint32 start_info_type_Get(void);
+sint32 start_info_type_Get();
 void   start_info_type_Set(sint32 v);
 // Scenario-mode flag.  Definition is file-scope `static` in GameFile.cpp;
 // scenario editor / window / loaders set it; gameplay code reads it to
 // gate scenario-only branches.
-sint32 is_scenario_Get(void);
+sint32 is_scenario_Get();
 void   is_scenario_Set(sint32 v);
 // Number of scenario civs the player picked.  Definition in GameFile.cpp
 // as file-scope static; the UI (loadsavescreen, allinonewindow) and
 // gameinit's scenario-load path read/write through the accessors.
-sint32 scenario_civs_Get(void);
+sint32 scenario_civs_Get();
 void   scenario_civs_Set(sint32 v);
 // Scenario name buffer.  Definition in GameFile.cpp as file-scope
 // `static`; callers treat the returned pointer as a writable buffer of
 // k_SCENARIO_NAME_MAX bytes (used directly by strcpy / memset / char
 // indexing across the UI + civ3_main bootstrap).
-MBCHAR * scenario_name_buf(void);
+MBCHAR * scenario_name_buf();
 
 // Lifecycle: definition lives in gs/fileio/GameFile.cpp as file-scope
 // `static`.  Read sites use show_unit_labels_Get(); the scenario editor
 // + GameFile load/save paths flip it via show_unit_labels_Set().
-bool show_unit_labels_Get(void);
+bool show_unit_labels_Get();
 void show_unit_labels_Set(bool value);
 
 // Scenario starting-player slot (-1 = unset).  Definition is file-scope
 // `static` in GameFile.cpp; the scenario editor sets it via _Set, the
 // save/load info plumbing reads it via _Get.
-sint32 starting_player_Get(void);
+sint32 starting_player_Get();
 void   starting_player_Set(sint32 v);
 
 sint32 gamefile_CurrentVersion();

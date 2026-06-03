@@ -30,7 +30,7 @@
 
 sint32 nf_AIPlayer::m_version = 102;
 
-nf_AIPlayer::nf_AIPlayer(void):NETFunc::AIPlayer() {
+nf_AIPlayer::nf_AIPlayer():NETFunc::AIPlayer() {
 	SetTribe(0);
 	SetCivPoints(0);
 	SetPwPoints(0);

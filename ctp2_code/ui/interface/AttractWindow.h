@@ -11,8 +11,8 @@ struct AttractRegion {
 
 class AttractWindow : public C3Window {
 public:
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
 public:
 	AttractWindow(
@@ -24,18 +24,18 @@ public:
 
 	virtual ~AttractWindow();
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
 		sint32 x = 0,
 		sint32 y = 0 );
-	virtual AUI_ERRCODE Idle(void);
+	virtual AUI_ERRCODE Idle();
 	void AppIdle();
 
 public:
-	void DrawAttractiveStuff(void);
-	void ClearWindow(void);
+	void DrawAttractiveStuff();
+	void ClearWindow();
 	void HighlightControl(MBCHAR *ldlName);
 	void RemoveControl(MBCHAR *ldlName);
 
@@ -54,6 +54,6 @@ private:
 // g_attractWindow demoted to file-scope `static` in AttractWindow.cpp.
 // External callers go through attractwindow_Get() (returns NULL when the
 // attract overlay has not been initialized).
-AttractWindow * attractwindow_Get(void);
+AttractWindow * attractwindow_Get();
 
 #endif

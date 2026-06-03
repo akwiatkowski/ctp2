@@ -43,21 +43,21 @@ enum CIV_SCEN_ERR {
 class CivScenarios
 {
 public:
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
 	CivScenarios();
 	~CivScenarios();
 
 	void	LoadScenarioData(Scenario *scenario, MBCHAR *scenPath);
 	void	LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath);
-	void	LoadData(void);
+	void	LoadData();
 
-	void	ClearData(void);
+	void	ClearData();
 
-	void	ReloadData(void);
+	void	ReloadData();
 
-	sint32			GetNumScenarioPacks(void) const { return m_numScenarioPacks; }
+	sint32			GetNumScenarioPacks() const { return m_numScenarioPacks; }
 	ScenarioPack	*GetScenarioPack(sint32 which);
 	ScenarioPack    *GetScenarioPackByPath(const MBCHAR *path);
 
@@ -89,6 +89,6 @@ private:
 // g_civScenarios demoted to file-scope `static` in civscenarios.cpp.
 // External callers go through civscenarios_Get() (returns NULL before
 // scenario discovery has run).
-CivScenarios * civscenarios_Get(void);
+CivScenarios * civscenarios_Get();
 
 #endif

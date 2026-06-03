@@ -62,7 +62,7 @@ public:
 	sint32 GetDisplayedStage();
 	sint32 GetNumberShown(sint32 type);
 
-	void UpdateDisplayState(void);
+	void UpdateDisplayState();
 
 	BOOL HasLab();
 };

@@ -648,12 +648,12 @@ public:
     BOOL        IsCityLostWarning() const       { return m_cityLostWarning; }
     BOOL        IsAutoCenter()const             { return m_autocenter; }
 
-    BOOL        IsInvulnerableTrade(void) const { return m_invulnerableTrade; }
-    BOOL        IsFogOfWar(void) const          { return m_fogOfWar; }
-    BOOL        IsStartType(void) const         { return m_startType; }
+    BOOL        IsInvulnerableTrade() const { return m_invulnerableTrade; }
+    BOOL        IsFogOfWar() const          { return m_fogOfWar; }
+    BOOL        IsStartType() const         { return m_startType; }
 
-    BOOL        IsFullScreenMovies(void) const  { return m_fullScreenMovies; }
-    BOOL        IsShowCityInfluence(void) const { return m_showCityInfluence; }
+    BOOL        IsFullScreenMovies() const  { return m_fullScreenMovies; }
+    BOOL        IsShowCityInfluence() const { return m_showCityInfluence; }
 
     void SetCheatAge(const sint32 age)
     {
@@ -716,7 +716,7 @@ public:
     BOOL        IsAutoEndMulitpleTurns() const  { return m_autoEndMultiple; }
     const double     *GetMapSettings(sint32 pass, sint32 &count);
 
-    WORLD_SHAPE GetWorldShape(void) const
+    WORLD_SHAPE GetWorldShape() const
     {
         if (m_xWrap)
         {
@@ -728,7 +728,7 @@ public:
         }
     };
 
-    MBCHAR      *GetGameWatchDirectory(void)    { return m_gameWatchDirectory; }
+    MBCHAR      *GetGameWatchDirectory()    { return m_gameWatchDirectory; }
 
     sint32      GetWetDry()                     { return m_wetdry; }
     sint32      GetWarmCold()                   { return m_warmcold; }
@@ -757,16 +757,16 @@ public:
     BOOL        GetShowCityNames()              { return m_showCityNames; }
     BOOL        GetShowTradeRoutes()            { return m_showTradeRoutes; }
 
-    sint32      GetUnitSpeed(void)              { return m_unitSpeed; }
-    sint32      GetMouseSpeed(void)             { return m_mouseSpeed; }
+    sint32      GetUnitSpeed()              { return m_unitSpeed; }
+    sint32      GetMouseSpeed()             { return m_mouseSpeed; }
 
-    sint32      GetLeftHandedMouse(void)        { return m_leftHandedMouse; }
+    sint32      GetLeftHandedMouse()        { return m_leftHandedMouse; }
 
-    sint32      GetCityBuiltMessage(void)       { return m_cityBuiltMessage; }
+    sint32      GetCityBuiltMessage()       { return m_cityBuiltMessage; }
 
-    BOOL        GetUseAttackMessages(void)      { return m_useAttackMessages; }
-    BOOL        GetUseOldRegisterClick(void)    { return m_useOldRegisterClick; }
-    BOOL        IsUseCTP2Mode(void)             { return m_useCTP2Mode; }
+    BOOL        GetUseAttackMessages()      { return m_useAttackMessages; }
+    BOOL        GetUseOldRegisterClick()    { return m_useOldRegisterClick; }
+    BOOL        IsUseCTP2Mode()             { return m_useCTP2Mode; }
 
     sint32      GetMoveHoldTime()               { return m_moveHoldTime; }
 
@@ -793,7 +793,7 @@ public:
     BOOL GetDisplayCapitols()                   { return m_displayCapitols; }
     BOOL GetDisplayRelations()                  { return m_displayRelations; }
     BOOL GetEnableLogs()                        { return m_enableLogs; }
-    MBCHAR const *  GetRuleSets(void) const     { return m_ruleSets; };
+    MBCHAR const *  GetRuleSets() const     { return m_ruleSets; };
 
     void SetPercentForest(sint32 forest)        { m_forest = forest; }
     void SetPercentGrass(sint32 grass)          { m_grass = grass; }
@@ -860,7 +860,7 @@ public:
 // / c3ui_Get.  The legacy g_theProfileDB pointer is now file-static
 // in gs/utility/gameinit.cpp; outside callers must go through these
 // accessors.
-ProfileDB * profiledb_Get(void);
+ProfileDB * profiledb_Get();
 void        profiledb_Set(ProfileDB *p);
 
 #endif // __PROFILE_DB_H__

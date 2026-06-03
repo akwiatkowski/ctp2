@@ -51,6 +51,6 @@ public:
 // g_theTradeOfferPool's lifecycle (new / archive-load / Cleanup) lives
 // in gs/utility/gameinit.cpp; the variable is now file-scope `static`
 // there.  External readers go through tradeofferpool_Get().
-TradeOfferPool * tradeofferpool_Get(void);
+TradeOfferPool * tradeofferpool_Get();
 void             tradeofferpool_Set(TradeOfferPool *p);
 #endif

@@ -34,7 +34,7 @@ extern "C" {
 
 
 
-typedef void (* DebugAssertClientFunction) (void);
+typedef void (* DebugAssertClientFunction) ();
 
 void DebugAssert_Open (
 	DebugAssertClientFunction function_enter,

@@ -61,7 +61,7 @@ AUI_ERRCODE aui_Button::InitCommonLdl( MBCHAR *ldlBlock )
 }
 
 
-AUI_ERRCODE aui_Button::InitCommon(void)
+AUI_ERRCODE aui_Button::InitCommon()
 {
 	m_isRepeating = FALSE;
 	m_repeatCount = 0;
@@ -72,7 +72,7 @@ AUI_ERRCODE aui_Button::InitCommon(void)
 }
 
 
-AUI_ERRCODE aui_Button::ResetThis( void )
+AUI_ERRCODE aui_Button::ResetThis( )
 {
 	m_isRepeating = FALSE;
 	m_repeatCount = 0;

@@ -19,8 +19,8 @@ class TutorialWin {
 public:
 	c3_PopupWindow	*m_window;
 
-	TutorialWin( void );
-	~TutorialWin( void );
+	TutorialWin( );
+	~TutorialWin( );
 
 	sint32 Initialize( MBCHAR *windowBlock );
 protected:
@@ -36,22 +36,22 @@ protected:
 	aui_StringTable *m_string;
 
 public:
-	void Display( void );
-	void Remove( void );
+	void Display( );
+	void Remove( );
 
-	sint32 UpdateData( void );
+	sint32 UpdateData( );
 	sint32 HandleButton( c3_Button *button );
 	sint32 HandleSwitch( c3_Switch *button );
 
 	sint32 AddToList( MBCHAR *text, sint32 index );
 
-	void ClearList( void ) { m_list->Clear(); }
+	void ClearList( ) { m_list->Clear(); }
 };
 
-sint32 tutorialwin_Initialize( void );
-sint32 tutorialwin_Cleanup( void );
+sint32 tutorialwin_Initialize( );
+sint32 tutorialwin_Cleanup( );
 
-TutorialWin * tutorialwin_Get(void);
+TutorialWin * tutorialwin_Get();
 void          tutorialwin_Set(TutorialWin *p);
 
 #endif

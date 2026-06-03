@@ -84,7 +84,7 @@ UnitSpriteGroup::UnitSpriteGroup(GROUPTYPE type)
 	}
 }
 
-void UnitSpriteGroup::DeallocateStorage(void)
+void UnitSpriteGroup::DeallocateStorage()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
@@ -100,7 +100,7 @@ void UnitSpriteGroup::DeallocateStorage(void)
 
 
 
-void UnitSpriteGroup::DeallocateFullLoadAnims(void)
+void UnitSpriteGroup::DeallocateFullLoadAnims()
 {
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{

@@ -143,14 +143,14 @@ public:
 	CursorManager();
 	~CursorManager();
 
-	static void Initialize(void);
-	static void Cleanup(void);
+	static void Initialize();
+	static void Cleanup();
 
 	void SetCursor(CURSORINDEX cursor);
-	CURSORINDEX	GetCursor(void) const { return m_curCursor; }
+	CURSORINDEX	GetCursor() const { return m_curCursor; }
 
-	void SaveCursor(void);
-	void RestoreCursor(void);
+	void SaveCursor();
+	void RestoreCursor();
 
 private:
 	CURSORINDEX		m_curCursor;
@@ -160,6 +160,6 @@ private:
 // g_cursorManager demoted to file-scope `static` in cursormanager.cpp.
 // External callers go through cursormanager_Get() (returns NULL before
 // CursorManager::Initialize() runs).
-CursorManager * cursormanager_Get(void);
+CursorManager * cursormanager_Get();
 
 #endif

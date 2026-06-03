@@ -314,7 +314,7 @@ AUI_ERRCODE TextBox::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 #define k_VERTICALBORDER 5
 #define k_HORIZONTALBORDER 5
 
-AUI_ERRCODE TextBox::RepositionItems( void )
+AUI_ERRCODE TextBox::RepositionItems( )
 {
 	Assert( m_pane );
 	if ( !m_pane ) return AUI_ERRCODE_INVALIDPARAM;

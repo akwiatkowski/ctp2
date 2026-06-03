@@ -72,7 +72,7 @@ public:
 
 	void DumpAllSounds();
 
-	void ProcessRedbook(void);
+	void ProcessRedbook();
 	void Process(const uint32 &target_milliseconds, uint32 &used_milliseconds);
 
 	void AddGameSound(const GAMESOUNDS &sound);
@@ -85,7 +85,7 @@ public:
                                const uint32 &associatedObject);
 	void TerminateAllLoopingSounds(const SOUNDTYPE &type);
 	void TerminateSounds(const SOUNDTYPE &type);
-	void TerminateAllSounds(void);
+	void TerminateAllSounds();
 
 	void SetVolume(const SOUNDTYPE &type, const uint32 &volume);
 	void SetMasterVolume(const uint32 &volume);
@@ -106,9 +106,9 @@ public:
 	void		SetUserTrack(const sint32 &trackNum);
 	void		SetPlayListPosition(const sint32 &pos);
 	void		SetAutoRepeat(const BOOL &autoRepeat);
-	const MUSICSTYLE GetMusicStyle(void) const;
-	const sint32     GetUserTrack(void) const;
-	const sint32     GetPlayListPosition(void) const;
+	const MUSICSTYLE GetMusicStyle() const;
+	const sint32     GetUserTrack() const;
+	const sint32     GetPlayListPosition() const;
 
 	void             EnableMusic();
 	void             DisableMusic();
@@ -166,7 +166,7 @@ private:
 // App-singleton accessor pair, mirroring profiledb_Get / c3ui_Get / world_Get.
 // g_soundManager is file-static in soundmanager.cpp; external consumers go
 // through these accessors.
-SoundManager * soundmgr_Get(void);
+SoundManager * soundmgr_Get();
 void           soundmgr_Set(SoundManager *p);
 
 #endif

@@ -233,7 +233,7 @@ extern KEYMAP               *theKeyMap;
 ctp2_MenuBar                *s_menubar=NULL;
 static ControlPanelWindow   *g_controlPanel = NULL;
 
-ControlPanelWindow * controlpanel_Get(void)              { return g_controlPanel; }
+ControlPanelWindow * controlpanel_Get()              { return g_controlPanel; }
 void                 controlpanel_Set(ControlPanelWindow *p) { g_controlPanel = p; }
 
 extern Network              g_network;
@@ -552,7 +552,7 @@ sint32 controlpanelwindow_InitializeHats()
 	return 0;
 }
 
-void controlpanelwindow_Cleanup(void)
+void controlpanelwindow_Cleanup()
 {
 	CityWindow::Cleanup();
 	tileimptracker_Cleanup();
@@ -2191,7 +2191,7 @@ ControlPanelWindow::CreateTab(sint32 which,MBCHAR *name)
 
 
 
-void ControlPanelWindow::InitCivTab(void)
+void ControlPanelWindow::InitCivTab()
 {
 
 	m_numCities			= (ctp2_Static *)aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.DomesticTab.TabPanel.CityIconText"		);
@@ -2220,7 +2220,7 @@ void ControlPanelWindow::InitCivTab(void)
 }
 
 
-void ControlPanelWindow::InitMessageTab(void)
+void ControlPanelWindow::InitMessageTab()
 {
 
 	m_messageList = (ctp2_ListBox *)aui_Ldl::GetObject("ControlPanelWindow.ControlPanel.ControlTabPanel.MessageTab.TabPanel.MessageListBox");
@@ -2432,7 +2432,7 @@ void ControlPanelWindow::PopulateMessageList(PLAYER_INDEX player)
 
 
 
-void ControlPanelWindow::InitCityTab(void)
+void ControlPanelWindow::InitCityTab()
 {
 	aui_Ldl::SetActionFuncAndCookie("ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab.TabPanel.MainDropdown"  ,CityPanelDropDownCallback,NULL);
 	aui_Ldl::SetActionFuncAndCookie("ControlPanelWindow.ControlPanel.ControlTabPanel.CityTab.TabPanel.NextCityButton",CityPanelNextCityCallback,NULL);
@@ -2449,7 +2449,7 @@ void ControlPanelWindow::InitCityTab(void)
 
 
 
-void ControlPanelWindow::InitUnitTab(void)
+void ControlPanelWindow::InitUnitTab()
 {
 	aui_Ldl::SetActionFuncAndCookie("ControlPanelWindow.ControlPanel.ControlTabPanel.UnitTab.TabPanel.NextUnit",UnitPanelNextUnitCallback,NULL);
 
@@ -2469,7 +2469,7 @@ void ControlPanelWindow::InitUnitTab(void)
 
 
 
-void ControlPanelWindow::InitTileImpTab(void)
+void ControlPanelWindow::InitTileImpTab()
 {
 	CreateTileImpBanks   ();
 

@@ -218,7 +218,7 @@ static char *s_modeSwitchNames[SCEN_START_LOC_MODE_MAX] = {
 
 sint32 g_isCheatModeOn = FALSE;
 
-void scenarioeditor_SetSaveOptionsFromMode(void)
+void scenarioeditor_SetSaveOptionsFromMode()
 {
 	switch (s_scenarioEditor->GetStartLocMode()) {
 	case SCEN_START_LOC_MODE_NONE:
@@ -3252,7 +3252,7 @@ sint32 ScenarioEditor::GetLastPlayer()
 	return players;
 }
 
-void ScenarioEditor::DisableErase(void)
+void ScenarioEditor::DisableErase()
 {
 	g_toeMode = 0;
 	s_scenarioEditor->m_eraseButton->SetState(0);

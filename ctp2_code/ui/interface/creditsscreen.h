@@ -19,15 +19,15 @@ class aui_BitmapFont;
 class c3_CreditsText;
 
 
-sint32  creditsscreen_Initialize(void);
-void    creditsscreen_Cleanup(void);
+sint32  creditsscreen_Initialize();
+void    creditsscreen_Cleanup();
 
 // Accessor for the credits window pointer.  Used by screenutils.cpp to
 // register the window with c3ui_Get() after Initialize.  Returns NULL until
 // Initialize has run.  Replaces the previous `extern CreditsWindow*
 // g_creditsWindow` — encapsulation step toward future synchronisation.
 class CreditsWindow;
-CreditsWindow * creditsscreen_GetWindow(void);
+CreditsWindow * creditsscreen_GetWindow();
 
 class CreditsWindow : public C3Window {
 public:

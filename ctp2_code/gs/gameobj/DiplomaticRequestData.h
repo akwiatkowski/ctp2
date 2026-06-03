@@ -79,10 +79,10 @@ class DiplomaticRequestData : public GameObj
 		DiplomaticRequestData(const ID id, PLAYER_INDEX sender, PLAYER_INDEX recipient, REQUEST_TYPE request, sint32 currentRound) ;
 
 		void MakeRequest(const PLAYER_INDEX owner, const PLAYER_INDEX recipient, const REQUEST_TYPE request) ;
-		REQUEST_TYPE GetRequest(void) const { return (m_request) ; }
+		REQUEST_TYPE GetRequest() const { return (m_request) ; }
 
-		PLAYER_INDEX GetOwner(void) const { return (m_owner) ; }
-		PLAYER_INDEX GetRecipient(void) const { return (m_recipient) ; }
+		PLAYER_INDEX GetOwner() const { return (m_owner) ; }
+		PLAYER_INDEX GetRecipient() const { return (m_recipient) ; }
 		void SetAdvance(const AdvanceType &advance);
 		void SetWanted(const AdvanceType &advance);
 		void SetWanted(const Unit &city);
@@ -110,7 +110,7 @@ class DiplomaticRequestData : public GameObj
 		void Reject(BOOL fromServer = FALSE) ;
 		void Serialize(CivArchive &archive) ;
 		ATTITUDE_TYPE GetAttitude(PLAYER_INDEX p1, PLAYER_INDEX p2) ;
-		MBCHAR *GetRequestString(void) ;
+		MBCHAR *GetRequestString() ;
 
 		sint32 GetTone() const;
 

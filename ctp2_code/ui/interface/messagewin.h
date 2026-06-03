@@ -18,7 +18,7 @@ class MessageIconWindow;
 #define BOUNCE_IT		profiledb_Get()->IsBounceMessage()
 
 
-AUI_ERRCODE messagewin_InitializeMessages( void );
+AUI_ERRCODE messagewin_InitializeMessages( );
 MessageList *messagewin_InitializePlayerMessage( PLAYER_INDEX index );
 
 int messagewin_CreateMessage( Message data, BOOL bRecreate = FALSE );
@@ -30,8 +30,8 @@ int messagewin_FastKillWindow(MessageWindow *window);
 int messagewin_CleanupMessage( MessageIconWindow *iconWindow );
 int messagewin_CleanupMessage( MessageWindow *window );
 int messagewin_CleanupMessage( MessageIconWindow *iconWindow, MessageWindow *window );
-void messagewin_PurgeMessages(void);
-void messagewin_Cleanup(void);
+void messagewin_PurgeMessages();
+void messagewin_Cleanup();
 
 void messagewin_BeginTurn( PLAYER_INDEX index );
 void messagewin_EndTurn( PLAYER_INDEX index );

@@ -9,7 +9,7 @@ class GameSelectWindow;
 // g_gameSelectWindow demoted to file-scope `static` in gameselectwindow.cpp.
 // Use gameselectwindow_Get() instead.  Returns NULL when the window
 // has not been opened (or has already been torn down).
-GameSelectWindow * gameselectwindow_Get(void);
+GameSelectWindow * gameselectwindow_Get();
 
 class GameSelectWindow : public ns_Window
 {
@@ -20,12 +20,12 @@ public:
 
 protected:
 	GameSelectWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
-	void	Update( void );
-	virtual AUI_ERRCODE Idle( void );
+	void	Update( );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 	nf_GameSetup *GetGameSetup(NETFunc::Session *session);
 
@@ -64,11 +64,11 @@ public:
 
 protected:
 	StartSelectingWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 
 

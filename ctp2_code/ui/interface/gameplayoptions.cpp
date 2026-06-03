@@ -186,7 +186,7 @@ sint32 gameplayoptions_removeMyWindow(uint32 action)
 
 
 
-AUI_ERRCODE gameplayoptions_Initialize( void )
+AUI_ERRCODE gameplayoptions_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];

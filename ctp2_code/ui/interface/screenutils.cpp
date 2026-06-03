@@ -99,7 +99,7 @@ extern sint32               g_modalWindow;
 
 double	g_screenTime = 0.0;
 
-sint32 open_WorkView( void )
+sint32 open_WorkView( )
 {
 	sint32      err     = workwin_Initialize();
 	Assert( !err );
@@ -112,7 +112,7 @@ sint32 open_WorkView( void )
 	return 0;
 }
 
-void close_WorkView(void)
+void close_WorkView()
 {
 	if (workwindow_Get())
     {
@@ -120,7 +120,7 @@ void close_WorkView(void)
 	}
 }
 
-sint32 open_CityView( void )
+sint32 open_CityView( )
 {
 	AUI_ERRCODE auiErr  = CityWindow::Display(NULL);
 
@@ -130,12 +130,12 @@ sint32 open_CityView( void )
 	return 0;
 }
 
-void close_CityView(void)
+void close_CityView()
 {
 	CityWindow::Close(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
 }
 
-sint32 open_CityStatus( void )
+sint32 open_CityStatus( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -150,7 +150,7 @@ sint32 open_CityStatus( void )
 	return 0;
 }
 
-void close_CityStatus(void)
+void close_CityStatus()
 {
 	NationalManagementDialog::Close();
 }
@@ -170,45 +170,45 @@ sint32 open_CivStatus()
 	return 0;
 }
 
-void close_CivStatus(void)
+void close_CivStatus()
 {
 	DomesticManagementDialog::Close();
 }
 
-sint32 open_ScienceStatus( void )
+sint32 open_ScienceStatus( )
 {
 	ScienceManagementDialog::Open();
 	return 0;
 }
 
-void close_ScienceStatus(void)
+void close_ScienceStatus()
 {
 	ScienceManagementDialog::Close();
 }
 
-sint32 open_ScienceVictory( void )
+sint32 open_ScienceVictory( )
 {
 	ScienceVictoryDialog::Open();
 	return 0;
 }
 
-void close_ScienceVictory( void )
+void close_ScienceVictory( )
 {
 	ScienceVictoryDialog::Close();
 }
 
-sint32 open_UnitStatus( void )
+sint32 open_UnitStatus( )
 {
 	UnitManager::Display();
 	return 0;
 }
 
-void close_UnitStatus( void )
+void close_UnitStatus( )
 {
 	UnitManager::Hide();
 }
 
-sint32 open_TradeStatus( void )
+sint32 open_TradeStatus( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -226,12 +226,12 @@ sint32 open_TradeStatus( void )
 	return 0;
 }
 
-void close_TradeStatus( void )
+void close_TradeStatus( )
 {
 	TradeManager::Hide();
 }
 
-sint32 open_VictoryWindow( void )
+sint32 open_VictoryWindow( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -247,12 +247,12 @@ sint32 open_VictoryWindow( void )
 	return 0;
 }
 
-void close_VictoryWindow( void )
+void close_VictoryWindow( )
 {
 	victorywin_RemoveWindow();
 }
 
-sint32 open_Diplomacy( void )
+sint32 open_Diplomacy( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -267,12 +267,12 @@ sint32 open_Diplomacy( void )
 	return 0;
 }
 
-void close_Diplomacy(void)
+void close_Diplomacy()
 {
 	DiplomacyWindow::Hide();
 }
 
-sint32 open_InfoScreen( void )
+sint32 open_InfoScreen( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -287,7 +287,7 @@ sint32 open_InfoScreen( void )
 	return 0;
 }
 
-void close_InfoScreen( void )
+void close_InfoScreen( )
 {
 	InfoWindow::Close();
 }
@@ -344,7 +344,7 @@ bool open_GreatLibrary(sint32 index, bool sci)
 //              advance that is being researched by the current player.
 //
 //----------------------------------------------------------------------------
-bool open_GreatLibrary( void )
+bool open_GreatLibrary( )
 {
 	sint32 const		player	= selitem_Get()->GetVisiblePlayer();
 	AdvanceType const	advance	= player_Get(player)->m_advances->GetResearching();
@@ -352,7 +352,7 @@ bool open_GreatLibrary( void )
 	return open_GreatLibrary(advance);
 }
 
-void close_GreatLibrary(void)
+void close_GreatLibrary()
 {
 	if (GreatLibrary *gl = greatlibrary_Get())
     {
@@ -375,27 +375,27 @@ sint32 open_OptionsScreen( sint32 fromWhichScreen )
 	return err;
 }
 
-void close_OptionsScreen( void )
+void close_OptionsScreen( )
 {
 	optionsscreen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 }
 
-sint32 open_KeyMappingScreen( void )
+sint32 open_KeyMappingScreen( )
 {
 	return km_screen_displayMyWindow();
 }
 
-sint32 open_ScenarioEditor(void)
+sint32 open_ScenarioEditor()
 {
 	return ScenarioEditor::Display();
 }
 
-void close_ScenarioEditor(void)
+void close_ScenarioEditor()
 {
 	ScenarioEditor::Hide();
 }
 
-void close_KeyMappingScreen( void )
+void close_KeyMappingScreen( )
 {
 	km_screen_removeMyWindow(AUI_BUTTON_ACTION_EXECUTE);
 }
@@ -436,11 +436,11 @@ sint32 open_EndGame()
 }
 
 /// Close alien life window (removed CTP1 functionality)
-void close_EndGame(void)
+void close_EndGame()
 {
 }
 
-sint32 open_TutorialWin( void )
+sint32 open_TutorialWin( )
 {
 #ifdef _DEBUG
 	SET_TIME
@@ -461,7 +461,7 @@ sint32 open_TutorialWin( void )
 	return 0;
 }
 
-void close_TutorialWin(void)
+void close_TutorialWin()
 {
 	if (tutorialwin_Get())
     {
@@ -481,7 +481,7 @@ sint32 open_CreditsScreen()
     return (auiErr == AUI_ERRCODE_OK) ? 0 : -1;
 }
 
-void close_CreditsScreen(void)
+void close_CreditsScreen()
 {
 	creditsscreen_Cleanup();
 }
@@ -503,7 +503,7 @@ void battleview_ExitButtonActionCallback( aui_Control *control, uint32 action, u
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void close_AllScreens(void)
+void close_AllScreens()
 {
 	close_CreditsScreen();
 	close_WorkView();
@@ -552,7 +552,7 @@ void close_AllScreens(void)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-void close_AllScreensAndUpdateInfoScreen(void)
+void close_AllScreensAndUpdateInfoScreen()
 {
 	close_CreditsScreen();
 	close_WorkView();

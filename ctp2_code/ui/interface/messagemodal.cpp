@@ -63,7 +63,7 @@ void messagemodal_PrepareDestroyWindow()
 	c3ui_Get()->AddDestructiveAction( new MessageModalDestroyAction());
 }
 
-void messagemodal_DestroyModalMessage( void )
+void messagemodal_DestroyModalMessage( )
 {
 	if ( g_modalMessage )
 	{

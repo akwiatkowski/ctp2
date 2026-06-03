@@ -72,7 +72,7 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	BOOL	IsVertical( void ) const
+	BOOL	IsVertical( ) const
 	{ return m_orientation == AUI_RANGER_ORIENTATION_VERTICAL; }
 
 	virtual void	MouseRGrabInside(aui_MouseEvent * mouseData);
@@ -80,7 +80,7 @@ public:
 protected:
 	C3Slider() : aui_Ranger() {}
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateThumb( MBCHAR *ldlBlock );
 
 	sint32 m_ticks;

@@ -129,7 +129,7 @@ AUI_ERRCODE C3Spinner::InitCommon( BOOL isVertical )
 }
 
 
-AUI_ERRCODE C3Spinner::CreateButtons( void )
+AUI_ERRCODE C3Spinner::CreateButtons( )
 {
 	AUI_ERRCODE errcode;
 

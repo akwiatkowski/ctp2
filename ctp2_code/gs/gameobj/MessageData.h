@@ -157,17 +157,17 @@ class MessageData : public GameObj
 		MessageData(const ID id, MessageData *copy);
 		~MessageData();
 
-		PLAYER_INDEX GetOwner(void) const { return (m_owner) ; }
+		PLAYER_INDEX GetOwner() const { return (m_owner) ; }
 		void SetOwner(PLAYER_INDEX o) { m_owner = o; }
 
-		PLAYER_INDEX GetSender(void) const { return (m_sender) ; }
-		MESSAGE_TYPE GetMsgType(void) const { return (m_msgType) ; }
+		PLAYER_INDEX GetSender() const { return (m_sender) ; }
+		MESSAGE_TYPE GetMsgType() const { return (m_msgType) ; }
 		void SetMsgType(MESSAGE_TYPE type) { m_msgType = type; }
-		MESSAGE_TYPE GetSelectedMsgType(void) const { return m_msgSelectedType; }
+		MESSAGE_TYPE GetSelectedMsgType() const { return m_msgSelectedType; }
 		void SetSelectedMsgType(MESSAGE_TYPE type) { m_msgSelectedType = type; }
 
 		void ToString(MBCHAR *s) ;
-		MBCHAR *GetMsgText(void) { return m_text.empty() ? NULL : &m_text[0]; }
+		MBCHAR *GetMsgText() { return m_text.empty() ? NULL : &m_text[0]; }
 
 
 
@@ -181,24 +181,24 @@ class MessageData : public GameObj
 		void SetDuration(sint32 duration, sint32 currentRound);
 		sint32 GetExpiration() const;
 
-		MESSAGE_RESPONSE_TYPE Reject(void) ;
-		MESSAGE_RESPONSE_TYPE Accept(void) ;
+		MESSAGE_RESPONSE_TYPE Reject() ;
+		MESSAGE_RESPONSE_TYPE Accept() ;
 
-		MESSAGE_EYEPOINT_STYLE GetEyePointStyle(void);
+		MESSAGE_EYEPOINT_STYLE GetEyePointStyle();
 		const MBCHAR *GetEyePointName( sint32 index );
 		BOOL GetEyePointMapPosition( sint32 index, MapPoint &point );
 
-		MESSAGE_RESPONSE_STYLE GetResponseStyle(void);
+		MESSAGE_RESPONSE_STYLE GetResponseStyle();
 
 		void SetMessageWindow( MessageWindow *window ) { m_window = window; }
-		MessageWindow *GetMessageWindow( void ) const { return m_window; }
-		void KillMessageWindow( void );
+		MessageWindow *GetMessageWindow( ) const { return m_window; }
+		void KillMessageWindow( );
 
 
 		void IgnoreMessage( );
 
-		const MBCHAR *GetMsgOpenSound( void ) { return NULL; }
-		const MBCHAR *GetMsgSound( void ) { return NULL; }
+		const MBCHAR *GetMsgOpenSound( ) { return NULL; }
+		const MBCHAR *GetMsgSound( ) { return NULL; }
 
 
 		sint32 GetNumEyePoints() const;
@@ -208,10 +208,10 @@ class MessageData : public GameObj
 		const MBCHAR *GetSubmitString() { return NULL; }
 		const MBCHAR *GetTipText() { return NULL; }
 
-		BOOL GetGreatLibraryButton( void ) { return FALSE; }
-		void GreatLibraryCallback( void ) { ; }
+		BOOL GetGreatLibraryButton( ) { return FALSE; }
+		void GreatLibraryCallback( ) { ; }
 
-		sint32 GetTimeStamp( void ) { return m_timestamp; }
+		sint32 GetTimeStamp( ) { return m_timestamp; }
 
 		void AddButton(SlicButton *button);
 		sint32 GetNumButtons() const;

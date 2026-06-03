@@ -33,7 +33,7 @@ public:
 		MBCHAR *ldlBlock);
 	~ns_ListItem() {}
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }
 
 protected:
@@ -56,23 +56,23 @@ public:
 
 	~ns_HPlayerItem();
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }
 
-	NETFunc::Player *GetPlayer( void ) const
+	NETFunc::Player *GetPlayer( ) const
 	{ return IsAI() ? NULL : (NETFunc::Player *)m_player; }
-	nf_AIPlayer *GetAIPlayer( void ) const
+	nf_AIPlayer *GetAIPlayer( ) const
 	{ return IsAI() ? (nf_AIPlayer *)m_player : NULL; }
 
-	BOOL IsAI( void ) const { return m_isAI; }
+	BOOL IsAI( ) const { return m_isAI; }
 
-	aui_Control *GetHostItem( void ) { return this; }
-	aui_Control *GetLaunchedItem( void ) const { return m_launchedItem; }
-	aui_Control *GetNameItem( void ) const { return m_nameItem; }
-	aui_Control *GetPingItem( void ) const { return m_pingItem; }
+	aui_Control *GetHostItem( ) { return this; }
+	aui_Control *GetLaunchedItem( ) const { return m_launchedItem; }
+	aui_Control *GetNameItem( ) const { return m_nameItem; }
+	aui_Control *GetPingItem( ) const { return m_pingItem; }
 
-	aui_Control *GetTribeItem( void ) const { return m_tribeItem; }
-	c3_Button *GetTribeButton( void ) const
+	aui_Control *GetTribeItem( ) const { return m_tribeItem; }
+	c3_Button *GetTribeButton( ) const
 	{ return m_tribeButton; }
 	void SetTribe( sint32 tribe );
 
@@ -81,12 +81,12 @@ public:
 
 
 
-	aui_Control *GetCivpointsItem( void ) const { return m_civpointsItem; }
-	c3_EditButton *GetCivpointsButton( void ) const { return m_civpointsButton;}
+	aui_Control *GetCivpointsItem( ) const { return m_civpointsItem; }
+	c3_EditButton *GetCivpointsButton( ) const { return m_civpointsButton;}
 	void SetCivpoints( sint32 civpoints );
 
-	aui_Control *GetPwpointsItem( void ) const { return m_pwpointsItem; }
-	c3_EditButton *GetPwpointsButton( void ) const { return m_pwpointsButton;}
+	aui_Control *GetPwpointsItem( ) const { return m_pwpointsItem; }
+	c3_EditButton *GetPwpointsButton( ) const { return m_pwpointsButton;}
 	void SetPwpoints( sint32 pwpoints );
 
 protected:
@@ -143,14 +143,14 @@ public:
 protected:
 	ns_Item() : aui_Item() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateNetShellObject( T *object );
 
 public:
-	NetShellT	*GetNetShellObject( void ) const { return m_netShellT; }
+	NetShellT	*GetNetShellObject( ) const { return m_netShellT; }
 
 	AUI_ERRCODE	SetIcon( MBCHAR *icon );
-	aui_Image	*GetIcon( void ) const { return m_icon; }
+	aui_Image	*GetIcon( ) const { return m_icon; }
 
 	virtual AUI_ERRCODE DrawThis(
 		aui_Surface *surface = NULL,
@@ -226,7 +226,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 
 
 template<class T,class NetShellT>
-AUI_ERRCODE ns_Item<T,NetShellT>::InitCommon( void )
+AUI_ERRCODE ns_Item<T,NetShellT>::InitCommon( )
 {
 	m_netShellT = NULL;
 	m_icon = NULL;

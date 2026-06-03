@@ -170,7 +170,7 @@ void RankingTab::SetLineGraph( bool line_graph )
 	}
 }
 
-void RankingTab::Open(void)
+void RankingTab::Open()
 {
 
 
@@ -178,7 +178,7 @@ void RankingTab::Open(void)
 
 }
 
-void RankingTab::Close(void)
+void RankingTab::Close()
 {
 
 }
@@ -247,7 +247,7 @@ void RankingTab::UpdateGraph()
 	}
 }
 
-void RankingTab::UpdatePlayerList( void )
+void RankingTab::UpdatePlayerList( )
 {
 	m_infoPlayerList->Clear();
 
@@ -344,7 +344,7 @@ void RankingTab::LineOrZeroSumButtonActionCallback(aui_Control *control,
 	}
 }
 
-RankingTab::~RankingTab(void)
+RankingTab::~RankingTab()
 {
 	if (this == s_current_ranking_tab)
 	{

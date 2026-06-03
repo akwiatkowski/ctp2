@@ -298,7 +298,7 @@ bool Cell::CanEnter(const uint32 flag) const
 	return ((m_env & k_MASK_ENV_MOVEMENT_TYPE) & (flag << k_SHIFT_ENV_MOVEMENT_TYPE)) != 0;
 }
 
-bool Cell::GetCanDie(void) const
+bool Cell::GetCanDie() const
 {
 	return (m_env & k_BIT_MOVEMENT_TYPE_LAND) != 0;
 }
@@ -808,12 +808,12 @@ double Cell::GetTerrainDefenseBonus()
 	return rec->GetEnvBase()->GetDefense();
 }
 
-uint32 Cell_CELL_GetVersion(void)
+uint32 Cell_CELL_GetVersion()
 {
 	return (k_CELL_VERSION_MAJOR<<16 | k_CELL_VERSION_MINOR) ;
 }
 
-void Cell::Kill(void)
+void Cell::Kill()
 {
 	m_terrain_type = (sint8)TERRAIN_DEAD ;
 }

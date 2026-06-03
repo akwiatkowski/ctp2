@@ -20,11 +20,11 @@ public:
 		MBCHAR const *szFileName = NULL );
 	virtual ~Picture();
 
-	aui_Surface *TheMipmap( void ) const { return m_mipmap; }
+	aui_Surface *TheMipmap( ) const { return m_mipmap; }
 
 	AUI_ERRCODE Draw( aui_Surface *pDestSurf, RECT *pDestRect );
 
-	AUI_ERRCODE MakeMipmap( void );
+	AUI_ERRCODE MakeMipmap( );
 
 protected:
 	uint16 AveragePixels( uint16 *pBuffer, sint32 width );

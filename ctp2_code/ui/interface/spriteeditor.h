@@ -55,7 +55,7 @@ public:
 
 
 
-	virtual AUI_ERRCODE InitCommon(void);
+	virtual AUI_ERRCODE InitCommon();
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 
 
@@ -69,7 +69,7 @@ public:
 
 
 
-	virtual AUI_ERRCODE	Idle( void );
+	virtual AUI_ERRCODE	Idle( );
 
 
 
@@ -166,6 +166,6 @@ private:
 
 
 
-int SpriteEditWindow_Initialize( void );
-void SpriteEditWindow_Cleanup(void);
+int SpriteEditWindow_Initialize( );
+void SpriteEditWindow_Cleanup();
 #endif

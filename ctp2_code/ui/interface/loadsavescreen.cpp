@@ -102,7 +102,7 @@ extern sint32				g_barbarianRiskUponLaunch;
 SaveInfo *                  g_savedGameRequest  = NULL;
 static LoadSaveWindow *     g_loadsaveWindow    = NULL;
 
-LoadSaveWindow * loadsavewindow_Get(void)
+LoadSaveWindow * loadsavewindow_Get()
 {
     return g_loadsaveWindow;
 }
@@ -213,7 +213,7 @@ void loadsavescreen_Cleanup()
     }
 }
 
-void loadsavescreen_PostCleanupAction(void)
+void loadsavescreen_PostCleanupAction()
 {
 	c3ui_Get()->AddAction(new LSCleanupAction);
 }
@@ -277,7 +277,7 @@ void loadsavescreen_HotseatCallback(sint32 launch, sint32 player,
 
 
 
-void loadsavescreen_SetupHotseatOrEmail(void)
+void loadsavescreen_SetupHotseatOrEmail()
 {
 	hs_player_setup_Clear();
 
@@ -669,7 +669,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 }
 
 
-void loadsavescreen_LoadGame(void)
+void loadsavescreen_LoadGame()
 {
 	GameInfo *  gameInfo = g_loadsaveWindow->GetGameInfo();
 
@@ -820,7 +820,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 
 /////////////////////////////////////////////////////////////
 
-void loadsavescreen_LoadMPGame(void)
+void loadsavescreen_LoadMPGame()
 {
 	if(!g_loadsaveWindow) {
 		Assert(netfunc_Get() && !netfunc_Get()->IsHost());
@@ -859,7 +859,7 @@ void loadsavescreen_LoadMPGame(void)
 
 /////////////////////////////////////////////////////////////
 
-void loadsavescreen_SaveMPGame(void)
+void loadsavescreen_SaveMPGame()
 {
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
@@ -927,7 +927,7 @@ void loadsavescreen_SaveMPGame(void)
 
 /////////////////////////////////////////////////////////////
 
-void loadsavescreen_LoadSCENGame(void)
+void loadsavescreen_LoadSCENGame()
 {
 	// SAM042099 check for a valid CD-ROM before allowing a game to be loaded
 	if (!c3files_HasLegalCD()) return;
@@ -955,7 +955,7 @@ void loadsavescreen_LoadSCENGame(void)
 
 /////////////////////////////////////////////////////////////
 
-void loadsavescreen_SaveSCENGame(void)
+void loadsavescreen_SaveSCENGame()
 {
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
@@ -1036,7 +1036,7 @@ void loadsavescreen_SaveSCENGame(void)
 //	GameFile::SaveGame(saveInfo->pathName, saveInfo);
 }
 
-BOOL loadsavescreen_CheckOverwrite( void );
+BOOL loadsavescreen_CheckOverwrite( );
 
 /////////////////////////////////////////////////////////////
 // CallBacks
@@ -1096,7 +1096,7 @@ void loadsavescreen_backPress(aui_Control *control, uint32 action, uint32 data, 
 	loadsavescreen_PostCleanupAction();
 }
 
-void loadsavescreen_delete( void )
+void loadsavescreen_delete( )
 {
 	GameInfo	*gameInfo = g_loadsaveWindow->GetGameInfo();
 
@@ -1346,7 +1346,7 @@ void loadsavescreen_OverwriteCallback( bool response, void *data )
 
 /////////////////////////////////////////////////////////////
 
-BOOL loadsavescreen_CheckOverwrite( void )
+BOOL loadsavescreen_CheckOverwrite( )
 {
 	// EAS012199 - save the one we originally set out to save.
 	SaveInfo *  saveInfo = g_loadsaveWindow->GetSaveInfoToSave();

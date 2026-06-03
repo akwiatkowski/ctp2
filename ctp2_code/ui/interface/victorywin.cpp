@@ -314,7 +314,7 @@ sint32 victorywin_DisplayWindow(sint32 type)
 	return 0;
 }
 
-sint32 victorywin_RemoveWindow( void )
+sint32 victorywin_RemoveWindow( )
 {
 	if ( c3ui_Get()->GetWindow(g_victoryWindow->m_window->Id()) ) {
 		c3ui_Get()->RemoveWindow( g_victoryWindow->m_window->Id() );
@@ -324,7 +324,7 @@ sint32 victorywin_RemoveWindow( void )
 	return 1;
 }
 
-void victorywin_Cleanup( void )
+void victorywin_Cleanup( )
 {
     // The individual "s_wonderIcons[i]" items will be deleted through
     // DeleteHierarchyFromRoot(s_VictoryWindowBlock) in the destructor
@@ -689,7 +689,7 @@ sint32 victorywin_UpdateData( sint32 type )
 	return 0;
 }
 
-sint32 victorywin_DisplayHighScore( void )
+sint32 victorywin_DisplayHighScore( )
 {
 	s_highScoreWin->DisplayWindow();
 
@@ -745,7 +745,7 @@ AUI_ERRCODE HighScoreListItem::InitCommonLdl(MBCHAR *name, sint32 score, MBCHAR 
 	return AUI_ERRCODE_OK;
 }
 
-void HighScoreListItem::Update(void)
+void HighScoreListItem::Update()
 {
 
 	c3_Static *subItem;
@@ -867,12 +867,12 @@ sint32 HighScoreWindowPopup::Initialize( MBCHAR *windowBlock )
 	return 0;
 }
 
-HighScoreWindowPopup::~HighScoreWindowPopup( void )
+HighScoreWindowPopup::~HighScoreWindowPopup( )
 {
 	Cleanup();
 }
 
-void HighScoreWindowPopup::Cleanup( void )
+void HighScoreWindowPopup::Cleanup( )
 {
     if (m_window && c3ui_Get())
     {
@@ -892,7 +892,7 @@ void HighScoreWindowPopup::Cleanup( void )
 #undef mycleanup
 }
 
-void HighScoreWindowPopup::DisplayWindow( void )
+void HighScoreWindowPopup::DisplayWindow( )
 {
 	AUI_ERRCODE auiErr;
 
@@ -903,7 +903,7 @@ void HighScoreWindowPopup::DisplayWindow( void )
 	Assert( auiErr == AUI_ERRCODE_OK );
 }
 
-void HighScoreWindowPopup::RemoveWindow( void )
+void HighScoreWindowPopup::RemoveWindow( )
 {
 	AUI_ERRCODE auiErr;
 
@@ -914,7 +914,7 @@ void HighScoreWindowPopup::RemoveWindow( void )
 	c3ui_Get()->AddAction(new CloseVictoryWindowAction);
 }
 
-sint32 HighScoreWindowPopup::UpdateData( void )
+sint32 HighScoreWindowPopup::UpdateData( )
 {
 
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -963,7 +963,7 @@ sint32 victorywin_GetWonderFilename( sint32 index, MBCHAR *name )
 	return FALSE;
 }
 
-sint32 victorywin_LoadGraphData( void )
+sint32 victorywin_LoadGraphData( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1048,7 +1048,7 @@ void CloseVictoryWindowAction::Execute(aui_Control *control, uint32 action, uint
 	victorywin_Cleanup();
 }
 
-sint32 victorywin_LoadScoreData( void )
+sint32 victorywin_LoadScoreData( )
 {
 	AUI_ERRCODE	retval;
 	MBCHAR ldlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1179,7 +1179,7 @@ sint32 victorywin_LoadScoreData( void )
 	return 0;
 }
 
-sint32 victorywin_LoadWonderData( void )
+sint32 victorywin_LoadWonderData( )
 {
 	MBCHAR strbuf[256];
 

@@ -213,7 +213,7 @@ void GameObj::Serialize(CivArchive &archive)
 	}
 }
 
-uint32 GameObj_GameObj_GetVersion(void)
+uint32 GameObj_GameObj_GetVersion()
 {
 	return (k_GAMEOBJ_VERSION_MAJOR<<16 | k_GAMEOBJ_VERSION_MINOR) ;
 }

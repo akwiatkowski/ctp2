@@ -17,7 +17,7 @@ public:
 	c3_ListItem(AUI_ERRCODE *retval, MBCHAR const *ldlBlock);
 	virtual ~c3_ListItem();
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
 
@@ -30,10 +30,10 @@ class SingleListItem : public c3_ListItem
 public:
 	SingleListItem(AUI_ERRCODE *retval, MBCHAR const *name, sint32 value, MBCHAR const *ldlBlock);
 
-	virtual void Update(void);
+	virtual void Update();
 
-	MBCHAR const * GetName( void ) const { return m_name; }
-	sint32 GetValue( void ) const { return m_value; }
+	MBCHAR const * GetName( ) const { return m_name; }
+	sint32 GetValue( ) const { return m_value; }
 
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column);
 

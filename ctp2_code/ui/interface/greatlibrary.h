@@ -129,10 +129,10 @@ class TechListItem: public ctp2_ListItem
 public:
 	TechListItem(AUI_ERRCODE *retval, sint32 index, DATABASE database, MBCHAR *ldlBlock);
 
-	virtual void Update(void);
+	virtual void Update();
 
-	sint32	GetIndex(void) const { return m_index; }
-	DATABASE GetDatabase(void) const { return m_database; }
+	sint32	GetIndex() const { return m_index; }
+	DATABASE GetDatabase() const { return m_database; }
 
 	virtual sint32 Compare(ctp2_ListItem *item2, uint32 column);
 
@@ -155,7 +155,7 @@ class GreatLibrary : public KeyboardHandler
 {
 public:
 	GreatLibrary( sint32 theMode );
-	virtual ~GreatLibrary( void );
+	virtual ~GreatLibrary( );
 
 	static void Initialize_Great_Library_Data();
 	static void Shutdown_Great_Library_Data();
@@ -177,16 +177,16 @@ public:
 	void Back();
 	void Forward();
 
-	void Display( void );
-	void Remove( void );
+	void Display( );
+	void Remove( );
 	void kh_Close();
 
 	sint32 SetLibrary( sint32 theMode, DATABASE theDatabase,
 		bool add_to_history = true);
 
 
-	void    ClearHistory(void);
-	void    HandleSetGoal(void);
+	void    ClearHistory();
+	void    HandleSetGoal();
 
 	MBCHAR const *  GetItemName(int database, int item) const;      // lexicographic index
     MBCHAR const *  GetObjectName(int database, int index) const;   // database index
@@ -208,10 +208,10 @@ public:
 
 	void UpdateList(DATABASE database);
 
-	bool GetSci( void ) const { return m_sci; }
+	bool GetSci( ) const { return m_sci; }
 	void SetSci( bool sci ) { m_sci = sci; }
 
-	ctp2_Button *GetAdvancesButton( void ) const { return m_advancesButton; }
+	ctp2_Button *GetAdvancesButton( ) const { return m_advancesButton; }
 
 
 
@@ -229,7 +229,7 @@ public:
 		int index
 	);
 
-	ctp2_Window * GetWindow( void ) const;
+	ctp2_Window * GetWindow( ) const;
 
 	void FixTabs();
 	sint32 GetIndexFromAlpha(sint32 alpha, DATABASE theDatabase) const;
@@ -239,7 +239,7 @@ public:
 private:
     void Initialize(MBCHAR const * windowBlock);
 
-    friend void TechListItem::Update(void);
+    friend void TechListItem::Update();
     friend bool greatlibrary_Initialize(sint32 theMode, bool sci);
 
 	ctp2_Button		*m_setGoalButton;
@@ -317,11 +317,11 @@ private:
 
 const MBCHAR *  glutil_LoadText(const char * filename, SlicContext & so);
 bool            greatlibrary_Initialize(sint32 theMode, bool sci = false);
-void            greatlibrary_Cleanup(void);
+void            greatlibrary_Cleanup();
 
 // g_greatLibrary demoted to file-scope `static` in greatlibrary.cpp.
 // External callers go through greatlibrary_Get() (returns NULL when the
 // great library has not been opened).
-GreatLibrary * greatlibrary_Get(void);
+GreatLibrary * greatlibrary_Get();
 
 #endif

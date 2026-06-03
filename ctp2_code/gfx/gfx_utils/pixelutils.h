@@ -25,14 +25,14 @@ typedef union
 
 } PixelAddress;
 
-void pixelutils_Initialize(void);
+void pixelutils_Initialize();
 
 Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height);
 
 void RGB32Components(Pixel32 pixel, Pixel16 *r, Pixel16 *g, Pixel16 *b, Pixel16 *a);
 Pixel32 ComponentsToRGB32(Pixel16 r, Pixel16 g, Pixel16 b, Pixel16 a) ;
 void RGB32Info(Pixel32 pixel, Pixel16 *outPixel, unsigned char *alpha);
-void pixelutils_ComputeBlendTable(void);
+void pixelutils_ComputeBlendTable();
 
 // Shared inline-pixel-blending state.  Hoisted to file scope so the
 // inline functions below don't each carry their own function-scoped
@@ -43,7 +43,7 @@ void pixelutils_ComputeBlendTable(void);
 // startup and calls is_565_Set().  All readers (~60 sites across gfx/
 // and ui/) use is_565_Get().  Inline funcs in this header below
 // likewise dispatch through the accessor.
-bool is_565_Get(void);
+bool is_565_Get();
 void is_565_Set(bool v);
 extern short  gPixelTable[BLEND_LEVELS][BLEND_MAX_VALUE][BLEND_MAX_VALUE];
 
@@ -610,6 +610,6 @@ Pixel32 pixelutils_PercentLighten32_555(Pixel32 pixel, sint32 percent);
 
 Pixel16 pixelutils_Desaturate(Pixel16 pixel);
 Pixel16 pixelutils_RGB(int r,int g,int b);
-void pixelutils_ComputeRGBTable(void);
+void pixelutils_ComputeRGBTable();
 
 #endif

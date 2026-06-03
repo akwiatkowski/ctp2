@@ -32,15 +32,15 @@
 
 MBCHAR g_cpuString[] = "";
 
-void c3cpu_Initialize(void)
+void c3cpu_Initialize()
 {
 }
 
-void c3cpu_Examine(void)
+void c3cpu_Examine()
 {
 }
 
-MBCHAR * c3cpu_GetString(void)
+MBCHAR * c3cpu_GetString()
 {
 	return g_cpuString;
 }

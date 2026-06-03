@@ -46,8 +46,8 @@ public:
 
 	virtual AUI_ERRCODE	RemoveItem( uint32 itemId );
 
-	sint32 GetBevelWidth(void) { return m_bevelWidth; }
-	sint32 GetBevelType(void) { return m_bevelType; }
+	sint32 GetBevelWidth() { return m_bevelWidth; }
+	sint32 GetBevelType() { return m_bevelType; }
 
 	BOOL m_selectableList;
 
@@ -90,7 +90,7 @@ protected:
 	ns_HPlayerListBox() : ns_CivListBox() {}
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 };
 
 #endif

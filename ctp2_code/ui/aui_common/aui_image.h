@@ -46,8 +46,8 @@ protected:
 
 public:
 
-	AUI_ERRCODE Load( void );
-	AUI_ERRCODE Unload( void );
+	AUI_ERRCODE Load( );
+	AUI_ERRCODE Unload( );
 
 	virtual AUI_ERRCODE LoadEmpty( sint32 width, sint32 height, sint32 bpp );
 
@@ -55,8 +55,8 @@ public:
                                 sint32 bpp, sint32 pitch,
                                 uint8 *buffer );
 
-	aui_Surface	*TheSurface( void ) const { return m_surface; }
-	MBCHAR		*GetFilename( void ) const { return (MBCHAR *)m_filename; }
+	aui_Surface	*TheSurface( ) const { return m_surface; }
+	MBCHAR		*GetFilename( ) const { return (MBCHAR *)m_filename; }
 
 	AUI_ERRCODE	SetFilename( MBCHAR const *filename );
 

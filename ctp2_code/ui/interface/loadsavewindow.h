@@ -27,16 +27,16 @@ sint32 loadsavescreen_displayMyWindow(uint32 type);
 sint32 loadsavescreen_removeMyWindow(uint32 action);
 AUI_ERRCODE loadsavescreen_Initialize( aui_Control::ControlActionCallback
 									   *callback = NULL );
-void loadsavescreen_Cleanup(void);
+void loadsavescreen_Cleanup();
 
 void loadsavescreen_SaveGame(MBCHAR *usePath = NULL, MBCHAR *useName = NULL);
 
 void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath);
 
-void loadsavescreen_LoadMPGame( void );
-void loadsavescreen_LoadSCENGame(void);
+void loadsavescreen_LoadMPGame( );
+void loadsavescreen_LoadSCENGame();
 
-void loadsavescreen_delete( void );
+void loadsavescreen_delete( );
 
 void loadsavescreen_executePress(aui_Control *control, uint32 action, uint32 data, void *cookie );
 void loadsavescreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -81,7 +81,7 @@ public:
 
 	virtual ~LoadSaveWindow();
 
-	void FillListOne(void);
+	void FillListOne();
 	void FillListTwo(GameInfo *info);
 	void FillCivList(SaveInfo *info);
 
@@ -91,8 +91,8 @@ public:
 	void SetPowerGraph(SaveInfo *info);
 	void SetRadarMap(SaveInfo *info);
 
-	void SelectCurrentGame(void);
-	void SelectCurrentSave(void);
+	void SelectCurrentGame();
+	void SelectCurrentSave();
 
 	void SetType(uint32 type);
 	uint32 GetType() { return m_type; }
@@ -105,33 +105,33 @@ public:
 
 	BOOL GetGameName(MBCHAR *name);
 	BOOL GetSaveName(MBCHAR *name);
-	MBCHAR *GetLeaderName(void);
-	MBCHAR *GetCivName(void);
+	MBCHAR *GetLeaderName();
+	MBCHAR *GetCivName();
 	BOOL GetNote(MBCHAR *note);
 
 	void EnableFields( BOOL enable );
 
-	GameInfo *GetGameInfo(void) const { return m_gameInfo; }
-	SaveInfo *GetSaveInfo(void) const { return m_saveInfo; }
+	GameInfo *GetGameInfo() const { return m_gameInfo; }
+	SaveInfo *GetSaveInfo() const { return m_saveInfo; }
 	void SetGameInfo(GameInfo *info);
 	void SetSaveInfo(SaveInfo *info);
 
-	void CleanUpSaveInfo( void );
-	SaveInfo *GetSaveInfoToSave( void ) const { return m_saveInfoToSave; }
+	void CleanUpSaveInfo( );
+	SaveInfo *GetSaveInfoToSave( ) const { return m_saveInfoToSave; }
 
 	void BuildDefaultSaveName(MBCHAR *gameName, MBCHAR *name);
 
 	C3TextField* GetTextField() { return m_gameTextBox; }
 
 
-	ctp2_Button *GetDeleteButton( void ) {return m_deleteButton; }
-	ctp2_Button *GetOkButton( void ) { return Ok(); }
-	c3_Static *GetMapStatic( void ) { return m_mapTabImage; }
+	ctp2_Button *GetDeleteButton( ) {return m_deleteButton; }
+	ctp2_Button *GetOkButton( ) { return Ok(); }
+	c3_Static *GetMapStatic( ) { return m_mapTabImage; }
 
-	c3_ListBox *GetListOne( void ) const { return m_listOne; }
-	c3_ListBox *GetListTwo( void ) const { return m_listTwo; }
+	c3_ListBox *GetListOne( ) const { return m_listOne; }
+	c3_ListBox *GetListTwo( ) const { return m_listTwo; }
 
-	bool NoName( void );
+	bool NoName( );
 
 private:
 	bool        CreateSaveInfoIfNeeded(SaveInfo *& info);
@@ -205,7 +205,7 @@ public:
 
 	sint32 Compare(c3_ListItem *item2, uint32 column);
 
-	GameInfo	*GetGameInfo(void) const { return m_info; }
+	GameInfo	*GetGameInfo() const { return m_info; }
 
 private:
 	c3_Static	*m_itemIcon;
@@ -222,9 +222,9 @@ public:
 
 	sint32 Compare(c3_ListItem *item2, uint32 column);
 
-	MBCHAR *GetText( void ) const { return m_itemText->GetText(); }
+	MBCHAR *GetText( ) const { return m_itemText->GetText(); }
 
-	SaveInfo	*GetSaveInfo(void) const { return m_info; }
+	SaveInfo	*GetSaveInfo() const { return m_info; }
 
 private:
 	c3_Static	*m_itemIcon;
@@ -237,6 +237,6 @@ AUI_ACTION_BASIC(LSCleanupAction);
 // g_loadsaveWindow demoted to file-scope `static` in loadsavescreen.cpp.
 // External callers go through loadsavewindow_Get() (returns NULL when
 // the load/save dialog has not been opened).
-LoadSaveWindow * loadsavewindow_Get(void);
+LoadSaveWindow * loadsavewindow_Get();
 
 #endif

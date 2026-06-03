@@ -38,7 +38,7 @@
 
 static ns_Units *g_nsUnits = NULL;
 
-ns_Units * nsunits_Get(void)         { return g_nsUnits; }
+ns_Units * nsunits_Get()         { return g_nsUnits; }
 void       nsunits_Set(ns_Units *p)  { g_nsUnits = p; }
 
 ns_Units::ns_Units()

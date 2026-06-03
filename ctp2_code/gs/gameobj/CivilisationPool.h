@@ -51,9 +51,9 @@ class CivilisationPool : public ObjPool
 public:
 	SimpleDynamicArray<sint32> *m_usedCivs;
 
-	CivilisationPool(void) ;
+	CivilisationPool() ;
 	CivilisationPool(CivArchive &archive) ;
-	~CivilisationPool(void) ;
+	~CivilisationPool() ;
 
 	CivilisationData* AccessData(const Civilisation id) { return ((CivilisationData*)Access(id)) ; }
 
@@ -74,7 +74,7 @@ public:
 
 // Lifecycle in gs/utility/gameinit.cpp; backing static there.  Tests
 // re-allocate via civilisationpool_Set() to bypass full game init.
-CivilisationPool * civilisationpool_Get(void);
+CivilisationPool * civilisationpool_Get();
 void               civilisationpool_Set(CivilisationPool *p);
 
 #endif

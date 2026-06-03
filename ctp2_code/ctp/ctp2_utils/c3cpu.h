@@ -29,8 +29,8 @@ struct TIME_STAMP
 
 #endif
 
-void		c3cpu_Initialize(void);
-void		c3cpu_Examine(void);
-MBCHAR		*c3cpu_GetString(void);
+void		c3cpu_Initialize();
+void		c3cpu_Examine();
+MBCHAR		*c3cpu_GetString();
 
 #endif

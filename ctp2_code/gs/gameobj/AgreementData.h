@@ -101,23 +101,23 @@ public:
 
 	void Init();
 
-	AGREEMENT_TYPE GetAgreement(void) const { return (m_agreement) ; }
+	AGREEMENT_TYPE GetAgreement() const { return (m_agreement) ; }
 
-	PLAYER_INDEX GetOwner(void) const { return (m_owner) ; }
+	PLAYER_INDEX GetOwner() const { return (m_owner) ; }
 
-	PLAYER_INDEX GetRecipient(void) const { return (m_recipient) ; }
+	PLAYER_INDEX GetRecipient() const { return (m_recipient) ; }
 
-	PLAYER_INDEX GetThirdParty(void) const { return (m_thirdParty) ; }
+	PLAYER_INDEX GetThirdParty() const { return (m_thirdParty) ; }
 
-	Unit GetTarget(void) const { return (m_targetCity) ; }
+	Unit GetTarget() const { return (m_targetCity) ; }
 
-	sint32 GetTurns(void) const { return (m_expires) ; }
+	sint32 GetTurns() const { return (m_expires) ; }
 
-	sint32 GetStartTurn(void) const { return (m_round) ; }
+	sint32 GetStartTurn() const { return (m_round) ; }
 
-	BOOL IsExpired(void) const { return (m_expires == 0) ; }
+	BOOL IsExpired() const { return (m_expires == 0) ; }
 
-	BOOL DoesExpire(void) const { return (m_expires != k_EXPIRATION_NEVER) ; }
+	BOOL DoesExpire() const { return (m_expires != k_EXPIRATION_NEVER) ; }
 
 	void SetTarget(const Unit &city) ;
 	void SetExpires(const sint32 turns);
@@ -126,16 +126,16 @@ public:
 		m_thirdParty = player ;
 	}
 
-	void Expire(void) { m_expires = 0 ; }
+	void Expire() { m_expires = 0 ; }
 
 	void MakeAgreement(const PLAYER_INDEX owner,
 					   const PLAYER_INDEX recipient,
 					   const AGREEMENT_TYPE agreement,
 					   sint32 currentRound) ;
-	void FulfillAgreement(void) ;
-	sint32 DecrementTurns(void) ;
+	void FulfillAgreement() ;
+	sint32 DecrementTurns() ;
 
-	void EndTurn(void) ;
+	void EndTurn() ;
 
 	void ToString(MBCHAR *s) ;
 

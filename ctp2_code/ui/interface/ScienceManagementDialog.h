@@ -130,6 +130,6 @@ private:
 // g_scienceManagementDialog demoted to file-scope `static`.  Use
 // sciencemanagementdialog_Get() instead.  Returns NULL when the dialog
 // has not been opened yet.
-ScienceManagementDialog * sciencemanagementdialog_Get(void);
+ScienceManagementDialog * sciencemanagementdialog_Get();
 
 #endif // ___BMH_SCIENCE_MANAGEMENT_DIALOG_HEADER

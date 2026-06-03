@@ -59,14 +59,14 @@ GrabItem::~GrabItem()
 //
 //----------------------------------------------------------------------------
 
-void GrabItem::Init(void)
+void GrabItem::Init()
 {
 	delete g_grabbedItem;
 
 	g_grabbedItem = new GrabItem;
 }
 
-void GrabItem::Cleanup(void)
+void GrabItem::Cleanup()
 {
 	if (g_grabbedItem) {
 		delete g_grabbedItem;

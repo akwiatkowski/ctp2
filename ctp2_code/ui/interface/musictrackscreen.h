@@ -3,7 +3,7 @@
 
 sint32 musictrackscreen_displayMyWindow();
 sint32 musictrackscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE musictrackscreen_Initialize( void );
+AUI_ERRCODE musictrackscreen_Initialize( );
 void musictrackscreen_Cleanup();
 
 void musictrackscreen_acceptPress(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -15,9 +15,9 @@ public:
 	MusicTrackListItem(AUI_ERRCODE *retval, sint32 trackNum, MBCHAR *name, MBCHAR *ldlBlock);
 
 
-	virtual void Update(void) {}
+	virtual void Update() {}
 
-	sint32 GetTrackNum(void) { return m_trackNum; }
+	sint32 GetTrackNum() { return m_trackNum; }
 protected:
 	MusicTrackListItem() : c3_ListItem() {}
 	AUI_ERRCODE InitCommonLdl(sint32 trackNum, MBCHAR *name, MBCHAR *ldlBlock);

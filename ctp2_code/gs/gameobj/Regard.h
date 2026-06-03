@@ -53,5 +53,5 @@ class Regard
 		void Serialize(CivArchive &archive) ;
 	} ;
 
-	uint32 Regard_Regard_GetVersion(void) ;
+	uint32 Regard_Regard_GetVersion() ;
 #endif

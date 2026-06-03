@@ -176,34 +176,34 @@ sint32 gamefile_CurrentVersion()
 
 static sint32 g_saveFileVersion = -1;
 
-sint32 save_file_version_Get(void) { return g_saveFileVersion; }
+sint32 save_file_version_Get() { return g_saveFileVersion; }
 void   save_file_version_Set(sint32 v) { g_saveFileVersion = v; }
 static sint32 g_startInfoType = STARTINFOTYPE_NONE;
 
-sint32 start_info_type_Get(void)     { return g_startInfoType; }
+sint32 start_info_type_Get()     { return g_startInfoType; }
 void   start_info_type_Set(sint32 v) { g_startInfoType = v; }
 static sint32 g_isScenario = FALSE;
 
-sint32 is_scenario_Get(void)     { return g_isScenario; }
+sint32 is_scenario_Get()     { return g_isScenario; }
 void   is_scenario_Set(sint32 v) { g_isScenario = v; }
 static sint32 g_useScenarioCivs = 2;
 
-sint32 scenario_civs_Get(void) { return g_useScenarioCivs; }
+sint32 scenario_civs_Get() { return g_useScenarioCivs; }
 void   scenario_civs_Set(sint32 v) { g_useScenarioCivs = v; }
 
 static sint32 g_showUnitLabels = FALSE;
 
-bool show_unit_labels_Get(void)        { return g_showUnitLabels != FALSE; }
+bool show_unit_labels_Get()        { return g_showUnitLabels != FALSE; }
 void show_unit_labels_Set(bool value)  { g_showUnitLabels = value ? TRUE : FALSE; }
 
 static sint32 g_startingPlayer = -1;
 
-sint32 starting_player_Get(void)     { return g_startingPlayer; }
+sint32 starting_player_Get()     { return g_startingPlayer; }
 void   starting_player_Set(sint32 v) { g_startingPlayer = v; }
 
 static MBCHAR g_scenarioName[k_SCENARIO_NAME_MAX];
 
-MBCHAR * scenario_name_buf(void) { return g_scenarioName; }
+MBCHAR * scenario_name_buf() { return g_scenarioName; }
 
 
 
@@ -277,7 +277,7 @@ void GameFile::SaveGame(const MBCHAR *filename, SaveInfo *info)
 }
 
 
-GameFile::GameFile(void)
+GameFile::GameFile()
 {
 }
 
@@ -2238,7 +2238,7 @@ void GameMapFile::SaveGameMap(const MBCHAR *filename, SaveMapInfo *info)
     GameMapFile().Save(filename, info);
 }
 
-GameMapFile::GameMapFile(void)
+GameMapFile::GameMapFile()
 {
 }
 

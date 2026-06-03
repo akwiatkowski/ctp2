@@ -52,7 +52,7 @@ DebugWindow::DebugWindow(
 }
 
 
-AUI_ERRCODE DebugWindow::InitCommon(void)
+AUI_ERRCODE DebugWindow::InitCommon()
 {
 	m_textBox = NULL;
 

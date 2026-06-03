@@ -866,7 +866,7 @@ Advances::CanOffer(Advances* otherCivAdvances, sint32 &num) const
 
 
 
-double Advances::GetPollutionSizeModifier(void) const
+double Advances::GetPollutionSizeModifier() const
 {
 	double bonus = 0.0;
 	double value = 0.0;
@@ -883,7 +883,7 @@ double Advances::GetPollutionSizeModifier(void) const
 	return bonus;
 }
 
-double Advances::GetPollutionProductionModifier(void) const
+double Advances::GetPollutionProductionModifier() const
 {
 	double bonus = 0.0;
 	double value = 0.0;
@@ -1119,7 +1119,7 @@ Advances::Serialize(CivArchive& archive)
 
 
 
-uint32 Advances_Advances_GetVersion(void)
+uint32 Advances_Advances_GetVersion()
 {
 	return (k_ADVANCES_VERSION_MAJOR<<16 | k_ADVANCES_VERSION_MINOR) ;
 }

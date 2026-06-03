@@ -46,7 +46,7 @@ static int s_winsockInitialized = 0;
 
 static NetConsole *g_netConsole = NULL;
 
-NetConsole * netconsole_Get(void) { return g_netConsole; }
+NetConsole * netconsole_Get() { return g_netConsole; }
 
 void netconsole_Initialize()
 {

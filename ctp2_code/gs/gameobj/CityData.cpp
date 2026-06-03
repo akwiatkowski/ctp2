@@ -1194,7 +1194,7 @@ bool CityData::IsACopy()
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-bool CityData::IsBankrupting(void) const
+bool CityData::IsBankrupting() const
 {
     return (m_net_gold < 0) && (player_Get(m_owner)->GetGold() < -m_net_gold);
 }
@@ -1645,7 +1645,7 @@ void CityData::StopTradingWith(PLAYER_INDEX bannedRecipient)
 //                         m_total_pollution
 //
 //----------------------------------------------------------------------------
-void CityData::CalcPollution(void)
+void CityData::CalcPollution()
 {
 	if (!gamesettings_Get()->GetPollution())
 	{
@@ -3910,7 +3910,7 @@ bool CityData::FoodSupportTroops()
 // Remark(s)  :
 //
 //----------------------------------------------------------------------------
-void CityData::UpdateSprite(void)
+void CityData::UpdateSprite()
 {
 	if (PopCount() == 0) return;
 
@@ -6198,7 +6198,7 @@ sint32 CityData::SaveQueue(const MBCHAR *file)
 	return r;
 }
 
-uint32 CityData_CityData_GetVersion(void)
+uint32 CityData_CityData_GetVersion()
 {
 	return (k_CITYDATA_VERSION_MAJOR<<16 | k_CITYDATA_VERSION_MINOR);
 }
@@ -7456,14 +7456,14 @@ double CityData::GetHappyPopEntertainment() const { return m_happy->GetPopEntert
 double CityData::GetHappyImprovement() const { return m_happy->GetImprovement(); }
 double CityData::GetHappyWonders() const { return m_happy->GetWonders(); }
 double CityData::GetHappyCrime() const { return m_happy->GetCrime(); }
-bool CityData::IsCelebratingHappiness(void) const { return (m_happy->IsVeryHappy()); }
+bool CityData::IsCelebratingHappiness() const { return (m_happy->IsVeryHappy()); }
 
 void CityData::HappinessAttackedBy(sint32 player)
 {
 	m_happinessAttackedBy = player;
 }
 
-bool CityData::WasHappinessAttacked(void) const
+bool CityData::WasHappinessAttacked() const
 {
 	if(m_happinessAttacked)
 		return true;
@@ -7558,7 +7558,7 @@ void CityData::ContributeScience(double incomePercent,
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-sint32 CityData::TurnsToNextPop( void )
+sint32 CityData::TurnsToNextPop( )
 {
 
 	if(m_food_delta <= 0
@@ -7932,7 +7932,7 @@ sint32 CityData::SubtractAccumulatedFood(sint32 amount)
 
 
 
-bool CityData::HasSleepingUnits(void) const
+bool CityData::HasSleepingUnits() const
 {
 	CellUnitList * units = world_Get()->GetArmyPtr(m_home_city.RetPos());
 

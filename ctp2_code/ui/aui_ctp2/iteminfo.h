@@ -9,11 +9,11 @@ public:
 	ItemInfo();
 	~ItemInfo();
 
-	sint32 GetId(void) { return m_infoId; }
+	sint32 GetId() { return m_infoId; }
 	void SetId(sint32 id) { m_infoId = id; }
-	sint32 GetCategory(void) { return m_category; }
+	sint32 GetCategory() { return m_category; }
 	void SetCategory(sint32 category) { m_category = category; }
-	sint32 GetItemType(void) { return m_itemType; }
+	sint32 GetItemType() { return m_itemType; }
 	void SetItemType(sint32 itemType) { m_itemType = itemType; }
 
 protected:

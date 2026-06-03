@@ -39,7 +39,7 @@ public:
 	void SetText(const char *str);
 	void SetTextFromMap(const MapPoint &point);
 
-	MBCHAR *GetText(void) { return m_str; }
+	MBCHAR *GetText() { return m_str; }
 
 	void Clear();
 	void Concat(const char *s);
@@ -51,6 +51,6 @@ public:
 // g_infoBar demoted to file-scope `static` in InfoBar.cpp.
 // External callers go through infobar_Get() (returns NULL when the
 // info bar has not been initialized).
-InfoBar * infobar_Get(void);
+InfoBar * infobar_Get();
 
 #endif

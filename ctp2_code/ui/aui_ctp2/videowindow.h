@@ -26,11 +26,11 @@ public:
 
 protected:
 	VideoWindow() : C3Window() {};
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 	AUI_ERRCODE CreateVideoSurface( MBCHAR *name, BOOL modal );
 
 public:
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0 );
 
 private:

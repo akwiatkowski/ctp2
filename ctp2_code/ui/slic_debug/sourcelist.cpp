@@ -78,7 +78,7 @@ public:
     :   aui_Action  (),
         m_item      (item)
     { ; };
-    virtual ~SourceListItemContinueAction(void) { ; };
+    virtual ~SourceListItemContinueAction() { ; };
 
 	virtual void Execute
     (
@@ -153,7 +153,7 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	Initialize( windowBlock );
 }
 
-SourceList::~SourceList(void)
+SourceList::~SourceList()
 {
     if (c3ui_Get() && m_window)
     {
@@ -269,7 +269,7 @@ sint32 SourceList::Initialize(MBCHAR *windowBlock)
 	return 0;
 }
 
-void SourceList::Cleanup(void)
+void SourceList::Cleanup()
 {
     if (c3ui_Get() && m_window)
     {
@@ -298,7 +298,7 @@ void SourceList::DisplayWindow(SlicSegment *segment)
 	keypress_RegisterHandler(this);
 }
 
-void SourceList::RemoveWindow(void)
+void SourceList::RemoveWindow()
 {
 	AUI_ERRCODE auiErr;
 
@@ -313,7 +313,7 @@ void SourceList::kh_Close()
 	RemoveWindow();
 }
 
-sint32 SourceList::UpdateData(void)
+sint32 SourceList::UpdateData()
 {
 	MBCHAR ldlBlock[k_AUI_LDL_MAXBLOCK + 1];
 
@@ -464,7 +464,7 @@ AUI_ERRCODE SourceListItem::InitCommonLdl(SlicSegment *segment,
 	return AUI_ERRCODE_OK;
 }
 
-void SourceListItem::Update(void)
+void SourceListItem::Update()
 {
 	c3_Static *codeItem;
 	codeItem = (c3_Static *)GetChildByIndex(1);

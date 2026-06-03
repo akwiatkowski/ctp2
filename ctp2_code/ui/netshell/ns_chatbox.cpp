@@ -130,7 +130,7 @@ AUI_ERRCODE ns_ChatBox::InitCommonLdl( MBCHAR *ldlBlock )
 	return AUI_ERRCODE_OK;
 }
 
-AUI_ERRCODE ns_ChatBox::CreateComponents( void )
+AUI_ERRCODE ns_ChatBox::CreateComponents( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -236,7 +236,7 @@ void ns_ChatBox::InputFieldAction::Execute(
 	chatbox->GetInputField()->SetFieldText( "" );
 }
 
-AUI_ERRCODE ns_ChatBox::RepositionItems( void )
+AUI_ERRCODE ns_ChatBox::RepositionItems( )
 {
 	return aui_TextBox::RepositionItems();
 }

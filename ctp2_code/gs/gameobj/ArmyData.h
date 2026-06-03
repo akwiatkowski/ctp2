@@ -541,9 +541,9 @@ public:
     bool GetNextPathPoint(MapPoint & next_pos) const;
 
 
-    MBCHAR const * GetDebugString(void) const;
+    MBCHAR const * GetDebugString() const;
     void SetDebugString(MBCHAR const * string);
-    uint8 GetDebugStringColor(void) const { return m_debugStringColor; }
+    uint8 GetDebugStringColor() const { return m_debugStringColor; }
     void SetDebugStringColor(uint8 color) { m_debugStringColor = color; }
 
 

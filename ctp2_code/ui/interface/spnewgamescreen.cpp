@@ -140,7 +140,7 @@ sint32 spnewgamescreen_removeMyWindow(uint32 action)
 
 
 
-AUI_ERRCODE spnewgamescreen_Initialize( void )
+AUI_ERRCODE spnewgamescreen_Initialize( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
@@ -177,7 +177,7 @@ AUI_ERRCODE spnewgamescreen_Initialize( void )
 // Remark(s)  : Clean up the subscreens as well.
 //
 //----------------------------------------------------------------------------
-void spnewgamescreen_Cleanup(void)
+void spnewgamescreen_Cleanup()
 {
 	// Clean up subscreens.
 	spnewgamediffscreen_Cleanup();
@@ -209,7 +209,7 @@ sint32 spnewgamescreen_setPlayerName( const MBCHAR *name )
 	return 1;
 }
 
-sint32 spnewgamescreen_update( void )
+sint32 spnewgamescreen_update( )
 {
 
 	if(g_spNewGameWindow)

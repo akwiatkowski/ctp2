@@ -122,7 +122,7 @@ public:
 
 	static Scheduler & GetScheduler(const sint32 & playerId);
 
-	static void CleanupAll(void);
+	static void CleanupAll();
 
 	static void       SetContactCache         (sint32 player);
 	static bool CachedHasContactWithExceptSelf(sint32 player1, sint32 player2);

@@ -21,7 +21,7 @@ class AllinoneWindow;
 // g_allinoneWindow demoted to file-scope `static` in allinonewindow.cpp.
 // External consumers go through allinonewindow_Get().  Returns NULL
 // when no allinone window has been instantiated.
-AllinoneWindow * allinonewindow_Get(void);
+AllinoneWindow * allinonewindow_Get();
 
 #define k_PPT_PUBLIC	0
 #define k_PPT_PRIVATE	1
@@ -51,8 +51,8 @@ public:
 
 protected:
 	AllinoneWindow() : ns_Window() {}
-	AUI_ERRCODE	InitCommon( void );
-	AUI_ERRCODE CreateControls( void );
+	AUI_ERRCODE	InitCommon( );
+	AUI_ERRCODE CreateControls( );
 
 public:
 	virtual AUI_ERRCODE DrawThis(
@@ -60,9 +60,9 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	sint32 CurNumHumanPlayers( void );
-	sint32 CurNumAiPlayers( void );
-	sint32 CurNumPlayers( void );
+	sint32 CurNumHumanPlayers( );
+	sint32 CurNumAiPlayers( );
+	sint32 CurNumPlayers( );
 
 	MBCHAR m_lname[ 101 ];
 
@@ -110,31 +110,31 @@ public:
 	void SetMode(Mode m);
 	Mode GetMode() { return m_mode; }
 
-	BOOL IsScenarioGame( void ) const { return m_isScenarioGame; }
+	BOOL IsScenarioGame( ) const { return m_isScenarioGame; }
 	void SetScenarioGame( BOOL s ) { m_isScenarioGame = s; }
 	void SetupNewScenario();
 
-	void	Update( void );
+	void	Update( );
 
 	void	UpdateGameSetup( bool b = false );
 
-	void	ReallyUpdateGameSetup( void );
+	void	ReallyUpdateGameSetup( );
 
-	void	UpdatePlayerSetup( void );
+	void	UpdatePlayerSetup( );
 	void	UpdateAIPlayerSetup( nf_AIPlayer *aiplayer );
 	void	DeleteAIPlayer( nf_AIPlayer *aiplayer );
-	void	ReallyUpdateAIPlayerSetup( void );
+	void	ReallyUpdateAIPlayerSetup( );
 
 	void	AddAIPlayer( sint32 curCount = 0 );
 
-	sint32	OKToAddPlayers( void );
+	sint32	OKToAddPlayers( );
 
 	BOOL    LoadGUIDs(SaveInfo *info);
 	BOOL    SetScenarioInfo(SaveInfo *info);
 
 	ns_ScenarioInfo *GetScenarioInfo() { return &m_scenInfo; }
 
-	virtual AUI_ERRCODE Idle( void );
+	virtual AUI_ERRCODE Idle( );
 	virtual AUI_ERRCODE SetParent( aui_Region *region );
 
 	void EnableButtonsForUnlaunch();
@@ -237,17 +237,17 @@ public:
 		CONTROL_MAX = CONTROL_LAST - CONTROL_FIRST
 	};
 
-	AUI_ERRCODE CreateExclusions( void );
+	AUI_ERRCODE CreateExclusions( );
 
-	void UpdatePlayerButtons( void );
-	void SpitOutGameSetup( void );
+	void UpdatePlayerButtons( );
+	void SpitOutGameSetup( );
 
-	void	UpdateTribeSwitches( void );
+	void	UpdateTribeSwitches( );
 
 
 protected:
-	void	UpdateConfig( void );
-	void	UpdateDisplay( void );
+	void	UpdateConfig( );
+	void	UpdateDisplay( );
 
 	bool m_createdExclusions;
 

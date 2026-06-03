@@ -152,7 +152,7 @@ protected:
 		HWND hwnd,
 		sint32 bpp,
 		const MBCHAR *ldlFilename );
-	AUI_ERRCODE CreateScreen( void );
+	AUI_ERRCODE CreateScreen( );
 
 public:
 	void RegisterObject( aui_Blitter *blitter );
@@ -169,9 +169,9 @@ public:
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	HINSTANCE	TheHINSTANCE( void ) const { return m_hinst; }
-	HWND		TheHWND( void ) const { return m_hwnd; }
-	aui_Ldl		*GetLdl( void ) const { return m_ldl; }
+	HINSTANCE	TheHINSTANCE( ) const { return m_hinst; }
+	HWND		TheHWND( ) const { return m_hwnd; }
+	aui_Ldl		*GetLdl( ) const { return m_ldl; }
 
 	AUI_ERRCODE BltToSecondary
 	                          (
@@ -227,24 +227,24 @@ public:
 		return m_blitter->ColorBlt(m_secondary, &rect, RGB(0,0,0), 0);
 	}
 
-	aui_Surface		*Secondary( void ) const { return m_secondary; }
-	aui_Surface		*Primary( void ) const { return m_primary; }
-	aui_Blitter		*TheBlitter( void ) const { return m_blitter; }
-	aui_MemMap		*TheMemMap( void ) const { return m_memmap; }
-	aui_Mouse		*TheMouse( void ) const { return m_mouse; }
-	aui_Keyboard	*TheKeyboard( void ) const { return m_keyboard; }
-	aui_Joystick	*TheJoystick( void ) const { return m_joystick; }
+	aui_Surface		*Secondary( ) const { return m_secondary; }
+	aui_Surface		*Primary( ) const { return m_primary; }
+	aui_Blitter		*TheBlitter( ) const { return m_blitter; }
+	aui_MemMap		*TheMemMap( ) const { return m_memmap; }
+	aui_Mouse		*TheMouse( ) const { return m_mouse; }
+	aui_Keyboard	*TheKeyboard( ) const { return m_keyboard; }
+	aui_Joystick	*TheJoystick( ) const { return m_joystick; }
 
-	sint32 BitsPerPixel( void ) const { return m_bpp; }
-	AUI_SURFACE_PIXELFORMAT PixelFormat( void ) { return m_pixelFormat; }
+	sint32 BitsPerPixel( ) const { return m_bpp; }
+	AUI_SURFACE_PIXELFORMAT PixelFormat( ) { return m_pixelFormat; }
 
-	uint32			DXVer( void ) const { return m_dxver; }
+	uint32			DXVer( ) const { return m_dxver; }
 
-	aui_DirtyList	*GetDirtyList( void ) { return m_dirtyList; }
+	aui_DirtyList	*GetDirtyList( ) { return m_dirtyList; }
 
-	AUI_ERRCODE		FlushDirtyList( void );
+	AUI_ERRCODE		FlushDirtyList( );
 
-	aui_Resource<aui_Image> *GetImageResource( void ) const
+	aui_Resource<aui_Image> *GetImageResource( ) const
 		{ return m_imageResource; }
 
 	aui_Image	*LoadImage( const MBCHAR *name )
@@ -260,7 +260,7 @@ public:
 	AUI_ERRCODE	RemoveImageSearchPath( const MBCHAR *path )
 		{ return m_imageResource->RemoveSearchPath( path ); }
 
-	aui_Resource<aui_Cursor> *GetCursorResource( void ) const
+	aui_Resource<aui_Cursor> *GetCursorResource( ) const
 		{ return m_cursorResource; }
 
 	aui_Cursor	*LoadCursor( const MBCHAR *name )
@@ -276,7 +276,7 @@ public:
 	AUI_ERRCODE	RemoveCursorSearchPath( const MBCHAR *path )
 		{ return m_cursorResource->RemoveSearchPath( path ); }
 
-	aui_Resource<aui_BitmapFont> *GetBitmapFontResource( void ) const
+	aui_Resource<aui_BitmapFont> *GetBitmapFontResource( ) const
 		{ return m_bitmapFontResource; }
 
 
@@ -295,7 +295,7 @@ public:
 	AUI_ERRCODE	RemoveBitmapFontSearchPath( const MBCHAR *path )
 		{ return m_bitmapFontResource->RemoveSearchPath( path ); }
 
-	aui_AudioManager *TheAudioManager( void ) const { return m_audioManager; }
+	aui_AudioManager *TheAudioManager( ) const { return m_audioManager; }
 
 	aui_Sound	*LoadSound( const MBCHAR *name )
 		{ return m_audioManager ? m_audioManager->Load( name ) : NULL; }
@@ -310,7 +310,7 @@ public:
 	AUI_ERRCODE	RemoveSoundSearchPath( const MBCHAR *path )
 		{ return m_audioManager ? m_audioManager->RemoveSearchPath( path ) : AUI_ERRCODE_HACK; }
 
-	aui_MovieManager *TheMovieManager( void ) const { return m_movieManager; }
+	aui_MovieManager *TheMovieManager( ) const { return m_movieManager; }
 
 	aui_Movie	*LoadMovie( const MBCHAR *name)
 		{ return m_movieManager ? m_movieManager->Load( name, C3DIR_VIDEOS  ) : NULL; }
@@ -325,14 +325,14 @@ public:
 	AUI_ERRCODE	RemoveMovieSearchPath( const MBCHAR *path )
 		{ return m_movieManager ? m_movieManager->RemoveSearchPath( path ) : AUI_ERRCODE_HACK; }
 
-	aui_Window		*TopWindow( void ) const
+	aui_Window		*TopWindow( ) const
 	{ return m_childList->L() ? (aui_Window *)m_childList->GetHead() : NULL; }
 	aui_Window		*BringWindowToTop( uint32 windowId );
 	aui_Window		*BringWindowToTop( aui_Window *window );
 
 	virtual AUI_ERRCODE DrawOne( aui_Window *window );
 
-	AUI_ERRCODE Draw( void );
+	AUI_ERRCODE Draw( );
 
 	AUI_ERRCODE	AddWindow( aui_Window *window )
 	{ return AddChild( (aui_Region *)window ); }
@@ -356,17 +356,17 @@ public:
 	AUI_ERRCODE HandleMouseEvents(
 		sint32 numEvents = 0,
 		aui_MouseEvent *events = NULL );
-	AUI_ERRCODE HandleKeyboardEvents( void );
-	AUI_ERRCODE HandleJoystickEvents( void );
+	AUI_ERRCODE HandleKeyboardEvents( );
+	AUI_ERRCODE HandleJoystickEvents( );
 	virtual AUI_ERRCODE HandleWindowsMessage(
 		HWND hwnd,
 		UINT message,
 		WPARAM wParam,
 		LPARAM lParam );
-	virtual AUI_ERRCODE Process( void );
+	virtual AUI_ERRCODE Process( );
 
 	void AddAction( aui_Action *action );
-	void HandleActions( void );
+	void HandleActions( );
 
 
 
@@ -375,10 +375,10 @@ public:
 
 
 	void AddDestructiveAction(aui_Action *action);
-	void HandleDestructiveActions( void );
+	void HandleDestructiveActions( );
 
-	virtual AUI_ERRCODE AltTabOut( void );
-	virtual AUI_ERRCODE AltTabIn( void );
+	virtual AUI_ERRCODE AltTabOut( );
+	virtual AUI_ERRCODE AltTabIn( );
 	BOOL	MinimizeOnAltTabOut( BOOL minimize );
 
 	BOOL		IsChildWin( HWND hwnd ) const
@@ -386,12 +386,12 @@ public:
 	AUI_ERRCODE	AddWin( HWND hwnd );
 	void		RemoveWin( HWND hwnd );
 
-	aui_Region	*TheEditRegion( void ) const { return m_editRegion; }
+	aui_Region	*TheEditRegion( ) const { return m_editRegion; }
 	void		SetEditRegion( aui_Region *region );
 	void		SetEditMode( BOOL mode );
-	BOOL		GetEditMode( void ) { return m_editMode; }
+	BOOL		GetEditMode( ) { return m_editMode; }
 	AUI_ERRCODE ShowSelectedRegion( aui_Region *region );
-	RECT		TheEditRect( void ) const { return m_editRect; }
+	RECT		TheEditRect( ) const { return m_editRect; }
 	AUI_ERRCODE	CreateEditModeDialog( BOOL bMake );
 
 	struct DirtyRectInfo
@@ -400,16 +400,16 @@ public:
 		aui_Window *window;
 	};
 
-	tech_WLList<DirtyRectInfo *> *GetDirtyRectInfoList( void )
+	tech_WLList<DirtyRectInfo *> *GetDirtyRectInfoList( )
 	{ return m_dirtyRectInfoList; }
 
 protected:
 	AUI_ERRCODE	TagMouseEvents( sint32 numEvents, aui_MouseEvent *events );
 
-	virtual AUI_ERRCODE ClipAndConsolidate( void );
+	virtual AUI_ERRCODE ClipAndConsolidate( );
 
 	AUI_ERRCODE InsertDirtyRectInfo( RECT *rect, aui_Window *window );
-	void FlushDirtyRectInfoList( void );
+	void FlushDirtyRectInfoList( );
 
 	tech_Memory<DirtyRectInfo>		*m_dirtyRectInfoMemory;
 	tech_WLList<DirtyRectInfo *>	*m_dirtyRectInfoList;
@@ -474,7 +474,7 @@ protected:
 // App-singleton accessor pair for the legacy g_ui pointer.  g_ui is
 // file-static in aui_ui.cpp; external consumers go through these
 // accessors.
-aui_UI * aui_ui_Get(void);
+aui_UI * aui_ui_Get();
 void     aui_ui_Set(aui_UI *p);
 
 #endif

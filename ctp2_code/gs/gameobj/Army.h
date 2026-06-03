@@ -309,9 +309,9 @@ public:
 		sint32		unit_hp[MAX_UNIT_COUNT]
 	) const;
 
-	bool CanTransport(void) const;
-	bool IsCivilian(void) const;
-	bool IsWounded(void) const;
+	bool CanTransport() const;
+	bool IsCivilian() const;
+	bool IsWounded() const;
 
 	bool ExecutedThisTurn() const;
 	void InformAI(const UNIT_ORDER_TYPE order_type, const MapPoint &pos);

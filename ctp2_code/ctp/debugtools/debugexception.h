@@ -32,7 +32,7 @@ extern "C" {
 
 
 
-typedef void (* DebugExceptionClientFunction) (void);
+typedef void (* DebugExceptionClientFunction) ();
 
 void DebugException_Open (DebugExceptionClientFunction function_enter);
 

@@ -65,7 +65,7 @@ extern  C3UI				*c3ui_Get();
 
 namespace Os
 {
-    extern std::basic_string<TCHAR> GetExeVersion(void);
+    extern std::basic_string<TCHAR> GetExeVersion();
 }
 
 static C3Window				*s_initplayWindow		= NULL;
@@ -97,7 +97,7 @@ sint32 initialplayscreen_removeMyWindow(uint32 action)
 }
 
 
-AUI_ERRCODE initialplayscreen_Initialize( void )
+AUI_ERRCODE initialplayscreen_Initialize( )
 {
 	fprintf(stderr, "[IPS] Initialize: called, s_initplayWindow=%p\n", (void*)s_initplayWindow);
 
@@ -171,7 +171,7 @@ AUI_ERRCODE initialplayscreen_Initialize( void )
 }
 
 
-void initialplayscreen_Cleanup(void)
+void initialplayscreen_Cleanup()
 {
 	if (s_initplayWindow)
     {

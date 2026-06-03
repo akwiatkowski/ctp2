@@ -53,12 +53,12 @@ sint32 ns_TransportListBox::m_version = 102;
 template<>
 bool NETFunc::ListHandler<nf_PlayerSetup>::Handle(NETFunc::Message *m) {return false;}
 template<>
-void NETFunc::ListHandler<nf_PlayerSetup>::SetKey(void) {}
+void NETFunc::ListHandler<nf_PlayerSetup>::SetKey() {}
 
 template<>
 bool NETFunc::ListHandler<nf_GameSetup>::Handle(NETFunc::Message *m) {return false;}
 template<>
-void NETFunc::ListHandler<nf_GameSetup>::SetKey(void) {}
+void NETFunc::ListHandler<nf_GameSetup>::SetKey() {}
 
 template<>
 bool NETFunc::ListHandler<nf_AIPlayer>::Handle(NETFunc::Message *m) {
@@ -87,12 +87,12 @@ bool NETFunc::ListHandler<nf_AIPlayer>::Handle(NETFunc::Message *m) {
 	return false;
 }
 template<>
-void NETFunc::ListHandler<nf_AIPlayer>::SetKey(void) {}
+void NETFunc::ListHandler<nf_AIPlayer>::SetKey() {}
 
 template<>
 bool NETFunc::ListHandler<NETFunc::Transport>::Handle(NETFunc::Message *m) {return false;}
 template<>
-void NETFunc::ListHandler<NETFunc::Transport>::SetKey(void) {}
+void NETFunc::ListHandler<NETFunc::Transport>::SetKey() {}
 
 ns_PlayerSetupListBox::ns_PlayerSetupListBox (
 	AUI_ERRCODE *retval,
@@ -670,7 +670,7 @@ void ns_GPlayerListBox::Change( NETFunc::Player *player )
 }
 
 
-void ns_GPlayerListBox::Destroy( void )
+void ns_GPlayerListBox::Destroy( )
 {
 
 	for(iterator i=begin(); i!=end(); i++)
@@ -930,7 +930,7 @@ void ns_AIPlayerListBox::Change( nf_AIPlayer *player )
 }
 
 
-void ns_AIPlayerListBox::Destroy( void )
+void ns_AIPlayerListBox::Destroy( )
 {
 
 	for(iterator i=begin(); i!=end(); i++)

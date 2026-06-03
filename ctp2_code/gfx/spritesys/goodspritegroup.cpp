@@ -126,7 +126,7 @@ void GoodSpriteGroup::Save(MBCHAR const * filename, unsigned int version_id, uns
 	}
 }
 
-void GoodSpriteGroup::DeallocateStorage(void)
+void GoodSpriteGroup::DeallocateStorage()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
@@ -135,7 +135,7 @@ void GoodSpriteGroup::DeallocateStorage(void)
     }
 }
 
-void GoodSpriteGroup::DeallocateFullLoadAnims(void)
+void GoodSpriteGroup::DeallocateFullLoadAnims()
 {
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {

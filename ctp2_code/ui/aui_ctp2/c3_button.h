@@ -93,15 +93,15 @@ public:
 		void *cookie = NULL );
 	virtual ~c3_EditButton();
 
-	sint32		GetValue( void ) const { return m_val; }
-	sint32		GetMinimum( void ) const { return m_min; }
-	sint32		GetMaximum( void ) const { return m_max; }
+	sint32		GetValue( ) const { return m_val; }
+	sint32		GetMinimum( ) const { return m_min; }
+	sint32		GetMaximum( ) const { return m_max; }
 
 	AUI_ERRCODE	SetValue( sint32 val );
 	AUI_ERRCODE	SetMinimum( sint32 min );
 	AUI_ERRCODE	SetMaximum( sint32 max );
 
-	void DoCallback( void );
+	void DoCallback( );
 
 protected:
 	c3_EditButton()

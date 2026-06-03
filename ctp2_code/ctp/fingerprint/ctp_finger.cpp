@@ -6,7 +6,7 @@
 
 extern CivPaths		*civpaths_Get();
 
-BOOL ctpfinger_Check(void)
+BOOL ctpfinger_Check()
 {
 	BOOL	success = FALSE;
 	MBCHAR	fingerprintPath[_MAX_PATH];

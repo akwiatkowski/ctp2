@@ -86,7 +86,7 @@
 // effort to remove UI ownership from the simulation core.
 static SelectedItem *g_selected_item = NULL;
 
-SelectedItem * selitem_Get(void)              { return g_selected_item; }
+SelectedItem * selitem_Get()              { return g_selected_item; }
 void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
 
 #include "gs/world/cellunitlist.h"
@@ -944,7 +944,7 @@ void SelectedItem::AddPlayer(PLAYER_INDEX p)
 	turn_Get()->RegisterNewPlayer(p);
 }
 
-uint32 SelectedItem_GetVersion(void)
+uint32 SelectedItem_GetVersion()
 {
 	return (k_SELECTED_ITEM_VERSION_MAJOR<<16 | k_SELECTED_ITEM_VERSION_MINOR);
 }
@@ -2565,7 +2565,7 @@ void SelectedItem::SleepArmy(sint32 owner, sint32 index)
 	Assert(false);
 }
 
-void SelectedItem::InterceptTrade(void)
+void SelectedItem::InterceptTrade()
 {
 	sint32 player = GetVisiblePlayer();
 	if(m_select_state[player] == SELECT_TYPE_LOCAL_ARMY)
@@ -2752,7 +2752,7 @@ sint32 SelectedItem::GetIsPathing() const
 	       );
 }
 
-void SelectedItem::UpdateSelectedItem( void )
+void SelectedItem::UpdateSelectedItem( )
 {
 	ClipCurrentItem();
 

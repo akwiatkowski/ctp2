@@ -370,7 +370,7 @@ void aui_TextBase::SetTextItalic( sint32 italic )
 }
 
 
-void aui_TextBase::TextReloadFont( void )
+void aui_TextBase::TextReloadFont( )
 {
 	if ( !m_textreload ) return;
 

@@ -55,7 +55,7 @@ extern SoundManager		*soundmgr_Get();
 IntroMovieWindow		*g_introMovieWindow = NULL;
 
 
-void intromoviewin_Initialize(void)
+void intromoviewin_Initialize()
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
@@ -69,7 +69,7 @@ void intromoviewin_Initialize(void)
 }
 
 
-void intromoviewin_DisplayIntroMovie(void)
+void intromoviewin_DisplayIntroMovie()
 {
 	MBCHAR		*whichMovie;
 

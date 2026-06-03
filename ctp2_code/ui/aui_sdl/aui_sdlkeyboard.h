@@ -20,8 +20,8 @@
 // peeps SDL keyboard events and pushes them via PushQueueEvent; the
 // SDL keyboard input device drains them via TryPopQueueEvent on its
 // own poll cycle.  Init/Destroy bracket the mutex lifetime.
-void aui_sdlkbd_InitQueueMutex(void);
-void aui_sdlkbd_DestroyQueueMutex(void);
+void aui_sdlkbd_InitQueueMutex();
+void aui_sdlkbd_DestroyQueueMutex();
 void aui_sdlkbd_PushQueueEvent(SDL_Event const & event);
 bool aui_sdlkbd_TryPopQueueEvent(SDL_Event & event);
 

@@ -31,11 +31,11 @@ public:
 protected:
 	c3_HyperTipWindow() : aui_TipWindow() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
-	AUI_ERRCODE InitCommon( void );
+	AUI_ERRCODE InitCommon( );
 
 public:
 
-	aui_HyperTextBox *GetHyperTip( void ) const { return m_hyperTip; }
+	aui_HyperTextBox *GetHyperTip( ) const { return m_hyperTip; }
 	AUI_ERRCODE SetHyperTipText(MBCHAR *text);
 
 	virtual AUI_ERRCODE DrawThis(

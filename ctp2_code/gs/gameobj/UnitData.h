@@ -324,7 +324,7 @@ public:
 	sint32 ResetMovement();
 
 	void GetPos(MapPoint &p) const { p = m_pos; };
-	MapPoint GetPos(void) { return m_pos; }
+	MapPoint GetPos() { return m_pos; }
 	void SetPos(const MapPoint &p, bool &left_map);
 	void SetPosAndNothingElse(const MapPoint &p);
 
@@ -744,7 +744,7 @@ public:
 	void BuildInfrastructure();
 
 	void ActionSuccessful(SPECATTACK attack, const Unit &c);
-	void ActionUnsuccessful(void);;
+	void ActionUnsuccessful();;
 
 	const Unit &GetTransport() const;
 	void RemoveTransportedUnit(const Unit &u);
@@ -761,7 +761,7 @@ public:
 	const Unit &GetTargetCity();
 
 	bool CanBeachAssaultRightNow();
-	const UnitRecord * GetDBRec(void) const;
+	const UnitRecord * GetDBRec() const;
 	sint32 CalculateTotalHP() const;
 	sint32 CalculateTotalFuel() const;
 	double CalculateTotalMovePoints() const;
@@ -781,5 +781,5 @@ private:
 
 };
 
-uint32 UnitData_UnitData_GetVersion(void);
+uint32 UnitData_UnitData_GetVersion();
 #endif

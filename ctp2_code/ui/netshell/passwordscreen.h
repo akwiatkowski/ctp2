@@ -20,9 +20,9 @@ enum PASSWORDSCREEN_MODE
 };
 
 sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m );
-sint32 passwordscreen_removeMyWindow( void );
-AUI_ERRCODE passwordscreen_Initialize( void );
-AUI_ERRCODE passwordscreen_Cleanup( void );
+sint32 passwordscreen_removeMyWindow( );
+AUI_ERRCODE passwordscreen_Initialize( );
+AUI_ERRCODE passwordscreen_Cleanup( );
 
 void PasswordScreenCallback( aui_Control *, uint32, uint32, void *);
 

@@ -28,6 +28,7 @@
 #include "ActionQueue.h"
 
 #include <cassert>
+#include <memory>
 
 #include "gfx/spritesys/Action.h"
 
@@ -52,7 +53,7 @@ ActionQueue &ActionQueue::operator=(const ActionQueue &rhs) {
     assert(m_capacity > 0);
     m_actionQueue.clear();
     for (const ActionPtr &action : rhs.m_actionQueue) {
-      m_actionQueue.push_back(ActionPtr(new Action(*action)));
+      m_actionQueue.push_back(std::make_shared<Action>(*action));
     }
   }
   return *this;

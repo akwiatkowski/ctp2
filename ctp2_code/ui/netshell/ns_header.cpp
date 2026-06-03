@@ -148,7 +148,7 @@ AUI_ERRCODE ns_Header::CreateSwitches( MBCHAR *ldlBlock )
 
 			i++;
 
-		} while ( 1 );
+		} while ( true );
 	}
 
 	return AUI_ERRCODE_OK;

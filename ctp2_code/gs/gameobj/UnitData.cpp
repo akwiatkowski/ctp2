@@ -96,6 +96,7 @@
 #include "gs/gameobj/UnitData.h"
 
 #include <algorithm>                    // std::max
+#include <memory>
 
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ctp/ctp2_utils/BitMask.h"
@@ -197,9 +198,9 @@ UnitData::UnitData(
 		}
 		m_actor->SetNewUnitVisionRange((GetVisionRange()));
 	} else {
-		m_actor.reset(new UnitActor(m_sprite_state, Unit(m_id), m_type, center_pos,
+		m_actor = std::make_shared<UnitActor>(m_sprite_state, Unit(m_id), m_type, center_pos,
 								                m_owner, false, (GetVisionRange()),
-								                m_city_data ? m_city_data->GetDesiredSpriteIndex() : -1));
+								                m_city_data ? m_city_data->GetDesiredSpriteIndex() : -1);
 		// Phase 3 slice 7h: dropped redundant SetUnitVisionRange call —
 		// the UnitActor ctor at line 154 already assigns m_unitVisionRange
 		// from its visionRange param (the same GetVisionRange() we just
@@ -234,8 +235,8 @@ UnitData::UnitData(
 	m_visibility = 0xffffffff;
 	m_temp_visibility = 0xffffffff;
 	m_radar_visibility = 0xffffffff;
-	m_actor.reset(new UnitActor(m_sprite_state, Unit(m_id), m_type, actor_pos,
-							                m_owner, false, (GetVisionRange()), -1));
+	m_actor = std::make_shared<UnitActor>(m_sprite_state, Unit(m_id), m_type, actor_pos,
+							                m_owner, false, (GetVisionRange()), -1);
 	// Phase 3 slice 7h: dropped redundant SetUnitVisionRange — see ctor above.
 
 	m_pos = actor_pos;
@@ -357,7 +358,7 @@ void UnitData::Create(const sint32 t,
 	else
 		m_city_data = nullptr;
 
-	m_sprite_state.reset(new SpriteState(rec->GetDefaultSprite()->GetValue()));
+	m_sprite_state = std::make_shared<SpriteState>(rec->GetDefaultSprite()->GetValue());
 
 	m_visibility = 0;
 	m_temp_visibility = 0;
@@ -2408,7 +2409,7 @@ void UnitData::Serialize(CivArchive &archive)
 		delete m_city_data;
     m_city_data = (tmp) ? new CityData(archive) : nullptr;
 
-		m_actor.reset(new UnitActor(archive));
+		m_actor = std::make_shared<UnitActor>(archive);
 
 		m_sprite_state = m_actor->GetSpriteState();
 

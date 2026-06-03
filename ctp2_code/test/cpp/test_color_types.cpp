@@ -29,7 +29,7 @@ TEST_CASE("COLOR_MAX is the last enumerator") {
 
 TEST_CASE("Pixel32 is exactly 32 bits unsigned") {
     static_assert(sizeof(Pixel32) == 4, "Pixel32 must be 32 bits");
-    static_assert(std::is_unsigned<Pixel32>::value, "Pixel32 must be unsigned");
+    static_assert(std::is_unsigned_v<Pixel32>, "Pixel32 must be unsigned");
 }
 
 TEST_CASE("Pixel16 is exactly 16 bits unsigned") {

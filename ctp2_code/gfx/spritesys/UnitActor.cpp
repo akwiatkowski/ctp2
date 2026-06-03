@@ -70,6 +70,8 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/UnitActor.h"
 
+#include <memory>
+
 #include "ctp/debugtools/debugmemory.h"
 #include "gfx/gfx_utils/colorset.h"  // g_colorset
 #include "gfx/spritesys/SpriteGroupList.h"
@@ -2141,7 +2143,7 @@ void UnitActor::Serialize(CivArchive& archive) {
 
     m_pos.Serialize(archive);
     m_spriteState;
-    m_spriteState.reset(new SpriteState(archive));
+    m_spriteState = std::make_shared<SpriteState>(archive);
   }
 }
 

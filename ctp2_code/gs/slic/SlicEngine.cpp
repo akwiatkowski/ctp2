@@ -2663,7 +2663,7 @@ void SlicEngine::AddStructs(bool createSymbols)
 	AddStructArray(createSymbols, new SlicStruct_Gold, SLIC_BUILTIN_GOLD);
 	AddStructArray(createSymbols, new SlicStruct_Good, SLIC_BUILTIN_GOOD);
 
-	if(createSymbols && 0) {
+	if(createSymbols && false) {
 		m_symTab->Add(new SlicNamedSymbol("special", new SlicArray(SS_TYPE_SYM, SLIC_SYM_STRUCT)));
 		m_symTab->Add(new SlicNamedSymbol("discovery", new SlicArray(SS_TYPE_SYM, SLIC_SYM_STRUCT)));
 		m_symTab->Add(new SlicNamedSymbol("gold", new SlicArray(SS_TYPE_SYM, SLIC_SYM_STRUCT)));

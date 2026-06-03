@@ -743,7 +743,7 @@ void StartSelectingWindow::NewButtonAction::Execute(
 		char test[ dp_SNAMELEN + 1 ];
 		strncpy( test, name, dp_SNAMELEN );
 		sint32 num = 2;
-		while ( 1 )
+		while ( true )
 		{
 			sint32 i;
 			for ( i = 0; i < listbox->NumItems(); i++ )
@@ -867,7 +867,7 @@ void gameselectwindow_scenarioExitCallback(aui_Control *control,
 		char test[ dp_SNAMELEN + 1 ];
 		strncpy( test, name, dp_SNAMELEN );
 		sint32 num = 2;
-		while ( 1 )
+		while ( true )
 		{
 			sint32 i;
 			for ( i = 0; i < listbox->NumItems(); i++ )

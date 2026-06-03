@@ -214,7 +214,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 
 		sint32 i = 0;
 		MBCHAR temp[ k_AUI_LDL_MAXBLOCK + 1 ] = "";
-		while ( 1 )
+		while ( true )
 		{
 			snprintf(temp, sizeof(temp), "%s.%s%d", ldlBlock, k_MOUSE_LDL_ANIM, i++ );
 

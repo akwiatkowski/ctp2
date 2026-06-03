@@ -32,6 +32,8 @@
 #include "ctp/c3.h"
 #include "net/general/net_vision.h"
 
+#include <memory>
+
 #include "gs/utility/gstypes.h"        // TERRAIN_TYPES
 #include "net/io/net_util.h"
 #include "gs/gameobj/Vision.h"
@@ -418,15 +420,15 @@ void NetUnseenCell::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 		double		visionRange = g_theUnitDB->Get(dbIndex, player_Get(m_owner)->GetGovernmentType())->GetVisionRange();
 
 
-		m_ucell->m_actor.reset(
-      new UnitActor(ss,
+		m_ucell->m_actor = std::make_shared<UnitActor>(
+      ss,
                     unitID,
                     (sint32)dbIndex,
                     m_ucell->m_point,
                     m_ucell->m_cityOwner,
                     TRUE,
                     visionRange,
-                    m_ucell->m_citySpriteIndex));
+                    m_ucell->m_citySpriteIndex);
 
     // Phase 3 slice 4: wire fog-of-war snapshot state.  The renderer's
     // GetPos() dispatches through UnitState; UnseenCell owns the

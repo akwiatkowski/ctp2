@@ -177,7 +177,7 @@ std::string iso_utc_now()
 // arbitrary binary garbage.
 std::string utf8_safe(MBCHAR const *src)
 {
-    if (!src) return std::string();
+    if (!src) return {};
     std::string out;
     while (*src)
     {

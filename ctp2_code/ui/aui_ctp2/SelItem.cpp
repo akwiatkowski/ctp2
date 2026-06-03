@@ -1632,7 +1632,7 @@ sint32 SelectedItem::GetVisiblePlayer() const
 		}
 		else
 		{
-			if(0 // Never used
+			if(false // Never used
 			&& player_Get(m_current_player)
 			&& player_Get(m_current_player)->IsHuman()
 			){

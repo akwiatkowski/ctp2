@@ -146,7 +146,7 @@ void GoodSpriteGroup::DeallocateFullLoadAnims()
 
 void GoodSpriteGroup::DrawText(sint32 x, sint32 y, MBCHAR const * s)
 {
-	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, 0, 0);
+	primitives_DrawText(screenmanager_Get()->GetSurface(), x, y, s, 0, false);
 }
 
 sint32 GoodSpriteGroup::Parse(uint16 id,GROUPTYPE group)

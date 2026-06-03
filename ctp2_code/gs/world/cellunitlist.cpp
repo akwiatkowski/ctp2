@@ -538,7 +538,7 @@ Unit CellUnitList::GetTopVisibleUnit(PLAYER_INDEX const looker) const
         }
     }
 
-    return Unit();
+    return {};
 }
 
 bool CellUnitList::CanBeSued() const

@@ -296,7 +296,7 @@ void spnewgamerulesscreen_agesPress(aui_Control *control, uint32 action, uint32 
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	agesscreen_displayMyWindow(0);
+	agesscreen_displayMyWindow(false);
 }
 
 void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32 data, void *cookie )

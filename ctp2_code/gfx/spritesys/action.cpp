@@ -29,6 +29,8 @@
 /// \file   Action.cpp
 /// \brief  Action on the screen
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "gfx/spritesys/Action.h"
 
@@ -202,7 +204,7 @@ void Action::CreatePath(sint32 x1, sint32 y1, sint32 x2, sint32 y2)
 	STOMPCHECK();
 #endif
 
-	m_curPath.reset(new ActorPath(x1, y1, x2, y2));
+	m_curPath = std::make_shared<ActorPath>(x1, y1, x2, y2);
 
 	m_maxActionCounter = k_MAX_UNIT_MOVEMENT_ITERATIONS;
 

@@ -2821,13 +2821,13 @@ ControlPanelWindow::ActivateTileImpBank(unsigned int group_id)
 
 			if (index!=group_id)
 			{
-				m_activatorButtons[index]->SetToggleState(0);
+				m_activatorButtons[index]->SetToggleState(false);
 				m_tileImpPanes[index]->Hide();
 			}
 			else
 			{
 				if (!m_activatorButtons[index]->GetToggleState())
-					m_activatorButtons[index]->SetToggleState(1);
+					m_activatorButtons[index]->SetToggleState(true);
 				m_tileImpPanes[index]->Show();
 			}
 		}
@@ -3841,7 +3841,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 		for(int i = 0; i < k_MAX_PLAYERS; i++)
 			if(player_Get(i)) s_totalPlayers++;
 
-		if(0 && !g_network.IsActive()) {
+		if(false && !g_network.IsActive()) {
 
 			ProgressWindow::BeginProgress(
 				g_theProgressWindow,
@@ -3868,7 +3868,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 		m_currentProgress++;
 
 
-		if(g_theProgressWindow && 0 && !g_network.IsActive()) {
+		if(g_theProgressWindow && false && !g_network.IsActive()) {
 			g_theProgressWindow->StartCountingTo(m_currentProgress);
 		}
 	}
@@ -3877,7 +3877,7 @@ AUI_ERRCODE ControlPanelWindow::UpdatePlayerEndProgress(sint32 currentPlayer)
 
 
 
-	if(0 && !g_network.IsActive()) {
+	if(false && !g_network.IsActive()) {
 		if (selitem_Get()->GetCurPlayer() == NewTurnCount::GetStopPlayer()) {
 			ProgressWindow::EndProgress( g_theProgressWindow );
 

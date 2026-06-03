@@ -1965,7 +1965,7 @@ sint32 TiledMap::RepaintImprovements(RECT *repaintRect,bool clip)
 		if (world_Get()->IsYwrap() || (i >= 0 && i < mapHeight)) {
 			for (sint32 j=repaintRect->left; j<repaintRect->right; j++) {
 				if (world_Get()->IsXwrap() || (j >= 0 && j < mapWidth)) {
-					DrawImprovements(nullptr,i,j,0);
+					DrawImprovements(nullptr,i,j,false);
 				}
 			}
 		}
@@ -4013,7 +4013,7 @@ void TiledMap::RedrawTile
 			CalculateWrap(nullptr,pos.y,tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(NORTHWEST,pos)) {
@@ -4021,7 +4021,7 @@ void TiledMap::RedrawTile
 			CalculateWrap(nullptr,pos.y,tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(NORTHEAST,pos)) {
@@ -4029,14 +4029,14 @@ void TiledMap::RedrawTile
 			CalculateWrap(nullptr,point->y,tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(EAST,pos)) {
 			maputils_MapX2TileX(pos.x,pos.y,&tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		BlackTile(m_surface, (MapPoint *)point);
@@ -4048,34 +4048,34 @@ void TiledMap::RedrawTile
 		RedrawHat(nullptr, point->y,tileX);
 		RedrawBorders(nullptr, point->y, tileX);
 
-		DrawImprovements(nullptr, point->y, tileX, 0);
+		DrawImprovements(nullptr, point->y, tileX, false);
 
 		if(point->GetNeighborPosition(WEST,pos)) {
 			maputils_MapX2TileX(pos.x,pos.y,&tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(SOUTHWEST,pos)) {
 			maputils_MapX2TileX(pos.x,pos.y,&tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(SOUTHEAST,pos)) {
 			maputils_MapX2TileX(pos.x,pos.y,&tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		if(point->GetNeighborPosition(SOUTH,pos)) {
 			maputils_MapX2TileX(pos.x,pos.y,&tileX);
 			RedrawHat(nullptr,pos.y,tileX);
 			RedrawBorders(nullptr, pos.y, tileX);
-			DrawImprovements(nullptr, pos.y, tileX, 0);
+			DrawImprovements(nullptr, pos.y, tileX, false);
 		}
 
 		UnlockSurface();

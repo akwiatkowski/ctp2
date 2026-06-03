@@ -3016,7 +3016,7 @@ void TiledMap::DrawNumber(aui_Surface *surface, sint32 num, sint32 color, sint32
 
     UnlockSurface();
 
-    primitives_DrawText(surface, x - 8, y - 8, buf, color , 1);
+    primitives_DrawText(surface, x - 8, y - 8, buf, color , true);
 
     LockSurface();
 }
@@ -3027,7 +3027,7 @@ void TiledMap::SlowDrawText(aui_Surface *surface, char *buf, sint32 color, sint3
 
     UnlockSurface();
 
-    primitives_DrawText(surface, x - 32, y - 8, buf, color , 1);
+    primitives_DrawText(surface, x - 32, y - 8, buf, color , true);
 
     LockSurface();
 

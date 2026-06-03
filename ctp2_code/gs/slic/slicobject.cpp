@@ -437,7 +437,7 @@ void SlicObject::Finish()
 						messageData->SetIsDiplomaticResponse();
 					}
 
-					if(1 || m_useDirector) {
+					if(true || m_useDirector) {
 						messageData->SetUseDirector();
 					}
 

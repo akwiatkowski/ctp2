@@ -51,6 +51,8 @@
 #include "gfx/tilesys/tiledmap.h"
 #include "gfx/spritesys/Anim.h"
 #include "gfx/spritesys/TradeActor.h"
+
+#include <memory>
 #include "gfx/spritesys/GoodActor.h"
 #include "gs/database/StrDB.h"
 
@@ -110,7 +112,7 @@ TradeActor::~TradeActor()
 
 void TradeActor::AddIdle()
 {
-	m_curAction.reset(new Action(GOODACTION_IDLE, ACTIONEND_INTERRUPT));
+	m_curAction = std::make_shared<Action>(GOODACTION_IDLE, ACTIONEND_INTERRUPT);
 	m_curAction->SetAnim(CreateAnim(GOODACTION_IDLE));
 	m_curGoodAction = GOODACTION_IDLE;
 }

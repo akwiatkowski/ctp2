@@ -2034,7 +2034,7 @@ Unit ArmyData::GetAdjacentCity(const MapPoint &point) const
 	}
 	else
 	{
-		return Unit();
+		return {};
 	}
 }
 

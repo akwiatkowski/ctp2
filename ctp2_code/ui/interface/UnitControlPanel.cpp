@@ -905,12 +905,12 @@ Army UnitControlPanel::GetSelectedArmy()
 {
 
 	if(!selitem_Get())
-		return(Army());
+		return {};
 
 	Player *player = player_Get(selitem_Get()->GetVisiblePlayer());
 
 	if(!player)
-		return(Army());
+		return {};
 
 	ID id;
 	PLAYER_INDEX playerIndex;
@@ -936,7 +936,7 @@ Army UnitControlPanel::GetSelectedArmy()
 		}
 	}
 
-	return Army();
+	return {};
 }
 
 void UnitControlPanel::GiveOrder(OrderRecord *order)  //emod4 this needs to work from selectinga list

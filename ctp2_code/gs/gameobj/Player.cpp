@@ -898,16 +898,16 @@ Unit Player::CreateUnit(const sint32 t,
 	const UnitRecord *rec = g_theUnitDB->Get(t, m_government_type);
 
 	if(!rec)
-		return Unit();
+		return {};
 
 	if(world_Get()->GetCell(pos)->GetNumUnits() >= k_MAX_ARMY_SIZE &&
 	   !rec->GetIsTrader()) {
-		return Unit();
+		return {};
 	}
 
 	if(world_Get()->GetCell(pos)->GetNumUnits() > 0 &&
 	   world_Get()->GetCell(pos)->AccessUnit(0).GetOwner() != m_owner) {
-		return Unit();
+		return {};
 	}
 
 	if(cause == CAUSE_NEW_ARMY_CHEAT &&
@@ -915,18 +915,18 @@ Unit Player::CreateUnit(const sint32 t,
 
 		if(!g_network.SetupMode() && !g_powerPointsMode) {
 
-			return Unit();
+			return {};
 		}
 
 		if(!g_network.IsInSetupArea(m_owner, pos)) {
 
-			return Unit();
+			return {};
 		}
 
 		sint32 pointsNeeded = g_theUnitDB->Get(t, m_government_type)->GetPowerPoints();
 		if(pointsNeeded > m_powerPoints) {
 
-			return Unit();
+			return {};
 		}
 
 		m_powerPoints -= pointsNeeded;
@@ -937,7 +937,7 @@ Unit Player::CreateUnit(const sint32 t,
 			g_network.SendAction(new NetAction(NET_ACTION_CREATE_UNIT_CHEAT,
 			                                   t, pos.x, pos.y,
 			                                   (uint32)hc));
-			return Unit();
+			return {};
 		}
 	}
 
@@ -947,7 +947,7 @@ Unit Player::CreateUnit(const sint32 t,
 		{
 			if(!world_Get()->HasCity(pos) || world_Get()->GetCity(pos).GetOwner() != m_owner)
 			{
-				return Unit();
+				return {};
 			}
 		}
 	}
@@ -1055,7 +1055,7 @@ Unit Player::InsertUnitReference(const Unit &u,  const CAUSE_NEW_ARMY cause,
 	Assert(!u.IsCity());
 
 	if(u.IsCity())
-		return Unit();
+		return {};
 
 	m_all_units->Insert(u);
 
@@ -1349,7 +1349,7 @@ Unit Player::CreateCity(
 {
 	if(world_Get()->IsNextToCity(pos) || world_Get()->IsCity(pos))
 	{
-		return Unit();
+		return {};
 	}
 
 	if(cause == CAUSE_NEW_CITY_CHEAT &&
@@ -1357,18 +1357,18 @@ Unit Player::CreateCity(
 
 		if(!g_network.SetupMode() && !g_powerPointsMode)
 		{
-			return Unit();
+			return {};
 		}
 
 		if(!g_network.IsInSetupArea(m_owner, pos))
 		{
-			return Unit();
+			return {};
 		}
 
 		sint32 pointsNeeded = g_theUnitDB->Get(t, m_government_type)->GetPowerPoints();
 		if(pointsNeeded > m_powerPoints)
 		{
-			return Unit();
+			return {};
 		}
 
 		m_powerPoints -= pointsNeeded;
@@ -1378,7 +1378,7 @@ Unit Player::CreateCity(
 		{
 			g_network.SendAction(new NetAction(NET_ACTION_CREATE_CITY_CHEAT,
 			                                   t, pos.x, pos.y));
-			return Unit();
+			return {};
 		}
 	}
 
@@ -3030,14 +3030,14 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 									sint32 gold_in_return)
 {
 	if(!unitpool_Get()->IsValid(sourceCity))
-		return TradeRoute();
+		return {};
 
 	if(!unitpool_Get()->IsValid(destCity))
-		return TradeRoute();
+		return {};
 
 	Assert(sourceCity.GetOwner() == m_owner);
 	if(sourceCity.GetOwner() != m_owner)
-		return TradeRoute();
+		return {};
 
 	switch(sourceType) {
 		case ROUTE_TYPE_RESOURCE:
@@ -3050,7 +3050,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 										   GEA_City, destCity,
 										   GEA_End);
 				}
-				return TradeRoute();
+				return {};
 			}
 			break;
 		case ROUTE_TYPE_FOOD:
@@ -3059,7 +3059,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 			break;
 		default:
 			Assert(false);
-			return TradeRoute();
+			return {};
 	}
 #ifdef CTP1_TRADE
 
@@ -3076,7 +3076,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		so->AddRecipient(m_owner);
 		so->AddCity(sourceCity);
 		slicengine_Get()->Execute(so);
-		return TradeRoute();
+		return {};
 	}
 
 	if(destCity.GetIncomingTrade() >= grec->GetMaxIncomingTrade()) {
@@ -3084,7 +3084,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		so->AddRecipient(m_owner);
 		so->AddCity(destCity);
 		slicengine_Get()->Execute(so);
-		return TradeRoute();
+		return {};
 	}
 
 	TradeRoute newRoute = tradepool_Get()->Create(sourceCity, destCity, m_owner,
@@ -3097,7 +3097,7 @@ TradeRoute Player::CreateTradeRoute(Unit sourceCity,
 		return player_Get(paying_for)->PayForTrade(newRoute);
 	}
 
-	return TradeRoute();
+	return {};
 }
 
 TradeRoute Player::PayForTrade(TradeRoute &newRoute)
@@ -3114,7 +3114,7 @@ TradeRoute Player::PayForTrade(TradeRoute &newRoute)
 		}
 
 		newRoute.KillRoute(CAUSE_KILL_TRADE_ROUTE_NO_INITIAL_CARAVANS);
-		return TradeRoute();
+		return {};
 	} else if(g_network.IsClient()) {
 		ROUTE_TYPE type;
 		sint32 resource;
@@ -4227,7 +4227,7 @@ Agreement Player::FindAgreement(const AGREEMENT_TYPE agreement, const PLAYER_IND
 				return m_agreed->Get(i);
 	}
 
-	return Agreement();
+	return {};
 }
 
 Agreement Player::FindAgreement(const AGREEMENT_TYPE agreement) const
@@ -4239,7 +4239,7 @@ Agreement Player::FindAgreement(const AGREEMENT_TYPE agreement) const
 			return m_agreed->Get(i);
 	}
 
-	return Agreement();
+	return {};
 }
 
 Agreement Player::FindAgreement(const PLAYER_INDEX otherParty) const
@@ -4251,7 +4251,7 @@ Agreement Player::FindAgreement(const PLAYER_INDEX otherParty) const
 			return m_agreed->Get(i);
 	}
 
-	return Agreement();
+	return {};
 }
 
 // Removed return statement at the beginning
@@ -6023,7 +6023,7 @@ Army Player::GetArmy(sint32 s_index)
 Unit Player::GetTopSelectedArmy(const sint32 selected_army)
 {
 	if (m_all_armies->Num() < 1) {
-		return Unit();
+		return {};
 	} else {
 		sint32 n = m_all_armies->Access(selected_army).Num();
 		Assert(0 <n);
@@ -9733,7 +9733,7 @@ MapPoint Player::CalcEmpireCenter() const
 		}
 		else
 		{
-			return MapPoint();
+			return {};
 		}
 	}
 

@@ -978,7 +978,7 @@ sint32 finite_count=0;
 			if (gameobservers_Get()) gameobservers_Get()->NotifyRadarMapUpdate(player_view::VisiblePlayer());
 			InformMessages();
 		}
-	} while (0);
+	} while (false);
 }
 
 void TurnCount::ChooseHappinessPlayer()

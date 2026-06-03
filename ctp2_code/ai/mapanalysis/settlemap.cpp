@@ -128,7 +128,7 @@ void SettleMap::Initialize()
 
 	m_settleValues.Clear();
 	m_settleValues.Resize(x_size, y_size, 1);
-	m_invalidCells.Resize(x_size, y_size, 0);
+	m_invalidCells.Resize(x_size, y_size, false);
 
 	for (rc_pos.x = 0; static_cast<size_t>(rc_pos.x) < x_size; rc_pos.x++)
 	{

@@ -33,6 +33,7 @@
 #include "gfx/spritesys/battleviewactor.h"
 
 #include <algorithm>
+#include <memory>
 #include "ui/aui_common/aui_surface.h"
 #include "gfx/gfx_utils/colorset.h"
 #include "gfx/spritesys/director.h"           // director_Get()
@@ -108,7 +109,7 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 		anim->SetNoIdleJustDelay(TRUE);
 	}
 
-	m_curAction.reset(new Action(UNITACTION_IDLE, ACTIONEND_INTERRUPT));
+	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_INTERRUPT);
 	m_curAction->SetAnim(anim);
 	m_curUnitAction = UNITACTION_IDLE;
 

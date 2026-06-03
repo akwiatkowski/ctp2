@@ -30,7 +30,7 @@ STDEHANDLER(NoThreat_RejectResponseEvent)
 	Diplomat & sender_diplomat = Diplomat::GetDiplomat(sender);
 //	Diplomat & receiver_diplomat = Diplomat::GetDiplomat(receiver);
 
-	if (1) {
+	if (true) {
 		Response response;
 
 		response.priority = 50;

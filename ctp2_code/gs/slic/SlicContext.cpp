@@ -1064,7 +1064,7 @@ sint32 SlicContext::GetNumTradeOffers() const
 TradeOffer SlicContext::GetTradeOffer(sint32 index) const
 {
 	if(!m_tradeOffersList || index < 0 || index >= m_tradeOffersList->Num())
-		return TradeOffer();
+		return {};
 
 	return m_tradeOffersList->Access(index);
 }

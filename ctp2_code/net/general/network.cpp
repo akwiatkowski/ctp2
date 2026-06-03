@@ -2577,7 +2577,7 @@ void Network::DisplayChat(aui_Surface *surf)
 					m_sentPacketCounter[i], m_sentPacketBytes[i]);
 			primitives_DrawText(surf, k_LEFT_EDGE,
 								k_TOP_EDGE + ((i+1) * k_TEXT_SPACING),
-								buf, 0, 0);
+								buf, 0, false);
 			totalCount += m_packetCounter[i];
 			totalBytes += m_packetBytes[i];
 			totalSent += m_sentPacketCounter[i];
@@ -2589,10 +2589,10 @@ void Network::DisplayChat(aui_Surface *surf)
 				m_blockedPackets);
 		primitives_DrawText(surf, k_LEFT_EDGE,
 							k_TOP_EDGE + ((k_NUM_PACKET_TYPES+1) * k_TEXT_SPACING),
-							buf, 0, 0);
+							buf, 0, false);
 	}
 
-	primitives_DrawText(surf, k_LEFT_EDGE, k_TOP_EDGE, m_chatStr, 0, 0);
+	primitives_DrawText(surf, k_LEFT_EDGE, k_TOP_EDGE, m_chatStr, 0, false);
 }
 #endif
 

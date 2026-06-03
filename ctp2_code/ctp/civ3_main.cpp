@@ -361,7 +361,7 @@ namespace Os
 	// concat cwd and path found to return an absolute path, if needed
 	// return absolute path to executable
 	//#endif
-        return std::basic_string<TCHAR>();
+        return {};
 #endif
     }
 
@@ -1762,7 +1762,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		// so mouse events (handled by the mouse thread) are not stolen.
 
 		// Process quit events
-		while (1) {
+		while (true) {
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_QUIT, SDL_QUIT);
 			if (n <= 0) break;
 			gDone = TRUE;
@@ -1770,7 +1770,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		}
 
 		// Process keyboard events
-		while (1) {
+		while (true) {
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP);
 			if (n <= 0) break;
 
@@ -1780,7 +1780,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 		}
 
 		// Process mouse wheel events (ui_HandleMouseWheel is in this compilation unit)
-		while (1) {
+		while (true) {
 			int n = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_MOUSEWHEEL, SDL_MOUSEWHEEL);
 			if (n <= 0) break;
 			SDLMessageHandler(event);
@@ -2270,7 +2270,7 @@ void DisplayFrame(aui_Surface *surf)
 	snprintf(str, sizeof(str), "ave frame rate %4.2f/sec - ave frame time %5.1fms",
 	        g_ave_frame_rate, g_ave_frame_time
 	       );
-	primitives_DrawText(surf, 100, 100, str, 1, 0);
+	primitives_DrawText(surf, 100, 100, str, 1, false);
 }
 
 BOOL ExitGame()

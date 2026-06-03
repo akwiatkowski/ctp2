@@ -44,6 +44,7 @@
 #include <cinttypes>
 
 #include <algorithm>  // std::fill
+#include <memory>
 #include <utility>
 
 #include "ctp/ctp2_utils/c3errors.h"
@@ -1224,7 +1225,7 @@ UnitActorPtr Director::GetClickedActiveUnit(aui_MouseEvent* data) {
     }
   }
 
-  return UnitActorPtr();
+  return {};
 }
 
 bool Director::IsProcessing() {
@@ -1553,7 +1554,7 @@ void Director::AddSpecialAttack(Unit attacker,
       player_Get(selitem_Get()->GetVisiblePlayer())->IsVisible(
           attacked.RetPos())) {
     AddProjectileAttack(attacker, attacked, nullptr,
-                        SpriteStatePtr(new SpriteState(spriteID)), 0);
+                        std::make_shared<SpriteState>(spriteID), 0);
   }
 }
 

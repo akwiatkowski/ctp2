@@ -755,7 +755,7 @@ void intelligence_DeclareWarCallback(bool response, void *cookie)
 void intelligence_DeclarEmbargoCallback(bool response, void *cookie)
 {
 	if(response) {
-		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).SetEmbargo((intptr_t)cookie, 1);
+		Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).SetEmbargo((intptr_t)cookie, true);
 		DiplomacyWindow::EnableButtons(TRUE, reinterpret_cast<intptr_t>(cookie));
 	}
 }

@@ -267,7 +267,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 
 		m_numButtons++;
 
-	} while ( 1 );
+	} while ( true );
 
 	if ( m_numButtons )
 	{

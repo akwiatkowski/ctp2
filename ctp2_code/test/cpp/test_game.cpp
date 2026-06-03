@@ -33,13 +33,13 @@ TEST_CASE("Ctp2::Game::Cleanup is safe on an unpopulated instance") {
 
 TEST_CASE("Ctp2::Game is non-copyable and movable") {
     // Compile-time-only check via type traits.
-    static_assert(!std::is_copy_constructible<Ctp2::Game>::value,
+    static_assert(!std::is_copy_constructible_v<Ctp2::Game>,
                   "Game must not be copy-constructible");
-    static_assert(!std::is_copy_assignable<Ctp2::Game>::value,
+    static_assert(!std::is_copy_assignable_v<Ctp2::Game>,
                   "Game must not be copy-assignable");
-    static_assert(std::is_move_constructible<Ctp2::Game>::value,
+    static_assert(std::is_move_constructible_v<Ctp2::Game>,
                   "Game must be move-constructible");
-    static_assert(std::is_move_assignable<Ctp2::Game>::value,
+    static_assert(std::is_move_assignable_v<Ctp2::Game>,
                   "Game must be move-assignable");
 
     Ctp2::Game a;

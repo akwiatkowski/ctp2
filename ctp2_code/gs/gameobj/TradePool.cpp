@@ -51,7 +51,7 @@ TradeRoute TradePool::Create(Unit sourceCity,
 	if(!newData->IsValid()) {
 
 		delete newData;
-		return TradeRoute();
+		return {};
 	}
 
 	Insert(newData);

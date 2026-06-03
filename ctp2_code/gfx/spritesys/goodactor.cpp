@@ -28,6 +28,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include <memory>
+
 #include "ctp/c3.h"
 #include "gfx/spritesys/GoodActor.h"
 
@@ -175,7 +177,7 @@ void GoodActor::PositionActor(MapPoint &pos) {
 void GoodActor::AddIdle() {
   if (m_curAction) return;
 
-  m_curAction.reset(new Action(GOODACTION_IDLE, ACTIONEND_ANIMEND));
+  m_curAction = std::make_shared<Action>(GOODACTION_IDLE, ACTIONEND_ANIMEND);
 
   Anim * anim = CreateAnim(GOODACTION_IDLE);
   if (anim) {

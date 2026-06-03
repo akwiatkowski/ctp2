@@ -676,7 +676,7 @@ void TiledMap::DrawLegalMove
 	{
 		currMovementPoints	= -1.0;
 		count				= maxMovementPoints;
-		isFirstMove			= 1;
+		isFirstMove			= true;
 	}
 
 	double	prevMovementPoints	= 0.0;
@@ -796,7 +796,7 @@ void TiledMap::DrawLegalMove
 						sint32 const	textX	= x - (width >> 1);
 						sint32 const	textY	= y - (height >> 1);
 
-						primitives_DrawText(pSurface, textX, textY, turnNumber, 0, 1);
+						primitives_DrawText(pSurface, textX, textY, turnNumber, 0, true);
 					}
 				}
 			}
@@ -848,7 +848,7 @@ void TiledMap::DrawLegalMove
 					sint32 const	textX	= x - (width >> 1);
 					sint32 const	textY	= y - (height >> 1);
 
-					primitives_DrawText(pSurface, textX, textY, turnNumber, 0, 1);
+					primitives_DrawText(pSurface, textX, textY, turnNumber, 0, true);
 				}
 			}
 		}
@@ -933,7 +933,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 				else
 					currMovementPoints -= cost;
 
-				isFirstMove = 0;
+				isFirstMove = false;
 			}
 			else
 				currMovementPoints -= cost;
@@ -1105,7 +1105,7 @@ void TiledMap::DrawUnfinishedMove(aui_Surface * pSurface)
 						sint32 textX = x - (width>>1);
 						sint32 textY = y - (height>>1);
 
-						primitives_DrawText(pSurface, textX, textY, turnNumber, color, 1);
+						primitives_DrawText(pSurface, textX, textY, turnNumber, color, true);
 					}
 				}
 			}

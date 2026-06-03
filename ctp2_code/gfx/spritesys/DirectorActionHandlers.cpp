@@ -32,6 +32,8 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/DirectorActionHandlers.h"
 
+#include <memory>
+
 #include "gfx/spritesys/Director.h"
 #include "gfx/spritesys/EffectActor.h"
 #include "gfx/spritesys/SpriteGroupList.h"
@@ -198,10 +200,10 @@ void dh_projectileMove(DQAction* itemAction,
         director_Get()->ActionFinished(seq);
         return;
       } else {
-        actionObj.reset(new Action(EFFECTACTION_FLASH, ACTIONEND_PATHEND));
+        actionObj = std::make_shared<Action>(EFFECTACTION_FLASH, ACTIONEND_PATHEND);
       }
     } else {
-      actionObj.reset(new Action(EFFECTACTION_PLAY, ACTIONEND_PATHEND));
+      actionObj = std::make_shared<Action>(EFFECTACTION_PLAY, ACTIONEND_PATHEND);
     }
 
     Assert(actionObj);
@@ -281,7 +283,7 @@ void dh_attack(DQAction* itemAction,
   if (!action->defender_IsCity) {
     facingIndex = spriteutils_DeltaToFacing(-deltax, -deltay);
 
-    ActionObj.reset(new Action());
+    ActionObj = std::make_shared<Action>();
 
     ActionObj->SetSequence(seq);
     seq->AddRef();
@@ -1053,8 +1055,8 @@ void dh_faceoff(DQAction* itemAction,
   AttackerActionObj->SetSequence(SequenceWeakPtr());
 
   if (attackedIsAttackable) {
-    AttackedActionObj.reset(
-        new Action(UNITACTION_FACE_OFF, ACTIONEND_INTERRUPT));
+    AttackedActionObj = std::make_shared<Action>(
+        UNITACTION_FACE_OFF, ACTIONEND_INTERRUPT);
     AttackedActionObj->SetSequence(SequenceWeakPtr());
   }
 

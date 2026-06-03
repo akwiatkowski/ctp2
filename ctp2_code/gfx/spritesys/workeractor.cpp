@@ -1,6 +1,8 @@
 #include "ctp/c3.h"
 #include "gfx/spritesys/workeractor.h"
 
+#include <memory>
+
 #include "ui/aui_common/aui.h"
 #include "gfx/gfx_utils/pixelutils.h"
 #include "ui/aui_ctp2/SelItem.h"                // selitem_Get()
@@ -57,7 +59,7 @@ WorkerActor::~WorkerActor()
 
 void WorkerActor::AddIdle()
 {
-	m_curAction.reset(new Action(UNITACTION_IDLE, ACTIONEND_ANIMEND));
+	m_curAction = std::make_shared<Action>(UNITACTION_IDLE, ACTIONEND_ANIMEND);
 	m_curAction->SetAnim(CreateAnim(UNITACTION_IDLE));
 	m_curUnitAction = UNITACTION_IDLE;
 }

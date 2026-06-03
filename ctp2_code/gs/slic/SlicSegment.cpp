@@ -741,7 +741,7 @@ bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, 
 	firstLineOffset = -1;
 	lastLineNum = -1;
 
-	while(1) {
+	while(true) {
 		codePtr = FindNextLine(codePtr);
 		if(!codePtr) {
 			if(firstLineNum >= 0) {

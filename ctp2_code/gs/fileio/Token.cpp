@@ -411,7 +411,7 @@ sint32 Token::Next()
 	fprintf(stderr, "[TOKEN] Next() call #%d file=%s m_cur=%d '%c' fin=%p\n",
 		nextCallCount, m_filename, m_cur, (m_cur >= 32 && m_cur < 127) ? m_cur : '?', (void*)m_fin);
 	#endif
-	while (1) {
+	while (true) {
 
 		for ( ; IsWhitespace(m_cur) ; m_cur = getc(m_fin))
 		{

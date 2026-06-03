@@ -106,7 +106,7 @@ static int smoke_server_thread(void* /*data*/)
     fprintf(stderr, "[SMOKE] Server listening on %s\n", g_smoke_socket_path);
 
     // Accept one client at a time
-    while (1) {
+    while (true) {
         int client = accept(g_smoke_listen_fd, nullptr, nullptr);
         if (client < 0) {
             // Socket likely closed during shutdown
@@ -119,7 +119,7 @@ static int smoke_server_thread(void* /*data*/)
         char read_buf[512];
         char cmd[256];
 
-        while (1) {
+        while (true) {
             memset(read_buf, 0, sizeof(read_buf));
             int n = (int)read(client, read_buf, sizeof(read_buf) - 1);
             if (n <= 0) {

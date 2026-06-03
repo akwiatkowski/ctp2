@@ -186,7 +186,7 @@ void GaiaController::Initialize()
 	sint32 x_size = world_Get()->GetXWidth();
 	sint32 y_size = world_Get()->GetYHeight();
 
-	m_coveredCells.Resize( x_size, y_size, 0 );
+	m_coveredCells.Resize( x_size, y_size, false );
 }
 
 
@@ -209,7 +209,7 @@ void GaiaController::RecomputeCoverage()
 	const DynamicArray<Installation> *tile_imps =
 		player_ptr->m_allInstallations;
 
-	m_coveredCells.Reset( 0 );
+	m_coveredCells.Reset( false );
 	m_numTowersBuilt = 0;
 	sint32 covered_cells = 0;
 

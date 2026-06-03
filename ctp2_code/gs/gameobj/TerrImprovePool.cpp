@@ -101,7 +101,7 @@ TerrainImprovementPool::Create
 	   )
 	{
 		// Invalid or inapplicable improvement
-		return TerrainImprovement();
+		return {};
 	}
 
 	// Obscure the improvement for all but the owner

@@ -443,9 +443,9 @@ DOCTEST_MSVC_SUPPRESS_WARNING(4623) // default constructor was implicitly define
 #define DOCTEST_PLATFORM_LINUX
 #endif // DOCTEST_PLATFORM
 
-namespace doctest { namespace detail {
+namespace doctest::detail {
     static DOCTEST_CONSTEXPR int consume(const int*, int) noexcept { return 0; }
-}}
+}
 
 #define DOCTEST_GLOBAL_NO_WARNINGS(var, ...)                                                         \
     DOCTEST_CLANG_SUPPRESS_WARNING_WITH_PUSH("-Wglobal-constructors")                                \
@@ -980,12 +980,12 @@ namespace detail {
     T&& declval();
 
     template <class T>
-    DOCTEST_CONSTEXPR_FUNC T&& forward(typename types::remove_reference<T>::type& t) DOCTEST_NOEXCEPT {
+    DOCTEST_CONSTEXPR_FUNC T&& forward(types::remove_reference_t<T>& t) DOCTEST_NOEXCEPT {
         return static_cast<T&&>(t);
     }
 
     template <class T>
-    DOCTEST_CONSTEXPR_FUNC T&& forward(typename types::remove_reference<T>::type&& t) DOCTEST_NOEXCEPT {
+    DOCTEST_CONSTEXPR_FUNC T&& forward(types::remove_reference_t<T>&& t) DOCTEST_NOEXCEPT {
         return static_cast<T&&>(t);
     }
 
@@ -1028,7 +1028,7 @@ namespace detail {
 
     template <typename T>
     struct should_stringify_as_underlying_type {
-        static DOCTEST_CONSTEXPR bool value = detail::types::is_enum<T>::value && !doctest::detail::has_insertion_operator<T>::value;
+        static DOCTEST_CONSTEXPR bool value = detail::types::is_enum_v<T> && !doctest::detail::has_insertion_operator<T>::value;
     };
 
     DOCTEST_INTERFACE std::ostream* tlssPush();
@@ -1057,7 +1057,7 @@ namespace detail {
     void filloss(std::ostream* stream, const T (&in)[N]) { // NOLINT(*-avoid-c-arrays)
         // T[N], T(&)[N], T(&&)[N] have same behaviour.
         // Hence remove reference.
-        filloss<typename types::remove_reference<decltype(in)>::type>(stream, in);
+        filloss<types::remove_reference_t<decltype(in)>>(stream, in);
     }
 
     template <typename T>
@@ -1078,7 +1078,7 @@ namespace detail {
 
 template <typename T>
 struct StringMaker : public detail::StringMakerBase<
-    detail::has_insertion_operator<T>::value || detail::types::is_pointer<T>::value || detail::types::is_array<T>::value>
+    detail::has_insertion_operator<T>::value || detail::types::is_pointer_v<T> || detail::types::is_array_v<T>>
 {};
 
 #ifndef DOCTEST_STRINGIFY
@@ -1102,7 +1102,7 @@ String toString() {
 #endif
 }
 
-template <typename T, typename detail::types::enable_if<!detail::should_stringify_as_underlying_type<T>::value, bool>::type = true>
+template <typename T, detail::types::enable_if_t<!detail::should_stringify_as_underlying_type<T>::value, bool> = true>
 String toString(const DOCTEST_REF_WRAP(T) value) {
     return StringMaker<T>::convert(value);
 }
@@ -1138,9 +1138,9 @@ DOCTEST_INTERFACE String toString(long unsigned in);
 DOCTEST_INTERFACE String toString(long long in);
 DOCTEST_INTERFACE String toString(long long unsigned in);
 
-template <typename T, typename detail::types::enable_if<detail::should_stringify_as_underlying_type<T>::value, bool>::type = true>
+template <typename T, detail::types::enable_if_t<detail::should_stringify_as_underlying_type<T>::value, bool> = true>
 String toString(const DOCTEST_REF_WRAP(T) value) {
-    using UT = typename detail::types::underlying_type<T>::type;
+    using UT = detail::types::underlying_type_t<T>;
     return (DOCTEST_STRINGIFY(static_cast<UT>(value)));
 }
 
@@ -1215,7 +1215,7 @@ struct DOCTEST_INTERFACE Approx
 #ifdef DOCTEST_CONFIG_INCLUDE_TYPE_TRAITS
     template <typename T>
     explicit Approx(const T& value,
-                    typename detail::types::enable_if<std::is_constructible<double, T>::value>::type* =
+                    detail::types::enable_if_t<std::is_constructible_v<double, T>>* =
                             static_cast<T*>(nullptr)) {
         *this = static_cast<double>(value);
     }
@@ -1225,7 +1225,7 @@ struct DOCTEST_INTERFACE Approx
 
 #ifdef DOCTEST_CONFIG_INCLUDE_TYPE_TRAITS
     template <typename T>
-    typename std::enable_if<std::is_constructible<double, T>::value, Approx&>::type epsilon(
+    std::enable_if_t<std::is_constructible_v<double, T>, Approx&>epsilon(
             const T& newEpsilon) {
         m_epsilon = static_cast<double>(newEpsilon);
         return *this;
@@ -1236,7 +1236,7 @@ struct DOCTEST_INTERFACE Approx
 
 #ifdef DOCTEST_CONFIG_INCLUDE_TYPE_TRAITS
     template <typename T>
-    typename std::enable_if<std::is_constructible<double, T>::value, Approx&>::type scale(
+    std::enable_if_t<std::is_constructible_v<double, T>, Approx&>scale(
             const T& newScale) {
         m_scale = static_cast<double>(newScale);
         return *this;
@@ -1582,7 +1582,7 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
             return Expression_lhs<L>(static_cast<L&&>(operand), m_at);
         }
 
-        template <typename L,typename types::enable_if<!doctest::detail::types::is_rvalue_reference<L>::value,void >::type* = nullptr>
+        template <typename L,types::enable_if_t<!doctest::detail::types::is_rvalue_reference_v<L>,void >* = nullptr>
         Expression_lhs<const L&> operator<<(const L &operand) {
             return Expression_lhs<const L&>(operand, m_at);
         }
@@ -4365,7 +4365,7 @@ namespace {
     bool fileOrderComparator(const TestCase* lhs, const TestCase* rhs) {
         // this is needed because MSVC gives different case for drive letters
         // for __FILE__ when evaluated in a header and a source file
-        const int res = lhs->m_file.compare(rhs->m_file, bool(DOCTEST_MSVC));
+        const int res = lhs->m_file.compare(rhs->m_file, false);
         if(res != 0)
             return res < 0;
         if(lhs->m_line != rhs->m_line)
@@ -5732,7 +5732,7 @@ namespace {
                 const char* const fmt = "%Y-%m-%dT%H:%M:%SZ";
 
                 std::strftime(timeStamp, timeStampSize, fmt, &timeInfo);
-                return std::string(timeStamp);
+                return {timeStamp};
             }
 
             struct JUnitTestMessage

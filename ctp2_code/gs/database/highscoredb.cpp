@@ -163,7 +163,7 @@ void HighScoreDB::LoadHighScores( )
 
 	if (!fp) return;
 
-	while(1)
+	while(true)
 	{
 		i = 0;
 		j = 0;

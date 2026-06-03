@@ -281,7 +281,7 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
 
     fseek(fp, entry->offset, SEEK_SET);
     if (fread(data, size, 1, fp) < 1) {
-        snprintf(m_error_string, sizeof(m_error_string), "Could not read record \"%s\" from \"%s\"" ,
+        snprintf(m_error_string, sizeof(m_error_string), R"(Could not read record "%s" from "%s")" ,
                 entry->rname, m_paths[entry->path].dos_path);
         free(data);
         return nullptr;

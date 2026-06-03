@@ -65,6 +65,7 @@
 #include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/core/player_view.h"
+#include <memory>
 #include <vector>
 
 namespace
@@ -941,7 +942,7 @@ void UnseenCell::Serialize(CivArchive &archive)
 		ReleaseActor(m_actor);
 		if (hasActor)
 		{
-			m_actor.reset(new UnitActor(archive));
+			m_actor = std::make_shared<UnitActor>(archive);
 			// Phase 3 slice 4: wire snapshot state so renderer reads
 			// dispatch through UnitState.  The actor's archived m_pos
 			// IS the snapshot position; mirror it into m_snapshotState

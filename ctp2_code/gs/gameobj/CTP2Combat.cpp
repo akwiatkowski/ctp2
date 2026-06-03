@@ -1467,7 +1467,7 @@ void CTP2Combat::KillUnits(GAME_EVENT_INSERT priority)
 
 Army CTP2Combat::GetAttackerArmy()
 {
-	return Army(m_army_id);
+	return {m_army_id};
 }
 #endif
 

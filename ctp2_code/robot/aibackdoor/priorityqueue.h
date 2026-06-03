@@ -126,7 +126,7 @@ template <class T> void DAPriorityQueue<T>::ShiftUp(const sint32 start_idx)
 #ifdef _DEBUG
     sint32 finite_count=0;
 #endif
-    while (1) {
+    while (true) {
 		Assert(finite_count++ < 100);
 
         if (current_idx == 1) return;

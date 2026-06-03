@@ -722,13 +722,13 @@ TradeRoute Cell::GetTradeRoute(sint32 index) const
 			if ((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
 			{
 				if (c == index)
-					return TradeRoute(m_objects->Access(i).m_id);
+					return {m_objects->Access(i).m_id};
 				c++;
 			}
 		}
 	}
 
-	return TradeRoute();
+	return {};
 }
 
 void Cell::InsertImprovement(const TerrainImprovement &imp)
@@ -888,7 +888,7 @@ Unit Cell::GetCity() const
 	}
 	else
 	{
-		return Unit();
+		return {};
 	}
 }
 
@@ -933,14 +933,14 @@ TerrainImprovement Cell::AccessImprovement(sint32 index)
 		for(i = 0; i < m_objects->Num(); i++) {
 			if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) == k_BIT_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT) {
 				if(c == index)
-					return TerrainImprovement(m_objects->Access(i).m_id);
+					return {m_objects->Access(i).m_id};
 				c++;
 			}
 		}
 	}
 
 	Assert(false);
-	return TerrainImprovement();
+	return {};
 }
 
 void Cell::CreateGoodyHut()
@@ -1237,7 +1237,7 @@ ID Cell::GetObject(sint32 index)
 	if(m_objects)
 		return m_objects->Access(index);
 
-	return ID();
+	return {};
 }
 
 void Cell::InsertDBImprovement(sint32 type)

@@ -31,6 +31,7 @@
 #include "ctp/c3.h"
 #include "ui/interface/battleevent.h"
 
+#include <memory>
 #include <utility>
 
 #include "gfx/spritesys/battleviewactor.h"
@@ -290,12 +291,12 @@ void BattleEvent::ProcessExplode()
 					if (anim == nullptr) {
 						anim = actor->CreateAnim(EFFECTACTION_FLASH);
 						if (anim) {
-							action.reset(new Action(EFFECTACTION_FLASH, ACTIONEND_ANIMEND));
+							action = std::make_shared<Action>(EFFECTACTION_FLASH, ACTIONEND_ANIMEND);
             } else {
 							Assert(FALSE);
             }
 					} else {
-						action.reset(new Action(EFFECTACTION_PLAY, ACTIONEND_ANIMEND));
+						action = std::make_shared<Action>(EFFECTACTION_PLAY, ACTIONEND_ANIMEND);
 					}
 
 					action->SetAnim(anim);
@@ -377,10 +378,10 @@ void BattleEvent::ProcessDeath()
 
 					if (!actor->HasDeath() || (!actor->HasThisAnim(UNITACTION_VICTORY))) {
 
-						action.reset(new Action(UNITACTION_FAKE_DEATH, ACTIONEND_ANIMEND));
+						action = std::make_shared<Action>(UNITACTION_FAKE_DEATH, ACTIONEND_ANIMEND);
 						anim = actor->MakeFakeDeath();
 					} else {
-						action.reset(new Action(UNITACTION_VICTORY, ACTIONEND_ANIMEND));
+						action = std::make_shared<Action>(UNITACTION_VICTORY, ACTIONEND_ANIMEND);
 						anim = actor->CreateAnim(UNITACTION_VICTORY);
 					}
 

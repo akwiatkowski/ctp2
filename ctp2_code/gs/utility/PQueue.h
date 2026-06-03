@@ -62,7 +62,7 @@ template <class T> void PQueue<T>::Insert(const T &obj)
 	if(step < 1)
 		step = 1;
 
-	while(1) {
+	while(true) {
 		if(obj.m_value > m_array[index].m_value) {
 			if(index == 0 || obj.m_value <= m_array[index - 1].m_value) {
 				Shift(index);

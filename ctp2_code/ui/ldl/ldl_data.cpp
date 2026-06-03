@@ -11,8 +11,8 @@ ldl_datablock::ldl_datablock(PointerList<char> *templateNames)
 	m_templates     (),
     m_children      (),
     m_attributes    (),
-    m_parent        (NULL),
-    m_name          (NULL),
+    m_parent        (nullptr),
+    m_name          (nullptr),
     m_hash          (0)
 {
 	PointerList<char>::Walker walk(templateNames);
@@ -37,7 +37,7 @@ ldl_datablock::ldl_datablock(ldl_datablock *copy)
 	m_templates     (),
     m_children      (),
     m_attributes    (),
-    m_parent        (NULL),
+    m_parent        (nullptr),
     m_name          (copy->m_name),
     m_hash          (0)
 {
@@ -66,8 +66,8 @@ ldl_datablock::ldl_datablock(sint32 hash)
 	m_templates     (),
     m_children      (),
     m_attributes    (),
-    m_parent        (NULL),
-    m_name          (NULL),
+    m_parent        (nullptr),
+    m_name          (nullptr),
     m_hash          (hash)
 { }
 
@@ -76,7 +76,7 @@ ldl_datablock::ldl_datablock(ldl *theLdl, char const * name)
 	m_templates     (),
     m_children      (),
     m_attributes    (),
-    m_parent        (NULL),
+    m_parent        (nullptr),
     m_name          (ldlif_getnameptr(name)),
     m_hash          (0)
 {
@@ -138,7 +138,7 @@ ldl_attribute *ldl_datablock::GetAttribute( const char *szName )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int ldl_datablock::GetAttributeType(const char *szName)
@@ -186,7 +186,7 @@ void ldl_datablock::Dump(sint32 indent) {
 
 bool ldl_datablock::AttributeNameTaken(char *szName)
 {
-	return GetAttribute(szName) != NULL;
+	return GetAttribute(szName) != nullptr;
 }
 
 void ldl_datablock::SetValue(char *name, int value)

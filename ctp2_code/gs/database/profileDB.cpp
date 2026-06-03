@@ -279,188 +279,188 @@ ProfileDB::ProfileDB()
 	for (size_t map_pass = 0; map_pass < k_NUM_MAP_PASSES; ++map_pass)
 	{
 		m_map_plugin_name[map_pass][0]  = 0;
-		m_map_settings[map_pass]        = NULL;
+		m_map_settings[map_pass]        = nullptr;
 	};
 
-	Var("NumPlayers"                 , PV_NUM   , &m_nPlayers                   , NULL, false);
-	Var("AiOn"                       , PV_BOOL  , &m_ai_on                      , NULL, false);
-	Var("UseNiceStart"               , PV_BOOL  , &m_use_nice_start             , NULL, false);
-	Var("UseMapPlugin"               , PV_BOOL  , &m_use_map_plugin             , NULL, false);
+	Var("NumPlayers"                 , PV_NUM   , &m_nPlayers                   , nullptr, false);
+	Var("AiOn"                       , PV_BOOL  , &m_ai_on                      , nullptr, false);
+	Var("UseNiceStart"               , PV_BOOL  , &m_use_nice_start             , nullptr, false);
+	Var("UseMapPlugin"               , PV_BOOL  , &m_use_map_plugin             , nullptr, false);
 
-	Var("Difficulty"                 , PV_NUM   , &m_difficulty                 , NULL, false);
-	Var("RiskLevel"                  , PV_NUM   , &m_risklevel                  , NULL, false);
+	Var("Difficulty"                 , PV_NUM   , &m_difficulty                 , nullptr, false);
+	Var("RiskLevel"                  , PV_NUM   , &m_risklevel                  , nullptr, false);
 
-	Var("Pollution"                  , PV_BOOL  , &m_pollution                  , NULL, false);
-	Var("UnitAnim"                   , PV_BOOL  , &m_unitAnim                   , NULL, false);
+	Var("Pollution"                  , PV_BOOL  , &m_pollution                  , nullptr, false);
+	Var("UnitAnim"                   , PV_BOOL  , &m_unitAnim                   , nullptr, false);
 
-	Var("GoodAnim"                   , PV_BOOL  , &m_goodAnim                   , NULL, false);
-	Var("TradeAnim"                  , PV_BOOL  , &m_tradeAnim                  , NULL, false);
-	Var("WaterAnim"                  , PV_BOOL  , &m_waterAnim                  , NULL, false);
-	Var("LibraryAnim"                , PV_BOOL  , &m_libraryAnim                , NULL, false);
-	Var("WonderMovies"               , PV_BOOL  , &m_wonderMovies               , NULL, false);
-	Var("BounceMessage"              , PV_BOOL  , &m_bounceMessage              , NULL, false);
-	Var("MessageAdvice"              , PV_BOOL  , &m_messageAdvice              , NULL, false);
-	Var("TutorialAdvice"             , PV_BOOL  , &m_tutorialAdvice             , NULL, false);
-	Var("EnemyMoves"                 , PV_BOOL  , &m_enemyMoves                 , NULL, false);
-	Var("RevoltWarning"              , PV_BOOL  , &m_revoltWarning              , NULL, false);
-	Var("EnemyIntrude"               , PV_BOOL  , &m_enemyIntrude               , NULL, false);
-	Var("UnitLostWarning"            , PV_BOOL  , &m_unitLostWarning            , NULL, false);
-	Var("TradeLostWarning"           , PV_BOOL  , &m_tradeLostWarning           , NULL, false);
-	Var("CityLostWarning"            , PV_BOOL  , &m_cityLostWarning            , NULL, false);
-	Var("AutoCenter"                 , PV_BOOL  , &m_autocenter                 , NULL, false);
-	Var("FullScreenMovies"           , PV_BOOL  , &m_fullScreenMovies           , NULL, false);
-	Var("AutoSave"                   , PV_BOOL  , &m_autoSave					, NULL, false);
-	Var("PlayerNumber"               , PV_NUM   , (sint32 *)&m_playerNumber     , NULL, false);
+	Var("GoodAnim"                   , PV_BOOL  , &m_goodAnim                   , nullptr, false);
+	Var("TradeAnim"                  , PV_BOOL  , &m_tradeAnim                  , nullptr, false);
+	Var("WaterAnim"                  , PV_BOOL  , &m_waterAnim                  , nullptr, false);
+	Var("LibraryAnim"                , PV_BOOL  , &m_libraryAnim                , nullptr, false);
+	Var("WonderMovies"               , PV_BOOL  , &m_wonderMovies               , nullptr, false);
+	Var("BounceMessage"              , PV_BOOL  , &m_bounceMessage              , nullptr, false);
+	Var("MessageAdvice"              , PV_BOOL  , &m_messageAdvice              , nullptr, false);
+	Var("TutorialAdvice"             , PV_BOOL  , &m_tutorialAdvice             , nullptr, false);
+	Var("EnemyMoves"                 , PV_BOOL  , &m_enemyMoves                 , nullptr, false);
+	Var("RevoltWarning"              , PV_BOOL  , &m_revoltWarning              , nullptr, false);
+	Var("EnemyIntrude"               , PV_BOOL  , &m_enemyIntrude               , nullptr, false);
+	Var("UnitLostWarning"            , PV_BOOL  , &m_unitLostWarning            , nullptr, false);
+	Var("TradeLostWarning"           , PV_BOOL  , &m_tradeLostWarning           , nullptr, false);
+	Var("CityLostWarning"            , PV_BOOL  , &m_cityLostWarning            , nullptr, false);
+	Var("AutoCenter"                 , PV_BOOL  , &m_autocenter                 , nullptr, false);
+	Var("FullScreenMovies"           , PV_BOOL  , &m_fullScreenMovies           , nullptr, false);
+	Var("AutoSave"                   , PV_BOOL  , &m_autoSave					, nullptr, false);
+	Var("PlayerNumber"               , PV_NUM   , (sint32 *)&m_playerNumber     , nullptr, false);
 
-	Var("CivIndex"                   , PV_NUM   , (sint32 *)&m_civIndex         , NULL, false);
+	Var("CivIndex"                   , PV_NUM   , (sint32 *)&m_civIndex         , nullptr, false);
 
-	Var("GameName"                   , PV_STRING, NULL, (char *)m_gameName            , false);
-	Var("LeaderName"                 , PV_STRING, NULL, (char*)m_leaderName           , false);
-	Var("CivName"                    , PV_STRING, NULL, (char*)m_civName              , false);
-	Var("SaveNote"                   , PV_STRING, NULL, (char*)m_saveNote             , false);
-	Var("Gender"                     , PV_NUM   , (sint32 *)&m_gender           , NULL, false);
+	Var("GameName"                   , PV_STRING, nullptr, (char *)m_gameName            , false);
+	Var("LeaderName"                 , PV_STRING, nullptr, (char*)m_leaderName           , false);
+	Var("CivName"                    , PV_STRING, nullptr, (char*)m_civName              , false);
+	Var("SaveNote"                   , PV_STRING, nullptr, (char*)m_saveNote             , false);
+	Var("Gender"                     , PV_NUM   , (sint32 *)&m_gender           , nullptr, false);
 
-	Var("NoHumansOnHost"             , PV_BOOL  , &m_noHumansOnHost             , NULL, false);
-	Var("LogPlayerStats"             , PV_BOOL  , &m_logPlayerStats             , NULL, false);
+	Var("NoHumansOnHost"             , PV_BOOL  , &m_noHumansOnHost             , nullptr, false);
+	Var("LogPlayerStats"             , PV_BOOL  , &m_logPlayerStats             , nullptr, false);
 
-	Var("SfxVolume"                  , PV_NUM   , &m_sfxVolume                  , NULL, false);
-	Var("VoiceVolume"                , PV_NUM   , &m_voiceVolume                , NULL, false);
-	Var("MusicVolume"                , PV_NUM   , &m_musicVolume                , NULL, false);
+	Var("SfxVolume"                  , PV_NUM   , &m_sfxVolume                  , nullptr, false);
+	Var("VoiceVolume"                , PV_NUM   , &m_voiceVolume                , nullptr, false);
+	Var("MusicVolume"                , PV_NUM   , &m_musicVolume                , nullptr, false);
 
-	Var("XWrap"                      , PV_BOOL  , &m_xWrap                      , NULL, false);
-	Var("YWrap"                      , PV_BOOL  , &m_yWrap                      , NULL, false);
-	Var("AutoGroup"                  , PV_BOOL  , &m_autoGroup                  , NULL, false);
-	Var("AutoDeselect"               , PV_BOOL  , &m_autoDeselect               , NULL);
-	Var("AutoSelectNext"             , PV_BOOL  , &m_autoSelectNext             , NULL);
-	Var("AutoSelectFirstUnit"        , PV_BOOL  , &m_autoSelectFirstUnit        , NULL);
-	Var("AutoTurnCycle"              , PV_BOOL  , &m_autoTurnCycle              , NULL, false);
-	Var("CombatLog"                  , PV_BOOL  , &m_combatLog                  , NULL, false);
+	Var("XWrap"                      , PV_BOOL  , &m_xWrap                      , nullptr, false);
+	Var("YWrap"                      , PV_BOOL  , &m_yWrap                      , nullptr, false);
+	Var("AutoGroup"                  , PV_BOOL  , &m_autoGroup                  , nullptr, false);
+	Var("AutoDeselect"               , PV_BOOL  , &m_autoDeselect               , nullptr);
+	Var("AutoSelectNext"             , PV_BOOL  , &m_autoSelectNext             , nullptr);
+	Var("AutoSelectFirstUnit"        , PV_BOOL  , &m_autoSelectFirstUnit        , nullptr);
+	Var("AutoTurnCycle"              , PV_BOOL  , &m_autoTurnCycle              , nullptr, false);
+	Var("CombatLog"                  , PV_BOOL  , &m_combatLog                  , nullptr, false);
 
-	Var("UseLeftClick"               , PV_BOOL  , &m_useLeftClick               , NULL, false);
-	Var("ShowZoomedCombat"           , PV_BOOL  , &m_showZoomedCombat           , NULL, false);
-	Var("UseFingerPrinting"          , PV_BOOL  , &m_useFingerprinting          , NULL, false);
-	Var("UseRedbookAudio"            , PV_BOOL  , &m_useRedbookAudio            , NULL, false);
-	Var("RequireCD"                  , PV_BOOL  , &m_requireCD                  , NULL, false);
-	Var("Prophylaxis"                , PV_BOOL  , &m_protected                  , NULL, false);
-	Var("TryWindowsResolution"       , PV_BOOL  , &m_tryWindowsResolution       , NULL, false);
-	Var("UseDirectXBlitter"          , PV_BOOL  , &m_useDirectXBlitter          , NULL, false);
-	Var("ScreenResWidth"             , PV_NUM   , &m_screenResWidth             , NULL, false);
-	Var("ScreenResHeight"            , PV_NUM   , &m_screenResHeight            , NULL, false);
+	Var("UseLeftClick"               , PV_BOOL  , &m_useLeftClick               , nullptr, false);
+	Var("ShowZoomedCombat"           , PV_BOOL  , &m_showZoomedCombat           , nullptr, false);
+	Var("UseFingerPrinting"          , PV_BOOL  , &m_useFingerprinting          , nullptr, false);
+	Var("UseRedbookAudio"            , PV_BOOL  , &m_useRedbookAudio            , nullptr, false);
+	Var("RequireCD"                  , PV_BOOL  , &m_requireCD                  , nullptr, false);
+	Var("Prophylaxis"                , PV_BOOL  , &m_protected                  , nullptr, false);
+	Var("TryWindowsResolution"       , PV_BOOL  , &m_tryWindowsResolution       , nullptr, false);
+	Var("UseDirectXBlitter"          , PV_BOOL  , &m_useDirectXBlitter          , nullptr, false);
+	Var("ScreenResWidth"             , PV_NUM   , &m_screenResWidth             , nullptr, false);
+	Var("ScreenResHeight"            , PV_NUM   , &m_screenResHeight            , nullptr, false);
 
-	Var("ZoomedCombatAlways"         , PV_BOOL  , &m_zoomedCombatAlways         , NULL, false);
-	Var("AttackEveryone"             , PV_BOOL  , &m_attackEveryone             , NULL, false);
-	Var("NonRandomCivs"              , PV_BOOL  , &m_nonRandomCivs              , NULL, false);
-	Var("GameWatchDirectory"         , PV_STRING, NULL, (char*)m_gameWatchDirectory   , false);
-	Var("AutoEndMultiple"            , PV_BOOL  , &m_autoEndMultiple            , NULL);
+	Var("ZoomedCombatAlways"         , PV_BOOL  , &m_zoomedCombatAlways         , nullptr, false);
+	Var("AttackEveryone"             , PV_BOOL  , &m_attackEveryone             , nullptr, false);
+	Var("NonRandomCivs"              , PV_BOOL  , &m_nonRandomCivs              , nullptr, false);
+	Var("GameWatchDirectory"         , PV_STRING, nullptr, (char*)m_gameWatchDirectory   , false);
+	Var("AutoEndMultiple"            , PV_BOOL  , &m_autoEndMultiple            , nullptr);
 
-	Var("WetDry"                     , PV_NUM   , &m_wetdry                     , NULL, false);
-	Var("WarmCold"                   , PV_NUM   , &m_warmcold                   , NULL, false);
-	Var("OceanLand"                  , PV_NUM   , &m_oceanland                  , NULL, false);
-	Var("IslandContinent"            , PV_NUM   , &m_islandcontinent            , NULL, false);
-	Var("HomoDiverse"                , PV_NUM   , &m_homodiverse                , NULL, false);
-	Var("GoodCount"                  , PV_NUM   , &m_goodcount                  , NULL, false);
+	Var("WetDry"                     , PV_NUM   , &m_wetdry                     , nullptr, false);
+	Var("WarmCold"                   , PV_NUM   , &m_warmcold                   , nullptr, false);
+	Var("OceanLand"                  , PV_NUM   , &m_oceanland                  , nullptr, false);
+	Var("IslandContinent"            , PV_NUM   , &m_islandcontinent            , nullptr, false);
+	Var("HomoDiverse"                , PV_NUM   , &m_homodiverse                , nullptr, false);
+	Var("GoodCount"                  , PV_NUM   , &m_goodcount                  , nullptr, false);
 
-	Var("ThroneRoom"                 , PV_BOOL  , &m_throneRoom                 , NULL, false);
-	Var("MaxPlayers"                 , PV_NUM   , &m_max_players                , NULL, false);
-	Var("MapSize"                    , PV_NUM   , (sint32 *)&m_mapSize          , NULL, false);
+	Var("ThroneRoom"                 , PV_BOOL  , &m_throneRoom                 , nullptr, false);
+	Var("MaxPlayers"                 , PV_NUM   , &m_max_players                , nullptr, false);
+	Var("MapSize"                    , PV_NUM   , (sint32 *)&m_mapSize          , nullptr, false);
 
-	Var("AlienEndGame"               , PV_BOOL  , &m_alienEndGame               , NULL, false);
-	Var("UnitCompleteMessages"       , PV_BOOL  , &m_unitCompleteMessages       , NULL);
-	Var("NonContinuousUnitCompleteMessages", PV_BOOL  , &m_nonContinuousUnitCompleteMessages, NULL);
-	Var("DebugSlic"                  , PV_BOOL  , &m_debugSlic                  , NULL);
-	Var("DebugSlicEvents"            , PV_BOOL  , &m_debugSlicEvents            , NULL);
-	Var("DiplomacyLog"               , PV_BOOL  , &m_is_diplomacy_log_on        , NULL, false);
-	Var("CheatAge"                   , PV_NUM   , &m_cheat_age                  , NULL, false);
-	Var("DontKillMessages"           , PV_BOOL  , &m_dontKillMessages           , NULL, false);
-	Var("AIPopCheat"                 , PV_BOOL  , &m_aiPopCheat                 , NULL, false);
-	Var("ShowCityNames"              , PV_BOOL  , &m_showCityNames              , NULL, false);
-	Var("ShowArmyNames"              , PV_BOOL  , &m_showArmyNames              , NULL, false);
-	Var("ShowTradeRoutes"            , PV_BOOL  , &m_showTradeRoutes            , NULL, false);
+	Var("AlienEndGame"               , PV_BOOL  , &m_alienEndGame               , nullptr, false);
+	Var("UnitCompleteMessages"       , PV_BOOL  , &m_unitCompleteMessages       , nullptr);
+	Var("NonContinuousUnitCompleteMessages", PV_BOOL  , &m_nonContinuousUnitCompleteMessages, nullptr);
+	Var("DebugSlic"                  , PV_BOOL  , &m_debugSlic                  , nullptr);
+	Var("DebugSlicEvents"            , PV_BOOL  , &m_debugSlicEvents            , nullptr);
+	Var("DiplomacyLog"               , PV_BOOL  , &m_is_diplomacy_log_on        , nullptr, false);
+	Var("CheatAge"                   , PV_NUM   , &m_cheat_age                  , nullptr, false);
+	Var("DontKillMessages"           , PV_BOOL  , &m_dontKillMessages           , nullptr, false);
+	Var("AIPopCheat"                 , PV_BOOL  , &m_aiPopCheat                 , nullptr, false);
+	Var("ShowCityNames"              , PV_BOOL  , &m_showCityNames              , nullptr, false);
+	Var("ShowArmyNames"              , PV_BOOL  , &m_showArmyNames              , nullptr, false);
+	Var("ShowTradeRoutes"            , PV_BOOL  , &m_showTradeRoutes            , nullptr, false);
 
-	Var("UnitSpeed"                  , PV_NUM   , &m_unitSpeed                  , NULL, false);
-	Var("MouseSpeed"                 , PV_NUM   , &m_mouseSpeed                 , NULL, false);
-	Var("LeftHandedMouse"            , PV_BOOL  , &m_leftHandedMouse            , NULL, false);
+	Var("UnitSpeed"                  , PV_NUM   , &m_unitSpeed                  , nullptr, false);
+	Var("MouseSpeed"                 , PV_NUM   , &m_mouseSpeed                 , nullptr, false);
+	Var("LeftHandedMouse"            , PV_BOOL  , &m_leftHandedMouse            , nullptr, false);
 
-	Var("CityBuiltMessage"           , PV_BOOL  , &m_cityBuiltMessage           , NULL, false);
-	Var("UseAttackMessages"          , PV_BOOL  , &m_useAttackMessages          , NULL, false);
+	Var("CityBuiltMessage"           , PV_BOOL  , &m_cityBuiltMessage           , nullptr, false);
+	Var("UseAttackMessages"          , PV_BOOL  , &m_useAttackMessages          , nullptr, false);
 
-	Var("MapPlugin0"                 , PV_STRING, NULL, (char *)m_map_plugin_name[0]  , false);
-	Var("MapPlugin1"                 , PV_STRING, NULL, (char *)m_map_plugin_name[1]  , false);
-	Var("MapPlugin2"                 , PV_STRING, NULL, (char *)m_map_plugin_name[2]  , false);
-	Var("MapPlugin3"                 , PV_STRING, NULL, (char *)m_map_plugin_name[3]  , false);
+	Var("MapPlugin0"                 , PV_STRING, nullptr, (char *)m_map_plugin_name[0]  , false);
+	Var("MapPlugin1"                 , PV_STRING, nullptr, (char *)m_map_plugin_name[1]  , false);
+	Var("MapPlugin2"                 , PV_STRING, nullptr, (char *)m_map_plugin_name[2]  , false);
+	Var("MapPlugin3"                 , PV_STRING, nullptr, (char *)m_map_plugin_name[3]  , false);
 
-	Var("OldRegisterClick"           , PV_BOOL  , &m_useOldRegisterClick        , NULL, false);
-	Var("CTP2Mode"                   , PV_BOOL  , &m_useCTP2Mode                , NULL, false);
-	Var("MoveHoldTime"               , PV_NUM   , &m_moveHoldTime               , NULL, false);
+	Var("OldRegisterClick"           , PV_BOOL  , &m_useOldRegisterClick        , nullptr, false);
+	Var("CTP2Mode"                   , PV_BOOL  , &m_useCTP2Mode                , nullptr, false);
+	Var("MoveHoldTime"               , PV_NUM   , &m_moveHoldTime               , nullptr, false);
 
-	Var("BattleSpeed"                , PV_NUM   , &m_battleSpeed                , NULL);
+	Var("BattleSpeed"                , PV_NUM   , &m_battleSpeed                , nullptr);
 
-	Var("ScrollDelay"                , PV_NUM   , &m_scrollDelay                , NULL);
+	Var("ScrollDelay"                , PV_NUM   , &m_scrollDelay                , nullptr);
 
-	Var("AutoSwitchTabs"             , PV_BOOL  , &m_autoSwitchTabs             , NULL);
-	Var("AutoRenameCities"           , PV_BOOL  , &m_autoRenameCities           , NULL, false);
-	Var("AutoOpenCityWindow"         , PV_BOOL  , &m_autoOpenCityWindow         , NULL);
+	Var("AutoSwitchTabs"             , PV_BOOL  , &m_autoSwitchTabs             , nullptr);
+	Var("AutoRenameCities"           , PV_BOOL  , &m_autoRenameCities           , nullptr, false);
+	Var("AutoOpenCityWindow"         , PV_BOOL  , &m_autoOpenCityWindow         , nullptr);
 
-	Var("ShowEnemyHealth"            , PV_BOOL  , &m_showEnemyHealth            , NULL, false);
+	Var("ShowEnemyHealth"            , PV_BOOL  , &m_showEnemyHealth            , nullptr, false);
 
-	Var("ShowCityInfluence"          , PV_BOOL  , &m_showCityInfluence          , NULL, false);
-	Var("ShowPoliticalBorders"       , PV_BOOL  , &m_showPoliticalBorders       , NULL, false);
+	Var("ShowCityInfluence"          , PV_BOOL  , &m_showCityInfluence          , nullptr, false);
+	Var("ShowPoliticalBorders"       , PV_BOOL  , &m_showPoliticalBorders       , nullptr, false);
 
-	Var("GoodRichness"               , PV_NUM   , &m_richness                   , NULL, false);
-	Var("EndTurnSound"               , PV_BOOL  , &m_endTurnSound               , NULL);
-	Var("EnableLogs"                 , PV_BOOL  , &m_enableLogs                 , NULL, false);
-	Var("DisplayUnits"               , PV_BOOL  , &m_displayUnits               , NULL, false);
-	Var("DisplayCities"              , PV_BOOL  , &m_displayCities              , NULL, false);
-	Var("DisplayBorders"             , PV_BOOL  , &m_displayBorders             , NULL, false);
-	Var("DisplayFilter"              , PV_BOOL  , &m_displayFilter              , NULL, false);
-	Var("DisplayTrade"               , PV_BOOL  , &m_displayTrade               , NULL, false);
-	Var("DisplayTerrain"             , PV_BOOL  , &m_displayTerrain             , NULL, false);
-	Var("DisplayPolitical"           , PV_BOOL  , &m_displayPolitical           , NULL, false);
-	Var("DisplayCapitols"            , PV_BOOL  , &m_displayCapitols            , NULL, false);
-	Var("DisplayRelations"           , PV_BOOL  , &m_displayRelations           , NULL, false);
-	Var("CloseOnEyepoint"            , PV_BOOL  , &m_closeEyepoint              , NULL);
-	Var("ShowExpensive"              , PV_BOOL  , &m_showExpensive              , NULL);
-	Var("ColorSet"                   , PV_NUM   , &m_colorSet                   , NULL, false);
-	Var("ShowOrderUnion"             , PV_BOOL  , &m_showOrderUnion             , NULL);
-	Var("RecentAtTop"                , PV_BOOL  , &m_recentAtTop                , NULL);
-	Var("RuleSets"                   , PV_STRING, NULL, m_ruleSets                    , false);
-	Var("CityClick"                  , PV_BOOL  , &m_cityClick                  , NULL, false);
-	Var("EndTurnWithEmptyBuildQueues", PV_BOOL  , &m_endTurnWithEmptyBuildQueues, NULL, false);
-	Var("RunInBackground"            , PV_BOOL  , &m_runInBackground            , NULL, false);
-	Var("AutoExpireTreatyBase"       , PV_NUM   , &m_autoExpireTreatyTurn       , NULL, false);
-	Var("CityCaptureOptions"         , PV_BOOL  , &m_cityCaptureOptions         , NULL, false);
+	Var("GoodRichness"               , PV_NUM   , &m_richness                   , nullptr, false);
+	Var("EndTurnSound"               , PV_BOOL  , &m_endTurnSound               , nullptr);
+	Var("EnableLogs"                 , PV_BOOL  , &m_enableLogs                 , nullptr, false);
+	Var("DisplayUnits"               , PV_BOOL  , &m_displayUnits               , nullptr, false);
+	Var("DisplayCities"              , PV_BOOL  , &m_displayCities              , nullptr, false);
+	Var("DisplayBorders"             , PV_BOOL  , &m_displayBorders             , nullptr, false);
+	Var("DisplayFilter"              , PV_BOOL  , &m_displayFilter              , nullptr, false);
+	Var("DisplayTrade"               , PV_BOOL  , &m_displayTrade               , nullptr, false);
+	Var("DisplayTerrain"             , PV_BOOL  , &m_displayTerrain             , nullptr, false);
+	Var("DisplayPolitical"           , PV_BOOL  , &m_displayPolitical           , nullptr, false);
+	Var("DisplayCapitols"            , PV_BOOL  , &m_displayCapitols            , nullptr, false);
+	Var("DisplayRelations"           , PV_BOOL  , &m_displayRelations           , nullptr, false);
+	Var("CloseOnEyepoint"            , PV_BOOL  , &m_closeEyepoint              , nullptr);
+	Var("ShowExpensive"              , PV_BOOL  , &m_showExpensive              , nullptr);
+	Var("ColorSet"                   , PV_NUM   , &m_colorSet                   , nullptr, false);
+	Var("ShowOrderUnion"             , PV_BOOL  , &m_showOrderUnion             , nullptr);
+	Var("RecentAtTop"                , PV_BOOL  , &m_recentAtTop                , nullptr);
+	Var("RuleSets"                   , PV_STRING, nullptr, m_ruleSets                    , false);
+	Var("CityClick"                  , PV_BOOL  , &m_cityClick                  , nullptr, false);
+	Var("EndTurnWithEmptyBuildQueues", PV_BOOL  , &m_endTurnWithEmptyBuildQueues, nullptr, false);
+	Var("RunInBackground"            , PV_BOOL  , &m_runInBackground            , nullptr, false);
+	Var("AutoExpireTreatyBase"       , PV_NUM   , &m_autoExpireTreatyTurn       , nullptr, false);
+	Var("CityCaptureOptions"         , PV_BOOL  , &m_cityCaptureOptions         , nullptr, false);
 #if defined(_DEBUG)
 	/// @todo Move this to the scenario editor
-	Var("Upgrade"                    , PV_BOOL  , &m_upgrade                    , NULL);
+	Var("Upgrade"                    , PV_BOOL  , &m_upgrade                    , nullptr);
 #else
 	Var("Upgrade"                    , PV_BOOL  , &m_upgrade                    , NULL, false);
 #endif
-	Var("SmoothBorders"              , PV_BOOL  , &m_smoothBorders              , NULL, false);
+	Var("SmoothBorders"              , PV_BOOL  , &m_smoothBorders              , nullptr, false);
 	// emod new profile flags // Please make sure that only those show up which are used.
-	Var("CivFlags"                   , PV_BOOL  , &m_CivFlags                   , NULL, false);
-	Var("AICityDefenderBonus"        , PV_BOOL  , &m_AICityDefenderBonus        , NULL, false);
-	Var("BarbarianCities"            , PV_BOOL  , &m_BarbarianCities            , NULL, false);
-	Var("SectarianHappiness"         , PV_BOOL  , &m_SectarianHappiness         , NULL, false);
-	Var("RevoltCasualties"           , PV_BOOL  , &m_RevoltCasualties           , NULL, false);
-	Var("RevoltInsurgents"           , PV_BOOL  , &m_RevoltInsurgents           , NULL, false);
-	Var("BarbarianCamps"             , PV_BOOL  , &m_BarbarianCamps	            , NULL, false);
-	Var("BarbarianSpawnsBarbarian"   , PV_BOOL  , &m_BarbarianSpawnsBarbarian   , NULL, false);
-	Var("AINoSinking"                , PV_BOOL  , &m_AINoSinking                , NULL, false);
-	Var("GoldPerUnitSupport"         , PV_BOOL  , &m_GoldPerUnitSupport         , NULL, false);
-	Var("GoldPerCity"                , PV_BOOL  , &m_GoldPerCity                , NULL, false);
-	Var("AIMilitiaUnit"              , PV_BOOL  , &m_AIMilitiaUnit              , NULL, false);
-	Var("OneCityChallenge"           , PV_BOOL  , &m_OneCityChallenge           , NULL, false);
-	Var("EnergySupply&DemandRatio"   , PV_BOOL  , &m_NRG                        , NULL, false);
-	Var("ShowDebugAI"                , PV_BOOL  , &m_debugai                    , NULL, false);
-	Var("CitiesLeaveRuins"           , PV_BOOL  , &m_ruin                       , NULL, false);
-	Var("NoCityLimit"                , PV_BOOL  , &m_NoCityLimit                , NULL, false);
-	Var("DebugCityAstar"             , PV_BOOL  , &m_DebugCityAstar             , NULL);
-	Var("NewCombat"                  , PV_BOOL  , &m_newcombat                  , NULL, false);
-	Var("NoGoodyHuts"                , PV_BOOL  , &m_noGoodyHuts                , NULL, false);
-	Var("RandomCustomMap"            , PV_BOOL  , &m_randomCustomMap            , NULL, false);
-	Var("SPStartingAge"              , PV_NUM   , &m_spStartingAge              , NULL, false);
-	Var("SPEndingAge"				 , PV_NUM   , &m_spEndingAge                , NULL, false);
-	Var("ShowCityProduction"         , PV_BOOL  , &m_showCityProduction         , NULL, false);
+	Var("CivFlags"                   , PV_BOOL  , &m_CivFlags                   , nullptr, false);
+	Var("AICityDefenderBonus"        , PV_BOOL  , &m_AICityDefenderBonus        , nullptr, false);
+	Var("BarbarianCities"            , PV_BOOL  , &m_BarbarianCities            , nullptr, false);
+	Var("SectarianHappiness"         , PV_BOOL  , &m_SectarianHappiness         , nullptr, false);
+	Var("RevoltCasualties"           , PV_BOOL  , &m_RevoltCasualties           , nullptr, false);
+	Var("RevoltInsurgents"           , PV_BOOL  , &m_RevoltInsurgents           , nullptr, false);
+	Var("BarbarianCamps"             , PV_BOOL  , &m_BarbarianCamps	            , nullptr, false);
+	Var("BarbarianSpawnsBarbarian"   , PV_BOOL  , &m_BarbarianSpawnsBarbarian   , nullptr, false);
+	Var("AINoSinking"                , PV_BOOL  , &m_AINoSinking                , nullptr, false);
+	Var("GoldPerUnitSupport"         , PV_BOOL  , &m_GoldPerUnitSupport         , nullptr, false);
+	Var("GoldPerCity"                , PV_BOOL  , &m_GoldPerCity                , nullptr, false);
+	Var("AIMilitiaUnit"              , PV_BOOL  , &m_AIMilitiaUnit              , nullptr, false);
+	Var("OneCityChallenge"           , PV_BOOL  , &m_OneCityChallenge           , nullptr, false);
+	Var("EnergySupply&DemandRatio"   , PV_BOOL  , &m_NRG                        , nullptr, false);
+	Var("ShowDebugAI"                , PV_BOOL  , &m_debugai                    , nullptr, false);
+	Var("CitiesLeaveRuins"           , PV_BOOL  , &m_ruin                       , nullptr, false);
+	Var("NoCityLimit"                , PV_BOOL  , &m_NoCityLimit                , nullptr, false);
+	Var("DebugCityAstar"             , PV_BOOL  , &m_DebugCityAstar             , nullptr);
+	Var("NewCombat"                  , PV_BOOL  , &m_newcombat                  , nullptr, false);
+	Var("NoGoodyHuts"                , PV_BOOL  , &m_noGoodyHuts                , nullptr, false);
+	Var("RandomCustomMap"            , PV_BOOL  , &m_randomCustomMap            , nullptr, false);
+	Var("SPStartingAge"              , PV_NUM   , &m_spStartingAge              , nullptr, false);
+	Var("SPEndingAge"				 , PV_NUM   , &m_spEndingAge                , nullptr, false);
+	Var("ShowCityProduction"         , PV_BOOL  , &m_showCityProduction         , nullptr, false);
 }
 
 void ProfileDB::DefaultSettings()
@@ -544,7 +544,7 @@ BOOL ProfileDB::Parse(FILE *file)
 	char line[k_MAX_NAME_LEN];
 	sint32 linenum = 0;
 	while(!feof(file)) {
-		if(fgets(line, k_MAX_NAME_LEN, file) == NULL)
+		if(fgets(line, k_MAX_NAME_LEN, file) == nullptr)
 			return TRUE;
 		linenum++;
 		sint32 len = strlen(line);
@@ -650,7 +650,7 @@ void ProfileDB::SetDiplmacyLog(BOOL b)
 	else
 	{
 		delete g_theDiplomacyLog;
-		g_theDiplomacyLog       = b ? new Diplomacy_Log : NULL;
+		g_theDiplomacyLog       = b ? new Diplomacy_Log : nullptr;
 		m_is_diplomacy_log_on   = b;
 	}
 }

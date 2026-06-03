@@ -55,7 +55,7 @@
 #include "ui/interface/citywindow.h"
 
 
-static ScienceVictoryDialog *g_scienceVictoryDialog = NULL;
+static ScienceVictoryDialog *g_scienceVictoryDialog = nullptr;
 
 const sint32 k_SWITCH_CONSTRUCTION		= 0;
 const sint32 k_SWITCH_STATUS			= 1;
@@ -88,7 +88,7 @@ void ScienceVictoryDialog::Cleanup()
 		g_scienceVictoryDialog->Hide();
 
 	delete g_scienceVictoryDialog;
-	g_scienceVictoryDialog = NULL;
+	g_scienceVictoryDialog = nullptr;
 }
 
 ScienceVictoryDialog::ScienceVictoryDialog() :
@@ -158,7 +158,7 @@ ScienceVictoryDialog::~ScienceVictoryDialog()
 {
 	if(m_window) {
 		aui_Ldl::DeleteHierarchyFromRoot("ScienceVictoryDialog");
-		m_window = NULL;
+		m_window = nullptr;
 	}
 }
 
@@ -301,7 +301,7 @@ ctp2_ListItem *ScienceVictoryDialog::CreateMainframeItem(const Unit &city,
 
 	Assert(item);
 	if(!item)
-		return(NULL);
+		return(nullptr);
 
 	item->SetUserData(reinterpret_cast<void*>(city.m_id));
 

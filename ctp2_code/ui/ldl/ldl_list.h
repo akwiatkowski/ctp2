@@ -9,7 +9,7 @@ class ldl_attributelist {
 	ldl_attribute *m_tail;
 
 	ldl_attributelist() {
-		m_head = m_tail = NULL;
+		m_head = m_tail = nullptr;
 	}
 
 	~ldl_attributelist() {
@@ -19,7 +19,7 @@ class ldl_attributelist {
 			delete del;
 			del = next;
 		}
-		m_head = m_tail = NULL;
+		m_head = m_tail = nullptr;
 	}
 
 	ldl_attribute *GetHead() { return m_head; }
@@ -41,7 +41,7 @@ class ldl_attributelist {
 			}
 			search = search->m_next;
 		}
-		return NULL;
+		return nullptr;
 	}
 };
 

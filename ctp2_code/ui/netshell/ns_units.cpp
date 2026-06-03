@@ -36,15 +36,15 @@
 #include "gs/database/StrDB.h"              // stringdb_Get()
 #include "UnitRecord.h"         // g_theUnitDB
 
-static ns_Units *g_nsUnits = NULL;
+static ns_Units *g_nsUnits = nullptr;
 
 ns_Units * nsunits_Get()         { return g_nsUnits; }
 void       nsunits_Set(ns_Units *p)  { g_nsUnits = p; }
 
 ns_Units::ns_Units()
 :
-	m_noIndex       (NULL),
-    m_stringtable   (NULL)
+	m_noIndex       (nullptr),
+    m_stringtable   (nullptr)
 {
 	Assert(g_theUnitDB->NumRecords() <= k_UNITS_MAX);
     sint32      numUnits    =

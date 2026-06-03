@@ -28,7 +28,7 @@ public:
     :
         m_key       (the_key),
         m_data      (the_data),
-        m_next      (NULL)
+        m_next      (nullptr)
 	{};
 
 	~Translation()
@@ -112,14 +112,14 @@ Text_Hasher<DATA_TYPE>::Text_Hasher
 	DATA_TYPE   untranslated_value
 )
 :
-    m_hash_table            (NULL),
+    m_hash_table            (nullptr),
 	m_data_count            (0),
 	m_hash_table_size       (size + size/2),
 	m_untranslated          (untranslated_value)
 {
 	m_hash_table = new Translation<DATA_TYPE> *[m_hash_table_size];
     std::fill(m_hash_table, m_hash_table + m_hash_table_size,
-              (Translation<DATA_TYPE> *) NULL
+              (Translation<DATA_TYPE> *) nullptr
              );
 }
 

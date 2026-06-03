@@ -12,7 +12,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-PointerList<CTPDisplayMode>	*g_displayModes = NULL;
+PointerList<CTPDisplayMode>	*g_displayModes = nullptr;
 #ifdef WIN32
 PointerList<DisplayDevice>	*g_displayDevices = NULL;
 
@@ -395,6 +395,6 @@ void display_Cleanup()
 	if(g_displayModes) {
 		g_displayModes->DeleteAll();
 		delete g_displayModes;
-		g_displayModes = NULL;
+		g_displayModes = nullptr;
 	}
 }

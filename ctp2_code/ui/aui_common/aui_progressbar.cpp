@@ -43,7 +43,7 @@ aui_ProgressBar::aui_ProgressBar(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -64,7 +64,7 @@ aui_ProgressBar::aui_ProgressBar(
 	sint32 height )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -74,7 +74,7 @@ aui_ProgressBar::aui_ProgressBar(
 		AUI_PROGRESSBAR_ORIENTATION_HORIZONTAL,
 		AUI_PROGRESSBAR_TYPE_STANDARD,
 		k_AUI_PROGRESSBAR_DEFAULT_VPS,
-		NULL,
+		nullptr,
 		k_AUI_PROGRESSBAR_DEFAULT_COLOR,
 		0,
 		k_AUI_PROGRESSBAR_DEFAULT_MAXVALUE );
@@ -86,7 +86,7 @@ aui_ProgressBar::aui_ProgressBar(
 AUI_ERRCODE aui_ProgressBar::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_PROGRESSBAR_ORIENTATION orientation;
@@ -163,7 +163,7 @@ AUI_ERRCODE aui_ProgressBar::InitCommon(
 		maxValue > curValue ?
 		maxValue :
 		k_AUI_PROGRESSBAR_DEFAULT_MAXVALUE;
-	m_barImage = NULL;
+	m_barImage = nullptr;
 	m_barColor = RGB(0,0,0);
 
 	SetBarImage( image );
@@ -178,7 +178,7 @@ aui_ProgressBar::~aui_ProgressBar()
 	if ( m_barImage )
 	{
 		aui_ui_Get()->UnloadImage( m_barImage );
-		m_barImage = NULL;
+		m_barImage = nullptr;
 	}
 }
 
@@ -246,15 +246,15 @@ aui_Image *aui_ProgressBar::SetBarImage( MBCHAR *image )
 	if ( image )
 	{
 		m_barImage = aui_ui_Get()->LoadImage( image );
-		Assert( m_barImage != NULL );
+		Assert( m_barImage != nullptr );
 		if ( !m_barImage )
 		{
 			m_barImage = prevImage;
-			return NULL;
+			return nullptr;
 		}
 	}
 	else
-		m_barImage = NULL;
+		m_barImage = nullptr;
 
 	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 

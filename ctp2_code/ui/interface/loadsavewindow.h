@@ -26,10 +26,10 @@ class aui_TabGroup;
 sint32 loadsavescreen_displayMyWindow(uint32 type);
 sint32 loadsavescreen_removeMyWindow(uint32 action);
 AUI_ERRCODE loadsavescreen_Initialize( aui_Control::ControlActionCallback
-									   *callback = NULL );
+									   *callback = nullptr );
 void loadsavescreen_Cleanup();
 
-void loadsavescreen_SaveGame(MBCHAR *usePath = NULL, MBCHAR *useName = NULL);
+void loadsavescreen_SaveGame(MBCHAR *usePath = nullptr, MBCHAR *useName = nullptr);
 
 void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath);
 

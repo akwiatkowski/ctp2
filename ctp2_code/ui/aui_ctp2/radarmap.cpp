@@ -101,7 +101,7 @@ RadarMap::RadarMap(AUI_ERRCODE *retval,
 		aui_ImageBase(ldlBlock),
 		aui_TextBase(ldlBlock),
 		aui_Control(retval, id, ldlBlock, ActionFunc, cookie),
-		PatternBase(ldlBlock, NULL)
+		PatternBase(ldlBlock, nullptr)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -122,7 +122,7 @@ RadarMap::RadarMap(AUI_ERRCODE *retval,
 							void *cookie)
 	:
 		aui_ImageBase((sint32)0),
-		aui_TextBase((MBCHAR *)NULL),
+		aui_TextBase((MBCHAR *)nullptr),
 		aui_Control(retval, id, x, y, width, height, ActionFunc, cookie),
 		PatternBase(pattern)
 {
@@ -150,7 +150,7 @@ RadarMap::~RadarMap()
 void RadarMap::InitCommonLdl(MBCHAR *ldlBlock)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return;
 
 	InitCommon();
@@ -163,10 +163,10 @@ void RadarMap::InitCommonLdl(MBCHAR *ldlBlock)
 //---------------------------------------------------------------------------
 void RadarMap::InitCommon()
 {
-	m_mapSurface = NULL;
-	m_mapSize = NULL;
-	m_tempSurface = NULL;
-	m_tempBuffer = NULL;
+	m_mapSurface = nullptr;
+	m_mapSize = nullptr;
+	m_tempSurface = nullptr;
+	m_tempBuffer = nullptr;
 
 	m_tilePixelWidth = 0.0;
 	m_tilePixelHeight = 0.0;
@@ -182,7 +182,7 @@ void RadarMap::InitCommon()
 	m_displayCapitols = profiledb_Get()->GetDisplayCapitols() != FALSE;
 	m_displayRelations = profiledb_Get()->GetDisplayRelations() != FALSE;
 
-	m_mapOverlay = NULL;
+	m_mapOverlay = nullptr;
 
 	MapPoint resetPos (0,0);
 	m_lastCenteredPoint = resetPos;
@@ -217,7 +217,7 @@ void RadarMap::InitCommon()
 void RadarMap::ClearMapOverlay()
 {
 	delete [] m_mapOverlay;
-	m_mapOverlay = NULL;
+	m_mapOverlay = nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void RadarMap::ClearMapOverlay()
 //---------------------------------------------------------------------------
 void RadarMap::SetMapOverlayCell(MapPoint const & pos, COLOR color)
 {
-	if (m_mapOverlay == NULL) {
+	if (m_mapOverlay == nullptr) {
 		sint32 len = m_mapSize->x * m_mapSize->y;
 		m_mapOverlay = new COLOR[len];
 
@@ -345,7 +345,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 
 	if(!tiledmap_Get() || !tiledmap_Get()->ReadyToDraw() ||
 		!world_Get() || !selitem_Get() || !m_mapSize)
-		return(NULL);
+		return(nullptr);
 
 
 
@@ -354,7 +354,7 @@ Player *RadarMap::GetVisiblePlayerToRender()
 
 	Assert(m_mapSize->x < 0 || m_mapSize->y > 0);
 	if(m_mapSize->x <= 0 || m_mapSize->y <= 0)
-		return(NULL);
+		return(nullptr);
 
 	return(player_Get(selitem_Get()->GetVisiblePlayer()));
 }
@@ -1470,8 +1470,8 @@ void RadarMap::MouseLGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(tiledmap_Get() != NULL);
-	if (tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if (tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -1525,8 +1525,8 @@ void RadarMap::MouseRGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(tiledmap_Get() != NULL);
-	if (tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if (tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -1570,7 +1570,7 @@ AUI_ERRCODE RadarMap::Idle( )
 	if (GetTickCount() - lastDraw > 100) lastDraw = GetTickCount();
 	else return AUI_ERRCODE_OK;
 
-	DrawThis(NULL, 0, 0);
+	DrawThis(nullptr, 0, 0);
 
 	return AUI_ERRCODE_OK;
 }

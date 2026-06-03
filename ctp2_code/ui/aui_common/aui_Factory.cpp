@@ -51,7 +51,7 @@ aui_Factory::new_Surface(AUI_ERRCODE &retval,
                         )
 {
 #if defined(__AUI_USE_SDL__)
-	aui_SDLSurface *surface = 0;
+	aui_SDLSurface *surface = nullptr;
 
 	surface = new aui_SDLSurface(&retval, width, height, c3ui_Get()->BitsPerPixel(), c3ui_Get()->DD(),
 	                             isPrimary, useVideoMemory, takeOwnership);
@@ -74,7 +74,7 @@ aui_Factory::new_Mouse(AUI_ERRCODE &retval,
                       )
 {
 #if defined(__AUI_USE_SDL__)
-	aui_SDLMouse *mouse = 0;
+	aui_SDLMouse *mouse = nullptr;
 
 	mouse = new aui_SDLMouse(&retval, ldlBlock, useExclusiveMode);
 #elif defined(__AUI_USE_DIRECTX__)
@@ -91,7 +91,7 @@ aui_Keyboard *
 aui_Factory::new_Keyboard(AUI_ERRCODE &retval)
 {
 #if defined(__AUI_USE_SDL__)
-	aui_SDLKeyboard *keyboard = 0;
+	aui_SDLKeyboard *keyboard = nullptr;
 
 	keyboard = new aui_SDLKeyboard(&retval);
 #elif defined(__AUI_USE_DIRECTX__)

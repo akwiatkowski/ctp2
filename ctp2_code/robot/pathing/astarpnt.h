@@ -89,8 +89,8 @@ public:
         m_future_cost   (0.0f),
         m_total_cost    (0.0f),
         m_queue_idx     (-1),
-        m_parent        (NULL),
-        m_next          (NULL)
+        m_parent        (nullptr),
+        m_next          (nullptr)
     { ; };
 
     /// Determine whether a route through this point costs less than a route

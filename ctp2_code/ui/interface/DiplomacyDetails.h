@@ -33,7 +33,7 @@ class DiplomacyDetails
 
 	static AUI_ERRCODE Initialize();
 	static AUI_ERRCODE Cleanup();
-	static AUI_ERRCODE Display(Unit *c=NULL);
+	static AUI_ERRCODE Display(Unit *c=nullptr);
 	static AUI_ERRCODE Hide();
 
 	static void SetNation(sint32 player);

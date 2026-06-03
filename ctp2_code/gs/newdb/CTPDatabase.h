@@ -122,7 +122,7 @@ public:
 		Assert(index >= 0);
 		Assert(index < m_numRecords);
 		if((index < 0) || (index >= m_numRecords))
-			return NULL;
+			return nullptr;
 
 		return m_records[index];
 	}

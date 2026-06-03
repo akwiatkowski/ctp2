@@ -16,9 +16,9 @@ RadioGroup::RadioGroup(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_SwitchGroup( retval, id, ldlBlock ),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 }
 

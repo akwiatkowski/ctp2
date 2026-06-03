@@ -74,7 +74,7 @@ Unit UnitPool::Create (
     const Unit hc,
     std::shared_ptr<UnitActor> actor)
 {
-	UnitData *ptr = NULL;
+	UnitData *ptr = nullptr;
 	Unit id(NewKey(k_BIT_GAME_OBJ_TYPE_UNIT));
 
 	Assert(owner < PLAYER_INDEX_INVALID);
@@ -109,7 +109,7 @@ Unit UnitPool::Create (
     const PLAYER_INDEX owner,
     const MapPoint &actor_pos)
 {
-	UnitData *ptr = NULL;
+	UnitData *ptr = nullptr;
 	Unit id(NewKey(k_BIT_GAME_OBJ_TYPE_UNIT));
 
 	Assert(owner < PLAYER_INDEX_INVALID);

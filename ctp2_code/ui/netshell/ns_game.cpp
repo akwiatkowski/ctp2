@@ -43,9 +43,9 @@ ns_Game::ns_Game(NETFunc::Game * game)
 
 void ns_Game::Update( NETFunc::Game *game ) {
 	SetMine(game->IsCurrentSession());
-	m_locked = strlen(game->GetPassword()) ? netshell_Get()->GetTrueBmp() : 0;
-	m_closed = (game->IsClosed() || game->IsHostile() || game->GetFree() == 0) ? netshell_Get()->GetTrueBmp() : 0;
-	m_launched = game->IsLaunched() ? netshell_Get()->GetTrueBmp() : 0;
+	m_locked = strlen(game->GetPassword()) ? netshell_Get()->GetTrueBmp() : nullptr;
+	m_closed = (game->IsClosed() || game->IsHostile() || game->GetFree() == 0) ? netshell_Get()->GetTrueBmp() : nullptr;
+	m_launched = game->IsLaunched() ? netshell_Get()->GetTrueBmp() : nullptr;
 	m_name = game->GetName();
 	m_players = game->GetPlayers();
 

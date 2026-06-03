@@ -76,7 +76,7 @@ WorkMap::WorkMap(AUI_ERRCODE *retval,
 		aui_ImageBase(ldlBlock),
 		aui_TextBase(ldlBlock),
 		aui_Control(retval, id, ldlBlock, ActionFunc, cookie),
-		PatternBase(ldlBlock, NULL)
+		PatternBase(ldlBlock, nullptr)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -92,7 +92,7 @@ WorkMap::WorkMap(AUI_ERRCODE *retval,
 							void *cookie)
 	:
 		aui_ImageBase((sint32)0),
-		aui_TextBase((MBCHAR *)NULL),
+		aui_TextBase((MBCHAR *)nullptr),
 		aui_Control(retval, id, x, y, width, height, ActionFunc, cookie),
 		PatternBase(pattern)
 {
@@ -103,27 +103,27 @@ WorkMap::~WorkMap()
 {
 
 	for (sint32 i=0; i<k_MAX_WORKERS; i++) {
-		if (m_worker[i] != NULL) {
+		if (m_worker[i] != nullptr) {
 			delete m_worker[i];
-			m_worker[i] = NULL;
+			m_worker[i] = nullptr;
 		}
 	}
 
 	if (m_updateAction) {
 		delete m_updateAction;
-		m_updateAction = NULL;
+		m_updateAction = nullptr;
 	}
 
 	if (m_surface) {
 		delete m_surface;
-		m_surface = NULL;
+		m_surface = nullptr;
 	}
 }
 
 void WorkMap::InitCommonLdl(MBCHAR *ldlBlock)
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return;
 
 	sint32 scale = k_WORKMAP_DEFAULT_SCALE;
@@ -143,15 +143,15 @@ void WorkMap::InitCommon( sint32 scale)
 
 	m_unit = Unit();
 
-	m_updateAction = NULL;
+	m_updateAction = nullptr;
 
 	for (sint32 i = 0;i < k_MAX_WORKERS;i++) {
-		m_worker[i] = NULL;
+		m_worker[i] = nullptr;
 	}
 	m_numWorkers = 0;
 
 	m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
-	Assert( m_surface != NULL );
+	Assert( m_surface != nullptr );
 	if ( !m_surface ) return;
 
 	m_string = new aui_StringTable( &errcode, "WorkMapStrings" );
@@ -315,9 +315,9 @@ sint32 WorkMap::DrawSurface()
 	m_topEdge = topEdge;
 
 	for (i=0; i<k_MAX_WORKERS; i++) {
-		if (m_worker[i] != NULL) {
+		if (m_worker[i] != nullptr) {
 			delete m_worker[i];
-			m_worker[i] = NULL;
+			m_worker[i] = nullptr;
 		}
 	}
 	m_numWorkers = 0;
@@ -685,7 +685,7 @@ BOOL WorkMap::DrawAGood(aui_Surface *pSurface, MapPoint const &pos, void *contex
 	sint32		x, y;
 
 	TileInfo *curTileInfo = tiledmap_Get()->GetTileInfo(pos);
-	Assert(curTileInfo != NULL);
+	Assert(curTileInfo != nullptr);
 	if(!curTileInfo || !curTileInfo->HasGoodActor()) return FALSE;
 
 	goodActor = curTileInfo->GetGoodActor();
@@ -910,41 +910,41 @@ sint32 WorkMap::CalculateWrap(
 	pos = tempPos;
 
 	TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos);
-	if (tileInfo == NULL) return -1;
+	if (tileInfo == nullptr) return -1;
 
 	river = tileInfo->GetRiverPiece();
 
 	BaseTile *baseTile = tiledmap_Get()->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
-	if (baseTile == NULL) return -1;
+	if (baseTile == nullptr) return -1;
 
 	if ( !m_scale ) {
 
-		tiledmap_Get()->DrawTransitionTile(NULL, pos, x, y);
+		tiledmap_Get()->DrawTransitionTile(nullptr, pos, x, y);
 
 
-		tiledmap_Get()->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
+		tiledmap_Get()->DrawOverlay(nullptr, baseTile->GetHatData(), x, y);
 
 		if (river != -1)
 
-			tiledmap_Get()->DrawOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
+			tiledmap_Get()->DrawOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
 
-		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 
 	}
 	else {
 
-		tiledmap_Get()->DrawTransitionTileScaled(NULL, pos, x, y, tiledmap_Get()->GetZoomTilePixelWidth(), tiledmap_Get()->GetZoomTilePixelHeight() );
+		tiledmap_Get()->DrawTransitionTileScaled(nullptr, pos, x, y, tiledmap_Get()->GetZoomTilePixelWidth(), tiledmap_Get()->GetZoomTilePixelHeight() );
 
-		tiledmap_Get()->DrawScaledOverlay(NULL, baseTile->GetHatData(), x, y,
+		tiledmap_Get()->DrawScaledOverlay(nullptr, baseTile->GetHatData(), x, y,
 										tiledmap_Get()->GetZoomTilePixelWidth(),
 										tiledmap_Get()->GetZoomTileGridHeight());
 
 		if ( river != -1 )
-			tiledmap_Get()->DrawScaledOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y,
+			tiledmap_Get()->DrawScaledOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y,
 											tiledmap_Get()->GetZoomTilePixelWidth(),
 											tiledmap_Get()->GetZoomTileGridHeight());
 
-		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 	}
 
 	return 0;
@@ -960,7 +960,7 @@ sint32 WorkMap::DrawImprovements(
 {
 	maputils_WrapPoint(j, i, &j, &i);
 	MapPoint    pos(maputils_TileX2MapX(j, i), i);
-	tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+	tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 
 	return 0;
 }
@@ -1464,7 +1464,7 @@ AUI_ERRCODE WorkMap::Idle( )
 	if (GetTickCount() - lastDraw > 100) lastDraw = GetTickCount();
 	else return AUI_ERRCODE_OK;
 
-	DrawThis(NULL, 0, 0);
+	DrawThis(nullptr, 0, 0);
 
 	return AUI_ERRCODE_OK;
 }

@@ -48,31 +48,31 @@
 #include "ui/interface/spnewgamewindow.h"
 
 
-static ns_Window *s_passwordScreen	= NULL;
+static ns_Window *s_passwordScreen	= nullptr;
 
-static c3_Static	*s_askStatic			= NULL;
-static c3_Static	*s_joinStatic			= NULL;
-static aui_SwitchGroup *s_yesnoSwitchGroup	= NULL;
-static aui_Radio	*s_yesRadio				= NULL;
-static aui_Radio	*s_noRadio				= NULL;
-static c3_Static	*s_inputStatic			= NULL;
-static C3TextField	*s_inputTextField		= NULL;
+static c3_Static	*s_askStatic			= nullptr;
+static c3_Static	*s_joinStatic			= nullptr;
+static aui_SwitchGroup *s_yesnoSwitchGroup	= nullptr;
+static aui_Radio	*s_yesRadio				= nullptr;
+static aui_Radio	*s_noRadio				= nullptr;
+static c3_Static	*s_inputStatic			= nullptr;
+static C3TextField	*s_inputTextField		= nullptr;
 
-static aui_Button	*s_okButton				= NULL;
+static aui_Button	*s_okButton				= nullptr;
 
-static c3_Static	*s_denyStatic			= NULL;
+static c3_Static	*s_denyStatic			= nullptr;
 
-static c3_Static	*s_fullStatic			= NULL;
+static c3_Static	*s_fullStatic			= nullptr;
 
-static c3_Static	*s_nolobbyStatic		= NULL;
+static c3_Static	*s_nolobbyStatic		= nullptr;
 
-static c3_Static	*s_connectionlostStatic	= NULL;
+static c3_Static	*s_connectionlostStatic	= nullptr;
 
-static c3_Static	*s_nodialupStatic		= NULL;
+static c3_Static	*s_nodialupStatic		= nullptr;
 
-static c3_Static	*s_connectionerrStatic	= NULL;
+static c3_Static	*s_connectionerrStatic	= nullptr;
 
-static c3_Static    *s_scenarionotfoundStatic = NULL;
+static c3_Static    *s_scenarionotfoundStatic = nullptr;
 
 sint32 passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE m )
 {
@@ -455,7 +455,7 @@ AUI_ERRCODE passwordscreen_Cleanup()
 	mycleanup( s_scenarionotfoundStatic );
 
 	delete s_passwordScreen;
-	s_passwordScreen = NULL;
+	s_passwordScreen = nullptr;
 
 	return AUI_ERRCODE_OK;
 
@@ -494,7 +494,7 @@ void PasswordScreenCallback(
 			s_okButton,
 			AUI_BUTTON_ACTION_EXECUTE,
 			0,
-			NULL );
+			nullptr );
 	}
 	else if ( control == s_okButton )
 	{

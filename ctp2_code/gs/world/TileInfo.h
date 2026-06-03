@@ -98,7 +98,7 @@ public:
 
 	void SetGoodActor(sint32 index, MapPoint const & pos);
 	GoodActor * GetGoodActor() const {return m_goodActor;}
-	bool HasGoodActor() const { return m_goodActor != NULL; }
+	bool HasGoodActor() const { return m_goodActor != nullptr; }
 	void DeleteGoodActor();
 
 	void SetTransition(uint16 transNum, uint16 index) { m_transitions[transNum] = (sint8)index; }

@@ -46,14 +46,14 @@ c3_Header::c3_Header(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Header()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_Control::InitCommonLdl( ldlBlock, NULL, NULL );
+	*retval = aui_Control::InitCommonLdl( ldlBlock, nullptr, nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -84,14 +84,14 @@ c3_Header::c3_Header(
 	sint32 height )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Header()
 {
 	*retval = aui_Region::InitCommon( id, x, y, width, height );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_Control::InitCommon( NULL, NULL );
+	*retval = aui_Control::InitCommon( nullptr, nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -156,7 +156,7 @@ AUI_ERRCODE c3_Header::CreateSwitches( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			aui_Action *action = new aui_HeaderSwitchAction( i );
-			Assert( action != NULL );
+			Assert( action != nullptr );
 			if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			theSwitch->SetAction( action );

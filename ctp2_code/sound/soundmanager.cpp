@@ -56,7 +56,7 @@ extern HWND			gHwnd;
 extern CivPaths		*civpaths_Get();
 extern PlayListDB	*g_thePlayListDB;
 
-static SoundManager *g_soundManager = NULL;
+static SoundManager *g_soundManager = nullptr;
 
 SoundManager * soundmgr_Get()         { return g_soundManager; }
 void           soundmgr_Set(SoundManager *p) { g_soundManager = p; }
@@ -86,14 +86,14 @@ void SoundManager::Initialize()
 void SoundManager::Cleanup()
 {
     delete g_soundManager;
-    g_soundManager = NULL;
+    g_soundManager = nullptr;
 }
 
 SoundManager::SoundManager()
 :
-    m_sfxSounds                 (NULL),
-    m_voiceSounds               (NULL),
-    m_soundWalker               (NULL),
+    m_sfxSounds                 (nullptr),
+    m_voiceSounds               (nullptr),
+    m_soundWalker               (nullptr),
     m_sfxVolume                 (SLIDER_FULL),
     m_musicVolume               (SLIDER_FULL),
     m_voiceVolume               (SLIDER_FULL),
@@ -103,7 +103,7 @@ SoundManager::SoundManager()
 #if !defined(USE_SDL)
     m_redbook                   (0),
 #else
-    m_cdrom                     (0),
+    m_cdrom                     (nullptr),
     m_SDLInitFlags              (SDL_INIT_NOPARACHUTE),
 #endif
     m_timeToCheckCD             (0),
@@ -250,7 +250,7 @@ void SoundManager::InitRedbook()
             return;
         }
         m_cdrom = SDL_CDOpen(drive);
-        Assert(m_cdrom != 0);
+        Assert(m_cdrom != nullptr);
         // No control structur?
         if (m_cdrom)
         {
@@ -270,7 +270,7 @@ void SoundManager::CleanupRedbook()
 #if defined(USE_SDL)
     if (m_cdrom) {
         SDL_CDClose(m_cdrom);
-        m_cdrom = 0;
+        m_cdrom = nullptr;
     }
 #else
     if (m_redbook) {
@@ -565,7 +565,7 @@ SoundManager::TerminateLoopingSound(const SOUNDTYPE &type,
 void
 SoundManager::TerminateAllLoopingSounds(const SOUNDTYPE &type)
 {
-	PointerList<CivSound>::PointerListNode *node = NULL;
+	PointerList<CivSound>::PointerListNode *node = nullptr;
 
 	switch (type) {
 	case SOUNDTYPE_SFX:
@@ -598,7 +598,7 @@ SoundManager::TerminateAllLoopingSounds(const SOUNDTYPE &type)
 void
 SoundManager::TerminateSounds(const SOUNDTYPE &type)
 {
-	PointerList<CivSound>::PointerListNode *node = NULL;
+	PointerList<CivSound>::PointerListNode *node = nullptr;
 
 	switch (type) {
 	case SOUNDTYPE_SFX:
@@ -739,7 +739,7 @@ CivSound
 		m_soundWalker->Next();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 CivSound
@@ -763,7 +763,7 @@ CivSound
 		m_soundWalker->Next();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 const MUSICSTYLE
@@ -834,7 +834,7 @@ SoundManager::SetPosition(const SOUNDTYPE &type,
                           const uint32 &associatedObject,
                           const sint32 &x, const sint32 &y)
 {
-	PointerList<CivSound>::PointerListNode *node = NULL;
+	PointerList<CivSound>::PointerListNode *node = nullptr;
 
 	sint32 volume = 0;
 
@@ -1026,7 +1026,7 @@ void SoundManager::PickNextTrack()
 void SoundManager::StupidPlaySound(const sint32 &soundID)
 {
     SoundRecord const * soundRecord = g_theSoundDB->Get(soundID);
-    char const *        soundValue  = soundRecord ? soundRecord->GetValue() : NULL;
+    char const *        soundValue  = soundRecord ? soundRecord->GetValue() : nullptr;
 
 	if (soundValue && (strlen(soundValue) > 0))
     {

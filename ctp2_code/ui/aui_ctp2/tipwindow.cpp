@@ -60,7 +60,7 @@ AUI_ERRCODE TipWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if (surface == NULL) surface = m_surface;
+	if (surface == nullptr) surface = m_surface;
 
 	RECT rect = { 0, 0, m_width, m_height };
 

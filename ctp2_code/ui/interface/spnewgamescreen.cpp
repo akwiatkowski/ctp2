@@ -82,7 +82,7 @@ extern c3_PopupWindow       *g_spNewGameTribeScreen;
 extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern MBCHAR               g_civilisation_filename[_MAX_PATH];
 
-SPNewGameWindow             *g_spNewGameWindow      = NULL;
+SPNewGameWindow             *g_spNewGameWindow      = nullptr;
 
 BOOL                        g_launchIntoCheatMode = FALSE;
 
@@ -315,7 +315,7 @@ void spnewgamescreen_tribePress( aui_Control *control, uint32 action, uint32 dat
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
 
-	spnewgametribescreen_displayMyWindow( NULL, TRUE );
+	spnewgametribescreen_displayMyWindow( nullptr, TRUE );
 
 	sint32 index = (sint32)profiledb_Get()->GetCivIndex();
 
@@ -641,7 +641,7 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
 {
 	MBCHAR		textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	if (ldlParent==NULL)
+	if (ldlParent==nullptr)
 		snprintf(textBlock, sizeof(textBlock), "%s",ldlMe );
 	else
 		snprintf(textBlock, sizeof(textBlock), "%s.%s", ldlParent, ldlMe );
@@ -651,7 +651,7 @@ spNew_ctp2_Button(AUI_ERRCODE *errcode,
          buttonFlavor,
          500, 10,
          100, 20,
-         NULL,
+         nullptr,
          reinterpret_cast<void *>(callback)
         );
 }
@@ -749,7 +749,7 @@ TwoChoiceButton* spNewTwoChoiceButton(AUI_ERRCODE *errcode, MBCHAR* ldlParent, M
 					void (*callback)(aui_Control*,uint32,uint32,void*))
 {
 	MBCHAR			textBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
-	MBCHAR *c0= NULL,*c1= NULL;
+	MBCHAR *c0= nullptr,*c1= nullptr;
 	aui_StringTable * choices = spNewStringTable(errcode,ldlstringtable);
 	if(choices && choices->GetNumStrings()==2)
 	{ c0 = choices->GetString(0); c1 = choices->GetString(1); }

@@ -763,7 +763,7 @@ class PlayerSymbol_Researching : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if (pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if (pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			strncpy(text, g_theAdvanceDB->Get(player_Get(pl)->m_advances->GetResearching())->GetNameText(), maxLen);
 			return TRUE;
@@ -799,7 +799,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			switch(player_Get(pl)->GetReadinessLevel())
 			{
@@ -824,7 +824,7 @@ class PlayerSymbol_MilitaryState : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			sint32 id = -1;
 			switch(player_Get(pl)->GetReadinessLevel())
@@ -881,7 +881,7 @@ class PlayerSymbol_LeaderPersonality : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			value = Diplomat::GetDiplomat(pl).GetPersonality()->GetIndex();
 			return TRUE;
@@ -897,7 +897,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 
 			strncpy(text, g_theGovernmentDB->Get(player_Get(pl)->m_government_type)->GetNameText(), maxLen);
@@ -910,7 +910,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			return g_theGovernmentDB->Get(player_Get(pl)->m_government_type)->GetName();
 		}
@@ -922,7 +922,7 @@ class PlayerSymbol_GovtType : public SlicStructMemberData {
 		sint32 pl;
 		BOOL res = m_parent->GetDataSymbol()->GetPlayer(pl);
 		Assert(res);
-		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=NULL)
+		if(pl>=0 && pl<k_MAX_PLAYERS && player_Get(pl)!=nullptr)
 		{
 			value = player_Get(pl)->m_government_type;
 			return TRUE;

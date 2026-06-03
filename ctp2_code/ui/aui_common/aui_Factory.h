@@ -40,7 +40,7 @@ public:
 	static aui_Surface *new_Surface(AUI_ERRCODE &retval,
 	                                const sint32 &width,
 	                                const sint32 &height,
-	                                void *data = 0,
+	                                void *data = nullptr,
 	                                const BOOL &isPrimary = FALSE,
 	                                const BOOL &useVideoMemory = FALSE,
 	                                const BOOL &takeOwnership = FALSE

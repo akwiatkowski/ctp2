@@ -26,7 +26,7 @@ class SlicStruct_Global : public SlicStructDescription
 {
 public:
 	SlicStruct_Global();
-	SlicSymbolData *CreateDataSymbol() { return NULL; }
+	SlicSymbolData *CreateDataSymbol() { return nullptr; }
 };
 
 SLICSTRUCT(Unit, SLIC_SYM_UNIT);

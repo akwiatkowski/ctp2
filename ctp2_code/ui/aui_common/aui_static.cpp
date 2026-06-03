@@ -11,7 +11,7 @@ aui_Static::aui_Static
 )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock )
 {
 	if (AUI_SUCCESS(*retval))

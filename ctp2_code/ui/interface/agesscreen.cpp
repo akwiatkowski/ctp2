@@ -52,14 +52,14 @@
 #include "gs/database/profileDB.h"              // profiledb_Get()
 #include "ui/netshell/netshell.h"               // gamesetup_Get()
 
-static DialogBoxWindow *s_agesScreen	= NULL;
+static DialogBoxWindow *s_agesScreen	= nullptr;
 
-static aui_Button		*s_back				= NULL;
-static c3_Static		*s_name				= NULL;
-static c3_Static		*s_start			= NULL;
-static c3_Static		*s_end				= NULL;
-static ctp2_DropDown	*s_startDropDown	= NULL;
-static ctp2_DropDown	*s_endDropDown		= NULL;
+static aui_Button		*s_back				= nullptr;
+static c3_Static		*s_name				= nullptr;
+static c3_Static		*s_start			= nullptr;
+static c3_Static		*s_end				= nullptr;
+static ctp2_DropDown	*s_startDropDown	= nullptr;
+static ctp2_DropDown	*s_endDropDown		= nullptr;
 
 
 static sint32 s_numAges = 0;
@@ -155,7 +155,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	s_agesScreen = new DialogBoxWindow(
 		&errcode,
 		windowBlock,
-		NULL );
+		nullptr );
 	Assert( AUI_NEWOK(s_agesScreen, errcode) );
 	if ( !AUI_NEWOK(s_agesScreen, errcode) ) errcode;
 
@@ -167,7 +167,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 	if ( !AUI_NEWOK(s_back,errcode) ) return errcode;
 
 	if ( !callback ) callback = agesscreen_backPress;
-	s_back->SetActionFuncAndCookie(callback, NULL);
+	s_back->SetActionFuncAndCookie(callback, nullptr);
 
 	s_name = spNew_c3_Static(&errcode,windowBlock,"NameStatic");
 	s_start = spNew_c3_Static(&errcode,windowBlock,"StartStatic");
@@ -181,7 +181,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 		aui_UniqueId(),
 		controlBlock,
 		agesscreen_startDropDownCallback,
-		NULL );
+		nullptr );
 	Assert( AUI_NEWOK(s_startDropDown, errcode) );
 	if ( !AUI_NEWOK(s_startDropDown, errcode) ) return errcode;
 
@@ -192,7 +192,7 @@ AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback 
 		aui_UniqueId(),
 		controlBlock,
 		agesscreen_endDropDownCallback,
-		NULL );
+		nullptr );
 	Assert( AUI_NEWOK(s_endDropDown, errcode) );
 	if ( !AUI_NEWOK(s_endDropDown, errcode) ) return errcode;
 

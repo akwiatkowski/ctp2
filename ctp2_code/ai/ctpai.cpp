@@ -143,10 +143,10 @@
 
 PLAYER_INDEX CtpAi::s_maxPlayers = 0;
 
-const OrderRecord * CtpAi::sm_unloadOrderRec = NULL;
-const OrderRecord * CtpAi::sm_spaceLaunchOrderRec = NULL;
-const OrderRecord * CtpAi::sm_disbandArmyOrderRec = NULL;
-const OrderRecord * CtpAi::sm_moveOrderRec = NULL;
+const OrderRecord * CtpAi::sm_unloadOrderRec = nullptr;
+const OrderRecord * CtpAi::sm_spaceLaunchOrderRec = nullptr;
+const OrderRecord * CtpAi::sm_disbandArmyOrderRec = nullptr;
+const OrderRecord * CtpAi::sm_moveOrderRec = nullptr;
 sint32 CtpAi::sm_goalDefendIndex = -1;
 sint32 CtpAi::sm_goalSeigeIndex = -1;
 sint32 CtpAi::sm_endgameWorldUnionIndex = -1;
@@ -219,7 +219,7 @@ STDEHANDLER(CtpAi_CreateCityEvent)
 
 void CtpAi::AddOwnerGoalsForCity(const Unit &city, const PLAYER_INDEX ownerId)
 {
-	if(player_Get(ownerId) == NULL)
+	if(player_Get(ownerId) == nullptr)
         return;
 
 	Assert(city.IsValid());
@@ -248,7 +248,7 @@ void CtpAi::AddOwnerGoalsForCity(const Unit &city, const PLAYER_INDEX ownerId)
 
 void CtpAi::AddForeignerGoalsForCity(const Unit &city, const PLAYER_INDEX foreignerId)
 {
-	if(player_Get(foreignerId) == NULL)
+	if(player_Get(foreignerId) == nullptr)
         return;
 
 	Assert(city.IsValid());
@@ -449,7 +449,7 @@ STDEHANDLER(CtpAi_CreatedArmyEvent)
 
 void CtpAi::BeginDiplomacy(const PLAYER_INDEX player, sint32 round)
 {
-	if(player_Get(player) != NULL)
+	if(player_Get(player) != nullptr)
 	{
 		Diplomat::GetDiplomat(player).BeginTurn();
 	}
@@ -516,7 +516,7 @@ void CtpAi::AddGoalsForArmy(const Army &army)
 
 	for (PLAYER_INDEX foreignerId = 0; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
 	{
-		if(player_Get(foreignerId) != NULL)
+		if(player_Get(foreignerId) != nullptr)
 		{
 			for (GOAL_TYPE goal_type = 0; goal_type < g_theGoalDB->NumRecords(); goal_type++)
 			{
@@ -993,7 +993,7 @@ void CtpAi::Initialize(bool initDiplomat)
 	for (PLAYER_INDEX player=0; player < s_maxPlayers; player++)
 	{
 		Player *player_ptr = player_Get(player);
-		if(player_ptr == NULL) continue;
+		if(player_ptr == nullptr) continue;
 
 		if(initDiplomat)
 		{
@@ -1067,7 +1067,7 @@ void CtpAi::Load(CivArchive & archive)
 	for (PLAYER_INDEX playerId = 0; playerId < s_maxPlayers; playerId++)
 	{
 		Player *    player_ptr  = player_Get(playerId);
-		if (player_ptr == NULL)
+		if (player_ptr == nullptr)
 			continue;
 
 		MapAnalysis::GetMapAnalysis().CalcEmpireCenter(playerId);
@@ -1181,7 +1181,7 @@ void CtpAi::BeginMapAnalysis(const PLAYER_INDEX player)
 	Assert(player == player_view::CurPlayer());
 	Player * player_ptr = player_Get(player);
 
-	if(player_ptr == NULL)
+	if(player_ptr == nullptr)
 		return;
 
 	sint32 round = player_ptr->GetCurRound();
@@ -1205,7 +1205,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 	Assert(player == player_view::CurPlayer());
 	Player * player_ptr = player_Get(player);
 
-	if(player_ptr == NULL)
+	if(player_ptr == nullptr)
 		return;
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; ++i)
@@ -1214,7 +1214,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 			continue;
 
 		Player * other_player = player_Get(player);
-		if(other_player == NULL)
+		if(other_player == nullptr)
 			continue;
 
 		sint32 num_cities = other_player->m_all_cities->Num();
@@ -1236,7 +1236,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 	DPRINTF(k_DBG_AI, ("// CHANGE GOVERNMENT -- Turn %d\n", round));
 	DPRINTF(k_DBG_AI, ("//					    Player %d\n", player));
 
-	if (player_ptr != NULL &&
+	if (player_ptr != nullptr &&
 		player_ptr->IsRobot() &&
 		!g_network.IsClient())
 	{
@@ -1346,7 +1346,7 @@ void CtpAi::BeginTurn(const PLAYER_INDEX player)
 	if (player == 0 && player_ptr->IsRobot())
 	{
 		Player * player_ptr = player_Get(player);
-		Assert(player_ptr != NULL);
+		Assert(player_ptr != nullptr);
 		sint32 num_cities = player_ptr->m_all_cities->Num();
 
 		for (sint32 i = 0; i < num_cities; i++)
@@ -1511,7 +1511,7 @@ void CtpAi::MakeRoomForNewUnits(const PLAYER_INDEX playerId)
 {
 
 	Player * player_ptr = player_Get(playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 	sint32 num_cities = player_ptr->m_all_cities->Num();
 
 	CellUnitList garrison;
@@ -1801,7 +1801,7 @@ void CtpAi::AddSettleTargets(const PLAYER_INDEX playerId)
 
 	Player *player_ptr = player_Get(playerId);
 	Assert(player_ptr);
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return;
 
 	SettleMap::SettleTargetList targets;
@@ -1918,7 +1918,7 @@ void CtpAi::AddMiscMapTargets(const PLAYER_INDEX playerId)
 void CtpAi::ComputeCityGarrisons(const PLAYER_INDEX playerId )
 {
 	Player *player_ptr = player_Get(playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	const StrategyRecord & strategy =
 		Diplomat::GetDiplomat(playerId).GetCurrentStrategy();
@@ -2145,7 +2145,7 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 {
 	Player *player_ptr = player_Get(player);
 	Assert(player_ptr);
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return;
 
 	sint32 num_armies = player_ptr->m_all_armies->Num();
@@ -2174,7 +2174,7 @@ void CtpAi::ExecuteOpportunityActions(const PLAYER_INDEX player)
 
 		// If we don't have anything to do then we may refuel, otherwise we do something and crash
 		if (army->GetMinFuel() != 0x7fffffff &&
-			army->GetOrder(0) == NULL)
+			army->GetOrder(0) == nullptr)
 		{
 				CtpAi::RefuelAirplane(army);
 				continue;
@@ -2242,7 +2242,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 {
 	Player *player_ptr = player_Get(player);
 	Assert(player_ptr && player_ptr->m_advances);
-	if (player_ptr == NULL || player_ptr->m_advances == NULL)
+	if (player_ptr == nullptr || player_ptr->m_advances == nullptr)
 		return;
 
 	if(!Diplomat::HasDiplomat(player)) return;
@@ -2252,7 +2252,7 @@ void CtpAi::SetResearch(const PLAYER_INDEX player)
 	const AdvanceListRecord * advance_list =
 		strategy.GetResearchPtr();
 	Assert(advance_list);
-	if (advance_list == NULL)
+	if (advance_list == nullptr)
 		return;
 
 	AdvanceType advance_index = -1;
@@ -2322,7 +2322,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 	std::pair<sint32, Unit> rush_buy;
 
 	Player *player_ptr = player_Get(player);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 	sint32 num_cities = player_ptr->m_all_cities->Num();
 
 	const StrategyRecord & strategy =
@@ -2361,7 +2361,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 	{
 		city = player_ptr->m_all_cities->Access(i);
 		Assert( city.IsValid() );
-		Assert( city->GetCityData() != NULL );
+		Assert( city->GetCityData() != nullptr );
 
 		sint32 citySize;
 		city->GetPop(citySize);
@@ -2377,7 +2377,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 	{
 		city = player_ptr->m_all_cities->Access(i);
 		Assert( city.IsValid() );
-		Assert( city->GetCityData() != NULL );
+		Assert( city->GetCityData() != nullptr );
 
 		// Only decrease utility if the city has grown beyond the first ring.
 		if(world_Get()->GetCell(city->GetPos())->GetNumUnits() <= 0)
@@ -2390,7 +2390,7 @@ void CtpAi::SpendGoldToRushBuy(const PLAYER_INDEX player)
 	{
 		city = player_ptr->m_all_cities->Access(i);
 		Assert( city.IsValid() );
-		Assert( city->GetCityData() != NULL );
+		Assert( city->GetCityData() != nullptr );
 
 		if(hasSmallCities)
 		{

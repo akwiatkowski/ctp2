@@ -49,7 +49,7 @@ SlicEyePoint::SlicEyePoint()
     m_data      (0),
     m_unit      (),
     m_recipient (PLAYER_INDEX_INVALID),
-    m_segment   (NULL),
+    m_segment   (nullptr),
     m_type      (EYE_POINT_TYPE_NOTHING)
 {
 }
@@ -139,7 +139,7 @@ void SlicEyePoint::Serialize(CivArchive &archive)
 			archive.Load((uint8*)segname, l);
 			m_segment = slicengine_Get()->GetSegment(segname);
 		} else {
-			m_segment = NULL;
+			m_segment = nullptr;
 		}
 
 		archive >> m_recipient;
@@ -166,7 +166,7 @@ Message SlicEyePoint::GetMessage() const
 
 void SlicEyePoint::Callback()
 {
-	SlicObject * obj = NULL;
+	SlicObject * obj = nullptr;
 	if (m_segment)
     {
 		obj = new SlicObject(m_segment);

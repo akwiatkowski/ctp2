@@ -22,9 +22,9 @@ ctp2_TextField::ctp2_TextField(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_TextField( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -47,7 +47,7 @@ ctp2_TextField::ctp2_TextField(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_TextField( retval, id, x + 2, y + 2, width - 4, height - 4, text, ActionFunc, cookie ),
 	PatternBase( pattern )
 {
@@ -64,7 +64,7 @@ AUI_ERRCODE ctp2_TextField::InitCommonLdl( MBCHAR *ldlBlock )
 	sint32		bevelWidth=k_CTP2_TEXTFIELD_DEFAULT_BEVELWIDTH;
 
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if (block->GetAttributeType( k_CTP2_TEXTFIELD_LDL_BEVELWIDTH) == ATTRIBUTE_TYPE_INT) {

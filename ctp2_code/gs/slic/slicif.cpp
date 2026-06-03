@@ -46,7 +46,7 @@
 #include "ctp/c3.h"
 #include "gs/slic/slicif.h"
 
-FILE *debuglog = NULL;
+FILE *debuglog = nullptr;
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -84,7 +84,7 @@ static T slicif_read(PtrT &ptr) {
 }
 
 
-static struct PSlicObject **g_slicObjectArray = NULL;
+static struct PSlicObject **g_slicObjectArray = nullptr;
 int g_slicArraySize = 0;
 static int g_slicNumEntries = 0;
 
@@ -96,7 +96,7 @@ namespace
     char const NAME_STRUCT_INVALID[]    = "*invalid struct*";
 } // namespace
 
-static unsigned char * s_code = NULL;
+static unsigned char * s_code = nullptr;
 static int s_allocated_code = 0;
 static unsigned char *s_code_ptr;
 static int s_trigger_symbols[k_MAX_TRIGGER_SYMBOLS];
@@ -170,7 +170,7 @@ void slicif_init()
 		free(g_slicObjectArray);
 	}
 
-	g_slicObjectArray = NULL;
+	g_slicObjectArray = nullptr;
 	g_slicArraySize = 0;
 	g_slicNumEntries = 0;
 	s_temp_name_counter = 0;
@@ -195,8 +195,8 @@ void slicif_cleanup()
 {
 	slicif_init();
 	delete [] s_code;
-	s_code				= NULL;
-	s_code_ptr			= NULL;
+	s_code				= nullptr;
+	s_code_ptr			= nullptr;
 	s_allocated_code	= 0;
 }
 
@@ -213,7 +213,7 @@ void slicif_start()
 	s_inSegment = 0;
 	s_currentEvent = GEV_MAX;
 	s_argValuePushed = false;
-	s_argSymbol = NULL;
+	s_argSymbol = nullptr;
 	s_argMemberIndex = -1;
 	s_parenLevel = 0;
 	if(!s_code) {
@@ -259,9 +259,9 @@ void slicif_add_object(struct PSlicObject *obj)
 		obj->m_num_trigger_symbols = s_num_trigger_symbols;
 		memcpy(obj->m_trigger_symbols, s_trigger_symbols, s_num_trigger_symbols * sizeof(int));
 	} else {
-		obj->m_trigger_symbols = NULL;
+		obj->m_trigger_symbols = nullptr;
 		obj->m_num_trigger_symbols = 0;
-		obj->m_ui_component = NULL;
+		obj->m_ui_component = nullptr;
 	}
 
 	if(obj->m_type == SLIC_OBJECT_FUNCTION) {
@@ -278,13 +278,13 @@ void slicif_add_object(struct PSlicObject *obj)
 			funcSym->SetType(SLIC_SYM_UFUNC);
 
 	} else {
-		obj->m_parameters = NULL;
+		obj->m_parameters = nullptr;
 		obj->m_num_parameters = 0;
 		obj->m_return_type = SF_RET_VOID;
 	}
 
 	if(obj->m_type != SLIC_OBJECT_HANDLEEVENT) {
-		obj->m_event_name = NULL;
+		obj->m_event_name = nullptr;
 	} else {
 		Assert(obj->m_priority == SLIC_PRI_PRE || obj->m_priority == SLIC_PRI_POST);
 	}
@@ -453,7 +453,7 @@ void slicif_add_op(SOP op, ...)
 			if(!s_argValuePushed && s_parenLevel > 0) {
 				s_argValuePushed = true;
 			}
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 			break;
 		case SOP_PUSHV:
 
@@ -473,7 +473,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = -1;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 
 			break;
@@ -495,7 +495,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = -1;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 			break;
 		case SOP_PUSHM:
@@ -532,7 +532,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = member;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 			break;
 		}
@@ -571,7 +571,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = member;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 			break;
 		}
@@ -584,7 +584,7 @@ void slicif_add_op(SOP op, ...)
 
 			slicif_check_argument();
 			s_argValuePushed = false;
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 			break;
 		case SOP_ARGID:
 			name = va_arg(vl, char*);
@@ -603,7 +603,7 @@ void slicif_add_op(SOP op, ...)
 
 			slicif_check_argument();
 			s_argValuePushed = false;
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 			break;
 		case SOP_ARGS:
 			ival = va_arg(vl, int);
@@ -611,7 +611,7 @@ void slicif_add_op(SOP op, ...)
 
 			slicif_check_string_argument();
 			s_argValuePushed = false;
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 
 			break;
 		case SOP_ARGST:
@@ -628,7 +628,7 @@ void slicif_add_op(SOP op, ...)
 
 			slicif_check_hard_string_argument();
 			s_argValuePushed = false;
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 			break;
 
 		case SOP_CALL:
@@ -809,7 +809,7 @@ void slicif_add_op(SOP op, ...)
 			ival = va_arg(vl, int);
 			slicif_emit(s_code_ptr, (int)ival);
 
-			slicif_emit(s_code_ptr, (void *)NULL);
+			slicif_emit(s_code_ptr, (void *)nullptr);
 
 			break;
 		case SOP_ASIZE:
@@ -862,7 +862,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = -1;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 
 			break;
@@ -918,7 +918,7 @@ void slicif_add_op(SOP op, ...)
 				s_argMemberIndex = -1;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 
 			break;
@@ -962,11 +962,11 @@ void slicif_add_op(SOP op, ...)
 			if(!s_argValuePushed && (s_parenLevel > 0)) {
 
 				s_argValuePushed = true;
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 				s_argMemberIndex = -1;
 			} else {
 
-				s_argSymbol = NULL;
+				s_argSymbol = nullptr;
 			}
 
 			break;
@@ -990,7 +990,7 @@ void slicif_add_op(SOP op, ...)
 			if(!s_argValuePushed && s_parenLevel > 0) {
 				s_argValuePushed = true;
 			}
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 
 			break;
 		}
@@ -1028,7 +1028,7 @@ void slicif_add_op(SOP op, ...)
 			if(!s_argValuePushed && s_parenLevel > 0) {
 				s_argValuePushed = true;
 			}
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 
 			break;
 		}
@@ -1053,7 +1053,7 @@ void slicif_add_op(SOP op, ...)
 			if(!s_argValuePushed && s_parenLevel > 0) {
 				s_argValuePushed = true;
 			}
-			s_argSymbol = NULL;
+			s_argSymbol = nullptr;
 			break;
 		}
 		default:
@@ -2153,7 +2153,7 @@ int slicif_find_db(const char *dbname, void **dbptr)
 		*dbptr = (void *)conduit;
 		return TRUE;
 	} else {
-		dbptr = NULL;
+		dbptr = nullptr;
 		return FALSE;
 	}
 }

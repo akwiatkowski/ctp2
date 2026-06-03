@@ -78,9 +78,9 @@ public:
 		sint32 height,
 		sint32 bpp,
 		sint32 pitch = 0,
-		uint8 *buffer = NULL,
+		uint8 *buffer = nullptr,
 		BOOL isPrimary = FALSE,
-		HDC hdc = NULL);
+		HDC hdc = nullptr);
 	virtual ~aui_Surface();
 
 protected:
@@ -124,7 +124,7 @@ public:
 	LPCRITICAL_SECTION LPCS( void ) const { return &m_cs; };
 #endif
 
-	virtual BOOL IsOK( ) const { return m_saveBuffer != NULL; }
+	virtual BOOL IsOK( ) const { return m_saveBuffer != nullptr; }
 
 	virtual AUI_ERRCODE BlankRGB(const uint8 &red, const uint8 &green, const uint8 &blue);
 	virtual AUI_ERRCODE Blank(const uint32 &color);

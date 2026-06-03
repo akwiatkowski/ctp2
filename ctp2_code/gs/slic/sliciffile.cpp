@@ -21,5 +21,5 @@ void slicif_report_error(char *s)
 
 int slicif_is_valid_string(char *s)
 {
-	return stringdb_Get()->GetNameStr(s) != NULL;
+	return stringdb_Get()->GetNameStr(s) != nullptr;
 }

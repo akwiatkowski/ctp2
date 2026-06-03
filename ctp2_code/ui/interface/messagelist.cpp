@@ -41,8 +41,8 @@ MessageList::MessageList(PLAYER_INDEX player)
 
 MessageList::~MessageList( )
 {
-	MessageIconWindow	*iconWindow = NULL;
-	MessageWindow		*window = NULL;
+	MessageIconWindow	*iconWindow = nullptr;
+	MessageWindow		*window = nullptr;
 	ListPos position = m_iconList->GetHeadPosition();
 
 	for ( uint32 count = m_iconList->L(); count; count-- ) {
@@ -71,8 +71,8 @@ MessageList::~MessageList( )
 AUI_ERRCODE MessageList::CreateMessage( Message data )
 {
 	AUI_ERRCODE			errcode = AUI_ERRCODE_OK;
-	MessageIconWindow	*mIconWindow = NULL;
-	MessageWindow		*mWindow = NULL;
+	MessageIconWindow	*mIconWindow = nullptr;
+	MessageWindow		*mWindow = nullptr;
 	MBCHAR				windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	mIconWindow = new MessageIconWindow( &errcode,
@@ -118,7 +118,7 @@ void MessageList::HideVisibleWindows( )
         {
 			MessageWindow * window = iconWindow->GetWindow();
 
-			iconWindow->SetCurrentIconButton( NULL );
+			iconWindow->SetCurrentIconButton( nullptr );
 
 			if ( c3ui_Get()->GetWindow( iconWindow->Id( )))
 				c3ui_Get()->RemoveWindow( iconWindow->Id( ));
@@ -267,11 +267,11 @@ void MessageList::Remove( MessageIconWindow *iconWindow,
 		window->ShowWindow(FALSE);
 
 	ListPos position = m_iconList->Find( iconWindow );
-	Assert( position != NULL );
+	Assert( position != nullptr );
 	m_iconList->DeleteAt( position );
 
 	if ( iconWindow == iconWindow->GetCurrentMessageIconWindow())
-		iconWindow->SetCurrentIconButton( NULL );
+		iconWindow->SetCurrentIconButton( nullptr );
 
 	position = m_iconList->GetHeadPosition();
 	for ( uint32 count = 0; count < m_iconList->L(); count++ ) {

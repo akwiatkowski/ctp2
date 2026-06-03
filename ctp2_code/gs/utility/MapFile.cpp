@@ -146,9 +146,9 @@ bool MapFile::Chunk::Save(FILE * outfile)
 MapFile::MapFile()
 :
     m_chunk                 (),
-    m_unitTypeMap           (NULL),
-    m_improvementTypeMap    (NULL),
-    m_advanceTypeMap        (NULL)
+    m_unitTypeMap           (nullptr),
+    m_improvementTypeMap    (nullptr),
+    m_advanceTypeMap        (nullptr)
 {
 }
 
@@ -738,7 +738,7 @@ bool MapFile::LoadMap(FILE *infile)
 			case k_HUTS_HEADER:				 if(!LoadHuts(buf.data(), chunkSize)) LoadMapStop(); break;
 			case k_CIVS_HEADER:		     if(!LoadCivilizations(buf.data(), chunkSize)) LoadMapStop(); break;
 			default:
-				Assert("Unknown chunk type" == 0);
+				Assert("Unknown chunk type" == nullptr);
 				break;
 		}
 
@@ -954,7 +954,7 @@ bool MapFile::LoadCities(uint8 *buf, sint32 size)
 			continue;
 
 		MapPoint pos(x,y);
-		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
+		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, nullptr, -1);
 		city.CD()->ChangePopulation(citySize - city.CD()->PopCount());
 		city.CD()->SetImprovements(improvements);
 		city.CD()->SetWonders(wonders);
@@ -1007,7 +1007,7 @@ bool MapFile::LoadOldCities(uint8 *buf, sint32 size)
 			continue;
 
 		MapPoint pos(x,y);
-		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, NULL, -1);
+		Unit city = player_Get(owner)->CreateCity(citytype, pos, CAUSE_NEW_CITY_CHEAT, nullptr, -1);
 		Assert(city.IsValid());
 		if(city.IsValid()) {
 			city.CD()->ChangePopulation(citySize - city.CD()->PopCount());

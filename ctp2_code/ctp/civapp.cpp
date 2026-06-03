@@ -392,15 +392,15 @@ extern MBCHAR g_advance_list_db_filename[_MAX_PATH];
 extern MBCHAR g_diplomacy_proposal_filename[_MAX_PATH];
 extern MBCHAR g_diplomacy_threat_filename[_MAX_PATH];
 
-ProjectFile *g_GreatLibPF = NULL;
-ProjectFile *g_ImageMapPF = NULL;
-ProjectFile *g_SoundPF = NULL;
+ProjectFile *g_GreatLibPF = nullptr;
+ProjectFile *g_ImageMapPF = nullptr;
+ProjectFile *g_SoundPF = nullptr;
 
 sint32 g_logCrashes = 1;
 
 sint32 g_oldRandSeed = FALSE;
 
-ProgressWindow *g_theProgressWindow = NULL;
+ProgressWindow *g_theProgressWindow = nullptr;
 
 static bool g_headlessMode = false;
 
@@ -412,7 +412,7 @@ void set_headless(bool v)   { g_headlessMode = v; }
 // so the unconditional `ProgressTo(...)` callsites
 // peppered through InitializeAppDB would UB-fault on member-call entry.  Use
 // this helper at every loading-progress call site.
-static inline void ProgressTo(sint32 val, MBCHAR const * msg = NULL)
+static inline void ProgressTo(sint32 val, MBCHAR const * msg = nullptr)
 {
 	if (g_theProgressWindow) g_theProgressWindow->StartCountingTo(val, msg);
 }
@@ -1637,7 +1637,7 @@ void CivApp::CleanupAppUI()
 void CivApp::CleanupAppDB()
 {
     allocated::clear(g_theMapDB);
-    { Exclusions *p = exclusions_Get(); delete p; exclusions_Set(NULL); }
+    { Exclusions *p = exclusions_Get(); delete p; exclusions_Set(nullptr); }
     allocated::clear(g_theMessageIconFileDB);
     allocated::clear(g_theRiskDB);
     allocated::clear(g_theWonderDB);
@@ -1650,7 +1650,7 @@ void CivApp::CleanupAppDB()
     allocated::clear(g_theResourceDB);
     allocated::clear(g_theGovernmentDB);
     allocated::clear(g_theConceptDB);
-    { ThroneDB *p = thronedb_Get(); delete p; thronedb_Set(NULL); };
+    { ThroneDB *p = thronedb_Get(); delete p; thronedb_Set(nullptr); };
     allocated::clear(g_theAgeDB);
     allocated::clear(g_theCityStyleDB);
     allocated::clear(g_theAgeCityStyleDB);
@@ -1708,8 +1708,8 @@ void CivApp::CleanupApp()
 		// via unique_ptr's deleter — no manual delete first.  The
 		// pre-trampoline pattern `delete X_Get(); X_Set(NULL);` would
 		// double-free here.
-		slicengine_Set(NULL);
-		m_game->SetMessagesPtr(NULL);
+		slicengine_Set(nullptr);
+		m_game->SetMessagesPtr(nullptr);
 
 		CivScenarios::Cleanup();
 		SoundManager::Cleanup();
@@ -1951,7 +1951,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 610 );
 
-	if(is_scenario_Get() && (archive != NULL &&
+	if(is_scenario_Get() && (archive != nullptr &&
 	   (start_info_type_Get() != STARTINFOTYPE_NONE ||
 		save_file_version_Get() < gamefile_CurrentVersion()))) {
 
@@ -1990,7 +1990,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 
 
-		civrand().Initialize(static_cast<sint32>(time(0)));
+		civrand().Initialize(static_cast<sint32>(time(nullptr)));
 	}
 
 	ProgressTo( 630 );
@@ -2020,7 +2020,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	GraphicsOptions::Initialize();
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(archive != NULL);
+	tile_Initialize(archive != nullptr);
 
 	ProgressTo( 660 );
 
@@ -2062,7 +2062,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	if(!g_network.IsActive() && !g_network.IsNetworkLaunch())
 	{
-		if ((archive == NULL) ||										// launch button
+		if ((archive == nullptr) ||										// launch button
 			((start_info_type_Get() != STARTINFOTYPE_NONE) && is_scenario_Get())	// scenario start
 		   )
 		{
@@ -2077,7 +2077,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 	ProgressTo( 720 );
 
 	if(!g_network.IsActive()) {
-		if (archive == NULL ||
+		if (archive == nullptr ||
 			(save_file_version_Get() >= 42 &&
 
 
@@ -2097,7 +2097,7 @@ sint32 CivApp::InitializeGame(CivArchive *archive)
 
 	ProgressTo( 740 );
 
-	if(turn_Get()->IsEmail() && archive != NULL) {
+	if(turn_Get()->IsEmail() && archive != nullptr) {
 		selitem_Get()->KeyboardSelectFirstUnit();
 		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
@@ -2324,7 +2324,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 720 );
 
-	if (    (archive != NULL)
+	if (    (archive != nullptr)
          && (start_info_type_Get() != STARTINFOTYPE_NONE ||
 		     save_file_version_Get() < gamefile_CurrentVersion()
             )
@@ -2349,7 +2349,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	ProgressTo( 750 );
 
 	SPLASH_STRING("Initializing Tile Engine...");
-	tile_Initialize(archive != NULL);
+	tile_Initialize(archive != nullptr);
 
 	ProgressTo( 760 );
 
@@ -2376,7 +2376,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 	turn_Get()->BeginNewTurn(FALSE);
 
 	if(!g_network.IsActive()) {
-		if (archive == NULL ||
+		if (archive == nullptr ||
 			(save_file_version_Get() >= 42 &&
 
 
@@ -2400,7 +2400,7 @@ sint32 CivApp::InitializeSpriteEditor(CivArchive *archive)
 
 	ProgressTo( 800 );
 
-	if(turn_Get()->IsEmail() && archive != NULL) {
+	if(turn_Get()->IsEmail() && archive != nullptr) {
 		selitem_Get()->KeyboardSelectFirstUnit();
 		if(selitem_Get()->GetState() != SELECT_TYPE_LOCAL_ARMY &&
 		   (player_Get(selitem_Get()->GetVisiblePlayer())->m_all_cities->Num() > 0)) {
@@ -2736,7 +2736,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					ProcessNet(target_milliseconds, used_milliseconds);
 				}
 
-				tiledmap_Get()->RetargetTileSurface(NULL);
+				tiledmap_Get()->RetargetTileSurface(nullptr);
 				tiledmap_Get()->Refresh();
 				tiledmap_Get()->InvalidateMap();
 				tiledmap_Get()->ValidateMix();
@@ -2773,16 +2773,16 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 
 			if (strcmp(cmd, "new_game") == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
-					initialplayscreen_newgamePress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
-					smoketest_send_response("ok", cmd, NULL);
+					initialplayscreen_newgamePress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
+					smoketest_send_response("ok", cmd, nullptr);
 				} else {
 					smoketest_send_response("error", cmd, "not_on_main_menu");
 				}
 			}
 			else if (strcmp(cmd, "start_game") == 0) {
 				if (m_appLoaded && !m_gameLoaded) {
-					spnewgamescreen_startPress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
-					smoketest_send_response("ok", cmd, NULL);
+					spnewgamescreen_startPress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
+					smoketest_send_response("ok", cmd, nullptr);
 				} else {
 					smoketest_send_response("error", cmd, "not_on_new_game_screen");
 				}
@@ -2790,14 +2790,14 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			else if (strcmp(cmd, "end_turn") == 0) {
 				if (m_gameLoaded) {
 					director_Get()->AddEndTurn();
-					smoketest_send_response("ok", cmd, NULL);
+					smoketest_send_response("ok", cmd, nullptr);
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
 				}
 			}
 			else if (strcmp(cmd, "build_city") == 0) {
 				if (m_gameLoaded) {
-					Player *human = NULL;
+					Player *human = nullptr;
 					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 						if (player_Get(p) && player_Get(p)->IsHuman()) {
 							human = player_Get(p);
@@ -2822,7 +2822,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						}
 
 						if (found) {
-							smoketest_send_response("ok", cmd, NULL);
+							smoketest_send_response("ok", cmd, nullptr);
 						} else {
 							smoketest_send_response("error", cmd, "no_settler_found");
 						}
@@ -2854,7 +2854,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (sscanf(cmd + 15, "%d %63s", &city_idx, unit_keyword) != 2) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
-						Player *human = NULL;
+						Player *human = nullptr;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 							if (player_Get(p) && player_Get(p)->IsHuman()) {
 								human = player_Get(p);
@@ -2914,7 +2914,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									smoke_log->info("Setting city {} to build unit {}",
 										(int)city_idx, (int)unit_type);
 									city.GetData()->GetCityData()->BuildUnit(unit_type);
-									smoketest_send_response("ok", cmd, NULL);
+									smoketest_send_response("ok", cmd, nullptr);
 								}
 							}
 						}
@@ -2945,7 +2945,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						if (gov_idx < 0 || gov_idx >= g_theBuildListSequenceDB->NumRecords()) {
 							smoketest_send_response("error", cmd, "bad_governor_type");
 						} else {
-							Player *human = NULL;
+							Player *human = nullptr;
 							for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 								if (player_Get(p) && player_Get(p)->IsHuman()) {
 									human = player_Get(p);
@@ -2979,7 +2979,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									}
 									smoke_log->info("Enabled {} governor for {}",
 										gov_name, all_cities ? "all cities" : target);
-									smoketest_send_response("ok", cmd, NULL);
+									smoketest_send_response("ok", cmd, nullptr);
 								}
 							}
 						}
@@ -3003,7 +3003,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (!adv_name[0]) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
-						Player *human = NULL;
+						Player *human = nullptr;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 							if (player_Get(p) && player_Get(p)->IsHuman()) {
 								human = player_Get(p);
@@ -3022,7 +3022,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									smoke_log->info("Setting research to advance {} ({})",
 										(int)adv_idx, adv_name);
 									human->SetResearching(adv_idx);
-									smoketest_send_response("ok", cmd, NULL);
+									smoketest_send_response("ok", cmd, nullptr);
 								} else {
 									smoketest_send_response("error", cmd, "advance_not_in_db");
 								}
@@ -3039,7 +3039,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (target_player < 0 || target_player >= k_MAX_PLAYERS) {
 						smoketest_send_response("error", cmd, "bad_player_index");
 					} else {
-						Player *human = NULL;
+						Player *human = nullptr;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 							if (player_Get(p) && player_Get(p)->IsHuman()) {
 								human = player_Get(p);
@@ -3075,8 +3075,8 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
 						smoke_log->info("Saving game to {}", path);
-						GameFile::SaveGame(path, NULL);
-						smoketest_send_response("ok", cmd, NULL);
+						GameFile::SaveGame(path, nullptr);
+						smoketest_send_response("ok", cmd, nullptr);
 					}
 				} else {
 					smoketest_send_response("error", cmd, "game_not_loaded");
@@ -3089,7 +3089,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				} else {
 					smoke_log->info("Loading game from {}", path);
 					GameFile::RestoreGame(path);
-					smoketest_send_response("ok", cmd, NULL);
+					smoketest_send_response("ok", cmd, nullptr);
 				}
 			}
 			else if (strncmp(cmd, "screenshot ", 11) == 0) {
@@ -3102,7 +3102,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (sdlSurf && sdlSurf->DDS()) {
 						if (SDL_SaveBMP(sdlSurf->DDS(), path) == 0) {
 							smoke_log->info("Screenshot saved to {}", path);
-							smoketest_send_response("ok", cmd, NULL);
+							smoketest_send_response("ok", cmd, nullptr);
 						} else {
 							smoketest_send_response("error", cmd, "sdl_save_failed");
 						}
@@ -3120,7 +3120,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (sscanf(cmd + 10, "%d %d %d", &city_idx, &dx, &dy) != 3) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
-						Player *human = NULL;
+						Player *human = nullptr;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 							if (player_Get(p) && player_Get(p)->IsHuman()) {
 								human = player_Get(p);
@@ -3158,7 +3158,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 									}
 								}
 								if (moved) {
-									smoketest_send_response("ok", cmd, NULL);
+									smoketest_send_response("ok", cmd, nullptr);
 								} else {
 									smoketest_send_response("error", cmd, "no_movable_unit");
 								}
@@ -3178,7 +3178,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 					if (sscanf(cmd + 13, "%d", &city_idx) != 1) {
 						smoketest_send_response("error", cmd, "bad_args");
 					} else {
-						Player *human = NULL;
+						Player *human = nullptr;
 						for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 							if (player_Get(p) && player_Get(p)->IsHuman()) {
 								human = player_Get(p);
@@ -3214,7 +3214,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 								}
 							}
 							smoketest_send_response(issued ? "ok" : "error", cmd,
-							                        issued ? NULL : "no_movable_unit");
+							                        issued ? nullptr : "no_movable_unit");
 						}
 					}
 				} else {
@@ -3223,7 +3223,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 			}
 			else if (strcmp(cmd, "list_visible_units") == 0) {
 				if (m_gameLoaded) {
-					Player *human = NULL;
+					Player *human = nullptr;
 					for (sint32 p = 0; p < k_MAX_PLAYERS; p++) {
 						if (player_Get(p) && player_Get(p)->IsHuman()) {
 							human = player_Get(p);
@@ -3264,7 +3264,7 @@ sint32 CivApp::ProcessUI(const uint32 target_milliseconds, uint32 &used_millisec
 				}
 			}
 			else if (strcmp(cmd, "quit") == 0) {
-				smoketest_send_response("ok", cmd, NULL);
+				smoketest_send_response("ok", cmd, nullptr);
 				// Give socket thread time to send response before we tear down
 				Os::Sleep(100);
 				ExitGame();
@@ -3342,7 +3342,7 @@ sint32 CivApp::ProcessSLIC()
 	m_game->GetSlicPtr()->ProcessUITriggers();
 
 	static time_t   lastRanSlicTimers   = 0;
-    time_t          now                 = time(0);
+    time_t          now                 = time(nullptr);
 	if (now > lastRanSlicTimers + m_game->GetSlicPtr()->GetTimerGranularity())
     {
 		m_game->GetSlicPtr()->RunTimerTriggers();
@@ -3459,7 +3459,7 @@ sint32 CivApp::Process()
 
 sint32 CivApp::StartGame()
 {
-	return InitializeGame(NULL);
+	return InitializeGame(nullptr);
 }
 
 sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
@@ -3516,7 +3516,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 	// and CtpAi::Initialize(); the headless path must do the same or the AI
 	// never makes decisions (settlers never settle, score stays flat).
 	civapp_log->debug("calling roboinit_Initalize / CtpAi::Initialize");
-	roboinit_Initalize(NULL);
+	roboinit_Initalize(nullptr);
 	CtpAi::Initialize();
 
 	civapp_log->info("InitializeGameHeadless: done (game loaded)");
@@ -3525,7 +3525,7 @@ sint32 CivApp::InitializeGameHeadless(CivArchive *archive)
 
 sint32 CivApp::StartSpriteEditor()
 {
-	return InitializeSpriteEditor(NULL);
+	return InitializeSpriteEditor(nullptr);
 }
 
 
@@ -3558,7 +3558,7 @@ sint32 CivApp::LoadSavedGame(MBCHAR const * name)
 	ProgressTo( 10, stringdb_Get()->GetNameStr("LOADING") );
 
 	FILE * fin = fopen(name, "r");
-	if (fin == NULL) {
+	if (fin == nullptr) {
 		c3errors_ErrorDialog("Load save game", "Could not open %s", name);
 		return 0;
 	}
@@ -3667,7 +3667,7 @@ sint32 CivApp::RestartGameSameMap()
 
 	if (profiledb_Get()->IsScenario())
 	{
-		spnewgamescreen_scenarioExitCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+		spnewgamescreen_scenarioExitCallback(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 		return 0;
 	}
 	else
@@ -3742,7 +3742,7 @@ void CivApp::AutoSave(sint32 player, bool isQuickSave)
 		// default (g_useJsonSave) applies to autosave too.  The UTF-8
 		// cleanliness bug that previously kept this on the binary path
 		// is fixed by utf8_safe() in json_save.cpp.
-		GameFile::SaveGame(fullpath, NULL);
+		GameFile::SaveGame(fullpath, nullptr);
 	}
 	else
 	{

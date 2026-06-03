@@ -34,7 +34,7 @@ TextBox::TextBox(
 	void *cookie)
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL, k_TEXTBOX_MAXTEXT * k_TEXTBOX_MAXITEMS ),
+	aui_TextBase( nullptr, k_TEXTBOX_MAXTEXT * k_TEXTBOX_MAXITEMS ),
 	aui_TextBox()
 {
 	*retval = aui_Region::InitCommon( id, x, y, width, height );
@@ -49,7 +49,7 @@ TextBox::TextBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon((MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -61,7 +61,7 @@ TextBox::TextBox(
 	Assert( AUI_SUCCESS(*retval));
 	if (!AUI_SUCCESS(*retval)) return;
 
-	*retval = CreateRangers(NULL);
+	*retval = CreateRangers(nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -74,7 +74,7 @@ TextBox::TextBox(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_TextBox()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
@@ -93,7 +93,7 @@ TextBox::TextBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -127,7 +127,7 @@ AUI_ERRCODE TextBox::InitCommon( BOOL fromLDL )
 	TextReloadFont();
 
 	for (i=0; i<k_AUI_TEXTBOX_MAXITEMS; i++) {
-		(*itemPtr) = NULL;
+		(*itemPtr) = nullptr;
 		itemPtr++;
 	}
 
@@ -150,7 +150,7 @@ AUI_ERRCODE TextBox::InitCommon( BOOL fromLDL )
 			&errcode,
 			aui_UniqueId(),
 			10, 0, m_width-20, 14,
-			NULL, NULL, k_AUI_TEXTBOX_MAXTEXT, 0 ,0 );
+			nullptr, nullptr, k_AUI_TEXTBOX_MAXTEXT, 0 ,0 );
 
 		(*itemPtr)->SetTextFont( fontName);
 		(*itemPtr)->SetTextFontSize(9);
@@ -167,7 +167,7 @@ AUI_ERRCODE TextBox::InitCommon( BOOL fromLDL )
 AUI_ERRCODE TextBox::CreateRangers( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	MBCHAR		*patternFilename = NULL;
+	MBCHAR		*patternFilename = nullptr;
 
 	if (m_pattern)
 		patternFilename = m_pattern->GetFilename();
@@ -181,7 +181,7 @@ AUI_ERRCODE TextBox::CreateRangers( MBCHAR *ldlBlock )
 		{
 			RemoveChild( m_header->Id() );
 			delete m_header;
-			m_header = NULL;
+			m_header = nullptr;
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );

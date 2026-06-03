@@ -57,11 +57,11 @@ extern sint32 const         INDEX_TRIBE_INVALID;
 //----------------------------------------------------------------------------
 
 sint32 spnewgametribescreen_displayMyWindow(
-	void *cookie = NULL,
+	void *cookie = nullptr,
 	BOOL edit = FALSE );
-sint32 spnewgametribescreen_removeMyWindow(uint32 action, MBCHAR *lname = NULL);
+sint32 spnewgametribescreen_removeMyWindow(uint32 action, MBCHAR *lname = nullptr);
 
-AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback *callback = NULL );
+AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback *callback = nullptr );
 AUI_ERRCODE spnewgametribescreen_Cleanup();
 
 void spnewgamescreen_scenarioExitCallback(aui_Control *control, uint32 action, uint32 data, void *cookie );
@@ -76,7 +76,7 @@ void spnewgametribescreen_femalePress    (aui_Control *control, uint32 action, u
 
 sint32 spnewgametribescreen_getTribeIndex( );
 GENDER spnewgametribescreen_getGender();
-void spnewgametribescreen_setTribeIndex( sint32, MBCHAR *lname = NULL );
+void spnewgametribescreen_setTribeIndex( sint32, MBCHAR *lname = nullptr );
 void spnewgametribescreen_getLeaderName( MBCHAR *lname );
 
 void spnewgametribescreen_clearTribes();

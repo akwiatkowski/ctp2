@@ -627,7 +627,7 @@ bool UnitAstar::EntryCost(const MapPoint &prev, const MapPoint &pos,
         }
     }
 
-    CityData *the_pos_city = NULL;
+    CityData *the_pos_city = nullptr;
     if (the_pos_cell->GetCity().m_id !=  0) {
         the_pos_city = the_pos_cell->GetCity().GetData()->GetCityData();
     }
@@ -679,7 +679,7 @@ bool UnitAstar::InitPoint(AstarPoint *parent, AstarPoint *point,
     d->m_queue_idx = -1;
 
 	d->m_past_cost = pc;
-    if (parent == NULL) {
+    if (parent == nullptr) {
        d->m_entry_cost = 0.0;
        d->m_future_cost = EstimateFutureCost(d->m_pos, dest);
        d->m_total_cost = d->m_past_cost + d->m_entry_cost
@@ -811,7 +811,7 @@ void UnitAstar::InitArmy(const Army &army, sint32 &nUnits,
     m_can_space_land = TRUE;
     m_is_zero_attack = true;
     m_army_can_expel_stealth = false;
-    const UnitRecord *rec=NULL;
+    const UnitRecord *rec=nullptr;
     for (i=0; i<nUnits; i++) {
         move_intersection &= army[i].GetMovementType();
 
@@ -944,7 +944,7 @@ bool UnitAstar::FindVisionEdge(Path &a_path, MapPoint &old)
     a_path.Next(pos);
 
     sint32 ao;
-    CellUnitList *a = NULL;
+    CellUnitList *a = nullptr;
     for ( ; !a_path.IsEnd(); a_path.Next(pos)) {
         if (player_Get(m_owner)->IsExplored(pos)) {
             a = world_Get()->GetArmyPtr(pos);

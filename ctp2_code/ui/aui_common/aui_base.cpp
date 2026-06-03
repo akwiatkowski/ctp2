@@ -33,7 +33,7 @@ sint32 aui_Base::m_baseRefCount = 0;
 
 #define POLYNOMIAL 0x04c11db7L
 
-static uint32 *g_crcTable = NULL;
+static uint32 *g_crcTable = nullptr;
 
 void gen_crc_table()
 {
@@ -61,7 +61,7 @@ void free_crc()
 {
    if(g_crcTable)
       delete [] g_crcTable;
-   g_crcTable = NULL;
+   g_crcTable = nullptr;
 }
 
 uint32 update_crc(uint32 crc_accum, const MBCHAR *data_blk_ptr, sint32 data_blk_size)
@@ -82,7 +82,7 @@ uint32 update_crc(uint32 crc_accum, const MBCHAR *data_blk_ptr, sint32 data_blk_
 
 uint32 aui_Base::CalculateHash( const MBCHAR *string )
 {
-   Assert( string != NULL );
+   Assert( string != nullptr );
    if ( !string ) return 0;
 
    return update_crc(0, string, strlen(string));

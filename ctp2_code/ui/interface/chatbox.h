@@ -46,13 +46,13 @@ public:
 		MBCHAR *        ldlBlock,
 		sint32          bpp,
 		AUI_WINDOW_TYPE type    = AUI_WINDOW_TYPE_STANDARD,
-        ChatBox *       parent  = NULL
+        ChatBox *       parent  = nullptr
     );
 	virtual ~ChatWindow();
 
 	virtual AUI_ERRCODE InitCommonLdl(MBCHAR *ldlBlock);
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

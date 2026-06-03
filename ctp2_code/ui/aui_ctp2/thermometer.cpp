@@ -25,7 +25,7 @@ Thermometer::Thermometer(
 	void *cookie )
 :
 	aui_ImageBase((sint32)0),
-	aui_TextBase((MBCHAR *)NULL),
+	aui_TextBase((MBCHAR *)nullptr),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie ),
 	PatternBase(pattern),
 	m_percentFilled(percentFilled)
@@ -40,9 +40,9 @@ Thermometer::Thermometer(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	*retval = InitCommonLdl( ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
@@ -51,7 +51,7 @@ Thermometer::Thermometer(
 AUI_ERRCODE Thermometer::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	SetPercentFilled(block->GetInt(k_THERMOMETER_PERCENT_FILLED));

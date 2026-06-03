@@ -77,9 +77,9 @@ Vision::Vision(sint32 owner, bool amOnScreen)
     m_xyConversion          (0),
     m_isYwrap               (false),
     m_amOnScreen            (amOnScreen),
-    m_array                 (NULL),
-    m_unseenCells           (NULL),
-    m_mergeFrom             (NULL)
+    m_array                 (nullptr),
+    m_unseenCells           (nullptr),
+    m_mergeFrom             (nullptr)
 {
 	Assert(world_Get());
 	MapPoint * size = world_Get()->GetSize();

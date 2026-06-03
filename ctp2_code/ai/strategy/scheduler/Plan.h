@@ -65,7 +65,7 @@ public:
 	bool operator== (const Plan &plan) const;
 	bool operator!= (const Plan &plan) const;
 
-	bool Plan_Is_Needed_And_Valid() const { return m_the_agent != NULL; };
+	bool Plan_Is_Needed_And_Valid() const { return m_the_agent != nullptr; };
 
 	Utility Compute_Matching_Value(Goal_ptr goal_ptr);
 	Utility Get_Matching_Value() const { return m_matching_value; };

@@ -59,7 +59,7 @@ c3_Ranger::c3_Ranger(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Ranger()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
@@ -78,7 +78,7 @@ c3_Ranger::c3_Ranger(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -106,7 +106,7 @@ c3_Ranger::c3_Ranger(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Ranger()
 {
 	*retval = aui_Region::InitCommon( id, x, y, width, height );
@@ -121,7 +121,7 @@ c3_Ranger::c3_Ranger(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **) NULL);
+	*retval = aui_SoundBase::InitCommon((MBCHAR **) nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -133,7 +133,7 @@ c3_Ranger::c3_Ranger(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateButtonsAndThumb(NULL);
+	*retval = CreateButtonsAndThumb(nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -160,7 +160,7 @@ AUI_ERRCODE c3_Ranger::InitCommon( )
 AUI_ERRCODE c3_Ranger::CreateButtonsAndThumb( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-    MBCHAR *    patternFilename = (m_pattern) ? m_pattern->GetFilename() : NULL;
+    MBCHAR *    patternFilename = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 

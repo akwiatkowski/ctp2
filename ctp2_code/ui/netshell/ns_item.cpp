@@ -19,7 +19,7 @@ ns_ListItem::ns_ListItem(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -57,7 +57,7 @@ ns_HPlayerItem::ns_HPlayerItem(
 	MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -203,7 +203,7 @@ void ns_HPlayerItem::SetTribe( sint32 tribe )
 	if ( !IsAI() && w->IsMine( GetPlayer() ) )
 		spnewgametribescreen_setTribeIndex(
 			tribe - 1,
-			strlen( w->m_lname ) ? w->m_lname : NULL );
+			strlen( w->m_lname ) ? w->m_lname : nullptr );
 }
 
 
@@ -227,7 +227,7 @@ void ns_HPlayerItem::SetCivpoints( sint32 civpoints )
 		m_civpointsButton->GetActionFunc();
 	void *cookie = m_civpointsButton->GetCookie();
 
-	m_civpointsButton->SetActionFuncAndCookie( NULL, NULL );
+	m_civpointsButton->SetActionFuncAndCookie( nullptr, nullptr );
 	m_civpointsButton->SetValue( civpoints );
 	m_civpointsButton->SetActionFuncAndCookie( actionFunc, cookie );
 }
@@ -239,7 +239,7 @@ void ns_HPlayerItem::SetPwpoints( sint32 pwpoints )
 		m_pwpointsButton->GetActionFunc();
 	void *cookie = m_pwpointsButton->GetCookie();
 
-	m_pwpointsButton->SetActionFuncAndCookie( NULL, NULL );
+	m_pwpointsButton->SetActionFuncAndCookie( nullptr, nullptr );
 	m_pwpointsButton->SetValue( pwpoints );
 	m_pwpointsButton->SetActionFuncAndCookie( actionFunc, cookie );
 }

@@ -44,7 +44,7 @@ aui_Image::aui_Image(
 	aui_Base()
 {
 
-	if (filename==NULL)
+	if (filename==nullptr)
 	{
 		*retval = AUI_ERRCODE_OK;
 		return;
@@ -57,8 +57,8 @@ aui_Image::aui_Image(
 
 AUI_ERRCODE aui_Image::InitCommon( MBCHAR const *filename )
 {
-	m_surface = NULL,
-	m_format = NULL;
+	m_surface = nullptr,
+	m_format = nullptr;
 
 	AUI_ERRCODE errcode = SetFilename( filename );
 	Assert( AUI_SUCCESS(errcode) );
@@ -107,11 +107,11 @@ AUI_ERRCODE aui_Image::Unload( )
 	if (aui_ui_Get() && aui_ui_Get()->TheMemMap())
 	{
 		aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
-		m_format = NULL;
+		m_format = nullptr;
 	}
 
 	delete  m_surface;
-	m_surface = NULL;
+	m_surface = nullptr;
 
 	return AUI_ERRCODE_OK;
 }
@@ -309,7 +309,7 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
         printf("%s L%d: image %s!\n", __FILE__, __LINE__, filename); //is this ever called?
 	assert(0);
 	SDL_Surface *bmp = SDL_LoadBMP(filename);
-	SDL_Surface *surf = NULL;
+	SDL_Surface *surf = nullptr;
 	SDL_PixelFormat fmt = { 0 };
 //#if 0
 //	if (aui_image_SDLPixelFormat(image, &fmt)) {
@@ -324,12 +324,12 @@ AUI_ERRCODE aui_BmpImageFormat::Load(MBCHAR const * filename, aui_Image *image )
             printf("%s L%d: 565 image!\n", __FILE__, __LINE__);
         if (bmp->format->Gmask >> bmp->format->Gshift == 0x1F)
             printf("%s L%d: 555 image!\n", __FILE__, __LINE__);
-	if (NULL == surf) {
+	if (nullptr == surf) {
 		// SDL2: SDL_DisplayFormat removed; convert to a reasonable default format
 		surf = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGB565, 0);
 	}
 	SDL_FreeSurface(bmp);
-	if (NULL == surf)
+	if (nullptr == surf)
 		return AUI_ERRCODE_LOADFAILED;
 	//surface = image->TheSurface();
 	//image->AttachSurface(surf);
@@ -361,8 +361,8 @@ void aui_Image::SetChromakey(sint32 r, sint32 g, sint32 b)
 {
 	aui_Surface		*surf = TheSurface();
 
-	Assert(surf != NULL);
-	if (surf == NULL)
+	Assert(surf != nullptr);
+	if (surf == nullptr)
 		return;
 
 	Assert(r >= 0);

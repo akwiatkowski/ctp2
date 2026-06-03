@@ -96,7 +96,7 @@ STDEHANDLER(ThreatenedCity_MotivationEvent)
 	Goal_ptr goal_ptr = scheduler.GetHighestPriorityGoal(static_cast<GOAL_TYPE>(defend_goal_type), false);
 
 	sint32 cityId = 0;
-	if (goal_ptr != NULL)
+	if (goal_ptr != nullptr)
 		cityId = goal_ptr->Get_Target_City().m_id;
 
 	sint32 total_value = MapAnalysis::GetMapAnalysis().TotalValue(playerId);
@@ -168,7 +168,7 @@ STDEHANDLER(DesireMakeFriend_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -206,7 +206,7 @@ STDEHANDLER(StopPiracy_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -214,7 +214,7 @@ STDEHANDLER(StopPiracy_MotivationEvent)
 	Motivation motivation;
 
 	Player *player_ptr = player_Get(playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	sint32 piracy_loss = map.TotalPiracyLoss(playerId);
 	sint32 income = player_ptr->m_gold->GetIncome();
@@ -243,7 +243,7 @@ STDEHANDLER(EnlistFriends_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -276,7 +276,7 @@ STDEHANDLER(PressAdvantage_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -325,7 +325,7 @@ STDEHANDLER(FearRank_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -383,7 +383,7 @@ STDEHANDLER(FearPollution_MotivationEvent)
 	if (!args->GetPlayer(0, playerId))
 		return GEV_HD_Continue;
 
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);

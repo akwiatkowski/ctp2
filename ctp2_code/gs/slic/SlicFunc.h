@@ -118,8 +118,8 @@ struct SlicArg
     (
         SA_TYPE             a_Type      = SA_TYPE_INT,
         sint32              a_Value     = 0,
-        SlicSegment *       a_Segment   = NULL,
-        SlicSymbolData *    a_Symbol    = NULL
+        SlicSegment *       a_Segment   = nullptr,
+        SlicSymbolData *    a_Symbol    = nullptr
     )
     :
         m_int               (a_Value),

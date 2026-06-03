@@ -107,7 +107,7 @@ template <typename T> void reassign(T * & a_Pointer, T * a_NewPointer)
 template <typename T> void clear(T * & a_Pointer)
 {
     delete a_Pointer;
-    a_Pointer = NULL;
+    a_Pointer = nullptr;
 }
 
 /// Delete items from a container containing pointers

@@ -67,7 +67,7 @@ GoodActor::GoodActor(sint32 index, const MapPoint &pos) :
     m_transparency(TRANSPARENCY_DEFAULT),
     m_index(index),
     m_pos(pos),
-    m_goodSpriteGroup(NULL),
+    m_goodSpriteGroup(nullptr),
     m_curGoodAction(GOODACTION_IDLE),
     m_loadType(LOADTYPE_BASIC) {
   Assert(g_goodSpriteGroupList);
@@ -79,7 +79,7 @@ GoodActor::GoodActor(sint32 index, const MapPoint &pos) :
 
 GoodActor::GoodActor(GoodActor const & rhs) :
     Actor(rhs),
-    m_goodSpriteGroup(NULL),
+    m_goodSpriteGroup(nullptr),
     m_loadType(LOADTYPE_BASIC) {
   *this = rhs;
 }
@@ -90,7 +90,7 @@ GoodActor & GoodActor::operator=(GoodActor const & rhs) {
 
     if (m_goodSpriteGroup) {
       g_goodSpriteGroupList->ReleaseSprite(m_index, GetLoadType());
-      m_goodSpriteGroup = NULL;
+      m_goodSpriteGroup = nullptr;
     }
 
     Actor::operator=(rhs);
@@ -100,7 +100,7 @@ GoodActor & GoodActor::operator=(GoodActor const & rhs) {
     m_index = rhs.m_index;
     m_pos = rhs.m_pos;
     m_curGoodAction = rhs.m_curGoodAction;
-    m_curAction.reset(rhs.m_curAction ? new Action(*rhs.m_curAction) : NULL);
+    m_curAction.reset(rhs.m_curAction ? new Action(*rhs.m_curAction) : nullptr);
     m_loadType = rhs.m_loadType;
     m_goodSpriteGroup = (GoodSpriteGroup *)
         g_goodSpriteGroupList->GetSprite(m_index, GROUPTYPE_GOOD, GetLoadType(), (GAME_ACTION)0);
@@ -116,7 +116,7 @@ GoodActor::GoodActor(CivArchive &archive) :
     m_transparency(TRANSPARENCY_DEFAULT),
     m_index(0),
     m_pos(),
-    m_goodSpriteGroup(NULL),
+    m_goodSpriteGroup(nullptr),
     m_curGoodAction(GOODACTION_IDLE),
     m_loadType(LOADTYPE_BASIC) {
   Serialize(archive);
@@ -157,7 +157,7 @@ void GoodActor::DumpFullLoad() {
   bool purged = g_goodSpriteGroupList->ReleaseSprite(m_index, LOADTYPE_FULL);
 
   if (purged) {
-    m_goodSpriteGroup = NULL;
+    m_goodSpriteGroup = nullptr;
   } else {
     m_loadType = LOADTYPE_BASIC;
   }
@@ -261,14 +261,14 @@ void GoodActor::AddAction(ActionPtr actionObj) {
 
 Anim *GoodActor::CreateAnim(GOODACTION action) {
   Assert(m_goodSpriteGroup);
-  if (!m_goodSpriteGroup) return NULL;
+  if (!m_goodSpriteGroup) return nullptr;
 
   Anim	*origAnim = m_goodSpriteGroup->GetAnim((GAME_ACTION)action);
-  if (origAnim == NULL) {
+  if (origAnim == nullptr) {
     origAnim = m_goodSpriteGroup->GetAnim((GAME_ACTION)GOODACTION_IDLE);
   }
 
-  return origAnim ? new Anim(*origAnim) : NULL;
+  return origAnim ? new Anim(*origAnim) : nullptr;
 }
 
 void GoodActor::DrawSelectionBrackets() {

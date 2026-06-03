@@ -37,12 +37,12 @@ aui_ImageList::aui_ImageListInfo::~aui_ImageListInfo()
 
 	if(m_image) {
 		aui_ui_Get()->UnloadImage(m_image);
-		m_image = NULL;
+		m_image = nullptr;
 	}
 
 	if(m_imageName) {
 		delete [] m_imageName;
-		m_imageName = NULL;
+		m_imageName = nullptr;
 	}
 }
 
@@ -60,7 +60,7 @@ void aui_ImageList::aui_ImageListInfo::Load()
 		if(m_image) {
 			m_image->SetChromakey(m_chromaRed,m_chromaGreen,m_chromaBlue);
 			delete [] m_imageName;
-			m_imageName = NULL;
+			m_imageName = nullptr;
 		}
 		else
 		{
@@ -93,11 +93,11 @@ aui_ImageList::~aui_ImageList()
 
 	for(sint32 i = 0; i < m_numStates; i++) {
 		delete [] m_images[i];
-		m_images[i] = NULL;
+		m_images[i] = nullptr;
 	}
 
 	delete [] m_images;
-	m_images = NULL;
+	m_images = nullptr;
 }
 
 
@@ -137,11 +137,11 @@ void aui_ImageList::ExchangeImage(sint32 state, sint32 imageIndex,
 	aui_ImageListInfo *info = &m_images[state][imageIndex];
 
 	aui_Image *oldImage = info->m_image;
-	info->m_image = NULL;
+	info->m_image = nullptr;
 
 	if(info->m_imageName) {
 		delete [] info->m_imageName;
-		info->m_imageName = NULL;
+		info->m_imageName = nullptr;
 	}
 
 	if(!imageFileName) {
@@ -185,14 +185,14 @@ aui_Image *aui_ImageList::GetImage(sint32 state, sint32 imageIndex)
 {
 
 	if(!VerifyRange(state, imageIndex))
-		return(NULL);
+		return(nullptr);
 
 	aui_ImageListInfo *info = &m_images[state][imageIndex];
 
 	if(!info->m_image) {
 
 		if(!info->m_imageName)
-			return NULL;
+			return nullptr;
 
 		info->Load();
 		Assert(info->m_image);
@@ -205,7 +205,7 @@ aui_ImageList::aui_ImageListInfo *aui_ImageList::GetImageInfo(sint32 state, sint
 {
 
 	if(!VerifyRange(state, imageIndex))
-		return(NULL);
+		return(nullptr);
 
 	aui_ImageListInfo *info = &m_images[state][imageIndex];
 
@@ -300,7 +300,7 @@ RECT *aui_ImageList::GetSize(sint32 state, sint32 imageIndex)
 
 	aui_ImageListInfo *info = GetImageInfo(state, imageIndex);
 	if(!info)
-		return NULL;
+		return nullptr;
 
 	return(&info->m_rect);
 }

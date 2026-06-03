@@ -166,42 +166,42 @@ namespace
 
 SlicContext::SlicContext()
 {
-	m_cityList = NULL;
-	m_unitList = NULL;
-	m_playerList = NULL;
-	m_intList = NULL;
-	m_unitRecordList = NULL;
-	m_advanceList = NULL;
-	m_agreementList = NULL;
-	m_locationList = NULL;
-	m_calamityList = NULL;
+	m_cityList = nullptr;
+	m_unitList = nullptr;
+	m_playerList = nullptr;
+	m_intList = nullptr;
+	m_unitRecordList = nullptr;
+	m_advanceList = nullptr;
+	m_agreementList = nullptr;
+	m_locationList = nullptr;
+	m_calamityList = nullptr;
 	m_numCalamities = 0;
-	m_goldList = NULL;
+	m_goldList = nullptr;
 	m_numGolds = 0;
-	m_goodList = NULL;
-	m_rankList = NULL;
+	m_goodList = nullptr;
+	m_rankList = nullptr;
 	m_numRanks = 0;
-	m_wonderList = NULL;
+	m_wonderList = nullptr;
 	m_numWonders = 0;
-	m_tradeOffersList = NULL;
+	m_tradeOffersList = nullptr;
 
-	m_governmentList = NULL;
+	m_governmentList = nullptr;
 	m_numOrders = 0;
-	m_orderList = NULL;
+	m_orderList = nullptr;
     m_numMadlibs = 0;
-    m_madlibNameList = NULL;
-    m_madlibChoiceList = NULL;
+    m_madlibNameList = nullptr;
+    m_madlibChoiceList = nullptr;
 	m_numAttitudes = 0;
-	m_attitudeList = NULL;
+	m_attitudeList = nullptr;
 	m_numAges = 0;
-	m_ageList = NULL;
-	m_buildingList = NULL;
+	m_ageList = nullptr;
+	m_buildingList = nullptr;
 	m_numBuildings = 0;
-	m_tradeBidList = NULL;
+	m_tradeBidList = nullptr;
 	m_numTradeBids = 0;
-	m_armyList = NULL;
+	m_armyList = nullptr;
 
-	m_eventArgs = NULL;
+	m_eventArgs = nullptr;
 }
 
 #define COPY_SIMPLE_ARRAY(name, type) \
@@ -393,7 +393,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_calamityList = new sint32[m_numCalamities];
 			archive.Load((uint8*)m_calamityList, m_numCalamities * sizeof(sint32));
 		} else {
-			m_calamityList = NULL;
+			m_calamityList = nullptr;
 		}
 
 		archive >> m_numGolds;
@@ -401,7 +401,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_goldList = new sint32[m_numGolds];
 			archive.Load((uint8*)m_goldList, m_numGolds * sizeof(sint32));
 		} else {
-			m_goldList = NULL;
+			m_goldList = nullptr;
 		}
 
 		archive >> m_numRanks;
@@ -409,7 +409,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_rankList = new sint32[m_numRanks];
 			archive.Load((uint8*)m_rankList, m_numRanks * sizeof(sint32));
 		} else {
-			m_rankList = NULL;
+			m_rankList = nullptr;
 		}
 
 		archive >> m_numWonders;
@@ -417,7 +417,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_wonderList = new sint32[m_numWonders];
 			archive.Load((uint8*)m_wonderList, m_numWonders * sizeof(sint32));
 		} else {
-			m_wonderList = NULL;
+			m_wonderList = nullptr;
 		}
 
 		archive >> m_numOrders;
@@ -425,7 +425,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_orderList = new sint32[m_numOrders];
 			archive.Load((uint8*)m_orderList, m_numOrders * sizeof(sint32));
 		} else {
-			m_orderList = NULL;
+			m_orderList = nullptr;
 		}
 
 		archive >> m_numMadlibs;
@@ -435,8 +435,8 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_madlibNameList = new sint32[m_numMadlibs];
 			archive.Load((uint8*)m_madlibNameList, m_numMadlibs * sizeof(sint32));
 		} else {
-			m_madlibChoiceList = NULL;
-			m_madlibNameList = NULL;
+			m_madlibChoiceList = nullptr;
+			m_madlibNameList = nullptr;
 		}
 
 		archive >> m_numAttitudes;
@@ -444,7 +444,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_attitudeList = new sint32[m_numAttitudes];
 			archive.Load((uint8*)m_attitudeList, m_numAttitudes * sizeof(sint32));
 		} else {
-			m_attitudeList = NULL;
+			m_attitudeList = nullptr;
 		}
 
 		archive >> m_numAges;
@@ -452,7 +452,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_ageList = new sint32[m_numAges];
 			archive.Load((uint8*)m_ageList, m_numAges * sizeof(sint32));
 		} else {
-			m_ageList = NULL;
+			m_ageList = nullptr;
 		}
 
 		{
@@ -473,7 +473,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_buildingList = new sint32[m_numBuildings];
 			archive.Load((uint8*)m_buildingList, m_numBuildings * sizeof(sint32));
 		} else {
-			m_buildingList = NULL;
+			m_buildingList = nullptr;
 		}
 
 		archive >> m_numTradeBids;
@@ -481,7 +481,7 @@ void SlicContext::Serialize(CivArchive &archive)
 			m_tradeBidList = new uint32[m_numTradeBids];
 			archive.Load((uint8*)m_tradeBidList, m_numTradeBids * sizeof(uint32));
 		} else {
-			m_tradeBidList = NULL;
+			m_tradeBidList = nullptr;
 		}
 	}
 }
@@ -621,7 +621,7 @@ void SlicContext::CopyArray(sint32 *&to, sint32 *from,
 							sint32 &tosize, sint32 size)
 {
 	if(!from || size == 0) {
-		to = NULL;
+		to = nullptr;
 		tosize = 0;
 		return;
 	}
@@ -1001,7 +1001,7 @@ sint32 SlicContext::GetNumWonders() const
 MBCHAR *SlicContext::GetAction(sint32 index) const
 {
 	if(m_actionList.empty())
-		return NULL;
+		return nullptr;
 	Assert(index >= 0 && index < static_cast<sint32>(m_actionList.size()));
 	return const_cast<MBCHAR*>(m_actionList[index].c_str());
 }

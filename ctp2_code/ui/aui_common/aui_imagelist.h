@@ -48,8 +48,8 @@ private:
 	{
 	public:
 
-		aui_ImageListInfo() : m_imageName(NULL),
-			m_image(NULL), m_bltType(AUI_IMAGEBASE_BLTTYPE_COPY),
+		aui_ImageListInfo() : m_imageName(nullptr),
+			m_image(nullptr), m_bltType(AUI_IMAGEBASE_BLTTYPE_COPY),
 			m_bltFlag(AUI_IMAGEBASE_BLTFLAG_COPY),
 			m_chromaRed(k_DEFAULT_CHROMA_RED),
 			m_chromaGreen(k_DEFAULT_CHROMA_GREEN),

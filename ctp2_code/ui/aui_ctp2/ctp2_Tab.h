@@ -23,7 +23,7 @@ public:
 	};
 
 	ctp2_Tab(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL, void *cookie = NULL);
+		ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
 	virtual ~ctp2_Tab();
 

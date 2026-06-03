@@ -14,7 +14,7 @@ public:
 		MBCHAR const *ldlBlock )
 		:
 		aui_ImageBase( ldlBlock ),
-		aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+		aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 		aui_Control( retval, id, (MBCHAR *) ldlBlock ) {}
 	aui_Item(
 		AUI_ERRCODE *retval,

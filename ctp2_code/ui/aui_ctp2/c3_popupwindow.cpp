@@ -58,12 +58,12 @@ c3_PopupWindow::c3_PopupWindow
 )
 :
 	C3Window    (retval, id, ldlBlock, bpp, type, bevel),
-	m_title     (NULL),
-	m_titleText (NULL),
-	m_cancel    (NULL),
-	m_ok        (NULL)
+	m_title     (nullptr),
+	m_titleText (nullptr),
+	m_cancel    (nullptr),
+	m_ok        (nullptr)
 {
-	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) NULL);
+	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
 
 	*retval = InitCommon();
 }
@@ -83,12 +83,12 @@ c3_PopupWindow::c3_PopupWindow
 )
 :
 	C3Window    (retval, id, x, y, width, height, bpp, pattern, type, bevel),
-	m_title     (NULL),
-	m_titleText (NULL),
-	m_cancel    (NULL),
-	m_ok        (NULL)
+	m_title     (nullptr),
+	m_titleText (nullptr),
+	m_cancel    (nullptr),
+	m_ok        (nullptr)
 {
-	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) NULL);
+	std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
 
 	*retval = InitCommon();
 }

@@ -110,7 +110,7 @@ private:
 		MapPoint const &			center,
 		double const				radius,
 		CIRCLE_OP					op,
-		DynamicArray<MapPoint> *	removeadd = NULL
+		DynamicArray<MapPoint> *	removeadd = nullptr
 	);
 	void DoFillCircleOp(const MapPoint &pos, CIRCLE_OP op,
 						DynamicArray<MapPoint> *removeadd);
@@ -130,9 +130,9 @@ public:
 	void AddRadar(MapPoint pos, double radius);
 
 	void AddVisible(MapPoint pos, double radius,
-					DynamicArray<MapPoint> *removeadd = NULL);
+					DynamicArray<MapPoint> *removeadd = nullptr);
 	void RemoveVisible(MapPoint pos, double radius,
-					   DynamicArray<MapPoint> *removeadd = NULL);
+					   DynamicArray<MapPoint> *removeadd = nullptr);
 	bool IsVisible(MapPoint pos) const;
 
 	bool GetLastSeen(const MapPoint &point, UnseenCellCarton &ucell) const;

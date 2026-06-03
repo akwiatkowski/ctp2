@@ -45,17 +45,17 @@
 #include "ui/interface/WonderTab.h"
 
 
-static InfoWindow * s_InfoWindow = NULL;
+static InfoWindow * s_InfoWindow = nullptr;
 
 InfoWindow::InfoWindow()
 :
 	m_window        (static_cast<ctp2_Window*>
                         (aui_Ldl::BuildHierarchyFromRoot("InfoDialog"))
                     ),
-	m_closeButton   (NULL),
-	m_ranking_tab   (NULL),
+	m_closeButton   (nullptr),
+	m_ranking_tab   (nullptr),
     m_score_tab     (new ScoreTab()),
-    m_wonder_tab    (NULL)
+    m_wonder_tab    (nullptr)
 {
 	Assert(m_window);
 
@@ -106,7 +106,7 @@ void InfoWindow::SelectScoreTab()
 
 void InfoWindow::Open()
 {
-	if (s_InfoWindow==NULL)
+	if (s_InfoWindow==nullptr)
 		s_InfoWindow = new InfoWindow();
 
 	c3ui_Get()->AddWindow(s_InfoWindow->m_window);

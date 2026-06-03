@@ -21,7 +21,7 @@ void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 
 
 void videoutils_Initialize()
 {
-	g_videoWindow = NULL;
+	g_videoWindow = nullptr;
 }
 
 sint32 videoutils_PlayVideoInWindow(MBCHAR *name, MBCHAR *pattern)
@@ -55,17 +55,17 @@ sint32 videoutils_PlayVideoInWindow(MBCHAR *name, MBCHAR *pattern)
 
 void videoutils_Cleanup()
 {
-	if (g_videoWindow != NULL) {
+	if (g_videoWindow != nullptr) {
 		c3ui_Get()->RemoveWindow(k_VIDEO_WINDOW_ID);
 		delete g_videoWindow;
 	}
-	g_videoWindow = NULL;
+	g_videoWindow = nullptr;
 }
 
 void videoutils_VideoWindowCloseBox(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
 	aui_Window *window = control->GetParentWindow();
-	if (window != NULL) {
+	if (window != nullptr) {
 		c3ui_Get()->RemoveWindow(window->Id());
 
 	}

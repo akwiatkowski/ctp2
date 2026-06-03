@@ -103,7 +103,7 @@ ResourceMap::ResourceMap(AUI_ERRCODE *retval,
 		aui_ImageBase(ldlBlock),
 		aui_TextBase(ldlBlock),
 		aui_Control(retval, id, ldlBlock, ActionFunc, cookie),
-		PatternBase(ldlBlock, NULL)
+		PatternBase(ldlBlock, nullptr)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -119,7 +119,7 @@ ResourceMap::ResourceMap(AUI_ERRCODE *retval,
 							void *cookie)
 	:
 		aui_ImageBase((sint32)0),
-		aui_TextBase((MBCHAR *)NULL),
+		aui_TextBase((MBCHAR *)nullptr),
 		aui_Control(retval, id, x, y, width, height, ActionFunc, cookie),
 		PatternBase(pattern)
 {
@@ -136,7 +136,7 @@ ResourceMap::~ResourceMap()
 void ResourceMap::InitCommonLdl(MBCHAR *ldlBlock)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return;
 
 	sint32 scale = k_RESOURCEMAP_DEFAULT_SCALE;
@@ -158,7 +158,7 @@ void ResourceMap::InitCommon( sint32 scale)
 
 	m_unit = Unit();
 
-	m_updateAction = NULL;
+	m_updateAction = nullptr;
 
 	m_surface = aui_Factory::new_Surface(errcode,
 		tiledmap_Get()->GetZoomTilePixelWidth() * ((k_MAX_CITY_RADIUS * 2) + 1),
@@ -320,7 +320,7 @@ sint32 ResourceMap::DrawSurface()
 	m_mapViewRect.top = 2;
 	m_mapViewRect.bottom = 9;
 
-	DrawSprites(m_surface, NULL);
+	DrawSprites(m_surface, nullptr);
 
 	return 0;
 }
@@ -490,7 +490,7 @@ BOOL ResourceMap::DrawAGood(aui_Surface *pSurface, MapPoint const & pos, void *c
 {
 
 	TileInfo *curTileInfo = tiledmap_Get()->GetTileInfo(pos);
-	Assert(curTileInfo != NULL);
+	Assert(curTileInfo != nullptr);
 	if(!curTileInfo || !curTileInfo->HasGoodActor()) return FALSE;
 
 	GoodActor	*goodActor = curTileInfo->GetGoodActor();
@@ -662,39 +662,39 @@ sint32 ResourceMap::CalculateWrap(
 	MapPoint	pos = tempPos;
 
 	TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos);
-	if (tileInfo == NULL) return -1;
+	if (tileInfo == nullptr) return -1;
 
 	BaseTile *baseTile = tiledmap_Get()->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
-	if (baseTile == NULL) return -1;
+	if (baseTile == nullptr) return -1;
 
 	sint16	river = tileInfo->GetRiverPiece();
 
 	if ( !m_scale ) {
 
-		tiledmap_Get()->DrawTransitionTile(NULL, pos, x, y);
+		tiledmap_Get()->DrawTransitionTile(nullptr, pos, x, y);
 
-		tiledmap_Get()->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
+		tiledmap_Get()->DrawOverlay(nullptr, baseTile->GetHatData(), x, y);
 
 		if (river != -1)
-			tiledmap_Get()->DrawOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
+			tiledmap_Get()->DrawOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
 
-		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 
 	}
 	else {
 
-		tiledmap_Get()->DrawTransitionTileScaled(NULL, pos, x, y, tiledmap_Get()->GetZoomTilePixelWidth(), tiledmap_Get()->GetZoomTilePixelHeight() );
+		tiledmap_Get()->DrawTransitionTileScaled(nullptr, pos, x, y, tiledmap_Get()->GetZoomTilePixelWidth(), tiledmap_Get()->GetZoomTilePixelHeight() );
 
-		tiledmap_Get()->DrawScaledOverlay(NULL, baseTile->GetHatData(), x, y,
+		tiledmap_Get()->DrawScaledOverlay(nullptr, baseTile->GetHatData(), x, y,
 										tiledmap_Get()->GetZoomTilePixelWidth(),
 										tiledmap_Get()->GetZoomTileGridHeight());
 
 		if ( river != -1 )
-			tiledmap_Get()->DrawScaledOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y,
+			tiledmap_Get()->DrawScaledOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y,
 											tiledmap_Get()->GetZoomTilePixelWidth(),
 											tiledmap_Get()->GetZoomTileGridHeight());
 
-		tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+		tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 	}
 
 	return 0;
@@ -714,7 +714,7 @@ sint32 ResourceMap::DrawImprovements(
 
 	MapPoint pos (k, i);
 
-	tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+	tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 
 	return 0;
 }
@@ -990,7 +990,7 @@ AUI_ERRCODE ResourceMap::Idle( )
 	if (GetTickCount() - lastDraw > 100)
 	{
 		lastDraw = GetTickCount();
-		DrawThis(NULL, 0, 0);
+		DrawThis(nullptr, 0, 0);
 	}
 
 	return AUI_ERRCODE_OK;

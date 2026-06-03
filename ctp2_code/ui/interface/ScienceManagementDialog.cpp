@@ -73,7 +73,7 @@ static const sint32 k_SMD_CIVILIZATION_COLUMNS	= 8;
 
 
 
-static ScienceManagementDialog * g_scienceManagementDialog = NULL;
+static ScienceManagementDialog * g_scienceManagementDialog = nullptr;
 
 ScienceManagementDialog * sciencemanagementdialog_Get()
 {
@@ -237,7 +237,7 @@ void ScienceManagementDialog::UpdateScience()
 	} else {
 
 		m_scienceIconButton->SetText("---");
-		m_scienceIconButton->ExchangeImage(4, 0, NULL);
+		m_scienceIconButton->ExchangeImage(4, 0, nullptr);
 	}
 
 	sint32 numberOfTurns = advances->TurnsToNextAdvance();
@@ -278,7 +278,7 @@ void ScienceManagementDialog::ClearScience()
 {
 	m_scienceLabel->SetText("");
 	m_scienceIconButton->SetText("");
-	m_scienceIconButton->ExchangeImage(4, 0, NULL);
+	m_scienceIconButton->ExchangeImage(4, 0, nullptr);
 	m_scienceTurnButton->SetText("");
 	m_scienceTurnValue->SetText("");
 	m_scienceCurrentValue->SetText("");
@@ -305,9 +305,9 @@ void ScienceManagementDialog::UpdateAdvanceList()
 		}
 		else
 		{
-			header->SetImage(NULL, 0);
-			header->SetImage(NULL, 1);
-			header->SetImage(NULL, 2);
+			header->SetImage(nullptr, 0);
+			header->SetImage(nullptr, 1);
+			header->SetImage(nullptr, 2);
 		}
 	}
 
@@ -337,7 +337,7 @@ ctp2_ListItem *ScienceManagementDialog::CreateAdvanceItem(const AdvanceRecord *a
 
 	Assert(item);
 	if (!item)
-		return NULL;
+		return nullptr;
 
 	item->SetUserData(reinterpret_cast<void*>(advance->GetIndex()));
 	item->SetCompareCallback(CompareAdvance);
@@ -349,7 +349,7 @@ ctp2_ListItem *ScienceManagementDialog::CreateAdvanceItem(const AdvanceRecord *a
 	else
 	{
 		delete item;
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -378,7 +378,7 @@ BOOL ScienceManagementDialog::UpdateAdvanceItem(ctp2_ListItem *item,
 				discovered = TRUE;
 			} else {
 
-				column->SetDrawCallbackAndCookie(NULL, NULL);
+				column->SetDrawCallbackAndCookie(nullptr, nullptr);
 			}
 		}
 	}
@@ -428,7 +428,7 @@ void ScienceManagementDialog::EditResearchButtonActionCallback(aui_Control *cont
 		return;
 
 
-	sci_advancescreen_displayMyWindow(NULL, k_SCI_INCLUDE_CANCEL);
+	sci_advancescreen_displayMyWindow(nullptr, k_SCI_INCLUDE_CANCEL);
 }
 
 AUI_ERRCODE ScienceManagementDialog::DrawScienceBar(ctp2_Static *control,
@@ -555,7 +555,7 @@ void ScienceManagementDialog::AdvanceListCallback(aui_Control *control,
         return;
 
 	ctp2_ListBox *  listbox = static_cast<ctp2_ListBox*>(control);
-	ctp2_ListItem * item    = listbox ? (ctp2_ListItem *)listbox->GetSelectedItem() : NULL;
+	ctp2_ListItem * item    = listbox ? (ctp2_ListItem *)listbox->GetSelectedItem() : nullptr;
 	if (!item) return;
 
 	sint32          index   = reinterpret_cast<intptr_t>(item->GetUserData());

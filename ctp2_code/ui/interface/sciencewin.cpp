@@ -117,7 +117,7 @@ extern sint32			    g_modalWindow;
 extern DebugWindow			*g_debugWindow;
 extern aui_Surface			*g_sharedSurface;
 
-ScienceWin			*g_scienceWin = NULL;
+ScienceWin			*g_scienceWin = nullptr;
 
 static c3_Button		*s_returnButton;
 
@@ -198,7 +198,7 @@ void sciencewin_ChangeButtonCallback( aui_Control *control, uint32 action, uint3
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	sci_advancescreen_displayMyWindow(NULL, k_SCI_INCLUDE_CANCEL);
+	sci_advancescreen_displayMyWindow(nullptr, k_SCI_INCLUDE_CANCEL);
 	close_ScienceStatus();
 }
 
@@ -614,7 +614,7 @@ sint32 knowledgewin_Cleanup( )
 
 
 	delete s_returnButton;
-	s_returnButton = NULL;
+	s_returnButton = nullptr;
 
 
 
@@ -626,37 +626,37 @@ sint32 knowledgewin_Cleanup( )
 
 
 	delete s_givesBox;
-	s_givesBox = NULL;
+	s_givesBox = nullptr;
 	delete s_civBox;
-	s_civBox = NULL;
+	s_civBox = nullptr;
 
 	delete s_civText;
-	s_civText = NULL;
+	s_civText = nullptr;
 
 	delete s_titleText;
-	s_titleText = NULL;
+	s_titleText = nullptr;
 
 	delete s_lt;
-	s_lt = NULL;
+	s_lt = nullptr;
 	delete s_ct;
-	s_ct = NULL;
+	s_ct = nullptr;
 	delete s_rt;
-	s_rt = NULL;
+	s_rt = nullptr;
 	delete s_left;
-	s_left = NULL;
+	s_left = nullptr;
 	delete s_right;
-	s_right = NULL;
+	s_right = nullptr;
 	delete s_bottom;
-	s_bottom = NULL;
+	s_bottom = nullptr;
 
 	delete s_listtop;
-	s_listtop = NULL;
+	s_listtop = nullptr;
 	delete s_listbl;
-	s_listbl = NULL;
+	s_listbl = nullptr;
 	delete s_listbc;
-	s_listbc = NULL;
+	s_listbc = nullptr;
 	delete s_listbr;
-	s_listbr = NULL;
+	s_listbr = nullptr;
 
 
 
@@ -669,7 +669,7 @@ sint32 knowledgewin_Cleanup( )
 KnowledgeListItem::KnowledgeListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -730,7 +730,7 @@ sint32 KnowledgeListItem::Compare(c3_ListItem *item2, uint32 column)
 EmbassyListItem::EmbassyListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -794,7 +794,7 @@ sint32 EmbassyListItem::Compare(c3_ListItem *item2, uint32 column)
 AdvanceListItem::AdvanceListItem(AUI_ERRCODE *retval, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1077,7 +1077,7 @@ sint32 sciencewin_Initialize( )
 sint32 sciencewin_Cleanup( )
 {
 	if ( g_scienceWin ) delete g_scienceWin;
-	g_scienceWin = NULL;
+	g_scienceWin = nullptr;
 
 	return 0;
 }
@@ -1265,7 +1265,7 @@ ScienceWin::~ScienceWin( )
 
 
 	if (m_window)
-		m_window->SetSurface(NULL);
+		m_window->SetSurface(nullptr);
 
 	RemoveControl( m_window );
 }

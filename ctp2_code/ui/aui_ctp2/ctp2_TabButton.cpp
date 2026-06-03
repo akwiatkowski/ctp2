@@ -21,7 +21,7 @@ const sint32 ctp2_TabButton::k_CTP2_TAB_BUTTON_LAYER_FLAG_ACTIVE	= 256;
 ctp2_TabButton::ctp2_TabButton(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock,
 							   ControlActionCallback *ActionFunc, void *cookie) :
 aui_ImageBase(ldlBlock),
-aui_TextBase(ldlBlock, (MBCHAR const *) NULL),
+aui_TextBase(ldlBlock, (MBCHAR const *) nullptr),
 ctp2_Button(retval, id, ldlBlock, ActionFunc, cookie)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);

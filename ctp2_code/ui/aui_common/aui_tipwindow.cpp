@@ -48,7 +48,7 @@ aui_TipWindow::aui_TipWindow(
 AUI_ERRCODE aui_TipWindow::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -103,7 +103,7 @@ AUI_ERRCODE aui_TipWindow::SetTipText(MBCHAR *text)
 AUI_ERRCODE aui_TipWindow::InitCommon( )
 {
 	m_allocatedTip = FALSE;
-	m_staticTip = NULL;
+	m_staticTip = nullptr;
 
 	SetDynamic( TRUE );
 
@@ -116,7 +116,7 @@ aui_TipWindow::~aui_TipWindow()
 	if ( m_allocatedTip && m_staticTip )
 	{
 		delete m_staticTip;
-		m_staticTip = NULL;
+		m_staticTip = nullptr;
 		m_allocatedTip = FALSE;
 	}
 }

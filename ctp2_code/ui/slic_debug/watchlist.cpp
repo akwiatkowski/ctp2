@@ -70,7 +70,7 @@
 #include "ctp/ctp2_utils/pointerlist.h"
 
 
-static WatchList *g_watchList = NULL;
+static WatchList *g_watchList = nullptr;
 
 void watchlist_Callback(sint32 arg)
 {
@@ -103,11 +103,11 @@ void watchlist_AddExpression(char *exp)
 }
 
 WatchList::WatchList(WatchListCallback callback, MBCHAR *ldlBlock)
-:   m_window                (NULL),
-    m_list                  (NULL),
-    m_newButton             (NULL),
-    m_clearButton           (NULL),
-    m_exitButton            (NULL),
+:   m_window                (nullptr),
+    m_list                  (nullptr),
+    m_newButton             (nullptr),
+    m_clearButton           (nullptr),
+    m_exitButton            (nullptr),
 	m_callback              (callback)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -279,7 +279,7 @@ void WatchList::Clear()
 WatchListItem::WatchListItem(AUI_ERRCODE *retval, sint32 index,
 							 MBCHAR *line, MBCHAR *ldlBlock) :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem(retval, ldlBlock)
 {
 	m_index = index;
@@ -306,7 +306,7 @@ WatchListItem::~WatchListItem()
 		}
 
 		delete m_watching;
-		m_watching = NULL;
+		m_watching = nullptr;
 	}
 }
 

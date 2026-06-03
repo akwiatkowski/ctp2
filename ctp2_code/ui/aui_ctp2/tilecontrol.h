@@ -23,12 +23,12 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~TileControl() {};
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

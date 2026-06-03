@@ -137,7 +137,7 @@ class DipWizard
 
 	static sint32 GetStage();
 	static void SetStage(sint32 stage);
-	static void SetViewResponse(sint32 sender, sint32 recipient, bool negotiationsComplete, const Response *resp = NULL, const Response *threatResp = NULL);
+	static void SetViewResponse(sint32 sender, sint32 recipient, bool negotiationsComplete, const Response *resp = nullptr, const Response *threatResp = nullptr);
 	static void SetViewProposal(sint32 sender, sint32 receiver);
 	static void UpdateProposalStage();
 	static void UpdateExchangeStage();

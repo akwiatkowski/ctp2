@@ -35,7 +35,7 @@ Pixel16 *RGB32ToRGB16(char *buf, uint16 width, uint16 height)
 
 	outBuf = destPixel;
 
-	if (outBuf == NULL) return NULL;
+	if (outBuf == nullptr) return nullptr;
 
 	for(int i=0; i<width*height; i++) {
 		unsigned long int pix = *srcPixel;

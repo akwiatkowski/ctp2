@@ -46,7 +46,7 @@ GameEventArgList::GameEventArgList(va_list *vl, GAME_EVENT eventType)
 {
 	std::fill(m_argLists,
 	          m_argLists + GEA_End,
-	          (PointerList<GameEventArgument> *) NULL
+	          (PointerList<GameEventArgument> *) nullptr
 	         );
 
 	char *argString = event_description(eventType).args;
@@ -112,7 +112,7 @@ void GameEventArgList::Serialize(CivArchive &archive)
 		for(arg = GEA_Null; arg < GEA_End; arg = (GAME_EVENT_ARGUMENT)(sint32(arg) + 1)) {
 			archive >> numArgs;
 			if(numArgs <= 0) {
-				m_argLists[arg] = NULL;
+				m_argLists[arg] = nullptr;
 			} else {
 				m_argLists[arg] = new PointerList<GameEventArgument>;
 				sint32 i;
@@ -143,10 +143,10 @@ GameEventArgument *GameEventArgList::GetArg(GAME_EVENT_ARGUMENT argType,
 	Assert(argType < GEA_End);
 
 	if(argType <= GEA_Null || argType >= GEA_End)
-		return NULL;
+		return nullptr;
 
 	if(!m_argLists[argType])
-		return NULL;
+		return nullptr;
 
 	sint32  i = 0;
 
@@ -165,7 +165,7 @@ GameEventArgument *GameEventArgList::GetArg(GAME_EVENT_ARGUMENT argType,
 		++i;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool GameEventArgList::TestArgs(GAME_EVENT type, GameEvent* event) const

@@ -65,6 +65,6 @@ const MBCHAR * glutil_LoadText(const char *filename, SlicContext &so)
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }

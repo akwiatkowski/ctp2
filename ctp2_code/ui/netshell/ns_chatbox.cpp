@@ -53,15 +53,15 @@ ns_ChatBox::ns_ChatBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	TextBox( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	m_textstyleSystem = new aui_TextBase("styles.system", (MBCHAR *)NULL);
-	m_textstyleChat = new aui_TextBase("styles.chat", (MBCHAR *)NULL);
-	m_textstyleWhisper = new aui_TextBase("styles.whisper", (MBCHAR *)NULL);
+	m_textstyleSystem = new aui_TextBase("styles.system", (MBCHAR *)nullptr);
+	m_textstyleChat = new aui_TextBase("styles.chat", (MBCHAR *)nullptr);
+	m_textstyleWhisper = new aui_TextBase("styles.whisper", (MBCHAR *)nullptr);
 
 
 	m_textstyleSystem->TextReloadFont();
@@ -79,7 +79,7 @@ ns_ChatBox::ns_ChatBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	player = NULL;
+	player = nullptr;
 	bWhisper = false;
 	bGroup = false;
 }
@@ -148,7 +148,7 @@ AUI_ERRCODE ns_ChatBox::CreateComponents( )
 	AddChild( m_inputField );
 
 	aui_Action *action = new InputFieldAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_inputField->SetAction( action );
@@ -159,7 +159,7 @@ AUI_ERRCODE ns_ChatBox::CreateComponents( )
 
 AUI_ERRCODE ns_ChatBox::InitCommon()
 {
-	m_inputField = NULL;
+	m_inputField = nullptr;
 
 	return AUI_ERRCODE_OK;
 }
@@ -229,7 +229,7 @@ void ns_ChatBox::InputFieldAction::Execute(
 		if(chatbox->GetPlayer())
 			chatbox->Send(chatbox->GetPlayer(), text);
 	} else if(!chatbox->IsGroup() || !netfunc_Get()->GetPlayer()->GetGroup())
-		chatbox->Send(NULL, text);
+		chatbox->Send(nullptr, text);
 	else
 		chatbox->SendGroup(text);
 

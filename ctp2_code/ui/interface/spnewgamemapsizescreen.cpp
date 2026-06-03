@@ -54,10 +54,10 @@
 #include "gs/utility/Globals.h"
 
 
-static c3_PopupWindow	*s_spNewGameMapSizeScreen	= NULL;
+static c3_PopupWindow	*s_spNewGameMapSizeScreen	= nullptr;
 
 
-static aui_SwitchGroup	*s_group		= NULL;
+static aui_SwitchGroup	*s_group		= nullptr;
 static aui_Radio	**s_checkBox;
 
 static MBCHAR	checknames[k_NUM_MAPSIZEBOXES][50] = {
@@ -284,7 +284,7 @@ AUI_ERRCODE spnewgamemapsizescreen_Cleanup()
 			// NULLing unnecessary: deleting container next
 		}
 		delete [] s_checkBox;
-		s_checkBox = NULL;
+		s_checkBox = nullptr;
 
 #define mycleanup(mypointer) { delete mypointer; mypointer = NULL; }
 		mycleanup(s_group);

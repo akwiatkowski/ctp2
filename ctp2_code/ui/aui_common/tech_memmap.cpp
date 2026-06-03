@@ -34,31 +34,31 @@ unsigned char *tech_MemMap::GetFileBits
 	FILE *f = fopen( filename, "rb" );
 
 	if ( !f )
-		return NULL;
+		return nullptr;
 
 	if (fseek(f, 0, SEEK_END) == 0) {
 		filesize = ftell(f);
 	} else {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if (fseek(f, 0, SEEK_SET) != 0) {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	unsigned char * bits = new unsigned char[filesize];
 
 	if (!bits) {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if ( fread( bits, 1, filesize, f ) != filesize ) {
 		delete[] bits;
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	fclose(f);
@@ -73,6 +73,6 @@ void tech_MemMap::ReleaseFileBits( unsigned char *&bits )
 {
 	if (bits) {
 		delete[] bits;
-		bits = NULL;
+		bits = nullptr;
 	}
 }

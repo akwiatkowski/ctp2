@@ -28,10 +28,10 @@ namespace Shortcuts {
 			if(world_Get()->HasCity(a->RetPos())) {
 				CityWindow::Display(world_Get()->GetCity(a->RetPos()).CD());
 			} else {
-				CityWindow::Display(NULL);
+				CityWindow::Display(nullptr);
 			}
 		} else
-			CityWindow::Display(NULL);
+			CityWindow::Display(nullptr);
 	}
 
 	ShortcutPad::ShortcutCallback<void> CityManagementCallback(CityManagementCallbackFunction);

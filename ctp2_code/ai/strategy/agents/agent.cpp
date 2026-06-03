@@ -77,7 +77,7 @@ Agent::Agent()
 :
     m_squad_class       (SQUAD_CLASS_DEFAULT),
     m_agent_type        (-1),
-    m_goal              (NULL),
+    m_goal              (nullptr),
     m_squad_strength    (0),
     m_can_be_executed   (true),
     m_detached          (false),
@@ -92,7 +92,7 @@ Agent::Agent()
 Agent::Agent(const Army & army)
 :
     m_squad_strength    (0),
-    m_goal              (NULL),
+    m_goal              (nullptr),
     m_army              (army),
     m_playerId          (army->GetOwner()),
     m_targetOrder       (OrderRecord::INDEX_INVALID),
@@ -109,7 +109,7 @@ Agent::Agent(const Army & army)
 Agent::Agent(const Agent & an_Original)
 :
     m_squad_strength    (an_Original.m_squad_strength),
-    m_goal              (NULL),                            // Pointer reference, different after a scheduler copy
+    m_goal              (nullptr),                            // Pointer reference, different after a scheduler copy
     m_army              (an_Original.m_army),
     m_playerId          (an_Original.m_playerId),
     m_targetOrder       (an_Original.m_targetOrder),
@@ -279,7 +279,7 @@ void Agent::Log_Debug_Info(const int & log, const Goal * const goal) const
 
 	AI_DPRINTF(log,
 	           m_playerId,
-	           goal != NULL ? goal->Get_Goal_Type() : -1,
+	           goal != nullptr ? goal->Get_Goal_Type() : -1,
 	           -1,
 	           ("\t\t   Agent: handle=%x,\tclass=%x,\t(x=%d,y=%d),\t (is_used=%d) \t (by_this=%d) \t (in %s)\n",
 	            m_army.m_id,
@@ -292,7 +292,7 @@ void Agent::Log_Debug_Info(const int & log, const Goal * const goal) const
 	           )
 	          );
 
-	AI_DPRINTF(log, -99, goal != NULL ? goal->Get_Goal_Type() : -1, m_army.m_id,
+	AI_DPRINTF(log, -99, goal != nullptr ? goal->Get_Goal_Type() : -1, m_army.m_id,
 		("\t\t   -------\n"));
 }
 

@@ -358,7 +358,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 					Assert(g_network.m_playerData[index]->m_createdUnits.Num() == 0);
 
 					if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && c3ui_Get()->GetWindow(bvw->Id())) {
-						battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+						battleview_ExitButtonActionCallback(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 					}
 
 					director_Get()->AddEndTurn();
@@ -741,8 +741,8 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			}
 			break;
 		case NET_ACTION_CREATED_CIV:
-			Assert(player_Get(m_data[0]) != NULL);
-			if(player_Get(m_data[0]) != NULL)
+			Assert(player_Get(m_data[0]) != nullptr);
+			if(player_Get(m_data[0]) != nullptr)
 				break;
 
 			if(player_Get(m_data[0])) {
@@ -839,7 +839,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			ORDER_RESULT res = u.StealTechnology(city, advance);
 			if(res != ORDER_RESULT_ILLEGAL) {
 				sint32 ordindex = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
-				OrderInfo const *oi = NULL;
+				OrderInfo const *oi = nullptr;
 				if(ordindex >= 0 && ordindex < orderinfo_Num()) {
 					oi = &orderinfo_Get(ordindex);
 				}
@@ -1208,7 +1208,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		}
 		case NET_ACTION_KILLED_PLAYER:
 		{
-			Assert(player_Get(m_data[0]) == NULL || player_Get(m_data[0])->m_isDead);
+			Assert(player_Get(m_data[0]) == nullptr || player_Get(m_data[0])->m_isDead);
 			break;
 		}
 		case NET_ACTION_INJOIN:
@@ -1312,7 +1312,7 @@ void NetAction::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			if(player_Get(index)) {
 				player_Get(index)->CreateCity(m_data[0], pnt,
 											CAUSE_NEW_CITY_CHEAT,
-											NULL, -1);
+											nullptr, -1);
 			}
 #endif
 			break;

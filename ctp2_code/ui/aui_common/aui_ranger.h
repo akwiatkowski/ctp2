@@ -123,8 +123,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_Ranger(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -134,8 +134,8 @@ public:
 		sint32 height,
 		AUI_RANGER_TYPE type = AUI_RANGER_TYPE_SCROLLER,
 		AUI_RANGER_ORIENTATION orientation = AUI_RANGER_ORIENTATION_BIDIRECTIONAL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~aui_Ranger();
 
 protected:
@@ -230,7 +230,7 @@ protected:
 	aui_Button *CreateArrowButton(const MBCHAR *ldlBlock,
 		const MBCHAR *autoLdlName, const MBCHAR *ldlName);
 
-	AUI_ERRCODE CreateButtonsAndThumb(MBCHAR *ldlBlock = NULL);
+	AUI_ERRCODE CreateButtonsAndThumb(MBCHAR *ldlBlock = nullptr);
 
 	AUI_RANGER_TYPE			m_type;
 	AUI_RANGER_ORIENTATION	m_orientation;

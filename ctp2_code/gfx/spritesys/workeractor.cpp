@@ -37,7 +37,7 @@ WorkerActor::WorkerActor(sint32 index, const MapPoint &pos, sint32 x, sint32 y)
     m_transparency      (TRANSPARENCY_DEFAULT),
     m_index             (index),
     m_pos               (pos),
-    m_unitSpriteGroup   (NULL),
+    m_unitSpriteGroup   (nullptr),
     m_curUnitAction     ()
 {
 	SetPos(x, y);
@@ -80,7 +80,7 @@ void WorkerActor::Process()
 		}
 	}
 
-	if (m_curAction != NULL) {
+	if (m_curAction != nullptr) {
 
 
 
@@ -128,8 +128,8 @@ void WorkerActor::GetNextAction()
 
 void WorkerActor::AddAction(ActionPtr actionObj)
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return;
 
 	Assert(actionObj);
 	if (actionObj) return;
@@ -150,16 +150,16 @@ void WorkerActor::AddAction(ActionPtr actionObj)
 
 Anim *WorkerActor::CreateAnim(UNITACTION action)
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return NULL;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return nullptr;
 
 	Anim	*origAnim = m_unitSpriteGroup->GetAnim((GAME_ACTION)action);
-	if (origAnim == NULL)
+	if (origAnim == nullptr)
 	{
 
 		origAnim = m_unitSpriteGroup->GetAnim((GAME_ACTION)UNITACTION_IDLE);
-		Assert(origAnim != NULL);
-		return NULL;
+		Assert(origAnim != nullptr);
+		return nullptr;
 	}
 
 	return new Anim(*origAnim);
@@ -195,8 +195,8 @@ bool WorkerActor::IsAnimating() const
 
 uint16 WorkerActor::GetWidth() const
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return 0;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return 0;
 
 	Sprite *    theSprite = m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction);
     return (theSprite) ? theSprite->GetWidth() : 0;
@@ -204,8 +204,8 @@ uint16 WorkerActor::GetWidth() const
 
 uint16 WorkerActor::GetHeight() const
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return 0;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return 0;
 
 	Sprite *    theSprite = m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction);
     return (theSprite) ? theSprite->GetHeight() : 0;

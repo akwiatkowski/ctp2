@@ -58,7 +58,7 @@
 namespace
 {
 
-c3_PopupWindow *    s_spNewGamePlayersScreen = NULL;
+c3_PopupWindow *    s_spNewGamePlayersScreen = nullptr;
 
 //----------------------------------------------------------------------------
 //
@@ -82,22 +82,22 @@ void CleanupControl(T * & a_Control)
 	{
 		s_spNewGamePlayersScreen->RemoveControl(a_Control->Id());
 		delete a_Control;
-		a_Control = NULL;
+		a_Control = nullptr;
 	}
 }
 
 } // namespace
 
-static c3_Button    *s_back               = NULL;
-static c3_Static    *s_name               = NULL;
+static c3_Button    *s_back               = nullptr;
+static c3_Static    *s_name               = nullptr;
 
-static ctp2_Spinner *s_num_player_spinner = NULL;
-static ctp2_Spinner *s_max_player_spinner = NULL;
-static ctp2_Spinner *s_player_spinner     = NULL;
+static ctp2_Spinner *s_num_player_spinner = nullptr;
+static ctp2_Spinner *s_max_player_spinner = nullptr;
+static ctp2_Spinner *s_player_spinner     = nullptr;
 
-static c3_Static    *s_num_player         = NULL;
-static c3_Static    *s_max_player         = NULL;
-static c3_Static    *s_player             = NULL;
+static c3_Static    *s_num_player         = nullptr;
+static c3_Static    *s_max_player         = nullptr;
+static c3_Static    *s_player             = nullptr;
 
 static sint32        s_maxPlayers         = 0;
 
@@ -232,8 +232,8 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "NumPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
-		s_num_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
-		s_num_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_NumPlayerSpinner, NULL);
+		s_num_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
+		s_num_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_NumPlayerSpinner, nullptr);
 		s_num_player_spinner->SetValue(profiledb_Get()->GetNPlayers() - 1, 0);
 		if(s_num_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_num_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
@@ -248,8 +248,8 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "MaxPlayerSpinner");
 	if (aui_Ldl::IsValid(controlBlock))
 	{
-		s_max_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, NULL);
-		s_max_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_MaxPlayerSpinner, NULL);
+		s_max_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock, spnewgameplayersscreen_NumPlayerSpinner, nullptr);
+		s_max_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_MaxPlayerSpinner, nullptr);
 		s_max_player_spinner->SetValue(profiledb_Get()->GetMaxPlayers() - 1, 0);
 		if(s_max_player_spinner->GetMaximumX() >= k_MAX_PLAYERS){
 			s_max_player_spinner->SetMaximum(k_MAX_PLAYERS-1, 0);
@@ -265,7 +265,7 @@ AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallbac
 	if (aui_Ldl::IsValid(controlBlock))
 	{
 		s_player_spinner = new ctp2_Spinner(&errcode, aui_UniqueId(), controlBlock);
-		s_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_PlayerSpinner, NULL);
+		s_player_spinner->SetSpinnerCallback(spnewgameplayersscreen_PlayerSpinner, nullptr);
 		s_player_spinner->SetValue(profiledb_Get()->GetPlayerIndex(), 0);
 		s_player_spinner->SetMaximum(profiledb_Get()->GetNPlayers() - 1, 0);
 		s_spNewGamePlayersScreen->AddControl(s_player_spinner);
@@ -320,7 +320,7 @@ void spnewgameplayersscreen_Cleanup()
 		keypress_RemoveHandler(s_spNewGamePlayersScreen);
 
 		delete s_spNewGamePlayersScreen;
-		s_spNewGamePlayersScreen = NULL;
+		s_spNewGamePlayersScreen = nullptr;
 	}
 }
 

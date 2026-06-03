@@ -123,7 +123,7 @@ extern unsigned char *g_compression_buff;
 
 
 
-SpriteEditWindow *g_spriteEditWindow = NULL;
+SpriteEditWindow *g_spriteEditWindow = nullptr;
 
 
 
@@ -276,10 +276,10 @@ void SpriteEditWindow_Cleanup()
     }
 
 	delete g_compression_buff;
-    g_compression_buff = NULL;
+    g_compression_buff = nullptr;
 
 	delete g_spriteEditWindow;
-	g_spriteEditWindow = NULL;
+	g_spriteEditWindow = nullptr;
 }
 
 SpriteEditWindow::SpriteEditWindow(
@@ -292,13 +292,13 @@ SpriteEditWindow::SpriteEditWindow(
 	C3Window(retval, id, ldlBlock, bpp, type)
 {
 
-	m_Load=NULL;
-	m_Save=NULL;
+	m_Load=nullptr;
+	m_Save=nullptr;
 	m_drawX=400;
 	m_drawY=300;
 
-	m_largeSurface = NULL;
-	m_largeImage = NULL;
+	m_largeSurface = nullptr;
+	m_largeImage = nullptr;
 
 	*retval = InitCommonLdl(ldlBlock);
 	Assert( AUI_SUCCESS(*retval) );
@@ -307,7 +307,7 @@ SpriteEditWindow::SpriteEditWindow(
 
 
 
-	m_largeSurface = NULL;
+	m_largeSurface = nullptr;
 
 	InitializeControls(retval,ldlBlock);
 
@@ -318,13 +318,13 @@ SpriteEditWindow::SpriteEditWindow(
 	m_facing		=k_DEFAULTSPRITEFACING;
 	m_frame			=0;
 	m_animation		=UNITACTION_MOVE;
-	m_currentAnim	=NULL;
+	m_currentAnim	=nullptr;
 
 	m_actionObj		= new Action();
 
 	aui_Dimension	*dimension=GetDim();
 
-	if (dimension!=NULL)
+	if (dimension!=nullptr)
 	{
 		sint32	height=dimension->VerticalSizeData();
 
@@ -337,7 +337,7 @@ SpriteEditWindow::SpriteEditWindow(
 
 	dimension=m_largeImage->GetDim();
 
-	if (dimension!=NULL)
+	if (dimension!=nullptr)
 	{
 		sint32	height=dimension->VerticalSizeData();
 		sint32  width =dimension->HorizontalSizeData();
@@ -356,8 +356,8 @@ SpriteEditWindow::SpriteEditWindow(
 		m_largeRect.bottom	= height;
 	}
 
-	m_currentSprite=NULL;
-	m_spriteSurface=NULL;
+	m_currentSprite=nullptr;
+	m_spriteSurface=nullptr;
 
 	g_compression_buff = new unsigned char[COM_BUFF_SIZE];
 	LoadSprite("GU02");
@@ -451,16 +451,16 @@ void
 SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowBlock)
 {
 
-	m_Load = spNew_ctp2_Button(errcode,windowBlock,"STLoadButton","No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_Save = spNew_ctp2_Button(errcode,windowBlock,"STSaveButton","No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
+	m_Load = spNew_ctp2_Button(errcode,windowBlock,"STLoadButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_Save = spNew_ctp2_Button(errcode,windowBlock,"STSaveButton","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
 
 	m_fileName		= spNewTextEntry(errcode,windowBlock,"Name");
 
-	m_MOVEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STMOVEAnim"   ,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_ATTACKAnim	=spNew_ctp2_Button(errcode,windowBlock,"STATTACKAnim" ,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_IDLEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STIDLEAnim"   ,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_VICTORYAnim	=spNew_ctp2_Button(errcode,windowBlock,"STVICTORYAnim","No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_WORKAnim		=spNew_ctp2_Button(errcode,windowBlock,"STWORKAnim"   ,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
+	m_MOVEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STMOVEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_ATTACKAnim	=spNew_ctp2_Button(errcode,windowBlock,"STATTACKAnim" ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_IDLEAnim  	=spNew_ctp2_Button(errcode,windowBlock,"STIDLEAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_VICTORYAnim	=spNew_ctp2_Button(errcode,windowBlock,"STVICTORYAnim","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_WORKAnim		=spNew_ctp2_Button(errcode,windowBlock,"STWORKAnim"   ,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
 
 	m_MOVEAnim		->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_MOVE   );
 	m_ATTACKAnim	->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_ATTACK );
@@ -468,12 +468,12 @@ SpriteEditWindow::InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowBlock)
 	m_VICTORYAnim	->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_VICTORY);
 	m_WORKAnim		->SetActionFuncAndCookie(AnimCallback,(void *)UNITACTION_WORK   );
 
-	m_stepPlus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepPlus"	,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_stepMinus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepMinus","No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_playOnce		=spNew_ctp2_Button(errcode,windowBlock,"STPlayOnce"		,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_playLoop		=spNew_ctp2_Button(errcode,windowBlock,"STPlayLoop"		,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_facingPlus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingPlus"	,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
-	m_facingMinus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingMinus"	,"No Data",NULL,"CTP2_BUTTON_TITLE_BAR");
+	m_stepPlus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_stepMinus		=spNew_ctp2_Button(errcode,windowBlock,"STPlayStepMinus","No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_playOnce		=spNew_ctp2_Button(errcode,windowBlock,"STPlayOnce"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_playLoop		=spNew_ctp2_Button(errcode,windowBlock,"STPlayLoop"		,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_facingPlus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingPlus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
+	m_facingMinus	=spNew_ctp2_Button(errcode,windowBlock,"STFacingMinus"	,"No Data",nullptr,"CTP2_BUTTON_TITLE_BAR");
 
 	m_Load ->SetActionFuncAndCookie(FileButtonActionCallback,(void *)true );
 	m_Save ->SetActionFuncAndCookie(FileButtonActionCallback,(void *)false);
@@ -583,7 +583,7 @@ AUI_ERRCODE SpriteEditWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y
 bool
 SpriteEditWindow::FileExists(char *name)
 {
-	if (name==NULL)
+	if (name==nullptr)
 		return false;
 
 	MBCHAR spritePath[_MAX_PATH];
@@ -605,14 +605,14 @@ SpriteEditWindow::LoadSprite(char *name)
 	m_loopInProgress=false;;
 	m_stopAfterLoop =true;
 
-	if (name==NULL)
+	if (name==nullptr)
 	{
 		m_fileName->GetFieldText(tbuffer,128);
 
 		name = tbuffer;
 	}
 
-	if (name==NULL)
+	if (name==nullptr)
 		return;
 
 	snprintf(tbuffer, sizeof(tbuffer),"%s.SPR",name);
@@ -641,7 +641,7 @@ SpriteEditWindow::LoadSprite(char *name)
 	{
 		m_spriteData = m_currentSprite->GetGroupSprite((GAME_ACTION)i);
 
-		if (m_spriteData!=NULL)
+		if (m_spriteData!=nullptr)
 		{
 			w =  m_spriteData->GetWidth();
 			h =  m_spriteData->GetHeight();
@@ -690,13 +690,13 @@ SpriteEditWindow::SaveSprite(char *name)
 	char tbuffer[256];
 	char *fname=name;
 
-	if (name==NULL)
+	if (name==nullptr)
 	{
 		m_fileName->GetFieldText(tbuffer,128);
 		name = tbuffer;
 	}
 
-	if ((m_currentSprite==NULL)||(name==NULL))
+	if ((m_currentSprite==nullptr)||(name==nullptr))
 		return;
 
 	snprintf(tbuffer, sizeof(tbuffer),"%s.SPR",name);
@@ -715,7 +715,7 @@ void
 SpriteEditWindow::BeginAnimation()
 {
 
-	if (m_currentAnim==NULL)
+	if (m_currentAnim==nullptr)
 		return;
 
 //	sint32	  speed				= profiledb_Get()->GetUnitSpeed();
@@ -792,7 +792,7 @@ void
 SpriteEditWindow::DrawSprite( )
 {
 
-	if ((m_currentSprite!=NULL)&&(tiledmap_Get()!=NULL))
+	if ((m_currentSprite!=nullptr)&&(tiledmap_Get()!=nullptr))
 	{
 		RECT rect;
 
@@ -835,10 +835,10 @@ SpriteEditWindow::DrawSprite( )
 void
 SpriteEditWindow::ReDrawLargeSprite( )
 {
-	if (m_largeSurface==NULL)
+	if (m_largeSurface==nullptr)
 		return;
 
-	if ((m_currentSprite!=NULL)&&(tiledmap_Get()!=NULL))
+	if ((m_currentSprite!=nullptr)&&(tiledmap_Get()!=nullptr))
 	{
 		POINT sav,pt;
 		static int cval=0;
@@ -891,7 +891,7 @@ SpriteEditWindow::ReDrawLargeSprite( )
 
 AUI_ERRCODE SpriteEditWindow::Idle( )
 {
-	if ((c3ui_Get()->TheMouse()==NULL)||(tiledmap_Get()==NULL))
+	if ((c3ui_Get()->TheMouse()==nullptr)||(tiledmap_Get()==nullptr))
 		return AUI_ERRCODE_OK;
 
 	sint32 curTime = director_Get()->GetMasterCurTime();

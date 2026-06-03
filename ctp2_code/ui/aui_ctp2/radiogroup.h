@@ -23,8 +23,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *pattern = NULL,
-		MBCHAR *text = NULL );
+		MBCHAR *pattern = nullptr,
+		MBCHAR *text = nullptr );
 	virtual ~RadioGroup() {}
 
 protected:
@@ -32,7 +32,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 };

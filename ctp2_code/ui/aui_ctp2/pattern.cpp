@@ -27,8 +27,8 @@ Pattern::Pattern(
 	MBCHAR const *filename )
 :
 	aui_Image( retval, filename ),
-	m_lightImage( NULL ),
-	m_darkImage( NULL )
+	m_lightImage( nullptr ),
+	m_darkImage( nullptr )
 {
 }
 
@@ -37,13 +37,13 @@ Pattern::~Pattern( )
 	if ( m_lightImage )
 	{
 		delete m_lightImage;
-		m_lightImage = NULL;
+		m_lightImage = nullptr;
 	}
 
 	if ( m_darkImage )
 	{
 		delete m_darkImage;
-		m_darkImage = NULL;
+		m_darkImage = nullptr;
 	}
 }
 

@@ -52,18 +52,18 @@
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 
-static WorkWindow	*g_workWindow = NULL;
+static WorkWindow	*g_workWindow = nullptr;
 
 WorkWindow * workwindow_Get()             { return g_workWindow; }
 void         workwindow_Set(WorkWindow *p)    { g_workWindow = p; }
 
-static ResourceMap		*g_resourceMap = NULL;
+static ResourceMap		*g_resourceMap = nullptr;
 
 ResourceMap * resourcemap_Get()           { return g_resourceMap; }
 void          resourcemap_Set(ResourceMap *p) { g_resourceMap = p; }
 
 
-WorkMap *g_workMap = NULL;
+WorkMap *g_workMap = nullptr;
 
 static c3_Button			*s_exitButton;
 
@@ -191,14 +191,14 @@ sint32 workwin_Cleanup( )
 	c3ui_Get()->RemoveWindow( g_workWindow->Id() );
 
 	delete s_exitButton;
-	s_exitButton = NULL;
+	s_exitButton = nullptr;
 
 	delete g_workWindow;
-	g_workWindow = NULL;
+	g_workWindow = nullptr;
 
 	if (g_resourceMap) {
 		delete g_resourceMap;
-		g_resourceMap = NULL;
+		g_resourceMap = nullptr;
 	}
 
 	return 0;

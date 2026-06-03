@@ -23,9 +23,9 @@ c3_Static::c3_Static
 )
 :
 	aui_ImageBase   (ldlBlock),
-	aui_TextBase    (ldlBlock, (MBCHAR *) NULL),
+	aui_TextBase    (ldlBlock, (MBCHAR *) nullptr),
 	aui_Static      (retval, id, ldlBlock),
-	PatternBase     (ldlBlock, NULL)
+	PatternBase     (ldlBlock, nullptr)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -64,7 +64,7 @@ c3_Static::c3_Static
 AUI_ERRCODE c3_Static::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if (block->GetAttributeType( k_C3_STATIC_LDL_BEVELWIDTH ) == ATTRIBUTE_TYPE_INT) {

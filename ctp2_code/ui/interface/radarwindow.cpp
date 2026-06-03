@@ -40,7 +40,7 @@
 #include "ui/aui_ctp2/radarmap.h"
 #include "gs/utility/gameinit.h"		// g_startHotseatGame
 
-static ctp2_Window *g_radarWindow = NULL;
+static ctp2_Window *g_radarWindow = nullptr;
 
 ctp2_Window * radarwindow_Get()
 {
@@ -320,16 +320,16 @@ sint32 radarwindow_Initialize()
 	capitolsButton->SetState( radar_map_Get()->IsDisplayCapitols());
 	relationsButton->SetState( radar_map_Get()->IsDisplayRelations());
 
-	unitsButton->SetActionFuncAndCookie(UnitsToggleButtonActionCallback, NULL);
-	citiesButton->SetActionFuncAndCookie(CitiesToggleButtonActionCallback, NULL);
-	bordersButton->SetActionFuncAndCookie(BordersToggleButtonActionCallback, NULL);
-	filterButton->SetActionFuncAndCookie(FilterToggleButtonActionCallback, NULL);
-	tradeButton->SetActionFuncAndCookie(TradeToggleButtonActionCallback, NULL);
-	terrainButton->SetActionFuncAndCookie(TerrainToggleButtonActionCallback, NULL);
-	minimizeButton->SetActionFuncAndCookie(MinimizeCallback, NULL);
-	politicalButton->SetActionFuncAndCookie(PoliticalToggleButtonActionCallback, NULL);
-	capitolsButton->SetActionFuncAndCookie(CapitolsToggleButtonActionCallback, NULL);
-	relationsButton->SetActionFuncAndCookie(RelationsToggleButtonActionCallback, NULL);
+	unitsButton->SetActionFuncAndCookie(UnitsToggleButtonActionCallback, nullptr);
+	citiesButton->SetActionFuncAndCookie(CitiesToggleButtonActionCallback, nullptr);
+	bordersButton->SetActionFuncAndCookie(BordersToggleButtonActionCallback, nullptr);
+	filterButton->SetActionFuncAndCookie(FilterToggleButtonActionCallback, nullptr);
+	tradeButton->SetActionFuncAndCookie(TradeToggleButtonActionCallback, nullptr);
+	terrainButton->SetActionFuncAndCookie(TerrainToggleButtonActionCallback, nullptr);
+	minimizeButton->SetActionFuncAndCookie(MinimizeCallback, nullptr);
+	politicalButton->SetActionFuncAndCookie(PoliticalToggleButtonActionCallback, nullptr);
+	capitolsButton->SetActionFuncAndCookie(CapitolsToggleButtonActionCallback, nullptr);
+	relationsButton->SetActionFuncAndCookie(RelationsToggleButtonActionCallback, nullptr);
 
 	c3ui_Get()->AddWindow(g_radarWindow);
 
@@ -345,7 +345,7 @@ sint32 radarwindow_Initialize()
 void radarwindow_Display()
 {
 
-	Assert(g_radarWindow != NULL);
+	Assert(g_radarWindow != nullptr);
 	if(!g_radarWindow)
 		return;
 
@@ -360,8 +360,8 @@ sint32 radarwindow_Cleanup( )
 		aui_Ldl::DeleteHierarchyFromRoot("RadarWindow");
 	}
 
-	g_radarWindow = NULL;
-	radar_map_Set(NULL);
+	g_radarWindow = nullptr;
+	radar_map_Set(nullptr);
 
 	return(0);
 }

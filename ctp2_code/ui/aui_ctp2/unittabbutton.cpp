@@ -27,9 +27,9 @@ UnitTabButton::UnitTabButton(AUI_ERRCODE *retval,
 					   void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Control(retval, id, ldlBlock, ActionFunc, cookie),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 
 	SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
@@ -49,7 +49,7 @@ UnitTabButton::UnitTabButton(AUI_ERRCODE *retval,
 					   void *cookie)
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Control(retval, id, x, y, width, height, ActionFunc, cookie),
 	PatternBase(pattern)
 {
@@ -69,14 +69,14 @@ AUI_ERRCODE UnitTabButton::InitCommon( )
 
 	sint32 i;
 
-	m_healthBar = NULL;
-	m_button = NULL;
-	m_fortify = NULL;
-	m_veteran = NULL;
-	m_arrow = NULL;
+	m_healthBar = nullptr;
+	m_button = nullptr;
+	m_fortify = nullptr;
+	m_veteran = nullptr;
+	m_arrow = nullptr;
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		m_cargo[i] = NULL;
+		m_cargo[i] = nullptr;
 	}
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "UnitTabButton" );

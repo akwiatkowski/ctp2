@@ -19,7 +19,7 @@ aui_HyperTextBox::aui_HyperTextBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie ),
 	aui_HyperTextBase( retval, ldlBlock )
 {
@@ -46,9 +46,9 @@ aui_HyperTextBox::aui_HyperTextBox(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie ),
-	aui_HyperTextBase( retval, NULL, 0 )
+	aui_HyperTextBase( retval, nullptr, 0 )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -57,7 +57,7 @@ aui_HyperTextBox::aui_HyperTextBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateRanger( NULL );
+	*retval = CreateRanger( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -66,7 +66,7 @@ aui_HyperTextBox::aui_HyperTextBox(
 AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -81,7 +81,7 @@ AUI_ERRCODE aui_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_HyperTextBox::InitCommon( )
 {
-	m_ranger = NULL;
+	m_ranger = nullptr;
 	m_rangerSize = k_CONTROL_DEFAULT_SIZE;
 	m_alwaysRanger = FALSE;
 
@@ -273,7 +273,7 @@ AUI_ERRCODE aui_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 					m_hyperShadow,
 					m_hyperShadowColor,
 					m_hyperFlags );
-				Assert( hs != NULL );
+				Assert( hs != nullptr );
 				if ( !hs ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 				m_hyperStaticList->AddTail( hs );
@@ -297,8 +297,8 @@ AUI_ERRCODE aui_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 					hs->GetTextFont()->GetLineInfo(
 						&wrap,
 						&penPos,
-						NULL,
-						NULL,
+						nullptr,
+						nullptr,
 						&ptr,
 						subStop );
 
@@ -325,8 +325,8 @@ AUI_ERRCODE aui_HyperTextBox::AddHyperStatics( const MBCHAR *hyperText )
 						hs->GetTextFont()->GetLineInfo(
 							&wrap,
 							&penPos,
-							NULL,
-							NULL,
+							nullptr,
+							nullptr,
 							&testPtr,
 							testSubStop );
 
@@ -401,7 +401,7 @@ AUI_ERRCODE aui_HyperTextBox::Resize( sint32 width, sint32 height )
 	aui_Control::Resize( width, height );
 
 	RepositionRanger();
-	AddHyperStatics( NULL );
+	AddHyperStatics( nullptr );
 
 	return AUI_ERRCODE_OK;
 }

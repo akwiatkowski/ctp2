@@ -16,8 +16,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	CityInventoryListBox (
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -26,8 +26,8 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~CityInventoryListBox ();
 
 	sint32 FillInventoryBox( const Unit &unit );

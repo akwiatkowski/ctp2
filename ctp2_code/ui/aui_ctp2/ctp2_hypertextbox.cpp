@@ -187,7 +187,7 @@ void ctp2_HyperTextBox::FormatText
 			MBCHAR const *	start	= ptr;
 
 			hs->GetTextFont()->GetLineInfo
-				(&wrap, &penPos, NULL, NULL, &ptr, a_TextEnd);
+				(&wrap, &penPos, nullptr, nullptr, &ptr, a_TextEnd);
 
 			if (ptr == a_TextEnd)
 			{
@@ -216,7 +216,7 @@ void ctp2_HyperTextBox::FormatText
 				penPos.x = 0;
 				penPos.y = 0;
 				hs->GetTextFont()->GetLineInfo
-					(&wrap,	&penPos, NULL, NULL, &testPtr, testSubStop);
+					(&wrap,	&penPos, nullptr, nullptr, &testPtr, testSubStop);
 
 				if (penPos.x > wrap.right)
 				{
@@ -290,9 +290,9 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 	:
 
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_HyperTextBox(),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 
 
@@ -337,7 +337,7 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_HyperTextBox(retval, id, x,y, width, height, ActionFunc, cookie),
 	PatternBase(pattern)
 {
@@ -348,7 +348,7 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateRanger( NULL );
+	*retval = CreateRanger( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 }
 
@@ -356,7 +356,7 @@ ctp2_HyperTextBox::ctp2_HyperTextBox(
 AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -376,7 +376,7 @@ AUI_ERRCODE ctp2_HyperTextBox::InitCommonLdl( MBCHAR *ldlBlock )
 AUI_ERRCODE ctp2_HyperTextBox::InitCommon( )
 {
 	m_hyperLinkList = new tech_WLList<ctp2_HyperLink *>;
-	Assert( m_hyperLinkList != NULL );
+	Assert( m_hyperLinkList != nullptr );
 	if ( !m_hyperLinkList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_hyperColor = RGB(50,50,50);
@@ -413,7 +413,7 @@ AUI_ERRCODE ctp2_HyperTextBox::CreateRanger( MBCHAR *ldlBlock )
 				this );
 	}
 
-    MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : NULL;
+    MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( !m_ranger )
 		m_ranger = new c3_Ranger(
@@ -640,7 +640,7 @@ void ctp2_HyperTextBox::RemoveHyperLinks( )
     {
 		delete m_hyperLinkList->RemoveTail();
     }
-    m_selectedHyperLink = NULL;
+    m_selectedHyperLink = nullptr;
 }
 
 AUI_ERRCODE ctp2_HyperTextBox::DrawThis(
@@ -753,7 +753,7 @@ void ctp2_HyperTextBox::MouseLDropInside( aui_MouseEvent *mouseData )
 
 			pos.y += m_ranger->GetValueY();
 
-			m_selectedHyperLink = NULL;
+			m_selectedHyperLink = nullptr;
 
 			ListPos lp = m_hyperLinkList->GetHeadPosition();
 			for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {
@@ -815,7 +815,7 @@ void ctp2_HyperTextBox::MouseLDropOutside( aui_MouseEvent *mouseData )
 {
 	if (IsDisabled()) return;
 
-	m_selectedHyperLink = NULL;
+	m_selectedHyperLink = nullptr;
 
 	ListPos lp = m_hyperLinkList->GetHeadPosition();
 	for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {
@@ -855,7 +855,7 @@ void ctp2_HyperTextBox::MouseLGrabInside( aui_MouseEvent *mouseData )
 
 		pos.y += m_ranger->GetValueY();
 
-		m_selectedHyperLink = NULL;
+		m_selectedHyperLink = nullptr;
 
 		ListPos lp = m_hyperLinkList->GetHeadPosition();
 		for ( uint32 i = 0;i < m_hyperLinkList->L();i++ ) {

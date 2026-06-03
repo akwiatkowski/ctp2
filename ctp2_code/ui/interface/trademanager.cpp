@@ -75,7 +75,7 @@
 #include "net/general/net_action.h"
 #include "gfx/tilesys/tiledmap.h"
 
-static TradeManager *   s_tradeManager      = NULL;
+static TradeManager *   s_tradeManager      = nullptr;
 static MBCHAR *         s_tradeManagerBlock = "TradeManager";
 static MBCHAR *         s_tradeAdviceBlock  = "TradeAdvice";
 
@@ -112,22 +112,22 @@ TradeManager::TradeManager(AUI_ERRCODE *err)
 
 	Assert(m_createList);
 
-	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "CloseButton", Close, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "CloseButton", Close, nullptr);
 	m_createButton = (ctp2_Button *)aui_Ldl::GetObject(s_tradeManagerBlock, "TradeTabs.Market.TabPanel.CreateRouteButton");
 
-	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "TradeTabs.Market.TabPanel.CreateRouteButton", CreateRoute, (void *)0);
+	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "TradeTabs.Market.TabPanel.CreateRouteButton", CreateRoute, (void *)nullptr);
 
 	m_breakButton = (ctp2_Button *)aui_Ldl::GetObject(s_tradeManagerBlock, "TradeTabs.Summary.TabPanel.BreakRouteButton");
 
 	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "TradeTabs.Summary.TabPanel.BreakRouteButton", CreateRoute, (void *)1);
-	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "ShowAdviceButton", ShowAdvice, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_tradeManagerBlock, "ShowAdviceButton", ShowAdvice, nullptr);
 
 	if(m_createList) {
-		m_createList->SetActionFuncAndCookie(ListSelect, NULL);
+		m_createList->SetActionFuncAndCookie(ListSelect, nullptr);
 	}
 
 	if(m_summaryList) {
-		m_summaryList->SetActionFuncAndCookie(SummaryListSelect, NULL);
+		m_summaryList->SetActionFuncAndCookie(SummaryListSelect, nullptr);
 	}
 
 	m_adviceWindow = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot(s_tradeAdviceBlock);
@@ -151,7 +151,7 @@ TradeManager::TradeManager(AUI_ERRCODE *err)
 	m_ownCitiesButton->SetToggleState(true);
 
 	m_citiesSlider = (C3Slider *)aui_Ldl::GetObject(s_tradeManagerBlock, "TradeTabs.Market.TabPanel.Filters.CitiesSlider");
-	m_citiesSlider->SetActionFuncAndCookie(NumCitiesSlider, NULL);
+	m_citiesSlider->SetActionFuncAndCookie(NumCitiesSlider, nullptr);
 
 	m_numCitiesLabel = (ctp2_Static *)aui_Ldl::GetObject(s_tradeManagerBlock, "TradeTabs.Market.TabPanel.Filters.NumCities");
 
@@ -163,10 +163,10 @@ TradeManager::TradeManager(AUI_ERRCODE *err)
 TradeManager::~TradeManager()
 {
 	aui_Ldl::DeleteHierarchyFromRoot(s_tradeManagerBlock);
-	m_window = NULL;
+	m_window = nullptr;
 
 	aui_Ldl::DeleteHierarchyFromRoot(s_tradeAdviceBlock);
-	m_adviceWindow = NULL;
+	m_adviceWindow = nullptr;
 
 	m_createData.DeleteAll();
 }
@@ -189,7 +189,7 @@ AUI_ERRCODE TradeManager::Cleanup()
 		Hide();
 
 		delete s_tradeManager;
-		s_tradeManager = NULL;
+		s_tradeManager = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -444,7 +444,7 @@ void TradeManager::UpdateCreateList(const PLAYER_INDEX & player_id)
 							const char *iconname = g_theResourceDB->Get(g)->GetIcon()->GetIcon();
 							if (stricmp(iconname, "NULL") == 0)
                             {
-								iconname = NULL;
+								iconname = nullptr;
 							}
 							icon->SetImage(iconname);
 						}
@@ -604,7 +604,7 @@ void TradeManager::UpdateAdviceText()
 
 				if(p) {
 					PointerList<CreateListData>::Walker walk(&m_createData);
-					CreateListData *maxData = NULL;
+					CreateListData *maxData = nullptr;
 					while(walk.IsValid()) {
 						CreateListData *data = walk.GetObj();
 						if(data->m_curDestination.m_id != 0) {
@@ -693,7 +693,7 @@ void TradeManager::UpdateSummaryList()
 					const MBCHAR *imageName = g_theResourceDB->Get(resource)->GetIcon()->GetIcon();
 					if (stricmp(imageName, "NULL") == 0)
                     {
-						icon->SetImage(NULL);
+						icon->SetImage(nullptr);
 					}
                     else
                     {
@@ -1062,7 +1062,7 @@ void TradeManager::ListSelect(aui_Control *control, uint32 action, uint32 data, 
 
 	if(action == AUI_LISTBOX_ACTION_DOUBLECLICKSELECT) {
 
-		CreateRoute(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+		CreateRoute(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 	}
 }
 
@@ -1087,7 +1087,7 @@ void TradeManager::SummaryListSelect(aui_Control *control, uint32 action, uint32
 	}
 	if(action == AUI_LISTBOX_ACTION_DOUBLECLICKSELECT) {
 
-		CreateRoute(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+		CreateRoute(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 	}
 }
 

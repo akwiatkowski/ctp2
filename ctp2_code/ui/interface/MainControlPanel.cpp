@@ -49,7 +49,7 @@
 #include "ui/interface/UnitControlPanel.h"
 #include "ui/interface/ZoomPad.h"
 
-static MainControlPanel *g_mainControlPanel = NULL;
+static MainControlPanel *g_mainControlPanel = nullptr;
 
 MainControlPanel * maincontrolpanel_Get()
 {

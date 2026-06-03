@@ -45,10 +45,10 @@ AVLHeap::AVLHeap()
 void AVLHeap::InitHeap()
 
 {
-	m_block_list = NULL;
-	m_used_head = NULL;
-	m_used_tail = NULL;
-	m_ready = NULL;
+	m_block_list = nullptr;
+	m_used_head = nullptr;
+	m_used_tail = nullptr;
+	m_ready = nullptr;
 }
 
 AVLHeap::~AVLHeap()
@@ -74,7 +74,7 @@ void AVLHeap::CleanUp()
 AstarPoint * AVLHeap::GetNew()
 
 {
-	if (m_ready == NULL) {
+	if (m_ready == nullptr) {
 		InitNewBlock();
 	}
 
@@ -82,8 +82,8 @@ AstarPoint * AVLHeap::GetNew()
 
 	m_ready = m_ready->m_next;
 
-	tmp->m_next = NULL;
-	if (m_used_tail == NULL) {
+	tmp->m_next = nullptr;
+	if (m_used_tail == nullptr) {
 		m_used_head = tmp;
 		m_used_tail = tmp;
 	} else {
@@ -104,17 +104,17 @@ void AVLHeap::MassDelete(const bool isunit)
 
 #ifdef _DEBUG
     if (isunit) {
-        AstarPoint *tmp=NULL;
+        AstarPoint *tmp=nullptr;
         for (tmp = m_used_head; tmp; tmp = tmp->m_next) {
             world_Get()->SetColor(tmp->m_pos, c);
         }
     }
 #endif
 
-    if (m_used_tail != NULL) {
+    if (m_used_tail != nullptr) {
     	m_used_tail->m_next = m_ready;
 	    m_ready =  m_used_head;
-	    m_used_head = m_used_tail = NULL;
+	    m_used_head = m_used_tail = nullptr;
     }
 }
 
@@ -129,7 +129,7 @@ void AVLHeap::InitNewBlock()
 	for (i=1; i<(AVLHEAP_SIZE-1); i++) {
 		tmp[i].m_next = &(tmp[i+1]);
 	}
-	tmp[AVLHEAP_SIZE-1].m_next = NULL;
+	tmp[AVLHEAP_SIZE-1].m_next = nullptr;
     m_ready = &(tmp[1]);
 }
 
@@ -145,7 +145,7 @@ void AVLHeap::Validate()
         for (i=0; i<AVLHEAP_SIZE; i++) {
             test = p[i].m_next;
             searching = TRUE;
-            if (test == NULL) {
+            if (test == nullptr) {
                 searching = FALSE;
             }
 
@@ -157,7 +157,7 @@ void AVLHeap::Validate()
 
             Assert (searching == FALSE);
             if (searching == FALSE) {
-                p[i].m_next = NULL;
+                p[i].m_next = nullptr;
             }
         }
     }

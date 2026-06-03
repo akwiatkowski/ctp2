@@ -79,7 +79,7 @@
 #include "gs/gameobj/UnitData.h"
 
 
-static ArmyManagerWindow *s_armyWindow = NULL;
+static ArmyManagerWindow *s_armyWindow = nullptr;
 static MBCHAR *s_armyWindowBlock = "ArmyManager";
 
 ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
@@ -93,23 +93,23 @@ ArmyManagerWindow::ArmyManagerWindow(AUI_ERRCODE *err)
 		return;
 	}
 
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "NewArmyButton", ArmyManagerWindow::NewArmy, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "CloseButton", ArmyManagerWindow::Close, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "ArmiesList", ArmyManagerWindow::List, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "AddButton", ArmyManagerWindow::Add, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "AddAllButton", ArmyManagerWindow::AddAll, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "RemoveButton", ArmyManagerWindow::Remove, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "RemoveAllButton", ArmyManagerWindow::RemoveAll, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "NewArmyButton", ArmyManagerWindow::NewArmy, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "CloseButton", ArmyManagerWindow::Close, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "ArmiesList", ArmyManagerWindow::List, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "AddButton", ArmyManagerWindow::Add, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "AddAllButton", ArmyManagerWindow::AddAll, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "RemoveButton", ArmyManagerWindow::Remove, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_armyWindowBlock, "RemoveAllButton", ArmyManagerWindow::RemoveAll, nullptr);
 
 	sint32 i;
 	for(i = 0; i < k_MAX_ARMY_SIZE; i++) {
 		MBCHAR name[k_MAX_NAME_LEN];
 		snprintf(name, sizeof(name), "%s.InArmyBox.Unit%d", s_armyWindowBlock, i);
-		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::InArmy, NULL);
+		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::InArmy, nullptr);
 		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackInArmy,(void *)i);
 
 		snprintf(name, sizeof(name), "%s.OutOfArmyBox.Unit%d", s_armyWindowBlock, i);
-		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::OutOfArmy, NULL);
+		aui_Ldl::SetActionFuncAndCookie(name, ArmyManagerWindow::OutOfArmy, nullptr);
 		(static_cast<ctp2_Static*>(aui_Ldl::GetObject(name,"UnitHealth")))->SetDrawCallbackAndCookie(ArmyManagerWindow::DrawHealthCallbackOutOfArmy,(void *)i);
 	}
 
@@ -208,7 +208,7 @@ bool ArmyManagerWindow::IsShown()
 	if(!s_armyWindow->m_window)
 		return false;
 
-	return c3ui_Get()->GetWindow(s_armyWindow->m_window->Id()) != NULL;
+	return c3ui_Get()->GetWindow(s_armyWindow->m_window->Id()) != nullptr;
 }
 
 void ArmyManagerWindow::Toggle()
@@ -329,8 +329,8 @@ void ArmyManagerWindow::Update()
 
 		if(inCellSwitch) {
 			inCellSwitch->SetState(0);
-			inCellSwitch->SetImage(NULL, 0);
-			inCellSwitch->SetImage(NULL, 1);
+			inCellSwitch->SetImage(nullptr, 0);
+			inCellSwitch->SetImage(nullptr, 1);
 			inCellSwitch->Enable(FALSE);
 			inCellSwitch->ShouldDraw(TRUE);
 		}
@@ -366,8 +366,8 @@ void ArmyManagerWindow::Update()
 
 		if(inArmySwitch) {
 			inArmySwitch->SetState(0);
-			inArmySwitch->SetImage(NULL, 0);
-			inArmySwitch->SetImage(NULL, 1);
+			inArmySwitch->SetImage(nullptr, 0);
+			inArmySwitch->SetImage(nullptr, 1);
 			inArmySwitch->Enable(FALSE);
 			inArmySwitch->ShouldDraw(TRUE);
 		}

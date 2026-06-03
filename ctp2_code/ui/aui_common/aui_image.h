@@ -32,7 +32,7 @@ public:
 
 	aui_Image(
 		AUI_ERRCODE *retval,
-		MBCHAR const *filename = NULL );
+		MBCHAR const *filename = nullptr );
 	virtual ~aui_Image();
 
 

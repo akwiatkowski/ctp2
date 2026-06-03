@@ -110,7 +110,7 @@ STDEHANDLER(ProvokeWar_NextDStateEvent)
 	Player * foreigner_ptr = player_Get(foreignerId);
 	Player * player_ptr = player_Get(playerId);
 
-	if (foreigner_ptr == NULL || player_ptr == NULL)
+	if (foreigner_ptr == nullptr || player_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
@@ -180,7 +180,7 @@ STDEHANDLER(MakeFriend_NextDStateEvent)
 	Player * foreigner_ptr = player_Get(foreignerId);
 	Player * player_ptr = player_Get(playerId);
 
-	if (foreigner_ptr == NULL || player_ptr == NULL)
+	if (foreigner_ptr == nullptr || player_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);

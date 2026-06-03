@@ -45,7 +45,7 @@ aui_DirtyList::aui_DirtyList(
 	m_isEmpty( TRUE )
 {
 	m_rectMemory = new tech_Memory<RECT>;
-	Assert( m_rectMemory != NULL );
+	Assert( m_rectMemory != nullptr );
 	if ( !m_rectMemory ) return;
 
 	if ( useSpans )
@@ -54,13 +54,13 @@ aui_DirtyList::aui_DirtyList(
 		if ( m_width <= 0 || m_height <= 0 ) return;
 
 		m_spanListArray = new aui_SpanList[ m_height ];
-		Assert( m_spanListArray != NULL );
+		Assert( m_spanListArray != nullptr );
 		if ( !m_spanListArray ) return;
 
 		memset( m_spanListArray, 0, m_height * sizeof( aui_SpanList ) );
 	}
 	else
-		m_spanListArray = NULL;
+		m_spanListArray = nullptr;
 }
 
 
@@ -83,7 +83,7 @@ AUI_ERRCODE aui_DirtyList::AddRect(
 	if ( left < right && top < bottom )
 	{
 		RECT *rect = m_rectMemory->New();
-		Assert( rect != NULL );
+		Assert( rect != nullptr );
 		if ( !rect ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		rect->left = left;
@@ -104,7 +104,7 @@ AUI_ERRCODE aui_DirtyList::AddRect(
 AUI_ERRCODE aui_DirtyList::AddRect(
 	RECT *rect )
 {
-	Assert( rect != NULL );
+	Assert( rect != nullptr );
 	if ( !rect ) return AUI_ERRCODE_INVALIDPARAM;
 
 	return AddRect(
@@ -130,7 +130,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 {
 	AUI_ERRCODE alteredList = AUI_ERRCODE_UNHANDLED;
 
-	Assert( sub != NULL );
+	Assert( sub != nullptr );
 	if ( !sub ) return alteredList;
 
 	if ( sub->left < sub->right && sub->top < sub->bottom )
@@ -157,7 +157,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 					for ( sint32 j = 1; j < num; j++ )
 					{
 						RECT *r = m_rectMemory->New();
-						Assert( r != NULL );
+						Assert( r != nullptr );
 						if ( !r ) return alteredList;
 
 						CopyRect( r, moreRects + j );
@@ -249,13 +249,13 @@ void aui_DirtyList::Flush( )
 
 AUI_ERRCODE aui_DirtyList::SetSpans( aui_DirtyList *newDirtyList )
 {
-	Assert( newDirtyList != NULL );
+	Assert( newDirtyList != nullptr );
 	if ( !newDirtyList )
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	aui_SpanList *newSpanListArray = newDirtyList->GetSpans();
 
-	Assert( newSpanListArray != NULL );
+	Assert( newSpanListArray != nullptr );
 	if ( !newSpanListArray )
 		return AUI_ERRCODE_INVALIDPARAM;
 
@@ -285,7 +285,7 @@ AUI_ERRCODE aui_DirtyList::SetSpans( aui_DirtyList *newDirtyList )
 
 AUI_ERRCODE aui_DirtyList::ComputeSpans( RECT *newRect )
 {
-	Assert( newRect != NULL );
+	Assert( newRect != nullptr );
 	if ( !newRect ) return AUI_ERRCODE_HACK;
 
 	if (newRect->top < 0) newRect->top = 0;

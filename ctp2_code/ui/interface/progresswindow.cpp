@@ -115,7 +115,7 @@ void ProgressWindow::StartCountingTo( sint32 val, MBCHAR const * message )
 void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 {
 	if (is_headless()) {
-		progwin = NULL;
+		progwin = nullptr;
 		return;
 	}
 
@@ -134,7 +134,7 @@ void ProgressWindow::EndProgress( ProgressWindow *&progwin )
 			c3ui_Get()->RemoveWindow( progwin->Id() );
 
 			delete progwin;
-			progwin = NULL;
+			progwin = nullptr;
 
 			c3ui_Get()->Draw();
 			c3ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );

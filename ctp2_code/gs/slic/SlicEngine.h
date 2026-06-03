@@ -164,7 +164,7 @@ public:
 	bool IsMessageClassDisabled(sint32 mclass) const;
 
 	void SetLoadGame(char *string) { m_loadGameName = string; }
-	bool WaitingForLoad() const { return m_loadGameName != NULL; }
+	bool WaitingForLoad() const { return m_loadGameName != nullptr; }
 	char *GetLoadName() const { return m_loadGameName; }
 
 	void RecreateTutorialRecord();

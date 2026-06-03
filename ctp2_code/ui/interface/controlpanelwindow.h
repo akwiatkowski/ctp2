@@ -422,7 +422,7 @@ private:
 void ThrowPartyUtilityDialogBoxCallback(MBCHAR *text, sint32 val2, void *data);
 void GotoCityUtilityDialogBoxCallback  (Unit city, sint32 val2);
 
-void controlpanelwindow_Update(Unit *city = NULL);
+void controlpanelwindow_Update(Unit *city = nullptr);
 
 sint32  controlpanelwindow_Initialize();
 sint32  controlpanelwindow_InitializeHats();

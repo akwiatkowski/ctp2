@@ -168,7 +168,7 @@ Advances::HasAdvance(sint32 index) const
 void Advances::UpdateCitySprites(BOOL forceUpdate)
 {
 
-	if (player_Get(m_owner) != NULL) {
+	if (player_Get(m_owner) != nullptr) {
 		sint32 newAge = 0;
 		if (newAge != m_age || forceUpdate) {
 			if(newAge != m_age) {

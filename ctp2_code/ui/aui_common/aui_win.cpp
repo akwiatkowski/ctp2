@@ -10,8 +10,8 @@
 BOOL aui_Win::m_registered = FALSE;
 MBCHAR *aui_Win::m_windowClass = "aui_Win";
 sint32 aui_Win::m_winRefCount = 0;
-tech_WLList<aui_Win *> *aui_Win::m_winList = 0;
-aui_Win *g_winFocus = 0;
+tech_WLList<aui_Win *> *aui_Win::m_winList = nullptr;
+aui_Win *g_winFocus = nullptr;
 
 aui_Win::aui_Win(
 	AUI_ERRCODE *retval,
@@ -21,7 +21,7 @@ aui_Win::aui_Win(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -44,7 +44,7 @@ aui_Win::aui_Win(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -64,10 +64,10 @@ AUI_ERRCODE aui_Win::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_Win::InitCommon( )
 {
-	m_hwnd = NULL;
-	m_memdc = NULL;
-	m_hbitmap = NULL;
-	m_hbitmapOld = NULL;
+	m_hwnd = nullptr;
+	m_memdc = nullptr;
+	m_hbitmap = nullptr;
+	m_hbitmapOld = nullptr;
 	memset( &m_offscreen, 0, sizeof( m_offscreen ) );
 
 	if ( !m_registered )
@@ -117,7 +117,7 @@ AUI_ERRCODE aui_Win::InitCommon( )
 		SetRect( &playground, 0, 0, aui_ui_Get()->Width(), aui_ui_Get()->Height() );
 
 		m_winList = new tech_WLList<aui_Win *>;
-		Assert( m_winList != NULL );
+		Assert( m_winList != nullptr );
 		if ( !m_winList ) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
 #ifdef __AUI_USE_DIRECTX__
@@ -192,7 +192,7 @@ aui_Win::~aui_Win()
 		if ( m_winList )
 		{
 			delete m_winList;
-			m_winList = NULL;
+			m_winList = nullptr;
 		}
 	}
 }
@@ -213,7 +213,7 @@ aui_Control *aui_Win::SetKeyboardFocus( )
 
 aui_Win *aui_Win::GetWinFromHWND( HWND hwnd )
 {
-	aui_Win *win = NULL;
+	aui_Win *win = nullptr;
 
 	ListPos position = m_winList->GetHeadPosition();
 	for ( sint32 i = m_winList->L(); i; i-- )

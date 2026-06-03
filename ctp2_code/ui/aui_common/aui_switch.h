@@ -62,8 +62,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *StateFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *StateFunc = nullptr,
+		void *cookie = nullptr );
 	aui_Switch(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -71,8 +71,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		ControlActionCallback *StateFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *StateFunc = nullptr,
+		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
 	virtual ~aui_Switch() {}
@@ -88,7 +88,7 @@ public:
 	sint32			ExtractState( uint32 data ) { return (sint32)data; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -107,8 +107,8 @@ protected:
 		m_state                 (0),
 		m_numStates             (k_AUI_SWITCH_DEFAULTNUMSTATES),
 		m_drawCallbackExclusive (true),
-		m_drawFunc              (NULL),
-		m_drawCookie            (NULL)
+		m_drawFunc              (nullptr),
+		m_drawCookie            (nullptr)
 	{};
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );

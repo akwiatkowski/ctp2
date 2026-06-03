@@ -49,7 +49,7 @@ TimelineTab::TimelineTab(ctp2_Window *parent) :
 
 	m_info_window = parent;
 
-	m_infoGraphData = NULL;
+	m_infoGraphData = nullptr;
 
 	m_infoYCount = 0;
 
@@ -130,10 +130,10 @@ void TimelineTab::CleanupGraph()
 		for( sint32 i = 0 ; i < m_infoYCount ; i++ )
 		{
 			delete m_infoGraphData[i];
-			m_infoGraphData[i] = NULL;
+			m_infoGraphData[i] = nullptr;
 		}
 		delete m_infoGraphData;
-		m_infoGraphData = NULL;
+		m_infoGraphData = nullptr;
 	}
 }
 

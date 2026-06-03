@@ -44,7 +44,7 @@ TileInfo::TileInfo()
     m_terrainType   (0),
     m_transform     (static_cast<uint8>(rand() % 256)),
     m_tileNum       (0),
-    m_goodActor     (NULL)
+    m_goodActor     (nullptr)
 {
     std::fill(m_transitions, m_transitions + k_NUM_TRANSITIONS, 0);
 }
@@ -68,7 +68,7 @@ TileInfo::TileInfo(CivArchive &archive)
     m_terrainType   (0),
     m_transform     (0),
     m_tileNum       (0),
-    m_goodActor     (NULL)
+    m_goodActor     (nullptr)
 {
 	Serialize(archive);
 }
@@ -120,7 +120,7 @@ void TileInfo::SetGoodActor(sint32 index, MapPoint const & pos)
 void TileInfo::DeleteGoodActor()
 {
 	delete m_goodActor;
-	m_goodActor = NULL;
+	m_goodActor = nullptr;
 }
 
 void TileInfo::Serialize(CivArchive &archive)
@@ -142,7 +142,7 @@ void TileInfo::Serialize(CivArchive &archive)
         {
 			archive << m_transitions[i];
 		}
-		hasGoodActor = (m_goodActor != NULL);
+		hasGoodActor = (m_goodActor != nullptr);
 		archive << hasGoodActor;
 		if(m_goodActor)
 			m_goodActor->Serialize(archive);
@@ -159,6 +159,6 @@ void TileInfo::Serialize(CivArchive &archive)
 		archive >> hasGoodActor;
 
         delete m_goodActor;
-        m_goodActor = (hasGoodActor) ? new GoodActor(archive) : NULL;
+        m_goodActor = (hasGoodActor) ? new GoodActor(archive) : nullptr;
 	}
 }

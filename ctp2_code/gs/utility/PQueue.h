@@ -36,7 +36,7 @@ public:
 	~PQueue() {
 		if(m_array) {
 			delete [] m_array;
-			m_array = NULL;
+			m_array = nullptr;
 		}
 	}
 

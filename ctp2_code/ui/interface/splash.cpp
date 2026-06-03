@@ -12,7 +12,7 @@
 #include "gs/database/profileDB.h"
 
 
-static Splash *        g_splash    = NULL;
+static Splash *        g_splash    = nullptr;
 
 #ifdef _DEBUG
 // SPLASH_STRING macro state — moved from gameinit.cpp so the splash globals

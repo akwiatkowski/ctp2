@@ -23,9 +23,9 @@ TextSwitch::TextSwitch(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Switch( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 }
 

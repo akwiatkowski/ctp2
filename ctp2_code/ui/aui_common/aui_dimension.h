@@ -48,7 +48,7 @@ class aui_Dimension : public aui_Base
 {
 public:
 
-	aui_Dimension( aui_Region *parent = NULL );
+	aui_Dimension( aui_Region *parent = nullptr );
 	virtual ~aui_Dimension() {}
 
 	aui_Region	*SetParent( aui_Region *parent );

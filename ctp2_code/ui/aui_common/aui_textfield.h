@@ -64,8 +64,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_TextField(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -73,9 +73,9 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		const MBCHAR *text = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		const MBCHAR *text = nullptr,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~aui_TextField();
 
 protected:

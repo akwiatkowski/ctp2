@@ -52,7 +52,7 @@
 
 sint32 spnewgameplayersscreen_displayMyWindow();
 sint32 spnewgameplayersscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallback *callback = NULL );
+AUI_ERRCODE spnewgameplayersscreen_Initialize( aui_Control::ControlActionCallback *callback = nullptr );
 void spnewgameplayersscreen_Cleanup();
 
 void spnewgameplayersscreen_backPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

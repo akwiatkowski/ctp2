@@ -85,7 +85,7 @@ Pixel32 *tileutils_LowPassFilter(Pixel32 *image, uint32 width, uint32 height)
 		free(image);
 		return filteredImage;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -95,7 +95,7 @@ char *tileutils_PostProcessImage(char *image, uint16 width, uint16 height)
 
 	if (g_useLowPass) {
 		image = (char *)tileutils_LowPassFilter((Pixel32 *)image, (uint32)width, (uint32)height);
-		if (image == NULL) return NULL;
+		if (image == nullptr) return nullptr;
 	}
 
 	if (g_adjustBrightness) {
@@ -141,11 +141,11 @@ Pixel16 *tileutils_TGA2mem(char *filename, uint16 *width, uint16 *height)
 		Assert(FALSE);
 		*width = 0;
 		*height = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	Pixel16 *   buffer = new Pixel16[w * h];
-	Load_TGA_File(filename, (uint8 *)buffer, (int)w*sizeof(Pixel16), w, h, NULL, FALSE);
+	Load_TGA_File(filename, (uint8 *)buffer, (int)w*sizeof(Pixel16), w, h, nullptr, FALSE);
 
 	*width = (uint16)w;
 	*height = (uint16)h;
@@ -877,8 +877,8 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 {
 	uint16	width=0, height=0;
 	char	*tif    = tileutils_TIF2mem(filename, &width, &height);
-	Assert(tif != NULL);
-	if (tif == NULL) exit(-1);
+	Assert(tif != nullptr);
+	if (tif == nullptr) exit(-1);
 
 	if (height != k_TILE_PIXEL_HEIGHT) {
 		printf("\nImage height is %d and should be %d.\n", height, k_TILE_PIXEL_HEIGHT);
@@ -954,7 +954,7 @@ sint32 tileutils_EncodeStencil(MBCHAR *filename)
 	uint16 tableHeight = k_TILE_PIXEL_HEIGHT;
 
 	FILE *  file = fopen("source" FILE_SEP "stencil" FILE_SEP "stencil.bin", "wb");
-	if (file != NULL) {
+	if (file != nullptr) {
 		fwrite((void *)&tableHeight, 1, sizeof(uint16), file);
 		fwrite((void *)g_bitsTable, 1, sizeof(sint32) * k_TILE_PIXEL_HEIGHT, file);
 		fwrite((void *)&index, 1, sizeof(index), file);
@@ -1002,7 +1002,7 @@ void tileutils_LoadStencil()
 {
 	FILE *  file    = fopen("source" FILE_SEP "stencil" FILE_SEP "stencil.bin", "rb");
 
-	if (file != NULL) {
+	if (file != nullptr) {
 	    uint16		tableHeight = 0;
 		fread((void *)&tableHeight, 1, sizeof(uint16), file);
 
@@ -1161,7 +1161,7 @@ Pixel16 *tileutils_LoadStencilImage(uint16 from, uint16 to)
 	snprintf(fname, sizeof(fname), "output" FILE_SEP "xitions" FILE_SEP "gtft%.2d%.2d.bin", from, to);
 
 	FILE *      file = fopen(fname, "rb");
-	if (file != NULL) {
+	if (file != nullptr) {
 		fread((void *)data, 1, g_stencilSize * sizeof(Pixel16), file);
 		fclose(file);
 	}
@@ -1366,8 +1366,8 @@ sint32 tileutils_ExtractStencils(sint16 fromType, sint16 toType)
 	snprintf(fname, sizeof(fname), "source" FILE_SEP "xitions" FILE_SEP "%s", filename);
 
 	tif = tileutils_TIF2mem(fname, &width, &height);
-	Assert(tif != NULL);
-	if (tif == NULL) {
+	Assert(tif != nullptr);
+	if (tif == nullptr) {
 		printf("\n*** Could not find '%s'.\n", fname);
 		exit(-1);
 	}
@@ -1471,7 +1471,7 @@ uint16 *tileutils_ExtractWaterTable(Pixel32 *image, uint16 width, uint16 height,
 	if (!anyWater) {
 		delete[] waterTable;
 
-		return NULL;
+		return nullptr;
 	}
 
 	return waterTable;
@@ -1511,8 +1511,8 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 
 
 
-	Assert(tif != NULL);
-	if (tif == NULL) {
+	Assert(tif != nullptr);
+	if (tif == nullptr) {
 		printf("\n*** Could not find '%s'.\n", filename);
 		exit(-1);
 	}
@@ -1634,7 +1634,7 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 			waterTable = tileutils_GenerateAllWaterTable(width, height, 0, 24);
 		} else {
 
-			waterTable = NULL;
+			waterTable = nullptr;
 			waterTableLen = 0;
 		}
 	}
@@ -1645,8 +1645,8 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 
 
 
-	char		*hatTif=NULL;
-	Pixel16		*hatData=NULL;
+	char		*hatTif=nullptr;
+	Pixel16		*hatData=nullptr;
 	uint32		hatDataLen=0;
 
 	snprintf(filename, sizeof(filename), "source" FILE_SEP "hats" FILE_SEP "GTFh%.4d.tif", tileNum);
@@ -1654,7 +1654,7 @@ void tileutils_BorkifyTile(uint16 tileNum, MBCHAR ageChar, uint16 baseType, BOOL
 	if (hatTif) {
 		hatData = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)hatTif, width, height, &hatDataLen);
 		free(hatTif);
-		hatTif = NULL;
+		hatTif = nullptr;
 	}
 
 	baseTile->SetHatDataLen((uint16)hatDataLen);
@@ -1708,7 +1708,7 @@ uint16 tileutils_CompileImprovements(FILE *file)
 			data = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
 
 			free(tif);
-			tif = NULL;
+			tif = nullptr;
 
 			id = (uint16)i;
 
@@ -1730,13 +1730,13 @@ void tileutils_EncodeTileset(MBCHAR *filename)
 	for (i=0; i<TERRAIN_MAX; i++) {
 		for (j=0; j<TERRAIN_MAX; j++) {
 			for(k=0; k<k_TRANSITIONS_PER_TILE; k++) {
-				g_transitions[i][j][k] = NULL;
+				g_transitions[i][j][k] = nullptr;
 			}
 		}
 	}
 
 	for (i=0; i<k_MAX_BASE_TILES; i++) {
-		g_baseTiles[i] = NULL;
+		g_baseTiles[i] = nullptr;
 	}
 
 	tileutils_ParseTileset(filename);
@@ -1977,7 +1977,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				uint32		dataLen=0;
 
 				if (tif) riverData[numRiverTransforms] = (Pixel16 *)tileutils_EncodeTile((Pixel32 *)tif, width, height, &dataLen);
-				else riverData[numRiverTransforms] = NULL;
+				else riverData[numRiverTransforms] = nullptr;
 
 				if (tif) free(tif);
 
@@ -2019,7 +2019,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				fwrite((void *)transforms[i], 1, sizeof(sint16)*k_TRANSFORM_SIZE, tfile);
 
 				delete[] transforms[i];
-				transforms[i] = NULL;
+				transforms[i] = nullptr;
 			}
 
 			printf("...Transforms");
@@ -2034,7 +2034,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 			size_t  i;
 			for (i=0; i<TERRAIN_MAX; i++) {
 				for (j=0; j<TERRAIN_MAX; j++) {
-					if (g_transitions[i][j][0] != NULL)
+					if (g_transitions[i][j][0] != nullptr)
 						transitionCount++;
 				}
 			}
@@ -2048,7 +2048,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				for (j=0; j<TERRAIN_MAX; j++) {
 					sint16 from, to;
 
-					if (g_transitions[i][j][0] != NULL) {
+					if (g_transitions[i][j][0] != nullptr) {
 						from = (sint16)i;
 						to = (sint16)j;
 
@@ -2069,14 +2069,14 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 
 			size_t i;
 			for (i=0; i<k_MAX_BASE_TILES; i++) {
-				if (g_baseTiles[i] != NULL)
+				if (g_baseTiles[i] != nullptr)
 					baseTileCount++;
 			}
 
 			fwrite((void *)&baseTileCount, 1, sizeof(uint32), tfile);
 
 			for (i=0; i<k_MAX_BASE_TILES; i++) {
-				if (g_baseTiles[i] != NULL) {
+				if (g_baseTiles[i] != nullptr) {
 					uint16		tNum = (uint16)i;
 					fwrite((void *)&tNum, 1, sizeof(uint16), tfile);
 
@@ -2128,7 +2128,7 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 					}
 
 					delete g_baseTiles[i];
-					g_baseTiles[i] = NULL;
+					g_baseTiles[i] = nullptr;
 				}
 			}
 			printf("...Base Tiles");
@@ -2151,8 +2151,8 @@ sint32 tileutils_ParseTileset(MBCHAR *filename)
 				delete[] riverTransforms[i];
 				delete[] riverData[i];
 
-				riverTransforms[i] = NULL;
-				riverData[i] = NULL;
+				riverTransforms[i] = nullptr;
+				riverData[i] = nullptr;
 			}
 
 			printf("...River Transforms");

@@ -164,7 +164,7 @@ private:
 public:
 	SlicSegmentHash(sint32 size) : StringHash<SlicSegment>(size) {
 		m_numSegments = 0;
-		m_segments = NULL;
+		m_segments = nullptr;
 		m_nextSegment = 0;
 	}
 	~SlicSegmentHash() {

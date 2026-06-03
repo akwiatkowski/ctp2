@@ -35,7 +35,7 @@ void MessageBoxDialog::Information(const MBCHAR *message,
 
 	if(prefs->IsEnabled(id))
 	{
-		s_messageBoxDialog = new MessageBoxDialog(message, id, (void *)callback, userData, okText, NULL);
+		s_messageBoxDialog = new MessageBoxDialog(message, id, (void *)callback, userData, okText, nullptr);
 		s_messageBoxDialog->m_leftButton->Hide();
 		if(!allowDontShow)
 			s_messageBoxDialog->m_dontShowButton->Hide();
@@ -81,7 +81,7 @@ void MessageBoxDialog::TextQuery(const MBCHAR *message,
 								 const MBCHAR *okText,
 								 const MBCHAR *cancelText)
 {
-	s_messageBoxDialog = new MessageBoxDialog(message, NULL, (void *)callback, userData, okText, cancelText);
+	s_messageBoxDialog = new MessageBoxDialog(message, nullptr, (void *)callback, userData, okText, cancelText);
 	s_messageBoxDialog->m_isTextQuery = true;
 	s_messageBoxDialog->m_textField->Show();
 	s_messageBoxDialog->m_dontShowButton->Hide();
@@ -166,7 +166,7 @@ m_userData(userData)
 	}
 	else
 	{
-		m_identifier=NULL;
+		m_identifier=nullptr;
 		m_dontShowButton->Hide();
 	}
 	m_closing = false;
@@ -181,7 +181,7 @@ MessageBoxDialog::~MessageBoxDialog()
 	if(m_identifier)
 	{
 		delete m_identifier;
-		m_identifier=NULL;
+		m_identifier=nullptr;
 	}
 }
 

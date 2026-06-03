@@ -30,7 +30,7 @@
 #include "gfx/spritesys/director.h"
 
 #include "gfx/spritesys/screenmanager.h"
-static Background		*g_background = NULL;
+static Background		*g_background = nullptr;
 
 Background * background_Get()             { return g_background; }
 void         background_Set(Background *p)    { g_background = p; }
@@ -123,7 +123,7 @@ sint32 backgroundWin_Initialize(bool fullscreen)
 		backgroundX, backgroundY, backgroundWidth, backgroundHeight,
 		16,
 		background_draw_handler );
-	Assert( g_background != NULL );
+	Assert( g_background != nullptr );
 	if ( !g_background ) return -1;
 
 
@@ -142,7 +142,7 @@ void backgroundWin_Cleanup()
     }
 
 	delete g_background;
-	g_background = NULL;
+	g_background = nullptr;
 }
 
 #ifdef _PLAYTEST
@@ -152,8 +152,8 @@ sint32 g_debugOwner = k_DEBUG_OWNER_NONE;
 AUI_ERRCODE background_draw_handler(LPVOID bg)
 {
 	Background  *   back    = reinterpret_cast<Background *>(bg);
-	aui_Surface	*   surface = (back)    ? back->TheSurface() : NULL;
-	aui_Mouse *     mouse   = (c3ui_Get())  ? c3ui_Get()->TheMouse() : NULL;
+	aui_Surface	*   surface = (back)    ? back->TheSurface() : nullptr;
+	aui_Mouse *     mouse   = (c3ui_Get())  ? c3ui_Get()->TheMouse() : nullptr;
 
     if (!mouse || !tiledmap_Get())
     {

@@ -101,8 +101,8 @@ template <class T> CTPDatabase<T>::CTPDatabase()
 :
     m_numRecords        (0),
     m_modifiedRecords   (),
-    m_indexToAlpha      (NULL),
-    m_alphaToIndex      (NULL),
+    m_indexToAlpha      (nullptr),
+    m_alphaToIndex      (nullptr),
     m_allocatedSize     (k_INITIAL_DB_SIZE)
 {
 	m_records       = new T *[m_allocatedSize];
@@ -177,8 +177,8 @@ template <class T> void CTPDatabase<T>::Serialize(CivArchive &archive)
 
 		delete [] m_indexToAlpha;
 		delete [] m_alphaToIndex;
-		m_indexToAlpha = (m_numRecords > 0) ? new sint32[m_numRecords] : NULL;
-		m_alphaToIndex = (m_numRecords > 0) ? new sint32[m_numRecords] : NULL;
+		m_indexToAlpha = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
+		m_alphaToIndex = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
 		m_records = new T *[m_allocatedSize];
 
 		for (i = 0; i < m_numRecords; ++i){
@@ -225,7 +225,7 @@ template <class T> T * CTPDatabase<T>::Access(sint32 index, sint32 govIndex)
 {
 	// Check validity of index
 	T * nonSpecific = Access(index);
-	if (!nonSpecific) return NULL;
+	if (!nonSpecific) return nullptr;
 
 	// Check for any government specific overrides
 	for
@@ -346,7 +346,7 @@ template <class T> T *CTPDatabase<T>::Access(sint32 index)
 	if((index < 0) || (index >= m_numRecords))
 	{
 		DPRINTF(k_DBG_GAMESTATE, ("CTPDatabase::Access: index: %i, numRecords: %i\n", index, m_numRecords));
-		return NULL;
+		return nullptr;
 	}
 
 	return m_records[index];
@@ -367,7 +367,7 @@ template <class T> const char *CTPDatabase<T>::GetNameStr(sint32 index)
 	Assert(index >= 0);
 	Assert(index < m_numRecords);
 	if((index < 0) || (index >= m_numRecords))
-		return 0;
+		return nullptr;
 
 	return g_theStringDB->GetNameStr(m_records[index]->m_name);
 }
@@ -408,8 +408,8 @@ template <class T> bool CTPDatabase<T>::Parse(DBLexer *lex)
 
 	delete [] m_indexToAlpha;
 	delete [] m_alphaToIndex;
-	m_indexToAlpha = (m_numRecords > 0) ? new sint32[m_numRecords] : NULL;
-	m_alphaToIndex = (m_numRecords > 0) ? new sint32[m_numRecords] : NULL;
+	m_indexToAlpha = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
+	m_alphaToIndex = (m_numRecords > 0) ? new sint32[m_numRecords] : nullptr;
 
 	memset(m_indexToAlpha, 0, sizeof(sint32) * m_numRecords);
 	memset(m_alphaToIndex, 0, sizeof(sint32) * m_numRecords);

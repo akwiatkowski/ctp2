@@ -66,32 +66,32 @@
 
 extern sint32				g_god;
 
-static aui_StringTable *s_closeButtonStrings = NULL;
-static c3_PopupWindow	*s_customMapWindow	= NULL;
-static c3_Button	*s_back				= NULL;
-static C3Slider		*s_wetdry			= NULL,
-					*s_warmcold			= NULL,
-					*s_oceanland		= NULL,
-					*s_islandcontinent	= NULL,
-					*s_homodiverse		= NULL,
-					*s_goodcount		= NULL;
-static c3_Static	*s_wet				= NULL,
-					*s_dry				= NULL,
-					*s_warm				= NULL,
-					*s_cold				= NULL,
-					*s_ocean			= NULL,
-					*s_land				= NULL,
-					*s_island			= NULL,
-					*s_continent		= NULL,
-					*s_homo				= NULL,
-					*s_diverse			= NULL,
-					*s_poor				= NULL,
-					*s_rich				= NULL;
+static aui_StringTable *s_closeButtonStrings = nullptr;
+static c3_PopupWindow	*s_customMapWindow	= nullptr;
+static c3_Button	*s_back				= nullptr;
+static C3Slider		*s_wetdry			= nullptr,
+					*s_warmcold			= nullptr,
+					*s_oceanland		= nullptr,
+					*s_islandcontinent	= nullptr,
+					*s_homodiverse		= nullptr,
+					*s_goodcount		= nullptr;
+static c3_Static	*s_wet				= nullptr,
+					*s_dry				= nullptr,
+					*s_warm				= nullptr,
+					*s_cold				= nullptr,
+					*s_ocean			= nullptr,
+					*s_land				= nullptr,
+					*s_island			= nullptr,
+					*s_continent		= nullptr,
+					*s_homo				= nullptr,
+					*s_diverse			= nullptr,
+					*s_poor				= nullptr,
+					*s_rich				= nullptr;
 
 static sint32		s_useMode = 0;
 
-static aui_Switch		*s_RandomCustomMap	= NULL,
-						*s_NULL				= NULL;
+static aui_Switch		*s_RandomCustomMap	= nullptr,
+						*s_NULL				= nullptr;
 enum
 {
 	R_RANDOMCUSTOMMAP,
@@ -103,7 +103,7 @@ static uint32 check[] =
 	R_RANDOMCUSTOMMAP,
 	GP_TOTAL
 };
-RandomGenerator             *custommapscreenRand=NULL;
+RandomGenerator             *custommapscreenRand=nullptr;
 
 sint32 custommapscreen_updateData()
 {
@@ -298,7 +298,7 @@ AUI_ERRCODE custommapscreen_Cleanup()
 	mycleanup(custommapscreenRand);
 
 	delete s_customMapWindow;
-	s_customMapWindow = NULL;
+	s_customMapWindow = nullptr;
 
 	return AUI_ERRCODE_OK;
 
@@ -516,7 +516,7 @@ void custommapscreen_checkPress(aui_Control *control, uint32 action, uint32 data
 	if ( action != (uint32)AUI_SWITCH_ACTION_PRESS ) return;
 
 	uint32 checkbox = *((uint32*)cookie);
-	void (ProfileDB::*func)(BOOL) = 0;
+	void (ProfileDB::*func)(BOOL) = nullptr;
 	uint32 state = data;
 
 	switch(checkbox)

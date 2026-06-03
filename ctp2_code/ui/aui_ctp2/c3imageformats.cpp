@@ -75,7 +75,7 @@ AUI_ERRCODE TiffImageFormat::Load(MBCHAR const * filename, aui_Image *image )
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 
 	uint16  * buffer;
-	errcode = surface->Lock( NULL, (LPVOID *)&buffer, 0 );
+	errcode = surface->Lock( nullptr, (LPVOID *)&buffer, 0 );
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode == AUI_ERRCODE_OK )
 	{
@@ -130,12 +130,12 @@ AUI_ERRCODE TargaImageFormat::Load(MBCHAR const * filename, aui_Image *image)
 
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
 	uint16 *    buffer;
-	errcode = surface->Lock( NULL, (LPVOID *)&buffer, 0 );
+	errcode = surface->Lock( nullptr, (LPVOID *)&buffer, 0 );
 
 	Assert( errcode == AUI_ERRCODE_OK );
 	if ( errcode == AUI_ERRCODE_OK )
 	{
-		if (Load_TGA_File(filename, (uint8 *)buffer, (int)surface->Pitch(), width, height, NULL, TRUE))
+		if (Load_TGA_File(filename, (uint8 *)buffer, (int)surface->Pitch(), width, height, nullptr, TRUE))
         {
 		    errcode = surface->Unlock( buffer );
 
@@ -183,9 +183,9 @@ AUI_ERRCODE TargaImageFormat::LoadRIM(MBCHAR const * filename, aui_Image *image)
     rname[rlen]     = '\0';
 
     size_t  size    = 0;
-    void *  buffer  = g_ImageMapPF ? g_ImageMapPF->getData(rname, size) : NULL;
+    void *  buffer  = g_ImageMapPF ? g_ImageMapPF->getData(rname, size) : nullptr;
 
-    if (buffer == NULL)
+    if (buffer == nullptr)
     {
         if (g_ImageMapPF && !g_ImageMapPF->IsReported(filename))
         {

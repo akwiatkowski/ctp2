@@ -28,13 +28,13 @@ void c3dialogs_PostForeignTradeBidDialog(sint32 player, Unit &fromCity, Unit &to
 
 
 
-	static c3_UtilityTextFieldPopup	*pop = NULL;
+	static c3_UtilityTextFieldPopup	*pop = nullptr;
 	if(!pop) {
 		pop = new c3_UtilityTextFieldPopup(
 			c3dialogs_ForeignTradeBidDialogCallback,
-			NULL,
-			NULL,
-			NULL,
+			nullptr,
+			nullptr,
+			nullptr,
 			"ForeignTradeBidPopup",
 			(void *)info);
 	}

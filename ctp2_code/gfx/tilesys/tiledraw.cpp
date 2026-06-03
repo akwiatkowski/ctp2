@@ -175,16 +175,16 @@ namespace
         /// \remarks When \a a_Surface is NULL, no lock will be acquired.
         SurfaceLock(aui_Surface * a_Surface)
         :
-            m_Base      (NULL),
+            m_Base      (nullptr),
             m_Surface   (a_Surface)
         {
 	        if (a_Surface)
             {
-	            AUI_ERRCODE result = a_Surface->Lock(NULL, &m_Base, 0);
+	            AUI_ERRCODE result = a_Surface->Lock(nullptr, &m_Base, 0);
                 Assert(AUI_ERRCODE_OK == result);
                 if (AUI_ERRCODE_OK != result)
                 {
-                    m_Base = NULL;
+                    m_Base = nullptr;
                 }
             }
         };
@@ -205,7 +205,7 @@ namespace
         /// The acquired surface lock (NULL when invalid)
         uint8 * Base() const    { return static_cast<uint8 *>(m_Base); };
         /// A valid lock has been acquired
-        bool    IsValid() const { return NULL != m_Base; };
+        bool    IsValid() const { return nullptr != m_Base; };
 
     private:
         /// The acquired surface lock (NULL when invalid)
@@ -292,18 +292,18 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	bool        visiblePlayerOwnsThis   =
 	    (selitem_Get()->GetVisiblePlayer() == world_Get()->GetOwner(pos));
 	uint32		env                     = 0x00000000;
-	Cell *      cell                    = NULL;
+	Cell *      cell                    = nullptr;
 	bool		isAirfield              = false;
     bool		isListeningPost         = false;
     bool        isRadar                 = false;
     bool        isHealUnits             = false;
     bool        isFort                  = false;
-	Pixel16	 *  data                    = NULL;
+	Pixel16	 *  data                    = nullptr;
 	bool		hasHut                  = false;
 
 	std::vector<Pixel16 *>	drawOnTop;	// things above road level
 
-	TerrainImprovementRecord const * roadRec = NULL;
+	TerrainImprovementRecord const * roadRec = nullptr;
 	UnseenCellCarton	ucell;
 	if(!g_fog_toggle // Draw the right stuff if fog of war is off
 	&& !visiblePlayerOwnsThis
@@ -340,7 +340,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 	}
 	else
 	{
-		hasHut		= (world_Get()->GetGoodyHut(pos) != NULL);
+		hasHut		= (world_Get()->GetGoodyHut(pos) != nullptr);
 		cell = world_Get()->GetCell(pos);
 
 		if (cell)
@@ -355,7 +355,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 				TerrainImprovementRecord const *
 				        rec     = g_theTerrainImprovementDB->Get(impType);
 
-				if (rec==NULL)
+				if (rec==nullptr)
 					continue;
 
 				if (rec->GetClassRoad() || rec->GetClassOceanRoad())
@@ -367,7 +367,7 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 				TerrainImprovementRecord::Effect const *
 				        effect  = terrainutil_GetTerrainEffect(rec, pos);
 
-				if (effect==NULL)
+				if (effect==nullptr)
 					continue;
 
 				sint32  index   = effect->GetTilesetIndex();
@@ -440,9 +440,9 @@ bool TiledMap::DrawImprovementsLayer(aui_Surface *surface, MapPoint &pos, sint32
 
 				const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
 				const TerrainImprovementRecord::Effect *
-				    effect = (rec) ? terrainutil_GetTerrainEffect(rec, pos) : NULL;
+				    effect = (rec) ? terrainutil_GetTerrainEffect(rec, pos) : nullptr;
 
-				if (rec!=NULL && effect!=NULL)
+				if (rec!=nullptr && effect!=nullptr)
 				{
 					if(!rec->GetClassRoad() && !rec->GetClassOceanRoad())
 					{
@@ -507,7 +507,7 @@ void TiledMap::DrawPartiallyConstructedImprovement(aui_Surface *surface, uint32 
 												   uint16 index, bool fog, sint32 percentComplete)
 												   //Added sint32 percentComplete by Martin G�hmann
 {
-	Pixel16		*data = NULL;
+	Pixel16		*data = nullptr;
 
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
 	if (rec->GetNumConstructionTiles() < 1)
@@ -926,9 +926,9 @@ sint32 TiledMap::QuickBlackBackGround(aui_Surface *surface)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	if(surface == NULL) surface = m_surface;
+	if(surface == nullptr) surface = m_surface;
 
-	if(surface == NULL)
+	if(surface == nullptr)
 	{
 		errcode = AUI_ERRCODE_BLTFAILED;
 	}
@@ -1129,13 +1129,13 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 
 	TileInfo * tileInfo = GetTileInfo(pos);
 	Assert(tileInfo);
-	if (tileInfo == NULL) return 0;
+	if (tileInfo == nullptr) return 0;
 
 	uint16 index = tileInfo->GetTileNum();
 
 	BaseTile * baseTile = m_tileSet->GetBaseTile(index);
 
-	if (baseTile == NULL) return 0;
+	if (baseTile == nullptr) return 0;
 
 
 	Pixel16 *data = baseTile->GetTileData();
@@ -1155,7 +1155,7 @@ sint32 TiledMap::DrawBlendedTile(aui_Surface *surface, const MapPoint &pos,sint3
 	BaseTile *  transitionBuffer    =
         m_tileSet->GetBaseTile(static_cast<uint16>((tilesetIndex * 100) + 99));
 	Pixel16 *   transData           =
-        (transitionBuffer) ? transitionBuffer->GetTileData() : NULL;
+        (transitionBuffer) ? transitionBuffer->GetTileData() : nullptr;
     Pixel16 *   transDataPtr        = transData;
 	Pixel16 *   dataPtr             = data;
 	uint8 *     pSurfBase           = m_surfBase;
@@ -1249,15 +1249,15 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 	}
 
 	TileInfo *  tileInfo    = GetTileInfo(pos);
-	Assert(tileInfo != NULL);
-	if (tileInfo == NULL)
+	Assert(tileInfo != nullptr);
+	if (tileInfo == nullptr)
     {
 		return;
 	}
 
 	uint16      index       = tileInfo->GetTileNum();
     BaseTile *	baseTile    = m_tileSet->GetBaseTile(index);
-	if (baseTile == NULL)
+	if (baseTile == nullptr)
     {
 		return;
 	}
@@ -1279,7 +1279,7 @@ void TiledMap::DrawBlendedTileScaled(aui_Surface *surface, const MapPoint &pos, 
 	BaseTile *  transitionBuffer    =
         m_tileSet->GetBaseTile(static_cast<uint16>((tilesetIndex * 100) + 99));
 	Pixel16 *   transData           =
-        (transitionBuffer) ? transitionBuffer->GetTileData() : NULL;
+        (transitionBuffer) ? transitionBuffer->GetTileData() : nullptr;
     Pixel16 *   transDataPtr        = transData;
 	Pixel16	*   dataPtr             = data;
 
@@ -2177,12 +2177,12 @@ void TiledMap::DrawBlackScaledLow(aui_Surface *surface, const MapPoint &pos, sin
     if (y >= surface->Height() - destHeight) return;
 
 	TileInfo *  tileInfo = GetTileInfo(pos);
-	Assert(tileInfo != NULL);
-	if (tileInfo == NULL) return;
+	Assert(tileInfo != nullptr);
+	if (tileInfo == nullptr) return;
 
 	uint16      index   = tileInfo->GetTileNum();
 	BaseTile *  baseTile = m_tileSet->GetBaseTile(index);
-	if (baseTile == NULL) return;
+	if (baseTile == nullptr) return;
 
 	Pixel16 *   data        = baseTile->GetTileData();
     Pixel16 *   t[k_NUM_TRANSITIONS];
@@ -2316,7 +2316,7 @@ sint32 TiledMap::DrawOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, sint
         ///       Maybe better test this at the start.
         ///       Note: still using the surfBase of the unlocked surface
         Assert(false);
-		lock = SurfaceLock(NULL);
+		lock = SurfaceLock(nullptr);
 	}
 
 	uint16		start       = (uint16)*data++;
@@ -2822,7 +2822,7 @@ void TiledMap::DrawScaledOverlay(aui_Surface *surface, Pixel16 *data, sint32 x, 
         ///       return would be more appropriate.
         ///       Note: still using the surfBase of the unlocked surface
         Assert(false);
-        lock = SurfaceLock(NULL);
+        lock = SurfaceLock(nullptr);
 	}
 
 	surfBase += (y * surfPitch + x * 2);
@@ -3057,13 +3057,13 @@ void TiledMap::DrawTransitionTile(aui_Surface *surface, const MapPoint &pos, sin
     }
 
 	TileInfo *  tileInfo    = GetTileInfo(pos);
-	Assert(tileInfo != NULL);
-	if (tileInfo == NULL)
+	Assert(tileInfo != nullptr);
+	if (tileInfo == nullptr)
 		return;
 
 	uint16      index       = tileInfo->GetTileNum();
 	BaseTile*   baseTile    = m_tileSet->GetBaseTile(index);
-	if (baseTile == NULL)
+	if (baseTile == nullptr)
 		return;
 
     Pixel16 *   data        = baseTile->GetTileData();
@@ -3086,7 +3086,7 @@ void TiledMap::DrawTransitionTile(aui_Surface *surface, const MapPoint &pos, sin
 	BaseTile *  transitionBuffer =
         m_tileSet->GetBaseTile(static_cast<uint16>((tilesetIndex * 100) + 99));
 	Pixel16 *   transData       =
-        (transitionBuffer) ? transitionBuffer->GetTileData() : NULL;
+        (transitionBuffer) ? transitionBuffer->GetTileData() : nullptr;
 	Pixel16 *   transDataPtr    = transData;
 
 	Pixel16 *   dataPtr         = data;
@@ -3155,7 +3155,7 @@ L0:
                                 if (ax >= 4)
                                     goto L1;
                                 pedx = tileData[ax];
-                                if (pedx == 0)
+                                if (pedx == nullptr)
                                     goto L2;
                                 tileData[ax] = pedx;
                                 dx = pedx[-1];
@@ -3245,15 +3245,15 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	}
 
 	TileInfo *  tileInfo = GetTileInfo(pos);
-	Assert(tileInfo != NULL);
-	if (tileInfo == NULL)
+	Assert(tileInfo != nullptr);
+	if (tileInfo == nullptr)
     {
 		return;
 	}
 
 	uint16      index = tileInfo->GetTileNum();
 	BaseTile *  baseTile = m_tileSet->GetBaseTile(index);
-	if (baseTile == NULL)
+	if (baseTile == nullptr)
     {
 		return;
 	}
@@ -3273,7 +3273,7 @@ void TiledMap::DrawTransitionTileScaled(aui_Surface *surface, const MapPoint &po
 	BaseTile *  transitionBuffer    =
         m_tileSet->GetBaseTile(static_cast<uint16>((tilesetIndex * 100) + 99));
 	Pixel16 *   transData           =
-        (transitionBuffer) ? transitionBuffer->GetTileData() : NULL;
+        (transitionBuffer) ? transitionBuffer->GetTileData() : nullptr;
 	Pixel16 *   transDataPtr        = transData;
     Pixel16 *   dataPtr             = data;
 
@@ -3412,8 +3412,8 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 				bool    drawQueueEmpty       = false;
 				sint32  pop                  = 0;
 				sint32  nextpop              = 0;
-				MBCHAR *name                 = NULL;
-				const char *buildItemName    = NULL;
+				MBCHAR *name                 = nullptr;
+				const char *buildItemName    = nullptr;
 				sint32  buildItemTime        = 0;
 
 				sint32  owner = 0;
@@ -3804,7 +3804,7 @@ void TiledMap::DrawCityNames(aui_Surface * surf, sint32 layer)
 
 								right = popRectn.right;
 
-								if (showCityProd && buildItemName != NULL)
+								if (showCityProd && buildItemName != nullptr)
 								{
 									/////////////////////////////////////
 									// NOW DRAW THE BUILDING ITEM NAME //
@@ -4463,7 +4463,7 @@ void TiledMap::DrawColorBlendedOverlayScaled(aui_Surface *surface, Pixel16 *data
         ///       return would be more appropriate.
         ///       Note: still using the surfBase of the unlocked surface
         Assert(false);
-        lock = SurfaceLock(NULL);
+        lock = SurfaceLock(nullptr);
 	}
 
 	Pixel16		emptyRow[2];
@@ -4568,7 +4568,7 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 
 	m_overlayActive=false;
 
-	if (m_overlayRec==NULL)
+	if (m_overlayRec==nullptr)
 		return;
 
 	const TerrainImprovementRecord::Effect * effect =
@@ -4576,14 +4576,14 @@ TiledMap::DrawTerrainOverlay(aui_Surface *surf)
 	    ? m_overlayRec->GetTerrainEffect(0)
 	    : terrainutil_GetTerrainEffect(m_overlayRec, m_overlayPos);
 
-	if (effect==NULL)
+	if (effect==nullptr)
 		return;
 
 	sint32 index   = effect->GetTilesetIndex();
 
 	Pixel16 *data    = m_tileSet->GetImprovementData((uint16)index);
 
-	if (data==NULL)
+	if (data==nullptr)
 		return;
 
 	sint32 x,y;
@@ -4685,7 +4685,7 @@ bool TiledMap::HasVisibleCity(const MapPoint &pos) const
 		UnseenCellCarton ucell;
 		if(m_localVision->GetLastSeen(pos, ucell))
 		{
-			return ucell.m_unseenCell->GetActor() != NULL;
+			return ucell.m_unseenCell->GetActor() != nullptr;
 		}
 	}
 
@@ -4699,7 +4699,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 		return;
 
 	Player *visP = player_Get(selitem_Get()->GetVisiblePlayer());
-	if (visP == NULL)
+	if (visP == nullptr)
 		return;
 
 	uint32 myCityOwner = GetVisibleCityOwner(pos);
@@ -4707,7 +4707,7 @@ void TiledMap::DrawNationalBorders(aui_Surface *surface, MapPoint &pos)
 	Pixel16 white = GetColor(COLOR_WHITE);
 
 	Unit myCity(myCityOwner);
-	UnitData *myCityData = myCity.IsValid() ? myCity.AccessData() : NULL;
+	UnitData *myCityData = myCity.IsValid() ? myCity.AccessData() : nullptr;
 
 	//emod
 	sint32		x, y;
@@ -4931,7 +4931,7 @@ void TiledMap::DrawChatText()
 			char timebuf[256];
 			if(g_network.IsActive()) {
 				if(g_network.IsSpeedStyle() && selitem_Get()->GetCurPlayer() == selitem_Get()->GetVisiblePlayer()) {
-					time_t const timeleft = g_network.GetTurnEndsAt() - time(0);
+					time_t const timeleft = g_network.GetTurnEndsAt() - time(nullptr);
 					snprintf(timebuf, sizeof(timebuf), "%s: %" PRId64, stringdb_Get()->GetNameStr("NETWORK_TIME_LEFT"), timeleft);
 					timeRect.right = timeRect.left + m_font->GetStringWidth(timebuf);
 					m_font->DrawString(tempSurf, &timeRect, &timeRect, timebuf, 0, GetColorRef(COLOR_BLACK), 0);

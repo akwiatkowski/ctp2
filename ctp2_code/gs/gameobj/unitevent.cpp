@@ -129,7 +129,7 @@ STDEHANDLER(BeginTurnUnitEvent)
 	if (ud && ud->IsExploring()) {
 		Army army = u.GetArmy();
 		bool needRetarget = !army.IsValid()
-		                 || army.AccessData() == NULL
+		                 || army.AccessData() == nullptr
 		                 || army.AccessData()->NumOrders() == 0;
 
 		MapPoint cur;

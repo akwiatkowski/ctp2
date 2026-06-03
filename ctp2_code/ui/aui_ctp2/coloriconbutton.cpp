@@ -36,11 +36,11 @@ ColorIconButton::ColorIconButton(
 	void *cookie )
 :
 	aui_ImageBase( 1, AUI_IMAGEBASE_BLTTYPE_STRETCH),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	c3_Button( retval, id, x, y, width, height, pattern, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = NULL;
+	m_filename = nullptr;
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -55,11 +55,11 @@ ColorIconButton::ColorIconButton(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_Button( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = NULL;
+	m_filename = nullptr;
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -124,7 +124,7 @@ void ColorIconButton::ResizePictureRect()
 
 void ColorIconButton::SetIcon(MBCHAR *name)
 {
-	if (name == NULL) return;
+	if (name == nullptr) return;
 
 	if (m_filename) delete[] m_filename;
 
@@ -136,7 +136,7 @@ void ColorIconButton::SetIcon(MBCHAR *name)
 	if (strcmp(m_filename, ""))
 		SetImage(m_filename, 0);
 	else
-		SetImage(NULL, 0);
+		SetImage(nullptr, 0);
 
 
 
@@ -156,11 +156,11 @@ AUI_ERRCODE ColorIconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 	if (isLDL) {
 		ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 		name = block->GetString( "picture" );
-		Assert( name != NULL );
+		Assert( name != nullptr );
 	} else {
 		name = ldlBlock;
 	}

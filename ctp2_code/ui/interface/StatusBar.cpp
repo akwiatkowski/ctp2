@@ -35,17 +35,17 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/ctp2_Static.h"
 
-MBCHAR *StatusBar::m_text = NULL;
+MBCHAR *StatusBar::m_text = nullptr;
 std::list<StatusBar*> StatusBar::m_list;
 sint32 StatusBar::m_allocatedLen = 0;
-const aui_Control *StatusBar::m_owner = NULL;
+const aui_Control *StatusBar::m_owner = nullptr;
 
 void StatusBar::SetText(const MBCHAR *text, const aui_Control *owner)
 {
 	if(m_text && (unsigned) m_allocatedLen < strlen(text) + 1) {
 
 		delete m_text;
-		m_text = NULL;
+		m_text = nullptr;
 	}
 
 	if(text && !m_text) {

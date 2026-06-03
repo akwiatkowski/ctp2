@@ -261,7 +261,7 @@ struct DebugException
 	DebugExceptionClientFunction DebugException_Enter;
 };
 
-static DebugException debug_exception = {0};
+static DebugException debug_exception = {nullptr};
 
 void DebugException_Open (DebugExceptionClientFunction function_enter)
 {

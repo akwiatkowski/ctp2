@@ -52,7 +52,7 @@ char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, siz
 				if (!destImage) {
 					_TIFFfree(raster);
 					TIFFClose(tif);
-					return NULL;
+					return nullptr;
 				}
 				if (size)
 					*size = npixels * sizeof(uint32);
@@ -69,12 +69,12 @@ char *tiffutils_LoadTIF(const char *filename, uint16 *width, uint16 *height, siz
 		TIFFClose(tif);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
 {
-	char    *image = NULL;
+	char    *image = nullptr;
 	uint32  w=0, h=0;
 	TIFF    *tif = TIFFOpen(filename, "r");
 
@@ -87,7 +87,7 @@ char *TIF2mem(const char *filename, uint16 *width, uint16 *height, size_t *size)
 		image = (char *)malloc(npixels * sizeof(uint32));
 		if (!image) {
 			TIFFClose(tif);
-			return NULL;
+			return nullptr;
 		}
 
 		if (size)
@@ -216,7 +216,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 {
 	TIFF *  tif = TIFFOpen(filename, "r");
 	if (!tif)
-	   return NULL;
+	   return nullptr;
 
 	*width = static_cast<uint16>(-1);
 	*height = static_cast<uint16>(-1);
@@ -246,7 +246,7 @@ char *StripTIF2Mem(const char *filename, uint16 *width, uint16 *height, size_t *
 		if (TIFFReadEncodedStrip(tif, TIFFComputeStrip(tif, row, 0), buf, nrow*LineSize)==-1)
         {
             /// @todo Check free(buf)?
-			return NULL;
+			return nullptr;
 		}
         else
         {

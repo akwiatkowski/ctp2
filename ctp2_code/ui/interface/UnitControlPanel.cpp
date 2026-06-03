@@ -466,7 +466,7 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 	m_curFuel = fuel;
 
 	if(!unit.IsValid()) {
-		m_singleSelectionIcon->SetImage(NULL);
+		m_singleSelectionIcon->SetImage(nullptr);
 		m_singleSelectionAttack->SetText("");
 		m_singleSelectionDefend->SetText("");
 		m_singleSelectionMove->SetText("");
@@ -475,10 +475,10 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 		m_singleSelectionFirepower->SetText("");
 		m_unitListLabel->SetText("");
 
-		m_singleSelectionHealth->SetDrawCallbackAndCookie(NULL, NULL);
-		m_singleSelectionIcon->SetDrawCallbackAndCookie(NULL, NULL);
-		m_singleSelectionIcon->SetImageMapCallback(NULL, NULL);
-		m_singleSelectionFuel->SetDrawCallbackAndCookie(NULL, NULL);
+		m_singleSelectionHealth->SetDrawCallbackAndCookie(nullptr, nullptr);
+		m_singleSelectionIcon->SetDrawCallbackAndCookie(nullptr, nullptr);
+		m_singleSelectionIcon->SetImageMapCallback(nullptr, nullptr);
+		m_singleSelectionFuel->SetDrawCallbackAndCookie(nullptr, nullptr);
 
 
 		return;
@@ -524,11 +524,11 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 		if(cargo > 0) {
 			m_singleSelectionIcon->SetImageMapCallback(TransportImageCallback, (void *)this);
 		} else {
-			m_singleSelectionIcon->SetImageMapCallback(NULL, NULL);
+			m_singleSelectionIcon->SetImageMapCallback(nullptr, nullptr);
 		}
 	} else {
-		m_singleSelectionIcon->SetDrawCallbackAndCookie(NULL, NULL, false);
-		m_singleSelectionIcon->SetImageMapCallback(NULL, NULL);
+		m_singleSelectionIcon->SetDrawCallbackAndCookie(nullptr, nullptr, false);
+		m_singleSelectionIcon->SetImageMapCallback(nullptr, nullptr);
 	}
 
 	m_unitListLabel->SetText(unit.GetDisplayName().c_str());
@@ -602,7 +602,7 @@ void UnitControlPanel::UpdateMultipleSelectionDisplay()
 				if(army.IsValid() && army.Num() == 1) {
 					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)army[0].m_id);
 				} else {
-					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(NULL, NULL);
+					m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
 				}
 				if(m_multipleSelectionButton[multiIndex]->IsDisabled())
 					m_multipleSelectionButton[multiIndex]->Enable(true);
@@ -614,19 +614,19 @@ void UnitControlPanel::UpdateMultipleSelectionDisplay()
 					m_multipleSelectionButton[multiIndex]->ExchangeImage(1, 0,
 																		 "UPIC21.tga");
 				} else {
-					m_multipleSelectionButton[multiIndex]->ExchangeImage(1, 0, NULL);
+					m_multipleSelectionButton[multiIndex]->ExchangeImage(1, 0, nullptr);
 				}
 				multiIndex++;
 			}
 		}
         else
         {
-			m_multipleSelectionButton[multiIndex]->SetActionFuncAndCookie(NULL, NULL);
-			m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(NULL, NULL);
+			m_multipleSelectionButton[multiIndex]->SetActionFuncAndCookie(nullptr, nullptr);
+			m_multipleSelectionHealth[multiIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
 			if(!m_multipleSelectionButton[multiIndex]->IsDisabled())
 				m_multipleSelectionButton[multiIndex]->Enable(false);
-			m_multipleSelectionButton[multiIndex]->ExchangeImage(0, 0, NULL);
-			m_multipleSelectionButton[multiIndex]->ExchangeImage(1, 0, NULL);
+			m_multipleSelectionButton[multiIndex]->ExchangeImage(0, 0, nullptr);
+			m_multipleSelectionButton[multiIndex]->ExchangeImage(1, 0, nullptr);
 			multiIndex++;
 		}
 	}
@@ -671,14 +671,14 @@ void UnitControlPanel::UpdateArmySelectionDisplay()
 																unitIconName);
 				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)army[armyIndex].m_id);
 			} else {
-				m_armySelectionButton[armyIndex]->ExchangeImage(0, 0, NULL);
-				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(NULL, NULL);
+				m_armySelectionButton[armyIndex]->ExchangeImage(0, 0, nullptr);
+				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
 			}
 			if(m_armySelectionButton[armyIndex]->IsDisabled())
 				m_armySelectionButton[armyIndex]->Enable(true);
 		} else {
-			m_armySelectionButton[armyIndex]->ExchangeImage(0, 0, NULL);
-			m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(NULL, NULL);
+			m_armySelectionButton[armyIndex]->ExchangeImage(0, 0, nullptr);
+			m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(nullptr, nullptr);
 			if(!m_armySelectionButton[armyIndex]->IsDisabled())
 				m_armySelectionButton[armyIndex]->Enable(false);
 		}
@@ -722,16 +722,16 @@ void UnitControlPanel::UpdateTransportSelectionDisplay()
 			ctp2_Switch *butt = m_transportSelectionButton[i];
 			if(i >= capacity) {
 				butt->Hide();
-				m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(NULL, NULL);
+				m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(nullptr, nullptr);
 			} else {
 				butt->Show();
 				if(i >= cargoList->Num()) {
 					if(m_transportSelectionCargo[i] != 0) {
-						butt->SetImage(NULL, 0);
-						butt->SetImage(NULL, 1);
+						butt->SetImage(nullptr, 0);
+						butt->SetImage(nullptr, 1);
 						butt->Enable(FALSE);
 						m_transportSelectionCargo[i] = 0;
-						m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(NULL, NULL);
+						m_transportSelectionHealth[i]->SetDrawCallbackAndCookie(nullptr, nullptr);
 
 					}
 				} else {
@@ -782,9 +782,9 @@ void UnitControlPanel::UpdateOrderButtons()  //emod3 this is the method
 	sint32 orderIndex;
 	for(orderIndex = 0; orderIndex < NUMBER_OF_ORDER_BUTTONS; orderIndex++)
 	{
-		m_orderButton[orderIndex]->ExchangeImage(4, 0, NULL);
+		m_orderButton[orderIndex]->ExchangeImage(4, 0, nullptr);
 		m_orderButton[orderIndex]->ShouldDraw();
-		m_orderButton[orderIndex]->SetActionFuncAndCookie(NULL, NULL);
+		m_orderButton[orderIndex]->SetActionFuncAndCookie(nullptr, nullptr);
 
 		enableState[orderIndex] = false;
 

@@ -1065,7 +1065,7 @@ public:
 	double BreadBasket();
 	double GetBreadBasket() const  { return m_breadbasket;  };
 
-	void   PreResourceCalculation(CityData* city = NULL);
+	void   PreResourceCalculation(CityData* city = nullptr);
 
 private:
 	/// @ToDo: This is a copy from governor, merge both.

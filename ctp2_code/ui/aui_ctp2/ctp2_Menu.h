@@ -30,7 +30,7 @@ class ctp2_Menu {
 	class Item {
 	public:
 
-		Item() : m_item(NULL), m_shortcut(NULL), m_cookie(NULL) { }
+		Item() : m_item(nullptr), m_shortcut(nullptr), m_cookie(nullptr) { }
 
 
 

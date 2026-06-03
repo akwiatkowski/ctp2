@@ -79,7 +79,7 @@ public:
 	MessageStandardEyePointAction
     (
         MessageWindow * window,
-        MessageModal *  modal = NULL
+        MessageModal *  modal = nullptr
     )
     :   aui_Action  (),
         m_window    (window),
@@ -105,8 +105,8 @@ public:
 	MessageDropdownEyePointAction
     (
         MessageWindow * window,
-        MessageModal *  modal       = NULL,
-        c3_DropDown *   dropdown    = NULL
+        MessageModal *  modal       = nullptr,
+        c3_DropDown *   dropdown    = nullptr
     )
     :   MessageStandardEyePointAction   (window, modal),
         m_dropdown                      (dropdown)
@@ -133,7 +133,7 @@ public:
     (
         MessageWindow * window,
         c3_DropDown *   dropdown,
-        MessageModal *  modal = NULL
+        MessageModal *  modal = nullptr
     )
 	:   aui_Action  (),
         m_window    (window),
@@ -165,14 +165,14 @@ public:
 		sint32          change,
         sint32          min,
         sint32          max,
-        MessageModal *  modal = NULL
+        MessageModal *  modal = nullptr
     )
     :   MessageStandardEyePointAction   (window, modal),
         m_index                         (index),
         m_change                        (change),
         m_min                           (min),
         m_max                           (max),
-        m_action                        (NULL)
+        m_action                        (nullptr)
     { ; }
 	virtual ~MessageListboxEyePointAction() { ; };
 
@@ -296,7 +296,7 @@ public:
         PLAYER_INDEX        index
     )
     :   aui_Action      (),
-        m_iconWindow    (window ? window->GetIconWindow() : NULL),
+        m_iconWindow    (window ? window->GetIconWindow() : nullptr),
         m_index         (index)
     { ; };
 	virtual ~MessageCleanupAction() { ; };

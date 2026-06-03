@@ -402,7 +402,7 @@ private:
 
 	sint32 GetNeededFreightType(sint32 & list_num) const;
 
-	sint32 ComputeBestUnitType(const UnitBuildListRecord *build_list_rec, const CityData *city = NULL) const;
+	sint32 ComputeBestUnitType(const UnitBuildListRecord *build_list_rec, const CityData *city = nullptr) const;
 
 
 

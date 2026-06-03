@@ -66,7 +66,7 @@ public:
 	void SetBaseType(DATUM_TYPE type);
 
 	void AddDatum(DATUM_TYPE type, struct namelist *nameInfo, sint32 minSize, sint32 maxSize,
-				  char *subType = NULL, bool isPreBody = false);
+				  char *subType = nullptr, bool isPreBody = false);
 	void AddGroupedBits(char *name, struct namelist *list);
 
 	void AddBitPair(struct namelist *nameInfo, sint32 minSize, sint32 maxSize, struct bitpairtype *pairtype);

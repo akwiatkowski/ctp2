@@ -88,11 +88,11 @@ void InstallationData::Serialize(CivArchive &archive)
 		GameObj::Serialize(archive);
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_visibility)+sizeof(m_visibility));
 
-		archive<<(uint32)(m_lesser != NULL);
+		archive<<(uint32)(m_lesser != nullptr);
 		if (m_lesser)
 			((InstallationData *)(m_lesser))->Serialize(archive) ;
 
-		archive<<(uint32)(m_greater != NULL);
+		archive<<(uint32)(m_greater != nullptr);
 		if (m_greater)
 			((InstallationData *)(m_greater))->Serialize(archive) ;
 
@@ -318,7 +318,7 @@ void InstallationData::ChangeOwner(sint32 toOwner)
 									  m_id, m_owner, toOwner));
 	}
 
-	if(m_owner >= 0 && player_Get(m_owner) != NULL)
+	if(m_owner >= 0 && player_Get(m_owner) != nullptr)
 	{
 		player_Get(m_owner)->RemoveInstallationReferences(Installation(m_id));
 

@@ -34,7 +34,7 @@ MessageEyePointListItem::MessageEyePointListItem
 )
 :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR const *) NULL),
+	aui_TextBase(ldlBlock, (MBCHAR const *) nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -120,8 +120,8 @@ AUI_ERRCODE MessageEyePointStandard::InitCommon( MBCHAR const *ldlBlock, Message
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	m_button = NULL;
-	m_action = NULL;
+	m_button = nullptr;
+	m_action = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyeButton" );
 	m_button = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
@@ -129,8 +129,8 @@ AUI_ERRCODE MessageEyePointStandard::InitCommon( MBCHAR const *ldlBlock, Message
 	if ( !AUI_NEWOK( m_button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action = new MessageStandardEyePointAction( window );
-	Assert( m_action != NULL );
-	if ( m_action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_action != nullptr );
+	if ( m_action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_button->SetAction( m_action );
 
@@ -151,17 +151,17 @@ AUI_ERRCODE MessageEyePointStandard::InitCommon( MBCHAR const *ldlBlock, Message
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	m_button = NULL;
-	m_action = NULL;
+	m_button = nullptr;
+	m_action = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardEyeButton" );
 	m_button = new aui_Button( &errcode, aui_UniqueId(), buttonBlock );
 	Assert( AUI_NEWOK( m_button, errcode ));
 	if ( !AUI_NEWOK( m_button, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action = new MessageStandardEyePointAction( NULL, window );
-	Assert( m_action != NULL );
-	if ( m_action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_action = new MessageStandardEyePointAction( nullptr, window );
+	Assert( m_action != nullptr );
+	if ( m_action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_button->SetAction( m_action );
 
@@ -210,10 +210,10 @@ MessageEyePointDropdown::MessageEyePointDropdown(
 	MBCHAR const *ldlBlock,
 	MessageWindow *window )
 :
-	m_button                (NULL),
-	m_dropdown              (NULL),
-	m_action                (NULL),
-    m_dropaction            (NULL)
+	m_button                (nullptr),
+	m_dropdown              (nullptr),
+	m_action                (nullptr),
+    m_dropaction            (nullptr)
 {
 	*retval = InitCommon( ldlBlock, window );
 	Assert( AUI_SUCCESS(*retval) );
@@ -225,10 +225,10 @@ MessageEyePointDropdown::MessageEyePointDropdown(
 	MBCHAR const *ldlBlock,
 	MessageModal *window )
 :
-	m_button                (NULL),
-	m_dropdown              (NULL),
-	m_action                (NULL),
-    m_dropaction            (NULL)
+	m_button                (nullptr),
+	m_dropdown              (nullptr),
+	m_action                (nullptr),
+    m_dropaction            (nullptr)
 {
 	*retval = InitCommon( ldlBlock, window );
 	Assert( AUI_SUCCESS(*retval) );
@@ -306,8 +306,8 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const * ldlBlock, Message
 #endif
 
 	m_dropaction = new MessageDropdownAction( window, m_dropdown );
-	Assert( m_dropaction != NULL );
-	if ( m_dropaction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_dropaction != nullptr );
+	if ( m_dropaction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dropdown->SetAction( m_dropaction );
 
@@ -327,9 +327,9 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const *ldlBlock, MessageM
 	AUI_ERRCODE     errcode = InitCommonCommon(ldlBlock, window->GetMessage()->AccessData());
     if (AUI_ERRCODE_OK != errcode) return errcode;
 
-	m_action = new MessageDropdownEyePointAction( NULL, window );
+	m_action = new MessageDropdownEyePointAction( nullptr, window );
 	Assert(m_action);
-	if (m_action == NULL) return AUI_ERRCODE_MEMALLOCFAILED;
+	if (m_action == nullptr) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action->SetDropdown(m_dropdown);
 	m_button->SetAction(m_action);
@@ -351,9 +351,9 @@ AUI_ERRCODE MessageEyePointDropdown::InitCommon(MBCHAR const *ldlBlock, MessageM
     }
 #endif
 
-	m_dropaction = new MessageDropdownAction( NULL, m_dropdown, window );
-	Assert( m_dropaction != NULL );
-	if ( m_dropaction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_dropaction = new MessageDropdownAction( nullptr, m_dropdown, window );
+	Assert( m_dropaction != nullptr );
+	if ( m_dropaction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dropdown->SetAction( m_dropaction );
 
@@ -419,10 +419,10 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageW
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	sint32			count = 0;
 
-	m_buttonLeft = NULL;
-	m_buttonRight = NULL;
-	m_action1 = NULL;
-	m_action2 = NULL;
+	m_buttonLeft = nullptr;
+	m_buttonRight = nullptr;
+	m_action1 = nullptr;
+	m_action2 = nullptr;
 
 
 	count = window->GetMessage()->AccessData()->GetNumEyePoints( );
@@ -433,8 +433,8 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageW
 	if ( !AUI_NEWOK( m_buttonLeft, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action1 = new MessageListboxEyePointAction( window, 0, -1, 0, count );
-	Assert( m_action1 != NULL );
-	if ( m_action1 == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_action1 != nullptr );
+	if ( m_action1 == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_buttonLeft->SetAction( m_action1 );
 
@@ -452,8 +452,8 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageW
 	if ( !AUI_NEWOK( m_buttonRight, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action2 = new MessageListboxEyePointAction( window, 0, 1, 0, count );
-	Assert( m_action2 != NULL );
-	if ( m_action2 == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_action2 != nullptr );
+	if ( m_action2 == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_buttonRight->SetAction( m_action2 );
 
@@ -479,10 +479,10 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageM
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	sint32			count = 0;
 
-	m_buttonLeft = NULL;
-	m_buttonRight = NULL;
-	m_action1 = NULL;
-	m_action2 = NULL;
+	m_buttonLeft = nullptr;
+	m_buttonRight = nullptr;
+	m_action1 = nullptr;
+	m_action2 = nullptr;
 
 
 	count = window->GetMessage()->AccessData()->GetNumEyePoints( );
@@ -492,9 +492,9 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageM
 	Assert( AUI_NEWOK( m_buttonLeft, errcode ));
 	if ( !AUI_NEWOK( m_buttonLeft, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action1 = new MessageListboxEyePointAction( NULL, 0, -1, 0, count, window );
-	Assert( m_action1 != NULL );
-	if ( m_action1 == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_action1 = new MessageListboxEyePointAction( nullptr, 0, -1, 0, count, window );
+	Assert( m_action1 != nullptr );
+	if ( m_action1 == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_buttonLeft->SetAction( m_action1 );
 
@@ -513,9 +513,9 @@ AUI_ERRCODE MessageEyePointListbox::InitCommon(MBCHAR const * ldlBlock, MessageM
 	Assert( AUI_NEWOK( m_buttonRight, errcode ));
 	if ( !AUI_NEWOK( m_buttonRight, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
-	m_action2 = new MessageListboxEyePointAction( NULL, 0, 1, 0, count, window );
-	Assert( m_action2 != NULL );
-	if ( m_action2 == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	m_action2 = new MessageListboxEyePointAction( nullptr, 0, 1, 0, count, window );
+	Assert( m_action2 != nullptr );
+	if ( m_action2 == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_buttonRight->SetAction( m_action2 );
 

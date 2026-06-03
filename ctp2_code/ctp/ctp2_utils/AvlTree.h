@@ -74,7 +74,7 @@ public:
 
 
 	cmp_t Compare(KeyType  key) const {
-		if (m_compareFunction == NULL) {
+		if (m_compareFunction == nullptr) {
 			return (key == myKey) ? EQ_CMP
 				: ((key < myKey) ? MIN_CMP : MAX_CMP);
 		} else {
@@ -199,7 +199,7 @@ private:
    void
    Reset() {
       myBal = 0 ;
-      mySubtree[LEFT] = mySubtree[RIGHT] = NULL ;
+      mySubtree[LEFT] = mySubtree[RIGHT] = nullptr ;
    }
 
 
@@ -273,7 +273,7 @@ private:
 
 public:
 
-   AvlTree() : myRoot(NULL) {};
+   AvlTree() : myRoot(nullptr) {};
    ~AvlTree() { if (myRoot)  delete myRoot; }
 
    void DumpTree(std::ostream & os) const;
@@ -419,10 +419,10 @@ AvlNode<KeyType>::Compare(KeyType key, cmp_t cmp) const
          return  myData->Compare(key);
 
       case MIN_CMP :
-         return  (mySubtree[LEFT] == NULL) ? EQ_CMP : MIN_CMP;
+         return  (mySubtree[LEFT] == nullptr) ? EQ_CMP : MIN_CMP;
 
       case MAX_CMP :
-         return  (mySubtree[RIGHT] == NULL) ? EQ_CMP : MAX_CMP;
+         return  (mySubtree[RIGHT] == nullptr) ? EQ_CMP : MAX_CMP;
    }
 
    return EQ_CMP;
@@ -444,7 +444,7 @@ AvlNode<KeyType>::Search(KeyType key, AvlNode<KeyType> * root, cmp_t cmp)
         root = root->mySubtree[(result < 0) ? LEFT : RIGHT];
     }
 
-    return NULL;    // not found
+    return nullptr;    // not found
 }
 
 template <class KeyType>
@@ -471,11 +471,11 @@ AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
                          int                   & change)
 {
 
-    if (root == NULL) {
+    if (root == nullptr) {
 
         root    = new AvlNode<KeyType>(item);
         change  = HEIGHT_CHANGE;
-        return  NULL;
+        return  nullptr;
     }
 
     cmp_t   result      = root->Compare(item->Key());
@@ -499,7 +499,7 @@ AvlNode<KeyType>::Insert(Comparable<KeyType> *   item,
     change =  (increase && root->myBal)
                   ? (1 - ReBalance(root))
                   : HEIGHT_NOCHANGE;
-    return NULL;
+    return nullptr;
 }
 
 template <class KeyType>
@@ -510,13 +510,13 @@ AvlNode<KeyType>::Delete(KeyType              key,
                          cmp_t                cmp)
 {
 
-    if (root == NULL) {
+    if (root == nullptr) {
 
         change = HEIGHT_NOCHANGE;
-        return NULL;
+        return nullptr;
     }
 
-    Comparable<KeyType> * found = NULL;
+    Comparable<KeyType> * found = nullptr;
     int  decrease = 0;
 
     cmp_t  result = root->Compare(key, cmp);
@@ -530,19 +530,19 @@ AvlNode<KeyType>::Delete(KeyType              key,
     } else  {
         found = root->myData;
 
-        if ((root->mySubtree[LEFT] == NULL) &&
-            (root->mySubtree[RIGHT] == NULL)) {
+        if ((root->mySubtree[LEFT] == nullptr) &&
+            (root->mySubtree[RIGHT] == nullptr)) {
             delete root;
-            root = NULL;
+            root = nullptr;
             change = HEIGHT_CHANGE;
             return found;
-        } else if ((root->mySubtree[LEFT] == NULL) ||
-                   (root->mySubtree[RIGHT] == NULL)) {
+        } else if ((root->mySubtree[LEFT] == nullptr) ||
+                   (root->mySubtree[RIGHT] == nullptr)) {
              AvlNode<KeyType> * toDelete = root;
              root = root->mySubtree[(root->mySubtree[RIGHT]) ? RIGHT : LEFT];
              change = HEIGHT_CHANGE;
 
-             toDelete->mySubtree[LEFT] = toDelete->mySubtree[RIGHT] = NULL;
+             toDelete->mySubtree[LEFT] = toDelete->mySubtree[RIGHT] = nullptr;
              delete  toDelete;
              return  found;
         } else {

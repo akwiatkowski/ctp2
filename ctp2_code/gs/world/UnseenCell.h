@@ -276,7 +276,7 @@ public:
 class UnseenCellCarton
 {
 public:
-    UnseenCellCarton(UnseenCell * unseenCell = NULL)
+    UnseenCellCarton(UnseenCell * unseenCell = nullptr)
     :
         m_unseenCell    (unseenCell)
     { };

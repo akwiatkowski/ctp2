@@ -377,7 +377,7 @@ public:
 #else
 	bool        TileIsVisible(sint32 mapX, sint32 mapY, sint32 mapZ = 0);
 #endif
-	bool		TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect = NULL);
+	bool		TileIsCompletelyVisible(sint32 mapX, sint32 mapY, RECT *viewRect = nullptr);
 
 	double		GetScale() { return m_scale; }
 	void		SetScale(double s) { m_scale = s; }

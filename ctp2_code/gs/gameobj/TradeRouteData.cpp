@@ -404,13 +404,13 @@ TradeRouteData::Serialize(CivArchive &archive)
 		m_setWayPoints.Serialize(archive);
 
 		uint8 hasChild;
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if (m_lesser) {
 			((TradeRouteData *)(m_lesser))->Serialize(archive) ;
 		}
 
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if (m_greater)
 			((TradeRouteData *)(m_greater))->Serialize(archive) ;
@@ -448,14 +448,14 @@ TradeRouteData::Serialize(CivArchive &archive)
 		if (hasChild) {
 			m_lesser = new TradeRouteData(archive);
 		} else {
-			m_lesser = NULL;
+			m_lesser = nullptr;
 		}
 
 		archive >> hasChild;
 		if (hasChild)
 			m_greater = new TradeRouteData(archive);
 		else
-			m_greater = NULL;
+			m_greater = nullptr;
 	}
 }
 

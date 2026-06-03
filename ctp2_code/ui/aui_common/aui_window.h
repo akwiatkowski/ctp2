@@ -103,18 +103,18 @@ public:
 protected:
 	aui_Window()
     :   aui_Region          (),
-	    m_surface           (NULL),
+	    m_surface           (nullptr),
         m_opaqueControls    (FALSE),
         m_bpp               (0),
         m_type              (AUI_WINDOW_TYPE_STANDARD),
-    	m_dirtyList         (NULL),
+    	m_dirtyList         (nullptr),
         m_isDragging        (FALSE),
-        m_grabRegion        (NULL),
+        m_grabRegion        (nullptr),
         m_ogX               (0),
 	    m_ogY               (0),
-        m_stencil           (NULL),
-        m_focusControl      (NULL),
-        m_focusList         (NULL)
+        m_stencil           (nullptr),
+        m_focusControl      (nullptr),
+        m_focusList         (nullptr)
     { ; };
 
 	AUI_ERRCODE InitCommon( sint32 bpp, AUI_WINDOW_TYPE type );
@@ -179,16 +179,16 @@ public:
 	aui_Region *GrabRegion( ) const { return m_grabRegion; }
 
 	virtual AUI_ERRCODE Draw(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	AUI_ERRCODE	Invalidate( RECT *rect = NULL );
+	AUI_ERRCODE	Invalidate( RECT *rect = nullptr );
 
 	AUI_ERRCODE AddDirtyRect( RECT *rect );
 	AUI_ERRCODE AddDirtyRect(

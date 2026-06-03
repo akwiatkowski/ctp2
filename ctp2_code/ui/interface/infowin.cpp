@@ -106,7 +106,7 @@ extern WorkMap                  *g_workMap;
 #define k_INFORADAR_WIDTH       202
 #define k_INFORADAR_HEIGHT      151
 
-ctp2_Window                     *g_infoWindow = NULL;
+ctp2_Window                     *g_infoWindow = nullptr;
 
 static c3_Button                *s_exitButton;
 
@@ -334,7 +334,7 @@ void infowin_Cleanup_Controls()
 			delete s_infoGraphData[i];
 		}
 		delete [] s_infoGraphData;
-		s_infoGraphData = NULL;
+		s_infoGraphData = nullptr;
 	}
 
 	if (s_pollutionGraphData)
@@ -344,7 +344,7 @@ void infowin_Cleanup_Controls()
 			delete s_pollutionGraphData[i];
 		}
 		delete [] s_pollutionGraphData;
-		s_pollutionGraphData = NULL;
+		s_pollutionGraphData = nullptr;
 	}
 
 	allocated::clear(s_bigButton);
@@ -427,28 +427,28 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	if ( !AUI_NEWOK(s_pollutionTherm, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionList" );
-	s_pollutionList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	s_pollutionList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_pollutionList, errcode) );
 	if ( !AUI_NEWOK(s_pollutionList, errcode) ) return -1;
 
 	s_pollutionList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoPlayerList" );
-	s_infoPlayerList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	s_infoPlayerList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoPlayerList, errcode) );
 	if ( !AUI_NEWOK(s_infoPlayerList, errcode) ) return -1;
 
 	s_infoPlayerList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoBigList" );
-	s_infoBigList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, InfoBigListCallback, NULL);
+	s_infoBigList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, InfoBigListCallback, nullptr);
 	Assert( AUI_NEWOK(s_infoBigList, errcode) );
 	if ( !AUI_NEWOK(s_infoBigList, errcode) ) return -1;
 
 	s_infoBigList->GetHeader()->Enable( FALSE );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoScoreList" );
-	s_infoScoreList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	s_infoScoreList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoScoreList, errcode) );
 	if ( !AUI_NEWOK(s_infoScoreList, errcode) ) return -1;
 
@@ -458,12 +458,12 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_infoScoreListRanger->Enable(TRUE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoWonderList" );
-	s_infoWonderList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	s_infoWonderList = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_infoWonderList, errcode) );
 	if ( !AUI_NEWOK(s_infoWonderList, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "InfoGraph" );
-	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL, eventtracker_Get());
+	s_infoGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr, eventtracker_Get());
 	Assert( AUI_NEWOK(s_infoGraph, errcode) );
 	if ( !AUI_NEWOK(s_infoGraph, errcode) ) return -1;
 
@@ -490,7 +490,7 @@ sint32 infowin_Init_Controls( MBCHAR *windowBlock )
 	s_infoGraph->EnablePrecision(FALSE);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PollutionGraph" );
-	s_pollutionGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	s_pollutionGraph = new LineGraph(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_pollutionGraph, errcode) );
 	if ( !AUI_NEWOK(s_pollutionGraph, errcode) ) return -1;
 
@@ -661,13 +661,13 @@ sint32 infowin_UpdateScoreList( )
 
 	s_infoScoreList->Clear();
 	strcpy(ldlBlock,"InfoScoreListItem");
-	InfoScoreListItem *item = NULL;
-	InfoScoreLabelListItem *label = NULL;
+	InfoScoreListItem *item = nullptr;
+	InfoScoreLabelListItem *label = nullptr;
 
 	sint32 posValue = 0;
 	sint32 negValue = 0;
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(0), NULL, ldlBlock);
+	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(0), nullptr, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
 	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_CELEBRATIONS, ldlBlock);
@@ -721,7 +721,7 @@ sint32 infowin_UpdateScoreList( )
 	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 
-	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(2), NULL, ldlBlock);
+	label = new InfoScoreLabelListItem(&retval, s_stringTable->GetString(2), nullptr, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)label);
 
 	item = new InfoScoreListItem(&retval, curPlayer, SCORE_CAT_UNITS_LOST, ldlBlock);
@@ -747,7 +747,7 @@ sint32 infowin_UpdateScoreList( )
 	item = new InfoScoreListItem(&retval, -1, 0, ldlBlock);
 	s_infoScoreList->AddItem((c3_ListItem *)item);
 
-	Score *score = NULL;
+	Score *score = nullptr;
 	if(player_Get(curPlayer)) {
 		score = player_Get(curPlayer)->m_score;
 	} else {
@@ -782,7 +782,7 @@ sint32 infowin_UpdateWonderList( )
 
 	s_infoWonderList->Clear();
 	strcpy(ldlBlock,"InfoWonderListItem");
-	InfoWonderListItem *wItem = NULL;
+	InfoWonderListItem *wItem = nullptr;
 	Unit city;
 
 	sint32 thePlayer = 0;
@@ -1040,7 +1040,7 @@ sint32 infowin_UpdatePlayerList( )
 
 	sint32 lineIndex = 0;
 
-	Civilisation *civ = NULL;
+	Civilisation *civ = nullptr;
 
 	for ( sint32 i = 0 ; i < k_MAX_PLAYERS ; i++ )
 	{
@@ -1053,7 +1053,7 @@ sint32 infowin_UpdatePlayerList( )
 			else color = myData[lineIndex++].color;
 
 			civ = player_Get(i)->GetCivilisation();
-			if (civ != NULL && civilisationpool_Get()->IsValid(*civ)) {
+			if (civ != nullptr && civilisationpool_Get()->IsValid(*civ)) {
 				civ->GetSingularCivName(strbuf);
 
 				s_infoPlayerList->AddItem
@@ -1162,8 +1162,8 @@ sint32 infowin_ChangeSetting( sint32 type )
 
 	s_infoSetting = type;
 
-	InfoBigListItem *bItem = NULL;
-	InfoWonderListItem *wItem = NULL;
+	InfoBigListItem *bItem = nullptr;
+	InfoWonderListItem *wItem = nullptr;
 
 	switch(type)
 	{
@@ -1426,7 +1426,7 @@ sint32 infowin_GetWonderCityName( sint32 index, MBCHAR *name)
 InfoBigListItem::InfoBigListItem(AUI_ERRCODE *retval, Unit *city, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1636,7 +1636,7 @@ sint32 InfoBigListItem::Compare(c3_ListItem *item2, uint32 column)
 InfoWonderListItem::InfoWonderListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1733,7 +1733,7 @@ sint32 InfoWonderListItem::Compare(c3_ListItem *item2, uint32 column)
 InfoScoreListItem::InfoScoreListItem(AUI_ERRCODE *retval, sint32 player, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1813,7 +1813,7 @@ sint32 InfoScoreListItem::Compare(c3_ListItem *item2, uint32 column)
 InfoScoreLabelListItem::InfoScoreLabelListItem(AUI_ERRCODE *retval, MBCHAR *label, MBCHAR *text, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1874,7 +1874,7 @@ sint32 InfoScoreLabelListItem::Compare(c3_ListItem *item2, uint32 column)
 InfoPlayerListItem::InfoPlayerListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );

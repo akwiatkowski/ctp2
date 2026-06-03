@@ -423,7 +423,7 @@ const MBCHAR *Score::GetPartialScoreItemized(SCORE_CATEGORY cat)
 	if(!pl)
 		pl = Player::GetDeadPlayer(m_owner);
 	if(!pl)
-		return 0;
+		return nullptr;
 
 
 

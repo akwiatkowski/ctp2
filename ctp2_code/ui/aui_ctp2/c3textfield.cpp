@@ -22,9 +22,9 @@ C3TextField::C3TextField(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_TextField( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -46,7 +46,7 @@ C3TextField::C3TextField(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_TextField( retval, id, x + 2, y + 2, width - 4, height - 4, text, ActionFunc, cookie ),
 	PatternBase( pattern )
 {
@@ -60,7 +60,7 @@ C3TextField::C3TextField(
 AUI_ERRCODE C3TextField::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32	bevelWidth = k_C3_TEXTFIELD_DEFAULT_BEVELWIDTH;

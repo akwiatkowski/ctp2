@@ -112,7 +112,7 @@ TurnCount::TurnCount(CivArchive &archive)
 TurnCount::~TurnCount()
 {
 	delete m_sliceList;
-	m_sliceList = NULL;
+	m_sliceList = nullptr;
 }
 
 void TurnCount::Init(sint32 numPlayers, sint32 initialYear)
@@ -264,7 +264,7 @@ void TurnCount::ChooseNextActivePlayer()
 		player_view::NextPlayer();
 		render_observer::NextPlayer();
 		count++;
-	} while(player_Get(player_view::CurPlayer()) == NULL ||
+	} while(player_Get(player_view::CurPlayer()) == nullptr ||
 			(player_Get(player_view::CurPlayer())->IsTurnOver() &&
 			player_Get(player_view::CurPlayer())->GetCurRound() == m_round &&
 			count <= k_MAX_PLAYERS));
@@ -1173,7 +1173,7 @@ void TurnCount::SendNextPlayerMessageEvent()
 		snprintf(turnString, sizeof(turnString), " (Turn %d)", GetRound()); // New turn is changed with the BeginTurn event, which still has to be executed.
 		strncat(fullPath, turnString, sizeof(fullPath) - strlen(fullPath) - 1);
 		strncat(fullPath, ".c2g", sizeof(fullPath) - strlen(fullPath) - 1);
-		GameFile::SaveGame(fullPath, NULL);
+		GameFile::SaveGame(fullPath, nullptr);
 	}
 
 	SlicObject * so =

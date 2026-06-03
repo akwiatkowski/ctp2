@@ -57,8 +57,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_Button(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -66,15 +66,15 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 
 	virtual AUI_ERRCODE ResetThis( );
 
 	sint32 ExtractRepeatCount( uint32 data ) const { return (sint32)data; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

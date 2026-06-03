@@ -60,7 +60,7 @@ C3Slider::C3Slider(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR const *) NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR const *) nullptr ),
 	aui_Ranger()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
@@ -79,7 +79,7 @@ C3Slider::C3Slider(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -105,7 +105,7 @@ C3Slider::C3Slider(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Ranger()
 {
 	*retval = aui_Region::InitCommon( id, x, y, width, height );
@@ -124,7 +124,7 @@ C3Slider::C3Slider(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon((MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -136,7 +136,7 @@ C3Slider::C3Slider(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateThumb( NULL );
+	*retval = CreateThumb( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 }
 
@@ -144,7 +144,7 @@ C3Slider::C3Slider(
 AUI_ERRCODE C3Slider::InitCommon( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	m_ticks = block->GetInt( k_C3SLIDER_LDL_TICKS );
@@ -313,7 +313,7 @@ void C3SliderThumbActionCallback( aui_Control *control, uint32 action, uint32 da
 	aui_Ranger *ranger = (aui_Ranger *)cookie;
 
 	sint32		sound = -1;
-	static aui_Ranger *oldRanger = 0;
+	static aui_Ranger *oldRanger = nullptr;
 	static sint32 val = 0;
 
 	if (oldRanger != ranger) {

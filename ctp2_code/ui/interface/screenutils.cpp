@@ -122,7 +122,7 @@ void close_WorkView()
 
 sint32 open_CityView( )
 {
-	AUI_ERRCODE auiErr  = CityWindow::Display(NULL);
+	AUI_ERRCODE auiErr  = CityWindow::Display(nullptr);
 
 	Assert( auiErr == AUI_ERRCODE_OK );
 	if ( auiErr != AUI_ERRCODE_OK ) return -1;
@@ -132,7 +132,7 @@ sint32 open_CityView( )
 
 void close_CityView()
 {
-	CityWindow::Close(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+	CityWindow::Close(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 }
 
 sint32 open_CityStatus( )
@@ -529,7 +529,7 @@ void close_AllScreens()
 		g_modalWindow = 1;
 
 		battleview_ExitButtonActionCallback
-            (NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+            (nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 	}
     else
     {
@@ -577,7 +577,7 @@ void close_AllScreensAndUpdateInfoScreen()
     {
 		g_modalWindow = 1;
 		battleview_ExitButtonActionCallback
-            (NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+            (nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 	}
     else
     {

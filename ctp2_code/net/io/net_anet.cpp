@@ -19,11 +19,11 @@ extern NETFunc *netfunc_Get();
 
 ActivNetIO::ActivNetIO()
 {
-	m_dp = NULL;
+	m_dp = nullptr;
 	m_sessionState = SESSION_STATE_READY;
 	m_isHost = FALSE;
-	m_response = NULL;
-	m_name = NULL;
+	m_response = nullptr;
+	m_name = nullptr;
 	m_hostId = 0;
 	m_pid = 0;
 	m_broadcastAddMessage = FALSE;
@@ -39,10 +39,10 @@ ActivNetIO::~ActivNetIO()
 		Idle();
 		dpClose(m_dp);
 
-		time_t start = time(0);
+		time_t start = time(nullptr);
 		do {
 			Idle();
-		} while(time(0) < start + 3);
+		} while(time(nullptr) < start + 3);
 
 		dpDestroy(m_dp, 0);
 	}
@@ -104,7 +104,7 @@ void ActivNetIO::PlayerCallback(dpid_t id,
 #endif
 		} else {
 			m_broadcastAddMessage = TRUE;
-			m_broadcastAddMessageTime = time(0) - 10;
+			m_broadcastAddMessageTime = time(nullptr) - 10;
 		}
   	}
 }
@@ -124,7 +124,7 @@ void ActivNetIO::SetDP(dp_t *dp)
 		Assert(res == dp_RES_OK);
 
 		m_got_end_players = FALSE;
-		dpEnumPlayers(m_dp, NULL, anet_EnumPlayers,
+		dpEnumPlayers(m_dp, nullptr, anet_EnumPlayers,
 					  this, 2000);
 		Assert(m_got_end_players);
 		if(m_isHost) {
@@ -144,7 +144,7 @@ void ActivNetIO::SetDP(dp_t *dp)
 				walk.Next();
 			}
 		}
-		m_response->SessionReady(NET_ERR_OK, NULL);
+		m_response->SessionReady(NET_ERR_OK, nullptr);
 	}
 
 }
@@ -201,7 +201,7 @@ ActivNetIO::SetTransport(sint32 trans_id)
 
 
 		memset(&commInitReq, 0, sizeof(commInitReq));
-		commInitReq.sessionId = static_cast<long>(rand() ^ (rand() << 16) ^ time(0));
+		commInitReq.sessionId = static_cast<long>(rand() ^ (rand() << 16) ^ time(nullptr));
 		commInitReq.reqLen = sizeof(commInitReq_t);
 		modeminit[0] = 0;
 		phonenum[0] = 0;
@@ -217,7 +217,7 @@ ActivNetIO::SetTransport(sint32 trans_id)
 		dp_result_t res = dpCreate(&m_dp,
 								   trans,
 								   &commInitReq,
-								   NULL);
+								   nullptr);
         return (res == dp_RES_OK) ? NET_ERR_OK : NET_ERR_TRANSPORTERROR;
 	}
 
@@ -259,23 +259,23 @@ ActivNetIO::SessionReadyCallback(dp_session_t *ps,
 
 		m_sessionState = SESSION_STATE_CREATE_PLAYER;
 	} else {
-		m_response->SessionReady(NET_ERR_TRANSPORTERROR, NULL);
+		m_response->SessionReady(NET_ERR_TRANSPORTERROR, nullptr);
 	}
 
-	return ps != NULL;
+	return ps != nullptr;
 }
 
 NET_ERR
 ActivNetIO::Host(char* sessionName)
 {
-	Assert(m_dp != NULL);
-	if(m_dp == NULL) {
+	Assert(m_dp != nullptr);
+	if(m_dp == nullptr) {
 		return NET_ERR_NOTSTARTED;
 	}
 
 	if(m_state == ANET_STATE_CONTACTING_LOBBY) {
-		time_t t = time(0) + 3;
-		while(time(0) < t) {
+		time_t t = time(nullptr) + 3;
+		while(time(nullptr) < t) {
 			Idle();
 		}
 		m_state = ANET_STATE_READY;
@@ -327,7 +327,7 @@ ActivNetIO::SessionCallback(dp_session_t *sDesc,
 		m_response->EnumSession(NET_ERR_NOMORESESSIONS,
 								   -1,
 								   "ERROR",
-								   NULL);
+								   nullptr);
 		return FALSE;
 	}
 }
@@ -335,11 +335,11 @@ ActivNetIO::SessionCallback(dp_session_t *sDesc,
 NET_ERR
 ActivNetIO::EnumSessions()
 {
-	Assert(m_dp != NULL);
+	Assert(m_dp != nullptr);
 
 	if(m_state == ANET_STATE_CONTACTING_LOBBY) {
-		time_t t = time(0) + 3;
-		while(time(0) < t) {
+		time_t t = time(nullptr) + 3;
+		while(time(nullptr) < t) {
 			Idle();
 		}
 		m_state = ANET_STATE_READY;
@@ -348,14 +348,14 @@ ActivNetIO::EnumSessions()
 	dp_session_t sess;
 	memset(&sess, 0, sizeof(sess));
 	sess.sessionType = CIV3_SPECIES;
-	(void) dpEnumSessions(m_dp, &sess, NULL, 1750L, anet_EnumSessionsCallback, this);
+	(void) dpEnumSessions(m_dp, &sess, nullptr, 1750L, anet_EnumSessionsCallback, this);
 	return NET_ERR_OK;
 }
 
 NET_ERR
 ActivNetIO::Join(sint32 sesindex)
 {
-	Assert(m_dp != NULL);
+	Assert(m_dp != nullptr);
 
 	Assert(sesindex >= 0 && sesindex < m_sessions.GetSize());
 
@@ -458,7 +458,7 @@ ActivNetIO::Idle()
 	}
 
 	if(m_broadcastAddMessage) {
-		if(time(0) - m_broadcastAddMessageTime >= 2) {
+		if(time(nullptr) - m_broadcastAddMessageTime >= 2) {
 			char buf[10];
 			buf[0] = 'A';
 			buf[1] = 'M';
@@ -469,7 +469,7 @@ ActivNetIO::Idle()
 				   0,
 				   buf,
 				   2);
-			m_broadcastAddMessageTime = time(0);
+			m_broadcastAddMessageTime = time(nullptr);
 		}
 	}
 

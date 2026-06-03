@@ -37,7 +37,7 @@ char *ldl_datablock::GetString( const char *szName )
 			return ((ldl_attributeValue<char *> *)atr)->GetValue();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool ldl_datablock::GetBool( const char *szName )

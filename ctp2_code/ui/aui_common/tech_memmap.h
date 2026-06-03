@@ -11,7 +11,7 @@ public:
 	virtual unsigned char *GetFileBits
 	(
 		const char *   filename,
-		size_t *       filesize = NULL
+		size_t *       filesize = nullptr
 	);
 	virtual void ReleaseFileBits( unsigned char *&bits );
 

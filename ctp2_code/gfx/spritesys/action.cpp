@@ -54,7 +54,7 @@
 Action::Action(sint32 actionType, ACTIONEND endCondition, sint32 startAnimPos, sint32 specialDelayProcess) :
     m_actionType                (actionType),
     m_endCondition              (endCondition),
-	  m_curAnim                   (NULL),
+	  m_curAnim                   (nullptr),
 	  m_maxActionCounter          (0),
 	  m_curActionCounter          (0),
 	  m_animPos                   (startAnimPos),
@@ -79,7 +79,7 @@ Action::Action(sint32 actionType, ACTIONEND endCondition, sint32 startAnimPos, s
 Action::Action(const Action &rhs):
   m_actionType                (rhs.m_actionType),
   m_endCondition              (rhs.m_endCondition),
-	m_curAnim                   (NULL),
+	m_curAnim                   (nullptr),
 	m_maxActionCounter          (rhs.m_maxActionCounter),
 	m_curActionCounter          (rhs.m_curActionCounter),
 	m_animPos                   (rhs.m_animPos),
@@ -114,7 +114,7 @@ Action::Action(const Action &rhs):
 Action::~Action()
 {
 	delete m_curAnim;
-  m_curAnim = NULL;
+  m_curAnim = nullptr;
 }
 
 void Action::Process()
@@ -183,7 +183,7 @@ void Action::SetAnim(Anim *anim)
 #endif
 
 //	Assert(anim != NULL);
-	if (anim == NULL) return;
+	if (anim == nullptr) return;
 
 	anim->SetFinished(false);
 
@@ -266,7 +266,7 @@ uint16 Action::GetTransparency() const
 	uint16	trans = 15;
 	uint16	*transparencies;
 
-	if (m_curAnim != NULL && m_animPos < m_curAnim->GetNumFrames()) {
+	if (m_curAnim != nullptr && m_animPos < m_curAnim->GetNumFrames()) {
 		transparencies = m_curAnim->GetTransparencies();
 		if (transparencies) {
 			trans = transparencies[m_animPos];

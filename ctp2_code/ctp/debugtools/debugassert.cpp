@@ -19,7 +19,7 @@ struct DebugAssert
 	DebugAssertClientFunction DebugAssert_Leave;
 };
 
-static DebugAssert debug_assert = {0, 0};
+static DebugAssert debug_assert = {nullptr, nullptr};
 
 
 

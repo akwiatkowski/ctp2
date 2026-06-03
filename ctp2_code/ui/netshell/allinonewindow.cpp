@@ -98,15 +98,15 @@
 extern Network g_network;
 extern aui_Radio *s_maleRadio;
 
-static DialogBoxWindow *s_dbw = NULL;
-static AllinoneWindow * g_allinoneWindow = NULL;
+static DialogBoxWindow *s_dbw = nullptr;
+static AllinoneWindow * g_allinoneWindow = nullptr;
 
 AllinoneWindow * allinonewindow_Get()
 {
     return g_allinoneWindow;
 }
-static DialogBoxWindow *g_rulesWindow = NULL;
-static DialogBoxWindow *g_exclusionsWindow = NULL;
+static DialogBoxWindow *g_rulesWindow = nullptr;
+static DialogBoxWindow *g_exclusionsWindow = nullptr;
 
 #ifdef _DEBUG
 #define DEBUG_PushChatMessage(arg) (netfunc_Get()->PushChatMessage("DEBUG: " arg))
@@ -165,18 +165,18 @@ AUI_ERRCODE AllinoneWindow::InitCommon( )
     }
 	m_numControls = CONTROL_MAX;
 	m_controls = new aui_Control *[CONTROL_MAX];
-	std::fill(m_controls, m_controls + CONTROL_MAX, (aui_Control *) NULL);
+	std::fill(m_controls, m_controls + CONTROL_MAX, (aui_Control *) nullptr);
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	g_rulesWindow = new DialogBoxWindow(
 		&errcode,
 		"ruleswindow",
-		NULL );
+		nullptr );
 
 	g_exclusionsWindow = new DialogBoxWindow(
 		&errcode,
 		"exclusionswindow",
-		NULL );
+		nullptr );
 
 	memset( m_lname, 0, sizeof( m_lname ) );
 
@@ -333,7 +333,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"reviewbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_REVIEWBUTTON ] = control;
@@ -350,7 +350,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"playerssheet.addaibutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_ADDAIBUTTON ] = control;
@@ -359,7 +359,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"playerssheet.rulesbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_RULESBUTTON ] = control;
@@ -368,7 +368,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"playerssheet.exclusionsbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EXCLUSIONSBUTTON ] = control;
@@ -411,7 +411,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"kickbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_KICKBUTTON ] = control;
@@ -420,7 +420,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"allinonewindow",
 		"infobutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_INFOBUTTON ] = control;
@@ -461,7 +461,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"ruleswindow",
 		"rulessheet.agesbutton",
-		NULL);
+		nullptr);
 
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
@@ -471,7 +471,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"ruleswindow",
 		"rulessheet.mapsizebutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_MAPSIZEBUTTON ] = control;
@@ -480,7 +480,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"ruleswindow",
 		"rulessheet.worldtypebutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_WORLDTYPEBUTTON ] = control;
@@ -489,7 +489,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"ruleswindow",
 		"rulessheet.worldshapebutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_WORLDSHAPEBUTTON ] = control;
@@ -498,7 +498,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		"ruleswindow",
 		"rulessheet.difficultybutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_DIFFICULTYBUTTON ] = control;
@@ -547,7 +547,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		aui_UniqueId(),
 		"ruleswindow.rulessheet.civpointsbutton",
-		NULL,
+		nullptr,
 		new CivPointsButtonAction );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
@@ -565,7 +565,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 		&errcode,
 		aui_UniqueId(),
 		"ruleswindow.rulessheet.pwpointsbutton",
-		NULL,
+		nullptr,
 		new PwPointsButtonAction );
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
@@ -688,7 +688,7 @@ AUI_ERRCODE AllinoneWindow::CreateControls( )
 	m_controls[ CONTROL_HPLAYERSLISTBOX ]->SetAction(new PlayersListBoxAction);
 	m_controls[ CONTROL_PLAYSTYLEDROPDOWN ]->SetAction(new PlayStyleDropDownAction);
 
-	((ctp2_Spinner *)m_controls[CONTROL_PLAYSTYLEVALUESPINNER])->SetSpinnerCallback(PlayStyleValueSpinnerCallback, NULL);
+	((ctp2_Spinner *)m_controls[CONTROL_PLAYSTYLEVALUESPINNER])->SetSpinnerCallback(PlayStyleValueSpinnerCallback, nullptr);
 
 	m_controls[ CONTROL_DYNAMICJOINSWITCH ]->SetAction(new DynamicJoinSwitchAction);
 	m_controls[ CONTROL_HANDICAPPINGSWITCH ]->SetAction(new HandicappingSwitchAction);
@@ -859,7 +859,7 @@ AllinoneWindow::~AllinoneWindow()
 
     if (this == g_allinoneWindow)
     {
-	    g_allinoneWindow = NULL;
+	    g_allinoneWindow = nullptr;
     }
 }
 
@@ -960,7 +960,7 @@ AUI_ERRCODE AllinoneWindow::CreateExclusions( )
 	m_numAvailUnits = nsunits_Get()->GetStrings()->GetNumStrings();
 	gamesetup_Get().SetNumAvailUnits( m_numAvailUnits );
 
-	aui_Switch *item = NULL;
+	aui_Switch *item = nullptr;
 	tech_WLList<aui_Switch *> unitList;
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	sint32 i;
@@ -1302,7 +1302,7 @@ ns_HPlayerItem *AllinoneWindow::GetHPlayerFromId( dpid_t id )
 				return hplayer;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1323,7 +1323,7 @@ NETFunc::Player *AllinoneWindow::GetPlayerFromKey( uint16 key )
 			return player;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1344,23 +1344,23 @@ nf_AIPlayer *AllinoneWindow::GetAIPlayerFromKey( uint16 key )
 			return player;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
 BOOL AllinoneWindow::WhoHasTribe( sint32 index, uint16 *curKey, BOOL *curIsAI, BOOL *curIsFemale )
 {
-	Assert( curKey != NULL );
+	Assert( curKey != nullptr );
 	if ( !curKey ) return FALSE;
 
 	*curKey = 0;
 
-	Assert( curIsAI != NULL );
+	Assert( curIsAI != nullptr );
 	if ( !curIsAI ) return FALSE;
 
 	*curIsAI = FALSE;
 
-	Assert( curIsFemale != NULL );
+	Assert( curIsFemale != nullptr );
 	if ( !curIsFemale ) return FALSE;
 
 	*curIsFemale = FALSE;
@@ -1610,7 +1610,7 @@ BOOL AllinoneWindow::AssignTribe(
 		else
 		{
 			nf_AIPlayer *aiplayer = GetAIPlayerFromKey( key );
-			Assert( aiplayer != NULL );
+			Assert( aiplayer != nullptr );
 			if ( !aiplayer ) return FALSE;
 
 			Assert( index > 0 );
@@ -1895,7 +1895,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 				if ( s_dbw )
 				{
 					DialogBoxWindow::PopDown( s_dbw );
-					s_dbw = NULL;
+					s_dbw = nullptr;
 				}
 				netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 				((LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
@@ -1938,7 +1938,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 			else if ( m->GetCode() == (NETFunc::Message::Code)CUSTOMCODE_REQUESTTRIBE )
 			{
 				ns_HPlayerItem *hplayer = GetHPlayerFromId( m->GetSender() );
-				Assert( hplayer != NULL );
+				Assert( hplayer != nullptr );
 				if ( hplayer )
 				{
 					uint16 key = *(uint16 *)hplayer->GetPlayer()->GetKey()->buf;
@@ -2089,7 +2089,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 		if ( m_mode == CONTINUE_CREATE ||
 			 (IsScenarioGame()))
 		{
-			SaveInfo *info = NULL;
+			SaveInfo *info = nullptr;
 			BOOL deleteIt = FALSE;
 			if(IsScenarioGame()) {
 				ScenarioPack *pack;
@@ -2146,7 +2146,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 						if ( s_dbw ) {
 							DialogBoxWindow::PopDown( s_dbw );
-							s_dbw = NULL;
+							s_dbw = nullptr;
 						}
 
 						passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_SCENARIO_NOT_FOUND );
@@ -2189,7 +2189,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 		if ( s_dbw )
 		{
 			DialogBoxWindow::PopDown( s_dbw );
-			s_dbw = NULL;
+			s_dbw = nullptr;
 		}
 	}
 
@@ -2302,7 +2302,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 				if ( s_dbw )
 				{
 					DialogBoxWindow::PopDown( s_dbw );
-					s_dbw = NULL;
+					s_dbw = nullptr;
 				}
 				netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
 				((LobbyWindow *)netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ))->Update();
@@ -2459,7 +2459,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 				if ( s_dbw )
 				{
 					DialogBoxWindow::PopDown( s_dbw );
-					s_dbw = NULL;
+					s_dbw = nullptr;
 				}
 
 				passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_FULL );
@@ -2533,7 +2533,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 
 			if ( s_dbw ) {
 				DialogBoxWindow::PopDown( s_dbw );
-				s_dbw = NULL;
+				s_dbw = nullptr;
 			}
 
 			passwordscreen_displayMyWindow( PASSWORDSCREEN_MODE_SCENARIO_NOT_FOUND );
@@ -2626,7 +2626,7 @@ AUI_ERRCODE AllinoneWindow::Idle( )
 		if ( s_dbw )
 		{
 			DialogBoxWindow::PopDown( s_dbw );
-			s_dbw = NULL;
+			s_dbw = nullptr;
 		}
 	}
 
@@ -3337,7 +3337,7 @@ void AllinoneWindow::PlayersListBoxAction::Execute(
 			NETFunc::Player *player = item->GetPlayer();
 			if(chatbox->GetPlayer() && player->Equals(chatbox->GetPlayer()))
 			{
-				chatbox->SetPlayer(0);
+				chatbox->SetPlayer(nullptr);
 			}
 		}
 	}
@@ -3349,7 +3349,7 @@ void AllinoneWindow::PlayersListBoxAction::Execute(
 		ns_HPlayerItem *item = (ns_HPlayerItem *)listbox->GetItemByIndex(index);
 		if (item->IsAI())
 		{
-			chatbox->SetPlayer(0);
+			chatbox->SetPlayer(nullptr);
 		}
 		else
 		{
@@ -3722,7 +3722,7 @@ void AllinoneWindow::OKButtonAction::Execute(
 
 	spnewgametribescreen_setTribeIndex(
 		playersetup_Get().GetTribe() - 1,
-		strlen( w->m_lname ) ? w->m_lname : NULL );
+		strlen( w->m_lname ) ? w->m_lname : nullptr );
 
 	custommapscreen_setValues(
 		gamesetup_Get().GetWorldType1(),
@@ -4480,7 +4480,7 @@ void AllinoneWindow::SpitOutGameSetup( )
 
 
 
-	static aui_TextBase textStyle( "styles.system", (MBCHAR *)NULL );
+	static aui_TextBase textStyle( "styles.system", (MBCHAR *)nullptr );
 	((ns_ChatBox *)m_controls[ CONTROL_CHATBOX ])->
 		AppendText( info, textStyle.GetTextColor(), FALSE, FALSE );
 }
@@ -4498,7 +4498,7 @@ void AllinoneWindow::DialogBoxPopDownAction::Execute(
 	if ( s_dbw )
 	{
 		DialogBoxWindow::PopDown( s_dbw );
-		s_dbw = NULL;
+		s_dbw = nullptr;
 	}
 	LobbyWindow *w = (LobbyWindow *)(netshell_Get()->FindWindow( NetShell::WINDOW_LOBBY ));
 	netshell_Get()->GotoScreen( NetShell::SCREEN_LOBBY );
@@ -5274,7 +5274,7 @@ void AllinoneTribeCallback(
 
 	spnewgametribescreen_removeMyWindow(
 		action,
-		item->IsAI() ? NULL : w->m_lname );
+		item->IsAI() ? nullptr : w->m_lname );
 
 
 
@@ -5336,7 +5336,7 @@ void AllinoneTribeCallback(
 
 			spnewgametribescreen_setTribeIndex(
 				playersetup_Get().GetTribe() - 1,
-				strlen( w->m_lname ) ? w->m_lname : NULL );
+				strlen( w->m_lname ) ? w->m_lname : nullptr );
 		}
 	}
 	else
@@ -5633,7 +5633,7 @@ void TribesButtonCallback(
 		g_allinoneWindow->UpdateTribeSwitches();
 		spnewgametribescreen_setTribeIndex(
 			playersetup_Get().GetTribe() - 1,
-			strlen( w->m_lname ) ? w->m_lname : NULL );
+			strlen( w->m_lname ) ? w->m_lname : nullptr );
 	}
 
 	spnewgametribescreen_displayMyWindow(

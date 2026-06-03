@@ -289,7 +289,7 @@ void Foreigner::RecomputeRegard(const DiplomacyRecord & diplomacy,
 	RegardEventList::iterator event_iter;
 
 	m_regardTotal = baseRegard;
-	const DiplomacyRecord::RegardDecay *regard_decay = NULL;
+	const DiplomacyRecord::RegardDecay *regard_decay = nullptr;
 
 	for (sint32 type = 0; type < (sint32) REGARD_EVENT_ALL; type++) {
 
@@ -335,7 +335,7 @@ void Foreigner::RecomputeRegard(const DiplomacyRecord & diplomacy,
 					continue;
 				}
 
-				if (event_iter->duration <= 0 && regard_decay != NULL)
+				if (event_iter->duration <= 0 && regard_decay != nullptr)
 				{
 					if (event_iter->regard > 0)
 						event_iter->regard *= regard_decay->GetPositiveDecay();
@@ -637,7 +637,7 @@ void Foreigner::LogDebugStatus(const DiplomacyRecord & diplomacy) const
 	RegardEventList::const_iterator event_iter;
 	double decay;
 	sint32 round;
-	const DiplomacyRecord::RegardDecay *regard_decay = NULL;
+	const DiplomacyRecord::RegardDecay *regard_decay = nullptr;
 
 	gslog_dipprint("     delta  : rnds/decay : regard change reason (type) \n");
 	for (sint32 type = 0; type < (sint32) REGARD_EVENT_ALL; type++)

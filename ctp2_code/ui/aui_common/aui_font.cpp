@@ -17,7 +17,7 @@ aui_Font::aui_Font(
 
 AUI_ERRCODE aui_Font::InitCommon( MBCHAR *descriptor )
 {
-	m_hfont = NULL;
+	m_hfont = nullptr;
 
 	m_height = 0;
 	m_averageWidth = 0;
@@ -105,7 +105,7 @@ AUI_ERRCODE aui_Font::Load( )
 		m_pitchAndFamily,
 		m_fontname );
 #endif
-	Assert( m_hfont != NULL );
+	Assert( m_hfont != nullptr );
 	if ( !m_hfont ) return AUI_ERRCODE_LOADFAILED;
 
 	return AUI_ERRCODE_OK;

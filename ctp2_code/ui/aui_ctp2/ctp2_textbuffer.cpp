@@ -13,8 +13,8 @@
 
 ctp2_TextBuffer::ctp2_TextBuffer(aui_Surface *destSurface, RECT *destRect, sint32 scrollbackLines)
 {
-	Assert(destSurface != NULL);
-	if (destSurface == NULL) return;
+	Assert(destSurface != nullptr);
+	if (destSurface == nullptr) return;
 
 
 
@@ -29,7 +29,7 @@ ctp2_TextBuffer::ctp2_TextBuffer(aui_Surface *destSurface, RECT *destRect, sint3
 		FALSE );
 
 	m_font = c3ui_Get()->LoadBitmapFont( descriptor );
-	Assert( m_font != NULL );
+	Assert( m_font != nullptr );
 	if ( !m_font ) return;
 
 	m_charHeight = m_font->GetMaxHeight();
@@ -145,7 +145,7 @@ void ctp2_TextBuffer::Scroll(sint32 numLines)
 	char		*buffer;
 	sint32		deltaY = numLines * m_charHeight;
 
-	errcode = m_surface->Lock(NULL, (LPVOID *)&buffer, 0);
+	errcode = m_surface->Lock(nullptr, (LPVOID *)&buffer, 0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return;
 

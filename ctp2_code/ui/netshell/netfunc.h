@@ -828,7 +828,7 @@ protected:
 	STATUS Send(dp_t *p, dpid_t id, dpid_t from = dp_ID_BROADCAST);
 public:
 
-	AIPlayers(AIPlayers *l = NULL);
+	AIPlayers(AIPlayers *l = nullptr);
 
 	bool Handle(Message *m);
 
@@ -901,7 +901,7 @@ static dp_uid_t userId;
 class Players:public List<Player> {
 public:
 
-	Players(Players *l = NULL);
+	Players(Players *l = nullptr);
 
 	Player *FindGroupMate(char g);
 
@@ -967,7 +967,7 @@ protected:
 	void Left(dpid_t id);
 public:
 
-	PlayerStats(PlayerStats *l = NULL);
+	PlayerStats(PlayerStats *l = nullptr);
 
 	bool Handle(Message *m);
 
@@ -1327,7 +1327,7 @@ public:
 
 	STATUS Connect();
 
-	STATUS Connect(dp_t *d, PlayerStats *stats = NULL, bool host = false);
+	STATUS Connect(dp_t *d, PlayerStats *stats = nullptr, bool host = false);
 
 	void ReConnect();
 

@@ -24,7 +24,7 @@ protected:
 	ns_Header() : aui_Header() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( );
-	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = NULL );
+	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = nullptr );
 };
 
 #endif

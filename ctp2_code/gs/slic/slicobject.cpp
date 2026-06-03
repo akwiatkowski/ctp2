@@ -72,12 +72,12 @@ SlicObject::SlicObject()
     SlicContext             (),
     m_refCount              (0),
     m_id                    (),
-	m_segment               (NULL),
-	m_frame                 (NULL),
+	m_segment               (nullptr),
+	m_frame                 (nullptr),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
-	m_request               (NULL),
+	m_request               (nullptr),
 	m_defaultAdvanceSet     (FALSE),
 	m_defaultAdvance        (INDEX_INVALID),
 	m_aborted               (FALSE),
@@ -89,7 +89,7 @@ SlicObject::SlicObject()
 	m_isDiplomaticResponse  (FALSE),
 	m_useDirector           (FALSE),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 }
 
@@ -98,10 +98,10 @@ SlicObject::SlicObject(char const * id)
     SlicContext             (),
     m_refCount              (0),
     m_id                    (id ? id : ""),
-	m_segment               (NULL),
-	m_frame                 (NULL),
+	m_segment               (nullptr),
+	m_frame                 (nullptr),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
 	m_request               (new ID),
 	m_defaultAdvanceSet     (FALSE),
@@ -115,7 +115,7 @@ SlicObject::SlicObject(char const * id)
 	m_isDiplomaticResponse  (FALSE),
 	m_useDirector           (FALSE),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
 	m_frame     = new SlicFrame(m_segment);
@@ -134,7 +134,7 @@ SlicObject::SlicObject(SlicSegment *segment)
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
 	m_request               (new ID),
 	m_defaultAdvanceSet     (FALSE),
@@ -148,7 +148,7 @@ SlicObject::SlicObject(SlicSegment *segment)
 	m_isDiplomaticResponse  (FALSE),
 	m_useDirector           (FALSE),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 	if (m_segment && !m_segment->IsHelp())
     {
@@ -164,9 +164,9 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
 	m_segment               (segment),
 	m_frame                 (new SlicFrame(segment)),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
-	m_request               (NULL),
+	m_request               (nullptr),
     m_defaultAdvanceSet     (copy->m_defaultAdvanceSet),
     m_defaultAdvance        (copy->m_defaultAdvance),
 	m_aborted               (FALSE),
@@ -178,7 +178,7 @@ SlicObject::SlicObject(SlicSegment * segment, SlicObject * copy)
     m_isDiplomaticResponse  (copy->m_isDiplomaticResponse),
     m_useDirector           (copy->m_useDirector),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 	m_request               = new ID(*copy->m_request);
 }
@@ -188,10 +188,10 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
     SlicContext             (copy),
     m_refCount              (0),
     m_id                    (id ? id : ""),
-	m_segment               (NULL),
-	m_frame                 (NULL),
+	m_segment               (nullptr),
+	m_frame                 (nullptr),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
 	m_request               (new ID),
 	m_defaultAdvanceSet     (FALSE),
@@ -205,7 +205,7 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	m_isDiplomaticResponse  (FALSE),
 	m_useDirector           (FALSE),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 	m_segment   = slicengine_Get()->GetSegment(m_id.c_str());
 	m_frame     = new SlicFrame(m_segment);
@@ -220,10 +220,10 @@ SlicObject::SlicObject(CivArchive &archive)
     SlicContext             (),
     m_refCount              (0),
     m_id                    (),
-	m_segment               (NULL),
-	m_frame                 (NULL),
+	m_segment               (nullptr),
+	m_frame                 (nullptr),
 	m_seconds               (1),
-	m_recipientList         (NULL),
+	m_recipientList         (nullptr),
 	m_numRecipients         (0),
 	m_request               (new ID),
 	m_defaultAdvanceSet     (FALSE),
@@ -237,7 +237,7 @@ SlicObject::SlicObject(CivArchive &archive)
 	m_isDiplomaticResponse  (FALSE),
 	m_useDirector           (FALSE),
 	m_result                (0),
-	m_argList               (NULL)
+	m_argList               (nullptr)
 {
 	Serialize(archive);
 }
@@ -269,7 +269,7 @@ sint32 SlicObject::Release()
 
 bool SlicObject::IsValid() const
 {
-	return m_segment != NULL;
+	return m_segment != nullptr;
 }
 
 void SlicObject::AddRecipient(const PLAYER_INDEX recip)
@@ -596,7 +596,7 @@ void SlicObject::Serialize(CivArchive &archive)
 			delete [] tmpID;
 			m_frame = new SlicFrame(m_segment);
 		} else {
-			m_segment = NULL;
+			m_segment = nullptr;
 		}
 		archive >> m_defaultAdvanceSet;
 		archive >> m_defaultAdvance;

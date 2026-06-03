@@ -20,12 +20,12 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		Picture *pictureOn = NULL,
-		Picture *pictureOff = NULL,
-		Picture *pictureActiveOn = NULL,
-		Picture *pictureActiveOff = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		Picture *pictureOn = nullptr,
+		Picture *pictureOff = nullptr,
+		Picture *pictureActiveOn = nullptr,
+		Picture *pictureActiveOff = nullptr,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		BOOL selected = FALSE );
 	virtual ~PictureSwitch() {}
 
@@ -35,7 +35,7 @@ public:
 	Picture *&ThePictureActiveOff( ) { return m_pictureActiveOff; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

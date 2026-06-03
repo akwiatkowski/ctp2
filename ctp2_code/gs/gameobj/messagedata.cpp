@@ -96,8 +96,8 @@ MessageData::MessageData(CivArchive &archive)
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
-    m_window                (NULL),
-    m_slicSegment           (NULL)
+    m_window                (nullptr),
+    m_slicSegment           (nullptr)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
@@ -128,8 +128,8 @@ MessageData::MessageData(const ID id, sint32 currentYear)
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
-    m_window                (NULL),
-    m_slicSegment           (NULL)
+    m_window                (nullptr),
+    m_slicSegment           (nullptr)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 }
@@ -163,8 +163,8 @@ MessageData::MessageData(const ID id, const PLAYER_INDEX owner, const PLAYER_IND
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
-    m_window                (NULL),
-    m_slicSegment           (NULL)
+    m_window                (nullptr),
+    m_slicSegment           (nullptr)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
@@ -196,8 +196,8 @@ MessageData::MessageData(const ID id, MessageData *copy)
 	m_tradeOffer            (),
     m_buttonList            (new PointerList<SlicButton>),
     m_eyePoints             (new PointerList<SlicEyePoint>),
-    m_window                (NULL),
-    m_slicSegment           (NULL)
+    m_window                (nullptr),
+    m_slicSegment           (nullptr)
 {
     std::fill(m_caption, m_caption + k_MAX_MSG_LEN, (MBCHAR) 0);
 
@@ -348,12 +348,12 @@ void MessageData::Serialize(CivArchive &archive)
 			ewalk.GetObj()->Serialize(archive);
 		}
 
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if (m_lesser)
 			((MessageData *)(m_lesser))->Serialize(archive) ;
 
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if (m_greater)
 			((MessageData *)(m_greater))->Serialize(archive) ;
@@ -402,14 +402,14 @@ void MessageData::Serialize(CivArchive &archive)
 		if(hasChild) {
 			m_lesser = new MessageData(archive);
 		} else {
-			m_lesser = NULL;
+			m_lesser = nullptr;
 		}
 
 		archive >> hasChild;
 		if(hasChild) {
 			m_greater = new MessageData(archive);
 		} else {
-			m_greater = NULL;
+			m_greater = nullptr;
 		}
 
 	}
@@ -1169,7 +1169,7 @@ sint32 MessageData::GetNumButtons() const
 SlicButton *MessageData::GetButton(sint32 index)
 {
 	if(index >= m_buttonList->GetCount())
-		return NULL;
+		return nullptr;
 
 	PointerList<SlicButton>::Walker walk(m_buttonList);
 	sint32 count = 0;
@@ -1182,7 +1182,7 @@ SlicButton *MessageData::GetButton(sint32 index)
 		walk.Next();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 SlicButton *MessageData::GetCloseEvent()
@@ -1194,7 +1194,7 @@ SlicButton *MessageData::GetCloseEvent()
 		}
 		walk.Next();
 	}
-	return NULL;
+	return nullptr;
 }
 
 void MessageData::AddEyePoint(SlicEyePoint *eyePoint)
@@ -1205,7 +1205,7 @@ void MessageData::AddEyePoint(SlicEyePoint *eyePoint)
 SlicEyePoint *MessageData::GetEyePoint(sint32 index)
 {
 	if(index >= m_eyePoints->GetCount() || index < 0)
-		return NULL;
+		return nullptr;
 
 	PointerList<SlicEyePoint>::Walker walk(m_eyePoints);
 	sint32 count = 0;
@@ -1215,7 +1215,7 @@ SlicEyePoint *MessageData::GetEyePoint(sint32 index)
 	}
 	Assert(walk.IsValid());
 	if(!walk.IsValid())
-		return NULL;
+		return nullptr;
 	return walk.GetObj();
 }
 
@@ -1236,7 +1236,7 @@ const MBCHAR *MessageData::GetEyePointName( sint32 index )
 {
 	SlicEyePoint *ep = GetEyePoint(index);
 	if(!ep)
-		return NULL;
+		return nullptr;
 	if(!ep->GetName()) {
 		static MBCHAR empty = 0;
 		return &empty;
@@ -1263,7 +1263,7 @@ void MessageData::EyeDropdownCallback(sint32 index)
 void MessageData::KillMessageWindow( )
 {
 	if (gameobservers_Get()) gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
-	m_window = NULL;
+	m_window = nullptr;
 }
 
 void MessageData::IgnoreMessage( )
@@ -1271,7 +1271,7 @@ void MessageData::IgnoreMessage( )
 	if (m_window && gameobservers_Get()) {
 		gameobservers_Get()->NotifyMessageWindowDestroy(Message(m_id));
 	}
-	m_window = NULL;
+	m_window = nullptr;
 }
 
 sint32 MessageData::GetNumEyePoints() const

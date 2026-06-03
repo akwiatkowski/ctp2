@@ -221,7 +221,7 @@ void NETFunc::StringMix(int c, char *mix, char *msg, ...) {
 
 
 char *NETFunc::StringDup(char *s) {
-    return (s) ? strcpy(new char[strlen(s) + 1], s) : NULL;
+    return (s) ? strcpy(new char[strlen(s) + 1], s) : nullptr;
 }
 
 
@@ -273,7 +273,7 @@ bool NETFunc::MessageHandler::HandleAll(Message *m) {
 	return f;
 }
 
-NETFunc::MessageHandler *NETFunc::MessageHandler::hList[] = {0};
+NETFunc::MessageHandler *NETFunc::MessageHandler::hList[] = {nullptr};
 int NETFunc::MessageHandler::hCount = 0;
 
 
@@ -639,7 +639,7 @@ NETFUNC_CONNECT_RESULT NETFunc::ConnectThread(NETFUNC_CONNECT_PARAMETER t)
 #if defined(_DEBUG)
     Os::SetThreadName("NETFunc::ConnectThread");
 #endif
-    result = dpCreate(&dp, ((TransportSetup *)t)->GetTransport(), ((TransportSetup *)t)->GetParams(), 0);
+    result = dpCreate(&dp, ((TransportSetup *)t)->GetTransport(), ((TransportSetup *)t)->GetParams(), nullptr);
     return Os::ExitThread((dp_RES_OK == result) ? 0 : 1);
 }
 
@@ -785,7 +785,7 @@ commInitReq_t *NETFunc::TransportSetup::GetParams() {
 	return &parameters;
 }
 
-NETFunc::TransportSetup *NETFunc::transport = 0;
+NETFunc::TransportSetup *NETFunc::transport = nullptr;
 
 
 NETFunc::Transport::TYPE NETFunc::GetTransportType(const comm_driverInfo_t *c) {
@@ -1769,7 +1769,7 @@ NETFunc::PlayerList::~PlayerList() {
 	count--;
 	if(!count) {
 		delete players;
-		players = 0;
+		players = nullptr;
 	}
 }
 
@@ -1783,10 +1783,10 @@ NETFunc::Player *NETFunc::PlayerList::FindPlayer(dpid_t id) {
 	for(i = players->begin(); i!=players->end(); i++)
 		if((*i)->GetId() == id)
 			return *i;
-	return 0;
+	return nullptr;
 };
 
-NETFunc::PlayerList::Players *NETFunc::PlayerList::players = 0;
+NETFunc::PlayerList::Players *NETFunc::PlayerList::players = nullptr;
 int NETFunc::PlayerList::count = 0;
 
 
@@ -1979,7 +1979,7 @@ bool NETFunc::Chat::Handle(Message *m) {
 
 NETFunc::Lobby *NETFunc::Lobbies::FindBest() {
 	iterator i;
-	Lobby *l, *lobby = 0;
+	Lobby *l, *lobby = nullptr;
 
 	for(i = begin(); i != end(); i++) {
 		l = *i;
@@ -2024,7 +2024,7 @@ NETFunc::Player *NETFunc::Players::FindGroupMate(char g) {
 	for(i = begin(); i!=end(); i++)
 		if((*i)->GetGroup() == g)
 			return (*i);
-	return 0;
+	return nullptr;
 };
 
 NETFunc::Player *NETFunc::Players::FindGroupMaster(char g) {
@@ -2032,7 +2032,7 @@ NETFunc::Player *NETFunc::Players::FindGroupMaster(char g) {
 	for(i = begin(); i!=end(); i++)
 		if((*i)->GetGroup() == g && (*i)->IsGroupMaster())
 			return (*i);
-	return 0;
+	return nullptr;
 };
 
 char NETFunc::Players::FindSmallestGroup() {
@@ -2185,7 +2185,7 @@ NETFunc::Mutes NETFunc::mutes = Mutes();
 
 
 NETFunc::NETFunc() {
-	transport = 0;
+	transport = nullptr;
 	playerStats = new PlayerStats();
 	aiPlayers = new AIPlayers();
 	connected = false;
@@ -2209,7 +2209,7 @@ NETFunc::NETFunc() {
 
 NETFunc::STATUS NETFunc::Connect(char *file) {
 
-	result = dpCreate(&dp, NULL, NULL, file);
+	result = dpCreate(&dp, nullptr, nullptr, file);
 	if(result != dp_RES_OK)
 		return ERR;
 
@@ -2776,7 +2776,7 @@ void NETFunc::ReConnect() {
 	if(!reconnected) {
 		reconnected = true;
 #ifdef USE_SDL
-		SDL_WaitThread(threadHandle, NULL);
+		SDL_WaitThread(threadHandle, nullptr);
 #else
 		DWORD dw;
 
@@ -2786,7 +2786,7 @@ void NETFunc::ReConnect() {
 
 		CloseHandle(threadHandle);
 #endif
-		threadHandle = 0;
+		threadHandle = nullptr;
 		dpSetActiveThread(dp);
 	}
 }
@@ -2902,7 +2902,7 @@ NETFunc::STATUS NETFunc::Disconnect() {
 		nextStatus = PRECONNECT;
 	} else if(status == PRECONNECT || status == LOGIN) {
 		EnumServers(false);
-		dpSetGameServerEx(dp, 0, GameType);
+		dpSetGameServerEx(dp, nullptr, GameType);
 		status = QUIT;
 	} else if(status == READY) {
 		status = QUIT;
@@ -2921,7 +2921,7 @@ NETFunc::STATUS NETFunc::Quit() {
 		return OK;
 	if(status == PRECONNECT || status == READY || status == LOGIN)
 		if(transport && transport->GetType() == Transport::INTERNET) {
-			dpSetGameServerEx(dp, 0, GameType);
+			dpSetGameServerEx(dp, nullptr, GameType);
 			timer.Start(1500);
 			status = WAITDELAY;
 			nextStatus = QUIT;
@@ -3142,7 +3142,7 @@ void NETFunc::Execute() {
 		if(dw != STILL_ACTIVE) {
 			CloseHandle(threadHandle);
 #endif
-			threadHandle = 0;
+			threadHandle = nullptr;
 			if(dw) {
 				status = START;
 
@@ -3205,7 +3205,7 @@ void NETFunc::Execute() {
 
 		if(transport && transport->GetType() == Transport::INTERNET) {
 			dpSetGameServerEx(dp, servername, GameType);
-			if(dpOpen(dp, 0, SessionCallBack, this) != dp_RES_OK)
+			if(dpOpen(dp, nullptr, SessionCallBack, this) != dp_RES_OK)
 				status = OPENLOBBY;
 		} else {
 
@@ -3251,7 +3251,7 @@ void NETFunc::Execute() {
 	case WAITCLOSE:
 		if(dpReadyToFreeze(dp) == dp_RES_OK || timer.Finished()) {
 			if(nextStatus != READY && nextStatus != OPENLOBBY && nextStatus != OPENSESSION && transport && transport->GetType() == Transport::INTERNET)
-				dpSetGameServerEx(dp, 0, GameType);
+				dpSetGameServerEx(dp, nullptr, GameType);
 			timer.Start(2000);
 			status = WAITDELAY;
 		}
@@ -3418,7 +3418,7 @@ void NETFunc::Receive() {
 		case dp_RES_EMPTY:
 		break;
 		case dp_RES_OK:
-			m = 0;
+			m = nullptr;
 			m = new Message(buffer, size, source);
 			if(m && ((char)m->GetCode() == dp_PACKET_INITIALBYTE || (char)m->GetCode() == nf_PACKET_INITIALBYTE || (char)m->GetCode() == ns_PACKET_INITIALBYTE) || m->GetCode() == Message::CHAT)
 				PushMessage(m);
@@ -3451,7 +3451,7 @@ NETFunc::Message *NETFunc::GetMessage() {
 
 	Receive();
 
-	Message *m = 0;
+	Message *m = nullptr;
 
 	if(!messages.empty()) {
 		m = messages.Pop();
@@ -3473,7 +3473,7 @@ void NETFunc::PushMessage(Message *m) {
 	messages.Push(m);
 }
 
-dp_t *NETFunc::dp = 0;
+dp_t *NETFunc::dp = nullptr;
 
 dp_result_t	NETFunc::result = 0;
 

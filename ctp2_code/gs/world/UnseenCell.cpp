@@ -124,7 +124,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 #ifdef BATTLE_FLAGS
 	m_battleFlags                   (0),
 #endif
-	m_tileInfo                      (NULL),
+	m_tileInfo                      (nullptr),
 	m_point                         (point),
 	m_installations                 (new PointerList<UnseenInstallationInfo>),
 	m_improvements                  (new PointerList<UnseenImprovementInfo>),
@@ -263,7 +263,7 @@ UnseenCell::UnseenCell(const MapPoint & point)
 		} // city.IsValid
 	} // cell
 
-	SetHasHut(NULL != world_Get()->GetGoodyHut(point));
+	SetHasHut(nullptr != world_Get()->GetGoodyHut(point));
 }
 
 //----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ UnseenCell::UnseenCell()
 #ifdef BATTLE_FLAGS
 	m_battleFlags                   (0),
 #endif
-	m_tileInfo                      (NULL),
+	m_tileInfo                      (nullptr),
 	m_point                         (),
 	m_installations                 (new PointerList<UnseenInstallationInfo>),
 	m_improvements                  (new PointerList<UnseenImprovementInfo>),
@@ -399,10 +399,10 @@ UnseenCell::UnseenCell(CivArchive &archive)
 #ifdef BATTLE_FLAGS
 	m_battleFlags                   (0),
 #endif
-	m_tileInfo                      (NULL),
+	m_tileInfo                      (nullptr),
 	m_point                         (),
-	m_installations                 (NULL),
-	m_improvements                  (NULL),
+	m_installations                 (nullptr),
+	m_improvements                  (nullptr),
 	m_poolIndex                     (-1),
 	m_visibleCityOwner              (0)
 {
@@ -867,7 +867,7 @@ void UnseenCell::Serialize(CivArchive &archive)
 			archive.Store((uint8*)m_cityName.c_str(), l * sizeof(MBCHAR));
 		}
 
-		archive << (sint32)(m_actor != NULL);
+		archive << (sint32)(m_actor != nullptr);
 		if (m_actor) {
 			m_actor->Serialize(archive);
 		}

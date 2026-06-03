@@ -505,7 +505,7 @@ public:
 	bool HasCity(const MapPoint &pos) const;
 	bool IsSupplyingTrade(const MapPoint &pos) const;
 
-	BOOL IsConnectedToCity(const MapPoint &pos, sint32 owner, uint8* array = NULL) const;
+	BOOL IsConnectedToCity(const MapPoint &pos, sint32 owner, uint8* array = nullptr) const;
 	BOOL IsOnOrNextToOwner(const MapPoint &pos, sint32 owner);
 
 	bool IsContinentSharedWithOthers(const MapPoint &pnt,
@@ -513,8 +513,8 @@ public:
 	    uint8* array) const;
 	BOOL IsContinentBiggerThan(uint32 size,
 	    const MapPoint &pnt,
-	    uint8 *array = NULL,
-	    uint32 *cursize = NULL) const;
+	    uint8 *array = nullptr,
+	    uint32 *cursize = nullptr) const;
 #if defined(_DEBUG) && defined(CELL_COLOR)
 	sint32 GetColor(const MapPoint &pos) const;
 #endif

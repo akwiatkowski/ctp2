@@ -211,9 +211,9 @@ Token::Token
     m_num_it            (a_ImportCount),
     m_imported_tokens   (it),
     m_dir               (dir),
-    m_importFile		(NULL),
+    m_importFile		(nullptr),
     m_savedLineNumber   (0),
-    m_savedFin          (NULL),
+    m_savedFin          (nullptr),
 	m_checkScenario     (true)
 {
 	Assert(ValidateAllTokens());
@@ -252,9 +252,9 @@ Token::Token
     m_num_it            (n),
     m_imported_tokens   (it),
     m_dir               (dir),
-    m_importFile		(NULL),
+    m_importFile		(nullptr),
     m_savedLineNumber   (0),
-    m_savedFin          (NULL),
+    m_savedFin          (nullptr),
 	m_checkScenario     (true)
 {
 	Assert(ValidateAllTokens());
@@ -395,8 +395,8 @@ void Token::CloseImport()
 	Assert(m_importFile);
 	fclose(m_importFile);
 	m_fin = m_savedFin;
-	m_savedFin   = NULL;	// for safe destruction
-	m_importFile = NULL;
+	m_savedFin   = nullptr;	// for safe destruction
+	m_importFile = nullptr;
 	strcpy(m_filename, m_savedFilename);
 	g_parse_line = g_saved_parse_line;
 	g_saved_parse_line = 0;
@@ -433,7 +433,7 @@ sint32 Token::Next()
 
 	if (m_cur == EOF) {
 
-		if (m_importFile != NULL) {
+		if (m_importFile != nullptr) {
 			CloseImport();
 
 			m_cur = getc(m_fin);
@@ -567,8 +567,8 @@ sint32 Token::Next()
 	if(GetType() == TOKEN_DO_NOT_IMPORT_DEFAULTS
 	|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS
 	){
-		if(civpaths_Get()->GetCurScenarioPath()     == NULL        // Load only defaults if this isn't a scenario
-		&& civpaths_Get()->GetCurScenarioPackPath() == NULL
+		if(civpaths_Get()->GetCurScenarioPath()     == nullptr        // Load only defaults if this isn't a scenario
+		&& civpaths_Get()->GetCurScenarioPackPath() == nullptr
 		|| GetType() == TOKEN_SCENARIO_DO_NOT_IMPORT_DEFAULTS  // But not if you have this token
 		){
 			g_load_defaults = false;

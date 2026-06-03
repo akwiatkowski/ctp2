@@ -32,7 +32,7 @@ ctp2_Window::ctp2_Window(
 	bool bevel)
 	:
 	aui_Window( retval, id, ldlBlock, bpp, type ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 	m_bevel = bevel;
 
@@ -40,10 +40,10 @@ ctp2_Window::ctp2_Window(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	m_weaklyModalCancelCallback = NULL;
-	m_weaklyModalCancelCookie = NULL;
-	m_dockedTo = NULL;
-	m_dock = NULL;
+	m_weaklyModalCancelCallback = nullptr;
+	m_weaklyModalCancelCookie = nullptr;
+	m_dockedTo = nullptr;
+	m_dock = nullptr;
 }
 
 
@@ -68,10 +68,10 @@ ctp2_Window::ctp2_Window(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	m_weaklyModalCancelCallback = NULL;
-	m_weaklyModalCancelCookie = NULL;
-	m_dockedTo = NULL;
-	m_dock = NULL;
+	m_weaklyModalCancelCallback = nullptr;
+	m_weaklyModalCancelCookie = nullptr;
+	m_dockedTo = nullptr;
+	m_dock = nullptr;
 }
 
 
@@ -262,7 +262,7 @@ void ctp2_Window::RemoveDockedWindow(ctp2_Window *window)
 		}
 	}
 
-	window->m_dockedTo = NULL;
+	window->m_dockedTo = nullptr;
 }
 
 void ctp2_Window::MouseLDropOutside(aui_MouseEvent *mouseData)

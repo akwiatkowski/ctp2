@@ -11,7 +11,7 @@ extern sint32 g_abort_parse;
 FilenameDB::FilenameDB ()
 
 {
-	m_map = 0;
+	m_map = nullptr;
 }
 
 
@@ -25,7 +25,7 @@ FilenameDB::FilenameDB ()
 
 FilenameDB::FilenameDB(CivArchive &archive)
 	{
-	m_map = NULL ;
+	m_map = nullptr ;
 	Serialize(archive) ;
 	}
 
@@ -64,7 +64,7 @@ MBCHAR *FilenameDB::GetFilename(sint32 index) const
 	Assert(index < m_size);
 
 	if(index < 0 || index >= m_size)
-		return NULL;
+		return nullptr;
 	return m_map[index].m_filename;
 }
 

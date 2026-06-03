@@ -68,7 +68,7 @@ public:
 		mine = false;
 	};
 	virtual ~ns_Object() {
-		nf_object = 0;
+		nf_object = nullptr;
 	}
 
 	void SetKey( ) {}

@@ -28,8 +28,8 @@ BOOL c3_Image::PtOnImage( POINT *p )
 	BOOL isOn = FALSE;
 	uint8 *buf;
 
-	if (m_surface->Buffer() == NULL) {
-		errcode = m_surface->Lock( NULL, (LPVOID *)&buf, 0 );
+	if (m_surface->Buffer() == nullptr) {
+		errcode = m_surface->Lock( nullptr, (LPVOID *)&buf, 0 );
 		Assert( errcode == AUI_ERRCODE_OK );
 		if ( errcode != AUI_ERRCODE_OK ) return FALSE;
 	}

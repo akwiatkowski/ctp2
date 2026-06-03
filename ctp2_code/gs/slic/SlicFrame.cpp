@@ -98,7 +98,7 @@ namespace
 
             switch (dbIndex)
             {
-            default:    return NULL;
+            default:    return nullptr;
             case 0:     return slicengine_Get()->GetDBConduit("UnitDB");
             // Probably 1, etc. are other databases. TODO: confirm and add here.
             }
@@ -116,9 +116,9 @@ SlicFrame::SlicFrame(SlicSegment *segment, sint32 offset)
     m_segment      (segment),
     m_stack        (new SlicStack),
   //m_argListArray
-    m_argList      (NULL),
-    m_resultObject (NULL),
-    m_messageData  (NULL)
+    m_argList      (nullptr),
+    m_resultObject (nullptr),
+    m_messageData  (nullptr)
 {
 }
 
@@ -131,9 +131,9 @@ SlicFrame::SlicFrame(SlicSegment *segment, sint32 offset, SlicStack *stack)
     m_segment      (segment),
     m_stack        (stack),
   //m_argListArray
-    m_argList      (NULL),
-    m_resultObject (NULL),
-    m_messageData  (NULL)
+    m_argList      (nullptr),
+    m_resultObject (nullptr),
+    m_messageData  (nullptr)
 {
 }
 
@@ -793,7 +793,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 					return FALSE;
 				}
 
-				SlicObject * obj = NULL;
+				SlicObject * obj = nullptr;
 				err = segment->Call(m_argList, obj);
 				if (obj)
                 {
@@ -846,7 +846,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			if(m_argStackPtr >= 0) {
 				m_argList = &m_argListArray[m_argStackPtr];
 			} else if(m_argStackPtr == -1) {
-				m_argList = NULL;
+				m_argList = nullptr;
 			}
 
 			if(slicengine_Get()->AtBreak())
@@ -876,7 +876,7 @@ BOOL SlicFrame::DoInstruction(SOP op)
 			if(m_argStackPtr >= 0) {
 				m_argList = &m_argListArray[m_argStackPtr];
 			} else if(m_argStackPtr == -1) {
-				m_argList = NULL;
+				m_argList = nullptr;
 			}
 
 			if(slicengine_Get()->AtBreak())
@@ -1443,7 +1443,7 @@ BOOL SlicFrame::Run()
 		SlicStackValue value;
 		value.m_int = m_resultObject->GetResult();
 		m_resultObject->Release();
-        m_resultObject = NULL;
+        m_resultObject = nullptr;
 		m_stack->Push(SS_TYPE_INT, value);
 	}
 
@@ -1480,7 +1480,7 @@ void SlicFrame::ClearMessageData()
 void SlicFrame::DeleteMessageData()
 {
 	delete m_messageData;
-	m_messageData = NULL;
+	m_messageData = nullptr;
 }
 
 void SlicFrame::SetMessageData(MessageData *data)

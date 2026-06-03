@@ -280,8 +280,8 @@ STDEHANDLER(BeginTurnGovernmentEvent)
 		return GEV_HD_Continue;
 
 	Player *p = safe_player(player);
-	Assert(p != NULL);
-	if((p != NULL) && p->m_change_government_turn == p->GetCurRound()) {
+	Assert(p != nullptr);
+	if((p != nullptr) && p->m_change_government_turn == p->GetCurRound()) {
 		p->ActuallySetGovernment(p->m_set_government_type);
 		p->m_changed_government_this_turn = TRUE;
 	} else {
@@ -440,7 +440,7 @@ STDEHANDLER(CreateCityEvent)
 	if(player_Get(player))
 	{
 		sint32 cityType = unitutil_GetCityTypeFor(pos);
-		Unit city = safe_player(player)->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, NULL, unitType);
+		Unit city = safe_player(player)->CreateCity(cityType, pos, (CAUSE_NEW_CITY)cause, nullptr, unitType);
 		if(city.IsValid())
 		{
 			args->Add(new GameEventArgument(GEA_City, city));
@@ -683,7 +683,7 @@ STDEHANDLER(GiveMapEvent)
 	if(!args->GetPlayer(1, to_player))
 		return GEV_HD_Continue;
 
-	Assert(player_Get(from_player) != NULL);
+	Assert(player_Get(from_player) != nullptr);
 	player_Get(from_player)->GiveMap(to_player);
 
 	return GEV_HD_Continue;
@@ -698,7 +698,7 @@ STDEHANDLER(GiveCityEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetCity(0, giftCity)) return GEV_HD_Continue;
 
-	Assert(player_Get(player) != NULL);
+	Assert(player_Get(player) != nullptr);
 	player_Get(giftCity->GetOwner())->GiveCity(player, giftCity);
 
 	return GEV_HD_Continue;
@@ -712,7 +712,7 @@ STDEHANDLER(EnterAgeEvent)
 	if(!args->GetPlayer(0, player)) return GEV_HD_Continue;
 	if(!args->GetInt(0, age)) return GEV_HD_Continue;
 
-	Assert(player_Get(player) != NULL);
+	Assert(player_Get(player) != nullptr);
 	safe_player(player)->EnterNewAge(age);
 	return GEV_HD_Continue;
 }

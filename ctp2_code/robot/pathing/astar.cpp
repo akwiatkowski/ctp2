@@ -188,7 +188,7 @@ bool Astar::InitPoint(AstarPoint *parent, AstarPoint *point,
     d->m_queue_idx = -1;
 
 	d->m_past_cost = pc;
-    if (parent == NULL) {
+    if (parent == nullptr) {
        d->m_entry_cost = 0.0;
        d->m_future_cost = EstimateFutureCost(d->m_pos, dest);
        d->m_total_cost = d->m_past_cost + d->m_entry_cost
@@ -429,8 +429,8 @@ bool Astar::FindPath
 	m_priority_queue.Clear();
 	g_search_count++;
 
-	AstarPoint *    best        = NULL;
-	AstarPoint *    cost_tree   = NULL;
+	AstarPoint *    best        = nullptr;
+	AstarPoint *    cost_tree   = nullptr;
 
 	if (start == dest)
 	{
@@ -452,7 +452,7 @@ bool Astar::FindPath
 	c->m_point = g_astar_mem.GetNew();
 	c->m_search_count = g_search_count;
 
-	if (!InitPoint(NULL, c->m_point, start, 0.0, dest))
+	if (!InitPoint(nullptr, c->m_point, start, 0.0, dest))
 	{
 		return Cleanup(dest, a_path, total_cost, isunit, best, cost_tree);
 	}
@@ -591,7 +591,7 @@ bool Astar::FindPath
 			}
 			else
 			{
-				best = NULL;
+				best = nullptr;
 			}
 		}
 
@@ -642,7 +642,7 @@ bool Astar::Cleanup(const MapPoint &dest,
                     AstarPoint *best,
                     AstarPoint *cost_tree)
 {
-    if ((best == NULL) ||
+    if ((best == nullptr) ||
         (best->m_pos != dest))
     {
        total_cost = 0.0;

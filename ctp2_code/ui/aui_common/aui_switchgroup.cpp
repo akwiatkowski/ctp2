@@ -11,7 +11,7 @@ aui_SwitchGroup::aui_SwitchGroup(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -32,7 +32,7 @@ aui_SwitchGroup::aui_SwitchGroup(
 	sint32 height )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -147,7 +147,7 @@ void aui_SwitchGroup::PostChildrenCallback( aui_MouseEvent *input )
 
 				aui_Switch *otherSwitch = m_whichWasSelected ?
 					(aui_Switch *)GetChild( m_whichWasSelected ) :
-					NULL;
+					nullptr;
 
 				if ( otherSwitch )
 

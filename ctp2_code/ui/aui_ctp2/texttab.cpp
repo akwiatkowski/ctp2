@@ -29,9 +29,9 @@ TextTab::TextTab(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Tab( retval, id, ldlBlock, ActionFunc, cookie),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 
 	m_drawMask = k_AUI_REGION_DRAWFLAG_UPDATE

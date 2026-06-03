@@ -157,9 +157,9 @@ const sint16 route_value)
 void MapAnalysis::RecalcCityRanks(sint32 player)
 {
 	Player* player_ptr = player_Get(player);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
-	if(player_ptr == NULL)
+	if(player_ptr == nullptr)
 		return;
 
     m_minCityProduction = std::numeric_limits<sint32>::max();
@@ -239,7 +239,7 @@ void MapAnalysis::BeginTurn()
         m_totalTrade       [player] = 0;
 
         Player * player_ptr = player_Get(player);
-        if (player_ptr == NULL)
+        if (player_ptr == nullptr)
             continue;
 
         RecalcCityRanks(player);
@@ -366,7 +366,7 @@ void MapAnalysis::BeginTurn()
             m_valueGrid[player].AddValue(pos, total_value);
 
             TradeDynamicArray * trade_routes = city.CD()->GetTradeSourceList();
-            Assert(trade_routes != NULL);
+            Assert(trade_routes != nullptr);
 
             sint32 tradeRouteCount  = trade_routes ? trade_routes->Num() : 0;
             for (sint32 j = 0; j < tradeRouteCount; j++)
@@ -439,7 +439,7 @@ void MapAnalysis::BeginTurn()
     for (player = 0; player < m_threatGrid.size(); player++)
     {
         Player * player_ptr = player_Get(player);
-        if (player_ptr == NULL)
+        if (player_ptr == nullptr)
             continue;
 
         sint32 num_cities = player_ptr->m_all_cities->Num();
@@ -867,10 +867,10 @@ double MapAnalysis::CityAtRiskRatio(const Unit city, const PLAYER_INDEX opponent
     PLAYER_INDEX playerId = city.GetOwner();
 
     Player * player_ptr = player_Get(playerId);
-    if (player_ptr == NULL)
+    if (player_ptr == nullptr)
         return 0.0;
 
-    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == nullptr)
         return 0.0;
 
     MapPoint pos;
@@ -910,10 +910,10 @@ sint32 MapAnalysis::MostAtRiskCity
 ) const
 {
     Player * player_ptr = player_Get(playerId);
-    if (player_ptr == NULL)
+    if (player_ptr == nullptr)
         return 0;
 
-    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == nullptr)
         return 0;
 
     double most_at_risk_value = 0.0;
@@ -944,10 +944,10 @@ sint32 MapAnalysis::AtRiskCitiesValue
 ) const
 {
     Player * player_ptr = player_Get(playerId);
-    if (player_ptr == NULL)
+    if (player_ptr == nullptr)
         return 0;
 
-    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == NULL)
+    if (opponentId != PLAYER_UNASSIGNED && player_Get(opponentId) == nullptr)
         return 0;
 
     double at_risk_value = 0.0;
@@ -1102,7 +1102,7 @@ void MapAnalysis::ComputeAllianceSize(const PLAYER_INDEX playerId, PLAYER_INDEX 
         ++foreignerId
     )
     {
-        if (player_Get(foreignerId) == NULL)
+        if (player_Get(foreignerId) == nullptr)
             continue;
 
         if (foreignerId == playerId ||
@@ -1144,7 +1144,7 @@ void MapAnalysis::ComputeHandicapRatios()
     size_t player;
     for (player = 0; player < m_threatGrid.size(); player++)
     {
-        if (player_Get(player) == NULL)
+        if (player_Get(player) == nullptr)
             continue;
 
         if (player_Get(player)->IsRobot())
@@ -1184,7 +1184,7 @@ void MapAnalysis::ComputeHandicapRatios()
         m_goldHandicapRatio[player] = 1.0;
         m_scienceHandicapRatio[player] = 1.0;
 
-        if (player_Get(player) == NULL)
+        if (player_Get(player) == nullptr)
             continue;
 
         if (!player_Get(player)->IsRobot())

@@ -80,15 +80,15 @@ namespace
 
 } // namespace
 
-static c3_PopupWindow	*s_spNewGameMapShapeScreen	= NULL;
+static c3_PopupWindow	*s_spNewGameMapShapeScreen	= nullptr;
 
 
-static aui_SwitchGroup	*s_group		= NULL;
-static c3_Static	*s_ewLabel			= NULL; // Earth world
-static c3_Static	*s_dwLabel			= NULL; // Doughnut world
+static aui_SwitchGroup	*s_group		= nullptr;
+static c3_Static	*s_ewLabel			= nullptr; // Earth world
+static c3_Static	*s_dwLabel			= nullptr; // Doughnut world
 //Added by Martin Gühmann
-static c3_Static	*s_uwLabel			= NULL; // Uranus world
-static c3_Static	*s_fwLabel			= NULL; // Flat world
+static c3_Static	*s_uwLabel			= nullptr; // Uranus world
+static c3_Static	*s_fwLabel			= nullptr; // Flat world
 
 static MBCHAR const	checknames[WORLD_SHAPE_COUNT][50] = {
 	//Added two more shapes for more shape options by Martin Gühmann

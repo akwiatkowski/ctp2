@@ -38,8 +38,8 @@ class ctp2_MenuButton : public c3_Button
 	ctp2_MenuButton(AUI_ERRCODE *retval,
 					uint32 id,
 					MBCHAR *ldlBlock,
-					ControlActionCallback *ActionFunc = NULL,
-					void *cookie = NULL );
+					ControlActionCallback *ActionFunc = nullptr,
+					void *cookie = nullptr );
 
 	virtual ~ctp2_MenuButton();
 	virtual BOOL IsThisA(uint32 classId)

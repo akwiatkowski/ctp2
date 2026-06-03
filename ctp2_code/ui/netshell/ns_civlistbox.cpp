@@ -50,9 +50,9 @@ ns_CivListBox::ns_CivListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_ListBox(),
-	PatternBase(ldlBlock, (MBCHAR *)NULL)
+	PatternBase(ldlBlock, (MBCHAR *)nullptr)
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
@@ -94,7 +94,7 @@ ns_CivListBox::ns_CivListBox(
 	void *cookie)
 	:
 	aui_ImageBase((sint32) 0),
-	aui_TextBase((MBCHAR const *) NULL, (uint32) 0),
+	aui_TextBase((MBCHAR const *) nullptr, (uint32) 0),
 	aui_ListBox(),
 	PatternBase(pattern)
 {
@@ -102,7 +102,7 @@ ns_CivListBox::ns_CivListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -118,7 +118,7 @@ ns_CivListBox::ns_CivListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateRangersAndHeader( NULL );
+	*retval = CreateRangersAndHeader( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -127,7 +127,7 @@ ns_CivListBox::ns_CivListBox(
 AUI_ERRCODE ns_CivListBox::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32 bevelWidth   = block->GetInt(k_NS_CIVLISTBOX_LDL_BEVELWIDTH);
@@ -157,7 +157,7 @@ AUI_ERRCODE ns_CivListBox::InitCommon( sint32 bevelWidth, sint32 bevelType )
 AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-	MBCHAR		*patternFilename = NULL;
+	MBCHAR		*patternFilename = nullptr;
 
 	if (m_pattern)
 		patternFilename = m_pattern->GetFilename();
@@ -171,7 +171,7 @@ AUI_ERRCODE ns_CivListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 		{
 			RemoveChild( m_header->Id() );
 			delete m_header;
-			m_header = NULL;
+			m_header = nullptr;
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
@@ -417,7 +417,7 @@ ns_HPlayerListBox::ns_HPlayerListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_CivListBox( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -443,7 +443,7 @@ ns_HPlayerListBox::ns_HPlayerListBox(
 	void *cookie)
 	:
 	aui_ImageBase((sint32) 0),
-	aui_TextBase((MBCHAR const *) NULL, (uint32) 0),
+	aui_TextBase((MBCHAR const *) nullptr, (uint32) 0),
 	ns_CivListBox(
 		retval, id, x, y, width, height, pattern, bevelWidth, bevelType,
 		ActionFunc, cookie )

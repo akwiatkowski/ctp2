@@ -54,7 +54,7 @@ DebugWindow::DebugWindow(
 
 AUI_ERRCODE DebugWindow::InitCommon()
 {
-	m_textBox = NULL;
+	m_textBox = nullptr;
 
 	return C3Window::InitCommon();
 }
@@ -81,7 +81,7 @@ void DebugWindow::AddText(MBCHAR *text)
 {
 
 
-	if (GetParent() == NULL) return;
+	if (GetParent() == nullptr) return;
 
 
 
@@ -120,7 +120,7 @@ void DebugWindow::AddMask(uint32 m)
 
 void DebugWindow::AddText(const char *err, ...)
 {
-	if (GetParent() == NULL) return;
+	if (GetParent() == nullptr) return;
 
     if (m_allow_next) {
         m_allow_next = FALSE;

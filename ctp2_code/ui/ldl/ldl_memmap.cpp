@@ -10,31 +10,31 @@ unsigned char *ldl_MemMap::GetFileBits( char *filename, unsigned long *junk )
 	FILE *f = fopen( filename, "rb" );
 
 	if ( !f )
-		return NULL;
+		return nullptr;
 
 	if (fseek(f, 0, SEEK_END) == 0) {
 		filesize = ftell(f);
 	} else {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if (fseek(f, 0, SEEK_SET) != 0) {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	bits = new unsigned char[filesize];
 
 	if (!bits) {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if ( fread( bits, 1, filesize, f ) != filesize ) {
 		delete[] bits;
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	fclose(f);
@@ -48,6 +48,6 @@ void ldl_MemMap::ReleaseFileBits( unsigned char *&bits )
 {
 	if ( bits ) {
 		delete[] bits;
-		bits = NULL;
+		bits = nullptr;
 	}
 }

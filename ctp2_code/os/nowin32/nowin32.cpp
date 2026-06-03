@@ -22,10 +22,10 @@
 char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 {
 	if(bufsize < 3) {
-		return NULL;
+		return nullptr;
 	}
 
-	char * ret = realpath(relative, NULL);
+	char * ret = realpath(relative, nullptr);
 	if (!ret) {
 		int i = strlen(relative);
 		bool hasPoint = false;
@@ -48,7 +48,7 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 						strncpy(target, path, plen);
 						target[plen] = FILE_SEPC;
 						strncpy(target + plen + 1, entry->d_name, nlen + 1);
-						ret = realpath(target, NULL);
+						ret = realpath(target, nullptr);
 						break;
 					}
 				}
@@ -64,7 +64,7 @@ char* _fullpath(char* absolute, const char* relative, size_t bufsize)
 		return absolute;
 	} else {
 		absolute[0] = 0;
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -87,7 +87,7 @@ sint32 MessageBox(HWND parent, const CHAR* msg, const CHAR* title, sint32 flags)
 	fprintf(stderr, "Messagebox(%s): %s\n", (title ? title : "null"), (msg ? msg : "null"));
 #ifdef USE_GTK
 	GtkWidget *dialog;
-	dialog = gtk_message_dialog_new(NULL,
+	dialog = gtk_message_dialog_new(nullptr,
 			GTK_DIALOG_DESTROY_WITH_PARENT,
 			GTK_MESSAGE_ERROR,
 			(flags & MB_YESNO) == MB_YESNO ? GTK_BUTTONS_YES_NO : GTK_BUTTONS_OK,
@@ -168,7 +168,7 @@ char* strupr(char* str)
 	char *buf = str;
 	if (!buf)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	while (*buf != '\0') {

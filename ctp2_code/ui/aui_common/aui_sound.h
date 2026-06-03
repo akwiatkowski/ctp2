@@ -52,7 +52,7 @@ class aui_Sound : public aui_Base
 public:
 	aui_Sound(
 		AUI_ERRCODE *retval,
-		MBCHAR const * filename = NULL );
+		MBCHAR const * filename = nullptr );
 	virtual ~aui_Sound();
 
 	virtual AUI_ERRCODE Load(
@@ -89,7 +89,7 @@ class aui_Sound2D : public aui_Sound
 public:
 	aui_Sound2D(
 		AUI_ERRCODE *retval,
-		MBCHAR const * filename = NULL )
+		MBCHAR const * filename = nullptr )
 		:
 	aui_Sound( retval, filename ) {}
 	virtual ~aui_Sound2D() {}

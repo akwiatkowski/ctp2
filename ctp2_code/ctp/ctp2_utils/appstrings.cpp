@@ -19,7 +19,7 @@
 #include "os/include/ctp2_config.h"
 #include "ctp/c3types.h"
 
-static MBCHAR **    s_appStrings        = NULL;
+static MBCHAR **    s_appStrings        = nullptr;
 static size_t	    s_numAppStrings     = 0;
 
 void appstrings_Initialize()
@@ -55,7 +55,7 @@ void appstrings_Cleanup()
 		if (s_appStrings[i])
 		delete [] s_appStrings[i];
 	}
-	s_appStrings    = NULL;
+	s_appStrings    = nullptr;
 	s_numAppStrings = 0;
 }
 
@@ -64,6 +64,6 @@ MBCHAR *appstrings_GetString(APPSTR stringID)
 	if (stringID >= 0 && static_cast<size_t>(stringID) < s_numAppStrings) {
 		return s_appStrings[stringID];
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }

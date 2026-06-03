@@ -58,10 +58,10 @@
 #include "ui/aui_ctp2/ctp2_Switch.h"
 #include "ui/interface/spnewgamewindow.h"
 
-static DialogBoxWindow *	s_dbw				= NULL;
+static DialogBoxWindow *	s_dbw				= nullptr;
 static time_t				s_startedLeavingAt	= 0;
 
-static LobbyWindow * g_lobbyWindow = NULL;
+static LobbyWindow * g_lobbyWindow = nullptr;
 
 LobbyWindow * lobbywindow_Get()
 {
@@ -112,12 +112,12 @@ AUI_ERRCODE LobbyWindow::InitCommon( )
 	if ( !AUI_SUCCESS(errcode) ) return AUI_ERRCODE_HACK;
 
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
 	m_dbActionArray[ 0 ] = new DialogBoxPopDownAction;
-	Assert( m_dbActionArray[ 0 ] != NULL );
+	Assert( m_dbActionArray[ 0 ] != nullptr );
 	if ( !m_dbActionArray[ 0 ] ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -176,21 +176,21 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 	control = spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"changebutton", NULL);
+		"changebutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_CHANGEBUTTON ] = control;
 
 	control = spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"joinbutton", NULL);
+		"joinbutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_JOINBUTTON ] = control;
 
 	control = spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"createbutton", NULL);
+		"createbutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_CREATEBUTTON ] = control;
@@ -245,7 +245,7 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 	control = spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"infobutton", NULL);
+		"infobutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_INFOBUTTON ] = control;
@@ -276,7 +276,7 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 	control = spNew_ctp2_Button(&errcode,
 		"lobbywindow",
-		"reviewbutton", NULL);
+		"reviewbutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_REVIEWBUTTON ] = control;
@@ -305,52 +305,52 @@ AUI_ERRCODE LobbyWindow::CreateControls( )
 
 
 	action = new ChangeButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CHANGEBUTTON ]->SetAction( action );
 
 	action = new JoinButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_JOINBUTTON ]->SetAction( action );
 
 	action = new CreateButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CREATEBUTTON ]->SetAction( action );
 
 	action = new InfoButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_INFOBUTTON ]->SetAction( action );
 
 	action = new MuteSwitchAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_MUTESWITCH ]->SetAction( action );
 
 	action = new WhisperSwitchAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_WHISPERSWITCH ]->SetAction( action );
 
 	action = new ReviewButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_REVIEWBUTTON ]->SetAction( action );
 
 	action = new BackButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_BACKBUTTON ]->SetAction( action );
 
 	action = new PlayersListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_PLAYERSLISTBOX ]->SetAction( action );
 
 	action = new GamesListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_GAMESLISTBOX ]->SetAction( action );
 
@@ -399,7 +399,7 @@ LobbyWindow::~LobbyWindow( )
 		if ( m_dbActionArray[ i ] )
 		{
 			delete m_dbActionArray[ i ];
-			m_dbActionArray[ i ] = NULL;
+			m_dbActionArray[ i ] = nullptr;
 		}
 	}
 
@@ -408,10 +408,10 @@ LobbyWindow::~LobbyWindow( )
 	if ( m_PPStrings )
 	{
 		delete m_PPStrings;
-		m_PPStrings = NULL;
+		m_PPStrings = nullptr;
 	}
 
-	g_lobbyWindow = NULL;
+	g_lobbyWindow = nullptr;
 }
 
 void LobbyWindow::Update(BOOL init)
@@ -545,7 +545,7 @@ AUI_ERRCODE LobbyWindow::Idle( )
 		if ( s_dbw )
 		{
 			DialogBoxWindow::PopDown( s_dbw );
-			s_dbw = NULL;
+			s_dbw = nullptr;
 			s_startedLeavingAt = 0;
 
 
@@ -553,12 +553,12 @@ AUI_ERRCODE LobbyWindow::Idle( )
 				GetInputField())->SetKeyboardFocus();
 		}
 	}
-	if(netfunc_Get()->GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(0) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
+	if(netfunc_Get()->GetStatus() == NETFunc::READY || (s_startedLeavingAt > 0 && time(nullptr) > s_startedLeavingAt + k_LEAVE_LOBBY_TIMEOUT)) {
 
 		if ( s_dbw )
 		{
 			DialogBoxWindow::PopDown( s_dbw );
-			s_dbw = NULL;
+			s_dbw = nullptr;
 			s_startedLeavingAt = 0;
 		}
 		netshell_Get()->GotoScreen( NetShell::SCREEN_PLAYERSELECT );
@@ -762,7 +762,7 @@ void LobbyWindow::PlayersListBoxAction::Execute(
 		NETFunc::Player *   player  = item->GetNetShellObject()->GetNETFuncObject();
 		if (chatbox->GetPlayer() && player->Equals(chatbox->GetPlayer()))
         {
-			chatbox->SetPlayer(0);
+			chatbox->SetPlayer(nullptr);
 		}
 	}
 
@@ -1035,8 +1035,8 @@ void LobbyWindow::BackButtonAction::Execute(
 	{
 		s_dbw = DialogBoxWindow::PopUp(
 			"leavelobbydialogboxwindow",
-			NULL );
-		s_startedLeavingAt = time(0);
+			nullptr );
+		s_startedLeavingAt = time(nullptr);
 
 
 
@@ -1069,6 +1069,6 @@ void LobbyWindow::DialogBoxPopDownAction::Execute(
 
 	s_dbw = DialogBoxWindow::PopUp(
 		"leavelobbydialogboxwindow",
-		NULL );
-	s_startedLeavingAt = time(0);
+		nullptr );
+	s_startedLeavingAt = time(nullptr);
 }

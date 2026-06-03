@@ -56,7 +56,7 @@
 
 extern StringDB		*stringdb_Get();
 
-MessageWindow		*g_currentMessageWindow = NULL;
+MessageWindow		*g_currentMessageWindow = nullptr;
 
 extern sint32 g_ScreenWidth;
 extern sint32 g_ScreenHeight;
@@ -84,27 +84,27 @@ AUI_ERRCODE MessageWindow::InitCommon( Message data,
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR			windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	m_messageText = NULL;
+	m_messageText = nullptr;
 	m_iconWindow = iconWindow;
 	m_message = data;
-	m_minimizeIcon = NULL;
-	m_dismissIcon = NULL;
-	m_libraryIcon = NULL;
+	m_minimizeIcon = nullptr;
+	m_dismissIcon = nullptr;
+	m_libraryIcon = nullptr;
 
-	m_leftBar = NULL;
-	m_topBar = NULL;
-	m_rightBar = NULL;
-	m_bottomBar = NULL;
-
-
+	m_leftBar = nullptr;
+	m_topBar = nullptr;
+	m_rightBar = nullptr;
+	m_bottomBar = nullptr;
 
 
 
-	m_minimizeAction = NULL;
-	m_dismissAction = NULL;
-	m_libraryAction = NULL;
-	m_messageEyePoint.m_messageEyePointStandard = NULL;
-	m_messageResponse.m_messageResponseStandard = NULL;
+
+
+	m_minimizeAction = nullptr;
+	m_dismissAction = nullptr;
+	m_libraryAction = nullptr;
+	m_messageEyePoint.m_messageEyePointStandard = nullptr;
+	m_messageResponse.m_messageResponseStandard = nullptr;
 
 	m_player = data.GetOwner();
 
@@ -311,8 +311,8 @@ AUI_ERRCODE MessageWindow::CreateStandardDismissButton( MBCHAR *ldlBlock )
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 	m_dismissAction = new MessageDismissAction( this );
-	Assert( m_dismissAction != NULL );
-	if ( m_dismissAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_dismissAction != nullptr );
+	if ( m_dismissAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dismissIcon->SetAction( m_dismissAction );
 
@@ -335,8 +335,8 @@ AUI_ERRCODE MessageWindow::CreateStandardMinimizeButton( MBCHAR *ldlBlock )
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 	m_minimizeAction = new MessageMinimizeAction( this );
-	Assert( m_minimizeAction != NULL );
-	if ( m_minimizeAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_minimizeAction != nullptr );
+	if ( m_minimizeAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_minimizeIcon->SetAction( m_minimizeAction );
 
@@ -364,8 +364,8 @@ AUI_ERRCODE MessageWindow::CreateGreatLibraryButton( MBCHAR *ldlBlock )
 		if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 		m_libraryAction = new MessageLibraryAction( this );
-		Assert( m_libraryAction != NULL );
-		if ( m_libraryAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+		Assert( m_libraryAction != nullptr );
+		if ( m_libraryAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		m_libraryIcon->SetAction( m_libraryAction );
 	}
@@ -401,8 +401,8 @@ AUI_ERRCODE MessageWindow::CreateStandardEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointStandard = new MessageEyePointStandard( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointStandard != NULL );
-	if ( m_messageEyePoint.m_messageEyePointStandard == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointStandard != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointStandard == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -415,8 +415,8 @@ AUI_ERRCODE MessageWindow::CreateDropdownEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointDropdown = new MessageEyePointDropdown( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointDropdown != NULL );
-	if ( m_messageEyePoint.m_messageEyePointDropdown == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointDropdown != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointDropdown == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -429,8 +429,8 @@ AUI_ERRCODE MessageWindow::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointListbox = new MessageEyePointListbox( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointListbox != NULL );
-	if ( m_messageEyePoint.m_messageEyePointListbox == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointListbox != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointListbox == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -462,8 +462,8 @@ AUI_ERRCODE MessageWindow::CreateSelectResponses( MBCHAR *ldlBlock )
 
 	m_messageResponse.m_messageResponseStandard = new MessageResponseStandard( &errcode,
 						ldlBlock, this );
-	Assert( m_messageResponse.m_messageResponseStandard != NULL );
-	if ( m_messageResponse.m_messageResponseStandard == NULL )
+	Assert( m_messageResponse.m_messageResponseStandard != nullptr );
+	if ( m_messageResponse.m_messageResponseStandard == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -475,8 +475,8 @@ AUI_ERRCODE MessageWindow::CreateSubmitResponses( MBCHAR *ldlBlock )
 
 	m_messageResponse.m_messageResponseDropdown = new MessageResponseDropdown( &errcode,
 						ldlBlock, this );
-	Assert( m_messageResponse.m_messageResponseDropdown != NULL );
-	if ( m_messageResponse.m_messageResponseDropdown == NULL )
+	Assert( m_messageResponse.m_messageResponseDropdown != nullptr );
+	if ( m_messageResponse.m_messageResponseDropdown == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -521,7 +521,7 @@ AUI_ERRCODE MessageWindow::ShowWindow( BOOL show )
 	} else {
 		errcode = c3ui_Get()->RemoveWindow( this->Id() );
 		if ( g_currentMessageWindow == this ) {
-			g_currentMessageWindow = NULL;
+			g_currentMessageWindow = nullptr;
 		}
 		RemoveBordersFromUI();
 	}
@@ -568,17 +568,17 @@ MessageWindow::~MessageWindow ()
 
 	if ( m_messageText ) {
 		delete m_messageText;
-		m_messageText = NULL;
+		m_messageText = nullptr;
 	}
 
 	if ( m_turnText ) {
 		delete m_turnText;
-		m_turnText = NULL;
+		m_turnText = nullptr;
 	}
 
 	if (messagepool_Get()->IsValid(m_message)) {
 
-		m_message.AccessData()->SetMessageWindow(NULL);
+		m_message.AccessData()->SetMessageWindow(nullptr);
 	}
 
 
@@ -624,54 +624,54 @@ MessageWindow::~MessageWindow ()
 	if ( m_minimizeIcon )
 	{
 		delete m_minimizeIcon;
-		m_minimizeIcon = NULL;
+		m_minimizeIcon = nullptr;
 	}
 
 	if ( m_minimizeAction )
 	{
 		delete m_minimizeAction;
-		m_minimizeAction = NULL;
+		m_minimizeAction = nullptr;
 	}
 
 	if ( m_dismissIcon )
 	{
 		delete m_dismissIcon;
-		m_dismissIcon = NULL;
+		m_dismissIcon = nullptr;
 	}
 
 	if ( m_dismissAction )
 	{
 		delete m_dismissAction;
-		m_dismissAction = NULL;
+		m_dismissAction = nullptr;
 	}
 
 	if ( m_libraryIcon )
 	{
 		delete m_libraryIcon;
-		m_libraryIcon = NULL;
+		m_libraryIcon = nullptr;
 	}
 
 	if ( m_libraryAction )
 	{
 		delete m_libraryAction;
-		m_libraryAction = NULL;
+		m_libraryAction = nullptr;
 	}
 
 	if ( m_messageEyePoint.m_messageEyePointStandard )
 	{
 		delete m_messageEyePoint.m_messageEyePointStandard;
-		m_messageEyePoint.m_messageEyePointStandard = NULL;
+		m_messageEyePoint.m_messageEyePointStandard = nullptr;
 	}
 
 	if ( m_messageResponse.m_messageResponseStandard )
 	{
 		delete m_messageResponse.m_messageResponseStandard;
-		m_messageResponse.m_messageResponseStandard = NULL;
+		m_messageResponse.m_messageResponseStandard = nullptr;
 	}
 
 
 	if(g_currentMessageWindow == this) {
-		g_currentMessageWindow = NULL;
+		g_currentMessageWindow = nullptr;
 	}
 }
 

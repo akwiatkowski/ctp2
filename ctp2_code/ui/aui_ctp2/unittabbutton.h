@@ -27,8 +27,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	UnitTabButton(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -38,11 +38,11 @@ public:
 		sint32 height,
 		MBCHAR *pattern,
 		sint32 barHeight = k_DEFAULT_HEALTHBAR_HEIGHT,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~UnitTabButton();
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL,
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
 								sint32 x = 0,
 								sint32 y = 0);
 

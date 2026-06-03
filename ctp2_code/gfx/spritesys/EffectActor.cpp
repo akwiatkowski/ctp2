@@ -57,7 +57,7 @@ EffectActor::EffectActor(SpriteStatePtr ss, const MapPoint & pos):
     m_savePos                   (),
     m_shX                       (0),
     m_shY                       (0),
-    m_effectSpriteGroup         (NULL),
+    m_effectSpriteGroup         (nullptr),
     m_facing                    (0),
     m_lastMoveFacing            (k_DEFAULTSPRITEFACING),
     m_frame                     (0),
@@ -120,7 +120,7 @@ void EffectActor::Process()
 		}
 	}
 
-	if (m_curAction != NULL) {
+	if (m_curAction != nullptr) {
 		sint32 x, y;
 
 		maputils_MapXY2PixelXY(m_pos.x, m_pos.y, &x, &y);
@@ -131,7 +131,7 @@ void EffectActor::Process()
 
 		POINT curPt;
 
-		if (m_curAction->GetPath() != NULL) {
+		if (m_curAction->GetPath() != nullptr) {
 
 			curPt = m_curAction->GetPosition();
 
@@ -185,7 +185,7 @@ void EffectActor::EndTurnProcess()
 	}
 
 
-	if (m_curAction != NULL)
+	if (m_curAction != nullptr)
 	{
 		sint32 x, y;
 
@@ -200,7 +200,7 @@ void EffectActor::EndTurnProcess()
 
 		POINT curPt;
 
-		if (m_curAction->GetPath() != NULL) {
+		if (m_curAction->GetPath() != nullptr) {
 
 			curPt = m_curAction->GetPosition();
 
@@ -280,10 +280,10 @@ void EffectActor::AddAction(ActionPtr actionObj)
 Anim *EffectActor::CreateAnim(EFFECTACTION action)
 {
 	Assert(m_effectSpriteGroup);
-	if (!m_effectSpriteGroup) return NULL;
+	if (!m_effectSpriteGroup) return nullptr;
 
 	Anim	* origAnim = m_effectSpriteGroup->GetAnim((GAME_ACTION) action);
-	return origAnim ? new Anim(*origAnim) : NULL;
+	return origAnim ? new Anim(*origAnim) : nullptr;
 }
 
 void EffectActor::Draw()

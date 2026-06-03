@@ -94,7 +94,7 @@ void NetVision::Packetize(uint8 *buf, uint16 &size)
 	PUSHSHORT(m_row);
 	PUSHBYTE(m_numRows);
 
-	uint8 *ptr = NULL;
+	uint8 *ptr = nullptr;
 	uint8 bitPos = 0;
 	Vision *vision = player_Get(m_owner)->m_vision;
 	sint32 w = vision->m_width;
@@ -156,7 +156,7 @@ void NetVision::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	PULLSHORT(m_row);
 	PULLBYTE(m_numRows);
 
-	uint8 *         ptr     = NULL;
+	uint8 *         ptr     = nullptr;
 	uint8           bitPos  = 0;
 	Vision *        vision  = player_Get(m_owner)->m_vision;
 	sint32          w       = vision->m_width;

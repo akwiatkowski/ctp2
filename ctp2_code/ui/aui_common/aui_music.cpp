@@ -62,7 +62,7 @@ aui_Redbook::aui_Redbook() :
 #ifdef __AUI_USE_DIRECTX__
 m_cd_device_id(-1),
 #elif defined(__AUI_USE_SDL__)
-m_cd_device_id(0),
+m_cd_device_id(nullptr),
 #endif
 m_cd_drive_letter(0),
 m_cd_drive_index(0),
@@ -77,7 +77,7 @@ aui_Redbook::~aui_Redbook()
 #ifdef __AUI_USE_DIRECTX__
 	m_cd_device_id = -1;
 #elif defined(__AUI_USE_SDL__)
-	m_cd_device_id = 0;
+	m_cd_device_id = nullptr;
 #endif
 	m_cd_drive_letter = 0;
 	m_cd_drive_index = 0;
@@ -355,7 +355,7 @@ aui_Redbook::CDDone()
 	m_cd_device_id = -1;
 #elif defined(__AUI_USE_SDL__)
 	sint32 mci_retval = 0;
-	m_cd_device_id = 0;
+	m_cd_device_id = nullptr;
 #endif
 
 	return mci_retval? AUI_MUSIC_ERRCODE_MCIERR : AUI_MUSIC_ERRCODE_OK;

@@ -67,7 +67,7 @@ aui_SDLUI::aui_SDLUI
 )
 :   aui_UI              (),
     aui_SDL             (),
-    m_X11Display        (0)
+    m_X11Display        (nullptr)
 {
 
 	*retval = aui_Region::InitCommon( 0, 0, 0, width, height );
@@ -75,7 +75,7 @@ aui_SDLUI::aui_SDLUI
 	if ( !AUI_SUCCESS(*retval) ) return;
 
 	Assert( aui_Base::GetBaseRefCount() == 2 );
-	aui_ui_Set(aui_Base::GetBaseRefCount() == 2 ? this : NULL);
+	aui_ui_Set(aui_Base::GetBaseRefCount() == 2 ? this : nullptr);
 
 	*retval = aui_UI::InitCommon( hinst, hwnd, bpp, ldlFilename );
 	Assert( AUI_SUCCESS(*retval) );
@@ -120,8 +120,8 @@ AUI_ERRCODE aui_SDLUI::DestroyNativeScreen()
 	if (m_primary)
 	{
 		delete m_primary;
-		m_primary   = NULL;
-		m_lpdds     = NULL;
+		m_primary   = nullptr;
+		m_lpdds     = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -183,7 +183,7 @@ AUI_ERRCODE aui_SDLUI::CreateNativeScreen( BOOL useExclusiveMode )
 		m_width,
 		m_height,
 		m_bpp,
-		NULL,
+		nullptr,
 		FALSE );
 	Assert( AUI_NEWOK(m_secondary,errcode) );
 	assert( AUI_NEWOK(m_secondary,errcode) );
@@ -208,13 +208,13 @@ aui_SDLUI::~aui_SDLUI( )
 {
 	if ( m_window ) {
 		SDL_DestroyWindow(m_window);
-		m_window = NULL;
-		m_lpdds = NULL;
+		m_window = nullptr;
+		m_lpdds = nullptr;
 	}
 #ifdef HAVE_X11
 	if (m_X11Display) {
 		XCloseDisplay(m_X11Display);
-		m_X11Display = 0;
+		m_X11Display = nullptr;
 	}
 #endif
 }
@@ -236,7 +236,7 @@ AUI_ERRCODE aui_SDLUI::TearDownMouse()
 
 		m_mouse->End();
 		delete m_mouse;
-		m_mouse = NULL;
+		m_mouse = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -249,7 +249,7 @@ AUI_ERRCODE aui_SDLUI::RestoreMouse()
 	BOOL			exclusive = TRUE;
 
 	aui_SDLMouse *mouse = new aui_SDLMouse( &auiErr, "CivMouse", exclusive );
-	Assert(mouse != NULL);
+	Assert(mouse != nullptr);
 	if ( !mouse ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	delete m_mouse;

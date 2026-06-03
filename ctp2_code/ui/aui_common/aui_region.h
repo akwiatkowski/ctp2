@@ -189,7 +189,7 @@ public:
 	void MouseDispatchEdit( aui_MouseEvent *input, BOOL handleIt );
 	void EditModeModifyRegion( RECT rect );
 	static void EditModeClear( )
-			{ s_editChild = NULL;
+			{ s_editChild = nullptr;
 			  s_editModeStatus = AUI_EDIT_MODE_CHOOSE_REGION;
 			  s_editSelectionCount = 0;
 			  s_editSelectionCurrent = 0; }
@@ -210,15 +210,15 @@ public:
 	virtual uint32 ShouldDraw(uint32 draw = k_AUI_REGION_DRAWFLAG_UPDATE);
 
 	virtual AUI_ERRCODE Draw(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 	AUI_ERRCODE DrawChildren(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 ) { return AUI_ERRCODE_OK; }
 
@@ -261,9 +261,9 @@ public:
 	virtual void SetLdlBlock(const MBCHAR *ldlblock);
 
 	typedef void (*ShowHideCallback)(aui_Region *region, void *userData);
-	void SetShowCallback(ShowHideCallback callback, void *userData = NULL)
+	void SetShowCallback(ShowHideCallback callback, void *userData = nullptr)
 	{ m_showCallback = callback; m_showCallbackData = userData; }
-	void SetHideCallback(ShowHideCallback callback, void *userData = NULL)
+	void SetHideCallback(ShowHideCallback callback, void *userData = nullptr)
 	{ m_hideCallback = callback; m_hideCallbackData = userData; }
 
 protected:
@@ -277,7 +277,7 @@ protected:
         m_height                    (0),
         m_dim                       (new aui_Dimension()),
         m_attributes                (0),
-        m_parent                    (NULL),
+        m_parent                    (nullptr),
         m_childList                 (new tech_WLList<aui_Region *>()),
         m_childListChanged          (false),
         m_blind                     (false),
@@ -296,13 +296,13 @@ protected:
         m_doubleClickingInside      (true),
         m_doubleClickTimeOut        (0),
         // POINT		m_doubleClickOldPos;
-        m_ldlBlock                  (NULL),
+        m_ldlBlock                  (nullptr),
         // POINT		m_editGrabPoint;
         m_editGrabPointAttributes   (0),
-        m_showCallback              (NULL),
-        m_hideCallback              (NULL),
-        m_showCallbackData          (NULL),
-        m_hideCallbackData          (NULL)
+        m_showCallback              (nullptr),
+        m_hideCallback              (nullptr),
+        m_showCallbackData          (nullptr),
+        m_hideCallbackData          (nullptr)
     {
         InitCommon();
     };

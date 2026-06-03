@@ -43,7 +43,7 @@ private:
 class SegmentList : public KeyboardHandler
 {
 public:
-	SegmentList(SegmentListCallback* callback = 0, MBCHAR *ldlBlock = 0);
+	SegmentList(SegmentListCallback* callback = nullptr, MBCHAR *ldlBlock = nullptr);
 	virtual ~SegmentList();
 
 	void DisplayWindow();

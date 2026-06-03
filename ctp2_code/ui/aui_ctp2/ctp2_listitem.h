@@ -90,8 +90,8 @@ protected:
     :
         aui_Item            (),
         PatternBase         (),
-        m_userData          (NULL),
-        m_compareCallback   (NULL)
+        m_userData          (nullptr),
+        m_compareCallback   (nullptr)
     { ; };
 
 };

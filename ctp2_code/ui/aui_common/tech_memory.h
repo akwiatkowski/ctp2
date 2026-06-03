@@ -50,11 +50,11 @@ protected:
 	{
 		Block(size_t blockSize)
 		:
-			pNext      (0),
+			pNext      (nullptr),
 			usedSize   (blockSize / k_TECH_MEMORY_BITSPERDWORD),
-			used       (0),
+			used       (nullptr),
 			dataSize   (blockSize),
-			data       (0)
+			data       (nullptr)
 		{
 			size_t const remainder = dataSize % k_TECH_MEMORY_BITSPERDWORD;
 			if (remainder)
@@ -81,13 +81,13 @@ protected:
 			if (used)
 			{
 				delete[] used;
-				used = 0;
+				used = nullptr;
 			}
 
 			if (data)
 			{
 				delete[] data;
-				data = 0;
+				data = nullptr;
 			}
 		};
 
@@ -115,8 +115,8 @@ template< class T >
 tech_Memory< T >::tech_Memory( size_t blockSize )
 	:
 	m_blockSize( blockSize ? blockSize : k_TECH_MEMORY_DEFAULT_BLOCKSIZE ),
-	m_pFirst( 0 ),
-	m_pLast( 0 )
+	m_pFirst( nullptr ),
+	m_pLast( nullptr )
 {
 }
 
@@ -131,7 +131,7 @@ tech_Memory< T >::~tech_Memory()
 		delete pBlock;
 	}
 
-	m_pFirst = m_pLast = 0;
+	m_pFirst = m_pLast = nullptr;
 }
 
 
@@ -185,7 +185,7 @@ T *tech_Memory< T >::UseFreeElement( )
 				unsigned freeSlot = 1;
 				while ( !(freeSlots & 1) )
 				{
-					if ( ++t == stopT ) return 0;
+					if ( ++t == stopT ) return nullptr;
 					freeSlot <<= 1;
 					freeSlots >>= 1;
 				}
@@ -198,7 +198,7 @@ T *tech_Memory< T >::UseFreeElement( )
 		}
 	}
 
-	return 0;
+	return nullptr;
 }
 
 

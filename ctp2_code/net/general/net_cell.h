@@ -75,7 +75,7 @@ public:
 	NetCellData()
 	:
 		Packetizer	(),
-		m_cell		(NULL),
+		m_cell		(nullptr),
 		m_x			(0),
 		m_y			(0)
 	{};

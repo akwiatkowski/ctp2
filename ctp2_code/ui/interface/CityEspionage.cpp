@@ -61,7 +61,7 @@
 namespace
 {
 	/// City espionage data and window (singleton)
-	CityEspionage * s_CityEspionage     = NULL;
+	CityEspionage * s_CityEspionage     = nullptr;
 
 	/// Block name for lookup of elements and layout from the ldl-file
 	MBCHAR const *  LDL_BLOCK           = "CityEspionage";
@@ -96,9 +96,9 @@ namespace
 
 CityEspionage::CityEspionage()
 :
-    m_window        (NULL),
-    m_cancelButton  (NULL),
-    m_inventoryList (NULL)
+    m_window        (nullptr),
+    m_cancelButton  (nullptr),
+    m_inventoryList (nullptr)
 {
 	m_window = static_cast<ctp2_Window *>
 	        (aui_Ldl::BuildHierarchyFromRoot(LDL_BLOCK));
@@ -136,7 +136,7 @@ CityEspionage::~CityEspionage()
 		                                (aui_Ldl::GetObject(LDL_BLOCK, block));
 		if (unitPicture)
 		{
-			unitPicture->ExchangeImage(0, 0, NULL);
+			unitPicture->ExchangeImage(0, 0, nullptr);
 		}
 	}
 
@@ -148,7 +148,7 @@ CityEspionage::~CityEspionage()
 void CityEspionage::Cleanup()
 {
 	delete s_CityEspionage;
-	s_CityEspionage = NULL;
+	s_CityEspionage = nullptr;
 }
 
 /// Display espionage intelligence of a city
@@ -276,7 +276,7 @@ void CityEspionage::DisplayWindow(Unit a_City)
 							st->Enable(false);
 						}
 
-						st->ExchangeImage(0, 0, NULL);
+						st->ExchangeImage(0, 0, nullptr);
 					}
 				}
 			}

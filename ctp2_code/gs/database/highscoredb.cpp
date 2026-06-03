@@ -23,7 +23,7 @@ HighScoreDB::~HighScoreDB()
 	SaveHighScores();
 
 	HighScoreInfo *prevScore = m_highScoreInfo;
-	HighScoreInfo *nextScore = NULL;
+	HighScoreInfo *nextScore = nullptr;
 
 	if (prevScore)
 	{
@@ -34,27 +34,27 @@ HighScoreDB::~HighScoreDB()
 			prevScore = nextScore;
 		}
 
-		Assert( prevScore == NULL );
+		Assert( prevScore == nullptr );
 	}
 }
 
 void HighScoreDB::Initialize()
 {
 	m_nHighScores = 0;
-	m_highScoreInfo = NULL;
+	m_highScoreInfo = nullptr;
 	LoadHighScores();
 }
 
 sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 {
-	HighScoreInfo *nextScore = NULL;
-	HighScoreInfo *prevScore = NULL;
+	HighScoreInfo *nextScore = nullptr;
+	HighScoreInfo *prevScore = nullptr;
 	sint32 i = 0;
 
 	HighScoreInfo *newScore = new HighScoreInfo;
 	strcpy(newScore->m_name, name);
 	newScore->m_score = score;
-	newScore->m_next = NULL;
+	newScore->m_next = nullptr;
 
 	if (!m_nHighScores)
 	{
@@ -107,7 +107,7 @@ sint32 HighScoreDB::AddHighScore(MBCHAR *name, sint32 score)
 sint32 HighScoreDB::CheckMaxScores( )
 {
 	HighScoreInfo *nextScore = m_highScoreInfo;
-	HighScoreInfo *prevScore = NULL;
+	HighScoreInfo *prevScore = nullptr;
 
 	if (m_nHighScores > k_MAX_HIGH_SCORES)
 	{
@@ -119,9 +119,9 @@ sint32 HighScoreDB::CheckMaxScores( )
 			nextScore = nextScore->m_next;
 		}
 
-		prevScore->m_next = NULL;
+		prevScore->m_next = nullptr;
 		delete nextScore;
-		nextScore = NULL;
+		nextScore = nullptr;
 		m_nHighScores--;
 	}
 
@@ -134,7 +134,7 @@ HighScoreInfo *HighScoreDB::GetHighScoreInfo( sint32 index )
 	if (index > m_nHighScores) index = m_nHighScores;
 	if (index < 0) index = 0;
 
-	if (!m_highScoreInfo) return NULL;
+	if (!m_highScoreInfo) return nullptr;
 
 	HighScoreInfo *nextScore = m_highScoreInfo;
 

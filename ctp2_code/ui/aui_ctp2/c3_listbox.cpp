@@ -72,9 +72,9 @@ c3_ListBox::c3_ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_ListBox(),
-	PatternBase(ldlBlock, (MBCHAR *)NULL)
+	PatternBase(ldlBlock, (MBCHAR *)nullptr)
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
 	Assert( AUI_SUCCESS(*retval) );
@@ -115,7 +115,7 @@ c3_ListBox::c3_ListBox(
 	void *cookie)
 	:
 	aui_ImageBase((sint32) 0),
-	aui_TextBase((MBCHAR const *) NULL, (uint32) 0),
+	aui_TextBase((MBCHAR const *) nullptr, (uint32) 0),
 	aui_ListBox(),
 	PatternBase(pattern)
 {
@@ -123,7 +123,7 @@ c3_ListBox::c3_ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -139,7 +139,7 @@ c3_ListBox::c3_ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateRangersAndHeader( NULL );
+	*retval = CreateRangersAndHeader( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -162,7 +162,7 @@ c3_ListBox::~c3_ListBox()
 AUI_ERRCODE c3_ListBox::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32 bevelWidth   = block->GetInt( k_C3_LISTBOX_LDL_BEVELWIDTH );
@@ -192,7 +192,7 @@ AUI_ERRCODE c3_ListBox::InitCommon(sint32 bevelWidth, sint32 bevelType)
 AUI_ERRCODE c3_ListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode         = AUI_ERRCODE_OK;
-    MBCHAR *    patternFilename = (m_pattern) ? m_pattern->GetFilename() : NULL;
+    MBCHAR *    patternFilename = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
@@ -203,7 +203,7 @@ AUI_ERRCODE c3_ListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 		{
 			RemoveChild( m_header->Id() );
 			delete m_header;
-			m_header = NULL;
+			m_header = nullptr;
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );

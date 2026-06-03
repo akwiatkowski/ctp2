@@ -593,7 +593,7 @@ public:
     bool Upgrade();
     bool UpgradeTypeAndCosts(bool & full, sint32 & costs, sint32 & fullCosts, sint8 & numUpgrade, sint8 & numUpgradeAll) const;
 
-    static void DisassociateEventsFromOrdersDB(){ delete[] s_orderDBToEventMap; s_orderDBToEventMap = NULL; };
+    static void DisassociateEventsFromOrdersDB(){ delete[] s_orderDBToEventMap; s_orderDBToEventMap = nullptr; };
     static void AssociateEventsWithOrdersDB();
     static sint32 OrderToEvent(sint32 order) { return s_orderDBToEventMap[order]; };
 

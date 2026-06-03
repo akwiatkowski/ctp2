@@ -52,7 +52,7 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf, sint32 len,
 	m_id = id;
 	m_flags = flags;
 
-	m_actualBuf = NULL;
+	m_actualBuf = nullptr;
 	m_totalLen = 0;
 
 	if(!sendPacket &&
@@ -67,7 +67,7 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf, sint32 len,
 		m_buf = new uint8[len];
 		memcpy(m_buf, buf, len);
 	} else {
-		m_buf = NULL;
+		m_buf = nullptr;
 	}
 	m_len = len;
 }
@@ -77,7 +77,7 @@ TPacketData::TPacketData(uint16 id, sint32 flags, uint8 *buf,sint32 len,
 {
 	m_id = id;
 	m_flags = flags;
-	m_actualBuf = NULL;
+	m_actualBuf = nullptr;
 	m_buf = new uint8[len + headerLen];
 	memcpy(m_buf, header, headerLen);
 	memcpy(m_buf + headerLen, buf, len);
@@ -127,13 +127,13 @@ NET_ERR NetThread::Reset()
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
 		if(m_outgoing[i]) {
 			delete m_outgoing[i];
-			m_outgoing[i] = NULL;
+			m_outgoing[i] = nullptr;
 		}
 		m_ids[i] = 0;
 	}
 
-	m_dp = NULL;
-	m_origDP = NULL;
+	m_dp = nullptr;
+	m_origDP = nullptr;
 	m_setMaxPlayers = -1;
 
 	Init(m_response);
@@ -155,7 +155,7 @@ NetThread::~NetThread()
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
 		if(m_outgoing[i]) {
 			delete m_outgoing[i];
-			m_outgoing[i] = NULL;
+			m_outgoing[i] = nullptr;
 		}
 	}
 	if(m_kickPlayers) {
@@ -178,15 +178,15 @@ DWORD WINAPI NetThread_StartThread(LPVOID obj)
 
 NetThread::NetThread()
 {
-	m_dp = NULL;
-	m_origDP = NULL;
+	m_dp = nullptr;
+	m_origDP = nullptr;
 	sint32 i;
 	for(i = 0; i < k_MAX_NETWORK_PLAYERS; i++) {
-		m_outgoing[i] = NULL;
+		m_outgoing[i] = nullptr;
 		m_ids[i] = 0;
 	}
 	m_incoming = new PointerList<TPacketData>;
-	m_anet = NULL;
+	m_anet = nullptr;
 	m_exit = m_exited = FALSE;
 
 #ifdef USE_SDL
@@ -203,7 +203,7 @@ NET_ERR NetThread::Init(NetIOResponse *response)
 	NetIO::Init(response);
 
 #ifdef USE_SDL
-	if ((m_thread = SDL_CreateThread(NetThread_StartThread, "NetThread", this)) == NULL) {
+	if ((m_thread = SDL_CreateThread(NetThread_StartThread, "NetThread", this)) == nullptr) {
 #elif defined(WIN32)
 	if((m_threadHandle = CreateThread(NULL,
 									  0,
@@ -234,7 +234,7 @@ void NetThread::Run()
 				dpSetActiveThread(m_dp);
 				m_anet->SetDP(m_dp);
 				m_origDP = m_dp;
-				m_dp = NULL;
+				m_dp = nullptr;
 
 			}
 
@@ -261,7 +261,7 @@ void NetThread::Run()
 
 				if(outgoing->GetCount() > 0) {
 					BOOL busy = FALSE;
-					while(!busy && ((packet = outgoing->RemoveHead()) != NULL)) {
+					while(!busy && ((packet = outgoing->RemoveHead()) != nullptr)) {
 						static uint8 buf[dp_MAXLEN_UNRELIABLE * 2];
 						if(packet->m_len > dp_MAXLEN_UNRELIABLE * 2) {
 							Assert(packet->m_len <= dp_MAXLEN_UNRELIABLE * 2);
@@ -297,9 +297,9 @@ void NetThread::Run()
 		uint16 myId;
 		m_anet->GetMyId(myId);
 		m_anet->KickPlayer(myId);
-		m_anet->SetDP(NULL);
+		m_anet->SetDP(nullptr);
 		delete m_anet;
-		m_anet = NULL;
+		m_anet = nullptr;
 	}
 	m_exited = TRUE;
 }
@@ -462,7 +462,7 @@ NET_ERR NetThread::Idle()
 	BOOL stopProcessing = FALSE;
 	hackPackets = 0;
 	while(!stopProcessing && (m_response->ReadyForPackets()) &&
-		  ((m_incoming->GetHead() != NULL))) {
+		  ((m_incoming->GetHead() != nullptr))) {
 		packet = m_incoming->RemoveHead();
 
 		if(packet->m_buf && packet->m_buf[0] == k_SPLIT_PACKET_HEAD &&
@@ -477,7 +477,7 @@ NET_ERR NetThread::Idle()
 		if(packet->m_id == k_RPC_ID) {
 			switch(packet->m_flags) {
 				case k_RPC_SESSION_READY:
-					m_response->SessionReady(NET_ERR_OK, NULL);
+					m_response->SessionReady(NET_ERR_OK, nullptr);
 					break;
 				case k_RPC_ADD_PLAYER:
 				{
@@ -570,7 +570,7 @@ void NetThread::SessionReady(NET_ERR result,
 	Lock();
 	m_incoming->AddTail(new TPacketData(k_RPC_ID,
 										k_RPC_SESSION_READY,
-										NULL,
+										nullptr,
 										0,
 										TRUE));
 	Unlock();
@@ -585,7 +585,7 @@ TPacketData *NetThread::FindSplitStart(uint16 from)
 			return walk.GetObj();
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void NetThread::PacketReady(sint32 from, uint8* buf, sint32 size)
@@ -682,7 +682,7 @@ void NetThread::RemovePlayer(uint16 id)
 	Lock();
 	TPacketData *packet = new TPacketData(k_RPC_ID,
 										  k_RPC_REMOVE_PLAYER,
-										  NULL,
+										  nullptr,
 										  sizeof(uint16),
 										  TRUE);
 	packet->m_buf = new uint8[sizeof(uint16)];
@@ -695,7 +695,7 @@ void NetThread::RemovePlayer(uint16 id)
 			m_ids[i] = 0;
 			if(m_outgoing[i]) {
 				delete m_outgoing[i];
-				m_outgoing[i] = NULL;
+				m_outgoing[i] = nullptr;
 				break;
 			}
 		}
@@ -720,7 +720,7 @@ void NetThread::SetToHost()
 	Lock();
 	m_incoming->AddTail(new TPacketData(k_RPC_ID,
 										k_RPC_SET_TO_HOST,
-										NULL,
+										nullptr,
 										0,
 										TRUE));
 	Unlock();
@@ -758,7 +758,7 @@ void NetThread::SessionLost()
 	Lock();
 	TPacketData *packet = new TPacketData(k_RPC_ID,
 										  k_RPC_SESSION_LOST,
-										  NULL,
+										  nullptr,
 										  0,
 										  TRUE);
 

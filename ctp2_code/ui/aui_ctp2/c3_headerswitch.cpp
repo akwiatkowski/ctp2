@@ -25,19 +25,19 @@ c3_HeaderSwitch::c3_HeaderSwitch(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Radio(
 		retval,
 		id,
 		ldlBlock,
 		ActionFunc,
 		cookie ),
-	m_image( NULL )
+	m_image( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, NULL);
+	*retval = PatternBase::InitCommonLdl( ldlBlock, nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -74,7 +74,7 @@ c3_HeaderSwitch::c3_HeaderSwitch(
 		cookie,
 		state,
 		numStates ),
-	m_image( NULL )
+	m_image( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -92,7 +92,7 @@ c3_HeaderSwitch::c3_HeaderSwitch(
 AUI_ERRCODE c3_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if ( ldlBlock )
@@ -133,7 +133,7 @@ c3_HeaderSwitch::~c3_HeaderSwitch()
 {
 	if ( m_image ) {
 		delete m_image;
-		m_image = NULL;
+		m_image = nullptr;
 	}
 }
 

@@ -105,23 +105,23 @@ namespace
 {
 
 MBCHAR const         s_libraryWindowBlock[]  = "GreatLibrary";
-GreatLibraryWindow * s_libraryWindow         = NULL;
+GreatLibraryWindow * s_libraryWindow         = nullptr;
 
 } // namespace
 
 GreatLibraryWindow::GreatLibraryWindow(AUI_ERRCODE * err)
 :
-    m_window                (NULL),
+    m_window                (nullptr),
 	m_mode                  (0),
 	m_database              (DATABASE_DEFAULT),
-	m_techTitle             (NULL),
-	m_techTree              (NULL),
-	m_techStillShot         (NULL),
-    m_techDescriptionGroup  (NULL),
-	m_techHistoricalText    (NULL),
-	m_techGameplayText      (NULL),
-	m_techRequirementsText  (NULL),
-	m_techVariablesText     (NULL)
+	m_techTitle             (nullptr),
+	m_techTree              (nullptr),
+	m_techStillShot         (nullptr),
+    m_techDescriptionGroup  (nullptr),
+	m_techHistoricalText    (nullptr),
+	m_techGameplayText      (nullptr),
+	m_techRequirementsText  (nullptr),
+	m_techVariablesText     (nullptr)
 #ifdef __AUI_USE_DIRECTX__
 	                              ,
 	m_techMovie             (NULL)
@@ -186,7 +186,7 @@ sint32 GreatLibraryWindow::LoadText(ctp2_HyperTextBox *textbox, char *filename, 
         char const *    text    =
             GreatLibrary::s_great_library_info->Look_Up_Data(filename);
 
-        if (text == NULL)
+        if (text == nullptr)
         {
 		    textbox->SetHyperText(" ");
             return 0;
@@ -286,7 +286,7 @@ sint32 GreatLibraryWindow::SetTechMode ( sint32 theMode, DATABASE theDatabase )
 	m_mode      = theMode;
 	m_database  = theDatabase;
 
-	const IconRecord *  iconRec = NULL;
+	const IconRecord *  iconRec = nullptr;
 
 	switch ( theDatabase )
     {
@@ -369,7 +369,7 @@ char const * GreatLibraryWindow::GetIconRecText
 	switch (database)
     {
     default:
-		iconRec = NULL;
+		iconRec = nullptr;
         {
             bool InvalidDatabase = false;
             Assert(InvalidDatabase);
@@ -424,7 +424,7 @@ char const * GreatLibraryWindow::GetIconRecText
 		switch (historical)
         {
         default:
-            filename = NULL;
+            filename = nullptr;
 			Assert(false);
 
 		case 0:
@@ -450,7 +450,7 @@ char const * GreatLibraryWindow::GetIconRecText
         }
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 char const * GreatLibraryWindow::GetGameplayText( int database, int item )

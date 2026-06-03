@@ -7,8 +7,8 @@
 #include "ui/aui_common/aui_uniqueid.h"
 #include "ui/aui_sdl/aui_sdl.h"
 
-SDL_Surface *aui_SDL::m_lpdd = 0;
-SDL_Window *aui_SDL::m_window = 0;
+SDL_Surface *aui_SDL::m_lpdd = nullptr;
+SDL_Window *aui_SDL::m_window = nullptr;
 uint32 aui_SDL::m_SDLClassId = aui_UniqueId();
 sint32 aui_SDL::m_SDLRefCount = 0;
 
@@ -37,7 +37,7 @@ aui_SDL::~aui_SDL()
 {
 	if (! --m_SDLRefCount) {
 		SDL_Quit();
-		m_lpdd = 0;
+		m_lpdd = nullptr;
 	}
 }
 

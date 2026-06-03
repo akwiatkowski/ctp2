@@ -46,17 +46,17 @@ template <class T> Database<T>::Database()
 
 {
 	m_nRec = m_max_nRec = 0;
-	m_rec = NULL;
-	m_indexToAlpha = NULL;
-	m_alphaToIndex = NULL;
+	m_rec = nullptr;
+	m_indexToAlpha = nullptr;
+	m_alphaToIndex = nullptr;
 }
 
 template <class T> Database<T>::Database(CivArchive &archive)
 	{
 	m_nRec=m_max_nRec=0;
-	m_rec=NULL;
-	m_indexToAlpha = NULL;
-	m_alphaToIndex = NULL;
+	m_rec=nullptr;
+	m_indexToAlpha = nullptr;
+	m_alphaToIndex = nullptr;
 	Serialize(archive);
 	}
 
@@ -72,16 +72,16 @@ template <class T> void  Database<T>::SetSize(const sint32 n)
 
 {
 	Assert (0 < n);
-	T*oldrec = NULL;
-	sint32 *oldalpha = NULL;
-	sint32 *oldindex = NULL;
+	T*oldrec = nullptr;
+	sint32 *oldalpha = nullptr;
+	sint32 *oldindex = nullptr;
 	sint32 oldmax = m_max_nRec;
 	if(m_rec) {
 		oldrec = m_rec;
 
-		Assert( m_indexToAlpha != NULL );
+		Assert( m_indexToAlpha != nullptr );
 		oldalpha = m_indexToAlpha;
-		Assert( m_alphaToIndex != NULL );
+		Assert( m_alphaToIndex != nullptr );
 		oldindex = m_alphaToIndex;
 	}
 	m_max_nRec = n;
@@ -138,7 +138,7 @@ template <class T> const T* Database<T>::Get(const sint32 i) const
 	Assert(0<=i);
 	Assert(i<m_nRec);
 	if(i < 0 || i >= m_nRec)
-		return NULL;
+		return nullptr;
 	return &(m_rec[i]);
 }
 
@@ -148,7 +148,7 @@ template <class T> T* Database<T>::Access(const sint32 i)
 	Assert(0<=i);
 	Assert(i<m_nRec);
 	if(i < 0 || i >= m_nRec)
-		return NULL;
+		return nullptr;
 	return &(m_rec[i]);
 }
 

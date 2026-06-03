@@ -238,7 +238,7 @@ void NewTurnCount::ChooseNextActivePlayer()
 		player_view::NextPlayer();
 		render_observer::NextPlayer();
 		count++;
-	} while( player_Get(player_view::CurPlayer()) == NULL );
+	} while( player_Get(player_view::CurPlayer()) == nullptr );
 }
 
 void NewTurnCount::StartNewYear()
@@ -273,8 +273,8 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 	if(player >= 0 && player < k_MAX_PLAYERS)
 		current_player = player;
 
-	Assert(player_arr_Get() != NULL);
-	Assert(player_Get(current_player) != NULL);
+	Assert(player_arr_Get() != nullptr);
+	Assert(player_Get(current_player) != nullptr);
 	if(!player_arr_Get() || !player_Get(current_player)) return 0;
 
 	sint32 round = player_Get(current_player)->GetCurRound();
@@ -285,7 +285,7 @@ sint32 NewTurnCount::GetCurrentYear(sint32 player)
 sint32 NewTurnCount::GetCurrentRound()
 {
 	PLAYER_INDEX current_player = player_view::CurPlayer();
-	Assert(player_arr_Get() != NULL);
+	Assert(player_arr_Get() != nullptr);
 	if(!player_arr_Get() || !player_Get(current_player)) return 0;
 
 	return player_Get(current_player)->GetCurRound();

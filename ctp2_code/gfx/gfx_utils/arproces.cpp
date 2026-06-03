@@ -41,7 +41,7 @@ sint32 RealConvolution(Pixel32 *InImage,
 		OutputImageBuffer = (Pixel32 *)malloc(Width*Height*sizeof(Pixel32));
 		memset(OutputImageBuffer, 0, Width*Height*sizeof(Pixel32));
 
-		if (OutputImageBuffer == NULL) {
+		if (OutputImageBuffer == nullptr) {
 			printf("Error Not enough memory for convolution output buffer\n");
 			return (-1);
 		}

@@ -71,8 +71,8 @@
 #include "gs/database/profileDB.h"
 #include "AgeRecord.h"
 
-static GameSelectWindow * g_gameSelectWindow = NULL;
-static StartSelectingWindow *g_startSelectingWindow = NULL;
+static GameSelectWindow * g_gameSelectWindow = nullptr;
+static StartSelectingWindow *g_startSelectingWindow = nullptr;
 
 GameSelectWindow * gameselectwindow_Get()
 {
@@ -106,7 +106,7 @@ AUI_ERRCODE GameSelectWindow::InitCommon( )
 	g_gameSelectWindow = this;
 
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
@@ -159,7 +159,7 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 		&errcode,
 		"gameselectwindow",
 		"deletebutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_DELETEBUTTON ] = control;
@@ -196,22 +196,22 @@ AUI_ERRCODE GameSelectWindow::CreateControls( )
 
 
 	action = new DeleteButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action );
 
 	action = new OKButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
 
 	action = new CancelButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
 
 	action = new GameListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_GAMENAMELISTBOX ]->SetAction( action );
 
@@ -231,7 +231,7 @@ GameSelectWindow::~GameSelectWindow()
 {
 	if (this == g_gameSelectWindow)
 	{
-		g_gameSelectWindow = NULL;
+		g_gameSelectWindow = nullptr;
 	}
 }
 
@@ -392,7 +392,7 @@ void GameSelectWindow::PasswordScreenDone( MBCHAR *password )
 	{
 
 		SaveInfo *saveInfo = loadsavewindow_Get()->GetSaveInfo();
-		Assert( saveInfo != NULL );
+		Assert( saveInfo != nullptr );
 		if ( saveInfo )
 		{
 			loadsavescreen_removeMyWindow( AUI_BUTTON_ACTION_EXECUTE );
@@ -542,7 +542,7 @@ AUI_ERRCODE StartSelectingWindow::InitCommon( )
 	g_startSelectingWindow = this;
 
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
@@ -581,7 +581,7 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 		&errcode,
 		"startselectingwindow",
 		"newbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_NEWBUTTON ] = control;
@@ -590,7 +590,7 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 		&errcode,
 		"startselectingwindow",
 		"gamesetupbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_GAMESETUPBUTTON ] = control;
@@ -599,7 +599,7 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 		&errcode,
 		"startselectingwindow",
 		"savedbutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_SAVEDBUTTON ] = control;
@@ -608,7 +608,7 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 		&errcode,
 		"startselectingwindow",
 		"scenariobutton",
-		NULL);
+		nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_SCENARIOBUTTON ] = control;
@@ -637,27 +637,27 @@ AUI_ERRCODE StartSelectingWindow::CreateControls( )
 
 
 	action = new NewButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action );
 
 	action = new GameSetupButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_GAMESETUPBUTTON ]->SetAction( action );
 
 	action = new SavedButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_SAVEDBUTTON ]->SetAction( action );
 
 	action = new ScenarioButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_SCENARIOBUTTON ]->SetAction( action );
 
 	action = new CancelButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
 
@@ -675,7 +675,7 @@ StartSelectingWindow::~StartSelectingWindow()
 
 	if (this == g_startSelectingWindow)
 	{
-		g_startSelectingWindow = NULL;
+		g_startSelectingWindow = nullptr;
 	}
 }
 

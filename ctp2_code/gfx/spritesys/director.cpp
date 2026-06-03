@@ -644,12 +644,12 @@ void Director::HandleNextAction() {
          item->GetOwner() != selitem_Get()->GetVisiblePlayer()) ||
         (!profiledb_Get()->IsUnitAnim() && item->GetOwner() != -1 &&
          item->GetOwner() >= 0 && item->GetOwner() < k_MAX_PLAYERS &&
-         player_Get(item->GetOwner()) != NULL &&
+         player_Get(item->GetOwner()) != nullptr &&
          player_Get(item->GetOwner())->IsRobot())) {
       executeType = DHEXECUTE_IMMEDIATE;
     }
 
-    Assert(item->m_handler != NULL);
+    Assert(item->m_handler != nullptr);
     item->m_handler(item->m_action, item->getSequence(), executeType);
 
     if (item->m_type == DQITEM_ADDVISION || item->m_type == DQITEM_REMOVEVISION)
@@ -860,7 +860,7 @@ void Director::CatchUp() {
 
     m_dispatchedItems.push_back(item);
 
-    Assert(item->m_handler != NULL);
+    Assert(item->m_handler != nullptr);
     item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_IMMEDIATE);
   }
 
@@ -896,7 +896,7 @@ bool Director::TileIsVisibleToPlayer(MapPoint& pos) {
 }
 
 void Director::ActiveUnitAdd(UnitActorPtr unitActor) {
-  if (unitActor == NULL)
+  if (unitActor == nullptr)
     return;
 
   if (!unitActor->IsActive())
@@ -1113,7 +1113,7 @@ void Director::NextPlayer(BOOL forcedUpdate) {
 
     m_dispatchedItems.push_back(item);
 
-    Assert(item->m_handler != NULL);
+    Assert(item->m_handler != nullptr);
     item->m_handler(item->m_action, item->getSequence(), DHEXECUTE_NORMAL);
   }
 
@@ -1483,7 +1483,7 @@ void Director::AddAttack(Unit attacker, Unit defender) {
     CellUnitList* unitList;
     unitList = world_Get()->GetCell(defender.RetPos())->UnitArmy();
     sint32 num = 1;
-    if (unitList != NULL)
+    if (unitList != nullptr)
       num = unitList->Num();
     defenderActor->SetTempStackSize(num);
   }
@@ -1530,8 +1530,8 @@ void Director::AddSpecialAttack(Unit attacker,
     return;
   }
 
-  UnitActorPtr attackerActor = attacker.IsValid() ? attacker.GetActor() : NULL;
-  UnitActorPtr defenderActor = attacked.IsValid() ? attacked.GetActor() : NULL;
+  UnitActorPtr attackerActor = attacker.IsValid() ? attacker.GetActor() : nullptr;
+  UnitActorPtr defenderActor = attacked.IsValid() ? attacked.GetActor() : nullptr;
 
   DQActionAttack* action = new DQActionAttack;
   action->attacker = attackerActor;
@@ -1552,7 +1552,7 @@ void Director::AddSpecialAttack(Unit attacker,
   if (player_Get(selitem_Get()->GetVisiblePlayer()) &&
       player_Get(selitem_Get()->GetVisiblePlayer())->IsVisible(
           attacked.RetPos())) {
-    AddProjectileAttack(attacker, attacked, NULL,
+    AddProjectileAttack(attacker, attacked, nullptr,
                         SpriteStatePtr(new SpriteState(spriteID)), 0);
   }
 }
@@ -1622,7 +1622,7 @@ void Director::AddMorphUnit(UnitActorPtr morphingActor,
                             SpriteStatePtr ss,
                             sint32 type,
                             Unit id) {
-  if (morphingActor == NULL)
+  if (morphingActor == nullptr)
     return;
 
   DQActionMorph* action = new DQActionMorph;

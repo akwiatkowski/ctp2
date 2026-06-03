@@ -43,7 +43,7 @@ Chart::Chart( AUI_ERRCODE *retval,
 			 void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ctp2_Static( retval, id, ldlBlock )
 {
 	InitCommon( ldlBlock );
@@ -60,10 +60,10 @@ Chart::Chart( AUI_ERRCODE *retval,
 			 void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
-	ctp2_Static( retval, id, x, y, width, height, pattern, NULL, 0, 0, 0 )
+	aui_TextBase( nullptr ),
+	ctp2_Static( retval, id, x, y, width, height, pattern, nullptr, 0, 0, 0 )
 {
-	InitCommon( NULL );
+	InitCommon( nullptr );
 }
 
 AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
@@ -71,23 +71,23 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 	sint32 i;
 	AUI_ERRCODE errcode;
 
-	m_centerButton = NULL;
-	m_left = NULL;
-	m_right = NULL;
+	m_centerButton = nullptr;
+	m_left = nullptr;
+	m_right = nullptr;
 
 	for ( i = 0;i < k_MAX_PREREQ; i++ )
 	{
-		m_preReqButton[i] = NULL;
+		m_preReqButton[i] = nullptr;
 	}
 
 	for ( i = 0;i < k_MAX_EITHER_PREREQ; i++ )
 	{
-		m_eitherPreReqButton[i] = NULL;
+		m_eitherPreReqButton[i] = nullptr;
 	}
 
 	for ( i = 0;i < k_MAX_LEADS_TO;i++ )
 	{
-		m_leadsToButton[i] = NULL;
+		m_leadsToButton[i] = nullptr;
 	}
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -180,7 +180,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 		m_centerButton = new ctp2_Button(
 			&errcode,
 			aui_UniqueId(),
-			NULL, k_CHART_PATTERN,
+			nullptr, k_CHART_PATTERN,
 			0, 0, 100, 20,
 			ChartCenterActionCallback,
 			this );
@@ -195,7 +195,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 		for ( i = 0;i < k_MAX_PREREQ;i++ )
 		{
 			m_preReqButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
-				NULL, k_CHART_PATTERN, 0, 0, 100, 20, ChartPreReqActionCallback, this );
+				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartPreReqActionCallback, this );
 			errcode = AddSubControl( m_preReqButton[i] );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
@@ -210,7 +210,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 		for ( i = 0;i < k_MAX_EITHER_PREREQ;i++ )
 		{
 			m_eitherPreReqButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
-				NULL, k_CHART_PATTERN, 0, 0, 100, 20, ChartEitherPreReqActionCallback, this );
+				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartEitherPreReqActionCallback, this );
 			errcode = AddSubControl( m_eitherPreReqButton[i] );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;
@@ -225,7 +225,7 @@ AUI_ERRCODE Chart::InitCommon( MBCHAR *ldlBlock )
 		for ( i = 0;i < k_MAX_LEADS_TO;i++ )
 		{
 			m_leadsToButton[i] = new ctp2_Button( &errcode, aui_UniqueId(),
-				NULL, k_CHART_PATTERN, 0, 0, 100, 20, ChartLeadsToActionCallback, this );
+				nullptr, k_CHART_PATTERN, 0, 0, 100, 20, ChartLeadsToActionCallback, this );
 			errcode = AddSubControl( m_leadsToButton[i] );
 			Assert( errcode == AUI_ERRCODE_OK );
 			if ( errcode != AUI_ERRCODE_OK ) return AUI_ERRCODE_CONTROLFAILURE;

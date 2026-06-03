@@ -126,7 +126,7 @@ static const sint32 k_NMD_SPEC_MERCHANT     = 7;
 static const sint32 k_NMD_SPEC_SCIENTIST    = 8;
 static const sint32 k_NMD_SPEC_COMBAT_UNITS = 9;
 
-static NationalManagementDialog * g_nationalManagementDialog = NULL;
+static NationalManagementDialog * g_nationalManagementDialog = nullptr;
 
 NationalManagementDialog * nationalmanagementdialog_Get()
 {
@@ -179,7 +179,7 @@ void NationalManagementDialog::Cleanup()
 	}
 
 	delete g_nationalManagementDialog;
-	g_nationalManagementDialog = NULL;
+	g_nationalManagementDialog = nullptr;
 }
 
 bool NationalManagementDialog::IsShown()
@@ -641,7 +641,7 @@ ctp2_ListItem *NationalManagementDialog::CreateResourceItem(const Unit &city)
 
 	Assert(item);
 	if(!item)
-		return(NULL);
+		return(nullptr);
 
 	item->SetUserData(reinterpret_cast<void*>(city.m_id));
 
@@ -779,7 +779,7 @@ ctp2_ListItem *NationalManagementDialog::CreateStatusItem(const Unit &city)
 
 	Assert(item);
 	if(!item)
-		return(NULL);
+		return(nullptr);
 
 	item->SetUserData(reinterpret_cast<void*>(city.m_id));
 
@@ -887,7 +887,7 @@ ctp2_ListItem *NationalManagementDialog::CreateSpecialistItem(const Unit &city)
 
 	Assert(item);
 	if(!item)
-		return(NULL);
+		return(nullptr);
 
 	item->SetUserData(reinterpret_cast<void*>(city.m_id));
 

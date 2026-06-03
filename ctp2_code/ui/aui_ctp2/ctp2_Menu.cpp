@@ -84,7 +84,7 @@ ctp2_Menu::~ctp2_Menu()
 
 		m_items->DeleteAll();
 		delete m_items;
-		m_items = NULL;
+		m_items = nullptr;
 	}
 }
 
@@ -96,8 +96,8 @@ ctp2_Menu::SetCallback(CTP2MenuCallback *callback)
 
 void ctp2_Menu::Init(const MBCHAR *block, bool atMouse, CTP2MenuCallback *callback)
 {
-	m_window = NULL;
-	m_list = NULL;
+	m_window = nullptr;
+	m_list = nullptr;
 	m_items = new PointerList<Item>;
 	m_maxTextWidth = k_MINIMUM_TEXT_WIDTH;
 	m_maxIconWidth = k_LEFT_ITEM_MARGIN;
@@ -106,7 +106,7 @@ void ctp2_Menu::Init(const MBCHAR *block, bool atMouse, CTP2MenuCallback *callba
 	m_maxItemHeight = 0;
 	m_resized = false;
 	m_atMouse = atMouse;
-	m_siblingArea = NULL;
+	m_siblingArea = nullptr;
 
 	MBCHAR dammit[k_MAX_NAME_LEN];
 	strcpy(dammit, block);
@@ -178,7 +178,7 @@ ctp2_Menu::Item *ctp2_Menu::CreateItem(MBCHAR *block, const MBCHAR *text, const 
 	ctp2_ListItem *item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot(block);
 	Assert(item);
 	if(!item)
-		return NULL;
+		return nullptr;
 
 	ctp2_Menu::Item *menuItem = new ctp2_Menu::Item;
 	menuItem->m_item = item;
@@ -292,7 +292,7 @@ ctp2_Menu::Item *ctp2_Menu::CreateItem(MBCHAR *block, const MBCHAR *text, const 
 
 void ctp2_Menu::AddItem(const MBCHAR *text, const MBCHAR *shortcut, void *cookie)
 {
-	ctp2_Menu::Item *item = CreateItem("PlainMenuListItem", text, shortcut, NULL, cookie);
+	ctp2_Menu::Item *item = CreateItem("PlainMenuListItem", text, shortcut, nullptr, cookie);
 	Assert(item);
 }
 
@@ -333,7 +333,7 @@ void ctp2_Menu::Open()
 	if(!m_window)
 	{
 
-		Init("CTP2_MENU", true, NULL);
+		Init("CTP2_MENU", true, nullptr);
 		Assert(m_window);
 		if(!m_window)
 			return;
@@ -403,9 +403,9 @@ void ctp2_Menu::ListCallback(aui_Control *control, uint32 action, uint32 data)
 			Assert(itemInfo);
 
 			m_list->DeselectItem(item);
-			m_callback(this, CTP2_MENU_ACTION_SELECT, index, itemInfo ? itemInfo->m_cookie : NULL);
+			m_callback(this, CTP2_MENU_ACTION_SELECT, index, itemInfo ? itemInfo->m_cookie : nullptr);
 		} else {
-			m_callback(this, CTP2_MENU_ACTION_CANCEL, -1, NULL);
+			m_callback(this, CTP2_MENU_ACTION_CANCEL, -1, nullptr);
 		}
 	}
 
@@ -435,7 +435,7 @@ const MBCHAR *ctp2_Menu::GetShortcutString(sint32 index)
 		walk.Next();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 bool ctp2_Menu::HandleShortcut(const MBCHAR *shortcut)
@@ -474,7 +474,7 @@ void ctp2_Menu::WeaklyModalCancel(aui_MouseEvent *event, ctp2_Window *window, vo
 		}
 
 		if(menu->m_callback) {
-			menu->m_callback(menu, CTP2_MENU_ACTION_CANCEL, -1, NULL);
+			menu->m_callback(menu, CTP2_MENU_ACTION_CANCEL, -1, nullptr);
 
 		}
 	}
@@ -488,10 +488,10 @@ void
 ctp2_Menu::Clear()
 {
 
-	if (m_items!=NULL)
+	if (m_items!=nullptr)
 		m_items->DeleteAll();
 
-	if (m_list!=NULL)
+	if (m_list!=nullptr)
 		m_list->Clear();
 
 	m_maxTextWidth	= k_MINIMUM_TEXT_WIDTH;

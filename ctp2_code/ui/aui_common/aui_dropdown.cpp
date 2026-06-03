@@ -54,7 +54,7 @@ aui_DropDown::aui_DropDown(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -83,7 +83,7 @@ aui_DropDown::aui_DropDown(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -102,7 +102,7 @@ aui_DropDown::aui_DropDown(
 AUI_ERRCODE aui_DropDown::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32 buttonSize = block->GetInt( k_AUI_DROPDOWN_LDL_BUTTONSIZE );
@@ -121,10 +121,10 @@ AUI_ERRCODE aui_DropDown::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_DropDown::InitCommon( sint32 buttonSize, sint32 windowSize )
 {
-	m_button = NULL,
-	m_listBox = NULL,
-	m_listBoxWindow = NULL,
-	m_staticPane = NULL,
+	m_button = nullptr,
+	m_listBox = nullptr,
+	m_listBoxWindow = nullptr,
+	m_staticPane = nullptr,
 	m_buttonSize = buttonSize ? buttonSize : k_CONTROL_DEFAULT_SIZE,
 	m_windowSize = windowSize ? windowSize : m_width,
 	m_alwaysPopup = FALSE,

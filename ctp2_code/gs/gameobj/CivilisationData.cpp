@@ -151,12 +151,12 @@ void CivilisationData::Serialize(CivArchive &archive)
 		GameObj::Serialize(archive);
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_singular_name)+sizeof(m_singular_name));
 
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if(m_lesser) {
 			((CivilisationData*)(m_lesser))->Serialize(archive);
 		}
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if(m_greater) {
 			((CivilisationData*)(m_greater))->Serialize(archive);
@@ -170,13 +170,13 @@ void CivilisationData::Serialize(CivArchive &archive)
 		if(hasChild) {
 			m_lesser = new CivilisationData(archive);
 		} else {
-			m_lesser = NULL;
+			m_lesser = nullptr;
 		}
 		archive >> hasChild;
 		if(hasChild) {
 			m_greater = new CivilisationData(archive);
 		} else {
-			m_greater = NULL;
+			m_greater = nullptr;
 		}
 	}
 }
@@ -355,14 +355,14 @@ MBCHAR const * CivilisationData::GetLeaderName() const
 void CivilisationData::SetLeaderName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(m_leader_name, s) ;
 }
 
 void CivilisationData::SetPersonalityDescription(const MBCHAR* s)
 {
 	Assert(s[0] != 0) ;
-	Assert(s != NULL) ;
+	Assert(s != nullptr) ;
 	strcpy(m_personality_description, s) ;
 }
 
@@ -373,40 +373,40 @@ MBCHAR* CivilisationData::GetPersonalityDescription()
 
 void CivilisationData::GetPluralCivName(MBCHAR *s)
 {
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(s, m_civilisation_name) ;
 }
 
 void CivilisationData::SetPluralCivName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(m_civilisation_name, s) ;
 }
 
 void CivilisationData::GetCountryName(MBCHAR *s)
 {
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(s, m_country_name) ;
 }
 
 void CivilisationData::SetCountryName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(m_country_name, s) ;
 }
 
 void CivilisationData::GetSingularCivName(MBCHAR *s)
 {
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(s, m_singular_name) ;
 }
 
 void CivilisationData::SetSingularCivName(const MBCHAR *s)
 {
 	Assert(s[0]!=0) ;
-	Assert(s!=NULL) ;
+	Assert(s!=nullptr) ;
 	strcpy(m_singular_name, s) ;
 }
 

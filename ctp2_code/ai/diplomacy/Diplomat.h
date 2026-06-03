@@ -248,9 +248,9 @@ public:
 
 	const ai::Regard GetEffectiveRegard( const PLAYER_INDEX & foreignerId) const;
 
-	static void ApplyGlobalTrustChange(const PLAYER_INDEX & foreignerId, const ai::Regard &trust_delta, const MBCHAR *reason = NULL);
+	static void ApplyGlobalTrustChange(const PLAYER_INDEX & foreignerId, const ai::Regard &trust_delta, const MBCHAR *reason = nullptr);
 
-	void ApplyTrustChange(const PLAYER_INDEX & foreignerId, const ai::Regard &trust_delta,  const MBCHAR *reason = NULL);
+	void ApplyTrustChange(const PLAYER_INDEX & foreignerId, const ai::Regard &trust_delta,  const MBCHAR *reason = nullptr);
 
 	const ai::Regard GetTrust(const PLAYER_INDEX & foreignerId) const;
 

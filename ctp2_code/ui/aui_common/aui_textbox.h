@@ -17,8 +17,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_TextBox(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -26,9 +26,9 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *text = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		MBCHAR *text = nullptr,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~aui_TextBox();
 
 protected:
@@ -49,7 +49,7 @@ public:
 		sint32 italic = 0 );
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -58,8 +58,8 @@ public:
 
 protected:
 
-	AUI_ERRCODE	CalculateItems(MBCHAR const * text = NULL);
-	AUI_ERRCODE	CalculateAppendedItems(MBCHAR const * text = NULL);
+	AUI_ERRCODE	CalculateItems(MBCHAR const * text = nullptr);
+	AUI_ERRCODE	CalculateAppendedItems(MBCHAR const * text = nullptr);
 
 	sint32		m_numItems;
 	sint32		m_curItem;

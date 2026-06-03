@@ -47,7 +47,7 @@
 #include "ui/netshell/passwordscreen.h"
 #include "ui/netshell/dialogboxwindow.h"
 
-static DialogBoxWindow *s_dbw = NULL;
+static DialogBoxWindow *s_dbw = nullptr;
 
 MBCHAR g_serverName[ 100 + 1 ] = "";
 
@@ -75,12 +75,12 @@ ServerSelectWindow::ServerSelectWindow(
 AUI_ERRCODE ServerSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
 	m_dbActionArray[ 0 ] = new DialogBoxPopDownAction;
-	Assert( m_dbActionArray[ 0 ] != NULL );
+	Assert( m_dbActionArray[ 0 ] != nullptr );
 	if ( !m_dbActionArray[ 0 ] ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -126,17 +126,17 @@ AUI_ERRCODE ServerSelectWindow::CreateControls( )
 	aui_Action *action;
 
 	action = new OKButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
 
 	action = new CancelButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
 
 	action = new ServerListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_SELECTSERVERLISTBOX ]->SetAction( action );
 
@@ -213,7 +213,7 @@ AUI_ERRCODE ServerSelectWindow::Idle( )
                        )
                     {
 					    DialogBoxWindow::PopDown(s_dbw);
-					    s_dbw = NULL;
+					    s_dbw = nullptr;
 				    }
                 }
 				break;
@@ -313,7 +313,7 @@ void ServerSelectWindow::DialogBoxPopDownAction::Execute(
 	if ( s_dbw )
 	{
 		DialogBoxWindow::PopDown( s_dbw );
-		s_dbw = NULL;
+		s_dbw = nullptr;
 	}
 
 	netshell_Get()->GotoScreen( NetShell::SCREEN_CONNECTIONSELECT );

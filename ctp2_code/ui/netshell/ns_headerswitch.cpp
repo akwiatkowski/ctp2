@@ -21,14 +21,14 @@ ns_HeaderSwitch::ns_HeaderSwitch(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Radio(
 		retval,
 		id,
 		ldlBlock,
 		ActionFunc,
 		cookie ),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -79,7 +79,7 @@ ns_HeaderSwitch::ns_HeaderSwitch(
 AUI_ERRCODE ns_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	return InitCommon(block->GetString(k_NS_HEADERSWITCH_LDL_ICON));
@@ -88,7 +88,7 @@ AUI_ERRCODE ns_HeaderSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE ns_HeaderSwitch::InitCommon( MBCHAR *icon )
 {
-	m_icon = NULL;
+	m_icon = nullptr;
 
 	if ( icon ) SetIcon( icon );
 
@@ -103,20 +103,20 @@ ns_HeaderSwitch::~ns_HeaderSwitch()
 	if ( m_icon )
 	{
 		aui_ui_Get()->UnloadImage( m_icon );
-		m_icon = NULL;
+		m_icon = nullptr;
 	}
 }
 
 
 AUI_ERRCODE ns_HeaderSwitch::SetIcon( MBCHAR *icon )
 {
-	Assert( icon != NULL );
+	Assert( icon != nullptr );
 	if ( !icon ) return AUI_ERRCODE_INVALIDPARAM;
 
 	aui_Image *prevImage = m_icon;
 
 	m_icon = aui_ui_Get()->LoadImage( icon );
-	Assert( m_icon != NULL );
+	Assert( m_icon != nullptr );
 	if ( !m_icon ) return AUI_ERRCODE_LOADFAILED;
 
 	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );

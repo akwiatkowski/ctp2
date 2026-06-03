@@ -57,7 +57,7 @@ private:
 class SourceList : public KeyboardHandler
 {
 public:
-	SourceList(SourceListCallback *callback = NULL, MBCHAR *ldlBlock = NULL);
+	SourceList(SourceListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr);
 	virtual ~SourceList();
 
 	c3_PopupWindow *m_window;

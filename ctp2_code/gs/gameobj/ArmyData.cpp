@@ -346,7 +346,7 @@ bool IsSolist(Unit const & u)
 
 } // namespace
 
-sint32 * ArmyData::s_orderDBToEventMap = NULL;
+sint32 * ArmyData::s_orderDBToEventMap = nullptr;
 
 
 
@@ -355,7 +355,7 @@ sint32 * ArmyData::s_orderDBToEventMap = NULL;
 
 ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
 :   GameObj                 (army.m_id),
-    m_tempKillList          (NULL),
+    m_tempKillList          (nullptr),
     m_attackedByDefenders   (new UnitDynamicArray),
     m_orders                (new PointerList<Order>),
     m_owner                 (-1),
@@ -379,7 +379,7 @@ ArmyData::ArmyData(const Army &army, const UnitDynamicArray &units)
 
 ArmyData::ArmyData(const Army &army, const CellUnitList &units)
 :   GameObj                 (army.m_id),
-    m_tempKillList          (NULL),
+    m_tempKillList          (nullptr),
     m_attackedByDefenders   (new UnitDynamicArray),
     m_orders                (new PointerList<Order>),
     m_owner                 (-1),
@@ -403,7 +403,7 @@ ArmyData::ArmyData(const Army &army, const CellUnitList &units)
 
 ArmyData::ArmyData(const Army &army, Unit &u)
 :   GameObj                 (army.m_id),
-    m_tempKillList          (NULL),
+    m_tempKillList          (nullptr),
     m_attackedByDefenders   (new UnitDynamicArray),
     m_orders                (new PointerList<Order>),
     m_owner                 (-1),
@@ -424,7 +424,7 @@ ArmyData::ArmyData(const Army &army, Unit &u)
 
 ArmyData::ArmyData(const Army &army)
 :   GameObj                 (army.m_id),
-    m_tempKillList          (NULL),
+    m_tempKillList          (nullptr),
     m_attackedByDefenders   (new UnitDynamicArray),
     m_orders                (new PointerList<Order>),
     m_owner                 (-1),
@@ -444,7 +444,7 @@ ArmyData::ArmyData(const Army &army)
 
 ArmyData::ArmyData(CivArchive &archive)
 :   GameObj                 (0),
-    m_tempKillList          (NULL),
+    m_tempKillList          (nullptr),
     m_attackedByDefenders   (new UnitDynamicArray),
     m_orders                (new PointerList<Order>),
     m_owner                 (-1),
@@ -513,13 +513,13 @@ void ArmyData::Serialize(CivArchive &archive)
             archive.Store((uint8*)m_name.c_str(), len);
         }
 
-        hasChild = m_lesser != NULL;
+        hasChild = m_lesser != nullptr;
         archive << hasChild;
         if(hasChild) {
             m_lesser->Serialize(archive);
         }
 
-        hasChild = m_greater != NULL;
+        hasChild = m_greater != nullptr;
         archive << hasChild;
         if(hasChild) {
             m_greater->Serialize(archive);
@@ -554,14 +554,14 @@ void ArmyData::Serialize(CivArchive &archive)
         if(hasChild) {
             m_lesser = new ArmyData(archive);
         } else {
-            m_lesser = NULL;
+            m_lesser = nullptr;
         }
 
         archive >> hasChild;
         if(hasChild) {
             m_greater = new ArmyData(archive);
         } else {
-            m_greater = NULL;
+            m_greater = nullptr;
         }
     }
 }
@@ -2954,7 +2954,7 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 	if (m_nElements <= 0)
 		return false;
 
-	const UnitRecord::SlaveRaidsData *data = NULL;
+	const UnitRecord::SlaveRaidsData *data = nullptr;
 	for(sint32 i = 0; i < m_nElements; i++) {
 		if( !m_array[i].GetDBRec()->GetSlaveRaids(data)) {
 
@@ -2962,7 +2962,7 @@ bool ArmyData::CanSlaveRaid(double &success, double &death,
 		}
 	}
 
-	if (data == NULL)
+	if (data == nullptr)
 		return false;
 
 	success = data->GetChance();
@@ -3700,7 +3700,7 @@ ORDER_RESULT ArmyData::BioInfect(const MapPoint &point)
 		chance += g_theConstDB->Get(0)->GetEliteTerroristBonus();
 	}
 
-	SlicObject * so = NULL;
+	SlicObject * so = nullptr;
 
 	if(c.IsBioImmune())
 	{
@@ -3904,7 +3904,7 @@ ORDER_RESULT ArmyData::NanoInfect(const MapPoint &point)
 
 	AddSpecialActionUsed(m_array[uindex]);
 
-	SlicObject * so = NULL;
+	SlicObject * so = nullptr;
 
 	if(c.IsNanoImmune()) {
 		so = new CityReport("10hImmuneToNanoTerror", c);
@@ -5961,7 +5961,7 @@ const Order *ArmyData::GetOrder(sint32 index) const
 {
 
 	if(index < 0 || index >= m_orders->GetCount())
-		return NULL;
+		return nullptr;
 
 	sint32 c = 0;
 	PointerList<Order>::Walker walk(m_orders);
@@ -5973,7 +5973,7 @@ const Order *ArmyData::GetOrder(sint32 index) const
 	if(c == index) {
 		return walk.GetObj();
 	}
-	return NULL;
+	return nullptr;
 }
 
 void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path)
@@ -5983,12 +5983,12 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path)
 
 void ArmyData::AddOrders(UNIT_ORDER_TYPE order, const MapPoint &point)
 {
-	AddOrders(order, NULL, point, 0);
+	AddOrders(order, nullptr, point, 0);
 }
 
 void ArmyData::AddOrders(UNIT_ORDER_TYPE order)
 {
-	AddOrders(order, NULL, m_pos, 0);
+	AddOrders(order, nullptr, m_pos, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -6112,7 +6112,7 @@ void ArmyData::AddOrders(UNIT_ORDER_TYPE order, Path *path, const MapPoint &poin
 	    (point.IsNextTo(curOrder->m_path->GetEnd())) ||
 		(point == curOrder->m_path->GetEnd()))) {
 
-		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, NULL, point, argument, turn_Get() ? turn_Get()->GetRound() : 0);
+		Order *attackOrder = new Order(UNIT_ORDER_ADD_EVENT, nullptr, point, argument, turn_Get() ? turn_Get()->GetRound() : 0);
 		GameEventArgList *args = new GameEventArgList();
 
 		args->Add(new GameEventArgument(GEA_Army, m_id));
@@ -6316,7 +6316,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 	DPRINTF(k_DBG_GAMESTATE, ("Army 0x%lx Executing order %s @ (%d,%d), turn=%d\n", m_id, orderinfo_Get(m_orders->GetHead()->m_order).m_name, m_pos.x, m_pos.y, player_Get(m_owner)->m_current_round));
 
 	while(keepGoing && m_nElements > 0 &&
-		  (order = m_orders->GetHead()) != NULL) {
+		  (order = m_orders->GetHead()) != nullptr) {
 
 		switch(order->m_order) {
 			case UNIT_ORDER_MOVE:
@@ -6472,7 +6472,7 @@ bool ArmyData::ExecuteOrders(bool propagate)
 	}
 
 	KillRecord *kill;
-	while((kill = m_killMeSoon->RemoveHead()) != NULL)
+	while((kill = m_killMeSoon->RemoveHead()) != nullptr)
 	{
 		if (kill->m_unit.IsValid())
 		{
@@ -6817,7 +6817,7 @@ bool ArmyData::Move(WORLD_DIRECTION d, Order *order)
 				}
 			}
 
-			AutoAddOrders(UNIT_ORDER_FINISH_ATTACK, NULL, newPos, 0);
+			AutoAddOrders(UNIT_ORDER_FINISH_ATTACK, nullptr, newPos, 0);
 			return false;
 		}
 
@@ -8434,13 +8434,13 @@ void ArmyData::FinishUnloadOrder(Army &debark, MapPoint &to_pt)
 						render_observer::AddShow(debark[i]);
 					}
 				}
-				debark.AutoAddOrders(UNIT_ORDER_MOVE_TO, NULL, to_pt, 0);
+				debark.AutoAddOrders(UNIT_ORDER_MOVE_TO, nullptr, to_pt, 0);
 			} else {
 				sint32 i;
 				for(i = 0; i < debark.Num(); i++) {
 					render_observer::AddShow(debark[i]);
 				}
-				debark.AutoAddOrders(UNIT_ORDER_TELEPORT_TO, NULL, m_pos, 0);
+				debark.AutoAddOrders(UNIT_ORDER_TELEPORT_TO, nullptr, m_pos, 0);
 			}
 
 		}
@@ -8652,7 +8652,7 @@ sint32 ArmyData::Fight(CellUnitList &defender)
 	    )
 	&&   safe_player(defender.GetOwner())->IsHuman()
 	){
-		SlicObject *so = NULL;
+		SlicObject *so = nullptr;
 		if (c.IsValid())
 		{
 			so = new SlicObject("410HotseatCityAttacked");
@@ -9302,7 +9302,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 		return false;
 	}
 
-	if (s_orderDBToEventMap == NULL)
+	if (s_orderDBToEventMap == nullptr)
 		AssociateEventsWithOrdersDB();
 	Assert(s_orderDBToEventMap);
 
@@ -9552,7 +9552,7 @@ bool ArmyData::ExecuteSpecialOrder(Order *order, bool &keepGoing)
 	if(result == ORDER_RESULT_SUCCEEDED
 	|| result == ORDER_RESULT_SUCCEEDED_INCOMPLETE
 	){
-		char const * sText = NULL;
+		char const * sText = nullptr;
 		switch(order->m_order)
 		{
 			case UNIT_ORDER_STEAL_TECHNOLOGY:  sText = "186StealTechnologyVictim"; break;
@@ -9666,7 +9666,7 @@ bool ArmyData::IsCargoWounded() const
 	for(sint32 i = 0 ; i < m_nElements ; i++)
 	{
 		UnitDynamicArray* cargoList = m_array[i]->GetCargoList();
-		sint32 n = cargoList != NULL ? cargoList->Num() : 0;
+		sint32 n = cargoList != nullptr ? cargoList->Num() : 0;
 
 		for(sint32 j = 0; j < n; j++)
 		{
@@ -9861,14 +9861,14 @@ Path *ArmyData::RemovePathedOrder()
 {
 	Order *order = m_orders->GetHead();
 	if(!order)
-		return NULL;
+		return nullptr;
 
 	if(!order->m_path)
-		return NULL;
+		return nullptr;
 
 	m_orders->RemoveHead();
 	Path *ret = order->m_path;
-	order->m_path = NULL;
+	order->m_path = nullptr;
 	delete order;
 	return ret;
 }
@@ -9989,7 +9989,7 @@ void ArmyData::CharacterizeCargo
 		const UnitDynamicArray * cargo =
 		    m_array[i]->GetCargoList();
 
-		if(cargo != NULL)
+		if(cargo != nullptr)
 		{
 			for(sint32 j = 0; j < cargo->Num(); j++)
 			{
@@ -10063,7 +10063,7 @@ void ArmyData::CheckAddEventOrder()
 		gevmanager_Get()->ArglistAddEvent(GEV_INSERT_AfterCurrent,
 									  order->m_eventType,
 									  order->m_gameEventArgs);
-		order->m_gameEventArgs = NULL;
+		order->m_gameEventArgs = nullptr;
 		delete order;
 	}
 }
@@ -10600,8 +10600,8 @@ void ArmyData::PerformOrder(const OrderRecord * order_rec)
 //----------------------------------------------------------------------------
 void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path, GAME_EVENT_INSERT priority)
 {
-	Assert(path != NULL);
-	if (path == NULL)
+	Assert(path != nullptr);
+	if (path == nullptr)
 		return;
 
 	if (m_flags & k_CULF_IN_SPACE)
@@ -10618,10 +10618,10 @@ void ArmyData::PerformOrderHere(const OrderRecord * order_rec, const Path * path
 	{
 		target_pos = m_pos;
 	}
-	if (s_orderDBToEventMap == NULL)
+	if (s_orderDBToEventMap == nullptr)
 		AssociateEventsWithOrdersDB();
 
-	Assert(s_orderDBToEventMap != NULL);
+	Assert(s_orderDBToEventMap != nullptr);
 	sint32 game_event = s_orderDBToEventMap[order_rec->GetIndex()];
 	sint32 moves = tmp_path->GetMovesRemaining();
 	//order_rec: range = 0 (army must be on top of tile) or range = 1 (can execute order from adjacent tile)
@@ -10816,7 +10816,7 @@ void ArmyData::SettleInCity()
 
 bool ArmyData::IsObsolete() const
 {
-	Assert(player_Get(m_owner) != NULL);
+	Assert(player_Get(m_owner) != nullptr);
 
 	for (sint32 i = 0; i < m_nElements; i++)
 	{
@@ -10836,12 +10836,12 @@ bool ArmyData::IsObsolete() const
 
 bool ArmyData::IsCargoObsolete() const
 {
-	Assert(player_Get(m_owner) != NULL);
+	Assert(player_Get(m_owner) != nullptr);
 
 	for(sint32 i = 0; i < m_nElements; i++)
 	{
 		UnitDynamicArray* cargoList = m_array[i]->GetCargoList();
-		sint32 n = cargoList != NULL ? cargoList->Num() : 0;
+		sint32 n = cargoList != nullptr ? cargoList->Num() : 0;
 
 		for(sint32 j = 0; j < n; j++)
 		{

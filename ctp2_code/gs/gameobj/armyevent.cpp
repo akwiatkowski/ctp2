@@ -307,7 +307,7 @@ STDEHANDLER(ArmyGroupUnitOrderEvent)
 
 	MapPoint pos;
 
-	a->AddOrders(UNIT_ORDER_GROUP_UNIT, NULL, pos, u.m_id);
+	a->AddOrders(UNIT_ORDER_GROUP_UNIT, nullptr, pos, u.m_id);
 
 	return GEV_HD_Continue;
 
@@ -665,7 +665,7 @@ STDEHANDLER(ArmyGetExpelledOrderEvent)
 
 	victim = a->GetOwner();
 
-	a->AutoAddOrdersWrongTurn(UNIT_ORDER_EXPEL_TO, NULL, pos, 0);
+	a->AutoAddOrdersWrongTurn(UNIT_ORDER_EXPEL_TO, nullptr, pos, 0);
 
 	SlicObject *so = new SlicObject("42UnitExpelled");
 	so->AddCivilisation(player);
@@ -769,7 +769,7 @@ STDEHANDLER(ArmyMoveEvent)
 		return GEV_HD_Continue;
 	}
 
-	armyData->CheckLoadSleepingCargoFromCity(NULL);
+	armyData->CheckLoadSleepingCargoFromCity(nullptr);
 
 	if (armyData->IsMovePointsEnough(newPos))
 	{
@@ -904,7 +904,7 @@ STDEHANDLER(FinishAttackEvent)
 	     && args->GetPos(0, pos)
 	   )
 	{
-		a.AddOrders(UNIT_ORDER_FINISH_ATTACK, NULL, pos, 0);
+		a.AddOrders(UNIT_ORDER_FINISH_ATTACK, nullptr, pos, 0);
 	}
 
 	return GEV_HD_Continue;
@@ -1014,7 +1014,7 @@ STDEHANDLER(AftermathEvent)
 	if (combat_Get())
 	{
 		delete combat_Get();
-		combat_Set(NULL);
+		combat_Set(nullptr);
 	}
 
 	args->GetArmy(0, army);

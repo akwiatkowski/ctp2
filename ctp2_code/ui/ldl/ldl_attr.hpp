@@ -31,7 +31,7 @@ class ldl_attribute {
 	friend class ldl_attributelist;
 
   public:
-	ldl_attribute(char *name, ATTRIBUTE_TYPE type) { m_name = name; m_type = type; m_next = NULL; }
+	ldl_attribute(char *name, ATTRIBUTE_TYPE type) { m_name = name; m_type = type; m_next = nullptr; }
 
 	ldl_attribute *GetCopy();
 

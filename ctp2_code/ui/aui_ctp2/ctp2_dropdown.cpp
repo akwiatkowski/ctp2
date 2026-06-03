@@ -64,7 +64,7 @@ ctp2_DropDown::ctp2_DropDown(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_DropDown(),
 	PatternBase(pattern)
 {
@@ -76,7 +76,7 @@ ctp2_DropDown::ctp2_DropDown(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -84,7 +84,7 @@ ctp2_DropDown::ctp2_DropDown(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateComponents(NULL);
+	*retval = CreateComponents(nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 }
 
@@ -96,9 +96,9 @@ ctp2_DropDown::ctp2_DropDown(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_DropDown(),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	*retval = aui_Region::InitCommonLdl(id, ldlBlock);
 	Assert( AUI_SUCCESS(*retval) );
@@ -126,7 +126,7 @@ AUI_ERRCODE ctp2_DropDown::CreateComponents( MBCHAR *ldlBlock )
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
-    MBCHAR *    pattern = (m_pattern) ? m_pattern->GetFilename() : NULL;
+    MBCHAR *    pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( ldlBlock )
 	{
@@ -333,7 +333,7 @@ void ctp2_DropDown::Clear()
 AUI_ERRCODE ctp2_DropDown::AddItem(ctp2_ListItem *item)
 {
 	Assert(m_listBox);
-	if (m_listBox == NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (m_listBox == nullptr) return AUI_ERRCODE_INVALIDPARAM;
 
 	m_listBox->AddItem((aui_Item *)item);
 
@@ -348,7 +348,7 @@ AUI_ERRCODE ctp2_DropDown::AddItem(ctp2_ListItem *item)
 void ctp2_DropDown::BuildListStart()
 {
 	Assert(m_listBox);
-	if (m_listBox == NULL) return;
+	if (m_listBox == nullptr) return;
 
 	m_listBox->BuildListStart();
 }
@@ -356,7 +356,7 @@ void ctp2_DropDown::BuildListStart()
 void ctp2_DropDown::BuildListEnd()
 {
 	Assert(m_listBox);
-	if (m_listBox == NULL) return;
+	if (m_listBox == nullptr) return;
 
 	m_listBox->BuildListEnd();
 

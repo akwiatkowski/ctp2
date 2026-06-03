@@ -68,7 +68,7 @@ TradeActor::TradeActor(TradeRoute newRoute) :
 {
 	GROUPTYPE		type;
 
-	m_curAction = NULL;
+	m_curAction = nullptr;
 	m_animPos = 0;
 
 	m_routeID = newRoute;
@@ -154,7 +154,7 @@ void TradeActor::Process()
 		}
 	}
 
-	if (m_curAction != NULL) {
+	if (m_curAction != nullptr) {
 		sint32 x, y;
 
 
@@ -190,7 +190,7 @@ void TradeActor::Process()
 
 		POINT curPt;
 
-		if (m_curAction->GetPath() != NULL) {
+		if (m_curAction->GetPath() != nullptr) {
 
 			curPt = m_curAction->GetPosition();
 
@@ -226,8 +226,8 @@ void TradeActor::GetNextAction()
 
 void TradeActor::AddAction(ActionPtr actionObj)
 {
-	Assert(m_goodSpriteGroup != NULL);
-	if (m_goodSpriteGroup == NULL) return;
+	Assert(m_goodSpriteGroup != nullptr);
+	if (m_goodSpriteGroup == nullptr) return;
 
 	Assert(actionObj);
 	if (!actionObj) return;
@@ -243,16 +243,16 @@ void TradeActor::AddAction(ActionPtr actionObj)
 
 Anim *TradeActor::CreateAnim(GOODACTION action)
 {
-	Assert(m_goodSpriteGroup != NULL);
-	if (m_goodSpriteGroup == NULL) return NULL;
+	Assert(m_goodSpriteGroup != nullptr);
+	if (m_goodSpriteGroup == nullptr) return nullptr;
 
 	Anim	*origAnim = m_goodSpriteGroup->GetAnim((GAME_ACTION)action);
-	if (origAnim == NULL)
+	if (origAnim == nullptr)
 	{
 
 		origAnim = m_goodSpriteGroup->GetAnim((GAME_ACTION)GOODACTION_IDLE);
-		Assert(origAnim != NULL);
-		return NULL;
+		Assert(origAnim != nullptr);
+		return nullptr;
 	}
 
 	return new Anim(*origAnim);
@@ -291,13 +291,13 @@ BOOL TradeActor::IsAnimating()
 
 uint16 TradeActor::GetWidth()
 {
-	Assert(m_goodSpriteGroup != NULL);
-	if (m_goodSpriteGroup == NULL) return 0;
+	Assert(m_goodSpriteGroup != nullptr);
+	if (m_goodSpriteGroup == nullptr) return 0;
 
 	Sprite	*theSprite;
 
 	theSprite = m_goodSpriteGroup->GetGroupSprite((GAME_ACTION)m_curGoodAction);
-	if (theSprite != NULL) {
+	if (theSprite != nullptr) {
 		return theSprite->GetWidth();
 	} else {
 		return 0;
@@ -306,13 +306,13 @@ uint16 TradeActor::GetWidth()
 
 uint16 TradeActor::GetHeight()
 {
-	Assert(m_goodSpriteGroup != NULL);
-	if (m_goodSpriteGroup == NULL) return 0;
+	Assert(m_goodSpriteGroup != nullptr);
+	if (m_goodSpriteGroup == nullptr) return 0;
 
 	Sprite	*theSprite;
 
 	theSprite = m_goodSpriteGroup->GetGroupSprite((GAME_ACTION)m_curGoodAction);
-	if (theSprite != NULL) {
+	if (theSprite != nullptr) {
 		return theSprite->GetHeight();
 	} else {
 		return 0;
@@ -321,8 +321,8 @@ uint16 TradeActor::GetHeight()
 
 void TradeActor::GetBoundingRect(RECT *rect)
 {
-	Assert(rect != NULL);
-	if (rect == NULL) return;
+	Assert(rect != nullptr);
+	if (rect == nullptr) return;
 
 	POINT	hotPoint = m_goodSpriteGroup->GetHotPoint(m_curGoodAction);
 	double	scale = tiledmap_Get()->GetScale();

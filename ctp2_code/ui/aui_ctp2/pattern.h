@@ -18,7 +18,7 @@ public:
 		MBCHAR const *darkFilename );
 	Pattern(
 		AUI_ERRCODE *retval,
-		MBCHAR const *filename = NULL );
+		MBCHAR const *filename = nullptr );
 	virtual ~Pattern();
 
 	aui_Image	*LightImage( ) const { return m_lightImage; }

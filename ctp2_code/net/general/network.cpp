@@ -247,7 +247,7 @@ Network::Network() :
 	}
 
 	for(uint16 i = 0; i < k_MAX_PLAYERS; i++) {
-		m_playerData[i] = NULL;
+		m_playerData[i] = nullptr;
 	}
 	m_transport = 5;
 	m_sessionIndex = -1;
@@ -308,7 +308,7 @@ Network::Network() :
 	m_progress = -1;
 	m_extraTimePerCity = 0;
 	m_launchHost = FALSE;
-	m_rememberExclusions = NULL;
+	m_rememberExclusions = nullptr;
 	m_teamsEnabled = FALSE;
 	m_waitingOnResync = FALSE;
 	m_wasAttached = FALSE;
@@ -376,7 +376,7 @@ Network::Cleanup()
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
 		if(m_playerData[i]) {
 			delete m_playerData[i];
-			m_playerData[i] = NULL;
+			m_playerData[i] = nullptr;
 		}
 	}
 
@@ -436,7 +436,7 @@ Network::Cleanup()
 
 	if(m_rememberExclusions) {
 		delete m_rememberExclusions;
-		m_rememberExclusions = NULL;
+		m_rememberExclusions = nullptr;
 	}
 
 	if(g_networkPlayersScreen) {
@@ -459,7 +459,7 @@ void Network::SetLaunchFromNetFunc(BOOL fromSave)
 
 
 	m_rememberExclusions = exclusions_Get();
-	exclusions_Set(NULL);
+	exclusions_Set(nullptr);
 
 	if(!m_noThread) {
 		((NetThread *)m_netIO)->SetDP(netfunc_Get()->GetDP());
@@ -499,7 +499,7 @@ void Network::InitFromNetFunc()
 		if(!exclusions_Get()) {
 
 			exclusions_Set(m_rememberExclusions);
-			m_rememberExclusions = NULL;
+			m_rememberExclusions = nullptr;
 		}
 	} else {
 		if(m_rememberExclusions) {
@@ -507,7 +507,7 @@ void Network::InitFromNetFunc()
 				delete exclusions_Get();
 			}
 			exclusions_Set(m_rememberExclusions);
-			m_rememberExclusions = NULL;
+			m_rememberExclusions = nullptr;
 		}
 	}
 
@@ -579,7 +579,7 @@ NSPlayerInfo *Network::GetNSPlayerInfo(sint32 index)
 	Assert(index >= 0);
 	Assert(index < m_nsPlayerInfo->GetCount());
 	if(index < 0 || index >= m_nsPlayerInfo->GetCount()) {
-		return NULL;
+		return nullptr;
 	}
 	sint32 c = 0;
 	PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo);
@@ -591,7 +591,7 @@ NSPlayerInfo *Network::GetNSPlayerInfo(sint32 index)
 		c++;
 	}
 	Assert(FALSE);
-	return NULL;
+	return nullptr;
 }
 
 NSPlayerInfo *Network::GetNSPlayerInfoByID(uint16 id)
@@ -602,7 +602,7 @@ NSPlayerInfo *Network::GetNSPlayerInfoByID(uint16 id)
 			return walk.GetObj();
 		walk.Next();
 	}
-	return NULL;
+	return nullptr;
 }
 
 NSAIPlayerInfo *Network::GetNSAIPlayerInfo(sint32 index)
@@ -610,7 +610,7 @@ NSAIPlayerInfo *Network::GetNSAIPlayerInfo(sint32 index)
 	Assert(index >= 0);
 	Assert(index < m_nsAIPlayerInfo->GetCount());
 	if(index < 0 || index >= m_nsAIPlayerInfo->GetCount())
-		return NULL;
+		return nullptr;
 
 	sint32 i = 0;
 	PointerList<NSAIPlayerInfo>::Walker walk(m_nsAIPlayerInfo);
@@ -622,7 +622,7 @@ NSAIPlayerInfo *Network::GetNSAIPlayerInfo(sint32 index)
 		i++;
 	}
 	Assert(FALSE);
-	return NULL;
+	return nullptr;
 }
 
 void
@@ -704,9 +704,9 @@ Network::Process()
 
 	if(BattleViewWindow *bvw = battleviewwindow_Get(); bvw && c3ui_Get()->GetWindow(bvw->Id()) && (!combat_Get() || combat_Get()->IsDone())) {
 		if(battleEndedTime < 0) {
-			battleEndedTime = time(0);
-		} else if(battleEndedTime + 30 < time(0)) {
-			battleview_ExitButtonActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+			battleEndedTime = time(nullptr);
+		} else if(battleEndedTime + 30 < time(nullptr)) {
+			battleview_ExitButtonActionCallback(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 			battleEndedTime = -1;
 		}
 	} else {
@@ -715,7 +715,7 @@ Network::Process()
 
 	if(m_gameStyle & (k_GAME_STYLE_SPEED | k_GAME_STYLE_SPEED_CITIES)) {
 
-		time_t timeNow = time(0);
+		time_t timeNow = time(nullptr);
 
 		bool diplomacyShouldPause = false;
 		if(!DipWizard::CanInitiateRightNow() && IsMyTurn()) {
@@ -762,7 +762,7 @@ Network::Process()
 
 	if(m_gameStyle & k_GAME_STYLE_TOTAL_TIME) {
 		if (IsMyTurn() &&
-		    (m_totalTimeUsed + static_cast<sint32>(time(0) - m_turnStartedAt) > m_totalStartTime)) {
+		    (m_totalTimeUsed + static_cast<sint32>(time(nullptr) - m_turnStartedAt) > m_totalStartTime)) {
 
 			player_Get(selitem_Get()->GetCurPlayer())->
 				GameOver(GAME_OVER_LOST_OUT_OF_TIME, -1);
@@ -940,7 +940,7 @@ Packetizer*
 Network::GetHandler(uint8* buf,
 					uint16 size)
 {
-	Packetizer *handler = NULL;
+	Packetizer *handler = nullptr;
 	switch(MAKE_CIV3_ID(buf[0], buf[1])) {
 		case k_PACKET_CELL_ID:			handler = new NetCellData; break;
 		case k_PACKET_CELL_LIST_ID:		handler = new NetCellList; break;
@@ -1028,7 +1028,7 @@ void Network::PacketReady(sint32 from,
 		DechunkList(from, &buf[2], size - 2);
 	} else {
 		Packetizer* handler = GetHandler(buf, static_cast<sint16>(size));
-		Assert(handler != NULL);
+		Assert(handler != nullptr);
 		if(handler) {
 			handler->Unpacketize((uint16)from, buf, static_cast<sint16>(size));
 			handler->Release();
@@ -1106,7 +1106,7 @@ void Network::RemovePlayer(uint16 id)
 		strcpy(name, m_playerData[index]->m_name);
 
 		delete m_playerData[index];
-		m_playerData[index] = NULL;
+		m_playerData[index] = nullptr;
 
 		if(m_iAmHost && player_Get(index) && !player_Get(index)->m_isDead) {
 			SendLeftMessage(name, index);
@@ -1306,7 +1306,7 @@ void Network::SetReady(uint16 id)
 
 	PROGRESS(0);
 
-	NetCellList* cellList = NULL;
+	NetCellList* cellList = nullptr;
 
 	double percentMap = 0;
 
@@ -1324,7 +1324,7 @@ void Network::SetReady(uint16 id)
 			if(cellList->m_cells * k_CELL_LIST_CELL_SIZE >= 220) {
 				chunkPackets.AddTail(cellList);
 
-				cellList = NULL;
+				cellList = nullptr;
 			}
 		}
 		if(x < size->x - 1) {
@@ -2937,7 +2937,7 @@ void Network::SetSpeedStyle(BOOL on, sint32 timePerTurn,
 				m_gameStyle &= ~(k_GAME_STYLE_SPEED_CITIES);
 			}
 			if(oldStyle != m_gameStyle) {
-				m_turnStartedAt = time(0);
+				m_turnStartedAt = time(nullptr);
 				ResetTurnEndsAt();
 			}
 		} else {
@@ -3035,7 +3035,7 @@ void Network::SetMyTurn(BOOL turn)
 			m_unitMovesUsed = 0;
 		}
 
-		m_turnStartedAt = time(0);
+		m_turnStartedAt = time(nullptr);
 		if(m_gameStyle & (k_GAME_STYLE_SPEED | k_GAME_STYLE_SPEED_CITIES)) {
 			ResetTurnEndsAt();
 		}
@@ -3048,7 +3048,7 @@ void Network::SetMyTurn(BOOL turn)
 	} else {
 		if(m_isMyTurn) {
 
-			sint32 timeUsed = static_cast<sint32>(time(0) - m_turnStartedAt);
+			sint32 timeUsed = static_cast<sint32>(time(nullptr) - m_turnStartedAt);
 			m_totalTimeUsed += timeUsed;
 			if((m_gameStyle & k_GAME_STYLE_SPEED) &&
 			   (m_gameStyle & k_GAME_STYLE_CARRYOVER)) {
@@ -3087,7 +3087,7 @@ void Network::TurnSync()
 	if(IsLocalPlayer(selitem_Get()->GetCurPlayer())) {
 		SetMyTurn(TRUE);
 
-		m_turnStartedAt = time(0);
+		m_turnStartedAt = time(nullptr);
 		if(m_gameStyle & (k_GAME_STYLE_SPEED | k_GAME_STYLE_SPEED_CITIES)) {
 			ResetTurnEndsAt();
 		}
@@ -3268,7 +3268,7 @@ UnitDynamicArray *Network::GetCreatedCities(PLAYER_INDEX owner)
 {
 	Assert(m_playerData[owner]);
 	if(!m_playerData[owner])
-		return NULL;
+		return nullptr;
 
 	return m_playerData[owner]->m_createdCities;
 }
@@ -3302,7 +3302,7 @@ void Network::SetupPlayerFromNSPlayerInfo(uint16 id, sint32 index)
 	Player *p = player_Get(index);
 	Assert(p);
 	if(p) {
-		NSPlayerInfo *nspi = NULL;
+		NSPlayerInfo *nspi = nullptr;
 		PointerList<NSPlayerInfo>::Walker walk(m_nsPlayerInfo);
 		while(walk.IsValid()) {
 			if(walk.GetObj()->m_id == id) {
@@ -3491,7 +3491,7 @@ void Network::ClosePlayer(sint32 player)
 
 void Network::ResetTurnEndsAt()
 {
-	m_turnEndsAt = time(0) + m_turnStartTime + m_bonusTime;
+	m_turnEndsAt = time(nullptr) + m_turnStartTime + m_bonusTime;
 	if((m_gameStyle & k_GAME_STYLE_SPEED_CITIES) && player_arr_Get() && player_Get(m_playerIndex)) {
 		m_turnEndsAt += player_Get(m_playerIndex)->m_all_cities->Num() *
 			m_extraTimePerCity;
@@ -3517,7 +3517,7 @@ void Network::SetProgress(sint32 progress)
 		return;
 
 	m_progress = progress;
-	c3_AbortUpdateData(NULL, (progress > 100 ? 100 : progress) );
+	c3_AbortUpdateData(nullptr, (progress > 100 ? 100 : progress) );
 	if(m_progress >= 100) {
 		const char *str = stringdb_Get()->GetNameStr("NETWORK_WAITING_ON_PLAYERS");
 
@@ -3529,7 +3529,7 @@ void Network::SetProgress(sint32 progress)
 		}
 		c3_AbortUpdateData(nonConstStr, 100);
 	} else {
-		c3_AbortUpdateData(NULL, progress);
+		c3_AbortUpdateData(nullptr, progress);
 
 		civapp_Get()->ProcessGraphicsCallback();
 	}
@@ -3730,7 +3730,7 @@ void Network::StartResync()
 	}
 
 	if(tiledmap_Get()) {
-		tiledmap_Get()->QuickBlackBackGround(NULL);
+		tiledmap_Get()->QuickBlackBackGround(nullptr);
 	}
 
 	if(sci_advancescreen_isOnScreen()) {
@@ -3869,7 +3869,7 @@ MBCHAR *Network::GetStatusString(sint32 player)
 	static MBCHAR strbuf[1024];
 
 	if(!player_arr_Get() || !player_Get(player))
-		return NULL;
+		return nullptr;
 	if(player_Get(player)->IsHuman()) {
 		strcpy(strbuf, stringdb_Get()->GetNameStr("NETWORK_PLAYER_STATUS_HUMAN"));
 	} else if(player_Get(player)->IsNetwork()) {

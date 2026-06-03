@@ -63,7 +63,7 @@
 
 extern StringDB                     *stringdb_Get();
 
-ScenarioWindow                      *s_ScenarioWindow = NULL;
+ScenarioWindow                      *s_ScenarioWindow = nullptr;
 
 
 
@@ -77,8 +77,8 @@ ScenarioWindow::ScenarioWindow(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
 {
 	Assert(AUI_SUCCESS(*retval));
 
-	m_scenario = NULL;
-	m_scenarioPack = NULL;
+	m_scenario = nullptr;
+	m_scenarioPack = nullptr;
 
 	m_window = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot(ldlBlock);
 
@@ -87,7 +87,7 @@ ScenarioWindow::ScenarioWindow(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
 
 
 	m_available		= (ctp2_ListBox *)aui_Ldl::GetObject(ldlBlock, "AvailableListBox");
-	m_available->SetActionFuncAndCookie(ScenarioSelect, NULL);
+	m_available->SetActionFuncAndCookie(ScenarioSelect, nullptr);
 
 	m_window->SetType(AUI_WINDOW_TYPE_FLOATING);
 	m_window->SetStronglyModal(TRUE);
@@ -100,10 +100,10 @@ ScenarioWindow::ScenarioWindow(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
 	m_NewButton = (ctp2_Button *)aui_Ldl::GetObject(ldlBlock, "NewButton");
 	m_BackButton = (ctp2_Button *)aui_Ldl::GetObject(ldlBlock, "CancelButton");
 
-	m_LoadButton->SetActionFuncAndCookie(OkPress, NULL);
-	m_SaveButton->SetActionFuncAndCookie(SavePress, NULL);
-	m_NewButton->SetActionFuncAndCookie(NewPress, NULL);
-	m_BackButton->SetActionFuncAndCookie(BackPress, NULL);
+	m_LoadButton->SetActionFuncAndCookie(OkPress, nullptr);
+	m_SaveButton->SetActionFuncAndCookie(SavePress, nullptr);
+	m_NewButton->SetActionFuncAndCookie(NewPress, nullptr);
+	m_BackButton->SetActionFuncAndCookie(BackPress, nullptr);
 
 
 
@@ -121,16 +121,16 @@ ScenarioWindow::ScenarioWindow(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
 	m_scenInstructions->Hide();
 	m_packInstructions->Show();
 
-	m_exitCallback = NULL;
+	m_exitCallback = nullptr;
 
 	m_newPackWindow = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot("NewPackWindow");
-	aui_Ldl::SetActionFuncAndCookie("NewPackWindow.OkButton", NewPackOk, NULL);
-	aui_Ldl::SetActionFuncAndCookie("NewPackWindow.CancelButton", NewPackCancel, NULL);
+	aui_Ldl::SetActionFuncAndCookie("NewPackWindow.OkButton", NewPackOk, nullptr);
+	aui_Ldl::SetActionFuncAndCookie("NewPackWindow.CancelButton", NewPackCancel, nullptr);
 	m_newPackWindow->SetType(AUI_WINDOW_TYPE_POPUP);
 
 	m_newScenWindow = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot("NewScenWindow");
-	aui_Ldl::SetActionFuncAndCookie("NewScenWindow.OkButton", NewScenOk, NULL);
-	aui_Ldl::SetActionFuncAndCookie("NewScenWindow.CancelButton", NewScenCancel, NULL);
+	aui_Ldl::SetActionFuncAndCookie("NewScenWindow.OkButton", NewScenOk, nullptr);
+	aui_Ldl::SetActionFuncAndCookie("NewScenWindow.CancelButton", NewScenCancel, nullptr);
 	m_newScenWindow->SetType(AUI_WINDOW_TYPE_POPUP);
 }
 
@@ -146,7 +146,7 @@ void ScenarioWindow::FillListWithScenarios(ctp2_ListBox *available)
 		for (i=0; i<scenPack->m_numScenarios; i++) {
 			Scenario *scen = &scenPack->m_scenarios[i];
 
-			ctp2_ListItem	*item=NULL;
+			ctp2_ListItem	*item=nullptr;
 			item = (ctp2_ListItem *) aui_Ldl::BuildHierarchyFromRoot(ldlBlock);
 			Assert(item);
 			if (item) {
@@ -195,7 +195,7 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 		snprintf(checkFile, sizeof(checkFile),"%s\\%s",scenPack->m_path,"Activision.txt");
 		if(!(hideOriginalScenarios && !stat(checkFile,&fileStatus)))
 		{
-			ctp2_ListItem	*item=NULL;
+			ctp2_ListItem	*item=nullptr;
 			item = (ctp2_ListItem*) aui_Ldl::BuildHierarchyFromRoot("ScenarioPackListItem");
 			Assert(item);
 			if (item) {
@@ -230,7 +230,7 @@ void ScenarioWindow::FillListWithScenarioPacks(ctp2_ListBox *available,bool hide
 
 void ScenarioWindow::SetScenario(Scenario *scenario)
 {
-	Assert(scenario != NULL);
+	Assert(scenario != nullptr);
 
 	m_scenario = scenario;
 
@@ -293,17 +293,17 @@ ScenarioWindow::~ScenarioWindow()
 {
 	if(m_window) {
 		aui_Ldl::DeleteHierarchyFromRoot("ScenarioWindow");
-		m_window = NULL;
+		m_window = nullptr;
 	}
 
 	if(m_newPackWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("NewPackWindow");
-		m_newPackWindow = NULL;
+		m_newPackWindow = nullptr;
 	}
 
 	if(m_newScenWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("NewScenWindow");
-		m_newScenWindow = NULL;
+		m_newScenWindow = nullptr;
 	}
 }
 
@@ -356,7 +356,7 @@ void ScenarioWindow::Cleanup()
 	Hide();
 
 	delete s_ScenarioWindow;
-	s_ScenarioWindow = NULL;
+	s_ScenarioWindow = nullptr;
 }
 
 void ScenarioWindow::SetExitCallback(aui_Control::ControlActionCallback *callback)
@@ -604,7 +604,7 @@ void ScenarioWindow::BackPress(aui_Control *control, uint32 action, uint32 data,
 void ScenarioWindow::SetProfileFromScenario( )
 {
 	if (s_ScenarioWindow) {
-		if (s_ScenarioWindow->GetScenario() != NULL) {
+		if (s_ScenarioWindow->GetScenario() != nullptr) {
 
 			civpaths_Get()->SetCurScenarioPath(s_ScenarioWindow->GetScenario()->m_path);
 
@@ -616,7 +616,7 @@ void ScenarioWindow::SetProfileFromScenario( )
 			strcpy(scenario_name_buf(), s_ScenarioWindow->GetScenario()->m_name);
 
 			civapp_Get()->CleanupAppDB();
-			civapp_Get()->InitializeAppDB((*(CivArchive *)(NULL)));
+			civapp_Get()->InitializeAppDB((*(CivArchive *)nullptr));
 
 
 
@@ -642,7 +642,7 @@ void ScenarioWindow::SetProfileFromScenario( )
 void ScenarioWindow::LoadScenarioGame( )
 {
 	if (s_ScenarioWindow) {
-		if (s_ScenarioWindow->GetScenario() != NULL) {
+		if (s_ScenarioWindow->GetScenario() != nullptr) {
 
 		}
 	}

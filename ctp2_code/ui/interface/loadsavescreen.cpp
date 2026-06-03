@@ -99,8 +99,8 @@ extern sint32				g_difficultyToSetUponLaunch;
 extern BOOL					g_setBarbarianRiskUponLaunch;
 extern sint32				g_barbarianRiskUponLaunch;
 
-SaveInfo *                  g_savedGameRequest  = NULL;
-static LoadSaveWindow *     g_loadsaveWindow    = NULL;
+SaveInfo *                  g_savedGameRequest  = nullptr;
+static LoadSaveWindow *     g_loadsaveWindow    = nullptr;
 
 LoadSaveWindow * loadsavewindow_Get()
 {
@@ -108,8 +108,8 @@ LoadSaveWindow * loadsavewindow_Get()
 }
 
 static uint32               s_type              = LSS_TOTAL;
-static c3_Static *          s_name				= NULL;
-static aui_StringTable *    s_nameString		= NULL;
+static c3_Static *          s_name				= nullptr;
+static aui_StringTable *    s_nameString		= nullptr;
 
 
 
@@ -191,7 +191,7 @@ AUI_ERRCODE loadsavescreen_Initialize( aui_Control::ControlActionCallback *callb
 
 	if ( callback )
 		g_loadsaveWindow->GetOkButton()->SetActionFuncAndCookie(
-			callback, NULL );
+			callback, nullptr );
 
 	return AUI_ERRCODE_OK;
 }
@@ -227,7 +227,7 @@ void LSCleanupAction::Execute(aui_Control *control, uint32 action, uint32 data)
 
 
 static MBCHAR s_tempPath[_MAX_PATH];
-static SaveInfo	*s_tempSaveInfo = NULL;
+static SaveInfo	*s_tempSaveInfo = nullptr;
 
 
 
@@ -539,7 +539,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 						}
 					}
 
-					spnewgametribescreen_displayMyWindow(NULL, TRUE);
+					spnewgametribescreen_displayMyWindow(nullptr, TRUE);
 
 					return;
 				}
@@ -555,7 +555,7 @@ void loadsavescreen_PlayersScreenActionCallback(aui_Control *control, uint32 act
 				}
 			}
 
-			spnewgametribescreen_displayMyWindow(NULL, TRUE);
+			spnewgametribescreen_displayMyWindow(nullptr, TRUE);
 		}
 	}
 
@@ -592,7 +592,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				MBCHAR tempStr[_MAX_PATH];
 				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName.c_str());
 
-				MessageBoxDialog::Information(tempStr,"CantLoadScenario",NULL, NULL, "str_ldl_MB_OK", false);
+				MessageBoxDialog::Information(tempStr,"CantLoadScenario",nullptr, nullptr, "str_ldl_MB_OK", false);
 				return;
 			}
 		} else {
@@ -628,12 +628,12 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 				MBCHAR tempStr[_MAX_PATH];
 				snprintf(tempStr, sizeof(tempStr), "%s%s", stringdb_Get()->GetNameStr("str_ERR_CANT_LOCATE_SCEN"), saveInfo->scenarioName.c_str());
 
-				MessageBoxDialog::Information(tempStr,"CantLoadScenarioData",NULL, NULL, "str_ldl_MB_OK", false);
+				MessageBoxDialog::Information(tempStr,"CantLoadScenarioData",nullptr, nullptr, "str_ldl_MB_OK", false);
 				return;
 			}
 
 			civapp_Get()->CleanupAppDB();
-			civapp_Get()->InitializeAppDB((*(CivArchive *)(NULL)));
+			civapp_Get()->InitializeAppDB((*(CivArchive *)nullptr));
 		}
 	}
 
@@ -653,7 +653,7 @@ void loadsavescreen_BeginLoadProcess(SaveInfo *saveInfo, MBCHAR *directoryPath)
 
 		if (s_tempSaveInfo->numPositions <= 3 || saveInfo->startInfoType == STARTINFOTYPE_NOLOCS)
 		{
-			loadsavescreen_PlayersScreenActionCallback(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+			loadsavescreen_PlayersScreenActionCallback(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 		}
 		else
 		{
@@ -692,7 +692,7 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
-	Assert( saveInfo != NULL );
+	Assert( saveInfo != nullptr );
 	if ( !saveInfo ) return;
 
 	if (!g_loadsaveWindow->GetGameName(saveInfo->gameName)) return;
@@ -703,10 +703,10 @@ void loadsavescreen_SaveGame(MBCHAR *usePath, MBCHAR *useName)
 
 	if (strlen(saveInfo->gameName) == 0) {
 
-		if (g_loadsaveWindow->GetGameInfo() != NULL) {
+		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
 			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
 		} else {
-			g_loadsaveWindow->BuildDefaultSaveName(NULL, saveInfo->gameName);
+			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';
 		}
 	}
@@ -863,7 +863,7 @@ void loadsavescreen_SaveMPGame()
 {
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
-	Assert( saveInfo != NULL );
+	Assert( saveInfo != nullptr );
 	if ( !saveInfo ) return;
 
 	if (!g_loadsaveWindow->GetGameName(saveInfo->gameName)) return;
@@ -875,10 +875,10 @@ void loadsavescreen_SaveMPGame()
 
 	if (strlen(saveInfo->gameName) == 0) {
 		// Empty game name in the save info, copy it over from the game info
-		if (g_loadsaveWindow->GetGameInfo() != NULL) {
+		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
 			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
 		} else {
-			g_loadsaveWindow->BuildDefaultSaveName(NULL, saveInfo->gameName);
+			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';
 		}
 	}
@@ -959,7 +959,7 @@ void loadsavescreen_SaveSCENGame()
 {
 	SaveInfo		*saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
-	Assert( saveInfo != NULL );
+	Assert( saveInfo != nullptr );
 	if ( !saveInfo ) return;
 
 	if (!g_loadsaveWindow->GetGameName(saveInfo->gameName)) return;
@@ -968,10 +968,10 @@ void loadsavescreen_SaveSCENGame()
 
 	if (strlen(saveInfo->gameName) == 0) {
 		// Empty game name in the save info, copy it over from the game info
-		if (g_loadsaveWindow->GetGameInfo() != NULL) {
+		if (g_loadsaveWindow->GetGameInfo() != nullptr) {
 			strcpy(saveInfo->gameName, g_loadsaveWindow->GetGameInfo()->name);
 		} else {
-			g_loadsaveWindow->BuildDefaultSaveName(NULL, saveInfo->gameName);
+			g_loadsaveWindow->BuildDefaultSaveName(nullptr, saveInfo->gameName);
 			saveInfo->gameName[SAVE_LEADER_NAME_SIZE] = '\0';
 		}
 	}
@@ -1142,7 +1142,7 @@ void loadsavescreen_delete( )
 		}
 		else
 		{
-			Assert( "Couldn't delete file." == 0 );
+			Assert( "Couldn't delete file." == nullptr );
 		}
 	}
 	else
@@ -1193,13 +1193,13 @@ void loadsavescreen_ListOneHandler(aui_Control *control, uint32 action, uint32 d
 	if ( action != (uint32)AUI_LISTBOX_ACTION_SELECT ) return;
 
 	c3_ListBox	*list = (c3_ListBox *)control;
-	if (list == NULL) return;
+	if (list == nullptr) return;
 
 	// check if there is a selected item in the list box
 	LSGamesListItem *item = (LSGamesListItem *)list->GetSelectedItem();
-	if (item == NULL)
+	if (item == nullptr)
 	{
-		g_loadsaveWindow->SetGameInfo(NULL);
+		g_loadsaveWindow->SetGameInfo(nullptr);
 
 		// Force the default names to come back.
 		g_loadsaveWindow->SetType( g_loadsaveWindow->GetType() );
@@ -1242,7 +1242,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 	if ( action != (uint32)AUI_LISTBOX_ACTION_SELECT ) return;
 
 	c3_ListBox	*list = (c3_ListBox *)control;
-	if (list == NULL) return;
+	if (list == nullptr) return;
 
 	// If another list item was previously selected, make sure to dump its
 	// extended info
@@ -1250,7 +1250,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 	for (uint32 i=0; i<lastList->L(); i++) {
 		sint32 index = lastList->GetAtIndex(i);
 		LSSavesListItem *oldItem = (LSSavesListItem *)list->GetItemByIndex(index);
-		if (oldItem != NULL) {
+		if (oldItem != nullptr) {
 			SaveInfo *oldSaveInfo = oldItem->GetSaveInfo();
 			if (oldSaveInfo) {
 				// Dump power graph
@@ -1258,7 +1258,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 				oldSaveInfo->powerGraphHeight = 0;
 				if (oldSaveInfo->powerGraphData) {
 					delete[] oldSaveInfo->powerGraphData;
-					oldSaveInfo->powerGraphData = NULL;
+					oldSaveInfo->powerGraphData = nullptr;
 				}
 
 				// Dump radar map
@@ -1266,7 +1266,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 				oldSaveInfo->radarMapHeight = 0;
 				if (oldSaveInfo->radarMapData) {
 					delete[] oldSaveInfo->radarMapData;
-					oldSaveInfo->radarMapData = NULL;
+					oldSaveInfo->radarMapData = nullptr;
 				}
 
 				// Set load type back to basic
@@ -1277,7 +1277,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 
 	// check if there is a selected item in the list box
 	LSSavesListItem *item = (LSSavesListItem *)list->GetSelectedItem();
-	if (item == NULL)
+	if (item == nullptr)
 	{
 		switch ( g_loadsaveWindow->GetType() )
 		{
@@ -1293,7 +1293,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 			break;
 		}
 
-		g_loadsaveWindow->SetSaveInfo(NULL);
+		g_loadsaveWindow->SetSaveInfo(nullptr);
 
 		// Force the default names to come back.
 		g_loadsaveWindow->SetType( g_loadsaveWindow->GetType() );
@@ -1303,7 +1303,7 @@ void loadsavescreen_ListTwoHandler(aui_Control *control, uint32 action, uint32 d
 	else
 	{
 		SaveInfo	*info = item->GetSaveInfo();
-		if (info == NULL) return;
+		if (info == nullptr) return;
 
 		// Set the current save info
 		if (info->loadType == SAVEINFOLOAD_BASIC)
@@ -1351,7 +1351,7 @@ BOOL loadsavescreen_CheckOverwrite( )
 	// EAS012199 - save the one we originally set out to save.
 	SaveInfo *  saveInfo = g_loadsaveWindow->GetSaveInfoToSave();
 
-	Assert( saveInfo != NULL );
+	Assert( saveInfo != nullptr );
 	if ( !saveInfo ) return FALSE;
 
 	if (!g_loadsaveWindow->GetGameName(saveInfo->gameName)) return FALSE;

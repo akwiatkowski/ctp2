@@ -65,7 +65,7 @@
 
 #include "gs/gameobj/CTP2Combat.h"
 
-static CTP2Combat * g_theCurrentBattle = NULL;
+static CTP2Combat * g_theCurrentBattle = nullptr;
 
 CTP2Combat * combat_Get()
 {

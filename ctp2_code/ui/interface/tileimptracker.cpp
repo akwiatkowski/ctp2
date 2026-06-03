@@ -59,20 +59,20 @@ namespace
     COLOR               s_trackerBorderColor    = COLOR_GREEN;
 }
 
-TileimpTrackerWindow    *g_tileImpTrackerWindow = NULL;
-static c3_Static        *s_trackerTimeN         = NULL;
-static c3_Static        *s_trackerTimeV         = NULL;
-static c3_Static        *s_trackerMatN          = NULL;
-static c3_Static        *s_trackerMatV          = NULL;
-static c3_Static        *s_trackerAdvN          = NULL;
-static c3_Static        *s_trackerAdvV          = NULL;
-static c3_Static        *s_trackerFoodN         = NULL;
-static c3_Static        *s_trackerFoodV         = NULL;
-static c3_Static        *s_trackerProductionN   = NULL;
-static c3_Static        *s_trackerProductionV   = NULL;
-static c3_Static        *s_trackerGoldN         = NULL;
-static c3_Static        *s_trackerGoldV         = NULL;
-static c3_Static        *s_trackerBackground    = NULL;
+TileimpTrackerWindow    *g_tileImpTrackerWindow = nullptr;
+static c3_Static        *s_trackerTimeN         = nullptr;
+static c3_Static        *s_trackerTimeV         = nullptr;
+static c3_Static        *s_trackerMatN          = nullptr;
+static c3_Static        *s_trackerMatV          = nullptr;
+static c3_Static        *s_trackerAdvN          = nullptr;
+static c3_Static        *s_trackerAdvV          = nullptr;
+static c3_Static        *s_trackerFoodN         = nullptr;
+static c3_Static        *s_trackerFoodV         = nullptr;
+static c3_Static        *s_trackerProductionN   = nullptr;
+static c3_Static        *s_trackerProductionV   = nullptr;
+static c3_Static        *s_trackerGoldN         = nullptr;
+static c3_Static        *s_trackerGoldV         = nullptr;
+static c3_Static        *s_trackerBackground    = nullptr;
 
 static sint32 s_tileImprovementNum = -1;
 
@@ -335,7 +335,7 @@ void tileimptracker_DisplayData(MapPoint const & p, sint32 type)
 }
 
 static void mycleanup(c3_Static * & mypointer)
-{ delete mypointer; mypointer = NULL; }
+{ delete mypointer; mypointer = nullptr; }
 
 //----------------------------------------------------------------------------
 //
@@ -374,7 +374,7 @@ void tileimptracker_Cleanup()
 	mycleanup(s_trackerGoldV);
 
 	delete g_tileImpTrackerWindow;
-	g_tileImpTrackerWindow = NULL;
+	g_tileImpTrackerWindow = nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -23,8 +23,8 @@ aui_Sound::~aui_Sound()
 
 AUI_ERRCODE aui_Sound::InitCommon( MBCHAR const *filename )
 {
-	m_format = NULL;
-	m_data = NULL;
+	m_format = nullptr;
+	m_data = nullptr;
 
 	AUI_ERRCODE errcode = SetFilename( filename );
 	Assert ( AUI_SUCCESS(errcode) );
@@ -54,7 +54,7 @@ AUI_ERRCODE aui_Sound::SetFilename( MBCHAR const *filename)
 AUI_ERRCODE aui_Sound::Load( )
 {
 
-	Assert ( m_format != NULL );
+	Assert ( m_format != nullptr );
 	if ( !m_format ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( m_data ) return AUI_ERRCODE_OK;
@@ -80,7 +80,7 @@ AUI_ERRCODE aui_WavSoundFormat::LoadSoundData
 	m_data = (uint8 *)aui_ui_Get()->TheMemMap()->GetFileBits( filename, size );
 	*wavdata = m_data;
 
-	Assert( *wavdata != NULL );
+	Assert( *wavdata != nullptr );
 	if ( !*wavdata ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	TrimWavHeader( wavdata, size );

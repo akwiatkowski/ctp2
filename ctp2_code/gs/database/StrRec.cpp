@@ -6,8 +6,8 @@ StringRecord::StringRecord()
 
 {
     m_index = -1;
-    m_lesser = NULL;
-	m_greater = NULL;
+    m_lesser = nullptr;
+	m_greater = nullptr;
 }
 
 StringRecord::~StringRecord()

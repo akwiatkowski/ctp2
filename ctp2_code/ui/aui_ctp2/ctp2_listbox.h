@@ -62,15 +62,15 @@ public:
         aui_ListBox     (),
         m_bevelWidth    (0),
         m_bevelType     (0),
-        m_menuButton    (NULL)
+        m_menuButton    (nullptr)
         // m_borderOffset
     {};
 
 	ctp2_ListBox(AUI_ERRCODE *retval,	uint32 id, MBCHAR *ldlBlock,
-							ControlActionCallback *ActionFunc=NULL, void *cookie=NULL );
+							ControlActionCallback *ActionFunc=nullptr, void *cookie=nullptr );
 	ctp2_ListBox(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
 							MBCHAR *pattern, sint32 bevelwidth = 0, sint32 beveltype = 0,
-							ControlActionCallback *ActionFunc = NULL, void *cookie = NULL);
+							ControlActionCallback *ActionFunc = nullptr, void *cookie = nullptr);
 
 	virtual ~ctp2_ListBox();
 
@@ -82,7 +82,7 @@ public:
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon(sint32 bevelWidth, sint32 bevelType );
-	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = NULL );
+	AUI_ERRCODE CreateRangersAndHeader( MBCHAR *ldlBlock = nullptr );
 
 /// Clear the user data.
 /// \remarks Does not clear the list itself.
@@ -96,7 +96,7 @@ public:
             {
                  T * info = static_cast<T *>(item->GetUserData());
                  delete info;
-                 item->SetUserData(NULL);
+                 item->SetUserData(nullptr);
             }
         } // for
     }
@@ -104,8 +104,8 @@ public:
 	void Clear();
 
 	virtual AUI_ERRCODE SortByColumn( sint32 column, BOOL ascending );
-	virtual AUI_ERRCODE Draw(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0);
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0 );
+	virtual AUI_ERRCODE Draw(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 );
 
 	sint32 GetBevelWidth() { return m_bevelWidth; }
 	sint32 GetBevelType() { return m_bevelType; }

@@ -67,7 +67,7 @@
 
 #include "gs/dbgen/RecordDescription.h"
 
-RecordDescription * g_record = NULL;
+RecordDescription * g_record = nullptr;
 
 #if !defined(PATH_MAX)
 #if defined(_MAX_PATH)
@@ -95,7 +95,7 @@ int main(int argc, const char **argv)
 {
 	int	errorFound	= 1;	/* Not started yet */
 	int arg;
-	const char *outputDir = NULL;
+	const char *outputDir = nullptr;
 	bool output_into_working_dir = false;
 	g_generateRequirementWarnings = 1;
 
@@ -119,7 +119,7 @@ int main(int argc, const char **argv)
 
 	if(output_into_working_dir) {
 		FILE * input = fopen(outputDir, "r");
-		if (input == NULL)
+		if (input == nullptr)
 		{
 			printf("Coundn't open file: %s", outputDir);
 			exit(errorFound);
@@ -227,7 +227,7 @@ FILE *db_open_file(const char *filename)
 	if (!outfile)
     {
 		ReportFileError(filename, "could not be created");
-		return NULL;
+		return nullptr;
     }
 
 	fprintf(outfile, "\n/*\n");
@@ -294,7 +294,7 @@ void db_maybe_copy(char * newFilePath)
 	*dot = 0;
 
 	FILE *  oldFile     = fopen(oldFilePath, "r");
-    bool    hasOldFile  = oldFile != NULL;
+    bool    hasOldFile  = oldFile != nullptr;
     bool    hasChanges  = !hasOldFile;
 
     if (hasOldFile)
@@ -366,12 +366,12 @@ void db_end_record(char *name)
 	FILE * stamp = fopen(filename, "w");
 	Assert(stamp);
 	if(stamp) {
-		fprintf(stamp, "//%ld\n", (long)time(0));
+		fprintf(stamp, "//%ld\n", (long)time(nullptr));
 		fclose(stamp);
 	}
 
 	delete g_record;
-	g_record = NULL;
+	g_record = nullptr;
 }
 
 void db_make_int_db(char *name)
@@ -451,7 +451,7 @@ void db_add_ints_prebody(struct namelist *list, struct fieldsize *size)
 {
 	Assert(g_record);
 	while(list) {
-		g_record->AddDatum(DATUM_INT, list, size->minSize, size->maxSize, NULL, true);
+		g_record->AddDatum(DATUM_INT, list, size->minSize, size->maxSize, nullptr, true);
 		struct namelist *next = list->next;
 		free(list);
 		list = next;

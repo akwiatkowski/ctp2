@@ -73,8 +73,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_TransportListBox();
 };
 
@@ -93,12 +93,12 @@ public:
 		typename ns_FileDataListBox<NFT,NST>::ControlActionCallback *ActionFunc = NULL,
 #endif
 
-		void *cookie = NULL,
+		void *cookie = nullptr,
 		char *filename = "")
 
 		:
 		aui_ImageBase( ldlBlock),
-		aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+		aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 		Keys(),
 		ns_ListBox<NFT, NST>(
 		retval,
@@ -128,7 +128,7 @@ public:
 					}
 					else {
 						delete t;
-						t = 0;
+						t = nullptr;
 					}
 				} while(t);
 			}
@@ -197,8 +197,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		char *filename = "nsplayer.cfg");
 };
 
@@ -208,8 +208,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		char *filename = "nsgame.cfg");
 };
 
@@ -219,8 +219,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		char *filename = "nsai.cfg");
 };
 
@@ -230,8 +230,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 };
 
 class ns_LobbyListBox:public ns_ListBox<NETFunc::Lobby, ns_Lobby> {
@@ -240,8 +240,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 };
 
 class ns_GameListBox:public ns_ListBox<NETFunc::Game, ns_Game> {
@@ -250,8 +250,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 };
 
 class ns_PlayerListBox:public ns_ListBox<NETFunc::Player, ns_Player> {
@@ -260,8 +260,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_PlayerListBox();
 
 	aui_TextBase *m_pingFastStyle;
@@ -280,8 +280,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 };
 
 class ns_ServerListBox:public ns_ListBox<NETFunc::Server, ns_Server> {
@@ -290,8 +290,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_ServerListBox();
 
 	aui_TextBase *m_pingFastStyle;
@@ -312,8 +312,8 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock,
 		ns_HPlayerListBox *hplayerlistbox,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_GPlayerListBox();
 
 	virtual void Insert( NETFunc::Player *object );
@@ -346,8 +346,8 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock,
 		ns_HPlayerListBox *hplayerlistbox,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 
 	virtual void Insert( nf_AIPlayer *object );
 	virtual void Delete( nf_AIPlayer *object );

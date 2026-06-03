@@ -85,7 +85,7 @@ extern sint32				g_modalWindow;
 
 extern BOOL g_launchIntoCheatMode;
 
-OptionsWindow				*g_optionsWindow		= NULL;
+OptionsWindow				*g_optionsWindow		= nullptr;
 static sint32			s_return = 0;
 
 

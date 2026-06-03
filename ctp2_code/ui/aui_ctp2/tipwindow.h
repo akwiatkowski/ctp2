@@ -26,12 +26,12 @@ public:
 		sint32 height,
 		sint32 bpp,
 		MBCHAR *pattern,
-		MBCHAR *text = NULL );
+		MBCHAR *text = nullptr );
 
 	virtual ~TipWindow() {}
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

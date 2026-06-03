@@ -50,7 +50,7 @@ ScoreTab::ScoreTab()
                                 )
                             )
                         ),
-    m_difficultyStrings (NULL)
+    m_difficultyStrings (nullptr)
 
 {
     AUI_ERRCODE errcode = AUI_ERRCODE_OK;

@@ -55,7 +55,7 @@ void GoodSpriteGroup::Draw(GOODACTION action, sint32 frame, sint32 drawX, sint32
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
 
-	if (m_sprites[action] == NULL) return;
+	if (m_sprites[action] == nullptr) return;
 
 	if ((frame < 0) ||
         (static_cast<size_t>(frame) >= m_sprites[action]->GetNumFrames())
@@ -74,7 +74,7 @@ void GoodSpriteGroup::DrawDirect(aui_Surface *surf, GOODACTION action, sint32 fr
 	Assert(action > GOODACTION_NONE &&
 			action < GOODACTION_MAX);
 
-	if (m_sprites[action] == NULL) return;
+	if (m_sprites[action] == nullptr) return;
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
 	m_sprites[action]->DrawDirect(surf, drawX, drawY, facing, scale, transparency, outlineColor, flags);
@@ -131,7 +131,7 @@ void GoodSpriteGroup::DeallocateStorage()
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
 	    delete m_sprites[i];
-        m_sprites[i] = NULL;
+        m_sprites[i] = nullptr;
     }
 }
 
@@ -140,7 +140,7 @@ void GoodSpriteGroup::DeallocateFullLoadAnims()
     for (int i = GOODACTION_IDLE; i < GOODACTION_MAX; i++)
     {
         delete m_anims[i];
-        m_anims[i] = NULL;
+        m_anims[i] = nullptr;
     }
 }
 

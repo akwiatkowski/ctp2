@@ -97,7 +97,7 @@ template <class T> class QuadTree
 public:
 	QuadTree(sint16 width, sint16 height, BOOL yWrap)
 	:
-        m_top               (NULL),
+        m_top               (nullptr),
         m_width             (width),
 		m_height            (height),
         m_isYWrap           (yWrap),
@@ -135,7 +135,7 @@ public:
 	void RemoveTop()
 	{
 		delete m_top;
-		m_top = NULL;
+		m_top = nullptr;
 	}
 
 
@@ -168,10 +168,10 @@ QuadTreeNode<T>::QuadTreeNode(QuadTree<T> *tree,
 	:
 	  m_x(x), m_y(y),
 	  m_width(width), m_height(height),
-	  m_ne(NULL),
-	  m_se(NULL),
-	  m_sw(NULL),
-	  m_nw(NULL),
+	  m_ne(nullptr),
+	  m_se(nullptr),
+	  m_sw(nullptr),
+	  m_nw(nullptr),
 	  m_parent(parent),
 	  m_isLeaf(TRUE),
 	  m_tree(tree)
@@ -188,10 +188,10 @@ QuadTreeNode<T>::QuadTreeNode(QuadTree<T> *tree,
 	:
 	  m_x(x), m_y(y),
 	  m_width(width), m_height(height),
-	  m_ne(NULL),
-	  m_se(NULL),
-	  m_sw(NULL),
-	  m_nw(NULL),
+	  m_ne(nullptr),
+	  m_se(nullptr),
+	  m_sw(nullptr),
+	  m_nw(nullptr),
 	  m_parent(parent),
 	  m_isLeaf(TRUE),
 	  m_tree(tree)
@@ -249,7 +249,7 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, T obj)
 											  this, obj, m_x, m_y, neww, newh);
 	}
 	Assert(false);
-	return NULL;
+	return nullptr;
 }
 
 template <class T> QuadTreeNode<T>*
@@ -277,7 +277,7 @@ QuadTreeNode<T>::AddLeaf(QUADRANT quad, DynamicArray<T> &a_List)
 											  this, a_List, m_x, m_y, neww, newh);
 	}
 	Assert(false);
-	return NULL;
+	return nullptr;
 }
 
 template <class T> void
@@ -631,16 +631,16 @@ QuadTreeNode<T>::RemoveBranch(QuadTreeNode<T> *node, BOOL recurse)
 {
 	if(m_ne == node) {
 		delete m_ne;
-		m_ne = NULL;
+		m_ne = nullptr;
 	} else if(m_se == node) {
 		delete m_se;
-		m_se = NULL;
+		m_se = nullptr;
 	} else if(m_sw == node) {
 		delete m_sw;
-		m_sw = NULL;
+		m_sw = nullptr;
 	} else if(m_nw == node) {
 		delete m_nw;
-		m_nw = NULL;
+		m_nw = nullptr;
 	} else {
 		Assert(FALSE);
 	}
@@ -660,7 +660,7 @@ QuadTreeNode<T>::RemoveBranch(QuadTreeNode<T> *node, BOOL recurse)
 
 	if(count == 0) {
 
-		if(m_parent != NULL) {
+		if(m_parent != nullptr) {
 			m_parent->RemoveBranch(this);
 		} else {
 			Assert(m_tree->m_top == this);
@@ -823,7 +823,7 @@ template <class T> void QuadTree<T>::Insert(T newObj)
 	if(m_top) {
 		m_top->AddObject(newObj);
 	} else {
-		m_top = new QuadTreeNode<T>(this, NULL, newObj, 0, 0, m_width, m_height);
+		m_top = new QuadTreeNode<T>(this, nullptr, newObj, 0, 0, m_width, m_height);
 	}
 }
 
@@ -889,7 +889,7 @@ template <class T> size_t QuadTree<T>::GetCount(MapPoint const &point) const
 template <class T> void QuadTree<T>::Clear()
 {
 	delete m_top;
-	m_top = NULL;
+	m_top = nullptr;
 }
 
 template <class T> void

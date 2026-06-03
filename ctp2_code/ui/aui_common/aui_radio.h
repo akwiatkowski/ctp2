@@ -42,8 +42,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_Radio(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -51,8 +51,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_AUI_SWITCH_DEFAULTNUMSTATES );
 	virtual ~aui_Radio() {}

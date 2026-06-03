@@ -874,7 +874,7 @@ void SelectedItem::NewRegisterClick(const MapPoint &pos, const aui_MouseEvent *d
 
 	bool do_targeting_mode = false;
 
-	if (controlpanel_Get()!=NULL)
+	if (controlpanel_Get()!=nullptr)
 		do_targeting_mode = (controlpanel_Get()->GetTargetingMode()!=CP_TARGETING_MODE_OFF);
 
 	if(profiledb_Get()->IsUseCTP2Mode())

@@ -31,7 +31,7 @@ sint32 scenarioscreen_removeMyWindow(uint32 action);
 sint32 scenarioscreen_SetExitCallback(aui_Control::ControlActionCallback *callback);
 
 AUI_ERRCODE scenarioscreen_Initialize( aui_Control::ControlActionCallback
-									   *callback = NULL );
+									   *callback = nullptr );
 AUI_ERRCODE scenarioscreen_Cleanup();
 
 

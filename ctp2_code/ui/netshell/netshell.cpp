@@ -55,10 +55,10 @@ extern void LeaveMainMenu();
 extern void LaunchGame();
 extern MBCHAR g_serverName[ 100 + 1 ];
 
-static NetShell *   g_netshell          = NULL;
+static NetShell *   g_netshell          = nullptr;
 
 NetShell * netshell_Get() { return g_netshell; }
-static NETFunc *      g_netfunc          = NULL;
+static NETFunc *      g_netfunc          = nullptr;
 static nf_GameSetup   g_gamesetup;
 
 NETFunc *      netfunc_Get()         { return g_netfunc; }
@@ -165,7 +165,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 
 		aui_ui_Get()->Draw();
 		aui_ui_Get()->SetBackgroundColor( k_AUI_UI_NOCOLOR );
-		aui_Image *prev = aui_ui_Get()->SetBackgroundImage( NULL );
+		aui_Image *prev = aui_ui_Get()->SetBackgroundImage( nullptr );
 		aui_ui_Get()->UnloadImage(prev);
 
 
@@ -191,7 +191,7 @@ void NetShell::Leave( uint32 flags, BOOL safe )
 		}
 		else
 		{
-			DestroyAction().Execute( NULL, 0, 0 );
+			DestroyAction().Execute( nullptr, 0, 0 );
 		}
 	}
 
@@ -206,13 +206,13 @@ NetShell::NetShell()
 :
     aui_Shell            (),
     m_wasMinimizing      (false),
-    m_truebmp            (NULL),
-    m_tribes             (NULL),
-    m_wonders            (NULL),
-    m_bg                 (NULL)
+    m_truebmp            (nullptr),
+    m_tribes             (nullptr),
+    m_wonders            (nullptr),
+    m_bg                 (nullptr)
 {
-	std::fill(m_screens, m_screens + SCREEN_MAX, (aui_Screen *) NULL);
-	std::fill(m_windows, m_windows + WINDOW_MAX, (aui_Window *) NULL);
+	std::fill(m_screens, m_screens + SCREEN_MAX, (aui_Screen *) nullptr);
+	std::fill(m_windows, m_windows + WINDOW_MAX, (aui_Window *) nullptr);
 
 	m_truebmp = new ns_String( "strings.truebmp" );
 	m_tribes  = new ns_Tribes;
@@ -376,18 +376,18 @@ NetShell::~NetShell()
 
 	if ( m_bg )
 	{
-		aui_Image *	mpBackgroundImage = aui_ui_Get()->SetBackgroundImage(NULL);
+		aui_Image *	mpBackgroundImage = aui_ui_Get()->SetBackgroundImage(nullptr);
 		aui_ui_Get()->UnloadImage(mpBackgroundImage);
 		delete m_bg;
 	}
 
     if (g_netshell == this)
     {
-        delete nsunits_Get();        nsunits_Set(NULL);
-        delete nsimprovements_Get(); nsimprovements_Set(NULL);
-        delete nswonders_Get();      nswonders_Set(NULL);
+        delete nsunits_Get();        nsunits_Set(nullptr);
+        delete nsimprovements_Get(); nsimprovements_Set(nullptr);
+        delete nswonders_Get();      nswonders_Set(nullptr);
 
-        g_netshell = NULL;
+        g_netshell = nullptr;
     }
 }
 
@@ -405,13 +405,13 @@ void NetShell::DestroyScreens( )
 	for ( i = 0; i < SCREEN_MAX; i++ )
 	{
 		delete m_screens[ i ];
-		m_screens[i] = NULL;
+		m_screens[i] = nullptr;
 	}
 
 	for ( i = 0; i < WINDOW_MAX; i++ )
 	{
 		delete m_windows[ i ];
-		m_windows[i] = NULL;
+		m_windows[i] = nullptr;
 	}
 
 	passwordscreen_Cleanup();
@@ -443,13 +443,13 @@ void NetShell::DestroyNETFunc( )
 aui_Screen *NetShell::FindScreen( uint32 id )
 {
 	Assert(id < (uint32)SCREEN_MAX);
-	return (id < (uint32)SCREEN_MAX) ? m_screens[id] : NULL;
+	return (id < (uint32)SCREEN_MAX) ? m_screens[id] : nullptr;
 }
 
 aui_Window *NetShell::FindWindow( uint32 id )
 {
 	Assert(id < (uint32)WINDOW_MAX);
-	return (id < (uint32)WINDOW_MAX) ? m_windows[id] : NULL;
+	return (id < (uint32)WINDOW_MAX) ? m_windows[id] : nullptr;
 }
 
 void NetShell::DestroyAction::Execute(

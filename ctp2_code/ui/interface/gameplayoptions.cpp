@@ -58,25 +58,25 @@
 
 extern Network				g_network;
 
-static c3_PopupWindow		*s_gameplayoptionsWindow	= NULL;
-static aui_Switch			*s_tutorialadvice			= NULL,
+static c3_PopupWindow		*s_gameplayoptionsWindow	= nullptr;
+static aui_Switch			*s_tutorialadvice			= nullptr,
 
-							*s_autocycleturn			= NULL,
-							*s_autocycleunits			= NULL,
-							*s_battleview				= NULL,
+							*s_autocycleturn			= nullptr,
+							*s_autocycleunits			= nullptr,
+							*s_battleview				= nullptr,
 
-							*s_enemyMoves				= NULL,
-							*s_autoCenter				= NULL,
-							*s_autoTabSelect			= NULL,
-							*s_battleViewAlways			= NULL,
-							*s_autoSave					= NULL,
+							*s_enemyMoves				= nullptr,
+							*s_autoCenter				= nullptr,
+							*s_autoTabSelect			= nullptr,
+							*s_battleViewAlways			= nullptr,
+							*s_autoSave					= nullptr,
 
-							*s_EnemyHealth				= NULL, //emod1
+							*s_EnemyHealth				= nullptr, //emod1
 
-							*s_leftHandedMouse			= NULL;
+							*s_leftHandedMouse			= nullptr;
 
-static C3Slider				*s_mouseSpeed				= NULL;
-static c3_Static			*s_mouseSpeedN				= NULL;
+static C3Slider				*s_mouseSpeed				= nullptr;
+static c3_Static			*s_mouseSpeedN				= nullptr;
 
 static BOOL					s_leftHandedMouseFlag = FALSE;
 
@@ -296,7 +296,7 @@ AUI_ERRCODE gameplayoptions_Cleanup()
 	mycleanup(s_EnemyHealth); //emod 6
 
 	delete s_gameplayoptionsWindow;
-	s_gameplayoptionsWindow = NULL;
+	s_gameplayoptionsWindow = nullptr;
 
 	return AUI_ERRCODE_OK;
 #undef mycleanup
@@ -308,7 +308,7 @@ void gameplayoptions_checkPress(aui_Control *control, uint32 action, uint32 data
 	if ( action != (uint32)AUI_SWITCH_ACTION_PRESS ) return;
 
 	uint32 checkbox = *((uint32*)cookie);
-	void (ProfileDB::*func)(BOOL) = 0;
+	void (ProfileDB::*func)(BOOL) = nullptr;
 	uint32 state = data;
 
 	switch(checkbox) {
@@ -331,7 +331,7 @@ void gameplayoptions_checkPress(aui_Control *control, uint32 action, uint32 data
 	case GP_ENEMYHEALTH: func = &ProfileDB::SetEnemyHealth; break; //emod7
 	case GP_LEFTHANDEDMOUSE:
 		s_leftHandedMouseFlag = !state;
-		func = NULL;
+		func = nullptr;
 
 		break;
 

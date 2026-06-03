@@ -124,7 +124,7 @@ public:
 
 	AUI_ACTION_BASIC(DestroyAction);
 
-	MBCHAR *GetTrueBmp( ) { return m_truebmp ? m_truebmp->GetString() : NULL; }
+	MBCHAR *GetTrueBmp( ) { return m_truebmp ? m_truebmp->GetString() : nullptr; }
 
 protected:
 	static void	DestroyNETFunc( );

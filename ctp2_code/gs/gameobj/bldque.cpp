@@ -114,7 +114,7 @@ BuildQueue::BuildQueue()
 	m_wonderStarted             (NOTHING_THIS_TURN),
 	m_wonderStopped             (NOTHING_THIS_TURN),
 	m_wonderComplete            (NOTHING_THIS_TURN),
-	m_frontWhenBuilt            (NULL),
+	m_frontWhenBuilt            (nullptr),
 	m_settler_pending           (false),
 	m_popcoststobuild_pending   (false)          // EMOD
 {
@@ -647,7 +647,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 
 		bool            isEmpty     = m_list->GetCount() <= 1;
 		bool            doRemove    = false;
-		SlicObject *    so          = NULL;
+		SlicObject *    so          = nullptr;
 
 		if ((m_list->GetHead()->m_category != k_GAME_OBJ_TYPE_UNIT)         ||
 		    !isEmpty                                                        ||
@@ -730,7 +730,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 			so->AddCity(m_city);
 			so->AddRecipient(m_owner);
 
-			BuildNode *next = NULL;
+			BuildNode *next = nullptr;
 			if(m_list->GetHeadNode()->GetNext()) {
 				next = m_list->GetHeadNode()->GetNext()->GetObj();
 			}
@@ -800,7 +800,7 @@ void BuildQueue::FinishBuildFront(Unit &u)
 						   GEA_Int, rollOverShields,
 						   GEA_End);
 
-	m_frontWhenBuilt = NULL;
+	m_frontWhenBuilt = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1786,7 +1786,7 @@ BuildNode *BuildQueue::GetNodeByIndex(sint32 index)
 		walk.Next();
 		i++;
 	}
-	if(!walk.IsValid()) return NULL;
+	if(!walk.IsValid()) return nullptr;
 	return walk.GetObj();
 }
 

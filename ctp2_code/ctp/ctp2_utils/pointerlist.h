@@ -58,8 +58,8 @@ public:
 	public:
 		PointerListNode(T* obj) :
 			m_obj(obj),
-			m_next(NULL),
-			m_prev(NULL)
+			m_next(nullptr),
+			m_prev(nullptr)
         { ; };
 
 		virtual ~PointerListNode()
@@ -77,8 +77,8 @@ public:
 		PointerListNode* m_prev;
 	};
 
-	PointerList() : m_head(NULL),
-				m_tail(NULL),
+	PointerList() : m_head(nullptr),
+				m_tail(nullptr),
 				m_count(0)
     { ; };
 
@@ -101,7 +101,7 @@ public:
 			delete node->m_obj;
 			delete node;
 		}
-		m_tail = NULL;
+		m_tail = nullptr;
 		m_count = 0;
 	};
 
@@ -125,7 +125,7 @@ public:
 	void InsertBefore(PointerListNode *node, T *obj);
 
 	void Remove(PointerListNode* node);
-	bool  IsEmpty() const { return m_head == NULL; };
+	bool  IsEmpty() const { return m_head == nullptr; };
 	sint32 GetCount() const { return m_count; }
 
 	PointerListNode *Find(T *obj);
@@ -191,21 +191,21 @@ public:
 
 	class Walker {
 	public:
-		Walker(PointerList * list = NULL)
+		Walker(PointerList * list = nullptr)
         :
-            m_node  (list ? list->m_head : NULL),
+            m_node  (list ? list->m_head : nullptr),
 			m_list  (list)
 		{
 		};
 
 		void SetList(PointerList *list)
         {
-            m_node = list ? list->m_head : NULL;
+            m_node = list ? list->m_head : nullptr;
 			m_list = list;
 		}
 		void Next() { Assert(m_node); m_node = m_node->GetNext(); }
 		void Prev() { Assert(m_node); m_node = m_node->GetPrev(); }
-		bool IsValid() { return m_node != NULL; }
+		bool IsValid() { return m_node != nullptr; }
 		T *GetObj() { Assert(m_node); return m_node->GetObj(); }
 		T *Remove()
 		{
@@ -280,17 +280,17 @@ template <class T> void PointerList<T>::AddHead(T *obj)
 template <class T> T* PointerList<T>::RemoveHead()
 {
 	if(!m_head)
-		return NULL;
+		return nullptr;
 
 	PointerListNode* node = m_head;
 	m_head = node->m_next;
 	if (m_head)
     {
-        m_head->m_prev = NULL;
+        m_head->m_prev = nullptr;
     }
     else
     {
-		m_tail = NULL;
+		m_tail = nullptr;
 	}
 	T* obj = node->m_obj;
 	delete node;
@@ -303,31 +303,31 @@ template <class T> T* PointerList<T>::RemoveHead()
 template <class T> T* PointerList<T>::GetHead()
 {
 	if(!m_head)
-		return NULL;
+		return nullptr;
 	return m_head->m_obj;
 }
 
 template <class T> T* PointerList<T>::GetTail()
 {
 	if(!m_tail)
-		return NULL;
+		return nullptr;
 	return m_tail->m_obj;
 }
 
 template <class T> T* PointerList<T>::RemoveTail()
 {
 	if(!m_tail)
-		return NULL;
+		return nullptr;
 
 	PointerListNode* node = m_tail;
 	m_tail = node->m_prev;
 	if (m_tail)
     {
-        m_tail->m_next = NULL;
+        m_tail->m_next = nullptr;
     }
     else
     {
-		m_head = NULL;
+		m_head = nullptr;
 	}
 	T* obj = node->m_obj;
 	delete node;
@@ -347,11 +347,11 @@ template <class T> void PointerList<T>::Remove(PointerListNode* node)
 		m_head = node->m_next;
         if (m_head)
         {
-            m_head->m_prev = NULL;
+            m_head->m_prev = nullptr;
         }
         else
         {
-			m_tail = NULL;
+			m_tail = nullptr;
         }
 	}
     else if (node == m_tail)
@@ -359,11 +359,11 @@ template <class T> void PointerList<T>::Remove(PointerListNode* node)
 		m_tail = node->m_prev;
 		if (m_tail)
         {
-            m_tail->m_next = NULL;
+            m_tail->m_next = nullptr;
         }
         else
         {
-			m_head = NULL;
+			m_head = nullptr;
         }
 	}
     else
@@ -440,7 +440,7 @@ template <class T> typename PointerList<T>::PointerListNode *PointerList<T>::Fin
         }
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 #endif

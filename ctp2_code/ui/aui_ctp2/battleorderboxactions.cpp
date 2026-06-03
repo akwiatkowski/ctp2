@@ -62,7 +62,7 @@ void BobButtonAction::Execute(aui_Control *control, uint32 action, uint32 data )
 				}
 				else {
 					MapPoint crap;
-					m_army.AddOrders( UNIT_ORDER_GROUP_UNIT, NULL, crap, (int)(m_unit) );
+					m_army.AddOrders( UNIT_ORDER_GROUP_UNIT, nullptr, crap, (int)(m_unit) );
 				}
 
 				CellUnitList	*cellArmy;

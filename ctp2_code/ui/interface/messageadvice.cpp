@@ -14,7 +14,7 @@
 #include "ui/interface/messageadvice.h"
 
 
-MessageAdvice		*g_adviceMessageWindow = NULL;
+MessageAdvice		*g_adviceMessageWindow = nullptr;
 
 int messageadvice_AddText( MBCHAR *text )
 {
@@ -50,7 +50,7 @@ int messageadvice_DestroyWindow( )
 		g_adviceMessageWindow->RemoveBordersFromUI();
 
 		delete g_adviceMessageWindow;
-		g_adviceMessageWindow = NULL;
+		g_adviceMessageWindow = nullptr;
 	}
 
 	return 1;
@@ -76,11 +76,11 @@ AUI_ERRCODE MessageAdvice::InitCommon( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_leftBar = NULL;
-	m_topBar = NULL;
-	m_rightBar = NULL;
-	m_bottomBar = NULL;
-	m_listBox = NULL;
+	m_leftBar = nullptr;
+	m_topBar = nullptr;
+	m_rightBar = nullptr;
+	m_bottomBar = nullptr;
+	m_listBox = nullptr;
 
 	errcode = CreateWindowEdges( ldlBlock );
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -177,8 +177,8 @@ AUI_ERRCODE MessageAdvice::CreateDismissButton( MBCHAR *ldlBlock )
 	if ( errcode != AUI_ERRCODE_OK ) return errcode;
 
 	m_dismissAction = new MessageAdviceDismissAction( );
-	Assert( m_dismissAction != NULL );
-	if ( m_dismissAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_dismissAction != nullptr );
+	if ( m_dismissAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dismissButton->SetAction( m_dismissAction );
 
@@ -209,26 +209,26 @@ MessageAdvice::~MessageAdvice()
 {
 	if ( m_leftBar ) {
 		delete m_leftBar;
-		m_leftBar = NULL;
+		m_leftBar = nullptr;
 	}
 
 	if ( m_topBar ) {
 		delete m_topBar;
-		m_topBar = NULL;
+		m_topBar = nullptr;
 	}
 
 	if ( m_rightBar ) {
 		delete m_rightBar;
-		m_rightBar = NULL;
+		m_rightBar = nullptr;
 	}
 
 	if ( m_bottomBar ) {
 		delete m_bottomBar;
-		m_bottomBar = NULL;
+		m_bottomBar = nullptr;
 	}
 
 	if ( m_listBox ) {
-		aui_Static *item = NULL;
+		aui_Static *item = nullptr;
 		sint32 count = m_listBox->NumItems();
 
 		for ( sint32 i = 0; i < count; i++ ) {
@@ -236,12 +236,12 @@ MessageAdvice::~MessageAdvice()
 
 			if ( item ) {
 				delete item;
-				item = NULL;
+				item = nullptr;
 			}
 		}
 
 		delete m_listBox;
-		m_listBox = NULL;
+		m_listBox = nullptr;
 	}
 
 }

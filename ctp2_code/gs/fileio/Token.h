@@ -152,7 +152,7 @@ struct TokenData {
 class Token
 {
 public:
-	Token(char const * fn, C3DIR dir, sint32 a_Count = 0, TokenData * il = NULL);
+	Token(char const * fn, C3DIR dir, sint32 a_Count = 0, TokenData * il = nullptr);
     /// @todo Remove when no longer referenced (backwards compatibility)
 	Token(char *fn, sint32, TokenData *il, C3DIR dir);
 	~Token();

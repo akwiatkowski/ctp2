@@ -53,10 +53,10 @@ FacedSprite::FacedSprite()
 {
 	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
 	{
-		m_frames[facing]        = NULL;
-		m_framesSizes[facing]   = NULL;
-		m_miniframes[facing]    = NULL;
-		m_miniframesSizes[facing] = NULL;
+		m_frames[facing]        = nullptr;
+		m_framesSizes[facing]   = nullptr;
+		m_miniframes[facing]    = nullptr;
+		m_miniframesSizes[facing] = nullptr;
 	}
 	m_type = SPRITETYPE_FACED;
 }
@@ -68,31 +68,31 @@ FacedSprite::~FacedSprite()
 	{
 		for (size_t i = 0; i < m_facedFrameCount; ++i)
 	        {
-			if ((m_frames[facing] != NULL) && (m_frames[facing][i] != NULL)) {
+			if ((m_frames[facing] != nullptr) && (m_frames[facing][i] != nullptr)) {
 				delete m_frames[facing][i];
-				m_frames[facing][i] = NULL;
+				m_frames[facing][i] = nullptr;
 			}
-			if ((m_miniframes[facing] != NULL) && (m_miniframes[facing][i] != NULL)) {
+			if ((m_miniframes[facing] != nullptr) && (m_miniframes[facing][i] != nullptr)) {
 				delete m_miniframes[facing][i];
-				m_miniframes[facing][i] = NULL;
+				m_miniframes[facing][i] = nullptr;
 			}
 		}
 
-		if (m_frames[facing] != NULL) {
+		if (m_frames[facing] != nullptr) {
 			delete [] m_frames[facing];
-			m_frames[facing] = NULL;
+			m_frames[facing] = nullptr;
 		}
-		if (m_framesSizes[facing] != NULL) {
+		if (m_framesSizes[facing] != nullptr) {
 			delete [] m_framesSizes[facing];
-			m_framesSizes[facing] = NULL;
+			m_framesSizes[facing] = nullptr;
 		}
-		if (m_miniframes[facing] != NULL) {
+		if (m_miniframes[facing] != nullptr) {
 			delete [] m_miniframes[facing];
-			m_miniframes[facing] = NULL;
+			m_miniframes[facing] = nullptr;
 		}
-		if (m_miniframesSizes[facing] != NULL) {
+		if (m_miniframesSizes[facing] != nullptr) {
 			delete [] m_miniframesSizes[facing];
-			m_miniframesSizes[facing] = NULL;
+			m_miniframesSizes[facing] = nullptr;
 		}
 	}
 }
@@ -108,15 +108,15 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 		{
 			char ext[_MAX_DIR];
 
-			Pixel16 *   data        = NULL;
+			Pixel16 *   data        = nullptr;
 			size_t      dataSize    = 0;
-			Pixel32 *   image       = NULL;
-			Pixel32 *   miniimage	= NULL;
-			Pixel32 *   shadow		= NULL;
-			Pixel32 *   minishadow	= NULL;
+			Pixel32 *   image       = nullptr;
+			Pixel32 *   miniimage	= nullptr;
+			Pixel32 *   shadow		= nullptr;
+			Pixel32 *   minishadow	= nullptr;
 			char *      fname       = imageFiles[facing][i];
 
-			_splitpath(fname,NULL,NULL,NULL,ext);
+			_splitpath(fname,nullptr,nullptr,nullptr,ext);
 
 			if (strstr(strupr(ext),"TIF"))
 				ImportTIFF(i,imageFiles[facing],&image);
@@ -128,7 +128,7 @@ void FacedSprite::Import(size_t nframes, char *imageFiles[k_NUM_FACINGS][k_MAX_N
 
 			fname = shadowFiles[facing][i];
 
-			_splitpath(fname,NULL,NULL,NULL,ext);
+			_splitpath(fname,nullptr,nullptr,nullptr,ext);
 
 			if (strstr(strupr(ext),"TIF"))
 				ImportTIFF(i,shadowFiles[facing],&shadow);
@@ -289,7 +289,7 @@ Pixel16 *FacedSprite::GetFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_frames[facing] != NULL);
+	Assert(m_frames[facing] != nullptr);
 
 	return m_frames[facing][frame];
 }
@@ -298,7 +298,7 @@ size_t FacedSprite::GetFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_framesSizes[facing] != NULL);
+	Assert(m_framesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_framesSizes[facing][frame] == _msize(GetFrameData(facing, frame)));
 
@@ -312,7 +312,7 @@ Pixel16 *FacedSprite::GetMiniFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframes[facing] != NULL);
+	Assert(m_miniframes[facing] != nullptr);
 
 	return m_miniframes[facing][frame];
 }
@@ -321,7 +321,7 @@ size_t FacedSprite::GetMiniFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframesSizes[facing] != NULL);
+	Assert(m_miniframesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_miniframesSizes[facing][frame] = _msize(GetMiniFrameData(facing, frame)));
 
@@ -335,8 +335,8 @@ void FacedSprite::SetFrameData(uint16 facing, uint16 frame, Pixel16 *data, size_
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_frames[facing] != NULL);
-	Assert(m_framesSizes[facing] != NULL);
+	Assert(m_frames[facing] != nullptr);
+	Assert(m_framesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 //	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -349,8 +349,8 @@ void FacedSprite::SetMiniFrameData(uint16 facing, uint16 frame, Pixel16 *data, s
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_facedFrameCount);
-	Assert(m_miniframes[facing] != NULL);
-	Assert(m_miniframesSizes[facing] != NULL);
+	Assert(m_miniframes[facing] != nullptr);
+	Assert(m_miniframesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 //	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -364,7 +364,7 @@ void FacedSprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint
 {
 	BOOL wasNull = FALSE;
 
-	if (surf == NULL) {
+	if (surf == nullptr) {
 		SetSurface();
 		surf = m_surface;
 		wasNull = TRUE;
@@ -421,7 +421,7 @@ void FacedSprite::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 drawY, sint
 		}
 	}
 
-	if (surf != NULL && !wasNull)
+	if (surf != nullptr && !wasNull)
 		UnlockSurface();
 }
 
@@ -568,18 +568,18 @@ void FacedSprite::AllocateFrameArrays(size_t count)
             if (m_frames[facing] && m_frames[facing][i])
             {
                 delete m_frames[facing][i];
-                m_frames[facing][i] = NULL;
+                m_frames[facing][i] = nullptr;
             }
             if (m_miniframes[facing] && m_miniframes[facing][i])
             {
                 delete m_miniframes[facing][i];
-                m_miniframes[facing][i] = NULL;
+                m_miniframes[facing][i] = nullptr;
             }
         }
-        delete [] m_frames[facing];          m_frames[facing] = NULL;
-        delete [] m_framesSizes[facing];     m_framesSizes[facing] = NULL;
-        delete [] m_miniframes[facing];      m_miniframes[facing] = NULL;
-        delete [] m_miniframesSizes[facing]; m_miniframesSizes[facing] = NULL;
+        delete [] m_frames[facing];          m_frames[facing] = nullptr;
+        delete [] m_framesSizes[facing];     m_framesSizes[facing] = nullptr;
+        delete [] m_miniframes[facing];      m_miniframes[facing] = nullptr;
+        delete [] m_miniframesSizes[facing]; m_miniframesSizes[facing] = nullptr;
     }
     m_facedFrameCount = 0;
 
@@ -592,9 +592,9 @@ void FacedSprite::AllocateFrameArrays(size_t count)
 
         for (size_t i = 0; i < count; ++i)
         {
-            m_frames[facing][i]          = NULL;
+            m_frames[facing][i]          = nullptr;
             m_framesSizes[facing][i]     = 0;
-            m_miniframes[facing][i]      = NULL;
+            m_miniframes[facing][i]      = nullptr;
             m_miniframesSizes[facing][i] = 0;
         }
 	}

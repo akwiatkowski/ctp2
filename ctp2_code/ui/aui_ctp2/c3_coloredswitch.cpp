@@ -24,9 +24,9 @@ c3_ColoredSwitch::c3_ColoredSwitch(
 	void *cookie )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR  const *) NULL),
+	aui_TextBase( ldlBlock, (MBCHAR  const *) nullptr),
 	aui_Switch( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -50,7 +50,7 @@ c3_ColoredSwitch::c3_ColoredSwitch(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Switch( retval, id, x, y, width, height, ActionFunc, cookie, state, numStates ),
 	PatternBase(pattern)
 {
@@ -67,7 +67,7 @@ AUI_ERRCODE c3_ColoredSwitch::InitCommonLdl( MBCHAR *ldlBlock )
 	sint32		bevelWidth=k_C3_COLOREDSWITCH_DEFAULT_BEVELWIDTH;
 
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-    Assert( block != NULL );
+    Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if (block->GetAttributeType( k_C3_COLOREDSWITCH_LDL_BEVELWIDTH) == ATTRIBUTE_TYPE_INT) {

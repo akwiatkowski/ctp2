@@ -23,7 +23,7 @@ IconSwitch::IconSwitch(
 	BOOL selected )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Switch( retval, id, x, y, icon->TheSurface()->Width(), icon->TheSurface()->Height(), ActionFunc, cookie, selected ),
 	PatternBase( pattern ),
 	m_icon( icon ),

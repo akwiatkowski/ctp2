@@ -88,7 +88,7 @@ public:
 
 	aui_BitmapFont(
 		AUI_ERRCODE *retval,
-		MBCHAR const * descriptor = NULL );
+		MBCHAR const * descriptor = nullptr );
 	virtual ~aui_BitmapFont();
 
 	static void AttributesToDescriptor(
@@ -112,7 +112,7 @@ public:
 	AUI_ERRCODE Load( );
 	AUI_ERRCODE Unload( );
 
-	bool IsLoaded( ) const { return m_ttFace.z != NULL; }
+	bool IsLoaded( ) const { return m_ttFace.z != nullptr; }
 
 	bool HasCached( ) const { return m_surfaceList->L() != 0; }
 
@@ -175,8 +175,8 @@ public:
 		const MBCHAR *stop,
 		COLORREF color = RGB(255,255,255),
 		sint32 underline = 0,
-		sint32 *ascend = NULL,
-		sint32 *descend = NULL,
+		sint32 *ascend = nullptr,
+		sint32 *descend = nullptr,
 		bool wrap = false,
 		bool midWordBreaks = false,
 		bool modWordBreaksOnly = false );
@@ -209,7 +209,7 @@ public:
 	bool TruncateString( MBCHAR *name, sint32 width );
 
 #ifdef _DEBUG
-	void DumpCachedSurfaces( aui_Surface *destSurf = NULL );
+	void DumpCachedSurfaces( aui_Surface *destSurf = nullptr );
 #endif
 
 
@@ -226,7 +226,7 @@ protected:
 
 #if !defined(_JAPANESE)
 	bool IsCached( MBCHAR c ) const
-	{ return m_glyphs[ (uint16)uint8(c) ].surface != NULL; }
+	{ return m_glyphs[ (uint16)uint8(c) ].surface != nullptr; }
 #else
 	bool IsCached( MBCHAR c ) const
 	{ return IsCached( (uint16)uint8(c) ); }

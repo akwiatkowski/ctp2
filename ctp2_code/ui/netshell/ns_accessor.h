@@ -88,7 +88,7 @@ public:
 
 	void * data(size_t i) const
 	{
-		return (i < list.size()) ? list[i].data : NULL;
+		return (i < list.size()) ? list[i].data : nullptr;
 	};
 	int comp(int i, T *p) {
 		Type t = ((T *)this)->type(i);

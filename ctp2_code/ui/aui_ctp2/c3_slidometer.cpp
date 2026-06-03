@@ -64,7 +64,7 @@ c3_Slidometer::c3_Slidometer(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Ranger()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
@@ -83,7 +83,7 @@ c3_Slidometer::c3_Slidometer(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -110,7 +110,7 @@ c3_Slidometer::c3_Slidometer(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Ranger(),
 	m_percentFilled(percentFilled)
 {
@@ -130,7 +130,7 @@ c3_Slidometer::c3_Slidometer(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon((MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -142,7 +142,7 @@ c3_Slidometer::c3_Slidometer(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateThumb( NULL );
+	*retval = CreateThumb( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 }
 
@@ -150,7 +150,7 @@ c3_Slidometer::c3_Slidometer(
 AUI_ERRCODE c3_Slidometer::InitCommon( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	SetPercentFilled(block->GetInt(k_C3_SLIDOMETER_PERCENT_FILLED));

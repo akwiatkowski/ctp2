@@ -111,7 +111,7 @@ size_t ComputeHashIndex(MBCHAR const * id)
 
 	StringRecord * GetStrNodeRecord(StringRecord * ptr, MBCHAR const * add_id)
 	{
-		if (!ptr) return NULL;
+		if (!ptr) return nullptr;
 		int const r = strcmp(add_id, ptr->m_id.c_str());
 		if (r < 0)
 			return GetStrNodeRecord(ptr->m_lesser, add_id);
@@ -126,7 +126,7 @@ size_t ComputeHashIndex(MBCHAR const * id)
 
 StringDB::StringDB()
 :	m_all(),
-	m_head(STRDB_NUM_HEADS, NULL)
+	m_head(STRDB_NUM_HEADS, nullptr)
 {
 }
 
@@ -303,7 +303,7 @@ MBCHAR * StringDB::GetIdStr(StringId const & index) const
 {
 	Assert(0 <= index);
 	Assert(static_cast<size_t>(index) < m_all.size());
-	return (index < 0) || (index >= static_cast<sint32>(m_all.size())) ? NULL : const_cast<MBCHAR *>(m_all[index]->m_id.c_str());
+	return (index < 0) || (index >= static_cast<sint32>(m_all.size())) ? nullptr : const_cast<MBCHAR *>(m_all[index]->m_id.c_str());
 }
 
 
@@ -427,7 +427,7 @@ bool StringDB::GetIndexNode
 
 	sint32 r;
 
-	if (ptr == NULL) {
+	if (ptr == nullptr) {
 		index = INDEX_INVALID; // fill index to prevent crash
 		return false;
 	} else {
@@ -475,13 +475,13 @@ MBCHAR const * StringDB::GetNameStr(MBCHAR const * s) const
 {
 	char	*tmp ;
 
-	Assert(s != NULL);
-	if(s == NULL) return NULL;
+	Assert(s != nullptr);
+	if(s == nullptr) return nullptr;
 
 	if(GetText(s, &tmp)) {
 		return (tmp) ;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 
 }

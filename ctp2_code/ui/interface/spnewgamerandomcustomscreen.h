@@ -8,7 +8,7 @@
 sint32 spnewgamerandomcustomscreen_displayMyWindow();
 sint32 spnewgamerandomcustomscreen_removeMyWindow( uint32 action );
 AUI_ERRCODE spnewgamerandomcustomscreen_Initialize(
-	aui_Control::ControlActionCallback *callback = NULL );
+	aui_Control::ControlActionCallback *callback = nullptr );
 AUI_ERRCODE spnewgamerandomcustomscreen_Cleanup();
 
 void spnewgamerandomcustomscreen_acceptPress( aui_Control *control, uint32 action, uint32 data, void *cookie );

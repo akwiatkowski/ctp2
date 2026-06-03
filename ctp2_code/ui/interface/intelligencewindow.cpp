@@ -68,16 +68,16 @@
 #include "gs/utility/stringutils.h"
 
 
-static IntelligenceWindow   *s_intelligenceWindow = NULL;
+static IntelligenceWindow   *s_intelligenceWindow = nullptr;
 static MBCHAR               *s_intelligenceBlock = "IntelligenceWindow";
 static MBCHAR               *s_intelligenceAdviceBlock = "IntelligenceAdvice";
-ctp2_ListBox                *IntelligenceWindow::sm_list = NULL;
+ctp2_ListBox                *IntelligenceWindow::sm_list = nullptr;
 
 
-aui_StringTable             *IntelligenceWindow::sm_strengthImages = NULL;
-aui_StringTable             *IntelligenceWindow::sm_embassyImages = NULL;
+aui_StringTable             *IntelligenceWindow::sm_strengthImages = nullptr;
+aui_StringTable             *IntelligenceWindow::sm_embassyImages = nullptr;
 
-ctp2_Window                 *IntelligenceWindow::sm_showTreatyDetail = NULL;
+ctp2_Window                 *IntelligenceWindow::sm_showTreatyDetail = nullptr;
 
 #define k_INT_FLAG_COL      0
 #define k_INT_NATION_COL    1
@@ -111,9 +111,9 @@ IntelligenceWindow::IntelligenceWindow(AUI_ERRCODE *err)
 
 	sm_list = (ctp2_ListBox *)aui_Ldl::GetObject(s_intelligenceBlock, "List");
 
-	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "CloseButton", Close, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "NegotiationButton", Negotiations, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "ShowHistoryButton", Advice, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "CloseButton", Close, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "NegotiationButton", Negotiations, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_intelligenceBlock, "ShowHistoryButton", Advice, nullptr);
 
 	if(*err == AUI_ERRCODE_OK) {
 		InitImageTables();
@@ -155,7 +155,7 @@ AUI_ERRCODE IntelligenceWindow::Cleanup()
 		}
 
 		aui_Ldl::DeleteHierarchyFromRoot("IntelTreatyDetail");
-		sm_showTreatyDetail = NULL;
+		sm_showTreatyDetail = nullptr;
 	}
 
     allocated::clear(sm_strengthImages);
@@ -424,7 +424,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerRegard(ctp2_Static *control,
 												 RECT &rect,
 												 void *cookie)
 {
-	MBCHAR *imageName = NULL;
+	MBCHAR *imageName = nullptr;
 	char **toneIcons = DiplomacyWindow::GetToneIcons();
 	sint32 p = (intptr_t)cookie;
 
@@ -501,7 +501,7 @@ AUI_ERRCODE IntelligenceWindow::DrawPlayerStrength(ctp2_Static *control,
 		InitImageTables();
 	}
 
-	MBCHAR * imageName = NULL;
+	MBCHAR * imageName = nullptr;
 	if (relativeStrength < DIPLOMATIC_STRENGTH_WEAK)            imageName = sm_strengthImages->GetString(0);
 	else if(relativeStrength < DIPLOMATIC_STRENGTH_AVERAGE)     imageName = sm_strengthImages->GetString(1);
 	else if(relativeStrength < DIPLOMATIC_STRENGTH_STRONG)      imageName = sm_strengthImages->GetString(2);
@@ -553,7 +553,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 		InitImageTables();
 	}
 
-	MBCHAR *imageName = NULL;
+	MBCHAR *imageName = nullptr;
 
 #if defined(_DEBUG)
 	if(sm_embassyImages->GetNumStrings() > 1 && Diplomat::GetDiplomat(selitem_Get()->GetVisiblePlayer()).DesireWarWith(p))
@@ -570,7 +570,7 @@ AUI_ERRCODE IntelligenceWindow::DrawEmbassy(ctp2_Static *control,
 	{
 	}
 
-	if(imageName != NULL)
+	if(imageName != nullptr)
 	{
 		aui_Image *image = c3ui_Get()->LoadImage(imageName);
 
@@ -823,7 +823,7 @@ void IntelligenceWindow::SendMessageToSelected()
 		DipWizard::SetNation(player);
 	} else {
 		Assert(g_network.IsActive());
-		MessageBoxDialog::Information("str_code_CantInitiateDiplomacyNow", "WhyNoDiplomacy", NULL, NULL, "str_ldl_MB_OK", false);
+		MessageBoxDialog::Information("str_code_CantInitiateDiplomacyNow", "WhyNoDiplomacy", nullptr, nullptr, "str_ldl_MB_OK", false);
 	}
 }
 
@@ -853,7 +853,7 @@ void IntelligenceWindow::UpdateAdviceText()
 		(ctp2_HyperTextBox *)aui_Ldl::GetObject(s_intelligenceAdviceBlock, "Advice");
 
 	Assert(advice);
-	if (advice == NULL)
+	if (advice == nullptr)
 		return;
 
 	sint32 visP = selitem_Get()->GetVisiblePlayer();

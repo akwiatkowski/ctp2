@@ -99,7 +99,7 @@ FILE* c3files_fopen(C3DIR dirID, MBCHAR const * s1, MBCHAR const * s2, bool chec
 {
 	MBCHAR  s[_MAX_PATH];
 
-	return civpaths_Get()->FindFile(dirID, s1, s, false, true, checkScenario) ? fopen(s, s2) : NULL;
+	return civpaths_Get()->FindFile(dirID, s1, s, false, true, checkScenario) ? fopen(s, s2) : nullptr;
 }
 
 FILE* c3files_freopen(const MBCHAR *s1, const MBCHAR *s2, FILE *file)
@@ -250,32 +250,32 @@ uint8 *c3files_loadbinaryfile(C3DIR dir, MBCHAR const * filename, sint32 *size)
 	FILE *f = c3files_fopen(dir, filename, "rb");
 
 	if ( !f )
-		return NULL;
+		return nullptr;
 
 	if (c3files_fseek(f, 0, SEEK_END) == 0) {
 		filesize = c3files_ftell(f);
 	} else {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if (c3files_fseek(f, 0, SEEK_SET) != 0) {
 		fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	bits = new uint8[filesize];
 
-	Assert(bits != NULL);
+	Assert(bits != nullptr);
 	if (!bits) {
 		c3files_fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	if (c3files_fread( bits, 1, filesize, f ) != filesize) {
 		delete [] bits;
 		c3files_fclose(f);
-		return NULL;
+		return nullptr;
 	}
 
 	c3files_fclose(f);
@@ -661,7 +661,7 @@ MBCHAR const * c3files_GetVolumeName(DriveIdType id)
 	return VolumeName;
 #endif
 
-	return NULL;
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------

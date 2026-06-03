@@ -63,7 +63,7 @@ extern SelectedItem		*selitem_Get();
 
 #include "gs/gameobj/Player.h"
 
-VictoryMovieWindow		*g_victoryMovieWindow = NULL;
+VictoryMovieWindow		*g_victoryMovieWindow = nullptr;
 
 static GAME_OVER		s_result;
 
@@ -72,12 +72,12 @@ void victorymoviewin_Initialize(SequenceWeakPtr seq)
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	if (g_victoryMovieWindow == NULL) {
+	if (g_victoryMovieWindow == nullptr) {
 		g_victoryMovieWindow = new VictoryMovieWindow(&errcode, aui_UniqueId(), "VictoryMovieWindow", 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK)
-			g_victoryMovieWindow = NULL;
-		Assert(g_victoryMovieWindow != NULL);
+			g_victoryMovieWindow = nullptr;
+		Assert(g_victoryMovieWindow != nullptr);
 
 	}
 
@@ -103,8 +103,8 @@ void victorymoviewin_DisplayVictoryMovie(GAME_OVER reason)
 {
 	MBCHAR		*whichMovie;
 
-	Assert(g_victoryMovieWindow != NULL);
-	if (g_victoryMovieWindow == NULL) return;
+	Assert(g_victoryMovieWindow != nullptr);
+	if (g_victoryMovieWindow == nullptr) return;
 
 	s_result = reason;
 
@@ -170,7 +170,7 @@ void victorymoviewin_Cleanup()
 		c3ui_Get()->RemoveWindow(g_victoryMovieWindow->Id());
 
 		delete g_victoryMovieWindow;
-		g_victoryMovieWindow = NULL;
+		g_victoryMovieWindow = nullptr;
 	}
 
 	director_Get()->ActionFinished(seq);
@@ -222,10 +222,10 @@ void CloseVictoryMovieAction::Execute(aui_Control *control, uint32 action, uint3
 	victorywin_DisplayWindow(type);
 
 	if (s_result == GAME_OVER_WON_SCIENCE) {
-		EndGame *endGame = NULL;
+		EndGame *endGame = nullptr;
 
 		sint32 p = selitem_Get()->GetVisiblePlayer();
-		if (player_Get(p) != NULL)
+		if (player_Get(p) != nullptr)
 			endGame = player_Get(p)->m_endGame;
 
 

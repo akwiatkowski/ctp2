@@ -118,7 +118,7 @@ FeatTracker::FeatTracker()
 	sint32 i;
 	for(i = FEAT_EFFECT_NONE + 1; i < FEAT_EFFECT_MAX; i++)
 	{
-		m_effectList[i] = NULL;
+		m_effectList[i] = nullptr;
 	}
 
 	m_achieved = new bool[g_theFeatDB->NumRecords()];
@@ -136,7 +136,7 @@ FeatTracker::FeatTracker(CivArchive &archive)
 
 	for(sint32 i = FEAT_EFFECT_NONE + 1; i < FEAT_EFFECT_MAX; i++)
 	{
-		m_effectList[i] = NULL;
+		m_effectList[i] = nullptr;
 	}
 
 	Serialize(archive);
@@ -152,20 +152,20 @@ FeatTracker::~FeatTracker()
 		if(m_effectList[i])
 		{
 			delete m_effectList[i];
-			m_effectList[i] = NULL;
+			m_effectList[i] = nullptr;
 		}
 	}
 
 	if(m_achieved)
 	{
 		delete [] m_achieved;
-		m_achieved = NULL;
+		m_achieved = nullptr;
 	}
 
 	if(m_buildingFeat)
 	{
 		delete [] m_buildingFeat;
-		m_buildingFeat = NULL;
+		m_buildingFeat = nullptr;
 	}
 }
 

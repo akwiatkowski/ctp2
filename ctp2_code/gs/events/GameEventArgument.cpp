@@ -383,8 +383,8 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 
 	if(profiledb_Get() && profiledb_Get()->IsDebugSlicEvents())
 	{
-		if(event != NULL
-		&& event->GetContextName() != NULL)
+		if(event != nullptr
+		&& event->GetContextName() != nullptr)
 		{
 			char buf[1024];
 			snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was called during execution of event %s.\nIt was called from object %s at line %i in file:\n%s\nPossible Explanation: Data became invlid during internal or slic code executation.",
@@ -416,7 +416,7 @@ void GameEventArgument::NotifyArgIsInvalid(GAME_EVENT type, sint32 argIndex, Gam
 		{
 			char buf[1024];
 
-			if(event != NULL)
+			if(event != nullptr)
 			{
 				snprintf(buf, sizeof(buf), "Parameter #%i of type %s of event %s is invalid.\nThe event was added during the event %s.\nIt was called from the executable and is a serious problem that needs to be fixed if it was not caused by slic interference.\nPossible reason for the problem: The data became invalid between event call and event execution.",
 				             argIndex,

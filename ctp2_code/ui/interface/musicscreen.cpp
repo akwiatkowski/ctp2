@@ -55,14 +55,14 @@
 
 extern BOOL     g_musicTrackChosen;
 
-static c3_PopupWindow	*s_musicScreen	= NULL;
-static ctp2_Button		*s_selectTrack	= NULL;
+static c3_PopupWindow	*s_musicScreen	= nullptr;
+static ctp2_Button		*s_selectTrack	= nullptr;
 
-static c3_Switch		*s_autoRepeat	= NULL,
-						*s_randomOrder	= NULL,
-						*s_musicOn		= NULL;
+static c3_Switch		*s_autoRepeat	= nullptr,
+						*s_randomOrder	= nullptr,
+						*s_musicOn		= nullptr;
 
-static aui_StringTable	*s_musicString	= NULL;
+static aui_StringTable	*s_musicString	= nullptr;
 
 static BOOL				s_useAutoRepeat = FALSE;
 static BOOL				s_useRandomOrder = FALSE;

@@ -87,33 +87,33 @@ extern ScienceWin	*g_scienceWin;
 #include "sound/gamesounds.h"
 extern SoundManager	*soundmgr_Get();
 
-static C3Window		*s_sci_advanceScreen	= NULL;
+static C3Window		*s_sci_advanceScreen	= nullptr;
 
-static ctp2_Button	*s_back				= NULL;
-static ctp2_Button	*s_cancel			= NULL;
-static ctp2_Button	*s_goal				= NULL;
-static ctp2_Static	*s_name				= NULL;
-static ctp2_ListBox	*s_advanceList		= NULL;
+static ctp2_Button	*s_back				= nullptr;
+static ctp2_Button	*s_cancel			= nullptr;
+static ctp2_Button	*s_goal				= nullptr;
+static ctp2_Static	*s_name				= nullptr;
+static ctp2_ListBox	*s_advanceList		= nullptr;
 
-static ctp2_Static	*s_changeLabel		= NULL;
-static ctp2_Static	*s_changeBox		= NULL;
-static ctp2_Static	*s_turnsLabel		= NULL;
-static ctp2_Static	*s_turnsBox			= NULL;
+static ctp2_Static	*s_changeLabel		= nullptr;
+static ctp2_Static	*s_changeBox		= nullptr;
+static ctp2_Static	*s_turnsLabel		= nullptr;
+static ctp2_Static	*s_turnsBox			= nullptr;
 
-static ctp2_Static	*s_goaltext			= NULL;
+static ctp2_Static	*s_goaltext			= nullptr;
 
-static ctp2_Static	*s_background		= NULL;
+static ctp2_Static	*s_background		= nullptr;
 
-static ctp2_HyperTextBox	*s_glStats		= NULL;
-static ctp2_HyperTextBox	*s_message		= NULL;
+static ctp2_HyperTextBox	*s_glStats		= nullptr;
+static ctp2_HyperTextBox	*s_message		= nullptr;
 
-static aui_StringTable	*s_advanceString = NULL;
+static aui_StringTable	*s_advanceString = nullptr;
 
 static sint32 s_oldResearching = -1;
 
 static SequenceWeakPtr		s_screenSequence;
 
-static bool *s_scienceGoalTree=NULL;
+static bool *s_scienceGoalTree=nullptr;
 
 sint32 ScienceSortCallback(ctp2_ListItem *item1, ctp2_ListItem *item2, sint32 column);
 
@@ -164,7 +164,7 @@ void sci_advancescreen_listAction( aui_Control *control, uint32 action, uint32 d
 		if(!item) return;
 
 
-		sci_advancescreen_updateData( NULL, FALSE );
+		sci_advancescreen_updateData( nullptr, FALSE );
 		break;
 
 	case AUI_LISTBOX_ACTION_DOUBLECLICKSELECT:
@@ -315,7 +315,7 @@ AUI_ERRCODE sci_advancescreen_Initialize( MBCHAR *messageText )
 		"SciAdvanceScreen.Background.GoalButton");
 
 	if(s_goal)
-		s_goal->SetActionFuncAndCookie(sci_advancescreen_GoalCallback, NULL);
+		s_goal->SetActionFuncAndCookie(sci_advancescreen_GoalCallback, nullptr);
 
 	s_name = new ctp2_Static(&errcode, aui_UniqueId(), "SciAdvanceScreen.Background.Name");
 
@@ -393,7 +393,7 @@ void sci_advancescreen_Cleanup()
 #undef mycleanup
 
     delete [] s_scienceGoalTree;
-    s_scienceGoalTree = NULL;
+    s_scienceGoalTree = nullptr;
 }
 
 
@@ -515,8 +515,8 @@ sint32 sci_advancescreen_loadList( )
 
 	if (!s_advanceList) return 0;
 
-	ctp2_ListItem *item = NULL;
-	ctp2_Static *child = NULL;
+	ctp2_ListItem *item = nullptr;
+	ctp2_Static *child = nullptr;
 
 	s_advanceList->Clear();
 
@@ -643,7 +643,7 @@ sint32 sci_advancescreen_setStatsInfo(const sint32 index, const sint32 owner)
 
 
 
-    if (s_glStats == NULL)
+    if (s_glStats == nullptr)
         return(1);
 
 #define GIVES_TEXT_LEN 8192

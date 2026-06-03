@@ -87,7 +87,7 @@ SlicSymbolData *SlicStack::GetSymbol(SS_TYPE symType, SlicStackValue symVal)
 	} else if(symType == SS_TYPE_SYM) {
 		return symVal.m_sym;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 

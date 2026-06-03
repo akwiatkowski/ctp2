@@ -277,7 +277,7 @@ STDEHANDLER(NeighborHatredRegardEvent)
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
 	Assert(player_Get(playerId));
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	for (foreignerId = 1; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
@@ -285,7 +285,7 @@ STDEHANDLER(NeighborHatredRegardEvent)
 		if (foreignerId == playerId)
 			continue;
 
-		if (player_Get(foreignerId) == NULL ||
+		if (player_Get(foreignerId) == nullptr ||
 			player_Get(foreignerId)->HasContactWith(playerId) == FALSE)
 			continue;
 
@@ -596,7 +596,7 @@ STDEHANDLER(EmbargoRegardEvent)
 	Diplomat & diplomat = Diplomat::GetDiplomat(playerId);
 
 	Assert(player_Get(playerId));
-	if (player_Get(playerId) == NULL)
+	if (player_Get(playerId) == nullptr)
 		return GEV_HD_Continue;
 
 	for (foreignerId = 1; foreignerId < CtpAi::s_maxPlayers; foreignerId++)
@@ -605,7 +605,7 @@ STDEHANDLER(EmbargoRegardEvent)
 		if (foreignerId == playerId)
 			continue;
 
-		if (player_Get(foreignerId) == NULL ||
+		if (player_Get(foreignerId) == nullptr ||
 			player_Get(foreignerId)->HasContactWith(playerId) == FALSE)
 			continue;
 

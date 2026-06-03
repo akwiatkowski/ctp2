@@ -48,8 +48,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	ctp2_DropDown(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -60,8 +60,8 @@ public:
 		MBCHAR *pattern,
 		sint32 buttonSize = 0,
 		sint32 windowSize = 0,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ctp2_DropDown() {};
 
 	void	Clear();
@@ -69,7 +69,7 @@ public:
 	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
 
 	virtual AUI_ERRCODE DrawThis(
-						aui_Surface *surface = NULL,
+						aui_Surface *surface = nullptr,
 						sint32 x = 0,
 						sint32 y = 0 );
 
@@ -87,7 +87,7 @@ protected:
 	ctp2_DropDown() : aui_DropDown() {}
 	AUI_ERRCODE		InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE		InitCommon( sint32 buttonSize, sint32 windowSize );
-	AUI_ERRCODE		CreateComponents( MBCHAR *ldlBlock = NULL );
+	AUI_ERRCODE		CreateComponents( MBCHAR *ldlBlock = nullptr );
 
 protected:
 	virtual AUI_ERRCODE	RepositionButton( );

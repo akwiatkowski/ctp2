@@ -14,7 +14,7 @@ public:
 
 	Icon(
 		AUI_ERRCODE *retval,
-		MBCHAR const * szFileName = NULL);
+		MBCHAR const * szFileName = nullptr);
 
 	virtual ~Icon();
 

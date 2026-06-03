@@ -56,7 +56,7 @@ void CivPaths_InitCivPaths()
 void CivPaths_CleanupCivPaths()
 {
     delete g_civPaths;
-	g_civPaths = NULL;
+	g_civPaths = nullptr;
 }
 
 
@@ -76,8 +76,8 @@ CivPaths::CivPaths ()
 	m_saveSCENPath          (new MBCHAR[_MAX_PATH]),
 	m_saveMapPath           (new MBCHAR[_MAX_PATH]),
 	m_saveClipsPath         (new MBCHAR[_MAX_PATH]),
-    m_curScenarioPath       (NULL),
-	m_curScenarioPackPath   (NULL)
+    m_curScenarioPath       (nullptr),
+	m_curScenarioPackPath   (nullptr)
 {
     std::fill(m_desktopPath, m_desktopPath + _MAX_PATH, 0);
 
@@ -119,7 +119,7 @@ CivPaths::CivPaths ()
 
 	snprintf(tempPath, sizeof(tempPath), "%s%s%s", m_hdPath, FILE_SEP, m_savePath);
 	s = _fullpath(fullPath, tempPath, _MAX_PATH);
-	Assert(s != NULL);
+	Assert(s != nullptr);
 
 	CreateSaveFolders(fullPath);
 }
@@ -230,7 +230,7 @@ MBCHAR *CivPaths::MakeSavePath(MBCHAR *fullPath, MBCHAR *s1, MBCHAR *s2, MBCHAR 
 		snprintf(tempPath, sizeof(tempPath), "%s%s%s%s%s", s1, FILE_SEP, s2, FILE_SEP, s3);
 
 		s = _fullpath(fullPath, tempPath, _MAX_PATH);
-		Assert(s != NULL);
+		Assert(s != nullptr);
 
 #ifdef WIN32
 		r = _stat(fullPath, &tmpstat);
@@ -248,7 +248,7 @@ MBCHAR *CivPaths::MakeSavePath(MBCHAR *fullPath, MBCHAR *s1, MBCHAR *s2, MBCHAR 
 			strcat(fullPath, FILE_SEP);
 			return fullPath;
 		}
-		else return NULL;
+		else return nullptr;
 	}
 }
 
@@ -298,7 +298,7 @@ MBCHAR *CivPaths::GetSavePath(C3SAVEDIR dir, MBCHAR *path)
 		Assert(FALSE);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -325,7 +325,7 @@ MBCHAR *CivPaths::MakeAssetPath
 	        s1, FILE_SEP, s2, FILE_SEP, s3, FILE_SEP, s4, FILE_SEP, s5);
 
 	s = _fullpath(fullPath, tempPath, _MAX_PATH);
-	Assert(s != NULL);
+	Assert(s != nullptr);
 
 #ifdef WIN32
 	r = _stat(fullPath, &tmpstat);
@@ -334,7 +334,7 @@ MBCHAR *CivPaths::MakeAssetPath
 #endif
 
 	if (!r) return fullPath;
-	else return NULL;
+	else return nullptr;
 }
 
 
@@ -345,11 +345,11 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 {
 	MBCHAR			fullPath[_MAX_PATH];
 
-	Assert(path != NULL);
+	Assert(path != nullptr);
 
 	Assert(dir < C3DIR_MAX);
 
-	Assert(filename != NULL);
+	Assert(filename != nullptr);
 
 	if (dir == C3DIR_DIRECT) {
 		strcpy(path, filename);
@@ -462,7 +462,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
     if (!silent)
         c3errors_ErrorDialog("Paths", "'%s' not found in asset tree.", filename);
 
-	return NULL;
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -483,7 +483,7 @@ MBCHAR *CivPaths::FindFile(C3DIR dir, const MBCHAR *filename, MBCHAR *path,
 
 bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
 {
-	Assert(path != NULL);
+	Assert(path != nullptr);
 	Assert(dir < C3DIR_MAX);
 
 	path[0] = 0;
@@ -579,7 +579,7 @@ bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
                 } // switch
             }
 
-            if (_fullpath(path, tempPath, _MAX_PATH) == NULL)
+            if (_fullpath(path, tempPath, _MAX_PATH) == nullptr)
             {
 		        path[0] = 0;
             }
@@ -592,10 +592,10 @@ bool CivPaths::FindPath(C3DIR dir, int num, MBCHAR * path)
 
 MBCHAR *CivPaths::GetSpecificPath(C3DIR dir, MBCHAR *path, BOOL local)
 {
-	Assert(path != NULL);
-	if (path == NULL) return NULL;
+	Assert(path != nullptr);
+	if (path == nullptr) return nullptr;
 	Assert(dir < C3DIR_MAX);
-	if (dir >= C3DIR_MAX) return NULL;
+	if (dir >= C3DIR_MAX) return nullptr;
 
 	MBCHAR			tempPath[_MAX_PATH];
 	if (local)
@@ -646,7 +646,7 @@ MBCHAR *CivPaths::GetCurScenarioPath()
 void CivPaths::ClearCurScenarioPath()
 {
 	delete[] m_curScenarioPath;
-	m_curScenarioPath = NULL;
+	m_curScenarioPath = nullptr;
 }
 
 void CivPaths::SetCurScenarioPackPath(const MBCHAR *path)
@@ -665,7 +665,7 @@ MBCHAR *CivPaths::GetCurScenarioPackPath()
 void CivPaths::ClearCurScenarioPackPath()
 {
 	delete[] m_curScenarioPackPath;
-	m_curScenarioPackPath = NULL;
+	m_curScenarioPackPath = nullptr;
 }
 
 
@@ -692,7 +692,7 @@ MBCHAR *CivPaths::GetDesktopPath()
 	strcpy(m_desktopPath, tempStr);
 	return m_desktopPath;
 #else
-	return NULL;
+	return nullptr;
 #endif
 }
 

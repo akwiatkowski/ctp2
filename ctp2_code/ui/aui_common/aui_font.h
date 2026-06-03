@@ -12,7 +12,7 @@ public:
 
 	aui_Font(
 		AUI_ERRCODE *retval,
-		MBCHAR *descriptor = NULL );
+		MBCHAR *descriptor = nullptr );
 	virtual ~aui_Font();
 
 protected:

@@ -57,12 +57,12 @@
 #include "ui/aui_ctp2/keypress.h"
 
 
-static c3_PopupWindow   *s_spNewGameDiffScreen  = NULL;
-static ctp2_ListBox     *s_diffListBox          = NULL;
-static ctp2_ListBox     *s_riskListBox          = NULL;
+static c3_PopupWindow   *s_spNewGameDiffScreen  = nullptr;
+static ctp2_ListBox     *s_diffListBox          = nullptr;
+static ctp2_ListBox     *s_riskListBox          = nullptr;
 
-static c3_Static *       s_skillLevel           = NULL; // Skill level selection
-static c3_Static *       s_barbarianThreat      = NULL; // Barbarian threat level selection
+static c3_Static *       s_skillLevel           = nullptr; // Skill level selection
+static c3_Static *       s_barbarianThreat      = nullptr; // Barbarian threat level selection
 
 static sint32            s_difficulty1          = 0;
 static sint32            s_difficulty2          = 0;
@@ -115,7 +115,7 @@ sint32	spnewgamediffscreen_displayMyWindow(BOOL viewMode,BOOL reinit)
 
 	if(reinit)
 	{
-		s_spNewGameDiffScreen->Ok()->SetActionFuncAndCookie(spnewgamediffscreen_backPress,NULL);
+		s_spNewGameDiffScreen->Ok()->SetActionFuncAndCookie(spnewgamediffscreen_backPress,nullptr);
 	}
 
 	AUI_ERRCODE auiErr;
@@ -159,7 +159,7 @@ AUI_ERRCODE spnewgamediffscreen_Initialize( aui_Control::ControlActionCallback *
 
 	if ( s_spNewGameDiffScreen ) {
 		if(callback) {
-			s_spNewGameDiffScreen->Ok()->SetActionFuncAndCookie(callback, NULL);
+			s_spNewGameDiffScreen->Ok()->SetActionFuncAndCookie(callback, nullptr);
 		}
 		return AUI_ERRCODE_OK;
 	}

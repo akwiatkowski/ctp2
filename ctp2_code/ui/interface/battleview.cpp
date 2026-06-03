@@ -57,17 +57,17 @@ namespace
 
 BattleView::BattleView()
 :
-	m_battle                    (NULL),
+	m_battle                    (nullptr),
 //  m_battleViewRect
-	m_battleSurface             (NULL),
-	m_backgroundImage           (NULL),
-	m_cityImage                 (NULL),
+	m_battleSurface             (nullptr),
+	m_backgroundImage           (nullptr),
+	m_cityImage                 (nullptr),
 	m_numAttackers              (0),
 	m_numDefenders              (0),
-	m_eventQueue                (NULL),
+	m_eventQueue                (nullptr),
 	m_activeEvents              (new PointerList<BattleEvent>),
     m_walker                    (new PointerList<BattleEvent>::Walker),
-	m_activeEvent               (NULL),
+	m_activeEvent               (nullptr),
 	m_cityBonus                 (0.0),
 	m_citylandattackBonus       (0.0),
 	m_cityairattackBonus        (0.0),
@@ -77,10 +77,10 @@ BattleView::BattleView()
 	m_fortifiedBonus            (0.0)
 {
     std::fill(m_attackers, m_attackers + k_MAX_UNITS_PER_SIDE,
-              (BattleViewActor *) NULL
+              (BattleViewActor *) nullptr
              );
     std::fill(m_defenders, m_defenders + k_MAX_UNITS_PER_SIDE,
-              (BattleViewActor *) NULL
+              (BattleViewActor *) nullptr
               );
 }
 
@@ -337,7 +337,7 @@ void BattleView::RemoveAttacker(sint32 index)
 		m_attackers[i] = m_attackers[i + 1];
 	}
 
-	m_attackers[m_numAttackers-1] = NULL;
+	m_attackers[m_numAttackers-1] = nullptr;
 
 	m_numAttackers--;
 }
@@ -355,7 +355,7 @@ void BattleView::RemoveDefender(sint32 index)
 		m_defenders[i] = m_defenders[i + 1];
 	}
 
-	m_defenders[m_numDefenders-1] = NULL;
+	m_defenders[m_numDefenders-1] = nullptr;
 
 	m_numDefenders--;
 }
@@ -366,7 +366,7 @@ void BattleView::RemoveActor(BattleViewActor *actor)
 	sint32 i;
 
 	Assert(actor);
-	if (actor == NULL) return;
+	if (actor == nullptr) return;
 
 	PointerList<BattleEvent>::Walker walk(m_eventQueue);
 	for(; walk.IsValid(); walk.Next()) {

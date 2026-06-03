@@ -28,7 +28,7 @@ NetDifficulty::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	PLAYER_INDEX pidx = (PLAYER_INDEX)getshort(&buf[2]);
 
 	Assert(pidx < k_MAX_PLAYERS);
-	Assert(player_Get(pidx) != NULL);
+	Assert(player_Get(pidx) != nullptr);
 
 	*player_Get(pidx)->m_difficulty = *(Difficulty*)&buf[4];
 }

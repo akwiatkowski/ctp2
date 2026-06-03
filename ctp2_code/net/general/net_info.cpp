@@ -404,7 +404,7 @@ NetInfo::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			radarwindow_Cleanup();
 
 			delete tiledmap_Get();
-			tiledmap_Set(NULL);
+			tiledmap_Set(nullptr);
 
 			MapPoint mapsize(world_Get()->GetXWidth(),
 							 world_Get()->GetYHeight());

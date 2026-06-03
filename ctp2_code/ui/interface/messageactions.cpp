@@ -81,7 +81,7 @@ void MessageOpenAction::Execute( aui_Control *control, uint32 action, uint32 dat
 		m_iconWindow->GetWindow()->ShowWindow( TRUE );
 	}
 	else{
-		m_iconWindow->SetCurrentIconButton( NULL );
+		m_iconWindow->SetCurrentIconButton( nullptr );
 		m_iconWindow->GetWindow()->ShowWindow( FALSE );
 		return;
 	}
@@ -104,7 +104,7 @@ void MessageMinimizeAction::Execute( aui_Control *control, uint32 action, uint32
 
 	m_window->ShowWindow( FALSE );
 
-	m_window->GetIconWindow()->SetCurrentIconButton( NULL );
+	m_window->GetIconWindow()->SetCurrentIconButton( nullptr );
 
 	sint32 p = selitem_Get()->GetVisiblePlayer();
 	if(player_Get(p)) {

@@ -68,7 +68,7 @@ int tracklen_GetTrackLengths(DWORD *trackLenBuf, char whichDrive);
 int tracklen_GetTrackLengths(DWORD *trackLenBuf, int iDrive);
 #endif
 char *GetVersionInfo( DWORD *trackLenBuffer );
-BYTE tracklen_CheckTrackLengths( char *szVersionInfoBuffer = NULL );
+BYTE tracklen_CheckTrackLengths( char *szVersionInfoBuffer = nullptr );
 void tracklen_AutoPlay_Disable();
 void tracklen_AutoPlay_Restore();
 

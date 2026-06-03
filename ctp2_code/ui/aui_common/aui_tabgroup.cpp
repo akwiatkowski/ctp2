@@ -43,7 +43,7 @@ aui_TabGroup::aui_TabGroup(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_SwitchGroup( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -66,7 +66,7 @@ aui_TabGroup::aui_TabGroup(
 	sint32 paneOffsetY )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_SwitchGroup( retval, id, x, y, 0, 0 )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -81,7 +81,7 @@ aui_TabGroup::aui_TabGroup(
 AUI_ERRCODE aui_TabGroup::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_TABGROUP_ALIGNMENT alignment = AUI_TABGROUP_ALIGNMENT_TOP;

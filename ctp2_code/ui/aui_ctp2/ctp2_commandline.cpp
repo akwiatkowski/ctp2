@@ -32,7 +32,7 @@ ctp2_CommandLine::ctp2_CommandLine(aui_Surface *surface, RECT *rect)
 		FALSE );
 
 	m_font = c3ui_Get()->LoadBitmapFont( descriptor );
-	Assert( m_font != NULL );
+	Assert( m_font != nullptr );
 	if ( !m_font ) return;
 
 	memset(m_string, 0, k_MAX_COMMAND_LINE_LENGTH);

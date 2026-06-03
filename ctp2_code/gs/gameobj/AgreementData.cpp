@@ -175,12 +175,12 @@ void AgreementData::Serialize(CivArchive &archive)
 		m_targetCity.Serialize(archive) ;
 
 
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if (m_lesser)
 			((AgreementData *)(m_lesser))->Serialize(archive) ;
 
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if (m_greater)
 			((AgreementData *)(m_greater))->Serialize(archive) ;
@@ -204,12 +204,12 @@ void AgreementData::Serialize(CivArchive &archive)
 		if(hasChild)
 			m_lesser = new AgreementData(archive);
 		else
-			m_greater = NULL;
+			m_greater = nullptr;
 		archive >> hasChild;
 		if(hasChild)
 			m_greater = new AgreementData(archive);
 		else
-			m_greater = NULL;
+			m_greater = nullptr;
 		}
 }
 
@@ -518,7 +518,7 @@ void AgreementData::Dump(const sint32 i)
 
 void AgreementData::ExtractPlayer(sint32 indexId, sint32 memberId, MBCHAR *sExpanded)
 	{
-	Civilisation	*civ = NULL;
+	Civilisation	*civ = nullptr;
 
 	if (indexId >= 2)
 		{
@@ -791,11 +791,11 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 		MBCHAR	*sClass ;
 
 		MBCHAR	*sMember[MAX_MEMBERS] ;
-		} varList[]={	{ "city",		{ "name", "population", "happiness", "production", "food", "pos", "leader_name", "civ_name_singular", "civ_name_plural", "country_name", "slaves", NULL } },
-						{ "gold",		{ "amount", NULL } },
-						{ "player",		{ "leader_name", "civ_name_singular", "civ_name_plural", "country_name", "gold", NULL } },
-						{ "advance",	{ "name", "index", "prerequisites", "leadsto", NULL } },
-						{ NULL } } ;
+		} varList[]={	{ "city",		{ "name", "population", "happiness", "production", "food", "pos", "leader_name", "civ_name_singular", "civ_name_plural", "country_name", "slaves", nullptr } },
+						{ "gold",		{ "amount", nullptr } },
+						{ "player",		{ "leader_name", "civ_name_singular", "civ_name_plural", "country_name", "gold", nullptr } },
+						{ "advance",	{ "name", "index", "prerequisites", "leadsto", nullptr } },
+						{ nullptr } } ;
 
 	MBCHAR	*pInput,
 			*pOutput,

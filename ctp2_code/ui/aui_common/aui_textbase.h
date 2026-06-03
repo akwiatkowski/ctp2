@@ -97,7 +97,7 @@ public:
     );
 	aui_TextBase
     (
-		MBCHAR const *  text        = NULL,
+		MBCHAR const *  text        = nullptr,
 		uint32          maxLength   = 0
     );
 	virtual ~aui_TextBase();

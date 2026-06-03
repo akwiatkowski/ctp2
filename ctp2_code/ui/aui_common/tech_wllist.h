@@ -95,7 +95,7 @@ public:
 	ListPos InsertBefore( ListPos position, const T &newElement );
 	ListPos InsertAfter( ListPos position, const T &newElement );
 
-	ListPos Find( const T &searchElement, ListPos startAt = (ListPos)0 ) const;
+	ListPos Find( const T &searchElement, ListPos startAt = (ListPos)nullptr ) const;
 
 	ListPos FindIndex( size_t index ) const;
 
@@ -131,8 +131,8 @@ template< class T >
 tech_WLList< T >::tech_WLList( size_t blockSize )
 	:
 	m_length( 0 ),
-	m_pHead( 0 ),
-	m_pTail( 0 )
+	m_pHead( nullptr ),
+	m_pTail( nullptr )
 {
 	m_memory = new tech_Memory< Link >(
 		blockSize ? blockSize : k_TECH_WLLIST_DEFAULT_BLOCKSIZE );
@@ -144,11 +144,11 @@ tech_WLList< T >::~tech_WLList()
 	if ( m_memory )
 	{
 		delete m_memory;
-		m_memory = 0;
+		m_memory = nullptr;
 	}
 
 	m_length = 0;
-	m_pHead = m_pTail = 0;
+	m_pHead = m_pTail = nullptr;
 }
 
 
@@ -240,7 +240,7 @@ void tech_WLList< T >::DeleteLink( Link *&pLink )
 	if ( pLink )
 	{
 		m_memory->Delete( pLink );
-		pLink = 0;
+		pLink = nullptr;
 		m_length--;
 	}
 }
@@ -255,7 +255,7 @@ void tech_WLList< T >::DeleteLink( Link *&pLink )
 template< class T >
 ListPos tech_WLList< T >::AddHead( const T &newElement )
 {
-	Link *pNewLink = NewLink( 0, m_pHead );
+	Link *pNewLink = NewLink( nullptr, m_pHead );
 	if ( pNewLink )
 	{
 		pNewLink->element = newElement;
@@ -274,7 +274,7 @@ ListPos tech_WLList< T >::AddHead( const T &newElement )
 template< class T >
 ListPos tech_WLList< T >::AddTail( const T &newElement )
 {
-	Link *pNewLink = NewLink( m_pTail, 0 );
+	Link *pNewLink = NewLink( m_pTail, nullptr );
 	if ( pNewLink )
 	{
 		pNewLink->element = newElement;
@@ -314,11 +314,11 @@ T tech_WLList< T >::RemoveHead( )
 	m_pHead = pOldLink->pNext;
 	if (m_pHead)
 	{
-		m_pHead->pPrev = 0;
+		m_pHead->pPrev = nullptr;
 	}
 	else
 	{
-		m_pTail = 0;
+		m_pTail = nullptr;
 	}
 
 	DeleteLink( pOldLink );
@@ -335,11 +335,11 @@ T tech_WLList< T >::RemoveTail( )
 	m_pTail = pOldLink->pPrev;
 	if (m_pTail)
 	{
-		m_pTail->pNext = 0;
+		m_pTail->pNext = nullptr;
 	}
 	else
 	{
-		m_pHead = 0;
+		m_pHead = nullptr;
 	}
 
 	DeleteLink( pOldLink );
@@ -400,7 +400,7 @@ void tech_WLList< T >::DeleteAt( ListPos position )
 		m_pHead = pOldLink->pNext;
 		if (m_pHead)
 		{
-			m_pHead->pPrev = NULL;
+			m_pHead->pPrev = nullptr;
 		}
 	}
 	else
@@ -413,7 +413,7 @@ void tech_WLList< T >::DeleteAt( ListPos position )
 		m_pTail = pOldLink->pPrev;
 		if (m_pTail)
 		{
-			m_pTail->pNext = NULL;
+			m_pTail->pNext = nullptr;
 		}
 	}
 	else
@@ -435,14 +435,14 @@ void tech_WLList< T >::DeleteAll( )
 	}
 
 	m_length = 0;
-	m_pHead = m_pTail = 0;
+	m_pHead = m_pTail = nullptr;
 }
 
 template< class T >
 ListPos tech_WLList< T >::FindIndex( size_t index ) const
 {
 	if ( index >= m_length )
-		return (ListPos)0;
+		return (ListPos)nullptr;
 
 	Link *pLink = m_pHead;
 	while ( index-- )
@@ -476,7 +476,7 @@ ListPos tech_WLList< T >::Find( const T &searchElement, ListPos startAt ) const
 		if ( pLink->element == searchElement )
 			return (ListPos)pLink;
 
-	return (ListPos)0;
+	return (ListPos)nullptr;
 }
 
 template< class T >

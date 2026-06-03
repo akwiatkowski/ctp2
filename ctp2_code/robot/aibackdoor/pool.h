@@ -147,7 +147,7 @@ DATA_TYPE * Pool<DATA_TYPE>::Get_Next_Pointer(int & which_element_is_it)
 		if (!Prepare_New_Chunk())
 		{
 			which_element_is_it = -1;
-			return NULL;
+			return nullptr;
 		}
 	}
 

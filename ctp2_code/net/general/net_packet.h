@@ -113,7 +113,7 @@ public:
 		m_reliability = 1;
 		m_refCount = 0;
 		m_unitId = 0;
-		m_packetbuf = NULL;
+		m_packetbuf = nullptr;
 		m_packetsize = 0;
 		m_sendCompressed = FALSE;
 	}

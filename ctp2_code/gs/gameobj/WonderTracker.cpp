@@ -169,7 +169,7 @@ void WonderTracker::RecomputeIsBuilding(const PLAYER_INDEX who)
 	{
 		city = player_Get(who)->m_all_cities->Access(i);
 		Assert( unitpool_Get()->IsValid(city) );
-		Assert( city->GetCityData() != NULL );
+		Assert( city->GetCityData() != nullptr );
 
 		if(city.CD() && city.CD()->GetBuildQueue()->GetHead())
 		{

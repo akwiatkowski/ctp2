@@ -60,7 +60,7 @@ DialogBoxWindow::DialogBoxWindow(
 				 AUI_WINDOW_TYPE_FLOATING
 				),
 	m_numButtons	(0),
-	m_buttons		(NULL)
+	m_buttons		(nullptr)
 {
 	if ( !AUI_SUCCESS(*retval) ) return;
 	*retval = InitCommon();
@@ -71,7 +71,7 @@ DialogBoxWindow::DialogBoxWindow(
 AUI_ERRCODE DialogBoxWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
@@ -84,7 +84,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	Assert( ldlBlock != NULL );
+	Assert( ldlBlock != nullptr );
 	if ( !ldlBlock ) return AUI_ERRCODE_INVALIDPARAM;
 
 	aui_Control *control;
@@ -101,7 +101,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_TITLESTATICTEXT ] = control;
 
 	snprintf(block, sizeof(block), "%s.titlebox", ldlBlock );
@@ -115,7 +115,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_TITLEBOX ] = control;
 
 	snprintf(block, sizeof(block), "%s.lefttopcorner", ldlBlock );
@@ -129,7 +129,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_LEFTTOPCORNER ] = control;
 
 	snprintf(block, sizeof(block), "%s.righttopcorner", ldlBlock );
@@ -143,7 +143,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_RIGHTTOPCORNER ] = control;
 
 	snprintf(block, sizeof(block), "%s.leftbottomcorner", ldlBlock );
@@ -157,7 +157,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_LEFTBOTTOMCORNER ] = control;
 
 	snprintf(block, sizeof(block), "%s.rightbottomcorner", ldlBlock );
@@ -171,7 +171,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_RIGHTBOTTOMCORNER ] = control;
 
 	snprintf(block, sizeof(block), "%s.leftedge", ldlBlock );
@@ -185,7 +185,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_LEFTEDGE ] = control;
 
 	snprintf(block, sizeof(block), "%s.rightedge", ldlBlock );
@@ -199,7 +199,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_RIGHTEDGE ] = control;
 
 	snprintf(block, sizeof(block), "%s.topedge", ldlBlock );
@@ -213,7 +213,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_TOPEDGE ] = control;
 
 	snprintf(block, sizeof(block), "%s.bottomedge", ldlBlock );
@@ -227,7 +227,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_BOTTOMEDGE ] = control;
 
 	snprintf(block, sizeof(block), "%s.descriptionstatictext", ldlBlock );
@@ -241,7 +241,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_DESCRIPTIONSTATICTEXT ] = control;
 
 	snprintf(block, sizeof(block), "%s.progressbar", ldlBlock );
@@ -255,7 +255,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 		if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	}
 	else
-		control = NULL;
+		control = nullptr;
 	m_controls[ CONTROL_PROGRESSBAR ] = control;
 
 	do
@@ -272,7 +272,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 	if ( m_numButtons )
 	{
 		m_buttons = new aui_Button *[ m_numButtons ];
-		Assert( m_buttons != NULL );
+		Assert( m_buttons != nullptr );
 		if ( !m_buttons ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		memset( m_buttons, 0, m_numButtons * sizeof( aui_Button * ) );
@@ -286,7 +286,7 @@ AUI_ERRCODE DialogBoxWindow::CreateControls(
 				&errcode,
 				ldlBlock,
 				block,
-				NULL);
+				nullptr);
 
 			Assert( AUI_NEWOK(m_buttons[i],errcode) );
 			if ( !AUI_NEWOK(m_buttons[i],errcode) )
@@ -330,7 +330,7 @@ DialogBoxWindow *DialogBoxWindow::PopUp(
 	if ( !AUI_NEWOK(dbw,errcode) )
 	{
 		delete dbw;
-		dbw = NULL;
+		dbw = nullptr;
 	}
 
 	aui_Screen *screen = netshell_Get()->GetCurrentScreen();
@@ -342,7 +342,7 @@ DialogBoxWindow *DialogBoxWindow::PopUp(
 
 void DialogBoxWindow::PopDown( DialogBoxWindow *dbw, aui_Button *button )
 {
-	Assert( dbw != NULL );
+	Assert( dbw != nullptr );
 	if ( !dbw ) return;
 
 	aui_Screen *screen = netshell_Get()->GetCurrentScreen();
@@ -364,5 +364,5 @@ void DialogBoxWindow::SafeDeleteAction::Execute(
 	uint32 data )
 {
 	delete m_dbw;
-	m_dbw = NULL;
+	m_dbw = nullptr;
 }

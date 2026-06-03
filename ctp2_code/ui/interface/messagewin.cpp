@@ -36,7 +36,7 @@ extern MessageModal *   g_modalMessage;
 extern sint32           g_ScreenWidth;
 extern sint32           g_ScreenHeight;
 
-tech_WLList<MessageList *>		*g_messageUserList = NULL;
+tech_WLList<MessageList *>		*g_messageUserList = nullptr;
 
 PLAYER_INDEX			g_currentPlayerMessages = 0;
 
@@ -84,7 +84,7 @@ AUI_ERRCODE messagewin_InitializeMessages( )
 	g_messageUserList = new tech_WLList<MessageList *>;
 
 	ldl_datablock * block = aui_Ldl::FindDataBlock("MessageboxAttributes");
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) {
 		return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 	}
@@ -172,9 +172,9 @@ AUI_ERRCODE messagewin_InitializeMessages( )
 
 MessageList *messagewin_InitializePlayerMessage( PLAYER_INDEX index )
 {
-	if ( !g_messageUserList ) return NULL;
+	if ( !g_messageUserList ) return nullptr;
 
-	if ( messagewin_GetPlayerMessageList( index )) return NULL;
+	if ( messagewin_GetPlayerMessageList( index )) return nullptr;
 
 	MessageList *list = new MessageList(index);
 
@@ -201,7 +201,7 @@ MessageList *messagewin_GetPlayerMessageList( PLAYER_INDEX index )
         }
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -231,8 +231,8 @@ int messagewin_CreateMessage( Message data, BOOL bRecreate )
 	if ( !messagelist ) {
 
 		messagelist = messagewin_InitializePlayerMessage( data.GetOwner( ));
-		Assert( messagelist != NULL );
-		if ( messagelist == NULL ) return -1;
+		Assert( messagelist != nullptr );
+		if ( messagelist == nullptr ) return -1;
 	}
 
 	AUI_ERRCODE errcode = messagelist->CreateMessage(data);
@@ -281,7 +281,7 @@ int messagewin_CreateModalMessage(Message data)
 
 int messagewin_PrepareDestroyWindow( MessageWindow *window )
 {
-	Assert( window != NULL );
+	Assert( window != nullptr );
 	if ( !window ) return -1;
 
 
@@ -342,12 +342,12 @@ int messagewin_CleanupMessage( MessageIconWindow *iconWindow,
 							   MessageWindow *window )
 {
 
-	Assert ( g_messageUserList != NULL );
-	if ( g_messageUserList == NULL ) return -1;
+	Assert ( g_messageUserList != nullptr );
+	if ( g_messageUserList == nullptr ) return -1;
 
 	MessageList *messagelist = messagewin_GetPlayerMessageList( window->GetPlayer() );
-	Assert( messagelist != NULL );
-	if ( messagelist == NULL ) return -1;
+	Assert( messagelist != nullptr );
+	if ( messagelist == nullptr ) return -1;
 
 
 	controlpanel_Get()->RemoveMessage(*window->GetMessage());
@@ -380,7 +380,7 @@ void messagewin_PurgeMessages()
         {
 		    MessageList * & messagelist = g_messageUserList->GetNext(position);
 		    delete messagelist;
-		    messagelist = NULL;
+		    messagelist = nullptr;
 	    }
 
 	    g_messageUserList->DeleteAll();
@@ -411,8 +411,8 @@ void messagewin_BeginTurn( PLAYER_INDEX index )
 	MessageList *messagelist = messagewin_GetPlayerMessageList( index );
 	if ( !messagelist ) {
 		messagelist = messagewin_InitializePlayerMessage( index );
-		Assert( messagelist != NULL );
-		if ( messagelist == NULL ) return;
+		Assert( messagelist != nullptr );
+		if ( messagelist == nullptr ) return;
 	}
 
 	messagelist->CheckVisibleMessages( );
@@ -562,5 +562,5 @@ return 1;
 
 int messagewin_IsModalMessageDisplayed()
 {
-	return g_modalMessage != NULL;
+	return g_modalMessage != nullptr;
 }

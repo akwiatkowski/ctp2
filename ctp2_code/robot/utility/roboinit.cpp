@@ -36,7 +36,7 @@
 #include "ai/diplomacy/AgreementMatrix.h"
 #include "ai/mapanalysis/mapanalysis.h"
 
-UnitAstar * g_theUnitAstar  = NULL;
+UnitAstar * g_theUnitAstar  = nullptr;
 
 void roboinit_Initalize(CivArchive *a)
 {
@@ -49,7 +49,7 @@ void roboinit_Initalize(CivArchive *a)
 void roboinit_Cleanup()
 {
     delete g_theUnitAstar;
-    g_theUnitAstar = NULL;
+    g_theUnitAstar = nullptr;
 
 	Astar_Cleanup();
 }

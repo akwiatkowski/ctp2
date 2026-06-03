@@ -24,7 +24,7 @@ PictureTab::PictureTab(
 	BOOL selected )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Tab( retval, id, x, y, width, height, paneWidth, paneHeight, ActionFunc, cookie, selected ),
 	m_pictureOn( pictureOn ),
 	m_pictureOff( pictureOff ),

@@ -69,7 +69,7 @@
 #include "gfx/gfx_utils/colorset.h"               // colorset_Get()
 
 
-static SourceList *g_sourceList = NULL;
+static SourceList *g_sourceList = nullptr;
 
 class SourceListItemContinueAction : public aui_Action
 {
@@ -127,12 +127,12 @@ SourceList::SourceList(SourceListCallback *callback, MBCHAR *ldlBlock)
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	m_continue = NULL;
-	m_list = NULL;
-	m_exit = NULL;
-	m_step = NULL;
-	m_stepInto = NULL;
-	m_status = NULL;
+	m_continue = nullptr;
+	m_list = nullptr;
+	m_exit = nullptr;
+	m_step = nullptr;
+	m_stepInto = nullptr;
+	m_status = nullptr;
 
 	if (ldlBlock) strcpy(windowBlock,ldlBlock);
 	else strcpy(windowBlock,"SourceListPopup");
@@ -282,7 +282,7 @@ void SourceList::Cleanup()
     mycleanup(m_window);
 #undef mycleanup
 
-    m_callback = NULL;
+    m_callback = nullptr;
 }
 
 void SourceList::DisplayWindow(SlicSegment *segment)
@@ -412,7 +412,7 @@ SourceListItem::SourceListItem(AUI_ERRCODE *retval, sint32 index,
 							   SlicSegment *segment, MBCHAR *line,
 							   sint32 lineNumber, MBCHAR *ldlBlock) :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem(retval, ldlBlock)
 {
 	m_index = index;
@@ -546,7 +546,7 @@ void SourceListItem::ShowBreak()
 	Update();
 }
 
-static c3_UtilityTextFieldPopup *s_conditionalPopup = NULL;
+static c3_UtilityTextFieldPopup *s_conditionalPopup = nullptr;
 
 class KillConditionalPopupAction : public aui_Action
 {
@@ -556,7 +556,7 @@ public:
 	                     uint32 data)
 	{
 		delete s_conditionalPopup;
-		s_conditionalPopup = NULL;
+		s_conditionalPopup = nullptr;
 	};
 };
 
@@ -592,9 +592,9 @@ void SourceListItem::EditConditional()
 	SlicConditional *cond = m_segment->GetConditional(m_lineNumber);
 	if(!s_conditionalPopup)
 	s_conditionalPopup = new c3_UtilityTextFieldPopup(SourceListItemConditionalCallback,
-													  NULL,
+													  nullptr,
 													  cond ? cond->GetExpression() : "",
-													  NULL,
+													  nullptr,
 													  "SourceListConditionalPopup",
 													  this,
 													  true);

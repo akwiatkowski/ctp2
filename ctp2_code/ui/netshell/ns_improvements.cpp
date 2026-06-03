@@ -36,14 +36,14 @@
 #include "BuildingRecord.h"     // g_theBuildingDB
 #include "gs/database/StrDB.h"              // stringdb_Get()
 
-static ns_Improvements *g_nsImprovements = NULL;
+static ns_Improvements *g_nsImprovements = nullptr;
 
 ns_Improvements * nsimprovements_Get()                { return g_nsImprovements; }
 void              nsimprovements_Set(ns_Improvements *p)  { g_nsImprovements = p; }
 
 ns_Improvements::ns_Improvements()
 :
-    m_stringtable   (NULL)
+    m_stringtable   (nullptr)
 {
 	Assert(g_theBuildingDB->NumRecords() <= k_IMPROVEMENTS_MAX );
 	sint32      numImprovements =

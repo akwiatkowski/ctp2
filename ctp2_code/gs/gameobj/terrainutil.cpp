@@ -257,7 +257,7 @@ const TerrainImprovementRecord *terrainutil_GetBestRoad(sint32 player, const Map
 	if(lowIndex >= 0) {
 		return g_theTerrainImprovementDB->Get(lowIndex);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -297,7 +297,7 @@ const TerrainImprovementRecord::Effect *terrainutil_GetTerrainEffect(const Terra
 const TerrainRecord::TransformData *terrainutil_GetTransformData(sint32 terrain, bool add)
 {
 	const TerrainRecord *rec = g_theTerrainDB->Get(terrain);
-	const TerrainRecord::TransformData *td = NULL;
+	const TerrainRecord::TransformData *td = nullptr;
 	if(add) {
 		rec->GetTransformAdd(td);
 	} else {
@@ -452,8 +452,8 @@ void terrainutil_DoVision(const MapPoint &point)
 
 bool terrainutil_PlayerHasAdvancesForTerrain(const TerrainImprovementRecord *rec, sint32 pl, sint32 terr)
 {
-	Assert(rec != NULL);
-	if(rec == NULL)
+	Assert(rec != nullptr);
+	if(rec == nullptr)
 		return false;
 
 	Assert(pl >= 0);
@@ -543,8 +543,8 @@ bool terrainutil_PlayerHasAdvancesFor(const TerrainImprovementRecord *rec, sint3
 //----------------------------------------------------------------------------
 bool terrainutil_CanPlayerBuild(const TerrainImprovementRecord *rec, sint32 pl, bool checkMaterials)
 {
-	Assert(rec != NULL);
-	if(rec == NULL)
+	Assert(rec != nullptr);
+	if(rec == nullptr)
 		return false;
 
 	Assert(pl >= 0);
@@ -673,8 +673,8 @@ bool terrainutil_CanPlayerBuildAt(const TerrainImprovementRecord *rec, sint32 pl
 {
 	sint32 i;
 
-	Assert(rec != NULL);
-	if(rec == NULL)
+	Assert(rec != nullptr);
+	if(rec == nullptr)
 		return false;
 
 	Assert(pl >= 0);
@@ -890,8 +890,8 @@ bool terrainutil_CanPlayerSpecialBuildAt(const TerrainImprovementRecord *rec, si
 {
 	sint32 i;
 
-	Assert(rec != NULL);
-	if(rec == NULL)
+	Assert(rec != nullptr);
+	if(rec == nullptr)
 		return false;
 
 	Assert(pl >= 0);
@@ -1594,8 +1594,8 @@ bool terrainutil_CanPlayerSpecialBuildAt(sint32 impType, sint32 pl, const MapPoi
 		return false;
 	sint32 i;
 
-	Assert(rec != NULL);
-	if(rec == NULL)
+	Assert(rec != nullptr);
+	if(rec == nullptr)
 		return false;
 
 	Assert(pl >= 0);

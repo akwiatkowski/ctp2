@@ -94,34 +94,34 @@ static MBCHAR     *s_dipWizardBlock = "DipWizard";
 
 ctp2_Static       *DipWizard::m_stages[DIP_WIZ_STAGE_MAX];
 ctp2_Button       *DipWizard::m_toneButtons[DIPLOMATIC_TONE_MAX];
-ctp2_Button       *DipWizard::m_backButton = NULL,
-                  *DipWizard::m_nextButton = NULL,
-                  *DipWizard::m_sendButton = NULL,
-                  *DipWizard::m_cancelButton = NULL;
-ctp2_Button       *DipWizard::m_counterOrThreatenButton = NULL;
-ctp2_Button       *DipWizard::m_rejectButton = NULL,
-                  *DipWizard::m_acceptButton = NULL;
-ctp2_Button       *DipWizard::m_intelButton = NULL;
+ctp2_Button       *DipWizard::m_backButton = nullptr,
+                  *DipWizard::m_nextButton = nullptr,
+                  *DipWizard::m_sendButton = nullptr,
+                  *DipWizard::m_cancelButton = nullptr;
+ctp2_Button       *DipWizard::m_counterOrThreatenButton = nullptr;
+ctp2_Button       *DipWizard::m_rejectButton = nullptr,
+                  *DipWizard::m_acceptButton = nullptr;
+ctp2_Button       *DipWizard::m_intelButton = nullptr;
 
-ctp2_Static       *DipWizard::m_createButtons = NULL,
-                  *DipWizard::m_viewButtons = NULL,
+ctp2_Static       *DipWizard::m_createButtons = nullptr,
+                  *DipWizard::m_viewButtons = nullptr,
 
-                  *DipWizard::m_parchment = NULL,
+                  *DipWizard::m_parchment = nullptr,
                   *DipWizard::m_responseDiplomat;
 
 //Added by Martin G�hmann to display the emissary photo of recipient
-ctp2_Static       *DipWizard::m_emissary_photo = NULL;
+ctp2_Static       *DipWizard::m_emissary_photo = nullptr;
 
-ctp2_DropDown     *DipWizard::m_nations = NULL;
+ctp2_DropDown     *DipWizard::m_nations = nullptr;
 
 ctp2_ListBox      *DipWizard::m_propList[DIP_WIZ_PROP_TAB_MAX];
 ctp2_ListBox      *DipWizard::m_exchList[DIP_WIZ_PROP_TAB_MAX];
 ctp2_ListBox      *DipWizard::m_threatList;
-ctp2_Menu         *DipWizard::m_curMenu = NULL,
-                  *DipWizard::m_threatMenu = NULL;
-ctp2_Window       *DipWizard::m_goldRequestWindow = NULL;
-ctp2_Window       *DipWizard::m_pollutionRequestWindow = NULL;
-ctp2_Window       *DipWizard::m_percentRequestWindow = NULL;
+ctp2_Menu         *DipWizard::m_curMenu = nullptr,
+                  *DipWizard::m_threatMenu = nullptr;
+ctp2_Window       *DipWizard::m_goldRequestWindow = nullptr;
+ctp2_Window       *DipWizard::m_pollutionRequestWindow = nullptr;
+ctp2_Window       *DipWizard::m_percentRequestWindow = nullptr;
 bool              DipWizard::m_proposalDataPending = false;
 bool              DipWizard::m_threatDataPending = false;
 
@@ -169,7 +169,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	}
 
 	m_nations = (ctp2_DropDown *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage0.Nations");
-	if(m_nations) m_nations->SetActionFuncAndCookie(NationCallback, NULL);
+	if(m_nations) m_nations->SetActionFuncAndCookie(NationCallback, nullptr);
 
 	for(i = 0; i < DIPLOMATIC_TONE_MAX; i++) {
 		MBCHAR buttName[k_MAX_NAME_LEN];
@@ -193,31 +193,31 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	}
 
 	m_backButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "CreateButtons.BackButton");
-	if(m_backButton) m_backButton->SetActionFuncAndCookie(BackCallback, NULL);
+	if(m_backButton) m_backButton->SetActionFuncAndCookie(BackCallback, nullptr);
 
 	m_nextButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "CreateButtons.NextButton");
-	if(m_nextButton) m_nextButton->SetActionFuncAndCookie(NextCallback, NULL);
+	if(m_nextButton) m_nextButton->SetActionFuncAndCookie(NextCallback, nullptr);
 
 	m_cancelButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "CreateButtons.CancelButton");
-	if(m_cancelButton) m_cancelButton->SetActionFuncAndCookie(CancelCallback, NULL);
+	if(m_cancelButton) m_cancelButton->SetActionFuncAndCookie(CancelCallback, nullptr);
 
 	m_sendButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "CreateButtons.SendButton");
-	if(m_sendButton) m_sendButton->SetActionFuncAndCookie(SendCallback, NULL);
+	if(m_sendButton) m_sendButton->SetActionFuncAndCookie(SendCallback, nullptr);
 
 	m_acceptButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "ViewButtons.AcceptButton");
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "ViewButtons.AcceptButton", AcceptCallback, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "ViewButtons.AcceptButton", AcceptCallback, nullptr);
 
 	m_rejectButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "ViewButtons.RejectButton");
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "ViewButtons.RejectButton", RejectCallback, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "ViewButtons.RejectButton", RejectCallback, nullptr);
 
 	m_counterOrThreatenButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "ViewButtons.CounterOrThreatenButton");
-	if(m_counterOrThreatenButton) m_counterOrThreatenButton->SetActionFuncAndCookie(CounterOrThreatenCallback, NULL);
+	if(m_counterOrThreatenButton) m_counterOrThreatenButton->SetActionFuncAndCookie(CounterOrThreatenCallback, nullptr);
 
 	m_createButtons = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "CreateButtons");
 	m_viewButtons = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "ViewButtons");
 
 	m_intelButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWizardBlock, "CheckIntelligenceButton");
-	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "CheckIntelligenceButton", CheckIntelligence, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWizardBlock, "CheckIntelligenceButton", CheckIntelligence, nullptr);
 
 	m_propList[DIP_WIZ_PROP_TAB_REQUEST] = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage1.Tabs.Request.TabPanel.List");
 	m_propList[DIP_WIZ_PROP_TAB_OFFER] = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage1.Tabs.Offer.TabPanel.List");
@@ -241,7 +241,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	m_emissary_photo = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Details.Picture");
 
 	m_threatList = (ctp2_ListBox *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage4.List");
-	m_threatList->SetActionFuncAndCookie(ThreatListCallback, NULL);
+	m_threatList->SetActionFuncAndCookie(ThreatListCallback, nullptr);
 
 
 
@@ -269,7 +269,7 @@ DipWizard::DipWizard(AUI_ERRCODE *err)
 	//Makes shure that the default image is never shown not even for one or two seconds
 	if (m_emissary_photo)
 	{
-		m_emissary_photo->ExchangeImage(0,0, NULL);
+		m_emissary_photo->ExchangeImage(0,0, nullptr);
 	}
 }
 
@@ -281,32 +281,32 @@ DipWizard::~DipWizard()
 
 	sint32 i;
 	for(i = 0; i < DIP_WIZ_STAGE_MAX; i++) {
-		m_stages[i] = NULL;
+		m_stages[i] = nullptr;
 	}
 
 	for(i = 0; i < DIPLOMATIC_TONE_MAX; i++) {
-		m_toneButtons[i] = NULL;
+		m_toneButtons[i] = nullptr;
 	}
 
-	m_nextButton = m_backButton = m_sendButton = m_cancelButton = NULL;
-	m_counterOrThreatenButton = NULL;
-	m_createButtons = m_viewButtons = NULL;
-	m_rejectButton = NULL;
-	m_acceptButton = NULL;
+	m_nextButton = m_backButton = m_sendButton = m_cancelButton = nullptr;
+	m_counterOrThreatenButton = nullptr;
+	m_createButtons = m_viewButtons = nullptr;
+	m_rejectButton = nullptr;
+	m_acceptButton = nullptr;
 
-	m_nations = NULL;
+	m_nations = nullptr;
 
 	if(m_goldRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipGoldRequest");
-		m_goldRequestWindow = NULL;
+		m_goldRequestWindow = nullptr;
 	}
 	if(m_pollutionRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipPollutionRequest");
-		m_pollutionRequestWindow = NULL;
+		m_pollutionRequestWindow = nullptr;
 	}
 	if(m_percentRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipPercentRequest");
-		m_percentRequestWindow = NULL;
+		m_percentRequestWindow = nullptr;
 	}
 
 	delete m_curMenu;
@@ -332,7 +332,7 @@ AUI_ERRCODE DipWizard::Cleanup()
 		Hide();
 
 		delete s_dipWizard;
-		s_dipWizard = NULL;
+		s_dipWizard = nullptr;
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -428,7 +428,7 @@ void DipWizard::FillProposalLists()
 {
 
 	sint32 pr;
-	ctp2_ListBox *propList = NULL, *exchList = NULL;
+	ctp2_ListBox *propList = nullptr, *exchList = nullptr;
 
 	sint32 i;
 	for(i = 0; i < DIP_WIZ_PROP_TAB_MAX; i++) {
@@ -583,7 +583,7 @@ void DipWizard::FillProposalLists()
 
 void DipWizard::FillRecipientLists()
 {
-	ctp2_ListItem *item = NULL;
+	ctp2_ListItem *item = nullptr;
 	Player *visPlayer = player_Get(selitem_Get()->GetVisiblePlayer());
 	if(!visPlayer) return;
 
@@ -939,9 +939,9 @@ void DipWizard::UpdateViewProposalStage()
 		return;
 
 	SlicObject so;
-	const MBCHAR *theString = NULL;
+	const MBCHAR *theString = nullptr;
 	MBCHAR text[k_MAX_NAME_LEN];
-	const MBCHAR *counterButtonText = NULL;
+	const MBCHAR *counterButtonText = nullptr;
 	const MBCHAR *rejectButtonText = "str_ldl_DipWizReject";
 	const MBCHAR *acceptButtonText = "str_ldl_DipWizAccept";
 
@@ -964,18 +964,18 @@ void DipWizard::UpdateViewProposalStage()
 
 			if(m_viewResponseType == RESPONSE_ACCEPT) {
 				theString = "str_ldl_DipWizReceivedAccept";
-				counterButtonText = NULL;
-				rejectButtonText = NULL;
+				counterButtonText = nullptr;
+				rejectButtonText = nullptr;
 			} else {
 				theString = "str_ldl_DipWizReceivedReject";
 
 				if(m_viewThreat < 0) {
 					counterButtonText = "str_ldl_DipWizThreaten";
-					rejectButtonText = NULL;
+					rejectButtonText = nullptr;
 					acceptButtonText = "str_ldl_DipWizardClose";
 				} else {
-					counterButtonText = NULL;
-					rejectButtonText = NULL;
+					counterButtonText = nullptr;
+					rejectButtonText = nullptr;
 				}
 			}
 			break;
@@ -991,8 +991,8 @@ void DipWizard::UpdateViewProposalStage()
 			} else {
 				theString = "str_ldl_DipWizReceivedReject";
 			}
-			counterButtonText = NULL;
-			rejectButtonText = NULL;
+			counterButtonText = nullptr;
+			rejectButtonText = nullptr;
 			acceptButtonText = "str_ldl_Close";
 			break;
 		}
@@ -1009,7 +1009,7 @@ void DipWizard::UpdateViewProposalStage()
 			so.AddPlayer(m_viewSender);
 			DisplayResponseDiplomat(m_viewSender);
 			theString = "str_ldl_DipWizReceivedThreat";
-			counterButtonText = NULL;
+			counterButtonText = nullptr;
 			break;
 		default:
 			Assert(FALSE);
@@ -1058,11 +1058,11 @@ void DipWizard::UpdateExchangeStage()
 		return;
 	}
 
-	const DiplomacyProposalRecord *rec = NULL;
+	const DiplomacyProposalRecord *rec = nullptr;
 	if(m_proposal >= 0)
 		rec = g_theDiplomacyProposalDB->Get(m_proposal);
 
-	ctp2_TabButton *tabButton = NULL;
+	ctp2_TabButton *tabButton = nullptr;
 	ctp2_Tab *tab[3];
 	bool changeTab = false;
 	sint32 shown = -1;
@@ -1086,7 +1086,7 @@ void DipWizard::UpdateExchangeStage()
 			strcat(labelStrName, "Request");
 		}
 	}
-	tabButton = NULL;
+	tabButton = nullptr;
 
 	tab[1] = (ctp2_Tab *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Tabs.Offer");
 	if(tab[1])
@@ -1105,7 +1105,7 @@ void DipWizard::UpdateExchangeStage()
 			strcat(labelStrName, "Offer");
 		}
 	}
-	tabButton = NULL;
+	tabButton = nullptr;
 
 	tab[2] = (ctp2_Tab *)aui_Ldl::GetObject(s_dipWizardBlock, "Stage2.Tabs.Treaty");
 	if(tab[2])
@@ -1158,7 +1158,7 @@ void DipWizard::UpdateButtons()
 	Assert(m_nextButton);
 	Assert(m_cancelButton);
 	Assert(m_sendButton);
-	ctp2_Static *st = NULL;
+	ctp2_Static *st = nullptr;
 
 	switch(stage) {
 		case DIP_WIZ_STAGE_RECIPIENT:
@@ -1325,7 +1325,7 @@ void DipWizard::UpdateDetails()
 		if(tone >= 0 && tone < DIPLOMATIC_TONE_MAX) {
 			st->SetImage(DiplomacyWindow::GetToneIcons()[tone]);
 		} else {
-			st->SetImage(NULL);
+			st->SetImage(nullptr);
 		}
 	}
 
@@ -1348,7 +1348,7 @@ void DipWizard::UpdateDetails()
 			text2[0] = 0;
 
 			DiplomacyWindow::GetProposalDetails(propData, sender, receiver, text, text2,
-												(viewingProposal && m_viewResponseType == RESPONSE_COUNTER), NULL);
+												(viewingProposal && m_viewResponseType == RESPONSE_COUNTER), nullptr);
 			st->SetText(text);
 
 			st = (ctp2_Static *)aui_Ldl::GetObject(s_dipWizardBlock, "Details.Exchange");
@@ -1940,7 +1940,7 @@ void DipWizard::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sint32 it
 	}
 
 	delete m_curMenu;
-	m_curMenu = NULL;
+	m_curMenu = nullptr;
 
 	m_menuProposal = -1;
 	m_menuExchange = -1;
@@ -2031,7 +2031,7 @@ bool DipWizard::ProposalContextMenu(sint32 proposal)
 
 	if(m_curMenu->GetNumItems() < 1) {
 		delete m_curMenu;
-		m_curMenu = NULL;
+		m_curMenu = nullptr;
 		if(needItems) {
 
 			return false;
@@ -2062,7 +2062,7 @@ void DipWizard::AddCityItems(ctp2_Menu *menu, sint32 player)
 			if(!(city.GetEverVisible() & (1 << selitem_Get()->GetVisiblePlayer())))
 				continue;
 		}
-		menu->AddItem(city.GetName(), NULL, (void *)city.m_id);
+		menu->AddItem(city.GetName(), nullptr, (void *)city.m_id);
 	}
 }
 
@@ -2084,37 +2084,37 @@ void DipWizard::AddAgreementItems(ctp2_Menu *menu, sint32 player)
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_PEACE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_PEACE);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_PEACE"), NULL, (void *)PROPOSAL_TREATY_PEACE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_PEACE"), nullptr, (void *)PROPOSAL_TREATY_PEACE);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_TRADE_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_TRADE_PACT"), NULL, (void *)PROPOSAL_TREATY_TRADE_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_TRADE_PACT"), nullptr, (void *)PROPOSAL_TREATY_TRADE_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_RESEARCH_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_RESEARCH_PACT"), NULL, (void *)PROPOSAL_TREATY_RESEARCH_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_RESEARCH_PACT"), nullptr, (void *)PROPOSAL_TREATY_RESEARCH_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_MILITARY_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_MILITARY_PACT"), NULL, (void *)PROPOSAL_TREATY_MILITARY_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_MILITARY_PACT"), nullptr, (void *)PROPOSAL_TREATY_MILITARY_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_POLLUTION_PACT);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_POLLUTION_PACT"), NULL, (void *)PROPOSAL_TREATY_POLLUTION_PACT);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_POLLUTION_PACT"), nullptr, (void *)PROPOSAL_TREATY_POLLUTION_PACT);
 	}
 
 	if (agreement_matrix.HasAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE))
 	{
 		tmp_agreement = agreement_matrix.GetAgreement(player, visplayer, PROPOSAL_TREATY_ALLIANCE);
-		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_ALLIANCE"), NULL, (void *)PROPOSAL_TREATY_ALLIANCE);
+		menu->AddItem(stringdb_Get()->GetNameStr("DIP_TREATY_ALLIANCE"), nullptr, (void *)PROPOSAL_TREATY_ALLIANCE);
 	}
 }
 
@@ -2150,7 +2150,7 @@ void DipWizard::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 receiver)
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), NULL, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
 	}
 }
 
@@ -2172,7 +2172,7 @@ void DipWizard::AddStopResearchItems(ctp2_Menu *menu, sint32 playerId)
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), NULL, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
 	}
 }
 
@@ -2188,7 +2188,7 @@ void DipWizard::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 receiv
 
 		MBCHAR civName[k_MAX_NAME_LEN];
 		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
-		menu->AddItem(civName, NULL, (void *)p);
+		menu->AddItem(civName, nullptr, (void *)p);
 	}
 }
 
@@ -2358,8 +2358,8 @@ void DipWizard::RequestGoldValue(sint32 player)
 
 
 
-		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.OkButton", DipWizard::GoldOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.CancelButton", DipWizard::GoldCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.OkButton", DipWizard::GoldOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.CancelButton", DipWizard::GoldCancel, nullptr);
 		m_goldRequestWindow->SetStronglyModal(TRUE);
 	}
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipGoldRequest.Spinner");
@@ -2385,8 +2385,8 @@ void DipWizard::RequestPollutionValue(sint32 player)
 
 
 
-		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.OkButton", DipWizard::PollutionOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.CancelButton", DipWizard::PollutionCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.OkButton", DipWizard::PollutionOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.CancelButton", DipWizard::PollutionCancel, nullptr);
 		m_pollutionRequestWindow->SetStronglyModal(TRUE);
 	}
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPollutionRequest.Spinner");
@@ -2414,8 +2414,8 @@ void DipWizard::RequestPercentValue()
 
 
 
-		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.OkButton", DipWizard::PercentOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.CancelButton", DipWizard::PercentCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.OkButton", DipWizard::PercentOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.CancelButton", DipWizard::PercentCancel, nullptr);
 		m_percentRequestWindow->SetStronglyModal(TRUE);
 	}
 	ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPercentRequest.Spinner");
@@ -2479,7 +2479,7 @@ void DipWizard::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 		}
 
 		delete m_threatMenu;
-		m_threatMenu = NULL;
+		m_threatMenu = nullptr;
 	}
 }
 
@@ -2516,7 +2516,7 @@ bool DipWizard::ThreatContextMenu(sint32 threat)
 
 	if(m_threatMenu->GetNumItems() < 1) {
 		delete m_threatMenu;
-		m_threatMenu = NULL;
+		m_threatMenu = nullptr;
 
 		if(needItems) {
 			return false;
@@ -2625,7 +2625,7 @@ void DipWizard::DisplayDiplomat(sint32 player)
 	//Added by Martin G�hmann to display the emissary photo of recipient
 	if (m_emissary_photo)
 	{
-		MBCHAR const *	fileName	= NULL;
+		MBCHAR const *	fileName	= nullptr;
 		if ((player >= 0) && (player < k_MAX_PLAYERS) && player_Get(player))
 		{
 			StringId strID;
@@ -2700,7 +2700,7 @@ void DipWizard::CheckIntelligence(aui_Control *control, uint32 action, uint32 da
 aui_Window *DipWizard::GetWindow()
 {
 	if(!s_dipWizard)
-		return NULL;
+		return nullptr;
 
 	return s_dipWizard->m_window;
 }

@@ -45,7 +45,7 @@ aui_Header::aui_Header(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_SwitchGroup( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -70,7 +70,7 @@ aui_Header::aui_Header(
 	sint32 height )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_SwitchGroup( retval, id, x, y, width, height )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -123,7 +123,7 @@ AUI_ERRCODE aui_Header::CreateSwitches( MBCHAR *ldlBlock )
 				return AUI_ERRCODE_MEMALLOCFAILED;
 
 			aui_Action *action = new aui_HeaderSwitchAction( i );
-			Assert( action != NULL );
+			Assert( action != nullptr );
 			if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			theSwitch->SetAction( action );

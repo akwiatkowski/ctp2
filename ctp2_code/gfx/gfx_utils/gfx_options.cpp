@@ -39,7 +39,7 @@
 #include "ai/ctpaidebug.h"
 #include "gfx/gfx_utils/gfx_options_observer_adapter.h"  // RegisterGraphicsOptionsObserverAdapter
 
-static GraphicsOptions * g_graphicsOptions = NULL;
+static GraphicsOptions * g_graphicsOptions = nullptr;
 
 GraphicsOptions * graphicsoptions_Get()             { return g_graphicsOptions; }
 void              graphicsoptions_Set(GraphicsOptions *p) { g_graphicsOptions = p; }
@@ -134,7 +134,7 @@ void GraphicsOptions::ResetArmyText(Army army)
 {
 	if (army.IsValid())
 	{
-		army.AccessData()->SetDebugString(NULL);
+		army.AccessData()->SetDebugString(nullptr);
 	}
 }
 
@@ -154,7 +154,7 @@ CellText *GraphicsOptions::GetCellText(MapPoint const &pos)
 	dummyCellText.m_key = PackCellAVLKey(pos);
 
 	Comparable<CellText *> * avlObject = m_cellAVL->Search(&dummyCellText);
-	return (avlObject) ? avlObject->Key() : NULL;
+	return (avlObject) ? avlObject->Key() : nullptr;
 }
 
 bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
@@ -166,7 +166,7 @@ bool GraphicsOptions::AddTextToCell(const MapPoint &pos, const char *text,
 	if (cellText)
 	{
 		delete [] cellText->m_text;
-		cellText->m_text = NULL;
+		cellText->m_text = nullptr;
 	}
 
 	if (text)

@@ -166,7 +166,7 @@ extern MBCHAR               g_slic_filename[_MAX_PATH];
 extern void WhackScreen();
 
 static MBCHAR *s_scenarioEditorBlock = "ScenarioEditor";
-static ScenarioEditor *s_scenarioEditor = NULL;
+static ScenarioEditor *s_scenarioEditor = nullptr;
 static MBCHAR *s_scenarioAddStuffBlock = "ScenAddStuffWindow";
 
 #define k_TERRAIN_COLS_PER_ROW 6
@@ -242,18 +242,18 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 :
 
 
-	m_window                    (NULL),
-	m_terrainSwitches           (NULL),
-	m_terrainImpSwitches        (NULL),
-	m_addStuffWindow            (NULL),
+	m_window                    (nullptr),
+	m_terrainSwitches           (nullptr),
+	m_terrainImpSwitches        (nullptr),
+	m_addStuffWindow            (nullptr),
 //	ctp2_Switch *m_otherMapSwitch[k_NUM_OTHER_MAP_SWITCHES];
-	m_eraseButton               (NULL),
+	m_eraseButton               (nullptr),
 //	ctp2_Button *m_tabButton[k_NUM_TAB_BUTTONS];
-	m_xWrapButton               (NULL),     // unused
+	m_xWrapButton               (nullptr),     // unused
 	m_xWrap                     (true),
 	m_yWrap                     (false),
-	m_yWrapButton               (NULL),     // unused
-	m_debugAI		            (NULL),
+	m_yWrapButton               (nullptr),     // unused
+	m_debugAI		            (nullptr),
 	m_addMode                   (SCEN_ADD_BUILDINGS),
     m_paintTerrain              (-1),
     m_paintTerrainImprovement   (-1),
@@ -267,8 +267,8 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
     m_regionStart               (),
     m_regionWidth               (0),
     m_regionHeight              (0),
-	m_copyBuffer                (NULL),
-	m_fileDialog                (NULL),
+	m_copyBuffer                (nullptr),
+	m_fileDialog                (nullptr),
 	m_initializing              (true),
 	m_placeNationFlag           (0),
 	m_isGivingAdvances          (false)
@@ -302,15 +302,15 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	m_tabButton[3]->SetActionFuncAndCookie(TabCallback, (void *)SCEN_TAB_CIV);
 
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.SaveScenarioButton", SaveScenario, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.LoadMapButton", LoadMap, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.SaveMapButton", SaveMap, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.SaveScenarioButton", SaveScenario, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.LoadMapButton", LoadMap, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.SaveMapButton", SaveMap, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.MapSize", MapSize, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.Barbarians", Barbarians, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.Difficulty", Difficulty, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.MapSize", MapSize, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.Barbarians", Barbarians, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.Difficulty", Difficulty, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.ReloadSlicButton", ReloadSlic, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.ReloadSlicButton", ReloadSlic, nullptr);
 
 	ctp2_Spinner *spin;
 	sint32 i;
@@ -326,12 +326,12 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 			spin->SetMinimum(0, 0);
 			spin->SetMaximum(GetLastPlayer(), 0);
 			// Set the callback at the end, otherwise it is always executed when you set min or max
-			spin->SetSpinnerCallback(PlayerSpinner, NULL);
+			spin->SetSpinnerCallback(PlayerSpinner, nullptr);
 		}
 	}
 
 	spin = (ctp2_Spinner *)aui_Ldl::GetObject(s_scenarioEditorBlock, "Globals.YearSpinner");
-	spin->SetSpinnerCallback(Year, NULL);
+	spin->SetSpinnerCallback(Year, nullptr);
 
 	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Unit.LandButton",
 									UnitTabButton, (void *)SCEN_UNIT_CAT_LAND);
@@ -347,17 +347,17 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
     //s_ShowEnemyHealth->SetState(profiledb_Get()->GetShowEnemyHealth());
 
 	m_debugAI = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.Unit.DebugAI");
-	m_debugAI->SetActionFuncAndCookie(DebugAI, NULL);
+	m_debugAI->SetActionFuncAndCookie(DebugAI, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UnitControls.LabelToggle", ToggleLabels, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UnitControls.LabelToggle", ToggleLabels, nullptr);
 
 	spin = (ctp2_Spinner *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.City.Pop");
-	if(spin) spin->SetSpinnerCallback(CityPopSpinner, NULL);
+	if(spin) spin->SetSpinnerCallback(CityPopSpinner, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.City.AddBuildings", CityAddBuildings, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.City.AddWonders", CityAddWonders, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.City.AddBuildings", CityAddBuildings, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.City.AddWonders", CityAddWonders, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CivControls.AddAdvances", CivAddAdvances, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CivControls.AddAdvances", CivAddAdvances, nullptr);
 
 	spin = (ctp2_Spinner *)aui_Ldl::GetObject(s_scenarioEditorBlock, "CivControls.CityStyleSpinner");
 	if(spin)
@@ -382,11 +382,11 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 			tipWindow->SetTipText(const_cast<char*>(rec->GetNameText()));
 		}
 		// Set callback at least so that nothing else calls it, before everything is finished
-		spin->SetSpinnerCallback(CivCityStyleSpinner, NULL);
+		spin->SetSpinnerCallback(CivCityStyleSpinner, nullptr);
 	}
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.SetGovernment", SetGovernment, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.PlayerSelect", LimitPlayerChoice, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.SetGovernment", SetGovernment, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.PlayerSelect", LimitPlayerChoice, nullptr);
 
 
 
@@ -401,42 +401,42 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.JustCivSwitch",
 									CivModeSwitch, (void *)SCEN_START_LOC_MODE_CIV);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.AddPW", AddPW, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.AddGold", AddGold, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.AddPW", AddPW, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.Civ.AddGold", AddGold, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.ExitButton", Exit, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "Globals.ExitButton", Exit, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.CutButton", CutRegion, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.CopyButton", CopyRegion, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.PasteButton", PasteRegion, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.CutButton", CutRegion, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.CopyButton", CopyRegion, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.PasteButton", PasteRegion, nullptr);
 
 	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.SmallBrushButton", BrushSize, (void *)1);
 	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.MedBrushButton", BrushSize, (void *)2);
 	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.LargeBrushButton", BrushSize, (void *)4);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.SaveClipButton", SaveClip, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.LoadClipButton", LoadClip, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.SaveClipButton", SaveClip, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.LoadClipButton", LoadClip, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.ExploreButton", ExploreButton, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.UnexploreButton", UnexploreButton, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.ExploreButton", ExploreButton, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.UnexploreButton", UnexploreButton, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.FogButton", FogButton, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.FogButton", FogButton, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CityExtraControls.CityField", CityName, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CivExtraControls.LeaderField", LeaderName, NULL);
-
-
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.SelectButton", RegionButton, NULL);
-
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "CloseButton", CloseAddStuff, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "Left", AddLeftList, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "Right", AddRightList, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "AddButton", AddAddButton, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "RemoveButton", AddRemoveButton, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "AddStuffTitle", AddLeftList, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CityExtraControls.CityField", CityName, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "CivExtraControls.LeaderField", LeaderName, nullptr);
 
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.EraseButton", EraseMode, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.SelectButton", RegionButton, nullptr);
+
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "CloseButton", CloseAddStuff, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "Left", AddLeftList, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "Right", AddRightList, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "AddButton", AddAddButton, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "RemoveButton", AddRemoveButton, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioAddStuffBlock, "AddStuffTitle", AddLeftList, nullptr);
+
+
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.EraseButton", EraseMode, nullptr);
 
 	m_otherMapSwitch[0] = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.World.HutSwitch");
 	m_otherMapSwitch[1] = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "TabGroup.World.RiverSwitch");
@@ -452,13 +452,13 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	m_otherMapSwitch[4]->SetActionFuncAndCookie(WorldTabSwitch, (void *)SCEN_MAP_GOOD3);
 	m_otherMapSwitch[5]->SetActionFuncAndCookie(WorldTabSwitch, (void *)SCEN_MAP_GOOD4);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.ClearWorldButton", ClearWorld, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "UniversalControls.ClearWorldButton", ClearWorld, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.FindMeButton", FindPosNow, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.FindMeButton", FindPosNow, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.RemoveGoods", RemoveGoods, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.GenerateGoods", GenerateGoods, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.World.Pollution", Pollution, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.RemoveGoods", RemoveGoods, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldExtraControls.GenerateGoods", GenerateGoods, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "TabGroup.World.Pollution", Pollution, nullptr);
 
 	m_eraseButton = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "UniversalControls.EraseButton");
 
@@ -468,11 +468,11 @@ ScenarioEditor::ScenarioEditor(AUI_ERRCODE *err)  //called by intialize does sam
 	ctp2_Switch *pButton = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "WorldControls.XWrapButton");
     pButton->SetState((m_xWrap) ? 1 : 0);
 
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.XWrapButton", SetXWrap, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.XWrapButton", SetXWrap, nullptr);
 
 	pButton = (ctp2_Switch *)aui_Ldl::GetObject(s_scenarioEditorBlock, "WorldControls.YWrapButton");
     pButton->SetState((m_yWrap) ? 1 : 0);
-	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.YWrapButton", SetYWrap, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_scenarioEditorBlock, "WorldControls.YWrapButton", SetYWrap, nullptr);
 
 	*err = AUI_ERRCODE_OK;
 }
@@ -608,7 +608,7 @@ AUI_ERRCODE ScenarioEditor::Hide()
 		c3ui_Get()->RemoveWindow(s_scenarioEditor->m_addStuffWindow->Id());
 	}
 
-	if (controlpanel_Get()!=NULL)
+	if (controlpanel_Get()!=nullptr)
 		controlpanel_Get()->TileImpPanelRedisplay();
 
 	s_scenarioEditor->m_paintTerrain            = -1;
@@ -629,7 +629,7 @@ AUI_ERRCODE ScenarioEditor::Hide()
 bool ScenarioEditor::IsShown()
 {
 	if(!s_scenarioEditor) return false;
-	return c3ui_Get()->GetWindow(s_scenarioEditor->m_window->Id()) != NULL;
+	return c3ui_Get()->GetWindow(s_scenarioEditor->m_window->Id()) != nullptr;
 }
 
 void ScenarioEditor::NotifySelection()
@@ -637,7 +637,7 @@ void ScenarioEditor::NotifySelection()
 	if(!s_scenarioEditor) return;
 
 	if(s_scenarioEditor->m_addStuffWindow) {
-		if(c3ui_Get()->GetChild(s_scenarioEditor->m_addStuffWindow->Id()) != NULL) {
+		if(c3ui_Get()->GetChild(s_scenarioEditor->m_addStuffWindow->Id()) != nullptr) {
 			s_scenarioEditor->UpdateAddList(s_scenarioEditor->m_addMode);
 		}
 	}
@@ -699,8 +699,8 @@ void ScenarioEditor::PopulateTerrainList()
 	lb->Clear();
 
 	sint32 col = 0;
-	ctp2_ListItem *curItem = NULL;
-	ctp2_Static *curItemBox = NULL;
+	ctp2_ListItem *curItem = nullptr;
+	ctp2_Static *curItemBox = nullptr;
 
 	delete [] m_terrainSwitches;
 	m_terrainSwitches = new ctp2_Switch *[g_theTerrainDB->NumRecords()];
@@ -749,8 +749,8 @@ void ScenarioEditor::PopulateTerrainList()
 		col++;
 		if(col >= k_TERRAIN_COLS_PER_ROW) {
 			col = 0;
-			curItem = NULL;
-			curItemBox = NULL;
+			curItem = nullptr;
+			curItemBox = nullptr;
 		}
 	}
 
@@ -775,8 +775,8 @@ void ScenarioEditor::PopulateUnitList(SCEN_UNIT_CAT cat)
 	lb->SetAbsorbancy(FALSE);
 	lb->Clear();
 
-	ctp2_ListItem *curItem = NULL;
-	ctp2_Static *curItemBox = NULL;
+	ctp2_ListItem *curItem = nullptr;
+	ctp2_Static *curItemBox = nullptr;
 	sint32 col = 0;
 
 	for (sint32 ui = 0; ui < g_theUnitDB->NumRecords(); ui++) {
@@ -861,8 +861,8 @@ void ScenarioEditor::PopulateUnitList(SCEN_UNIT_CAT cat)
 		col++;
 		if(col >= k_UNIT_COLS_PER_ROW) {
 			col = 0;
-			curItem = NULL;
-			curItemBox = NULL;
+			curItem = nullptr;
+			curItemBox = nullptr;
 		}
 	}
 
@@ -888,8 +888,8 @@ void ScenarioEditor::PopulateCityList()
 	lb->SetAbsorbancy(FALSE);
 	lb->Clear();
 
-	ctp2_ListItem *curItem = NULL;
-	ctp2_Static *curItemBox = NULL;
+	ctp2_ListItem *curItem = nullptr;
+	ctp2_Static *curItemBox = nullptr;
 	sint32 col = 0;
 	//Added by Martin G�hmann so that there are now as much buttons
 	//as city styles.
@@ -919,8 +919,8 @@ void ScenarioEditor::PopulateCityList()
 		col++;
 		if(col >= k_CITY_COLS_PER_ROW) {
 			col = 0;
-			curItem = NULL;
-			curItemBox = NULL;
+			curItem = nullptr;
+			curItemBox = nullptr;
 		}
 
 //Added by Martin G�hmann to give the city buttons an icon.
@@ -974,8 +974,8 @@ void ScenarioEditor::PopulateTerrainImprovementList()  //emod1 note  use this fo
 	lb->Clear();
 
 	sint32 col = 0;
-	ctp2_ListItem *curItem = NULL;
-	ctp2_Static *curItemBox = NULL;
+	ctp2_ListItem *curItem = nullptr;
+	ctp2_Static *curItemBox = nullptr;
 
 	delete [] m_terrainImpSwitches;
 	m_terrainImpSwitches = new ctp2_Switch *[g_theTerrainImprovementDB->NumRecords()];
@@ -1024,8 +1024,8 @@ void ScenarioEditor::PopulateTerrainImprovementList()  //emod1 note  use this fo
 		col++;
 		if(col >= k_TERRAINIMP_COLS_PER_ROW) {
 			col = 0;
-			curItem = NULL;
-			curItemBox = NULL;
+			curItem = nullptr;
+			curItemBox = nullptr;
 		}
 	}
 
@@ -1781,8 +1781,8 @@ void ScenarioEditor::CivModeSwitch(aui_Control *control, uint32 action, uint32 d
 void ScenarioEditor::UpdateCivMode()
 {
 
-	ctp2_Static *showSubgroup = NULL;
-	ctp2_Static *hideSubgroup = NULL;
+	ctp2_Static *showSubgroup = nullptr;
+	ctp2_Static *hideSubgroup = nullptr;
 	switch(s_scenarioEditor->m_startLocMode) {
 		case SCEN_START_LOC_MODE_NONE:
 		case SCEN_START_LOC_MODE_PLAYER:
@@ -1865,7 +1865,7 @@ void ScenarioEditor::SetupNations()
 
 	plgroup->Clear();
 
-	plgroup->SetActionFuncAndCookie(SetPlayerNation, (void *)0);
+	plgroup->SetActionFuncAndCookie(SetPlayerNation, (void *)nullptr);
 
 
 	sint32 i;
@@ -1922,12 +1922,12 @@ void ScenarioEditor::SetupNations()
 
 void ScenarioEditor::AddLeftList(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
-	ScenarioEditor::AddAddButton(NULL, AUI_LISTBOX_ACTION_DOUBLECLICKSELECT, 0, NULL);
+	ScenarioEditor::AddAddButton(nullptr, AUI_LISTBOX_ACTION_DOUBLECLICKSELECT, 0, nullptr);
 }
 
 void ScenarioEditor::AddRightList(aui_Control *control, uint32 action, uint32 data, void *cookie)
 {
-	ScenarioEditor::AddRemoveButton(NULL, AUI_LISTBOX_ACTION_DOUBLECLICKSELECT, 0, NULL);
+	ScenarioEditor::AddRemoveButton(nullptr, AUI_LISTBOX_ACTION_DOUBLECLICKSELECT, 0, nullptr);
 }
 
 void ScenarioEditor::AddAddItem(ctp2_ListBox * a_List, const MBCHAR *text, sint32 userData)
@@ -2181,7 +2181,7 @@ void ScenarioEditor::NotifyPlayerChange()
 
 			if(plgroup) plgroup->SetSelectedItem(nation);
 
-			plgroup->SetActionFuncAndCookie(SetPlayerNation, (void *)0);
+			plgroup->SetActionFuncAndCookie(SetPlayerNation, (void *)nullptr);
 
 			s_scenarioEditor->m_initializing = wasInitializing;
 		}
@@ -2405,7 +2405,7 @@ void ScenarioEditor::PlaceFlag(MapPoint &pos)
 
 
 		if (s_scenarioEditor->m_startLocMode == SCEN_START_LOC_MODE_PLAYER) {
-			Player *p = NULL;
+			Player *p = nullptr;
 			p = player_Get(selitem_Get()->GetVisiblePlayer());
 			if (p) {
 				playerOrCiv = p->GetCivilisation()->GetCivilisation();

@@ -17,9 +17,9 @@ EndGameRecord::EndGameRecord()
 	m_numStages = 0;
 	m_soundID = -1;
 	m_exactlyOneRequired = FALSE;
-	m_requiredForStage = NULL;
+	m_requiredForStage = nullptr;
 	m_maxAllowed = 0;
-	m_turnsPerStage = NULL;
+	m_turnsPerStage = nullptr;
 	m_minRequired = 0;
 	m_successBonus = 0;
 	m_scoreBonusOverMinimum = 0;
@@ -69,7 +69,7 @@ void EndGameRecord::Serialize(CivArchive &archive)
 				archive >> m_requiredForStage[i];
 			}
 		} else {
-			m_requiredForStage = NULL;
+			m_requiredForStage = nullptr;
 		}
 
 		if(m_maxAllowed > 0) {
@@ -78,7 +78,7 @@ void EndGameRecord::Serialize(CivArchive &archive)
 				archive >> m_turnsPerStage[i];
 			}
 		} else {
-			m_turnsPerStage = NULL;
+			m_turnsPerStage = nullptr;
 		}
 	}
 }

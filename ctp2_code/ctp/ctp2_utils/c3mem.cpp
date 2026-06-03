@@ -10,9 +10,9 @@ void* operator new(const size_t size)
 {
     Assert (0 < size);
 	void* ptr = malloc(size);
-	Assert(ptr != NULL);
+	Assert(ptr != nullptr);
 
-	if(ptr == NULL) {
+	if(ptr == nullptr) {
 #ifdef _AIDLL
 #ifdef _DEBUG
 		MBCHAR s[256];
@@ -37,10 +37,10 @@ void* operator new(const size_t size)
 void operator delete(void *ptr)
 {
 
-	if(ptr == NULL)
+	if(ptr == nullptr)
 		return;
 	free(ptr);
-    ptr = NULL;
+    ptr = nullptr;
 
 #if defined WIN32
     if (g_check_mem) {

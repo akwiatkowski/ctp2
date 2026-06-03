@@ -46,7 +46,7 @@
 //
 //----------------------------------------------------------------------------
 CriticalMessagesData::CriticalMessagesData()
-:	m_messageName(NULL),
+:	m_messageName(nullptr),
 	m_messageEnabled(false)
 {};
 
@@ -196,5 +196,5 @@ PointerList<CriticalMessagesData>::PointerListNode *CriticalMessagesPrefs::FindM
 		}
 
 	}
-	return NULL;
+	return nullptr;
 }

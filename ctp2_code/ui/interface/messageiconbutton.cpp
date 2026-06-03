@@ -12,7 +12,7 @@
 #include "ui/aui_ctp2/c3ui.h"
 
 
-MessageIconButton *MessageIconButton::m_currentButton = NULL;
+MessageIconButton *MessageIconButton::m_currentButton = nullptr;
 
 MessageIconButton::MessageIconButton(
 	AUI_ERRCODE *retval,
@@ -22,7 +22,7 @@ MessageIconButton::MessageIconButton(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Button( retval, id, ldlBlock, ActionFunc, cookie )
 {
 }

@@ -55,7 +55,7 @@ BattleViewActor::BattleViewActor(
         m_unitID            (id),
         m_unitDBIndex       (unitType),
         m_playerNum         (owner),
-        m_unitSpriteGroup   (NULL),
+        m_unitSpriteGroup   (nullptr),
         m_facing            (k_DEFAULTSPRITEFACING),
         m_frame             (0),
         m_transparency      (15),
@@ -97,10 +97,10 @@ void BattleViewActor::AddIdle(BOOL NoIdleJustDelay)
 {
 	Anim * anim = CreateAnim(UNITACTION_IDLE);
 
-	if (anim == NULL)
+	if (anim == nullptr)
 	{
 		anim = CreateAnim(UNITACTION_MOVE);
-		Assert(anim != NULL);
+		Assert(anim != nullptr);
 	}
 
 	if (anim && (!m_actionQueue.Empty() || NoIdleJustDelay))
@@ -215,7 +215,7 @@ void BattleViewActor::AddAction(ActionPtr actionObj)
 Anim *BattleViewActor::CreateAnim(UNITACTION action)
 {
 	Assert(m_unitSpriteGroup);
-	if (!m_unitSpriteGroup) return NULL;
+	if (!m_unitSpriteGroup) return nullptr;
 
 	Anim *  origAnim = m_unitSpriteGroup->GetAnim((GAME_ACTION)action);
 
@@ -227,7 +227,7 @@ Anim *BattleViewActor::CreateAnim(UNITACTION action)
 	}
 
 	if (!origAnim)
-		return NULL;
+		return nullptr;
 
     Anim * anim = new Anim(*origAnim);
 
@@ -283,7 +283,7 @@ void BattleViewActor::Draw(BOOL fogged)
 	if (fogged)
 		flags |= k_BIT_DRAWFLAGS_FOGGED;
 
-	if (m_curAction == NULL)
+	if (m_curAction == nullptr)
 	{
 
 		m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x+k_ACTOR_CENTER_OFFSET_X, m_y+k_ACTOR_CENTER_OFFSET_Y, m_facing,
@@ -360,17 +360,17 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 	RECT	iconRect = {0, 0, iconDim.x, iconDim.y};
 
 	UNITACTION		unitAction = m_curUnitAction;
-	if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction) == NULL)
+	if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction) == nullptr)
 		unitAction = UNITACTION_IDLE;
 
 	POINT *shieldPoint;
 
 
-	if (unitAction == UNITACTION_IDLE && m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == NULL) {
+	if (unitAction == UNITACTION_IDLE && m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == nullptr) {
 		shieldPoint = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
 		OffsetRect(&iconRect, m_x + shieldPoint->x, m_y + shieldPoint->y);
 	} else {
-		if (m_unitSpriteGroup && m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != NULL) {
+		if (m_unitSpriteGroup && m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != nullptr) {
 			shieldPoint = m_unitSpriteGroup->GetShieldPoints(unitAction);
 			OffsetRect(&iconRect, m_x + shieldPoint->x, m_y + shieldPoint->y);
 		} else {
@@ -426,13 +426,13 @@ void BattleViewActor::DrawHealthBar(aui_Surface *surf)
 
 uint16 BattleViewActor::GetWidth() const
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return 0;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return 0;
 
 	Sprite * theSprite =
         m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction);
 
-	if (theSprite != NULL)
+	if (theSprite != nullptr)
 	{
 		return theSprite->GetWidth();
 	}
@@ -441,7 +441,7 @@ uint16 BattleViewActor::GetWidth() const
 		if (m_curUnitAction == UNITACTION_IDLE)
 		{
 			theSprite = m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_MOVE);
-			if (theSprite != NULL)
+			if (theSprite != nullptr)
 				return theSprite->GetWidth();
 		}
 
@@ -451,13 +451,13 @@ uint16 BattleViewActor::GetWidth() const
 
 uint16 BattleViewActor::GetHeight() const
 {
-	Assert(m_unitSpriteGroup != NULL);
-	if (m_unitSpriteGroup == NULL) return 0;
+	Assert(m_unitSpriteGroup != nullptr);
+	if (m_unitSpriteGroup == nullptr) return 0;
 
 	Sprite * theSprite =
         m_unitSpriteGroup->GetGroupSprite((GAME_ACTION) m_curUnitAction);
 
-	if (theSprite != NULL)
+	if (theSprite != nullptr)
 	{
 		return theSprite->GetHeight();
 	}
@@ -466,7 +466,7 @@ uint16 BattleViewActor::GetHeight() const
 		if (m_curUnitAction == UNITACTION_IDLE)
 		{
 			theSprite = m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_MOVE);
-			if (theSprite != NULL)
+			if (theSprite != nullptr)
 				return theSprite->GetHeight();
 		}
 
@@ -476,8 +476,8 @@ uint16 BattleViewActor::GetHeight() const
 
 void BattleViewActor::GetBoundingRect(RECT *rect) const
 {
-	Assert(rect != NULL);
-	if (rect == NULL) return;
+	Assert(rect != nullptr);
+	if (rect == nullptr) return;
 
 	POINT	hotPoint = m_unitSpriteGroup->GetHotPoint(m_curUnitAction, m_facing);
 	double	scale = tiledmap_Get()->GetScale();

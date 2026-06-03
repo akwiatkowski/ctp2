@@ -45,12 +45,12 @@ public:
 	ctp2_Button(AUI_ERRCODE *retval,
 				uint32 id,
 				MBCHAR *ldlBlock,
-				ControlActionCallback *ActionFunc = NULL,
-				void *cookie = NULL) :
+				ControlActionCallback *ActionFunc = nullptr,
+				void *cookie = nullptr) :
 		aui_ImageBase(ldlBlock),
-		aui_TextBase(ldlBlock, (MBCHAR const *) NULL),
+		aui_TextBase(ldlBlock, (MBCHAR const *) nullptr),
 		aui_Button(retval, id, ldlBlock, ActionFunc, cookie)
-	{ *retval = InitCommonLdl(ldlBlock, NULL, 0, 0, 0, 0); }
+	{ *retval = InitCommonLdl(ldlBlock, nullptr, 0, 0, 0, 0); }
 
 	ctp2_Button(AUI_ERRCODE *retval,
 				uint32 id,
@@ -60,10 +60,10 @@ public:
 				sint32 y,
 				sint32 width,
 				sint32 height,
-				ControlActionCallback *ActionFunc = NULL,
-				void *cookie = NULL) :
+				ControlActionCallback *ActionFunc = nullptr,
+				void *cookie = nullptr) :
 		aui_ImageBase(ldlBlock),
-		aui_TextBase(ldlBlock, (MBCHAR const *) NULL),
+		aui_TextBase(ldlBlock, (MBCHAR const *) nullptr),
 		aui_Button(retval, id, ldlBlock, ActionFunc, cookie)
 	{ *retval = InitCommonLdl(ldlBlock, ldlTemplate,
 		x, y, width, height); }
@@ -74,7 +74,7 @@ public:
 		sint32 x, sint32 y, sint32 width, sint32 height);
 
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL,
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr,
 								 sint32 x = 0, sint32 y = 0);
 
 	virtual void	MouseLGrabInside(aui_MouseEvent * mouseData);

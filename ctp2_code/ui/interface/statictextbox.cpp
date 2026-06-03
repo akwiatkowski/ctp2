@@ -43,11 +43,11 @@ StaticTextBox::StaticTextBox(
 	MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Static(retval, id, ldlBlock)
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return;
 
 	if (block->GetAttributeType( k_STATICTEXTBOX_LDL_BEVEL ) == ATTRIBUTE_TYPE_INT) {

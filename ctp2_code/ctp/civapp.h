@@ -102,7 +102,7 @@ public:
 	// archive == NULL means new game; non-null means restore from save.
 	// Used directly by headless_main for --new-game; also called from
 	// InitializeGame() when c3ui_Get() is null (i.e. headless save-load).
-	sint32		InitializeGameHeadless(CivArchive *archive = NULL);
+	sint32		InitializeGameHeadless(CivArchive *archive = nullptr);
 	sint32		InitializeAppDB(CivArchive &archive);
 	sint32		InitializeGame(CivArchive *archive);
 
@@ -206,7 +206,7 @@ AUI_ACTION_BASIC(SpriteTestAction);
 class LoadSaveGameAction : public aui_Action
 {
 public:
-	LoadSaveGameAction(MBCHAR const * name = NULL)
+	LoadSaveGameAction(MBCHAR const * name = nullptr)
     :   aui_Action  ()
     {
         if (name)

@@ -76,8 +76,8 @@ const sint32 aui_Control::k_AUI_CONTROL_LAYER_FLAG_DISABLED		= 4;
 const sint32 aui_Control::k_AUI_CONTROL_LAYER_FLAG_ENABLED		= 8;
 
 uint32          aui_Control::s_controlClassId   = aui_UniqueId();
-aui_Control *   aui_Control::s_whichOwnsMouse   = NULL;
-aui_Control *   aui_Control::s_whichHasFocus    = NULL;
+aui_Control *   aui_Control::s_whichOwnsMouse   = nullptr;
+aui_Control *   aui_Control::s_whichHasFocus    = nullptr;
 
 static const MBCHAR *const k_AUI_CONTROL_LDL_STATUS_TEXT	=	"statustext";
 
@@ -91,17 +91,17 @@ aui_Control::aui_Control
 )
 :
 	aui_ImageBase           (ldlBlock),
-	aui_TextBase            (ldlBlock, (const MBCHAR *) NULL),
+	aui_TextBase            (ldlBlock, (const MBCHAR *) nullptr),
 	aui_Region              (retval, id, ldlBlock),
 	aui_SoundBase           (ldlBlock),
-	m_stringTable           (NULL),
+	m_stringTable           (nullptr),
 	m_allocatedTip          (false),
-	m_statusText            (NULL),
+	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
-	m_imageLayerList        (NULL),
-	m_layerRenderFlags      (NULL),
-	m_statusTextCopy        (NULL)
+	m_imageLayerList        (nullptr),
+	m_layerRenderFlags      (nullptr),
+	m_statusTextCopy        (nullptr)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -123,18 +123,18 @@ aui_Control::aui_Control
 )
 :
 	aui_ImageBase           ((sint32) 0),
-	aui_TextBase            (NULL),
+	aui_TextBase            (nullptr),
 	aui_Region              (retval, id, x, y, width, height),
-	aui_SoundBase           ((MBCHAR **) NULL),
-	m_stringTable           (NULL),
+	aui_SoundBase           ((MBCHAR **) nullptr),
+	m_stringTable           (nullptr),
 	m_allocatedTip          (false),
-	m_statusText            (NULL),
+	m_statusText            (nullptr),
 	m_numberOfLayers        (0),
 	m_imagesPerLayer        (0),
-	m_imageLayerList        (NULL),
-	m_layerRenderFlags      (NULL),
+	m_imageLayerList        (nullptr),
+	m_layerRenderFlags      (nullptr),
 	m_renderFlags           (k_AUI_CONTROL_LAYER_FLAG_ALWAYS),
-	m_statusTextCopy        (NULL)
+	m_statusTextCopy        (nullptr)
 {
 	if (AUI_SUCCESS(*retval))
 	{
@@ -149,7 +149,7 @@ AUI_ERRCODE aui_Control::InitCommonLdl(
 	void *cookie )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon( ActionFunc, cookie );
@@ -232,9 +232,9 @@ AUI_ERRCODE aui_Control::InitCommon(
 	ControlActionCallback *ActionFunc,
 	void *cookie )
 {
-    m_window = NULL,
+    m_window = nullptr,
 	m_allocatedTip = FALSE,
-	m_tip = NULL,
+	m_tip = nullptr,
 	m_showingTip = FALSE,
 	m_startWaitTime = 0,
 	m_timeOut = k_CONTROL_DEFAULT_TIMEOUT,
@@ -285,7 +285,7 @@ AUI_ERRCODE aui_Control::SetActionFuncAndCookie(
 aui_Action *aui_Control::SetAction( aui_Action *action )
 {
 
-	m_ActionFunc = NULL;
+	m_ActionFunc = nullptr;
 
 	aui_Action *prevAction = m_action;
 	m_action = action;
@@ -295,7 +295,7 @@ aui_Action *aui_Control::SetAction( aui_Action *action )
 
 AUI_ERRCODE aui_Control::SetParentWindow( aui_Window *window )
 {
-	Assert( m_childList != NULL );
+	Assert( m_childList != nullptr );
 	ListPos position = m_childList->GetHeadPosition();
 	if ( position )
 	{
@@ -303,7 +303,7 @@ AUI_ERRCODE aui_Control::SetParentWindow( aui_Window *window )
 		{
 			aui_Control *subControl =
 				(aui_Control *)m_childList->GetNext( position );
-			Assert( subControl != NULL );
+			Assert( subControl != nullptr );
 			subControl->SetParentWindow( window );
 		}
 	}
@@ -330,7 +330,7 @@ AUI_ERRCODE aui_Control::ResetThis( )
 AUI_ERRCODE aui_Control::AddChild( aui_Region *child )
 {
 
-	Assert( child != NULL );
+	Assert( child != nullptr );
 	if ( !child ) return AUI_ERRCODE_INVALIDPARAM;
 
 
@@ -378,7 +378,7 @@ AUI_ERRCODE aui_Control::RemoveChild( uint32 controlId )
 
 			control->ReleaseKeyboardFocus();
 
-			control->SetParent( NULL );
+			control->SetParent( nullptr );
 
 			m_childList->DeleteAt( prevPos );
 
@@ -489,7 +489,7 @@ aui_Window *aui_Control::SetTipWindow( aui_Window *window )
 
 	m_tip = window;
 
-	if (window != NULL)
+	if (window != nullptr)
 		m_allocatedTip = TRUE;
 
 	return prevTip;
@@ -555,7 +555,7 @@ AUI_ERRCODE aui_Control::ReleaseMouseOwnership( )
 	if (GetMouseOwnership() != this)
 	    return AUI_ERRCODE_NOCONTROL;
 
-	s_whichOwnsMouse = NULL;
+	s_whichOwnsMouse = nullptr;
     return AUI_ERRCODE_OK;
 }
 
@@ -580,7 +580,7 @@ AUI_ERRCODE aui_Control::ReleaseKeyboardFocus()
 	if (GetKeyboardFocus() != this)
 	    return AUI_ERRCODE_NOCONTROL;
 
-	s_whichHasFocus = NULL;
+	s_whichHasFocus = nullptr;
     m_draw |= m_drawMask & k_AUI_REGION_DRAWFLAG_KEYBOARDFOCUSCHANGE;
 
     if (aui_ui_Get())
@@ -858,7 +858,7 @@ void aui_Control::MouseMoveAway( aui_MouseEvent *mouseData )
 		PlaySound( AUI_SOUNDBASE_SOUND_DEACTIVATE );
 
 		if(m_statusText && StatusBar::GetOwner() == this) {
-			StatusBar::SetText("", NULL);
+			StatusBar::SetText("", nullptr);
 		}
 
 		if ( m_mouseCode == AUI_ERRCODE_UNHANDLED )
@@ -989,7 +989,7 @@ AUI_ERRCODE	aui_Control::Resize(sint32 width, sint32 height)
 		if(ldlBlock) {
 
 			delete m_imageLayerList;
-			m_imageLayerList = NULL;
+			m_imageLayerList = nullptr;
 
 
 
@@ -1679,7 +1679,7 @@ void aui_Control::BaseResetCurrentRenderFlags()
 void aui_Control::InitializeImageLayers(ldl_datablock *theBlock)
 {
 
-	bool initializeFlags = (m_layerRenderFlags == NULL);
+	bool initializeFlags = (m_layerRenderFlags == nullptr);
 
 
 	if(!AllocateImageLayers(theBlock))
@@ -1726,22 +1726,22 @@ void aui_Control::SetStatusText(const MBCHAR *text)
 {
 	m_statusText = text;
 
-	if(m_statusTextCopy != NULL)
+	if(m_statusTextCopy != nullptr)
 	{
-		StatusBar::SetText("", NULL);
+		StatusBar::SetText("", nullptr);
 		delete m_statusTextCopy;
-		m_statusTextCopy = NULL;
+		m_statusTextCopy = nullptr;
 	}
 }
 
 void aui_Control::SetStatusTextCopy(const MBCHAR *text)
 {
-	m_statusText = NULL;
+	m_statusText = nullptr;
 
-	if(m_statusTextCopy != NULL)
+	if(m_statusTextCopy != nullptr)
 	{
 		delete m_statusTextCopy;
-		StatusBar::SetText("", NULL);
+		StatusBar::SetText("", nullptr);
 	}
 	m_statusTextCopy = new MBCHAR[strlen(text)+1];
 	strcpy(m_statusTextCopy, text);

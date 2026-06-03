@@ -54,7 +54,7 @@ typedef void (c3_UtilityPlayerListCallback)(sint32 player, sint32 val2, PLAYER_A
 class c3_UtilityCityListPopup
 {
 public:
-	c3_UtilityCityListPopup( c3_UtilityCityListCallback *callback, MBCHAR *ldlBlock = NULL );
+	c3_UtilityCityListPopup( c3_UtilityCityListCallback *callback, MBCHAR *ldlBlock = nullptr );
 	~c3_UtilityCityListPopup( );
 
 	c3_PopupWindow	*m_window;
@@ -84,7 +84,7 @@ public:
 class c3_PiracyPopup
 {
 public:
-	c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR *ldlBlock = NULL );
+	c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR *ldlBlock = nullptr );
 	~c3_PiracyPopup( );
 
 	c3_PopupWindow	*m_window;
@@ -114,7 +114,7 @@ public:
 class c3_ExpelPopup
 {
 public:
-	c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR *ldlBlock = NULL );
+	c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR *ldlBlock = nullptr );
 	~c3_ExpelPopup( );
 
 	c3_PopupWindow	*m_window;
@@ -144,7 +144,7 @@ class c3_UtilityTextFieldPopup
 {
 public:
 	c3_UtilityTextFieldPopup( c3_UtilityTextFieldCallback *callback, const MBCHAR *titleText, const MBCHAR *messageText,
-								const MBCHAR *defaultText, MBCHAR *ldlBlock = NULL, void *data = NULL,
+								const MBCHAR *defaultText, MBCHAR *ldlBlock = nullptr, void *data = nullptr,
 							  bool wantEmpties = false);
 	~c3_UtilityTextFieldPopup( );
 
@@ -195,8 +195,8 @@ public:
     (
         MBCHAR const *                  text,
         sint32                          type,
-        c3_UtilityTextMessageCallback * callback = NULL,
-        MBCHAR const *                  ldlBlock = NULL
+        c3_UtilityTextMessageCallback * callback = nullptr,
+        MBCHAR const *                  ldlBlock = nullptr
     );
 	~c3_UtilityTextMessagePopup( );
 
@@ -227,10 +227,10 @@ class c3_UtilityTextMessageCreateAction : public aui_Action
 public:
 	c3_UtilityTextMessageCreateAction
     (
-        MBCHAR const *                  text        = NULL,
+        MBCHAR const *                  text        = nullptr,
         sint32                          type        = 0,
-        c3_UtilityTextMessageCallback * callback    = NULL,
-        MBCHAR const *                  ldlBlock    = NULL
+        c3_UtilityTextMessageCallback * callback    = nullptr,
+        MBCHAR const *                  ldlBlock    = nullptr
     );
 
 	virtual void	Execute
@@ -247,7 +247,7 @@ protected:
 	MBCHAR const *                  m_ldlBlock;
 };
 
-void c3_TextMessage( MBCHAR const *text, sint32 type = 0, c3_UtilityTextMessageCallback *callback = NULL, MBCHAR const * ldlBlock = NULL );
+void c3_TextMessage( MBCHAR const *text, sint32 type = 0, c3_UtilityTextMessageCallback *callback = nullptr, MBCHAR const * ldlBlock = nullptr );
 void c3_KillTextMessage( );
 
 
@@ -262,7 +262,7 @@ void c3_KillTextMessage( );
 class c3_UtilityAbortPopup : public KeyboardHandler
 {
 public:
-	c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallback *callback = NULL, MBCHAR const *ldlBlock = NULL );
+	c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallback *callback = nullptr, MBCHAR const *ldlBlock = nullptr );
 	virtual ~c3_UtilityAbortPopup( );
 
 	c3_PopupWindow	*m_window;
@@ -283,14 +283,14 @@ public:
 	sint32 UpdateMeter( sint32 percentFilled );
 
 	void RemoveWindow( );
-	void DisplayWindow( MBCHAR const *text = NULL, sint32 percentFilled  = 0);
+	void DisplayWindow( MBCHAR const *text = nullptr, sint32 percentFilled  = 0);
 
 	void kh_Close();
 };
 
 AUI_ACTION_BASIC(c3_UtilityAbortCleanupAction);
 
-void c3_AbortMessage( MBCHAR *text = NULL, sint32 type = 0, c3_UtilityTextMessageCallback *callback = NULL, MBCHAR *ldlBlock = NULL );
+void c3_AbortMessage( MBCHAR *text = nullptr, sint32 type = 0, c3_UtilityTextMessageCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
 void c3_AbortUpdateData( MBCHAR *text, sint32 percentFilled );
 void c3_RemoveAbortMessage( );
 
@@ -302,7 +302,7 @@ void c3_RemoveAbortMessage( );
 class c3_UtilityPlayerListPopup : public KeyboardHandler
 {
 public:
-	c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallback *callback = NULL, MBCHAR *ldlBlock = NULL );
+	c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
 	virtual ~c3_UtilityPlayerListPopup( );
 
 	c3_PopupWindow	*m_window;

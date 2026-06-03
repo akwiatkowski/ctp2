@@ -16,8 +16,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL);
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr);
 	TextTab(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -27,10 +27,10 @@ public:
 		sint32 height,
 		sint32 paneWidth,
 		sint32 paneHeight,
-		MBCHAR *pattern = NULL,
-		MBCHAR *text = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		MBCHAR *pattern = nullptr,
+		MBCHAR *text = nullptr,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		BOOL selected = FALSE );
 	virtual ~TextTab() {}
 
@@ -39,7 +39,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 };

@@ -110,7 +110,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_PROCESSING_TOWER");
 
 	Assert(sm_towerEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_towerEndgameIndex) != NULL);
+	Assert(g_theEndGameObjectDB->Get(sm_towerEndgameIndex) != nullptr);
 	if (sm_towerEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_towerEndgameIndex))
 	{
 		terr_rec = g_theEndGameObjectDB->Get(sm_towerEndgameIndex)->
@@ -122,7 +122,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_POWER_SATELLITE");
 
 	Assert(sm_satelliteEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex) != NULL);
+	Assert(g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex) != nullptr);
 	if (sm_satelliteEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex))
 	{
 		building_rec = g_theEndGameObjectDB->Get(sm_satelliteEndgameIndex)->
@@ -134,7 +134,7 @@ void GaiaController::InitializeStatics()
 		g_theEndGameObjectDB->FindRecordNameIndex("ENDGAME_GAIA_COMPUTER");
 
 	Assert(sm_mainframeEndgameIndex >= 0);
-	Assert(g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex) != NULL);
+	Assert(g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex) != nullptr);
 	if (sm_mainframeEndgameIndex >= 0 && g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex))
 	{
 		building_rec = g_theEndGameObjectDB->Get(sm_mainframeEndgameIndex)->
@@ -199,7 +199,7 @@ void GaiaController::RecomputeCoverage()
 {
 	Player *player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return;
 
 	MapPoint pos;
@@ -267,7 +267,7 @@ STDEHANDLER(GaiaController_CaptureCity)
 
 	CityData *city_data = city->GetCityData();
 	Assert(city_data);
-	if (city_data == NULL)
+	if (city_data == nullptr)
 		return GEV_HD_Continue;
 
 	uint64 city_buildings = city_data->GetImprovements();
@@ -343,8 +343,8 @@ STDEHANDLER(GaiaController_CutImprovements)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(owner);
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 num = cell->GetNumDBImprovements();
@@ -388,8 +388,8 @@ STDEHANDLER(GaiaController_ImprovementComplete)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(owner);
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -414,8 +414,8 @@ STDEHANDLER(GaiaController_SellBuilding)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(city.GetOwner());
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -441,8 +441,8 @@ STDEHANDLER(GaiaController_CreateBuilding)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(city.GetOwner());
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -464,14 +464,14 @@ STDEHANDLER(GaiaController_DisbandCity)
 
 	CityData *city_data = city->GetCityData();
 	Assert(city_data);
-	if (city_data == NULL)
+	if (city_data == nullptr)
 		return GEV_HD_Continue;
 
 	owner = city.GetOwner();
 
 	Player *owner_player = player_Get(owner);
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	uint64 city_buildings = city_data->GetImprovements();
@@ -518,8 +518,8 @@ STDEHANDLER(GaiaController_CreateWonder)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(city.GetOwner());
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -543,8 +543,8 @@ STDEHANDLER(GaiaController_BuildingRemoved)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(city.GetOwner());
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -569,8 +569,8 @@ STDEHANDLER(GaiaController_WonderRemoved)
 		return GEV_HD_Continue;
 
 	Player *owner_player = player_Get(city.GetOwner());
-	if (owner_player == NULL ||
-		owner_player->GetGaiaController() == NULL)
+	if (owner_player == nullptr ||
+		owner_player->GetGaiaController() == nullptr)
 		return GEV_HD_Continue;
 
 	if (type >= 0 && type < 64 &&
@@ -1030,7 +1030,7 @@ void GaiaController::ComputeTowerPositions()
 
 	Player *player_ptr = player_Get(m_playerId);
 	Assert(player_ptr);
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return;
 
 	if (!CanBuildTowers(true))

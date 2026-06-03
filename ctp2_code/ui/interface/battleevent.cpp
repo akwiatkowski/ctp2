@@ -287,7 +287,7 @@ void BattleEvent::ProcessExplode()
 					ActionPtr	action;
 
 					Anim *  anim = actor->CreateAnim(EFFECTACTION_PLAY);
-					if (anim == NULL) {
+					if (anim == nullptr) {
 						anim = actor->CreateAnim(EFFECTACTION_FLASH);
 						if (anim) {
 							action.reset(new Action(EFFECTACTION_FLASH, ACTIONEND_ANIMEND));
@@ -471,11 +471,11 @@ void BattleEvent::DrawExplosions(aui_Surface *surface)
 
 BattleViewActor *BattleEvent::GetActor()
 {
-	if (m_dataList->GetCount() <= 0) return NULL;
+	if (m_dataList->GetCount() <= 0) return nullptr;
 
-	PointerList<BattleEventData>::PointerListNode	*node = NULL;
-	BattleEventData									*eventData = NULL;
-	BattleViewActor									*actor = NULL;
+	PointerList<BattleEventData>::PointerListNode	*node = nullptr;
+	BattleEventData									*eventData = nullptr;
+	BattleViewActor									*actor = nullptr;
 
 	node = m_dataList->GetHeadNode();
 	Assert(node);
@@ -510,7 +510,7 @@ void BattleEvent::RemoveDeadActor(BattleViewActor *deadActor)
 
 		if(deadActor == data->actor) {
 
-			data->actor = NULL;
+			data->actor = nullptr;
 		}
 	}
 }

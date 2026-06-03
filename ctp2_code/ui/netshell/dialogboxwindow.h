@@ -23,7 +23,7 @@ public:
 
 	static void PopDown(
 		DialogBoxWindow *dbw,
-		aui_Button *button = NULL );
+		aui_Button *button = nullptr );
 
 
 	enum CONTROL
@@ -55,7 +55,7 @@ protected:
 	DialogBoxWindow()
 	:	ns_Window		(),
 	   	m_numButtons	(0),
-		m_buttons		(NULL)
+		m_buttons		(nullptr)
 	{ ; };
 
 	AUI_ERRCODE	InitCommon( );

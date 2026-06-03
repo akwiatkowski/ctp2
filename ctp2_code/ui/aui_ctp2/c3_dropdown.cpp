@@ -62,7 +62,7 @@ c3_DropDown::c3_DropDown(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_DropDown(),
 	PatternBase(pattern)
 {
@@ -74,7 +74,7 @@ c3_DropDown::c3_DropDown(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -82,7 +82,7 @@ c3_DropDown::c3_DropDown(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateComponents(NULL);
+	*retval = CreateComponents(nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -95,9 +95,9 @@ c3_DropDown::c3_DropDown(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_DropDown(),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	*retval = aui_Region::InitCommonLdl(id, ldlBlock);
 	Assert( AUI_SUCCESS(*retval) );
@@ -127,7 +127,7 @@ AUI_ERRCODE c3_DropDown::CreateComponents( MBCHAR *ldlBlock )
 
 	static MBCHAR block[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-    MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : NULL;
+    MBCHAR * pattern = (m_pattern) ? m_pattern->GetFilename() : nullptr;
 
 	if ( ldlBlock )
 	{

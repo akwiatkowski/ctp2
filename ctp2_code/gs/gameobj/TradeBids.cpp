@@ -105,7 +105,7 @@ void TradeBids::Reject(uint32 id)
 {
 	sint32 player = (id & 0xff000000) >> 24;
 	PointerList<Bid>::Walker walk(m_table[player]);
-	Bid *bid = NULL;
+	Bid *bid = nullptr;
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == id) {
 			bid = walk.Remove();
@@ -127,7 +127,7 @@ void TradeBids::Accept(uint32 id)
 {
 	sint32 player = (id & 0xff000000) >> 24;
 	PointerList<Bid>::Walker walk(m_table[player]);
-	Bid *bid = NULL;
+	Bid *bid = nullptr;
 	for(; walk.IsValid(); walk.Next()) {
 		if(walk.GetObj()->m_id == id) {
 			bid = walk.Remove();

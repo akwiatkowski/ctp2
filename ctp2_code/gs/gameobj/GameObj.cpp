@@ -38,8 +38,8 @@
 GameObj::GameObj(uint32 i)
 :
     m_id            (i),
-    m_lesser        (NULL),
-    m_greater       (NULL),
+    m_lesser        (nullptr),
+    m_greater       (nullptr),
     m_isFromPool    (FALSE),
     m_killMeSoon    (false)
 {
@@ -146,7 +146,7 @@ void GameObj_Insert
    GameObj *    ins
 )
 {
-    if (*p == NULL)
+    if (*p == nullptr)
     {
         *p = ins;
     }
@@ -178,7 +178,7 @@ void GameObj_Insert
 
 void GameObj_Delete(GameObj **p, uint32 id)
 {
-   if (*p == NULL) {
+   if (*p == nullptr) {
 	   DPRINTF(k_DBG_GAMESTATE, ("No such object %lx\n", id));
       c3errors_ErrorDialog ("GameObj.cpp", "No such id %d", id);
    } else {
@@ -189,16 +189,16 @@ void GameObj_Delete(GameObj **p, uint32 id)
       } else {
 
          GameObj *tmp = *p;
-         if ((*p)->m_greater == NULL) {
+         if ((*p)->m_greater == nullptr) {
             *p = (*p)->m_lesser;
-         } else if ((*p)->m_lesser == NULL) {
+         } else if ((*p)->m_lesser == nullptr) {
             *p = (*p)->m_greater;
          } else {
             *p = (*p)->m_lesser;
             GameObj_Insert(p, tmp->m_greater);
          }
-		 tmp->m_greater = NULL;
-		 tmp->m_lesser = NULL;
+		 tmp->m_greater = nullptr;
+		 tmp->m_lesser = nullptr;
          delete tmp;
       }
    }

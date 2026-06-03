@@ -157,14 +157,14 @@ public:
     (
         MBCHAR const *                          ldlBlock,
 	    aui_Control::ControlActionCallback *    actionFunc,
-		void *                                  cookie          = NULL
+		void *                                  cookie          = nullptr
     );
 	static AUI_ERRCODE  SetActionFuncAndCookie
     (
         MBCHAR const *                          parentBlock,
         MBCHAR const *                          regionBlock,
 		aui_Control::ControlActionCallback *    actionFunc,
-		void *                                  cookie          = NULL
+		void *                                  cookie          = nullptr
     );
 
 	static AUI_ERRCODE	DetachHierarchy(aui_Region *root);

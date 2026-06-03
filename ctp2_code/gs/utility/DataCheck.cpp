@@ -124,7 +124,7 @@ extern  OzoneDatabase           *g_theUVDB ;
 #include "gs/gameobj/TradeOfferPool.h"   // tradeofferpool_Get()
 // Others
 
-static DataCheck                *g_dataCheck = NULL;
+static DataCheck                *g_dataCheck = nullptr;
 
 DataCheck * datacheck_Get()
 {
@@ -164,7 +164,7 @@ void DataCheck_Requiem()
 	if (g_dataCheck)
 	{
 		delete g_dataCheck;
-		g_dataCheck = NULL;
+		g_dataCheck = nullptr;
 	}
 
 }

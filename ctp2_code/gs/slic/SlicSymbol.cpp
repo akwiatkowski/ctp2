@@ -110,7 +110,7 @@ SlicSymbolData::SlicSymbolData(SlicSymbolData const & copy)
 void SlicSymbolData::Init()
 {
 	memset(&m_val, 0, sizeof(m_val));
-	m_debugInfo = NULL;
+	m_debugInfo = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -380,7 +380,7 @@ SlicFunc *SlicSymbolData::GetFunction() const
 	if(GetType() == SLIC_SYM_FUNC) {
 		return m_val.m_function_object;
 	}
-	return NULL;
+	return nullptr;
 }
 
 StringId SlicSymbolData::GetStringId() const
@@ -728,7 +728,7 @@ SlicSegment *SlicSymbolData::GetSegment()
 	if(GetType() == SLIC_SYM_ID) {
 		return m_val.m_segment;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -775,7 +775,7 @@ SlicStructInstance *SlicSymbolData::GetStruct()
 
 	Assert(GetType() == SLIC_SYM_STRUCT);
 	if(GetType() != SLIC_SYM_STRUCT)
-		return NULL;
+		return nullptr;
 
 	return m_val.m_struct;
 }
@@ -826,7 +826,7 @@ SlicArray * SlicSymbolData::GetArray() const
 	if(GetType() == SLIC_SYM_ARRAY) {
 		return m_val.m_array;
 	}
-	return NULL;
+	return nullptr;
 }
 
 #if 0
@@ -885,7 +885,7 @@ SlicSymbolDebugInfo::~SlicSymbolDebugInfo()
 			walk.Next();
 		}
 		delete m_watchList;
-		m_watchList = NULL;
+		m_watchList = nullptr;
 	}
 }
 
@@ -935,7 +935,7 @@ void SlicSymbolData::SetString(MBCHAR const * str)
         }
         else
         {
-            m_val.m_hard_string = NULL;
+            m_val.m_hard_string = nullptr;
         }
 	} else if(GetType() == SLIC_SYM_STRUCT) {
 		m_val.m_struct->GetDataSymbol()->SetString(str);
@@ -1072,7 +1072,7 @@ void SlicSymbolData::Serialize(CivArchive &archive)
 			case SLIC_SYM_STRING:
 				archive >> len;
 				if(len == 0)
-					m_val.m_hard_string = NULL;
+					m_val.m_hard_string = nullptr;
 				else {
 					m_val.m_hard_string = new MBCHAR[len + 1];
 					archive.Load((uint8*)m_val.m_hard_string, len);
@@ -1098,7 +1098,7 @@ void SlicSymbolData::Serialize(CivArchive &archive)
 					buf[len] = 0;
 					m_val.m_segment = slicengine_Get()->GetSegment(buf);
 				} else {
-					m_val.m_segment = NULL;
+					m_val.m_segment = nullptr;
 				}
 				break;
 			case SLIC_SYM_POP:
@@ -1136,7 +1136,7 @@ SlicSymbolData *slicsymbol_Load(CivArchive &archive, SlicSymbolData *useSymbol)
 {
 	Assert(!archive.IsStoring());
 	SLIC_SYM_SERIAL_TYPE loadType = (SLIC_SYM_SERIAL_TYPE)archive.GetUINT8();
-	SlicSymbolData *sym = NULL;
+	SlicSymbolData *sym = nullptr;
 	switch(loadType) {
 		case SLIC_SYM_SERIAL_GENERIC:
 			sym = new SlicSymbolData;

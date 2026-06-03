@@ -18,7 +18,7 @@ BevelLessWindow::BevelLessWindow(
 	AUI_WINDOW_TYPE type )
 	:
 	aui_Window( retval, id, ldlBlock, bpp, type ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 	*retval = InitCommon();
 	Assert( AUI_SUCCESS(*retval) );

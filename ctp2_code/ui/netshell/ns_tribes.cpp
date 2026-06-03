@@ -40,7 +40,7 @@
 
 #include "ui/netshell/ns_tribes.h"
 
-static ns_Tribes *g_nsTribes = NULL;
+static ns_Tribes *g_nsTribes = nullptr;
 
 ns_Tribes * nstribes_Get() { return g_nsTribes; }
 
@@ -49,7 +49,7 @@ ns_Tribes * nstribes_Get() { return g_nsTribes; }
 
 ns_Tribes::ns_Tribes()
 {
-	Assert( g_nsTribes == NULL );
+	Assert( g_nsTribes == nullptr );
 	if ( !g_nsTribes )
 	{
 		sint32 numCivs = g_theCivilisationDB->NumRecords();
@@ -85,10 +85,10 @@ ns_Tribes::~ns_Tribes()
 	if ( m_stringtable )
 	{
 		delete m_stringtable;
-		m_stringtable = NULL;
+		m_stringtable = nullptr;
 	}
 
-	g_nsTribes = NULL;
+	g_nsTribes = nullptr;
 }
 
 
@@ -99,7 +99,7 @@ ns_TribesDropDown::ns_TribesDropDown(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_DropDown( retval, aui_UniqueId(), ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );

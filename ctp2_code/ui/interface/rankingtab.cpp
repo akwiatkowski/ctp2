@@ -63,7 +63,7 @@ extern PointerList<Player>      *g_deadPlayer;
 static sint32			s_minRound = 0;
 
 
-RankingTab * RankingTab::s_current_ranking_tab = NULL;
+RankingTab * RankingTab::s_current_ranking_tab = nullptr;
 
 
 RankingTab::RankingTab(ctp2_Window *parent)
@@ -71,7 +71,7 @@ RankingTab::RankingTab(ctp2_Window *parent)
     m_line_graph         (true), // Has to be set again
     m_infoGraph          (static_cast<LineGraph *>(aui_Ldl::GetObject(
                           "InfoDialog", "TabGroup.Tab3.TabPanel.InfoGraph"))),
-    m_infoGraphData      (NULL),
+    m_infoGraphData      (nullptr),
     m_infoYCount         (0),
     m_info_window        (parent),
     m_rankingDropDown    (static_cast<ctp2_DropDown*>(aui_Ldl::GetObject(
@@ -215,7 +215,7 @@ void RankingTab::CleanupGraph()
 			delete m_infoGraphData[i];
 		}
 		delete [] m_infoGraphData;
-		m_infoGraphData = NULL;
+		m_infoGraphData = nullptr;
 		m_infoYCount    = 0;
 	}
 }
@@ -348,7 +348,7 @@ RankingTab::~RankingTab()
 {
 	if (this == s_current_ranking_tab)
 	{
-		s_current_ranking_tab = NULL;
+		s_current_ranking_tab = nullptr;
 	}
 
 	CleanupGraph();

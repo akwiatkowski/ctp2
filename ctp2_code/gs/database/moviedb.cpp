@@ -11,7 +11,7 @@ extern sint32 g_abort_parse;
 MovieDB::MovieDB ()
 
 {
-	m_map = 0;
+	m_map = nullptr;
 }
 
 
@@ -25,7 +25,7 @@ MovieDB::MovieDB ()
 
 MovieDB::MovieDB(CivArchive &archive)
 	{
-	m_map = NULL ;
+	m_map = nullptr ;
 	Serialize(archive) ;
 	}
 

@@ -232,11 +232,11 @@ RECT textutils_CenterText(
 	RECT center = {0,0,0,0};
 
 	Assert(pDirectSurface);
-	if (pDirectSurface==NULL) return center;
+	if (pDirectSurface==nullptr) return center;
 	Assert(pString);
-	if (pString==NULL) return center;
+	if (pString==nullptr) return center;
 	Assert(pDestRect);
-	if (pDestRect==NULL) return center;
+	if (pDestRect==nullptr) return center;
 
 	RECT bounds = textutils_GetBounds(pDirectSurface,pString);
 
@@ -415,7 +415,7 @@ HFONT textutils_CreateFont(
 	}
 	return hFont;
 #else // __AUI_USE_DIRECTX__
-	return 0;
+	return nullptr;
 #endif // __AUI_USE_DIRECTX__
 }
 
@@ -430,7 +430,7 @@ void textutils_SelectFont(
 		)
 {
 	Assert(hFont);
-	if (hFont==NULL) return;
+	if (hFont==nullptr) return;
 
 	if (g_hFont)
 		textutils_DeleteFont(g_hFont);
@@ -449,7 +449,7 @@ void textutils_DeleteFont(
 		)
 {
 	Assert(hFont);
-	if (hFont==NULL) return;
+	if (hFont==nullptr) return;
 #ifdef __AUI_USE_DIRECTX__
 	DeleteObject(hFont);
 #else

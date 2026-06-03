@@ -37,14 +37,14 @@
 #include "WonderRecord.h"       // g_theWonderDB
 
 
-static ns_Wonders *g_nsWonders = NULL;
+static ns_Wonders *g_nsWonders = nullptr;
 
 ns_Wonders * nswonders_Get()            { return g_nsWonders; }
 void         nswonders_Set(ns_Wonders *p)   { g_nsWonders = p; }
 
 ns_Wonders::ns_Wonders()
 :
-    m_stringtable   (NULL)
+    m_stringtable   (nullptr)
 {
 	Assert(g_theWonderDB->NumRecords() <= k_WONDERS_MAX);
     sint32      numWonders  =

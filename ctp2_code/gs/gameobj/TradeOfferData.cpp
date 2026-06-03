@@ -47,12 +47,12 @@ void TradeOfferData::Serialize(CivArchive &archive)
 		GameObj::Serialize(archive);
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_toCity)+sizeof(m_toCity));
 
-		haveChild = (m_lesser != NULL);
+		haveChild = (m_lesser != nullptr);
 		archive << haveChild;
 		if (m_lesser)
 			((TradeOfferData *)(m_lesser))->Serialize(archive) ;
 
-		haveChild = (m_greater != NULL);
+		haveChild = (m_greater != nullptr);
 		archive << haveChild;
 		if (m_greater)
 			((TradeOfferData *)(m_greater))->Serialize(archive) ;
@@ -64,14 +64,14 @@ void TradeOfferData::Serialize(CivArchive &archive)
 		if(haveChild) {
 			m_lesser = new TradeOfferData(archive);
 		} else {
-			m_lesser = NULL;
+			m_lesser = nullptr;
 		}
 
 		archive >> haveChild;
 		if(haveChild) {
 			m_greater = new TradeOfferData(archive);
 		} else {
-			m_greater = NULL;
+			m_greater = nullptr;
 		}
 	}
 }

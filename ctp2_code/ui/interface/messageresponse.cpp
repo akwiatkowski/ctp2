@@ -34,7 +34,7 @@ extern uint8 g_messageRespDropPadding;
 MessageResponseListItem::MessageResponseListItem(AUI_ERRCODE *retval, MBCHAR const * name, sint32 index, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -107,19 +107,19 @@ MessageResponseStandard::MessageResponseStandard(
 
 AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow *window )
 {
-	m_messageResponseAction = NULL;
+	m_messageResponseAction = nullptr;
 
 	m_messageResponseButton = new tech_WLList<ctp2_Button *>;
-	Assert( m_messageResponseButton != NULL );
-	if ( m_messageResponseButton == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_messageResponseButton != nullptr );
+	if ( m_messageResponseButton == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_messageResponseAction = new tech_WLList<MessageResponseAction *>;
-	Assert( m_messageResponseAction != NULL );
-	if ( m_messageResponseAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_messageResponseAction != nullptr );
+	if ( m_messageResponseAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode         = AUI_ERRCODE_OK;
-	ctp2_Button	*   lastbutton      = NULL;
+	ctp2_Button	*   lastbutton      = nullptr;
     sint32			responseCount   = 0;
 
 	while (SlicButton * sButton =
@@ -160,8 +160,8 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 
 		MessageResponseAction * action =
             new MessageResponseAction(window, responseCount);
-		Assert( action != NULL );
-		if ( action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+		Assert( action != nullptr );
+		if ( action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		m_messageResponseAction->AddTail( action );
 
@@ -176,8 +176,8 @@ AUI_ERRCODE MessageResponseStandard::InitCommon( MBCHAR *ldlBlock, MessageWindow
 		responseCount++;
 	}
 
-	m_dontShowButton=NULL;
-	m_identifier=NULL;
+	m_dontShowButton=nullptr;
+	m_identifier=nullptr;
 	if(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment())
 	{
 		if(critical_messages_prefs_Get()->IsEnabled(((MessageData*)window->GetMessage()->GetData())->GetSlicSegment()->GetName())>0)
@@ -200,7 +200,7 @@ MessageResponseStandard::~MessageResponseStandard()
 {
 
 	if ( m_messageResponseAction ) {
-		MessageResponseAction *action = NULL;
+		MessageResponseAction *action = nullptr;
 		ListPos position = m_messageResponseAction->GetHeadPosition();
 
 		for ( sint32 i = m_messageResponseAction->L(); i; i-- ) {
@@ -208,17 +208,17 @@ MessageResponseStandard::~MessageResponseStandard()
 
 			if ( action ) {
 				delete action;
-				action = NULL;
+				action = nullptr;
 			}
 		}
 
 		m_messageResponseAction->DeleteAll();
 		delete m_messageResponseAction;
-		m_messageResponseAction = NULL;
+		m_messageResponseAction = nullptr;
 	}
 
 	if ( m_messageResponseButton ) {
-		ctp2_Button *button = NULL;
+		ctp2_Button *button = nullptr;
 		ListPos position = m_messageResponseButton->GetHeadPosition();
 
 		for ( sint32 i = m_messageResponseButton->L(); i; i-- ) {
@@ -226,18 +226,18 @@ MessageResponseStandard::~MessageResponseStandard()
 
 			if ( button ) {
 				delete button;
-				button = NULL;
+				button = nullptr;
 			}
 		}
 
 		m_messageResponseButton->DeleteAll();
 		delete m_messageResponseButton;
-		m_messageResponseButton = NULL;
+		m_messageResponseButton = nullptr;
 	}
 	if(m_identifier)
 	{
 		delete m_identifier;
-		m_identifier=NULL;
+		m_identifier=nullptr;
 	}
 
 	if(m_dontShowButton) delete m_dontShowButton;
@@ -278,8 +278,8 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
-	m_action        = NULL;
-	m_dropdown      = NULL;
+	m_action        = nullptr;
+	m_dropdown      = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "StandardResponseButton");
 	m_submitButton = new ctp2_Button( &errcode, aui_UniqueId(), buttonBlock );
@@ -287,8 +287,8 @@ AUI_ERRCODE MessageResponseDropdown::InitCommon( MBCHAR *ldlBlock, MessageWindow
 	if ( !AUI_NEWOK( m_submitButton, errcode )) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_action = new MessageResponseSubmitAction( window );
-	Assert( m_action != NULL );
-	if ( m_action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_action != nullptr );
+	if ( m_action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_submitButton->TextReloadFont();
 

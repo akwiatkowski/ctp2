@@ -323,7 +323,7 @@ void UnitData::Create(const sint32 t,
 							  i.m_id, t, o));
 
 	m_flags = 0;
-	m_actor = 0;
+	m_actor = nullptr;
 	m_type = t;
 
 #ifdef _DEBUG
@@ -347,7 +347,7 @@ void UnitData::Create(const sint32 t,
 	){
 		m_cargo_list = new UnitDynamicArray(rec->GetCargoDataPtr()->GetMaxCargo());
 	} else {
-		m_cargo_list = NULL;
+		m_cargo_list = nullptr;
 	}
 
 	if(rec->GetHasPopAndCanBuild())
@@ -355,7 +355,7 @@ void UnitData::Create(const sint32 t,
 		m_city_data = new CityData(m_owner, i, m_pos);
 	}
 	else
-		m_city_data = NULL;
+		m_city_data = nullptr;
 
 	m_sprite_state.reset(new SpriteState(rec->GetDefaultSprite()->GetValue()));
 
@@ -379,12 +379,12 @@ UnitData::UnitData(CivArchive &archive) : GameObj(0)
 	m_text[0] = 0;
 #endif
 
-	m_cargo_list = NULL;
-	m_city_data = NULL;
-	m_actor = NULL;
-	m_sprite_state = NULL;
-	m_lesser = NULL;
-	m_greater = NULL;
+	m_cargo_list = nullptr;
+	m_city_data = nullptr;
+	m_actor = nullptr;
+	m_sprite_state = nullptr;
+	m_lesser = nullptr;
+	m_greater = nullptr;
 
 	Serialize(archive);
 
@@ -402,13 +402,13 @@ UnitData::UnitData(nlohmann::json const &j) : GameObj(0)
 	m_text[0] = 0;
 #endif
 
-	m_cargo_list           = NULL;
-	m_city_data            = NULL;
-	m_actor                = NULL;
-	m_sprite_state         = NULL;
-	m_lesser               = NULL;
-	m_greater              = NULL;
-	m_roundTheWorldMask    = NULL;
+	m_cargo_list           = nullptr;
+	m_city_data            = nullptr;
+	m_actor                = nullptr;
+	m_sprite_state         = nullptr;
+	m_lesser               = nullptr;
+	m_greater              = nullptr;
+	m_roundTheWorldMask    = nullptr;
 
 	from_json(j, *this);
 
@@ -1038,7 +1038,7 @@ bool UnitData::CanThisCargoUnloadAt
 		return false;
 
 	Cell *          the_dest        = world_Get()->GetCell(new_pos);
-	CellUnitList *  the_dest_army   = the_dest ? the_dest->UnitArmy() : NULL;
+	CellUnitList *  the_dest_army   = the_dest ? the_dest->UnitArmy() : nullptr;
 	sint32          destUnitCount   = the_dest_army ? the_dest_army->Num() : 0;
 
 	if (    (destUnitCount >= k_MAX_ARMY_SIZE)
@@ -2358,12 +2358,12 @@ void UnitData::Serialize(CivArchive &archive)
 		archive << (uint8)(m_isExploring ? 1 : 0);
 		m_exploreTarget.Serialize(archive);
 
-		archive << (uint32)(m_lesser != NULL);
+		archive << (uint32)(m_lesser != nullptr);
 
 		if (m_lesser)
 			((UnitData *)(m_lesser))->Serialize(archive);
 
-		archive << (uint32)(m_greater != NULL);
+		archive << (uint32)(m_greater != nullptr);
 
 		if (m_greater)
 			((UnitData *)(m_greater))->Serialize(archive);
@@ -2402,11 +2402,11 @@ void UnitData::Serialize(CivArchive &archive)
 			m_cargo_list->Serialize(archive);
 		}
 		else
-			m_cargo_list=NULL;
+			m_cargo_list=nullptr;
 
 		archive >> tmp ;
 		delete m_city_data;
-    m_city_data = (tmp) ? new CityData(archive) : NULL;
+    m_city_data = (tmp) ? new CityData(archive) : nullptr;
 
 		m_actor.reset(new UnitActor(archive));
 
@@ -2428,11 +2428,11 @@ void UnitData::Serialize(CivArchive &archive)
 
 		archive >> hasOld;
 		delete m_lesser;
-		m_lesser = (hasOld) ? new UnitData(archive) : NULL;
+		m_lesser = (hasOld) ? new UnitData(archive) : nullptr;
 
 		archive >> hasOld;
 		delete m_greater;
-		m_greater = (hasOld) ? new UnitData(archive) : NULL;
+		m_greater = (hasOld) ? new UnitData(archive) : nullptr;
 	}
 }
 
@@ -4685,7 +4685,7 @@ void UnitData::HearGossip(Unit c)
 	sint32 cost;
 	sint32 maxCost = 0;
 	UnitDynamicArray maxCostUnits;
-	SlicObject *so = NULL;
+	SlicObject *so = nullptr;
 
 	switch(civrand().Next(3)) {
 		case 0: {
@@ -5283,7 +5283,7 @@ double UnitData::GetDistanceToCapitol() const
 
 bool UnitData::GetCurrentOrderString(StringId &id) const
 {
-	char const * name = NULL;
+	char const * name = nullptr;
 
 	if(Flag(k_UDF_IS_ENTRENCHED) || Flag(k_UDF_IS_ENTRENCHING)) {
 		name = "UNIT_ORDER_ENTRENCH";

@@ -67,8 +67,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_DropDown(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -78,15 +78,15 @@ public:
 		sint32 height,
 		sint32 buttonSize = 0,
 		sint32 windowSize = 0,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~aui_DropDown();
 
 protected:
 	aui_DropDown() : aui_Control() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( sint32 buttonSize, sint32 windowSize );
-	AUI_ERRCODE CreateComponents( MBCHAR *ldlBlok = NULL );
+	AUI_ERRCODE CreateComponents( MBCHAR *ldlBlok = nullptr );
 
 public:
 
@@ -124,7 +124,7 @@ public:
 	AUI_ERRCODE	ToggleListBoxWindow( );
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

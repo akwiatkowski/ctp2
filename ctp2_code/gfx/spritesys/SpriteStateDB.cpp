@@ -16,7 +16,7 @@ extern sint32 g_abort_parse;
 SpriteStateDB::SpriteStateDB ()
 
 {
-	m_map = 0;
+	m_map = nullptr;
 }
 
 
@@ -31,7 +31,7 @@ SpriteStateDB::SpriteStateDB ()
 
 SpriteStateDB::SpriteStateDB(CivArchive &archive)
 	{
-	m_map = NULL ;
+	m_map = nullptr ;
 	Serialize(archive) ;
 	}
 

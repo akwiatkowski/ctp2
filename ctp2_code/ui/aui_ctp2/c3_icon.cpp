@@ -23,7 +23,7 @@ c3_Icon::c3_Icon(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_Static( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );

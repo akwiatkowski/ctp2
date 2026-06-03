@@ -112,20 +112,20 @@ DiplomacyWindow::DiplomacyWindow(AUI_ERRCODE *err)
 
 
 
-	m_goldRequestWindow = NULL;
-	m_pollutionRequestWindow = NULL;
-	m_percentRequestWindow = NULL;
+	m_goldRequestWindow = nullptr;
+	m_pollutionRequestWindow = nullptr;
+	m_percentRequestWindow = nullptr;
 
 	m_create_mode = DW_CREATE_MODE_NONE;
 	m_sendToCiv = -1;
 	m_sendTone = DIPLOMATIC_TONE(sint32(DIPLOMATIC_TONE_MAX) / 2);
-	m_curMenu = NULL;
-	m_threatMenu = NULL;
+	m_curMenu = nullptr;
+	m_threatMenu = nullptr;
 	m_getRequest = true;
 	m_sendCounter = false;
 	m_selectingProgramatically = false;
 
-	aui_Ldl::SetActionFuncAndCookie(s_dipWindowBlock, "CloseButton", DiplomacyWindow::Close, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_dipWindowBlock, "CloseButton", DiplomacyWindow::Close, nullptr);
 
 
 
@@ -168,19 +168,19 @@ DiplomacyWindow::DiplomacyWindow(AUI_ERRCODE *err)
 
 
 	sm_messageButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Intelligence.TabPanel.MessageButton");
-	sm_messageButton->SetActionFuncAndCookie(SendMessage, NULL);
+	sm_messageButton->SetActionFuncAndCookie(SendMessage, nullptr);
 	sm_messageButton->Enable(FALSE);
 
 	sm_warButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Intelligence.TabPanel.WarButton");
-	sm_warButton->SetActionFuncAndCookie(DeclareWar, NULL);
+	sm_warButton->SetActionFuncAndCookie(DeclareWar, nullptr);
 	sm_warButton->Enable(FALSE);
 
 	sm_embargoButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Intelligence.TabPanel.EmbargoButton");
-	sm_embargoButton->SetActionFuncAndCookie(DeclareEmbargo, NULL);
+	sm_embargoButton->SetActionFuncAndCookie(DeclareEmbargo, nullptr);
 	sm_embargoButton->Enable(FALSE);
 
 	sm_detailsButton = (ctp2_Button *)aui_Ldl::GetObject(s_dipWindowBlock, "DiplomacyTabs.Intelligence.TabPanel.DetailsButton");
-	sm_detailsButton->SetActionFuncAndCookie(Details, NULL);
+	sm_detailsButton->SetActionFuncAndCookie(Details, nullptr);
 	sm_detailsButton->Enable(FALSE);
 
 
@@ -202,32 +202,32 @@ DiplomacyWindow::~DiplomacyWindow()
 {
 	if(m_window) {
 		aui_Ldl::DeleteHierarchyFromRoot("DiplomacyWindow");
-		m_window = NULL;
+		m_window = nullptr;
 	}
 
 	if(m_goldRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipGoldRequest");
-		m_goldRequestWindow = NULL;
+		m_goldRequestWindow = nullptr;
 	}
 
 	if(m_pollutionRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipPollutionRequest");
-		m_pollutionRequestWindow = NULL;
+		m_pollutionRequestWindow = nullptr;
 	}
 
 	if(m_percentRequestWindow) {
 		aui_Ldl::DeleteHierarchyFromRoot("DipPercentRequest");
-		m_percentRequestWindow = NULL;
+		m_percentRequestWindow = nullptr;
 	}
 
 	if(m_curMenu) {
 		delete m_curMenu;
-		m_curMenu = NULL;
+		m_curMenu = nullptr;
 	}
 
 	if(m_threatMenu) {
 		delete m_threatMenu;
-		m_threatMenu = NULL;
+		m_threatMenu = nullptr;
 	}
 }
 
@@ -251,7 +251,7 @@ AUI_ERRCODE DiplomacyWindow::Cleanup()
 		Hide();
 
 		delete s_dipWindow;
-		s_dipWindow = NULL;
+		s_dipWindow = nullptr;
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -552,7 +552,7 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 	if(propList) {
 		ctp2_ListItem *oldItem = (ctp2_ListItem *)propList->GetSelectedItem();
 		sint32 oldSelectedPlayer = -1;
-		const Response *response = NULL;
+		const Response *response = nullptr;
 		if(oldItem) {
 			if(toPlayer) {
 				oldSelectedPlayer = (intptr_t)oldItem->GetUserData();
@@ -607,9 +607,9 @@ void DiplomacyWindow::UpdateProposalList(ctp2_ListBox *propList, bool toPlayer)
 					if(!response) {
 						response = &Diplomat::GetDiplomat(i).GetResponsePending(selitem_Get()->GetVisiblePlayer());
 						if(*response == Diplomat::s_badResponse) {
-							response = NULL;
+							response = nullptr;
 						} else if(response->type != RESPONSE_THREATEN) {
-							response = NULL;
+							response = nullptr;
 						}
 					}
 				} else {
@@ -2248,7 +2248,7 @@ void DiplomacyWindow::AddCityItems(ctp2_Menu *menu, sint32 player)
 	sint32 i;
 	for(i = 0; i < player_Get(player)->m_all_cities->Num(); i++) {
 		Unit city = player_Get(player)->m_all_cities->Access(i);
-		menu->AddItem(city.GetName(), NULL, (void *)city.m_id);
+		menu->AddItem(city.GetName(), nullptr, (void *)city.m_id);
 	}
 }
 
@@ -2284,7 +2284,7 @@ void DiplomacyWindow::AddAdvanceItems(ctp2_Menu *menu, sint32 sender, sint32 rec
 			continue;
 		}
 
-		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), NULL, (void *)a);
+		menu->AddItem(g_theAdvanceDB->Get(a)->GetNameText(), nullptr, (void *)a);
 	}
 }
 
@@ -2300,7 +2300,7 @@ void DiplomacyWindow::AddThirdPartyItems(ctp2_Menu *menu, sint32 sender, sint32 
 
 		MBCHAR civName[k_MAX_NAME_LEN];
 		player_Get(p)->GetCivilisation()->GetPluralCivName(civName);
-		menu->AddItem(civName, NULL, (void *)p);
+		menu->AddItem(civName, nullptr, (void *)p);
 	}
 }
 
@@ -2314,10 +2314,10 @@ void DiplomacyWindow::RequestGoldValue(sint32 player)
 		ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipGoldRequest.Spinner");
 		Assert(spinner);
 		if(spinner) {
-			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, NULL);
+			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, nullptr);
 		}
-		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.OkButton", DiplomacyWindow::GoldOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.CancelButton", DiplomacyWindow::GoldCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.OkButton", DiplomacyWindow::GoldOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipGoldRequest.CancelButton", DiplomacyWindow::GoldCancel, nullptr);
 
 		m_goldRequestWindow->SetStronglyModal(TRUE);
 	}
@@ -2344,10 +2344,10 @@ void DiplomacyWindow::RequestPollutionValue(sint32 player)
 		ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPollutionRequest.Spinner");
 		Assert(spinner);
 		if(spinner) {
-			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, NULL);
+			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, nullptr);
 		}
-		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.OkButton", DiplomacyWindow::PollutionOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.CancelButton", DiplomacyWindow::PollutionCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.OkButton", DiplomacyWindow::PollutionOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipPollutionRequest.CancelButton", DiplomacyWindow::PollutionCancel, nullptr);
 
 		m_pollutionRequestWindow->SetStronglyModal(TRUE);
 	}
@@ -2375,10 +2375,10 @@ void DiplomacyWindow::RequestPercentValue()
 		ctp2_Spinner *spinner = (ctp2_Spinner *)aui_Ldl::GetObject("DipPercentRequest.Spinner");
 		Assert(spinner);
 		if(spinner) {
-			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, NULL);
+			spinner->SetSpinnerCallback(DiplomacyWindow::GoldSpinner, nullptr);
 		}
-		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.OkButton", DiplomacyWindow::PercentOk, NULL);
-		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.CancelButton", DiplomacyWindow::PercentCancel, NULL);
+		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.OkButton", DiplomacyWindow::PercentOk, nullptr);
+		aui_Ldl::SetActionFuncAndCookie("DipPercentRequest.CancelButton", DiplomacyWindow::PercentCancel, nullptr);
 
 		m_percentRequestWindow->SetStronglyModal(TRUE);
 	}
@@ -2501,7 +2501,7 @@ bool DiplomacyWindow::ProposalContextMenu(sint32 proposal)
 
 	if(m_curMenu->GetNumItems() < 1) {
 		delete m_curMenu;
-		m_curMenu = NULL;
+		m_curMenu = nullptr;
 		if(needItems) {
 
 			return false;
@@ -2591,7 +2591,7 @@ void DiplomacyWindow::MenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION action, sin
 	}
 
 	delete s_dipWindow->m_curMenu;
-	s_dipWindow->m_curMenu = NULL;
+	s_dipWindow->m_curMenu = nullptr;
 }
 
 void DiplomacyWindow::GoldSpinner(aui_Control *control, uint32 action, uint32 data, void *cookie)
@@ -2866,7 +2866,7 @@ bool DiplomacyWindow::ThreatContextMenu(sint32 threat)
 
 	if(m_threatMenu->GetNumItems() < 1) {
 		delete m_threatMenu;
-		m_threatMenu = NULL;
+		m_threatMenu = nullptr;
 
 		if(needItems) {
 			return false;
@@ -2954,7 +2954,7 @@ void DiplomacyWindow::ThreatMenuCallback(ctp2_Menu *menu, CTP2_MENU_ACTION actio
 		}
 
 		delete s_dipWindow->m_threatMenu;
-		s_dipWindow->m_threatMenu = NULL;
+		s_dipWindow->m_threatMenu = nullptr;
 		s_dipWindow->Update();
 	}
 }

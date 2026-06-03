@@ -18,7 +18,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		MBCHAR *text = NULL,
+		MBCHAR *text = nullptr,
 		uint32 maxLength = 0,
 		uint32 size = 0,
 		sint32 bevel = 0);
@@ -30,7 +30,7 @@ public:
 	virtual ~StaticTextBox() {}
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

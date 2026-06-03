@@ -33,7 +33,7 @@ public:
 	void			SetGrabbedItem(TradeRoute *route);
 	void			GetGrabbedItem(TradeRoute **route);
 
-	void			Release() { m_isGrabbed = FALSE; m_grabbedItem = NULL; m_grabbedItemType = GRABITEMTYPE_NONE; }
+	void			Release() { m_isGrabbed = FALSE; m_grabbedItem = nullptr; m_grabbedItemType = GRABITEMTYPE_NONE; }
 
 private:
 	BOOL			m_isGrabbed;

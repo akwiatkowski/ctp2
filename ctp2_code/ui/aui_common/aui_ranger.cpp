@@ -31,7 +31,7 @@ aui_Ranger::aui_Ranger(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -59,7 +59,7 @@ aui_Ranger::aui_Ranger(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -77,7 +77,7 @@ aui_Ranger::aui_Ranger(
 AUI_ERRCODE aui_Ranger::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_RANGER_TYPE type;
@@ -175,12 +175,12 @@ AUI_ERRCODE aui_Ranger::InitCommon(
 {
 	m_type = type,
 	m_orientation = orientation,
-	m_rangeContainer = NULL,
-	m_thumb = NULL,
-	m_incXButton = NULL,
-	m_incYButton = NULL,
-	m_decXButton = NULL,
-	m_decYButton = NULL,
+	m_rangeContainer = nullptr,
+	m_thumb = nullptr,
+	m_incXButton = nullptr,
+	m_incYButton = nullptr,
+	m_decXButton = nullptr,
+	m_decYButton = nullptr,
 	m_overlap = 0,
 	m_valX = valx,
 	m_valY = valy,
@@ -210,7 +210,7 @@ aui_Button *aui_Ranger::CreateArrowButton(const MBCHAR *ldlBlock,
 	static MBCHAR block[k_AUI_LDL_MAXBLOCK + 1];
 
 	AUI_ERRCODE     errcode     = AUI_ERRCODE_OK;
-	aui_Button *    arrowButton = NULL;
+	aui_Button *    arrowButton = nullptr;
 
 	if(ldlBlock) {
 

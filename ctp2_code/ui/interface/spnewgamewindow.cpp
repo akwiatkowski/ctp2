@@ -112,39 +112,39 @@ SPNewGameWindow::SPNewGameWindow(AUI_ERRCODE *retval, uint32 id,
 		MBCHAR *ldlBlock, sint32 bpp, AUI_WINDOW_TYPE type, bool bevel)
 :
     C3Window                (retval, id, ldlBlock, bpp, type, bevel),
-	m_spStart               (NULL),
-    m_spOk                  (NULL),
-    m_spReturn              (NULL),
-	m_spTribe               (NULL),
-    m_spDifficulty          (NULL),
-	m_spMapSize             (NULL),
-    m_spPlayers             (NULL),
-	m_spMap                 (NULL),
-    m_spRules               (NULL),
-	m_spEditor              (NULL),
-	m_spScenario            (NULL),
-	m_spGeneral             (NULL),
-    m_spWorld               (NULL),
-    m_spCustom              (NULL),
-    m_spName                (NULL),
-	m_mapTypeButton         (NULL),
-	m_mapTypeLabel          (NULL),
-	m_worldShapeButton      (NULL),
-	m_worldShapeLabel       (NULL),
+	m_spStart               (nullptr),
+    m_spOk                  (nullptr),
+    m_spReturn              (nullptr),
+	m_spTribe               (nullptr),
+    m_spDifficulty          (nullptr),
+	m_spMapSize             (nullptr),
+    m_spPlayers             (nullptr),
+	m_spMap                 (nullptr),
+    m_spRules               (nullptr),
+	m_spEditor              (nullptr),
+	m_spScenario            (nullptr),
+	m_spGeneral             (nullptr),
+    m_spWorld               (nullptr),
+    m_spCustom              (nullptr),
+    m_spName                (nullptr),
+	m_mapTypeButton         (nullptr),
+	m_mapTypeLabel          (nullptr),
+	m_worldShapeButton      (nullptr),
+	m_worldShapeLabel       (nullptr),
     m_useCustomMap          (false),
-    m_civilizationLabel     (NULL),
-	m_leaderNameLabel       (NULL),
-	m_difficultyLabel       (NULL),
-	m_worldSizeLabel        (NULL),
-	m_rulesLabel            (NULL),
-	m_playersLabel          (NULL),
-	m_worldTypeLabel        (NULL),
-	m_quitButton            (NULL),
-	m_spTitle               (NULL),
-	m_spBackground          (NULL),
-	m_string                (NULL),
-	m_scenarioName          (NULL),
-	m_scenarioStaticText    (NULL)
+    m_civilizationLabel     (nullptr),
+	m_leaderNameLabel       (nullptr),
+	m_difficultyLabel       (nullptr),
+	m_worldSizeLabel        (nullptr),
+	m_rulesLabel            (nullptr),
+	m_playersLabel          (nullptr),
+	m_worldTypeLabel        (nullptr),
+	m_quitButton            (nullptr),
+	m_spTitle               (nullptr),
+	m_spBackground          (nullptr),
+	m_string                (nullptr),
+	m_scenarioName          (nullptr),
+	m_scenarioStaticText    (nullptr)
 {
 	Assert(AUI_SUCCESS(*retval));
 
@@ -312,7 +312,7 @@ void SPNewGameWindow::Update( )
 
 	// Make sure start and end ages are still within range.
 	// A scenario was loaded.
-	if (civpaths_Get()->GetCurScenarioPath() != NULL) {
+	if (civpaths_Get()->GetCurScenarioPath() != nullptr) {
 
 		if (strlen(scenario_name_buf()) > 0) {
 			m_scenarioName->SetText(scenario_name_buf());
@@ -379,13 +379,13 @@ void SPNewGameWindow::Update( )
 
 
 SPProfileBox::SPProfileBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
-	m_spClan(NULL),m_spGender(NULL),m_spName(NULL),
-	m_spPreferences(NULL),m_spCustom(NULL),
-	m_PTOP(NULL),
-	m_PHEADER(NULL),
-	m_PBOT(NULL),
-	m_PLEFT(NULL),
-	m_PRIGHT(NULL)
+	m_spClan(nullptr),m_spGender(nullptr),m_spName(nullptr),
+	m_spPreferences(nullptr),m_spCustom(nullptr),
+	m_PTOP(nullptr),
+	m_PHEADER(nullptr),
+	m_PBOT(nullptr),
+	m_PLEFT(nullptr),
+	m_PRIGHT(nullptr)
 {
 	{
 		int i=0,numClans;
@@ -395,7 +395,7 @@ SPProfileBox::SPProfileBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) 
 		m_spClan		= spNew_c3_DropDown(retval,ldlBlock,"Clan",spnewgamescreen_clanSelect);
 
 		while(i<numClans) {
-			aui_Item	*item = NULL;
+			aui_Item	*item = nullptr;
 			const MBCHAR *cName = stringdb_Get()->GetNameStr(g_theCivilisationDB->Get(i)->GetPluralCivName());
 			item = (aui_Item*)new SPDropDownListItem(retval, "SPDropDownListItem", "Clan", cName);
 			if (item)
@@ -465,13 +465,13 @@ void SPProfileBox::SetLeader(uint32 index)
 
 
 SPWorldBox::SPWorldBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
-	m_mapSize(NULL), m_worldType(NULL), m_worldShape(NULL),
-	m_difficulty(NULL), m_riskLevel(NULL), m_opponent(NULL), m_spCustom(NULL),
-	m_WTOP(NULL),
-	m_WHEADER(NULL),
-	m_WBOT(NULL),
-	m_WLEFT(NULL),
-	m_WRIGHT(NULL)
+	m_mapSize(nullptr), m_worldType(nullptr), m_worldShape(nullptr),
+	m_difficulty(nullptr), m_riskLevel(nullptr), m_opponent(nullptr), m_spCustom(nullptr),
+	m_WTOP(nullptr),
+	m_WHEADER(nullptr),
+	m_WBOT(nullptr),
+	m_WLEFT(nullptr),
+	m_WRIGHT(nullptr)
 {
 	m_mapSize		= spNew_c3_DropDown(retval,ldlBlock,"MapSize",spnewgamescreen_mapSizeSelect);
 	{
@@ -555,13 +555,13 @@ SPWorldBox::~SPWorldBox()
 
 
 SPRulesBox::SPRulesBox ( AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock ) :
-	m_spGenocide(NULL), m_spTrade(NULL), m_spCombat(NULL),
-	m_spPollution(NULL),
-	m_RTOP(NULL),
-	m_RHEADER(NULL),
-	m_RBOT(NULL),
-	m_RLEFT(NULL),
-	m_RRIGHT(NULL)
+	m_spGenocide(nullptr), m_spTrade(nullptr), m_spCombat(nullptr),
+	m_spPollution(nullptr),
+	m_RTOP(nullptr),
+	m_RHEADER(nullptr),
+	m_RBOT(nullptr),
+	m_RLEFT(nullptr),
+	m_RRIGHT(nullptr)
 {
 
 	m_spGenocide	= spNew_c3_CheckBox(retval,ldlBlock,"GenocideButton",0,spnewgamescreen_genocidePress);
@@ -614,9 +614,9 @@ uint32 SPRulesBox::GetPollutionRules() { return m_spGenocide->IsOn(); }
 SPDropDownListItem::SPDropDownListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock,MBCHAR *type,const MBCHAR *name)
 :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock),
-	m_myItem(NULL)
+	m_myItem(nullptr)
 {
 
 	m_myItem = spNew_c3_Static(retval, ldlBlock, type);
@@ -655,7 +655,7 @@ TwoChoiceButton::TwoChoiceButton(
 		ControlActionCallback *ActionFunc,
 		void *cookie) :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ctp2_Button(retval,id,ldlBlock,ActionFunc,cookie),
 	m_choice(0)
 {

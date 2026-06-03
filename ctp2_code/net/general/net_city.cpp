@@ -176,8 +176,8 @@ void NetCity::Unpacketize(uint16 id, uint8* buf, uint16 size)
 		uint16 unitSize;
 		PLAYER_INDEX oldOwner = unitData->m_owner;
 
-		Assert(unitData->m_city_data != NULL);
-		if(unitData->m_city_data == NULL) {
+		Assert(unitData->m_city_data != nullptr);
+		if(unitData->m_city_data == nullptr) {
 			g_network.RequestResync(RESYNC_INVALID_UNIT);
 			return;
 		}
@@ -544,7 +544,7 @@ void NetCityBuildQueue::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	sint32 len;
 	PULLLONG(len);
 
-	BuildNode *bn = NULL;
+	BuildNode *bn = nullptr;
 	for(sint32 i = 0; i < len; i++) {
 		bn = new BuildNode;
 		PULLLONG(bn->m_cost);

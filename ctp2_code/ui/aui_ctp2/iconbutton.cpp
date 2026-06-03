@@ -31,7 +31,7 @@ IconButton::IconButton(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Button( retval, id, x, y, width, height, ActionFunc, cookie ),
 	PatternBase( pattern ),
 	m_color(color )
@@ -48,9 +48,9 @@ IconButton::IconButton(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Button( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 	InitCommon(ldlBlock, TRUE);
 
@@ -62,12 +62,12 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 	if (isLDL) {
 		ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 
 		name = block->GetString( "icon" );
-		Assert( name != NULL );
+		Assert( name != nullptr );
 	} else {
 		name = ldlBlock;
 	}
@@ -77,7 +77,7 @@ AUI_ERRCODE IconButton::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 	if (civpaths_Get()->FindFile(C3DIR_ICONS, name, m_filename)) {
 		m_icon = c3ui_Get()->LoadIcon(m_filename);
 	} else {
-		m_icon = NULL;
+		m_icon = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;

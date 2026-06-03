@@ -45,7 +45,7 @@ void AttractWindow::Cleanup()
 		g_attractWindow->Hide();
 		c3ui_Get()->RemoveWindow(g_attractWindow->Id());
 		delete g_attractWindow;
-		g_attractWindow = NULL;
+		g_attractWindow = nullptr;
 	}
 }
 

@@ -28,7 +28,7 @@ public:
 	SlicNamedSymbol(const char *name);
 	SlicNamedSymbol(const char *name, SlicArray *array);
 	SlicNamedSymbol(const char *name, SlicStructDescription *structDesc);
-	SlicNamedSymbol() { m_name = NULL; }
+	SlicNamedSymbol() { m_name = nullptr; }
 	virtual ~SlicNamedSymbol();
 
 	virtual bool IsParameter() const { return false; }

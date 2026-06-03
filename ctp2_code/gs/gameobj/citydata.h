@@ -539,7 +539,7 @@ public:
 	void AddRawMaterials(sint32 amount);
 	sint32 GetRawMaterials() const;
 	void UseRawMaterials(sint32 amt);
-	bool IsConnected(MapPoint &point, uint8* array = NULL, sint32 w = 0, sint32 h = 0);
+	bool IsConnected(MapPoint &point, uint8* array = nullptr, sint32 w = 0, sint32 h = 0);
 
 	void CalcPollution() ;
 	void DoLocalPollution();

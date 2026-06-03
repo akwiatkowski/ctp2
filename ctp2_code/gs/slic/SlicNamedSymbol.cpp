@@ -101,7 +101,7 @@ void SlicNamedSymbol::Init(const char *name)
     }
     else
     {
-        m_name = NULL;
+        m_name = nullptr;
     }
 
 	m_fromFile = k_GENERATED_BY_EXECUTABLE;

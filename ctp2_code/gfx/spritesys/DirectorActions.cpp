@@ -45,7 +45,7 @@ DQActionMoveProjectile::DQActionMoveProjectile()
 :
     pmove_oldPos        (),
     pmove_newPos        (),
-    end_projectile      (NULL),
+    end_projectile      (nullptr),
     projectile_path     (0)
 {
 }

@@ -55,14 +55,14 @@ aui_ImageBase::aui_ImageBase
 )
 :
 	m_numStateImageGroups       (0),
-	m_stateImageGroups          (NULL),
+	m_stateImageGroups          (nullptr),
 	m_loadOnDemand              (loadOnDemand),
 	m_chromaRed	   		        (k_DEFAULT_CHROMA_RED),
 	m_chromaGreen		        (k_DEFAULT_CHROMA_GREEN),
 	m_chromaBlue		        (k_DEFAULT_CHROMA_BLUE),
 	m_chromaSpecified           (false),
 	m_numberOfStateImageNames   (0),
-	m_stateImageNames           (NULL)
+	m_stateImageNames           (nullptr)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -77,14 +77,14 @@ aui_ImageBase::aui_ImageBase
 )
 :
 	m_numStateImageGroups       (0),
-	m_stateImageGroups          (NULL),
+	m_stateImageGroups          (nullptr),
 	m_loadOnDemand              (loadOnDemand),
 	m_chromaRed	   		        (k_DEFAULT_CHROMA_RED),
 	m_chromaGreen		        (k_DEFAULT_CHROMA_GREEN),
 	m_chromaBlue		        (k_DEFAULT_CHROMA_BLUE),
 	m_chromaSpecified           (false),
 	m_numberOfStateImageNames   (0),
-	m_stateImageNames           (NULL)
+	m_stateImageNames           (nullptr)
 {
 	InitCommon(numStateImageGroups, imageblttype, imagebltflag);
 }
@@ -211,12 +211,12 @@ AUI_ERRCODE aui_ImageBase::InitCommon(
 		m_stateImageNames = new MBCHAR * [m_numberOfStateImageNames];
 
 		for(int index = 0; index < m_numberOfStateImageNames; index++)
-			m_stateImageNames[index] = NULL;
+			m_stateImageNames[index] = nullptr;
 	}
 
 	m_stateImageGroups =
 		new aui_StateImageGroup[ m_numStateImageGroups = numStateImageGroups ];
-	Assert( m_stateImageGroups != NULL );
+	Assert( m_stateImageGroups != nullptr );
 	if ( !m_stateImageGroups ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	memset(
@@ -257,13 +257,13 @@ aui_Image *aui_ImageBase::GetImage(
 	AUI_IMAGEBASE_SUBSTATE substate ) const
 {
 	if ( state < 0 || state >= m_numStateImageGroups )
-		return NULL;
+		return nullptr;
 
 	Assert( AUI_IMAGEBASE_SUBSTATE_FIRST <= substate
 	&&      substate < AUI_IMAGEBASE_SUBSTATE_LAST );
 	if ( AUI_IMAGEBASE_SUBSTATE_FIRST > substate
 	&&   substate >= AUI_IMAGEBASE_SUBSTATE_LAST )
-		return NULL;
+		return nullptr;
 
 
 	if(m_loadOnDemand) {
@@ -274,9 +274,9 @@ aui_Image *aui_ImageBase::GetImage(
 		if(m_stateImageNames[index] && (!m_stateImageGroups[state][substate]))
 		{
 			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage(m_stateImageNames[index]);
-			Assert( m_stateImageGroups[ state ][ substate ] != NULL );
+			Assert( m_stateImageGroups[ state ][ substate ] != nullptr );
 
-			if ((m_chromaSpecified)&&(m_stateImageGroups[ state ][ substate ]!=NULL))
+			if ((m_chromaSpecified)&&(m_stateImageGroups[ state ][ substate ]!=nullptr))
 				m_stateImageGroups[ state ][ substate]->SetChromakey(m_chromaRed,m_chromaGreen,m_chromaBlue);
 		}
 	}
@@ -312,14 +312,14 @@ aui_Image *aui_ImageBase::SetImage
 {
 	Assert(state >= 0 && state < m_numStateImageGroups);
 	if (state < 0 || state >= m_numStateImageGroups)
-		return NULL;
+		return nullptr;
 
 	Assert(substate >= AUI_IMAGEBASE_SUBSTATE_FIRST &&
 			substate < AUI_IMAGEBASE_SUBSTATE_LAST);
 
 	if (substate < AUI_IMAGEBASE_SUBSTATE_FIRST ||
 		substate >= AUI_IMAGEBASE_SUBSTATE_LAST)
-		return NULL;
+		return nullptr;
 
 	aui_Image *prevImage = GetImage( state, substate );
 
@@ -333,16 +333,16 @@ aui_Image *aui_ImageBase::SetImage
 
 			delete m_stateImageNames[index];
 			m_stateImageNames[index] = strdup(image);
-			m_stateImageGroups[ state ][ substate ] = NULL;
+			m_stateImageGroups[ state ][ substate ] = nullptr;
 		}
 		else
 		{
 			m_stateImageGroups[ state ][ substate ] = aui_ui_Get()->LoadImage( image );
-			Assert( m_stateImageGroups[ state ][ substate ] != NULL );
+			Assert( m_stateImageGroups[ state ][ substate ] != nullptr );
 			if ( !m_stateImageGroups[ state ][ substate ] )
 			{
 				m_stateImageGroups[ state ][ substate ] = prevImage;
-				return NULL;
+				return nullptr;
 			}
 
 			if (m_chromaSpecified)
@@ -359,10 +359,10 @@ aui_Image *aui_ImageBase::SetImage
 			sint32 index = (state * AUI_IMAGEBASE_SUBSTATE_LAST) + substate;
 
 			delete m_stateImageNames[index];
-			m_stateImageNames[index] = NULL;
+			m_stateImageNames[index] = nullptr;
 		}
 
-		m_stateImageGroups[ state ][ substate ] = NULL;
+		m_stateImageGroups[ state ][ substate ] = nullptr;
 	}
 
 	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );

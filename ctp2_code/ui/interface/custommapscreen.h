@@ -7,7 +7,7 @@
 
 sint32 custommapscreen_displayMyWindow(BOOL viewMode = FALSE, sint32 useMode = 0);
 sint32 custommapscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *callback = NULL );
+AUI_ERRCODE custommapscreen_Initialize( aui_Control::ControlActionCallback *callback = nullptr );
 AUI_ERRCODE custommapscreen_Cleanup();
 void custommapscreen_getValues(
 	sint32 &wetdry,

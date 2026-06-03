@@ -32,7 +32,7 @@ PatternBase::PatternBase( MBCHAR const * pattern)
 AUI_ERRCODE PatternBase::InitCommonLdl( MBCHAR const *ldlBlock, MBCHAR const *pattern )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	MBCHAR *name = block->GetString( pattern ? pattern : "pattern" );
@@ -69,11 +69,11 @@ AUI_ERRCODE PatternBase::InitCommonLdl( MBCHAR const *ldlBlock, MBCHAR const *pa
 
 AUI_ERRCODE PatternBase::InitCommon( MBCHAR const *pattern )
 {
-	if (pattern != NULL) {
+	if (pattern != nullptr) {
 		m_pattern = c3ui_Get()->LoadPattern( pattern );
-		Assert( m_pattern != NULL );
+		Assert( m_pattern != nullptr );
 	} else {
-		m_pattern = NULL;
+		m_pattern = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -85,6 +85,6 @@ PatternBase::~PatternBase()
 	if ( m_pattern )
 	{
 		c3ui_Get()->UnloadPattern( m_pattern );
-		m_pattern = NULL;
+		m_pattern = nullptr;
 	}
 }

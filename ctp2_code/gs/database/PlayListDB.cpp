@@ -51,13 +51,13 @@ TokenData g_playlist_token_data [TOKEN_PLAYLIST_MAX - TOKEN_MAX] = {
 PlayListDB::PlayListDB()
 {
 	m_numSongs = 0;
-	m_playList = NULL;
+	m_playList = nullptr;
 }
 
 PlayListDB::PlayListDB(CivArchive &archive)
 {
 	m_numSongs = 0;
-	m_playList = NULL;
+	m_playList = nullptr;
 
 	Serialize(archive);
 }

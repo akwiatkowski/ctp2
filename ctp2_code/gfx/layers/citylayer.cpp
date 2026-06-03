@@ -179,9 +179,9 @@ void DrawTradeRoute(
 		)
 {
 	Assert(pSurface);
-	if (pSurface==NULL) return;
+	if (pSurface==nullptr) return;
 	Assert(pRoute);
-	if (pRoute==NULL) return;
+	if (pRoute==nullptr) return;
 
 	if (outline == 0x0000)
 		outline = 0x0001;

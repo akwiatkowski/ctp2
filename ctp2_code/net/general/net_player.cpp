@@ -111,7 +111,7 @@ void NetPlayer::Unpacketize(uint16 id, uint8* buf, uint16 size)
 
 	Assert(pidx < k_MAX_PLAYERS);
 	p = player_Get(pidx);
-	Assert(p != NULL);
+	Assert(p != nullptr);
 	Assert(p->m_owner == pidx);
 
 	PULLLONGTYPE(p->m_playerType, PLAYER_TYPE);

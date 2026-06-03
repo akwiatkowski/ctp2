@@ -129,7 +129,7 @@ AUI_ERRCODE C3Blitter::Blt16To16Fast(
 	const sint32    destPitch       = destSurf->Pitch() / 2;
 	const sint32    srcPitch        = srcSurf->Pitch() / 2;
 	uint16 *        destBuf         = (uint16 *)destSurf->Buffer();
-    bool            wasDestLocked   = destBuf != NULL;
+    bool            wasDestLocked   = destBuf != nullptr;
 
 	if (wasDestLocked)
 	{
@@ -138,7 +138,7 @@ AUI_ERRCODE C3Blitter::Blt16To16Fast(
 	else if ( destSurf->Lock(
 		destRect, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK )
 	{
-		destBuf = NULL;
+		destBuf = nullptr;
 		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 	}
 
@@ -146,7 +146,7 @@ AUI_ERRCODE C3Blitter::Blt16To16Fast(
 	{
 		uint16 *    origDestBuf     = destBuf;
 		uint16 *    srcBuf          = (uint16 *)srcSurf->Buffer();
-        bool        wasSrcLocked    = srcBuf != NULL;
+        bool        wasSrcLocked    = srcBuf != nullptr;
 
         if (wasSrcLocked)
 		{
@@ -155,7 +155,7 @@ AUI_ERRCODE C3Blitter::Blt16To16Fast(
 		else if ( srcSurf->Lock(
 			srcRect, (LPVOID *)&srcBuf, 0 ) != AUI_ERRCODE_OK )
 		{
-			srcBuf = NULL;
+			srcBuf = nullptr;
 			retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 		}
 
@@ -298,7 +298,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
 	const sint32    destPitch       = destSurf->Pitch() / 2;
 	const sint32    srcPitch        = srcSurf->Pitch() / 2;
 	uint16 *        destBuf         = (uint16 *)destSurf->Buffer();
-    bool            wasDestLocked   = destBuf != NULL;
+    bool            wasDestLocked   = destBuf != nullptr;
 
 	if (wasDestLocked)
 	{
@@ -307,7 +307,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
 	else if ( destSurf->Lock(
 		destRect, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK )
 	{
-		destBuf = NULL;
+		destBuf = nullptr;
 		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 	}
 
@@ -315,7 +315,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
 	{
 		uint16 *    origDestBuf     = destBuf;
 		uint16 *    srcBuf          = (uint16 *)srcSurf->Buffer();
-        bool        wasSrcLocked    = srcBuf != NULL;
+        bool        wasSrcLocked    = srcBuf != nullptr;
 
 		if (wasSrcLocked)
 		{
@@ -324,7 +324,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastMMX(
 		else if ( srcSurf->Lock(
 			srcRect, (LPVOID *)&srcBuf, 0 ) != AUI_ERRCODE_OK )
 		{
-			srcBuf = NULL;
+			srcBuf = nullptr;
 
 			retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 		}
@@ -476,7 +476,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 	const sint32    destPitch       = destSurf->Pitch() / 2;
 	const sint32    srcPitch        = srcSurf->Pitch() / 2;
 	uint16 *        destBuf         = (uint16 *)destSurf->Buffer();
-    bool            wasDestLocked   = destBuf != NULL;
+    bool            wasDestLocked   = destBuf != nullptr;
 
 	if (wasDestLocked)
 	{
@@ -485,7 +485,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 	else if ( destSurf->Lock(
 		destRect, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK )
 	{
-		destBuf = NULL;
+		destBuf = nullptr;
 		retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 	}
 
@@ -495,7 +495,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 		uint16 *origDestBuf = destBuf;
 
 		uint16 *    srcBuf          = (uint16 *)srcSurf->Buffer();
-		bool        wasSrcLocked    = srcBuf != NULL;
+		bool        wasSrcLocked    = srcBuf != nullptr;
 		if (wasSrcLocked)
 		{
 			srcBuf += srcRect->top * srcPitch + srcRect->left;
@@ -503,7 +503,7 @@ AUI_ERRCODE C3Blitter::Blt16To16FastFPU(
 		else if ( srcSurf->Lock(
 			srcRect, (LPVOID *)&srcBuf, 0 ) != AUI_ERRCODE_OK )
 		{
-			srcBuf = NULL;
+			srcBuf = nullptr;
 
 			retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 		}

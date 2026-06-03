@@ -83,8 +83,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	aui_Control(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -92,8 +92,8 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~aui_Control();
 
 	virtual BOOL IsThisA( uint32 classId )
@@ -108,14 +108,14 @@ protected:
 		aui_TextBase        (),
 		aui_Region          (),
 		aui_SoundBase       (),
-		m_stringTable       (NULL),
+		m_stringTable       (nullptr),
 		m_allocatedTip      (false),
-		m_statusText        (NULL),
-		m_statusTextCopy    (NULL),
+		m_statusText        (nullptr),
+		m_statusTextCopy    (nullptr),
 		m_numberOfLayers    (0),
 		m_imagesPerLayer    (0),
-		m_imageLayerList    (NULL),
-		m_layerRenderFlags  (NULL),
+		m_imageLayerList    (nullptr),
+		m_layerRenderFlags  (nullptr),
 		m_renderFlags       (k_AUI_CONTROL_LAYER_FLAG_ALWAYS)
 	{};
 
@@ -184,12 +184,12 @@ public:
 	{ return m_ActionFunc; }
 
 	void *GetCookie( ) const
-	{ Assert( m_ActionFunc != NULL ); return m_cookie; }
+	{ Assert( m_ActionFunc != nullptr ); return m_cookie; }
 
 	aui_Action *SetAction( aui_Action *action );
 
 	aui_Action *GetAction( ) const
-	{ Assert( m_ActionFunc == NULL ); return m_action; }
+	{ Assert( m_ActionFunc == nullptr ); return m_action; }
 
 	virtual AUI_ERRCODE ShowThis();
 
@@ -212,11 +212,11 @@ public:
 	virtual AUI_ERRCODE	ReleaseKeyboardFocus( );
 
 	virtual AUI_ERRCODE Draw(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -307,7 +307,7 @@ protected:
 
 	void InitializeLayerFlag(ldl_datablock *theBlock, sint32 layerIndex,
 		const MBCHAR *flagString, sint32 flag,
-		const MBCHAR *layerIndexString = NULL);
+		const MBCHAR *layerIndexString = nullptr);
 
 	void DrawLayers(aui_Surface *surface, RECT *rectangle);
 

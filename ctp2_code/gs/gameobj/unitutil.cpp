@@ -84,7 +84,7 @@ void unitutil_Initialize()
 	}
 
 	for(i = 0; i < SPECATTACK_MAX; i++) {
-		s_specialAttackMap[i] = NULL;
+		s_specialAttackMap[i] = nullptr;
 	}
 
 	s_specialAttackMap[SPECATTACK_NUKE] = unitutil_GetSpecialAttackByName("NUKE");
@@ -199,7 +199,7 @@ static const SpecialAttackInfoRecord *unitutil_GetSpecialAttackByName(const char
 	sint32 index;
 	if(g_theSpecialAttackInfoDB->GetNamedItem(name, index))
 		return g_theSpecialAttackInfoDB->Get(index);
-	return NULL;
+	return nullptr;
 }
 
 const SpecialAttackInfoRecord *unitutil_GetSpecialAttack(SPECATTACK attack)

@@ -18,7 +18,7 @@ public:
 	static bool Search
 	(
 		char const *    my_string,
-		char *          new_key = NULL
+		char *          new_key = nullptr
 	);
 
 	static void Set_Case_Sensitive

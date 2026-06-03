@@ -92,7 +92,7 @@ void c3errors_FatalDialogFromDB(const char *module, const char *err, ...)
 	str[sizeof(str) - 1] = '\0';
 	va_end(list) ;
 
-	MessageBox(NULL, str, dbTitle, MB_OK | MB_ICONEXCLAMATION);
+	MessageBox(nullptr, str, dbTitle, MB_OK | MB_ICONEXCLAMATION);
 
 	Assert(FALSE);
 
@@ -127,7 +127,7 @@ void c3errors_ErrorDialogFromDB(const char *module, const char *err, ...)
 	str[sizeof(str) - 1] = '\0';
 	va_end(list);
 
-	MessageBox(NULL, str, dbTitle, MB_OK | MB_ICONEXCLAMATION) ;
+	MessageBox(nullptr, str, dbTitle, MB_OK | MB_ICONEXCLAMATION) ;
 }
 
 extern BOOL g_smokeTest;
@@ -162,7 +162,7 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
                                   lstrlen(fmt) + 33000
                                  )*sizeof(TCHAR)
                                 )
-       ) == NULL)
+       ) == nullptr)
       return;
 
    sprintf(szTitle, szTitleText, szTmp);
@@ -181,7 +181,7 @@ void c3errors_ErrorDialog(const char* module, const char* fmt, ...)
 
 	// TODO: Make it work with LPTSTR szFmtTmp if it is worth the efforts at all.
 //	MessageBox(NULL, szFmtTmp, szTitle, MB_OK | MB_ICONEXCLAMATION);
-	sint32 result = MessageBox(NULL, Tmp, szTitle, MB_YESNO | MB_ICONEXCLAMATION);
+	sint32 result = MessageBox(nullptr, Tmp, szTitle, MB_YESNO | MB_ICONEXCLAMATION);
 
 #if defined(WIN32)
 	LocalFree(szTitle);

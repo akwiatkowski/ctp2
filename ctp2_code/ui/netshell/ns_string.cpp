@@ -11,10 +11,10 @@
 
 ns_String::ns_String( char *ldlBlock )
 :
-    m_string    (NULL)
+    m_string    (nullptr)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return;
 
 	const char *string;

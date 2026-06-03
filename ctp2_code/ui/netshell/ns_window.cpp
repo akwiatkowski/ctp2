@@ -62,7 +62,7 @@ ns_Window::ns_Window(
 AUI_ERRCODE ns_Window::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	MBCHAR *tile = block->GetString( k_NS_WINDOW_TILE_LDL_NAME );
@@ -75,8 +75,8 @@ AUI_ERRCODE ns_Window::InitCommonLdl( MBCHAR *ldlBlock )
 AUI_ERRCODE ns_Window::InitCommon( MBCHAR *tile, BOOL retired )
 {
 	m_numControls = 0;
-	m_controls = NULL;
-	m_tile = NULL;
+	m_controls = nullptr;
+	m_tile = nullptr;
 	m_retired = FALSE;
 
 
@@ -99,7 +99,7 @@ ns_Window::~ns_Window()
 	if ( m_tile )
 	{
 		aui_ui_Get()->UnloadImage( m_tile );
-		m_tile = NULL;
+		m_tile = nullptr;
 	}
 
 	if ( m_controls )
@@ -128,7 +128,7 @@ ns_Window::~ns_Window()
 aui_Control *ns_Window::FindControl( uint32 index )
 {
 	Assert( (sint32)index < m_numControls );
-	if ( (sint32)index >= m_numControls ) return NULL;
+	if ( (sint32)index >= m_numControls ) return nullptr;
 
 	return m_controls[ index ];
 }
@@ -141,15 +141,15 @@ aui_Image *ns_Window::SetTile( MBCHAR *tile )
 	if ( tile )
 	{
 		m_tile = aui_ui_Get()->LoadImage( tile );
-		Assert( m_tile != NULL );
+		Assert( m_tile != nullptr );
 		if ( !m_tile )
 		{
 			m_tile = prevTile;
-			return NULL;
+			return nullptr;
 		}
 	}
 	else
-		m_tile = NULL;
+		m_tile = nullptr;
 
 	if ( prevTile )
 		aui_ui_Get()->UnloadImage( prevTile );
@@ -165,15 +165,15 @@ BOOL ns_Window::SetRetired( BOOL retired )
 	{
 
 		MBCHAR *blockIdentifier = aui_Ldl::GetBlock( this );
-		Assert( blockIdentifier != NULL );
+		Assert( blockIdentifier != nullptr );
 		if ( !blockIdentifier ) return wasRetired;
 
 		ldl *theLdl = aui_Ldl::GetLdl();
-		Assert( theLdl != NULL );
+		Assert( theLdl != nullptr );
 		if ( !theLdl ) return wasRetired;
 
 		ldl_datablock *block = theLdl->FindDataBlock( blockIdentifier );
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return wasRetired;
 
 		if ( block->GetAttributeType( k_NS_WINDOW_RETIRED_LDL_NAME )

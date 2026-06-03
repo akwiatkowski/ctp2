@@ -84,7 +84,7 @@ class aui_TabGroup;
 sint32 loadsavemapscreen_displayMyWindow(uint32 type);
 sint32 loadsavemapscreen_removeMyWindow(uint32 action);
 AUI_ERRCODE loadsavemapscreen_Initialize(
-	aui_Control::ControlActionCallback *callback = NULL );
+	aui_Control::ControlActionCallback *callback = nullptr );
 void loadsavemapscreen_Cleanup();
 
 void loadsavemapscreen_executePress(aui_Control *control, uint32 action, uint32 data, void *cookie );

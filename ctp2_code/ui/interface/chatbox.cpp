@@ -75,7 +75,7 @@ extern MBCHAR       g_slic_filename[_MAX_PATH];
 extern BOOL         g_letUIProcess;
 extern HWND			gHwnd;
 
-static ChatBox		*g_chatBox = NULL;
+static ChatBox		*g_chatBox = nullptr;
 
 ChatBox * chatbox_Get()                   { return g_chatBox; }
 void      chatbox_Set(ChatBox *p)             { g_chatBox = p; }
@@ -91,7 +91,7 @@ void ChatBox::Cleanup()
 	if (g_chatBox)
 		delete g_chatBox;
 
-	g_chatBox = NULL;
+	g_chatBox = nullptr;
 }
 
 ChatBox::ChatBox()
@@ -157,7 +157,7 @@ void ChatBox::AddLine(sint32 playerNum, MBCHAR *text)
 	aui_Ranger *ranger = m_chatWindow->GetTextBox()->GetRanger();
 	ranger->SetValue(ranger->GetValueX(), ranger->GetMaximumY());
 
-	if (c3ui_Get()->GetWindow(m_chatWindow->Id()) == NULL) {
+	if (c3ui_Get()->GetWindow(m_chatWindow->Id()) == nullptr) {
 		soundmgr_Get()->AddSound(SOUNDTYPE_SFX, (uint32)0,
 									gamesounds_GetGameSoundID(GAMESOUNDS_CHAT_MESSAGE),
 									0,
@@ -176,8 +176,8 @@ ChatWindow::ChatWindow
 )
 :
     C3Window        (retval, id, ldlBlock, bpp, type),
-    m_textBox       (NULL),
-    m_textField     (NULL),
+    m_textBox       (nullptr),
+    m_textField     (nullptr),
     m_chatBox       (parent)
 {
 	*retval = InitCommonLdl(ldlBlock);
@@ -197,7 +197,7 @@ AUI_ERRCODE ChatWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", ldlBlock, "ChatTextBox");
-	m_textBox = new c3_HyperTextBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	m_textBox = new c3_HyperTextBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_textBox, errcode) );
 	if ( !AUI_NEWOK(m_textBox, errcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 	AddControl(m_textBox);
@@ -616,7 +616,7 @@ AUI_ERRCODE ChatWindow::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
 {
 	if ( IsHidden() ) return AUI_ERRCODE_OK;
 
-	if (surface == NULL)
+	if (surface == nullptr)
 		surface = m_surface;
 
 	RECT rect = { 0, 0, m_width, m_height };

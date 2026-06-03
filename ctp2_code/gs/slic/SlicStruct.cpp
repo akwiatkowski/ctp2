@@ -66,7 +66,7 @@ SlicStructDescription::Member::~Member()
 SlicStructDescription::SlicStructDescription(char const * name, SLIC_BUILTIN type)
 :	m_name(name ? name : ""),
 	m_type(type),
-	m_members(NULL),
+	m_members(nullptr),
 	m_numMembers(0),
 	m_accessors()
 {
@@ -135,7 +135,7 @@ void SlicStructDescription::AddAccessor
 //----------------------------------------------------------------------------
 SlicStructMemberData * SlicStructDescription::GetMemberSymbol(sint32 index) const
 {
-	Member * memberAtIndex = NULL;
+	Member * memberAtIndex = nullptr;
 
 	if (index < 0)
 	{
@@ -154,7 +154,7 @@ SlicStructMemberData * SlicStructDescription::GetMemberSymbol(sint32 index) cons
 		// Invalid index
 	}
 
-	return (memberAtIndex) ? memberAtIndex->m_symbol : NULL;
+	return (memberAtIndex) ? memberAtIndex->m_symbol : nullptr;
 };
 
 //----------------------------------------------------------------------------
@@ -303,7 +303,7 @@ SlicSymbolData *SlicStructDescription::CreateInstance()
 
 SlicSymbolData *SlicStructDescription::CreateDataSymbol()
 {
-	return NULL;
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -357,7 +357,7 @@ SlicStructInstance::SlicStructInstance(SlicStructDescription *description, SlicS
 	m_validIndexCount	=
 		m_description->GetNumMembers() + m_description->GetNumAccessors();
 	m_members			= new SlicStructMemberData *[m_validIndexCount];
-	std::fill(m_members, m_members + m_validIndexCount, (SlicStructMemberData *) NULL);
+	std::fill(m_members, m_members + m_validIndexCount, (SlicStructMemberData *) nullptr);
 
 	if (!m_dataSymbol)
     {
@@ -408,13 +408,13 @@ void SlicStructInstance::Serialize(CivArchive &archive)
 		archive.PutUINT8(static_cast<uint8>(m_description->GetType()));
 		// Store the members. Don't store the accessors.
 		for(i = 0; i < m_description->GetNumMembers(); i++) {
-			haveData = m_members[i] != NULL;
+			haveData = m_members[i] != nullptr;
 			archive << haveData;
 			if(haveData) {
 				m_members[i]->SlicSymbolData::Serialize(archive);
 			}
 		}
-		haveData = m_dataSymbol != NULL;
+		haveData = m_dataSymbol != nullptr;
 		archive << haveData;
 		if(haveData) {
 			archive.PutUINT8((uint8)m_createdData);
@@ -432,7 +432,7 @@ void SlicStructInstance::Serialize(CivArchive &archive)
 		m_validIndexCount	=
 			m_description->GetNumMembers() + m_description->GetNumAccessors();
 		m_members			= new SlicStructMemberData *[m_validIndexCount];
-		std::fill(m_members, m_members + m_validIndexCount, (SlicStructMemberData *) NULL);
+		std::fill(m_members, m_members + m_validIndexCount, (SlicStructMemberData *) nullptr);
 		for(i = 0; i < m_description->GetNumMembers(); i++) {
 			archive >> haveData;
 			if(haveData) {
@@ -445,13 +445,13 @@ void SlicStructInstance::Serialize(CivArchive &archive)
 		if(haveData) {
 			m_createdData = archive.GetUINT8() != 0;
 			if(m_createdData) {
-				m_dataSymbol = slicsymbol_Load(archive, NULL);
+				m_dataSymbol = slicsymbol_Load(archive, nullptr);
 			} else {
 				m_dataSymbolIndex = archive.GetSINT32();
-				m_dataSymbol = NULL;
+				m_dataSymbol = nullptr;
 			}
 		} else {
-			m_dataSymbol = NULL;
+			m_dataSymbol = nullptr;
 		}
 
 		if(save_file_version_Get() >= 64) {
@@ -516,7 +516,7 @@ SlicSymbolData *SlicStructInstance::GetMemberSymbol(sint32 index)
 	}
     else
     {
-        return NULL;
+        return nullptr;
     }
 }
 

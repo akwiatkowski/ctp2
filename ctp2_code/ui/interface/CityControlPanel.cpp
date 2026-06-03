@@ -163,7 +163,7 @@ m_governorDropDown(static_cast<ctp2_DropDown*>(
 	m_governorToggleButton->Enable(false);
 	m_governorDropDown->Enable(false);
 
-	m_buildItemProgressBar->SetDrawCallbackAndCookie(ProgressDrawCallback, 0);
+	m_buildItemProgressBar->SetDrawCallbackAndCookie(ProgressDrawCallback, nullptr);
 
 	m_governorDropDown->Clear();
 
@@ -363,10 +363,10 @@ void CityControlPanel::SelectGovernorActionCallback(aui_Control *control,
 CityData *CityControlPanel::GetSelectedCity()
 {
 	ctp2_ListItem *selItem = (ctp2_ListItem *)m_cityListDropDown->GetListBox()->GetSelectedItem();
-	if(!selItem) return NULL;
+	if(!selItem) return nullptr;
 	Unit u;
 	u.m_id = (uintptr_t)selItem->GetUserData();
-	if(!u.IsValid()) return NULL;
+	if(!u.IsValid()) return nullptr;
 	return u.CD();
 }
 
@@ -460,8 +460,8 @@ void CityControlPanel::UpdateBuildItem()
 	}
 
 	sint32			numberOfItems	= m_cityListDropDown->GetListBox()->NumItems();
-	BuildQueue *	queue			= theCity ? theCity->GetBuildQueue() : NULL;
-	BuildNode *		head			= queue ? queue->GetHead() : NULL;
+	BuildQueue *	queue			= theCity ? theCity->GetBuildQueue() : nullptr;
+	BuildNode *		head			= queue ? queue->GetHead() : nullptr;
 	sint32 const	cost			= theCity ? theCity->GetOvertimeCost() : 0;
 	bool const		isMyTurn		= visiblePlayer == selitem_Get()->GetCurPlayer();
 
@@ -530,7 +530,7 @@ void CityControlPanel::UpdateBuildItem()
 	} else {
 
 		m_buildItemIconButton->SetText("---");
-		m_buildItemIconButton->ExchangeImage(4, 0, NULL);
+		m_buildItemIconButton->ExchangeImage(4, 0, nullptr);
 	}
 
 	MBCHAR numTurns[50];
@@ -552,7 +552,7 @@ void CityControlPanel::NoBuildItem()
 {
 	m_buildItemLabel->SetText(
 		stringdb_Get()->GetNameStr("str_ldl_CP_BUILD_QUEUE_EMPTY"));
-	m_buildItemIconButton->ExchangeImage(4, 0, NULL);
+	m_buildItemIconButton->ExchangeImage(4, 0, nullptr);
 	m_buildItemIconButton->SetText(
 		stringdb_Get()->GetNameStr("str_ldl_CP_EDIT_BUILD_QUEUE"));
 	m_buildItemTurnButton->SetText("-");
@@ -562,7 +562,7 @@ void CityControlPanel::ClearBuildItem()
 {
 	if(m_currentItem >= -1) {
 		m_buildItemLabel->SetText("");
-		m_buildItemIconButton->ExchangeImage(4, 0, NULL);
+		m_buildItemIconButton->ExchangeImage(4, 0, nullptr);
 		m_buildItemIconButton->SetText("");
 		m_buildItemTurnButton->SetText("");
 
@@ -760,7 +760,7 @@ const MBCHAR *CityControlPanel::GetBuildIcon(const BuildNode *buildNode)
 
 	Assert(buildNode);
 
-	const MBCHAR *largeIcon = NULL;
+	const MBCHAR *largeIcon = nullptr;
 
 	switch(buildNode->m_category) {
 		case k_GAME_OBJ_TYPE_UNIT:
@@ -781,7 +781,7 @@ const MBCHAR *CityControlPanel::GetBuildIcon(const BuildNode *buildNode)
 			if(g_theIconDB->GetNamedItem("ICON_IMPROVE_INFRASTRUCTURE", index)) {
 				largeIcon = g_theIconDB->Get(index)->GetIcon();
 			} else {
-				largeIcon = NULL;
+				largeIcon = nullptr;
 			}
 			break;
 		}
@@ -791,7 +791,7 @@ const MBCHAR *CityControlPanel::GetBuildIcon(const BuildNode *buildNode)
 			if(g_theIconDB->GetNamedItem("ICON_IMPROVE_CAPITALIZATION", index)) {
 				largeIcon = g_theIconDB->Get(index)->GetIcon();
 			} else {
-				largeIcon = NULL;
+				largeIcon = nullptr;
 			}
 			break;
 		}
@@ -881,8 +881,8 @@ AUI_ERRCODE CityControlPanel::ProgressDrawCallback(ctp2_Static *control,
 	double neededProd;
 
 	CityWindow* cityWindow = CityWindow::GetCityWindow();
-	CityData* cityData = cityWindow ? cityWindow->GetCityData() : NULL;
-	if(cityData != NULL && cityData->GetHomeCity() == city)
+	CityData* cityData = cityWindow ? cityWindow->GetCityData() : nullptr;
+	if(cityData != nullptr && cityData->GetHomeCity() == city)
 	{
 		storedProd = double(cityData->GetStoredCityProduction());
 		neededProd = cityData->GetBuildQueue()->GetHead() ? double(cityData->GetBuildQueue()->GetHead()->m_cost) : 0.0;

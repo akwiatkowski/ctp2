@@ -300,7 +300,7 @@ STDEHANDLER(ExchangeMaps_NewProposalEvent) {
 		return GEV_HD_Continue;
 
 	Player *player_ptr = player_Get(sender);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 
 	sint32 offer_priority =
@@ -1429,7 +1429,7 @@ STDEHANDLER(BreakAgreementWithEnemy_NewProposalEvent)
 	PLAYER_INDEX cold_war_enemy;
 	for (cold_war_enemy = 1; cold_war_enemy < CtpAi::s_maxPlayers; cold_war_enemy++)
 	{
-		if (player_Get(cold_war_enemy) == NULL)
+		if (player_Get(cold_war_enemy) == nullptr)
 			continue;
 
 		if (receiver_diplomat.GetPublicRegard(cold_war_enemy) < FRIEND_REGARD)
@@ -1908,7 +1908,7 @@ STDEHANDLER(RequestHonorMilitaryAgeement_NewProposalEvent)
 	PLAYER_INDEX hot_war_enemy;
 	for (hot_war_enemy = 1; hot_war_enemy < CtpAi::s_maxPlayers; hot_war_enemy++)
 	{
-		if (player_Get(hot_war_enemy) == NULL)
+		if (player_Get(hot_war_enemy) == nullptr)
 			continue;
 
 		if (AgreementMatrix::s_agreements.TurnsAtWar(sender, hot_war_enemy) < 10)

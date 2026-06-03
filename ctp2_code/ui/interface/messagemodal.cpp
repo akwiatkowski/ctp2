@@ -26,7 +26,7 @@
 
 extern sint32 g_ScreenHeight;
 
-MessageModal		*g_modalMessage = NULL;
+MessageModal		*g_modalMessage = nullptr;
 
 int messagemodal_CreateModalMessage( Message data )
 {
@@ -73,7 +73,7 @@ void messagemodal_DestroyModalMessage( )
 		g_modalMessage->RemoveBordersFromUI();
 
 		delete g_modalMessage;
-		g_modalMessage = NULL;
+		g_modalMessage = nullptr;
 
 
 		if(player_arr_Get() && player_Get(selitem_Get()->GetVisiblePlayer())) {
@@ -103,13 +103,13 @@ AUI_ERRCODE MessageModal::InitCommon( MBCHAR *ldlBlock, Message data )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	m_messageText = NULL;
+	m_messageText = nullptr;
 	m_message = data;
 
-	m_leftBar = NULL;
-	m_topBar = NULL;
-	m_rightBar = NULL;
-	m_bottomBar = NULL;
+	m_leftBar = nullptr;
+	m_topBar = nullptr;
+	m_rightBar = nullptr;
+	m_bottomBar = nullptr;
 
 	SetStronglyModal( TRUE );
 	SetDraggable( TRUE );
@@ -229,8 +229,8 @@ AUI_ERRCODE MessageModal::CreateStandardEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointStandard = new MessageEyePointStandard( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointStandard != NULL );
-	if ( m_messageEyePoint.m_messageEyePointStandard == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointStandard != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointStandard == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -243,8 +243,8 @@ AUI_ERRCODE MessageModal::CreateDropdownEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointDropdown = new MessageEyePointDropdown( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointDropdown != NULL );
-	if ( m_messageEyePoint.m_messageEyePointDropdown == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointDropdown != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointDropdown == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -257,8 +257,8 @@ AUI_ERRCODE MessageModal::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 
 	m_messageEyePoint.m_messageEyePointListbox = new MessageEyePointListbox( &errcode,
 						ldlBlock, this );
-	Assert( m_messageEyePoint.m_messageEyePointListbox != NULL );
-	if ( m_messageEyePoint.m_messageEyePointListbox == NULL )
+	Assert( m_messageEyePoint.m_messageEyePointListbox != nullptr );
+	if ( m_messageEyePoint.m_messageEyePointListbox == nullptr )
 		return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -268,7 +268,7 @@ AUI_ERRCODE MessageModal::CreateListboxEyePointBox( MBCHAR *ldlBlock )
 AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
-	ctp2_Button		*lastbutton = NULL;
+	ctp2_Button		*lastbutton = nullptr;
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ModalResponseButton");
 	sint32			responseCount = 0;
@@ -311,8 +311,8 @@ AUI_ERRCODE MessageModal::CreateResponses( MBCHAR *ldlBlock )
 
 		MessageModalResponseAction	* action =
             new MessageModalResponseAction( &m_message, responseCount );
-		Assert( action != NULL );
-		if ( action == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+		Assert( action != nullptr );
+		if ( action == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		m_messageModalResponseAction->AddTail( action );
 

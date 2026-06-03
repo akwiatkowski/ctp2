@@ -22,7 +22,7 @@ NetOrder::NetOrder(sint32 owner, const Army &army,
 	if(a_path)
 		m_path = new Path(a_path);
 	else
-		m_path = NULL;
+		m_path = nullptr;
 
 	m_point = point;
 	m_argument = arg;
@@ -31,7 +31,7 @@ NetOrder::NetOrder(sint32 owner, const Army &army,
 
 NetOrder::NetOrder()
 {
-	m_path = NULL;
+	m_path = nullptr;
 }
 
 NetOrder::~NetOrder()
@@ -146,7 +146,7 @@ void NetOrder::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	uint16 n;
 	PULLSHORT(n);
 
-	Path *path = NULL;
+	Path *path = nullptr;
 	if(n & 0x8000) {
 		path = new Path;
 		PULLSHORT(path->m_start.x);

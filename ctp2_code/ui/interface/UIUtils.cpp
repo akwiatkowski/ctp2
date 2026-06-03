@@ -10,11 +10,11 @@
 void BlockPush(MBCHAR *path, MBCHAR *addition)
 	{
 
-	Assert(addition != NULL) ;
+	Assert(addition != nullptr) ;
 
 	Assert(addition[0] != NULL) ;
 
-	Assert(path != NULL) ;
+	Assert(path != nullptr) ;
 
 	Assert((strlen(path)+strlen(addition)+2)<k_AUI_LDL_MAXBLOCK) ;
 
@@ -31,13 +31,13 @@ void BlockPop(MBCHAR *path)
 	{
 	MBCHAR	*p ;
 
-	Assert(path != NULL) ;
+	Assert(path != nullptr) ;
 
 	Assert(path[0] != NULL) ;
 	p = strrchr(path, '.') ;
 
-	Assert(p!=NULL) ;
-	if (p==NULL)
+	Assert(p!=nullptr) ;
+	if (p==nullptr)
 		return ;
 
 	*p = NULL ;
@@ -67,7 +67,7 @@ MBCHAR *uiutils_ChooseLdl(MBCHAR *firstChoice, MBCHAR *fallback)
     if (aui_Ldl::IsValid(fallback))
 		return fallback;
 
-	return NULL;
+	return nullptr;
 }
 
 

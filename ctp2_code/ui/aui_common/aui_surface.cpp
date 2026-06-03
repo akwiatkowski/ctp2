@@ -40,7 +40,7 @@
 
 sint32 aui_Surface::m_surfaceRefCount = 0;
 #ifdef USE_SDL
-SDL_mutex *		aui_Surface::m_cs = 0;
+SDL_mutex *		aui_Surface::m_cs = nullptr;
 #else
 CRITICAL_SECTION	aui_Surface::m_cs;
 #endif
@@ -93,7 +93,7 @@ aui_Surface::aui_Surface(
 #endif
 
 		m_saveBuffer = (uint8 *)(new uint32[ m_size >> 2 ]);
-		Assert( m_saveBuffer != NULL );
+		Assert( m_saveBuffer != nullptr );
 
 		if (m_saveBuffer)
         {
@@ -113,14 +113,14 @@ AUI_ERRCODE aui_Surface::InitCommon( sint32 width, sint32 height, sint32 bpp, BO
 	m_pixelFormat = AUI_SURFACE_PIXELFORMAT_UNKNOWN,
 	m_chromaKey = 0x00000000,
 	m_isPrimary = isPrimary,
-	m_buffer = NULL,
+	m_buffer = nullptr,
 #ifdef __AUI_USE_DIRECTX__
 	m_hdc = NULL,
 	m_dcIsGot = false,
 	m_hbitmap = NULL,
 	m_holdbitmap = NULL,
 #endif // __AUI_USE_DIRECTX__
-	m_saveBuffer = NULL,
+	m_saveBuffer = nullptr,
 	m_allocated = FALSE,
 	m_locksRemain = k_SURFACE_MAXLOCK;
 
@@ -172,7 +172,7 @@ aui_Surface::~aui_Surface()
 #endif
 
 		delete[] m_saveBuffer;
-		m_saveBuffer = m_buffer = NULL;
+		m_saveBuffer = m_buffer = nullptr;
 		m_allocated = FALSE;
 	}
 
@@ -180,7 +180,7 @@ aui_Surface::~aui_Surface()
 	{
 #ifdef USE_SDL
 		SDL_DestroyMutex(m_cs);
-		m_cs = 0;
+		m_cs = nullptr;
 #else
 		DeleteCriticalSection(&m_cs);
 #endif
@@ -260,7 +260,7 @@ uint32 aui_Surface::SetChromaKey( uint8 red, uint8 green, uint8 blue )
 
 AUI_ERRCODE aui_Surface::Lock( RECT *rect, LPVOID *buffer, DWORD flags )
 {
-	*buffer = NULL;
+	*buffer = nullptr;
 
 	while ( ManipulateLockList( rect, buffer, AUI_SURFACE_LOCKOP_ADD ) != AUI_ERRCODE_OK )
 		;
@@ -274,7 +274,7 @@ AUI_ERRCODE aui_Surface::Lock( RECT *rect, LPVOID *buffer, DWORD flags )
 
 AUI_ERRCODE aui_Surface::Unlock( LPVOID buffer )
 {
-	return ManipulateLockList( NULL, &buffer, AUI_SURFACE_LOCKOP_REMOVE );
+	return ManipulateLockList( nullptr, &buffer, AUI_SURFACE_LOCKOP_REMOVE );
 }
 
 #ifdef __AUI_USE_DIRECTX__
@@ -490,7 +490,7 @@ AUI_ERRCODE aui_Surface::ManipulateLockList( RECT *rect, LPVOID *buffer, AUI_SUR
 			if ( subset->buffer == *buffer )
 			{
 
-				if ( ++m_locksRemain == k_SURFACE_MAXLOCK ) m_buffer = NULL;
+				if ( ++m_locksRemain == k_SURFACE_MAXLOCK ) m_buffer = nullptr;
 
 				memset( subset, 0, sizeof( aui_SurfaceSubset ) );
 

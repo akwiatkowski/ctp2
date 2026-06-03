@@ -98,48 +98,48 @@ public:
 		sint32 width,
 		sint32 height,
 		sint32 bpp,
-		const MBCHAR *ldlFilename  = NULL);
+		const MBCHAR *ldlFilename  = nullptr);
 	virtual ~aui_UI();
 
 protected:
 	aui_UI()
 	:
 		aui_Region                  (),
-		m_dirtyRectInfoMemory       (NULL),
-		m_dirtyRectInfoList         (NULL),
+		m_dirtyRectInfoMemory       (nullptr),
+		m_dirtyRectInfoList         (nullptr),
 		m_hinst                     ((HINSTANCE) INVALID_HANDLE_VALUE),
 		m_hwnd                      ((HWND) INVALID_HANDLE_VALUE),
 		m_bpp                       (0),
 		m_pixelFormat               (AUI_SURFACE_PIXELFORMAT_UNKNOWN),
-		m_ldl                       (NULL),
-		m_primary                   (NULL),
-		m_secondary                 (NULL),
-		m_blitter                   (NULL),
-		m_memmap                    (NULL),
-		m_mouse                     (NULL),
-		m_keyboard                  (NULL),
-		m_joystick                  (NULL),
-		m_dirtyList                 (NULL),
+		m_ldl                       (nullptr),
+		m_primary                   (nullptr),
+		m_secondary                 (nullptr),
+		m_blitter                   (nullptr),
+		m_memmap                    (nullptr),
+		m_mouse                     (nullptr),
+		m_keyboard                  (nullptr),
+		m_joystick                  (nullptr),
+		m_dirtyList                 (nullptr),
 		m_color                     (k_AUI_UI_NOCOLOR),
-		m_image                     (NULL),
-		m_colorAreas                (NULL),
-		m_imageAreas                (NULL),
-		m_virtualFocus              (NULL),
+		m_image                     (nullptr),
+		m_colorAreas                (nullptr),
+		m_imageAreas                (nullptr),
+		m_virtualFocus              (nullptr),
 		m_dxver                     (0),
 		m_editMode                  (false),
-		m_editRegion                (NULL),
-		m_editWindow                (NULL),
-		m_localRectText             (NULL),
-		m_absoluteRectText          (NULL),
-		m_editModeLdlName           (NULL),
-		m_imageResource             (NULL),
-		m_cursorResource            (NULL),
-		m_bitmapFontResource        (NULL),
-		m_audioManager              (NULL),
-		m_movieManager              (NULL),
-		m_actionList                (NULL),
-		m_destructiveActionList     (NULL),
-		m_winList                   (NULL),
+		m_editRegion                (nullptr),
+		m_editWindow                (nullptr),
+		m_localRectText             (nullptr),
+		m_absoluteRectText          (nullptr),
+		m_editModeLdlName           (nullptr),
+		m_imageResource             (nullptr),
+		m_cursorResource            (nullptr),
+		m_bitmapFontResource        (nullptr),
+		m_audioManager              (nullptr),
+		m_movieManager              (nullptr),
+		m_actionList                (nullptr),
+		m_destructiveActionList     (nullptr),
+		m_winList                   (nullptr),
 		m_minimize                  (false),
 		m_savedMouseAnimFirstIndex  (0),
 		m_savedMouseAnimLastIndex   (0),
@@ -205,12 +205,12 @@ public:
 	sint32 PrimaryWidth()   { return m_primary->Width(); };
 	sint32 SecondaryHeight(){ return m_secondary->Height(); };
 	sint32 SecondaryWidth() { return m_secondary->Width(); };
-	bool HasPrimary()       { return m_primary   != NULL; };
-	bool HasSecondary()     { return m_secondary != NULL; };
+	bool HasPrimary()       { return m_primary   != nullptr; };
+	bool HasSecondary()     { return m_secondary != nullptr; };
 
 	AUI_ERRCODE BlackScreen()
 	{
-		if(m_primary != NULL)
+		if(m_primary != nullptr)
 		{
 			RECT rect = {0, 0, PrimaryWidth(), PrimaryHeight()};
 			return m_blitter->ColorBlt(m_primary, &rect, RGB(0,0,0), 0);
@@ -298,7 +298,7 @@ public:
 	aui_AudioManager *TheAudioManager( ) const { return m_audioManager; }
 
 	aui_Sound	*LoadSound( const MBCHAR *name )
-		{ return m_audioManager ? m_audioManager->Load( name ) : NULL; }
+		{ return m_audioManager ? m_audioManager->Load( name ) : nullptr; }
 
 	AUI_ERRCODE	UnloadSound( aui_Sound *resource )
 		{ return m_audioManager ? m_audioManager->Unload( resource ) : AUI_ERRCODE_HACK; }
@@ -313,7 +313,7 @@ public:
 	aui_MovieManager *TheMovieManager( ) const { return m_movieManager; }
 
 	aui_Movie	*LoadMovie( const MBCHAR *name)
-		{ return m_movieManager ? m_movieManager->Load( name, C3DIR_VIDEOS  ) : NULL; }
+		{ return m_movieManager ? m_movieManager->Load( name, C3DIR_VIDEOS  ) : nullptr; }
 
 	AUI_ERRCODE	UnloadMovie( aui_Movie *resource )
 		{ return m_movieManager ? m_movieManager->Unload( resource ) : AUI_ERRCODE_HACK; }
@@ -326,7 +326,7 @@ public:
 		{ return m_movieManager ? m_movieManager->RemoveSearchPath( path ) : AUI_ERRCODE_HACK; }
 
 	aui_Window		*TopWindow( ) const
-	{ return m_childList->L() ? (aui_Window *)m_childList->GetHead() : NULL; }
+	{ return m_childList->L() ? (aui_Window *)m_childList->GetHead() : nullptr; }
 	aui_Window		*BringWindowToTop( uint32 windowId );
 	aui_Window		*BringWindowToTop( aui_Window *window );
 
@@ -346,16 +346,16 @@ public:
 	AUI_ERRCODE	ShowWindow( uint32 windowId );
 	AUI_ERRCODE	HideWindow( uint32 windowId );
 
-	virtual AUI_ERRCODE	Idle( aui_Region *recurse = NULL );
+	virtual AUI_ERRCODE	Idle( aui_Region *recurse = nullptr );
 
-	AUI_ERRCODE	Invalidate( RECT *rect = NULL );
+	AUI_ERRCODE	Invalidate( RECT *rect = nullptr );
 
 	AUI_ERRCODE AddDirtyRect( RECT *rect );
 	AUI_ERRCODE AddDirtyRect( sint32 left, sint32 top, sint32 right, sint32 bottom );
 
 	AUI_ERRCODE HandleMouseEvents(
 		sint32 numEvents = 0,
-		aui_MouseEvent *events = NULL );
+		aui_MouseEvent *events = nullptr );
 	AUI_ERRCODE HandleKeyboardEvents( );
 	AUI_ERRCODE HandleJoystickEvents( );
 	virtual AUI_ERRCODE HandleWindowsMessage(

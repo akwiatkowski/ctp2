@@ -76,7 +76,7 @@ BattleOrderBox::BattleOrderBox(AUI_ERRCODE *retval,
 					   void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ControlSheet(retval, id, ldlBlock, ActionFunc, cookie)
 {
 	InitCommon(ldlBlock);
@@ -93,10 +93,10 @@ BattleOrderBox::BattleOrderBox(AUI_ERRCODE *retval,
 					   void *cookie)
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	ControlSheet(retval, id, x, y, width, height, pattern, ActionFunc, cookie)
 {
-	InitCommon(NULL);
+	InitCommon(nullptr);
 }
 
 AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
@@ -114,7 +114,7 @@ AUI_ERRCODE BattleOrderBox::InitCommon( MBCHAR *ldlBlock)
 	sint32	i,j;
 
 	for ( i = 0;i < k_CARGO_CAPACITY;i++ ) {
-		m_cargo[i] = NULL;
+		m_cargo[i] = nullptr;
 	}
 
 	for (i=0; i<3; i++) {
@@ -293,12 +293,12 @@ BattleOrderBox::~BattleOrderBox()
 	BobButtonAction		*action;
 
 	for (i=0; i<k_MAX_BOB_UNITS; i++) {
-		if (m_unitControls[i] != NULL) {
+		if (m_unitControls[i] != nullptr) {
 			action = (BobButtonAction *)m_unitControls[i]->IconButton()->GetAction();
 			Assert(action);
 			delete action;
 			delete m_unitControls[i];
-			m_unitControls[i] = NULL;
+			m_unitControls[i] = nullptr;
 
 		}
 	}
@@ -309,31 +309,31 @@ BattleOrderBox::~BattleOrderBox()
 	delete action;
 
 	delete m_unitImage;
-	m_unitImage = NULL;
+	m_unitImage = nullptr;
 
 	delete m_unitFortify;
-	m_unitFortify = NULL;
+	m_unitFortify = nullptr;
 
 	delete m_unitVeteran;
-	m_unitVeteran = NULL;
+	m_unitVeteran = nullptr;
 
 	delete m_unitARDText;
-	m_unitARDText = NULL;
+	m_unitARDText = nullptr;
 
 	delete m_unitARD;
-	m_unitARD = NULL;
+	m_unitARD = nullptr;
 
 	delete m_unitMovement;
-	m_unitMovement = NULL;
+	m_unitMovement = nullptr;
 
 	delete m_unitMText;
-	m_unitMText = NULL;
+	m_unitMText = nullptr;
 
 	delete m_activeDefenseIcon;
-	m_activeDefenseIcon = NULL;
+	m_activeDefenseIcon = nullptr;
 
 	delete m_veteranIcon;
-	m_veteranIcon = NULL;
+	m_veteranIcon = nullptr;
 
 	RemoveControl( m_unitHealthBar );
 	RemoveControl( m_fuelLabel );
@@ -578,7 +578,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 	Unit			unit;
 	UnitTabButton	*button;
 
-	if (selectedArmy.m_id == (0) && fullArmy == NULL) {
+	if (selectedArmy.m_id == (0) && fullArmy == nullptr) {
 
 		for (i=0; i<k_MAX_BOB_UNITS; i++) {
 			button = m_unitControls[i];
@@ -588,7 +588,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 
 			button->IconButton()->SetIcon("");
 
-			button->UpdateData( NULL );
+			button->UpdateData( nullptr );
 
 			BobButtonAction *action = (BobButtonAction *)button->IconButton()->GetAction();
 			Assert(action);
@@ -610,7 +610,7 @@ void BattleOrderBox::SetStack(Army &selectedArmy, CellUnitList *fullArmy, Unit s
 
 			m_unitRectColors[i] = COLOR_BLACK;
 
-			button->UpdateData( NULL );
+			button->UpdateData( nullptr );
 
 			BobButtonAction *action = (BobButtonAction *)button->IconButton()->GetAction();
 			Assert(action);

@@ -19,7 +19,7 @@ C3Window::C3Window(
 	bool bevel)
 	:
 	aui_Window( retval, id, ldlBlock, bpp, type ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 	m_bevel = bevel;
 

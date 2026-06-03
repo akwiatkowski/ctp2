@@ -45,8 +45,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	ctp2_Switch(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -55,8 +55,8 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		sint32 state = 0,
 		sint32 numStates = k_CTP2_SWITCH_DEFAULTNUMSTATES );
 	virtual ~ctp2_Switch() {}
@@ -65,7 +65,7 @@ public:
 	sint32 BevelWidth( ) const { return m_bevelWidth; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

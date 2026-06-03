@@ -111,5 +111,5 @@ void aui_DragDropWindow::MouseLDropOutside( aui_MouseEvent *mouseData )
 
 	aui_Window::MouseLDropOutside( mouseData );
 
-	SetWhichSeesMouse( NULL );
+	SetWhichSeesMouse( nullptr );
 }

@@ -29,13 +29,13 @@ public:
 	virtual ~StaticPicture();
 
 protected:
-	StaticPicture() : aui_Static(), m_picture(NULL) {};
+	StaticPicture() : aui_Static(), m_picture(nullptr) {};
 	AUI_ERRCODE InitCommon( MBCHAR *ldlBlock, MBCHAR *picture );
 	AUI_ERRCODE InitCommon( MBCHAR *picture );
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

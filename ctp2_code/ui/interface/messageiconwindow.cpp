@@ -28,7 +28,7 @@ extern uint8 g_messageIconSpacing;
 extern FilenameDB *g_theMessageIconFileDB;
 extern SelectedItem *selitem_Get();
 
-MessageIconWindow *MessageIconWindow::m_currentIconWindow = NULL;
+MessageIconWindow *MessageIconWindow::m_currentIconWindow = nullptr;
 
 MessageIconWindow::MessageIconWindow(
 	AUI_ERRCODE *retval,
@@ -57,18 +57,18 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	MBCHAR			iconDataBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	m_messageWindow = NULL;
+	m_messageWindow = nullptr;
 	m_isMoving = FALSE;
 	m_currentY = 0;
 	m_targetY = 0;
 	m_acceleration = 0;
 	tech_WLList<MessageIconWindow *> *list = messagelist->GetList();
 	if ( list->L() == 0 )
-		m_prev = NULL;
+		m_prev = nullptr;
 	else
 		m_prev = list->GetTail();
 
-	m_next = NULL;
+	m_next = nullptr;
 	m_messageList = messagelist;
 
 	if ( m_prev )
@@ -139,8 +139,8 @@ AUI_ERRCODE MessageIconWindow::InitCommon( Message *data,
 	}
 
 	m_messageOpenAction = new MessageOpenAction( this );
-	Assert( m_messageOpenAction != NULL );
-	if ( m_messageOpenAction == NULL ) return AUI_ERRCODE_MEMALLOCFAILED;
+	Assert( m_messageOpenAction != nullptr );
+	if ( m_messageOpenAction == nullptr ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_icon->SetAction( m_messageOpenAction );
 
@@ -179,7 +179,7 @@ void MessageIconWindow::SetCurrentIconButton( MessageIconButton *iconButton )
 	if ( iconButton ) {
 		m_currentIconWindow = this;
 	} else
-		m_currentIconWindow = NULL;
+		m_currentIconWindow = nullptr;
 
 	if (m_icon)
 		m_icon->SetCurrentIconButton( iconButton );
@@ -187,12 +187,12 @@ void MessageIconWindow::SetCurrentIconButton( MessageIconButton *iconButton )
 
 void MessageIconWindow::SetTipWindowText( MBCHAR *text )
 {
-	if ( text == NULL ) return;
+	if ( text == nullptr ) return;
 
 	if ( !strlen( text )) {
 
 		delete ((aui_TipWindow *)m_icon->GetTipWindow());
-		m_icon->SetTipWindow( NULL );
+		m_icon->SetTipWindow( nullptr );
 	} else {
 		((aui_TipWindow *)m_icon->GetTipWindow())->GetStatic()->SetText( text );
 	}
@@ -271,12 +271,12 @@ MessageIconWindow::~MessageIconWindow()
 {
 	if ( m_icon ) {
 		delete m_icon;
-		m_icon = NULL;
+		m_icon = nullptr;
 	}
 
 	if ( m_messageOpenAction ) {
 		delete m_messageOpenAction;
-		m_messageOpenAction = NULL;
+		m_messageOpenAction = nullptr;
 	}
 
 	if ( m_next ) {

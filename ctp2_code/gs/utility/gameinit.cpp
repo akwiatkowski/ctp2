@@ -179,20 +179,20 @@ extern sint32 g_cheat_age;
 
 GAME_TRAMPOLINE(gamesettings_Get, gamesettings_Set, Settings, GameSettings)
 
-static Wormhole             *g_wormhole=NULL;
+static Wormhole             *g_wormhole=nullptr;
 Wormhole * wormhole_Get()    { return g_wormhole; }
 void       wormhole_Set(Wormhole *w) { g_wormhole = w; }
 
-StringDB                    *g_theStringDB=NULL;
+StringDB                    *g_theStringDB=nullptr;
 
 StringDB * stringdb_Get()        { return g_theStringDB; }
 void       stringdb_Set(StringDB *p) { g_theStringDB = p; }
-OzoneDatabase               *g_theUVDB=NULL;
-static ThroneDB             *g_theThroneDB = NULL;
+OzoneDatabase               *g_theUVDB=nullptr;
+static ThroneDB             *g_theThroneDB = nullptr;
 
 ThroneDB * thronedb_Get()        { return g_theThroneDB; }
 void       thronedb_Set(ThroneDB *p) { g_theThroneDB = p; }
-PlayListDB                  *g_thePlayListDB = NULL;
+PlayListDB                  *g_thePlayListDB = nullptr;
 GAME_TRAMPOLINE(world_Get, world_Set, World, World)
 GAME_TRAMPOLINE(unitpool_Get, unitpool_Set, Units, UnitPool)
 
@@ -211,16 +211,16 @@ ArmyPool * armypool_Set(ArmyPool *p) {
     game->SetArmiesPtr(p);
     return prev;
 }
-static Player               **g_player=NULL;
+static Player               **g_player=nullptr;
 
-Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : NULL; }
+Player *  player_Get(sint32 i)                { return g_player ? g_player[i] : nullptr; }
 Player ** player_arr_Get()                { return g_player; }
 void      player_arr_Set(Player **p)          { g_player = p; }
-PointerList<Player>         *g_deadPlayer = NULL;
+PointerList<Player>         *g_deadPlayer = nullptr;
 GAME_TRAMPOLINE(rand_ptr, rand_ptr_Set, Rand, RandomGenerator)
 GAME_TRAMPOLINE(tradepool_Get,      tradepool_Set,      Trades,      TradePool)
 GAME_TRAMPOLINE(tradeofferpool_Get, tradeofferpool_Set, TradeOffers, TradeOfferPool)
-static QuadTree<Unit>       *g_theUnitTree = NULL;
+static QuadTree<Unit>       *g_theUnitTree = nullptr;
 
 QuadTree<Unit> * unit_tree_Get()              { return g_theUnitTree; }
 void             unit_tree_Set(QuadTree<Unit> *p) { g_theUnitTree = p; }
@@ -231,7 +231,7 @@ GAME_TRAMPOLINE(civilisationpool_Get,      civilisationpool_Set,      Civilisati
 GAME_TRAMPOLINE(agreementpool_Get,         agreementpool_Set,         Agreements,          AgreementPool)
 GAME_TRAMPOLINE(terrimprovepool_Get,       terrimprovepool_Set,       TerrainImprovements, TerrainImprovementPool)
 GAME_TRAMPOLINE(installationpool_Get,      installationpool_Set,      Installations,       InstallationPool)
-static InstallationQuadTree *g_theInstallationTree = NULL;
+static InstallationQuadTree *g_theInstallationTree = nullptr;
 
 InstallationQuadTree * installation_tree_Get()              { return g_theInstallationTree; }
 void                   installation_tree_Set(InstallationQuadTree *p) { g_theInstallationTree = p; }
@@ -239,22 +239,22 @@ GAME_TRAMPOLINE(topten_Get, topten_Set, TopTen, TopTen)
 
 GAME_TRAMPOLINE(turn_Get, turn_Set, Turn, TurnCount)
 
-static ProfileDB            *g_theProfileDB = NULL;
+static ProfileDB            *g_theProfileDB = nullptr;
 
 ProfileDB * profiledb_Get()                 { return g_theProfileDB; }
 void        profiledb_Set(ProfileDB *p)         { g_theProfileDB = p; }
 
-MovieDB                     *g_theVictoryMovieDB = NULL;
-FilenameDB                  *g_theMessageIconFileDB = NULL;
-Pool<Order>                 *g_theOrderPond = NULL;
-Pool<UnseenCell>            *g_theUnseenPond = NULL;
-Diplomacy_Log               *g_theDiplomacyLog=NULL;
+MovieDB                     *g_theVictoryMovieDB = nullptr;
+FilenameDB                  *g_theMessageIconFileDB = nullptr;
+Pool<Order>                 *g_theOrderPond = nullptr;
+Pool<UnseenCell>            *g_theUnseenPond = nullptr;
+Diplomacy_Log               *g_theDiplomacyLog=nullptr;
 GAME_TRAMPOLINE(wonder_tracker_Get, wonder_tracker_Set, Wonders,      WonderTracker)
 GAME_TRAMPOLINE(eventtracker_Get,   eventtracker_Set,   EventTracker, EventTracker)
 GAME_TRAMPOLINE(feattracker_Get, feattracker_Set, Feats, FeatTracker)
 GAME_TRAMPOLINE(tradebids_Get,          tradebids_Set,          TradeBids,    TradeBids)
 GAME_TRAMPOLINE(achievementtracker_Get, achievementtracker_Set, Achievements, AchievementTracker)
-static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=NULL;
+static CriticalMessagesPrefs *g_theCriticalMessagesPrefs=nullptr;
 
 CriticalMessagesPrefs * critical_messages_prefs_Get() { return g_theCriticalMessagesPrefs; }
 void critical_messages_prefs_Set(CriticalMessagesPrefs *p) { g_theCriticalMessagesPrefs = p; }
@@ -490,7 +490,7 @@ sint32 gameinit_PlaceInitalUnits(sint32 nPlayers, MapPoint player_start_list[k_M
 	Unit id;
 	for (i=1; i<nPlayers; i++)
 	{
-		if (g_player[i]==NULL)
+		if (g_player[i]==nullptr)
 			continue;
 
 		sint32 which = i - 1;
@@ -1285,7 +1285,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	installationpool_Get()->RebuildQuadTree();
 
-	g_wormhole = NULL;
+	g_wormhole = nullptr;
 
 	wonder_tracker_Set(new WonderTracker());
 
@@ -1301,7 +1301,7 @@ sint32 spriteEditor_Initialize(sint32 mWidth, sint32 mHeight)
 
 	g_player = new Player*[k_MAX_PLAYERS];
 	Assert(g_player);
-    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) NULL);
+    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) nullptr);
 
 	g_deadPlayer = new PointerList<Player>;
 
@@ -1843,11 +1843,11 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
     {
 		sint32 wormholeExists;
 		*archive >> wormholeExists;
-        g_wormhole = (wormholeExists) ? new Wormhole(*archive) : NULL;
+        g_wormhole = (wormholeExists) ? new Wormhole(*archive) : nullptr;
 	}
     else
     {
-		g_wormhole = NULL;
+		g_wormhole = nullptr;
 	}
 
 	if(archive && loadEverything) {
@@ -1902,7 +1902,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	SPLASH_STRING("Setting Up Players...");
 
 	g_player = new Player *[k_MAX_PLAYERS];
-    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) NULL);
+    std::fill(g_player, g_player + k_MAX_PLAYERS, (Player *) nullptr);
 	g_deadPlayer = new PointerList<Player>;
 
 	sint32 playerAlive;
@@ -2086,7 +2086,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 		CreateBarbarians(diff);
 
 		sint32 netIndex = 0;
-		NSPlayerInfo *nspi = NULL;
+		NSPlayerInfo *nspi = nullptr;
 		sint32 civ = g_theProfileDB->GetCivIndex();
 		if(g_network.IsLaunchHost()) {
 			nspi = g_network.GetNSPlayerInfo(netIndex++);
@@ -2132,7 +2132,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 				 (g_network.IsNetworkLaunch() && g_theProfileDB->NoHumanPlayersOnHost() && i==g_network.GetNumHumanPlayers()))) {
 
 
-				NSAIPlayerInfo *nsaipi = NULL;
+				NSAIPlayerInfo *nsaipi = nullptr;
 				if(g_network.IsLaunchHost()) {
 					if(firstRobot < 0)
 						firstRobot = i;
@@ -2306,7 +2306,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 			for (sint32 n = numPlaced; n < k_MAX_PLAYERS; n++)
             {
 				delete g_player[n];
-				g_player[n] = NULL;
+				g_player[n] = nullptr;
 			}
 		}
 	}
@@ -2565,7 +2565,7 @@ sint32 gameinit_Initialize(sint32 mWidth, sint32 mHeight, CivArchive *archive)
 	// Clean good old -> new good table
 	// Created in CityData if the good database was changed in size.
 	delete [] g_newGoods;
-	g_newGoods = NULL;
+	g_newGoods = nullptr;
 
 	return 1;
 }
@@ -2602,7 +2602,7 @@ void gameinit_Cleanup()
 		}
 
 		delete [] g_player;
-		g_player = NULL;
+		g_player = nullptr;
 
 		if (g_deadPlayer)
 		{
@@ -2616,7 +2616,7 @@ void gameinit_Cleanup()
 	{ auto * p = diplomaticrequestpool_Get(); allocated::clear(p); diplomaticrequestpool_Set(p); };
 	{ auto * p = terrimprovepool_Get(); allocated::clear(p); terrimprovepool_Set(p); };
 	delete slicengine_Get();
-	slicengine_Set(NULL);
+	slicengine_Set(nullptr);
 	// TopTen / UnitPool / ArmyPool / Pollution are owned by Ctp2::Game;
 	// CivApp::CleanupGame has already reset m_topten/m_unitPool/etc., so
 	// the trampoline-routed Get returns null and these become no-ops.

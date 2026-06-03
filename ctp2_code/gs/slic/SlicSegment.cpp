@@ -59,7 +59,7 @@ namespace
 	SLIC_OBJECT const           TYPE_DEFAULT        = SLIC_OBJECT_MESSAGEBOX;
 
 	size_t const                SEGMENT_POOL_SIZE   = 100;
-	Pool<SlicSegment> *         s_segmentPond       = NULL;
+	Pool<SlicSegment> *         s_segmentPond       = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -91,14 +91,14 @@ SlicSegment::SlicSegment()
     m_priority                  (PRIORITY_DEFAULT),
     m_fromFile                  (FALSE),
     m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (NULL),
-    m_code                      (NULL),
-    m_uiComponent               (NULL),
-    m_filename                  (NULL),
-    m_trigger_symbols_indices   (NULL),
-    m_trigger_symbols           (NULL),
-    m_parameter_indices         (NULL),
-    m_parameter_symbols         (NULL),
+    m_id                        (nullptr),
+    m_code                      (nullptr),
+    m_uiComponent               (nullptr),
+    m_filename                  (nullptr),
+    m_trigger_symbols_indices   (nullptr),
+    m_trigger_symbols           (nullptr),
+    m_parameter_indices         (nullptr),
+    m_parameter_symbols         (nullptr),
     m_poolIndex                 (NOT_IN_USE)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
@@ -136,14 +136,14 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
     m_priority                  (PRIORITY_DEFAULT),
     m_fromFile                  (FALSE),
     m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (NULL),
-    m_code                      (NULL),
-    m_uiComponent               (NULL),
-    m_filename                  (NULL),
-    m_trigger_symbols_indices   (NULL),
-    m_trigger_symbols           (NULL),
-    m_parameter_indices         (NULL),
-    m_parameter_symbols         (NULL),
+    m_id                        (nullptr),
+    m_code                      (nullptr),
+    m_uiComponent               (nullptr),
+    m_filename                  (nullptr),
+    m_trigger_symbols_indices   (nullptr),
+    m_trigger_symbols           (nullptr),
+    m_parameter_indices         (nullptr),
+    m_parameter_symbols         (nullptr),
     m_poolIndex                 (slicifIndex)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
@@ -197,7 +197,7 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 		}
 	}
 
-	slic_object_array_Get()[slicifIndex] = NULL;
+	slic_object_array_Get()[slicifIndex] = nullptr;
 
 	m_enabled = TRUE;
 
@@ -248,14 +248,14 @@ SlicSegment::SlicSegment(CivArchive &archive)
     m_priority                  (PRIORITY_DEFAULT),
     m_fromFile                  (FALSE),
     m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (NULL),
-    m_code                      (NULL),
-    m_uiComponent               (NULL),
-    m_filename                  (NULL),
-    m_trigger_symbols_indices   (NULL),
-    m_trigger_symbols           (NULL),
-    m_parameter_indices         (NULL),
-    m_parameter_symbols         (NULL)
+    m_id                        (nullptr),
+    m_code                      (nullptr),
+    m_uiComponent               (nullptr),
+    m_filename                  (nullptr),
+    m_trigger_symbols_indices   (nullptr),
+    m_trigger_symbols           (nullptr),
+    m_parameter_indices         (nullptr),
+    m_parameter_symbols         (nullptr)
     // m_poolIndex              (filled when retrieving from the pool)
 {
 	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
@@ -283,25 +283,25 @@ SlicSegment::~SlicSegment()
 	if(m_id)
 	{
 		free(m_id);
-		m_id = NULL;
+		m_id = nullptr;
 	}
 
 	if(m_code)
 	{
 		free(m_code);
-		m_code = NULL;
+		m_code = nullptr;
 	}
 
 	if(m_uiComponent)
 	{
 		free(m_uiComponent);
-		m_uiComponent = NULL;
+		m_uiComponent = nullptr;
 	}
 
 	if(m_filename)
 	{
 		free(m_filename);
-		m_filename = NULL;
+		m_filename = nullptr;
 	}
 
 	delete [] m_trigger_symbols_indices;
@@ -312,10 +312,10 @@ SlicSegment::~SlicSegment()
 	// Has to be set to NULL, because SlicSegments are deleted twice,
 	// first from the StringHashNode and then from the pool. Actuially,
 	// not a very nice design, but with this extra stuff it should be harmless.
-	m_trigger_symbols_indices = NULL;
-	m_trigger_symbols         = NULL;
-	m_parameter_indices       = NULL;
-	m_parameter_symbols       = NULL;
+	m_trigger_symbols_indices = nullptr;
+	m_trigger_symbols         = nullptr;
+	m_parameter_indices       = nullptr;
+	m_parameter_symbols       = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -444,8 +444,8 @@ void SlicSegment::Serialize(CivArchive &archive)
 		if (m_code) archive.Load((uint8*)m_code, m_codeSize);
 
 		if (m_num_trigger_symbols < 1) {
-			m_trigger_symbols_indices = NULL;
-			m_trigger_symbols = NULL;
+			m_trigger_symbols_indices = nullptr;
+			m_trigger_symbols = nullptr;
 		} else {
 			m_trigger_symbols_indices = new sint32[m_num_trigger_symbols];
 			archive.Load((uint8*)m_trigger_symbols_indices, m_num_trigger_symbols * sizeof(sint32));
@@ -458,11 +458,11 @@ void SlicSegment::Serialize(CivArchive &archive)
 			m_uiComponent = (char *)malloc(l);
 			if (m_uiComponent) archive.Load((uint8*)m_uiComponent, l);
 		} else {
-			m_uiComponent = NULL;
+			m_uiComponent = nullptr;
 		}
 
 		archive >> m_num_parameters;
-		m_parameter_indices = (m_num_parameters > 0) ? new sint32[m_num_parameters] : NULL;
+		m_parameter_indices = (m_num_parameters > 0) ? new sint32[m_num_parameters] : nullptr;
 		sint32 i;
 		for(i = 0; i < m_num_parameters; i++) {
 			m_parameter_indices[i] = archive.GetSINT32();
@@ -475,13 +475,13 @@ void SlicSegment::Serialize(CivArchive &archive)
 				m_filename[l] = 0;
 			}
 		} else {
-			m_filename = NULL;
+			m_filename = nullptr;
 		}
 
 		if(m_type == SLIC_OBJECT_HANDLEEVENT) {
 			gevmanager_Get()->AddCallback(m_event, m_priority, this);
 		}
-		m_parameter_symbols = NULL;
+		m_parameter_symbols = nullptr;
 	}
 }
 
@@ -541,7 +541,7 @@ void SlicSegment::LinkParameterSymbols()
 		return;
 
 	delete [] m_parameter_symbols;
-	m_parameter_symbols = (m_num_parameters > 0) ? new SlicSymbolData *[m_num_parameters] : NULL;
+	m_parameter_symbols = (m_num_parameters > 0) ? new SlicSymbolData *[m_num_parameters] : nullptr;
 	for(sint32 i = 0; i < m_num_parameters; i++) {
 		m_parameter_symbols[i] = slicengine_Get()->GetSymbol(m_parameter_indices[i]);
 		Assert(m_parameter_symbols[i]);
@@ -651,7 +651,7 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 	Assert(start < m_code + m_codeSize);
 
 	if((start < m_code) || (start >= m_code + m_codeSize)) {
-		return NULL;
+		return nullptr;
 	}
 
 	bool atEnd = false;
@@ -729,7 +729,7 @@ uint8 *SlicSegment::FindNextLine(uint8 *start)
 				break;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool SlicSegment::GetSourceLines(sint32 &firstLineNum, sint32 &firstLineOffset, sint32 &lastLineNum)
@@ -819,12 +819,12 @@ uint8 *SlicSegment::GetCodePointer(sint32 lineNumber)
 		codePtr = FindNextLine(codePtr);
 		Assert(codePtr);
 		if(!codePtr)
-			return NULL;
+			return nullptr;
 
 		SOP op = (SOP)*codePtr;
 		Assert(op == SOP_LINE || op == SOP_LBRK);
 		if(op != SOP_LINE && op != SOP_LBRK)
-			return NULL;
+			return nullptr;
 
 		codePtr++;
 		curLine = *(sint32 *)codePtr;
@@ -836,7 +836,7 @@ uint8 *SlicSegment::GetCodePointer(sint32 lineNumber)
 		codePtr += sizeof(int);
 		codePtr += sizeof(SlicConditional *);
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool SlicSegment::LineHasBreak(sint32 lineNumber, bool &conditional)
@@ -852,7 +852,7 @@ bool SlicSegment::LineHasBreak(sint32 lineNumber, bool &conditional)
 		codePtr++;
 		codePtr += sizeof(int);
 		codePtr += sizeof(int);
-		if(*((SlicConditional**)codePtr) != NULL) {
+		if(*((SlicConditional**)codePtr) != nullptr) {
 			conditional = true;
 		}
 
@@ -883,7 +883,7 @@ void SlicSegment::RemoveConditional(sint32 line)
 		codePtr++;
 		codePtr += sizeof(int);
 		codePtr += sizeof(int);
-		*((SlicConditional **)codePtr) = NULL;
+		*((SlicConditional **)codePtr) = nullptr;
 	}
 }
 
@@ -897,7 +897,7 @@ SlicConditional *SlicSegment::GetConditional(sint32 line)
 		codePtr += sizeof(int);
 		return *((SlicConditional **)codePtr);
 	}
-	return NULL;
+	return nullptr;
 }
 
 SlicConditional *SlicSegment::NewConditional(sint32 line, const char *expression)
@@ -910,11 +910,11 @@ SlicConditional *SlicSegment::NewConditional(sint32 line, const char *expression
 		*((SlicConditional **)codePtr) = new SlicConditional(expression);
 		return *((SlicConditional **)codePtr);
 	}
-	return NULL;
+	return nullptr;
 }
 
 void SlicSegment::Cleanup()
 {
 	delete s_segmentPond;
-	s_segmentPond = NULL;
+	s_segmentPond = nullptr;
 }

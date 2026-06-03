@@ -19,7 +19,7 @@ public:
 	               sint32 width,
 	               sint32 height,
 	               sint32 bpp,
-	               SDL_Surface* lpdds = NULL,
+	               SDL_Surface* lpdds = nullptr,
 	               BOOL isPrimary = FALSE,
 	               BOOL useVideoMemory = FALSE,
 	               BOOL takeOwnership = FALSE );

@@ -139,7 +139,7 @@ UnitActor::UnitActor(SpriteStatePtr ss,
       m_unitDBIndex(unitType),
       m_playerNum(owner),
       m_nextPop(0),
-      m_unitSpriteGroup(NULL),
+      m_unitSpriteGroup(nullptr),
       m_loadType(LOADTYPE_NONE),
       m_facing(k_DEFAULTSPRITEFACING),
       m_lastMoveFacing(k_DEFAULTSPRITEFACING),
@@ -195,14 +195,14 @@ UnitActor::UnitActor(SpriteStatePtr ss,
 }
 
 UnitActor::UnitActor(CivArchive& archive)
-    : Actor(NULL),
+    : Actor(nullptr),
       m_refCount(1),
       m_pos(),
       m_unitID(),
       m_unitDBIndex(CTPRecord::INDEX_INVALID),
       m_playerNum(PLAYER_UNASSIGNED),
       m_nextPop(0),
-      m_unitSpriteGroup(NULL),
+      m_unitSpriteGroup(nullptr),
       m_loadType(LOADTYPE_NONE),
       m_facing(k_DEFAULTSPRITEFACING),
       m_lastMoveFacing(k_DEFAULTSPRITEFACING),
@@ -426,8 +426,8 @@ void UnitActor::ChangeImage(SpriteStatePtr ss, sint32 type, Unit id) {
     id.GetPop(m_size);  // put the city's pop into the actor's m_size
 
     CityWindow* cityWindow = CityWindow::GetCityWindow();
-    CityData* citaData = cityWindow ? cityWindow->GetCityData() : NULL;
-    if (citaData != NULL && citaData->GetHomeCity() == id) {
+    CityData* citaData = cityWindow ? cityWindow->GetCityData() : nullptr;
+    if (citaData != nullptr && citaData->GetHomeCity() == id) {
       m_nextPop = citaData->TurnsToNextPop();
     } else {
       // PFT, computes TurnsToNextPop and puts
@@ -440,10 +440,10 @@ void UnitActor::ChangeImage(SpriteStatePtr ss, sint32 type, Unit id) {
 
   if (m_type == GROUPTYPE_UNIT) {
     if (g_unitSpriteGroupList->ReleaseSprite(m_spriteID, m_loadType))
-      m_unitSpriteGroup = NULL;
+      m_unitSpriteGroup = nullptr;
   } else {
     if (g_citySpriteGroupList->ReleaseSprite(m_spriteID, m_loadType))
-      m_unitSpriteGroup = NULL;
+      m_unitSpriteGroup = nullptr;
   }
 
   GROUPTYPE groupType;
@@ -499,7 +499,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
   ChangeImage(ss, type, id);
 
   if (updateVision) {
-    if (tiledmap_Get()->GetLocalVision() != NULL &&
+    if (tiledmap_Get()->GetLocalVision() != nullptr &&
         m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(
@@ -512,7 +512,7 @@ void UnitActor::ChangeType(SpriteStatePtr ss,
   m_unitVisionRange = m_newUnitVisionRange;
 
   if (updateVision) {
-    if (tiledmap_Get()->GetLocalVision() != NULL &&
+    if (tiledmap_Get()->GetLocalVision() != nullptr &&
         m_playerNum == selitem_Get()->GetVisiblePlayer() &&
         !m_isUnseenCellActor) {
       DPRINTF(k_DBG_INFO,
@@ -536,7 +536,7 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
   Anim* anim = CreateAnim(UNITACTION_IDLE);
   m_frame = 0;
 
-  if (anim == NULL) {
+  if (anim == nullptr) {
     anim = CreateAnim(UNITACTION_MOVE);
   }
 
@@ -562,9 +562,9 @@ void UnitActor::AddIdle(bool NoIdleJustDelay) {
 void UnitActor::ActionQueueUpIdle(bool NoIdleJustDelay) {
   Anim* anim = CreateAnim(UNITACTION_IDLE);
 
-  if (anim == NULL) {
+  if (anim == nullptr) {
     anim = CreateAnim(UNITACTION_MOVE);
-    Assert(anim != NULL);
+    Assert(anim != nullptr);
   }
 
   if (anim && (!m_actionQueue.Empty() || NoIdleJustDelay)) {
@@ -717,7 +717,7 @@ void UnitActor::Process() {
 
     director_Get()->HandleNextAction();
   } else {
-    if (m_curAction->GetPath() != NULL) {
+    if (m_curAction->GetPath() != nullptr) {
       POINT curPt = m_curAction->GetPosition();
       m_x = curPt.x;
       m_y = curPt.y;
@@ -737,7 +737,7 @@ void UnitActor::Process() {
     if (m_curAction->SpecialDelayProcess() ||
         (m_curUnitAction == UNITACTION_IDLE && m_unitSpriteGroup &&
          m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)m_curUnitAction) ==
-             NULL)) {
+             nullptr)) {
       m_facing = m_lastMoveFacing;
     } else {
       m_facing = m_curAction->GetFacing();
@@ -777,7 +777,7 @@ ActionPtr UnitActor::WillDie() const {
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 ActionPtr UnitActor::WillMorph() const {
@@ -795,7 +795,7 @@ ActionPtr UnitActor::WillMorph() const {
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void UnitActor::DumpAllActions() {
@@ -804,7 +804,7 @@ void UnitActor::DumpAllActions() {
 #endif
   static MapPoint pos;
 
-  if (m_curAction != NULL) {
+  if (m_curAction != nullptr) {
     m_facing = m_curAction->GetFacing();
 
     if (m_curAction->m_actionType == UNITACTION_MOVE) {
@@ -823,7 +823,7 @@ void UnitActor::DumpAllActions() {
   while (!m_actionQueue.Empty()) {
     deadAction = m_actionQueue.Back();
     m_actionQueue.Pop();
-    if (deadAction != NULL) {
+    if (deadAction != nullptr) {
       m_facing = deadAction->GetFacing();
 
       if (deadAction->m_actionType == UNITACTION_MOVE) {
@@ -859,8 +859,8 @@ void UnitActor::AddAction(ActionPtr actionObj) {
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  Assert(m_unitSpriteGroup != NULL);
-  if (m_unitSpriteGroup == NULL)
+  Assert(m_unitSpriteGroup != nullptr);
+  if (m_unitSpriteGroup == nullptr)
     return;
 
   Assert(actionObj);
@@ -886,21 +886,21 @@ Anim* UnitActor::CreateAnim(UNITACTION action) {
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  Assert(m_unitSpriteGroup != NULL);
-  if (m_unitSpriteGroup == NULL)
-    return NULL;
+  Assert(m_unitSpriteGroup != nullptr);
+  if (m_unitSpriteGroup == nullptr)
+    return nullptr;
 
   Anim* origAnim = m_unitSpriteGroup->GetAnim((GAME_ACTION)action);
 
-  if (origAnim == NULL) {
+  if (origAnim == nullptr) {
     if (action != UNITACTION_IDLE) {
-      return NULL;
+      return nullptr;
     } else {
       origAnim = m_unitSpriteGroup->GetAnim((GAME_ACTION)UNITACTION_MOVE);
       ;
       //			Assert(origAnim != NULL);
-      if (origAnim == NULL)
-        return NULL;
+      if (origAnim == nullptr)
+        return nullptr;
       else
         action = UNITACTION_MOVE;
     }
@@ -1100,7 +1100,7 @@ void UnitActor::DrawCityWalls(
     if (ageStyleRec) {
       bool const isWater = world_Get()->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
-      AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
+      AgeCityStyleRecord::SizeSprite const* matchingSprite = nullptr;
 
       for (sint32 i = 0; i < spriteCount; ++i) {
         AgeCityStyleRecord::SizeSprite const* spr = ageStyleRec->GetSprites(i);
@@ -1206,7 +1206,7 @@ void UnitActor::DrawForceField(bool fogged) {
     if (ageStyleRec) {
       bool const isWater = world_Get()->IsWater(GetPos());
       sint32 const spriteCount = ageStyleRec->GetNumSprites();
-      AgeCityStyleRecord::SizeSprite const* matchingSprite = NULL;
+      AgeCityStyleRecord::SizeSprite const* matchingSprite = nullptr;
 
       for (sint32 i = 0; i < spriteCount; ++i) {
         AgeCityStyleRecord::SizeSprite const* spr = ageStyleRec->GetSprites(i);
@@ -1369,7 +1369,7 @@ bool UnitActor::Draw(bool fogged) {
     }
 
     Pixel16 color = 0x0000;
-    if (m_curAction == NULL) {
+    if (m_curAction == nullptr) {
       m_unitSpriteGroup->Draw(m_curUnitAction, m_frame, m_x + xoffset,
                               m_y + yoffset, m_facing, tiledmap_Get()->GetScale(),
                               m_transparency, color, flags, FALSE,
@@ -1569,12 +1569,12 @@ void UnitActor::DrawHealthBar() {
   // flag rect and set it at 0,0
 
   UNITACTION unitAction = m_curUnitAction;
-  if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) == NULL)
+  if (m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) == nullptr)
     unitAction = UNITACTION_IDLE;
 
   POINT* shieldPoint;
   if (unitAction == UNITACTION_IDLE &&
-      m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == NULL) {
+      m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE) == nullptr) {
     shieldPoint = m_unitSpriteGroup->GetShieldPoints(UNITACTION_MOVE);
     OffsetRect(
         &iconRect,
@@ -1582,7 +1582,7 @@ void UnitActor::DrawHealthBar() {
         m_y + (sint32)((double)(shieldPoint->y) * tiledmap_Get()->GetScale()));
   } else {
     if (m_unitSpriteGroup &&
-        m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != NULL) {
+        m_unitSpriteGroup->GetGroupSprite((GAME_ACTION)unitAction) != nullptr) {
       shieldPoint = m_unitSpriteGroup->GetShieldPoints(unitAction);
       OffsetRect(
           &iconRect,
@@ -1914,7 +1914,7 @@ void UnitActor::DrawSpecialIndicators(
     sint32 civ = -1;
     // Add civilization flags here - moved flags here and edited the
     // heralds to put numbers on national flags emod 2-21-2007
-    if (player_Get(displayedOwner) != NULL) {
+    if (player_Get(displayedOwner) != nullptr) {
       civ = player_Get(displayedOwner)->GetCivilisation()->GetCivilisation();
     } else {
       for (PointerList<Player>::Walker walk(g_deadPlayer); walk.IsValid();
@@ -1923,7 +1923,7 @@ void UnitActor::DrawSpecialIndicators(
 
         if (p) {
           Civilisation* civP = p->GetCivilisation();
-          if (civP != NULL && civilisationpool_Get()->IsValid(*civP)) {
+          if (civP != nullptr && civilisationpool_Get()->IsValid(*civP)) {
             if (civP->GetOwner() == displayedOwner) {
               civ = civP->GetCivilisation();
             }
@@ -2023,8 +2023,8 @@ uint16 UnitActor::GetWidth() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  Assert(m_unitSpriteGroup != NULL);
-  if (m_unitSpriteGroup == NULL)
+  Assert(m_unitSpriteGroup != nullptr);
+  if (m_unitSpriteGroup == nullptr)
     return 0;
 
   Sprite* theSprite =
@@ -2041,8 +2041,8 @@ uint16 UnitActor::GetHeight() const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  Assert(m_unitSpriteGroup != NULL);
-  if (m_unitSpriteGroup == NULL)
+  Assert(m_unitSpriteGroup != nullptr);
+  if (m_unitSpriteGroup == nullptr)
     return 0;
 
   Sprite* theSprite =
@@ -2059,8 +2059,8 @@ void UnitActor::GetBoundingRect(RECT* rect) const {
 #ifndef _TEST
   STOMPCHECK();
 #endif
-  Assert(rect != NULL);
-  if (rect == NULL)
+  Assert(rect != nullptr);
+  if (rect == nullptr)
     return;
 
   if (!m_unitSpriteGroup)
@@ -2168,9 +2168,9 @@ void UnitActor::FullLoad(UNITACTION action) {
 }
 
 bool UnitActor::ActionMove(ActionPtr actionObj) {
-  Assert(actionObj != NULL);
+  Assert(actionObj != nullptr);
 
-  if (actionObj == NULL)
+  if (actionObj == nullptr)
     return false;
 
   if (GetNeedsToDie())
@@ -2192,8 +2192,8 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
     FullLoad(UNITACTION_MOVE);
 
   Anim* anim = CreateAnim(UNITACTION_MOVE);
-  Assert(anim != NULL);
-  if (anim == NULL)
+  Assert(anim != nullptr);
+  if (anim == nullptr)
     return false;
 
   actionObj->SetAnim(anim);
@@ -2220,9 +2220,9 @@ bool UnitActor::ActionMove(ActionPtr actionObj) {
 }
 
 bool UnitActor::ActionAttack(ActionPtr actionObj, sint32 facing) {
-  Assert(actionObj != NULL);
+  Assert(actionObj != nullptr);
 
-  if (actionObj == NULL)
+  if (actionObj == nullptr)
     return false;
 
   if (GetNeedsToDie())
@@ -2253,9 +2253,9 @@ bool UnitActor::ActionAttack(ActionPtr actionObj, sint32 facing) {
 }
 
 bool UnitActor::ActionSpecialAttack(ActionPtr actionObj, sint32 facing) {
-  Assert(actionObj != NULL);
+  Assert(actionObj != nullptr);
 
-  if (actionObj == NULL)
+  if (actionObj == nullptr)
     return false;
 
   if (GetNeedsToDie())
@@ -2310,7 +2310,7 @@ void UnitActor::DumpFullLoad() {
   bool purged = g_unitSpriteGroupList->ReleaseSprite(m_spriteID, LOADTYPE_FULL);
 
   if (purged) {
-    m_unitSpriteGroup = NULL;
+    m_unitSpriteGroup = nullptr;
   } else {
     m_loadType = LOADTYPE_BASIC;
   }

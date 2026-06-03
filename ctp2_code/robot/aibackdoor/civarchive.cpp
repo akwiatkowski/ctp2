@@ -74,13 +74,13 @@ CivArchive::CivArchive(uint32 ulSize)
 CivArchive::~CivArchive()
 {
 	delete m_pbBaseMemory;
-	m_pbBaseMemory = NULL;
+	m_pbBaseMemory = nullptr;
 }
 
 void CivArchive::SetSize(uint32 ulSize)
 {
 	delete m_pbBaseMemory ;
-	m_pbBaseMemory = NULL;
+	m_pbBaseMemory = nullptr;
 
 	Assert(0<ulSize);
 	m_pbBaseMemory = new uint8[ulSize] ;

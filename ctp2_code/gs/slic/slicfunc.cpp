@@ -191,7 +191,7 @@ void SlicArgList::ReleaseSymbols()
 
 void SlicArgList::AddArg(SA_TYPE type, sint32 value)
 {
-    m_argValue.push_back(SlicArg(type, value, NULL, NULL));
+    m_argValue.push_back(SlicArg(type, value, nullptr, nullptr));
 }
 
 void SlicArgList::AddArg(SlicSegment *segment, SlicSymbolData *symbol)
@@ -201,7 +201,7 @@ void SlicArgList::AddArg(SlicSegment *segment, SlicSymbolData *symbol)
 
 void SlicArgList::AddArg(SA_TYPE type, SlicSymbolData *symbol)
 {
-	m_argValue.push_back(SlicArg(type, 0, NULL, symbol));
+	m_argValue.push_back(SlicArg(type, 0, nullptr, symbol));
 }
 
 //----------------------------------------------------------------------------
@@ -527,7 +527,7 @@ SFN_ERROR Slic_Text::Call(SlicArgList *args)
 	DPRINTF(k_DBG_SLIC, ("Slic_Text: %s\n",
 						 stringdb_Get()->GetNameStr(args->m_argValue[0].m_int)));
 
-	if(slicengine_Get()->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == nullptr)
 		return SFN_ERROR_INTERNAL;
 
 	slicengine_Get()->GetContext()->SetMessageText(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
@@ -692,7 +692,7 @@ SFN_ERROR Slic_EyePoint::Call(SlicArgList *args)
 	DPRINTF(k_DBG_SLIC, ("Slic_EyePoint: (%d,%d,%d)\n",
 						 point.x, point.y, 0));
 
-	SlicEyePoint *ep = NULL;
+	SlicEyePoint *ep = nullptr;
 	if (args->Count() > 1) {
 		sint32 player;
 		if(!args->GetPlayer(1, player))
@@ -715,7 +715,7 @@ SFN_ERROR Slic_EyePoint::Call(SlicArgList *args)
 							  player, args->m_argValue[2].m_segment);
 	} else {
 		ep = new SlicEyePoint(point, text, 0, EYE_POINT_TYPE_GENERIC, unit,
-							  0, NULL);
+							  0, nullptr);
 	}
 	slicengine_Get()->GetContext()->AddEyePoint(ep);
 
@@ -1673,7 +1673,7 @@ SFN_ERROR Slic_Caption::Call(SlicArgList *args)
 	if(args->m_argValue[0].m_type != SA_TYPE_STRING)
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(slicengine_Get()->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == nullptr)
 		return SFN_ERROR_INTERNAL;
 
 	slicengine_Get()->GetContext()->SetMessageCaption(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
@@ -1814,7 +1814,7 @@ SFN_ERROR Slic_StealRandomAdvance::Call(SlicArgList *args)
 	ORDER_RESULT res = u.StealTechnology(context->GetCity(0), (sint32)-1);
 	if(res != ORDER_RESULT_ILLEGAL) {
 		sint32 index = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
-		OrderInfo const *oi = NULL;
+		OrderInfo const *oi = nullptr;
 		if(index >= 0 && index < orderinfo_Num()) {
 			oi = &orderinfo_Get(index);
 		}
@@ -1863,7 +1863,7 @@ SFN_ERROR Slic_StealSpecificAdvance::Call(SlicArgList *args)
 	ORDER_RESULT res = u.StealTechnology(context->GetCity(0), adv);
 	if(res != ORDER_RESULT_ILLEGAL) {
 		sint32 index = orderinfo_MapAt(UNIT_ORDER_STEAL_TECHNOLOGY);
-		OrderInfo const *oi = NULL;
+		OrderInfo const *oi = nullptr;
 		if(index >= 0 && index < orderinfo_Num()) {
 			oi = &orderinfo_Get(index);
 		}
@@ -2710,7 +2710,7 @@ SFN_ERROR Slic_Title::Call(SlicArgList *args)
 	if(args->m_argValue[0].m_type != SA_TYPE_STRING)
 		return SFN_ERROR_TYPE_ARGS;
 
-	if(slicengine_Get()->GetContext() == NULL)
+	if(slicengine_Get()->GetContext() == nullptr)
 		return SFN_ERROR_INTERNAL;
 
 	slicengine_Get()->GetContext()->SetMessageTitle(stringdb_Get()->GetNameStr(args->m_argValue[0].m_int));
@@ -3584,7 +3584,7 @@ SFN_ERROR Slic_CreateCity::Call(SlicArgList *args)
 
 	Unit city = player_Get(owner)->CreateCity(i, cpos,
 											CAUSE_NEW_CITY_SCENARIO,
-											NULL, -1);
+											nullptr, -1);
 	if(city.m_id == 0) {
 		m_result.m_int = 0;
 		return SFN_ERROR_OK;
@@ -3685,7 +3685,7 @@ SFN_ERROR Slic_CreateCoastalCity::Call(SlicArgList *args)
 
 	Unit city = player_Get(owner)->CreateCity(i, cpos,
 											CAUSE_NEW_CITY_SCENARIO,
-											NULL, -1);
+											nullptr, -1);
 	if(city.m_id == 0) {
 		m_result.m_int = 0;
 		return SFN_ERROR_OK;
@@ -4221,7 +4221,7 @@ SFN_ERROR Slic_IsPlayerAlive::Call(SlicArgList *args)
 	if(!args->GetInt(0, player))
 		return SFN_ERROR_TYPE_ARGS;
 
-	m_result.m_int = player_Get(player) != NULL;
+	m_result.m_int = player_Get(player) != nullptr;
 	return SFN_ERROR_OK;
 }
 
@@ -4261,7 +4261,7 @@ SFN_ERROR Slic_SaveGame::Call(SlicArgList *args)
 
 	is_scenario_Set(FALSE);
 
-	GameFile::SaveGame(string, NULL);
+	GameFile::SaveGame(string, nullptr);
 	return SFN_ERROR_OK;
 }
 
@@ -6355,8 +6355,8 @@ SFN_ERROR Slic_StringCompare::Call(SlicArgList *args)
 		return SFN_ERROR_NUM_ARGS;
 
 	//Added by Martin G�hmann to allow string comparision, between string IDs and plain strings
-	char *string1 = 0;
-	char *string2 = 0;
+	char *string1 = nullptr;
+	char *string2 = nullptr;
 
 	const char *cstring1, *cstring2;
 	StringId stringId1, stringId2;

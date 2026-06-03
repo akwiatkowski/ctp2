@@ -64,7 +64,7 @@
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSegment.h"
 
-static SegmentList *g_segmentList = NULL;
+static SegmentList *g_segmentList = nullptr;
 
 void segmentlist_Callback(sint32 arg)
 {
@@ -87,10 +87,10 @@ void segmentlist_Remove()
 
 SegmentList::SegmentList(SegmentListCallback *callback, MBCHAR *ldlBlock)
 :   KeyboardHandler     (),
-    m_window            (NULL),
-	m_list              (NULL),
-	m_watchButton       (NULL),
-	m_exitButton        (NULL),
+    m_window            (nullptr),
+	m_list              (nullptr),
+	m_watchButton       (nullptr),
+	m_exitButton        (nullptr),
     m_callback          (callback)
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -247,7 +247,7 @@ sint32 SegmentList::UpdateData()
 SegmentListItem::SegmentListItem(AUI_ERRCODE *retval, sint32 index,
 								 SlicSegment *segment, MBCHAR *ldlBlock) :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem(retval, ldlBlock)
 {
 	m_index = index;

@@ -94,8 +94,8 @@ void Background::MouseLGrabInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(tiledmap_Get() != NULL);
-	if (tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if (tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -129,8 +129,8 @@ void Background::MouseRGrabInside(aui_MouseEvent *data)
 	SetWhichSeesMouse(this);
 
 
-	Assert(tiledmap_Get() != NULL);
-	if(tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if(tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -213,7 +213,7 @@ void Background::MouseMoveInside(aui_MouseEvent *data)
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	if (tiledmap_Get() != NULL) {
+	if (tiledmap_Get() != nullptr) {
 		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
 		tiledmap_Get()->DrawHilite( TRUE );
 	}
@@ -246,7 +246,7 @@ void Background::MouseLDragInside( aui_MouseEvent *data )
         ProcessLastMouseMoveThisFrame(data);
     }
 
-	if (tiledmap_Get() != NULL) {
+	if (tiledmap_Get() != nullptr) {
 		tiledmap_Get()->SetHiliteMouseTile(m_current_mouse_tile);
 		tiledmap_Get()->DrawHilite( TRUE );
 	}
@@ -429,8 +429,8 @@ void Background::MouseLDoubleClickInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(tiledmap_Get() != NULL);
-	if (tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if (tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();
@@ -461,8 +461,8 @@ void Background::MouseRDoubleClickInside(aui_MouseEvent *data)
 	if (GetWhichSeesMouse() && GetWhichSeesMouse() != this) return;
 	SetWhichSeesMouse(this);
 
-	Assert(tiledmap_Get() != NULL);
-	if (tiledmap_Get() == NULL) return;
+	Assert(tiledmap_Get() != nullptr);
+	if (tiledmap_Get() == nullptr) return;
 
 	data->position.x -= X();
 	data->position.y -= Y();

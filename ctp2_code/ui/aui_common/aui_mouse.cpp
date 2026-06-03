@@ -63,7 +63,7 @@ sint32 aui_Mouse::m_mouseRefCount = 0;
 #ifdef __AUI_USE_DIRECTX__
 LPCRITICAL_SECTION aui_Mouse::m_lpcs = NULL;
 #elif defined(__AUI_USE_SDL__)
-SDL_mutex *aui_Mouse::m_lpcs = NULL;
+SDL_mutex *aui_Mouse::m_lpcs = nullptr;
 #endif
 
 #define k_AUI_MOUSE_THREAD_SLEEP_TIME	2
@@ -98,9 +98,9 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	} else {
 		m_sensitivity = 1.0;
 	}
-	m_privateMix = NULL;
-	m_pickup = NULL;
-	m_prevPickup = NULL;
+	m_privateMix = nullptr;
+	m_pickup = nullptr;
+	m_prevPickup = nullptr;
 	m_suspendCount = 0;
 	m_showCount = 0;
 	m_reset = TRUE;
@@ -119,7 +119,7 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 	memset( &m_data, 0, sizeof( m_data ) );
 	memset( m_inputs, 0, sizeof( m_inputs ) );
 
-	SetClip( NULL );
+	SetClip( nullptr );
 #ifdef __AUI_USE_DIRECTX__
 	GetCursorPos( &m_data.position );
 #elif defined(__AUI_USE_SDL__)
@@ -136,7 +136,7 @@ AUI_ERRCODE aui_Mouse::InitCommon( )
 #elif defined(__AUI_USE_SDL__)
 		m_lpcs = SDL_CreateMutex();
 #endif
-		Assert( m_lpcs != NULL );
+		Assert( m_lpcs != nullptr );
 #ifdef __AUI_USE_DIRECTX__
 		if ( m_lpcs )
 			InitializeCriticalSection( m_lpcs );
@@ -160,7 +160,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 	if ( ldlBlock )
 	{
         ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 		sint32 numCursors = FindNumCursorsFromLdl( block );
@@ -173,7 +173,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 			MBCHAR temp[ k_AUI_LDL_MAXBLOCK + 1 ] = "";
 			for ( sint32 i = 0; i < numCursors; i++ )
 			{
-				aui_Cursor *cursor = NULL;
+				aui_Cursor *cursor = nullptr;
 
 				snprintf(temp, sizeof(temp), k_MOUSE_LDL_CURSOR "%d", i );
 
@@ -181,7 +181,7 @@ AUI_ERRCODE aui_Mouse::InitCommonLdl( MBCHAR *ldlBlock )
 				if ( filename )
 				{
 					cursor = aui_ui_Get()->LoadCursor( filename );
-					Assert( cursor != NULL );
+					Assert( cursor != nullptr );
 					if ( !cursor ) return AUI_ERRCODE_LOADFAILED;
 
 					Assert( cursor->TheSurface()->Width() <= k_MOUSE_MAXSIZE );
@@ -282,7 +282,7 @@ aui_Mouse::~aui_Mouse()
 			DeleteCriticalSection( m_lpcs );
 			delete m_lpcs;
 #endif
-			m_lpcs = NULL;
+			m_lpcs = nullptr;
 		}
 	}
 }
@@ -314,7 +314,7 @@ void aui_Mouse::SetCursor(sint32 index, MBCHAR * cursor)
 	if ( index < 0 || index >= k_MOUSE_MAXNUMCURSORS ) return;
 
 	aui_Cursor *    oldCursor   = m_cursors[index];
-    aui_Cursor *    c           = cursor ? aui_ui_Get()->LoadCursor(cursor) : NULL;
+    aui_Cursor *    c           = cursor ? aui_ui_Get()->LoadCursor(cursor) : nullptr;
 
 	if (cursor)
 	{
@@ -329,7 +329,7 @@ void aui_Mouse::SetCursor(sint32 index, MBCHAR * cursor)
                )
 		    {
 			    aui_ui_Get()->UnloadCursor(c);
-                c = NULL;
+                c = nullptr;
             }
 		}
 	}
@@ -411,7 +411,7 @@ AUI_ERRCODE aui_Mouse::Start( )
 	// a separate thread. This avoids race conditions with SDL's event queue
 	// and rendering context which are not thread-safe.
 	// See: https://wiki.libsdl.org/SDL2/CategoryThread
-	m_thread = NULL;
+	m_thread = nullptr;
 	m_threadId = 0;
 #endif
 
@@ -463,13 +463,13 @@ AUI_ERRCODE aui_Mouse::CreatePrivateBuffers( )
 void aui_Mouse::DestroyPrivateBuffers( )
 {
 	delete m_privateMix;
-	m_privateMix = NULL;
+	m_privateMix = nullptr;
 
 	delete m_pickup;
-	m_pickup = NULL;
+	m_pickup = nullptr;
 
 	delete m_prevPickup;
-	m_prevPickup = NULL;
+	m_prevPickup = nullptr;
 }
 
 AUI_ERRCODE aui_Mouse::End( )
@@ -498,8 +498,8 @@ AUI_ERRCODE aui_Mouse::End( )
 #elif defined(__AUI_USE_SDL__)
 		g_mouseShouldTerminateThread = TRUE;
 		if (m_thread) {
-			SDL_WaitThread(m_thread, NULL);
-			m_thread = NULL;
+			SDL_WaitThread(m_thread, nullptr);
+			m_thread = nullptr;
 		}
 #endif
 
@@ -526,7 +526,7 @@ AUI_ERRCODE aui_Mouse::End( )
 
 		CloseHandle( m_thread );
 #endif
-		m_thread = NULL;
+		m_thread = nullptr;
 		m_threadId = 0;
 	}
 
@@ -684,7 +684,7 @@ AUI_ERRCODE aui_Mouse::SetPosition( sint32 x, sint32 y )
 
 AUI_ERRCODE aui_Mouse::SetPosition( POINT *point )
 {
-	Assert( point != NULL );
+	Assert( point != nullptr );
 	if ( !point ) return AUI_ERRCODE_INVALIDPARAM;
 
 	return SetPosition( point->x, point->y );
@@ -1066,7 +1066,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 		aui_ui_Get()->GetDirtyRectInfoList();
 
 	uint32 blitFlags;
-	LPVOID primaryBuf = NULL;
+	LPVOID primaryBuf = nullptr;
 
 	if (profiledb_Get() && profiledb_Get()->IsUseDirectXBlitter())
 	{
@@ -1075,7 +1075,7 @@ AUI_ERRCODE	aui_Mouse::BltDirtyRectInfoToPrimary( )
 	else
 	{
 		blitFlags = k_AUI_BLITTER_FLAG_COPY | k_AUI_BLITTER_FLAG_FAST;
-		errcode = aui_ui_Get()->Secondary()->Lock( NULL, &primaryBuf, 0 );
+		errcode = aui_ui_Get()->Secondary()->Lock( nullptr, &primaryBuf, 0 );
 		Assert( errcode == AUI_ERRCODE_OK );
 	}
 

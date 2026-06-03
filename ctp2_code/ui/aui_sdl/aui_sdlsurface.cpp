@@ -23,14 +23,14 @@ aui_SDLSurface::aui_SDLSurface(
 	aui_Surface()
 {
 	m_bltMutex = SDL_CreateMutex();
-	if (lpdds != 0 && takeOwnership) {
+	if (lpdds != nullptr && takeOwnership) {
 		width = lpdds->w;
 		height = lpdds->h;
 		bpp = lpdds->format->BitsPerPixel;
 	}
 	// If wrapping an existing surface (like the window surface), use its actual bpp
 	// so m_Bpp and offset calculations are correct
-	if (lpdds != 0 && !takeOwnership) {
+	if (lpdds != nullptr && !takeOwnership) {
 		bpp = lpdds->format->BitsPerPixel;
 	}
 	*retval = aui_Surface::InitCommon( width, height, bpp, isPrimary );
@@ -52,14 +52,14 @@ aui_SDLSurface::aui_SDLSurface(
 		} else {
 			m_lpdds = SDL_CreateRGBSurface(0, width, height, fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 		}
-		if ( m_lpdds == NULL )
+		if ( m_lpdds == nullptr )
 		{
 			*retval = AUI_ERRCODE_MEMALLOCFAILED;
 			return;
 		}
 		m_allocated = TRUE;
 		// clear it with black
-		if (SDL_FillRect(m_lpdds, NULL, 0) < 0) {
+		if (SDL_FillRect(m_lpdds, nullptr, 0) < 0) {
 			fprintf(stderr, "aui_Surface: Failed to erase new surface: %s\n",
 			SDL_GetError());
 		}
@@ -87,7 +87,7 @@ aui_SDLSurface::aui_SDLSurface(
 
 AUI_ERRCODE aui_SDLSurface::InitCommon( )
 {
-	m_lpdds = NULL;
+	m_lpdds = nullptr;
 
 	return AUI_ERRCODE_OK;
 }
@@ -98,7 +98,7 @@ aui_SDLSurface::~aui_SDLSurface()
 	if ( m_allocated && m_lpdds )
 	{
 		SDL_FreeSurface(m_lpdds);
-		m_lpdds = NULL;
+		m_lpdds = nullptr;
 		m_allocated = FALSE;
 	}
 	SDL_DestroyMutex(m_bltMutex);
@@ -144,7 +144,7 @@ AUI_ERRCODE aui_SDLSurface::Lock( RECT *rect, LPVOID *buffer, DWORD flags ){
     // return a buffer pointer that points to the rectangle
     *buffer = m_lpdds->pixels;
     m_saveBuffer = static_cast<uint8*>(*buffer);
-    if (rect != NULL)
+    if (rect != nullptr)
 	{
         *buffer = static_cast<char*>(*buffer) +
             rect->top * m_lpdds->pitch +
@@ -159,7 +159,7 @@ AUI_ERRCODE aui_SDLSurface::Lock( RECT *rect, LPVOID *buffer, DWORD flags ){
 AUI_ERRCODE aui_SDLSurface::Unlock( LPVOID buffer )
 {
 	AUI_ERRCODE errcode =
-	ManipulateLockList( NULL, &buffer, AUI_SURFACE_LOCKOP_REMOVE );
+	ManipulateLockList( nullptr, &buffer, AUI_SURFACE_LOCKOP_REMOVE );
 
 	if ( errcode == AUI_ERRCODE_OK )
 	{
@@ -167,7 +167,7 @@ AUI_ERRCODE aui_SDLSurface::Unlock( LPVOID buffer )
 			SDL_UnlockSurface(m_lpdds);
 		}
 	}
-	m_saveBuffer = NULL;
+	m_saveBuffer = nullptr;
 	SDL_UnlockMutex(m_bltMutex);
 
 	return errcode;
@@ -175,7 +175,7 @@ AUI_ERRCODE aui_SDLSurface::Unlock( LPVOID buffer )
 
 AUI_ERRCODE aui_SDLSurface::Blank(const uint32 &color)
 {
-	int errcode = SDL_FillRect(m_lpdds, NULL, color);
+	int errcode = SDL_FillRect(m_lpdds, nullptr, color);
 	if (errcode == 0)
 		return AUI_ERRCODE_OK;
 

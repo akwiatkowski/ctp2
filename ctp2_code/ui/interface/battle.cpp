@@ -72,8 +72,8 @@ m_fortifiedBonus(0.0)
 	m_defendersName[0] = '\0';
 
 	for(sint32 index=0; index < k_MAX_UNITS_PER_SIDE; index++) {
-		m_attackers[index] = NULL;
-		m_defenders[index] = NULL;
+		m_attackers[index] = nullptr;
+		m_defenders[index] = nullptr;
 	}
 }
 
@@ -290,7 +290,7 @@ void Battle::MakeDefenders(sint32 numDefenders, CellUnitList const & defenders)
 
 BattleViewActor *Battle::ActorFromUnit(BOOL isDefender, Unit theUnit)
 {
-	BattleViewActor		*actor = NULL;
+	BattleViewActor		*actor = nullptr;
 	sint32				i;
 
 	if (isDefender) {
@@ -378,7 +378,7 @@ void Battle::AddUnitExplosion(BattleEvent *event, BOOL isDefender, Unit theUnit)
 		return;
 
 
-	EffectActor		*explodeActor = NULL;
+	EffectActor		*explodeActor = nullptr;
 	SpriteStatePtr explosionState(new SpriteState(
       g_theSpecialEffectDB->Get(g_theSpecialEffectDB->FindTypeIndex("SPECEFFECT_EXPLOSION_LAND_1"))->GetValue()));
 
@@ -494,7 +494,7 @@ void Battle::RemoveAttacker(BattleViewActor *actor)
 	sint32 i;
 	for(i = 0; i < m_numAttackers; i++) {
 		if(m_attackers[i] == actor)
-			m_attackers[i] = NULL;
+			m_attackers[i] = nullptr;
 	}
 }
 
@@ -503,6 +503,6 @@ void Battle::RemoveDefender(BattleViewActor *actor)
 	sint32 i;
 	for(i = 0; i < m_numDefenders; i++) {
 		if(m_defenders[i] == actor)
-			m_defenders[i] = NULL;
+			m_defenders[i] = nullptr;
 	}
 }

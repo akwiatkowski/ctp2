@@ -123,16 +123,16 @@ public:
 	LOADTYPE		GetLoadType() const { return m_loadType; }
 	void			SetLoadType(LOADTYPE type) { m_loadType = type; }
 
-	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action] : NULL; }
+	Sprite *        GetGroupSprite(GAME_ACTION action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_sprites[action] : nullptr; }
 	void			SetGroupSprite (GAME_ACTION action, Sprite *sprite) { if ((action >= 0) && (action < ACTION_MAX)) m_sprites[action] = sprite; }
 
-	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action] : NULL; }
+	Anim *          GetGroupAnim(uint32 action) const { return (action < ACTION_MAX) ? m_anims[action] : nullptr; }
 	void			SetGroupAnim (GAME_ACTION action, Anim *anim) { if ((action >= 0) && (action < ACTION_MAX)) m_anims[action] = anim; }
 
 	// Takes int (not GAME_ACTION) so callers passing UNITACTION_NONE (-1) or
 	// any other out-of-range value don't trigger an enum-load UBSan hit at
 	// entry.  Bounds-check then index is safe with an int.
-	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : NULL; }
+	Anim *          GetAnim(int action) const { return ((action >= 0) && (action < ACTION_MAX)) ? m_anims[action] : nullptr; }
 
 	sint32			GetWidth() const { return m_width; };
 	sint32			GetHeight() const { return m_height; };

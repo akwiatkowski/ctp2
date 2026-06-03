@@ -201,7 +201,7 @@ typedef struct tagFUNCTION_ADDRESS {
   char *name;
 } FUNCTION_ADDRESS;
 
-static FUNCTION_ADDRESS *fa_first = NULL;
+static FUNCTION_ADDRESS *fa_first = nullptr;
 
 void *Debug_GetFAFirst(void)
 {
@@ -219,9 +219,9 @@ void Debug_SetFAFirst(void *ptr)
 
 void Debug_AddFunction (char *name, unsigned address)
 {
-  FUNCTION_ADDRESS *new_function = NULL;
-  FUNCTION_ADDRESS *pointer = NULL;
-  FUNCTION_ADDRESS *last = NULL;
+  FUNCTION_ADDRESS *new_function = nullptr;
+  FUNCTION_ADDRESS *pointer = nullptr;
+  FUNCTION_ADDRESS *last = nullptr;
 
   new_function = (FUNCTION_ADDRESS *) malloc (sizeof (FUNCTION_ADDRESS));
   if (!new_function)
@@ -258,8 +258,8 @@ void Debug_AddFunction (char *name, unsigned address)
 
 
 
-  if (fa_first == NULL) {
-    new_function->next = NULL;
+  if (fa_first == nullptr) {
+    new_function->next = nullptr;
     fa_first = new_function;
     return;
   }
@@ -296,7 +296,7 @@ void Debug_AddFunction (char *name, unsigned address)
 
 void Debug_FunctionNameInit ()
 {
-	fa_first = NULL;
+	fa_first = nullptr;
 }
 
 int Debug_FunctionNameOpen (char *map_file_name)
@@ -572,7 +572,7 @@ void DebugCallStack_DumpAddress (LogClass log_class, unsigned address)
 
 	caller_name = Debug_FunctionNameAndOffsetGet (address, &offset);
 
-	LOG_INDIRECT (NULL, 0, (log_class, "  0x%08x  [%s + 0x%x]\n", address, caller_name, offset));
+	LOG_INDIRECT (nullptr, 0, (log_class, "  0x%08x  [%s + 0x%x]\n", address, caller_name, offset));
 }
 
 

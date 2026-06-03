@@ -175,7 +175,7 @@ inline Player* safe_player(sint32 idx)
 {
 	if (idx < 0 || idx >= k_MAX_PLAYERS) {
 		Assert(idx >= 0 && idx < k_MAX_PLAYERS);
-		return NULL;
+		return nullptr;
 	}
 	return player_Get(idx);
 }

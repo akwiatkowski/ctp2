@@ -21,7 +21,7 @@
 
 static pthread_mutex_t g_log_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static inline void InitializeCriticalSection(pthread_mutex_t *cs) { pthread_mutex_init(cs, NULL); }
+static inline void InitializeCriticalSection(pthread_mutex_t *cs) { pthread_mutex_init(cs, nullptr); }
 static inline void EnterCriticalSection(pthread_mutex_t *cs) { pthread_mutex_lock(cs); }
 static inline void LeaveCriticalSection(pthread_mutex_t *cs) { pthread_mutex_unlock(cs); }
 static inline void DeleteCriticalSection(pthread_mutex_t *cs) { pthread_mutex_destroy(cs); }
@@ -29,7 +29,7 @@ static inline void DeleteCriticalSection(pthread_mutex_t *cs) { pthread_mutex_de
 static inline unsigned long timeGetTime()
 {
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 	return (unsigned long)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
@@ -97,7 +97,7 @@ void Hash_Init (void)
 
 	for (bucket = 0; bucket < HashTableSize; bucket++)
 	{
-		hash_table.bucket[bucket] = NULL;
+		hash_table.bucket[bucket] = nullptr;
 	}
 }
 
@@ -220,21 +220,21 @@ struct Logging
 	int					number;
 };
 
-static Logging *logging = NULL;
+static Logging *logging = nullptr;
 
 void Log_Allocate()
 {
 	logging               = (Logging *)malloc(sizeof(Logging));
 	logging->open         = false;
-	logging->module_name  = NULL;
+	logging->module_name  = nullptr;
 	logging->module_line  = 0;
 	logging->to_file      = false;
 	logging->to_debugger  = false;
-	logging->log_filename = NULL;
+	logging->log_filename = nullptr;
 	logging->leave_open   = false;
 	logging->log_all      = false;
 	logging->base_time    = 0;
-	logging->log_file     = NULL;
+	logging->log_file     = nullptr;
 	logging->line         = 0;
 	logging->number       = 0;
 }
@@ -375,12 +375,12 @@ void Log_Open (const char *config_file, int number )
 	Log_AddLoggingClasses();
 
 	logging->open         = true;
-	logging->module_name  = NULL;
+	logging->module_name  = nullptr;
 	logging->module_line  = 0;
 	logging->base_time    = timeGetTime();
 	logging->to_debugger  = false;
 	logging->to_file      = false;
-	logging->log_filename = NULL;
+	logging->log_filename = nullptr;
 	logging->log_all      = false;
 
 	logging->leave_open   = true;
@@ -410,7 +410,7 @@ void Log_Close (void)
 
 	if (logging->leave_open) {
 		fclose(logging->log_file);
-		logging->log_file = NULL;
+		logging->log_file = nullptr;
 	}
 
 	Hash_Close();
@@ -424,7 +424,7 @@ void Log_Close (void)
 	DeleteCriticalSection (&logging->entered);
 
 	free(logging);
-	logging = NULL;
+	logging = nullptr;
 }
 
 void Log_Enable (LogClass log_class)

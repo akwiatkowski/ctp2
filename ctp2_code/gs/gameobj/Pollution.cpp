@@ -253,7 +253,7 @@ void Pollution::SetGlobalPollutionLevel(sint32 requiredPollution)
 
 	for(sint32 i = 0; i < k_MAX_PLAYERS; i++)
 	{
-		if(player_Get(i) != NULL)
+		if(player_Get(i) != nullptr)
 		{
 			playerPollution += player_Get(i)->GetPollutionLevel();
 			gaiaController  += wonderutil_GetReduceWorldPollution(player_Get(i)->GetBuiltWonders());
@@ -517,8 +517,8 @@ void Pollution::AddNukePollution(const MapPoint &cpos)
 
 uint32 Pollution::GetPollutionAtRound(const PLAYER_INDEX player, const sint32 round)
 {
-	Assert(player_Get(player) != NULL);
-	if (player_Get(player) == NULL)
+	Assert(player_Get(player) != nullptr);
+	if (player_Get(player) == nullptr)
 		return 0;
 
 	sint32 current_round = turn_Get()->GetSessionRound();

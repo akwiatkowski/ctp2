@@ -17,7 +17,7 @@
 #include "ui/aui_sdl/aui_sdlsurface.h"
 #endif
 
-WNDPROC aui_TextField::m_windowProc = NULL;
+WNDPROC aui_TextField::m_windowProc = nullptr;
 extern aui_Win* g_winFocus;
 
 aui_TextField::aui_TextField(
@@ -28,13 +28,13 @@ aui_TextField::aui_TextField(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Win( retval, id, ldlBlock, ActionFunc, cookie ),
 #ifndef __AUI_USE_DIRECTX__
-	m_Font( NULL ),
-	m_Text( NULL ),
+	m_Font( nullptr ),
+	m_Text( nullptr ),
 #endif
-	m_holdfont( NULL )
+	m_holdfont( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -56,18 +56,18 @@ aui_TextField::aui_TextField(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Win( retval, id, x, y, width, height, ActionFunc, cookie ),
 #ifndef __AUI_USE_DIRECTX__
-	m_Font( NULL ),
-	m_Text( NULL ),
+	m_Font( nullptr ),
+	m_Text( nullptr ),
 #endif
-	m_holdfont( NULL )
+	m_holdfont( nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = InitCommon( text, NULL, 0, FALSE );
+	*retval = InitCommon( text, nullptr, 0, FALSE );
 	Assert( AUI_SUCCESS(*retval) );
 }
 
@@ -75,7 +75,7 @@ aui_TextField::aui_TextField(
 AUI_ERRCODE aui_TextField::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	MBCHAR *text = block->GetString( k_AUI_TEXTFIELD_LDL_TEXT );
@@ -134,8 +134,8 @@ AUI_ERRCODE aui_TextField::InitCommon(
 	m_holdfont = NULL;
 #else
 	m_textHeight = 12;
-	m_Font = NULL;
-	m_holdfont = NULL;
+	m_Font = nullptr;
+	m_holdfont = nullptr;
 #endif
 
 	if (font) strcpy(m_desiredFont, font);
@@ -220,7 +220,7 @@ AUI_ERRCODE aui_TextField::InitCommon(
 	delete[] m_Text;
 	m_Text = new MBCHAR[m_maxFieldLen + 1];
 	m_Text[m_maxFieldLen] = '\0';
-	if (text == NULL)
+	if (text == nullptr)
 		*m_Text = '\0';
 	else
 		strncpy(m_Text, text, m_maxFieldLen);
@@ -277,7 +277,7 @@ aui_TextField::~aui_TextField()
 	if (m_Font )
 	{
 		aui_ui_Get()->UnloadBitmapFont(m_Font);;
-		m_Font = NULL;
+		m_Font = nullptr;
 	}
 
 	delete[] m_Text;
@@ -457,7 +457,7 @@ void aui_TextField::HitEnter()
 BOOL aui_TextField::IsFileName( HWND hwnd )
 {
 	aui_TextField *textfield = (aui_TextField *)GetWinFromHWND( hwnd );
-	Assert( textfield != NULL );
+	Assert( textfield != nullptr );
 	if ( !textfield ) return FALSE;
 
 	return textfield->IsFileName();
@@ -467,7 +467,7 @@ BOOL aui_TextField::IsFileName( HWND hwnd )
 sint32 aui_TextField::GetMaxFieldLen( HWND hwnd )
 {
 	aui_TextField *textfield = (aui_TextField *)GetWinFromHWND( hwnd );
-	Assert( textfield != NULL );
+	Assert( textfield != nullptr );
 	if ( !textfield ) return FALSE;
 
 	return textfield->GetMaxFieldLen();

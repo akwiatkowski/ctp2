@@ -54,7 +54,7 @@
 extern SpriteGroupList		*g_unitSpriteGroupList;
 
 
-ProfileEdit *s_profileEdit = NULL;
+ProfileEdit *s_profileEdit = nullptr;
 
 ProfileEdit::ProfileEdit(AUI_ERRCODE *err)
 {
@@ -68,8 +68,8 @@ ProfileEdit::ProfileEdit(AUI_ERRCODE *err)
 
 	m_list->SetAbsorbancy(FALSE);
 
-	aui_Ldl::SetActionFuncAndCookie("ProfileEdit.CloseButton", CloseWindow, NULL);
-	aui_Ldl::SetActionFuncAndCookie("ProfileEdit.EnableMessages", EnableMessages, NULL);
+	aui_Ldl::SetActionFuncAndCookie("ProfileEdit.CloseButton", CloseWindow, nullptr);
+	aui_Ldl::SetActionFuncAndCookie("ProfileEdit.EnableMessages", EnableMessages, nullptr);
 }
 
 ProfileEdit::~ProfileEdit()
@@ -138,7 +138,7 @@ AUI_ERRCODE ProfileEdit::Cleanup()
 			c3ui_Get()->RemoveWindow(s_profileEdit->m_window->Id());
 		}
 		delete s_profileEdit;
-		s_profileEdit = NULL;
+		s_profileEdit = nullptr;
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -154,7 +154,7 @@ void ProfileEdit::FillList()
 			continue;
 		}
 
-		char *itemname = NULL;
+		char *itemname = nullptr;
 		switch(walk.GetObj()->m_type) {
 			case PV_NUM:
 				itemname = "ProfileEditNumItem";

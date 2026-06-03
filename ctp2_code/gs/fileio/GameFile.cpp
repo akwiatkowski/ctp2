@@ -224,7 +224,7 @@ static uint32 DispatchRestore(GameFile *gf, MBCHAR const *filepath)
 		c3files_fclose(fpProbe);
 		if (ch == '{')
 		{
-			civapp_Get()->InitializeGame(NULL);
+			civapp_Get()->InitializeGame(nullptr);
 			bool const ok = json_save::LoadJson(filepath);
 			return ok ? GAMEFILE_ERR_LOAD_OK : GAMEFILE_ERR_LOAD_FAILED;
 		}
@@ -568,7 +568,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 
 
 	for (sint32 i=0; i<k_MAX_PLAYERS; i++) {
-		sint32 playerAlive = player_Get(i) != NULL;
+		sint32 playerAlive = player_Get(i) != nullptr;
 
 		if (g_isScenario && g_startInfoType != STARTINFOTYPE_NOLOCS) {
 
@@ -624,7 +624,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 		return GAMEFILE_ERR_STORE_FAILED;
 	}
 
-	bool createInfo = (info == NULL);
+	bool createInfo = (info == nullptr);
 	if (createInfo)
 	{
 		info = new SaveInfo();
@@ -656,7 +656,7 @@ uint32 GameFile::SaveLegacyBinary(const MBCHAR *filepath, SaveInfo *info)
 	PROGRESS( 500 );
 
 	size_t      compressedSize = 0;
-	uint8	*   compressedData = NULL;
+	uint8	*   compressedData = nullptr;
 
 	if (!CompressData(archive.GetStream(), ulLen,
 					  &compressedData, &compressedSize))
@@ -1105,7 +1105,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	info->radarMapWidth = 0;
 	info->radarMapHeight = 0;
 	delete [] info->radarMapData;
-	info->radarMapData = NULL;
+	info->radarMapData = nullptr;
 
 	n = c3files_fread(&info->radarMapWidth, sizeof(uint8), sizeof(info->radarMapWidth), saveFile);
 	if (n != sizeof(info->radarMapWidth)) {
@@ -1137,7 +1137,7 @@ bool GameFile::LoadExtendedGameInfo(FILE *saveFile, SaveInfo *info)
 	info->powerGraphWidth = 0;
 	info->powerGraphHeight = 0;
 	delete [] info->powerGraphData;
-	info->powerGraphData = NULL;
+	info->powerGraphData = nullptr;
 
 	n = c3files_fread(&info->powerGraphWidth, sizeof(uint8), sizeof(info->powerGraphWidth), saveFile);
 	if (n != sizeof(info->powerGraphWidth)) {
@@ -1875,7 +1875,7 @@ bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 	snprintf(filepath, sizeof(filepath), "%s%s%s", path, FILE_SEP, info->fileName);
 
 	FILE *  saveFile = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-	if (saveFile == NULL)
+	if (saveFile == nullptr)
 		return false;
 
 	MBCHAR	header[_MAX_PATH];
@@ -1915,7 +1915,7 @@ bool GameFile::ValidateGameFile(MBCHAR const * path, SaveInfo *info)
 bool GameFile::FetchExtendedSaveInfo(MBCHAR const * fullPath, SaveInfo *info)
 {
 	FILE * saveFile = c3files_fopen(C3DIR_DIRECT, fullPath, "rb");
-	if (saveFile == NULL)
+	if (saveFile == nullptr)
 		return false;
 
 	MBCHAR  header[_MAX_PATH];
@@ -1967,7 +1967,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 	if (!d) return list;
 
 	struct stat     tmpstat;
-	struct dirent * dent = 0;
+	struct dirent * dent = nullptr;
 #endif
 
 	GameInfo			*gameInfo;
@@ -2010,7 +2010,7 @@ PointerList<GameInfo> *GameFile::BuildSaveList(C3SAVEDIR dir)
 			if (lpFileList == INVALID_HANDLE_VALUE) continue;
 #else
 			DIR *dir2 = opendir(path);
-			struct dirent *dent2 = 0;
+			struct dirent *dent2 = nullptr;
 
 			if (!dir2) continue;
 #endif
@@ -2078,10 +2078,10 @@ SaveInfo::SaveInfo()
 :
 	radarMapWidth       (0),
 	radarMapHeight      (0),
-	radarMapData        (NULL),
+	radarMapData        (nullptr),
 	powerGraphWidth     (0),
 	powerGraphHeight    (0),
-	powerGraphData      (0),
+	powerGraphData      (nullptr),
 	numCivs             (0),
 // nf_GameSetup gameSetup;
 // struct OptionScreenSettings options
@@ -2137,7 +2137,7 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 
 	if (copyMe->radarMapWidth > 0 &&
 		copyMe->radarMapHeight > 0 &&
-		copyMe->radarMapData != NULL) {
+		copyMe->radarMapData != nullptr) {
 
 		numPixels = copyMe->radarMapWidth * copyMe->radarMapHeight;
 		numBytes = numPixels * sizeof(Pixel16);
@@ -2148,7 +2148,7 @@ SaveInfo::SaveInfo(SaveInfo *copyMe)
 
 	if (copyMe->powerGraphWidth > 0 &&
 		copyMe->powerGraphHeight > 0 &&
-		copyMe->powerGraphData != NULL) {
+		copyMe->powerGraphData != nullptr) {
 
 		numPixels = copyMe->powerGraphWidth * copyMe->powerGraphHeight;
 		numBytes = numPixels * sizeof(Pixel16);
@@ -2186,7 +2186,7 @@ SaveInfo::~SaveInfo()
 
 GameInfo::GameInfo()
 :
-	files   (NULL)
+	files   (nullptr)
 {
 	name[0] = '\0';
 	path[0] = '\0';
@@ -2209,7 +2209,7 @@ SaveMapInfo::SaveMapInfo()
 :
 	radarMapWidth    (0),
 	radarMapHeight   (0),
-	radarMapData     (NULL)
+	radarMapData     (nullptr)
 {
 	gameMapName[0] = '\0';
 	fileName[0] = '\0';
@@ -2219,7 +2219,7 @@ SaveMapInfo::SaveMapInfo()
 
 GameMapInfo::GameMapInfo()
 :
-    files   (NULL)
+    files   (nullptr)
 {
 	name[0] = '\0';
 	path[0] = '\0';
@@ -2259,7 +2259,7 @@ uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 	world_Get()->SerializeJustMap(archive);
 
 	FILE * fpSave = c3files_fopen(C3DIR_DIRECT, filepath, "wb");
-	if (fpSave == NULL)
+	if (fpSave == nullptr)
 	{
 		c3errors_ErrorDialogFromDB("SAVE_ERROR", "SAVE_FAILED_TO_SAVE");
 
@@ -2278,7 +2278,7 @@ uint32 GameMapFile::Save(const MBCHAR *filepath, SaveMapInfo *info)
 		return GAMEFILE_ERR_STORE_FAILED;
 	}
 
-	bool createInfo = (info == NULL);
+	bool createInfo = (info == nullptr);
 	if (createInfo)
 	{
 		info = new SaveMapInfo();
@@ -2324,7 +2324,7 @@ uint32 GameMapFile::Restore(const MBCHAR *filepath)
 	clock_t start   = clock();
 #endif
 	FILE *  fpLoad  = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-	if (fpLoad == NULL) {
+	if (fpLoad == nullptr) {
 		c3errors_ErrorDialog("LOAD_ERROR", "LOAD_FAILED_TO_LOAD_GAME");
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
@@ -2500,7 +2500,7 @@ bool GameMapFile::ValidateGameMapFile(MBCHAR const * path, SaveMapInfo *info)
 	snprintf(filepath, sizeof(filepath), "%s%s%s", path, FILE_SEP, info->fileName);
 
 	FILE *  saveFile = c3files_fopen(C3DIR_DIRECT, filepath, "rb");
-	if (saveFile == NULL)
+	if (saveFile == nullptr)
 		return false;
 
 	MBCHAR  header[_MAX_PATH];
@@ -2540,7 +2540,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 	if (!dir) return list;
 
 	struct stat     tmpstat;
-	struct dirent * dent = 0;
+	struct dirent * dent = nullptr;
 #endif
 
 	GameMapInfo			*gameInfo;
@@ -2580,7 +2580,7 @@ PointerList<GameMapInfo> *GameMapFile::BuildSaveMapList(C3SAVEDIR dir)
 			if (lpFileList == INVALID_HANDLE_VALUE) continue;
 #else
 			DIR *dir2 = opendir(path);
-			struct dirent *dent2 = 0;
+			struct dirent *dent2 = nullptr;
 
 			if (!dir2) continue;
 #endif

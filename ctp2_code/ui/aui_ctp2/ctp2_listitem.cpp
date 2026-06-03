@@ -40,11 +40,11 @@
 ctp2_ListItem::ctp2_ListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock)
 :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Item            (retval, aui_UniqueId(), ldlBlock),
-	PatternBase         (ldlBlock, (MBCHAR *) NULL),
-    m_userData          (NULL),
-    m_compareCallback   (NULL)
+	PatternBase         (ldlBlock, (MBCHAR *) nullptr),
+    m_userData          (nullptr),
+    m_compareCallback   (nullptr)
 {
 }
 

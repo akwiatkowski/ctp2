@@ -13,7 +13,7 @@
 Picture::Picture(
 	AUI_ERRCODE *retval,
 	MBCHAR const * szFileName )
-: aui_Image( retval, szFileName ), m_mipmap( NULL )
+: aui_Image( retval, szFileName ), m_mipmap( nullptr )
 {
 	Load();
 	MakeMipmap();
@@ -22,15 +22,15 @@ Picture::Picture(
 AUI_ERRCODE Picture::MakeMipmap( )
 {
 	Assert(m_surface);
-	if (m_surface == NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (m_surface == nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	if (m_surface->BitsPerPixel() != 16) return AUI_ERRCODE_INVALIDPARAM;
 
 
-	aui_Surface *pMipmap = NULL;
+	aui_Surface *pMipmap = nullptr;
 
 	aui_Surface *   pSrcSurf    = m_surface;
-	uint16 *        pSrcBuffer  = NULL;
-	sint32 errcode = pSrcSurf->Lock(NULL, (LPVOID *)&pSrcBuffer, 0);
+	uint16 *        pSrcBuffer  = nullptr;
+	sint32 errcode = pSrcSurf->Lock(nullptr, (LPVOID *)&pSrcBuffer, 0);
 
 	if ( errcode == AUI_ERRCODE_OK )
 	{
@@ -44,8 +44,8 @@ AUI_ERRCODE Picture::MakeMipmap( )
 		Assert(pMipmap);
 		if (pMipmap)
 		{
-			uint16 *  pDestBuffer = NULL;
-			errcode = pMipmap->Lock(NULL, (LPVOID *)&pDestBuffer, 0);
+			uint16 *  pDestBuffer = nullptr;
+			errcode = pMipmap->Lock(nullptr, (LPVOID *)&pDestBuffer, 0);
 
 			if (errcode == AUI_ERRCODE_OK)
 			{
@@ -81,7 +81,7 @@ Pixel16 Picture::AveragePixels( uint16 *pBuffer, sint32 width )
 	Pixel16 upperLeft,upperRight,lowerLeft,lowerRight;
 
 	Assert(pBuffer);
-	if (pBuffer==NULL) return 0;
+	if (pBuffer==nullptr) return 0;
 
 	upperLeft = *pBuffer++;
 	upperRight = *pBuffer;
@@ -138,7 +138,7 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 	Assert(m_surface->BitsPerPixel() == 16 );
 
 	Assert(pDestRect);
-	if (pDestRect==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pDestRect==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pDestRect->left<=pDestRect->right);
 	if (pDestRect->left>pDestRect->right) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pDestRect->top<=pDestRect->bottom);
@@ -169,22 +169,22 @@ AUI_ERRCODE Picture::Draw( aui_Surface *pDestSurf, RECT *pDestRect )
 	aui_Surface *pMipSurf = m_mipmap;
 
 	Assert(pSrcSurf);
-	if (pSrcSurf==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pSrcSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pMipSurf);
-	if (pMipSurf==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pMipSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pDestSurf);
-	if (pDestSurf==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pDestSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 
 	sint32 errcode;
 
-	errcode = pSrcSurf->Lock(NULL, (LPVOID *)&pSrcBuffer, 0);
+	errcode = pSrcSurf->Lock(nullptr, (LPVOID *)&pSrcBuffer, 0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode == AUI_ERRCODE_OK)
 	{
-		errcode = pMipSurf->Lock(NULL, (LPVOID *)&pMipBuffer, 0);
+		errcode = pMipSurf->Lock(nullptr, (LPVOID *)&pMipBuffer, 0);
 		if (errcode == AUI_ERRCODE_OK)
 		{
-			errcode = pDestSurf->Lock(NULL, (LPVOID *)&pDestBuffer, 0);
+			errcode = pDestSurf->Lock(nullptr, (LPVOID *)&pDestBuffer, 0);
 			if (errcode == AUI_ERRCODE_OK)
 			{
 				sint32 srcWidth = pSrcSurf->Width();

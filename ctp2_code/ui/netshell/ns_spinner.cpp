@@ -16,9 +16,9 @@ ns_Spinner::ns_Spinner(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Ranger( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 }
 
@@ -36,7 +36,7 @@ ns_Spinner::ns_Spinner(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Ranger( retval, id, x, y, width, height,
 			   AUI_RANGER_TYPE_SPINNER, orientation,
 				ActionFunc, cookie),

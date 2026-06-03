@@ -86,7 +86,7 @@ public:
     {
 	    Node
         (
-            GameEventHookCallback * cb  = NULL,
+            GameEventHookCallback * cb  = nullptr,
             GAME_EVENT_PRIORITY     pri = GEV_PRI_Primary
         )
         :   m_cb        (cb),

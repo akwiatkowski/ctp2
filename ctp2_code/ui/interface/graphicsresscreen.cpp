@@ -53,12 +53,12 @@
 #include "ui/interface/graphicsresscreen.h"
 
 
-static c3_PopupWindow	*s_graphicsResScreen= NULL;
-static c3_Button		*s_accept			= NULL;
-static c3_ListBox		*s_resList			= NULL;
-static c3_Static		*s_warning			= NULL;
+static c3_PopupWindow	*s_graphicsResScreen= nullptr;
+static c3_Button		*s_accept			= nullptr;
+static c3_ListBox		*s_resList			= nullptr;
+static c3_Static		*s_warning			= nullptr;
 static sint32			s_currentResIndex	= 0;
-static CTPDisplayMode	*s_selectedDisplayMode = NULL;
+static CTPDisplayMode	*s_selectedDisplayMode = nullptr;
 
 extern sint32 g_ScreenWidth, g_ScreenHeight;
 
@@ -138,7 +138,7 @@ AUI_ERRCODE graphicsresscreen_Initialize( )
 	s_graphicsResScreen->AddClose( graphicsresscreen_acceptPress );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "ResList" );
-	s_resList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, ScreenResListCallback, NULL);
+	s_resList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, ScreenResListCallback, nullptr);
 	Assert( AUI_NEWOK(s_resList, errcode) );
 	if ( !AUI_NEWOK(s_resList, errcode) ) return errcode;
 
@@ -196,7 +196,7 @@ AUI_ERRCODE graphicsresscreen_Cleanup()
 	mycleanup(s_warning);
 
 	delete s_graphicsResScreen;
-	s_graphicsResScreen = NULL;
+	s_graphicsResScreen = nullptr;
 
 	return AUI_ERRCODE_OK;
 
@@ -230,7 +230,7 @@ void graphicsresscreen_acceptPress(aui_Control *control, uint32 action, uint32 d
 ScreenResListItem::ScreenResListItem(AUI_ERRCODE *retval, CTPDisplayMode *mode, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );

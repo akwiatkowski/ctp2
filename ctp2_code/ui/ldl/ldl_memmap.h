@@ -13,7 +13,7 @@ public:
 
 	virtual unsigned char *GetFileBits(
 		char *filename,
-		unsigned long *filesize = NULL );
+		unsigned long *filesize = nullptr );
 	virtual void ReleaseFileBits( unsigned char *&bits );
 };
 

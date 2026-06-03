@@ -115,7 +115,7 @@ void MemberClass::AddDatum(DATUM_TYPE type, struct namelist *nameInfo,
 
 void MemberClass::AddGroupedBits(char *name, struct namelist *list)
 {
-	Assert("Group Bits in Member classes not yet supported" == 0);
+	Assert("Group Bits in Member classes not yet supported" == nullptr);
 }
 
 //Added by Martin G�hmann

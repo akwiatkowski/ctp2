@@ -19,7 +19,7 @@ public:
 		sint32 y,
 		sint32 width,
 		sint32 height,
-		const MBCHAR *text = NULL,
+		const MBCHAR *text = nullptr,
 		uint32 maxLength = 0 );
 	virtual ~aui_Static() {}
 

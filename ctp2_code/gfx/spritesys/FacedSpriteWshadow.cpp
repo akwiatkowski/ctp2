@@ -54,14 +54,14 @@ FacedSpriteWshadow::FacedSpriteWshadow()
 {
 	for (size_t facing = 0; facing < k_NUM_FACINGS; ++facing)
 	{
-		m_frames[facing] = NULL;
-		m_framesSizes[facing] = NULL;
-		m_miniframes[facing] = NULL;
-		m_miniframesSizes[facing] = NULL;
-		m_shadowFrames[facing] = NULL;
-		m_shadowFramesSizes[facing] = NULL;
-		m_miniShadowFrames[facing] = NULL;
-		m_miniShadowFramesSizes[facing] = NULL;
+		m_frames[facing] = nullptr;
+		m_framesSizes[facing] = nullptr;
+		m_miniframes[facing] = nullptr;
+		m_miniframesSizes[facing] = nullptr;
+		m_shadowFrames[facing] = nullptr;
+		m_shadowFramesSizes[facing] = nullptr;
+		m_miniShadowFrames[facing] = nullptr;
+		m_miniShadowFramesSizes[facing] = nullptr;
 	}
 	m_type = SPRITETYPE_FACEDWSHADOW;
 }
@@ -102,7 +102,7 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 
 			if (tif)
 			{
-				char *minitif = NULL;
+				char *minitif = nullptr;
 				spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
 
 				size_t dataSize = 0;
@@ -121,7 +121,7 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 					data = spriteutils_RGB32ToEncoded((Pixel32 *)shadowTif, m_width, m_height, &dataSize);
 					SetShadowFrameData(facing, i, data, dataSize);
 
-				    char *minishadow = NULL;
+				    char *minishadow = nullptr;
 					spriteutils_CreateQuarterSize((Pixel32 *)shadowTif, m_width, m_height, (Pixel32 **)&minishadow, FALSE);
 
 					if(minishadow)
@@ -156,7 +156,7 @@ void FacedSpriteWshadow::Import(uint16 nframes, char *imageFiles[k_NUM_FACINGS][
 
 			if (tif)
 			{
-				char *minitif = NULL;
+				char *minitif = nullptr;
 				spriteutils_CreateQuarterSize((Pixel32 *)tif, m_width, m_height, (Pixel32 **)&minitif, TRUE);
 
 				size_t dataSize = 0;
@@ -189,12 +189,12 @@ void FacedSpriteWshadow::Draw(sint32 drawX, sint32 drawY, sint32 facing,
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_frames[facing][m_currentFrame] == NULL)
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
-	Assert(m_frames[facing][m_currentFrame] != NULL);
-	if(m_frames[facing][m_currentFrame] == NULL)
+	Assert(m_frames[facing][m_currentFrame] != nullptr);
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		c3errors_ErrorDialog("FacedSpriteWshadow", "base sprite facing is missing or invalid for Draw");
 		return;
@@ -261,12 +261,12 @@ void FacedSpriteWshadow::DrawDirect(aui_Surface *surf, sint32 drawX, sint32 draw
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_frames[facing][m_currentFrame] == NULL)
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
-	Assert(m_frames[facing][m_currentFrame] != NULL);
-	if(m_frames[facing][m_currentFrame] == NULL)
+	Assert(m_frames[facing][m_currentFrame] != nullptr);
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		c3errors_ErrorDialog("FacedSpriteWshadow", "base sprite facing is missing or invalid for Draw");
 		UnlockSurface();
@@ -347,13 +347,13 @@ void FacedSpriteWshadow::DirectionalDraw(sint32 drawX, sint32 drawY, sint32 faci
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_frames[facing][m_currentFrame] == NULL)
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
 
-	Assert(m_frames[facing][m_currentFrame] != NULL);
-	if(m_frames[facing][m_currentFrame] == NULL)
+	Assert(m_frames[facing][m_currentFrame] != nullptr);
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		c3errors_ErrorDialog("FacedSpriteWshadow", "base sprite facing is missing or invalid for Directional Draw");
 		return;
@@ -440,11 +440,11 @@ void FacedSpriteWshadow::DrawShadow(sint32 drawX, sint32 drawY, sint32 facing,
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_shadowFrames[facing][m_currentFrame] == NULL)
+	if(m_shadowFrames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
-	if(m_shadowFrames[facing][m_currentFrame] == NULL)
+	if(m_shadowFrames[facing][m_currentFrame] == nullptr)
 	{
 
 		return;
@@ -512,13 +512,13 @@ void FacedSpriteWshadow::DrawFlashEffect(sint32 drawX, sint32 drawY, sint32 faci
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_frames[facing][m_currentFrame] == NULL)
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
 
-	Assert(m_frames[facing][m_currentFrame] != NULL);
-	if(m_frames[facing][m_currentFrame] == NULL)
+	Assert(m_frames[facing][m_currentFrame] != nullptr);
+	if(m_frames[facing][m_currentFrame] == nullptr)
 	{
 		c3errors_ErrorDialog("FacedSpriteWshadow", "base sprite facing is missing or invalid Draw Flash Effect");
 		return;
@@ -576,7 +576,7 @@ Pixel16 * FacedSpriteWshadow::GetFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_frames[facing] != NULL);
+	Assert(m_frames[facing] != nullptr);
 
 	return m_frames[facing][frame];
 }
@@ -585,8 +585,8 @@ size_t FacedSpriteWshadow::GetFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_frames[facing] != NULL);
-	Assert(m_framesSizes[facing] != NULL);
+	Assert(m_frames[facing] != nullptr);
+	Assert(m_framesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_framesSizes[facing][frame] == _msize(GetFrameData(facing, frame)));
 
@@ -600,7 +600,7 @@ Pixel16 * FacedSpriteWshadow::GetMiniFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniframes[facing] != NULL);
+	Assert(m_miniframes[facing] != nullptr);
 
 	return m_miniframes[facing][frame];
 }
@@ -609,7 +609,7 @@ size_t FacedSpriteWshadow::GetMiniFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniframesSizes[facing] != NULL);
+	Assert(m_miniframesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_miniframesSizes[facing][frame] == _msize(GetMiniFrameData(facing, frame)));
 
@@ -623,8 +623,8 @@ void FacedSpriteWshadow::SetFrameData(uint16 facing, uint16 frame, Pixel16 *data
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_frames[facing] != NULL);
-	Assert(m_framesSizes[facing] != NULL);
+	Assert(m_frames[facing] != nullptr);
+	Assert(m_framesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -636,8 +636,8 @@ void FacedSpriteWshadow::SetMiniFrameData(uint16 facing, uint16 frame, Pixel16 *
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniframes[facing] != NULL);
-	Assert(m_miniframesSizes[facing] != NULL);
+	Assert(m_miniframes[facing] != nullptr);
+	Assert(m_miniframesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -650,7 +650,7 @@ Pixel16 * FacedSpriteWshadow::GetShadowFrameData(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_shadowFrames[facing] != NULL);
+	Assert(m_shadowFrames[facing] != nullptr);
 
 	return m_shadowFrames[facing][frame];
 }
@@ -659,7 +659,7 @@ size_t FacedSpriteWshadow::GetShadowFrameDataSize(uint16 facing, uint16 frame)
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_shadowFramesSizes[facing] != NULL);
+	Assert(m_shadowFramesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_shadowFramesSizes[facing][frame] == _msize(GetShadowFrameData(facing, frame)));
 
@@ -673,7 +673,7 @@ Pixel16 * FacedSpriteWshadow::GetMiniShadowFrameData(uint16 facing, uint16 frame
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniShadowFrames[facing] != NULL);
+	Assert(m_miniShadowFrames[facing] != nullptr);
 
 	return m_miniShadowFrames[facing][frame];
 }
@@ -682,7 +682,7 @@ size_t FacedSpriteWshadow::GetMiniShadowFrameDataSize(uint16 facing, uint16 fram
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniShadowFramesSizes[facing] != NULL);
+	Assert(m_miniShadowFramesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert(m_miniShadowFramesSizes[facing][frame] == _msize(GetMiniShadowFrameData(facing, frame)));
 
@@ -696,8 +696,8 @@ void FacedSpriteWshadow::SetShadowFrameData(uint16 facing, uint16 frame, Pixel16
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_shadowFrames[facing] != NULL);
-	Assert(m_shadowFramesSizes[facing] != NULL);
+	Assert(m_shadowFrames[facing] != nullptr);
+	Assert(m_shadowFramesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -709,8 +709,8 @@ void FacedSpriteWshadow::SetMiniShadowFrameData(uint16 facing, uint16 frame, Pix
 {
 	Assert(facing < k_NUM_FACINGS);
 	Assert(frame < m_shadowFrameCount);
-	Assert(m_miniShadowFrames[facing] != NULL);
-	Assert(m_miniShadowFramesSizes[facing] != NULL);
+	Assert(m_miniShadowFrames[facing] != nullptr);
+	Assert(m_miniShadowFramesSizes[facing] != nullptr);
 #ifdef _WINDOWS
 	Assert((((data == NULL) && (size = 0)) || ((data != NULL) && (_msize(data) == size))));
 #endif
@@ -734,12 +734,12 @@ void FacedSpriteWshadow::DirectionalDrawShadow(sint32 drawX, sint32 drawY, sint3
 		drawY -= (sint32)((double)m_hotPoints[k_MAX_FACINGS - facing].y * scale);
 	}
 
-	if(m_shadowFrames[facing][m_currentFrame] == NULL)
+	if(m_shadowFrames[facing][m_currentFrame] == nullptr)
 	{
 		facing = k_SPRITE_BASEFACING;
 	}
 
-	if(m_shadowFrames[facing][m_currentFrame] == NULL)
+	if(m_shadowFrames[facing][m_currentFrame] == nullptr)
 	{
 		return;
 	}
@@ -878,14 +878,14 @@ void FacedSpriteWshadow::AllocateFrameArrays(size_t count)
             if (m_shadowFrames[facing])     delete m_shadowFrames[facing][i];
             if (m_miniShadowFrames[facing]) delete m_miniShadowFrames[facing][i];
         }
-        delete [] m_frames[facing];                m_frames[facing] = NULL;
-        delete [] m_framesSizes[facing];           m_framesSizes[facing] = NULL;
-        delete [] m_miniframes[facing];            m_miniframes[facing] = NULL;
-        delete [] m_miniframesSizes[facing];       m_miniframesSizes[facing] = NULL;
-        delete [] m_shadowFrames[facing];          m_shadowFrames[facing] = NULL;
-        delete [] m_shadowFramesSizes[facing];     m_shadowFramesSizes[facing] = NULL;
-        delete [] m_miniShadowFrames[facing];      m_miniShadowFrames[facing] = NULL;
-        delete [] m_miniShadowFramesSizes[facing]; m_miniShadowFramesSizes[facing] = NULL;
+        delete [] m_frames[facing];                m_frames[facing] = nullptr;
+        delete [] m_framesSizes[facing];           m_framesSizes[facing] = nullptr;
+        delete [] m_miniframes[facing];            m_miniframes[facing] = nullptr;
+        delete [] m_miniframesSizes[facing];       m_miniframesSizes[facing] = nullptr;
+        delete [] m_shadowFrames[facing];          m_shadowFrames[facing] = nullptr;
+        delete [] m_shadowFramesSizes[facing];     m_shadowFramesSizes[facing] = nullptr;
+        delete [] m_miniShadowFrames[facing];      m_miniShadowFrames[facing] = nullptr;
+        delete [] m_miniShadowFramesSizes[facing]; m_miniShadowFramesSizes[facing] = nullptr;
     }
     m_shadowFrameCount = 0;
 
@@ -902,13 +902,13 @@ void FacedSpriteWshadow::AllocateFrameArrays(size_t count)
 
 		for (size_t i = 0; i < count; ++i)
 		{
-			m_frames[facing][i]                = NULL;
+			m_frames[facing][i]                = nullptr;
 			m_framesSizes[facing][i]           = 0;
-			m_miniframes[facing][i]            = NULL;
+			m_miniframes[facing][i]            = nullptr;
 			m_miniframesSizes[facing][i]       = 0;
-			m_shadowFrames[facing][i]          = NULL;
+			m_shadowFrames[facing][i]          = nullptr;
 			m_shadowFramesSizes[facing][i]     = 0;
-			m_miniShadowFrames[facing][i]      = NULL;
+			m_miniShadowFrames[facing][i]      = nullptr;
 			m_miniShadowFramesSizes[facing][i] = 0;
 		}
 	}

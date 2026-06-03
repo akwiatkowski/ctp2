@@ -54,8 +54,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_ListBox();
 
 protected:
@@ -109,7 +109,7 @@ void ns_ListBox<T,NetShellT>::Insert( T *object )
 		aui_UniqueId(),
 		"listitems.nsitem",
 		object );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	AddNetShellItem( item );
@@ -170,7 +170,7 @@ ns_Item<T,NetShellT> *ns_ListBox<T,NetShellT>::FindItem( T *object )
 			return item;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -189,7 +189,7 @@ ns_ListBox<T,NetShellT>::ns_ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_CivListBox( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -205,7 +205,7 @@ template<class T,class NetShellT>
 AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -228,7 +228,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::InitCommon( )
 {
 	m_artXOffset = 0;
 	m_artYOffset = 0;
-	m_itemsSelectImage = NULL;
+	m_itemsSelectImage = nullptr;
 
 	SetAbsorbancy( TRUE );
 
@@ -261,7 +261,7 @@ ns_ListBox<T,NetShellT>::~ns_ListBox()
 	if ( m_itemsSelectImage )
 	{
 		aui_ui_Get()->UnloadImage(m_itemsSelectImage);
-		m_itemsSelectImage = NULL;
+		m_itemsSelectImage = nullptr;
 	}
 }
 
@@ -276,7 +276,7 @@ template<class T,class NetShellT>
 AUI_ERRCODE ns_ListBox<T,NetShellT>::AddNetShellItem(
 	ns_Item<T,NetShellT> *item )
 {
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( item->GetNetShellObject() )
@@ -291,7 +291,7 @@ AUI_ERRCODE ns_ListBox<T,NetShellT>::AddNetShellItem(
 				&errcode,
 				aui_UniqueId(),
 				"listitems.nsitem",
-				NULL );
+				nullptr );
 			Assert( AUI_NEWOK(childItem,errcode) );
 			if ( !AUI_NEWOK(childItem,errcode) )
 				return AUI_ERRCODE_MEMALLOCFAILED;
@@ -320,7 +320,7 @@ template<class T,class NetShellT>
 AUI_ERRCODE ns_ListBox<T,NetShellT>::RemoveNetShellItem(
 	ns_Item<T,NetShellT> *item )
 {
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return AUI_ERRCODE_INVALIDPARAM;
 
 	DeselectItem( item );
@@ -353,7 +353,7 @@ template<class T,class NetShellT>
 AUI_ERRCODE ns_ListBox<T,NetShellT>::UpdateNetShellItem(
 	ns_Item<T,NetShellT> *item )
 {
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( item->GetNetShellObject() )

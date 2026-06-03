@@ -286,9 +286,9 @@ bool AgreementMatrix::HasAgreement(const PLAYER_INDEX & sender_player,
 	}
 
 	Player *player_ptr = player_Get(sender_player);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return false;
 
 	sint32 round = turn_Get()->GetSessionRound();

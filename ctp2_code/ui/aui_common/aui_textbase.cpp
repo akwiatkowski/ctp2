@@ -76,7 +76,7 @@ aui_TextBase::aui_TextBase
 AUI_ERRCODE aui_TextBase::InitCommonLdl(MBCHAR const * ldlBlock, MBCHAR const * text)
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32 fontsize = k_AUI_TEXTBASE_DEFAULT_FONTSIZE;
@@ -217,11 +217,11 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 	BOOL shadow,
 	uint32 flags )
 {
-	m_text = NULL,
+	m_text = nullptr,
 	m_maxLength = maxLength ? maxLength : k_AUI_TEXTBASE_DEFAULTMAXLENGTH,
 	m_curLength = 0;
 
-	m_textfont = NULL;
+	m_textfont = nullptr;
 	m_textflags = flags;
 
 	m_textshadow = shadow;
@@ -245,7 +245,7 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 			m_curLength = m_maxLength;
 
 		m_text = new MBCHAR[ m_maxLength + 1 ];
-		Assert( m_text != NULL );
+		Assert( m_text != nullptr );
 		if ( !m_text ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		memset( m_text, '\0', m_maxLength + 1 );
@@ -258,7 +258,7 @@ AUI_ERRCODE aui_TextBase::InitCommon(
 		{
 
 			m_text = new MBCHAR[ m_maxLength + 1 ];
-			Assert( m_text != NULL );
+			Assert( m_text != nullptr );
 			if ( !m_text ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			memset( m_text, '\0', m_maxLength + 1 );
@@ -284,7 +284,7 @@ AUI_ERRCODE aui_TextBase::SetText(
 	const MBCHAR *text,
 	uint32 maxlen )
 {
-	Assert( text != NULL );
+	Assert( text != nullptr );
 	if ( !text ) return AUI_ERRCODE_INVALIDPARAM;
 
 	memset( m_text, '\0', m_maxLength + 1 );
@@ -300,7 +300,7 @@ AUI_ERRCODE aui_TextBase::SetText(
 AUI_ERRCODE	aui_TextBase::SetText2(MBCHAR *fmt,...)
 {
 
-	Assert(fmt != NULL );
+	Assert(fmt != nullptr );
 	if ( !fmt )
 		return AUI_ERRCODE_INVALIDPARAM;
 
@@ -329,7 +329,7 @@ AUI_ERRCODE	aui_TextBase::SetText2(MBCHAR *fmt,...)
 
 AUI_ERRCODE aui_TextBase::AppendText(MBCHAR const * text)
 {
-	Assert( text != NULL );
+	Assert( text != nullptr );
 	if ( !text ) return AUI_ERRCODE_INVALIDPARAM;
 
 	Assert( m_curLength + strlen( text ) <= m_maxLength );
@@ -430,7 +430,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 		AUI_ERRCODE errcode = m_textfont->DrawString(
 			destSurf,
 			&shadowRect,
-			NULL,
+			nullptr,
 			m_text,
 			m_textflags,
 			m_textshadowcolor,
@@ -442,7 +442,7 @@ AUI_ERRCODE aui_TextBase::DrawThisText(
 	return m_textfont->DrawString(
 		destSurf,
 		destRect,
-		NULL,
+		nullptr,
 		m_text,
 		m_textflags,
 		m_textcolor,
@@ -512,9 +512,9 @@ MBCHAR const * aui_TextBase::FindNextToken
 )
 {
 	Assert(text && tokenList);
-	if (!text || !tokenList) return NULL;
+	if (!text || !tokenList) return nullptr;
 
-	MBCHAR const *  tokenPtr    = NULL;
+	MBCHAR const *  tokenPtr    = nullptr;
 	MBCHAR *        charPtr     = tokenList;
 
 	for (size_t i = strlen(tokenList); i; i--)

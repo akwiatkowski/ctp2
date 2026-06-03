@@ -50,7 +50,7 @@ extern sint32			g_isFastCpu; // Actual permernent set to 1
 TileControl::TileControl(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Control(retval,id,ldlBlock)
 {
 
@@ -67,7 +67,7 @@ TileControl::TileControl(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 
@@ -127,12 +127,12 @@ sint32 TileControl::DrawTile(
 	pos = tempPos;
 
 	TileInfo *tileInfo = tiledmap_Get()->GetTileInfo(pos);
-	if (tileInfo == NULL) return -1;
+	if (tileInfo == nullptr) return -1;
 
 	river = tileInfo->GetRiverPiece();
 
 	BaseTile *baseTile = tiledmap_Get()->GetTileSet()->GetBaseTile(tileInfo->GetTileNum());
-	if (baseTile == NULL) return -1;
+	if (baseTile == nullptr) return -1;
 
 
 
@@ -145,27 +145,27 @@ sint32 TileControl::DrawTile(
 	            &&!tiledmap_Get()->GetLocalVision()->IsVisible(pos)));
 
 	if (!fog) {
-		tiledmap_Get()->DrawTransitionTile(NULL, pos, x, y);
-		tiledmap_Get()->DrawOverlay(NULL, baseTile->GetHatData(), x, y);
+		tiledmap_Get()->DrawTransitionTile(nullptr, pos, x, y);
+		tiledmap_Get()->DrawOverlay(nullptr, baseTile->GetHatData(), x, y);
 		if (river != -1)
-			tiledmap_Get()->DrawOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
+			tiledmap_Get()->DrawOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river), x, y);
 	}
 	else {
 		if (g_isFastCpu) {
-			tiledmap_Get()->DrawBlendedTile(NULL, pos,x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
-			tiledmap_Get()->DrawBlendedOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+			tiledmap_Get()->DrawBlendedTile(nullptr, pos,x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+			tiledmap_Get()->DrawBlendedOverlay(nullptr, baseTile->GetHatData(),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
 			if (river != -1)
-				tiledmap_Get()->DrawBlendedOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
+				tiledmap_Get()->DrawBlendedOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR,k_FOW_BLEND_VALUE);
 		}
 		else {
-			tiledmap_Get()->DrawDitheredTile(NULL, x,y,k_FOW_COLOR);
-			tiledmap_Get()->DrawDitheredOverlay(NULL, baseTile->GetHatData(),x,y,k_FOW_COLOR);
+			tiledmap_Get()->DrawDitheredTile(nullptr, x,y,k_FOW_COLOR);
+			tiledmap_Get()->DrawDitheredOverlay(nullptr, baseTile->GetHatData(),x,y,k_FOW_COLOR);
 			if (river != -1)
-				tiledmap_Get()->DrawDitheredOverlay(NULL, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR);
+				tiledmap_Get()->DrawDitheredOverlay(nullptr, tiledmap_Get()->GetTileSet()->GetRiverData(river),x,y,k_FOW_COLOR);
 		}
 	}
 
-	tiledmap_Get()->DrawImprovementsLayer(NULL, pos, x, y);
+	tiledmap_Get()->DrawImprovementsLayer(nullptr, pos, x, y);
 
 	tiledmap_Get()->UnlockSurface();
 

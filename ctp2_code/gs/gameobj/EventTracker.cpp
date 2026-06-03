@@ -57,7 +57,7 @@ EventData *EventTracker::GetEvents(BOOL Reset)
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 

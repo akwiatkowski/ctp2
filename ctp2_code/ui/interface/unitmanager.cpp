@@ -76,7 +76,7 @@
 #include "gs/world/World.h"
 
 
-static UnitManager *s_unitManager = NULL;
+static UnitManager *s_unitManager = nullptr;
 static MBCHAR *s_unitManagerBlock = "UnitManager";
 static MBCHAR *s_unitManagerAdviceBlock = "UnitManagerAdviceWindow";
 bool UnitManager::sm_statsTabVisible = true;
@@ -125,7 +125,7 @@ UnitManager::UnitManager(AUI_ERRCODE *err)
 	m_tacticalList = (ctp2_ListBox *)aui_Ldl::GetObject(s_unitManagerBlock, "Tabs.Tactical.TabPanel.List");
 	Assert(m_tacticalList);
 	if(m_tacticalList) {
-		m_tacticalList->SetActionFuncAndCookie(TacticalList, NULL);
+		m_tacticalList->SetActionFuncAndCookie(TacticalList, nullptr);
 		m_tacticalList->SetMultiSelect(TRUE);
 	}
 
@@ -139,18 +139,18 @@ UnitManager::UnitManager(AUI_ERRCODE *err)
 
 
 
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "CloseButton", Close, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "AdviceButton", Advice, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "CloseButton", Close, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "AdviceButton", Advice, nullptr);
 
 
 
 
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Slider", ReadinessActionCallback, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Slider", ReadinessActionCallback, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "DisbandButton", DisbandButton, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "DisbandButton", DisbandButton, nullptr);
 
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Tabs.Stats", TabChanged, NULL);
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Tabs.Tactical", TabChanged, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Tabs.Stats", TabChanged, nullptr);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerBlock, "Tabs.Tactical", TabChanged, nullptr);
 
 	m_adviceWindow = (ctp2_Window *)aui_Ldl::BuildHierarchyFromRoot(s_unitManagerAdviceBlock);
 	Assert(m_adviceWindow);
@@ -167,7 +167,7 @@ UnitManager::UnitManager(AUI_ERRCODE *err)
 	m_window->AddDockedWindow(m_adviceWindow);
 	m_adviceWindow->SetDock(m_window);
 
-	aui_Ldl::SetActionFuncAndCookie(s_unitManagerAdviceBlock, "UpkeepButton", UpkeepButton, NULL);
+	aui_Ldl::SetActionFuncAndCookie(s_unitManagerAdviceBlock, "UpkeepButton", UpkeepButton, nullptr);
 
 	*err = AUI_ERRCODE_OK;
 
@@ -618,7 +618,7 @@ void UnitManager::UpdateAdviceText()
 		(ctp2_HyperTextBox *)aui_Ldl::GetObject(s_unitManagerAdviceBlock, "Advice");
 
 	Assert(advice);
-	if(advice == NULL)
+	if(advice == nullptr)
 		return;
 
 	PLAYER_INDEX playerId = selitem_Get()->GetVisiblePlayer();
@@ -923,7 +923,7 @@ void UnitManager::TacticalList(aui_Control *control, uint32 action, uint32 data,
 
 	ctp2_ListBox *lb = (ctp2_ListBox *)control;
 
-    ctp2_ListItem *item = lb ? (ctp2_ListItem *)lb->GetSelectedItem() : NULL;
+    ctp2_ListItem *item = lb ? (ctp2_ListItem *)lb->GetSelectedItem() : nullptr;
 	if(!item) return;
 
 	Unit u(static_cast<uint32>(reinterpret_cast<uintptr_t>(item->GetUserData())));
@@ -987,7 +987,7 @@ void UnitManager::DisbandSelected()
 	Assert(m_statsList);
 	if(!m_statsList) return;
 
-	ctp2_ListBox *theList = NULL;
+	ctp2_ListBox *theList = nullptr;
 
 	if(!m_tacticalList->IsHidden()) {
 		theList = m_tacticalList;

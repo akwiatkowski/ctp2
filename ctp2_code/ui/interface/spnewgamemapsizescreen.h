@@ -22,7 +22,7 @@
 
 sint32 spnewgamemapsizescreen_displayMyWindow(BOOL viewMode = FALSE, sint32 useMode = 0);
 sint32 spnewgamemapsizescreen_removeMyWindow(uint32 action);
-AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallback *callback = NULL );
+AUI_ERRCODE spnewgamemapsizescreen_Initialize( aui_Control::ControlActionCallback *callback = nullptr );
 AUI_ERRCODE spnewgamemapsizescreen_Cleanup();
 
 void spnewgamemapsizescreen_acceptPress(aui_Control *control, uint32 action, uint32 data, void *cookie );

@@ -52,19 +52,19 @@
 extern MovieDB			*g_theVictoryMovieDB;
 extern SoundManager		*soundmgr_Get();
 
-IntroMovieWindow		*g_introMovieWindow = NULL;
+IntroMovieWindow		*g_introMovieWindow = nullptr;
 
 
 void intromoviewin_Initialize()
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	if (g_introMovieWindow == NULL) {
+	if (g_introMovieWindow == nullptr) {
 		g_introMovieWindow = new IntroMovieWindow(&errcode, aui_UniqueId(), "IntroMovieWindow", 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK)
-			g_introMovieWindow = NULL;
-		Assert(g_introMovieWindow != NULL);
+			g_introMovieWindow = nullptr;
+		Assert(g_introMovieWindow != nullptr);
 	}
 }
 
@@ -73,8 +73,8 @@ void intromoviewin_DisplayIntroMovie()
 {
 	MBCHAR		*whichMovie;
 
-	Assert(g_introMovieWindow != NULL);
-	if (g_introMovieWindow == NULL) return;
+	Assert(g_introMovieWindow != nullptr);
+	if (g_introMovieWindow == nullptr) return;
 
 	whichMovie = "VICTORY_INTRO";
 
@@ -99,7 +99,7 @@ void intromoviewin_Cleanup()
 		c3ui_Get()->RemoveWindow(g_introMovieWindow->Id());
 
 		delete g_introMovieWindow;
-		g_introMovieWindow = NULL;
+		g_introMovieWindow = nullptr;
 	}
 }
 

@@ -65,7 +65,7 @@
 extern BOOL g_exclusiveMode;
 #endif
 
-static aui_UI *g_ui = NULL;
+static aui_UI *g_ui = nullptr;
 
 aui_UI * aui_ui_Get()         { return g_ui; }
 void     aui_ui_Set(aui_UI *p)    { g_ui = p; }
@@ -82,41 +82,41 @@ aui_UI::aui_UI
 )
 :
 	aui_Region                  (retval, 0, 0, 0, width, height),
-	m_dirtyRectInfoMemory       (NULL),
-	m_dirtyRectInfoList         (NULL),
+	m_dirtyRectInfoMemory       (nullptr),
+	m_dirtyRectInfoList         (nullptr),
 	m_hinst                     (hinst),
 	m_hwnd                      (hwnd),
 	m_bpp                       (bpp),
 	m_pixelFormat               (AUI_SURFACE_PIXELFORMAT_UNKNOWN),
-	m_ldl                       (NULL),
-	m_primary                   (NULL),
-	m_secondary                 (NULL),
-	m_blitter                   (NULL),
-	m_memmap                    (NULL),
-	m_mouse                     (NULL),
-	m_keyboard                  (NULL),
-	m_joystick                  (NULL),
-	m_dirtyList                 (NULL),
+	m_ldl                       (nullptr),
+	m_primary                   (nullptr),
+	m_secondary                 (nullptr),
+	m_blitter                   (nullptr),
+	m_memmap                    (nullptr),
+	m_mouse                     (nullptr),
+	m_keyboard                  (nullptr),
+	m_joystick                  (nullptr),
+	m_dirtyList                 (nullptr),
 	m_color                     (k_AUI_UI_NOCOLOR),
-	m_image                     (NULL),
-	m_colorAreas                (NULL),
-	m_imageAreas                (NULL),
-	m_virtualFocus              (NULL),
+	m_image                     (nullptr),
+	m_colorAreas                (nullptr),
+	m_imageAreas                (nullptr),
+	m_virtualFocus              (nullptr),
 	m_dxver                     (0),
 	m_editMode                  (false),
-	m_editRegion                (NULL),
-	m_editWindow                (NULL),
-	m_localRectText             (NULL),
-	m_absoluteRectText          (NULL),
-	m_editModeLdlName           (NULL),
-	m_imageResource             (NULL),
-	m_cursorResource            (NULL),
-	m_bitmapFontResource        (NULL),
-	m_audioManager              (NULL),
-	m_movieManager              (NULL),
-	m_actionList                (NULL),
-	m_destructiveActionList     (NULL),
-	m_winList                   (NULL),
+	m_editRegion                (nullptr),
+	m_editWindow                (nullptr),
+	m_localRectText             (nullptr),
+	m_absoluteRectText          (nullptr),
+	m_editModeLdlName           (nullptr),
+	m_imageResource             (nullptr),
+	m_cursorResource            (nullptr),
+	m_bitmapFontResource        (nullptr),
+	m_audioManager              (nullptr),
+	m_movieManager              (nullptr),
+	m_actionList                (nullptr),
+	m_destructiveActionList     (nullptr),
+	m_winList                   (nullptr),
 	m_minimize                  (false),
 	m_savedMouseAnimFirstIndex  (0),
 	m_savedMouseAnimLastIndex   (0),
@@ -150,30 +150,30 @@ AUI_ERRCODE aui_UI::InitCommon(
 	m_hwnd = hwnd;
 	m_bpp = bpp;
 	m_pixelFormat = AUI_SURFACE_PIXELFORMAT_UNKNOWN;
-	m_primary = NULL;
-	m_secondary = NULL;
-	m_blitter = NULL;
-	m_memmap = NULL;
-	m_mouse = NULL;
-	m_keyboard = NULL;
-	m_joystick = NULL;
-	m_audioManager = NULL;
-	m_movieManager = NULL;
+	m_primary = nullptr;
+	m_secondary = nullptr;
+	m_blitter = nullptr;
+	m_memmap = nullptr;
+	m_mouse = nullptr;
+	m_keyboard = nullptr;
+	m_joystick = nullptr;
+	m_audioManager = nullptr;
+	m_movieManager = nullptr;
 
 	m_editMode = FALSE;
-	m_editRegion = NULL;
-	m_editWindow = NULL;
-	m_localRectText = NULL;
-	m_absoluteRectText = NULL;
-	m_editModeLdlName = NULL;
+	m_editRegion = nullptr;
+	m_editWindow = nullptr;
+	m_localRectText = nullptr;
+	m_absoluteRectText = nullptr;
+	m_editModeLdlName = nullptr;
 
 	m_color = k_AUI_UI_NOCOLOR;
-	m_image = NULL;
+	m_image = nullptr;
 	SetRect( &m_imageRect, 0, 0, 0, 0 );
-	m_colorAreas = NULL;
-	m_imageAreas = NULL;
+	m_colorAreas = nullptr;
+	m_imageAreas = nullptr;
 	m_minimize = FALSE;
-	m_virtualFocus = NULL;
+	m_virtualFocus = nullptr;
 
 	m_savedMouseAnimFirstIndex = 0;
 	m_savedMouseAnimLastIndex = 0;
@@ -181,42 +181,42 @@ AUI_ERRCODE aui_UI::InitCommon(
 	m_savedMouseAnimDelay = 0;
 
 	m_imageResource = new aui_Resource<aui_Image>;
-	Assert( m_imageResource != NULL );
+	Assert( m_imageResource != nullptr );
 	if ( !m_imageResource ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_cursorResource = new aui_Resource<aui_Cursor>;
-	Assert( m_cursorResource != NULL );
+	Assert( m_cursorResource != nullptr );
 	if ( !m_cursorResource ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_bitmapFontResource = new aui_Resource<aui_BitmapFont>;
-	Assert( m_bitmapFontResource != NULL );
+	Assert( m_bitmapFontResource != nullptr );
 	if ( !m_bitmapFontResource ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dirtyList = new aui_DirtyList;
-	Assert( m_dirtyList != NULL );
+	Assert( m_dirtyList != nullptr );
 	if ( !m_dirtyList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dirtyList->AddRect( 0, 0, m_width, m_height );
 
 	m_actionList = new tech_WLList<aui_Action *>;
-	Assert( m_actionList != NULL );
+	Assert( m_actionList != nullptr );
 	if ( !m_actionList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 
 	m_destructiveActionList = new tech_WLList<aui_Action *>;
-	Assert( m_destructiveActionList != NULL );
+	Assert( m_destructiveActionList != nullptr );
 	if ( !m_destructiveActionList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_winList = new tech_WLList<HWND>;
-	Assert( m_winList != NULL );
+	Assert( m_winList != nullptr );
 	if ( !m_winList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dirtyRectInfoList = new tech_WLList<DirtyRectInfo *>;
-	Assert( m_dirtyRectInfoList != NULL );
+	Assert( m_dirtyRectInfoList != nullptr );
 	if ( !m_dirtyRectInfoList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_dirtyRectInfoMemory = new tech_Memory<DirtyRectInfo>;
-	Assert( m_dirtyRectInfoMemory != NULL );
+	Assert( m_dirtyRectInfoMemory != nullptr );
 	if ( !m_dirtyRectInfoMemory ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	if ( ldlFilename )
@@ -228,7 +228,7 @@ AUI_ERRCODE aui_UI::InitCommon(
 
 		aui_Ldl::Associate( this, "" );
 	}
-	else m_ldl = NULL;
+	else m_ldl = nullptr;
 
 
 	m_dxver = 0;
@@ -265,7 +265,7 @@ AUI_ERRCODE aui_UI::InitCommon(
 AUI_ERRCODE aui_UI::CreateScreen( )
 {
 	AUI_ERRCODE retcode = AUI_ERRCODE_OK;
-	m_primary   = new aui_Surface( &retcode, m_width, m_height, m_bpp, 0, NULL, TRUE  );
+	m_primary   = new aui_Surface( &retcode, m_width, m_height, m_bpp, 0, nullptr, TRUE  );
 	Assert( AUI_NEWOK(m_primary,retcode) );
 	if ( !AUI_NEWOK(m_primary,retcode) ) return AUI_ERRCODE_MEMALLOCFAILED;
 
@@ -319,7 +319,7 @@ aui_UI::~aui_UI()
 
 	if (this == g_ui)
 	{
-		g_ui = NULL;
+		g_ui = nullptr;
 	}
 
 	free_crc();
@@ -327,43 +327,43 @@ aui_UI::~aui_UI()
 
 void aui_UI::RegisterObject( aui_Blitter *blitter )
 {
-	Assert( blitter != NULL );
+	Assert( blitter != nullptr );
 	if ( blitter ) m_blitter = blitter;
 }
 
 void aui_UI::RegisterObject( aui_MemMap *memmap )
 {
-	Assert( memmap != NULL );
+	Assert( memmap != nullptr );
 	if ( memmap ) m_memmap = memmap;
 }
 
 void aui_UI::RegisterObject( aui_Mouse *mouse )
 {
-	Assert( mouse != NULL );
+	Assert( mouse != nullptr );
 	if ( mouse ) (m_mouse = mouse)->SetClip( 0, 0, m_width, m_height );
 }
 
 void aui_UI::RegisterObject( aui_Keyboard *keyboard )
 {
-	Assert( keyboard != NULL );
+	Assert( keyboard != nullptr );
 	if ( keyboard ) m_keyboard = keyboard;
 }
 
 void aui_UI::RegisterObject( aui_Joystick *joystick )
 {
-	Assert( joystick != NULL );
+	Assert( joystick != nullptr );
 	if ( joystick ) m_joystick = joystick;
 }
 
 void aui_UI::RegisterObject( aui_AudioManager *audioManager )
 {
-	Assert( audioManager != NULL );
+	Assert( audioManager != nullptr );
 	if ( audioManager ) m_audioManager = audioManager;
 }
 
 void aui_UI::RegisterObject( aui_MovieManager *movieManager )
 {
-	Assert( movieManager != NULL );
+	Assert( movieManager != nullptr );
 	if ( movieManager ) m_movieManager = movieManager;
 }
 
@@ -375,7 +375,7 @@ COLORREF aui_UI::SetBackgroundColor( COLORREF color )
 	if (color == k_AUI_UI_NOCOLOR)
 	{
 		delete m_colorAreas;
-		m_colorAreas = NULL;
+		m_colorAreas = nullptr;
 	}
 	else if ( !m_colorAreas )
 	{
@@ -400,13 +400,13 @@ aui_Image *aui_UI::SetBackgroundImage( aui_Image *image, sint32 x, sint32 y )
 		if ( !m_imageAreas )
 		{
 			m_imageAreas = new aui_DirtyList;
-			Assert( m_imageAreas != NULL );
+			Assert( m_imageAreas != nullptr );
 		}
 	}
 	else
 	{
 		delete m_imageAreas;
-		m_imageAreas = NULL;
+		m_imageAreas = nullptr;
 	}
 
 	return prevImage;
@@ -415,7 +415,7 @@ aui_Image *aui_UI::SetBackgroundImage( aui_Image *image, sint32 x, sint32 y )
 AUI_ERRCODE aui_UI::AddChild( aui_Region *child )
 {
 	Assert(this);
-	Assert( child != NULL );
+	Assert( child != nullptr );
 	if ( !child || !this) return AUI_ERRCODE_INVALIDPARAM;
 
 	Assert( child->IsThisA( aui_Window::m_windowClassId ) );
@@ -493,7 +493,7 @@ AUI_ERRCODE aui_UI::RemoveChild( uint32 windowId )
 			window->Reset();
 
 
-			m_virtualFocus = NULL;
+			m_virtualFocus = nullptr;
 
 			position = window->ChildList()->GetHeadPosition();
 			for ( i = window->ChildList()->L(); i; i-- )
@@ -503,7 +503,7 @@ AUI_ERRCODE aui_UI::RemoveChild( uint32 windowId )
 				control->HideTipWindow();
 			}
 
-			window->SetParent( NULL );
+			window->SetParent( nullptr );
 
 			m_childList->DeleteAt( prevPos );
 
@@ -563,7 +563,7 @@ aui_Window *aui_UI::BringWindowToTop( uint32 windowId )
 
 aui_Window *aui_UI::BringWindowToTop( aui_Window *window )
 {
-	aui_Window *prevTopWindow = NULL;
+	aui_Window *prevTopWindow = nullptr;
 
 	uint32 type = window->Type();
 
@@ -722,16 +722,16 @@ AUI_ERRCODE aui_UI::HideWindow( uint32 windowId )
 AUI_ERRCODE aui_UI::ClipAndConsolidate()
 {
 
-	static aui_Window *window = NULL;
+	static aui_Window *window = nullptr;
 	static sint32 windowX = 0;
 	static sint32 windowY = 0;
 	static sint32 windowWidth = 0;
 	static sint32 windowHeight = 0;
-	static aui_Surface *windowSurface = NULL;
+	static aui_Surface *windowSurface = nullptr;
 	static BOOL windowOpaqueControls = FALSE;
 	static RECT windowRect = { 0, 0, 0, 0 };
-	static aui_DirtyList *windowDirtyList = NULL;
-	static aui_Stencil *windowStencil = NULL;
+	static aui_DirtyList *windowDirtyList = nullptr;
+	static aui_Stencil *windowStencil = nullptr;
 
 
 	m_dirtyList->Minimize();
@@ -868,7 +868,7 @@ AUI_ERRCODE aui_UI::ClipAndConsolidate()
 							g_ui->TheBlitter()->StencilMixBlt16(
 								windowSurface,
 								&rect,
-								NULL,
+								nullptr,
 								&rect,
 								remainWindow->TheSurface(),
 								&srcRect,
@@ -985,7 +985,7 @@ AUI_ERRCODE aui_UI::InsertDirtyRectInfo( RECT *rect, aui_Window *window )
 		return AUI_ERRCODE_OK;
 
 	DirtyRectInfo *newDri = m_dirtyRectInfoMemory->New();
-	Assert( newDri != NULL );
+	Assert( newDri != nullptr );
 	if ( !newDri ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	memcpy( &newDri->rect, rect, sizeof( RECT ) );
@@ -1096,7 +1096,7 @@ AUI_ERRCODE aui_UI::Draw( )
 
 	ClipAndConsolidate();
 
-	if (m_mouse == NULL) return AUI_ERRCODE_OK;
+	if (m_mouse == nullptr) return AUI_ERRCODE_OK;
 
 	errcode = m_mouse->Suspend( FALSE );
 	Assert( errcode == AUI_ERRCODE_OK );
@@ -1138,7 +1138,7 @@ void aui_UI::SetEditRegion( aui_Region *region )
 	if ( !region ) {
 		if ( m_editRegion )
 			m_editRegion->ShouldDraw( TRUE );
-		m_editRegion = NULL;
+		m_editRegion = nullptr;
 		m_editModeLdlName->SetText( " " );
 		m_localRectText->SetText( "000, 000, 000, 000" );
 		m_absoluteRectText->SetText( "000, 000, 000, 000" );
@@ -1211,7 +1211,7 @@ void aui_UI::SetEditMode( BOOL mode )
 		if ( m_editRegion )
 			m_editRegion->ShouldDraw( TRUE );
 
-		m_editRegion = NULL;
+		m_editRegion = nullptr;
 	} else {
 		CreateEditModeDialog( TRUE );
 	}
@@ -1277,16 +1277,16 @@ AUI_ERRCODE aui_UI::CreateEditModeDialog(BOOL make)
 		RemoveWindow( m_editWindow->Id( ) );
 
 		delete m_localRectText;
-		m_localRectText = NULL;
+		m_localRectText = nullptr;
 
 		delete m_absoluteRectText;
-		m_absoluteRectText = NULL;
+		m_absoluteRectText = nullptr;
 
 		delete m_editModeLdlName;
-		m_editModeLdlName = NULL;
+		m_editModeLdlName = nullptr;
 
 		delete m_editWindow;
-		m_editWindow = NULL;
+		m_editWindow = nullptr;
 
 	}
 
@@ -1372,7 +1372,7 @@ AUI_ERRCODE aui_UI::HandleMouseEvents(
 
 	for ( sint32 k = numEvents; k; k--, curEvent++ )
 	{
-		SetWhichSeesMouse( NULL );
+		SetWhichSeesMouse( nullptr );
 
 		ListPos position = m_childList->GetHeadPosition();
 		for ( sint32 i = m_childList->L(); i; i-- )
@@ -1773,7 +1773,7 @@ AUI_ERRCODE aui_UI::AltTabOut( )
 	if ( m_minimize )
 	{
 		delete m_primary;
-		m_primary = NULL;
+		m_primary = nullptr;
 	}
 
 #ifdef __AUI_USE_DIRECTX__
@@ -1863,7 +1863,7 @@ void aui_UI::HandleActions( )
 	for ( sint32 i = m_actionList->L(); i && m_actionList->L(); i-- )
 	{
 		aui_Action *action = m_actionList->RemoveHead();
-		action->Execute( NULL, 0, 0 );
+		action->Execute( nullptr, 0, 0 );
 		delete action;
 	}
 }
@@ -1871,7 +1871,7 @@ void aui_UI::HandleActions( )
 
 void aui_UI::AddAction( aui_Action *action )
 {
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( action ) m_actionList->AddTail( action );
 }
 
@@ -1881,14 +1881,14 @@ void aui_UI::HandleDestructiveActions( )
 	for ( sint32 i = m_destructiveActionList->L(); i; i-- )
 	{
 		aui_Action *action = m_destructiveActionList->RemoveHead();
-		action->Execute( NULL, 0, 0 );
+		action->Execute( nullptr, 0, 0 );
 		delete action;
 	}
 }
 
 void aui_UI::AddDestructiveAction( aui_Action *action )
 {
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( action ) m_destructiveActionList->AddTail( action );
 }
 
@@ -1944,7 +1944,7 @@ AUI_ERRCODE aui_UI::BltSecondaryToPrimary
                          uint32       flags
                         )
 {
-	if(m_blitter == NULL)
+	if(m_blitter == nullptr)
 		return AUI_ERRCODE_NOBLITTER;
 
 	RECT rect = {0, 0, SecondaryWidth(), SecondaryHeight()};

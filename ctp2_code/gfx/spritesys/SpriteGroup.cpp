@@ -50,8 +50,8 @@ SpriteGroup::SpriteGroup(GROUPTYPE type)
     m_hasDeath          (false),
     m_hasDirectional    (false)
 {
-    std::fill(m_sprites, m_sprites + ACTION_MAX, (Sprite *) NULL);
-    std::fill(m_anims, m_anims + ACTION_MAX, (Anim *) NULL);
+    std::fill(m_sprites, m_sprites + ACTION_MAX, (Sprite *) nullptr);
+    std::fill(m_anims, m_anims + ACTION_MAX, (Anim *) nullptr);
 }
 
 SpriteGroup::~SpriteGroup()
@@ -77,7 +77,7 @@ void SpriteGroup::DeallocateStorage()
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
         delete m_sprites[i];
-        m_sprites[i] = NULL;
+        m_sprites[i] = nullptr;
     }
 }
 
@@ -86,7 +86,7 @@ void SpriteGroup::DeallocateFullLoadAnims()
     for (int i = ACTION_0; i < ACTION_MAX; i++)
     {
         delete m_anims[i];
-        m_anims[i] = NULL;
+        m_anims[i] = nullptr;
     }
 }
 
@@ -135,7 +135,7 @@ void SpriteGroup::ExportSpriteGroup(FILE *file,GAME_ACTION action,TOKEN_TYPES ma
 	fprintf(file,"\t%s", g_allTokens[main_token].keyword);
 
     Sprite *    sprite  = GetGroupSprite(action);
-	if (sprite!=NULL)
+	if (sprite!=nullptr)
 	{
 		fprintf(file, "\t1\n");
 
@@ -145,7 +145,7 @@ void SpriteGroup::ExportSpriteGroup(FILE *file,GAME_ACTION action,TOKEN_TYPES ma
 		sprite->Export(file);
 
         Anim *  anim    = GetGroupAnim(action);
-		if(anim!=NULL)
+		if(anim!=nullptr)
 		   anim->Export(file);
 	}
 	else

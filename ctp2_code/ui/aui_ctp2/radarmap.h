@@ -63,8 +63,8 @@ public:
 	RadarMap(AUI_ERRCODE *retval,
 					sint32 id,
 					MBCHAR *ldlBlock,
-					ControlActionCallback *ActionFunc = NULL,
-					void *cookie = NULL);
+					ControlActionCallback *ActionFunc = nullptr,
+					void *cookie = nullptr);
 	RadarMap(AUI_ERRCODE *retval,
 					uint32 id,
 					sint32 x,
@@ -72,8 +72,8 @@ public:
 					sint32 width,
 					sint32 height,
 					MBCHAR *pattern,
-					ControlActionCallback *ActionFunc = NULL,
-					void *cookie = NULL);
+					ControlActionCallback *ActionFunc = nullptr,
+					void *cookie = nullptr);
 
 	virtual ~RadarMap();
 

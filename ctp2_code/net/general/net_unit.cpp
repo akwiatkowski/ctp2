@@ -231,7 +231,7 @@ void NetUnit::Unpacketize(uint16 id, uint8* buf, uint16 size)
 			m_unitData = new UnitData(unitType, trans_t, uid, unitOwner,
 									  unitPos, Unit(),
 									  m_actorId.AccessData()->m_actor);
-			m_actorId.AccessData()->m_actor = NULL;
+			m_actorId.AccessData()->m_actor = nullptr;
 		}
         else
         {
@@ -341,7 +341,7 @@ void NetUnit::PacketizeUnit(uint8* buf, uint16& size, UnitData* unitData)
 
 	putlong(ptr, (uint32)unitData->m_transport); ptr += 4;
 
-	uint8 canHaveCargo = unitData->m_cargo_list != NULL;
+	uint8 canHaveCargo = unitData->m_cargo_list != nullptr;
 	putbyte(ptr, canHaveCargo); ptr++;
 	if(canHaveCargo) {
 		uint8 transportedUnits = (uint8)unitData->m_cargo_list->Num();

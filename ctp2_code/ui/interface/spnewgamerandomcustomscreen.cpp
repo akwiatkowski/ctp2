@@ -50,10 +50,10 @@ extern SPNewGameWindow *g_spNewGameWindow;
 
 #define k_NUM_RANDOMCUSTOMBOXES	2
 
-static c3_PopupWindow	*s_spNewGameRandomCustomScreen	= NULL;
+static c3_PopupWindow	*s_spNewGameRandomCustomScreen	= nullptr;
 
 
-static aui_SwitchGroup	*s_group		= NULL;
+static aui_SwitchGroup	*s_group		= nullptr;
 static aui_Radio	**s_checkBox;
 
 static MBCHAR	checknames[k_NUM_RANDOMCUSTOMBOXES][50] = {
@@ -171,7 +171,7 @@ AUI_ERRCODE spnewgamerandomcustomscreen_Cleanup()
 
 
 	delete s_spNewGameRandomCustomScreen;
-	s_spNewGameRandomCustomScreen = NULL;
+	s_spNewGameRandomCustomScreen = nullptr;
 
 	return AUI_ERRCODE_OK;
 

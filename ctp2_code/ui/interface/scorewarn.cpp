@@ -52,9 +52,9 @@
 
 extern BOOL         g_launchIntoCheatMode;
 
-c3_PopupWindow	*   g_scorewarn = NULL;
+c3_PopupWindow	*   g_scorewarn = nullptr;
 
-static c3_Static *  s_message   = NULL;
+static c3_Static *  s_message   = nullptr;
 
 void scorewarn_OkButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
@@ -113,7 +113,7 @@ sint32 scorewarn_Initialize( )
 
 	g_scorewarn->SetStronglyModal( TRUE );
 
-	g_scorewarn->AddOk( scorewarn_OkButtonActionCallback, NULL, "c3_PopupOk" );
+	g_scorewarn->AddOk( scorewarn_OkButtonActionCallback, nullptr, "c3_PopupOk" );
 	g_scorewarn->AddCancel( scorewarn_CancelButtonActionCallback );
 
 	MBCHAR			buttonBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -140,12 +140,12 @@ void scorewarn_Cleanup()
     }
 }
 
-static c3_PopupWindow	*s_disclaimerWindow = NULL;
-static c3_Static		*s_disclaimerLabel = NULL;
-static ctp2_Button		*s_disclaimerAcceptButton = NULL;
-static ctp2_Button		*s_disclaimerDeclineButton = NULL;
-static aui_Control::ControlActionCallback *s_disclaimerCallback = NULL;
-static ctp2_HyperTextBox	*s_disclaimerTextBox = NULL;
+static c3_PopupWindow	*s_disclaimerWindow = nullptr;
+static c3_Static		*s_disclaimerLabel = nullptr;
+static ctp2_Button		*s_disclaimerAcceptButton = nullptr;
+static ctp2_Button		*s_disclaimerDeclineButton = nullptr;
+static aui_Control::ControlActionCallback *s_disclaimerCallback = nullptr;
+static ctp2_HyperTextBox	*s_disclaimerTextBox = nullptr;
 
 void DisclaimerCloseAction::Execute(aui_Control *control, uint32 action, uint32 data)
 {
@@ -236,7 +236,7 @@ sint32 disclaimer_Initialize(aui_Control::ControlActionCallback *callback)
 
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", windowBlock, "DisclaimerText");
-	s_disclaimerTextBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock, NULL, NULL);
+	s_disclaimerTextBox = new ctp2_HyperTextBox(&errcode, aui_UniqueId(), buttonBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(s_disclaimerTextBox, errcode) );
 	if ( !AUI_NEWOK(s_disclaimerTextBox, errcode) ) return -1;
 

@@ -656,7 +656,7 @@ bool CellUnitList::CanMoveIntoCell(const MapPoint &pos,
 								   bool &alliedCity)
 {
 	Cell *         cell = world_Get()->GetCell(pos);
-	CellUnitList * ul   = cell ? cell->UnitArmy() : NULL;
+	CellUnitList * ul   = cell ? cell->UnitArmy() : nullptr;
 
 	zocViolation = false;
 	alliedCity = false;

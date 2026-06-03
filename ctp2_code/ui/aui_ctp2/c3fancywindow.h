@@ -55,10 +55,10 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock,
 		sint32 bpp,
-		MBCHAR ldlBorder[k_NUM_BORDERS][ k_AUI_LDL_MAXBLOCK + 1 ] = NULL,
+		MBCHAR ldlBorder[k_NUM_BORDERS][ k_AUI_LDL_MAXBLOCK + 1 ] = nullptr,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_BACKGROUND,
 		bool bevel = true,
-		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = NULL);
+		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = nullptr);
 
 	virtual ~C3FancyWindow();
 	virtual AUI_ERRCODE Resize( sint32 width, sint32 height );
@@ -79,7 +79,7 @@ private:
 	POINT	m_offset[k_NUM_BORDERS];
 
 	POINT	m_originalDimensions;
-	void NullBorders() { for(uint32 i =0; i< k_NUM_BORDERS; i++) m_border[i]=NULL; }
+	void NullBorders() { for(uint32 i =0; i< k_NUM_BORDERS; i++) m_border[i]=nullptr; }
 	c3_Button *m_exit;
 };
 

@@ -110,16 +110,16 @@ extern SelectedItem	*selitem_Get();
 
 
 
-C3Window		*g_testWindow = NULL;
-C3Window		*g_standardWindow = NULL;
-C3Window		*g_floatingWindow = NULL;
+C3Window		*g_testWindow = nullptr;
+C3Window		*g_standardWindow = nullptr;
+C3Window		*g_floatingWindow = nullptr;
 
-static TipWindow	*g_tipWindow = NULL;
-static TipWindow	*g_thumbTipWindow = NULL;
+static TipWindow	*g_tipWindow = nullptr;
+static TipWindow	*g_thumbTipWindow = nullptr;
 
 
-static TextTab *g_happyTab = NULL;
-static IconButton *g_iconButton = NULL;
+static TextTab *g_happyTab = nullptr;
+static IconButton *g_iconButton = nullptr;
 
 
 
@@ -375,17 +375,17 @@ void ModalRadioCallback( aui_Control *control, uint32 action, uint32 data, void 
 int c3windows_MakeTestWindow( BOOL make )
 {
 
-	static TextButton	*button = NULL;
-	static TextTab		*sadTab = NULL;
-	static Checkbox		*checkbox = NULL;
-	static Checkbox		*dragcheckbox = NULL;
-	static Checkbox		*transparentcheckbox = NULL;
-	static TextTab		*indifferentTab = NULL;
-	static TextRadio	*stronglyModalRadio = NULL;
-	static TextRadio	*weaklyModalRadio = NULL;
-	static RadioGroup	*modalRadioGroup = NULL;
-	static aui_TabGroup	*moodyTabGroup = NULL;
-	static C3Spinner	*spinner = NULL;
+	static TextButton	*button = nullptr;
+	static TextTab		*sadTab = nullptr;
+	static Checkbox		*checkbox = nullptr;
+	static Checkbox		*dragcheckbox = nullptr;
+	static Checkbox		*transparentcheckbox = nullptr;
+	static TextTab		*indifferentTab = nullptr;
+	static TextRadio	*stronglyModalRadio = nullptr;
+	static TextRadio	*weaklyModalRadio = nullptr;
+	static RadioGroup	*modalRadioGroup = nullptr;
+	static aui_TabGroup	*moodyTabGroup = nullptr;
+	static C3Spinner	*spinner = nullptr;
 
 	if ( make )
 	{
@@ -609,67 +609,67 @@ int c3windows_MakeTestWindow( BOOL make )
 		if ( button )
 		{
 			delete button;
-			button = NULL;
+			button = nullptr;
 		}
 
 		if ( sadTab )
 		{
 			delete sadTab;
-			sadTab = NULL;
+			sadTab = nullptr;
 		}
 
 		if ( checkbox )
 		{
 			delete checkbox;
-			checkbox = NULL;
+			checkbox = nullptr;
 		}
 
 		if ( dragcheckbox )
 		{
 			delete dragcheckbox;
-			dragcheckbox = NULL;
+			dragcheckbox = nullptr;
 		}
 
 		if ( transparentcheckbox )
 		{
 			delete transparentcheckbox;
-			transparentcheckbox = NULL;
+			transparentcheckbox = nullptr;
 		}
 
 		if ( indifferentTab )
 		{
 			delete indifferentTab;
-			indifferentTab = NULL;
+			indifferentTab = nullptr;
 		}
 
 		if ( stronglyModalRadio )
 		{
 			delete stronglyModalRadio;
-			stronglyModalRadio = NULL;
+			stronglyModalRadio = nullptr;
 		}
 
 		if ( weaklyModalRadio )
 		{
 			delete weaklyModalRadio;
-			weaklyModalRadio = NULL;
+			weaklyModalRadio = nullptr;
 		}
 
 		if ( modalRadioGroup )
 		{
 			delete modalRadioGroup;
-			modalRadioGroup = NULL;
+			modalRadioGroup = nullptr;
 		}
 
 		if ( moodyTabGroup )
 		{
 			delete moodyTabGroup;
-			moodyTabGroup = NULL;
+			moodyTabGroup = nullptr;
 		}
 
 		if ( spinner )
 		{
 			delete spinner;
-			spinner = NULL;
+			spinner = nullptr;
 		}
 
 		c3windows_MakeTipWindow( FALSE );
@@ -678,7 +678,7 @@ int c3windows_MakeTestWindow( BOOL make )
 		{
 			c3ui_Get()->RemoveWindow( g_testWindow->Id() );
 			delete g_testWindow;
-			g_testWindow = NULL;
+			g_testWindow = nullptr;
 		}
 	}
 
@@ -717,7 +717,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			windowX, windowY, windowWidth, windowHeight,
 			16,
 			k_PatternName );
-		Assert( g_standardWindow != NULL );
+		Assert( g_standardWindow != nullptr );
 		if ( !g_standardWindow ) return -1;
 
 
@@ -772,7 +772,7 @@ int c3windows_MakeStandardWindow( BOOL make )
 			16,
 			k_PatternName,
 			"I am a Thumb control." );
-		Assert( g_thumbTipWindow != NULL );
+		Assert( g_thumbTipWindow != nullptr );
 		if ( !g_thumbTipWindow ) return -1;
 
 		C3Thumb *thumb = (C3Thumb *)slider->GetThumb();
@@ -876,27 +876,27 @@ int c3windows_MakeStandardWindow( BOOL make )
 		if ( !g_standardWindow ) return 0;
 
 		delete slider;
-		slider = NULL;
+		slider = nullptr;
 		delete g_thumbTipWindow;
-		g_thumbTipWindow = NULL;
+		g_thumbTipWindow = nullptr;
 		delete dropdown;
-		dropdown = NULL;
+		dropdown = nullptr;
 		delete i1;
-		i1 = NULL;
+		i1 = nullptr;
 		delete i2;
-		i2 = NULL;
+		i2 = nullptr;
 		delete i3;
-		i3 = NULL;
+		i3 = nullptr;
 		delete i4;
-		i4 = NULL;
+		i4 = nullptr;
 		delete i5;
-		i5 = NULL;
+		i5 = nullptr;
 		delete i6;
-		i6 = NULL;
+		i6 = nullptr;
 
 		c3ui_Get()->RemoveWindow( g_standardWindow->Id() );
 		delete g_standardWindow;
-		g_standardWindow = NULL;
+		g_standardWindow = nullptr;
 	}
 
 	return 0;
@@ -926,7 +926,7 @@ int c3windows_MakeTipWindow( BOOL make )
 			16,
 			k_PatternName,
 			"Press this button" );
-		Assert( g_tipWindow != NULL );
+		Assert( g_tipWindow != nullptr );
 		if ( !g_tipWindow ) return -1;
 	}
 	else
@@ -934,7 +934,7 @@ int c3windows_MakeTipWindow( BOOL make )
 		if ( !g_tipWindow ) return 0;
 
 		delete g_tipWindow;
-		g_tipWindow = NULL;
+		g_tipWindow = nullptr;
 	}
 
 	return 0;
@@ -974,7 +974,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 			16,
 			k_PatternName,
 			AUI_WINDOW_TYPE_FLOATING );
-		Assert( g_floatingWindow != NULL );
+		Assert( g_floatingWindow != nullptr );
 		if ( !g_floatingWindow ) return -1;
 
 		g_floatingWindow->SetDraggable( TRUE );
@@ -1110,16 +1110,16 @@ int c3windows_MakeFloatingWindow( BOOL make )
 		if ( !g_floatingWindow ) return 0;
 
 		delete listbox;
-		listbox = NULL;
+		listbox = nullptr;
 		for ( sint32 i = 0; i < 14; i++ )
 		{
 			for ( sint32 j = 0; j < 5; j++ )
 			{
 				delete subItems[ i ][ j ];
-				subItems[ i ][ j ] = NULL;
+				subItems[ i ][ j ] = nullptr;
 			}
 			delete items[ i ];
-			items[ i ] = NULL;
+			items[ i ] = nullptr;
 		}
 
 
@@ -1139,7 +1139,7 @@ int c3windows_MakeFloatingWindow( BOOL make )
 
 		c3ui_Get()->RemoveWindow( g_floatingWindow->Id() );
 		delete g_floatingWindow;
-		g_floatingWindow = NULL;
+		g_floatingWindow = nullptr;
 	}
 
 	return 0;
@@ -1181,7 +1181,7 @@ void KnowledgeButtonActionCallback( aui_Control *control, uint32 action, uint32 
 
 	if ( action != (uint32)AUI_BUTTON_ACTION_EXECUTE ) return;
 
-	c3_ExpelPopup *popup = new c3_ExpelPopup(NULL);
+	c3_ExpelPopup *popup = new c3_ExpelPopup(nullptr);
 	popup->DisplayWindow();
 }
 
@@ -1197,8 +1197,8 @@ void DebugButtonActionCallback( aui_Control *control, uint32 action, uint32 data
 	if ( auiErr != AUI_ERRCODE_OK ) return;
 }
 
-static aui_Window		*s_thumbWindow = NULL;
-static ThumbnailMap		*s_thumbnail = NULL;
+static aui_Window		*s_thumbWindow = nullptr;
+static ThumbnailMap		*s_thumbnail = nullptr;
 
 void ResourceButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
 {
@@ -1306,7 +1306,7 @@ int c3windows_MakeStatusWindow( BOOL make )
 			windowX, windowY, windowWidth, windowHeight,
 			16,
 			k_PatternName ));
-		Assert( statuswindow_Get() != NULL );
+		Assert( statuswindow_Get() != nullptr );
 		if ( !statuswindow_Get() ) return -1;
 		statuswindow_Get()->SetDraggable( TRUE );
 
@@ -1475,24 +1475,24 @@ int c3windows_MakeStatusWindow( BOOL make )
 		c3ui_Get()->RemoveWindow( statuswindow_Get()->Id() );
 
 		delete button;
-		button = NULL;
+		button = nullptr;
 		delete debugButton;
-		debugButton = NULL;
+		debugButton = nullptr;
 		delete resourceButton;
-		resourceButton = NULL;
+		resourceButton = nullptr;
 		delete cheatButton;
-		cheatButton = NULL;
+		cheatButton = nullptr;
 
 		delete diplomacyButton;
-		diplomacyButton = NULL ;
+		diplomacyButton = nullptr ;
 		delete knowledgeButton;
-		knowledgeButton = NULL;
+		knowledgeButton = nullptr;
 
 		if (s_thumbWindow) delete s_thumbWindow;
 		if (s_thumbnail) delete s_thumbnail;
 
 		delete statuswindow_Get();
-		statuswindow_Set(NULL);
+		statuswindow_Set(nullptr);
 	}
 
 	return 0;
@@ -1522,7 +1522,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 			16,
 			k_PatternName,
 			AUI_WINDOW_TYPE_FLOATING );
-		Assert( g_debugWindow != NULL );
+		Assert( g_debugWindow != nullptr );
 		if ( !g_debugWindow ) return -1;
 
 		g_debugWindow->SetDynamic(FALSE);
@@ -1538,7 +1538,7 @@ int c3windows_MakeDebugWindow( BOOL make )
 			12,
 			windowWidth - 30,
 			windowHeight - 24,
-			k_PatternName, NULL, NULL, NULL);
+			k_PatternName, nullptr, nullptr, nullptr);
 		if ( !textbox ) return -3;
 
 
@@ -1574,13 +1574,13 @@ int c3windows_MakeDebugWindow( BOOL make )
 		c3ui_Get()->RemoveWindow( g_debugWindow->Id() );
 
 		delete textbox;
-		textbox = NULL;
+		textbox = nullptr;
 
 		delete exitButton;
-		exitButton = NULL;
+		exitButton = nullptr;
 
 		delete g_debugWindow;
-		g_debugWindow = NULL;
+		g_debugWindow = nullptr;
 	}
 
 	return 0;
@@ -1605,12 +1605,12 @@ void c3windows_Cleanup( )
 	if ( g_iconButton )
 	{
 		delete g_iconButton;
-		g_iconButton = NULL;
+		g_iconButton = nullptr;
 	}
 	if ( g_happyTab )
 	{
 		delete g_happyTab;
-		g_happyTab = NULL;
+		g_happyTab = nullptr;
 	}
 
 	c3ui_Get()->UnloadIcon( k_IconName );

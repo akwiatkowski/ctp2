@@ -54,7 +54,7 @@ class CivArchive;
 class GameEventArgList
 {
 public:
-	GameEventArgList(va_list * vl = NULL, GAME_EVENT eventType = GEV_MAX);
+	GameEventArgList(va_list * vl = nullptr, GAME_EVENT eventType = GEV_MAX);
 	GameEventArgList(CivArchive &archive);
 	~GameEventArgList();
 	void Serialize(CivArchive &archive);
@@ -82,8 +82,8 @@ public:
 	bool GetImprovement(sint32 index, TerrainImprovement &imp) const;
 	bool GetTradeRoute(sint32 index, TradeRoute &route) const;
 
-	bool TestArgsOfType(GAME_EVENT type, GAME_EVENT_ARGUMENT argType, GameEvent* event = NULL) const;
-	bool TestArgs(GAME_EVENT type, GameEvent* event = NULL) const;
+	bool TestArgsOfType(GAME_EVENT type, GAME_EVENT_ARGUMENT argType, GameEvent* event = nullptr) const;
+	bool TestArgs(GAME_EVENT type, GameEvent* event = nullptr) const;
 
 private:
 

@@ -48,8 +48,8 @@ Mix_Chunk achunk;
 int m_moviechannel;
 #endif
 
-WNDPROC aui_Movie::m_windowProc = NULL;
-aui_Movie *aui_Movie::m_onScreenMovie = NULL;
+WNDPROC aui_Movie::m_windowProc = nullptr;
+aui_Movie *aui_Movie::m_onScreenMovie = nullptr;
 
 
 aui_Movie::aui_Movie(
@@ -65,8 +65,8 @@ aui_Movie::aui_Movie(
 
 AUI_ERRCODE aui_Movie::InitCommon( MBCHAR const * filename )
 {
-	m_format = NULL;
-	m_surface = NULL;
+	m_format = nullptr;
+	m_surface = nullptr;
 	m_isOpen = FALSE;
 	m_isPlaying = FALSE;
 	m_isFinished = FALSE;
@@ -75,7 +75,7 @@ AUI_ERRCODE aui_Movie::InitCommon( MBCHAR const * filename )
 	m_timePerFrame = 0;
 	m_lastFrameTime = 0;
 
-	m_windowSurface = NULL;
+	m_windowSurface = nullptr;
 	memset( &m_rect, 0, sizeof( m_rect ) );
 	memset(&m_windowRect, 0, sizeof(m_windowRect));
 
@@ -123,7 +123,7 @@ AUI_ERRCODE aui_Movie::SetFilename( MBCHAR const *filename )
 
 	m_format = (aui_MovieFormat *)
 		aui_ui_Get()->TheMemMap()->GetFileFormat( m_filename );
-	Assert( m_format != NULL );
+	Assert( m_format != nullptr );
 	if ( !m_format ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -144,7 +144,7 @@ AUI_ERRCODE aui_Movie::Unload( )
 	Close();
 
 	aui_ui_Get()->TheMemMap()->ReleaseFileFormat(m_format);
-	m_format = NULL;
+	m_format = nullptr;
 
 	return AUI_ERRCODE_OK;
 }
@@ -378,7 +378,7 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( )
 	aui_Mouse *mouse = aui_ui_Get()->TheMouse();
 	sint32 numEvents;
 	static aui_MouseEvent mouseEvents[ k_MOUSE_MAXINPUT ];
-	aui_MouseEvent *mouseState = NULL;
+	aui_MouseEvent *mouseState = nullptr;
 
 	if (mouse) {
 
@@ -431,7 +431,7 @@ AUI_ERRCODE aui_Movie::PlayOnScreenMovie( )
 		}
 	}
 
-	m_onScreenMovie = NULL;
+	m_onScreenMovie = nullptr;
 
 #ifdef __AUI_USE_DIRECTX__
 	SetWindowLong( aui_ui_Get()->TheHWND(), GWL_WNDPROC, (LONG)m_windowProc );

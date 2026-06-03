@@ -89,7 +89,7 @@ void UnitSpriteGroup::DeallocateStorage()
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
 		delete m_sprites[i];
-		m_sprites[i] = NULL;
+		m_sprites[i] = nullptr;
 	}
 }
 
@@ -105,7 +105,7 @@ void UnitSpriteGroup::DeallocateFullLoadAnims()
 	for (int i = UNITACTION_MOVE; i < UNITACTION_MAX; i++)
 	{
 		delete m_anims[i];
-		m_anims[i] = NULL;
+		m_anims[i] = nullptr;
 	}
 }
 
@@ -140,9 +140,9 @@ void UnitSpriteGroup::Draw(UNITACTION action, sint32 frame, sint32 drawX, sint32
 
 
 	if (specialDelayProcess
-		|| (action == UNITACTION_IDLE && m_sprites[action] == NULL)
-		|| (action == UNITACTION_ATTACK && m_sprites[action] == NULL)
-		|| (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == NULL)
+		|| (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
+		|| (action == UNITACTION_ATTACK && m_sprites[action] == nullptr)
+		|| (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == nullptr)
        )
 	{
 		if (m_sprites[UNITACTION_MOVE])
@@ -187,8 +187,8 @@ BOOL UnitSpriteGroup::HitTest(POINT mousePt, UNITACTION action, sint32 frame, si
 			action <= UNITACTION_WORK);
 
 	if (specialDelayProcess
-        || (action == UNITACTION_IDLE && m_sprites[action] == NULL)
-        || (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == NULL)
+        || (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
+        || (action == UNITACTION_MOVE && m_sprites[UNITACTION_IDLE] == nullptr)
        )
 	{
 		if (m_sprites[UNITACTION_MOVE])
@@ -225,8 +225,8 @@ void UnitSpriteGroup::DrawDirect(aui_Surface *surf, UNITACTION action, sint32 fr
 
 
 	if (specialDelayProcess
-        || (action == UNITACTION_IDLE && m_sprites[action] == NULL)
-        || (action == UNITACTION_MOVE && (m_sprites[UNITACTION_IDLE] == NULL))
+        || (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
+        || (action == UNITACTION_MOVE && (m_sprites[UNITACTION_IDLE] == nullptr))
        )
 	{
 		if (m_sprites[UNITACTION_MOVE])
@@ -730,10 +730,10 @@ POINT UnitSpriteGroup::GetHotPoint(UNITACTION action, sint32 facing)
 {
 	POINT nullPoint = {0,0};
 
-	if (action == UNITACTION_IDLE && m_sprites[action] == NULL)
+	if (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
 		action = UNITACTION_MOVE;
 
-	if (m_sprites[action] != NULL) {
+	if (m_sprites[action] != nullptr) {
 		if (m_sprites[action]->GetType() == SPRITETYPE_FACED) {
 			if (facing >= k_NUM_FACINGS) facing = k_MAX_FACINGS - facing;
 			return ((FacedSprite *)m_sprites[action])->GetHotPoint((uint16)facing);
@@ -751,10 +751,10 @@ void
 UnitSpriteGroup::SetHotPoint(UNITACTION action, sint32 facing,POINT pt)
 {
 
-	if (action == UNITACTION_IDLE && m_sprites[action] == NULL)
+	if (action == UNITACTION_IDLE && m_sprites[action] == nullptr)
 		action = UNITACTION_MOVE;
 
-	if (m_sprites[action] != NULL)
+	if (m_sprites[action] != nullptr)
 	{
 		if (m_sprites[action]->GetType() == SPRITETYPE_FACED)
 		{

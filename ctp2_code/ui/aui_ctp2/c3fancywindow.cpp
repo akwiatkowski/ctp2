@@ -55,7 +55,7 @@ C3FancyWindow::C3FancyWindow(
 	AUI_WINDOW_TYPE type,
 	bool bevel,
 	void (*exitCallBack)( aui_Control *, uint32, uint32, void *))
-	: C3Window(retval, id, ldlBlock, bpp, type,bevel), m_exit(NULL)
+	: C3Window(retval, id, ldlBlock, bpp, type,bevel), m_exit(nullptr)
 {
 	*retval = InitCommon();
 	Assert( AUI_SUCCESS(*retval) );
@@ -110,10 +110,10 @@ C3FancyWindow::~C3FancyWindow()
 	for(int i=0; i<k_NUM_BORDERS; i++) {
 		if(m_border[i]) {
 			c3ui_Get()->RemoveWindow(m_border[i]->Id());
-			delete m_border[i]; m_border[i]= NULL;
+			delete m_border[i]; m_border[i]= nullptr;
 		}
 	}
-	if(m_exit) { delete m_exit; m_exit = NULL;}
+	if(m_exit) { delete m_exit; m_exit = nullptr;}
 }
 
 void C3FancyWindow::MakeDraggable( BOOL draggable )

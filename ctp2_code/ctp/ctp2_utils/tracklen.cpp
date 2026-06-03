@@ -257,7 +257,7 @@ int tracklen_GetTrackLengths(DWORD *trackLenBuf, char whichDrive)
 	if (iRet)
 #elif defined(USE_SDL)
 	SDL_CD *cdrom = SDL_CDOpen(iDrive);
-	if (cdrom == NULL)
+	if (cdrom == nullptr)
 #else
 	if (1)
 #endif
@@ -433,7 +433,7 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 	if (!f) {
 #endif
 		tracklen_DPRINT((tracklen_buf, "tracklen_LoadEncryptedKey: can't open %s\n", szTemp));
-		return NULL;
+		return nullptr;
 	}
 
 #ifdef WIN32
@@ -452,7 +452,7 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 #else
 		fclose(f);
 #endif
-		return NULL;
+		return nullptr;
 	}
 
 #ifdef WIN32
@@ -466,7 +466,7 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 #endif
 	if( ignore < dwSize ) {
 		tracklen_DPRINT((tracklen_buf, "tracklen_LoadEncryptedKey: file %s bad size 2\n", szTemp));
-		return NULL;
+		return nullptr;
 	}
 
 	*trackLenBuf = dwSize/4;
@@ -491,7 +491,7 @@ char *GetVersionInfo( DWORD *trackLenBuffer )
 #ifdef tracklen_LOGGING
 		tracklen_DPRINT((tracklen_buf, "GetVersionInfo: outdated tracklen file: does not contain version information. Version information has been implemented as of 08/21/00\n"));
 #endif
-		return( NULL );
+		return( nullptr );
 	}
 
 	return( szVersionPtr );

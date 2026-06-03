@@ -117,19 +117,19 @@ void * mapFile(char const *path, long *size, PFPath &pfp)
     void *ptr;
     struct stat tmpstat = { 0 };
     if (stat(path, &tmpstat) != 0) {
-    	return NULL;
+    	return nullptr;
     }
     int fd = open(path, O_RDONLY);
     if (fd < 0) {
-        return NULL;
+        return nullptr;
     }
     pfp.zms_size = tmpstat.st_size;
     *size = tmpstat.st_size;
 
-    ptr = mmap(NULL, *size, PROT_READ, MAP_PRIVATE, fd, 0);
+    ptr = mmap(nullptr, *size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (!ptr) {
     	close(fd);
-        return(NULL);
+        return(nullptr);
     }
     pfp.zms_hf = fd;
 
@@ -146,7 +146,7 @@ void unmapFile(PFPath &pfp)
 ProjectFile::ProjectFile()
 :
     m_num_paths         (0),
-    m_entries           (NULL),
+    m_entries           (nullptr),
     m_num_entries       (0),
     m_Reported          ()
 {
@@ -197,7 +197,7 @@ int ProjectFile::mergeEntries(PFEntry *newList, int newCount)
         m_entries = (PFEntry *)malloc(sizeof(PFEntry) * newCount);
         m_num_entries = 0;
     }
-    if (m_entries == NULL) {
+    if (m_entries == nullptr) {
         snprintf(m_error_string, sizeof(m_error_string), "Not enough memory");
         return(0);
     }
@@ -222,7 +222,7 @@ PFEntry *ProjectFile::findRecord(char const * rname) const
 
 bool ProjectFile::exists(char const * rname) const
 {
-    return findRecord(rname) != NULL;
+    return findRecord(rname) != nullptr;
 }
 
 void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
@@ -236,18 +236,18 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
 
     FILE *fp = fopen(tempstr, "rb");
 
-    if (fp == NULL) {
+    if (fp == nullptr) {
         snprintf(m_error_string, sizeof(m_error_string), "Couldn't open file \"%s\"", tempstr);
-        return(NULL);
+        return(nullptr);
     }
-    setvbuf(fp, NULL, _IONBF, 0);
+    setvbuf(fp, nullptr, _IONBF, 0);
 
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     char *data = (char *) malloc(size);
-    if (data == NULL) {
+    if (data == nullptr) {
         snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n", tempstr);
-        return(NULL);
+        return(nullptr);
     }
 
     fseek(fp, 0, SEEK_SET);
@@ -255,7 +255,7 @@ void *ProjectFile::getData_DOS(PFEntry *entry, size_t & size, C3DIR dir)
         snprintf(m_error_string, sizeof(m_error_string), "Could not read file \"%s\"", tempstr);
         free(data);
         fclose(fp);
-        return(NULL);
+        return(nullptr);
     }
 
     fclose(fp);
@@ -266,17 +266,17 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
 {
     FILE * fp = m_paths[entry->path].zfs_fp;
 
-    if (fp == NULL) {
-        return(NULL);
+    if (fp == nullptr) {
+        return(nullptr);
     }
 
     size = entry->size;
     char *  data = (char *) malloc(size);
-    if (data == NULL)
+    if (data == nullptr)
     {
         snprintf(m_error_string, sizeof(m_error_string), "Could not malloc data for record %s\n",
                 entry->rname);
-        return NULL;
+        return nullptr;
     }
 
     fseek(fp, entry->offset, SEEK_SET);
@@ -284,7 +284,7 @@ void *ProjectFile::getData_ZFS(PFEntry *entry, size_t & size)
         snprintf(m_error_string, sizeof(m_error_string), "Could not read record \"%s\" from \"%s\"" ,
                 entry->rname, m_paths[entry->path].dos_path);
         free(data);
-        return NULL;
+        return nullptr;
     }
 
     return data;
@@ -316,12 +316,12 @@ void *ProjectFile::getData(char const * rname, size_t & size, C3DIR dir)
     {
         snprintf(m_error_string, sizeof(m_error_string), "Couldn't find record \"%s\"", rname);
         size = 0;
-        return NULL;
+        return nullptr;
     }
 
     switch (m_paths[entry->path].type)
     {
-    default:                return NULL;
+    default:                return nullptr;
     case PRJFILE_PATH_DOS:  return getData_DOS(entry, size, dir);
     case PRJFILE_PATH_ZFS:  return getData_ZFS(entry, size);
     case PRJFILE_PATH_ZMS:  return getData_ZMS(entry, size);
@@ -337,18 +337,18 @@ void *ProjectFile::getData(char const * rname, size_t & size,
     {
         snprintf(m_error_string, sizeof(m_error_string), "Couldn't find record \"%s\"", rname);
         size = 0;
-        *hFileMap = NULL;
+        *hFileMap = nullptr;
         offset = 0;
-        return NULL;
+        return nullptr;
     }
 
     if (m_paths[entry->path].type != PRJFILE_PATH_ZMS)
     {
         snprintf(m_error_string, sizeof(m_error_string), "Record \"%s\" is not file mapped", rname);
         size = 0;
-        *hFileMap = NULL;
+        *hFileMap = nullptr;
         offset = 0;
-        return NULL;
+        return nullptr;
     }
 
     return getData_ZMS(entry, size, hFileMap, offset);
@@ -381,7 +381,7 @@ int ProjectFile::readDOSdir(long path, PFEntry *table)
     if (dirhandle == INVALID_HANDLE_VALUE)
 #else
     DIR *dir;
-    struct dirent *dent = 0;
+    struct dirent *dent = nullptr;
     struct stat tmpstat;
     dir = opendir(m_paths[path].dos_path);
     if (!dir)
@@ -441,7 +441,7 @@ int ProjectFile::addPath_DOS(char const * path)
     m_paths[pathnum].type = PRJFILE_PATH_DOS;
     strcpy(m_paths[pathnum].dos_path, path);
 
-    int count = readDOSdir(pathnum, NULL);
+    int count = readDOSdir(pathnum, nullptr);
     if (count == 0)
     {
         return(1);
@@ -497,11 +497,11 @@ void ProjectFile::read_ZFS_dtable(int pathnum, ZFS_DTABLE *dtable,
 int ProjectFile::addPath_ZFS(char const * path)
 {
     FILE * fp = fopen(path, "rb");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		snprintf(m_error_string, sizeof(m_error_string), "Could not open file \"%s\"", path);
 		return(0);
 	}
-    setvbuf(fp, NULL, _IONBF, 0);
+    setvbuf(fp, nullptr, _IONBF, 0);
 
     int pathnum = m_num_paths;
 
@@ -568,7 +568,7 @@ int ProjectFile::addPath_ZMS(char const * path)
         (mapFile(path, &fsize, m_paths[pathnum])
         );
 #endif
-    if (fbase == NULL) {
+    if (fbase == nullptr) {
         snprintf(m_error_string, sizeof(m_error_string), "Could not open file \"%s\"", path);
         return(0);
     }

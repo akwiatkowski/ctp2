@@ -84,7 +84,7 @@
 // g_selected_item global — definition lives here next to its class.
 // gameinit.cpp used to own this; moved as part of the clean-architecture
 // effort to remove UI ownership from the simulation core.
-static SelectedItem *g_selected_item = NULL;
+static SelectedItem *g_selected_item = nullptr;
 
 SelectedItem * selitem_Get()              { return g_selected_item; }
 void           selitem_Set(SelectedItem *p)   { g_selected_item = p; }
@@ -296,7 +296,7 @@ void SelectedItem::Init()
 {
 	m_is_pathing                = false;
 	m_cur_mouse_tile.Set(0,0);
-	m_good_path                 = NULL;
+	m_good_path                 = nullptr;
 	m_bad_path.Clear();
 	m_is_broken_path            = false;
 	m_waypoints.Clear();
@@ -309,9 +309,9 @@ void SelectedItem::Init()
 
 	SetupClickFunctions();
 
-	m_moveOrder                 = NULL;
+	m_moveOrder                 = nullptr;
 
-	m_transportOrder            = NULL;
+	m_transportOrder            = nullptr;
 
 	Assert(g_theOrderDB);
 
@@ -702,7 +702,7 @@ void SelectedItem::MaybeAutoEndTurn(bool isFirst)
 			for(sint32 i = p->m_all_cities->Num() - 1; i >= 0; i--)
 			{
 				Unit city = p->m_all_cities->Access(i);
-				if(city.GetData()->GetCityData()->GetBuildQueue()->GetHead() == NULL
+				if(city.GetData()->GetCityData()->GetBuildQueue()->GetHead() == nullptr
 				&&!city.GetData()->GetCityData()->IsBuildingInfrastructure()
 				&&!city.GetData()->GetCityData()->IsBuildingCapitalization()
 				){
@@ -1056,7 +1056,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 
 	PLAYER_INDEX o = GetVisiblePlayer();
 
-	if (player_Get(o) == NULL) return;
+	if (player_Get(o) == nullptr) return;
 
 	bool didSelect = false;
 
@@ -1065,7 +1065,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 	m_waypoints.Clear();
 
 	if (controlpanel_Get()) {
-		controlpanel_Get()->SetStack(Army(), NULL); // empty function
+		controlpanel_Get()->SetStack(Army(), nullptr); // empty function
 	}
 
 	if(!u.IsValid())
@@ -1156,7 +1156,7 @@ void SelectedItem::SetSelectUnit(const Unit& u, bool all, bool isDoubleClick)
 					&&!army->Access(i).IsEntrenched()
 					&&!army->Access(i).IsEntrenching()
 					){
-						m_selected_army[o].AddOrders(UNIT_ORDER_GROUP_UNIT, NULL, pos, (uint32)army->Access(i));
+						m_selected_army[o].AddOrders(UNIT_ORDER_GROUP_UNIT, nullptr, pos, (uint32)army->Access(i));
 					}
 				}
 			}
@@ -1288,7 +1288,7 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 	if(m_good_path)
 	{
 		delete m_good_path;
-		m_good_path = NULL;
+		m_good_path = nullptr;
 	}
 
 	m_bad_path.Clear();
@@ -1298,7 +1298,7 @@ void SelectedItem::Deselect(PLAYER_INDEX player)
 
 	m_is_pathing = false;
 
-	if (controlpanel_Get()!=NULL)
+	if (controlpanel_Get()!=nullptr)
 		controlpanel_Get()->Deselect();
 }
 
@@ -1377,7 +1377,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 
 	Unit	unit;
 	bool			moved = false;
-	Path *goodPath = NULL;
+	Path *goodPath = nullptr;
 
 	sint32 acknowledgeSoundID = 0;
 	sint32 cantMoveSoundID = 0;
@@ -1408,7 +1408,7 @@ void SelectedItem::EnterArmyMove(PLAYER_INDEX player, const MapPoint &pos)
 		ConstructPath(isCircular, cost);
 
 		goodPath = m_good_path;
-		m_good_path = NULL;
+		m_good_path = nullptr;
 
 		if(goodPath)
 		{
@@ -1574,8 +1574,8 @@ void SelectedItem::SelectTradeRoute( const MapPoint &pos )
 {
 	Cell *cell = world_Get()->GetCell(pos);
 	sint32 tradeNum = cell->GetNumTradeRoutes();
-	const UnitData *ud = NULL;
-	CityData *cd = NULL;
+	const UnitData *ud = nullptr;
+	CityData *cd = nullptr;
 
 	for ( sint32 i = 0 ; i < tradeNum ; i++ )
 	{
@@ -1728,7 +1728,7 @@ void SelectedItem::SetDrawablePathDest(MapPoint &dest)
 		}
 
 		delete m_good_path;
-		m_good_path = NULL;
+		m_good_path = nullptr;
 		m_bad_path.Clear();
 
 		bool r;
@@ -1806,7 +1806,7 @@ void SelectedItem::ConstructPath(bool &isCircular, double &cost)
 	cost = 0.0;
 
 	delete m_good_path;
-	m_good_path = NULL;
+	m_good_path = nullptr;
 
 	Army a = m_selected_army[player];
 	MapPoint start;

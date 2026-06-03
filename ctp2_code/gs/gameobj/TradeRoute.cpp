@@ -63,8 +63,8 @@ void TradeRoute::RemoveAllReferences(CAUSE_KILL_TRADE_ROUTE cause)
 		}
 	}
 
-    if ((NULL != player_arr_Get())  &&
-        (NULL != player_Get(GetPayingFor()))) {
+    if ((nullptr != player_arr_Get())  &&
+        (nullptr != player_Get(GetPayingFor()))) {
     	player_Get(GetPayingFor())->RemoveTradeRoute(*this, cause);
     }
 

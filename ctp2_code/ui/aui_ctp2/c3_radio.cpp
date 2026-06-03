@@ -25,9 +25,9 @@ c3_Radio::c3_Radio(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Radio( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -52,7 +52,7 @@ c3_Radio::c3_Radio(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Radio( retval, id, x, y, width, height, ActionFunc, cookie, state, numStates ),
 	PatternBase(pattern)
 {
@@ -68,7 +68,7 @@ c3_Radio::c3_Radio(
 AUI_ERRCODE c3_Radio::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32  bevelWidth  = k_C3_RADIO_DEFAULT_BEVELWIDTH;

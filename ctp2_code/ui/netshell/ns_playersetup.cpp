@@ -33,23 +33,23 @@ sint32 nf_PlayerSetup::m_version = 103;
 
 nf_PlayerSetup::nf_PlayerSetup(NETFunc::KeyStruct *k):NETFunc::PlayerSetup() {
 	SetKey(k);
-	SetIcq(NULL);
-	SetEmail(NULL);
-	SetLocation(NULL);
+	SetIcq(nullptr);
+	SetEmail(nullptr);
+	SetLocation(nullptr);
 	SetExperience(0);
 }
 
 nf_PlayerSetup::nf_PlayerSetup(NETFunc::Player *p):NETFunc::PlayerSetup(p) {
-	SetIcq(NULL);
-	SetEmail(NULL);
-	SetLocation(NULL);
+	SetIcq(nullptr);
+	SetEmail(nullptr);
+	SetLocation(nullptr);
 	SetExperience(0);
 }
 
 nf_PlayerSetup::nf_PlayerSetup():NETFunc::PlayerSetup() {
-	SetIcq(NULL);
-	SetEmail(NULL);
-	SetLocation(NULL);
+	SetIcq(nullptr);
+	SetEmail(nullptr);
+	SetLocation(nullptr);
 	SetExperience(0);
 }
 

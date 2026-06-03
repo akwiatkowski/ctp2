@@ -297,7 +297,7 @@ int main(int argc, char **argv)
             headless_log->info("Saving game to {} (format={})",
                                saveGamePath,
                                g_useJsonSave ? "json" : "binary");
-            GameFile::SaveGame(saveGamePath, NULL);
+            GameFile::SaveGame(saveGamePath, nullptr);
             headless_log->info("SaveGame returned");
 
             g_useJsonSave = savedFmt;

@@ -44,10 +44,10 @@
 
 extern ProgressWindow * g_theProgressWindow;
 
-SpriteGroupList	*       g_unitSpriteGroupList   = NULL;
-SpriteGroupList	*       g_effectSpriteGroupList = NULL;
-SpriteGroupList	*       g_goodSpriteGroupList   = NULL;
-SpriteGroupList	*       g_citySpriteGroupList   = NULL;
+SpriteGroupList	*       g_unitSpriteGroupList   = nullptr;
+SpriteGroupList	*       g_effectSpriteGroupList = nullptr;
+SpriteGroupList	*       g_goodSpriteGroupList   = nullptr;
+SpriteGroupList	*       g_citySpriteGroupList   = nullptr;
 
 
 void spritegrouplist_Initialize()
@@ -72,7 +72,7 @@ void spritegrouplist_Cleanup()
 
 SpriteGroupList::SpriteGroupList()
 {
-    std::fill(m_spriteList, m_spriteList + k_MAX_SPRITES, (SpriteGroup *) NULL);
+    std::fill(m_spriteList, m_spriteList + k_MAX_SPRITES, (SpriteGroup *) nullptr);
 }
 
 SpriteGroupList::~SpriteGroupList()
@@ -93,7 +93,7 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 	switch (type)
 	{
     case GROUPTYPE_UNIT :
-	    if(newSpriteGroup==NULL)
+	    if(newSpriteGroup==nullptr)
 		    newSpriteGroup = new UnitSpriteGroup(type);
 
         // A unit sprite file may have 3 or 2 digits in the name.
@@ -108,22 +108,22 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 	    break;
 
 	case GROUPTYPE_PROJECTILE :
-		 Assert("Projectile Actors Removed From Game - CJI"==NULL);
+		 Assert("Projectile Actors Removed From Game - CJI"==nullptr);
 		 return SPRITELISTERR_NOTFOUND;
 
 	case GROUPTYPE_EFFECT :
-		 if(newSpriteGroup==NULL)
+		 if(newSpriteGroup==nullptr)
 		    newSpriteGroup = new EffectSpriteGroup(type);
 		 snprintf(inFile, sizeof(inFile), "GX%.2d.SPR", index);
 
 		 break;
 	case GROUPTYPE_CITY:
-		 if(newSpriteGroup==NULL)
+		 if(newSpriteGroup==nullptr)
 		    newSpriteGroup = new UnitSpriteGroup(type);
 		 snprintf(inFile, sizeof(inFile), "GC%.3d.SPR", index);
 		 break;
 	case GROUPTYPE_GOOD:
-		 if(newSpriteGroup==NULL)
+		 if(newSpriteGroup==nullptr)
 		    newSpriteGroup = new GoodSpriteGroup(type);
 		 snprintf(inFile, sizeof(inFile), "GG%.3d.SPR", index);
 		 break;
@@ -132,9 +132,9 @@ SPRITELISTERR SpriteGroupList::LoadSprite(uint32 index, GROUPTYPE type, LOADTYPE
 		return SPRITELISTERR_BADTYPE;
 	}
 
-	Assert(newSpriteGroup != NULL);
+	Assert(newSpriteGroup != nullptr);
 
-	if(newSpriteGroup==NULL)
+	if(newSpriteGroup==nullptr)
 	   return SPRITELISTERR_NOTFOUND;
 
 	switch(loadType)
@@ -187,7 +187,7 @@ SpriteGroup *SpriteGroupList::GetSprite(uint32 index, GROUPTYPE type, LOADTYPE l
         }
         else
         {
-            return NULL;
+            return nullptr;
         }
 	}
 
@@ -219,7 +219,7 @@ bool SpriteGroupList::ReleaseSprite(uint32 index, LOADTYPE loadType)
 	if (index < 0 || index >= k_MAX_SPRITES)
 		return true; // Old behaviour
 
-	if (m_spriteList[index] == NULL)
+	if (m_spriteList[index] == nullptr)
 		return true; // Old behaviour
 
 	LOADTYPE	groupLoadType = m_spriteList[index]->GetLoadType();
@@ -243,7 +243,7 @@ bool SpriteGroupList::ReleaseSprite(uint32 index, LOADTYPE loadType)
         if (basicRefs == 0)
         {
 		    delete m_spriteList[index];
-            m_spriteList[index] = NULL;
+            m_spriteList[index] = nullptr;
 		    return true;
 	    }
         else if (basicRefs > 0)

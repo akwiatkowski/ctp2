@@ -44,7 +44,7 @@
 #include "gs/fileio/gamefile.h"           // is_scenario_Get()
 #include "gs/fileio/CivPaths.h"           // civpaths_Get()
 
-sTurnLengthOverride *TurnYearStatus::s_pTurnLengthOverride    = NULL;
+sTurnLengthOverride *TurnYearStatus::s_pTurnLengthOverride    = nullptr;
 uint32               TurnYearStatus::s_turnLengthOverrideSize = 0;
 bool                 TurnYearStatus::s_useCustomYear          = false;
 
@@ -197,7 +197,7 @@ void TurnYearStatus::CleanupTurnLengthOverride()
 {
 	s_useCustomYear = false;
 	delete [] s_pTurnLengthOverride;
-	s_pTurnLengthOverride = NULL;
+	s_pTurnLengthOverride = nullptr;
 }
 
 TurnYearStatus::TurnYearStatus(MBCHAR *ldlBlock)
@@ -271,10 +271,10 @@ AUI_ERRCODE TurnYearStatus::DrawDougsProgress(ctp2_Static *control,
 											  void *cookie)
 {
 
-	if(selitem_Get() == NULL)
+	if(selitem_Get() == nullptr)
 		return AUI_ERRCODE_OK;
 
-	if (NULL == player_arr_Get())
+	if (nullptr == player_arr_Get())
 	{
 		return AUI_ERRCODE_OK;
 	}

@@ -39,8 +39,8 @@ public:
 	ns_TribesDropDown(
 		AUI_ERRCODE *retval,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~ns_TribesDropDown();
 };
 

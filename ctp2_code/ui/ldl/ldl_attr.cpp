@@ -35,7 +35,7 @@
 
 ldl_attribute *ldl_attribute::GetCopy()
 {
-	ldl_attribute *newattr = NULL;
+	ldl_attribute *newattr = nullptr;
 	switch(m_type) {
 		case ATTRIBUTE_TYPE_BOOL: newattr = new ldl_attributeValue<bool>(this); break;
 		case ATTRIBUTE_TYPE_INT:  newattr = new ldl_attributeValue<int>(this); break;

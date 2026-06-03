@@ -137,7 +137,7 @@ public:
 
 	SlicStructMemberData
 	(
-		SlicStructInstance *	parent	= NULL,
+		SlicStructInstance *	parent	= nullptr,
 		SLIC_SYM				type	= SLIC_SYM_UNDEFINED
 	)
 	:	SlicSymbolData  (type),
@@ -161,7 +161,7 @@ public:
 
 class SlicStructInstance {
 public:
-	SlicStructInstance(SlicStructDescription *desc, SlicSymbolData *dataSym = NULL);
+	SlicStructInstance(SlicStructDescription *desc, SlicSymbolData *dataSym = nullptr);
 	SlicStructInstance(CivArchive &archive);
 	~SlicStructInstance();
 	void Serialize(CivArchive &archive);

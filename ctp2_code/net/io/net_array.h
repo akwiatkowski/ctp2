@@ -8,7 +8,7 @@ class NetArray
 {
 public:
 	NetArray(sint32 initSize = 0) :
-		m_array(NULL),
+		m_array(nullptr),
 		m_size(initSize)
 	{
 		if(initSize != 0) {
@@ -20,7 +20,7 @@ public:
 	{
 		if(m_array) {
 			delete [] m_array;
-			m_array = NULL;
+			m_array = nullptr;
 		}
 	}
 

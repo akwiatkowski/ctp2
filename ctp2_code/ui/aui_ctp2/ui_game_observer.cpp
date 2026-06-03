@@ -404,7 +404,7 @@ public:
         if (!data || !data->GetMessageWindow()) return;
         data->GetMessageWindow()->ShowWindow(FALSE);
         if (data->GetMessageWindow()->GetIconWindow()) {
-            data->GetMessageWindow()->GetIconWindow()->SetCurrentIconButton(NULL);
+            data->GetMessageWindow()->GetIconWindow()->SetCurrentIconButton(nullptr);
         }
     }
 

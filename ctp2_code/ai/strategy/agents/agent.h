@@ -86,7 +86,7 @@ public:
 
 	void     Set_Goal(Goal_ptr goal)                 { m_goal = goal; };
 	Goal_ptr Get_Goal()                        const { return m_goal; };
-	bool     Has_Any_Goal()                    const { return m_goal != NULL; };
+	bool     Has_Any_Goal()                    const { return m_goal != nullptr; };
 	bool     Has_Goal(const Goal * const goal) const { return m_goal == goal; };
 	sint32   Get_Goal_Type()                   const { return Has_Any_Goal() ? m_goal->Get_Goal_Type() : -1; }
 

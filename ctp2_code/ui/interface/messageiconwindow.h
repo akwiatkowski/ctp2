@@ -54,7 +54,7 @@ public:
 	MessageIconButton		*GetIconButton( ) { return m_icon; }
 
 	Message					*GetMessage( )
-				{ return ( m_messageWindow ? m_messageWindow->GetMessage() : NULL ); }
+				{ return ( m_messageWindow ? m_messageWindow->GetMessage() : nullptr ); }
 
 	BOOL			IsMoving( ) { return m_isMoving; }
 
@@ -66,7 +66,7 @@ public:
 	void	StopAnimation( );
 
 	void SetTipWindowText( MBCHAR *text );
-	void ChangeIcon( const MBCHAR *image, const MBCHAR *image2 = NULL );
+	void ChangeIcon( const MBCHAR *image, const MBCHAR *image2 = nullptr );
 
 	void SetCurrentIconButton( MessageIconButton *iconButton );
 	MessageIconWindow *GetCurrentMessageIconWindow( ) { return m_currentIconWindow; }

@@ -30,11 +30,11 @@ class LDLString {
 	char * GetName() const { return m_name; }
 };
 
-StringHash<LDLString> *s_ldlStringHash = NULL;
+StringHash<LDLString> *s_ldlStringHash = nullptr;
 
-PointerList<ldl_datablock> *s_blockStack = NULL;
-AvlTree<ldl_datablock *> *s_blockTree = NULL;
-PointerList<ldl_datablock> *s_topLevelList = NULL;
+PointerList<ldl_datablock> *s_blockStack = nullptr;
+AvlTree<ldl_datablock *> *s_blockTree = nullptr;
+PointerList<ldl_datablock> *s_topLevelList = nullptr;
 
 extern "C" { void ldlif_report_error(char *text); }
 
@@ -51,7 +51,7 @@ ldl_datablock *ldlif_find_block(char const * name)
 	if(myKey) {
 		return myKey->Key();
 	}
-	return NULL;
+	return nullptr;
 }
 
 int ldlif_find_file(const char *filename, char *fullpath)
@@ -93,7 +93,7 @@ void ldlif_init_log()
 #ifdef _DEBUG
 	FILE *f = fopen("ldlparselog.txt", "w");
 	if(f) {
-		fprintf(f, "%" PRId64 "\n", time(0));
+		fprintf(f, "%" PRId64 "\n", time(nullptr));
 		fclose(f);
 	}
 #endif
@@ -247,16 +247,16 @@ void ldlif_allocate_stuff()
 void ldlif_deallocate_stuff()
 {
 	delete s_blockStack;
-	s_blockStack = NULL;
+	s_blockStack = nullptr;
 
 	s_topLevelList->DeleteAll();
 	delete s_topLevelList;
-	s_topLevelList = NULL;
+	s_topLevelList = nullptr;
 
 	delete s_ldlStringHash;
-	s_ldlStringHash = NULL;
+	s_ldlStringHash = nullptr;
 
 	delete s_blockTree;
-	s_blockTree = NULL;
+	s_blockTree = nullptr;
 
 }

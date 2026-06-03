@@ -151,7 +151,7 @@ extern sint32		g_is_rand_test;
 #ifdef _PLAYTEST
 #endif
 
-KEYMAP *theKeyMap = NULL;
+KEYMAP *theKeyMap = nullptr;
 
 extern DataCheck	*g_DataCheck;
 extern sint32		g_debugOwner;
@@ -167,7 +167,7 @@ extern sint32		g_isKMScreen;
 #include "gfx/spritesys/director.h"
 
 #include "ui/aui_ctp2/c3_utilitydialogbox.h"
-c3_UtilityPlayerListPopup *g_networkPlayersScreen = NULL;
+c3_UtilityPlayerListPopup *g_networkPlayersScreen = nullptr;
 extern c3_UtilityTextMessagePopup		*g_utilityTextMessage;
 
 #include "ui/interface/chatbox.h"
@@ -233,7 +233,7 @@ void init_defaultKeymap() {
 void cleanup_keymap()
 {
 	delete theKeyMap;
-	theKeyMap = NULL;
+	theKeyMap = nullptr;
 }
 
 
@@ -346,7 +346,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			} else if(c3ui_Get()->TopWindow() && c3ui_Get()->TopWindow()->HandleKey(wParam)) {
 
 			} else if(battleviewwindow_Get()) {
-				battleview_ExitButtonActionCallback( NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+				battleview_ExitButtonActionCallback( nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 			} else {
 
 				optionsscreen_Initialize();
@@ -683,7 +683,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 		&& !turn_Get()->IsEmail()
 		){
 			close_AllScreens();
-			optionsscreen_mapeditorPress(NULL, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+			optionsscreen_mapeditorPress(nullptr, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 		}
 		break;
 
@@ -1178,7 +1178,7 @@ sint32 ui_HandleKeypress(WPARAM wParam, LPARAM lParam)
 			if (g_modalWindow == 0) {
 				if(g_currentMessageWindow) {
 					if(g_currentMessageWindow->GetMinimizeAction()) {
-						g_currentMessageWindow->GetMinimizeAction()->Execute(NULL,
+						g_currentMessageWindow->GetMinimizeAction()->Execute(nullptr,
 																		   AUI_BUTTON_ACTION_EXECUTE,
 																		   0);
 					}

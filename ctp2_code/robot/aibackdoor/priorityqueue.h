@@ -113,7 +113,7 @@ template <class T> void DAPriorityQueue<T>::LookForDups(const sint32 g)
 template <class T> void DAPriorityQueue<T>::Clear()
 {
     m_queue.Clear();
-    m_queue.InsertFlat((T*) NULL);
+    m_queue.InsertFlat((T*) nullptr);
 
 }
 
@@ -221,12 +221,12 @@ template <class T> T* DAPriorityQueue<T>::Remove(sint32 del_idx)
 {
 	if ((del_idx < 0) ||
 	    (del_idx >= m_queue.Num()) ||
-		(m_queue[del_idx] == NULL)
+		(m_queue[del_idx] == nullptr)
 	   )
 	{
 		// Invalid input
 		Assert(0);
-		return NULL;
+		return nullptr;
 	}
 
     T* ret = m_queue[del_idx];
@@ -237,7 +237,7 @@ template <class T> T* DAPriorityQueue<T>::Remove(sint32 del_idx)
 
         m_queue[n]->SetPriorityQueueIndex(-1);
 		Assert(ret->GetPriorityQueueIndex() < 0);
-        m_queue[n] = NULL;
+        m_queue[n] = nullptr;
         m_queue.ShortenByOne();
 #ifdef _DEBUG
 		Assert(ret->GetPriorityQueueIndex() < 0);
@@ -249,7 +249,7 @@ template <class T> T* DAPriorityQueue<T>::Remove(sint32 del_idx)
 
         m_queue[del_idx] = m_queue[n];
         m_queue[del_idx]->SetPriorityQueueIndex(del_idx);
-        m_queue[n] = NULL;
+        m_queue[n] = nullptr;
 		Assert(ret->GetPriorityQueueIndex() < 0);
         m_queue.ShortenByOne();
 		Assert(ret->GetPriorityQueueIndex() < 0);

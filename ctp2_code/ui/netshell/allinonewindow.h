@@ -56,7 +56,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -80,7 +80,7 @@ public:
 
 
 
-	sint32 FindTribe( uint16 key, BOOL isAI, BOOL *isFemale = NULL );
+	sint32 FindTribe( uint16 key, BOOL isAI, BOOL *isFemale = nullptr );
 
 
 	BOOL AssignTribe(

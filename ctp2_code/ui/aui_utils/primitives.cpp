@@ -65,7 +65,7 @@ PRIMITIVES_ERRCODE primitives_SetRect(
 	)
 {
 	Assert(rect);
-	if (rect==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (rect==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	rect->left = left;
 	rect->top = top;
@@ -91,10 +91,10 @@ PRIMITIVES_ERRCODE primitives_FrameRect16(
 	AUI_ERRCODE		errcode;
 
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -104,8 +104,8 @@ PRIMITIVES_ERRCODE primitives_FrameRect16(
 
 	uint8 *pSurfBase;
 
-	if (pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	if (pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		wasUnlocked = TRUE;
@@ -187,7 +187,7 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 	BOOL			srcUnlocked = FALSE, dstUnlocked = FALSE;
 	AUI_ERRCODE		errcode;
 
-	if ((pSrc == NULL) || (pDst == NULL))
+	if ((pSrc == nullptr) || (pDst == nullptr))
 	{
 		Assert(0);
 		return PRIMITIVES_ERRCODE_INVALIDPARAM;
@@ -205,8 +205,8 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 
 	uint16 *pSrcBase;
 
-	if (pSrc->Buffer() == NULL) {
-		errcode = pSrc->Lock(NULL,(LPVOID *)&pSrcBase,0);
+	if (pSrc->Buffer() == nullptr) {
+		errcode = pSrc->Lock(nullptr,(LPVOID *)&pSrcBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		srcUnlocked = TRUE;
@@ -216,8 +216,8 @@ PRIMITIVES_ERRCODE primitives_Scale16(
 
 	uint16 *pDstBase;
 
-	if (pDst->Buffer() == NULL) {
-		errcode = pDst->Lock(NULL,(LPVOID *)&pDstBase,0);
+	if (pDst->Buffer() == nullptr) {
+		errcode = pDst->Lock(nullptr,(LPVOID *)&pDstBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		dstUnlocked = TRUE;
@@ -333,10 +333,10 @@ PRIMITIVES_ERRCODE primitives_PaintRect16(
 	AUI_ERRCODE		errcode;
 
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -346,8 +346,8 @@ PRIMITIVES_ERRCODE primitives_PaintRect16(
 
 	uint8 *pSurfBase;
 
-	if (pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	if (pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		wasUnlocked = TRUE;
@@ -394,10 +394,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelRect16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -413,8 +413,8 @@ PRIMITIVES_ERRCODE primitives_OldBevelRect16(
 	bool wasUnlocked = false;
 
 	sint32 errcode;
-	if(pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	if(pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		wasUnlocked = true;
@@ -609,10 +609,10 @@ PRIMITIVES_ERRCODE primitives_BevelRect16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -632,8 +632,8 @@ PRIMITIVES_ERRCODE primitives_BevelRect16(
 
 	sint32 errcode;
 
-	if(pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	if(pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 		wasUnlocked = true;
@@ -832,10 +832,10 @@ PRIMITIVES_ERRCODE primitives_FrameThickRect16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -848,7 +848,7 @@ PRIMITIVES_ERRCODE primitives_FrameThickRect16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -964,7 +964,7 @@ PRIMITIVES_ERRCODE primitives_DrawLine16(
 	)
 {
 	Assert(pSurface);
-	if(pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if(pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 dx = x2-x1;
 	sint32 dy = y2-y1;
@@ -977,7 +977,7 @@ PRIMITIVES_ERRCODE primitives_DrawLine16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -1039,10 +1039,10 @@ PRIMITIVES_ERRCODE primitives_DrawText(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC hdc;
@@ -1098,9 +1098,9 @@ PRIMITIVES_ERRCODE primitives_DrawBoundedText(
 #endif // __AUI_USE_DIRECTX__
 
 	Assert(pDirectSurface);
-	if (pDirectSurface==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pString);
-	if (pString==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	hr = pDirectSurface->GetDC(&hdc);
@@ -1156,10 +1156,10 @@ PRIMITIVES_ERRCODE primitives_DrawTextBatch(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC hdc;
@@ -1220,10 +1220,10 @@ PRIMITIVES_ERRCODE primitives_DropText(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC hdc;
@@ -1284,10 +1284,10 @@ PRIMITIVES_ERRCODE primitives_ColoredDropText(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC hdc;
@@ -1342,10 +1342,10 @@ PRIMITIVES_ERRCODE primitives_DropTextCentered(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC			hdc;
@@ -1406,10 +1406,10 @@ PRIMITIVES_ERRCODE primitives_ColoredDropTextCentered(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC			hdc;
@@ -1480,10 +1480,10 @@ PRIMITIVES_ERRCODE primitives_DropTextBatch(
 	)
 {
 	Assert(pDirectSurface);
-	if (pDirectSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pDirectSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pString);
-	if (pString == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pString == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 #ifdef __AUI_USE_DIRECTX__
 	HDC hdc;
@@ -1558,10 +1558,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelPane16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -1574,7 +1574,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelPane16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -1725,10 +1725,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabSelected16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -1741,7 +1741,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabSelected16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -1879,10 +1879,10 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabDeselected16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -1895,7 +1895,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelTabDeselected16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2042,7 +2042,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelLeftPiece16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 
 	Assert(xStart <= xEnd);
@@ -2053,7 +2053,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelLeftPiece16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2121,7 +2121,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelRightPiece16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 
 	Assert(xStart <= xEnd);
@@ -2132,7 +2132,7 @@ PRIMITIVES_ERRCODE primitives_OldBevelRightPiece16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2199,10 +2199,10 @@ PRIMITIVES_ERRCODE primitives_BevelPane16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -2215,7 +2215,7 @@ PRIMITIVES_ERRCODE primitives_BevelPane16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2384,10 +2384,10 @@ PRIMITIVES_ERRCODE primitives_BevelTabSelected16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -2400,7 +2400,7 @@ PRIMITIVES_ERRCODE primitives_BevelTabSelected16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2556,10 +2556,10 @@ PRIMITIVES_ERRCODE primitives_BevelTabDeselected16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 left = pRect->left, top = pRect->top, right = pRect->right, bottom = pRect->bottom;
 
@@ -2572,7 +2572,7 @@ PRIMITIVES_ERRCODE primitives_BevelTabDeselected16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2737,7 +2737,7 @@ PRIMITIVES_ERRCODE primitives_BevelLeftPiece16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 xStart = 0;
 	sint32 xEnd = 0;
@@ -2771,7 +2771,7 @@ PRIMITIVES_ERRCODE primitives_BevelLeftPiece16(
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2850,7 +2850,7 @@ PRIMITIVES_ERRCODE primitives_BevelRightPiece16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	sint32 xStart = 0;
 	sint32 xEnd = 0;
@@ -2883,7 +2883,7 @@ PRIMITIVES_ERRCODE primitives_BevelRightPiece16(
 	if (level <= 0) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	uint8 *pSurfBase;
-	sint32 errcode = pSurface->Lock(NULL,(LPVOID *)&pSurfBase,0);
+	sint32 errcode = pSurface->Lock(nullptr,(LPVOID *)&pSurfBase,0);
 	Assert(errcode == AUI_ERRCODE_OK);
 	if (errcode != AUI_ERRCODE_OK) return PRIMITIVES_ERRCODE_SURFACELOCKFAILED;
 
@@ -2965,28 +2965,28 @@ PRIMITIVES_ERRCODE primitives_DrawFrame16(
 	)
 {
 	Assert(pSurface);
-	if (pSurface == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pSurface == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pImageUpperLeft);
-	if (pImageUpperLeft==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pImageUpperLeft==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pImageUpperRight);
-	if (pImageUpperRight==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pImageUpperRight==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pImageLowerLeft);
-	if (pImageLowerLeft==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pImageLowerLeft==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pImageLowerRight);
-	if (pImageLowerRight==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pImageLowerRight==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pPatternLeft);
-	if (pPatternLeft==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pPatternLeft==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pPatternTop);
-	if (pPatternTop==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pPatternTop==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pPatternRight);
-	if (pPatternRight==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pPatternRight==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 	Assert(pPatternBottom);
-	if (pPatternBottom==NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pPatternBottom==nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect);
-	if (pRect == NULL) return PRIMITIVES_ERRCODE_INVALIDPARAM;
+	if (pRect == nullptr) return PRIMITIVES_ERRCODE_INVALIDPARAM;
 
 	Assert(pRect->left < pRect->right);
 	Assert(pRect->top < pRect->bottom);
@@ -3061,7 +3061,7 @@ void primitives_HackTileDraw(aui_Surface *pSurface)
 
 	uint8 *pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL, (LPVOID *)&pSurfBase, 0);
+	sint32 errcode = pSurface->Lock(nullptr, (LPVOID *)&pSurfBase, 0);
 	if ( errcode != AUI_ERRCODE_OK ) return;
 
 	sint32 surfPitch = pSurface->Pitch();
@@ -3114,28 +3114,28 @@ void primitives_HackStencilDraw(aui_Surface *pSurface)
 
 
 
-	if (tiledmap_Get() == NULL) return;
+	if (tiledmap_Get() == nullptr) return;
 
 	static uint16 from=4, to=14;
 
 	tileutils_LoadStencil();
 
 
-	Pixel16 *image = NULL;
+	Pixel16 *image = nullptr;
 
 	TileSet *tileSet = tiledmap_Get()->GetTileSet();
 
 	if (tileSet)
 		image = tileSet->GetTransitionData(from, to, 0);
 
-	if (image != NULL) {
+	if (image != nullptr) {
 
 		Assert(pSurface);
-		if (pSurface==NULL) return;
+		if (pSurface==nullptr) return;
 
 		uint8 *pSurfBase;
 
-		sint32 errcode = pSurface->Lock(NULL, (LPVOID *)&pSurfBase, 0);
+		sint32 errcode = pSurface->Lock(nullptr, (LPVOID *)&pSurfBase, 0);
 		if ( errcode != AUI_ERRCODE_OK ) return;
 
 		sint32 surfPitch = pSurface->Pitch();
@@ -3223,13 +3223,13 @@ void primitives_DrawAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, sint32
 	uint8		*now_addr;
 
 	Assert(pSurface);
-	if (pSurface==NULL) return;
+	if (pSurface==nullptr) return;
 
 	if (x1 == x2 && y1 == y2) return;
 
 	uint8		*pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL, (LPVOID *)&pSurfBase, 0);
+	sint32 errcode = pSurface->Lock(nullptr, (LPVOID *)&pSurfBase, 0);
 	if ( errcode != AUI_ERRCODE_OK ) return;
 
 	sint32 surfPitch = pSurface->Pitch();
@@ -3309,13 +3309,13 @@ void primitives_DrawDashedAALine16(aui_Surface *pSurface, sint32 x1, sint32 y1, 
 	uint8		*now_addr;
 
 	Assert(pSurface);
-	if (pSurface==NULL) return;
+	if (pSurface==nullptr) return;
 
 	if (x1 == x2 && y1 == y2) return;
 
 	uint8		*pSurfBase;
 
-	sint32 errcode = pSurface->Lock(NULL, (LPVOID *)&pSurfBase, 0);
+	sint32 errcode = pSurface->Lock(nullptr, (LPVOID *)&pSurfBase, 0);
 	if ( errcode != AUI_ERRCODE_OK ) return;
 
 	sint32 surfPitch = pSurface->Pitch();
@@ -3439,8 +3439,8 @@ void primitives_BlendSurfaces( aui_Surface *pOldSurface, aui_Surface *pNewSurfac
 	uint8 *pNewBase;
 	uint8 *pDstBase;
 
-	if (pOldSurface->Buffer() == NULL) {
-		errcode = pOldSurface->Lock(NULL,(LPVOID *)&pOldBase,0);
+	if (pOldSurface->Buffer() == nullptr) {
+		errcode = pOldSurface->Lock(nullptr,(LPVOID *)&pOldBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 		oldWasUnlocked = TRUE;
@@ -3448,8 +3448,8 @@ void primitives_BlendSurfaces( aui_Surface *pOldSurface, aui_Surface *pNewSurfac
 		pOldBase = pOldSurface->Buffer();
 	}
 
-	if (pNewSurface->Buffer() == NULL) {
-		errcode = pNewSurface->Lock(NULL,(LPVOID *)&pNewBase,0);
+	if (pNewSurface->Buffer() == nullptr) {
+		errcode = pNewSurface->Lock(nullptr,(LPVOID *)&pNewBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 		newWasUnlocked = TRUE;
@@ -3457,8 +3457,8 @@ void primitives_BlendSurfaces( aui_Surface *pOldSurface, aui_Surface *pNewSurfac
 		pNewBase = pNewSurface->Buffer();
 	}
 
-	if (pDstSurface->Buffer() == NULL) {
-		errcode = pDstSurface->Lock(NULL,(LPVOID *)&pDstBase,0);
+	if (pDstSurface->Buffer() == nullptr) {
+		errcode = pDstSurface->Lock(nullptr,(LPVOID *)&pDstBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 		dstWasUnlocked = TRUE;
@@ -3527,8 +3527,8 @@ void primitives_LightenSurface( aui_Surface *pSurface, sint32 percentLighten )
 
 	uint8 *pBase;
 
-	if (pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pBase,0);
+	if (pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 		wasUnlocked = TRUE;
@@ -3578,8 +3578,8 @@ void primitives_LightenRect(aui_Surface *pSurface, RECT &rect, sint32 percentLig
 
 	uint8 *pBase;
 
-	if (pSurface->Buffer() == NULL) {
-		errcode = pSurface->Lock(NULL,(LPVOID *)&pBase,0);
+	if (pSurface->Buffer() == nullptr) {
+		errcode = pSurface->Lock(nullptr,(LPVOID *)&pBase,0);
 		Assert(errcode == AUI_ERRCODE_OK);
 		if (errcode != AUI_ERRCODE_OK) return;
 		wasUnlocked = TRUE;

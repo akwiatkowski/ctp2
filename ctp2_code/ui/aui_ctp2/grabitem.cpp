@@ -29,12 +29,12 @@
 
 #include "ui/aui_ctp2/grabitem.h"
 
-GrabItem	*g_grabbedItem = NULL;
+GrabItem	*g_grabbedItem = nullptr;
 
 GrabItem::GrabItem()
 {
 	m_isGrabbed = FALSE;
-	m_grabbedItem = NULL;
+	m_grabbedItem = nullptr;
 	m_grabbedItemType = GRABITEMTYPE_NONE;
 }
 
@@ -70,7 +70,7 @@ void GrabItem::Cleanup()
 {
 	if (g_grabbedItem) {
 		delete g_grabbedItem;
-		g_grabbedItem = NULL;
+		g_grabbedItem = nullptr;
 	}
 }
 
@@ -84,7 +84,7 @@ void GrabItem::GetGrabbedItem(Unit **unit)
 {
 	Assert(m_grabbedItemType == GRABITEMTYPE_UNIT);
 	if (m_grabbedItemType != GRABITEMTYPE_UNIT) {
-		*unit = NULL;
+		*unit = nullptr;
 		return;
 	}
 
@@ -101,7 +101,7 @@ void GrabItem::GetGrabbedItem(TradeRoute **route)
 {
 	Assert(m_grabbedItemType == GRABITEMTYPE_TRADEROUTE);
 	if (m_grabbedItemType != GRABITEMTYPE_TRADEROUTE) {
-		*route = NULL;
+		*route = nullptr;
 		return;
 	}
 

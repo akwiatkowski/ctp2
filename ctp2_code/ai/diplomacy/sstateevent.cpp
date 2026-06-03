@@ -443,7 +443,7 @@ STDEHANDLER(NuclearReadiness_NextSStateEvent)
 
 		for(sint32 id = 1; id < CtpAi::s_maxPlayers; id++)
 		{
-			if((id != playerId) && (player_Get(id) != NULL))
+			if((id != playerId) && (player_Get(id) != nullptr))
 			{
 				sint32 nukes = MapAnalysis::GetMapAnalysis().GetNuclearWeaponsCount(id);
 

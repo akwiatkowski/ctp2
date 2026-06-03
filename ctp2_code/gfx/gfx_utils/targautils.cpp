@@ -56,7 +56,7 @@ namespace
     {
         char error[128];
         snprintf(error, sizeof(error), "%s not found.", a_FileName);
-        MessageBox(NULL, error, NULL, MB_OK);
+        MessageBox(nullptr, error, nullptr, MB_OK);
     }
 
 } // namespace
@@ -75,7 +75,7 @@ bool Get_TGA_Dimension (char const * fname,
 		ReportFileNotFound(fname);
 		return false;
 	}
-	setvbuf(fp, NULL, _IONBF, 0);
+	setvbuf(fp, nullptr, _IONBF, 0);
 
 	TGAHEADER head;
 	if (fread(&head, sizeof(TGAHEADER), 1, fp) < 1)
@@ -131,7 +131,7 @@ bool Load_TGA_File_Simple(char const * fname,
 		return false;
 	}
 
-	setvbuf(fp, NULL, _IONBF, 0);
+	setvbuf(fp, nullptr, _IONBF, 0);
 
 	TGAHEADER head;
 	if (fread(&head, sizeof(TGAHEADER), 1, fp) < 1)
@@ -250,7 +250,7 @@ bool Load_TGA_File(char const *fname,
 		ReportFileNotFound(fname);
 		return false;
 	}
-	setvbuf(fp, NULL, _IONBF, 0);
+	setvbuf(fp, nullptr, _IONBF, 0);
 
 	TGAHEADER head;
 	if (fread(&head, sizeof(TGAHEADER), 1, fp) < 1)
@@ -283,8 +283,8 @@ bool Load_TGA_File(char const *fname,
 	long datasize = ftell(fp) - curpos;
 	fseek(fp, curpos, SEEK_SET);
 
-	unsigned char * tmpbuf  = NULL;
-	unsigned char * tmpbuf1 = NULL;
+	unsigned char * tmpbuf  = nullptr;
+	unsigned char * tmpbuf1 = nullptr;
 
 	if (head.ImageType == 2)
 	{
@@ -396,7 +396,7 @@ bool write_tga(char const * fname, int width, int height, unsigned char const * 
 		return false;
 	}
 
-	setvbuf(fp, NULL, _IONBF, 0);
+	setvbuf(fp, nullptr, _IONBF, 0);
 
 	TGAHEADER head;
 	head.IdLength       = 0;

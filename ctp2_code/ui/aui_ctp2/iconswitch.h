@@ -19,11 +19,11 @@ public:
 		uint32 id,
 		sint32 x,
 		sint32 y,
-		MBCHAR *pattern = NULL,
-		Icon *icon = NULL,
+		MBCHAR *pattern = nullptr,
+		Icon *icon = nullptr,
 		uint16 color = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL,
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr,
 		BOOL selected = FALSE );
 	virtual ~IconSwitch() {}
 
@@ -32,7 +32,7 @@ public:
 	uint16 TheColor( ) { return m_color; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

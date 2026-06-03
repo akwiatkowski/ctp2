@@ -47,7 +47,7 @@
 #include "gs/database/profileDB.h"
 
 
-PointerList<SlicSymbolData> *s_symbolList = NULL;
+PointerList<SlicSymbolData> *s_symbolList = nullptr;
 
 int sliccmd_int_result;
 
@@ -185,13 +185,13 @@ void *sliccmd_get_ref_sym(char *structName, char *memberName)
 	if(!sym) {
 		snprintf(errbuf, sizeof(errbuf), "Symbol %s not found", structName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	if(sym->GetType() != SLIC_SYM_STRUCT) {
 		snprintf(errbuf, sizeof(errbuf), "%s is not a structure", structName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	SlicStructInstance *inst = sym->GetStruct();
@@ -199,13 +199,13 @@ void *sliccmd_get_ref_sym(char *structName, char *memberName)
 	Assert(inst);
 
 	if(!inst)
-		return 0;
+		return nullptr;
 
 	SlicSymbolData *member = inst->GetMemberSymbolByName(memberName);
 	if(!member) {
 		snprintf(errbuf, sizeof(errbuf), "Struct %s has no member named %s", structName, memberName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	sliccmd_add_symbol_used(member);
@@ -262,13 +262,13 @@ void *sliccmd_array_lookup_reference(char *arrayName, int index, char *memberNam
 	if(!sym) {
 		snprintf(errbuf, sizeof(errbuf), "Symbol %s not found", arrayName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	if(sym->GetType() != SLIC_SYM_ARRAY) {
 		snprintf(errbuf, sizeof(errbuf), "%s is not an array", arrayName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	SS_TYPE type;
@@ -276,13 +276,13 @@ void *sliccmd_array_lookup_reference(char *arrayName, int index, char *memberNam
 	if(!sym->ArrayLookup(index, type, value)) {
 		snprintf(errbuf, sizeof(errbuf), "Array lookup %s[%d] failed", arrayName, index);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	if((type != SS_TYPE_SYM) || (value.m_sym->GetType() != SLIC_SYM_STRUCT)) {
 		snprintf(errbuf, sizeof(errbuf), "%s[%d] is not a struct", arrayName, index);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	sliccmd_add_symbol_used(value.m_sym);
@@ -290,13 +290,13 @@ void *sliccmd_array_lookup_reference(char *arrayName, int index, char *memberNam
 	SlicStructInstance *inst = value.m_sym->GetStruct();
 	Assert(inst);
 	if(!inst)
-		return 0;
+		return nullptr;
 
 	SlicSymbolData *member = inst->GetMemberSymbolByName(memberName);
 	if(!member) {
 		snprintf(errbuf, sizeof(errbuf), "%s[%d] has no member named %s", arrayName, index, memberName);
 		scerror(errbuf);
-		return 0;
+		return nullptr;
 	}
 
 	sliccmd_add_symbol_used(member);
@@ -392,13 +392,13 @@ void *sliccmd_array_lookup_sym(char *arrayName, int index)
 	if(!sym) {
 		snprintf(errbuf, sizeof(errbuf), "Symbol %s not found", arrayName);
 		scerror(errbuf);
-		return NULL;
+		return nullptr;
 	}
 
 	if(sym->GetType() != SLIC_SYM_ARRAY) {
 		snprintf(errbuf, sizeof(errbuf), "%s is not an array", arrayName);
 		scerror(errbuf);
-		return NULL;
+		return nullptr;
 	}
 
 	SS_TYPE type;
@@ -406,7 +406,7 @@ void *sliccmd_array_lookup_sym(char *arrayName, int index)
 	if(!sym->ArrayLookup(index, type, value)) {
 		snprintf(errbuf, sizeof(errbuf), "Array lookup %s[%d] failed", arrayName, index);
 		scerror(errbuf);
-		return NULL;
+		return nullptr;
 	}
 
 	if(type == SS_TYPE_SYM) {
@@ -414,7 +414,7 @@ void *sliccmd_array_lookup_sym(char *arrayName, int index)
 	} else {
 		snprintf(errbuf, sizeof(errbuf), "No symbol for %s[%d]", arrayName, index);
 		scerror(errbuf);
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -499,7 +499,7 @@ void sliccmd_clear_symbols()
         }
 
         delete s_symbolList;
-        s_symbolList = NULL;
+        s_symbolList = nullptr;
 	}
 }
 
@@ -547,7 +547,7 @@ void *sliccmd_get_db_name_sym(void *dbptr, const char *name)
 	SlicDBInterface * conduit = reinterpret_cast<SlicDBInterface *>(dbptr);
 	Assert(conduit);
 	if(!conduit)
-		return 0;
+		return nullptr;
 
 	sint32 stringId = conduit->GetRecordNameID(name);
 	if(stringId >= 0) {
@@ -569,7 +569,7 @@ void *sliccmd_get_db_name_sym_by_index(void *dbptr, int index)
 	SlicDBInterface * conduit = reinterpret_cast<SlicDBInterface *>(dbptr);
 	Assert(conduit);
 	if(!conduit)
-		return 0;
+		return nullptr;
 
 	sint32 stringId = conduit->GetRecordNameIDByIndex(index);
 	if(stringId >= 0) {

@@ -59,7 +59,7 @@ ctp2_Spinner::ctp2_Spinner(
 	bool displayValue )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Ranger(retval, id, ldlBlock),
 	m_displayValue(displayValue)
 {

@@ -22,9 +22,9 @@ ctp2_Switch::ctp2_Switch(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR const *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR const *)nullptr ),
 	aui_Switch( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -48,7 +48,7 @@ ctp2_Switch::ctp2_Switch(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Switch( retval, id, x, y, width, height, ActionFunc, cookie, state, numStates ),
 	PatternBase(pattern)
 {
@@ -63,7 +63,7 @@ ctp2_Switch::ctp2_Switch(
 AUI_ERRCODE ctp2_Switch::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32		bevelWidth = k_CTP2_SWITCH_DEFAULT_BEVELWIDTH;

@@ -378,7 +378,7 @@ public:
 	DQActionBattle()
     :
         DQAction        (),
-        battle          (NULL)
+        battle          (nullptr)
     {};
 	~DQActionBattle() {}
 
@@ -478,7 +478,7 @@ public:
 	DQActionInvokeResearchAdvance()
     :
         DQAction    (),
-        message     (NULL)
+        message     (nullptr)
     {}
 	~DQActionInvokeResearchAdvance();
 

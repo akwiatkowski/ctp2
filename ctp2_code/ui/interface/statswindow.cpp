@@ -75,7 +75,7 @@ extern sint32       g_ScreenHeight;
 extern C3Window		*g_toolbar;
 extern C3Window		*g_turnWindow;
 
-StatsWindow *g_statsWindow = NULL;
+StatsWindow *g_statsWindow = nullptr;
 
 
 #define k_STATS_SCROLL		197
@@ -85,7 +85,7 @@ StatsWindow *g_statsWindow = NULL;
 #define k_STATS_SCROLL640		122
 #define k_TURN_WINDOW_HEIGHT640	135
 
-static ctp2_Button **s_statsButton = NULL;
+static ctp2_Button **s_statsButton = nullptr;
 static c3_Switch *s_screensSwitch;
 
 static MBCHAR	s_buttonName[k_STATS_NUM_BUTTONS][256] ={
@@ -550,11 +550,11 @@ int StatsWindow_Cleanup( )
 
 	for ( sint32 i = 0;i < k_STATS_NUM_BUTTONS;i++ ) {
 		delete s_statsButton[i];
-		s_statsButton[i] = NULL;
+		s_statsButton[i] = nullptr;
 	}
 
 	delete s_statsButton;
-	s_statsButton = NULL;
+	s_statsButton = nullptr;
 
 	RemoveControl( s_statsString );
 
@@ -574,7 +574,7 @@ int StatsWindow_Cleanup( )
 
 
 	delete g_statsWindow;
-	g_statsWindow = NULL;
+	g_statsWindow = nullptr;
 
 	return 0;
 }
@@ -638,7 +638,7 @@ AUI_ERRCODE StatsWindow::DrawThis( aui_Surface *surface, sint32 x, sint32 y )
 
 	RECT rect = { 0, 0, m_width, m_height };
 
-	if (m_pattern!=NULL)
+	if (m_pattern!=nullptr)
 		m_pattern->Draw( m_surface, &rect );
 
 
@@ -662,7 +662,7 @@ BOOL StatsWindow::CheckCity( )
 	}
 	else {
 
-		MessageBoxDialog::Information(s_statsString->GetString( SW_NO_CITIES ),"SW_NO_CITIES",NULL, NULL, "str_ldl_MB_OK", false);
+		MessageBoxDialog::Information(s_statsString->GetString( SW_NO_CITIES ),"SW_NO_CITIES",nullptr, nullptr, "str_ldl_MB_OK", false);
 		return FALSE;
 	}
 }
@@ -676,7 +676,7 @@ BOOL StatsWindow::CheckUnit( )
 	}
 	else {
 
-		MessageBoxDialog::Information(s_statsString->GetString( SW_NO_UNITS ),"SW_NO_UNITS",NULL, NULL, "str_ldl_MB_OK", false);
+		MessageBoxDialog::Information(s_statsString->GetString( SW_NO_UNITS ),"SW_NO_UNITS",nullptr, nullptr, "str_ldl_MB_OK", false);
 		return FALSE;
 	}
 }
@@ -697,7 +697,7 @@ BOOL StatsWindow::CheckDiplomacy( )
 	}
 
 
-	MessageBoxDialog::Information(s_statsString->GetString( SW_NO_DIPLOMACY ),"SW_NO_DIPLOMACY",NULL, NULL, "str_ldl_MB_OK", false);
+	MessageBoxDialog::Information(s_statsString->GetString( SW_NO_DIPLOMACY ),"SW_NO_DIPLOMACY",nullptr, nullptr, "str_ldl_MB_OK", false);
 	return FALSE;
 }
 

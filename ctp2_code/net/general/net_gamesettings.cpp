@@ -118,9 +118,9 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	unit_tree_Get()->Clear();
 	installation_tree_Get()->Clear();
 	delete unit_tree_Get();
-	unit_tree_Set(NULL);
+	unit_tree_Set(nullptr);
 	delete installation_tree_Get();
-	installation_tree_Set(NULL);
+	installation_tree_Set(nullptr);
 
 	g_network.ClearDeadUnits();
 
@@ -148,7 +148,7 @@ void NetGameSettings::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 
 	player_arr_Set(new Player *[k_MAX_PLAYERS]);
 	for(i = 0; i < k_MAX_PLAYERS; i++) {
-		player_arr_Get()[i] = NULL;
+		player_arr_Get()[i] = nullptr;
 	}
 
 	for(i = 0; i < k_MAX_PLAYERS; i++) {

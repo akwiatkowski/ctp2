@@ -30,11 +30,11 @@ ColorIconSwitch::ColorIconSwitch(
 	void *cookie )
 :
 	aui_ImageBase( 1, AUI_IMAGEBASE_BLTTYPE_STRETCH ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	c3_Switch( retval, id, x, y, width, height, pattern, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = NULL;
+	m_filename = nullptr;
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -49,11 +49,11 @@ ColorIconSwitch::ColorIconSwitch(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_Switch( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	m_shrinkToFit = FALSE;
-	m_filename = NULL;
+	m_filename = nullptr;
 
 	SetRect(&m_pictureRect, 0, 0, 0, 0);
 
@@ -149,7 +149,7 @@ void ColorIconSwitch::ResizePictureRect()
 
 void ColorIconSwitch::SetIcon(MBCHAR *name)
 {
-	if (name == NULL) return;
+	if (name == nullptr) return;
 
 	if (m_filename) delete[] m_filename;
 
@@ -179,11 +179,11 @@ AUI_ERRCODE ColorIconSwitch::InitCommon( MBCHAR *ldlBlock, BOOL isLDL)
 
 	if (isLDL) {
 		ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 		name = block->GetString( "picture" );
-		Assert( name != NULL );
+		Assert( name != nullptr );
 	} else {
 		name = ldlBlock;
 	}

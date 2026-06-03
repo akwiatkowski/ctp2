@@ -385,7 +385,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_allInstallations = new DynamicArray<Installation>;
 	m_civilisation = new Civilisation ;
 
-	m_throne = NULL;
+	m_throne = nullptr;
 
 	m_slic_special_city = new Unit;
 
@@ -398,7 +398,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 	m_embassies = 0;
 	m_productionFromFranchises = 0;
 
-	m_unitRequestList = NULL;
+	m_unitRequestList = nullptr;
 
 	m_isDead = FALSE;
 	m_first_city = TRUE;
@@ -558,7 +558,7 @@ void Player::InitPlayer(const PLAYER_INDEX o, sint32 diff, PLAYER_TYPE pt)
 
 	m_openForNetwork = FALSE;
 
-	m_email = NULL;
+	m_email = nullptr;
 
 	m_governorPwReserve = -1;
 
@@ -624,7 +624,7 @@ Player::Player(CivArchive &archive)
 	m_materialPool = new MaterialPool(0);
 	m_civilisation = new Civilisation ;
 	//m_leader = new Leader;   //need to figure out how this is done - E 14 Sep 2007
-	m_unitRequestList = NULL;
+	m_unitRequestList = nullptr;
 	m_score = new Score(PLAYER_INDEX(0));
 
 	m_goodSalePrices = new sint32[g_theResourceDB->NumRecords()];
@@ -791,7 +791,7 @@ void Player::Serialize(CivArchive &archive)
 		if(!hadVision) {
 			if(m_vision) {
 				delete m_vision;
-				m_vision = NULL;
+				m_vision = nullptr;
 			}
 		} else {
 			Assert(m_vision);
@@ -852,11 +852,11 @@ void Player::Serialize(CivArchive &archive)
 			archive.Load((uint8*)m_email, l);
 			m_email[l] = 0;
 		} else {
-			m_email = NULL;
+			m_email = nullptr;
 		}
 	}
 
-	if (m_gaiaController == NULL) {
+	if (m_gaiaController == nullptr) {
 		m_gaiaController = new GaiaController(m_owner);
 	}
 	m_gaiaController->Serialize(archive);
@@ -960,7 +960,7 @@ Unit Player::CreateUnit(const sint32 t,
 		}
 	}
 
-	Unit u = unitpool_Get()->Create (t, m_owner, pos, hc, NULL);
+	Unit u = unitpool_Get()->Create (t, m_owner, pos, hc, nullptr);
 
 	if(g_network.IsHost() && IsNetwork() &&
 	   cause != CAUSE_NEW_ARMY_INITIAL && !g_network.SetupMode()) {
@@ -1796,8 +1796,8 @@ void Player::BeginTurnProduction()
 			inst.GetPos(pos);
 			const TerrainImprovementRecord::Effect *effect = terrainutil_GetTerrainEffect(rec, pos);
 
-			Assert(effect != NULL);
-			if(effect != NULL)
+			Assert(effect != nullptr);
+			if(effect != nullptr)
 			{
 				sint32 bpe;
 				if(effect->GetBonusProductionExport(bpe))
@@ -2585,7 +2585,7 @@ void Player::EndTurnPollution()
 		for (sint32 foreignerId = 1; foreignerId < k_MAX_PLAYERS; foreignerId++)
 		{
 
-			if (player_Get(foreignerId) == NULL)
+			if (player_Get(foreignerId) == nullptr)
 				continue;
 
 			if (foreignerId == m_owner)
@@ -2691,7 +2691,7 @@ sint32 Player::GetTotalUnitCost()
 
 	unit_num = m_all_units->Num();
 	sint32 cost = 0;
-	const UnitRecord *rec=NULL;
+	const UnitRecord *rec=nullptr;
 	for (unit_idx=0; unit_idx<unit_num; unit_idx++) {
 		rec = m_all_units->Access(unit_idx).GetDBRec();
 		Assert(rec);
@@ -3287,7 +3287,7 @@ TradeOffer Player::CreateTradeOffer(Unit fromCity,
 void Player::AddTradeOffer(TradeOffer offer)
 {
 	Assert(offer.GetFromCity().GetOwner() == m_owner);
-	Assert(offer.GetFromCity().GetData()->GetCityData() != NULL);
+	Assert(offer.GetFromCity().GetData()->GetCityData() != nullptr);
 	if(offer.GetOfferType() == ROUTE_TYPE_RESOURCE) {
 
 	}
@@ -3342,7 +3342,7 @@ void Player::AcceptTradeOffer(TradeOffer offer, Unit &sourceCity, Unit &destCity
 	}
 	else
 	{
-		SlicObject *so = NULL;
+		SlicObject *so = nullptr;
 		if(offer.GetOfferType() == ROUTE_TYPE_RESOURCE) {
 			so = new SlicObject("90AcceptTradeOffer");
 			so->AddGood(offer.GetOfferResource());
@@ -3803,7 +3803,7 @@ void Player::BuildResearchDialog(AdvanceType advance)
 			gameobservers_Get()->NotifyResearchAdvanceDialog(m_owner, advance, text);
 		}
 	} else if (gameobservers_Get()) {
-		gameobservers_Get()->NotifyResearchAdvanceDialog(m_owner, advance, NULL);
+		gameobservers_Get()->NotifyResearchAdvanceDialog(m_owner, advance, nullptr);
 	}
 }
 
@@ -4359,7 +4359,7 @@ Agreement Player::MakeLeaveOurLands(PLAYER_INDEX player)
 				BOOL foundCity =
 					armies->Access(i)[0].NearestFriendlyCityWithRoom(cpos, armies->Access(i).Num(), armies->Access(i));
 				if(foundCity) {
-					armies->Access(i).AutoAddOrdersWrongTurn(UNIT_ORDER_EXPEL_TO, NULL, cpos, 0);
+					armies->Access(i).AutoAddOrdersWrongTurn(UNIT_ORDER_EXPEL_TO, nullptr, cpos, 0);
 					num_moved++;
 				} else {
 					atLeastOneCouldntBeExpelled = true;
@@ -5416,7 +5416,7 @@ bool Player::CanCreateImprovement(sint32 type,
 	const TerrainImprovementRecord *rec = g_theTerrainImprovementDB->Get(type);
 	Cell *cell = world_Get()->GetCell(point);
 
-	Assert(rec != NULL);
+	Assert(rec != nullptr);
 	if(!rec)
 		return false;
 
@@ -6900,7 +6900,7 @@ sint32 Player::GetCheapestMilitaryUnit()
 
 MBCHAR *Player::GenerateDescriptionString(bool is_winner)
 {
-    char const * ptag = NULL;
+    char const * ptag = nullptr;
 	// infowin_GetCivScore() (in ui/interface/infowin.cpp) is just this
 	// computation for an existing Player — inlined to keep Player.cpp free
 	// of the ui/interface/infowin.h include.
@@ -7201,9 +7201,9 @@ void Player::RemoveDeadPlayers()
 			player_Get(i)->m_score->SetFinalScore(player_Get(i)->m_score->GetTotalScore());
 
 			delete player_Get(i)->m_vision;
-			player_Get(i)->m_vision = NULL;
+			player_Get(i)->m_vision = nullptr;
 
-			player_arr_Get()[i] = NULL;
+			player_arr_Get()[i] = nullptr;
 			if (gameobservers_Get()) gameobservers_Get()->NotifyPlayerRemoved((PLAYER_INDEX)i);
 			turn_Get()->PlayerDead(i);
 
@@ -7227,7 +7227,7 @@ Player *Player::GetDeadPlayer(sint32 index)
 		}
 		walk.Next();
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -7250,7 +7250,7 @@ sint32 Player::LoadBuildQueue(const sint32 city, const MBCHAR *file)
 
 	Assert(city>=0) ;
 	Assert(city<m_all_cities->Num()) ;
-	Assert(file != NULL) ;
+	Assert(file != nullptr) ;
 	Assert(file[0] != 0) ;
 
 	c = CityIndexToUnit(city) ;
@@ -7280,7 +7280,7 @@ sint32 Player::SaveBuildQueue(const sint32 city, const MBCHAR *file)
 
 	Assert(city>=0) ;
 	Assert(city<m_all_cities->Num()) ;
-	Assert(file != NULL) ;
+	Assert(file != nullptr) ;
 	Assert(file[0] != 0) ;
 
 	c = CityIndexToUnit(city) ;
@@ -7362,7 +7362,7 @@ bool Player::ContinentShared() const
 
 	return world_Get()->IsContinentSharedWithOthers(capitolPos,
 												   m_owner,
-												   NULL);
+												   nullptr);
 }
 
 void Player::CheckResourcesForTutorial() const
@@ -8019,7 +8019,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
 		// if the wonder is not already build
         if(!wonderutil_IsBuilt(i)) {
             for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++) {
-                if (player_Get(player_idx) == NULL) continue;
+                if (player_Get(player_idx) == nullptr) continue;
                 if (player_idx == m_owner) continue;
 
                 if (wonder_tracker_Get()->IsBuildingWonder(i, player_idx) &&
@@ -8040,7 +8040,7 @@ void Player::CheckWonderObsoletions(AdvanceType advance)
         // check if the wonder owner is valid
         sint32 wowner = wonderutil_GetOwner(i);
         if ((wowner < 0) || (wowner >= k_MAX_PLAYERS) ||
-            (player_Get(wowner) == NULL) ||
+            (player_Get(wowner) == nullptr) ||
             (player_Get(wowner)->m_isDead)) {
             continue;
         }
@@ -8162,7 +8162,7 @@ void Player::SetHasAdvance(AdvanceType advance, const bool init)
 	sint32 city_idx, city_num;
 	for (player_idx=0; player_idx<k_MAX_PLAYERS; player_idx++)
 	{
-		if (player_Get(player_idx) == NULL) continue;
+		if (player_Get(player_idx) == nullptr) continue;
 		if (player_idx == m_owner) continue;
 
 		city_num = player_Get(player_idx)->m_all_cities->Num();
@@ -8386,7 +8386,7 @@ bool Player::CanBuildUnit(const sint32 type) const
 	const UnitRecord *rec = g_theUnitDB->Get(type, m_government_type);
 
 	Assert(rec);
-	if(rec == NULL)
+	if(rec == nullptr)
 		return false;
 
 	if (!HasAdvance(rec->GetEnableAdvanceIndex()))
@@ -8764,7 +8764,7 @@ bool Player::HasWarWith(PLAYER_INDEX otherPlayer) const
 	// Everyone is always at war with the barbarians.
 	return      m_owner <= 0
 	    ||  otherPlayer <= 0
-	    ||  player_Get(otherPlayer) != NULL
+	    ||  player_Get(otherPlayer) != nullptr
 	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_DECLARE_WAR);
 }
 
@@ -8777,7 +8777,7 @@ bool Player::HasAllianceWith(PLAYER_INDEX otherPlayer) const
 	// Everyone is always at war with the barbarians.
 	return      m_owner > 0
 	    &&  otherPlayer > 0
-	    &&  player_Get(otherPlayer) != NULL
+	    &&  player_Get(otherPlayer) != nullptr
 	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_ALLIANCE);
 }
 
@@ -8790,7 +8790,7 @@ bool Player::HasPeaceTreatyWith(PLAYER_INDEX otherPlayer) const
 	// Everyone is always at war with the barbarians.
 	return      m_owner > 0
 	    &&  otherPlayer > 0
-	    &&  player_Get(otherPlayer) != NULL
+	    &&  player_Get(otherPlayer) != nullptr
 	    && AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_PEACE);
 }
 //True if player has at least one of trade/military/research/pollution pact with other player
@@ -8803,7 +8803,7 @@ bool Player::HasAnyPactWith(PLAYER_INDEX otherPlayer) const
 	// Everyone is always at war with the barbarians.
 	return      m_owner > 0
 	    &&  otherPlayer > 0
-	    &&  player_Get(otherPlayer) != NULL
+	    &&  player_Get(otherPlayer) != nullptr
 	    && (AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_TRADE_PACT)
 		|| AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_RESEARCH_PACT)
 		|| AgreementMatrix::s_agreements.HasAgreement(m_owner, otherPlayer, PROPOSAL_TREATY_MILITARY_PACT)
@@ -9358,7 +9358,7 @@ void Player::PreResourceCalculation(CityData* city)
 	EnergySupply();
 	BreadBasket();
 
-	if(city != NULL)
+	if(city != nullptr)
 	{
 		city->PreResourceCalculation(); // Get this out
 	}
@@ -9466,7 +9466,7 @@ bool Player::CanBuildLeader(const sint32 type) const
 	const UnitRecord *rec = g_theUnitDB->Get(type, m_government_type);
 
 	Assert(rec);
-	if(rec == NULL)
+	if(rec == nullptr)
 		return false;
 
 	if (!HasAdvance(rec->GetEnableAdvanceIndex()))

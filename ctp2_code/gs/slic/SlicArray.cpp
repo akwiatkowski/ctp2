@@ -53,7 +53,7 @@ SlicArray::SlicArray(SS_TYPE type, SLIC_SYM varType)
 	m_sizeIsFixed = false;
 	m_array = new SlicStackValue[m_allocatedSize];
 	memset(m_array, 0, m_allocatedSize * sizeof(SlicStackValue));
-	m_structTemplate = NULL;
+	m_structTemplate = nullptr;
 }
 
 SlicArray::SlicArray(SlicStructDescription *aStruct)
@@ -131,7 +131,7 @@ void SlicArray::Serialize(CivArchive &archive)
 		} else {
 			Assert(m_type == SS_TYPE_SYM);
 			for(i = 0; i < m_arraySize; i++) {
-				haveSym = m_array[i].m_sym != NULL;
+				haveSym = m_array[i].m_sym != nullptr;
 				archive << haveSym;
 				if(haveSym) {
 					((SlicSymbolData *)m_array[i].m_sym)->SlicSymbolData::Serialize(archive);
@@ -149,7 +149,7 @@ void SlicArray::Serialize(CivArchive &archive)
 			SLIC_BUILTIN structType = (SLIC_BUILTIN)archive.GetUINT8();
 			m_structTemplate = slicengine_Get()->GetStructDescription(structType);
 		} else {
-			m_structTemplate = NULL;
+			m_structTemplate = nullptr;
 		}
 
 		m_array = new SlicStackValue[m_allocatedSize];
@@ -162,7 +162,7 @@ void SlicArray::Serialize(CivArchive &archive)
 			for(i = 0; i < m_arraySize; i++) {
 				archive >> haveSym;
 				if(haveSym) {
-					m_array[i].m_sym = slicsymbol_Load(archive, NULL);
+					m_array[i].m_sym = slicsymbol_Load(archive, nullptr);
 				}
 			}
 		}
@@ -192,7 +192,7 @@ BOOL SlicArray::Lookup(sint32 index, SS_TYPE &type, SlicStackValue &value)
 		return FALSE;
 	}
 
-	if(m_type == SS_TYPE_SYM && m_array[index].m_sym == NULL) {
+	if(m_type == SS_TYPE_SYM && m_array[index].m_sym == nullptr) {
 
 		if(m_structTemplate) {
 			m_array[index].m_sym = m_structTemplate->CreateInstance();
@@ -316,7 +316,7 @@ void SlicArray::Prune(sint32 size)
 		for (sint32 i = size; i < m_arraySize; i++)
         {
 			delete m_array[i].m_sym;
-			m_array[i].m_sym = NULL;
+			m_array[i].m_sym = nullptr;
 		}
 	}
 

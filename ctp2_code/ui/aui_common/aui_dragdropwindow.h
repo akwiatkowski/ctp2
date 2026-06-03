@@ -67,7 +67,7 @@ public:
 	{ m_dragDropItem = dragDropItem; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

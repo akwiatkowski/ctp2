@@ -23,9 +23,9 @@ c3_CheckBox::c3_CheckBox(
 	void *cookie )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR const *) NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR const *) nullptr ),
 	aui_Switch( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -68,7 +68,7 @@ AUI_ERRCODE c3_CheckBox::InitCommonLdl( MBCHAR *ldlBlock )
 	sint32		bevelWidth=k_C3_CHECKBOX_DEFAULT_BEVELWIDTH;
 
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if (block->GetAttributeType( k_C3_CHECKBOX_LDL_BEVELWIDTH) == ATTRIBUTE_TYPE_INT) {

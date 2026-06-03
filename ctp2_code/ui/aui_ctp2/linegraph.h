@@ -88,24 +88,24 @@ public:
 	LineGraph(AUI_ERRCODE *retval,
 	                sint32 id,
 	                MBCHAR *ldlBlock,
-	                ControlActionCallback *ActionFunc = NULL,
-	                void *cookie = NULL,
-	                EventTracker *events = NULL);
+	                ControlActionCallback *ActionFunc = nullptr,
+	                void *cookie = nullptr,
+	                EventTracker *events = nullptr);
 	LineGraph(AUI_ERRCODE *retval,
 	                uint32 id,
 	                sint32 x,
 	                sint32 y,
 	                sint32 width,
 	                sint32 height,
-	                ControlActionCallback *ActionFunc = NULL,
-	                void *cookie = NULL);
+	                ControlActionCallback *ActionFunc = nullptr,
+	                void *cookie = nullptr);
 	virtual ~LineGraph();
 
 	void		SetXBounds(double min, double max) { m_xmin = min; m_xmax = max; }
 	void		SetYBounds(double min, double max) { m_ymin = min; m_ymax = max; }
 	void		SetGraphBounds(double minx, double maxx, double miny, double maxy);
 
-	void		SetLineData(sint32 numLines, sint32 numSamples, double **data, sint32 *color = NULL);
+	void		SetLineData(sint32 numLines, sint32 numSamples, double **data, sint32 *color = nullptr);
 
 	void		SetIndicator(double val) { m_indicatorValue = val; }
 	void		HasIndicator(bool has) { m_hasIndicator = has; }
@@ -129,7 +129,7 @@ public:
 	void		SetEventTracker(EventTracker *events)
 	{
 		m_events = events;
-		if (m_events != NULL) SetGraphType(GRAPH_TYPE_ZEROSUM);
+		if (m_events != nullptr) SetGraphType(GRAPH_TYPE_ZEROSUM);
 	}
 
 	LineGraphData *GetData() { return m_data; }

@@ -104,7 +104,7 @@ ns_PlayerSetupListBox::ns_PlayerSetupListBox (
 
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_FileDataListBox<nf_PlayerSetup, ns_PlayerSetup>(
 	retval,
 	id,
@@ -126,7 +126,7 @@ ns_GameSetupListBox::ns_GameSetupListBox (
 
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_FileDataListBox<nf_GameSetup, ns_GameSetup>(
 	retval,
 	id,
@@ -147,7 +147,7 @@ ns_AIPlayerSetupListBox::ns_AIPlayerSetupListBox (
 
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_FileDataListBox<nf_AIPlayer, ns_AIPlayerSetup>(
 	retval,
 	id,
@@ -173,7 +173,7 @@ ns_TransportListBox::ns_TransportListBox (
 	AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock, ControlActionCallback *ActionFunc, void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Transport, ns_Transport> (
 	retval, id, ldlBlock, ActionFunc, cookie )
 {
@@ -251,7 +251,7 @@ ns_SessionListBox::ns_SessionListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Session, ns_Session>(
 	retval,
 	id,
@@ -269,7 +269,7 @@ ns_LobbyListBox::ns_LobbyListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Lobby, ns_Lobby>(
 	retval,
 	id,
@@ -287,7 +287,7 @@ ns_GameListBox::ns_GameListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Game, ns_Game>(
 	retval,
 	id,
@@ -305,7 +305,7 @@ ns_PlayerListBox::ns_PlayerListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Player, ns_Player>(
 	retval,
 	id,
@@ -313,9 +313,9 @@ ns_PlayerListBox::ns_PlayerListBox (
 	ActionFunc,
 	cookie )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)NULL );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)NULL );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)NULL );
+	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
 ns_PlayerListBox::~ns_PlayerListBox()
@@ -323,19 +323,19 @@ ns_PlayerListBox::~ns_PlayerListBox()
 	if ( m_pingFastStyle )
 	{
 		delete m_pingFastStyle;
-		m_pingFastStyle = NULL;
+		m_pingFastStyle = nullptr;
 	}
 
 	if ( m_pingMedStyle )
 	{
 		delete m_pingMedStyle;
-		m_pingMedStyle = NULL;
+		m_pingMedStyle = nullptr;
 	}
 
 	if ( m_pingSlowStyle )
 	{
 		delete m_pingSlowStyle;
-		m_pingSlowStyle = NULL;
+		m_pingSlowStyle = nullptr;
 	}
 }
 
@@ -391,7 +391,7 @@ ns_RPlayerListBox::ns_RPlayerListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Player, ns_RPlayer>(
 	retval,
 	id,
@@ -409,7 +409,7 @@ ns_ServerListBox::ns_ServerListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Server, ns_Server>(
 	retval,
 	id,
@@ -417,9 +417,9 @@ ns_ServerListBox::ns_ServerListBox (
 	ActionFunc,
 	cookie )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)NULL );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)NULL );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)NULL );
+	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
 ns_ServerListBox::~ns_ServerListBox()
@@ -427,19 +427,19 @@ ns_ServerListBox::~ns_ServerListBox()
 	if ( m_pingFastStyle )
 	{
 		delete m_pingFastStyle;
-		m_pingFastStyle = NULL;
+		m_pingFastStyle = nullptr;
 	}
 
 	if ( m_pingMedStyle )
 	{
 		delete m_pingMedStyle;
-		m_pingMedStyle = NULL;
+		m_pingMedStyle = nullptr;
 	}
 
 	if ( m_pingSlowStyle )
 	{
 		delete m_pingSlowStyle;
-		m_pingSlowStyle = NULL;
+		m_pingSlowStyle = nullptr;
 	}
 }
 
@@ -494,7 +494,7 @@ ns_GPlayerListBox::ns_GPlayerListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<NETFunc::Player, ns_GPlayer>(
 	retval,
 	id,
@@ -503,9 +503,9 @@ ns_GPlayerListBox::ns_GPlayerListBox (
 	cookie ),
 	m_hplayerlistbox( hplayerlistbox )
 {
-	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)NULL );
-	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)NULL );
-	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)NULL );
+	m_pingFastStyle = new aui_TextBase( "styles.ping.fast", (MBCHAR *)nullptr );
+	m_pingMedStyle = new aui_TextBase( "styles.ping.med", (MBCHAR *)nullptr );
+	m_pingSlowStyle = new aui_TextBase( "styles.ping.slow", (MBCHAR *)nullptr );
 }
 
 ns_GPlayerListBox::~ns_GPlayerListBox()
@@ -513,19 +513,19 @@ ns_GPlayerListBox::~ns_GPlayerListBox()
 	if ( m_pingFastStyle )
 	{
 		delete m_pingFastStyle;
-		m_pingFastStyle = NULL;
+		m_pingFastStyle = nullptr;
 	}
 
 	if ( m_pingMedStyle )
 	{
 		delete m_pingMedStyle;
-		m_pingMedStyle = NULL;
+		m_pingMedStyle = nullptr;
 	}
 
 	if ( m_pingSlowStyle )
 	{
 		delete m_pingSlowStyle;
-		m_pingSlowStyle = NULL;
+		m_pingSlowStyle = nullptr;
 	}
 }
 
@@ -623,7 +623,7 @@ void ns_GPlayerListBox::Delete( NETFunc::Player *player )
 	ns_ListBox<NETFunc::Player, ns_GPlayer>::Delete( player );
 
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	m_hplayerlistbox->RemoveItem( item->Id() );
@@ -650,7 +650,7 @@ void ns_GPlayerListBox::Change( NETFunc::Player *player )
 	ns_ListBox<NETFunc::Player, ns_GPlayer>::Change( player );
 
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	bool selfMotivated = true;
@@ -705,7 +705,7 @@ ns_HPlayerItem *ns_GPlayerListBox::FindHPlayerItem( NETFunc::Player *player )
 			return item;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -714,16 +714,16 @@ void ns_GPlayerListBox::UpdateHPlayerItem(
 	bool selfMotivated )
 {
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	nf_PlayerSetup playersetup( player );
 
 	item->GetHostItem()->
-		SetImage( player->IsHost() ? netshell_Get()->GetTrueBmp() : 0 );
+		SetImage( player->IsHost() ? netshell_Get()->GetTrueBmp() : nullptr );
 
 	item->GetLaunchedItem()->
-		SetImage( player->IsReadyToLaunch() ? netshell_Get()->GetTrueBmp() : 0 );
+		SetImage( player->IsReadyToLaunch() ? netshell_Get()->GetTrueBmp() : nullptr );
 
 	MBCHAR name[ dp_PNAMELEN + 1 ];
 	strncpy( name, player->GetName(), dp_PNAMELEN );
@@ -823,7 +823,7 @@ ns_AIPlayerListBox::ns_AIPlayerListBox (
 		void *cookie )
 	:
 	aui_ImageBase( ldlBlock),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	ns_ListBox<nf_AIPlayer, ns_AIPlayer>(
 	retval,
 	id,
@@ -886,7 +886,7 @@ void ns_AIPlayerListBox::Delete( nf_AIPlayer *player )
 	ns_ListBox<nf_AIPlayer, ns_AIPlayer>::Delete( player );
 
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	m_hplayerlistbox->RemoveItem( item->Id() );
@@ -913,7 +913,7 @@ void ns_AIPlayerListBox::Change( nf_AIPlayer *player )
 	ns_ListBox<nf_AIPlayer, ns_AIPlayer>::Change( player );
 
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	bool selfMotivated = true;
@@ -965,7 +965,7 @@ ns_HPlayerItem *ns_AIPlayerListBox::FindHPlayerItem( nf_AIPlayer *player )
 			return item;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -974,11 +974,11 @@ void ns_AIPlayerListBox::UpdateHPlayerItem(
 	bool selfMotivated )
 {
 	ns_HPlayerItem *item = FindHPlayerItem( player );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	if ( !item ) return;
 
 	item->GetHostItem()->
-		SetImage( 0 );
+		SetImage( nullptr );
 
 	item->GetLaunchedItem()->
 		SetImage( netshell_Get()->GetTrueBmp() );

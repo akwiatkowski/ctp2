@@ -930,7 +930,7 @@ STDEHANDLER(StopResearch_ProposalResponseEvent)
 	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =
@@ -1027,7 +1027,7 @@ STDEHANDLER(ReduceWeapons_ProposalResponseEvent)
 	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =
@@ -1137,7 +1137,7 @@ STDEHANDLER(ReducePollution_ProposalResponseEvent)
 	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =
@@ -1223,7 +1223,7 @@ STDEHANDLER(HonorMilitaryAgreement_ProposalResponseEvent)
 	Player *foreigner_ptr = player_Get(foreigner);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =
@@ -1305,7 +1305,7 @@ STDEHANDLER(HonorPollutionAgreement_ProposalResponseEvent)
 	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =
@@ -1474,7 +1474,7 @@ STDEHANDLER(EndEmbargo_ProposalResponseEvent)
 	Player *receiver_ptr = player_Get(receiver);
 	Assert(sender_ptr);
 	Assert(receiver_ptr);
-	if (sender_ptr == NULL || receiver_ptr == NULL)
+	if (sender_ptr == nullptr || receiver_ptr == nullptr)
 		return GEV_HD_Continue;
 
 	sint32 accept_priority =

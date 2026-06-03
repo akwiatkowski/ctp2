@@ -113,7 +113,7 @@ public:
 	}
 
 	void SetVisibleDuration(const sint32 player, sint32 duration) {
-		Assert(m_array != NULL);
+		Assert(m_array != nullptr);
 		Assert(duration >= 0);
 
 		Assert(duration <= k_DEFAULT_VIS_DURATION_SIZE);
@@ -451,7 +451,7 @@ public:
 	void ResetActor() { m_actor.reset(); };
   std::shared_ptr<UnitActor> GetActor() const { return m_actor; };
 
-	bool IsCity() const { return m_city_data != NULL; }
+	bool IsCity() const { return m_city_data != nullptr; }
 	void GetPop(sint32 &p)const;
 	void GetTurnsToNextPop(sint32 &p)const; //PFT 29 mar 05, show # turns until city grows
 

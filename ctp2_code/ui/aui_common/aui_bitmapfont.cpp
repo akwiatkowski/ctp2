@@ -69,7 +69,7 @@ namespace
 }
 
 sint32      aui_BitmapFont::s_bitmapFontRefCount    = 0;
-TT_Engine   aui_BitmapFont::s_ttEngine              = { NULL };
+TT_Engine   aui_BitmapFont::s_ttEngine              = { nullptr };
 
 aui_BitmapFont::aui_BitmapFont(
 	AUI_ERRCODE *retval,
@@ -135,7 +135,7 @@ AUI_ERRCODE aui_BitmapFont::InitCommon( MBCHAR const *descriptor )
 		&m_bold,
 		&m_italic );
 
-	m_surfaceList = NULL;
+	m_surfaceList = nullptr;
 
 #if defined(_MBCS)
     Assert(SUPPORT_MBCS);
@@ -152,15 +152,15 @@ AUI_ERRCODE aui_BitmapFont::InitCommon( MBCHAR const *descriptor )
 	m_lineSkip = 0;
 	m_tabSkip = -1;
 
-	m_ttFace.z = NULL;
-	m_ttInstance.z = NULL;
-	m_ttCharMap.z = NULL;
+	m_ttFace.z = nullptr;
+	m_ttInstance.z = nullptr;
+	m_ttCharMap.z = nullptr;
 
 	memset( &m_ttFaceProperties, 0, sizeof( m_ttFaceProperties ) );
 	memset( &m_ttInstanceMetrics, 0, sizeof( m_ttInstanceMetrics ) );
 
 	m_surfaceList = new tech_WLList<aui_Surface *>;
-	Assert( m_surfaceList != NULL );
+	Assert( m_surfaceList != nullptr );
 	if ( !m_surfaceList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	if ( !s_bitmapFontRefCount++ )
@@ -211,7 +211,7 @@ aui_BitmapFont::~aui_BitmapFont()
 		if (s_ttEngine.z)
 		{
 			TT_Done_FreeType(s_ttEngine);
-			s_ttEngine.z = NULL;
+			s_ttEngine.z = nullptr;
 		}
 	}
 }
@@ -296,9 +296,9 @@ AUI_ERRCODE aui_BitmapFont::Unload( )
 	if ( m_ttFace.z )
 	{
 		TT_Close_Face( m_ttFace );
-		m_ttFace.z = NULL;
-		m_ttInstance.z = NULL;
-		m_ttCharMap.z = NULL;
+		m_ttFace.z = nullptr;
+		m_ttInstance.z = nullptr;
+		m_ttCharMap.z = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;
@@ -457,8 +457,8 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( MBCHAR c )
 		if ( c == '\t' )
 		{
 			GlyphInfo *space = GetGlyphInfo( ' ' );
-			Assert( space != NULL );
-			if ( !space ) return NULL;
+			Assert( space != nullptr );
+			if ( !space ) return nullptr;
 
 			*gi = *space;
 			gi->c = '\t';
@@ -470,7 +470,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( MBCHAR c )
 		gi->c = c;
 
 		TT_Glyph ttGlyph;
-		ttGlyph.z = NULL;
+		ttGlyph.z = nullptr;
 		sint32 error = TT_New_Glyph( m_ttFace, &ttGlyph );
 		Assert( error == 0 );
 		if ( error ) goto Error;
@@ -602,7 +602,7 @@ aui_BitmapFont::GlyphInfo *aui_BitmapFont::GetGlyphInfo( MBCHAR c )
 
 	Error:
 		if ( ttGlyph.z ) TT_Done_Glyph( ttGlyph );
-		return NULL;
+		return nullptr;
 	}
 	else
 		return m_glyphs + (sint32)uint8(c);
@@ -816,8 +816,8 @@ AUI_ERRCODE aui_BitmapFont::DrawString(
 			errcode = GetLineInfo(
 				bound,
 				&penPos,
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				(const MBCHAR **)&staticPtr,
 				(const MBCHAR *)staticStop );
 			Assert( AUI_SUCCESS(errcode) );
@@ -897,10 +897,10 @@ AUI_ERRCODE aui_BitmapFont::DrawString(
 			start = ptr;
 
 			errcode = GetLineInfo(
-				NULL,
+				nullptr,
 				&penPos,
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				&ptr,
 				stop );
 			Assert( AUI_SUCCESS(errcode) );
@@ -942,10 +942,10 @@ AUI_ERRCODE aui_BitmapFont::DrawString(
 			const MBCHAR *start = ptr;
 
 			errcode = GetLineInfo(
-				NULL,
+				nullptr,
 				&penPos,
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				&ptr,
 				stop );
 			Assert( AUI_SUCCESS(errcode) );
@@ -1001,12 +1001,12 @@ AUI_ERRCODE aui_BitmapFont::RenderLine(
 {
 	if ( wrap && !midWordBreaksOnly )
 	{
-		Assert( bound != NULL );
+		Assert( bound != nullptr );
 		if ( !bound ) return AUI_ERRCODE_INVALIDPARAM;
 	}
 
 	sint32 tabBase = penPos->x;
-	const MBCHAR *lastBreakPtr = NULL;
+	const MBCHAR *lastBreakPtr = nullptr;
 	sint32 lastBreakPos = 0;
 
 	if ( ascend ) *ascend = 0;
@@ -1015,7 +1015,7 @@ AUI_ERRCODE aui_BitmapFont::RenderLine(
 	const MBCHAR *ptr = *start;
 	while ( ptr != stop )
 	{
-		GlyphInfo *gi = NULL;
+		GlyphInfo *gi = nullptr;
 
 		sint32 prevPenPos = penPos->x;
 
@@ -1038,7 +1038,7 @@ AUI_ERRCODE aui_BitmapFont::RenderLine(
 			if ( m_tabSkip > 0 )
 			{
 				gi = GetGlyphInfo( '\t' );
-				Assert( gi != NULL );
+				Assert( gi != nullptr );
 				if ( !gi ) return AUI_ERRCODE_HACK;
 
 				sint32 tab = tabBase;
@@ -1080,7 +1080,7 @@ AUI_ERRCODE aui_BitmapFont::RenderLine(
 				}
 #endif
 
-				Assert( gi != NULL );
+				Assert( gi != nullptr );
 				if ( !gi ) return AUI_ERRCODE_HACK;
 			}
 
@@ -1154,7 +1154,7 @@ AUI_ERRCODE aui_BitmapFont::GetLineInfo(
 	bool midWordBreaksOnly )
 {
 	return RenderLine(
-		NULL,
+		nullptr,
 		wrap,
 		wrap,
 		penPos,
@@ -1164,7 +1164,7 @@ AUI_ERRCODE aui_BitmapFont::GetLineInfo(
 		0,
 		ascend,
 		descend,
-		wrap != NULL,
+		wrap != nullptr,
 		midWordBreaks,
 		midWordBreaksOnly );
 }
@@ -1179,7 +1179,7 @@ sint32 aui_BitmapFont::GetStringWidth( const MBCHAR * a_String )
 
 	POINT penPos = { 0, 0 };
 
-	(void) RenderLine(NULL, NULL, NULL,
+	(void) RenderLine(nullptr, nullptr, nullptr,
 		              &penPos,
 		              &a_String,
 		              a_String + strlen(a_String)
@@ -1265,7 +1265,7 @@ AUI_ERRCODE aui_BitmapFont::RenderGlyph16(
 	COLORREF color )
 {
 	AUI_ERRCODE		retval    = AUI_ERRCODE_OK;
-	bool			wasLocked = (NULL != destSurf->Buffer());
+	bool			wasLocked = (nullptr != destSurf->Buffer());
 
 	uint16			*destBuf;
 	AUI_ERRCODE		errcode;
@@ -1387,8 +1387,8 @@ bool aui_BitmapFont::TruncateString( MBCHAR *name, sint32 width )
 	GetLineInfo(
 		&wrap,
 		&penPos,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
 		&string,
 		stop,
 		true,
@@ -1433,7 +1433,7 @@ void aui_BitmapFont::DumpCachedSurfaces( aui_Surface *destSurf )
 	if ( destSurf->BitsPerPixel() != 16 ) return;
 
 	uint16 *destBuf;
-	AUI_ERRCODE errcode = destSurf->Lock( NULL, (LPVOID *)&destBuf, 0 );
+	AUI_ERRCODE errcode = destSurf->Lock( nullptr, (LPVOID *)&destBuf, 0 );
 	Assert( AUI_SUCCESS(errcode) );
 	if ( !AUI_SUCCESS(errcode) ) return;
 
@@ -1445,7 +1445,7 @@ void aui_BitmapFont::DumpCachedSurfaces( aui_Surface *destSurf )
 		aui_Surface *srcSurf = m_surfaceList->GetNext( position );
 
 		uint8 *srcBuf;
-		errcode = srcSurf->Lock( NULL, (LPVOID *)&srcBuf, 0 );
+		errcode = srcSurf->Lock( nullptr, (LPVOID *)&srcBuf, 0 );
 		Assert( AUI_SUCCESS(errcode) );
 		if ( !AUI_SUCCESS(errcode) ) break;
 

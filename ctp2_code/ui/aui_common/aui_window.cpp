@@ -81,18 +81,18 @@ aui_Window::aui_Window(
 
 AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 {
-	m_surface = NULL;
+	m_surface = nullptr;
 
-	m_stencil = NULL;
+	m_stencil = nullptr;
 
 	m_bpp = bpp ? bpp : aui_ui_Get()->BitsPerPixel();
 	m_type = type;
-	m_surface = NULL;
+	m_surface = nullptr;
 	m_isDragging = FALSE;
 	m_opaqueControls = FALSE;
 
 	m_dirtyList = new aui_DirtyList;
-	Assert( m_dirtyList != NULL );
+	Assert( m_dirtyList != nullptr );
 	if ( !m_dirtyList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_grabPoint.x = m_grabPoint.y = 0;
@@ -105,13 +105,13 @@ AUI_ERRCODE aui_Window::InitCommon( sint32 bpp, AUI_WINDOW_TYPE type )
 		0,
 		m_width,
 		m_height );
-	Assert( m_grabRegion != NULL );
+	Assert( m_grabRegion != nullptr );
 	if ( !m_grabRegion ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_ogX = m_x;
 	m_ogY = m_y;
 
-	m_focusControl = NULL;
+	m_focusControl = nullptr;
 	m_focusList = new tech_WLList<aui_Region *>;
 
 	return errcode;
@@ -121,7 +121,7 @@ AUI_ERRCODE aui_Window::CreateSurface( )
 {
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
 
-	Assert( m_surface == NULL );
+	Assert( m_surface == nullptr );
 	if ( !m_surface )
 	{
 		m_surface = aui_Factory::new_Surface(errcode, m_width, m_height);
@@ -211,7 +211,7 @@ AUI_ERRCODE aui_Window::Resize( sint32 width, sint32 height )
 		if ( reallocSurface )
 		{
 			delete m_surface;
-			m_surface = NULL;
+			m_surface = nullptr;
 
 		}
 	}
@@ -243,7 +243,7 @@ AUI_ERRCODE aui_Window::Resize( sint32 width, sint32 height )
 
 AUI_ERRCODE aui_Window::AddChild( aui_Region *child )
 {
-	Assert( child != NULL );
+	Assert( child != nullptr );
 	if ( !child ) return AUI_ERRCODE_INVALIDPARAM;
 
 
@@ -270,8 +270,8 @@ AUI_ERRCODE aui_Window::RemoveChild( uint32 controlId )
 
 			control->ReleaseKeyboardFocus();
 
-			control->SetParent( NULL );
-			control->SetParentWindow( NULL );
+			control->SetParent( nullptr );
+			control->SetParentWindow( nullptr );
 
 			m_childList->DeleteAt( prevPos );
 
@@ -333,7 +333,7 @@ void aui_Window::DeleteSurfaceIfDynamic( )
 	if (IsDynamic())
 	{
 		delete m_surface;
-		m_surface = NULL;
+		m_surface = nullptr;
 	}
 }
 
@@ -528,7 +528,7 @@ uint32 aui_Window::SetDynamic( BOOL dynamic )
 		if (IsHidden())
 		{
 			delete m_surface;
-			m_surface = NULL;
+			m_surface = nullptr;
 		}
 	}
 	else
@@ -746,7 +746,7 @@ aui_Control *aui_Window::NextFocusControl()
 	bool next = false;
 
 	if(m_focusList->L() < 1)
-		return NULL;
+		return nullptr;
 
 	ListPos position = m_focusList->GetHeadPosition();
 	sint32 i;
@@ -766,7 +766,7 @@ aui_Control *aui_Window::NextFocusControl()
 		aui_Control *control = (aui_Control *)m_focusList->GetNext(position);
 		if(control == m_focusControl) {
 
-			return NULL;
+			return nullptr;
 		} else if(!control->IsHidden() && !control->IsDisabled()) {
 			return control;
 		}

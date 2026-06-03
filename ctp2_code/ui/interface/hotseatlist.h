@@ -98,7 +98,7 @@ private:
 class HotseatList : public KeyboardHandler
 {
 public:
-	HotseatList( HotseatListCallback *callback = NULL, MBCHAR *ldlBlock = NULL );
+	HotseatList( HotseatListCallback *callback = nullptr, MBCHAR *ldlBlock = nullptr );
 	virtual ~HotseatList();
 
 	c3_PopupWindow	*m_window;

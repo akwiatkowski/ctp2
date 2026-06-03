@@ -239,7 +239,7 @@ void ProposalAnalysis::ComputeResult( const PLAYER_INDEX &sender,
 	Assert(receiver_ptr);
 	Assert(sender_ptr);
 
-	if (receiver_ptr == NULL || sender_ptr == NULL)
+	if (receiver_ptr == nullptr || sender_ptr == nullptr)
 		return;
 
 	const AgreementMatrix & agreements = AgreementMatrix::s_agreements;
@@ -405,8 +405,8 @@ void ProposalAnalysis::ComputeResult( const PLAYER_INDEX &sender,
 	case PROPOSAL_OFFER_GIVE_ADVANCE:
 	{
 		const AdvanceRecord * advance_record = g_theAdvanceDB->Get(proposal_arg.advanceType);
-		Assert(advance_record != NULL);
-		if (advance_record != NULL)
+		Assert(advance_record != nullptr);
+		if (advance_record != nullptr)
 		{
 			senderResult.science -=
 				advance_record->GetCost();
@@ -426,8 +426,8 @@ void ProposalAnalysis::ComputeResult( const PLAYER_INDEX &sender,
 
 	{
 		const AdvanceRecord * advance_record = g_theAdvanceDB->Get(proposal_arg.advanceType);
-		Assert(advance_record != NULL);
-		if (advance_record != NULL)
+		Assert(advance_record != nullptr);
+		if (advance_record != nullptr)
 		{
 			senderResult.science +=
 				advance_record->GetCost();
@@ -716,7 +716,7 @@ void ProposalAnalysis::AcceptTreatyCondition(const PLAYER_INDEX playerId,
 	desire_type = PROPOSAL_MAX;
 
 	Player *player_ptr = player_Get(playerId);
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 	{
 		Assert(0);
 		return;

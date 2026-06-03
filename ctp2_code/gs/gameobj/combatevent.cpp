@@ -113,7 +113,7 @@ STDEHANDLER(StartCombatEvent)
 		battle_observer::CloseBattleView();
 		combat_Get()->DeactivateBattle();
 		delete combat_Get();
-		combat_Set(NULL);
+		combat_Set(nullptr);
 	}
 
 	CellUnitList defender;
@@ -140,5 +140,5 @@ void combatevent_Initialize()
 void combatevent_Cleanup()
 {
 	delete combat_Get();
-	combat_Set(NULL);
+	combat_Set(nullptr);
 }

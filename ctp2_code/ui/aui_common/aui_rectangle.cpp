@@ -71,13 +71,13 @@ BOOL Rectangle_Clip( RECT *clipee, RECT *clipper )
 sint32 Rectangle_Subtract( RECT *in, RECT *sub, RECT out[4] )
 {
 
-	Assert( in != NULL );
+	Assert( in != nullptr );
 	if ( !in ) return -1;
 
 	Assert( in->left <= in->right && in->top <= in->bottom );
 	if ( in->left >= in->right || in->top >= in->bottom ) return 0;
 
-	Assert( sub != NULL );
+	Assert( sub != nullptr );
 	if ( !sub ) return -1;
 
 	Assert( sub->left <= sub->right && sub->top <= sub->bottom );
@@ -94,7 +94,7 @@ sint32 Rectangle_Subtract( RECT *in, RECT *sub, RECT out[4] )
 	}
 
 
-	Assert( out != NULL );
+	Assert( out != nullptr );
 	if ( !out ) return -1;
 
 	if ( in->left < sub->left )

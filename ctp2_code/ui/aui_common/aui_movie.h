@@ -59,7 +59,7 @@ public:
 
 	aui_Movie(
 		AUI_ERRCODE *retval,
-		MBCHAR const * filename = NULL );
+		MBCHAR const * filename = nullptr );
 	virtual ~aui_Movie();
 
 protected:
@@ -94,8 +94,8 @@ public:
 
 	virtual AUI_ERRCODE Open(
 		uint32 flags = 0,
-		aui_Surface *surface = NULL,
-		RECT *rect = NULL );
+		aui_Surface *surface = nullptr,
+		RECT *rect = nullptr );
 	virtual AUI_ERRCODE Close( );
 
 	virtual AUI_ERRCODE Play( );

@@ -8,7 +8,7 @@
 #include <string.h>
 #endif
 
-char *  String_Search::s_key            = NULL;
+char *  String_Search::s_key            = nullptr;
 int     String_Search::s_key_length     = 0;
 bool    String_Search::s_case_sensitive = false;
 int     String_Search::s_skip_table[NUM_CHAR_VALUES];

@@ -14,7 +14,7 @@ public:
 	NetHash()
 	{
 		for(uint32 i = 0; i < k_NET_HASH_TABLE_SIZE; i++) {
-			m_table[i] = NULL;
+			m_table[i] = nullptr;
 		}
 		m_numEntries = 0;
 		m_lowKey = k_NET_HASH_TABLE_SIZE;
@@ -72,7 +72,7 @@ NetHash::Remove(uint32 id)
 
 
 
-	Assert(m_table[key] != NULL);
+	Assert(m_table[key] != nullptr);
 	if(!m_table[key]) {
 		return;
 	}
@@ -131,7 +131,7 @@ NetHash::Clear()
 				m_numEntries--;
 			}
 			delete m_table[i];
-			m_table[i] = NULL;
+			m_table[i] = nullptr;
 			if(m_numEntries <= 0)
 				break;
 		}

@@ -78,25 +78,25 @@
 #include "net/general/network.h"
 
 extern Network				g_network;
-static c3_PopupWindow	*s_spNewGameRulesScreen	= NULL;
-static aui_Switch		*s_genocide			= NULL,
-						*s_pollution		= NULL,
-						*s_citycapture		= NULL,
-						*s_onecity			= NULL,
-						*s_revoltinsurgent  = NULL,
-						*s_revoltcasualty   = NULL,
-						*s_barbspawn		= NULL,
-						*s_NonRandomCivs	= NULL,
-						*s_Upgrade			= NULL,
-						*s_NewCombat		= NULL,
-						*s_NoGoodyHuts		= NULL,
-						*s_UNITGOLD			= NULL,
-						*s_CITYGOLD			= NULL,
-						*s_NOCITYLIMIT		= NULL,
-						*s_NULL				= NULL;
-ctp2_Button				*s_ages				= NULL;
-static c3_Static		*m_ruleDetails		= NULL;
-static aui_StringTable	*m_ruleDetailsStrings = NULL;
+static c3_PopupWindow	*s_spNewGameRulesScreen	= nullptr;
+static aui_Switch		*s_genocide			= nullptr,
+						*s_pollution		= nullptr,
+						*s_citycapture		= nullptr,
+						*s_onecity			= nullptr,
+						*s_revoltinsurgent  = nullptr,
+						*s_revoltcasualty   = nullptr,
+						*s_barbspawn		= nullptr,
+						*s_NonRandomCivs	= nullptr,
+						*s_Upgrade			= nullptr,
+						*s_NewCombat		= nullptr,
+						*s_NoGoodyHuts		= nullptr,
+						*s_UNITGOLD			= nullptr,
+						*s_CITYGOLD			= nullptr,
+						*s_NOCITYLIMIT		= nullptr,
+						*s_NULL				= nullptr;
+ctp2_Button				*s_ages				= nullptr;
+static c3_Static		*m_ruleDetails		= nullptr;
+static aui_StringTable	*m_ruleDetailsStrings = nullptr;
 
 enum
 {
@@ -273,8 +273,8 @@ AUI_ERRCODE spnewgamerulesscreen_Cleanup()
 
     delete m_ruleDetailsStrings;
 	delete s_spNewGameRulesScreen;
-    m_ruleDetailsStrings = NULL;
-	s_spNewGameRulesScreen = NULL;
+    m_ruleDetailsStrings = nullptr;
+	s_spNewGameRulesScreen = nullptr;
 
 	return AUI_ERRCODE_OK;
 #undef mycleanup
@@ -347,7 +347,7 @@ void spnewgamerulesscreen_checkPress(aui_Control *control, uint32 action, uint32
 
 	if ( action != (uint32)AUI_SWITCH_ACTION_PRESS ) return;
 
-	void (ProfileDB::*func)(BOOL) = 0;
+	void (ProfileDB::*func)(BOOL) = nullptr;
 	uint32 state = data;
 
 	switch(checkbox)

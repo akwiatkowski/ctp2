@@ -72,7 +72,7 @@ CityInventoryListBox::CityInventoryListBox(AUI_ERRCODE *retval,
 			void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	C3ListBox(retval, id, ldlBlock, ActionFunc, cookie)
 {
 	InitCommon(ldlBlock);
@@ -89,10 +89,10 @@ CityInventoryListBox::CityInventoryListBox (
 		ControlActionCallback *ActionFunc,
 		void *cookie):
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	C3ListBox(retval, id, x, y, width, height, pattern, ActionFunc, cookie)
 {
-	InitCommon(NULL);
+	InitCommon(nullptr);
 }
 
 CityInventoryListBox::~CityInventoryListBox()
@@ -326,8 +326,8 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 {
 	MBCHAR str[80];
 	StaticTextItem *text;
-	BuildNode *bn = NULL;
-	BuildQueue *bq = NULL;
+	BuildNode *bn = nullptr;
+	BuildQueue *bq = nullptr;
 
 	text = (StaticTextItem *)GetSelectedItem();
 
@@ -339,7 +339,7 @@ sint32 CityInventoryListBox::UpdateImage( const Unit &unit )
 			m_buildMode = 0;
 			if (text) {
 				unit.GetData()->GetCityData()->ChangeCurrentlyBuildingItem(text->GetCategory(),text->GetItemType());
-				text = NULL;
+				text = nullptr;
 			}
 
 		}

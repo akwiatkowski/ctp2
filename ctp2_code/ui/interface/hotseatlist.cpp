@@ -78,7 +78,7 @@
 #include "gs/fileio/gamefile.h"
 
 
-static HotseatList * g_hotseatList = NULL;
+static HotseatList * g_hotseatList = nullptr;
 
 HotseatList * hotseatlist_Get()
 {
@@ -99,7 +99,7 @@ void hotseatlist_Cleanup()
 }
 
 sint32       s_hotseatCivList[k_MAX_PLAYERS];
-bool        *s_legalCivList = NULL;
+bool        *s_legalCivList = nullptr;
 bool         s_playerCivsLocked;
 
 
@@ -142,7 +142,7 @@ void HotseatListButtonActionCallback( aui_Control *control, uint32 action, uint3
 							  item->GetEmail());
 		}
 
-		g_hotseatList->m_callback( 1, 0, 0, 0, NULL, NULL);
+		g_hotseatList->m_callback( 1, 0, 0, 0, nullptr, nullptr);
 
 		g_hotseatList->RemoveWindow();
 	}
@@ -167,7 +167,7 @@ HotseatList::HotseatList( HotseatListCallback *callback, MBCHAR *ldlBlock )
 
 	}
 
-	m_ok = NULL;
+	m_ok = nullptr;
 
 	m_callback = callback;
 
@@ -188,7 +188,7 @@ sint32 HotseatList::Initialize( MBCHAR *windowBlock )
 	m_window->AddOk(HotseatListButtonActionCallback);
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	m_list = new c3_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	m_list->SetAbsorbancy(FALSE);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
@@ -280,7 +280,7 @@ sint32 HotseatList::UpdateData( )
 	AUI_ERRCODE		retval;
 
 	strcpy(ldlBlock,"HotseatListItem");
-	HotseatListItem *item = NULL;
+	HotseatListItem *item = nullptr;
 
 	m_list->Clear();
 
@@ -289,7 +289,7 @@ sint32 HotseatList::UpdateData( )
 
 	Scenario *scen;
 	ScenarioPack *pack;
-	SaveInfo *info = NULL;
+	SaveInfo *info = nullptr;
 	CivScenarios *cs = civscenarios_Get();
 	if(cs->FindScenario(scenario_name_buf(),
 								    &pack, &scen)) {
@@ -380,7 +380,7 @@ HotseatListItem::HotseatListItem(AUI_ERRCODE *retval, sint32 index,
 								 MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	m_index = index;

@@ -71,7 +71,7 @@ public:
 		m_maxElements = 0;
 		m_nElements = 0;
 		delete [] m_array;
-		m_array = NULL;
+		m_array = nullptr;
 	}
 
     T & operator [] (const sint32 i) {
@@ -226,7 +226,7 @@ template <class T> DynamicArray<T> & DynamicArray<T>::operator =
 template <class T> void DynamicArray<T>::ResizeCreate(const sint32 new_size,
     T *&tmp)
 {
-    Assert(m_array!= NULL);
+    Assert(m_array!= nullptr);
     Assert(0<m_maxElements);
     Assert(0<new_size);
 
@@ -245,7 +245,7 @@ template <class T> void DynamicArray<T>::ResizeCleanup(const sint32 new_size, T 
 
 template <class T> void DynamicArray<T>::Resize(const sint32 new_size)
 {
-    T * tmp = NULL;
+    T * tmp = nullptr;
     ResizeCreate(new_size, tmp);
 
     for (sint32 i = 0; i < m_maxElements; i++)
@@ -258,7 +258,7 @@ template <class T> void DynamicArray<T>::Resize(const sint32 new_size)
 
 template <class T> void DynamicArray<T>::ResizeFlat(const sint32 new_size)
 {
-    T * tmp = NULL;
+    T * tmp = nullptr;
     ResizeCreate(new_size, tmp);
     ResizeCleanup(new_size, tmp);
 }
@@ -406,7 +406,7 @@ template <class T> bool DynamicArray<T>::DelIndex(const sint32 index)
 {
     Assert (0 <= index);
     Assert(index < m_nElements);
-    Assert(m_array != NULL);
+    Assert(m_array != nullptr);
 
     m_array[index].DelPointers();
     for (sint32 i = index; i < m_nElements - 1; i++)
@@ -513,7 +513,7 @@ template <class T> void DynamicArray<T>::Change(const T &old, const T &newobj)
 
 template <class T> bool DynamicArray<T>::IsPresent(const T &check) const
 {
-	Assert(m_array != NULL);
+	Assert(m_array != nullptr);
     T * last    = m_array + m_nElements;
 	for (T * ptr = m_array; ptr != last; ++ptr)
     {

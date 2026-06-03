@@ -120,14 +120,14 @@ template<class TT>
 aui_ResourceElement<TT>::aui_ResourceElement(
 	const MBCHAR *newName,
 	const MBCHAR *fullPath )
-:	resource(NULL),
-	name((newName && fullPath) ? new MBCHAR[strlen(newName) + 1] : NULL),
+:	resource(nullptr),
+	name((newName && fullPath) ? new MBCHAR[strlen(newName) + 1] : nullptr),
 	hash(aui_Base::CalculateHash(newName)),
 	pathhash(aui_Base::CalculateHash(fullPath)),
 	refcount(1)
 {
 
-	Assert( newName != NULL && fullPath != NULL );
+	Assert( newName != nullptr && fullPath != nullptr );
 	if ( !newName || !fullPath ) return;
 	// Temporary patch: modern code would use std::string and initialiser
 	strcpy(name, newName);
@@ -142,7 +142,7 @@ aui_ResourceElement<TT>::aui_ResourceElement(
 	{
 		// Temporary patch to prevent access to invalid memory
 		delete resource;
-		resource = NULL;
+		resource = nullptr;
 	}
 }
 
@@ -161,19 +161,19 @@ aui_ResourceElement<TT>::~aui_ResourceElement()
 
 
 
-template<class T> tech_WLList<MBCHAR *> *aui_Resource<T>::m_pathList = NULL;
+template<class T> tech_WLList<MBCHAR *> *aui_Resource<T>::m_pathList = nullptr;
 template<class T> sint32 aui_Resource<T>::m_resourceRefCount = 0;
 
 template<class T>
 aui_Resource<T>::aui_Resource()
 {
 	m_resourceList = new tech_WLList<aui_ResourceElement<T> *>;
-	Assert( m_resourceList != NULL );
+	Assert( m_resourceList != nullptr );
 
 	if ( !m_resourceRefCount++ )
 	{
 		m_pathList = new tech_WLList<MBCHAR *>;
-		Assert( m_pathList != NULL );
+		Assert( m_pathList != nullptr );
 	}
 }
 
@@ -182,7 +182,7 @@ aui_Resource<T>::~aui_Resource()
 {
 	Assert(!m_resourceList || (m_resourceList->L() == 0));
 	delete m_resourceList;
-    m_resourceList = NULL;
+    m_resourceList = nullptr;
 
 	if (!--m_resourceRefCount)
 	{
@@ -193,7 +193,7 @@ aui_Resource<T>::~aui_Resource()
 			delete [] path;
 		}
 		delete m_pathList;
-		m_pathList = NULL;
+		m_pathList = nullptr;
 	}
 }
 
@@ -225,7 +225,7 @@ AUI_ERRCODE aui_Resource<T>::AddSearchPath( const MBCHAR *path )
 	}
 
 	MBCHAR *newPath = new MBCHAR[ len + 1 ];
-	Assert( newPath != NULL );
+	Assert( newPath != nullptr );
 	if ( !newPath ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	strncpy( newPath, path, len);
@@ -261,7 +261,7 @@ template<class T>
 T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 {
 	Assert(resName);
-	if (!resName) return NULL;
+	if (!resName) return nullptr;
 
 	const MBCHAR *name;
 	MBCHAR tempName[MAX_PATH + 1];
@@ -344,14 +344,14 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 	}
 
 	aui_ResourceElement<T> *re = new aui_ResourceElement<T>( name, fullPath );
-	Assert( re != NULL );
+	Assert( re != nullptr );
 	if ( re )
 	{
 		m_resourceList->AddTail( re );
 		return re->resource;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 template<class T>

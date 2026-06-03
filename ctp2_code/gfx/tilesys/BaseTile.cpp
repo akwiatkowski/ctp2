@@ -45,8 +45,8 @@ BaseTile::BaseTile()
     m_tileNum       (0),
     m_tileDataLen   (0),
     m_hatDataLen    (0),
-    m_tileData      (NULL),
-    m_hatData       (NULL)
+    m_tileData      (nullptr),
+    m_hatData       (nullptr)
 {
 }
 
@@ -68,8 +68,8 @@ BaseTile::~BaseTile()
 
 BOOL BaseTile::Read(FILE *file)
 {
-	Assert(file != NULL);
-	if (file == NULL) return FALSE;
+	Assert(file != nullptr);
+	if (file == nullptr) return FALSE;
 
 	c3files_fread((void *)&m_tileNum    , 1, sizeof(m_tileNum), file);
 	c3files_fread((void *)&m_baseType   , 1, sizeof(m_baseType), file);
@@ -91,7 +91,7 @@ BOOL BaseTile::Read(FILE *file)
 	}
 	else
 	{
-		hatData = NULL;
+		hatData = nullptr;
 	}
 
 	m_hatDataLen = size;
@@ -128,7 +128,7 @@ BOOL BaseTile::QuickRead(uint8 **dataPtr, BOOL mapped)
 	}
 	else
 	{
-		hatData = NULL;
+		hatData = nullptr;
 	}
 
 	m_hatDataLen = size;

@@ -71,7 +71,7 @@ public:
 	Order()
 	{
 		m_order = UNIT_ORDER_NONE;
-		m_path = NULL;
+		m_path = nullptr;
 		m_round = -1;
 		m_argument = 0;
 		// m_index is intentionally NOT initialised here — Order::operator
@@ -81,7 +81,7 @@ public:
 		// time (caught 2026-06-03 by Phase 1j determinism test —
 		// json_save uses `new Order` and the prior default-ctor wipe
 		// caused Pool::Release_Pointer(-1) at first turn after load).
-		m_gameEventArgs = NULL;
+		m_gameEventArgs = nullptr;
 	}
 
 	~Order();

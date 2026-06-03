@@ -53,7 +53,7 @@ private:
 class WatchList : public KeyboardHandler
 {
 public:
-	WatchList(WatchListCallback callback = NULL, MBCHAR *ldlBlock = NULL);
+	WatchList(WatchListCallback callback = nullptr, MBCHAR *ldlBlock = nullptr);
 	virtual ~WatchList();
 
 //public:

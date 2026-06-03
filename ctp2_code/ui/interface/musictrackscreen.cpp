@@ -51,10 +51,10 @@
 extern SoundManager		*soundmgr_Get();
 
 
-static c3_PopupWindow	*s_musicTrackScreen	= NULL;
-static c3_Button		*s_accept			= NULL;
-static c3_ListBox		*s_trackList		= NULL;
-static aui_StringTable	*s_trackNames		= NULL;
+static c3_PopupWindow	*s_musicTrackScreen	= nullptr;
+static c3_Button		*s_accept			= nullptr;
+static c3_ListBox		*s_trackList		= nullptr;
+static aui_StringTable	*s_trackNames		= nullptr;
 static sint32			s_trackNum			= -1;
 
 BOOL					g_musicTrackChosen = FALSE;
@@ -136,7 +136,7 @@ AUI_ERRCODE musictrackscreen_Initialize( )
 
 	MBCHAR		controlBlock[k_AUI_LDL_MAXBLOCK + 1];
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "TrackList" );
-	s_trackList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, MusicTrackListCallback, NULL);
+	s_trackList = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, MusicTrackListCallback, nullptr);
 	Assert( AUI_NEWOK(s_trackList, errcode) );
 	if ( !AUI_NEWOK(s_trackList, errcode) ) return errcode;
 	s_trackList->SetForceSelect(FALSE);
@@ -201,7 +201,7 @@ void musictrackscreen_acceptPress(aui_Control *control, uint32 action, uint32 da
 MusicTrackListItem::MusicTrackListItem(AUI_ERRCODE *retval, sint32 trackNum, MBCHAR *name, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );

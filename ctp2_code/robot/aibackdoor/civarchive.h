@@ -309,7 +309,7 @@ public:
 				return val;
 			}
 			else{
-				return NULL;
+				return nullptr;
 			}
 		}
 

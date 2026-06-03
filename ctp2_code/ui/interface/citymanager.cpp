@@ -16,7 +16,7 @@
 #include "gs/database/StrDB.h"
 
 
-static CityManagerWindow *s_cityManagerWindow = NULL;
+static CityManagerWindow *s_cityManagerWindow = nullptr;
 
 void CityManagerWindow::Open()
 {
@@ -46,7 +46,7 @@ void CityManagerWindow::Cleanup()
 	}
 
     delete s_cityManagerWindow;
-	s_cityManagerWindow = NULL;
+	s_cityManagerWindow = nullptr;
 }
 
 CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
@@ -57,8 +57,8 @@ CityManagerWindow::CityManagerWindow(AUI_ERRCODE *retval,
 				 16,
 				 AUI_WINDOW_TYPE_STANDARD)
 {
-	m_ok = m_cancel = NULL;
-	m_bg = NULL;
+	m_ok = m_cancel = nullptr;
+	m_bg = nullptr;
 	ldlBlock = uiutils_ChooseLdl(ldlBlock, "CITY_MANAGER_WINDOW");
 
 	*retval = InitCommonLdl(ldlBlock);
@@ -69,17 +69,17 @@ CityManagerWindow::~CityManagerWindow()
 {
 	if(m_ok) {
 		RemoveControl(m_ok);
-		m_ok = NULL;
+		m_ok = nullptr;
 	}
 
 	if(m_cancel) {
 		RemoveControl(m_cancel);
-		m_cancel = NULL;
+		m_cancel = nullptr;
 	}
 
 	if(m_bg) {
 		aui_ui_Get()->UnloadImage(m_bg);
-		m_bg = NULL;
+		m_bg = nullptr;
 	}
 }
 

@@ -50,7 +50,7 @@ aui_FileFormat * aui_MemMap::GetFileFormat(MBCHAR const * filename)
 			return new aui_AviMovieFormat;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /// Delete an aui_FileFormat object

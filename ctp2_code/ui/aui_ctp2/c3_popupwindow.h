@@ -89,30 +89,30 @@ public:
 	virtual AUI_ERRCODE Resize( sint32 width, sint32 height );
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
-	sint32 AddTitle( MBCHAR *titleBlock = NULL );
+	sint32 AddTitle( MBCHAR *titleBlock = nullptr );
 	sint32 AddCancel(
-		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = NULL,
-		void *cookie = NULL,
+		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
+		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupCancel" );
 	sint32 AddOk(
-		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = NULL,
-		void *cookie = NULL,
+		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
+		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupOk" );
 	sint32 AddYes(
-		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = NULL,
-		void *cookie = NULL,
+		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
+		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupYes" );
 	sint32 AddClose(
-		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = NULL,
-		void *cookie = NULL,
+		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
+		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupClose" );
 	sint32 AddNo(
-		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = NULL,
-		void *cookie = NULL,
+		void (*actionFunc)( aui_Control *, uint32, uint32, void *) = nullptr,
+		void *cookie = nullptr,
 		MBCHAR *buttonBlock = "c3_PopupNo" );
 
 	c3_Static	*TitleText( ) { return m_titleText; }
@@ -129,12 +129,12 @@ protected:
 	c3_PopupWindow()
 	:
 		C3Window    (),
-		m_title     (NULL),
-		m_titleText (NULL),
-		m_cancel    (NULL),
-		m_ok        (NULL)
+		m_title     (nullptr),
+		m_titleText (nullptr),
+		m_cancel    (nullptr),
+		m_ok        (nullptr)
 	{
-		std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) NULL);
+		std::fill(m_border, m_border + POPUP_BORDER_MAX, (c3_Static *) nullptr);
 	}
 
 private:

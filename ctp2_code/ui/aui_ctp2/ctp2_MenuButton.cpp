@@ -16,11 +16,11 @@ ctp2_MenuButton::ctp2_MenuButton(AUI_ERRCODE *retval,
 								 void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_Button( retval, id, ldlBlock, ActionFunc, cookie ),
-	m_menu(NULL),
-	m_rightNeighbor(NULL),
-	m_leftNeighbor(NULL)
+	m_menu(nullptr),
+	m_rightNeighbor(nullptr),
+	m_leftNeighbor(nullptr)
 {
 	Assert(AUI_SUCCESS(*retval));
 	if(!AUI_SUCCESS(*retval)) return;
@@ -61,7 +61,7 @@ void ctp2_MenuButton::MouseLDragAway( aui_MouseEvent *mouseData )
 			m_action->Execute( this, AUI_BUTTON_ACTION_RELEASE, 0 );
 
 		if(mouseData->position.y >= Y() + Height()) {
-			SetWhichSeesMouse(NULL);
+			SetWhichSeesMouse(nullptr);
 			mouseData->position.y -= Height();
 			m_menu->ActivateMenu(mouseData);
 		} else if(mouseData->position.x >= X() + Width()) {

@@ -13,7 +13,7 @@ aui_Radio::aui_Radio(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Switch(
 		retval,
 		id,
@@ -37,7 +37,7 @@ aui_Radio::aui_Radio(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Switch(
 		retval,
 		id,

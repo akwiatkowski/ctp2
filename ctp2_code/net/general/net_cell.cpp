@@ -103,7 +103,7 @@ void NetCellData::Unpacketize(uint16 id, uint8* buf, uint16 size)
 	uint8 numObjects;
 	PULLBYTE(numObjects);
 	delete m_cell->m_objects;
-	m_cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : NULL;
+	m_cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : nullptr;
 
 	for (uint8 i = 0; i < numObjects; ++i)
 	{
@@ -232,12 +232,12 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 			Cell* cell = world_Get()->AccessCell(mp);
 
 			delete cell->m_unit_army;
-			cell->m_unit_army = NULL;
+			cell->m_unit_army = nullptr;
 
 			cell->SetCity(Unit());
 
 			delete cell->m_objects;
-			cell->m_objects = NULL;
+			cell->m_objects = nullptr;
 
 			PULLLONG(cell->m_env);
 
@@ -263,7 +263,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 			}
 			else
 			{
-				cell->m_jabba = NULL;
+				cell->m_jabba = nullptr;
 			}
 
 #ifdef SEND_MOVE_COST
@@ -274,7 +274,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 			uint8 numObjects;
 			PULLBYTE(numObjects);
 			delete cell->m_objects;
-			cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : NULL;
+			cell->m_objects = (numObjects > 0) ? new DynamicArray<ID> : nullptr;
 
 			for (uint8 i = 0; i < numObjects; i++)
 			{
@@ -288,7 +288,7 @@ void NetCellList::Unpacketize(uint16 id, uint8* buf, uint16 len)
 			if (world_Get()->GetTileInfo(mp))
 			{
 				delete world_Get()->GetTileInfo(mp)->m_goodActor;
-				world_Get()->GetTileInfo(mp)->m_goodActor = NULL;
+				world_Get()->GetTileInfo(mp)->m_goodActor = nullptr;
 			}
 
 			cells++;

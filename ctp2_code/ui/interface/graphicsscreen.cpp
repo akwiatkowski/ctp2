@@ -24,38 +24,38 @@ extern SpriteGroupList		*g_unitSpriteGroupList;
 extern SpriteGroupList		*g_goodSpriteGroupList;
 
 static ctp2_Button	*s_resScreenButton;
-static c3_PopupWindow *s_graphicsWindow			= NULL;
-static C3Slider		*s_bright					= NULL,
-					*s_gamma					= NULL,
-					*s_color					= NULL,
-					*s_contrast					= NULL;
+static c3_PopupWindow *s_graphicsWindow			= nullptr;
+static C3Slider		*s_bright					= nullptr,
+					*s_gamma					= nullptr,
+					*s_color					= nullptr,
+					*s_contrast					= nullptr;
 
-static c3_Static	*s_unitSpeedN				= NULL;
-static C3Slider		*s_unitSpeed				= NULL;
+static c3_Static	*s_unitSpeedN				= nullptr;
+static C3Slider		*s_unitSpeed				= nullptr;
 
-static c3_Static	*s_brightN					= NULL,
-					*s_gammaN					= NULL,
-					*s_colorN					= NULL,
-					*s_contrastN				= NULL;
-static aui_Switch	*s_walk						= NULL,
+static c3_Static	*s_brightN					= nullptr,
+					*s_gammaN					= nullptr,
+					*s_colorN					= nullptr,
+					*s_contrastN				= nullptr;
+static aui_Switch	*s_walk						= nullptr,
 
-					*s_trade					= NULL,
-					*s_wonder					= NULL,
+					*s_trade					= nullptr,
+					*s_wonder					= nullptr,
 
-					*s_politicalBorders			= NULL,
-					*s_tradeRoutes				= NULL,
+					*s_politicalBorders			= nullptr,
+					*s_tradeRoutes				= nullptr,
 
-					*s_cityInfluence			= NULL,
-					*s_grid						= NULL,
+					*s_cityInfluence			= nullptr,
+					*s_grid						= nullptr,
 
-					*s_cityNames				= NULL,
-					*s_civflags					= NULL,
-					*s_smooth					= NULL,
-					*s_armyNames				= NULL,
-					*s_goodAnims				= NULL,
-					*s_cityProd					= NULL,
+					*s_cityNames				= nullptr,
+					*s_civflags					= nullptr,
+					*s_smooth					= nullptr,
+					*s_armyNames				= nullptr,
+					*s_goodAnims				= nullptr,
+					*s_cityProd					= nullptr,
 
-					*s_NULL						= NULL;
+					*s_NULL						= nullptr;
 
 static BOOL			s_gridToggled				= FALSE;
 static BOOL			s_cityInfluenceToggled		= FALSE;
@@ -301,7 +301,7 @@ void graphicsscreen_checkPress(aui_Control *control, uint32 action, uint32 data,
 	if ( action != (uint32)AUI_SWITCH_ACTION_PRESS ) return;
 
 	uint32 checkbox = *((uint32*)cookie);
-	void (ProfileDB::*func)(BOOL) = 0;
+	void (ProfileDB::*func)(BOOL) = nullptr;
 	uint32 state = data;
 
 	switch(checkbox) {
@@ -323,12 +323,12 @@ void graphicsscreen_checkPress(aui_Control *control, uint32 action, uint32 data,
 		func = &ProfileDB::SetShowTradeRoutes;
 		break;
 	case GS_CITYINFLUENCE:
-		func = NULL;
+		func = nullptr;
 		profiledb_Get()->SetShowCityInfluence(!state);
 		s_cityInfluenceToggled = TRUE;
 		break;
 	case GS_GRID:
-		func = NULL;
+		func = nullptr;
 		g_isGridOn = !state;
 		s_gridToggled = TRUE;
 		break;

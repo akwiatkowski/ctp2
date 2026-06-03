@@ -59,12 +59,12 @@ C3DropDown::C3DropDown(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_DropDown(retval, id,x, y, width, height, buttonSize, windowSize, ActionFunc, cookie),
 	PatternBase(pattern)
 {
 
-	*retval = aui_SoundBase::InitCommon( (MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon( (MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -81,9 +81,9 @@ C3DropDown::C3DropDown(
 	void *cookie)
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_DropDown(retval, id, ldlBlock, ActionFunc, cookie),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
 	*retval = aui_SoundBase::InitCommonLdl(ldlBlock);
 	Assert( AUI_SUCCESS(*retval) );

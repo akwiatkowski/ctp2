@@ -149,7 +149,7 @@ void dh_teleport(DQAction* itemAction,
 
   UnitActorPtr theActor = action->move_actor.lock();
 
-  if (theActor == NULL)
+  if (theActor == nullptr)
     return;
 
   if (!action->revealedActors.empty()) {
@@ -182,19 +182,19 @@ void dh_projectileMove(DQAction* itemAction,
   MapPoint startPos = action->pmove_oldPos;
   MapPoint endPos = action->pmove_newPos;
 
-  Assert(shootingActor != NULL && targetActor != NULL);
+  Assert(shootingActor != nullptr && targetActor != nullptr);
 
-  if (shootingActor == NULL || targetActor == NULL)
+  if (shootingActor == nullptr || targetActor == nullptr)
     return;
 
   if (projectileEnd && director_Get()->TileIsVisibleToPlayer(startPos)) {
     ActionPtr actionObj;
 
     Anim* anim = projectileEnd->CreateAnim(EFFECTACTION_PLAY);
-    if (anim == NULL) {
+    if (anim == nullptr) {
       anim = projectileEnd->CreateAnim(EFFECTACTION_FLASH);
-      Assert(anim != NULL);
-      if (anim == NULL) {
+      Assert(anim != nullptr);
+      if (anim == nullptr) {
         director_Get()->ActionFinished(seq);
         return;
       } else {
@@ -211,7 +211,7 @@ void dh_projectileMove(DQAction* itemAction,
       director_Get()->ActiveEffectAdd(projectileEnd);
 
       // Management taken over by director, no longer managed by item queue.
-      action->end_projectile = NULL;
+      action->end_projectile = nullptr;
     } else {
       delete anim;
     }
@@ -231,10 +231,10 @@ void dh_attack(DQAction* itemAction,
   UnitActorPtr theAttacker = action->attacker.lock();
   UnitActorPtr theDefender = action->defender.lock();
 
-  Assert(theAttacker != NULL);
-  Assert(theDefender != NULL);
+  Assert(theAttacker != nullptr);
+  Assert(theDefender != nullptr);
 
-  if ((theAttacker == NULL) || (theDefender == NULL))
+  if ((theAttacker == nullptr) || (theDefender == nullptr))
     return;
 
   //	bool attackerVisible =
@@ -317,12 +317,12 @@ void dh_specialAttack(DQAction* itemAction,
   UnitActorPtr theAttacker = action->attacker.lock();
   UnitActorPtr theDefender = action->defender.lock();
 
-  Assert(theAttacker != NULL);
-  Assert(theDefender != NULL);
+  Assert(theAttacker != nullptr);
+  Assert(theDefender != nullptr);
 
-  if (theAttacker == NULL)
+  if (theAttacker == nullptr)
     return;
-  if (theDefender == NULL)
+  if (theDefender == nullptr)
     return;
 
   BOOL attackerCanAttack = !action->attacker_IsCity;
@@ -416,12 +416,12 @@ void dh_death(DQAction* itemAction,
   DQActionDeath* action = (DQActionDeath*)itemAction;
   UnitActorPtr theDead = action->death_dead;
   UnitActorPtr theVictor = action->death_victor.lock();
-  Anim* deathAnim = NULL;
-  Anim* victorAnim = NULL;
+  Anim* deathAnim = nullptr;
+  Anim* victorAnim = nullptr;
   sint32 deathActionType = UNITACTION_NONE;
   sint32 victorActionType = UNITACTION_NONE;
 
-  if (theDead != NULL && !theDead->GetNeedsToDie()) {
+  if (theDead != nullptr && !theDead->GetNeedsToDie()) {
     theDead->SetNeedsToDie(TRUE);
 
     if (theDead->HasDeath()) {
@@ -442,10 +442,10 @@ void dh_death(DQAction* itemAction,
       deathAnim = theDead->MakeFakeDeath();
     }
   } else {
-    theDead = NULL;
+    theDead = nullptr;
   }
 
-  if (theVictor != NULL && !theVictor->GetNeedsToDie()) {
+  if (theVictor != nullptr && !theVictor->GetNeedsToDie()) {
     director_Get()->ActiveUnitRemove(theVictor);
 
     theVictor->SetNeedsToVictor(TRUE);
@@ -459,20 +459,20 @@ void dh_death(DQAction* itemAction,
       victorActionType = UNITACTION_VICTORY;
 
       victorAnim = theVictor->CreateAnim((UNITACTION)victorActionType);
-      if (victorAnim == NULL) {
-        theVictor = NULL;
+      if (victorAnim == nullptr) {
+        theVictor = nullptr;
       }
     }
   }
 
-  if (theDead != NULL) {
+  if (theDead != nullptr) {
     theDead->SetHealthPercent(-1.0);
     theDead->SetTempStackSize(0);
 
     ActionPtr deadActionObj(
         new Action((UNITACTION)deathActionType, ACTIONEND_ANIMEND));
-    Assert(deadActionObj != NULL);
-    if (deadActionObj == NULL) {
+    Assert(deadActionObj != nullptr);
+    if (deadActionObj == nullptr) {
       c3errors_ErrorDialog("Director",
                            "Internal Failure to create death action");
       delete deathAnim;
@@ -521,16 +521,16 @@ void dh_death(DQAction* itemAction,
     }
   }
 
-  if (theVictor != NULL) {
+  if (theVictor != nullptr) {
     theVictor->SetHealthPercent(-1.0);
     theVictor->SetTempStackSize(0);
 
-    if (theVictor->HasDeath() || victorAnim == NULL) {
+    if (theVictor->HasDeath() || victorAnim == nullptr) {
       theVictor->ActionQueueUpIdle();
     } else {
       ActionPtr victorActionObj(
           new Action((UNITACTION)victorActionType, ACTIONEND_ANIMEND));
-      if (victorActionObj == NULL) {
+      if (victorActionObj == nullptr) {
         c3errors_ErrorDialog("Director",
                              "Internal Failure to create victory action");
         delete deathAnim;
@@ -588,7 +588,7 @@ void dh_morphUnit(DQAction* itemAction,
 
   UnitActorPtr theActor = action->morphing_actor.lock();
 
-  Assert(theActor != NULL);
+  Assert(theActor != nullptr);
   if (theActor) {
     theActor->ChangeType(action->ss, action->type, action->id, FALSE);
   }
@@ -674,7 +674,7 @@ void dh_work(DQAction* itemAction,
     actor->FullLoad(UNITACTION_WORK);
 
   Anim* anim = actor->CreateAnim(UNITACTION_WORK);
-  if (anim == NULL) {
+  if (anim == nullptr) {
     anim = actor->CreateAnim(UNITACTION_MOVE);
 
     if (!anim) {
@@ -775,7 +775,7 @@ void dh_setVisibility(DQAction* itemAction,
 
   DQActionSetVisibility* action = (DQActionSetVisibility*)itemAction;
 
-  UnitActorPtr actor = action ? action->setvisibility_actor.lock() : NULL;
+  UnitActorPtr actor = action ? action->setvisibility_actor.lock() : nullptr;
   Assert(actor);
   if (!actor)
     return;
@@ -793,7 +793,7 @@ void dh_setOwner(DQAction* itemAction,
 
   DQActionSetOwner* action = (DQActionSetOwner*)itemAction;
 
-  UnitActorPtr actor(action ? action->setowner_actor.lock() : NULL);
+  UnitActorPtr actor(action ? action->setowner_actor.lock() : nullptr);
   Assert(actor);
   if (!actor)
     return;
@@ -811,7 +811,7 @@ void dh_setVisionRange(DQAction* itemAction,
 
   DQActionSetVisionRange* action = (DQActionSetVisionRange*)itemAction;
 
-  UnitActorPtr actor = action ? action->setvisionrange_actor.lock() : NULL;
+  UnitActorPtr actor = action ? action->setvisionrange_actor.lock() : nullptr;
   Assert(actor);
   if (!actor)
     return;
@@ -833,9 +833,9 @@ void dh_combatflash(DQAction* itemAction,
   EffectActor* flash = new EffectActor(ss, action->flash_pos);
 
   Anim* anim = flash->CreateAnim(EFFECTACTION_PLAY);
-  if (anim == NULL) {
+  if (anim == nullptr) {
     anim = flash->CreateAnim(EFFECTACTION_FLASH);
-    Assert(anim != NULL);
+    Assert(anim != nullptr);
   }
 
   if (anim) {
@@ -1037,12 +1037,12 @@ void dh_faceoff(DQAction* itemAction,
 
   bool attackedIsAttackable = true;
 
-  Assert(theAttacker != NULL);
-  if (theAttacker == NULL)
+  Assert(theAttacker != nullptr);
+  if (theAttacker == nullptr)
     return;
 
-  Assert(theAttacked != NULL);
-  if (theAttacked == NULL)
+  Assert(theAttacked != nullptr);
+  if (theAttacked == nullptr)
     return;
 
   ActionPtr AttackedActionObj;
@@ -1066,10 +1066,10 @@ void dh_faceoff(DQAction* itemAction,
     AttackedActionObj->SetEndMapPoint(action->faceoff_attacked_pos);
   }
 
-  Anim* AttackedAnim = NULL;
+  Anim* AttackedAnim = nullptr;
 
   Anim* AttackerAnim = theAttacker->MakeFaceoff();
-  if (AttackerAnim == NULL) {
+  if (AttackerAnim == nullptr) {
     theAttacker->AddIdle(TRUE);
     return;
   }
@@ -1081,7 +1081,7 @@ void dh_faceoff(DQAction* itemAction,
 
     AttackedAnim = theAttacked->MakeFaceoff();
 
-    if (AttackedAnim == NULL) {
+    if (AttackedAnim == nullptr) {
       theAttacked->AddIdle(TRUE);
     }
   }
@@ -1097,7 +1097,7 @@ void dh_faceoff(DQAction* itemAction,
       spriteutils_DeltaToFacing(AttackedPoints.x - AttackerPoints.x,
                                 AttackedPoints.y - AttackerPoints.y));
 
-  if (AttackedAnim != NULL) {
+  if (AttackedAnim != nullptr) {
     AttackedActionObj->SetAnim(AttackedAnim);
     AttackedActionObj->SetFacing(
         spriteutils_DeltaToFacing(AttackerPoints.x - AttackedPoints.x,
@@ -1112,7 +1112,7 @@ void dh_faceoff(DQAction* itemAction,
   bool attackedVisible = true;
 
   if (attackedIsAttackable) {
-    if (AttackedAnim != NULL) {
+    if (AttackedAnim != nullptr) {
       AttackedActionObj->SetUnitVisionRange(theAttacked->GetUnitVisionRange());
 
       AttackedActionObj->SetUnitsVisibility(theAttacker->GetUnitVisibility());
@@ -1259,8 +1259,8 @@ void dh_attackpos(DQAction* itemAction,
 
   UnitActorPtr theAttacker = action->attackpos_attacker.lock();
 
-  Assert(theAttacker != NULL);
-  if (theAttacker == NULL || theAttacker->GetNeedsToDie()) {
+  Assert(theAttacker != nullptr);
+  if (theAttacker == nullptr || theAttacker->GetNeedsToDie()) {
     director_Get()->ActionFinished(seq);
     return;
   }
@@ -1275,14 +1275,14 @@ void dh_attackpos(DQAction* itemAction,
   AttackerActionObj->SetStartMapPoint(action->attackpos_attacker_pos);
   AttackerActionObj->SetEndMapPoint(action->attackpos_attacker_pos);
 
-  Anim* AttackerAnim = NULL;
+  Anim* AttackerAnim = nullptr;
 
   if (theAttacker->GetLoadType() != LOADTYPE_FULL)
     theAttacker->FullLoad(UNITACTION_ATTACK);
 
   AttackerAnim = theAttacker->CreateAnim(UNITACTION_ATTACK);
 
-  if (AttackerAnim == NULL)
+  if (AttackerAnim == nullptr)
     AttackerAnim = theAttacker->CreateAnim(UNITACTION_IDLE);
 
   AttackerActionObj->SetAnim(AttackerAnim);
@@ -1359,7 +1359,7 @@ void dh_invokeResearchAdvance(DQAction* itemAction,
   sci_advancescreen_displayMyWindow(action->message, 0, seq);
 
   delete action->message;
-  action->message = NULL;
+  action->message = nullptr;
 }
 
 void dh_beginScheduler(DQAction* itemAction,

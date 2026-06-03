@@ -51,11 +51,11 @@ AUI_ERRCODE aui_Screen::InitCommon( uint32 id )
 	m_showing = FALSE;
 
 	m_windowList = new tech_WLList<aui_Window *>;
-	Assert( m_windowList != NULL );
+	Assert( m_windowList != nullptr );
 	if ( !m_windowList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_tempWindowList = new tech_WLList<aui_Window *>;
-	Assert( m_tempWindowList != NULL );
+	Assert( m_tempWindowList != nullptr );
 	if ( !m_tempWindowList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -69,13 +69,13 @@ aui_Screen::~aui_Screen()
 	if ( m_windowList )
 	{
 		delete m_windowList;
-		m_windowList = NULL;
+		m_windowList = nullptr;
 	}
 
 	if ( m_tempWindowList )
 	{
 		delete m_tempWindowList;
-		m_tempWindowList = NULL;
+		m_tempWindowList = nullptr;
 	}
 }
 
@@ -120,7 +120,7 @@ AUI_ERRCODE aui_Screen::Hide( )
 
 AUI_ERRCODE aui_Screen::AddWindow( aui_Window *window, BOOL temp )
 {
-	Assert( window != NULL );
+	Assert( window != nullptr );
 	if ( !window ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( !GetWindow( window->Id() ) )
@@ -190,5 +190,5 @@ aui_Window *aui_Screen::GetWindow( uint32 windowId )
 		if ( window->Id() == windowId ) return window;
 	}
 
-	return NULL;
+	return nullptr;
 }

@@ -206,12 +206,12 @@ void TerrainImprovementData::Serialize(CivArchive &archive)
 		GameObj::Serialize(archive);
 		archive.StoreChunk((uint8 *)&m_owner, ((uint8 *)&m_isBuilding)+sizeof(m_isBuilding));
 
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if (m_lesser)
 			((TerrainImprovementData *)(m_lesser))->Serialize(archive) ;
 
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if (m_greater)
 			((TerrainImprovementData *)(m_greater))->Serialize(archive) ;
@@ -222,11 +222,11 @@ void TerrainImprovementData::Serialize(CivArchive &archive)
 
 		archive >> hasChild;
 		if(hasChild) m_lesser = new TerrainImprovementData(archive);
-		else m_lesser = NULL;
+		else m_lesser = nullptr;
 
 		archive >> hasChild;
 		if(hasChild) m_greater = new TerrainImprovementData(archive);
-		else m_greater = NULL;
+		else m_greater = nullptr;
 	}
 }
 

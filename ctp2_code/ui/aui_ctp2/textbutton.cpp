@@ -28,7 +28,7 @@ TextButton::TextButton(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_Button( retval, id, ldlBlock, ActionFunc, cookie )
 {
 }

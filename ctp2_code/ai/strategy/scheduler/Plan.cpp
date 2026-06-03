@@ -119,7 +119,7 @@
 Plan::Plan()
 :
     m_matching_value    (Goal::BAD_UTILITY),
-    m_the_agent         (NULL),
+    m_the_agent         (nullptr),
     m_needs_cargo       (false),
     m_needs_transporter (false),
     m_cannot_be_used    (false)
@@ -368,5 +368,5 @@ bool Plan::All_Unused_Or_Used_By_This(const Goal_ptr theGoal) const
 {
 	Goal_ptr goal = m_the_agent->Get_Goal();
 
-	return goal == NULL || goal == theGoal;
+	return goal == nullptr || goal == theGoal;
 }

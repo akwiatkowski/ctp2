@@ -60,7 +60,7 @@ aui_HyperTextBase::aui_HyperTextBase(
 AUI_ERRCODE aui_HyperTextBase::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon(
@@ -76,7 +76,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 	MBCHAR *hyperText,
 	uint32 hyperMaxLen )
 {
-	m_hyperText = NULL,
+	m_hyperText = nullptr,
 	m_hyperMaxLen = hyperMaxLen ?
 		hyperMaxLen :
 		k_AUI_HYPERTEXTBASE_DEFAULT_MAXLEN,
@@ -90,7 +90,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 			m_hyperCurLen = m_hyperMaxLen;
 
 		m_hyperText = new MBCHAR[ m_hyperMaxLen + 1 ];
-		Assert( m_hyperText != NULL );
+		Assert( m_hyperText != nullptr );
 		if ( !m_hyperText ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 		memset( m_hyperText, '\0', m_hyperMaxLen + 1 );
@@ -103,7 +103,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 		{
 
 			m_hyperText = new MBCHAR[ m_hyperMaxLen + 1 ];
-			Assert( m_hyperText != NULL );
+			Assert( m_hyperText != nullptr );
 			if ( !m_hyperText ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 			memset( m_hyperText, '\0', m_hyperMaxLen + 1 );
@@ -111,7 +111,7 @@ AUI_ERRCODE aui_HyperTextBase::InitCommon(
 	}
 
 	m_hyperStaticList = new tech_WLList<aui_Static *>;
-	Assert( m_hyperStaticList != NULL );
+	Assert( m_hyperStaticList != nullptr );
 	if ( !m_hyperStaticList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	memset( m_hyperTtffile, 0, sizeof( m_hyperTtffile ) );
@@ -154,7 +154,7 @@ AUI_ERRCODE aui_HyperTextBase::SetHyperText
     {
         strncpy(m_hyperText, hyperText, std::min(maxlen, m_hyperMaxLen));
         m_hyperCurLen = std::min((size_t) m_hyperMaxLen, strlen(m_hyperText));
-    	return AddHyperStatics(NULL);
+    	return AddHyperStatics(nullptr);
     }
     else
     {
@@ -166,7 +166,7 @@ AUI_ERRCODE aui_HyperTextBase::SetHyperText
 
 AUI_ERRCODE aui_HyperTextBase::AppendHyperText( const MBCHAR *hyperText )
 {
-	Assert( hyperText != NULL );
+	Assert( hyperText != nullptr );
 	if ( !hyperText ) return AUI_ERRCODE_INVALIDPARAM;
 
 
@@ -201,7 +201,7 @@ AUI_ERRCODE aui_HyperTextBase::AddHyperStatics( const MBCHAR *hyperText )
 		m_hyperShadow,
 		m_hyperShadowColor,
 		m_hyperFlags );
-	Assert( hs != NULL );
+	Assert( hs != nullptr );
 	if ( !hs ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_hyperStaticList->AddTail( hs );
@@ -246,7 +246,7 @@ aui_Static *aui_HyperTextBase::CreateHyperStatic(
 		string,
 		len );
 	Assert( AUI_NEWOK(hs,errcode) );
-	if ( !AUI_NEWOK(hs,errcode) ) return NULL;
+	if ( !AUI_NEWOK(hs,errcode) ) return nullptr;
 
 	hs->SetBlindness( TRUE );
 

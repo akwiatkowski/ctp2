@@ -31,7 +31,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE Idle( );
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0 );
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0 );
 
 private:
 #ifdef __AUI_USE_DIRECTX__

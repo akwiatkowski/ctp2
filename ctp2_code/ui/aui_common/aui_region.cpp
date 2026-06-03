@@ -53,12 +53,12 @@ extern SoundManager		*soundmgr_Get();
 
 static MBCHAR *k_AUI_REGION_LDL_BLINDNESS	=	"mouseblind";
 
-aui_Region *                aui_Region::s_whichSeesMouse        = NULL;
-aui_Region *                aui_Region::s_editChild             = NULL;
+aui_Region *                aui_Region::s_whichSeesMouse        = nullptr;
+aui_Region *                aui_Region::s_editChild             = nullptr;
 uint32                      aui_Region::s_editSelectionCount    = 0;
 uint32                      aui_Region::s_editSelectionCurrent  = 0;
 uint32                      aui_Region::s_editModeStatus        = AUI_EDIT_MODE_CHOOSE_REGION;
-tech_WLList<aui_Undo *> *   aui_Region::s_undoList              = NULL;
+tech_WLList<aui_Undo *> *   aui_Region::s_undoList              = nullptr;
 uint32                      aui_Region::s_regionClassId         = aui_UniqueId();
 
 aui_Region::aui_Region
@@ -76,7 +76,7 @@ aui_Region::aui_Region
     m_height                    (0),
     m_dim                       (new aui_Dimension()),
     m_attributes                (0),
-    m_parent                    (NULL),
+    m_parent                    (nullptr),
     m_childList                 (new tech_WLList<aui_Region *>()),
     m_childListChanged          (false),
     m_blind                     (false),
@@ -95,13 +95,13 @@ aui_Region::aui_Region
     m_doubleClickingInside      (true),
     m_doubleClickTimeOut        (0),
     // POINT		m_doubleClickOldPos;
-    m_ldlBlock                  (NULL),
+    m_ldlBlock                  (nullptr),
     // POINT		m_editGrabPoint;
     m_editGrabPointAttributes   (0),
-    m_showCallback              (NULL),
-    m_hideCallback              (NULL),
-    m_showCallbackData          (NULL),
-    m_hideCallbackData          (NULL)
+    m_showCallback              (nullptr),
+    m_hideCallback              (nullptr),
+    m_showCallbackData          (nullptr),
+    m_hideCallbackData          (nullptr)
 {
     m_editGrabPoint.x = -1;
     m_editGrabPoint.y = -1;
@@ -127,7 +127,7 @@ aui_Region::aui_Region
     m_height                    (height),
     m_dim                       (new aui_Dimension()),
     m_attributes                (0),
-    m_parent                    (NULL),
+    m_parent                    (nullptr),
     m_childList                 (new tech_WLList<aui_Region *>()),
     m_childListChanged          (false),
     m_blind                     (false),
@@ -146,13 +146,13 @@ aui_Region::aui_Region
     m_doubleClickingInside      (true),
     m_doubleClickTimeOut        (0),
     // POINT		m_doubleClickOldPos;
-    m_ldlBlock                  (NULL),
+    m_ldlBlock                  (nullptr),
     // POINT		m_editGrabPoint;
     m_editGrabPointAttributes   (0),
-    m_showCallback              (NULL),
-    m_hideCallback              (NULL),
-    m_showCallbackData          (NULL),
-    m_hideCallbackData          (NULL)
+    m_showCallback              (nullptr),
+    m_hideCallback              (nullptr),
+    m_showCallbackData          (nullptr),
+    m_hideCallbackData          (nullptr)
 {
     InitCommon();
 
@@ -180,15 +180,15 @@ AUI_ERRCODE aui_Region::InitCommonLdl(MBCHAR const * ldlBlock)
 	SetLdlBlock(ldlBlock);
 
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
-	aui_Region *parent = NULL;
+	aui_Region *parent = nullptr;
 
 	if ( block->GetAttributeType( k_AUI_LDL_PARENT ) == ATTRIBUTE_TYPE_STRING )
 	{
 		parent = (aui_Region *)aui_Ldl::GetObject( block->GetString( k_AUI_LDL_PARENT ) );
-		Assert( parent != NULL );
+		Assert( parent != nullptr );
 	}
 
 	if ( !parent )
@@ -342,7 +342,7 @@ aui_Region *aui_Region::SetWhichSeesMouse(aui_Region * region, BOOL force )
 	else if (region && region->IsBlind())
     {
         // Ignore this one
-        s_whichSeesMouse = NULL;
+        s_whichSeesMouse = nullptr;
     }
     else
     {
@@ -455,7 +455,7 @@ AUI_ERRCODE aui_Region::SetParent( aui_Region *region )
 
 AUI_ERRCODE aui_Region::AddChild( aui_Region *child )
 {
-	Assert( child != NULL );
+	Assert( child != nullptr );
 	if ( !child ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( !GetChild( child->Id() ) )
@@ -486,7 +486,7 @@ AUI_ERRCODE aui_Region::AddChild( aui_Region *child )
 
 AUI_ERRCODE aui_Region::InsertChild( aui_Region *child, sint32 index )
 {
-	Assert( child != NULL );
+	Assert( child != nullptr );
 	Assert( index >= 0 && index <= (sint32)m_childList->L() );
 	if ( !child || index < 0 || index > (sint32)m_childList->L() )
 		return AUI_ERRCODE_INVALIDPARAM;
@@ -522,7 +522,7 @@ AUI_ERRCODE aui_Region::RemoveChild( uint32 regionId )
 		aui_Region *region = m_childList->GetNext( position );
 		if ( region->Id() == regionId )
 		{
-			region->SetParent( NULL );
+			region->SetParent( nullptr );
 
 			m_childList->DeleteAt( prevPos );
 
@@ -547,7 +547,7 @@ aui_Region *aui_Region::GetChild( uint32 regionId )
 		if ( region->Id() == regionId ) return region;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -555,14 +555,14 @@ aui_Region *aui_Region::GetChild( uint32 regionId )
 
 aui_Region *aui_Region::GetChildByIndex(sint32 index)
 {
-	Assert(m_childList != NULL);
-	if (!m_childList) return NULL;
+	Assert(m_childList != nullptr);
+	if (!m_childList) return nullptr;
 
 	if (index < 0 || static_cast<size_t>(index) >= m_childList->L())
-		return NULL;
+		return nullptr;
 
 	ListPos position = m_childList->FindIndex(index);
-	if ( !position ) return NULL;
+	if ( !position ) return nullptr;
 
 	return (aui_Region *)m_childList->GetAt( position );
 }
@@ -741,7 +741,7 @@ AUI_ERRCODE aui_Region::Reset( )
 
 AUI_ERRCODE aui_Region::ResetThis( )
 {
-	if ( GetWhichSeesMouse() == this ) SetWhichSeesMouse( NULL );
+	if ( GetWhichSeesMouse() == this ) SetWhichSeesMouse( nullptr );
 
 	return AUI_ERRCODE_OK;
 }
@@ -861,7 +861,7 @@ AUI_ERRCODE aui_Region::HandleMouseEvent( aui_MouseEvent *input, BOOL handleIt )
 
 aui_DragDropWindow *aui_Region::CreateDragDropWindow( aui_Control *dragDropItem )
 {
-	if ( !IsDragDrop() ) return NULL;
+	if ( !IsDragDrop() ) return nullptr;
 
 
 	AUI_ERRCODE errcode = AUI_ERRCODE_OK;
@@ -871,7 +871,7 @@ aui_DragDropWindow *aui_Region::CreateDragDropWindow( aui_Control *dragDropItem 
 		this,
 		0, 0, m_width, m_height );
 	Assert( AUI_NEWOK(ddw,errcode) );
-	if ( !AUI_NEWOK(ddw,errcode) ) return NULL;
+	if ( !AUI_NEWOK(ddw,errcode) ) return nullptr;
 
 	aui_ui_Get()->AddChild( ddw );
 
@@ -1200,7 +1200,7 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 				s_editChild->MouseRGrabInsideEdit( mouseData );
 				return;
 			} else {
-				s_editChild = NULL;
+				s_editChild = nullptr;
 			}
 		}
 	}
@@ -1224,7 +1224,7 @@ void aui_Region::MouseRGrabInsideEdit( aui_MouseEvent *mouseData )
 				if ( aui_ui_Get()->TheEditRegion() )
 					aui_ui_Get()->TheEditRegion()->ShouldDraw( TRUE );
 
-				aui_ui_Get()->SetEditRegion( NULL );
+				aui_ui_Get()->SetEditRegion( nullptr );
 				if (s_editChild )
 					s_editChild->MouseRGrabInsideEdit( mouseData );
 
@@ -1271,9 +1271,9 @@ void aui_Region::MouseRGrabOutsideEdit( aui_MouseEvent *mouseData )
 		else
 			( ( aui_Control * )s_editChild )->GetParentWindow()->ShouldDraw( TRUE );
 
-		aui_ui_Get()->SetEditRegion( NULL );
+		aui_ui_Get()->SetEditRegion( nullptr );
 		m_editGrabPointAttributes = k_REGION_GRAB_NONE;
-		s_editChild = NULL;
+		s_editChild = nullptr;
 		s_editModeStatus = AUI_EDIT_MODE_CHOOSE_REGION;
 		s_editSelectionCount = 0;
 		s_editSelectionCurrent = 0;
@@ -1479,7 +1479,7 @@ void aui_Region::SetLdlBlock(const MBCHAR *ldlblock)
 {
 	if(m_ldlBlock) {
 		delete [] m_ldlBlock;
-		m_ldlBlock = NULL;
+		m_ldlBlock = nullptr;
 	}
 	if(!ldlblock)
 		return;

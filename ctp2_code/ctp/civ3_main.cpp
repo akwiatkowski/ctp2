@@ -226,17 +226,17 @@ sint32                              g_ScreenWidth = 0;
 sint32                              g_ScreenHeight = 0;
 BOOL                                g_cmdlineResolutionSet = FALSE;
 
-static C3UI                         *g_c3ui = NULL;
+static C3UI                         *g_c3ui = nullptr;
 
 C3UI * c3ui_Get()                 { return g_c3ui; }
 void   c3ui_Set(C3UI *p)              { g_c3ui = p; }
 
-static StatusWindow                 *g_statusWindow = NULL;
+static StatusWindow                 *g_statusWindow = nullptr;
 
 StatusWindow * statuswindow_Get()         { return g_statusWindow; }
 void           statuswindow_Set(StatusWindow *p) { g_statusWindow = p; }
 
-aui_Surface                         *g_sharedSurface = NULL;
+aui_Surface                         *g_sharedSurface = nullptr;
 
 BOOL                                g_smoothScroll = FALSE;
 
@@ -253,29 +253,29 @@ static uint32                       s_accelTickStart = 0;
 
 sint32                              g_terrainPollution;
 
-static Director                     *g_director = NULL;
+static Director                     *g_director = nullptr;
 
 Director * director_Get()         { return g_director; }
 void       director_Set(Director *p)  { g_director = p; }
 
 double                              g_ave_frame_rate = 10.0;
 double                              g_ave_frame_time = 200.0;
-static ScreenManager                *g_screenManager = NULL;
+static ScreenManager                *g_screenManager = nullptr;
 
 ScreenManager * screenmanager_Get()        { return g_screenManager; }
 void            screenmanager_Set(ScreenManager *p) { g_screenManager = p; }
 
-static TiledMap                     *g_tiledMap = NULL;
+static TiledMap                     *g_tiledMap = nullptr;
 
 TiledMap * tiledmap_Get()         { return g_tiledMap; }
 void       tiledmap_Set(TiledMap *p)  { g_tiledMap = p; }
 
-static RadarMap                     *g_radarMap = NULL;
+static RadarMap                     *g_radarMap = nullptr;
 
 RadarMap * radar_map_Get()        { return g_radarMap; }
 void       radar_map_Set(RadarMap *p) { g_radarMap = p; }
 
-static CivApp                       *g_civApp = NULL;
+static CivApp                       *g_civApp = nullptr;
 
 CivApp * civapp_Get()             { return g_civApp; }
 void     civapp_Set(CivApp *p)        { g_civApp = p; }
@@ -622,7 +622,7 @@ void ui_HandleMouseWheel(sint16 delta)
 
 		if(isMapScrolled)
 		{
-			g_tiledMap->RetargetTileSurface(NULL);
+			g_tiledMap->RetargetTileSurface(nullptr);
 			g_tiledMap->Refresh();
 			g_tiledMap->InvalidateMap();
 			g_tiledMap->ValidateMix();
@@ -742,7 +742,7 @@ bool ui_CheckForScroll()
 
 		if (scrolled)
 		{
-			aui_Window *topWindow = g_c3ui ? g_c3ui->TopWindow() : NULL;
+			aui_Window *topWindow = g_c3ui ? g_c3ui->TopWindow() : nullptr;
 
 			if (topWindow && controlpanel_Get())
             {
@@ -903,7 +903,7 @@ int ui_Process()
 		}
         while (ui_CheckForScroll());
 
-		g_tiledMap->RetargetTileSurface(NULL);
+		g_tiledMap->RetargetTileSurface(nullptr);
 		g_tiledMap->Refresh();
 		g_tiledMap->InvalidateMap();
 
@@ -1038,7 +1038,7 @@ int main_Restart()
 	return g_civApp->RestartGame();
 }
 
-static HWND s_taskBar   = NULL;
+static HWND s_taskBar   = nullptr;
 
 void main_HideTaskBar()
 {
@@ -1144,7 +1144,7 @@ void ParseCommandLine(PSTR szCmdLine)
 
 	char * archive_file = strstr(szCmdLine, "-l");
 
-	if (NULL == archive_file)
+	if (nullptr == archive_file)
 	{
 		g_cmdline_load = FALSE;
 	}
@@ -1184,7 +1184,7 @@ void ParseCommandLine(PSTR szCmdLine)
 
 	MBCHAR * scenName = strstr(szCmdLine, "-s");
 
-	if (NULL != scenName) {
+	if (nullptr != scenName) {
 
 
 		scenName += 2;
@@ -1208,19 +1208,19 @@ void ParseCommandLine(PSTR szCmdLine)
 		}
 	}
 
-	g_no_timeslice = (NULL != strstr(szCmdLine, "notimeslice"));
+	g_no_timeslice = (nullptr != strstr(szCmdLine, "notimeslice"));
 	if(!g_cmdline_load)
-		g_no_shell =  (NULL != strstr(szCmdLine, "noshell"));
-	g_no_exit_action = (NULL != strstr(szCmdLine, "noexitaction"));
-	g_exclusiveMode = !(NULL != strstr(szCmdLine, "nonexclusive"));
-	g_hideTaskBar = (NULL != strstr(szCmdLine, "hidetaskbar"));
+		g_no_shell =  (nullptr != strstr(szCmdLine, "noshell"));
+	g_no_exit_action = (nullptr != strstr(szCmdLine, "noexitaction"));
+	g_exclusiveMode = !(nullptr != strstr(szCmdLine, "nonexclusive"));
+	g_hideTaskBar = (nullptr != strstr(szCmdLine, "hidetaskbar"));
 	if(!g_cmdline_load)
-		g_useIntroMovie = !(NULL != strstr(szCmdLine, "nointromovie"));
-	g_noAssertDialogs = (NULL != strstr(szCmdLine, "noassertdialogs"));
-	g_runInBackground = (NULL != strstr(szCmdLine, "runinbackground"));
+		g_useIntroMovie = !(nullptr != strstr(szCmdLine, "nointromovie"));
+	g_noAssertDialogs = (nullptr != strstr(szCmdLine, "noassertdialogs"));
+	g_runInBackground = (nullptr != strstr(szCmdLine, "runinbackground"));
 
-	g_eventLog = (NULL != strstr(szCmdLine, "eventlog"));
-	g_smokeTest = (NULL != strstr(szCmdLine, "smoke-test"));
+	g_eventLog = (nullptr != strstr(szCmdLine, "eventlog"));
+	g_smokeTest = (nullptr != strstr(szCmdLine, "smoke-test"));
 
 	// Parse --resolution WxH (e.g., --resolution 1920x1080)
 	{
@@ -1242,27 +1242,27 @@ void ParseCommandLine(PSTR szCmdLine)
 		}
 	}
 
-	g_createDirectDrawOnSecondary = (NULL != strstr(szCmdLine, "multimon"));
-	g_autoAltTab = (NULL != strstr(szCmdLine, "autoalttab"));
+	g_createDirectDrawOnSecondary = (nullptr != strstr(szCmdLine, "multimon"));
+	g_autoAltTab = (nullptr != strstr(szCmdLine, "autoalttab"));
 
 #ifdef _DEBUG
-	if (NULL != strstr(szCmdLine, "age1"))
+	if (nullptr != strstr(szCmdLine, "age1"))
 	{
 		g_cheat_age = 1;
 	}
-	else if (NULL != strstr(szCmdLine, "age2"))
+	else if (nullptr != strstr(szCmdLine, "age2"))
 	{
 		g_cheat_age = 2;
 	}
-	else if (NULL != strstr(szCmdLine, "age3"))
+	else if (nullptr != strstr(szCmdLine, "age3"))
 	{
 		g_cheat_age = 3;
 	}
-	else if (NULL != strstr(szCmdLine, "age4"))
+	else if (nullptr != strstr(szCmdLine, "age4"))
 	{
 		g_cheat_age = 4;
 	}
-	else if (NULL != strstr(szCmdLine, "age5"))
+	else if (nullptr != strstr(szCmdLine, "age5"))
 	{
 		g_cheat_age = 5;
 	}
@@ -1569,7 +1569,7 @@ void main_DisplayPatchDisclaimer()
 			size_t const    readCount   = c3files_fread
 			                                (message, sizeof(MBCHAR), filesize, f);
 			message[readCount]  = 0;
-			MessageBox(NULL, message, "Call to Power", MB_OK | MB_ICONEXCLAMATION);
+			MessageBox(nullptr, message, "Call to Power", MB_OK | MB_ICONEXCLAMATION);
 			isDisclaimerShown   = true;
 		}
 	}
@@ -1596,7 +1596,7 @@ int CivMain
 {
 	fprintf(stderr, "[MAIN] CivMain started\n");
 // FIXME: Remove unneeded arguments.
-	HINSTANCE hInstance = NULL;
+	HINSTANCE hInstance = nullptr;
 #else	// __GNUC__
 int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
@@ -1697,7 +1697,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			if (cs->ScenarioHasSavedGame(scen)) {
 
-				spnewgamescreen_scenarioExitCallback(NULL, 0, NULL, NULL);
+				spnewgamescreen_scenarioExitCallback(nullptr, 0, NULL, nullptr);
 			} else {
 
 				spnewgamescreen_displayMyWindow();
@@ -1723,7 +1723,7 @@ int WINAPI CivMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 			if (cs2->ScenarioHasSavedGame(scen)) {
 
-				spnewgamescreen_scenarioExitCallback(NULL, 0, NULL, NULL);
+				spnewgamescreen_scenarioExitCallback(nullptr, 0, NULL, nullptr);
 			} else {
 
 				spnewgamescreen_displayMyWindow();

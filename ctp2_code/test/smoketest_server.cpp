@@ -27,9 +27,9 @@ static int g_smoke_client_fd = -1;
 static const char* g_smoke_socket_path = "/tmp/ctp2-smoke.sock";
 
 // Threading primitives (SDL)
-static SDL_mutex* g_smoke_mutex = NULL;
-static SDL_cond*  g_smoke_cond  = NULL;
-static SDL_Thread* g_smoke_thread = NULL;
+static SDL_mutex* g_smoke_mutex = nullptr;
+static SDL_cond*  g_smoke_cond  = nullptr;
+static SDL_Thread* g_smoke_thread = nullptr;
 
 // Command/response buffers
 static char g_smoke_command[256];
@@ -107,7 +107,7 @@ static int smoke_server_thread(void* /*data*/)
 
     // Accept one client at a time
     while (1) {
-        int client = accept(g_smoke_listen_fd, NULL, NULL);
+        int client = accept(g_smoke_listen_fd, nullptr, nullptr);
         if (client < 0) {
             // Socket likely closed during shutdown
             break;
@@ -177,7 +177,7 @@ void smoketest_server_init(void)
         return;
     }
 
-    g_smoke_thread = SDL_CreateThread(smoke_server_thread, "SmokeTestServer", NULL);
+    g_smoke_thread = SDL_CreateThread(smoke_server_thread, "SmokeTestServer", nullptr);
     if (!g_smoke_thread) {
         fprintf(stderr, "[SMOKE] Failed to create server thread\n");
     }
@@ -197,18 +197,18 @@ void smoketest_server_shutdown(void)
     }
 
     if (g_smoke_thread) {
-        SDL_WaitThread(g_smoke_thread, NULL);
-        g_smoke_thread = NULL;
+        SDL_WaitThread(g_smoke_thread, nullptr);
+        g_smoke_thread = nullptr;
     }
 
     if (g_smoke_mutex) {
         SDL_DestroyMutex(g_smoke_mutex);
-        g_smoke_mutex = NULL;
+        g_smoke_mutex = nullptr;
     }
 
     if (g_smoke_cond) {
         SDL_DestroyCond(g_smoke_cond);
-        g_smoke_cond = NULL;
+        g_smoke_cond = nullptr;
     }
 
     unlink(g_smoke_socket_path);

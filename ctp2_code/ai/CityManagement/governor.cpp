@@ -430,7 +430,7 @@ void Governor::Save(CivArchive & archive) const
 sint32 Governor::ComputeBestGovernment() const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	const StrategyRecord & strategy =
 		Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
@@ -525,7 +525,7 @@ StringId Governor::GetGovernmentAdvice() const
 void Governor::NormalizeSliders(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	//Added casts
 	if(player_ptr->GetWorkdayExpectation() - sliders_setting.m_deltaProduction > 2)
@@ -563,7 +563,7 @@ void Governor::NormalizeSliders(SlidersSetting & sliders_setting) const
 void Governor::GetMaxSliderSettings(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	sliders_setting.m_deltaProduction = 2 + static_cast<sint32>(player_ptr->GetWorkdayExpectation());
 	sliders_setting.m_deltaGold       = 2 + static_cast<sint32>(player_ptr->GetWagesExpectation());
@@ -590,7 +590,7 @@ void Governor::GetMaxSliderSettings(SlidersSetting & sliders_setting) const
 bool Governor::ProdSliderReachedMin(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 	return player_ptr->GetWorkdayExpectation() - sliders_setting.m_deltaProduction >= 2;
 }
 
@@ -614,7 +614,7 @@ bool Governor::ProdSliderReachedMin(SlidersSetting & sliders_setting) const
 bool Governor::GoldSliderReachedMin(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 	return player_ptr->GetWagesExpectation() - sliders_setting.m_deltaGold >= 2;
 }
 
@@ -638,7 +638,7 @@ bool Governor::GoldSliderReachedMin(SlidersSetting & sliders_setting) const
 bool Governor::FoodSliderReachedMin(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 	return player_ptr->GetRationsExpectation() - sliders_setting.m_deltaFood >= 2;
 }
 
@@ -663,7 +663,7 @@ bool Governor::FoodSliderReachedMin(SlidersSetting & sliders_setting) const
 sint32 Governor::SetSliders(const SlidersSetting & sliders_setting, const bool & update_cities) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	//Added casts
 	player_ptr->SetWorkdayLevel(static_cast<sint32>(player_ptr->GetWorkdayExpectation()) - sliders_setting.m_deltaProduction);
@@ -718,7 +718,7 @@ sint32 Governor::SetSliders(const SlidersSetting & sliders_setting, const bool &
 void Governor::GetSliders(SlidersSetting & sliders_setting) const
 {
 	Player * player_ptr = player_Get(m_playerId);
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	sliders_setting.m_deltaProduction =
 		static_cast<sint32>(player_ptr->GetWorkdayExpectation() - player_ptr->GetUnitlessWorkday());
@@ -2015,7 +2015,7 @@ sint32 Governor::GetBestRoadImprovement(const MapPoint & pos) const
 
 	TerrainImprovementRecord const * terr_imp_rec =
 		terrainutil_GetBestRoad(m_playerId, pos);
-	if (terr_imp_rec == NULL)
+	if (terr_imp_rec == nullptr)
 		return -1;
 
 	Player *player_ptr = player_Get(m_playerId);
@@ -2080,7 +2080,7 @@ void Governor::GetBestFoodProdGoldImprovement(const MapPoint & pos, sint32 & foo
 		rec = g_theTerrainImprovementDB->Get(type);
 		effect = terrainutil_GetTerrainEffect(rec, pos);
 
-		if (effect == NULL)
+		if (effect == nullptr)
 			continue;
 
 		if (!rec->GetClassRoad() &&
@@ -2317,7 +2317,7 @@ const StrategyRecord::PopAssignmentElement *Governor::GetMatchingPopAssignment(c
 
 	const StrategyRecord & strategy =
 	           Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
-	const StrategyRecord::PopAssignmentElement *elem = NULL;
+	const StrategyRecord::PopAssignmentElement *elem = nullptr;
 
 	for (sint32 i = 0; i < strategy.GetNumPopAssignmentElement(); ++i)
 	{
@@ -3503,7 +3503,7 @@ void Governor::ComputeDesiredUnits()
 		if (unit.IsValid())
 		{
 			BuildQueue * buildQueue =
-			    unit->GetCityData() ? unit->GetCityData()->GetBuildQueue() : NULL;
+			    unit->GetCityData() ? unit->GetCityData()->GetBuildQueue() : nullptr;
 			Assert(buildQueue);
 			if (    buildQueue
 			     && buildQueue->GetHead()
@@ -3627,7 +3627,7 @@ void Governor::ComputeDesiredUnits()
 			break;
 		}
 
-		if(build_list_rec == NULL)
+		if(build_list_rec == nullptr)
 			continue;
 
 		sint32 best_unit_type = ComputeBestUnitType(build_list_rec);
@@ -3826,7 +3826,7 @@ void Governor::FillEmptyBuildQueues(bool noWarChange)
 {
 	Player *    player  = player_Get(m_playerId);
 	Assert(player);
-	if (player == NULL)
+	if (player == nullptr)
 		return;
 
 	MapAnalysis::GetMapAnalysis().RecalcCityRanks(m_playerId);
@@ -4083,7 +4083,7 @@ bool Governor::HasStopBuildings(const StrategyRecord::BuildListSequenceElement* 
 	{
 		const BuildingBuildListRecord* rec = elem->GetHasBuildingsThenStopPtr();
 
-		if(rec == NULL) return false;
+		if(rec == nullptr) return false;
 
 		for(sint32 j = 0; j < rec->GetNumBuilding(); ++j)
 		{
@@ -4112,7 +4112,7 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 	const StrategyRecord & strategy = Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
 
 	double rank = 0.0;
-	const StrategyRecord::BuildListSequenceElement *best_elem = NULL;
+	const StrategyRecord::BuildListSequenceElement *best_elem = nullptr;
 	sint32 best_priority = -99999;
 
 	sint32 pollution = city->GetPollution();
@@ -4227,7 +4227,7 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 
 		else if( elem->GetDefault() )
 		{
-			if (best_elem == NULL)
+			if (best_elem == nullptr)
 			{
 				best_priority = elem->GetPriority();
 				best_elem = elem;
@@ -4285,11 +4285,11 @@ const BuildListSequenceRecord * Governor::GetMatchingSequence(const CityData *ci
 
 	advice = -1;
 
-	if (best_elem == NULL)
+	if (best_elem == nullptr)
 	{
 		best_elem = strategy.GetBuildListSequenceElement(i-1);
 		Assert(best_elem);
-		if (best_elem == NULL)
+		if (best_elem == nullptr)
 			return g_theBuildListSequenceDB->Get(0);
 	}
 
@@ -4455,7 +4455,7 @@ sint32 Governor::GetNeededUnitType(const CityData *city, sint32 & list_num) cons
 	}
 
 #if defined(_DEBUG)
-	UnitRecord const *	unit	= (type < 0) ? NULL : GetDBUnitRec(type);
+	UnitRecord const *	unit	= (type < 0) ? nullptr : GetDBUnitRec(type);
 	DPRINTF(k_DBG_GAMESTATE, ("Selected unit type: %s\n", unit ? unit->GetNameText() : "none"));
 	DPRINTF(k_DBG_GAMESTATE, ("Player: %lx\n", m_playerId));
 #endif
@@ -4469,59 +4469,59 @@ const UnitBuildListRecord * Governor::GetBuildListRecord(const StrategyRecord & 
 	{
 	case BUILD_UNIT_LIST_OFFENSE:
 		Assert(strategy.HasOffensiveUnitList());
-		return strategy.HasOffensiveUnitList() ? strategy.GetOffensiveUnitListPtr() : NULL;
+		return strategy.HasOffensiveUnitList() ? strategy.GetOffensiveUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_DEFENSE:
 		Assert(strategy.HasDefensiveUnitList());
-		return strategy.HasDefensiveUnitList() ? strategy.GetDefensiveUnitListPtr() : NULL;
+		return strategy.HasDefensiveUnitList() ? strategy.GetDefensiveUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_RANGED:
 		Assert(strategy.HasRangedUnitList());
-		return strategy.HasRangedUnitList() ? strategy.GetRangedUnitListPtr() : NULL;
+		return strategy.HasRangedUnitList() ? strategy.GetRangedUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SEA:
 		Assert(strategy.HasSeaUnitList());
-		return strategy.HasSeaUnitList() ? strategy.GetSeaUnitListPtr() : NULL;
+		return strategy.HasSeaUnitList() ? strategy.GetSeaUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_AIR:
 		Assert(strategy.HasAirUnitList());
-		return strategy.HasAirUnitList() ? strategy.GetAirUnitListPtr() : NULL;
+		return strategy.HasAirUnitList() ? strategy.GetAirUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SETTLER:
 		Assert(strategy.HasSettlerUnitList());
-		return strategy.HasSettlerUnitList() ? strategy.GetSettlerUnitListPtr() : NULL;
+		return strategy.HasSettlerUnitList() ? strategy.GetSettlerUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SEA_SETTLER:
 //		Assert(strategy.HasSeaSettlerUnitList());
-		return strategy.HasSeaSettlerUnitList() ? strategy.GetSeaSettlerUnitListPtr() : NULL;
+		return strategy.HasSeaSettlerUnitList() ? strategy.GetSeaSettlerUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SLAVERY:
 //		Assert(strategy.HasSlaverUnitList());
-		return strategy.HasSlaverUnitList() ? strategy.GetSlaverUnitListPtr() : NULL;
+		return strategy.HasSlaverUnitList() ? strategy.GetSlaverUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SPY:
 //		Assert(strategy.HasSpyUnitList());
-		return strategy.HasSpyUnitList() ? strategy.GetSpyUnitListPtr() : NULL;
+		return strategy.HasSpyUnitList() ? strategy.GetSpyUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SPECIAL:
 		Assert(strategy.HasSpecialUnitList());
-		return strategy.HasSpecialUnitList() ? strategy.GetSpecialUnitListPtr() : NULL;
+		return strategy.HasSpecialUnitList() ? strategy.GetSpecialUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_SEA_TRANSPORT:
 		Assert(strategy.HasSeaTransportUnitList());
-		return strategy.HasSeaTransportUnitList() ? strategy.GetSeaTransportUnitListPtr() : NULL;
+		return strategy.HasSeaTransportUnitList() ? strategy.GetSeaTransportUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_AIR_TRANSPORT:
 		Assert(strategy.HasAirTransportUnitList());
-		return strategy.HasAirTransportUnitList() ? strategy.GetAirTransportUnitListPtr() : NULL;
+		return strategy.HasAirTransportUnitList() ? strategy.GetAirTransportUnitListPtr() : nullptr;
 
 	case BUILD_UNIT_LIST_FREIGHT:
 		Assert(strategy.HasFreightUnitList());
-		return strategy.HasFreightUnitList() ? strategy.GetFreightUnitListPtr() : NULL;
+		return strategy.HasFreightUnitList() ? strategy.GetFreightUnitListPtr() : nullptr;
 
 	default:
 		Assert(false);
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -4820,7 +4820,7 @@ sint32 Governor::GetNeededGarrisonUnitType(const CityData * city, sint32 & list_
 		{
 			const UnitBuildListRecord *build_list_rec = GetBuildListRecord(strategy, max_list);
 
-			if(build_list_rec != NULL)
+			if(build_list_rec != nullptr)
 			{
 				type = ComputeBestUnitType(build_list_rec, city);
 			}
@@ -4951,7 +4951,7 @@ StringId Governor::GetTacticalAdvice(SlicContext & sc) const
 	Player *player_ptr = player_Get(m_playerId);
 	Assert(player_Get(m_playerId))
 
-	if (player_ptr == NULL)
+	if (player_ptr == nullptr)
 		return -1;
 
 	sint32 defend_goal_type = CtpAi::GetGoalDefendIndex();
@@ -4959,7 +4959,7 @@ StringId Governor::GetTacticalAdvice(SlicContext & sc) const
 	bool is_satisfied = false;
 	Goal_ptr goal_ptr =Scheduler::GetScheduler(m_playerId).GetHighestPriorityGoal((GOAL_TYPE)defend_goal_type, is_satisfied);
 
-	if (goal_ptr != NULL)
+	if (goal_ptr != nullptr)
 	{
 		sc.AddCity(goal_ptr->Get_Target_City());
 		return defendAreaAdviceId;
@@ -4987,7 +4987,7 @@ StringId Governor::GetTacticalAdvice(SlicContext & sc) const
 	is_satisfied = true;
 	goal_ptr = Scheduler::GetScheduler(m_playerId).GetHighestPriorityGoal((GOAL_TYPE)seige_goal_type, is_satisfied);
 
-	if (goal_ptr != NULL)
+	if (goal_ptr != nullptr)
 	{
 		sc.AddCity(goal_ptr->Get_Target_City());
 		return seigeAdviceId;
@@ -5069,7 +5069,7 @@ struct GoodsRoute
 
 void Governor::ManageGoodsTradeRoutes()
 {
-	Assert(player_Get(m_playerId) != NULL);
+	Assert(player_Get(m_playerId) != nullptr);
 	if (!player_Get(m_playerId)) return;
 	Player *player_ptr = player_Get(m_playerId);
 
@@ -5285,7 +5285,7 @@ void Governor::RebuildCapitol() const
 		BuildNode* node = city.CD()->GetBuildQueue()->GetHead();
 		if
 		  (
-		       node != NULL
+		       node != nullptr
 		    && node->m_category == k_GAME_OBJ_TYPE_IMPROVEMENT
 		    && node->m_type     == type
 		  )

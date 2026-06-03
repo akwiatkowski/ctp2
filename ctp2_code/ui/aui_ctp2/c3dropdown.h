@@ -24,14 +24,14 @@ public:
 		MBCHAR *pattern,
 		sint32 buttonSize = k_CONTROL_DEFAULT_SIZE,
 		sint32 windowSize = 0,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	C3DropDown(
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL);
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr);
 
 	virtual ~C3DropDown() {}
 
@@ -41,7 +41,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

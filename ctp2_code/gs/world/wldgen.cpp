@@ -101,8 +101,8 @@ extern MapPoint g_mp_size;
 
 
 
-static C3Rand *                 s_randomGenerator   = NULL;
-static DynamicArray<MapPoint> * s_visited           = NULL;
+static C3Rand *                 s_randomGenerator   = nullptr;
+static DynamicArray<MapPoint> * s_visited           = nullptr;
 
 void TemperatureFilter(sint8 *map, sint32 *histogram);
 
@@ -122,19 +122,19 @@ World::World(const MapPoint & m, const int xw, const int yw)
     m_isXwrap               (xw),
     m_mapGenerator          (MAP_GENERATOR_PLUGIN),
     m_size                  (m),
-    m_map                   (NULL),
-    m_water_next_too_land   (NULL),
-    m_land_next_too_water   (NULL),
-    m_water_size            (NULL),
-    m_land_size             (NULL),
-    m_cellArray             (NULL),
-    m_tmpx                  (NULL),
-    m_tileInfoStorage       (NULL),
-    m_goodValue             (NULL),
+    m_map                   (nullptr),
+    m_water_next_too_land   (nullptr),
+    m_land_next_too_water   (nullptr),
+    m_water_size            (nullptr),
+    m_land_size             (nullptr),
+    m_cellArray             (nullptr),
+    m_tmpx                  (nullptr),
+    m_tileInfoStorage       (nullptr),
+    m_goodValue             (nullptr),
     m_num_civ_starts        (0),
-    m_current_plugin        (NULL),
-    m_distanceQueue         (NULL),
-    A_star_heuristic        (NULL)
+    m_current_plugin        (nullptr),
+    m_distanceQueue         (nullptr),
+    A_star_heuristic        (nullptr)
 {
     Assert(0 < m_size.x);
     Assert(0 < m_size.y);
@@ -209,7 +209,7 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
         {
             if (0 == s_randomGenerator->Release())
             {
-                s_randomGenerator = NULL;
+                s_randomGenerator = nullptr;
             }
         }
         else
@@ -228,19 +228,19 @@ void World::CreateTheWorld(MapPoint player_start_list[k_MAX_PLAYERS],
 World::World(CivArchive &archive, BOOL fromMapFile)
 :
     m_mapGenerator          (MAP_GENERATOR_PLUGIN),
-    m_map                   (NULL),
-    m_water_next_too_land   (NULL),
-    m_land_next_too_water   (NULL),
-    m_water_size            (NULL),
-    m_land_size             (NULL),
-    m_cellArray             (NULL),
-    m_tmpx                  (NULL),
-    m_tileInfoStorage       (NULL),
-    m_goodValue             (NULL),
+    m_map                   (nullptr),
+    m_water_next_too_land   (nullptr),
+    m_land_next_too_water   (nullptr),
+    m_water_size            (nullptr),
+    m_land_size             (nullptr),
+    m_cellArray             (nullptr),
+    m_tmpx                  (nullptr),
+    m_tileInfoStorage       (nullptr),
+    m_goodValue             (nullptr),
     m_num_civ_starts        (0),
-    m_current_plugin        (NULL),
-    m_distanceQueue         (NULL),
-    A_star_heuristic        (NULL)
+    m_current_plugin        (nullptr),
+    m_distanceQueue         (nullptr),
+    A_star_heuristic        (nullptr)
 //  m_isXwrap, m_isYwrap, m_size: set by Serialize
 {
 	if ( fromMapFile )
@@ -296,21 +296,21 @@ void World::FreeMap()
 	}
 
 	delete [] m_tmpx;
-    m_tmpx      = NULL;
+    m_tmpx      = nullptr;
 	delete [] m_cellArray;
-	m_cellArray = NULL;
+	m_cellArray = nullptr;
 
 	DisposeTileInfoStorage();
-	m_map       = NULL;
+	m_map       = nullptr;
 
     delete m_water_next_too_land;
-    m_water_next_too_land = NULL;
+    m_water_next_too_land = nullptr;
     delete m_land_next_too_water;
-    m_land_next_too_water = NULL;
+    m_land_next_too_water = nullptr;
     delete m_water_size;
-    m_water_size = NULL;
+    m_water_size = nullptr;
     delete m_land_size;
-    m_land_size = NULL;
+    m_land_size = nullptr;
 }
 
 void World::Reset(sint16 sx, sint16 sy, BOOL yWrap, BOOL xWrap)
@@ -862,7 +862,7 @@ void World::ComputeGoodsValues()
     }
     else
     {
-        m_goodValue = NULL;
+        m_goodValue = nullptr;
         return;
     }
 
@@ -2469,7 +2469,7 @@ void World::AllocateTileInfoStorage()
 void World::DisposeTileInfoStorage()
 {
 	delete [] m_tileInfoStorage;
-	m_tileInfoStorage = NULL;
+	m_tileInfoStorage = nullptr;
 }
 
 TileInfo *World::GetTileInfoStoragePtr(const MapPoint &pos)
@@ -2477,7 +2477,7 @@ TileInfo *World::GetTileInfoStoragePtr(const MapPoint &pos)
 	Assert(m_tileInfoStorage);
 	if (!m_tileInfoStorage)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	sint32 const    width = m_size.x;
@@ -2546,7 +2546,7 @@ static IMapGenerator *CreateBuiltinMapGenerator(const char *name)
 		gen->AddRef();
 		return gen;
 	}
-	return NULL;
+	return nullptr;
 }
 
 IMapGenerator *World::LoadMapPlugin(sint32 pass)
@@ -2558,7 +2558,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 #endif
 	const char *name = profiledb_Get()->MapPluginName(pass);
 	if(stricmp(name, "none") == 0)
-		return NULL;
+		return nullptr;
 
 	// On SDL builds, prefer builtin generators compiled into the executable.
 	// This avoids relying on platform-specific shared libraries.
@@ -2566,7 +2566,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 	IMapGenerator *builtin = CreateBuiltinMapGenerator(name);
 	if (builtin) {
 		fprintf(stderr, "[MAPGEN] Using builtin generator for '%s'\n", name);
-		m_current_plugin = NULL;
+		m_current_plugin = nullptr;
 		return builtin;
 	}
 #endif
@@ -2576,23 +2576,23 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 #else
 	int rc = lt_dlinit();
 	if (0 != rc) {
-		return NULL;
+		return nullptr;
 	}
 	plugin = lt_dlopen(name);
 #endif
-	if(plugin == NULL) {
+	if(plugin == nullptr) {
 		c3errors_ErrorDialog("Map Generator", "Could not load library %s, using builtin map generator", name);
 #ifdef USE_COM_REPLACEMENT
 		lt_dlexit();
 #endif
-		return NULL;
+		return nullptr;
 	}
 #ifndef USE_COM_REPLACEMENT
 	CreateMapGenerator creator = (CreateMapGenerator)GetProcAddress(plugin, "CoCreateMapGenerator");
 #else
 	CreateMapGenerator creator = (CreateMapGenerator)lt_dlsym(plugin, "CoCreateMapGenerator");
 #endif
-	if(creator == NULL) {
+	if(creator == nullptr) {
 #ifndef USE_COM_REPLACEMENT
 		FreeLibrary(plugin);
 #else
@@ -2600,7 +2600,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 		lt_dlexit();
 #endif
 		c3errors_ErrorDialog("Map Generator", "Plugin %s is not a valid map generator", name);
-		return NULL;
+		return nullptr;
 	}
 #ifndef USE_COM_REPLACEMENT
 	IUnknown *unknown;
@@ -2616,7 +2616,7 @@ IMapGenerator *World::LoadMapPlugin(sint32 pass)
 		lt_dlclose(plugin);
 		lt_dlexit();
 #endif
-		return NULL;
+		return nullptr;
 	}
 #ifndef USE_COM_REPLACEMENT
 	IMapGenerator *generator;
@@ -2643,7 +2643,7 @@ void World::FreeMapPlugin()
 	lt_dlclose(m_current_plugin);
 	lt_dlexit();
 #endif
-	m_current_plugin = NULL;
+	m_current_plugin = nullptr;
 }
 
 void World::GetHeightMap(IMapGenerator *mapgen,
@@ -3088,7 +3088,7 @@ bool World::ExportMap(MBCHAR const *filename)
 			Cell *      cell = GetCell(pos);
 			sint32	    good;
 
-			BOOL hasHut = (cell->GetGoodyHut() != NULL);
+			BOOL hasHut = (cell->GetGoodyHut() != nullptr);
 			BOOL hasRiver = IsRiver(pos);
 			BOOL hasGood = GetGood(pos, good);
 
@@ -3119,7 +3119,7 @@ bool World::ImportMap(MBCHAR const * filename)
 	if (!infile)
 	{
 		const char *str = g_theStringDB->GetNameStr("str_FileDoesNotExist");
-		if(str == NULL)
+		if(str == nullptr)
 		{
 			str = "File does not exist: ";
 		}
@@ -3136,7 +3136,7 @@ bool World::ImportMap(MBCHAR const * filename)
 
 	if (size != m_size) {
 		const char *str = g_theStringDB->GetNameStr("str_MapSizesDiffer");
-		if(str == NULL)
+		if(str == nullptr)
 		{
 			str = "The new map does not have the same size as the loaded map.\n The map sizes must fit. Map size old/new: ";
 		}

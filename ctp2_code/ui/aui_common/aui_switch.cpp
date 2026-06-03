@@ -20,11 +20,11 @@ aui_Switch::aui_Switch(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie )
 {
-	m_drawFunc			= NULL;
-	m_drawCookie		= NULL;
+	m_drawFunc			= nullptr;
+	m_drawCookie		= nullptr;
 	m_drawCallbackExclusive	= true;
 
 	Assert( AUI_SUCCESS(*retval) );
@@ -49,11 +49,11 @@ aui_Switch::aui_Switch(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
-	m_drawFunc			= NULL;
-	m_drawCookie		= NULL;
+	m_drawFunc			= nullptr;
+	m_drawCookie		= nullptr;
 	m_drawCallbackExclusive	= true;
 
 	Assert( AUI_SUCCESS(*retval) );
@@ -68,7 +68,7 @@ aui_Switch::aui_Switch(
 AUI_ERRCODE aui_Switch::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	sint32 state = block->GetInt( k_AUI_SWITCH_LDL_STATE );

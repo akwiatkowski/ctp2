@@ -52,14 +52,14 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
 #if !defined(USE_SDL)
   : m_hAudio(0),
 #else
-  : m_Audio(0), m_Channel(-1),
+  : m_Audio(nullptr), m_Channel(-1),
 #endif
     m_associatedObject(associatedObject)
 
 {
     const char *fname;
 	if(soundID < 0)
-		fname = 0;
+		fname = nullptr;
 	else
 		fname = g_theSoundDB->Get(soundID)->GetValue();
 
@@ -67,9 +67,9 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
     m_isPlaying = FALSE;
     m_isLooping = FALSE;
 
-    if (0 == fname) {
+    if (nullptr == fname) {
         m_soundFilename[0] = 0;
-        m_dataptr = NULL;
+        m_dataptr = nullptr;
         m_datasize = 0;
         return;
     }
@@ -97,7 +97,7 @@ CivSound::CivSound(const uint32 &associatedObject, const sint32 &soundID)
     if (m_dataptr && m_datasize >= 44) {
         m_Audio = Mix_QuickLoad_WAV((Uint8 *) m_dataptr);
     } else {
-        m_Audio = NULL;
+        m_Audio = nullptr;
     }
 #endif
 }
@@ -202,7 +202,7 @@ CivSound::SetVolume(const sint32 &volume)
 #if !defined(USE_SDL)
     if (0 == m_hAudio) {
 #else
-    if (0 == m_Audio) {
+    if (nullptr == m_Audio) {
 #endif
         return;
     }

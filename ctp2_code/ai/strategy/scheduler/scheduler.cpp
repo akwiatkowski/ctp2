@@ -325,7 +325,7 @@ void Scheduler::Save(CivArchive & archive)
 
 void Scheduler::Initialize()
 {
-	if(g_theGoalDB == NULL)
+	if(g_theGoalDB == nullptr)
 		return;
 
 	Cleanup();
@@ -1093,7 +1093,7 @@ Goal_ptr Scheduler::GetHighestPriorityGoal(const GOAL_TYPE & type, const bool sa
 		}
 	}
 
-	return NULL; // No matching goal available.
+	return nullptr; // No matching goal available.
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1749,7 +1749,7 @@ bool Scheduler::CachedHasContactWithExceptSelf(sint32 player1, sint32 player2)
 		return ((m_contactCache>>player2)&1) != 0;
 	}
 
-	if (player_Get(player1) == NULL)
+	if (player_Get(player1) == nullptr)
 		return false;
 
 	if (player1==player2) return false;

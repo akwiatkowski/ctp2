@@ -58,10 +58,10 @@ c3_Button::c3_Button
 :
     // virtual (see aui_Control)
 	aui_ImageBase   (ldlBlock ),
-	aui_TextBase    (ldlBlock, (MBCHAR *) NULL),
+	aui_TextBase    (ldlBlock, (MBCHAR *) nullptr),
     // normal
 	aui_Button      (retval, id, ldlBlock, ActionFunc, cookie),
-	PatternBase     (ldlBlock, NULL),
+	PatternBase     (ldlBlock, nullptr),
     m_bevelWidth    (k_C3_BUTTON_DEFAULT_BEVELWIDTH),
     m_bevelType     (0)
 {
@@ -86,7 +86,7 @@ c3_Button::c3_Button(
 :
     // virtual (see aui_Control)
 	aui_ImageBase   ((sint32) 0),
-	aui_TextBase    (NULL),
+	aui_TextBase    (nullptr),
     // normal
 	aui_Button      (retval, id, x, y, width, height, ActionFunc, cookie),
 	PatternBase     (pattern),
@@ -100,7 +100,7 @@ c3_Button::c3_Button(
 AUI_ERRCODE c3_Button::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	if (block->GetAttributeType( k_C3_BUTTON_LDL_BEVELWIDTH) == ATTRIBUTE_TYPE_INT)
@@ -190,15 +190,15 @@ c3_EditButton::c3_EditButton
 :
     // virtual (defined in aui_Control)
 	aui_ImageBase   (ldlBlock),
-	aui_TextBase    (ldlBlock, (MBCHAR const *) NULL),
+	aui_TextBase    (ldlBlock, (MBCHAR const *) nullptr),
     // normal
 	c3_Button       (retval, id, ldlBlock, ActionFunc, cookie),
 	m_val           (k_C3_EDITBUTTON_DEFAULTVAL),
 	m_min           (k_C3_EDITBUTTON_DEFAULTMIN),
 	m_max           (k_C3_EDITBUTTON_DEFAULTMAX),
-	m_field         (NULL),
-    m_origAction    (NULL),
-	m_origCallback  (NULL)
+	m_field         (nullptr),
+    m_origAction    (nullptr),
+	m_origCallback  (nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -227,15 +227,15 @@ c3_EditButton::c3_EditButton
 :
     // virtual (see aui_Control)
 	aui_ImageBase   ((sint32) 0),
-	aui_TextBase    (NULL),
+	aui_TextBase    (nullptr),
     // normal
 	c3_Button       (retval, id, x, y, width, height, pattern, ActionFunc, cookie),
 	m_val           (k_C3_EDITBUTTON_DEFAULTVAL),
 	m_min           (k_C3_EDITBUTTON_DEFAULTMIN),
 	m_max           (k_C3_EDITBUTTON_DEFAULTMAX),
-	m_field         (NULL),
-    m_origAction    (NULL),
-	m_origCallback  (NULL)
+	m_field         (nullptr),
+    m_origAction    (nullptr),
+	m_origCallback  (nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -248,7 +248,7 @@ c3_EditButton::c3_EditButton
 AUI_ERRCODE c3_EditButton::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	m_val =
@@ -289,7 +289,7 @@ AUI_ERRCODE c3_EditButton::CreateFieldAndActions( MBCHAR *ldlBlock )
 			&errcode,
 			aui_UniqueId(),
 			m_x, m_y, m_width, m_height,
-			m_pattern ? m_pattern->GetFilename() : NULL );
+			m_pattern ? m_pattern->GetFilename() : nullptr );
 
 	Assert( AUI_NEWOK(m_field,errcode) );
 	if ( !AUI_NEWOK(m_field,errcode) )

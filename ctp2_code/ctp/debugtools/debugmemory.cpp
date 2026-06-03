@@ -134,7 +134,7 @@ struct DebugMemory
 
 
 
-static DebugMemory *debug_memory = NULL;
+static DebugMemory *debug_memory = nullptr;
 
 
 
@@ -260,7 +260,7 @@ void DebugMemory_Allocate()
 
 	debug_memory->open = FALSE;
 	debug_memory->initialised = FALSE;
-	debug_memory->default_heap = NULL;
+	debug_memory->default_heap = nullptr;
 	debug_memory->total_outstanding = 0;
 	debug_memory->total_allocations = 0;
 	debug_memory->total_user_memory = 0;
@@ -356,7 +356,7 @@ void DebugMemory_Close (void)
 	debug_memory->open = false;
 
 	free(debug_memory);
-	debug_memory = NULL;
+	debug_memory = nullptr;
 }
 
 
@@ -469,7 +469,7 @@ void  DebugMemory_FastFree    (void **memory_block_ptr)
 	LOG ((LOG_DIAG, "FastFree: %p, %p", (void*)*memory_block_ptr, (void*)*memory_block_ptr));
 
 	free (*memory_block_ptr);
-	*memory_block_ptr = NULL;
+	*memory_block_ptr = nullptr;
 }
 
 
@@ -664,7 +664,7 @@ void  DebugMemoryHeap_FastFree    (MemoryHeap heap, void **memory_block_ptr)
 
 	ok = HeapFree (heap->handle, 0, *memory_block_ptr);
 	ASSERT_CLASS (LOG_MEMORY_FAIL, ok);
-	*memory_block_ptr = NULL;
+	*memory_block_ptr = nullptr;
 }
 
 

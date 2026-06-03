@@ -12,7 +12,7 @@
 #include "ui/aui_ctp2/ctp2_TabGroup.h"
 
 
-static DomesticManagementDialog * g_domesticManagementDialog = NULL;
+static DomesticManagementDialog * g_domesticManagementDialog = nullptr;
 
 DomesticManagementDialog * domesticmanagementdialog_Get()
 {
@@ -82,7 +82,7 @@ void DomesticManagementDialog::Cleanup()
 	}
 
 	delete g_domesticManagementDialog;
-	g_domesticManagementDialog = NULL;
+	g_domesticManagementDialog = nullptr;
 }
 
 void DomesticManagementDialog::Show()

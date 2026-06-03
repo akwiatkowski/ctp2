@@ -40,7 +40,7 @@
 
 extern CivPaths		*civpaths_Get();
 
-static CivScenarios	*g_civScenarios = NULL;
+static CivScenarios	*g_civScenarios = nullptr;
 
 CivScenarios * civscenarios_Get()
 {
@@ -58,7 +58,7 @@ void CivScenarios::Cleanup()
 {
 	if (g_civScenarios) {
 		delete g_civScenarios;
-		g_civScenarios = NULL;
+		g_civScenarios = nullptr;
 	}
 }
 
@@ -66,7 +66,7 @@ void CivScenarios::Cleanup()
 CivScenarios::CivScenarios()
 {
 	m_numScenarioPacks = 0;
-	m_scenarioPacks = NULL;
+	m_scenarioPacks = nullptr;
 
 	LoadData();
 }
@@ -129,7 +129,7 @@ void CivScenarios::LoadScenarioPackData(ScenarioPack *pack, MBCHAR *packPath)
 #endif
 
 	pack->m_numScenarios = 0;
-	pack->m_scenarios = NULL;
+	pack->m_scenarios = nullptr;
 	pack->m_name[0] = '\0';
 	pack->m_description[0] = '\0';
 
@@ -237,7 +237,7 @@ void CivScenarios::LoadData()
 #else
 	DIR *dir = opendir(rootPath);
 	if (!dir) return;
-	struct dirent *dent = 0;
+	struct dirent *dent = nullptr;
 #endif
 
 	MBCHAR				*fileListFileName;
@@ -329,7 +329,7 @@ void CivScenarios::ClearData()
 	delete[] m_scenarioPacks;
 
 	m_numScenarioPacks = 0;
-	m_scenarioPacks = NULL;
+	m_scenarioPacks = nullptr;
 }
 
 
@@ -345,7 +345,7 @@ void CivScenarios::ReloadData()
 ScenarioPack *CivScenarios::GetScenarioPack(sint32 which)
 {
 	Assert(which >= 0 && which < m_numScenarioPacks);
-	if (which < 0 || which >= m_numScenarioPacks) return NULL;
+	if (which < 0 || which >= m_numScenarioPacks) return nullptr;
 
 	return &m_scenarioPacks[which];
 }
@@ -358,7 +358,7 @@ ScenarioPack *CivScenarios::GetScenarioPackByPath(const MBCHAR *path)
 			return &m_scenarioPacks[p];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -384,8 +384,8 @@ BOOL CivScenarios::FindScenario(MBCHAR *scenarioName, ScenarioPack **pack, Scena
 		}
 	}
 
-	*pack = NULL;
-	*scen = NULL;
+	*pack = nullptr;
+	*scen = nullptr;
 
 	return FALSE;
 }
@@ -434,7 +434,7 @@ SaveInfo *CivScenarios::LoadSaveInfo(Scenario *scen)
 {
 	MBCHAR	tempPath[_MAX_PATH];
 
-	if (!scen) return NULL;
+	if (!scen) return nullptr;
 
 	snprintf(tempPath, sizeof(tempPath), "%s%s%s",
 						scen->m_path, FILE_SEP,
@@ -444,13 +444,13 @@ SaveInfo *CivScenarios::LoadSaveInfo(Scenario *scen)
 		SaveInfo *info = new SaveInfo;
 		if(!GameFile::FetchExtendedSaveInfo(tempPath, info)) {
 			delete info;
-			return NULL;
+			return nullptr;
 		} else {
 			return info;
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 CIV_SCEN_ERR CivScenarios::MakeNewPack(MBCHAR *dirName, MBCHAR *packName, MBCHAR *packDesc)

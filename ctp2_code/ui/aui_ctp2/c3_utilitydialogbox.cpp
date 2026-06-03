@@ -73,9 +73,9 @@ extern sint32   	g_modalWindow;
 extern sint32		g_ScreenWidth;
 extern sint32		g_ScreenHeight;
 
-c3_ExpelPopup *                 g_expelPopup            = NULL;
-c3_UtilityAbortPopup *          g_utilityAbort          = NULL;
-c3_UtilityTextMessagePopup *    g_utilityTextMessage    = NULL;
+c3_ExpelPopup *                 g_expelPopup            = nullptr;
+c3_UtilityAbortPopup *          g_utilityAbort          = nullptr;
+c3_UtilityTextMessagePopup *    g_utilityTextMessage    = nullptr;
 
 
 void C3UtilityCityListButtonActionCallback( aui_Control *control, uint32 action, uint32 data, void *cookie )
@@ -204,7 +204,7 @@ void C3UtilityTextFieldButtonActionCallback( aui_Control *control, uint32 action
 		if (resultText.empty())
 		{
 			if(popup->m_wantEmpties) {
-				popup->m_callback(NULL, TRUE, popup->GetData());
+				popup->m_callback(nullptr, TRUE, popup->GetData());
 				popup->RemoveWindow();
 			}
 			return;
@@ -219,7 +219,7 @@ void C3UtilityTextFieldButtonActionCallback( aui_Control *control, uint32 action
 	if ((c3_Button*)control == popup->m_window->Cancel())
 	{
 		if (popup->m_callback)
-			popup->m_callback(NULL, FALSE, popup->GetData());
+			popup->m_callback(nullptr, FALSE, popup->GetData());
 
 		popup->RemoveWindow();
 	}
@@ -341,11 +341,11 @@ void C3UtilityPlayerListButtonActionCallback( aui_Control *control, uint32 actio
 
 c3_UtilityCityListPopup::c3_UtilityCityListPopup( c3_UtilityCityListCallback *callback, MBCHAR *ldlBlock )
 :
-	m_window        (NULL),
-	m_title_label   (NULL),
-	m_list          (NULL),
-	m_ok            (NULL),
-	m_cancel        (NULL),
+	m_window        (nullptr),
+	m_title_label   (nullptr),
+	m_list          (nullptr),
+	m_ok            (nullptr),
+	m_cancel        (nullptr),
 	m_callback      (callback)
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -395,7 +395,7 @@ sint32 c3_UtilityCityListPopup::Initialize( MBCHAR *windowBlock )
 
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "CityList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -429,7 +429,7 @@ void c3_UtilityCityListPopup::Cleanup()
     allocated::clear(m_ok);
     allocated::clear(m_cancel);
     allocated::clear(m_window);
-	m_callback = NULL;
+	m_callback = nullptr;
 }
 
 void c3_UtilityCityListPopup::DisplayWindow( )
@@ -473,11 +473,11 @@ sint32 c3_UtilityCityListPopup::UpdateData( )
 
 c3_PiracyPopup::c3_PiracyPopup( c3_PiracyCallback *callback, MBCHAR *ldlBlock )
 :
-    m_window            (NULL),
-    m_title_label       (NULL),
-    m_list              (NULL),
-    m_pirate            (NULL),
-    m_cancel            (NULL),
+    m_window            (nullptr),
+    m_title_label       (nullptr),
+    m_list              (nullptr),
+    m_pirate            (nullptr),
+    m_cancel            (nullptr),
 	m_callback          (callback)
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -520,7 +520,7 @@ sint32 c3_PiracyPopup::Initialize( MBCHAR *windowBlock )
 	if ( !AUI_NEWOK(m_title_label, errcode) ) return -1;
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -554,7 +554,7 @@ void c3_PiracyPopup::Cleanup( )
     allocated::clear(m_pirate);
     allocated::clear(m_cancel);
     allocated::clear(m_window);
-	m_callback = NULL;
+	m_callback = nullptr;
 }
 
 void c3_PiracyPopup::DisplayWindow( )
@@ -599,11 +599,11 @@ sint32 c3_PiracyPopup::UpdateData( )
 
 c3_ExpelPopup::c3_ExpelPopup( c3_ExpelCallback *callback, MBCHAR *ldlBlock )
 :
-	m_window            (NULL),
-	m_title_label       (NULL),
-	m_attack            (NULL),
-	m_expel             (NULL),
-	m_cancel            (NULL),
+	m_window            (nullptr),
+	m_title_label       (nullptr),
+	m_attack            (nullptr),
+	m_expel             (nullptr),
+	m_cancel            (nullptr),
 	m_callback          (callback)
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -672,7 +672,7 @@ void c3_ExpelPopup::Cleanup()
     allocated::clear(m_expel);
     allocated::clear(m_cancel);
     allocated::clear(m_window);
-	m_callback = NULL;
+	m_callback = nullptr;
 }
 
 void c3_ExpelPopup::DisplayWindow( )
@@ -703,12 +703,12 @@ c3_UtilityTextFieldPopup::c3_UtilityTextFieldPopup
 	bool                            wantEmpties
 )
 :
-	m_window                (NULL),
-	m_title_label           (NULL),
-	m_message_label         (NULL),
-    m_text                  (NULL),
-	m_ok                    (NULL),
-    m_cancel                (NULL),
+	m_window                (nullptr),
+	m_title_label           (nullptr),
+	m_message_label         (nullptr),
+    m_text                  (nullptr),
+	m_ok                    (nullptr),
+    m_cancel                (nullptr),
     m_callback              (callback),
 	m_data                  (data),
 	m_wantEmpties           (wantEmpties)
@@ -846,13 +846,13 @@ c3_UtilityTextMessagePopup::c3_UtilityTextMessagePopup
     MBCHAR const *                  ldlBlock
 )
 :
-    m_window        (NULL),
+    m_window        (nullptr),
     m_callback      (callback),
     m_type          (type),
-    m_title_label   (NULL),
-    m_text          (NULL),
-	m_ok            (NULL),
-	m_cancel        (NULL)
+    m_title_label   (nullptr),
+    m_text          (nullptr),
+	m_ok            (nullptr),
+	m_cancel        (nullptr)
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
@@ -1090,10 +1090,10 @@ void c3_RemoveAbortMessage( )
 
 c3_UtilityAbortPopup::c3_UtilityAbortPopup( MBCHAR const *text, sint32 type, c3_UtilityTextMessageCallback* callback,  MBCHAR const *ldlBlock )
 :
-    m_window        (NULL),
-    m_text          (NULL),
-    m_meter         (NULL),
-    m_abort         (NULL),
+    m_window        (nullptr),
+    m_text          (nullptr),
+    m_meter         (nullptr),
+    m_abort         (nullptr),
     m_type          (type),
     m_callback      (callback)
 {
@@ -1222,12 +1222,12 @@ void c3_UtilityAbortPopup::kh_Close()
 
 c3_UtilityPlayerListPopup::c3_UtilityPlayerListPopup( c3_UtilityPlayerListCallback *callback, MBCHAR *ldlBlock )
 :
-    m_window        (NULL),
-	m_list          (NULL),
-    m_abort         (NULL),
-    m_kick          (NULL),
-    m_open          (NULL),
-    m_close         (NULL),
+    m_window        (nullptr),
+	m_list          (nullptr),
+    m_abort         (nullptr),
+    m_kick          (nullptr),
+    m_open          (nullptr),
+    m_close         (nullptr),
     m_callback      (callback)
 {
 	MBCHAR		windowBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
@@ -1271,7 +1271,7 @@ sint32 c3_UtilityPlayerListPopup::Initialize( MBCHAR *windowBlock )
 	TestControl( m_close );
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "PlayerList" );
-	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, NULL, NULL);
+	m_list = new ctp2_ListBox(&errcode, aui_UniqueId(), controlBlock, nullptr, nullptr);
 	Assert( AUI_NEWOK(m_list, errcode) );
 	if ( !AUI_NEWOK(m_list, errcode) ) return -1;
 
@@ -1307,7 +1307,7 @@ void c3_UtilityPlayerListPopup::Cleanup( )
         allocated::clear(m_list);
     }
     allocated::clear(m_window);
-	m_callback = NULL;
+	m_callback = nullptr;
 }
 
 void c3_UtilityPlayerListPopup::DisplayWindow( )
@@ -1405,7 +1405,7 @@ void c3_UtilityPlayerListPopup::SetText(MBCHAR * s, sint32 index)
 DoubleListItem::DoubleListItem(AUI_ERRCODE *retval, MBCHAR *name, sint32 value, MBCHAR *text, MBCHAR *ldlBlock)
 :
 	aui_ImageBase   (ldlBlock),
-	aui_TextBase    (ldlBlock, (MBCHAR const *) NULL),
+	aui_TextBase    (ldlBlock, (MBCHAR const *) nullptr),
 	c3_ListItem     (retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -1528,9 +1528,9 @@ void c3_utilitydialogbox_NameCity(Unit city)
 	if ( !s_nameTheCityPopup ) {
 
 		s_nameTheCityPopup = new c3_UtilityTextFieldPopup(NameTheCityDialogBoxCallback,
-									NULL,
+									nullptr,
 									nameText,
-									NULL,
+									nullptr,
 									"NewNameTheCityPopup"
 									);
 	} else {
@@ -1556,7 +1556,7 @@ void c3_utilitydialogbox_NameCityCleanup()
 
 
 
-c3_UtilityTextFieldPopup		*s_genericTextEntryPopup = NULL;
+c3_UtilityTextFieldPopup		*s_genericTextEntryPopup = nullptr;
 
 void c3_utilitydialogbox_TextFieldDialog(MBCHAR *titleText,
 								   MBCHAR *defaultText,

@@ -48,7 +48,7 @@ public:
 		m_homeCity(hc),
 		m_tempUnit(temp),
 		m_cause(cause),
-		m_next(NULL)
+		m_next(nullptr)
 	{}
 
 	sint32 m_type;

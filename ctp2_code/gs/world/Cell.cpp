@@ -109,12 +109,12 @@ Cell::Cell()
     m_terrain_type         (-1),
     m_city                 (),
     m_cellOwner            (-1),
-    m_unit_army            (NULL),
-    m_objects              (NULL),
-    m_jabba                (NULL),
+    m_unit_army            (nullptr),
+    m_objects              (nullptr),
+    m_jabba                (nullptr),
     m_cityHasVisibleTileImprovement(false),
     m_search_count         (0),
-    m_point                (NULL),
+    m_point                (nullptr),
     m_tmp_future_move_cost (std::numeric_limits<sint16>::max())
 #ifdef CELL_COLOR
 ,   m_color                (0)
@@ -152,9 +152,9 @@ void Cell::Serialize(CivArchive &archive)
 	if(archive.IsStoring())
 	{
 		flags = 0;
-		flags |= (m_unit_army != NULL);
-		flags |= (m_objects != NULL) << 1;
-		flags |= (m_jabba != NULL) << 2;
+		flags |= (m_unit_army != nullptr);
+		flags |= (m_objects != nullptr) << 1;
+		flags |= (m_jabba != nullptr) << 2;
 
 		archive << flags;
 		if(m_unit_army)
@@ -177,7 +177,7 @@ void Cell::Serialize(CivArchive &archive)
 		}
 		else
 		{
-			m_unit_army = NULL;
+			m_unit_army = nullptr;
 		}
 		if(flags & 2)
 		{
@@ -186,7 +186,7 @@ void Cell::Serialize(CivArchive &archive)
 		}
 		else
 		{
-			m_objects = NULL;
+			m_objects = nullptr;
 		}
 		if(flags & 4)
 		{
@@ -195,7 +195,7 @@ void Cell::Serialize(CivArchive &archive)
 		}
 		else
 		{
-			m_jabba = NULL;
+			m_jabba = nullptr;
 		}
 
 		m_tmp_future_move_cost = std::numeric_limits<sint16>::max();
@@ -231,7 +231,7 @@ bool Cell::FutureMoveCostsAreReallyBig() const
 
 bool Cell::IsAnyUnitInCell() const
 {
-	return m_unit_army != NULL;
+	return m_unit_army != nullptr;
 }
 
 bool Cell::InsertUnit(Unit id)
@@ -251,7 +251,7 @@ bool Cell::RemoveUnitReference(const Unit &u)
 		if(m_unit_army->Num() <= 0)
 		{
 			delete m_unit_army;
-			m_unit_army = NULL;
+			m_unit_army = nullptr;
 		}
 
 		return true;
@@ -669,7 +669,7 @@ void Cell::DelTradeRoute(TradeRoute route)
 		if (count <= 0)
 		{
 			delete m_objects;
-			m_objects = NULL;
+			m_objects = nullptr;
 		}
 	}
 
@@ -765,7 +765,7 @@ void Cell::RemoveImprovement(const TerrainImprovement &imp)
 		if (count <= 0)
 		{
 			delete m_objects;
-			m_objects = NULL;
+			m_objects = nullptr;
 		}
 	}
 
@@ -827,7 +827,7 @@ sint32 Cell::GetNumFortifiedUnits() const
 {
 	sint32 numFortifiedUnits = 0;
 
-	if(m_unit_army != NULL)
+	if(m_unit_army != nullptr)
 	{
 		for(sint32 i = 0; i < m_unit_army->Num(); ++i)
 		{
@@ -954,7 +954,7 @@ void Cell::CreateGoodyHut()
 void Cell::DeleteGoodyHut()
 {
 	delete m_jabba;
-	m_jabba = NULL;
+	m_jabba = nullptr;
 }
 
 bool Cell::HasWormhole() const
@@ -1008,7 +1008,7 @@ void Cell::ClearUnitsNStuff()
 
 	SetOwner(PLAYER_UNASSIGNED);
 	delete m_unit_army;
-	m_unit_army = NULL;
+	m_unit_army = nullptr;
 
 	for (sint32 i = GetNumObjects() - 1; i >= 0; i--) {
 		if((m_objects->Access(i).m_id & k_ID_TYPE_MASK) != k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB)
@@ -1360,7 +1360,7 @@ bool Cell::IsUnitUpgradePosition(sint32 unitOwner) const
 			canUpgrade |= impRec->GetCanUpgrade();
 
 			const TerrainImprovementRecord::Effect* effect = terrainutil_GetTerrainEffect(impRec, m_terrain_type);
-			if(effect != NULL)
+			if(effect != nullptr)
 			{
 				canUpgrade |= effect->GetCanUpgrade();
 			}

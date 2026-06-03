@@ -64,7 +64,7 @@ AUI_ERRCODE domesticcontrolpanel_HappinessDrawCallback(ctp2_Static *control,
                                                        RECT &rect,
                                                        void *cookie)
 {
-	if (selitem_Get()==NULL)
+	if (selitem_Get()==nullptr)
 		return AUI_ERRCODE_OK;
 
 	sint32 hapvals[3];
@@ -210,14 +210,14 @@ m_menuPollutionValue(static_cast<ctp2_Static*>(
 	m_scienceTurnButton->SetActionFuncAndCookie(
 		EditResearchButtonActionCallback, this);
 
-	m_menuHappinessValue->SetDrawCallbackAndCookie(domesticcontrolpanel_HappinessDrawCallback, NULL, false);
+	m_menuHappinessValue->SetDrawCallbackAndCookie(domesticcontrolpanel_HappinessDrawCallback, nullptr, false);
 	m_menuHappinessValue->ShouldDraw(TRUE);
 
-	m_menuPollutionValue->SetDrawCallbackAndCookie(domesticcontrolpanel_PollutionDrawCallback, NULL, false);
+	m_menuPollutionValue->SetDrawCallbackAndCookie(domesticcontrolpanel_PollutionDrawCallback, nullptr, false);
 	m_menuPollutionValue->ShouldDraw(TRUE);
 
 	if(m_scienceProgressBar) {
-		m_scienceProgressBar->SetDrawCallbackAndCookie(DomesticControlPanel::DrawScienceBar, NULL);
+		m_scienceProgressBar->SetDrawCallbackAndCookie(DomesticControlPanel::DrawScienceBar, nullptr);
 	}
 
 	m_currentResearch = -1;
@@ -282,7 +282,7 @@ void DomesticControlPanel::EditResearchButtonActionCallback(aui_Control *control
 		return;
 
 
-	sci_advancescreen_displayMyWindow(NULL, k_SCI_INCLUDE_CANCEL);
+	sci_advancescreen_displayMyWindow(nullptr, k_SCI_INCLUDE_CANCEL);
 }
 
 void DomesticControlPanel::UpdateScience()
@@ -328,7 +328,7 @@ void DomesticControlPanel::UpdateScience()
 	} else {
 
 		m_scienceIconButton->SetText("---");
-		m_scienceIconButton->ExchangeImage(4, 0, NULL);
+		m_scienceIconButton->ExchangeImage(4, 0, nullptr);
 	}
 
 	MBCHAR numTurns[50];
@@ -346,7 +346,7 @@ void DomesticControlPanel::ClearScience()
 {
 	m_scienceLabel->SetText("");
 	m_scienceIconButton->SetText("");
-	m_scienceIconButton->ExchangeImage(4, 0, NULL);
+	m_scienceIconButton->ExchangeImage(4, 0, nullptr);
 	m_scienceTurnButton->SetText("");
 }
 
@@ -411,7 +411,7 @@ void DomesticControlPanel::UpdateStats()
 void DomesticControlPanel::UpdateGoldPW()
 {
 
-	if (player_Get(selitem_Get()->GetVisiblePlayer()) == NULL)
+	if (player_Get(selitem_Get()->GetVisiblePlayer()) == nullptr)
 		return;
 
 	sint32 gold = player_Get(selitem_Get()->GetVisiblePlayer())->GetGold();

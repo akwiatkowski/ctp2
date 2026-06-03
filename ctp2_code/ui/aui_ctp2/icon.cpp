@@ -32,7 +32,7 @@ AUI_ERRCODE Icon::Draw( aui_Surface *pDestSurf,	RECT *pDestRect, uint32 color )
 {
 
 	Assert(pDestRect);
-	if (pDestRect==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pDestRect==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pDestRect->left<pDestRect->right);
 	if (pDestRect->left>=pDestRect->right) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pDestRect->top<pDestRect->bottom);
@@ -49,16 +49,16 @@ AUI_ERRCODE Icon::Draw( aui_Surface *pDestSurf,	RECT *pDestRect, uint32 color )
 	aui_Surface *pSrcSurf = m_surface;
 
 	Assert(pDestSurf);
-	if (pDestSurf==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pDestSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 	Assert(pSrcSurf);
-	if (pSrcSurf==NULL) return AUI_ERRCODE_INVALIDPARAM;
+	if (pSrcSurf==nullptr) return AUI_ERRCODE_INVALIDPARAM;
 
 	sint32 errcode;
 
-	errcode = pDestSurf->Lock(NULL, (LPVOID *)&pDestBuffer, 0);
+	errcode = pDestSurf->Lock(nullptr, (LPVOID *)&pDestBuffer, 0);
 	if (errcode == AUI_ERRCODE_OK)
 	{
-		errcode = pSrcSurf->Lock(NULL, (LPVOID *)&pSrcBuffer, 0);
+		errcode = pSrcSurf->Lock(nullptr, (LPVOID *)&pSrcBuffer, 0);
 		if (errcode == AUI_ERRCODE_OK)
 		{
 			sint32 surfPitch = pDestSurf->Pitch();

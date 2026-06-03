@@ -55,8 +55,8 @@
 #include <SDL2/SDL.h>
 #endif
 
-aui_DragDropWindow *aui_ListBox::m_dragDropWindow = NULL;
-aui_ListBox *aui_ListBox::ms_mouseFocusListBox = NULL;
+aui_DragDropWindow *aui_ListBox::m_dragDropWindow = nullptr;
+aui_ListBox *aui_ListBox::ms_mouseFocusListBox = nullptr;
 
 aui_ListBox::aui_ListBox(
 	AUI_ERRCODE *retval,
@@ -66,7 +66,7 @@ aui_ListBox::aui_ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Control( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -93,7 +93,7 @@ aui_ListBox::aui_ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Control( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -103,7 +103,7 @@ aui_ListBox::aui_ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = CreateRangersAndHeader( NULL );
+	*retval = CreateRangersAndHeader( nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 }
@@ -112,7 +112,7 @@ aui_ListBox::aui_ListBox(
 AUI_ERRCODE aui_ListBox::InitCommonLdl( MBCHAR *ldlBlock )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -142,9 +142,9 @@ AUI_ERRCODE aui_ListBox::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_ListBox::InitCommon( )
 {
-	m_header = NULL,
-	m_verticalRanger = NULL,
-	m_horizontalRanger = NULL,
+	m_header = nullptr,
+	m_verticalRanger = nullptr,
+	m_horizontalRanger = nullptr,
 	m_headerOffset.x = m_headerOffset.y = 0,
 	m_verticalRangerOffset.x = m_verticalRangerOffset.y = 0,
 	m_horizontalRangerOffset.x = m_horizontalRangerOffset.y = 0,
@@ -170,7 +170,7 @@ AUI_ERRCODE aui_ListBox::InitCommon( )
 	m_sortColumn = -1;
 	m_sortAscending = TRUE;
 	m_ignoreOutsideDrops = false;
-	m_keyboardActionControl = NULL;
+	m_keyboardActionControl = nullptr;
 
 	m_buildingTheList = FALSE;
 
@@ -192,19 +192,19 @@ AUI_ERRCODE aui_ListBox::InitCommon( )
 	AddChild( m_header );
 
 	m_widthList = new tech_WLList<sint32>;
-	Assert( m_widthList != NULL );
+	Assert( m_widthList != nullptr );
 	if ( !m_widthList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_selectedList = new tech_WLList<sint32>;
-	Assert( m_selectedList != NULL );
+	Assert( m_selectedList != nullptr );
 	if ( !m_selectedList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_selectedListLastTime = new tech_WLList<sint32>;
-	Assert( m_selectedListLastTime != NULL );
+	Assert( m_selectedListLastTime != nullptr );
 	if ( !m_selectedListLastTime ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	m_visualSelectedList = new tech_WLList<sint32>;
-	Assert( m_visualSelectedList != NULL );
+	Assert( m_visualSelectedList != nullptr );
 	if ( !m_visualSelectedList ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -224,7 +224,7 @@ AUI_ERRCODE aui_ListBox::CreateRangersAndHeader( MBCHAR *ldlBlock )
 		{
 			RemoveChild( m_header->Id() );
 			delete m_header;
-			m_header = NULL;
+			m_header = nullptr;
 		}
 
 		snprintf(block, sizeof(block), "%s.%s", ldlBlock, k_AUI_LISTBOX_LDL_HEADER );
@@ -437,7 +437,7 @@ aui_Item *aui_ListBox::GetSelectedItem( ) const
 		return (aui_Item *)m_pane->ChildList()->GetAt(
 			m_pane->ChildList()->FindIndex( m_selectedList->GetHead() ) );
 	else
-		return NULL;
+		return nullptr;
 }
 
 
@@ -700,7 +700,7 @@ AUI_ERRCODE aui_ListBox::RemoveItemByIndex( sint32 index )
 {
 
 	aui_Item *item = GetItemByIndex( index );
-	Assert( item != NULL );
+	Assert( item != nullptr );
 	return item ? RemoveItem( item->Id() ) : AUI_ERRCODE_INVALIDPARAM;
 }
 
@@ -709,10 +709,10 @@ aui_Item *aui_ListBox::GetItemByIndex( sint32 index )
 {
 	Assert( index >= 0 && index < (sint32)m_pane->ChildList()->L() );
 	if ( index < 0 || index >= (sint32)m_pane->ChildList()->L() )
-		return NULL;
+		return nullptr;
 
 	ListPos position = m_pane->ChildList()->FindIndex( index );
-	if ( !position ) return NULL;
+	if ( !position ) return nullptr;
 
 	return (aui_Item *)m_pane->ChildList()->GetAt( position );
 }
@@ -720,7 +720,7 @@ aui_Item *aui_ListBox::GetItemByIndex( sint32 index )
 
 AUI_ERRCODE aui_ListBox::AddHeaderSwitch( aui_Switch *theSwitch )
 {
-	Assert( theSwitch != NULL );
+	Assert( theSwitch != nullptr );
 	if ( !theSwitch ) return AUI_ERRCODE_INVALIDPARAM;
 
 	m_header->AddChild( theSwitch );
@@ -772,10 +772,10 @@ aui_Switch *aui_ListBox::GetHeaderSwitchByIndex( sint32 index )
 {
 	Assert( index >= 0 && index < (sint32)m_header->ChildList()->L() );
 	if ( index < 0 || index >= (sint32)m_header->ChildList()->L() )
-		return NULL;
+		return nullptr;
 
 	ListPos position = m_header->ChildList()->FindIndex( index );
-	if ( !position ) return NULL;
+	if ( !position ) return nullptr;
 
 	return (aui_Switch *)m_header->ChildList()->GetAt( position );
 }
@@ -1114,7 +1114,7 @@ AUI_ERRCODE aui_ListBox::RepositionRangers( )
 
 aui_DragDropWindow *aui_ListBox::CreateDragDropWindow( aui_Control *dragDropItem )
 {
-	if ( !IsDragDrop() ) return NULL;
+	if ( !IsDragDrop() ) return nullptr;
 
 	POINT itemPoint =
 	{
@@ -1133,7 +1133,7 @@ aui_DragDropWindow *aui_ListBox::CreateDragDropWindow( aui_Control *dragDropItem
 		dragDropItem->Width(),
 		dragDropItem->Height() );
 	Assert( AUI_NEWOK(ddw,errcode) );
-	if ( !AUI_NEWOK(ddw,errcode) ) return NULL;
+	if ( !AUI_NEWOK(ddw,errcode) ) return nullptr;
 
 	aui_ui_Get()->AddChild( ddw );
 
@@ -1539,7 +1539,7 @@ void aui_ListBox::MouseMoveAway( aui_MouseEvent *mouseData )
 
 	aui_Control::MouseMoveAway(mouseData);
 
-	aui_ListBox::SetMouseFocusListBox(NULL);
+	aui_ListBox::SetMouseFocusListBox(nullptr);
 }
 
 void aui_ListBox::MouseMoveOver( aui_MouseEvent *mouseData )
@@ -1780,7 +1780,7 @@ void aui_ListBox::MouseLDropInside( aui_MouseEvent *mouseData )
 		{
 			AddItem( (aui_Item *)m_dragDropWindow->GetDragDropItem() );
 			DestroyDragDropWindow( m_dragDropWindow );
-			m_dragDropWindow = NULL;
+			m_dragDropWindow = nullptr;
 		}
 
 		if ( GetMouseOwnership() == this )
@@ -1904,7 +1904,7 @@ void aui_ListBox::MouseLDragAway( aui_MouseEvent *mouseData )
 			m_mouseCode = AUI_ERRCODE_HANDLED;
 	}
 
-	aui_ListBox::SetMouseFocusListBox(NULL);
+	aui_ListBox::SetMouseFocusListBox(nullptr);
 }
 
 void aui_ListBox::MouseRDragOver( aui_MouseEvent *mouseData )
@@ -1934,7 +1934,7 @@ void aui_ListBox::MouseRDragAway( aui_MouseEvent *mouseData )
 
 	aui_Control::MouseRDragAway(mouseData);
 
-	aui_ListBox::SetMouseFocusListBox(NULL);
+	aui_ListBox::SetMouseFocusListBox(nullptr);
 }
 
 void aui_ListBox::MouseLDragInside( aui_MouseEvent *mouseData )
@@ -2083,13 +2083,13 @@ aui_Item *aui_ListBox::ConstructAndAddTextItem(const MBCHAR *ldlblock, const MBC
 	/// @ToDo: An aui_ListBox should not know anything about a ctp2_ListItem
 	ctp2_ListItem *item = (ctp2_ListItem *)aui_Ldl::BuildHierarchyFromRoot((MBCHAR *)ldlblock);
 	Assert(item);
-	if(!item) return NULL;
+	if(!item) return nullptr;
 
 	aui_Static *box = (aui_Static *)item->GetChildByIndex(0);
 	Assert(box);
 	if(!box) {
 		delete item;
-		return NULL;
+		return nullptr;
 	}
 
 	box->SetText(text);

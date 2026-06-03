@@ -67,8 +67,8 @@ public:
 	WorkMap(AUI_ERRCODE *retval,
 					sint32 id,
 					MBCHAR *ldlBlock,
-					ControlActionCallback *ActionFunc = NULL,
-					void *cookie = NULL);
+					ControlActionCallback *ActionFunc = nullptr,
+					void *cookie = nullptr);
 	WorkMap(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -77,15 +77,15 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~WorkMap();
 
 	void InitCommonLdl(MBCHAR *ldlBlock);
 	void InitCommon( sint32 scale );
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -147,7 +147,7 @@ public:
 	WorkerActor	*GetWorker(sint32 index)
 				{
 					Assert(index >= 0 && index < k_MAX_WORKERS);
-					if (index < 0 && index >= k_MAX_WORKERS) return NULL;
+					if (index < 0 && index >= k_MAX_WORKERS) return nullptr;
 					return m_worker[index];
 				}
 

@@ -88,7 +88,7 @@ extern sint32		g_ScreenHeight;
 extern StringDB*	stringdb_Get();
 extern SoundManager	*soundmgr_Get();
 
-static EndGameWindow *	g_endgameWindow = NULL;
+static EndGameWindow *	g_endgameWindow = nullptr;
 
 EndGameWindow * endgamewindow_Get()
 {
@@ -113,7 +113,7 @@ public:
 
 	c3_DarkenArea(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock) :
 		aui_ImageBase( ldlBlock ),
-		aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+		aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 		aui_Static(retval, id, ldlBlock)
 		{ }
 
@@ -124,7 +124,7 @@ public:
 		aui_Static(retval, id, x, y, width, height)
 		{ }
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0);
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
 };
 
 AUI_ERRCODE c3_DarkenArea::DrawThis(aui_Surface *surface, sint32 x, sint32 y)
@@ -144,13 +144,13 @@ public:
 
 	c3_YetAnotherProgressBar(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock) :
 		aui_ImageBase( ldlBlock ),
-		aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+		aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 		aui_ProgressBar( retval, id, ldlBlock )
 	{}
 
 	c3_YetAnotherProgressBar(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height) :
 		aui_ImageBase( (sint32)0 ),
-		aui_TextBase( NULL ),
+		aui_TextBase( nullptr ),
 		aui_ProgressBar( retval, id, x, y, width, height )
 	{}
 
@@ -244,7 +244,7 @@ sint32 endgamewindow_Cleanup()
 	keypress_RemoveHandler(g_endgameWindow);
 
 	delete g_endgameWindow;
-	g_endgameWindow = NULL;
+	g_endgameWindow = nullptr;
 
 	return(0);
 }
@@ -260,20 +260,20 @@ public:
 
 	c3_Blend(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock) :
 		aui_ImageBase( ldlBlock, true ),
-		aui_TextBase((const MBCHAR *)NULL, (uint32)0),
+		aui_TextBase((const MBCHAR *)nullptr, (uint32)0),
 		aui_Static(retval, id, ldlBlock)
 		{ m_blendVal = 0; m_soundID = -1; }
 
 	c3_Blend(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
-		const MBCHAR *text = NULL, uint32 maxLength = 0 ) :
+		const MBCHAR *text = nullptr, uint32 maxLength = 0 ) :
 		aui_ImageBase( (sint32)0, AUI_IMAGEBASE_BLTTYPE_COPY, AUI_IMAGEBASE_BLTFLAG_COPY, true),
-		aui_TextBase((const MBCHAR *)NULL, (uint32)0),
+		aui_TextBase((const MBCHAR *)nullptr, (uint32)0),
 		aui_Static(retval, id, x, y, width, height, text, maxLength)
 		{ m_blendVal = 0; m_soundID = -1; }
 
 	virtual AUI_ERRCODE Draw(aui_Surface *surface, sint32 x, sint32 y);
 
-	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = NULL, sint32 x = 0, sint32 y = 0);
+	virtual AUI_ERRCODE DrawThis(aui_Surface *surface = nullptr, sint32 x = 0, sint32 y = 0);
 
 	void SetBlend(sint32 val) { m_blendVal = val; }
 
@@ -429,11 +429,11 @@ public:
 
 	c3_Animation(AUI_ERRCODE *retval, uint32 id, MBCHAR *ldlBlock) :
 		aui_ImageBase( ldlBlock, true ),
-		aui_TextBase((const MBCHAR *)NULL, (uint32)0),
+		aui_TextBase((const MBCHAR *)nullptr, (uint32)0),
 		c3_Blend(retval, id, ldlBlock)
 		{
 
-			m_frames = NULL;
+			m_frames = nullptr;
 			m_currentFrame = 0;
 			m_animationSpeed = 100;
 			lastIdle = GetTickCount();
@@ -441,13 +441,13 @@ public:
 		}
 
 	c3_Animation(AUI_ERRCODE *retval, uint32 id, sint32 x, sint32 y, sint32 width, sint32 height,
-		const MBCHAR *text = NULL, uint32 maxLength = 0 ) :
+		const MBCHAR *text = nullptr, uint32 maxLength = 0 ) :
 		aui_ImageBase( (sint32)0, AUI_IMAGEBASE_BLTTYPE_COPY, AUI_IMAGEBASE_BLTFLAG_COPY, true),
-		aui_TextBase((const MBCHAR *)NULL, (uint32)0),
+		aui_TextBase((const MBCHAR *)nullptr, (uint32)0),
 		c3_Blend(retval, id, x, y, width, height, text, maxLength)
 		{
 
-			m_frames = NULL;
+			m_frames = nullptr;
 			m_currentFrame = 0;
 			m_animationSpeed = 100;
 			lastIdle = GetTickCount();
@@ -516,7 +516,7 @@ void c3_Animation::InitCommonLdl(MBCHAR *ldlBlock)
 	if(!valid) return;
 
 	ldl_datablock *datablock = theLdl->GetLdl()->FindDataBlock( ldlBlock );
-	Assert(datablock != NULL);
+	Assert(datablock != nullptr);
 	if(!datablock) return;
 
 	m_animationSpeed			= datablock->GetInt(k_C3_ANIMATION_SPEED);
@@ -907,7 +907,7 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	if(!valid) return;
 
 	ldl_datablock *datablock = theLdl->GetLdl()->FindDataBlock( ldlBlock );
-	Assert(datablock != NULL);
+	Assert(datablock != nullptr);
 	if(!datablock) return;
 
 	m_blendSpeed			= datablock->GetInt(k_LDL_ENDGAME_BLEND_SPEED);
@@ -1088,10 +1088,10 @@ void EndGameWindow::InitCommonLdl(MBCHAR *ldlBlock)
 void EndGameWindow::CleanPointers()
 {
 
-	m_embryoTankName = NULL;
-	m_containmentFieldName = NULL;
-	m_ECDName = NULL;
-	m_splicerName = NULL;
+	m_embryoTankName = nullptr;
+	m_containmentFieldName = nullptr;
+	m_ECDName = nullptr;
+	m_splicerName = nullptr;
 
 	m_numberOfStages = 0;
 	m_numberOfContainmentFields = 0;
@@ -1101,28 +1101,28 @@ void EndGameWindow::CleanPointers()
 	m_numberOfLabels = 0;
 	m_numberOfStageLights = 0;
 
-	m_background = NULL;
-	m_backgroundAnim = NULL;
-	m_border = NULL;
-	m_exitButton = NULL;
-	m_embryoTank = NULL;
-	m_brokenTank = NULL;
-	m_embryoGlow = NULL;
-	m_embryoStage = NULL;
-	m_containmentField = NULL;
-	m_ECD = NULL;
-	m_splicer = NULL;
+	m_background = nullptr;
+	m_backgroundAnim = nullptr;
+	m_border = nullptr;
+	m_exitButton = nullptr;
+	m_embryoTank = nullptr;
+	m_brokenTank = nullptr;
+	m_embryoGlow = nullptr;
+	m_embryoStage = nullptr;
+	m_containmentField = nullptr;
+	m_ECD = nullptr;
+	m_splicer = nullptr;
 
-	m_darkenArea = NULL;
-	m_labels = NULL;
-	m_progressBackground = NULL;
-	m_turnProgress = NULL;
-	m_turnsRemaining = NULL;
-	m_ecdRatio = NULL;
-	m_containmentFieldRatio = NULL;
-	m_splicerRatio = NULL;
-	m_chanceOfFailure = NULL;
-	m_stageLights = NULL;
+	m_darkenArea = nullptr;
+	m_labels = nullptr;
+	m_progressBackground = nullptr;
+	m_turnProgress = nullptr;
+	m_turnsRemaining = nullptr;
+	m_ecdRatio = nullptr;
+	m_containmentFieldRatio = nullptr;
+	m_splicerRatio = nullptr;
+	m_chanceOfFailure = nullptr;
+	m_stageLights = nullptr;
 }
 
 void EndGameWindow::CleanUp(aui_Control *control)

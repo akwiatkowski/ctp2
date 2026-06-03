@@ -45,7 +45,7 @@ aui_Tab::aui_Tab(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Radio( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -72,7 +72,7 @@ aui_Tab::aui_Tab(
 	sint32 numStates )
 	:
 	aui_ImageBase( numStates ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Radio( retval, id, x, y, width, height, ActionFunc, cookie, state, numStates )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -136,7 +136,7 @@ aui_Tab::~aui_Tab()
 	if ( m_pane )
 	{
 		delete m_pane;
-		m_pane = NULL;
+		m_pane = nullptr;
 	}
 }
 
@@ -226,7 +226,7 @@ void aui_Tab::MouseLDragOver( aui_MouseEvent *mouseData )
 	{
 		SetWhichSeesMouse( this );
 
-		if ( GetMouseOwnership() == NULL )
+		if ( GetMouseOwnership() == nullptr )
 		{
 			PlaySound( AUI_SOUNDBASE_SOUND_ACTIVATE );
 
@@ -251,7 +251,7 @@ void aui_Tab::MouseLDragAway( aui_MouseEvent *mouseData )
 {
 	if ( IsDisabled() ) return;
 
-	if ( GetMouseOwnership() == NULL )
+	if ( GetMouseOwnership() == nullptr )
 	{
 		PlaySound( AUI_SOUNDBASE_SOUND_DEACTIVATE );
 
@@ -322,7 +322,7 @@ void aui_Tab::MouseLDropInside( aui_MouseEvent *mouseData )
 	{
 		SetWhichSeesMouse( this );
 
-		if ( GetMouseOwnership() != NULL )
+		if ( GetMouseOwnership() != nullptr )
 		{
 			PlaySound( AUI_SOUNDBASE_SOUND_ACTIVATE );
 

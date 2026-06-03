@@ -327,7 +327,7 @@ void Goal::Rollback_Agent(Agent_List::iterator & agent_iter)
 
 	Assert(m_current_attacking_strength.Get_Agent_Count() >= m_agents.size());
 
-	agent_ptr->Set_Goal(NULL);
+	agent_ptr->Set_Goal(nullptr);
 }
 
 bool Goal::Can_Be_Executed() const
@@ -1380,7 +1380,7 @@ void Goal::Compute_Needed_Troop_Flow()
 
 	const StrategyRecord & strategy =
 		Diplomat::GetDiplomat(m_playerId).GetCurrentStrategy();
-	const StrategyRecord::ForceMatch *force_match = NULL;
+	const StrategyRecord::ForceMatch *force_match = nullptr;
 
 	switch (goal_record->GetForceMatch())
 	{
@@ -2145,10 +2145,10 @@ Utility Goal::Compute_Raw_Priority()
 	bool isLandConnected = goal_rec->HasConnectionBoni() && player_ptr->IsConnected(target_pos, doubleDistanceFactor * g_theConstDB->Get(0)->GetBorderSquaredRadius(), distance);
 	bool isConnected     = goal_rec->HasConnectionBoni() && player_ptr->IsConnected(target_pos, doubleDistanceFactor * g_theConstDB->Get(0)->GetBorderSquaredRadius(), distance, false);
 
-	const GoalRecord::ConnectionBoni* cbRec = isLandConnected || isConnected ? goal_rec->GetConnectionBoniPtr() : NULL;
+	const GoalRecord::ConnectionBoni* cbRec = isLandConnected || isConnected ? goal_rec->GetConnectionBoniPtr() : nullptr;
 
 	// A little ugly but this way I don't have to mess with the debug reports
-	if(cbRec != NULL)
+	if(cbRec != nullptr)
 	{
 		if(isLandConnected)
 		{
@@ -2182,7 +2182,7 @@ Utility Goal::Compute_Raw_Priority()
 
 	if
 	  (
-	       cbRec != NULL
+	       cbRec != nullptr
 	    && cbRec->GetSmallTargetEmpireBonus() != 0
 	    && target_owner != m_playerId
 	    && target_owner > -1
@@ -2482,7 +2482,7 @@ bool Goal::Get_Totally_Complete() const
 	MapPoint target_pos           = Get_Target_Pos();
 
 	Player *player_ptr = player_Get( m_playerId );
-	Assert(player_ptr != NULL);
+	Assert(player_ptr != nullptr);
 
 	// Don't attack as Barbarian a target that is protected by the Great Wall
 	if
@@ -2651,7 +2651,7 @@ bool Goal::Get_Totally_Complete() const
 
 			Assert( m_target_city.m_id != 0);
 			if ((m_target_city.m_id == 0) ||
-				 (m_target_city.GetCityData()->GetTradeSourceList() == NULL) ||
+				 (m_target_city.GetCityData()->GetTradeSourceList() == nullptr) ||
 				 (m_target_city.GetCityData()->GetTradeSourceList()->Num() <= 0))
 				return true;
 			break;
@@ -2869,7 +2869,7 @@ bool Goal::Get_Invalid() const
 			return true;
 
 		CityData *city = m_target_city->GetCityData();
-		if(city == NULL)
+		if(city == nullptr)
 		{
 			Assert(false);
 			return true;
@@ -2902,7 +2902,7 @@ bool Goal::Get_Invalid() const
 	}
 
 	if(goal_record->GetTargetTypeGoodyHut())
-		return(world_Get()->GetGoodyHut(Get_Target_Pos()) == NULL);
+		return(world_Get()->GetGoodyHut(Get_Target_Pos()) == nullptr);
 
 	// Check whether the target can refuel the given army
 	if(goal_record->GetTargetTypePetrolStation())
@@ -2910,7 +2910,7 @@ bool Goal::Get_Invalid() const
 		if(unitpool_Get()->IsValid(m_target_city))
 		{
 			CityData *city = m_target_city->GetCityData();
-			if(city == NULL){
+			if(city == nullptr){
 				Assert(0);
 				return true;
 			}
@@ -3722,7 +3722,7 @@ bool Goal::GotoGoalTaskSolution(Agent_ptr the_army, MapPoint & goal_pos)
 	bool move_success = false;
 	if ( found )
 	{
-		move_success = FollowPathToTask(the_army, NULL, goal_pos, found_path);
+		move_success = FollowPathToTask(the_army, nullptr, goal_pos, found_path);
 	}
 	else
 	{
@@ -3919,7 +3919,7 @@ MapPoint Goal::MoveToTarget(Agent_ptr rallyAgent)
 //	MapPoint rallyPos = found_path.SnipEndUntilCannotEnter(rallyAgent->Get_Army());
 	MapPoint rallyPos = found_path.SnipEndUntilCargoCanEnter(rallyAgent->Get_Army());
 
-	FollowPathToTask(rallyAgent, NULL, rallyPos, found_path);
+	FollowPathToTask(rallyAgent, nullptr, rallyPos, found_path);
 
 	return rallyPos;
 }
@@ -3935,7 +3935,7 @@ MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 			bool result = rallyPos.GetNeighborPosition(WORLD_DIRECTION(i), tempPos);
 			if(result)
 			{
-				CellUnitList *the_army = NULL;
+				CellUnitList *the_army = nullptr;
 				the_army = world_Get()->GetArmyPtr(tempPos);
 				if(!the_army
 				&& rallyAgent->Get_Army()->CanEnter(tempPos)
@@ -3956,7 +3956,7 @@ MapPoint Goal::MoveOutOfCity(Agent_ptr rallyAgent)
 Agent_ptr Goal::GetRallyAgent() const
 {
 	MapPoint targetPos              = Get_Target_Pos();
-	Agent_ptr rallyAgent            = NULL;
+	Agent_ptr rallyAgent            = nullptr;
 	sint32 minDistance              = 0x7fffffff;
 
 	for
@@ -3982,7 +3982,7 @@ Agent_ptr Goal::GetRallyAgent() const
 		}
 	}
 
-	Assert(rallyAgent != NULL);
+	Assert(rallyAgent != nullptr);
 
 	return rallyAgent;
 }
@@ -4022,7 +4022,7 @@ bool Goal::RallyTroops()
 	GroupTroops();
 	Agent_ptr rallyAgent = GetRallyAgent();
 
-	if(rallyAgent == NULL)
+	if(rallyAgent == nullptr)
 	{
 		return true;
 	}

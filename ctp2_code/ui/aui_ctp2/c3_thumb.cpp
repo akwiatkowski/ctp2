@@ -23,7 +23,7 @@ c3_Thumb::c3_Thumb(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Thumb( retval, id, x, y, width, height, ActionFunc, cookie ),
 	PatternBase( pattern )
 {
@@ -37,9 +37,9 @@ c3_Thumb::c3_Thumb(
 	void *cookie )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Thumb( retval, id, ldlBlock, ActionFunc, cookie ),
-	PatternBase( ldlBlock, (MBCHAR *)NULL )
+	PatternBase( ldlBlock, (MBCHAR *)nullptr )
 {
 }
 

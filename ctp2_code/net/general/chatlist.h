@@ -16,7 +16,7 @@ class ChatText
 		m_text = new MBCHAR[strlen(text) + 1];
 		strcpy(m_text, text);
 		m_sender = sender;
-		m_timeAdded = time(0);
+		m_timeAdded = time(nullptr);
 	}
 
 	~ChatText() {
@@ -40,7 +40,7 @@ class ChatList
 	}
 
 	void RemoveExpired() {
-		while(m_list.GetTail() && (m_list.GetTail()->m_timeAdded + k_CHAT_TEXT_TIME < time(0))) {
+		while(m_list.GetTail() && (m_list.GetTail()->m_timeAdded + k_CHAT_TEXT_TIME < time(nullptr))) {
 			delete m_list.RemoveTail();
 		}
 	}

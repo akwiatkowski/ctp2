@@ -31,7 +31,7 @@
 
 extern sint32	g_modalWindow;
 
-static BattleViewWindow		*g_battleViewWindow = NULL;
+static BattleViewWindow		*g_battleViewWindow = nullptr;
 
 BattleViewWindow * battleviewwindow_Get()
 {
@@ -109,7 +109,7 @@ void BattleViewWindow::Initialize(SequenceWeakPtr seq)
 
 	g_modalWindow++;
 
-	Assert(g_battleViewWindow != NULL);
+	Assert(g_battleViewWindow != nullptr);
 }
 
 
@@ -123,7 +123,7 @@ void BattleViewWindow::Cleanup()
 		c3ui_Get()->RemoveWindow(g_battleViewWindow->Id());
 
 		delete g_battleViewWindow;
-		g_battleViewWindow = NULL;
+		g_battleViewWindow = nullptr;
 	}
 
 	g_modalWindow--;
@@ -142,37 +142,37 @@ BattleViewWindow::BattleViewWindow
 )
 :
 	C3Window                (retval, id, ldlBlock, bpp, type),
-	m_battleView            (NULL),
+	m_battleView            (nullptr),
 //	RECT					m_battleViewRect;
-	m_topBorder             (NULL),
-    m_leftBorder            (NULL),
-    m_rightBorder           (NULL),
-    m_bottomBorder          (NULL),
-    m_exitButton            (NULL),
-    m_retreatButton         (NULL),
-    m_titleText             (NULL),
-    m_attackersText         (NULL),
-    m_attackersName         (NULL),
-    m_attackersFlag         (NULL),
-    m_defendersText         (NULL),
-    m_defendersName         (NULL),
-    m_defendersFlag         (NULL),
-    m_terrainBonusText      (NULL),
-    m_terrainBonusValue     (NULL),
-    m_cityBonusText         (NULL),
-    m_cityBonusValue        (NULL),
-    m_citylandattackBonusText (NULL),
-    m_citylandattackBonusValue (NULL),
-    m_cityairattackBonusText (NULL),
-    m_cityairattackBonusValue (NULL),
-    m_cityseaattackBonusText (NULL),
-    m_cityseaattackBonusValue (NULL),
-    m_cityName              (NULL),
-    m_fortBonusText         (NULL),
-    m_fortBonusValue        (NULL),
-    m_fortBonusImage        (NULL),
-    m_fortifiedBonusText    (NULL),
-    m_fortifiedBonusValue   (NULL)
+	m_topBorder             (nullptr),
+    m_leftBorder            (nullptr),
+    m_rightBorder           (nullptr),
+    m_bottomBorder          (nullptr),
+    m_exitButton            (nullptr),
+    m_retreatButton         (nullptr),
+    m_titleText             (nullptr),
+    m_attackersText         (nullptr),
+    m_attackersName         (nullptr),
+    m_attackersFlag         (nullptr),
+    m_defendersText         (nullptr),
+    m_defendersName         (nullptr),
+    m_defendersFlag         (nullptr),
+    m_terrainBonusText      (nullptr),
+    m_terrainBonusValue     (nullptr),
+    m_cityBonusText         (nullptr),
+    m_cityBonusValue        (nullptr),
+    m_citylandattackBonusText (nullptr),
+    m_citylandattackBonusValue (nullptr),
+    m_cityairattackBonusText (nullptr),
+    m_cityairattackBonusValue (nullptr),
+    m_cityseaattackBonusText (nullptr),
+    m_cityseaattackBonusValue (nullptr),
+    m_cityName              (nullptr),
+    m_fortBonusText         (nullptr),
+    m_fortBonusValue        (nullptr),
+    m_fortBonusImage        (nullptr),
+    m_fortifiedBonusText    (nullptr),
+    m_fortifiedBonusValue   (nullptr)
 {
 	InitCommonLdl(ldlBlock);
 }
@@ -214,7 +214,7 @@ BattleViewWindow::~BattleViewWindow()
 	Assert(this == g_battleViewWindow);
 	if (this == g_battleViewWindow)
     {
-		g_battleViewWindow = NULL;
+		g_battleViewWindow = nullptr;
     }
 }
 
@@ -225,7 +225,7 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	AUI_ERRCODE		errcode;
 
 	m_battleView = new BattleView();
-	Assert(m_battleView != NULL);
+	Assert(m_battleView != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TitleText");
 	m_titleText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
@@ -309,7 +309,7 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_fortBonusValue = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
 	Assert(m_fortBonusValue);
 
-	m_fortBonusImage = NULL;
+	m_fortBonusImage = nullptr;
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "FortifiedBonusText");
 	m_fortifiedBonusText = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
@@ -322,12 +322,12 @@ AUI_ERRCODE BattleViewWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "ExitButton");
 	m_exitButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
 		battleview_ExitButtonActionCallback);
-	Assert(m_exitButton != NULL);
+	Assert(m_exitButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "RetreatButton");
 	m_retreatButton = new ctp2_Button(&errcode, aui_UniqueId(), buttonBlock,
 		battleview_RetreatButtonActionCallback);
-	Assert(m_retreatButton != NULL);
+	Assert(m_retreatButton != nullptr);
 
 	snprintf(buttonBlock, sizeof(buttonBlock), "%s.%s", ldlBlock, "TopBorder");
 	m_topBorder = new ctp2_Static(&errcode, aui_UniqueId(), buttonBlock);
@@ -406,7 +406,7 @@ void BattleViewWindow::SetupBattle(Battle *battle)
 	AUI_ERRCODE	errcode = AUI_ERRCODE_OK;
 	aui_StringTable	*table = new aui_StringTable(&errcode, "BattleViewTerrainTable");
 	Assert(errcode == AUI_ERRCODE_OK);
-	MBCHAR *imageName = NULL;
+	MBCHAR *imageName = nullptr;
 
 	const TerrainRecord *defTerrRec = g_theTerrainDB->Get(terrainType);
 	const TerrainRecord *attackTerrRec = g_theTerrainDB->Get(attackerTerrain);

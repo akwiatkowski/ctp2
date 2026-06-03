@@ -103,7 +103,7 @@ GameEventManager::GameEventManager()
 	fclose(f);
 #endif
 
-	std::fill(m_hooks, m_hooks + GEV_MAX, (GameEventHook *) NULL);
+	std::fill(m_hooks, m_hooks + GEV_MAX, (GameEventHook *) nullptr);
 }
 
 GameEventManager::~GameEventManager()

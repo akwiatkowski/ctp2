@@ -36,9 +36,9 @@ Anim::Anim()
 :
 	m_type              (ANIMTYPE_SEQUENTIAL),
 	m_numFrames         (0),
-	m_frames            (NULL),
-	m_moveDeltas        (NULL),
-	m_transparencies    (NULL),
+	m_frames            (nullptr),
+	m_moveDeltas        (nullptr),
+	m_transparencies    (nullptr),
 	m_playbackTime      (0),
 	m_delay             (0),
 	m_delayEnd          (0),
@@ -54,9 +54,9 @@ Anim::Anim(Anim const & copy)
 :
 	m_type              (copy.m_type),
 	m_numFrames         (copy.m_numFrames),
-	m_frames            (NULL),
-	m_moveDeltas        (NULL),
-	m_transparencies    (NULL),
+	m_frames            (nullptr),
+	m_moveDeltas        (nullptr),
+	m_transparencies    (nullptr),
 	m_playbackTime      (copy.m_playbackTime),
 	m_delay             (copy.m_delay),
 	m_delayEnd          (copy.m_delayEnd),
@@ -114,9 +114,9 @@ Anim const & Anim::operator = (Anim const & copy)
         }
         else
         {
-            m_frames            = NULL;
-            m_transparencies    = NULL;
-            m_moveDeltas        = NULL;
+            m_frames            = nullptr;
+            m_transparencies    = nullptr;
+            m_moveDeltas        = nullptr;
         }
     }
 

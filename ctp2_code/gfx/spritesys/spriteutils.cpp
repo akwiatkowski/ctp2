@@ -393,14 +393,14 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, Pixel32 *shadowBuf, uint16 wi
 	Pixel32             *srcPixel = buf;
 
 	Pixel16             *outBuf = new Pixel16[(1+height+width*height)*8];
-	Pixel16             *returnBuf = NULL;
+	Pixel16             *returnBuf = nullptr;
 	uint16              *table = (uint16 *)outBuf;
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr, *startDataPtr;
 	BOOL                empty;
 
 
-	if (shadowBuf != NULL)
+	if (shadowBuf != nullptr)
 		spriteutils_MergeShadowMap(buf, shadowBuf, width, height);
 
 	*table++ = (uint16)height;
@@ -446,7 +446,7 @@ Pixel16 * spriteutils_RGB32ToEncoded(Pixel32 *buf, uint16 width, uint16 height, 
 	Pixel32             *srcPixel = buf;
 
 	Pixel16             *outBuf = new Pixel16[(1+height+width*height)*8];
-	Pixel16             *returnBuf = NULL;
+	Pixel16             *returnBuf = nullptr;
 	uint16              *table = (uint16 *)outBuf;
 	Pixel16             *startOfData;
 	Pixel16             *dataPtr, *startDataPtr;

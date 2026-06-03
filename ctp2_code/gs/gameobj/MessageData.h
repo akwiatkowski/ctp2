@@ -167,7 +167,7 @@ class MessageData : public GameObj
 		void SetSelectedMsgType(MESSAGE_TYPE type) { m_msgSelectedType = type; }
 
 		void ToString(MBCHAR *s) ;
-		MBCHAR *GetMsgText() { return m_text.empty() ? NULL : &m_text[0]; }
+		MBCHAR *GetMsgText() { return m_text.empty() ? nullptr : &m_text[0]; }
 
 
 
@@ -197,16 +197,16 @@ class MessageData : public GameObj
 
 		void IgnoreMessage( );
 
-		const MBCHAR *GetMsgOpenSound( ) { return NULL; }
-		const MBCHAR *GetMsgSound( ) { return NULL; }
+		const MBCHAR *GetMsgOpenSound( ) { return nullptr; }
+		const MBCHAR *GetMsgSound( ) { return nullptr; }
 
 
 		sint32 GetNumEyePoints() const;
 		void EyePointCallback( sint32 index );
 		void EyeDropdownCallback( sint32 index );
 
-		const MBCHAR *GetSubmitString() { return NULL; }
-		const MBCHAR *GetTipText() { return NULL; }
+		const MBCHAR *GetSubmitString() { return nullptr; }
+		const MBCHAR *GetTipText() { return nullptr; }
 
 		BOOL GetGreatLibraryButton( ) { return FALSE; }
 		void GreatLibraryCallback( ) { ; }
@@ -248,7 +248,7 @@ class MessageData : public GameObj
 		void SetClass(sint32 mclass) { m_class = mclass; }
 		sint32 GetClass() const { return m_class; }
 
-		MBCHAR *GetTitle() { return m_title.empty() ? NULL : &m_title[0]; }
+		MBCHAR *GetTitle() { return m_title.empty() ? nullptr : &m_title[0]; }
 		void SetTitle(MBCHAR *title);
 
 		void DisableClose(BOOL dis) { m_closeDisabled = dis; }

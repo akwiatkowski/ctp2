@@ -207,7 +207,7 @@ void NetWormhole::Unpacketize(uint16 id, uint8 *buf, uint16 size)
 	if(!haveWormhole) {
 		if(Wormhole *wh = wormhole_Get()) {
 			delete wh;
-			wormhole_Set(NULL);
+			wormhole_Set(nullptr);
 		}
 		return;
 	}

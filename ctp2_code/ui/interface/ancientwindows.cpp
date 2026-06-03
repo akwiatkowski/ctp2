@@ -30,21 +30,21 @@ extern StatsWindow				*g_statsWindow;
 
 
 
-static C3Window		*s_lowerRight = NULL;
+static C3Window		*s_lowerRight = nullptr;
 static aui_Static	*s_imageLowerRight;
 
-static C3Window		*s_angelLeft = NULL;
+static C3Window		*s_angelLeft = nullptr;
 static aui_Static	*s_imageAngelLeft;
-static C3Window		*s_angelRight = NULL;
+static C3Window		*s_angelRight = nullptr;
 static aui_Static	*s_imageAngelRight;
-static C3Window		*s_radarBorderRight = NULL;
+static C3Window		*s_radarBorderRight = nullptr;
 static aui_Static	*s_imageRadarBorderRight;
-static C3Window		*s_controlLeft = NULL;
+static C3Window		*s_controlLeft = nullptr;
 static c3_Static	*s_imageControlLeft;
-static C3Window		*s_controlRight = NULL;
+static C3Window		*s_controlRight = nullptr;
 static c3_Static	*s_imageControlRight;
 
-static BevelLessWindow *s_controlPiece = NULL;
+static BevelLessWindow *s_controlPiece = nullptr;
 
 
 
@@ -88,8 +88,8 @@ sint32 ancientwindows_GetControlPieceHeight( )
 }
 
 
-BevelLessWindow		*s_controlPanelLeftHat=NULL;
-BevelLessWindow		*s_controlPanelRightHat=NULL;
+BevelLessWindow		*s_controlPanelLeftHat=nullptr;
+BevelLessWindow		*s_controlPanelRightHat=nullptr;
 
 int AncientWindows_Initialize( )
 {

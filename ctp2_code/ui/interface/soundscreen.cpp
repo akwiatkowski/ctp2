@@ -46,20 +46,20 @@
 #include "ui/aui_ctp2/keypress.h"
 
 
-static c3_PopupWindow *s_soundWindow	= NULL;
-static C3Slider		*s_sfx				= NULL,
-					*s_music			= NULL,
-					*s_voice			= NULL;
+static c3_PopupWindow *s_soundWindow	= nullptr;
+static C3Slider		*s_sfx				= nullptr,
+					*s_music			= nullptr,
+					*s_voice			= nullptr;
 
-static c3_Static	*s_sfxN				= NULL,
-					*s_musicN			= NULL,
-					*s_voiceN			= NULL;
-static c3_Static	*s_sfxmin			= NULL,
-					*s_sfxmax			= NULL,
-					*s_musicmin			= NULL,
-					*s_musicmax			= NULL,
-					*s_voicemin			= NULL,
-					*s_voicemax			= NULL;
+static c3_Static	*s_sfxN				= nullptr,
+					*s_musicN			= nullptr,
+					*s_voiceN			= nullptr;
+static c3_Static	*s_sfxmin			= nullptr,
+					*s_sfxmax			= nullptr,
+					*s_musicmin			= nullptr,
+					*s_musicmax			= nullptr,
+					*s_voicemin			= nullptr,
+					*s_voicemax			= nullptr;
 
 
 
@@ -181,7 +181,7 @@ AUI_ERRCODE soundscreen_Cleanup()
 	mycleanup(s_voicemax);
 
 	delete s_soundWindow;
-	s_soundWindow = NULL;
+	s_soundWindow = nullptr;
 
 	return AUI_ERRCODE_OK;
 #undef mycleanup

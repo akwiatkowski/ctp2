@@ -58,11 +58,11 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock,
 		sint32 bpp,
-		MBCHAR ldlBorder[k_NUM_C3_FANCYBORDERS][ k_AUI_LDL_MAXBLOCK + 1 ] = NULL,
-		MBCHAR *ldlTitle = NULL,
+		MBCHAR ldlBorder[k_NUM_C3_FANCYBORDERS][ k_AUI_LDL_MAXBLOCK + 1 ] = nullptr,
+		MBCHAR *ldlTitle = nullptr,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_BACKGROUND,
 		bool bevel = true,
-		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = NULL);
+		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = nullptr);
 
 	virtual ~c3_FancyWindow();
 	virtual AUI_ERRCODE Resize( sint32 width, sint32 height );
@@ -91,7 +91,7 @@ private:
 	POINT	m_offset[k_NUM_C3_FANCYBORDERS];
 
 	POINT	m_originalDimensions;
-	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=NULL; }
+	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=nullptr; }
 
 	c3_Static	*m_title;
 
@@ -118,11 +118,11 @@ public:
 		uint32 id,
 		MBCHAR *ldlBlock,
 		sint32 bpp,
-		MBCHAR ldlBorder[k_NUM_C3_FANCYBORDERS2][ k_AUI_LDL_MAXBLOCK + 1 ] = NULL,
-		MBCHAR *ldlTitle = NULL,
+		MBCHAR ldlBorder[k_NUM_C3_FANCYBORDERS2][ k_AUI_LDL_MAXBLOCK + 1 ] = nullptr,
+		MBCHAR *ldlTitle = nullptr,
 		AUI_WINDOW_TYPE type = AUI_WINDOW_TYPE_BACKGROUND,
 		bool bevel = true,
-		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = NULL);
+		void (*exitCallBack)( aui_Control *, uint32, uint32, void *) = nullptr);
 
 	virtual ~c3_FancyWindow2();
 
@@ -141,7 +141,7 @@ private:
 	C3Window *m_border[k_NUM_C3_FANCYBORDERS2];
 
 	POINT	m_offset[k_NUM_C3_FANCYBORDERS2];
-	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=NULL; }
+	void NullBorders() { for(uint32 i =0; i< k_NUM_C3_FANCYBORDERS; i++) m_border[i]=nullptr; }
 
 	c3_Static	*m_title;
 

@@ -29,7 +29,7 @@ protected:
 	aui_Header() : aui_SwitchGroup() {}
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
 	AUI_ERRCODE InitCommon( );
-	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = NULL );
+	AUI_ERRCODE CreateSwitches( MBCHAR *ldlBlock = nullptr );
 
 public:
 	virtual AUI_ERRCODE	AddChild( aui_Region *child );

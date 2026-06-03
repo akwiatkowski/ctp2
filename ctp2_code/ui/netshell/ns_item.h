@@ -60,9 +60,9 @@ public:
 	virtual sint32 Compare(c3_ListItem *item2, uint32 column) { return 0; }
 
 	NETFunc::Player *GetPlayer( ) const
-	{ return IsAI() ? NULL : (NETFunc::Player *)m_player; }
+	{ return IsAI() ? nullptr : (NETFunc::Player *)m_player; }
 	nf_AIPlayer *GetAIPlayer( ) const
-	{ return IsAI() ? (nf_AIPlayer *)m_player : NULL; }
+	{ return IsAI() ? (nf_AIPlayer *)m_player : nullptr; }
 
 	BOOL IsAI( ) const { return m_isAI; }
 
@@ -153,7 +153,7 @@ public:
 	aui_Image	*GetIcon( ) const { return m_icon; }
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -174,7 +174,7 @@ ns_Item<T,NetShellT>::ns_Item(
 	T *object )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Item( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -228,8 +228,8 @@ AUI_ERRCODE ns_Item<T,NetShellT>::InitCommonLdl( MBCHAR *ldlBlock )
 template<class T,class NetShellT>
 AUI_ERRCODE ns_Item<T,NetShellT>::InitCommon( )
 {
-	m_netShellT = NULL;
-	m_icon = NULL;
+	m_netShellT = nullptr;
+	m_icon = nullptr;
 
 	m_textflags = k_AUI_BITMAPFONT_DRAWFLAG_JUSTLEFT |
 		k_AUI_BITMAPFONT_DRAWFLAG_VERTCENTER;
@@ -248,7 +248,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::CreateNetShellObject( T *object )
 	if ( object )
 	{
 		m_netShellT = new NetShellT( object );
-		Assert( m_netShellT != NULL );
+		Assert( m_netShellT != nullptr );
 		if ( !m_netShellT ) return AUI_ERRCODE_MEMALLOCFAILED;
 	}
 
@@ -262,13 +262,13 @@ ns_Item<T,NetShellT>::~ns_Item()
 	if ( m_netShellT )
 	{
 		delete m_netShellT;
-		m_netShellT = NULL;
+		m_netShellT = nullptr;
 	}
 
 	if ( m_icon )
 	{
 		aui_ui_Get()->UnloadImage( m_icon );
-		m_icon = NULL;
+		m_icon = nullptr;
 	}
 }
 
@@ -281,7 +281,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::SetIcon( MBCHAR *icon )
 	if ( icon )
 	{
 		m_icon = aui_ui_Get()->LoadImage( icon );
-		Assert( m_icon != NULL );
+		Assert( m_icon != nullptr );
 		if ( !m_icon )
 		{
 			m_icon = prevImage;
@@ -289,7 +289,7 @@ AUI_ERRCODE ns_Item<T,NetShellT>::SetIcon( MBCHAR *icon )
 		}
 	}
 	else
-		m_icon = NULL;
+		m_icon = nullptr;
 
 	if ( prevImage ) aui_ui_Get()->UnloadImage( prevImage );
 

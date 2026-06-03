@@ -551,7 +551,7 @@ BOOL World::IsConnectedToCity(const MapPoint &pnt, sint32 owner,
 			return FALSE;
 	}
 
-	if(array == NULL) {
+	if(array == nullptr) {
 		array = new uint8[m_size.y * m_size.x];
 		memset(array, 0, m_size.y * m_size.x);
 		firstcall = TRUE;
@@ -610,7 +610,7 @@ bool World::IsContinentSharedWithOthers(const MapPoint &pnt,
 		thisCell->GetOwner() != owner)
 		return TRUE;
 
-	if(array == NULL) {
+	if(array == nullptr) {
 		array = new uint8[m_size.y * m_size.x];
 		memset(array, 0, m_size.y * m_size.x);
 		firstcall = TRUE;
@@ -647,7 +647,7 @@ BOOL World::IsContinentBiggerThan(uint32 size,
 	BOOL firstcall = FALSE;
 	MapPoint pos;
 
-	if(array == NULL) {
+	if(array == nullptr) {
 		array = new uint8[m_size.y * m_size.x];
 		memset(array, 0, m_size.y * m_size.x);
 		cursize = new uint32;

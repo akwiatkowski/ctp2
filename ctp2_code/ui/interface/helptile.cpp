@@ -72,32 +72,32 @@ extern sint32		g_god;
 
 extern StringDB					*stringdb_Get();
 
-c3_PopupWindow					*g_helpTileWindow = NULL;
+c3_PopupWindow					*g_helpTileWindow = nullptr;
 
-static c3_Static			*s_tileFood			= NULL;
-static c3_Static			*s_tileFoodV		= NULL;
-static c3_Static			*s_tileProd			= NULL;
-static c3_Static			*s_tileProdV		= NULL;
-static c3_Static			*s_tileMove			= NULL;
-static c3_Static			*s_tileMoveV		= NULL;
-static c3_Static			*s_tileGood			= NULL;
-static c3_Static			*s_tileGoodV		= NULL;
-static c3_Static			*s_tileSale			= NULL;
-static c3_Static			*s_tileSaleV		= NULL;
-static c3_Static			*s_tileGold			= NULL;
-static c3_Static			*s_tileGoldV		= NULL;
+static c3_Static			*s_tileFood			= nullptr;
+static c3_Static			*s_tileFoodV		= nullptr;
+static c3_Static			*s_tileProd			= nullptr;
+static c3_Static			*s_tileProdV		= nullptr;
+static c3_Static			*s_tileMove			= nullptr;
+static c3_Static			*s_tileMoveV		= nullptr;
+static c3_Static			*s_tileGood			= nullptr;
+static c3_Static			*s_tileGoodV		= nullptr;
+static c3_Static			*s_tileSale			= nullptr;
+static c3_Static			*s_tileSaleV		= nullptr;
+static c3_Static			*s_tileGold			= nullptr;
+static c3_Static			*s_tileGoldV		= nullptr;
 
-static aui_StringTable		*s_stringTable		= NULL;
+static aui_StringTable		*s_stringTable		= nullptr;
 
 enum { STR_SALE_VALUE=0,STR_NONE=1 };
 
-static TileControl			*s_tileImage		= NULL;
-static c3_Static			*s_tileITop			= NULL;
-static c3_Static			*s_tileIBottom		= NULL;
-static c3_Static			*s_tileITL			= NULL;
-static c3_Static			*s_tileITR			= NULL;
-static c3_Static			*s_tileIBL			= NULL;
-static c3_Static			*s_tileIBR			= NULL;
+static TileControl			*s_tileImage		= nullptr;
+static c3_Static			*s_tileITop			= nullptr;
+static c3_Static			*s_tileIBottom		= nullptr;
+static c3_Static			*s_tileITL			= nullptr;
+static c3_Static			*s_tileITR			= nullptr;
+static c3_Static			*s_tileIBL			= nullptr;
+static c3_Static			*s_tileIBR			= nullptr;
 
 #define IMPROVEMENT_LISTBOXldl "TileImprovementListBox"
 #define HELPTILE_WINDOWldl "HelpTileWindow"
@@ -178,7 +178,7 @@ sint32 helptile_Initialize( )
 
 template <typename T>
 static void mycleanup(T * & mypointer)
-{ delete mypointer; mypointer = NULL; }
+{ delete mypointer; mypointer = nullptr; }
 
 void helptile_Cleanup( )
 {

@@ -70,11 +70,11 @@ LoadSaveMapWindow::LoadSaveMapWindow(AUI_ERRCODE *retval, uint32 id,
 		MBCHAR *ldlBlock, sint32 bpp, AUI_WINDOW_TYPE type, bool bevel)
 		: c3_PopupWindow(retval,id,ldlBlock,bpp,type,bevel)
 {
-	m_fileList = NULL;
-	m_gameMapInfo = NULL;
-	m_saveMapInfo = NULL;
-	m_saveMapInfoRemember = NULL;
-	m_saveMapInfoToSave = NULL;
+	m_fileList = nullptr;
+	m_gameMapInfo = nullptr;
+	m_saveMapInfo = nullptr;
+	m_saveMapInfoRemember = nullptr;
+	m_saveMapInfoToSave = nullptr;
 
 	m_type = LSMS_TOTAL;
 
@@ -93,7 +93,7 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	snprintf(block, sizeof(block), "%s.%s", ldlBlock, "Name" );
 	AddTitle( block );
 
-	AddOk( loadsavemapscreen_executePress, NULL, "c3_PopupOk" );
+	AddOk( loadsavemapscreen_executePress, nullptr, "c3_PopupOk" );
 	AddCancel( loadsavemapscreen_backPress );
 
 	m_deleteButton = spNew_c3_Button(
@@ -155,7 +155,7 @@ AUI_ERRCODE LoadSaveMapWindow::InitCommonLdl(MBCHAR *ldlBlock)
 	m_tabGroup->SetDrawMask( k_AUI_REGION_DRAWFLAG_UPDATE );
 
 	snprintf(tabBlock, sizeof(tabBlock), "%s.%s", tabGroupBlock, "MapTab");
-	m_mapTab = new TextTab(&errcode, aui_UniqueId(), tabBlock, NULL);
+	m_mapTab = new TextTab(&errcode, aui_UniqueId(), tabBlock, nullptr);
 	Assert( AUI_NEWOK(m_mapTab, errcode) );
 	if ( !AUI_NEWOK(m_mapTab, errcode) ) return AUI_ERRCODE_LOADFAILED;
 
@@ -217,7 +217,7 @@ void LoadSaveMapWindow::FillListOne()
 	if (!m_fileList) return;
 	if (m_fileList->GetCount() <= 0) return;
 
-	if (m_listOne == NULL) return;
+	if (m_listOne == nullptr) return;
 
 	m_listOne->Clear();
 
@@ -240,13 +240,13 @@ void LoadSaveMapWindow::FillListTwo(GameMapInfo *info)
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
 	Assert(m_listTwo);
-	if (m_listTwo == NULL) return;
+	if (m_listTwo == nullptr) return;
 
 	m_listTwo->Clear();
 
 	Ok()->Enable(LSMS_LOAD_GAMEMAP != m_type);
 
-    SetSaveMapInfo(NULL);
+    SetSaveMapInfo(nullptr);
 
 	if ( info )
 	{
@@ -371,7 +371,7 @@ void LoadSaveMapWindow::SetType(uint32 type)
 		CreateSaveMapInfoIfNeeded( m_saveMapInfoToSave );
 
 		BuildDefaultSaveMapName(
-			m_gameMapInfo ? m_gameMapInfo->name : NULL,
+			m_gameMapInfo ? m_gameMapInfo->name : nullptr,
 			m_saveMapInfoToSave->fileName);
 	} else {
 
@@ -380,7 +380,7 @@ void LoadSaveMapWindow::SetType(uint32 type)
 
 BOOL LoadSaveMapWindow::CreateSaveMapInfoIfNeeded( SaveMapInfo *&info )
 {
-	if ( info == NULL) {
+	if ( info == nullptr) {
 		info = new SaveMapInfo();
 
 		GameMapFile::GetExtendedInfoFromProfile(info);
@@ -400,17 +400,17 @@ void LoadSaveMapWindow::CleanUpSaveMapInfo( )
 	if ( m_saveMapInfoToSave )
 	{
 		delete m_saveMapInfoToSave;
-		m_saveMapInfoToSave = NULL;
+		m_saveMapInfoToSave = nullptr;
 	}
 
 	if ( m_saveMapInfoRemember )
 	{
 		delete m_saveMapInfoRemember;
-		m_saveMapInfoRemember = NULL;
+		m_saveMapInfoRemember = nullptr;
 	}
 
-	m_saveMapInfo = NULL;
-	m_gameMapInfo = NULL;
+	m_saveMapInfo = nullptr;
+	m_gameMapInfo = nullptr;
 }
 
 
@@ -434,7 +434,7 @@ void LoadSaveMapWindow::GetRadarMap(SaveMapInfo *info)
 	Pixel16		*buffer, *bufferDataPtr;
 	Pixel16 *   radarDataPtr = info->radarMapData;
 
-	if (surf->Lock(NULL, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
+	if (surf->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) return;
 	sint32      pitch = surf->Pitch();
 
 	for (sint32 i = 0; i < height; i++)
@@ -462,8 +462,8 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 
 	aui_Image		*image = m_mapTabImage->GetImage();
 
-	Assert( image != NULL );
-	if (image == NULL) return;
+	Assert( image != nullptr );
+	if (image == nullptr) return;
 
 	RECT rect =
 	{
@@ -503,7 +503,7 @@ void LoadSaveMapWindow::SetRadarMap(SaveMapInfo *info)
 
 	Pixel16 *   radarDataPtr = info->radarMapData;
 
-	if (surface->Lock(NULL, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
+	if (surface->Lock(nullptr, (LPVOID *)&buffer, 0) != AUI_ERRCODE_OK) {
 		delete surface;
 		delete image;
 		return;
@@ -587,14 +587,14 @@ void LoadSaveMapWindow::SetGameMapInfo(GameMapInfo *info)
 {
 	m_gameMapInfo = info;
 
-	if (info != NULL) {
+	if (info != nullptr) {
 		SetGameMapName(info->name);
 		FillListTwo(info);
 	}
 	else
 	{
 		SetGameMapName("");
-		FillListTwo(NULL);
+		FillListTwo(nullptr);
 	}
 }
 
@@ -602,7 +602,7 @@ void LoadSaveMapWindow::SetSaveMapInfo(SaveMapInfo *info)
 {
 	m_saveMapInfo = info;
 
-	if (info != NULL) {
+	if (info != nullptr) {
 		SetSaveMapName(info->fileName);
 		SetNote(info->note);
 
@@ -616,7 +616,7 @@ void LoadSaveMapWindow::SetSaveMapInfo(SaveMapInfo *info)
 			SetSaveMapName("");
 			SetNote("");
 
-			SetRadarMap(NULL);
+			SetRadarMap(nullptr);
 			break;
 
 		default:
@@ -637,7 +637,7 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 	MBCHAR		saveMapName[_MAX_PATH];
 	MBCHAR		theGameMapName[_MAX_PATH];
 
-	if (gameMapName == NULL) {
+	if (gameMapName == nullptr) {
 		strcpy(theGameMapName, profiledb_Get()->GetLeaderName());
 	} else {
 		strcpy(theGameMapName, gameMapName);
@@ -645,7 +645,7 @@ void LoadSaveMapWindow::BuildDefaultSaveMapName(MBCHAR *gameMapName, MBCHAR *nam
 
 	theGameMapName[6] = '\0';
 
-	if (gameMapName == NULL)
+	if (gameMapName == nullptr)
 		SetGameMapName(theGameMapName);
 
 	snprintf(saveMapName, sizeof(saveMapName), "%s", theGameMapName);
@@ -675,10 +675,10 @@ void LoadSaveMapWindow::EnableFields( BOOL enable )
 LSMGameMapsListItem::LSMGameMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, GameMapInfo *info)
 :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock),
-	m_itemIcon(NULL),
-	m_itemText(NULL)
+	m_itemIcon(nullptr),
+	m_itemText(nullptr)
 {
 	m_info = info;
 
@@ -718,10 +718,10 @@ sint32 LSMGameMapsListItem::Compare(c3_ListItem *item2, uint32 column)
 LSMSaveMapsListItem::LSMSaveMapsListItem(AUI_ERRCODE *retval, MBCHAR *ldlBlock, SaveMapInfo *info)
 :
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock),
-	m_itemIcon(NULL),
-	m_itemText(NULL)
+	m_itemIcon(nullptr),
+	m_itemText(nullptr)
 {
 	m_info = info;
 

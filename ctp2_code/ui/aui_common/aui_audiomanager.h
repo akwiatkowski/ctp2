@@ -21,7 +21,7 @@ protected:
 
 public:
 	virtual aui_Sound	*Load( const MBCHAR *filename )
-		{ return NULL; }
+		{ return nullptr; }
 
 	virtual AUI_ERRCODE Unload( aui_Sound *sound )
 		{ return AUI_ERRCODE_OK; }

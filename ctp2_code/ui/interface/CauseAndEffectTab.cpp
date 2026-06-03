@@ -1135,7 +1135,7 @@ AUI_ERRCODE CauseAndEffectTab::HappinessBarActionCallback(ctp2_Static *control,
                                                           void *cookie)
 {
 
-	if(selitem_Get() == NULL)
+	if(selitem_Get() == nullptr)
 		return(AUI_ERRCODE_OK);
 
 	sint32 hapvals[3];

@@ -68,15 +68,15 @@ WarningKeyboardHandler s_warningKeyboardHandler;
 extern Network				g_network;
 
 static uint32	s_currentWarning = OWS_OWSTOTAL;
-static c3_PopupWindow *s_optionwarningscreenWindow	= NULL;
-static ctp2_Button	*s_but1				= NULL,
-					*s_but2				= NULL,
-					*s_nevermind		= NULL;
-static c3_Static			*s_message				= NULL;
+static c3_PopupWindow *s_optionwarningscreenWindow	= nullptr;
+static ctp2_Button	*s_but1				= nullptr,
+					*s_but2				= nullptr,
+					*s_nevermind		= nullptr;
+static c3_Static			*s_message				= nullptr;
 
-static aui_StringTable		*s_messageString	= NULL,
-							*s_but1String		= NULL,
-							*s_but2String		= NULL;
+static aui_StringTable		*s_messageString	= nullptr,
+							*s_but1String		= nullptr,
+							*s_but2String		= nullptr;
 
 static void optionwarningscreen_setMyWarning(uint32);
 
@@ -168,7 +168,7 @@ AUI_ERRCODE optionwarningscreen_Cleanup()
 	mycleanup(s_but2String);
 
 	delete s_optionwarningscreenWindow;
-	s_optionwarningscreenWindow = NULL;
+	s_optionwarningscreenWindow = nullptr;
 
 	s_currentWarning = OWS_OWSTOTAL;
 

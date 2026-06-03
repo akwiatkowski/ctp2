@@ -11,7 +11,7 @@ SlicSymTab::SlicSymTab(sint32 size) :
 		m_arraySize = 1;
 	m_array = new SlicNamedSymbol *[m_arraySize];
 	for(sint32 i = 0; i < m_arraySize; i++) {
-		m_array[i] = 0;
+		m_array[i] = nullptr;
 	}
 }
 
@@ -43,7 +43,7 @@ void SlicSymTab::Serialize(CivArchive &archive)
 		archive << m_arraySize;
 		archive << m_numEntries;
 		for(sint32 i = 0; i < m_numEntries; i++) {
-			isPresent = (m_array[i] != NULL);
+			isPresent = (m_array[i] != nullptr);
 			archive << isPresent;
 			if(isPresent) {
 				((SlicSymbolData *)m_array[i])->SlicSymbolData::Serialize(archive);
@@ -56,14 +56,14 @@ void SlicSymTab::Serialize(CivArchive &archive)
 		for(sint32 i = 0; i < m_numEntries; i++) {
 			archive >> isPresent;
 			if(isPresent) {
-				m_array[i] = (SlicNamedSymbol *)slicsymbol_Load(archive, NULL);
+				m_array[i] = (SlicNamedSymbol *)slicsymbol_Load(archive, nullptr);
 				StringHash<SlicNamedSymbol>::Add(m_array[i]);
 
 				if(m_array[i]->IsBuiltin()) {
 					slicengine_Get()->AddBuiltinSymbol((SlicBuiltinNamedSymbol *)m_array[i]);
 				}
 			} else {
-				m_array[i] = NULL;
+				m_array[i] = nullptr;
 			}
 		}
 	}
@@ -151,7 +151,7 @@ const SlicNamedSymbol *SlicSymTab::Get(sint32 index) const
 	Assert(index >= 0);
 	Assert(index < m_numEntries);
 	if(index < 0 || index >= m_numEntries)
-		return NULL;
+		return nullptr;
 
 	return m_array[index];
 }
@@ -161,7 +161,7 @@ SlicNamedSymbol *SlicSymTab::Access(sint32 index)
 	Assert(index >= 0);
 	Assert(index < m_numEntries);
 	if(index < 0 || index >= m_numEntries)
-		return NULL;
+		return nullptr;
 
 	return m_array[index];
 }

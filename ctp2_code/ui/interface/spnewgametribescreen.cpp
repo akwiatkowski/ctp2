@@ -88,16 +88,16 @@
 
 extern sint32               g_isCheatModeOn;
 
-c3_PopupWindow              *g_spNewGameTribeScreen  = NULL; //added
-static ctp2_ListBox         *s_CivListBox            = NULL;
+c3_PopupWindow              *g_spNewGameTribeScreen  = nullptr; //added
+static ctp2_ListBox         *s_CivListBox            = nullptr;
 //original gender buttons
-static c3_Static			*s_leaderNameStatic		 = NULL;
-static C3TextField			*s_leaderNameTextField	 = NULL;
-static aui_SwitchGroup		*s_maleFemaleSwitchGroup = NULL;
+static c3_Static			*s_leaderNameStatic		 = nullptr;
+static C3TextField			*s_leaderNameTextField	 = nullptr;
+static aui_SwitchGroup		*s_maleFemaleSwitchGroup = nullptr;
 static GENDER				s_gender;
 sint32  const               INDEX_TRIBE_INVALID = -1;
-aui_Radio					*s_maleRadio = NULL;
-aui_Radio					*s_femaleRadio = NULL;
+aui_Radio					*s_maleRadio = nullptr;
+aui_Radio					*s_femaleRadio = nullptr;
 sint32						s_tribeIndex    = INDEX_TRIBE_INVALID;
 sint32						s_skipIndex = 0;
 
@@ -227,7 +227,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 	s_tribeIndex = INDEX_TRIBE_INVALID;
 	if ( g_spNewGameTribeScreen ) {
 		if(callback) {
-			g_spNewGameTribeScreen->Ok()->SetActionFuncAndCookie(callback, NULL);
+			g_spNewGameTribeScreen->Ok()->SetActionFuncAndCookie(callback, nullptr);
 		}
 		return AUI_ERRCODE_OK;
 	}
@@ -289,7 +289,7 @@ AUI_ERRCODE spnewgametribescreen_Initialize( aui_Control::ControlActionCallback 
 
 	s_CivListBox->SetForceSelect(TRUE);
 	s_CivListBox->SetMultiSelect(FALSE);
-	s_CivListBox->SetActionFuncAndCookie(spnewgametribescreen_switchPress, NULL);
+	s_CivListBox->SetActionFuncAndCookie(spnewgametribescreen_switchPress, nullptr);
 
 	return AUI_ERRCODE_OK;
 }

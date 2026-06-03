@@ -74,7 +74,7 @@ public:
 	    m_total_len (0),
 	    max_x       (0),
 	     max_y       (0),
-	    m_data      (NULL)
+	    m_data      (nullptr)
 	{ ; };
 
 	Bit_Table(const Bit_Table & rhs)    // copy constructor
@@ -82,7 +82,7 @@ public:
 	    m_total_len (rhs.m_total_len),
 	    max_x       (rhs.max_x),
 	    max_y       (rhs.max_y),
-	    m_data      (NULL)
+	    m_data      (nullptr)
 	{
 		if (rhs.m_data)
 		{
@@ -96,7 +96,7 @@ public:
 	    m_total_len (0),
 	    max_x       (0),
 	    max_y       (0),
-	    m_data      (NULL)
+	    m_data      (nullptr)
 	{
 		Serialize(archive);
 	};
@@ -109,7 +109,7 @@ public:
 	void Cleanup()
 	{
 		delete[] m_data;
-		m_data      = NULL;
+		m_data      = nullptr;
 		y_col_len   = 0;
 		m_total_len = 0;
 		max_x       = 0;
@@ -125,7 +125,7 @@ public:
 		if (m_total_len > 0)
 			m_data = new sint32[m_total_len];
 		else
-			m_data = NULL;
+			m_data = nullptr;
 
 		max_x = mx;
 		max_y = my;
@@ -170,7 +170,7 @@ public:
 			}
 			else
 			{
-				m_data = NULL;
+				m_data = nullptr;
 			}
 		}
 	}

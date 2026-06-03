@@ -39,10 +39,10 @@ FileDialog::~FileDialog()
 {
 	if(m_window) {
 		aui_Ldl::DeleteHierarchyFromRoot(s_block);
-		m_window = NULL;
+		m_window = nullptr;
 	}
 
-	m_list = NULL;
+	m_list = nullptr;
 }
 
 void FileDialog::Open(FILE_DIALOG_MODE mode, FileDialogCallback *cb, void *cookie, const MBCHAR *dirPath)
@@ -120,7 +120,7 @@ void FileDialog::Fill()
 #else
 	DIR *dir = opendir(m_dirPath);
 	if (!dir) return;
-	struct dirent *dent = 0;
+	struct dirent *dent = nullptr;
 #endif // WIN32
 	m_list->Clear();
 #ifdef WIN32
@@ -137,7 +137,7 @@ void FileDialog::Fill()
 		snprintf(pattern, sizeof(pattern), "%s%s%s", m_dirPath, FILE_SEP, dent->d_name);
 		int rc = stat(pattern, &st);
 		if (!S_ISDIR(st.st_mode)) {
-			AddFile(dent->d_name, NULL);
+			AddFile(dent->d_name, nullptr);
 		}
 	}
 	closedir(dir);
@@ -198,7 +198,7 @@ void FileDialog::CancelCallback(aui_Control *control, uint32 action, uint32 data
 	if(action != AUI_BUTTON_ACTION_EXECUTE) return;
 	FileDialog *di = (FileDialog *)cookie;
 	if(di->m_callback) {
-		di->m_callback(di, k_FILE_DIALOG_CANCEL, NULL, di->m_cookie);
+		di->m_callback(di, k_FILE_DIALOG_CANCEL, nullptr, di->m_cookie);
 	}
 	di->Close();
 
@@ -256,7 +256,7 @@ void FileDialog::NameCallback(aui_Control *control, uint32 action, uint32 data, 
 
 	di->m_field->GetFieldText(fieldText, _MAX_PATH);
 
-	ctp2_ListItem *item = NULL;
+	ctp2_ListItem *item = nullptr;
 	sint32 i;
 	for(i = 0; i < di->m_list->NumItems(); i++) {
 		item = (ctp2_ListItem *)di->m_list->GetItemByIndex(i);

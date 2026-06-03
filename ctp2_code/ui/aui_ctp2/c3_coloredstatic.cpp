@@ -19,7 +19,7 @@ c3_ColoredStatic::c3_ColoredStatic(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	c3_Static( retval, id, ldlBlock )
 {
 	Assert( AUI_SUCCESS(*retval) );

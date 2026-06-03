@@ -176,13 +176,13 @@ KEYMAP::KEYMAP(BOOL useDefault)
 		func2key[i].keycode  = 0;
 	}
 
-	FILE *fin = NULL;
+	FILE *fin = nullptr;
 	if(!useDefault)
 		fin = c3files_fopen(C3DIR_DIRECT, "userkeymap.txt", "r");
 	if(!fin)
 		fin = c3files_fopen(C3DIR_UIDATA, "keymap.txt", "r");
 
-	if (fin == NULL)
+	if (fin == nullptr)
 	{
 		c3errors_FatalDialog ("keymap.txt", "Could not open keymap.txt or userkeymap.txt");
 	}

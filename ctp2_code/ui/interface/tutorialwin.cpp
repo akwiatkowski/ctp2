@@ -61,7 +61,7 @@ extern SelectedItem	*selitem_Get();
 
 
 
-static TutorialWin	*g_tutorialWin = NULL;
+static TutorialWin	*g_tutorialWin = nullptr;
 
 TutorialWin * tutorialwin_Get()           { return g_tutorialWin; }
 void          tutorialwin_Set(TutorialWin *p) { g_tutorialWin = p; }
@@ -172,7 +172,7 @@ sint32 TutorialWin::Initialize( MBCHAR *windowBlock )
 	MBCHAR		controlBlock[ k_AUI_LDL_MAXBLOCK + 1 ];
 
 	snprintf(controlBlock, sizeof(controlBlock), "%s.%s", windowBlock, "List" );
-	m_list = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ListCallback, NULL );
+	m_list = new c3_ListBox( &errcode, aui_UniqueId(), controlBlock, tutorialwin_ListCallback, nullptr );
 	TestControl( m_list );
 	m_list->Hide();
 

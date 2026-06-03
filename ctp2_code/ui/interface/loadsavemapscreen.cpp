@@ -60,11 +60,11 @@
 
 extern SPNewGameWindow		*g_spNewGameWindow;
 
-LoadSaveMapWindow				*g_loadSaveMapWindow = NULL;
+LoadSaveMapWindow				*g_loadSaveMapWindow = nullptr;
 
 static uint32 s_type = LSMS_TOTAL;
-static c3_Static					*s_name					= NULL;
-static aui_StringTable				*s_nameString			= NULL;
+static c3_Static					*s_name					= nullptr;
+static aui_StringTable				*s_nameString			= nullptr;
 
 sint32	loadsavemapscreen_displayMyWindow(uint32 type)
 {
@@ -125,7 +125,7 @@ AUI_ERRCODE loadsavemapscreen_Initialize( aui_Control::ControlActionCallback *ca
 
 	if ( callback )
 		g_loadSaveMapWindow->GetOkButton()->SetActionFuncAndCookie(
-			callback, NULL );
+			callback, nullptr );
 
 	return AUI_ERRCODE_OK;
 }
@@ -141,7 +141,7 @@ void loadsavemapscreen_Cleanup()
     }
 
     delete g_loadSaveMapWindow;
-    g_loadSaveMapWindow = NULL;
+    g_loadSaveMapWindow = nullptr;
 }
 
 
@@ -171,7 +171,7 @@ void loadsavemapscreen_SaveGameMap()
 {
 	SaveMapInfo		*saveMapInfo = g_loadSaveMapWindow->GetSaveMapInfoToSave();
 
-	Assert( saveMapInfo != NULL );
+	Assert( saveMapInfo != nullptr );
 	if ( !saveMapInfo ) return;
 
 	if (!g_loadSaveMapWindow->GetGameMapName(saveMapInfo->gameMapName)) return;
@@ -284,7 +284,7 @@ void loadsavemapscreen_deletePress(aui_Control *control, uint32 action, uint32 d
 	}
 	else
 	{
-		Assert( "Couldn't delete file." == 0 );
+		Assert( "Couldn't delete file." == nullptr );
 	}
 }
 
@@ -295,12 +295,12 @@ void loadsavemapscreen_ListOneHandler(aui_Control *control, uint32 action, uint3
 	if ( action != (uint32)AUI_LISTBOX_ACTION_SELECT ) return;
 
 	c3_ListBox	*list = (c3_ListBox *)control;
-	if (list == NULL) return;
+	if (list == nullptr) return;
 
 	LSMGameMapsListItem *item = (LSMGameMapsListItem *)list->GetSelectedItem();
-	if (item == NULL)
+	if (item == nullptr)
 	{
-		g_loadSaveMapWindow->SetGameMapInfo(NULL);
+		g_loadSaveMapWindow->SetGameMapInfo(nullptr);
 
 		g_loadSaveMapWindow->SetType( g_loadSaveMapWindow->GetType() );
 	}
@@ -334,10 +334,10 @@ void loadsavemapscreen_ListTwoHandler(aui_Control *control, uint32 action, uint3
 	if ( action != (uint32)AUI_LISTBOX_ACTION_SELECT ) return;
 
 	c3_ListBox	*list = (c3_ListBox *)control;
-	if (list == NULL) return;
+	if (list == nullptr) return;
 
 	LSMSaveMapsListItem *item = (LSMSaveMapsListItem *)list->GetSelectedItem();
-	if (item == NULL)
+	if (item == nullptr)
 	{
 		switch ( g_loadSaveMapWindow->GetType() )
 		{
@@ -350,7 +350,7 @@ void loadsavemapscreen_ListTwoHandler(aui_Control *control, uint32 action, uint3
 			break;
 		}
 
-		g_loadSaveMapWindow->SetSaveMapInfo(NULL);
+		g_loadSaveMapWindow->SetSaveMapInfo(nullptr);
 
 		g_loadSaveMapWindow->SetType( g_loadSaveMapWindow->GetType() );
 
@@ -359,7 +359,7 @@ void loadsavemapscreen_ListTwoHandler(aui_Control *control, uint32 action, uint3
 	else
 	{
 		SaveMapInfo	*info = item->GetSaveMapInfo();
-		if (info == NULL) return;
+		if (info == nullptr) return;
 
 		g_loadSaveMapWindow->SetSaveMapInfo(info);
 

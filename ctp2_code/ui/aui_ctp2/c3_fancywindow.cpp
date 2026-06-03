@@ -35,9 +35,9 @@ c3_FancyWindow::c3_FancyWindow
 )
 :
     C3Window    (retval, id, ldlBlock, bpp, type, bevel),
-	m_title     (NULL),
-	m_cancel    (NULL),
-	m_ok        (NULL)
+	m_title     (nullptr),
+	m_cancel    (nullptr),
+	m_ok        (nullptr)
 {
 	*retval = InitCommon();
 	Assert( AUI_SUCCESS(*retval) );

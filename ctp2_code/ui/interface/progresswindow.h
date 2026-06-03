@@ -50,7 +50,7 @@ public:
 
 
 
-	void StartCountingTo( sint32 val, MBCHAR const * message = NULL );
+	void StartCountingTo( sint32 val, MBCHAR const * message = nullptr );
 
 	COLORREF SetBarColor(COLORREF color);
 
@@ -84,7 +84,7 @@ public:
 		MBCHAR *ldlBlock )
 		:
 		aui_ImageBase( ldlBlock ),
-		aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+		aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 		aui_ProgressBar( retval, id, ldlBlock )
 	{}
 	virtual ~StandardProgressBar() {}

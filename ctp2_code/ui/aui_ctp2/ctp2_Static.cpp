@@ -20,14 +20,14 @@ ctp2_Static::ctp2_Static(
 	MBCHAR *ldlBlock )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_Static( retval, id, ldlBlock ),
-	PatternBase(ldlBlock, NULL)
+	PatternBase(ldlBlock, nullptr)
 {
-	m_drawFunc			= NULL;
-	m_drawCookie		= NULL;
-	m_imageMapCallback  = NULL;
-	m_imageMapCookie    = NULL;
+	m_drawFunc			= nullptr;
+	m_drawCookie		= nullptr;
+	m_imageMapCallback  = nullptr;
+	m_imageMapCookie    = nullptr;
 	m_multiImageStatic	= false;
 	m_drawCallbackExclusive	= true;
 
@@ -74,7 +74,7 @@ ctp2_Static::ctp2_Static(
 AUI_ERRCODE ctp2_Static::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block )
 		return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
@@ -166,14 +166,14 @@ ctp2_Static::ConstructImageRect(uint32 index)
 
 	aui_Image	*image = GetImage(index, AUI_IMAGEBASE_SUBSTATE_FIRST);
 
-	if (image == NULL)
+	if (image == nullptr)
 		return false;
 
 	aui_Surface	*surf = image->TheSurface();
 
-	Assert(surf != NULL);
+	Assert(surf != nullptr);
 
-	if (surf == NULL)
+	if (surf == nullptr)
 		return false;
 
 	rect->right  = surf->Width();
@@ -228,7 +228,7 @@ ctp2_Static::SetChromaKey(sint32 r,sint32 g,sint32 b)
 	{
 		image = GetImage(i++, (AUI_IMAGEBASE_SUBSTATE)substate);
 
-		if (image!=NULL)
+		if (image!=nullptr)
 			image->SetChromakey(r,g,b);
 		else
 		{
@@ -254,7 +254,7 @@ AUI_ERRCODE
 ctp2_Static::DrawImages(aui_Surface *surface,RECT *destRect)
 {
 
-	if (destRect==NULL)
+	if (destRect==nullptr)
 		return AUI_ERRCODE_OK;
 
 	if (!surface)
@@ -459,11 +459,11 @@ void ctp2_Static::FitToBitmap()
 		return;
 
 	aui_Image		*image = GetImage(0, AUI_IMAGEBASE_SUBSTATE_FIRST);
-	if (image == NULL)
+	if (image == nullptr)
 		return;
 
 	aui_Surface		*surf = image->TheSurface();
-	if (surf == NULL)
+	if (surf == nullptr)
 		return;
 
 	Resize(surf->Width(), surf->Height());

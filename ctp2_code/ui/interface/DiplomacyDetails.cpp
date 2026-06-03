@@ -106,10 +106,10 @@ static MBCHAR               *s_DiplomacyDetailsBlock = "DiplomacyDetails";
 #define k_STRONG_STRENGTH  50
 
 
-ctp2_Button                 *DiplomacyDetails::m_cancelButton = NULL;
-ctp2_ListBox                *DiplomacyDetails::sm_list = NULL;
-aui_StringTable             *DiplomacyDetails::sm_strengthImages = NULL;
-aui_StringTable             *DiplomacyDetails::sm_embassyImages = NULL;
+ctp2_Button                 *DiplomacyDetails::m_cancelButton = nullptr;
+ctp2_ListBox                *DiplomacyDetails::sm_list = nullptr;
+aui_StringTable             *DiplomacyDetails::sm_strengthImages = nullptr;
+aui_StringTable             *DiplomacyDetails::sm_embassyImages = nullptr;
 
 sint32                      DiplomacyDetails::detailPlayer;
 
@@ -124,7 +124,7 @@ DiplomacyDetails::DiplomacyDetails(AUI_ERRCODE *err)
 	}
 
 	m_cancelButton = (ctp2_Button *)aui_Ldl::GetObject(s_DiplomacyDetailsBlock, "CloseButton");
-	if(m_cancelButton) m_cancelButton->SetActionFuncAndCookie(CancelCallback, NULL);
+	if(m_cancelButton) m_cancelButton->SetActionFuncAndCookie(CancelCallback, nullptr);
 
 }
 
@@ -135,12 +135,12 @@ DiplomacyDetails::~DiplomacyDetails()
 	}
 	if(sm_strengthImages) {
 		delete sm_strengthImages;
-		sm_strengthImages = NULL;
+		sm_strengthImages = nullptr;
 	}
 
 	if(sm_embassyImages) {
 		delete sm_embassyImages;
-		sm_embassyImages = NULL;
+		sm_embassyImages = nullptr;
 	}
 }
 
@@ -164,7 +164,7 @@ AUI_ERRCODE DiplomacyDetails::Cleanup()
 		Hide();
 
 		delete s_DiplomacyDetails;
-		s_DiplomacyDetails = NULL;
+		s_DiplomacyDetails = nullptr;
 	}
 	return AUI_ERRCODE_OK;
 }
@@ -199,7 +199,7 @@ AUI_ERRCODE DiplomacyDetails::Display(Unit *cfdshk)
 
 			MBCHAR interp[20000];
 
-			const char *input = NULL;
+			const char *input = nullptr;
 
 			interp[0] = 0;
 			input = stringdb_Get()->GetNameStr("str_ldl_DipDetails_IntelReport");
@@ -698,7 +698,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerRegard(ctp2_Static *control,
 												 RECT &rect,
 												 void *cookie)
 {
-	MBCHAR *imageName = NULL;
+	MBCHAR *imageName = nullptr;
 	char **toneIcons = DiplomacyWindow::GetToneIcons();
 	sint32 p = (intptr_t)cookie;
 
@@ -779,7 +779,7 @@ AUI_ERRCODE DiplomacyDetails::DrawPlayerStrength(ctp2_Static *control,
 		InitImageTables();
 	}
 
-	MBCHAR *imageName = NULL;
+	MBCHAR *imageName = nullptr;
 	if(relativeStrength < k_WEAK_STRENGTH) imageName = sm_strengthImages->GetString(0);
 	else if(relativeStrength < k_EQUAL_STRENGTH) imageName = sm_strengthImages->GetString(1);
 	else if(relativeStrength < k_STRONG_STRENGTH) imageName = sm_strengthImages->GetString(2);

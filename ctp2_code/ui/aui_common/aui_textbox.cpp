@@ -18,7 +18,7 @@ aui_TextBox::aui_TextBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_ListBox( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -42,7 +42,7 @@ aui_TextBox::aui_TextBox(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL, k_AUI_TEXTBOX_MAXTEXT * k_AUI_TEXTBOX_MAXITEMS ),
+	aui_TextBase( nullptr, k_AUI_TEXTBOX_MAXTEXT * k_AUI_TEXTBOX_MAXITEMS ),
 	aui_ListBox( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	Assert( AUI_SUCCESS(*retval) );
@@ -78,7 +78,7 @@ AUI_ERRCODE aui_TextBox::InitCommon( )
 			&errcode,
 			aui_UniqueId(),
 			0, 0, m_width, m_textfont->GetMaxHeight(),
-			NULL, k_AUI_TEXTBOX_MAXTEXT );
+			nullptr, k_AUI_TEXTBOX_MAXTEXT );
 
 		(*itemPtr)->SetBlindness( TRUE );
 
@@ -127,7 +127,7 @@ AUI_ERRCODE aui_TextBox::AppendText
 	sint32          italic
 )
 {
-	Assert( text != NULL );
+	Assert( text != nullptr );
 	if ( !text ) return AUI_ERRCODE_INVALIDPARAM;
 
 	if ( !strlen( text ) ) return AppendText(" ", color, bold, italic );
@@ -186,8 +186,8 @@ AUI_ERRCODE aui_TextBox::CalculateItems(MBCHAR const * text)
 			m_textfont->GetLineInfo(
 				&wrap,
 				&penPos,
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				&start,
 				stop,
 				TRUE );

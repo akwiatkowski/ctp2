@@ -134,9 +134,9 @@ public:
         if (BattleViewWindow *bvw = battleviewwindow_Get();
             bvw && c3ui_Get() && c3ui_Get()->GetWindow(bvw->Id()))
         {
-            battleview_ExitButtonActionCallback(NULL,
+            battleview_ExitButtonActionCallback(nullptr,
                                                 AUI_BUTTON_ACTION_EXECUTE,
-                                                0, NULL);
+                                                0, nullptr);
         }
     }
 

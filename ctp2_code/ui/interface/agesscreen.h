@@ -11,7 +11,7 @@
 
 sint32 agesscreen_displayMyWindow(bool viewMode = false);
 sint32 agesscreen_removeMyWindow(uint32 action);
-AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback = NULL );
+AUI_ERRCODE agesscreen_Initialize( aui_Control::ControlActionCallback *callback = nullptr );
 void agesscreen_Cleanup();
 
 void agesscreen_startDropDownCallback(aui_Control *,uint32,uint32,void *);

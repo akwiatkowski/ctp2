@@ -81,16 +81,16 @@ namespace
 TileSet::TileSet()
 :
 	m_numTransforms         (0),
-	m_transforms            (NULL),
+	m_transforms            (nullptr),
     m_numRiverTransforms    (0),
-	m_riverTransforms       (NULL),
-	m_riverData             (NULL),
-	m_tileSetData           (NULL),
+	m_riverTransforms       (nullptr),
+	m_riverData             (nullptr),
+	m_tileSetData           (nullptr),
 	m_numMegaTiles          (0),
     m_quick                 (false),
 	m_mapped                (false),
-	m_mapIcons              (NULL),
-	m_mapIconDimensions     (NULL),
+	m_mapIcons              (nullptr),
+	m_mapIconDimensions     (nullptr),
 #ifdef WIN32
 	m_fileHandle            (INVALID_HANDLE_VALUE),
 	m_mappedFileHandle      (INVALID_HANDLE_VALUE)
@@ -105,19 +105,19 @@ TileSet::TileSet()
 	for (i=0; i<TERRAIN_MAX; i++) {
 		for (j=0; j<TERRAIN_MAX; j++) {
 			for(k=0; k<k_TRANSITIONS_PER_TILE; k++) {
-				m_transitions[i][j][k] = NULL;
+				m_transitions[i][j][k] = nullptr;
 			}
 		}
 	}
 
 	// Data from the tile file
 	for (i=0; i<k_MAX_BASE_TILES; i++) {
-		m_baseTiles[i] = NULL;
+		m_baseTiles[i] = nullptr;
 	}
 
 	// Data from the tile file
 	for (i=0; i<k_MAX_IMPROVEMENTS; i++) {
-		m_improvementData[i] = NULL;
+		m_improvementData[i] = nullptr;
 	}
 
 	// Data from the tile file
@@ -141,21 +141,21 @@ TileSet::~TileSet()
 void TileSet::CleanupQuick()
 {
 	delete[] m_transforms;
-	m_transforms = NULL;
+	m_transforms = nullptr;
 	m_numTransforms = 0;
 
 	delete[] m_riverTransforms;
-	m_riverTransforms = NULL;
+	m_riverTransforms = nullptr;
 
 	delete[] m_riverData;
-	m_riverData = NULL;
+	m_riverData = nullptr;
 
 	sint32 i;
 
 	for (i=0; i<k_MAX_BASE_TILES; i++)
 	{
 		delete m_baseTiles[i];
-		m_baseTiles[i] = NULL;
+		m_baseTiles[i] = nullptr;
 	}
 
 	for (i=0; i < g_theMapIconDB->NumRecords(); i++)
@@ -163,32 +163,32 @@ void TileSet::CleanupQuick()
 		delete m_mapIcons[i];
 	}
 	delete[] m_mapIcons;
-	m_mapIcons = NULL;
+	m_mapIcons = nullptr;
 	delete[] m_mapIconDimensions;
-	m_mapIconDimensions = NULL;
+	m_mapIconDimensions = nullptr;
 
 	delete[] m_tileSetData;
-	m_tileSetData = NULL;
+	m_tileSetData = nullptr;
 }
 
 void TileSet::CleanupMapped()
 {
 	delete[] m_transforms;
-	m_transforms = NULL;
+	m_transforms = nullptr;
 	m_numTransforms = 0;
 
 	delete[] m_riverTransforms;
-	m_riverTransforms = NULL;
+	m_riverTransforms = nullptr;
 
 	delete[] m_riverData;
-	m_riverData = NULL;
+	m_riverData = nullptr;
 
 	sint32 i;
 
 	for (i=0; i<k_MAX_BASE_TILES; i++)
 	{
 		delete m_baseTiles[i];
-		m_baseTiles[i] = NULL;
+		m_baseTiles[i] = nullptr;
 	}
 
 	for (i=0; i < g_theMapIconDB->NumRecords(); i++)
@@ -196,9 +196,9 @@ void TileSet::CleanupMapped()
 		delete m_mapIcons[i];
 	}
 	delete[] m_mapIcons;
-	m_mapIcons = NULL;
+	m_mapIcons = nullptr;
 	delete[] m_mapIconDimensions;
-	m_mapIconDimensions = NULL;
+	m_mapIconDimensions = nullptr;
 
 #ifdef WIN32
 	UnmapViewOfFile(m_tileSetData);
@@ -232,7 +232,7 @@ void TileSet::Cleanup()
 				delete [] m_transforms[i];
 			}
 			delete [] m_transforms;
-			m_transforms    = NULL;
+			m_transforms    = nullptr;
 			m_numTransforms = 0;
 		}
 
@@ -246,11 +246,11 @@ void TileSet::Cleanup()
 			}
 
 			delete [] m_riverTransforms;
-			m_riverTransforms = NULL;
+			m_riverTransforms = nullptr;
 			m_numRiverTransforms = 0;
 
 			delete [] m_riverData;
-			m_riverData = NULL;
+			m_riverData = nullptr;
 		}
 
 		for (i=0; i<TERRAIN_MAX; i++) {
@@ -258,7 +258,7 @@ void TileSet::Cleanup()
 				if (m_transitions[i][j][0]) {
 					for(k=0; k < k_TRANSITIONS_PER_TILE; k++) {
 						delete [] m_transitions[i][j][k];
-						m_transitions[i][j][k] = NULL;
+						m_transitions[i][j][k] = nullptr;
 					}
 				}
 			}
@@ -267,7 +267,7 @@ void TileSet::Cleanup()
 		for (i=0; i<k_MAX_BASE_TILES; i++)
         {
 			delete m_baseTiles[i];
-			m_baseTiles[i] = NULL;
+			m_baseTiles[i] = nullptr;
 		}
 	}
 }
@@ -373,7 +373,7 @@ void TileSet::LoadRiverTransforms(FILE *file)
 				}
                 else
                 {
-					m_riverData[i] = NULL;
+					m_riverData[i] = nullptr;
 				}
 			}
 		}
@@ -403,7 +403,7 @@ void TileSet::LoadImprovements(FILE *file)
 			}
             else
             {
-				m_improvementData[impNum] = NULL;
+				m_improvementData[impNum] = nullptr;
 			}
 		}
 	}
@@ -462,7 +462,7 @@ void TileSet::LoadMapIcons()
 		strncpy(name, g_theMapIconDB->Get(i)->GetValue(), sizeof(name) - 1);
 		name[sizeof(name) - 1] = '\0';
 
-		if (civpaths_Get()->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == NULL) {
+		if (civpaths_Get()->FindFile(C3DIR_PICTURES, name, path, TRUE, FALSE) == nullptr) {
 
 			snprintf(path, sizeof(path), "%s", name);
 			char * lastDot = strrchr(path, '.');
@@ -479,7 +479,7 @@ void TileSet::LoadMapIcons()
 			size_t  testlen = 0;
 			uint8 * buf = reinterpret_cast<uint8 *>(g_ImageMapPF->getData(path, testlen));
 			len = testlen;
-			if (buf == NULL) {
+			if (buf == nullptr) {
 				c3errors_ErrorDialog("TileSet", "'%s not found in asset tree.", name);
 				continue;
 			}
@@ -503,7 +503,7 @@ void TileSet::LoadMapIcons()
 		if (tga) {
 			data = (Pixel16 *)tileutils_EncodeTile16(tga, width, height, &len);
 			delete[] tga;
-			tga = NULL;
+			tga = nullptr;
 
 			if (data) {
 
@@ -689,7 +689,7 @@ void TileSet::QuickLoadRiverTransforms(uint8 **dataPtr)
 			}
             else
             {
-				m_riverData[i] = NULL;
+				m_riverData[i] = nullptr;
 			}
 		}
 	}
@@ -719,7 +719,7 @@ void TileSet::QuickLoadImprovements(uint8 **dataPtr)
 		}
         else
         {
-			m_improvementData[impNum] = NULL;
+			m_improvementData[impNum] = nullptr;
 		}
 	}
 }
@@ -748,12 +748,12 @@ void TileSet::QuickLoadMegaTiles(uint8 **dataPtr)
 void TileSet::QuickLoad()
 {
 	FILE *  file = c3files_fopen(C3DIR_TILES, TileSetFile(), "rb");
-	Assert(file != NULL);
+	Assert(file != nullptr);
 	if (file)
     {
 	    size_t	fileSize = 0;
 
-		if (m_tileSetData == NULL)
+		if (m_tileSetData == nullptr)
         {
 			if (c3files_fseek(file, 0, SEEK_END)) goto Error;
 
@@ -799,11 +799,11 @@ void TileSet::QuickLoad()
 	return;
 
 Error:
-	if (file != NULL)
+	if (file != nullptr)
 		fclose(file);
 
 	delete [] m_tileSetData;
-    m_tileSetData = NULL;
+    m_tileSetData = nullptr;
 
 	c3errors_FatalDialog("Tile Set", "Unable to load tileset.");
 }
@@ -863,10 +863,10 @@ void TileSet::QuickLoadMapped()
 		c3errors_FatalDialog("Tile Set", "Unable to load tileset.");
 		return;
 	}
-	m_tileSetData = (uint8 *)mmap(0, m_MMapSize, PROT_READ, MAP_PRIVATE, m_fd, 0);
+	m_tileSetData = (uint8 *)mmap(nullptr, m_MMapSize, PROT_READ, MAP_PRIVATE, m_fd, 0);
 #endif
 
-	if (m_tileSetData == NULL) {
+	if (m_tileSetData == nullptr) {
 #ifdef WIN32
 		CloseHandle(m_fileHandle);
 		CloseHandle(m_mappedFileHandle);

@@ -75,7 +75,7 @@ PlayerSelectWindow::PlayerSelectWindow(
 AUI_ERRCODE PlayerSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
@@ -131,21 +131,21 @@ AUI_ERRCODE PlayerSelectWindow::CreateControls( )
 
 	control = spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"newbutton", NULL);
+		"newbutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_NEWBUTTON ] = control;
 
 	control = spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"editbutton", NULL);
+		"editbutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_EDITBUTTON ] = control;
 
 	control = spNew_ctp2_Button(&errcode,
 		"playerselectwindow",
-		"deletebutton", NULL);
+		"deletebutton", nullptr);
 	Assert( AUI_NEWOK(control,errcode) );
 	if ( !AUI_NEWOK(control,errcode) ) return errcode;
 	m_controls[ CONTROL_DELETEBUTTON ] = control;
@@ -173,37 +173,37 @@ AUI_ERRCODE PlayerSelectWindow::CreateControls( )
 	aui_Action *action;
 
 	action = new PlayerNameTextFieldAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_PLAYERNAMETEXTFIELD ]->SetAction( action );
 
 	action = new NewButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_NEWBUTTON ]->SetAction( action );
 
 	action = new EditButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_EDITBUTTON ]->SetAction( action );
 
 	action = new DeleteButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_DELETEBUTTON ]->SetAction( action );
 
 	action = new OKButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
 
 	action = new CancelButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
 
 	action = new PlayerListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_PLAYERNAMELISTBOX ]->SetAction( action );
 
@@ -327,7 +327,7 @@ void PlayerSelectWindow::NewButtonAction::Execute(
 	if(item)
 		listbox->DeselectItem(item);
 
-	p->SetPlayerSetup(NULL);
+	p->SetPlayerSetup(nullptr);
 	p->SetMode(p->EDIT);
 	netshell_Get()->GetCurrentScreen()->AddWindow(p, TRUE);
 }

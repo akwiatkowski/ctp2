@@ -46,12 +46,12 @@ void EffectSpriteGroup::Draw(EFFECTACTION action, sint32 frame, sint32 drawX, si
 	Assert(action > EFFECTACTION_NONE &&
 			action < EFFECTACTION_MAX);
 
-	if (m_sprites[action] == NULL) return;
+	if (m_sprites[action] == nullptr) return;
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
 
 #ifndef __MAKESPR__
-	if(m_sprites[EFFECTACTION_FLASH] != NULL)
+	if(m_sprites[EFFECTACTION_FLASH] != nullptr)
 	{
 		m_sprites[EFFECTACTION_FLASH]->SetCurrentFrame((uint16)frame);
 		uint16 tempFlags = flags;
@@ -72,12 +72,12 @@ void EffectSpriteGroup::DrawDirect(aui_Surface *surf, EFFECTACTION action, sint3
 	Assert(action > EFFECTACTION_NONE &&
 			action < EFFECTACTION_MAX);
 
-	if (m_sprites[action] == NULL) return;
+	if (m_sprites[action] == nullptr) return;
 
 	m_sprites[action]->SetCurrentFrame((uint16)frame);
 
 #ifndef __MAKESPR__
-	if(m_sprites[EFFECTACTION_FLASH] != NULL)
+	if(m_sprites[EFFECTACTION_FLASH] != nullptr)
 	{
 		m_sprites[EFFECTACTION_FLASH]->SetCurrentFrame((uint16)frame);
 		uint16 tempFlags = flags;

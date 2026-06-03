@@ -20,8 +20,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	c3_Slidometer(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -32,8 +32,8 @@ public:
 		BOOL isVertical,
 		MBCHAR *pattern,
 		sint32 percentFilled = NULL,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~c3_Slidometer() {}
 
 protected:
@@ -46,7 +46,7 @@ protected:
 
 public:
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 

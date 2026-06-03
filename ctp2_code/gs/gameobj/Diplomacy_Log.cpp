@@ -97,7 +97,7 @@ void Diplomacy_Log::BeginTurn(sint32 currentRound)
 
             for (i=0; i<k_MAX_PLAYERS; i++) {
                 if (i == player_idx )continue;
-                if (player_Get(i) == NULL) continue;
+                if (player_Get(i) == nullptr) continue;
 				if (player_Get(i)->m_isDead) continue;
 
 
@@ -127,7 +127,7 @@ void Diplomacy_Log::EndTurn(sint32 currentRound)
 
             for (i=0; i<k_MAX_PLAYERS; i++) {
                 if (i == player_idx )continue;
-                if (player_Get(i) == NULL) continue;
+                if (player_Get(i) == nullptr) continue;
 				if (player_Get(i)->m_isDead) continue;
 
 

@@ -52,10 +52,10 @@ namespace
     COLOR               s_saWindowBorderColor    = COLOR_GREEN;
 }
 
-SpecialAttackWindow     *g_theSpecialAttackWindow = NULL;
-static c3_Static        *s_saWindowCostN          = NULL;
-static c3_Static        *s_saWindowCostV          = NULL;
-static c3_Static        *s_saWindowBackground     = NULL;
+SpecialAttackWindow     *g_theSpecialAttackWindow = nullptr;
+static c3_Static        *s_saWindowCostN          = nullptr;
+static c3_Static        *s_saWindowCostV          = nullptr;
+static c3_Static        *s_saWindowBackground     = nullptr;
 
 //----------------------------------------------------------------------------
 //
@@ -206,16 +206,16 @@ sint32 specialAttackWindow_Cleanup()
 	c3ui_Get()->RemoveWindow(g_theSpecialAttackWindow->Id());
 
 	delete s_saWindowCostN;
-	s_saWindowCostN = NULL;
+	s_saWindowCostN = nullptr;
 
 	delete s_saWindowCostV;
-	s_saWindowCostV = NULL;
+	s_saWindowCostV = nullptr;
 
 	delete s_saWindowBackground;
-	s_saWindowBackground = NULL;
+	s_saWindowBackground = nullptr;
 
 	delete g_theSpecialAttackWindow;
-	g_theSpecialAttackWindow = NULL;
+	g_theSpecialAttackWindow = nullptr;
 
 	return 0;
 }

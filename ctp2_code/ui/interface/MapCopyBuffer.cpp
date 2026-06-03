@@ -35,7 +35,7 @@
 MapCopyBuffer::MapCopyBuffer()
 {
 	m_width = m_height = 0;
-	m_cells = NULL;
+	m_cells = nullptr;
 }
 
 MapCopyBuffer::~MapCopyBuffer()

@@ -15,10 +15,10 @@ aui_Shell::aui_Shell(
 
 AUI_ERRCODE aui_Shell::InitCommon( )
 {
-	m_curScreen = NULL;
+	m_curScreen = nullptr;
 
 	m_screenHistory = new tech_WLList<uint32>;
-	Assert( m_screenHistory != NULL );
+	Assert( m_screenHistory != nullptr );
 	if ( !m_screenHistory ) return AUI_ERRCODE_MEMALLOCFAILED;
 
 	return AUI_ERRCODE_OK;
@@ -30,7 +30,7 @@ aui_Shell::~aui_Shell()
 	if ( m_screenHistory )
 	{
 		delete m_screenHistory;
-		m_screenHistory = NULL;
+		m_screenHistory = nullptr;
 	}
 }
 
@@ -42,7 +42,7 @@ aui_Screen *aui_Shell::LeaveCurrentScreen( )
 	if ( m_curScreen )
 	{
 		m_curScreen->Hide();
-		m_curScreen = NULL;
+		m_curScreen = nullptr;
 	}
 
 	return prevCurScreen;
@@ -52,7 +52,7 @@ aui_Screen *aui_Shell::LeaveCurrentScreen( )
 AUI_ERRCODE aui_Shell::GotoScreen( uint32 id )
 {
 	aui_Screen *screen = FindScreen( id );
-	Assert( screen != NULL );
+	Assert( screen != nullptr );
 	if ( !screen ) return AUI_ERRCODE_HACK;
 
 	if ( m_curScreen ) m_curScreen->Hide();

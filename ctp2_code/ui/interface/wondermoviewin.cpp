@@ -52,14 +52,14 @@
 
 extern SoundManager		*soundmgr_Get();
 
-WonderMovieWindow		*g_wonderMovieWindow = NULL;
+WonderMovieWindow		*g_wonderMovieWindow = nullptr;
 
 
 void wondermoviewin_Initialize(SequenceWeakPtr seq)
 {
 	AUI_ERRCODE		errcode = AUI_ERRCODE_OK;
 
-	if (g_wonderMovieWindow == NULL) {
+	if (g_wonderMovieWindow == nullptr) {
 		g_wonderMovieWindow = new WonderMovieWindow(&errcode, aui_UniqueId(), "WonderMovieWindow", 16);
 		Assert(errcode == AUI_ERRCODE_OK);
 
@@ -75,8 +75,8 @@ void wondermoviewin_DisplayWonderMovie(sint32 id)
 		soundmgr_Get()->TerminateMusic();
 	}
 
-	Assert(g_wonderMovieWindow != NULL);
-	if (g_wonderMovieWindow == NULL) return;
+	Assert(g_wonderMovieWindow != nullptr);
+	if (g_wonderMovieWindow == nullptr) return;
 
 	WonderRecord *rec = g_theWonderDB->Access(id);
 	Assert(rec);
@@ -88,7 +88,7 @@ void wondermoviewin_DisplayWonderMovie(sint32 id)
 
 	const MBCHAR *filename = rec->GetDefaultIcon()->GetMovie();
 	if(stricmp(filename, "NULL") == 0)
-		filename = NULL;
+		filename = nullptr;
 
 	g_wonderMovieWindow->SetMovie((char *)filename);
 
@@ -119,7 +119,7 @@ void wondermoviewin_Cleanup()
 		c3ui_Get()->RemoveWindow(g_wonderMovieWindow->Id());
 
 		delete g_wonderMovieWindow;
-		g_wonderMovieWindow = NULL;
+		g_wonderMovieWindow = nullptr;
 	}
 
 	director_Get()->ActionFinished(seq);

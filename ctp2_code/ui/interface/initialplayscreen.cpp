@@ -68,7 +68,7 @@ namespace Os
     extern std::basic_string<TCHAR> GetExeVersion();
 }
 
-static C3Window				*s_initplayWindow		= NULL;
+static C3Window				*s_initplayWindow		= nullptr;
 static MBCHAR				*s_initplayWindowLDLBlock = "InitPlayWindow";
 
 sint32	initialplayscreen_displayMyWindow()
@@ -106,13 +106,13 @@ AUI_ERRCODE initialplayscreen_Initialize( )
 
 	s_initplayWindow = (C3Window *)aui_Ldl::BuildHierarchyFromRoot(s_initplayWindowLDLBlock);
 	fprintf(stderr, "[IPS] Initialize: BuildHierarchyFromRoot returned %p\n", (void*)s_initplayWindow);
-	Assert (s_initplayWindow != NULL);
-	if (s_initplayWindow == NULL)
+	Assert (s_initplayWindow != nullptr);
+	if (s_initplayWindow == nullptr)
 		return AUI_ERRCODE_INVALIDPARAM;
 
 	AUI_ERRCODE errcode =
         aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "SpriteTestButton",
-										spritetest_spPress, NULL);
+										spritetest_spPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 #ifndef _DEBUG
@@ -121,42 +121,42 @@ AUI_ERRCODE initialplayscreen_Initialize( )
 #endif
 
 	errcode = aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "EmailButton",
-											initialplayscreen_emailPress, NULL);
+											initialplayscreen_emailPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	errcode = aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "HotseatButton",
-											initialplayscreen_hotseatPress, NULL);
+											initialplayscreen_hotseatPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	errcode = aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "MPButton",
-											initialplayscreen_mpPress, NULL);
+											initialplayscreen_mpPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	errcode = aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "QuitButton",
-											initialplayscreen_quitPress, NULL);
+											initialplayscreen_quitPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	errcode = aui_Ldl::SetActionFuncAndCookie(s_initplayWindowLDLBlock, "CreditsButton",
-											initialplayscreen_creditsPress, NULL);
+											initialplayscreen_creditsPress, nullptr);
 	Assert(errcode == AUI_ERRCODE_OK);
 
 	if (aui_Ldl::GetObject(s_initplayWindowLDLBlock, "NewGameButton"))
     {
 	    // Assume Apolyton initial screen layout
 	    (void) aui_Ldl::SetActionFuncAndCookie
-            (s_initplayWindowLDLBlock, "NewGameButton", initialplayscreen_newgamePress, NULL);
+            (s_initplayWindowLDLBlock, "NewGameButton", initialplayscreen_newgamePress, nullptr);
 	    (void) aui_Ldl::SetActionFuncAndCookie
-            (s_initplayWindowLDLBlock, "LoadGameButton", initialplayscreen_loadgamePress, NULL);
+            (s_initplayWindowLDLBlock, "LoadGameButton", initialplayscreen_loadgamePress, nullptr);
 	    (void) aui_Ldl::SetActionFuncAndCookie
-            (s_initplayWindowLDLBlock, "TutorialButton", initialplayscreen_tutorialPress, NULL);
+            (s_initplayWindowLDLBlock, "TutorialButton", initialplayscreen_tutorialPress, nullptr);
 	    (void) aui_Ldl::SetActionFuncAndCookie
-            (s_initplayWindowLDLBlock, "OptionsButton", initialplayscreen_optionsPress, NULL);
+            (s_initplayWindowLDLBlock, "OptionsButton", initialplayscreen_optionsPress, nullptr);
     }
     else
     {
         // Original game layout compatibility handler (sort of)
         (void) aui_Ldl::SetActionFuncAndCookie
-            (s_initplayWindowLDLBlock, "SPButton", initialplayscreen_newgamePress, NULL);
+            (s_initplayWindowLDLBlock, "SPButton", initialplayscreen_newgamePress, nullptr);
     }
 
 	// Display executable version
@@ -183,7 +183,7 @@ void initialplayscreen_Cleanup()
 	    AUI_ERRCODE errcode =
             aui_Ldl::DeleteHierarchyFromRoot(s_initplayWindowLDLBlock);
 	    Assert(errcode == AUI_ERRCODE_OK);
-    	s_initplayWindow = NULL;
+    	s_initplayWindow = nullptr;
     }
 }
 

@@ -56,14 +56,14 @@
 #ifdef __MAKESPR__
 unsigned char g_compression_buff[COM_BUFF_SIZE];
 #else
-unsigned char *g_compression_buff=NULL;
+unsigned char *g_compression_buff=nullptr;
 #endif
 
 SpriteFile::SpriteFile(MBCHAR const * name)
 :
     m_version           (k_SPRITEFILE_VERSION0),
 	m_spr_compression   (SPRDATA_REGULAR),
-	m_file              (NULL)
+	m_file              (nullptr)
 {
 	strcpy(m_filename, name);
 }
@@ -233,7 +233,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			size_t size;
-			if(s->GetFrameData(j, i) == NULL)
+			if(s->GetFrameData(j, i) == nullptr)
 			{
 				size = 0;
 			}
@@ -248,7 +248,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			size_t size;
-			if(s->GetMiniFrameData(j, i) == NULL)
+			if(s->GetMiniFrameData(j, i) == nullptr)
 			{
 				size = 0;
 			}
@@ -265,7 +265,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			for (i=0; i<s->GetNumFrames(); i++)
 			{
 				size_t size;
-				if(s->GetShadowFrameData(j, i) == NULL)
+				if(s->GetShadowFrameData(j, i) == nullptr)
 				{
 					size = 0;
 				}
@@ -279,7 +279,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			for (i=0; i<s->GetNumFrames(); i++)
 			{
 				size_t size;
-					if(s->GetMiniShadowFrameData(j, i) == NULL)
+					if(s->GetMiniShadowFrameData(j, i) == nullptr)
 					{
 						size = 0;
 					}
@@ -298,7 +298,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			size_t size;
-			if(s->GetFrameData(j, i) != NULL)
+			if(s->GetFrameData(j, i) != nullptr)
 			{
 				size = s->GetFrameDataSize(j, i);
 				WriteData((uint8 *)s->GetFrameData(j,i), size);
@@ -308,7 +308,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 		for (i=0; i<s->GetNumFrames(); i++)
 		{
 			size_t size;
-			if(s->GetMiniFrameData(j, i) != NULL)
+			if(s->GetMiniFrameData(j, i) != nullptr)
 			{
 				size = s->GetMiniFrameDataSize(j, i);
 				WriteData((uint8 *)s->GetMiniFrameData(j,i), size);
@@ -319,7 +319,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 
 			for (i=0; i<s->GetNumFrames(); i++)
 			{
-				if (s->GetShadowFrameData(j, i) != NULL)
+				if (s->GetShadowFrameData(j, i) != nullptr)
 				{
 					WriteData((uint8 *)s->GetShadowFrameData(j,i),
                               s->GetShadowFrameDataSize(j, i)
@@ -329,7 +329,7 @@ void SpriteFile::WriteFacedSpriteWshadowData(FacedSpriteWshadow *s)
 
 			for (i=0; i<s->GetNumFrames(); i++)
 			{
-				if (s->GetMiniShadowFrameData(j, i) != NULL)
+				if (s->GetMiniShadowFrameData(j, i) != nullptr)
 				{
 					WriteData((uint8 *)s->GetMiniShadowFrameData(j,i),
                               s->GetMiniShadowFrameDataSize(j, i)
@@ -604,7 +604,7 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 			   size += sizeof(size);
 
 			SetFilePos(GetFilePos() + size);
-			s->SetFrameData(j, i, NULL, 0);
+			s->SetFrameData(j, i, nullptr, 0);
 		}
 
 	      // Read small size sprites (zoomed out)
@@ -617,7 +617,7 @@ void SpriteFile::ReadFacedSpriteDataBasic(FacedSprite *s)
 		for (i=1; i<s->GetNumFrames(); i++)
 		{
 			SetFilePos(GetFilePos() +  msizes[j][i]);
-			s->SetMiniFrameData(j, i, NULL, 0);
+			s->SetMiniFrameData(j, i, nullptr, 0);
 		}
 	}
 
@@ -788,7 +788,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			}
 			else
 			{
-				data = NULL;
+				data = nullptr;
 			}
 			s->SetFrameData(j, i, data, size);
 		}
@@ -804,7 +804,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 			}
 			else
 			{
-				data = NULL;
+				data = nullptr;
 			}
 			s->SetMiniFrameData(j, i, data, size);
 		}
@@ -822,7 +822,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				}
 				else
 				{
-					data = NULL;
+					data = nullptr;
 				}
 				s->SetShadowFrameData(j, i, data, size);
 			}
@@ -838,7 +838,7 @@ void SpriteFile::ReadFacedSpriteWshadowData(FacedSpriteWshadow *s)
 				}
 				else
 				{
-					data = NULL;
+					data = nullptr;
 				}
 				s->SetMiniShadowFrameData(j, i, data, size);
 			}
@@ -853,14 +853,14 @@ void SpriteFile::ReadSpriteDataGeneralBasic(Sprite **sprite)
 
 	if ((SPRITETYPE)data16 == SPRITETYPE_NORMAL)
 	{
-		if (*sprite == NULL)
+		if (*sprite == nullptr)
 			*sprite = new Sprite;
 		(*sprite)->SetType(data16);
 		ReadSpriteDataBasic(*sprite);
 	}
 	else if ((SPRITETYPE)data16 == SPRITETYPE_FACED)
 	{
-		if (*sprite == NULL)
+		if (*sprite == nullptr)
 			*sprite = (Sprite *) new FacedSprite;
 		(*sprite)->SetType(data16);
 		ReadFacedSpriteDataBasic((FacedSprite *)*sprite);
@@ -877,14 +877,14 @@ void SpriteFile::ReadSpriteDataGeneralFull(Sprite **sprite)
 
 	if ((SPRITETYPE)data16 == SPRITETYPE_NORMAL)
 	{
-		if (*sprite == NULL)
+		if (*sprite == nullptr)
 			*sprite = new Sprite;
 		(*sprite)->SetType(data16);
 		ReadSpriteDataFull(*sprite);
 	}
 	else if ((SPRITETYPE)data16 == SPRITETYPE_FACED)
 	{
-		if (*sprite == NULL)
+		if (*sprite == nullptr)
 			*sprite = (Sprite *) new FacedSprite;
 		(*sprite)->SetType(data16);
 		ReadFacedSpriteDataFull((FacedSprite *)*sprite);
@@ -1015,9 +1015,9 @@ SPRITEFILEERR SpriteFile::Create(SPRITEFILETYPE type,unsigned version,unsigned c
         c3files_fclose(m_file);
     }
 	m_file = c3files_fopen(C3DIR_DIRECT, path, "wb");
-	Assert(m_file != NULL);
+	Assert(m_file != nullptr);
 
-	if (m_file == NULL)
+	if (m_file == nullptr)
 		return SPRITEFILEERR_NOCREATE;
 
 	SPRITEFILEERR	err     = WriteData(static_cast<uint32>(k_SPRITEFILE_TAG));
@@ -1285,26 +1285,26 @@ SPRITEFILEERR SpriteFile::Write(EffectSpriteGroup *s)
 	Anim		*anim;
 
 	Sprite *    sprite = s->GetGroupSprite((GAME_ACTION)EFFECTACTION_PLAY);
-	WriteData((uint32)(sprite != NULL));
-	if (sprite != NULL)
+	WriteData((uint32)(sprite != nullptr));
+	if (sprite != nullptr)
 	{
 		WriteSpriteData(sprite);
 		anim = s->GetGroupAnim((GAME_ACTION)EFFECTACTION_PLAY);
-		WriteData((uint32)(anim != NULL));
-		if (anim != NULL)
+		WriteData((uint32)(anim != nullptr));
+		if (anim != nullptr)
 		{
 			WriteAnimData(anim);
 		}
 	}
 
 	sprite = s->GetGroupSprite((GAME_ACTION)EFFECTACTION_FLASH);
-	WriteData((uint32)(sprite != NULL));
-	if (sprite != NULL)
+	WriteData((uint32)(sprite != nullptr));
+	if (sprite != nullptr)
 	{
 		WriteSpriteData(sprite);
 		anim = s->GetGroupAnim((GAME_ACTION)EFFECTACTION_FLASH);
-		WriteData((uint32)(anim != NULL));
-		if (anim != NULL)
+		WriteData((uint32)(anim != nullptr));
+		if (anim != nullptr)
 		{
 			WriteAnimData(anim);
 		}
@@ -1326,7 +1326,7 @@ SPRITEFILEERR SpriteFile::Write(GoodSpriteGroup *s)
 	for (i=0; i<GOODACTION_MAX; i++)
 	{
 		Sprite *    sprite = s->GetGroupSprite((GAME_ACTION)i);
-		if (sprite != NULL)
+		if (sprite != nullptr)
 		{
 
 			WriteData((uint32)TRUE);
@@ -1366,7 +1366,7 @@ SPRITEFILEERR SpriteFile::CloseWrite()
 	if (m_file)
     {
         c3files_fclose(m_file);
-        m_file = NULL;
+        m_file = nullptr;
     }
 
 	return SPRITEFILEERR_OK;
@@ -1382,7 +1382,7 @@ SPRITEFILEERR SpriteFile::Open(SPRITEFILETYPE *type)
     m_file = c3files_fopen(C3DIR_SPRITES, m_filename, "rb");
 
 //	Assert(m_file != NULL);
-	if (m_file == NULL) return SPRITEFILEERR_NOOPEN;
+	if (m_file == nullptr) return SPRITEFILEERR_NOOPEN;
 
 	uint32			data;
 	SPRITEFILEERR	err = ReadData((void *)&data, sizeof(data));
@@ -1510,7 +1510,7 @@ SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
 
 				Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
 
-				if (anim == NULL)
+				if (anim == nullptr)
 					anim = new Anim;
 
 				ReadAnimDataBasic(anim);
@@ -1525,7 +1525,7 @@ SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
 					s->SetGroupSprite((GAME_ACTION)i, sprite);
 
 					Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-					if (anim == NULL)
+					if (anim == nullptr)
 						anim = new Anim;
 					ReadAnimDataFull(anim);
 					s->SetGroupAnim((GAME_ACTION)i, anim);
@@ -1536,7 +1536,7 @@ SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
 					s->SetGroupSprite((GAME_ACTION)i, sprite);
 
 					Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-					if (anim == NULL)
+					if (anim == nullptr)
 						anim = new Anim;
 					ReadAnimDataBasic(anim);
 
@@ -1559,10 +1559,10 @@ SpriteFile::ReadBasic_v13(UnitSpriteGroup *s)
 
 
 				SkipSpriteDataGeneral();
-				s->SetGroupSprite((GAME_ACTION)i, NULL);
+				s->SetGroupSprite((GAME_ACTION)i, nullptr);
 
 				SkipAnimData();
-				s->SetGroupAnim((GAME_ACTION)i, NULL);
+				s->SetGroupAnim((GAME_ACTION)i, nullptr);
 			}
 		}
 	}
@@ -1613,8 +1613,8 @@ SpriteFile::ReadBasic_v20(UnitSpriteGroup *s)
 	int		i;
 	for (i=0; i<ACTION_MAX; i++)
 	{
-	  s->SetGroupSprite((GAME_ACTION)i,NULL);
-	  s->SetGroupAnim  ((GAME_ACTION)i,NULL);
+	  s->SetGroupSprite((GAME_ACTION)i,nullptr);
+	  s->SetGroupAnim  ((GAME_ACTION)i,nullptr);
 	}
 
 
@@ -1629,7 +1629,7 @@ SpriteFile::ReadBasic_v20(UnitSpriteGroup *s)
 		sprite = s->GetGroupSprite((GAME_ACTION)UNITACTION_IDLE);
 		anim   = s->GetGroupAnim  ((GAME_ACTION)UNITACTION_IDLE);
 
-		if(	anim == NULL)
+		if(	anim == nullptr)
 			anim = new Anim;
 
 #ifdef __MAKESPR__
@@ -1659,7 +1659,7 @@ SpriteFile::ReadBasic_v20(UnitSpriteGroup *s)
 		sprite = s->GetGroupSprite((GAME_ACTION)UNITACTION_MOVE);
 		anim   = s->GetGroupAnim  ((GAME_ACTION)UNITACTION_MOVE);
 
-		if(	anim == NULL)
+		if(	anim == nullptr)
 			anim = new Anim;
 
 		 ReadSpriteDataGeneralBasic(&sprite);
@@ -1723,7 +1723,7 @@ SPRITEFILEERR SpriteFile::ReadFull_v13(UnitSpriteGroup *s)
 
 			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
 
-			if (anim== NULL) {
+			if (anim== nullptr) {
 				anim = new Anim;
 			}
 			ReadAnimDataFull(anim);
@@ -1785,7 +1785,7 @@ SPRITEFILEERR SpriteFile::ReadFull_v20(UnitSpriteGroup *s)
 
 			Anim *      anim    = s->GetGroupAnim((GAME_ACTION)i);
 
-			if (anim== NULL) {
+			if (anim== nullptr) {
 				anim = new Anim;
 			}
 			ReadAnimDataFull(anim);
@@ -1844,7 +1844,7 @@ SpriteFile::ReadIndexed_v13(UnitSpriteGroup *s,GAME_ACTION action)
 
 		Anim *  anim = s->GetGroupAnim(action);
 
-		if (anim== NULL)
+		if (anim== nullptr)
 			anim = new Anim;
 
 		ReadAnimDataFull(anim);
@@ -1904,7 +1904,7 @@ SpriteFile::ReadIndexed_v20(UnitSpriteGroup *s,GAME_ACTION action)
 		Sprite *    sprite  = s->GetGroupSprite(action);
 		Anim *      anim    = s->GetGroupAnim(action);
 
-		if (anim== NULL)
+		if (anim== nullptr)
 			anim = new Anim;
 
 		ReadSpriteDataGeneralFull(&sprite);
@@ -2005,7 +2005,7 @@ SPRITEFILEERR SpriteFile::Read(EffectSpriteGroup *s)
 {
 	uint32	data32;
 
-	Sprite	*sprite = NULL;
+	Sprite	*sprite = nullptr;
 	Anim	*anim;
 
 	ReadData((void *)&data32, sizeof(data32));
@@ -2021,7 +2021,7 @@ SPRITEFILEERR SpriteFile::Read(EffectSpriteGroup *s)
 		}
 	}
 
-	sprite = NULL;
+	sprite = nullptr;
 
 	ReadData((void *)&data32, sizeof(data32));
 	if (data32) {
@@ -2059,7 +2059,7 @@ SPRITEFILEERR SpriteFile::ReadBasic(GoodSpriteGroup *s)
 			s->SetGroupSprite((GAME_ACTION)i, sprite);
 
 			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-			if (anim == NULL)
+			if (anim == nullptr)
 				anim = new Anim;
 
 			ReadAnimDataBasic(anim);
@@ -2090,7 +2090,7 @@ SPRITEFILEERR SpriteFile::ReadFull(GoodSpriteGroup *s)
 			s->SetGroupSprite((GAME_ACTION)i, sprite);
 
 			Anim *anim = s->GetGroupAnim((GAME_ACTION)i);
-			if (anim == NULL)
+			if (anim == nullptr)
 				anim = new Anim;
 
 			ReadAnimDataFull(anim);
@@ -2121,7 +2121,7 @@ SPRITEFILEERR SpriteFile::ReadIndexed(GoodSpriteGroup *s,GAME_ACTION index)
 
 		Anim *anim = s->GetGroupAnim(index);
 
-		if (anim == NULL)
+		if (anim == nullptr)
 			anim = new Anim;
 
 		ReadAnimDataFull(anim);
@@ -2144,7 +2144,7 @@ SPRITEFILEERR SpriteFile::CloseRead()
 	if (m_file)
     {
         c3files_fclose(m_file);
-        m_file = NULL;
+        m_file = nullptr;
     }
 
 	return SPRITEFILEERR_OK;
@@ -2257,7 +2257,7 @@ void SpriteFile::SetFilePos(long pos)
 uint8 *
 SpriteFile::CompressData  (void *Data, size_t &DataLen)
 {
-	uint8 *ReturnVal=NULL;
+	uint8 *ReturnVal=nullptr;
 
 	switch(m_spr_compression)
 	{

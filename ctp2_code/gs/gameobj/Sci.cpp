@@ -68,8 +68,8 @@ sint32 Science::ComputeScienceFromResearchPacts(const sint32 playerId)
 
 sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint32 foreignerId)
 {
-	Assert(player_Get(foreignerId) != NULL);
-	if (player_Get(foreignerId) == NULL)
+	Assert(player_Get(foreignerId) != nullptr);
+	if (player_Get(foreignerId) == nullptr)
 		return 0;
 
 	ai::Agreement research_pact =
@@ -84,7 +84,7 @@ sint32 Science::ComputeScienceFromResearchPact(const sint32 playerId, const sint
 		{
 			city = player_Get(foreignerId)->m_all_cities->Access(i);
 			Assert( unitpool_Get()->IsValid(city) );
-			Assert( city->GetCityData() != NULL );
+			Assert( city->GetCityData() != nullptr );
 
 			research_pact_science += city.CD()->GetScience();
 		}

@@ -182,7 +182,7 @@ void GovernmentTab::UpdateCompareGovernmentDropdown()
 
 	m_compareGovernment->Clear();
 
-	ctp2_ListItem *reselect = NULL;
+	ctp2_ListItem *reselect = nullptr;
 
 	for(sint32 governmentIndex = 1; governmentIndex <
 		g_theGovernmentDB->NumRecords(); governmentIndex++ ) {

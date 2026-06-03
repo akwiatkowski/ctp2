@@ -23,7 +23,7 @@ C3ListBox::C3ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
 	aui_ListBox()
 {
 	*retval = aui_Region::InitCommonLdl( id, ldlBlock );
@@ -38,7 +38,7 @@ C3ListBox::C3ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
@@ -69,7 +69,7 @@ C3ListBox::C3ListBox(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_ListBox()
 {
 	*retval = aui_Region::InitCommon( id, x, y, width, height );
@@ -80,7 +80,7 @@ C3ListBox::C3ListBox(
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **)NULL );
+	*retval = aui_SoundBase::InitCommon((MBCHAR **)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 

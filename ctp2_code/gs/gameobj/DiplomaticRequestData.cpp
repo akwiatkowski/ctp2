@@ -125,12 +125,12 @@ void DiplomaticRequestData::Serialize(CivArchive &archive)
 		m_reciprocalCity.Serialize(archive) ;
 		m_amount.Serialize(archive) ;
 
-		hasChild = m_lesser != NULL;
+		hasChild = m_lesser != nullptr;
 		archive << hasChild;
 		if (m_lesser)
 			((DiplomaticRequestData *)(m_lesser))->Serialize(archive) ;
 
-		hasChild = m_greater != NULL;
+		hasChild = m_greater != nullptr;
 		archive << hasChild;
 		if (m_greater)
 			((DiplomaticRequestData *)(m_greater))->Serialize(archive) ;
@@ -157,12 +157,12 @@ void DiplomaticRequestData::Serialize(CivArchive &archive)
 		if(hasChild)
 			m_lesser = new DiplomaticRequestData(archive);
 		else
-			m_lesser = NULL;
+			m_lesser = nullptr;
 		archive >> hasChild;
 		if(hasChild)
 			m_greater = new DiplomaticRequestData(archive);
 		else
-			m_greater = NULL;
+			m_greater = nullptr;
 	}
 
 }
@@ -362,7 +362,7 @@ void DiplomaticRequestData::Dump(const sint32 i)
 
 void DiplomaticRequestData::Enact(BOOL fromCurPlayer)
 {
-	SlicObject *so = NULL;
+	SlicObject *so = nullptr;
 
 #ifdef _DEBUG
     if (g_theDiplomacyLog) {
@@ -702,7 +702,7 @@ ATTITUDE_TYPE DiplomaticRequestData::GetAttitude(PLAYER_INDEX p1, PLAYER_INDEX p
 
 void DiplomaticRequestData::Reject(BOOL fromServer)
 {
-	SlicObject	*so = NULL;
+	SlicObject	*so = nullptr;
 
 	if(g_network.IsClient() && !fromServer) {
 		g_network.SendAction(new NetAction(NET_ACTION_REJECT_REQUEST,
@@ -999,7 +999,7 @@ MBCHAR *DiplomaticRequestData::GetRequestString()
 			break ;
 
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void DiplomaticRequestData::SetAdvance(const AdvanceType &advance)

@@ -28,7 +28,7 @@ C3Scroller::C3Scroller
 )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (MBCHAR *)nullptr ),
     aui_Ranger      (),
     PatternBase     (),
     m_isVertical    (false)
@@ -49,12 +49,12 @@ C3Scroller::C3Scroller
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)NULL );
+	*retval = PatternBase::InitCommonLdl( ldlBlock, (MBCHAR *)nullptr );
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if (!block)
     {
         *retval = AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
@@ -87,7 +87,7 @@ C3Scroller::C3Scroller
 )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
     aui_Ranger      (),
     PatternBase     (),
     m_isVertical    (isVertical)
@@ -104,7 +104,7 @@ C3Scroller::C3Scroller
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 
-	*retval = aui_SoundBase::InitCommon((MBCHAR **) NULL);
+	*retval = aui_SoundBase::InitCommon((MBCHAR **) nullptr);
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
 

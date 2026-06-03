@@ -42,7 +42,7 @@ ObjPool::ObjPool(uint32 it)
     m_id_type   (it),
     m_nObjs     (0)
 {
-	std::fill(m_table, m_table + k_OBJ_POOL_TABLE_SIZE, (GameObj *) NULL);
+	std::fill(m_table, m_table + k_OBJ_POOL_TABLE_SIZE, (GameObj *) nullptr);
 }
 
 ObjPool::~ObjPool()

@@ -7,7 +7,7 @@
 #include "ui/interface/cursormanager.h"
 
 
-static CursorManager		*g_cursorManager = NULL;
+static CursorManager		*g_cursorManager = nullptr;
 
 CursorManager * cursormanager_Get() { return g_cursorManager; }
 
@@ -22,9 +22,9 @@ void CursorManager::Initialize()
 
 void CursorManager::Cleanup()
 {
-	if (g_cursorManager != NULL) {
+	if (g_cursorManager != nullptr) {
 		delete g_cursorManager;
-		g_cursorManager = NULL;
+		g_cursorManager = nullptr;
 	}
 }
 

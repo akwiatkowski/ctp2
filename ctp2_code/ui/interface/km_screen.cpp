@@ -249,13 +249,13 @@ namespace
 // Variables
 //----------------------------------------------------------------------------
 
-    ctp2_Static  *      s_groupStatic       = NULL;
-    c3_ListBox  *       s_keyList           = NULL;
-    c3_PopupWindow *    s_km_screen         = NULL;
-    ctp2_Button *       s_resetButton       = NULL;
+    ctp2_Static  *      s_groupStatic       = nullptr;
+    c3_ListBox  *       s_keyList           = nullptr;
+    c3_PopupWindow *    s_km_screen         = nullptr;
+    ctp2_Button *       s_resetButton       = nullptr;
     KM                  s_selected          = KM_BASIC;
-    aui_StringTable *   s_strings           = NULL;
-    ctp2_Button **      s_switch            = NULL;
+    aui_StringTable *   s_strings           = nullptr;
+    ctp2_Button **      s_switch            = nullptr;
 
 //----------------------------------------------------------------------------
 // Function definitions
@@ -289,7 +289,7 @@ void km_screen_loadKeyList()
     {
     default:
         functionCount   = TAB_INVALID.Count;
-        functionList    = NULL;
+        functionList    = nullptr;
         break;
 
 	case KM_BASIC:
@@ -506,7 +506,7 @@ void km_screen_Cleanup()
 			mycleanup( s_switch[i] );
 		}
 		delete [] s_switch;
-		s_switch = NULL;
+		s_switch = nullptr;
 	}
 
 	mycleanup( s_resetButton );
@@ -582,7 +582,7 @@ sint32 km_screen_remapKey( WPARAM wParam, LPARAM lParam )
 KeyListItem::KeyListItem(AUI_ERRCODE *retval, sint32 index, uint32 keycode, MBCHAR *ldlBlock)
 	:
 	aui_ImageBase(ldlBlock),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	c3_ListItem( retval, ldlBlock)
 {
 	Assert( AUI_SUCCESS(*retval) );

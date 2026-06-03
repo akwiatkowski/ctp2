@@ -34,8 +34,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	c3_Button(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -44,14 +44,14 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~c3_Button() {}
 
 	void SetBevelWidth(uint32 w) { m_bevelWidth = w; };
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -79,8 +79,8 @@ public:
 		AUI_ERRCODE *retval,
 		uint32 id,
 		MBCHAR *ldlBlock,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	c3_EditButton(
 		AUI_ERRCODE *retval,
 		uint32 id,
@@ -89,8 +89,8 @@ public:
 		sint32 width,
 		sint32 height,
 		MBCHAR *pattern,
-		ControlActionCallback *ActionFunc = NULL,
-		void *cookie = NULL );
+		ControlActionCallback *ActionFunc = nullptr,
+		void *cookie = nullptr );
 	virtual ~c3_EditButton();
 
 	sint32		GetValue( ) const { return m_val; }
@@ -110,9 +110,9 @@ protected:
 	    m_val           (k_C3_EDITBUTTON_DEFAULTVAL),
 	    m_min           (k_C3_EDITBUTTON_DEFAULTMIN),
 	    m_max           (k_C3_EDITBUTTON_DEFAULTMAX),
-        m_field         (NULL),
-        m_origAction    (NULL),
-	    m_origCallback  (NULL)
+        m_field         (nullptr),
+        m_origAction    (nullptr),
+	    m_origCallback  (nullptr)
     {};
 
 	AUI_ERRCODE InitCommonLdl( MBCHAR *ldlBlock );
@@ -131,7 +131,7 @@ private:
 	};
 	ControlActionCallback * m_origCallback;
 
-	AUI_ERRCODE CreateFieldAndActions( MBCHAR *ldlBlock = NULL );
+	AUI_ERRCODE CreateFieldAndActions( MBCHAR *ldlBlock = nullptr );
 };
 
 void c3_EditButtonCallback( aui_Control *, uint32, uint32, void * );

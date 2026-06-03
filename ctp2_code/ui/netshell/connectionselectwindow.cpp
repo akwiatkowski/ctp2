@@ -78,7 +78,7 @@ ConnectionSelectWindow::ConnectionSelectWindow(
 AUI_ERRCODE ConnectionSelectWindow::InitCommon( )
 {
 	m_controls = new aui_Control *[ m_numControls = CONTROL_MAX ];
-	Assert( m_controls != NULL );
+	Assert( m_controls != nullptr );
 	if ( !m_controls ) return AUI_ERRCODE_MEMALLOCFAILED;
 	memset( m_controls, 0, m_numControls * sizeof( aui_Control *) );
 
@@ -181,17 +181,17 @@ AUI_ERRCODE ConnectionSelectWindow::CreateControls( )
 
 
 	action = new OKButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_OKBUTTON ]->SetAction( action );
 
 	action = new CancelButtonAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CANCELBUTTON ]->SetAction( action );
 
 	action = new ConnectionListBoxAction;
-	Assert( action != NULL );
+	Assert( action != nullptr );
 	if ( !action ) return AUI_ERRCODE_MEMALLOCFAILED;
 	m_controls[ CONTROL_CONNECTIONTYPELISTBOX ]->SetAction( action );
 

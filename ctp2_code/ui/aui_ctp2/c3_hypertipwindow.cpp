@@ -22,7 +22,7 @@ c3_HyperTipWindow::c3_HyperTipWindow(
 	MBCHAR *ldlBlock )
 	:
 	aui_TipWindow( retval, id, ldlBlock ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -57,7 +57,7 @@ c3_HyperTipWindow::c3_HyperTipWindow(
 AUI_ERRCODE c3_HyperTipWindow::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon();
@@ -110,7 +110,7 @@ AUI_ERRCODE c3_HyperTipWindow::SetHyperTipText(MBCHAR *text)
 AUI_ERRCODE c3_HyperTipWindow::InitCommon( )
 {
 	m_allocatedHyperTip = FALSE;
-	m_hyperTip = NULL;
+	m_hyperTip = nullptr;
 
 	SetDynamic( TRUE );
 

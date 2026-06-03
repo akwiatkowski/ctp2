@@ -23,9 +23,9 @@ StaticPicture::StaticPicture(
 	MBCHAR *picture )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Static      (retval, id, ldlBlock),
-    m_picture       (NULL)
+    m_picture       (nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -45,9 +45,9 @@ StaticPicture::StaticPicture(
 	MBCHAR *picture )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Static      (retval, id, x, y, width, height),
-    m_picture       (NULL)
+    m_picture       (nullptr)
 {
 	Assert( AUI_SUCCESS(*retval) );
 	if ( !AUI_SUCCESS(*retval) ) return;
@@ -60,12 +60,12 @@ StaticPicture::StaticPicture(
 AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *ldlBlock, MBCHAR *picture )
 {
 	ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	MBCHAR *name =
 		block->GetString( picture ? picture : k_AUI_STATICIMAGE_LDL_IMAGE );
-	Assert( name != NULL );
+	Assert( name != nullptr );
 	if ( name )
 	{
 		AUI_ERRCODE errcode = InitCommon( name );
@@ -86,10 +86,10 @@ AUI_ERRCODE StaticPicture::InitCommon( MBCHAR *picture )
 	    AUI_ERRCODE errcode;
 		m_picture = new Picture(&errcode, filename);
 	} else {
-		m_picture = NULL;
+		m_picture = nullptr;
 	}
 
-	Assert( m_picture != NULL );
+	Assert( m_picture != nullptr );
 
 	return AUI_ERRCODE_OK;
 }
@@ -137,7 +137,7 @@ void StaticPicture::SetPicture(MBCHAR *picture)
 	}
     else
     {
-		m_picture = NULL;
+		m_picture = nullptr;
 	}
 
 	RECT rect = { 0, 0, m_width, m_height };

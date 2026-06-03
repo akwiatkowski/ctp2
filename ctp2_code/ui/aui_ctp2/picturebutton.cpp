@@ -23,10 +23,10 @@ PictureButton::PictureButton(
 	void *cookie )
 :
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase(NULL),
+	aui_TextBase(nullptr),
 	aui_Button      (retval, id, x, y, width, height, ActionFunc, cookie),
-    m_upPicture     (NULL),
-    m_downPicture   (NULL)
+    m_upPicture     (nullptr),
+    m_downPicture   (nullptr)
 {
 	InitCommon(upPicture, downPicture);
 }
@@ -39,12 +39,12 @@ PictureButton::PictureButton(
 	void *cookie )
 :
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase(ldlBlock, (MBCHAR *)NULL),
+	aui_TextBase(ldlBlock, (MBCHAR *)nullptr),
 	aui_Button      (retval, id, ldlBlock, ActionFunc, cookie),
-    m_upPicture     (NULL),
-    m_downPicture   (NULL)
+    m_upPicture     (nullptr),
+    m_downPicture   (nullptr)
 {
-	InitCommon(ldlBlock, NULL, TRUE);
+	InitCommon(ldlBlock, nullptr, TRUE);
 }
 
 AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BOOL isLDL)
@@ -58,14 +58,14 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BO
 		ldlBlock = upPicture;
 
 		ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-		Assert( block != NULL );
+		Assert( block != nullptr );
 		if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 
 		upName = block->GetString( "uppicture" );
-		Assert( upName != NULL );
+		Assert( upName != nullptr );
 		downName = block->GetString( "downpicture");
-		Assert( downName != NULL );
+		Assert( downName != nullptr );
 	} else {
 		upName = upPicture;
 		downName = downPicture;
@@ -78,7 +78,7 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BO
 		m_upPicture = new Picture(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {
-		m_upPicture = NULL;
+		m_upPicture = nullptr;
 	}
 
 	delete m_downPicture;
@@ -86,7 +86,7 @@ AUI_ERRCODE PictureButton::InitCommon(MBCHAR *upPicture, MBCHAR *downPicture, BO
 		m_downPicture = new Picture(&retval, path);
 		Assert(retval == AUI_ERRCODE_OK);
 	} else {
-		m_downPicture = NULL;
+		m_downPicture = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;

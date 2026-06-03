@@ -20,7 +20,7 @@ aui_MovieButton::aui_MovieButton(
 	void *cookie )
 	:
 	aui_ImageBase( ldlBlock ),
-	aui_TextBase( ldlBlock, (const MBCHAR *)NULL ),
+	aui_TextBase( ldlBlock, (const MBCHAR *)nullptr ),
 	aui_Button( retval, id, ldlBlock, ActionFunc, cookie )
 {
 	m_flags = 0;
@@ -47,7 +47,7 @@ aui_MovieButton::aui_MovieButton(
 	void *cookie )
 	:
 	aui_ImageBase( (sint32)0 ),
-	aui_TextBase( NULL ),
+	aui_TextBase( nullptr ),
 	aui_Button( retval, id, x, y, width, height, ActionFunc, cookie )
 {
 	m_flags = 0;
@@ -65,7 +65,7 @@ aui_MovieButton::aui_MovieButton(
 AUI_ERRCODE aui_MovieButton::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	AUI_ERRCODE errcode = InitCommon(
@@ -77,7 +77,7 @@ AUI_ERRCODE aui_MovieButton::InitCommonLdl( MBCHAR *ldlBlock )
 
 AUI_ERRCODE aui_MovieButton::InitCommon( MBCHAR *movie )
 {
-	m_movie = NULL;
+	m_movie = nullptr;
 
 	SetMovie( movie );
 
@@ -93,7 +93,7 @@ aui_MovieButton::~aui_MovieButton()
 	if ( m_movie )
 	{
 		aui_ui_Get()->UnloadMovie( m_movie );
-		m_movie = NULL;
+		m_movie = nullptr;
 	}
 }
 
@@ -105,15 +105,15 @@ aui_Movie *aui_MovieButton::SetMovie( const MBCHAR *movie )
 	if ( movie )
 	{
 		m_movie = aui_ui_Get()->LoadMovie(movie);
-		Assert( m_movie != NULL );
+		Assert( m_movie != nullptr );
 		if ( !m_movie )
 		{
 			m_movie = prevMovie;
-			return NULL;
+			return nullptr;
 		}
 
 
-		m_movie->SetDestSurface( m_window ? m_window->TheSurface() : NULL );
+		m_movie->SetDestSurface( m_window ? m_window->TheSurface() : nullptr );
 		m_movie->SetDestRect( m_x, m_y, m_x + m_width, m_y + m_height );
 
 
@@ -138,7 +138,7 @@ aui_Movie *aui_MovieButton::SetMovie( const MBCHAR *movie )
 		}
 	}
 	else
-		m_movie = NULL;
+		m_movie = nullptr;
 
 	if ( prevMovie ) aui_ui_Get()->UnloadMovie( prevMovie );
 
@@ -168,9 +168,9 @@ AUI_ERRCODE aui_MovieButton::Idle( )
 
 			if (m_movie->Open(flags, c3ui_Get()->Secondary(), &adjustedRect) != AUI_ERRCODE_OK) {
 
-				SetMovie(NULL);
+				SetMovie(nullptr);
 				if (GetActionFunc())
-					GetActionFunc()(this, AUI_BUTTON_ACTION_EXECUTE, 0, 0);
+					GetActionFunc()(this, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 			}
 		}
 
@@ -186,7 +186,7 @@ AUI_ERRCODE aui_MovieButton::Idle( )
 			if (m_movie->IsFinished() && !(m_flags & k_AUI_MOVIE_PLAYFLAG_PLAYANDHOLD))
 			{
 				if (m_ActionFunc)
-					m_ActionFunc((aui_Control *)this, AUI_BUTTON_ACTION_EXECUTE, 0, NULL);
+					m_ActionFunc((aui_Control *)this, AUI_BUTTON_ACTION_EXECUTE, 0, nullptr);
 			}
 		}
 	}

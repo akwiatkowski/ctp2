@@ -62,7 +62,7 @@ public:
 
 
 	virtual AUI_ERRCODE DrawThis(
-		aui_Surface *surface = NULL,
+		aui_Surface *surface = nullptr,
 		sint32 x = 0,
 		sint32 y = 0 );
 
@@ -77,9 +77,9 @@ public:
 	void	InitializeControls(AUI_ERRCODE *errcode,MBCHAR *windowsBlock);
 	void	TopLevel();
 
-	void			LoadSprite(char *name=NULL);
+	void			LoadSprite(char *name=nullptr);
 
-	void			SaveSprite(char *name=NULL);
+	void			SaveSprite(char *name=nullptr);
 
 	void			DrawSprite();
 	void			ReDrawLargeSprite();

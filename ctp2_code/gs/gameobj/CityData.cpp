@@ -515,11 +515,11 @@ CityData::CityData(PLAYER_INDEX owner, Unit hc, const MapPoint &center_point)
 	m_science_lost_to_crime             (0.0),
 #endif
 	m_cityRadiusOp                      (RADIUS_OP_UKNOWN),
-	m_killList                          (NULL),
+	m_killList                          (nullptr),
 	m_radiusNewOwner                    (0),
     m_tilecount                         (0),
 //            m_whichtile;
-    m_tempGoodAdder                     (NULL),
+    m_tempGoodAdder                     (nullptr),
     m_tempGood                          (-1),
     m_tempGoodCount                     (0),
 	m_sentInefficientMessageAlready     (false),
@@ -603,7 +603,7 @@ CityData::~CityData()
 }
 
 // Global to fix trade routes
-sint32 *g_newGoods = NULL;
+sint32 *g_newGoods = nullptr;
 
 //----------------------------------------------------------------------------
 //
@@ -724,7 +724,7 @@ void CityData::Serialize(CivArchive &archive)
 				}
 			}
 
-			if(g_newGoods == NULL)
+			if(g_newGoods == nullptr)
 			{
 				// Needs only be done once per reload
 				g_newGoods = new sint32[ressourceNum]; // Deleted in gameinit_Initialize
@@ -835,7 +835,7 @@ void CityData::Initialize(sint32 settlerType)
 	sint32 martialLaw;
 	m_happy->CalcHappiness(*this, false, martialLaw, true);
 
-	const UnitRecord * settlerRec   = NULL;
+	const UnitRecord * settlerRec   = nullptr;
 	sint32 numPops = 1;
 	if(settlerType >= 0)
 	{
@@ -2018,7 +2018,7 @@ void CityData::AddShieldsToBuilding()
 #if !defined(NEW_RESOURCE_PROCESS)
 void CityData::GetFullAndPartialRadii(sint32 &fullRadius, sint32 &partRadius) const
 {
-	CitySizeRecord const *  fullRec = NULL;
+	CitySizeRecord const *  fullRec = nullptr;
 	if (m_workerFullUtilizationIndex >= 0)
 	{
 		fullRec = g_theCitySizeDB->Get(m_workerFullUtilizationIndex);
@@ -2026,7 +2026,7 @@ void CityData::GetFullAndPartialRadii(sint32 &fullRadius, sint32 &partRadius) co
 
 	fullRadius  = (fullRec) ? fullRec->GetSquaredRadius() : 0;
 
-	CitySizeRecord const *  partRec = NULL;
+	CitySizeRecord const *  partRec = nullptr;
 	if ((m_workerPartialUtilizationIndex >= 0) &&
 	    (m_workerPartialUtilizationIndex < g_theCitySizeDB->NumRecords())
 	   )
@@ -4889,7 +4889,7 @@ bool CityData::BuildUnit(sint32 type)
 
 	const UnitRecord* rec = g_theUnitDB->Get(type, player_Get(m_owner)->GetGovernmentType());
 	Assert(rec);
-	if(rec == NULL)
+	if(rec == nullptr)
 		return false;
 
 	if(player_Get(m_owner)->HasAdvance(rec->GetEnableAdvanceIndex()))
@@ -4928,7 +4928,7 @@ bool CityData::BuildImprovement(sint32 type)
 
 	const BuildingRecord* irec = buildingutil_Get(type, m_owner);
 	Assert(irec);
-	if(irec == NULL)
+	if(irec == nullptr)
 		return false;
 
 	if(player_Get(m_owner)->HasAdvance(irec->GetEnableAdvanceIndex())) {
@@ -4989,7 +4989,7 @@ bool CityData::BuildWonder(sint32 type)
 
 	const WonderRecord* rec = wonderutil_Get(type, m_owner);
 	Assert(rec);
-	if(rec == NULL)
+	if(rec == nullptr)
 		return false;
 
 	DPRINTF(k_DBG_GAMESTATE, ("City %lx: building wonder %s\n", (uint32)m_home_city,
@@ -5092,9 +5092,9 @@ bool CityData::ChangeCurrentlyBuildingItem(sint32 category, sint32 item_type)
 	}
 
 	sint32 cost;
-	const UnitRecord* urec = NULL;
-	const WonderRecord* wrec = NULL;
-	const BuildingRecord* irec = NULL;
+	const UnitRecord* urec = nullptr;
+	const WonderRecord* wrec = nullptr;
+	const BuildingRecord* irec = nullptr;
 //	const EndGameRecord *egrec = NULL; // Maybe usefull later
 	sint32 oldCategory;
 	if(m_build_queue.GetHead())
@@ -6118,7 +6118,7 @@ bool CityData::IsSellingResourceTo(sint32 resource, Unit & destination) const
 
 sint32 CityData::LoadQueue(const MBCHAR *file)
 {
-	m_build_category_before_load_queue = GetBuildQueue()->GetHead() != NULL ? GetBuildQueue()->GetHead()->m_category : k_GAME_OBJ_TYPE_NOTHING;
+	m_build_category_before_load_queue = GetBuildQueue()->GetHead() != nullptr ? GetBuildQueue()->GetHead()->m_category : k_GAME_OBJ_TYPE_NOTHING;
 
 	sint32 r = m_build_queue.Load(file);
 
@@ -6296,7 +6296,7 @@ void CityData::SetName(const MBCHAR *name)
 
 sint32 CityData::GetOvertimeCost()
 {
-	if (m_build_queue.GetHead() == NULL)
+	if (m_build_queue.GetHead() == nullptr)
 	{
 		// TODO: return 0 when nothing in queue.
 		// But check usage (e.g. in ctpai.cpp) before doing so.
@@ -6832,7 +6832,7 @@ bool CityData::CanBuildBuilding(sint32 type) const
 
 	const BuildingRecord* rec = buildingutil_Get(type, m_owner);
 
-	Assert(rec != NULL);
+	Assert(rec != nullptr);
 	if (!rec)
 		return false;
 
@@ -8847,8 +8847,8 @@ sint32 CityData::GetDesiredSpriteIndex(bool justTryLand)
 	const AgeCityStyleRecord *ageStyleRec = styleRec->GetAgeStyle(player_Get(m_owner)->m_age);
 	if(!ageStyleRec) return -1;
 
-	const AgeCityStyleRecord::SizeSprite *spr = NULL;
-	const AgeCityStyleRecord::SizeSprite *lastTypeSpr = NULL;
+	const AgeCityStyleRecord::SizeSprite *spr = nullptr;
+	const AgeCityStyleRecord::SizeSprite *lastTypeSpr = nullptr;
 
 	for(sint32 i = 0; i < ageStyleRec->GetNumSprites(); i++)
 	{
@@ -8900,7 +8900,7 @@ void CityData::DoSupport(bool projectedOnly)
 sint32 CityData::GetSupport() const
 {
 	Assert(player_Get(m_owner));
-	if (player_Get(m_owner) == NULL)
+	if (player_Get(m_owner) == nullptr)
 		return 0;
 
 	return CalcWages() + GetSupportBuildingsCost();
@@ -8950,7 +8950,7 @@ void CityData::SplitScience(bool projectedOnly)
 //----------------------------------------------------------------------------
 void CityData::SplitScience(bool projectedOnly, sint32 &gold, sint32 &science, sint32 &scieCrime, bool considerOnlyFromTerrain) const
 {
-	if (player_Get(m_owner)==NULL)
+	if (player_Get(m_owner)==nullptr)
 		return;
 
 	sint32 baseGold = gold;
@@ -9392,7 +9392,7 @@ sint32 CityData::HowMuchMoreFoodNeeded(sint32 bonusFood, bool onlyGrwoth, bool c
 	}
 	/////////////////////////////////////
 
-	const CitySizeRecord *nextRec = NULL;
+	const CitySizeRecord *nextRec = nullptr;
 	if(m_sizeIndex >= 0
 		&& m_sizeIndex < g_theCitySizeDB->NumRecords())
 	{
@@ -10304,7 +10304,7 @@ bool CityData::IsBuildingOperational(sint32 type) const
 
 	const BuildingRecord* rec = buildingutil_Get(type, m_owner);
 
-	Assert(rec != NULL);
+	Assert(rec != nullptr);
 	if (!rec)
 		return false;
 

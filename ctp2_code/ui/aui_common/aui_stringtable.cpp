@@ -48,7 +48,7 @@ aui_StringTable::aui_StringTable
 	size_t          numStrings
 )
 :
-	m_Strings       (numStrings, (MBCHAR *) NULL)
+	m_Strings       (numStrings, (MBCHAR *) nullptr)
 {
     *retval = AUI_ERRCODE_OK;
 }
@@ -69,7 +69,7 @@ aui_StringTable::aui_StringTable
         return;
     }
 
-	m_Strings.resize(FindNumStringsFromLdl(block), (MBCHAR *) NULL);
+	m_Strings.resize(FindNumStringsFromLdl(block), (MBCHAR *) nullptr);
 
     MBCHAR temp[k_AUI_LDL_MAXBLOCK + 1];
 
@@ -151,7 +151,7 @@ size_t aui_StringTable::FindNumStringsFromLdl(ldl_datablock * block)
 MBCHAR * aui_StringTable::GetString( sint32 index ) const
 {
 	Assert(index >= 0 && static_cast<size_t>(index) < m_Strings.size());
-	if (index < 0 || static_cast<size_t>(index) >= m_Strings.size()) return NULL;
+	if (index < 0 || static_cast<size_t>(index) >= m_Strings.size()) return nullptr;
 
 	return m_Strings[index];
 }
@@ -179,7 +179,7 @@ AUI_ERRCODE aui_StringTable::SetString(const MBCHAR *text, sint32 index)
 	else
 	{
 		delete [] m_Strings[index];
-		m_Strings[index] = NULL;
+		m_Strings[index] = nullptr;
 	}
 
 	return AUI_ERRCODE_OK;

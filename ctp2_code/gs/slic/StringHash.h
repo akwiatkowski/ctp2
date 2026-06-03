@@ -45,12 +45,12 @@ public:
 
 	StringHashNode(const char *string, T *obj)
     :   m_obj   (obj),
-        m_next  (NULL)
+        m_next  (nullptr)
     { ; };
 
 	StringHashNode(ARCHIVE archive)
-    :   m_obj   (NULL),
-        m_next  (NULL)
+    :   m_obj   (nullptr),
+        m_next  (nullptr)
 	{
 		Serialize(archive);
 	};
@@ -66,7 +66,7 @@ public:
 		if(archive.IsStoring()) {
 			m_obj->Serialize(archive);
 
-			isPresent = (m_next != NULL);
+			isPresent = (m_next != nullptr);
 			archive << isPresent;
 			if(m_next)
 				m_next->Serialize(archive);
@@ -77,7 +77,7 @@ public:
 			if(isPresent) {
 				m_next = new StringHashNode<T>(archive);
 			} else {
-				m_next = NULL;
+				m_next = nullptr;
 			}
 		}
 	}
@@ -129,7 +129,7 @@ template <class T> StringHash<T>::StringHash(sint32 table_size)
 	m_table = new StringHashNode<T> *[table_size];
 	m_table_size = table_size;
 	for(sint32 i = 0; i < table_size; i++) {
-		m_table[i] = NULL;
+		m_table[i] = nullptr;
 	}
 }
 
@@ -168,7 +168,7 @@ template <class T> void StringHash<T>::Serialize(ARCHIVE archive)
 		archive << m_table_size;
 
 		for(sint32 i = 0; i < m_table_size; i++) {
-			isPresent = m_table[i] != NULL;
+			isPresent = m_table[i] != nullptr;
 			archive << isPresent;
 			if(isPresent) {
 				m_table[i]->Serialize(archive);
@@ -185,7 +185,7 @@ template <class T> void StringHash<T>::Serialize(ARCHIVE archive)
 			if(isPresent) {
 				m_table[i] = new StringHashNode<T>(archive);
 			} else {
-				m_table[i] = NULL;
+				m_table[i] = nullptr;
 			}
 		}
 	}
@@ -218,7 +218,7 @@ template <class T> const T *StringHash<T>::Get(const char *str)
 			return node->m_obj;
 		node = node->m_next;
 	}
-	return NULL;
+	return nullptr;
 }
 
 template <class T> T *StringHash<T>::Access(const char *str)
@@ -230,7 +230,7 @@ template <class T> T *StringHash<T>::Access(const char *str)
 			return node->m_obj;
 		node = node->m_next;
 	}
-	return NULL;
+	return nullptr;
 }
 
 template <class T> void StringHash<T>::Add(const char *str, T *obj)

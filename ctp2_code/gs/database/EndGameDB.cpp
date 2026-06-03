@@ -26,7 +26,7 @@ static TokenData s_endgameTokenData[TOKEN_ENDGAME_MAX_VAL] = {
 	{TOKEN_ENDGAME_SOUND_ID, "SOUND_ID"},
 };
 
-static EndGameDatabase *g_theEndGameDB = NULL;
+static EndGameDatabase *g_theEndGameDB = nullptr;
 
 EndGameDatabase * endgamedb_Get()              { return g_theEndGameDB; }
 void              endgamedb_Set(EndGameDatabase *p) { g_theEndGameDB = p; }

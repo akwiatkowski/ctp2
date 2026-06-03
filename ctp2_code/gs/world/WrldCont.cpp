@@ -59,7 +59,7 @@ struct MapPointNode
     MapPointNode
     (
         MapPoint const &    a_Pos,
-        MapPointNode *      a_Next = NULL
+        MapPointNode *      a_Next = nullptr
     )
     :
         pos         (a_Pos),
@@ -75,7 +75,7 @@ struct Old_Cont_Node
     Old_Cont_Node
     (
         MapPoint const &     a_Pos,
-        Old_Cont_Node *      a_Next      = NULL,
+        Old_Cont_Node *      a_Next      = nullptr,
         sint32               a_Continent = INVALID_CONTINENT
     )
     :
@@ -89,7 +89,7 @@ struct Old_Cont_Node
     Old_Cont_Node * m_next;
 };
 
-Old_Cont_Node * g_tunnel_list   = NULL;
+Old_Cont_Node * g_tunnel_list   = nullptr;
 
 void World::NumberContinents()
 {
@@ -147,11 +147,11 @@ void World::GrowOceans()
 
 void World::GrowWater(MapPoint const & start)
 {
-    MapPointNode * search_list   = NULL;
+    MapPointNode * search_list   = nullptr;
     AddToWaterSearch(search_list, start);
 
     MapPoint       center;
-    MapPointNode * finished_list = NULL;
+    MapPointNode * finished_list = nullptr;
 #ifdef _DEBUG
     sint32         finite_loop   = 0;
 #endif
@@ -236,7 +236,7 @@ bool World::NextPoint
     MapPoint &      p
 )
 {
-    if (search_list == NULL)
+    if (search_list == nullptr)
     {
         return false;
     }
@@ -326,12 +326,12 @@ bool World::IsNewLand(MapPoint const &p) const
 
 void World::GrowLand(MapPoint const & start)
 {
-    MapPointNode * search_list   = NULL;
+    MapPointNode * search_list   = nullptr;
     AddToLandSearch(search_list, start);
 
     MapPoint       test_pos;
     MapPoint       center;
-    MapPointNode * finished_list = NULL;
+    MapPointNode * finished_list = nullptr;
 #ifdef _DEBUG
     sint32         finite_loop   = 0;
 #endif

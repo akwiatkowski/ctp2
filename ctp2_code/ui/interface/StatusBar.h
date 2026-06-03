@@ -38,7 +38,7 @@ class ctp2_Static;
 class StatusBar {
 public:
 
-	static void SetText(const MBCHAR *text, const aui_Control *owner = NULL);
+	static void SetText(const MBCHAR *text, const aui_Control *owner = nullptr);
 
 	static const aui_Control *GetOwner() { return m_owner; }
 
@@ -47,7 +47,7 @@ public:
 	static void CleanUp(){
 		if(m_text){
 			delete m_text;
-			m_text = NULL;
+			m_text = nullptr;
 		}
 	}
 

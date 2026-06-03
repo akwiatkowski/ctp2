@@ -84,12 +84,12 @@ static void ButtonCallback	(aui_Control *control, uint32 action, uint32 data, vo
 	if(action != (uint32)AUI_BUTTON_ACTION_PRESS) return;
 	if(data > 0) return;
 
-	if (cookie==NULL)
+	if (cookie==nullptr)
 		return;
 
 	ctp2_Menu *menu = (ctp2_Menu *)cookie;
 
-	if (control!=NULL) {
+	if (control!=nullptr) {
 		menu->Move(control->X(),control->Y()+control->Height());
 
 	}
@@ -107,7 +107,7 @@ ctp2_MenuBar::ctp2_MenuBar(
 	bool bevel)
 	:
 	aui_Window( retval, id, ldlBlock, bpp, type ),
-	PatternBase( ldlBlock, NULL )
+	PatternBase( ldlBlock, nullptr )
 {
 	m_bevel = bevel;
 
@@ -162,7 +162,7 @@ ctp2_MenuBar::AddChild(aui_Region *in_child)
 
 	aui_Control *child=(aui_Control *)in_child;
 
-	if (child==NULL)
+	if (child==nullptr)
 		return AUI_ERRCODE_OK;
 
 	aui_Window::AddChild(child);
@@ -222,8 +222,8 @@ ctp2_MenuBar::GetMenu(MBCHAR *ldlParent,MBCHAR *menuname)
 {
 	aui_Control *button=(aui_Control *)aui_Ldl::GetObject(ldlParent,menuname);
 
-	if (button==NULL)
-		return NULL;
+	if (button==nullptr)
+		return nullptr;
 
 	return (ctp2_Menu*)button->GetCookie();
 }
@@ -232,7 +232,7 @@ void
 ctp2_MenuBar::SetMenuCallback(ctp2_Menu *menu,CTP2MenuCallback *callback)
 {
 
-	if (menu==NULL)
+	if (menu==nullptr)
 		return;
 
 	menu->SetCallback(callback);

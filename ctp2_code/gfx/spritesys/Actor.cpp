@@ -65,7 +65,7 @@ Actor &Actor::operator=(const Actor &rhs) {
     m_isactive = rhs.m_isactive;
     m_x = rhs.m_x;
     m_y = rhs.m_y;
-    m_spriteState.reset(rhs.m_spriteState ? new SpriteState(*rhs.m_spriteState) : NULL);
+    m_spriteState.reset(rhs.m_spriteState ? new SpriteState(*rhs.m_spriteState) : nullptr);
     m_morphing = rhs.m_morphing;
     m_animPos = rhs.m_animPos;
     m_actionQueue = rhs.m_actionQueue; // Performs deep copy

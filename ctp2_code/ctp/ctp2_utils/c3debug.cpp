@@ -71,7 +71,7 @@ MBCHAR	s_logFileName[20];
 sint32	s_logFileNumber=0;
 sint32	s_logLinesThisFile=0;
 
-FILE* g_theLogFile = NULL;
+FILE* g_theLogFile = nullptr;
 
 #if 0
 MBCHAR const * c3debug_GetLogFileName(void)
@@ -126,7 +126,7 @@ void c3debug_InitDebugLog()
 	if (dir)
 	{
 		struct dirent *entry;
-		while ((entry = readdir(dir)) != NULL)
+		while ((entry = readdir(dir)) != nullptr)
 		{
 			if (entry->d_name[0] == '.')
 				continue;

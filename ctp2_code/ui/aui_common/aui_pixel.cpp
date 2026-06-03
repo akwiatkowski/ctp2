@@ -20,7 +20,7 @@ namespace
 
 sint32 aui_Pixel::m_lastRand = 0;
 sint32 aui_Pixel::m_randRector[VECTOR_SIZE] = {0};
-double **aui_Pixel::m_edge = NULL;
+double **aui_Pixel::m_edge = nullptr;
 
 uint16 aui_Pixel::Get16BitRGB( uint8 red, uint8 green, uint8 blue )
 {
@@ -290,14 +290,14 @@ sint32 aui_Pixel::ScaleRandom()
 double **aui_Pixel::Alloc2D(sint32 width, sint32 height)
 {
    double ** d2 = (double **) new double *[height];
-   if (d2 == NULL)
-       return NULL;
+   if (d2 == nullptr)
+       return nullptr;
 
    double * d1 = (double *) new double[width*height];
-   if (d1 == NULL)
+   if (d1 == nullptr)
    {
        delete [] d2;
-       return NULL;
+       return nullptr;
    }
 
    for (sint32 y = 0; y < height; y++)
@@ -317,8 +317,8 @@ void aui_Pixel::Free2D(double **d)
 double **aui_Pixel::ImageToDouble(uint8 *image24, sint32 width, sint32 height)
 {
     double ** data = Alloc2D(width, height);
-    if (data == NULL)
-        return NULL;
+    if (data == nullptr)
+        return nullptr;
 
     uint8 * p = image24;
     for (sint32 j = 0; j < height; j++) {
@@ -415,7 +415,7 @@ AUI_ERRCODE aui_Pixel::Convert24To16(
 	uint32 srcHeight,
 	uint32 srcPitch )
 {
-	Assert( surface16 != NULL );
+	Assert( surface16 != nullptr );
 	if ( !surface16 ) return AUI_ERRCODE_INVALIDPARAM;
 
 	Assert( surface16->BitsPerPixel() == 16 );
@@ -432,12 +432,12 @@ AUI_ERRCODE aui_Pixel::Convert24To16(
 
 	AUI_ERRCODE retcode         = AUI_ERRCODE_OK;
 	uint16 *    destBuf         = (uint16 *)surface16->Buffer();
-	bool        wasDestLocked   = (destBuf != NULL);
+	bool        wasDestLocked   = (destBuf != nullptr);
 	if (!wasDestLocked)
     {
-	    if (surface16->Lock(NULL, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK)
+	    if (surface16->Lock(nullptr, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK)
 	    {
-		    destBuf = NULL;
+		    destBuf = nullptr;
 		    retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 	    }
     }
@@ -484,7 +484,7 @@ AUI_ERRCODE aui_Pixel::Convert8To16(
 	uint32 srcPitch,
 	RGBQUAD *rgbq )
 {
-	Assert( surface16 != NULL );
+	Assert( surface16 != nullptr );
 	if ( !surface16 ) return AUI_ERRCODE_INVALIDPARAM;
 
 	Assert( surface16->BitsPerPixel() == 16 );
@@ -510,12 +510,12 @@ AUI_ERRCODE aui_Pixel::Convert8To16(
 
 	AUI_ERRCODE retcode         = AUI_ERRCODE_OK;
 	uint16 *    destBuf         = (uint16 *)surface16->Buffer();
-	bool        wasDestLocked   = (destBuf != NULL);
+	bool        wasDestLocked   = (destBuf != nullptr);
 	if (!wasDestLocked)
     {
-	    if (surface16->Lock(NULL, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK)
+	    if (surface16->Lock(nullptr, (LPVOID *)&destBuf, 0 ) != AUI_ERRCODE_OK)
 	    {
-		    destBuf = NULL;
+		    destBuf = nullptr;
 		    retcode = AUI_ERRCODE_SURFACELOCKFAILED;
 	    }
     }

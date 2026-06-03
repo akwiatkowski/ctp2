@@ -62,7 +62,7 @@ void UIInitFromArchive(CivArchive *archive)
 
 void UICleanup()
 {
-	delete selitem_Get(); selitem_Set(NULL);
+	delete selitem_Get(); selitem_Set(nullptr);
 }
 
 void UISetCurrentPlayer(sint32 player)

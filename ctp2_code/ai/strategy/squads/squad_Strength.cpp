@@ -227,7 +227,7 @@ void Squad_Strength::Set_Pos_Strength(const MapPoint & pos)
 {
 	CellUnitList *army = world_Get()->GetArmyPtr(pos);
 
-	if (army == NULL)
+	if (army == nullptr)
 	{
 		*this           = Squad_Strength(1);
 		return;

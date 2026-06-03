@@ -38,7 +38,7 @@ aui_SoundBase::aui_SoundBase( MBCHAR **soundNames )
 AUI_ERRCODE aui_SoundBase::InitCommonLdl( MBCHAR *ldlBlock )
 {
     ldl_datablock * block = aui_Ldl::FindDataBlock(ldlBlock);
-	Assert( block != NULL );
+	Assert( block != nullptr );
 	if ( !block ) return AUI_ERRCODE_LDLFINDDATABLOCKFAILED;
 
 	MBCHAR *soundNames[ AUI_SOUNDBASE_SOUND_LAST ];
@@ -56,7 +56,7 @@ AUI_ERRCODE aui_SoundBase::InitCommon( MBCHAR **soundNames )
 	memset( m_sounds, 0, sizeof( m_sounds ) );
 
 	for ( sint32 i = 0; i < AUI_SOUNDBASE_SOUND_LAST; i++ )
-		SetSound( (AUI_SOUNDBASE_SOUND)i, soundNames ? soundNames[ i ] : NULL );
+		SetSound( (AUI_SOUNDBASE_SOUND)i, soundNames ? soundNames[ i ] : nullptr );
 
 	return AUI_ERRCODE_OK;
 }
@@ -69,7 +69,7 @@ aui_SoundBase::~aui_SoundBase()
 		if ( m_sounds[ i ] )
 		{
 			aui_ui_Get()->UnloadSound( m_sounds[ i ] );
-			m_sounds[ i ] = NULL;
+			m_sounds[ i ] = nullptr;
 		}
 	}
 }
@@ -78,7 +78,7 @@ aui_SoundBase::~aui_SoundBase()
 aui_Sound *aui_SoundBase::GetSound( AUI_SOUNDBASE_SOUND sound ) const
 {
 	if ( sound < 0 || sound >= AUI_SOUNDBASE_SOUND_LAST )
-		return NULL;
+		return nullptr;
 
 	return m_sounds[ sound ];
 }
@@ -93,15 +93,15 @@ aui_Sound *aui_SoundBase::SetSound(
 	if ( soundName && aui_ui_Get()->TheAudioManager()->UsingAudio() )
 	{
 		m_sounds[ sound ] = aui_ui_Get()->LoadSound( soundName );
-		Assert( m_sounds[ sound ] != NULL );
+		Assert( m_sounds[ sound ] != nullptr );
 		if ( !m_sounds[ sound ] )
 		{
 			m_sounds[ sound ] = prevSound;
-			return NULL;
+			return nullptr;
 		}
 	}
 	else
-		m_sounds[ sound ] = NULL;
+		m_sounds[ sound ] = nullptr;
 
 	if ( prevSound ) aui_ui_Get()->UnloadSound( prevSound );
 

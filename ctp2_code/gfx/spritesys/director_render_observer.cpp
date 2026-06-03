@@ -114,6 +114,10 @@ void DirectorRenderObserver::AddPlayWonderMovie(sint32 which)                   
 void DirectorRenderObserver::IncrementPendingGameActions()                             { director_Get()->IncrementPendingGameActions(); }
 void DirectorRenderObserver::DecrementPendingGameActions()                             { director_Get()->DecrementPendingGameActions(); }
 
+#include "gfx/spritesys/directorevent.h"
+void DirectorRenderObserver::OnEventsInitialize()                                      { directorevent_Initialize(); }
+void DirectorRenderObserver::OnEventsCleanup()                                         { directorevent_Cleanup(); }
+
 namespace {
     DirectorRenderObserver s_directorRenderObserver;
 }

@@ -61,6 +61,10 @@ public:
     void AddPlayWonderMovie(sint32 which)                                 override;
     void IncrementPendingGameActions()                                    override;
     void DecrementPendingGameActions()                                    override;
+
+    // Subsystem init / cleanup
+    void OnEventsInitialize()                                             override;
+    void OnEventsCleanup()                                                override;
 };
 
 // Convenience: instantiate the singleton adapter and register it.  Called

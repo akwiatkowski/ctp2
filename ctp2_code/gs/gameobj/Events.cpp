@@ -55,8 +55,7 @@
 #include "net/general/networkevent.h"
 #include "gs/gameobj/tradeevent.h"
 
-void directorevent_Initialize();
-void directorevent_Cleanup();
+#include "gs/core/render_observer.h"   // render_observer::OnEventsInitialize/Cleanup
 
 #include "gs/gameobj/Order.h"
 
@@ -87,7 +86,7 @@ void events_Initialize()
 	turncountevent_Initialize();
 	soundevent_Initialize();
 	improvementevent_Initialize();
-	directorevent_Initialize();
+	render_observer::OnEventsInitialize();
 	worldevent_Initialize();
 	combatevent_Initialize();
 	tradeevent_Initialize();
@@ -116,7 +115,7 @@ void events_Cleanup()
 	turncountevent_Cleanup();
 	soundevent_Cleanup();
 	improvementevent_Cleanup();
-	directorevent_Cleanup();
+	render_observer::OnEventsCleanup();
 	worldevent_Cleanup();
 	combatevent_Cleanup();
 	tradeevent_Cleanup();

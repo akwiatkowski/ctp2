@@ -207,6 +207,12 @@ struct RecordingSpy : render_observer::Impl {
     void DecrementPendingGameActions() override {
         ++decrementPendingGameActionsCalls;
     }
+
+    int onEventsInitializeCalls = 0;
+    void OnEventsInitialize() override { ++onEventsInitializeCalls; }
+
+    int onEventsCleanupCalls = 0;
+    void OnEventsCleanup() override { ++onEventsCleanupCalls; }
 };
 
 // RAII helper that restores the previous Impl on destruction.

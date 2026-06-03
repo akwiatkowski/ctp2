@@ -136,6 +136,13 @@ public:
     virtual void AddPlayWonderMovie(sint32 which)                               = 0;
     virtual void IncrementPendingGameActions()                                  = 0;
     virtual void DecrementPendingGameActions()                                  = 0;
+
+    // Subsystem init / cleanup hooks.  Called from events_Initialize /
+    // events_Cleanup so the UI build can register Director GEV callbacks
+    // (see gfx/spritesys/directorevent.cpp) without gs/ knowing about
+    // them.  Headless leaves these as no-ops.
+    virtual void OnEventsInitialize()                                           = 0;
+    virtual void OnEventsCleanup()                                              = 0;
 };
 
 // --- Registration ---
@@ -199,5 +206,9 @@ void AddPlaySound(sint32 soundID, MapPoint const &pos);
 void AddPlayWonderMovie(sint32 which);
 void IncrementPendingGameActions();
 void DecrementPendingGameActions();
+
+// Subsystem init / cleanup (see Impl::OnEventsInitialize).
+void OnEventsInitialize();
+void OnEventsCleanup();
 
 } // namespace render_observer

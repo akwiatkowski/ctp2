@@ -81,6 +81,10 @@ void AddPlayWonderMovie(sint32 which)                                         { 
 void IncrementPendingGameActions()                                            { DISPATCH_VOID(IncrementPendingGameActions); }
 void DecrementPendingGameActions()                                            { DISPATCH_VOID(DecrementPendingGameActions); }
 
+// Subsystem init / cleanup
+void OnEventsInitialize()                                                     { DISPATCH_VOID(OnEventsInitialize); }
+void OnEventsCleanup()                                                        { DISPATCH_VOID(OnEventsCleanup); }
+
 #undef DISPATCH_VOID
 
 } // namespace render_observer

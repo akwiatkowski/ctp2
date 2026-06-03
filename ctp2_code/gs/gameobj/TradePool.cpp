@@ -2,19 +2,17 @@
 #include "gs/gameobj/TradePool.h"
 #include "gs/gameobj/TradeRouteData.h"
 
-void DrawTradeRoute(aui_Surface *pSurface, DynamicArray<MapPoint> *pRoute, uint16 route, uint16 outline);
 #include "gs/core/render_observer.h"
 #include "TerrainRecord.h"
-#include "gs/core/colorset_observer.h"
 #include "gs/utility/TradeDynArr.h"
-#include "gs/database/profileDB.h"
 #include "ResourceRecord.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Events.h"
 #include "gs/events/GameEventUser.h"
 #include "gs/events/GameEventManager.h"
 
-class aui_Surface;
+// TradePool::Draw lives in ui/aui_ctp2/trade_pool_draw.cpp (UI-side
+// rendering — keeps gs/gameobj/ free of aui_Surface dependencies).
 
 TradePool::TradePool() : ObjPool(k_BIT_GAME_OBJ_TYPE_TRADE_ROUTE)
 {
@@ -81,43 +79,7 @@ TradeRoute TradePool::GetRouteIndex(sint32 index)
 	return m_all_routes->Access(index);
 }
 
-void TradePool::Draw(aui_Surface* surface)
-{
-	if(!profiledb_Get()->GetShowTradeRoutes())
-		return;
-
-	sint32 num = m_all_routes->Num();
-
-    for (sint32 i = 0; i < num; i++) {
-		TradeRoute route = m_all_routes->Access(i);
-
-		DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetPath(),
-			colorset_observer::GetPlayerColor(route.GetOwner()),
-			(uint16)route.GetOutlineColor());
-
-#if 0
-
-		if (!m_all_routes->Access(i).IsSelectedPathSame())
-		{
-
-			if (m_all_routes->Access(i).GetPathSelectionState() == k_TRADEROUTE_SELECTED_PATH)
-			{
-
-				DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetSelectedPath(),
-				colorset_observer::GetColor(COLOR_SELECT_1),
-				colorset_observer::GetColor(COLOR_BLACK));
-			}
-			else
-			{
-
-				DrawTradeRoute(surface, (DynamicArray<MapPoint>*)m_all_routes->Access(i).GetSelectedPath(),
-				colorset_observer::GetColor(COLOR_RED),
-				colorset_observer::GetColor(COLOR_BLACK));
-			}
-		}
-#endif
-	}
-}
+// TradePool::Draw() body moved to ui/aui_ctp2/trade_pool_draw.cpp.
 
 void TradePool::Serialize(CivArchive &archive)
 {

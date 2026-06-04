@@ -97,39 +97,6 @@ REGARD_TYPE Regard::GetUpdatedRegard(const PLAYER_INDEX me,
 
 
 
-
-
-
-
-
-
-
-
-
-
-void Regard::Serialize(CivArchive &archive)
-	{
-	if (archive.IsStoring())
-		archive.StoreChunk((uint8 *)&m_regard, ((uint8 *)&m_regard)+sizeof(m_regard));
-
-	else
-		archive.LoadChunk((uint8 *)&m_regard, ((uint8 *)&m_regard)+sizeof(m_regard));
-
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 uint32 Regard_Regard_GetVersion()
 	{
 	return (k_REGARD_VERSION_MAJOR<<16 | k_REGARD_VERSION_MINOR);

@@ -15,38 +15,6 @@ Science::Science()
 	m_level = 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-void Science::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-		archive<<m_level ;
-	else
-		archive>>m_level ;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 uint32 Sci_Science_GetVersion()
 	{
 	return (k_SCIENCE_VERSION_MAJOR<<16 | k_SCIENCE_VERSION_MINOR) ;

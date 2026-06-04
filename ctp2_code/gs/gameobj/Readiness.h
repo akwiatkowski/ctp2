@@ -104,8 +104,6 @@ public:
 	//void RecalcCostGold(); //EMOD
 	sint32 TotalUnitGoldSupport(); //EMOD
 
-    void Serialize(CivArchive &archive);
-
 	sint32 GetTurnStarted() const { return m_turnStarted; }
 	sint32 GetTurnsToNewReadiness(sint32 currentRound);
 };

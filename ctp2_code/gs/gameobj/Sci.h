@@ -51,8 +51,6 @@ public:
 
 	void SetLevel(sint32 level) { m_level = level;};
 
-	void Serialize(CivArchive &archive) ;
-
 	static sint32 ComputeScienceFromResearchPacts(const sint32 playerId);
 
 	static sint32 ComputeScienceFromResearchPact(const sint32 playerId, const sint32 foreignerId);

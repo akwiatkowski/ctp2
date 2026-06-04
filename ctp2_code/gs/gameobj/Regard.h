@@ -50,7 +50,6 @@ class Regard
 
         REGARD_TYPE GetUpdatedRegard(const PLAYER_INDEX me, const PLAYER_INDEX him);
 
-		void Serialize(CivArchive &archive) ;
 	} ;
 
 	uint32 Regard_Regard_GetVersion() ;

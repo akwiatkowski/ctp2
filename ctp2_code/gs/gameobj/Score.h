@@ -80,8 +80,6 @@ private:
 	static sint32 GetPlayerStrength(Player *pl);
 public:
 	Score(PLAYER_INDEX owner);
-	Score(CivArchive &archive);
-	void Serialize(CivArchive &archive);
 
 	void SetFinalScore(sint32 score) { m_finalScore = score; }
 

@@ -64,27 +64,8 @@ Strengths::Strengths(sint32 owner)
 	}
 }
 
-Strengths::Strengths(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 Strengths::~Strengths()
 = default;
-
-void Strengths::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	if(archive.IsStoring()) {
-		archive << m_owner;
-	} else {
-		archive >> m_owner;
-	}
-
-	for(i = STRENGTH_CAT_NONE + 1; i < STRENGTH_CAT_MAX; i++) {
-		m_strengthRecords[i].Serialize(archive);
-	}
-}
 
 void Strengths::Calculate()
 {

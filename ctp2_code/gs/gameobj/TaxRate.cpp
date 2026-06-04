@@ -8,40 +8,6 @@
 #include "net/general/network.h"
 #include "net/general/net_info.h"
 #include "net/general/net_action.h"
-
-
-
-
-
-
-
-
-
-
-void TaxRate::Serialize(CivArchive &archive)
-{
-    if (archive.IsStoring()) {
-        archive << m_science;
-		archive << m_science_before_anarchy;
-    } else {
-        archive >> m_science;
-		archive >> m_science_before_anarchy;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 uint32 TaxRate_TaxRate_GetVersion()
 	{
 	return (k_TAXRATE_VERSION_MAJOR<<16 | k_TAXRATE_VERSION_MINOR);

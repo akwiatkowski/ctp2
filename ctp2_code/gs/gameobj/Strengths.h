@@ -44,10 +44,8 @@ private:
 
 public:
 	Strengths(sint32 owner);
-	Strengths(CivArchive &archive);
 
 	~Strengths();
-	void Serialize(CivArchive &archive);
 
 	void Calculate();
 	sint32 GetStrength(STRENGTH_CAT category) const;

@@ -44,7 +44,6 @@ public:
 
 	}
 
-	void Serialize(CivArchive &archive) ;
 };
 
 uint32 TaxRate_TaxRate_GetVersion() ;

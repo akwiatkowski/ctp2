@@ -861,7 +861,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			strcpy(sMember, pToken) ;
 
-			for (classId=0; varList[classId].sClass && stricmp(varList[classId].sClass, sClass); classId++)
+			for (classId=0; varList[classId].sClass && stricmp(varList[classId].sClass, sClass) != 0; classId++)
 				;
 
 			Assert(varList[classId].sClass) ;
@@ -896,7 +896,7 @@ void AgreementData::Interpret(MBCHAR *msg, MBCHAR *sInterpreted)
 
 			for (memberId=0; varList[memberId].sMember
 								&& varList[classId].sMember[memberId]
-								&& stricmp(varList[classId].sMember[memberId], sMember); memberId++) ;
+								&& stricmp(varList[classId].sMember[memberId], sMember) != 0; memberId++) ;
 
 			if (!varList[memberId].sMember)	{
 				c3errors_ErrorDialogFromDB("AGREEMENT_ERROR", "MESSAGE_UNKNOWN_VARIABLE") ;

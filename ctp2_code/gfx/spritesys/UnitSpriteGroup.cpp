@@ -684,11 +684,11 @@ sint32 UnitSpriteGroup::Parse(uint16 id, GROUPTYPE type)
 		if (!token_ParseAnOpenBraceNext(theToken)) return FALSE;
 
 		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_MOVE)) return FALSE;
-		if (tmp) {
+		
 			for (i=0; i<k_NUM_FACINGS; i++) {
 				m_shieldPoints[UNITACTION_MOVE][i] = token_ParsePoint(theToken);
 			}
-		}
+		
 		if (!token_ParseKeywordNext(theToken, TOKEN_UNIT_SPRITE_SHIELDPOINTS_ATTACK)) return FALSE;
 		if (tmp) {
 			for (i=0; i<k_NUM_FACINGS; i++) {

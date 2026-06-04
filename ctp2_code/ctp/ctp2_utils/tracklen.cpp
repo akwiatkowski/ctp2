@@ -372,7 +372,7 @@ DWORD *tracklen_LoadEncryptedKey( DWORD *trackLenBuf, const char *szFile )
 #ifdef WIN32
 	if( !_mbschr( (BYTE*)szFile, ':' ) && strncmp( szFile, "\\\\", 2 ) )
 #else
-	if( !strchr(szFile, ':' ) && strncmp( szFile, FILE_SEP FILE_SEP, 2 ) )
+	if( !strchr(szFile, ':' ) && strncmp( szFile, FILE_SEP FILE_SEP, 2 ) != 0 )
 #endif
 	{
 #if defined(WIN32)

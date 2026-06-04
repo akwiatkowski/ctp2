@@ -523,7 +523,7 @@ void CityControlPanel::UpdateBuildItem()
 	m_buildItemLabel->SetText(tempStr);
 
 	const MBCHAR *buildIconName = GetBuildIcon(head);
-	if (buildIconName && strcmp(buildIconName, "NULL")) {
+	if (buildIconName && strcmp(buildIconName, "NULL") != 0) {
 
 		m_buildItemIconButton->SetText("");
 		m_buildItemIconButton->ExchangeImage(4, 0, buildIconName);

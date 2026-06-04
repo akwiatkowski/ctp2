@@ -159,7 +159,7 @@ void ColorIconSwitch::SetIcon(MBCHAR *name)
 
 	strcpy(m_filename, name);
 
-	if (strcmp(m_filename, ""))
+	if (strcmp(m_filename, "") != 0)
 		SetImage(m_filename, 0);
 
 

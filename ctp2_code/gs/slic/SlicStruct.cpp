@@ -276,7 +276,7 @@ sint32 SlicStructDescription::GetMemberIndex(char const * name) const
 		++p
 	)
 	{
-		if (stricmp(name, (*p)->m_name.c_str()))
+		if (stricmp(name, (*p)->m_name.c_str()) != 0)
 		{
 			++i;	// not the name we are looking for
 		}

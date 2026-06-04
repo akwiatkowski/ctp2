@@ -822,7 +822,7 @@ bool CivApp::InitializeAppDB()
 
 	ProgressTo( 20 );
 
-	if (strcmp(g_mapicondb_filename, ""))   // May not exist for mods
+	if (strcmp(g_mapicondb_filename, "") != 0)   // May not exist for mods
 	{
 		civapp_log->info("InitializeAppDB: Parsing MapIconDB");
 		if (!g_theMapIconDB->Parse(C3DIR_GAMEDATA, g_mapicondb_filename))

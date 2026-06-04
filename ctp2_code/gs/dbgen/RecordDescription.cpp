@@ -241,7 +241,7 @@ void RecordDescription::ExportForwardDeclarations(FILE *outfile)
     for
     (const auto & forwardClasse : forwardClasses)
     {
-        if (strcmp(m_name, forwardClasse.c_str()))
+        if (strcmp(m_name, forwardClasse.c_str()) != 0)
         {
 	        fprintf(outfile, "class %sRecord;\n", forwardClasse.c_str());
         }
@@ -621,7 +621,7 @@ void RecordDescription::ExportOtherRecordIncludes(FILE *outfile)
 
 		if (DATUM_RECORD == dat->m_type)
 		{
-			if (strcmp(dat->m_subType, m_name))  // already have own declarations at the top
+			if (strcmp(dat->m_subType, m_name) != 0)  // already have own declarations at the top
 			{
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->m_subType);
 			}
@@ -633,14 +633,14 @@ void RecordDescription::ExportOtherRecordIncludes(FILE *outfile)
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->m_bitPairDatum->m_subType);
 			}
 			else if(dat->m_hasDBRefValue
-			     && strcmp(dat->drefval.DBName, m_name))
+			     && strcmp(dat->drefval.DBName, m_name) != 0)
 			{
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->drefval.DBName);
 			}
 		}
 		else if (dat->m_hasDBRefValue)
 		{
-			if (strcmp(dat->drefval.DBName, m_name))  // already have own declarations at the top
+			if (strcmp(dat->drefval.DBName, m_name) != 0)  // already have own declarations at the top
 			{
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->drefval.DBName);
 			}

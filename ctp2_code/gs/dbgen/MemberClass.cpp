@@ -979,7 +979,7 @@ void MemberClass::ExportOtherRecordIncludes(FILE *outfile)
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->m_bitPairDatum->m_subType);
 			}
 			else if(dat->m_bitPairDatum->m_hasDBRefValue
-			     && strcmp(dat->m_bitPairDatum->drefval.DBName, m_name))
+			     && strcmp(dat->m_bitPairDatum->drefval.DBName, m_name) != 0)
 			{
 				fprintf(outfile, "#include \"%sRecord.h\"\n", dat->m_bitPairDatum->drefval.DBName);
 			}

@@ -488,7 +488,7 @@ void UnitControlPanel::UpdateSingleSelectionDisplay()
 
 	const MBCHAR *unitIconName = iconRecord->GetLargeIcon();
 
-	if(unitIconName && strcmp(unitIconName, "NULL"))
+	if(unitIconName && strcmp(unitIconName, "NULL") != 0)
 		m_singleSelectionIcon->SetImage((char *)unitIconName);
 
 	MBCHAR valueString[16];
@@ -666,7 +666,7 @@ void UnitControlPanel::UpdateArmySelectionDisplay()
 			const MBCHAR *unitIconName =
 				army[armyIndex].GetDBRec()->GetDefaultIcon()->GetSmallIcon();
 
-			if(unitIconName && strcmp(unitIconName, "NULL")) {
+			if(unitIconName && strcmp(unitIconName, "NULL") != 0) {
 				m_armySelectionButton[armyIndex]->ExchangeImage(0, 0,
 																unitIconName);
 				m_armySelectionHealth[armyIndex]->SetDrawCallbackAndCookie(HealthBarActionCallback, (void *)army[armyIndex].m_id);

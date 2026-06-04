@@ -2339,7 +2339,7 @@ uint32 GameMapFile::Restore(const MBCHAR *filepath)
 		return GAMEFILE_ERR_LOAD_FAILED;
 	}
 
-	if (strcmp(sHeader, k_GAMEMAP_MAGIC_VALUE))
+	if (strcmp(sHeader, k_GAMEMAP_MAGIC_VALUE) != 0)
 	{
 		c3files_fclose(fpLoad);
 		c3errors_FatalDialogFromDB("LOAD_ERROR", "LOAD_NOT_A_SAVEGAME_FILE");
@@ -2509,7 +2509,7 @@ bool GameMapFile::ValidateGameMapFile(MBCHAR const * path, SaveMapInfo *info)
 		return false;
 	}
 
-	if (strcmp(header, k_GAMEMAP_MAGIC_VALUE)) {
+	if (strcmp(header, k_GAMEMAP_MAGIC_VALUE) != 0) {
 		c3files_fclose(saveFile);
 		return false;
 	}

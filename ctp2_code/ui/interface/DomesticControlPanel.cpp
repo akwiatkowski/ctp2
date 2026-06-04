@@ -321,7 +321,7 @@ void DomesticControlPanel::UpdateScience()
 		currentAdvanceRecord->GetIcon()->GetIcon();
 
 
-	if(scienceIconName && strcmp(scienceIconName, "NULL")) {
+	if(scienceIconName && strcmp(scienceIconName, "NULL") != 0) {
 
 		m_scienceIconButton->SetText("");
 		m_scienceIconButton->ExchangeImage(4, 0, scienceIconName);

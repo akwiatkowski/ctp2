@@ -147,7 +147,7 @@ AUI_ERRCODE aui_DirtyList::SubtractRect( RECT *sub )
 			if ( (num = Rectangle_Subtract( rect, sub, moreRects )) > 0 )
 			{
 
-				if ( memcmp( rect, moreRects, sizeof( RECT ) ) )
+				if ( memcmp( rect, moreRects, sizeof( RECT ) ) != 0 )
 				{
 					alteredList = AUI_ERRCODE_HANDLED;
 

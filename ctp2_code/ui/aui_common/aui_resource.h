@@ -357,7 +357,7 @@ T *aui_Resource<T>::Load( const MBCHAR *resName, C3DIR dir, uint32 size)
 template<class T>
 BOOL aui_Resource<T>::FindFile( MBCHAR *fullPath, const MBCHAR *name )
 {
-	if ( !strchr( name, ':' ) && strncmp( name, FILE_SEP FILE_SEP, 2 ) )
+	if ( !strchr( name, ':' ) && strncmp( name, FILE_SEP FILE_SEP, 2 ) != 0 )
 	{
 
 		ListPos position = m_pathList->GetHeadPosition();

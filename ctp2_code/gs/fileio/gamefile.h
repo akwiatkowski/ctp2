@@ -71,7 +71,6 @@ enum SAVEINFOLOAD
 #include "gs/fileio/StartingPosition.h"
 #include "gs/fileio/civscenarios.h"
 #include "gs/gameobj/CivilisationPool.h"
-class CivArchive;
 
 #include <string>
 

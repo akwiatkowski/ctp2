@@ -6,7 +6,6 @@
 
 #include "gs/database/dbtypes.h"
 
-class CivArchive;
 class Token;
 
 struct ThroneInfo {

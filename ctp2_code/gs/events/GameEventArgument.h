@@ -46,7 +46,6 @@ class MapPoint;
 class Army;
 class Path;
 class TerrainImprovement;
-class CivArchive;
 class TradeRoute;
 
 struct SimpleMapPoint // And we have to redefine it here?

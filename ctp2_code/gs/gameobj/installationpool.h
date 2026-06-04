@@ -9,7 +9,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 class InstallationPool : public ObjPool
 {

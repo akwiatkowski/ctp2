@@ -34,7 +34,6 @@
 #ifndef __WONDER_TRACKER_H__
 #define __WONDER_TRACKER_H__
 
-class CivArchive;
 class Unit;
 
 #include "gs/utility/gstypes.h"

@@ -15,7 +15,6 @@ enum REGARD_TYPE
 	REGARD_TYPE_LOVE
 };
 
-class CivArchive;
 
 #define k_REGARD_VERSION_MAJOR	0
 #define k_REGARD_VERSION_MINOR	0

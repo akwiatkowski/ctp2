@@ -92,7 +92,6 @@ class CityData;
 #define k_CITYDATA_VERSION_MAJOR    0
 #define k_CITYDATA_VERSION_MINOR    0
 
-class CivArchive;
 class Happy;
 class SlicObject;
 class Cell;

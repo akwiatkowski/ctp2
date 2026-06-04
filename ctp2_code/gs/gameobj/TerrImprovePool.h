@@ -10,7 +10,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 class TerrainImprovementPool : public ObjPool
 {

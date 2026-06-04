@@ -4,7 +4,6 @@
 #ifndef __UV_DB_H__
 #define __UV_DB_H__
 
-class CivArchive ;
 class Token;
 
 #define k_MAX_RESOURCES	64

@@ -9,7 +9,6 @@
 #include <nlohmann/json.hpp>
 
 enum SS_TYPE;
-class CivArchive;
 class SlicStructDescription;
 
 class SlicArray {

@@ -74,7 +74,6 @@ enum MAP_GENERATOR
 #include <nlohmann/json.hpp>
 
 class MapPoint;
-class CivArchive ;
 class TileInfo;
 class Installation;
 class TerrainImprovement;

@@ -65,7 +65,6 @@ class TileInfo;
 #include "gs/world/MapPoint.h"
 
 class GoodActor;
-class CivArchive;
 
 //----------------------------------------------------------------------------
 // Class declarations

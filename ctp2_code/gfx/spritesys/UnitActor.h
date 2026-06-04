@@ -58,7 +58,6 @@ typedef std::weak_ptr<UnitActor> UnitActorWeakPtr;
 #include "os/include/ctp2_inttypes.h"       // sintN, uintN
 
 class aui_Surface;
-class CivArchive;
 class SpriteState;
 // BOOL, POINT, RECT
 

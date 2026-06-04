@@ -10,7 +10,6 @@
 class SlicSegment;
 typedef sint32 StringId;
 class SlicFunc;
-class CivArchive;
 class MapPoint;
 typedef sint32 PLAYER_INDEX;
 struct PSlicRegion;

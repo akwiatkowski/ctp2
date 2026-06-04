@@ -30,7 +30,6 @@ class AchievementTracker;
 class TradeBids;
 class SlicEngine;
 class GameEventManager;
-class CivArchive;
 
 namespace Ctp2 {
 

@@ -8,7 +8,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive ;
 
 typedef struct tagTopEntry
 	{

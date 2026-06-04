@@ -10,7 +10,6 @@
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Unit.h"
 
-class CivArchive;
 class Message;
 class SlicSegment;
 

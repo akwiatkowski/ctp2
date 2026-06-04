@@ -40,7 +40,6 @@ sint32           orderinfo_MapAt(sint32 unitOrder);
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 class GameEventArgList;
 class OrderRecord;
 class Path;

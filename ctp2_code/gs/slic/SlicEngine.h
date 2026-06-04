@@ -69,7 +69,6 @@ enum SLIC_TAG
 #define k_MAX_TRIGGER_KEYS 10
 
 class SlicObject;
-class CivArchive;
 class SlicSegment;
 class SlicFunc;
 template <class T> class StringHash;

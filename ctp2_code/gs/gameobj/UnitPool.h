@@ -44,7 +44,6 @@ class UnitPool;
 #include <nlohmann/json.hpp>
 
 class UnitData;
-class CivArchive;
 class MapPoint;
 class UnitData;
 class UnitRecord;

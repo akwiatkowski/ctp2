@@ -78,7 +78,6 @@ enum SELECT_MODE {
 #include "gs/utility/gstypes.h"
 
 class Unit;
-class CivArchive;
 class NetUnit;
 class ID;
 struct aui_MouseEvent;

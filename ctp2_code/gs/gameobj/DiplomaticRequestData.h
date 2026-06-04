@@ -41,7 +41,6 @@
 
 typedef sint32 AdvanceType;
 
-class CivArchive;
 
 #include "gs/gameobj/DiplomaticTypes.h"
 #include "gs/gameobj/Player.h"

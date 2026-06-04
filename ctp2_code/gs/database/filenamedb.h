@@ -4,7 +4,6 @@
 #ifndef __FILENAME_DB_H__
 #define __FILENAME_DB_H__ 1
 
-class CivArchive ;
 class Token;
 
 struct FilenameNode {

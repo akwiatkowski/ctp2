@@ -67,7 +67,6 @@ enum    CAUSE_REMOVE_BUILD_ITEM
 // Project dependencies
 //----------------------------------------------------------------------------
 
-class CivArchive;
 class MapPoint;
 class CityData;
 class UnitRecord;

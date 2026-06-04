@@ -42,7 +42,6 @@
 
 class SlicSegment;
 class SlicStack;
-class CivArchive;
 class SlicSymbolData;
 class SlicObject;
 class SlicArgList;

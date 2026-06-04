@@ -37,7 +37,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 // Two construction modes determine how reads dispatch:
 //   * LIVE mode    — m_unit_id is valid.  Position reads delegate to the

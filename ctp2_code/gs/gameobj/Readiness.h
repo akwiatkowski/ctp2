@@ -42,7 +42,6 @@ enum READINESS_LEVEL {
 	READINESS_LEVEL_WAR
 };
 
-class CivArchive;
 class Unit;
 template <class T> class DynamicArray;
 class Army;

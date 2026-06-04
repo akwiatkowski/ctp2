@@ -4,7 +4,6 @@
 #ifndef __SPRITE_STATE_DB_H__
 #define __SPRITE_STATE_DB_H__ 1
 
-class CivArchive ;
 class Token;
 
 struct SpriteNameNode {

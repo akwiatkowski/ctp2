@@ -119,7 +119,6 @@ class TradeRoute;
 class TerrainImprovement;
 class TileInfo;
 class TradeDynamicArray;
-class CivArchive;
 class AstarPoint;
 class GoodyHut;
 class Unit;

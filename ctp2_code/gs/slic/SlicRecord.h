@@ -7,7 +7,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-class CivArchive;
 
 class SlicSegment;
 

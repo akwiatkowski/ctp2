@@ -91,7 +91,6 @@ enum REGION_TYPE
 
 
 
-class CivArchive ;
 
 class Token ;
 

@@ -4,7 +4,6 @@
 #ifndef __ENDGAME_H__
 #define __ENDGAME_H__
 
-class CivArchive;
 #include "gs/utility/gstypes.h"
 
 #include <nlohmann/json.hpp>

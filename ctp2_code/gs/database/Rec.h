@@ -35,7 +35,6 @@
 
 class Record;
 
-class CivArchive;
 
 #define k_MAX_OBSOLETE 8
 

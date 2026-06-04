@@ -33,7 +33,6 @@
 class Army;
 class CellUnitList;
 class CityData;
-class CivArchive;
 class MapPoint;
 class Unit;
 

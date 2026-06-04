@@ -4,7 +4,6 @@
 #ifndef __HIGHSCOREDB_H__
 #define __HIGHSCOREDB_H__
 
-class CivArchive;
 class Token;
 
 #define k_MAX_HIGH_SCORES	10

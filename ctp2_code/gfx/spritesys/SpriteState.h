@@ -9,7 +9,6 @@
 // header re-uses that declaration to keep a single canonical definition.
 #include "gs/core/sprite_state_fwd.h"
 
-class CivArchive ;
 
 class SpriteState {
 

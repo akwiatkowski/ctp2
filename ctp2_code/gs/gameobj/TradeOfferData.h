@@ -41,7 +41,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 class TradeOfferData : public GameObj {
 	// JSON bridge.  OMITS m_lesser/m_greater intrusive-list pointers

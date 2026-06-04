@@ -106,7 +106,6 @@ class aui_DirtyList;
 class aui_Surface;
 class BaseTile;
 class CellUnitList;
-class CivArchive;
 class CityData;
 class EffectActor;
 class GoodActor;

@@ -37,7 +37,6 @@
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/message.h"
 
-class CivArchive;
 template <class T> class PointerList;
 
 class TradeBids {

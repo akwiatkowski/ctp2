@@ -60,7 +60,6 @@ class Vision;
 
 #include "gs/world/MapPoint.h"
 
-class CivArchive;
 class UnseenCellQuadTree;
 class UnseenCellCarton;
 template <class T> class DynamicArray;

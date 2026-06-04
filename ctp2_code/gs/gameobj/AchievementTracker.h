@@ -9,7 +9,6 @@
 #define ACHIEVE_SPACE_CITY    1
 
 #include <nlohmann/json.hpp>
-class CivArchive;
 
 class AchievementTracker {
 	friend void to_json(nlohmann::json &j, AchievementTracker const &at);

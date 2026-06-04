@@ -4,7 +4,6 @@
 #ifndef __MOVIE_DB_H__
 #define __MOVIE_DB_H__ 1
 
-class CivArchive ;
 class Token;
 
 struct MovieNameNode {

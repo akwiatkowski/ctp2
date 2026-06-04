@@ -74,7 +74,6 @@ uint32 const    k_BIT_GAME_OBJ_TYPE_ARMY    =
 uint32 const    k_BIT_GAME_OBJ_TYPE_IMPROVEMENT_DB  =
     (uint32) k_GAME_OBJ_TYPE_TERRAIN_IMPROVEMENT_DB << k_ID_MASK_SHIFT;
 
-class CivArchive;
 
 class ObjPool
 {

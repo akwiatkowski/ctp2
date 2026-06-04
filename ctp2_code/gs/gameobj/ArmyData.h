@@ -63,7 +63,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-class CivArchive;
 class Path;
 class ArmyData;
 class Unit;

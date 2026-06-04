@@ -56,7 +56,6 @@ enum    C3_THUMBNAIL_ACTION
 
 #include "gs/gameobj/Unit.h"
 #include "robot/aibackdoor/dynarr.h"
-class CivArchive;
 class aui_Surface;
 class MapPoint;
 class TradeRoute;

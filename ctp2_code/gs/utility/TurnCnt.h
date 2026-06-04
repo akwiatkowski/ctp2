@@ -37,7 +37,6 @@
 #include "gs/utility/newturncount.h"
 #include <nlohmann/json.hpp>
 
-class CivArchive ;
 template <class T> class SimpleDynamicArray;
 
 typedef sint32 PLAYER_INDEX;

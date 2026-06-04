@@ -41,7 +41,6 @@
 #include "gs/gameobj/ID.h"
 #include "gs/world/MapPoint.h"
 
-class CivArchive;
 class SlicObject ;
 class SlicButton;
 template <class T> class PointerList;

@@ -50,7 +50,6 @@ class Army;
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 class Path;
 class ArmyData;
 class Unit;

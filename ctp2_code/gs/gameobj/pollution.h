@@ -61,7 +61,6 @@ class Pollution;
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/PollutionConst.h"
 #include <nlohmann/json.hpp>
-class CivArchive;
 class MapPoint;
 
 //----------------------------------------------------------------------------

@@ -10,7 +10,6 @@
 typedef sint32 StringId;
 class SlicSegment;
 class SlicObject;
-class CivArchive;
 class Message;
 
 class SlicButton

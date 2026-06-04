@@ -78,7 +78,6 @@ class CellUnitList;
 
 template <class T> class DynamicArray;
 
-class CivArchive;
 
 //----------------------------------------------------------------------------
 //

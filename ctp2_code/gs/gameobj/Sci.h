@@ -4,7 +4,6 @@
 #ifndef __SCIENCE_H__
 #define __SCIENCE_H__ 1
 
-class CivArchive;
 
 #include <nlohmann/json.hpp>
 

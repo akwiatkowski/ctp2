@@ -167,7 +167,6 @@ class MilitaryReadiness;
 class MaterialPool;
 class Installation;
 class CreateUnitRequest;
-class CivArchive;
 class UnitActor;
 class ID;
 class Throne;

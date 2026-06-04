@@ -7,7 +7,6 @@
 #define k_DEFAULT_MATERIAL_CAP 100
 #define k_DEFAULT_MATERIALS_TAX 0.2
 
-class CivArchive;
 #include <nlohmann/json.hpp>
 
 class MaterialPool

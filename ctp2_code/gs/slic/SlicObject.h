@@ -37,7 +37,6 @@
 #include <string>
 
 class ID;
-class CivArchive ;
 class SlicButton;
 class SlicEyePoint;
 class DiplomaticRequest;

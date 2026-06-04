@@ -11,7 +11,6 @@ class Unit;
 class SlicSegment;
 class SlicFrame;
 typedef sint32 PLAYER_INDEX;
-class CivArchive;
 class Agreement;
 class TradeOffer;
 class GameEventArgList;

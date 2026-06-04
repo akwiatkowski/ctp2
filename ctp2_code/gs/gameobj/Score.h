@@ -6,7 +6,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 class Player;
 typedef sint32 PLAYER_INDEX;
 

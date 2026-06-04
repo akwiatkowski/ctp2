@@ -40,7 +40,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 typedef sint32 PLAYER_INDEX ;
 typedef sint32 AdvanceType;

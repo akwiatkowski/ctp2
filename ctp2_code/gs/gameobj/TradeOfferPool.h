@@ -10,7 +10,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 template <class T> class DynamicArray;
 
 class TradeOfferPool : public ObjPool

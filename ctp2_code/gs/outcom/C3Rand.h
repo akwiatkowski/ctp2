@@ -7,7 +7,6 @@
 #include <objbase.h>
 #include "gs/outcom/IC3Rand.h"
 
-class CivArchive;
 class RandomGenerator;
 
 class C3Rand : public IC3Rand
@@ -33,7 +32,6 @@ public:
 
 #include "gs/outcom/IC3Rand.h"
 
-class CivArchive;
 class RandomGenerator;
 
 class C3Rand : public IC3Rand

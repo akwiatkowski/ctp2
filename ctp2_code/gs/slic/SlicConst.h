@@ -6,7 +6,6 @@
 
 #include <nlohmann/json.hpp>
 
-class CivArchive;
 
 class SlicConst {
 public:

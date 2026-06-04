@@ -231,42 +231,6 @@ void Governor::ResizeAll(const PLAYER_INDEX & newMaxPlayerId)
 
 //----------------------------------------------------------------------------
 //
-// Name       : Governor::LoadAll
-//
-// Description: Restore the Governor data from an archived stream
-//
-// Parameters : archive         : stream to restore from
-//
-// Globals    : s_theGovernors  : updated
-//
-// Returns    : -
-//
-// Remark(s)  : static function
-//              Assumption: The size of s_theGovernors has been updated
-//                          (read from stream) before calling this function.
-//
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-//
-// Name       : Governor::SaveAll
-//
-// Description: Save the Governor data to an archived stream
-//
-// Parameters : archive         : stream to save to
-//
-// Globals    : s_theGovernors  : input (not modified)
-//
-// Returns    : -
-//
-// Remark(s)  : static function
-//              Assumption: The size of s_theGovernors has been saved
-//                          (written to stream) before calling this function.
-//
-//----------------------------------------------------------------------------
-
-//----------------------------------------------------------------------------
-//
 // Name       : Governor::Cleanup
 //
 // Description: Release the memory of the Governor data.

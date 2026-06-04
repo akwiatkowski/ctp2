@@ -49,7 +49,6 @@
 
 #include "ctp/ctp2_utils/c3debugstl.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "ai/strategy/goals/Goal.h"               // Needed here to instantaite std::greater<Goal_ptr> correctly
 
 class GoalRecord;
@@ -115,11 +114,6 @@ public:
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
 
-#if 0
-	static void LoadAll(CivArchive & archive);
-	static void SaveAll(CivArchive & archive);
-#endif
-
 	static Scheduler & GetScheduler(const sint32 & playerId);
 
 	static void CleanupAll();
@@ -144,11 +138,6 @@ public:
 	Scheduler& operator= (const Scheduler &scheduler);
 
 	void Cleanup();
-
-#if 0
-	void Load(CivArchive & archive);
-	void Save(CivArchive & archive);
-#endif
 
 	void Initialize();
 

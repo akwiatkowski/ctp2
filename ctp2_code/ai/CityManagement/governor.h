@@ -82,7 +82,6 @@ class Governor;
 #include "ai/mapanalysis/settlemap.h"
 
 class Path;
-class CivArchive;
 class CityData;
 class BuildingBuildListRecord;
 class BuildListSequenceRecord;
@@ -102,9 +101,6 @@ public:
 
 	static void ResizeAll(const PLAYER_INDEX & newMaxPlayerId);
 	static void Cleanup();
-
-	static void LoadAll(CivArchive & archive);
-	static void SaveAll(CivArchive & archive);
 
 	static Governor & GetGovernor(const PLAYER_INDEX & playerId);
 
@@ -138,10 +134,6 @@ public:
 	void Resize( const sint16 & xSize,
 	             const sint16 & ySize,
 	             const sint16 & resolution );
-
-	void Load(CivArchive & archive);
-
-	void Save(CivArchive & archive) const;
 
 
 

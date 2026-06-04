@@ -56,7 +56,6 @@ class Diplomat;
 // Project dependencies
 //----------------------------------------------------------------------------
 
-#include "robot/aibackdoor/civarchive.h"             // CivArchive
 #include "os/include/ctp2_inttypes.h"          // sintN, uintN
 #include "gs/database/dbtypes.h"                // StringId
 #include "DiplomacyRecord.h"        // DiplomacyRecord
@@ -159,10 +158,6 @@ public:
 
 	static void InitializeAll();
 
-	static void LoadAll(CivArchive & archive);
-
-	static void SaveAll(CivArchive & archive);
-
 	static void DebugStatusAll();
 
 	static void AddDiplomacyArgToSlicContext(SlicContext & sc, const DiplomacyArg & dip_arg);
@@ -194,10 +189,6 @@ public:
 	Diplomat const & operator = (Diplomat const & a_Original);
 
 	void Resize(const PLAYER_INDEX & newMaxPlayers);
-
-	void Load(CivArchive & archive);
-
-	void Save(CivArchive & archive) const;
 
 	void Cleanup();
 

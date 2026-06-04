@@ -38,61 +38,9 @@
 #include "net/general/network.h"
 #include "net/general/net_crc.h"
 #include "net/io/net_util.h"
-#include "gs/utility/Checksum.h"
-
-// Database includes
-#include "gs/database/StrDB.h"
-#include "gs/database/profileDB.h"
-
-#include "AdvanceRecord.h"
-#include "AdvanceBranchRecord.h"
-#include "AdvanceListRecord.h"
-#include "AgeRecord.h"
-#include "AgeCityStyleRecord.h"
-#include "BuildingRecord.h"
-#include "BuildingBuildListRecord.h"
-#include "BuildListSequenceRecord.h"
-#include "CitySizeRecord.h"
-#include "CityStyleRecord.h"
-#include "CivilisationRecord.h"
-#include "ConstRecord.h"
-#include "DifficultyRecord.h"
-#include "DiplomacyRecord.h"
-#include "DiplomacyProposalRecord.h"
-#include "DiplomacyThreatRecord.h"
-#include "EndGameObjectRecord.h"
-#include "FeatRecord.h"
-#include "GlobalWarmingRecord.h"
-#include "GoalRecord.h"
-#include "GovernmentRecord.h"
-#include "IconRecord.h"
-#include "ImprovementListRecord.h"
-#include "OrderRecord.h"
-#include "gs/database/UVDB.h"                      // Ozone database
-#include "PersonalityRecord.h"
-#include "PollutionRecord.h"
-#include "PopRecord.h"
-#include "ResourceRecord.h"
-#include "RiskRecord.h"
-#include "SoundRecord.h"
-#include "SpecialAttackInfoRecord.h"
-#include "SpecialEffectRecord.h"
-#include "TerrainRecord.h"
-#include "SpriteRecord.h"
-#include "StrategyRecord.h"
-#include "TerrainRecord.h"
-#include "TerrainImprovementRecord.h"
-#include "UnitRecord.h"
-#include "UnitBuildListRecord.h"
-#include "WonderRecord.h"
-#include "WonderBuildListRecord.h"
-
-#include "ctp/civapp.h"
-#include "ui/aui_ctp2/c3_utilitydialogbox.h"
-
-
-
-extern OzoneDatabase           *g_theUVDB;
+#include "gs/database/StrDB.h"            // stringdb_Get (Error path)
+#include "ctp/civapp.h"                   // civapp_Get (Error path)
+#include "ui/aui_ctp2/c3_utilitydialogbox.h"  // c3_AbortMessage
 
 
 //----------------------------------------------------------------------------

@@ -45,7 +45,6 @@
 
 #include "BuildingRecord.h"
 #include "ctp/ctp2_utils/c3errors.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/ErrMsg.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "GovernmentRecord.h"

@@ -33,7 +33,6 @@
 #include "gs/utility/safety.h"
 #include "gs/gameobj/Strengths.h"
 #include "gs/gameobj/Player.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/UnitDynArr.h"
 #include "BuildingRecord.h"
 #include "WonderRecord.h"

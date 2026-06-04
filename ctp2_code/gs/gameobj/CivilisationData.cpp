@@ -40,7 +40,6 @@
 #include "gs/database/profileDB.h"
 #include "gs/database/StrDB.h"
 #include "net/general/network.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/utility/UnitDynArr.h"
 #include "gs/gameobj/citydata.h"

@@ -32,7 +32,6 @@
 #include "gs/gameobj/ObjPool.h"
 
 #include <algorithm>        // std::fill
-#include "robot/aibackdoor/civarchive.h"
 
 #define k_OBJPOOL_VERSION_MAJOR		0
 #define k_OBJPOOL_VERSION_MINOR		0

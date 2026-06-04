@@ -36,7 +36,6 @@
 
 #include "gs/database/StrDB.h"
 #include "gs/utility/ErrMsg.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/database/moviedb.h"
 #include "AgeRecord.h"

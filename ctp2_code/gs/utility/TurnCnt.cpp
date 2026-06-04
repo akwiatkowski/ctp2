@@ -45,7 +45,6 @@
 #include "gs/gameobj/buildingutil.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/citydata.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/CivPaths.h"               // civpaths_Get()
 #include "ConstRecord.h"            // g_theConstDB
 #include "gs/database/DB.h"

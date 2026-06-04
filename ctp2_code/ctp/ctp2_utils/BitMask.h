@@ -1,7 +1,6 @@
 #ifndef BIT_MASK_H__
 #define BIT_MASK_H__
 
-#include "robot/aibackdoor/civarchive.h"
 
 #include <cstring>
 #include <vector>

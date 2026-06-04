@@ -60,7 +60,6 @@ class CivApp;
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_common/aui_action.h"     // aui_Action
 #include "os/include/ctp2_inttypes.h"  // sint32, uint32
-class CivArchive;
 namespace Ctp2 { class Game; }
 
 //----------------------------------------------------------------------------

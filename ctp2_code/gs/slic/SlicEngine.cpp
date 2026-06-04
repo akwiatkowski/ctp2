@@ -70,7 +70,6 @@
 #include <list>
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/slic/SlicObject.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/slicif.h"
 #include "gs/slic/StringHash.h"

@@ -138,7 +138,6 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "CitySizeRecord.h"
-#include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "ConstRecord.h"
 #include "ai/ctpai.h"
 #include "ai/strategy/goals/Goal.h"

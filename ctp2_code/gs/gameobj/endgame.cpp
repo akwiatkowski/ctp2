@@ -1,6 +1,5 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/EndGame.h"
-#include "civarchive.h"
 #include "gs/database/EndGameDB.h"
 
 #include "gs/gameobj/Player.h"

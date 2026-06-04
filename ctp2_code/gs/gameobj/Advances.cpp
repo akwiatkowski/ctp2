@@ -42,7 +42,6 @@
 #include "gs/gameobj/Advances.h"           // own declarations
 
 #include "AdvanceRecord.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"             // player_arr_Get()
 #include "WonderRecord.h"
 #include "AgeRecord.h"

@@ -121,7 +121,6 @@ enum WORLD_SHAPE
 
 #include "ctp/ctp2_utils/c3debug.h"            // Assert
 #include "ctp/c3types.h"            // MBCHAR, sint..., uint...
-#include "robot/aibackdoor/civarchive.h"         // CivArchive
 #include "gs/gameobj/Civilisation.h"       // GENDER
 #include "gs/utility/Globals.h"            // MAPSIZE
 #include "gs/utility/gstypes.h"            // PLAYER_INDEX

@@ -29,7 +29,6 @@
 #include "gs/slic/SlicEyePoint.h"
 
 #include <vector>
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/message.h"
 #include "gs/core/tiledmap_observer.h"
 #include "gs/core/player_view.h"

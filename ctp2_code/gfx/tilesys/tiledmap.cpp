@@ -79,7 +79,6 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "gs/gameobj/CityRadius.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/CivPaths.h"                   // civpaths_Get()
 #include "gfx/gfx_utils/colorset.h"                   // colorset_Get()
 #include "ui/interface/controlpanelwindow.h"         // controlpanel_Get()

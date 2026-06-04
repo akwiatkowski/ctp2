@@ -2,7 +2,6 @@
 #include "gs/gameobj/HappyTracker.h"
 
 #include <algorithm>
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/database/StrDB.h"          // g_theStringDB
 

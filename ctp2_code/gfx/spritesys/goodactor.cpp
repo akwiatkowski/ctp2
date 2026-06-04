@@ -52,7 +52,6 @@
 #include "gfx/spritesys/Action.h"
 #include "gfx/spritesys/director.h"
 #include "gfx/tilesys/maputils.h"
-#include "robot/aibackdoor/civarchive.h"
 
 extern SpriteGroupList	*   g_goodSpriteGroupList;
 

@@ -42,7 +42,6 @@
 #include "gs/slic/slicif.h"
 #include "gs/database/StrDB.h"
 #include "gs/slic/SlicEngine.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/slic/SlicContext.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/UnitData.h"

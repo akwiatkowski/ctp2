@@ -34,7 +34,6 @@
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicFunc.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/database/profileDB.h"
 
 namespace

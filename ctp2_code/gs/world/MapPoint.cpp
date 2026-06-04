@@ -37,7 +37,6 @@
 
 #include <algorithm>
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/XY_Coordinates.h"
 #include "gs/world/World.h"			 // world_Get()
 #include "gs/gameobj/Player.h"

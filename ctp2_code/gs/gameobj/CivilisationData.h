@@ -54,7 +54,6 @@ class	CivilisationData;
 //----------------------------------------------------------------------------
 
 #include "ctp/c3types.h"            // MBCHAR, sint..., uint...
-#include "robot/aibackdoor/civarchive.h"         // CivArchive
 #include "gs/gameobj/GameObj_types.h"
 #include "CivilisationRecord.h" // k_MAX_CityName
 #include "gs/database/dbtypes.h"            // k_MAX_NAME_LEN

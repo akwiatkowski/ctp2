@@ -8,7 +8,6 @@
 template <class T> class Database;
 
 #include "os/include/ctp2_inttypes.h"  // sint32
-#include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "gs/database/dbtypes.h"        // StringId
 
 template <class T> class Database {

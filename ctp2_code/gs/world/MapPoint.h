@@ -64,7 +64,6 @@ struct	TileUtility;
 // Project imports
 //----------------------------------------------------------------------------
 
-#include "robot/aibackdoor/civarchive.h"		// CivArchive
 #include "gs/utility/directions.h"		// WORLD_DIRECTION
 
 //----------------------------------------------------------------------------

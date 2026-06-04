@@ -34,7 +34,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/FeatTracker.h"
 #include "gs/utility/safety.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/TurnCnt.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "FeatRecord.h"

@@ -36,7 +36,6 @@
 #include "gs/slic/slicif.h"
 #include "gs/slic/SlicStack.h"
 #include "gs/slic/SlicFrame.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicSymbol.h"
 #include "gs/slic/SlicObject.h"

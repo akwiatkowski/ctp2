@@ -32,7 +32,6 @@
 #include "gs/gameobj/WonderTracker.h"
 #include "gs/utility/safety.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"        // k_GAME_OBJ_TYPE_WONDER
 #include "gs/gameobj/Player.h"
 #include "net/general/network.h"

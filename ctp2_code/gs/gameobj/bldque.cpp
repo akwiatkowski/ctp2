@@ -61,7 +61,6 @@
 #include "gs/world/MapPoint.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/citydata.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "BuildingRecord.h"
 #include "gs/outcom/AICause.h"
 #include "gs/utility/Checksum.h"

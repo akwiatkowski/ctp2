@@ -32,7 +32,6 @@
 
 #include "gs/gameobj/Diffcly.h"
 #include "DifficultyRecord.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "ai/mapanalysis/mapanalysis.h"
 #include "gs/database/StrDB.h"
 

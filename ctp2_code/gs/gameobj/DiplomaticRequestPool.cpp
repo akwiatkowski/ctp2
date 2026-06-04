@@ -7,7 +7,6 @@
 #include "gs/database/StrDB.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/DiplDynArr.h"
 #include "gs/utility/MsgDynArr.h"
 #include "gs/utility/TurnCnt.h"

@@ -64,7 +64,6 @@ enum DBPARSE_ERROR
 };
 
 #include "ctp/ctp2_utils/c3files.h"
-#include "robot/aibackdoor/civarchive.h"
 class DBLexer;
 template <class T> class PointerList;
 

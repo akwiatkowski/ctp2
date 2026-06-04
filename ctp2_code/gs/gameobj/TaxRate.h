@@ -4,7 +4,6 @@
 #ifndef __TAX_RATE_H__
 #define __TAX_RATE_H__ 1
 
-#include "robot/aibackdoor/civarchive.h"
 #include <nlohmann/json.hpp>
 
 #define k_TAXRATE_VERSION_MAJOR	0

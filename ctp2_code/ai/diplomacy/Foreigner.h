@@ -40,7 +40,6 @@
 struct  RegardEvent;
 class   Foreigner;
 
-#include "robot/aibackdoor/civarchive.h"
 #include "os/include/ctp2_inttypes.h"
 #include "gs/database/dbtypes.h"
 #include "gs/diplomacy/diplomacy_types.h"
@@ -110,10 +109,6 @@ public:
 	Foreigner();
 
 	void Initialize();
-
-	void Load(CivArchive & archive);
-
-	void Save(CivArchive & archive) const;
 
 	void BeginTurn();
 

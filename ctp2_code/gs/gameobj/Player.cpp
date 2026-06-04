@@ -169,7 +169,6 @@
 #include "gs/gameobj/citydata.h"
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "ctp/civapp.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"           // civilisationpool_Get()
 #include "gs/fileio/CivPaths.h"                   // civpaths_Get()
 #include "ConstRecord.h"                // g_theConstDB

@@ -5,7 +5,6 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/fileio/Token.h"
 #include "gs/utility/ErrMsg.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "SoundRecord.h"
 #include "ctp/ctp2_utils/c3files.h"
 #include "gs/database/StrDB.h"

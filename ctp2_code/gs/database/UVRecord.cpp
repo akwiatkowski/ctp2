@@ -2,7 +2,6 @@
 
 #if 0
 #include "ctp/ctp2_utils/c3errors.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/Token.h"
 
 #include "gs/database/StrDB.h"

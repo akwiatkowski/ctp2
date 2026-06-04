@@ -62,7 +62,6 @@
 #include "gs/utility/QuadTree.h"
 #include "gs/world/Cell.h"
 #include "gs/world/World.h"              // world_Get()
-#include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/core/player_view.h"
 #include <memory>

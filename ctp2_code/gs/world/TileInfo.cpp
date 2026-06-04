@@ -33,7 +33,6 @@
 #include "gs/world/TileInfo.h"
 
 #include <algorithm>        // std::fill
-#include "robot/aibackdoor/civarchive.h"
 #include "gfx/spritesys/GoodActor.h"
 #include "gs/database/profileDB.h"      // profiledb_Get()
 

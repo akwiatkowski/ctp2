@@ -40,7 +40,6 @@
 #include "gs/world/World.h"
 #include "gs/world/Cell.h"
 #include "gs/gameobj/TerrImproveData.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/core/tiledmap_observer.h"
 #include "TerrainRecord.h"
 #include "gs/gameobj/Player.h"

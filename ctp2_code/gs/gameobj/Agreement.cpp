@@ -1,7 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/utility/safety.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Gold.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"

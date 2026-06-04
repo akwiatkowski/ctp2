@@ -51,7 +51,6 @@ class	ID;
 // Project imports
 //----------------------------------------------------------------------------
 
-#include "robot/aibackdoor/civarchive.h"			// CivArchive
 #include "os/include/ctp2_inttypes.h"      // uint32
 
 //----------------------------------------------------------------------------

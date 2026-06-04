@@ -39,7 +39,6 @@
 #include "gs/gameobj/Advances.h"
 #include "gs/slic/SlicFrame.h"
 #include "gs/gameobj/Player.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Agreement.h"
 #include "gs/gameobj/TradeOffer.h"
 #include "gs/events/GameEventArgList.h"

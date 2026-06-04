@@ -59,7 +59,6 @@
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
 #include "gs/gameobj/citydata.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "ConstRecord.h"            // g_theConstDB
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/fileio/gamefile.h"

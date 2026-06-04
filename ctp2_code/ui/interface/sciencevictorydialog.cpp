@@ -35,7 +35,6 @@
 #include "ui/aui_common/aui_ldl.h"
 #include "ui/aui_ctp2/c3ui.h"
 #include "gs/gameobj/citydata.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gfx/gfx_utils/colorset.h"           // colorset_Get()
 #include "ui/aui_ctp2/ctp2_button.h"
 #include "ui/aui_ctp2/ctp2_listbox.h"

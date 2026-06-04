@@ -38,7 +38,6 @@
 #include "gs/utility/safety.h"
 #include "gs/utility/TurnCnt.h"
 #include "gs/gameobj/Readiness.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/database/DB.h"
 #include "GovernmentRecord.h"
 #include "gs/gameobj/Unit.h"

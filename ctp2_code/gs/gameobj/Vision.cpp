@@ -42,7 +42,6 @@
 #include "gs/gameobj/Army.h"
 #include "gs/world/Cell.h"
 #include "gs/world/cellunitlist.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/dynarr.h"
 #include "gs/gameobj/Player.h"                   // player_Get, player_arr_Get
 #include "net/general/net_info.h"

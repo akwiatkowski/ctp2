@@ -49,7 +49,6 @@
 #include "gs/utility/stringutils.h"
 #include "gs/database/StrDB.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/GSLogs.h"
 
 

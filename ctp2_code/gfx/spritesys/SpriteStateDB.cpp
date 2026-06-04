@@ -1,7 +1,6 @@
 #include "ctp/c3.h"
 
 #include "gfx/spritesys/SpriteStateDB.h"
-#include "civarchive.h"
 
 #include "gs/fileio/Token.h"
 

@@ -40,7 +40,6 @@
 #include "gs/gameobj/pollution.h"
 #include "gs/gameobj/Player.h"
 #include "WonderRecord.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 #include "gs/slic/SlicSegment.h"
 #include "gs/slic/SlicObject.h"

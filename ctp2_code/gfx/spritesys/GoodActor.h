@@ -60,7 +60,6 @@ class GoodActor;
 #include <deque>
 
 #include "gfx/spritesys/Actor.h"              // Actor
-#include "robot/aibackdoor/civarchive.h"         // CivArchive
 #include "os/include/ctp2_inttypes.h"      // sint32, uint16
 #include "gfx/spritesys/GoodSpriteGroup.h"    // GOODACTION
 #include "gfx/spritesys/SpriteGroup.h"        // LOADTYPE

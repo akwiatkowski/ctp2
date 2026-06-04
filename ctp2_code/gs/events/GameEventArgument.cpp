@@ -37,7 +37,6 @@
 #include "robot/pathing/Path.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/TerrImprove.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/TradeRoute.h"
 #include "AdvanceRecord.h"       // g_theAdvanceDB
 #include "WonderRecord.h"        // g_theWonderDB

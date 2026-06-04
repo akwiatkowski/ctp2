@@ -1,6 +1,5 @@
 #include "ctp/c3.h"
 #include "gs/utility/RandGen.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/gamefile.h"
 
 RandomGenerator::RandomGenerator(sint32 seed)

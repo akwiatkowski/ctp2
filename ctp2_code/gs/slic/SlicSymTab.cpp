@@ -1,7 +1,6 @@
 #include "ctp/c3.h"
 #include "gs/slic/SlicSymTab.h"
 #include "gs/slic/SlicEngine.h"
-#include "robot/aibackdoor/civarchive.h"
 
 SlicSymTab::SlicSymTab(sint32 size) :
 	StringHash<SlicNamedSymbol>(k_SLIC_SYM_TAB_HASH_SIZE)

@@ -2,7 +2,6 @@
 #include "ctp/ctp2_utils/c3errors.h"
 #include "gs/database/EndGameDB.h"
 #include "gs/fileio/Token.h"
-#include "civarchive.h"
 #include "gs/database/EndGameToken.h"
 #include "gs/database/StrDB.h"
 

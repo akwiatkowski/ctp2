@@ -41,7 +41,6 @@
 #include "gs/utility/TurnCnt.h"
 #include "gs/outcom/AICause.h"
 #include "gs/gameobj/Unit.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Advances.h"
 #include "gs/fileio/CivPaths.h"       // civpaths_Get()
 #include "gs/slic/SlicEngine.h"

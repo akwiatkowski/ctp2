@@ -30,7 +30,6 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/TradeOfferData.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Gold.h"
 #include "net/general/network.h"

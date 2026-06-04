@@ -38,7 +38,6 @@ namespace {
 auto unitpool_log = civlog::Get("unitpool");
 }  // namespace
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/gstypes.h"
 #include "gs/newdb/UnitRec.h"

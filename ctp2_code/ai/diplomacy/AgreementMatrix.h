@@ -53,7 +53,6 @@ class AgreementMatrix;
 // Project dependencies
 //----------------------------------------------------------------------------
 
-#include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "gs/diplomacy/diplomacy_types.h"  // ai::..., PROPOSAL_TYPE
 #include "gs/gameobj/Player.h"         // PLAYER_INDEX
 
@@ -82,10 +81,6 @@ public:
 	AgreementMatrix();
 
 	void Resize(const PLAYER_INDEX & newMaxPlayers);
-
-	void Load(CivArchive & archive);
-
-	void Save(CivArchive & archive) const;
 
 	const ai::Agreement & GetAgreement( const PLAYER_INDEX sender_player,
 										const PLAYER_INDEX receiver_player,

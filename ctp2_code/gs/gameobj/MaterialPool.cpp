@@ -30,7 +30,6 @@
 
 #include "ctp/c3.h"
 #include "gs/gameobj/MaterialPool.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 #include "net/general/net_action.h"
 #include "net/general/net_info.h"

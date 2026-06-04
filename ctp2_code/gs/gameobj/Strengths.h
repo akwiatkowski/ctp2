@@ -26,7 +26,6 @@ enum STRENGTH_CAT {
 	STRENGTH_CAT_MAX
 };
 
-#include "robot/aibackdoor/civarchive.h"     // CivArchive
 #include "gs/utility/SimpleDynArr.h"
 #include <nlohmann/json.hpp>
 

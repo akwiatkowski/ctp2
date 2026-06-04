@@ -31,7 +31,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Order.h"
 #include "robot/pathing/Path.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "robot/aibackdoor/pool.h"
 #include "gs/events/GameEventArgList.h"
 

@@ -2,7 +2,6 @@
 #include <objbase.h>
 #include "gs/outcom/C3Rand.h"
 #include "gs/utility/RandGen.h"
-#include "civarchive.h"
 
 STDMETHODIMP C3Rand::QueryInterface(REFIID riid, void **obj)
 {

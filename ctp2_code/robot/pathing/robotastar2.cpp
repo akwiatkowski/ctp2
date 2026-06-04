@@ -46,7 +46,6 @@
 #include "gs/utility/RandGen.h"
 #include "gs/newdb/UnitRec.h"
 #include "gs/gameobj/Unit.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "UnitRecord.h"
 #include "gs/gameobj/ArmyData.h"
 #include "gs/world/Cell.h"

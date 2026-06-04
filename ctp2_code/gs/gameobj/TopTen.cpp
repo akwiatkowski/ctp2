@@ -2,7 +2,6 @@
 #include "gs/gameobj/TopTen.h"
 
 #include "ctp/ctp2_utils/c3debug.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/fileio/gamefile.h"
 #include "gs/utility/Globals.h"
 #include "gs/gameobj/Player.h"

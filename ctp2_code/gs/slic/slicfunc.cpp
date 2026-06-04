@@ -72,7 +72,6 @@
 #include "gs/slic/SlicFunc.h"
 #include "gs/slic/slicif.h"
 #include "gs/database/StrDB.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/slic/SlicEngine.h"
 #include "gs/slic/SlicObject.h"
 #include "gs/slic/SlicSegment.h"

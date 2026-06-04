@@ -3,7 +3,6 @@
 #include "gs/gameobj/ArmyPool.h"
 #include "gs/gameobj/Army.h"
 #include "gs/gameobj/ArmyData.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
 
 ArmyPool::ArmyPool() : ObjPool(k_BIT_GAME_OBJ_TYPE_ARMY)

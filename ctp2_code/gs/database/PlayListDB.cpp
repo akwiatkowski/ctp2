@@ -31,7 +31,6 @@
 #include "ctp/c3.h"
 
 #include "gs/fileio/Token.h"
-#include "robot/aibackdoor/civarchive.h"
 
 #include "gs/database/PlayListDB.h"
 #include "ctp/ctp2_utils/c3files.h"

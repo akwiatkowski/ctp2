@@ -32,7 +32,6 @@
 
 #include "BuildingRecord.h"
 #include "WonderRecord.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "UnitRecord.h"
 
 static Exclusions *g_exclusions = nullptr;

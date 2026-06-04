@@ -87,13 +87,16 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // count.  Baseline raised by 1 to reflect this.
 // Phase F-5: json_save.cpp adds #include "robot/pathing/Path.h" for
 // TradeRouteData's embedded Path bridge (+1).
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 118;
-constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 25;
+// Phase 0.C-5: removed ~80 dead `#include "robot/aibackdoor/civarchive.h"`
+// lines + dead Load/Save(CivArchive&) decls in ai/ headers.  Counts
+// dropped: gs .cpp 118->39, gs .h 25->11, ai .cpp 13->10, ai .h 7->3.
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 39;
+constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 11;
 
 // ai/ files include robot/ headers for pathing and backdoor access.
 // Ratcheting locks the current counts so future work can only reduce them.
-constexpr std::size_t AI_ROBOT_CPP_BASELINE    = 13;
-constexpr std::size_t AI_ROBOT_HEADER_BASELINE = 7;
+constexpr std::size_t AI_ROBOT_CPP_BASELINE    = 10;
+constexpr std::size_t AI_ROBOT_HEADER_BASELINE = 3;
 
 // Ratchet baselines — total `#include "net/..."` lines in gs/ .cpp files.
 // gs/ historically depends on net/ for multiplayer and network file I/O.

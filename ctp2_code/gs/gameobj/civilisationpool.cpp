@@ -38,7 +38,6 @@
 #include "gs/database/StrDB.h"
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/RandGen.h"
 #include "gs/utility/SimpleDynArr.h"
 #include "gs/database/profileDB.h"

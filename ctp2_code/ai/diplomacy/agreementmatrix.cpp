@@ -36,7 +36,6 @@
 
 #include <vector>
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 
 #include "ai/diplomacy/diplomacyutil.h"

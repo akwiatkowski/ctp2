@@ -61,10 +61,6 @@ public:
 
 	static void Initialize(bool initDiplomat = true);
 
-	static void Load(CivArchive & archive);
-
-	static void Save(CivArchive & archive);
-
 	static void RemovePlayer(const PLAYER_INDEX player);
 
 	static void AddPlayer(const PLAYER_INDEX newPlayerId);

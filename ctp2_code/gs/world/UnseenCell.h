@@ -86,7 +86,6 @@ class UnseenInstallationInfo;
 // Project imports
 //----------------------------------------------------------------------------
 
-#include "robot/aibackdoor/civarchive.h"
 #include "os/include/ctp2_inttypes.h"    // sintN, uintN
 #include "gs/world/MapPoint.h"         // MapPoint
 #include "gs/gameobj/Player.h"           // PLAYER_INDEX

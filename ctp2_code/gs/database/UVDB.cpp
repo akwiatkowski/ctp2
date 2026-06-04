@@ -5,7 +5,6 @@
 #include "gs/fileio/Token.h"
 #include "gs/database/UVDB.h"
 #include "gs/utility/ErrMsg.h"
-#include "robot/aibackdoor/civarchive.h"
 
 	sint32	g_parse_uv_abort ;
 

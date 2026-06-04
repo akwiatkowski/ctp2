@@ -1,7 +1,6 @@
 #include "ctp/c3.h"
 
 #include "gs/gameobj/Sci.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "ai/ctpai.h"
 #include "gs/gameobj/Player.h"
 #include "ai/diplomacy/AgreementMatrix.h"

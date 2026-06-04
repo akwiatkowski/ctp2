@@ -33,7 +33,6 @@
 #include "ctp/c3.h"
 
 #include "gs/gameobj/Gold.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 
 #include "ConstRecord.h"

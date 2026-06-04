@@ -36,7 +36,6 @@
 #include "ctp/c3.h"
 
 #include "gs/database/DB.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "EndGameRecord.h"
 
 #include "gs/database/StrDB.h"

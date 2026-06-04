@@ -4,7 +4,6 @@
 
 #include "gs/fileio/Token.h"
 #include "gs/utility/ErrMsg.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/database/StrDB.h"
 
 #include "gs/database/highscoredb.h"

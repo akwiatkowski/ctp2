@@ -8,7 +8,6 @@
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/pollution.h"
 #include "gs/outcom/AICause.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/AgreementDynArr.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/TurnCnt.h"

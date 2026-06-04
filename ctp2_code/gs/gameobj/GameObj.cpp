@@ -33,7 +33,6 @@
 #include "gs/gameobj/GameObj.h"
 
 #include "ctp/ctp2_utils/c3errors.h"
-#include "robot/aibackdoor/civarchive.h"
 
 GameObj::GameObj(uint32 i)
 :

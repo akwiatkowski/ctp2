@@ -1,6 +1,5 @@
 #include "ctp/c3.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/Unit.h"
 #include "gs/gameobj/DiplomaticRequestData.h"

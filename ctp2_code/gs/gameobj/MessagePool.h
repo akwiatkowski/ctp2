@@ -7,7 +7,6 @@
 class MessagePool;
 typedef sint32 MESSAGE_TYPE;
 
-#include "robot/aibackdoor/civarchive.h"	// CivArchive
 #include "gs/gameobj/message.h"	// MessageData
 #include "gs/gameobj/ObjPool.h"	// ObjPool
 #include "gs/gameobj/Player.h"		// PLAYER_INDEX

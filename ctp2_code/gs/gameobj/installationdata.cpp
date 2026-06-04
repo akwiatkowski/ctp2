@@ -31,7 +31,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/installation.h"
 #include "gs/gameobj/ID.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 
 #include "gs/gameobj/UnitData.h"

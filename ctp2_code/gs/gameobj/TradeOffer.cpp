@@ -1,7 +1,6 @@
 #include "ctp/c3.h"
 
 #include "gs/gameobj/TradeOffer.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/TradeOfferPool.h"
 #include "gs/gameobj/Player.h"
 #include "net/general/net_info.h"

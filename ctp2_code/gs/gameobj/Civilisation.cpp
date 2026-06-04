@@ -32,7 +32,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/Civilisation.h"
 
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"			    // player_arr_Get()
 #include "CivilisationRecord.h"
 #include "gs/gameobj/CivilisationPool.h"	// civilisationpool_Get()

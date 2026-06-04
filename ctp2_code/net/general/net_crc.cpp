@@ -38,7 +38,6 @@
 #include "net/general/network.h"
 #include "net/general/net_crc.h"
 #include "net/io/net_util.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Checksum.h"
 
 // Database includes

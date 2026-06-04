@@ -29,7 +29,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/GameSettings.h"
 #include "gs/database/profileDB.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "net/general/network.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/EndGame.h"

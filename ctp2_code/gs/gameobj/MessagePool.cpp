@@ -6,7 +6,6 @@
 #include "gs/gameobj/MessagePool.h"
 
 #include "net/general/network.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Globals.h"
 #include "gs/utility/TurnCnt.h"
 

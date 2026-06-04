@@ -2,7 +2,6 @@
 #include "gs/database/EndGameDB.h"
 #include "gs/fileio/Token.h"
 #include "gs/database/EndGameToken.h"
-#include "civarchive.h"
 #include "gs/database/StrDB.h"
 #include "AdvanceRecord.h"
 #include "SoundRecord.h"

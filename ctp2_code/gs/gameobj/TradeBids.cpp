@@ -30,7 +30,6 @@
 #include "ctp/c3.h"
 #include "gs/gameobj/TradeBids.h"
 #include "ctp/ctp2_utils/pointerlist.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/Player.h"
 #include "gs/gameobj/MessagePool.h"
 #include "gs/fileio/gamefile.h"

@@ -235,7 +235,6 @@
 #include "gs/gameobj/CityInfluenceIterator.h"
 #include "CitySizeRecord.h"
 #include "CityStyleRecord.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/gameobj/CivilisationPool.h"
 #include "ConstRecord.h"                    // g_theConstDB
 #include "gs/database/DB.h"

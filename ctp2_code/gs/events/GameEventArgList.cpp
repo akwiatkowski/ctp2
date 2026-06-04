@@ -24,7 +24,7 @@
 //
 // Modifications from the original Activision code:
 //
-// - Improved slic event debugging. (7-Nov-2007 Martin Gühmann)
+// - Improved slic event debugging. (7-Nov-2007 Martin Gï¿½hmann)
 //
 //----------------------------------------------------------------------------
 
@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include "gs/gameobj/Army.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/events/GameEventArgument.h"
 #include "ctp/ctp2_utils/pointerlist.h"
 #include "gs/world/MapPoint.h"

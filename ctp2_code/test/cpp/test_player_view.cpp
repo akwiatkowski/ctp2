@@ -90,7 +90,7 @@ constexpr std::size_t AI_SOUND_HEADER_BASELINE = 0;
 // Phase 0.C-5: removed ~80 dead `#include "robot/aibackdoor/civarchive.h"`
 // lines + dead Load/Save(CivArchive&) decls in ai/ headers.  Counts
 // dropped: gs .cpp 118->39, gs .h 25->11, ai .cpp 13->10, ai .h 7->3.
-constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 39;
+constexpr std::size_t GS_ROBOT_CPP_BASELINE    = 38;
 constexpr std::size_t GS_ROBOT_HEADER_BASELINE = 11;
 
 // ai/ files include robot/ headers for pathing and backdoor access.

@@ -39,7 +39,6 @@
 #include "ctp/c3.h"                        // Precompiled header
 #include "gs/utility/DataCheck.h"
 #include "gs/core/text_observer.h"
-#include "robot/aibackdoor/civarchive.h"
 #include "gs/utility/Checksum.h"
 
 #include "gs/utility/RandGen.h"
@@ -196,24 +195,6 @@ DataCheck::DataCheck()
 
 	m_total_time = 0;
 }
-
-
-
-
-// If we have to do copy and paste at all then let
-// make the preprocessor to do the work for us.
-#define CHECK_DB(db, db_type) \
-	start = clock(); \
-	archive = new CivArchive(); \
-	archive->SetStore(); \
-	check = new CheckSum(); \
-	db->Serialize(*archive); \
-	check->AddData(archive->GetStream(), archive->StreamLen()); \
-	check->Done(m_crc[db_type][CRC_ARRAY_0], m_crc[db_type][CRC_ARRAY_1], m_crc[db_type][CRC_ARRAY_2], m_crc[db_type][CRC_ARRAY_3]); \
-	delete archive; \
-	delete check; \
-	finish = clock(); \
-	m_time[db_type] = finish - start;
 
 
 

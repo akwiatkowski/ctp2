@@ -151,7 +151,6 @@ void RecordDescription::ExportHeader(FILE *outfile)
     // Project imports
     fprintf(outfile, "#include \"CTPDatabase.h\"\n");
 	fprintf(outfile, "#include \"CTPRecord.h\"\n");
-    fprintf(outfile, "class CivArchive;\n");
 	ExportForwardDeclarations(outfile);
 
     // Declarations

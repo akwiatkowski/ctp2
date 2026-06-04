@@ -307,46 +307,14 @@ typedef std::shared_ptr<UnitActor> UnitActorPtr;
 
 
 
-class HackCityArchive : public CivArchive
-{
-public:
-	void SetStoreOn() { CivArchive::SetStore(); }
-	uint8 *GetStr() { return GetStream(); }
-	uint32 StreamLen() { return CivArchive::StreamLen(); }
-};
-
-#ifdef _SLOW_BUT_SAFE
-
-#define PROJECTED_CHECK_START \
-	uint32 crc1[4], crc2[4];\
-	HackCityArchive * archive;\
-	CheckSum *check;\
-	archive = new HackCityArchive;\
-	check = new CheckSum;\
-	archive->SetStoreOn();\
-	Serialize(*archive);\
-	check->AddData(archive->GetStr(), archive->StreamLen());\
-	check->Done(crc1[0], crc1[1], crc1[2], crc1[3]);\
-	delete archive;\
-	delete check;
-
-#define PROJECTED_CHECK_END \
-	archive = new HackCityArchive;\
-	check = new CheckSum;\
-	archive->SetStoreOn();\
-	Serialize(*archive);\
-	check->AddData(archive->GetStr(), archive->StreamLen());\
-	check->Done(crc2[0], crc2[1], crc2[2], crc2[3]);\
-	Assert(crc2[0] == crc1[0] &&\
-		   crc2[1] == crc1[1] &&\
-		   crc2[2] == crc1[2] &&\
-		   crc2[3] == crc1[3]); \
-	delete archive;\
-	delete check;
-#else
+// Phase 0.C-5: HackCityArchive + PROJECTED_CHECK_{START,END} macros
+// previously round-tripped CityData through a CivArchive to assert CRC
+// stability across an operation.  Guarded by _SLOW_BUT_SAFE which is
+// never defined; CityData::Serialize(CivArchive&) is gone anyway.
+// Macros expand to empty so existing PROJECTED_CHECK_START/END call
+// sites compile to nothing.
 #define PROJECTED_CHECK_START
 #define PROJECTED_CHECK_END
-#endif
 
 //----------------------------------------------------------------------------
 //

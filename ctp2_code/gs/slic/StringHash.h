@@ -30,13 +30,6 @@
 #ifndef __STRING_HASH_H__
 #define __STRING_HASH_H__
 
-#include "robot/aibackdoor/civarchive.h"
-
-// G-4b: COM_INTERFACE branch collapsed.  IC3CivArchive (the COM-style
-// archive interface) is dead — never instantiated outside the CivArchive
-// concrete class.  CivArchive & is the only archive shape that ships.
-#define ARCHIVE CivArchive &
-
 template <class T> class StringHashNode {
 public:
 
@@ -48,39 +41,11 @@ public:
         m_next  (nullptr)
     { ; };
 
-	StringHashNode(ARCHIVE archive)
-    :   m_obj   (nullptr),
-        m_next  (nullptr)
-	{
-		Serialize(archive);
-	};
-
 	~StringHashNode()
     {
 		delete m_obj;
         // m_next not deleted (intentional)
 	};
-
-	void Serialize(ARCHIVE archive) {
-		uint8 isPresent;
-		if(archive.IsStoring()) {
-			m_obj->Serialize(archive);
-
-			isPresent = (m_next != nullptr);
-			archive << isPresent;
-			if(m_next)
-				m_next->Serialize(archive);
-		} else {
-			m_obj = new T(archive);
-			archive >> isPresent;
-
-			if(isPresent) {
-				m_next = new StringHashNode<T>(archive);
-			} else {
-				m_next = nullptr;
-			}
-		}
-	}
 };
 
 template <class T> class StringHash {
@@ -91,7 +56,6 @@ protected:
 public:
 	StringHash(sint32 table_size);
 	virtual ~StringHash();
-	void Serialize(ARCHIVE archive);
 
 	uint16 Key(const char *str);
 
@@ -155,37 +119,6 @@ template <class T> void StringHash<T>::Clear()
 				StringHashNode<T> *node = m_table[i];
 				m_table[i] = node->m_next;
 				delete node;
-			}
-		}
-	}
-}
-
-template <class T> void StringHash<T>::Serialize(ARCHIVE archive)
-{
-	uint8 isPresent;
-
-	if(archive.IsStoring()) {
-		archive << m_table_size;
-
-		for(sint32 i = 0; i < m_table_size; i++) {
-			isPresent = m_table[i] != nullptr;
-			archive << isPresent;
-			if(isPresent) {
-				m_table[i]->Serialize(archive);
-			}
-		}
-	} else {
-		Clear();
-		delete [] m_table;
-		archive >> m_table_size;
-
-		m_table = new StringHashNode<T> *[m_table_size];
-		for(sint32 i = 0; i < m_table_size; i++) {
-			archive >> isPresent;
-			if(isPresent) {
-				m_table[i] = new StringHashNode<T>(archive);
-			} else {
-				m_table[i] = nullptr;
 			}
 		}
 	}

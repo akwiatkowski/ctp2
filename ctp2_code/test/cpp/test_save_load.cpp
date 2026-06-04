@@ -21,6 +21,7 @@
 
 #include "ctp/c3.h"
 #include "doctest.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -107,28 +108,33 @@ static bool file_exists_and_nonempty(const char *path)
 
 static bool file_header_is_known_magic(const char *path)
 {
-    // Known save-file magic values: "CTP0049".."CTP0067" with NUL terminator (8 bytes).
+    // Phase 0.C-3: saves are JSON.  Verify the file starts with '{'
+    // and contains the JSON magic string "CTP2-JSON" (json_save::MAGIC).
+    // The doc is pretty-printed and alphabetically sorted, so "magic"
+    // can land anywhere; read the whole file (a few MB) and scan.
     FILE *f = std::fopen(path, "rb");
     if (!f) return false;
 
-    char header[8] = {0};
-    size_t n = std::fread(header, 1, sizeof(header), f);
+    std::fseek(f, 0, SEEK_END);
+    long size = std::ftell(f);
+    std::fseek(f, 0, SEEK_SET);
+    if (size <= 0) { std::fclose(f); return false; }
+
+    std::vector<char> buf(static_cast<size_t>(size));
+    size_t n = std::fread(buf.data(), 1, buf.size(), f);
     std::fclose(f);
-    if (n != sizeof(header)) return false;
+    if (n != buf.size()) return false;
 
-    // Must be NUL-terminated to be a valid string we can compare.
-    if (header[7] != '\0') return false;
+    // First non-whitespace char must be '{'.
+    size_t i = 0;
+    while (i < n && (buf[i] == ' ' || buf[i] == '\t' ||
+                     buf[i] == '\n' || buf[i] == '\r')) ++i;
+    if (i >= n || buf[i] != '{') return false;
 
-    // Pattern check: "CTPNNNN" where NNNN is 4 digits.
-    if (std::strncmp(header, "CTP", 3) != 0) return false;
-    for (int i = 3; i < 7; ++i) {
-        if (header[i] < '0' || header[i] > '9') return false;
-    }
-
-    // Version range: 49..67 inclusive (per s_magicValue[] in GameFile.cpp).
-    int ver = (header[3]-'0')*1000 + (header[4]-'0')*100
-            + (header[5]-'0')*10   + (header[6]-'0');
-    return ver >= 49 && ver <= 67;
+    static constexpr char kMagic[] = "\"CTP2-JSON\"";
+    return std::search(buf.data() + i, buf.data() + n,
+                       kMagic, kMagic + sizeof(kMagic) - 1)
+           != buf.data() + n;
 }
 
 // ------------------------------------------------------------------

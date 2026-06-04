@@ -97,7 +97,6 @@ public:
 	SlicSymbolData(SlicSymbolData const & copy);
 	SlicSymbolData(SlicStructDescription *structDesc);
 
-	void Serialize(CivArchive &archive);
 	virtual SLIC_SYM_SERIAL_TYPE GetSerializeType() { return SLIC_SYM_SERIAL_GENERIC; }
 	virtual ~SlicSymbolData();
 
@@ -161,5 +160,4 @@ private:
    	void Init();
 };
 
-SlicSymbolData *slicsymbol_Load(CivArchive &archive, SlicSymbolData *useSymbol);
 #endif

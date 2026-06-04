@@ -234,34 +234,6 @@ SlicSegment::SlicSegment(sint32 slicifIndex)
 // Remark(s)  : -
 //
 //----------------------------------------------------------------------------
-SlicSegment::SlicSegment(CivArchive &archive)
-:	GameEventHookCallback       (),
-    m_type                      (TYPE_DEFAULT),
-    m_codeSize                  (0),
-    m_num_trigger_symbols       (0),
-    m_num_parameters            (0),
-    m_enabled                   (TRUE),
-    m_specialVariables          (0),
-    m_isAlert                   (FALSE),
-    m_isHelp                    (FALSE),
-    m_event                     (GEV_MAX),
-    m_priority                  (PRIORITY_DEFAULT),
-    m_fromFile                  (FALSE),
-    m_firstLineNumber           (NOT_IN_USE),
-    m_id                        (nullptr),
-    m_code                      (nullptr),
-    m_uiComponent               (nullptr),
-    m_filename                  (nullptr),
-    m_trigger_symbols_indices   (nullptr),
-    m_trigger_symbols           (nullptr),
-    m_parameter_indices         (nullptr),
-    m_parameter_symbols         (nullptr)
-    // m_poolIndex              (filled when retrieving from the pool)
-{
-	std::fill(m_lastShown, m_lastShown + k_MAX_PLAYERS, 0);
-	Serialize(archive);
-}
-
 //----------------------------------------------------------------------------
 //
 // Name       : SlicSegment::~SlicSegment
@@ -395,94 +367,6 @@ BOOL SlicSegment::TestLastShown(sint32 player, sint32 turn, sint32 currentRound)
 	int ls = GetLastShown(player);
 
 	return(!HasBeenShown(player) || ((currentRound - ls) >= turn));
-}
-
-void SlicSegment::Serialize(CivArchive &archive)
-{
-	sint32 l;
-	if(archive.IsStoring()) {
-		archive.StoreChunk((uint8 *)&m_type, ((uint8 *)&m_fromFile)+sizeof(m_fromFile));
-
-		if(m_id) {
-			l = strlen(m_id) + 1;
-			archive << l;
-			archive.Store((uint8*)m_id, l);
-		} else {
-			l = 1;
-			archive << l;
-			archive.Store((uint8*)"", l);
-		}
-		archive.Store((uint8*)m_code, m_codeSize);
-		archive.Store((uint8*)m_trigger_symbols_indices, m_num_trigger_symbols * sizeof(sint32));
-		archive.Store((uint8*)m_lastShown, k_MAX_PLAYERS * sizeof(sint32));
-		if(m_uiComponent) {
-			l = strlen(m_uiComponent) + 1;
-			archive << l;
-			archive.Store((uint8*)m_uiComponent, l);
-		} else {
-			l = 0;
-			archive << l;
-		}
-		archive << m_num_parameters;
-		sint32 i;
-		for(i = 0; i < m_num_parameters; i++) {
-			archive.PutSINT32(((SlicParameterSymbol *)m_parameter_symbols[i])->GetIndex());
-		}
-		if(!m_filename) {
-			archive.PutSINT32(0);
-		} else {
-			archive.PutSINT32(strlen(m_filename));
-			archive.Store((uint8*)m_filename, strlen(m_filename));
-		}
-	} else {
-		archive.LoadChunk((uint8 *)&m_type, ((uint8 *)&m_fromFile)+sizeof(m_fromFile));
-
-		archive >> l;
-		m_id = (char *)malloc(l);
-		if (m_id) archive.Load((uint8*)m_id, l);
-		m_code = (uint8*)malloc(m_codeSize);
-		if (m_code) archive.Load((uint8*)m_code, m_codeSize);
-
-		if (m_num_trigger_symbols < 1) {
-			m_trigger_symbols_indices = nullptr;
-			m_trigger_symbols = nullptr;
-		} else {
-			m_trigger_symbols_indices = new sint32[m_num_trigger_symbols];
-			archive.Load((uint8*)m_trigger_symbols_indices, m_num_trigger_symbols * sizeof(sint32));
-		}
-
-		archive.Load((uint8*)m_lastShown, k_MAX_PLAYERS * sizeof(sint32));
-
-		archive >> l;
-		if(l > 0) {
-			m_uiComponent = (char *)malloc(l);
-			if (m_uiComponent) archive.Load((uint8*)m_uiComponent, l);
-		} else {
-			m_uiComponent = nullptr;
-		}
-
-		archive >> m_num_parameters;
-		m_parameter_indices = (m_num_parameters > 0) ? new sint32[m_num_parameters] : nullptr;
-		sint32 i;
-		for(i = 0; i < m_num_parameters; i++) {
-			m_parameter_indices[i] = archive.GetSINT32();
-		}
-		l = archive.GetSINT32();
-		if(l > 0) {
-			m_filename = (char *)malloc(l + 1);
-			if (m_filename) {
-				archive.Load((uint8*)m_filename, l);
-				m_filename[l] = 0;
-			}
-		} else {
-			m_filename = nullptr;
-		}
-
-		if(m_type == SLIC_OBJECT_HANDLEEVENT) {
-			gevmanager_Get()->AddCallback(m_event, m_priority, this);
-		}
-		m_parameter_symbols = nullptr;
-	}
 }
 
 void SlicSegment::AddSpecialVariable(SPECIAL_VAR which)

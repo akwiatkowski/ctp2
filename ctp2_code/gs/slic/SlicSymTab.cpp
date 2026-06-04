@@ -15,12 +15,6 @@ SlicSymTab::SlicSymTab(sint32 size) :
 	}
 }
 
-SlicSymTab::SlicSymTab(CivArchive &archive) :
-	StringHash<SlicNamedSymbol>(k_SLIC_SYM_TAB_HASH_SIZE)
-{
-	Serialize(archive);
-}
-
 SlicSymTab::~SlicSymTab()
 {
 	
@@ -34,39 +28,6 @@ SlicSymTab::~SlicSymTab()
 #endif
 		delete [] m_array;
 	
-}
-
-void SlicSymTab::Serialize(CivArchive &archive)
-{
-	uint8 isPresent;
-	if(archive.IsStoring()) {
-		archive << m_arraySize;
-		archive << m_numEntries;
-		for(sint32 i = 0; i < m_numEntries; i++) {
-			isPresent = (m_array[i] != nullptr);
-			archive << isPresent;
-			if(isPresent) {
-				((SlicSymbolData *)m_array[i])->SlicSymbolData::Serialize(archive);
-			}
-		}
-	} else {
-		archive >> m_arraySize;
-		archive >> m_numEntries;
-		m_array = new SlicNamedSymbol *[m_arraySize];
-		for(sint32 i = 0; i < m_numEntries; i++) {
-			archive >> isPresent;
-			if(isPresent) {
-				m_array[i] = (SlicNamedSymbol *)slicsymbol_Load(archive, nullptr);
-				StringHash<SlicNamedSymbol>::Add(m_array[i]);
-
-				if(m_array[i]->IsBuiltin()) {
-					slicengine_Get()->AddBuiltinSymbol((SlicBuiltinNamedSymbol *)m_array[i]);
-				}
-			} else {
-				m_array[i] = nullptr;
-			}
-		}
-	}
 }
 
 void SlicSymTab::PostSerialize()

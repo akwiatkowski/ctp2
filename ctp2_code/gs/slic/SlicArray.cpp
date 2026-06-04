@@ -68,11 +68,6 @@ SlicArray::SlicArray(SlicStructDescription *aStruct)
 	m_structTemplate = aStruct;
 }
 
-SlicArray::SlicArray(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 SlicArray::~SlicArray()
 {
 	if (SS_TYPE_SYM == m_type)
@@ -108,65 +103,6 @@ void SlicArray::SetType(SS_TYPE type, SLIC_SYM varType)
 	Assert(m_arraySize == 0 || m_sizeIsFixed);
 	m_type = type;
 	m_varType = varType;
-}
-
-void SlicArray::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	uint8 haveSym;
-
-	if(archive.IsStoring()) {
-		archive.PutSINT32(m_type);
-		archive.PutSINT32(m_varType);
-		archive << m_allocatedSize;
-		archive << m_arraySize;
-		archive.PutUINT8((uint8)m_sizeIsFixed);
-
-		if(m_varType == SLIC_SYM_STRUCT) {
-			archive.PutUINT8(static_cast<uint8>(m_structTemplate->GetType()));
-		}
-
-		if(m_type == SS_TYPE_INT) {
-			archive.Store((uint8*)m_array, m_arraySize * sizeof(SlicStackValue));
-		} else {
-			Assert(m_type == SS_TYPE_SYM);
-			for(i = 0; i < m_arraySize; i++) {
-				haveSym = m_array[i].m_sym != nullptr;
-				archive << haveSym;
-				if(haveSym) {
-					((SlicSymbolData *)m_array[i].m_sym)->SlicSymbolData::Serialize(archive);
-				}
-			}
-		}
-	} else {
-		m_type = (SS_TYPE)archive.GetSINT32();
-		m_varType = (SLIC_SYM)archive.GetSINT32();
-		archive >> m_allocatedSize;
-		archive >> m_arraySize;
-		m_sizeIsFixed = (bool)(archive.GetUINT8() != 0);
-
-		if(m_varType == SLIC_SYM_STRUCT) {
-			SLIC_BUILTIN structType = (SLIC_BUILTIN)archive.GetUINT8();
-			m_structTemplate = slicengine_Get()->GetStructDescription(structType);
-		} else {
-			m_structTemplate = nullptr;
-		}
-
-		m_array = new SlicStackValue[m_allocatedSize];
-		memset(m_array, 0, m_allocatedSize * sizeof(SlicStackValue));
-
-		if(m_type == SS_TYPE_INT) {
-			archive.Load((uint8 *)m_array, m_arraySize * sizeof(SlicStackValue));
-		} else {
-			Assert(m_type == SS_TYPE_SYM);
-			for(i = 0; i < m_arraySize; i++) {
-				archive >> haveSym;
-				if(haveSym) {
-					m_array[i].m_sym = slicsymbol_Load(archive, nullptr);
-				}
-			}
-		}
-	}
 }
 
 BOOL SlicArray::Lookup(sint32 index, SS_TYPE &type, SlicStackValue &value)

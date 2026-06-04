@@ -215,33 +215,6 @@ SlicObject::SlicObject(char const * id, SlicContext *copy)
 	}
 }
 
-SlicObject::SlicObject(CivArchive &archive)
-:
-    SlicContext             (),
-    m_refCount              (0),
-    m_id                    (),
-	m_segment               (nullptr),
-	m_frame                 (nullptr),
-	m_seconds               (1),
-	m_recipientList         (nullptr),
-	m_numRecipients         (0),
-	m_request               (new ID),
-	m_defaultAdvanceSet     (FALSE),
-	m_defaultAdvance        (INDEX_INVALID),
-	m_aborted               (FALSE),
-	m_instantMessage        (FALSE),
-	m_index                 (INDEX_INVALID),
-	m_class                 (k_NON_TUTORIAL_MESSAGE_CLASS),
-	m_dontSave              (FALSE),
-    m_closeDisabled         (FALSE),
-	m_isDiplomaticResponse  (FALSE),
-	m_useDirector           (FALSE),
-	m_result                (0),
-	m_argList               (nullptr)
-{
-	Serialize(archive);
-}
-
 SlicObject::~SlicObject()
 {
 	delete [] m_recipientList;
@@ -531,86 +504,6 @@ void SlicObject::SetMessageDuration(sint32 duration)
 
 
 
-
-void SlicObject::Serialize(CivArchive &archive)
-{
-	uint32	l;
-
-#define SLICLIST_MAGIC 0x25831462
-	if (archive.IsStoring()) {
-		archive.PerformMagic(SLICLIST_MAGIC) ;
-
-		l = m_id.size() + 1;
-		archive << l;
-		archive.Store(const_cast<uint8 *>(reinterpret_cast<uint8 const *>(m_id.c_str())), l);
-
-		archive<<m_seconds ;
-		archive<<m_numRecipients ;
-
-		archive.Store((uint8*)m_recipientList, m_numRecipients * sizeof(sint32)) ;
-
-		if(m_segment) {
-
-			l = strlen(m_segment->GetName()) + 1 ;
-		} else {
-			l = 0;
-		}
-		archive << l ;
-		if(l > 0) {
-			archive.Store((uint8 *)m_segment->GetName(), l) ;
-		}
-
-		archive << m_defaultAdvanceSet;
-		archive << m_defaultAdvance;
-		archive << m_aborted;
-		archive << m_instantMessage;
-		archive << m_class;
-		archive << m_dontSave;
-		archive << m_closeDisabled;
-		archive << m_isDiplomaticResponse;
-		archive << m_useDirector;
-
-	} else {
-		archive.TestMagic(SLICLIST_MAGIC) ;
-
-		archive>>l ;
-
-		m_refCount = 0;
-
-		std::vector<char> buf(l);
-		archive.Load((uint8 *)buf.data(), l);
-		m_id.assign(buf.data());
-
-		archive>>m_seconds ;
-		archive>>m_numRecipients ;
-
-		delete [] m_recipientList ;
-		m_recipientList = new sint32[m_numRecipients] ;
-		archive.Load((uint8 *)m_recipientList, m_numRecipients * sizeof(sint32)) ;
-
-		archive>>l ;
-		if(l > 0) {
-			MBCHAR	*tmpID =  new MBCHAR[l] ;
-			archive.Load((uint8 *)tmpID, l) ;
-			m_segment = slicengine_Get()->GetSegment(tmpID) ;
-			delete [] tmpID;
-			m_frame = new SlicFrame(m_segment);
-		} else {
-			m_segment = nullptr;
-		}
-		archive >> m_defaultAdvanceSet;
-		archive >> m_defaultAdvance;
-		archive >> m_aborted;
-		archive >> m_instantMessage;
-		archive >> m_class;
-		archive >> m_dontSave;
-		archive >> m_closeDisabled;
-		archive >> m_isDiplomaticResponse;
-		archive >> m_useDirector;
-	}
-	SlicContext::Serialize(archive);
-	m_request->Serialize(archive);
-}
 
 void SlicObject::AddButton(SlicButton *button)
 {

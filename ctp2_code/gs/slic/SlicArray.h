@@ -25,9 +25,7 @@ private:
 public:
 	SlicArray(SS_TYPE type, SLIC_SYM varType);
 	SlicArray(SlicStructDescription *structTemplate);
-	SlicArray(CivArchive &archive);
 	~SlicArray();
-	void Serialize(CivArchive &archive);
 
 	void FixSize(sint32 size);
 

@@ -85,7 +85,6 @@ public:
 	SlicContext();
 	SlicContext(SlicContext *copy);
 	virtual ~SlicContext();
-	void Serialize(CivArchive &archive);
 
 #ifdef _DEBUG
 	void Dump();

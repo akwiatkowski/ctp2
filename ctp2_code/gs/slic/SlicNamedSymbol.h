@@ -36,7 +36,6 @@ public:
 
 	void Init(const char *name);
 
-	void Serialize(CivArchive &archive);
 	void PostSerialize();
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_NAMED; }
 
@@ -59,7 +58,6 @@ public:
 	SlicParameterSymbol(const char *name, sint32 index);
 	SlicParameterSymbol() = default;
 
-	void Serialize(CivArchive &archive);
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_PARAMETER; }
 
 	BOOL GetIntValue(sint32 &value) const override;
@@ -89,7 +87,6 @@ public:
 	{}
 	SlicBuiltinNamedSymbol() = default;
 
-	void Serialize(CivArchive &archive);
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_BUILTIN; }
 
 	bool IsBuiltin() const override { return true; }

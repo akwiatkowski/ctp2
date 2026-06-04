@@ -15,14 +15,11 @@ public:
 		strcpy(m_name, name);
 		m_value = value;
 	}
-	SlicConst(CivArchive &archive) { Serialize(archive); }
 
 	~SlicConst() {
 		
 			delete [] m_name;
 	}
-
-	void Serialize(CivArchive &archive);
 
 	const MBCHAR *GetName() { return m_name; }
 	const sint32 GetValue() { return m_value; }

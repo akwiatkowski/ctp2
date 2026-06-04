@@ -20,9 +20,7 @@ private:
 
 public:
 	SlicSymTab(sint32 size);
-	SlicSymTab(CivArchive &archive);
 	~SlicSymTab() override;
-	void Serialize(CivArchive &archive);
 	void PostSerialize();
 
 	void Add(SlicNamedSymbol *sym) override;

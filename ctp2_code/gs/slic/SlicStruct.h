@@ -146,7 +146,6 @@ public:
 
 	~SlicStructMemberData() override = default;
 
-	void Serialize(CivArchive &archive) {}
 	void SerializeMemberReference(CivArchive &archive);
 	SLIC_SYM_SERIAL_TYPE GetSerializeType() override { return SLIC_SYM_SERIAL_MEMBER; }
 	SLIC_SYM GetType() const override { return SLIC_SYM_STRUCT_MEMBER; }
@@ -162,9 +161,7 @@ public:
 class SlicStructInstance {
 public:
 	SlicStructInstance(SlicStructDescription *desc, SlicSymbolData *dataSym = nullptr);
-	SlicStructInstance(CivArchive &archive);
 	~SlicStructInstance();
-	void Serialize(CivArchive &archive);
 
 
 	SlicSymbolData *GetMemberSymbol(sint32 memberIndex);

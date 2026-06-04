@@ -92,64 +92,6 @@ SlicEyePoint::~SlicEyePoint()
 		delete m_message;
 }
 
-SlicEyePoint::SlicEyePoint(CivArchive &archive)
-{
-	m_message = new Message();
-	Serialize(archive);
-}
-
-void SlicEyePoint::Serialize(CivArchive &archive)
-{
-	m_point.Serialize(archive);
-	m_message->Serialize(archive);
-	m_unit.Serialize(archive);
-	sint32 l;
-	if(archive.IsStoring()) {
-		l = m_name.size() + 1;
-		archive << l;
-		if (l > 1) {
-			archive.Store((uint8*)m_name.c_str(), l);
-		}
-
-		if(m_segment) {
-			l = strlen(m_segment->GetName()) + 1;
-			archive << l;
-			archive.Store((uint8*)m_segment->GetName(), l);
-		} else {
-			l = 0;
-			archive << l;
-		}
-		archive << m_recipient;
-
-		archive << m_data;
-		sint32 t = (sint32)m_type;
-		archive << t;
-	} else {
-		archive >> l;
-		if(l > 0) {
-			std::vector<char> buf(l);
-			archive.Load((uint8*)buf.data(), l);
-			m_name.assign(buf.data());
-		} else {
-			m_name.clear();
-		}
-		archive >> l;
-		if(l > 0 && l < 1024) {
-			char segname[1024];
-			archive.Load((uint8*)segname, l);
-			m_segment = slicengine_Get()->GetSegment(segname);
-		} else {
-			m_segment = nullptr;
-		}
-
-		archive >> m_recipient;
-		archive >> m_data;
-		sint32 t;
-		archive >> t;
-		m_type =(EYE_POINT_TYPE)t;
-	}
-}
-
 void SlicEyePoint::SetMessage(const Message &message)
 {
 #ifdef _BAD_EYE

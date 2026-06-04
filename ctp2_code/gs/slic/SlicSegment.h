@@ -95,9 +95,7 @@ private:
 public:
 	SlicSegment();
 	SlicSegment(sint32 slicifIndex);
-	SlicSegment(CivArchive &archive);
 	~SlicSegment();
-	void Serialize(CivArchive &archive);
 
 	void *operator new(size_t size);
 	void operator delete(void *ptr);

@@ -366,11 +366,6 @@ SlicStructInstance::SlicStructInstance(SlicStructDescription *description, SlicS
 	}
 }
 
-SlicStructInstance::SlicStructInstance(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 //----------------------------------------------------------------------------
 //
 // Name       : ~SlicStructInstance
@@ -398,75 +393,6 @@ SlicStructInstance::~SlicStructInstance()
 		delete m_members[i];
 	}
 	delete [] m_members;
-}
-
-void SlicStructInstance::Serialize(CivArchive &archive)
-{
-	sint32 i;
-	uint8 haveData;
-	if(archive.IsStoring()) {
-		archive.PutUINT8(static_cast<uint8>(m_description->GetType()));
-		// Store the members. Don't store the accessors.
-		for(i = 0; i < m_description->GetNumMembers(); i++) {
-			haveData = m_members[i] != nullptr;
-			archive << haveData;
-			if(haveData) {
-				m_members[i]->SlicSymbolData::Serialize(archive);
-			}
-		}
-		haveData = m_dataSymbol != nullptr;
-		archive << haveData;
-		if(haveData) {
-			archive.PutUINT8((uint8)m_createdData);
-			if(m_createdData) {
-				m_dataSymbol->SlicSymbolData::Serialize(archive);
-			} else {
-
-				SlicNamedSymbol *sym = (SlicNamedSymbol *)m_dataSymbol;
-				archive.PutSINT32(sym->GetIndex());
-			}
-		}
-		archive << m_dataSymbolIndex;
-	} else {
-		m_description = slicengine_Get()->GetStructDescription((SLIC_BUILTIN)archive.GetUINT8());
-		m_validIndexCount	=
-			m_description->GetNumMembers() + m_description->GetNumAccessors();
-		m_members			= new SlicStructMemberData *[m_validIndexCount];
-		std::fill(m_members, m_members + m_validIndexCount, (SlicStructMemberData *) nullptr);
-		for(i = 0; i < m_description->GetNumMembers(); i++) {
-			archive >> haveData;
-			if(haveData) {
-				CreateMember(i);
-				(SlicStructMemberData *)slicsymbol_Load(archive, m_members[i]);
-				m_members[i]->SetParent(this);
-			}
-		}
-		archive >> haveData;
-		if(haveData) {
-			m_createdData = archive.GetUINT8() != 0;
-			if(m_createdData) {
-				m_dataSymbol = slicsymbol_Load(archive, nullptr);
-			} else {
-				m_dataSymbolIndex = archive.GetSINT32();
-				m_dataSymbol = nullptr;
-			}
-		} else {
-			m_dataSymbol = nullptr;
-		}
-
-		if(save_file_version_Get() >= 64) {
-			archive >> m_dataSymbolIndex;
-		} else {
-			m_dataSymbolIndex = INDEX_INVALID;
-		}
-
-		if (!m_dataSymbol && (m_dataSymbolIndex < 0))
-        {
-			m_dataSymbol    = m_description->CreateDataSymbol();
-            m_createdData   = true;
-		}
-
-	}
 }
 
 //----------------------------------------------------------------------------

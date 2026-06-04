@@ -113,10 +113,8 @@ class SlicEngine
 {
 public:
 	SlicEngine();
-	SlicEngine(CivArchive &archive);
 	virtual ~SlicEngine();
 
-	void Serialize(CivArchive &archive);
 	void PostSerialize();
 
 	SlicSegment *GetSegment(const char *id);

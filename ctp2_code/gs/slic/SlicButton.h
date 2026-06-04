@@ -35,10 +35,8 @@ public:
 	SlicButton(StringId name, SlicSegment *segment,
 			   sint32 codeOffset, SlicObject *context);
 	SlicButton(sint32 codeOffset);
-	SlicButton(CivArchive &archive);
 	SlicButton(SlicButton*);
 	~SlicButton();
-	void Serialize(CivArchive &archive);
 
 	const MBCHAR *GetName() const;
 	SlicSegment *GetSegment() const { return m_segment; }

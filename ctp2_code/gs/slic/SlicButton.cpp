@@ -92,12 +92,6 @@ SlicButton::SlicButton(SlicButton *copy)
 	}
 }
 
-SlicButton::SlicButton(CivArchive &archive)
-{
-	m_message = new Message();
-	Serialize(archive);
-}
-
 SlicButton::~SlicButton()
 {
 #ifdef _BAD_BUTTON
@@ -111,40 +105,6 @@ SlicButton::~SlicButton()
 
 	
 		delete m_message;
-}
-
-void SlicButton::Serialize(CivArchive &archive)
-{
-	sint32 l;
-
-	if(archive.IsStoring()) {
-		archive << m_name;
-		archive << m_codeOffset;
-		archive << m_isCloseEvent;
-
-		if(m_segment) {
-			l = strlen(m_segment->GetName()) + 1;
-			archive << l;
-			archive.Store((uint8*)m_segment->GetName(), l);
-		} else {
-			l = strlen(m_segmentName) + 1;
-			archive << l;
-			archive.Store((uint8*)m_segmentName, l);
-		}
-		m_context->Serialize(archive);
-	} else {
-		archive >> m_name;
-		archive >> m_codeOffset;
-		archive >> m_isCloseEvent;
-
-		archive >> l;
-		m_segment = nullptr;
-		m_segmentName = new char[l];
-		archive.Load((uint8*)m_segmentName, l);
-		m_context = new SlicObject(archive);
-		m_context->AddRef();
-	}
-	m_message->Serialize(archive);
 }
 
 void SlicButton::Callback()

@@ -37,9 +37,7 @@ public:
 				 SlicSegment *segment);
 
 	SlicEyePoint(SlicEyePoint *copy);
-	SlicEyePoint(CivArchive &archive);
 	~SlicEyePoint();
-	void Serialize(CivArchive &archive);
 
 	void GetPoint(MapPoint &point) { point = m_point; }
 	const char *GetName() { return m_name.empty() ? nullptr : m_name.c_str(); }

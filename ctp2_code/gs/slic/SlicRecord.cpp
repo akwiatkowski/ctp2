@@ -18,56 +18,8 @@ SlicRecord::SlicRecord(sint32 owner, MBCHAR *title, MBCHAR *text,
 	m_segment = segment;
 }
 
-SlicRecord::SlicRecord(CivArchive &archive)
-{
-	Serialize(archive);
-}
-
 SlicRecord::~SlicRecord()
 = default;
-
-void SlicRecord::Serialize(CivArchive &archive)
-{
-	sint32 l;
-	if(archive.IsStoring()) {
-		archive << m_owner;
-		l = static_cast<sint32>(m_title.size()) + 1;
-		archive << l;
-		archive.Store((uint8*)m_title.c_str(), l * sizeof(MBCHAR));
-
-		l = static_cast<sint32>(m_text.size()) + 1;
-		archive << l;
-		archive.Store((uint8*)m_text.c_str(), l * sizeof(MBCHAR));
-
-		l = strlen(m_segment->GetName()) + 1;
-		archive << l;
-		archive.Store((uint8*)m_segment->GetName(), l);
-	} else {
-		archive >> m_owner;
-		archive >> l;
-		if(l < 0) {
-			m_title = "";
-		} else {
-			std::vector<MBCHAR> buf(l);
-			archive.Load((uint8*)buf.data(), l * sizeof(MBCHAR));
-			m_title.assign(buf.data());
-		}
-
-		archive >> l;
-		if(l < 0) {
-			m_text = "";
-		} else {
-			std::vector<MBCHAR> buf(l);
-			archive.Load((uint8*)buf.data(), l * sizeof(MBCHAR));
-			m_text.assign(buf.data());
-		}
-
-		archive >> l;
-		char segmentName[k_MAX_SLIC_STRING];
-		archive.Load((uint8*)segmentName, l);
-		m_segment = slicengine_Get()->GetSegment(segmentName);
-	}
-}
 
 void SlicRecord::Reconstitute()
 {

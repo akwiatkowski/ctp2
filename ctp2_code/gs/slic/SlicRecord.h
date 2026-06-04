@@ -21,9 +21,7 @@ private:
 public:
 	SlicRecord(sint32 owner, MBCHAR *title, MBCHAR *text,
 			   SlicSegment *segment);
-	SlicRecord(CivArchive &archive);
 	~SlicRecord();
-	void Serialize(CivArchive &archive);
 
 	const MBCHAR *GetTitle() { return m_title.c_str(); }
 

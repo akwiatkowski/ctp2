@@ -72,26 +72,6 @@ SlicNamedSymbol::~SlicNamedSymbol()
 	delete [] m_name;
 }
 
-void SlicNamedSymbol::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-    {
-		archive.StoreChunk((uint8*)&m_index, (uint8*)&m_fromFile + sizeof(m_fromFile));
-        size_t  len = strlen(m_name);
-		archive << static_cast<uint16>(len);
-		archive.Store((uint8*)m_name, len);
-	}
-    else
-    {
-		archive.LoadChunk((uint8*)&m_index, (uint8*)&m_fromFile + sizeof(m_fromFile));
-        uint16 len;
-        archive >> len;
-		m_name = new char[len + 1];
-		archive.Load((uint8*)m_name, len);
-		m_name[len] = 0;
-	}
-}
-
 void SlicNamedSymbol::Init(const char *name)
 {
     if (name)
@@ -116,17 +96,6 @@ SlicParameterSymbol::SlicParameterSymbol(const char *name, sint32 index) :
 	SlicNamedSymbol(name)
 {
 	m_parameterIndex = index;
-}
-
-void SlicParameterSymbol::Serialize(CivArchive &archive)
-{
-	if(archive.IsStoring()) {
-		archive << m_parameterIndex;
-	} else {
-		archive >> m_parameterIndex;
-	}
-
-	SlicNamedSymbol::Serialize(archive);
 }
 
 BOOL SlicParameterSymbol::GetIntValue(sint32 &value) const
@@ -207,20 +176,4 @@ BOOL SlicParameterSymbol::GetCity(Unit &c) const
 	return argList->GetCity(m_parameterIndex, c);
 }
 
-void SlicBuiltinNamedSymbol::Serialize(CivArchive &archive)
-{
-	if (archive.IsStoring())
-    {
-		archive.PutUINT8(static_cast<uint8>(m_builtin));
-	}
-    else
-    {
-		m_builtin = static_cast<enum SLIC_BUILTIN>(archive.GetUINT8());
-	}
 
-	SlicNamedSymbol::Serialize(archive);
-
-	if(!archive.IsStoring()) {
-		slicengine_Get()->AddBuiltinSymbol(this);
-	}
-}

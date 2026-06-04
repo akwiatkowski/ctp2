@@ -20,19 +20,4 @@ void slicconst_Initialize()
 	DiplomatTypes::InitializeSlicConsts();
 }
 
-void SlicConst::Serialize(CivArchive &archive)
-{
-	uint16 len;
 
-	if(archive.IsStoring()) {
-		len = static_cast<uint16>(strlen(m_name) + 1);
-		archive << len;
-		archive.Store((uint8*)m_name, len);
-		archive << m_value;
-	} else {
-		archive >> len;
-		m_name = new char[len];
-		archive.Load((uint8*)m_name, len);
-		archive >> m_value;
-	}
-}

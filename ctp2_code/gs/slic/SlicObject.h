@@ -93,9 +93,7 @@ public:
 	SlicObject(SlicSegment *segment);
 	SlicObject(SlicSegment *segment, SlicObject *copy);
 	SlicObject(char const * id, SlicContext *copy);
-	SlicObject(CivArchive &archive) ;
 	~SlicObject() override;
-	void Serialize(CivArchive &archive) ;
 
 	sint32 GetIndex() const { return m_index; }
 	void SetIndex(sint32 index) { m_index = index; }
